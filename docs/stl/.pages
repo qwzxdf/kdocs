@@ -1,0 +1,10 @@
+nav:
+  - index.md
+  - コンテナ: containers
+  - アルゴリズム: algorithms
+  - ユーティリティ: utilities
+  - 入出力・文字列: io
+  - 数値: numeric
+  - 並行処理: concurrency
+  - 型・言語サポート: support
+  - ...

@@ -1,0 +1,91 @@
+# 自動リンクの用語リスト
+#
+# 書き方:  リンク先のページ（docs フォルダからのパス）: [用語, 用語, ...]
+#
+# - ページ本文にここの用語が出てくると、そのページで最初の 1 回だけ自動でリンクになります。
+# - 「std::vector」「<cmath>」のような C++ の名前は、各ページの title から自動で登録されます。
+#   ここには日本語の用語や、別名（std:: を付けない vector など）を書きます。
+# - 長い用語が優先されます（「const 参照」は「参照」より先に探されます）。
+# - 英数字の用語は、単語の途中には反応しません（vector は vectors や myvector にはリンクしない）。
+# - stl/ のページへの小文字だけの短い名前（set、list、map など）は、`set` のようなコード表記のときだけリンクします
+#   （普通の英単語として出てきたときに誤ってリンクしないため）。
+
+# ---- 基礎 ----
+basics/reference.md: [参照, const 参照]
+basics/pointer.md: [ポインタ, nullptr]
+basics/virtual.md: [仮想関数, 継承, override]
+basics/template.md: [テンプレート, コンセプト, concepts]
+basics/range-for.md: [範囲 for]
+basics/lambda.md: [ラムダ式, ラムダ, キャプチャ]
+basics/iterator.md: [イテレータ, 無効化]
+basics/move.md: [ムーブ, 右辺値]
+basics/ownership.md: [所有権, 持ち主, RAII]
+basics/file-io.md: [ファイル入出力]
+basics/ranges.md: [ranges, ビュー, プロジェクション, 遅延評価]
+basics/big-o.md: [計算量, 償却 O(1), O 記法]
+basics/ub.md: [未定義動作, AddressSanitizer]
+basics/cache.md: [キャッシュ効率, キャッシュミス, キャッシュ]
+basics/concurrency.md: [並行処理, マルチスレッド, データ競争, デッドロック]
+
+# ---- STL の別名 ----
+stl/containers/vector.md: [vector]
+stl/containers/array.md: [array]
+stl/containers/string.md: [string]
+stl/containers/unordered_map.md: [unordered_map, ハッシュ表]
+stl/containers/map.md: [map]
+stl/containers/unordered_set.md: [unordered_set]
+stl/containers/set.md: [set]
+stl/containers/span.md: [span]
+stl/containers/deque.md: [deque]
+stl/containers/priority_queue.md: [priority_queue]
+stl/containers/flat_map.md: [flat_map]
+stl/containers/bitset.md: [bitset]
+stl/containers/list.md: [list]
+stl/utilities/unique_ptr.md: [unique_ptr, スマートポインタ]
+stl/utilities/shared_ptr.md: [shared_ptr, weak_ptr]
+stl/utilities/optional.md: [optional]
+stl/utilities/expected.md: [expected]
+stl/utilities/variant.md: [variant]
+stl/utilities/function.md: [function]
+stl/utilities/string_view.md: [string_view]
+stl/utilities/format.md: [std::println, std::print, println]
+stl/utilities/random.md: [乱数, mt19937]
+stl/utilities/chrono.md: [chrono, steady_clock]
+stl/algorithms/erase_if.md: [erase_if]
+stl/algorithms/views.md: [std::views]
+stl/io/filesystem.md: [filesystem]
+stl/concurrency/thread.md: [jthread, スレッド]
+stl/concurrency/mutex.md: [mutex, lock_guard]
+stl/concurrency/atomic.md: [atomic]
+
+# ---- ゲームエンジン ----
+engine/game-loop.md: [ゲームループ, デルタタイム, 固定タイムステップ]
+engine/scene.md: [シーン管理, シーンマネージャ]
+engine/component.md: [コンポーネント指向, コンポーネント]
+engine/ecs.md: [ECS, エンティティ]
+engine/handle.md: [ハンドル, 世代 ID]
+engine/serialization/index.md: [シリアライズ, デシリアライズ]
+engine/serialization/nlohmann-json.md: [nlohmann/json, nlohmann]
+engine/serialization/simdjson.md: [simdjson]
+engine/serialization/rapidyaml.md: [rapidyaml, ryml]
+engine/serialization/cereal.md: [cereal]
+engine/serialization/zpp-bits.md: [zpp_bits]
+engine/serialization/struct-pack.md: [yalantinglibs, struct_pack]
+engine/serialization/cista.md: [cista]
+engine/resource.md: [リソース管理, リソースマネージャ]
+engine/event.md: [イベントシステム, オブザーバー]
+engine/state-machine.md: [ステートマシン]
+engine/object-pool.md: [オブジェクトプール]
+
+# ---- 設計 ----
+design/principles.md: [単一責任, 疎結合, YAGNI, DRY]
+design/class-design.md: [カプセル化, 不変条件, Rule of Zero]
+design/header-source.md: [前方宣言, PImpl, インクルードガード]
+design/naming.md: [コーディング規約, Google C++ Style Guide, Google Style]
+design/error-handling.md: [エラー処理]
+design/singleton.md: [シングルトン, サービスロケータ]
+design/dependency-injection.md: [依存性の注入]
+design/command.md: [コマンドパターン, アンドゥ]
+design/strategy.md: [ストラテジー]
+design/factory.md: [ファクトリ, データ駆動]
+design/data-oriented.md: [データ指向設計, データ指向]

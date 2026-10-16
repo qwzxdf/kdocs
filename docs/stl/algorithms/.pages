@@ -1,0 +1,27 @@
+nav:
+  - sort.md
+  - erase_if.md
+  - find.md
+  - any_of.md
+  - count_if.md
+  - min_max.md
+  - clamp.md
+  - min_element.md
+  - views.md
+  - ranges_to.md
+  - accumulate.md
+  - shuffle.md
+  - reverse.md
+  - binary_search.md
+  - unique.md
+  - copy_fill.md
+  - stable_sort.md
+  - partial_sort.md
+  - for_each.md
+  - replace.md
+  - partition.md
+  - equal.md
+  - search.md
+  - set_operations.md
+  - heap.md
+  - ...
