@@ -29,37 +29,7 @@ tags:
 
 ## ハッシュとは
 
-<div class="anim" data-type="graph" data-label="ハッシュで、入れる箱を決める">
-n c0 "enemy" 0 0 hit
----
-n c0 "enemy" 0 0
-n c1 ハッシュ関数 1 0 hit
-l c0 c1 hit
----
-n c0 "enemy" 0 0
-n c1 ハッシュ関数 1 0
-n c2 大きな整数_0x5A3C9E71… 2 0 hit
-l c0 c1
-l c1 c2 hit
----
-n c0 "enemy" 0 0
-n c1 ハッシュ関数 1 0
-n c2 大きな整数_0x5A3C9E71… 2 0
-n c3 バケット数で割る_（たとえば_8） 3 0 hit
-l c0 c1
-l c1 c2
-l c2 c3 hit 余りを取る
----
-n c0 "enemy" 0 0
-n c1 ハッシュ関数 1 0
-n c2 大きな整数_0x5A3C9E71… 2 0
-n c3 バケット数で割る_（たとえば_8） 3 0
-n c4 箱_[5]_に入れる_/_から探す 4 0 hit
-l c0 c1
-l c1 c2
-l c2 c3 - 余りを取る
-l c3 c4 hit
-</div>
+<svg class="fig flow" viewBox="0 0 1156 112" role="img" aria-label="ハッシュで、入れる箱を決める"><defs><marker id="fl43647" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ハッシュで、入れる箱を決める</text><line x1="111.0" y1="64.0" x2="169.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43647)"/><line x1="285.0" y1="64.0" x2="343.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43647)"/><line x1="544.0" y1="64.0" x2="602.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43647)"/><text x="573.0" y="58.0" text-anchor="middle" style="font-size:12px">余りを取る</text><line x1="853.0" y1="64.0" x2="911.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43647)"/><rect x="28.0" y="44.0" width="80" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="68.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">"enemy"</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="172.0" y="44.0" width="110" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="227.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ハッシュ関数</text><circle cx="174.0" cy="46.0" r="10" fill="#2ea043"/><text x="174.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="346.0" y="44.0" width="195" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="443.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">大きな整数 0x5A3C9E71…</text><circle cx="348.0" cy="46.0" r="10" fill="#e5a828"/><text x="348.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="605.0" y="44.0" width="245" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="727.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">バケット数で割る （たとえば 8）</text><circle cx="607.0" cy="46.0" r="10" fill="#e5484d"/><text x="607.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="914.0" y="44.0" width="214" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="1021.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">箱 [5] に入れる / から探す</text><circle cx="916.0" cy="46.0" r="10" fill="#9664e6"/><text x="916.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
 
 | 性質 | 意味 |
 | --- | --- |

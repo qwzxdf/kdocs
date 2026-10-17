@@ -19,25 +19,7 @@ Jolt の**物理の世界**は、**`PhysicsSystem`** です。**物体（Body）
 
 ## 初期化の全体像
 
-<div class="anim" data-type="graph" data-label="Jolt の初期化：下準備を整えてから、物理の世界を作る">
-n a メモリ確保_の登録 0 0 hit
----
-n a メモリ確保_の登録 0 0
-n b Factory 1 0 new
-l a b hit
----
-n b Factory 1 0
-n c RegisterTypes 2 0 new
-l b c hit
----
-n c RegisterTypes 2 0
-n d TempAllocator_JobSystem 3 0 new
-l c d hit
----
-n d TempAllocator_JobSystem 3 0
-n e PhysicsSystem::Init 4 0 new
-l d e hit
-</div>
+<svg class="fig flow" viewBox="0 0 1039 112" role="img" aria-label="Jolt の初期化：下準備を整えてから、物理の世界を作る"><defs><marker id="fl35027" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">Jolt の初期化：下準備を整えてから、物理の世界を作る</text><line x1="177.0" y1="64.0" x2="235.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl35027)"/><line x1="321.0" y1="64.0" x2="379.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl35027)"/><line x1="511.0" y1="64.0" x2="569.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl35027)"/><line x1="778.0" y1="64.0" x2="836.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl35027)"/><rect x="28.0" y="44.0" width="146" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="101.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">メモリ確保 の登録</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="238.0" y="44.0" width="80" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="278.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Factory</text><circle cx="240.0" cy="46.0" r="10" fill="#2ea043"/><text x="240.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="382.0" y="44.0" width="126" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="445.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">RegisterTypes</text><circle cx="384.0" cy="46.0" r="10" fill="#e5a828"/><text x="384.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="572.0" y="44.0" width="203" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="673.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">TempAllocator JobSystem</text><circle cx="574.0" cy="46.0" r="10" fill="#e5484d"/><text x="574.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="839.0" y="44.0" width="172" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="925.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">PhysicsSystem::Init</text><circle cx="841.0" cy="46.0" r="10" fill="#9664e6"/><text x="841.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
 
 ```cpp
 #include <Jolt/Jolt.h>

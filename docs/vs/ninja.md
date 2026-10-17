@@ -19,19 +19,7 @@ tags:
 
 ## Ninja とは
 
-<div class="anim" data-type="graph" data-label="CMake が指示書を作り、Ninja が実行する">
-n c0 CMakeLists.txt_（人が書く設計図） 0 0 hit
----
-n c0 CMakeLists.txt_（人が書く設計図） 0 0
-n c1 build.ninja_（Ninja_用の指示書） 0 1 hit
-l c0 c1 hit cmake_が読んで作る
----
-n c0 CMakeLists.txt_（人が書く設計図） 0 0
-n c1 build.ninja_（Ninja_用の指示書） 0 1
-n c2 ゲームの.exe 0 2 hit
-l c0 c1 - cmake_が読んで作る
-l c1 c2 hit ninja_が必要なものだけを並列に実行
-</div>
+<svg class="fig flow" viewBox="0 0 360 280" role="img" aria-label="CMake が指示書を作り、Ninja が実行する"><defs><marker id="fl9196" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">CMake が指示書を作り、Ninja が実行する</text><line x1="162.0" y1="87.0" x2="162.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl9196)"/><text x="162.0" y="100.0" text-anchor="middle" style="font-size:12px">cmake が読んで作る</text><line x1="162.0" y1="171.0" x2="162.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl9196)"/><text x="162.0" y="184.0" text-anchor="middle" style="font-size:12px">ninja が必要なものだけを並列に実行</text><rect x="28.0" y="44.0" width="268" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="162.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">CMakeLists.txt （人が書く設計図）</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="30.5" y="128.0" width="263" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="162.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">build.ninja （Ninja 用の指示書）</text><circle cx="32.5" cy="130.0" r="10" fill="#2ea043"/><text x="32.5" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="105.5" y="212.0" width="113" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="162.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲームの.exe</text><circle cx="107.5" cy="214.0" r="10" fill="#e5a828"/><text x="107.5" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | 道具 | 特徴 |
 | --- | --- |

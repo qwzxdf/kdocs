@@ -20,17 +20,7 @@ tags:
 
 **カメラの位置・向きを、ワールド行列で表し、その逆行列がビュー行列**です。
 
-<div class="anim" data-type="graph" data-label="ビュー行列：世界を、カメラが原点にいる座標に直す">
-n w 世界の座標 0 0
-n cam カメラ_位置(0,2,5) 1 0 hit
-l cam w - 原点を見ている
----
-n w 世界の座標 0 0
-n v ビュー行列 1 0 hit
-n cs カメラが原点・前は-Z 2 0 new
-l w v
-l v cs - 直す
-</div>
+<svg class="fig flow" viewBox="0 0 605 112" role="img" aria-label="ビュー行列：世界を、カメラが原点にいる座標に直す"><defs><marker id="fl44185" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ビュー行列：世界を、カメラが原点にいる座標に直す</text><line x1="185.0" y1="64.0" x2="127.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl44185)"/><text x="156.0" y="58.0" text-anchor="middle" style="font-size:12px">原点を見ている</text><line x1="127.0" y1="64.0" x2="216.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl44185)"/><line x1="318.0" y1="64.0" x2="407.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl44185)"/><text x="362.5" y="58.0" text-anchor="middle" style="font-size:12px">直す</text><rect x="28.0" y="44.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="76.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">世界の座標</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="188.0" y="44.0" width="158" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="267.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">カメラ 位置(0,2,5)</text><circle cx="190.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="190.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="219.0" y="44.0" width="96" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="267.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ビュー行列</text><circle cx="221.0" cy="46.0" r="10" fill="#2ea043"/><text x="221.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="410.0" y="44.0" width="167" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="493.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">カメラが原点・前は-Z</text><circle cx="412.0" cy="46.0" r="10" fill="#2ea043"/><text x="412.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text></svg>
 
 ### LookAt で作る
 
@@ -56,27 +46,7 @@ Matrix view = Matrix::CreateLookAt(position, position + forward, Vector3::Up);
 
 カメラの 3 本の軸（右・上・前）を作り、行列にします。
 
-<div class="anim" data-type="graph" data-label="ビュー行列を作る手順">
-n c0 ①_forward(前) 0 0 hit
----
-n c0 ①_forward(前) 0 0
-n c1 ②_right(右) 1 0 hit
-l c0 c1 hit ×up
----
-n c0 ①_forward(前) 0 0
-n c1 ②_right(右) 1 0
-n c2 ③_up(本当の上) 2 0 hit
-l c0 c1 - ×up
-l c1 c2 hit right×forward
----
-n c0 ①_forward(前) 0 0
-n c1 ②_right(右) 1 0
-n c2 ③_up(本当の上) 2 0
-n c3 ④_世界→カメラ行列 3 0 hit
-l c0 c1 - ×up
-l c1 c2 - right×forward
-l c2 c3 hit 3軸と位置から
-</div>
+<svg class="fig flow" viewBox="0 0 789 112" role="img" aria-label="ビュー行列を作る手順"><defs><marker id="fl2919" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ビュー行列を作る手順</text><line x1="162.0" y1="64.0" x2="220.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2919)"/><text x="191.0" y="58.0" text-anchor="middle" style="font-size:12px">×up</text><line x1="342.0" y1="64.0" x2="400.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2919)"/><text x="371.0" y="58.0" text-anchor="middle" style="font-size:12px">right×forward</text><line x1="540.0" y1="64.0" x2="598.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2919)"/><text x="569.0" y="58.0" text-anchor="middle" style="font-size:12px">3軸と位置から</text><rect x="28.0" y="44.0" width="131" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="93.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">① forward(前)</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="223.0" y="44.0" width="116" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="281.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">② right(右)</text><circle cx="225.0" cy="46.0" r="10" fill="#2ea043"/><text x="225.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="403.0" y="44.0" width="134" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="470.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">③ up(本当の上)</text><circle cx="405.0" cy="46.0" r="10" fill="#e5a828"/><text x="405.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="601.0" y="44.0" width="160" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="681.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">④ 世界→カメラ行列</text><circle cx="603.0" cy="46.0" r="10" fill="#e5484d"/><text x="603.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 **上方向（`up`）と、前方向が、平行（真上・真下を見る）だと、外積が 0 になり、右方向が決まりません**。これが、真上を見たときに、画面が不安定になる原因です（ジンバルロックに似た現象）。
 

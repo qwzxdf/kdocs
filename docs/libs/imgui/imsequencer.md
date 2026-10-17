@@ -154,32 +154,7 @@ void DrawTimeline(MySequence& sequence) {
 
 ### 流れ
 
-<div class="anim" data-type="graph" data-label="ImSequencer のデータの流れ">
-n data 自分のデータ 0 1 hit
-n iface SequencerInterface 2 1
-n seq Sequencer() 4 1
-# ① 自分の項目のデータ（クリップの一覧）を持つ
----
-n data 自分のデータ 0 1
-n iface SequencerInterface 2 1 hit
-n seq Sequencer() 4 1
-l data iface hit Get_で見せる
-# ② インターフェースを継承して、データを見せる（Get で start / end のアドレスを渡す）
----
-n data 自分のデータ 0 1
-n iface SequencerInterface 2 1
-n seq Sequencer() 4 1 hit
-l data iface
-l iface seq hit 毎フレーム
-# ③ 毎フレーム Sequencer() を呼ぶと、画面に描かれ、マウス操作を受け付ける
----
-n data 自分のデータ 0 1 hit
-n iface SequencerInterface 2 1
-n seq Sequencer() 4 1
-l seq data new 直接書き換え
-l data iface
-# ④ ドラッグすると、渡したアドレスを通して、自分のデータが直接書き換わる
-</div>
+<svg class="fig flow" viewBox="0 0 570 112" role="img" aria-label="ImSequencer のデータの流れ"><defs><marker id="fl86695" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ImSequencer のデータの流れ</text><line x1="141.0" y1="64.0" x2="199.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl86695)"/><text x="170.0" y="58.0" text-anchor="middle" style="font-size:12px">Get で見せる</text><line x1="370.0" y1="64.0" x2="428.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl86695)"/><text x="399.0" y="58.0" text-anchor="middle" style="font-size:12px">毎フレーム</text><line x1="428.0" y1="64.0" x2="141.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl86695)"/><text x="284.5" y="58.0" text-anchor="middle" style="font-size:12px">直接書き換え</text><rect x="28.0" y="44.0" width="110" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="83.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">自分のデータ</text><rect x="202.0" y="44.0" width="165" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="284.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">SequencerInterface</text><rect x="431.0" y="44.0" width="111" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="486.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Sequencer()</text></svg>
 
 
 ## 関数・型の詳しい説明

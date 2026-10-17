@@ -20,27 +20,7 @@ tags:
 
 ### 何が起きているか
 
-<div class="anim" data-type="graph" data-label="コンソールへの出力：バイトを送り、コンソールが解釈する">
-n c0 std::string_（UTF-8） 0 0 hit
----
-n c0 std::string_（UTF-8） 0 0
-n c1 バイトを送る 1 0 hit
-l c0 c1 hit
----
-n c0 std::string_（UTF-8） 0 0
-n c1 バイトを送る 1 0
-n c2 コンソール_（自分のコードページで解釈） 2 0 hit
-l c0 c1
-l c1 c2 hit
----
-n c0 std::string_（UTF-8） 0 0
-n c1 バイトを送る 1 0
-n c2 コンソール_（自分のコードページで解釈） 2 0
-n c3 文字を描く 3 0 hit
-l c0 c1
-l c1 c2
-l c2 c3 hit
-</div>
+<svg class="fig flow" viewBox="0 0 939 112" role="img" aria-label="コンソールへの出力：バイトを送り、コンソールが解釈する"><defs><marker id="fl31342" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">コンソールへの出力：バイトを送り、コンソールが解釈する</text><line x1="216.0" y1="64.0" x2="274.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl31342)"/><line x1="390.0" y1="64.0" x2="448.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl31342)"/><line x1="754.0" y1="64.0" x2="812.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl31342)"/><rect x="28.0" y="44.0" width="185" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="120.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">std::string （UTF-8）</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="277.0" y="44.0" width="110" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="332.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">バイトを送る</text><circle cx="279.0" cy="46.0" r="10" fill="#2ea043"/><text x="279.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="451.0" y="44.0" width="300" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="601.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">コンソール （自分のコードページで解釈）</text><circle cx="453.0" cy="46.0" r="10" fill="#e5a828"/><text x="453.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="815.0" y="44.0" width="96" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="863.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">文字を描く</text><circle cx="817.0" cy="46.0" r="10" fill="#e5484d"/><text x="817.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 文字化けは、**プログラムが送るバイトの文字コード**と、<strong>コンソールが想定している文字コード（コード ページ）</strong>が、違うときに起きます。
 

@@ -36,62 +36,7 @@ if (ImGui::Button("Reset")) {  // 押されたフレームだけ true
 
 ## 1 フレームの流れ
 
-<div class="anim" data-type="graph" data-label="ImGui を使う 1 フレーム">
-n a ゲーム更新 0 0 hit
-n b NewFrame 1 0
-n c ウィジェット 2 0
-n d Render 3 0
-n e ゲーム描画 4 0
-l a b
-l b c
-l c d
-l d e
-# ゲームの更新をする
----
-n a ゲーム更新 0 0
-n b NewFrame 1 0 hit
-n c ウィジェット 2 0
-n d Render 3 0
-n e ゲーム描画 4 0
-l a b hit
-l b c
-l c d
-l d e
-# NewFrame：バックエンドと ImGui のフレームを始める
----
-n a ゲーム更新 0 0
-n b NewFrame 1 0
-n c ウィジェット 2 0 hit
-n d Render 3 0
-n e ゲーム描画 4 0
-l a b
-l b c hit
-l c d
-l d e
-# Begin / Button / Slider など、ImGui の関数を好きなだけ呼ぶ
----
-n a ゲーム更新 0 0
-n b NewFrame 1 0
-n c ウィジェット 2 0
-n d Render 3 0 hit
-n e ゲーム描画 4 0
-l a b
-l b c
-l c d hit
-l d e
-# Render：描画データを作る（まだ画面には出ない）
----
-n a ゲーム更新 0 0
-n b NewFrame 1 0
-n c ウィジェット 2 0
-n d Render 3 0
-n e ゲーム描画 4 0 hit
-l a b
-l b c
-l c d
-l d e hit
-# ゲームの画面を描いたあと、最後に RenderDrawData で ImGui を重ねる
-</div>
+<svg class="fig flow" viewBox="0 0 778 112" role="img" aria-label="ImGui を使う 1 フレーム"><defs><marker id="fl55364" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ImGui を使う 1 フレーム</text><line x1="127.0" y1="64.0" x2="185.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl55364)"/><line x1="279.0" y1="64.0" x2="337.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl55364)"/><line x1="453.0" y1="64.0" x2="511.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl55364)"/><line x1="593.0" y1="64.0" x2="651.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl55364)"/><rect x="28.0" y="44.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="76.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム更新</text><rect x="188.0" y="44.0" width="88" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="232.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">NewFrame</text><rect x="340.0" y="44.0" width="110" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="395.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ウィジェット</text><rect x="514.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="552.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Render</text><rect x="654.0" y="44.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="702.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム描画</text></svg>
 
 
 ## 最小のコード（DirectX 11 + Win32）

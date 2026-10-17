@@ -27,28 +27,7 @@ void Enemy::Update() {
 }
 ```
 
-<div class="anim" data-type="graph" data-label="ストラテジー：動き方を差し替える">
-n enemy 敵 0 1
-n patrol 巡回 2 0 hit
-n chase 追跡 2 1 dim
-n flee 逃走 2 2 dim
-l enemy patrol hit 今の行動
-# 最初は「巡回」の行動を持っている
----
-n enemy 敵 0 1
-n patrol 巡回 2 0 dim
-n chase 追跡 2 1 hit
-n flee 逃走 2 2 dim
-l enemy chase hit 差し替え
-# プレイヤーを見つけたので、「追跡」に差し替える（敵のコードは変わらない）
----
-n enemy 敵 0 1
-n patrol 巡回 2 0 dim
-n chase 追跡 2 1 dim
-n flee 逃走 2 2 hit
-l enemy flee hit 差し替え
-# 体力が減ったので、「逃走」に差し替える
-</div>
+<svg class="fig flow" viewBox="0 0 360 280" role="img" aria-label="ストラテジー：動き方を差し替える"><defs><marker id="fl87413" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ストラテジー：動き方を差し替える</text><line x1="104.3" y1="125.0" x2="167.7" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl87413)"/><text x="136.0" y="100.0" text-anchor="middle" style="font-size:12px">今の行動</text><line x1="107.0" y1="148.0" x2="165.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl87413)"/><text x="136.0" y="142.0" text-anchor="middle" style="font-size:12px">差し替え</text><line x1="104.3" y1="171.0" x2="167.7" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl87413)"/><text x="136.0" y="184.0" text-anchor="middle" style="font-size:12px">差し替え</text><rect x="28.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">敵</text><rect x="168.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="206.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">巡回</text><rect x="168.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="206.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">追跡</text><rect x="168.0" y="212.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="206.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">逃走</text></svg>
 
 ## 良い例 1：std::function で差し替える
 

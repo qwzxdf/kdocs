@@ -18,67 +18,7 @@
 5. **また計測する**：速くなった？ なっていなければ元に戻す
 6. **2 へ戻る**：目標に届くまで
 
-<div class="anim" data-type="graph" data-label="最適化は「測る」からはじめて、「測る」で終わる">
-n goal 目標 0 0 hit
-n measure 計測 1 0
-n find 原因 2 0
-n fix 直す 3 0
-n check 再計測 4 0
-l goal measure
-l measure find
-l find fix
-l fix check
-l check measure - 戻る
-# ① 目標を決める（16.6 ms など）
----
-n goal 目標 0 0
-n measure 計測 1 0 hit
-n find 原因 2 0
-n fix 直す 3 0
-n check 再計測 4 0
-l goal measure hit
-l measure find
-l find fix
-l fix check
-l check measure - 戻る
-# ② プロファイラーで、遅い場所を探す
----
-n goal 目標 0 0
-n measure 計測 1 0
-n find 原因 2 0 hit
-n fix 直す 3 0
-n check 再計測 4 0
-l goal measure
-l measure find hit
-l find fix
-l fix check
-l check measure - 戻る
-# ③ 一番時間を使っている場所の、原因を考える
----
-n goal 目標 0 0
-n measure 計測 1 0
-n find 原因 2 0
-n fix 直す 3 0 hit
-n check 再計測 4 0
-l goal measure
-l measure find
-l find fix hit
-l fix check
-l check measure - 戻る
-# ④ 1 つだけ直す
----
-n goal 目標 0 0
-n measure 計測 1 0
-n find 原因 2 0
-n fix 直す 3 0
-n check 再計測 4 0 hit
-l goal measure
-l measure find
-l find fix
-l fix check hit
-l check measure - 戻る
-# ⑤ 速くなったか確認する。目標に届かなければ、②へ戻る
-</div>
+<svg class="fig flow" viewBox="0 0 692 112" role="img" aria-label="最適化は「測る」からはじめて、「測る」で終わる"><defs><marker id="fl72487" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">最適化は「測る」からはじめて、「測る」で終わる</text><line x1="107.0" y1="64.0" x2="165.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl72487)"/><line x1="247.0" y1="64.0" x2="305.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl72487)"/><line x1="387.0" y1="64.0" x2="445.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl72487)"/><line x1="527.0" y1="64.0" x2="585.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl72487)"/><line x1="585.0" y1="64.0" x2="247.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl72487)"/><text x="416.0" y="58.0" text-anchor="middle" style="font-size:12px">戻る</text><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">目標</text><rect x="168.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="206.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">計測</text><rect x="308.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="346.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">原因</text><rect x="448.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="486.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">直す</text><rect x="588.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="626.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">再計測</text></svg>
 
 ## ページ一覧
 
@@ -101,6 +41,7 @@ l check measure - 戻る
 | [ビルド時間の最適化](build-time.md) | include の整理、PCH、並列ビルド、unity ビルド |
 | [フレーム時間の設計](frame-budget.md) | フレームバジェット、固定タイムステップ、スパイク対策 |
 | [描画の最適化](rendering.md) | ドロー コール、バッチ、カリング |
+| [描画の最適化（詳細）](gfx/index.md) | Forward/Deferred、Tiled/Clustered、GPU Driven、Meshlet ほか |
 | [ベイク（事前計算）](baking.md) | ライトマップ・ナビメッシュ・アニメ圧縮など、重い計算を、ビルド時に済ませる |
 | [シリアライズでロードを速く](serialization-speed.md) | JSON をバイナリに。ゼロコピー。既存のシリアライズのページへ |
 | [ロード時間・起動時間](loading.md) | 待たせない。バイナリ化・非同期 |

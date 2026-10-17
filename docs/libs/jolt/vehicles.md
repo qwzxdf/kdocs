@@ -32,29 +32,7 @@ Jolt には、**剛体・制約・キャラクター**のほかに、**車両**�
 | **サスペンション** | **車輪を、バネで、車体に支える**（**バネの強さ・減衰**） |
 | **コントローラー** | **エンジン・変速機・差動装置**（**駆動**）、**ハンドル・ブレーキ** |
 
-<div class="anim" data-type="graph" data-label="車両：車体に付いた車輪が、地面にレイを飛ばして、サスペンションと摩擦で力を生む">
-n body 車体_（剛体） 0 1 hit
----
-n body 車体_（剛体） 0 1
-n wheel 車輪_（レイキャスト） 1 1 new
-l body wheel hit 取り付け
----
-n wheel 車輪_（レイキャスト） 1 1
-n ground 地面 2 1 new
-l wheel ground hit レイを飛ばす
----
-n wheel 車輪_（レイキャスト） 1 1
-n sus サスペンション_（バネ） 2 0 new
-n fric タイヤの摩擦_（縦・横） 2 2 new
-l wheel sus hit
-l wheel fric hit
----
-n sus サスペンション_（バネ） 2 0
-n fric タイヤの摩擦_（縦・横） 2 2
-n force 車体に力 3 1 new
-l sus force hit
-l fric force hit
-</div>
+<svg class="fig flow" viewBox="0 0 810 280" role="img" aria-label="車両：車体に付いた車輪が、地面にレイを飛ばして、サスペンションと摩擦で力を生む"><defs><marker id="fl61617" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">車両：車体に付いた車輪が、地面にレイを飛ばして、サスペンションと摩擦で力を生む</text><line x1="149.0" y1="148.0" x2="207.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><text x="178.0" y="142.0" text-anchor="middle" style="font-size:12px">取り付け</text><line x1="387.0" y1="148.0" x2="501.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><text x="444.0" y="142.0" text-anchor="middle" style="font-size:12px">レイを飛ばす</text><line x1="364.1" y1="125.0" x2="474.9" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><line x1="364.1" y1="171.0" x2="474.9" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><line x1="596.5" y1="87.0" x2="697.0" y2="129.4" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><line x1="596.5" y1="209.0" x2="697.0" y2="166.6" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><rect x="28.0" y="128.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="87.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">車体 （剛体）</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="210.0" y="128.0" width="174" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="297.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">車輪 （レイキャスト）</text><circle cx="212.0" cy="130.0" r="10" fill="#2ea043"/><text x="212.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="504.0" y="128.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="542.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">地面</text><circle cx="506.0" cy="130.0" r="10" fill="#e5a828"/><text x="506.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="448.0" y="44.0" width="188" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="542.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">サスペンション （バネ）</text><circle cx="450.0" cy="46.0" r="10" fill="#e5484d"/><text x="450.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="448.0" y="212.0" width="188" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="542.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">タイヤの摩擦 （縦・横）</text><circle cx="450.0" cy="214.0" r="10" fill="#e5484d"/><text x="450.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="700.0" y="128.0" width="82" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="741.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">車体に力</text><circle cx="702.0" cy="130.0" r="10" fill="#9664e6"/><text x="702.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
 
 **車輪を、物体（回転する円柱）にしない**のは、**安定して、速く**、**車の動きを、制御しやすい**ためです。
 

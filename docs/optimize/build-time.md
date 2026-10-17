@@ -17,25 +17,7 @@ tags:
 
 ## なぜ遅いのか
 
-<div class="anim" data-type="graph" data-label="同じヘッダを、すべての .cpp が読み直す">
-n a A.cpp 0 0 hit
-n h big.h_（100回、解析・展開） 2 1 hit
-l a h hit #include
----
-n a A.cpp 0 0
-n b B.cpp 0 1 hit
-n h big.h_（100回、解析・展開） 2 1
-l a h - #include
-l b h hit #include
----
-n a A.cpp 0 0
-n b B.cpp 0 1
-n c C.cpp 0 2 hit
-n h big.h_（100回、解析・展開） 2 1
-l a h - #include
-l b h - #include
-l c h hit #include
-</div>
+<svg class="fig flow" viewBox="0 0 417 280" role="img" aria-label="同じヘッダを、すべての .cpp が読み直す"><defs><marker id="fl51929" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">同じヘッダを、すべての .cpp が読み直す</text><line x1="107.0" y1="80.2" x2="220.3" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl51929)"/><text x="163.7" y="96.6" text-anchor="middle" style="font-size:12px">#include</text><line x1="107.0" y1="148.0" x2="165.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl51929)"/><text x="136.0" y="142.0" text-anchor="middle" style="font-size:12px">#include</text><line x1="107.0" y1="215.8" x2="220.3" y2="171.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl51929)"/><text x="163.7" y="187.4" text-anchor="middle" style="font-size:12px">#include</text><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">A.cpp</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="168.0" y="128.0" width="221" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="278.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">big.h （100回、解析・展開）</text><circle cx="170.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="170.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="28.0" y="128.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="66.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">B.cpp</text><circle cx="30.0" cy="130.0" r="10" fill="#2ea043"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="28.0" y="212.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="66.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">C.cpp</text><circle cx="30.0" cy="214.0" r="10" fill="#e5a828"/><text x="30.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | 原因 | 説明 |
 | --- | --- |

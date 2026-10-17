@@ -114,39 +114,7 @@ int main() {
 リザルト: 300 点
 ```
 
-<div class="anim" data-type="graph" data-label="シーンの切り替え">
-n title タイトル 0 0 hit
-n game ゲーム 1 0
-n result リザルト 2 0
-l title game
-l game result
-l result title
-# タイトルから始まる
----
-n title タイトル 0 0
-n game ゲーム 1 0 hit
-n result リザルト 2 0
-l title game hit 開始
-l game result
-l result title
-# 開始すると、ゲームへ（前のシーンは片付けられる）
----
-n title タイトル 0 0
-n game ゲーム 1 0
-n result リザルト 2 0 hit
-l title game
-l game result hit クリア
-l result title
-# クリアすると、リザルトへ
----
-n title タイトル 0 0 hit
-n game ゲーム 1 0
-n result リザルト 2 0
-l title game
-l game result
-l result title hit 戻る
-# 戻ると、タイトルへ。シーンは、同時に 1 つだけ動く
-</div>
+<svg class="fig flow" viewBox="0 0 424 112" role="img" aria-label="シーンの切り替え"><defs><marker id="fl91555" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">シーンの切り替え</text><line x1="113.0" y1="64.0" x2="171.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl91555)"/><text x="142.0" y="58.0" text-anchor="middle" style="font-size:12px">開始</text><line x1="253.0" y1="64.0" x2="311.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl91555)"/><text x="282.0" y="58.0" text-anchor="middle" style="font-size:12px">クリア</text><line x1="311.0" y1="64.0" x2="113.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl91555)"/><text x="212.0" y="58.0" text-anchor="middle" style="font-size:12px">戻る</text><rect x="28.0" y="44.0" width="82" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="69.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">タイトル</text><rect x="174.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="212.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム</text><rect x="314.0" y="44.0" width="82" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="355.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">リザルト</text></svg>
 
 ## 詳しく
 

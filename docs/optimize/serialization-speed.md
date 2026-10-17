@@ -71,19 +71,7 @@ tags:
 
 **編集しやすさ**と、**ロードの速さ**を、**両立する定番の方法**です。
 
-<div class="anim" data-type="graph" data-label="開発中は人が編集できる JSON、製品版は、ビルド時に変換したバイナリを読む">
-n json stage1.json_（人が編集） 0 1 hit
----
-n json stage1.json_（人が編集） 0 1
-n tool 変換ツール_（ビルド時） 1 1 new
-n bin stage1.bin_（バイナリ） 2 1 new
-l json tool hit ビルド時
-l tool bin hit 出力
----
-n bin stage1.bin_（バイナリ） 2 1
-n game ゲーム_（製品版） 3 1 new
-l bin game hit 読むだけ
-</div>
+<svg class="fig flow" viewBox="0 0 979 112" role="img" aria-label="開発中は人が編集できる JSON、製品版は、ビルド時に変換したバイナリを読む"><defs><marker id="fl70378" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">開発中は人が編集できる JSON、製品版は、ビルド時に変換したバイナリを読む</text><line x1="233.0" y1="64.0" x2="291.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl70378)"/><text x="262.0" y="58.0" text-anchor="middle" style="font-size:12px">ビルド時</text><line x1="485.0" y1="64.0" x2="543.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl70378)"/><text x="514.0" y="58.0" text-anchor="middle" style="font-size:12px">出力</text><line x1="744.0" y1="64.0" x2="802.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl70378)"/><text x="773.0" y="58.0" text-anchor="middle" style="font-size:12px">読むだけ</text><rect x="28.0" y="44.0" width="202" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="129.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">stage1.json （人が編集）</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="294.0" y="44.0" width="188" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="388.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">変換ツール （ビルド時）</text><circle cx="296.0" cy="46.0" r="10" fill="#2ea043"/><text x="296.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="546.0" y="44.0" width="195" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="643.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">stage1.bin （バイナリ）</text><circle cx="548.0" cy="46.0" r="10" fill="#2ea043"/><text x="548.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="805.0" y="44.0" width="146" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="878.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム （製品版）</text><circle cx="807.0" cy="46.0" r="10" fill="#e5a828"/><text x="807.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | 手順 | 内容 |
 | --- | --- |

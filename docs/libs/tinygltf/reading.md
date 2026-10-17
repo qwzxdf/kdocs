@@ -19,21 +19,7 @@ tags:
 
 ## 全体の流れ
 
-<div class="anim" data-type="graph" data-label="読み込みの流れ：ファイル → Model → 自分のデータ構造 → GPU のバッファ">
-n f glTF_ファイル 0 1 hit
----
-n f glTF_ファイル 0 1
-n m tinygltf::Model 1 1 new
-l f m hit LoadASCIIFromFile
----
-n m tinygltf::Model 1 1
-n g 自分のメッシュ_データ 2 1 new
-l m g hit 番号をたどって取り出す
----
-n g 自分のメッシュ_データ 2 1
-n b GPU_バッファ 3 1 new
-l g b hit CreateBuffer
-</div>
+<svg class="fig flow" viewBox="0 0 797 112" role="img" aria-label="読み込みの流れ：ファイル → Model → 自分のデータ構造 → GPU のバッファ"><defs><marker id="fl45181" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">読み込みの流れ：ファイル → Model → 自分のデータ構造 → GPU のバッファ</text><line x1="151.0" y1="64.0" x2="209.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl45181)"/><text x="180.0" y="58.0" text-anchor="middle" style="font-size:12px">LoadASCIIFromFile</text><line x1="357.0" y1="64.0" x2="415.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl45181)"/><text x="386.0" y="58.0" text-anchor="middle" style="font-size:12px">番号をたどって取り出す</text><line x1="595.0" y1="64.0" x2="653.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl45181)"/><text x="624.0" y="58.0" text-anchor="middle" style="font-size:12px">CreateBuffer</text><rect x="28.0" y="44.0" width="120" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="88.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">glTF ファイル</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="212.0" y="44.0" width="142" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="283.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">tinygltf::Model</text><circle cx="214.0" cy="46.0" r="10" fill="#2ea043"/><text x="214.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="418.0" y="44.0" width="174" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="505.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">自分のメッシュ データ</text><circle cx="420.0" cy="46.0" r="10" fill="#e5a828"/><text x="420.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="656.0" y="44.0" width="113" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="712.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">GPU バッファ</text><circle cx="658.0" cy="46.0" r="10" fill="#e5484d"/><text x="658.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 **`tinygltf::Model` は、ファイルの内容を、そのまま持っているだけ**です。**ゲームで使う形**（頂点バッファ・マテリアルの定数バッファなど）には、**自分で、変換**します。
 
@@ -273,17 +259,7 @@ void LoadScene(const tinygltf::Model& model, std::vector<DrawItem>& out) {
 }
 ```
 
-<div class="anim" data-type="graph" data-label="ノードの木をたどって、ワールド行列を求める（子 ＝ ローカル × 親のワールド）">
-n r ルート_world=L0 0 1 hit
----
-n r ルート_world=L0 0 1
-n c 子_world=L1×L0 1 1 hit
-l r c hit children
----
-n c 子_world=L1×L0 1 1
-n g 孫_world=L2×L1×L0 2 1 hit
-l c g hit children
-</div>
+<svg class="fig flow" viewBox="0 0 609 112" role="img" aria-label="ノードの木をたどって、ワールド行列を求める（子 ＝ ローカル × 親のワールド）"><defs><marker id="fl7970" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ノードの木をたどって、ワールド行列を求める（子 ＝ ローカル × 親のワールド）</text><line x1="168.0" y1="64.0" x2="226.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7970)"/><text x="197.0" y="58.0" text-anchor="middle" style="font-size:12px">children</text><line x1="364.0" y1="64.0" x2="422.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7970)"/><text x="393.0" y="58.0" text-anchor="middle" style="font-size:12px">children</text><rect x="28.0" y="44.0" width="137" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="96.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ルート world=L0</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="229.0" y="44.0" width="132" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="295.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">子 world=L1×L0</text><circle cx="231.0" cy="46.0" r="10" fill="#2ea043"/><text x="231.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="425.0" y="44.0" width="156" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="503.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">孫 world=L2×L1×L0</text><circle cx="427.0" cy="46.0" r="10" fill="#e5a828"/><text x="427.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | 点 | 説明 |
 | --- | --- |

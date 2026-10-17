@@ -25,39 +25,7 @@ Jolt の部品（世界・物体・形・レイヤー・制約）が、**どう�
 | 制約（Constraint） | 物体どうしをつなぐ（ヒンジ、バネ、固定など） |
 | `CharacterVirtual` | **キャラクターの移動**専用の、軽い仕組み（剛体として扱わない） |
 
-<div class="anim" data-type="graph" data-label="Jolt の世界の構造">
-n sys PhysicsSystem 0 1 hit
-n floor 地面_Static 2 0
-n ball ボール_Dynamic 2 1
-n chara プレイヤー 2 2
-# 物理の世界（PhysicsSystem）がある
----
-n sys PhysicsSystem 0 1
-n floor 地面_Static 2 0 new
-n ball ボール_Dynamic 2 1 new
-n chara プレイヤー 2 2
-l sys floor new 物体を追加
-l sys ball new 物体を追加
-# Body（物体）を追加していく。地面は動かない（Static）、ボールは物理で動く（Dynamic）
----
-n sys PhysicsSystem 0 1
-n floor 地面_Static 2 0
-n ball ボール_Dynamic 2 1
-n chara プレイヤー 2 2 new
-l sys floor
-l sys ball
-l sys chara new CharacterVirtual
-# プレイヤーは剛体にせず、キャラクター専用の仕組み（CharacterVirtual）で動かす
----
-n sys PhysicsSystem 0 1 hit
-n floor 地面_Static 2 0
-n ball ボール_Dynamic 2 1 hit
-n chara プレイヤー 2 2 hit
-l sys floor
-l sys ball hit Update
-l sys chara hit Update
-# Update(1/60 秒) で、時間が進む。物体が動き、衝突が解決される
-</div>
+<svg class="fig flow" viewBox="0 0 376 280" role="img" aria-label="Jolt の世界の構造"><defs><marker id="fl19562" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">Jolt の世界の構造</text><line x1="143.6" y1="125.0" x2="230.4" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl19562)"/><text x="187.0" y="100.0" text-anchor="middle" style="font-size:12px">物体を追加</text><line x1="157.0" y1="148.0" x2="215.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl19562)"/><text x="186.0" y="142.0" text-anchor="middle" style="font-size:12px">物体を追加</text><line x1="143.6" y1="171.0" x2="232.0" y2="209.7" stroke="currentColor" stroke-width="2" marker-end="url(#fl19562)"/><text x="187.8" y="184.3" text-anchor="middle" style="font-size:12px">CharacterVirtual</text><rect x="28.0" y="128.0" width="126" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="91.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">PhysicsSystem</text><rect x="229.0" y="44.0" width="108" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="283.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">地面 Static</text><rect x="218.0" y="128.0" width="130" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="283.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ボール Dynamic</text><rect x="235.0" y="212.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="283.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">プレイヤー</text></svg>
 
 
 

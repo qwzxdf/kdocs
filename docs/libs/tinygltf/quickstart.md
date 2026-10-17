@@ -53,35 +53,7 @@ bool LoadModel(const std::string& path, tinygltf::Model& model) {
 
 `tinygltf::Model` は、**glTF のファイルの内容を、そのまま構造体にした**ものです。**中身は、配列（`std::vector`）の集まり**です。
 
-<div class="anim" data-type="graph" data-label="tinygltf::Model は、種類ごとの配列を持つ。要素同士は「番号」でつながる">
-n model tinygltf::Model 0 1 hit
----
-n model tinygltf::Model 0 1
-n nodes nodes 1 0 new
-n meshes meshes 2 0 new
-n acc accessors 3 0 new
-n bv bufferViews 4 0 new
-l model nodes hit
-l model meshes hit
-l model acc hit
-l model bv hit
----
-n model tinygltf::Model 0 1 dim
-n nodes nodes 1 0
-n meshes meshes 2 0
-n acc accessors 3 0
-n bv bufferViews 4 0
-n buf buffers 4 1 new
-n mat materials 2 1 new
-n tex textures 3 1 new
-n img images 3 2 new
-n smp samplers 4 2 new
-l model buf hit
-l model mat hit
-l model tex hit
-l model img hit
-l model smp hit
-</div>
+<svg class="fig flow" viewBox="0 0 831 280" role="img" aria-label="tinygltf::Model は、種類ごとの配列を持つ。要素同士は「番号」でつながる"><defs><marker id="fl77120" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">tinygltf::Model は、種類ごとの配列を持つ。要素同士は「番号」でつながる</text><line x1="146.4" y1="125.0" x2="231.0" y2="83.9" stroke="currentColor" stroke-width="2" marker-end="url(#fl77120)"/><line x1="173.0" y1="128.7" x2="380.5" y2="74.7" stroke="currentColor" stroke-width="2" marker-end="url(#fl77120)"/><line x1="173.0" y1="135.1" x2="530.0" y2="72.8" stroke="currentColor" stroke-width="2" marker-end="url(#fl77120)"/><line x1="173.0" y1="138.4" x2="689.0" y2="71.6" stroke="currentColor" stroke-width="2" marker-end="url(#fl77120)"/><line x1="173.0" y1="148.0" x2="704.5" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl77120)"/><line x1="173.0" y1="148.0" x2="371.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl77120)"/><line x1="173.0" y1="148.0" x2="533.5" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl77120)"/><line x1="173.0" y1="160.9" x2="539.5" y2="224.8" stroke="currentColor" stroke-width="2" marker-end="url(#fl77120)"/><line x1="173.0" y1="157.6" x2="700.5" y2="225.9" stroke="currentColor" stroke-width="2" marker-end="url(#fl77120)"/><rect x="28.0" y="128.0" width="142" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="99.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">tinygltf::Model</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="234.0" y="44.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="272.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes</text><circle cx="236.0" cy="46.0" r="10" fill="#2ea043"/><text x="236.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="383.5" y="44.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="421.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">meshes</text><circle cx="385.5" cy="46.0" r="10" fill="#2ea043"/><text x="385.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="533.0" y="44.0" width="95" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="580.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">accessors</text><circle cx="535.0" cy="46.0" r="10" fill="#2ea043"/><text x="535.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="692.0" y="44.0" width="111" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="747.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">bufferViews</text><circle cx="694.0" cy="46.0" r="10" fill="#2ea043"/><text x="694.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="707.5" y="128.0" width="80" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="747.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">buffers</text><circle cx="709.5" cy="130.0" r="10" fill="#e5a828"/><text x="709.5" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="374.0" y="128.0" width="95" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="421.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">materials</text><circle cx="376.0" cy="130.0" r="10" fill="#e5a828"/><text x="376.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="536.5" y="128.0" width="88" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="580.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">textures</text><circle cx="538.5" cy="130.0" r="10" fill="#e5a828"/><text x="538.5" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="542.5" y="212.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="580.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">images</text><circle cx="544.5" cy="214.0" r="10" fill="#e5a828"/><text x="544.5" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="703.5" y="212.0" width="88" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="747.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">samplers</text><circle cx="705.5" cy="214.0" r="10" fill="#e5a828"/><text x="705.5" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | 配列 | 中身 |
 | --- | --- |

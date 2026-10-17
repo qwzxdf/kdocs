@@ -70,24 +70,7 @@ l b l1 gone 待つ
 
 データの持ち主を**1 つのスレッドだけ**にして、他のスレッドは、<strong>メッセージ（依頼）</strong>を送って、頼みます。
 
-<div class="anim" data-type="graph" data-label="メッセージ キュー：所有者に頼む">
-n render 描画スレッド 0 0
-n queue キュー 2 1
-n game ゲームスレッド_持ち主 4 1 hit
-# ゲームのデータを持つのは、ゲーム スレッドだけ
----
-n render 描画スレッド 0 0 hit
-n queue キュー 2 1
-n game ゲームスレッド_持ち主 4 1
-l render queue hit 頼む
-# 他のスレッドは、データを直接触らず、キューに依頼を入れる
----
-n render 描画スレッド 0 0
-n queue キュー 2 1 hit
-n game ゲームスレッド_持ち主 4 1 hit
-l queue game hit 取り出す
-# 持ち主だけが、キューから取り出して処理する（ロックはキューの中だけ）
-</div>
+<svg class="fig flow" viewBox="0 0 544 196" role="img" aria-label="メッセージ キュー：所有者に頼む"><defs><marker id="fl49872" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">メッセージ キュー：所有者に頼む</text><line x1="126.0" y1="87.0" x2="199.0" y2="126.1" stroke="currentColor" stroke-width="2" marker-end="url(#fl49872)"/><text x="162.5" y="100.5" text-anchor="middle" style="font-size:12px">頼む</text><line x1="281.0" y1="148.0" x2="339.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl49872)"/><text x="310.0" y="142.0" text-anchor="middle" style="font-size:12px">取り出す</text><rect x="28.0" y="44.0" width="110" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="83.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">描画スレッド</text><rect x="202.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="240.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">キュー</text><rect x="342.0" y="128.0" width="174" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="429.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲームスレッド 持ち主</text></svg>
 
 ```cpp
 // スレッド セーフなメッセージ キュー（簡易版）
@@ -152,17 +135,7 @@ class MessageQueue {
 
 スレッドを**自分で作って管理する**と大変です。ゲームでは、**スレッド プール**（決まった数のスレッドが、待機している）に、**ジョブ（小さな仕事）を投げる**設計がよく使われます。
 
-<div class="anim" data-type="graph" data-label="ジョブキューに仕事を積み、空いたワーカーが取って実行する">
-n q ジョブ_キュー 0 1 hit
----
-n q ジョブ_キュー 0 1
-n w1 ワーカー1 2 0 hit
-n w2 ワーカー2 2 1 hit
-n w3 ワーカー3 2 2 hit
-l q w1 hit 取る
-l q w2 hit 取る
-l q w3 hit 取る
-</div>
+<svg class="fig flow" viewBox="0 0 360 280" role="img" aria-label="ジョブキューに仕事を積み、空いたワーカーが取って実行する"><defs><marker id="fl24895" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ジョブキューに仕事を積み、空いたワーカーが取って実行する</text><line x1="133.0" y1="125.0" x2="209.0" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24895)"/><text x="171.0" y="100.0" text-anchor="middle" style="font-size:12px">取る</text><line x1="149.0" y1="148.0" x2="207.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24895)"/><text x="178.0" y="142.0" text-anchor="middle" style="font-size:12px">取る</text><line x1="133.0" y1="171.0" x2="209.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24895)"/><text x="171.0" y="184.0" text-anchor="middle" style="font-size:12px">取る</text><rect x="28.0" y="128.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="87.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ジョブ キュー</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="210.0" y="44.0" width="90" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="255.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワーカー1</text><circle cx="212.0" cy="46.0" r="10" fill="#2ea043"/><text x="212.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="210.0" y="128.0" width="90" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="255.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワーカー2</text><circle cx="212.0" cy="130.0" r="10" fill="#2ea043"/><text x="212.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="210.0" y="212.0" width="90" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="255.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワーカー3</text><circle cx="212.0" cy="214.0" r="10" fill="#2ea043"/><text x="212.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text></svg>
 
 ```cpp
 // 例：重い読み込みを、別のスレッドに任せる（std::async）

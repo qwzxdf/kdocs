@@ -159,43 +159,7 @@ if (node.mesh >= 0) {
 
 ## 全体の地図
 
-<div class="anim" data-type="graph" data-label="glTF の構造：矢印はすべて「番号（インデックス）」で参照する">
-n scene scenes 0 0 hit
-n node nodes 1 0
-l scene node hit nodes_（番号）
----
-n scene scenes 0 0
-n node nodes 1 0 hit
-n mesh meshes 2 0 new
-n skin skins 1 1 new
-l scene node nodes
-l node mesh hit mesh
-l node skin hit skin
----
-n node nodes 1 0
-n mesh meshes 2 0 hit
-n acc accessors 3 0 new
-n mat materials 2 1 new
-l node mesh mesh
-l mesh acc hit attributes_/_indices
-l mesh mat hit material
----
-n mesh meshes 2 0
-n acc accessors 3 0 hit
-n bv bufferViews 4 0 new
-n buf buffers 4 1 new
-l mesh acc attributes_/_indices
-l acc bv hit bufferView
-l bv buf hit buffer
----
-n mat materials 2 1 hit
-n tex textures 3 1 new
-n img images 3 2 new
-n smp samplers 4 2 new
-l mat tex hit baseColorTexture_.index
-l tex img hit source
-l tex smp hit sampler
-</div>
+<svg class="fig flow" viewBox="0 0 765 280" role="img" aria-label="glTF の構造：矢印はすべて「番号（インデックス）」で参照する"><defs><marker id="fl27197" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">glTF の構造：矢印はすべて「番号（インデックス）」で参照する</text><line x1="107.0" y1="64.0" x2="165.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27197)"/><text x="136.0" y="58.0" text-anchor="middle" style="font-size:12px">nodes （番号）</text><line x1="247.0" y1="64.0" x2="314.5" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27197)"/><text x="280.8" y="58.0" text-anchor="middle" style="font-size:12px">mesh</text><line x1="206.0" y1="87.0" x2="206.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27197)"/><text x="206.0" y="100.0" text-anchor="middle" style="font-size:12px">skin</text><line x1="396.5" y1="64.0" x2="464.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27197)"/><text x="430.2" y="58.0" text-anchor="middle" style="font-size:12px">attributes / indices</text><line x1="355.5" y1="87.0" x2="355.5" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27197)"/><text x="355.5" y="100.0" text-anchor="middle" style="font-size:12px">material</text><line x1="565.0" y1="64.0" x2="623.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27197)"/><text x="594.0" y="58.0" text-anchor="middle" style="font-size:12px">bufferView</text><line x1="681.5" y1="87.0" x2="681.5" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27197)"/><text x="681.5" y="100.0" text-anchor="middle" style="font-size:12px">buffer</text><line x1="406.0" y1="148.0" x2="467.5" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27197)"/><text x="436.8" y="142.0" text-anchor="middle" style="font-size:12px">baseColorTexture .index</text><line x1="514.5" y1="171.0" x2="514.5" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27197)"/><text x="514.5" y="184.0" text-anchor="middle" style="font-size:12px">source</text><line x1="560.2" y1="171.0" x2="635.8" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27197)"/><text x="598.0" y="184.0" text-anchor="middle" style="font-size:12px">sampler</text><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">scenes</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="168.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="206.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes</text><circle cx="170.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="170.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="317.5" y="44.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="355.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">meshes</text><circle cx="319.5" cy="46.0" r="10" fill="#2ea043"/><text x="319.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="168.0" y="128.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="206.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">skins</text><circle cx="170.0" cy="130.0" r="10" fill="#2ea043"/><text x="170.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="467.0" y="44.0" width="95" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="514.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">accessors</text><circle cx="469.0" cy="46.0" r="10" fill="#e5a828"/><text x="469.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="308.0" y="128.0" width="95" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="355.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">materials</text><circle cx="310.0" cy="130.0" r="10" fill="#e5a828"/><text x="310.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="626.0" y="44.0" width="111" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="681.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">bufferViews</text><circle cx="628.0" cy="46.0" r="10" fill="#e5484d"/><text x="628.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="641.5" y="128.0" width="80" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="681.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">buffers</text><circle cx="643.5" cy="130.0" r="10" fill="#e5484d"/><text x="643.5" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="470.5" y="128.0" width="88" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="514.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">textures</text><circle cx="472.5" cy="130.0" r="10" fill="#9664e6"/><text x="472.5" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="476.5" y="212.0" width="76" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="514.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">images</text><circle cx="478.5" cy="214.0" r="10" fill="#9664e6"/><text x="478.5" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="637.5" y="212.0" width="88" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="681.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">samplers</text><circle cx="639.5" cy="214.0" r="10" fill="#9664e6"/><text x="639.5" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
 
 | 参照元 | キー | 参照先（配列） |
 | --- | --- | --- |
@@ -242,33 +206,7 @@ glTF の最も小さな例（三角形 1 つ）です。**番号で、どうつ�
 
 ### 番号を、順に追いかける
 
-<div class="anim" data-type="graph" data-label="三角形の頂点の位置を探す：番号をたどって、バイナリのどこかを見つける">
-n scn scene_=_0 0 0 hit
----
-n scn scene_=_0 0 0
-n sc scenes[0]_.nodes=[0] 1 0 hit
-l scn sc hit
----
-n sc scenes[0]_.nodes=[0] 1 0
-n nd nodes[0]_.mesh=0 2 0 hit
-l sc nd hit
----
-n nd nodes[0]_.mesh=0 2 0
-n ms meshes[0]_POSITION=1 3 0 hit
-l nd ms hit
----
-n ms meshes[0]_POSITION=1 3 0
-n ac accessors[1]_.bufferView=1 3 1 hit
-l ms ac hit POSITION
----
-n ac accessors[1]_.bufferView=1 3 1
-n bv bufferViews[1]_.buffer=0_offset=8 2 1 hit
-l ac bv hit
----
-n bv bufferViews[1]_.buffer=0_offset=8 2 1
-n bf buffers[0]_triangle.bin 1 1 hit
-l bv bf hit
-</div>
+<svg class="fig flow" viewBox="0 0 1052 196" role="img" aria-label="三角形の頂点の位置を探す：番号をたどって、バイナリのどこかを見つける"><defs><marker id="fl5299" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">三角形の頂点の位置を探す：番号をたどって、バイナリのどこかを見つける</text><line x1="126.0" y1="64.0" x2="195.5" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl5299)"/><line x1="381.5" y1="64.0" x2="516.5" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl5299)"/><line x1="671.5" y1="64.0" x2="818.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl5299)"/><line x1="911.0" y1="87.0" x2="911.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl5299)"/><text x="911.0" y="100.0" text-anchor="middle" style="font-size:12px">POSITION</text><line x1="795.0" y1="148.0" x2="737.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl5299)"/><line x1="451.0" y1="148.0" x2="393.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl5299)"/><rect x="28.0" y="44.0" width="95" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="75.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">scene = 0</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="198.5" y="44.0" width="180" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="288.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">scenes[0] .nodes=[0]</text><circle cx="200.5" cy="46.0" r="10" fill="#2ea043"/><text x="200.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="519.5" y="44.0" width="149" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="594.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[0] .mesh=0</text><circle cx="521.5" cy="46.0" r="10" fill="#e5a828"/><text x="521.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="821.0" y="44.0" width="180" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="911.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">meshes[0] POSITION=1</text><circle cx="823.0" cy="46.0" r="10" fill="#e5484d"/><text x="823.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="798.0" y="128.0" width="226" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="911.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">accessors[1] .bufferView=1</text><circle cx="800.0" cy="130.0" r="10" fill="#9664e6"/><text x="800.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="454.0" y="128.0" width="280" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="594.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">bufferViews[1] .buffer=0 offset=8</text><circle cx="456.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="456.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">6</text><rect x="187.0" y="128.0" width="203" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="288.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">buffers[0] triangle.bin</text><circle cx="189.0" cy="130.0" r="10" fill="#2ea043"/><text x="189.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">7</text></svg>
 
 | 手順 | 見るところ | 値 | 意味 |
 | --- | --- | --- | --- |
@@ -355,20 +293,7 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 ]
 ```
 
-<div class="anim" data-type="graph" data-label="ノードは親子の木。子の位置は、親の位置を基準にした相対値">
-n s scenes[0] 0 1 hit
----
-n s scenes[0] 0 1
-n c nodes[0]_Character 1 1 new
-l s c hit nodes=[0]
----
-n s scenes[0] 0 1 dim
-n c nodes[0]_Character 1 1
-n b nodes[1]_Body_(mesh_0) 2 0 new
-n w nodes[2]_Weapon_(mesh_1) 2 2 new
-l c b hit children
-l c w hit children
-</div>
+<svg class="fig flow" viewBox="0 0 655 280" role="img" aria-label="ノードは親子の木。子の位置は、親の位置を基準にした相対値"><defs><marker id="fl22118" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ノードは親子の木。子の位置は、親の位置を基準にした相対値</text><line x1="126.0" y1="148.0" x2="184.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl22118)"/><text x="155.0" y="142.0" text-anchor="middle" style="font-size:12px">nodes=[0]</text><line x1="338.5" y1="125.0" x2="452.5" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl22118)"/><text x="395.5" y="100.0" text-anchor="middle" style="font-size:12px">children</text><line x1="338.5" y1="171.0" x2="452.5" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl22118)"/><text x="395.5" y="184.0" text-anchor="middle" style="font-size:12px">children</text><rect x="28.0" y="128.0" width="95" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="75.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">scenes[0]</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="187.0" y="128.0" width="165" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="269.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[0] Character</text><circle cx="189.0" cy="130.0" r="10" fill="#2ea043"/><text x="189.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="424.0" y="44.0" width="195" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="521.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[1] Body (mesh 0)</text><circle cx="426.0" cy="46.0" r="10" fill="#e5a828"/><text x="426.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="416.0" y="212.0" width="211" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="521.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[2] Weapon (mesh 1)</text><circle cx="418.0" cy="214.0" r="10" fill="#e5a828"/><text x="418.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | キー | 意味 |
 | --- | --- |
@@ -453,20 +378,7 @@ l c w hit children
 "samplers": [ { "magFilter": 9729, "minFilter": 9987, "wrapS": 10497, "wrapT": 10497 } ]
 ```
 
-<div class="anim" data-type="graph" data-label="マテリアル → テクスチャ → 画像・サンプラー。ここも、すべて番号でつながる">
-n m materials[0] 0 1 hit
----
-n m materials[0] 0 1
-n t textures[0] 1 1 new
-l m t hit baseColorTexture.index=0
----
-n m materials[0] 0 1 dim
-n t textures[0] 1 1
-n i images[0]_skin_albedo.png 2 0 new
-n s samplers[0] 2 2 new
-l t i hit source=0
-l t s hit sampler=0
-</div>
+<svg class="fig flow" viewBox="0 0 632 280" role="img" aria-label="マテリアル → テクスチャ → 画像・サンプラー。ここも、すべて番号でつながる"><defs><marker id="fl91863" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">マテリアル → テクスチャ → 画像・サンプラー。ここも、すべて番号でつながる</text><line x1="149.0" y1="148.0" x2="207.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl91863)"/><text x="178.0" y="142.0" text-anchor="middle" style="font-size:12px">baseColorTexture.index=0</text><line x1="324.0" y1="126.5" x2="431.8" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl91863)"/><text x="377.9" y="100.8" text-anchor="middle" style="font-size:12px">source=0</text><line x1="324.0" y1="169.5" x2="436.0" y2="210.5" stroke="currentColor" stroke-width="2" marker-end="url(#fl91863)"/><text x="380.0" y="184.0" text-anchor="middle" style="font-size:12px">sampler=0</text><rect x="28.0" y="128.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="87.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">materials[0]</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="210.0" y="128.0" width="111" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="265.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">textures[0]</text><circle cx="212.0" cy="130.0" r="10" fill="#2ea043"/><text x="212.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="385.0" y="44.0" width="219" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="494.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">images[0] skin albedo.png</text><circle cx="387.0" cy="46.0" r="10" fill="#e5a828"/><text x="387.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="439.0" y="212.0" width="111" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="494.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">samplers[0]</text><circle cx="441.0" cy="214.0" r="10" fill="#e5a828"/><text x="441.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | 配列 | 役割 | 主なキー |
 | --- | --- | --- |
@@ -516,17 +428,7 @@ l t s hit sampler=0
 
 <strong>頂点の `JOINTS_0` の値 `2` は、「`skins[0].joints[2]` の骨」</strong>という意味です（**ノードの番号そのものではなく、`joints` 配列の位置**）。ここも、**番号の、もう 1 段の参照**です。
 
-<div class="anim" data-type="graph" data-label="頂点の骨番号は、joints 配列の位置。その先が、ノードの番号">
-n v JOINTS_0_=_2 0 1 hit
----
-n v JOINTS_0_=_2 0 1
-n j skins[0].joints[2]_=_5 1 1 hit
-l v j hit joints_の_2_番目
----
-n j skins[0].joints[2]_=_5 1 1
-n nd nodes[5]_（骨） 2 1 hit
-l j nd hit ノード番号
-</div>
+<svg class="fig flow" viewBox="0 0 634 112" role="img" aria-label="頂点の骨番号は、joints 配列の位置。その先が、ノードの番号"><defs><marker id="fl7390" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">頂点の骨番号は、joints 配列の位置。その先が、ノードの番号</text><line x1="149.0" y1="64.0" x2="207.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7390)"/><text x="178.0" y="58.0" text-anchor="middle" style="font-size:12px">joints の 2 番目</text><line x1="408.0" y1="64.0" x2="466.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7390)"/><text x="437.0" y="58.0" text-anchor="middle" style="font-size:12px">ノード番号</text><rect x="28.0" y="44.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="87.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">JOINTS 0 = 2</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="210.0" y="44.0" width="195" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="307.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">skins[0].joints[2] = 5</text><circle cx="212.0" cy="46.0" r="10" fill="#2ea043"/><text x="212.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="469.0" y="44.0" width="137" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="537.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[5] （骨）</text><circle cx="471.0" cy="46.0" r="10" fill="#e5a828"/><text x="471.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 ### アニメーション
 
@@ -542,25 +444,7 @@ l j nd hit ノード番号
 ]
 ```
 
-<div class="anim" data-type="graph" data-label="アニメーション：channel が、sampler と、動かすノードを指す">
-n a animations[0] 0 1 hit
----
-n a animations[0] 0 1
-n c channels[0] 1 1 new
-l a c hit
----
-n c channels[0] 1 1
-n sm samplers[0] 2 0 new
-n nd nodes[5]_.rotation 2 2 new
-l c sm hit sampler=0
-l c nd hit target.node=5
----
-n sm samplers[0] 2 0
-n i accessors[10]_（時刻） 3 -0.3 new
-n o accessors[11]_（回転の値） 3 0.7 new
-l sm i hit input
-l sm o hit output
-</div>
+<svg class="fig flow" viewBox="0 0 868 305" role="img" aria-label="アニメーション：channel が、sampler と、動かすノードを指す"><defs><marker id="fl6720" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">アニメーション：channel が、sampler と、動かすノードを指す</text><line x1="157.0" y1="173.2" x2="215.0" y2="173.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl6720)"/><line x1="328.8" y1="150.2" x2="420.2" y2="112.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl6720)"/><text x="374.5" y="125.2" text-anchor="middle" style="font-size:12px">sampler=0</text><line x1="328.8" y1="196.2" x2="420.2" y2="234.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl6720)"/><text x="374.5" y="209.2" text-anchor="middle" style="font-size:12px">target.node=5</text><line x1="534.0" y1="83.4" x2="633.0" y2="73.7" stroke="currentColor" stroke-width="2" marker-end="url(#fl6720)"/><text x="583.5" y="72.5" text-anchor="middle" style="font-size:12px">input</text><line x1="534.0" y1="102.7" x2="631.1" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl6720)"/><text x="582.5" y="107.8" text-anchor="middle" style="font-size:12px">output</text><rect x="28.0" y="153.2" width="126" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="91.0" y="173.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">animations[0]</text><circle cx="30.0" cy="155.2" r="10" fill="#4c8bf5"/><text x="30.0" y="155.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="218.0" y="153.2" width="111" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="273.5" y="173.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">channels[0]</text><circle cx="220.0" cy="155.2" r="10" fill="#2ea043"/><text x="220.0" y="155.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="420.0" y="69.2" width="111" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="475.5" y="89.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">samplers[0]</text><circle cx="422.0" cy="71.2" r="10" fill="#e5a828"/><text x="422.0" y="71.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="393.0" y="237.2" width="165" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="475.5" y="257.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[5] .rotation</text><circle cx="395.0" cy="239.2" r="10" fill="#e5a828"/><text x="395.0" y="239.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="636.0" y="44.0" width="190" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="731.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">accessors[10] （時刻）</text><circle cx="638.0" cy="46.0" r="10" fill="#e5484d"/><text x="638.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="622.0" y="128.0" width="218" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="731.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">accessors[11] （回転の値）</text><circle cx="624.0" cy="130.0" r="10" fill="#e5484d"/><text x="624.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 | 要素 | 意味 |
 | --- | --- |

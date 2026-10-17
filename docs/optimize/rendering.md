@@ -17,49 +17,7 @@ tags:
 
 ## 描画のしくみ（簡単に）
 
-<div class="anim" data-type="graph" data-label="CPU が描画命令を作り、GPU が処理する">
-n u CPU_ゲームの更新 0 0 hit
----
-n u CPU_ゲームの更新 0 0
-n dc 描画命令を作る_（ドローコール） 0 1 hit
-l u dc hit
----
-n u CPU_ゲームの更新 0 0
-n dc 描画命令を作る_（ドローコール） 0 1
-n v GPU_頂点シェーダー 1 1 hit
-l u dc
-l dc v hit 送る
----
-n u CPU_ゲームの更新 0 0
-n dc 描画命令を作る_（ドローコール） 0 1
-n v GPU_頂点シェーダー 1 1
-n r ラスタライズ_（ピクセルに分解） 2 1 hit
-l u dc
-l dc v - 送る
-l v r hit
----
-n u CPU_ゲームの更新 0 0
-n dc 描画命令を作る_（ドローコール） 0 1
-n v GPU_頂点シェーダー 1 1
-n r ラスタライズ_（ピクセルに分解） 2 1
-n p ピクセルシェーダー_（色付け） 3 1 hit
-l u dc
-l dc v - 送る
-l v r
-l r p hit
----
-n u CPU_ゲームの更新 0 0
-n dc 描画命令を作る_（ドローコール） 0 1
-n v GPU_頂点シェーダー 1 1
-n r ラスタライズ_（ピクセルに分解） 2 1
-n p ピクセルシェーダー_（色付け） 3 1
-n o 画面に書き込む 4 1 hit
-l u dc
-l dc v - 送る
-l v r
-l r p
-l p o hit
-</div>
+<svg class="fig flow" viewBox="0 0 1309 196" role="img" aria-label="CPU が描画命令を作り、GPU が処理する"><defs><marker id="fl12852" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">CPU が描画命令を作り、GPU が処理する</text><line x1="150.0" y1="87.0" x2="150.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl12852)"/><line x1="275.0" y1="148.0" x2="333.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl12852)"/><text x="304.0" y="142.0" text-anchor="middle" style="font-size:12px">送る</text><line x1="494.0" y1="148.0" x2="552.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl12852)"/><line x1="802.0" y1="148.0" x2="860.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl12852)"/><line x1="1096.0" y1="148.0" x2="1154.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl12852)"/><rect x="79.5" y="44.0" width="141" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">CPU ゲームの更新</text><circle cx="81.5" cy="46.0" r="10" fill="#4c8bf5"/><text x="81.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="28.0" y="128.0" width="244" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="150.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">描画命令を作る （ドローコール）</text><circle cx="30.0" cy="130.0" r="10" fill="#2ea043"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="336.0" y="128.0" width="155" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="413.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">GPU 頂点シェーダー</text><circle cx="338.0" cy="130.0" r="10" fill="#e5a828"/><text x="338.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="555.0" y="128.0" width="244" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="677.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ラスタライズ （ピクセルに分解）</text><circle cx="557.0" cy="130.0" r="10" fill="#e5484d"/><text x="557.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="863.0" y="128.0" width="230" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="978.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ピクセルシェーダー （色付け）</text><circle cx="865.0" cy="130.0" r="10" fill="#9664e6"/><text x="865.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="1157.0" y="128.0" width="124" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="1219.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">画面に書き込む</text><circle cx="1159.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="1159.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">6</text></svg>
 
 | 用語 | 意味 |
 | --- | --- |
@@ -234,6 +192,7 @@ l cpu gpu hit 木_x1000を1回で
 - [アルゴリズムとデータ構造（空間分割）](algorithms.md)
 - [メモリ使用量](memory-usage.md)
 - [Dear ImGui](../libs/imgui/index.md)
+- [描画の最適化（詳細）](gfx/index.md)
 - [深度とカリング](../3d/depth-culling.md)
 - [メッシュとテクスチャ（インスタンシング・サンプラー）](../3d/mesh-textures.md)
 - [スキニングとアニメーション](../3d/skinning-animation.md)

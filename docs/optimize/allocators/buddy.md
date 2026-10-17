@@ -21,30 +21,7 @@ tags:
 
 メモリ全体（たとえば 256 バイト）を、**1 つの大きなブロック**とします。**要求が来たら、必要な大きさになるまで、半分に分割**します。
 
-<div class="anim" data-type="graph" data-label="バディ：32 バイトを取りたい。256 → 128 → 64 → 32 と、半分ずつ割る">
-n b256 256 0 1 hit
----
-n b256 256 0 1 dim
-n b128a 128 1 0 new
-n b128b 128_（空き） 1 2 new
-l b256 b128a hit 割る
-l b256 b128b hit 割る
----
-n b128a 128 1 0 dim
-n b64a 64 2 -0.5 new
-n b64b 64_（空き） 2 0.5 new
-n b128b 128_（空き） 1 2
-l b128a b64a hit 割る
-l b128a b64b hit 割る
----
-n b64a 64 2 -0.5 dim
-n b32a 32_（貸す） 3 -1 hit
-n b32b 32_（空き） 3 0 new
-n b64b 64_（空き） 2 0.5
-n b128b 128_（空き） 1 2
-l b64a b32a hit 割る
-l b64a b32b hit 割る
-</div>
+<svg class="fig flow" viewBox="0 0 647 364" role="img" aria-label="バディ：32 バイトを取りたい。256 → 128 → 64 → 32 と、半分ずつ割る"><defs><marker id="fl81686" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">バディ：32 バイトを取りたい。256 → 128 → 64 → 32 と、半分ずつ割る</text><line x1="107.0" y1="210.3" x2="183.5" y2="169.7" stroke="currentColor" stroke-width="2" marker-end="url(#fl81686)"/><text x="145.2" y="184.0" text-anchor="middle" style="font-size:12px">割る</text><line x1="107.0" y1="253.7" x2="181.1" y2="293.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl81686)"/><text x="144.1" y="267.4" text-anchor="middle" style="font-size:12px">割る</text><line x1="265.5" y1="138.0" x2="356.5" y2="116.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl81686)"/><text x="311.0" y="121.0" text-anchor="middle" style="font-size:12px">割る</text><line x1="265.5" y1="158.0" x2="342.0" y2="176.5" stroke="currentColor" stroke-width="2" marker-end="url(#fl81686)"/><text x="303.8" y="161.2" text-anchor="middle" style="font-size:12px">割る</text><line x1="438.5" y1="95.8" x2="511.0" y2="77.8" stroke="currentColor" stroke-width="2" marker-end="url(#fl81686)"/><text x="474.8" y="80.8" text-anchor="middle" style="font-size:12px">割る</text><line x1="438.5" y1="116.2" x2="511.0" y2="134.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl81686)"/><text x="474.8" y="119.2" text-anchor="middle" style="font-size:12px">割る</text><rect x="28.0" y="212.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="66.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">256</text><circle cx="30.0" cy="214.0" r="10" fill="#4c8bf5"/><text x="30.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="186.5" y="128.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2" opacity="0.55"/><text x="224.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">128</text><circle cx="188.5" cy="130.0" r="10" fill="#2ea043"/><text x="188.5" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="168.0" y="296.0" width="113" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="224.5" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">128 （空き）</text><circle cx="170.0" cy="298.0" r="10" fill="#2ea043"/><text x="170.0" y="298.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="359.5" y="86.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2" opacity="0.55"/><text x="397.5" y="106.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">64</text><circle cx="361.5" cy="88.0" r="10" fill="#e5a828"/><text x="361.5" y="88.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="345.0" y="170.0" width="105" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="397.5" y="190.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">64 （空き）</text><circle cx="347.0" cy="172.0" r="10" fill="#e5a828"/><text x="347.0" y="172.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="514.0" y="44.0" width="105" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="566.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">32 （貸す）</text><circle cx="516.0" cy="46.0" r="10" fill="#e5484d"/><text x="516.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="514.0" y="128.0" width="105" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="566.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">32 （空き）</text><circle cx="516.0" cy="130.0" r="10" fill="#e5484d"/><text x="516.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 ### 相棒（バディ）の見つけ方
 

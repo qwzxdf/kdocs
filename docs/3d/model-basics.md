@@ -19,27 +19,7 @@ tags:
 
 3D モデルは、**3 つの部品**でできています。
 
-<div class="anim" data-type="graph" data-label="3D モデル ＝ メッシュ（形）＋ テクスチャ（絵）＋ マテリアル（質感）">
-n model 3Dモデル 0 1 hit
----
-n model 3Dモデル 0 1
-n mesh メッシュ_（形） 1 0 new
-l model mesh hit 部品
----
-n model 3Dモデル 0 1
-n mesh メッシュ_（形） 1 0
-n tex テクスチャ_（表面の絵） 1 1 new
-l model mesh 部品
-l model tex hit 部品
----
-n model 3Dモデル 0 1
-n mesh メッシュ_（形） 1 0
-n tex テクスチャ_（表面の絵） 1 1
-n mat マテリアル_（質感の設定） 1 2 new
-l model mesh 部品
-l model tex 部品
-l model mat hit 部品
-</div>
+<svg class="fig illust" viewBox="0 0 760 300" role="img" aria-label="3D モデルは、メッシュ・テクスチャ・マテリアルでできている"><defs><radialGradient id="mg" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffffff"/><stop offset="0.4" stop-color="#4c8bf5"/><stop offset="1" stop-color="#16256b"/></radialGradient><pattern id="chk" width="20" height="20" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#e5484d"/><rect x="10" y="10" width="10" height="10" fill="#e5484d"/><rect x="10" width="10" height="10" fill="#f6c244"/><rect y="10" width="10" height="10" fill="#f6c244"/></pattern></defs><text x="20" y="26" class="fig-title">3D モデル ＝ 形（メッシュ）＋ 表面の絵（テクスチャ）＋ 質感（マテリアル）</text><polygon points="110.0,78.0 172.0,109.0 110.0,140.0 48.0,109.0" fill="rgba(150,150,150,0.15)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><polygon points="48.0,109.0 110.0,140.0 110.0,202.0 48.0,171.0" fill="rgba(150,150,150,0.08)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><polygon points="110.0,140.0 172.0,109.0 172.0,171.0 110.0,202.0" fill="rgba(150,150,150,0.22)" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="110" cy="78" r="5" fill="#e5484d"/><circle cx="172" cy="109" r="5" fill="#e5484d"/><circle cx="110" cy="140" r="5" fill="#e5484d"/><circle cx="48" cy="109" r="5" fill="#e5484d"/><circle cx="48" cy="171" r="5" fill="#e5484d"/><circle cx="110" cy="202" r="5" fill="#e5484d"/><circle cx="172" cy="171" r="5" fill="#e5484d"/><text x="110" y="250" text-anchor="middle" style="font-size:14px;font-weight:600">メッシュ（形）</text><text x="110" y="272" text-anchor="middle" style="font-size:12px;font-weight:400">頂点と三角形だけ。素体</text><text x="205" y="150" text-anchor="middle" style="font-size:30px;font-weight:700">＋</text><rect x="250" y="80" width="120" height="120" rx="8" fill="url(#chk)" stroke="currentColor" stroke-width="2"/><path d="M 250 80 L 370 80" stroke="currentColor"/><text x="310" y="250" text-anchor="middle" style="font-size:14px;font-weight:600">テクスチャ（絵）</text><text x="310" y="272" text-anchor="middle" style="font-size:12px;font-weight:400">表面に貼る画像。シール</text><text x="405" y="150" text-anchor="middle" style="font-size:30px;font-weight:700">＋</text><circle cx="500" cy="140" r="58" fill="url(#mg)" stroke="currentColor" stroke-width="2"/><ellipse cx="480" cy="116" rx="14" ry="9" fill="rgba(255,255,255,0.85)"/><text x="500" y="250" text-anchor="middle" style="font-size:14px;font-weight:600">マテリアル（質感）</text><text x="500" y="272" text-anchor="middle" style="font-size:12px;font-weight:400">ツヤ・金属・ざらざら。塗料</text><text x="585" y="150" text-anchor="middle" style="font-size:30px;font-weight:700">＝</text><polygon points="670.0,78.0 732.0,109.0 670.0,140.0 608.0,109.0" fill="#f6c244" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><polygon points="608.0,109.0 670.0,140.0 670.0,202.0 608.0,171.0" fill="#e5484d" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><polygon points="670.0,140.0 732.0,109.0 732.0,171.0 670.0,202.0" fill="#c93a3f" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><ellipse cx="690" cy="108" rx="10" ry="6" fill="rgba(255,255,255,0.7)"/><text x="670" y="250" text-anchor="middle" style="font-size:14px;font-weight:600">完成した 3D モデル</text><text x="670" y="272" text-anchor="middle" style="font-size:12px;font-weight:400">ゲームで表示するもの</text></svg>
 
 | 部品 | 一言で | 例えると |
 | --- | --- | --- |
@@ -153,25 +133,7 @@ l model mat hit 部品
 
 3D モデルを描くには、**メッシュのデータを、GPU のメモリに、あらかじめ置いておきます**。この**置き場所**を、**バッファ**と呼びます。
 
-<div class="anim" data-type="graph" data-label="メッシュのデータは、GPU のバッファに置いてから、描画する">
-n file モデルファイル 0 1 hit
----
-n file モデルファイル 0 1
-n cpu メモリ_（CPU 側）_頂点・インデックス 1 1 new
-l file cpu hit 読み込む
----
-n file モデルファイル 0 1 dim
-n cpu メモリ_（CPU 側）_頂点・インデックス 1 1
-n gpu バッファ_（GPU 側） 2 1 new
-l cpu gpu hit 一度だけ転送
----
-n cpu メモリ_（CPU 側）_頂点・インデックス 1 1 dim
-n gpu バッファ_（GPU 側） 2 1
-n draw 描画 3 1 new
-n scr 画面 4 1 new
-l gpu draw hit 毎フレーム使う
-l draw scr hit 表示
-</div>
+<svg class="fig illust" viewBox="0 0 800 300" role="img" aria-label="メッシュのデータを、GPU のバッファに置いてから、描画する"><defs><marker id="gb1" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs><text x="20" y="26" class="fig-title">メッシュのデータは、起動時に 1 回だけ GPU のバッファへ。描画のたびに、使い回す</text><path d="M 24 96 L 76 96 L 96 116 L 96 196 L 24 196 Z" fill="rgba(150,150,150,0.2)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><text x="60" y="160" text-anchor="middle" style="font-size:14px;font-weight:700">モデル</text><text x="60" y="232" text-anchor="middle" style="font-size:14px;font-weight:700">ファイル</text><line x1="104" y1="146" x2="160" y2="146" stroke="currentColor" stroke-width="3" marker-end="url(#gb1)"/><text x="132" y="136" text-anchor="middle" style="font-size:12px;font-weight:600">読む</text><rect x="170" y="86" width="150" height="120" rx="10" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="3"/><line x1="190" y1="86" x2="190" y2="72" stroke="currentColor" stroke-width="3"/><line x1="190" y1="206" x2="190" y2="220" stroke="currentColor" stroke-width="3"/><line x1="214" y1="86" x2="214" y2="72" stroke="currentColor" stroke-width="3"/><line x1="214" y1="206" x2="214" y2="220" stroke="currentColor" stroke-width="3"/><line x1="238" y1="86" x2="238" y2="72" stroke="currentColor" stroke-width="3"/><line x1="238" y1="206" x2="238" y2="220" stroke="currentColor" stroke-width="3"/><line x1="262" y1="86" x2="262" y2="72" stroke="currentColor" stroke-width="3"/><line x1="262" y1="206" x2="262" y2="220" stroke="currentColor" stroke-width="3"/><line x1="286" y1="86" x2="286" y2="72" stroke="currentColor" stroke-width="3"/><line x1="286" y1="206" x2="286" y2="220" stroke="currentColor" stroke-width="3"/><text x="245" y="120" text-anchor="middle" style="font-size:14px;font-weight:700">CPU 側のメモリ</text><rect x="186" y="140" width="18" height="40" rx="2" fill="#4c8bf5"/><rect x="208" y="140" width="18" height="40" rx="2" fill="#4c8bf5"/><rect x="230" y="140" width="18" height="40" rx="2" fill="#4c8bf5"/><rect x="252" y="140" width="18" height="40" rx="2" fill="#4c8bf5"/><rect x="274" y="140" width="18" height="40" rx="2" fill="#4c8bf5"/><rect x="296" y="140" width="18" height="40" rx="2" fill="#4c8bf5"/><text x="245" y="250" text-anchor="middle" style="font-size:14px;font-weight:700">頂点・インデックス</text><line x1="330" y1="146" x2="412" y2="146" stroke="currentColor" stroke-width="3" marker-end="url(#gb1)"/><text x="371" y="134" text-anchor="middle" style="font-size:13px;font-weight:700">転送</text><text x="371" y="170" text-anchor="middle" style="font-size:12px;font-weight:400">（1 回だけ）</text><rect x="420" y="86" width="170" height="120" rx="10" fill="rgba(46,160,67,0.22)" stroke="currentColor" stroke-width="3"/><line x1="420" y1="106" x2="406" y2="106" stroke="currentColor" stroke-width="3"/><line x1="590" y1="106" x2="604" y2="106" stroke="currentColor" stroke-width="3"/><line x1="420" y1="128" x2="406" y2="128" stroke="currentColor" stroke-width="3"/><line x1="590" y1="128" x2="604" y2="128" stroke="currentColor" stroke-width="3"/><line x1="420" y1="150" x2="406" y2="150" stroke="currentColor" stroke-width="3"/><line x1="590" y1="150" x2="604" y2="150" stroke="currentColor" stroke-width="3"/><line x1="420" y1="172" x2="406" y2="172" stroke="currentColor" stroke-width="3"/><line x1="590" y1="172" x2="604" y2="172" stroke="currentColor" stroke-width="3"/><text x="505" y="120" text-anchor="middle" style="font-size:14px;font-weight:700">GPU のバッファ</text><rect x="440" y="136" width="130" height="50" rx="6" fill="rgba(255,255,255,0.25)" stroke="currentColor" stroke-width="2"/><rect x="448" y="146" width="14" height="30" rx="2" fill="#2ea043"/><rect x="468" y="146" width="14" height="30" rx="2" fill="#2ea043"/><rect x="488" y="146" width="14" height="30" rx="2" fill="#2ea043"/><rect x="508" y="146" width="14" height="30" rx="2" fill="#2ea043"/><rect x="528" y="146" width="14" height="30" rx="2" fill="#2ea043"/><rect x="548" y="146" width="14" height="30" rx="2" fill="#2ea043"/><text x="505" y="250" text-anchor="middle" style="font-size:14px;font-weight:700">頂点バッファ・インデックスバッファ</text><line x1="600" y1="146" x2="672" y2="146" stroke="currentColor" stroke-width="3" marker-end="url(#gb1)"/><text x="636" y="134" text-anchor="middle" style="font-size:12px;font-weight:600">毎フレーム</text><text x="636" y="170" text-anchor="middle" style="font-size:12px;font-weight:400">使い回す</text><rect x="680" y="96" width="100" height="80" rx="8" fill="rgba(229,170,40,0.2)" stroke="currentColor" stroke-width="3"/><rect x="718" y="176" width="24" height="12" fill="currentColor" opacity="0.5"/><rect x="704" y="188" width="52" height="8" rx="3" fill="currentColor" opacity="0.5"/><polygon points="730.0,118.0 752.0,129.0 730.0,140.0 708.0,129.0" fill="#f6c244" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><polygon points="708.0,129.0 730.0,140.0 730.0,162.0 708.0,151.0" fill="#e5484d" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><polygon points="730.0,140.0 752.0,129.0 752.0,151.0 730.0,162.0" fill="#c93a3f" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><text x="730" y="250" text-anchor="middle" style="font-size:14px;font-weight:700">画面</text></svg>
 
 | 用語 | 意味 |
 | --- | --- |

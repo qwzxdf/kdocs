@@ -119,47 +119,7 @@ int main() {
 
 ### ゲームでのよくある形
 
-<div class="anim" data-type="graph" data-label="ロードスレッドで読み込み、完了フラグでメインスレッドが切り替える">
-n in 入力 0 0 hit
-n up 更新 1 0 hit
-n dr 描画 2 0 hit
-l in up hit
-l up dr hit
-l dr in hit 繰り返す
----
-n in 入力 0 0
-n up 更新 1 0
-n dr 描画 2 0
-n ld ロードスレッド_ステージ読み込み 1 1.5 hit
-l in up
-l up dr
-l dr in - 繰り返す
-l up ld hit 開始
----
-n in 入力 0 0
-n up 更新 1 0
-n dr 描画 2 0
-n ld ロードスレッド_ステージ読み込み 1 1.5
-n fl 完了フラグ_（atomic） 2 1.5 hit
-l in up
-l up dr
-l dr in - 繰り返す
-l up ld - 開始
-l ld fl hit 終わったら
----
-n in 入力 0 0
-n up 更新 1 0
-n dr 描画 2 0
-n ld ロードスレッド_ステージ読み込み 1 1.5
-n fl 完了フラグ_（atomic） 2 1.5
-n sw シーン切り替え 3 0 hit
-l in up
-l up dr
-l dr in - 繰り返す
-l up ld - 開始
-l ld fl - 終わったら
-l fl sw hit 毎フレーム確認
-</div>
+<svg class="fig flow" viewBox="0 0 870 238" role="img" aria-label="ロードスレッドで読み込み、完了フラグでメインスレッドが切り替える"><defs><marker id="fl54100" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ロードスレッドで読み込み、完了フラグでメインスレッドが切り替える</text><line x1="107.0" y1="64.0" x2="249.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl54100)"/><line x1="331.0" y1="64.0" x2="524.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl54100)"/><line x1="524.0" y1="64.0" x2="107.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl54100)"/><text x="315.5" y="58.0" text-anchor="middle" style="font-size:12px">繰り返す</text><line x1="290.0" y1="87.0" x2="290.0" y2="167.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl54100)"/><text x="290.0" y="121.0" text-anchor="middle" style="font-size:12px">開始</text><line x1="415.0" y1="190.0" x2="473.0" y2="190.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl54100)"/><text x="444.0" y="184.0" text-anchor="middle" style="font-size:12px">終わったら</text><line x1="604.2" y1="167.0" x2="740.8" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl54100)"/><text x="672.5" y="121.0" text-anchor="middle" style="font-size:12px">毎フレーム確認</text><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">入力</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="252.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="290.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">更新</text><circle cx="254.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="254.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="527.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="565.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">描画</text><circle cx="529.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="529.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="168.0" y="170.0" width="244" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="290.0" y="190.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ロードスレッド ステージ読み込み</text><circle cx="170.0" cy="172.0" r="10" fill="#2ea043"/><text x="170.0" y="172.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="476.0" y="170.0" width="178" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="565.0" y="190.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">完了フラグ （atomic）</text><circle cx="478.0" cy="172.0" r="10" fill="#e5a828"/><text x="478.0" y="172.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="718.0" y="44.0" width="124" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="780.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">シーン切り替え</text><circle cx="720.0" cy="46.0" r="10" fill="#e5484d"/><text x="720.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 ## よくあるミス
 

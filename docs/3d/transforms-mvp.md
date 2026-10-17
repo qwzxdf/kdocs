@@ -17,49 +17,7 @@ tags:
 
 ## 3 つの行列
 
-<div class="anim" data-type="graph" data-label="MVP 変換：頂点が、いくつもの空間を順に通って、画面に出る">
-n c0 モデル空間_（モデル内の座標） 0 0 hit
----
-n c0 モデル空間_（モデル内の座標） 0 0
-n c1 ワールド空間_（世界の座標） 0 1 hit
-l c0 c1 hit M（ワールド行列）
----
-n c0 モデル空間_（モデル内の座標） 0 0
-n c1 ワールド空間_（世界の座標） 0 1
-n c2 ビュー空間_（カメラから見た座標） 0 2 hit
-l c0 c1 - M（ワールド行列）
-l c1 c2 hit V（ビュー行列）
----
-n c0 モデル空間_（モデル内の座標） 0 0
-n c1 ワールド空間_（世界の座標） 0 1
-n c2 ビュー空間_（カメラから見た座標） 0 2
-n c3 クリップ空間_（射影後） 0 3 hit
-l c0 c1 - M（ワールド行列）
-l c1 c2 - V（ビュー行列）
-l c2 c3 hit P（射影行列）
----
-n c0 モデル空間_（モデル内の座標） 0 0
-n c1 ワールド空間_（世界の座標） 0 1
-n c2 ビュー空間_（カメラから見た座標） 0 2
-n c3 クリップ空間_（射影後） 0 3
-n c4 NDC_（-1〜1_の範囲） 0 4 hit
-l c0 c1 - M（ワールド行列）
-l c1 c2 - V（ビュー行列）
-l c2 c3 - P（射影行列）
-l c3 c4 hit w_で割る
----
-n c0 モデル空間_（モデル内の座標） 0 0
-n c1 ワールド空間_（世界の座標） 0 1
-n c2 ビュー空間_（カメラから見た座標） 0 2
-n c3 クリップ空間_（射影後） 0 3
-n c4 NDC_（-1〜1_の範囲） 0 4
-n c5 画面（ピクセル） 0 5 hit
-l c0 c1 - M（ワールド行列）
-l c1 c2 - V（ビュー行列）
-l c2 c3 - P（射影行列）
-l c3 c4 - w_で割る
-l c4 c5 hit ビューポート変換
-</div>
+<svg class="fig flow" viewBox="0 0 360 532" role="img" aria-label="MVP 変換：頂点が、いくつもの空間を順に通って、画面に出る"><defs><marker id="fl3200" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">MVP 変換：頂点が、いくつもの空間を順に通って、画面に出る</text><line x1="157.0" y1="87.0" x2="157.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="100.0" text-anchor="middle" style="font-size:12px">M（ワールド行列）</text><line x1="157.0" y1="171.0" x2="157.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="184.0" text-anchor="middle" style="font-size:12px">V（ビュー行列）</text><line x1="157.0" y1="255.0" x2="157.0" y2="293.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="268.0" text-anchor="middle" style="font-size:12px">P（射影行列）</text><line x1="157.0" y1="339.0" x2="157.0" y2="377.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="352.0" text-anchor="middle" style="font-size:12px">w で割る</text><line x1="157.0" y1="423.0" x2="157.0" y2="461.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="436.0" text-anchor="middle" style="font-size:12px">ビューポート変換</text><rect x="42.0" y="44.0" width="230" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="157.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">モデル空間 （モデル内の座標）</text><circle cx="44.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="44.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="49.0" y="128.0" width="216" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="157.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワールド空間 （世界の座標）</text><circle cx="51.0" cy="130.0" r="10" fill="#2ea043"/><text x="51.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="28.0" y="212.0" width="258" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="157.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ビュー空間 （カメラから見た座標）</text><circle cx="30.0" cy="214.0" r="10" fill="#e5a828"/><text x="30.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="63.0" y="296.0" width="188" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="157.0" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">クリップ空間 （射影後）</text><circle cx="65.0" cy="298.0" r="10" fill="#e5484d"/><text x="65.0" y="298.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="71.0" y="380.0" width="172" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="157.0" y="400.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">NDC （-1〜1 の範囲）</text><circle cx="73.0" cy="382.0" r="10" fill="#9664e6"/><text x="73.0" y="382.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="88.0" y="464.0" width="138" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="157.0" y="484.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">画面（ピクセル）</text><circle cx="90.0" cy="466.0" r="10" fill="#4c8bf5"/><text x="90.0" y="466.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">6</text></svg>
 
 ### M：モデル行列（ワールド行列） {#model}
 
@@ -210,19 +168,7 @@ VSOutput main(VSInput input) {
 
 頂点シェーダーが、クリップ空間の座標を返すと、GPU が、<strong>透視除算（w で割る）</strong>と**ビューポート変換**を行い、三角形を**ピクセルに分解**（ラスタライズ）して、ピクセル シェーダーを呼びます。<strong>この 2 つは、固定機能（自動）</strong>で、自分では書きません。
 
-<div class="anim" data-type="graph" data-label="シェーダーに渡したあと、GPU が自動でやること">
-n c0 頂点シェーダー_（クリップ空間の座標を返す） 0 0 hit
----
-n c0 頂点シェーダー_（クリップ空間の座標を返す） 0 0
-n c1 GPUが自動_（w_で割る・ビューポート変換） 0 1 hit
-l c0 c1 hit
----
-n c0 頂点シェーダー_（クリップ空間の座標を返す） 0 0
-n c1 GPUが自動_（w_で割る・ビューポート変換） 0 1
-n c2 ピクセルシェーダー_（色を返す） 0 2 hit
-l c0 c1
-l c1 c2 hit
-</div>
+<svg class="fig flow" viewBox="0 0 384 280" role="img" aria-label="シェーダーに渡したあと、GPU が自動でやること"><defs><marker id="fl7326" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">シェーダーに渡したあと、GPU が自動でやること</text><line x1="192.0" y1="87.0" x2="192.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7326)"/><line x1="192.0" y1="171.0" x2="192.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7326)"/><rect x="28.0" y="44.0" width="328" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="192.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">頂点シェーダー （クリップ空間の座標を返す）</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="37.0" y="128.0" width="310" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="192.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">GPUが自動 （w で割る・ビューポート変換）</text><circle cx="39.0" cy="130.0" r="10" fill="#2ea043"/><text x="39.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="70.0" y="212.0" width="244" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="192.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ピクセルシェーダー （色を返す）</text><circle cx="72.0" cy="214.0" r="10" fill="#e5a828"/><text x="72.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 ## ビューポート（画面への変換）
 

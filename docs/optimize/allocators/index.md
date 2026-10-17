@@ -59,25 +59,7 @@ constexpr size_t AlignUp(size_t value, size_t alignment) {
 
 ## 種類の一覧
 
-<div class="anim" data-type="graph" data-label="アロケータの種類：大きなメモリを、切り分けるやり方の違い">
-n os OS_（大きなメモリ） 0 1 hit
----
-n os OS_（大きなメモリ） 0 1 dim
-n lin リニア_（アリーナ） 1 0 new
-n stk スタック 1 1 new
-n pool プール 1 2 new
-n fl フリーリスト 2 0 new
-n bud バディ 2 1 new
-n slab スラブ 2 2 new
-n tlsf TLSF 3 1 new
-l os lin hit
-l os stk hit
-l os pool hit
-l os fl hit
-l os bud hit
-l os slab hit
-l os tlsf hit
-</div>
+<svg class="fig flow" viewBox="0 0 755 280" role="img" aria-label="アロケータの種類：大きなメモリを、切り分けるやり方の違い"><defs><marker id="fl88332" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">アロケータの種類：大きなメモリを、切り分けるやり方の違い</text><line x1="170.0" y1="125.0" x2="271.5" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl88332)"/><line x1="192.0" y1="148.0" x2="289.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl88332)"/><line x1="170.0" y1="171.0" x2="292.0" y2="216.7" stroke="currentColor" stroke-width="2" marker-end="url(#fl88332)"/><line x1="192.0" y1="131.4" x2="474.0" y2="75.5" stroke="currentColor" stroke-width="2" marker-end="url(#fl88332)"/><line x1="192.0" y1="148.0" x2="491.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl88332)"/><line x1="192.0" y1="164.6" x2="491.0" y2="223.9" stroke="currentColor" stroke-width="2" marker-end="url(#fl88332)"/><line x1="192.0" y1="148.0" x2="648.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl88332)"/><rect x="28.0" y="128.0" width="161" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="108.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">OS （大きなメモリ）</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="253.0" y="44.0" width="160" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="333.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">リニア （アリーナ）</text><circle cx="255.0" cy="46.0" r="10" fill="#2ea043"/><text x="255.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="292.0" y="128.0" width="82" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="333.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">スタック</text><circle cx="294.0" cy="130.0" r="10" fill="#2ea043"/><text x="294.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="295.0" y="212.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="333.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">プール</text><circle cx="297.0" cy="214.0" r="10" fill="#2ea043"/><text x="297.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="477.0" y="44.0" width="110" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="532.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">フリーリスト</text><circle cx="479.0" cy="46.0" r="10" fill="#2ea043"/><text x="479.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="494.0" y="128.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="532.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">バディ</text><circle cx="496.0" cy="130.0" r="10" fill="#2ea043"/><text x="496.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="494.0" y="212.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="532.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">スラブ</text><circle cx="496.0" cy="214.0" r="10" fill="#2ea043"/><text x="496.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="651.0" y="128.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="689.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">TLSF</text><circle cx="653.0" cy="130.0" r="10" fill="#2ea043"/><text x="653.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text></svg>
 
 | アロケータ | 仕組み | 確保 | 解放 | 向く用途 | 弱点 |
 | --- | --- | --- | --- | --- | --- |

@@ -108,62 +108,7 @@ int main() {
 
 作る前にこういう表や図を書いておくと、「走りながら攻撃したら？」のような抜けに気づけます。
 
-<div class="anim" data-type="graph" data-label="ステートマシン：今の状態と、遷移">
-n idle 待機 0 0 hit
-n run 走る 1 0
-n jump ジャンプ 2 0
-n atk 攻撃 1 1
-l idle run
-l run jump
-l jump idle
-l idle atk
-l atk idle
-# 最初は「待機」
----
-n idle 待機 0 0
-n run 走る 1 0 hit
-n jump ジャンプ 2 0
-n atk 攻撃 1 1
-l idle run hit 移動入力
-l run jump
-l jump idle
-l idle atk
-l atk idle
-# 移動入力があると「走る」へ遷移
----
-n idle 待機 0 0
-n run 走る 1 0
-n jump ジャンプ 2 0 hit
-n atk 攻撃 1 1
-l idle run
-l run jump hit ジャンプ
-l jump idle
-l idle atk
-l atk idle
-# 走っている間にジャンプすると「ジャンプ」へ
----
-n idle 待機 0 0 hit
-n run 走る 1 0
-n jump ジャンプ 2 0
-n atk 攻撃 1 1
-l idle run
-l run jump
-l jump idle hit 着地
-l idle atk
-l atk idle
-# 着地すると「待機」に戻る
----
-n idle 待機 0 0
-n run 走る 1 0
-n jump ジャンプ 2 0
-n atk 攻撃 1 1 hit
-l idle run
-l run jump
-l jump idle
-l idle atk hit 攻撃
-l atk idle
-# 待機中に攻撃ボタンで「攻撃」へ。決まった線以外には遷移しない
-</div>
+<svg class="fig flow" viewBox="0 0 418 196" role="img" aria-label="ステートマシン：今の状態と、遷移"><defs><marker id="fl37273" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ステートマシン：今の状態と、遷移</text><line x1="107.0" y1="64.0" x2="165.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37273)"/><text x="136.0" y="58.0" text-anchor="middle" style="font-size:12px">移動入力</text><line x1="247.0" y1="64.0" x2="305.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37273)"/><text x="276.0" y="58.0" text-anchor="middle" style="font-size:12px">ジャンプ</text><line x1="305.0" y1="64.0" x2="107.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37273)"/><text x="206.0" y="58.0" text-anchor="middle" style="font-size:12px">着地</text><line x1="104.3" y1="87.0" x2="167.7" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37273)"/><text x="136.0" y="100.0" text-anchor="middle" style="font-size:12px">攻撃</text><line x1="167.7" y1="125.0" x2="104.3" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37273)"/><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">待機</text><rect x="168.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="206.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">走る</text><rect x="308.0" y="44.0" width="82" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="349.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ジャンプ</text><rect x="168.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="206.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">攻撃</text></svg>
 
 ## 詳しく
 

@@ -119,27 +119,7 @@ Enemy は「倒された」と知らせるだけで、誰が反応するかは�
 
 ### 悪い例
 
-<div class="anim" data-type="graph" data-label="継承で機能を足すと、同じ処理が複数の場所に増える">
-n e Enemy 0 1
-n w WalkingEnemy 1 0
-n f FlyingEnemy 1 2
-n ws WalkingShootingEnemy 2 0
-n fs FlyingShootingEnemy 2 2
-l e w
-l e f
-l w ws
-l f fs
----
-n e Enemy 0 1
-n w WalkingEnemy 1 0
-n f FlyingEnemy 1 2
-n ws WalkingShootingEnemy 2 0 hit
-n fs FlyingShootingEnemy 2 2 hit
-l e w
-l e f
-l w ws
-l f fs
-</div>
+<svg class="fig flow" viewBox="0 0 558 280" role="img" aria-label="継承で機能を足すと、同じ処理が複数の場所に増える"><defs><marker id="fl97739" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">継承で機能を足すと、同じ処理が複数の場所に増える</text><line x1="107.0" y1="126.6" x2="182.9" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl97739)"/><line x1="107.0" y1="169.4" x2="182.9" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl97739)"/><line x1="289.0" y1="64.0" x2="347.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl97739)"/><line x1="285.5" y1="232.0" x2="351.0" y2="232.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl97739)"/><rect x="28.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Enemy</text><rect x="168.0" y="44.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="227.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">WalkingEnemy</text><rect x="171.5" y="212.0" width="111" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="227.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">FlyingEnemy</text><rect x="350.0" y="44.0" width="180" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="440.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">WalkingShootingEnemy</text><rect x="354.0" y="212.0" width="172" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="440.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">FlyingShootingEnemy</text></svg>
 
 ### 良い例
 

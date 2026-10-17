@@ -1,0 +1,123 @@
+---
+title: 縮小バッファの効果
+tags:
+  - 最適化
+  - 3Dゲーム
+---
+
+# 縮小バッファの効果
+
+**AO（環境光遮蔽）・ブルーム・ボリューメトリック フォグ・被写界深度・SSR** などの、**画面全体に対する効果**は、**ピクセル数に比例して、重く**なります。しかし、**これらの効果は、もともと、ぼんやりした（低周波な）結果**なので、**フル解像度で、計算する必要が、ありません**。**半分・4 分の 1 の解像度**で計算し、**最後に、拡大して、合成**すれば、**計算量・帯域幅が、4 分の 1・16 分の 1**になります。このページは、**縮小バッファの考え方**、**拡大（アップサンプル）の注意**、**ほかの解像度の工夫**を、説明します。
+
+!!! tip "ポイント"
+    - 目的：<strong>ピクセル数に比例する効果の、コスト削減</strong>。<strong>半分解像度 → 1/4、4 分の 1 解像度 → 1/16</strong>。
+    - 向く効果：<strong>AO・ブルーム・フォグ・DOF・SSR・パーティクル（煙）</strong> ＝ <strong>ぼやけた・滑らかな結果</strong>。
+    - 向かない：<strong>鋭い輪郭が、必要なもの</strong>（<strong>UI・文字・細い影</strong>）。
+    - 注意点：<strong>拡大時に、物体の境界で、にじむ</strong>。→ <strong>深度を使った、拡大（バイラテラル アップサンプル）</strong>。
+    - <strong>ダウンサンプルの、取り方</strong>：<strong>単純な間引きは、ちらつく</strong>。<strong>平均・最大・最小深度</strong>など、<strong>用途で選ぶ</strong>。
+    - 関連：<strong>動的解像度・TAA・チェッカーボード</strong>。
+
+## なぜ、縮小して良いのか
+
+<svg class="fig illust" viewBox="0 0 800 250" role="img" aria-label="縮小バッファの、計算量">
+<defs><marker id="lr1" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+<text x="20" y="24" class="fig-title">フル解像度（100%）と、半分解像度（25%）と、4 分の 1 解像度（6%）</text>
+<rect x="20" y="50" width="200" height="120" fill="rgba(229,72,77,0.3)" stroke="currentColor" stroke-width="2"/><text x="120" y="116" text-anchor="middle" style="font-weight:700">1920×1080</text><text x="120" y="136" text-anchor="middle" style="font-size:12px">計算量 100%</text>
+<line x1="226" y1="110" x2="276" y2="110" stroke="currentColor" stroke-width="3" marker-end="url(#lr1)"/>
+<rect x="284" y="80" width="100" height="60" fill="rgba(229,170,40,0.4)" stroke="currentColor" stroke-width="2"/><text x="334" y="106" text-anchor="middle" style="font-weight:700">960×540</text><text x="334" y="126" text-anchor="middle" style="font-size:12px">計算量 25%</text>
+<line x1="390" y1="110" x2="440" y2="110" stroke="currentColor" stroke-width="3" marker-end="url(#lr1)"/>
+<rect x="448" y="95" width="50" height="30" fill="rgba(46,160,67,0.45)" stroke="currentColor" stroke-width="2"/><text x="473" y="114" text-anchor="middle" style="font-size:10px">480×270</text><text x="473" y="142" text-anchor="middle" style="font-size:12px">計算量 6%</text>
+<text x="20" y="206" style="font-size:12px">AO・ブルーム・フォグは、結果が、ぼやけている。低い解像度で計算して、拡大しても、見た目が、ほぼ変わらない</text>
+<text x="20" y="226" style="font-size:12px">計算量・書き込み・読み込み（帯域幅）が、同じ割合で、減る</text>
+</svg>
+
+| 効果 | 縮小の目安 |
+| --- | --- |
+| **SSAO・GTAO** | **半分解像度**（さらに、ブラーで、整える） |
+| **ブルーム** | **段階的に、半分ずつ縮小**（ブラーは、縮小した画像で） |
+| **ボリューメトリック フォグ** | **画面の、3D グリッド**（**160×90×64** など。**画面より、はるかに小さい**） |
+| <strong>被写界深度（DOF）</strong> | **半分解像度で、ぼかし** |
+| <strong>SSR（反射）</strong> | **半分解像度**（[Hi-Z とスクリーン空間トレース](hiz.md)） |
+| <strong>パーティクル（煙・霧）</strong> | **半分・4 分の 1**（[オーバードロー](overdraw.md)） |
+| **影のブラー・ソフトシャドウ** | **縮小で、計算** |
+
+## 拡大（アップサンプル）の問題
+
+**単純に拡大**（バイリニア）すると、**物体の境界で、遠くの値と、近くの値が、混ざって、にじみます**（AO が、物体の縁に、はみ出す・ハロー）。
+
+| 方法 | 説明 |
+| --- | --- |
+| **バイラテラル アップサンプル** | **拡大時に、フル解像度の深度**と、**縮小バッファの深度**を、**比べ**、**近い深度の画素だけ**を、**重み付けで混ぜる** |
+| **ナイボー（最近傍）＋深度** | **最も深度が近い、縮小画素を、選ぶ** |
+| **TAA で、時間的に、整える** | **毎フレーム、サンプルを、ずらし**、**時間で、平均**（[その他の最適化](others.md)） |
+
+```hlsl
+float4 UpsampleDepthAware(float2 uv, float full_depth) {
+  float4 result = 0;
+  float weight_sum = 0;
+  for (int i = 0; i < 4; ++i) {
+    float low_depth = low_res_depth.SampleLevel(point_sampler, uv, 0, offsets[i]);
+    float w = 1.0 / (abs(full_depth - low_depth) + 0.0001);
+    result += low_res_color.SampleLevel(point_sampler, uv, 0, offsets[i]) * w;
+    weight_sum += w;
+  }
+  return result / weight_sum;
+}
+```
+
+| 点 | 説明 |
+| --- | --- |
+| **重み** | **深度の差が、小さい画素ほど、重い** |
+| **効果** | **境界が、にじまない** |
+
+## ダウンサンプルの、取り方
+
+**縮小時に、4 画素から、1 画素を、作る**方法で、**結果が変わります**。
+
+| 方法 | 向く用途 |
+| --- | --- |
+| <strong>平均（バイリニア）</strong> | <strong>色（ブルーム）</strong> |
+| <strong>間引き（1 画素だけ取る）</strong> | **ちらつく**。**避ける**（**TAA で補うなら可**） |
+| **最小深度・最大深度** | **深度**（**Hi-Z**。**カリングは、保守的に**）（[Hi-Z](hiz.md)） |
+| **最も手前（最小）の深度** | **AO・フォグなど、深度で、拡大する**ときの、基準 |
+
+## そのほかの、解像度の工夫
+
+| 手法 | 説明 |
+| --- | --- |
+| **動的解像度** | **負荷に応じて、描画解像度を、フレームごとに、変える**。**UI は、フル解像度**（[フレームの予算](../frame-budget.md)） |
+| <strong>アップスケーラ（DLSS・FSR・TAAU）</strong> | **低解像度で描き**、**時間情報で、高解像度へ**（**品質を、保つ**） |
+| **チェッカーボード レンダリング** | **半分のピクセルを、市松模様で描き**、**前フレームで、補う** |
+| <strong>可変レート シェーディング（VRS）</strong> | **画面の場所ごとに、シェーディングの、細かさを変える**（[その他の最適化](others.md)） |
+| **ハーフ解像度の、ライティング** | **拡散ライティングだけ**を、**縮小で**（**鏡面は、フル**） |
+
+## よくあるミス
+
+??? failure "バイリニアで拡大して、物体の縁に、にじみ（ハロー）が出る"
+    **深度を使った、アップサンプル**にします。
+
+??? failure "鋭い輪郭が、必要な物を、縮小して、ぼやける"
+    **UI・文字・シャープな影は、フル解像度**で。
+
+??? failure "縮小時に、間引いて、ちらつく"
+    **平均**にする、**TAA を併用**します。
+
+??? failure "縮小バッファの、フォーマットを、重いまま使う"
+    **フォーマットも、軽く**します（[メモリ帯域幅](bandwidth.md)）。
+
+## これだけ覚える
+
+!!! abstract "まとめ"
+    - [x] 縮小バッファ ＝ <strong>ぼやけた効果を、低解像度で計算</strong>。<strong>半分で 1/4、4 分の 1 で 1/16</strong>
+    - [x] 向く：<strong>AO・ブルーム・フォグ・DOF・SSR・煙</strong>。<strong>UI・文字は、フル解像度</strong>
+    - [x] 拡大は<strong>深度を考慮（バイラテラル）</strong>。<strong>単純な拡大は、境界がにじむ</strong>
+    - [x] ダウンサンプルは<strong>用途で選ぶ</strong>（<strong>色は平均、深度は最小・最大</strong>）
+    - [x] 動的解像度・アップスケーラ・チェッカーボードも、<strong>同じ発想</strong>
+
+## 関連ページ
+
+- [描画の最適化（詳細）](index.md)
+- [メモリ帯域幅](bandwidth.md)
+- [Hi-Z とスクリーン空間トレース](hiz.md)
+- [オーバードロー](overdraw.md)
+- [その他の最適化](others.md)

@@ -65,24 +65,7 @@ namespace ed = ax::NodeEditor;  // 以降、ed:: と書ける
 
 ## 仕組み：ノード・ピン・リンク
 
-<div class="anim" data-type="graph" data-label="ノード・ピン・リンク">
-n a 数値 0 0
-n b 足し算 2 0
-# ノードは、四角い箱
----
-n a 数値 0 0
-n b 足し算 2 0
-n p1 出力ピン 1 1 new
-n p2 入力ピン 1 2 new
-# ノードには、接続口（ピン）がある。出力ピンは右、入力ピンは左
----
-n a 数値 0 0 hit
-n b 足し算 2 0 hit
-n p1 出力ピン 1 1
-n p2 入力ピン 1 2
-l a b new リンク
-# 出力ピンと入力ピンを線（リンク）でつなぐ
-</div>
+<svg class="fig flow" viewBox="0 0 418 280" role="img" aria-label="ノード・ピン・リンク"><defs><marker id="fl88120" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ノード・ピン・リンク</text><line x1="107.0" y1="64.0" x2="311.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl88120)"/><text x="209.0" y="58.0" text-anchor="middle" style="font-size:12px">リンク</text><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">数値</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="314.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="352.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">足し算</text><circle cx="316.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="316.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="168.0" y="128.0" width="82" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="209.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">出力ピン</text><circle cx="170.0" cy="130.0" r="10" fill="#2ea043"/><text x="170.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="168.0" y="212.0" width="82" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="209.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">入力ピン</text><circle cx="170.0" cy="214.0" r="10" fill="#2ea043"/><text x="170.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text></svg>
 
 
 | 用語 | 意味 | ID の型 |
@@ -215,62 +198,7 @@ class NodeEditorWindow {
 
 ### 流れ
 
-<div class="anim" data-type="graph" data-label="ノード エディタの 1 フレーム">
-n begin ed::Begin 0 0 hit
-n node ノードとピン 1 0
-n link ed::Link 2 0
-n op 操作の受け取り 3 0
-n end ed::End 4 0
-l begin node
-l node link
-l link op
-l op end
-# ① エディタを開始する
----
-n begin ed::Begin 0 0
-n node ノードとピン 1 0 hit
-n link ed::Link 2 0
-n op 操作の受け取り 3 0
-n end ed::End 4 0
-l begin node hit
-l node link
-l link op
-l op end
-# ② ノードとピンを描く（BeginNode … EndNode）
----
-n begin ed::Begin 0 0
-n node ノードとピン 1 0
-n link ed::Link 2 0 hit
-n op 操作の受け取り 3 0
-n end ed::End 4 0
-l begin node
-l node link hit
-l link op
-l op end
-# ③ 自分のデータにあるリンクを、すべて描く
----
-n begin ed::Begin 0 0
-n node ノードとピン 1 0
-n link ed::Link 2 0
-n op 操作の受け取り 3 0 hit
-n end ed::End 4 0
-l begin node
-l node link
-l link op hit
-l op end
-# ④ ユーザーの操作（リンクの作成・削除）を受け取り、自分のデータに反映する
----
-n begin ed::Begin 0 0
-n node ノードとピン 1 0
-n link ed::Link 2 0
-n op 操作の受け取り 3 0
-n end ed::End 4 0 hit
-l begin node
-l node link
-l link op
-l op end hit
-# ⑤ エディタを終了する。これを毎フレームくり返す
-</div>
+<svg class="fig flow" viewBox="0 0 809 112" role="img" aria-label="ノード エディタの 1 フレーム"><defs><marker id="fl82824" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ノード エディタの 1 フレーム</text><line x1="126.0" y1="64.0" x2="184.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl82824)"/><line x1="300.0" y1="64.0" x2="358.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl82824)"/><line x1="452.0" y1="64.0" x2="510.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl82824)"/><line x1="640.0" y1="64.0" x2="698.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl82824)"/><rect x="28.0" y="44.0" width="95" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="75.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ed::Begin</text><rect x="187.0" y="44.0" width="110" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="242.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ノードとピン</text><rect x="361.0" y="44.0" width="88" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="405.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ed::Link</text><rect x="513.0" y="44.0" width="124" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="575.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">操作の受け取り</text><rect x="701.0" y="44.0" width="80" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="741.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ed::End</text></svg>
 
 
 ## 関数・型の詳しい説明
@@ -445,27 +373,7 @@ if (ed::QueryNewLink(&from, &to)) {
 !!! note "ピンから何もない所にドラッグしたとき"
     `QueryNewNode(&pin)` を使うと、**ピンから、何もない場所までドラッグして離した**ことを受け取れます（Blueprint の「引き出してノードを作る」メニュー）。`AcceptNewItem()` のあと、メニューを開いて、新しいノードを作ります。
 
-<div class="anim" data-type="graph" data-label="リンクを作る操作（BeginCreate）">
-n a 数値 0 0
-n b 足し算 3 0
-n p1 出力ピン 1 1 hit
-n p2 入力ピン 2 1
-# ① 出力ピンから、ドラッグを始める
----
-n a 数値 0 0
-n b 足し算 3 0
-n p1 出力ピン 1 1 hit
-n p2 入力ピン 2 1 hit
-l p1 p2 hit QueryNewLink
-# ② 入力ピンの上に来る。BeginCreate が true になり、両端のピンが分かる
----
-n a 数値 0 0 hit
-n b 足し算 3 0 hit
-n p1 出力ピン 1 1
-n p2 入力ピン 2 1
-l p1 p2 new AcceptNewItem
-# ③ マウスを離すと、AcceptNewItem が true。ここで、自分のデータにリンクを追加する
-</div>
+<svg class="fig flow" viewBox="0 0 564 196" role="img" aria-label="リンクを作る操作（BeginCreate）"><defs><marker id="fl55422" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">リンクを作る操作（BeginCreate）</text><line x1="253.0" y1="148.0" x2="311.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl55422)"/><text x="282.0" y="142.0" text-anchor="middle" style="font-size:12px">QueryNewLink</text><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">数値</text><rect x="460.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="498.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">足し算</text><rect x="168.0" y="128.0" width="82" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="209.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">出力ピン</text><rect x="314.0" y="128.0" width="82" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="355.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">入力ピン</text></svg>
 
 ### BeginDelete と QueryDeletedLink {#delete}
 

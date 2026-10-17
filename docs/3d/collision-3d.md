@@ -182,37 +182,7 @@ bool SphereVsSphereContact(const Vector3& c1, float r1, const Vector3& c2, float
 | **ブロードフェーズ** | **当たりそうな組だけ**を、**安く**選ぶ | 空間分割（グリッド・八分木・BVH）、AABB、sweep and prune |
 | **ナローフェーズ** | 選んだ組を、**正確に**判定 | 球・OBB・カプセル・GJK・三角形 |
 
-<div class="anim" data-type="graph" data-label="ブロードフェーズで絞り、ナローフェーズで正確に判定する">
-n c0 全物体_1000個 0 0 hit
----
-n c0 全物体_1000個 0 0
-n c1 ブロード_（近い組だけ） 1 0 hit
-l c0 c1 hit
----
-n c0 全物体_1000個 0 0
-n c1 ブロード_（近い組だけ） 1 0
-n c2 50組 2 0 hit
-l c0 c1
-l c1 c2 hit
----
-n c0 全物体_1000個 0 0
-n c1 ブロード_（近い組だけ） 1 0
-n c2 50組 2 0
-n c3 ナロー_（正確に） 3 0 hit
-l c0 c1
-l c1 c2
-l c2 c3 hit
----
-n c0 全物体_1000個 0 0
-n c1 ブロード_（近い組だけ） 1 0
-n c2 50組 2 0
-n c3 ナロー_（正確に） 3 0
-n c4 5組が衝突 4 0 hit
-l c0 c1
-l c1 c2
-l c2 c3
-l c3 c4 hit
-</div>
+<svg class="fig flow" viewBox="0 0 932 112" role="img" aria-label="ブロードフェーズで絞り、ナローフェーズで正確に判定する"><defs><marker id="fl83599" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ブロードフェーズで絞り、ナローフェーズで正確に判定する</text><line x1="151.0" y1="64.0" x2="209.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl83599)"/><line x1="403.0" y1="64.0" x2="461.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl83599)"/><line x1="543.0" y1="64.0" x2="601.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl83599)"/><line x1="753.0" y1="64.0" x2="811.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl83599)"/><rect x="28.0" y="44.0" width="120" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="88.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">全物体 1000個</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="212.0" y="44.0" width="188" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="306.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ブロード （近い組だけ）</text><circle cx="214.0" cy="46.0" r="10" fill="#2ea043"/><text x="214.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="464.0" y="44.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="502.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">50組</text><circle cx="466.0" cy="46.0" r="10" fill="#e5a828"/><text x="466.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="604.0" y="44.0" width="146" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="677.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ナロー （正確に）</text><circle cx="606.0" cy="46.0" r="10" fill="#e5484d"/><text x="606.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="814.0" y="44.0" width="90" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="859.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">5組が衝突</text><circle cx="816.0" cy="46.0" r="10" fill="#9664e6"/><text x="816.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
 
 空間分割は、[空間分割](../optimize/algorithms.md)で、詳しく解説しています。
 

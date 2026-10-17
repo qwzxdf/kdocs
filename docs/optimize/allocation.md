@@ -17,27 +17,7 @@ tags:
 
 ## なぜ遅いのか
 
-<div class="anim" data-type="graph" data-label="new は、空きを探して、管理情報を更新する">
-n c0 new_Enemy 0 0 hit
----
-n c0 new_Enemy 0 0
-n c1 ①_空きを探す 1 0 hit
-l c0 c1 hit
----
-n c0 new_Enemy 0 0
-n c1 ①_空きを探す 1 0
-n c2 ②_管理情報を更新 2 0 hit
-l c0 c1
-l c1 c2 hit 断片化で遅い
----
-n c0 new_Enemy 0 0
-n c1 ①_空きを探す 1 0
-n c2 ②_管理情報を更新 2 0
-n c3 ③_コンストラクタ 3 0 hit
-l c0 c1
-l c1 c2 - 断片化で遅い
-l c2 c3 hit ロックで待たされる
-</div>
+<svg class="fig flow" viewBox="0 0 753 112" role="img" aria-label="new は、空きを探して、管理情報を更新する"><defs><marker id="fl84266" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">new は、空きを探して、管理情報を更新する</text><line x1="126.0" y1="64.0" x2="184.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl84266)"/><line x1="308.0" y1="64.0" x2="366.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl84266)"/><text x="337.0" y="58.0" text-anchor="middle" style="font-size:12px">断片化で遅い</text><line x1="518.0" y1="64.0" x2="576.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl84266)"/><text x="547.0" y="58.0" text-anchor="middle" style="font-size:12px">ロックで待たされる</text><rect x="28.0" y="44.0" width="95" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="75.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">new Enemy</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="187.0" y="44.0" width="118" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="246.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">① 空きを探す</text><circle cx="189.0" cy="46.0" r="10" fill="#2ea043"/><text x="189.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="369.0" y="44.0" width="146" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="442.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">② 管理情報を更新</text><circle cx="371.0" cy="46.0" r="10" fill="#e5a828"/><text x="371.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="579.0" y="44.0" width="146" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="652.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">③ コンストラクタ</text><circle cx="581.0" cy="46.0" r="10" fill="#e5484d"/><text x="581.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 | 問題 | 説明 |
 | --- | --- |

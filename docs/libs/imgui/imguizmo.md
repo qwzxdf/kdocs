@@ -103,37 +103,7 @@ void Frame(SceneView& scene) {
 
 ### 流れ
 
-<div class="anim" data-type="graph" data-label="ギズモの流れ">
-n cam カメラ 0 0 hit
-n obj オブジェクト 0 2
-n gizmo Manipulate 2 1
-n out 書き換わった行列 4 1
-# ① カメラの view / projection と、オブジェクトのワールド行列を用意する
----
-n cam カメラ 0 0 hit
-n obj オブジェクト 0 2 hit
-n gizmo Manipulate 2 1
-n out 書き換わった行列 4 1
-l cam gizmo hit view_projection
-l obj gizmo hit ワールド行列
-# ② ImGuizmo::Manipulate に渡す
----
-n cam カメラ 0 0
-n obj オブジェクト 0 2
-n gizmo Manipulate 2 1 hit
-n out 書き換わった行列 4 1 new
-l cam gizmo
-l obj gizmo
-l gizmo out new ドラッグで書き換え
-# ③ ユーザーがドラッグすると、ワールド行列が書き換わる
----
-n cam カメラ 0 0
-n obj オブジェクト 0 2 hit
-n gizmo Manipulate 2 1
-n out 書き換わった行列 4 1 hit
-l out obj hit Decompose
-# ④ 位置・回転・拡大を取り出して、オブジェクトに戻す
-</div>
+<svg class="fig flow" viewBox="0 0 535 280" role="img" aria-label="ギズモの流れ"><defs><marker id="fl6237" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ギズモの流れ</text><line x1="124.0" y1="84.2" x2="206.8" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl6237)"/><text x="165.4" y="98.6" text-anchor="middle" style="font-size:12px">view projection</text><line x1="129.7" y1="209.0" x2="206.8" y2="171.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl6237)"/><text x="168.2" y="184.0" text-anchor="middle" style="font-size:12px">ワールド行列</text><line x1="308.0" y1="148.0" x2="366.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl6237)"/><text x="337.0" y="142.0" text-anchor="middle" style="font-size:12px">ドラッグで書き換え</text><line x1="366.0" y1="165.0" x2="141.0" y2="218.3" stroke="currentColor" stroke-width="2" marker-end="url(#fl6237)"/><text x="253.5" y="185.7" text-anchor="middle" style="font-size:12px">Decompose</text><rect x="45.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="83.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">カメラ</text><rect x="28.0" y="212.0" width="110" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="83.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">オブジェクト</text><rect x="202.0" y="128.0" width="103" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="253.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Manipulate</text><rect x="369.0" y="128.0" width="138" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="438.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">書き換わった行列</text></svg>
 
 
 ## 位置・回転・拡大を行列と相互に変換する

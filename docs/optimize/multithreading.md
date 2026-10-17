@@ -76,25 +76,7 @@ std::for_each(std::execution::par, enemies.begin(), enemies.end(),
 
 **仕事（ジョブ）を小さく分けて、スレッド プールに投げ、空いたスレッドが取って実行する**仕組みです。ゲームでは標準的な設計です。
 
-<div class="anim" data-type="graph" data-label="ジョブを積み、ワーカーが実行し、メインが完了を待つ">
-n m1 メインスレッド_ジョブを作る 0 1 hit
-n q キュー 1 1 hit
-l m1 q hit 積む
----
-n m1 メインスレッド_ジョブを作る 0 1
-n q キュー 1 1
-n w ワーカー_1,2,3… 2 1 hit
-l m1 q - 積む
-l q w hit 空いたものが取る
----
-n m1 メインスレッド_ジョブを作る 0 1
-n q キュー 1 1
-n w ワーカー_1,2,3… 2 1
-n m2 メインスレッド_完了を待つ（同期） 3 1 hit
-l m1 q - 積む
-l q w - 空いたものが取る
-l w m2 hit 全部終わる
-</div>
+<svg class="fig flow" viewBox="0 0 940 112" role="img" aria-label="ジョブを積み、ワーカーが実行し、メインが完了を待つ"><defs><marker id="fl68037" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ジョブを積み、ワーカーが実行し、メインが完了を待つ</text><line x1="247.0" y1="64.0" x2="305.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl68037)"/><text x="276.0" y="58.0" text-anchor="middle" style="font-size:12px">積む</text><line x1="387.0" y1="64.0" x2="445.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl68037)"/><text x="416.0" y="58.0" text-anchor="middle" style="font-size:12px">空いたものが取る</text><line x1="593.0" y1="64.0" x2="651.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl68037)"/><text x="622.0" y="58.0" text-anchor="middle" style="font-size:12px">全部終わる</text><rect x="28.0" y="44.0" width="216" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="136.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">メインスレッド ジョブを作る</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="308.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="346.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">キュー</text><circle cx="310.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="310.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="448.0" y="44.0" width="142" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="519.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワーカー 1,2,3…</text><circle cx="450.0" cy="46.0" r="10" fill="#2ea043"/><text x="450.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="654.0" y="44.0" width="258" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="783.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">メインスレッド 完了を待つ（同期）</text><circle cx="656.0" cy="46.0" r="10" fill="#e5a828"/><text x="656.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | 設計のポイント | 説明 |
 | --- | --- |

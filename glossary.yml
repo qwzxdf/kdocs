@@ -5,55 +5,55 @@
 # - 見出し・コード・リンクの中は、対象外です。
 # - 英数字の用語は、単語の途中には反応しません。
 
-- terms: [ボーン, ジョイント]
+- terms: [ボーン, ジョイント, 骨, bone, joint, Bone, Joint]
   text: ボーン（骨）とジョイント（関節）は、ゲームでは同じものとして考えられることが多い。厳密には、ボーン＝骨そのもの、ジョイント＝骨と骨をつなぐ点。glTF では joint、FBX・Blender では bone と呼ぶ。
-- terms: [スキニング, スキン]
+- terms: [スキニング, スキン, skinning, スキンメッシュ, スキンアニメーション]
   text: 骨の動きに合わせて、メッシュ（皮膚）を変形させる仕組み。各頂点が、近くの骨 1〜4 本の重み付き平均で動く。
-- terms: [頂点]
+- terms: [頂点, バーテックス, vertex, vertices, 頂点バッファ]
   text: 形の角になる点。位置のほか、法線・UV などの情報を持つ。
-- terms: [メッシュ]
+- terms: [メッシュ, mesh, Mesh]
   text: 3D モデルの形そのもの。頂点と三角形の集まり。色や絵（テクスチャ）は含まない。
-- terms: [ポリゴン]
+- terms: [ポリゴン, polygon, 三角形, トライアングル]
   text: 頂点 3 つ（以上）で囲まれた面。3D 描画の基本単位は三角形。
-- terms: [テクスチャ]
+- terms: [テクスチャ, texture, テクスチャー]
   text: モデルの表面に貼る画像。
-- terms: [UV 座標, UV]
+- terms: [UV 座標, UV, uv, UV マップ, UV 展開, テクスチャ座標]
   text: テクスチャ画像の、どの位置を使うかを表す 2 つの数字 (u, v)。
-- terms: [法線]
+- terms: [法線, ノーマル, normal, 法線ベクトル, 法線マップ, ノーマルマップ]
   text: 面（または頂点）が向いている方向を表す、長さ 1 のベクトル。陰影の計算に使う。
-- terms: [ワールド行列]
+- terms: [ワールド行列, world matrix, モデル行列, ワールド変換, ワールド座標]
   text: モデルの座標を、ゲーム世界の座標に変換する行列（拡大・回転・平行移動をまとめたもの）。
-- terms: [ビュー行列]
+- terms: [ビュー行列, view matrix, カメラ行列, ビュー変換, ビュー空間]
   text: ゲーム世界の座標を、カメラから見た座標に変換する行列。
-- terms: [プロジェクション行列, 射影行列]
+- terms: [プロジェクション行列, 射影行列, projection matrix, 投影行列, 射影変換, プロジェクション]
   text: カメラから見た 3D の座標を、遠近感のある画面向けの座標に変換する行列。
-- terms: [クォータニオン, 四元数]
+- terms: [クォータニオン, 四元数, quaternion, Quaternion]
   text: 回転を表す 4 つの数字 (x, y, z, w)。ジンバルロックがなく、補間も滑らか。
-- terms: [ジンバルロック]
+- terms: [ジンバルロック, gimbal lock]
   text: オイラー角で、2 つの回転軸が重なり、回転の自由度が 1 つ失われる現象。
-- terms: [オイラー角]
+- terms: [オイラー角, Euler, euler, ヨー, ピッチ, ロール]
   text: X・Y・Z 軸まわりの 3 つの角度で、回転を表す方法。
-- terms: [同次座標]
+- terms: [同次座標, homogeneous, ホモジニアス]
   text: 3D の座標に 4 つ目の値 w を足した表し方。平行移動も、行列の掛け算で表せる。
-- terms: [正規化]
+- terms: [正規化, normalize, Normalize, ノーマライズ]
   text: ベクトルの向きはそのままで、長さを 1 にすること。
-- terms: [内積]
+- terms: [内積, dot, Dot, ドット積, dot product]
   text: 2 つのベクトルが、どれだけ同じ向きかを表す数。正規化していれば cosθ。
-- terms: [外積]
+- terms: [外積, cross, Cross, クロス積, cross product]
   text: 2 つのベクトルに垂直なベクトルを作る計算。面の法線を求めるときなどに使う。
-- terms: [線形補間, Lerp]
+- terms: [線形補間, Lerp, lerp, リニア補間, 線形補完]
   text: 2 つの値の間を、割合 t で直線的に混ぜること。a + (b − a) × t。
-- terms: [Slerp, 球面線形補間]
+- terms: [Slerp, 球面線形補間, slerp, スラープ]
   text: 2 つの回転の間を、一定の速さで補間する方法（球面上を進む）。
-- terms: [レイキャスト]
+- terms: [レイキャスト, ray cast, Raycast, raycast, レイ, 光線]
   text: 線（レイ）を飛ばして、最初に当たるものを調べること。射撃・視線・ピッキングに使う。
-- terms: [ピッキング]
+- terms: [ピッキング, picking, オブジェクト選択]
   text: 画面上のクリック位置から、3D 空間のどの物体を指したかを求めること。
-- terms: [AABB]
+- terms: [AABB, 軸平行境界ボックス, バウンディングボックス, 境界ボックス]
   text: 軸に平行な箱（Axis-Aligned Bounding Box）。判定が速い。
-- terms: [OBB]
+- terms: [OBB, 有向境界ボックス]
   text: 回転した箱（Oriented Bounding Box）。AABB より正確だが、重い。
-- terms: [BVH]
+- terms: [BVH, bounding volume hierarchy, バウンディングボリューム階層]
   text: 物体を箱で包み、木構造にした空間分割。衝突判定やレイキャストを速くする。
 - terms: [ブロードフェーズ]
   text: 衝突判定の第 1 段階。当たりそうな組み合わせを、安く絞り込む。
@@ -61,31 +61,31 @@
   text: 衝突判定の第 2 段階。絞り込んだ組み合わせを、正確に判定する。
 - terms: [トンネリング]
   text: 速い物体が、1 フレームで壁を通り抜けてしまう現象。
-- terms: [剛体]
+- terms: [剛体, rigid body, リジッドボディ, RigidBody]
   text: 形が変わらない、硬い物体。物理シミュレーションの基本単位。
-- terms: [ラグドール]
+- terms: [ラグドール, ragdoll, Ragdoll]
   text: 骨ごとの剛体と関節でできた、力の抜けた体の表現。倒れたキャラクターに使う。
-- terms: [視錐台]
+- terms: [視錐台, frustum, Frustum, フラスタム]
   text: カメラに見える範囲を表す、四角錐を切った形。
-- terms: [カリング]
+- terms: [カリング, culling, Culling, 視錐台カリング, バックフェイスカリング]
   text: 見えないものを、描画しないこと（裏向きの面・画面の外・隠れたもの）。
-- terms: [深度バッファ, Z バッファ]
+- terms: [深度バッファ, Z バッファ, Zバッファ, デプスバッファ, depth buffer, 深度テスト, デプステスト]
   text: ピクセルごとに、一番手前の距離を覚えておき、奥のものを描かないようにする仕組み。
 - terms: [Z ファイティング]
   text: ほぼ同じ深度の 2 つの面が、ちらちら入れ替わって見える現象。
-- terms: [ミップマップ]
+- terms: [ミップマップ, mipmap, ミップ, Mipmap, MIP]
   text: 縮小した画像のセット。遠くの面で使い、ちらつきを抑える。
-- terms: [サンプラー]
+- terms: [サンプラー, sampler, サンプラ]
   text: テクスチャを読むときのルール（補間・繰り返し・はみ出したときの扱い）。
-- terms: [シェーダー]
+- terms: [シェーダー, shader, シェーダ, 頂点シェーダー, ピクセルシェーダー, HLSL]
   text: GPU 上で動く、頂点や色を計算する小さなプログラム。
-- terms: [ドローコール, 描画命令]
+- terms: [ドローコール, 描画命令, draw call, Draw Call]
   text: CPU が GPU に出す、1 回の描画の命令。多いと CPU が重くなる。
-- terms: [インスタンシング]
+- terms: [インスタンシング, instancing, インスタンス描画]
   text: 同じメッシュを、1 回の描画命令で、大量に描く方法。
-- terms: [LOD]
+- terms: [LOD, レベルオブディテール, Level of Detail]
   text: 遠くのものを、頂点の少ない簡易なモデルに切り替えること（Level of Detail）。
-- terms: [PBR, 物理ベースレンダリング]
+- terms: [PBR, 物理ベースレンダリング, Physically Based Rendering, 物理ベース]
   text: 光の物理的な振る舞いに沿って、陰影を計算する描画。材質は、色・金属度・粗さで表す。
 - terms: [IBL]
   text: 周囲の景色の画像（環境マップ）を、光源として使うライティング。
@@ -95,77 +95,77 @@
   text: 浅い角度で見るほど、反射が強くなる現象。
 - terms: [トーンマッピング]
   text: 明るさが 1 を超える HDR の値を、画面に出せる 0〜1 の範囲に収める処理。
-- terms: [HDR]
+- terms: [HDR, ハイダイナミックレンジ]
   text: 1 を超える明るさを表せる、ダイナミックレンジの広い画像・計算（High Dynamic Range）。
 - terms: [ガンマ補正]
   text: 画面の明るさの特性に合わせて、色の値を変換すること。計算はリニア、表示は sRGB。
-- terms: [SIMD]
+- terms: [SIMD, ベクトル化, ベクトル命令, AVX, SSE]
   text: 1 つの命令で、複数のデータをまとめて計算する、CPU の機能。
-- terms: [キャッシュ]
+- terms: [キャッシュ, cache, Cache, キャッシュミス, キャッシュ効率]
   text: CPU の近くにある、小さくて速いメモリ。使うデータが近くにまとまっているほど速い。
 - terms: [キャッシュライン]
   text: CPU がメモリから一度に読む単位（通常 64 バイト）。
 - terms: [false sharing]
   text: 別々のスレッドが、同じキャッシュラインの別の変数を書き、互いに遅くなる現象。
-- terms: [ヒープ]
+- terms: [ヒープ, heap, Heap, ヒープ確保]
   text: new や malloc で確保する、自由に使えるメモリ領域。確保・解放に時間がかかる。
-- terms: [スタック]
+- terms: [スタック, stack, Stack, スタック領域]
   text: 関数のローカル変数を置く、高速なメモリ領域。関数を出ると自動で消える。
-- terms: [アロケータ]
+- terms: [アロケータ, allocator, Allocator, アロケーター, メモリアロケータ]
   text: メモリを貸し出し（確保）、返してもらう（解放）仕組み。
-- terms: [断片化]
+- terms: [断片化, フラグメンテーション, fragmentation]
   text: 確保と解放を繰り返して、細かい空きが散らばり、大きな要求に応えられなくなること。
-- terms: [アライメント]
+- terms: [アライメント, alignment, 境界, アラインメント]
   text: メモリ上のデータの開始位置を、その型の大きさの倍数に揃えること。
-- terms: [未定義動作, UB]
+- terms: [未定義動作, UB, undefined behavior, Undefined Behavior]
   text: 何が起きても、規格が保証しない操作。配列の範囲外アクセスなど。
-- terms: [RAII]
+- terms: [RAII, Resource Acquisition Is Initialization]
   text: 資源の取得をコンストラクタ、解放をデストラクタで行う C++ の定番の設計。
-- terms: [ムーブ]
+- terms: [ムーブ, move, Move, ムーブセマンティクス, move semantics]
   text: コピーせず、中身を別の変数に移すこと（std::move）。
-- terms: [ポインタ]
+- terms: [ポインタ, pointer, Pointer, 生ポインタ, スマートポインタ]
   text: メモリ上の場所（アドレス）を持つ変数。
-- terms: [テンプレート]
+- terms: [テンプレート, template, Template, テンプレート引数]
   text: 型をあとから決められる、コードのひな形。
-- terms: [ラムダ式]
+- terms: [ラムダ式, lambda, Lambda, ラムダ, クロージャ]
   text: その場で書ける、名前のない小さな関数。
-- terms: [イテレータ]
+- terms: [イテレータ, iterator, Iterator, イテレーター]
   text: コンテナの中の、今の位置を指すもの。
-- terms: [シリアライズ]
+- terms: [シリアライズ, serialize, serialization, シリアライゼーション, 直列化, デシリアライズ]
   text: データを、ファイルに保存できる形に変換すること。
-- terms: [ベイク]
+- terms: [ベイク, bake, Bake, ベイキング, baking, 焼き込み]
   text: 重い計算を、ビルド時に済ませて、結果をファイルに保存しておくこと。
 - terms: [ゼロコピー]
   text: 読み込んだメモリを、コピーや作り直しをせずに、そのまま使うこと。
-- terms: [constexpr]
+- terms: [constexpr, consteval, constinit, コンパイル時定数]
   text: コンパイル時に計算できることを示す指定。
-- terms: [翻訳単位]
+- terms: [翻訳単位, translation unit, Translation Unit]
   text: 1 つの .cpp と、それが include したもの全部。コンパイルの単位。
 - terms: [ODR]
   text: 定義は、プログラム全体で 1 つだけ、という規則（One Definition Rule）。
 - terms: [プリプロセッサ]
-  text: コンパイルの前に、#include や #define を、文字列として処理する段階。
+  text: コンパイルの前に、#include や
 - terms: [リンカー]
   text: 複数のオブジェクトファイルとライブラリを、1 つの実行ファイルにつなぐ道具。
 - terms: [PCH, プリコンパイル済みヘッダー]
   text: 変わらないヘッダを、1 回だけ解析して、結果を再利用する仕組み。
-- terms: [ECS]
+- terms: [ECS, Entity Component System, エンティティ コンポーネント システム]
   text: データ（コンポーネント）と処理（システム）を分けて、大量のオブジェクトを速く扱う設計。
-- terms: [コンポーネント]
+- terms: [コンポーネント, component, Component]
   text: オブジェクトの機能を、部品として切り出したもの。
-- terms: [ハンドル]
+- terms: [ハンドル, handle, Handle]
   text: 消えるかもしれない相手を、番号と世代で安全に指すもの。
-- terms: [ステートマシン]
+- terms: [ステートマシン, state machine, State Machine, 有限状態機械, FSM]
   text: 状態と、状態の切り替えを、はっきり管理する仕組み。
-- terms: [固定タイムステップ]
+- terms: [固定タイムステップ, fixed timestep, Fixed Timestep, 固定ステップ, 固定の刻み]
   text: 物理などを、毎回同じ時間の刻みで進める方法。結果が安定する。
 - terms: [フレームバジェット]
   text: 1 フレームの時間を、システムごとに配分した予算。
 - terms: [スパイク]
   text: 平均は良くても、たまに起きる、突然遅いフレーム。
-- terms: [AoS]
+- terms: [AoS, Array of Structs, 構造体の配列]
   text: 構造体の配列。1 つの要素の全項目が、隣り合って並ぶ。
-- terms: [SoA]
+- terms: [SoA, Struct of Arrays, 配列の構造体]
   text: 配列の構造体。項目ごとに、値が連続して並ぶ。
 - terms: [accessor]
   text: glTF で、バイナリデータの「読み方」（型・個数・場所）を表すもの。
@@ -177,19 +177,251 @@
   text: 実行中にメモリアクセスを監視して、範囲外アクセスや解放後の使用を、その場で検出するツール。
 - terms: [NOMINMAX]
   text: Windows の min / max マクロを、定義させないためのマクロ。
-- terms: [vcpkg]
+- terms: [vcpkg, VCPKG, Vcpkg]
   text: Microsoft が作った、C++ のパッケージ管理ツール。
-- terms: [即時モード]
+- terms: [即時モード, immediate mode, Immediate Mode, 保持モード]
   text: 毎フレーム、描画の関数を呼ぶだけで GUI が出る方式（ImGui）。
 - terms: [ドッキング]
   text: ウィンドウを、ドラッグして、ほかのウィンドウの横やタブにくっつける機能。
-- terms: [ギズモ]
+- terms: [ギズモ, gizmo, Gizmo]
   text: 3D の物体を、マウスで移動・回転・拡大するための、矢印や輪の操作部品。
-- terms: [センサー]
+- terms: [センサー, sensor, トリガー, Trigger]
   text: 衝突はせず、重なりだけを通知する物体（トリガー）。
-- terms: [キネマティック]
+- terms: [キネマティック, kinematic, Kinematic]
   text: プログラムが動かす物体。力は受けないが、ほかの物体を押す。
-- terms: [スリープ]
+- terms: [スリープ, sleep, 休止, Sleep]
   text: 止まった物体を休止させて、計算を省く仕組み。
 - terms: [ソフトボディ]
   text: 布やゴムのように、形が変わる柔らかい物体。
+- terms: [GPU, グラフィックスカード, グラフィックボード]
+  text: 描画専用の部品。大量の頂点・ピクセルを、並列に計算する。
+- terms: [CPU]
+  text: プログラムを実行する、コンピューターの頭脳。
+- terms: [バッファ, buffer, Buffer]
+  text: データを置いておく、メモリの置き場。GPU 用のものは、頂点バッファ・定数バッファなど。
+- terms: [定数バッファ, constant buffer, コンスタントバッファ, cbuffer]
+  text: 行列や色など、少数の値を、シェーダーに渡すための GPU 側のバッファ。
+- terms: [インデックスバッファ, index buffer, インデックス]
+  text: どの頂点で三角形を作るかを、番号で並べたリスト。頂点を使い回せる。
+- terms: [入力レイアウト, input layout, InputLayout]
+  text: 頂点バッファの中身の並びを、GPU に教える説明書。
+- terms: [レンダーターゲット, render target, レンダー ターゲット, RTV]
+  text: 描画の結果を書き込む先の画像（テクスチャ）。画面そのもの、または画面外のテクスチャ。
+- terms: [SRV, シェーダーリソースビュー, Shader Resource View]
+  text: シェーダーから、テクスチャなどを読むための見え方（ビュー）。
+- terms: [スワップチェーン, swap chain, SwapChain, ダブルバッファ]
+  text: 画面に出す画像と、描画中の画像を、交互に入れ替える仕組み。
+- terms: [VSync, 垂直同期]
+  text: 画面の更新タイミングに、描画を合わせる設定。フレームを一定にするが、遅延や待ちが出る。
+- terms: [FPS, フレームレート, frame rate]
+  text: 1 秒あたりに描く枚数（Frames Per Second）。60 FPS ＝ 1 フレーム約 16.6 ミリ秒。
+- terms: [デルタタイム, delta time, 経過時間]
+  text: 前のフレームから、今のフレームまでの経過時間（秒）。
+- terms: [ビューポート, viewport, Viewport]
+  text: 描画する、画面上の長方形の領域。
+- terms: [NDC, 正規化デバイス座標]
+  text: 画面の位置を、-1〜1 の範囲で表した座標。
+- terms: [FOV, 視野角, field of view]
+  text: カメラが見える角度の広さ。小さいと望遠、大きいと広角。
+- terms: [クリップ空間, clip space]
+  text: 射影行列を掛けた後の座標。ここから w で割ると、NDC になる。
+- terms: [透視投影, perspective]
+  text: 遠くのものが小さく見える、遠近感のある投影。
+- terms: [正射投影, orthographic, 平行投影, 正射影]
+  text: 遠近感のない投影。2D・UI・影の計算などで使う。
+- terms: [右手系, right-handed, RH]
+  text: 座標軸の取り方の 1 つ。右手の親指・人差し指・中指を X・Y・Z に見立てる。SimpleMath・glTF・OpenGL が採用。
+- terms: [左手系, left-handed, LH]
+  text: 座標軸の取り方の 1 つ。Unity・DirectXMath の既定などが採用。
+- terms: [行ベクトル, row vector, 行ベクトル規約]
+  text: ベクトルを横に並べ、行列を右から掛ける書き方（v × M）。SimpleMath・DirectXMath が採用。
+- terms: [列ベクトル, column vector, 列ベクトル規約]
+  text: ベクトルを縦に並べ、行列を左から掛ける書き方（M × v）。数学の教科書・glTF の行列が採用。
+- terms: [転置, transpose]
+  text: 行列の行と列を、入れ替えること。
+- terms: [逆行列, inverse]
+  text: ある変換を、元に戻す行列。
+- terms: [単位行列, identity]
+  text: 何も変えない行列（数の 1 に当たる）。
+- terms: [ビルド, build]
+  text: ソースコードを、実行できるファイルにすること（コンパイル ＋ リンク）。
+- terms: [コンパイラ, compiler, MSVC, Clang, GCC]
+  text: ソースコードを、機械が実行できる命令に、翻訳するプログラム。
+- terms: [最適化, optimization, Optimization]
+  text: プログラムの動きを変えずに、速く・軽くすること。
+- terms: [プロファイラー, profiler, Profiler, プロファイル]
+  text: どこで時間・メモリを使っているかを測る道具。
+- terms: [ボトルネック, bottleneck]
+  text: 全体の速さを決めている、一番遅い部分。
+- terms: [インライン展開, inline, inlining]
+  text: 関数の呼び出しを、中身で置き換える最適化。
+- terms: [計算量, O 記法, ビッグオー, Big-O]
+  text: データが増えたとき、処理の量がどう増えるかの目安。
+- terms: [スレッド, thread, Thread]
+  text: プログラムの中で、同時に進められる処理の流れ。
+- terms: [ミューテックス, mutex, Mutex, 排他制御, ロック]
+  text: 共有データを、同時に触らないように、鍵をかける仕組み。
+- terms: [アトミック, atomic, 原子操作, Atomic]
+  text: 途中で割り込まれず、1 つの操作として完了する操作。
+- terms: [データ競合, data race, レースコンディション, race condition]
+  text: 複数のスレッドが、同じデータを、同時に書き換えて壊れる問題。
+- terms: [ジョブシステム, job system, JobSystem]
+  text: 仕事を小さく分けて、複数のスレッドで、分担して実行する仕組み。
+- terms: [非同期, async, asynchronous]
+  text: 処理の完了を待たずに、次の処理を進めること。
+- terms: [デッドロック, deadlock]
+  text: 複数のスレッドが、互いの鍵を待ち合って、永久に止まる状態。
+- terms: [リーク, メモリリーク, leak, memory leak]
+  text: 確保したメモリを、返し忘れて、増え続けること。
+- terms: [ぶら下がり, ダングリング, dangling, ぶら下がりポインタ]
+  text: すでに消えたものを、指し続けているポインタ・参照。
+- terms: [unique_ptr, shared_ptr, smart pointer]
+  text: 解放を、自動で行うポインタ。
+- terms: [所有権, ownership, Ownership]
+  text: 誰が、そのものを消す責任を持つか。
+- terms: [参照, reference, Reference, const 参照]
+  text: コピーせずに、同じものを触るための別名。
+- terms: [仮想関数, virtual, vtable, virtual 関数]
+  text: 実際の型に応じて、呼ぶ関数が決まる関数。
+- terms: [継承, inheritance, Inheritance]
+  text: 既存のクラスの性質を、引き継いで、新しいクラスを作ること。
+- terms: [ポリモーフィズム, 多態, polymorphism]
+  text: 同じ呼び方で、型によって違う処理をさせること。
+- terms: [CRTP]
+  text: 派生クラスを、基底クラスのテンプレート引数に渡して、仮想関数なしで多態を実現する手法。
+- terms: [PImpl, Pimpl, ピンプル]
+  text: クラスの中身を .cpp に隠して、ヘッダの依存を減らす手法。
+- terms: [ファクトリ, factory, Factory]
+  text: オブジェクトを作る処理を、1 か所にまとめる設計。
+- terms: [シングルトン, singleton, Singleton]
+  text: インスタンスが、1 つだけであることを保証する設計。使いすぎに注意。
+- terms: [オブザーバー, observer, イベントシステム, event]
+  text: 起きたことを、興味のある相手に、相手を知らずに通知する設計。
+- terms: [依存性の注入, DI, dependency injection]
+  text: 使う相手を、内部で作らず、外から渡す設計。
+- terms: [リファクタリング, refactoring]
+  text: 動きを変えずに、中の作りを、読みやすく直すこと。
+- terms: [アンチパターン, anti-pattern]
+  text: よくやってしまうが、あとで困る書き方。
+- terms: [オブジェクトプール, object pool, プール]
+  text: 作っては消すものを、あらかじめ用意して、使い回す仕組み。
+- terms: [ゲームループ, game loop, メインループ]
+  text: 入力 → 更新 → 描画を、繰り返し続ける、ゲームの中心の処理。
+- terms: [シーン, scene, Scene]
+  text: タイトル・ゲーム・リザルトなど、1 つの画面のまとまり。
+- terms: [アセット, asset, Asset]
+  text: ゲームで使う、画像・音・モデル・データなどの素材。
+- terms: [ロード, load, ストリーミング, streaming]
+  text: ファイルから、データをメモリに読み込むこと。
+- terms: [パッケージ, pak, アーカイブ]
+  text: 複数のファイルを、1 つにまとめたもの。
+- terms: [JSON]
+  text: 人が読める、データの書き方（テキスト形式）。
+- terms: [YAML]
+  text: 人が書きやすい、データの書き方。インデントで構造を表す。
+- terms: [バイナリ, binary, Binary]
+  text: 人が読めない、機械向けのデータ形式。小さく・速く読める。
+- terms: [エンディアン, endian, リトルエンディアン]
+  text: 複数バイトの数値を、メモリに並べる順序。
+- terms: [UTF-8, UTF8]
+  text: 世界中の文字を表す文字コード。ASCII と互換で、現在の標準。
+- terms: [UTF-16, wstring, wchar_t]
+  text: Windows の内部で使われる文字コード。
+- terms: [ASCII, アスキー]
+  text: 英数字と記号の 128 文字だけの、最も基本的な文字コード。
+- terms: [Shift_JIS, CP932, SJIS]
+  text: 日本語 Windows の古い文字コード（ANSI）。
+- terms: [BOM, バイトオーダーマーク]
+  text: ファイルの先頭に付く、文字コードを示す印。UTF-8 では付けない。
+- terms: [文字化け, mojibake]
+  text: 保存と読み込みで、文字コードが違い、文字が崩れる現象。
+- terms: [glTF, glb, GLTF]
+  text: Khronos が作った、公開仕様の 3D モデル形式。ゲーム・Web の配布向き。
+- terms: [FBX]
+  text: Autodesk の 3D モデル形式。制作ツールの間で、広く使われる。
+- terms: [OBJ, Wavefront]
+  text: 単純なテキスト形式の 3D モデル。メッシュとマテリアルだけ。
+- terms: [マテリアル, material, Material]
+  text: モデルの質感の設定（色・ツヤ・金属度など）。
+- terms: [アルベド, albedo, ベースカラー, base color]
+  text: 物体そのものの色（光の当たり方を含まない）。
+- terms: [メタリック, 金属度, metallic, Metallic]
+  text: 金属かどうかを表す値。0 が非金属、1 が金属。
+- terms: [ラフネス, 粗さ, roughness, Roughness]
+  text: 表面の粗さ。0 が鏡、1 がざらざら。
+- terms: [アンビエントオクルージョン, AO, 環境光遮蔽]
+  text: 凹みや隙間の、光が届きにくい部分を暗くする表現。
+- terms: [ライトマップ, lightmap]
+  text: 静的な光と影を、テクスチャに焼き込んだもの。
+- terms: [ナビメッシュ, navmesh, NavMesh]
+  text: 歩ける場所を、多角形で表した、経路探索用のデータ。
+- terms: [コライダー, collider, Collider]
+  text: 衝突判定に使う、単純な形（箱・球・カプセルなど）。
+- terms: [レイヤー, ObjectLayer, 衝突レイヤー]
+  text: どの種類の物体どうしを衝突させるかを決める、分類。
+- terms: [制約, constraint, Constraint, ヒンジ]
+  text: 2 つの物体の動きを、つなぐ仕組み（ヒンジ・バネ・固定など）。
+- terms: [摩擦, friction, 反発, restitution]
+  text: 物体どうしの、滑りにくさ・跳ね返りやすさ。
+- terms: [重心, center of mass, 質量中心]
+  text: 物体の質量の、平均的な位置。
+- terms: [サブステップ, substep]
+  text: 物理を、1 回進める、小さな時間の刻み。
+- terms: [決定性, determinism, deterministic]
+  text: 同じ入力から、いつも同じ結果になる性質。
+- terms: [ImGui, イムグイ, Dear ImGui]
+  text: ゲームのデバッグ画面などを、数行で作れる GUI ライブラリ。
+- terms: [ウィジェット, widget, Widget]
+  text: ボタンやスライダーなど、画面上の操作部品。
+- terms: [ツールチップ, tooltip]
+  text: マウスを乗せると出る、小さな説明。
+- terms: [インスペクター, inspector]
+  text: 選んだオブジェクトの、中身を見て編集する画面。
+- terms: [DPI, 高 DPI]
+  text: 画面の細かさ。高いと、文字や部品が小さく見える。
+- terms: [フォントアトラス, font atlas, グリフ]
+  text: 文字の絵を、1 枚のテクスチャに詰めたもの。
+- terms: [デバッグ描画, debug draw, DebugRenderer]
+  text: 衝突の形などを、線で画面に表示する機能。
+- terms: [アサート, assert, ASSERT]
+  text: 条件が満たされないとき、開発中にプログラムを止める仕組み。
+- terms: [リンクエラー, LNK2019, LNK2005]
+  text: リンクの段階で出るエラー。定義が見つからない・重複している。
+- terms: [CMake, cmake]
+  text: ビルドの設定を書いて、各環境のプロジェクトを作る道具。
+- terms: [Ninja, ninja]
+  text: 速く並列にビルドする、ビルド道具。
+- terms: [プロパティシート, props]
+  text: Visual Studio の、ビルド設定をまとめたファイル。
+- terms: [ソリューション, sln, vcxproj]
+  text: Visual Studio で、複数のプロジェクトをまとめる入れ物と、その中の 1 つの単位。
+- terms: [ホットリロード, hot reload]
+  text: ゲームを動かしたまま、データやコードの変更を反映すること。
+- terms: [ベンチマーク, benchmark]
+  text: 小さな処理の速さを、測って比べること。
+- terms: [ウォームアップ, warm-up]
+  text: 測る前に、一度動かして、キャッシュなどを温めておくこと。
+- terms: [コヨーテタイム, coyote time]
+  text: 足場から離れた直後、少しの間だけ、ジャンプを許す操作感の工夫。
+- terms: [ボクセル, voxel]
+  text: 3D の、小さな立方体のマス（ブロック）。
+- terms: [プロシージャル, procedural]
+  text: データを手で作らず、規則（アルゴリズム）で自動生成すること。
+- terms: [インターリーブ, interleave]
+  text: 位置・法線・UV を、1 頂点ずつ、交互に並べること。
+- terms: [スパースセット, sparse set]
+  text: 番号から、素早く値を引け、連続した配列として回せるデータ構造。
+- terms: [リングバッファ, ring buffer, 循環バッファ]
+  text: 決まった大きさの配列を、ぐるぐる使い回すバッファ。
+- terms: [ハッシュ, hash, Hash, ハッシュ値]
+  text: データから作る、固定長の数値。同じ入力は、同じ値になる。
+- terms: [衝突, collision, Collision]
+  text: 物体どうしが、重なること。
+- terms: [ブレンド, blend, Blend, ブレンドツリー]
+  text: 複数のアニメーションや色を、混ぜ合わせること。
+- terms: [キーフレーム, keyframe, Keyframe]
+  text: アニメーションで、ある時刻の姿勢を記録した点。間は補間する。
+- terms: [逆運動学, IK, inverse kinematics]
+  text: 手先などの目標位置から、関節の角度を逆算する方法。
+- terms: [ルートモーション, root motion]
+  text: アニメーションに含まれる、キャラクター自体の移動。

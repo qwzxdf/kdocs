@@ -54,23 +54,7 @@ class Player {
 };
 ```
 
-<div class="anim" data-type="graph" data-label="インターフェースで、実装を差し替える">
-n player プレイヤー 0 1
-n iface IAudio 1 1 hit
-n fmod FmodAudio 2 0 hit
-n null NullAudio 2 2 dim
-l player iface hit Play
-l iface fmod hit
-# 通常：IAudio を通して、FmodAudio が鳴らす
----
-n player プレイヤー 0 1
-n iface IAudio 1 1 hit
-n fmod FmodAudio 2 0 dim
-n null NullAudio 2 2 hit
-l player iface hit Play
-l iface null hit
-# テスト・サイレント：プレイヤーのコードを変えずに NullAudio に差し替え
-</div>
+<svg class="fig flow" viewBox="0 0 451 280" role="img" aria-label="インターフェースで、実装を差し替える"><defs><marker id="fl82234" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">インターフェースで、実装を差し替える</text><line x1="127.0" y1="148.0" x2="185.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl82234)"/><text x="156.0" y="142.0" text-anchor="middle" style="font-size:12px">Play</text><line x1="266.9" y1="125.0" x2="334.6" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl82234)"/><line x1="266.9" y1="171.0" x2="334.6" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl82234)"/><rect x="28.0" y="128.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="76.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">プレイヤー</text><rect x="188.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="226.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">IAudio</text><rect x="328.0" y="44.0" width="95" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="375.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">FmodAudio</text><rect x="328.0" y="212.0" width="95" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="375.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">NullAudio</text></svg>
 
 ## 良いインターフェースの条件
 

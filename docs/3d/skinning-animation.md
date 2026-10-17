@@ -20,33 +20,7 @@ tags:
 
 <svg class="fig" viewBox="0 0 620 240" role="img" aria-label="スキニング：骨と頂点の重み"><defs><marker id="k1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">肘を曲げると、関節の頂点は、2 本の骨に影響される</text><line x1="60" y1="130" x2="200" y2="130" stroke="currentColor" stroke-width="5"/><text x="80" y="112">上腕の骨</text><line x1="200" y1="130" x2="300" y2="60" stroke="currentColor" stroke-width="5"/><text x="260" y="55">前腕の骨</text><circle cx="200" cy="130" r="9" fill="currentColor"/><circle cx="120" cy="128" r="6" fill="rgba(76,139,245,0.9)"/><text x="100" y="160">重み 1.0 / 0.0</text><circle cx="195" cy="118" r="6" fill="rgba(229,170,40,0.9)"/><text x="150" y="190">重み 0.5 / 0.5</text><circle cx="270" cy="82" r="6" fill="rgba(229,72,77,0.9)"/><text x="280" y="98">重み 0.0 / 1.0</text><text x="350" y="80">頂点の位置 ＝ 重み × (骨 A で動かした位置)</text><text x="350" y="105">　　　　　　＋ 重み × (骨 B で動かした位置)</text><text x="350" y="140">関節では、2 つの骨の動きが、混ざる</text><text x="350" y="165">→ 曲がっても、皮膚が自然につながる</text></svg>
 
-<div class="anim" data-type="graph" data-label="骨は親子の階層（子の姿勢は親に積み重なる）">
-n h Hips 0 1 hit
----
-n h Hips 0 1
-n s Spine 1 0 hit
-n c Chest 2 0 hit
-n hd Head 3 0 hit
-l h s hit
-l s c hit
-l c hd hit
----
-n h Hips 0 1
-n s Spine 1 0
-n c Chest 2 0
-n hd Head 3 0
-n ll LeftLeg 1 1 hit
-n lf LeftFoot 2 1 hit
-n rl RightLeg 1 2 hit
-n rf RightFoot 2 2 hit
-l h s
-l s c
-l c hd
-l h ll hit
-l ll lf hit
-l h rl hit
-l rl rf hit
-</div>
+<svg class="fig flow" viewBox="0 0 583 280" role="img" aria-label="骨は親子の階層（子の姿勢は親に積み重なる）"><defs><marker id="fl2385" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">骨は親子の階層（子の姿勢は親に積み重なる）</text><line x1="106.0" y1="125.0" x2="172.0" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2385)"/><line x1="253.0" y1="64.0" x2="326.5" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2385)"/><line x1="408.5" y1="64.0" x2="476.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2385)"/><line x1="107.0" y1="148.0" x2="169.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2385)"/><line x1="255.0" y1="148.0" x2="320.5" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2385)"/><line x1="106.0" y1="171.0" x2="172.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2385)"/><line x1="259.0" y1="232.0" x2="317.0" y2="232.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2385)"/><rect x="28.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Hips</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="174.0" y="44.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="212.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Spine</text><circle cx="176.0" cy="46.0" r="10" fill="#2ea043"/><text x="176.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="329.5" y="44.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="367.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Chest</text><circle cx="331.5" cy="46.0" r="10" fill="#2ea043"/><text x="331.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="479.0" y="44.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="517.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Head</text><circle cx="481.0" cy="46.0" r="10" fill="#2ea043"/><text x="481.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="172.0" y="128.0" width="80" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="212.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">LeftLeg</text><circle cx="174.0" cy="130.0" r="10" fill="#e5a828"/><text x="174.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="323.5" y="128.0" width="88" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="367.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">LeftFoot</text><circle cx="325.5" cy="130.0" r="10" fill="#e5a828"/><text x="325.5" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="168.0" y="212.0" width="88" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="212.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">RightLeg</text><circle cx="170.0" cy="214.0" r="10" fill="#e5a828"/><text x="170.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="320.0" y="212.0" width="95" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="367.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">RightFoot</text><circle cx="322.0" cy="214.0" r="10" fill="#e5a828"/><text x="322.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 各頂点は、近くの骨 1〜4 本と重み（合計 1）を持ちます。骨を動かすと、頂点が重み付きの平均で追従します。
 

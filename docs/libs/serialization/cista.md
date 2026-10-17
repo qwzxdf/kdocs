@@ -304,27 +304,7 @@ cista には、データの形を変えたときに古いデータを読む仕�
 
 cista を使うデータは、普通「ツールで作って、ゲームと一緒に配るデータ」なので、**形を変えたら、ツールでデータを作り直す**のが基本の運用です。
 
-<div class="anim" data-type="graph" data-label="ビルド時に変換して、ゲームでは一瞬で読む">
-n c0 元データ_（JSON_/_YAML） 0 0 hit
----
-n c0 元データ_（JSON_/_YAML） 0 0
-n c1 変換ツール_（ビルド時） 1 0 hit
-l c0 c1 hit
----
-n c0 元データ_（JSON_/_YAML） 0 0
-n c1 変換ツール_（ビルド時） 1 0
-n c2 cista_のバイナリ 2 0 hit
-l c0 c1
-l c1 c2 hit 形が変わったら作り直す
----
-n c0 元データ_（JSON_/_YAML） 0 0
-n c1 変換ツール_（ビルド時） 1 0
-n c2 cista_のバイナリ 2 0
-n c3 ゲームで_mmap 3 0 hit
-l c0 c1
-l c1 c2 - 形が変わったら作り直す
-l c2 c3 hit ゲームと一緒に配る
-</div>
+<svg class="fig flow" viewBox="0 0 900 112" role="img" aria-label="ビルド時に変換して、ゲームでは一瞬で読む"><defs><marker id="fl42607" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ビルド時に変換して、ゲームでは一瞬で読む</text><line x1="233.0" y1="64.0" x2="291.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl42607)"/><line x1="485.0" y1="64.0" x2="543.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl42607)"/><text x="514.0" y="58.0" text-anchor="middle" style="font-size:12px">形が変わったら作り直す</text><line x1="691.0" y1="64.0" x2="749.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl42607)"/><text x="720.0" y="58.0" text-anchor="middle" style="font-size:12px">ゲームと一緒に配る</text><rect x="28.0" y="44.0" width="202" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="129.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">元データ （JSON / YAML）</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="294.0" y="44.0" width="188" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="388.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">変換ツール （ビルド時）</text><circle cx="296.0" cy="46.0" r="10" fill="#2ea043"/><text x="296.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="546.0" y="44.0" width="142" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="617.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">cista のバイナリ</text><circle cx="548.0" cy="46.0" r="10" fill="#e5a828"/><text x="548.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="752.0" y="44.0" width="120" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="812.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲームで mmap</text><circle cx="754.0" cy="46.0" r="10" fill="#e5484d"/><text x="754.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 プレイヤーのセーブデータのように「形が変わっても古いデータを読みたい」ものには、cista は向いていません。[cereal](cereal.md) や [struct_pack](struct-pack.md) を使います。
 

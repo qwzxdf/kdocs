@@ -69,19 +69,7 @@ void OnResize(int width, int height) {
 
 プロジェクション行列は、**ビュー空間の座標を、クリップ空間（同次座標 `x, y, z, w`）に変換**します。このとき、**`w` に、カメラからの距離が入ります**。
 
-<div class="anim" data-type="graph" data-label="透視投影：ビュー空間 → クリップ空間 → NDC">
-n c0 ビュー空間_(x,y,z) 0 0 hit
----
-n c0 ビュー空間_(x,y,z) 0 0
-n c1 クリップ空間_(x',y',z',w') 0 1 hit
-l c0 c1 hit プロジェクション行列を掛ける
----
-n c0 ビュー空間_(x,y,z) 0 0
-n c1 クリップ空間_(x',y',z',w') 0 1
-n c2 NDC_(x'/w',y'/w',z'/w') 0 2 hit
-l c0 c1 - プロジェクション行列を掛ける
-l c1 c2 hit w'で割る（透視除算）
-</div>
+<svg class="fig flow" viewBox="0 0 360 280" role="img" aria-label="透視投影：ビュー空間 → クリップ空間 → NDC"><defs><marker id="fl74520" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">透視投影：ビュー空間 → クリップ空間 → NDC</text><line x1="137.0" y1="87.0" x2="137.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl74520)"/><text x="137.0" y="100.0" text-anchor="middle" style="font-size:12px">プロジェクション行列を掛ける</text><line x1="137.0" y1="171.0" x2="137.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl74520)"/><text x="137.0" y="184.0" text-anchor="middle" style="font-size:12px">w'で割る（透視除算）</text><rect x="58.0" y="44.0" width="158" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="137.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ビュー空間 (x,y,z)</text><circle cx="60.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="60.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="28.0" y="128.0" width="218" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="137.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">クリップ空間 (x',y',z',w')</text><circle cx="30.0" cy="130.0" r="10" fill="#2ea043"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="35.5" y="212.0" width="203" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="137.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">NDC (x'/w',y'/w',z'/w')</text><circle cx="37.5" cy="214.0" r="10" fill="#e5a828"/><text x="37.5" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 **遠いほど `w` が大きい**ので、`x / w`、`y / w` が小さくなり、画面の中央に寄ります。これが遠近感です。**この割り算は、GPU が自動で行います**（頂点シェーダーが `SV_POSITION` を返したあと）。
 

@@ -181,29 +181,7 @@ class Add : public Expr {
 };
 ```
 
-<div class="anim" data-type="graph" data-label="二重ディスパッチ：Accept と Visit が行き来する">
-n main 呼び出し 0 1
-n expr Add 1 1 hit
-n vis ビジター 2 1
-l main expr hit Accept
-# 1. データに Accept(ビジター) を呼ぶ（1 回目：データの型で決まる）
----
-n main 呼び出し 0 1
-n expr Add 1 1
-n vis ビジター 2 1 hit
-l main expr
-l expr vis hit Visit(Add)
-# 2. Add の Accept の中で、visitor.Visit(*this) を呼ぶ（2 回目：ビジターの型で決まる）
----
-n main 呼び出し 0 1
-n expr Add 1 1 dim
-n vis ビジター 2 1 hit
-n left 左 1 0 hit
-n right 右 1 2 hit
-l vis left hit Accept
-l vis right hit Accept
-# 3. ビジターが、左と右に Accept を呼んで、木をたどる
-</div>
+<svg class="fig flow" viewBox="0 0 424 280" role="img" aria-label="二重ディスパッチ：Accept と Visit が行き来する"><defs><marker id="fl65752" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">二重ディスパッチ：Accept と Visit が行き来する</text><line x1="113.0" y1="148.0" x2="171.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl65752)"/><text x="142.0" y="142.0" text-anchor="middle" style="font-size:12px">Accept</text><line x1="253.0" y1="148.0" x2="311.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl65752)"/><text x="282.0" y="142.0" text-anchor="middle" style="font-size:12px">Visit(Add)</text><line x1="315.8" y1="125.0" x2="251.2" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl65752)"/><text x="283.5" y="100.0" text-anchor="middle" style="font-size:12px">Accept</text><line x1="315.8" y1="171.0" x2="251.2" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl65752)"/><text x="283.5" y="184.0" text-anchor="middle" style="font-size:12px">Accept</text><rect x="28.0" y="128.0" width="82" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="69.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">呼び出し</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="174.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="212.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Add</text><circle cx="176.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="176.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="314.0" y="128.0" width="82" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="355.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ビジター</text><circle cx="316.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="316.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="174.0" y="44.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="212.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">左</text><circle cx="176.0" cy="46.0" r="10" fill="#2ea043"/><text x="176.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="174.0" y="212.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="212.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">右</text><circle cx="176.0" cy="214.0" r="10" fill="#2ea043"/><text x="176.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text></svg>
 
 | 項目 | 古典的（virtual） | `std::variant` + `std::visit` |
 | --- | --- | --- |

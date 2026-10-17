@@ -17,6 +17,7 @@ nav:
   - build-time.md
   - frame-budget.md
   - rendering.md
+  - 描画の最適化（詳細）: gfx
   - baking.md
   - serialization-speed.md
   - loading.md

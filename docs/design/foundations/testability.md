@@ -87,31 +87,7 @@ TEST(DamageTest, CriticalDoublesDamage) {
 }
 ```
 
-<div class="anim" data-type="graph" data-label="本番とテストで、つなぐ相手を差し替える">
-n player プレイヤー 1 1
-n audio IAudio 2 0
-n rand IRandom 2 1
-n fx IEffects 2 2
-n real 本物 3 0 hit
-l player audio hit
-l player rand hit
-l player fx hit
-l audio real hit
-# 本番：IAudio の先は、本物のサウンド
----
-n player プレイヤー 1 1
-n audio IAudio 2 0
-n rand IRandom 2 1
-n fx IEffects 2 2
-n mock 偽物 3 1 new
-l player audio hit
-l player rand hit
-l player fx hit
-l audio mock new
-l rand mock new
-l fx mock new
-# テスト：同じプレイヤーのコードに、偽物（固定の値を返す）をつなぐ
-</div>
+<svg class="fig flow" viewBox="0 0 444 280" role="img" aria-label="本番とテストで、つなぐ相手を差し替える"><defs><marker id="fl57391" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">本番とテストで、つなぐ相手を差し替える</text><line x1="118.7" y1="125.0" x2="191.0" y2="86.1" stroke="currentColor" stroke-width="2" marker-end="url(#fl57391)"/><line x1="127.0" y1="148.0" x2="189.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl57391)"/><line x1="118.7" y1="171.0" x2="189.3" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl57391)"/><line x1="273.0" y1="64.0" x2="337.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl57391)"/><line x1="272.0" y1="87.0" x2="338.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl57391)"/><line x1="275.0" y1="148.0" x2="337.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl57391)"/><line x1="272.0" y1="209.0" x2="338.0" y2="171.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl57391)"/><rect x="28.0" y="128.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="76.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">プレイヤー</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="194.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="232.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">IAudio</text><circle cx="196.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="196.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="192.0" y="128.0" width="80" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="232.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">IRandom</text><circle cx="194.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="194.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="188.0" y="212.0" width="88" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="232.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">IEffects</text><circle cx="190.0" cy="214.0" r="10" fill="#4c8bf5"/><text x="190.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="340.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="378.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">本物</text><circle cx="342.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="342.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="340.0" y="128.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="378.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">偽物</text><circle cx="342.0" cy="130.0" r="10" fill="#2ea043"/><text x="342.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text></svg>
 
 ## テスト用の偽物の種類
 

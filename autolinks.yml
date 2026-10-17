@@ -204,3 +204,11 @@ libs/fastgltf/index.md: [fastgltf]
 libs/ufbx/index.md: [ufbx, FBX]
 libs/fbxsdk/index.md: [FBX SDK]
 libs/model-loading.md: [Assimp, OBJ]
+
+# ---- 描画の最適化（詳細）----
+optimize/gfx/forward-deferred.md: [Deferred, ディファード, G-Buffer, Forward+]
+optimize/gfx/light-culling.md: [Tiled, Clustered, タイルド, クラスタード]
+optimize/gfx/gpu-driven.md: [GPU Driven, インダイレクト描画]
+optimize/gfx/mesh-shaders.md: [Meshlet, メッシュレット, Mesh Shader]
+optimize/gfx/visibility-buffer.md: [Visibility Buffer]
+optimize/gfx/hiz.md: [Hi-Z, HZB]

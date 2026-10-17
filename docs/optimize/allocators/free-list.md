@@ -76,15 +76,7 @@ struct FreeBlock {
 
 **空きブロックが、要求より大きい**とき、**必要な分を貸して、残りを、新しい空きブロックとして、リストに戻します**。
 
-<div class="anim" data-type="graph" data-label="分割：大きな空きから、必要な分だけを貸し、残りを空きに戻す">
-n f 空き_100バイト 0 1 hit
----
-n f 空き_100バイト 0 1 dim
-n a 貸す_40バイト 1 0 new
-n r 残りの空き_60バイト 1 2 new
-l f a hit 分割
-l f r hit 残りを空きへ
-</div>
+<svg class="fig flow" viewBox="0 0 408 280" role="img" aria-label="分割：大きな空きから、必要な分だけを貸し、残りを空きに戻す"><defs><marker id="fl74080" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">分割：大きな空きから、必要な分だけを貸し、残りを空きに戻す</text><line x1="148.5" y1="125.0" x2="242.5" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl74080)"/><text x="195.5" y="100.0" text-anchor="middle" style="font-size:12px">分割</text><line x1="148.5" y1="171.0" x2="242.5" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl74080)"/><text x="195.5" y="184.0" text-anchor="middle" style="font-size:12px">残りを空きへ</text><rect x="28.0" y="128.0" width="127" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="91.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">空き 100バイト</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="240.0" y="44.0" width="119" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="299.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">貸す 40バイト</text><circle cx="242.0" cy="46.0" r="10" fill="#2ea043"/><text x="242.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="219.0" y="212.0" width="161" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="299.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">残りの空き 60バイト</text><circle cx="221.0" cy="214.0" r="10" fill="#2ea043"/><text x="221.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text></svg>
 
 **残りが小さすぎる**（ヘッダの大きさ未満）ときは、**分割せず、全部貸します**（無駄が出るが、管理が簡単）。
 

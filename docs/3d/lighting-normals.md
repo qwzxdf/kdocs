@@ -84,37 +84,7 @@ H = normalize(L + V)          V は、面から、カメラへの向き
 
 ## HLSL の例（DX11）
 
-<div class="anim" data-type="graph" data-label="ライティングの流れ：頂点で法線を渡し、ピクセルごとに明るさを計算する">
-n c0 頂点_法線を持つ 0 0 hit
----
-n c0 頂点_法線を持つ 0 0
-n c1 頂点シェーダー_ワールドへ変換 1 0 hit
-l c0 c1 hit 逆転置行列で
----
-n c0 頂点_法線を持つ 0 0
-n c1 頂点シェーダー_ワールドへ変換 1 0
-n c2 補間_（ラスタライズ） 2 0 hit
-l c0 c1 - 逆転置行列で
-l c1 c2 hit 三角形の中を
----
-n c0 頂点_法線を持つ 0 0
-n c1 頂点シェーダー_ワールドへ変換 1 0
-n c2 補間_（ラスタライズ） 2 0
-n c3 ピクセルシェーダー_normalize・内積 3 0 hit
-l c0 c1 - 逆転置行列で
-l c1 c2 - 三角形の中を
-l c2 c3 hit N・L・V_を使う
----
-n c0 頂点_法線を持つ 0 0
-n c1 頂点シェーダー_ワールドへ変換 1 0
-n c2 補間_（ラスタライズ） 2 0
-n c3 ピクセルシェーダー_normalize・内積 3 0
-n c4 画面の色 4 0 hit
-l c0 c1 - 逆転置行列で
-l c1 c2 - 三角形の中を
-l c2 c3 - N・L・V_を使う
-l c3 c4 hit
-</div>
+<svg class="fig flow" viewBox="0 0 1201 112" role="img" aria-label="ライティングの流れ：頂点で法線を渡し、ピクセルごとに明るさを計算する"><defs><marker id="fl94" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ライティングの流れ：頂点で法線を渡し、ピクセルごとに明るさを計算する</text><line x1="163.0" y1="64.0" x2="221.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl94)"/><text x="192.0" y="58.0" text-anchor="middle" style="font-size:12px">逆転置行列で</text><line x1="457.0" y1="64.0" x2="515.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl94)"/><text x="486.0" y="58.0" text-anchor="middle" style="font-size:12px">三角形の中を</text><line x1="695.0" y1="64.0" x2="753.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl94)"/><text x="724.0" y="58.0" text-anchor="middle" style="font-size:12px">N・L・V を使う</text><line x1="1030.0" y1="64.0" x2="1088.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl94)"/><rect x="28.0" y="44.0" width="132" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="94.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">頂点 法線を持つ</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="224.0" y="44.0" width="230" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="339.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">頂点シェーダー ワールドへ変換</text><circle cx="226.0" cy="46.0" r="10" fill="#2ea043"/><text x="226.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="518.0" y="44.0" width="174" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="605.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">補間 （ラスタライズ）</text><circle cx="520.0" cy="46.0" r="10" fill="#e5a828"/><text x="520.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="756.0" y="44.0" width="271" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="891.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ピクセルシェーダー normalize・内積</text><circle cx="758.0" cy="46.0" r="10" fill="#e5484d"/><text x="758.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="1091.0" y="44.0" width="82" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="1132.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">画面の色</text><circle cx="1093.0" cy="46.0" r="10" fill="#9664e6"/><text x="1093.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
 
 <svg class="fig" viewBox="0 0 640 200" role="img" aria-label="環境光・拡散光・スペキュラの合成"><defs><radialGradient id="g1" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#7a7f8a"/><stop offset="1" stop-color="#7a7f8a"/></radialGradient><radialGradient id="g2" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#e8e8ee"/><stop offset="0.6" stop-color="#7a7f8a"/><stop offset="1" stop-color="#15171c"/></radialGradient><radialGradient id="g3" cx="35%" cy="30%" r="22%"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#000000"/></radialGradient><radialGradient id="g4" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffffff"/><stop offset="0.12" stop-color="#e8e8ee"/><stop offset="0.6" stop-color="#7a7f8a"/><stop offset="1" stop-color="#1e2026"/></radialGradient></defs><circle cx="70" cy="90" r="55" fill="#3c3f47"/><text x="22" y="170">環境光（一定）</text><text x="145" y="98" class="fig-title">＋</text><circle cx="230" cy="90" r="55" fill="url(#g2)"/><text x="170" y="170">拡散光（ランバート）</text><text x="305" y="98" class="fig-title">＋</text><circle cx="390" cy="90" r="55" fill="url(#g3)"/><text x="335" y="170">スペキュラ</text><text x="465" y="98" class="fig-title">＝</text><circle cx="550" cy="90" r="55" fill="url(#g4)"/><text x="520" y="170">完成</text></svg>
 

@@ -22,49 +22,7 @@ tags:
 
 ## 速さを考える順番
 
-<div class="anim" data-type="graph" data-label="性能改善は、効果の大きい順に進める">
-n c0 ①_計測する 0 0 hit
----
-n c0 ①_計測する 0 0
-n c1 ②_アルゴリズム 1 0 hit
-l c0 c1 hit
----
-n c0 ①_計測する 0 0
-n c1 ②_アルゴリズム 1 0
-n c2 ③_データの並び 2 0 hit
-l c0 c1
-l c1 c2 hit
----
-n c0 ①_計測する 0 0
-n c1 ②_アルゴリズム 1 0
-n c2 ③_データの並び 2 0
-n c3 ④_メモリ確保 3 0 hit
-l c0 c1
-l c1 c2
-l c2 c3 hit
----
-n c0 ①_計測する 0 0
-n c1 ②_アルゴリズム 1 0
-n c2 ③_データの並び 2 0
-n c3 ④_メモリ確保 3 0
-n c4 ⑤_コピー 4 0 hit
-l c0 c1
-l c1 c2
-l c2 c3
-l c3 c4 hit
----
-n c0 ①_計測する 0 0
-n c1 ②_アルゴリズム 1 0
-n c2 ③_データの並び 2 0
-n c3 ④_メモリ確保 3 0
-n c4 ⑤_コピー 4 0
-n c5 ⑥_細かい書き方 5 0 hit
-l c0 c1
-l c1 c2
-l c2 c3
-l c3 c4
-l c4 c5 hit
-</div>
+<svg class="fig flow" viewBox="0 0 1084 112" role="img" aria-label="性能改善は、効果の大きい順に進める"><defs><marker id="fl8283" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">性能改善は、効果の大きい順に進める</text><line x1="135.0" y1="64.0" x2="193.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl8283)"/><line x1="331.0" y1="64.0" x2="389.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl8283)"/><line x1="527.0" y1="64.0" x2="585.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl8283)"/><line x1="709.0" y1="64.0" x2="767.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl8283)"/><line x1="863.0" y1="64.0" x2="921.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl8283)"/><rect x="28.0" y="44.0" width="104" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="80.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">① 計測する</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="196.0" y="44.0" width="132" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="262.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">② アルゴリズム</text><circle cx="198.0" cy="46.0" r="10" fill="#2ea043"/><text x="198.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="392.0" y="44.0" width="132" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="458.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">③ データの並び</text><circle cx="394.0" cy="46.0" r="10" fill="#e5a828"/><text x="394.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="588.0" y="44.0" width="118" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="647.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">④ メモリ確保</text><circle cx="590.0" cy="46.0" r="10" fill="#e5484d"/><text x="590.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="770.0" y="44.0" width="90" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="815.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">⑤ コピー</text><circle cx="772.0" cy="46.0" r="10" fill="#9664e6"/><text x="772.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="924.0" y="44.0" width="132" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="990.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">⑥ 細かい書き方</text><circle cx="926.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="926.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">6</text></svg>
 
 | 手順 | やること |
 | --- | --- |

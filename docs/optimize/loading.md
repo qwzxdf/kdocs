@@ -17,37 +17,7 @@ tags:
 
 ## ロードの内訳
 
-<div class="anim" data-type="graph" data-label="ロードの流れ">
-n c0 ファイルを開く・読む_（I/O） 0 0 hit
----
-n c0 ファイルを開く・読む_（I/O） 0 0
-n c1 解析・デコード_（CPU） 1 0 hit
-l c0 c1 hit
----
-n c0 ファイルを開く・読む_（I/O） 0 0
-n c1 解析・デコード_（CPU） 1 0
-n c2 メモリ確保 2 0 hit
-l c0 c1
-l c1 c2 hit
----
-n c0 ファイルを開く・読む_（I/O） 0 0
-n c1 解析・デコード_（CPU） 1 0
-n c2 メモリ確保 2 0
-n c3 GPU_へ転送 3 0 hit
-l c0 c1
-l c1 c2
-l c2 c3 hit
----
-n c0 ファイルを開く・読む_（I/O） 0 0
-n c1 解析・デコード_（CPU） 1 0
-n c2 メモリ確保 2 0
-n c3 GPU_へ転送 3 0
-n c4 初期化 4 0 hit
-l c0 c1
-l c1 c2
-l c2 c3
-l c3 c4 hit
-</div>
+<svg class="fig flow" viewBox="0 0 991 112" role="img" aria-label="ロードの流れ"><defs><marker id="fl87013" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ロードの流れ</text><line x1="256.0" y1="64.0" x2="314.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl87013)"/><line x1="503.0" y1="64.0" x2="561.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl87013)"/><line x1="663.0" y1="64.0" x2="721.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl87013)"/><line x1="826.0" y1="64.0" x2="884.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl87013)"/><rect x="28.0" y="44.0" width="225" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="140.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ファイルを開く・読む （I/O）</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="317.0" y="44.0" width="183" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="408.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">解析・デコード （CPU）</text><circle cx="319.0" cy="46.0" r="10" fill="#2ea043"/><text x="319.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="564.0" y="44.0" width="96" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="612.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">メモリ確保</text><circle cx="566.0" cy="46.0" r="10" fill="#e5a828"/><text x="566.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="724.0" y="44.0" width="99" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="773.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">GPU へ転送</text><circle cx="726.0" cy="46.0" r="10" fill="#e5484d"/><text x="726.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="887.0" y="44.0" width="76" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="925.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">初期化</text><circle cx="889.0" cy="46.0" r="10" fill="#9664e6"/><text x="889.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
 
 | 段階 | 遅い原因 | 対策 |
 | --- | --- | --- |

@@ -132,23 +132,7 @@ bool LoadTextureFromFile(ID3D11Device* device, const char* path,
 
 **エディタのように、ゲームの 3D 画面を、ImGui のウィンドウの中**に出します。**ゲームの描画を、バックバッファではなく、レンダー ターゲット（テクスチャ）に描き**、**その SRV を `Image` で表示**します。
 
-<div class="anim" data-type="graph" data-label="シーンビュー：ゲームの画面をテクスチャに描いて、ImGui のウィンドウの中に出す">
-n game ゲームの描画 0 1 hit
----
-n game ゲームの描画 0 1
-n rt レンダー_ターゲット_（テクスチャ） 1 1 new
-l game rt hit 描く
----
-n rt レンダー_ターゲット_（テクスチャ） 1 1
-n srv SRV 2 1 new
-l rt srv hit 読む
----
-n srv SRV 2 1
-n img ImGui::Image 3 1 new
-n win シーン_ウィンドウ 4 1 new
-l srv img hit 渡す
-l img win hit 表示
-</div>
+<svg class="fig flow" viewBox="0 0 1027 112" role="img" aria-label="シーンビュー：ゲームの画面をテクスチャに描いて、ImGui のウィンドウの中に出す"><defs><marker id="fl66077" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">シーンビュー：ゲームの画面をテクスチャに描いて、ImGui のウィンドウの中に出す</text><line x1="141.0" y1="64.0" x2="199.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl66077)"/><text x="170.0" y="58.0" text-anchor="middle" style="font-size:12px">描く</text><line x1="470.0" y1="64.0" x2="528.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl66077)"/><text x="499.0" y="58.0" text-anchor="middle" style="font-size:12px">読む</text><line x1="610.0" y1="64.0" x2="668.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl66077)"/><text x="639.0" y="58.0" text-anchor="middle" style="font-size:12px">渡す</text><line x1="792.0" y1="64.0" x2="850.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl66077)"/><text x="821.0" y="58.0" text-anchor="middle" style="font-size:12px">表示</text><rect x="28.0" y="44.0" width="110" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="83.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲームの描画</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="202.0" y="44.0" width="265" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="334.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">レンダー ターゲット （テクスチャ）</text><circle cx="204.0" cy="46.0" r="10" fill="#2ea043"/><text x="204.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="531.0" y="44.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="569.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">SRV</text><circle cx="533.0" cy="46.0" r="10" fill="#e5a828"/><text x="533.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="671.0" y="44.0" width="118" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="730.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ImGui::Image</text><circle cx="673.0" cy="46.0" r="10" fill="#e5484d"/><text x="673.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="853.0" y="44.0" width="146" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="926.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">シーン ウィンドウ</text><circle cx="855.0" cy="46.0" r="10" fill="#e5484d"/><text x="855.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 ```cpp
 class SceneView {

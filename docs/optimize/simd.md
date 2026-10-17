@@ -17,31 +17,7 @@ tags:
 
 ## SIMD とは
 
-<div class="anim" data-type="graph" data-label="スカラーは 4 回、SIMD は 1 回の命令">
-n a a0+b0 0 0 hit
-n b a1+b1 1 0
-n c a2+b2 2 0
-n d a3+b3 3 0
----
-n a a0+b0 0 0
-n b a1+b1 1 0 hit
-n c a2+b2 2 0
-n d a3+b3 3 0
----
-n a a0+b0 0 0
-n b a1+b1 1 0
-n c a2+b2 2 0 hit
-n d a3+b3 3 0
----
-n a a0+b0 0 0
-n b a1+b1 1 0
-n c a2+b2 2 0
-n d a3+b3 3 0 hit
----
-n s [a0_a1_a2_a3]_+_[b0_b1_b2_b3] 0 1 hit
-n r [a0+b0_a1+b1_a2+b2_a3+b3] 2 1 new
-l s r hit 1回の命令
-</div>
+<svg class="fig flow" viewBox="0 0 868 196" role="img" aria-label="スカラーは 4 回、SIMD は 1 回の命令"><defs><marker id="fl48339" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">スカラーは 4 回、SIMD は 1 回の命令</text><line x1="280.0" y1="148.0" x2="478.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl48339)"/><text x="379.0" y="142.0" text-anchor="middle" style="font-size:12px">1回の命令</text><rect x="114.5" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="152.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">a0+b0</text><circle cx="116.5" cy="46.0" r="10" fill="#4c8bf5"/><text x="116.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="341.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="379.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">a1+b1</text><circle cx="343.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="343.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="552.5" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="590.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">a2+b2</text><circle cx="554.5" cy="46.0" r="10" fill="#4c8bf5"/><text x="554.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="764.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="802.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">a3+b3</text><circle cx="766.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="766.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="28.0" y="128.0" width="249" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="152.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">[a0 a1 a2 a3] + [b0 b1 b2 b3]</text><circle cx="30.0" cy="130.0" r="10" fill="#2ea043"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="481.0" y="128.0" width="219" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="590.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">[a0+b0 a1+b1 a2+b2 a3+b3]</text><circle cx="483.0" cy="130.0" r="10" fill="#2ea043"/><text x="483.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text></svg>
 
 <div class="anim" data-label="SIMD：4 つの足し算を、1 回で">
 1 2 3 4 | 10 20 30 40 # 4 個ずつの 2 つの配列（a と b）

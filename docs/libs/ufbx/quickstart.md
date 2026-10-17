@@ -113,28 +113,7 @@ opts.space_conversion = UFBX_SPACE_CONVERSION_MODIFY_GEOMETRY;
 
 **`ufbx_scene`** の中は、**種類ごとのリスト**です。
 
-<div class="anim" data-type="graph" data-label="ufbx_scene の構造：ノードがメッシュやマテリアルを指す（ポインタでつながる）">
-n scene ufbx_scene 0 1 hit
----
-n scene ufbx_scene 0 1
-n node nodes 1 0 new
-n mesh meshes 1 1 new
-n mat materials 1 2 new
-l scene node hit
-l scene mesh hit
-l scene mat hit
----
-n node nodes 1 0
-n mesh meshes 1 1
-n mat materials 1 2
-n tex textures 2 2 new
-n skin skin_deformers 2 1 new
-n anim anim_stacks 2 0 new
-l node mesh hit mesh
-l mesh mat hit materials
-l mat tex hit
-l mesh skin hit
-</div>
+<svg class="fig flow" viewBox="0 0 516 280" role="img" aria-label="ufbx_scene の構造：ノードがメッシュやマテリアルを指す（ポインタでつながる）"><defs><marker id="fl91992" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ufbx_scene の構造：ノードがメッシュやマテリアルを指す（ポインタでつながる）</text><line x1="124.1" y1="125.0" x2="201.5" y2="85.1" stroke="currentColor" stroke-width="2" marker-end="url(#fl91992)"/><line x1="134.0" y1="148.0" x2="201.5" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl91992)"/><line x1="124.1" y1="171.0" x2="197.9" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl91992)"/><line x1="242.5" y1="87.0" x2="242.5" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl91992)"/><text x="242.5" y="100.0" text-anchor="middle" style="font-size:12px">mesh</text><line x1="242.5" y1="171.0" x2="242.5" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl91992)"/><text x="242.5" y="184.0" text-anchor="middle" style="font-size:12px">materials</text><line x1="293.0" y1="232.0" x2="374.0" y2="232.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl91992)"/><line x1="283.5" y1="148.0" x2="351.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl91992)"/><rect x="28.0" y="128.0" width="103" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="79.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ufbx scene</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="204.5" y="44.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="242.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes</text><circle cx="206.5" cy="46.0" r="10" fill="#2ea043"/><text x="206.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="204.5" y="128.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="242.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">meshes</text><circle cx="206.5" cy="130.0" r="10" fill="#2ea043"/><text x="206.5" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="195.0" y="212.0" width="95" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="242.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">materials</text><circle cx="197.0" cy="214.0" r="10" fill="#2ea043"/><text x="197.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="377.0" y="212.0" width="88" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="421.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">textures</text><circle cx="379.0" cy="214.0" r="10" fill="#e5a828"/><text x="379.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="354.0" y="128.0" width="134" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="421.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">skin deformers</text><circle cx="356.0" cy="130.0" r="10" fill="#e5a828"/><text x="356.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="365.5" y="44.0" width="111" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="421.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">anim stacks</text><circle cx="367.5" cy="46.0" r="10" fill="#e5a828"/><text x="367.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | リスト | 内容 |
 | --- | --- |

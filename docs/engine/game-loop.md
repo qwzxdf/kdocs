@@ -71,39 +71,7 @@ int main() {
 
 フレームレートが違っても、同じ時間（1/15 秒）で同じ距離だけ進みます。
 
-<div class="anim" data-type="graph" data-label="ゲームループ：1 フレームの流れ">
-n input 入力 0 0 hit
-n update 更新 1 0
-n draw 描画 2 0
-l input update
-l update draw
-l draw input - 次のフレーム
-# ① 入力を受け取る
----
-n input 入力 0 0
-n update 更新 1 0 hit
-n draw 描画 2 0
-l input update hit
-l update draw
-l draw input - 次のフレーム
-# ② ゲームの状態を更新する
----
-n input 入力 0 0
-n update 更新 1 0
-n draw 描画 2 0 hit
-l input update
-l update draw hit
-l draw input - 次のフレーム
-# ③ 画面に描く
----
-n input 入力 0 0 hit
-n update 更新 1 0
-n draw 描画 2 0
-l input update
-l update draw
-l draw input hit 次のフレーム
-# 終わったら、また最初へ（これを 1 秒に 60 回くり返す）
-</div>
+<svg class="fig flow" viewBox="0 0 412 112" role="img" aria-label="ゲームループ：1 フレームの流れ"><defs><marker id="fl67112" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ゲームループ：1 フレームの流れ</text><line x1="107.0" y1="64.0" x2="165.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl67112)"/><line x1="247.0" y1="64.0" x2="305.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl67112)"/><line x1="305.0" y1="64.0" x2="107.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl67112)"/><text x="206.0" y="58.0" text-anchor="middle" style="font-size:12px">次のフレーム</text><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">入力</text><rect x="168.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="206.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">更新</text><rect x="308.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="346.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">描画</text></svg>
 
 ## 詳しく
 

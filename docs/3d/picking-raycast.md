@@ -20,28 +20,7 @@ tags:
 
 画面の 1 点は、3D 空間では、**カメラから奥へ伸びる 1 本の線**に対応します。**MVP 変換の逆**（スクリーン → ワールド）で、その線を作ります。
 
-<div class="anim" data-type="graph" data-label="ピッキング：画面の 1 点から、奥へ向かうレイを作る">
-n s 画面の点_(sx,sy) 0 1 hit
----
-n s 画面の点_(sx,sy) 0 1
-n n 近い面の点_near_point 1 0 hit
-l s n hit z=0_をワールドへ
----
-n s 画面の点_(sx,sy) 0 1
-n n 近い面の点_near_point 1 0
-n f 遠い面の点_far_point 1 2 hit
-l s n - z=0_をワールドへ
-l s f hit z=1_をワールドへ
----
-n s 画面の点_(sx,sy) 0 1
-n n 近い面の点_near_point 1 0
-n f 遠い面の点_far_point 1 2
-n r レイ_始点near・向き=far-near 2 1 hit
-l s n - z=0_をワールドへ
-l s f - z=1_をワールドへ
-l n r hit
-l f r hit
-</div>
+<svg class="fig flow" viewBox="0 0 741 280" role="img" aria-label="ピッキング：画面の 1 点から、奥へ向かうレイを作る"><defs><marker id="fl56895" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ピッキング：画面の 1 点から、奥へ向かうレイを作る</text><line x1="162.0" y1="125.0" x2="264.5" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl56895)"/><text x="213.2" y="100.0" text-anchor="middle" style="font-size:12px">z=0 をワールドへ</text><line x1="162.0" y1="171.0" x2="264.5" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl56895)"/><text x="213.2" y="184.0" text-anchor="middle" style="font-size:12px">z=1 をワールドへ</text><line x1="400.6" y1="87.0" x2="522.9" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl56895)"/><line x1="400.6" y1="209.0" x2="522.9" y2="171.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl56895)"/><rect x="28.0" y="128.0" width="144" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="100.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">画面の点 (sx,sy)</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="236.0" y="44.0" width="181" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="326.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">近い面の点 near point</text><circle cx="238.0" cy="46.0" r="10" fill="#2ea043"/><text x="238.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="240.0" y="212.0" width="173" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="326.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">遠い面の点 far point</text><circle cx="242.0" cy="214.0" r="10" fill="#e5a828"/><text x="242.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="481.0" y="128.0" width="232" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="597.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">レイ 始点near・向き=far-near</text><circle cx="483.0" cy="130.0" r="10" fill="#e5484d"/><text x="483.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 ## スクリーン座標からレイを作る
 

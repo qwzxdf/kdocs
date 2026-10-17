@@ -37,37 +37,7 @@ PBR は、**物理の式を、そのまま近似**するので、**材質の数�
 
 光が物体の表面に当たると、**2 つのこと**が起きます。
 
-<div class="anim" data-type="graph" data-label="光が表面に当たったとき：表面で反射する光と、内部に入る光">
-n light 入射する光 0 1 hit
-n surf 表面 1 1
-l light surf hit
----
-n light 入射する光 0 1
-n surf 表面 1 1
-n spec 鏡面反射（specular）_表面ですぐ跳ね返る 2 0 new
-l light surf
-l surf spec hit 一部が反射
----
-n light 入射する光 0 1
-n surf 表面 1 1
-n spec 鏡面反射（specular）_表面ですぐ跳ね返る 2 0
-n inner 内部へ入る（屈折） 2 2 new
-l light surf
-l surf spec - 一部が反射
-l surf inner hit 残りが入る
----
-n light 入射する光 0 1
-n surf 表面 1 1
-n spec 鏡面反射（specular）_表面ですぐ跳ね返る 2 0
-n inner 内部へ入る（屈折） 2 2
-n diff 拡散反射（diffuse）_内部で散乱して、出てくる 3 2 new
-n abs 熱になる_（吸収） 3 3 dim
-l light surf
-l surf spec - 一部が反射
-l surf inner - 残りが入る
-l inner diff hit 散乱
-l inner abs - 吸収
-</div>
+<svg class="fig flow" viewBox="0 0 1065 364" role="img" aria-label="光が表面に当たったとき：表面で反射する光と、内部に入る光"><defs><marker id="fl24487" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">光が表面に当たったとき：表面で反射する光と、内部に入る光</text><line x1="127.0" y1="148.0" x2="185.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24487)"/><line x1="267.0" y1="134.5" x2="410.8" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24487)"/><text x="338.9" y="104.7" text-anchor="middle" style="font-size:12px">一部が反射</text><line x1="267.0" y1="161.5" x2="410.8" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24487)"/><text x="338.9" y="179.3" text-anchor="middle" style="font-size:12px">残りが入る</text><line x1="559.5" y1="232.0" x2="694.0" y2="232.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24487)"/><text x="626.8" y="226.0" text-anchor="middle" style="font-size:12px">散乱</text><line x1="559.5" y1="249.2" x2="791.0" y2="299.5" stroke="currentColor" stroke-width="2" marker-end="url(#fl24487)"/><text x="675.2" y="268.3" text-anchor="middle" style="font-size:12px">吸収</text><rect x="28.0" y="128.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="76.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">入射する光</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="188.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="226.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">表面</text><circle cx="190.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="190.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="328.0" y="44.0" width="305" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="480.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">鏡面反射（specular） 表面ですぐ跳ね返る</text><circle cx="330.0" cy="46.0" r="10" fill="#2ea043"/><text x="330.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="404.5" y="212.0" width="152" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="480.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">内部へ入る（屈折）</text><circle cx="406.5" cy="214.0" r="10" fill="#e5a828"/><text x="406.5" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="697.0" y="212.0" width="340" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="867.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">拡散反射（diffuse） 内部で散乱して、出てくる</text><circle cx="699.0" cy="214.0" r="10" fill="#e5484d"/><text x="699.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="794.0" y="296.0" width="146" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2" opacity="0.55"/><text x="867.0" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">熱になる （吸収）</text><circle cx="796.0" cy="298.0" r="10" fill="#e5484d"/><text x="796.0" y="298.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 | 光 | 起きること | 見え方 |
 | --- | --- | --- |
@@ -415,25 +385,7 @@ float4 PSMain(VsOutput input) : SV_TARGET {
 
 **環境マップ**（キューブマップ。**周囲 360° の景色の画像**）を、**光源**として扱います。レンダリング方程式の積分は、重いので、**事前に計算**しておきます。
 
-<div class="anim" data-type="graph" data-label="IBL：重い積分を、事前計算して、テクスチャにしておく">
-n env 環境マップ_（周囲の景色） 0 1 hit
----
-n env 環境マップ_（周囲の景色） 0 1
-n irr 拡散用_irradiance マップ 1 0 new
-n pre 鏡面用_プリフィルタ マップ 1 1 new
-n lut BRDF_LUT 1 2 new
-l env irr hit 半球で積分
-l env pre hit 粗さごとにぼかす
----
-n env 環境マップ_（周囲の景色） 0 1 dim
-n irr 拡散用_irradiance マップ 1 0
-n pre 鏡面用_プリフィルタ マップ 1 1
-n lut BRDF_LUT 1 2
-n px ピクセル 2 1 new
-l irr px hit 法線で引く
-l pre px hit 反射方向で引く
-l lut px hit 粗さ・角度で引く
-</div>
+<svg class="fig flow" viewBox="0 0 677 280" role="img" aria-label="IBL：重い積分を、事前計算して、テクスチャにしておく"><defs><marker id="fl52825" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">IBL：重い積分を、事前計算して、テクスチャにしておく</text><line x1="202.8" y1="125.0" x2="324.7" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl52825)"/><text x="263.8" y="100.0" text-anchor="middle" style="font-size:12px">半球で積分</text><line x1="233.0" y1="148.0" x2="291.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl52825)"/><text x="262.0" y="142.0" text-anchor="middle" style="font-size:12px">粗さごとにぼかす</text><line x1="455.9" y1="87.0" x2="564.0" y2="130.4" stroke="currentColor" stroke-width="2" marker-end="url(#fl52825)"/><text x="509.9" y="102.7" text-anchor="middle" style="font-size:12px">法線で引く</text><line x1="506.0" y1="148.0" x2="564.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl52825)"/><text x="535.0" y="142.0" text-anchor="middle" style="font-size:12px">反射方向で引く</text><line x1="445.5" y1="213.2" x2="564.0" y2="165.6" stroke="currentColor" stroke-width="2" marker-end="url(#fl52825)"/><text x="504.8" y="183.4" text-anchor="middle" style="font-size:12px">粗さ・角度で引く</text><rect x="28.0" y="128.0" width="202" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="129.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">環境マップ （周囲の景色）</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="297.5" y="44.0" width="202" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="398.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">拡散用 irradiance マップ</text><circle cx="299.5" cy="46.0" r="10" fill="#2ea043"/><text x="299.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="294.0" y="128.0" width="209" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="398.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">鏡面用 プリフィルタ マップ</text><circle cx="296.0" cy="130.0" r="10" fill="#2ea043"/><text x="296.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="354.5" y="212.0" width="88" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="398.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">BRDF LUT</text><circle cx="356.5" cy="214.0" r="10" fill="#2ea043"/><text x="356.5" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="567.0" y="128.0" width="82" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="608.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ピクセル</text><circle cx="569.0" cy="130.0" r="10" fill="#e5a828"/><text x="569.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 ### 拡散の間接光（irradiance マップ）
 

@@ -37,21 +37,7 @@ tags:
 
 **物理世界の中に、物体として存在せず**、**自分で動きを管理**します。**世界の物体との衝突は、判定**しますが、**物理的な押し合い**は、**最小限**です。
 
-<div class="anim" data-type="graph" data-label="CharacterVirtual：ゲームが速度を決め、Jolt が、衝突・階段・坂を処理する">
-n in 入力_（移動の向き） 0 1 hit
----
-n in 入力_（移動の向き） 0 1
-n vel 速度を決める_（ゲーム側） 1 1 new
-l in vel hit
----
-n vel 速度を決める_（ゲーム側） 1 1
-n ch CharacterVirtual_ExtendedUpdate 2 1 new
-l vel ch hit 設定
----
-n ch CharacterVirtual_ExtendedUpdate 2 1
-n pos 衝突を解決した_位置 3 1 new
-l ch pos hit 階段・坂・壁
-</div>
+<svg class="fig flow" viewBox="0 0 1035 112" role="img" aria-label="CharacterVirtual：ゲームが速度を決め、Jolt が、衝突・階段・坂を処理する"><defs><marker id="fl58645" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">CharacterVirtual：ゲームが速度を決め、Jolt が、衝突・階段・坂を処理する</text><line x1="191.0" y1="64.0" x2="249.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl58645)"/><line x1="457.0" y1="64.0" x2="515.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl58645)"/><text x="486.0" y="58.0" text-anchor="middle" style="font-size:12px">設定</text><line x1="786.0" y1="64.0" x2="844.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl58645)"/><text x="815.0" y="58.0" text-anchor="middle" style="font-size:12px">階段・坂・壁</text><rect x="28.0" y="44.0" width="160" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="108.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">入力 （移動の向き）</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="252.0" y="44.0" width="202" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="353.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">速度を決める （ゲーム側）</text><circle cx="254.0" cy="46.0" r="10" fill="#2ea043"/><text x="254.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="518.0" y="44.0" width="265" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="650.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">CharacterVirtual ExtendedUpdate</text><circle cx="520.0" cy="46.0" r="10" fill="#e5a828"/><text x="520.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="847.0" y="44.0" width="160" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="927.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">衝突を解決した 位置</text><circle cx="849.0" cy="46.0" r="10" fill="#e5484d"/><text x="849.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 ### 作る
 

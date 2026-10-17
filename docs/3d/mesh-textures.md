@@ -250,37 +250,7 @@ UV が `0..1` の外に出たときの扱いです。
 
 **テクスチャを、半分・4 分の 1 ... と縮小した画像を、あらかじめ作っておく**仕組みです。遠くの面では、小さい画像を使うので、**ちらつき（モアレ）が減り**、**キャッシュにも優しく**なります。
 
-<div class="anim" data-type="graph" data-label="ミップマップ：半分ずつ縮小した画像を用意する（メモリは約 1.33 倍）">
-n c0 512×512 0 0 hit
----
-n c0 512×512 0 0
-n c1 256×256 1 0 hit
-l c0 c1 hit
----
-n c0 512×512 0 0
-n c1 256×256 1 0
-n c2 128×128 2 0 hit
-l c0 c1
-l c1 c2 hit
----
-n c0 512×512 0 0
-n c1 256×256 1 0
-n c2 128×128 2 0
-n c3 ... 3 0 hit
-l c0 c1
-l c1 c2
-l c2 c3 hit
----
-n c0 512×512 0 0
-n c1 256×256 1 0
-n c2 128×128 2 0
-n c3 ... 3 0
-n c4 1×1 4 0 hit
-l c0 c1
-l c1 c2
-l c2 c3
-l c3 c4 hit
-</div>
+<svg class="fig flow" viewBox="0 0 704 112" role="img" aria-label="ミップマップ：半分ずつ縮小した画像を用意する（メモリは約 1.33 倍）"><defs><marker id="fl37951" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ミップマップ：半分ずつ縮小した画像を用意する（メモリは約 1.33 倍）</text><line x1="111.0" y1="64.0" x2="169.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37951)"/><line x1="255.0" y1="64.0" x2="313.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37951)"/><line x1="399.0" y1="64.0" x2="457.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37951)"/><line x1="539.0" y1="64.0" x2="597.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37951)"/><rect x="28.0" y="44.0" width="80" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="68.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">512×512</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="172.0" y="44.0" width="80" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="212.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">256×256</text><circle cx="174.0" cy="46.0" r="10" fill="#2ea043"/><text x="174.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="316.0" y="44.0" width="80" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="356.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">128×128</text><circle cx="318.0" cy="46.0" r="10" fill="#e5a828"/><text x="318.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="460.0" y="44.0" width="76" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="498.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">...</text><circle cx="462.0" cy="46.0" r="10" fill="#e5484d"/><text x="462.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="600.0" y="44.0" width="76" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="638.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">1×1</text><circle cx="602.0" cy="46.0" r="10" fill="#9664e6"/><text x="602.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
 
 | 項目 | 説明 |
 | --- | --- |

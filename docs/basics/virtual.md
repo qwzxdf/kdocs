@@ -24,27 +24,7 @@ tags:
 
 ## 基本
 
-<div class="anim" data-type="graph" data-label="仮想関数：オブジェクトの持つ vptr から、vtable を引いて、実際の関数を呼ぶ">
-n p Enemy*_e 0 1 hit
----
-n p Enemy*_e 0 1
-n o Goblin_オブジェクト_（vptr_を持つ） 1 1 hit
-l p o hit 指す
----
-n p Enemy*_e 0 1
-n o Goblin_オブジェクト_（vptr_を持つ） 1 1
-n vt Goblin_の_vtable_（関数の表） 2 1 hit
-l p o - 指す
-l o vt hit vptr
----
-n p Enemy*_e 0 1
-n o Goblin_オブジェクト_（vptr_を持つ） 1 1
-n vt Goblin_の_vtable_（関数の表） 2 1
-n f Goblin::Attack() 3 1 hit
-l p o - 指す
-l o vt - vptr
-l vt f hit 表を引く
-</div>
+<svg class="fig flow" viewBox="0 0 1005 112" role="img" aria-label="仮想関数：オブジェクトの持つ vptr から、vtable を引いて、実際の関数を呼ぶ"><defs><marker id="fl27768" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">仮想関数：オブジェクトの持つ vptr から、vtable を引いて、実際の関数を呼ぶ</text><line x1="119.0" y1="64.0" x2="177.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27768)"/><text x="148.0" y="58.0" text-anchor="middle" style="font-size:12px">指す</text><line x1="463.0" y1="64.0" x2="521.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27768)"/><text x="492.0" y="58.0" text-anchor="middle" style="font-size:12px">vptr</text><line x1="767.0" y1="64.0" x2="825.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl27768)"/><text x="796.0" y="58.0" text-anchor="middle" style="font-size:12px">表を引く</text><rect x="28.0" y="44.0" width="88" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="72.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Enemy* e</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="180.0" y="44.0" width="280" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="320.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Goblin オブジェクト （vptr を持つ）</text><circle cx="182.0" cy="46.0" r="10" fill="#2ea043"/><text x="182.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="524.0" y="44.0" width="240" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="644.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Goblin の vtable （関数の表）</text><circle cx="526.0" cy="46.0" r="10" fill="#e5a828"/><text x="526.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="828.0" y="44.0" width="149" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="902.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Goblin::Attack()</text><circle cx="830.0" cy="46.0" r="10" fill="#e5484d"/><text x="830.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 ```cpp
 #include <memory>

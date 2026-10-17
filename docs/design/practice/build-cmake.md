@@ -69,40 +69,7 @@ CMake なら `target_precompile_headers(MyGame PRIVATE pch.h)` の 1 行です�
 
 **一番効果が大きい**ビルドの設計です。コードを、<strong>静的ライブラリ（`.lib`）</strong>のまとまりに分けます。
 
-<div class="anim" data-type="graph" data-label="ライブラリの依存：下の層から積む">
-n base base.lib 0 2
-# 基盤層（何にも依存しない）
----
-n base base.lib 0 2
-n engine engine.lib 1 1 new
-l engine base new
-# エンジン層：base に依存
----
-n base base.lib 0 2
-n engine engine.lib 1 1
-n game game.lib 2 0 new
-l engine base
-l game engine new
-# ゲーム層：engine に依存
----
-n base base.lib 0 2
-n engine engine.lib 1 1
-n game game.lib 2 0
-n exe MyGame.exe 3 0 new
-l engine base
-l game engine
-l exe game new
-# アプリ：全部をつなぐ。依存の向きは、いつも「上から下」
----
-n base base.lib 0 2 hit
-n engine engine.lib 1 1
-n game game.lib 2 0
-n exe MyGame.exe 3 0
-l engine base
-l game engine
-l exe game
-# base を変えると、それに依存する全部が再ビルド。game だけ変えれば、game と exe だけ
-</div>
+<svg class="fig flow" viewBox="0 0 630 280" role="img" aria-label="ライブラリの依存：下の層から積む"><defs><marker id="fl68113" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ライブラリの依存：下の層から積む</text><line x1="187.8" y1="171.0" x2="115.7" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl68113)"/><line x1="347.3" y1="87.0" x2="275.2" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl68113)"/><line x1="496.0" y1="64.0" x2="438.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl68113)"/><rect x="28.0" y="212.0" width="88" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="72.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">base.lib</text><circle cx="30.0" cy="214.0" r="10" fill="#4c8bf5"/><text x="30.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="180.0" y="128.0" width="103" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="231.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">engine.lib</text><circle cx="182.0" cy="130.0" r="10" fill="#2ea043"/><text x="182.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="347.0" y="44.0" width="88" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="391.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">game.lib</text><circle cx="349.0" cy="46.0" r="10" fill="#e5a828"/><text x="349.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="499.0" y="44.0" width="103" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="550.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">MyGame.exe</text><circle cx="501.0" cy="46.0" r="10" fill="#e5484d"/><text x="501.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 | 利点 | 説明 |
 | --- | --- |

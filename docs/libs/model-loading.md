@@ -40,31 +40,7 @@ tags:
 
 ## 選び方
 
-<div class="anim" data-type="graph" data-label="3D モデルの読み込み：何を読むかで、選ぶライブラリが決まる">
-n q 何を読む？ 0 1 hit
----
-n q 何を読む？ 0 1
-n g glTF 1 0 new
-n f FBX 1 1 new
-n o OBJ 1 2 new
-l q g hit
-l q f hit
-l q o hit
----
-n g glTF 1 0
-n f FBX 1 1
-n o OBJ 1 2
-n tg 学習・小規模_tinygltf 2 -0.3 new
-n fg 速さ重視_fastgltf 2 0.4 new
-n uf 手軽_ufbx 2 1 new
-n sdk 公式の機能_FBX_SDK 2 1.8 new
-n ob tinyobjloader 2 2 new
-l g tg hit
-l g fg hit
-l f uf hit
-l f sdk hit
-l o ob hit
-</div>
+<svg class="fig flow" viewBox="0 0 535 305" role="img" aria-label="3D モデルの読み込み：何を読むかで、選ぶライブラリが決まる"><defs><marker id="fl87718" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">3D モデルの読み込み：何を読むかで、選ぶライブラリが決まる</text><line x1="117.1" y1="150.2" x2="185.0" y2="112.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl87718)"/><line x1="127.0" y1="173.2" x2="185.0" y2="173.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl87718)"/><line x1="117.1" y1="196.2" x2="185.0" y2="234.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl87718)"/><line x1="267.0" y1="83.8" x2="325.0" y2="76.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl87718)"/><line x1="267.0" y1="96.4" x2="339.0" y2="109.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl87718)"/><line x1="267.0" y1="173.2" x2="368.5" y2="173.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl87718)"/><line x1="267.0" y1="187.6" x2="352.0" y2="217.4" stroke="currentColor" stroke-width="2" marker-end="url(#fl87718)"/><line x1="267.0" y1="257.2" x2="351.5" y2="257.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl87718)"/><rect x="28.0" y="153.2" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="76.0" y="173.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">何を読む？</text><circle cx="30.0" cy="155.2" r="10" fill="#4c8bf5"/><text x="30.0" y="155.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="188.0" y="69.2" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="226.0" y="89.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">glTF</text><circle cx="190.0" cy="71.2" r="10" fill="#2ea043"/><text x="190.0" y="71.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="188.0" y="153.2" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="226.0" y="173.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">FBX</text><circle cx="190.0" cy="155.2" r="10" fill="#2ea043"/><text x="190.0" y="155.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="188.0" y="237.2" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="226.0" y="257.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">OBJ</text><circle cx="190.0" cy="239.2" r="10" fill="#2ea043"/><text x="190.0" y="239.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="328.0" y="44.0" width="179" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="417.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">学習・小規模 tinygltf</text><circle cx="330.0" cy="46.0" r="10" fill="#e5a828"/><text x="330.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="342.0" y="102.8" width="151" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="417.5" y="122.8" text-anchor="middle" dominant-baseline="central" style="font-weight:600">速さ重視 fastgltf</text><circle cx="344.0" cy="104.8" r="10" fill="#e5a828"/><text x="344.0" y="104.8" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="371.5" y="153.2" width="92" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="417.5" y="173.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">手軽 ufbx</text><circle cx="373.5" cy="155.2" r="10" fill="#e5a828"/><text x="373.5" y="155.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="338.5" y="220.4" width="158" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="417.5" y="240.4" text-anchor="middle" dominant-baseline="central" style="font-weight:600">公式の機能 FBX SDK</text><circle cx="340.5" cy="222.4" r="10" fill="#e5a828"/><text x="340.5" y="222.4" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="354.5" y="237.2" width="126" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="417.5" y="257.2" text-anchor="middle" dominant-baseline="central" style="font-weight:600">tinyobjloader</text><circle cx="356.5" cy="239.2" r="10" fill="#e5a828"/><text x="356.5" y="239.2" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | 状況 | 選ぶもの |
 | --- | --- |
@@ -80,19 +56,7 @@ l o ob hit
 
 **ゲームの実行ファイルに、FBX の読み込みを、入れない**構成が、よく使われます。
 
-<div class="anim" data-type="graph" data-label="アセット パイプライン：制作データを、ビルド時に、ゲーム専用の形式に変換する">
-n src 制作データ_（FBX・glTF） 0 1 hit
----
-n src 制作データ_（FBX・glTF） 0 1
-n tool 変換ツール_（ufbx・tinygltf など） 1 1 new
-n out ゲーム専用バイナリ 2 1 new
-l src tool hit ビルド時
-l tool out hit 出力
----
-n out ゲーム専用バイナリ 2 1
-n game ゲーム_（読むだけ） 3 1 new
-l out game hit そのまま読む
-</div>
+<svg class="fig flow" viewBox="0 0 1034 112" role="img" aria-label="アセット パイプライン：制作データを、ビルド時に、ゲーム専用の形式に変換する"><defs><marker id="fl43356" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">アセット パイプライン：制作データを、ビルド時に、ゲーム専用の形式に変換する</text><line x1="231.0" y1="64.0" x2="289.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43356)"/><text x="260.0" y="58.0" text-anchor="middle" style="font-size:12px">ビルド時</text><line x1="569.0" y1="64.0" x2="627.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43356)"/><text x="598.0" y="58.0" text-anchor="middle" style="font-size:12px">出力</text><line x1="785.0" y1="64.0" x2="843.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43356)"/><text x="814.0" y="58.0" text-anchor="middle" style="font-size:12px">そのまま読む</text><rect x="28.0" y="44.0" width="200" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="128.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">制作データ （FBX・glTF）</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="292.0" y="44.0" width="274" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="429.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">変換ツール （ufbx・tinygltf など）</text><circle cx="294.0" cy="46.0" r="10" fill="#2ea043"/><text x="294.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="630.0" y="44.0" width="152" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="706.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム専用バイナリ</text><circle cx="632.0" cy="46.0" r="10" fill="#2ea043"/><text x="632.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="846.0" y="44.0" width="160" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="926.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム （読むだけ）</text><circle cx="848.0" cy="46.0" r="10" fill="#e5a828"/><text x="848.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | 利点 | 説明 |
 | --- | --- |

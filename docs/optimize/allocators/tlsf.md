@@ -118,25 +118,7 @@ size_t RoundUp(size_t size) {
 
 ## 確保と解放
 
-<div class="anim" data-type="graph" data-label="TLSF：分類を計算し、ビットマップで空きを O(1) で見つけ、残りは分割して戻す">
-n req 要求_300バイト 0 1 hit
----
-n req 要求_300バイト 0 1
-n map 分類を計算_fl=8_sl=5 1 1 new
-l req map hit 切り上げ
----
-n map 分類を計算_fl=8_sl=5 1 1
-n bm ビットマップで_空きを探す 2 1 new
-l map bm hit countr_zero
----
-n bm ビットマップで_空きを探す 2 1
-n blk 空きブロック_400バイト 3 0 new
-n use 貸す_300 4 0 new
-n rest 残り_100_→_空きに戻す 4 2 new
-l bm blk hit 取り出す
-l blk use hit 分割
-l blk rest hit 残り
-</div>
+<svg class="fig flow" viewBox="0 0 1181 280" role="img" aria-label="TLSF：分類を計算し、ビットマップで空きを O(1) で見つけ、残りは分割して戻す"><defs><marker id="fl74959" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">TLSF：分類を計算し、ビットマップで空きを O(1) で見つけ、残りは分割して戻す</text><line x1="158.0" y1="148.0" x2="216.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl74959)"/><text x="187.0" y="142.0" text-anchor="middle" style="font-size:12px">切り上げ</text><line x1="395.0" y1="148.0" x2="453.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl74959)"/><text x="424.0" y="142.0" text-anchor="middle" style="font-size:12px">countr zero</text><line x1="627.2" y1="125.0" x2="743.3" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl74959)"/><text x="685.2" y="100.0" text-anchor="middle" style="font-size:12px">取り出す</text><line x1="908.0" y1="64.0" x2="1015.5" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl74959)"/><text x="961.8" y="58.0" text-anchor="middle" style="font-size:12px">分割</text><line x1="847.4" y1="87.0" x2="1027.1" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl74959)"/><text x="937.2" y="142.0" text-anchor="middle" style="font-size:12px">残り</text><rect x="28.0" y="128.0" width="127" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="91.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">要求 300バイト</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="219.0" y="128.0" width="173" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="305.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">分類を計算 fl=8 sl=5</text><circle cx="221.0" cy="130.0" r="10" fill="#2ea043"/><text x="221.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="456.0" y="128.0" width="202" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="557.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ビットマップで 空きを探す</text><circle cx="458.0" cy="130.0" r="10" fill="#e5a828"/><text x="458.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="722.0" y="44.0" width="183" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="813.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">空きブロック 400バイト</text><circle cx="724.0" cy="46.0" r="10" fill="#e5484d"/><text x="724.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="1018.5" y="44.0" width="85" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="1061.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">貸す 300</text><circle cx="1020.5" cy="46.0" r="10" fill="#e5484d"/><text x="1020.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="969.0" y="212.0" width="184" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="1061.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">残り 100 → 空きに戻す</text><circle cx="971.0" cy="214.0" r="10" fill="#e5484d"/><text x="971.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 ### 確保
 

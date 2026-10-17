@@ -80,62 +80,7 @@ void RunPhysics() {
 
 ## 流れ
 
-<div class="anim" data-type="graph" data-label="Jolt の使い方の流れ">
-n init 初期化 0 0 hit
-n sys 世界を作る 1 0
-n body 物体を作る 2 0
-n upd 毎フレーム_Update 3 0
-n end 片付け 4 0
-l init sys
-l sys body
-l body upd
-l upd end
-# ① 初期化：RegisterDefaultAllocator、Factory、RegisterTypes
----
-n init 初期化 0 0
-n sys 世界を作る 1 0 hit
-n body 物体を作る 2 0
-n upd 毎フレーム_Update 3 0
-n end 片付け 4 0
-l init sys hit
-l sys body
-l body upd
-l upd end
-# ② 世界を作る：PhysicsSystem::Init（レイヤーと上限の数）
----
-n init 初期化 0 0
-n sys 世界を作る 1 0
-n body 物体を作る 2 0 hit
-n upd 毎フレーム_Update 3 0
-n end 片付け 4 0
-l init sys
-l sys body hit
-l body upd
-l upd end
-# ③ 物体を作る：Shape、BodyCreationSettings、CreateAndAddBody
----
-n init 初期化 0 0
-n sys 世界を作る 1 0
-n body 物体を作る 2 0
-n upd 毎フレーム_Update 3 0 hit
-n end 片付け 4 0
-l init sys
-l sys body
-l body upd hit
-l upd end
-# ④ 毎フレーム：固定の時間で Update して、位置を読み取る
----
-n init 初期化 0 0
-n sys 世界を作る 1 0
-n body 物体を作る 2 0
-n upd 毎フレーム_Update 3 0
-n end 片付け 4 0 hit
-l init sys
-l sys body
-l body upd
-l upd end hit
-# ⑤ 片付け：RemoveBody、DestroyBody、UnregisterTypes
-</div>
+<svg class="fig flow" viewBox="0 0 806 112" role="img" aria-label="Jolt の使い方の流れ"><defs><marker id="fl46462" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">Jolt の使い方の流れ</text><line x1="107.0" y1="64.0" x2="165.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl46462)"/><line x1="267.0" y1="64.0" x2="325.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl46462)"/><line x1="427.0" y1="64.0" x2="485.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl46462)"/><line x1="641.0" y1="64.0" x2="699.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl46462)"/><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">初期化</text><rect x="168.0" y="44.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="216.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">世界を作る</text><rect x="328.0" y="44.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="376.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">物体を作る</text><rect x="488.0" y="44.0" width="150" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="563.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">毎フレーム Update</text><rect x="702.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="740.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">片付け</text></svg>
 
 ## 関連ページ
 
