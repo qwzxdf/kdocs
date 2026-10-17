@@ -23,11 +23,7 @@ tags:
 
 <div class="formula">F(θ, γ) = (1 + A·e^(B / cos θ)) · (1 + C·e^(D·γ) + E·cos²γ)</div>
 
-| 記号 | 意味 |
-| --- | --- |
-| **θ** | **視線の天頂角**（真上から何度か） |
-| **γ** | **視線と太陽のなす角** |
-| **A〜E** | **係数**。**turbidity から線形式で決まる** |
+記号の意味です。θ は視線の天頂角（真上から何度か）、γ は視線と太陽のなす角です。A〜E は係数で、turbidity（大気の濁り）から線形式で決まります。
 
 **最終的な空の輝度は、天頂の輝度に比をかけて出します**。
 
@@ -40,22 +36,15 @@ float Perez(float cos_theta, float gamma, float cos_gamma, PerezCoefficients coe
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **`max(cos θ, 0.01)`** | **地平線で発散するのを防ぐ** |
-| **xyY から RGB** | **色度 (x, y) と輝度 Y を、XYZ → sRGB（線形）に変換** |
-| **露出を掛ける** | <strong>輝度が絶対値（cd/m²）</strong>なので**露出で合わせる** |
+コードの要点です。`max(cos θ, 0.01)` は、地平線で発散するのを防ぎます。xyY から RGB への変換は、色度 (x, y) と輝度 Y を、XYZ から sRGB（線形）へ変換する処理です。輝度が絶対値（cd/m²）なので、露出で合わせます。
 
 ### Hosek-Wilkie
 
 **Hosek-Wilkie** は **Preetham の改良版**で、**特に太陽が低いとき、地面の反射率（アルベド）を考慮したとき**に**精度が高い**です。<strong>係数テーブル（9 つのパラメータ × 3 色 × turbidity × albedo × 高さ）</strong>を**公開データとして持ち、式の形は Preetham に似ています**。
 
-| 項目 | Preetham | Hosek-Wilkie |
-| --- | --- | --- |
-| **精度** | **太陽が低いと不正確** | **より正確** |
-| **パラメータ** | **turbidity** | **turbidity ＋ 地面のアルベド** |
-| **データ** | <strong>数式の係数のみ（少ない）</strong> | <strong>係数テーブルが必要（大きい）</strong> |
-| **用途** | **軽量・手軽** | **品質重視** |
+2 つのモデルの違いです。精度は、Preetham が太陽が低いと不正確で、Hosek-Wilkie はより正確です。パラメータは、Preetham が turbidity のみ、Hosek-Wilkie は turbidity に地面のアルベドが加わります。データは、Preetham が数式の係数のみで少なく、Hosek-Wilkie は大きな係数テーブルが必要です。用途は、Preetham が軽量で手軽、Hosek-Wilkie が品質重視です。
+
+原典は、Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を、少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、非常に軽い代わりに、地上の視点から見た空にしか使えず、宇宙から見た地球や、遠景のかすみ（空気遠近法）は扱えません。
 
 **どちらも空の見た目だけ**で<strong>大気の中を通る光（遠景の霞・光の筋）</strong>は**別に計算**する必要があります。**そこは[Atmospheric Scattering](../scattering/index.md)の担当**です。
 

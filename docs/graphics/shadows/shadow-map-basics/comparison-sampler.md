@@ -31,12 +31,7 @@ float ShadowFactor(float3 world_pos) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **`ndc.xy * (0.5, −0.5) + 0.5`** | NDC（−1〜1、y は上向き）を、テクスチャ座標（0〜1、v は下向き）に |
-| **`depth = ndc.z − bias`** | **バイアス**で自己影を防ぐ（[Shadow Bias](../bias/index.md)） |
-| **範囲外** | シャドウ マップの外は、**影なし**（1）として扱う（または別の扱い） |
-| **`SampleCmpLevelZero`** | **比較サンプラー**。**比較して、結果（0〜1）を、2×2 でバイリニア補間** |
+コードの要点です。`ndc.xy * (0.5, −0.5) + 0.5` は、NDC（−1〜1、y は上向き）を、テクスチャ座標（0〜1、v は下向き）に変換します。`depth = ndc.z − bias` は、バイアスで自己影を防ぎます（[Shadow Bias](../bias/index.md)）。範囲外は、影なし（1）として扱うか、別の扱いにします。`SampleCmpLevelZero` は比較サンプラーで、比較した結果（0〜1）を 2×2 でバイリニア補間します。
 
 ### 比較サンプラー
 
@@ -51,11 +46,7 @@ sampler.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 device->CreateSamplerState(&sampler, &shadow_sampler);
 ```
 
-| 設定 | 説明 |
-| --- | --- |
-| **`COMPARISON_..._LINEAR`** | 4 点の比較結果を**線形補間**（これが最も簡単な PCF） |
-| **`ComparisonFunc = LESS_EQUAL`** | **参照値 ≦ 保存された深度**なら 1（光が当たる） |
-| **アドレス モード：BORDER、色 1.0** | シャドウ マップの外は、<strong>影なし（1）</strong> |
+サンプラー設定の意味です。`COMPARISON_..._LINEAR` は、4 点の比較結果を線形補間するもので、これが最も簡単な PCF になります。`ComparisonFunc = LESS_EQUAL` は、参照値が保存された深度以下なら 1（光が当たる）を返します。アドレス モードを BORDER、色を 1.0 にすると、シャドウ マップの外は影なし（1）になります。
 
 !!! note "標準 Z のとき"
     標準の Z（near → 0、far → 1）では**遠いほど深度が大きい**ので、`LESS_EQUAL` を使います。**reverse-Z** のときは、`GREATER_EQUAL` です（[投影](../../../3d/projection.md)）。

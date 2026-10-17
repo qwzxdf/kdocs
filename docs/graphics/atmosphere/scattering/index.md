@@ -19,11 +19,7 @@ tags:
 
 <div class="formula">レイリー散乱の強さ ∝ 1 / λ⁴</div>
 
-| 波長 | 色 | 相対的な散乱の強さ |
-| --- | --- | --- |
-| **700 nm** | **赤** | **1.0** |
-| **550 nm** | **緑** | **約 2.6** |
-| **450 nm** | **青** | **約 5.9** |
+具体的な数字で見ます。700 nm（赤）の散乱の強さを 1.0 とすると、550 nm（緑）は約 2.6、450 nm（青）は約 5.9 になります。青い光は赤い光の約 6 倍も散らされるので、空全体が青く見えます。
 
 **青い光が全方向に散って空が青く見えます**。**夕方は太陽の光が大気を長く通り、青が散り尽くして赤だけが残る**ので、**太陽が赤く、空が赤く染まります**。
 
@@ -68,6 +64,14 @@ tags:
 </svg>
 
 <!-- fig:sunset-path:end -->
+
+## このセクションの流れ
+
+大気散乱は、物理の式が多く出てくる分野なので、見通しを先に示します。目標は、「空の色」と「遠景のかすみ」を、物理的に正しく計算することです。
+
+最初に、大気を<strong>どう表すか</strong>を決めます（[Atmosphere Model](atmosphere-model.md)）。地球の大気を、球状の層とみなし、高さに応じて指数的に薄くなる分子（レイリー散乱）と微粒子（ミー散乱）、そして光を吸収するオゾンで表します。次に、光が大気を通るときの<strong>減り方</strong>を扱います（[Transmittance](transmittance.md)）。そして、視線に沿って<strong>散乱された光を足し合わせる</strong>式を立てます（[Single-Scattering Integral](single-scattering.md)）。この式には、散乱の方向依存性を表す<strong>位相関数</strong>が登場します（[Phase Functions](phase-function.md)）。
+
+ここまでが単散乱（光が 1 回だけ散乱する場合）です。実際には、散乱された光がさらに散乱される<strong>多重散乱</strong>も効いてきます（[Multiple Scattering](multiple-scattering.md)）。これを毎フレーム計算するのは重いので、実用的な方式が 2 つ提案されています。Bruneton の方式は、すべてを 4 次元のテーブルに事前計算します（[Bruneton Precomputed Scattering](bruneton.md)）。Hillaire の方式は、小さな LUT を毎フレーム更新して、動的な大気にも対応します（[Hillaire 2020: Four LUTs](hillaire.md)）。最後に、地上と宇宙で、視点の位置による違いを扱います（[Ground and Space Views](ground-space.md)）。
 
 ## ページ一覧
 

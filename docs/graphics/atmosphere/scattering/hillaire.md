@@ -35,12 +35,7 @@ tags:
 <text x="390" y="230" text-anchor="middle" style="font-size:13px">毎フレーム、順に更新：透過率 → 多重散乱 → スカイビュー → 空気遠近法</text>
 </svg>
 
-| LUT | 内容 |
-| --- | --- |
-| **透過率 LUT** | <strong>(高さ, 太陽の天頂角) → 大気の外までの透過率</strong>（**ほぼ固定。大気の組成が変わると更新**） |
-| **多重散乱 LUT** | <strong>(高さ, 太陽の天頂角) → 多重散乱の寄与</strong>（**近似**） |
-| **スカイビュー LUT** | **カメラ位置での全方向の空の色**（**緯度経度で圧縮**。**地平線付近を細かく取る**） |
-| **空気遠近法 LUT** | **カメラ前方の froxel**（**視錐台の 3D 格子**）**ごとの散乱光と透過率**。**物体への霞に使う**（[距離フォグ](../aerial-fog/index.md)） |
+4 つの LUT は、それぞれ役割が違います。<strong>透過率 LUT</strong>は、高さと太陽の天頂角から、大気の外までの透過率を引く表で、ほぼ固定で、大気の組成が変わると更新します。<strong>多重散乱 LUT</strong>は、高さと太陽の天頂角から、多重散乱の寄与を引く表で、近似です。<strong>スカイビュー LUT</strong>は、カメラ位置での全方向の空の色で、緯度経度で圧縮し、地平線付近を細かく取ります。<strong>空気遠近法 LUT</strong>は、カメラ前方の froxel（視錐台の 3D 格子）ごとの散乱光と透過率で、物体への霞に使います（[Aerial Perspective and Fog](../aerial-fog/index.md)）。
 
 ### スカイビュー LUT の工夫
 
@@ -64,12 +59,9 @@ float SkyViewV(float view_zenith_cos, float horizon_cos) {
 
 ### 実行時の流れ
 
-| 手順 | 内容 |
-| --- | --- |
-| **① LUT 更新** | **透過率・多重散乱・スカイビュー・空気遠近法**を**コンピュートで更新** |
-| **② 空を描く** | **ピクセルの視線から、スカイビュー LUT を引く**（1 回の表引き） |
-| **③ 太陽の円盤** | **透過率 LUT で減衰させて足す** |
-| **④ 物体にかける** | **空気遠近法 LUT で、物体の色を霞ませる**（[距離フォグ](../aerial-fog/index.md)） |
+実行時の流れは 4 段階です。最初に、透過率・多重散乱・スカイビュー・空気遠近法の LUT を、コンピュート シェーダーで更新します。次に、空を描くときは、ピクセルの視線からスカイビュー LUT を 1 回引くだけです。太陽の円盤は、透過率 LUT で減衰させて足します。最後に、物体には、空気遠近法 LUT で色を霞ませます（[Aerial Perspective and Fog](../aerial-fog/index.md)）。
+
+原典は、Hillaire の "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（Eurographics Symposium on Rendering 2020）です。この方式の特長は、Bruneton の 4D テーブルを、毎フレーム更新できる小さな LUT に分解したことです。LUT が小さいので、大気の組成（ミーの密度、オゾンの量）をリアルタイムに変えて、天候の変化も表現できます。モバイルから高性能 PC まで、LUT の解像度を変えるだけで対応でき、Unreal Engine の Sky Atmosphere などに採用されています。
 
 **LUT は小さい**ので<strong>毎フレーム更新しても軽く（0.1〜0.3 ms 程度）</strong>、**時刻・天気・大気の濃さを動的に変えられます**。
 

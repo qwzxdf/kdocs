@@ -22,11 +22,24 @@ float sun_amount = saturate(dot(view_dir, sun_dir));
 float3 fog_color_dir = lerp(fog_color, sun_fog_color, pow(sun_amount, 8.0));
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **`pow(.., 8)`** | **太陽のすぐ周りだけ** |
-| **ミー散乱の位相関数** | **より正確には、Henyey-Greenstein**（[Atmospheric Scattering](../scattering/index.md)） |
-| **夕方** | **太陽側が赤橙、反対側が青紫**になる |
+コードの要点です。`pow(.., 8)` は、太陽のすぐ周りだけが効くように、角度の広がりを絞ります。より正確には、ミー散乱の位相関数である Henyey-Greenstein 関数を使います（[Atmospheric Scattering](../scattering/index.md)）。夕方は、太陽側が赤橙に、反対側が青紫になります。
+
+### 位相関数による定式化
+
+空気中の粒子（エアロゾル、水滴）による散乱はミー散乱と呼ばれ、強い<strong>前方散乱</strong>が特徴です。光が進んできた方向のまま散らされやすいので、太陽の方向を見たとき、散乱光が最も強くなります。この角度による強さの変化を表す関数が位相関数で、ゲームでは Henyey-Greenstein 関数がよく使われます。
+
+<div class="formula">HG(cosθ, g) = (1 − g²) / (4π · (1 + g² − 2 g cosθ)^(3/2))</div>
+
+g は非対称パラメータ（−1〜1）で、0 なら等方（どの方向にも均等）、1 に近づくほど前方散乱が強くなります。大気中のミー散乱では、g が 0.76 前後の値がよく使われます。θ は、視線と太陽方向のなす角で、cosθ は `dot(view_dir, sun_dir)` です。上の `pow(sun_amount, 8)` は、この関数を単純化した近似と見なせます。
+
+HG 関数を使うと、太陽の方向がどのくらい強く光るかと、広がり方を、g で調整できます。これにフォグの色の計算を組み込むと、次のようになります。
+
+```hlsl
+float phase = HenyeyGreenstein(dot(view_dir, sun_dir), 0.76);
+float3 fog_color_dir = ambient_fog_color + sun_color * phase * sun_inscatter_scale;
+```
+
+空の色（青い環境光）に、太陽の項を<strong>足す</strong>形です。足すことで、太陽側だけが明るく暖色に染まり、反対側は青いままになります。
 
 ## よくあるミス
 

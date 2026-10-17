@@ -55,11 +55,7 @@ tags:
 
 <div class="formula">C_final = C · T + F · (1 − T)　（T：透過率）</div>
 
-| 種類 | 透過率 T | 特徴 |
-| --- | --- | --- |
-| **線形** | <strong>T = saturate((end − d) / (end − start))</strong> | **start までは影響なし、end で完全にフォグ**。**調整しやすいが物理的ではない** |
-| **指数** | <strong>T = exp(−density · d)</strong> | **物理的に自然**。**遠くが徐々に霞む** |
-| **指数の 2 乗** | <strong>T = exp(−(density · d)²)</strong> | **近くはほぼ透明である距離から急に霞む** |
+3 つの式を比べます。<strong>線形フォグ</strong>は、`T = saturate((end − d) / (end − start))` で、start までは影響がなく、end で完全にフォグ色になります。調整しやすい反面、物理的ではありません。<strong>指数フォグ</strong>は `T = exp(−density · d)` で、物理的に自然で、遠くが徐々に霞みます。これは均一な媒質を光が通るときの減衰を表す Beer-Lambert の法則そのものです。<strong>指数の 2 乗フォグ</strong>は `T = exp(−(density · d)²)` で、近くはほぼ透明なまま、ある距離から急に霞みます。
 
 ```hlsl
 float FogTransmittance(float distance_to_pixel) {
@@ -72,12 +68,7 @@ float3 ApplyFog(float3 color, float distance_to_pixel) {
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **距離はカメラからの直線距離** | **深度（Z）ではなく、位置の長さ**を使う（**画面の端でも同じ濃さ**）。**`length(world_position − camera_position)`** |
-| **`density`** | **0.001〜0.02 /m** 程度。**視界 200〜2000 m** |
-| **HDR で適用** | **トーンマップの前**に掛ける |
-| **空にもフォグ** | **地平線付近の空の色をフォグの色と一致させる**（**山が空に溶ける**） |
+コードの要点です。距離は、カメラからの直線距離を使います。深度（Z）でなく位置の長さ（`length(world_position − camera_position)`）を使うことで、画面の端でも同じ濃さになります。`density` は 0.001〜0.02 /m 程度で、視界が 200〜2000 m になります。フォグは HDR のまま、トーンマップの前に掛けます。空にもフォグの色を合わせると、遠景の山が空に溶け込みます。
 
 ### 深度から距離を求める
 
