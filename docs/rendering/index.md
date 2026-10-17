@@ -21,34 +21,34 @@ tags:
 
 **読む順番**：しくみと測り方 → ライティング → ジオメトリ → ピクセル・解像度 → 周辺の最適化 → 実践。
 
-**改善するもの**の列は、その手法が主に何を減らすかを表します。
+**減らせるもの**の列は、その手法が主に何を減らすかを表します。ピクセルや頂点は「減らす量」、計算（ALU）や帯域幅は「楽になる資源」です。
 
-<div class="gain-legend"><span class="gain gain-cpu">🖥️ CPU</span> <span class="gain gain-vtx">🔺 頂点</span> <span class="gain gain-pix">🎨 ピクセル</span> <span class="gain gain-bw">📶 帯域幅</span> <span class="gain gain-alu">🧮 ALU</span> <span class="gain gain-vram">💾 VRAM</span> <span class="gain gain-gpu">⏱️ GPU 稼働</span></div>
+<div class="gain-legend"><span class="gain gain-cpu">🖥️ CPU の命令減</span> <span class="gain gain-vtx">🔺 頂点量減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> <span class="gain gain-bw">📶 帯域幅減</span> <span class="gain gain-alu">🧮 計算（ALU）減</span> <span class="gain gain-vram">💾 VRAM 減</span> <span class="gain gain-gpu">⏱️ GPU の空き活用</span></div>
 
-| ページ | 内容 | 改善するもの |
+| ページ | 内容 | 減らせるもの |
 | --- | --- | --- |
 | [描画のしくみ](pipeline.md) | CPU から画面までの流れと、基本用語 | — |
 | [何が重いのか（ボトルネック）](bottlenecks.md) | CPU と GPU、頂点・ピクセル・帯域。**どう見分けるか** | — |
-| [メモリ帯域幅](bandwidth.md) | 帯域とは何か、G-Buffer が重い理由、フォーマットの選び方 | <span class="gain gain-bw">📶 帯域幅</span> <span class="gain gain-vram">💾 VRAM</span> |
-| [Forward と Deferred](forward-deferred.md) | ライティングの基本の 2 方式。**何が改善するのか** | <span class="gain gain-alu">🧮 ALU</span> <span class="gain gain-pix">🎨 ピクセル</span> |
-| [Tiled と Clustered](light-culling.md) | ライトをタイル・3 次元のセルに分ける | <span class="gain gain-alu">🧮 ALU</span> <span class="gain gain-bw">📶 帯域幅</span> |
-| [ドロー コールとバッチ](draw-calls.md) | CPU 側の負担、バッチ・インスタンシング・ステートの整理 | <span class="gain gain-cpu">🖥️ CPU</span> |
-| [カリング](culling.md) | 視錐台・オクルージョン・距離。**見えないものを描かない** | <span class="gain gain-cpu">🖥️ CPU</span> <span class="gain gain-vtx">🔺 頂点</span> <span class="gain gain-pix">🎨 ピクセル</span> |
-| [GPU Driven Rendering](gpu-driven.md) | カリングと描画命令を、**GPU が作る** | <span class="gain gain-cpu">🖥️ CPU</span> |
-| [Mesh Shader と Meshlet](mesh-shaders.md) | **三角形の塊**単位の細かいカリング | <span class="gain gain-vtx">🔺 頂点</span> <span class="gain gain-bw">📶 帯域幅</span> |
-| [Visibility Buffer](visibility-buffer.md) | G-Buffer を**三角形の ID だけ**に | <span class="gain gain-bw">📶 帯域幅</span> <span class="gain gain-pix">🎨 ピクセル</span> |
-| [オーバードローと Z プリパス](overdraw.md) | 無駄に塗る問題・Early-Z・小さな三角形 | <span class="gain gain-pix">🎨 ピクセル</span> <span class="gain gain-alu">🧮 ALU</span> |
-| [低解像度のエフェクト](low-res-effects.md) | AO・ブルーム・霧などを縮小バッファで | <span class="gain gain-pix">🎨 ピクセル</span> <span class="gain gain-bw">📶 帯域幅</span> <span class="gain gain-alu">🧮 ALU</span> |
-| [Hi-Z とスクリーン空間トレース](hiz.md) | 階層的な深度。反射・AO・オクルージョンの高速化 | <span class="gain gain-cpu">🖥️ CPU</span> <span class="gain gain-alu">🧮 ALU</span> |
-| [シェーダーのコスト](shader-cost.md) | 計算 vs メモリ・分岐・占有率・精度 | <span class="gain gain-alu">🧮 ALU</span> <span class="gain gain-bw">📶 帯域幅</span> |
-| [LOD とインポスター](lod.md) | 遠くの物の詳細度を下げる | <span class="gain gain-vtx">🔺 頂点</span> <span class="gain gain-pix">🎨 ピクセル</span> |
-| [影のコスト](shadows.md) | カスケード・影用カリング・更新頻度 | <span class="gain gain-cpu">🖥️ CPU</span> <span class="gain gain-vtx">🔺 頂点</span> <span class="gain gain-pix">🎨 ピクセル</span> |
-| [テクスチャとストリーミング](texture-streaming.md) | 圧縮・ミップ・必要な分だけ常駐 | <span class="gain gain-vram">💾 VRAM</span> <span class="gain gain-bw">📶 帯域幅</span> |
-| [TAA・アップスケーラ・VRS](taa-upscaling.md) | 低解像度で描いて、時間情報で補う | <span class="gain gain-pix">🎨 ピクセル</span> <span class="gain gain-alu">🧮 ALU</span> |
-| [非同期コンピュート](async-compute.md) | 描画とコンピュートを同時に走らせる | <span class="gain gain-gpu">⏱️ GPU 稼働</span> |
-| [パーティクルと半透明](particles.md) | 重なりのコストを減らす | <span class="gain gain-pix">🎨 ピクセル</span> <span class="gain gain-bw">📶 帯域幅</span> |
-| [ポストプロセス](postprocess.md) | 全画面の効果をまとめて軽く | <span class="gain gain-bw">📶 帯域幅</span> <span class="gain gain-pix">🎨 ピクセル</span> |
-| [2D ゲームの描画](2d.md) | スプライト・タイルマップ・UI | <span class="gain gain-cpu">🖥️ CPU</span> <span class="gain gain-pix">🎨 ピクセル</span> |
+| [メモリ帯域幅](bandwidth.md) | 帯域とは何か、G-Buffer が重い理由、フォーマットの選び方 | <span class="gain gain-bw">📶 帯域幅減</span> <span class="gain gain-vram">💾 VRAM 減</span> |
+| [Forward と Deferred](forward-deferred.md) | ライティングの基本の 2 方式。**何が改善するのか** | <span class="gain gain-alu">🧮 計算（ALU）減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
+| [Tiled と Clustered](light-culling.md) | ライトをタイル・3 次元のセルに分ける | <span class="gain gain-alu">🧮 計算（ALU）減</span> <span class="gain gain-bw">📶 帯域幅減</span> |
+| [ドロー コールとバッチ](draw-calls.md) | CPU 側の負担、バッチ・インスタンシング・ステートの整理 | <span class="gain gain-cpu">🖥️ CPU の命令減</span> |
+| [カリング](culling.md) | 視錐台・オクルージョン・距離。**見えないものを描かない** | <span class="gain gain-cpu">🖥️ CPU の命令減</span> <span class="gain gain-vtx">🔺 頂点量減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
+| [GPU Driven Rendering](gpu-driven.md) | カリングと描画命令を、**GPU が作る** | <span class="gain gain-cpu">🖥️ CPU の命令減</span> |
+| [Mesh Shader と Meshlet](mesh-shaders.md) | **三角形の塊**単位の細かいカリング | <span class="gain gain-vtx">🔺 頂点量減</span> <span class="gain gain-bw">📶 帯域幅減</span> |
+| [Visibility Buffer](visibility-buffer.md) | G-Buffer を**三角形の ID だけ**に | <span class="gain gain-bw">📶 帯域幅減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
+| [オーバードローと Z プリパス](overdraw.md) | 無駄に塗る問題・Early-Z・小さな三角形 | <span class="gain gain-pix">🎨 ピクセル量減</span> <span class="gain gain-alu">🧮 計算（ALU）減</span> |
+| [低解像度のエフェクト](low-res-effects.md) | AO・ブルーム・霧などを縮小バッファで | <span class="gain gain-pix">🎨 ピクセル量減</span> <span class="gain gain-bw">📶 帯域幅減</span> <span class="gain gain-alu">🧮 計算（ALU）減</span> |
+| [Hi-Z とスクリーン空間トレース](hiz.md) | 階層的な深度。反射・AO・オクルージョンの高速化 | <span class="gain gain-cpu">🖥️ CPU の命令減</span> <span class="gain gain-alu">🧮 計算（ALU）減</span> |
+| [シェーダーのコスト](shader-cost.md) | 計算 vs メモリ・分岐・占有率・精度 | <span class="gain gain-alu">🧮 計算（ALU）減</span> <span class="gain gain-bw">📶 帯域幅減</span> |
+| [LOD とインポスター](lod.md) | 遠くの物の詳細度を下げる | <span class="gain gain-vtx">🔺 頂点量減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
+| [影のコスト](shadows.md) | カスケード・影用カリング・更新頻度 | <span class="gain gain-cpu">🖥️ CPU の命令減</span> <span class="gain gain-vtx">🔺 頂点量減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
+| [テクスチャとストリーミング](texture-streaming.md) | 圧縮・ミップ・必要な分だけ常駐 | <span class="gain gain-vram">💾 VRAM 減</span> <span class="gain gain-bw">📶 帯域幅減</span> |
+| [TAA・アップスケーラ・VRS](taa-upscaling.md) | 低解像度で描いて、時間情報で補う | <span class="gain gain-pix">🎨 ピクセル量減</span> <span class="gain gain-alu">🧮 計算（ALU）減</span> |
+| [非同期コンピュート](async-compute.md) | 描画とコンピュートを同時に走らせる | <span class="gain gain-gpu">⏱️ GPU の空き活用</span> |
+| [パーティクルと半透明](particles.md) | 重なりのコストを減らす | <span class="gain gain-pix">🎨 ピクセル量減</span> <span class="gain gain-bw">📶 帯域幅減</span> |
+| [ポストプロセス](postprocess.md) | 全画面の効果をまとめて軽く | <span class="gain gain-bw">📶 帯域幅減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
+| [2D ゲームの描画](2d.md) | スプライト・タイルマップ・UI | <span class="gain gain-cpu">🖥️ CPU の命令減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
 | [調査ツール](tools.md) | RenderDoc・PIX・Nsight の使いどころ | — |
 | [場面別の直し方](cases.md) | よくある症状と効く手法の対応 | — |
 
