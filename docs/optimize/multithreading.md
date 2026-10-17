@@ -181,3 +181,5 @@ int total = std::accumulate(partial.begin(), partial.end(), 0);
 - [並行処理（基礎）](../basics/concurrency.md)
 - [thread / jthread](../stl/concurrency/thread.md)
 - [メモリとキャッシュ（false sharing）](memory-cache.md)
+- [std::atomic](../stl/concurrency/atomic.md)
+- [std::mutex](../stl/concurrency/mutex.md)

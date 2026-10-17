@@ -194,3 +194,8 @@ constexpr auto sin_table = []() {
 - [未定義動作（基礎）](../basics/ub.md)
 - [Visual Studio：C++23 の設定](../vs/settings.md)
 - [ビルドと CMake の構成](../design/practice/build-cmake.md)
+- [CRTP とポリシーベース設計（仮想関数を使わない多態）](../design/patterns/crtp-policy.md)
+- [PImpl（ビルド時間）](../design/patterns/pimpl.md)
+- [ヘッダとソースの分け方（ビルド時間）](../design/foundations/header-source.md)
+- [Ninja](../vs/ninja.md)
+- [CMake](../vs/cmake.md)

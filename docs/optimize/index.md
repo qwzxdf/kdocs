@@ -124,6 +124,29 @@ l check measure 戻る
 
 「<strong>早すぎる最適化は、諸悪の根源</strong>」（ドナルド・クヌース）。まず読みやすく書き、**遅い場所だけ**直します。
 
+## 設計・ほかのカテゴリにある、最適化の話
+
+最適化は、設計やライブラリの話と重なります。次のページにも、**速さ・軽さ**に関する解説があります（設計側と重複して書いてあります）。
+
+| テーマ | ページ | 最適化との関係 |
+| --- | --- | --- |
+| **ECS** | [ECS](../design/patterns/ecs.md) | 大量のオブジェクトを、連続した配列で速く回す |
+| **データ指向設計** | [データ指向設計](../design/patterns/data-oriented.md) | キャッシュに優しいデータの並び（SoA） |
+| **CRTP** | [CRTP とポリシーベース設計](../design/patterns/crtp-policy.md) | 仮想関数の呼び出しをなくす（静的ポリモーフィズム） |
+| **オブジェクトプール** | [オブジェクトプール](../design/patterns/object-pool.md) | `new` / `delete` を減らす |
+| **PImpl・ヘッダ分割** | [PImpl](../design/patterns/pimpl.md)、[ヘッダとソースの分け方](../design/foundations/header-source.md) | **ビルド時間**の短縮 |
+| **パフォーマンス設計** | [パフォーマンス設計](../design/practice/performance-design.md) | 設計の段階で、速さを考える |
+| **ビルド** | [ビルドと CMake の構成](../design/practice/build-cmake.md)、[Ninja](../vs/ninja.md) | ビルドの高速化 |
+| **仮想関数のコスト** | [仮想関数（基礎）](../basics/virtual.md) | 間接呼び出しと、インライン化の阻害 |
+| **キャッシュ・計算量** | [キャッシュ効率（基礎）](../basics/cache.md)、[計算量（基礎）](../basics/big-o.md) | 速さの土台になる知識 |
+| **コンテナの選択** | [コンテナの選び方](../container-chart.md)、[std::flat_map](../stl/containers/flat_map.md)、[std::hash](../stl/utilities/hash.md) | 連続メモリ・ハッシュで速く |
+| <strong>メモリ確保（STL）</strong> | [std::pmr](../stl/memory/pmr.md)、[std::allocator](../stl/memory/allocator.md) | アロケーターで確保を速く |
+| **ハンドル・リソース** | [ハンドル](../engine/handle.md)、[リソース管理](../engine/resource.md) | ポインタの無効化を防ぎ、確保を減らす |
+| **シリアライズ** | [シリアライズ](../engine/serialization/index.md)、[simdjson](../libs/serialization/simdjson.md)、[zpp-bits](../libs/serialization/zpp-bits.md) | ロード時間・ファイルサイズ |
+| **3D の数学** | [DirectXMath](../3d/directxmath.md)、[SimpleMath](../3d/simplemath.md) | SIMD による高速な計算 |
+| **3D の描画・判定** | [深度とカリング](../3d/depth-culling.md)、[メッシュとテクスチャ](../3d/mesh-textures.md)、[3D の衝突判定](../3d/collision-3d.md) | カリング、インスタンシング、ブロードフェーズ |
+| **スキニング** | [スキニングとアニメーション](../3d/skinning-animation.md) | GPU スキニング、骨の削減 |
+
 ## 関連ページ
 
 - [パフォーマンス設計](../design/practice/performance-design.md)

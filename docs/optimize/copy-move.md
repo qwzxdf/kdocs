@@ -209,3 +209,5 @@ class Mesh {
 - [const と引数の渡し方](../design/foundations/const-and-passing.md)
 - [メモリ確保](allocation.md)
 - [std::string_view](../stl/utilities/string_view.md)
+- [std::span](../stl/containers/span.md)
+- [std::unique_ptr](../stl/utilities/unique_ptr.md)

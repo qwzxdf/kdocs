@@ -255,3 +255,7 @@ struct Counters {
 - [ECS](../design/patterns/ecs.md)
 - [std::vector](../stl/containers/vector.md)
 - [コンテナの選び方](../container-chart.md)
+- [仮想関数（基礎）：呼び出しのコスト](../basics/virtual.md)
+- [std::flat_map](../stl/containers/flat_map.md)
+- [メッシュとテクスチャ（頂点フォーマット）](../3d/mesh-textures.md)
+- [パフォーマンス設計](../design/practice/performance-design.md)

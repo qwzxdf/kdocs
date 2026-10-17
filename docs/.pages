@@ -5,10 +5,10 @@ nav:
   - STL: stl
   - 基礎: basics
   - コンテナの選び方: container-chart.md
+  - 3Dゲーム: 3d
   - ゲームエンジン: engine
   - 外部ライブラリ: libs
   - 設計: design
   - 最適化: optimize
   - 文字コード: encoding
-  - 3Dゲーム: 3d
   - ...

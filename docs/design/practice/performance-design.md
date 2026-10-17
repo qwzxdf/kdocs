@@ -242,3 +242,4 @@ class Scene {
 - [ECS](../patterns/ecs.md)
 - [オブジェクトプール](../patterns/object-pool.md)
 - [std::pmr](../../stl/memory/pmr.md)
+- [計測（プロファイリング）](../../optimize/measure.md)

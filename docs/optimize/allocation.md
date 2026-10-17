@@ -252,3 +252,6 @@ std::println("このフレームの確保: {} 回", g_alloc_count - before);
 - [std::pmr](../stl/memory/pmr.md)
 - [オブジェクトプール](../design/patterns/object-pool.md)
 - [メモリとキャッシュ](memory-cache.md)
+- [new / delete](../stl/memory/new_delete.md)
+- [ハンドル](../engine/handle.md)
+- [パフォーマンス設計](../design/practice/performance-design.md)

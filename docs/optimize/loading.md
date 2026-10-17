@@ -184,3 +184,5 @@ void UpdateLoading() {
 - [シリアライズ](../engine/serialization/index.md)
 - [リソース管理](../engine/resource.md)
 - [並行処理の設計](../design/practice/concurrency-design.md)
+- [simdjson（高速な JSON）](../libs/serialization/simdjson.md)
+- [メッシュとテクスチャ（DDS・独自形式）](../3d/mesh-textures.md)

@@ -368,3 +368,5 @@ void Spawn(entt::registry& registry) {
 - [キャッシュ効率](../../basics/cache.md)
 - [EnTT](https://github.com/skypjack/entt)
 - [flecs](https://github.com/SanderMertens/flecs)
+- [メモリとキャッシュ（最適化）](../../optimize/memory-cache.md)
+- [SIMD（最適化）](../../optimize/simd.md)

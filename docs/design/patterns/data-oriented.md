@@ -163,3 +163,5 @@ std::vector<EnemyInfo> infos;      // 同じ添字で対応
 - [キャッシュ効率](../../basics/cache.md)
 - [ECS](ecs.md)
 - [Data-Oriented Design（Richard Fabian）](https://www.dataorienteddesign.com/dodbook/)
+- [メモリとキャッシュ（最適化）](../../optimize/memory-cache.md)
+- [計測（最適化）](../../optimize/measure.md)

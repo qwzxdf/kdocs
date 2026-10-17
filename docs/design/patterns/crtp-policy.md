@@ -241,3 +241,5 @@ double TotalArea(const std::vector<Shape>& shapes) {
 - [テンプレート（基礎）](../../basics/template.md)
 - [継承と仮想関数（基礎）](../../basics/virtual.md)
 - [パフォーマンス設計](../practice/performance-design.md)
+- [コンパイラの最適化](../../optimize/compiler.md)
+- [メモリとキャッシュ（最適化）](../../optimize/memory-cache.md)
