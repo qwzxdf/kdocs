@@ -89,6 +89,59 @@ float3 Downsample13(Texture2D src, SamplerState linear_clamp, float2 uv, float2 
 | **最初の段だけ使う** | **2 段目以降は、軽い 4 タップ**でも足りる |
 
 <!-- fig:bloom-mip-chain:begin -->
+
+<svg class="fig illust motion" data-fig="bloom-mip-chain" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-bloom-mip-chain" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ミップ チェーン:半分ずつ小さくして（ダウン）、戻しながら足す（アップ）</text>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0692;0.0696;1.0000" values="0;0;1;1"/><rect x="30" y="70" width="220" height="123" fill="#bfdbfe" stroke="#1f2937" stroke-width="1.5"/>
+<text x="30" y="62" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">1920×1080</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1562;0.1565;1.0000" values="0;0;1;1"/><rect x="270" y="70" width="110" height="61" fill="#96b8f4" stroke="#1f2937" stroke-width="1.5"/>
+<text x="270" y="62" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">960×540</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1301;0.1304;1.0000" values="0;0;1;1"/><line x1="254" y1="90" x2="264" y2="90" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-bloom-mip-chain)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2431;0.2435;1.0000" values="0;0;1;1"/><rect x="400" y="70" width="56" height="31" fill="#6e94eb" stroke="#1f2937" stroke-width="1.5"/>
+<text x="400" y="62" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">480×270</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2170;0.2174;1.0000" values="0;0;1;1"/><line x1="384" y1="90" x2="394" y2="90" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-bloom-mip-chain)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3301;0.3304;1.0000" values="0;0;1;1"/><rect x="480" y="70" width="28" height="15" fill="#4671e2" stroke="#1f2937" stroke-width="1.5"/>
+<text x="480" y="62" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">240×135</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3040;0.3043;1.0000" values="0;0;1;1"/><line x1="460" y1="90" x2="474" y2="90" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-bloom-mip-chain)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4170;0.4174;1.0000" values="0;0;1;1"/><rect x="530" y="70" width="14" height="7" fill="#1d4ed8" stroke="#1f2937" stroke-width="1.5"/>
+<text x="530" y="62" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">120×68</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3910;0.3913;1.0000" values="0;0;1;1"/><line x1="512" y1="90" x2="524" y2="90" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-bloom-mip-chain)"/>
+</g>
+<text x="30" y="224" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2563eb" opacity="0">ダウン:各段で 1/2 に縮める（広い範囲が少ない画素に集まる）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0692;0.0696;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5214;0.5217;1.0000" values="0;0;1;1"/><rect x="480" y="263" width="28" height="15" fill="#f0b586" stroke="#1f2937" stroke-width="1.5"/>
+<text x="494.0" y="255" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#e5aa28">＋</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4953;0.4957;1.0000" values="0;0;1;1"/><line x1="524" y1="283" x2="512" y2="283" stroke="#e5aa28" stroke-width="2.5" marker-end="url(#arr-bloom-mip-chain)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5997;0.6000;1.0000" values="0;0;1;1"/><rect x="400" y="263" width="56" height="31" fill="#e39463" stroke="#1f2937" stroke-width="1.5"/>
+<text x="428.0" y="255" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#e5aa28">＋</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5736;0.5739;1.0000" values="0;0;1;1"/><line x1="474" y1="283" x2="460" y2="283" stroke="#e5aa28" stroke-width="2.5" marker-end="url(#arr-bloom-mip-chain)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6779;0.6783;1.0000" values="0;0;1;1"/><rect x="270" y="263" width="110" height="61" fill="#d6723f" stroke="#1f2937" stroke-width="1.5"/>
+<text x="325.0" y="255" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#e5aa28">＋</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6518;0.6522;1.0000" values="0;0;1;1"/><line x1="394" y1="283" x2="384" y2="283" stroke="#e5aa28" stroke-width="2.5" marker-end="url(#arr-bloom-mip-chain)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.7562;0.7565;1.0000" values="0;0;1;1"/><rect x="30" y="263" width="220" height="123" fill="#c8501c" stroke="#1f2937" stroke-width="1.5"/>
+<text x="140.0" y="255" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#e5aa28">＋</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.7301;0.7304;1.0000" values="0;0;1;1"/><line x1="264" y1="283" x2="254" y2="283" stroke="#e5aa28" stroke-width="2.5" marker-end="url(#arr-bloom-mip-chain)"/>
+</g>
+<text x="30" y="420" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5aa28" opacity="0">アップ:小さい段から戻しつつ、1 つ大きい段に足していく → 小さな光から大きなにじみまで重なる<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5214;0.5217;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
 <!-- fig:bloom-mip-chain:end -->
 
 ## 段数の決め方

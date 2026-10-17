@@ -91,6 +91,63 @@ float BackgroundWeight(float sample_coc, float distance_in_pixels) {
 **前景のボケは前景の輪郭の「外側」にまで広がります**。**その位置の画素自体の CoC は 0（ピント内か背景）でも近くに前景の画素があれば、その CoC の分だけボケが届く**ので、**周りの画素の最大 CoC**を**使います**。
 
 <!-- fig:dof-near-field:begin -->
+
+<svg class="fig illust motion" data-fig="dof-near-field" viewBox="0 0 780 380" role="img"><rect x="0" y="0" width="780" height="380" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-dof-near-field" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+<filter id="nf-b0" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5.0"/>
+</filter>
+<filter id="nf-b1" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="10.0"/>
+</filter>
+<filter id="nf-b2" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="16.0"/>
+</filter>
+<clipPath id="nf-clip-40-0"><circle cx="205" cy="200" r="52"/>
+</clipPath>
+<clipPath id="nf-clip-40-1"><circle cx="205" cy="200" r="52"/>
+</clipPath>
+<clipPath id="nf-clip-40-2"><circle cx="205" cy="200" r="52"/>
+</clipPath>
+<clipPath id="nf-clip-40-3"><circle cx="205" cy="200" r="52"/>
+</clipPath>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">前景のボケは、輪郭の外へ広がる</text>
+<text x="40" y="70" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d">自分の CoC だけ使う（輪郭が硬い）</text>
+<rect x="40" y="90" width="330" height="220" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="50" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="80" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="110" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="140" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="170" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="200" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="230" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="260" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="290" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="320" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="350" y="90" width="14" height="220" fill="#cbd5e1"/>
+<circle cx="205" cy="200" r="52" fill="#e5484d" opacity="0" clip-path="url(#nf-clip-40-0)"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.1100;0.1400;0.1700;0.2000;0.2300;0.2600;0.2900;0.3200;0.3500;0.3800;0.4100;0.4400;0.4700;0.5000;0.5300;0.5600;0.5900;0.6200;0.6500;0.6800;1.0000" values="0;0;1;0.27;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0.27;1;1"/></circle>
+<circle cx="205" cy="200" r="52" fill="#e5484d" opacity="0" filter="url(#nf-b0)" clip-path="url(#nf-clip-40-1)"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0800;0.1100;0.1400;0.1700;0.2000;0.2300;0.2600;0.2900;0.3200;0.3500;0.3800;0.4100;0.4400;0.4700;0.5000;0.5300;0.5600;0.5900;0.6200;0.6500;0.6800;1.0000" values="0;0;0.73;0.75;0.3;0;0;0;0;0;0;0;0;0;0;0;0;0;0.3;0.75;0.73;0;0"/></circle>
+<circle cx="205" cy="200" r="52" fill="#e5484d" opacity="0" filter="url(#nf-b1)" clip-path="url(#nf-clip-40-2)"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0800;0.1100;0.1400;0.1700;0.2000;0.2300;0.2600;0.2900;0.3200;0.3500;0.3800;0.4100;0.4400;0.4700;0.5000;0.5300;0.5600;0.5900;0.6200;0.6500;0.6800;1.0000" values="0;0;0;0.25;0.7;0.92;0.65;0.42;0.24;0.1;0.03;0;0.03;0.1;0.24;0.42;0.65;0.92;0.7;0.25;0;0;0"/></circle>
+<circle cx="205" cy="200" r="52" fill="#e5484d" opacity="0" filter="url(#nf-b2)" clip-path="url(#nf-clip-40-3)"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0800;0.1100;0.1400;0.1700;0.2000;0.2300;0.2600;0.2900;0.3200;0.3500;0.3800;0.4100;0.4400;0.4700;0.5000;0.5300;0.5600;0.5900;0.6200;0.6500;0.6800;1.0000" values="0;0;0;0;0;0.08;0.35;0.58;0.76;0.9;0.97;1;0.97;0.9;0.76;0.58;0.35;0.08;0;0;0;0;0"/></circle>
+<text x="410" y="70" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043">周りの最大 CoC を使う（輪郭の外へ広がる）</text>
+<rect x="410" y="90" width="330" height="220" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="420" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="450" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="480" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="510" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="540" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="570" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="600" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="630" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="660" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="690" y="90" width="14" height="220" fill="#cbd5e1"/>
+<rect x="720" y="90" width="14" height="220" fill="#cbd5e1"/>
+<circle cx="575" cy="200" r="52" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.1100;0.1400;0.1700;0.2000;0.2300;0.2600;0.2900;0.3200;0.3500;0.3800;0.4100;0.4400;0.4700;0.5000;0.5300;0.5600;0.5900;0.6200;0.6500;0.6800;1.0000" values="0;0;1;0.27;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0.27;1;1"/></circle>
+<circle cx="575" cy="200" r="52" fill="#e5484d" opacity="0" filter="url(#nf-b0)"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0800;0.1100;0.1400;0.1700;0.2000;0.2300;0.2600;0.2900;0.3200;0.3500;0.3800;0.4100;0.4400;0.4700;0.5000;0.5300;0.5600;0.5900;0.6200;0.6500;0.6800;1.0000" values="0;0;0.73;0.75;0.3;0;0;0;0;0;0;0;0;0;0;0;0;0;0.3;0.75;0.73;0;0"/></circle>
+<circle cx="575" cy="200" r="52" fill="#e5484d" opacity="0" filter="url(#nf-b1)"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0800;0.1100;0.1400;0.1700;0.2000;0.2300;0.2600;0.2900;0.3200;0.3500;0.3800;0.4100;0.4400;0.4700;0.5000;0.5300;0.5600;0.5900;0.6200;0.6500;0.6800;1.0000" values="0;0;0;0.25;0.7;0.92;0.65;0.42;0.24;0.1;0.03;0;0.03;0.1;0.24;0.42;0.65;0.92;0.7;0.25;0;0;0"/></circle>
+<circle cx="575" cy="200" r="52" fill="#e5484d" opacity="0" filter="url(#nf-b2)"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0800;0.1100;0.1400;0.1700;0.2000;0.2300;0.2600;0.2900;0.3200;0.3500;0.3800;0.4100;0.4400;0.4700;0.5000;0.5300;0.5600;0.5900;0.6200;0.6500;0.6800;1.0000" values="0;0;0;0;0;0.08;0.35;0.58;0.76;0.9;0.97;1;0.97;0.9;0.76;0.58;0.35;0.08;0;0;0;0;0"/></circle>
+<text x="40" y="346" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">ピントを背景に合わせると、手前の赤い物がボケる。左は輪郭が硬いまま。右は外にも広がる（本物のボケ）。<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+</svg>
+
 <!-- fig:dof-near-field:end -->
 
 ### 近傍の最大 CoC（タイル）

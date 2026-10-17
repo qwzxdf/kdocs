@@ -94,6 +94,242 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 **自分の CoC だけで円内を平均する**と、**ピントが合った前景の物のすぐ後ろに、ぼけた背景があるとき**、**ピント内の物の輪郭に背景の色がにじんで**しまいます。**サンプル側の CoC を見て、そのサンプルのボケが自分まで届かないなら重みを 0 に**することで、**ピントが合った物の輪郭が保たれます**。
 
 <!-- fig:dof-gather-weight:begin -->
+
+<svg class="fig illust motion" data-fig="dof-gather-weight" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-dof-gather-weight" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ギャザー:サンプル側の CoC を見て、重みを決める</text>
+<text x="40" y="72" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">重みなし（全サンプルを同じ重み）</text>
+<rect x="40" y="100" width="29" height="30" fill="#e5484d"/>
+<rect x="70" y="100" width="29" height="30" fill="#e5484d"/>
+<rect x="100" y="100" width="29" height="30" fill="#e5484d"/>
+<rect x="130" y="100" width="29" height="30" fill="#e5484d"/>
+<rect x="160" y="100" width="29" height="30" fill="#e5484d"/>
+<rect x="190" y="100" width="29" height="30" fill="#e5484d"/>
+<rect x="220" y="100" width="29" height="30" fill="#e5484d"/>
+<rect x="250" y="100" width="29" height="30" fill="#e5484d"/>
+<rect x="280" y="100" width="29" height="30" fill="#e5484d"/>
+<rect x="310" y="100" width="29" height="30" fill="#e5484d"/>
+<rect x="340" y="100" width="29" height="30" fill="#2563eb"/>
+<rect x="370" y="100" width="29" height="30" fill="#2563eb"/>
+<rect x="400" y="100" width="29" height="30" fill="#2563eb"/>
+<rect x="430" y="100" width="29" height="30" fill="#2563eb"/>
+<rect x="460" y="100" width="29" height="30" fill="#2563eb"/>
+<rect x="490" y="100" width="29" height="30" fill="#2563eb"/>
+<rect x="520" y="100" width="29" height="30" fill="#2563eb"/>
+<rect x="550" y="100" width="29" height="30" fill="#2563eb"/>
+<rect x="580" y="100" width="29" height="30" fill="#2563eb"/>
+<rect x="610" y="100" width="29" height="30" fill="#2563eb"/>
+<text x="43" y="146" text-anchor="start" style="font-size:12px;font-weight:500;fill:#e5484d">前景（ピントが合う・CoC 0）</text>
+<text x="343" y="146" text-anchor="start" style="font-size:12px;font-weight:500;fill:#2563eb">背景（ぼける・CoC 6）</text>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.2367;0.2370;1.0000" values="0;0;1;1;0;0"/><rect x="369" y="97" width="31" height="35" fill="none" stroke="#e5aa28" stroke-width="3"/>
+<circle cx="205.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="235.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="265.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="295.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="325.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="355.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="385.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="415.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="445.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="475.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="505.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="535.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="565.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="654" y="100" width="70" height="30" fill="#6f59ae" stroke="#94a3b8" stroke-width="2"/>
+<text x="689" y="146" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">結果の色</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2367;0.2370;0.3997;0.4000;1.0000" values="0;0;1;1;0;0"/><rect x="399" y="97" width="31" height="35" fill="none" stroke="#e5aa28" stroke-width="3"/>
+<circle cx="235.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="265.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="295.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="325.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="355.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="385.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="415.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="445.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="475.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="505.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="535.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="565.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="595.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="654" y="100" width="70" height="30" fill="#605bba" stroke="#94a3b8" stroke-width="2"/>
+<text x="689" y="146" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">結果の色</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;0.5627;0.5630;1.0000" values="0;0;1;1;0;0"/><rect x="429" y="97" width="31" height="35" fill="none" stroke="#e5aa28" stroke-width="3"/>
+<circle cx="265.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="295.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="325.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="355.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="385.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="415.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="445.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="475.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="505.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="535.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="565.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="595.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="625.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="654" y="100" width="70" height="30" fill="#515dc7" stroke="#94a3b8" stroke-width="2"/>
+<text x="689" y="146" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">結果の色</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5627;0.5630;0.7256;0.7259;1.0000" values="0;0;1;1;0;0"/><rect x="459" y="97" width="31" height="35" fill="none" stroke="#e5aa28" stroke-width="3"/>
+<circle cx="295.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="325.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="355.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="385.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="415.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="445.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="475.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="505.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="535.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="565.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="595.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="625.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="654" y="100" width="70" height="30" fill="#455ed1" stroke="#94a3b8" stroke-width="2"/>
+<text x="689" y="146" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">結果の色</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7256;0.7259;0.8886;0.8889;1.0000" values="0;0;1;1;0;0"/><rect x="489" y="97" width="31" height="35" fill="none" stroke="#e5aa28" stroke-width="3"/>
+<circle cx="325.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="355.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="385.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="415.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="445.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="475.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="505.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="535.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="565.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="595.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="625.0" cy="115.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="654" y="100" width="70" height="30" fill="#3661dd" stroke="#94a3b8" stroke-width="2"/>
+<text x="689" y="146" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">結果の色</text>
+</g>
+<text x="40" y="242" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">サンプルの CoC を見る（届かないサンプルは重み 0）</text>
+<rect x="40" y="270" width="29" height="30" fill="#e5484d"/>
+<rect x="70" y="270" width="29" height="30" fill="#e5484d"/>
+<rect x="100" y="270" width="29" height="30" fill="#e5484d"/>
+<rect x="130" y="270" width="29" height="30" fill="#e5484d"/>
+<rect x="160" y="270" width="29" height="30" fill="#e5484d"/>
+<rect x="190" y="270" width="29" height="30" fill="#e5484d"/>
+<rect x="220" y="270" width="29" height="30" fill="#e5484d"/>
+<rect x="250" y="270" width="29" height="30" fill="#e5484d"/>
+<rect x="280" y="270" width="29" height="30" fill="#e5484d"/>
+<rect x="310" y="270" width="29" height="30" fill="#e5484d"/>
+<rect x="340" y="270" width="29" height="30" fill="#2563eb"/>
+<rect x="370" y="270" width="29" height="30" fill="#2563eb"/>
+<rect x="400" y="270" width="29" height="30" fill="#2563eb"/>
+<rect x="430" y="270" width="29" height="30" fill="#2563eb"/>
+<rect x="460" y="270" width="29" height="30" fill="#2563eb"/>
+<rect x="490" y="270" width="29" height="30" fill="#2563eb"/>
+<rect x="520" y="270" width="29" height="30" fill="#2563eb"/>
+<rect x="550" y="270" width="29" height="30" fill="#2563eb"/>
+<rect x="580" y="270" width="29" height="30" fill="#2563eb"/>
+<rect x="610" y="270" width="29" height="30" fill="#2563eb"/>
+<text x="43" y="316" text-anchor="start" style="font-size:12px;font-weight:500;fill:#e5484d">前景（ピントが合う・CoC 0）</text>
+<text x="343" y="316" text-anchor="start" style="font-size:12px;font-weight:500;fill:#2563eb">背景（ぼける・CoC 6）</text>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.2367;0.2370;1.0000" values="0;0;1;1;0;0"/><rect x="369" y="267" width="31" height="35" fill="none" stroke="#e5aa28" stroke-width="3"/>
+<circle cx="205.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="205.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="235.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="235.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="265.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="265.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="295.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="295.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="325.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="325.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="355.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="385.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="415.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="445.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="475.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="505.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="535.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="565.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="654" y="270" width="70" height="30" fill="#2563eb" stroke="#94a3b8" stroke-width="2"/>
+<text x="689" y="316" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">結果の色</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2367;0.2370;0.3997;0.4000;1.0000" values="0;0;1;1;0;0"/><rect x="399" y="267" width="31" height="35" fill="none" stroke="#e5aa28" stroke-width="3"/>
+<circle cx="235.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="235.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="265.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="265.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="295.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="295.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="325.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="325.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="355.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="385.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="415.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="445.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="475.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="505.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="535.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="565.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="595.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="654" y="270" width="70" height="30" fill="#2563eb" stroke="#94a3b8" stroke-width="2"/>
+<text x="689" y="316" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">結果の色</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;0.5627;0.5630;1.0000" values="0;0;1;1;0;0"/><rect x="429" y="267" width="31" height="35" fill="none" stroke="#e5aa28" stroke-width="3"/>
+<circle cx="265.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="265.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="295.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="295.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="325.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="325.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="355.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="385.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="415.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="445.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="475.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="505.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="535.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="565.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="595.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="625.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="654" y="270" width="70" height="30" fill="#2563eb" stroke="#94a3b8" stroke-width="2"/>
+<text x="689" y="316" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">結果の色</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5627;0.5630;0.7256;0.7259;1.0000" values="0;0;1;1;0;0"/><rect x="459" y="267" width="31" height="35" fill="none" stroke="#e5aa28" stroke-width="3"/>
+<circle cx="295.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="295.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="325.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="325.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="355.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="385.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="415.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="445.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="475.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="505.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="535.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="565.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="595.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="625.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="654" y="270" width="70" height="30" fill="#2563eb" stroke="#94a3b8" stroke-width="2"/>
+<text x="689" y="316" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">結果の色</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7256;0.7259;0.8886;0.8889;1.0000" values="0;0;1;1;0;0"/><rect x="489" y="267" width="31" height="35" fill="none" stroke="#e5aa28" stroke-width="3"/>
+<circle cx="325.0" cy="285.0" r="5" fill="#475569" stroke="#1f2937" stroke-width="1.5"/>
+<text x="325.0" y="289.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">×</text>
+<circle cx="355.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="385.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="415.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="445.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="475.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="505.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="535.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="565.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="595.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<circle cx="625.0" cy="285.0" r="5" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="654" y="270" width="70" height="30" fill="#2563eb" stroke="#94a3b8" stroke-width="2"/>
+<text x="689" y="316" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">結果の色</text>
+</g>
+<text x="40" y="396" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937" opacity="0">背景の画素（橙の枠）が、半径 6 の範囲を集めて平均する<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="396" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937" opacity="0">枠が前景に近づくにつれ、前景の赤が背景に混ざる（上）。下は混ざらない<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.8886;0.8889;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="396" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937" opacity="0">→ 重みなしは前景の輪郭に背景/前景の色がにじむ。サンプルの CoC が届かなければ捨てる<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.8886;0.8889;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
 <!-- fig:dof-gather-weight:end -->
 
 ## ちらつきとノイズの扱い

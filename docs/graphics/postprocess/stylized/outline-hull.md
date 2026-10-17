@@ -77,6 +77,29 @@ device->CreateRasterizerState(&desc, outline_rasterizer.GetAddressOf());
 | **深度** | **通常の深度テスト**。**元のモデルが手前にあるので、膨らんだ裏面は、縁だけ見える** |
 
 <!-- fig:outline-hull-width:begin -->
+
+<svg class="fig illust motion" data-fig="outline-hull-width" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-outline-hull-width" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">反転ハル法:裏面を外へ膨らませ、輪郭線にする</text>
+<circle cx="190" cy="200" r="80" fill="#0b0b0b"><animate attributeName="r" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.1481;0.3333;0.4444;0.5556;0.6296;1.0000" values="80;80;80;94;94;84;84;84"/></circle>
+<circle cx="190" cy="200" r="80" fill="#f59e0b" stroke="none"/>
+<text x="190" y="80" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#64748b">膨らませる幅を変える</text>
+<text x="70" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">幅 0:輪郭線は見えない<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1479;0.1481;1.0000" values="1;1;0;0"/></text>
+<text x="70" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">幅を広げると、線が太くなる<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1479;0.1481;0.4441;0.4444;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">広すぎ<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4441;0.4444;0.5553;0.5556;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">適度な幅（細め）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5553;0.5556;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="570" y="80" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#64748b">遠ざかると…</text>
+<text x="440" y="98" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">ワールドの幅を固定</text>
+<circle cx="520" cy="150" r="47" fill="#0b0b0b"><animate attributeName="r" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6296;0.8519;1.0000" values="47;47;18.8;18.8"/></circle>
+<circle cx="520" cy="150" r="40" fill="#f59e0b"><animate attributeName="r" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6296;0.8519;1.0000" values="40;40;16;16"/></circle>
+<text x="440" y="238" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">距離で補正（画面で一定）</text>
+<circle cx="520" cy="290" r="47" fill="#0b0b0b"><animate attributeName="r" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6296;0.8519;1.0000" values="47;47;23;23"/></circle>
+<circle cx="520" cy="290" r="40" fill="#f59e0b"><animate attributeName="r" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6296;0.8519;1.0000" values="40;40;16;16"/></circle>
+<text x="440" y="372" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">上は遠くで線が細くなる。下は画面で一定<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6293;0.6296;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
 <!-- fig:outline-hull-width:end -->
 
 ## 画面上の太さを一定にする

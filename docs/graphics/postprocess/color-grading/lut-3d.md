@@ -71,6 +71,52 @@ float3 ApplyLut(float3 color) {
 <strong>テクスチャ座標 0.0 は、最初のテクセルの「端」</strong>で、**中心は 0.5/N** です。**LUT の格子点 0 と 1 を、そのまま 0.0・1.0 に対応させる**と、**最初と最後の格子点が補間で薄まります**。**`× (N−1)/N + 0.5/N`** で、**格子点の中心に合わせる**と、**正確な値**が**得られます**。
 
 <!-- fig:lut-half-texel:begin -->
+
+<svg class="fig illust motion" data-fig="lut-half-texel" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-lut-half-texel" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">半テクセル補正:LUT の格子点は、テクセルの「中心」にある</text>
+<rect x="60.0" y="110" width="149.0" height="60" fill="#000000" stroke="#1f2937" stroke-width="1.5"/>
+<text x="135.0" y="190" text-anchor="middle" style="font-size:13px;font-weight:500;fill:#1f2937">格子点 0 = 0.00</text>
+<circle cx="135.0" cy="140.0" r="4" fill="#e5aa28"/>
+<rect x="210.0" y="110" width="149.0" height="60" fill="#6c6c6c" stroke="#1f2937" stroke-width="1.5"/>
+<text x="285.0" y="190" text-anchor="middle" style="font-size:13px;font-weight:500;fill:#1f2937">格子点 1 = 0.15</text>
+<circle cx="285.0" cy="140.0" r="4" fill="#e5aa28"/>
+<rect x="360.0" y="110" width="149.0" height="60" fill="#cdcdcd" stroke="#1f2937" stroke-width="1.5"/>
+<text x="435.0" y="190" text-anchor="middle" style="font-size:13px;font-weight:500;fill:#1f2937">格子点 2 = 0.62</text>
+<circle cx="435.0" cy="140.0" r="4" fill="#e5aa28"/>
+<rect x="510.0" y="110" width="149.0" height="60" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
+<text x="585.0" y="190" text-anchor="middle" style="font-size:13px;font-weight:500;fill:#1f2937">格子点 3 = 1.00</text>
+<circle cx="585.0" cy="140.0" r="4" fill="#e5aa28"/>
+<text x="60" y="98" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1D の LUT（4 個）。橙の点が各テクセルの中心</text>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.2664;0.2667;1.0000" values="0;0;1;1;0;0"/><line x1="60.0" y1="104" x2="60.0" y2="176" stroke="#e5484d" stroke-width="3"/>
+<line x1="135.0" y1="104" x2="135.0" y2="176" stroke="#2ea043" stroke-width="3"/>
+<text x="60" y="260" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">入力 v = 0/3 → 引くべきは 格子点 0（0.00）</text>
+<text x="60" y="296" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">補正なし u = v = 0.000 → 0.00（誤差 0.00）</text>
+<text x="60" y="326" text-anchor="start" style="font-size:16px;font-weight:700;fill:#2ea043">補正あり u = (v·(N−1) + 0.5) / N = 0.125 → 0.00（誤差 0.00）</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2664;0.2667;0.4590;0.4593;1.0000" values="0;0;1;1;0;0"/><line x1="260.0" y1="104" x2="260.0" y2="176" stroke="#e5484d" stroke-width="3"/>
+<line x1="285.0" y1="104" x2="285.0" y2="176" stroke="#2ea043" stroke-width="3"/>
+<text x="60" y="260" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">入力 v = 1/3 → 引くべきは 格子点 1（0.15）</text>
+<text x="60" y="296" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">補正なし u = v = 0.333 → 0.12（誤差 0.03）</text>
+<text x="60" y="326" text-anchor="start" style="font-size:16px;font-weight:700;fill:#2ea043">補正あり u = (v·(N−1) + 0.5) / N = 0.375 → 0.15（誤差 0.00）</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4590;0.4593;0.6516;0.6519;1.0000" values="0;0;1;1;0;0"/><line x1="460.0" y1="104" x2="460.0" y2="176" stroke="#e5484d" stroke-width="3"/>
+<line x1="435.0" y1="104" x2="435.0" y2="176" stroke="#2ea043" stroke-width="3"/>
+<text x="60" y="260" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">入力 v = 2/3 → 引くべきは 格子点 2（0.62）</text>
+<text x="60" y="296" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">補正なし u = v = 0.667 → 0.68（誤差 0.06）</text>
+<text x="60" y="326" text-anchor="start" style="font-size:16px;font-weight:700;fill:#2ea043">補正あり u = (v·(N−1) + 0.5) / N = 0.625 → 0.62（誤差 0.00）</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6516;0.6519;0.8441;0.8444;1.0000" values="0;0;1;1;0;0"/><line x1="660.0" y1="104" x2="660.0" y2="176" stroke="#e5484d" stroke-width="3"/>
+<line x1="585.0" y1="104" x2="585.0" y2="176" stroke="#2ea043" stroke-width="3"/>
+<text x="60" y="260" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">入力 v = 3/3 → 引くべきは 格子点 3（1.00）</text>
+<text x="60" y="296" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">補正なし u = v = 1.000 → 1.00（誤差 0.00）</text>
+<text x="60" y="326" text-anchor="start" style="font-size:16px;font-weight:700;fill:#2ea043">補正あり u = (v·(N−1) + 0.5) / N = 0.875 → 1.00（誤差 0.00）</text>
+</g>
+<text x="60" y="372" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">u = v のままだと、格子点の位置が半テクセルずれて、中間の値が混ざる。端の 0 と 1 以外で誤差が出る。</text>
+</svg>
+
 <!-- fig:lut-half-texel:end -->
 
 ## 解像度

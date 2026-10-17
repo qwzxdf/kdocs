@@ -63,6 +63,248 @@ float Sobel(Texture2D<float> source, float2 uv, float2 texel) {
 | **簡易版** | **上下左右の 4 点だけの差（Roberts Cross など）も使える** |
 
 <!-- fig:outline-edge-detect:begin -->
+
+<svg class="fig illust motion" data-fig="outline-edge-detect" viewBox="0 0 780 430" role="img"><rect x="0" y="0" width="780" height="430" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-outline-edge-detect" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">Sobel フィルタ:深度の差が大きい画素を、輪郭にする</text>
+<rect x="40" y="80" width="35" height="35" fill="#ededed"/>
+<rect x="76" y="80" width="35" height="35" fill="#ededed"/>
+<rect x="112" y="80" width="35" height="35" fill="#ededed"/>
+<rect x="148" y="80" width="35" height="35" fill="#ededed"/>
+<rect x="184" y="80" width="35" height="35" fill="#ededed"/>
+<rect x="220" y="80" width="35" height="35" fill="#ededed"/>
+<rect x="256" y="80" width="35" height="35" fill="#ededed"/>
+<rect x="292" y="80" width="35" height="35" fill="#ededed"/>
+<rect x="328" y="80" width="35" height="35" fill="#ededed"/>
+<rect x="364" y="80" width="35" height="35" fill="#ededed"/>
+<rect x="400" y="80" width="35" height="35" fill="#ededed"/>
+<rect x="436" y="80" width="35" height="35" fill="#ededed"/>
+<rect x="40" y="116" width="35" height="35" fill="#ededed"/>
+<rect x="76" y="116" width="35" height="35" fill="#ededed"/>
+<rect x="112" y="116" width="35" height="35" fill="#ededed"/>
+<rect x="148" y="116" width="35" height="35" fill="#ededed"/>
+<rect x="184" y="116" width="35" height="35" fill="#ededed"/>
+<rect x="220" y="116" width="35" height="35" fill="#949494"/>
+<rect x="256" y="116" width="35" height="35" fill="#949494"/>
+<rect x="292" y="116" width="35" height="35" fill="#ededed"/>
+<rect x="328" y="116" width="35" height="35" fill="#ededed"/>
+<rect x="364" y="116" width="35" height="35" fill="#ededed"/>
+<rect x="400" y="116" width="35" height="35" fill="#ededed"/>
+<rect x="436" y="116" width="35" height="35" fill="#ededed"/>
+<rect x="40" y="152" width="35" height="35" fill="#ededed"/>
+<rect x="76" y="152" width="35" height="35" fill="#ededed"/>
+<rect x="112" y="152" width="35" height="35" fill="#ededed"/>
+<rect x="148" y="152" width="35" height="35" fill="#949494"/>
+<rect x="184" y="152" width="35" height="35" fill="#949494"/>
+<rect x="220" y="152" width="35" height="35" fill="#949494"/>
+<rect x="256" y="152" width="35" height="35" fill="#949494"/>
+<rect x="292" y="152" width="35" height="35" fill="#949494"/>
+<rect x="328" y="152" width="35" height="35" fill="#949494"/>
+<rect x="364" y="152" width="35" height="35" fill="#ededed"/>
+<rect x="400" y="152" width="35" height="35" fill="#ededed"/>
+<rect x="436" y="152" width="35" height="35" fill="#ededed"/>
+<rect x="40" y="188" width="35" height="35" fill="#ededed"/>
+<rect x="76" y="188" width="35" height="35" fill="#ededed"/>
+<rect x="112" y="188" width="35" height="35" fill="#949494"/>
+<rect x="148" y="188" width="35" height="35" fill="#949494"/>
+<rect x="184" y="188" width="35" height="35" fill="#949494"/>
+<rect x="220" y="188" width="35" height="35" fill="#949494"/>
+<rect x="256" y="188" width="35" height="35" fill="#949494"/>
+<rect x="292" y="188" width="35" height="35" fill="#949494"/>
+<rect x="328" y="188" width="35" height="35" fill="#949494"/>
+<rect x="364" y="188" width="35" height="35" fill="#949494"/>
+<rect x="400" y="188" width="35" height="35" fill="#ededed"/>
+<rect x="436" y="188" width="35" height="35" fill="#ededed"/>
+<rect x="40" y="224" width="35" height="35" fill="#ededed"/>
+<rect x="76" y="224" width="35" height="35" fill="#ededed"/>
+<rect x="112" y="224" width="35" height="35" fill="#949494"/>
+<rect x="148" y="224" width="35" height="35" fill="#949494"/>
+<rect x="184" y="224" width="35" height="35" fill="#949494"/>
+<rect x="220" y="224" width="35" height="35" fill="#949494"/>
+<rect x="256" y="224" width="35" height="35" fill="#949494"/>
+<rect x="292" y="224" width="35" height="35" fill="#949494"/>
+<rect x="328" y="224" width="35" height="35" fill="#949494"/>
+<rect x="364" y="224" width="35" height="35" fill="#949494"/>
+<rect x="400" y="224" width="35" height="35" fill="#ededed"/>
+<rect x="436" y="224" width="35" height="35" fill="#ededed"/>
+<rect x="40" y="260" width="35" height="35" fill="#ededed"/>
+<rect x="76" y="260" width="35" height="35" fill="#ededed"/>
+<rect x="112" y="260" width="35" height="35" fill="#ededed"/>
+<rect x="148" y="260" width="35" height="35" fill="#949494"/>
+<rect x="184" y="260" width="35" height="35" fill="#949494"/>
+<rect x="220" y="260" width="35" height="35" fill="#949494"/>
+<rect x="256" y="260" width="35" height="35" fill="#949494"/>
+<rect x="292" y="260" width="35" height="35" fill="#949494"/>
+<rect x="328" y="260" width="35" height="35" fill="#949494"/>
+<rect x="364" y="260" width="35" height="35" fill="#ededed"/>
+<rect x="400" y="260" width="35" height="35" fill="#ededed"/>
+<rect x="436" y="260" width="35" height="35" fill="#ededed"/>
+<rect x="40" y="296" width="35" height="35" fill="#ededed"/>
+<rect x="76" y="296" width="35" height="35" fill="#ededed"/>
+<rect x="112" y="296" width="35" height="35" fill="#ededed"/>
+<rect x="148" y="296" width="35" height="35" fill="#ededed"/>
+<rect x="184" y="296" width="35" height="35" fill="#ededed"/>
+<rect x="220" y="296" width="35" height="35" fill="#949494"/>
+<rect x="256" y="296" width="35" height="35" fill="#949494"/>
+<rect x="292" y="296" width="35" height="35" fill="#ededed"/>
+<rect x="328" y="296" width="35" height="35" fill="#ededed"/>
+<rect x="364" y="296" width="35" height="35" fill="#ededed"/>
+<rect x="400" y="296" width="35" height="35" fill="#ededed"/>
+<rect x="436" y="296" width="35" height="35" fill="#ededed"/>
+<rect x="40" y="332" width="35" height="35" fill="#ededed"/>
+<rect x="76" y="332" width="35" height="35" fill="#ededed"/>
+<rect x="112" y="332" width="35" height="35" fill="#ededed"/>
+<rect x="148" y="332" width="35" height="35" fill="#ededed"/>
+<rect x="184" y="332" width="35" height="35" fill="#ededed"/>
+<rect x="220" y="332" width="35" height="35" fill="#ededed"/>
+<rect x="256" y="332" width="35" height="35" fill="#ededed"/>
+<rect x="292" y="332" width="35" height="35" fill="#ededed"/>
+<rect x="328" y="332" width="35" height="35" fill="#ededed"/>
+<rect x="364" y="332" width="35" height="35" fill="#ededed"/>
+<rect x="400" y="332" width="35" height="35" fill="#ededed"/>
+<rect x="436" y="332" width="35" height="35" fill="#ededed"/>
+<rect x="40" y="80" width="107" height="107" fill="none" stroke="#e5aa28" stroke-width="3" opacity="0"><animate attributeName="x" dur="13s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0769;0.0846;0.0923;0.1000;0.1077;0.1154;0.1231;0.1308;0.1385;0.1462;0.1538;0.1615;0.1692;0.1769;0.1846;0.1923;0.2000;0.2077;0.2154;0.2231;0.2308;0.2385;0.2462;0.2538;0.2615;0.2692;0.2769;0.2846;0.2923;0.3000;0.3077;0.3154;0.3231;0.3308;0.3385;0.3462;0.3538;0.3615;0.3692;0.3769;0.3846;0.3923;0.4000;0.4077;0.4154;0.4231;0.4308;0.4385;0.4462;0.4538;0.4615;0.4692;0.4769;0.4846;0.4923;0.5000;0.5077;0.5154;0.5231;0.5308;0.5385;0.5462;0.5538;0.5615;0.5692;0.5769;0.5846;0.5923;0.6000;0.6077;0.6154;0.6231;0.6308;0.6385;0.6462;0.6538;0.6615;0.6692;0.6769;0.6846;0.6923;0.7000;0.7077;0.7154;0.7231;0.7308;0.7385;0.7462;0.7538;0.7615;0.7692;0.7769;0.7846;0.7923;0.8000;0.8077" values="40;4;40;76;112;148;184;220;256;292;328;364;400;4;40;76;112;148;184;220;256;292;328;364;400;4;40;76;112;148;184;220;256;292;328;364;400;4;40;76;112;148;184;220;256;292;328;364;400;4;40;76;112;148;184;220;256;292;328;364;400;4;40;76;112;148;184;220;256;292;328;364;400;4;40;76;112;148;184;220;256;292;328;364;400;4;40;76;112;148;184;220;256;292;328;364;400"/><animate attributeName="y" dur="13s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0769;0.0846;0.0923;0.1000;0.1077;0.1154;0.1231;0.1308;0.1385;0.1462;0.1538;0.1615;0.1692;0.1769;0.1846;0.1923;0.2000;0.2077;0.2154;0.2231;0.2308;0.2385;0.2462;0.2538;0.2615;0.2692;0.2769;0.2846;0.2923;0.3000;0.3077;0.3154;0.3231;0.3308;0.3385;0.3462;0.3538;0.3615;0.3692;0.3769;0.3846;0.3923;0.4000;0.4077;0.4154;0.4231;0.4308;0.4385;0.4462;0.4538;0.4615;0.4692;0.4769;0.4846;0.4923;0.5000;0.5077;0.5154;0.5231;0.5308;0.5385;0.5462;0.5538;0.5615;0.5692;0.5769;0.5846;0.5923;0.6000;0.6077;0.6154;0.6231;0.6308;0.6385;0.6462;0.6538;0.6615;0.6692;0.6769;0.6846;0.6923;0.7000;0.7077;0.7154;0.7231;0.7308;0.7385;0.7462;0.7538;0.7615;0.7692;0.7769;0.7846;0.7923;0.8000;0.8077" values="80;44;44;44;44;44;44;44;44;44;44;44;44;80;80;80;80;80;80;80;80;80;80;80;80;116;116;116;116;116;116;116;116;116;116;116;116;152;152;152;152;152;152;152;152;152;152;152;152;188;188;188;188;188;188;188;188;188;188;188;188;224;224;224;224;224;224;224;224;224;224;224;224;260;260;260;260;260;260;260;260;260;260;260;260;296;296;296;296;296;296;296;296;296;296;296;296"/><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.0766;0.0769;0.8151;0.8154;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="220" y="80" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1151;0.1154;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="256" y="80" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1228;0.1231;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="148" y="116" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1920;0.1923;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="184" y="116" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1997;0.2000;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="220" y="116" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2074;0.2077;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="256" y="116" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2151;0.2154;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="292" y="116" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2228;0.2231;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="328" y="116" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2305;0.2308;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="112" y="152" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2766;0.2769;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="148" y="152" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2843;0.2846;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="184" y="152" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2920;0.2923;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="292" y="152" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3151;0.3154;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="328" y="152" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3228;0.3231;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="364" y="152" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3305;0.3308;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="76" y="188" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3612;0.3615;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="112" y="188" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3689;0.3692;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="364" y="188" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4228;0.4231;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="400" y="188" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4305;0.4308;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="76" y="224" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4535;0.4538;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="112" y="224" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4612;0.4615;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="364" y="224" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5151;0.5154;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="400" y="224" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5228;0.5231;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="112" y="260" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5535;0.5538;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="148" y="260" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5612;0.5615;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="184" y="260" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5689;0.5692;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="292" y="260" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5920;0.5923;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="328" y="260" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5997;0.6000;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="364" y="260" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6074;0.6077;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="148" y="296" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6535;0.6538;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="184" y="296" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6612;0.6615;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="220" y="296" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6689;0.6692;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="256" y="296" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6766;0.6769;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="292" y="296" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6843;0.6846;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="328" y="296" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6920;0.6923;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="220" y="332" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7612;0.7615;1.0000" values="0;0;0.9;0.9"/></rect>
+<rect x="256" y="332" width="35" height="35" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7689;0.7692;1.0000" values="0;0;0.9;0.9"/></rect>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.0766;0.0769;0.0843;0.0846;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.0843;0.0846;0.0920;0.0923;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.0920;0.0923;0.0997;0.1000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.0997;0.1000;0.1074;0.1077;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1074;0.1077;0.1151;0.1154;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1151;0.1154;0.1228;0.1231;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1228;0.1231;0.1305;0.1308;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1305;0.1308;0.1382;0.1385;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1382;0.1385;0.1458;0.1462;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1458;0.1462;0.1535;0.1538;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1535;0.1538;0.1612;0.1615;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1612;0.1615;0.1689;0.1692;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1689;0.1692;0.1766;0.1769;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1766;0.1769;0.1843;0.1846;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1843;0.1846;0.1920;0.1923;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1920;0.1923;0.1997;0.2000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.1997;0.2000;0.2074;0.2077;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2074;0.2077;0.2151;0.2154;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2151;0.2154;0.2228;0.2231;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2228;0.2231;0.2305;0.2308;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2305;0.2308;0.2382;0.2385;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2382;0.2385;0.2458;0.2462;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2458;0.2462;0.2535;0.2538;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2535;0.2538;0.2612;0.2615;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2612;0.2615;0.2689;0.2692;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2689;0.2692;0.2766;0.2769;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.33 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2766;0.2769;0.2843;0.2846;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2843;0.2846;0.2920;0.2923;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2920;0.2923;0.2997;0.3000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.2997;0.3000;0.3074;0.3077;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3074;0.3077;0.3151;0.3154;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3151;0.3154;0.3228;0.3231;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3228;0.3231;0.3305;0.3308;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.33 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3305;0.3308;0.3382;0.3385;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3382;0.3385;0.3458;0.3462;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3458;0.3462;0.3535;0.3538;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3535;0.3538;0.3612;0.3615;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3612;0.3615;0.3689;0.3692;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3689;0.3692;0.3766;0.3769;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3766;0.3769;0.3843;0.3846;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3843;0.3846;0.3920;0.3923;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3920;0.3923;0.3997;0.4000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;0.4074;0.4077;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4074;0.4077;0.4151;0.4154;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4151;0.4154;0.4228;0.4231;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4228;0.4231;0.4305;0.4308;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4305;0.4308;0.4382;0.4385;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4382;0.4385;0.4458;0.4462;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4458;0.4462;0.4535;0.4538;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4535;0.4538;0.4612;0.4615;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4612;0.4615;0.4689;0.4692;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4689;0.4692;0.4766;0.4769;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4766;0.4769;0.4843;0.4846;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4843;0.4846;0.4920;0.4923;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4920;0.4923;0.4997;0.5000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.4997;0.5000;0.5074;0.5077;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5074;0.5077;0.5151;0.5154;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5151;0.5154;0.5228;0.5231;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5228;0.5231;0.5305;0.5308;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5305;0.5308;0.5382;0.5385;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5382;0.5385;0.5458;0.5462;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5458;0.5462;0.5535;0.5538;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.33 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5535;0.5538;0.5612;0.5615;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5612;0.5615;0.5689;0.5692;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5689;0.5692;0.5766;0.5769;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5766;0.5769;0.5843;0.5846;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5843;0.5846;0.5920;0.5923;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5920;0.5923;0.5997;0.6000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.5997;0.6000;0.6074;0.6077;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.33 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6074;0.6077;0.6151;0.6154;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6151;0.6154;0.6228;0.6231;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6228;0.6231;0.6305;0.6308;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6305;0.6308;0.6382;0.6385;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6382;0.6385;0.6458;0.6462;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6458;0.6462;0.6535;0.6538;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6535;0.6538;0.6612;0.6615;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6612;0.6615;0.6689;0.6692;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6689;0.6692;0.6766;0.6769;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6766;0.6769;0.6843;0.6846;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 2.46 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6843;0.6846;0.6920;0.6923;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6920;0.6923;0.6997;0.7000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.6997;0.7000;0.7074;0.7077;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7074;0.7077;0.7151;0.7154;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7151;0.7154;0.7228;0.7231;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7228;0.7231;0.7305;0.7308;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7305;0.7308;0.7382;0.7385;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7382;0.7385;0.7458;0.7462;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7458;0.7462;0.7535;0.7538;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7535;0.7538;0.7612;0.7615;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7612;0.7615;0.7689;0.7692;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 1.74 → 輪郭（しきい値 0.8 超え）<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7689;0.7692;0.7766;0.7769;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.78 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7766;0.7769;0.7843;0.7846;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7843;0.7846;0.7920;0.7923;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7920;0.7923;0.7997;0.8000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.7997;0.8000;0.8074;0.8077;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="400" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">Sobel = 0.00 → 輪郭ではない<animate attributeName="opacity" dur="13s" repeatCount="indefinite" keyTimes="0.0000;0.8074;0.8077;0.8151;0.8154;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="60" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">灰色が濃い = 手前（深度が小さい）。橙の枠（3×3）を動かして、周囲との差を調べる</text>
+<text x="500" y="120" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">手前の楕円と、奥の背景</text>
+<text x="500" y="150" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">差が大きい所 = 物体の縁</text>
+<text x="500" y="184" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">深度だけだと、同じ深さの折れ目は</text>
+<text x="500" y="206" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">検出できない → 法線の差も使う</text>
+</svg>
+
 <!-- fig:outline-edge-detect:end -->
 
 ## 深度によるエッジ

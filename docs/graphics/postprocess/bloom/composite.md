@@ -35,6 +35,45 @@ float3 CompositeBloom(float3 scene, float3 bloom, float intensity) {
 | **スクリーン** | <strong>1 − (1−元)(1−ブルーム)</strong> | **LDR 向き**（HDR では使わない） |
 
 <!-- fig:bloom-intensity:begin -->
+
+<svg class="fig illust motion" data-fig="bloom-intensity" viewBox="0 0 780 350" role="img"><rect x="0" y="0" width="780" height="350" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-bloom-intensity" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+<filter id="bi-1" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="6"/>
+</filter>
+<filter id="bi-2" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="16"/>
+</filter>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ブルームの強さ:控えめに足すと自然、足しすぎると白くぼやける</text>
+<rect x="40" y="70" width="170" height="140" fill="#0f172a"/>
+<rect x="54" y="140" width="64" height="70" fill="#334155"/>
+<rect x="136" y="166" width="60" height="44" fill="#1e293b"/>
+<circle cx="80" cy="112" r="8" fill="#fff7d6"/>
+<circle cx="164" cy="128" r="7" fill="#fff7d6"/>
+<rect x="68" y="162" width="22" height="18" fill="#fde68a"/>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0696;0.2261;0.3130;0.4522;0.5739;0.6609;0.8174;1.0000" values="0;0;0;0.35;0.35;0.8;1;1;0.35;0.35"/><circle cx="80" cy="112" r="16.0" fill="#fff7d6" filter="url(#bi-1)"/>
+<circle cx="80" cy="112" r="25.6" fill="#fff3c4" filter="url(#bi-2)"/>
+<circle cx="164" cy="128" r="14.0" fill="#fff7d6" filter="url(#bi-1)"/>
+<circle cx="164" cy="128" r="22.400000000000002" fill="#fff3c4" filter="url(#bi-2)"/>
+<rect x="68" y="162" width="22" height="18" fill="#fde68a" filter="url(#bi-1)"/>
+</g>
+<rect x="40" y="70" width="170" height="140" fill="#ffffff" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0696;0.2261;0.3130;0.4522;0.5739;0.6609;0.8174;1.0000" values="0;0;0;0;0;0;0.36;0.36;0;0"/></rect>
+<rect x="260" y="170" width="420" height="10" rx="5" fill="#e2e8f0"/>
+<rect x="340.6666666666667" y="162" width="2" height="26" fill="#2ea043"/>
+<rect x="445.66666666666663" y="162" width="2" height="26" fill="#e5484d"/>
+<text x="341.6666666666667" y="156" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#2ea043">おすすめ</text>
+<text x="446.66666666666663" y="156" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">ここから足しすぎ</text>
+<circle cx="260" cy="175" r="11" fill="#2563eb" stroke="#ffffff" stroke-width="2"><animate attributeName="cx" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0696;0.2261;0.3130;0.4522;0.5739;0.6609;0.8174;1.0000" values="260;260;260;341.67;341.67;446.67;633.33;633.33;341.67;341.67"/></circle>
+<text x="260" y="205" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">0</text>
+<text x="680" y="205" text-anchor="end" style="font-size:12px;font-weight:500;fill:#64748b">1.8</text>
+<text x="260" y="120" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">ブルームの強さ（intensity）</text>
+<text x="260" y="250" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">強さ 0:ブルームなし。光っているのに、ただの白い点<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2257;0.2261;1.0000" values="1;1;0;0"/></text>
+<text x="260" y="250" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">強さ 0.35 前後:明るい物の周りがほんのり光る（おすすめ）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2257;0.2261;0.4518;0.4522;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="260" y="250" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">強さが上がるにつれ、光のにじみが広がる…<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4518;0.4522;0.5736;0.5739;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="260" y="250" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">強さ 1.6:画面全体が白くかすむ（足しすぎ）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5736;0.5739;0.6953;0.6957;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="260" y="250" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">控えめ（0.2〜0.5）に戻すと、自然な光に<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6953;0.6957;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
 <!-- fig:bloom-intensity:end -->
 
 ## 強さの決め方

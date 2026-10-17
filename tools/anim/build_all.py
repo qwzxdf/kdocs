@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "fig
 from common import Place, Save  # noqa: E402
 from preview import Preview  # noqa: E402
 
-MODULES = ["pipeline", "graphics"]
+MODULES = ["pipeline", "graphics", "pp1", "pp2", "pp3", "pp4"]
 
 
 def Main():

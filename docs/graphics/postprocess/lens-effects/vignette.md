@@ -59,6 +59,56 @@ float3 ApplyVignette(float3 color, float2 uv) {
 | **`roundness`** | **アスペクト比の補正**。**1 で画面の縦横比に沿った楕円、画面の高さで円なら調整** |
 
 <!-- fig:vignette-params:begin -->
+
+<svg class="fig illust motion" data-fig="vignette-params" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-vignette-params" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+<radialGradient id="vg-std" cx="0.5" cy="0.5" r="0.55" gradientUnits="objectBoundingBox"><stop offset="0.45" stop-color="#000000" stop-opacity="0"/>
+<stop offset="1.0" stop-color="#000000" stop-opacity="0.85"/>
+</radialGradient>
+<radialGradient id="vg-small" cx="0.5" cy="0.5" r="0.38" gradientUnits="objectBoundingBox"><stop offset="0.4" stop-color="#000000" stop-opacity="0"/>
+<stop offset="1.0" stop-color="#000000" stop-opacity="0.85"/>
+</radialGradient>
+<radialGradient id="vg-large" cx="0.5" cy="0.5" r="0.85" gradientUnits="objectBoundingBox"><stop offset="0.5" stop-color="#000000" stop-opacity="0"/>
+<stop offset="1.0" stop-color="#000000" stop-opacity="0.85"/>
+</radialGradient>
+<radialGradient id="vg-soft" cx="0.5" cy="0.5" r="0.6" gradientUnits="objectBoundingBox"><stop offset="0.02" stop-color="#000000" stop-opacity="0"/>
+<stop offset="1.0" stop-color="#000000" stop-opacity="0.85"/>
+</radialGradient>
+<radialGradient id="vg-hard" cx="0.5" cy="0.5" r="0.55" gradientUnits="objectBoundingBox"><stop offset="0.78" stop-color="#000000" stop-opacity="0"/>
+<stop offset="0.82" stop-color="#000000" stop-opacity="0.85"/>
+</radialGradient>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ビネット:半径とやわらかさで、四隅の暗さが変わる</text>
+<rect x="60" y="70" width="420" height="260" fill="#fde68a"/>
+<rect x="60" y="220" width="420" height="110" fill="#86efac"/>
+<rect x="100" y="150" width="90" height="120" fill="#fca5a5"/>
+<rect x="310" y="130" width="110" height="140" fill="#93c5fd"/>
+<circle cx="400" cy="115" r="26" fill="#ffffff"/>
+<rect x="60" y="70" width="420" height="260" fill="url(#vg-std)" opacity="1"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0552;0.0828;1.0000" values="1;1;0;0"/></rect>
+<rect x="60" y="70" width="420" height="260" fill="url(#vg-small)" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0276;0.0552;0.2621;0.2897;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="60" y="70" width="420" height="260" fill="url(#vg-large)" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2345;0.2621;0.4690;0.4966;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="60" y="70" width="420" height="260" fill="url(#vg-std)" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4414;0.4690;0.5517;0.5793;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="60" y="70" width="420" height="260" fill="url(#vg-soft)" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5241;0.5517;0.7241;0.7517;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="60" y="70" width="420" height="260" fill="url(#vg-hard)" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6966;0.7241;0.8621;0.8897;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="60" y="70" width="420" height="260" fill="url(#vg-std)" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.8345;0.8621;1.0000" values="0;0;1;1"/></rect>
+<rect x="60" y="70" width="420" height="260" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="510" y="120" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937" opacity="0">標準の設定<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0549;0.0552;1.0000" values="1;1;0;0"/></text>
+<text x="510" y="120" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937" opacity="0">半径を小さく<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0549;0.0552;0.2618;0.2621;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="510" y="120" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937" opacity="0">半径を大きく<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2618;0.2621;0.4687;0.4690;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="510" y="120" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937" opacity="0">標準に戻す<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4687;0.4690;0.5514;0.5517;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="510" y="120" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937" opacity="0">やわらかく（なだらか）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5514;0.5517;0.7239;0.7241;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="510" y="120" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937" opacity="0">硬く（境目がくっきり）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7239;0.7241;0.8618;0.8621;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="510" y="120" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937" opacity="0">標準に戻す<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.8618;0.8621;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="510" y="150" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">暗くなる範囲が中心へ広がる<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0549;0.0552;0.2618;0.2621;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="510" y="150" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">四隅だけが、わずかに暗い<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2618;0.2621;0.4687;0.4690;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="510" y="150" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">暗さが、なめらかに増える<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5514;0.5517;0.7239;0.7241;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="510" y="150" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">円の縁が見えてしまう（不自然）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7239;0.7241;0.8618;0.8621;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="510" y="230" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">radius ＝ 暗くなり始める距離</text>
+<text x="510" y="254" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">smoothness ＝ 暗さの変化のなだらかさ</text>
+<text x="510" y="278" text-anchor="start" style="font-size:13px;font-weight:500;fill:#e5484d">強すぎると、画面の中心まで暗くなる</text>
+</svg>
+
 <!-- fig:vignette-params:end -->
 
 ### 物理的な cos⁴

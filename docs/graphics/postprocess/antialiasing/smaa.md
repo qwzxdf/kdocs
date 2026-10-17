@@ -77,6 +77,70 @@ float2 EdgeDetection(float2 uv) {
 これらは**公開されているデータ**をそのまま使います（**自分で作る必要はありません**）。
 
 <!-- fig:smaa-edge-weights:begin -->
+
+<svg class="fig illust motion" data-fig="smaa-edge-weights" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-smaa-edge-weights" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">SMAA:縁を見つけ、本当の線の面積を求めて、画素を混ぜる</text>
+<rect x="40" y="90" width="61" height="61" fill="#191919"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6800" values="#191919;#4c4c4c"/></rect>
+<rect x="102" y="90" width="61" height="61" fill="#191919"/>
+<rect x="164" y="90" width="61" height="61" fill="#191919"/>
+<rect x="226" y="90" width="61" height="61" fill="#191919"/>
+<rect x="288" y="90" width="61" height="61" fill="#191919"/>
+<rect x="350" y="90" width="61" height="61" fill="#191919"/>
+<rect x="412" y="90" width="61" height="61" fill="#191919"/>
+<rect x="474" y="90" width="61" height="61" fill="#191919"/>
+<rect x="40" y="152" width="61" height="61" fill="#f2f2f2"/>
+<rect x="102" y="152" width="61" height="61" fill="#f2f2f2"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6800" values="#f2f2f2;#ababab"/></rect>
+<rect x="164" y="152" width="61" height="61" fill="#191919"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6800" values="#191919;#383838"/></rect>
+<rect x="226" y="152" width="61" height="61" fill="#191919"/>
+<rect x="288" y="152" width="61" height="61" fill="#191919"/>
+<rect x="350" y="152" width="61" height="61" fill="#191919"/>
+<rect x="412" y="152" width="61" height="61" fill="#191919"/>
+<rect x="474" y="152" width="61" height="61" fill="#191919"/>
+<rect x="40" y="214" width="61" height="61" fill="#f2f2f2"/>
+<rect x="102" y="214" width="61" height="61" fill="#f2f2f2"/>
+<rect x="164" y="214" width="61" height="61" fill="#f2f2f2"/>
+<rect x="226" y="214" width="61" height="61" fill="#f2f2f2"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6800" values="#f2f2f2;#979797"/></rect>
+<rect x="288" y="214" width="61" height="61" fill="#191919"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6800" values="#191919;#2a2a2a"/></rect>
+<rect x="350" y="214" width="61" height="61" fill="#191919"/>
+<rect x="412" y="214" width="61" height="61" fill="#191919"/>
+<rect x="474" y="214" width="61" height="61" fill="#191919"/>
+<rect x="40" y="276" width="61" height="61" fill="#f2f2f2"/>
+<rect x="102" y="276" width="61" height="61" fill="#f2f2f2"/>
+<rect x="164" y="276" width="61" height="61" fill="#f2f2f2"/>
+<rect x="226" y="276" width="61" height="61" fill="#f2f2f2"/>
+<rect x="288" y="276" width="61" height="61" fill="#f2f2f2"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6800" values="#f2f2f2;#e5e5e5"/></rect>
+<rect x="350" y="276" width="61" height="61" fill="#191919"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6800" values="#191919;#828282"/></rect>
+<rect x="412" y="276" width="61" height="61" fill="#191919"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6800" values="#191919;#202020"/></rect>
+<rect x="474" y="276" width="61" height="61" fill="#191919"/>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1997;0.2000;1.0000" values="0;0;1;1"/><line x1="40" y1="152" x2="102" y2="152" stroke="#e5aa28" stroke-width="5"/>
+<line x1="102" y1="152" x2="164" y2="152" stroke="#e5aa28" stroke-width="5"/>
+<line x1="164" y1="152" x2="164" y2="214" stroke="#e5aa28" stroke-width="5"/>
+<line x1="164" y1="214" x2="226" y2="214" stroke="#e5aa28" stroke-width="5"/>
+<line x1="226" y1="214" x2="288" y2="214" stroke="#e5aa28" stroke-width="5"/>
+<line x1="288" y1="214" x2="288" y2="276" stroke="#e5aa28" stroke-width="5"/>
+<line x1="288" y1="276" x2="350" y2="276" stroke="#e5aa28" stroke-width="5"/>
+<line x1="350" y1="276" x2="350" y2="338" stroke="#e5aa28" stroke-width="5"/>
+</g>
+<line x1="40" y1="121.0" x2="536" y2="393.8" stroke="#2563eb" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/></line>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4797;0.4800;0.6797;0.6800;1.0000" values="0;0;1;1;0;0"/><text x="71.0" y="126.0" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">0.77</text>
+<text x="133.0" y="188.0" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">0.33</text>
+<text x="195.0" y="188.0" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">0.86</text>
+<text x="257.0" y="250.0" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">0.42</text>
+<text x="319.0" y="250.0" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">0.92</text>
+<text x="319.0" y="312.0" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">0.06</text>
+<text x="381.0" y="312.0" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">0.52</text>
+<text x="443.0" y="312.0" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">0.97</text>
+</g>
+<text x="40" y="370" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">元の画像:縁がギザギザ（階段）<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1997;0.2000;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="370" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">① 隣り合う画素の明るさの差で、縁（橙）を見つける<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1997;0.2000;0.3997;0.4000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="370" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">② 縁の形（階段のパターン）から、本当の線（青）を推定する<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;0.4797;0.4800;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="370" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">③ 各画素の中で、線が覆う面積（0〜1）を求める<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4797;0.4800;0.6797;0.6800;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="370" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">④ その面積で、隣の画素と混ぜる → なめらかな縁<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6797;0.6800;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
 <!-- fig:smaa-edge-weights:end -->
 
 ## ③ 近傍ブレンド

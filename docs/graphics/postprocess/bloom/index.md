@@ -19,6 +19,64 @@ tags:
 ## 仕組みを動かして見る
 
 <!-- fig:bloom-stages:begin -->
+
+<svg class="fig illust motion" data-fig="bloom-stages" viewBox="0 0 780 330" role="img"><rect x="0" y="0" width="780" height="330" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-bloom-stages" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+<filter id="bs-blur" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="9"/>
+</filter>
+<filter id="bs-blur2" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/>
+</filter>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ブルームの 4 段階:明るい所を抜き出し、ぼかし、足す</text>
+<g opacity="1"><rect x="20" y="80" width="170" height="140" fill="#0f172a"/>
+<rect x="34" y="150" width="64" height="70" fill="#334155"/>
+<rect x="116" y="176" width="60" height="44" fill="#1e293b"/>
+<circle cx="60" cy="122" r="8" fill="#fff7d6"/>
+<circle cx="144" cy="138" r="7" fill="#fff7d6"/>
+<rect x="48" y="172" width="22" height="18" fill="#fde68a"/>
+<rect x="20" y="80" width="170" height="140" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+</g>
+<text x="105" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">① 元の絵</text>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1562;0.1565;1.0000" values="0;0;1;1"/><line x1="194" y1="150" x2="208" y2="150" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-bloom-stages)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1910;0.1913;1.0000" values="0;0;1;1"/><rect x="210" y="80" width="170" height="140" fill="#000000"/>
+<circle cx="250" cy="122" r="8" fill="#fff7d6"/>
+<circle cx="334" cy="138" r="7" fill="#fff7d6"/>
+<rect x="238" y="172" width="22" height="18" fill="#fde68a"/>
+<rect x="210" y="80" width="170" height="140" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+</g>
+<text x="295" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">② 明るい所だけ</text>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3475;0.3478;1.0000" values="0;0;1;1"/><line x1="384" y1="150" x2="398" y2="150" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-bloom-stages)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3823;0.3826;1.0000" values="0;0;1;1"/><rect x="400" y="80" width="170" height="140" fill="#000000"/>
+<circle cx="440" cy="122" r="11.2" fill="#fff7d6" filter="url(#bs-blur)"/>
+<circle cx="524" cy="138" r="9.799999999999999" fill="#fff7d6" filter="url(#bs-blur)"/>
+<rect x="428" y="172" width="22" height="18" fill="#fde68a" filter="url(#bs-blur2)"/>
+<rect x="400" y="80" width="170" height="140" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+</g>
+<text x="485" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">③ ぼかす</text>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5388;0.5391;1.0000" values="0;0;1;1"/><line x1="574" y1="150" x2="588" y2="150" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-bloom-stages)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5736;0.5739;1.0000" values="0;0;1;1"/><rect x="590" y="80" width="170" height="140" fill="#0f172a"/>
+<rect x="604" y="150" width="64" height="70" fill="#334155"/>
+<rect x="686" y="176" width="60" height="44" fill="#1e293b"/>
+<circle cx="630" cy="122" r="8" fill="#fff7d6"/>
+<circle cx="714" cy="138" r="7" fill="#fff7d6"/>
+<rect x="618" y="172" width="22" height="18" fill="#fde68a"/>
+<circle cx="630" cy="122" r="12.8" fill="#fff7d6" filter="url(#bs-blur)" opacity="0.9"/>
+<circle cx="714" cy="138" r="11.200000000000001" fill="#fff7d6" filter="url(#bs-blur)" opacity="0.9"/>
+<rect x="618" y="172" width="22" height="18" fill="#fde68a" filter="url(#bs-blur2)" opacity="0.8"/>
+<rect x="590" y="80" width="170" height="140" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+</g>
+<text x="675" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">④ 元に足す</text>
+<text x="20" y="270" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">シーンを HDR で描く<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1910;0.1913;1.0000" values="1;1;0;0"/></text>
+<text x="20" y="270" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">しきい値より明るい画素だけ残す<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1910;0.1913;0.3823;0.3826;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="270" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">残したものを、大きくぼかす<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3823;0.3826;0.5736;0.5739;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="270" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">ぼかした光を、元の絵に足す<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5736;0.5739;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="20" y="298" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">→ 明るい物の周りが、にじんで光って見える<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5736;0.5739;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
 <!-- fig:bloom-stages:end -->
 
 ## 原理：光は 1 点に集まらない

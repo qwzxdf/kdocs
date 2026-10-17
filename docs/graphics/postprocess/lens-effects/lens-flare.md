@@ -72,6 +72,30 @@ float3 LensFlareGhosts(float2 uv, int ghost_count, float dispersal, float distor
 | **`frac`** | **画面の外へ出たら、反対側に折り返す** |
 
 <!-- fig:lens-flare-ghosts:begin -->
+
+<svg class="fig illust motion" data-fig="lens-flare-ghosts" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-lens-flare-ghosts" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+<clipPath id="lf-clip"><rect x="40" y="60" width="700" height="300" rx="6"/>
+</clipPath>
+<filter id="lf-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5"/>
+</filter>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">画面空間のゴースト:光源の像が、画面の中心を通る線上に並ぶ</text>
+<rect x="40" y="60" width="700" height="300" fill="#0b1224" rx="6"/>
+<circle cx="390.0" cy="210.0" r="4" fill="#64748b"/>
+<text x="398.0" y="202.0" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">画面の中心</text>
+<line x1="130" y1="120" x2="650.0" y2="300.0" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 4"><animate attributeName="x1" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="130;130;340;600;660;660"/><animate attributeName="y1" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="120;120;180;150;290;290"/><animate attributeName="x2" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="650;650;440;180;120;120"/><animate attributeName="y2" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="300;300;240;270;130;130"/></line>
+<circle cx="130" cy="120" r="14" fill="#fff7d6" filter="url(#lf-glow)"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="130;130;340;600;660;660"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="120;120;180;150;290;290"/></circle>
+<circle cx="130" cy="120" r="6" fill="#ffffff"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="130;130;340;600;660;660"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="120;120;180;150;290;290"/></circle>
+<circle cx="234.0" cy="156.0" r="24" fill="none" stroke="#7dd3fc" stroke-width="4" opacity="0.8" clip-path="url(#lf-clip)"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="234;234;360;516;552;552"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="156;156;192;174;258;258"/></circle>
+<circle cx="481.0" cy="241.5" r="40" fill="none" stroke="#fbbf24" stroke-width="4" opacity="0.8" clip-path="url(#lf-clip)"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="481;481;407.5;316.5;295.5;295.5"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="241.5;241.5;220.5;231;182;182"/></circle>
+<circle cx="572.0" cy="273.0" r="18" fill="none" stroke="#a78bfa" stroke-width="4" opacity="0.8" clip-path="url(#lf-clip)"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="572;572;425;243;201;201"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="273;273;231;252;154;154"/></circle>
+<circle cx="754.0" cy="336.0" r="32" fill="none" stroke="#86efac" stroke-width="4" opacity="0.8" clip-path="url(#lf-clip)"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="754;754;460;96;12;12"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="336;336;252;294;98;98"/></circle>
+<circle cx="910.0" cy="390.0" r="14" fill="none" stroke="#f472b6" stroke-width="4" opacity="0.8" clip-path="url(#lf-clip)"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="910;910;490;-30;-150;-150"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="390;390;270;330;50;50"/></circle>
+<text x="40" y="384" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">ゴースト位置 ＝ 中心 − (光源 − 中心) × 係数。係数がマイナスなら光源側、プラスなら反対側にできる。<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+</svg>
+
 <!-- fig:lens-flare-ghosts:end -->
 
 ## ハロー

@@ -110,6 +110,121 @@ float Halftone(float2 pixel_position, float luminance, float cell_size, float an
 | **`smoothstep`** | <strong>円の縁を少しぼかす（ジャギー防止）</strong> |
 
 <!-- fig:halftone-dots:begin -->
+
+<svg class="fig illust motion" data-fig="halftone-dots" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-halftone-dots" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ハーフトーン:暗さを、点の大きさで表す</text>
+<text x="40" y="74" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">元の明るさ（左 = 暗い、右 = 明るい）</text>
+<rect x="40" y="84" width="29" height="40" fill="#303030"/>
+<rect x="70" y="84" width="29" height="40" fill="#4f4f4f"/>
+<rect x="100" y="84" width="29" height="40" fill="#636363"/>
+<rect x="130" y="84" width="29" height="40" fill="#737373"/>
+<rect x="160" y="84" width="29" height="40" fill="#818181"/>
+<rect x="190" y="84" width="29" height="40" fill="#8e8e8e"/>
+<rect x="220" y="84" width="29" height="40" fill="#999999"/>
+<rect x="250" y="84" width="29" height="40" fill="#a3a3a3"/>
+<rect x="280" y="84" width="29" height="40" fill="#adadad"/>
+<rect x="310" y="84" width="29" height="40" fill="#b6b6b6"/>
+<rect x="340" y="84" width="29" height="40" fill="#bebebe"/>
+<rect x="370" y="84" width="29" height="40" fill="#c6c6c6"/>
+<rect x="400" y="84" width="29" height="40" fill="#cecece"/>
+<rect x="430" y="84" width="29" height="40" fill="#d5d5d5"/>
+<rect x="460" y="84" width="29" height="40" fill="#dcdcdc"/>
+<rect x="490" y="84" width="29" height="40" fill="#e3e3e3"/>
+<rect x="520" y="84" width="29" height="40" fill="#eaeaea"/>
+<rect x="550" y="84" width="29" height="40" fill="#f0f0f0"/>
+<rect x="580" y="84" width="29" height="40" fill="#f6f6f6"/>
+<rect x="610" y="84" width="29" height="40" fill="#fcfcfc"/>
+<text x="40" y="164" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">網点（暗いほど大きな点）</text>
+<circle cx="55.0" cy="190" r="16.59" fill="#111827"/>
+<circle cx="85.0" cy="190" r="16.16" fill="#111827"/>
+<circle cx="115.0" cy="190" r="15.71" fill="#111827"/>
+<circle cx="145.0" cy="190" r="15.26" fill="#111827"/>
+<circle cx="175.0" cy="190" r="14.79" fill="#111827"/>
+<circle cx="205.0" cy="190" r="14.3" fill="#111827"/>
+<circle cx="235.0" cy="190" r="13.8" fill="#111827"/>
+<circle cx="265.0" cy="190" r="13.28" fill="#111827"/>
+<circle cx="295.0" cy="190" r="12.74" fill="#111827"/>
+<circle cx="325.0" cy="190" r="12.17" fill="#111827"/>
+<circle cx="355.0" cy="190" r="11.58" fill="#111827"/>
+<circle cx="385.0" cy="190" r="10.95" fill="#111827"/>
+<circle cx="415.0" cy="190" r="10.29" fill="#111827"/>
+<circle cx="445.0" cy="190" r="9.58" fill="#111827"/>
+<circle cx="475.0" cy="190" r="8.81" fill="#111827"/>
+<circle cx="505.0" cy="190" r="7.97" fill="#111827"/>
+<circle cx="535.0" cy="190" r="7.03" fill="#111827"/>
+<circle cx="565.0" cy="190" r="5.94" fill="#111827"/>
+<circle cx="595.0" cy="190" r="4.6" fill="#111827"/>
+<circle cx="625.0" cy="190" r="2.66" fill="#111827"/>
+<circle cx="55.0" cy="220" r="16.59" fill="#111827"/>
+<circle cx="85.0" cy="220" r="16.16" fill="#111827"/>
+<circle cx="115.0" cy="220" r="15.71" fill="#111827"/>
+<circle cx="145.0" cy="220" r="15.26" fill="#111827"/>
+<circle cx="175.0" cy="220" r="14.79" fill="#111827"/>
+<circle cx="205.0" cy="220" r="14.3" fill="#111827"/>
+<circle cx="235.0" cy="220" r="13.8" fill="#111827"/>
+<circle cx="265.0" cy="220" r="13.28" fill="#111827"/>
+<circle cx="295.0" cy="220" r="12.74" fill="#111827"/>
+<circle cx="325.0" cy="220" r="12.17" fill="#111827"/>
+<circle cx="355.0" cy="220" r="11.58" fill="#111827"/>
+<circle cx="385.0" cy="220" r="10.95" fill="#111827"/>
+<circle cx="415.0" cy="220" r="10.29" fill="#111827"/>
+<circle cx="445.0" cy="220" r="9.58" fill="#111827"/>
+<circle cx="475.0" cy="220" r="8.81" fill="#111827"/>
+<circle cx="505.0" cy="220" r="7.97" fill="#111827"/>
+<circle cx="535.0" cy="220" r="7.03" fill="#111827"/>
+<circle cx="565.0" cy="220" r="5.94" fill="#111827"/>
+<circle cx="595.0" cy="220" r="4.6" fill="#111827"/>
+<circle cx="625.0" cy="220" r="2.66" fill="#111827"/>
+<circle cx="55.0" cy="250" r="16.59" fill="#111827"/>
+<circle cx="85.0" cy="250" r="16.16" fill="#111827"/>
+<circle cx="115.0" cy="250" r="15.71" fill="#111827"/>
+<circle cx="145.0" cy="250" r="15.26" fill="#111827"/>
+<circle cx="175.0" cy="250" r="14.79" fill="#111827"/>
+<circle cx="205.0" cy="250" r="14.3" fill="#111827"/>
+<circle cx="235.0" cy="250" r="13.8" fill="#111827"/>
+<circle cx="265.0" cy="250" r="13.28" fill="#111827"/>
+<circle cx="295.0" cy="250" r="12.74" fill="#111827"/>
+<circle cx="325.0" cy="250" r="12.17" fill="#111827"/>
+<circle cx="355.0" cy="250" r="11.58" fill="#111827"/>
+<circle cx="385.0" cy="250" r="10.95" fill="#111827"/>
+<circle cx="415.0" cy="250" r="10.29" fill="#111827"/>
+<circle cx="445.0" cy="250" r="9.58" fill="#111827"/>
+<circle cx="475.0" cy="250" r="8.81" fill="#111827"/>
+<circle cx="505.0" cy="250" r="7.97" fill="#111827"/>
+<circle cx="535.0" cy="250" r="7.03" fill="#111827"/>
+<circle cx="565.0" cy="250" r="5.94" fill="#111827"/>
+<circle cx="595.0" cy="250" r="4.6" fill="#111827"/>
+<circle cx="625.0" cy="250" r="2.66" fill="#111827"/>
+<rect x="40" y="80" width="30" height="204" fill="none" stroke="#e5aa28" stroke-width="3"><animate attributeName="x" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0800;0.1140;0.1480;0.1820;0.2160;0.2500;0.2840;0.3180;0.3520;0.3860;0.4200;0.4540;0.4880;0.5220;0.5560;0.5900;0.6240;0.6580;0.6920;0.7260" values="40;40;70;100;130;160;190;220;250;280;310;340;370;400;430;460;490;520;550;580;610"/></rect>
+<circle cx="640" cy="190" r="43.68000000000001" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4"/>
+<circle cx="640" cy="190" r="1" fill="#111827"><animate attributeName="r" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0800;0.1140;0.1480;0.1820;0.2160;0.2500;0.2840;0.3180;0.3520;0.3860;0.4200;0.4540;0.4880;0.5220;0.5560;0.5900;0.6240;0.6580;0.6920;0.7260" values="1;43.13;42.01;40.86;39.67;38.45;37.19;35.89;34.53;33.12;31.65;30.1;28.48;26.75;24.9;22.91;20.72;18.27;15.44;11.96;6.91"/></circle>
+<text x="640" y="120" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">この画素の点</text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 98 % → 点の半径 99 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.1137;0.1140;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 92 % → 点の半径 96 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1137;0.1140;0.1477;0.1480;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 88 % → 点の半径 94 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1477;0.1480;0.1817;0.1820;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 82 % → 点の半径 91 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1817;0.1820;0.2157;0.2160;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 78 % → 点の半径 88 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2157;0.2160;0.2497;0.2500;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 72 % → 点の半径 85 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2497;0.2500;0.2837;0.2840;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 68 % → 点の半径 82 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2837;0.2840;0.3177;0.3180;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 62 % → 点の半径 79 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3177;0.3180;0.3517;0.3520;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 57 % → 点の半径 76 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3517;0.3520;0.3857;0.3860;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 52 % → 点の半径 72 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3857;0.3860;0.4197;0.4200;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 48 % → 点の半径 69 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4197;0.4200;0.4537;0.4540;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 43 % → 点の半径 65 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4537;0.4540;0.4877;0.4880;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 38 % → 点の半径 61 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4877;0.4880;0.5217;0.5220;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 32 % → 点の半径 57 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5217;0.5220;0.5557;0.5560;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 28 % → 点の半径 52 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5557;0.5560;0.5897;0.5900;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 22 % → 点の半径 47 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5897;0.5900;0.6237;0.6240;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 18 % → 点の半径 42 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6237;0.6240;0.6577;0.6580;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 12 % → 点の半径 35 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6577;0.6580;0.6917;0.6920;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 7 % → 点の半径 27 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6917;0.6920;0.7257;0.7260;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗さ 3 % → 点の半径 16 %<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.7257;0.7260;0.7597;0.7600;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="372" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">点の面積 ＝ 暗さに比例（半径は平方根）。印刷物の網点と同じ見え方になる。<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+</svg>
+
 <!-- fig:halftone-dots:end -->
 
 ### カラーのハーフトーン

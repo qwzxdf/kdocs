@@ -29,6 +29,78 @@ tags:
 | **露出の急変** | **履歴と現在の明るさが違う** | **露出の補正・リセット** |
 
 <!-- fig:taa-ghosting:begin -->
+
+<svg class="fig illust motion" data-fig="taa-ghosting" viewBox="0 0 780 360" role="img"><rect x="0" y="0" width="780" height="360" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-taa-ghosting" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ゴースト:動く物体の後ろに、古い履歴が尾を引く</text>
+<text x="40" y="94" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">履歴の拒否なし</text>
+<rect x="40" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="64" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="88" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="112" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="136" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="160" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="184" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="208" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="232" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="256" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="280" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="304" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="328" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="352" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="40" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.1348;0.4130;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="64" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1344;0.1348;0.1826;0.4609;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="88" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1823;0.1826;0.2304;0.5087;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="112" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2301;0.2304;0.2783;0.5565;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="136" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2779;0.2783;0.3261;0.6043;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="160" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3257;0.3261;0.3739;0.6522;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="184" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3736;0.3739;0.4217;0.7000;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="208" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4214;0.4217;0.4696;0.7478;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="232" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4692;0.4696;0.5174;0.7957;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="256" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5170;0.5174;0.5652;0.8435;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="280" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5649;0.5652;0.6130;0.8913;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="304" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6127;0.6130;0.6609;0.9391;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="328" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6605;0.6609;0.7087;0.9870;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="352" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.7083;0.7087;0.7565;1.0000" values="0;0;1;1;0"/></rect>
+<text x="420" y="94" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043">拒否あり（クランプ・速度）</text>
+<rect x="420" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="444" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="468" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="492" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="516" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="540" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="564" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="588" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="612" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="636" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="660" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="684" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="708" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="732" y="120" width="23" height="48" fill="#f1f5f9"/>
+<rect x="420" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.1344;0.1348;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="444" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1344;0.1348;0.1823;0.1826;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="468" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1823;0.1826;0.2301;0.2304;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="492" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2301;0.2304;0.2779;0.2783;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="516" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2779;0.2783;0.3257;0.3261;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="540" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3257;0.3261;0.3736;0.3739;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="564" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3736;0.3739;0.4214;0.4217;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="588" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4214;0.4217;0.4692;0.4696;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="612" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4692;0.4696;0.5170;0.5174;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="636" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5170;0.5174;0.5649;0.5652;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="660" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5649;0.5652;0.6127;0.6130;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="684" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6127;0.6130;0.6605;0.6609;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="708" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6605;0.6609;0.7083;0.7087;1.0000" values="0;0;1;1;0;0"/></rect>
+<rect x="732" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.7083;0.7087;0.7562;0.7565;1.0000" values="0;0;1;1;0;0"/></rect>
+<text x="40" y="230" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">物体が右へ動く(1 マス / フレーム)<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+<text x="40" y="270" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d" opacity="0">左:通ったマスに、薄い影が残る（履歴を捨てない）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="270" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d" opacity="0">→ 長い尾が見える（ゴースト）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="420" y="270" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">右:履歴が合わなければ捨てる<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;1.0000" values="1;1;0;0"/></text>
+<text x="420" y="270" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">→ 尾が出ない<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="330" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">対策:近傍クランプ・速度による再投影・深度や法線での拒否。</text>
+</svg>
+
 <!-- fig:taa-ghosting:end -->
 
 ## ゴースト

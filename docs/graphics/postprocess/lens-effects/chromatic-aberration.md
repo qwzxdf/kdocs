@@ -63,6 +63,36 @@ float3 ChromaticAberration(float2 uv, float intensity) {
 | **`intensity`** | <strong>強さ（0.005〜0.02）</strong> |
 
 <!-- fig:chromatic-aberration-compare:begin -->
+
+<svg class="fig illust motion" data-fig="chromatic-aberration-compare" viewBox="0 0 780 360" role="img"><rect x="0" y="0" width="780" height="360" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-chromatic-aberration-compare" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">intensity を上げると、端の縁が赤と青に割れる</text>
+<rect x="40" y="70" width="700" height="190" fill="#000000" rx="6"/>
+<g style="mix-blend-mode:screen"><rect x="91" y="100" width="18" height="130" fill="#ff0000"><animate attributeName="x" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.1739;0.2609;0.3652;0.4522;0.5217;0.6261;0.7478;0.8174;1.0000" values="91;91;91;85.2;85.2;91;91;73.6;73.6;91;91"/></rect>
+<rect x="381.0" y="100" width="18" height="130" fill="#ff0000"/>
+<rect x="671" y="100" width="18" height="130" fill="#ff0000"><animate attributeName="x" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.1739;0.2609;0.3652;0.4522;0.5217;0.6261;0.7478;0.8174;1.0000" values="671;671;671;676.8;676.8;671;671;688.4;688.4;671;671"/></rect>
+</g>
+<g style="mix-blend-mode:screen"><rect x="91" y="100" width="18" height="130" fill="#00ff00"/>
+<rect x="381.0" y="100" width="18" height="130" fill="#00ff00"/>
+<rect x="671" y="100" width="18" height="130" fill="#00ff00"/>
+</g>
+<g style="mix-blend-mode:screen"><rect x="91" y="100" width="18" height="130" fill="#0000ff"><animate attributeName="x" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.1739;0.2609;0.3652;0.4522;0.5217;0.6261;0.7478;0.8174;1.0000" values="91;91;91;96.8;96.8;91;91;108.4;108.4;91;91"/></rect>
+<rect x="381.0" y="100" width="18" height="130" fill="#0000ff"/>
+<rect x="671" y="100" width="18" height="130" fill="#0000ff"><animate attributeName="x" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.1739;0.2609;0.3652;0.4522;0.5217;0.6261;0.7478;0.8174;1.0000" values="671;671;671;665.2;665.2;671;671;653.6;653.6;671;671"/></rect>
+</g>
+<text x="100" y="282" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">左の端</text>
+<text x="390.0" y="282" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">中心</text>
+<text x="680" y="282" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">右の端</text>
+<text x="40" y="320" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">強さ 0:ずれなし<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2170;0.2174;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="320" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">強さ 0.02（ちょうどよい）:端の縁にわずかな色ずれ<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2170;0.2174;0.4083;0.4087;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="320" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">強さ 0:ずれなし<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4083;0.4087;0.5736;0.5739;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="320" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">強さ 0.06（やりすぎ）:端で赤と青がはっきり分かれる<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5736;0.5739;0.7823;0.7826;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="320" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">強さ 0:ずれなし<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.7823;0.7826;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="346" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">ずれの量 ＝ 中心からの距離 × 強さ（中心は、いつもずれない）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+</svg>
+
 <!-- fig:chromatic-aberration-compare:end -->
 
 ## 高品質版：多サンプル

@@ -59,7 +59,7 @@ def Waves():
                 dot.Ramp(tp, t, "cy", R(base - Y))
             tp = t
     scene.Note(0.0, name, "波が右へ進む(周期 %.0f 秒でループ)" % period)
-    return dict(name=name, page="graphics/water/waves.md", replace_fig="water-gerstner", scene=scene, size=(780, 390), times=[0.0, 1.5, 3.0, 4.5])
+    return dict(name=name, page="graphics/water/waves/gerstner.md", before="## Gerstner 波", scene=scene, size=(780, 390), times=[0.0, 1.5, 3.0, 4.5])
 
 
 def ShadowMap():
@@ -124,7 +124,7 @@ def ShadowMap():
     Caption(scene, 40, 52, [(0.0, 4.4, "① 光から見て、各方向で一番近い物までの距離を記録する（シャドウ マップ）"),
                             (4.4, 12.5, "② 画面の点を光から見た距離と、記録された距離で比べる")], size=14, fill=GRAY, weight=500)
     scene.Text(root, 40, 402, "記録より遠ければ（間に何かある）影、同じなら光が当たる。", size=13, weight=500, fill=GRAY)
-    return dict(name=name, page="graphics/shadows/shadow-map-basics.md", before="## 手順", scene=scene, size=(780, 420), times=[2.0, 5.0, 8.0, 12.0])
+    return dict(name=name, page="graphics/shadows/shadow-map-basics/index.md", scene=scene, size=(780, 420), times=[2.0, 5.0, 8.0, 12.0])
 
 
 def Sorting():
@@ -160,7 +160,7 @@ def Sorting():
                                  (5.4, 20, "3 番目:%s を描く" % objs[order[2]][0])], size=14, fill=INK)
     Caption(scene, 40, 356, [(0.0, 7.7, ""), (7.7, 20, "左:重なりに赤・緑・青が全部透けて見える。")], size=14, fill=GREEN)
     Caption(scene, 420, 356, [(0.0, 7.7, ""), (7.7, 20, "右:手前が先に深度を書くので、奥の物が消えて透けない。")], size=14, fill=RED)
-    return dict(name=name, page="graphics/translucency/blending-sorting.md", before="## ソート", scene=scene, size=(780, 390), times=[1.5, 4.0, 6.5, 9.5])
+    return dict(name=name, page="graphics/translucency/blending-sorting/sorting.md", before="## ブレンド順序の決め方（まとめ）", scene=scene, size=(780, 390), times=[1.5, 4.0, 6.5, 9.5])
 
 
 def Scattering():
@@ -215,7 +215,7 @@ def Scattering():
     Timeline(scene, root, 40, 392 - 0, lines, 20, size=15, fill=INK)
     Caption(scene, 40, 52, [(0.0, 5.0, "昼:光は大気を短く通る → 青い光が散って空は青い"), (5.0, 20, "夕方:長く通る間に青が散り尽くし、赤だけが残って届く")], size=14, fill=GRAY, weight=500)
     scene.Note(t0, name, "太陽が高さ 80° から 5° まで下がる")
-    return dict(name=name, page="graphics/atmosphere/scattering.md", before="## 大気のモデル", scene=scene, size=(780, 400), times=[0.5, 3.5, 6.5, 9.5])
+    return dict(name=name, page="graphics/atmosphere/scattering/index.md", scene=scene, size=(780, 400), times=[0.5, 3.5, 6.5, 9.5])
 
 
 def Clouds():
@@ -280,7 +280,7 @@ def Clouds():
     Caption(scene, 40, 352, [(0.0, 2.0, "視線を一定のステップで進む"), (2.0, final_t, "雲の中では密度が高く、透過率が急に下がり、光が積み上がる"),
                              (final_t, 20, "透過率が 0 に近づいたので、ここで打ち切る → このピクセルの色が決まる")], size=15, fill=INK)
     scene.Note(t0, name, "%d ステップで視線を進む" % steps)
-    return dict(name=name, page="graphics/atmosphere/clouds.md", before="## 光の計算", scene=scene, size=(780, 380), times=[1.5, 4.5, 7.5, 10.0])
+    return dict(name=name, page="graphics/atmosphere/clouds/raymarch.md", scene=scene, size=(780, 380), times=[1.5, 4.5, 7.5, 10.0])
 
 
 def Lod():
@@ -340,7 +340,7 @@ def Lod():
     scene.Text(root, px, 320, "全部を最高の細かさで描くと 64 枚。", size=14, fill=GRAY, weight=500)
     scene.Text(root, px, 344, "カメラの近くだけ細かくして、数を抑える。", size=14, fill=GRAY, weight=500)
     scene.Note(t0, name, "カメラが地形の上を 1 周する。タイル数の最小 %d / 最大 %d" % (min(len(s) for s in leaf_sets), max(len(s) for s in leaf_sets)))
-    return dict(name=name, page="graphics/terrain/lod.md", before="## モーフィング", scene=scene, size=(780, 440), times=[1.0, 3.0, 5.0, 8.0])
+    return dict(name=name, page="graphics/terrain/lod/cdlod.md", scene=scene, size=(780, 440), times=[1.0, 3.0, 5.0, 8.0])
 
 
 def Ssao():
@@ -439,7 +439,7 @@ def Ssr():
     Caption(scene, 40, 52, [(0.0, 1.5, "① カメラから床のピクセルへ視線が届く"), (1.5, hit_t + 0.4, "② 反射した向きへ、一定の間隔で進みながら、物があるか調べる"),
                             (hit_t + 0.4, 20, "③ ぶつかった所の色を、床に映す（床のピクセルが赤くなる）")], size=14, fill=GRAY, weight=500)
     scene.Note(hit_t, name, "ステップ %d で衝突" % len(pts))
-    return dict(name=name, page="graphics/reflections/ssr-basics.md", before="## 厚み（thickness）", scene=scene, size=(780, 360), times=[1.2, 3.0, 5.5, 9.0])
+    return dict(name=name, page="graphics/reflections/ssr-basics/linear-march.md", scene=scene, size=(780, 360), times=[1.2, 3.0, 5.5, 9.0])
 
 
 def Culling():
@@ -647,7 +647,7 @@ def GiBounce():
     scene.Text(root, 80, 384, "間接光は、直接光が当たった面が「次の光源」になる。リアルタイムでは、プローブやボクセルで近似する。", size=13, weight=500, fill=GRAY)
     scene.Text(root, 590, 90, "光の跳ね返り", size=14, fill=GRAY)
     Timeline(scene, root, 590, 130, [(0.0, "0 回"), (1.0, "1 回（直接）"), (2.8, "1 回（壁へ）"), (4.4, "2 回（壁 → 床）")], 20, size=22, fill=INK)
-    return dict(name=name, page="graphics/gi/theory.md", before="## 間接光の見た目への効果", scene=scene, size=(780, 400), times=[1.5, 3.4, 5.0, 8.5])
+    return dict(name=name, page="graphics/gi/theory/taxonomy.md", scene=scene, size=(780, 400), times=[1.5, 3.4, 5.0, 8.5])
 
 
-FIGS = [Waves, ShadowMap, Sorting, Scattering, Clouds, Lod, Ssao, Ssr, Culling, Bloom, MvpOrder, GiBounce]
+FIGS = [Waves, ShadowMap, Sorting, Scattering, Clouds, Lod, Ssao, Ssr, Culling, MvpOrder, GiBounce]

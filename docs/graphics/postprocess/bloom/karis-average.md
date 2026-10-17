@@ -68,6 +68,65 @@ float3 KarisAverage(float3 a, float3 b, float3 c, float3 d) {
 | **結果** | **明るい 1 画素が平均を支配しない → ちらつかない** |
 
 <!-- fig:karis-fireflies:begin -->
+
+<svg class="fig illust motion" data-fig="karis-fireflies" viewBox="0 0 780 380" role="img"><rect x="0" y="0" width="780" height="380" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-karis-fireflies" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">1 画素だけ極端に明るいと、普通の平均は暴れる（ファイアフライ）</text>
+<text x="40" y="76" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">4×4 の 1 ブロック</text>
+<rect x="40" y="90" width="32" height="32" fill="#e2e8f0"/>
+<rect x="74" y="90" width="32" height="32" fill="#e2e8f0"/>
+<rect x="108" y="90" width="32" height="32" fill="#e2e8f0"/>
+<rect x="142" y="90" width="32" height="32" fill="#e2e8f0"/>
+<rect x="40" y="124" width="32" height="32" fill="#e2e8f0"/>
+<rect x="74" y="124" width="32" height="32" fill="#e2e8f0"/>
+<rect x="108" y="124" width="32" height="32" fill="#e2e8f0"/>
+<rect x="142" y="124" width="32" height="32" fill="#e2e8f0"/>
+<rect x="40" y="158" width="32" height="32" fill="#e2e8f0"/>
+<rect x="74" y="158" width="32" height="32" fill="#e2e8f0"/>
+<rect x="108" y="158" width="32" height="32" fill="#e2e8f0"/>
+<rect x="142" y="158" width="32" height="32" fill="#e2e8f0"/>
+<rect x="40" y="192" width="32" height="32" fill="#e2e8f0"/>
+<rect x="74" y="192" width="32" height="32" fill="#e2e8f0"/>
+<rect x="108" y="192" width="32" height="32" fill="#e2e8f0"/>
+<rect x="142" y="192" width="32" height="32" fill="#e2e8f0"/>
+<rect x="108" y="124" width="32" height="32" fill="#fef08a" stroke="#e5aa28" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1910;0.1913;0.3127;0.3130;0.4344;0.4348;0.5562;0.5565;1.0000" values="0;0;1;1;0;0;1;1;0;0"/></rect>
+<text x="123" y="145" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">50<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1910;0.1913;0.3127;0.3130;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="123" y="145" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">50<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;0.5562;0.5565;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="254" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 1:入っていない<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0692;0.0696;0.1910;0.1913;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="254" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 2:明るい画素が入った<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1910;0.1913;0.3127;0.3130;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="254" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 3:入っていない<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3127;0.3130;0.4344;0.4348;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="254" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 4:明るい画素が入った<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;0.5562;0.5565;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="254" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 5:入っていない<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5562;0.5565;0.6779;0.6783;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="254" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 6:入っていない<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6779;0.6783;0.7997;0.8000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="290" y="76" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">縮小後の画素の明るさ</text>
+<line x1="290" y1="280" x2="730" y2="280" stroke="#1f2937" stroke-width="1.5"/>
+<rect x="304" y="237.78" width="26" height="42.22" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0692;0.0696;1.0000" values="0;0;1;1"/></rect>
+<rect x="332" y="237.78" width="26" height="42.22" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0692;0.0696;1.0000" values="0;0;1;1"/></rect>
+<text x="331" y="296" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">1</text>
+<rect x="374" y="108.47" width="26" height="171.53" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1910;0.1913;1.0000" values="0;0;1;1"/></rect>
+<rect x="402" y="232.38" width="26" height="47.62" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1910;0.1913;1.0000" values="0;0;1;1"/></rect>
+<text x="401" y="296" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">2</text>
+<rect x="444" y="237.78" width="26" height="42.22" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3127;0.3130;1.0000" values="0;0;1;1"/></rect>
+<rect x="472" y="237.78" width="26" height="42.22" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3127;0.3130;1.0000" values="0;0;1;1"/></rect>
+<text x="471" y="296" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">3</text>
+<rect x="514" y="108.47" width="26" height="171.53" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;1.0000" values="0;0;1;1"/></rect>
+<rect x="542" y="232.38" width="26" height="47.62" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;1.0000" values="0;0;1;1"/></rect>
+<text x="541" y="296" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">4</text>
+<rect x="584" y="237.78" width="26" height="42.22" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5562;0.5565;1.0000" values="0;0;1;1"/></rect>
+<rect x="612" y="237.78" width="26" height="42.22" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5562;0.5565;1.0000" values="0;0;1;1"/></rect>
+<text x="611" y="296" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">5</text>
+<rect x="654" y="237.78" width="26" height="42.22" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6779;0.6783;1.0000" values="0;0;1;1"/></rect>
+<rect x="682" y="237.78" width="26" height="42.22" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6779;0.6783;1.0000" values="0;0;1;1"/></rect>
+<text x="681" y="296" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">6</text>
+<rect x="290" y="313" width="14" height="14" fill="#e5484d"/>
+<text x="310" y="324" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937">普通の平均(1.0 ↔ 4.1 とちらつく)</text>
+<rect x="540" y="313" width="14" height="14" fill="#2ea043"/>
+<text x="560" y="324" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937">Karis 平均(1.00 ↔ 1.13 安定)</text>
+<text x="40" y="356" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">Karis 平均:各画素に 1 / (1 + 輝度) の重みを付けて平均 → 極端に明るい画素の影響が小さい</text>
+</svg>
+
 <!-- fig:karis-fireflies:end -->
 
 ## 13 タップ ダウンサンプルに組み込む

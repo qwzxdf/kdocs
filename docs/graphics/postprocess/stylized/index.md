@@ -19,6 +19,55 @@ tags:
 ## 動きで見る
 
 <!-- fig:toon-stages:begin -->
+
+<svg class="fig illust motion" data-fig="toon-stages" viewBox="0 0 780 360" role="img"><rect x="0" y="0" width="780" height="360" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-toon-stages" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+<clipPath id="ts-smooth-100"><circle cx="100" cy="170" r="72"/>
+</clipPath>
+<radialGradient id="ts-grad-100" cx="0.35" cy="0.3" r="0.85"><stop offset="0" stop-color="#fff3c4"/>
+<stop offset="0.5" stop-color="#f59e0b"/>
+<stop offset="1" stop-color="#451a03"/>
+</radialGradient>
+<clipPath id="ts-bands-295"><circle cx="295" cy="170" r="72"/>
+</clipPath>
+<clipPath id="ts-outline-490"><circle cx="490" cy="170" r="72"/>
+</clipPath>
+<clipPath id="ts-both-685"><circle cx="685" cy="170" r="72"/>
+</clipPath>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">トゥーンの 3 工程:陰影を段にして、輪郭線を足す</text>
+<g opacity="1"><circle cx="100" cy="170" r="72" fill="url(#ts-grad-100)"/>
+</g>
+<text x="100" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">① 普通のライティング</text>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1562;0.1565;1.0000" values="0;0;1;1"/><line x1="178" y1="170" x2="212" y2="170" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-toon-stages)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1910;0.1913;1.0000" values="0;0;1;1"/><g clip-path="url(#ts-bands-295)"><circle cx="295" cy="170" r="72" fill="#78350f"/>
+<circle cx="282.04" cy="155.6" r="68.39999999999999" fill="#d97706"/>
+<circle cx="267.64" cy="139.76" r="43.199999999999996" fill="#fcd34d"/>
+</g>
+</g>
+<text x="295" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">② ランプで段にする</text>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3649;0.3652;1.0000" values="0;0;1;1"/><line x1="373" y1="170" x2="407" y2="170" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-toon-stages)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/><circle cx="490" cy="170" r="72" fill="#ffffff" stroke="#0b0b0b" stroke-width="6"/>
+</g>
+<text x="490" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">③ 輪郭線を作る</text>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5736;0.5739;1.0000" values="0;0;1;1"/><line x1="568" y1="170" x2="602" y2="170" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-toon-stages)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6083;0.6087;1.0000" values="0;0;1;1"/><g clip-path="url(#ts-both-685)"><circle cx="685" cy="170" r="72" fill="#78350f"/>
+<circle cx="672.04" cy="155.6" r="68.39999999999999" fill="#d97706"/>
+<circle cx="657.64" cy="139.76" r="43.199999999999996" fill="#fcd34d"/>
+</g>
+<circle cx="685" cy="170" r="72" fill="none" stroke="#0b0b0b" stroke-width="6"/>
+</g>
+<text x="685" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">④ 重ねる</text>
+<text x="40" y="296" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">陰影がなめらか<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1910;0.1913;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="296" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">明るさを 3 段に区切る（セル シェーディング）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1910;0.1913;0.3997;0.4000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="296" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">深度・法線の差から、縁だけを取り出す<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;0.6083;0.6087;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="296" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">段の絵 ＋ 輪郭線 ＝ アニメ調<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6083;0.6087;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
 <!-- fig:toon-stages:end -->
 
 ## ページ一覧
