@@ -16,7 +16,8 @@ PANEL_X = {"F": 32, "D": 512}
 GRID_TOP = 50
 SPHERE_COUNT = 10
 LIGHT_Z = 7.0 * SCALE
-LIGHT_RANGE = 9.0 * SCALE
+LIGHT_RANGE = 9.5
+TINT_MAX = 0.9
 GAIN = 3.0
 CIRCLED = "①②③④⑤⑥⑦⑧⑨⑩"
 
@@ -53,12 +54,9 @@ def ShadeColors(sphere, gx, gy):
     dists = []
     for light in LIGHTS:
         lx, ly = light["pos"]
-        vx, vy, vz = lx - px, ly - py, LIGHT_Z - pz
-        dist = math.sqrt(vx * vx + vy * vy + vz * vz)
-        ndl = max(0.0, (normal[0] * vx + normal[1] * vy + normal[2] * vz) / dist)
-        falloff = max(0.0, 1.0 - dist / LIGHT_RANGE) ** 2
-        weights.append(min(0.9, ndl * falloff * GAIN))
-        dists.append(math.hypot(lx - cx, ly - cy))
+        dist = math.hypot(lx - cx, ly - cy)
+        weights.append(min(TINT_MAX, max(0.0, 1.0 - dist / LIGHT_RANGE) * TINT_MAX * 1.25))
+        dists.append(dist)
     colors = []
     for n in range(len(LIGHTS) + 1):
         rgb = [1.0, 1.0, 1.0]
@@ -75,7 +73,7 @@ def Build():
     cover = []
     for sx, sy, r in spheres:
         cover.append([(x, y) for y in range(GRID_Y) for x in range(GRID_X)
-                      if (x + 0.5 - sx) ** 2 + (y + 0.5 - sy) ** 2 <= r * r])
+                      if (x + 0.5 - sx) ** 2 + (y + 0.5 - sy) ** 2 <= (r + 0.3) ** 2])
     owner = {}
     for k, cs in enumerate(cover):
         for c in cs:
@@ -121,6 +119,11 @@ def Build():
         clip.add("rect", x=PANEL_X[panel.upper()], y=GRID_TOP, width=GRID_PIXELS, height=R(GRID_Y * CELL))
 
     for panel in ("F", "D"):
+        for k, (sx, sy, r) in enumerate(spheres):
+            clip = defs.add("clipPath", id="fd-sph-%s%d" % (panel, k))
+            clip.add("circle", cx=R(Px(panel, sx)), cy=R(Py(sy)), r=R((r + 0.3) * CELL))
+
+    for panel in ("F", "D"):
         root.add("rect", x=PANEL_X[panel], y=GRID_TOP, width=GRID_PIXELS, height=R(GRID_Y * CELL), fill="#ffffff", stroke="#94a3b8", stroke_width=1.5)
 
     groups = {"F": [root.add("g", clip_path="url(#fd-clip-f)") for _ in range(SPHERE_COUNT)],
@@ -157,24 +160,25 @@ def Build():
         if newly_overwritten:
             forward_waste.append((t0, forward_waste_count))
         scene.Note(t0, "Forward", "物体 %d を描く:%d マス(うち %d マスは前の物体を上書き)" % (k + 1, len(cover[k]), len(newly_overwritten)))
+        cells_g = gf.add("g", clip_path="url(#fd-sph-F%d)" % k)
         for (x, y) in cover[k]:
             colors, _, dists = shade[(k, x, y)]
-            rect = gf.add("rect", x=R(Px("F", x)), y=R(Py(y)), width=R(CELL + 0.3), height=R(CELL + 0.3), fill="none")
+            rect = cells_g.add("rect", x=R(Px("F", x)), y=R(Py(y)), width=R(CELL + 0.3), height=R(CELL + 0.3), fill="none")
             items = [(t0, colors[0])]
             for i in range(lights_n):
                 th = t0 + hit_offset + hit_step * i + stagger * min(1.0, dists[i] / LIGHT_RANGE)
                 items.append((th, colors[i + 1]))
             rect.Steps("fill", items)
         if newly_overwritten:
-            frame = gf.add("g", opacity=0)
+            frame = cells_g.add("g", opacity=0)
             frame.Show(t0, t0 + forward_slot - 0.02)
             for (x, y) in newly_overwritten:
                 frame.add("rect", x=R(Px("F", x)), y=R(Py(y)), width=R(CELL), height=R(CELL), fill="none", stroke=RED, stroke_width=1.2)
         for (x, y) in cover[k]:
             covered.add((x, y))
-        outline = gf.add("circle", cx=R(Px("F", sx)), cy=R(Py(sy)), r=R(r * CELL), fill="none", stroke="#1e293b", stroke_width=2, opacity=0)
+        outline = gf.add("circle", cx=R(Px("F", sx)), cy=R(Py(sy)), r=R((r + 0.3) * CELL), fill="none", stroke="#1e293b", stroke_width=2, opacity=0)
         outline.Set(t0, "opacity", 1)
-        shade_ball = gf.add("circle", cx=R(Px("F", sx)), cy=R(Py(sy)), r=R(r * CELL), fill="url(#fd-sphere)", opacity=0)
+        shade_ball = gf.add("circle", cx=R(Px("F", sx)), cy=R(Py(sy)), r=R((r + 0.3) * CELL), fill="url(#fd-sphere)", opacity=0)
         shade_ball.Set(t0 + hit_offset + hit_step * lights_n, "opacity", 1)
         badge = gf.add("circle", cx=R(Px("F", sx)), cy=R(Py(sy)), r=11, fill="#ffffff", stroke="#334155", stroke_width=1.5, opacity=0)
         badge.Set(t0, "opacity", 1)
@@ -223,8 +227,10 @@ def Build():
         sx, sy, r = spheres[k]
         gd = groups["D"][k]
         scene.Note(t0, "Deferred", "Pass 1:物体 %d を G-Buffer に書く(%d マス)" % (k + 1, len(cover[k])))
-        stripes = gd.add("g", opacity=0)
+        clip_g = gd.add("g", clip_path="url(#fd-sph-D%d)" % k)
+        stripes = clip_g.add("g", opacity=0)
         stripes.Set(t0, "opacity", 1)
+        lit_g = clip_g.add("g")
         w3 = CELL / 3.0
         depth_value = 255.0 * max(0.1, min(0.95, 0.12 + 0.75 * (1.0 - (k + 1) / (SPHERE_COUNT + 1.0))))
         depth_color = Hex([depth_value] * 3)
@@ -235,20 +241,20 @@ def Build():
             stripes.add("rect", x=R(ox + w3), y=R(oy), width=R(w3 + 0.2), height=R(CELL + 0.3), fill=stripe_normal)
             stripes.add("rect", x=R(ox + 2 * w3), y=R(oy), width=R(w3 + 0.2), height=R(CELL + 0.3), fill=depth_color)
             if owner[(x, y)] == k:
-                lit = gd.add("rect", x=R(ox), y=R(oy), width=R(CELL + 0.3), height=R(CELL + 0.3), fill="none")
+                lit = lit_g.add("rect", x=R(ox), y=R(oy), width=R(CELL + 0.3), height=R(CELL + 0.3), fill="none")
                 items = []
                 for i in range(lights_n):
                     s_i = pass2_start + pass2_slot * i
                     tc = s_i + wave_len * (x + y + 1) / diag
                     items.append((tc, colors[i + 1]))
                 lit.Steps("fill", items)
-        outline = gd.add("circle", cx=R(Px("D", sx)), cy=R(Py(sy)), r=R(r * CELL), fill="none", stroke="#1e293b", stroke_width=2, opacity=0)
+        outline = gd.add("circle", cx=R(Px("D", sx)), cy=R(Py(sy)), r=R((r + 0.3) * CELL), fill="none", stroke="#1e293b", stroke_width=2, opacity=0)
         outline.Set(t0, "opacity", 1)
         badge = gd.add("circle", cx=R(Px("D", sx)), cy=R(Py(sy)), r=11, fill="#ffffff", stroke="#334155", stroke_width=1.5, opacity=0)
         badge.Set(t0, "opacity", 1)
         label = scene.Text(gd, R(Px("D", sx)), R(Py(sy)) + 5, str(k + 1), size=14, anchor="middle", opacity=0)
         label.Set(t0, "opacity", 1)
-        shade_ball = gd.add("circle", cx=R(Px("D", sx)), cy=R(Py(sy)), r=R(r * CELL), fill="url(#fd-sphere)", opacity=0)
+        shade_ball = gd.add("circle", cx=R(Px("D", sx)), cy=R(Py(sy)), r=R((r + 0.3) * CELL), fill="url(#fd-sphere)", opacity=0)
         shade_ball.Set(pass2_start + pass2_slot * lights_n - 0.05, "opacity", 1)
 
     caption_d = []
