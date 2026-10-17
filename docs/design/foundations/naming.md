@@ -6,10 +6,6 @@ tags:
 
 # 命名とコーディング規約
 
-<div class="page-badges" markdown>
-<span class="rank rank-often">よく使う</span>
-</div>
-
 **コーディング規約**は、名前の付け方や書き方のルールをチームでそろえるための決まりです。ルールがそろっていると、他の人のコードも自分のコードのように読めて、「この `count` は変数？関数？定数？」と迷わなくなります。このサイトのサンプルは [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html) に従っているので、その要点をまとめます。
 
 !!! tip "ポイント"

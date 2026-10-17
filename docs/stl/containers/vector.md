@@ -1853,6 +1853,6 @@ C++20 までの機能は主要なコンパイラすべてで使えます。C++23
 
 ## 関連ページ
 
-- [コンテナの選び方](../../guide/container-chart.md)
+- [コンテナの選び方](../../container-chart.md)
 - [cpprefjp: std::vector](https://cpprefjp.github.io/reference/vector/vector.html)
 - [cppreference: std::vector](https://en.cppreference.com/w/cpp/container/vector)

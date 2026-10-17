@@ -6,10 +6,6 @@ tags:
 
 # PImpl（実装の隠蔽）
 
-<div class="page-badges" markdown>
-<span class="rank rank-sometimes">たまに</span>
-</div>
-
 **PImpl**（ピンプル、Pointer to Implementation）は、クラスの**中身（メンバ変数やプライベートな関数）を、`.cpp` の中に隠す**ためのテクニックです。ヘッダには「実装クラスへのポインタ」1 つだけを置き、本当のメンバは `.cpp` で定義します。そうすると、**ヘッダを `#include` する人は、中身で使っているライブラリ（`<windows.h>`、DirectX、FMOD など）を知らなくてよく**、中身を変えても、ヘッダを include しているファイルを**再コンパイルしなくて済みます**。ビルド時間の短縮と、外部ライブラリの影響を閉じ込めるのに役立ちます。
 
 !!! tip "ポイント"

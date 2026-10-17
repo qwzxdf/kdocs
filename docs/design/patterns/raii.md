@@ -6,10 +6,6 @@ tags:
 
 # RAII とスマートポインタ
 
-<div class="page-badges" markdown>
-<span class="rank rank-must">必須</span>
-</div>
-
 **RAII**（アールエーアイアイ、Resource Acquisition Is Initialization）は、C++ の設計の**中心になる考え方**です。「**リソース（メモリ、ファイル、ロック、GPU のバッファなど）の取得を、オブジェクトの作成（コンストラクタ）で行い、解放を、オブジェクトの破棄（デストラクタ）で行う**」というものです。C++ では、オブジェクトがスコープを出るとき、**必ずデストラクタが呼ばれます**（`return` でも、例外でも）。この性質を使うと、<strong>「解放し忘れ」がコードから消えます</strong>。スマートポインタ（`unique_ptr`、`shared_ptr`）は、RAII の代表例で、メモリを自動で解放してくれます。
 
 !!! tip "ポイント"

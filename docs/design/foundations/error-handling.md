@@ -6,10 +6,6 @@ tags:
 
 # エラー処理の方針
 
-<div class="page-badges" markdown>
-<span class="rank rank-often">よく使う</span>
-</div>
-
 プログラムには、「ファイルが無い」「データが壊れている」「ありえない値が来た」など、うまくいかない場面が必ずあります。C++ にはエラーを伝える方法がいくつもあり（`assert`、戻り値、`std::optional`、`std::expected`、例外）、**どのエラーにどれを使うか**を決めておかないと、チームの中でバラバラになって扱いにくくなります。
 
 !!! tip "ポイント"

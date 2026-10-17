@@ -7,10 +7,6 @@ tags:
 
 # ビルドと CMake の構成
 
-<div class="page-badges" markdown>
-<span class="rank rank-sometimes">たまに</span>
-</div>
-
 **ビルド**は、ソースコードを、実行できるファイルにする作業です。ゲームが大きくなると、**ビルドの設計**（どのファイルを、どのまとまりで、どの順番で作るか）が、**開発の快適さを左右**します。「ビルドに 10 分かかる」「ヘッダを 1 行直しただけで、全部がビルドし直される」「他の人の PC で、ビルドが通らない」といった問題は、**コードの設計（[ヘッダとソースの分け方](../foundations/header-source.md)、[レイヤー](../foundations/layers.md)）と、ビルドの構成**の両方で、防げます。このページは、ヘッダとソースの分離の**延長**として、**ビルドを速く、再現可能に、整理して保つ**考え方を説明します（Visual Studio の操作は [Visual Studio](../../vs/index.md)、CMake の基本は [CMake で使う](../../vs/cmake.md)）。
 
 !!! tip "ポイント"
@@ -107,7 +103,6 @@ l game engine
 l exe game
 # base を変えると、それに依存する全部が再ビルド。game だけ変えれば、game と exe だけ
 </div>
-
 
 | 利点 | 説明 |
 | --- | --- |
@@ -281,4 +276,5 @@ jobs:
 - [モジュール境界とレイヤー設計](../foundations/layers.md)
 - [PImpl](../patterns/pimpl.md)
 - [Visual Studio：CMake で使う](../../vs/cmake.md)
+- [Visual Studio：Ninja](../../vs/ninja.md)
 - [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md)

@@ -19,6 +19,7 @@ C++ でゲームを作る学生の多くは、<strong>Visual Studio（ビジュ�
 | [便利な機能とショートカット](tips.md) | よく使うキー、整形、IntelliSense、設定ファイル |
 | [よくあるエラー](errors.md) | `LNK2019`、`C1083`、文字化け、DLL が見つからない、など |
 | [CMake で使う](cmake.md) | 「フォルダーを開く」で CMake のプロジェクトを開く |
+| [Ninja](ninja.md) | 速いビルド ツール。コマンド ラインや CI でのビルド |
 
 ## 用語
 
@@ -33,5 +34,5 @@ C++ でゲームを作る学生の多くは、<strong>Visual Studio（ビジュ�
 
 ## 関連ページ
 
-- [はじめに：このサイトの読み方](../guide/how-to-read.md)
+- [はじめに：このサイトの読み方](../how-to-read.md)
 - [外部ライブラリ](../libs/index.md)

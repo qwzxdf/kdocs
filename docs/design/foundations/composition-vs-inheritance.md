@@ -6,10 +6,6 @@ tags:
 
 # 継承と合成（コンポジション）
 
-<div class="page-badges" markdown>
-<span class="rank rank-must">必須</span>
-</div>
-
 オブジェクト指向を習うと、まず**継承**（`class Player : public Character`）を覚えます。でも、ゲームのコードで継承を使いすぎると、「`FlyingEnemy` と `ShootingEnemy` の両方の性質を持つ敵はどうする？」という問題で行き詰まります。そこで、<strong>「継承（is-a：〜は〜である）」より「合成（has-a：〜は〜を持っている）」を優先する</strong>、という原則があります。部品（機能）を持たせて組み合わせるほうが、変更に強く、組み合わせも自由だからです。
 
 !!! tip "ポイント"

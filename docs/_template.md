@@ -28,7 +28,7 @@ tags:
   <span class="rank rank-sometimes">たまに</span>
   <span class="rank rank-rare">知ってるだけ</span>
 
-速さ（クラスのページ上部にだけ付ける。基準は guide/how-to-read.md）
+速さ（クラスのページ上部にだけ付ける。基準は how-to-read.md）
   <span class="perf perf-4">◎ 速い</span>
   <span class="perf perf-3">○ 普通</span>
   <span class="perf perf-2">△ やや重い</span>

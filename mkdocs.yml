@@ -4,7 +4,7 @@ site_url: https://qwzxdf.github.io/kdocs/
 repo_url: https://github.com/qwzxdf/kdocs
 repo_name: qwzxdf/kdocs
 edit_uri: edit/main/docs/
-copyright: kdocs
+copyright: kdocs by kurokawa 2026
 
 exclude_docs: |
   _template.md

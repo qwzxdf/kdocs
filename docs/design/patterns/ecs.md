@@ -6,10 +6,6 @@ tags:
 
 # ECS（エンティティ・コンポーネント・システム）
 
-<div class="page-badges" markdown>
-<span class="rank rank-often">よく使う</span>
-</div>
-
 **ECS** は、ゲームの世界を<strong>エンティティ（ただの番号）</strong>、<strong>コンポーネント（データだけ）</strong>、<strong>システム（処理だけ）</strong>の 3 つに分けて作る設計です。[コンポーネント指向](../../engine/component.md)では「オブジェクトが部品を持ち、部品が自分で Update する」のに対し、ECS では**同じ種類のコンポーネントを 1 本の配列にまとめて並べ**、システムがその配列をまとめて処理します。データがメモリ上に連続して並ぶので、何万体ものオブジェクトでも速く回せます。Unity DOTS、Bevy、Overwatch のエンジンなどがこの形で、C++ では **EnTT** や **flecs** というライブラリが有名です。
 
 !!! tip "ポイント"

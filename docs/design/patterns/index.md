@@ -44,14 +44,6 @@ tags:
 | **振る舞いの差し替え・追加** | [ストラテジー](strategy.md)、[デコレータ](decorator.md)、[ビジター](visitor.md)、[イテレータ](iterator-pattern.md) | 機能の組み合わせ、処理の追加 |
 | **作り方・つなぎ方** | [ファクトリ](factory.md)、[依存性の注入](dependency-injection.md)、[シングルトン](singleton.md) | オブジェクトの生成と依存の管理 |
 
-## ゲームでの使用頻度
-
-| 重要度 | パターン |
-| --- | --- |
-| <span class="rank rank-must">必須</span> | RAII・スマートポインタ |
-| <span class="rank rank-often">よく使う</span> | ステートマシン、イベント（オブザーバー）、コマンド、ストラテジー、ファクトリ、ECS、オブジェクトプール |
-| <span class="rank rank-sometimes">たまに</span> | PImpl、ビジター、デコレータ、イテレータ、依存性の注入、データ指向設計 |
-| <span class="rank rank-rare">知ってるだけ</span> | CRTP・ポリシー |
 
 ## 使うときの考え方
 

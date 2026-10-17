@@ -6,10 +6,6 @@ tags:
 
 # const と引数の渡し方
 
-<div class="page-badges" markdown>
-<span class="rank rank-must">必須</span>
-</div>
-
 関数の引数を「値渡し」にするか「参照渡し」にするか、`const` を付けるか、は、C++ を書くたびに迷うところです。ここには**だいたいの正解**があり、それを守ると、**無駄なコピーが減り、バグも減り、読む人にも意図が伝わります**。`const` は「ここは変わらない」という**約束**で、コンパイラがその約束を守らせてくれます。この考え方を <strong>const 正しさ（const correctness）</strong> と呼びます。
 
 !!! tip "ポイント"

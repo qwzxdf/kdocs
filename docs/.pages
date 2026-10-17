@@ -1,13 +1,13 @@
 nav:
   - ホーム: index.md
-  - はじめに: guide
+  - このサイトの読み方: how-to-read.md
   - Visual Studio: vs
   - STL: stl
   - 基礎: basics
+  - コンテナの選び方: container-chart.md
   - ゲームエンジン: engine
   - 外部ライブラリ: libs
   - 設計: design
-  - 自作型: custom-types
-  - Tips: tips
-  - 用語集: glossary.md
+  - 最適化: optimize
+  - 文字コード: encoding
   - ...

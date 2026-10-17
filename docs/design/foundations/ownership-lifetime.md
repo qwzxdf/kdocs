@@ -6,10 +6,6 @@ tags:
 
 # 所有権とライフタイム設計
 
-<div class="page-badges" markdown>
-<span class="rank rank-must">必須</span>
-</div>
-
 C++ のバグで一番多いのは、<strong>「もう無いものを触る」</strong>ことです。`delete` したポインタを使う、消えたローカル変数の参照を持ち続ける、`vector` が引っ越したあとに古いポインタを使う、などです。これを防ぐ設計の考え方が、<strong>所有権（誰が消す責任を持つか）</strong>と<strong>ライフタイム（そのものがいつまで生きているか）</strong>です。[基礎の所有権](../../basics/ownership.md) で仕組みを学んだら、このページで<strong>「設計としてどう決めるか」</strong>を考えます。
 
 !!! tip "ポイント"

@@ -147,6 +147,7 @@ cmake -S . -B build -G "Visual Studio 17 2022" -A x64
 
 ## 関連ページ
 
+- [Ninja（高速なビルド ツール）](ninja.md)
 - [外部ライブラリの入れ方](libraries.md)
 - [インストールとプロジェクトの作成](setup.md)
 - [Visual Studio の目次](index.md)

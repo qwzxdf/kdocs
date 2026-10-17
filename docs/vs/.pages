@@ -7,4 +7,5 @@ nav:
   - tips.md
   - errors.md
   - cmake.md
+  - ninja.md
   - ...

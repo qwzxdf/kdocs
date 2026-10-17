@@ -1,0 +1,14 @@
+nav:
+  - index.md
+  - measure.md
+  - algorithms.md
+  - memory-cache.md
+  - allocation.md
+  - copy-move.md
+  - simd.md
+  - multithreading.md
+  - compiler.md
+  - rendering.md
+  - loading.md
+  - memory-usage.md
+  - ...

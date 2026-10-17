@@ -7,7 +7,6 @@ tags:
 # CRTP とポリシーベース設計
 
 <div class="page-badges" markdown>
-<span class="rank rank-rare">知ってるだけ</span>
 <span class="perf perf-4">◎ 速い</span>
 </div>
 
