@@ -96,8 +96,8 @@ if (scene_unit != FbxSystemUnit::m) {
 
 | 設定 | 意味 |
 | --- | --- |
-| **`FbxAxisSystem::DirectX`** | **DirectX 用の座標系**（**Y 上・左手系**）。**このサイトの規約と同じ**。**これを使う** |
-| **`FbxAxisSystem::OpenGL`** | **OpenGL 用**（**Y 上・右手系**）。このサイトの規約（左手系）とは違う |
+| **`FbxAxisSystem::DirectX`** | **DirectX 用の座標系**（**Y 上・左手系**）。ソースを左手系に変換して出す |
+| **`FbxAxisSystem::OpenGL`** | **OpenGL 用**（**Y 上・右手系**）。**これを使い、ルートに X 反転の行列を掛けて**、このサイトの左手系にする |
 | **`FbxAxisSystem::MayaYUp`** | Maya の Y 上 |
 | **`ConvertScene(scene)`** | **シーン全体を、その座標系に変換** |
 | **`FbxSystemUnit::m`** | **メートル**（`cm`・`inch` もある）。**`ConvertScene`** で、スケールを変換 |
@@ -160,7 +160,7 @@ void Traverse(FbxNode* node) {
     **すべて無効**です。**先に、ゲーム用のデータに、コピー**します。
 
 ??? failure "座標系の変換をしないで、モデルが、横倒し・裏返しになる"
-    **`ConvertScene`**（座標系・単位）を呼びます。**`FbxAxisSystem::DirectX`**（左手系）を指定し、**巻き順（CW が表）も確認**します。
+    **`ConvertScene`**（座標系・単位）を呼びます。**`FbxAxisSystem::OpenGL`**（右手系・Y 上）にそろえ、ルートの X 反転と、巻き順の入れ替えを行います。
 
 ??? failure "三角形化せずに、四角形を扱って、形が崩れる"
     **`FbxGeometryConverter::Triangulate`**。

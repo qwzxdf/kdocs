@@ -92,7 +92,7 @@ bool LoadModel(const std::string& path, tinygltf::Model& model) {
     `warning` を、**ログに出して**確認します。
 
 ??? failure "モデルが、後ろ向き・裏返しで表示される"
-    **左手系への変換**（Z の反転・巻き順の入れ替え。[glTF の基本と規約](gltf-basics.md#to-left-handed)）と、**前方向**（glTF は +Z が正面）を確認します。
+    **左手系への変換**（ルートの X 反転・巻き順の入れ替え。[glTF の基本と規約](gltf-basics.md#to-left-handed)）と、**前方向**（glTF は +Z が正面）を確認します。
 
 
 ## これだけ覚える
@@ -102,7 +102,7 @@ bool LoadModel(const std::string& path, tinygltf::Model& model) {
     - [x] tinygltf は<strong>`tinygltf::Model` に読み込む</strong>だけ。<strong>描画用のバッファは自分で作る</strong>
     - [x] <strong>`TINYGLTF_IMPLEMENTATION` は、1 つの `.cpp` だけ</strong>。Windows は <strong>`NOMINMAX`</strong>
     - [x] <strong>要素同士の参照は、すべて「配列の番号（インデックス）」</strong>
-    - [x] 座標系は<strong>右手系・Y 上</strong>。<strong>左手系へは Z を反転し、巻き順を入れ替える</strong>。<strong>UV は左上原点で、反転不要</strong>
+    - [x] 座標系は<strong>右手系・Y 上</strong>。<strong>左手系へは、ルートに X 反転の行列を掛け、巻き順を入れ替える</strong>。<strong>UV は左上原点で、反転不要</strong>
     - [x] <strong>圧縮拡張（Draco など）は、tinygltf だけでは、デコードできない</strong>
 
 ## 関連ページ

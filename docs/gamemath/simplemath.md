@@ -226,12 +226,15 @@ SimpleMath の `Create…` 関数（`CreateLookAt`・`CreatePerspectiveFieldOfVi
 | `Matrix::CreateWorld(position, forward, up)` | 自前の `MakeWorld`（下） |
 | `Vector3::Forward`（`(0,0,-1)`） | 自前の `kForward`（`(0,0,1)`） |
 | `m.Forward()` | `m.Backward()`（3 行目。または自前の `ForwardOf`） |
+| 右手系のデータ（glTF など）を取り込む | ルートに `kRightToLeft`（X 反転）を 1 回掛ける（[座標系](coordinate-systems.md#right-to-left)） |
 
 ```cpp
 inline const Vector3 kForward(0.0f, 0.0f, 1.0f);
 inline const Vector3 kBackward(0.0f, 0.0f, -1.0f);
 inline const Vector3 kRight = Vector3::Right;
 inline const Vector3 kUp = Vector3::Up;
+
+inline const Matrix kRightToLeft = Matrix::CreateScale(-1.0f, 1.0f, 1.0f);
 
 inline Matrix MakeWorld(const Vector3& position, const Vector3& forward, const Vector3& up) {
   Vector3 z = forward;

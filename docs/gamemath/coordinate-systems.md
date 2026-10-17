@@ -12,7 +12,7 @@ tags:
     - <strong>このサイトの規約は「左手系・Y-up・+Z が前・行ベクトル・時計回りが表」</strong>（DirectX の流儀）。
     - <strong>左手系 / 右手系</strong>と、<strong>どの軸が上か</strong>（Y-up か Z-up か）の、2 つを決める。
     - <strong>Direct3D 自体は、手系を決めていない。</strong><strong>DirectXMath は左手・右手の両方</strong>、<strong>SimpleMath と OpenGL と glm の既定は右手系・Y-up</strong>、<strong>Unity は左手系・Y-up</strong>、<strong>Unreal は左手系・Z-up</strong>、<strong>Blender は右手系・Z-up</strong>。
-    - <strong>外から読み込んだモデルや数式は、座標系が違う</strong>ことがある。<strong>境界で変換</strong>する。
+    - <strong>外から読み込んだモデルや数式は、座標系が違う</strong>ことがある。<strong>右手系のデータは、X を反転する行列をルートに 1 回掛けて</strong>取り込む。
     - <strong>行列の規約</strong>（行ベクトルか列ベクトルか）も、座標系とは別にそろえる。
     - ゲーム内の<strong>単位</strong>（1 ＝ 1 メートル）も、最初に決める。
 
@@ -27,7 +27,7 @@ tags:
 
 <svg class="fig" viewBox="0 0 600 230" role="img" aria-label="左手系と右手系の軸の向き"><defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="22" class="fig-title">左手系（このサイトの規約・DirectX・Unity）</text><line x1="120" y1="190" x2="120" y2="45" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="126" y="50">Y（上）</text><line x1="120" y1="190" x2="250" y2="190" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="215" y="212">X（右）</text><line x1="120" y1="190" x2="190" y2="120" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="195" y="115">Z（奥）</text><text x="300" y="22" class="fig-title">右手系（OpenGL・SimpleMath の関数の既定）</text><line x1="400" y1="190" x2="400" y2="45" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="406" y="50">Y（上）</text><line x1="400" y1="190" x2="530" y2="190" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="495" y="212">X（右）</text><line x1="400" y1="190" x2="345" y2="225" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="300" y="222">Z（手前）</text></svg>
 
-**同じ座標 (1, 2, 3) でも系が違えば、別の場所**を指します。系を変換するには、**どれか 1 つの軸を反転**します（たとえば Z の符号を逆にする）。
+**同じ座標 (1, 2, 3) でも系が違えば、別の場所**を指します。系を変換するには、**どれか 1 つの軸を反転**します（このサイトは X の符号を逆にします）。
 
 ## 回転の向き
 
@@ -64,34 +64,60 @@ Z-up は、「床の平面が XY」で、地図のように考えやすい流儀
 
 ## 変換する
 
-### 左手系 ⇔ 右手系
+### 左手系 ⇔ 右手系：X 軸を反転する（このサイトの標準） {#right-to-left}
 
-glTF・Blender・OpenGL・Jolt・Recast などは右手系です。このサイトの左手系に取り込むときは、**1 つの軸を反転**します。普通は Z を反転します（Y-up の場合）。
+glTF・Blender・OpenGL・Jolt・Recast などは右手系です。このサイトの左手系に取り込むときは、**X 軸を反転する行列**（`diag(-1, 1, 1)`）を、**モデルのルートに 1 回だけ**掛けます。
 
 ```cpp
-// 右手系 → 左手系（Y-up の場合）：Z の符号を反転
-Vector3 RightToLeft(const Vector3& p) {
-  return Vector3(p.x, p.y, -p.z);
-}
+inline const Matrix kRightToLeft = Matrix::CreateScale(-1.0f, 1.0f, 1.0f);
+
+Matrix draw_world = node_world * kRightToLeft * entity_world;
 ```
+
+| 並び | 意味 |
+| --- | --- |
+| `node_world` | glTF のノード階層から求めた、モデル内のワールド行列（右手系のデータのまま） |
+| `kRightToLeft` | **ここで 1 回だけ、X を反転する**（右手系 → 左手系） |
+| `entity_world` | ゲーム側の位置・回転・拡大（左手系） |
+
+**なぜ X を反転するのか**
+
+| 理由 | 説明 |
+| --- | --- |
+| **Y（上）と Z（前）が変わらない** | glTF の「モデルの正面は +Z」が、そのまま「前は +Z」になる。キャラクターが `kForward` を向いたままになる |
+| **1 回の行列で済む** | 頂点・法線・ノードの回転・アニメーション・スキンを、**1 つ 1 つ変換しなくてよい**。ルートの行列で、まとめて反転される |
+| **Z を反転する方法もある** | 正面が −Z になり、キャラクターを 180 度回す必要がある。このサイトでは使わない |
 
 | 変換するもの | やること |
 | --- | --- |
-| **頂点の位置・法線** | Z を反転（法線も同じ） |
-| **三角形の巻き方向** | **反転する**（頂点の順序を入れ替える）。鏡像になるので表裏が逆になるため |
-| <strong>回転（クォータニオン）</strong> | 反転した軸に垂直な成分の符号を反転する（Z を反転するなら、x と y の符号を反転）。または行列で変換 |
-| **行列** | 座標系の変換行列で前後から挟む（変換行列を S として、S × M × S） |
+| **頂点の位置・ノードの回転・アニメーション・スキン** | **そのまま**（`kRightToLeft` を、ルートで 1 回掛けるだけ） |
+| **法線** | **位置と同じワールド行列**（`kRightToLeft` を含む）で変換する。シェーダーでは `mul(float4(normal, 0), world)`。反転した面の外向きの法線は、反転後も外向きなので、**ライティングは逆にならない** |
+| **三角形の巻き方向** | **読み込み時に 1 回、各三角形の 2 番目と 3 番目のインデックスを入れ替える**（X を反転すると、見た目の巻き方向が反転するので、時計回りが表にそろえる） |
+| **接線の `w`**（法線マップ） | `kRightToLeft` の行列式は −1（鏡像）なので、**`w` の符号を反転**する |
+| **非一様スケールがあるとき** | 法線は、ワールド行列の**逆転置行列**で変換する（直交行列の `kRightToLeft` は、それ自身が逆転置なので、一様な拡大なら、ワールド行列のままでよい） |
+| <strong>回転を 1 つずつ自前で変換するとき</strong> | `(x, y, z, w)` → `(x, -y, -z, w)`（X の反転に合わせる）。通常は、ルートの行列で足りるので不要 |
 
 ### Z-up ⇔ Y-up
 
+Blender など、**Z が上**の座標系は、先に **Y が上**に直してから、`kRightToLeft` を掛けます。glTF のエクスポーターは、すでに Y-up に変換して出力します。
+
 ```cpp
-// Z-up（Blender）の右手系 → Y-up の右手系：Y と Z を入れ替えて、符号を調整する
 Vector3 ZUpToYUp(const Vector3& p) {
-  return Vector3(p.x, p.z, -p.y);   // (x, y, z) → (x, z, -y)：Z が上 → Y が上
+  return Vector3(p.x, p.z, -p.y);
 }
 ```
 
-実際は**モデルを読み込むときに、1 回だけ**変換します（アセット変換ツールであらかじめ変換しておくのが、おすすめです）。
+右手系・Z-up のデータを直接扱う場合は、次の 1 つの行列にまとめられます（行ベクトル規約）。
+
+```cpp
+inline const Matrix kRightZUpToLeftYUp(
+    -1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, -1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f);
+```
+
+実際は、**モデルを読み込むときに 1 回だけ**行列を決めます。モデルごとに「元の座標系」を持たせて、描画のたびに対応する行列を掛ける作りにすると、扱いやすくなります（右手系・Y-up は `kRightToLeft`、左手系・Y-up は単位行列、など）。
 
 ## 三角形の表裏（巻き方向）
 
@@ -102,7 +128,7 @@ Vector3 ZUpToYUp(const Vector3& p) {
 | **時計回り（CW）が表** | Direct3D の既定（`FrontCounterClockwise = FALSE`）。左手系でよく使う。**このサイトはこちら** |
 | **反時計回り（CCW）が表** | OpenGL・glTF の既定。右手系でよく使う（Direct3D では `FrontCounterClockwise = TRUE`） |
 
-座標系を変換したら、**巻き方向も反転**します。そうしないと**表と裏が逆**になり、バックフェイス カリングで、モデルが消えたり、内側が見えたりします。
+X（または Z）を反転して座標系を変換したら、**巻き方向も反転**します（インデックスの 2 番目と 3 番目を入れ替える）。そうしないと**表と裏が逆**になり、バックフェイス カリングで、モデルが消えたり、内側が見えたりします。
 
 ## 規約をそろえる
 
@@ -123,7 +149,7 @@ Vector3 ZUpToYUp(const Vector3& p) {
 | 場面 | 方法 |
 | --- | --- |
 | Blender のモデルを、DirectX のゲームに読み込む | エクスポート時に軸を合わせる（Y-up、前方向）。または読み込み時に変換 |
-| 外部の物理エンジン（Jolt は右手系）を、このサイトの左手系のゲームで使う | 境界で、Z を反転する。回転は、x と y の符号も反転する |
+| 外部の物理エンジン（Jolt は右手系）を、このサイトの左手系のゲームで使う | 境界で、X を反転する（位置 `(-x, y, z)`、回転 `(x, -y, -z, w)`） |
 | 数式を本から写す | 本の座標系（右手系が多い）と、自分のエンジンが違うことに注意 |
 | カメラの前方向 | 左手系は +Z、右手系は −Z。ビュー行列の関数（`LookAtLH` / `LookAtRH`）が違う。**このサイトは `LH`** |
 | ImGuizmo | OpenGL 流（右手系・列優先）を想定（[ImGuizmo](../libs/imgui/imguizmo.md)）。行ベクトルの行列は、**転置して**渡す。左手系の扱いはページを参照 |
@@ -131,7 +157,7 @@ Vector3 ZUpToYUp(const Vector3& p) {
 ## よくあるミス
 
 ??? failure "モデルが、左右反転して見える"
-    座標系が違うモデルをそのまま読み込んでいます。Z（または X）を反転します。そのとき、**三角形の巻き方向も反転**します。
+    座標系が違うモデルを、そのまま読み込んでいます。X を反転する行列をルートに掛けます。そのとき、**三角形の巻き方向も反転**します。
 
 ??? failure "モデルが、裏返って（内側が見える・消える）"
     座標系を変換したのに巻き方向を変えていません。またはカリングの設定（CW / CCW）が、モデルと合っていません。
@@ -141,6 +167,9 @@ Vector3 ZUpToYUp(const Vector3& p) {
 
 ??? failure "モデルが、横に倒れて読み込まれる"
     Z-up のモデルを、Y-up のエンジンに読み込んでいます。軸を入れ替えます（X 軸まわりに 90 度回転）。
+
+??? failure "座標系を変えたら、ライティングが逆になった"
+    法線を、位置と**別の行列**（`kRightToLeft` を含まない行列）で変換していないか確認します。位置と法線は、**同じワールド行列**で変換します。接線の `w`（法線マップの向き）も、鏡像のときは反転が必要です。
 
 ??? failure "ライブラリごとに、規約が違うのに混ぜて使う"
     SimpleMath の `Create…`（右手系）と、DirectXMath の `...LH` や、glm（列ベクトル）を混ぜると混乱します。このサイトの左手系に統一し、ビュー・射影は `...LH` を使い、境界で変換します。

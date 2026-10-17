@@ -14,7 +14,7 @@ FBX は、**3D の制作ツールの間で、モデル・アニメーション�
     - <strong>ファイルが、大きく複雑</strong>（<strong>ツール固有の情報</strong>も含む）。<strong>ゲームに出すときは、glTF やゲーム専用形式に変換</strong>することが多い。
     - ufbx は <strong>`ufbx_load_file(path, &opts, &error)`</strong> で読む。<strong>失敗は `nullptr`</strong>、<strong>`error` に理由</strong>。
     - <strong>`ufbx_load_opts` で、座標系・単位・三角形化・法線の生成</strong>などを指定。
-    - <strong>座標系は、FBX の中で、ツールごとに違う</strong>。<strong>読み込み時に、自分の座標系（左手・Y 上）に変換</strong>する。
+    - <strong>座標系は、FBX の中で、ツールごとに違う</strong>。<strong>読み込み時に、右手・Y 上にそろえ</strong>、そのあと<strong>ルートに X 反転の行列</strong>を掛けて左手系にする。
     - <strong>メッシュは、「面（Face）」ごとの、ポリゴン</strong>（<strong>四角形以上もある</strong>）。<strong>三角形化が必要</strong>。
 
 ## FBX とは
@@ -47,7 +47,7 @@ FBX は、**3D の制作ツールの間で、モデル・アニメーション�
 
 ufbx_scene* LoadFbx(const char* path) {
   ufbx_load_opts opts = {};
-  opts.target_axes = ufbx_axes_left_handed_y_up;
+  opts.target_axes = ufbx_axes_right_handed_y_up;
   opts.target_unit_meters = 1.0f;
   opts.generate_missing_normals = true;
 
@@ -87,26 +87,26 @@ void Example() {
 
 ```cpp
 ufbx_load_opts opts = {};
-opts.target_axes = ufbx_axes_left_handed_y_up;
+opts.target_axes = ufbx_axes_right_handed_y_up;
 opts.target_unit_meters = 1.0f;
 opts.space_conversion = UFBX_SPACE_CONVERSION_MODIFY_GEOMETRY;
 ```
 
 | 設定 | 意味 |
 | --- | --- |
-| **`target_axes`** | **目的の座標系**。**`ufbx_axes_left_handed_y_up`** が、**このサイトの規約**（左手系・Y 上）と同じ（[座標系](../../gamemath/coordinate-systems.md)） |
+| **`target_axes`** | **目的の座標系**。**`ufbx_axes_right_handed_y_up`**（右手系・Y 上）にそろえる。**そのあと、ルートに X 反転の行列を掛けて**、このサイトの左手系にする（[座標系](../../gamemath/coordinate-systems.md#right-to-left)）（[座標系](../../gamemath/coordinate-systems.md)） |
 | **`target_unit_meters`** | **1 単位が、何メートルか**（**`1.0f` ＝ メートル**） |
 | **`space_conversion`** | **変換の方法**：**`ADJUST_TRANSFORMS`**（**ノードの変換行列に、補正を足す**。**頂点は、そのまま**）、**`MODIFY_GEOMETRY`**（**頂点そのものを、変換**） |
 | `target_camera_axes` / `target_light_axes` | **カメラ・ライトの、向き** |
 
 !!! warning "座標系の確認は、必須"
-    **変換しないと、モデルが、横倒し・巨大・裏返し**になります。<strong>このサイトの規約（左手系・Y 上・前は +Z）</strong>に合わせる設定にして、**実際に、表示して確認**します。**ufbx の `target_axes` は、`front`（前方向）も指定**できます。
+    **変換しないと、モデルが、横倒し・巨大・裏返し**になります。<strong>右手系・Y 上</strong>にそろえて（そのあと、ルートの行列で左手系へ）、**実際に、表示して確認**します。**ufbx の `target_axes` は、`front`（前方向）も指定**できます。
 
 ### 巻き順と UV
 
 | 点 | 説明 |
 | --- | --- |
-| <strong>巻き順（CW が表にする）</strong> | **FBX は、反時計回りが表**。左手系へ変換すると鏡像になるので、**巻き順を反転して CW にする**（ufbx の `reverse_winding` などのオプション、または自分でインデックスを入れ替える。**表示して確認**。[深度とカリング](../../3d/depth-culling.md)） |
+| <strong>巻き順（CW が表にする）</strong> | **FBX は、反時計回りが表**。ルートの X 反転と合わせて、**読み込み時に 2 番目と 3 番目のインデックスを入れ替える**（[深度とカリング](../../3d/depth-culling.md)） |
 | **UV の原点** | **FBX は、左下が原点**（V が上向き）。**DirectX は左上**なので、**`v = 1 - v`** で変換（[メッシュとテクスチャ](../../3d/mesh-textures.md)） |
 
 ## シーンの構造

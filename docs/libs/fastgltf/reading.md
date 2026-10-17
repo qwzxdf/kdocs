@@ -125,7 +125,7 @@ void LoadScene(const fastgltf::Asset& asset, std::vector<DrawItem>& out) {
 | 点 | 説明 |
 | --- | --- |
 | **`node.transform`** | **TRS か、行列**の `std::variant`。**`getLocalTransformMatrix(node)`**（バージョンで、名前が違う：`getTransformMatrix` など）で、**4×4 行列に統一** |
-| **行列の並び** | **glTF は列優先**。**SimpleMath の行優先（行ベクトル規約）に、そのまま `memcpy` できる**（[tinygltf の取り出し方](../tinygltf/reading.md)と同じ理由）。左手系へは **Z 反転の変換**を掛ける（[glTF の基本と規約](../tinygltf/gltf-basics.md#to-left-handed)） |
+| **行列の並び** | **glTF は列優先**。**SimpleMath の行優先（行ベクトル規約）に、そのまま `memcpy` できる**（[tinygltf の取り出し方](../tinygltf/reading.md)と同じ理由）。左手系へは、**ルートに X 反転の行列**を掛ける（[glTF の基本と規約](../tinygltf/gltf-basics.md#to-left-handed)） |
 | **`node.meshIndex`** | **`std::optional<size_t>`**。**`has_value()` を確認** |
 | **`node.children`** | **子ノードの番号**（`size_t` の配列） |
 | **`world = local * parent_world`** | **行ベクトル規約<strong>での、</strong>子 × 親** |
@@ -220,7 +220,7 @@ for (const fastgltf::AnimationChannel& channel : animation.channels) {
 | **`sampler.inputAccessor` / `outputAccessor`** | **時刻・値の accessor の番号** |
 | **`sampler.interpolation`** | **`Linear` / `Step` / `CubicSpline`** |
 
-**クォータニオンは `(x, y, z, w)`** で、**SimpleMath と同じ並び**です。左手系へは `(-x, -y, z, w)` にします（[glTF の基本と規約](../tinygltf/gltf-basics.md#to-left-handed)）。補間は **`Slerp`**（[回転](../../gamemath/rotation.md)）。
+**クォータニオンは `(x, y, z, w)`** で、**SimpleMath と同じ並び**です。ノードの値は変換せず、ルートの X 反転の行列でまとめて反転します（[glTF の基本と規約](../tinygltf/gltf-basics.md#to-left-handed)）。補間は **`Slerp`**（[回転](../../gamemath/rotation.md)）。
 
 ## スキン
 

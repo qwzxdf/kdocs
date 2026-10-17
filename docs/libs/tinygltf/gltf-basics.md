@@ -33,44 +33,35 @@ glTF とは何か、ファイルの形、**座標系・規約**、拡張、ほ�
 
 | 項目 | glTF | このサイトの規約（左手系・DX11） |
 | --- | --- | --- |
-| **座標系** | **右手系** | **左手系**（Z を反転して取り込む） |
+| **座標系** | **右手系** | **左手系**（ルートに X 反転の行列を掛けて取り込む） |
 | **上方向** | **+Y** | +Y（同じ） |
-| **前方向** | <strong>+Z が「正面向き」</strong>（モデルが、+Z を向いて作られる） | カメラの前は +Z。**Z を反転すると、モデルの正面は −Z（カメラの方）を向く**（[座標系](../../gamemath/coordinate-systems.md)） |
+| **前方向** | <strong>+Z が「正面向き」</strong>（モデルが、+Z を向いて作られる） | カメラの前は +Z。**X を反転するので、正面は +Z のまま**（[座標系](../../gamemath/coordinate-systems.md)） |
 | **単位** | **メートル** | メートル（同じ） |
 | **UV の原点** | **左上**（V は下向き） | **左上**（DirectX と同じ。**反転は不要**） |
 | **三角形の表** | <strong>反時計回り（CCW）</strong> | <strong>時計回り（CW）</strong>（`FrontCounterClockwise = FALSE`）。**インデックスの 2 番目と 3 番目を入れ替える** |
-| <strong>回転（クォータニオン）</strong> | **`(x, y, z, w)`** の順 | 同じ並びだが、**Z 反転に合わせて `(-x, -y, z, w)`** にする |
-| **行列** | **列優先**（column-major）の 16 個 | 行ベクトル規約（行優先）。**転置と同じ並びなので、`memcpy` で読める**。ただし **Z 反転の変換（`S × M × S`）が必要** |
-
-glTF は右手系、このサイトは左手系なので、**読み込み時に 1 回だけ、座標を変換**します（[座標系](../../gamemath/coordinate-systems.md)）。普通は **Z を反転**します。
+| <strong>回転（クォータニオン）</strong> | **`(x, y, z, w)`** の順 | 同じ並び。**ノードの値は変換せず、ルートの行列でまとめて反転** |
+| **行列** | **列優先**（column-major）の 16 個 | 行ベクトル規約（行優先）。**転置と同じ並びなので、そのまま `memcpy` できる**（[データの取り出し方](reading.md)） |
 
 ## 左手系へ変換する {#to-left-handed}
 
-| 変換するもの | やること |
-| --- | --- |
-| **頂点の位置・法線** | `(x, y, z)` → `(x, y, -z)` |
-| **三角形のインデックス** | 三角形ごとに、**2 番目と 3 番目を入れ替える**（CCW → CW。そうしないと、裏表が逆になる） |
-| <strong>ノードの移動（translation）</strong> | `(x, y, z)` → `(x, y, -z)` |
-| <strong>ノードの回転（quaternion）</strong> | `(x, y, z, w)` → `(-x, -y, z, w)` |
-| <strong>ノードの拡大（scale）</strong> | そのまま |
-| **ノードの `matrix`** | `S × M × S`（`S` は Z を反転する行列）。要素のうち、**Z の行と列の、どちらか一方だけに関わるもの**の符号を反転 |
-| **スキンの逆バインド行列** | `matrix` と同じく `S × M × S` |
-| **アニメーション** | translation・rotation のキーを、上と同じ規則で変換 |
+glTF は右手系、このサイトは左手系なので、**取り込むときに座標系をそろえます**。標準の方法は、**X 軸を反転する行列を、モデルのルートに 1 回だけ掛ける**ことです（[座標系](../../gamemath/coordinate-systems.md#right-to-left)）。
 
 ```cpp
-Vector3 ToLeftHanded(const Vector3& p) {
-  return Vector3(p.x, p.y, -p.z);
-}
+inline const Matrix kRightToLeft = Matrix::CreateScale(-1.0f, 1.0f, 1.0f);
 
-Quaternion ToLeftHanded(const Quaternion& q) {
-  return Quaternion(-q.x, -q.y, q.z, q.w);
-}
+Matrix draw_world = node_world * kRightToLeft * entity_world;
+```
 
-Matrix ToLeftHanded(const Matrix& m) {
-  Matrix s = Matrix::CreateScale(1.0f, 1.0f, -1.0f);
-  return s * m * s;
-}
+| 変換するもの | やること |
+| --- | --- |
+| **頂点の位置** | **そのまま**（ルートの行列で反転される） |
+| **法線** | **位置と同じワールド行列で変換する**（`mul(float4(normal, 0), world)`）。ルートの `kRightToLeft` が一緒に反転するので、ライティングは逆にならない |
+| **ノードの移動・回転・拡大、`matrix`** | **そのまま**（`node_world` は、glTF の値だけで求める） |
+| **スキンの逆バインド行列・アニメーション** | **そのまま** |
+| **三角形のインデックス** | **読み込み時に 1 回**、三角形ごとに 2 番目と 3 番目を入れ替える（CCW → CW） |
+| **接線の `w`** | 反転する（`kRightToLeft` は鏡像なので） |
 
+```cpp
 void FlipWinding(std::vector<uint32_t>& indices) {
   for (size_t i = 0; i + 2 < indices.size(); i += 3) {
     std::swap(indices[i + 1], indices[i + 2]);
@@ -78,11 +69,13 @@ void FlipWinding(std::vector<uint32_t>& indices) {
 }
 ```
 
-!!! tip "キャラクターの正面"
-    glTF は、モデルの正面が **+Z** です。Z を反転すると、正面は **−Z**（カメラの方）を向きます。キャラクターを `kForward`（+Z）の向きに歩かせたいときは、読み込み後に **Y 軸まわりに 180 度**回して使います。ビューアーのように、カメラに正面を向けたいだけなら、そのままで構いません。
+!!! tip "X を反転する理由"
+    glTF は、モデルの正面が **+Z** です。**X だけを反転**すれば、上（+Y）も前（+Z）も変わらないので、キャラクターが `kForward` の向きを向いたままになります。Z を反転すると、正面が −Z になり、180 度回す必要が出ます。
 
-**変換は、アセットの変換ツール（ビルド時）で 1 回だけ**行うのがおすすめです（[ベイク](../../optimize/baking.md)）。実行時に毎回変換すると、無駄です。
+!!! note "変換しない読み方との違い"
+    何もせずに左手系として読む（右手系のデータをそのまま使う）と、モデルは**左右が反転した鏡像**になります。巻き方向は偶然合いますが、文字・左利きの物・非対称な傷などが、逆になります。このサイトでは、**ルートに `kRightToLeft` を掛けて、鏡像にならない**ようにします。
 
+**手書きの変換コードを、頂点・ノードごとに書かない**のが利点です。変換は、**行列 1 つと、インデックスの入れ替え**で終わります（[ベイク](../../optimize/baking.md)で、ビルド時に済ませてもよい）。
 
 ## 拡張（extensions）
 
