@@ -504,13 +504,13 @@ template <typename IteratorType>
 static basic_json parse(IteratorType first, IteratorType last, /* 同じ引数 */);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `i` | 読む元。`std::string`、`std::string_view`、`const char*`、`std::istream`（`std::ifstream` など）、`std::vector<std::uint8_t>` など |
-| `cb` | 読んでいる途中に呼ばれる関数。特定の要素を読み捨てるときに使う（ほぼ使わない） |
-| `allow_exceptions` | `false` にすると、失敗時に例外ではなく discarded の値を返す |
-| `ignore_comments` | `true` にすると `//` と `/* */` のコメントを許す |
-| `ignore_trailing_commas` | `true` にすると `[1, 2,]` のような最後のカンマを許す（3.12〜） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `i` | `const char*` | 読む元。`std::string`、`std::string_view`、 、`std::istream`（`std::ifstream` など）、`std::vector<std::uint8_t>` など |
+| `cb` | `const parser_callback_t` | 読んでいる途中に呼ばれる関数。特定の要素を読み捨てるときに使う（ほぼ使わない） |
+| `allow_exceptions` | `const bool` | `false` にすると、失敗時に例外ではなく discarded の値を返す |
+| `ignore_comments` | `const bool` | `true` にすると `//` と `/* */` のコメントを許す |
+| `ignore_trailing_commas` | `bool` | `true` にすると `[1, 2,]` のような最後のカンマを許す（3.12〜） |
 
 - **戻り値:** 読み込んだ `json`
 - **計算量:** 入力の長さに比例 O(n)
@@ -551,12 +551,12 @@ string_t dump(const int indent = -1,
               const error_handler_t error_handler = error_handler_t::strict) const;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `indent` | 字下げの幅。`-1`（デフォルト）は改行なしの 1 行。`0` は改行だけ。`2` や `4` で読みやすくなる |
-| `indent_char` | 字下げに使う文字。`'\t'` でタブにできる |
-| `ensure_ascii` | `true` にすると日本語などを `あ` のようにエスケープして ASCII だけにする |
-| `error_handler` | 不正な UTF-8 があったときの動き（[フラグ](#flags)） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `indent` | `const int` | 字下げの幅。`-1`（デフォルト）は改行なしの 1 行。`0` は改行だけ。`2` や `4` で読みやすくなる |
+| `indent_char` | `const char` | 字下げに使う文字。`'\t'` でタブにできる |
+| `ensure_ascii` | `const bool` | `true` にすると日本語などを `あ` のようにエスケープして ASCII だけにする |
+| `error_handler` | `error_handler_t` | 不正な UTF-8 があったときの動き（[フラグ](#flags)） |
 
 - **戻り値:** JSON の文字列（`std::string`）
 - **計算量:** 中身の大きさに比例 O(n)
@@ -599,9 +599,9 @@ template <typename ValueType>
 ValueType get() const;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `ValueType`（テンプレート引数） | 変換したい C++ の型 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `ValueType`（テンプレート引数） | 型引数 | 変換したい C++ の型 |
 
 - **戻り値:** 変換した値（コピー）
 - **例外:** 型が合わないと `json::type_error`（302 など）
@@ -627,11 +627,11 @@ template <typename ValueType>
 ValueType value(const json_pointer& ptr, const ValueType& default_value) const;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `key` | 探すキー |
-| `ptr` | `"/a/b"` のような JSON Pointer（深い場所を一度に探す） |
-| `default_value` | キーが無いときに返す値。この型が戻り値の型になる |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `key` | `const std::string&` | 探すキー |
+| `ptr` | `json::json_pointer` | `"/a/b"` のような JSON Pointer（深い場所を一度に探す） |
+| `default_value` | `ValueType` | キーが無いときに返す値。この型が戻り値の型になる |
 
 - **戻り値:** キーがあればその値（`default_value` の型に変換）、無ければ `default_value`
 - **例外:** キーはあるが型が違うと `json::type_error`。オブジェクトでない値に使うと `json::type_error`（306）
@@ -670,11 +670,11 @@ const_reference at(size_type idx) const;
 reference at(const json_pointer& ptr);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `key` | オブジェクトのキー |
-| `idx` | 配列の番号（0 から） |
-| `ptr` | JSON Pointer |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `key` | `const std::string&` | オブジェクトのキー |
+| `idx` | `size_type` | 配列の番号（0 から） |
+| `ptr` | `json::json_pointer` | JSON Pointer |
 
 - **戻り値:** 要素への参照
 - **計算量:** キーは O(log n)、番号は O(1)
@@ -691,10 +691,10 @@ reference operator[](size_type idx);
 const_reference operator[](size_type idx) const;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `key` | オブジェクトのキー |
-| `idx` | 配列の番号 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `key` | `const std::string&` | オブジェクトのキー |
+| `idx` | `size_type` | 配列の番号 |
 
 - **戻り値:** 要素への参照
 - **書くときは `[]`、読むときは `at` / `value`** と覚えます。
@@ -718,10 +718,10 @@ bool contains(const typename object_t::key_type& key) const;
 bool contains(const json_pointer& ptr) const;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `key` | 調べるキー |
-| `ptr` | JSON Pointer（深い場所があるか） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `key` | `const std::string&` | 調べるキー |
+| `ptr` | `json::json_pointer` | JSON Pointer（深い場所があるか） |
 
 - **戻り値:** キーがあれば `true`。オブジェクトでない値に使うと常に `false`
 - **計算量:** O(log n)
@@ -739,9 +739,9 @@ template <typename ValueType>
 ValueType& get_to(ValueType& v) const;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `v` | 値を入れる先の変数 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `v` | `ValueType&` | 値を入れる先の変数 |
 
 - **戻り値:** `v` への参照
 - **例外:** `get` と同じ
@@ -884,9 +884,9 @@ void push_back(const typename object_t::value_type& val);  // オブジェクト
 void push_back(initializer_list_t init);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `val` | 追加する値 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `val` | `const json&` | 追加する値 |
 
 - **計算量:** 償却 O(1)（配列のとき）
 - null の値に使うと、自動で配列になります。
@@ -899,9 +899,9 @@ template <class... Args>
 reference emplace_back(Args&&... args);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `args` | 要素の `json` を作るための引数 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `args` | `Args&&...` | 要素の `json` を作るための引数 |
 
 - **戻り値:** 追加した要素への参照（3.7〜）
 - 戻り値の参照にそのまま書き込めるので、「配列に空のオブジェクトを足して中身を埋める」ときに便利です。
@@ -938,11 +938,11 @@ IteratorType erase(IteratorType pos);
 IteratorType erase(IteratorType first, IteratorType last);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `key` | 消すキー（オブジェクト） |
-| `idx` | 消す番号（配列） |
-| `pos` / `first`, `last` | 消す位置・範囲 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `key` | `const std::string&` | 消すキー（オブジェクト） |
+| `idx` | `const size_type` | 消す番号（配列） |
+| `pos` / `first`, `last` | `IteratorType` | 消す位置・範囲 |
 
 - **戻り値:** キー版は消した数（0 か 1）
 - **例外:** 種類が違うと `json::type_error`、配列の範囲外は `json::out_of_range`
@@ -955,9 +955,9 @@ iterator find(const typename object_t::key_type& key);
 const_iterator find(const typename object_t::key_type& key) const;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `key` | 探すキー |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `key` | `const std::string&` | 探すキー |
 
 - **戻り値:** 見つかればその要素のイテレータ、無ければ `end()`
 - `contains` + `at` で 2 回探すのを、1 回にできます。
@@ -974,9 +974,9 @@ if (auto it = j.find("boss"); it != j.end()) {
 static basic_json array(initializer_list_t init = {});
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `init` | 最初に入れる要素 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `init` | `initializer_list_t` | 最初に入れる要素 |
 
 `json j = {1, 2};` のような書き方は、中身によって配列になったりオブジェクトになったりして分かりにくいことがあります（[よくあるミス](#mistakes)）。**確実に配列にしたいとき**に使います。`json::array()` で空の配列 `[]` が作れます。
 
@@ -986,9 +986,9 @@ static basic_json array(initializer_list_t init = {});
 static basic_json object(initializer_list_t init = {});
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `init` | `{キー, 値}` のペアの並び |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `init` | `initializer_list_t` | `{キー, 値}` のペアの並び |
 
 空の `json` は `null` です。`dump` したときに `{}` と出したいなら `json::object()` で作ります。
 
@@ -1000,11 +1000,11 @@ static bool accept(InputType&& i, const bool ignore_comments = false,
                    const bool ignore_trailing_commas = false);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `i` | 調べる入力 |
-| `ignore_comments` | コメントを許すか |
-| `ignore_trailing_commas` | 最後のカンマを許すか（3.12〜） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `i` | `InputType&&` | 調べる入力 |
+| `ignore_comments` | `const bool` | コメントを許すか |
+| `ignore_trailing_commas` | `bool` | 最後のカンマを許すか（3.12〜） |
 
 - **戻り値:** 正しい JSON なら `true`。値は作らないので `parse` より軽い
 
@@ -1030,9 +1030,9 @@ explicit json_pointer(const string_t& s = "");
 // 使う側: at(ptr)、value(ptr, default)、contains(ptr)、operator[](ptr)
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `s` | `"/stages/0/name"` のような、`/` 区切りのパス。配列は番号で書く |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `s` | `const std::string&` | `"/stages/0/name"` のような、`/` 区切りのパス。配列は番号で書く |
 
 深い場所を 1 回で取るときに使います。`"/stages/0/name"_json_pointer` と書くこともできます（`nlohmann::literals` が必要）。
 
@@ -1046,9 +1046,9 @@ auto name = j.at(json::json_pointer("/stages/0/name")).get<std::string>();
 static std::vector<std::uint8_t> to_cbor(const basic_json& j);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `j` | 変換する JSON |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `j` | `const json&` | 変換する JSON |
 
 - **戻り値:** CBOR（JSON と同じ構造を持つバイナリ形式）のバイト列
 - 同じ仲間に `to_msgpack`、`to_bson`、`to_ubjson`、`to_bjdata` があります。
@@ -1062,11 +1062,11 @@ static basic_json from_cbor(InputType&& i, const bool strict = true,
                             const bool allow_exceptions = true);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `i` | CBOR のバイト列 |
-| `strict` | `true` なら、データの後ろに余計なバイトがあるとエラー |
-| `allow_exceptions` | `false` なら失敗時に discarded を返す |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `i` | `InputType&&` | CBOR のバイト列 |
+| `strict` | `const bool` | `true` なら、データの後ろに余計なバイトがあるとエラー |
+| `allow_exceptions` | `bool` | `false` なら失敗時に discarded を返す |
 
 ### json::to_msgpack {#to_msgpack}
 
@@ -1083,9 +1083,9 @@ static std::vector<std::uint8_t> to_msgpack(const basic_json& j);
 void merge_patch(const basic_json& apply_patch);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `apply_patch` | 上書きする内容。値が `null` のキーは削除される |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `apply_patch` | `const json&` | 上書きする内容。値が `null` のキーは削除される |
 
 「デフォルト設定」に「ユーザーの設定」を上書きする、という処理が 1 行で書けます。
 

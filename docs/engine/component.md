@@ -25,21 +25,7 @@ tags:
 
 ### 継承だけで作ると困ること
 
-<div class="anim" data-type="graph" data-label="継承の木：機能が増えると、枝が増えていく">
-n g GameObject 0 2
-n c Character 1 1
-n i Item 1 4
-n p Player 2 0
-n e Enemy 2 2
-n w WalkingEnemy 3 1
-n f FlyingEnemy 3 3
-l g c
-l g i
-l c p
-l c e
-l e w
-l e f
-</div>
+<svg class="fig flow" viewBox="0 0 640 448" role="img" aria-label="継承の木：機能が増えると、枝が増えていく"><defs><marker id="fl24499" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">継承の木：機能が増えると、枝が増えていく</text><line x1="124.1" y1="209.0" x2="197.9" y2="171.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24499)"/><line x1="101.8" y1="255.0" x2="220.2" y2="377.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24499)"/><line x1="283.4" y1="125.0" x2="351.1" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24499)"/><line x1="283.4" y1="171.0" x2="351.1" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24499)"/><line x1="433.0" y1="210.6" x2="508.9" y2="171.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24499)"/><line x1="433.0" y1="253.4" x2="508.9" y2="293.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24499)"/><rect x="28.0" y="212.0" width="103" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="79.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">GameObject</text><rect x="195.0" y="128.0" width="95" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="242.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Character</text><rect x="204.5" y="380.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="242.5" y="400.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Item</text><rect x="354.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="392.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Player</text><rect x="354.0" y="212.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="392.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Enemy</text><rect x="494.0" y="128.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="553.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">WalkingEnemy</text><rect x="497.5" y="296.0" width="111" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="553.0" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">FlyingEnemy</text></svg>
 
 ここで「**空を飛ぶアイテム**」や「**プレイヤーが操作できる敵**」を作ろうとすると、どこに入れればいいか分かりません。機能を継承の木に固定してしまうので、組み合わせが増えるとクラスが爆発します。
 

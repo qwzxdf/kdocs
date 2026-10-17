@@ -164,7 +164,7 @@ void AddArrays(const float* a, const float* b, float* out, int count) {
 | 場面 | 方法 |
 | --- | --- |
 | パーティクルの更新（数万個） | SoA + 自動ベクトル化。必要なら xsimd |
-| スキニング（骨のアニメーション） | 行列計算を、DirectXMath で |
+| スキニング（ボーンのアニメーション） | 行列計算を、DirectXMath で |
 | 当たり判定の距離計算 | 位置を SoA にして、まとめて距離の 2 乗を計算 |
 | 数学ライブラリ全般 | DirectXMath / glm（SIMD 有効）を使う |
 | 画像処理・音のミキシング | 配列をまとめて処理するループ。自動ベクトル化を確認 |

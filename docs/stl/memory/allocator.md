@@ -182,10 +182,10 @@ struct allocator_traits {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `Alloc` | アロケータの型 |
-| `a` | アロケータの値 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `Alloc` | 型引数 | アロケータの型 |
+| `a` | `Alloc` | アロケータの値 |
 
 - アロケータが持っていない機能（`construct` など）を、**標準のやり方で補ってくれる**クラスです。コンテナは、アロケータを直接ではなく必ずこれ経由で呼びます
 - 自作アロケータは最小限だけ書けば済みます。足りない部分は traits が埋めます
@@ -206,10 +206,10 @@ template <class T, class... Args>
 void construct(T* p, Args&&... args);  // allocator_traits 経由で呼ぶ
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `p` | オブジェクトを作る場所（`allocate` した領域の中） |
-| `args` | コンストラクタに渡す引数 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `p` | `pointer` | オブジェクトを作る場所（`allocate` した領域の中） |
+| `args` | `Args&&...` | コンストラクタに渡す引数 |
 
 - 戻り値: なし
 - 標準の動きは `::new (p) T(std::forward<Args>(args)...)`（[配置 new](new_delete.md#placement_new)）です
@@ -222,9 +222,9 @@ template <class T>
 void destroy(T* p);  // allocator_traits 経由で呼ぶ
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `p` | 破棄するオブジェクトの場所 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `p` | `pointer` | 破棄するオブジェクトの場所 |
 
 - 戻り値: なし
 - `p->~T()`（デストラクタ）を呼ぶだけで、**メモリは返しません**。返すのは `deallocate` の役目です
@@ -235,9 +235,9 @@ void destroy(T* p);  // allocator_traits 経由で呼ぶ
 [[nodiscard]] std::allocation_result<T*> allocate_at_least(std::size_t n);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `n` | 最低限ほしい要素の数 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `n` | `std::size_t` | 最低限ほしい要素の数 |
 
 - 戻り値: `{ptr, count}`。`count >= n` で、実際に使える数
 - ヒープは、要求より少し大きく確保するのが普通です（たとえば 40 バイト頼むと 48 バイト取れる）。この余りを捨てずに使えるように、確保できた数も返します。`std::vector` や `std::string` が、無駄なく容量を使うための機能です
@@ -268,10 +268,10 @@ template <class T, class Alloc, class... Args>
 std::shared_ptr<T> allocate_shared(const Alloc& a, Args&&... args);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `a` | 使うアロケータ |
-| `args` | `T` のコンストラクタに渡す引数 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `a` | `Alloc&` | 使うアロケータ |
+| `args` | `Args&&...` | `T` のコンストラクタに渡す引数 |
 
 - `std::make_shared` の、アロケータを指定できる版です。オブジェクトと制御ブロック（参照カウントなど）を**まとめて 1 回で**確保します
 

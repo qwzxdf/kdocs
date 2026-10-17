@@ -6,7 +6,7 @@ tags:
 
 # 深度とカリング
 
-3D の描画では、「**手前のものが、奥のものを隠す**」ことと、「**見えないものを、描かない**」ことが、必要です。前者は**深度バッファ**（Z バッファ）、後者は**カリング**です。このページは、DirectX 11 での設定（深度ステンシル、ラスタライザー）、Z ファイティング、リバース Z、視錐台カリングをまとめます。
+3D の描画では、「**手前のものが奥のものを隠す**」ことと、「**見えないものを描かない**」ことが必要です。前者は**深度バッファ**（Z バッファ）、後者は**カリング**です。このページは、DirectX 11 での設定（深度ステンシル、ラスタライザー）、Z ファイティング、リバース Z、視錐台カリングをまとめます。
 
 !!! tip "ポイント"
     - <strong>深度バッファ</strong>は、ピクセルごとに「いちばん手前の深度」を覚え、<strong>奥のものを描かない</strong>ようにする。
@@ -14,11 +14,11 @@ tags:
     - <strong>バックフェイスカリング</strong>：<strong>裏を向いた三角形は描かない</strong>。右手系・CCW 表なら <strong>`FrontCounterClockwise = TRUE`</strong>。
     - <strong>Z ファイティング</strong>は、深度の精度不足。<strong>near を大きく</strong>、または<strong>リバース Z</strong> で減らす。
     - <strong>視錐台カリング</strong>：<strong>画面に入らないオブジェクトを、描画前に除外</strong>する（`BoundingFrustum`）。
-    - 半透明は、<strong>深度の書き込みを止めて、奥から手前の順</strong>に描く。
+    - 半透明は<strong>深度の書き込みを止めて、奥から手前の順</strong>に描く。
 
 ## 深度バッファ
 
-各ピクセルについて、**今までに描いた中で、いちばん手前の深度**を、バッファに記録します。新しいピクセルが、**記録より手前なら描いて更新、奥なら捨てます**。
+各ピクセルについて、**今までに描いた中でいちばん手前の深度**をバッファに記録します。新しいピクセルが**記録より手前なら描いて更新、奥なら捨てます**。
 
 <div class="anim" data-type="graph" data-label="深度バッファ：手前なら描いて更新、奥なら捨てる">
 n px ピクセル_深度0.8 0 0 hit
@@ -78,7 +78,7 @@ context->ClearRenderTargetView(rtv.Get(), clear_color);
 context->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 ```
 
-**毎フレーム、深度をクリア**します。忘れると、前のフレームの深度が残って、描画が欠けます。
+**毎フレーム、深度をクリア**します。忘れると前のフレームの深度が残って、描画が欠けます。
 
 ### 深度ステンシルステート
 
@@ -96,12 +96,12 @@ context->OMSetDepthStencilState(ds_state.Get(), 0);
 | 設定 | 値 | 用途 |
 | --- | --- | --- |
 | `DepthEnable` | `TRUE` | 深度テストを行う |
-| `DepthWriteMask` | `ALL` / `ZERO` | **`ZERO`**：テストはするが、書き込まない（**半透明**、パーティクル） |
+| `DepthWriteMask` | `ALL` / `ZERO` | **`ZERO`**：テストはするが書き込まない（**半透明**、パーティクル） |
 | `DepthFunc` | `LESS`（手前なら描く）/ `LESS_EQUAL` / `GREATER`（リバース Z）/ `ALWAYS` | 通常は `LESS`。スカイボックスは `LESS_EQUAL`、リバース Z は `GREATER` |
 
 ## カリング（ラスタライザーステート）
 
-**裏を向いた三角形**は、立体の内側なので、見えません。描かないことで、**描画を、ほぼ半分**にできます。
+**裏を向いた三角形**は、立体の内側なので見えません。描かないことで**描画をほぼ半分**にできます。
 
 ```cpp
 D3D11_RASTERIZER_DESC rs_desc = {};
@@ -122,7 +122,7 @@ context->RSSetState(rs_state.Get());
 | `FillMode` | `SOLID` / `WIREFRAME` | ワイヤーフレームは、デバッグ用 |
 
 !!! warning "DX11 の既定は `FrontCounterClockwise = FALSE`（時計回りが表）"
-    **何も設定しないと、DX11 は、時計回りを表とします**。右手系で作ったメッシュ（CCW が表）は、**裏表が逆**になって、**外側が消え、内側が見えます**。症状が出たら、`FrontCounterClockwise` と、メッシュの巻き順を確認します。
+    **何も設定しないと、DX11 は時計回りを表とします**。右手系で作ったメッシュ（CCW が表）は、**裏表が逆**になって、**外側が消え、内側が見えます**。症状が出たら、`FrontCounterClockwise` と、メッシュの巻き順を確認します。
 
 ### 巻き順（ワインディング）
 
@@ -133,7 +133,7 @@ context->RSSetState(rs_state.Get());
 | <strong>反時計回り（CCW）</strong> | 見る側から、頂点が反時計回り → **表** |
 | 時計回り（CW） | 見る側から、頂点が時計回り → **裏** |
 
-モデルが、**裏返って見える**ときは、(1) `FrontCounterClockwise` の設定、(2) モデルの巻き順、(3) 負のスケール（`Scale(-1, 1, 1)` は、巻き順を反転させる）を疑います。
+モデルが**裏返って見える**ときは、(1) `FrontCounterClockwise` の設定、(2) モデルの巻き順、(3) 負のスケール（`Scale(-1, 1, 1)` は、巻き順を反転させる）を疑います。
 
 ## Z ファイティング
 
@@ -141,7 +141,7 @@ context->RSSetState(rs_state.Get());
 
 ### なぜ起こるか
 
-透視投影の深度は、**手前に精度が集中**し、**遠くでは、粗くなります**（[射影](projection.md)）。`near` が小さく、`far` が大きいほど、遠くの精度が、悪化します。
+透視投影の深度は、**手前に精度が集中**し、**遠くでは粗くなります**（[射影](projection.md)）。`near` が小さく、`far` が大きいほど、遠くの精度が悪化します。
 
 ### 対策
 
@@ -149,14 +149,14 @@ context->RSSetState(rs_state.Get());
 | --- | --- |
 | **near を大きくする** | 最も効く。`0.01` → `0.1` で、精度が、10 倍ほど改善する |
 | **far を小さくする** | 効果は、near ほど大きくない |
-| **リバース Z** | 浮動小数点の精度が、遠くに多く残り、**大きく改善** |
-| **面の位置をずらす** | 壁の絵（デカール）は、少し浮かす。または、**深度バイアス** |
+| **リバース Z** | 浮動小数点の精度が遠くに多く残り、**大きく改善** |
+| **面の位置をずらす** | 壁の絵（デカール）は、少し浮かす。または**深度バイアス** |
 | **同じ位置に面を置かない** | モデリングの段階で避ける |
 | **深度の精度を上げる** | `D24` → `D32_FLOAT` |
 
 ### 深度バイアス
 
-デカールや影で、**わずかに、深度をずらす**設定です。
+デカールや影で**わずかに深度をずらす**設定です。
 
 ```cpp
 rs_desc.DepthBias = -100;
@@ -168,7 +168,7 @@ rs_desc.DepthBiasClamp = 0.0f;
 
 ## リバース Z
 
-**深度の割り当てを逆**にして、**near を 1、far を 0** にします。浮動小数点は、**0 の近くに、精度が多く**あるので、**遠くの精度**が、大きく改善します。
+**深度の割り当てを逆**にして、**near を 1、far を 0** にします。浮動小数点は、**0 の近くに精度が多く**あるので**遠くの精度**が大きく改善します。
 
 ```cpp
 Matrix proj = Matrix::CreatePerspectiveFieldOfView(fov, aspect, far_plane, near_plane);
@@ -185,13 +185,13 @@ context->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH, 0.0f, 0);
 | 深度フォーマット | どれでもよい | **`D32_FLOAT`**（浮動小数点が必須） |
 
 !!! warning "全部、そろえる"
-    **どれか 1 つ忘れる**と、何も描かれない、または、すべて手前に見えます。**射影・比較関数・クリア値・フォーマット**は、セットで切り替えます。
+    **どれか 1 つ忘れる**と、何も描かれない、またはすべて手前に見えます。**射影・比較関数・クリア値・フォーマット**は、セットで切り替えます。
 
 ## 視錐台カリング
 
 <svg class="fig" viewBox="0 0 620 250" role="img" aria-label="視錐台カリング"><defs><marker id="f2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">視錐台カリング：見えない物は、描画命令を出さない（真上から見た図）</text><circle cx="80" cy="130" r="7" fill="currentColor"/><text x="55" y="155">カメラ</text><polygon points="80,130 330,40 330,220" fill="rgba(76,139,245,0.12)" stroke="currentColor" stroke-width="2"/><circle cx="200" cy="130" r="14" fill="rgba(46,160,67,0.5)" stroke="currentColor"/><text x="190" y="168">描く</text><circle cx="270" cy="85" r="14" fill="rgba(46,160,67,0.5)" stroke="currentColor"/><text x="262" y="64">描く</text><circle cx="250" cy="230" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="230" y="212">外：除外</text><circle cx="150" cy="40" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="125" y="24">外：除外</text><circle cx="420" cy="130" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="380" y="170">far より奥：除外</text><text x="400" y="80">球（BoundingSphere）で、判定する</text></svg>
 
-**視錐台**（カメラの見える範囲）の**外にあるオブジェクトを、描画命令の前に、除外**します。描画命令・頂点処理を、丸ごと省けます。
+**視錐台**（カメラの見える範囲）の**外にあるオブジェクトを、描画命令の前に除外**します。描画命令・頂点処理を丸ごと省けます。
 
 ```cpp
 #include <DirectXCollision.h>
@@ -211,15 +211,15 @@ for (const Object& obj : objects) {
 | 結果 | 意味 |
 | --- | --- |
 | `DISJOINT` | **完全に外**。描かない |
-| `INTERSECTS` | 一部が、交差。描く |
+| `INTERSECTS` | 一部が交差。描く |
 | `CONTAINS` | **完全に中**。描く |
 
 | 注意 | 説明 |
 | --- | --- |
 | **ワールド空間にする** | 射影行列から作った錐台は、**カメラ空間**。`Transform` で、ワールドに変換する（ビュー行列の逆） |
-| **境界は、ワールド空間** | `obj.bounds` も、ワールド座標に（`BoundingSphere`・`BoundingBox`、[3D の衝突判定](collision-3d.md)） |
-| **球が速い** | 球は、判定が軽い。精度は、箱より粗い |
-| **数が多いなら、空間分割** | 数万個を 1 つずつ調べるより、**BVH・八分木**で、まとめて除外（[空間分割](../optimize/algorithms.md)） |
+| **境界はワールド空間** | `obj.bounds` も、ワールド座標に（`BoundingSphere`・`BoundingBox`、[3D の衝突判定](collision-3d.md)） |
+| **球が速い** | 球は判定が軽い。精度は箱より粗い |
+| **数が多いなら、空間分割** | 数万個を 1 つずつ調べるより、**BVH・八分木**でまとめて除外（[空間分割](../optimize/algorithms.md)） |
 
 ## そのほかのカリング
 
@@ -228,15 +228,15 @@ for (const Object& obj : objects) {
 | **バックフェイスカリング** | 裏向きの三角形を描かない（ラスタライザー） |
 | **視錐台カリング** | 画面の外を描かない（CPU） |
 | **オクルージョンカリング** | **ほかのものに隠れて見えない**ものを描かない（部屋の向こうなど）。実装が重い |
-| **距離カリング / LOD** | 遠いものは、描かない、または簡易モデル |
-| **小物カリング** | 画面上で、数ピクセルしかないものを描かない |
+| **距離カリング / LOD** | 遠いものは描かない、または簡易モデル |
+| **小物カリング** | 画面上で数ピクセルしかないものを描かない |
 
 ## 半透明の描画
 
-半透明は、**ブレンド**（奥の色と混ぜる）のため、**奥から手前の順**に描く必要があります。
+半透明は**ブレンド**（奥の色と混ぜる）のため、**奥から手前の順**に描く必要があります。
 
 1. **不透明なものを先に描く**（深度の書き込みあり）。
-2. **半透明を、カメラから遠い順に並べて**、描く。
+2. **半透明をカメラから遠い順に並べて**、描く。
 3. 半透明は、**深度テストあり・書き込みなし**（`DepthWriteMask = ZERO`）。
 
 ```cpp
@@ -256,7 +256,7 @@ std::sort(transparent.begin(), transparent.end(),
     `FrontCounterClockwise` と、メッシュの巻き順を確認します。DX11 の既定は、**時計回りが表**です。
 
 ??? failure "リバース Z にしたら、何も描かれない"
-    `DepthFunc`（`GREATER`）、クリア値（`0.0`）、射影の near・far の順を、すべて確認します。
+    `DepthFunc`（`GREATER`）、クリア値（`0.0`）、射影の near・far の順をすべて確認します。
 
 ??? failure "近くで画面が欠ける"
     `near` が大きすぎて、手前がクリップされています。小さくするなら、**リバース Z** で精度を補います。
@@ -265,7 +265,7 @@ std::sort(transparent.begin(), transparent.end(),
     不透明を先、半透明を遠い順に描き、半透明は深度を書き込みません。
 
 ??? failure "視錐台カリングで、見えるものが消える"
-    錐台が、カメラ空間のままです。ワールドに変換します。境界も、ワールド空間にします。
+    錐台がカメラ空間のままです。ワールドに変換します。境界もワールド空間にします。
 
 ## これだけ覚える
 
@@ -273,8 +273,8 @@ std::sort(transparent.begin(), transparent.end(),
     - [x] <strong>DSV を作って `OMSetRenderTargets` に渡す</strong>。<strong>毎フレーム、深度をクリア</strong>
     - [x] <strong>`CullMode = BACK`</strong> + <strong>右手系・CCW 表なら `FrontCounterClockwise = TRUE`</strong>
     - [x] <strong>Z ファイティング</strong>は、<strong>near を大きく</strong>、または<strong>リバース Z</strong>（<strong>射影・比較・クリア・フォーマット</strong>をそろえる）
-    - [x] <strong>視錐台カリング</strong>は、<strong>ワールド空間</strong>で、<strong>描画前</strong>に
-    - [x] 半透明は、<strong>不透明のあとに、遠い順</strong>。深度は書かない
+    - [x] <strong>視錐台カリング</strong>は、<strong>ワールド空間</strong>で<strong>描画前</strong>に
+    - [x] 半透明は、<strong>不透明のあとに遠い順</strong>。深度は書かない
 
 ## 関連ページ
 

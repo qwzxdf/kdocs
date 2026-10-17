@@ -210,10 +210,10 @@ EditorContext* CreateEditor(const Config* config = nullptr);
 void DestroyEditor(EditorContext* ctx);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `config` | 設定（保存先のファイル名など）。`nullptr` なら既定 |
-| `ctx` | 破棄するエディタ |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `config` | `const Config*` | 設定（保存先のファイル名など）。`nullptr` なら既定 |
+| `ctx` | `EditorContext*` | 破棄するエディタ |
 
 - 戻り値: `CreateEditor` は、エディタを表す `EditorContext*`
 - エディタ 1 つにつき、**1 回**作って、使い終わったら `DestroyEditor` で破棄します（クラスのコンストラクタ・デストラクタが向いています）
@@ -241,9 +241,9 @@ struct Config {
 void SetCurrentEditor(EditorContext* ctx);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `ctx` | これから操作するエディタ（`nullptr` で解除） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `ctx` | `EditorContext*` | これから操作するエディタ（`nullptr` で解除） |
 
 - 戻り値: なし
 - 以降の `ed::` の関数は、ここで選んだエディタに対して働きます。**エディタを複数持つ**ときに、描く前に切り替えます。使い終わったら `nullptr` に戻します
@@ -255,10 +255,10 @@ bool Begin(const char* id, const ImVec2& size = ImVec2(0, 0));
 void End();
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `id` | エディタの ID（文字列） |
-| `size` | 画面の大きさ。`(0, 0)` で、今のウィンドウの空きを全部使う |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `id` | `const char*` | エディタの ID（文字列） |
+| `size` | `const ImVec2&` | 画面の大きさ。`(0, 0)` で、今のウィンドウの空きを全部使う |
 
 - 戻り値: `Begin` は、描画してよいなら `true`
 - **`ed::Begin` から `ed::End` の間**に、ノードとリンクを描きます。ImGui のウィンドウ（`ImGui::Begin`）の**中**で呼びます
@@ -270,9 +270,9 @@ void BeginNode(NodeId id);
 void EndNode();
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `id` | ノードの ID（`ed::NodeId`。整数からそのまま作れる） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `id` | `NodeId` | ノードの ID（`ed::NodeId`。整数からそのまま作れる） |
 
 - 戻り値: なし
 - **この間に、ImGui の関数**（`Text`、`Button`、`InputFloat`、`Image` など）で、ノードの中身を描きます。**普通の ImGui の部品が、そのままノードの中に置けます**
@@ -295,10 +295,10 @@ void EndPin();
 enum class PinKind { Input, Output };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `id` | ピンの ID（`ed::PinId`） |
-| `kind` | `PinKind::Input`（入力：左側）か `PinKind::Output`（出力：右側） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `id` | `PinId` | ピンの ID（`ed::PinId`） |
+| `kind` | `PinKind` | `PinKind::Input`（入力：左側）か `PinKind::Output`（出力：右側） |
 
 - 戻り値: なし
 - **`BeginNode` と `EndNode` の間**で使います。この間に描いた ImGui の部品（文字や絵）の**範囲が、ピンの当たり判定**になります
@@ -322,13 +322,13 @@ bool Link(LinkId id, PinId startPinId, PinId endPinId,
           const ImVec4& color = ImVec4(1, 1, 1, 1), float thickness = 1.0f);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `id` | リンクの ID（`ed::LinkId`） |
-| `startPinId` | 始まりのピン（**出力ピン**） |
-| `endPinId` | 終わりのピン（**入力ピン**） |
-| `color` | 線の色 |
-| `thickness` | 線の太さ |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `id` | `LinkId` | リンクの ID（`ed::LinkId`） |
+| `startPinId` | `PinId` | 始まりのピン（**出力ピン**） |
+| `endPinId` | `PinId` | 終わりのピン（**入力ピン**） |
+| `color` | `const ImVec4&` | 線の色 |
+| `thickness` | `float` | 線の太さ |
 
 - 戻り値: リンクが描かれたとき `true`
 - 毎フレーム、**自分のリンクの一覧**から、すべてのリンクに対して呼びます。呼ばれなかったリンクは、画面から消えます
@@ -422,10 +422,10 @@ ImVec2 GetNodePosition(NodeId nodeId);
 ImVec2 GetNodeSize(NodeId nodeId);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `nodeId` | ノードの ID |
-| `editorPosition` | エディタの座標での位置（画面の座標ではなく、ズームや移動の影響を受けない座標） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `nodeId` | `NodeId` | ノードの ID |
+| `editorPosition` | `const ImVec2&` | エディタの座標での位置（画面の座標ではなく、ズームや移動の影響を受けない座標） |
 
 - 戻り値: `Get...` は位置・大きさ
 - **ノードを最初に置く位置**に `SetNodePosition` を使います（毎フレーム呼ぶと、ドラッグで動かせなくなります。**作ったフレームに 1 回だけ**）
@@ -438,10 +438,10 @@ void NavigateToContent(float duration = -1.0f);
 void NavigateToSelection(bool zoomIn = false, float duration = -1.0f);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `duration` | 画面が動く時間（秒）。`-1` で既定、`0` ですぐ |
-| `zoomIn` | 選択したものにズームするか |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `duration` | `float` | 画面が動く時間（秒）。`-1` で既定、`0` ですぐ |
+| `zoomIn` | `bool` | 選択したものにズームするか |
 
 - 戻り値: なし
 - 画面を、**全部のノードが見えるように**移動・拡大します（「全体を表示」ボタン用）。起動直後に 1 回呼ぶと、ノードが画面外にあって見えない、を防げます

@@ -1,5 +1,6 @@
 title: 実践
 nav:
+  - coding-style.md
   - refactoring-smells.md
   - anti-patterns.md
   - performance-design.md

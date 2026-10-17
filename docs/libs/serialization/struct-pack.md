@@ -359,11 +359,11 @@ template <uint64_t conf, typename Buffer = std::vector<char>, typename... Args>
 Buffer serialize(const Args&... args);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `Buffer` | 結果を入れるコンテナの型。`std::vector<char>`（デフォルト）、`std::string`、`std::vector<std::byte>` など |
-| `conf` | 設定（[sp_config](#sp_config)） |
-| `args` | 保存するオブジェクト。複数渡すと `std::tuple` として保存される |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `Buffer` | 型引数 | 結果を入れるコンテナの型。`std::vector<char>`（デフォルト）、`std::string`、`std::vector<std::byte>` など |
+| `conf` | 型引数 | 設定（[sp_config](#sp_config)） |
+| `args` | `const Args&...` | 保存するオブジェクト。複数渡すと `std::tuple` として保存される |
 
 - **戻り値:** 保存したバイト列
 - 複数渡したときは、読み込みも `deserialize<A, B>(buffer)` のように同じ型の並びで読みます。
@@ -381,12 +381,12 @@ template <typename T, typename... Args, typename Reader>
 expected<T, err_code> deserialize(Reader& reader);  // std::ifstream など
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `T` | 読み込む型 |
-| `view` | バイト列（`std::vector<char>`、`std::string`、`std::span` など） |
-| `data`, `size` | バイト列の先頭と大きさ |
-| `reader` | 読み込み元のストリーム |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型引数 | 読み込む型 |
+| `view` | `View` | バイト列（`std::vector<char>`、`std::string`、`std::span` など） |
+| `data`, `size` | `const char*`, `size_t` | バイト列の先頭と大きさ |
+| `reader` | `Reader&` | 読み込み元のストリーム |
 
 - **戻り値:** 成功なら `T` の値、失敗ならエラーコードを持つ `expected`
 - `T` を作ってから中身を埋めるので、`T` はデフォルトコンストラクタが必要です。
@@ -402,10 +402,10 @@ template <typename T, typename Reader>
 err_code deserialize_to(T& t, Reader& reader);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `t` | 読み込み先のオブジェクト |
-| `view` / `reader` | 読み込み元 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `t` | `T&` | 読み込み先のオブジェクト |
+| `view` / `reader` | `View` / `Reader&` | 読み込み元 |
 
 - **戻り値:** エラーコード。成功なら `false` として評価される（`if (error)` で失敗）
 - 毎フレーム同じオブジェクトに読み込む（通信の受信など）ときに、オブジェクトを作り直さずに済みます。vector などの容量も再利用されます。
@@ -421,11 +421,11 @@ template <typename Writer, typename... Args>
 void serialize_to(Writer& writer, const Args&... args);  // std::ofstream など
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `buffer` | 書き込み先のコンテナ。**後ろに書き足される** |
-| `writer` | 書き込み先のストリーム |
-| `args` | 保存するオブジェクト |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `buffer` | `Buffer&` | 書き込み先のコンテナ。**後ろに書き足される** |
+| `writer` | `Writer&` | 書き込み先のストリーム |
+| `args` | `const Args&...` | 保存するオブジェクト |
 
 - 既存のバッファの後ろに書き足すので、「ヘッダを書いてから本体を書く」ような使い方ができます。
 - 同じバッファを使い回すと、メモリの再確保が減ります（`buffer.clear()` してから書く）。
@@ -437,10 +437,10 @@ template <typename T, uint64_t version = 0>
 struct compatible : public std::optional<T> { /* ... */ };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `T` | 中身の型 |
-| `version` | 足したときのバージョン番号。足すたびに大きくする |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型引数 | 中身の型 |
+| `version` | `uint64_t` | 足したときのバージョン番号。足すたびに大きくする |
 
 - 後から足したメンバ用の型です。`std::optional` を継承しているので、同じように使えます。
 - 構造体の**最後**に置きます。複数足すときは、バージョン番号が小さい順に並べます。
@@ -452,10 +452,10 @@ struct compatible : public std::optional<T> { /* ... */ };
 YLT_REFL(Type, member1, member2, ...);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `Type` | クラスの名前 |
-| `member...` | 保存するメンバ（並べた順番に保存される） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `Type` | 型 | クラスの名前 |
+| `member...` | メンバ変数 | 保存するメンバ（並べた順番に保存される） |
 
 - クラスの中に書くと private メンバも使えます。クラスの外（同じ名前空間）に書くこともできます（その場合は public メンバだけ）。
 - 並べたメンバだけが保存されるので、キャッシュなどを保存から外せます。
@@ -467,9 +467,9 @@ template <typename... Args>
 serialize_buffer_size get_needed_size(const Args&... args);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `args` | 保存するオブジェクト |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `args` | `const Args&...` | 保存するオブジェクト |
 
 - **戻り値:** 保存に必要なバイト数（`.size()` で取る）
 - 固定の大きさのバッファに収まるか、事前に確かめるときに使います。
@@ -481,11 +481,11 @@ template <typename T, size_t I, typename View>
 expected<field_type, err_code> get_field(const View& view);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `T` | 保存されている型 |
-| `I` | 取り出したいメンバの番号（0 から） |
-| `view` | バイト列 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型引数 | 保存されている型 |
+| `I` | `size_t` | 取り出したいメンバの番号（0 から） |
+| `view` | `View` | バイト列 |
 
 - **戻り値:** その番号のメンバだけを読んだ値
 - 大きなデータの中から 1 つのメンバだけ欲しいとき（セーブ一覧の画面で、プレイヤー名だけ表示する、など）に使います。
@@ -515,9 +515,9 @@ template <typename T>
 struct trivial_view;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `T` | 数値だけでできた型（memcpy でコピーできる型） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型引数 | 数値だけでできた型（memcpy でコピーできる型） |
 
 - 読み込むとき、`T` をコピーせずに**バッファの中を直接指す**ようにします。巨大な配列をコピーせずに読みたいときに使います。
 - バッファが消えると使えなくなります。

@@ -233,7 +233,7 @@ SimpleMath の `Viewport::Project` でも、同じことができます（[Simpl
 | 場面 | 使い方 |
 | --- | --- |
 | 物体を描く | 物体ごとに `world` を作り、`world * view_proj` を定数バッファへ |
-| 多数の同じ物体 | インスタンシング。`world` の配列を、頂点バッファか構造化バッファで渡す（[描画の最適化](../optimize/rendering.md)） |
+| 多数の同じ物体 | インスタンシング。`world` の配列を、頂点バッファか構造化バッファで渡す（[描画の最適化](../rendering/draw-calls.md)） |
 | カメラが動く | `view` を作り直して、`view_proj` を更新 |
 | ウィンドウをリサイズ | `proj`（アスペクト比）とビューポートを更新 |
 | 3D の位置に、UI（HP バー）を出す | `WorldToScreen` で、画面の座標に |

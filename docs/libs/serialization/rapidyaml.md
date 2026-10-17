@@ -148,17 +148,7 @@ rapidyaml を使うには、まず次の 3 つの型を覚えます。
 | `ryml::NodeRef` / `ryml::ConstNodeRef` | 木の中の 1 つのノードを指すもの。軽くてコピーしてよい | イテレータ・ポインタ |
 | `ryml::csubstr` / `ryml::substr` | 文字列の一部を指すもの（`const` 付きと無し） | `std::string_view` |
 
-<div class="anim" data-type="graph" data-label="rapidyaml：ノードの配列と、文字列置き場">
-n t Tree 0 1
-n n ノードの配列_[root][name][hp]... 1 0
-n a アリーナ_（文字列置き場） 1 2
-n nr NodeRef 2 0
-n cs csubstr 2 2
-l t n
-l t a
-l nr n - 番号で指す
-l cs a - ここを指す
-</div>
+<svg class="fig flow" viewBox="0 0 604 280" role="img" aria-label="rapidyaml：ノードの配列と、文字列置き場"><defs><marker id="fl73747" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">rapidyaml：ノードの配列と、文字列置き場</text><line x1="107.0" y1="133.3" x2="235.9" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl73747)"/><line x1="107.0" y1="162.7" x2="235.9" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl73747)"/><line x1="493.0" y1="64.0" x2="435.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl73747)"/><text x="464.0" y="58.0" text-anchor="middle" style="font-size:12px">番号で指す</text><line x1="493.0" y1="232.0" x2="404.0" y2="232.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl73747)"/><text x="448.5" y="226.0" text-anchor="middle" style="font-size:12px">ここを指す</text><rect x="28.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Tree</text><rect x="168.0" y="44.0" width="264" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="300.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ノードの配列 [root][name][hp]...</text><rect x="199.0" y="212.0" width="202" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="300.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">アリーナ （文字列置き場）</text><rect x="496.0" y="44.0" width="80" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="536.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">NodeRef</text><rect x="496.0" y="212.0" width="80" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="536.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">csubstr</text></svg>
 
 rapidyaml が速いのは、ノードを**1 つの配列にまとめて**持ち、文字列も**元の入力（またはアリーナ）を指すだけ**で、値ごとにメモリを確保しないからです。その代わり、`csubstr` が指している先（入力やアリーナ）が消えると使えなくなります。
 
@@ -431,11 +421,11 @@ void parse_in_arena(csubstr yaml, Tree* t);
 void parse_in_arena(csubstr filename, csubstr yaml, Tree* t);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `yaml` | 読む YAML（または JSON）の文字列 |
-| `filename` | エラーメッセージに表示するファイル名（読むファイルではない） |
-| `t` | 結果を入れる木。使い回すとメモリの再確保が減る |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `yaml` | `csubstr` | 読む YAML（または JSON）の文字列 |
+| `filename` | `csubstr` | エラーメッセージに表示するファイル名（読むファイルではない） |
+| `t` | `ryml::Tree*` | 結果を入れる木。使い回すとメモリの再確保が減る |
 
 - **戻り値:** 読み込んだ木
 - **計算量:** O(n)
@@ -470,10 +460,10 @@ ConstNodeRef ConstNodeRef::operator[](csubstr key) const;
 ConstNodeRef ConstNodeRef::operator[](size_t pos) const;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `key` | マップのキー |
-| `pos` | シーケンスの番号（0 から） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `key` | `csubstr` | マップのキー |
+| `pos` | `size_t` | シーケンスの番号（0 から） |
 
 - **戻り値:** 子ノード
 - **計算量:** キーは O(子の数)（前から順に探す）、番号も O(番号)（リストをたどる）
@@ -491,9 +481,9 @@ ConstNodeRef const& operator>>(ConstNodeRef const& node, T& v);
 // ryml::key(v) を渡すとキーを読む
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `v` | 値を入れる変数。この型に合わせて変換される |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `v` | `T&` | 値を入れる変数。この型に合わせて変換される |
 
 - **戻り値:** ノード自身（`>>` をつなげられる）
 - 変換できないと（`"abc"` を `int` に）エラーです。
@@ -506,9 +496,9 @@ NodeRef& operator<<(NodeRef& node, T const& v);
 // ryml::key(v) を渡すとキーを書く
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `v` | 書く値。文字列に変換して**アリーナにコピー**される |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `v` | `const T&` | 書く値。文字列に変換して**アリーナにコピー**される |
 
 - **戻り値:** ノード自身（`<< ryml::key("hp") << 10` のようにつなげられる）
 - 値がコピーされるので、一時的な `std::string` や数値も安全に書けます。
@@ -520,9 +510,9 @@ bool has_child(csubstr key) const;
 bool has_child(size_t pos) const;  // 番号の子があるか（バージョンによる）
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `key` | 調べるキー |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `key` | `csubstr` | 調べるキー |
 
 - **戻り値:** その名前の子があれば `true`
 - 無いかもしれないキーを読む前に、必ずこれで確認します。
@@ -537,10 +527,10 @@ template <class CharOwningContainer>
 CharOwningContainer emitrs_yaml(ConstNodeRef const& n);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `CharOwningContainer` | 結果を入れる型。`std::string` か `std::vector<char>` |
-| `t` / `n` | 書き出す木・ノード（ノードならその下だけ） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `CharOwningContainer` | 型引数 | 結果を入れる型。`std::string` か `std::vector<char>` |
+| `t` / `n` | `const Tree&` / `ConstNodeRef` | 書き出す木・ノード（ノードならその下だけ） |
 
 - **戻り値:** YAML の文字列
 - 名前の `rs` は「resize」の意味で、「コンテナを必要な大きさに広げて書く」という意味です。
@@ -552,9 +542,9 @@ CharOwningContainer emitrs_yaml(ConstNodeRef const& n);
 NodeRef& operator|=(NodeRef& node, NodeType_e type);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `type` | `ryml::MAP`（マップ）か `ryml::SEQ`（シーケンス）。`ryml::FLOW_SL` などのスタイルを `|` で足せる |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `type` | `NodeType_e` | `ryml::MAP`（マップ）か `ryml::SEQ`（シーケンス）。`ryml::FLOW_SL` などのスタイルを ` | ` で足せる |
 
 - 新しく作ったノードを、子を持てるマップかシーケンスにします。書き込むときは、子を足す前にまずこれをします。
 - `items |= ryml::SEQ | ryml::FLOW_SL;` とすると、`items: [101, 205]` のように 1 行で書き出されます（スタイルのフラグはバージョンによって名前が違うことがあります）。
@@ -643,9 +633,9 @@ template <class K>
 Key<K> key(K& k);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `k` | キーとして読み書きする変数・値 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `k` | `T&` | キーとして読み書きする変数・値 |
 
 - `node << ryml::key("hp") << 10;` で「キーが hp、値が 10」の子を書きます。
 - `child >> ryml::key(name);` でキーを `name` に読みます。
@@ -657,9 +647,9 @@ NodeRef find_child(csubstr key);
 ConstNodeRef find_child(csubstr key) const;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `key` | 探すキー |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `key` | `csubstr` | 探すキー |
 
 - **戻り値:** 見つかった子。無ければ**無効なノード**（`invalid()` が `true`）
 - `has_child` と `[]` で 2 回探すのを 1 回にできます。
@@ -696,11 +686,11 @@ Tree parse_in_place(csubstr filename, substr yaml);
 void parse_in_place(substr yaml, Tree* t);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `yaml` | 読む YAML。**書き換え可能な**文字列（`char` の配列や `std::string` の中身） |
-| `filename` | エラー表示用の名前 |
-| `t` | 結果を入れる木 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `yaml` | `substr` | 読む YAML。**書き換え可能な**文字列（`char` の配列や `std::string` の中身） |
+| `filename` | `csubstr` | エラー表示用の名前 |
+| `t` | `Tree*` | 結果を入れる木 |
 
 - 入力の文字列を**コピーせずに**、そのまま木の文字列として使います（エスケープの処理などで中身が書き換えられます）。
 - 一番速い読み方ですが、**入力の文字列を木より長く残しておく**必要があります。入力が先に消えると、木の中の `csubstr` がすべて壊れます。
@@ -727,9 +717,9 @@ CharOwningContainer emitrs_json(Tree const& t);
 size_t emit_yaml(Tree const& t, FILE* f = nullptr);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `f` | 書き込む先のファイル。`nullptr` なら標準出力 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `f` | `FILE*` | 書き込む先のファイル。`nullptr` なら標準出力 |
 
 - **戻り値:** 書いたバイト数
 - `std::cout << tree;` でも出力できます。デバッグ表示に便利です。
@@ -741,9 +731,9 @@ void NodeRef::operator=(csubstr v);
 void NodeRef::operator=(std::nullptr_t);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `v` | ノードに設定する値の文字列。**コピーされない** |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `v` | `csubstr` | ノードに設定する値の文字列。**コピーされない** |
 
 - 値を**コピーせずに**ノードに設定します。文字列リテラルなら速くて安全ですが、一時的な `std::string` を渡すと、木の中で壊れた文字列になります。
 - 迷ったら、コピーしてくれる `<<` を使います。
@@ -793,9 +783,9 @@ void set_callbacks(Callbacks const& c);
 Callbacks const& get_callbacks();
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `c` | メモリ確保・解放・エラー処理の関数をまとめたもの |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `c` | `ryml::Callbacks` | メモリ確保・解放・エラー処理の関数をまとめたもの |
 
 - エラーのときに呼ばれる関数を、自分の関数に置き換えます。ログに出して例外を投げる、などができます。
 - エラー処理関数の引数の形はバージョンによって変わっているので、使っているバージョンの `ryml::Callbacks` の定義を確認して書きます。簡単に済ませたいなら、[エラー処理](#エラー処理) の `RYML_DEFAULT_CALLBACK_USES_EXCEPTIONS` を使います。

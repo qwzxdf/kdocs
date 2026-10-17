@@ -6,19 +6,19 @@ tags:
 
 # 法線とライティング
 
-3D の物体に**陰影**をつけるには、**面が、どちらを向いているか**（**法線**）と、**光が、どちらから来るか**が必要です。このページは、法線の意味、ランバート拡散とブリン・フォンのスペキュラ、**法線を変換するときの落とし穴**（逆転置行列）、DX11 / HLSL のシェーダー例をまとめます。
+3D の物体に**陰影**をつけるには、**面がどちらを向いているか**（**法線**）と、**光がどちらから来るか**が必要です。このページは法線の意味、ランバート拡散とブリン・フォンのスペキュラ、**法線を変換するときの落とし穴**（逆転置行列）、DX11 / HLSL のシェーダー例をまとめます。
 
 !!! tip "ポイント"
-    - <strong>法線</strong>は、<strong>面に垂直な、長さ 1 のベクトル</strong>。頂点に持たせる。
-    - <strong>拡散光（ランバート）</strong>は、<strong>`max(dot(N, L), 0)`</strong>。<strong>L は、面から光への向き</strong>。
-    - <strong>スペキュラ（ブリン・フォン）</strong>は、<strong>`pow(max(dot(N, H), 0), 光沢)`</strong>。H は、光と視線の中間。
-    - <strong>法線は、ワールド行列では変換しない</strong>。<strong>逆転置行列</strong>で変換する（非一様スケールがあるとき）。
-    - シェーダーで、<strong>法線を、毎回 `normalize`</strong> する（補間で、長さがずれる）。
+    - <strong>法線</strong>は<strong>面に垂直な、長さ 1 のベクトル</strong>。頂点に持たせる。
+    - <strong>拡散光（ランバート）</strong>は、<strong>`max(dot(N, L), 0)`</strong>。<strong>L は面から光への向き</strong>。
+    - <strong>スペキュラ（ブリン・フォン）</strong>は、<strong>`pow(max(dot(N, H), 0), 光沢)`</strong>。H は光と視線の中間。
+    - <strong>法線はワールド行列では変換しない</strong>。<strong>逆転置行列</strong>で変換する（非一様スケールがあるとき）。
+    - シェーダーで<strong>法線を毎回 `normalize`</strong> する（補間で長さがずれる）。
     - ライトの向きは、<strong>光が進む向きではなく、光源へ向かう向き</strong>で持つと、計算が楽。
 
 ## 法線
 
-**法線**は、**面に垂直な、長さ 1 のベクトル**です。陰影の計算の、中心です。
+**法線**は**面に垂直な、長さ 1 のベクトル**です。陰影の計算の中心です。
 
 <svg class="fig" viewBox="0 0 360 140" role="img" aria-label="面と法線"><defs><marker id="ah2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><line x1="40" y1="110" x2="320" y2="110" stroke="currentColor" stroke-width="3"/><text x="326" y="115">面</text><line x1="180" y1="110" x2="180" y2="30" stroke="currentColor" stroke-width="2" marker-end="url(#ah2)"/><text x="190" y="45">N（法線：面に垂直・長さ 1）</text><rect x="174" y="104" width="12" height="12" fill="none" stroke="currentColor"/></svg>
 
@@ -39,13 +39,13 @@ Vector3 FaceNormal(const Vector3& v0, const Vector3& v1, const Vector3& v2) {
 }
 ```
 
-**CCW が表の三角形**なら、<strong>外積の向きが、表（外向き）</strong>になります（右手系）。巻き順が逆だと、法線が内向きになり、**暗く**なります。
+**CCW が表の三角形**なら、<strong>外積の向きが表（外向き）</strong>になります（右手系）。巻き順が逆だと法線が内向きになり、**暗く**なります。
 
 ## 拡散光（ランバート）
 
 <svg class="fig" viewBox="0 0 560 240" role="img" aria-label="ランバート拡散光"><defs><marker id="m2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><line x1="40" y1="200" x2="300" y2="200" stroke="currentColor" stroke-width="3"/><line x1="170" y1="200" x2="170" y2="70" stroke="currentColor" stroke-width="2" marker-end="url(#m2)" /><text x="178" y="80">N（法線）</text><line x1="170" y1="200" x2="270" y2="100" stroke="currentColor" stroke-width="2" marker-end="url(#m2)" /><text x="275" y="100">L（面→光源）</text><path d="M 170 150 A 50 50 0 0 1 205 165" fill="none" stroke="currentColor"/><text x="200" y="150">θ</text><text x="330" y="60" class="fig-title">明るさ ＝ max( dot(N, L), 0 ) ＝ cosθ</text><text x="330" y="100">θ = 0°（正面）　　→ 1（最大）</text><text x="330" y="125">θ = 60°　　　　　　→ 0.5</text><text x="330" y="150">θ = 90°（真横）　　→ 0</text><text x="330" y="175">θ &gt; 90°（裏側）　　→ 0（負は 0 に）</text></svg>
 
-面が、**光に向いているほど明るく**、横を向くと**暗く**なります。**法線と、光への向きの内積**で決まります。
+面が**光に向いているほど明るく**、横を向くと**暗く**なります。**法線と光への向きの内積**で決まります。
 
 ```text
 明るさ = max( dot(N, L), 0 )
@@ -53,7 +53,7 @@ Vector3 FaceNormal(const Vector3& v0, const Vector3& v1, const Vector3& v2) {
 N と L が同じ向き → 1（最大）　　直角 → 0　　逆向き → 0（負は 0 にする）
 ```
 
-**L は、面から光源へ向かう向き**です。光が、上から下へ進む（`(0, -1, 0)`）なら、**L は `(0, 1, 0)`** です。逆にすると、陰影が反転します。
+**L は面から光源へ向かう向き**です。光が上から下へ進む（`(0, -1, 0)`）なら、**L は `(0, 1, 0)`** です。逆にすると陰影が反転します。
 
 ## スペキュラ（ブリン・フォン）
 
@@ -77,7 +77,7 @@ H = normalize(L + V)          V は、面から、カメラへの向き
 
 | 種類 | 向き | 減衰 | 用途 |
 | --- | --- | --- | --- |
-| **ディレクショナル** | 全体で、同じ向き | なし | 太陽、月 |
+| **ディレクショナル** | 全体で同じ向き | なし | 太陽、月 |
 | **ポイント** | 光源の位置から、四方へ | 距離で減る | 電球、松明、爆発 |
 | **スポット** | 位置 + 向き + 角度の制限 | 距離と角度 | 懐中電灯、ヘッドライト |
 | <strong>環境光（アンビエント）</strong> | なし | なし | 影の部分が真っ黒にならないための、一定の明るさ |
@@ -187,7 +187,7 @@ cb.view_proj = view * proj;
 <svg class="fig" viewBox="0 0 600 230" role="img" aria-label="非一様スケールで法線がずれる"><defs><marker id="m5" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="22" class="fig-title">元の面（45°）と法線</text><line x1="40" y1="170" x2="160" y2="70" stroke="currentColor" stroke-width="3"/><line x1="100" y1="120" x2="140" y2="76" stroke="currentColor" stroke-width="2" marker-end="url(#m5)" /><text x="200" y="22" class="fig-title">X を 3 倍にすると</text><line x1="210" y1="170" x2="360" y2="130" stroke="currentColor" stroke-width="3"/><line x1="285" y1="150" x2="345" y2="110" stroke="currentColor" stroke-width="2" marker-end="url(#m5)" stroke-dasharray="4 3"/><line x1="285" y1="150" x2="303" y2="88" stroke="currentColor" stroke-width="2" marker-end="url(#m5)" /><text x="210" y="205">破線：面と同じ変換をした法線（垂直でなくなる）</text><text x="210" y="222">実線：逆転置行列で変換した法線（垂直のまま）</text><text x="420" y="22" class="fig-title">法線は「向き」</text><text x="420" y="60">面と垂直であることを</text><text x="420" y="85">保つ変換が必要</text><text x="420" y="120">→ transpose( inverse(World) )</text></svg>
 
 !!! warning "法線を、ワールド行列で変換してはいけない"
-    **非一様スケール**（`Scale(2, 1, 1)` など）があると、法線が**面に垂直でなくなります**。法線は、**ワールド行列の逆行列の転置**で変換します。
+    **非一様スケール**（`Scale(2, 1, 1)` など）があると法線が**面に垂直でなくなります**。法線は**ワールド行列の逆行列の転置**で変換します。
 
 ```text
 位置：  p' = p × World
@@ -201,21 +201,21 @@ cb.view_proj = view * proj;
 | **非一様スケール** | **逆転置行列が必要** |
 | **迷ったら** | **逆転置行列**（安全） |
 
-逆転置行列は、**物体ごとに、C++ で 1 回**計算して、定数バッファで渡します。**ピクセルごとに、シェーダーで逆行列を計算しません**（重い）。
+逆転置行列は**物体ごとに、C++ で 1 回**計算して、定数バッファで渡します。**ピクセルごとにシェーダーで逆行列を計算しません**（重い）。
 
 ## 法線マップ
 
 <svg class="fig" viewBox="0 0 560 220" role="img" aria-label="接空間と TBN"><defs><marker id="m6" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><polygon points="60,180 300,180 380,110 140,110" fill="none" stroke="currentColor" stroke-width="2"/><line x1="220" y1="150" x2="300" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m6)" /><text x="304" y="154">T（接線：U の向き）</text><line x1="220" y1="150" x2="250" y2="112" stroke="currentColor" stroke-width="2" marker-end="url(#m6)" /><text x="254" y="108">B（従接線：V の向き）</text><line x1="220" y1="150" x2="220" y2="55" stroke="currentColor" stroke-width="2" marker-end="url(#m6)" /><text x="228" y="62">N（法線）</text><text x="20" y="22" class="fig-title">TBN：面の上の座標系</text><text x="400" y="190">法線マップの値を、</text><text x="400" y="210">この座標系でワールドへ</text></svg>
 
-**テクスチャで、細かい凹凸の法線**を与えると、**頂点数を増やさず**、凹凸を表現できます。
+**テクスチャで細かい凹凸の法線**を与えると、**頂点数を増やさず**、凹凸を表現できます。
 
 | 要素 | 説明 |
 | --- | --- |
-| **法線マップ** | RGB に、法線の XYZ（`0..1` → `-1..1`）を入れた、テクスチャ |
-| <strong>接空間（タンジェント空間）</strong> | 法線マップの座標系。頂点に、<strong>接線（tangent）</strong> が必要 |
+| **法線マップ** | RGB に法線の XYZ（`0..1` → `-1..1`）を入れた、テクスチャ |
+| <strong>接空間（タンジェント空間）</strong> | 法線マップの座標系。頂点に<strong>接線（tangent）</strong> が必要 |
 | **TBN 行列** | 接線・従接線・法線から作る、接空間 → ワールドの変換 |
 
-法線マップは、**法線の向きが、モデルの表面に沿っている**前提です。**Y 軸の向き（OpenGL 系と DirectX 系）の違い**で、凹凸が反転することがあります。
+法線マップは**法線の向きがモデルの表面に沿っている**前提です。**Y 軸の向き（OpenGL 系と DirectX 系）の違い**で凹凸が反転することがあります。
 
 ## ライトの計算の注意
 
@@ -223,26 +223,26 @@ cb.view_proj = view * proj;
 | --- | --- |
 | **ポイントライトの L** | `normalize(light_position - world_position)`。**ピクセルごと**に求める |
 | **減衰** | `1 / (1 + k1*d + k2*d*d)` など。**範囲外は 0**にする |
-| <strong>色空間（ガンマ）</strong> | 計算は**リニア**空間。表示の前に、ガンマ補正（sRGB のレンダーターゲットなら、自動） |
+| <strong>色空間（ガンマ）</strong> | 計算は**リニア**空間。表示の前にガンマ補正（sRGB のレンダーターゲットなら、自動） |
 | **HDR・トーンマッピング** | 明るさが 1 を超えるなら、トーンマッピングで画面に収める |
 | **コストの目安** | ピクセルごとの計算。ライト数に比例。多数なら、ディファード・タイルベース |
 
 ## よくあるミス
 
 ??? failure "陰影が、反転して見える"
-    **L の向き**が逆です。L は、**面から光源へ**向かう向きです。
+    **L の向き**が逆です。L は**面から光源へ**向かう向きです。
 
-??? failure "拡大・縮小した物体の、陰影がおかしい"
-    法線を、ワールド行列で変換しています。**逆転置行列**を使います。
+??? failure "拡大・縮小した物体の陰影がおかしい"
+    法線をワールド行列で変換しています。**逆転置行列**を使います。
 
 ??? failure "カクカク・ギザギザに見える"
-    頂点法線が、面法線のままです。**隣の面の法線を平均**します。
+    頂点法線が面法線のままです。**隣の面の法線を平均**します。
 
 ??? failure "ハイライトが、光の反対側に出る"
-    スペキュラの H や V の向きが、逆です。V は、**面から、カメラへ**。
+    スペキュラの H や V の向きが、逆です。V は**面から、カメラへ**。
 
 ??? failure "モデル全体が、暗い"
-    法線が、**内向き**（巻き順の間違い）、または、`normalize` していません。
+    法線が**内向き**（巻き順の間違い）、または、`normalize` していません。
 
 ??? failure "定数バッファの値が、ずれる"
     `float3` の後ろに、詰め物が足りません。**16 バイト境界**を確認します。
@@ -251,7 +251,7 @@ cb.view_proj = view * proj;
 
 !!! abstract "まとめ"
     - [x] <strong>法線</strong>は、面に垂直な長さ 1 のベクトル。<strong>頂点法線</strong>で滑らかに
-    - [x] <strong>拡散</strong>＝<strong>`max(dot(N, L), 0)`</strong>（<strong>L は、面から光源へ</strong>）。<strong>スペキュラ</strong>＝<strong>`pow(dot(N, H), 光沢)`</strong>
+    - [x] <strong>拡散</strong>＝<strong>`max(dot(N, L), 0)`</strong>（<strong>L は面から光源へ</strong>）。<strong>スペキュラ</strong>＝<strong>`pow(dot(N, H), 光沢)`</strong>
     - [x] <strong>法線は、逆転置行列で変換</strong>。<strong>C++ で 1 回計算</strong>して渡す
     - [x] <strong>シェーダーで `normalize`</strong>。<strong>定数バッファは 16 バイト境界</strong>
 

@@ -21,7 +21,7 @@ tags:
 | --- | --- | --- |
 | **フレーム時間** | ミリ秒 | 1 フレームにかかる時間。60 FPS なら 16.6 ms 以内 |
 | **関数ごとの時間** | ミリ秒・% | どの関数が重いか |
-| **CPU と GPU の時間** | ミリ秒 | CPU が遅いのか、GPU が遅いのか（[描画の最適化](rendering.md)） |
+| **CPU と GPU の時間** | ミリ秒 | CPU が遅いのか、GPU が遅いのか（[描画の最適化](../rendering/index.md)） |
 | **メモリ使用量** | MB | 増え続けていないか（リーク）。大きすぎないか |
 | **メモリ確保の回数** | 回 | 毎フレームの確保が多くないか |
 | **ロード時間** | 秒 | どのファイルの読み込みが遅いか |
@@ -80,7 +80,7 @@ class FrameTimer {
 | --- | --- |
 | **Tracy** | ゲーム向け。フレームごとの時間の流れが、タイムラインで見える。コードに `ZoneScoped` を書く。無料 |
 | **Superluminal** | 見やすく、使いやすい。有料（学生向けの無料枠あり） |
-| **RenderDoc** | 描画（GPU）の、1 フレームを分解して見る。無料（[描画の最適化](rendering.md)） |
+| **RenderDoc** | 描画（GPU）の、1 フレームを分解して見る。無料（[描画の最適化](../rendering/index.md)） |
 | **PIX**（Microsoft） | DirectX 用の、GPU・CPU の解析。無料 |
 | **Intel VTune / AMD uProf** | CPU の命令レベルの解析（キャッシュミスなど） |
 
@@ -206,7 +206,7 @@ void Update() {
 
 - [最適化の進め方](index.md)
 - [ログとデバッグ支援の設計](../design/practice/logging-debug.md)
-- [描画の最適化](rendering.md)
+- [描画の最適化](../rendering/index.md)
 - [メモリ使用量](memory-usage.md)
 - [RAII](../design/patterns/raii.md)
 - [パフォーマンス プロファイラー（Visual Studio）](../vs/profiler.md)

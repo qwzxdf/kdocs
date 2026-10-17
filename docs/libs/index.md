@@ -31,6 +31,12 @@
 | [ImSequencer](imgui/imsequencer.md) | タイムライン | アニメーションやイベントの時間軸を編集する |
 | [imgui-node-editor](imgui/node-editor.md) | ノード エディタ | ノードを線でつないで、グラフを編集する |
 
+## ゲーム AI（ナビゲーション）
+
+| ライブラリ | 用途 | 一言で |
+| --- | --- | --- |
+| [Recast & Detour](recast/index.md) | ナビメッシュの作成・経路探索・群衆 | 歩ける場所を自動で作り、経路を探す |
+
 ## 3D モデル
 
 | ライブラリ | 用途 | 一言で |

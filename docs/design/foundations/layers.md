@@ -6,57 +6,29 @@ tags:
 
 # モジュール境界とレイヤー設計
 
-ゲームが大きくなると、「描画が入力を知っていて、入力がゲームロジックを知っていて、ゲームロジックが描画を知っていて…」と、**どのクラスもほかのクラスを直接知っている**状態になりがちです。こうなると、1 つ直すと別の場所が壊れ、ビルドも遅くなり、テストもできません。そこで、コードを<strong>モジュール（まとまり）</strong>に分けて、<strong>「どちらがどちらを知ってよいか」の向き（依存の向き）を決める</strong>のが、レイヤー設計です。ポイントは、**依存は一方向にし、循環させない**ことです。
+ゲームが大きくなると、「描画が入力を知っていて、入力がゲームロジックを知っていて、ゲームロジックが描画を知っていて…」と、**どのクラスもほかのクラスを直接知っている**状態になりがちです。こうなると、1 つ直すと別の場所が壊れ、ビルドも遅くなり、テストもできません。そこでコードを<strong>モジュール（まとまり）</strong>に分けて、<strong>「どちらがどちらを知ってよいか」の向き（依存の向き）を決める</strong>のがレイヤー設計です。ポイントは**依存は一方向にし、循環させない**ことです。
 
 !!! tip "ポイント"
     - コードを<strong>層（レイヤー）</strong>に分け、**上の層が下の層を使う**。**下の層は上の層を知らない**。
     - <strong>循環（A が B を使い、B が A を使う）を作らない。</strong> 作りそうになったら、インターフェースか、イベントで逆向きをなくす。
-    - **変わりにくいもの**（数学、コンテナ）を下に、**変わりやすいもの**（ゲームの仕様、UI）を上に置く。
-    - 境界には、**小さなインターフェース**を置く（[インターフェース設計](interface-design.md)）。
+    - **変わりにくいもの**（数学、コンテナ）を下に**変わりやすいもの**（ゲームの仕様、UI）を上に置く。
+    - 境界には**小さなインターフェース**を置く（[インターフェース設計](interface-design.md)）。
     - フォルダー（や CMake のターゲット）を、モジュールに合わせて分けて、**依存を機械的にチェック**する。
 
 ## 悪い例：全部が全部を知っている
 
-<div class="anim" data-type="graph" data-label="依存が絡み合うと、どれも変更できない">
-n g Game 1 0
-n p Player 0 1
-n e Enemy 1 1
-n u UI 2 1
-n r Renderer 3 1
-n a Audio 1.5 2
-l g p
-l g e
-l g u
-l g r
-l p e
-l e p
-l e u
-l u e
-l u r
-l r u
-l a p
-l a r
-l r g
-</div>
+<svg class="fig flow" viewBox="0 0 704 280" role="img" aria-label="依存が絡み合うと、どれも変更できない"><defs><marker id="fl30630" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">依存が絡み合うと、どれも変更できない</text><line x1="167.7" y1="87.0" x2="104.3" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><line x1="206.0" y1="87.0" x2="206.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><line x1="247.0" y1="76.3" x2="445.0" y2="135.7" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><line x1="247.0" y1="72.1" x2="585.0" y2="138.7" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><line x1="107.0" y1="148.0" x2="165.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><line x1="165.0" y1="148.0" x2="107.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><line x1="247.0" y1="148.0" x2="445.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><line x1="445.0" y1="148.0" x2="247.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><line x1="527.0" y1="148.0" x2="585.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><line x1="585.0" y1="148.0" x2="527.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><line x1="305.0" y1="219.7" x2="107.0" y2="160.3" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><line x1="387.0" y1="220.0" x2="585.0" y2="161.8" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><line x1="585.0" y1="138.7" x2="247.0" y2="72.1" stroke="currentColor" stroke-width="2" marker-end="url(#fl30630)"/><rect x="168.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="206.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Game</text><rect x="28.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Player</text><rect x="168.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="206.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Enemy</text><rect x="448.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="486.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">UI</text><rect x="588.0" y="128.0" width="88" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="632.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Renderer</text><rect x="308.0" y="212.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="346.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Audio</text></svg>
 
 | 問題 | 説明 |
 | --- | --- |
-| 1 つ変えると、全部に影響する | どこが何を使っているか分からない |
+| 1 つ変えると全部に影響する | どこが何を使っているか分からない |
 | ビルドが遅い | 全部が全部を `#include` していて、1 つ変えると全部再ビルド |
 | 単体でテストできない | `Player` を動かすのに、`Renderer` と `Audio` まで必要 |
 | 循環依存 | `Player` ⇄ `Enemy` のように、お互いを知っていて、ヘッダが `#include` しあう |
 
 ## 良い例：レイヤーに分ける
 
-<div class="anim" data-type="graph" data-label="層は、上から下へ、一方向に依存する">
-n a アプリ層_（main・起動） 0 0
-n g ゲーム層_（敵・ルール） 0 1
-n e エンジン層_（描画・ECS・音） 0 2
-n b 基盤層_（数学・コンテナ・ログ） 0 3
-l a g - 使う
-l g e - 使う
-l e b - 使う
-</div>
+<svg class="fig flow" viewBox="0 0 360 364" role="img" aria-label="層は、上から下へ、一方向に依存する"><defs><marker id="fl37638" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">層は、上から下へ、一方向に依存する</text><line x1="150.0" y1="87.0" x2="150.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37638)"/><text x="150.0" y="100.0" text-anchor="middle" style="font-size:12px">使う</text><line x1="150.0" y1="171.0" x2="150.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37638)"/><text x="150.0" y="184.0" text-anchor="middle" style="font-size:12px">使う</text><line x1="150.0" y1="255.0" x2="150.0" y2="293.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37638)"/><text x="150.0" y="268.0" text-anchor="middle" style="font-size:12px">使う</text><rect x="55.0" y="44.0" width="190" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">アプリ層 （main・起動）</text><rect x="56.0" y="128.0" width="188" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム層 （敵・ルール）</text><rect x="37.5" y="212.0" width="225" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">エンジン層 （描画・ECS・音）</text><rect x="28.0" y="296.0" width="244" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">基盤層 （数学・コンテナ・ログ）</text></svg>
 
 | 層 | 中身 | 依存してよい先 |
 | --- | --- | --- |
@@ -98,7 +70,7 @@ l engine iface new 通知を出す
 
 ### 1. 上へ伝えたいときは、イベント・コールバック
 
-エンジン層の `Physics` が「衝突した」とゲーム層に伝えたいとき、`Physics` が `Player` を直接呼ぶと、**下の層が上の層を知る**ことになります。代わりに、**エンジン層が「衝突したら、これを呼んで」と、登録できる口**を作ります。
+エンジン層の `Physics` が「衝突した」とゲーム層に伝えたいとき、`Physics` が `Player` を直接呼ぶと、**下の層が上の層を知る**ことになります。代わりに**エンジン層が「衝突したら、これを呼んで」と、登録できる口**を作ります。
 
 ```cpp
 // エンジン層：ゲームを知らない
@@ -141,7 +113,7 @@ l g i - 使う
 l f i - 実装する
 </div>
 
-### 3. 循環を、共通の部品にまとめて切る
+### 3. 循環を共通の部品にまとめて切る
 
 `Player` と `Enemy` が、お互いを使っているなら、**共通の部分（`Health`、`Transform`）を別のモジュールに出して**、どちらもそれを使うようにします。
 
@@ -178,34 +150,34 @@ src/
 
 | 質問 | 答えが「はい」なら |
 | --- | --- |
-| それは、ゲームを変えても使い回せるか | エンジン層に置く |
-| それは、数学やコンテナのように、何にも依存しないか | 基盤層に置く |
-| 2 つのモジュールが、お互いを必要としているか | 共通部分を切り出す、または、片方向にして、逆はイベントで |
+| それはゲームを変えても使い回せるか | エンジン層に置く |
+| それは数学やコンテナのように、何にも依存しないか | 基盤層に置く |
+| 2 つのモジュールがお互いを必要としているか | 共通部分を切り出す、または片方向にして、逆はイベントで |
 | 同じ人・同じ理由で変更されるか | 同じモジュールにまとめる |
 
 ## ゲームでの使いどころ
 
 | 場面 | 設計 |
 | --- | --- |
-| 描画エンジンと、ゲームの切り離し | 描画は、`DrawCommand` のような**データ**を受け取るだけ。ゲームの型を知らない |
+| 描画エンジンとゲームの切り離し | 描画は、`DrawCommand` のような**データ**を受け取るだけ。ゲームの型を知らない |
 | 入力 | OS の入力を、「ジャンプ」「攻撃」のような**ゲームの操作**に変換する層を挟む |
 | 保存と読み込み | ゲーム層は `ISaveStorage` だけ知る。ファイル・クラウドは下で実装 |
-| ツールとゲームで共通のコード | 基盤層・エンジン層を、ツールのプロジェクトからも使う |
-| 描画のスレッド | ゲームの更新と、描画で、共有するデータを**境界で受け渡す**（[並行処理の設計](../practice/concurrency-design.md)） |
+| ツールとゲームで共通のコード | 基盤層・エンジン層をツールのプロジェクトからも使う |
+| 描画のスレッド | ゲームの更新と描画で共有するデータを**境界で受け渡す**（[並行処理の設計](../practice/concurrency-design.md)） |
 
 ## よくあるミス
 
 ??? failure "「便利だから」と、下の層から上の層の関数を呼ぶ"
-    1 か所だけの例外が、あとから全体を絡ませます。必要なら、イベント・コールバックで逆向きを作ります。
+    1 か所だけの例外があとから全体を絡ませます。必要なら、イベント・コールバックで逆向きを作ります。
 
 ??? failure "`common.h` に何でも入れる"
     全部が `common.h` を `#include` すると、`common.h` が全部のものに依存してしまい、レイヤーが崩れます。小さな部品ごとにヘッダを分けます。
 
 ??? failure "層が多すぎる"
-    学生のゲームで、10 層も作ると、何をどの層に置くかで迷うだけです。<strong>3〜4 層（基盤・エンジン・ゲーム・アプリ）</strong>で十分です。
+    学生のゲームで、10 層も作ると何をどの層に置くかで迷うだけです。<strong>3〜4 層（基盤・エンジン・ゲーム・アプリ）</strong>で十分です。
 
-??? failure "グローバル変数・シングルトンで、層を飛び越えて呼ぶ"
-    `GameManager::Instance()` を、どこからでも呼べると、依存の向きが見えなくなります（[シングルトン](../patterns/singleton.md)）。必要なものは、引数やコンストラクタで渡します。
+??? failure "グローバル変数・シングルトンで層を飛び越えて呼ぶ"
+    `GameManager::Instance()` を、どこからでも呼べると依存の向きが見えなくなります（[シングルトン](../patterns/singleton.md)）。必要なものは引数やコンストラクタで渡します。
 
 ## これだけ覚える
 

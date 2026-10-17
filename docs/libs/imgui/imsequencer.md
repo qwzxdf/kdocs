@@ -168,14 +168,14 @@ bool Sequencer(SequencerInterface* sequencer, int* currentFrame, bool* expanded,
 }
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `sequencer` | 自分のデータを見せる `SequencerInterface` |
-| `currentFrame` | **現在のフレーム**の変数へのポインタ。マウスで動かすと書き換わる |
-| `expanded` | タイムライン全体が**開いているか**の変数へのポインタ（折りたたみ用） |
-| `selectedEntry` | **選択中の項目の番号**へのポインタ（選択がなければ `-1`） |
-| `firstFrame` | **画面左端のフレーム**へのポインタ（スクロール位置） |
-| `sequenceOptions` | 許可する操作のフラグ（[オプション](#options)） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `sequencer` | `SequencerInterface*` | 自分のデータを見せる `SequencerInterface` |
+| `currentFrame` | `int*` | **現在のフレーム**の変数へのポインタ。マウスで動かすと書き換わる |
+| `expanded` | `bool*` | タイムライン全体が**開いているか**の変数へのポインタ（折りたたみ用） |
+| `selectedEntry` | `int*` | **選択中の項目の番号**へのポインタ（選択がなければ `-1`） |
+| `firstFrame` | `int*` | **画面左端のフレーム**へのポインタ（スクロール位置） |
+| `sequenceOptions` | `int` | 許可する操作のフラグ（[オプション](#options)） |
 
 - 戻り値: **今のフレームに、ユーザーが何かを操作した**とき `true`
 - `currentFrame`、`expanded`、`selectedEntry`、`firstFrame` は、<strong>自分で持っている変数（`static` やメンバ）</strong>を渡します。毎フレーム新しく作ると、状態が保持されません
@@ -268,13 +268,13 @@ enum SEQUENCER_OPTIONS {
 void Get(int index, int** start, int** end, int* type, unsigned int* color);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `index` | 項目の番号 |
-| `start` | **開始フレームの変数のアドレス**を入れる `int**`（`nullptr` のときは入れなくてよい） |
-| `end` | **終了フレームの変数のアドレス**を入れる `int**` |
-| `type` | 項目の種類の番号を入れる |
-| `color` | 帯の色を入れる |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `index` | `int` | 項目の番号 |
+| `start` | `int**` | **開始フレームの変数のアドレス**を入れる （`nullptr` のときは入れなくてよい） |
+| `end` | `int**` | **終了フレームの変数のアドレス**を入れる |
+| `type` | `int*` | 項目の種類の番号を入れる |
+| `color` | `unsigned int*` | 帯の色を入れる |
 
 - 戻り値: なし（引数に値を入れる）
 - **`start` / `end` はポインタのポインタ**です。`*start = &clip.start;` のように、**自分のデータの変数のアドレス**を渡します。ライブラリがそのアドレスを通して、直接書き換えます
@@ -312,14 +312,14 @@ virtual void CustomDraw(int index, ImDrawList* draw_list, const ImRect& rc,
                         const ImRect& legendClippingRect);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `index` | 項目の番号 |
-| `draw_list` | 描画先 |
-| `rc` | **項目の描画領域**（時間軸の部分） |
-| `legendRect` | 左の凡例の領域 |
-| `clippingRect` | 時間軸側の切り取り範囲（これより外には描かない） |
-| `legendClippingRect` | 凡例側の切り取り範囲 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `index` | `int` | 項目の番号 |
+| `draw_list` | `ImDrawList*` | 描画先 |
+| `rc` | `const ImRect&` | **項目の描画領域**（時間軸の部分） |
+| `legendRect` | `const ImRect&` | 左の凡例の領域 |
+| `clippingRect` | `const ImRect&` | 時間軸側の切り取り範囲（これより外には描かない） |
+| `legendClippingRect` | `const ImRect&` | 凡例側の切り取り範囲 |
 
 - 戻り値: なし
 - `GetCustomHeight` が 0 でない項目を**開いたとき**に、その中身を自分で描くために呼ばれます。**カーブ エディタ**（`ImCurveEdit`）を埋め込んで、イージングやパラメータの変化を編集する使い方が定番です

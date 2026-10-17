@@ -55,6 +55,7 @@
 
 | ページ | 一言で |
 | --- | --- |
+| [コーディング スタイルのまとめ](practice/coding-style.md) | 名前・インクルード・書式。Google C++ Style Guide の要点 |
 | [リファクタリングとコードの臭い](practice/refactoring-smells.md) | 動きを変えずに、小さな手順で整える |
 | [アンチパターン集](practice/anti-patterns.md) | よくやる、あとで困る書き方 |
 | [パフォーマンス設計](practice/performance-design.md) | 計測してから、キャッシュ・確保・コピーを見直す |

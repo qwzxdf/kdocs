@@ -1,6 +1,6 @@
 (() => {
   const kSvgNs = "http://www.w3.org/2000/svg";
-  const kGridX = 150;
+  const kColGap = 48;
   const kGridY = 64;
   const kPad = 14;
   const kNodeHeight = 34;
@@ -116,7 +116,37 @@
         }
       });
     });
-    const width = kPad * 2 + maxCol * kGridX + lastWidth;
+    const colWidth = {};
+    frames.forEach((frame) => {
+      frame.nodes.forEach((node) => {
+        colWidth[node.col] = Math.max(colWidth[node.col] || 0, widths[node.id]);
+      });
+    });
+    const cols = Object.keys(colWidth).map(Number).sort((a, b) => a - b);
+    const colCenter = {};
+    let cursor = kPad;
+    cols.forEach((c, i) => {
+      colCenter[c] = cursor + colWidth[c] / 2;
+      cursor += colWidth[c] + kColGap;
+    });
+    function ColX(col) {
+      if (colCenter[col] !== undefined) {
+        return colCenter[col];
+      }
+      let lo = cols[0];
+      let hi = cols[cols.length - 1];
+      cols.forEach((c) => {
+        if (c <= col) lo = c;
+      });
+      for (let i = cols.length - 1; i >= 0; --i) {
+        if (cols[i] >= col) hi = cols[i];
+      }
+      if (lo === hi) {
+        return colCenter[lo];
+      }
+      return colCenter[lo] + (colCenter[hi] - colCenter[lo]) * ((col - lo) / (hi - lo));
+    }
+    const width = cursor - kColGap + kPad;
     const height = kPad * 2 + maxRow * kGridY + kNodeHeight;
 
     const title = document.createElement("div");
@@ -149,7 +179,7 @@
 
     function Pos(node) {
       return {
-        x: kPad + node.col * kGridX + widths[node.id] / 2,
+        x: ColX(node.col),
         y: kPad + node.row * kGridY + kNodeHeight / 2,
         w: widths[node.id],
       };

@@ -3,6 +3,7 @@ nav:
   - シリアライズ: serialization
   - Dear ImGui: imgui
   - Jolt Physics: jolt
+  - Recast & Detour: recast
   - 3Dモデルの読み込みの選び方: model-loading.md
   - tinygltf: tinygltf
   - fastgltf: fastgltf

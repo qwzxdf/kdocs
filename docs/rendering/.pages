@@ -1,5 +1,6 @@
 nav:
   - index.md
+  - pipeline.md
   - bottlenecks.md
   - bandwidth.md
   - forward-deferred.md
@@ -13,4 +14,13 @@ nav:
   - low-res-effects.md
   - hiz.md
   - shader-cost.md
-  - others.md
+  - lod.md
+  - shadows.md
+  - texture-streaming.md
+  - taa-upscaling.md
+  - async-compute.md
+  - particles.md
+  - postprocess.md
+  - 2d.md
+  - tools.md
+  - cases.md

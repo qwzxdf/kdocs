@@ -330,10 +330,10 @@ template <typename ByteType = std::byte, typename... Options>
 constexpr auto data_in_out(Options&&... options);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `ByteType` | バッファの要素の型（`std::byte`、`char`、`unsigned char`） |
-| `options` | `in` / `out` に渡すオプション（[フラグ](#flags)） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `ByteType` | 型引数 | バッファの要素の型（`std::byte`、`char`、`unsigned char`） |
+| `options` | オプション型 | `in` / `out` に渡すオプション（[フラグ](#flags)） |
 
 - **戻り値:** `std::vector<ByteType>` のバッファと、それを使う `in`、`out` の 3 つ組。構造化束縛で受け取る
 - `in` と `out` は**バッファを参照している**ので、バッファより長く使ってはいけません。
@@ -349,10 +349,10 @@ class out {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `view` | 書き込み先のバッファ。`std::vector<std::byte>` なら**自動で大きくなる**。`std::array` や `std::span` なら大きさは固定 |
-| `options` | 要素数の大きさ・エンディアンなどのオプション |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `view` | `ByteView&` | 書き込み先のバッファ。`std::vector<std::byte>` なら**自動で大きくなる**。`std::array` や `std::span` なら大きさは固定 |
+| `options` | オプション型 | 要素数の大きさ・エンディアンなどのオプション |
 
 - バッファの**今の位置から**書き足していきます。同じ `out` で何回も呼ぶと、後ろにつながっていきます。
 - 固定の大きさのバッファ（`std::array<std::byte, 256>` など）に書くと、メモリ確保が一切起きません。通信のパケットに便利です。
@@ -367,10 +367,10 @@ class in {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `view` | 読み込み元のバッファ |
-| `options` | 書いたときと**同じ**オプションを渡す |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `view` | `ByteView&` | 読み込み元のバッファ |
+| `options` | オプション型 | 書いたときと**同じ**オプションを渡す |
 
 - 前から順番に読みます。**書いたときと同じ型・同じ順番・同じオプション**で読まないと、正しく読めません。
 
@@ -381,9 +381,9 @@ template <typename... Args>
 constexpr auto operator()(Args&&... args);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `args` | 書く・読む値。何個でも並べられる |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `args` | `Args&...` | 書く・読む値。何個でも並べられる |
 
 - **戻り値:** `zpp::bits::errc`（成功か失敗か）
 - `out(a, b, c)` は `a`、`b`、`c` を順番に書きます。`in(a, b, c)` は同じ順番で読みます。
@@ -405,9 +405,9 @@ constexpr bool failure(errc code);
 constexpr bool success(errc code);  // 反対
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `code` | `in` / `out` の結果 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `code` | `errc` | `in` / `out` の結果 |
 
 - **戻り値:** 失敗なら `true`
 - 例外を使わないプロジェクトでは、これで確認します。
@@ -429,9 +429,9 @@ struct members;
 using serialize = zpp::bits::members<3>;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `Count` | クラスのメンバ変数の数 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `Count` | `size_t`（定数） | クラスのメンバ変数の数 |
 
 - 集成体でないクラス（コンストラクタがある、など）でも、メンバを宣言順に自動で保存できるようになります。
 - メンバの数が合っていないとコンパイルエラーになります。メンバを足したら数も変えます。
@@ -445,10 +445,10 @@ constexpr static auto serialize(auto& archive, auto& self) {
 }
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `archive` | `in` か `out` |
-| `self` | 保存・読み込みするオブジェクト（保存のときは `const`） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `archive` | `Archive&` | `in` か `out` |
+| `self` | `T&` | 保存・読み込みするオブジェクト（保存のときは `const`） |
 
 - **戻り値:** `archive(...)` の結果をそのまま返す
 - 保存するメンバや順番を自分で決めたいときに書きます。キャッシュなどのメンバを保存から外せます。
@@ -492,9 +492,9 @@ struct alloc_limit;
 zpp::bits::in in(data, zpp::bits::alloc_limit<1024 * 1024>{});
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `Limit` | 1 つのコンテナで確保してよい最大のバイト数 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `Limit` | `size_t`（定数） | 1 つのコンテナで確保してよい最大のバイト数 |
 
 - 壊れたデータで巨大な要素数を読んでも、上限を超えたらエラーにして止めます。
 - ネットワークから受け取るデータには必ず付けます。
@@ -547,10 +547,10 @@ using vint64_t = varint<std::int64_t>;
 using vsint32_t = varint<std::int32_t, varint_encoding::zig_zag>;  // 負の数も小さく
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `Type` | 中身の整数型 |
-| `Encoding` | `normal`（普通）か `zig_zag`（負の数も小さくなる） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `Type` | 型引数 | 中身の整数型 |
+| `Encoding` | `varint_encoding` | `normal`（普通）か `zig_zag`（負の数も小さくなる） |
 
 - 値が小さいほど少ないバイトで書く整数型です（0〜127 なら 1 バイト）。
 - メンバの型を `zpp::bits::vuint32_t` にすると、そのメンバだけ可変長で保存されます。ID や個数など、小さい数が多いデータで便利です。
@@ -571,10 +571,10 @@ template <typename ByteView, typename... Options>
 constexpr auto in_out(ByteView&& view, Options&&... options);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `view` | 自分で用意したバッファ |
-| `options` | オプション |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `view` | `ByteView&` | 自分で用意したバッファ |
+| `options` | オプション型 | オプション |
 
 - **戻り値:** そのバッファを使う `in` と `out` の組
 - `data_in_out` と違って、バッファを自分で用意します（`std::array` など）。
@@ -591,9 +591,9 @@ template <auto Object, typename... Options>
 constexpr auto to_bytes();
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `Object` | バイト列にする値（コンパイル時の定数） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `Object` | 型引数 | バイト列にする値（コンパイル時の定数） |
 
 - **戻り値:** `std::array<std::byte, N>`。コンパイル時に計算される
 - テストで「この構造体はこのバイト列になる」と確かめるときなどに使います。学生のゲームではほぼ使いません。
@@ -605,10 +605,10 @@ template <auto Data, typename Type, typename... Options>
 constexpr auto from_bytes();
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `Data` | バイト列（コンパイル時の定数） |
-| `Type` | 作る型 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `Data` | 型引数 | バイト列（コンパイル時の定数） |
+| `Type` | 型引数 | 作る型 |
 
 - **戻り値:** `Type` の値。コンパイル時に計算される
 

@@ -361,11 +361,7 @@ int main() {
 
 テンプレートは「使われたときに型を当てはめて作られる」ので、使う側からテンプレートの中身（定義）が見えている必要があります。
 
-<div class="anim" data-type="graph" data-label="テンプレートは、ヘッダに全部書く">
-n h math.h_（テンプレートの中身を全部書く） 0 0
-n m main.cpp 1 1
-l m h - #include_して使う
-</div>
+<svg class="fig flow" viewBox="0 0 512 196" role="img" aria-label="テンプレートは、ヘッダに全部書く"><defs><marker id="fl71398" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">テンプレートは、ヘッダに全部書く</text><line x1="393.0" y1="132.8" x2="251.2" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl71398)"/><text x="322.1" y="103.9" text-anchor="middle" style="font-size:12px">#include して使う</text><rect x="28.0" y="44.0" width="304" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="180.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">math.h （テンプレートの中身を全部書く）</text><rect x="396.0" y="128.0" width="88" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="440.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">main.cpp</text></svg>
 
 宣言だけをヘッダに書いて中身を .cpp に書くと、**リンクエラー**（「未解決の外部シンボル」）になります。
 

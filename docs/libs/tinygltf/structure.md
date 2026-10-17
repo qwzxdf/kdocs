@@ -119,7 +119,7 @@ if (node.mesh >= 0) {
 </li>
 <li><b>nodes[0]</b>：<code>skin: 0</code> → <b>skins[0]</b>
 <ul>
-<li><code>joints: [3, 4, 5]</code> → <b>nodes[3]</b>・<b>nodes[4]</b>・<b>nodes[5]</b>（骨になるノード）</li>
+<li><code>joints: [3, 4, 5]</code> → <b>nodes[3]</b>・<b>nodes[4]</b>・<b>nodes[5]</b>（ボーンになるノード）</li>
 <li><code>inverseBindMatrices: 8</code> → <b>accessors[8]</b></li>
 </ul>
 </li>
@@ -176,7 +176,7 @@ if (node.mesh >= 0) {
 | **`materials[i]....baseColorTexture.index`** | 番号 | `textures` |
 | **`textures[i].source`** | 番号 | `images` |
 | **`textures[i].sampler`** | 番号 | `samplers` |
-| **`skins[i].joints`** | `[...]` | `nodes`（骨になるノード） |
+| **`skins[i].joints`** | `[...]` | `nodes`（ボーンになるノード） |
 | **`skins[i].inverseBindMatrices`** | 番号 | `accessors` |
 | **`animations[i].channels[j].target.node`** | 番号 | `nodes` |
 | **`animations[i].samplers[j].input / output`** | 番号 | `accessors`（時刻・値） |
@@ -303,7 +303,7 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 | **`rotation`** | 回転 `[x, y, z, w]`（クォータニオン） |
 | **`scale`** | 拡大 `[x, y, z]` |
 | **`matrix`** | 上の 3 つの代わりに、**4×4 行列**（16 個、列優先）で指定 |
-| `skin` | **骨**を使うとき、スキンの番号 |
+| `skin` | **ボーン**を使うとき、スキンの番号 |
 | `camera` | カメラを使うとき、カメラの番号 |
 
 !!! warning "TRS と matrix は、どちらか一方"
@@ -344,8 +344,8 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 | **`TEXCOORD_0`** | UV（1 組目） | `VEC2` |
 | `TEXCOORD_1` | UV（2 組目。ライトマップなど） | `VEC2` |
 | `COLOR_0` | 頂点カラー | `VEC3` / `VEC4` |
-| **`JOINTS_0`** | **影響を受ける骨**の番号（4 つ） | `VEC4` unsigned byte/short |
-| **`WEIGHTS_0`** | **骨の重み**（4 つ。合計 1） | `VEC4` float |
+| **`JOINTS_0`** | **影響を受けるボーン**の番号（4 つ） | `VEC4` unsigned byte/short |
+| **`WEIGHTS_0`** | **ボーンの重み**（4 つ。合計 1） | `VEC4` float |
 
 **このプリミティブごとに、1 回の描画**（`DrawIndexed`）になります。**マテリアルが 2 つなら、プリミティブは 2 つ**です（[メッシュとテクスチャ](../../3d/mesh-textures.md)）。
 
@@ -410,9 +410,9 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 
 ## スキンとアニメーション
 
-### スキン（骨）
+### スキン（ボーン）
 
-**骨は、普通のノードです**。**スキン**は、<strong>「どのノードを、骨として使うか」の一覧</strong>を持ちます。
+**ボーンは、普通のノードです**。**スキン**は、<strong>「どのノードを、ボーンとして使うか」の一覧</strong>を持ちます。
 
 ```json
 "skins": [
@@ -422,13 +422,13 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 
 | キー | 意味 |
 | --- | --- |
-| **`joints`** | **骨になるノードの番号**のリスト。**順番が、`JOINTS_0` の番号に対応** |
-| **`inverseBindMatrices`** | **逆バインド行列**の accessor の番号（`MAT4`）。**骨ごとに 1 つ**（[スキニング](../../3d/skinning-animation.md)の、オフセット行列） |
-| `skeleton` | 骨の根のノードの番号 |
+| **`joints`** | **ボーンになるノードの番号**のリスト。**順番が、`JOINTS_0` の番号に対応** |
+| **`inverseBindMatrices`** | **逆バインド行列**の accessor の番号（`MAT4`）。**ボーンごとに 1 つ**（[スキニング](../../3d/skinning-animation.md)の、オフセット行列） |
+| `skeleton` | ボーンの根のノードの番号 |
 
-<strong>頂点の `JOINTS_0` の値 `2` は、「`skins[0].joints[2]` の骨」</strong>という意味です（**ノードの番号そのものではなく、`joints` 配列の位置**）。ここも、**番号の、もう 1 段の参照**です。
+<strong>頂点の `JOINTS_0` の値 `2` は、「`skins[0].joints[2]` のボーン」</strong>という意味です（**ノードの番号そのものではなく、`joints` 配列の位置**）。ここも、**番号の、もう 1 段の参照**です。
 
-<svg class="fig flow" viewBox="0 0 634 112" role="img" aria-label="頂点の骨番号は、joints 配列の位置。その先が、ノードの番号"><defs><marker id="fl7390" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">頂点の骨番号は、joints 配列の位置。その先が、ノードの番号</text><line x1="149.0" y1="64.0" x2="207.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7390)"/><text x="178.0" y="58.0" text-anchor="middle" style="font-size:12px">joints の 2 番目</text><line x1="408.0" y1="64.0" x2="466.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7390)"/><text x="437.0" y="58.0" text-anchor="middle" style="font-size:12px">ノード番号</text><rect x="28.0" y="44.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="87.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">JOINTS 0 = 2</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="210.0" y="44.0" width="195" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="307.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">skins[0].joints[2] = 5</text><circle cx="212.0" cy="46.0" r="10" fill="#2ea043"/><text x="212.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="469.0" y="44.0" width="137" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="537.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[5] （骨）</text><circle cx="471.0" cy="46.0" r="10" fill="#e5a828"/><text x="471.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
+<svg class="fig flow" viewBox="0 0 634 112" role="img" aria-label="頂点のボーン番号は、joints 配列の位置。その先が、ノードの番号"><defs><marker id="fl7390" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">頂点のボーン番号は、joints 配列の位置。その先が、ノードの番号</text><line x1="149.0" y1="64.0" x2="207.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7390)"/><text x="178.0" y="58.0" text-anchor="middle" style="font-size:12px">joints の 2 番目</text><line x1="408.0" y1="64.0" x2="466.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7390)"/><text x="437.0" y="58.0" text-anchor="middle" style="font-size:12px">ノード番号</text><rect x="28.0" y="44.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="87.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">JOINTS 0 = 2</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="210.0" y="44.0" width="195" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="307.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">skins[0].joints[2] = 5</text><circle cx="212.0" cy="46.0" r="10" fill="#2ea043"/><text x="212.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="469.0" y="44.0" width="137" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="537.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[5] （ボーン）</text><circle cx="471.0" cy="46.0" r="10" fill="#e5a828"/><text x="471.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 ### アニメーション
 
@@ -466,7 +466,7 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 | **メッシュの形は** | `meshes` → `primitives` → `attributes` / `indices`（**accessor の番号**） |
 | **数値の実体は** | `accessors` → `bufferViews` → `buffers`（**3 段階**で、番号をたどる） |
 | **見た目は** | `primitives[].material` → `materials` → `textures` → `images` + `samplers` |
-| **骨は** | `skins[].joints`（**ノードの番号の一覧**）、頂点の `JOINTS_0` は、**joints の位置** |
+| **ボーンは** | `skins[].joints`（**ノードの番号の一覧**）、頂点の `JOINTS_0` は、**joints の位置** |
 | **動きは** | `animations` → `channels`（**どのノードを**）、`samplers`（**時刻と値の accessor**） |
 
 **すべて、「配列の何番目か」で、つながっています**。
@@ -501,7 +501,7 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
     - [x] <strong>どの配列かは、キー名で決まる</strong>（`mesh` → `meshes`、`material` → `materials`）。<strong>`-1` は、参照なし</strong>
     - [x] <strong>データ本体は、buffer → bufferView → accessor の 3 段階</strong>。<strong>accessor が「どう読むか」</strong>
     - [x] <strong>ノードは親子の木</strong>。<strong>メッシュは、プリミティブ（マテリアルごと）の集まり</strong>
-    - [x] <strong>マテリアル → texture → image + sampler</strong>。<strong>骨の番号（`JOINTS_0`）は、`joints` の位置</strong>
+    - [x] <strong>マテリアル → texture → image + sampler</strong>。<strong>ボーンの番号（`JOINTS_0`）は、`joints` の位置</strong>
     - [x] <strong>アニメーションは、channel（どのノード）＋ sampler（時刻と値の accessor）</strong>
 
 ## 関連ページ

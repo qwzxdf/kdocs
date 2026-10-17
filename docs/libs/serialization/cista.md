@@ -55,14 +55,7 @@ l buf view hit 見るだけ
 
 cista の `cista::offset::vector` は、中身の場所を<strong>ポインタではなく「自分からの距離（オフセット）」</strong> で覚えています。保存するときに、中身を全部 1 つのバイト列の中に並べ、距離を書いておきます。読み込むときは、バイト列がメモリのどこに置かれても、距離で中身を見つけられるので、**何も作り直さずに**そのまま使えます。
 
-<div class="anim" data-type="graph" data-label="cista：中身は、自分からの距離（オフセット）で覚える">
-n p Player 0 1
-n n "Alice"_（5文字） 2 0
-n i 101_|_205_|_330 2 2
-n lv level_=_12 1 1
-l p n - name_+28バイト先
-l p i - items_+33バイト先_3個
-</div>
+<svg class="fig flow" viewBox="0 0 514 280" role="img" aria-label="cista：中身は、自分からの距離（オフセット）で覚える"><defs><marker id="fl17801" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">cista：中身は、自分からの距離（オフセット）で覚える</text><line x1="107.0" y1="138.0" x2="332.0" y2="83.1" stroke="currentColor" stroke-width="2" marker-end="url(#fl17801)"/><text x="219.5" y="104.6" text-anchor="middle" style="font-size:12px">name +28バイト先</text><line x1="107.0" y1="158.0" x2="336.5" y2="214.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl17801)"/><text x="221.8" y="180.0" text-anchor="middle" style="font-size:12px">items +33バイト先 3個</text><rect x="28.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Player</text><rect x="335.0" y="44.0" width="151" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="410.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">"Alice" （5文字）</text><rect x="339.5" y="212.0" width="142" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="410.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">101 | 205 | 330</text><rect x="168.0" y="128.0" width="103" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="219.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">level = 12</text></svg>
 
 距離の数字は、イメージです。
 
@@ -333,11 +326,11 @@ template <mode Mode = mode::NONE, typename Target, typename T>
 void serialize(Target& t, T const& value);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `Mode` | チェックなどの設定（[mode](#mode)） |
-| `el` / `value` | 保存するオブジェクト |
-| `t` | 書き込み先（`cista::buf<cista::mmap>`、`cista::buf<std::vector<std::uint8_t>>` など） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `Mode` | 型引数 | チェックなどの設定（[mode](#mode)） |
+| `el` / `value` | `T&` | 保存するオブジェクト |
+| `t` | `cista::buf<...>&` | 書き込み先（`cista::buf<cista::mmap>`、`cista::buf<std::vector<std::uint8_t>>` など） |
 
 - **戻り値:** 1 つ目は `cista::byte_buf`（`std::vector<std::uint8_t>`）
 - 中身を 1 つのバイト列に並べ、中のポインタを「距離」に直して書きます。
@@ -352,12 +345,12 @@ template <typename T, mode Mode = mode::NONE>
 T* deserialize(std::uint8_t* from, std::uint8_t* to);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `T` | 読む型 |
-| `Mode` | 保存したときと**同じ**モード |
-| `c` | バイト列（`cista::byte_buf`、`cista::mmap` など） |
-| `from`, `to` | バイト列の先頭と終わり |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型引数 | 読む型 |
+| `Mode` | `mode` | 保存したときと**同じ**モード |
+| `c` | `cista::byte_buf` など | バイト列（`cista::byte_buf`、`cista::mmap` など） |
+| `from`, `to` | `const uint8_t*` | バイト列の先頭と終わり |
 
 - **戻り値:** バッファの中を指す `T*`。**コピーではない**
 - **例外:** モードのチェックに失敗すると例外
@@ -378,9 +371,9 @@ struct basic_string {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `s` | 中身にする文字列（コピーされる） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `s` | `std::string_view` | 中身にする文字列（コピーされる） |
 
 - cista 用の文字列です。短い文字列（15 文字くらいまで）はヒープを使わずに中に持ちます。
 - 表示や比較には `.view()` で `std::string_view` にして使います。`std::string` が欲しいときは `.str()`。
@@ -445,10 +438,10 @@ struct mmap {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `path` | ファイルのパス |
-| `protection` | `READ`（読むだけ）、`WRITE`（新しく書く）、`MODIFY`（今のファイルを書き換える） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `path` | `const char*` | ファイルのパス |
+| `protection` | `cista::mmap::protection` | `READ`（読むだけ）、`WRITE`（新しく書く）、`MODIFY`（今のファイルを書き換える） |
 
 - ファイルをメモリマップします。Windows でも Linux でも同じように使えます。
 - `READ` でマップしたものは書き換えられないので、`deserialize` は offset モードで使います。
@@ -463,9 +456,9 @@ struct buf {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `buf` | 書き込み先（`cista::mmap` など） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `buf` | `cista::mmap&` | 書き込み先（`cista::mmap` など） |
 
 - `serialize` の書き込み先として使うための入れ物です。`cista::buf file{cista::mmap{"out.bin"}};` のように使います。
 

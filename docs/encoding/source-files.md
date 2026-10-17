@@ -6,7 +6,7 @@ tags:
 
 # ソースファイルの文字コードと強制
 
-ソースコードのファイルを、**どの文字コードで保存するか**は、チームで開発するとき、**必ず決めて、強制しておく**べき決まりです。決めていないと、「ある人は Shift_JIS、ある人は UTF-8」になり、Git の差分が全部変わったり、コンパイラが文字化けのままビルドしたり、「自分の PC では動くのに、他の人は化ける」という事故が起きます。人の注意に頼ると、必ず誰かが間違えるので、**設定ファイル（`.editorconfig`、`.gitattributes`、`.clang-format`）、コンパイラのオプション、CI（自動チェック）で、機械的に強制**します。このページでは、その方法を一つずつ説明します。
+ソースコードのファイルを、**どの文字コードで保存するか**は、チームで開発するとき、**必ず決めて、強制しておく**べき決まりです。決めていないと、「ある人は Shift_JIS、ある人は UTF-8」になり、Git の差分が全部変わったり、コンパイラが文字化けのままビルドしたり、「自分の PC では動くのに、他の人は化ける」という事故が起きます。人の注意に頼ると必ず誰かが間違えるので、**設定ファイル（`.editorconfig`、`.gitattributes`、`.clang-format`）、コンパイラのオプション、CI（自動チェック）で、機械的に強制**します。このページでは、その方法を一つずつ説明します。
 
 !!! tip "ポイント"
     - 決まり: <strong>UTF-8（BOM なし）、改行は LF</strong>。MSVC には <strong>`/utf-8`</strong>。
@@ -29,7 +29,7 @@ tags:
 
 ## 1. コンパイラ：/utf-8
 
-MSVC は、**ソースファイルを、既定で ANSI（日本語版は CP932）として読みます**。BOM のない UTF-8 ファイルを、CP932 と誤解して、文字化けしたり、コンパイル エラーになったりします。**`/utf-8`** は、ソースの文字コードと、実行時の文字列の文字コードを、**両方 UTF-8** にします。
+MSVC は**ソースファイルを既定で ANSI（日本語版は CP932）として読みます**。BOM のない UTF-8 ファイルを、CP932 と誤解して、文字化けしたり、コンパイル エラーになったりします。**`/utf-8`** は、ソースの文字コードと実行時の文字列の文字コードを、**両方 UTF-8** にします。
 
 ```text
 /utf-8   =   /source-charset:utf-8   +   /execution-charset:utf-8
@@ -51,12 +51,12 @@ endif()
 
 ### 文字コードの間違いを、エラーにする
 
-`/utf-8` を付けても、**ファイルが Shift_JIS で保存されていると、変換できない部分が出ます**。そのときの警告を、**エラーにして、ビルドを止めます**。
+`/utf-8` を付けても、**ファイルが Shift_JIS で保存されていると、変換できない部分が出ます**。そのときの警告を**エラーにして、ビルドを止めます**。
 
 | 警告 | 意味 | エラーにする |
 | --- | --- | --- |
-| **C4819** | ファイルは、現在のコード ページ（932）で表示できない文字を含んでいます（`/utf-8` なしで、UTF-8 を読んだとき） | `/we4819` |
-| **C4828** | ファイルに、現在のソース文字集合で不正な文字があります（`/utf-8` ありで、UTF-8 でないバイトを読んだとき） | **`/we4828`** |
+| **C4819** | ファイルは現在のコード ページ（932）で表示できない文字を含んでいます（`/utf-8` なしで、UTF-8 を読んだとき） | `/we4819` |
+| **C4828** | ファイルに現在のソース文字集合で不正な文字があります（`/utf-8` ありで、UTF-8 でないバイトを読んだとき） | **`/we4828`** |
 
 ```cmake
 if(MSVC)
@@ -64,11 +64,11 @@ if(MSVC)
 endif()
 ```
 
-**UTF-8 でないファイルが混ざると、ビルドが失敗する**ので、人が気づけます。これが、**コンパイラ側でできる、一番確実な強制**です。
+**UTF-8 でないファイルが混ざると、ビルドが失敗する**ので人が気づけます。これが**コンパイラ側でできる、一番確実な強制**です。
 
 ## 2. .editorconfig（エディターの設定）
 
-**`.editorconfig`** は、エディターに「このプロジェクトの書き方」を伝える設定ファイルです。Visual Studio（2017 以降）、VS Code、CLion などが、読んでくれます。**リポジトリの一番上に置きます**。
+**`.editorconfig`** は、エディターに「このプロジェクトの書き方」を伝える設定ファイルです。Visual Studio（2017 以降）、VS Code、CLion などが読んでくれます。**リポジトリの一番上に置きます**。
 
 ```ini
 # .editorconfig
@@ -107,7 +107,7 @@ trim_trailing_whitespace = false
 | `indent_style` / `indent_size` | `space` / `2` | 字下げ |
 
 !!! warning "editorconfig の限界"
-    `.editorconfig` は、**エディターが「新しく保存するとき」に従う**設定です。**すでに Shift_JIS で保存されているファイルを、勝手には変換しません**。また、エディターが対応していないと、無視されます。そのため、`.editorconfig` は「間違いを防ぐ**助け**」で、**強制**は、コンパイラ（`/we4828`）と CI で行います。
+    `.editorconfig` は、**エディターが「新しく保存するとき」に従う**設定です。**すでに Shift_JIS で保存されているファイルを、勝手には変換しません**。また、エディターが対応していないと、無視されます。そのため、`.editorconfig` は「間違いを防ぐ**助け**」で、**強制**はコンパイラ（`/we4828`）と CI で行います。
 
 ### Visual Studio で既存ファイルを UTF-8 に変換する
 
@@ -115,13 +115,13 @@ trim_trailing_whitespace = false
 | --- | --- |
 | 1 ファイルずつ | ファイルを開く → 「ファイル → 名前を付けて保存」の「保存」の横の ▼ → **エンコード付きで保存** → **Unicode (UTF-8 シグネチャなし) - コードページ 65001** |
 | 一括で変換 | 下の「変換スクリプト」（PowerShell / iconv） |
-| **事前に確認** | `file -i *.cpp` や、Notepad++ の「エンコード」メニューで、今の文字コードを確認する |
+| **事前に確認** | `file -i *.cpp` や、Notepad++ の「エンコード」メニューで今の文字コードを確認する |
 
 **Shift_JIS のファイルを、Visual Studio で「UTF-8 として開き直す」と、文字化けしたまま保存される**ので、必ず、**正しい文字コードで開いてから**変換します（「エンコード付きで開く」）。
 
 ## 3. .gitattributes（Git の設定）
 
-**`.gitattributes`** は、Git に、ファイルの扱い（改行の変換など）を教える設定です。
+**`.gitattributes`** は、Git にファイルの扱い（改行の変換など）を教える設定です。
 
 ```gitattributes
 # .gitattributes
@@ -148,14 +148,14 @@ trim_trailing_whitespace = false
 
 | 設定 | 意味 |
 | --- | --- |
-| `text=auto` | Git が、テキストかバイナリかを判断する |
+| `text=auto` | Git がテキストかバイナリかを判断する |
 | `eol=lf` | チェックアウト時も LF にする（Windows でも） |
-| `binary` | 画像や音は、改行の変換・差分の対象外 |
+| `binary` | 画像や音は改行の変換・差分の対象外 |
 | `working-tree-encoding=UTF-16` | 作業フォルダーでは UTF-16、リポジトリでは UTF-8 にする（`.rc` などに使うことがある） |
 
 **`.gitattributes` が扱うのは、改行**（と、`working-tree-encoding` による変換）です。**ファイルが UTF-8 か Shift_JIS かを、検査して止める機能は、ありません**。
 
-また、チーム全員で、`git config core.autocrlf` を、**`false`**（`.gitattributes` に任せる）か、**`input`** にそろえます。Windows の既定（`true`）のままだと、`.gitattributes` と衝突して、混乱します。
+また、チーム全員で、`git config core.autocrlf` を、**`false`**（`.gitattributes` に任せる）か、**`input`** にそろえます。Windows の既定（`true`）のままだと`.gitattributes` と衝突して、混乱します。
 
 ## 4. clang-format（整形ツール）
 
@@ -170,7 +170,7 @@ trim_trailing_whitespace = false
 | **最後の改行** | できる（16 以降） | `InsertNewlineAtEOF: true` |
 | **字下げ・波括弧・桁数** | できる | `IndentWidth: 2`、`ColumnLimit: 100` |
 | **日本語の幅** | **幅を考慮する**（全角は 2 桁として、`ColumnLimit` を数える） | 設定不要 |
-| **日本語を含む文字列・コメントの整形** | 中身は、基本的に変えない | |
+| **日本語を含む文字列・コメントの整形** | 中身は基本的に変えない | |
 
 ```yaml
 # .clang-format（Google C++ Style をもとに、改行を LF に統一）
@@ -184,13 +184,13 @@ SortIncludes: CaseSensitive
 
 | `LineEnding` の値 | 意味 |
 | --- | --- |
-| `LF` | 改行を、**すべて LF** にそろえる |
+| `LF` | 改行を**すべて LF** にそろえる |
 | `CRLF` | すべて CRLF |
 | `DeriveLF` | ファイルの中で**多い方**を使う。同数なら LF |
-| `DeriveCRLF` | 同様に、同数なら CRLF |
+| `DeriveCRLF` | 同様に同数なら CRLF |
 
 !!! note "古い clang-format では"
-    `LineEnding` と `InsertNewlineAtEOF` は、**clang-format 16**（2023 年）で追加されました。それ以前は、`UseCRLF: false` と `DeriveLineEnding: true` で、近いことをしていました。Visual Studio に同梱の clang-format の版は、Visual Studio のバージョンによって違います。古いときは、`.editorconfig` と `.gitattributes` に任せます。
+    `LineEnding` と `InsertNewlineAtEOF` は、**clang-format 16**（2023 年）で追加されました。それ以前は、`UseCRLF: false` と `DeriveLineEnding: true` で近いことをしていました。Visual Studio に同梱の clang-format の版は、Visual Studio のバージョンによって違います。古いときは`.editorconfig` と `.gitattributes` に任せます。
 
 ### CI で「整形されているか」を検査する
 
@@ -205,10 +205,10 @@ clang-format --dry-run --Werror $(git ls-files '*.cpp' '*.h' '*.hpp')
 | --- | --- |
 | `--dry-run`（`-n`） | ファイルを書き換えず、整形が必要な場所だけを報告 |
 | `--Werror` | 整形が必要なら、**エラー**にする |
-| `-i` | ファイルを、その場で書き換える（手元で整形するとき） |
+| `-i` | ファイルをその場で書き換える（手元で整形するとき） |
 | `--style=file` | `.clang-format` を使う（既定） |
 
-## 5. CI で、文字コードを強制する
+## 5. CI で文字コードを強制する
 
 **UTF-8 でないファイル、BOM 付きのファイル、CRLF のファイル**を、CI で検出して、**マージを止めます**。
 
@@ -254,7 +254,7 @@ jobs:
           clang-format --dry-run --Werror $(git ls-files '*.cpp' '*.h' '*.hpp')
 ```
 
-### pre-commit（コミットの前に、手元で自動チェック）
+### pre-commit（コミットの前に手元で自動チェック）
 
 **pre-commit** は、`git commit` の前に、自動でチェック・修正をかけるツールです。
 
@@ -313,7 +313,7 @@ Get-ChildItem -Recurse -Include *.cpp,*.h | ForEach-Object {
 ```
 
 !!! warning "UTF-8 のファイルを、もう一度変換しない"
-    すでに UTF-8 のファイルを、「Shift_JIS だ」と思って変換すると、**二重に変換されて、取り返しがつかないほど壊れます**。必ず、**変換前に文字コードを確認**し、UTF-8 のものは飛ばします（上のスクリプトの検査）。
+    すでに UTF-8 のファイルを、「Shift_JIS だ」と思って変換すると**二重に変換されて、取り返しがつかないほど壊れます**。必ず、**変換前に文字コードを確認**し、UTF-8 のものは飛ばします（上のスクリプトの検査）。
 
 ## 7. 追加の設定（Visual Studio）
 
@@ -321,27 +321,27 @@ Get-ChildItem -Recurse -Include *.cpp,*.h | ForEach-Object {
 | --- | --- | --- |
 | **`.editorconfig` の読み込み** | 自動（プロジェクトのフォルダーにあれば） | 保存時の文字コード・改行・字下げ |
 | **改行コードの確認** | 「編集 → 詳細 → 改行コードを統一」 | 混ざっている改行を、LF にそろえる |
-| <strong>「保存時に、エンコードを確認」</strong> | ツール → オプション → 環境 → ドキュメント | 保存時に、文字コードを変換できない文字があると、警告を出す |
+| <strong>「保存時にエンコードを確認」</strong> | ツール → オプション → 環境 → ドキュメント | 保存時に文字コードを変換できない文字があると、警告を出す |
 | **`/utf-8` の確認** | プロパティ → C/C++ → コマンド ライン | 実際に渡されているオプションが見える |
 
 ## ゲームでの使いどころ
 
 | 場面 | 方法 |
 | --- | --- |
-| 新しいリポジトリを作るとき | 最初の コミットで、`.editorconfig`、`.gitattributes`、`.clang-format` を入れる |
-| チームに、Shift_JIS のファイルが混ざった | `/we4828` と CI で、止める。変換スクリプトで、一括変換 |
+| 新しいリポジトリを作るとき | 最初の コミットで`.editorconfig`、`.gitattributes`、`.clang-format` を入れる |
+| チームに、Shift_JIS のファイルが混ざった | `/we4828` と CI で、止める。変換スクリプトで一括変換 |
 | 外部のツール・アセットのファイル | 文字コードを確認して、UTF-8 にしてから取り込む |
-| シェーダー（`.hlsl`） | <strong>UTF-8（BOM なし）</strong> で保存する。古い `fxc` は、BOM があると、エラーになることがある |
+| シェーダー（`.hlsl`） | <strong>UTF-8（BOM なし）</strong> で保存する。古い `fxc` は、BOM があるとエラーになることがある |
 | リソース ファイル（`.rc`） | UTF-8 + `#pragma code_page(65001)`、または UTF-16 |
 | JSON・YAML のデータ | <strong>UTF-8（BOM なし）</strong>。パーサーが、BOM で失敗する |
 
 ## よくあるミス
 
 ??? failure "「clang-format をかければ、文字コードも直る」と思う"
-    clang-format は、文字コードを変換しません。UTF-8 でないファイルを渡すと、整形が壊れたり、エラーになったりします。文字コードは、`.editorconfig` とスクリプトで管理します。
+    clang-format は、文字コードを変換しません。UTF-8 でないファイルを渡すと、整形が壊れたり、エラーになったりします。文字コードは`.editorconfig` とスクリプトで管理します。
 
 ??? failure "`/utf-8` を付けたのに、Shift_JIS のファイルがビルドされてしまう"
-    ファイルが Shift_JIS のまま、不正な UTF-8 として読まれ、警告 C4828 が出るだけで、ビルドが通ってしまいます。`/we4828` で、エラーにします。
+    ファイルが Shift_JIS のまま、不正な UTF-8 として読まれ、警告 C4828 が出るだけで、ビルドが通ってしまいます。`/we4828` でエラーにします。
 
 ??? failure "BOM の有無が、人によってバラバラ"
     Visual Studio の既定の保存と、他のエディターで、BOM の有無が変わります。`.editorconfig` に `charset = utf-8`（BOM なし）と書き、CI で BOM を検出します。
@@ -350,7 +350,7 @@ Get-ChildItem -Recurse -Include *.cpp,*.h | ForEach-Object {
     `core.autocrlf` の設定が、人によって違うためです。`.gitattributes` で、`* text=auto eol=lf` に統一し、全員で `autocrlf` をそろえます。
 
 ??? failure "editorconfig をリポジトリに入れていない"
-    自分の PC にだけ置いても、チームには伝わりません。リポジトリのルートに、コミットします。
+    自分の PC にだけ置いても、チームには伝わりません。リポジトリのルートにコミットします。
 
 ## これだけ覚える
 

@@ -21,16 +21,7 @@ tags:
 
 ## 動的ポリモーフィズムとの違い
 
-<div class="anim" data-type="graph" data-label="virtual は実行時に探し、テンプレートはコンパイル時に決まる">
-n v1 Shape*_s->Area() 0 0
-n v2 vtable_を引く 1 0
-n v3 Circle::Area 2 0
-n t1 Circle_c_Area(c) 0 1
-n t2 Circle::Area 2 1
-l v1 v2 - 実行時
-l v2 v3
-l t1 t2 hit コンパイル時に決まる
-</div>
+<svg class="fig flow" viewBox="0 0 573 196" role="img" aria-label="virtual は実行時に探し、テンプレートはコンパイル時に決まる"><defs><marker id="fl25039" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">virtual は実行時に探し、テンプレートはコンパイル時に決まる</text><line x1="180.0" y1="64.0" x2="238.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl25039)"/><text x="209.0" y="58.0" text-anchor="middle" style="font-size:12px">実行時</text><line x1="366.0" y1="64.0" x2="424.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl25039)"/><line x1="180.0" y1="148.0" x2="424.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl25039)"/><text x="302.0" y="142.0" text-anchor="middle" style="font-size:12px">コンパイル時に決まる</text><rect x="28.0" y="44.0" width="149" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="102.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Shape* s-&gt;Area()</text><rect x="241.0" y="44.0" width="122" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="302.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">vtable を引く</text><rect x="427.0" y="44.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="486.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Circle::Area</text><rect x="28.0" y="128.0" width="149" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="102.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Circle c Area(c)</text><rect x="427.0" y="128.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="486.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Circle::Area</text></svg>
 
 | 項目 | 動的（`virtual`） | 静的（CRTP・テンプレート） |
 | --- | --- | --- |

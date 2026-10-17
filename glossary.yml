@@ -16,7 +16,7 @@
 - terms: [ポリゴン, polygon, 三角形, トライアングル]
   text: 頂点 3 つ（以上）で囲まれた面。3D 描画の基本単位は三角形。
 - terms: [テクスチャ, texture, テクスチャー]
-  text: モデルの表面に貼る画像。
+  text: 画像。
 - terms: [UV 座標, UV, uv, UV マップ, UV 展開, テクスチャ座標]
   text: テクスチャ画像の、どの位置を使うかを表す 2 つの数字 (u, v)。
 - terms: [法線, ノーマル, normal, 法線ベクトル, 法線マップ, ノーマルマップ]
@@ -77,9 +77,9 @@
   text: 縮小した画像のセット。遠くの面で使い、ちらつきを抑える。
 - terms: [サンプラー, sampler, サンプラ]
   text: テクスチャを読むときのルール（補間・繰り返し・はみ出したときの扱い）。
-- terms: [シェーダー, shader, シェーダ, 頂点シェーダー, ピクセルシェーダー, HLSL]
+- terms: [シェーダー, shader, シェーダ, HLSL]
   text: GPU 上で動く、頂点や色を計算する小さなプログラム。
-- terms: [ドローコール, 描画命令, draw call, Draw Call]
+- terms: [ドローコール, ドロー コール, 描画命令, draw call, Draw Call, ドロー コール数]
   text: CPU が GPU に出す、1 回の描画の命令。多いと CPU が重くなる。
 - terms: [インスタンシング, instancing, インスタンス描画]
   text: 同じメッシュを、1 回の描画命令で、大量に描く方法。
@@ -425,3 +425,187 @@
   text: 手先などの目標位置から、関節の角度を逆算する方法。
 - terms: [ルートモーション, root motion]
   text: アニメーションに含まれる、キャラクター自体の移動。
+- terms: [ステートの切り替え, 状態の切り替え, ステート変更, パイプライン ステート, PSO]
+  text: シェーダー・ブレンド・深度設定などの、描画の「設定」を変えること。ドロー コールより重いことがある。DX12 では設定一式を PSO（パイプライン ステート オブジェクト）にまとめる。
+- terms: [バッチ, batch, Batch, バッチング]
+  text: 複数の物体を、まとめて 1 回の描画命令で描くこと。ドロー コールの回数を減らすための工夫。
+- terms: [CPU バウンド, CPU bound, CPU がボトルネック]
+  text: 描画の命令を作る CPU 側の処理が遅く、GPU が待たされている状態。解像度を下げても速くならない。
+- terms: [GPU バウンド, GPU bound, GPU がボトルネック]
+  text: GPU の描画処理が遅く、CPU が待たされている状態。解像度を下げると速くなるのが目印。
+- terms: [フレームタイム, frame time, フレーム時間]
+  text: 1 フレームにかかる時間（ミリ秒）。60 FPS なら約 16.7 ms。FPS より、足し引きしやすい。
+- terms: [ラスタライズ, rasterize, ラスタライザ, rasterizer, ラスタライザー]
+  text: 三角形を、画面のどのピクセルに当たるかに変換する処理（GPU の固定機能）。
+- terms: [ピクセルシェーダー, pixel shader, フラグメントシェーダー, fragment shader]
+  text: 画面の 1 ピクセルごとに動き、その色を計算するシェーダー。重くなりやすい。
+- terms: [頂点シェーダー, vertex shader]
+  text: 頂点 1 つごとに動き、位置を変換するシェーダー。
+- terms: [コンピュートシェーダー, compute shader, コンピュート シェーダー]
+  text: 描画ではなく、汎用の計算を GPU でさせるシェーダー。ライト カリングや GPU カリングに使う。
+- terms: [ROP, レンダー出力]
+  text: 計算した色を、レンダーターゲットに書き込み・ブレンドする、GPU の最終段。
+- terms: [メモリ帯域幅, 帯域幅, 帯域, bandwidth, Bandwidth, メモリ帯域]
+  text: メモリが 1 秒に送れるデータ量（GB/s）。画面サイズのテクスチャを何度も読み書きすると、ここが足りなくなる。
+- terms: [VRAM, ビデオメモリ, グラフィックスメモリ]
+  text: GPU 専用のメモリ。テクスチャ・バッファ・レンダーターゲットを置く。
+- terms: [オーバードロー, overdraw, Overdraw]
+  text: 同じピクセルを何度も塗ること。隠れて見えなくなる分の計算が無駄になる。
+- terms: [Early-Z, Early Z, アーリーZ, 早期深度テスト]
+  text: ピクセルシェーダーの前に深度テストをして、隠れたピクセルの計算を省く、GPU の自動の最適化。
+- terms: [Z プリパス, Zプリパス, 深度プリパス, depth prepass, Z prepass]
+  text: 色の計算の前に、深度だけを先に描くパス。後の色のパスで、隠れた部分の計算を省ける。
+- terms: [クアッド, quad overdraw, クアッドオーバードロー]
+  text: GPU がピクセルを 2×2 の 4 つ組で実行する単位。小さな三角形だと、無駄になる計算が多い。
+- terms: [Forward, フォワード, フォワードレンダリング, Forward Rendering]
+  text: 物体を描くときに、その場でライティングまで計算する方式。ライトが多いと重い。
+- terms: [Deferred, ディファード, ディファードレンダリング, Deferred Rendering, ディファードシェーディング]
+  text: まず物体の情報を G-Buffer に書き、後で画面全体にライティングする方式。ライトが多くても、ピクセル数に比例した重さで済む。
+- terms: [G-Buffer, Gバッファ, ジーバッファ, GBuffer]
+  text: Deferred で、各ピクセルの色・法線・粗さなどを書いておく、画面サイズのテクスチャ群。
+- terms: [ライトボリューム, light volume, ライト ボリューム]
+  text: ライトが届く範囲を表す球や円錐。その範囲のピクセルだけを、ライティングする。
+- terms: [Tiled, タイルド, Tiled Deferred, Tiled Forward, Forward+, フォワードプラス]
+  text: 画面を 16×16 ほどのタイルに分け、タイルごとに影響するライトを絞り込む方式。
+- terms: [Clustered, クラスタード, Clustered Deferred, Clustered Forward]
+  text: 画面を奥行き方向にも分けた 3D の格子（クラスター）ごとに、ライトを絞る方式。奥行きが大きく違う場面に強い。
+- terms: [ライトカリング, light culling, ライト カリング]
+  text: 画面の各領域に、影響するライトだけを割り当てて、無駄なライト計算を省くこと。
+- terms: [groupshared, グループ共有メモリ]
+  text: コンピュートシェーダーで、同じスレッドグループ内のスレッドが共有する、高速な小さなメモリ。
+- terms: [スレッドグループ, thread group, ワープ, warp, ウェーブ, wavefront]
+  text: GPU が一緒に動かす、数十スレッドの組（NVIDIA はワープ、AMD はウェーブ）。同じ命令を同時に実行する。
+- terms: [ダイバージェンス, divergence]
+  text: 同じ組のスレッドが、別々の分岐に進むこと。両方の道を順に実行するので遅くなる。
+- terms: [占有率, オキュパンシー, occupancy, Occupancy]
+  text: GPU が同時に動かせるウェーブの数。多いほど、メモリ待ちを他のウェーブで隠せる。
+- terms: [レジスタ, register]
+  text: シェーダーが使う、一時変数の置き場。多く使うと、同時に動かせる組が減る。
+- terms: [ALU]
+  text: 足し算・掛け算などを行う、GPU の計算部分。
+- terms: [FP16, 半精度, min16float]
+  text: 16 ビットの小数。32 ビットより精度は低いが、レジスタと演算が半分で済む。
+- terms: [異方性フィルタリング, 異方性, ミップレベル, mip level]
+  text: ミップレベルは、遠い面ほど小さなミップを選ぶ仕組みの段数。異方性フィルタリングは、斜めに見える面で、ぼやけを減らす。
+- terms: [BC 圧縮, BC7, BC1, BC3, BC5, DXT, ブロック圧縮, テクスチャ圧縮, 圧縮テクスチャ]
+  text: テクスチャを GPU が直接読める形で小さくする方式。メモリと帯域を節約できる。
+- terms: [テクスチャアトラス, texture atlas, アトラス, テクスチャ配列, texture array]
+  text: 小さな画像を 1 枚にまとめたもの（アトラス）や、同じ大きさの画像を重ねたもの（配列）。テクスチャの切り替えを減らせる。
+- terms: [バインドレス, bindless, Bindless]
+  text: テクスチャを、切り替えずに、番号で直接参照できる仕組み。1 回の描画で多数の材質を扱える。
+- terms: [インダイレクト描画, indirect draw, Indirect Draw, DrawIndexedInstancedIndirect, ExecuteIndirect]
+  text: 描画の引数（個数・開始位置）を、GPU 上のバッファから読んで描く方式。GPU 自身が描画内容を決められる。
+- terms: [GPU Driven, GPU ドリブン, GPU Driven Rendering]
+  text: カリングと描画命令の作成を、CPU ではなく GPU にやらせる方式。物体が数万個あっても CPU の負担が増えない。
+- terms: [Meshlet, メッシュレット, meshlet]
+  text: メッシュを、64 頂点ほどの小さな塊に分けたもの。塊ごとにカリングできる。
+- terms: [Mesh Shader, メッシュシェーダー, メッシュ シェーダー, Task Shader, Amplification Shader]
+  text: Meshlet を直接処理する、新しいシェーダー段（DX12 Ultimate）。従来の頂点処理を置き換える。
+- terms: [Visibility Buffer, ビジビリティバッファ, 可視性バッファ]
+  text: 材質の値の代わりに、三角形の ID だけを画面に書く方式。G-Buffer より書き込みが少ない。
+- terms: [Hi-Z, HZB, 階層的深度, Hierarchical Z]
+  text: 深度バッファを、各段が「範囲内の最も奥の深度」になるように、縮小して重ねたもの。カリングやトレースを速くする。
+- terms: [オクルージョンカリング, occlusion culling, オクルージョン カリング]
+  text: 他の物体に隠れて見えない物体を、描かないこと。
+- terms: [フラスタムカリング, frustum culling]
+  text: カメラの視界の外にある物体を、描かないこと。
+- terms: [八分木, Octree, octree, オクツリー, 四分木, Quadtree, quadtree, kd-tree]
+  text: 空間を再帰的に分けた木構造。近くの物体を、素早く探したり、まとめて除外できる。
+- terms: [スクリーン空間, screen space, スクリーンスペース]
+  text: 画面のピクセル座標で考える空間。SSAO や SSR は、画面の深度を使って計算する。
+- terms: [SSAO, GTAO, HBAO]
+  text: 画面の深度から、くぼみに生じる暗さ（環境光遮蔽）を近似する方法。
+- terms: [SSR, スクリーン空間反射, Screen Space Reflection]
+  text: 画面に映っているものだけで、反射を計算する方法。画面外は映らない。
+- terms: [バイラテラル, bilateral, アップサンプル, upsample]
+  text: 深度などの違いを考慮して、境界をまたいで混ぜないようにするぼかし・拡大。縮小バッファの拡大に使う。
+- terms: [ダウンサンプル, downsample, 縮小バッファ, 半分解像度, ハーフ解像度]
+  text: 画像を小さくすること。縮小した解像度で効果を計算すると、計算量が大きく減る。
+- terms: [ブルーム, bloom, Bloom]
+  text: 明るい部分が、にじんで光って見える効果。
+- terms: [被写界深度, DOF, depth of field]
+  text: ピントの合った距離以外が、ぼやけて見える効果。
+- terms: [ポストプロセス, post process, ポストエフェクト, post-process]
+  text: 描き終わった画面全体に、後から掛ける効果（ブルーム・トーンマップなど）。
+- terms: [TAA, 時間的アンチエイリアシング, テンポラル, temporal, TAAU]
+  text: 毎フレーム少しずらして描き、過去のフレームと混ぜて、ギザギザや細かいノイズを滑らかにする方法。
+- terms: [アンチエイリアシング, anti-aliasing, MSAA, FXAA, ジャギー]
+  text: 斜めの線のギザギザ（ジャギー）を、目立たなくする処理。
+- terms: [DLSS, FSR, アップスケーラ, アップスケール, upscaling, XeSS]
+  text: 低い解像度で描いた画面を、高い解像度へ拡大して、きれいに見せる技術。
+- terms: [動的解像度, dynamic resolution]
+  text: 負荷に応じて、描画の解像度をフレームごとに変える方法。
+- terms: [VRS, 可変レートシェーディング, variable rate shading]
+  text: 画面の場所ごとに、シェーディングの細かさを変える機能（DX12 Ultimate）。
+- terms: [非同期コンピュート, async compute, Async Compute]
+  text: 描画とコンピュートを、別のキューで同時に走らせて、GPU の空きを埋める方法。
+- terms: [カスケードシャドウマップ, CSM, Cascaded Shadow Maps, カスケード, シャドウマップ, shadow map, 影マップ]
+  text: 影を、カメラの近くは細かく、遠くは粗く、複数枚の影マップで描く方法。
+- terms: [PCF, Percentage Closer Filtering, ソフトシャドウ]
+  text: 影マップを、周囲の複数点で比べて平均し、影の縁を滑らかにする方法。
+- terms: [インポスター, impostor, ビルボード, billboard]
+  text: 遠くの物を、常にカメラに向く 1 枚の画像で代用する方法。
+- terms: [バーチャルテクスチャ, virtual texture, ミップストリーミング, テクスチャストリーミング]
+  text: 巨大なテクスチャを、必要な部分・必要なミップだけメモリに置く方法。
+- terms: [パーティクル, particle, Particle, パーティクルシステム]
+  text: 煙・火花・雨など、小さな板を大量に飛ばして表現する効果。
+- terms: [半透明, アルファブレンド, alpha blend, アルファテスト, alpha test, 透過]
+  text: 後ろが透けて見える描き方。奥から順に重ねる必要があり、Early-Z が効きにくく、重くなりやすい。
+- terms: [PIX, RenderDoc, Nsight, Nsight Graphics, Radeon GPU Profiler, GPU プロファイラ]
+  text: GPU の描画を調べるツール。ドロー コールごとの時間・状態・シェーダーを確認できる。
+- terms: [DirectX 11, DX11, D3D11, Direct3D 11]
+  text: Windows の描画 API の 1 つ。このサイトの描画の例は、これを使っている。
+- terms: [DirectX 12, DX12, D3D12, Direct3D 12, Vulkan]
+  text: 描画の細かい制御を、プログラマが行う新しい API。ドライバの仕事が少なく、CPU の負担を減らせるが、実装が難しい。
+- terms: [DirectX 12 Ultimate, DX12 Ultimate, レイトレーシング, ray tracing, DXR]
+  text: DX12 の新機能の一式（メッシュ シェーダー・レイトレーシング・VRS など）。対応 GPU が必要。
+- terms: [ドライバ, driver, グラフィックスドライバ, GPU ドライバ]
+  text: API の命令を、GPU のハードウェア命令に変換するソフトウェア。DX11 では、この処理が CPU の負担になる。
+- terms: [同期待ち, ストール, stall, 読み戻し, readback]
+  text: CPU と GPU が、互いの完了を待って止まること。GPU の結果を CPU で読むと、起きやすい。
+- terms: [フェンス, fence, Fence, バリア, barrier]
+  text: GPU の処理の順序や完了を、同期するための仕組み。
+- terms: [InterlockedAdd, アトミックカウンター]
+  text: 複数のスレッドが同時に使っても、壊れない、加算の操作。
+- terms: [構造化バッファ, StructuredBuffer, structured buffer, RWStructuredBuffer, UAV]
+  text: 構造体の配列を GPU に置くバッファ。UAV は、シェーダーから書き込める形のビュー。
+- terms: [頂点キャッシュ, vertex cache]
+  text: 変換済みの頂点を、一時的に覚えておき、同じ頂点を共有する三角形で再利用する、GPU の仕組み。
+- terms: [法線の円錐, normal cone, Normal Cone]
+  text: 塊の全ての三角形の向きを、1 つの円錐で表したもの。裏向きの塊を、まとめて除外できる。
+- terms: [重心座標, barycentric, バリセントリック]
+  text: 三角形の中の点を、3 頂点からの重みで表す座標。頂点の属性（UV・法線）の補間に使う。
+- terms: [境界球, bounding sphere, バウンディングスフィア, 境界ボリューム, bounding volume]
+  text: 物体を包む球や箱。判定を速くするため、複雑な形の代わりに使う。
+- terms: [アルファ, alpha, Alpha, 不透明度]
+  text: 色の透け具合を表す値。0 で完全に透明、1 で不透明。
+- terms: [RGBA, RGBA8, R11G11B10, DXGI_FORMAT, ピクセルフォーマット, テクスチャフォーマット]
+  text: ピクセルの色の、データの形。ビット数が少ないほど、メモリと帯域が節約できる。
+- terms: [フィルレート, fill rate]
+  text: GPU が、1 秒に塗れるピクセル数。解像度やオーバードローが増えると、足りなくなる。
+- terms: [スループット, throughput, レイテンシ, latency]
+  text: スループットは、単位時間に処理できる量。レイテンシは、1 つの結果が出るまでの待ち時間。
+- terms: [並列, parallel, 並列処理, 並列化]
+  text: 複数の処理を、同時に行うこと。GPU は、数千の並列処理が得意。
+- terms: [パッキング, packing]
+  text: 複数のデータを、1 つの領域に詰め込むこと。
+- terms: [量子化, quantization, quantize]
+  text: 値の精度を落として（細かさを減らして）、小さなビット数で表すこと。メモリと帯域を節約する。
+- terms: [LUT, ルックアップテーブル, lookup table, 事前計算, precompute]
+  text: 計算結果を、先に表にしておき、実行時は、表を引くだけにする方法。
+- terms: [近似式, 近似]
+  text: 正確な計算の代わりに、軽くて、十分に近い値を出す式。
+- terms: [ランタイム, runtime, Runtime, 実行時]
+  text: プログラムが、実際に動いているとき。ビルド時の反対。
+- terms: [ビルド時, build time, コンパイル時, compile time, オフライン処理]
+  text: 実行前（ビルドのとき）に済ませておく処理。重い計算を、ここへ移すと、実行時が軽くなる。
+- terms: [ヒステリシス, hysteresis]
+  text: 切り替える境目に、余裕（幅）を持たせて、行ったり来たりのちらつきを防ぐこと。
+- terms: [ポップイン, popping, pop-in, LOD ポップ]
+  text: 物体や詳細度が、突然、現れたり切り替わったりして、目立つこと。
+- terms: [ディザ, dither, ディザリング, dithering, ディザフェード]
+  text: 点の細かい模様で、半透明や、切り替えを、ごまかす方法。
+- terms: [フォグ, fog, Fog, ボリューメトリックフォグ, volumetric fog]
+  text: 遠くが霞んで見える効果。ボリューメトリックは、光の筋なども表せる。
+- terms: [静的ライティング, 動的ライト, dynamic light, 静的ライト]
+  text: 動かない光は、事前に計算して保存し（静的）、動く光だけ実行時に計算する（動的）。

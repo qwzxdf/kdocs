@@ -118,6 +118,10 @@ def _text_pattern():
             escaped = re.escape(term)
             if term[0].isascii() and term[0].isalnum():
                 escaped = rf"(?<![A-Za-z0-9_]){escaped}(?![A-Za-z0-9_])"
+            elif re.fullmatch(r"[ァ-ヴー]+", term):
+                escaped = r"(?<![ァ-ヴー])" + escaped
+                if len(term) <= 3:
+                    escaped += r"(?![ァ-ヴー])"
             parts.append(escaped)
         _compiled.append(re.compile("|".join(parts)) if parts else None)
     return _compiled[0]

@@ -165,11 +165,11 @@ class monotonic_buffer_resource : public memory_resource {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `buffer`, `size` | 最初に使う領域（スタックの配列など）。`nullptr` / 0 なら、すぐ上流から取る |
-| `upstream` | **領域が足りなくなったとき**に、追加のメモリを取りに行く先。デフォルトは `get_default_resource()`（普通の `new`） |
-| `initial_size` | 最初に上流から取る大きさ（目安） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `buffer`, `size` | `void*`, `size_t` | 最初に使う領域（スタックの配列など）。`nullptr` / 0 なら、すぐ上流から取る |
+| `upstream` | `std::pmr::memory_resource*` | **領域が足りなくなったとき**に、追加のメモリを取りに行く先。デフォルトは `get_default_resource()`（普通の `new`） |
+| `initial_size` | `std::size_t` | 最初に上流から取る大きさ（目安） |
 
 - 戻り値: なし（コンストラクタ）
 - 確保は「今の位置から、必要な大きさだけ進める」だけです。**探す処理がないので非常に速く**、メモリの断片化もしません
@@ -225,9 +225,9 @@ class polymorphic_allocator {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `r` | 使うリソースへのポインタ（`nullptr` は不可） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `r` | `std::pmr::memory_resource*` | 使うリソースへのポインタ（`nullptr` は不可） |
 
 - 戻り値: `resource()` は持っているリソースへのポインタ
 - 自作のクラスで「渡されたリソースを使ってメンバのコンテナを作りたい」ときは、コンストラクタに `std::pmr::memory_resource*` を受け取り、メンバのコンテナに渡します。
@@ -255,10 +255,10 @@ class unsynchronized_pool_resource : public memory_resource {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `upstream` | プールが足りないときに取りに行く先 |
-| `opts` | `max_blocks_per_chunk`（1 回に取るブロック数）、`largest_required_pool_block`（プールで扱う最大の大きさ）の設定 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `upstream` | `std::pmr::memory_resource*` | プールが足りないときに取りに行く先 |
+| `opts` | `const pool_options&` | `max_blocks_per_chunk`（1 回に取るブロック数）、`largest_required_pool_block`（プールで扱う最大の大きさ）の設定 |
 
 - **大きさごとのプール**（8、16、32…バイト）を持ち、解放されたブロックを**再利用**します。monotonic と違い、個別に `deallocate` したものが次の確保で使い回されます
 - 要素を 1 つずつ確保して、どんどん追加・削除する `std::pmr::map`、`std::pmr::list`、`std::pmr::unordered_map` に向いています
@@ -312,9 +312,9 @@ memory_resource* get_default_resource() noexcept;
 memory_resource* set_default_resource(memory_resource* r) noexcept;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `r` | 新しいデフォルトのリソース。`nullptr` なら `new_delete_resource()` に戻る |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `r` | `std::pmr::memory_resource*` | 新しいデフォルトのリソース。`nullptr` なら `new_delete_resource()` に戻る |
 
 - 戻り値: 前のデフォルト
 - 以降に作る pmr コンテナ（リソースを渡さないもの）が、`r` を使うようになります。**プログラム全体に効く**ので、普通は使わず、リソースを明示的に渡します
@@ -335,11 +335,11 @@ class memory_resource {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `bytes` | 確保するバイト数（**要素の数ではない**） |
-| `alignment` | 置き場所の約束（2 の累乗）。デフォルトは一番大きい型の約束 |
-| `p` | `allocate` が返したポインタ |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `bytes` | `std::size_t` | 確保するバイト数（**要素の数ではない**） |
+| `alignment` | `std::size_t` | 置き場所の約束（2 の累乗）。デフォルトは一番大きい型の約束 |
+| `p` | `void*` | `allocate` が返したポインタ |
 
 - 自作のリソースを作るときの基底クラスです。3 つの `do_` 関数を実装します
 - 戻り値: `allocate` は `bytes` 個の生のメモリへのポインタ

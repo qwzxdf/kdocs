@@ -40,8 +40,7 @@
 | [コンパイル時の計算（constexpr）](compile-time.md) | `constexpr` / `consteval` / `constinit` / `if constexpr`。実行時の計算を、ビルド時に |
 | [ビルド時間の最適化](build-time.md) | include の整理、PCH、並列ビルド、unity ビルド |
 | [フレーム時間の設計](frame-budget.md) | フレームバジェット、固定タイムステップ、スパイク対策 |
-| [描画の最適化](rendering.md) | ドロー コール、バッチ、カリング |
-| [描画の最適化（詳細）](gfx/index.md) | Forward/Deferred、Tiled/Clustered、GPU Driven、Meshlet ほか |
+| [描画最適化（別セクション）](../rendering/index.md) | 描画の最適化は、独立したセクションに移動しました |
 | [ベイク（事前計算）](baking.md) | ライトマップ・ナビメッシュ・アニメ圧縮など、重い計算を、ビルド時に済ませる |
 | [シリアライズでロードを速く](serialization-speed.md) | JSON をバイナリに。ゼロコピー。既存のシリアライズのページへ |
 | [ロード時間・起動時間](loading.md) | 待たせない。バイナリ化・非同期 |
@@ -94,7 +93,7 @@
 | **シリアライズ** | [シリアライズ](../engine/serialization/index.md)、[simdjson](../libs/serialization/simdjson.md)、[zpp-bits](../libs/serialization/zpp-bits.md) | ロード時間・ファイルサイズ |
 | **3D の数学** | [DirectXMath](../3d/directxmath.md)、[SimpleMath](../3d/simplemath.md) | SIMD による高速な計算 |
 | **3D の描画・判定** | [深度とカリング](../3d/depth-culling.md)、[メッシュとテクスチャ](../3d/mesh-textures.md)、[3D の衝突判定](../3d/collision-3d.md) | カリング、インスタンシング、ブロードフェーズ |
-| **スキニング** | [スキニングとアニメーション](../3d/skinning-animation.md) | GPU スキニング、骨の削減 |
+| **スキニング** | [スキニングとアニメーション](../3d/skinning-animation.md) | GPU スキニング、ボーンの削減 |
 
 ## 関連ページ
 

@@ -210,10 +210,10 @@ int strcmp(const char* lhs, const char* rhs);
 int strncmp(const char* lhs, const char* rhs, std::size_t count);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `lhs`, `rhs` | 比べる C 文字列 |
-| `count` | 先頭から最大でこの文字数だけ比べる |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `lhs`, `rhs` | `const char*` | 比べる C 文字列 |
+| `count` | `std::size_t` | 先頭から最大でこの文字数だけ比べる |
 
 - 戻り値: `strcmp` と同じ
 - 「先頭が `"enemy_"` で始まるか」の判定に使えます（`std::string_view::starts_with` のほうが簡単です）
@@ -224,11 +224,11 @@ int strncmp(const char* lhs, const char* rhs, std::size_t count);
 const void* memchr(const void* ptr, int ch, std::size_t count);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `ptr` | 探す領域の先頭 |
-| `ch` | 探すバイトの値 |
-| `count` | 探す範囲のバイト数 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `ptr` | `const void*` | 探す領域の先頭 |
+| `ch` | `int` | 探すバイトの値 |
+| `count` | `std::size_t` | 探す範囲のバイト数 |
 
 - 戻り値: 最初に見つかった場所のポインタ。なければ `nullptr`
 - バイナリデータの中から、区切りのバイトを探すときに使います
@@ -239,10 +239,10 @@ const void* memchr(const void* ptr, int ch, std::size_t count);
 const char* strchr(const char* str, int ch);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `str` | 探す C 文字列 |
-| `ch` | 探す文字 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `str` | `const char*` | 探す C 文字列 |
+| `ch` | `int` | 探す文字 |
 
 - 戻り値: 最初に見つかった位置のポインタ。なければ `nullptr`。`ch` に `'\0'` を渡すと、終端の位置が返る
 - `std::string_view::find` のほうが安全です。
@@ -253,10 +253,10 @@ const char* strchr(const char* str, int ch);
 const char* strstr(const char* str, const char* substr);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `str` | 探される C 文字列 |
-| `substr` | 探す C 文字列 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `str` | `const char*` | 探される C 文字列 |
+| `substr` | `const char*` | 探す C 文字列 |
 
 - 戻り値: 最初に見つかった位置のポインタ。なければ `nullptr`
 - `std::string_view::find` / `contains` を使うほうが、長さを保てて安全です。
@@ -267,10 +267,10 @@ const char* strstr(const char* str, const char* substr);
 char* strcpy(char* dest, const char* src);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `dest` | コピー先（`src` の長さ + 1 以上の大きさが必要） |
-| `src` | コピー元の C 文字列 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `dest` | `char*` | コピー先（`src` の長さ + 1 以上の大きさが必要） |
+| `src` | `const char*` | コピー元の C 文字列 |
 
 - 戻り値: `dest`
 - <strong>コピー先の大きさを一切チェックしません。</strong> `src` が長いと、`dest` の後ろを壊します（バッファオーバーフロー）。セキュリティの穴の原因として有名です。**使ってはいけません**（MSVC は警告 C4996 を出します）
@@ -282,11 +282,11 @@ char* strcpy(char* dest, const char* src);
 char* strncpy(char* dest, const char* src, std::size_t count);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `dest` | コピー先 |
-| `src` | コピー元 |
-| `count` | コピーする最大の文字数 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `dest` | `char*` | コピー先 |
+| `src` | `const char*` | コピー元 |
+| `count` | `std::size_t` | コピーする最大の文字数 |
 
 - 戻り値: `dest`
 - 安全そうに見えますが、**`src` が `count` 以上の長さのとき、終端の `'\0'` を書いてくれません**。そのまま `strlen` や `printf` に渡すと範囲外を読みます。短いときは、残りを `'\0'` で埋めるので、無駄に遅い場合もあります
@@ -298,10 +298,10 @@ char* strncpy(char* dest, const char* src, std::size_t count);
 char* strcat(char* dest, const char* src);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `dest` | つなげる先（すでに C 文字列が入っている。十分な大きさが必要） |
-| `src` | 後ろにつなげる C 文字列 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `dest` | `char*` | つなげる先（すでに C 文字列が入っている。十分な大きさが必要） |
+| `src` | `const char*` | 後ろにつなげる C 文字列 |
 
 - 戻り値: `dest`
 - `strcpy` と同じで、**大きさのチェックがありません**。つなげるたびに先頭から終端を探すので、繰り返すと O(n²) です。`std::string` の `+=` を使います
@@ -312,11 +312,11 @@ char* strcat(char* dest, const char* src);
 int snprintf(char* buffer, std::size_t bufsz, const char* format, ...);  // <cstdio>
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `buffer` | 書き込み先 |
-| `bufsz` | `buffer` の大きさ（終端の `'\0'` を含む） |
-| `format` | `printf` 形式の書式 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `buffer` | `char*` | 書き込み先 |
+| `bufsz` | `std::size_t` | `buffer` の大きさ（終端の `'\0'` を含む） |
+| `format` | `const char*` | `printf` 形式の書式 |
 
 - 戻り値: **書き込めていれば書かれたはずの文字数**（`bufsz` 以上なら、切り捨てられている）
 - 必ず終端の `'\0'` を書いてくれる、**大きさを守る安全な書式付き出力**です（`sprintf` は大きさを見ないので使いません）

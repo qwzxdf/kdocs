@@ -480,10 +480,10 @@ template <class Archive>
 void serialize(Archive& ar, const std::uint32_t version);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `ar` | アーカイブ。保存のときは出力用、読み込みのときは入力用が渡される |
-| `version` | 読み込むときはデータに書かれたバージョン、保存するときは `CEREAL_CLASS_VERSION` の値 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `ar` | `Archive&` | アーカイブ。保存のときは出力用、読み込みのときは入力用が渡される |
+| `version` | `const std::uint32_t` | 読み込むときはデータに書かれたバージョン、保存するときは `CEREAL_CLASS_VERSION` の値 |
 
 - `private` にしたいときは、クラスの中に `friend class cereal::access;` を書きます。
 - 保存のときは `const` なオブジェクトでも呼ばれます（cereal が中で `const` を外して呼びます）。この関数の中で、メンバの値を**変更してはいけません**。
@@ -510,9 +510,9 @@ template <class... Types>
 ArchiveType& operator()(Types&&... args);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `args` | 保存・読み込みする値。何個でも並べられる |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `args` | `Types&&...` | 保存・読み込みする値。何個でも並べられる |
 
 - **戻り値:** アーカイブ自身
 - `ar(a, b, c);` は `ar(a); ar(b); ar(c);` と同じです。
@@ -527,9 +527,9 @@ class BinaryOutputArchive {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `stream` | 書き込み先。`std::ofstream`（`std::ios::binary` で開く）や `std::stringstream` |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `stream` | `std::ostream&` | 書き込み先。`std::ofstream`（`std::ios::binary` で開く）や `std::stringstream` |
 
 - 値を**そのままのバイト**（メモリ上の表現）で書きます。整数はその CPU のエンディアン、`int` は 4 バイト、`long` は環境によって 4 か 8 バイトです。
 - 違う環境で読むかもしれないデータには、`int`・`long` ではなく `std::int32_t`・`std::int64_t` を使います。
@@ -544,9 +544,9 @@ class BinaryInputArchive {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `stream` | 読み込み元。`std::ifstream`（`std::ios::binary`）など |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `stream` | `std::istream&` | 読み込み元。`std::ifstream`（`std::ios::binary`）など |
 
 - **例外:** データが足りないと `cereal::Exception`
 - 読み込み先のオブジェクトは、**事前に作っておく**必要があります（デフォルトコンストラクタで作ってから、中身を上書きする）。
@@ -557,10 +557,10 @@ class BinaryInputArchive {
 CEREAL_CLASS_VERSION(TYPE, VERSION_NUMBER);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `TYPE` | バージョンを付ける型 |
-| `VERSION_NUMBER` | 今のバージョン番号（`std::uint32_t`） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `TYPE` | 型 | バージョンを付ける型 |
+| `VERSION_NUMBER` | `std::uint32_t` | 今のバージョン番号（`std::uint32_t`） |
 
 - 型の定義の後、<strong>名前空間の外（グローバル）</strong> に書きます。型が名前空間の中にあるなら `CEREAL_CLASS_VERSION(game::SaveData, 2);` と書きます。
 - これを書いた型は、`serialize` に `version` 引数を付けて受け取れます（付けなくても動きます）。
@@ -575,11 +575,11 @@ template <class Archive>
 void serialize(Archive& ar, T& value, const std::uint32_t version);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `ar` | アーカイブ |
-| `value` | 保存・読み込みする値 |
-| `version` | バージョン |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `ar` | `Archive&` | アーカイブ |
+| `value` | `T&` | 保存・読み込みする値 |
+| `version` | `const std::uint32_t` | バージョン |
 
 - 自分では変更できない型（数学ライブラリの `glm::vec3` など）に使います。
 - **その型と同じ名前空間**か、`cereal` 名前空間に書きます。
@@ -605,10 +605,10 @@ template <class Archive>
 void save(Archive& ar, const std::uint32_t version) const;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `ar` | 出力用のアーカイブ |
-| `version` | 保存するバージョン（`CEREAL_CLASS_VERSION` の値） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `ar` | `Archive&` | 出力用のアーカイブ |
+| `version` | `const std::uint32_t` | 保存するバージョン（`CEREAL_CLASS_VERSION` の値） |
 
 - 保存のときだけ呼ばれます。`serialize` の代わりに、**`load` と必ず組で**書きます。`serialize` と同時に書いてはいけません。
 - `const` メンバ関数にします（保存でオブジェクトを変えないため）。
@@ -631,10 +631,10 @@ template <class Archive>
 void load(Archive& ar, const std::uint32_t version);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `ar` | 入力用のアーカイブ |
-| `version` | データに書かれていたバージョン |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `ar` | `Archive&` | 入力用のアーカイブ |
+| `version` | `const std::uint32_t` | データに書かれていたバージョン |
 
 - 読み込みのときだけ呼ばれます。`save` と**同じ順番**で読みます。
 - 読み込んだ後に、保存しなかったデータを作り直すのに使います。
@@ -653,9 +653,9 @@ void load(Archive& ar) {
 #define CEREAL_NVP(T) ::cereal::make_nvp(#T, T)
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `T` | メンバ（変数名がそのままキーになる） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | メンバ変数 | メンバ（変数名がそのままキーになる） |
 
 - NVP は「Name-Value Pair（名前と値の組）」の略です。JSON・XML アーカイブで、キーの名前になります。
 - バイナリアーカイブでは名前は**無視される**ので、付けても大きさは変わりません。JSON でも使うかもしれないなら、最初から付けておくと便利です。
@@ -668,10 +668,10 @@ template <class T>
 NameValuePair<T> make_nvp(const std::string& name, T&& value);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `name` | キーの名前 |
-| `value` | 値 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `name` | `const char*` | キーの名前 |
+| `value` | `T&` | 値 |
 
 - メンバ名と違う名前をキーにしたいときに使います（`m_hp` を `"hp"` として保存する、など）。
 
@@ -685,10 +685,10 @@ class JSONOutputArchive {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `stream` | 書き込み先 |
-| `options` | 字下げや小数の桁数の設定（[フラグ](#flags)） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `stream` | `std::ostream&` | 書き込み先 |
+| `options` | `Options` | 字下げや小数の桁数の設定（[フラグ](#flags)） |
 
 ```cpp
 #include <print>
@@ -747,9 +747,9 @@ class JSONInputArchive {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `stream` | 読み込み元 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `stream` | `std::istream&` | 読み込み元 |
 
 - **例外:** JSON が壊れている、キーが見つからない、型が違うと `cereal::Exception`
 - 名前付き（NVP）の値は、名前で探して読みます。ただし、基本は**書いたときと同じ順番**で読む前提です。順番が違うとその分だけ探すので遅くなります。
@@ -762,10 +762,10 @@ CEREAL_REGISTER_TYPE(T)
 CEREAL_REGISTER_TYPE_WITH_NAME(T, Name)
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `T` | 登録する子のクラス |
-| `Name` | 保存する型の名前（文字列）。クラス名を変えても古いデータを読めるようにする |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型 | 登録する子のクラス |
+| `Name` | 文字列リテラル | 保存する型の名前（文字列）。クラス名を変えても古いデータを読めるようにする |
 
 - 親のポインタ（`unique_ptr<Enemy>` など）で保存する子のクラスを、すべて登録します。
 - 登録していない子のクラスを保存しようとすると、実行時に `cereal::Exception`（`Trying to save an unregistered polymorphic type`）になります。
@@ -776,10 +776,10 @@ CEREAL_REGISTER_TYPE_WITH_NAME(T, Name)
 CEREAL_REGISTER_POLYMORPHIC_RELATION(Base, Derived)
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `Base` | 親のクラス |
-| `Derived` | 子のクラス |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `Base` | 型 | 親のクラス |
+| `Derived` | 型 | 子のクラス |
 
 - 親子関係を cereal に教えます。子の `serialize` で `cereal::base_class<Base>(this)` を使っていれば、自動で分かるので省略できることもありますが、書いておくと確実です。
 
@@ -794,10 +794,10 @@ class PortableBinaryOutputArchive {
 // 読み込みは PortableBinaryInputArchive
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `stream` | 書き込み先 |
-| `options` | 保存するエンディアン（`Options::LittleEndian()` / `BigEndian()` / `Default()`） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `stream` | `std::ostream&` | 書き込み先 |
+| `options` | `Options` | 保存するエンディアン（`Options::LittleEndian()` / `BigEndian()` / `Default()`） |
 
 - 先頭にエンディアンの情報を書き、読み込むときに必要なら並び替えます。PC と、エンディアンが違う機械の間でデータをやり取りするときに使います。
 - 今の PC・スマホ・ゲーム機はほぼすべてリトルエンディアンなので、普通は `BinaryArchive` で十分です。
@@ -809,9 +809,9 @@ template <class Archive>
 ValueType save_minimal(const Archive& ar) const;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `ar` | アーカイブ（`const`。読み書きには使わない） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `ar` | `const Archive&` | アーカイブ（`const`。読み書きには使わない） |
 
 - **戻り値:** 保存する値。数値か `std::string`
 - 型を**1 つの数値か文字列**として保存します。JSON では `"id": {"value0": 7}` ではなく `"id": 7` のように、オブジェクトにならずに値そのものになります。
@@ -840,10 +840,10 @@ template <class Archive>
 void load_minimal(const Archive& ar, const ValueType& value);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `ar` | アーカイブ（`const`） |
-| `value` | 読み込まれた値。型は `save_minimal` の戻り値と同じにする |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `ar` | `const Archive&` | アーカイブ（`const`） |
+| `value` | `T&` | 読み込まれた値。型は `save_minimal` の戻り値と同じにする |
 
 - `save_minimal` で保存した値から、オブジェクトを作り直します。
 - `value` の型が `save_minimal` の戻り値の型と違うと、コンパイルエラーになります。
@@ -855,10 +855,10 @@ template <class Archive>
 static void load_and_construct(Archive& ar, cereal::construct<T>& construct);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `ar` | 入力アーカイブ |
-| `construct` | 読んだ値でオブジェクトを作る道具。`construct(引数...)` でコンストラクタを呼ぶ |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `ar` | `Archive&` | 入力アーカイブ |
+| `construct` | `construct<T>&` | 読んだ値でオブジェクトを作る道具。`construct(引数...)` でコンストラクタを呼ぶ |
 
 - **デフォルトコンストラクタが無い型**を、`unique_ptr` / `shared_ptr` 経由で読み込むときに使います。
 - 普通は、デフォルトコンストラクタを用意する方が簡単です。
@@ -870,10 +870,10 @@ template <class T>
 BinaryData<T> binary_data(T&& data, std::size_t size);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `data` | 配列の先頭のポインタ |
-| `size` | **バイト数**（要素の数ではない） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `data` | `T*` | 配列の先頭のポインタ |
+| `size` | `std::size_t` | **バイト数**（要素の数ではない） |
 
 - 配列を 1 要素ずつではなく、**まとめてバイトのまま**保存します。地形の高さマップなど、大きな数値の配列で速くなります。
 - バイナリアーカイブ専用です（JSON では Base64 の文字列になります）。要素数は保存されないので、別に保存しておきます。
@@ -893,9 +893,9 @@ template <class T>
 SizeTag<T> make_size_tag(T&& sz);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `sz` | 要素の数（保存のときは値、読み込みのときは受け取る変数） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `sz` | `size_type&` | 要素の数（保存のときは値、読み込みのときは受け取る変数） |
 
 - 自作のコンテナを保存するときに、要素数を保存します。JSON アーカイブでは配列として正しく出力されるようになります。
 
@@ -910,10 +910,10 @@ class XMLOutputArchive {
 // 読み込みは XMLInputArchive
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `stream` | 書き込み先 |
-| `options` | 小数の桁数、字下げ、型の情報を出すかなど |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `stream` | `std::ostream&` | 書き込み先 |
+| `options` | `Options` | 小数の桁数、字下げ、型の情報を出すかなど |
 
 - XML で保存します。ゲームで使うことはほとんどありません。
 

@@ -159,9 +159,9 @@ void BeginFrame();
 void SetDrawlist(ImDrawList* drawlist = nullptr);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `drawlist` | ギズモを描く先。`nullptr` なら、**今の ImGui ウィンドウ**の描画先 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `drawlist` | `ImDrawList*` | ギズモを描く先。`nullptr` なら、**今の ImGui ウィンドウ**の描画先 |
 
 - 戻り値: なし
 - ギズモは、ImGui の描画リストに線や面を足して描きます。**どのウィンドウの上に描くか**をここで決めます
@@ -173,10 +173,10 @@ void SetDrawlist(ImDrawList* drawlist = nullptr);
 void SetRect(float x, float y, float width, float height);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `x`, `y` | ギズモを出す領域の左上（**画面上の座標**） |
-| `width`, `height` | 領域の大きさ |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `x`, `y` | `float` | ギズモを出す領域の左上（**画面上の座標**） |
+| `width`, `height` | `float` | 領域の大きさ |
 
 - 戻り値: なし
 - 3D の画面（ビューポート）が、画面のどこにあるかを教えます。**ここがずれると、ギズモの位置がオブジェクトとずれます**
@@ -189,9 +189,9 @@ void SetRect(float x, float y, float width, float height);
 void SetOrthographic(bool isOrthographic);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `isOrthographic` | カメラが**正射影**なら `true`。**透視投影**なら `false` |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `isOrthographic` | `bool` | カメラが**正射影**なら `true`。**透視投影**なら `false` |
 
 - 戻り値: なし
 - 2D のエディタ（真上から見る、側面から見る）では `true` にします。プロジェクション行列の種類と合わせます
@@ -205,17 +205,17 @@ bool Manipulate(const float* view, const float* projection,
                 const float* localBounds = nullptr, const float* boundsSnap = nullptr);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `view` | ビュー行列（`float[16]`、**列優先**） |
-| `projection` | プロジェクション行列（`float[16]`） |
-| `operation` | 操作の種類（`TRANSLATE`、`ROTATE`、`SCALE` など。[OPERATION](#operation)） |
-| `mode` | `LOCAL`（オブジェクトの向きに合わせる）か `WORLD`（世界の軸に合わせる） |
-| `matrix` | 操作するオブジェクトの**ワールド行列**。**操作すると書き換わる** |
-| `deltaMatrix` | 今回の操作で動いた**差分**の行列を受け取る（`nullptr` なら不要） |
-| `snap` | 動かす量の刻み（`float[3]`）。たとえば `{1.0f, 1.0f, 1.0f}` で 1 ずつ動く。`nullptr` なら刻みなし |
-| `localBounds` | `BOUNDS` 操作で使う、囲み（`float[6]`） |
-| `boundsSnap` | `BOUNDS` 操作の刻み |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `view` | `const float*` | ビュー行列（`float[16]`、**列優先**） |
+| `projection` | `const float*` | プロジェクション行列（`float[16]`） |
+| `operation` | `OPERATION` | 操作の種類（`TRANSLATE`、`ROTATE`、`SCALE` など。[OPERATION](#operation)） |
+| `mode` | `MODE` | `LOCAL`（オブジェクトの向きに合わせる）か `WORLD`（世界の軸に合わせる） |
+| `matrix` | `float*` | 操作するオブジェクトの**ワールド行列**。**操作すると書き換わる** |
+| `deltaMatrix` | `float*` | 今回の操作で動いた**差分**の行列を受け取る（`nullptr` なら不要） |
+| `snap` | `const float*` | 動かす量の刻み（`float[3]`）。たとえば `{1.0f, 1.0f, 1.0f}` で 1 ずつ動く。`nullptr` なら刻みなし |
+| `localBounds` | `const float*` | `BOUNDS` 操作で使う、囲み（`float[6]`） |
+| `boundsSnap` | `const float*` | `BOUNDS` 操作の刻み |
 
 - 戻り値: ギズモが**操作された**フレームで `true`（`IsUsing()` とほぼ同じ）
 - 一番よく使う関数です。`matrix` が書き換わるので、**そのあと、行列から位置・回転・拡大を取り出して**、ゲーム側に戻します
@@ -286,9 +286,9 @@ bool IsOver();
 bool IsOver(OPERATION op);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `op` | 調べたい操作の種類（指定したギズモの上かどうか） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `op` | `OPERATION` | 調べたい操作の種類（指定したギズモの上かどうか） |
 
 - 戻り値: マウスが**ギズモの上**にあるなら `true`
 - 「ギズモの上でクリックしたら、オブジェクトの選択を変えない」ための判定に使います
@@ -299,9 +299,9 @@ bool IsOver(OPERATION op);
 void Enable(bool enable);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `enable` | `false` で、ギズモを**見えるが、操作できない**状態にする |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `enable` | `bool` | `false` で、ギズモを**見えるが、操作できない**状態にする |
 
 - 再生中（ゲームを実行している間）は、オブジェクトを動かせないようにする、といった使い方です
 
@@ -311,9 +311,9 @@ void Enable(bool enable);
 void SetID(int id);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `id` | ギズモの ID |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `id` | `int` | ギズモの ID |
 
 - ImGui の `PushID` のように、**複数のギズモを同時に出す**ときに、ギズモを区別します（それぞれ違う `id` を、`Manipulate` の前に設定する）
 
@@ -324,12 +324,12 @@ void DecomposeMatrixToComponents(const float* matrix, float* translation,
                                  float* rotation, float* scale);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `matrix` | 分解する行列（`float[16]`） |
-| `translation` | 位置を受け取る `float[3]` |
-| `rotation` | 回転を受け取る `float[3]`（**度**のオイラー角） |
-| `scale` | 拡大を受け取る `float[3]` |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `matrix` | `const float*` | 分解する行列（`float[16]`） |
+| `translation` | `float*` | 位置を受け取る `float[3]` |
+| `rotation` | `float*` | 回転を受け取る `float[3]`（**度**のオイラー角） |
+| `scale` | `float*` | 拡大を受け取る `float[3]` |
 
 - 戻り値: なし
 - ワールド行列から、**位置・回転・拡大**を取り出します。ギズモで書き換わった行列を、ゲームのオブジェクトの値に戻すときに使います
@@ -341,12 +341,12 @@ void RecomposeMatrixFromComponents(const float* translation, const float* rotati
                                    const float* scale, float* matrix);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `translation` | 位置（`float[3]`） |
-| `rotation` | 回転（`float[3]`、**度**） |
-| `scale` | 拡大（`float[3]`） |
-| `matrix` | 結果の行列を受け取る `float[16]` |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `translation` | `const float*` | 位置（`float[3]`） |
+| `rotation` | `const float*` | 回転（`float[3]`、**度**） |
+| `scale` | `const float*` | 拡大（`float[3]`） |
+| `matrix` | `float*` | 結果の行列を受け取る `float[16]` |
 
 - 戻り値: なし
 - `DecomposeMatrixToComponents` の逆です。ゲームのオブジェクトの値から、ギズモに渡す行列を作ります
@@ -358,11 +358,11 @@ void DrawGrid(const float* view, const float* projection, const float* matrix,
               const float gridSize);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `view`, `projection` | カメラの行列 |
-| `matrix` | グリッドの位置・向き（普通は単位行列） |
-| `gridSize` | グリッドの大きさ（たとえば `10.0f`） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `view`, `projection` | `const float*` | カメラの行列 |
+| `matrix` | `const float*` | グリッドの位置・向き（普通は単位行列） |
+| `gridSize` | `float` | グリッドの大きさ（たとえば `10.0f`） |
 
 - 戻り値: なし
 - 床の**グリッド線**を描きます。エディタのシーン ビューに、これを出すと、空間の感覚が分かりやすくなります
@@ -374,11 +374,11 @@ void DrawCubes(const float* view, const float* projection, const float* matrices
                int matrixCount);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `view`, `projection` | カメラの行列 |
-| `matrices` | 立方体のワールド行列を**並べた配列**（`float[16 * matrixCount]`） |
-| `matrixCount` | 立方体の数 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `view`, `projection` | `const float*` | カメラの行列 |
+| `matrices` | `const float*` | 立方体のワールド行列を**並べた配列**（`float[16 * matrixCount]`） |
+| `matrixCount` | `int` | 立方体の数 |
 
 - 戻り値: なし
 - 簡単な立方体を描きます。**ギズモの動作確認用**です（本物のゲームのモデルは、自分の描画で出します）
@@ -390,13 +390,13 @@ void ViewManipulate(float* view, float length, ImVec2 position, ImVec2 size,
                     ImU32 backgroundColor);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `view` | ビュー行列。**カメラの向きが書き換わる** |
-| `length` | カメラと注視点の距離 |
-| `position` | キューブを出す画面上の位置（左上） |
-| `size` | キューブの大きさ（ピクセル） |
-| `backgroundColor` | 背景の色（`0` で透明） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `view` | `float*` | ビュー行列。**カメラの向きが書き換わる** |
+| `length` | `float` | カメラと注視点の距離 |
+| `position` | `ImVec2` | キューブを出す画面上の位置（左上） |
+| `size` | `ImVec2` | キューブの大きさ（ピクセル） |
+| `backgroundColor` | `unsigned int` | 背景の色（`0` で透明） |
 
 - 戻り値: なし
 - 画面の隅に出る、**ビュー キューブ**（カメラの向きを示す小さな立方体）です。面をクリックすると、その向き（前・上・右など）にカメラが回ります（Blender の右上と同じもの）
@@ -407,9 +407,9 @@ void ViewManipulate(float* view, float length, ImVec2 position, ImVec2 size,
 void AllowAxisFlip(bool value);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `value` | `true`（既定）なら、カメラの向きによって、**軸の矢印を手前に向くよう反転**する |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `value` | `bool` | `true`（既定）なら、カメラの向きによって、**軸の矢印を手前に向くよう反転**する |
 
 - 戻り値: なし
 - 矢印が奥を向いて、掴みにくくなるのを防ぐ機能です。反転されると困る（常に同じ向きが良い）ときは `false` にします
@@ -420,9 +420,9 @@ void AllowAxisFlip(bool value);
 void SetGizmoSizeClipSpace(float value);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `value` | ギズモの大きさ（画面の割合。既定は約 `0.1`） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `value` | `float` | ギズモの大きさ（画面の割合。既定は約 `0.1`） |
 
 - 戻り値: なし
 - ギズモを、画面に対して大きく・小さくします。カメラが離れてもギズモは同じ大きさで見えます

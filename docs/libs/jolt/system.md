@@ -134,12 +134,12 @@ system.SetPhysicsSettings(settings);
 void Update(float dt, int collision_steps, TempAllocator* temp_allocator, JobSystem* job_system);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| **`dt`** | <strong>進める時間（秒）</strong>。**固定値**にする |
-| **`collision_steps`** | **1 回の `Update` を、何回の衝突判定に分けるか**（**通常 1**） |
-| **`temp_allocator`** | **一時メモリ** |
-| **`job_system`** | **ジョブ システム** |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| **`dt`** | `float` | <strong>進める時間（秒）</strong>。**固定値**にする |
+| **`collision_steps`** | `int` | **1 回の `Update` を、何回の衝突判定に分けるか**（**通常 1**） |
+| **`temp_allocator`** | `TempAllocator*` | **一時メモリ** |
+| **`job_system`** | `JobSystem*` | **ジョブ システム** |
 
 ### 固定タイムステップ
 
@@ -194,11 +194,11 @@ JobSystemThreadPool job_system(cMaxPhysicsJobs, cMaxPhysicsBarriers,
                                std::thread::hardware_concurrency() - 1);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| **`cMaxPhysicsJobs`** | **同時に存在できる、ジョブの最大数**（定数） |
-| **`cMaxPhysicsBarriers`** | **バリアの最大数**（定数） |
-| **スレッド数** | **ワーカーの数**。**CPU のコア数 − 1**（**メイン スレッドの分を、引く**）が定番 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| **`cMaxPhysicsJobs`** | `uint` | **同時に存在できる、ジョブの最大数**（定数） |
+| **`cMaxPhysicsBarriers`** | `uint` | **バリアの最大数**（定数） |
+| **スレッド数** | `int` | **ワーカーの数**。**CPU のコア数 − 1**（**メイン スレッドの分を、引く**）が定番 |
 
 **自分のゲームが、ジョブ システムを持っている**場合は、**Jolt の `JobSystem` を継承して、自分のものにつなぐ**こともできます（**スレッドの数を、1 つの管理にまとめる**）（[マルチスレッド化](../../optimize/multithreading.md)）。
 

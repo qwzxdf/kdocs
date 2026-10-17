@@ -39,12 +39,12 @@ bool LoadModel(const std::string& path, tinygltf::Model& model) {
 | `LoadASCIIFromString` / `LoadBinaryFromMemory` | メモリ上のデータから読む（アーカイブ・ネットワーク経由） |
 | `WriteGltfSceneToFile` | `Model` を、ファイルに書く（ツールで出力するとき） |
 
-| 引数 | 意味 |
-| --- | --- |
-| `&model` | 読み込み結果を受け取る |
-| `&error` | 失敗したときの**エラーメッセージ** |
-| `&warning` | 続行できる**警告**（拡張の未対応など） |
-| `path` | ファイルのパス（アセットのパスは、**ASCII にする**のが無難。[文字コード](../../encoding/index.md)） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `&model` | `tinygltf::Model*` | 読み込み結果を受け取る |
+| `&error` | `std::string*` | 失敗したときの**エラーメッセージ** |
+| `&warning` | `std::string*` | 続行できる**警告**（拡張の未対応など） |
+| `path` | `const std::string&` | ファイルのパス（アセットのパスは、**ASCII にする**のが無難。[文字コード](../../encoding/index.md)） |
 
 **`bool` が `true` でも、`warning` は確認します**。**未対応の拡張**などは、警告で出ます。
 
@@ -58,7 +58,7 @@ bool LoadModel(const std::string& path, tinygltf::Model& model) {
 | 配列 | 中身 |
 | --- | --- |
 | **`scenes`** | シーン（どのノードを表示するか） |
-| **`nodes`** | **ノード**（位置・回転・拡大、親子関係）。**メッシュや骨と結びつく** |
+| **`nodes`** | **ノード**（位置・回転・拡大、親子関係）。**メッシュやボーンと結びつく** |
 | **`meshes`** | **メッシュ**（三角形の集まり）。中に **`primitives`** がある |
 | **`accessors`** | **データの読み方**（「ここから、float 3 つずつ、何個」） |
 | **`bufferViews`** | **バッファの、どの範囲か** |
@@ -67,7 +67,7 @@ bool LoadModel(const std::string& path, tinygltf::Model& model) {
 | **`textures`** | テクスチャ（**画像 + サンプラー**の組み合わせ） |
 | **`images`** | **画像データ**（読み込み済みのピクセル） |
 | **`samplers`** | サンプラー（フィルター・ラップの設定） |
-| **`skins`** | スキン（骨のノード番号のリスト） |
+| **`skins`** | スキン（ボーンのノード番号のリスト） |
 | **`animations`** | アニメーション（どのノードを、どう動かすか） |
 | `cameras` | カメラ（透視・正射） |
 

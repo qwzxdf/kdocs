@@ -59,13 +59,7 @@ tags:
 
 ## パスの方針
 
-<div class="anim" data-type="graph" data-label="ライブラリには、メモリ上のデータを渡す">
-n p パス_（UTF-8_std::string） 0 1
-n f std::filesystem::path_で開く 1 0
-n l ライブラリへ_メモリ上のデータ 1 2
-l p f - 自分で読む
-l p l - ファイル名は渡さない
-</div>
+<svg class="fig flow" viewBox="0 0 578 280" role="img" aria-label="ライブラリには、メモリ上のデータを渡す"><defs><marker id="fl90924" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ライブラリには、メモリ上のデータを渡す</text><line x1="218.7" y1="125.0" x2="351.3" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl90924)"/><text x="285.0" y="100.0" text-anchor="middle" style="font-size:12px">自分で読む</text><line x1="218.7" y1="171.0" x2="351.3" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl90924)"/><text x="285.0" y="184.0" text-anchor="middle" style="font-size:12px">ファイル名は渡さない</text><rect x="28.0" y="128.0" width="221" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="138.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">パス （UTF-8 std::string）</text><rect x="313.0" y="44.0" width="237" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="431.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">std::filesystem::path で開く</text><rect x="316.5" y="212.0" width="230" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="431.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ライブラリへ メモリ上のデータ</text></svg>
 
 | 方針 | 理由 |
 | --- | --- |

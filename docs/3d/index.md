@@ -1,17 +1,17 @@
 # 3D ゲーム
 
-3D ゲームの画面は、<strong>「3D の世界にある物体を、カメラから見た 2D の絵にする」</strong>計算でできています。この計算の中心にあるのが、**座標を、いくつもの「空間」に順番に変換していく**流れです。モデルの中の座標 → 世界の座標 → カメラから見た座標 → 画面に映る座標、という具合です。それを行うのが、**ベクトルと行列**で、その最後の大事な段階が<strong>投影（プロジェクション）</strong>です。このカテゴリでは、3D ゲームを作るために必要な、**数学・カメラ・描画のしくみ・当たり判定**を、順に説明します。数式は、ゲームで使う形に絞り、**なぜそうなるのか**を、図とコードで説明します。
+3D ゲームの画面は、<strong>「3D の世界にある物体を、カメラから見た 2D の絵にする」</strong>計算でできています。この計算の中心にあるのが、**座標をいくつもの「空間」に順番に変換していく**流れです。モデルの中の座標 → 世界の座標 → カメラから見た座標 → 画面に映る座標、という具合です。それを行うのが**ベクトルと行列**でその最後の大事な段階が<strong>投影（プロジェクション）</strong>です。このカテゴリでは、3D ゲームを作るために必要な、**数学・カメラ・描画のしくみ・当たり判定**を順に説明します。数式はゲームで使う形に絞り、**なぜそうなるのか**を図とコードで説明します。
 
 !!! tip "ポイント"
-    - 3D の描画は、<strong>座標を、空間から空間へ変換する流れ</strong>（ローカル → ワールド → ビュー → クリップ → 画面）。
+    - 3D の描画は、<strong>座標を空間から空間へ変換する流れ</strong>（ローカル → ワールド → ビュー → クリップ → 画面）。
     - 変換は<strong>行列</strong>で表す。<strong>MVP</strong>（モデル・ビュー・プロジェクション）の 3 つの行列を掛ける。
-    - まず<strong>座標系の決まり</strong>（左手系か右手系か、Y が上か）と、<strong>行列の規約</strong>（行ベクトルか列ベクトルか）をそろえる。ここがずれると、すべてが狂う。
+    - まず<strong>座標系の決まり</strong>（左手系か右手系か、Y が上か）と、<strong>行列の規約</strong>（行ベクトルか列ベクトルか）をそろえる。ここがずれるとすべてが狂う。
     - 回転には<strong>クォータニオン</strong>を使う（オイラー角はジンバルロックがある）。
     
 
 ## 描画の流れ（座標の旅）
 
-3D ゲームの 1 つの頂点は、画面に出るまでに、次の「空間」を順に通ります。
+3D ゲームの 1 つの頂点は、画面に出るまでに次の「空間」を順に通ります。
 
 <svg class="fig flow" viewBox="0 0 954 112" role="img" aria-label="頂点が、画面に出るまでの旅"><defs><marker id="fl64292" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">頂点が、画面に出るまでの旅</text><line x1="141.0" y1="64.0" x2="199.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl64292)"/><text x="170.0" y="58.0" text-anchor="middle" style="font-size:12px">ワールド行列</text><line x1="315.0" y1="64.0" x2="373.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl64292)"/><text x="344.0" y="58.0" text-anchor="middle" style="font-size:12px">ビュー行列</text><line x1="475.0" y1="64.0" x2="533.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl64292)"/><text x="504.0" y="58.0" text-anchor="middle" style="font-size:12px">プロジェクション行列</text><line x1="649.0" y1="64.0" x2="707.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl64292)"/><text x="678.0" y="58.0" text-anchor="middle" style="font-size:12px">w で割る</text><line x1="789.0" y1="64.0" x2="847.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl64292)"/><text x="818.0" y="58.0" text-anchor="middle" style="font-size:12px">ビューポート変換</text><rect x="28.0" y="44.0" width="110" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="83.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ローカル空間</text><rect x="202.0" y="44.0" width="110" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="257.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワールド空間</text><rect x="376.0" y="44.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="424.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ビュー空間</text><rect x="536.0" y="44.0" width="110" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="591.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">クリップ空間</text><rect x="710.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="748.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">NDC</text><rect x="850.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="888.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">画面</text></svg>
 
@@ -22,7 +22,7 @@
 | **ビュー**（カメラ） | カメラの位置（原点）と向き（−Z や +Z が前） | **プロジェクション行列** |
 | **クリップ** | 見える範囲の箱（視錐台）が、直方体になった空間 | **w で割る**（透視除算） |
 | **NDC**（正規化デバイス座標） | x、y が −1〜1（z は 0〜1 か −1〜1） | **ビューポート変換** |
-| **スクリーン** | 画面のピクセル（左上が原点が多い） | （GPU が、ここに描く） |
+| **スクリーン** | 画面のピクセル（左上が原点が多い） | （GPU がここに描く） |
 
 ## ページ一覧
 
@@ -33,7 +33,7 @@
 | [座標系](coordinate-systems.md) | 左手系と右手系、Y が上か Z が上か、各エンジンの違い |
 | [ベクトル](vectors.md) | 長さ、正規化、内積、外積、反射、射影 |
 | [行列](matrices.md) | 平行移動・回転・拡大、同次座標、合成の順番、逆行列、行ベクトルと列ベクトル |
-| [MVP 変換](transforms-mvp.md) | モデル・ワールド・ビュー・プロジェクションの、掛け方と使い方 |
+| [MVP 変換](transforms-mvp.md) | モデル・ワールド・ビュー・プロジェクションの掛け方と使い方 |
 | [投影（プロジェクション）](projection.md) | 透視投影と正射投影、視野角、near / far、NDC、深度の非線形 |
 | [カメラ](camera.md) | ビュー行列、LookAt、FPS カメラ、軌道カメラ、追従カメラ |
 | [回転とクォータニオン](rotation.md) | オイラー角、ジンバルロック、クォータニオン、補間 |
@@ -44,11 +44,11 @@
 | [3D モデルの基礎](model-basics.md) | メッシュ・頂点・三角形・テクスチャ・バッファ。ゼロから |
 | [メッシュとテクスチャ](mesh-textures.md) | 頂点、インデックス、UV、ミップマップ、サンプラー |
 | [3D の当たり判定](collision-3d.md) | 球、AABB、OBB、カプセル、判定の組み合わせ |
-| [スキニング（骨格アニメーション）](skinning-animation.md) | ボーン、スキン ウェイト、アニメーションの補間 |
+| [スキニング（スケルトンアニメーション）](skinning-animation.md) | ボーン、スキン ウェイト、アニメーションの補間 |
 
 ## 数学ライブラリ
 
-3D の数学は、**自作せずに、ライブラリを使う**のが基本です。
+3D の数学は、**自作せずにライブラリを使う**のが基本です。
 
 | ライブラリ | 特徴 |
 | --- | --- |
@@ -83,6 +83,6 @@
 ## 関連ページ
 
 - [SIMD（ベクトル化）](../optimize/simd.md)
-- [描画の最適化](../optimize/rendering.md)
+- [描画の最適化](../rendering/index.md)
 - [Dear ImGui（ギズモ）](../libs/imgui/imguizmo.md)
 - [Jolt Physics（物理演算）](../libs/jolt/index.md)

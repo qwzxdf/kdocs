@@ -36,13 +36,13 @@ settings.mRestitution = 0.3f;
 BodyID id = bodies.CreateAndAddBody(settings, EActivation::Activate);
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| <strong>形（`Shape`）</strong> | **`new SphereShape(...)`** や、**作っておいた `ShapeRefC`**（[形](shapes.md)） |
-| <strong>位置（`RVec3`）</strong> | **ワールド座標**（倍精度ビルドでは `double`） |
-| <strong>向き（`Quat`）</strong> | **回転**（`Quat::sIdentity()` ＝ 回転なし） |
-| <strong>動き方（`EMotionType`）</strong> | `Static` / `Kinematic` / `Dynamic` |
-| <strong>レイヤー（`ObjectLayer`）</strong> | **衝突のルール**（[レイヤー](layers.md)） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| <strong>形（`Shape`）</strong> | `const Shape*` | **`new SphereShape(...)`** や、**作っておいた `ShapeRefC`**（[形](shapes.md)） |
+| <strong>位置（`RVec3`）</strong> | `RVec3` | **ワールド座標**（倍精度ビルドでは `double`） |
+| <strong>向き（`Quat`）</strong> | `Quat` | **回転**（`Quat::sIdentity()` ＝ 回転なし） |
+| <strong>動き方（`EMotionType`）</strong> | `EMotionType` | `Static` / `Kinematic` / `Dynamic` |
+| <strong>レイヤー（`ObjectLayer`）</strong> | `ObjectLayer` | **衝突のルール**（[レイヤー](layers.md)） |
 
 ### 作成と追加
 

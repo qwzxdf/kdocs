@@ -398,10 +398,10 @@ for (size_t i = 0; i < ibm.count; ++i) {
 
 | 点 | 説明 |
 | --- | --- |
-| **`skin.joints`** | **骨になるノードの番号**の一覧 |
-| **`skin.inverseBindMatrices`** | **逆バインド行列**の accessor の番号（**骨ごとに 1 つ**） |
+| **`skin.joints`** | **ボーンになるノードの番号**の一覧 |
+| **`skin.inverseBindMatrices`** | **逆バインド行列**の accessor の番号（**ボーンごとに 1 つ**） |
 | **頂点の `JOINTS_0`** | **`skin.joints` の位置**（**ノード番号ではない**） |
-| **スキニング行列** | **`inverse_bind[i] × (骨のノードのワールド行列)`**（[スキニング](../../3d/skinning-animation.md)） |
+| **スキニング行列** | **`inverse_bind[i] × (ボーンのノードのワールド行列)`**（[スキニング](../../3d/skinning-animation.md)） |
 
 ### アニメーション
 

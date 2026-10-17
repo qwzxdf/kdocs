@@ -28,6 +28,10 @@ def _load(config):
         escaped = re.escape(term)
         if re.fullmatch(r"[A-Za-z0-9_ .+-]+", term):
             escaped = r"(?<![A-Za-z0-9_])" + escaped + r"(?![A-Za-z0-9_])"
+        elif re.fullmatch(r"[ァ-ヴー]+", term):
+            escaped = r"(?<![ァ-ヴー])" + escaped
+            if len(term) <= 3:
+                escaped += r"(?![ァ-ヴー])"
         pattern_parts.append(escaped)
     pattern = re.compile("|".join("(%s)" % p for p in pattern_parts))
     _entries = (pattern, items)
@@ -37,6 +41,8 @@ def _load(config):
 def _skipped(node):
     for parent in node.parents:
         name = getattr(parent, "name", None)
+        if name == "a" and "autolink" in (parent.get("class") or []):
+            continue
         if name in SKIP_TAGS:
             return True
         classes = parent.get("class") if hasattr(parent, "get") else None

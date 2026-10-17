@@ -192,10 +192,10 @@ void* _aligned_malloc(std::size_t size, std::size_t alignment);  // 引数の順
 void _aligned_free(void* ptr);                                    // free ではなくこちらで返す
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `size` | バイト数 |
-| `alignment` | アラインメント |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `size` | `std::size_t` | バイト数 |
+| `alignment` | `std::size_t` | アラインメント |
 
 - Windows（`<malloc.h>`）の、アラインメント付き確保です。**`aligned_alloc` と引数の順番が逆**で、解放も `_aligned_free` を使います（`free` で返すと壊れます）
 - 移植したいなら、`alignas(64)` を付けた型を `new` する方法（C++17）が一番簡単です

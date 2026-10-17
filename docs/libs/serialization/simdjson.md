@@ -395,9 +395,9 @@ class simdjson::ondemand::parser {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `max_capacity` | 読める JSON の最大サイズ（バイト）。デフォルトは約 4 GB |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `max_capacity` | `size_t` | 読める JSON の最大サイズ（バイト）。デフォルトは約 4 GB |
 
 - JSON を読むための道具です。内部にバッファを持っていて、**使い回すほど速く**なります。
 - 1 つの `parser` で同時に読める JSON は 1 つです。スレッドで共有してはいけません。
@@ -413,11 +413,11 @@ simdjson_result<document> iterate(const char* json, size_t len,
                                   size_t capacity) & noexcept;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `json` | 読む JSON。後ろに余白が必要 |
-| `len` | JSON の長さ |
-| `capacity` | 確保されているメモリの大きさ（`len + SIMDJSON_PADDING` 以上必要） |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `json` | `padded_string_view` | 読む JSON。後ろに余白が必要 |
+| `len` | `size_t` | JSON の長さ |
+| `capacity` | `size_t` | 確保されているメモリの大きさ（`len + SIMDJSON_PADDING` 以上必要） |
 
 - **戻り値:** `simdjson_result<document>`。`document` を受け取る変数に入れると、失敗時は例外になる
 - **計算量:** 最初に全体の構造を調べるので O(n)。ただしとても速い
@@ -429,9 +429,9 @@ simdjson_result<document> iterate(const char* json, size_t len,
 static simdjson_result<padded_string> load(std::string_view path) noexcept;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `path` | 読むファイルのパス |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `path` | `std::string_view` | 読むファイルのパス |
 
 - **戻り値:** ファイルの中身を余白付きで持つ `padded_string`。読めないと `IO_ERROR`
 
@@ -459,11 +459,11 @@ class simdjson::padded_string {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `length` | 確保する長さ（中身は自分で書く） |
-| `data`, `length` | コピー元の文字とその長さ |
-| `sv` / `str` | コピー元の文字列 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `length` | `size_t` | 確保する長さ（中身は自分で書く） |
+| `data`, `length` | `const char*`, `size_t` | コピー元の文字とその長さ |
+| `sv` / `str` | `std::string_view` | コピー元の文字列 |
 
 - 中身をコピーして、後ろに余白を付けた文字列を作ります。
 - テストでは `R"({"a": 1})"_padded` のように、文字列リテラルの後ろに `_padded` を付けて作ることもできます。
@@ -476,9 +476,9 @@ simdjson_result<value> operator[](std::string_view key) & noexcept;
 // find_field_unordered(key) と同じ
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `key` | 探すキー |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `key` | `std::string_view` | 探すキー |
 
 - **戻り値:** キーの値。無ければ `NO_SUCH_FIELD` のエラー
 - **計算量:** 書かれた順番に読めば O(1)、逆順だと最初に戻って探すので O(キーの数)
@@ -511,9 +511,9 @@ simdjson_result<double> get_double() noexcept;
 simdjson_result<std::string_view> get_string(bool allow_replacement = false) noexcept;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `allow_replacement` | `true` にすると、不正なサロゲートペア（`\uD800` など）を `U+FFFD` に置き換えて読む |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `allow_replacement` | `bool` | `true` にすると、不正なサロゲートペア（`\uD800` など）を `U+FFFD` に置き換えて読む |
 
 - **戻り値:** エスケープ（`\n`、`あ` など）を戻した文字列の `string_view`
 - **注意:** 指している先はパーサーのバッファです。**同じパーサーで次を読むと使えなくなります**（[ルール 1](#rule1)）。
@@ -566,10 +566,10 @@ template <typename T>
 error_code get(T& out) noexcept;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `T` | 取りたい型（`int64_t`、`uint64_t`、`double`、`bool`、`std::string_view`、`ondemand::object`、`ondemand::array` など） |
-| `out` | 値を入れる変数。型から `T` が決まる |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型引数 | 取りたい型（`int64_t`、`uint64_t`、`double`、`bool`、`std::string_view`、`ondemand::object`、`ondemand::array` など） |
+| `out` | `T&` | 値を入れる変数。型から `T` が決まる |
 
 - **戻り値:** `get<T>()` は値（またはエラー）、`get(out)` は**エラーコード**
 - **エラーコード方式の基本の書き方**は `if (auto error = obj["hp"].get(hp)) { ... }` です。
@@ -581,9 +581,9 @@ error_code get(T& out) noexcept;
 const char* simdjson::error_message(error_code error) noexcept;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `error` | エラーコード |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `error` | `error_code` | エラーコード |
 
 - **戻り値:** 英語の説明の文字列。ログに出すときに使う
 - `std::println("{}", error)` のように直接出すことはできないので、これで文字列にします。
@@ -594,9 +594,9 @@ const char* simdjson::error_message(error_code error) noexcept;
 simdjson_result<value> find_field(std::string_view key) & noexcept;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `key` | 探すキー |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `key` | `std::string_view` | 探すキー |
 
 - **戻り値:** キーの値。**今の位置から後ろだけ**を探す
 - `operator[]` と違って、最初に戻って探しません。キーが JSON に書かれた順番で読むと決まっているなら、少しだけ速くなります。順番が違うと見つからない（`NO_SUCH_FIELD`）ので、自分で JSON を出力していて形が決まっているときに使います。
@@ -664,9 +664,9 @@ simdjson_result<size_t> count_fields() & noexcept;  // object
 simdjson_result<value> at_pointer(std::string_view json_pointer) noexcept;
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `json_pointer` | `"/stages/0/name"` のような `/` 区切りのパス。配列は番号 |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `json_pointer` | `std::string_view` | `"/stages/0/name"` のような `/` 区切りのパス。配列は番号 |
 
 - **戻り値:** その場所の値。無ければ `NO_SUCH_FIELD` か `INDEX_OUT_OF_BOUNDS`
 - ドキュメントに使うと、毎回最初から探し直します。深い場所の値を 1 つだけ欲しいときに便利です。
@@ -717,10 +717,10 @@ class simdjson::dom::parser {
 };
 ```
 
-| 引数 | 意味 |
-| --- | --- |
-| `s` | 読む JSON |
-| `path` | 読むファイルのパス |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `s` | `std::string_view` | 読む JSON |
+| `path` | `std::string_view` | 読むファイルのパス |
 
 - **戻り値:** 全部解析済みの値（`dom::element`）。好きな順番で、何度でも読める
 - On-Demand より使いやすい代わりに、全部を解析するので少し遅く、メモリも使います。

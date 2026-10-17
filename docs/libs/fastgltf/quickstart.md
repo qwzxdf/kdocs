@@ -68,7 +68,7 @@ bool LoadModel(const std::filesystem::path& path, fastgltf::Asset& out) {
 | **`scenes`**・**`nodes`**・**`meshes`** | シーン・ノード・メッシュ |
 | **`accessors`**・**`bufferViews`**・**`buffers`** | **数値データの、読み方・範囲・実体** |
 | **`materials`**・**`textures`**・**`images`**・**`samplers`** | **見た目** |
-| **`skins`**・**`animations`** | **骨・アニメーション** |
+| **`skins`**・**`animations`** | **ボーン・アニメーション** |
 | **`defaultScene`** | **既定のシーン**（`std::optional<size_t>`） |
 
 ```cpp
