@@ -3,11 +3,17 @@ nav:
   - measure.md
   - algorithms.md
   - memory-cache.md
+  - data-layout.md
   - allocation.md
+  - frame-allocation.md
   - copy-move.md
+  - strings-hash.md
+  - branching-virtual.md
   - simd.md
   - multithreading.md
   - compiler.md
+  - build-time.md
+  - frame-budget.md
   - rendering.md
   - loading.md
   - memory-usage.md

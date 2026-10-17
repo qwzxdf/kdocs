@@ -152,6 +152,8 @@ void Attack(Enemy* target) {
 
 ## AddressSanitizer でメモリのバグを探す {#asan}
 
+詳しい使い方は、[AddressSanitizer](asan.md) のページにあります。
+
 <strong>AddressSanitizer（ASan）</strong> は、実行中にメモリの使い方を監視して、**範囲外アクセス**、<strong>解放済みメモリの使用（use-after-free）</strong>、**スタックの範囲外**などを見つけて、その場で止めてくれる機能です。
 
 1. インストーラーで <strong>「C++ AddressSanitizer」</strong> を入れておく

@@ -16,6 +16,9 @@ C++ でゲームを作る学生の多くは、<strong>Visual Studio（ビジュ�
 | [C++23 を使えるようにする設定](settings.md) | 言語標準、`/utf-8`、警告、構成（Debug / Release）とプラットフォーム |
 | [外部ライブラリの入れ方](libraries.md) | vcpkg、ヘッダを置く方法、`.lib` / `.dll` を使う方法 |
 | [デバッグのやり方](debugging.md) | ブレークポイント、ウォッチ、呼び出し履歴、例外、メモリのバグ探し |
+| [AddressSanitizer](asan.md) | メモリの範囲外アクセス・解放済みメモリの使用を、その場で検出 |
+| [パフォーマンス プロファイラー](profiler.md) | 遅い場所を測る。ホット パス、PIX・Tracy |
+| [プリプロセッサマクロ](preprocessor.md) | `NOMINMAX`、`IMGUI_API`、`_DEBUG` など、ビルド設定でのマクロ |
 | [便利な機能とショートカット](tips.md) | よく使うキー、整形、IntelliSense、設定ファイル |
 | [よくあるエラー](errors.md) | `LNK2019`、`C1083`、文字化け、DLL が見つからない、など |
 | [CMake で使う](cmake.md) | 「フォルダーを開く」で CMake のプロジェクトを開く |

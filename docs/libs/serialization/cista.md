@@ -69,9 +69,16 @@ cista の `cista::offset::vector` は、中身の場所を<strong>ポインタ�
 
 ### Visual Studio で導入する（最初に読む）
 
-Visual Studio を使っているなら、**この方法が一番簡単**です。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは cista だけの部分を書きます。
+Visual Studio を使っているなら、ここから読みます。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは cista だけの部分を書きます。
 
-=== "vcpkg（おすすめ）"
+=== "ファイルを置く"
+
+    1. [リリースページ](https://github.com/felixguendling/cista/releases) の **`cista.h`**（全部を 1 ファイルにまとめたもの）を `third_party/cista/` に置く（その場合は `#include "cista.h"` と書く）
+    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\cista` を追加する
+    4. `#include <cista/serialization.h>` と書いてビルドする
+
+=== "vcpkg"
 
     1. 初回だけ、Developer PowerShell で `vcpkg integrate install` を実行する（[準備](../../vs/libraries.md#vcpkg)）
     2. ライブラリを入れる
@@ -83,13 +90,6 @@ Visual Studio を使っているなら、**この方法が一番簡単**です�
         （マニフェスト モードなら、`vcpkg.json` の `dependencies` に `"cista"` を足す）
     3. プロジェクトには何も設定せずに、`#include <cista/serialization.h>` と書けば使える
 
-=== "ファイルを置く"
-
-    1. [リリースページ](https://github.com/felixguendling/cista/releases) の **`cista.h`**（全部を 1 ファイルにまとめたもの）を `third_party/cista/` に置く（その場合は `#include "cista.h"` と書く）
-    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
-    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\cista` を追加する
-    4. `#include <cista/serialization.h>` と書いてビルドする
-
 !!! note "C++ の設定"
     C++17 以上が必要です。メモリマップ（`cista::mmap`）は、Windows でもそのまま使えます。
 
@@ -97,7 +97,7 @@ Visual Studio を使っているなら、**この方法が一番簡単**です�
 
 ヘッダオンリーです。C++17 以上が必要です。
 
-=== "1 ファイル版（一番簡単）"
+=== "1 ファイル版"
 
     [リリースページ](https://github.com/felixguendling/cista/releases) から `cista.h`（全部を 1 ファイルにまとめたもの）をダウンロードして、プロジェクトに置きます。その場合は `#include "cista.h"` と書きます。
 

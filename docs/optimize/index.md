@@ -89,11 +89,17 @@ l check measure 戻る
 | [計測（プロファイリング）](measure.md) | 速さを測る道具と、測り方 |
 | [アルゴリズムとデータ構造](algorithms.md) | 計算量を減らす。一番効果が大きい |
 | [メモリとキャッシュ](memory-cache.md) | データの並べ方で、速さが何倍も変わる |
+| [データ構造の配置の実例集](data-layout.md) | AoS / SoA、ホット・コールド、パディング、インデックス |
 | [メモリ確保](allocation.md) | `new` を減らす。使い回す・まとめて確保する |
+| [毎フレームのヒープ確保を避ける](frame-allocation.md) | `string`・`vector`・`new` など、ループ中の隠れた確保 |
 | [コピーとムーブ](copy-move.md) | 無駄なコピーをなくす |
+| [文字列とハッシュの最適化](strings-hash.md) | `string_view`、ハッシュ ID、透過的検索 |
+| [分岐と仮想関数のコスト](branching-virtual.md) | 分岐予測、仮想呼び出し、型ごとにまとめる |
 | [SIMD（ベクトル化）](simd.md) | 1 命令で、複数のデータをまとめて計算 |
 | [マルチスレッド化](multithreading.md) | 複数のコアで分担する |
 | [コンパイラの最適化](compiler.md) | オプションと、コンパイラに任せられること |
+| [ビルド時間の最適化](build-time.md) | include の整理、PCH、並列ビルド、unity ビルド |
+| [フレーム時間の設計](frame-budget.md) | フレームバジェット、固定タイムステップ、スパイク対策 |
 | [描画の最適化](rendering.md) | ドロー コール、バッチ、カリング |
 | [ロード時間・起動時間](loading.md) | 待たせない。バイナリ化・非同期 |
 | [メモリ使用量](memory-usage.md) | 軽くする。構造体のサイズ、圧縮、リーク探し |

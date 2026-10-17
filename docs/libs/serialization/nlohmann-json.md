@@ -31,9 +31,16 @@ tags:
 
 ### Visual Studio で導入する（最初に読む）
 
-Visual Studio を使っているなら、**この方法が一番簡単**です。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは nlohmann/json だけの部分を書きます。
+Visual Studio を使っているなら、ここから読みます。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは nlohmann/json だけの部分を書きます。
 
-=== "vcpkg（おすすめ）"
+=== "ファイルを置く"
+
+    1. [リリースページ](https://github.com/nlohmann/json/releases) から **`json.hpp`**（1 ファイル）をダウンロードして、`third_party/nlohmann/json.hpp` に置く
+    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party` を追加する
+    4. `#include <nlohmann/json.hpp>` と書いてビルドする
+
+=== "vcpkg"
 
     1. 初回だけ、Developer PowerShell で `vcpkg integrate install` を実行する（[準備](../../vs/libraries.md#vcpkg)）
     2. ライブラリを入れる
@@ -44,13 +51,6 @@ Visual Studio を使っているなら、**この方法が一番簡単**です�
 
         （マニフェスト モードなら、`vcpkg.json` の `dependencies` に `"nlohmann-json"` を足す）
     3. プロジェクトには何も設定せずに、`#include <nlohmann/json.hpp>` と書けば使える
-
-=== "ファイルを置く"
-
-    1. [リリースページ](https://github.com/nlohmann/json/releases) から **`json.hpp`**（1 ファイル）をダウンロードして、`third_party/nlohmann/json.hpp` に置く
-    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
-    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party` を追加する
-    4. `#include <nlohmann/json.hpp>` と書いてビルドする
 
 !!! note "C++ の設定"
     C++11 以上で動きます（このサイトの設定の C++23 で問題ありません）。

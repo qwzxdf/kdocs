@@ -209,3 +209,5 @@ void Update() {
 - [描画の最適化](rendering.md)
 - [メモリ使用量](memory-usage.md)
 - [RAII](../design/patterns/raii.md)
+- [パフォーマンス プロファイラー（Visual Studio）](../vs/profiler.md)
+- [フレーム時間の設計](frame-budget.md)

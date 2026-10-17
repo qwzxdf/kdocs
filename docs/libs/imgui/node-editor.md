@@ -26,7 +26,7 @@ tags:
 
 imgui-node-editor は、**ソースを数ファイル、プロジェクトに追加する**のが一番確実です。先に [Dear ImGui の導入](index.md#install) を済ませておきます。
 
-### 方法 1：ソースを入れる（おすすめ）
+### 方法 1：ソースを入れる
 
 1. [GitHub の imgui-node-editor](https://github.com/thedmd/imgui-node-editor) を取得して、`third_party/imgui-node-editor/` に置く（`git clone` または ZIP）
 2. 次のファイルを、ソリューション エクスプローラーで**プロジェクトに追加**

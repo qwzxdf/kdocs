@@ -31,9 +31,16 @@ tags:
 
 ### Visual Studio で導入する（最初に読む）
 
-Visual Studio を使っているなら、**この方法が一番簡単**です。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは cereal だけの部分を書きます。
+Visual Studio を使っているなら、ここから読みます。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは cereal だけの部分を書きます。
 
-=== "vcpkg（おすすめ）"
+=== "ファイルを置く"
+
+    1. [GitHub](https://github.com/USCiLab/cereal) の **`include/cereal` フォルダーごと**を `third_party/cereal/include/cereal/` に置く
+    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\cereal\include` を追加する
+    4. `#include <cereal/archives/binary.hpp>` と書いてビルドする
+
+=== "vcpkg"
 
     1. 初回だけ、Developer PowerShell で `vcpkg integrate install` を実行する（[準備](../../vs/libraries.md#vcpkg)）
     2. ライブラリを入れる
@@ -44,13 +51,6 @@ Visual Studio を使っているなら、**この方法が一番簡単**です�
 
         （マニフェスト モードなら、`vcpkg.json` の `dependencies` に `"cereal"` を足す）
     3. プロジェクトには何も設定せずに、`#include <cereal/archives/binary.hpp>` と書けば使える
-
-=== "ファイルを置く"
-
-    1. [GitHub](https://github.com/USCiLab/cereal) の **`include/cereal` フォルダーごと**を `third_party/cereal/include/cereal/` に置く
-    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
-    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\cereal\include` を追加する
-    4. `#include <cereal/archives/binary.hpp>` と書いてビルドする
 
 !!! note "C++ の設定"
     C++11 以上で動きます。

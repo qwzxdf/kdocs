@@ -29,7 +29,7 @@ SimpleMath は、**DirectX Tool Kit** に含まれています（[GitHub](https:
 
 | 方法 | 手順 |
 | --- | --- |
-| <strong>vcpkg（おすすめ）</strong> | `vcpkg install directxtk:x64-windows`（[外部ライブラリの入れ方](../vs/libraries.md#vcpkg)）。`#include <SimpleMath.h>` で使える |
+| <strong>vcpkg</strong> | `vcpkg install directxtk:x64-windows`（[外部ライブラリの入れ方](../vs/libraries.md#vcpkg)）。`#include <SimpleMath.h>` で使える |
 | **ソースを追加** | DirectXTK のリポジトリの `Inc/SimpleMath.h`、`Inc/SimpleMath.inl`、`Src/SimpleMath.cpp` を、プロジェクトに追加する。**DirectXMath があれば**、SimpleMath だけを、ソースで追加するのが簡単 |
 | NuGet | `directxtk_desktop_win10` パッケージ |
 
@@ -74,18 +74,18 @@ player += direction * (3.0f * dt);            // 加算代入、スカラー倍
 
 | 書き方 | 意味 |
 | --- | --- |
-| `v.Length()` / `v.LengthSquared()` | 長さ / 長さの 2 乗 |
-| `v.Normalize()` | **その場で**正規化（戻り値なし） |
+| `v.Length()` / `v.LengthSquared()` | [長さ](vectors.md#basics) / [長さの 2 乗](vectors.md#distance) |
+| `v.Normalize()` | **その場で**[正規化](vectors.md#normalize)（戻り値なし） |
 | `v.Normalize(Vector3& result)` | 結果を別の変数に |
-| `v.Dot(w)` | 内積 |
-| `v.Cross(w)` | 外積 |
-| `Vector3::Distance(a, b)` / `DistanceSquared(a, b)` | 2 点間の距離 / その 2 乗 |
-| `Vector3::Lerp(a, b, t)` | 線形補間 |
-| `Vector3::Reflect(v, normal)` | 反射 |
-| `Vector3::Min(a, b)` / `Max(a, b)` / `Clamp(v, lo, hi)` | 要素ごと |
-| `Vector3::Transform(v, matrix)` | **位置**を行列で変換（平行移動も） |
-| `Vector3::TransformNormal(v, matrix)` | **方向**を行列で変換（平行移動なし） |
-| `Vector3::Transform(v, quaternion)` | クォータニオンで回転 |
+| `v.Dot(w)` | [内積](vectors.md#dot) |
+| `v.Cross(w)` | [外積](vectors.md#cross) |
+| `Vector3::Distance(a, b)` / `DistanceSquared(a, b)` | 2 点間の[距離](vectors.md#distance) / その 2 乗 |
+| `Vector3::Lerp(a, b, t)` | [線形補間](vectors.md#lerp) |
+| `Vector3::Reflect(v, normal)` | [反射](vectors.md#reflect) |
+| `Vector3::Min(a, b)` / `Max(a, b)` / `Clamp(v, lo, hi)` | [要素ごと](vectors.md#componentwise) |
+| `Vector3::Transform(v, matrix)` | [**位置**](vectors.md#position-direction)を[行列で変換](matrices.md#transform-point)（平行移動も） |
+| `Vector3::TransformNormal(v, matrix)` | [**方向**](vectors.md#position-direction)を[行列で変換](matrices.md#transform-point)（平行移動なし） |
+| `Vector3::Transform(v, quaternion)` | [クォータニオン](rotation.md#quaternion)で回転 |
 
 ### 定数
 
@@ -119,23 +119,23 @@ Matrix mvp = world * view * proj;
 
 | 書き方 | 意味 |
 | --- | --- |
-| `Matrix::Identity` | 単位行列 |
-| `Matrix::CreateTranslation(Vector3)` | 平行移動 |
-| `Matrix::CreateScale(float)` / `CreateScale(Vector3)` | 拡大 |
-| `Matrix::CreateRotationX/Y/Z(float)` | 軸まわりの回転（ラジアン） |
-| `Matrix::CreateFromAxisAngle(axis, angle)` | 任意の軸まわりの回転 |
-| `Matrix::CreateFromQuaternion(q)` | クォータニオンから |
-| `Matrix::CreateFromYawPitchRoll(yaw, pitch, roll)` | オイラー角から |
-| **`Matrix::CreateWorld(position, forward, up)`** | 位置と向きから、ワールド行列 |
-| **`Matrix::CreateLookAt(eye, target, up)`** | ビュー行列（**右手系**） |
-| **`Matrix::CreatePerspectiveFieldOfView(fovY, aspect, near, far)`** | 透視投影（右手系） |
-| `Matrix::CreateOrthographic(w, h, near, far)` | 正射影 |
-| `m.Invert()` / `m.Invert(Matrix& result)` | 逆行列 |
-| `m.Transpose()` | 転置 |
-| `m.Decompose(scale, rotation, translation)` | 分解（拡大・回転・平行移動） |
-| `m.Translation()` | 平行移動の成分（4 行目） |
+| `Matrix::Identity` | [単位行列](matrices.md#identity) |
+| `Matrix::CreateTranslation(Vector3)` | [平行移動](matrices.md#translation) |
+| `Matrix::CreateScale(float)` / `CreateScale(Vector3)` | [拡大・縮小](matrices.md#scale) |
+| `Matrix::CreateRotationX/Y/Z(float)` | 軸まわりの[回転](matrices.md#rotation-matrix)（ラジアン） |
+| `Matrix::CreateFromAxisAngle(axis, angle)` | 任意の軸まわりの[回転](rotation.md#quaternion)（軸と角度） |
+| `Matrix::CreateFromQuaternion(q)` | [クォータニオン](rotation.md#quaternion)から |
+| `Matrix::CreateFromYawPitchRoll(yaw, pitch, roll)` | [オイラー角](rotation.md#euler)から |
+| **`Matrix::CreateWorld(position, forward, up)`** | 位置と向きから、[ワールド行列](transforms-mvp.md#model) |
+| **`Matrix::CreateLookAt(eye, target, up)`** | [ビュー行列](transforms-mvp.md#view)（**右手系**。[カメラ](camera.md)） |
+| **`Matrix::CreatePerspectiveFieldOfView(fovY, aspect, near, far)`** | [透視投影](projection.md)（右手系） |
+| `Matrix::CreateOrthographic(w, h, near, far)` | [正射投影](projection.md#orthographic)（遠近感のない投影） |
+| `m.Invert()` / `m.Invert(Matrix& result)` | [逆行列](matrices.md#inverse) |
+| `m.Transpose()` | [転置](matrices.md#transpose) |
+| `m.Decompose(scale, rotation, translation)` | [分解](matrices.md#extract)（拡大・回転・平行移動） |
+| `m.Translation()` | [平行移動](matrices.md#extract)の成分（4 行目） |
 | `m.Right()` / `m.Up()` / `m.Forward()` | 行列の、右・上・前の方向（回転の軸） |
-| `Matrix::Lerp(a, b, t)` | 行列の補間（要素ごと。回転の補間には向かない） |
+| `Matrix::Lerp(a, b, t)` | 行列の補間（要素ごと。回転の補間には向かない。回転は [Slerp](rotation.md#slerp)） |
 
 **ここのメンバ関数名の `Create…` は、すべて静的関数**です（`Matrix::CreateRotationY(...)`）。
 
@@ -158,13 +158,13 @@ Matrix m = Matrix::CreateFromQuaternion(q);
 | 書き方 | 意味 |
 | --- | --- |
 | `Quaternion::Identity` | 回転なし |
-| `Quaternion::CreateFromAxisAngle(axis, angle)` | 軸と角度から |
+| `Quaternion::CreateFromAxisAngle(axis, angle)` | [軸と角度](rotation.md#create)から |
 | `Quaternion::CreateFromYawPitchRoll(yaw, pitch, roll)` | オイラー角から |
 | `Quaternion::CreateFromRotationMatrix(m)` | 行列から |
-| `Quaternion::Slerp(a, b, t)` / `Lerp(a, b, t)` | 補間 |
-| `q.Normalize()` | 正規化 |
-| `q.Inverse()` / `q.Conjugate()` | 逆回転 / 共役 |
-| `q1 * q2` | 回転の合成（**先に q1、次に q2**。行ベクトル規約） |
+| `Quaternion::Slerp(a, b, t)` / `Lerp(a, b, t)` | [補間](rotation.md#slerp) |
+| `q.Normalize()` | [正規化](rotation.md#quaternion)（長さを 1 に戻す） |
+| `q.Inverse()` / `q.Conjugate()` | [逆回転](rotation.md#inverse) / 共役 |
+| `q1 * q2` | [回転の合成](rotation.md#compose)（**先に q1、次に q2**。行ベクトル規約） |
 | `q.ToEuler()` | オイラー角へ（`Vector3`：pitch, yaw, roll） |
 
 詳しくは [回転とクォータニオン](rotation.md) を見てください。

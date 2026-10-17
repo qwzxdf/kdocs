@@ -27,7 +27,7 @@ tags:
 
 ImGuizmo は、**ソースを数ファイル、プロジェクトに追加する**だけで使えます。先に [Dear ImGui の導入](index.md#install) を済ませておきます。
 
-### 方法 1：ソースを入れる（おすすめ）
+### 方法 1：ソースを入れる
 
 1. [GitHub の ImGuizmo](https://github.com/CedricGuillemet/ImGuizmo) を取得して、`third_party/ImGuizmo/` に置く
 2. 次のファイルを**プロジェクトに追加**（追加 → 既存の項目）

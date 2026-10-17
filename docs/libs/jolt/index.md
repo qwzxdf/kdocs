@@ -31,26 +31,7 @@ tags:
 
 Visual Studio での入れ方を先に説明します。Jolt は**ソースからビルドする**ライブラリで、`.lib` を作ります。次の 2 つの方法があります。
 
-### 方法 1：vcpkg（おすすめ・一番簡単）
-
-```powershell
-vcpkg install joltphysics:x64-windows
-```
-
-- vcpkg が、ダウンロード、ビルド、パスの設定まで**まとめてやってくれます**（初回は数分かかります）
-- ビルド設定（Debug / Release、定義）は、**vcpkg の既定**で作られます
-- マニフェスト モード（`vcpkg.json`）なら、次のように書きます
-
-```json
-{
-  "dependencies": [ "joltphysics" ]
-}
-```
-
-- プロジェクトでは、`#include <Jolt/Jolt.h>` と書くだけで使えます。リンクも自動で通ります（`vcpkg integrate install` が済んでいれば。[外部ライブラリの入れ方](../../vs/libraries.md#vcpkg)）
-- 注意: vcpkg の既定は <strong>`/MD`（DLL 版のランタイム）</strong> です。プロジェクトの設定も合わせます（[ランタイム ライブラリ](../../vs/errors.md#runtime_library)）
-
-### 方法 2：Jolt のソースから Visual Studio のプロジェクトを作ってビルドする
+### 方法 1：Jolt のソースから Visual Studio のプロジェクトを作ってビルドする
 
 1. [GitHub の JoltPhysics](https://github.com/jrouwe/JoltPhysics) を取得する（`git clone`。タグ（`v5.x.x`）を指定して、バージョンを固定する）
 2. `Build` フォルダーにある、**`cmake_vs2022_cl.bat`**（Visual Studio 2022・MSVC 用）を実行する
@@ -78,7 +59,7 @@ vcpkg install joltphysics:x64-windows
 
     CMake で作ったライブラリを使うなら、`Jolt` のターゲットが**必要な定義を自動で付ける**ので、そちらを使うのが安全です（[CMake で使う](../../vs/cmake.md)）。
 
-### 方法 3：CMake の FetchContent
+### 方法 2：CMake の FetchContent
 
 ```cmake
 include(FetchContent)
@@ -91,6 +72,25 @@ FetchContent_MakeAvailable(JoltPhysics)
 
 target_link_libraries(MyGame PRIVATE Jolt)  # 定義も自動で引き継がれる
 ```
+
+### 方法 3：vcpkg
+
+```powershell
+vcpkg install joltphysics:x64-windows
+```
+
+- vcpkg が、ダウンロード、ビルド、パスの設定まで**まとめてやってくれます**（初回は数分かかります）
+- ビルド設定（Debug / Release、定義）は、**vcpkg の既定**で作られます
+- マニフェスト モード（`vcpkg.json`）なら、次のように書きます
+
+```json
+{
+  "dependencies": [ "joltphysics" ]
+}
+```
+
+- プロジェクトでは、`#include <Jolt/Jolt.h>` と書くだけで使えます。リンクも自動で通ります（`vcpkg integrate install` が済んでいれば。[外部ライブラリの入れ方](../../vs/libraries.md#vcpkg)）
+- 注意: vcpkg の既定は <strong>`/MD`（DLL 版のランタイム）</strong> です。プロジェクトの設定も合わせます（[ランタイム ライブラリ](../../vs/errors.md#runtime_library)）
 
 ## 物理演算の全体像
 

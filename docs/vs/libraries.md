@@ -19,13 +19,50 @@ C++ には、Python の `pip` や Node.js の `npm` のような「標準のパ�
 
 | 方法 | 向いているライブラリ | 手間 | 管理のしやすさ |
 | --- | --- | --- | --- |
-| <strong>[1. vcpkg](#vcpkg)</strong> | たいていのライブラリ（vcpkg に入っているもの） | **少ない** | ◎（バージョンも管理できる） |
-| <strong>[2. ヘッダを置く](#header_only)</strong> | ヘッダだけで使えるもの | 少ない | ○（フォルダーを Git に入れられる） |
+| <strong>[1. ヘッダを置く](#header_only)</strong> | ヘッダだけで使えるもの | 少ない | ○（フォルダーを Git に入れられる） |
+| <strong>[2. vcpkg](#vcpkg)</strong> | たいていのライブラリ（vcpkg に入っているもの） | **少ない** | ◎（バージョンも管理できる） |
 | <strong>[3. .lib / .dll を使う](#lib_dll)</strong> | 配布されているビルド済みのもの、自分でビルドしたもの | 多い | △ |
 | [4. ソースごとプロジェクトに入れる](#add_source) | `.cpp` が少ないライブラリ（simdjson など） | 中 | ○ |
 | [5. CMake の FetchContent](cmake.md) | CMake のプロジェクト | 中 | ◎ |
 
-## 1. vcpkg で入れる {#vcpkg}
+## 1. ヘッダだけのライブラリを置く {#header_only}
+
+**ヘッダだけ**（`.hpp` / `.h` だけ）のライブラリは、ファイルを置いて、**インクルードのパス**を教えるだけで使えます。
+
+1. ライブラリのヘッダを、プロジェクトの横の **`third_party/ライブラリ名/`** に置く（Git から取得、または ZIP を展開）
+
+```text
+MyGame/
+├── MyGame.sln
+├── MyGame/
+│   └── main.cpp
+└── third_party/
+    └── nlohmann/
+        └── json.hpp          ← #include <nlohmann/json.hpp> で使いたい
+```
+
+2. プロジェクトのプロパティ → **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party` を追加
+3. これで `#include <nlohmann/json.hpp>` が使える
+
+**`$(SolutionDir)`** は、ソリューション（`.sln`）があるフォルダーを表す**マクロ**です。絶対パスを書かなくてよいので、チームで共有しても動きます。
+
+| よく使うマクロ | 意味 |
+| --- | --- |
+| `$(SolutionDir)` | ソリューションのフォルダー（最後に `\` が付く） |
+| `$(ProjectDir)` | プロジェクトのフォルダー |
+| `$(Configuration)` | `Debug` または `Release` |
+| `$(Platform)` | `x64` など |
+| `$(OutDir)` | 出力ディレクトリ |
+
+### 外部ヘッダの警告を消す {#external_include}
+
+外部ライブラリのヘッダは、自分が書いたものではないので、警告が大量に出ても直せません。**外部インクルード ディレクトリ**として登録すると、その中のヘッダの警告を無効にできます（MSVC 17.x 以降）。
+
+1. **C/C++ → 全般 → 追加のインクルード ディレクトリ** ではなく、
+2. **VC++ ディレクトリ → 外部インクルード ディレクトリ** に `$(SolutionDir)third_party` を追加
+3. **C/C++ → 全般 → 外部ヘッダーの警告レベル** を **レベル 0** にする
+
+## 2. vcpkg で入れる {#vcpkg}
 
 <strong>vcpkg（ブイシーピーケージー）</strong> は、Microsoft が作っている C++ のパッケージ管理ツールです。ライブラリのダウンロード、ビルド、パスの設定を**まとめてやってくれます**。
 
@@ -54,7 +91,7 @@ vcpkg install nlohmann-json:x64-windows
 - インストールしたら、プロジェクトでは**何も設定せずに** `#include <nlohmann/json.hpp>` が使えます（`integrate install` のおかげ）
 - ライブラリの一覧は `vcpkg search キーワード`、インストール済みは `vcpkg list`
 
-### 方法 B：マニフェスト モード（プロジェクトごとに管理・おすすめ）
+### 方法 B：マニフェスト モード（プロジェクトごとに管理）
 
 プロジェクトのフォルダーに **`vcpkg.json`<strong> というファイルを置くと、</strong>そのプロジェクトが使うライブラリを、ファイルで管理**できます。Git に入れておけば、チームの全員が同じライブラリ・同じバージョンで動かせます。
 
@@ -102,43 +139,6 @@ vcpkg install nlohmann-json:x64-windows
 | Jolt Physics | `joltphysics` |
 
 名前は `vcpkg search キーワード` で確認します。ポートによってバージョンが違うことがあります。
-
-## 2. ヘッダだけのライブラリを置く {#header_only}
-
-**ヘッダだけ**（`.hpp` / `.h` だけ）のライブラリは、ファイルを置いて、**インクルードのパス**を教えるだけで使えます。
-
-1. ライブラリのヘッダを、プロジェクトの横の **`third_party/ライブラリ名/`** に置く（Git から取得、または ZIP を展開）
-
-```text
-MyGame/
-├── MyGame.sln
-├── MyGame/
-│   └── main.cpp
-└── third_party/
-    └── nlohmann/
-        └── json.hpp          ← #include <nlohmann/json.hpp> で使いたい
-```
-
-2. プロジェクトのプロパティ → **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party` を追加
-3. これで `#include <nlohmann/json.hpp>` が使える
-
-**`$(SolutionDir)`** は、ソリューション（`.sln`）があるフォルダーを表す**マクロ**です。絶対パスを書かなくてよいので、チームで共有しても動きます。
-
-| よく使うマクロ | 意味 |
-| --- | --- |
-| `$(SolutionDir)` | ソリューションのフォルダー（最後に `\` が付く） |
-| `$(ProjectDir)` | プロジェクトのフォルダー |
-| `$(Configuration)` | `Debug` または `Release` |
-| `$(Platform)` | `x64` など |
-| `$(OutDir)` | 出力ディレクトリ |
-
-### 外部ヘッダの警告を消す {#external_include}
-
-外部ライブラリのヘッダは、自分が書いたものではないので、警告が大量に出ても直せません。**外部インクルード ディレクトリ**として登録すると、その中のヘッダの警告を無効にできます（MSVC 17.x 以降）。
-
-1. **C/C++ → 全般 → 追加のインクルード ディレクトリ** ではなく、
-2. **VC++ ディレクトリ → 外部インクルード ディレクトリ** に `$(SolutionDir)third_party` を追加
-3. **C/C++ → 全般 → 外部ヘッダーの警告レベル** を **レベル 0** にする
 
 ## 3. .lib と .dll を使う {#lib_dll}
 

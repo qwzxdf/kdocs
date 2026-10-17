@@ -29,7 +29,7 @@ tags:
 
 **まず Visual Studio での入れ方**を説明します。Dear ImGui は、**ソースファイルをプロジェクトに入れる**のが基本です（ヘッダだけではなく `.cpp` もあります）。バックエンドのファイルも必要です。
 
-### 方法 1：ソースを入れる（おすすめ・一番確実）
+### 方法 1：ソースを入れる
 
 1. [GitHub の ImGui](https://github.com/ocornut/imgui) から取得する（`git clone`、または Releases の ZIP）。`third_party/imgui/` に置く
 2. 次のファイルを、ソリューション エクスプローラーで**プロジェクトに追加**（追加 → 既存の項目）

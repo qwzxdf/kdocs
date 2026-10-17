@@ -4,6 +4,9 @@ nav:
   - settings.md
   - libraries.md
   - debugging.md
+  - asan.md
+  - profiler.md
+  - preprocessor.md
   - tips.md
   - errors.md
   - cmake.md
