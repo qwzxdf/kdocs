@@ -39,6 +39,7 @@ tags:
 
 ## 関連ページ
 
+- [描画の流れ（入門）：図で最初から追う](../3d/render-flow/index.md)
 - [描画最適化](index.md)
 - [何が重いのか](bottlenecks.md)
 - [計測（プロファイリング）](../optimize/measure.md)

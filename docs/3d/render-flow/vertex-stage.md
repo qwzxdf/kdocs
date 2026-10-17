@@ -1,0 +1,231 @@
+---
+title: 頂点の工程
+tags:
+  - 3Dゲーム
+  - 描画
+---
+
+# 頂点の工程
+
+**モデルの頂点は、最初「そのモデルだけの座標」で書かれています**。**これを画面に描くには、世界の座標 → カメラから見た座標 → 画面に写す座標へと、順に変換**する必要があります。**この変換を行うのが頂点シェーダー**です。このページでは、**4 つの座標空間・変換行列の役割・頂点シェーダーの書き方・数値を使った具体例・頂点シェーダーが出力するもの**を説明します。
+
+!!! tip "ポイント"
+    - 頂点シェーダー ＝ <strong>頂点 1 個を受け取り、変換後の頂点 1 個を返す</strong>小さなプログラム。<strong>頂点の数だけ呼ばれる</strong>。
+    - 座標は<strong>ローカル → ワールド → ビュー → クリップ</strong>の順に変換される。
+    - 変換は<strong>行列の掛け算</strong>：<strong>`ワールド行列`</strong>・<strong>`ビュー行列`</strong>・<strong>`射影行列`</strong>。<strong>まとめて 1 つの行列（WVP）</strong>にして<strong>1 回の掛け算</strong>で済ませる。
+    - 頂点シェーダーは<strong>最低限、`SV_POSITION`（クリップ空間の位置）を出力</strong>する。
+    - 法線・UV・色などは<strong>そのまま通すか、変換して、ピクセル シェーダーへ渡す</strong>。
+    - このサイトは<strong>左手系・Y 上・+Z 前方・行ベクトル（`v * M`）</strong>。
+
+## 4 つの座標空間
+
+**同じ点でも、「何を基準にするか」で座標の値が変わります**。**基準ごとに名前が付いています**。
+
+<svg class="fig illust" viewBox="0 0 780 300" role="img" aria-label="4 つの座標空間"><defs><marker id="rfa" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs>
+<text x="20" y="24" class="fig-title">頂点は 4 つの空間を旅する</text>
+<g font-size="12">
+<rect x="20" y="50" width="160" height="150" rx="8" fill="#4c8bf5" fill-opacity="0.15" stroke="#4c8bf5" stroke-width="2"/>
+<text x="100" y="74" text-anchor="middle" style="font-weight:700">① ローカル空間</text>
+<line x1="100" y1="170" x2="100" y2="100" stroke="currentColor"/><line x1="100" y1="170" x2="160" y2="170" stroke="currentColor"/>
+<circle cx="125" cy="140" r="5" fill="#e5484d"/><text x="105" y="190" style="font-size:11px">モデルの原点が基準</text>
+<rect x="210" y="50" width="160" height="150" rx="8" fill="#2ea043" fill-opacity="0.15" stroke="#2ea043" stroke-width="2"/>
+<text x="290" y="74" text-anchor="middle" style="font-weight:700">② ワールド空間</text>
+<line x1="230" y1="170" x2="230" y2="110" stroke="currentColor" stroke-opacity="0.5"/><line x1="230" y1="170" x2="350" y2="170" stroke="currentColor" stroke-opacity="0.5"/>
+<rect x="290" y="115" width="30" height="30" fill="#4c8bf5" fill-opacity="0.3" stroke="#4c8bf5"/><circle cx="310" cy="125" r="5" fill="#e5484d"/><text x="230" y="190" style="font-size:11px">世界の原点が基準</text>
+<rect x="400" y="50" width="160" height="150" rx="8" fill="#e5aa28" fill-opacity="0.18" stroke="#e5aa28" stroke-width="2"/>
+<text x="480" y="74" text-anchor="middle" style="font-weight:700">③ ビュー空間</text>
+<polygon points="480,175 440,110 520,110" fill="none" stroke="currentColor" stroke-opacity="0.5"/><circle cx="480" cy="175" r="4" fill="currentColor"/><circle cx="492" cy="135" r="5" fill="#e5484d"/><text x="410" y="190" style="font-size:11px">カメラが原点・前が +Z</text>
+<rect x="590" y="50" width="170" height="150" rx="8" fill="#9664e6" fill-opacity="0.18" stroke="#9664e6" stroke-width="2"/>
+<text x="675" y="74" text-anchor="middle" style="font-weight:700">④ クリップ空間</text>
+<rect x="615" y="95" width="120" height="75" fill="none" stroke="currentColor" stroke-opacity="0.6"/><circle cx="690" cy="125" r="5" fill="#e5484d"/><text x="600" y="190" style="font-size:11px">画面に写す直前の箱</text>
+</g>
+<g stroke="currentColor" stroke-width="2"><line x1="181" y1="125" x2="208" y2="125" marker-end="url(#rfa)"/><line x1="371" y1="125" x2="398" y2="125" marker-end="url(#rfa)"/><line x1="561" y1="125" x2="588" y2="125" marker-end="url(#rfa)"/></g>
+<g font-size="12">
+<text x="195" y="245" text-anchor="middle" style="font-weight:700">ワールド行列</text>
+<text x="385" y="245" text-anchor="middle" style="font-weight:700">ビュー行列</text>
+<text x="575" y="245" text-anchor="middle" style="font-weight:700">射影行列</text>
+<text x="195" y="265" text-anchor="middle" style="font-size:11px">置く・回す・拡大</text>
+<text x="385" y="265" text-anchor="middle" style="font-size:11px">カメラ基準に直す</text>
+<text x="575" y="265" text-anchor="middle" style="font-size:11px">遠近感を付ける</text>
+</g>
+</svg>
+
+| 空間 | 基準 | 何のため |
+| --- | --- | --- |
+| <strong>ローカル（モデル）</strong> | **モデル自身の原点** | **モデルを作るときの座標**（足元が原点、など） |
+| **ワールド** | **世界の原点** | **すべての物を同じ座標で扱う**（当たり判定・ライティング） |
+| <strong>ビュー（カメラ）</strong> | **カメラの位置が原点、前が +Z** | **カメラから見た位置を調べる** |
+| **クリップ** | **視錐台を箱に変形した空間** | **画面の外を切り落とし、遠近を付ける** |
+
+**ローカルからワールドへ**：**モデルを世界に置く**（**位置・向き・大きさ**）。**ワールドからビューへ**：**カメラを原点に動かす**（**世界全体をカメラの逆に動かす**）。**ビューからクリップへ**：**遠近法（近い物は大きく、遠い物は小さく）を付ける**。
+
+## 3 つの行列
+
+**空間から空間への移り変わりは、行列の掛け算で表します**。**行ベクトル規約**（このサイト）では、**`v * W * V * P`** と**左から右へ掛けます**。
+
+| 行列 | 内容 | 持つのは |
+| --- | --- | --- |
+| **ワールド行列 W** | **拡大縮小 → 回転 → 平行移動**（物ごとに違う） | **物ごと** |
+| **ビュー行列 V** | **カメラの位置・向きの逆** | <strong>カメラ（フレームに 1 つ）</strong> |
+| **射影行列 P** | **視野角・縦横比・近い面・遠い面** | <strong>カメラ（めったに変えない）</strong> |
+
+<div class="formula">v_clip = v_local × W × V × P　（行ベクトル。左から順に適用）</div>
+
+**3 つを事前に 1 つの行列にまとめて（WVP 行列）、頂点では 1 回だけ掛ける**のが**一般的**です。
+
+```cpp
+Matrix world = Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rotation) * Matrix::CreateTranslation(position);
+Matrix wvp = world * view * projection;
+```
+
+詳しい行列の中身は[座標変換（MVP）](../transforms-mvp.md)と[射影](../projection.md)で扱います。
+
+## 頂点シェーダーを書く
+
+**頂点シェーダー**は、**入力（頂点属性）を受け取り、出力を返す関数**です。
+
+```hlsl
+cbuffer PerObject : register(b0) {
+  float4x4 world;
+  float4x4 view_projection;
+};
+
+struct VSInput {
+  float3 position : POSITION;
+  float3 normal : NORMAL;
+  float2 uv : TEXCOORD0;
+};
+
+struct VSOutput {
+  float4 position : SV_POSITION;
+  float3 world_position : TEXCOORD0;
+  float3 world_normal : TEXCOORD1;
+  float2 uv : TEXCOORD2;
+};
+
+VSOutput VSMain(VSInput input) {
+  VSOutput output;
+  float4 world_position = mul(float4(input.position, 1.0), world);
+  output.position = mul(world_position, view_projection);
+  output.world_position = world_position.xyz;
+  output.world_normal = mul(input.normal, (float3x3)world);
+  output.uv = input.uv;
+  return output;
+}
+```
+
+| 点 | 説明 |
+| --- | --- |
+| **`float4(position, 1.0)`** | **位置は w = 1 で 4 要素に広げる**（**平行移動を行列で表すため**）。**向き（方向）なら w = 0** |
+| **`mul(行ベクトル, 行列)`** | **左から掛ける**（行ベクトル規約） |
+| **`SV_POSITION`** | **クリップ空間の位置**。**GPU が必ず必要とする出力** |
+| **法線は `(float3x3)world`** | **平行移動を無視して、回転・拡大だけ掛ける**（**位置と同じワールド行列で変換する**。**非一様な拡大では逆転置行列が必要**） |
+| **UV はそのまま** | **ピクセルへ渡して、テクスチャを引くために使う** |
+| **出力のセマンティクス** | **ピクセル シェーダーが受け取る名前**。**`TEXCOORD0…` を自由に使う** |
+
+## 具体例：数値で追う
+
+**頂点がどう変わるか**を**数字で**確認します。**条件**は次のとおりです。
+
+| 設定 | 値 |
+| --- | --- |
+| **カメラ** | **原点にいて +Z を向く**（ビュー行列は単位行列） |
+| **射影** | **視野角 90°・縦横比 1・近い面 1・遠い面 100** |
+| **画面** | **800×800 ピクセル** |
+| <strong>頂点（ワールド）</strong> | <strong>(3, 1, 10)</strong>（右に 3・上に 1・前に 10） |
+
+**射影行列を通した結果**（クリップ座標）は次のようになります。
+
+<div class="formula">
+x_clip = x / tan(45°) = 3　　y_clip = y / tan(45°) = 1<br>
+w_clip = z = 10　　z_clip = z · (100/99) − (100/99) ≈ 9.09
+</div>
+
+<strong>クリップ座標 (3, 1, 9.09, 10)</strong> になります。**この後 GPU が `w` で割る**（[次のページ](clip-viewport.md)）と、<strong>(0.3, 0.1, 0.909)</strong> になり、**画面上の位置が決まります**。
+
+<svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="頂点の変換の数値例"><defs><marker id="rfa" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs>
+<text x="20" y="24" class="fig-title">頂点 (3, 1, 10) の旅</text>
+<g font-size="13">
+<rect x="20" y="50" width="170" height="70" rx="8" fill="#4c8bf5" fill-opacity="0.18" stroke="#4c8bf5"/>
+<text x="105" y="76" text-anchor="middle" style="font-weight:700">ワールド座標</text><text x="105" y="100" text-anchor="middle">(3, 1, 10)</text>
+<rect x="230" y="50" width="170" height="70" rx="8" fill="#e5aa28" fill-opacity="0.2" stroke="#e5aa28"/>
+<text x="315" y="76" text-anchor="middle" style="font-weight:700">ビュー座標</text><text x="315" y="100" text-anchor="middle">(3, 1, 10)</text>
+<rect x="440" y="50" width="320" height="70" rx="8" fill="#9664e6" fill-opacity="0.2" stroke="#9664e6"/>
+<text x="600" y="76" text-anchor="middle" style="font-weight:700">クリップ座標</text><text x="600" y="100" text-anchor="middle">(3, 1, 9.09, w = 10)</text>
+</g>
+<g stroke="currentColor" stroke-width="2"><line x1="192" y1="85" x2="228" y2="85" marker-end="url(#rfa)"/><line x1="402" y1="85" x2="438" y2="85" marker-end="url(#rfa)"/></g>
+<text x="210" y="145" text-anchor="middle" style="font-size:11px">ビュー行列</text>
+<text x="420" y="145" text-anchor="middle" style="font-size:11px">射影行列</text>
+<text x="20" y="190" style="font-size:13px">ポイント：w に「奥行き（z）」が入る。遠い物ほど w が大きい → 後で割ると小さくなる</text>
+<text x="20" y="214" style="font-size:13px">これが遠近法（遠い物ほど小さく見える）のしくみ</text>
+</svg>
+
+**w に奥行きが入る**ことが**遠近法の核心**です。**後の工程で x・y を w で割る**と**遠い物（w が大きい）ほど画面の中心に寄って小さく見えます**。
+
+## 頂点シェーダーでできること
+
+**変換以外にも頂点シェーダーは自由に位置を変えられます**。
+
+| 用途 | 内容 |
+| --- | --- |
+| **スキニング** | **骨の行列で頂点を動かす**（[スキニング](../skinning-animation.md)） |
+| **波・揺れ** | **時間に応じて位置をずらす**（水・草・旗） |
+| **ビルボード** | **常にカメラを向く板** |
+| **インスタンシング** | **同じモデルをインスタンスごとの行列で多数描く** |
+| **ハイトマップ** | **テクスチャで頂点を持ち上げる**（[地形](../../graphics/terrain/heightmap-mesh.md)） |
+| **アウトライン** | **法線方向に膨らませた裏面で輪郭線** |
+
+## 頂点シェーダーの出力
+
+**頂点シェーダーが返したデータは、三角形の中で補間されて、ピクセル シェーダーへ渡ります**（[ラスタライズ](rasterize.md)）。
+
+| 出力 | 使い道 |
+| --- | --- |
+| **`SV_POSITION`** | **必須**。**画面のどこに描くか** |
+| **ワールド位置** | <strong>ライティング（光との距離）</strong> |
+| **ワールド法線** | <strong>ライティング（面の向き）</strong> |
+| **UV** | **テクスチャを引く** |
+| **頂点カラー** | **頂点ごとの色** |
+| **接線** | **法線マップ用** |
+
+**出力を増やすと頂点シェーダー → ピクセル シェーダーの間のデータ量が増えて重くなる**ので、**必要なものだけ**にします。
+
+## よくあるミス
+
+??? failure "`mul(行列, ベクトル)` の順序を間違えて、物が消える／歪む"
+    **行ベクトル規約**は **`mul(ベクトル, 行列)`**。**掛け順も `W × V × P`**。
+
+??? failure "位置の w を 0 にして、平行移動が効かない"
+    **位置は w = 1、向きは w = 0**。
+
+??? failure "法線に平行移動が掛かって、ライティングがおかしい"
+    **法線は `(float3x3)world`** など、**平行移動を含まない 3×3** で変換する。**非一様スケールは逆転置行列**。
+
+??? failure "行列を C++ から渡すとき、転置を忘れて崩れる"
+    <strong>C++ の行列と HLSL の行列の並び（行優先・列優先）</strong>を**揃える**。**SimpleMath は行優先**なので、**HLSL でも `row_major` か、そのまま**（既定が列優先なので `#pragma pack_matrix(row_major)`）。
+
+??? failure "頂点シェーダーでライティングを重く計算して遅い"
+    **頂点数が多いと頂点側の負荷が上がる**。**ピクセル単位で計算する**ほうが**普通**。
+
+## これだけ覚える
+
+!!! abstract "まとめ"
+    - [x] 頂点シェーダー ＝ <strong>頂点 1 個を変換</strong>。<strong>頂点の数だけ呼ばれる</strong>
+    - [x] <strong>ローカル → ワールド → ビュー → クリップ</strong>。<strong>行列（W・V・P）の掛け算</strong>
+    - [x] <strong>`v * W * V * P`</strong>（<strong>行ベクトル、左手系</strong>）。<strong>位置は w = 1</strong>
+    - [x] <strong>出力の `SV_POSITION` は必須</strong>。<strong>法線・UV は補間してピクセルへ</strong>
+    - [x] <strong>w に奥行きが入る</strong>：<strong>遠近法の核心</strong>
+
+## 参考
+
+- Microsoft, "Vertex Shader Stage"（Microsoft Learn）
+- Microsoft, "Coordinate Systems"（Direct3D 9/11 Learn）
+- Fabian Giesen, "A trip through the Graphics Pipeline 2011"（Part 3）
+
+## 関連ページ
+
+- [描画の流れ（入門）](index.md)
+- [CPU から GPU へ](cpu-to-gpu.md)
+- [クリップと画面への写し](clip-viewport.md)
+- [座標変換（MVP）](../transforms-mvp.md)
+- [射影](../projection.md)
