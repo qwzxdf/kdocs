@@ -47,9 +47,9 @@ tags:
 
 | 目的 | 順番 |
 | --- | --- |
-| **AO を実装したい** | [AO の理論](ao/theory.md) → [SSAO（半球）](ao/ssao-hemisphere.md) → [フィルタ](ao/filtering.md) → 品質を上げるなら [GTAO](ao/gtao.md) |
+| **AO を実装したい** | [AO の理論](ao/theory/index.md) → [SSAO（半球）](ao/ssao-hemisphere.md) → [フィルタ](ao/filtering/index.md) → 品質を上げるなら [GTAO](ao/gtao.md) |
 | **方式を選びたい** | [AO の方式比較](ao/comparison.md) |
-| **アーティファクトを直したい** | [AO のアーティファクト](ao/artifacts.md) |
+| **アーティファクトを直したい** | [AO のアーティファクト](ao/artifacts/index.md) |
 
 ## 関連ページ
 

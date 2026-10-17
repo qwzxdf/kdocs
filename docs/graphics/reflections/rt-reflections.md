@@ -227,5 +227,5 @@ void ReflectionClosestHit(inout ReflectionPayload payload, BuiltInTriangleInters
 - [反射](index.md)
 - [確率的 SSR](ssr-stochastic.md)
 - [SSR のフォールバックと合成](ssr-fallback.md)
-- [世界空間の AO](../ao/world-space.md)
-- [AO のフィルタ](../ao/filtering.md)
+- [世界空間の AO](../ao/world-space/index.md)
+- [AO のフィルタ](../ao/filtering/index.md)

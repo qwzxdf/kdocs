@@ -1,0 +1,6 @@
+nav:
+  - index.md
+  - spot-light.md
+  - point-cubemap.md
+  - dual-paraboloid.md
+  - many-lights.md

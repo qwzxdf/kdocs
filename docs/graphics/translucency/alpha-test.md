@@ -155,7 +155,7 @@ clip(fade_alpha - threshold);
 
 ## 影・深度パスでのアルファ テスト
 
-**影（シャドウ マップ）や深度プリパス**でも、**葉の形で影を落とす**には、**アルファ テストが必要**です。**これらのパスにも、同じ `clip`** を**入れ**ます（[特殊な影](../shadows/special-cases.md)）。
+**影（シャドウ マップ）や深度プリパス**でも、**葉の形で影を落とす**には、**アルファ テストが必要**です。**これらのパスにも、同じ `clip`** を**入れ**ます（[特殊な影](../shadows/special-cases/index.md)）。
 
 ## 方式の比較
 
@@ -202,6 +202,6 @@ clip(fade_alpha - threshold);
 
 - [半透明](index.md)
 - [ブレンドとソート](blending-sorting.md)
-- [特殊な影（アルファ テストの影）](../shadows/special-cases.md)
+- [特殊な影（アルファ テストの影）](../shadows/special-cases/index.md)
 - [アンチエイリアシング](../postprocess/antialiasing/index.md)
 - [オーバードロー（最適化）](../../rendering/overdraw.md)

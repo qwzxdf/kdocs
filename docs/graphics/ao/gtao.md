@@ -29,7 +29,7 @@ tags:
 
 ## 理論：スライスに分けた積分
 
-[理論](theory.md)の AO は次の積分でした。
+[理論](theory/index.md)の AO は次の積分でした。
 
 <div class="formula">AO = (1/π) ∫_{Ω} V(ω) (n·ω) dω</div>
 
@@ -134,7 +134,7 @@ float SliceVisibility(float3 p, float3 v, float3 n, float2 dir, float2 h_cos) {
 
 | 工夫 | 内容 |
 | --- | --- |
-| **画素ごとにスライスの向きを変える** | 空間的に**ノイズ**に変える（4×4 や、IGN など。[フィルタ](filtering.md)） |
+| **画素ごとにスライスの向きを変える** | 空間的に**ノイズ**に変える（4×4 や、IGN など。[フィルタ](filtering/index.md)） |
 | **フレームごとに向きを回す** | **時間的に**別の向きを見る |
 | **空間・時間の両方で積分する** | **バイラテラル ブラー ＋ 時間蓄積**で、ノイズを平均する（実質、毎画素 数十本のスライス相当） |
 | **ステップ位置のジッター** | ステップの位置にもノイズ |
@@ -236,7 +236,7 @@ float SpecularOcclusion(float n_dot_v, float ao, float roughness) {
     `‖n_p‖`（投影した法線の長さ）が、スライスの重みです。
 
 ??? failure "1 フレームの結果をそのまま使って、ノイズだらけ"
-    **ブラーと時間蓄積**が前提です（[フィルタ](filtering.md)）。
+    **ブラーと時間蓄積**が前提です（[フィルタ](filtering/index.md)）。
 
 ??? failure "マルチ バウンスを、グレーのアルベドで色付きの壁に掛けて、色味が失われる"
     <strong>色ごと（RGB）</strong>に計算すると色の回り込みが出ます。
@@ -263,6 +263,6 @@ float SpecularOcclusion(float n_dot_v, float ao, float roughness) {
 
 - [環境光遮蔽（AO）](index.md)
 - [HBAO](hbao.md)
-- [フィルタ](filtering.md)
+- [フィルタ](filtering/index.md)
 - [方式の比較](comparison.md)
 - [PBR](../../3d/pbr.md)

@@ -164,5 +164,5 @@ for each light:
 ## 関連ページ
 
 - [影](index.md)
-- [シャドウ マップの基礎](shadow-map-basics.md)
+- [シャドウ マップの基礎](shadow-map-basics/index.md)
 - [レイトレース影](ray-traced.md)

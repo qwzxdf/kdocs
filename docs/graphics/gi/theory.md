@@ -106,7 +106,7 @@ float3 EvaluateSH9(float3 n, float3 sh[9]) {
 | **ω_k** | k 番目のランダムな方向 |
 | <strong>pdf(ω_k)</strong> | その方向を選ぶ確率密度（サンプリングの偏りの補正） |
 
-**余弦重み付きサンプリング**（`pdf = cosθ / π`）を使えば、**`(n·ω) / pdf = π`** と**定数**になり、**単純な平均**になります（[AO の理論](../ao/theory.md)と同じ）。
+**余弦重み付きサンプリング**（`pdf = cosθ / π`）を使えば、**`(n·ω) / pdf = π`** と**定数**になり、**単純な平均**になります（[AO の理論](../ao/theory/index.md)と同じ）。
 
 | 性質 | 内容 |
 | --- | --- |
@@ -210,5 +210,5 @@ float3 EvaluateSH9(float3 n, float3 sh[9]) {
 - [間接光（GI）](index.md)
 - [ライトマップ](lightmaps.md)
 - [ライト プローブ](probes.md)
-- [AO の理論](../ao/theory.md)
+- [AO の理論](../ao/theory/index.md)
 - [反射](../reflections/index.md)

@@ -1,16 +1,16 @@
 nav:
   - index.md
-  - shadow-map-basics.md
-  - bias.md
+  - シャドウ マップの基礎: shadow-map-basics
+  - バイアス: bias
   - pcf.md
   - pcss.md
-  - vsm.md
+  - VSM と ESM・MSM: vsm
   - cascaded.md
-  - local-lights.md
+  - 点光源・スポットライトの影: local-lights
   - contact-shadows.md
   - sdf-shadows.md
   - ray-traced.md
   - virtual-shadow-maps.md
   - shadow-volumes.md
-  - special-cases.md
+  - 特殊なケース: special-cases
   - comparison.md

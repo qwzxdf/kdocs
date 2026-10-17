@@ -787,13 +787,13 @@
   link: graphics/ao/sao.md
 - terms: [RTAO, レイトレース AO, レイトレーシング AO]
   text: レイトレーシングで、シーンに直接レイを飛ばして求める AO。正確だが、ノイズ除去が必要。
-  link: graphics/ao/world-space.md
+  link: graphics/ao/world-space/rtao.md
 - terms: [DFAO, 距離場 AO, 距離場AO]
   text: 符号付き距離場で円錐をトレースして求める AO。
-  link: graphics/ao/world-space.md
+  link: graphics/ao/world-space/dfao.md
 - terms: [バイラテラルフィルタ, バイラテラルブラー, bilateral blur]
   text: 深度や法線が近い画素だけを混ぜる、境界を守るぼかし。
-  link: graphics/ao/filtering.md
+  link: graphics/ao/filtering/bilateral-blur.md
 - terms: [ベント法線, bent normal, bent normals]
   text: 遮られていない方向の、平均の向き。環境光を引くときに、法線の代わりに使う。
   link: graphics/ao/gtao.md
@@ -805,10 +805,10 @@
   link: graphics/ao/gtao.md
 - terms: [オブスキュランス, obscurance]
   text: 距離の減衰を足した、AO の一般化。近くの遮蔽だけが効く。
-  link: graphics/ao/theory.md
+  link: graphics/ao/theory/obscurance.md
 - terms: [IGN, Interleaved Gradient Noise, ブルーノイズ, blue noise]
   text: スクリーン空間のノイズ。ぼかしや時間蓄積で消えやすい質のよいノイズ。
-  link: graphics/ao/filtering.md
+  link: graphics/ao/filtering/index.md
 - terms: [SSR, スクリーン空間反射, Screen Space Reflection]
   text: 画面に映っているものだけで、反射を計算する方法。画面外は映らない。
   link: graphics/reflections/ssr-basics.md
@@ -1759,7 +1759,7 @@
   link: graphics/shadows/pcss.md
 - terms: [VSM, Variance Shadow Maps, ESM, EVSM, MSM, 光漏れ]
   text: 深度の平均と 2 乗平均を保存し、ぼかしたうえで影を求める方式（光漏れが弱点）。
-  link: graphics/shadows/vsm.md
+  link: graphics/shadows/vsm/esm.md
 - terms: [コンタクトシャドウ, コンタクト シャドウ, Contact Shadows]
   text: 深度バッファ上で光の方向へ短いレイを進め、接触部の細かい影を補う方法。
   link: graphics/shadows/contact-shadows.md
@@ -1817,7 +1817,7 @@
   link: graphics/postprocess/antialiasing/index.md
 - terms: [アクネ, シャドウ アクネ, Shadow Acne]
   text: 自分自身の影で、面にしま模様が出る現象。バイアスで防ぐ。
-  link: graphics/shadows/bias.md
+  link: graphics/shadows/bias/index.md
 - terms: [スペキュラ, Specular, 鏡面反射]
   text: 光がなめらかな面で、鏡のように反射する成分。ハイライトを作る。
   link: graphics/ao/gtao.md
@@ -1838,10 +1838,10 @@
   link: graphics/reflections/rt-reflections.md
 - terms: [アーティファクト, Artifact]
   text: 処理の副作用で出る、本来ない見た目の乱れ。
-  link: graphics/ao/artifacts.md
+  link: graphics/ao/artifacts/index.md
 - terms: [ハロー, Halo]
   text: 明るい物や縁の周りに出る、にじんだ輪のような見た目の乱れ。
-  link: graphics/ao/artifacts.md
+  link: graphics/ao/artifacts/halo.md
 - terms: [バイリニア, Bilinear, バイリニア補間]
   text: 周囲 4 点を線形補間して、なめらかに値を取り出す方法。
   link: gamemath/interpolation.md
@@ -1862,10 +1862,10 @@
   link: rendering/overdraw.md
 - terms: [パンニング, ピーター パンニング, Peter Panning]
   text: 影が物体から浮いて見える現象。バイアスが大きすぎると起きる。
-  link: graphics/shadows/bias.md
+  link: graphics/shadows/bias/peter-panning.md
 - terms: [モンテカルロ, Monte Carlo, モンテカルロ法]
   text: ランダムなサンプルの平均で、積分を近似する方法。
-  link: graphics/ao/theory.md
+  link: graphics/ao/theory/index.md
 - terms: [グレイン, Film Grain, フィルム グレイン]
   text: フィルムの粒子のような、細かいノイズ。
   link: graphics/postprocess/lens-effects/film-grain.md
@@ -1907,16 +1907,16 @@
   link: 3d/pbr.md
 - terms: [バンディング, Banding]
   text: 滑らかなグラデーションに、段差の縞が出る現象。
-  link: graphics/ao/artifacts.md
+  link: graphics/ao/artifacts/index.md
 - terms: [ブロブ, Blob, ブロブ シャドウ]
   text: 足元に貼る、丸くて柔らかい影の画像。
-  link: graphics/shadows/special-cases.md
+  link: graphics/shadows/special-cases/index.md
 - terms: [スロープ, Slope]
   text: 面の傾き。スロープ スケール バイアスで使う。
-  link: graphics/shadows/bias.md
+  link: graphics/shadows/bias/slope-scale-bias.md
 - terms: [チェビシェフ, Chebyshev, チェビシェフの不等式]
   text: 平均と分散から、確率の上限を見積もる不等式。VSM で使う。
-  link: graphics/shadows/vsm.md
+  link: graphics/shadows/vsm/index.md
 - terms: [ヤコビアン, Jacobian]
   text: 座標を変換したときの、面積（体積）の変化率。
   link: graphics/gi/rt-gi.md
@@ -1934,7 +1934,7 @@
   link: libs/imgui/fonts.md
 - terms: [ヒューリスティック, Heuristic]
   text: 厳密ではないが、経験則でうまくいく方法。
-  link: graphics/ao/artifacts.md
+  link: graphics/ao/artifacts/index.md
 - terms: [アナモルフィック, Anamorphic]
   text: 横に引き伸ばされた像を作るレンズ。楕円のボケや横長のフレアが出る。
   link: graphics/postprocess/dof/index.md
@@ -1991,7 +1991,7 @@
   link: stl/memory/allocator.md
 - terms: [ディレクショナル, Directional, 平行光]
   text: 遠くの光源のように、全体に同じ向きで当たる光。
-  link: graphics/shadows/shadow-map-basics.md
+  link: graphics/shadows/shadow-map-basics/index.md
 - terms: [タイリング, Tiling]
   text: テクスチャを繰り返して貼ること。
   link: 3d/mesh-textures.md
@@ -2414,7 +2414,7 @@
   link: graphics/postprocess/tonemapping/reinhard.md
 - terms: [VXAO, Voxel AO]
   text: ボクセルを使った、環境光遮蔽。
-  link: graphics/ao/world-space.md
+  link: graphics/ao/world-space/vxao.md
 - terms: [AgX]
   text: 色相が崩れにくい、トーンマップの方式。
   link: graphics/postprocess/tonemapping/agx.md
@@ -2504,7 +2504,7 @@
   link: gamemath/motion.md
 - terms: [Bayer, Bayer 行列]
   text: 一定の規則で並べた、ディザリング用の閾値の表。
-  link: graphics/shadows/special-cases.md
+  link: graphics/shadows/special-cases/index.md
 - terms: [Halton, Halton 数列]
   text: 2 次元に均一に分布する、低食い違い列。
   link: graphics/postprocess/antialiasing/index.md
@@ -2609,7 +2609,7 @@
   link: graphics/gi/ddgi.md
 - terms: [SIGGRAPH]
   text: コンピュータ グラフィックスの、最大の学会。
-  link: graphics/ao/theory.md
+  link: graphics/ao/theory/index.md
 - terms: [Developer PowerShell, 開発者用 PowerShell]
   text: Visual Studio のコンパイラが使える状態の PowerShell。
   link: vs/libraries.md
@@ -2651,10 +2651,10 @@
   link: gamemath/color.md
 - terms: [分散, Variance]
   text: データが、平均からどれだけばらつくかを表す値。
-  link: graphics/shadows/vsm.md
+  link: graphics/shadows/vsm/index.md
 - terms: [時間蓄積, Temporal Accumulation]
   text: 前のフレームの結果を、現在のフレームに混ぜて、サンプルを増やすこと。
-  link: graphics/ao/filtering.md
+  link: graphics/ao/filtering/temporal.md
 - terms: [再投影, Reprojection]
   text: 前フレームの画面上の位置を求めて、その画素の履歴を取り出すこと。
   link: graphics/reflections/ssr-stochastic.md
@@ -2663,7 +2663,7 @@
   link: graphics/postprocess/motion-blur/velocity-buffer.md
 - terms: [空間フィルタ, Spatial Filter]
   text: 同じフレームの、周囲の画素を使うフィルタ。
-  link: graphics/ao/filtering.md
+  link: graphics/ao/filtering/index.md
 - terms: [半影, Penumbra]
   text: 光源の一部だけが遮られて、薄くなる影の縁の領域。
   link: graphics/shadows/pcss.md
@@ -2693,10 +2693,10 @@
   link: graphics/gi/lightmaps.md
 - terms: [異方性フィルタ, Anisotropic Filtering]
   text: 斜めから見た面のテクスチャを、くっきり保つフィルタ。
-  link: graphics/shadows/vsm.md
+  link: graphics/shadows/vsm/index.md
 - terms: [法線オフセット, Normal Offset]
   text: 影の判定位置を、面の法線方向にずらすバイアス。
-  link: graphics/shadows/bias.md
+  link: graphics/shadows/bias/normal-offset.md
 - terms: [フレーム バッファ, Frame Buffer]
   text: 描画結果を保存する、画像のバッファ。
   link: graphics/postprocess/bloom/index.md
@@ -2828,7 +2828,7 @@
   link: rendering/gpu-driven.md
 - terms: [タイル ベース, Tile Based, TBDR]
   text: 画面を小さなタイルに分けて、処理する方式。
-  link: graphics/shadows/local-lights.md
+  link: graphics/shadows/local-lights/index.md
 - terms: [Temporal Anti-Aliasing]
   text: 過去のフレームと混ぜて、ジャギーをなくす方法。
   link: graphics/postprocess/antialiasing/index.md
@@ -2879,7 +2879,7 @@
   link: graphics/ao/ssao-crytek.md
 - terms: [Noise]
   text: ランダムな、細かい乱れ。
-  link: graphics/ao/filtering.md
+  link: graphics/ao/filtering/index.md
 - terms: [加速構造, Acceleration Structure]
   text: レイトレースを速くする、空間のデータ構造。
   link: graphics/shadows/ray-traced.md
@@ -2921,7 +2921,7 @@
   link: vs/ninja.md
 - terms: [Shader Model, シェーダー モデル, SM]
   text: シェーダーで使える機能の、世代を表す番号（例：6.6）。
-  link: graphics/shadows/vsm.md
+  link: graphics/shadows/vsm/index.md
 - terms: [Feature Level, フィーチャー レベル]
   text: GPU が対応している機能の水準（D3D の 11_0・12_0 など）。
   link: rendering/light-culling.md
@@ -2933,7 +2933,7 @@
   link: 3d/depth-culling.md
 - terms: [シャドウ, Shadow]
   text: 光が遮られてできる、暗い部分。
-  link: graphics/shadows/special-cases.md
+  link: graphics/shadows/special-cases/index.md
 - terms: [アンドゥ, Undo, 元に戻す]
   text: 直前の操作を、取り消すこと。
   link: design/patterns/command.md

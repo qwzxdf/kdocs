@@ -155,6 +155,6 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 ## 関連ページ
 
 - [影](index.md)
-- [バイアス](bias.md)
+- [バイアス](bias/index.md)
 - [SSR（画面空間の反射）](../reflections/ssr-basics.md)
 - [SSAO](../ao/ssao-hemisphere.md)

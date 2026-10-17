@@ -39,13 +39,33 @@ graphics/postprocess/motion-blur/object-blur.md: {perf: 2, quality: 3}
 
 # --- 影 ---
 graphics/shadows/index.md: {}
-graphics/shadows/shadow-map-basics.md: {perf: 2, quality: 2}
-graphics/shadows/bias.md: {perf: 1}
+graphics/shadows/shadow-map-basics/index.md: {perf: 2, quality: 2}
+graphics/shadows/shadow-map-basics/light-matrix.md: {perf: 1}
+graphics/shadows/shadow-map-basics/render-depth.md: {perf: 2}
+graphics/shadows/shadow-map-basics/comparison-sampler.md: {perf: 1}
+graphics/shadows/shadow-map-basics/aliasing-stabilize.md: {perf: 1, quality: 2}
+graphics/shadows/shadow-map-basics/minimal-code.md: {perf: 2, quality: 1}
+graphics/shadows/bias/index.md: {}
+graphics/shadows/bias/constant-bias.md: {perf: 1, quality: 1}
+graphics/shadows/bias/slope-scale-bias.md: {perf: 1, quality: 2}
+graphics/shadows/bias/normal-offset.md: {perf: 1, quality: 3}
+graphics/shadows/bias/receiver-plane-bias.md: {perf: 2, quality: 3}
+graphics/shadows/bias/front-face-culling.md: {perf: 1, quality: 2}
+graphics/shadows/bias/peter-panning.md: {}
 graphics/shadows/pcf.md: {perf: 2, quality: 2}
 graphics/shadows/pcss.md: {perf: 3, quality: 3}
-graphics/shadows/vsm.md: {perf: 2, quality: 2}
+graphics/shadows/vsm/index.md: {perf: 2, quality: 2}
+graphics/shadows/vsm/light-bleeding.md: {}
+graphics/shadows/vsm/esm.md: {perf: 2, quality: 2}
+graphics/shadows/vsm/evsm.md: {perf: 3, quality: 3}
+graphics/shadows/vsm/msm.md: {perf: 3, quality: 3}
+graphics/shadows/vsm/comparison.md: {}
 graphics/shadows/cascaded.md: {perf: 2, quality: 3}
-graphics/shadows/local-lights.md: {perf: 3, quality: 2}
+graphics/shadows/local-lights/index.md: {perf: 3}
+graphics/shadows/local-lights/spot-light.md: {perf: 2, quality: 2}
+graphics/shadows/local-lights/point-cubemap.md: {perf: 3, quality: 3}
+graphics/shadows/local-lights/dual-paraboloid.md: {perf: 2, quality: 1}
+graphics/shadows/local-lights/many-lights.md: {perf: 3}
 graphics/shadows/contact-shadows.md: {perf: 2, quality: 3}
 graphics/shadows/sdf-shadows.md: {perf: 2, quality: 3}
 graphics/shadows/ray-traced.md: {perf: 3, quality: 3}
@@ -60,8 +80,17 @@ graphics/ao/sao.md: {perf: 2, quality: 2}
 graphics/ao/hbao.md: {perf: 2, quality: 2}
 graphics/ao/hbao-plus.md: {perf: 2, quality: 3}
 graphics/ao/gtao.md: {perf: 2, quality: 3}
-graphics/ao/world-space.md: {perf: 3, quality: 3}
-graphics/ao/filtering.md: {perf: 1}
+graphics/ao/world-space/index.md: {perf: 3, quality: 3}
+graphics/ao/world-space/rtao.md: {perf: 3, quality: 3}
+graphics/ao/world-space/dfao.md: {perf: 2, quality: 3}
+graphics/ao/world-space/vxao.md: {perf: 3, quality: 2}
+graphics/ao/world-space/comparison.md: {}
+graphics/ao/filtering/index.md: {perf: 1}
+graphics/ao/filtering/bilateral-blur.md: {perf: 1, quality: 3}
+graphics/ao/filtering/upsample.md: {perf: 1, quality: 2}
+graphics/ao/filtering/noise-pattern.md: {perf: 1}
+graphics/ao/filtering/temporal.md: {perf: 1, quality: 3}
+graphics/ao/filtering/pipeline.md: {}
 
 # --- 反射 ---
 graphics/reflections/planar.md: {perf: 3, quality: 3}
@@ -139,3 +168,10 @@ graphics/postprocess/stylized/outline-hull.md: {perf: 1}
 graphics/postprocess/stylized/outline-edge.md: {perf: 2}
 graphics/postprocess/stylized/cel-shading.md: {perf: 1}
 graphics/postprocess/stylized/posterize-halftone.md: {perf: 1}
+
+# --- 影:特殊なケース ---
+graphics/shadows/special-cases/alpha-test-shadows.md: {perf: 2, quality: 2}
+graphics/shadows/special-cases/translucent-shadows.md: {perf: 2, quality: 1}
+graphics/shadows/special-cases/blob-planar.md: {perf: 1, quality: 1}
+graphics/shadows/special-cases/distant-shadows.md: {perf: 1, quality: 2}
+graphics/shadows/special-cases/character-shadows.md: {perf: 2, quality: 3}

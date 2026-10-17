@@ -49,7 +49,7 @@ tags:
 
 | 項 | 意味 |
 | --- | --- |
-| **v·n ＝ \|v\| cosθ** | q の方向が法線に近い（cosθ が大きい）ほど強く遮る。<strong>[理論](theory.md)の、コサイン重み</strong> |
+| **v·n ＝ \|v\| cosθ** | q の方向が法線に近い（cosθ が大きい）ほど強く遮る。<strong>[理論](theory/index.md)の、コサイン重み</strong> |
 | <strong>÷ (v·v)</strong> | 遠いほど弱い。**距離の 2 乗に反比例** |
 | **合わせると cosθ / \|v\|** | **近く、かつ、法線の方向にある遮蔽物ほど、強い寄与** |
 | <strong>max(0, …)</strong> | 面の**下側**（`v·n < 0`）の点は遮蔽物ではないので 0 |
@@ -105,14 +105,14 @@ float AlchemyAO(float2 uv, float3 c, float3 n) {
 
 | 点 | 説明 |
 | --- | --- |
-| **`Hash(uv)`** | 画素ごとのランダム値。**ハッシュの出来**でノイズの質が変わる（[フィルタ](filtering.md)） |
+| **`Hash(uv)`** | 画素ごとのランダム値。**ハッシュの出来**でノイズの質が変わる（[フィルタ](filtering/index.md)） |
 | **`ViewPositionFromDepth`** | 深度から位置を復元（[Crytek SSAO](ssao-crytek.md)）。**ポイント サンプリング** |
 | **`pow(a, contrast)`** | `k` 乗でコントラストを調整 |
 | **`2σ/s`** | 式の係数をまとめたもの。`σ` で全体の強さを決める |
 
 ## 後処理
 
-Alchemy AO は、<strong>サンプルが少ない（9 個前後）</strong>ので**ノイズが残ります**。**分離可能なバイラテラル ブラー**（横 → 縦）で、深度を考慮して滑らかにします（[フィルタ](filtering.md)）。
+Alchemy AO は、<strong>サンプルが少ない（9 個前後）</strong>ので**ノイズが残ります**。**分離可能なバイラテラル ブラー**（横 → 縦）で、深度を考慮して滑らかにします（[フィルタ](filtering/index.md)）。
 
 ## 長所と短所
 
@@ -162,5 +162,5 @@ Alchemy AO は、<strong>サンプルが少ない（9 個前後）</strong>の�
 - [環境光遮蔽（AO）](index.md)
 - [半球 SSAO](ssao-hemisphere.md)
 - [SAO（Scalable AO）](sao.md)
-- [フィルタ](filtering.md)
-- [AO の理論](theory.md)
+- [フィルタ](filtering/index.md)
+- [AO の理論](theory/index.md)

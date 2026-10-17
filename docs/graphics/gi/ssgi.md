@@ -150,4 +150,4 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 - [SSAO](../ao/ssao-hemisphere.md)
 - [SSR の基礎](../reflections/ssr-basics.md)
 - [Hi-Z トレース](../reflections/ssr-hiz.md)
-- [AO のフィルタ](../ao/filtering.md)
+- [AO のフィルタ](../ao/filtering/index.md)

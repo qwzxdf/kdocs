@@ -87,7 +87,7 @@ float2 OctEncode(float3 n) {
 <text x="40" y="222" style="font-size:12px">保存された距離 ＜ 画素までの距離 → 壁に遮られている → このプローブの重みを下げる</text>
 </svg>
 
-**画素 → プローブの方向**で、**プローブの距離マップを引き**、**平均距離 μ と距離²の平均**から**分散**を求め、**チェビシェフの不等式**で**可視性の確率**を**見積もります**（[VSM](../shadows/vsm.md)と同じ考え方）。
+**画素 → プローブの方向**で、**プローブの距離マップを引き**、**平均距離 μ と距離²の平均**から**分散**を求め、**チェビシェフの不等式**で**可視性の確率**を**見積もります**（[VSM](../shadows/vsm/index.md)と同じ考え方）。
 
 ```hlsl
 float Visibility(float2 moments, float dist) {
@@ -173,5 +173,5 @@ float Visibility(float2 moments, float dist) {
 - [間接光（GI）](index.md)
 - [ライト プローブ](probes.md)
 - [レイトレ GI](rt-gi.md)
-- [VSM（チェビシェフ）](../shadows/vsm.md)
+- [VSM（チェビシェフ）](../shadows/vsm/index.md)
 - [RT 反射](../reflections/rt-reflections.md)

@@ -178,6 +178,6 @@ float3 ReconstructNormal(int2 pixel, float3 c) {
 - [環境光遮蔽（AO）](index.md)
 - [Alchemy AO](alchemy-ao.md)
 - [HBAO](hbao.md)
-- [フィルタ](filtering.md)
+- [フィルタ](filtering/index.md)
 - [低解像度のエフェクト](../../rendering/low-res-effects.md)
 - [Hi-Z とスクリーン空間トレース](../../rendering/hiz.md)

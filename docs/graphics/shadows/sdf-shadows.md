@@ -127,7 +127,7 @@ float SoftSphereTraceShadow(float3 origin, float3 light_dir, float k) {
 | **遠景の大きな影** | **カスケードの遠い範囲を距離場の影で**（シャドウ マップは、近くだけ） |
 | **静的なシーン** | **柔らかい太陽の影**を全域で |
 | **キャラクター** | **カプセル シャドウ**で柔らかい接地影 |
-| <strong>間接的な、空の遮蔽（距離場 AO）</strong> | **同じ SDF を、AO にも使う**（[AO の手法](../ao/world-space.md)） |
+| <strong>間接的な、空の遮蔽（距離場 AO）</strong> | **同じ SDF を、AO にも使う**（[AO の手法](../ao/world-space/index.md)） |
 
 ## よくあるミス
 
@@ -163,4 +163,4 @@ float SoftSphereTraceShadow(float3 origin, float3 light_dir, float k) {
 - [影](index.md)
 - [PCSS](pcss.md)
 - [カスケード シャドウ マップ](cascaded.md)
-- [AO のその他の手法（距離場 AO）](../ao/world-space.md)
+- [AO のその他の手法（距離場 AO）](../ao/world-space/index.md)

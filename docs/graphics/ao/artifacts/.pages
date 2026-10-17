@@ -1,0 +1,7 @@
+nav:
+  - index.md
+  - halo.md
+  - self-occlusion.md
+  - edge-thin.md
+  - noise-flicker.md
+  - application-mistakes.md

@@ -267,4 +267,4 @@ float3 specular = ssr_color * (F0 * brdf.x + brdf.y);
 - [SSR のフォールバックと合成](ssr-fallback.md)
 - [レイトレース反射](rt-reflections.md)
 - [PBR](../../3d/pbr.md)
-- [AO のフィルタ](../ao/filtering.md)
+- [AO のフィルタ](../ao/filtering/index.md)

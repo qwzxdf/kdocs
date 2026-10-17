@@ -1,0 +1,7 @@
+nav:
+  - index.md
+  - light-matrix.md
+  - render-depth.md
+  - comparison-sampler.md
+  - aliasing-stabilize.md
+  - minimal-code.md

@@ -1,0 +1,7 @@
+nav:
+  - index.md
+  - bilateral-blur.md
+  - upsample.md
+  - noise-pattern.md
+  - temporal.md
+  - pipeline.md

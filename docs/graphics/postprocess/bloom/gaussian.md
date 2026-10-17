@@ -185,4 +185,4 @@ std::vector<float> GaussianWeights(int radius, float sigma) {
 - [ブルーム](index.md)
 - [ダウンサンプルとミップ チェーン](downsample.md)
 - [Dual Filter](dual-filter.md)
-- [SSAO のぼかし](../../ao/filtering.md)
+- [SSAO のぼかし](../../ao/filtering/index.md)
