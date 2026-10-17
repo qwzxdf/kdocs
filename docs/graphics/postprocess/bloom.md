@@ -30,6 +30,67 @@ tags:
 
 **1 回の大きなぼかし**でなく、**幅の異なる複数のぼかしを足し合わせる**と、**自然なすそ野**になります。
 
+<!-- fig:bloom-stages:begin -->
+
+<svg class="fig illust motion" data-fig="bloom-stages" viewBox="0 0 780 340" role="img"><rect x="0" y="0" width="780" height="340" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-bloom-stages" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+<filter id="bl-a" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3"/>
+</filter>
+<filter id="bl-b" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="7"/>
+</filter>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ブルーム:明るい所だけ抜き出し → ぼかして → 元に足す</text>
+<g opacity="1"><text x="20" y="62" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937">① 元の絵</text>
+<rect x="20" y="76" width="155" height="120" fill="#0f172a" stroke="#94a3b8" stroke-width="2"/>
+<rect x="34" y="142" width="56" height="46" fill="#475569"/>
+<rect x="108" y="156" width="52" height="32" fill="#64748b"/>
+<circle cx="56" cy="114" r="11" fill="#fff7d1"/>
+<circle cx="120" cy="150" r="8" fill="#fff7d1"/>
+<circle cx="84" cy="172" r="6" fill="#fff7d1"/>
+</g>
+<line x1="179" y1="136.0" x2="209" y2="136.0" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-bloom-stages)" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1388;0.1391;1.0000" values="0;0;1;1"/></line>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2257;0.2261;1.0000" values="0;0;1;1"/><text x="215" y="62" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937">② 明るい所だけ</text>
+<rect x="215" y="76" width="155" height="120" fill="#0f172a" stroke="#94a3b8" stroke-width="2"/>
+<circle cx="251" cy="114" r="11" fill="#fff7d1"/>
+<circle cx="315" cy="150" r="8" fill="#fff7d1"/>
+<circle cx="279" cy="172" r="6" fill="#fff7d1"/>
+</g>
+<line x1="374" y1="136.0" x2="404" y2="136.0" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-bloom-stages)" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3127;0.3130;1.0000" values="0;0;1;1"/></line>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/><text x="410" y="62" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937">③ ぼかす</text>
+<rect x="410" y="76" width="155" height="120" fill="#0f172a" stroke="#94a3b8" stroke-width="2"/>
+<g filter="url(#bl-a)"><circle cx="446" cy="114" r="11" fill="#fff7d1"/>
+<circle cx="510" cy="150" r="8" fill="#fff7d1"/>
+<circle cx="474" cy="172" r="6" fill="#fff7d1"/>
+</g>
+<g filter="url(#bl-b)" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4174;0.5565;1.0000" values="0;0;1;1"/><circle cx="446" cy="114" r="11" fill="#fff7d1"/>
+<circle cx="510" cy="150" r="8" fill="#fff7d1"/>
+<circle cx="474" cy="172" r="6" fill="#fff7d1"/>
+</g>
+</g>
+<line x1="569" y1="136.0" x2="599" y2="136.0" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-bloom-stages)" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4866;0.4870;1.0000" values="0;0;1;1"/></line>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5736;0.5739;1.0000" values="0;0;1;1"/><text x="605" y="62" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937">④ 元に足す</text>
+<rect x="605" y="76" width="155" height="120" fill="#0f172a" stroke="#94a3b8" stroke-width="2"/>
+<rect x="619" y="142" width="56" height="46" fill="#475569"/>
+<rect x="693" y="156" width="52" height="32" fill="#64748b"/>
+<g filter="url(#bl-b)" opacity="0.95"><circle cx="641" cy="114" r="16.5" fill="#ffe27a"/>
+<circle cx="705" cy="150" r="12.0" fill="#ffe27a"/>
+<circle cx="669" cy="172" r="9.0" fill="#ffe27a"/>
+</g>
+<circle cx="641" cy="114" r="11" fill="#ffffff"/>
+<circle cx="705" cy="150" r="8" fill="#ffffff"/>
+<circle cx="669" cy="172" r="6" fill="#ffffff"/>
+</g>
+<text x="20" y="236" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">まず、ふつうに描いた絵（明るい光の周りは、にじんでいない）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2257;0.2261;1.0000" values="1;1;0;0"/></text>
+<text x="20" y="236" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">② 閾値より明るいピクセルだけを残す（あとは黒）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2257;0.2261;0.3997;0.4000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="236" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">③ 縮小しながらぼかして、光のにじみを作る（ぼかしが強くなる）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;0.6257;0.6261;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="236" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">④ ぼかした光を元の絵に足す → 明るい物が光って見える<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6257;0.6261;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="20" y="272" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">ぼかしは、縮小 → ぼかし → 拡大を重ねると、広くて安いにじみになる。</text>
+<text x="20" y="296" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">足す前に閾値で選ぶので、暗い所は光らない。</text>
+</svg>
+
+<!-- fig:bloom-stages:end -->
+
 ## 実装の流れ
 
 | 手順 | 内容 |

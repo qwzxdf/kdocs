@@ -140,6 +140,57 @@ bool TraceSSR(float3 origin_vs, float3 dir_vs, float2 jitter,
 | **`ray_z_max >= scene_z`** | レイが面の**奥**に達した（左手系・+Z が前なので奥ほど z が大きい） |
 | **`ray_z_min <= scene_z + thickness`** | レイが面から**厚みの範囲内**にある（はるか後ろではない） |
 
+<!-- fig:ssr-march:begin -->
+
+<svg class="fig illust motion" data-fig="ssr-march" viewBox="0 0 780 360" role="img"><rect x="0" y="0" width="780" height="360" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-ssr-march" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">SSR:反射した向きへ少しずつ進み、深度バッファの物にぶつかるまで探す</text>
+<line x1="40" y1="270" x2="740" y2="270" stroke="#1f2937" stroke-width="4"/>
+<rect x="40" y="270" width="700" height="50" fill="#dbeafe" opacity="0.6"/>
+<text x="46" y="300" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">鏡のような床</text>
+<rect x="500" y="150" width="80" height="120" fill="#e5484d" stroke="#7f1d1d" stroke-width="2"/>
+<circle cx="70" cy="170" r="9" fill="#1f2937"/>
+<text x="60" y="154" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">カメラ</text>
+<line x1="70" y1="170" x2="70" y2="170" stroke="#1f2937" stroke-width="2.5" stroke-dasharray="6 4"><animate attributeName="x2" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.0455;0.1182;1.0000" values="70;70;300;300"/><animate attributeName="y2" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.0455;0.1182;1.0000" values="170;170;270;270"/></line>
+<circle cx="300" cy="270" r="6" fill="#e5aa28" stroke="#ffffff" stroke-width="2"/>
+<text x="280" y="296" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">この床のピクセル</text>
+<line x1="300" y1="270" x2="323.84" y2="259.63" stroke="#2ea043" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.1451;0.1455;1.0000" values="0;0;1;1"/></line>
+<circle cx="323.84" cy="259.63" r="6" fill="#2ea043" stroke="#ffffff" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.1451;0.1455;1.0000" values="0;0;1;1"/></circle>
+<line x1="323.84" y1="259.63" x2="347.69" y2="249.27" stroke="#2ea043" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.1833;0.1836;1.0000" values="0;0;1;1"/></line>
+<circle cx="347.69" cy="249.27" r="6" fill="#2ea043" stroke="#ffffff" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.1833;0.1836;1.0000" values="0;0;1;1"/></circle>
+<line x1="347.69" y1="249.27" x2="371.53" y2="238.9" stroke="#2ea043" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.2215;0.2218;1.0000" values="0;0;1;1"/></line>
+<circle cx="371.53" cy="238.9" r="6" fill="#2ea043" stroke="#ffffff" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.2215;0.2218;1.0000" values="0;0;1;1"/></circle>
+<line x1="371.53" y1="238.9" x2="395.38" y2="228.53" stroke="#2ea043" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.2596;0.2600;1.0000" values="0;0;1;1"/></line>
+<circle cx="395.38" cy="228.53" r="6" fill="#2ea043" stroke="#ffffff" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.2596;0.2600;1.0000" values="0;0;1;1"/></circle>
+<line x1="395.38" y1="228.53" x2="419.22" y2="218.17" stroke="#2ea043" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.2978;0.2982;1.0000" values="0;0;1;1"/></line>
+<circle cx="419.22" cy="218.17" r="6" fill="#2ea043" stroke="#ffffff" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.2978;0.2982;1.0000" values="0;0;1;1"/></circle>
+<line x1="419.22" y1="218.17" x2="443.06" y2="207.8" stroke="#2ea043" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.3360;0.3364;1.0000" values="0;0;1;1"/></line>
+<circle cx="443.06" cy="207.8" r="6" fill="#2ea043" stroke="#ffffff" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.3360;0.3364;1.0000" values="0;0;1;1"/></circle>
+<line x1="443.06" y1="207.8" x2="466.91" y2="197.43" stroke="#2ea043" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.3742;0.3745;1.0000" values="0;0;1;1"/></line>
+<circle cx="466.91" cy="197.43" r="6" fill="#2ea043" stroke="#ffffff" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.3742;0.3745;1.0000" values="0;0;1;1"/></circle>
+<line x1="466.91" y1="197.43" x2="490.75" y2="187.06" stroke="#2ea043" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.4124;0.4127;1.0000" values="0;0;1;1"/></line>
+<circle cx="490.75" cy="187.06" r="6" fill="#2ea043" stroke="#ffffff" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.4124;0.4127;1.0000" values="0;0;1;1"/></circle>
+<line x1="490.75" y1="187.06" x2="514.59" y2="176.7" stroke="#e5484d" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.4505;0.4509;1.0000" values="0;0;1;1"/></line>
+<circle cx="514.59" cy="176.7" r="9" fill="#e5484d" stroke="#ffffff" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.4505;0.4509;1.0000" values="0;0;1;1"/></circle>
+<text x="40" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 1:まだ手前（何もない）<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.1451;0.1455;0.1833;0.1836;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 2:まだ手前（何もない）<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.1833;0.1836;0.2215;0.2218;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 3:まだ手前（何もない）<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.2215;0.2218;0.2596;0.2600;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 4:まだ手前（何もない）<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.2596;0.2600;0.2978;0.2982;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 5:まだ手前（何もない）<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.2978;0.2982;0.3360;0.3364;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 6:まだ手前（何もない）<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.3360;0.3364;0.3742;0.3745;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 7:まだ手前（何もない）<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.3742;0.3745;0.4124;0.4127;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 8:まだ手前（何もない）<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.4124;0.4127;0.4505;0.4509;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 9:物にぶつかった！<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.4505;0.4509;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<rect x="290" y="276" width="20" height="12" fill="#e5484d" stroke="#1f2937" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.5142;0.5145;1.0000" values="0;0;1;1"/></rect>
+<text x="40" y="52" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">① カメラから床のピクセルへ視線が届く<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.1360;0.1364;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">② 反射した向きへ、一定の間隔で進みながら、物があるか調べる<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.1360;0.1364;0.4869;0.4873;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">③ ぶつかった所の色を、床に映す（床のピクセルが赤くなる）<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.4869;0.4873;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:ssr-march:end -->
+
 ## 厚み（thickness）
 
 深度バッファには、**面の手前側の位置しか**ありません。**面の「厚み」が分かりません**。レイが**面の奥に入った**とき、それが**本当にその物体に当たった**のか、**物体の向こう側へ抜けた**のかを、区別できません。

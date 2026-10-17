@@ -64,6 +64,86 @@ tags:
 | **⑤ ポスト** | **別の画像を経由して、最終はバック バッファ** | **見た目の仕上げ** |
 | **⑥ UI** | **バック バッファ** | **文字・メニュー** |
 
+<!-- fig:frame-build-up:begin -->
+
+<svg class="fig illust motion" data-fig="frame-build-up" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-frame-build-up" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+<clipPath id="fp-clip"><rect x="20" y="52" width="420" height="280"/>
+</clipPath>
+<linearGradient id="fp-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f9cf0"/>
+<stop offset="1" stop-color="#cfe8ff"/>
+</linearGradient>
+<radialGradient id="fp-ball" cx="0.5" cy="0.5" r="0.5" fx="0.35" fy="0.3"><stop offset="0" stop-color="#ffffff"/>
+<stop offset="1" stop-color="#e5484d"/>
+</radialGradient>
+<radialGradient id="fp-glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#fff3b0" stop-opacity="0.95"/>
+<stop offset="1" stop-color="#fff3b0" stop-opacity="0"/>
+</radialGradient>
+<radialGradient id="fp-vig" cx="0.5" cy="0.5" r="0.75"><stop offset="0.6" stop-color="#000000" stop-opacity="0"/>
+<stop offset="1" stop-color="#000000" stop-opacity="0.45"/>
+</radialGradient>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">1 フレームが、パスごとに完成していく</text>
+<rect x="20" y="52" width="420" height="280" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+<g clip-path="url(#fp-clip)"><g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3037;0.3040;1.0000" values="0;0;1;1"/><rect x="20" y="52" width="420" height="170" fill="url(#fp-sky)"/>
+<circle cx="350" cy="107" r="18" fill="#fff3b0"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1837;0.1840;1.0000" values="0;0;1;1"/><rect x="20" y="222" width="420" height="110" fill="#7aa874"/>
+<polygon points="130,282 225,282 265,302 170,302" fill="#3f5d3a" opacity="0.55"/>
+<rect x="110" y="202" width="70" height="80" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
+<circle cx="290" cy="267" r="38" fill="url(#fp-ball)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0640;1.0000" values="0;0;1;1"/><rect x="320" y="60" width="110" height="70" fill="#334155" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="340" y="78" width="36" height="34" fill="#cbd5e1"/>
+<rect x="385" y="92" width="28" height="20" fill="#94a3b8"/>
+<text x="324" y="142" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">シャドウ マップ</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4237;0.4240;1.0000" values="0;0;1;1"/><rect x="210" y="172" width="110" height="140" fill="#7dd3fc" opacity="0.45" stroke="#0ea5e9" stroke-width="2"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5437;0.5440;1.0000" values="0;0;1;1"/><circle cx="350" cy="107" r="70" fill="url(#fp-glow)"/>
+<rect x="20" y="52" width="420" height="280" fill="url(#fp-vig)"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6637;0.6640;1.0000" values="0;0;1;1"/><rect x="34" y="66" width="130" height="14" fill="#1f2937" opacity="0.75"/>
+<rect x="36" y="68" width="96" height="10" fill="#2ea043"/>
+<text x="34" y="98" text-anchor="start" style="font-size:13px;font-weight:700;fill:#ffffff;stroke:#1f2937;stroke-width:3px;paint-order:stroke">HP 74 / 100</text>
+</g>
+</g>
+<rect x="462" y="42" width="314" height="40" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0640;0.1837;0.1840;1.0000" values="0;0;1;1;0;0"/></rect>
+<text x="470" y="64" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">① シャドウ</text>
+<text x="570" y="64" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">光から見た深度を描く</text>
+<text x="762" y="64" text-anchor="start" style="font-size:18px;font-weight:700;fill:#2ea043" opacity="0">✓<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1597;0.1600;1.0000" values="0;0;1;1"/></text>
+<rect x="462" y="88" width="314" height="40" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1837;0.1840;0.3037;0.3040;1.0000" values="0;0;1;1;0;0"/></rect>
+<text x="470" y="110" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">② 不透明</text>
+<text x="570" y="110" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">地面・箱・球（影を読む）</text>
+<text x="762" y="110" text-anchor="start" style="font-size:18px;font-weight:700;fill:#2ea043" opacity="0">✓<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2797;0.2800;1.0000" values="0;0;1;1"/></text>
+<rect x="462" y="134" width="314" height="40" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3037;0.3040;0.4237;0.4240;1.0000" values="0;0;1;1;0;0"/></rect>
+<text x="470" y="156" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">③ 空</text>
+<text x="570" y="156" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">最奥のピクセルだけに空</text>
+<text x="762" y="156" text-anchor="start" style="font-size:18px;font-weight:700;fill:#2ea043" opacity="0">✓<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/></text>
+<rect x="462" y="180" width="314" height="40" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4237;0.4240;0.5437;0.5440;1.0000" values="0;0;1;1;0;0"/></rect>
+<text x="470" y="202" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">④ 半透明</text>
+<text x="570" y="202" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">ガラスを奥から手前へ</text>
+<text x="762" y="202" text-anchor="start" style="font-size:18px;font-weight:700;fill:#2ea043" opacity="0">✓<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5197;0.5200;1.0000" values="0;0;1;1"/></text>
+<rect x="462" y="226" width="314" height="40" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5437;0.5440;0.6637;0.6640;1.0000" values="0;0;1;1;0;0"/></rect>
+<text x="470" y="248" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">⑤ ポスト</text>
+<text x="570" y="248" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">ブルーム・トーンマップ</text>
+<text x="762" y="248" text-anchor="start" style="font-size:18px;font-weight:700;fill:#2ea043" opacity="0">✓<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6397;0.6400;1.0000" values="0;0;1;1"/></text>
+<rect x="462" y="272" width="314" height="40" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6637;0.6640;1.0000;1.0000" values="0;0;1;1;0"/></rect>
+<text x="470" y="294" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">⑥ UI</text>
+<text x="570" y="294" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">HP バーと文字</text>
+<text x="762" y="294" text-anchor="start" style="font-size:18px;font-weight:700;fill:#2ea043" opacity="0">✓<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.7597;0.7600;1.0000" values="0;0;1;1"/></text>
+<text x="20" y="366" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">まず白紙のフレームから<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0640;1.0000" values="1;1;0;0"/></text>
+<text x="20" y="366" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">① 光から見た深度（影の材料）を別の画像に描く<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0640;0.1837;0.1840;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="366" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">② 影を読みながら、不透明な物を描く<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1837;0.1840;0.3037;0.3040;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="366" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">③ 何も描かれていない最奥に空を描く<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3037;0.3040;0.4237;0.4240;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="366" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">④ 半透明は最後に、奥から手前の順<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4237;0.4240;0.5437;0.5440;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="366" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">⑤ 全画面を加工（光のにじみ・周辺減光・明るさ調整）<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5437;0.5440;0.6637;0.6640;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="366" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">⑥ UI は加工の後に上から描く → Present で画面へ<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6637;0.6640;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:frame-build-up:end -->
+
 ## パスごとに変わるもの
 
 **パスごとに次の設定が切り替わります**。

@@ -57,3 +57,21 @@ scene.Render() / scene.SnapshotAt(t) / scene.Report()
 - `docs/javascripts/motion-control.js` が `svg.motion` を**自動再生**し、画面外では止め、図の下に「⏸ 一時停止／▶ 再生」ボタンを出す。OS の「動きを減らす」設定でも自動再生する。`data-still` は使わなくなったが残してよい。
 - 古い JS が残らないよう、スクリプトのファイル名を変えて配信する（キャッシュ対策）。
 - ブラウザは**アプリ内ブラウザを使わない**（ユーザーの希望）。確認はヘッドレス Edge/Chrome とビルド結果で行う。`mkdocs serve`（`serve.bat`）は**止めない**（編集のたびに自動で再ビルドされる）。
+
+## 量産用の構成（2 つ目以降の図）
+
+| ファイル | 役割 |
+| --- | --- |
+| `common.py` | `NewScene`（白い背景・矢印・題名）、`Arrow`、`Caption`、`Place`（md への差し込み）、`Save` |
+| `figs/*.py` | 図の定義。各関数が `dict(name, page, before | replace_fig, scene, size, times)` を返す。末尾の `FIGS` に並べる |
+| `build_all.py` | 全図を生成し、md に差し込み、`out/<name>.png`（指定時刻の見本）を作る。`python tools/anim/build_all.py [図の名前...]` |
+| `preview.py` | `SVG` を指定時刻で止めた画像にする（実 Chrome ヘッドレス）。`out/` は git 管理外 |
+
+`Place` は、ページの `before` の見出しの直前に `<!-- fig:名前:begin -->` と `end` で囲んで入れる。2 回目以降は同じ範囲を置き換える。`replace_fig` を使うと、既存の `data-fig` の SVG を丸ごと置き換える。
+
+## 追加の落とし穴（量産で踏んだもの）
+
+- **矢印の `marker-end` は、線の `opacity=0` でも先端が見えることがある**（`stroke-dashoffset` で線を描く演出のとき）。先端は別の `polygon` を、描き終わりに `Show` する。
+- **`feGaussianBlur` の `stdDeviation` を SMIL で動かしても Chrome で効かない**。ぼかしの強さが違う静的なフィルタを複数作り、重ねて不透明度でクロスフェードする。
+- 自動探索（乱数＋山登り）で配置を決めると、見せたい構図にならない。座標は手で決める。
+- 図ごとに**セルフチェック**する: 指定時刻の画像を 4 枚並べて、文字のはみ出し・重なり・数字の食い違い・意図した動きになっているかを見る。見つけた問題は台本側（データ）を直す。

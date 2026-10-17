@@ -162,6 +162,32 @@ w_clip = z = 10　　z_clip = z · (100/99) − (100/99) ≈ 9.09
 
 **w に奥行きが入る**ことが**遠近法の核心**です。**後の工程で x・y を w で割る**と**遠い物（w が大きい）ほど画面の中心に寄って小さく見えます**。
 
+<!-- fig:perspective-divide-move:begin -->
+
+<svg class="fig illust motion" data-fig="perspective-divide-move" viewBox="0 0 780 410" role="img"><rect x="0" y="0" width="780" height="410" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-perspective-divide-move" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">透視除算:遠ざかるほど w が大きくなり、画面上で小さくなる</text>
+<polygon points="150,330 40,60 260,60" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.5"/>
+<circle cx="150" cy="330" r="7" fill="#e5484d"/>
+<text x="164" y="346" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">カメラ</text>
+<text x="40" y="52" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">視錐台（上から見た図）</text>
+<rect x="130" y="290" width="40" height="14" fill="#e5aa28" stroke="#1f2937" stroke-width="1.5"><animate attributeName="y" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.0758;0.0762;0.0973;0.1184;0.1395;0.1605;0.1816;0.2027;0.2238;0.2449;0.2660;0.2871;0.3082;0.3293;0.3503;0.3714;0.3925;0.4136;0.4347;0.4558;0.4769;0.4980;0.5190;0.5401;0.5612;0.5823;0.6034;0.6245;0.6456;0.6667;1.0000" values="290;290;306;298;290;282;274;266;258;250;242;234;226;218;210;202;194;186;178;170;162;154;146;138;130;122;114;106;98;90;82;82"/></rect>
+<rect x="440" y="70" width="260" height="260" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="440" y="62" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">画面</text>
+<rect x="480.0" y="110.0" width="180" height="180" fill="#e5aa28" stroke="#1f2937" stroke-width="2"><animate attributeName="x" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.0762;0.0973;0.1184;0.1395;0.1605;0.1816;0.2027;0.2238;0.2449;0.2660;0.2871;0.3082;0.3293;0.3503;0.3714;0.3925;0.4136;0.4347;0.4558;0.4769;0.4980;0.5190;0.5401;0.5612;0.5823;0.6034;0.6245;0.6456;0.6667;1.0000" values="480;480;500;512.73;521.54;528;532.94;536.84;540;542.61;544.8;546.67;548.28;549.68;550.91;552;552.97;553.85;554.63;555.35;556;556.6;557.14;557.65;558.11;558.55;558.95;559.32;559.67;560;560"/><animate attributeName="y" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.0762;0.0973;0.1184;0.1395;0.1605;0.1816;0.2027;0.2238;0.2449;0.2660;0.2871;0.3082;0.3293;0.3503;0.3714;0.3925;0.4136;0.4347;0.4558;0.4769;0.4980;0.5190;0.5401;0.5612;0.5823;0.6034;0.6245;0.6456;0.6667;1.0000" values="110;110;130;142.73;151.54;158;162.94;166.84;170;172.61;174.8;176.67;178.28;179.68;180.91;182;182.97;183.85;184.63;185.35;186;186.6;187.14;187.65;188.11;188.55;188.95;189.32;189.67;190;190"/><animate attributeName="width" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.0762;0.0973;0.1184;0.1395;0.1605;0.1816;0.2027;0.2238;0.2449;0.2660;0.2871;0.3082;0.3293;0.3503;0.3714;0.3925;0.4136;0.4347;0.4558;0.4769;0.4980;0.5190;0.5401;0.5612;0.5823;0.6034;0.6245;0.6456;0.6667;1.0000" values="180;180;140;114.55;96.92;84;74.12;66.32;60;54.78;50.4;46.67;43.45;40.65;38.18;36;34.05;32.31;30.73;29.3;28;26.81;25.71;24.71;23.77;22.91;22.11;21.36;20.66;20;20"/><animate attributeName="height" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.0762;0.0973;0.1184;0.1395;0.1605;0.1816;0.2027;0.2238;0.2449;0.2660;0.2871;0.3082;0.3293;0.3503;0.3714;0.3925;0.4136;0.4347;0.4558;0.4769;0.4980;0.5190;0.5401;0.5612;0.5823;0.6034;0.6245;0.6456;0.6667;1.0000" values="180;180;140;114.55;96.92;84;74.12;66.32;60;54.78;50.4;46.67;43.45;40.65;38.18;36;34.05;32.31;30.73;29.3;28;26.81;25.71;24.71;23.77;22.91;22.11;21.36;20.66;20;20"/></rect>
+<text x="20" y="384" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">w = 1  →  画面上の大きさ = 1 / 1 = 1.00 倍<animate attributeName="opacity" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.0758;0.0762;0.1496;0.1500;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="384" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">w = 2  →  画面上の大きさ = 1 / 2 = 0.50 倍<animate attributeName="opacity" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.1496;0.1500;0.2234;0.2238;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="384" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">w = 3  →  画面上の大きさ = 1 / 3 = 0.33 倍<animate attributeName="opacity" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.2234;0.2238;0.2972;0.2976;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="384" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">w = 4  →  画面上の大きさ = 1 / 4 = 0.25 倍<animate attributeName="opacity" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.2972;0.2976;0.4449;0.4452;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="384" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">w = 6  →  画面上の大きさ = 1 / 6 = 0.17 倍<animate attributeName="opacity" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.4449;0.4452;0.6663;0.6667;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="20" y="384" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">w = 9  →  画面上の大きさ = 1 / 9 = 0.11 倍<animate attributeName="opacity" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.6663;0.6667;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="440" y="350" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">x / w, y / w で割るので、遠い物ほど小さい</text>
+</svg>
+
+<!-- fig:perspective-divide-move:end -->
+
 ## 頂点シェーダーでできること
 
 **変換以外にも頂点シェーダーは自由に位置を変えられます**。

@@ -46,6 +46,46 @@ tags:
 | **Present** | **完成したバック バッファを、画面に出す命令**（**入れ替え**） |
 | **スワップチェーン** | **バック バッファの列**（**2 枚や 3 枚を順番に回す**） |
 
+<!-- fig:double-buffer-swap:begin -->
+
+<svg class="fig illust motion" data-fig="double-buffer-swap" viewBox="0 0 780 360" role="img"><rect x="0" y="0" width="780" height="360" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-double-buffer-swap" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">Present:裏で描いて、完成したら表と入れ替える</text>
+<rect x="40" y="90" width="200" height="130" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="40" y="80" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">バック バッファ</text>
+<rect x="300" y="90" width="200" height="130" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="300" y="80" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">フロント バッファ</text>
+<rect x="560" y="78" width="180" height="142" rx="10" fill="#0f172a"/>
+<text x="560" y="70" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">ディスプレイ</text>
+<text x="656" y="70" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">（フロントを読む）</text>
+<rect x="570" y="90" width="160" height="114" fill="#cbd5e1"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3040;0.5920;0.8720" values="#cbd5e1;#e5aa28;#2563eb;#2ea043"/></rect>
+<rect x="50" y="100" width="0" height="110" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0317;0.0320;0.5957;0.5960;1.0000" values="0;0;1;1;0;0"/><animate attributeName="width" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0320;0.2080;1.0000" values="0;0;180;180"/><animate attributeName="x" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2400;0.3040;1.0000" values="50;50;310;310"/></rect>
+<text x="140.0" y="161.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff" opacity="0">フレーム 1<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2077;0.2080;0.5957;0.5960;1.0000" values="0;0;1;1;0;0"/><animate attributeName="x" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2400;0.3040;1.0000" values="140;140;400;400"/></text>
+<rect x="50" y="100" width="0" height="110" fill="#2563eb" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3197;0.3200;0.8757;0.8760;1.0000" values="0;0;1;1;0;0"/><animate attributeName="width" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3200;0.4960;1.0000" values="0;0;180;180"/><animate attributeName="x" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5280;0.5920;1.0000" values="50;50;310;310"/></rect>
+<text x="140.0" y="161.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff" opacity="0">フレーム 2<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4957;0.4960;0.8757;0.8760;1.0000" values="0;0;1;1;0;0"/><animate attributeName="x" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5280;0.5920;1.0000" values="140;140;400;400"/></text>
+<rect x="50" y="100" width="0" height="110" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6077;0.6080;0.8757;0.8760;1.0000" values="0;0;1;1;0;0"/><animate attributeName="width" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6080;0.7840;1.0000" values="0;0;180;180"/><animate attributeName="x" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.8160;0.8720;1.0000" values="50;50;310;310"/></rect>
+<text x="140.0" y="161.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff" opacity="0">フレーム 3<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.7837;0.7840;0.8757;0.8760;1.0000" values="0;0;1;1;0;0"/><animate attributeName="x" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.8160;0.8720;1.0000" values="140;140;400;400"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">GPU の描画が始まる前<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0317;0.0320;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">GPU が フレーム 1 を、見えない裏（バック）に描いている<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0317;0.0320;0.2077;0.2080;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">描き終わり<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2077;0.2080;0.2397;0.2400;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">Present:バックとフロントを入れ替える<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2397;0.2400;0.3037;0.3040;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3037;0.3040;0.3197;0.3200;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ディスプレイは フレーム 1 を表示しながら、裏で フレーム 2 を描く<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3197;0.3200;0.4957;0.4960;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">描き終わり<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4957;0.4960;0.5277;0.5280;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">Present:入れ替え<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5277;0.5280;0.5917;0.5920;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5917;0.5920;0.6077;0.6080;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">フレーム 2 を表示中。裏で フレーム 3 を描く<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6077;0.6080;0.7837;0.7840;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">描き終わり<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.7837;0.7840;0.8157;0.8160;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">Present:入れ替え → 途中の絵は一度も見えない<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.8157;0.8160;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="306" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">VSync あり:ディスプレイの更新の合間まで待ってから入れ替える（裂けない）。<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+<text x="40" y="328" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">VSync なし:すぐ入れ替わるので、更新の途中で絵が変わり、画面が裂けることがある。<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+<rect x="570" y="90" width="160" height="3" fill="#ef4444" opacity="0.85"><animate attributeName="y" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0320;0.1920;0.2077;0.2080;0.3680;0.3837;0.3840;0.5440;0.5597;0.5600;0.7200;0.7357;0.7360;0.8960;1.0000" values="90;90;201;201;90;201;201;90;201;201;90;201;201;90;201;201"/></rect>
+</svg>
+
+<!-- fig:double-buffer-swap:end -->
+
 ## スワップチェーン
 
 **DX11／DX12 では、スワップチェーンを作って、画面とバック バッファを管理します**。
