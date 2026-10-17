@@ -106,26 +106,10 @@ graphics/gi/ddgi.md: {perf: 2, quality: 3}
 # --- 半透明 ---
 
 # --- 水 ---
-graphics/water/waves.md: {perf: 2}
-graphics/water/shading.md: {perf: 2, quality: 3}
-graphics/water/shore-foam.md: {perf: 1}
-graphics/water/interaction.md: {perf: 2}
-graphics/water/underwater.md: {perf: 2}
 
 # --- 地形 ---
-graphics/terrain/heightmap-mesh.md: {perf: 1}
-graphics/terrain/lod.md: {perf: 1, quality: 2}
-graphics/terrain/texturing.md: {perf: 2, quality: 2}
-graphics/terrain/vegetation.md: {perf: 2}
-graphics/terrain/generation.md: {perf: 1}
 
 # --- 空と大気 ---
-graphics/atmosphere/sky-models.md: {perf: 1, quality: 2}
-graphics/atmosphere/scattering.md: {perf: 2, quality: 3}
-graphics/atmosphere/aerial-fog.md: {perf: 1, quality: 2}
-graphics/atmosphere/volumetric-fog.md: {perf: 3, quality: 3}
-graphics/atmosphere/clouds.md: {perf: 3, quality: 3}
-graphics/atmosphere/god-rays.md: {perf: 2, quality: 2}
 
 # --- ポストプロセス:モーション ブラー（続き） ---
 graphics/postprocess/motion-blur/blur-pass.md: {perf: 2, quality: 3}
@@ -223,3 +207,118 @@ graphics/translucency/refraction/thickness-color.md: {perf: 2, quality: 3}
 graphics/translucency/refraction/dispersion.md: {perf: 2}
 graphics/translucency/refraction/thin-thick.md: {perf: 2, quality: 2}
 graphics/translucency/refraction/implementation.md: {perf: 2, quality: 2}
+graphics/water/waves/index.md: {perf: 2, quality: 2}
+graphics/water/waves/sine-waves.md: {perf: 1, quality: 1}
+graphics/water/waves/gerstner.md: {perf: 1, quality: 2}
+graphics/water/waves/normals.md: {perf: 1, quality: 3}
+graphics/water/waves/animation-tricks.md: {perf: 1, quality: 2}
+graphics/water/waves/fft-ocean.md: {perf: 3, quality: 3}
+graphics/water/waves/floating.md: {perf: 1, quality: 2}
+graphics/water/shading/index.md: {perf: 2, quality: 3}
+graphics/water/shading/fresnel.md: {perf: 1, quality: 3}
+graphics/water/shading/depth-color.md: {perf: 1, quality: 3}
+graphics/water/shading/refraction.md: {perf: 2, quality: 2}
+graphics/water/shading/specular.md: {perf: 1, quality: 3}
+graphics/water/shading/reflection.md: {perf: 2, quality: 3}
+graphics/water/shading/scattering.md: {perf: 1, quality: 2}
+graphics/water/shading/parameters.md: {perf: 1, quality: 3}
+graphics/water/shore-foam/index.md: {perf: 1, quality: 3}
+graphics/water/shore-foam/shore-depth.md: {perf: 1, quality: 2}
+graphics/water/shore-foam/crest-jacobian.md: {perf: 1, quality: 3}
+graphics/water/shore-foam/foam-texture.md: {perf: 1, quality: 3}
+graphics/water/shore-foam/foam-history.md: {perf: 2, quality: 3}
+graphics/water/shore-foam/wake.md: {perf: 2, quality: 3}
+graphics/water/interaction/index.md: {perf: 2, quality: 2}
+graphics/water/interaction/contact.md: {perf: 1, quality: 2}
+graphics/water/interaction/apply-height.md: {perf: 2, quality: 2}
+graphics/water/interaction/flow-map.md: {perf: 1, quality: 3}
+graphics/water/interaction/buoyancy.md: {perf: 1, quality: 2}
+graphics/water/underwater/index.md: {perf: 2, quality: 3}
+graphics/water/underwater/fog.md: {perf: 1, quality: 3}
+graphics/water/underwater/caustics.md: {perf: 2, quality: 3}
+graphics/water/underwater/god-rays.md: {perf: 2, quality: 3}
+graphics/water/underwater/surface-back.md: {perf: 1, quality: 3}
+graphics/water/underwater/other.md: {perf: 1, quality: 2}
+graphics/terrain/heightmap-mesh/index.md: {perf: 1, quality: 2}
+graphics/terrain/heightmap-mesh/grid-mesh.md: {perf: 1, quality: 2}
+graphics/terrain/heightmap-mesh/normals.md: {perf: 1, quality: 3}
+graphics/terrain/heightmap-mesh/height-query.md: {perf: 1, quality: 2}
+graphics/terrain/heightmap-mesh/chunks.md: {perf: 1, quality: 2}
+graphics/terrain/heightmap-mesh/editing.md: {perf: 1, quality: 2}
+graphics/terrain/lod/index.md: {perf: 2, quality: 2}
+graphics/terrain/lod/cdlod.md: {perf: 1, quality: 3}
+graphics/terrain/lod/morphing.md: {perf: 1, quality: 3}
+graphics/terrain/lod/cracks.md: {perf: 1, quality: 3}
+graphics/terrain/lod/clipmap.md: {perf: 1, quality: 3}
+graphics/terrain/lod/tessellation.md: {perf: 2, quality: 3}
+graphics/terrain/lod/height-mip.md: {perf: 1, quality: 2}
+graphics/terrain/texturing/index.md: {perf: 2, quality: 3}
+graphics/terrain/texturing/weights.md: {perf: 1, quality: 3}
+graphics/terrain/texturing/height-blend.md: {perf: 2, quality: 3}
+graphics/terrain/texturing/triplanar.md: {perf: 2, quality: 3}
+graphics/terrain/texturing/tiling.md: {perf: 1, quality: 3}
+graphics/terrain/texturing/anisotropic.md: {perf: 1, quality: 3}
+graphics/terrain/texturing/virtual-texture.md: {perf: 3, quality: 3}
+graphics/terrain/texturing/decals.md: {perf: 2, quality: 3}
+graphics/terrain/vegetation/index.md: {perf: 3, quality: 3}
+graphics/terrain/vegetation/instancing.md: {perf: 2, quality: 3}
+graphics/terrain/vegetation/culling.md: {perf: 1, quality: 3}
+graphics/terrain/vegetation/grass-shape.md: {perf: 1, quality: 2}
+graphics/terrain/vegetation/wind.md: {perf: 1, quality: 3}
+graphics/terrain/vegetation/trample.md: {perf: 2, quality: 3}
+graphics/terrain/vegetation/trees.md: {perf: 3, quality: 3}
+graphics/terrain/vegetation/translucency.md: {perf: 2, quality: 2}
+graphics/terrain/vegetation/lighting.md: {perf: 2, quality: 3}
+graphics/terrain/generation/index.md: {perf: 2, quality: 3}
+graphics/terrain/generation/fbm.md: {perf: 2, quality: 3}
+graphics/terrain/generation/ridge.md: {perf: 2, quality: 3}
+graphics/terrain/generation/domain-warp.md: {perf: 2, quality: 3}
+graphics/terrain/generation/height-conversion.md: {perf: 1, quality: 3}
+graphics/terrain/generation/erosion.md: {perf: 3, quality: 3}
+graphics/terrain/generation/rivers.md: {perf: 2, quality: 3}
+graphics/terrain/generation/timing.md: {perf: 2, quality: 2}
+graphics/terrain/generation/placement.md: {perf: 1, quality: 3}
+graphics/atmosphere/sky-models/index.md: {perf: 1, quality: 2}
+graphics/atmosphere/sky-models/gradient.md: {perf: 1, quality: 1}
+graphics/atmosphere/sky-models/analytic.md: {perf: 1, quality: 2}
+graphics/atmosphere/sky-models/celestial.md: {perf: 1, quality: 2}
+graphics/atmosphere/sky-models/sky-lighting.md: {perf: 2, quality: 2}
+graphics/atmosphere/sky-models/day-night.md: {perf: 1, quality: 2}
+graphics/atmosphere/scattering/index.md: {perf: 2, quality: 3}
+graphics/atmosphere/scattering/atmosphere-model.md: {perf: 1, quality: 3}
+graphics/atmosphere/scattering/transmittance.md: {perf: 1, quality: 3}
+graphics/atmosphere/scattering/single-scattering.md: {perf: 2, quality: 3}
+graphics/atmosphere/scattering/phase-function.md: {perf: 1, quality: 3}
+graphics/atmosphere/scattering/multiple-scattering.md: {perf: 2, quality: 3}
+graphics/atmosphere/scattering/bruneton.md: {perf: 1, quality: 3}
+graphics/atmosphere/scattering/hillaire.md: {perf: 2, quality: 3}
+graphics/atmosphere/scattering/ground-space.md: {perf: 2, quality: 3}
+graphics/atmosphere/aerial-fog/index.md: {perf: 1, quality: 2}
+graphics/atmosphere/aerial-fog/fog-equation.md: {perf: 1, quality: 2}
+graphics/atmosphere/aerial-fog/height-fog.md: {perf: 1, quality: 3}
+graphics/atmosphere/aerial-fog/sun-inscatter.md: {perf: 1, quality: 3}
+graphics/atmosphere/aerial-fog/color-match.md: {perf: 1, quality: 3}
+graphics/atmosphere/aerial-fog/physical.md: {perf: 2, quality: 3}
+graphics/atmosphere/aerial-fog/where.md: {perf: 1, quality: 2}
+graphics/atmosphere/volumetric-fog/index.md: {perf: 3, quality: 3}
+graphics/atmosphere/volumetric-fog/froxel.md: {perf: 2, quality: 3}
+graphics/atmosphere/volumetric-fog/density.md: {perf: 2, quality: 3}
+graphics/atmosphere/volumetric-fog/injection.md: {perf: 3, quality: 3}
+graphics/atmosphere/volumetric-fog/integration.md: {perf: 2, quality: 3}
+graphics/atmosphere/volumetric-fog/temporal.md: {perf: 2, quality: 3}
+graphics/atmosphere/volumetric-fog/quality.md: {perf: 3, quality: 3}
+graphics/atmosphere/clouds/index.md: {perf: 3, quality: 3}
+graphics/atmosphere/clouds/layers.md: {perf: 1, quality: 3}
+graphics/atmosphere/clouds/density-model.md: {perf: 2, quality: 3}
+graphics/atmosphere/clouds/raymarch.md: {perf: 3, quality: 3}
+graphics/atmosphere/clouds/lighting.md: {perf: 3, quality: 3}
+graphics/atmosphere/clouds/shadows.md: {perf: 2, quality: 3}
+graphics/atmosphere/clouds/temporal.md: {perf: 2, quality: 3}
+graphics/atmosphere/clouds/cheap.md: {perf: 1, quality: 1}
+graphics/atmosphere/god-rays/index.md: {perf: 2, quality: 3}
+graphics/atmosphere/god-rays/radial-blur.md: {perf: 1, quality: 2}
+graphics/atmosphere/god-rays/shadowmap-march.md: {perf: 3, quality: 3}
+graphics/atmosphere/god-rays/volume.md: {perf: 2, quality: 3}
+graphics/atmosphere/god-rays/mesh-shafts.md: {perf: 1, quality: 2}
+graphics/atmosphere/god-rays/underwater.md: {perf: 2, quality: 3}
+graphics/atmosphere/god-rays/tuning.md: {perf: 1}

@@ -147,7 +147,7 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 
 ### 時間帯の遷移
 
-**時刻に応じて、朝・昼・夕・夜の 4 つの LUT の間を補間**します。**太陽の高さ**などから**重みを決め**、**隣り合う 2 つを混ぜる**のが**自然**です（[空のモデル](../../atmosphere/sky-models.md)）。
+**時刻に応じて、朝・昼・夕・夜の 4 つの LUT の間を補間**します。**太陽の高さ**などから**重みを決め**、**隣り合う 2 つを混ぜる**のが**自然**です（[空のモデル](../../atmosphere/sky-models/index.md)）。
 
 <!-- fig:lut-blend-zones:begin -->
 <!-- fig:lut-blend-zones:end -->
@@ -197,4 +197,4 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 - [カラー グレーディング](index.md)
 - [3D LUT](lut-3d.md)
 - [ホワイト バランス](white-balance.md)
-- [空のモデル](../../atmosphere/sky-models.md)
+- [空のモデル](../../atmosphere/sky-models/index.md)

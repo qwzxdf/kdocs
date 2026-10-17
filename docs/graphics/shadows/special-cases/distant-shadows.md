@@ -55,4 +55,4 @@ lit *= cloud_shadow;
 
 - [特殊なケース](index.md)
 - [カスケード シャドウ マップ](../cascaded.md)
-- [雲](../../atmosphere/clouds.md)
+- [雲](../../atmosphere/clouds/index.md)

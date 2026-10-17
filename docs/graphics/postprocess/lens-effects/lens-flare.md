@@ -193,4 +193,4 @@ float3 Starburst(float2 uv, float2 light_uv, Texture2D starburst_texture, float 
 - [レンズ効果](index.md)
 - [色収差](chromatic-aberration.md)
 - [ブルーム](../bloom/index.md)
-- [光の筋](../../atmosphere/god-rays.md)
+- [光の筋](../../atmosphere/god-rays/index.md)

@@ -1,0 +1,67 @@
+---
+title: 岸辺の泡
+tags:
+  - 描画
+---
+
+# 岸辺の泡
+
+**水の泡は、岸辺・波頭・航跡に出て、水の動きを見せます**。**泡のマスクを作り、泡テクスチャで色を付けて、合成する**のが**基本の流れ**です。このセクションでは、**マスクの作り方・岸辺の泡（深度差）・波頂の泡（ヤコビアン）・泡テクスチャ・泡を残す・航跡**を、**1 つずつ別のページ**で説明します。
+
+!!! tip "ポイント"
+    - **泡 ＝ 白いマスク × テクスチャ**。
+    - **岸辺は、水深が浅い所に出る**。
+    - **波頭は、波が尖る所（ヤコビアン）に出る**。
+    - **泡が、時間をかけて消えていく**と、自然。
+
+## 泡のマスクを作る
+**泡は、「0 なら泡なし、1 なら泡で真っ白」のマスク値**として扱います。**複数の原因（岸辺・波頂・航跡）のマスクを足し合わせ**、**最後にテクスチャで模様を付けます**。
+
+<svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="泡のマスク">
+<text x="20" y="24" class="fig-title">泡のマスク：原因ごとに作って、足して、模様を付ける</text>
+<rect x="30" y="60" width="150" height="56" rx="6" fill="#4c8bf5" fill-opacity="0.2" stroke="#4c8bf5"/>
+<text x="105" y="84" text-anchor="middle" style="font-size:13px">岸辺</text><text x="105" y="102" text-anchor="middle" style="font-size:11px">深度差が浅い</text>
+<rect x="30" y="130" width="150" height="56" rx="6" fill="#2ea043" fill-opacity="0.2" stroke="#2ea043"/>
+<text x="105" y="154" text-anchor="middle" style="font-size:13px">波頂</text><text x="105" y="172" text-anchor="middle" style="font-size:11px">ヤコビアンが小さい</text>
+<rect x="30" y="200" width="150" height="30" rx="6" fill="#e5aa28" fill-opacity="0.2" stroke="#e5aa28"/>
+<text x="105" y="220" text-anchor="middle" style="font-size:13px">航跡・衝突</text>
+<line x1="180" y1="88" x2="290" y2="130" stroke="currentColor" stroke-opacity="0.6"/>
+<line x1="180" y1="158" x2="290" y2="140" stroke="currentColor" stroke-opacity="0.6"/>
+<line x1="180" y1="215" x2="290" y2="150" stroke="currentColor" stroke-opacity="0.6"/>
+<rect x="290" y="105" width="130" height="60" rx="6" fill="none" stroke="currentColor"/>
+<text x="355" y="130" text-anchor="middle" style="font-size:13px">足して</text><text x="355" y="150" text-anchor="middle" style="font-size:13px">saturate</text>
+<line x1="420" y1="135" x2="480" y2="135" stroke="currentColor" stroke-opacity="0.6"/>
+<rect x="480" y="105" width="130" height="60" rx="6" fill="none" stroke="currentColor"/>
+<text x="545" y="130" text-anchor="middle" style="font-size:13px">泡テクスチャで</text><text x="545" y="150" text-anchor="middle" style="font-size:13px">模様を付ける</text>
+<line x1="610" y1="135" x2="660" y2="135" stroke="currentColor" stroke-opacity="0.6"/>
+<rect x="660" y="105" width="90" height="60" rx="6" fill="none" stroke="currentColor"/>
+<text x="705" y="140" text-anchor="middle" style="font-size:13px">色に足す</text>
+</svg>
+
+## ページ一覧
+
+| ページ | 内容 |
+| --- | --- |
+| [岸辺の泡](shore-depth.md) | 深度差で作る |
+| [波頂の泡](crest-jacobian.md) | ヤコビアンで作る |
+| [泡テクスチャと合成](foam-texture.md) | 見た目の作り方 |
+| [泡を残す](foam-history.md) | 履歴で、ゆっくり消す |
+| [航跡と衝突](wake.md) | 船・物が作る泡 |
+
+## これだけ覚える
+
+!!! abstract "まとめ"
+    - [x] **泡のマスク × テクスチャ**
+    - [x] **深度差とヤコビアンで、位置を決める**
+
+## 参考
+
+- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
+- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
+- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+
+## 関連ページ
+
+- [水](../index.md)
+- [水面の波](../waves/index.md)
+- [水との相互作用](../interaction/index.md)

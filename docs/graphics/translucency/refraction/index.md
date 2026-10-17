@@ -93,5 +93,5 @@ float3 refracted = refract(incident, normal, eta);
 ## 関連ページ
 
 - [半透明](../index.md)
-- [水の質感](../../water/shading.md)
+- [水の質感](../../water/shading/index.md)
 - [OIT](../oit/index.md)

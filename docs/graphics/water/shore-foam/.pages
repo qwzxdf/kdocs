@@ -1,0 +1,7 @@
+nav:
+  - index.md
+  - shore-depth.md
+  - crest-jacobian.md
+  - foam-texture.md
+  - foam-history.md
+  - wake.md

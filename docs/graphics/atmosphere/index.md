@@ -20,12 +20,12 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [空のモデル](sky-models.md) | グラデーション・Preetham・Hosek-Wilkie・太陽と月 |
-| [大気散乱](scattering.md) | レイリー・ミー・透過率・Bruneton・Hillaire 2020 |
-| [距離フォグ](aerial-fog.md) | 空気遠近法・距離フォグ・高さフォグ |
-| [ボリューメトリック フォグ](volumetric-fog.md) | froxel・光の注入・積分・時間蓄積 |
-| [雲](clouds.md) | レイマーチ・ノイズ・Beer-Powder・時間蓄積 |
-| [光の筋](god-rays.md) | 放射ぼかし・シャドウ マップのレイマーチ |
+| [空のモデル](sky-models/index.md) | グラデーション・Preetham・Hosek-Wilkie・太陽と月 |
+| [大気散乱](scattering/index.md) | レイリー・ミー・透過率・Bruneton・Hillaire 2020 |
+| [距離フォグ](aerial-fog/index.md) | 空気遠近法・距離フォグ・高さフォグ |
+| [ボリューメトリック フォグ](volumetric-fog/index.md) | froxel・光の注入・積分・時間蓄積 |
+| [雲](clouds/index.md) | レイマーチ・ノイズ・Beer-Powder・時間蓄積 |
+| [光の筋](god-rays/index.md) | 放射ぼかし・シャドウ マップのレイマーチ |
 
 ## 関連ページ
 

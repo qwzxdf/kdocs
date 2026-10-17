@@ -1,0 +1,8 @@
+nav:
+  - index.md
+  - froxel.md
+  - density.md
+  - injection.md
+  - integration.md
+  - temporal.md
+  - quality.md

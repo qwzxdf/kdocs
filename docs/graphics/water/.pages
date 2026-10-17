@@ -1,7 +1,7 @@
 nav:
   - index.md
-  - waves.md
-  - shading.md
-  - shore-foam.md
-  - interaction.md
-  - underwater.md
+  - 水面の波: waves
+  - 水の質感: shading
+  - 岸辺の泡: shore-foam
+  - 水との相互作用: interaction
+  - 水中の表現: underwater

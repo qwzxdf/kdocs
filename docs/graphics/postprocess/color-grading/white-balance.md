@@ -111,7 +111,7 @@ float3 SimpleWhiteBalance(float3 color, float temperature) {
 | **状態の演出** | **体力が低い：色が冷える・彩度が下がる** |
 | **光源との整合** | **画面の主光源の色とホワイト バランスで調和させる** |
 
-**時間帯の変化**に**合わせて、色温度を補間**すると**自然な移り変わり**になります（[空と大気](../../atmosphere/sky-models.md)）。
+**時間帯の変化**に**合わせて、色温度を補間**すると**自然な移り変わり**になります（[空と大気](../../atmosphere/sky-models/index.md)）。
 
 ## より良いやり方
 
@@ -157,4 +157,4 @@ float3 SimpleWhiteBalance(float3 color, float temperature) {
 - [カラー グレーディング](index.md)
 - [基本の調整](basic-adjustments.md)
 - [リフト・ガンマ・ゲイン](lift-gamma-gain.md)
-- [空のモデル](../../atmosphere/sky-models.md)
+- [空のモデル](../../atmosphere/sky-models/index.md)

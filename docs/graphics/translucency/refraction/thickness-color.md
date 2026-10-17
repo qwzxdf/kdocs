@@ -60,4 +60,4 @@ float3 tinted_background = background * transmittance;
 
 - [屈折](index.md)
 - [薄いガラスと厚いガラス](thin-thick.md)
-- [水の質感](../../water/shading.md)
+- [水の質感](../../water/shading/index.md)

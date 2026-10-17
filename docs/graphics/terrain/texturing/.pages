@@ -1,0 +1,9 @@
+nav:
+  - index.md
+  - weights.md
+  - height-blend.md
+  - triplanar.md
+  - tiling.md
+  - anisotropic.md
+  - virtual-texture.md
+  - decals.md

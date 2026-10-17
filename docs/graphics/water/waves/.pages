@@ -1,0 +1,8 @@
+nav:
+  - index.md
+  - sine-waves.md
+  - gerstner.md
+  - normals.md
+  - animation-tricks.md
+  - fft-ocean.md
+  - floating.md

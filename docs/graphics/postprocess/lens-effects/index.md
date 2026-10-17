@@ -25,7 +25,7 @@ tags:
 | [フィルム グレイン](film-grain.md) | <strong>細かいノイズ（粒子）</strong> | **フィルムの質感・暗部のバンディング隠し** |
 | [レンズ フレア](lens-flare.md) | **強い光源から、ゴーストと光芒** | **SF・日光・ヘッドライト** |
 
-<strong>光の筋（ゴッド レイ）</strong>は、**大気の効果**なので[光の筋](../../atmosphere/god-rays.md)で扱います。
+<strong>光の筋（ゴッド レイ）</strong>は、**大気の効果**なので[光の筋](../../atmosphere/god-rays/index.md)で扱います。
 
 ## 動きで見る：色収差の広がり
 
@@ -59,4 +59,4 @@ tags:
 - [ポストプロセス](../index.md)
 - [ブルーム](../bloom/index.md)
 - [カラー グレーディング](../color-grading/index.md)
-- [光の筋](../../atmosphere/god-rays.md)
+- [光の筋](../../atmosphere/god-rays/index.md)

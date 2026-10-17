@@ -1,8 +1,8 @@
 nav:
   - index.md
-  - sky-models.md
-  - scattering.md
-  - aerial-fog.md
-  - volumetric-fog.md
-  - clouds.md
-  - god-rays.md
+  - 空のモデル: sky-models
+  - 大気散乱: scattering
+  - 空気遠近法・フォグ: aerial-fog
+  - ボリューメトリック フォグ: volumetric-fog
+  - 雲: clouds
+  - ゴッド レイ: god-rays

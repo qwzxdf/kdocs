@@ -62,4 +62,4 @@ float3 color = lerp(refracted_background, reflection, f);
 ## 関連ページ
 
 - [屈折](index.md)
-- [水の質感](../../water/shading.md)
+- [水の質感](../../water/shading/index.md)
