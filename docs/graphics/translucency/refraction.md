@@ -228,7 +228,7 @@ float mip = roughness * kMaxMip;
 float3 background = scene_color_mips.SampleLevel(linear_clamp, refract_uv, mip).rgb;
 ```
 
-**背景のコピーに、ミップ チェーンを作って**おく（[ブルームのダウンサンプル](../postprocess/bloom.md)と同様）。
+**背景のコピーに、ミップ チェーンを作って**おく（[ブルームのダウンサンプル](../postprocess/bloom/index.md)と同様）。
 
 ## 実装の全体像
 

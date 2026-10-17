@@ -26,7 +26,7 @@ from bs4 import BeautifulSoup, NavigableString
 from mkdocs.utils import get_relative_url
 
 _SKIP_PARENTS = {"a", "pre", "script", "style", "h1", "h2", "h3", "h4", "h5", "h6", "summary"}
-_SKIP_CLASSES = {"page-badges", "mem", "md-nav", "headerlink"}
+_SKIP_CLASSES = {"page-badges", "mem", "md-nav", "headerlink", "perf", "qual"}
 _ASCII_WORD = re.compile(r"[A-Za-z0-9_]")
 _CODE_TITLE = re.compile(r"^(std::[\w:]+|<[\w]+>)$")
 

@@ -1,0 +1,159 @@
+---
+title: 色相の保ち方
+tags:
+  - 描画
+---
+
+# 色相の保ち方
+
+**トーンマップ曲線を、R・G・B に別々に掛けるか、輝度にだけ掛けるか**で**明るい色の見え方**が**大きく変わります**。**別々に掛けると彩度の高い明るい色の比率が崩れ、色相がずれます**。**輝度にだけ掛けると色相は保てますが派手な色が飽和しすぎます**。このページでは、**2 つの方式の違い・ハイブリッド・彩度の扱い・どう選ぶか**を説明します。
+
+!!! tip "ポイント"
+    - <strong>チャンネルごと</strong>：<strong>R・G・B に別々に曲線</strong>。<strong>フィルムの特性に近く、明部は白へ向かう</strong>。<strong>色相はずれる</strong>。
+    - <strong>輝度ベース</strong>：<strong>輝度にだけ曲線を掛け、色の比率を保つ</strong>。<strong>色相は保つが鮮やかな明部が飽和しすぎる</strong>。
+    - <strong>ハイブリッド</strong>：<strong>両者を混ぜる</strong>。<strong>ACES・AgX は内部で彩度・色相を調整</strong>している。
+    - <strong>彩度</strong>：<strong>輝度が大きいほど、彩度を落とす</strong>のが<strong>自然な白への向かい方</strong>。
+    - <strong>選び方</strong>：<strong>色の忠実さ → 輝度ベース寄り、映画的な絵 → チャンネルごと寄り</strong>。
+
+## 違いを見る
+
+**赤 (4.0, 0.5, 0.2) という、明るい赤橙**を**Reinhard** に**通す**と、次のようになります。
+
+| 方式 | 計算 | 結果（R, G, B） |
+| --- | --- | --- |
+| **入力** | — | <strong>(4.0, 0.5, 0.2)</strong> |
+| **チャンネルごと** | **各成分に `x/(1+x)`** | <strong>(0.80, 0.33, 0.17)</strong> |
+| **輝度ベース** | **輝度 L ≒ 1.2 → L/(1+L) ≒ 0.55、色に比を掛ける** | <strong>(1.0 を超える → 飽和)</strong> |
+
+**チャンネルごと**だと、**R の比率が下がって、G・B の比率が相対的に上がる**ため、**赤が少し黄色（橙）寄り**に見えます。**これがフィルムのような、明部の色の変化**です。
+
+<svg class="fig illust" viewBox="0 0 780 220" role="img" aria-label="色相の変化の比較">
+<text x="20" y="26" class="fig-title">赤橙の光を、だんだん明るくしていくと</text>
+<defs>
+<linearGradient id="hp-ch" x1="0" x2="1"><stop offset="0" stop-color="#7a1d10"/><stop offset="0.4" stop-color="#e5602f"/><stop offset="0.75" stop-color="#ffb24a"/><stop offset="1" stop-color="#fff2c6"/></linearGradient>
+<linearGradient id="hp-lum" x1="0" x2="1"><stop offset="0" stop-color="#7a1d10"/><stop offset="0.5" stop-color="#e5483a"/><stop offset="1" stop-color="#ff5a45"/></linearGradient>
+<linearGradient id="hp-hy" x1="0" x2="1"><stop offset="0" stop-color="#7a1d10"/><stop offset="0.5" stop-color="#e5543a"/><stop offset="0.85" stop-color="#ff9a6a"/><stop offset="1" stop-color="#ffe9d6"/></linearGradient>
+</defs>
+<g font-size="13">
+<text x="40" y="62" style="font-weight:700">チャンネルごと</text><rect x="40" y="70" width="500" height="26" fill="url(#hp-ch)"/><text x="560" y="88" style="font-size:12px">橙 → 黄 → 白（フィルム的、色相は変わる）</text>
+<text x="40" y="126" style="font-weight:700">輝度ベース</text><rect x="40" y="134" width="500" height="26" fill="url(#hp-lum)"/><text x="560" y="152" style="font-size:12px">赤のまま（色相は保つが、白に届かず飽和）</text>
+<text x="40" y="190" style="font-weight:700">ハイブリッド</text><rect x="40" y="198" width="500" height="18" fill="url(#hp-hy)"/><text x="560" y="212" style="font-size:12px">赤 → 淡い赤 → 白（自然）</text>
+</g>
+</svg>
+
+## チャンネルごと
+
+```hlsl
+float3 TonemapPerChannel(float3 color) {
+  return ACESNarkowicz(color);
+}
+```
+
+| 長所 | 短所 |
+| --- | --- |
+| **明るい色が自然に白へ向かう** | **色相が変わる**（**青 → 紫、赤 → 黄**） |
+| **実装が簡単** | **意図した色が強い光で変わる**（**エフェクト**） |
+| **フィルムのような質感** | — |
+
+## 輝度ベース
+
+```hlsl
+float Luminance(float3 c) {
+  return dot(c, float3(0.2126, 0.7152, 0.0722));
+}
+
+float3 TonemapByLuminance(float3 color) {
+  float l = Luminance(color);
+  float mapped = Reinhard(float3(l, l, l)).x;
+  return color * (mapped / max(l, 1e-4));
+}
+```
+
+| 長所 | 短所 |
+| --- | --- |
+| **色相が完全に保たれる** | **彩度の高い明るい色が、1 を超えて飽和**（**最後に切る**と**色が濃すぎ**） |
+| **意図した色のまま** | **白に向かわず、「眩しさ」が出にくい** |
+
+**1 を超える値の処理**が**課題**です。**飽和した成分を他の成分に分配**（**ガマット マッピング**）したり、**白へ混ぜたり**して**対処**します。
+
+## ハイブリッド
+
+**両者を混ぜる**のが**定番**です。
+
+```hlsl
+float3 TonemapHybrid(float3 color, float blend) {
+  float3 per_channel = ACESNarkowicz(color);
+  float l = Luminance(color);
+  float l_mapped = Luminance(per_channel);
+  float3 by_luminance = color * (l_mapped / max(l, 1e-4));
+  return lerp(by_luminance, per_channel, blend);
+}
+```
+
+| `blend` | 見た目 |
+| --- | --- |
+| **0** | **色相を完全に保つ**（輝度ベース） |
+| **1** | **フィルム的**（チャンネルごと） |
+| **0.3〜0.6** | **ほどよく、自然** |
+
+## 彩度を落として白へ向かわせる
+
+**実際の光は非常に明るいと目やセンサーの飽和で白っぽく**見えます。**輝度が大きいほど彩度を落とす**と、**自然に白へ向かいます**。
+
+```hlsl
+float3 DesaturateHighlights(float3 color, float threshold, float strength) {
+  float l = Luminance(color);
+  float t = saturate((l - threshold) / threshold) * strength;
+  return lerp(color, float3(l, l, l), t);
+}
+```
+
+| 点 | 説明 |
+| --- | --- |
+| **`threshold`** | **この輝度から彩度を落とし始める** |
+| **`strength`** | **どれだけ白へ向かうか**（0〜1） |
+| **トーンマップの前** | **HDR のうちに**行う |
+
+**AgX・Tony McMapface は、こうした彩度の処理を曲線の設計に組み込んで**います。
+
+## 選び方
+
+| 優先すること | 選ぶ方式 |
+| --- | --- |
+| **映画的・フィルムの質感** | **チャンネルごと**（ACES・Hable） |
+| **色の忠実さ・エフェクトの色が大事** | **輝度ベース寄りのハイブリッド**、**AgX** |
+| **まず簡単に** | **チャンネルごと**（1 行） |
+| **色相の破綻を許さない** | **AgX・Tony McMapface・PBR Neutral** |
+
+## よくあるミス
+
+??? failure "輝度ベースで、1 を超えた値をそのまま出力して、色が破綻する"
+    **最後に `saturate`**、または**ガマット マッピング**（超えた分を他の成分へ分配）。
+
+??? failure "輝度の係数を、BT.601（0.299, 0.587, 0.114）にしてしまう"
+    **sRGB（Rec.709）の原色なら、`(0.2126, 0.7152, 0.0722)`**。
+
+??? failure "彩度を落とす処理を、トーンマップの後で行って、効きが弱い"
+    **HDR のうち（トーンマップの前）に**行う。
+
+## これだけ覚える
+
+!!! abstract "まとめ"
+    - [x] <strong>チャンネルごと</strong> ＝ <strong>フィルム的。色相がずれる</strong>
+    - [x] <strong>輝度ベース</strong> ＝ <strong>色相を保つが、鮮やかな明部が飽和</strong>
+    - [x] <strong>ハイブリッド</strong>（<strong>blend 0.3〜0.6</strong>）が<strong>実用的</strong>
+    - [x] <strong>輝度が大きいほど彩度を落とす</strong>と<strong>自然に白へ</strong>
+    - [x] <strong>輝度の係数は Rec.709</strong>（0.2126, 0.7152, 0.0722）
+
+## 参考
+
+- Troy Sobotka, "AgX"（色相の保持）
+- Pharr, Jakob, Humphreys, "Physically Based Rendering"（色と輝度）
+- Hart, "Tone Mapping with Hue Preservation"（解説）
+
+## 関連ページ
+
+- [トーンマッピングと露出](index.md)
+- [Reinhard](reinhard.md)
+- [ACES](aces.md)
+- [AgX ほか](agx.md)

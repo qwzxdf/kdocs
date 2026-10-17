@@ -1,0 +1,7 @@
+nav:
+  - index.md
+  - coc.md
+  - gather.md
+  - scatter.md
+  - near-far.md
+  - bokeh-shape.md

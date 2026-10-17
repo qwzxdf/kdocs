@@ -1,0 +1,8 @@
+nav:
+  - index.md
+  - velocity-buffer.md
+  - camera-blur.md
+  - object-blur.md
+  - blur-pass.md
+  - tile-max.md
+  - strength-taa.md

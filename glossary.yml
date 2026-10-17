@@ -1787,10 +1787,10 @@
   link: graphics/gi/ddgi.md
 - terms: [ブラー, Blur, ぼかし]
   text: 画像をぼかす処理。ガウス ブラー、モーション ブラーなどがある。
-  link: graphics/postprocess/motion-blur.md
+  link: graphics/postprocess/motion-blur/index.md
 - terms: [トーンマップ, Tone Mapping]
   text: HDR の明るさを、画面に出せる 0〜1 の範囲に収める変換。
-  link: graphics/postprocess/tonemapping.md
+  link: graphics/postprocess/tonemapping/index.md
 - terms: [ガンマ, Gamma, sRGB]
   text: 明るさを人の見え方に合わせて変える曲線。リニアで計算し、最後に sRGB へ変換する。
   link: gamemath/color.md
@@ -1808,13 +1808,13 @@
   link: graphics/reflections/ssr-fallback.md
 - terms: [クランプ, Clamp]
   text: 値を、決めた範囲に収めること。範囲外は端の値になる。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [オイラー]
   text: 回転を、X・Y・Z 軸まわりの 3 つの角度で表す方法。
   link: gamemath/rotation.md
 - terms: [エイリアシング, Aliasing]
   text: 連続した絵を画素で切り取るときに出る、階段状のギザギザ。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [アクネ, シャドウ アクネ, Shadow Acne]
   text: 自分自身の影で、面にしま模様が出る現象。バイアスで防ぐ。
   link: graphics/shadows/bias.md
@@ -1826,13 +1826,13 @@
   link: graphics/shadows/pcss.md
 - terms: [ジッター, Jitter]
   text: サンプル位置をフレームごとに少しずらすこと。TAA などで使う。
-  link: graphics/postprocess/motion-blur.md
+  link: graphics/postprocess/motion-blur/index.md
 - terms: [カーネル, Kernel, フィルタ カーネル]
   text: 周囲の画素に掛ける重みの並び。ぼかしなどのフィルタを表す。
   link: graphics/shadows/pcf.md
 - terms: [コントラスト, Contrast]
   text: 明るい所と暗い所の差。
-  link: graphics/postprocess/tonemapping.md
+  link: graphics/postprocess/tonemapping/index.md
 - terms: [シェーディング, Shading]
   text: 面の明るさや色を、光と素材から計算する処理。
   link: graphics/reflections/rt-reflections.md
@@ -1868,13 +1868,13 @@
   link: graphics/ao/theory.md
 - terms: [グレイン, Film Grain, フィルム グレイン]
   text: フィルムの粒子のような、細かいノイズ。
-  link: graphics/postprocess/lens-effects.md
+  link: graphics/postprocess/lens-effects/film-grain.md
 - terms: [ビネット, Vignette, 周辺減光]
   text: 画面の周辺が暗くなる効果。
-  link: graphics/postprocess/lens-effects.md
+  link: graphics/postprocess/lens-effects/vignette.md
 - terms: [ガウス, Gaussian, ガウス分布, ガウシアン]
   text: 釣り鐘型の分布。ぼかしの重みに使う。
-  link: graphics/postprocess/bloom.md
+  link: graphics/postprocess/bloom/gaussian.md
 - terms: [ポワソン, Poisson, ポワソン円盤]
   text: 点が近づきすぎないように、ばらけて並べた分布。
   link: graphics/shadows/pcf.md
@@ -1883,25 +1883,25 @@
   link: graphics/shadows/ray-traced.md
 - terms: [スキャッター, Scatter]
   text: 画素を周りへ広げて描く方式。ボケ玉などに使う。
-  link: graphics/postprocess/dof.md
+  link: graphics/postprocess/dof/scatter.md
 - terms: [フレア, Lens Flare, レンズ フレア]
   text: 明るい光源がレンズ内で反射して出る、光のにじみや像。
-  link: graphics/postprocess/lens-effects.md
+  link: graphics/postprocess/lens-effects/lens-flare.md
 - terms: [レンズ, Lens]
   text: 光を集めて像を作る部品。ボケや収差の原因になる。
-  link: graphics/postprocess/lens-effects.md
+  link: graphics/postprocess/lens-effects/index.md
 - terms: [ゲイン, Gain]
   text: 全体に掛ける倍率。特に明るい部分に強く効く。
-  link: graphics/postprocess/color-grading.md
+  link: graphics/postprocess/color-grading/index.md
 - terms: [シャープ, Sharpen, シャープネス]
   text: 輪郭をくっきりさせる処理。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [リゾルブ, Resolve]
   text: MSAA の複数サンプルを、1 画素にまとめること。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [トゥーン, Toon, セル シェーディング]
   text: アニメのように、陰影を少数の階調で表す描き方。
-  link: graphics/postprocess/stylized.md
+  link: graphics/postprocess/stylized/cel-shading.md
 - terms: [ランバート, Lambert, ランバート反射]
   text: 面の明るさが、法線と光の向きの内積で決まる拡散反射。
   link: 3d/pbr.md
@@ -1925,10 +1925,10 @@
   link: 3d/pbr.md
 - terms: [フィルミック, Filmic]
   text: フィルムのような、S 字の階調特性。
-  link: graphics/postprocess/tonemapping.md
+  link: graphics/postprocess/tonemapping/filmic-hable.md
 - terms: [ポスタライズ, Posterize]
   text: 色の階調数を減らす処理。
-  link: graphics/postprocess/stylized.md
+  link: graphics/postprocess/stylized/posterize-halftone.md
 - terms: [ブリン フォン, Blinn-Phong, フォン]
   text: 鏡面反射を簡単な式で表す、古典的なライティング モデル。
   link: libs/imgui/fonts.md
@@ -1937,10 +1937,10 @@
   link: graphics/ao/artifacts.md
 - terms: [アナモルフィック, Anamorphic]
   text: 横に引き伸ばされた像を作るレンズ。楕円のボケや横長のフレアが出る。
-  link: graphics/postprocess/dof.md
+  link: graphics/postprocess/dof/index.md
 - terms: [リダクション, Reduction]
   text: 多数の値を、合計や最大などの 1 つの値にまとめる処理。
-  link: graphics/postprocess/dof.md
+  link: graphics/postprocess/dof/index.md
 - terms: [レイマーチ, Ray Marching, レイ マーチ]
   text: レイを少しずつ進めながら、当たりを調べる方法。
   link: graphics/gi/ssgi.md
@@ -1952,13 +1952,13 @@
   link: graphics/shadows/virtual-shadow-maps.md
 - terms: [サブピクセル, Subpixel]
   text: 1 画素より細かい位置。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [ボリューメトリック, Volumetric]
   text: 霧や雲のように、空間に広がる物を表す描き方。
-  link: graphics/postprocess/lens-effects.md
+  link: graphics/postprocess/lens-effects/index.md
 - terms: [ルックアップ, Lookup]
   text: 入力に対する結果を、表から引く方法。
-  link: graphics/postprocess/color-grading.md
+  link: graphics/postprocess/color-grading/index.md
 - terms: [ピラミッド, Pyramid]
   text: 解像度を半分ずつにした画像の重ね（ミップ）。
   link: rendering/gpu-driven-dx12/hiz-two-pass.md
@@ -1967,10 +1967,10 @@
   link: graphics/ao/hbao.md
 - terms: [アウトライン, Outline, 輪郭線]
   text: 物体の周りの線。
-  link: graphics/postprocess/stylized.md
+  link: graphics/postprocess/stylized/outline-hull.md
 - terms: [ホタル, ファイアフライ, Firefly]
   text: 極端に明るい 1 画素が、ちらつく現象。
-  link: graphics/postprocess/bloom.md
+  link: graphics/postprocess/bloom/karis-average.md
 - terms: [リフィット, Refit]
   text: 加速構造の形はそのままに、境界の大きさだけを更新すること。
   link: graphics/reflections/rt-reflections.md
@@ -1979,7 +1979,7 @@
   link: graphics/gi/rt-gi.md
 - terms: [ダート, Dirt, レンズ ダート]
   text: レンズの汚れの模様。ブルームに重ねる。
-  link: graphics/postprocess/bloom.md
+  link: graphics/postprocess/bloom/composite.md
 - terms: [ペイロード, Payload]
   text: あるステージから次へ渡す、運ぶデータ。
   link: rendering/gpu-driven-dx12/meshlets.md
@@ -2000,10 +2000,10 @@
   link: graphics/gi/ssgi.md
 - terms: [ランプ, Ramp, ランプ テクスチャ]
   text: 入力値に対して色を返す、1 次元のテクスチャ。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [テント, Tent, テント フィルタ]
   text: 中心が高く、端へ直線的に下がる形のフィルタ。
-  link: graphics/postprocess/bloom.md
+  link: graphics/postprocess/bloom/index.md
 - terms: [シルエット, Silhouette]
   text: 物体の輪郭の形。
   link: graphics/shadows/shadow-volumes.md
@@ -2270,10 +2270,10 @@
   link: graphics/gi/ssgi.md
 - terms: [LDR, Low Dynamic Range]
   text: 表示できる 0〜1 の範囲に収まった、明るさの幅が狭い画像。
-  link: graphics/postprocess/color-grading.md
+  link: graphics/postprocess/color-grading/index.md
 - terms: [High Dynamic Range]
   text: 0〜1 を超える、明るさの幅が広い画像（値）。
-  link: graphics/postprocess/tonemapping.md
+  link: graphics/postprocess/tonemapping/index.md
 - terms: [DDGI, Dynamic Diffuse Global Illumination]
   text: レイトレで毎フレーム更新する、プローブ式の動的な間接光。
   link: graphics/gi/comparison.md
@@ -2366,10 +2366,10 @@
   link: graphics/ao/ssao-hemisphere.md
 - terms: [AA]
   text: ジャギーを目立たなくする技術の総称。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [EV, Exposure Value, 露出値]
   text: 露出の単位。1 増えると光の量が 2 倍。
-  link: graphics/postprocess/tonemapping.md
+  link: graphics/postprocess/tonemapping/exposure.md
 - terms: [Compiler Explorer, godbolt]
   text: ブラウザで、コードのコンパイル結果を確認できるサイト。
   link: basics/compiler.md
@@ -2378,10 +2378,10 @@
   link: optimize/copy-move.md
 - terms: [GDC, Game Developers Conference]
   text: ゲーム開発者向けの、大規模な技術カンファレンス。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [SMAA, Subpixel Morphological Anti-Aliasing]
   text: 縁の形を認識してぼかす、画像ベースのアンチエイリアシング。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/smaa.md
 - terms: [DDA, Digital Differential Analyzer]
   text: 格子上を、1 マスずつ線を進めるアルゴリズム。
   link: graphics/reflections/ssr-basics.md
@@ -2411,13 +2411,13 @@
   link: 3d/mesh-textures.md
 - terms: [Reinhard, ラインハルト]
   text: x / (1 + x) で表す、単純なトーンマップ。
-  link: graphics/postprocess/tonemapping.md
+  link: graphics/postprocess/tonemapping/reinhard.md
 - terms: [VXAO, Voxel AO]
   text: ボクセルを使った、環境光遮蔽。
   link: graphics/ao/world-space.md
 - terms: [AgX]
   text: 色相が崩れにくい、トーンマップの方式。
-  link: graphics/postprocess/tonemapping.md
+  link: graphics/postprocess/tonemapping/agx.md
 - terms: [BLAS, Bottom-Level Acceleration Structure]
   text: メッシュごとの、レイトレース用の加速構造。
   link: graphics/shadows/ray-traced.md
@@ -2441,7 +2441,7 @@
   link: graphics/gi/voxel-gi.md
 - terms: [Dual Filter, Kawase, Kawase Blur]
   text: 縮小と拡大のフィルタを組み合わせた、軽くて綺麗なぼかし。
-  link: graphics/postprocess/bloom.md
+  link: graphics/postprocess/bloom/dual-filter.md
 - terms: [Any-Hit, Any Hit]
   text: レイが当たった候補ごとに呼ばれる、レイトレースのシェーダー。
   link: graphics/shadows/ray-traced.md
@@ -2507,7 +2507,7 @@
   link: graphics/shadows/special-cases.md
 - terms: [Halton, Halton 数列]
   text: 2 次元に均一に分布する、低食い違い列。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [SVGF]
   text: 分散を使って、時間と空間でノイズを減らすフィルタ。
   link: graphics/reflections/rt-reflections.md
@@ -2516,7 +2516,7 @@
   link: graphics/gi/rt-gi.md
 - terms: [UNORM]
   text: 0〜1 に正規化された、符号なし整数の形式。
-  link: graphics/postprocess/tonemapping.md
+  link: graphics/postprocess/tonemapping/index.md
 - terms: [GGX 分布]
   text: 粗さの分布を表す、PBR で標準的な分布関数。
   link: graphics/reflections/ssr-stochastic.md
@@ -2525,7 +2525,7 @@
   link: graphics/reflections/ssr-stochastic.md
 - terms: [Khronos, Khronos Group]
   text: OpenGL・Vulkan・glTF などを策定する団体。
-  link: graphics/postprocess/tonemapping.md
+  link: graphics/postprocess/tonemapping/index.md
 - terms: [LTO, Link Time Optimization]
   text: リンク時に、全体を見て行う最適化。
   link: libs/jolt/build.md
@@ -2660,7 +2660,7 @@
   link: graphics/reflections/ssr-stochastic.md
 - terms: [動きベクトル, Motion Vector, 速度バッファ, Velocity Buffer]
   text: 画素が、前フレームからどれだけ動いたかを表すベクトル。
-  link: graphics/postprocess/motion-blur.md
+  link: graphics/postprocess/motion-blur/velocity-buffer.md
 - terms: [空間フィルタ, Spatial Filter]
   text: 同じフレームの、周囲の画素を使うフィルタ。
   link: graphics/ao/filtering.md
@@ -2675,13 +2675,13 @@
   link: graphics/shadows/ray-traced.md
 - terms: [錯乱円, Circle of Confusion, CoC]
   text: ピントが合わない点が、センサー上で作る円。ボケの大きさを決める。
-  link: graphics/postprocess/dof.md
+  link: graphics/postprocess/dof/coc.md
 - terms: [露出, Exposure]
   text: センサーに当てる光の量。明るさの倍率として扱う。
-  link: graphics/postprocess/tonemapping.md
+  link: graphics/postprocess/tonemapping/exposure.md
 - terms: [色収差, Chromatic Aberration]
   text: 波長ごとの屈折の違いで、色がずれて見える現象。
-  link: graphics/postprocess/lens-effects.md
+  link: graphics/postprocess/lens-effects/chromatic-aberration.md
 - terms: [深度, Depth, 深度値]
   text: カメラからの奥行きを表す値。
   link: 3d/depth-culling.md
@@ -2699,7 +2699,7 @@
   link: graphics/shadows/bias.md
 - terms: [フレーム バッファ, Frame Buffer]
   text: 描画結果を保存する、画像のバッファ。
-  link: graphics/postprocess/bloom.md
+  link: graphics/postprocess/bloom/index.md
 - terms: [加算ブレンド, Additive Blending]
   text: 色を足し合わせる、ブレンド方式。光の表現に使う。
   link: rendering/particles.md
@@ -2786,7 +2786,7 @@
   link: libs/recast/query.md
 - terms: [A*, A スター, エースター]
   text: ゴールまでの推定距離を使って、最短経路を探す探索法。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [ビヘイビア ツリー, Behavior Tree]
   text: AI の行動を、木構造で組み立てる仕組み。
   link: libs/imgui/node-editor.md
@@ -2831,13 +2831,13 @@
   link: graphics/shadows/local-lights.md
 - terms: [Temporal Anti-Aliasing]
   text: 過去のフレームと混ぜて、ジャギーをなくす方法。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [Multi-Sample Anti-Aliasing]
   text: 縁だけサンプルを増やす、アンチエイリアシング。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [Fast Approximate Anti-Aliasing]
   text: 完成した画像から縁を見つけて、ぼかす方法。
-  link: graphics/postprocess/antialiasing.md
+  link: graphics/postprocess/antialiasing/index.md
 - terms: [Screen-Space Ambient Occlusion]
   text: 画面空間で、環境光の遮蔽を近似する方法。
   link: graphics/ao/comparison.md
@@ -3047,7 +3047,7 @@
   link: libs/fastgltf/quickstart.md
 - terms: [エッジ, Edge]
   text: 縁や、辺。グラフでは、ノードをつなぐ線。
-  link: graphics/postprocess/stylized.md
+  link: graphics/postprocess/stylized/index.md
 - terms: [ノード, Node]
   text: グラフや木の、1 つの点。
   link: libs/imgui/node-editor.md
@@ -3065,7 +3065,7 @@
   link: rendering/gpu-driven-dx12/execute-indirect.md
 - terms: [グレーディング, Color Grading, カラー グレーディング]
   text: 映像の色を調整して、雰囲気を作ること。
-  link: graphics/postprocess/color-grading.md
+  link: graphics/postprocess/color-grading/index.md
 - terms: [レンダリング, Rendering]
   text: データから、画像を作る処理。
   link: libs/jolt/debug-renderer.md
@@ -3080,7 +3080,7 @@
   link: libs/imgui/node-editor.md
 - terms: [スクリーンショット, Screenshot]
   text: 画面を、画像として保存したもの。
-  link: graphics/postprocess/color-grading.md
+  link: graphics/postprocess/color-grading/index.md
 - terms: [インストーラー, Installer]
   text: ソフトを、入れるためのプログラム。
   link: vs/asan.md

@@ -57,6 +57,7 @@ hooks:
   - hooks/autolink.py
   - hooks/inlinecode.py
   - hooks/glossary.py
+  - hooks/pageicons.py
 
 plugins:
   - search:

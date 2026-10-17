@@ -203,5 +203,5 @@ clip(fade_alpha - threshold);
 - [半透明](index.md)
 - [ブレンドとソート](blending-sorting.md)
 - [特殊な影（アルファ テストの影）](../shadows/special-cases.md)
-- [アンチエイリアシング](../postprocess/antialiasing.md)
+- [アンチエイリアシング](../postprocess/antialiasing/index.md)
 - [オーバードロー（最適化）](../../rendering/overdraw.md)

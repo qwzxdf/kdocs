@@ -1,0 +1,7 @@
+nav:
+  - index.md
+  - basic-adjustments.md
+  - lift-gamma-gain.md
+  - white-balance.md
+  - lut-3d.md
+  - lut-authoring.md

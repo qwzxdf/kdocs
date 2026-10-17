@@ -1,0 +1,141 @@
+# 描画の項目の評価。docs からの相対パス: {perf, quality}
+# perf: 1 = 軽い / 2 = 普通 / 3 = 重い（GPU の負荷の目安）
+# quality: 1 = 簡易 / 2 = 標準 / 3 = 高い（見た目の正確さ・きれいさ）
+# quality を書かない = 好みや表現の問題で、「高いほど良い」とは言えない項目
+# perf を書かない = 手法の比較・理論など、負荷を一つに決められないページ
+
+# --- ポストプロセス:トーンマッピング ---
+graphics/postprocess/tonemapping/exposure.md: {perf: 1}
+graphics/postprocess/tonemapping/reinhard.md: {perf: 1, quality: 1}
+graphics/postprocess/tonemapping/filmic-hable.md: {perf: 1, quality: 2}
+graphics/postprocess/tonemapping/aces.md: {perf: 1, quality: 2}
+graphics/postprocess/tonemapping/agx.md: {perf: 1, quality: 3}
+graphics/postprocess/tonemapping/hue-preservation.md: {perf: 1}
+graphics/postprocess/tonemapping/auto-exposure.md: {perf: 2}
+graphics/postprocess/tonemapping/gamma-srgb.md: {perf: 1}
+
+# --- ポストプロセス:ブルーム ---
+graphics/postprocess/bloom/index.md: {perf: 2}
+graphics/postprocess/bloom/threshold.md: {perf: 1}
+graphics/postprocess/bloom/downsample.md: {perf: 2, quality: 2}
+graphics/postprocess/bloom/gaussian.md: {perf: 2, quality: 3}
+graphics/postprocess/bloom/dual-filter.md: {perf: 1, quality: 2}
+graphics/postprocess/bloom/karis-average.md: {perf: 1, quality: 3}
+graphics/postprocess/bloom/composite.md: {perf: 1}
+
+# --- ポストプロセス:被写界深度 ---
+graphics/postprocess/dof/index.md: {perf: 2}
+graphics/postprocess/dof/coc.md: {perf: 1}
+graphics/postprocess/dof/gather.md: {perf: 2, quality: 2}
+graphics/postprocess/dof/scatter.md: {perf: 3, quality: 3}
+graphics/postprocess/dof/near-far.md: {perf: 2, quality: 3}
+graphics/postprocess/dof/bokeh-shape.md: {perf: 2}
+
+# --- ポストプロセス:モーション ブラー ---
+graphics/postprocess/motion-blur/index.md: {perf: 2}
+graphics/postprocess/motion-blur/velocity-buffer.md: {perf: 1}
+graphics/postprocess/motion-blur/camera-blur.md: {perf: 1, quality: 1}
+graphics/postprocess/motion-blur/object-blur.md: {perf: 2, quality: 3}
+
+# --- 影 ---
+graphics/shadows/index.md: {}
+graphics/shadows/shadow-map-basics.md: {perf: 2, quality: 2}
+graphics/shadows/bias.md: {perf: 1}
+graphics/shadows/pcf.md: {perf: 2, quality: 2}
+graphics/shadows/pcss.md: {perf: 3, quality: 3}
+graphics/shadows/vsm.md: {perf: 2, quality: 2}
+graphics/shadows/cascaded.md: {perf: 2, quality: 3}
+graphics/shadows/local-lights.md: {perf: 3, quality: 2}
+graphics/shadows/contact-shadows.md: {perf: 2, quality: 3}
+graphics/shadows/sdf-shadows.md: {perf: 2, quality: 3}
+graphics/shadows/ray-traced.md: {perf: 3, quality: 3}
+graphics/shadows/virtual-shadow-maps.md: {perf: 3, quality: 3}
+graphics/shadows/shadow-volumes.md: {perf: 3, quality: 3}
+
+# --- 環境光遮蔽 ---
+graphics/ao/ssao-crytek.md: {perf: 2, quality: 1}
+graphics/ao/ssao-hemisphere.md: {perf: 2, quality: 2}
+graphics/ao/alchemy-ao.md: {perf: 2, quality: 2}
+graphics/ao/sao.md: {perf: 2, quality: 2}
+graphics/ao/hbao.md: {perf: 2, quality: 2}
+graphics/ao/hbao-plus.md: {perf: 2, quality: 3}
+graphics/ao/gtao.md: {perf: 2, quality: 3}
+graphics/ao/world-space.md: {perf: 3, quality: 3}
+graphics/ao/filtering.md: {perf: 1}
+
+# --- 反射 ---
+graphics/reflections/planar.md: {perf: 3, quality: 3}
+graphics/reflections/probes.md: {perf: 1, quality: 1}
+graphics/reflections/ssr-basics.md: {perf: 2, quality: 2}
+graphics/reflections/ssr-hiz.md: {perf: 2, quality: 3}
+graphics/reflections/ssr-stochastic.md: {perf: 3, quality: 3}
+graphics/reflections/ssr-fallback.md: {perf: 1, quality: 3}
+graphics/reflections/rt-reflections.md: {perf: 3, quality: 3}
+
+# --- 間接光 ---
+graphics/gi/lightmaps.md: {perf: 1, quality: 3}
+graphics/gi/probes.md: {perf: 1, quality: 2}
+graphics/gi/ssgi.md: {perf: 2, quality: 2}
+graphics/gi/voxel-gi.md: {perf: 3, quality: 2}
+graphics/gi/ddgi.md: {perf: 2, quality: 3}
+graphics/gi/rt-gi.md: {perf: 3, quality: 3}
+
+# --- 半透明 ---
+graphics/translucency/blending-sorting.md: {perf: 1, quality: 2}
+graphics/translucency/alpha-test.md: {perf: 1}
+graphics/translucency/oit.md: {perf: 3, quality: 3}
+graphics/translucency/refraction.md: {perf: 2, quality: 2}
+
+# --- 水 ---
+graphics/water/waves.md: {perf: 2}
+graphics/water/shading.md: {perf: 2, quality: 3}
+graphics/water/shore-foam.md: {perf: 1}
+graphics/water/interaction.md: {perf: 2}
+graphics/water/underwater.md: {perf: 2}
+
+# --- 地形 ---
+graphics/terrain/heightmap-mesh.md: {perf: 1}
+graphics/terrain/lod.md: {perf: 1, quality: 2}
+graphics/terrain/texturing.md: {perf: 2, quality: 2}
+graphics/terrain/vegetation.md: {perf: 2}
+graphics/terrain/generation.md: {perf: 1}
+
+# --- 空と大気 ---
+graphics/atmosphere/sky-models.md: {perf: 1, quality: 2}
+graphics/atmosphere/scattering.md: {perf: 2, quality: 3}
+graphics/atmosphere/aerial-fog.md: {perf: 1, quality: 2}
+graphics/atmosphere/volumetric-fog.md: {perf: 3, quality: 3}
+graphics/atmosphere/clouds.md: {perf: 3, quality: 3}
+graphics/atmosphere/god-rays.md: {perf: 2, quality: 2}
+
+# --- ポストプロセス:モーション ブラー（続き） ---
+graphics/postprocess/motion-blur/blur-pass.md: {perf: 2, quality: 3}
+graphics/postprocess/motion-blur/tile-max.md: {perf: 1}
+graphics/postprocess/motion-blur/strength-taa.md: {}
+
+# --- ポストプロセス:アンチエイリアシング ---
+graphics/postprocess/antialiasing/msaa.md: {perf: 2, quality: 2}
+graphics/postprocess/antialiasing/fxaa.md: {perf: 1, quality: 1}
+graphics/postprocess/antialiasing/smaa.md: {perf: 1, quality: 2}
+graphics/postprocess/antialiasing/taa.md: {perf: 2, quality: 3}
+graphics/postprocess/antialiasing/taa-challenges.md: {}
+graphics/postprocess/antialiasing/comparison.md: {}
+
+# --- ポストプロセス:カラー グレーディング（好みの調整なので、品質は付けない） ---
+graphics/postprocess/color-grading/basic-adjustments.md: {perf: 1}
+graphics/postprocess/color-grading/lift-gamma-gain.md: {perf: 1}
+graphics/postprocess/color-grading/white-balance.md: {perf: 1}
+graphics/postprocess/color-grading/lut-3d.md: {perf: 1}
+graphics/postprocess/color-grading/lut-authoring.md: {perf: 1}
+
+# --- ポストプロセス:レンズ効果（好みの表現なので、品質は付けない） ---
+graphics/postprocess/lens-effects/chromatic-aberration.md: {perf: 1}
+graphics/postprocess/lens-effects/vignette.md: {perf: 1}
+graphics/postprocess/lens-effects/film-grain.md: {perf: 1}
+graphics/postprocess/lens-effects/lens-flare.md: {perf: 2}
+
+# --- ポストプロセス:輪郭線・トゥーン（画風の選択なので、品質は付けない） ---
+graphics/postprocess/stylized/outline-hull.md: {perf: 1}
+graphics/postprocess/stylized/outline-edge.md: {perf: 2}
+graphics/postprocess/stylized/cel-shading.md: {perf: 1}
+graphics/postprocess/stylized/posterize-halftone.md: {perf: 1}

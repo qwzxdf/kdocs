@@ -1,0 +1,8 @@
+nav:
+  - index.md
+  - msaa.md
+  - fxaa.md
+  - smaa.md
+  - taa.md
+  - taa-challenges.md
+  - comparison.md
