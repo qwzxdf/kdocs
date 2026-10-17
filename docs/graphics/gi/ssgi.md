@@ -26,6 +26,57 @@ tags:
 | **出力** | <strong>暗さ（スカラー）</strong> | <strong>間接光（RGB）</strong> |
 | **色の効果** | なし | **カラー ブリーディング** |
 
+<!-- fig:ssgi-bounce:begin -->
+
+<svg class="fig illust motion" data-fig="ssgi-bounce" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-ssgi-bounce" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">SSGI:画面の中の明るい物から、色を借りて、間接光にする</text>
+<rect x="60" y="320" width="640" height="18" fill="#e5e7eb" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="540" y="140" width="22" height="182" fill="#e5484d"/>
+<text x="551" y="128" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">赤い壁（光が当たっている）</text>
+<circle cx="620" cy="70" r="14" fill="#e5aa28"/>
+<text x="640" y="66" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5aa28">光</text>
+<circle cx="400" cy="316" r="9" fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
+<text x="370" y="354" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">着色点（床）</text>
+<line x1="400" y1="310" x2="451.79" y2="263.97" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/></line>
+<circle cx="451.79" cy="263.97" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="424.33" y2="239.63" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1145;0.1148;1.0000" values="0;0;1;1"/></line>
+<circle cx="424.33" cy="239.63" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1145;0.1148;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="507.69" y2="284.49" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1553;0.1556;1.0000" values="0;0;1;1"/></line>
+<circle cx="507.69" cy="284.49" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1553;0.1556;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="244.83" y2="262.73" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1960;0.1963;1.0000" values="0;0;1;1"/></line>
+<circle cx="244.83" cy="262.73" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1960;0.1963;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="337.09" y2="253.26" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2367;0.2370;1.0000" values="0;0;1;1"/></line>
+<circle cx="337.09" cy="253.26" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2367;0.2370;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="389.58" y2="220.6" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2775;0.2778;1.0000" values="0;0;1;1"/></line>
+<circle cx="389.58" cy="220.6" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2775;0.2778;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="460.93" y2="274.35" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3182;0.3185;1.0000" values="0;0;1;1"/></line>
+<circle cx="460.93" cy="274.35" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3182;0.3185;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="535.35" y2="196.47" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3590;0.3593;1.0000" values="0;0;1;1"/></line>
+<circle cx="535.35" cy="196.47" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3590;0.3593;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="263.46" y2="223.61" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/></line>
+<circle cx="263.46" cy="223.61" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="333.76" y2="262.5" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4404;0.4407;1.0000" values="0;0;1;1"/></line>
+<circle cx="333.76" cy="262.5" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4404;0.4407;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="475.67" y2="196.42" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000" values="0;0;1;1"/></line>
+<circle cx="475.67" cy="196.42" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="291.34" y2="183.82" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5219;0.5222;1.0000" values="0;0;1;1"/></line>
+<circle cx="291.34" cy="183.82" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5219;0.5222;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="335.61" y2="285.44" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5627;0.5630;1.0000" values="0;0;1;1"/></line>
+<circle cx="335.61" cy="285.44" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5627;0.5630;1.0000" values="0;0;1;1"/></circle>
+<line x1="400" y1="310" x2="354.49" y2="175.89" stroke="#cbd5e1" stroke-width="1.8" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6034;0.6037;1.0000" values="0;0;1;1"/></line>
+<circle cx="354.49" cy="175.89" r="5" fill="#cbd5e1" stroke="#64748b" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6034;0.6037;1.0000" values="0;0;1;1"/></circle>
+<rect x="300" y="322" width="200" height="14" fill="#e5e7eb" opacity="1"/>
+<text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">着色点から、画面（深度バッファ）に沿って、サンプルを取る<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">サンプルの色を、明るさ・向きの重みで集める<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.6441;0.6444;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">赤い壁のサンプルが混ざり → 床がほんのり赤い（カラー ブリーディング）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6441;0.6444;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="396" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">画面に映っていない物は拾えない（画面外・背面の光は、無し）。拾った色は、前フレームの結果を使うと、多重バウンスにもなる。</text>
+</svg>
+
+<!-- fig:ssgi-bounce:end -->
+
 ### 手順
 
 | 手順 | 内容 |

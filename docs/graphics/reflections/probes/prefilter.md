@@ -28,6 +28,90 @@ tags:
 
 詳しい導出は、[PBR](../../../3d/pbr.md)の IBL を参照してください。
 
+<!-- fig:prefilter-mips:begin -->
+
+<svg class="fig illust motion" data-fig="prefilter-mips" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-prefilter-mips" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+<clipPath id="pf-clip-0"><rect x="40" y="110" width="120" height="80"/>
+</clipPath>
+<filter id="pf-1" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="2"/>
+</filter>
+<clipPath id="pf-clip-1"><rect x="180" y="110" width="120" height="80"/>
+</clipPath>
+<filter id="pf-2" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/>
+</filter>
+<clipPath id="pf-clip-2"><rect x="320" y="110" width="120" height="80"/>
+</clipPath>
+<filter id="pf-3" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="8"/>
+</filter>
+<clipPath id="pf-clip-3"><rect x="460" y="110" width="120" height="80"/>
+</clipPath>
+<filter id="pf-4" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="14"/>
+</filter>
+<clipPath id="pf-clip-4"><rect x="600" y="110" width="120" height="80"/>
+</clipPath>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">事前フィルタ:粗さごとに、ぼかしたキューブ マップを用意しておく</text>
+<g clip-path="url(#pf-clip-0)"><rect x="40" y="110" width="120" height="80" fill="#0f172a"/>
+<circle cx="64" cy="140" r="9" fill="#fde68a"/>
+<circle cx="120" cy="162" r="12" fill="#fca5a5"/>
+<circle cx="100" cy="128" r="6" fill="#93c5fd"/>
+<circle cx="140" cy="134" r="8" fill="#bbf7d0"/>
+</g>
+<rect x="40" y="110" width="120" height="80" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="100" y="100" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ミップ 0</text>
+<text x="100" y="210" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">粗さ 0.00</text>
+<g clip-path="url(#pf-clip-1)"><rect x="180" y="110" width="120" height="80" fill="#0f172a"/>
+<circle cx="204" cy="140" r="9" fill="#fde68a" filter="url(#pf-1)"/>
+<circle cx="260" cy="162" r="12" fill="#fca5a5" filter="url(#pf-1)"/>
+<circle cx="240" cy="128" r="6" fill="#93c5fd" filter="url(#pf-1)"/>
+<circle cx="280" cy="134" r="8" fill="#bbf7d0" filter="url(#pf-1)"/>
+</g>
+<rect x="180" y="110" width="120" height="80" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="240" y="100" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ミップ 1</text>
+<text x="240" y="210" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">粗さ 0.25</text>
+<g clip-path="url(#pf-clip-2)"><rect x="320" y="110" width="120" height="80" fill="#0f172a"/>
+<circle cx="344" cy="140" r="9" fill="#fde68a" filter="url(#pf-2)"/>
+<circle cx="400" cy="162" r="12" fill="#fca5a5" filter="url(#pf-2)"/>
+<circle cx="380" cy="128" r="6" fill="#93c5fd" filter="url(#pf-2)"/>
+<circle cx="420" cy="134" r="8" fill="#bbf7d0" filter="url(#pf-2)"/>
+</g>
+<rect x="320" y="110" width="120" height="80" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="380" y="100" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ミップ 2</text>
+<text x="380" y="210" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">粗さ 0.50</text>
+<g clip-path="url(#pf-clip-3)"><rect x="460" y="110" width="120" height="80" fill="#0f172a"/>
+<circle cx="484" cy="140" r="9" fill="#fde68a" filter="url(#pf-3)"/>
+<circle cx="540" cy="162" r="12" fill="#fca5a5" filter="url(#pf-3)"/>
+<circle cx="520" cy="128" r="6" fill="#93c5fd" filter="url(#pf-3)"/>
+<circle cx="560" cy="134" r="8" fill="#bbf7d0" filter="url(#pf-3)"/>
+</g>
+<rect x="460" y="110" width="120" height="80" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="520" y="100" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ミップ 3</text>
+<text x="520" y="210" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">粗さ 0.75</text>
+<g clip-path="url(#pf-clip-4)"><rect x="600" y="110" width="120" height="80" fill="#0f172a"/>
+<circle cx="624" cy="140" r="9" fill="#fde68a" filter="url(#pf-4)"/>
+<circle cx="680" cy="162" r="12" fill="#fca5a5" filter="url(#pf-4)"/>
+<circle cx="660" cy="128" r="6" fill="#93c5fd" filter="url(#pf-4)"/>
+<circle cx="700" cy="134" r="8" fill="#bbf7d0" filter="url(#pf-4)"/>
+</g>
+<rect x="600" y="110" width="120" height="80" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="660" y="100" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ミップ 4</text>
+<text x="660" y="210" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">粗さ 1.00</text>
+<rect x="36" y="106" width="128" height="88" fill="none" stroke="#e5aa28" stroke-width="4"><animate attributeName="x" dur="13.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0593;0.2222;0.3852;0.5481;0.7111" values="36;36;176;316;456;596"/></rect>
+<text x="40" y="290" text-anchor="start" style="font-size:20px;font-weight:700;fill:#1f2937" opacity="0">粗さ 0.00 → ミップ 0 を読む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2219;0.2222;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="290" text-anchor="start" style="font-size:20px;font-weight:700;fill:#1f2937" opacity="0">粗さ 0.25 → ミップ 1 を読む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2219;0.2222;0.3849;0.3852;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="290" text-anchor="start" style="font-size:20px;font-weight:700;fill:#1f2937" opacity="0">粗さ 0.50 → ミップ 2 を読む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3849;0.3852;0.5479;0.5481;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="290" text-anchor="start" style="font-size:20px;font-weight:700;fill:#1f2937" opacity="0">粗さ 0.75 → ミップ 3 を読む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5479;0.5481;0.7108;0.7111;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="290" text-anchor="start" style="font-size:20px;font-weight:700;fill:#1f2937" opacity="0">粗さ 1.00 → ミップ 4 を読む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7108;0.7111;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="322" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">鏡のような面:くっきりしたミップ<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2219;0.2222;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="322" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">少し粗い面:ぼけたミップ<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2219;0.2222;0.5479;0.5481;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="322" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ざらざらの面:とてもぼけたミップ<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5479;0.5481;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="380" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">実行時は、粗さからミップを選んで 1 回読むだけ。ぼかしは事前に計算済み（Split-Sum 近似）。</text>
+</svg>
+
+<!-- fig:prefilter-mips:end -->
+
 ### ミップ レベルの選び方
 
 **粗さが大きいほど、ぼけた（高いミップの）レベル**を読みます。

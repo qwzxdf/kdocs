@@ -44,6 +44,42 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 
 **深度書き込みを ON のままにする**と、**手前の半透明が、奥の半透明の描画を妨げ**ます（**奥が、描かれなくなる**）。
 
+<!-- fig:blend-modes:begin -->
+
+<svg class="fig illust motion" data-fig="blend-modes" viewBox="0 0 780 360" role="img"><rect x="0" y="0" width="780" height="360" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-blend-modes" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ブレンドの種類:同じ円を、3 つの混ぜ方で重ねる</text>
+<text x="130" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">通常（アルファ）</text>
+<rect x="30" y="90" width="50" height="170" fill="#e5484d"/>
+<rect x="80" y="90" width="50" height="170" fill="#2ea043"/>
+<rect x="130" y="90" width="50" height="170" fill="#2563eb"/>
+<rect x="180" y="90" width="50" height="170" fill="#fde68a"/>
+<rect x="30" y="90" width="200" height="170" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<circle cx="130" cy="175" r="70" fill="#f97316" opacity="0" style="mix-blend-mode:normal"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0692;0.0696;1.0000" values="0;0;0.6;0.6"/></circle>
+<text x="130" y="292" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">背景と混ざる（α で）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0692;0.0696;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="380" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">加算（光・炎）</text>
+<rect x="280" y="90" width="50" height="170" fill="#e5484d"/>
+<rect x="330" y="90" width="50" height="170" fill="#2ea043"/>
+<rect x="380" y="90" width="50" height="170" fill="#2563eb"/>
+<rect x="430" y="90" width="50" height="170" fill="#fde68a"/>
+<rect x="280" y="90" width="200" height="170" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<circle cx="380" cy="175" r="70" fill="#f97316" opacity="0" style="mix-blend-mode:screen"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3127;0.3130;1.0000" values="0;0;1;1"/></circle>
+<text x="380" y="292" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">明るくなる（足し算）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3127;0.3130;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="630" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">乗算（影・色ガラス）</text>
+<rect x="530" y="90" width="50" height="170" fill="#e5484d"/>
+<rect x="580" y="90" width="50" height="170" fill="#2ea043"/>
+<rect x="630" y="90" width="50" height="170" fill="#2563eb"/>
+<rect x="680" y="90" width="50" height="170" fill="#fde68a"/>
+<rect x="530" y="90" width="200" height="170" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<circle cx="630" cy="175" r="70" fill="#8ec5ff" opacity="0" style="mix-blend-mode:multiply"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5562;0.5565;1.0000" values="0;0;1;1"/></circle>
+<text x="630" y="292" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">暗くなる（掛け算）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5562;0.5565;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="336" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">通常:SrcAlpha / InvSrcAlpha、加算:One / One、乗算:Zero / SrcColor</text>
+</svg>
+
+<!-- fig:blend-modes:end -->
+
 ### ブレンドの種類
 
 | 種類 | `SrcBlend` / `DestBlend` | 式 | 用途 |

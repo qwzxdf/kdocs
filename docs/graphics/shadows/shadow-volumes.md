@@ -42,6 +42,79 @@ tags:
 
 **閉じたメッシュ**（穴のない 2-多様体）が、**前提**です。**穴・T 字接合**があると**ボリュームが閉じず**、**破綻**します。
 
+<!-- fig:shadow-volume-stencil:begin -->
+
+<svg class="fig illust motion" data-fig="shadow-volume-stencil" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-shadow-volume-stencil" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ステンシル:視線が影の体積に入ったら +1、出たら −1。残りが 1 なら影</text>
+<rect x="30" y="330" width="720" height="14" fill="#d6c7a1"/>
+<polygon points="300,150 350,150 560,330 400,330" fill="#1e293b" fill-opacity="0.25" stroke="#475569" stroke-width="2" stroke-dasharray="6 4"/>
+<rect x="290" y="135" width="70" height="18" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
+<circle cx="330" cy="60" r="13" fill="#e5aa28"/>
+<text x="350" y="64" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">光</text>
+<circle cx="50" cy="130" r="8" fill="#2563eb"/>
+<text x="44" y="116" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">カメラ</text>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.1652;0.1655;1.0000" values="0;0;1;1;0;0"/><line x1="50" y1="130" x2="180" y2="330" stroke="#2563eb" stroke-width="2.5"/>
+<circle cx="180" cy="330" r="7" fill="#2ea043"/>
+<text x="400" y="380" text-anchor="middle" style="font-size:17px;font-weight:700;fill:#2ea043">この画素:ステンシル = 0 → 光が当たる（0）</text>
+</g>
+<rect x="140" y="344" width="80" height="8" fill="#fde68a" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1652;0.1655;1.0000" values="0;0;1;1"/></rect>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1652;0.1655;0.2618;0.2621;1.0000" values="0;0;1;1;0;0"/><line x1="50" y1="130" x2="260" y2="330" stroke="#2563eb" stroke-width="2.5"/>
+<circle cx="260" cy="330" r="7" fill="#2ea043"/>
+<text x="400" y="380" text-anchor="middle" style="font-size:17px;font-weight:700;fill:#2ea043">この画素:ステンシル = 0 → 光が当たる（0）</text>
+</g>
+<rect x="220" y="344" width="80" height="8" fill="#fde68a" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2618;0.2621;1.0000" values="0;0;1;1"/></rect>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2618;0.2621;0.3583;0.3586;1.0000" values="0;0;1;1;0;0"/><line x1="50" y1="130" x2="340" y2="330" stroke="#2563eb" stroke-width="2.5"/>
+<circle cx="340" cy="330" r="7" fill="#2ea043"/>
+<text x="400" y="380" text-anchor="middle" style="font-size:17px;font-weight:700;fill:#2ea043">この画素:ステンシル = 0 → 光が当たる（0）</text>
+</g>
+<rect x="300" y="344" width="80" height="8" fill="#fde68a" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3583;0.3586;1.0000" values="0;0;1;1"/></rect>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3583;0.3586;0.4549;0.4552;1.0000" values="0;0;1;1;0;0"/><line x1="50" y1="130" x2="420" y2="330" stroke="#2563eb" stroke-width="2.5"/>
+<circle cx="391.42" cy="314.55" r="9" fill="#2ea043" stroke="#ffffff" stroke-width="2"/>
+<text x="391.42" y="318.55" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">+1</text>
+<circle cx="420" cy="330" r="7" fill="#e5484d"/>
+<text x="400" y="380" text-anchor="middle" style="font-size:17px;font-weight:700;fill:#e5484d">この画素:ステンシル = 1 → 影（0 でない）</text>
+</g>
+<rect x="380" y="344" width="80" height="8" fill="#334155" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4549;0.4552;1.0000" values="0;0;1;1"/></rect>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4549;0.4552;0.5514;0.5517;1.0000" values="0;0;1;1;0;0"/><line x1="50" y1="130" x2="480" y2="330" stroke="#2563eb" stroke-width="2.5"/>
+<circle cx="372.13" cy="279.83" r="9" fill="#2ea043" stroke="#ffffff" stroke-width="2"/>
+<text x="372.13" y="283.83" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">+1</text>
+<circle cx="480" cy="330" r="7" fill="#e5484d"/>
+<text x="400" y="380" text-anchor="middle" style="font-size:17px;font-weight:700;fill:#e5484d">この画素:ステンシル = 1 → 影（0 でない）</text>
+</g>
+<rect x="440" y="344" width="80" height="8" fill="#334155" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5514;0.5517;1.0000" values="0;0;1;1"/></rect>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5514;0.5517;0.6480;0.6483;1.0000" values="0;0;1;1;0;0"/><line x1="50" y1="130" x2="540" y2="330" stroke="#2563eb" stroke-width="2.5"/>
+<circle cx="358.94" cy="256.1" r="9" fill="#2ea043" stroke="#ffffff" stroke-width="2"/>
+<text x="358.94" y="260.1" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">+1</text>
+<circle cx="540" cy="330" r="7" fill="#e5484d"/>
+<text x="400" y="380" text-anchor="middle" style="font-size:17px;font-weight:700;fill:#e5484d">この画素:ステンシル = 1 → 影（0 でない）</text>
+</g>
+<rect x="500" y="344" width="80" height="8" fill="#334155" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6480;0.6483;1.0000" values="0;0;1;1"/></rect>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6480;0.6483;0.7446;0.7448;1.0000" values="0;0;1;1;0;0"/><line x1="50" y1="130" x2="620" y2="330" stroke="#2563eb" stroke-width="2.5"/>
+<circle cx="346.73" cy="234.12" r="9" fill="#2ea043" stroke="#ffffff" stroke-width="2"/>
+<text x="346.73" y="238.12" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">+1</text>
+<circle cx="518.42" cy="294.36" r="9" fill="#e5484d" stroke="#ffffff" stroke-width="2"/>
+<text x="518.42" y="298.36" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">−1</text>
+<circle cx="620" cy="330" r="7" fill="#2ea043"/>
+<text x="400" y="380" text-anchor="middle" style="font-size:17px;font-weight:700;fill:#2ea043">この画素:ステンシル = 0 → 光が当たる（0）</text>
+</g>
+<rect x="580" y="344" width="80" height="8" fill="#fde68a" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7446;0.7448;1.0000" values="0;0;1;1"/></rect>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7446;0.7448;0.8411;0.8414;1.0000" values="0;0;1;1;0;0"/><line x1="50" y1="130" x2="700" y2="330" stroke="#2563eb" stroke-width="2.5"/>
+<circle cx="338.14" cy="218.66" r="9" fill="#2ea043" stroke="#ffffff" stroke-width="2"/>
+<text x="338.14" y="222.66" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">+1</text>
+<circle cx="481.6" cy="262.8" r="9" fill="#e5484d" stroke="#ffffff" stroke-width="2"/>
+<text x="481.6" y="266.8" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">−1</text>
+<circle cx="700" cy="330" r="7" fill="#2ea043"/>
+<text x="400" y="380" text-anchor="middle" style="font-size:17px;font-weight:700;fill:#2ea043">この画素:ステンシル = 0 → 光が当たる（0）</text>
+</g>
+<rect x="660" y="344" width="80" height="8" fill="#fde68a" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.8411;0.8414;1.0000" values="0;0;1;1"/></rect>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">カメラから各画素への視線を、順に見る（緑 +1 = 体積に入る、赤 −1 = 体積から出る）</text>
+</svg>
+
+<!-- fig:shadow-volume-stencil:end -->
+
 ## ステンシルによる判定
 
 **画素から、カメラへ向かう（またはカメラから画素へ向かう）視線**が**影の体積の面を何回またぐか**を数えます。**体積に入る（前面）と +1、出る（背面）と −1**。**合計が 0 でなければ、体積の内側**＝影です。

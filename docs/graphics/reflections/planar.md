@@ -43,6 +43,32 @@ tags:
 | **③ 反射用のテクスチャに描く** | 鏡映カメラから、<strong>シーン（不透明物）</strong>を描く。解像度は**画面と同じか、半分** |
 | **④ 反射面を描く** | <strong>画面上の位置（スクリーン座標）</strong>で、反射テクスチャを引く。**フレネル・屈折・波の歪み**と合成 |
 
+<!-- fig:planar-mirror:begin -->
+
+<svg class="fig illust motion" data-fig="planar-mirror" viewBox="0 0 780 460" role="img"><rect x="0" y="0" width="780" height="460" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-planar-mirror" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">平面反射:鏡の裏側に、鏡映したカメラを置いて、もう一度描く</text>
+<rect x="60" y="246" width="660" height="8" fill="#38bdf8"/>
+<text x="700" y="238" text-anchor="end" style="font-size:12px;font-weight:700;fill:#0284c7">鏡（水面）</text>
+<rect x="60" y="254" width="660" height="150" fill="#e0f2fe" fill-opacity="0.5"/>
+<polygon points="498,210 542,210 520,160" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
+<polygon points="498,290 542,290 520,340" fill="#b8794b" fill-opacity="0.35" stroke="#7a4b2a" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="550" y="330" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">鏡像の物体</text>
+<circle cx="140" cy="110" r="11" fill="#2563eb" stroke="#ffffff" stroke-width="2"><animate attributeName="cx" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.2963;0.5556;0.7778;1.0000" values="140;140;300;420;140;140"/></circle>
+<circle cx="140" cy="390" r="11" fill="#2563eb" fill-opacity="0.35" stroke="#2563eb" stroke-width="2" stroke-dasharray="4 3"><animate attributeName="cx" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.2963;0.5556;0.7778;1.0000" values="140;140;300;420;140;140"/></circle>
+<text x="160" y="104" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">カメラ</text>
+<text x="160" y="396" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">鏡映したカメラ</text>
+<line x1="140" y1="110" x2="300" y2="250" stroke="#2563eb" stroke-width="2.5"><animate attributeName="x1" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.2963;0.5556;0.7778;1.0000" values="140;140;300;420;140;140"/><animate attributeName="x2" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2963;0.5556;0.7778;1.0000" values="300;300;393.33;446.67;486.67;393.33;393.33"/></line>
+<line x1="300" y1="250" x2="520" y2="180" stroke="#2563eb" stroke-width="2.5"><animate attributeName="x1" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2963;0.5556;0.7778;1.0000" values="300;300;393.33;446.67;486.67;393.33;393.33"/></line>
+<line x1="140" y1="390" x2="520" y2="330" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="5 4"><animate attributeName="x1" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.2963;0.5556;0.7778;1.0000" values="140;140;300;420;140;140"/></line>
+<text x="40" y="60" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">カメラを動かすと、鏡映カメラも、鏡の反対側で同じ動きをする<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+<text x="40" y="440" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">鏡映カメラで普通にシーンを描く → それがそのまま、鏡に映る絵。実線の経路 = 鏡映カメラの点線の経路（同じ点に当たる）。<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+</svg>
+
+<!-- fig:planar-mirror:end -->
+
 ## 鏡映の行列
 
 **平面 `n·x + d = 0`**（n は単位法線）に関する、**鏡映行列**（行ベクトル規約）は、次のとおりです。

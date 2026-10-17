@@ -32,6 +32,31 @@ tags:
 
 特に**平らな床**で**壁との境が実際より遠くに映る**・**物が宙に浮いて見える**といった症状が出ます。
 
+<!-- fig:parallax-box:begin -->
+
+<svg class="fig illust motion" data-fig="parallax-box" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-parallax-box" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">視差補正:プローブの位置ではなく、反射点から、箱の壁までの交点で引く</text>
+<rect x="120" y="90" width="580" height="260" fill="#f8fafc" stroke="#1f2937" stroke-width="4"/>
+<text x="128" y="110" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">部屋（プローブの影響範囲の箱）</text>
+<circle cx="330" cy="220" r="9" fill="#e5aa28" stroke="#ffffff" stroke-width="2"/>
+<text x="342" y="242" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5aa28">プローブ</text>
+<circle cx="200" cy="340" r="8" fill="#2563eb" stroke="#ffffff" stroke-width="2"><animate attributeName="cx" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.2593;0.4815;0.7037;1.0000" values="200;200;330;520;200;200"/></circle>
+<text x="200" y="378" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#2563eb">反射する点</text>
+<line x1="200" y1="340" x2="0" y2="0" stroke="#2563eb" stroke-width="2.5"><animate attributeName="x1" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.2593;0.4815;0.7037;1.0000" values="200;200;330;520;200;200"/><animate attributeName="x2" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2593;0.4815;0.7037;1.0000" values="0;0;398.72;528.72;700;398.72;398.72"/><animate attributeName="y2" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2593;0.4815;0.7037;1.0000" values="0;0;90;90;113.55;90;90"/></line>
+<line x1="330" y1="220" x2="0" y2="0" stroke="#e5484d" stroke-width="2" stroke-dasharray="6 4"><animate attributeName="x2" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2593;0.4815;0.7037;1.0000" values="0;0;433.33;433.33;433.33;433.33;433.33"/><animate attributeName="y2" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2593;0.4815;0.7037;1.0000" values="0;0;90;90;90;90;90"/></line>
+<line x1="330" y1="220" x2="0" y2="0" stroke="#2ea043" stroke-width="3"><animate attributeName="x2" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2593;0.4815;0.7037;1.0000" values="0;0;398.72;528.72;700;398.72;398.72"/><animate attributeName="y2" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2593;0.4815;0.7037;1.0000" values="0;0;90;90;113.55;90;90"/></line>
+<circle cx="0" cy="0" r="6" fill="#e5484d"><animate attributeName="cx" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2593;0.4815;0.7037;1.0000" values="0;0;433.33;433.33;433.33;433.33;433.33"/><animate attributeName="cy" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2593;0.4815;0.7037;1.0000" values="0;0;90;90;90;90;90"/></circle>
+<circle cx="0" cy="0" r="6" fill="#2ea043"><animate attributeName="cx" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2593;0.4815;0.7037;1.0000" values="0;0;398.72;528.72;700;398.72;398.72"/><animate attributeName="cy" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2593;0.4815;0.7037;1.0000" values="0;0;90;90;113.55;90;90"/></circle>
+<text x="40" y="60" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">青い線 = 反射レイ。壁に当たる点が、本当に映る場所<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+<text x="40" y="404" text-anchor="start" style="font-size:13px;font-weight:500;fill:#e5484d">赤（補正なし）:プローブから、反射方向をそのまま引く → 本当の点とずれる。</text>
+<text x="40" y="426" text-anchor="start" style="font-size:13px;font-weight:500;fill:#2ea043">緑（補正あり）:壁の交点を求め、プローブから、その交点への向きで引く → ぴったり合う。</text>
+</svg>
+
+<!-- fig:parallax-box:end -->
+
 ### 視差補正：プローブの範囲を箱で近似する
 
 **プローブが写している範囲（部屋）を、箱（または球）で近似**します。**反射レイ**を**表面の位置 p から R 方向に飛ばして、箱と交差する点 H** を求めます。**プローブの位置から H への方向**で、キューブマップを引きます。

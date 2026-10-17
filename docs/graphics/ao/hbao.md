@@ -39,6 +39,51 @@ tags:
 <text x="20" y="268" style="font-size:12px">壁が高いほど h が大きくなり、遮蔽が増える。壁がなければ h = t で、遮蔽 0</text>
 </svg>
 
+<!-- fig:hbao-horizon:begin -->
+
+<svg class="fig illust motion" data-fig="hbao-horizon" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-hbao-horizon" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">HBAO:一方向に、地平線（最も高い遮蔽）の角度を探す</text>
+<rect x="40" y="330" width="700" height="16" fill="#d6c7a1"/>
+<polygon points="200,330 200,330 260,330 310,320 360,330 430,290 490,260 530,260 580,310 630,330 700,330 700,330" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
+<circle cx="200" cy="330" r="8" fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
+<text x="172" y="364" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">着色点</text>
+<line x1="200" y1="330" x2="300" y2="330" stroke="#e5484d" stroke-width="3.5"><animate attributeName="x2" dur="13.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0000;0.0889;0.1556;0.2222;0.2889;0.3556;0.4222;0.4889;0.5556;0.6222" values="300;300;440;439.01;439.01;436.45;433.3;433.3;433.3;433.3;433.3"/><animate attributeName="y2" dur="13.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0000;0.0889;0.1556;0.2222;0.2889;0.3556;0.4222;0.4889;0.5556;0.6222" values="330;330;330;308.27;308.27;288.88;273.69;273.69;273.69;273.69;273.69"/></line>
+<circle cx="260" cy="330" r="6" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0886;0.0889;1.0000" values="0;0;1;1"/></circle>
+<line x1="200" y1="330" x2="260" y2="330" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0886;0.0889;0.1553;0.1556;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="310" cy="320" r="6" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1553;0.1556;1.0000" values="0;0;1;1"/></circle>
+<line x1="200" y1="330" x2="310" y2="320" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1553;0.1556;0.2219;0.2222;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="360" cy="330" r="6" fill="#64748b" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2219;0.2222;1.0000" values="0;0;1;1"/></circle>
+<line x1="200" y1="330" x2="360" y2="330" stroke="#cbd5e1" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2219;0.2222;0.2886;0.2889;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="430" cy="290" r="6" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2886;0.2889;1.0000" values="0;0;1;1"/></circle>
+<line x1="200" y1="330" x2="430" y2="290" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2886;0.2889;0.3553;0.3556;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="490" cy="260" r="6" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3553;0.3556;1.0000" values="0;0;1;1"/></circle>
+<line x1="200" y1="330" x2="490" y2="260" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3553;0.3556;0.4219;0.4222;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="530" cy="260" r="6" fill="#64748b" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4219;0.4222;1.0000" values="0;0;1;1"/></circle>
+<line x1="200" y1="330" x2="530" y2="260" stroke="#cbd5e1" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4219;0.4222;0.4886;0.4889;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="580" cy="310" r="6" fill="#64748b" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4886;0.4889;1.0000" values="0;0;1;1"/></circle>
+<line x1="200" y1="330" x2="580" y2="310" stroke="#cbd5e1" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4886;0.4889;0.5553;0.5556;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="630" cy="330" r="6" fill="#64748b" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5553;0.5556;1.0000" values="0;0;1;1"/></circle>
+<line x1="200" y1="330" x2="630" y2="330" stroke="#cbd5e1" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5553;0.5556;0.6219;0.6222;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="700" cy="330" r="6" fill="#64748b" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6219;0.6222;1.0000" values="0;0;1;1"/></circle>
+<line x1="200" y1="330" x2="700" y2="330" stroke="#cbd5e1" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6219;0.6222;0.6886;0.6889;1.0000" values="0;0;1;1;0;0"/></line>
+<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">サンプル 1:仰角 0° （更新!） → これまでの最大 0°<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0886;0.0889;0.1553;0.1556;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">サンプル 2:仰角 5° （更新!） → これまでの最大 5°<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1553;0.1556;0.2219;0.2222;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">サンプル 3:仰角 0° （低い） → これまでの最大 5°<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2219;0.2222;0.2886;0.2889;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">サンプル 4:仰角 10° （更新!） → これまでの最大 10°<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2886;0.2889;0.3553;0.3556;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">サンプル 5:仰角 14° （更新!） → これまでの最大 14°<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3553;0.3556;0.4219;0.4222;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">サンプル 6:仰角 12° （低い） → これまでの最大 14°<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4219;0.4222;0.4886;0.4889;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">サンプル 7:仰角 3° （低い） → これまでの最大 14°<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4886;0.4889;0.5553;0.5556;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">サンプル 8:仰角 0° （低い） → これまでの最大 14°<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5553;0.5556;0.6219;0.6222;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">サンプル 9:仰角 0° （低い） → これまでの最大 14°<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6219;0.6222;0.6886;0.6889;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">地平線の角度 h = 14° → この方向の遮蔽 ≒ sin h = 0.23<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6886;0.6889;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="396" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">赤い線 = これまでに見つけた地平線。遮蔽される範囲は、地平線より下の角度（扇形）。方向を何本か（4〜8）繰り返して平均する。</text>
+</svg>
+
+<!-- fig:hbao-horizon:end -->
+
 ## 式
 
 半球を**方位角 θ**（画面上の方向）と、**仰角 α**（その方向の断面での持ち上げ角）で表します。**可視な範囲は、t(θ) から h(θ) の「間」ではなく、h(θ) より上**ですが、AO は<strong>「遮蔽されている量」</strong>で書きます。

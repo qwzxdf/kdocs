@@ -28,6 +28,40 @@ tags:
 <text x="420" y="152" style="font-size:13px">解決：</text><text x="420" y="176" style="font-size:12px">画面の深度で、短い距離を調べる → 接触部だけ、細かく影を補う</text>
 </svg>
 
+<!-- fig:contact-shadow-march:begin -->
+
+<svg class="fig illust motion" data-fig="contact-shadow-march" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-contact-shadow-march" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">コンタクト シャドウ:接触部の短い影を、画面空間のレイマーチで補う</text>
+<rect x="40" y="280" width="700" height="18" fill="#d6c7a1"/>
+<rect x="300" y="170" width="70" height="110" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
+<text x="335" y="162" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">物体</text>
+<circle cx="670" cy="70" r="14" fill="#e5aa28"/>
+<text x="690" y="64" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">光</text>
+<rect x="272" y="280" width="28" height="18" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.3677;0.3680;1.0000" values="0;0;1;1;0;0"/></rect>
+<text x="60" y="318" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d" opacity="0">接触部の影が欠けている →（シャドウ マップの解像度不足）<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.3677;0.3680;1.0000" values="0;0;1;1;0;0"/></text>
+<circle cx="286" cy="276" r="6" fill="#2563eb" stroke="#ffffff" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3677;0.3680;1.0000" values="0;0;1;1"/></circle>
+<circle cx="298.8" cy="266.4" r="5" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4357;0.4360;1.0000" values="0;0;1;1"/></circle>
+<circle cx="311.6" cy="256.8" r="5" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4717;0.4720;1.0000" values="0;0;1;1"/></circle>
+<circle cx="324.4" cy="247.2" r="5" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5077;0.5080;1.0000" values="0;0;1;1"/></circle>
+<circle cx="337.2" cy="237.6" r="5" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5437;0.5440;1.0000" values="0;0;1;1"/></circle>
+<circle cx="350.0" cy="228.0" r="5" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5797;0.5800;1.0000" values="0;0;1;1"/></circle>
+<circle cx="362.8" cy="218.4" r="5" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6157;0.6160;1.0000" values="0;0;1;1"/></circle>
+<circle cx="375.6" cy="208.8" r="5" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6517;0.6520;1.0000" values="0;0;1;1"/></circle>
+<circle cx="388.4" cy="199.2" r="5" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6877;0.6880;1.0000" values="0;0;1;1"/></circle>
+<circle cx="401.2" cy="189.6" r="5" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.7237;0.7240;1.0000" values="0;0;1;1"/></circle>
+<text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">まず、シャドウ マップで影を求める<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">接触部に、影の隙間ができる<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.3677;0.3680;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">その画素から、光の方向へ、画面上で少しずつ進む（レイマーチ）<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3677;0.3680;0.7237;0.7240;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">深度バッファの物体に当たった → 影！ 隙間が埋まる<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.7237;0.7240;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="350" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">緑 = 光が届く点、赤 = 物体の中に入った点（影）。進む距離は短くてよい（10〜20 歩）<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.7237;0.7240;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<rect x="272" y="280" width="28" height="18" fill="#334155" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.7237;0.7240;1.0000;1.0000" values="0;0;1;1;0"/></rect>
+</svg>
+
+<!-- fig:contact-shadow-march:end -->
+
 ## 原理：画面空間のレイマーチ
 
 **画素のビュー空間位置** `P` から、**光の方向** `L` へ**短いレイ**を**少しずつ進め**ます。**各ステップの位置を画面に投影**し、**その画素の深度**と比べます。**レイが深度バッファの面より奥に入った**ら、**面の裏側に潜った＝遮蔽**されたと判断します。

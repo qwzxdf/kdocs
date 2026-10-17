@@ -224,6 +224,43 @@ float HemisphereSSAO(float2 uv) {
 | **`range_check`** | `smoothstep(0, 1, R / |z − scene_z|)`。**深度差が R 以内なら 1**、**離れるほど 0 へ**。硬い境界を避けるため、`smoothstep` を使う |
 | **`power`** | `pow(ao, power)` で、コントラストを調整 |
 
+<!-- fig:ao-range-check:begin -->
+
+<svg class="fig illust motion" data-fig="ao-range-check" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-ao-range-check" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">範囲チェック:遠く離れた物は、遮蔽に数えない（ハローを防ぐ）</text>
+<rect x="60" y="250" width="300" height="18" fill="#d6c7a1"/>
+<rect x="190" y="140" width="70" height="110" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
+<text x="225" y="130" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">手前の物</text>
+<rect x="66" y="140" width="14" height="110" fill="#94a3b8"/>
+<text x="60" y="82" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">カメラの視線(左→右)。着色点 P は奥の壁の上。</text>
+<rect x="420" y="100" width="320" height="210" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="580" y="92" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">結果:P のまわりの暗さ</text>
+<rect x="455" y="140" width="50" height="140" fill="#b8794b"/>
+<rect x="505" y="140" width="215" height="140" fill="#cbd5e1"/>
+<text x="480" y="158" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ffffff">手前</text>
+<text x="640" y="158" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">奥の壁</text>
+<rect x="505" y="140" width="60" height="140" fill="#000000" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1481;0.2222;0.4815;0.5556;1.0000" values="0;0;0.55;0.55;0;0"/></rect>
+<text x="440" y="346" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">範囲チェックなし<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1479;0.1481;1.0000" values="1;1;0;0"/></text>
+<text x="440" y="346" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">手前の「そば」が暗い（ハロー）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1479;0.1481;0.4812;0.4815;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="440" y="346" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">あり:奥の壁に影が落ちない<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<line x1="100" y1="250" x2="100" y2="250" stroke="#e5484d" stroke-width="0"/>
+<circle cx="200" cy="215" r="7" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000;1.0000" values="0;0;1;1;0"/></circle>
+<line x1="100" y1="240" x2="200" y2="215" stroke="#e5484d" stroke-width="1.5" stroke-dasharray="4 3" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000;1.0000" values="0;0;1;1;0"/></line>
+<circle cx="225" cy="190" r="7" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1034;0.1037;1.0000;1.0000" values="0;0;1;1;0"/></circle>
+<line x1="100" y1="240" x2="225" y2="190" stroke="#e5484d" stroke-width="1.5" stroke-dasharray="4 3" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1034;0.1037;1.0000;1.0000" values="0;0;1;1;0"/></line>
+<circle cx="210" cy="165" r="7" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1330;0.1333;1.0000;1.0000" values="0;0;1;1;0"/></circle>
+<line x1="100" y1="240" x2="210" y2="165" stroke="#e5484d" stroke-width="1.5" stroke-dasharray="4 3" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1330;0.1333;1.0000;1.0000" values="0;0;1;1;0"/></line>
+<text x="60" y="300" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">P のまわりのサンプルが、手前の物に当たる<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1479;0.1481;1.0000" values="1;1;0;0"/></text>
+<text x="60" y="300" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">深度が P よりずっと近い → 遮蔽と数える（誤り）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1479;0.1481;0.4812;0.4815;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="60" y="300" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">深度差 &gt; 半径 なら数えない（範囲チェック）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="60" y="326" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">rangeCheck = smoothstep(0, 1, 半径 / |深度差|)<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:ao-range-check:end -->
+
 ### 範囲チェックの意味
 
 遮られる物体が、**p のすぐ近く**にあれば、AO は暗くなるべきです。しかし、**手前に遠く離れた物体**（たとえば p が壁の近くで、その手前 10 m に別の柱）があると**サンプルがその柱の裏に入り**、**p が暗く**なってしまいます。

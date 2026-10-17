@@ -17,6 +17,52 @@ tags:
 ## アップサンプル：低解像度から戻す
 AO は<strong>低周波（なめらか）</strong>なので**半分や 1/4 の解像度**で計算して、**拡大**すると**コストを大きく減らせます**（[低解像度のエフェクト](../../../rendering/low-res-effects.md)）。しかし、**単純なバイリニア拡大**は、**境界でにじみます**。
 
+<!-- fig:ao-upsample:begin -->
+
+<svg class="fig illust motion" data-fig="ao-upsample" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-ao-upsample" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">アップサンプル:低解像度の 4 点から、深度の近い点を重く混ぜる</text>
+<rect x="190" y="110" width="300" height="240" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4 3"/>
+<circle cx="250" cy="160" r="26" fill="#9e9e9e" stroke="#475569" stroke-width="2"/>
+<text x="250" y="165" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">A</text>
+<text x="250" y="206" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#2563eb">深度 0.30</text>
+<circle cx="430" cy="160" r="26" fill="#a8a8a8" stroke="#475569" stroke-width="2"/>
+<text x="430" y="165" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">B</text>
+<text x="430" y="206" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#2563eb">深度 0.30</text>
+<circle cx="250" cy="300" r="26" fill="#949494" stroke="#475569" stroke-width="2"/>
+<text x="250" y="305" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">C</text>
+<text x="250" y="346" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#2563eb">深度 0.30</text>
+<circle cx="430" cy="300" r="26" fill="#f9f9f9" stroke="#475569" stroke-width="2"/>
+<text x="430" y="305" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">D</text>
+<text x="430" y="346" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#60a5fa">深度 0.85</text>
+<circle cx="380" cy="215" r="10" fill="#e5aa28" stroke="#ffffff" stroke-width="2"/>
+<text x="340" y="98" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5aa28">橙の点 = フル解像度の画素（深度 0.32）</text>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="0;0;1;1"/><line x1="380" y1="215" x2="250" y2="160" stroke="#2ea043" stroke-width="4.639183958275801" opacity="0.8"/>
+<text x="250" y="124" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2ea043">重み 0.46</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1917;0.1920;1.0000" values="0;0;1;1"/><line x1="380" y1="215" x2="430" y2="160" stroke="#2ea043" stroke-width="7.0" opacity="0.8"/>
+<text x="430" y="124" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2ea043">重み 0.76</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3037;0.3040;1.0000" values="0;0;1;1"/><line x1="380" y1="215" x2="250" y2="300" stroke="#2ea043" stroke-width="4.145353032672427" opacity="0.8"/>
+<text x="250" y="264" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2ea043">重み 0.40</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4157;0.4160;1.0000" values="0;0;1;1"/><line x1="380" y1="215" x2="430" y2="300" stroke="#e5484d" stroke-width="1.0" opacity="0.8"/>
+<text x="430" y="264" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">重み 0.00</text>
+</g>
+<rect x="520" y="140" width="100" height="50" fill="#bfbfbf" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5277;0.5280;1.0000;1.0000" values="0;0;1;1;0"/></rect>
+<rect x="520" y="250" width="100" height="50" fill="#a1a1a1" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6477;0.6480;1.0000;1.0000" values="0;0;1;1;0"/></rect>
+<text x="520" y="130" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d" opacity="0">距離だけの補間<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5277;0.5280;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="520" y="240" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043" opacity="0">距離 × 深度の近さ<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6477;0.6480;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="520" y="214" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">AO = 0.53<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5277;0.5280;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="520" y="324" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">AO = 0.36（D に引きずられない）<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6477;0.6480;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="392" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">低解像度の AO 4 点（A〜D）から、中央の画素の AO を求める。各点の重み = 距離 × 深度の近さ<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5277;0.5280;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="392" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">深度が違う D（奥）の重みは、ほぼ 0。境界がにじまない<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5277;0.5280;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:ao-upsample:end -->
+
 ### ジョイント バイラテラル アップサンプル
 
 **拡大先（フル解像度）の深度**と**低解像度の深度**を**比べて**、**近い深度の低解像度の画素**を、重みを大きくして混ぜます。

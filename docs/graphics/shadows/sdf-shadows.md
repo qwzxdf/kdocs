@@ -64,6 +64,81 @@ float SphereTraceShadow(float3 origin, float3 light_dir) {
 }
 ```
 
+<!-- fig:sdf-soft-shadow:begin -->
+
+<svg class="fig illust motion" data-fig="sdf-soft-shadow" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-sdf-soft-shadow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">SDF のソフト シャドウ:球で安全な距離を測りながら、最小の隙間を覚える</text>
+<circle cx="330" cy="276" r="38" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
+<circle cx="90" cy="300" r="7" fill="#2563eb"/>
+<text x="80" y="324" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">影を調べたい点</text>
+<circle cx="680" cy="130" r="13" fill="#e5aa28"/>
+<text x="674" y="110" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">光</text>
+<line x1="90" y1="300" x2="680" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4"/>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/><circle cx="97.69" cy="297.79" r="120" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="97.69" cy="297.79" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1330;0.1333;1.0000" values="0;0;1;1"/><circle cx="285.38" cy="243.7" r="17.08" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="285.38" cy="243.7" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1923;0.1926;1.0000" values="0;0;1;1"/><circle cx="301.79" cy="238.97" r="8.54" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="301.79" cy="238.97" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2516;0.2519;1.0000" values="0;0;1;1"/><circle cx="310.01" cy="236.61" r="6.18" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="310.01" cy="236.61" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3108;0.3111;1.0000" values="0;0;1;1"/><circle cx="315.94" cy="234.9" r="5.44" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="315.94" cy="234.9" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3701;0.3704;1.0000" values="0;0;1;1"/><circle cx="321.71" cy="233.24" r="5.56" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="321.71" cy="233.24" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4293;0.4296;1.0000" values="0;0;1;1"/><circle cx="327.47" cy="231.58" r="6.5" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="327.47" cy="231.58" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4886;0.4889;1.0000" values="0;0;1;1"/><circle cx="333.71" cy="229.78" r="8.37" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="333.71" cy="229.78" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5479;0.5481;1.0000" values="0;0;1;1"/><circle cx="341.76" cy="227.46" r="11.94" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="341.76" cy="227.46" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6071;0.6074;1.0000" values="0;0;1;1"/><circle cx="353.23" cy="224.15" r="18.81" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="353.23" cy="224.15" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6664;0.6667;1.0000" values="0;0;1;1"/><circle cx="371.31" cy="218.94" r="32.44" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="371.31" cy="218.94" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7256;0.7259;1.0000" values="0;0;1;1"/><circle cx="402.48" cy="209.96" r="60.06" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="402.48" cy="209.96" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7849;0.7852;1.0000" values="0;0;1;1"/><circle cx="460.19" cy="193.33" r="116.22" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="460.19" cy="193.33" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.8441;0.8444;1.0000" values="0;0;1;1"/><circle cx="571.87" cy="161.16" r="120" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
+<circle cx="571.87" cy="161.16" r="4" fill="#2ea043"/>
+</g>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 1:最も近い物までの距離 d = 195 → それだけ進む。隙間の比 k·d/t = 195.33（最小 1.00）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.1330;0.1333;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 2:最も近い物までの距離 d = 17 → それだけ進む。隙間の比 k·d/t = 0.67（最小 0.67）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1330;0.1333;0.1923;0.1926;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 3:最も近い物までの距離 d = 9 → それだけ進む。隙間の比 k·d/t = 0.31（最小 0.31）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1923;0.1926;0.2516;0.2519;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 4:最も近い物までの距離 d = 6 → それだけ進む。隙間の比 k·d/t = 0.22（最小 0.22）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2516;0.2519;0.3108;0.3111;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 5:最も近い物までの距離 d = 5 → それだけ進む。隙間の比 k·d/t = 0.19（最小 0.19）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3108;0.3111;0.3701;0.3704;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 6:最も近い物までの距離 d = 6 → それだけ進む。隙間の比 k·d/t = 0.18（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3701;0.3704;0.4293;0.4296;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 7:最も近い物までの距離 d = 6 → それだけ進む。隙間の比 k·d/t = 0.21（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4293;0.4296;0.4886;0.4889;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 8:最も近い物までの距離 d = 8 → それだけ進む。隙間の比 k·d/t = 0.26（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4886;0.4889;0.5479;0.5481;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 9:最も近い物までの距離 d = 12 → それだけ進む。隙間の比 k·d/t = 0.36（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5479;0.5481;0.6071;0.6074;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 10:最も近い物までの距離 d = 19 → それだけ進む。隙間の比 k·d/t = 0.55（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6071;0.6074;0.6664;0.6667;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 11:最も近い物までの距離 d = 32 → それだけ進む。隙間の比 k·d/t = 0.89（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6664;0.6667;0.7256;0.7259;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 12:最も近い物までの距離 d = 60 → それだけ進む。隙間の比 k·d/t = 1.48（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7256;0.7259;0.7849;0.7852;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 13:最も近い物までの距離 d = 116 → それだけ進む。隙間の比 k·d/t = 2.41（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7849;0.7852;0.8441;0.8444;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 14:最も近い物までの距離 d = 230 → それだけ進む。隙間の比 k·d/t = 3.67（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.8441;0.8444;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="390" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d" opacity="0">→ 影の明るさ = 0.18（最も物体に近づいた所の比で決まる）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.9034;0.9037;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="410" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">物体のそばを通るほど、比が小さくなって濃い影。遠ければ 1（影なし）。</text>
+</svg>
+
+<!-- fig:sdf-soft-shadow:end -->
+
 ## ソフト シャドウの仕組み
 
 **スフィア トレーシングの途中**で、**レイがどれだけ物に近づいたか**を、記録します。**ぎりぎりをかすめたレイ**は、**半影の領域**にあります。

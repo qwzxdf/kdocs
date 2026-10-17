@@ -26,6 +26,47 @@ tags:
 | **高さ方向にも** | **床・腰・頭**の**数段** |
 | **自動配置** | **格子を自動生成**し、**幾何の内側のプローブを、除外・補完** |
 
+<!-- fig:probe-light-leak:begin -->
+
+<svg class="fig illust motion" data-fig="probe-light-leak" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-probe-light-leak" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ライト リーク:壁の向こうのプローブが、混ざってしまう</text>
+<text x="40" y="68" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d">可視性なし（そのまま補間）</text>
+<rect x="40" y="90" width="330" height="220" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="202" y="90" width="10" height="220" fill="#475569"/>
+<text x="130" y="108" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">暗い部屋</text>
+<text x="290" y="108" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">明るい部屋</text>
+<rect x="40" y="90" width="162" height="220" fill="#0f172a" fill-opacity="0.22"/>
+<circle cx="80" cy="150" r="11" fill="#5a5a5a" stroke="#1f2937" stroke-width="2"/>
+<circle cx="80" cy="260" r="11" fill="#5a5a5a" stroke="#1f2937" stroke-width="2"/>
+<circle cx="330" cy="150" r="11" fill="#f3f3f3" stroke="#1f2937" stroke-width="2"/>
+<circle cx="330" cy="260" r="11" fill="#f3f3f3" stroke="#1f2937" stroke-width="2"/>
+<circle cx="160" cy="200" r="9" fill="#ffffff" stroke="#1f2937" stroke-width="3"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.1440;0.2080;0.2720;0.3360;0.4000;0.4640;0.5280;0.5920;0.6560;0.7200;1.0000" values="160;160;100;109;118;127;136;145;154;163;172;181;190;190"/></circle>
+<rect x="130" y="330" width="150" height="30" fill="#888888" stroke="#94a3b8" stroke-width="1.5"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.1440;0.2080;0.2720;0.3360;0.4000;0.4640;0.5280;0.5920;0.6560;0.7200;1.0000" values="#888888;#888888;#8a8a8a;#8f8f8f;#949494;#989898;#9d9d9d;#a1a1a1;#a5a5a5;#a9a9a9;#adadad;#b1b1b1;#b4b4b4;#b4b4b4"/></rect>
+<text x="205" y="352" text-anchor="start" style="font-size:1px;font-weight:700;fill:#ffffff">→</text>
+<text x="60" y="352" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">結果:</text>
+<text x="400" y="68" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043">可視性あり（壁の向こうは除く）</text>
+<rect x="400" y="90" width="330" height="220" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="562" y="90" width="10" height="220" fill="#475569"/>
+<text x="490" y="108" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">暗い部屋</text>
+<text x="650" y="108" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">明るい部屋</text>
+<rect x="400" y="90" width="162" height="220" fill="#0f172a" fill-opacity="0.22"/>
+<circle cx="440" cy="150" r="11" fill="#5a5a5a" stroke="#1f2937" stroke-width="2"/>
+<circle cx="440" cy="260" r="11" fill="#5a5a5a" stroke="#1f2937" stroke-width="2"/>
+<circle cx="690" cy="150" r="11" fill="#f3f3f3" stroke="#1f2937" stroke-width="2"/>
+<circle cx="690" cy="260" r="11" fill="#f3f3f3" stroke="#1f2937" stroke-width="2"/>
+<circle cx="520" cy="200" r="9" fill="#ffffff" stroke="#1f2937" stroke-width="3"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.1440;0.2080;0.2720;0.3360;0.4000;0.4640;0.5280;0.5920;0.6560;0.7200;1.0000" values="520;520;460;469;478;487;496;505;514;523;532;541;550;550"/></circle>
+<rect x="490" y="330" width="150" height="30" fill="#888888" stroke="#94a3b8" stroke-width="1.5"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.1440;0.2080;0.2720;0.3360;0.4000;0.4640;0.5280;0.5920;0.6560;0.7200;1.0000" values="#888888;#888888;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a"/></rect>
+<text x="565" y="352" text-anchor="start" style="font-size:1px;font-weight:700;fill:#ffffff">→</text>
+<text x="420" y="352" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">結果:</text>
+<text x="40" y="386" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">暗い部屋の中の点を、壁へ近づける<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="386" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">左:壁の向こうの明るいプローブが混ざり、暗い部屋が明るくなる（漏れ）。右:壁越しは重み 0 → 暗いまま<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:probe-light-leak:end -->
+
 ### ライト リーク（壁越しの漏れ）
 
 **プローブ間の補間**は、**壁の存在を知らない**ので、**壁の向こう側のプローブの光**が、**こちら側に漏れる**ことがあります。

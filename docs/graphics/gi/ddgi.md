@@ -16,6 +16,58 @@ tags:
     - <strong>静的 ＋ 動的</strong>の<strong>両方に対応</strong>。<strong>低周波の拡散 GI</strong>が対象。
     - 必要：<strong>レイトレース（DXR）</strong>。<strong>コストは画素数でなく、プローブ数に比例</strong>。
 
+<!-- fig:ddgi-probe-rays:begin -->
+
+<svg class="fig illust motion" data-fig="ddgi-probe-rays" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-ddgi-probe-rays" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">DDGI:プローブからレイを飛ばし、結果を少しずつ混ぜ込む</text>
+<rect x="40" y="80" width="420" height="250" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="40" y="80" width="420" height="12" fill="#94a3b8"/>
+<rect x="40" y="318" width="420" height="12" fill="#94a3b8"/>
+<rect x="448" y="80" width="12" height="250" fill="#e5484d"/>
+<rect x="40" y="80" width="12" height="250" fill="#2ea043"/>
+<rect x="230" y="260" width="70" height="58" fill="#cbd5e1" stroke="#64748b" stroke-width="1.5"/>
+<circle cx="250" cy="190" r="10" fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
+<text x="264" y="178" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">プローブ</text>
+<line x1="250" y1="190" x2="448" y2="150" stroke="#e5484d" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="448" cy="150" r="6" fill="#e5484d" stroke="#1f2937" stroke-width="1.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></circle>
+<line x1="250" y1="190" x2="448" y2="230" stroke="#e5484d" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1170;0.1172;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="448" cy="230" r="6" fill="#e5484d" stroke="#1f2937" stroke-width="1.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1170;0.1172;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></circle>
+<line x1="250" y1="190" x2="52" y2="140" stroke="#2ea043" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1652;0.1655;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="52" cy="140" r="6" fill="#2ea043" stroke="#1f2937" stroke-width="1.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1652;0.1655;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></circle>
+<line x1="250" y1="190" x2="52" y2="240" stroke="#2ea043" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2135;0.2138;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="52" cy="240" r="6" fill="#2ea043" stroke="#1f2937" stroke-width="1.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2135;0.2138;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></circle>
+<line x1="250" y1="190" x2="330" y2="92" stroke="#94a3b8" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2618;0.2621;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="330" cy="92" r="6" fill="#94a3b8" stroke="#1f2937" stroke-width="1.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2618;0.2621;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></circle>
+<line x1="250" y1="190" x2="160" y2="92" stroke="#94a3b8" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3101;0.3103;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="160" cy="92" r="6" fill="#94a3b8" stroke="#1f2937" stroke-width="1.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3101;0.3103;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></circle>
+<line x1="250" y1="190" x2="265" y2="260" stroke="#cbd5e1" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3583;0.3586;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="265" cy="260" r="6" fill="#cbd5e1" stroke="#1f2937" stroke-width="1.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3583;0.3586;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></circle>
+<line x1="250" y1="190" x2="215" y2="318" stroke="#94a3b8" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4066;0.4069;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="215" cy="318" r="6" fill="#94a3b8" stroke="#1f2937" stroke-width="1.5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4066;0.4069;0.5583;0.5586;1.0000" values="0;0;1;1;0;0"/></circle>
+<rect x="520" y="100" width="220" height="170" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="575.0" y1="100" x2="575.0" y2="270" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="520" y1="142.5" x2="740" y2="142.5" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="630.0" y1="100" x2="630.0" y2="270" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="520" y1="185.0" x2="740" y2="185.0" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="685.0" y1="100" x2="685.0" y2="270" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="520" y1="227.5" x2="740" y2="227.5" stroke="#e2e8f0" stroke-width="1"/>
+<text x="740" y="290" text-anchor="end" style="font-size:12px;font-weight:500;fill:#64748b">フレーム</text>
+<text x="520" y="92" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">プローブの値</text>
+<line x1="520" y1="134.0" x2="740" y2="134.0" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="740" y="128.0" text-anchor="end" style="font-size:11px;font-weight:700;fill:#64748b">今のフレームの結果</text>
+<path d="M520.0,236.0 L538.33,215.6 L556.67,199.28 L575.0,186.22 L593.33,175.78 L611.67,167.42 L630.0,160.74 L648.33,155.39 L666.67,151.11 L685.0,147.69 L703.33,144.95 L721.67,142.76 L740.0,141.01" fill="none" stroke="#2ea043" stroke-width="4" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4963;0.4966;1.0000" values="0;0;1;1"/></path>
+<circle cx="520.0" cy="236.0" r="6" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4963;0.4966;1.0000" values="0;0;1;1"/><animate attributeName="cx" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4966;0.5276;0.5586;0.5897;0.6207;0.6517;0.6828;0.7138;0.7448;0.7759;0.8069;0.8379;0.8690;1.0000" values="520;520;538.33;556.67;575;593.33;611.67;630;648.33;666.67;685;703.33;721.67;740;740"/><animate attributeName="cy" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4966;0.5276;0.5586;0.5897;0.6207;0.6517;0.6828;0.7138;0.7448;0.7759;0.8069;0.8379;0.8690;1.0000" values="236;236;215.6;199.28;186.22;175.78;167.42;160.74;155.39;151.11;147.69;144.95;142.76;141.01;141.01"/></circle>
+<text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">プローブから、ランダムな方向へ<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイが当たった所の色（明るさ・色）を集める<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.4963;0.4966;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">集めた結果を、前フレームの値と混ぜる（ヒステリシス）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4963;0.4966;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="370" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">赤い壁・緑の壁の色が、プローブに入る。毎フレーム少しずつ混ぜるので、ちらつかず、光の変化にも追従する。</text>
+</svg>
+
+<!-- fig:ddgi-probe-rays:end -->
+
 ## 全体の流れ
 
 | 手順 | 内容 |
