@@ -2,6 +2,7 @@ import io
 import os
 import posixpath
 import re
+import shutil
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -95,14 +96,58 @@ def Render(page, sections, tags, old_dir="", new_dir="", default_refs=None):
     return "\n".join(out)
 
 
+def AddRating(key, rate):
+    if rate is None:
+        return
+    path = os.path.join(ROOT, "ratings.yml")
+    text = io.open(path, encoding="utf-8").read()
+    if re.search(r"^%s:" % re.escape(key), text, re.M):
+        return
+    perf, quality = (list(rate) + [None, None])[:2]
+    parts = []
+    if perf:
+        parts.append("perf: %d" % perf)
+    if quality:
+        parts.append("quality: %d" % quality)
+    if not text.endswith("\n"):
+        text += "\n"
+    io.open(path, "w", encoding="utf-8", newline="").write(text + "%s: {%s}\n" % (key, ", ".join(parts)))
+
+
+def DropRating(key):
+    path = os.path.join(ROOT, "ratings.yml")
+    lines = io.open(path, encoding="utf-8").read().split("\n")
+    keep = [l for l in lines if not l.startswith(key + ":")]
+    if len(keep) != len(lines):
+        io.open(path, "w", encoding="utf-8", newline="").write("\n".join(keep))
+
+
+def FixParentPages(spec):
+    parent = os.path.join(DOCS, posixpath.dirname(spec["folder"]), ".pages")
+    if not os.path.exists(parent):
+        return
+    name = posixpath.basename(spec["folder"])
+    text = io.open(parent, encoding="utf-8", newline="").read()
+    label = spec["pages"][0]["title"]
+    new = re.sub(r"^(\s*-\s*)%s\.md[ \t]*(\r?)$" % re.escape(name), lambda m: "%s%s: %s%s" % (m.group(1), label, name, m.group(2)), text, flags=re.M)
+    if new != text:
+        io.open(parent, "w", encoding="utf-8", newline="").write(new)
+
+
+def Table(rows, head=("ページ", "内容")):
+    out = ["## ページ一覧", "", "| %s | %s |" % head, "| --- | --- |"]
+    out += ["| [%s](%s) | %s |" % (t, f, d) for t, f, d in rows]
+    return "\n".join(out)
+
+
+ARCHIVE = os.path.join(os.environ.get("TEMP", "/tmp"), "kdocs_split_archive")
+
+
 def Split(spec):
     source = os.path.join(DOCS, spec["source"])
+    archive = os.path.join(ARCHIVE, spec["source"].replace("/", "__"))
     if not os.path.exists(source):
-        for fallback in ("C:/Users/mega/AppData/Local/Temp/old_sh", "C:/Users/mega/AppData/Local/Temp/old_ao", "C:/Users/mega/AppData/Local/Temp/old_split"):
-            alt = os.path.join(fallback, os.path.basename(spec["source"]))
-            if os.path.exists(alt):
-                source = alt
-                break
+        source = archive
     sections = ReadSections(source)
     folder = os.path.join(DOCS, spec["folder"])
     os.makedirs(folder, exist_ok=True)
@@ -111,20 +156,26 @@ def Split(spec):
         text = Render(page, sections, spec.get("tags", ["描画"]), posixpath.dirname(spec["source"]), spec["folder"], spec.get("refs"))
         io.open(os.path.join(folder, page["file"]), "w", encoding="utf-8", newline="").write(text)
         nav.append("  - %s" % page["file"])
+        AddRating(posixpath.join(spec["folder"], page["file"]), page.get("rate"))
     io.open(os.path.join(folder, ".pages"), "w", encoding="utf-8", newline="").write("\n".join(nav) + "\n")
+    FixParentPages(spec)
+    DropRating(spec["source"])
+    if os.path.exists(os.path.join(DOCS, spec["source"])):
+        os.makedirs(ARCHIVE, exist_ok=True)
+        shutil.move(os.path.join(DOCS, spec["source"]), archive)
     return [p["file"] for p in spec["pages"]]
 
 
 REFS_DEFAULT = []
 
 
-def Page(file, title, intro, tips, sections, extra="", mistakes=None, summary=None, refs=None, related=None):
-    return dict(file=file, title=title, intro=intro, tips=tips, sections=sections, extra=extra,
+def Page(file, title, intro, tips, sections, extra="", mistakes=None, summary=None, refs=None, related=None, rate=None):
+    return dict(rate=rate, file=file, title=title, intro=intro, tips=tips, sections=sections, extra=extra,
                 mistakes=mistakes or [], summary=summary or [], refs=refs or REFS_DEFAULT, related=related or [])
 
 
 def LoadSpec(path):
-    ns = {"Page": Page}
+    ns = {"Page": Page, "Table": Table}
     exec(compile(io.open(path, encoding="utf-8").read(), path, "exec"), ns)
     specs = ns["SPECS"]
     for spec in specs:

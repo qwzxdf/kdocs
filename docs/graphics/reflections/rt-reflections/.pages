@@ -1,0 +1,6 @@
+nav:
+  - index.md
+  - ray-generation.md
+  - hit-shading.md
+  - hybrid.md
+  - denoise.md

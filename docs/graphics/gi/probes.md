@@ -115,7 +115,7 @@ float3 indirect_diffuse = albedo * irradiance;
 | **用途** | **拡散反射** | **鏡面反射** |
 | **密度** | **やや密** | <strong>疎（部屋ごと）</strong> |
 
-**反射プローブ**は、[反射プローブ](../reflections/probes.md)で説明しています。**両方を置いて**、**拡散と鏡面の間接光**をそれぞれ賄います。
+**反射プローブ**は、[反射プローブ](../reflections/probes/index.md)で説明しています。**両方を置いて**、**拡散と鏡面の間接光**をそれぞれ賄います。
 
 ## コストと利点
 
@@ -170,4 +170,4 @@ float3 indirect_diffuse = albedo * irradiance;
 - [GI の理論](theory.md)
 - [ライトマップ](lightmaps.md)
 - [DDGI](ddgi.md)
-- [反射プローブ](../reflections/probes.md)
+- [反射プローブ](../reflections/probes/index.md)

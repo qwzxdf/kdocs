@@ -6,7 +6,7 @@ tags:
 
 # 確率的 SSR
 
-[SSR の基礎](ssr-basics.md)と [Hi-Z SSR](ssr-hiz.md)は、**反射方向 R の、1 本のレイ**を追いました。これは**完全な鏡**の反射です。**粗い面**の反射は、**R の周りのさまざまな方向の景色を、BRDF の重みで平均**したものでした。**確率的 SSR**（Stochastic SSR）は、**BRDF の分布に従って、画素ごとにランダムな方向のレイ**を 1 本だけ飛ばし、**近くの画素のレイの結果を再利用し、時間方向にも平均**して、**ぼけた反射を物理的に正しく**得ます。2015 年に Frostbite の Stachowiak が発表した方式が、現在の SSR の標準的な作り方です。
+[SSR の基礎](ssr-basics/index.md)と [Hi-Z SSR](ssr-hiz.md)は、**反射方向 R の、1 本のレイ**を追いました。これは**完全な鏡**の反射です。**粗い面**の反射は、**R の周りのさまざまな方向の景色を、BRDF の重みで平均**したものでした。**確率的 SSR**（Stochastic SSR）は、**BRDF の分布に従って、画素ごとにランダムな方向のレイ**を 1 本だけ飛ばし、**近くの画素のレイの結果を再利用し、時間方向にも平均**して、**ぼけた反射を物理的に正しく**得ます。2015 年に Frostbite の Stachowiak が発表した方式が、現在の SSR の標準的な作り方です。
 
 !!! tip "ポイント"
     - 粗い反射 ＝ <strong>BRDF（GGX）の山の中の様々な方向の景色の平均</strong>。<strong>モンテカルロ法</strong>で近似する。
@@ -200,7 +200,7 @@ float4 ResolveSpatial(int2 pixel) {
 
 ## BRDF の積分を掛ける
 
-確率的 SSR の出力は、<strong>「その方向の景色の（重み付き）平均」</strong>です。**反射の最終的な明るさ**には、**BRDF の積分**（Split-Sum の第 2 項）を掛けます（[プローブ](probes.md)）。
+確率的 SSR の出力は、<strong>「その方向の景色の（重み付き）平均」</strong>です。**反射の最終的な明るさ**には、**BRDF の積分**（Split-Sum の第 2 項）を掛けます（[プローブ](probes/index.md)）。
 
 ```hlsl
 float2 brdf = brdf_lut.Sample(linear_sampler, float2(n_dot_v, roughness)).rg;
@@ -265,6 +265,6 @@ float3 specular = ssr_color * (F0 * brdf.x + brdf.y);
 - [反射](index.md)
 - [Hi-Z SSR](ssr-hiz.md)
 - [SSR のフォールバックと合成](ssr-fallback.md)
-- [レイトレース反射](rt-reflections.md)
+- [レイトレース反射](rt-reflections/index.md)
 - [PBR](../../3d/pbr.md)
 - [AO のフィルタ](../ao/filtering/index.md)

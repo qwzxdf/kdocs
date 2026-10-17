@@ -1,0 +1,6 @@
+nav:
+  - index.md
+  - prefilter.md
+  - parallax.md
+  - blending.md
+  - combine-ssr.md

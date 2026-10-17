@@ -87,7 +87,7 @@ float3 specular = reflection * (F0 * brdf.x + brdf.y) * SpecularOcclusion(...);
 | --- | --- | --- |
 | **1** | **平面反射**（[平面反射](planar.md)） | 水面・鏡など、**平面のみ**。最も正確 |
 | **2** | **SSR**（画面内の当たり） | 画面に映る物。**信頼度でフェード** |
-| **3** | **ローカル プローブ**（[プローブ](probes.md)） | **部屋・エリア**ごと。視差補正 |
+| **3** | **ローカル プローブ**（[プローブ](probes/index.md)） | **部屋・エリア**ごと。視差補正 |
 | **4** | **グローバル プローブ**（空・遠景） | シーン全体の最後の砦 |
 
 <strong>実装は、「下のものから順に混ぜる」</strong>形にします。
@@ -187,7 +187,7 @@ color = lerp(color, planar_color, planar_weight);
 ## 関連ページ
 
 - [反射](index.md)
-- [リフレクション プローブ](probes.md)
-- [SSR の基礎](ssr-basics.md)
+- [リフレクション プローブ](probes/index.md)
+- [SSR の基礎](ssr-basics/index.md)
 - [確率的 SSR](ssr-stochastic.md)
 - [GTAO（スペキュラ遮蔽）](../ao/gtao.md)

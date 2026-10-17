@@ -811,19 +811,19 @@
   link: graphics/ao/filtering/index.md
 - terms: [SSR, スクリーン空間反射, Screen Space Reflection]
   text: 画面に映っているものだけで、反射を計算する方法。画面外は映らない。
-  link: graphics/reflections/ssr-basics.md
+  link: graphics/reflections/ssr-basics/index.md
 - terms: [平面反射, Planar Reflection, planar reflection]
   text: 反射面でカメラを鏡映して、シーンを描き直し、反射として使う方法。正確だが、平面だけで重い。
   link: graphics/reflections/planar.md
 - terms: [リフレクションプローブ, リフレクション プローブ, reflection probe, 反射プローブ]
   text: ある点から見た全方向の景色を、キューブマップに撮っておき、反射に使う方法。
-  link: graphics/reflections/probes.md
+  link: graphics/reflections/probes/index.md
 - terms: [視差補正, parallax correction, ボックス投影, box projection]
   text: プローブの位置と、反射する面の位置の、ずれを補正する処理。範囲を箱で近似して引き直す。
-  link: graphics/reflections/probes.md
+  link: graphics/reflections/probes/parallax.md
 - terms: [Split-Sum, スプリットサム, BRDF LUT]
   text: 鏡面の積分を、事前フィルタした環境マップと、BRDF の積分（LUT）の 2 つに分けて近似する方法。
-  link: graphics/reflections/probes.md
+  link: graphics/reflections/probes/prefilter.md
 - terms: [GGX, Trowbridge-Reitz]
   text: 微小な面の向きの分布を表す、標準的な式。粗さで、ハイライトの形が決まる。
   link: graphics/reflections/ssr-stochastic.md
@@ -841,10 +841,10 @@
   link: graphics/reflections/ssr-hiz.md
 - terms: [レイトレース反射, RT 反射, レイトレ反射]
   text: シーン全体にレイを飛ばして求める反射。画面外・裏側も映る。
-  link: graphics/reflections/rt-reflections.md
+  link: graphics/reflections/rt-reflections/index.md
 - terms: [デノイザー, デノイズ, denoiser, denoise]
   text: レイトレなどのノイズだらけの結果を、空間と時間の平均で滑らかにする処理。
-  link: graphics/reflections/rt-reflections.md
+  link: graphics/reflections/rt-reflections/denoise.md
 - terms: [バイラテラル, bilateral, アップサンプル, upsample]
   text: 深度などの違いを考慮して、境界をまたいで混ぜないようにするぼかし・拡大。縮小バッファの拡大に使う。
   link: rendering/low-res-effects.md
@@ -1799,7 +1799,7 @@
   link: 3d/pbr.md
 - terms: [レイトレ]
   text: 光線（レイ）を飛ばして、当たった物を調べる描画方式。
-  link: graphics/reflections/rt-reflections.md
+  link: graphics/reflections/rt-reflections/index.md
 - terms: [コンピュート]
   text: 描画とは別に、GPU で汎用の計算を行うシェーダー。
   link: rendering/light-culling.md
@@ -1835,7 +1835,7 @@
   link: graphics/postprocess/tonemapping/index.md
 - terms: [シェーディング, Shading]
   text: 面の明るさや色を、光と素材から計算する処理。
-  link: graphics/reflections/rt-reflections.md
+  link: graphics/reflections/rt-reflections/index.md
 - terms: [アーティファクト, Artifact]
   text: 処理の副作用で出る、本来ない見た目の乱れ。
   link: graphics/ao/artifacts/index.md
@@ -1973,7 +1973,7 @@
   link: graphics/postprocess/bloom/karis-average.md
 - terms: [リフィット, Refit]
   text: 加速構造の形はそのままに、境界の大きさだけを更新すること。
-  link: graphics/reflections/rt-reflections.md
+  link: graphics/reflections/rt-reflections/index.md
 - terms: [サーフェス, Surface]
   text: 物体の表面。
   link: graphics/gi/rt-gi.md
@@ -2168,7 +2168,7 @@
   link: optimize/frame-budget.md
 - terms: [キュー, Queue]
   text: 先に入れた物から取り出す、順番待ちの列。
-  link: graphics/reflections/probes.md
+  link: graphics/reflections/probes/index.md
 - terms: [カウンタ, Counter]
   text: 回数を数える変数。
   link: rendering/gpu-driven-dx12/culling.md
@@ -2384,7 +2384,7 @@
   link: graphics/postprocess/antialiasing/smaa.md
 - terms: [DDA, Digital Differential Analyzer]
   text: 格子上を、1 マスずつ線を進めるアルゴリズム。
-  link: graphics/reflections/ssr-basics.md
+  link: graphics/reflections/ssr-basics/index.md
 - terms: [BC]
   text: テクスチャを、小さなブロック単位で圧縮する形式。
   link: rendering/texture-streaming.md
@@ -2510,7 +2510,7 @@
   link: graphics/postprocess/antialiasing/index.md
 - terms: [SVGF]
   text: 分散を使って、時間と空間でノイズを減らすフィルタ。
-  link: graphics/reflections/rt-reflections.md
+  link: graphics/reflections/rt-reflections/index.md
 - terms: [ReBLUR]
   text: NVIDIA NRD の、拡散・鏡面のデノイザ。
   link: graphics/gi/rt-gi.md
@@ -2957,7 +2957,7 @@
   link: 3d/pbr.md
 - terms: [フェード, Fade]
   text: だんだん消す（現れる）こと。
-  link: graphics/reflections/ssr-basics.md
+  link: graphics/reflections/ssr-basics/index.md
 - terms: [バウンス, Bounce]
   text: 光や物が、跳ね返ること。
   link: graphics/ao/gtao.md

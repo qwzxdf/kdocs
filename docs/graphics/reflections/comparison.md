@@ -136,7 +136,7 @@ tags:
 
 - [反射](index.md)
 - [平面反射](planar.md)
-- [リフレクション プローブ](probes.md)
+- [リフレクション プローブ](probes/index.md)
 - [確率的 SSR](ssr-stochastic.md)
 - [SSR のフォールバックと合成](ssr-fallback.md)
-- [レイトレース反射](rt-reflections.md)
+- [レイトレース反射](rt-reflections/index.md)

@@ -98,7 +98,7 @@ float3 irradiance = basis0 * w.x + basis1 * w.y + basis2 * w.z;
 
 ## 鏡面は別
 
-**ライトマップは、拡散の間接光のみ**です。**鏡面反射**は**反射プローブ**（[反射プローブ](../reflections/probes.md)）が**担当**します。
+**ライトマップは、拡散の間接光のみ**です。**鏡面反射**は**反射プローブ**（[反射プローブ](../reflections/probes/index.md)）が**担当**します。
 
 ## 動く物体との併用
 
@@ -168,4 +168,4 @@ float3 irradiance = basis0 * w.x + basis1 * w.y + basis2 * w.z;
 - [間接光（GI）](index.md)
 - [GI の理論](theory.md)
 - [ライト プローブ](probes.md)
-- [反射プローブ](../reflections/probes.md)
+- [反射プローブ](../reflections/probes/index.md)

@@ -31,7 +31,7 @@ tags:
 | 手順 | 内容 |
 | --- | --- |
 | **① サンプル方向の生成** | **画素の法線**を中心とする**半球**で、**余弦重み付き**のランダムな方向 |
-| **② 画面空間のレイマーチ** | **深度バッファ**上で**レイを進める**（[SSR](../reflections/ssr-basics.md) や [Hi-Z](../reflections/ssr-hiz.md) と同じ） |
+| **② 画面空間のレイマーチ** | **深度バッファ**上で**レイを進める**（[SSR](../reflections/ssr-basics/index.md) や [Hi-Z](../reflections/ssr-hiz.md) と同じ） |
 | **③ ヒット判定** | **レイの深度が深度バッファの奥に入った**ら、**ヒット** |
 | **④ 色を読む** | **ヒット画素の出射光**（**前フレームの最終色**）を**読む** |
 | **⑤ 平均** | **全レイの色を平均**して、**間接光** |
@@ -56,7 +56,7 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 | --- | --- |
 | **`prev_frame_color`** | **前フレームの最終的な画像**（ライティング済み・ポストプロセス前）。**間接光も含んでいる**ので、**多バウンス**になる |
 | **余弦重み付きサンプル** | **`(n·ω)/pdf` が定数**になり、**単純な平均** |
-| **`ScreenSpaceTrace`** | **画面空間のレイマーチ**（[SSR](../reflections/ssr-basics.md)・[Hi-Z トレース](../reflections/ssr-hiz.md)） |
+| **`ScreenSpaceTrace`** | **画面空間のレイマーチ**（[SSR](../reflections/ssr-basics/index.md)・[Hi-Z トレース](../reflections/ssr-hiz.md)） |
 
 ## 多バウンスの得かた
 
@@ -148,6 +148,6 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 - [間接光（GI）](index.md)
 - [GI の理論](theory.md)
 - [SSAO](../ao/ssao-hemisphere.md)
-- [SSR の基礎](../reflections/ssr-basics.md)
+- [SSR の基礎](../reflections/ssr-basics/index.md)
 - [Hi-Z トレース](../reflections/ssr-hiz.md)
 - [AO のフィルタ](../ao/filtering/index.md)

@@ -174,4 +174,4 @@ float Visibility(float2 moments, float dist) {
 - [ライト プローブ](probes.md)
 - [レイトレ GI](rt-gi.md)
 - [VSM（チェビシェフ）](../shadows/vsm/index.md)
-- [RT 反射](../reflections/rt-reflections.md)
+- [RT 反射](../reflections/rt-reflections/index.md)

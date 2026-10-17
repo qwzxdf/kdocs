@@ -183,4 +183,4 @@ float3 PathTraceGI(float3 pos, float3 normal, uint2 pixel) {
 - [SSGI](ssgi.md)
 - [DDGI](ddgi.md)
 - [距離場の影](../shadows/sdf-shadows.md)
-- [RT 反射](../reflections/rt-reflections.md)
+- [RT 反射](../reflections/rt-reflections/index.md)

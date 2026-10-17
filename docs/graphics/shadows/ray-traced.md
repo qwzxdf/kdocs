@@ -182,5 +182,5 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 
 - [影](index.md)
 - [PCSS](pcss.md)
-- [RT 反射](../reflections/rt-reflections.md)
+- [RT 反射](../reflections/rt-reflections/index.md)
 - [距離場の影](sdf-shadows.md)

@@ -261,7 +261,7 @@ float4 PSGlass(VsOutput input) : SV_Target {
 | **背景のコピー** | **フル解像度の HDR カラー 1 枚**（**帯域**） |
 | **半透明の重なり** | **コピーは不透明のみ**。**重なるガラスは、別途** |
 | **画面空間の限界** | **画面外・裏側の物は、屈折で写らない** |
-| **レイトレの屈折** | **正確**（画面外・多重屈折も OK）。**HW RT が必要**（[RT 反射](../reflections/rt-reflections.md)） |
+| **レイトレの屈折** | **正確**（画面外・多重屈折も OK）。**HW RT が必要**（[RT 反射](../reflections/rt-reflections/index.md)） |
 
 ## よくあるミス
 

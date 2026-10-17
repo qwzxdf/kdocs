@@ -14,7 +14,7 @@ tags:
     - <strong>距離は短い</strong>（数十 cm〜1 m）。<strong>シャドウ マップの接触部の欠けを補う</strong>のが目的。
     - 欠点：<strong>見えている面しか、知らない</strong>（画面外・裏側は遮蔽物にならない）。<strong>厚み</strong>の仮定。
     - <strong>画素ごとにジッター</strong>して、<strong>サンプル数を減らし</strong>、ノイズを<strong>時間蓄積</strong>で消す。
-    - <strong>[SSR](../reflections/ssr-basics.md)・[SSAO](../ao/ssao-hemisphere.md) と同じ「画面空間」の方式</strong>で<strong>同じ限界</strong>を持つ。
+    - <strong>[SSR](../reflections/ssr-basics/index.md)・[SSAO](../ao/ssao-hemisphere.md) と同じ「画面空間」の方式</strong>で<strong>同じ限界</strong>を持つ。
 
 ## なぜ接触部で影が欠けるのか
 
@@ -35,7 +35,7 @@ tags:
 | 手順 | 内容 |
 | --- | --- |
 | **① レイの端点** | `P` と、`P + L · max_distance`（ビュー空間） |
-| **② 画面に投影** | 両端をスクリーン座標へ（[SSR](../reflections/ssr-basics.md)と同じ） |
+| **② 画面に投影** | 両端をスクリーン座標へ（[SSR](../reflections/ssr-basics/index.md)と同じ） |
 | **③ ステップごとに比べる** | 各サンプルで**レイの深度 ＞ 深度バッファ** ならば、遮蔽 |
 | **④ 厚みを考慮** | **深度の差が大きすぎる**場合は、**遠くの面の手前を通っただけ**として、無視 |
 
@@ -65,7 +65,7 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 
 | 点 | 説明 |
 | --- | --- |
-| **`1/z` で補間** | **透視投影では、1/z が画面上で線形**（[SSR](../reflections/ssr-basics.md)） |
+| **`1/z` で補間** | **透視投影では、1/z が画面上で線形**（[SSR](../reflections/ssr-basics/index.md)） |
 | **`jitter`** | **画素ごとのステップ位置のずらし**（IGN）。**ステップ数を少なく**しても、**縞がノイズに変わる** |
 | **`kBias`** | **自己遮蔽（面自身）を避ける**、小さな許容値 |
 | **`kThickness`** | **厚み**。**これ以上、遮蔽物の奥にある**ものは、**遮蔽物ではない**として扱う |
@@ -156,5 +156,5 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 
 - [影](index.md)
 - [バイアス](bias/index.md)
-- [SSR（画面空間の反射）](../reflections/ssr-basics.md)
+- [SSR（画面空間の反射）](../reflections/ssr-basics/index.md)
 - [SSAO](../ao/ssao-hemisphere.md)
