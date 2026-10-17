@@ -346,3 +346,25 @@
 .md-typeset a.autolink code {
   color: var(--md-typeset-a-color);
 }
+
+.md-typeset h2 {
+  margin-top: 2.2em;
+  padding: 0.35em 0.6em;
+  font-weight: 700;
+  background: var(--md-code-bg-color);
+  border-bottom: 3px solid var(--md-primary-fg-color);
+  border-radius: 4px 4px 0 0;
+}
+
+.md-typeset h3 {
+  margin-top: 1.8em;
+  padding: 0.2em 0 0.2em 0.6em;
+  font-weight: 700;
+  border-left: 5px solid var(--md-accent-fg-color);
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.md-typeset h4 {
+  padding-left: 0.5em;
+  border-left: 3px solid var(--md-default-fg-color--lighter);
+}
