@@ -38,6 +38,7 @@ class Node:
         self.text = text
         self.children = []
         self.tracks = {}
+        self.discrete = set()
 
     def add(self, tag, text=None, **attrs):
         node = Node(self.scene, tag, {k.replace("_", "-"): v for k, v in attrs.items()}, text)
@@ -78,6 +79,18 @@ class Node:
         track.append((t1, value))
         return self
 
+    def Steps(self, attr, items):
+        attr = attr.replace("_", "-")
+        v0 = self.attrs[attr]
+        track = [(0.0, v0 if isinstance(v0, str) else FormatNumber(v0))]
+        for t, v in items:
+            if t < track[-1][0]:
+                raise ValueError("time goes backwards: %s %s" % (self.tag, attr))
+            track.append((t, v if isinstance(v, str) else FormatNumber(v)))
+        self.tracks[attr] = track
+        self.discrete.add(attr)
+        return self
+
     def Show(self, t0, t1=None):
         self.Set(t0, "opacity", 1)
         if t1 is not None:
@@ -90,6 +103,12 @@ class Node:
             return None
         if t <= track[0][0]:
             return track[0][1]
+        if attr in self.discrete:
+            value = track[0][1]
+            for tt, vv in track:
+                if tt <= t:
+                    value = vv
+            return value
         for i in range(1, len(track)):
             t0, v0 = track[i - 1]
             t1, v1 = track[i]
@@ -123,9 +142,10 @@ class Node:
         anims = []
         for attr, track in self.tracks.items():
             keys = list(track)
+            is_discrete = attr in self.discrete
             if keys[0][0] > 0:
                 keys.insert(0, (0.0, keys[0][1]))
-            if keys[-1][0] < total:
+            if keys[-1][0] < total and not is_discrete:
                 keys.append((total, keys[-1][1]))
             if all(v == keys[0][1] for _, v in keys):
                 continue
@@ -137,12 +157,14 @@ class Node:
                     n = prev + 0.00001
                 times.append(n)
                 prev = n
-            times[-1] = 1.0
-            if len(times) > 1 and times[-2] >= 1.0:
-                times[-2] = 1.0 - 0.00001
+            if not is_discrete:
+                times[-1] = 1.0
+                if len(times) > 1 and times[-2] >= 1.0:
+                    times[-2] = 1.0 - 0.00001
+            mode = ' calcMode="discrete"' if is_discrete else ""
             anims.append(
-                '<animate attributeName="%s" dur="%ss" repeatCount="indefinite" keyTimes="%s" values="%s"/>'
-                % (attr, FormatNumber(total), ";".join("%.5f" % n for n in times), ";".join(v for _, v in keys))
+                '<animate attributeName="%s" dur="%ss" repeatCount="indefinite"%s keyTimes="%s" values="%s"/>'
+                % (attr, FormatNumber(total), mode, ";".join("%.4f" % n for n in times), ";".join(v for _, v in keys))
             )
         inner = "".join(anims) + "".join(c.Render(total) for c in self.children)
         if self.text is not None:
