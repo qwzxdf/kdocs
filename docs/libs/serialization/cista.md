@@ -1,7 +1,7 @@
 ---
 title: cista（バイナリ・ゼロコピー）
 tags:
-  - ゲームエンジン
+  - 外部ライブラリ
   - シリアライズ
 ---
 
@@ -14,14 +14,14 @@ tags:
 `#include <cista/serialization.h>`
 </div>
 
-**cista**（チスタ）は、**読み込みで一切コピーしない（ゼロコピー）** バイナリシリアライザです。普通のシリアライザは、ファイルのバイト列を読んで、`std::string` や `std::vector` を**作り直し**ます（メモリを確保して中身をコピーする）。cista は、保存するときに「**メモリ上の形そのまま**」をバイト列にしておくので、読み込みは**バイト列の先頭をその型のポインタとして見るだけ**です。100 MB のデータでも、**メモリマップ**（ファイルをメモリのように見せる OS の機能）と組み合わせれば、ほぼ一瞬で使い始められます。その代わり、`std::string` や `std::vector` は使えず、**cista 専用のコンテナ**（`cista::offset::string`、`cista::offset::vector` など）でデータを作る必要があります。巨大なワールドデータ、ナビメッシュ、ゲームのアセットのまとめファイルなど、「大きくて、読むだけのデータを、とにかく速く読みたい」ときの最終手段です。
+**cista**（チスタ）は、<strong>読み込みで一切コピーしない（ゼロコピー）</strong> バイナリシリアライザです。普通のシリアライザは、ファイルのバイト列を読んで、`std::string` や `std::vector` を**作り直し**ます（メモリを確保して中身をコピーする）。cista は、保存するときに「**メモリ上の形そのまま**」をバイト列にしておくので、読み込みは**バイト列の先頭をその型のポインタとして見るだけ**です。100 MB のデータでも、**メモリマップ**（ファイルをメモリのように見せる OS の機能）と組み合わせれば、ほぼ一瞬で使い始められます。その代わり、`std::string` や `std::vector` は使えず、**cista 専用のコンテナ**（`cista::offset::string`、`cista::offset::vector` など）でデータを作る必要があります。巨大なワールドデータ、ナビメッシュ、ゲームのアセットのまとめファイルなど、「大きくて、読むだけのデータを、とにかく速く読みたい」ときの最終手段です。
 
-!!! tip "結論"
-    - **巨大で、ロード後は読むだけのデータに使う。** 読み込みは「ポインタとして見るだけ」なので、データが大きいほど他との差が出る。
+!!! tip "ポイント"
+    - <strong>巨大で、ロード後は読むだけのデータに使う。</strong> 読み込みは「ポインタとして見るだけ」なので、データが大きいほど他との差が出る。
     - データは **`cista::offset::string` / `cista::offset::vector` など専用の型**で作る。`std::string` は使えない。
     - 保存は **`cista::serialize<モード>(obj)`**、読み込みは **`cista::deserialize<T, モード>(buffer)`**（`T*` が返る）。
     - 返ったポインタは**バッファの中を指している**。バッファを消すと使えない。
-    - モードには **`WITH_VERSION`**（型のチェック）と **`WITH_INTEGRITY`**（チェックサム）を付けるのが基本。信用できないデータには **`DEEP_CHECK`**。
+    - モードには **`WITH_VERSION`<strong>（型のチェック）と </strong>`WITH_INTEGRITY`<strong>（チェックサム）を付けるのが基本。信用できないデータには </strong>`DEEP_CHECK`**。
     - 普通のセーブデータなら、[cereal](cereal.md) や [zpp_bits](zpp-bits.md) の方が扱いやすい。
 
 !!! info "このページを読む前に"
@@ -41,7 +41,7 @@ cista（ゼロコピー）
                                           ↑ 先頭を Player* として見るだけ
 ```
 
-cista の `cista::offset::vector` は、中身の場所を**ポインタではなく「自分からの距離（オフセット）」** で覚えています。保存するときに、中身を全部 1 つのバイト列の中に並べ、距離を書いておきます。読み込むときは、バイト列がメモリのどこに置かれても、距離で中身を見つけられるので、**何も作り直さずに**そのまま使えます。
+cista の `cista::offset::vector` は、中身の場所を<strong>ポインタではなく「自分からの距離（オフセット）」</strong> で覚えています。保存するときに、中身を全部 1 つのバイト列の中に並べ、距離を書いておきます。読み込むときは、バイト列がメモリのどこに置かれても、距離で中身を見つけられるので、**何も作り直さずに**そのまま使えます。
 
 ```text
 バイト列:
@@ -54,6 +54,34 @@ cista の `cista::offset::vector` は、中身の場所を**ポインタでは�
 ```
 
 ## 導入
+
+### Visual Studio で導入する（最初に読む）
+
+Visual Studio を使っているなら、**この方法が一番簡単**です。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは cista だけの部分を書きます。
+
+=== "vcpkg（おすすめ）"
+
+    1. 初回だけ、Developer PowerShell で `vcpkg integrate install` を実行する（[準備](../../vs/libraries.md#vcpkg)）
+    2. ライブラリを入れる
+
+        ```powershell
+        vcpkg install cista:x64-windows
+        ```
+
+        （マニフェスト モードなら、`vcpkg.json` の `dependencies` に `"cista"` を足す）
+    3. プロジェクトには何も設定せずに、`#include <cista/serialization.h>` と書けば使える
+
+=== "ファイルを置く"
+
+    1. [リリースページ](https://github.com/felixguendling/cista/releases) の **`cista.h`**（全部を 1 ファイルにまとめたもの）を `third_party/cista/` に置く（その場合は `#include "cista.h"` と書く）
+    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\cista` を追加する
+    4. `#include <cista/serialization.h>` と書いてビルドする
+
+!!! note "C++ の設定"
+    C++17 以上が必要です。メモリマップ（`cista::mmap`）は、Windows でもそのまま使えます。
+
+### そのほかの方法（CMake など）
 
 ヘッダオンリーです。C++17 以上が必要です。
 
@@ -620,7 +648,7 @@ hash_t type_hash();
 
 ## 関連ページ
 
-- [シリアライズの概要](index.md)
+- [シリアライズの概要](../../engine/serialization/index.md)
 - [zpp_bits（バイナリ・速さ重視）](zpp-bits.md)
 - [yalantinglibs（struct_pack）](struct-pack.md)
 - [ポインタ](../../basics/pointer.md)

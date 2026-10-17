@@ -14,8 +14,8 @@ tags:
 
 `std::ranges::for_each` は、**範囲のすべての要素に、同じ関数を 1 回ずつ呼ぶ**アルゴリズムです。やっていることは範囲 for と同じなので、普段は範囲 for で十分です。関数を変数として渡したいとき、プロジェクションを使いたいとき、並列実行（`std::execution::par`）したいときに使います。
 
-!!! tip "結論"
-    - **普段は範囲 for でいい。** for_each を使う理由は少ない。
+!!! tip "ポイント"
+    - <strong>普段は範囲 for でいい。</strong> for_each を使う理由は少ない。
     - 先頭 n 個だけなら `for_each_n`。
     - 並列に処理したいなら、`std::for_each(std::execution::par, ...)`（`<execution>`）。
 
@@ -70,6 +70,14 @@ constexpr for_each_result<borrowed_iterator_t<R>, Fun> for_each(R&& r, Fun f, Pr
 | `proj` | プロジェクション | `f` に渡す前の変換 | そのまま |
 
 - 戻り値: `.in`（終わりの位置）と `.fun`（使った関数オブジェクト。状態を持たせていれば結果が取れる）
+
+<div class="anim" data-label="std::ranges::for_each(v, double_it)">
+1 2 3 # v
+*1 2 3 # 1 つずつ関数に渡す
+>2 *2 3 # 1 つ目が書き換わる
+>2 >4 *3 # 2 つ目
+>2 >4 >6 # 全部に適用される
+</div>
 
 ### std::ranges::for_each_n {#for_each_n}
 

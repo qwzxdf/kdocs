@@ -14,7 +14,7 @@ tags:
 
 集合演算のアルゴリズムは、**ソート済みの 2 つの範囲**について、「両方に入っているもの」（共通部分）、「どちらかに入っているもの」（和）、「片方にだけ入っているもの」（差）を求めます。`std::ranges::merge` は 2 つのソート済み範囲を 1 つのソート済み範囲にまとめ、`includes` は片方がもう片方を全部含んでいるかを調べます。**入力は必ずソート済み**である必要があります。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 入力は**ソート済み**（vector なら先に sort、set ならそのまま使える）。
     - 結果は `std::back_inserter(v)` で別の vector に書き込む。
     - 「必要なアイテムを全部持っているか」は `includes`、「共通のタグ」は `set_intersection`。
@@ -93,6 +93,12 @@ set_intersection(R1&& r1, R2&& r2, O result, Comp comp = {}, Proj1 proj1 = {}, P
 
 - 両方に入っている要素を、ソートされた順で書き込みます
 
+<div class="anim" data-label="std::set_intersection(a, b, out)">
+1 3 5 | 3 4 5 # どちらも整列済み
+1 *3 *5 | *3 4 *5 # 両方にあるもの
++3 +5 # 積集合
+</div>
+
 ### std::ranges::set_difference {#set_difference}
 
 ```cpp
@@ -102,6 +108,12 @@ set_difference(R1&& r1, R2&& r2, O result, /* comp, proj1, proj2 */);
 ```
 
 - `r1` にあって `r2` に無い要素を書き込みます
+
+<div class="anim" data-label="std::set_difference(a, b, out)">
+1 3 5 | 3 4 5 # どちらも整列済み
+*1 3 5 | 3 4 5 # a にだけあるもの
++1 # 差集合
+</div>
 
 ### std::ranges::set_union {#set_union}
 
@@ -113,6 +125,12 @@ set_union(R1&& r1, R2&& r2, O result, /* comp, proj1, proj2 */);
 
 - どちらかにある要素を、重複をまとめて書き込みます
 
+<div class="anim" data-label="std::set_union(a, b, out)">
+1 3 5 | 3 4 5 # どちらも整列済み
+1 3 5 | 3 4 5 # 両方にあるものは 1 回だけ
++1 +3 +4 +5 # 和集合
+</div>
+
 ### std::ranges::merge {#merge}
 
 ```cpp
@@ -122,6 +140,12 @@ merge(R1&& r1, R2&& r2, O result, /* comp, proj1, proj2 */);
 ```
 
 - 2 つのソート済み範囲を、ソートされた 1 つの範囲にまとめます。**重複も全部残ります**（set_union との違い）
+
+<div class="anim" data-label="std::merge(a, b, out)">
+1 4 7 | 2 5 8 # どちらも整列済み
+1 4 7 | 2 5 8 # 小さい方から取っていく
++1 +2 +4 +5 +7 +8 # 整列したまま 1 本になる
+</div>
 
 ### std::ranges::set_symmetric_difference {#set_symmetric_difference}
 

@@ -13,11 +13,11 @@ tags:
 `#include <iostream>` / `#include <iomanip>`
 </div>
 
-`<iostream>` は、**画面への出力（`std::cout`）とキーボードからの入力（`std::cin`）**のためのライブラリです。`<<` で値を流し込んで出力し、`>>` で値を読み込みます。昔からある C++ の入出力の方法で、教科書や古いコードでよく見かけます。C++23 では出力に [`std::println`](../utilities/format.md) が使えるので、**出力は println、入力は cin** と使い分けるのが今の書き方です。
+`<iostream>` は、<strong>画面への出力（`std::cout`）とキーボードからの入力（`std::cin`）</strong>のためのライブラリです。`<<` で値を流し込んで出力し、`>>` で値を読み込みます。昔からある C++ の入出力の方法で、教科書や古いコードでよく見かけます。C++23 では出力に [`std::println`](../utilities/format.md) が使えるので、**出力は println、入力は cin** と使い分けるのが今の書き方です。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 出力は C++23 なら `std::println` のほうが短くて速い。`std::cout` は古いコードを読むために知っておく。
-    - `std::endl` は改行 + **flush（毎回書き出し）**で遅い。改行だけなら `'\n'`。
+    - `std::endl` は改行 + <strong>flush（毎回書き出し）</strong>で遅い。改行だけなら `'\n'`。
     - 入力は `std::cin >> x;`、1 行まるごとなら `std::getline(std::cin, line);`。
     - 桁数や 16 進数などの書式は、`std::format` の書式指定のほうが分かりやすい。iostream ではマニピュレータ（`std::setw` など）を使う。
 

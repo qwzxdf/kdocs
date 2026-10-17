@@ -12,10 +12,10 @@ tags:
 `#include <utility>`
 </div>
 
-`std::move` は、**「この変数の中身はもう使わないので、持っていっていい」と伝えるための関数**です。それ自体は何もコピーも移動もしませんが、これを付けた値を代入や関数に渡すと、コピーの代わりに**ムーブ**（中身の付け替え）が選ばれるようになります。`std::forward` は、テンプレートで受け取った引数を「受け取ったときの形のまま」次の関数へ渡すためのものです。
+`std::move` は、<strong>「この変数の中身はもう使わないので、持っていっていい」と伝えるための関数</strong>です。それ自体は何もコピーも移動もしませんが、これを付けた値を代入や関数に渡すと、コピーの代わりに**ムーブ**（中身の付け替え）が選ばれるようになります。`std::forward` は、テンプレートで受け取った引数を「受け取ったときの形のまま」次の関数へ渡すためのものです。
 
-!!! tip "結論"
-    - **もう使わない大きな値（string、vector、unique_ptr）を渡すときに `std::move` を付ける。**
+!!! tip "ポイント"
+    - <strong>もう使わない大きな値（string、vector、unique_ptr）を渡すときに `std::move` を付ける。</strong>
     - `std::move` したあとの変数は「空っぽ（中身は未規定）」として扱い、代入し直すまで使わない。
     - `return local;` には付けない（付けると逆に遅くなることがある）。
     - `std::forward` はテンプレートで「転送」するときだけ。普段のコードでは使わない。
@@ -112,6 +112,11 @@ constexpr std::remove_reference_t<T>&& move(T&& t) noexcept;
 <div class="mem-step"><span class="mem-label">ムーブ</span><span class="mem-note">a が持っていたヒープへのポインタを b に付け替え、a は空にする → 速い</span></div>
 </div>
 
+<div class="anim" data-label="b = std::move(a)">
+A | _ # a が持っている
+_ | >A # 中身が b に移る。a は空（有効だが中身は不定）
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -198,6 +203,12 @@ constexpr T exchange(T& obj, U&& new_value);
 
 - 戻り値: `obj` の**古い値**
 
+<div class="anim" data-label="std::exchange(a, 9)">
+5 # a = 5
+*5 # 古い値（5）を返す
++9 # a に新しい値 9 を入れる
+</div>
+
 ```cpp
 #include <print>
 #include <utility>
@@ -224,6 +235,11 @@ constexpr void swap(T& a, T& b) noexcept(/* 条件 */);
 ```
 
 - `a` と `b` の中身を交換します。vector や string ならポインタの付け替えだけなので速いです
+
+<div class="anim" data-label="std::swap(a, b)">
+A | B # a と b
+>B | >A # 中身を入れ替える
+</div>
 
 ```cpp
 #include <print>

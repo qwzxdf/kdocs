@@ -6,7 +6,6 @@ __pycache__/
 .cache/
 
 # Claude 関連
-CLAUDE.md
 CLAUDE.local.md
 .claude/
 .mcp.json

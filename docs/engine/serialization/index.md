@@ -10,12 +10,12 @@ tags:
 <span class="rank rank-often">よく使う</span>
 </div>
 
-**シリアライズ**は、**メモリ上のオブジェクトを、ファイルに保存したりネットワークで送ったりできる「1 本のデータの並び」に変換すること**です。逆に、データの並びからオブジェクトを作り直すことを**デシリアライズ**と言います。セーブデータ、設定ファイル、ステージデータ、エディタで作ったシーン、オンラインの通信など、ゲームのあちこちで必要になります。形式には人が読める**テキスト（JSON など）** と、小さくて速い**バイナリ**があり、それぞれに便利なライブラリがあります。
+**シリアライズ**は、**メモリ上のオブジェクトを、ファイルに保存したりネットワークで送ったりできる「1 本のデータの並び」に変換すること**です。逆に、データの並びからオブジェクトを作り直すことを**デシリアライズ**と言います。セーブデータ、設定ファイル、ステージデータ、エディタで作ったシーン、オンラインの通信など、ゲームのあちこちで必要になります。形式には人が読める<strong>テキスト（JSON など）</strong> と、小さくて速い**バイナリ**があり、それぞれに便利なライブラリがあります。
 
-!!! tip "結論"
-    - **最初は JSON + [nlohmann/json](nlohmann-json.md) が一番手軽。** 人が読めて、手で直せて、デバッグしやすい。
-    - 用途で使い分ける：JSON の速さ重視は [simdjson](simdjson.md)、YAML は [rapidyaml](rapidyaml.md)、バイナリの定番は [cereal](cereal.md)、バイナリの速さ重視は [zpp_bits](zpp-bits.md) / [struct_pack](struct-pack.md)、さらに速さ重視（読み込みゼロコピー）は [cista](cista.md)。
-    - **必ずバージョン番号を入れる。** あとからデータの形を変えても、古いセーブを読めるようにする。
+!!! tip "ポイント"
+    - <strong>最初は JSON + [nlohmann/json](../../libs/serialization/nlohmann-json.md) が一番手軽。</strong> 人が読めて、手で直せて、デバッグしやすい。
+    - 用途で使い分ける：JSON の速さ重視は [simdjson](../../libs/serialization/simdjson.md)、YAML は [rapidyaml](../../libs/serialization/rapidyaml.md)、バイナリの定番は [cereal](../../libs/serialization/cereal.md)、バイナリの速さ重視は [zpp_bits](../../libs/serialization/zpp-bits.md) / [struct_pack](../../libs/serialization/struct-pack.md)、さらに速さ重視（読み込みゼロコピー）は [cista](../../libs/serialization/cista.md)。
+    - <strong>必ずバージョン番号を入れる。</strong> あとからデータの形を変えても、古いセーブを読めるようにする。
     - ポインタはそのまま保存できない。ID（[ハンドル](../handle.md)）に置き換えて保存する。
     - 構造体を `write` で丸ごと書くのは、string や vector を含むと壊れる（[ファイル入出力](../../basics/file-io.md)）。
 
@@ -196,13 +196,13 @@ bool Load(Reader& r) {
 
 | 用途 | ライブラリ | 形式 | 特徴 |
 | --- | --- | --- | --- |
-| **JSON（定番）** | [nlohmann/json](nlohmann-json.md) | JSON | 一番有名で書きやすい。読み書き両方。速さはそこそこ |
-| **JSON（パフォーマンス）** | [simdjson](simdjson.md) | JSON | CPU の SIMD 命令でとても速く読む。読み込み専用 |
-| **YAML** | [rapidyaml（ryml）](rapidyaml.md) | YAML / JSON | 速い YAML ライブラリ。人が書く設定・データ向け |
-| **バイナリ（定番）** | [cereal](cereal.md) | バイナリ / JSON / XML | STL とスマートポインタに対応。バージョン管理あり |
-| **バイナリ（パフォーマンス）** | [zpp_bits](zpp-bits.md) | バイナリ | とても速い。構造体を書くだけで自動で対応 |
-| **バイナリ（パフォーマンス）** | [yalantinglibs（struct_pack）](struct-pack.md) | バイナリ | とても速い。型のチェックと互換フィールドがある |
-| **バイナリ（パフォーマンス＋）** | [cista](cista.md) | バイナリ | 読み込みでコピーしない（ゼロコピー）。メモリマップで一瞬で読める |
+| <strong>JSON（定番）</strong> | [nlohmann/json](../../libs/serialization/nlohmann-json.md) | JSON | 一番有名で書きやすい。読み書き両方。速さはそこそこ |
+| <strong>JSON（パフォーマンス）</strong> | [simdjson](../../libs/serialization/simdjson.md) | JSON | CPU の SIMD 命令でとても速く読む。読み込み専用 |
+| **YAML** | [rapidyaml（ryml）](../../libs/serialization/rapidyaml.md) | YAML / JSON | 速い YAML ライブラリ。人が書く設定・データ向け |
+| <strong>バイナリ（定番）</strong> | [cereal](../../libs/serialization/cereal.md) | バイナリ / JSON / XML | STL とスマートポインタに対応。バージョン管理あり |
+| <strong>バイナリ（パフォーマンス）</strong> | [zpp_bits](../../libs/serialization/zpp-bits.md) | バイナリ | とても速い。構造体を書くだけで自動で対応 |
+| <strong>バイナリ（パフォーマンス）</strong> | [yalantinglibs（struct_pack）](../../libs/serialization/struct-pack.md) | バイナリ | とても速い。型のチェックと互換フィールドがある |
+| <strong>バイナリ（パフォーマンス＋）</strong> | [cista](../../libs/serialization/cista.md) | バイナリ | 読み込みでコピーしない（ゼロコピー）。メモリマップで一瞬で読める |
 
 ### どれを選ぶか
 
@@ -296,10 +296,10 @@ struct BulletSave {
 
 - [ファイル入出力](../../basics/file-io.md)
 - [ハンドルと世代 ID](../handle.md)
-- [nlohmann/json](nlohmann-json.md)
-- [simdjson](simdjson.md)
-- [rapidyaml](rapidyaml.md)
-- [cereal](cereal.md)
-- [zpp_bits](zpp-bits.md)
-- [yalantinglibs（struct_pack）](struct-pack.md)
-- [cista](cista.md)
+- [nlohmann/json](../../libs/serialization/nlohmann-json.md)
+- [simdjson](../../libs/serialization/simdjson.md)
+- [rapidyaml](../../libs/serialization/rapidyaml.md)
+- [cereal](../../libs/serialization/cereal.md)
+- [zpp_bits](../../libs/serialization/zpp-bits.md)
+- [yalantinglibs（struct_pack）](../../libs/serialization/struct-pack.md)
+- [cista](../../libs/serialization/cista.md)

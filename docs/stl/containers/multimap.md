@@ -15,8 +15,8 @@ tags:
 
 `std::multimap` と `std::multiset` は、**同じキーを何個でも持てる map / set** です。普通の [`std::map`](map.md) は同じキーを入れると上書きされますが、multimap は全部残します。キーの順に並ぶのは map と同じです。順番なし版の `std::unordered_multimap` / `std::unordered_multiset` もあります。
 
-!!! tip "結論"
-    - **ほとんど使わない。** 同じキーに複数の値を持たせたいなら、`std::map<Key, std::vector<T>>` のほうが扱いやすいことが多い。
+!!! tip "ポイント"
+    - <strong>ほとんど使わない。</strong> 同じキーに複数の値を持たせたいなら、`std::map<Key, std::vector<T>>` のほうが扱いやすいことが多い。
     - 使うなら、同じキーの要素は `equal_range` でまとめて取り出す。
     - `[]` は**無い**（どの要素か決められないため）。
 
@@ -107,6 +107,11 @@ iterator insert(const value_type& value);
 - **同じキーがあっても必ず追加**されます。戻り値は追加した要素のイテレータだけ（`bool` は無い）
 - 同じキーの要素は、入れた順に並びます
 
+<div class="anim" data-label="m.insert({2, &quot;X&quot;})">
+1 2 3 # キーは重複できる
+1 2 +2 3 # 同じキーの後ろに入る
+</div>
+
 ### equal_range {#equal_range}
 
 ```cpp
@@ -118,6 +123,11 @@ std::pair<iterator, iterator> equal_range(const Key& key);
 | `key` | `const Key&` | 取り出したいキー |
 
 - 戻り値: キーが `key` と等しい要素の `[first, last)`。無ければ `first == last`
+
+<div class="anim" data-label="m.equal_range(2)">
+1 2 2 2 3 # キー
+1 *2 *2 *2 3 # 同じキーの範囲をまとめて取る
+</div>
 
 ```cpp
 #include <map>
@@ -166,6 +176,11 @@ size_type count(const Key& key) const;
 
 - 同じキーの要素がいくつあるか
 
+<div class="anim" data-label="m.count(2)">
+1 2 2 2 3 # キー
+1 *2 *2 *2 3 # 同じキーの数（3）
+</div>
+
 ### erase {#erase}
 
 ```cpp
@@ -174,6 +189,12 @@ iterator erase(const_iterator pos);
 ```
 
 - **キー版は同じキーを全部消します**。1 個だけ消すならイテレータ版を使います
+
+<div class="anim" data-label="m.erase(2)">
+1 2 2 2 3 # キー
+1 x2 x2 x2 3 # 同じキーをすべて消す
+1 3 # 完了
+</div>
 
 ```cpp
 #include <map>
@@ -203,6 +224,11 @@ iterator find(const Key& key);
 ```
 
 - 同じキーの要素のうち、**どれか 1 つ**のイテレータを返します（どれかは決まっていない）。全部欲しいなら `equal_range`
+
+<div class="anim" data-label="m.find(2)">
+1 2 2 3 # キー
+1 *2 2 3 # 同じキーのうち最初の 1 つ
+</div>
 
 ### contains {#contains}
 
@@ -236,6 +262,11 @@ iterator lower_bound(const Key& key);
 
 - キーが `key` 以上の最初の要素（同じキーが複数あるなら、その最初）
 
+<div class="anim" data-label="m.lower_bound(2)">
+1 2 2 3 # キー
+1 *2 2 3 # 2 以上で最初の要素
+</div>
+
 ### upper_bound {#upper_bound}
 
 ```cpp
@@ -243,6 +274,11 @@ iterator upper_bound(const Key& key);
 ```
 
 - キーが `key` より大きい最初の要素
+
+<div class="anim" data-label="m.upper_bound(2)">
+1 2 2 3 # キー
+1 2 2 *3 # 2 より大きい最初の要素
+</div>
 
 ### emplace {#emplace}
 
@@ -262,6 +298,12 @@ void clear() noexcept;
 - 全削除します
 
 `std::multiset` も同じ関数を持ちます（値が無く、キーだけの点が違います）。
+
+<div class="anim" data-label="m.clear()">
+1 2 2 3 # キー
+x1 x2 x2 x3 # すべて破棄
+_ _ _ _ # 空
+</div>
 
 ## ゲームでの使いどころ
 

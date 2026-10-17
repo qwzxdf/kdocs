@@ -15,8 +15,8 @@ tags:
 
 `std::bitset` は、**決まった個数の on / off（ビット）をまとめて持つ型**です。`bool` を N 個並べるのと同じことを、1 個 1 ビットに詰めてコンパクトに持ちます。ビット演算（`&`, `|`, `^`）で全部まとめて操作でき、「何個 on か」もすぐ数えられます。
 
-!!! tip "結論"
-    - **個数が決まっているフラグの集まりに使う。** 押されているキー、取得済みアイテム（ID が小さい整数）、当たり判定のレイヤーなど。
+!!! tip "ポイント"
+    - <strong>個数が決まっているフラグの集まりに使う。</strong> 押されているキー、取得済みアイテム（ID が小さい整数）、当たり判定のレイヤーなど。
     - 書き方は `std::bitset<64> flags;` → `flags.set(3)` / `flags.test(3)` / `flags.reset(3)`。
     - `&` `|` でまとめて判定できる（「必要なフラグが全部立っているか」など）。
     - 個数が実行時に決まるなら `std::vector<bool>` か `std::vector<char>`。
@@ -146,6 +146,11 @@ bitset& set(std::size_t pos, bool value = true);
 
 - 例外: `pos >= N` なら `std::out_of_range`
 
+<div class="anim" data-label="b.set(2)">
+0 0 0 0 # b（右から 0 番目）
+0 +1 0 0 # 2 番目のビットを 1 にする
+</div>
+
 ```cpp
 #include <bitset>
 #include <print>
@@ -175,6 +180,11 @@ bool test(std::size_t pos) const;
 - 戻り値: `pos` 番目が 1 なら `true`
 - 例外: `pos >= N` なら `std::out_of_range`
 
+<div class="anim" data-label="b.test(2)">
+0 1 0 1 # b
+0 *1 0 1 # 2 番目が 1 なら true
+</div>
+
 ```cpp
 #include <bitset>
 #include <print>
@@ -197,6 +207,12 @@ bitset& reset(std::size_t pos);
 ```
 
 - 引数なしで全部 0、`pos` を指定するとそのビットだけ 0
+
+<div class="anim" data-label="b.reset(2)">
+0 1 0 0 # b
+0 x1 0 0 # 2 番目のビットを 0 にする
+0 0 0 0 # 完了
+</div>
 
 ```cpp
 #include <bitset>
@@ -281,6 +297,11 @@ std::size_t count() const noexcept;
 
 - 1 のビットの数。CPU の専用命令で一気に数えるので速いです
 
+<div class="anim" data-label="b.count()">
+1 0 1 1 # b
+*1 0 *1 *1 # 1 のビットを数える（3）
+</div>
+
 ### any {#any}
 
 ```cpp
@@ -328,6 +349,11 @@ bitset operator~() const noexcept;
 
 - 全ビットを反転した**新しい** bitset を返します（自分は変わらない）
 
+<div class="anim" data-label="~b">
+1 0 1 1 # b
+>0 >1 >0 >0 # 反転した新しい bitset
+</div>
+
 ### operator^ {#xor}
 
 ```cpp
@@ -363,6 +389,11 @@ bitset& flip(std::size_t pos);
 ```
 
 - 引数なしで全部反転、`pos` を指定するとそのビットだけ反転（自分が変わる）
+
+<div class="anim" data-label="b.flip()">
+1 0 1 1 # b
+>0 >1 >0 >0 # すべてのビットを反転する
+</div>
 
 ```cpp
 #include <bitset>

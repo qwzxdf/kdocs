@@ -1,7 +1,7 @@
 ---
 title: nlohmann/json（JSON・定番）
 tags:
-  - ゲームエンジン
+  - 外部ライブラリ
   - シリアライズ
 ---
 
@@ -16,8 +16,8 @@ tags:
 
 **nlohmann/json** は、C++ で JSON を扱うライブラリの中で**一番有名で、一番書きやすい**ライブラリです。`json j; j["hp"] = 100;` のように、まるで Python や JavaScript の辞書のように JSON を読み書きできます。ヘッダ 1 つで使えて、`std::vector` や `std::map` などの STL の型をそのまま JSON にでき、自作の構造体もマクロ 1 行で JSON と相互変換できます。速さは JSON ライブラリの中では遅い方ですが、ゲームの設定ファイル・セーブデータ・ステージデータ程度なら全く問題になりません。「C++ で JSON を使うなら、まずこれ」という定番です。
 
-!!! tip "結論"
-    - **JSON はまずこれ。** 読み書き両方でき、STL の型と自作の構造体をほぼ自動で変換できる。
+!!! tip "ポイント"
+    - <strong>JSON はまずこれ。</strong> 読み書き両方でき、STL の型と自作の構造体をほぼ自動で変換できる。
     - 自作の構造体は **`NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT`** マクロ 1 行で対応させる（キーが無くても落ちない）。
     - 読み込みは **`json::parse`**、書き出しは **`dump(2)`**（2 は字下げの幅）。
     - 値を取るときは、無いかもしれないキーには **`value("key", デフォルト)`**、必ずあるキーには **`at("key")`**。`[]` で読むのは危ない。
@@ -25,9 +25,37 @@ tags:
     - 大量の JSON を速く読みたいときだけ [simdjson](simdjson.md) を検討する。
 
 !!! info "このページを読む前に"
-    [シリアライズの概要](index.md) を先に読むと、なぜ JSON を使うのかが分かります。例外については [標準の例外](../../stl/support/exceptions.md)、STL の型は [vector](../../stl/containers/vector.md) と [map](../../stl/containers/map.md) を見てください。
+    [シリアライズの概要](../../engine/serialization/index.md) を先に読むと、なぜ JSON を使うのかが分かります。例外については [標準の例外](../../stl/support/exceptions.md)、STL の型は [vector](../../stl/containers/vector.md) と [map](../../stl/containers/map.md) を見てください。
 
 ## 導入
+
+### Visual Studio で導入する（最初に読む）
+
+Visual Studio を使っているなら、**この方法が一番簡単**です。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは nlohmann/json だけの部分を書きます。
+
+=== "vcpkg（おすすめ）"
+
+    1. 初回だけ、Developer PowerShell で `vcpkg integrate install` を実行する（[準備](../../vs/libraries.md#vcpkg)）
+    2. ライブラリを入れる
+
+        ```powershell
+        vcpkg install nlohmann-json:x64-windows
+        ```
+
+        （マニフェスト モードなら、`vcpkg.json` の `dependencies` に `"nlohmann-json"` を足す）
+    3. プロジェクトには何も設定せずに、`#include <nlohmann/json.hpp>` と書けば使える
+
+=== "ファイルを置く"
+
+    1. [リリースページ](https://github.com/nlohmann/json/releases) から **`json.hpp`**（1 ファイル）をダウンロードして、`third_party/nlohmann/json.hpp` に置く
+    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party` を追加する
+    4. `#include <nlohmann/json.hpp>` と書いてビルドする
+
+!!! note "C++ の設定"
+    C++11 以上で動きます（このサイトの設定の C++23 で問題ありません）。
+
+### そのほかの方法（CMake など）
 
 ヘッダオンリー（`.hpp` を include するだけ）なので、ビルドの設定はとても簡単です。どれか 1 つの方法で入れます。
 
@@ -628,7 +656,7 @@ int main() {
 80 true ja
 ```
 
-- **設定ファイルの読み込みはほぼ全部 `value` で書けます。** 項目が増えても古い設定ファイルで落ちません。
+- <strong>設定ファイルの読み込みはほぼ全部 `value` で書けます。</strong> 項目が増えても古い設定ファイルで落ちません。
 - `value("language", "ja")` のように文字列リテラルを渡すと、戻り値は `std::string` になります。
 - 「キーは無くてもいいが、あるなら型は正しくないとダメ」という動きなので、`"volume": "大"` のような間違いは例外になります。
 
@@ -1202,7 +1230,7 @@ Windows で Shift_JIS（CP932）の文字列をそのまま入れると、UTF-8 
 
 ## 関連ページ
 
-- [シリアライズの概要](index.md)
+- [シリアライズの概要](../../engine/serialization/index.md)
 - [simdjson（JSON・速さ重視）](simdjson.md)
 - [rapidyaml（YAML）](rapidyaml.md)
 - [ファイル入出力](../../basics/file-io.md)

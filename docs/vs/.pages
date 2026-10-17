@@ -1,0 +1,10 @@
+nav:
+  - index.md
+  - setup.md
+  - settings.md
+  - libraries.md
+  - debugging.md
+  - tips.md
+  - errors.md
+  - cmake.md
+  - ...

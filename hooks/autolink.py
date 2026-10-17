@@ -13,6 +13,9 @@ Rules:
     alone. Inline code (``std::vector<int>``) is linked when its name matches.
   - Short lowercase STL names in autolinks.yml (``set``, ``list``) only match
     inline code, because they are also ordinary English words.
+  - A target may carry an anchor (``basics/big-o.md#o1``).
+  - Terms listed under ``_repeat`` in autolinks.yml (``O(1)`` ...) are linked on
+    every occurrence, not only the first.
 """
 
 import os
@@ -31,6 +34,8 @@ _text_terms = []   # [(term, src_path)] longest first
 _term_to_src = {}
 _compiled = []
 _code_terms = {}   # normalized code name -> src_path
+_exact_terms = {}  # inline code text that is matched as a whole ("O(1)")
+_repeat = set()
 
 
 def _load_yaml(config):
@@ -70,6 +75,8 @@ def _register_code(name, src):
 def on_files(files, config):
     _text_terms.clear()
     _code_terms.clear()
+    _exact_terms.clear()
+    _repeat.clear()
 
     for f in files.documentation_pages():
         if f.src_uri.startswith("_"):
@@ -82,8 +89,13 @@ def on_files(files, config):
                 _register_code(name, f.src_uri)
 
     for src, terms in _load_yaml(config).items():
+        if src == "_repeat":
+            _repeat.update(str(t) for t in terms or [])
+            continue
         for term in terms or []:
             term = str(term)
+            if term in _repeat:
+                _exact_terms[term] = src
             if _CODE_TITLE.match(term) or re.fullmatch(r"[\w:]+", term):
                 _register_code(term, src)
             # Short STL names (set, list, map...) are ordinary English words too,
@@ -127,11 +139,13 @@ def on_page_content(html, page, config, files):
     soup = BeautifulSoup(html, "html.parser")
     used = set()
 
-    def url_for(src):
-        target = files.get_file_from_path(src)
+    def url_for(spec):
+        path, _, anchor = spec.partition("#")
+        target = files.get_file_from_path(path)
         if target is None or target.src_uri == page.file.src_uri:
             return None
-        return get_relative_url(target.url, page.url)
+        href = get_relative_url(target.url, page.url)
+        return href + ("#" + anchor if anchor else "")
 
     def make_link(href, text=None):
         a = soup.new_tag("a", href=href)
@@ -143,6 +157,12 @@ def on_page_content(html, page, config, files):
     # 1. Inline code whose name is a known C++ name.
     for code in soup.find_all("code"):
         if _skipped(code):
+            continue
+        exact = code.get_text().strip()
+        if exact in _exact_terms:
+            href = url_for(_exact_terms[exact])
+            if href is not None:
+                code.wrap(make_link(href))
             continue
         key = _normalize_code(code.get_text())
         src = _code_terms.get(key)
@@ -166,13 +186,16 @@ def on_page_content(html, page, config, files):
             pieces = []
             last = 0
             for m in pattern.finditer(text):
-                src = _term_to_src[m.group(0)]
-                if src in used:
+                term = m.group(0)
+                src = _term_to_src[term]
+                repeat = term in _repeat
+                if not repeat and src in used:
                     continue
                 href = url_for(src)
                 if href is None:
                     continue
-                used.add(src)
+                if not repeat:
+                    used.add(src)
                 pieces.append(text[last:m.start()])
                 pieces.append(make_link(href, m.group(0)))
                 last = m.end()
@@ -181,3 +204,15 @@ def on_page_content(html, page, config, files):
                 node.replace_with(*pieces)
 
     return str(soup)
+
+
+def on_page_markdown(markdown, page, config, files):
+    """Boost pages named after a C++ entity so that `string` finds std::string first."""
+    title = page.meta.get("title") or ""
+    if _title_names(str(title)) or page.file.src_uri.startswith("stl/"):
+        search = page.meta.get("search")
+        if not isinstance(search, dict):
+            search = {}
+        search.setdefault("boost", 3)
+        page.meta["search"] = search
+    return markdown

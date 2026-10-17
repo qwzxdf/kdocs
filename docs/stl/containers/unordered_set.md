@@ -13,10 +13,10 @@ tags:
 `#include <unordered_set>`
 </div>
 
-`std::unordered_set` は、**重複しない値の集まり（集合）**です。「この値が入っているか」をすばやく調べられます。[`std::unordered_map`](unordered_map.md) から「値」を取り除いて、キーだけにしたものだと考えると分かりやすいです。同じ値を 2 回入れても 1 個しか残りません。
+`std::unordered_set` は、<strong>重複しない値の集まり（集合）</strong>です。「この値が入っているか」をすばやく調べられます。[`std::unordered_map`](unordered_map.md) から「値」を取り除いて、キーだけにしたものだと考えると分かりやすいです。同じ値を 2 回入れても 1 個しか残りません。
 
-!!! tip "結論"
-    - **「あるかどうか」だけ知りたいときに使う。** 取得済みアイテム、訪問済みマス、当たり済みの敵など。
+!!! tip "ポイント"
+    - <strong>「あるかどうか」だけ知りたいときに使う。</strong> 取得済みアイテム、訪問済みマス、当たり済みの敵など。
     - 入れるのは `insert`、調べるのは `contains`、消すのは `erase`。この 3 つで足りる。
     - 順番はバラバラ。順番が必要なら [`std::set`](set.md)。
     - 要素が数十個までなら、vector に入れて探すほうが速いこともある。
@@ -160,6 +160,11 @@ void insert(std::initializer_list<value_type> ilist);
 - 戻り値: 1 個版は `pair<イテレータ, 新しく入ったか>`
 - 計算量: 平均 O(1)
 
+<div class="anim" data-label="s.insert(&quot;C&quot;)">
+_ A _ B _ _ # バケット
+_ A _ B +C _ # ハッシュで決まった箱に入る
+</div>
+
 ```cpp
 #include <print>
 #include <unordered_set>
@@ -191,6 +196,11 @@ bool contains(const Key& key) const;
 - 戻り値: 入っていれば `true`
 - 計算量: 平均 O(1)
 
+<div class="anim" data-label="s.contains(&quot;B&quot;)">
+_ A _ B _ _ # バケット
+_ A _ *B _ _ # あれば true
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -215,6 +225,11 @@ iterator erase(const_iterator pos);
 
 - 戻り値: キー版は消した数（0 か 1）。位置版は次の要素のイテレータ
 - 計算量: 平均 O(1)
+
+<div class="anim" data-label="s.erase(&quot;B&quot;)">
+_ A _ B C _ # バケット
+_ A _ xB C _ # 消す
+</div>
 
 ```cpp
 #include <print>
@@ -255,6 +270,12 @@ void clear() noexcept;
 ```
 
 - 全要素を削除します。O(n)
+
+<div class="anim" data-label="s.clear()">
+_ A _ B C _ # バケット
+_ xA _ xB xC _ # すべて破棄
+_ _ _ _ _ _ # 空
+</div>
 
 ```cpp
 #include <print>
@@ -301,6 +322,11 @@ iterator find(const Key& key);
 !!! note "実際は"
     set の要素は「キーそのもの」なので、イテレータを取っても `contains` 以上にできることはあまりありません。`erase(it)` で消すときくらいです。
 
+<div class="anim" data-label="s.find(&quot;B&quot;)">
+_ A _ B _ _ # バケット
+_ A _ *B _ _ # 箱を決めて探す
+</div>
+
 ### emplace {#emplace}
 
 ```cpp
@@ -309,6 +335,11 @@ std::pair<iterator, bool> emplace(Args&&... args);
 ```
 
 - 要素のコンストラクタ引数を渡して、その場で作って追加します
+
+<div class="anim" data-label="s.emplace(&quot;C&quot;)">
+_ A _ B _ _ # バケット
+_ A _ B +C _ # その場で作る。重複なら何もしない
+</div>
 
 ```cpp
 #include <print>

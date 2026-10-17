@@ -13,10 +13,10 @@ tags:
 `#include <optional>`
 </div>
 
-`std::optional<T>` は、**「T の値が 1 つあるか、何も無いか」のどちらかを表す型**です。「見つからなかった」「まだ決まっていない」を、`-1` や `nullptr` のような特別な値を使わずに表せます。中身は値そのものを直接持っているので、ヒープ確保は起きません。
+`std::optional<T>` は、<strong>「T の値が 1 つあるか、何も無いか」のどちらかを表す型</strong>です。「見つからなかった」「まだ決まっていない」を、`-1` や `nullptr` のような特別な値を使わずに表せます。中身は値そのものを直接持っているので、ヒープ確保は起きません。
 
-!!! tip "結論"
-    - **「失敗するかもしれない関数」の戻り値に使う。** 探す関数、パースする関数など。
+!!! tip "ポイント"
+    - <strong>「失敗するかもしれない関数」の戻り値に使う。</strong> 探す関数、パースする関数など。
     - 値があるかは `if (opt)` か `opt.has_value()`、取り出しは `*opt` か `opt->`。
     - 無いときの代わりの値を使うなら `opt.value_or(デフォルト)`。
     - 「なぜ失敗したか」も伝えたいなら [`std::expected`](expected.md)。
@@ -207,6 +207,11 @@ constexpr T value_or(U&& default_value) const&;
 
 - 戻り値: 値があればそのコピー、無ければ `default_value`
 
+<div class="anim" data-label="o.value_or(9)">
+_ # 空
+*9 # 空なので 9 を返す（o は空のまま）
+</div>
+
 ```cpp
 #include <optional>
 #include <print>
@@ -268,6 +273,12 @@ constexpr void reset() noexcept;
 
 - 値なしにします。持っていた値のデストラクタが呼ばれます。`opt = std::nullopt;` と同じです
 
+<div class="anim" data-label="o.reset()">
+5 # 値を持っている
+x5 # 値を破棄する
+_ # 空（std::nullopt）
+</div>
+
 ### emplace {#emplace}
 
 ```cpp
@@ -276,6 +287,11 @@ constexpr T& emplace(Args&&... args);
 ```
 
 - 今の値を消して、`args` で新しい値をその場で作ります
+
+<div class="anim" data-label="o.emplace(5)">
+_ # 空
++5 # その場で値を作る
+</div>
 
 ```cpp
 #include <optional>

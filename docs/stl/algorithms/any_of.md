@@ -14,7 +14,7 @@ tags:
 
 `any_of`、`all_of`、`none_of` は、**範囲の要素が条件を満たすかどうかを `bool` で答える**関数です。「どれか 1 つでも」「全部」「1 つも〜ない」の 3 種類があります。for ループとフラグ変数で書いていた判定が 1 行で書けて、読む人にも意図が伝わりやすくなります。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 「生きている敵がいるか」は `any_of`、「全員準備完了か」は `all_of`、「1 人も死んでいないか」は `none_of`。
     - 答えが決まった時点で止まるので、無駄に全部見ない。
     - **空の範囲**では `any_of` は `false`、`all_of` と `none_of` は `true` になる。
@@ -77,6 +77,13 @@ constexpr bool any_of(R&& r, Pred pred, Proj proj = {});
 - 戻り値: `pred` が `true` になる要素が 1 つでもあれば `true`。空なら `false`
 - 計算量: O(n)。`true` が見つかった時点で止まる
 
+<div class="anim" data-label="std::ranges::any_of(v, is_even)">
+1 3 4 5 # 偶数が 1 つでもあるか
+*1 3 4 5 # 1 は偶数ではない
+1 *3 4 5 # 3 も違う
+1 3 *4 5 # 4 は偶数。ここで true を返して終わる
+</div>
+
 ```cpp
 #include <algorithm>
 #include <print>
@@ -102,6 +109,13 @@ constexpr bool all_of(R&& r, Pred pred, Proj proj = {});
 
 - 戻り値: 全要素で `pred` が `true` なら `true`。**空なら `true`**
 - 計算量: O(n)。`false` が見つかった時点で止まる
+
+<div class="anim" data-label="std::ranges::all_of(v, is_even)">
+2 4 5 6 # すべて偶数か
+*2 4 5 6 # 2 は偶数
+2 *4 5 6 # 4 も偶数
+2 4 *5 6 # 5 は偶数ではない。ここで false を返して終わる
+</div>
 
 ```cpp
 #include <algorithm>
@@ -133,6 +147,13 @@ constexpr bool none_of(R&& r, Pred pred, Proj proj = {});
 
 - 戻り値: `pred` が `true` になる要素が 1 つも無ければ `true`。**空なら `true`**
 - `!any_of(...)` と同じ意味です
+
+<div class="anim" data-label="std::ranges::none_of(v, is_even)">
+1 3 4 5 # 偶数が 1 つもないか
+*1 3 4 5 # 1 は偶数ではない
+1 *3 4 5 # 3 も違う
+1 3 *4 5 # 4 は偶数。ここで false を返して終わる
+</div>
 
 ```cpp
 #include <algorithm>

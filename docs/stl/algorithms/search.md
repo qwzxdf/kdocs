@@ -14,7 +14,7 @@ tags:
 
 このページでは、[`find`](find.md) では探せない**並びのパターン**を探すアルゴリズムをまとめます。`search` は**連続した並び**（部分列）を探し、`adjacent_find` は**隣り合う 2 つが同じ**ところを探し、`is_sorted` は**並んでいるか**を調べます。C++23 の `starts_with` / `ends_with` は、範囲が特定の並びで始まる・終わるかを調べます。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 連続した並びを探すなら `search`（文字列なら `string::find` で十分）。
     - 「同じものが 2 つ続いた」は `adjacent_find`。
     - ソートされているかのチェック（デバッグ・二分探索の前の確認）は `is_sorted`。
@@ -78,6 +78,12 @@ constexpr borrowed_subrange_t<R1> search(R1&& r1, R2&& r2, Pred pred = {}, Proj1
 
 - 戻り値: 見つかった部分の範囲。見つからなければ空（`.empty()` が true）
 
+<div class="anim" data-label="std::ranges::search(v, sub)">
+a b c d b c # v から "bc" を探す
+*a b c d b c # 先頭から比べる
+a *b *c d b c # 見つかる。最初の位置を返す
+</div>
+
 ### std::ranges::adjacent_find {#adjacent_find}
 
 ```cpp
@@ -114,6 +120,13 @@ constexpr bool is_sorted(R&& r, Comp comp = {}, Proj proj = {});
 ```
 
 - 並んでいれば `true`。二分探索の前に `assert(std::ranges::is_sorted(v))` で確かめると安心です
+
+<div class="anim" data-label="std::ranges::is_sorted(v)">
+1 3 5 4 # 整列しているか
+*1 *3 3 4 # 1 ≤ 3 ならOK
+1 *3 *5 4 # 3 ≤ 5 ならOK
+1 3 *5 *4 # 5 > 4 なので false
+</div>
 
 ### std::ranges::starts_with {#starts_with}
 

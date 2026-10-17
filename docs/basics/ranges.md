@@ -13,10 +13,10 @@ tags:
 <span class="ver ver-23">C++23</span>
 </div>
 
-**ranges**（レンジ）は C++20 で入った、**「範囲」をまとめて 1 つのものとして扱う仕組み**です。昔のアルゴリズムは `std::sort(v.begin(), v.end())` のように始まりと終わりを別々に渡していましたが、ranges 版は `std::ranges::sort(v)` と範囲をそのまま渡せます。さらに**ビュー**（view）を使うと、`v | std::views::filter(...) | std::views::transform(...)` のように、元のデータを変えずに「加工して見る」処理を `|` でつなげて書けます。
+**ranges**（レンジ）は C++20 で入った、<strong>「範囲」をまとめて 1 つのものとして扱う仕組み</strong>です。昔のアルゴリズムは `std::sort(v.begin(), v.end())` のように始まりと終わりを別々に渡していましたが、ranges 版は `std::ranges::sort(v)` と範囲をそのまま渡せます。さらに**ビュー**（view）を使うと、`v | std::views::filter(...) | std::views::transform(...)` のように、元のデータを変えずに「加工して見る」処理を `|` でつなげて書けます。
 
-!!! tip "結論"
-    - **アルゴリズムは `std::ranges::` 版を使う。** `begin()` / `end()` を書かなくていい。
+!!! tip "ポイント"
+    - <strong>アルゴリズムは `std::ranges::` 版を使う。</strong> `begin()` / `end()` を書かなくていい。
     - プロジェクション（`&Enemy::hp` のようにメンバを渡す）で、比べる・探すメンバを指定できる。
     - ビュー（`std::views::...`）は「見るだけ」で、元のデータもコピーもしない。実際の計算は取り出すときに行われる。
     - ビューの結果を保存したいなら `| std::ranges::to<std::vector>()`（C++23）。

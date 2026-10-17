@@ -15,8 +15,8 @@ tags:
 
 `std::set` は、**重複しない値を小さい順に並べて持つ集合**です。[`std::map`](map.md) から値を取り除いてキーだけにしたもの、または [`std::unordered_set`](unordered_set.md) に「順番」を足したものと考えると分かりやすいです。
 
-!!! tip "結論"
-    - **重複を除いて、しかも順番に並べたいときに使う。** 順番が要らないなら `unordered_set`。
+!!! tip "ポイント"
+    - <strong>重複を除いて、しかも順番に並べたいときに使う。</strong> 順番が要らないなら `unordered_set`。
     - 使い方は `unordered_set` と同じ（`insert` / `contains` / `erase`）。
     - map と同じく `lower_bound` / `upper_bound` で範囲検索ができる。
     - 一番小さい値は `*s.begin()`、一番大きい値は `*s.rbegin()`。
@@ -119,7 +119,7 @@ int main() {
 
 ## 関数の詳しい説明
 
-使い方の多くは [`std::unordered_set`](unordered_set.md) と同じです。違うのは**計算量が O(log n)** であることと、**小さい順に並んでいる**ことです。
+使い方の多くは [`std::unordered_set`](unordered_set.md) と同じです。違うのは<strong>計算量が O(log n)</strong> であることと、**小さい順に並んでいる**ことです。
 
 ### insert {#insert}
 
@@ -131,6 +131,11 @@ void insert(std::initializer_list<value_type> ilist);
 
 - 戻り値: 1 個版は `pair<イテレータ, 新しく入ったか>`
 - 計算量: O(log n)
+
+<div class="anim" data-label="s.insert(4)">
+1 3 5 # 常に整列・重複なし
+1 3 +4 5 # 順番どおりの場所に入る
+</div>
 
 ```cpp
 #include <print>
@@ -158,6 +163,11 @@ bool contains(const Key& key) const;
 
 - 入っていれば `true`。O(log n)
 
+<div class="anim" data-label="s.contains(3)">
+1 3 5 7 # s
+1 *3 5 7 # あれば true
+</div>
+
 ### erase {#erase}
 
 ```cpp
@@ -167,6 +177,12 @@ iterator erase(const_iterator first, const_iterator last);
 ```
 
 - キー版は消した数、位置版は次の要素のイテレータを返します
+
+<div class="anim" data-label="s.erase(3)">
+1 3 5 # s
+1 x3 5 # 消す
+1 5 # 完了
+</div>
 
 ```cpp
 #include <print>
@@ -249,6 +265,11 @@ iterator lower_bound(const Key& key);
 
 - `key` **以上**の最初の要素。無ければ `end()`（[map の lower_bound](map.md#lower_bound) と同じ）
 
+<div class="anim" data-label="s.lower_bound(4)">
+1 3 5 7 # s
+1 3 *5 7 # 4 以上で最初の要素
+</div>
+
 ### upper_bound {#upper_bound}
 
 ```cpp
@@ -256,6 +277,11 @@ iterator upper_bound(const Key& key);
 ```
 
 - `key` **より大きい**最初の要素。無ければ `end()`
+
+<div class="anim" data-label="s.upper_bound(5)">
+1 3 5 7 # s
+1 3 5 *7 # 5 より大きい最初の要素
+</div>
 
 ```cpp
 #include <print>
@@ -285,6 +311,11 @@ iterator find(const Key& key);
 
 - 見つかった要素のイテレータ。無ければ `end()`
 
+<div class="anim" data-label="s.find(3)">
+1 3 5 7 # s
+1 *3 5 7 # 見つかればその要素を指す
+</div>
+
 ### clear {#clear}
 
 ```cpp
@@ -292,6 +323,12 @@ void clear() noexcept;
 ```
 
 - 全要素を削除します。O(n)
+
+<div class="anim" data-label="s.clear()">
+1 3 5 # s
+x1 x3 x5 # すべて破棄
+_ _ _ # 空
+</div>
 
 ### std::erase_if <span class="ver ver-20">C++20</span> {#erase_if data-toc-label="std::erase_if"}
 
@@ -326,6 +363,11 @@ std::pair<iterator, bool> emplace(Args&&... args);
 
 - 要素をその場で作って追加します
 
+<div class="anim" data-label="s.emplace(4)">
+1 3 5 # s
+1 3 +4 5 # その場で作って入れる。重複なら何もしない
+</div>
+
 ### rend {#rend}
 
 ```cpp
@@ -349,6 +391,11 @@ size_type count(const Key& key) const;
 ```
 
 - 0 か 1 を返します。今は `contains` を使います
+
+<div class="anim" data-label="s.count(3)">
+1 3 5 7 # s
+1 *3 5 7 # 0 か 1
+</div>
 
 ### extract <span class="ver ver-17">C++17</span> {#extract data-toc-label="extract"}
 

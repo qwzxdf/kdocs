@@ -15,8 +15,8 @@ tags:
 
 `std::any` は、**どんな型の値でも 1 つ入れておける箱**です。入れるときに型を決める必要がなく、取り出すときに「この型のはず」と指定して `std::any_cast` で取り出します。型が合わなければ失敗します。何でも入る代わりに、間違いがコンパイル時に見つからず、大きな値はヒープに置かれます。
 
-!!! tip "結論"
-    - **ほとんど使わない。** 入る型の候補が決まっているなら [`std::variant`](variant.md) のほうが安全で速い。
+!!! tip "ポイント"
+    - <strong>ほとんど使わない。</strong> 入る型の候補が決まっているなら [`std::variant`](variant.md) のほうが安全で速い。
     - 使うとしたら「エディタのプロパティ」「汎用のイベント引数」など、型をあとから決めたい仕組みくらい。
     - 取り出すときは `std::any_cast<T>(&a)`（ポインタ版）で、失敗したら nullptr をチェックする。
 
@@ -155,6 +155,12 @@ void reset() noexcept;
 
 - 空にします
 
+<div class="anim" data-label="a.reset()">
+5 # 何かを持っている
+x5 # 破棄する
+_ # 空
+</div>
+
 ### emplace {#emplace}
 
 ```cpp
@@ -163,6 +169,12 @@ std::decay_t<T>& emplace(Args&&... args);
 ```
 
 - `T` をその場で作って入れます
+
+<div class="anim" data-label="a.emplace<float>(2.5)">
+5 # int を持っている
+x5 # 今の値を破棄する
++2.5 # float をその場で作る
+</div>
 
 ### std::make_any {#make_any}
 

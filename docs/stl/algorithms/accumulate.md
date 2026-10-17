@@ -12,10 +12,10 @@ tags:
 `#include <numeric>` / `#include <algorithm>`
 </div>
 
-`std::accumulate` と `std::ranges::fold_left` は、**範囲の要素を順に 1 つの値にまとめる（畳み込む）**関数です。何も指定しなければ合計を計算し、関数を渡せば掛け算や最大値、文字列の連結など好きなまとめ方ができます。`accumulate` は昔からある関数、`fold_left` は C++23 で入った ranges 版です。
+`std::accumulate` と `std::ranges::fold_left` は、<strong>範囲の要素を順に 1 つの値にまとめる（畳み込む）</strong>関数です。何も指定しなければ合計を計算し、関数を渡せば掛け算や最大値、文字列の連結など好きなまとめ方ができます。`accumulate` は昔からある関数、`fold_left` は C++23 で入った ranges 版です。
 
-!!! tip "結論"
-    - **合計なら `std::ranges::fold_left(v, 0, std::plus{})` か `std::accumulate(v.begin(), v.end(), 0)`。**
+!!! tip "ポイント"
+    - <strong>合計なら `std::ranges::fold_left(v, 0, std::plus{})` か `std::accumulate(v.begin(), v.end(), 0)`。</strong>
     - 初期値の型が結果の型になる。float の合計に `0` を渡すと int で計算されて小数が消える（**必ず `0.0f`**）。
     - 単純な合計なら、for ループで書いても読みやすさはほぼ同じ。無理に使わなくていい。
 
@@ -85,6 +85,14 @@ constexpr T accumulate(InputIt first, InputIt last, T init, BinaryOp op);
 - 戻り値: まとめた結果
 - 先頭から順番に計算する
 
+<div class="anim" data-label="std::accumulate(v.begin(), v.end(), 0)">
+1 2 3 4 # 初期値 0
+*1 2 3 4 # 0 + 1 = 1
+*1 *2 3 4 # 1 + 2 = 3
+*1 *2 *3 4 # 3 + 3 = 6
+*1 *2 *3 *4 # 6 + 4 = 10。左から順に足していく
+</div>
+
 ```cpp
 #include <numeric>
 #include <print>
@@ -153,6 +161,13 @@ T reduce(ExecutionPolicy&& policy, ForwardIt first, ForwardIt last, T init);
 
 - `accumulate` と似ていますが、**計算の順番を問わない**ので、`std::execution::par` を渡すと並列で計算できます
 - 足し算のように順番を入れ替えても結果が同じ計算にしか使えません
+
+<div class="anim" data-label="std::reduce(v.begin(), v.end(), 0)">
+1 2 3 4 # 初期値 0
+*1 *2 3 4 # (1 + 2) と
+1 2 *3 *4 # (3 + 4) を別々に計算してもよい
+*1 *2 *3 *4 # 最後に合わせて 10。順番は保証されない
+</div>
 
 ```cpp
 #include <numeric>

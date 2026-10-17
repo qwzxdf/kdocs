@@ -14,9 +14,9 @@ tags:
 
 `std::ranges::replace` は、**範囲の中の特定の値を、別の値に置き換える**アルゴリズムです。`replace_if` なら条件で置き換えます。一方 `std::ranges::remove` / `remove_if` は、**消したい要素を除いて残りを前に詰める**だけのアルゴリズムで、要素数は変わりません（実際に消すには [`std::erase_if`](erase_if.md) を使います）。array のように要素数を変えられない範囲で使います。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 値の置き換えは `std::ranges::replace(v, 古い値, 新しい値)`、条件なら `replace_if`。
-    - **vector から消すなら [`std::erase_if`](erase_if.md)**。`remove` / `remove_if` 単体では消えない。
+    - <strong>vector から消すなら [`std::erase_if`](erase_if.md)</strong>。`remove` / `remove_if` 単体では消えない。
     - 元を変えずにコピーを作るなら `replace_copy` / `remove_copy`。
 
 ## 関数一覧
@@ -72,6 +72,12 @@ constexpr borrowed_iterator_t<R> replace(R&& r, const T1& old_value, const T2& n
 | `new_value` | 値 | この値に置き換える |
 | `proj` | プロジェクション | 比べる前の変換 |
 
+<div class="anim" data-label="std::ranges::replace(v, 2, 9)">
+2 1 2 3 # v
+*2 1 *2 3 # 値が 2 のものを探す
++9 1 +9 3 # すべて 9 に置き換わる
+</div>
+
 ### std::ranges::replace_if {#replace_if}
 
 ```cpp
@@ -80,6 +86,12 @@ constexpr borrowed_iterator_t<R> replace_if(R&& r, Pred pred, const T& new_value
 ```
 
 - `pred` が `true` の要素を `new_value` に置き換えます
+
+<div class="anim" data-label="std::ranges::replace_if(v, is_even, 0)">
+1 2 3 4 # v
+1 *2 3 *4 # 条件に合うもの
+1 +0 3 +0 # 0 に置き換わる
+</div>
 
 ### std::ranges::remove_if {#remove_if}
 
@@ -94,6 +106,13 @@ constexpr borrowed_subrange_t<R> remove_if(R&& r, Pred pred, Proj proj = {});
 <div class="mem">
 <div class="mem-step"><span class="mem-label">前</span><span class="mem-cells"><span>1</span><span class="gone">×</span><span>3</span><span class="gone">×</span><span>5</span></span></div>
 <div class="mem-step"><span class="mem-label">remove_if 後</span><span class="mem-cells"><span>1</span><span class="move">3</span><span class="move">5</span><span class="free">?</span><span class="free">?</span></span><span class="mem-note">? は戻り値の範囲。大きさは 5 のまま</span></div>
+</div>
+
+<div class="anim" data-label="std::remove_if(b, e, is_even)">
+1 2 3 4 5 # v
+1 x2 3 x4 5 # 条件に合うものが対象
+1 >3 >5 _ _ # 残りを前に詰める。size は変わらない
+1 3 5 # erase で後ろを切り捨てて完成
 </div>
 
 ```cpp
@@ -122,6 +141,13 @@ constexpr borrowed_subrange_t<R> remove(R&& r, const T& value, Proj proj = {});
 ```
 
 - `value` と等しい要素を除いて前に詰めます（remove_if の値版）
+
+<div class="anim" data-label="std::remove(b, e, 2)">
+1 2 3 2 4 # v
+1 x2 3 x2 4 # 値が 2 のものを消す対象にする
+1 >3 >4 _ _ # 残りを前に詰める。size は変わらない
+1 3 4 # erase で後ろを切り捨てて完成
+</div>
 
 ### std::ranges::replace_copy {#replace_copy}
 

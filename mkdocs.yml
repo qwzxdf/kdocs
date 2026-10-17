@@ -58,6 +58,7 @@ hooks:
 plugins:
   - search:
       lang: ja
+      separator: '[\s\-、。，．,:!=\[\]()"/<>{}]+|\.(?!\d)|&[lg]t;'
   - awesome-pages
   - tags
 
@@ -66,6 +67,8 @@ extra_javascript:
   - javascripts/spoiler.js
   - javascripts/home.js
   - javascripts/toc.js
+  - javascripts/anim.js
+  - javascripts/search-tune.js
 
 extra_css:
   - stylesheets/extra.css

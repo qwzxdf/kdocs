@@ -15,8 +15,8 @@ tags:
 
 `std::deque`（デック）は、**先頭にも末尾にもすばやく追加・削除できる配列**です。vector は末尾にしか速く足せませんが、deque は先頭への追加も O(1) です。中身は小さなブロックをいくつも並べた構造になっていて、vector ほどきれいに 1 本には並んでいません。
 
-!!! tip "結論"
-    - **先頭からも末尾からも出し入れするときだけ使う。** それ以外は [`std::vector`](vector.md)。
+!!! tip "ポイント"
+    - <strong>先頭からも末尾からも出し入れするときだけ使う。</strong> それ以外は [`std::vector`](vector.md)。
     - 使い方は vector とほぼ同じ。追加で `push_front` / `pop_front` がある。
     - 「先に入れたものから取り出す」だけなら [`std::queue`](queue.md)（中身は deque）でもいい。
     - 追加しても**要素への参照は壊れない**（両端に追加するとき）。
@@ -137,6 +137,11 @@ void push_back(T&& value);
 - 末尾に追加します。O(1)（ブロックが足りなければ新しいブロックを確保）
 - 追加しても既存の要素の**参照・ポインタは壊れない**（イテレータは壊れる）
 
+<div class="anim" data-label="d.push_back(40)">
+10 20 30 # d
+10 20 30 +40 # 後ろに追加。ほかは動かない
+</div>
+
 ### push_front {#push_front}
 
 ```cpp
@@ -149,6 +154,11 @@ void push_front(T&& value);
 | `value` | `const T&` / `T&&` | 先頭に追加する値 |
 
 - 先頭に追加します。O(1)。**vector に無い deque だけの機能**です
+
+<div class="anim" data-label="d.push_front(5)">
+10 20 30 # d
++5 10 20 30 # 前に追加。ほかは動かない（vector と違う）
+</div>
 
 ```cpp
 #include <deque>
@@ -174,6 +184,12 @@ void pop_back();
 
 - 末尾を消します。戻り値なし。**空のとき未定義動作**
 
+<div class="anim" data-label="d.pop_back()">
+10 20 30 40 # d
+10 20 30 x40 # 後ろを消す
+10 20 30 # 完了
+</div>
+
 ### pop_front {#pop_front}
 
 ```cpp
@@ -181,6 +197,12 @@ void pop_front();
 ```
 
 - 先頭を消します。戻り値なし。**空のとき未定義動作**
+
+<div class="anim" data-label="d.pop_front()">
+10 20 30 40 # d
+x10 20 30 40 # 前を消す
+20 30 40 # ほかは動かない
+</div>
 
 ```cpp
 #include <deque>
@@ -254,6 +276,11 @@ reference emplace_back(Args&&... args);
 
 - 末尾にその場で構築します。追加した要素の参照が返ります
 
+<div class="anim" data-label="d.emplace_back(40)">
+10 20 30 # d
+10 20 30 +40 # 後ろにその場で作る
+</div>
+
 ### emplace_front {#emplace_front}
 
 ```cpp
@@ -262,6 +289,11 @@ reference emplace_front(Args&&... args);
 ```
 
 - 先頭にその場で構築します
+
+<div class="anim" data-label="d.emplace_front(5)">
+10 20 30 # d
++5 10 20 30 # 前にその場で作る
+</div>
 
 ```cpp
 #include <deque>
@@ -331,6 +363,12 @@ void clear() noexcept;
 
 - 全要素を削除します
 
+<div class="anim" data-label="d.clear()">
+10 20 30 40 # d
+x10 x20 x30 x40 # すべて破棄
+_ _ _ _ # size 0
+</div>
+
 ### std::erase_if <span class="ver ver-20">C++20</span> {#erase_if data-toc-label="std::erase_if"}
 
 ```cpp
@@ -357,6 +395,12 @@ iterator insert(const_iterator pos, const T& value);
 - `pos` の前に挿入します。O(n)（両端に近いほうをずらす）
 - 途中に挿入すると、**参照・ポインタも全部壊れます**
 
+<div class="anim" data-label="d.insert(d.begin() + 1, 99)">
+10 20 30 40 # d
+10 _ >20 >30 40 # 近い側（後ろ）をずらす
+10 +99 20 30 40 # 99 を入れる。端に近いほど軽い
+</div>
+
 ### erase {#erase}
 
 ```cpp
@@ -366,6 +410,12 @@ iterator erase(const_iterator first, const_iterator last);
 
 - 指定した位置を消します。O(n)
 
+<div class="anim" data-label="d.erase(d.begin() + 1)">
+10 20 30 40 # d
+10 x20 30 40 # 消す
+10 >30 >40 # 近い側を詰める
+</div>
+
 ### resize {#resize}
 
 ```cpp
@@ -374,6 +424,11 @@ void resize(size_type count, const T& value);
 ```
 
 - 要素数を `count` にします（[vector の resize](vector.md#resize) と同じ）
+
+<div class="anim" data-label="d.resize(5)">
+10 20 30 # d
+10 20 30 +0 +0 # 足りない分を 0 で作る
+</div>
 
 ### append_range <span class="ver ver-23">C++23</span> {#append_range data-toc-label="append_range"}
 

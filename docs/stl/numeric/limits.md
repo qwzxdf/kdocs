@@ -14,7 +14,7 @@ tags:
 
 `std::numeric_limits<T>` は、**数値の型 T の性質（最大値・最小値・精度など）を教えてくれる**クラスです。「int に入る一番大きい数は？」「float の一番小さい誤差は？」のような情報が、型ごとに `std::numeric_limits<int>::max()` のように取り出せます。最小値を探すループの初期値や、浮動小数点の比較の許容誤差などに使います。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 最大値は `max()`、最小値は **`lowest()`**（float の `min()` は「一番小さい正の数」なので注意）。
     - 「まだ見つかっていない」の初期値に `max()` / `lowest()` を使う。
     - 無限大は `infinity()`、NaN は `quiet_NaN()`。
@@ -86,7 +86,7 @@ static constexpr T lowest() noexcept;
 static constexpr T min() noexcept;
 ```
 
-- 整数では一番小さい値（int なら -2147483648）。**浮動小数点では「0 に一番近い正の数」**なので、最大値探しの初期値に使うと間違えます
+- 整数では一番小さい値（int なら -2147483648）。<strong>浮動小数点では「0 に一番近い正の数」</strong>なので、最大値探しの初期値に使うと間違えます
 
 ```cpp
 #include <limits>

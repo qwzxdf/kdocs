@@ -14,7 +14,7 @@ tags:
 
 `<iterator>` は、**イテレータを動かしたり、2 つのイテレータの距離を測ったり、アルゴリズムの書き込み先を作ったりする道具**をまとめたヘッダです。`std::next` や `std::distance` は、vector だけでなく list や map のイテレータにも使えます。`std::back_inserter` は、空の vector にアルゴリズムの結果を書き込むときの定番です。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - n 個先・前は `std::next(it, n)` / `std::prev(it, n)`（どのコンテナでも使える）。
     - 2 つの位置の距離は `std::distance(a, b)`（vector なら `b - a` でもいい）。
     - 空の vector に書き込むなら `std::back_inserter(v)`。
@@ -82,6 +82,12 @@ std::back_insert_iterator<Container> back_inserter(Container& c);
 
 - このイテレータに書き込む（`*it = x`）と、`c.push_back(x)` が呼ばれます。アルゴリズムの出力先に使います
 
+<div class="anim" data-label="std::back_inserter(v)">
+1 2 # v
+1 2 +3 # 代入するたびに push_back される
+1 2 3 +4 # 出力先の大きさを気にしなくてよい
+</div>
+
 ### std::next {#next}
 
 ```cpp
@@ -96,6 +102,11 @@ InputIt next(InputIt it, std::iter_difference_t<InputIt> n = 1);
 
 - n 個先のイテレータを**新しく返します**。list など `+ n` できないイテレータにも使えます（その場合 O(n)）
 
+<div class="anim" data-label="std::next(it, 2)">
+*a b c d # it は a を指す
+a b *c d # 2 つ先を返す。it 自体は動かない
+</div>
+
 ### std::prev {#prev}
 
 ```cpp
@@ -104,6 +115,11 @@ BidirIt prev(BidirIt it, std::iter_difference_t<BidirIt> n = 1);
 ```
 
 - n 個前のイテレータを返します。`std::prev(v.end())` で最後の要素
+
+<div class="anim" data-label="std::prev(it, 2)">
+a b c *d # it は d を指す
+a *b c d # 2 つ前を返す。it 自体は動かない
+</div>
 
 ### std::size {#size}
 
@@ -156,6 +172,11 @@ std::iter_difference_t<InputIt> distance(InputIt first, InputIt last);
 
 - `first` から `last` まで何個あるか。vector なら O(1)、list なら O(n)。見つかった位置の添字を出すのにも使えます
 
+<div class="anim" data-label="std::distance(first, last)">
+*a b c *d # first は a、last は d
+*a *b *c d # 間の個数（3）を数える
+</div>
+
 ### std::advance {#advance}
 
 ```cpp
@@ -164,6 +185,11 @@ void advance(InputIt& it, Distance n);
 ```
 
 - `it` **そのもの**を n 個進めます（戻り値なし）。新しいイテレータが欲しいなら `std::next`
+
+<div class="anim" data-label="std::advance(it, 2)">
+*a b c d # it は a を指す
+a b *c d # 2 つ進む（it が書き換わる）
+</div>
 
 ```cpp
 #include <algorithm>

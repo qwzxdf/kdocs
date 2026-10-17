@@ -14,7 +14,7 @@ tags:
 
 `std::ranges::unique` は、**連続して並んでいる同じ値を 1 つにまとめる**関数です。「連続して」なので、`{1, 1, 2, 1}` は `{1, 2, 1}` になります。全体の重複を消したいなら、**先にソートしてから** `unique` します。また、`unique` は「残すものを前に詰める」だけで要素数は変えないので、後ろに残ったものは自分で `erase` します。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 重複を消す定番は「`sort` → `unique` → `erase`」の 3 点セット。
     - 順番を気にしないなら、`std::set` / `std::unordered_set` に入れるだけでもいい。
     - `unique` 単体では要素数が減らない。戻り値の範囲を `erase` する。
@@ -71,6 +71,13 @@ constexpr borrowed_subrange_t<R> unique(R&& r, Comp comp = {}, Proj proj = {});
 <div class="mem">
 <div class="mem-step"><span class="mem-label">前</span><span class="mem-cells"><span>1</span><span>1</span><span>2</span><span>2</span><span>3</span></span></div>
 <div class="mem-step"><span class="mem-label">unique の後</span><span class="mem-cells"><span>1</span><span class="move">2</span><span class="move">3</span><span class="gone">?</span><span class="gone">?</span></span><span class="mem-note">? の部分が戻り値の範囲。中身は不定なので erase する</span></div>
+</div>
+
+<div class="anim" data-label="std::ranges::unique(v)">
+1 1 2 2 2 3 # 連続した重複がある
+1 x1 2 x2 x2 3 # 連続する同じ値を消す対象にする
+1 >2 >3 _ _ _ # 残りを前に詰める
+1 2 3 # erase で後ろを切り捨てて完成。離れた重複は消えない
 </div>
 
 ```cpp

@@ -1,7 +1,7 @@
 ---
 title: cereal（バイナリ・定番）
 tags:
-  - ゲームエンジン
+  - 外部ライブラリ
   - シリアライズ
 ---
 
@@ -14,10 +14,10 @@ tags:
 `#include <cereal/archives/binary.hpp>`
 </div>
 
-**cereal**（シリアル）は、C++ のオブジェクトを**バイナリ・JSON・XML**に保存して、また読み戻すためのライブラリです。自分の型に `serialize` という関数を 1 つ書くだけで、**同じ関数で保存と読み込みの両方**ができるのが最大の特徴です（書く順番と読む順番がずれるミスが起きません）。`std::vector`、`std::map`、`std::string` などの STL のコンテナや、`std::shared_ptr`・`std::unique_ptr`、さらに**継承したクラス（ポリモーフィズム）** の保存にも対応していて、**クラスごとのバージョン番号**の仕組みも最初から入っています。ヘッダオンリーで導入も簡単なので、「C++ でセーブデータをバイナリで保存する」ときの定番になっています。
+**cereal**（シリアル）は、C++ のオブジェクトを**バイナリ・JSON・XML**に保存して、また読み戻すためのライブラリです。自分の型に `serialize` という関数を 1 つ書くだけで、**同じ関数で保存と読み込みの両方**ができるのが最大の特徴です（書く順番と読む順番がずれるミスが起きません）。`std::vector`、`std::map`、`std::string` などの STL のコンテナや、`std::shared_ptr`・`std::unique_ptr`、さらに<strong>継承したクラス（ポリモーフィズム）</strong> の保存にも対応していて、**クラスごとのバージョン番号**の仕組みも最初から入っています。ヘッダオンリーで導入も簡単なので、「C++ でセーブデータをバイナリで保存する」ときの定番になっています。
 
-!!! tip "結論"
-    - **バイナリのセーブデータはまずこれ。** 型に `serialize` を 1 つ書けば、保存と読み込みの両方ができる。
+!!! tip "ポイント"
+    - <strong>バイナリのセーブデータはまずこれ。</strong> 型に `serialize` を 1 つ書けば、保存と読み込みの両方ができる。
     - 使う型に合わせて **`cereal/types/vector.hpp`** などのヘッダを include する（忘れるとコンパイルエラー）。
     - **アーカイブはスコープ `{}` で囲んで、必ず破棄してから**ファイルやデータを使う。
     - 後から形が変わる型には **`CEREAL_CLASS_VERSION`** と `serialize(Archive&, std::uint32_t version)` でバージョンを付ける。
@@ -25,9 +25,37 @@ tags:
     - 違う CPU（エンディアン）の間でやり取りするなら `PortableBinaryArchive`。
 
 !!! info "このページを読む前に"
-    [シリアライズの概要](index.md) の「自作の簡単なバイナリシリアライザ」を読むと、cereal が中で何をしているかが分かります。[テンプレート](../../basics/template.md) と [継承と仮想関数](../../basics/virtual.md)、[unique_ptr](../../stl/utilities/unique_ptr.md) も関係します。
+    [シリアライズの概要](../../engine/serialization/index.md) の「自作の簡単なバイナリシリアライザ」を読むと、cereal が中で何をしているかが分かります。[テンプレート](../../basics/template.md) と [継承と仮想関数](../../basics/virtual.md)、[unique_ptr](../../stl/utilities/unique_ptr.md) も関係します。
 
 ## 導入
+
+### Visual Studio で導入する（最初に読む）
+
+Visual Studio を使っているなら、**この方法が一番簡単**です。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは cereal だけの部分を書きます。
+
+=== "vcpkg（おすすめ）"
+
+    1. 初回だけ、Developer PowerShell で `vcpkg integrate install` を実行する（[準備](../../vs/libraries.md#vcpkg)）
+    2. ライブラリを入れる
+
+        ```powershell
+        vcpkg install cereal:x64-windows
+        ```
+
+        （マニフェスト モードなら、`vcpkg.json` の `dependencies` に `"cereal"` を足す）
+    3. プロジェクトには何も設定せずに、`#include <cereal/archives/binary.hpp>` と書けば使える
+
+=== "ファイルを置く"
+
+    1. [GitHub](https://github.com/USCiLab/cereal) の **`include/cereal` フォルダーごと**を `third_party/cereal/include/cereal/` に置く
+    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\cereal\include` を追加する
+    4. `#include <cereal/archives/binary.hpp>` と書いてビルドする
+
+!!! note "C++ の設定"
+    C++11 以上で動きます。
+
+### そのほかの方法（CMake など）
 
 ヘッダオンリーです。
 
@@ -151,7 +179,7 @@ int main() {
 Alice Lv.12 [101, 205, 330]
 ```
 
-37 バイトの内訳は、次のとおりです。cereal のバイナリは、**要素の数を 8 バイト（`std::uint64_t`）** で書きます。
+37 バイトの内訳は、次のとおりです。cereal のバイナリは、<strong>要素の数を 8 バイト（`std::uint64_t`）</strong> で書きます。
 
 | 中身 | バイト数 |
 | --- | --- |
@@ -400,7 +428,7 @@ int main() {
 | `std::shared_ptr<T>` | できる | **同じオブジェクトを指す shared_ptr は 1 回だけ保存**され、読み込み後も共有された状態に戻る |
 | `std::weak_ptr<T>` | できる | 指している shared_ptr も一緒に保存されている必要がある |
 
-ゲームのオブジェクト同士の参照（「この弾は敵 3 番が撃った」）は、ポインタではなく [ハンドルや ID](../handle.md) で保存するのが基本です。
+ゲームのオブジェクト同士の参照（「この弾は敵 3 番が撃った」）は、ポインタではなく [ハンドルや ID](../../engine/handle.md) で保存するのが基本です。
 
 ## エラー処理
 
@@ -413,7 +441,7 @@ cereal はエラーを**例外**（`cereal::Exception`、`std::runtime_error` �
 | 型や順番がずれている（バイナリ） | **エラーにならないことがある**。おかしな値が読まれたり、巨大な要素数を読んでメモリ不足（`std::bad_alloc`）になったりする |
 
 !!! danger "バイナリアーカイブは「間違ったデータ」を見分けられない"
-    バイナリアーカイブは、データの中に型の情報を持っていません。違う型のデータや壊れたデータを読むと、エラーにならずにでたらめな値になることがあります。特に、要素数が壊れていると「40 億個の vector を確保しようとする」などが起きます。セーブデータには、**先頭にマジックナンバー（`'SAVE'` などの決まった値）とバージョン**、**最後にチェックサム（CRC32 など）** を付けて、壊れていたら読まないようにします。インターネットから来るデータなど、**信用できないデータを cereal のバイナリで読むのは危険**です。
+    バイナリアーカイブは、データの中に型の情報を持っていません。違う型のデータや壊れたデータを読むと、エラーにならずにでたらめな値になることがあります。特に、要素数が壊れていると「40 億個の vector を確保しようとする」などが起きます。セーブデータには、**先頭にマジックナンバー（`'SAVE'` などの決まった値）とバージョン<strong>、</strong>最後にチェックサム（CRC32 など）<strong> を付けて、壊れていたら読まないようにします。インターネットから来るデータなど、</strong>信用できないデータを cereal のバイナリで読むのは危険**です。
 
 ## 速さとサイズの特徴
 
@@ -520,7 +548,7 @@ CEREAL_CLASS_VERSION(TYPE, VERSION_NUMBER);
 | `TYPE` | バージョンを付ける型 |
 | `VERSION_NUMBER` | 今のバージョン番号（`std::uint32_t`） |
 
-- 型の定義の後、**名前空間の外（グローバル）** に書きます。型が名前空間の中にあるなら `CEREAL_CLASS_VERSION(game::SaveData, 2);` と書きます。
+- 型の定義の後、<strong>名前空間の外（グローバル）</strong> に書きます。型が名前空間の中にあるなら `CEREAL_CLASS_VERSION(game::SaveData, 2);` と書きます。
 - これを書いた型は、`serialize` に `version` 引数を付けて受け取れます（付けなくても動きます）。
 
 ### serialize（メンバ以外） {#serialize_nonmember}
@@ -693,7 +721,7 @@ int main() {
 ```
 
 - 出力の一番外側は、必ずオブジェクト `{ }` になります。
-- **アーカイブを破棄するまで、最後の `}` が書かれません。** スコープを閉じる前に `stream.str()` を見ると、途中までの JSON になっています。
+- <strong>アーカイブを破棄するまで、最後の `}` が書かれません。</strong> スコープを閉じる前に `stream.str()` を見ると、途中までの JSON になっています。
 - キーの順番は書いた順番になります。
 
 ### JSONInputArchive {#json_input}
@@ -991,7 +1019,7 @@ JSONOutputArchive::Options(int precision = std::numeric_limits<double>::max_digi
 
 ## 関連ページ
 
-- [シリアライズの概要](index.md)
+- [シリアライズの概要](../../engine/serialization/index.md)
 - [zpp_bits（バイナリ・速さ重視）](zpp-bits.md)
 - [ファイル入出力](../../basics/file-io.md)
 - [継承と仮想関数](../../basics/virtual.md)

@@ -15,8 +15,8 @@ tags:
 
 `std::map` は、**キーの順番に並んだ表**です。[`std::unordered_map`](unordered_map.md) と同じく「キー → 値」を持ちますが、中身が常にキーの小さい順に並んでいます。中は「赤黒木」という二分探索木で、検索・追加・削除はすべて O(log n) です。
 
-!!! tip "結論"
-    - **キーの順番に回したいとき、範囲で探したいときに使う。** それ以外は `unordered_map` で十分。
+!!! tip "ポイント"
+    - <strong>キーの順番に回したいとき、範囲で探したいときに使う。</strong> それ以外は `unordered_map` で十分。
     - 関数の使い方は `unordered_map` とほぼ同じ（`[]`, `find`, `contains`, `erase`）。
     - map だけの強みは `lower_bound` / `upper_bound`（「この値以上で一番小さいキー」が探せる）。
     - 並び順を逆にしたいなら `std::map<int, T, std::greater<>>`。
@@ -187,7 +187,7 @@ int main() {
 
 ## 関数の詳しい説明
 
-使い方の多くは [`std::unordered_map`](unordered_map.md) と同じです。違うのは**計算量が O(log n)** であることと、**キーの順に並んでいる**ことです。
+使い方の多くは [`std::unordered_map`](unordered_map.md) と同じです。違うのは<strong>計算量が O(log n)</strong> であることと、**キーの順に並んでいる**ことです。
 
 ### operator[] {#operator}
 
@@ -202,6 +202,11 @@ T& operator[](Key&& key);
 
 - 戻り値: 値の参照。**キーが無ければデフォルト値で追加する**
 - 計算量: O(log n)
+
+<div class="anim" data-label="m[4]">
+1 3 5 # キー
+1 3 +4 5 # なければ作られる（値は 0 や空）
+</div>
 
 ```cpp
 #include <map>
@@ -233,6 +238,11 @@ const_iterator find(const Key& key) const;
 - 戻り値: 見つかった要素のイテレータ。見つからなければ `end()`
 - 計算量: O(log n)
 
+<div class="anim" data-label="m.find(3)">
+1 3 5 7 # キー
+1 *3 5 7 # 見つかれば、その要素を指す
+</div>
+
 ```cpp
 #include <map>
 #include <print>
@@ -258,6 +268,11 @@ bool contains(const Key& key) const;
 
 - 戻り値: キーがあれば `true`
 - 計算量: O(log n)
+
+<div class="anim" data-label="m.contains(3)">
+1 3 5 7 # キー
+1 *3 5 7 # あれば true
+</div>
 
 ```cpp
 #include <map>
@@ -331,6 +346,12 @@ iterator erase(const_iterator first, const_iterator last);
 - 戻り値: キー版は消した数、位置版は次の要素のイテレータ
 - 計算量: O(log n)。範囲版は O(log n + 消す数)
 
+<div class="anim" data-label="m.erase(3)">
+1 3 5 # キー
+1 x3 5 # 消す
+1 5 # 完了
+</div>
+
 ```cpp
 #include <map>
 #include <print>
@@ -384,6 +405,11 @@ const_iterator lower_bound(const Key& key) const;
 <div class="mem-step"><span class="mem-label">lower_bound(35)</span><span class="mem-note">→ 40（35 以上の最初）</span></div>
 </div>
 
+<div class="anim" data-label="m.lower_bound(4)">
+1 3 5 7 # キー
+1 3 *5 7 # 4 以上で最初の要素
+</div>
+
 ```cpp
 #include <map>
 #include <print>
@@ -417,6 +443,11 @@ const_iterator upper_bound(const Key& key) const;
 <div class="mem">
 <div class="mem-step"><span class="mem-label">キー</span><span class="mem-cells"><span>10</span><span>20</span><span>30</span><span class="new">40</span><span>50</span></span></div>
 <div class="mem-step"><span class="mem-label">upper_bound(30)</span><span class="mem-note">→ 40（30 より大きい最初。30 自身は含まない）</span></div>
+</div>
+
+<div class="anim" data-label="m.upper_bound(5)">
+1 3 5 7 # キー
+1 3 5 *7 # 5 より大きい最初の要素
 </div>
 
 ```cpp
@@ -481,6 +512,11 @@ std::pair<iterator, bool> try_emplace(const Key& key, Args&&... args);
 - キーが無いときだけ、`args` で値を作って追加します。戻り値は `pair<イテレータ, 追加したか>`
 - 使い方は [unordered_map の try_emplace](unordered_map.md#try_emplace) と同じです
 
+<div class="anim" data-label="m.try_emplace(3, &quot;X&quot;)">
+1 3 5 # すでにキー 3 がある
+1 *3 5 # あるので何もしない（値は上書きされない）
+</div>
+
 ### insert_or_assign <span class="ver ver-17">C++17</span> {#insert_or_assign data-toc-label="insert_or_assign"}
 
 ```cpp
@@ -491,6 +527,11 @@ std::pair<iterator, bool> insert_or_assign(const Key& key, M&& value);
 - あれば上書き、無ければ追加します。戻り値の `second` は新規なら `true`
 - 使い方は [unordered_map の insert_or_assign](unordered_map.md#insert_or_assign) と同じです
 
+<div class="anim" data-label="m.insert_or_assign(3, &quot;X&quot;)">
+1 3 5 # すでにキー 3 がある
+1 +3 5 # あれば値を上書き、なければ追加
+</div>
+
 ### at {#at}
 
 ```cpp
@@ -499,6 +540,11 @@ const T& at(const Key& key) const;
 ```
 
 - キーが無ければ `std::out_of_range`。`const` な map から読むときに使います
+
+<div class="anim" data-label="m.at(3)">
+1 3 5 # キー
+1 *3 5 # あれば値、なければ例外
+</div>
 
 ### std::erase_if <span class="ver ver-20">C++20</span> {#erase_if data-toc-label="std::erase_if"}
 
@@ -531,6 +577,12 @@ void clear() noexcept;
 ```
 
 - 全要素を削除します。O(n)
+
+<div class="anim" data-label="m.clear()">
+1 3 5 # キー
+x1 x3 x5 # すべて破棄
+_ _ _ # 空
+</div>
 
 ### rend {#rend}
 
@@ -570,6 +622,11 @@ std::pair<iterator, iterator> equal_range(const Key& key);
 - 戻り値: `{lower_bound(key), upper_bound(key)}`。普通の map では要素 0 個か 1 個の範囲になります
 - 本領を発揮するのは [`std::multimap`](multimap.md#equal_range) です
 
+<div class="anim" data-label="m.equal_range(3)">
+1 3 5 # キー
+1 *3 5 # [下限, 上限) の組。map では 0 〜 1 個
+</div>
+
 ### insert {#insert}
 
 ```cpp
@@ -578,6 +635,11 @@ void insert(std::initializer_list<value_type> ilist);
 ```
 
 - 既にキーがあれば何もしません（上書きしない）。使い方は [unordered_map の insert](unordered_map.md#insert) と同じです
+
+<div class="anim" data-label="m.insert({4, &quot;D&quot;})">
+1 3 5 # キーは常に整列
+1 3 +4 5 # 順番どおりの場所に入る
+</div>
 
 ### emplace {#emplace}
 
@@ -627,6 +689,11 @@ size_type count(const Key& key) const;
 ```
 
 - 0 か 1 を返します。今は `contains` を使います
+
+<div class="anim" data-label="m.count(3)">
+1 3 5 7 # キー
+1 *3 5 7 # 0 か 1（キーは重複しない）
+</div>
 
 ### extract <span class="ver ver-17">C++17</span> {#extract data-toc-label="extract"}
 

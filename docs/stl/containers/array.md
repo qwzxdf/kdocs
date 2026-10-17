@@ -15,8 +15,8 @@ tags:
 
 `std::array` は、**要素数がコンパイル時に決まっている固定長の配列**です。中身は C の配列（`int a[4]`）とまったく同じで、速さもメモリも変わりません。そのうえで `size()` が使える、コピーや比較ができる、関数から返せる、といった「普通の値」としての便利さが足されています。
 
-!!! tip "結論"
-    - **個数が決まっているなら C の配列ではなくこれを使う。** 4 方向、装備スロット、キー設定など。
+!!! tip "ポイント"
+    - <strong>個数が決まっているなら C の配列ではなくこれを使う。</strong> 4 方向、装備スロット、キー設定など。
     - 書き方は `std::array<int, 4> a = {1, 2, 3, 4};`。型と個数をテンプレート引数に書く。
     - 個数が変わるなら [`std::vector`](vector.md)。
     - **ヒープを使わない**ので、vector よりさらに軽い。
@@ -90,7 +90,7 @@ vector と同じ名前の関数は同じ意味です。
 | [`front`](#front) | <span class="rank rank-sometimes">たまに</span> | 先頭の要素 | O(1) |
 | [`back`](#back) | <span class="rank rank-sometimes">たまに</span> | 末尾の要素 | O(1) |
 | [`at`](#at) | <span class="rank rank-sometimes">たまに</span> | i 番目にアクセス（範囲チェックあり） | O(1) |
-| [`swap`](#swap) | <span class="rank rank-rare">知ってるだけ</span> | 全要素を交換 | **O(N)** |
+| [`swap`](#swap) | <span class="rank rank-rare">知ってるだけ</span> | 全要素を交換 | <strong>O(N)</strong> |
 | [`empty`](#empty) | <span class="rank rank-rare">知ってるだけ</span> | `N == 0` かどうか | O(1) |
 | [`max_size`](#max_size) | <span class="rank rank-rare">知ってるだけ</span> | 常に N | O(1) |
 | [`std::get`](#get) | <span class="rank rank-rare">知ってるだけ</span> | コンパイル時の添字でアクセス | O(1) |
@@ -203,6 +203,11 @@ constexpr const_reference operator[](size_type pos) const;
 - 計算量: O(1)
 - 例外: なし。**範囲外は未定義動作**
 
+<div class="anim" data-label="a[1]">
+10 20 30 40 # 添字は 0 から
+10 *20 30 40 # a[1] は 20。範囲チェックなし
+</div>
+
 ```cpp
 #include <array>
 #include <print>
@@ -304,6 +309,11 @@ constexpr void fill(const T& value);
 | `value` | `const T&` | 全要素に入れる値 |
 
 - 計算量: O(N)
+
+<div class="anim" data-label="a.fill(0)">
+1 2 3 4 # a = {1, 2, 3, 4}
++0 +0 +0 +0 # 全要素が 0 になる。大きさは変わらない
+</div>
 
 ```cpp
 #include <array>
@@ -414,6 +424,11 @@ constexpr const_reference front() const;
 - 計算量: O(1)
 - `N == 0` のときは未定義動作
 
+<div class="anim" data-label="a.front()">
+10 20 30 # a
+*10 20 30 # 先頭の要素
+</div>
+
 ### back {#back}
 
 ```cpp
@@ -424,6 +439,11 @@ constexpr const_reference back() const;
 - 戻り値: 末尾の要素の参照（`a[N - 1]` と同じ）
 - 計算量: O(1)
 - `N == 0` のときは未定義動作
+
+<div class="anim" data-label="a.back()">
+10 20 30 # a
+10 20 *30 # 最後の要素
+</div>
 
 ```cpp
 #include <array>
@@ -457,6 +477,11 @@ constexpr const_reference at(size_type pos) const;
 - 例外: 範囲外なら `std::out_of_range`
 - 計算量: O(1)
 
+<div class="anim" data-label="a.at(1)">
+10 20 30 40 # 添字は 0 から
+10 *20 30 40 # a.at(1) は 20。範囲外なら例外
+</div>
+
 ```cpp
 #include <array>
 #include <print>
@@ -489,7 +514,12 @@ constexpr void swap(array& other) noexcept(/* T の swap が noexcept なら */)
 | --- | --- | --- |
 | `other` | `array&` | 交換する相手（同じ型・同じ大きさ） |
 
-- 計算量: **O(N)**
+- 計算量: <strong>O(N)</strong>
+
+<div class="anim" data-label="a.swap(b)">
+1 2 3 | 7 8 9 # a と b
+>7 >8 >9 | >1 >2 >3 # 要素を 1 つずつ入れ替える。O(n)
+</div>
 
 ```cpp
 #include <array>

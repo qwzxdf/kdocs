@@ -14,8 +14,8 @@ tags:
 
 `min_element` と `max_element` は、**範囲の中で最小・最大の要素の「位置」（イテレータ）を返す**関数です。[`std::ranges::min` / `max`](min_max.md) が「値のコピー」を返すのに対し、こちらは位置を返すので、見つけた要素を書き換えたり、何番目かを調べたりできます。
 
-!!! tip "結論"
-    - **一番近い敵、一番 HP の低い仲間など、「見つけて何かする」ときに使う。** 値だけ欲しいなら `std::ranges::min` / `max`。
+!!! tip "ポイント"
+    - <strong>一番近い敵、一番 HP の低い仲間など、「見つけて何かする」ときに使う。</strong> 値だけ欲しいなら `std::ranges::min` / `max`。
     - メンバで比べるならプロジェクション: `std::ranges::min_element(enemies, {}, &Enemy::distance)`。
     - 空の範囲だと `end()` が返る。**必ず `end()` と比べてから使う**。
     - 同じ値が複数あると、`min_element` も `max_element` も**最初の**ものを返す。
@@ -78,6 +78,14 @@ constexpr borrowed_iterator_t<R> min_element(R&& r, Comp comp = {}, Proj proj = 
 - 戻り値: 最小の要素のイテレータ。同じ値が複数なら最初のもの。**空なら `end()`**
 - 計算量: O(n)
 
+<div class="anim" data-label="std::ranges::min_element(v)">
+4 2 7 1 5 # v
+*4 2 7 1 5 # 最小の候補は 4
+4 *2 7 1 5 # 2 が小さいので候補が変わる
+4 2 7 *1 5 # 1 がさらに小さい
+4 2 7 *1 5 # 最後まで見て、1 の位置を返す
+</div>
+
 ```cpp
 #include <algorithm>
 #include <print>
@@ -102,6 +110,13 @@ constexpr borrowed_iterator_t<R> max_element(R&& r, Comp comp = {}, Proj proj = 
 ```
 
 - 戻り値: 最大の要素のイテレータ。同じ値が複数なら**最初の**もの。空なら `end()`
+
+<div class="anim" data-label="std::ranges::max_element(v)">
+4 2 7 1 5 # v
+*4 2 7 1 5 # 最大の候補は 4
+4 2 *7 1 5 # 7 が大きいので候補が変わる
+4 2 *7 1 5 # 最後まで見て、7 の位置を返す
+</div>
 
 ```cpp
 #include <algorithm>

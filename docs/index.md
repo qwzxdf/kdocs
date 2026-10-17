@@ -14,9 +14,11 @@ hide:
 - はじめに
     - [このサイトの読み方](guide/how-to-read.md)
     - [コンテナの選び方](guide/container-chart.md)
+- [Visual Studio](vs/index.md)
 - [STL](stl/index.md)
 - [基礎](basics/index.md)
 - [ゲームエンジン](engine/index.md)
+- [外部ライブラリ](libs/index.md)
 - [設計](design/index.md)
 - [自作型](custom-types/index.md)
 - [Tips](tips/index.md)

@@ -12,4 +12,5 @@ nav:
   - chrono.md
   - random.md
   - any.md
+  - hash.md
   - ...

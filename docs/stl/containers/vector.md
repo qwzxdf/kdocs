@@ -15,8 +15,8 @@ tags:
 
 `std::vector` は、**あとから要素を増やしたり減らしたりできる配列**です。中身はメモリ上にすき間なく並んでいるので、C の配列と同じ速さで読み書きできます。入りきらなくなったら自動で大きい場所に引っ越してくれるので、最初に個数を決めなくても使えます。
 
-!!! tip "結論"
-    - **迷ったらこれを使う。** ゲームで使うコンテナの大半は vector で足ります。
+!!! tip "ポイント"
+    - <strong>迷ったらこれを使う。</strong> ゲームで使うコンテナの大半は vector で足ります。
     - 9 割は `push_back` / `emplace_back` で足して、範囲 for で回して、`std::erase_if` で消す。この 3 つで足ります。
     - 個数が分かっているなら最初に `reserve`。
     - **要素を追加すると、持っていたポインタ・参照・イテレータが壊れることがある**。ここだけは必ず覚えておく。
@@ -34,7 +34,7 @@ class vector;
 | テンプレート引数 | 意味 | 指定する？ |
 | --- | --- | --- |
 | `T` | 要素の型 | 必ず |
-| `Allocator` | メモリの確保方法 | **しない**。自作アロケータを使うときだけ |
+| `Allocator` | メモリの確保方法（[アロケータの解説](../memory/allocator.md)） | **しない**。自作アロケータや [`std::pmr`](../memory/pmr.md) を使うときだけ |
 
 ### コンストラクタ
 
@@ -301,6 +301,20 @@ void push_back(T&& value);
 - 計算量: 償却 O(1)。容量が足りないときだけ再確保が起きて O(n)
 - 例外: メモリ確保に失敗すると `std::bad_alloc`
 
+<div class="anim" data-label="v.push_back(40)  ※空きがあるとき">
+10 20 30 _ _ # v = {10, 20, 30}　size 3 / capacity 5
+10 20 30 +40 _ # 空いている場所に 40 を置く
+10 20 30 40 _ # size 4 / capacity 5。空きがあるので引っ越しは起きない
+</div>
+
+<div class="anim" data-label="v.push_back(50)  ※満杯のとき（引っ越し）">
+10 20 30 40 # size 4 / capacity 4。もう空きがない
+10 20 30 40 | _ _ _ _ # ① 2 倍の大きさの新しい場所を確保する
+x10 x20 x30 x40 | >10 >20 >30 >40 _ _ _ _ # ② 要素を全部ムーブする
+x10 x20 x30 x40 | 10 20 30 40 +50 _ _ _ # ③ 新しい場所に 50 を追加する
+| 10 20 30 40 50 _ _ _ # ④ 古い場所を解放。元を指していたイテレータ・参照は壊れる
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -385,6 +399,11 @@ const_reference operator[](size_type pos) const;
 - 戻り値: `pos` 番目の要素の参照
 - 計算量: O(1)
 - 例外: なし。**範囲外は未定義動作**（チェックしない）
+
+<div class="anim" data-label="v[2]">
+10 20 30 40 # 添字は 0 から数える
+10 20 *30 40 # v[2] は 30。範囲のチェックはしない（範囲外は未定義動作）
+</div>
 
 ```cpp
 std::vector<int> map_tiles(16 * 9, 0);
@@ -491,6 +510,11 @@ reference emplace_back(Args&&... args);
 - 計算量: 償却 O(1)
 - 例外: `push_back` と同じ
 
+<div class="anim" data-label="v.emplace_back(30)">
+10 20 _ _ # v = {10, 20}
+10 20 +30 _ # 空いている場所で、その場で 30 を作る（コピー・ムーブなし）
+</div>
+
 ```cpp
 #include <print>
 #include <vector>
@@ -572,7 +596,7 @@ int main() {
 ```
 
 !!! note "実際は"
-    **vector から要素を消すときの第一候補です。** メンバ関数ではなく `std::` の関数なので注意してください（`enemies.erase_if(...)` ではありません）。
+    <strong>vector から要素を消すときの第一候補です。</strong> メンバ関数ではなく `std::` の関数なので注意してください（`enemies.erase_if(...)` ではありません）。
 
 ### empty {#empty}
 
@@ -601,6 +625,12 @@ void clear() noexcept;
 - 戻り値: なし
 - 計算量: O(n)（各要素のデストラクタを呼ぶため）
 - **容量（`capacity`）はそのまま**。メモリは返されない
+
+<div class="anim" data-label="v.clear()">
+10 20 30 40 _ # size 4 / capacity 5
+x10 x20 x30 x40 _ # ① すべての要素を破棄する
+_ _ _ _ _ # size 0。capacity は 5 のまま（メモリは返さない）
+</div>
 
 ```cpp
 #include <print>
@@ -634,6 +664,11 @@ void reserve(size_type new_cap);
 - 計算量: 再確保が起きれば O(n)、`new_cap <= capacity()` なら何もしない
 - 例外: `new_cap > max_size()` なら `std::length_error`
 - **`size` は変わらない**。場所を取るだけ
+
+<div class="anim" data-label="v.reserve(5)">
+10 20 30 # size 3 / capacity 3
+10 20 30 _ _ # capacity だけが 5 に増える。size と中身は変わらない
+</div>
 
 ```cpp
 #include <cstddef>
@@ -685,6 +720,11 @@ const_reference back() const;
 - 計算量: O(1)
 - **空のときに呼ぶと未定義動作**
 
+<div class="anim" data-label="v.back()">
+10 20 30 # v = {10, 20, 30}
+10 20 *30 # back() は最後の要素（30）への参照
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -719,6 +759,11 @@ const_reference front() const;
 - 計算量: O(1)
 - **空のときに呼ぶと未定義動作**
 
+<div class="anim" data-label="v.front()">
+10 20 30 # v = {10, 20, 30}
+*10 20 30 # front() は先頭の要素（10）への参照
+</div>
+
 ```cpp
 #include <algorithm>
 #include <print>
@@ -747,6 +792,12 @@ void pop_back();
 - 戻り値: **なし**（取り出した値は返ってこない）
 - 計算量: O(1)
 - **空のときに呼ぶと未定義動作**
+
+<div class="anim" data-label="v.pop_back()">
+10 20 30 40 _ # v = {10, 20, 30, 40}
+10 20 30 x40 _ # 最後の要素を破棄する
+10 20 30 _ _ # size 3。capacity は 5 のまま（メモリは返さない）
+</div>
 
 ```cpp
 #include <print>
@@ -786,6 +837,13 @@ void resize(size_type count, const T& value);
 - 戻り値: なし
 - 計算量: O(|count - size()|)、再確保が起きれば O(n)
 - 増やすと末尾に追加、減らすと末尾から削除
+
+<div class="anim" data-label="v.resize(5) → v.resize(2)">
+10 20 30 # size 3
+10 20 30 +0 +0 # resize(5)：足りない分を 0 で作る
+10 20 x30 x0 x0 # resize(2)：はみ出す分を破棄する
+10 20 _ _ _ # size 2。capacity は減らない
+</div>
 
 ```cpp
 #include <print>
@@ -833,9 +891,10 @@ iterator erase(const_iterator first, const_iterator last);
 - 計算量: O(n)（後ろの要素を前に詰めるため）
 - 消した位置より後ろのイテレータ・参照は無効になる
 
-<div class="mem">
-<div class="mem-step"><span class="mem-label">erase(begin() + 1)</span><span class="mem-cells"><span>A</span><span class="gone">B</span><span>C</span><span>D</span><span>E</span></span></div>
-<div class="mem-step"><span class="mem-label">後</span><span class="mem-cells"><span>A</span><span class="move">C</span><span class="move">D</span><span class="move">E</span><span class="free">　</span></span><span class="mem-note">後ろが全部 1 つずつ前にずれる。要素が多いほど重い</span></div>
+<div class="anim" data-label="v.erase(v.begin() + 1)">
+10 20 30 40 # v = {10, 20, 30, 40}
+10 x20 30 40 # ① 消す要素を破棄する
+10 >30 >40 _ # ② 後ろを 1 つずつ前へ詰める。要素が多いほど重い
 </div>
 
 ```cpp
@@ -885,6 +944,12 @@ iterator insert(const_iterator pos, std::initializer_list<T> ilist);
 - 計算量: O(n)（後ろをずらすため）。末尾近くなら軽い
 - 再確保が起きると全部、起きなくても `pos` 以降のイテレータ・参照が無効になる
 
+<div class="anim" data-label="v.insert(v.begin() + 1, 99)">
+10 20 30 40 _ # v = {10, 20, 30, 40}
+10 _ >20 >30 >40 # ① 挿入位置より後ろを 1 つずつ後ろへずらす
+10 +99 20 30 40 # ② あいた場所に 99 を入れる。後ろが多いほど重い
+</div>
+
 ```cpp
 #include <print>
 #include <vector>
@@ -929,6 +994,11 @@ const_reference at(size_type pos) const;
 - 戻り値: `pos` 番目の要素の参照
 - 計算量: O(1)
 - 例外: 範囲外なら `std::out_of_range`
+
+<div class="anim" data-label="v.at(10)">
+10 20 30 40 # size 4
+10 20 30 40 # 添字 10 は範囲外 → std::out_of_range を投げる
+</div>
 
 ```cpp
 try {
@@ -1053,6 +1123,12 @@ void assign(std::initializer_list<T> ilist);
 
 - 計算量: O(n)
 
+<div class="anim" data-label="v.assign(3, 7)">
+1 2 3 4 # v = {1, 2, 3, 4}
+x1 x2 x3 x4 # ① 今ある中身を破棄する
++7 +7 +7 _ # ② 7 を 3 個で作り直す。capacity は足りていれば再利用
+</div>
+
 ```cpp
 tiles.assign(16 * 9, 0);  // 全部 0 で初期化し直す
 ```
@@ -1103,6 +1179,12 @@ void swap(vector& other) noexcept;
 | `other` | `vector&` | 中身を交換する相手 |
 
 - 計算量: O(1)（中のポインタを交換するだけ。要素はコピーされない）
+
+<div class="anim" data-label="a.swap(b)">
+1 2 3 | 7 8 # a = {1, 2, 3}　b = {7, 8}
+1 2 3 | 7 8 # 要素はコピーしない。中身の場所（ポインタ）だけ入れ替える
+7 8 | 1 2 3 # a = {7, 8}　b = {1, 2, 3}。O(1)
+</div>
 
 ```cpp
 #include <print>
@@ -1235,6 +1317,11 @@ void shrink_to_fit();
 
 - 余った容量を返すように**お願いする**（実装は無視してもよい）
 - 計算量: O(n)（実際に縮むなら、新しい領域を確保して全要素をムーブする）
+
+<div class="anim" data-label="v.shrink_to_fit()">
+10 20 30 _ _ _ # size 3 / capacity 6
+10 20 30 # 余った capacity を返す（実装によっては引っ越しが起きる）
+</div>
 
 ```cpp
 #include <print>
@@ -1494,7 +1581,7 @@ void UpdateBullets(std::vector<Bullet>& bullets, float delta_time) {
 
 ### 順番がどうでもいいなら「swap して pop_back」
 
-`erase` は後ろを全部詰めるので O(n) ですが、**最後の要素で上書きして末尾を消せば O(1)** です。描画順などを気にしないリストで使えます。
+`erase` は後ろを全部詰めるので O(n) ですが、<strong>最後の要素で上書きして末尾を消せば O(1)</strong> です。描画順などを気にしないリストで使えます。
 
 <div class="mem">
 <div class="mem-step"><span class="mem-label">B を消したい</span><span class="mem-cells"><span>A</span><span class="gone">B</span><span>C</span><span>D</span><span class="move">E</span></span><span class="mem-note">最後の E を B の場所に入れる</span></div>
@@ -1587,11 +1674,11 @@ objects.push_back(std::make_unique<Enemy>());
 ## パフォーマンス
 
 - **連続したメモリ**に並ぶので、全要素を回す処理はどのコンテナよりも速いです（キャッシュ効率が良い）。要素数が数百〜数千なら、検索でも `map` や `list` より vector の線形探索のほうが速いことがよくあります。
-- 容量が足りなくなると**今より大きい領域を確保して全要素をムーブ（またはコピー）** します。GCC / Clang は 2 倍、MSVC は 1.5 倍ずつ増えます。`reserve` で避けられます。
+- 容量が足りなくなると<strong>今より大きい領域を確保して全要素をムーブ（またはコピー）</strong> します。GCC / Clang は 2 倍、MSVC は 1.5 倍ずつ増えます。`reserve` で避けられます。
 - 再確保のときにムーブを使ってもらうには、**ムーブコンストラクタに `noexcept` が必要**です。付いていないとコピーされます（自分で書かずに `= default` にしておけば自動で付きます）。
 - MSVC の Debug ビルドはイテレータのチェックがあるので**とても遅い**です。速度は Release で測ってください。
 
-### 再確保（引っ越し）のしくみ
+### 再確保（引っ越し）のしくみ {#realloc}
 
 <div class="mem">
 <div class="mem-step"><span class="mem-label">capacity 4 で満杯</span><span class="mem-cells"><span>10</span><span>20</span><span>30</span><span>40</span></span><span class="mem-note">ここで push_back(50) すると…</span></div>
@@ -1678,7 +1765,7 @@ int main() {
     target.hp -= 10;             // 未定義動作
     ```
 
-    プレイヤーが「狙っている敵」をポインタで覚えておく、などで起きます。添字で覚える、`reserve` で再確保を起こさない、ID で管理する、のどれかで避けます。[再確保のしくみ](#再確保引っ越しのしくみ) を参照してください。
+    プレイヤーが「狙っている敵」をポインタで覚えておく、などで起きます。添字で覚える、`reserve` で再確保を起こさない、ID で管理する、のどれかで避けます。[再確保のしくみ](#realloc) を参照してください。
 
 ??? failure "`size() - 1` が巨大な数になる"
     ```cpp

@@ -12,7 +12,7 @@ tags:
 
 **コーディング規約**は、名前の付け方や書き方のルールをチームでそろえるための決まりです。ルールがそろっていると、他の人のコードも自分のコードのように読めて、「この `count` は変数？関数？定数？」と迷わなくなります。このサイトのサンプルは [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html) に従っているので、その要点をまとめます。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 型は `PascalCase`、関数も `PascalCase`、変数は `snake_case`、メンバ変数は `snake_case_`、定数は `kPascalCase`。
     - 名前は**省略しすぎない**（`e` より `enemy`、`cnt` より `count`）。
     - bool は `is_` / `has_` / `can_` で始めると読みやすい。

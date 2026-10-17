@@ -1,7 +1,7 @@
 ---
 title: yalantinglibs（struct_pack・バイナリ・速さ重視）
 tags:
-  - ゲームエンジン
+  - 外部ライブラリ
   - シリアライズ
 ---
 
@@ -16,8 +16,8 @@ tags:
 
 **yalantinglibs**（ヤランティンリブス）は、Alibaba が公開している C++ のライブラリ集で、その中の **struct_pack** が**とても速いバイナリシリアライザ**です。[zpp_bits](zpp-bits.md) と同じく、**構造体なら何も書かなくても** `struct_pack::serialize(obj)` の 1 行で保存でき、速さも同じくらいのトップクラスです。zpp_bits との一番の違いは、データの先頭に**型の形から計算したハッシュ値**を入れることです。これにより、「違う形の構造体で読もうとした」ことを**読み込みのときに検出**できます。また、**`compatible` という互換フィールド**を使うと、構造体の最後にメンバを足しても古いデータを読めるようになります。速さと安全性のバランスがよく、セーブデータにも通信にも使いやすいライブラリです。
 
-!!! tip "結論"
-    - **保存は `struct_pack::serialize(obj)`、読み込みは `struct_pack::deserialize<T>(buffer)`。** 構造体なら何も書かなくてよい。
+!!! tip "ポイント"
+    - <strong>保存は `struct_pack::serialize(obj)`、読み込みは `struct_pack::deserialize<T>(buffer)`。</strong> 構造体なら何も書かなくてよい。
     - 読み込みの結果は **`expected`**（値かエラー）で返る。例外は投げない。
     - データに**型のハッシュ**が入るので、形が違う構造体で読むとエラーで分かる。
     - 後からメンバを足すなら、**最後に `struct_pack::compatible<T, バージョン>`** で足す。
@@ -25,9 +25,37 @@ tags:
     - `std::string_view` / `std::span` のメンバは、読み込むと**バッファを指す**（コピーしない）ので、バッファの寿命に注意。
 
 !!! info "このページを読む前に"
-    [シリアライズの概要](index.md) と [zpp_bits](zpp-bits.md) を先に読むと、違いが分かりやすいです。読み込みの結果は [std::expected](../../stl/utilities/expected.md) とほぼ同じ使い方です。
+    [シリアライズの概要](../../engine/serialization/index.md) と [zpp_bits](zpp-bits.md) を先に読むと、違いが分かりやすいです。読み込みの結果は [std::expected](../../stl/utilities/expected.md) とほぼ同じ使い方です。
 
 ## 導入
+
+### Visual Studio で導入する（最初に読む）
+
+Visual Studio を使っているなら、**この方法が一番簡単**です。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは yalantinglibs（struct_pack） だけの部分を書きます。
+
+=== "vcpkg（おすすめ）"
+
+    1. 初回だけ、Developer PowerShell で `vcpkg integrate install` を実行する（[準備](../../vs/libraries.md#vcpkg)）
+    2. ライブラリを入れる
+
+        ```powershell
+        vcpkg install yalantinglibs:x64-windows
+        ```
+
+        （マニフェスト モードなら、`vcpkg.json` の `dependencies` に `"yalantinglibs"` を足す）
+    3. プロジェクトには何も設定せずに、`#include <ylt/struct_pack.hpp>` と書けば使える
+
+=== "ファイルを置く"
+
+    1. [GitHub](https://github.com/alibaba/yalantinglibs) の **`include` フォルダー**（`ylt/struct_pack.hpp` など）を `third_party/yalantinglibs/include/` に置く
+    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\yalantinglibs\include` を追加する
+    4. `#include <ylt/struct_pack.hpp>` と書いてビルドする
+
+!!! note "C++ の設定"
+    **C++20 を推奨**します（C++17 でも動く機能がありますが、一部は C++20 が必要です）。C++ 言語標準を `/std:c++latest` にします（[設定](../../vs/settings.md)）。
+
+### そのほかの方法（CMake など）
 
 struct_pack は**ヘッダオンリー**です。yalantinglibs の他の部分（RPC、HTTP など）は使わなくてもかまいません。
 
@@ -155,7 +183,7 @@ bool LoadGame(SaveData& save, const char* path) {
 
 ## 型のハッシュ：形が違うデータを見分ける
 
-struct_pack は、保存するときに**データの先頭に 4 バイトの「型のハッシュ値」** を書きます。ハッシュ値は、構造体の**メンバの型と順番**からコンパイル時に計算されます。
+struct_pack は、保存するときに<strong>データの先頭に 4 バイトの「型のハッシュ値」</strong> を書きます。ハッシュ値は、構造体の**メンバの型と順番**からコンパイル時に計算されます。
 
 ```text
 [型のハッシュ 4 バイト][(必要なら) 追加の情報][name][level][items] ...
@@ -204,7 +232,7 @@ Enemy として: false
 
 ## バージョン管理：compatible
 
-ハッシュのおかげで間違いには気づけますが、「メンバを足したら古いセーブが全部読めない」のでは困ります。そこで、**後から足すメンバは `struct_pack::compatible<T, バージョン番号>`** という型にして、**構造体の最後に**足します。
+ハッシュのおかげで間違いには気づけますが、「メンバを足したら古いセーブが全部読めない」のでは困ります。そこで、**後から足すメンバは `struct_pack::compatible<T, バージョン番号>`<strong> という型にして、</strong>構造体の最後に**足します。
 
 ```cpp
 #include <print>
@@ -243,7 +271,7 @@ gold = 0
 ```
 
 - `compatible` は `std::optional` と同じように使えます（`has_value()`、`value()`、`value_or()`、`*` など）。古いデータには値が無いので、空になります。
-- **`compatible` のメンバはハッシュの計算に入りません。** そのため、足しても古いデータとハッシュが一致します。
+- <strong>`compatible` のメンバはハッシュの計算に入りません。</strong> そのため、足しても古いデータとハッシュが一致します。
 - バージョン番号は、足すたびに**大きくなる数**にします（`20260401` のような日付がおすすめ）。同じ番号のものはまとめて扱われます。
 - 新しいデータを古いプログラムで読むこともできます（知らない `compatible` の部分は読み飛ばされます）。
 
@@ -601,7 +629,7 @@ auto buffer = struct_pack::serialize<struct_pack::sp_config::DISABLE_ALL_META_IN
 
 ## 関連ページ
 
-- [シリアライズの概要](index.md)
+- [シリアライズの概要](../../engine/serialization/index.md)
 - [zpp_bits（バイナリ・速さ重視）](zpp-bits.md)
 - [cista（バイナリ・ゼロコピー）](cista.md)
 - [std::expected](../../stl/utilities/expected.md)

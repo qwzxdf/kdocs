@@ -14,7 +14,7 @@ tags:
 
 `<bit>` は、**整数のビットを調べたり操作したりする関数**をまとめた C++20 のヘッダです。「1 のビットが何個あるか」「2 のべき乗か」「次の 2 のべき乗はいくつか」などを、CPU の専用命令を使って速く計算します。また `std::bit_cast` を使うと、float の中身をビット列として安全に読むこともできます。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 1 のビットの数は `std::popcount`、2 のべき乗かは `std::has_single_bit`、次の 2 のべき乗は `std::bit_ceil`。
     - 型を「中身のビットはそのままで」別の型として読むなら `std::bit_cast`（`reinterpret_cast` は未定義動作になりやすい）。
     - 引数は**符号なし整数**（`unsigned`、`std::uint32_t` など）。int を渡すとコンパイルエラー。
@@ -75,6 +75,13 @@ constexpr int popcount(T x) noexcept;  // T は符号なし整数
 
 - 1 になっているビットの数
 
+<div class="anim" data-label="std::popcount(0b1011u)">
+1 0 1 1 # ビット列
+*1 0 1 1 # 1 のビットを数える
+*1 0 *1 1 # 2 つ目
+*1 0 *1 *1 # 3 つ。結果は 3
+</div>
+
 ### std::has_single_bit {#has_single_bit}
 
 ```cpp
@@ -114,6 +121,11 @@ constexpr int countr_zero(T x) noexcept;
 ```
 
 - 一番下の位から続く 0 の数 = 一番下にある 1 の位置。フラグの中から「次に立っているビット」を探すのに使えます
+
+<div class="anim" data-label="std::countr_zero(0b1000u)">
+1 0 0 0 # ビット列
+1 *0 *0 *0 # 右から続く 0 を数える（3）
+</div>
 
 ```cpp
 #include <bit>
@@ -206,6 +218,11 @@ constexpr T rotl(T x, int s) noexcept;
 
 - 左に `s` ビット回転します。はみ出したビットは右から入ります（ハッシュ関数や乱数でよく使う）
 
+<div class="anim" data-label="std::rotl(0b1001u, 1)">
+1 0 0 1 # ビット列
+>0 >0 >1 >1 # 左に 1 つ回す。はみ出した 1 が右端に戻る
+</div>
+
 ### std::rotr {#rotr}
 
 ```cpp
@@ -214,6 +231,11 @@ constexpr T rotr(T x, int s) noexcept;
 ```
 
 - 右に回転します
+
+<div class="anim" data-label="std::rotr(0b1001u, 1)">
+1 0 0 1 # ビット列
+>1 >1 >0 >0 # 右に 1 つ回す。はみ出した 1 が左端に戻る
+</div>
 
 ### std::byteswap {#byteswap}
 
@@ -225,6 +247,11 @@ constexpr T byteswap(T n) noexcept;
 ```
 
 - バイトの並び順を逆にします。エンディアンの違う形式のファイル・通信を読むときに使います
+
+<div class="anim" data-label="std::byteswap(0x12345678u)">
+12 34 56 78 # 4 バイト
+>78 >56 >34 >12 # バイトの並びを逆にする（エンディアン変換）
+</div>
 
 ### std::endian {#endian}
 

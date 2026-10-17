@@ -14,8 +14,8 @@ tags:
 
 `std::ranges::find` は、**範囲の中から値を先頭から順に探す**関数です。`find_if` は「条件に合う最初の要素」を探します。見つかればその位置（イテレータ）を、見つからなければ範囲の終わり（`end()`）を返します。C++23 からは「あるかどうか」だけを調べる `std::ranges::contains` も使えます。
 
-!!! tip "結論"
-    - **条件で探すなら `find_if`、値で探すなら `find`。** 結果は必ず `end()` と比べる。
+!!! tip "ポイント"
+    - <strong>条件で探すなら `find_if`、値で探すなら `find`。</strong> 結果は必ず `end()` と比べる。
     - あるかどうかだけなら C++23 の `std::ranges::contains` が一番短い。
     - 構造体のメンバで探すならプロジェクション: `std::ranges::find(enemies, 42, &Enemy::id)`。
     - 先頭から順に見るので O(n)。何度も探すなら `unordered_map` などを検討する。
@@ -138,6 +138,13 @@ constexpr borrowed_iterator_t<R> find_if(R&& r, Pred pred, Proj proj = {});
 !!! note "実際は"
     「条件に合う最初の 1 つ」を探すときの基本です。全部欲しいなら `std::views::filter` を使います。
 
+<div class="anim" data-label="std::ranges::find_if(v, is_big)">
+1 5 12 3 # 10 以上で最初のもの
+*1 5 12 3 # 違う
+1 *5 12 3 # 違う
+1 5 *12 3 # 見つかる
+</div>
+
 ### std::ranges::find {#find}
 
 ```cpp
@@ -153,6 +160,13 @@ constexpr borrowed_iterator_t<R> find(R&& r, const T& value, Proj proj = {});
 
 - 戻り値: 最初に見つかった要素のイテレータ。無ければ `end()`
 - 計算量: O(n)
+
+<div class="anim" data-label="std::ranges::find(v, 30)">
+10 20 30 40 # v
+*10 20 30 40 # 先頭から順に比べる
+10 *20 30 40 # 違う
+10 20 *30 40 # 見つかる。その位置を返す
+</div>
 
 ```cpp
 #include <algorithm>
@@ -215,6 +229,13 @@ constexpr borrowed_iterator_t<R> find_if_not(R&& r, Pred pred, Proj proj = {});
 
 - 戻り値: `pred` が **`false`** になった最初の要素のイテレータ
 
+<div class="anim" data-label="std::ranges::find_if_not(v, is_even)">
+2 4 5 6 # 偶数でない最初のもの
+*2 4 5 6 # 偶数
+2 *4 5 6 # 偶数
+2 4 *5 6 # 見つかる
+</div>
+
 ```cpp
 #include <algorithm>
 #include <print>
@@ -239,6 +260,11 @@ constexpr borrowed_subrange_t<R> find_last(R&& r, const T& value, Proj proj = {}
 ```
 
 - 戻り値: **最後に**見つかった要素から終わりまでの範囲（`subrange`）。`.begin()` がその位置。見つからなければ空の範囲
+
+<div class="anim" data-label="std::ranges::find_last(v, 2)">
+2 1 2 3 # 値が 2 の最後の要素
+2 1 *2 3 # 後ろ側のものが見つかる
+</div>
 
 ### std::ranges::find_last_if <span class="ver ver-23">C++23</span> {#find_last_if data-toc-label="std::ranges::find_last_if"}
 

@@ -14,9 +14,9 @@ tags:
 `#include <thread>`
 </div>
 
-`std::thread` は、**関数を別のスレッドで同時に動かす**ための型です。C++20 の `std::jthread` はその改良版で、**消えるときに自動で終わりを待ち（join）**、さらに「止まって」と伝える仕組み（`std::stop_token`）を持っています。新しく書くなら jthread を使います。
+`std::thread` は、**関数を別のスレッドで同時に動かす**ための型です。C++20 の `std::jthread` はその改良版で、<strong>消えるときに自動で終わりを待ち（join）</strong>、さらに「止まって」と伝える仕組み（`std::stop_token`）を持っています。新しく書くなら jthread を使います。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - **`std::jthread` を使う**。`std::thread` は join 忘れでプログラムが落ちる。
     - 作った瞬間に動き始める。引数はコピーされて渡る（参照で渡すなら `std::ref`）。
     - 長く動くスレッドは `std::stop_token` を見て、止める合図が来たら抜けるように書く。

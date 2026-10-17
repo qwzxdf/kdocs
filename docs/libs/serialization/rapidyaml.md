@@ -1,7 +1,7 @@
 ---
 title: rapidyaml（YAML）
 tags:
-  - ゲームエンジン
+  - 外部ライブラリ
   - シリアライズ
 ---
 
@@ -16,16 +16,16 @@ tags:
 
 **rapidyaml**（略して **ryml**、「ライムル」）は、**YAML を速く読み書きする**ライブラリです。YAML は、JSON と同じデータを**括弧やカンマをほとんど使わず、字下げで書ける**形式で、コメントも書けるので、**人が手で書く設定ファイルやゲームのデータ**（敵のパラメータ、ステージの配置、会話のスクリプト）にとても向いています。rapidyaml は、YAML ライブラリの中でも飛び抜けて速く（有名な yaml-cpp の数十倍以上）、メモリの確保もとても少ないのが特徴です。また JSON も読み書きできます。その代わり、文字列を `std::string` ではなく独自の **`csubstr`**（`string_view` のようなもの）で扱うなど、少しクセがあります。
 
-!!! tip "結論"
-    - **人が書くデータ（設定・パラメータ表・会話）を YAML で持ちたいときに使う。**
+!!! tip "ポイント"
+    - <strong>人が書くデータ（設定・パラメータ表・会話）を YAML で持ちたいときに使う。</strong>
     - 読み込みは **`ryml::parse_in_arena`**（文字列をコピーして持つ。安全）。
-    - 値は **`node["key"] >> 変数;`** で読み、**`node["key"] << 値;`** で書く。
+    - 値は **`node["key"] >> 変数;`<strong> で読み、</strong>`node["key"] << 値;`** で書く。
     - `#include <ryml_std.hpp>` を書くと、`std::string` と `std::vector` がそのまま使える。
-    - **無いかもしれないキーは `has_child` で確認してから読む。** 無いキーを読むとエラー。
-    - デフォルトのエラー処理は**プログラムを止める（abort）**。例外にしたいなら設定を変える。
+    - <strong>無いかもしれないキーは `has_child` で確認してから読む。</strong> 無いキーを読むとエラー。
+    - デフォルトのエラー処理は<strong>プログラムを止める（abort）</strong>。例外にしたいなら設定を変える。
 
 !!! info "このページを読む前に"
-    [シリアライズの概要](index.md) と [nlohmann/json](nlohmann-json.md) を先に読むと、「木の形のデータを、キーで取り出す」という考え方がつかみやすいです。[string_view](../../stl/utilities/string_view.md) を知っていると `csubstr` が分かりやすくなります。
+    [シリアライズの概要](../../engine/serialization/index.md) と [nlohmann/json](nlohmann-json.md) を先に読むと、「木の形のデータを、キーで取り出す」という考え方がつかみやすいです。[string_view](../../stl/utilities/string_view.md) を知っていると `csubstr` が分かりやすくなります。
 
 ## YAML とは
 
@@ -72,12 +72,41 @@ YAML（ヤムル）は、**字下げで構造を表す**テキスト形式です
 JSON の文法はほぼそのまま YAML としても正しいので、**YAML のライブラリは JSON も読めます**。
 
 !!! warning "YAML のよくある落とし穴"
-    - **字下げにタブは使えません。** 必ずスペースで書きます。
+    - <strong>字下げにタブは使えません。</strong> 必ずスペースで書きます。
     - `キー:値` のように `:` の後にスペースが無いと、マップになりません。
     - `#` の前にスペースがあると、その後ろはコメントになります。`#` を含む文字列（`color: #ff0000`）は `"#ff0000"` と囲みます。
     - `yes` / `no` / `on` / `off` を真偽値として扱うかどうかはライブラリによって違います。真偽値は `true` / `false` と書くのが安全です。
 
 ## 導入
+
+### Visual Studio で導入する（最初に読む）
+
+Visual Studio を使っているなら、**この方法が一番簡単**です。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは rapidyaml だけの部分を書きます。
+
+=== "vcpkg（おすすめ）"
+
+    1. 初回だけ、Developer PowerShell で `vcpkg integrate install` を実行する（[準備](../../vs/libraries.md#vcpkg)）
+    2. ライブラリを入れる
+
+        ```powershell
+        vcpkg install ryml:x64-windows
+        ```
+
+        （マニフェスト モードなら、`vcpkg.json` の `dependencies` に `"ryml"` を足す）
+    3. プロジェクトには何も設定せずに、`#include <ryml.hpp>` と書けば使える
+
+=== "ファイルを置く"
+
+    1. [リリースページ](https://github.com/biojppm/rapidyaml/releases) の **単一ヘッダ版**（`rapidyaml-x.y.z.hpp`）を `third_party/rapidyaml/` に置き、**1 つの `.cpp` だけ**で、include の前に `#define RYML_SINGLE_HDR_DEFINE_NOW` を書く
+    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party
+apidyaml` を追加する
+    4. `#include <ryml.hpp>` と書いてビルドする
+
+!!! note "C++ の設定"
+    C++11 以上で動きます。エラーで落とさず例外にしたいときは、プロジェクトの「プリプロセッサの定義」に `RYML_DEFAULT_CALLBACK_USES_EXCEPTIONS` を追加します。
+
+### そのほかの方法（CMake など）
 
 === "vcpkg"
 
@@ -325,7 +354,7 @@ enemies:
 
 ## エラー処理
 
-rapidyaml のデフォルトのエラー処理は、**エラーメッセージを出してプログラムを止める（abort）** です。ゲームで「設定ファイルを 1 文字間違えたらゲームが落ちる」のは困るので、**例外を投げるように設定を変える**のがおすすめです。
+rapidyaml のデフォルトのエラー処理は、<strong>エラーメッセージを出してプログラムを止める（abort）</strong> です。ゲームで「設定ファイルを 1 文字間違えたらゲームが落ちる」のは困るので、**例外を投げるように設定を変える**のがおすすめです。
 
 一番簡単なのは、ビルド設定で次のマクロを定義する方法です。エラーのときに `std::runtime_error` が投げられるようになります。
 
@@ -868,7 +897,7 @@ Callbacks const& get_callbacks();
 
 ## 関連ページ
 
-- [シリアライズの概要](index.md)
+- [シリアライズの概要](../../engine/serialization/index.md)
 - [nlohmann/json（JSON・定番）](nlohmann-json.md)
 - [ファイル入出力](../../basics/file-io.md)
 - [rapidyaml（GitHub）](https://github.com/biojppm/rapidyaml)

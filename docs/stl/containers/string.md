@@ -16,8 +16,8 @@ tags:
 
 `std::string` は、**長さが自由に変わる文字列**です。中身は「`char` の vector」のようなもので、足したり、一部を切り出したり、検索したりできます。C の `char` 配列と違って、長さの管理やメモリの確保を自分でする必要がありません。
 
-!!! tip "結論"
-    - **文字列はとりあえずこれ。** `char*` や `char[]` は使わない。
+!!! tip "ポイント"
+    - <strong>文字列はとりあえずこれ。</strong> `char*` や `char[]` は使わない。
     - 足すのは `+` か `+=`、数値を混ぜて作るなら [`std::format`](../utilities/format.md)。
     - 関数で**読むだけ**なら引数は [`std::string_view`](../utilities/string_view.md) にする。
     - 毎フレーム作り直すと**メモリ確保が走って重い**。ゲームループ内では作りすぎない。
@@ -424,6 +424,11 @@ size_type find(CharT ch, size_type pos = 0) const noexcept;
 - 戻り値: 最初に見つかった位置。**見つからなければ `std::string::npos`**
 - 計算量: 最悪 O(n·m)
 
+<div class="anim" data-label="s.find(&quot;cd&quot;)">
+a b c d e # s = "abcde"
+a b *c *d e # 見つかった位置（2）を返す。見つからなければ npos
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -462,6 +467,12 @@ basic_string substr(size_type pos = 0, size_type count = npos) const;
 - 例外: `pos > size()` なら `std::out_of_range`
 - 計算量: O(count)
 
+<div class="anim" data-label="s.substr(2, 3)">
+a b c d e f # s = "abcdef"
+a b *c *d *e f # 位置 2 から 3 文字
+c d e # 新しい文字列としてコピーされる
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -492,6 +503,11 @@ bool starts_with(CharT ch) const noexcept;
 - 戻り値: 先頭が `sv`（または `ch`）なら `true`
 - 計算量: O(sv の長さ)
 
+<div class="anim" data-label="s.starts_with(&quot;ab&quot;)">
+a b c d # s = "abcd"
+*a *b c d # 先頭が "ab" なら true
+</div>
+
 ### ends_with <span class="ver ver-20">C++20</span> {#ends_with data-toc-label="ends_with"}
 
 ```cpp
@@ -501,6 +517,11 @@ bool ends_with(CharT ch) const noexcept;
 
 - 戻り値: 末尾が `sv`（または `ch`）なら `true`
 - 計算量: O(sv の長さ)
+
+<div class="anim" data-label="s.ends_with(&quot;cd&quot;)">
+a b c d # s = "abcd"
+a b *c *d # 末尾が "cd" なら true
+</div>
 
 ```cpp
 #include <print>
@@ -531,6 +552,11 @@ bool contains(CharT ch) const noexcept;
 - 戻り値: どこかに `sv`（または `ch`）を含んでいれば `true`
 - 計算量: O(n·m)
 
+<div class="anim" data-label="s.contains(&quot;bc&quot;)">
+a b c d # s = "abcd"
+a *b *c d # どこかに含まれれば true
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -559,6 +585,11 @@ const_reference operator[](size_type pos) const;
 - 計算量: O(1)
 - 範囲外は未定義動作（ただし `s[s.size()]` は `'\0'` が読める）
 
+<div class="anim" data-label="s[1]">
+a b c d # s
+a *b c d # s[1] は 'b'。範囲チェックなし
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -585,6 +616,12 @@ void clear() noexcept;
 
 - 長さを 0 にします。**容量（`capacity`）はそのまま**
 - 計算量: O(n)（`char` なら実質タダ）
+
+<div class="anim" data-label="s.clear()">
+H e l l o # s
+xH xe xl xl xo # 文字をすべて消す
+_ _ _ _ _ # size 0。capacity は残る
+</div>
 
 ```cpp
 #include <print>
@@ -684,6 +721,11 @@ size_type rfind(CharT ch, size_type pos = npos) const noexcept;
 
 - 戻り値: 最後に見つかった位置。見つからなければ `npos`
 
+<div class="anim" data-label="s.rfind('a')">
+a b a c a # s = "abaca"
+a b a c *a # 後ろから探して、最初に見つかった位置（4）
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -737,6 +779,11 @@ void push_back(CharT ch);
 - 1 文字を末尾に追加します。`s += ch` と同じです
 - 計算量: 償却 O(1)
 
+<div class="anim" data-label="s.push_back('!')">
+H i # s = "Hi"
+H i +! # 末尾に 1 文字足す
+</div>
+
 ### pop_back {#pop_back}
 
 ```cpp
@@ -745,6 +792,12 @@ void pop_back();
 
 - 末尾の 1 バイトを消します。**空のとき未定義動作**
 - 計算量: O(1)
+
+<div class="anim" data-label="s.pop_back()">
+H i ! # s = "Hi!"
+H i x! # 最後の 1 文字を消す
+H i # 完了
+</div>
 
 ```cpp
 #include <print>
@@ -784,6 +837,12 @@ basic_string& replace(size_type pos, size_type count, size_type count2, CharT ch
 
 - 計算量: O(n)（長さが変わると後ろをずらす）
 
+<div class="anim" data-label="s.replace(0, 2, &quot;HI&quot;)">
+h i ! # s = "hi!"
+xh xi ! # 置き換える範囲
++H +I ! # 新しい文字に置き換わる
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -816,6 +875,11 @@ basic_string& append(size_type count, CharT ch);
 | `str` | 文字列 | 足す文字列 |
 | `pos`, `count` | `size_type` | `str` の一部だけ足すとき |
 | `count`, `ch` | | 同じ文字を `count` 個足す |
+
+<div class="anim" data-label="s.append(&quot;abc&quot;)">
+H i # s = "Hi"
+H i +a +b +c # 末尾に文字列をつなぐ
+</div>
 
 ```cpp
 #include <print>
@@ -852,6 +916,12 @@ basic_string& insert(size_type pos, size_type count, CharT ch);
 
 - 計算量: O(n)
 
+<div class="anim" data-label="s.insert(1, &quot;ey&quot;)">
+H i # s = "Hi"
+H _ _ >i # 挿入位置より後ろをずらす
+H +e +y i # すき間に入れる
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -880,6 +950,12 @@ basic_string& erase(size_type pos = 0, size_type count = npos);
 | `count` | `size_type` | 消す長さ。省略すると最後まで |
 
 - 計算量: O(n)
+
+<div class="anim" data-label="s.erase(1, 2)">
+a b c d # s = "abcd"
+a xb xc d # 位置 1 から 2 文字を消す
+a >d _ _ # 後ろを詰める
+</div>
 
 ```cpp
 #include <print>
@@ -1086,6 +1162,11 @@ void resize(size_type count, CharT ch);
 
 - 長さを `count` にします。増えた分は `'\0'`（または `ch`）で埋まります
 
+<div class="anim" data-label="s.resize(5, '.')">
+H i # s = "Hi"
+H i +. +. +. # 足りない分を '.' で埋める
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -1109,6 +1190,11 @@ CharT& front();
 
 - 先頭の 1 バイト。`s[0]` と同じ。空のとき未定義動作
 
+<div class="anim" data-label="s.front()">
+a b c # s
+*a b c # 先頭の文字
+</div>
+
 ### back {#back}
 
 ```cpp
@@ -1116,6 +1202,11 @@ CharT& back();
 ```
 
 - 末尾の 1 バイト。`s[s.size() - 1]` と同じ。空のとき未定義動作
+
+<div class="anim" data-label="s.back()">
+a b c # s
+a b *c # 最後の文字
+</div>
 
 ```cpp
 #include <print>
@@ -1141,6 +1232,11 @@ CharT& at(size_type pos);
 ```
 
 - 範囲外なら `std::out_of_range`。使い方は vector の `at` と同じです
+
+<div class="anim" data-label="s.at(1)">
+a b c d # s
+a *b c d # s.at(1) は 'b'。範囲外なら例外
+</div>
 
 ### capacity {#capacity}
 
@@ -1171,6 +1267,11 @@ void shrink_to_fit();
 ```
 
 - 余った容量を返すようにお願いします。vector と同じく、ほぼ使いません
+
+<div class="anim" data-label="s.shrink_to_fit()">
+a b c _ _ _ # size 3 / capacity 6
+a b c # 余った capacity を返す（保証はない）
+</div>
 
 ### compare {#compare}
 
@@ -1275,7 +1376,7 @@ size_type copy(CharT* dest, size_type count, size_type pos = 0) const;
 
 ## パフォーマンス
 
-- **SSO（Small String Optimization）**: 短い文字列（GCC / MSVC なら 15 文字、Clang なら 22 文字くらいまで）は、ヒープを使わずオブジェクトの中に直接入ります。短い名前や ID はかなり軽いです。
+- <strong>SSO（Small String Optimization）</strong>: 短い文字列（GCC / MSVC なら 15 文字、Clang なら 22 文字くらいまで）は、ヒープを使わずオブジェクトの中に直接入ります。短い名前や ID はかなり軽いです。
 - 長い文字列のコピーはヒープ確保が起きるので、関数の引数は `const std::string&` か `std::string_view` にします。
 - 文字列をキーにした検索は、毎回文字列比較やハッシュ計算が走ります。何度も検索するなら、最初に数値の ID に変換しておくと速いです。
 

@@ -1,9 +1,2 @@
 nav:
-  - 概要: index.md
-  - nlohmann/json（JSON・定番）: nlohmann-json.md
-  - simdjson（JSON・速さ）: simdjson.md
-  - rapidyaml（YAML）: rapidyaml.md
-  - cereal（バイナリ・定番）: cereal.md
-  - zpp_bits（バイナリ・速さ）: zpp-bits.md
-  - struct_pack（バイナリ・速さ）: struct-pack.md
-  - cista（バイナリ・ゼロコピー）: cista.md
+  - index.md

@@ -14,7 +14,7 @@ tags:
 
 `std::ranges::count` は**値と等しい要素の数**を、`count_if` は**条件に合う要素の数**を数える関数です。「生き残っている敵は何体か」「レアアイテムをいくつ持っているか」を、for ループとカウンタ変数を書かずに 1 行で数えられます。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 条件で数えるなら `count_if`、値で数えるなら `count`。
     - 必ず全要素を見るので O(n)。「1 つでもあるか」だけなら [`any_of`](any_of.md) のほうが速い（途中で止まる）。
     - 戻り値は符号付き整数（`std::ptrdiff_t` 相当）。
@@ -70,6 +70,12 @@ constexpr range_difference_t<R> count_if(R&& r, Pred pred, Proj proj = {});
 - 戻り値: `pred` が `true` になった要素の数（符号付き整数）
 - 計算量: O(n)。必ず全部見る
 
+<div class="anim" data-label="std::ranges::count_if(v, is_even)">
+1 2 3 4 5 6 # v
+1 *2 3 *4 5 *6 # 条件に合うものを数える
+1 2 3 4 5 6 # 結果は 3
+</div>
+
 ```cpp
 #include <algorithm>
 #include <print>
@@ -101,6 +107,11 @@ constexpr range_difference_t<R> count(R&& r, const T& value, Proj proj = {});
 
 - 戻り値: 等しい要素の数
 - 計算量: O(n)
+
+<div class="anim" data-label="std::ranges::count(v, 2)">
+2 1 2 3 2 # v
+*2 1 *2 3 *2 # 値が 2 のものを数える（3）
+</div>
 
 ```cpp
 #include <algorithm>

@@ -14,7 +14,7 @@ tags:
 
 `std::ranges::partition` は、**条件に合う要素を前に、合わない要素を後ろに集める**アルゴリズムです（並べ替えるが、ソートはしない）。全部並べる `sort` より速く（O(n)）、「生きている敵を前に集めて、死んだ敵を後ろにまとめて消す」「画面内のものを前に集めて、その分だけ描く」のように使えます。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 「条件で 2 グループに分ける」なら `partition`（O(n)）。sort より速い。
     - 元の順番を保ちたいなら `stable_partition`（少し遅い）。
     - 戻り値の位置が「条件に合わないグループの先頭」。
@@ -84,6 +84,12 @@ constexpr borrowed_subrange_t<R> partition(R&& r, Pred pred, Proj proj = {});
 <div class="mem-step"><span class="mem-label">partition 後</span><span class="mem-cells"><span class="move">○</span><span class="move">○</span><span class="move">○</span><span class="gone">×</span><span class="gone">×</span></span><span class="mem-note">戻り値の begin() は 4 つ目（最初の ×）</span></div>
 </div>
 
+<div class="anim" data-label="std::partition(b, e, is_even)">
+1 2 3 4 5 6 # v
+1 *2 3 *4 5 *6 # 条件に合うものを前へ集める
+>2 >4 >6 >1 >5 >3 # 合う側と合わない側に分かれる（順番は保証されない）
+</div>
+
 ### std::ranges::stable_partition {#stable_partition}
 
 ```cpp
@@ -92,6 +98,12 @@ borrowed_subrange_t<R> stable_partition(R&& r, Pred pred, Proj proj = {});
 ```
 
 - partition と同じですが、**それぞれのグループの中の順番が元のまま**です。追加のメモリが取れれば O(n)
+
+<div class="anim" data-label="std::stable_partition(b, e, is_even)">
+1 2 3 4 5 6 # v
+1 *2 3 *4 5 *6 # 条件に合うものを前へ集める
+>2 >4 >6 >1 >3 >5 # それぞれの中の順番は元のまま
+</div>
 
 ```cpp
 #include <algorithm>

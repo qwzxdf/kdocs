@@ -14,8 +14,8 @@ tags:
 
 `<numbers>` は、**円周率 π やネイピア数 e などの数学の定数**を、正確な値で用意してくれるヘッダです。C++20 より前は `#define PI 3.14159f` のように自分で書いたり、`M_PI`（環境によっては使えない）を使ったりしていましたが、今は `std::numbers::pi` を使えば、どの環境でも同じ正確な値が手に入ります。
 
-!!! tip "結論"
-    - π は **`std::numbers::pi`**（double）、float なら **`std::numbers::pi_v<float>`**。
+!!! tip "ポイント"
+    - π は **`std::numbers::pi`<strong>（double）、float なら </strong>`std::numbers::pi_v<float>`**。
     - 度 → ラジアンは `deg * std::numbers::pi_v<float> / 180.0f`。
     - 自分で `#define PI` を書かない。
 

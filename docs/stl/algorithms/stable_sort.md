@@ -14,8 +14,8 @@ tags:
 
 `std::ranges::stable_sort` は、**同じ値どうしの元の順番を保ったまま並べ替える**関数です（安定ソート）。使い方は [`std::ranges::sort`](sort.md) とまったく同じですが、`sort` は同じ値の順番がバラバラになることがあるのに対し、`stable_sort` は「先に入っていたほうが前」のままになります。
 
-!!! tip "結論"
-    - **同点のときの順番に意味があるなら `stable_sort`。** ランキングで「同点なら先に達成した人が上」など。
+!!! tip "ポイント"
+    - <strong>同点のときの順番に意味があるなら `stable_sort`。</strong> ランキングで「同点なら先に達成した人が上」など。
     - 「先にレア度で並べ、次に種類で並べ直す」のように、**2 回並べて複数の条件を作る**ときにも使える。
     - `sort` より少し遅く、追加のメモリを使うことがある。順番が関係ないなら `sort`。
 
@@ -79,6 +79,11 @@ borrowed_iterator_t<R> stable_sort(R&& r, Comp comp = {}, Proj proj = {});
 
 - 戻り値: 範囲の終わり（ほぼ使わない）
 - 計算量: 追加のメモリが取れれば O(n log n)、取れなければ O(n log² n)
+
+<div class="anim" data-label="std::stable_sort(b, e, by_score)">
+B2 A1 C2 D1 # 点数 2 の B と C、1 の A と D
+>A1 >D1 >B2 >C2 # 点数順。同じ点数は元の順番（A→D、B→C）のまま
+</div>
 
 ```cpp
 #include <algorithm>

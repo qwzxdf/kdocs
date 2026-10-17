@@ -14,7 +14,7 @@ tags:
 
 `<type_traits>` は、**コンパイル時に型の性質を調べたり、型を変換したりする道具**をまとめたヘッダです。「この型は整数か」「ポインタか」「コピーできるか」を `std::is_integral_v<T>` のように調べられます。主に[テンプレート](../../basics/template.md)の中で、型によって処理を変えたり（`if constexpr`）、間違った型を弾いたり（`static_assert`）するのに使います。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 調べるのは `std::is_xxx_v<T>`（`bool` の定数）、変換するのは `std::xxx_t<T>`（型）。
     - `if constexpr (std::is_integral_v<T>)` で型ごとに処理を分ける。
     - 構造体をそのまま `memcpy` / ファイルに書いていいかは `std::is_trivially_copyable_v<T>` で確かめる。

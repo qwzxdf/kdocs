@@ -1,7 +1,7 @@
 # コンテナの選び方
 
-!!! tip "結論"
-    **迷ったら `std::vector`。** ほかのコンテナは「vector だと困る理由」があるときだけ使います。
+!!! tip "ポイント"
+    <strong>迷ったら `std::vector`。</strong> ほかのコンテナは「vector だと困る理由」があるときだけ使います。
 
 ```mermaid
 flowchart TD

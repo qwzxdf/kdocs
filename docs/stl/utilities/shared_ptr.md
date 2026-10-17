@@ -16,8 +16,8 @@ tags:
 
 `std::shared_ptr` は、**持ち主が何人もいてよいスマートポインタ**です。中で「今何人が持っているか」（参照カウント）を数えていて、最後の 1 人が手放したときに自動で `delete` します。`std::weak_ptr` は、shared_ptr が持っているものを**持ち主にならずに見る**ためのポインタで、相手がもう消えたかどうかを確かめられます。
 
-!!! tip "結論"
-    - **まず [`unique_ptr`](unique_ptr.md) を検討する。** 本当に「持ち主が複数」になる場面はゲームではそれほど多くない。
+!!! tip "ポイント"
+    - <strong>まず [`unique_ptr`](unique_ptr.md) を検討する。</strong> 本当に「持ち主が複数」になる場面はゲームではそれほど多くない。
     - 作るのは `std::make_shared<T>(...)`。
     - 「相手が消えているかもしれない」参照には `weak_ptr` を使い、使う直前に `lock()` する。
     - **お互いを shared_ptr で持ち合うと、永遠に消えなくなる**（循環参照）。片方を weak_ptr にする。
@@ -135,6 +135,11 @@ std::shared_ptr<T> make_shared(Args&&... args);
 
 - オブジェクトと参照カウントを**1 回の確保**でまとめて作ります（`new` してから shared_ptr に渡すより速い）
 
+<div class="anim" data-label="auto p = std::make_shared<Enemy>()">
+_ # p は空
++A:1 # 作って、参照数は 1
+</div>
+
 ### operator-> {#arrow}
 
 ```cpp
@@ -160,6 +165,12 @@ shared_ptr& operator=(const shared_ptr& other) noexcept;
 
 - 同じものを指す shared_ptr がもう 1 つでき、参照カウントが 1 増えます
 - ムーブ（`std::move`）なら参照カウントは変わりません（持ち主が移るだけ）
+
+<div class="anim" data-label="auto q = p">
+A:1 | _ # p だけが持っている（参照数 1）
+A:1 | *A:1 # q が同じものを指す
+A:2 | A:2 # 参照数が 2 になる
+</div>
 
 ### operator bool {#bool}
 
@@ -243,6 +254,12 @@ void reset() noexcept;
 
 - 手放します。shared_ptr なら参照カウントが 1 減り、0 になれば解放されます
 
+<div class="anim" data-label="q.reset()">
+A:2 | A:2 # p と q が持っている
+A:2 | xA:2 # q が手放す
+A:1 | _ # 参照数が 1 に減る。0 になると破棄される
+</div>
+
 ### use_count {#use_count}
 
 ```cpp
@@ -250,6 +267,11 @@ long use_count() const noexcept;
 ```
 
 - 今何人の shared_ptr が持っているか。デバッグ表示用で、ロジックに使うものではありません
+
+<div class="anim" data-label="p.use_count()">
+A:2 | A:2 # p と q
+*A:2 | A:2 # 今の参照数（2）を返す
+</div>
 
 ### get {#get}
 
@@ -359,7 +381,7 @@ int main() {
 
 ## パフォーマンス
 
-- 参照カウントの増減は**スレッドセーフ（アトミック）**なので、コピーするたびに少しコストがかかります。引数は `const std::shared_ptr<T>&` か、使うだけなら `T&` で渡します。
+- 参照カウントの増減は<strong>スレッドセーフ（アトミック）</strong>なので、コピーするたびに少しコストがかかります。引数は `const std::shared_ptr<T>&` か、使うだけなら `T&` で渡します。
 - 1 つの shared_ptr は生ポインタ 2 個ぶん（16 バイト）の大きさです。
 - 参照カウントのせいで「いつ消えるか」が分かりにくくなります。ゲームではオブジェクトの寿命をはっきりさせたいので、unique_ptr + ID / ハンドルで管理するほうが好まれます。
 

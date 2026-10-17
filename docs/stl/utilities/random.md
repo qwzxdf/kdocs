@@ -16,8 +16,8 @@ tags:
 
 `<random>` は、**乱数を作るためのライブラリ**です。乱数は 2 つの部品を組み合わせて作ります。1 つは**乱数エンジン**（`std::mt19937` など）で、でたらめな整数を次々に作る「乱数の源」です。もう 1 つは**分布**（`std::uniform_int_distribution` など）で、エンジンの出した整数を「1〜6 のサイコロ」「0.0〜1.0 の小数」のような欲しい形に整えます。
 
-!!! tip "結論"
-    - **エンジンは `std::mt19937` を 1 つ作って使い回す。** 種（シード）は `std::random_device{}()` か固定値。
+!!! tip "ポイント"
+    - <strong>エンジンは `std::mt19937` を 1 つ作って使い回す。</strong> 種（シード）は `std::random_device{}()` か固定値。
     - 整数は `std::uniform_int_distribution<int> dist(1, 6); dist(rng)`（**両端を含む**）。
     - 小数は `std::uniform_real_distribution<float> dist(0.0f, 1.0f); dist(rng)`（上限は含まない）。
     - 確率で当たり外れは `std::bernoulli_distribution(0.3)`、重み付き抽選は `std::discrete_distribution`。

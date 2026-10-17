@@ -16,8 +16,8 @@ tags:
 
 `std::unique_ptr` は、**`new` で作ったオブジェクトを持ち、自分が消えるときに自動で `delete` してくれるポインタ**です（スマートポインタ）。持ち主は常に 1 人だけで、コピーはできず、ムーブで「持ち主を移す」ことだけができます。`delete` の書き忘れ（メモリリーク）や二重 `delete` が起きなくなります。
 
-!!! tip "結論"
-    - **`new` / `delete` を自分で書かず、`std::make_unique<T>(...)` で作る。**
+!!! tip "ポイント"
+    - <strong>`new` / `delete` を自分で書かず、`std::make_unique<T>(...)` で作る。</strong>
     - 普通のポインタと同じく `->` と `*` で使える。速さも生ポインタとほぼ同じ。
     - コピーできない。渡すときは `std::move` で持ち主を移す。
     - 関数に「使わせるだけ」なら、`unique_ptr` ではなく **`T&` か `T*` で渡す**。
@@ -204,6 +204,11 @@ std::unique_ptr<T> make_unique(std::size_t size);  // T が配列 U[] のとき
 - 戻り値: 新しく作ったオブジェクトを持つ unique_ptr
 - 例外: メモリ不足なら `std::bad_alloc`
 
+<div class="anim" data-label="auto p = std::make_unique<Enemy>()">
+_ # p は空
++A # Enemy を作り、p が所有する
+</div>
+
 ```cpp
 #include <memory>
 #include <print>
@@ -338,6 +343,12 @@ void reset(pointer p = pointer()) noexcept;
 
 - 今持っているものを `delete` してから、`p` を持ちます
 
+<div class="anim" data-label="p.reset()">
+A # p が所有している
+xA # 所有しているものを delete する
+_ # p は空
+</div>
+
 ```cpp
 #include <memory>
 #include <print>
@@ -371,6 +382,11 @@ unique_ptr& operator=(unique_ptr&& other) noexcept;
 - `other` が持っていたものを受け取ります。`other` は空になります
 - コピー（`unique_ptr(const unique_ptr&)`）は**削除されている**のでコンパイルエラーになります
 
+<div class="anim" data-label="b = std::move(a)">
+A | _ # a が所有している
+_ | >A # 所有権が b に移る。a は空になる
+</div>
+
 ```cpp
 #include <memory>
 #include <print>
@@ -400,6 +416,11 @@ pointer release() noexcept;
 !!! note "実際は"
     古い API に「持ち主ごと渡す」ときくらいしか使いません。`release()` の戻り値を捨てるとメモリリークになります（`reset()` と間違えやすい）。
 
+<div class="anim" data-label="Enemy* raw = p.release()">
+A | _ # p が所有している
+_ | *A # 所有をやめて生ポインタを返す。delete はされない
+</div>
+
 ### swap {#swap}
 
 ```cpp
@@ -407,6 +428,11 @@ void swap(unique_ptr& other) noexcept;
 ```
 
 - 2 つの unique_ptr の中身を交換します
+
+<div class="anim" data-label="a.swap(b)">
+A | B # a と b
+>B | >A # 所有しているものを入れ替える
+</div>
 
 ### get_deleter {#get_deleter}
 

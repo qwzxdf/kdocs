@@ -3,6 +3,7 @@ nav:
   - コンテナ: containers
   - アルゴリズム: algorithms
   - ユーティリティ: utilities
+  - メモリ: memory
   - 入出力・文字列: io
   - 数値: numeric
   - 並行処理: concurrency

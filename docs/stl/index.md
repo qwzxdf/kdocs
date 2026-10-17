@@ -58,7 +58,7 @@ C++23 の標準ライブラリを、ゲーム制作でよく使う順にまと�
     | [集合演算（`set_union` など）](algorithms/set_operations.md) | <span class="rank rank-rare">知ってるだけ</span> | ソート済み範囲の共通部分・和・差 |
     | [`std::ranges::make_heap` など](algorithms/heap.md) | <span class="rank rank-rare">知ってるだけ</span> | ヒープの操作 |
 
-??? abstract "ユーティリティ（13）: optional, unique_ptr, format などの便利な部品"
+??? abstract "ユーティリティ（14）: optional, unique_ptr, format などの便利な部品"
     | 機能 | 重要度 | 速さ | 一言で |
     | --- | --- | --- | --- |
     | [`std::unique_ptr`](utilities/unique_ptr.md) | <span class="rank rank-must">必須</span> | <span class="perf perf-4">◎</span> | 所有権が 1 つのスマートポインタ |
@@ -74,6 +74,16 @@ C++23 の標準ライブラリを、ゲーム制作でよく使う順にまと�
     | [`std::chrono`](utilities/chrono.md) | <span class="rank rank-sometimes">たまに</span> | <span class="perf perf-4">◎</span> | 時間の計測 |
     | [`<random>`](utilities/random.md) | <span class="rank rank-sometimes">たまに</span> | <span class="perf perf-3">○</span> | 乱数 |
     | [`std::any`](utilities/any.md) | <span class="rank rank-rare">知ってるだけ</span> | <span class="perf perf-2">△</span> | 何でも入る箱 |
+    | [`std::hash`](utilities/hash.md) | <span class="rank rank-often">よく使う</span> | <span class="perf perf-4">◎</span> | ハッシュ値。自作の型を unordered_map のキーにする |
+
+??? abstract "メモリ（5）: 確保の仕組み、アロケータ、C 由来の関数"
+    | 名前 | 重要度 | 一言で |
+    | --- | --- | --- |
+    | [`new` と `delete`・配置 new](memory/new_delete.md) | <span class="rank rank-often">よく使う</span> | 確保 + 作成、破棄 + 解放。配置 new、`construct_at` |
+    | [`std::allocator`](memory/allocator.md) | <span class="rank rank-sometimes">たまに</span> | コンテナのメモリの取り先。自作アロケータ |
+    | [`std::pmr`](memory/pmr.md) | <span class="rank rank-sometimes">たまに</span> | 型を変えずに取り先を切り替える。フレーム用の領域 |
+    | [`malloc` / `free`](memory/c-memory.md) | <span class="rank rank-sometimes">たまに</span> | C 由来の確保。C ライブラリとの橋渡し |
+    | [文字列・メモリ操作（cstring）](memory/cstring.md) | <span class="rank rank-sometimes">たまに</span> | `memcpy`、`memset`、`strlen` など |
 
 ??? abstract "入出力・文字列（6）: ファイル、パス、文字列と数値の変換"
     | 名前 | 重要度 | 一言で |

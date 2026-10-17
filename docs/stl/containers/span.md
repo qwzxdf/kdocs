@@ -15,8 +15,8 @@ tags:
 
 `std::span` は、**どこかにある連続した配列を「借りて見る」ための窓**です。自分では中身を持たず、「先頭のポインタ」と「個数」の 2 つだけを持っています。`std::vector` でも `std::array` でも C の配列でも、同じ `std::span` で受け取れるのが一番の利点です。
 
-!!! tip "結論"
-    - **関数の引数で配列を受け取るときに使う。** `const std::vector<T>&` の代わりに `std::span<const T>`。
+!!! tip "ポイント"
+    - <strong>関数の引数で配列を受け取るときに使う。</strong> `const std::vector<T>&` の代わりに `std::span<const T>`。
     - 読むだけなら `std::span<const T>`、書き換えるなら `std::span<T>`。
     - コピーしても中身はコピーされない（ポインタと個数だけ）。**値渡しで OK**。
     - **借りているだけ**なので、元の配列が消えたり再確保されたりすると壊れる。メンバ変数に保存しない。
@@ -174,6 +174,11 @@ constexpr reference operator[](size_type idx) const;
 - 戻り値: 要素の参照（`span<const T>` なら書き換え不可、`span<T>` なら書き換え可）
 - 範囲外は未定義動作
 
+<div class="anim" data-label="s[1]">
+1 2 3 # span
+1 *2 3 # s[1] は 2。範囲チェックなし
+</div>
+
 ```cpp
 #include <print>
 #include <span>
@@ -282,6 +287,11 @@ constexpr span<T> subspan(size_type offset, size_type count = dynamic_extent) co
 - 戻り値: 同じ中身の一部分を指す新しい span（コピーは起きない）
 - 範囲外を指定すると未定義動作
 
+<div class="anim" data-label="s.subspan(1, 3)">
+1 2 3 4 5 # 元の配列
+1 *2 *3 *4 5 # 位置 1 から 3 個の窓
+</div>
+
 ```cpp
 #include <print>
 #include <span>
@@ -315,6 +325,11 @@ constexpr span<T> first(size_type count) const;
 
 - 戻り値: 先頭 `count` 個を指す span。`count > size()` だと未定義動作
 
+<div class="anim" data-label="s.first(2)">
+1 2 3 4 5 # 元の配列
+*1 *2 3 4 5 # 先頭 2 個を見る窓。コピーはしない
+</div>
+
 ```cpp
 #include <print>
 #include <span>
@@ -341,6 +356,11 @@ constexpr span<T> last(size_type count) const;
 | `count` | `size_type` | 末尾から何個か |
 
 - 戻り値: 末尾 `count` 個を指す span
+
+<div class="anim" data-label="s.last(2)">
+1 2 3 4 5 # 元の配列
+1 2 3 *4 *5 # 最後 2 個を見る窓
+</div>
 
 ```cpp
 #include <print>
@@ -373,6 +393,11 @@ constexpr reference front() const;
 
 - 先頭の要素。空のとき未定義動作
 
+<div class="anim" data-label="s.front()">
+1 2 3 # span
+*1 2 3 # 先頭
+</div>
+
 ### back {#back}
 
 ```cpp
@@ -380,6 +405,11 @@ constexpr reference back() const;
 ```
 
 - 末尾の要素。空のとき未定義動作
+
+<div class="anim" data-label="s.back()">
+1 2 3 # span
+1 2 *3 # 最後
+</div>
 
 ```cpp
 #include <print>

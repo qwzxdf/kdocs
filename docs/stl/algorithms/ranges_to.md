@@ -15,8 +15,8 @@ tags:
 
 `std::ranges::to` は、**範囲（ビューなど）から vector や map などのコンテナを作る**関数です。[`std::views`](views.md) で絞り込んだり変換したりした結果は「見えているだけ」で実体がありませんが、最後に `| std::ranges::to<std::vector>()` を付けると、その結果を持った本物の vector ができます。
 
-!!! tip "結論"
-    - **ビューの結果を保存したいときは、最後に `| std::ranges::to<std::vector>()`。**
+!!! tip "ポイント"
+    - <strong>ビューの結果を保存したいときは、最後に `| std::ranges::to<std::vector>()`。</strong>
     - 要素の型は推論されるので、`std::vector<int>` と書かずに `std::vector` だけでいい。
     - 別のコンテナにも変換できる（`std::set`、`std::string`、`std::map` など）。
     - 新しいコンテナを作る（メモリ確保が起きる）ので、毎フレーム大量に呼ぶと重い。

@@ -13,10 +13,10 @@ tags:
 `#include <functional>`
 </div>
 
-`std::function` は、**「呼び出せるもの」なら何でも入れておける変数**です。普通の関数、ラムダ式、メンバ関数を呼ぶ関数オブジェクトなど、引数と戻り値の形が同じなら同じ `std::function` に入れられます。ボタンを押したときの処理、イベントのコールバック、ステートごとの更新処理などを「データとして」持てるようになります。
+`std::function` は、<strong>「呼び出せるもの」なら何でも入れておける変数</strong>です。普通の関数、ラムダ式、メンバ関数を呼ぶ関数オブジェクトなど、引数と戻り値の形が同じなら同じ `std::function` に入れられます。ボタンを押したときの処理、イベントのコールバック、ステートごとの更新処理などを「データとして」持てるようになります。
 
-!!! tip "結論"
-    - **コールバック（あとで呼んでほしい処理）を保存するときに使う。** `std::function<void()> on_click;`
+!!! tip "ポイント"
+    - <strong>コールバック（あとで呼んでほしい処理）を保存するときに使う。</strong> `std::function<void()> on_click;`
     - 型は `std::function<戻り値(引数...)>`。
     - 空のまま呼ぶと例外になる。呼ぶ前に `if (f)` で確認する。
     - その場で渡してすぐ呼ぶだけなら、テンプレートや `auto` 引数のほうが速い。
@@ -143,6 +143,12 @@ function& operator=(F&& f);
 | --- | --- | --- |
 | `f` | 呼び出せるもの | 普通の関数、ラムダ式、関数オブジェクトなど。引数と戻り値の型が合う必要がある |
 
+<div class="anim" data-label="f = other">
+f1 # f は f1 を持っている
+xf1 # 今の関数を破棄する
++f2 # 新しい関数を持つ
+</div>
+
 ```cpp
 #include <functional>
 #include <print>
@@ -212,6 +218,12 @@ function& operator=(std::nullptr_t) noexcept;
 ```
 
 - 中身を消して空にします
+
+<div class="anim" data-label="f = nullptr">
+f1 # f は f1 を持っている
+xf1 # 関数を破棄する
+_ # 空。呼ぶと std::bad_function_call
+</div>
 
 ```cpp
 #include <functional>

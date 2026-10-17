@@ -16,7 +16,7 @@ tags:
 
 `std::stringstream` は、**文字列をファイルや画面の代わりにして `<<` / `>>` を使える型**です。`std::ostringstream` に `<<` で書き込めば文字列ができあがり、`std::istringstream` に文字列を入れれば `>>` や `std::getline` で分解して読めます。ファイルの読み込み処理をテストするときや、1 行の中身を空白で分けて数値に変換するときに便利です。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 文字列を**作る**のは C++20 以降なら [`std::format`](../utilities/format.md) のほうが簡単。ostringstream は古いコードで見かける。
     - 文字列を**分解して読む**のは istringstream が今でも便利（`"3 4 5"` → 3, 4, 5）。
     - ファイル用の関数を `std::istream&` で受け取るようにすると、テストで istringstream を渡せる。

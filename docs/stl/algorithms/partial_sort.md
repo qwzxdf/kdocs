@@ -14,7 +14,7 @@ tags:
 
 `partial_sort` は、**先頭の N 個だけを正しい順に並べる**関数です（残りの順番はバラバラ）。`nth_element` は、**N 番目の位置にだけ「全部並べたときに来るはずの値」を置き、その前には小さいもの、後ろには大きいものを集める**関数です。どちらも全部を並べる `sort` より速く終わります。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 「上位 10 件だけ欲しい」なら `partial_sort`。
     - 「中央値」「N 番目に大きい値」だけ欲しいなら `nth_element`。
     - 要素が少ないなら `sort` で全部並べても差はほぼ無い。要素が多いときの最適化に使う。
@@ -67,6 +67,12 @@ constexpr borrowed_iterator_t<R> partial_sort(R&& r, iterator_t<R> middle, Comp 
 - `[begin, middle)` が正しい順に並び、`[middle, end)` の順番はバラバラ
 - 計算量: O(n log N)（N は並べる個数）
 
+<div class="anim" data-label="std::partial_sort(b, b + 3, e)">
+7 2 9 1 5 8 # v
+>1 >2 >5 9 7 8 # 小さい順に先頭 3 個だけ整列する
+1 2 5 9 7 8 # 残りは順番が決まらない
+</div>
+
 ### std::ranges::nth_element {#nth_element}
 
 ```cpp
@@ -86,6 +92,11 @@ constexpr borrowed_iterator_t<R> nth_element(R&& r, iterator_t<R> nth, Comp comp
 <div class="mem">
 <div class="mem-step"><span class="mem-label">前</span><span class="mem-cells"><span>7</span><span>2</span><span>9</span><span>4</span><span>5</span></span></div>
 <div class="mem-step"><span class="mem-label">nth = 2 番目</span><span class="mem-cells"><span>2</span><span>4</span><span class="move">5</span><span>9</span><span>7</span></span><span class="mem-note">5 だけが正しい位置。左は 5 以下、右は 5 以上（順番はバラバラ）</span></div>
+</div>
+
+<div class="anim" data-label="std::nth_element(b, b + 2, e)">
+7 2 9 1 5 8 # v
+2 1 *5 7 9 8 # 5 が 3 番目の位置に来る
 </div>
 
 ```cpp

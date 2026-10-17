@@ -1,7 +1,7 @@
 ---
 title: zpp_bits（バイナリ・速さ重視）
 tags:
-  - ゲームエンジン
+  - 外部ライブラリ
   - シリアライズ
 ---
 
@@ -16,18 +16,46 @@ tags:
 
 **zpp_bits** は、**とても速いバイナリシリアライザ**です。ヘッダ 1 ファイルだけで使え、**構造体（集成体）なら何も書かなくても**そのまま保存・読み込みできます。C++20 の機能（コンセプト、構造化束縛の仕組み、`constexpr` の強化）をフルに使って、保存・読み込みの処理を**コンパイル時にほぼ全部組み立てる**ので、実行時の無駄がほとんどありません。ベンチマークでは、[cereal](cereal.md) より何倍も速く、手で `memcpy` を書いたのと近い速さになることもあります。その代わり、データに**型の情報やバージョン番号は入らない**（自分で入れる）ので、「何を書いたか」を自分で管理する必要があります。通信・リプレイ・製品版のマスターデータなど、「形が決まっていて、とにかく速く・小さく」したいときに向いています。
 
-!!! tip "結論"
-    - **構造体なら何も書かずに保存できる。** `auto [data, in, out] = zpp::bits::data_in_out();` → `out(obj)` → `in(obj)`。
+!!! tip "ポイント"
+    - <strong>構造体なら何も書かずに保存できる。</strong> `auto [data, in, out] = zpp::bits::data_in_out();` → `out(obj)` → `in(obj)`。
     - 結果は**エラーコード**で返る。`.or_throw()` を付けると失敗時に例外になる。
     - 文字列・vector の要素数は**デフォルトで 4 バイト**。オプションで 1・2・8 バイトや可変長にもできる。
-    - **バージョン管理の仕組みは無い。** 先頭にバージョン番号を自分で書く。
+    - <strong>バージョン管理の仕組みは無い。</strong> 先頭にバージョン番号を自分で書く。
     - private メンバがあるクラスは `using serialize = zpp::bits::members<N>;` か `serialize` 関数で対応させる。
     - 信用できないデータを読むときは **`alloc_limit`** で確保するメモリの上限を決める。
 
 !!! info "このページを読む前に"
-    [シリアライズの概要](index.md) と [cereal](cereal.md) を先に読むと、バイナリシリアライザの考え方（書いた順番に読む）が分かります。[テンプレート](../../basics/template.md) の concepts と、[std::expected](../../stl/utilities/expected.md) のような「エラーを戻り値で返す」書き方も関係します。
+    [シリアライズの概要](../../engine/serialization/index.md) と [cereal](cereal.md) を先に読むと、バイナリシリアライザの考え方（書いた順番に読む）が分かります。[テンプレート](../../basics/template.md) の concepts と、[std::expected](../../stl/utilities/expected.md) のような「エラーを戻り値で返す」書き方も関係します。
 
 ## 導入
+
+### Visual Studio で導入する（最初に読む）
+
+Visual Studio を使っているなら、**この方法が一番簡単**です。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは zpp_bits だけの部分を書きます。
+
+=== "vcpkg（おすすめ）"
+
+    1. 初回だけ、Developer PowerShell で `vcpkg integrate install` を実行する（[準備](../../vs/libraries.md#vcpkg)）
+    2. ライブラリを入れる
+
+        ```powershell
+        vcpkg install zpp-bits:x64-windows
+        ```
+
+        （マニフェスト モードなら、`vcpkg.json` の `dependencies` に `"zpp-bits"` を足す）
+    3. プロジェクトには何も設定せずに、`#include <zpp_bits.h>` と書けば使える
+
+=== "ファイルを置く"
+
+    1. [GitHub](https://github.com/eyalz800/zpp_bits) から **`zpp_bits.h`**（1 ファイル）をダウンロードして、`third_party/zpp_bits/` に置く
+    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\zpp_bits` を追加する
+    4. `#include <zpp_bits.h>` と書いてビルドする
+
+!!! note "C++ の設定"
+    **C++20 が必要**です。C++ 言語標準を `/std:c++latest`（または C++20 以上）にします（[設定](../../vs/settings.md)）。MSVC での対応状況は、README で確認してください。
+
+### そのほかの方法（CMake など）
 
 ヘッダ 1 ファイル（`zpp_bits.h`）だけです。C++20 が必要です（GCC 11 以降、Clang 12 以降、Visual Studio 2022 以降）。
 
@@ -687,7 +715,7 @@ constexpr auto from_bytes();
 
 ## 関連ページ
 
-- [シリアライズの概要](index.md)
+- [シリアライズの概要](../../engine/serialization/index.md)
 - [yalantinglibs（struct_pack）](struct-pack.md)
 - [cereal（バイナリ・定番）](cereal.md)
 - [cista（バイナリ・ゼロコピー）](cista.md)

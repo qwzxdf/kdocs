@@ -16,8 +16,8 @@ tags:
 
 `std::string_view` は、**どこかにある文字列を「借りて見る」ための型**です。自分では文字列を持たず、「先頭のポインタ」と「長さ」だけを持っています。`std::string` でも `"文字列リテラル"` でも `char` 配列でも、コピーせずに同じ型で受け取れるので、**読むだけの関数の引数**にぴったりです。文字列版の [`std::span`](../containers/span.md) だと考えると分かりやすいです。
 
-!!! tip "結論"
-    - **文字列を読むだけの関数の引数は `std::string_view` にする。** `const std::string&` より何でも受け取れて、コピーも起きない。
+!!! tip "ポイント"
+    - <strong>文字列を読むだけの関数の引数は `std::string_view` にする。</strong> `const std::string&` より何でも受け取れて、コピーも起きない。
     - 値渡しで OK（16 バイトしかない）。
     - **借りているだけ**なので、メンバ変数に保存したり、関数から返したりしない（元の文字列が消えると壊れる）。
     - **末尾に `'\0'` があるとは限らない**ので、C の関数（`printf("%s")` など）にそのまま渡せない。
@@ -159,6 +159,11 @@ constexpr basic_string_view substr(size_type pos = 0, size_type count = npos) co
 - 戻り値: 同じ文字列の一部を指す新しい string_view。**コピーは起きない**（string の substr との大きな違い）
 - 例外: `pos > size()` なら `std::out_of_range`
 
+<div class="anim" data-label="sv.substr(1, 2)">
+a b c d # 元の文字列
+a *b *c d # 見る範囲だけを返す。コピーはしない
+</div>
+
 ### find {#find}
 
 ```cpp
@@ -168,6 +173,11 @@ constexpr size_type find(CharT ch, size_type pos = 0) const noexcept;
 
 - 見つかった位置。見つからなければ `std::string_view::npos`
 
+<div class="anim" data-label="sv.find(&quot;bc&quot;)">
+a b c d # 元の文字列
+a *b *c d # 見つかった位置（1）を返す
+</div>
+
 ### starts_with <span class="ver ver-20">C++20</span> {#starts_with data-toc-label="starts_with"}
 
 ```cpp
@@ -176,6 +186,11 @@ constexpr bool starts_with(basic_string_view sv) const noexcept;
 
 - 先頭が一致すれば `true`
 
+<div class="anim" data-label="sv.starts_with(&quot;ab&quot;)">
+a b c d # 元の文字列
+*a *b c d # 先頭が一致すれば true
+</div>
+
 ### ends_with <span class="ver ver-20">C++20</span> {#ends_with data-toc-label="ends_with"}
 
 ```cpp
@@ -183,6 +198,11 @@ constexpr bool ends_with(basic_string_view sv) const noexcept;
 ```
 
 - 末尾が一致すれば `true`
+
+<div class="anim" data-label="sv.ends_with(&quot;cd&quot;)">
+a b c d # 元の文字列
+a b *c *d # 末尾が一致すれば true
+</div>
 
 ```cpp
 #include <print>
@@ -218,6 +238,11 @@ constexpr void remove_prefix(size_type n);
 
 - **元の文字列は変わらない**。「見ている窓」を縮めるだけです
 
+<div class="anim" data-label="sv.remove_prefix(1)">
+*a *b *c *d # 元の文字列を全部見ている
+a *b *c *d # 見る範囲の先頭だけが進む。元の文字列は変わらない
+</div>
+
 ### remove_suffix {#remove_suffix}
 
 ```cpp
@@ -225,6 +250,11 @@ constexpr void remove_suffix(size_type n);
 ```
 
 - 末尾 n 文字を見ないようにします
+
+<div class="anim" data-label="sv.remove_suffix(1)">
+*a *b *c *d # 元の文字列を全部見ている
+*a *b *c d # 見る範囲の後ろだけが縮む。元の文字列は変わらない
+</div>
 
 ```cpp
 #include <print>

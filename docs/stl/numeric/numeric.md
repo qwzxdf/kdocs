@@ -14,7 +14,7 @@ tags:
 
 `<numeric>` は、**数値の範囲や整数についての便利な関数**をまとめたヘッダです。合計を出す `std::accumulate`、連番を作る `std::iota` のほかに、最大公約数 `std::gcd`、最小公倍数 `std::lcm`、オーバーフローしない中間値 `std::midpoint`、飽和演算（C++26）などがあります。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 合計は [`std::accumulate` / `std::ranges::fold_left`](../algorithms/accumulate.md)、連番は [`std::iota`](../algorithms/copy_fill.md#iota)。
     - 最大公約数・最小公倍数は `std::gcd` / `std::lcm`（画面比、周期の計算）。
     - 2 つの値の真ん中は `(a + b) / 2` ではなく `std::midpoint(a, b)`（あふれない）。
@@ -153,6 +153,14 @@ OutputIt partial_sum(InputIt first, InputIt last, OutputIt d_first);
 
 - `[a, b, c]` → `[a, a+b, a+b+c]`
 
+<div class="anim" data-label="std::partial_sum(v.begin(), v.end(), out)">
+1 2 3 4 # 入力
++1 _ _ _ # 1
++1 +3 _ _ # 1 + 2
++1 +3 +6 _ # 3 + 3
++1 +3 +6 +10 # 累積和。ここまでの合計が並ぶ
+</div>
+
 ### std::inclusive_scan {#inclusive_scan}
 
 <span class="ver ver-17">C++17</span>
@@ -164,6 +172,11 @@ OutputIt inclusive_scan(InputIt first, InputIt last, OutputIt d_first);
 
 - `partial_sum` と同じ結果ですが、並列実行（`std::execution::par`）ができます
 
+<div class="anim" data-label="std::inclusive_scan(v.begin(), v.end(), out)">
+1 2 3 4 # 入力
++1 +3 +6 +10 # 自分を含めた累積和
+</div>
+
 ### std::exclusive_scan {#exclusive_scan}
 
 <span class="ver ver-17">C++17</span>
@@ -174,6 +187,11 @@ OutputIt exclusive_scan(InputIt first, InputIt last, OutputIt d_first, T init);
 ```
 
 - 自分を**含まない**累積和：`[a, b, c]` → `[init, init+a, init+a+b]`。「各グループが何番目から始まるか」を出すのに使えます
+
+<div class="anim" data-label="std::exclusive_scan(v.begin(), v.end(), out, 0)">
+1 2 3 4 # 入力
++0 +1 +3 +6 # 自分を含めない累積和（初期値 0 から）
+</div>
 
 ```cpp
 #include <numeric>
@@ -202,6 +220,14 @@ OutputIt adjacent_difference(InputIt first, InputIt last, OutputIt d_first);
 ```
 
 - 隣との差：`[a, b, c]` → `[a, b-a, c-b]`。毎フレームの位置の記録から速度を出すのに使えます
+
+<div class="anim" data-label="std::adjacent_difference(v.begin(), v.end(), out)">
+1 3 6 10 # 入力
++1 _ _ _ # 先頭はそのまま
++1 +2 _ _ # 3 - 1
++1 +2 +3 _ # 6 - 3
++1 +2 +3 +4 # 隣との差が並ぶ
+</div>
 
 ### std::inner_product {#inner_product}
 

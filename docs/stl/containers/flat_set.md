@@ -15,8 +15,8 @@ tags:
 
 `std::flat_set` は、**中身がソート済みの vector になっている set** です。[`std::flat_map`](flat_map.md) のキーだけ版で、使い方は [`std::set`](set.md) と同じです。検索と全要素のループは set より速く、途中の追加・削除は O(n) で遅くなります。
 
-!!! tip "結論"
-    - **作ってから変更しない「集合」に使う。** 使い方は set と同じ。
+!!! tip "ポイント"
+    - <strong>作ってから変更しない「集合」に使う。</strong> 使い方は set と同じ。
     - 実は「vector に入れて sort して unique」したものとほぼ同じ。そちらで代用しても十分。
 
 ## 宣言
@@ -40,8 +40,8 @@ set と同じ関数は同じ意味で、違うのは計算量だけです。
 | [`empty`](#empty) | <span class="rank rank-often">よく使う</span> | 空か | O(1) | O(1) |
 | [`find`](#find) | <span class="rank rank-often">よく使う</span> | 探す | O(log n) | O(log n) |
 | [`lower_bound`](#lower_bound) | <span class="rank rank-sometimes">たまに</span> | 以上の最初 | O(log n) | O(log n) |
-| [`insert`](#insert) | <span class="rank rank-sometimes">たまに</span> | 追加 | **O(n)** | O(log n) |
-| [`erase`](#erase) | <span class="rank rank-sometimes">たまに</span> | 削除 | **O(n)** | O(log n) |
+| [`insert`](#insert) | <span class="rank rank-sometimes">たまに</span> | 追加 | <strong>O(n)</strong> | O(log n) |
+| [`erase`](#erase) | <span class="rank rank-sometimes">たまに</span> | 削除 | <strong>O(n)</strong> | O(log n) |
 | [`extract`](#extract) | <span class="rank rank-rare">知ってるだけ</span> | 中の vector を取り出す | O(1) | — |
 | [`replace`](#replace) | <span class="rank rank-rare">知ってるだけ</span> | 中の vector を入れ替える | O(1) | — |
 
@@ -72,6 +72,11 @@ bool contains(const Key& key) const;
 ```
 
 - 入っていれば `true`。二分探索なので set より速く引けます
+
+<div class="anim" data-label="s.contains(5)">
+1 3 5 7 9 # 整列した配列
+1 3 *5 7 9 # 二分探索
+</div>
 
 ### begin {#begin}
 
@@ -113,6 +118,11 @@ iterator find(const Key& key);
 
 - 見つかった要素のイテレータ。無ければ `end()`
 
+<div class="anim" data-label="s.find(5)">
+1 3 5 7 9 # 整列した配列
+1 3 *5 7 9 # 二分探索
+</div>
+
 ### lower_bound {#lower_bound}
 
 ```cpp
@@ -120,6 +130,11 @@ iterator lower_bound(const Key& key);
 ```
 
 - 以上の最初の要素
+
+<div class="anim" data-label="s.lower_bound(4)">
+1 3 5 7 # 整列した配列
+1 3 *5 7 # 4 以上で最初の要素
+</div>
 
 ### insert {#insert}
 
@@ -131,6 +146,12 @@ void insert(InputIt first, InputIt last);
 
 - 1 個版は後ろをずらすので O(n)。たくさん入れるなら範囲版を使います
 
+<div class="anim" data-label="s.insert(4)">
+1 3 5 # 整列した配列
+1 3 _ >5 # 後ろをずらす
+1 3 +4 5 # すき間に入れる
+</div>
+
 ### erase {#erase}
 
 ```cpp
@@ -138,6 +159,12 @@ size_type erase(const Key& key);
 ```
 
 - 削除します。後ろを詰めるので O(n)
+
+<div class="anim" data-label="s.erase(3)">
+1 3 5 7 # 整列した配列
+1 x3 5 7 # 消す
+1 >5 >7 _ # 後ろを詰める
+</div>
 
 ```cpp
 #include <flat_set>

@@ -42,3 +42,27 @@
 | デルタタイム（dt） | 前のフレームから経過した時間 | [ゲームループ](engine/game-loop.md) |
 | ハンドル | オブジェクトをポインタではなく番号（＋世代）で指すもの | [ハンドルと世代 ID](engine/handle.md) |
 | オブザーバー（イベント） | 起きたことを、購読している相手にまとめて知らせる仕組み | [イベントシステム](engine/event.md) |
+
+## メモリ
+
+| 用語 | 一言で | 詳しく |
+| --- | --- | --- |
+| アロケータ | コンテナがメモリを確保・解放するときの窓口 | [std::allocator](stl/memory/allocator.md) |
+| pmr（メモリリソース） | 型を変えずに、メモリの取り先を実行時に切り替える仕組み | [std::pmr](stl/memory/pmr.md) |
+| 配置 new | 確保済みの場所に、オブジェクトを作ること | [new と delete・配置 new](stl/memory/new_delete.md#placement_new) |
+| malloc / free | C 由来のメモリ確保。コンストラクタは呼ばれない | [malloc / free](stl/memory/c-memory.md) |
+| memcpy / memset | C 由来の、メモリの塊のコピー・埋め込み | [cstring](stl/memory/cstring.md) |
+| ハッシュ | データを整数に変える計算。unordered_map のキーに使う | [std::hash](stl/utilities/hash.md) |
+
+## ツール・外部ライブラリ
+
+| 用語 | 一言で | 詳しく |
+| --- | --- | --- |
+| vcpkg | Microsoft の C++ パッケージ管理ツール | [外部ライブラリの入れ方](vs/libraries.md#vcpkg) |
+| ソリューション / プロジェクト | Visual Studio のプロジェクトの入れ物 / 1 つの実行ファイルを作る単位 | [プロジェクトの作成](vs/setup.md) |
+| Dear ImGui | 即時モードのデバッグ GUI ライブラリ | [Dear ImGui](libs/imgui/index.md) |
+| ImGuizmo | 3D の移動・回転・拡大のギズモ | [ImGuizmo](libs/imgui/imguizmo.md) |
+| ImSequencer | タイムラインの編集 UI | [ImSequencer](libs/imgui/imsequencer.md) |
+| imgui-node-editor | ノード エディタ | [imgui-node-editor](libs/imgui/node-editor.md) |
+| Jolt Physics | 3D 物理演算ライブラリ | [Jolt Physics](libs/jolt/index.md) |
+| sparse set | ECS で使う、番号から素早く引ける連続配列の仕組み | [ECS](engine/ecs.md#sparse-set) |

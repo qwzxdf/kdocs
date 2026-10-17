@@ -13,12 +13,12 @@ tags:
 `#include <unordered_map>`
 </div>
 
-`std::unordered_map` は、**キーから値をすばやく引ける表（ハッシュ表）**です。「名前 → テクスチャ」「ID → 敵データ」のように、何かをキーにして対応する値を探したいときに使います。中ではキーから「ハッシュ値」という数値を計算して置き場所を決めるので、要素数が増えても検索はほぼ一定時間で終わります。並び順はバラバラです。
+`std::unordered_map` は、<strong>キーから値をすばやく引ける表（ハッシュ表）</strong>です。「名前 → テクスチャ」「ID → 敵データ」のように、何かをキーにして対応する値を探したいときに使います。中ではキーから「ハッシュ値」という数値を計算して置き場所を決めるので、要素数が増えても検索はほぼ一定時間で終わります。並び順はバラバラです。
 
-!!! tip "結論"
-    - **キーで検索したいならまずこれ。** 順番が必要なときだけ [`std::map`](map.md)。
+!!! tip "ポイント"
+    - <strong>キーで検索したいならまずこれ。</strong> 順番が必要なときだけ [`std::map`](map.md)。
     - 入れるのは `m[key] = value;`、探すのは `find` か `contains`。
-    - **`m[key]` は「無ければ作る」**。存在確認に `[]` を使わない。
+    - <strong>`m[key]` は「無ければ作る」</strong>。存在確認に `[]` を使わない。
     - 回す順番はバラバラ。表示順が大事なら別に並べる。
 
 !!! info "このページを読む前に"
@@ -248,6 +248,11 @@ T& operator[](Key&& key);
 - 戻り値: 値の参照。**キーが無ければ値をデフォルト構築して追加し、その参照を返す**
 - 計算量: 平均 O(1)、最悪 O(n)
 
+<div class="anim" data-label="m[&quot;C&quot;]">
+_ A _ B _ _ # バケット
+_ A _ B +C _ # なければ作られる
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -287,6 +292,11 @@ const_iterator find(const Key& key) const;
 - 戻り値: 見つかった要素のイテレータ。**見つからなければ `end()`**
 - 計算量: 平均 O(1)、最悪 O(n)
 
+<div class="anim" data-label="m.find(&quot;B&quot;)">
+_ A _ B _ _ # バケット
+_ A _ *B _ _ # ハッシュで箱を決めて探す。順番は関係ない
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -325,6 +335,11 @@ bool contains(const Key& key) const;
 
 - 戻り値: キーがあれば `true`
 - 計算量: 平均 O(1)
+
+<div class="anim" data-label="m.contains(&quot;B&quot;)">
+_ A _ B _ _ # バケット
+_ A _ *B _ _ # あれば true
+</div>
 
 ```cpp
 #include <print>
@@ -403,6 +418,12 @@ iterator erase(const_iterator first, const_iterator last);
 - 戻り値: キー版は消した数（0 か 1）。位置版は次の要素のイテレータ
 - 消した要素以外のイテレータ・参照は**壊れない**
 
+<div class="anim" data-label="m.erase(&quot;B&quot;)">
+_ A _ B C _ # バケット
+_ A _ xB C _ # 消す
+_ A _ _ C _ # ほかは動かない
+</div>
+
 ```cpp
 #include <print>
 #include <unordered_map>
@@ -470,6 +491,11 @@ std::pair<iterator, bool> try_emplace(const Key& key, Args&&... args);
 - 戻り値: `pair<イテレータ, 追加したか>`
 - 計算量: 平均 O(1)
 
+<div class="anim" data-label="m.try_emplace(&quot;A&quot;, 9)">
+_ A _ B _ _ # すでにキー A がある
+_ *A _ B _ _ # あるので何もしない
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -504,6 +530,11 @@ std::pair<iterator, bool> insert_or_assign(const Key& key, M&& value);
 
 - 戻り値: `pair<イテレータ, 新しく追加したか>`（上書きなら `false`）
 
+<div class="anim" data-label="m.insert_or_assign(&quot;A&quot;, 9)">
+_ A _ B _ _ # すでにキー A がある
+_ +A _ B _ _ # あれば値を上書き、なければ追加
+</div>
+
 ```cpp
 #include <print>
 #include <string>
@@ -533,6 +564,11 @@ const T& at(const Key& key) const;
 
 - 戻り値: 値の参照
 - 例外: キーが無ければ `std::out_of_range`
+
+<div class="anim" data-label="m.at(&quot;B&quot;)">
+_ A _ B _ _ # バケット
+_ A _ *B _ _ # あれば値、なければ例外
+</div>
 
 ```cpp
 #include <print>
@@ -565,6 +601,12 @@ void clear() noexcept;
 - 全要素を削除します
 - 計算量: O(n)（要素ごとにメモリを解放する）
 
+<div class="anim" data-label="m.clear()">
+_ A _ B C _ # バケット
+_ xA _ xB xC _ # すべて破棄
+_ _ _ _ _ _ # 箱の数は残る
+</div>
+
 ### reserve {#reserve}
 
 ```cpp
@@ -576,6 +618,12 @@ void reserve(size_type count);
 | `count` | `size_type` | この個数まで再ハッシュ（作り直し）が起きないようにする |
 
 - 計算量: O(n)
+
+<div class="anim" data-label="m.reserve(8)">
+_ A _ B C _ # バケット 6 個
+_ _ _ _ _ _ _ _ # 先に箱を増やす
+_ >A _ >B _ >C _ _ # 要素は配置し直される（1 回だけ）
+</div>
 
 ```cpp
 #include <print>
@@ -640,6 +688,11 @@ void insert(std::initializer_list<value_type> ilist);
 | `ilist` | `{...}` | まとめて入れる |
 
 - 戻り値: `pair<イテレータ, 追加したか>`。**既にキーがあれば何もしない**（上書きしない）
+
+<div class="anim" data-label="m.insert({&quot;C&quot;, 3})">
+_ A _ B _ _ # 箱（バケット）が並んでいる
+_ A _ B +C _ # ハッシュで決まった箱に入る
+</div>
 
 ```cpp
 #include <print>

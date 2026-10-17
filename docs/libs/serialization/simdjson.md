@@ -1,7 +1,7 @@
 ---
 title: simdjson（JSON・速さ重視）
 tags:
-  - ゲームエンジン
+  - 外部ライブラリ
   - シリアライズ
 ---
 
@@ -16,11 +16,11 @@ tags:
 
 **simdjson** は、**JSON を世界最速クラスの速さで読む**ためのライブラリです。CPU の **SIMD 命令**（1 回の命令で 16〜64 バイトをまとめて処理する命令）を使って、1 秒間に数 GB の JSON を読めます。[nlohmann/json](nlohmann-json.md) と比べて十倍以上速いことも珍しくありません。その代わり、**読み込み専用**（JSON を作って書き出すのは基本的に別のライブラリ）で、「前から順番に読む」「読んだ文字列はパーサーが次の JSON を読むまでしか使えない」などの**独特なルール**があります。巨大なステージデータ・マスターデータ・リプレイのログなど、「大量の JSON を、とにかく速く読みたい」ときの選択肢です。
 
-!!! tip "結論"
-    - **読み込みだけ速くしたいときに使う。** 書き出しは [nlohmann/json](nlohmann-json.md) などで行う。
+!!! tip "ポイント"
+    - <strong>読み込みだけ速くしたいときに使う。</strong> 書き出しは [nlohmann/json](nlohmann-json.md) などで行う。
     - 基本は **On-Demand API**（`simdjson::ondemand::parser`）。必要なところだけ、読むときに解析する。
     - 入力は **`simdjson::padded_string`** に入れる（後ろに余白が必要）。ファイルは `padded_string::load` で読む。
-    - 取り出した **`std::string_view` は、同じパーサーで次を読むまでしか使えない。** 残したいなら `std::string` にコピーする。
+    - 取り出した <strong>`std::string_view` は、同じパーサーで次を読むまでしか使えない。</strong> 残したいなら `std::string` にコピーする。
     - 値は **JSON に書かれた順番に読む** のが一番速く、安全。1 つの値は 1 回しか読めない。
     - エラー処理は「例外」と「エラーコード（`.get(x)`）」の 2 通りから選べる。
 
@@ -28,6 +28,34 @@ tags:
     まず [nlohmann/json](nlohmann-json.md) で JSON の扱いに慣れてから読むのがおすすめです。[string_view](../../stl/utilities/string_view.md) の「元の文字列が消えると使えない」という性質を知っていると、このライブラリの注意点がよく分かります。
 
 ## 導入
+
+### Visual Studio で導入する（最初に読む）
+
+Visual Studio を使っているなら、**この方法が一番簡単**です。ライブラリを入れる基本の手順は [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。ここでは simdjson だけの部分を書きます。
+
+=== "vcpkg（おすすめ）"
+
+    1. 初回だけ、Developer PowerShell で `vcpkg integrate install` を実行する（[準備](../../vs/libraries.md#vcpkg)）
+    2. ライブラリを入れる
+
+        ```powershell
+        vcpkg install simdjson:x64-windows
+        ```
+
+        （マニフェスト モードなら、`vcpkg.json` の `dependencies` に `"simdjson"` を足す）
+    3. プロジェクトには何も設定せずに、`#include <simdjson.h>` と書けば使える
+
+=== "ファイルを置く"
+
+    1. [リリースページ](https://github.com/simdjson/simdjson/releases) の **`simdjson.h` と `simdjson.cpp`**（`singleheader` フォルダー）を `third_party/simdjson/` に置き、**2 つともプロジェクトに追加**（追加 → 既存の項目）する
+    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\simdjson` を追加する
+    4. `#include <simdjson.h>` と書いてビルドする
+
+!!! note "C++ の設定"
+    C++17 以上が必要です。速さを測るときは必ず **Release** で測ります（Debug では何倍も遅くなります）。
+
+### そのほかの方法（CMake など）
 
 `simdjson.h` と `simdjson.cpp` の 2 ファイルだけで動きます（ヘッダオンリーではなく、`.cpp` もビルドする必要があります）。
 
@@ -801,7 +829,7 @@ class simdjson::dom::parser {
 
 ## 関連ページ
 
-- [シリアライズの概要](index.md)
+- [シリアライズの概要](../../engine/serialization/index.md)
 - [nlohmann/json（JSON・定番）](nlohmann-json.md)
 - [string_view](../../stl/utilities/string_view.md)
 - [simdjson（GitHub）](https://github.com/simdjson/simdjson)

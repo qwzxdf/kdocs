@@ -13,10 +13,10 @@ tags:
 `#include <forward_list>`
 </div>
 
-`std::forward_list` は、**次の要素へのポインタだけを持つ「片方向連結リスト」**です。[`std::list`](list.md) から「前の要素へのポインタ」を取り除いて、そのぶん 1 要素あたりのメモリを減らしたものです。前には戻れず、`size()` すらありません。
+`std::forward_list` は、<strong>次の要素へのポインタだけを持つ「片方向連結リスト」</strong>です。[`std::list`](list.md) から「前の要素へのポインタ」を取り除いて、そのぶん 1 要素あたりのメモリを減らしたものです。前には戻れず、`size()` すらありません。
 
-!!! tip "結論"
-    - **使わない。** list でさえほぼ使わないので、その機能を削ったこれを使う場面はさらにない。
+!!! tip "ポイント"
+    - <strong>使わない。</strong> list でさえほぼ使わないので、その機能を削ったこれを使う場面はさらにない。
     - 「C で書いた片方向リストと同じ大きさ・速さのものが標準にある」と知っておけば十分。
 
 ## 宣言
@@ -79,6 +79,11 @@ void push_front(const T& value);
 
 - 先頭に追加します。片方向リストで O(1) で追加できるのは先頭だけです
 
+<div class="anim" data-label="f.push_front(5)">
+10 20 30 # f
++5 10 20 30 # 先頭につなぐ
+</div>
+
 ### pop_front {#pop_front}
 
 ```cpp
@@ -86,6 +91,12 @@ void pop_front();
 ```
 
 - 先頭を消します。空のとき未定義動作
+
+<div class="anim" data-label="f.pop_front()">
+10 20 30 # f
+x10 20 30 # 先頭を外す
+20 30 # 完了
+</div>
 
 ### front {#front}
 
@@ -132,6 +143,11 @@ iterator insert_after(const_iterator pos, const T& value);
 
 - 片方向リストは「前の要素」が分からないので、「前に入れる」ではなく「後ろに入れる」になります
 
+<div class="anim" data-label="f.insert_after(it, 99)">
+10 20 30 # it は 10 を指している
+10 +99 20 30 # it の次に入れる。前には入れられない
+</div>
+
 ### erase_after {#erase_after}
 
 ```cpp
@@ -139,6 +155,12 @@ iterator erase_after(const_iterator pos);
 ```
 
 - `pos` の**次**の要素を消します
+
+<div class="anim" data-label="f.erase_after(it)">
+10 20 30 # it は 10 を指している
+10 x20 30 # it の次を消す
+10 30 # 完了
+</div>
 
 ### before_begin {#before_begin}
 
@@ -199,6 +221,12 @@ size_type remove_if(Pred pred);
 
 - 条件に合う要素を全部消します
 
+<div class="anim" data-label="f.remove_if(is_odd)">
+1 2 3 4 # f
+x1 2 x3 4 # 条件に合うノードを消す
+2 4 # 完了
+</div>
+
 ### remove {#remove}
 
 ```cpp
@@ -206,6 +234,12 @@ size_type remove(const T& value);
 ```
 
 - 値と等しい要素を全部消します
+
+<div class="anim" data-label="f.remove(2)">
+1 2 3 2 # f
+1 x2 3 x2 # 値が 2 のノードを消す
+1 3 # 完了
+</div>
 
 ### sort {#sort}
 
@@ -215,6 +249,11 @@ void sort();
 
 - 並べ替えます。`std::ranges::sort` は使えません
 
+<div class="anim" data-label="f.sort()">
+3 1 4 2 # f
+>1 >2 >3 >4 # つなぎ替えて並べ替え
+</div>
+
 ### reverse {#reverse}
 
 ```cpp
@@ -222,6 +261,11 @@ void reverse() noexcept;
 ```
 
 - 順番を逆にします
+
+<div class="anim" data-label="f.reverse()">
+1 2 3 4 # f
+>4 >3 >2 >1 # つなぎ替えで逆順
+</div>
 
 ### splice_after {#splice_after}
 

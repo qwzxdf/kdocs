@@ -15,7 +15,7 @@ tags:
 
 `std::ifstream` は**ファイルを読む**ため、`std::ofstream` は**ファイルに書く**ための型です（読み書き両方なら `std::fstream`）。`std::cout` と同じ `<<` / `>>` で書けて、`std::getline` で 1 行ずつ読めます。バイナリデータは `write` / `read` で扱います。開くときのモード（フラグ）で、上書きか追記か、テキストかバイナリかを選びます。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 書くなら `std::ofstream out(path);`、読むなら `std::ifstream in(path);`。
     - **開けたか必ず `if (!in)` で確かめる**（失敗しても例外は出ない）。
     - 1 行ずつ読むのは `while (std::getline(in, line))`。

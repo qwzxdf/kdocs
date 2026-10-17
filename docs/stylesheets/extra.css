@@ -368,3 +368,95 @@
   padding-left: 0.5em;
   border-left: 3px solid var(--md-default-fg-color--lighter);
 }
+
+.md-typeset .anim {
+  margin: 1em 0;
+  padding: 0.8em 1em;
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.4em;
+  white-space: pre-line;
+}
+
+.md-typeset .anim[data-ready] {
+  white-space: normal;
+}
+
+.md-typeset .anim-title {
+  margin-bottom: 0.6em;
+  font-family: var(--md-code-font-family);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.md-typeset .anim-stage {
+  min-height: 2.4em;
+  padding: 0.2em 0;
+  overflow-x: auto;
+}
+
+.md-typeset .anim-stage span {
+  flex: 0 0 auto;
+  transition: background 0.4s, opacity 0.4s;
+}
+
+.md-typeset .anim-stage span.hit {
+  background: var(--md-accent-fg-color);
+  color: var(--md-accent-bg-color);
+}
+
+.md-typeset .anim-stage span.gap {
+  width: 1.2em;
+  background: transparent;
+  border-color: transparent;
+}
+
+.md-typeset .anim-stage span.pop {
+  animation: kd-pop 0.5s ease-out;
+}
+
+.md-typeset .anim-stage span.move.pop {
+  animation: kd-slide 0.5s ease-out;
+}
+
+.md-typeset .anim-stage span.gone.pop {
+  animation: kd-shake 0.5s ease-out;
+}
+
+@keyframes kd-pop {
+  0% { transform: scale(0.3); opacity: 0; }
+  70% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes kd-slide {
+  0% { transform: translateX(-2.6em); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes kd-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-0.25em); }
+  75% { transform: translateX(0.25em); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .md-typeset .anim-stage span.pop { animation: none; }
+}
+
+.md-search-result .md-search-result__teaser,
+.md-search-result .md-search-result__terms,
+.md-search-result .md-search-result__more,
+.md-search-result .md-tags,
+.md-search-result .md-search-result__item > a ~ a {
+  display: none;
+}
+
+.md-search-result .md-search-result__article {
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+}
+
+.md-search-result .md-search-result__article > p,
+.md-search-result .md-search-result__link:has(article > h2) {
+  display: none;
+}

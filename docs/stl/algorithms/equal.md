@@ -14,7 +14,7 @@ tags:
 
 `std::ranges::equal` は、**2 つの範囲の中身が全部同じか**を調べるアルゴリズムです。`std::ranges::mismatch` は、**最初に違っているところ**を探します。`lexicographical_compare` は辞書順で大小を比べます。vector 同士なら `==` で比べられますが、vector と配列、list と vector のように**型の違う範囲どうし**でも比べられるのが利点です。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 同じコンテナ同士なら `a == b` で十分。型が違う範囲どうしなら `std::ranges::equal(a, b)`。
     - どこが違うか知りたいなら `std::ranges::mismatch`。
     - 「入力したコマンドが正解の手順と同じか」などに使える。
@@ -69,6 +69,13 @@ constexpr bool equal(R1&& r1, R2&& r2, Pred pred = {}, Proj1 proj1 = {}, Proj2 p
 
 - 戻り値: 長さが同じで、全部の要素が等しければ `true`
 
+<div class="anim" data-label="std::ranges::equal(a, b)">
+1 2 3 | 1 2 3 # a と b
+*1 2 3 | *1 2 3 # 先頭から順に比べる
+*1 *2 3 | *1 *2 3 # 同じ
+*1 *2 *3 | *1 *2 *3 # すべて同じなら true
+</div>
+
 ### std::ranges::mismatch {#mismatch}
 
 ```cpp
@@ -79,6 +86,12 @@ mismatch(R1&& r1, R2&& r2, Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {});
 ```
 
 - 戻り値: `.in1` と `.in2`（最初に違った位置。全部同じなら短いほうの終わり）
+
+<div class="anim" data-label="std::ranges::mismatch(a, b)">
+1 2 3 | 1 9 3 # a と b
+*1 2 3 | *1 9 3 # 同じ
+1 *2 3 | 1 *9 3 # 違う。最初に違う位置の組を返す
+</div>
 
 ```cpp
 #include <algorithm>

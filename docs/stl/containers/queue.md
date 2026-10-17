@@ -15,8 +15,8 @@ tags:
 
 `std::queue`（キュー）は、**先に入れたものから順番に取り出す入れ物**です（先入れ先出し、FIFO）。レジの行列と同じで、後ろに並んで前から出ていきます。中身は [`std::deque`](deque.md) で、そこから「後ろに入れる」「前から出す」以外の操作を取り除いたものです。
 
-!!! tip "結論"
-    - **「来た順に処理する」ものに使う。** イベント、コマンド、幅優先探索。
+!!! tip "ポイント"
+    - <strong>「来た順に処理する」ものに使う。</strong> イベント、コマンド、幅優先探索。
     - 使う関数は `push` / `front` / `pop` / `empty` の 4 つだけ。
     - 中身を回したり、途中を見たりはできない。必要なら [`std::deque`](deque.md) を直接使う。
 
@@ -147,6 +147,11 @@ void push(T&& value);
 
 - 計算量: O(1)
 
+<div class="anim" data-label="q.push(4)">
+1 2 3 # 先頭 1 … 末尾 3
+1 2 3 +4 # 後ろに入る
+</div>
+
 ### front {#front}
 
 ```cpp
@@ -157,6 +162,11 @@ const_reference front() const;
 - 戻り値: 先頭（次に出てくる要素）の参照
 - **空のとき未定義動作**
 
+<div class="anim" data-label="q.front()">
+1 2 3 # q
+*1 2 3 # 次に出るもの
+</div>
+
 ### pop {#pop}
 
 ```cpp
@@ -165,6 +175,12 @@ void pop();
 
 - 先頭を消します。戻り値は**なし**。値が欲しいなら先に `front()` で取る
 - **空のとき未定義動作**
+
+<div class="anim" data-label="q.pop()">
+1 2 3 4 # 先頭 1 … 末尾 4
+x1 2 3 4 # 先頭から出る（先に入ったものが先）
+2 3 4 # 完了
+</div>
 
 ```cpp
 #include <print>
@@ -248,6 +264,11 @@ reference back();
 ```
 
 - 最後に入れた要素の参照。空のとき未定義動作
+
+<div class="anim" data-label="q.back()">
+1 2 3 # q
+1 2 *3 # 最後に入れたもの
+</div>
 
 ```cpp
 #include <print>

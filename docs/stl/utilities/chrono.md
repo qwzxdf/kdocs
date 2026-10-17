@@ -16,8 +16,8 @@ tags:
 
 `std::chrono` は、**時間の長さ・時刻・時計を扱うライブラリ**です。「何秒か」を表す `duration`、「ある時点」を表す `time_point`、今の時刻を教えてくれる「時計」（clock）の 3 つが中心です。単位（秒・ミリ秒など）を型で区別するので、「ミリ秒のつもりで秒を渡した」ような間違いがコンパイル時に見つかります。
 
-!!! tip "結論"
-    - **フレーム時間・処理時間の計測は `std::chrono::steady_clock::now()` の差。** 時計が巻き戻らないので安全。
+!!! tip "ポイント"
+    - <strong>フレーム時間・処理時間の計測は `std::chrono::steady_clock::now()` の差。</strong> 時計が巻き戻らないので安全。
     - 秒の小数（`float`）が欲しいなら `std::chrono::duration<float>(差).count()`。
     - `using namespace std::chrono_literals;` で `16ms`、`3s` のように書ける。
     - カレンダーの日付・現在時刻の表示は `system_clock`。

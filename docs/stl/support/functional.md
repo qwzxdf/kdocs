@@ -14,7 +14,7 @@ tags:
 
 `<functional>` は、**関数を扱うための道具**をまとめたヘッダです。関数を入れておく [`std::function`](../utilities/function.md) のほかに、足し算や比較を表す**関数オブジェクト**（`std::plus`、`std::greater` など）、何でも呼び出せる `std::invoke`、引数を一部固定する `std::bind_front`、参照を値のように渡す `std::ref`、ハッシュ値を作る `std::hash` などがあります。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 並べ替えの比較には `std::greater{}`、合計には `std::plus{}` を渡す。
     - 自作の型を unordered_map のキーにするなら `std::hash` を使ってハッシュを作る。
     - スレッドや bind に**参照で**渡したいときは `std::ref(x)`。

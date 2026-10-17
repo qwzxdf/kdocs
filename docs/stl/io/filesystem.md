@@ -15,7 +15,7 @@ tags:
 
 `std::filesystem` は、**ファイルやフォルダそのものを扱うライブラリ**です。パスの組み立て、ファイルがあるかの確認、フォルダの作成・削除、フォルダの中身の一覧、コピーや名前の変更などができます。ファイルの中身を読み書きするのは [`std::fstream`](fstream.md) の役目で、filesystem は「ファイルの外側」を扱います。Windows でも Mac / Linux でも同じコードで動くのが大きな利点です。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - パスは文字列ではなく **`std::filesystem::path`** で持ち、`/` でつなげる（`dir / "save.dat"`）。
     - よく使うのは `exists`、`create_directories`、`directory_iterator`、`remove`、`rename`。
     - 長いので `namespace fs = std::filesystem;` と別名を付けるのが定番。

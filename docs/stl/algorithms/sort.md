@@ -14,8 +14,8 @@ tags:
 
 `std::ranges::sort` は、**範囲の要素を並べ替える**関数です。何も指定しなければ小さい順、比較関数を渡せば好きな順に並べられます。C++20 の `ranges` 版は vector をそのまま渡せて、さらに「どのメンバで並べるか」（プロジェクション）を指定できるので、昔の `std::sort` よりずっと短く書けます。
 
-!!! tip "結論"
-    - **並べ替えはこれ。** `std::ranges::sort(v);` で小さい順。
+!!! tip "ポイント"
+    - <strong>並べ替えはこれ。</strong> `std::ranges::sort(v);` で小さい順。
     - 大きい順は `std::ranges::sort(v, std::greater{});`。
     - 構造体をメンバで並べるなら `std::ranges::sort(enemies, {}, &Enemy::hp);`（プロジェクション）。
     - 同じ値どうしの順番は**保たれない**。保ちたいなら [`std::ranges::stable_sort`](stable_sort.md)。

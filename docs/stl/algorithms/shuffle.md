@@ -15,7 +15,7 @@ tags:
 
 `std::ranges::shuffle` は、**範囲の要素をランダムな順番に並べ替える**関数です。`std::ranges::sample` は、範囲から**ランダムに n 個を選んで**別の場所にコピーします。どちらも乱数を作る「乱数エンジン」（`std::mt19937` など）を引数に渡して使います。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - トランプを混ぜる、出題順をランダムにする、敵の出現順をばらすなどに使う。
     - 乱数エンジンは `std::mt19937` を**1 つ作って使い回す**（毎回作り直さない）。
     - 古い `std::random_shuffle` は削除されたので使わない。
@@ -73,6 +73,11 @@ borrowed_iterator_t<R> shuffle(R&& r, Gen&& gen);
 - 戻り値: 範囲の終わり（ほぼ使わない）
 - 計算量: O(n)
 - どの並び順も同じ確率で出る
+
+<div class="anim" data-label="std::ranges::shuffle(v, rng)">
+1 2 3 4 5 # v
+>3 >5 >1 >4 >2 # 乱数でランダムに並べ替える
+</div>
 
 ```cpp
 #include <algorithm>

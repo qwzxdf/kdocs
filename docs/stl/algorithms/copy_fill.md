@@ -14,7 +14,7 @@ tags:
 
 このページでは、**範囲に値を書き込む系のアルゴリズム**をまとめて扱います。別の場所へコピーする `copy`、条件に合うものだけコピーする `copy_if`、全部同じ値で埋める `fill`、連番で埋める `iota`、関数の結果で埋める `generate`、各要素を変換して書き込む `transform` です。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - vector を丸ごとコピーするなら `b = a;` で十分。これらは「一部だけ」「別の種類のコンテナへ」「既にある場所へ」書き込むときに使う。
     - 書き込み先が空の vector なら `std::back_inserter(v)` を渡す（足りない場所に書くと未定義動作）。
     - 新しい vector が欲しいだけなら、[`std::views`](views.md) + [`std::ranges::to`](ranges_to.md) のほうが短く書けることが多い。
@@ -77,6 +77,12 @@ constexpr copy_result<borrowed_iterator_t<R>, O> copy(R&& r, O result);
 
 - 戻り値: `.in`（読み終わった位置）と `.out`（書き終わった次の位置）を持つ構造体
 
+<div class="anim" data-label="std::ranges::copy(src, dst.begin())">
+1 2 3 | _ _ _ # src と dst
+1 2 3 | +1 _ _ # 1 つずつコピーする
+1 2 3 | +1 +2 +3 # 全部コピーされる
+</div>
+
 ```cpp
 #include <algorithm>
 #include <array>
@@ -107,6 +113,11 @@ constexpr borrowed_iterator_t<R> fill(R&& r, const T& value);
 | `r` | 範囲 | 埋める範囲 |
 | `value` | `const T&` | 入れる値 |
 
+<div class="anim" data-label="std::ranges::fill(v, 0)">
+1 2 3 4 # v
++0 +0 +0 +0 # 全要素を同じ値で埋める
+</div>
+
 ```cpp
 #include <algorithm>
 #include <print>
@@ -136,6 +147,12 @@ constexpr copy_if_result<borrowed_iterator_t<R>, O> copy_if(R&& r, O result, Pre
 | `result` | 出力イテレータ | 書き込み先 |
 | `pred` | 関数 | **コピーするなら `true`** |
 | `proj` | プロジェクション | `pred` に渡す前の変換 |
+
+<div class="anim" data-label="std::ranges::copy_if(src, out, is_even)">
+1 2 3 4 5 6 | _ _ _ # src と dst
+1 *2 3 *4 5 *6 | _ _ _ # 条件に合うものだけ
+1 2 3 4 5 6 | +2 +4 +6 # 順番を保ったまま詰めてコピーされる
+</div>
 
 ```cpp
 #include <algorithm>
@@ -173,6 +190,11 @@ constexpr unary_transform_result<borrowed_iterator_t<R>, O> transform(R&& r, O r
 | `result` | 出力イテレータ | 書き込み先（元と同じでも OK） |
 | `op` | 関数 | 要素を受け取って、書き込む値を返す |
 
+<div class="anim" data-label="std::ranges::transform(v, v.begin(), double_it)">
+1 2 3 4 # v
+>2 >4 >6 >8 # 1 つずつ変換して書く
+</div>
+
 ```cpp
 #include <algorithm>
 #include <print>
@@ -207,6 +229,11 @@ constexpr void iota(ForwardIt first, ForwardIt last, T value);
 
 - `<numeric>` にあります。C++23 では `std::ranges::iota(r, value)` もあります
 
+<div class="anim" data-label="std::iota(v.begin(), v.end(), 1)">
+0 0 0 0 # v
++1 +2 +3 +4 # 1 から順に増やしながら入れる
+</div>
+
 ```cpp
 #include <numeric>
 #include <print>
@@ -231,6 +258,13 @@ constexpr borrowed_iterator_t<R> generate(R&& r, F gen);
 ```
 
 - 各要素に `gen()` の戻り値を入れます。呼ぶたびに違う値を返す関数（乱数など）と組み合わせます
+
+<div class="anim" data-label="std::generate(v.begin(), v.end(), next)">
+_ _ _ _ # v
++3 _ _ _ # 関数を呼んで入れる
++3 +6 _ _ # 次の呼び出し
++3 +6 +9 +12 # 全部入る
+</div>
 
 ```cpp
 #include <algorithm>

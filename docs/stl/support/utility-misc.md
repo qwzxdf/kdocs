@@ -15,7 +15,7 @@ tags:
 
 このページでは、1 ページにするほどではないけれど知っておくと便利な、**小さな標準機能**をまとめます。enum class を整数に変える `std::to_underlying`、符号付きと符号なしを安全に比べる `std::cmp_less`、生のバイトを表す `std::byte`、「ここには絶対に来ない」を伝える `std::unreachable` などです。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - enum class → 整数は **`std::to_underlying(e)`**（C++23）。
     - int と `size()` を比べるなら **`std::cmp_less(i, v.size())`**（警告もバグも出ない）。
     - 「この値は int に入る？」は **`std::in_range<int>(x)`**。

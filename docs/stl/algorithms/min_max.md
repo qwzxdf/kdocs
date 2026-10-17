@@ -14,7 +14,7 @@ tags:
 
 `std::min` と `std::max` は、**2 つ（または複数）の値のうち小さいほう・大きいほうを返す**関数です。`std::minmax` は両方を一度に返します。C++20 の `std::ranges::min` / `max` を使うと、vector などの範囲を丸ごと渡して最小値・最大値を取ることもできます。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 2 つの値なら `std::min(a, b)` / `std::max(a, b)`。HP の下限・上限の処理などで毎日使う。
     - 3 つ以上なら `std::min({a, b, c})`。
     - vector の最小値なら `std::ranges::min(v)`（空だと未定義動作）。位置が欲しいなら [`min_element`](min_element.md)。

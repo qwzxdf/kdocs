@@ -15,8 +15,8 @@ tags:
 
 `std::flat_map` は、**中身がソート済みの vector になっている map** です。使い方は [`std::map`](map.md) とほぼ同じですが、中では「キーの vector」と「値の vector」を 2 本持っていて、検索は二分探索で行います。メモリが 1 本に並んでいるので、**検索と全要素のループが map より速い**一方、途中への追加・削除は vector と同じく O(n) で遅くなります。
 
-!!! tip "結論"
-    - **最初に作って、あとは検索するだけの表に使う。** アイテム表、パラメータ表、ローカライズの文字列表など。
+!!! tip "ポイント"
+    - <strong>最初に作って、あとは検索するだけの表に使う。</strong> アイテム表、パラメータ表、ローカライズの文字列表など。
     - 使い方は `std::map` と同じ（`[]`, `find`, `contains`, `lower_bound`）。
     - 頻繁に追加・削除するなら `std::map` か `std::unordered_map`。
     - **MSVC は VS 2026 の新しめの版から**対応している（[コンパイラ対応](#コンパイラ対応)）。
@@ -138,6 +138,11 @@ iterator find(const Key& key);
 - 見つかった要素のイテレータ。無ければ `end()`
 - 計算量: O(log n)（二分探索。キーが 1 本に並んでいるので map より速い）
 
+<div class="anim" data-label="m.find(5)">
+1 3 5 7 9 # 整列した配列
+1 3 *5 7 9 # 二分探索で探す
+</div>
+
 ### contains {#contains}
 
 ```cpp
@@ -145,6 +150,11 @@ bool contains(const Key& key) const;
 ```
 
 - キーがあれば `true`
+
+<div class="anim" data-label="m.contains(5)">
+1 3 5 7 9 # 整列した配列
+1 3 *5 7 9 # 二分探索で調べる
+</div>
 
 ```cpp
 #include <flat_map>
@@ -221,6 +231,11 @@ iterator lower_bound(const Key& key);
 
 - キーが `key` 以上の最初の要素（[map の lower_bound](map.md#lower_bound) と同じ）
 
+<div class="anim" data-label="m.lower_bound(4)">
+1 3 5 7 # 整列した配列
+1 3 *5 7 # 4 以上で最初の要素
+</div>
+
 ### upper_bound {#upper_bound}
 
 ```cpp
@@ -228,6 +243,11 @@ iterator upper_bound(const Key& key);
 ```
 
 - キーが `key` より大きい最初の要素
+
+<div class="anim" data-label="m.upper_bound(5)">
+1 3 5 7 # 整列した配列
+1 3 5 *7 # 5 より大きい最初の要素
+</div>
 
 ```cpp
 #include <flat_map>
@@ -292,6 +312,12 @@ void insert(InputIt first, InputIt last);
 
 - 1 個版は後ろをずらして挿入するので O(n)。範囲版は「末尾にまとめて足して最後に並べ直す」ので、たくさん入れるならこちらが速い
 
+<div class="anim" data-label="m.insert({4, &quot;D&quot;})">
+1 3 5 # 整列した配列で持つ
+1 3 _ >5 # 後ろをずらす（vector と同じ）
+1 3 +4 5 # すき間に入れる
+</div>
+
 ### try_emplace {#try_emplace}
 
 ```cpp
@@ -309,6 +335,12 @@ iterator erase(const_iterator pos);
 ```
 
 - 削除します。後ろを詰めるので O(n)
+
+<div class="anim" data-label="m.erase(3)">
+1 3 5 7 # 整列した配列
+1 x3 5 7 # 消す
+1 >5 >7 _ # 後ろを詰める
+</div>
 
 ```cpp
 #include <flat_map>
@@ -336,6 +368,12 @@ void clear() noexcept;
 ```
 
 - 全削除します
+
+<div class="anim" data-label="m.clear()">
+1 3 5 # 整列した配列
+x1 x3 x5 # すべて破棄
+_ _ _ # 空
+</div>
 
 ### extract {#extract}
 
@@ -395,7 +433,7 @@ size_type erase_if(std::flat_map<K, T, C, KC, MC>& c, Pred pred);
 | --- | --- | --- |
 | 検索 | O(log n)（速い） | O(log n) |
 | 全要素を回す | O(n)（とても速い） | O(n) |
-| 途中に追加・削除 | **O(n)** | O(log n) |
+| 途中に追加・削除 | <strong>O(n)</strong> | O(log n) |
 
 ## ゲームでの使いどころ
 

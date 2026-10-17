@@ -14,7 +14,7 @@ tags:
 
 `std::ranges::reverse` は、**範囲の要素を逆の順番に並べ替える**関数です。`std::ranges::rotate` は、**指定した要素が先頭に来るように全体をぐるっと回します**。どちらも元の範囲そのものを書き換えます（新しい範囲は作りません）。
 
-!!! tip "結論"
+!!! tip "ポイント"
     - 元の順番を本当に入れ替えたいなら `reverse`。**見るだけなら `std::views::reverse`** のほうが軽い。
     - `rotate` は「順番待ちの先頭を最後に回す」ような処理に使える。
 
@@ -62,6 +62,13 @@ constexpr borrowed_iterator_t<R> reverse(R&& r);
 - 戻り値: 範囲の終わり（ほぼ使わない）
 - 計算量: O(n)（要素を半分の回数だけ交換する）
 
+<div class="anim" data-label="std::ranges::reverse(v)">
+1 2 3 4 5 # v
+>5 2 3 4 >1 # 両端を入れ替える
+5 >4 3 >2 1 # 内側へ進む
+5 4 3 2 1 # 完了
+</div>
+
 ```cpp
 #include <algorithm>
 #include <print>
@@ -92,6 +99,12 @@ constexpr borrowed_subrange_t<R> rotate(R&& r, iterator_t<R> middle);
 | `middle` | イテレータ | **この要素が先頭に来る**ように回す |
 
 - 戻り値: 元の先頭の要素が移った位置から終わりまでの範囲
+
+<div class="anim" data-label="std::rotate(b, b + 2, e)">
+1 2 3 4 5 # v
+1 2 3 4 5 # 2 番目の要素（3）を先頭にしたい
+>3 >4 >5 >1 >2 # 前後を入れ替えるように回転する
+</div>
 
 ```cpp
 #include <algorithm>

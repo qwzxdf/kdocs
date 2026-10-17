@@ -14,8 +14,8 @@ tags:
 
 `lower_bound`、`upper_bound`、`binary_search`、`equal_range` は、**ソート済みの範囲を「二分探索」で探す**関数です。真ん中を見て、探している値より大きいか小さいかで半分に絞る、を繰り返すので、100 万個あっても 20 回ほどの比較で見つかります（O(log n)）。**ソートされていない範囲に使うと結果がでたらめになります**。
 
-!!! tip "結論"
-    - **ソート済みの vector を速く探したいときに使う。** 位置が欲しいなら `lower_bound`、あるかだけなら `binary_search`。
+!!! tip "ポイント"
+    - <strong>ソート済みの vector を速く探したいときに使う。</strong> 位置が欲しいなら `lower_bound`、あるかだけなら `binary_search`。
     - `lower_bound` は「以上の最初」、`upper_bound` は「より大きい最初」。
     - 使う前に必ずソートしておく（同じ比較関数・同じプロジェクションで）。
     - 何度も追加・削除するなら、`std::set` / `std::map` を使うほうが楽。
@@ -80,6 +80,13 @@ constexpr borrowed_iterator_t<R> lower_bound(R&& r, const T& value, Comp comp = 
 - 戻り値: `value` **以上**（比較的に「前ではない」）の最初の要素。無ければ `end()`
 - 計算量: O(log n)（vector などランダムアクセスできる範囲の場合）
 
+<div class="anim" data-label="std::ranges::lower_bound(v, 5)">
+1 3 5 5 7 9 # 整列済み。5 以上で最初の要素を探す
+1 3 *5 5 7 9 # 真ん中を見る。5 以上なので左半分に絞る
+1 *3 5 5 7 9 # 3 は 5 より小さいので右に絞る
+1 3 *5 5 7 9 # 5 が見つかる。同じ値の最初の位置
+</div>
+
 ```cpp
 #include <algorithm>
 #include <print>
@@ -117,6 +124,11 @@ constexpr bool binary_search(R&& r, const T& value, Comp comp = {}, Proj proj = 
 
 - 戻り値: `value` と等しい要素があれば `true`。**位置は分からない**
 
+<div class="anim" data-label="std::ranges::binary_search(v, 5)">
+1 3 5 5 7 9 # 整列済み。5 があるか
+1 3 *5 5 7 9 # 半分ずつに絞って探す。あれば true
+</div>
+
 ```cpp
 #include <algorithm>
 #include <print>
@@ -141,6 +153,11 @@ constexpr borrowed_iterator_t<R> upper_bound(R&& r, const T& value, Comp comp = 
 ```
 
 - 戻り値: `value` **より大きい**最初の要素。無ければ `end()`
+
+<div class="anim" data-label="std::ranges::upper_bound(v, 5)">
+1 3 5 5 7 9 # 整列済み。5 より大きい最初の要素
+1 3 5 5 *7 9 # 7 が答え。同じ値の最後の次の位置
+</div>
 
 ```cpp
 #include <algorithm>
@@ -168,6 +185,11 @@ constexpr borrowed_subrange_t<R> equal_range(R&& r, const T& value, Comp comp = 
 ```
 
 - 戻り値: `value` と等しい要素の範囲（`lower_bound` から `upper_bound` まで）
+
+<div class="anim" data-label="std::ranges::equal_range(v, 5)">
+1 3 5 5 7 9 # 整列済み
+1 3 *5 *5 7 9 # 5 と等しい範囲をまとめて返す
+</div>
 
 ```cpp
 #include <algorithm>
