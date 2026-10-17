@@ -20,14 +20,14 @@ tags:
 
 カメラから見える 3D の範囲は、<strong>四角錐を、near と far で切り取った形（視錐台：frustum）</strong>です。
 
-<svg class="fig" viewBox="0 0 520 250" role="img" aria-label="視錐台"><circle cx="260" cy="26" r="7" fill="currentColor"/><text x="272" y="22">カメラ（目）</text><line x1="260" y1="26" x2="110" y2="215" stroke="currentColor" stroke-width="2"/><line x1="260" y1="26" x2="410" y2="215" stroke="currentColor" stroke-width="2"/><line x1="215" y1="83" x2="305" y2="83" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><text x="315" y="87">near 面（これより手前は映らない）</text><line x1="110" y1="215" x2="410" y2="215" stroke="currentColor" stroke-width="2"/><text x="150" y="238">far 面（これより奥は映らない）</text><text x="100" y="110">視野角</text><text x="100" y="128">（FOV）</text><path d="M 232 63 A 45 45 0 0 0 288 63" fill="none" stroke="currentColor"/></svg>
+<svg class="fig" viewBox="0 0 544 250" role="img" aria-label="視錐台"><circle cx="260" cy="26" r="7" fill="currentColor"/><text x="272" y="22">カメラ（目）</text><line x1="260" y1="26" x2="110" y2="215" stroke="currentColor" stroke-width="2"/><line x1="260" y1="26" x2="410" y2="215" stroke="currentColor" stroke-width="2"/><line x1="215" y1="83" x2="305" y2="83" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><text x="315" y="87">near 面（これより手前は映らない）</text><line x1="110" y1="215" x2="410" y2="215" stroke="currentColor" stroke-width="2"/><text x="150" y="238">far 面（これより奥は映らない）</text><text x="100" y="110">視野角</text><text x="100" y="128">（FOV）</text><path d="M 232 63 A 45 45 0 0 0 288 63" fill="none" stroke="currentColor"/></svg>
 
 視錐台の**中にあるもの**だけが、画面に映ります。外にあるものは、**クリップ**（切り捨て）されます。
 
 ## 透視投影のパラメータ
 
 ```cpp
-Matrix proj = Matrix::CreatePerspectiveFieldOfView(fov_y, aspect, near_plane, far_plane);
+Matrix proj = XMMatrixPerspectiveFovLH(fov_y, aspect, near_plane, far_plane);
 ```
 
 | パラメータ | 意味 | 目安 |
@@ -56,7 +56,7 @@ Matrix proj = Matrix::CreatePerspectiveFieldOfView(fov_y, aspect, near_plane, fa
 ```cpp
 void OnResize(int width, int height) {
   float aspect = static_cast<float>(width) / static_cast<float>(height);
-  proj = Matrix::CreatePerspectiveFieldOfView(fov_y, aspect, near_plane, far_plane);
+  proj = XMMatrixPerspectiveFovLH(fov_y, aspect, near_plane, far_plane);
   // ビューポート、深度バッファ、レンダー ターゲットも作り直す
 }
 ```
@@ -79,21 +79,21 @@ _ *B *B _ _ _ # 中くらい（w が中間）：2 マスぶん
 _ _ *C _ _ _ # 遠い（w が大きい）：1 マスぶん
 </div>
 
-### 行列の中身（右手系・行ベクトル）
+### 行列の中身（左手系・行ベクトル）
 
-SimpleMath の `CreatePerspectiveFieldOfView`（右手系）は、次の行列です。
+DirectXMath の `XMMatrixPerspectiveFovLH`（左手系）は、次の行列です。
 
 <div class="formula">f = 1 / tan(fovY / 2)</div>
-<div class="mat-row"><table class="matrix"><tr><td>f/aspect</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>f</td><td>0</td><td>0</td></tr><tr><td>0</td><td>0</td><td>far/(near−far)</td><td class="hl">−1</td></tr><tr><td>0</td><td>0</td><td>near·far/(near−far)</td><td>0</td></tr></table><span class="mat-note">最後の列の −1 が、w に −z を入れる（遠いほど w が大きくなる）</span></div>
+<div class="mat-row"><table class="matrix"><tr><td>f/aspect</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>f</td><td>0</td><td>0</td></tr><tr><td>0</td><td>0</td><td>far/(far−near)</td><td class="hl">1</td></tr><tr><td>0</td><td>0</td><td>−near·far/(far−near)</td><td>0</td></tr></table><span class="mat-note">最後の列の 1 が、w に z を入れる（遠いほど w が大きくなる）</span></div>
 
 | 要素 | 意味 |
 | --- | --- |
 | `f = 1 / tan(fovY / 2)` | 視野角が小さいほど大きい（拡大率）。x, y をスケール |
 | `f / aspect` | 横はアスペクト比で割って、縦横比を合わせる |
-| 右下の `-1` | **`w' = -z`**（右手系で前が −Z なので距離が正になる） |
-| `far / (near - far)` と `near * far / (near - far)` | **z を、0〜1 の深度に変換**する式（Direct3D の深度範囲）。非線形（後述） |
+| 3 行目 4 列の `1` | **`w' = z`**（左手系で前が +Z なので、距離がそのまま w になる） |
+| `far / (far - near)` と `-near * far / (far - near)` | **z を、0〜1 の深度に変換**する式（Direct3D の深度範囲）。非線形（後述） |
 
-<strong>暗記する必要はありません。</strong>`w' = −z` が遠近感の元で、z の式が深度の元だ、と知っていれば十分です。
+<strong>暗記する必要はありません。</strong>`w' = z`（ビュー空間の奥行き）が遠近感の元で、z の式が深度の元だ、と知っていれば十分です。
 
 ### NDC（正規化デバイス座標）
 
@@ -105,14 +105,14 @@ SimpleMath の `CreatePerspectiveFieldOfView`（右手系）は、次の行列�
 | **y** | −1（下）〜 1（上） | −1 〜 1 |
 | <strong>z（深度）</strong> | <strong>0（near）〜 1（far）</strong> | <strong>−1（near）〜 1（far）</strong> |
 
-**この範囲の外**にある三角形（の部分）は、画面に出ません。**クリップ**されます。DirectX と OpenGL では、**深度の範囲が違う**ので行列の式が少し違います。**SimpleMath（DirectXMath）は、0〜1 の Direct3D 用**です。
+**この範囲の外**にある三角形（の部分）は、画面に出ません。**クリップ**されます。DirectX と OpenGL では、**深度の範囲が違う**ので行列の式が少し違います。**DirectXMath は、0〜1 の Direct3D 用**です。
 
 ## 深度が非線形になる理由
 
 NDC の深度 `z'`（0〜1）は、**距離 `z` に対して、非線形**です。
 
 ```text
-右手系・Direct3D：   z_ndc = far * (near - d) / (d * (near - far)) の形（d = カメラからの距離）
+左手系・Direct3D：   z_ndc = far * (d - near) / (d * (far - near)) の形（d = カメラからの距離）
                     ≒ （far / (far - near)） × (1 − near / d)
 ```
 
@@ -143,10 +143,10 @@ NDC の深度 `z'`（0〜1）は、**距離 `z` に対して、非線形**です
 
 ```cpp
 // 画面の幅 × 高さ（ワールド単位）の範囲を映す
-Matrix ortho = Matrix::CreateOrthographic(width, height, near_plane, far_plane);
+Matrix ortho = XMMatrixOrthographicLH(width, height, near_plane, far_plane);
 
 // 左右・上下を、座標で指定する版（UI や 2D の画面ピクセルに合わせるとき）
-Matrix ortho2 = Matrix::CreateOrthographicOffCenter(0.0f, width, height, 0.0f, 0.0f, 1.0f);
+Matrix ortho2 = XMMatrixOrthographicOffCenterLH(0.0f, width, height, 0.0f, 0.0f, 1.0f);
 ```
 
 | 使いどころ | 説明 |
@@ -215,16 +215,16 @@ FOV を変えたら、`proj` を**作り直します**（毎フレームでも�
     near と far の比が大きいほど、深度の精度が落ちます。必要な範囲だけにするか、reverse-Z を使います。
 
 ??? failure "FOV を度のまま渡す"
-    `CreatePerspectiveFieldOfView(60.0f, ...)` は、60 ラジアンです。ラジアン（`XMConvertToRadians(60.0f)`）で渡します。
+    `XMMatrixPerspectiveFovLH(60.0f, ...)` は、60 ラジアンです。ラジアン（`XMConvertToRadians(60.0f)`）で渡します。
 
 ??? failure "アスペクト比を固定のまま、ウィンドウをリサイズして、絵が伸びる"
     ウィンドウのサイズが変わったら、`aspect` を更新して、`proj` を作り直します。
 
 ??? failure "縦の FOV と横の FOV を取り違える"
-    `CreatePerspectiveFieldOfView` は、**縦**の FOV です。ゲームの設定画面の「FOV」が横なら、縦に変換します。
+    `XMMatrixPerspectiveFovLH` は、**縦**の FOV です。ゲームの設定画面の「FOV」が横なら、縦に変換します。
 
 ??? failure "手系の違うプロジェクション関数を混ぜる"
-    `CreatePerspectiveFieldOfView`（右手系）と、`XMMatrixLookAtLH`（左手系）を混ぜると何も映りません。揃えます。
+    `XMMatrixPerspectiveFovRH`（右手系）と、`XMMatrixLookAtLH`（左手系）を混ぜると何も映りません。このサイトは `LH` にそろえます。
 
 ??? failure "透視投影の後ろの点を、そのまま使う"
     `w <= 0` の点は、カメラの後ろです。`w` で割ると反転した位置になります。必ず `w` を確認します。
@@ -244,4 +244,4 @@ FOV を変えたら、`proj` を**作り直します**（毎フレームでも�
 - [MVP 変換](transforms-mvp.md)
 - [カメラ](camera.md)
 - [深度バッファとカリング](depth-culling.md)
-- [SimpleMath](simplemath.md)
+- [SimpleMath](../gamemath/simplemath.md)

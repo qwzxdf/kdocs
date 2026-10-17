@@ -17,7 +17,7 @@ tags:
 
 ## 3 つの行列
 
-<svg class="fig flow" viewBox="0 0 360 532" role="img" aria-label="MVP 変換：頂点が、いくつもの空間を順に通って、画面に出る"><defs><marker id="fl3200" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">MVP 変換：頂点が、いくつもの空間を順に通って、画面に出る</text><line x1="157.0" y1="87.0" x2="157.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="100.0" text-anchor="middle" style="font-size:12px">M（ワールド行列）</text><line x1="157.0" y1="171.0" x2="157.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="184.0" text-anchor="middle" style="font-size:12px">V（ビュー行列）</text><line x1="157.0" y1="255.0" x2="157.0" y2="293.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="268.0" text-anchor="middle" style="font-size:12px">P（射影行列）</text><line x1="157.0" y1="339.0" x2="157.0" y2="377.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="352.0" text-anchor="middle" style="font-size:12px">w で割る</text><line x1="157.0" y1="423.0" x2="157.0" y2="461.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="436.0" text-anchor="middle" style="font-size:12px">ビューポート変換</text><rect x="42.0" y="44.0" width="230" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="157.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">モデル空間 （モデル内の座標）</text><circle cx="44.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="44.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="49.0" y="128.0" width="216" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="157.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワールド空間 （世界の座標）</text><circle cx="51.0" cy="130.0" r="10" fill="#2ea043"/><text x="51.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="28.0" y="212.0" width="258" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="157.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ビュー空間 （カメラから見た座標）</text><circle cx="30.0" cy="214.0" r="10" fill="#e5a828"/><text x="30.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="63.0" y="296.0" width="188" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="157.0" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">クリップ空間 （射影後）</text><circle cx="65.0" cy="298.0" r="10" fill="#e5484d"/><text x="65.0" y="298.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="71.0" y="380.0" width="172" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="157.0" y="400.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">NDC （-1〜1 の範囲）</text><circle cx="73.0" cy="382.0" r="10" fill="#9664e6"/><text x="73.0" y="382.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="88.0" y="464.0" width="138" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="157.0" y="484.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">画面（ピクセル）</text><circle cx="90.0" cy="466.0" r="10" fill="#4c8bf5"/><text x="90.0" y="466.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">6</text></svg>
+<svg class="fig flow" viewBox="0 0 418 532" role="img" aria-label="MVP 変換：頂点が、いくつもの空間を順に通って、画面に出る"><defs><marker id="fl3200" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">MVP 変換：頂点が、いくつもの空間を順に通って、画面に出る</text><line x1="157.0" y1="87.0" x2="157.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="100.0" text-anchor="middle" style="font-size:12px">M（ワールド行列）</text><line x1="157.0" y1="171.0" x2="157.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="184.0" text-anchor="middle" style="font-size:12px">V（ビュー行列）</text><line x1="157.0" y1="255.0" x2="157.0" y2="293.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="268.0" text-anchor="middle" style="font-size:12px">P（射影行列）</text><line x1="157.0" y1="339.0" x2="157.0" y2="377.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="352.0" text-anchor="middle" style="font-size:12px">w で割る</text><line x1="157.0" y1="423.0" x2="157.0" y2="461.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="436.0" text-anchor="middle" style="font-size:12px">ビューポート変換</text><rect x="42.0" y="44.0" width="230" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="157.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">モデル空間 （モデル内の座標）</text><circle cx="44.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="44.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="49.0" y="128.0" width="216" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="157.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワールド空間 （世界の座標）</text><circle cx="51.0" cy="130.0" r="10" fill="#2ea043"/><text x="51.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="28.0" y="212.0" width="258" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="157.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ビュー空間 （カメラから見た座標）</text><circle cx="30.0" cy="214.0" r="10" fill="#e5a828"/><text x="30.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="63.0" y="296.0" width="188" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="157.0" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">クリップ空間 （射影後）</text><circle cx="65.0" cy="298.0" r="10" fill="#e5484d"/><text x="65.0" y="298.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="71.0" y="380.0" width="172" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="157.0" y="400.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">NDC （-1〜1 の範囲）</text><circle cx="73.0" cy="382.0" r="10" fill="#9664e6"/><text x="73.0" y="382.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="88.0" y="464.0" width="138" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="157.0" y="484.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">画面（ピクセル）</text><circle cx="90.0" cy="466.0" r="10" fill="#4c8bf5"/><text x="90.0" y="466.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">6</text></svg>
 
 ### M：モデル行列（ワールド行列） {#model}
 
@@ -36,11 +36,11 @@ Matrix world = Matrix::CreateScale(scale)
 **ワールド空間の座標を、カメラを原点とした座標（ビュー空間）に変換**します。「カメラを世界に置く」変換の**逆**です。
 
 ```cpp
-// カメラの位置、見ている点、上方向から作る（右手系）
-Matrix view = Matrix::CreateLookAt(camera_position, camera_target, Vector3::Up);
+// カメラの位置、見ている点、上方向から作る（左手系）
+Matrix view = XMMatrixLookAtLH(camera_position, camera_target, Vector3::Up);
 ```
 
-ビュー空間では、**カメラが原点**にいて、**−Z の方向を見て**（右手系）、**+Y が上、+X が右**です。カメラが動くと、全部の物体の見え方が変わるので、**カメラの更新ごとに作り直す**（1 フレームに 1 回）。詳しくは [カメラ](camera.md) を見てください。
+ビュー空間では、**カメラが原点**にいて、**+Z の方向を見て**（左手系）、**+Y が上、+X が右**です。カメラが動くと、全部の物体の見え方が変わるので、**カメラの更新ごとに作り直す**（1 フレームに 1 回）。詳しくは [カメラ](camera.md) を見てください。
 
 ### P：プロジェクション行列
 
@@ -49,7 +49,7 @@ Matrix view = Matrix::CreateLookAt(camera_position, camera_target, Vector3::Up);
 ```cpp
 float fov_y = DirectX::XMConvertToRadians(60.0f);          // 縦の視野角
 float aspect = width / static_cast<float>(height);          // 画面の縦横比
-Matrix proj = Matrix::CreatePerspectiveFieldOfView(fov_y, aspect, 0.1f, 1000.0f);   // near=0.1、far=1000
+Matrix proj = XMMatrixPerspectiveFovLH(fov_y, aspect, 0.1f, 1000.0f);   // near=0.1、far=1000
 ```
 
 画面のサイズ（ウィンドウの大きさ）が変わったときだけ、作り直します。詳しくは [投影](projection.md) を見てください。
@@ -212,7 +212,7 @@ Vector3 WorldToScreen(const Vector3& world_pos, const Matrix& view, const Matrix
 }
 ```
 
-SimpleMath の `Viewport::Project` でも、同じことができます（[SimpleMath](simplemath.md)）。**敵の頭上に HP バー**を出す、**3D の位置に、UI を重ねる**ときに使います。
+SimpleMath の `Viewport::Project` でも、同じことができます（[SimpleMath](../gamemath/simplemath.md)）。**敵の頭上に HP バー**を出す、**3D の位置に、UI を重ねる**ときに使います。
 
 ## 規約の確認
 
@@ -221,10 +221,10 @@ SimpleMath の `Viewport::Project` でも、同じことができます（[Simpl
 | 確認すること | 内容 |
 | --- | --- |
 | **掛け順** | `world * view * proj`（行ベクトル）。`proj * view * world` と書いていないか |
-| **座標系** | ビュー・プロジェクションが、**両方とも右手系**（`CreateLookAt` と `CreatePerspectiveFieldOfView`）か |
+| **座標系** | ビュー・プロジェクションが、**両方とも左手系**（`XMMatrixLookAtLH` と `XMMatrixPerspectiveFovLH`）か |
 | **HLSL の行列の並び** | `row_major` を付けたか。付けないなら、転置して送ったか |
 | **`mul` の順番** | `mul(float4(pos, 1), mvp)`（ベクトルが左） |
-| **三角形の表** | CCW が表なら、`FrontCounterClockwise = TRUE`（[深度とカリング](depth-culling.md)） |
+| **三角形の表** | CW が表なら、`FrontCounterClockwise = FALSE`（既定。[深度とカリング](depth-culling.md)） |
 | **w の値** | 位置は `w = 1`、方向は `w = 0` |
 | **near / far** | near が 0 や負でないか（[投影](projection.md)） |
 
@@ -271,8 +271,8 @@ SimpleMath の `Viewport::Project` でも、同じことができます（[Simpl
 ## 関連ページ
 
 - [3D ゲーム（目次）](index.md)
-- [行列](matrices.md)
+- [行列](../gamemath/matrices.md)
 - [投影（プロジェクション）](projection.md)
 - [カメラ](camera.md)
 - [深度バッファとカリング](depth-culling.md)
-- [SimpleMath](simplemath.md)
+- [SimpleMath](../gamemath/simplemath.md)

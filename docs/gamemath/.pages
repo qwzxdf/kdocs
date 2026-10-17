@@ -1,0 +1,21 @@
+nav:
+  - index.md
+  - coordinate-systems.md
+  - vectors.md
+  - matrices.md
+  - rotation.md
+  - simplemath.md
+  - directxmath.md
+  - trigonometry.md
+  - interpolation.md
+  - easing.md
+  - curves.md
+  - vector-recipes.md
+  - intersection.md
+  - motion.md
+  - smoothing.md
+  - random.md
+  - balance.md
+  - grids.md
+  - color.md
+  - numeric.md

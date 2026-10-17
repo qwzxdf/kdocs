@@ -15,7 +15,7 @@ tags:
     - 先頭は <strong>`buffer.data` ＋ `bufferView.byteOffset` ＋ `accessor.byteOffset`</strong>。間隔は<strong>`accessor.ByteStride(bufferView)`</strong>。
     - インデックスの型は<strong>`unsigned byte / short / int` の 3 種類</strong>。<strong>`uint32_t` にそろえる</strong>と楽。
     - <strong>ノードの行列は `S × R × T`</strong>（行ベクトル規約）。<strong>ワールド ＝ ローカル × 親のワールド</strong>。
-    - <strong>glTF の `matrix`（列優先 16 個）は、SimpleMath の `Matrix` に、そのまま入る</strong>。
+    - <strong>glTF の `matrix`（列優先 16 個）は、SimpleMath の `Matrix` に、そのまま入る</strong>。ただし<strong>左手系へは Z 反転の変換</strong>が必要（[glTF の基本と規約](gltf-basics.md#to-left-handed)）。
 
 ## 全体の流れ
 
@@ -209,17 +209,17 @@ Matrix LocalMatrix(const tinygltf::Node& node) {
     Matrix m;
     float* dst = &m._11;
     for (int i = 0; i < 16; ++i) dst[i] = static_cast<float>(node.matrix[i]);
-    return m;
+    return ToLeftHanded(m);
   }
 
   Vector3 scale = node.scale.size() == 3
                       ? Vector3(node.scale[0], node.scale[1], node.scale[2])
                       : Vector3::One;
   Quaternion rotation = node.rotation.size() == 4
-                            ? Quaternion(node.rotation[0], node.rotation[1], node.rotation[2], node.rotation[3])
+                            ? Quaternion(-node.rotation[0], -node.rotation[1], node.rotation[2], node.rotation[3])
                             : Quaternion::Identity;
   Vector3 translation = node.translation.size() == 3
-                            ? Vector3(node.translation[0], node.translation[1], node.translation[2])
+                            ? Vector3(node.translation[0], node.translation[1], -node.translation[2])
                             : Vector3::Zero;
 
   return Matrix::CreateScale(scale) * Matrix::CreateFromQuaternion(rotation) * Matrix::CreateTranslation(translation);
@@ -230,8 +230,8 @@ Matrix LocalMatrix(const tinygltf::Node& node) {
 | --- | --- |
 | **`node.matrix`** | **`std::vector<double>`**。**16 個あれば、行列で指定**されている。**空なら TRS** |
 | **TRS が無い項目** | **既定値**（拡大 1、回転なし、移動 0） |
-| **`rotation` の順** | **`[x, y, z, w]`**。SimpleMath の `Quaternion(x, y, z, w)` と**同じ** |
-| **`S × R × T`** | SimpleMath の**行ベクトル規約**で、**この順に掛ける**（[行列](../../3d/matrices.md)） |
+| **`rotation` の順** | **`[x, y, z, w]`**。SimpleMath の `Quaternion(x, y, z, w)` と**同じ並び**。左手系へは、上のコードのように `(-x, -y, z, w)` にする |
+| **`S × R × T`** | SimpleMath の**行ベクトル規約**で、**この順に掛ける**（[行列](../../gamemath/matrices.md)） |
 | **`matrix` の並び** | glTF は**列優先**。**行ベクトル規約の行優先に、同じ並びで読める**（転置と同じ並びのため） |
 
 ### 親から子へ、たどる
@@ -266,7 +266,7 @@ void LoadScene(const tinygltf::Model& model, std::vector<DrawItem>& out) {
 | **`model.defaultScene`** | 既定のシーンの番号（**`-1` なら、0 番**を使う） |
 | **`scene.nodes`** | **ルートのノード**の番号の一覧 |
 | **`node.children`** | **子ノードの番号**（`std::vector<int>`） |
-| **`world = local * parent_world`** | **子の行列を先に<strong>。</strong>行ベクトル規約**（[行列](../../3d/matrices.md)） |
+| **`world = local * parent_world`** | **子の行列を先に<strong>。</strong>行ベクトル規約**（[行列](../../gamemath/matrices.md)） |
 | **`node.mesh >= 0`** | メッシュを持つノードだけ、**描画の対象**にする |
 | **再帰** | 木が深いと、深くなる。**数千ノード**の巨大なモデルは、**スタックを使った繰り返し**にする |
 
@@ -425,7 +425,7 @@ for (const tinygltf::AnimationChannel& channel : anim.channels) {
 | **`channel.target_path`** | `"translation"`、`"rotation"`、`"scale"`、`"weights"` |
 | **`sampler.input`** | **時刻**の accessor の番号（`float`、秒） |
 | **`sampler.output`** | **値**の accessor の番号（`VEC3` / `VEC4`） |
-| **補間** | `LINEAR` は、位置・拡大は `Lerp`、回転は `Slerp`（[回転](../../3d/rotation.md)） |
+| **補間** | `LINEAR` は、位置・拡大は `Lerp`、回転は `Slerp`（[回転](../../gamemath/rotation.md)） |
 
 **ここでも、番号の参照先の配列が、場所によって違います**（`channel.sampler` は、そのアニメーションの `samplers`）。
 

@@ -67,8 +67,8 @@ void SyncPhysicsToGame(Registry& registry, BodyInterface& bodies) {
 
 | 点 | 説明 |
 | --- | --- |
-| **座標系は、SimpleMath と同じ** | **Jolt は右手系・Y 上**。**変換は成分の写しだけ**（[座標系](../../3d/coordinate-systems.md)） |
-| **クォータニオンの順** | **Jolt も `(x, y, z, w)`**。そのまま写せる（[回転](../../3d/rotation.md)） |
+| **座標系は、SimpleMath と同じ** | **Jolt は右手系・Y 上**。**変換は成分の写しだけ**（[座標系](../../gamemath/coordinate-systems.md)） |
+| **クォータニオンの順** | **Jolt も `(x, y, z, w)`**。そのまま写せる（[回転](../../gamemath/rotation.md)） |
 | **`IsActive` で絞る** | **休止中の物体は、動いていない**ので**同期を省ける**（**軽くなる**） |
 | **`GetPosition` と `GetCenterOfMassPosition`** | **見た目の原点には、`GetPosition`**（**重心がずれた形**に注意） |
 | **スケールは、Jolt にない** | **スケールはゲーム側で持つ**（**形を作るときに反映**） |
@@ -133,7 +133,7 @@ void Frame(float frame_dt) {
 | --- | --- |
 | **`previous` と `current`** | **物理ステップごとに前回の値を保存** |
 | **`alpha`**（0〜1） | **次の物理ステップまでどれだけ進んだか** |
-| **位置は `Lerp`、回転は `Slerp`** | **補間**（[回転](../../3d/rotation.md)） |
+| **位置は `Lerp`、回転は `Slerp`** | **補間**（[回転](../../gamemath/rotation.md)） |
 | **描画の位置は、1 ステップ遅れる** | **わずかな遅延**と引き換えに、**滑らか**になる |
 
 （[ゲームループ](../../engine/game-loop.md)、[世界の初期化と更新](system.md)）

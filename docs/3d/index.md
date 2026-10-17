@@ -19,24 +19,20 @@
 | --- | --- | --- |
 | **ローカル**（モデル） | モデル自身の中心 | **ワールド行列**（モデル行列） |
 | **ワールド** | ゲームの世界の原点 | **ビュー行列** |
-| **ビュー**（カメラ） | カメラの位置（原点）と向き（−Z や +Z が前） | **プロジェクション行列** |
+| **ビュー**（カメラ） | カメラの位置（原点）と向き（+Z が前） | **プロジェクション行列** |
 | **クリップ** | 見える範囲の箱（視錐台）が、直方体になった空間 | **w で割る**（透視除算） |
 | **NDC**（正規化デバイス座標） | x、y が −1〜1（z は 0〜1 か −1〜1） | **ビューポート変換** |
 | **スクリーン** | 画面のピクセル（左上が原点が多い） | （GPU がここに描く） |
 
 ## ページ一覧
 
+ベクトル・行列・回転・座標系・SimpleMath / DirectXMath は、[ゲーム数学](../gamemath/index.md)のセクションに移しました。このセクションは、それらを使った 3D の仕組みを扱います。
+
 | ページ | 内容 |
 | --- | --- |
-| [DirectXMath](directxmath.md) | DirectXMath の型・関数・ロードとストア・行ベクトル |
-| [SimpleMath](simplemath.md) | DirectXMath を、普通の C++ で書けるようにしたラッパー（このカテゴリで使う） |
-| [座標系](coordinate-systems.md) | 左手系と右手系、Y が上か Z が上か、各エンジンの違い |
-| [ベクトル](vectors.md) | 長さ、正規化、内積、外積、反射、射影 |
-| [行列](matrices.md) | 平行移動・回転・拡大、同次座標、合成の順番、逆行列、行ベクトルと列ベクトル |
 | [MVP 変換](transforms-mvp.md) | モデル・ワールド・ビュー・プロジェクションの掛け方と使い方 |
 | [投影（プロジェクション）](projection.md) | 透視投影と正射投影、視野角、near / far、NDC、深度の非線形 |
 | [カメラ](camera.md) | ビュー行列、LookAt、FPS カメラ、軌道カメラ、追従カメラ |
-| [回転とクォータニオン](rotation.md) | オイラー角、ジンバルロック、クォータニオン、補間 |
 | [深度バッファとカリング](depth-culling.md) | 深度テスト、z-fighting、reverse-Z、視錐台カリング |
 | [ピッキングとレイキャスト](picking-raycast.md) | マウスの位置から 3D の世界を指す、レイと交差判定 |
 | [法線とライティング](lighting-normals.md) | 法線、拡散反射、鏡面反射、シェーダーでの計算 |
@@ -52,9 +48,9 @@
 
 | ライブラリ | 特徴 |
 | --- | --- |
-| <strong>[DirectXMath](directxmath.md)</strong>（`<DirectXMath.h>`） | Windows の標準（Visual Studio に付属）。**行ベクトル**。左手系（`LH`）と右手系（`RH`）の**両方の関数**がある。SIMD で速い。型が 2 種類（保存用・計算用）で、書き方が独特 |
-| <strong>[SimpleMath](simplemath.md)</strong>（DirectX Tool Kit） | DirectXMath の**ラッパー**。`Vector3`、`Matrix`、`Quaternion` を、演算子とメンバ関数で書ける。**右手系が既定**。**このカテゴリはこれを使う** |
-| **glm** | OpenGL 風の数学。ヘッダだけ。**列ベクトル**、既定は右手系 |
+| <strong>[DirectXMath](../gamemath/directxmath.md)</strong>（`<DirectXMath.h>`） | Windows の標準（Visual Studio に付属）。**行ベクトル**。左手系（`LH`）と右手系（`RH`）の**両方の関数**がある（**このサイトは `LH`**）。SIMD で速い。型が 2 種類（保存用・計算用）で、書き方が独特 |
+| <strong>[SimpleMath](../gamemath/simplemath.md)</strong>（DirectX Tool Kit） | DirectXMath の**ラッパー**。`Vector3`、`Matrix`、`Quaternion` を、演算子とメンバ関数で書ける。型は手系に依存しないが、`Create…` 関数は右手系。**このサイトは型を使い、ビュー・射影は DirectXMath の `LH` 関数** |
+| **glm** | OpenGL 風の数学。ヘッダだけ。**列ベクトル**、既定は右手系（このサイトでは使わない） |
 | **Eigen** | 線形代数が中心。大きな行列に強い |
 | **自作** | 学習用に、`Vec3`、`Mat4` を 1 度は自作すると、理解が深まる |
 
@@ -65,19 +61,19 @@
 | 描画 API | **DirectX 11**（Direct3D 11）。描画のコードは、DX11 で書く |
 | シェーダー | **HLSL**（Shader Model 5） |
 | 数学ライブラリ | **SimpleMath**（DirectX Tool Kit）。速さが必要な所だけ DirectXMath |
-| 座標系 | **右手系・Y-up**（SimpleMath の既定） |
-| 前方向 | **−Z**（`Vector3::Forward` ＝ `(0, 0, -1)`） |
+| 座標系 | **左手系・Y-up**（DirectX の流儀） |
+| 前方向 | **+Z**（自前の `kForward` ＝ `(0, 0, 1)`。SimpleMath の `Vector3::Forward` は −Z なので使わない） |
 | 行列の規約 | **行ベクトル**（`v * M`）。掛け順は**左から右**（拡大 → 回転 → 平行移動） |
-| 三角形の表 | <strong>反時計回り（CCW）</strong>が表（Direct3D では `FrontCounterClockwise = TRUE`） |
+| 三角形の表 | <strong>時計回り（CW）</strong>が表（Direct3D の既定の `FrontCounterClockwise = FALSE`） |
 | 角度 | ラジアン |
 | 単位 | 1 ＝ 1 メートル |
 
 ## 学ぶ順番のおすすめ
 
-1. [DirectXMath](directxmath.md)・[SimpleMath](simplemath.md)：使う道具
-2. [座標系](coordinate-systems.md) → [ベクトル](vectors.md) → [行列](matrices.md)：土台
+1. [DirectXMath](../gamemath/directxmath.md)・[SimpleMath](../gamemath/simplemath.md)：使う道具
+2. [座標系](../gamemath/coordinate-systems.md) → [ベクトル](../gamemath/vectors.md) → [行列](../gamemath/matrices.md)：土台
 3. [MVP 変換](transforms-mvp.md) → [投影](projection.md) → [カメラ](camera.md)：描画の流れ
-4. [回転とクォータニオン](rotation.md)：向きの扱い
+4. [回転とクォータニオン](../gamemath/rotation.md)：向きの扱い
 5. 必要に応じて：[深度とカリング](depth-culling.md)、[ピッキング](picking-raycast.md)、[ライティング](lighting-normals.md)、[当たり判定](collision-3d.md)、[スキニング](skinning-animation.md)
 
 ## 関連ページ

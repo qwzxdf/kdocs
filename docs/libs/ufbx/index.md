@@ -19,7 +19,7 @@ tags:
     - <strong>読み込みのみ</strong>（FBX の書き出しは、できない）。<strong>ASCII 形式も、バイナリ形式も</strong>読める。
     - <strong>`ufbx_load_file` → `ufbx_scene*`</strong>。<strong>使い終わったら `ufbx_free_scene`</strong>。
     - <strong>データは、`ufbx_scene` の、リスト（`.data` と `.count`）</strong>。<strong>ノード・メッシュ・マテリアルが、ポインタでつながる</strong>（<strong>glTF のような番号参照ではない</strong>）。
-    - <strong>座標系・単位を、読み込み時に変換</strong>できる（<strong>右手系・Y 上・メートル</strong>に）。
+    - <strong>座標系・単位を、読み込み時に変換</strong>できる（<strong>左手系・Y 上・メートル</strong>に）。
     - <strong>C 言語のライブラリ</strong>（C++ から、普通に呼べる）。
 
 ## ページ一覧

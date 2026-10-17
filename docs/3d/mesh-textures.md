@@ -39,9 +39,9 @@ struct Vertex {
 
 ## インデックスバッファ
 
-四角形は、**2 つの三角形**です。**頂点を共有**して、インデックスで三角形を組みます。
+四角形は、**2 つの三角形**です。**頂点を共有**して、インデックスで三角形を組みます（**時計回りが表**になる順に並べます）。
 
-<svg class="fig" viewBox="0 0 520 190" role="img" aria-label="四角形を 2 つの三角形で表す"><polygon points="60,40 190,40 190,150 60,150" fill="none" stroke="currentColor" stroke-width="2"/><line x1="60" y1="150" x2="190" y2="40" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><text x="30" y="35">v3</text><text x="196" y="35">v2</text><text x="30" y="165">v0</text><text x="196" y="165">v1</text><text x="250" y="60" class="fig-title">頂点：v0 v1 v2 v3（4 個）</text><text x="250" y="90" class="fig-title">インデックス：0 1 2、0 2 3（6 個）</text><text x="250" y="130">インデックスなしなら、6 頂点が必要</text></svg>
+<svg class="fig" viewBox="0 0 520 190" role="img" aria-label="四角形を 2 つの三角形で表す"><polygon points="60,40 190,40 190,150 60,150" fill="none" stroke="currentColor" stroke-width="2"/><line x1="60" y1="150" x2="190" y2="40" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><text x="30" y="35">v3</text><text x="196" y="35">v2</text><text x="30" y="165">v0</text><text x="196" y="165">v1</text><text x="250" y="60" class="fig-title">頂点：v0 v1 v2 v3（4 個）</text><text x="250" y="90" class="fig-title">インデックス：0 2 1、0 3 2（6 個）</text><text x="250" y="130">インデックスなしなら、6 頂点が必要</text></svg>
 
 | 方式 | 頂点数（四角形） | メモリ |
 | --- | --- | --- |
@@ -53,8 +53,8 @@ struct Vertex {
 | **`uint16_t`** | 〜 65535 頂点 | **小さなメッシュ**。メモリが半分 |
 | **`uint32_t`** | 約 43 億 | **大きなメッシュ** |
 
-!!! note "巻き順（CCW が表）"
-    **三角形の頂点の並びは、反時計回りが表**です（[深度とカリング](depth-culling.md)）。上の例は、`0 1 2`・`0 2 3` とも反時計回りです。
+!!! note "巻き順（CW が表）"
+    **三角形の頂点の並びは、時計回りが表**です（左手系。[深度とカリング](depth-culling.md)）。
 
 ## DX11 でバッファを作る
 
@@ -83,7 +83,7 @@ device->CreateBuffer(&vb_desc, &vb_data, &vertex_buffer);
 ### インデックスバッファ
 
 ```cpp
-std::vector<uint16_t> indices = {0, 1, 2, 0, 2, 3};
+std::vector<uint16_t> indices = {0, 2, 1, 0, 3, 2};
 
 D3D11_BUFFER_DESC ib_desc = {};
 ib_desc.ByteWidth = static_cast<UINT>(sizeof(uint16_t) * indices.size());
@@ -229,11 +229,11 @@ context->PSSetSamplers(0, 1, sampler.GetAddressOf());
 <svg class="fig" viewBox="0 0 600 190" role="img" aria-label="アドレスモード">
 <text x="20" y="22" class="fig-title">WRAP（繰り返す）</text>
 <rect x="30" y="40" width="40" height="40" fill="#2a4fa8" stroke="currentColor"/><rect x="70" y="40" width="40" height="40" fill="#2a4fa8" stroke="currentColor"/><rect x="110" y="40" width="40" height="40" fill="#2a4fa8" stroke="currentColor"/>
-<text x="30" y="62" style="fill:#fff">絵</text><text x="70" y="62" style="fill:#fff">絵</text><text x="110" y="62" style="fill:#fff">絵</text>
+<text x="44" y="62" style="fill:#fff">絵</text><text x="84" y="62" style="fill:#fff">絵</text><text x="124" y="62" style="fill:#fff">絵</text>
 <text x="20" y="110">0〜1 の外では、画像が、</text><text x="20" y="130">タイルのように並ぶ（床・壁）</text>
 <text x="320" y="22" class="fig-title">CLAMP（端を伸ばす）</text>
 <rect x="330" y="40" width="40" height="40" fill="#2a4fa8" stroke="currentColor"/><rect x="370" y="40" width="40" height="40" fill="#5f8ff0" stroke="currentColor"/><rect x="410" y="40" width="40" height="40" fill="#5f8ff0" stroke="currentColor"/>
-<text x="330" y="62" style="fill:#fff">絵</text><text x="375" y="62" style="fill:#fff">端</text><text x="415" y="62" style="fill:#fff">端</text>
+<text x="344" y="62" style="fill:#fff">絵</text><text x="384" y="62" style="fill:#fff">端</text><text x="424" y="62" style="fill:#fff">端</text>
 <text x="320" y="110">外では、端の色が、</text><text x="320" y="130">そのまま伸びる（空・UI）</text>
 </svg>
 
@@ -285,7 +285,7 @@ UV が `0..1` の外に出たときの扱いです。
 ## よくあるミス
 
 ??? failure "メッシュが表示されない"
-    巻き順（CCW が表）、`FrontCounterClockwise`、入力レイアウト、`stride`、インデックスの型（`R16_UINT` / `R32_UINT`）を確認します。
+    巻き順（CW が表）、`FrontCounterClockwise`、入力レイアウト、`stride`、インデックスの型（`R16_UINT` / `R32_UINT`）を確認します。
 
 ??? failure "テクスチャが、上下逆になる"
     UV の原点の違い（DX は左上）です。`v = 1 - v` で直します。
@@ -306,7 +306,7 @@ UV が `0..1` の外に出たときの扱いです。
 
 !!! abstract "まとめ"
     - [x] メッシュは<strong>頂点バッファ + インデックスバッファ</strong>。<strong>入力レイアウト</strong>でシェーダーとつなぐ
-    - [x] <strong>巻き順は CCW が表</strong>。<strong>UV は DX が左上原点</strong>（<strong>OpenGL 系は `v = 1 - v`</strong>）
+    - [x] <strong>巻き順は CW が表</strong>。<strong>UV は DX が左上原点</strong>（<strong>OpenGL 系は `v = 1 - v`</strong>）
     - [x] <strong>変わらないものは `IMMUTABLE`</strong>、毎フレーム変わるものは<strong>`DYNAMIC`</strong>
     - [x] <strong>サンプラー</strong>は、標準は<strong>トライリニア + WRAP</strong>。斜めの面は<strong>異方性</strong>。<strong>ミップマップ</strong>で、遠くのちらつきを消す
     - [x] 本番は、<strong>独自の軽い形式に変換</strong>。同じ物の大量描画は<strong>インスタンシング</strong>

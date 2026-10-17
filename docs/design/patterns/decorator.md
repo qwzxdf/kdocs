@@ -86,7 +86,25 @@ std::println("{}: {}", weapon->Name(), weapon->Damage());
 
 **計算の順番:** 剣（10）→ 炎（+5 = 15）→ 2 倍（30）。順番を入れ替えて、`Doubled` を先に包むと、`(10 × 2) + 5 = 25` になります。
 
-<svg class="fig flow" viewBox="0 0 615 112" role="img" aria-label="デコレータ：包むごとに、機能が足される"><defs><marker id="fl63540" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">デコレータ：包むごとに、機能が足される</text><line x1="175.5" y1="64.0" x2="107.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl63540)"/><text x="141.2" y="58.0" text-anchor="middle" style="font-size:12px">包む</text><line x1="336.5" y1="64.0" x2="257.5" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl63540)"/><text x="297.0" y="58.0" text-anchor="middle" style="font-size:12px">包む</text><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">剣</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="168.0" y="44.0" width="97" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="216.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ダメージ10</text><circle cx="170.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="170.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="178.5" y="44.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="216.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">炎</text><circle cx="180.5" cy="46.0" r="10" fill="#2ea043"/><text x="180.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="329.0" y="44.0" width="97" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="377.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ダメージ15</text><circle cx="331.0" cy="46.0" r="10" fill="#2ea043"/><text x="331.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="339.5" y="44.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="377.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">2倍</text><circle cx="341.5" cy="46.0" r="10" fill="#e5a828"/><text x="341.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="490.0" y="44.0" width="97" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="538.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ダメージ30</text><circle cx="492.0" cy="46.0" r="10" fill="#e5a828"/><text x="492.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
+<div class="anim" data-type="graph" data-label="デコレータ：包むごとに、機能が足される">
+n sword 剣 0 0 hit
+n d1 ダメージ10 1 0
+# 基本：剣のダメージは 10
+---
+n sword 剣 0 0
+n fire 炎 1 0 new
+n d2 ダメージ15 2 0 hit
+l fire sword new 包む
+# 炎で包む：中の結果（10）に +5 して 15
+---
+n sword 剣 0 0
+n fire 炎 1 0
+n twice 2倍 2 0 new
+n d3 ダメージ30 3 0 hit
+l fire sword
+l twice fire new 包む
+# 2 倍で包む：15 × 2 で 30
+</div>
 
 ### 呼び出しの流れ
 

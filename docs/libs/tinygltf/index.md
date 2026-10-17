@@ -18,7 +18,7 @@ tags:
     - tinygltf は、<strong>ファイルを `tinygltf::Model` に読み込む</strong>だけ。<strong>描画用のバッファは、自分で作る</strong>。
     - <strong>`tinygltf::Model` の中の「参照」は、すべて、配列の番号（インデックス）</strong>。ポインタではない。→ [glTF の構造](structure.md)
     - 導入は、<strong>`tiny_gltf.h` と、`json.hpp`、`stb_image.h` などを置く</strong>か、<strong>vcpkg</strong>。<strong>`TINYGLTF_IMPLEMENTATION` を、1 つの `.cpp` だけ</strong>に書く。
-    - glTF の座標系は、<strong>右手系・Y が上・前は −Z</strong>。<strong>SimpleMath と同じ</strong>なので、そのまま使える。
+    - glTF の座標系は、<strong>右手系・Y が上</strong>。このサイトの左手系へは、<strong>Z を反転し、巻き順を入れ替えて</strong>取り込む（[glTF の基本と規約](gltf-basics.md#to-left-handed)）。
     - 圧縮拡張（Draco など）は、自分ではデコードしない。
 
 ## ページ一覧

@@ -21,7 +21,7 @@ tags:
 
 <svg class="fig illust" viewBox="0 0 800 260" role="img" aria-label="オーバードローの例">
 <text x="20" y="24" class="fig-title">奥から手前の順に描くと、隠れるものも、全部、シェーダーが動く</text>
-<rect x="60" y="60" width="200" height="130" fill="rgba(76,139,245,0.4)" stroke="currentColor" stroke-width="2"/><text x="70" y="82" style="font-size:12px">奥：山（ピクセルシェーダー 実行）</text>
+<rect x="60" y="60" width="200" height="130" fill="rgba(76,139,245,0.4)" stroke="currentColor" stroke-width="2"/><text x="68" y="82" style="font-size:11px">奥：山（シェーダー実行）</text>
 <rect x="120" y="100" width="180" height="110" fill="rgba(229,170,40,0.5)" stroke="currentColor" stroke-width="2"/><text x="128" y="122" style="font-size:12px">中：建物（実行）</text>
 <rect x="180" y="140" width="160" height="90" fill="rgba(229,72,77,0.5)" stroke="currentColor" stroke-width="2"/><text x="188" y="162" style="font-size:12px">手前：壁（実行）</text>
 <text x="400" y="80" style="font-weight:700">重なった所：3 回、計算される</text>

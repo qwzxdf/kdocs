@@ -19,7 +19,7 @@ tags:
     - <strong>計算用の型 `XMVECTOR` / `XMMATRIX`</strong>（SIMD レジスタ）と、<strong>保存用の型 `XMFLOAT3` / `XMFLOAT4X4`</strong>（普通の `float` の並び）を、<strong>使い分ける</strong>。
     - <strong>メンバ変数・配列・ファイルには、保存用</strong>。<strong>計算するときだけ、`XMLoad...` でロード</strong>し、<strong>`XMStore...` で書き戻す</strong>。
     - <strong>`XMVECTOR` を、クラスのメンバにしない</strong>（16 バイト境界の問題でクラッシュする）。
-    - <strong>左手系と右手系の関数が、両方ある</strong>（`XMMatrixLookAtLH` / `XMMatrixLookAtRH` など）。<strong>どちらを使うか決めて、そろえる</strong>。
+    - <strong>左手系と右手系の関数が、両方ある</strong>（`XMMatrixLookAtLH` / `XMMatrixLookAtRH` など）。<strong>このサイトは `LH`（左手系）に統一</strong>。
     - <strong>行ベクトル規約</strong>（`v * M`）。行列の掛け順は、<strong>左から右へ</strong>（先に適用する変換が、左）。
     - <strong>普段のコードは、SimpleMath で書く</strong>。性能が必要な所だけ、DirectXMath を直接。
 
@@ -143,7 +143,7 @@ DirectXMath は、**左手系（`LH`）と右手系（`RH`）の両方の関数�
 | 透視投影 | `XMMatrixPerspectiveFovLH` | `XMMatrixPerspectiveFovRH` |
 | 正射影 | `XMMatrixOrthographicLH` | `XMMatrixOrthographicRH` |
 
-**どちらも使えるので、自分で決めて、全部をそろえます**。混ぜると、画面が反転するなどします（[座標系](coordinate-systems.md)）。**Direct3D 自体は、手系を決めていません**。決めるのは、ライブラリの関数と、モデルの向きです。このカテゴリは、**右手系・Y-up**に統一します（[SimpleMath](simplemath.md) の既定と同じ）。
+**どちらも使えるので、自分で決めて、全部をそろえます**。混ぜると、画面が反転するなどします（[座標系](coordinate-systems.md)）。**Direct3D 自体は、手系を決めていません**。決めるのは、ライブラリの関数と、モデルの向きです。このサイトは、**左手系・Y-up・+Z が前**に統一し、**`...LH` の関数を使います**（[SimpleMath](simplemath.md) の `Create…` は右手系なので、ビュー・射影はここの `LH` 関数に置き換えます）。
 
 ## 行ベクトル規約
 
@@ -251,7 +251,7 @@ XMVECTOR XM_CALLCONV Reflect(FXMVECTOR v, FXMVECTOR normal) {
 
 ## 関連ページ
 
-- [3D ゲーム（目次）](index.md)
+- [3D ゲーム（目次）](../3d/index.md)
 - [SimpleMath](simplemath.md)
 - [行列](matrices.md)
 - [SIMD（ベクトル化）](../optimize/simd.md)

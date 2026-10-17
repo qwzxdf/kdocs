@@ -6,9 +6,10 @@ tags:
 
 # 座標系
 
-3D の世界の位置を数字で表すには、**座標系**（軸の決め方）が必要です。ところが座標系には**いくつかの流儀**があり、ゲーム エンジンやライブラリごとに違います。X が右、Y が上、Z が前（奥）なのか、手前なのか。回転の正の向きは、どっち回りか。これが食い違うと**左右が反転する、モデルが裏返る、回転が逆になる**といった、不思議なバグになります。このページは座標系の流儀を整理し、**自分のゲームで何を使うかを決めて、そろえる**ための知識をまとめます。
+3D の世界の位置を数字で表すには、**座標系**（軸の決め方）が必要です。ところが座標系には**いくつかの流儀**があり、ゲーム エンジンやライブラリごとに違います。X が右、Y が上、Z が前（奥）なのか、手前なのか。回転の正の向きは、どっち回りか。これが食い違うと**左右が反転する、モデルが裏返る、回転が逆になる**といった、不思議なバグになります。このページは座標系の流儀を整理し、**自分のゲームで何を使うかを決めて、そろえる**ための知識をまとめます。**このサイトのサンプルは、DirectX の流儀に合わせて、左手系・Y が上・+Z が前（奥）で統一**しています。
 
 !!! tip "ポイント"
+    - <strong>このサイトの規約は「左手系・Y-up・+Z が前・行ベクトル・時計回りが表」</strong>（DirectX の流儀）。
     - <strong>左手系 / 右手系</strong>と、<strong>どの軸が上か</strong>（Y-up か Z-up か）の、2 つを決める。
     - <strong>Direct3D 自体は、手系を決めていない。</strong><strong>DirectXMath は左手・右手の両方</strong>、<strong>SimpleMath と OpenGL と glm の既定は右手系・Y-up</strong>、<strong>Unity は左手系・Y-up</strong>、<strong>Unreal は左手系・Z-up</strong>、<strong>Blender は右手系・Z-up</strong>。
     - <strong>外から読み込んだモデルや数式は、座標系が違う</strong>ことがある。<strong>境界で変換</strong>する。
@@ -24,7 +25,7 @@ tags:
 | **左手系** | 右 | 上 | **奥**（画面の向こう） | 左手の親指＝X、人差し指＝Y、中指＝Z。**Z が奥へ伸びる** |
 | **右手系** | 右 | 上 | **手前**（自分の方） | 右手で同じ。**Z が手前へ伸びる** |
 
-<svg class="fig" viewBox="0 0 560 230" role="img" aria-label="左手系と右手系の軸の向き"><defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="22" class="fig-title">左手系（Unity など）</text><line x1="120" y1="190" x2="120" y2="45" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="126" y="50">Y（上）</text><line x1="120" y1="190" x2="250" y2="190" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="215" y="212">X（右）</text><line x1="120" y1="190" x2="190" y2="120" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="195" y="115">Z（奥）</text><text x="300" y="22" class="fig-title">右手系（OpenGL / SimpleMath）</text><line x1="400" y1="190" x2="400" y2="45" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="406" y="50">Y（上）</text><line x1="400" y1="190" x2="530" y2="190" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="495" y="212">X（右）</text><line x1="400" y1="190" x2="345" y2="225" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="300" y="222">Z（手前）</text></svg>
+<svg class="fig" viewBox="0 0 600 230" role="img" aria-label="左手系と右手系の軸の向き"><defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="22" class="fig-title">左手系（このサイトの規約・DirectX・Unity）</text><line x1="120" y1="190" x2="120" y2="45" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="126" y="50">Y（上）</text><line x1="120" y1="190" x2="250" y2="190" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="215" y="212">X（右）</text><line x1="120" y1="190" x2="190" y2="120" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="195" y="115">Z（奥）</text><text x="300" y="22" class="fig-title">右手系（OpenGL・SimpleMath の関数の既定）</text><line x1="400" y1="190" x2="400" y2="45" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="406" y="50">Y（上）</text><line x1="400" y1="190" x2="530" y2="190" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="495" y="212">X（右）</text><line x1="400" y1="190" x2="345" y2="225" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="300" y="222">Z（手前）</text></svg>
 
 **同じ座標 (1, 2, 3) でも系が違えば、別の場所**を指します。系を変換するには、**どれか 1 つの軸を反転**します（たとえば Z の符号を逆にする）。
 
@@ -50,8 +51,8 @@ Z-up は、「床の平面が XY」で、地図のように考えやすい流儀
 
 | 名前 | 系 | 上 | 前（カメラが見る方向） | 備考 |
 | --- | --- | --- | --- | --- |
-| **DirectXMath** | **`LH` と `RH` の両方の関数がある**（選ぶ） | Y | LH なら +Z、RH なら −Z | 行ベクトル |
-| **SimpleMath**（DirectX Tool Kit） | **右手系**（既定） | Y | **−Z**（`Vector3::Forward`） | 行ベクトル |
+| **DirectXMath** | **`LH` と `RH` の両方の関数がある**（このサイトは **LH**） | Y | LH なら +Z、RH なら −Z | 行ベクトル |
+| **SimpleMath**（DirectX Tool Kit） | **型は手系に依存しない**。`Create…` 関数は右手系 | Y | `Vector3::Forward` は **−Z**（右手系の前）。**このサイトでは使わず、+Z の `kForward` を使う** | 行ベクトル |
 | **OpenGL** | **右手系** | Y | **−Z** | 列ベクトル。ビュー空間では、カメラは −Z を見る |
 | **glm** | 右手系（既定）。`GLM_FORCE_LEFT_HANDED` で左手系 | Y | −Z | 列ベクトル |
 | **Unity** | 左手系 | Y | +Z | |
@@ -65,7 +66,7 @@ Z-up は、「床の平面が XY」で、地図のように考えやすい流儀
 
 ### 左手系 ⇔ 右手系
 
-**1 つの軸を反転**します。普通は Z を反転します（Y-up の場合）。
+glTF・Blender・OpenGL・Jolt・Recast などは右手系です。このサイトの左手系に取り込むときは、**1 つの軸を反転**します。普通は Z を反転します（Y-up の場合）。
 
 ```cpp
 // 右手系 → 左手系（Y-up の場合）：Z の符号を反転
@@ -98,8 +99,8 @@ Vector3 ZUpToYUp(const Vector3& p) {
 
 | 規約 | 表の見え方 |
 | --- | --- |
-| **時計回り（CW）が表** | Direct3D の既定（`FrontCounterClockwise = FALSE`）、左手系でよく使う |
-| **反時計回り（CCW）が表** | OpenGL の既定。右手系でよく使う。**このカテゴリはこちら**（Direct3D では `FrontCounterClockwise = TRUE`） |
+| **時計回り（CW）が表** | Direct3D の既定（`FrontCounterClockwise = FALSE`）。左手系でよく使う。**このサイトはこちら** |
+| **反時計回り（CCW）が表** | OpenGL・glTF の既定。右手系でよく使う（Direct3D では `FrontCounterClockwise = TRUE`） |
 
 座標系を変換したら、**巻き方向も反転**します。そうしないと**表と裏が逆**になり、バックフェイス カリングで、モデルが消えたり、内側が見えたりします。
 
@@ -107,11 +108,11 @@ Vector3 ZUpToYUp(const Vector3& p) {
 
 | 決めること | 例 |
 | --- | --- |
-| **座標系** | 右手系・Y-up |
+| **座標系** | 左手系・Y-up |
 | **単位** | 1 ＝ 1 メートル |
 | **行列の規約** | 行ベクトル（`v * M`）か、列ベクトル（`M * v`）か（[行列](matrices.md)） |
-| **三角形の巻き方向** | 反時計回りが表 |
-| **前方向** | −Z（SimpleMath の `Vector3::Forward`） |
+| **三角形の巻き方向** | 時計回りが表（法線は `Cross(v1 - v0, v2 - v0)`） |
+| **前方向** | +Z（`kForward`。SimpleMath の `Vector3::Forward` は −Z なので使わない） |
 | **回転の単位** | ラジアン（度は入力と表示だけ） |
 | **オイラー角の順序** | Y → X → Z など（[回転](rotation.md)） |
 
@@ -122,10 +123,10 @@ Vector3 ZUpToYUp(const Vector3& p) {
 | 場面 | 方法 |
 | --- | --- |
 | Blender のモデルを、DirectX のゲームに読み込む | エクスポート時に軸を合わせる（Y-up、前方向）。または読み込み時に変換 |
-| 外部の物理エンジン（Jolt は右手系）を、左手系のゲームで使う | 境界で、Z を反転する。または物理側も左手系として扱う（座標の意味をそろえる） |
+| 外部の物理エンジン（Jolt は右手系）を、このサイトの左手系のゲームで使う | 境界で、Z を反転する。回転は、x と y の符号も反転する |
 | 数式を本から写す | 本の座標系（右手系が多い）と、自分のエンジンが違うことに注意 |
-| カメラの前方向 | 右手系は −Z、左手系は +Z。ビュー行列の関数（`LookAtRH` / `LookAtLH`）が違う |
-| ImGuizmo | 右手系・列優先を想定（[ImGuizmo](../libs/imgui/imguizmo.md)）。SimpleMath（右手系・行ベクトル）なら、行列を**転置して**渡す |
+| カメラの前方向 | 左手系は +Z、右手系は −Z。ビュー行列の関数（`LookAtLH` / `LookAtRH`）が違う。**このサイトは `LH`** |
+| ImGuizmo | OpenGL 流（右手系・列優先）を想定（[ImGuizmo](../libs/imgui/imguizmo.md)）。行ベクトルの行列は、**転置して**渡す。左手系の扱いはページを参照 |
 
 ## よくあるミス
 
@@ -142,12 +143,13 @@ Vector3 ZUpToYUp(const Vector3& p) {
     Z-up のモデルを、Y-up のエンジンに読み込んでいます。軸を入れ替えます（X 軸まわりに 90 度回転）。
 
 ??? failure "ライブラリごとに、規約が違うのに混ぜて使う"
-    SimpleMath（右手・行ベクトル）と、左手系の DirectXMath の関数（`...LH`）や、glm（列ベクトル）を混ぜると混乱します。1 つに決めて、境界で変換します。
+    SimpleMath の `Create…`（右手系）と、DirectXMath の `...LH` や、glm（列ベクトル）を混ぜると混乱します。このサイトの左手系に統一し、ビュー・射影は `...LH` を使い、境界で変換します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 座標系は、<strong>左手 / 右手</strong>と<strong>Y-up / Z-up</strong>。<strong>SimpleMath と OpenGL は右手・Y-up</strong>（DirectXMath は両方ある）
+    - [x] このサイトの規約は<strong>左手系・Y-up・+Z が前・行ベクトル・時計回りが表</strong>
+    - [x] 座標系は、<strong>左手 / 右手</strong>と<strong>Y-up / Z-up</strong>。<strong>SimpleMath の関数と OpenGL は右手・Y-up</strong>（DirectXMath は両方ある）
     - [x] 系を変換するときは、<strong>1 軸を反転し、三角形の巻き方向も反転</strong>する
     - [x] 左手系と右手系で、<strong>回転の正の向きが逆</strong>
     - [x] 外から来たデータは、<strong>境界で 1 回だけ</strong>、自分の座標系に変換する
@@ -155,8 +157,8 @@ Vector3 ZUpToYUp(const Vector3& p) {
 
 ## 関連ページ
 
-- [3D ゲーム（目次）](index.md)
+- [3D ゲーム（目次）](../3d/index.md)
 - [ベクトル](vectors.md)
 - [行列](matrices.md)
-- [MVP 変換](transforms-mvp.md)
+- [MVP 変換](../3d/transforms-mvp.md)
 - [回転とクォータニオン](rotation.md)

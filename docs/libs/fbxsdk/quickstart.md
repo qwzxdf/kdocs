@@ -96,14 +96,14 @@ if (scene_unit != FbxSystemUnit::m) {
 
 | 設定 | 意味 |
 | --- | --- |
-| **`FbxAxisSystem::DirectX`** | **DirectX 用の座標系**（**Y 上・左手系**） |
-| **`FbxAxisSystem::OpenGL`** | **OpenGL 用**（**Y 上・右手系**）。**このサイトの規約（右手系・Y 上）は、こちらに近い** |
+| **`FbxAxisSystem::DirectX`** | **DirectX 用の座標系**（**Y 上・左手系**）。**このサイトの規約と同じ**。**これを使う** |
+| **`FbxAxisSystem::OpenGL`** | **OpenGL 用**（**Y 上・右手系**）。このサイトの規約（左手系）とは違う |
 | **`FbxAxisSystem::MayaYUp`** | Maya の Y 上 |
 | **`ConvertScene(scene)`** | **シーン全体を、その座標系に変換** |
 | **`FbxSystemUnit::m`** | **メートル**（`cm`・`inch` もある）。**`ConvertScene`** で、スケールを変換 |
 
 !!! warning "DirectX 用の座標系は、左手系"
-    **`FbxAxisSystem::DirectX` は、左手系**です。<strong>このサイトは、右手系（SimpleMath）</strong>なので、**`FbxAxisSystem::OpenGL`**（**右手系・Y 上**）を、使うか、**左手系 → 右手系の変換**（Z の反転・巻き順の反転）を、自分で行います（[座標系](../../3d/coordinate-systems.md)）。**変換後、実際に表示して、確認**します。
+    **`FbxAxisSystem::DirectX` は、左手系**です。<strong>このサイトは、右手系（SimpleMath）</strong>なので、**`FbxAxisSystem::OpenGL`**（**右手系・Y 上**）を、使うか、**左手系 → 右手系の変換**（Z の反転・巻き順の反転）を、自分で行います（[座標系](../../gamemath/coordinate-systems.md)）。**変換後、実際に表示して、確認**します。
 
 ## 三角形化
 
@@ -160,7 +160,7 @@ void Traverse(FbxNode* node) {
     **すべて無効**です。**先に、ゲーム用のデータに、コピー**します。
 
 ??? failure "座標系の変換をしないで、モデルが、横倒し・裏返しになる"
-    **`ConvertScene`**（座標系・単位）を呼びます。**左手系・右手系**に注意。
+    **`ConvertScene`**（座標系・単位）を呼びます。**`FbxAxisSystem::DirectX`**（左手系）を指定し、**巻き順（CW が表）も確認**します。
 
 ??? failure "三角形化せずに、四角形を扱って、形が崩れる"
     **`FbxGeometryConverter::Triangulate`**。
@@ -173,4 +173,4 @@ void Traverse(FbxNode* node) {
 - [FBX SDK（目次）](index.md)
 - [データの取り出し方](reading.md)
 - [FBX と ufbx の基本](../ufbx/quickstart.md)
-- [座標系](../../3d/coordinate-systems.md)
+- [座標系](../../gamemath/coordinate-systems.md)

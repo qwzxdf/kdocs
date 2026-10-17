@@ -53,7 +53,7 @@ player += direction * (3.0f * dt);
 
 ## 正規化 {#normalize}
 
-<svg class="fig" viewBox="0 0 560 220" role="img" aria-label="正規化の図"><defs><marker id="v3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">正規化：向きはそのまま、長さを 1 にする</text><circle cx="140" cy="160" r="50" fill="none" stroke="currentColor" stroke-dasharray="4 4"/><text x="60" y="220">半径 1 の円</text><line x1="140" y1="160" x2="310" y2="60" stroke="currentColor" stroke-width="2" marker-end="url(#v3)" /><text x="250" y="58">v（長さ 3）</text><line x1="140" y1="160" x2="176" y2="139" stroke="currentColor" stroke-width="4" marker-end="url(#v3)" /><text x="180" y="150"></text><text x="188" y="132">v̂（長さ 1）</text><text x="340" y="100">v̂ ＝ v ÷ |v|</text><text x="340" y="128">向きだけが欲しいとき（方向・移動の向き）</text><text x="340" y="156">ゼロベクトルは割れない（長さ 0 に注意）</text></svg>
+<svg class="fig" viewBox="0 0 614 220" role="img" aria-label="正規化の図"><defs><marker id="v3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">正規化：向きはそのまま、長さを 1 にする</text><circle cx="140" cy="160" r="50" fill="none" stroke="currentColor" stroke-dasharray="4 4"/><text x="60" y="220">半径 1 の円</text><line x1="140" y1="160" x2="310" y2="60" stroke="currentColor" stroke-width="2" marker-end="url(#v3)" /><text x="250" y="58">v（長さ 3）</text><line x1="140" y1="160" x2="176" y2="139" stroke="currentColor" stroke-width="4" marker-end="url(#v3)" /><text x="180" y="150"></text><text x="188" y="132">v̂（長さ 1）</text><text x="340" y="100">v̂ ＝ v ÷ |v|</text><text x="340" y="128">向きだけが欲しいとき（方向・移動の向き）</text><text x="340" y="156">ゼロベクトルは割れない（長さ 0 に注意）</text></svg>
 
 **向きだけ**が欲しいときは、長さ 1 に正規化します。
 
@@ -74,7 +74,7 @@ Vector3 n;
 
 ## 内積（ドット積） {#dot}
 
-<svg class="fig" viewBox="0 0 620 230" role="img" aria-label="内積の図"><defs><marker id="v1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">内積：2 つの向きが、どれだけ揃っているか</text><line x1="60" y1="140" x2="200" y2="140" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="205" y="144">a</text><line x1="60" y1="140" x2="140" y2="70" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="140" y="62">b</text><path d="M 100 140 A 40 40 0 0 0 92 118" fill="none" stroke="currentColor"/><text x="100" y="128">θ</text><line x1="140" y1="70" x2="140" y2="140" stroke="currentColor" stroke-dasharray="4 4"/><line x1="60" y1="152" x2="140" y2="152" stroke="currentColor" stroke-width="4"/><text x="70" y="172">b を a に落とした長さ</text><text x="60" y="200">a · b ＝ |a| |b| cosθ（正規化していれば cosθ）</text><text x="330" y="60" class="fig-title">正：同じ向き（前方）</text><line x1="350" y1="110" x2="420" y2="110" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><line x1="350" y1="110" x2="410" y2="80" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="430" y="114">cos > 0</text><text x="330" y="150" class="fig-title">0：直角</text><line x1="350" y1="195" x2="420" y2="195" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><line x1="350" y1="195" x2="350" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="430" y="199">cos = 0</text><text x="500" y="60" class="fig-title">負：逆向き（後方）</text><line x1="560" y1="110" x2="500" y2="110" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><line x1="520" y1="110" x2="570" y2="80" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="500" y="130">cos < 0</text></svg>
+<svg class="fig" viewBox="0 0 640 230" role="img" aria-label="内積の図"><defs><marker id="v1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">内積：2 つの向きが、どれだけ揃っているか</text><line x1="60" y1="140" x2="200" y2="140" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="205" y="144">a</text><line x1="60" y1="140" x2="140" y2="70" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="140" y="62">b</text><path d="M 100 140 A 40 40 0 0 0 92 118" fill="none" stroke="currentColor"/><text x="100" y="128">θ</text><line x1="140" y1="70" x2="140" y2="140" stroke="currentColor" stroke-dasharray="4 4"/><line x1="60" y1="152" x2="140" y2="152" stroke="currentColor" stroke-width="4"/><text x="70" y="172">b を a に落とした長さ</text><text x="60" y="200">a · b ＝ |a| |b| cosθ（正規化していれば cosθ）</text><text x="330" y="60" class="fig-title">正：同じ向き（前方）</text><line x1="350" y1="110" x2="420" y2="110" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><line x1="350" y1="110" x2="410" y2="80" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="430" y="114">cos > 0</text><text x="330" y="150" class="fig-title">0：直角</text><line x1="350" y1="195" x2="420" y2="195" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><line x1="350" y1="195" x2="350" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="430" y="199">cos = 0</text><text x="500" y="60" class="fig-title">負：逆向き（後方）</text><line x1="560" y1="110" x2="500" y2="110" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><line x1="520" y1="110" x2="570" y2="80" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="500" y="130">cos &lt; 0</text></svg>
 
 **内積**は、2 つのベクトルが**どれくらい同じ向きを向いているか**を、1 つの数字で表します。
 
@@ -102,7 +102,7 @@ float dot = a.Dot(b);
 | --- | --- |
 | **前にいるか・後ろにいるか** | `前方向.Dot(敵への方向) > 0` なら、敵は前方にいる |
 | **視野角（扇形）の判定** | `前方向.Dot(敵への方向) > cos(視野角 / 2)` なら、視野の中（敵を発見） |
-| <strong>明るさ（ライティング）</strong> | `max(法線.Dot(光への方向), 0)`（[ライティング](lighting-normals.md)） |
+| <strong>明るさ（ライティング）</strong> | `max(法線.Dot(光への方向), 0)`（[ライティング](../3d/lighting-normals.md)） |
 | **射影**（あるベクトルを、別のベクトルに落とす） | `b * a.Dot(b)`（b が正規化済みのとき）。壁に沿った移動 |
 | **平面からの距離** | `(点 - 平面上の点).Dot(法線)`（正なら表側、負なら裏側） |
 | **向きの近さの比較** | 角度を求めずに、内積の大小で比べる（`acos` は重い） |
@@ -127,7 +127,7 @@ float angle = std::acos(std::clamp(a.Dot(b), -1.0f, 1.0f));   // ラジアン。
 
 ## 外積（クロス積） {#cross}
 
-<svg class="fig" viewBox="0 0 560 230" role="img" aria-label="外積の図"><defs><marker id="v2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">外積：2 つのベクトルに、垂直なベクトル</text><polygon points="60,190 260,190 320,130 120,130" fill="rgba(76,139,245,0.2)" stroke="currentColor"/><line x1="150" y1="165" x2="250" y2="165" stroke="currentColor" stroke-width="2" marker-end="url(#v2)" /><text x="255" y="170">a</text><line x1="150" y1="165" x2="200" y2="135" stroke="currentColor" stroke-width="2" marker-end="url(#v2)" /><text x="204" y="132">b</text><line x1="150" y1="165" x2="150" y2="55" stroke="currentColor" stroke-width="3" marker-end="url(#v2)" /><text x="158" y="60">a × b（面に垂直）</text><text x="340" y="80">右手系：a から b へ、右手の指を</text><text x="340" y="100">曲げたとき、親指の向き</text><text x="340" y="140">順番を逆にすると（b × a）</text><text x="340" y="160">向きが逆になる</text><text x="340" y="195" class="fig-title">使いどころ：面の法線、左右の判定</text></svg>
+<svg class="fig" viewBox="0 0 577 230" role="img" aria-label="外積の図"><defs><marker id="v2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">外積：2 つのベクトルに、垂直なベクトル</text><polygon points="60,190 260,190 320,130 120,130" fill="rgba(76,139,245,0.2)" stroke="currentColor"/><line x1="150" y1="165" x2="250" y2="165" stroke="currentColor" stroke-width="2" marker-end="url(#v2)" /><text x="255" y="170">a</text><line x1="150" y1="165" x2="200" y2="135" stroke="currentColor" stroke-width="2" marker-end="url(#v2)" /><text x="204" y="132">b</text><line x1="150" y1="165" x2="150" y2="55" stroke="currentColor" stroke-width="3" marker-end="url(#v2)" /><text x="158" y="60">a × b（面に垂直）</text><text x="340" y="80">左手系：a から b へ、左手の指を</text><text x="340" y="100">曲げたとき、親指の向き</text><text x="340" y="140">順番を逆にすると（b × a）</text><text x="340" y="160">向きが逆になる</text><text x="340" y="195" class="fig-title">使いどころ：面の法線、左右の判定</text></svg>
 
 **外積**は、2 つのベクトルの**両方に垂直な**ベクトルを作ります。
 
@@ -139,7 +139,7 @@ a × b = (ay*bz - az*by,  az*bx - ax*bz,  ax*by - ay*bx)
 | --- | --- |
 | **結果は、a と b の両方に垂直** | 面の法線、回転軸に使える |
 | **長さは `‖a‖ ‖b‖ sin θ`** | 2 つの作る平行四辺形の面積 |
-| **順序で、向きが逆**（`a × b = −(b × a)`） | 右手系と左手系で、向きが逆になる（[座標系](coordinate-systems.md)） |
+| **順序で、向きが逆**（`a × b = −(b × a)`） | 右手系と左手系で、幾何的な向きが逆になる（このサイトは左手系。[座標系](coordinate-systems.md)） |
 | **同じ向きなら、ゼロ** | 平行な 2 つの外積は 0 |
 
 ```cpp
@@ -150,19 +150,19 @@ Vector3 normal = edge1.Cross(edge2);     // 三角形の法線（正規化して
 
 | 用途 | 使い方 |
 | --- | --- |
-| **三角形の法線** | `(頂点1 - 頂点0).Cross(頂点2 - 頂点0)`（正規化する） |
-| **右方向を求める** | `前方向.Cross(上方向)` で、右方向（右手系）。カメラの 3 軸を作る |
+| **三角形の法線** | `(頂点1 - 頂点0).Cross(頂点2 - 頂点0)`（正規化する。時計回りが表の三角形で、表を向く） |
+| **右方向を求める** | `上方向.Cross(前方向)` で、右方向（左手系）。カメラの 3 軸を作る |
 | **回転軸** | `今の向き.Cross(目標の向き)` が、回転軸。内積が回転角の `cos` |
 | **左右の判定**（2D） | 外積の Y 成分の符号で、目標が、左にあるか右にあるか |
 | **面積** | 三角形の面積 ＝ `edge1.Cross(edge2).Length() / 2` |
 | <strong>トルク（物理）</strong> | `腕.Cross(力)` |
 
 ```cpp
-// 右手系・Y-up：前方向 × 上方向 ＝ 右方向
-Vector3 right = Vector3::Forward.Cross(Vector3::Up);   // (0,0,-1) × (0,1,0) = (1,0,0)
+// 左手系・Y-up・+Z が前：上方向 × 前方向 ＝ 右方向
+Vector3 right = kUp.Cross(kForward);   // (0,1,0) × (0,0,1) = (1,0,0)
 ```
 
-右手系では、`前 × 上 = 右` になります（左手系では、結果が逆向きです）。
+このサイトの左手系では、`上 × 前 = 右` になります（右手系では `前 × 上 = 右`。順番が逆です）。
 
 ## 反射と射影 {#reflect}
 
@@ -184,7 +184,7 @@ Vector3 slide = velocity - wall_normal * velocity.Dot(wall_normal);
 
 ## 補間 {#lerp}
 
-<svg class="fig" viewBox="0 0 560 200" role="img" aria-label="線形補間の図"><defs><marker id="v5" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">線形補間：a から b へ、t の割合だけ進む</text><line x1="60" y1="110" x2="480" y2="110" stroke="currentColor" stroke-width="2"/><circle cx="60" cy="110" r="6" fill="currentColor"/><text x="48" y="138">t=0</text><circle cx="165" cy="110" r="6" fill="currentColor"/><text x="153" y="138">t=0.25</text><circle cx="270" cy="110" r="6" fill="currentColor"/><text x="258" y="138">t=0.5</text><circle cx="480" cy="110" r="6" fill="currentColor"/><text x="468" y="138">t=1</text><text x="60" y="90">a</text><text x="470" y="90">b</text><text x="60" y="175">Lerp(a, b, t) ＝ a ＋ (b − a) × t　　t を 0 → 1 に動かすと、なめらかに移動する</text></svg>
+<svg class="fig" viewBox="0 0 594 200" role="img" aria-label="線形補間の図"><defs><marker id="v5" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">線形補間：a から b へ、t の割合だけ進む</text><line x1="60" y1="110" x2="480" y2="110" stroke="currentColor" stroke-width="2"/><circle cx="60" cy="110" r="6" fill="currentColor"/><text x="48" y="138">t=0</text><circle cx="165" cy="110" r="6" fill="currentColor"/><text x="153" y="138">t=0.25</text><circle cx="270" cy="110" r="6" fill="currentColor"/><text x="258" y="138">t=0.5</text><circle cx="480" cy="110" r="6" fill="currentColor"/><text x="468" y="138">t=1</text><text x="60" y="90">a</text><text x="470" y="90">b</text><text x="60" y="175">Lerp(a, b, t) ＝ a ＋ (b − a) × t　　t を 0 → 1 に動かすと、なめらかに移動する</text></svg>
 
 | 方法 | 式 | 使いどころ |
 | --- | --- | --- |
@@ -213,7 +213,7 @@ Vector3 c = Vector3::Clamp(a, Vector3(0, 0, 0), Vector3(3, 3, 3));   // (1, 3, 3
 
 | 使いどころ | 例 |
 | --- | --- |
-| **箱（AABB）の範囲を求める** | 全頂点の `Min` と `Max` が、箱の両端になる（[3D の衝突判定](collision-3d.md)） |
+| **箱（AABB）の範囲を求める** | 全頂点の `Min` と `Max` が、箱の両端になる（[3D の衝突判定](../3d/collision-3d.md)） |
 | **位置を、範囲内に収める** | `Clamp(position, world_min, world_max)` で、マップの外に出さない |
 | **色の範囲を収める** | `Clamp(color, 0, 1)` |
 
@@ -267,7 +267,7 @@ if (Vector3::DistanceSquared(a, b) < 5.0f * 5.0f) { ... }
     `(1, 0)` と `(1, 1)` で、長さが違います。入力を正規化してから、速さを掛けます。
 
 ??? failure "外積の順序を逆にして、法線が裏向きになる"
-    `a.Cross(b)` と `b.Cross(a)` は、逆向きです。座標系（右手 / 左手）でも向きが変わります。結果を見て、反転する必要があります。
+    `a.Cross(b)` と `b.Cross(a)` は、逆向きです。座標系（右手 / 左手）でも幾何的な向きが変わります。結果を見て、反転する必要があります。
 
 ??? failure "`Normalize()` の戻り値を使おうとする"
     SimpleMath の `Normalize()` は、その場で書き換え、戻り値はありません。別の変数に受けるなら、`v.Normalize(result)` です。
@@ -283,8 +283,8 @@ if (Vector3::DistanceSquared(a, b) < 5.0f * 5.0f) { ... }
 
 ## 関連ページ
 
-- [3D ゲーム（目次）](index.md)
+- [3D ゲーム（目次）](../3d/index.md)
 - [SimpleMath](simplemath.md)
 - [座標系](coordinate-systems.md)
 - [行列](matrices.md)
-- [法線とライティング](lighting-normals.md)
+- [法線とライティング](../3d/lighting-normals.md)

@@ -61,7 +61,7 @@ Matrix rq = Matrix::CreateFromQuaternion(q);                          // クォ�
 | 度 → ラジアン | `degrees * XM_PI / 180`（`DirectX::XMConvertToRadians(deg)`） |
 | ラジアン → 度 | `XMConvertToDegrees(rad)` |
 
-**右手系の回転方向**: 軸の正の方向から見て、**反時計回り**が正（[座標系](coordinate-systems.md)）。
+**左手系（このサイト）の回転方向**: 軸の正の方向から見て、**時計回り**が正です（Y 軸まわりの正の回転は、上から見て時計回りで、前 +Z が右 +X へ向きます）。右手系では反時計回りです（[座標系](coordinate-systems.md)）。
 
 ## 単位行列 {#identity}
 
@@ -87,7 +87,7 @@ Vector3 v = Vector3::Transform(Vector3(1, 2, 3), m);   // (1, 2, 3) のまま
 
 ## 行列を掛ける順番 {#order}
 
-<svg class="fig" viewBox="0 0 620 250" role="img" aria-label="掛ける順番で結果が変わる"><defs><marker id="v6" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">拡大 → 回転 → 平行移動（S × R × T）：その場で回って、あとで移動</text><line x1="30" y1="180" x2="290" y2="180" stroke="currentColor" stroke-dasharray="4 4"/><text x="30" y="198">原点</text><rect x="22" y="172" width="16" height="16" fill="rgba(76,139,245,0.5)" stroke="currentColor" transform="rotate(30 30 180)"/><line x1="40" y1="180" x2="210" y2="180" stroke="currentColor" stroke-width="2" marker-end="url(#v6)" /><rect x="212" y="172" width="16" height="16" fill="rgba(76,139,245,0.5)" stroke="currentColor" transform="rotate(30 220 180)"/><text x="160" y="160">回転の中心は、自分</text><text x="330" y="20" class="fig-title">平行移動 → 回転（T × R）：原点のまわりを回る</text><circle cx="340" cy="180" r="3" fill="currentColor"/><text x="330" y="198">原点</text><circle cx="340" cy="180" r="100" fill="none" stroke="currentColor" stroke-dasharray="4 4"/><rect x="432" y="172" width="16" height="16" fill="rgba(229,72,77,0.4)" stroke="currentColor"/><text x="425" y="160">先に移動</text><rect x="362" y="92" width="16" height="16" fill="rgba(229,72,77,0.6)" stroke="currentColor" transform="rotate(60 370 100)"/><text x="380" y="90">回転で、軌道上へ</text><path d="M 438 172 A 100 100 0 0 0 376 100" fill="none" stroke="currentColor" marker-end="url(#v6)"/><text x="20" y="238">SimpleMath は、左から右へ、適用する順に並べる（行ベクトル規約）。順番は、必ず確かめる</text></svg>
+<svg class="fig" viewBox="0 0 664 250" role="img" aria-label="掛ける順番で結果が変わる"><defs><marker id="v6" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">拡大 → 回転 → 平行移動（S × R × T）</text><line x1="30" y1="180" x2="290" y2="180" stroke="currentColor" stroke-dasharray="4 4"/><text x="30" y="198">原点</text><rect x="22" y="172" width="16" height="16" fill="rgba(76,139,245,0.5)" stroke="currentColor" transform="rotate(30 30 180)"/><line x1="40" y1="180" x2="210" y2="180" stroke="currentColor" stroke-width="2" marker-end="url(#v6)" /><rect x="212" y="172" width="16" height="16" fill="rgba(76,139,245,0.5)" stroke="currentColor" transform="rotate(30 220 180)"/><text x="160" y="160">回転の中心は、自分</text><text x="330" y="20" class="fig-title">平行移動 → 回転（T × R）：原点のまわりを回る</text><circle cx="340" cy="180" r="3" fill="currentColor"/><text x="330" y="198">原点</text><circle cx="340" cy="180" r="100" fill="none" stroke="currentColor" stroke-dasharray="4 4"/><rect x="432" y="172" width="16" height="16" fill="rgba(229,72,77,0.4)" stroke="currentColor"/><text x="425" y="160">先に移動</text><rect x="362" y="92" width="16" height="16" fill="rgba(229,72,77,0.6)" stroke="currentColor" transform="rotate(60 370 100)"/><text x="380" y="90">回転で、軌道上へ</text><path d="M 438 172 A 100 100 0 0 0 376 100" fill="none" stroke="currentColor" marker-end="url(#v6)"/><text x="20" y="238">SimpleMath は、左から右へ、適用する順に並べる（行ベクトル規約）。順番は、必ず確かめる</text></svg>
 
 **一番間違えやすい**ところです。行ベクトル規約では、**変換を適用する順番の通りに、左から右へ**並べます。
 
@@ -150,14 +150,14 @@ Vector3 world_dir = Vector3::TransformNormal(local_dir, world);     // 方向：
 | --- | --- | --- |
 | **位置**（頂点、オブジェクトの場所） | `Vector3::Transform` | w = 1 として、平行移動も適用 |
 | **方向**（前方向、速度） | `Vector3::TransformNormal` | w = 0 として、回転と拡大だけ適用 |
-| **法線**（面の向き） | 逆転置行列で（[ライティング](lighting-normals.md)） | **非均一な拡大**があると、普通の方向の変換では、ずれる |
+| **法線**（面の向き） | 逆転置行列で（[ライティング](../3d/lighting-normals.md)） | **非均一な拡大**があると、普通の方向の変換では、ずれる |
 
 ## 行列から取り出す {#extract}
 
 | 取り出すもの | 方法 |
 | --- | --- |
 | **位置**（平行移動） | `world.Translation()`（4 行目） |
-| **前・上・右の方向** | `world.Forward()`、`world.Up()`、`world.Right()`（回転の部分。拡大があると、長さが 1 ではない） |
+| **前・上・右の方向** | `world.Backward()`（3 行目＝前）、`world.Up()`、`world.Right()`（回転の部分。拡大があると、長さが 1 ではない）。SimpleMath の `Forward()` は右手系の前（−Z）なので使わない |
 | **拡大・回転・位置に分解** | `world.Decompose(scale, rotation, translation)` |
 
 ```cpp
@@ -183,7 +183,7 @@ world.Invert(inv);                          // 結果を、別の変数に
 | --- | --- |
 | **ビュー行列** | **カメラのワールド行列の逆行列**。カメラを世界に置く変換の逆が、「世界をカメラから見る」変換 |
 | **ワールド → ローカル** | 世界の座標を、あるオブジェクトの内側の座標に直す（レイと、動くオブジェクトの当たり判定） |
-| **スクリーン → ワールド** | プロジェクションとビューの逆行列で、マウス位置から 3D の位置を求める（[ピッキング](picking-raycast.md)） |
+| **スクリーン → ワールド** | プロジェクションとビューの逆行列で、マウス位置から 3D の位置を求める（[ピッキング](../3d/picking-raycast.md)） |
 | **法線の変換** | 逆行列を転置したもの |
 
 | 注意 | 説明 |
@@ -207,9 +207,9 @@ Matrix t = m.Transpose();
 | 使いどころ | 説明 |
 | --- | --- |
 | **回転行列の逆行列** | 回転だけの行列は、**転置が逆行列**になる（逆行列を求めるより、ずっと安い） |
-| **法線の変換** | **逆行列の転置**を使う（[法線とライティング](lighting-normals.md)） |
+| **法線の変換** | **逆行列の転置**を使う（[法線とライティング](../3d/lighting-normals.md)） |
 | **行ベクトル規約と列ベクトル規約の変換** | 規約が違うライブラリと、行列を受け渡すとき |
-| **HLSL に渡すとき** | `row_major` を付けない場合、転置して渡す必要がある（[MVP](transforms-mvp.md)） |
+| **HLSL に渡すとき** | `row_major` を付けない場合、転置して渡す必要がある（[MVP](../3d/transforms-mvp.md)） |
 
 ## 行優先と列優先（メモリ上の並び） {#row-major}
 
@@ -222,7 +222,7 @@ Matrix t = m.Transpose();
 | **glm / OpenGL** | 列優先 |
 | **ImGuizmo** | 列優先の `float[16]` を想定 |
 
-SimpleMath の行列を、HLSL に渡すとき、**`row_major` を指定するか、転置して送る**必要があります（[MVP 変換](transforms-mvp.md)）。
+SimpleMath の行列を、HLSL に渡すとき、**`row_major` を指定するか、転置して送る**必要があります（[MVP 変換](../3d/transforms-mvp.md)）。
 
 ## 速さ
 
@@ -240,8 +240,8 @@ SimpleMath の行列を、HLSL に渡すとき、**`row_major` を指定する�
 | --- | --- |
 | オブジェクトを、世界に置く | ワールド行列 ＝ `S * R * T` |
 | 親（キャラ）に、子（武器）が付いて動く | `子のローカル * 親のワールド` |
-| カメラから見た画面にする | ビュー行列・プロジェクション行列（[MVP](transforms-mvp.md)） |
-| ボーンのアニメーション | ボーンごとの行列の階層（[スキニング](skinning-animation.md)） |
+| カメラから見た画面にする | ビュー行列・プロジェクション行列（[MVP](../3d/transforms-mvp.md)） |
+| ボーンのアニメーション | ボーンごとの行列の階層（[スキニング](../3d/skinning-animation.md)） |
 | ビルボード（常にカメラを向く板） | ビュー行列の回転を使って、向きを作る（`Matrix::CreateBillboard`） |
 | マウスの位置から、3D のレイを作る | 逆行列で、スクリーン → ワールド |
 
@@ -254,7 +254,7 @@ SimpleMath の行列を、HLSL に渡すとき、**`row_major` を指定する�
     位置は `Transform`（平行移動が効く）、方向は `TransformNormal`（効かない）です。逆にすると、位置がずれる・方向が狂います。
 
 ??? failure "非均一な拡大のモデルで、法線を普通に変換する"
-    `(1, 2, 1)` のような拡大があると、法線の向きが狂って、ライティングが壊れます。逆転置行列を使います（[ライティング](lighting-normals.md)）。
+    `(1, 2, 1)` のような拡大があると、法線の向きが狂って、ライティングが壊れます。逆転置行列を使います（[ライティング](../3d/lighting-normals.md)）。
 
 ??? failure "毎フレーム、逆行列を何度も計算する"
     重い計算です。結果を覚えて、元の行列が変わったときだけ、求め直します。
@@ -277,8 +277,8 @@ SimpleMath の行列を、HLSL に渡すとき、**`row_major` を指定する�
 
 ## 関連ページ
 
-- [3D ゲーム（目次）](index.md)
+- [3D ゲーム（目次）](../3d/index.md)
 - [SimpleMath](simplemath.md)
-- [MVP 変換](transforms-mvp.md)
+- [MVP 変換](../3d/transforms-mvp.md)
 - [座標系](coordinate-systems.md)
 - [回転とクォータニオン](rotation.md)

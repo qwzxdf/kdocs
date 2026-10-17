@@ -148,7 +148,7 @@ tags:
 
 頂点バッファに入っているのは、**ただの数字の並び**です。GPU は、「**最初の 12 バイトが位置、次の 12 バイトが法線**」という、**中身の意味を知りません**。そこで**並びを説明する**のが**入力レイアウト**です。
 
-<svg class="fig" viewBox="0 0 600 170" role="img" aria-label="頂点バッファの中身と入力レイアウト">
+<svg class="fig" viewBox="0 0 844 170" role="img" aria-label="頂点バッファの中身と入力レイアウト">
 <rect x="30" y="50" width="150" height="40" fill="rgba(76,139,245,0.35)" stroke="currentColor" stroke-width="2"/><text x="55" y="75">位置 (x, y, z)</text>
 <rect x="180" y="50" width="150" height="40" fill="rgba(46,160,67,0.35)" stroke="currentColor" stroke-width="2"/><text x="205" y="75">法線 (x, y, z)</text>
 <rect x="330" y="50" width="100" height="40" fill="rgba(229,170,40,0.4)" stroke="currentColor" stroke-width="2"/><text x="350" y="75">UV (u, v)</text>

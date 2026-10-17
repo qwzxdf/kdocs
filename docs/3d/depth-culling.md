@@ -11,7 +11,7 @@ tags:
 !!! tip "ポイント"
     - <strong>深度バッファ</strong>は、ピクセルごとに「いちばん手前の深度」を覚え、<strong>奥のものを描かない</strong>ようにする。
     - DX11 では、<strong>深度ステンシルビュー（DSV）を作って、`OMSetRenderTargets` に渡す</strong>。毎フレーム `ClearDepthStencilView` でクリア。
-    - <strong>バックフェイスカリング</strong>：<strong>裏を向いた三角形は描かない</strong>。右手系・CCW 表なら <strong>`FrontCounterClockwise = TRUE`</strong>。
+    - <strong>バックフェイスカリング</strong>：<strong>裏を向いた三角形は描かない</strong>。左手系・CW 表（このサイトの規約）なら <strong>`FrontCounterClockwise = FALSE`（既定のまま）</strong>。
     - <strong>Z ファイティング</strong>は、深度の精度不足。<strong>near を大きく</strong>、または<strong>リバース Z</strong> で減らす。
     - <strong>視錐台カリング</strong>：<strong>画面に入らないオブジェクトを、描画前に除外</strong>する（`BoundingFrustum`）。
     - 半透明は<strong>深度の書き込みを止めて、奥から手前の順</strong>に描く。
@@ -118,20 +118,20 @@ context->RSSetState(rs_state.Get());
 | 設定 | 値 | 説明 |
 | --- | --- | --- |
 | `CullMode` | `BACK` / `FRONT` / `NONE` | **`BACK`**：裏を描かない。**`NONE`**：両面（葉っぱ、布、**デバッグ**） |
-| `FrontCounterClockwise` | `TRUE` / `FALSE` | **何を表とするか**。**このカテゴリは右手系・CCW が表なので `TRUE`**（[座標系](coordinate-systems.md)） |
+| `FrontCounterClockwise` | `TRUE` / `FALSE` | **何を表とするか**。<strong>このサイトは左手系・CW（時計回り）が表なので `FALSE`（既定）</strong>（[座標系](../gamemath/coordinate-systems.md)） |
 | `FillMode` | `SOLID` / `WIREFRAME` | ワイヤーフレームは、デバッグ用 |
 
-!!! warning "DX11 の既定は `FrontCounterClockwise = FALSE`（時計回りが表）"
-    **何も設定しないと、DX11 は時計回りを表とします**。右手系で作ったメッシュ（CCW が表）は、**裏表が逆**になって、**外側が消え、内側が見えます**。症状が出たら、`FrontCounterClockwise` と、メッシュの巻き順を確認します。
+!!! warning "DX11 の既定は `FrontCounterClockwise = FALSE`（時計回りが表）。右手系のモデルは注意"
+    **何も設定しないと、DX11 は時計回りを表とします**。このサイトの左手系（CW が表）とは合っています。ただし、<strong>右手系で作ったメッシュ（glTF・OpenGL 向けは CCW が表）</strong>を、そのまま読み込むと、**裏表が逆**になって、**外側が消え、内側が見えます**。読み込み時に巻き順を反転します。症状が出たら、`FrontCounterClockwise` と、メッシュの巻き順を確認します。
 
 ### 巻き順（ワインディング）
 
-<svg class="fig" viewBox="0 0 620 220" role="img" aria-label="巻き順と表裏"><defs><marker id="w1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">反時計回り（CCW）＝表</text><polygon points="60,170 200,170 130,60" fill="rgba(46,160,67,0.25)" stroke="currentColor" stroke-width="2"/><text x="40" y="190">v0</text><text x="200" y="190">v1</text><text x="122" y="52">v2</text><path d="M 100 150 A 40 40 0 1 0 160 150" fill="none" stroke="currentColor" marker-end="url(#w1)" transform="translate(0,-25)"/><text x="40" y="212">v0 → v1 → v2 が、反時計回りに見える（描く）</text><text x="330" y="20" class="fig-title">時計回り（CW）＝裏</text><polygon points="360,170 500,170 430,60" fill="rgba(229,72,77,0.25)" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><text x="340" y="190">v0</text><text x="500" y="190">v2</text><text x="422" y="52">v1</text><text x="340" y="212">カリングで、描かれない（CullMode = BACK）</text></svg>
+<svg class="fig" viewBox="0 0 620 220" role="img" aria-label="巻き順と表裏"><defs><marker id="w1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">時計回り（CW）＝表</text><polygon points="60,170 200,170 130,60" fill="rgba(46,160,67,0.25)" stroke="currentColor" stroke-width="2"/><text x="40" y="190">v0</text><text x="200" y="190">v2</text><text x="122" y="52">v1</text><text x="40" y="212">v0 → v1 → v2 が、時計回りに見える（描く）</text><text x="330" y="20" class="fig-title">反時計回り（CCW）＝裏</text><polygon points="360,170 500,170 430,60" fill="rgba(229,72,77,0.25)" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><text x="340" y="190">v0</text><text x="500" y="190">v1</text><text x="422" y="52">v2</text><text x="340" y="212">カリングで、描かれない（CullMode = BACK）</text></svg>
 
 | 巻き順 | どう見えるか |
 | --- | --- |
-| <strong>反時計回り（CCW）</strong> | 見る側から、頂点が反時計回り → **表** |
-| 時計回り（CW） | 見る側から、頂点が時計回り → **裏** |
+| <strong>時計回り（CW）</strong> | 見る側から、頂点が時計回り → **表**（このサイトの規約） |
+| 反時計回り（CCW） | 見る側から、頂点が反時計回り → **裏** |
 
 モデルが**裏返って見える**ときは、(1) `FrontCounterClockwise` の設定、(2) モデルの巻き順、(3) 負のスケール（`Scale(-1, 1, 1)` は、巻き順を反転させる）を疑います。
 
@@ -171,7 +171,7 @@ rs_desc.DepthBiasClamp = 0.0f;
 **深度の割り当てを逆**にして、**near を 1、far を 0** にします。浮動小数点は、**0 の近くに精度が多く**あるので**遠くの精度**が大きく改善します。
 
 ```cpp
-Matrix proj = Matrix::CreatePerspectiveFieldOfView(fov, aspect, far_plane, near_plane);
+Matrix proj = XMMatrixPerspectiveFovLH(fov, aspect, far_plane, near_plane);
 
 ds_desc.DepthFunc = D3D11_COMPARISON_GREATER;
 context->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH, 0.0f, 0);
@@ -189,7 +189,7 @@ context->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH, 0.0f, 0);
 
 ## 視錐台カリング
 
-<svg class="fig" viewBox="0 0 620 250" role="img" aria-label="視錐台カリング"><defs><marker id="f2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">視錐台カリング：見えない物は、描画命令を出さない（真上から見た図）</text><circle cx="80" cy="130" r="7" fill="currentColor"/><text x="55" y="155">カメラ</text><polygon points="80,130 330,40 330,220" fill="rgba(76,139,245,0.12)" stroke="currentColor" stroke-width="2"/><circle cx="200" cy="130" r="14" fill="rgba(46,160,67,0.5)" stroke="currentColor"/><text x="190" y="168">描く</text><circle cx="270" cy="85" r="14" fill="rgba(46,160,67,0.5)" stroke="currentColor"/><text x="262" y="64">描く</text><circle cx="250" cy="230" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="230" y="212">外：除外</text><circle cx="150" cy="40" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="125" y="24">外：除外</text><circle cx="420" cy="130" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="380" y="170">far より奥：除外</text><text x="400" y="80">球（BoundingSphere）で、判定する</text></svg>
+<svg class="fig" viewBox="0 0 622 250" role="img" aria-label="視錐台カリング"><defs><marker id="f2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">視錐台カリング：見えない物は、描画命令を出さない（真上から見た図）</text><circle cx="80" cy="130" r="7" fill="currentColor"/><text x="55" y="155">カメラ</text><polygon points="80,130 330,40 330,220" fill="rgba(76,139,245,0.12)" stroke="currentColor" stroke-width="2"/><circle cx="200" cy="130" r="14" fill="rgba(46,160,67,0.5)" stroke="currentColor"/><text x="190" y="168">描く</text><circle cx="270" cy="85" r="14" fill="rgba(46,160,67,0.5)" stroke="currentColor"/><text x="262" y="64">描く</text><circle cx="250" cy="230" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="230" y="212">外：除外</text><circle cx="150" cy="40" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="125" y="74">外：除外</text><circle cx="420" cy="130" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="380" y="170">far より奥：除外</text><text x="400" y="80">球（BoundingSphere）で、判定する</text></svg>
 
 **視錐台**（カメラの見える範囲）の**外にあるオブジェクトを、描画命令の前に除外**します。描画命令・頂点処理を丸ごと省けます。
 
@@ -253,7 +253,7 @@ std::sort(transparent.begin(), transparent.end(),
     `OMSetRenderTargets` に DSV を渡していない、または `DepthEnable = FALSE` です。
 
 ??? failure "モデルが、裏返って見える"
-    `FrontCounterClockwise` と、メッシュの巻き順を確認します。DX11 の既定は、**時計回りが表**です。
+    `FrontCounterClockwise` と、メッシュの巻き順を確認します。DX11 の既定は、**時計回りが表**です。右手系のモデルは、巻き順を反転します。
 
 ??? failure "リバース Z にしたら、何も描かれない"
     `DepthFunc`（`GREATER`）、クリア値（`0.0`）、射影の near・far の順をすべて確認します。
@@ -271,7 +271,7 @@ std::sort(transparent.begin(), transparent.end(),
 
 !!! abstract "まとめ"
     - [x] <strong>DSV を作って `OMSetRenderTargets` に渡す</strong>。<strong>毎フレーム、深度をクリア</strong>
-    - [x] <strong>`CullMode = BACK`</strong> + <strong>右手系・CCW 表なら `FrontCounterClockwise = TRUE`</strong>
+    - [x] <strong>`CullMode = BACK`</strong> + <strong>左手系・CW 表なら `FrontCounterClockwise = FALSE`（既定）</strong>
     - [x] <strong>Z ファイティング</strong>は、<strong>near を大きく</strong>、または<strong>リバース Z</strong>（<strong>射影・比較・クリア・フォーマット</strong>をそろえる）
     - [x] <strong>視錐台カリング</strong>は、<strong>ワールド空間</strong>で<strong>描画前</strong>に
     - [x] 半透明は、<strong>不透明のあとに遠い順</strong>。深度は書かない

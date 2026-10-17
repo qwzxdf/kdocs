@@ -108,7 +108,7 @@ vertices.resize(unique);
 
 ### 座標系・巻き順
 
-**`target_axes = right_handed_y_up`** で変換済みなら、**位置・法線はそのまま**使えます。**巻き順は、CCW が表**なので、**`FrontCounterClockwise = TRUE`**（[深度とカリング](../../3d/depth-culling.md)）。**UV だけ、V を反転**します。
+**`target_axes = left_handed_y_up`** で変換済みなら、**位置・法線はそのまま**使えます。**巻き順は、変換後に CW が表になっているか確認**します（なっていなければ、2 番目と 3 番目のインデックスを入れ替える。[深度とカリング](../../3d/depth-culling.md)）。**UV だけ、V を反転**します。
 
 ## ノードの階層
 

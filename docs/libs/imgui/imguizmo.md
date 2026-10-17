@@ -446,7 +446,7 @@ model_matrix = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&model_dx));  
 ```
 
 !!! warning "左手系と右手系"
-    DirectX は左手系、OpenGL は右手系で書かれることが多いです。ImGuizmo は右手系を想定した動作で、**左手系の行列だと、回転の方向や、矢印の向きが逆**になることがあります。合わないときは、ビューとプロジェクションを**左手系で作り、転置して渡す**か、Z を反転します。ImGuizmo のフォークには、DirectX 向けの修正が入ったものもあります。
+    このサイトは左手系（DirectX 流）です。ImGuizmo は OpenGL 流（右手系）を想定した動作で、**左手系の行列だと、回転の方向や、矢印の向きが逆**になることがあります。ビューとプロジェクションを**左手系（`XMMatrixLookAtLH` など）で作り、転置して渡し**、合わなければ Z の向き（回転の符号）を確認します。ImGuizmo のフォークには、DirectX 向けの修正が入ったものもあります。
 
 ## ゲームでの使いどころ
 

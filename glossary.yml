@@ -7,605 +7,1677 @@
 
 - terms: [ボーン, ジョイント, 骨, bone, joint, Bone, Joint]
   text: ボーン（骨）とジョイント（関節）は、ゲームでは同じものとして考えられることが多い。厳密には、ボーン＝骨そのもの、ジョイント＝骨と骨をつなぐ点。glTF では joint、FBX・Blender では bone と呼ぶ。
+  link: 3d/skinning-animation.md
 - terms: [スキニング, スキン, skinning, スキンメッシュ, スキンアニメーション]
-  text: 骨の動きに合わせて、メッシュ（皮膚）を変形させる仕組み。各頂点が、近くの骨 1〜4 本の重み付き平均で動く。
+  text: ボーンの動きに合わせて、メッシュ（皮膚）を変形させる仕組み。各頂点が、近くのボーン 1〜4 本の重み付き平均で動く。
+  link: 3d/skinning-animation.md
 - terms: [頂点, バーテックス, vertex, vertices, 頂点バッファ]
   text: 形の角になる点。位置のほか、法線・UV などの情報を持つ。
+  link: 3d/model-basics.md
 - terms: [メッシュ, mesh, Mesh]
   text: 3D モデルの形そのもの。頂点と三角形の集まり。色や絵（テクスチャ）は含まない。
+  link: 3d/model-basics.md
 - terms: [ポリゴン, polygon, 三角形, トライアングル]
   text: 頂点 3 つ（以上）で囲まれた面。3D 描画の基本単位は三角形。
+  link: 3d/model-basics.md
 - terms: [テクスチャ, texture, テクスチャー]
   text: 画像。
+  link: 3d/model-basics.md
 - terms: [UV 座標, UV, uv, UV マップ, UV 展開, テクスチャ座標]
   text: テクスチャ画像の、どの位置を使うかを表す 2 つの数字 (u, v)。
+  link: 3d/model-basics.md
 - terms: [法線, ノーマル, normal, 法線ベクトル, 法線マップ, ノーマルマップ]
   text: 面（または頂点）が向いている方向を表す、長さ 1 のベクトル。陰影の計算に使う。
+  link: 3d/lighting-normals.md
 - terms: [ワールド行列, world matrix, モデル行列, ワールド変換, ワールド座標]
   text: モデルの座標を、ゲーム世界の座標に変換する行列（拡大・回転・平行移動をまとめたもの）。
+  link: 3d/transforms-mvp.md
 - terms: [ビュー行列, view matrix, カメラ行列, ビュー変換, ビュー空間]
   text: ゲーム世界の座標を、カメラから見た座標に変換する行列。
+  link: 3d/transforms-mvp.md
 - terms: [プロジェクション行列, 射影行列, projection matrix, 投影行列, 射影変換, プロジェクション]
   text: カメラから見た 3D の座標を、遠近感のある画面向けの座標に変換する行列。
+  link: 3d/projection.md
 - terms: [クォータニオン, 四元数, quaternion, Quaternion]
   text: 回転を表す 4 つの数字 (x, y, z, w)。ジンバルロックがなく、補間も滑らか。
+  link: gamemath/rotation.md
 - terms: [ジンバルロック, gimbal lock]
   text: オイラー角で、2 つの回転軸が重なり、回転の自由度が 1 つ失われる現象。
+  link: gamemath/rotation.md
 - terms: [オイラー角, Euler, euler, ヨー, ピッチ, ロール]
   text: X・Y・Z 軸まわりの 3 つの角度で、回転を表す方法。
+  link: gamemath/rotation.md
 - terms: [同次座標, homogeneous, ホモジニアス]
   text: 3D の座標に 4 つ目の値 w を足した表し方。平行移動も、行列の掛け算で表せる。
+  link: gamemath/matrices.md
 - terms: [正規化, normalize, Normalize, ノーマライズ]
   text: ベクトルの向きはそのままで、長さを 1 にすること。
+  link: gamemath/vectors.md
 - terms: [内積, dot, Dot, ドット積, dot product]
   text: 2 つのベクトルが、どれだけ同じ向きかを表す数。正規化していれば cosθ。
+  link: gamemath/vectors.md
 - terms: [外積, cross, Cross, クロス積, cross product]
   text: 2 つのベクトルに垂直なベクトルを作る計算。面の法線を求めるときなどに使う。
+  link: gamemath/vectors.md
 - terms: [線形補間, Lerp, lerp, リニア補間, 線形補完]
   text: 2 つの値の間を、割合 t で直線的に混ぜること。a + (b − a) × t。
+  link: gamemath/interpolation.md
 - terms: [Slerp, 球面線形補間, slerp, スラープ]
   text: 2 つの回転の間を、一定の速さで補間する方法（球面上を進む）。
+  link: gamemath/rotation.md
 - terms: [レイキャスト, ray cast, Raycast, raycast, レイ, 光線]
   text: 線（レイ）を飛ばして、最初に当たるものを調べること。射撃・視線・ピッキングに使う。
+  link: 3d/picking-raycast.md
 - terms: [ピッキング, picking, オブジェクト選択]
   text: 画面上のクリック位置から、3D 空間のどの物体を指したかを求めること。
+  link: 3d/picking-raycast.md
 - terms: [AABB, 軸平行境界ボックス, バウンディングボックス, 境界ボックス]
   text: 軸に平行な箱（Axis-Aligned Bounding Box）。判定が速い。
+  link: 3d/collision-3d.md
 - terms: [OBB, 有向境界ボックス]
   text: 回転した箱（Oriented Bounding Box）。AABB より正確だが、重い。
+  link: 3d/collision-3d.md
 - terms: [BVH, bounding volume hierarchy, バウンディングボリューム階層]
   text: 物体を箱で包み、木構造にした空間分割。衝突判定やレイキャストを速くする。
+  link: optimize/algorithms.md
 - terms: [ブロードフェーズ]
   text: 衝突判定の第 1 段階。当たりそうな組み合わせを、安く絞り込む。
+  link: 3d/collision-3d.md
 - terms: [ナローフェーズ]
   text: 衝突判定の第 2 段階。絞り込んだ組み合わせを、正確に判定する。
+  link: 3d/collision-3d.md
 - terms: [トンネリング]
   text: 速い物体が、1 フレームで壁を通り抜けてしまう現象。
+  link: gamemath/intersection.md
 - terms: [剛体, rigid body, リジッドボディ, RigidBody]
   text: 形が変わらない、硬い物体。物理シミュレーションの基本単位。
+  link: libs/jolt/bodies.md
 - terms: [ラグドール, ragdoll, Ragdoll]
-  text: 骨ごとの剛体と関節でできた、力の抜けた体の表現。倒れたキャラクターに使う。
+  text: ボーンごとの剛体と関節でできた、力の抜けた体の表現。倒れたキャラクターに使う。
+  link: libs/jolt/character.md
 - terms: [視錐台, frustum, Frustum, フラスタム]
   text: カメラに見える範囲を表す、四角錐を切った形。
+  link: 3d/depth-culling.md
 - terms: [カリング, culling, Culling, 視錐台カリング, バックフェイスカリング]
   text: 見えないものを、描画しないこと（裏向きの面・画面の外・隠れたもの）。
+  link: rendering/culling.md
 - terms: [深度バッファ, Z バッファ, Zバッファ, デプスバッファ, depth buffer, 深度テスト, デプステスト]
   text: ピクセルごとに、一番手前の距離を覚えておき、奥のものを描かないようにする仕組み。
+  link: 3d/depth-culling.md
 - terms: [Z ファイティング]
   text: ほぼ同じ深度の 2 つの面が、ちらちら入れ替わって見える現象。
+  link: 3d/depth-culling.md
 - terms: [ミップマップ, mipmap, ミップ, Mipmap, MIP]
   text: 縮小した画像のセット。遠くの面で使い、ちらつきを抑える。
+  link: 3d/mesh-textures.md
 - terms: [サンプラー, sampler, サンプラ]
   text: テクスチャを読むときのルール（補間・繰り返し・はみ出したときの扱い）。
+  link: 3d/mesh-textures.md
 - terms: [シェーダー, shader, シェーダ, HLSL]
   text: GPU 上で動く、頂点や色を計算する小さなプログラム。
+  link: rendering/pipeline.md
 - terms: [ドローコール, ドロー コール, 描画命令, draw call, Draw Call, ドロー コール数]
   text: CPU が GPU に出す、1 回の描画の命令。多いと CPU が重くなる。
+  link: rendering/draw-calls.md
 - terms: [インスタンシング, instancing, インスタンス描画]
   text: 同じメッシュを、1 回の描画命令で、大量に描く方法。
+  link: rendering/draw-calls.md
 - terms: [LOD, レベルオブディテール, Level of Detail]
   text: 遠くのものを、頂点の少ない簡易なモデルに切り替えること（Level of Detail）。
+  link: rendering/lod.md
 - terms: [PBR, 物理ベースレンダリング, Physically Based Rendering, 物理ベース]
   text: 光の物理的な振る舞いに沿って、陰影を計算する描画。材質は、色・金属度・粗さで表す。
+  link: 3d/pbr.md
 - terms: [IBL]
   text: 周囲の景色の画像（環境マップ）を、光源として使うライティング。
+  link: 3d/pbr.md
 - terms: [BRDF]
   text: ある方向から入った光が、ある方向へ、どれだけ反射するかを表す関数。
+  link: 3d/pbr.md
 - terms: [フレネル]
   text: 浅い角度で見るほど、反射が強くなる現象。
+  link: 3d/pbr.md
 - terms: [トーンマッピング]
   text: 明るさが 1 を超える HDR の値を、画面に出せる 0〜1 の範囲に収める処理。
+  link: 3d/pbr.md
 - terms: [HDR, ハイダイナミックレンジ]
   text: 1 を超える明るさを表せる、ダイナミックレンジの広い画像・計算（High Dynamic Range）。
+  link: 3d/pbr.md
 - terms: [ガンマ補正]
   text: 画面の明るさの特性に合わせて、色の値を変換すること。計算はリニア、表示は sRGB。
+  link: gamemath/color.md
 - terms: [SIMD, ベクトル化, ベクトル命令, AVX, SSE]
   text: 1 つの命令で、複数のデータをまとめて計算する、CPU の機能。
+  link: optimize/simd.md
 - terms: [キャッシュ, cache, Cache, キャッシュミス, キャッシュ効率]
   text: CPU の近くにある、小さくて速いメモリ。使うデータが近くにまとまっているほど速い。
+  link: basics/cache.md
 - terms: [キャッシュライン]
   text: CPU がメモリから一度に読む単位（通常 64 バイト）。
+  link: optimize/memory-cache.md
 - terms: [false sharing]
   text: 別々のスレッドが、同じキャッシュラインの別の変数を書き、互いに遅くなる現象。
+  link: optimize/memory-cache.md
 - terms: [ヒープ, heap, Heap, ヒープ確保]
   text: new や malloc で確保する、自由に使えるメモリ領域。確保・解放に時間がかかる。
+  link: optimize/frame-allocation.md
 - terms: [スタック, stack, Stack, スタック領域]
   text: 関数のローカル変数を置く、高速なメモリ領域。関数を出ると自動で消える。
+  link: optimize/allocation.md
 - terms: [アロケータ, allocator, Allocator, アロケーター, メモリアロケータ]
   text: メモリを貸し出し（確保）、返してもらう（解放）仕組み。
+  link: stl/memory/allocator.md
 - terms: [断片化, フラグメンテーション, fragmentation]
   text: 確保と解放を繰り返して、細かい空きが散らばり、大きな要求に応えられなくなること。
+  link: optimize/allocation.md
 - terms: [アライメント, alignment, 境界, アラインメント]
   text: メモリ上のデータの開始位置を、その型の大きさの倍数に揃えること。
+  link: optimize/memory-cache.md
 - terms: [未定義動作, UB, undefined behavior, Undefined Behavior]
   text: 何が起きても、規格が保証しない操作。配列の範囲外アクセスなど。
+  link: basics/ub.md
 - terms: [RAII, Resource Acquisition Is Initialization]
   text: 資源の取得をコンストラクタ、解放をデストラクタで行う C++ の定番の設計。
+  link: basics/ownership.md
 - terms: [ムーブ, move, Move, ムーブセマンティクス, move semantics]
   text: コピーせず、中身を別の変数に移すこと（std::move）。
+  link: basics/move.md
 - terms: [ポインタ, pointer, Pointer, 生ポインタ, スマートポインタ]
   text: メモリ上の場所（アドレス）を持つ変数。
+  link: basics/pointer.md
 - terms: [テンプレート, template, Template, テンプレート引数]
   text: 型をあとから決められる、コードのひな形。
+  link: basics/template.md
 - terms: [ラムダ式, lambda, Lambda, ラムダ, クロージャ]
   text: その場で書ける、名前のない小さな関数。
+  link: basics/lambda.md
 - terms: [イテレータ, iterator, Iterator, イテレーター]
   text: コンテナの中の、今の位置を指すもの。
+  link: basics/iterator.md
 - terms: [シリアライズ, serialize, serialization, シリアライゼーション, 直列化, デシリアライズ]
   text: データを、ファイルに保存できる形に変換すること。
+  link: engine/serialization/index.md
 - terms: [ベイク, bake, Bake, ベイキング, baking, 焼き込み]
   text: 重い計算を、ビルド時に済ませて、結果をファイルに保存しておくこと。
+  link: optimize/baking.md
 - terms: [ゼロコピー]
   text: 読み込んだメモリを、コピーや作り直しをせずに、そのまま使うこと。
+  link: optimize/serialization-speed.md
 - terms: [constexpr, consteval, constinit, コンパイル時定数]
   text: コンパイル時に計算できることを示す指定。
+  link: optimize/compile-time.md
 - terms: [翻訳単位, translation unit, Translation Unit]
   text: 1 つの .cpp と、それが include したもの全部。コンパイルの単位。
+  link: basics/compiler.md
 - terms: [ODR]
   text: 定義は、プログラム全体で 1 つだけ、という規則（One Definition Rule）。
+  link: basics/compiler.md
 - terms: [プリプロセッサ]
   text: コンパイルの前に、#include や
+  link: vs/preprocessor.md
 - terms: [リンカー]
   text: 複数のオブジェクトファイルとライブラリを、1 つの実行ファイルにつなぐ道具。
+  link: basics/compiler.md
 - terms: [PCH, プリコンパイル済みヘッダー]
   text: 変わらないヘッダを、1 回だけ解析して、結果を再利用する仕組み。
+  link: design/practice/build-cmake.md
 - terms: [ECS, Entity Component System, エンティティ コンポーネント システム]
   text: データ（コンポーネント）と処理（システム）を分けて、大量のオブジェクトを速く扱う設計。
+  link: design/patterns/ecs.md
 - terms: [コンポーネント, component, Component]
   text: オブジェクトの機能を、部品として切り出したもの。
+  link: engine/component.md
 - terms: [ハンドル, handle, Handle]
   text: 消えるかもしれない相手を、番号と世代で安全に指すもの。
+  link: engine/handle.md
 - terms: [ステートマシン, state machine, State Machine, 有限状態機械, FSM]
   text: 状態と、状態の切り替えを、はっきり管理する仕組み。
+  link: design/patterns/state-machine.md
 - terms: [固定タイムステップ, fixed timestep, Fixed Timestep, 固定ステップ, 固定の刻み]
   text: 物理などを、毎回同じ時間の刻みで進める方法。結果が安定する。
+  link: engine/game-loop.md
 - terms: [フレームバジェット]
   text: 1 フレームの時間を、システムごとに配分した予算。
+  link: optimize/frame-budget.md
 - terms: [スパイク]
   text: 平均は良くても、たまに起きる、突然遅いフレーム。
+  link: optimize/frame-budget.md
 - terms: [AoS, Array of Structs, 構造体の配列]
   text: 構造体の配列。1 つの要素の全項目が、隣り合って並ぶ。
+  link: optimize/memory-cache.md
 - terms: [SoA, Struct of Arrays, 配列の構造体]
   text: 配列の構造体。項目ごとに、値が連続して並ぶ。
+  link: optimize/memory-cache.md
 - terms: [accessor]
   text: glTF で、バイナリデータの「読み方」（型・個数・場所）を表すもの。
+  link: libs/tinygltf/structure.md
 - terms: [bufferView]
   text: glTF で、バッファの「どこからどこまで」を表すもの。
+  link: libs/tinygltf/structure.md
 - terms: [IWYU, Include What You Use]
   text: 使っているものの、ヘッダを自分で include し、使わない include は消す、というルールとツール。
+  link: optimize/build-time.md#iwyu
 - terms: [ASan, AddressSanitizer]
   text: 実行中にメモリアクセスを監視して、範囲外アクセスや解放後の使用を、その場で検出するツール。
+  link: vs/asan.md
 - terms: [NOMINMAX]
   text: Windows の min / max マクロを、定義させないためのマクロ。
+  link: vs/preprocessor.md
 - terms: [vcpkg, VCPKG, Vcpkg]
   text: Microsoft が作った、C++ のパッケージ管理ツール。
+  link: vs/libraries.md
 - terms: [即時モード, immediate mode, Immediate Mode, 保持モード]
   text: 毎フレーム、描画の関数を呼ぶだけで GUI が出る方式（ImGui）。
+  link: libs/imgui/basics.md
 - terms: [ドッキング]
   text: ウィンドウを、ドラッグして、ほかのウィンドウの横やタブにくっつける機能。
+  link: libs/imgui/docking.md
 - terms: [ギズモ, gizmo, Gizmo]
   text: 3D の物体を、マウスで移動・回転・拡大するための、矢印や輪の操作部品。
+  link: libs/imgui/imguizmo.md
 - terms: [センサー, sensor, トリガー, Trigger]
   text: 衝突はせず、重なりだけを通知する物体（トリガー）。
+  link: libs/jolt/bodies.md
 - terms: [キネマティック, kinematic, Kinematic]
   text: プログラムが動かす物体。力は受けないが、ほかの物体を押す。
+  link: libs/jolt/bodies.md
 - terms: [スリープ, sleep, 休止, Sleep]
   text: 止まった物体を休止させて、計算を省く仕組み。
+  link: libs/jolt/bodies.md
 - terms: [ソフトボディ]
   text: 布やゴムのように、形が変わる柔らかい物体。
+  link: libs/jolt/vehicles.md
 - terms: [GPU, グラフィックスカード, グラフィックボード]
   text: 描画専用の部品。大量の頂点・ピクセルを、並列に計算する。
+  link: rendering/pipeline.md
 - terms: [CPU]
   text: プログラムを実行する、コンピューターの頭脳。
+  link: rendering/pipeline.md
 - terms: [バッファ, buffer, Buffer]
   text: データを置いておく、メモリの置き場。GPU 用のものは、頂点バッファ・定数バッファなど。
+  link: 3d/mesh-textures.md
 - terms: [定数バッファ, constant buffer, コンスタントバッファ, cbuffer]
   text: 行列や色など、少数の値を、シェーダーに渡すための GPU 側のバッファ。
+  link: 3d/transforms-mvp.md
 - terms: [インデックスバッファ, index buffer, インデックス]
   text: どの頂点で三角形を作るかを、番号で並べたリスト。頂点を使い回せる。
+  link: 3d/model-basics.md
 - terms: [入力レイアウト, input layout, InputLayout]
   text: 頂点バッファの中身の並びを、GPU に教える説明書。
+  link: 3d/model-basics.md
 - terms: [レンダーターゲット, render target, レンダー ターゲット, RTV]
   text: 描画の結果を書き込む先の画像（テクスチャ）。画面そのもの、または画面外のテクスチャ。
+  link: rendering/pipeline.md
 - terms: [SRV, シェーダーリソースビュー, Shader Resource View]
   text: シェーダーから、テクスチャなどを読むための見え方（ビュー）。
+  link: libs/imgui/textures.md
 - terms: [スワップチェーン, swap chain, SwapChain, ダブルバッファ]
   text: 画面に出す画像と、描画中の画像を、交互に入れ替える仕組み。
+  link: rendering/pipeline.md
 - terms: [VSync, 垂直同期]
   text: 画面の更新タイミングに、描画を合わせる設定。フレームを一定にするが、遅延や待ちが出る。
+  link: engine/game-loop.md
 - terms: [FPS, フレームレート, frame rate]
   text: 1 秒あたりに描く枚数（Frames Per Second）。60 FPS ＝ 1 フレーム約 16.6 ミリ秒。
+  link: engine/game-loop.md
 - terms: [デルタタイム, delta time, 経過時間]
   text: 前のフレームから、今のフレームまでの経過時間（秒）。
+  link: engine/game-loop.md
 - terms: [ビューポート, viewport, Viewport]
   text: 描画する、画面上の長方形の領域。
+  link: 3d/projection.md
 - terms: [NDC, 正規化デバイス座標]
   text: 画面の位置を、-1〜1 の範囲で表した座標。
+  link: 3d/transforms-mvp.md
 - terms: [FOV, 視野角, field of view]
   text: カメラが見える角度の広さ。小さいと望遠、大きいと広角。
+  link: 3d/projection.md
 - terms: [クリップ空間, clip space]
   text: 射影行列を掛けた後の座標。ここから w で割ると、NDC になる。
+  link: 3d/transforms-mvp.md
 - terms: [透視投影, perspective]
   text: 遠くのものが小さく見える、遠近感のある投影。
+  link: 3d/projection.md
 - terms: [正射投影, orthographic, 平行投影, 正射影]
   text: 遠近感のない投影。2D・UI・影の計算などで使う。
+  link: 3d/projection.md
 - terms: [右手系, right-handed, RH]
-  text: 座標軸の取り方の 1 つ。右手の親指・人差し指・中指を X・Y・Z に見立てる。SimpleMath・glTF・OpenGL が採用。
+  text: 座標軸の取り方の 1 つ。右手の親指・人差し指・中指を X・Y・Z に見立てる。glTF・OpenGL・SimpleMath の関数・Jolt が採用。
+  link: gamemath/coordinate-systems.md
 - terms: [左手系, left-handed, LH]
-  text: 座標軸の取り方の 1 つ。Unity・DirectXMath の既定などが採用。
+  text: 座標軸の取り方の 1 つ。Z が奥へ伸びる。DirectX・Unity が採用。このサイトの規約。
+  link: gamemath/coordinate-systems.md
 - terms: [行ベクトル, row vector, 行ベクトル規約]
   text: ベクトルを横に並べ、行列を右から掛ける書き方（v × M）。SimpleMath・DirectXMath が採用。
+  link: gamemath/matrices.md
 - terms: [列ベクトル, column vector, 列ベクトル規約]
   text: ベクトルを縦に並べ、行列を左から掛ける書き方（M × v）。数学の教科書・glTF の行列が採用。
+  link: gamemath/matrices.md
 - terms: [転置, transpose]
   text: 行列の行と列を、入れ替えること。
+  link: gamemath/matrices.md
 - terms: [逆行列, inverse]
   text: ある変換を、元に戻す行列。
+  link: gamemath/matrices.md
 - terms: [単位行列, identity]
   text: 何も変えない行列（数の 1 に当たる）。
+  link: gamemath/matrices.md
 - terms: [ビルド, build]
   text: ソースコードを、実行できるファイルにすること（コンパイル ＋ リンク）。
+  link: basics/compiler.md
 - terms: [コンパイラ, compiler, MSVC, Clang, GCC]
   text: ソースコードを、機械が実行できる命令に、翻訳するプログラム。
+  link: basics/compiler.md
 - terms: [最適化, optimization, Optimization]
   text: プログラムの動きを変えずに、速く・軽くすること。
+  link: optimize/index.md
 - terms: [プロファイラー, profiler, Profiler, プロファイル]
   text: どこで時間・メモリを使っているかを測る道具。
+  link: design/practice/performance-design.md
 - terms: [ボトルネック, bottleneck]
   text: 全体の速さを決めている、一番遅い部分。
+  link: rendering/bottlenecks.md
 - terms: [インライン展開, inline, inlining]
   text: 関数の呼び出しを、中身で置き換える最適化。
+  link: optimize/compiler.md
 - terms: [計算量, O 記法, ビッグオー, Big-O]
   text: データが増えたとき、処理の量がどう増えるかの目安。
+  link: basics/big-o.md
 - terms: [スレッド, thread, Thread]
   text: プログラムの中で、同時に進められる処理の流れ。
+  link: stl/concurrency/thread.md
 - terms: [ミューテックス, mutex, Mutex, 排他制御, ロック]
   text: 共有データを、同時に触らないように、鍵をかける仕組み。
+  link: stl/concurrency/mutex.md
 - terms: [アトミック, atomic, 原子操作, Atomic]
   text: 途中で割り込まれず、1 つの操作として完了する操作。
+  link: stl/concurrency/atomic.md
 - terms: [データ競合, data race, レースコンディション, race condition]
   text: 複数のスレッドが、同じデータを、同時に書き換えて壊れる問題。
+  link: basics/concurrency.md
 - terms: [ジョブシステム, job system, JobSystem]
   text: 仕事を小さく分けて、複数のスレッドで、分担して実行する仕組み。
+  link: optimize/multithreading.md
 - terms: [非同期, async, asynchronous]
   text: 処理の完了を待たずに、次の処理を進めること。
+  link: basics/concurrency.md
 - terms: [デッドロック, deadlock]
   text: 複数のスレッドが、互いの鍵を待ち合って、永久に止まる状態。
+  link: basics/concurrency.md
 - terms: [リーク, メモリリーク, leak, memory leak]
   text: 確保したメモリを、返し忘れて、増え続けること。
+  link: optimize/memory-usage.md
 - terms: [ぶら下がり, ダングリング, dangling, ぶら下がりポインタ]
   text: すでに消えたものを、指し続けているポインタ・参照。
+  link: basics/ownership.md
 - terms: [unique_ptr, shared_ptr, smart pointer]
   text: 解放を、自動で行うポインタ。
+  link: stl/utilities/unique_ptr.md
 - terms: [所有権, ownership, Ownership]
   text: 誰が、そのものを消す責任を持つか。
+  link: basics/ownership.md
 - terms: [参照, reference, Reference, const 参照]
   text: コピーせずに、同じものを触るための別名。
+  link: basics/reference.md
 - terms: [仮想関数, virtual, vtable, virtual 関数]
   text: 実際の型に応じて、呼ぶ関数が決まる関数。
+  link: basics/virtual.md
 - terms: [継承, inheritance, Inheritance]
   text: 既存のクラスの性質を、引き継いで、新しいクラスを作ること。
+  link: basics/virtual.md
 - terms: [ポリモーフィズム, 多態, polymorphism]
   text: 同じ呼び方で、型によって違う処理をさせること。
+  link: basics/virtual.md
 - terms: [CRTP]
   text: 派生クラスを、基底クラスのテンプレート引数に渡して、仮想関数なしで多態を実現する手法。
+  link: design/patterns/crtp-policy.md
 - terms: [PImpl, Pimpl, ピンプル]
   text: クラスの中身を .cpp に隠して、ヘッダの依存を減らす手法。
+  link: design/patterns/pimpl.md
 - terms: [ファクトリ, factory, Factory]
   text: オブジェクトを作る処理を、1 か所にまとめる設計。
+  link: design/patterns/factory.md
 - terms: [シングルトン, singleton, Singleton]
   text: インスタンスが、1 つだけであることを保証する設計。使いすぎに注意。
+  link: design/patterns/singleton.md
 - terms: [オブザーバー, observer, イベントシステム, event]
   text: 起きたことを、興味のある相手に、相手を知らずに通知する設計。
+  link: design/patterns/event.md
 - terms: [依存性の注入, DI, dependency injection]
   text: 使う相手を、内部で作らず、外から渡す設計。
+  link: design/patterns/dependency-injection.md
 - terms: [リファクタリング, refactoring]
   text: 動きを変えずに、中の作りを、読みやすく直すこと。
+  link: design/practice/refactoring-smells.md
 - terms: [アンチパターン, anti-pattern]
   text: よくやってしまうが、あとで困る書き方。
+  link: design/practice/anti-patterns.md
 - terms: [オブジェクトプール, object pool, プール]
   text: 作っては消すものを、あらかじめ用意して、使い回す仕組み。
+  link: design/patterns/object-pool.md
 - terms: [ゲームループ, game loop, メインループ]
   text: 入力 → 更新 → 描画を、繰り返し続ける、ゲームの中心の処理。
+  link: engine/game-loop.md
 - terms: [シーン, scene, Scene]
   text: タイトル・ゲーム・リザルトなど、1 つの画面のまとまり。
+  link: engine/scene.md
 - terms: [アセット, asset, Asset]
   text: ゲームで使う、画像・音・モデル・データなどの素材。
+  link: engine/resource.md
 - terms: [ロード, load, ストリーミング, streaming]
   text: ファイルから、データをメモリに読み込むこと。
+  link: optimize/loading.md
 - terms: [パッケージ, pak, アーカイブ]
   text: 複数のファイルを、1 つにまとめたもの。
+  link: engine/resource.md
 - terms: [JSON]
   text: 人が読める、データの書き方（テキスト形式）。
+  link: libs/serialization/nlohmann-json.md
 - terms: [YAML]
   text: 人が書きやすい、データの書き方。インデントで構造を表す。
+  link: libs/serialization/rapidyaml.md
 - terms: [バイナリ, binary, Binary]
   text: 人が読めない、機械向けのデータ形式。小さく・速く読める。
+  link: engine/serialization/index.md
 - terms: [エンディアン, endian, リトルエンディアン]
   text: 複数バイトの数値を、メモリに並べる順序。
+  link: engine/serialization/index.md
 - terms: [UTF-8, UTF8]
   text: 世界中の文字を表す文字コード。ASCII と互換で、現在の標準。
+  link: encoding/unicode-basics.md
 - terms: [UTF-16, wstring, wchar_t]
   text: Windows の内部で使われる文字コード。
+  link: encoding/unicode-basics.md
 - terms: [ASCII, アスキー]
   text: 英数字と記号の 128 文字だけの、最も基本的な文字コード。
+  link: encoding/unicode-basics.md
 - terms: [Shift_JIS, CP932, SJIS]
   text: 日本語 Windows の古い文字コード（ANSI）。
+  link: encoding/unicode-basics.md
 - terms: [BOM, バイトオーダーマーク]
   text: ファイルの先頭に付く、文字コードを示す印。UTF-8 では付けない。
+  link: encoding/unicode-basics.md
 - terms: [文字化け, mojibake]
   text: 保存と読み込みで、文字コードが違い、文字が崩れる現象。
+  link: encoding/mojibake.md
 - terms: [glTF, glb, GLTF]
   text: Khronos が作った、公開仕様の 3D モデル形式。ゲーム・Web の配布向き。
+  link: libs/tinygltf/index.md
 - terms: [FBX]
   text: Autodesk の 3D モデル形式。制作ツールの間で、広く使われる。
+  link: libs/ufbx/index.md
 - terms: [OBJ, Wavefront]
   text: 単純なテキスト形式の 3D モデル。メッシュとマテリアルだけ。
+  link: libs/model-loading.md
 - terms: [マテリアル, material, Material]
   text: モデルの質感の設定（色・ツヤ・金属度など）。
+  link: 3d/pbr.md
 - terms: [アルベド, albedo, ベースカラー, base color]
   text: 物体そのものの色（光の当たり方を含まない）。
+  link: 3d/pbr.md
 - terms: [メタリック, 金属度, metallic, Metallic]
   text: 金属かどうかを表す値。0 が非金属、1 が金属。
+  link: 3d/pbr.md
 - terms: [ラフネス, 粗さ, roughness, Roughness]
   text: 表面の粗さ。0 が鏡、1 がざらざら。
+  link: 3d/pbr.md
 - terms: [アンビエントオクルージョン, AO, 環境光遮蔽]
   text: 凹みや隙間の、光が届きにくい部分を暗くする表現。
+  link: 3d/pbr.md
 - terms: [ライトマップ, lightmap]
   text: 静的な光と影を、テクスチャに焼き込んだもの。
+  link: optimize/baking.md
 - terms: [ナビメッシュ, navmesh, NavMesh]
   text: 歩ける場所を、多角形で表した、経路探索用のデータ。
+  link: libs/recast/overview.md
 - terms: [コライダー, collider, Collider]
   text: 衝突判定に使う、単純な形（箱・球・カプセルなど）。
+  link: libs/jolt/shapes.md
 - terms: [レイヤー, ObjectLayer, 衝突レイヤー]
   text: どの種類の物体どうしを衝突させるかを決める、分類。
+  link: libs/jolt/layers.md
 - terms: [制約, constraint, Constraint, ヒンジ]
   text: 2 つの物体の動きを、つなぐ仕組み（ヒンジ・バネ・固定など）。
+  link: libs/jolt/constraints.md
 - terms: [摩擦, friction, 反発, restitution]
   text: 物体どうしの、滑りにくさ・跳ね返りやすさ。
+  link: libs/jolt/bodies.md
 - terms: [重心, center of mass, 質量中心]
   text: 物体の質量の、平均的な位置。
+  link: libs/jolt/bodies.md
 - terms: [サブステップ, substep]
   text: 物理を、1 回進める、小さな時間の刻み。
+  link: libs/jolt/system.md
 - terms: [決定性, determinism, deterministic]
   text: 同じ入力から、いつも同じ結果になる性質。
+  link: gamemath/numeric.md
 - terms: [ImGui, イムグイ, Dear ImGui]
   text: ゲームのデバッグ画面などを、数行で作れる GUI ライブラリ。
+  link: libs/imgui/index.md
 - terms: [ウィジェット, widget, Widget]
   text: ボタンやスライダーなど、画面上の操作部品。
+  link: libs/imgui/widgets.md
 - terms: [ツールチップ, tooltip]
   text: マウスを乗せると出る、小さな説明。
+  link: libs/imgui/widgets.md
 - terms: [インスペクター, inspector]
   text: 選んだオブジェクトの、中身を見て編集する画面。
+  link: libs/imgui/debug-ui.md
 - terms: [DPI, 高 DPI]
   text: 画面の細かさ。高いと、文字や部品が小さく見える。
+  link: libs/imgui/style.md#dpi
 - terms: [フォントアトラス, font atlas, グリフ]
   text: 文字の絵を、1 枚のテクスチャに詰めたもの。
+  link: libs/imgui/fonts.md
 - terms: [デバッグ描画, debug draw, DebugRenderer]
   text: 衝突の形などを、線で画面に表示する機能。
+  link: libs/jolt/debug-renderer.md
 - terms: [アサート, assert, ASSERT]
   text: 条件が満たされないとき、開発中にプログラムを止める仕組み。
+  link: design/practice/logging-debug.md
 - terms: [リンクエラー, LNK2019, LNK2005]
   text: リンクの段階で出るエラー。定義が見つからない・重複している。
+  link: vs/errors.md
 - terms: [CMake, cmake]
   text: ビルドの設定を書いて、各環境のプロジェクトを作る道具。
+  link: design/practice/build-cmake.md
 - terms: [Ninja, ninja]
   text: 速く並列にビルドする、ビルド道具。
+  link: vs/ninja.md
 - terms: [プロパティシート, props]
   text: Visual Studio の、ビルド設定をまとめたファイル。
+  link: vs/setup.md
 - terms: [ソリューション, sln, vcxproj]
   text: Visual Studio で、複数のプロジェクトをまとめる入れ物と、その中の 1 つの単位。
+  link: vs/setup.md
 - terms: [ホットリロード, hot reload]
   text: ゲームを動かしたまま、データやコードの変更を反映すること。
 - terms: [ベンチマーク, benchmark]
   text: 小さな処理の速さを、測って比べること。
+  link: optimize/measure.md
 - terms: [ウォームアップ, warm-up]
   text: 測る前に、一度動かして、キャッシュなどを温めておくこと。
+  link: optimize/measure.md
 - terms: [コヨーテタイム, coyote time]
   text: 足場から離れた直後、少しの間だけ、ジャンプを許す操作感の工夫。
+  link: gamemath/motion.md
 - terms: [ボクセル, voxel]
   text: 3D の、小さな立方体のマス（ブロック）。
+  link: libs/recast/build.md
 - terms: [プロシージャル, procedural]
   text: データを手で作らず、規則（アルゴリズム）で自動生成すること。
+  link: gamemath/random.md
 - terms: [インターリーブ, interleave]
   text: 位置・法線・UV を、1 頂点ずつ、交互に並べること。
+  link: optimize/data-layout.md
 - terms: [スパースセット, sparse set]
   text: 番号から、素早く値を引け、連続した配列として回せるデータ構造。
+  link: design/patterns/ecs.md
 - terms: [リングバッファ, ring buffer, 循環バッファ]
   text: 決まった大きさの配列を、ぐるぐる使い回すバッファ。
+  link: optimize/frame-allocation.md
 - terms: [ハッシュ, hash, Hash, ハッシュ値]
   text: データから作る、固定長の数値。同じ入力は、同じ値になる。
+  link: stl/utilities/hash.md
 - terms: [衝突, collision, Collision]
   text: 物体どうしが、重なること。
+  link: 3d/collision-3d.md
 - terms: [ブレンド, blend, Blend, ブレンドツリー]
   text: 複数のアニメーションや色を、混ぜ合わせること。
+  link: 3d/skinning-animation.md
 - terms: [キーフレーム, keyframe, Keyframe]
   text: アニメーションで、ある時刻の姿勢を記録した点。間は補間する。
+  link: 3d/skinning-animation.md
 - terms: [逆運動学, IK, inverse kinematics]
   text: 手先などの目標位置から、関節の角度を逆算する方法。
+  link: 3d/skinning-animation.md
 - terms: [ルートモーション, root motion]
   text: アニメーションに含まれる、キャラクター自体の移動。
+  link: 3d/skinning-animation.md
 - terms: [ステートの切り替え, 状態の切り替え, ステート変更, パイプライン ステート, PSO]
   text: シェーダー・ブレンド・深度設定などの、描画の「設定」を変えること。ドロー コールより重いことがある。DX12 では設定一式を PSO（パイプライン ステート オブジェクト）にまとめる。
+  link: rendering/draw-calls.md
 - terms: [バッチ, batch, Batch, バッチング]
   text: 複数の物体を、まとめて 1 回の描画命令で描くこと。ドロー コールの回数を減らすための工夫。
+  link: rendering/draw-calls.md
 - terms: [CPU バウンド, CPU bound, CPU がボトルネック]
   text: 描画の命令を作る CPU 側の処理が遅く、GPU が待たされている状態。解像度を下げても速くならない。
+  link: rendering/bottlenecks.md
 - terms: [GPU バウンド, GPU bound, GPU がボトルネック]
   text: GPU の描画処理が遅く、CPU が待たされている状態。解像度を下げると速くなるのが目印。
+  link: rendering/bottlenecks.md
 - terms: [フレームタイム, frame time, フレーム時間]
   text: 1 フレームにかかる時間（ミリ秒）。60 FPS なら約 16.7 ms。FPS より、足し引きしやすい。
+  link: optimize/frame-budget.md
 - terms: [ラスタライズ, rasterize, ラスタライザ, rasterizer, ラスタライザー]
   text: 三角形を、画面のどのピクセルに当たるかに変換する処理（GPU の固定機能）。
+  link: rendering/pipeline.md
 - terms: [ピクセルシェーダー, pixel shader, フラグメントシェーダー, fragment shader]
   text: 画面の 1 ピクセルごとに動き、その色を計算するシェーダー。重くなりやすい。
+  link: rendering/pipeline.md
 - terms: [頂点シェーダー, vertex shader]
   text: 頂点 1 つごとに動き、位置を変換するシェーダー。
+  link: rendering/pipeline.md
 - terms: [コンピュートシェーダー, compute shader, コンピュート シェーダー]
   text: 描画ではなく、汎用の計算を GPU でさせるシェーダー。ライト カリングや GPU カリングに使う。
+  link: rendering/gpu-driven.md
 - terms: [ROP, レンダー出力]
   text: 計算した色を、レンダーターゲットに書き込み・ブレンドする、GPU の最終段。
+  link: rendering/bandwidth.md
 - terms: [メモリ帯域幅, 帯域幅, 帯域, bandwidth, Bandwidth, メモリ帯域]
   text: メモリが 1 秒に送れるデータ量（GB/s）。画面サイズのテクスチャを何度も読み書きすると、ここが足りなくなる。
+  link: rendering/bandwidth.md
 - terms: [VRAM, ビデオメモリ, グラフィックスメモリ]
   text: GPU 専用のメモリ。テクスチャ・バッファ・レンダーターゲットを置く。
+  link: rendering/texture-streaming.md
 - terms: [オーバードロー, overdraw, Overdraw]
   text: 同じピクセルを何度も塗ること。隠れて見えなくなる分の計算が無駄になる。
+  link: rendering/overdraw.md
 - terms: [Early-Z, Early Z, アーリーZ, 早期深度テスト]
   text: ピクセルシェーダーの前に深度テストをして、隠れたピクセルの計算を省く、GPU の自動の最適化。
+  link: rendering/overdraw.md
 - terms: [Z プリパス, Zプリパス, 深度プリパス, depth prepass, Z prepass]
   text: 色の計算の前に、深度だけを先に描くパス。後の色のパスで、隠れた部分の計算を省ける。
+  link: rendering/overdraw.md
 - terms: [クアッド, quad overdraw, クアッドオーバードロー]
   text: GPU がピクセルを 2×2 の 4 つ組で実行する単位。小さな三角形だと、無駄になる計算が多い。
+  link: rendering/overdraw.md
 - terms: [Forward, フォワード, フォワードレンダリング, Forward Rendering]
   text: 物体を描くときに、その場でライティングまで計算する方式。ライトが多いと重い。
+  link: rendering/forward-deferred.md
 - terms: [Deferred, ディファード, ディファードレンダリング, Deferred Rendering, ディファードシェーディング]
   text: まず物体の情報を G-Buffer に書き、後で画面全体にライティングする方式。ライトが多くても、ピクセル数に比例した重さで済む。
+  link: rendering/forward-deferred.md
 - terms: [G-Buffer, Gバッファ, ジーバッファ, GBuffer]
   text: Deferred で、各ピクセルの色・法線・粗さなどを書いておく、画面サイズのテクスチャ群。
+  link: rendering/forward-deferred.md
 - terms: [ライトボリューム, light volume, ライト ボリューム]
   text: ライトが届く範囲を表す球や円錐。その範囲のピクセルだけを、ライティングする。
+  link: rendering/forward-deferred.md
 - terms: [Tiled, タイルド, Tiled Deferred, Tiled Forward, Forward+, フォワードプラス]
   text: 画面を 16×16 ほどのタイルに分け、タイルごとに影響するライトを絞り込む方式。
+  link: rendering/light-culling.md
 - terms: [Clustered, クラスタード, Clustered Deferred, Clustered Forward]
   text: 画面を奥行き方向にも分けた 3D の格子（クラスター）ごとに、ライトを絞る方式。奥行きが大きく違う場面に強い。
+  link: rendering/light-culling.md
 - terms: [ライトカリング, light culling, ライト カリング]
   text: 画面の各領域に、影響するライトだけを割り当てて、無駄なライト計算を省くこと。
+  link: rendering/light-culling.md
 - terms: [groupshared, グループ共有メモリ]
   text: コンピュートシェーダーで、同じスレッドグループ内のスレッドが共有する、高速な小さなメモリ。
+  link: rendering/light-culling.md
 - terms: [スレッドグループ, thread group, ワープ, warp, ウェーブ, wavefront]
   text: GPU が一緒に動かす、数十スレッドの組（NVIDIA はワープ、AMD はウェーブ）。同じ命令を同時に実行する。
+  link: rendering/shader-cost.md
 - terms: [ダイバージェンス, divergence]
   text: 同じ組のスレッドが、別々の分岐に進むこと。両方の道を順に実行するので遅くなる。
+  link: rendering/shader-cost.md
 - terms: [占有率, オキュパンシー, occupancy, Occupancy]
   text: GPU が同時に動かせるウェーブの数。多いほど、メモリ待ちを他のウェーブで隠せる。
+  link: rendering/shader-cost.md
 - terms: [レジスタ, register]
   text: シェーダーが使う、一時変数の置き場。多く使うと、同時に動かせる組が減る。
+  link: rendering/shader-cost.md
 - terms: [ALU]
   text: 足し算・掛け算などを行う、GPU の計算部分。
+  link: rendering/shader-cost.md
 - terms: [FP16, 半精度, min16float]
   text: 16 ビットの小数。32 ビットより精度は低いが、レジスタと演算が半分で済む。
+  link: rendering/shader-cost.md
 - terms: [異方性フィルタリング, 異方性, ミップレベル, mip level]
   text: ミップレベルは、遠い面ほど小さなミップを選ぶ仕組みの段数。異方性フィルタリングは、斜めに見える面で、ぼやけを減らす。
+  link: rendering/texture-streaming.md
 - terms: [BC 圧縮, BC7, BC1, BC3, BC5, DXT, ブロック圧縮, テクスチャ圧縮, 圧縮テクスチャ]
   text: テクスチャを GPU が直接読める形で小さくする方式。メモリと帯域を節約できる。
+  link: rendering/texture-streaming.md
 - terms: [テクスチャアトラス, texture atlas, アトラス, テクスチャ配列, texture array]
   text: 小さな画像を 1 枚にまとめたもの（アトラス）や、同じ大きさの画像を重ねたもの（配列）。テクスチャの切り替えを減らせる。
+  link: rendering/draw-calls.md
 - terms: [バインドレス, bindless, Bindless]
   text: テクスチャを、切り替えずに、番号で直接参照できる仕組み。1 回の描画で多数の材質を扱える。
+  link: rendering/gpu-driven.md
 - terms: [インダイレクト描画, indirect draw, Indirect Draw, DrawIndexedInstancedIndirect, ExecuteIndirect]
   text: 描画の引数（個数・開始位置）を、GPU 上のバッファから読んで描く方式。GPU 自身が描画内容を決められる。
+  link: rendering/gpu-driven.md
 - terms: [GPU Driven, GPU ドリブン, GPU Driven Rendering]
   text: カリングと描画命令の作成を、CPU ではなく GPU にやらせる方式。物体が数万個あっても CPU の負担が増えない。
+  link: rendering/gpu-driven.md
 - terms: [Meshlet, メッシュレット, meshlet]
   text: メッシュを、64 頂点ほどの小さな塊に分けたもの。塊ごとにカリングできる。
+  link: rendering/mesh-shaders.md
 - terms: [Mesh Shader, メッシュシェーダー, メッシュ シェーダー, Task Shader, Amplification Shader]
   text: Meshlet を直接処理する、新しいシェーダー段（DX12 Ultimate）。従来の頂点処理を置き換える。
+  link: rendering/mesh-shaders.md
 - terms: [Visibility Buffer, ビジビリティバッファ, 可視性バッファ]
   text: 材質の値の代わりに、三角形の ID だけを画面に書く方式。G-Buffer より書き込みが少ない。
+  link: rendering/visibility-buffer.md
 - terms: [Hi-Z, HZB, 階層的深度, Hierarchical Z]
   text: 深度バッファを、各段が「範囲内の最も奥の深度」になるように、縮小して重ねたもの。カリングやトレースを速くする。
+  link: rendering/hiz.md
 - terms: [オクルージョンカリング, occlusion culling, オクルージョン カリング]
   text: 他の物体に隠れて見えない物体を、描かないこと。
+  link: rendering/culling.md
 - terms: [フラスタムカリング, frustum culling]
   text: カメラの視界の外にある物体を、描かないこと。
+  link: rendering/culling.md
 - terms: [八分木, Octree, octree, オクツリー, 四分木, Quadtree, quadtree, kd-tree]
   text: 空間を再帰的に分けた木構造。近くの物体を、素早く探したり、まとめて除外できる。
+  link: optimize/algorithms.md
 - terms: [スクリーン空間, screen space, スクリーンスペース]
   text: 画面のピクセル座標で考える空間。SSAO や SSR は、画面の深度を使って計算する。
+  link: rendering/hiz.md
 - terms: [SSAO, GTAO, HBAO]
   text: 画面の深度から、くぼみに生じる暗さ（環境光遮蔽）を近似する方法。
+  link: rendering/hiz.md
 - terms: [SSR, スクリーン空間反射, Screen Space Reflection]
   text: 画面に映っているものだけで、反射を計算する方法。画面外は映らない。
+  link: rendering/hiz.md
 - terms: [バイラテラル, bilateral, アップサンプル, upsample]
   text: 深度などの違いを考慮して、境界をまたいで混ぜないようにするぼかし・拡大。縮小バッファの拡大に使う。
+  link: rendering/low-res-effects.md
 - terms: [ダウンサンプル, downsample, 縮小バッファ, 半分解像度, ハーフ解像度]
   text: 画像を小さくすること。縮小した解像度で効果を計算すると、計算量が大きく減る。
+  link: rendering/low-res-effects.md
 - terms: [ブルーム, bloom, Bloom]
   text: 明るい部分が、にじんで光って見える効果。
+  link: rendering/postprocess.md
 - terms: [被写界深度, DOF, depth of field]
   text: ピントの合った距離以外が、ぼやけて見える効果。
+  link: rendering/postprocess.md
 - terms: [ポストプロセス, post process, ポストエフェクト, post-process]
   text: 描き終わった画面全体に、後から掛ける効果（ブルーム・トーンマップなど）。
+  link: rendering/postprocess.md
 - terms: [TAA, 時間的アンチエイリアシング, テンポラル, temporal, TAAU]
   text: 毎フレーム少しずらして描き、過去のフレームと混ぜて、ギザギザや細かいノイズを滑らかにする方法。
+  link: rendering/taa-upscaling.md
 - terms: [アンチエイリアシング, anti-aliasing, MSAA, FXAA, ジャギー]
   text: 斜めの線のギザギザ（ジャギー）を、目立たなくする処理。
+  link: rendering/taa-upscaling.md
 - terms: [DLSS, FSR, アップスケーラ, アップスケール, upscaling, XeSS]
   text: 低い解像度で描いた画面を、高い解像度へ拡大して、きれいに見せる技術。
+  link: rendering/taa-upscaling.md
 - terms: [動的解像度, dynamic resolution]
   text: 負荷に応じて、描画の解像度をフレームごとに変える方法。
+  link: rendering/taa-upscaling.md
 - terms: [VRS, 可変レートシェーディング, variable rate shading]
   text: 画面の場所ごとに、シェーディングの細かさを変える機能（DX12 Ultimate）。
+  link: rendering/taa-upscaling.md
 - terms: [非同期コンピュート, async compute, Async Compute]
   text: 描画とコンピュートを、別のキューで同時に走らせて、GPU の空きを埋める方法。
+  link: rendering/async-compute.md
 - terms: [カスケードシャドウマップ, CSM, Cascaded Shadow Maps, カスケード, シャドウマップ, shadow map, 影マップ]
   text: 影を、カメラの近くは細かく、遠くは粗く、複数枚の影マップで描く方法。
+  link: rendering/shadows.md
 - terms: [PCF, Percentage Closer Filtering, ソフトシャドウ]
   text: 影マップを、周囲の複数点で比べて平均し、影の縁を滑らかにする方法。
+  link: rendering/shadows.md
 - terms: [インポスター, impostor, ビルボード, billboard]
   text: 遠くの物を、常にカメラに向く 1 枚の画像で代用する方法。
+  link: rendering/lod.md
 - terms: [バーチャルテクスチャ, virtual texture, ミップストリーミング, テクスチャストリーミング]
   text: 巨大なテクスチャを、必要な部分・必要なミップだけメモリに置く方法。
+  link: rendering/texture-streaming.md
 - terms: [パーティクル, particle, Particle, パーティクルシステム]
   text: 煙・火花・雨など、小さな板を大量に飛ばして表現する効果。
+  link: rendering/particles.md
 - terms: [半透明, アルファブレンド, alpha blend, アルファテスト, alpha test, 透過]
   text: 後ろが透けて見える描き方。奥から順に重ねる必要があり、Early-Z が効きにくく、重くなりやすい。
+  link: rendering/particles.md
 - terms: [PIX, RenderDoc, Nsight, Nsight Graphics, Radeon GPU Profiler, GPU プロファイラ]
   text: GPU の描画を調べるツール。ドロー コールごとの時間・状態・シェーダーを確認できる。
+  link: rendering/tools.md
 - terms: [DirectX 11, DX11, D3D11, Direct3D 11]
   text: Windows の描画 API の 1 つ。このサイトの描画の例は、これを使っている。
+  link: libs/imgui/basics.md
 - terms: [DirectX 12, DX12, D3D12, Direct3D 12, Vulkan]
   text: 描画の細かい制御を、プログラマが行う新しい API。ドライバの仕事が少なく、CPU の負担を減らせるが、実装が難しい。
+  link: libs/imgui/dx12.md
 - terms: [DirectX 12 Ultimate, DX12 Ultimate, レイトレーシング, ray tracing, DXR]
   text: DX12 の新機能の一式（メッシュ シェーダー・レイトレーシング・VRS など）。対応 GPU が必要。
+  link: rendering/mesh-shaders.md
 - terms: [ドライバ, driver, グラフィックスドライバ, GPU ドライバ]
   text: API の命令を、GPU のハードウェア命令に変換するソフトウェア。DX11 では、この処理が CPU の負担になる。
+  link: rendering/draw-calls.md
 - terms: [同期待ち, ストール, stall, 読み戻し, readback]
   text: CPU と GPU が、互いの完了を待って止まること。GPU の結果を CPU で読むと、起きやすい。
+  link: rendering/gpu-driven.md
 - terms: [フェンス, fence, Fence, バリア, barrier]
   text: GPU の処理の順序や完了を、同期するための仕組み。
+  link: rendering/async-compute.md
 - terms: [InterlockedAdd, アトミックカウンター]
   text: 複数のスレッドが同時に使っても、壊れない、加算の操作。
+  link: rendering/gpu-driven.md
 - terms: [構造化バッファ, StructuredBuffer, structured buffer, RWStructuredBuffer, UAV]
   text: 構造体の配列を GPU に置くバッファ。UAV は、シェーダーから書き込める形のビュー。
+  link: rendering/gpu-driven.md
 - terms: [頂点キャッシュ, vertex cache]
   text: 変換済みの頂点を、一時的に覚えておき、同じ頂点を共有する三角形で再利用する、GPU の仕組み。
+  link: rendering/mesh-shaders.md
 - terms: [法線の円錐, normal cone, Normal Cone]
   text: 塊の全ての三角形の向きを、1 つの円錐で表したもの。裏向きの塊を、まとめて除外できる。
+  link: rendering/mesh-shaders.md
 - terms: [重心座標, barycentric, バリセントリック]
   text: 三角形の中の点を、3 頂点からの重みで表す座標。頂点の属性（UV・法線）の補間に使う。
+  link: gamemath/interpolation.md
 - terms: [境界球, bounding sphere, バウンディングスフィア, 境界ボリューム, bounding volume]
   text: 物体を包む球や箱。判定を速くするため、複雑な形の代わりに使う。
+  link: gamemath/intersection.md
 - terms: [アルファ, alpha, Alpha, 不透明度]
   text: 色の透け具合を表す値。0 で完全に透明、1 で不透明。
+  link: gamemath/color.md
 - terms: [RGBA, RGBA8, R11G11B10, DXGI_FORMAT, ピクセルフォーマット, テクスチャフォーマット]
   text: ピクセルの色の、データの形。ビット数が少ないほど、メモリと帯域が節約できる。
+  link: rendering/bandwidth.md
 - terms: [フィルレート, fill rate]
   text: GPU が、1 秒に塗れるピクセル数。解像度やオーバードローが増えると、足りなくなる。
+  link: rendering/bottlenecks.md
 - terms: [スループット, throughput, レイテンシ, latency]
   text: スループットは、単位時間に処理できる量。レイテンシは、1 つの結果が出るまでの待ち時間。
+  link: rendering/bandwidth.md
 - terms: [並列, parallel, 並列処理, 並列化]
   text: 複数の処理を、同時に行うこと。GPU は、数千の並列処理が得意。
+  link: optimize/multithreading.md
 - terms: [パッキング, packing]
   text: 複数のデータを、1 つの領域に詰め込むこと。
+  link: rendering/bandwidth.md
 - terms: [量子化, quantization, quantize]
   text: 値の精度を落として（細かさを減らして）、小さなビット数で表すこと。メモリと帯域を節約する。
+  link: rendering/bandwidth.md
 - terms: [LUT, ルックアップテーブル, lookup table, 事前計算, precompute]
   text: 計算結果を、先に表にしておき、実行時は、表を引くだけにする方法。
+  link: rendering/postprocess.md
 - terms: [近似式, 近似]
   text: 正確な計算の代わりに、軽くて、十分に近い値を出す式。
+  link: gamemath/trigonometry.md
 - terms: [ランタイム, runtime, Runtime, 実行時]
   text: プログラムが、実際に動いているとき。ビルド時の反対。
+  link: optimize/baking.md
 - terms: [ビルド時, build time, コンパイル時, compile time, オフライン処理]
   text: 実行前（ビルドのとき）に済ませておく処理。重い計算を、ここへ移すと、実行時が軽くなる。
+  link: optimize/baking.md
 - terms: [ヒステリシス, hysteresis]
   text: 切り替える境目に、余裕（幅）を持たせて、行ったり来たりのちらつきを防ぐこと。
+  link: rendering/lod.md
 - terms: [ポップイン, popping, pop-in, LOD ポップ]
   text: 物体や詳細度が、突然、現れたり切り替わったりして、目立つこと。
+  link: rendering/lod.md
 - terms: [ディザ, dither, ディザリング, dithering, ディザフェード]
   text: 点の細かい模様で、半透明や、切り替えを、ごまかす方法。
+  link: rendering/lod.md
 - terms: [フォグ, fog, Fog, ボリューメトリックフォグ, volumetric fog]
   text: 遠くが霞んで見える効果。ボリューメトリックは、光の筋なども表せる。
+  link: rendering/postprocess.md
 - terms: [静的ライティング, 動的ライト, dynamic light, 静的ライト]
   text: 動かない光は、事前に計算して保存し（静的）、動く光だけ実行時に計算する（動的）。
+  link: optimize/baking.md
+- terms: [ライブラリ, library]
+  text: 他の人が作った、再利用できるプログラムの部品の集まり。自分のプロジェクトに組み込んで使う。
+  link: vs/libraries.md
+- terms: [フレーム, frame]
+  text: ゲームが 1 回画面を描き直す、1 コマ。60 FPS なら 1 秒に 60 フレーム。
+  link: engine/game-loop.md
+- terms: [オブジェクト, object]
+  text: データと、それを扱う処理をまとめたもの。ゲームでは、キャラクターや弾など、画面に出る物を指すことも多い。
+  link: basics/virtual.md
+- terms: [デバッグ, debug, デバッガー, デバッガ, debugger]
+  text: プログラムの間違い（バグ）を見つけて直すこと。止めて中を見る道具が、デバッガー。
+  link: vs/debugging.md
+- terms: [プロジェクト, project]
+  text: Visual Studio などで、1 つのプログラムを作るための、ファイルや設定のまとまり。
+  link: vs/setup.md
+- terms: [コンパイル, compile, コンパイルエラー]
+  text: C++ のソースコードを、コンピューターが実行できる形に変換すること。間違いがあると、コンパイル エラーになる。
+  link: basics/compiler.md
+- terms: [ピクセル, pixel]
+  text: 画面を作る、小さな点 1 つ。1920×1080 の画面なら、約 207 万個ある。
+  link: rendering/pipeline.md
+- terms: [アニメーション, animation]
+  text: 時間とともに、動きや見た目を変えること。キャラの動き、UI の動きなど。
+  link: 3d/skinning-animation.md
+- terms: [API, Application Programming Interface]
+  text: プログラムから、ほかの機能（OS・ライブラリ・GPU）を呼び出すための窓口。DirectX も API の 1 つ。
+  link: rendering/pipeline.md
+- terms: [ベクトル, vector]
+  text: 向きと大きさを持つ量。ゲームでは、位置・速度・方向を表す数のならび（x, y, z）。std::vector（配列）とは別物。
+  link: gamemath/vectors.md
+- terms: [ローカル座標, ローカル, local]
+  text: 物体自身を基準にした座標。ワールド座標に変換して、世界の中に置く。
+  link: 3d/transforms-mvp.md
+- terms: [UI, ユーザーインターフェース, ユーザー インターフェース]
+  text: 画面上のボタン・メニュー・体力バーなど、プレイヤーが見て操作する部分。
+  link: libs/imgui/index.md
+- terms: [クラッシュ, crash]
+  text: プログラムが異常な状態になって、強制的に止まること。
+  link: vs/debugging.md
+- terms: [コンテナ, container]
+  text: データをたくさん入れておく入れ物。std::vector・std::map など。
+  link: container-chart.md
+- terms: [リソース, resource]
+  text: ゲームが使う、画像・音・モデルなどのデータ。メモリの確保や解放の対象でもある。
+  link: engine/resource.md
+- terms: [プロパティ, property]
+  text: 物や設定の性質・属性。Visual Studio では、プロジェクトの設定画面を指すことも多い。
+  link: vs/setup.md
+- terms: [コマンド, command]
+  text: 実行する命令。コマンド ラインで入力する文字列や、操作を 1 つの物にしたもの（コマンドパターン）。
+  link: design/patterns/command.md
+- terms: [ゲームエンジン, game engine]
+  text: ゲームを作るための、共通の仕組み（描画・音・物理・入力など）をまとめた土台。
+  link: engine/index.md
+- terms: [AI, 人工知能]
+  text: ゲームでは、敵や味方が自分で考えて動く仕組み。経路探索や、状態に応じた行動の切り替えなど。
+  link: libs/recast/index.md
+- terms: [コンストラクタ, constructor]
+  text: オブジェクトを作るときに、自動で呼ばれる関数。初期化をする。
+  link: design/foundations/class-design.md
+- terms: [デストラクタ, destructor]
+  text: オブジェクトが消えるときに、自動で呼ばれる関数。後片付けをする。
+  link: design/patterns/raii.md
+- terms: [プラットフォーム, platform]
+  text: ゲームが動く環境。Windows・PlayStation・スマートフォンなど。
+  link: vs/index.md
+- terms: [スコープ, scope]
+  text: 変数が使える範囲。{ } の中で作った変数は、その外では使えない。
+  link: design/patterns/raii.md
+- terms: [インクルード, include, "#include"]
+  text: 他のファイル（ヘッダ）の内容を、その場所に取り込む命令。
+  link: design/foundations/header-source.md
+- terms: [アドレス, address, メモリアドレス]
+  text: メモリの、場所を表す番号。ポインタは、このアドレスを入れる変数。
+  link: basics/pointer.md
+- terms: [OS, オペレーティングシステム]
+  text: Windows などの、コンピューター全体を管理する基本のソフトウェア。
+  link: vs/index.md
+- terms: [ライティング, lighting, ライト, light]
+  text: 光による明るさ・影の計算。物の表面の向き（法線）と、光の向きから決める。
+  link: 3d/lighting-normals.md
+- terms: [パフォーマンス, performance]
+  text: プログラムの速さ・軽さ。ゲームでは、フレームレートや、1 フレームにかかる時間のこと。
+  link: optimize/index.md
+- terms: [フォーマット, format]
+  text: データの形式・並べ方。画像のフォーマット、ピクセルのフォーマットなど。
+  link: rendering/bandwidth.md
+- terms: [パターン, デザインパターン, design pattern]
+  text: よく出てくる困りごとに対する、設計の定番の型。
+  link: design/patterns/index.md
+- terms: [ネットワーク, network]
+  text: 別のコンピューターと通信する仕組み。オンライン対戦など。
+  link: gamemath/numeric.md
+- terms: [ディレクトリ, directory, フォルダー, フォルダ]
+  text: ファイルを入れておく入れ物（フォルダー）。
+  link: basics/file-io.md
+- terms: [グローバル, global, グローバル変数]
+  text: プログラムのどこからでも使える変数や関数。便利だが、使いすぎると直しにくい。
+  link: design/patterns/singleton.md
+- terms: [マニフェスト, manifest]
+  text: 必要なものや設定を、まとめて書いたファイル。vcpkg では、使うライブラリの一覧。
+  link: vs/libraries.md
+- terms: [エフェクト, effect]
+  text: 爆発・光・煙などの、画面の演出。
+  link: rendering/particles.md
+- terms: [DLL, ダイナミックリンクライブラリ]
+  text: 実行時に読み込まれるライブラリのファイル（.dll）。
+  link: vs/libraries.md
+- terms: [スケール, scale, 拡大率]
+  text: 大きさの倍率。拡大・縮小。
+  link: gamemath/matrices.md
+- terms: [HP, ヒットポイント]
+  text: ゲームのキャラクターの体力。0 になるとやられる。
+  link: gamemath/balance.md
+- terms: [GUI, グラフィカル ユーザー インターフェース]
+  text: 画面上の、ボタンやウィンドウを使って操作する仕組み。
+  link: libs/imgui/index.md
+- terms: [パラメータ, parameter]
+  text: 関数や設定に渡す値。
+  link: design/foundations/const-and-passing.md
+- terms: [テーブル, table]
+  text: 値を、決まった並びで表にしたもの。成長曲線の表、ドロップの表など。
+  link: gamemath/balance.md
+- terms: [グリッド, grid, 格子]
+  text: 縦横に等間隔で並べた、マス目。
+  link: gamemath/grids.md
+- terms: [STL, 標準テンプレートライブラリ]
+  text: C++ の標準ライブラリのうち、コンテナ・アルゴリズム・イテレータの部分。
+  link: stl/index.md
+- terms: [インライン]
+  text: 関数の呼び出しを、その中身で置き換える最適化や、ヘッダに書ける関数の指定。
+  link: optimize/compiler.md
+- terms: [インターフェース, interface]
+  text: 外から使うときの、約束事（関数の一覧など）。中身の作りを隠す。
+  link: design/foundations/interface-design.md
+- terms: [MB, メガバイト]
+  text: データの大きさの単位。1 MB は約 100 万バイト。
+  link: optimize/memory-usage.md
+- terms: [GB, ギガバイト]
+  text: データの大きさの単位。1 GB は約 10 億バイト。
+  link: optimize/memory-usage.md
+- terms: [KB, キロバイト]
+  text: データの大きさの単位。1 KB は約 1000 バイト。
+  link: optimize/memory-usage.md
+- terms: [リプレイ, replay]
+  text: プレイの記録を、あとで再生すること。入力と乱数のシードを保存すると、再現できる。
+  link: gamemath/random.md
+- terms: [リテラル, literal]
+  text: コードに直接書いた値。42・3.14f・"文字列" など。
+  link: basics/compiler.md
+- terms: [セーブデータ, save data]
+  text: ゲームの進行状況を、ファイルに保存したもの。
+  link: engine/serialization/index.md
+- terms: [コンソール, console]
+  text: 文字で入出力をする画面。プログラムのログの表示などに使う。
+  link: encoding/console-file-io.md
+- terms: [SDK, Software Development Kit]
+  text: ある機能を使ったアプリを作るための、ライブラリ・ヘッダ・ツールの一式。
+  link: libs/fbxsdk/index.md
+- terms: [デフォルト, default, 既定]
+  text: 何も指定しなかったときに使われる、初期値や初期の動作。
+  link: design/foundations/class-design.md
+- terms: [ソースファイル, source file, ソースコード, source code]
+  text: プログラムを書いたファイル（.cpp・.h）。
+  link: design/foundations/header-source.md
+- terms: [FetchContent]
+  text: CMake の機能で、ライブラリのソースを自動で取得して、ビルドに組み込む。
+  link: vs/cmake.md
+- terms: [リリース, release, リリースビルド]
+  text: 配布用の、最適化されたビルド。デバッグ ビルドより速い。
+  link: basics/compiler.md
+- terms: [タイムステップ, time step, timestep, 時間刻み]
+  text: 物理などのシミュレーションを 1 回進める、時間の長さ。
+  link: engine/game-loop.md
+- terms: [オフセット, offset]
+  text: 基準からの、ずれ・距離。メモリの先頭からの位置など。
+  link: optimize/data-layout.md
+- terms: [PowerShell]
+  text: Windows の、コマンドを入力して操作する画面（シェル）。
+  link: vs/libraries.md
+- terms: [パディング, padding]
+  text: 構造体の中の、アライメントを合わせるための空きバイト。
+  link: optimize/data-layout.md
+- terms: [ハードウェア, hardware]
+  text: コンピューターの機械そのもの（CPU・GPU・メモリなど）。
+  link: rendering/pipeline.md
+- terms: [ライセンス, license]
+  text: ライブラリやデータを使うときの、使用条件。MIT・Apache・GPL など。
+  link: libs/index.md
+- terms: [フィルタ, filter, フィルター, フィルタリング]
+  text: 条件で絞り込む、またはぼかすなどの、データの加工。
+  link: 3d/mesh-textures.md
+- terms: [バックエンド, backend]
+  text: 裏側で実際の処理を行う部分。ImGui では、描画や入力を担当する部品。
+  link: libs/imgui/basics.md
+- terms: [デコード, decode, エンコード, encode]
+  text: データを、別の形式に変換すること。エンコードは作る向き、デコードは読む向き。
+  link: encoding/conversion.md
+- terms: [ジオメトリ, geometry]
+  text: 形のデータ。頂点や三角形の集まり。
+  link: 3d/model-basics.md
+- terms: [カプセル, capsule]
+  text: 円柱の両端を半球にした形。キャラクターの当たり判定によく使う。
+  link: libs/jolt/shapes.md
+- terms: [オーバーフロー, overflow]
+  text: 数が、型の表せる範囲を超えること。int だと、符号付きの場合は未定義動作。
+  link: gamemath/numeric.md
+- terms: [インスタンス, instance]
+  text: クラスから作った、1 つ 1 つの実体。または、同じ形を複数並べて描くときの 1 個分。
+  link: rendering/draw-calls.md
+- terms: [アイコン, icon]
+  text: 小さな絵で機能を表すもの。
+  link: libs/imgui/fonts.md
+- terms: [フィールド, field, メンバ変数]
+  text: クラスや構造体の中にある、データ（変数）。
+  link: design/foundations/class-design.md
+- terms: [シミュレーション, simulation]
+  text: 現実の動きを、計算で再現すること。物理シミュレーションなど。
+  link: gamemath/motion.md
+- terms: [サンプリング, sampling, サンプル]
+  text: 全体から、一部の値を取り出すこと。テクスチャの読み込みや、乱数の抽出など。
+  link: 3d/mesh-textures.md
+- terms: [コンテキスト, context]
+  text: ある処理に必要な、状態や設定のまとまり。DirectX 11 の ID3D11DeviceContext など。
+  link: libs/imgui/basics.md
+- terms: [VS, Visual Studio]
+  text: Microsoft の統合開発環境。このサイトで使う基本の開発ツール。
+  link: vs/index.md
+- terms: [SDL]
+  text: ウィンドウ・入力・音を扱う、クロスプラットフォームのライブラリ。
+  link: libs/imgui/basics.md
+- terms: [CCW, 反時計回り]
+  text: Counter-Clockwise。頂点を反時計回りに並べた面を、表とする決まり。OpenGL・glTF の既定。このサイト（Direct3D の既定）は時計回りが表。
+  link: gamemath/coordinate-systems.md
+- terms: [リポジトリ, repository]
+  text: プログラムの変更履歴を管理する入れ物（Git）。GitHub にも置ける。
+  link: vs/index.md
+- terms: [パイプライン, pipeline]
+  text: 処理を、段階に分けて、順に流す仕組み。描画では、頂点 → ラスタライズ → ピクセルの流れ。
+  link: rendering/pipeline.md
+- terms: [チャンネル, channel]
+  text: 色の成分（R・G・B・A）や、音の系統。
+  link: gamemath/color.md
+- terms: [タイルマップ, tile map, tilemap]
+  text: 小さな絵（タイル）をマス目に並べて作る、2D のマップ。
+  link: gamemath/grids.md
+- terms: [タイムライン, timeline]
+  text: 時間の流れに沿って、出来事や変化を並べたもの。
+  link: libs/imgui/imsequencer.md
+- terms: [スクリプト, script]
+  text: ゲームの動きを、短いコードで書いたもの。C++ とは別の言語で書くことも多い。
+  link: engine/index.md
+- terms: [コールバック, callback]
+  text: 「あとで呼んでね」と渡しておく関数。イベントが起きたときに呼ばれる。
+  link: design/patterns/event.md
+- terms: [CI, 継続的インテグレーション]
+  text: コードを送るたびに、自動でビルドやテストをして、問題を見つける仕組み。
+  link: design/practice/build-cmake.md
+- terms: [ANSI, ANSI コードページ]
+  text: Windows の旧来の文字コード（日本語では Shift_JIS 系）。
+  link: encoding/unicode-basics.md
+- terms: [モバイル, mobile]
+  text: スマートフォン・タブレットなど。
+  link: rendering/bandwidth.md
+- terms: [モジュール, module]
+  text: 機能ごとに分けた、プログラムの部品。
+  link: design/foundations/layers.md
+- terms: [トレース, trace, レイトレース]
+  text: 光線などを、たどって調べること。
+  link: rendering/hiz.md
+- terms: [デバイス, device]
+  text: 機器。DirectX では、GPU を操作するための ID3D11Device などのオブジェクト。
+  link: libs/imgui/basics.md
+- terms: [コミット, commit]
+  text: Git で、変更を履歴として記録すること。
+  link: vs/index.md
+- terms: [キャスト, cast, 型変換]
+  text: ある型の値を、別の型として扱うこと。
+  link: basics/pointer.md
+- terms: [NVIDIA, AMD, Intel]
+  text: GPU（グラフィックスカード）を作っている会社。
+  link: rendering/tools.md
+- terms: [MIT, MIT ライセンス, Apache, GPL]
+  text: ライブラリの使用条件の種類。MIT や Apache は、自由に使いやすい。GPL は、公開の義務が重い。
+  link: libs/index.md
+- terms: [CRT, C ランタイム]
+  text: C の標準ライブラリの、実行時の部分。Visual Studio では、ランタイム ライブラリの設定がある。
+  link: vs/settings.md
+- terms: [ロケール, locale]
+  text: 言語・地域の設定。文字の並べ方や、数の書き方に影響する。
+  link: encoding/windows-api.md
+- terms: [リアルタイム, real-time, realtime]
+  text: 待たずに、その場でただちに処理すること。ゲームは、1 フレームの時間で処理を終える必要がある。
+  link: optimize/frame-budget.md
+- terms: [ラッパー, wrapper]
+  text: 既存の機能を包んで、使いやすくした部品。
+  link: design/patterns/decorator.md
+- terms: [マスターデータ, master data]
+  text: ゲームの、キャラやアイテムの数値などを入れた、基本のデータ。
+  link: design/patterns/factory.md
+- terms: [ヘッダー, ヘッダ, header, ヘッダファイル]
+  text: 関数やクラスの宣言を書いた、C++ のファイル（.h）。
+  link: design/foundations/header-source.md
+- terms: [プロセス, process]
+  text: 実行中のプログラム 1 つ。
+  link: basics/concurrency.md
+- terms: [パーサー, parser, 構文解析]
+  text: 文字列を読んで、意味のある構造に変換するプログラム。
+  link: libs/serialization/nlohmann-json.md
+- terms: [ディスク, disk, SSD, HDD]
+  text: データを保存する装置。SSD は速く、HDD は遅い。
+  link: optimize/loading.md
+- terms: [テクセル, texel]
+  text: テクスチャを構成する、1 つ 1 つの点（テクスチャのピクセル）。
+  link: 3d/mesh-textures.md
+- terms: [タイマー, timer]
+  text: 時間を測る仕組み。
+  link: optimize/measure.md
+- terms: [スライダー, slider]
+  text: つまみを動かして、値を決める部品。
+  link: libs/imgui/widgets.md
+- terms: [スプライト, sprite]
+  text: 2D ゲームで、画面に置く、1 枚の絵。
+  link: rendering/2d.md
+- terms: [スナップショット, snapshot]
+  text: ある時点の状態を、まるごと保存したもの。
+  link: engine/serialization/index.md
+- terms: [シグネチャ, signature]
+  text: 関数の、名前・引数の型・戻り値の型の組み合わせ。
+  link: design/foundations/interface-design.md
+- terms: [RGB, RGBA カラー]
+  text: 赤（R）・緑（G）・青（B）の強さで、色を表す方法。
+  link: gamemath/color.md
+- terms: [PNG, JPG, JPEG, DDS, 画像形式]
+  text: 画像のファイル形式。PNG は劣化がなく、JPG は小さいが劣化する。DDS は GPU 向けの圧縮に対応する。
+  link: rendering/texture-streaming.md
+- terms: [XML, TOML, CSV]
+  text: データを、テキストで書くための形式。
+  link: engine/serialization/index.md
+- terms: [RTS, リアルタイムストラテジー]
+  text: ユニットを大量に動かす、リアルタイムの戦略ゲーム。
+  link: libs/recast/crowd.md
+- terms: [RT]
+  text: Render Target（レンダーターゲット）の略。描画の結果を書く先の画像。
+  link: rendering/pipeline.md
+- terms: [チャンク, chunk]
+  text: 大きなデータを、区切った 1 つのかたまり。マップを一定の大きさに分けたものなど。
+  link: gamemath/grids.md
+- terms: [ステート, state, 状態]
+  text: ある時点の状態。ステートマシンの「状態」や、描画の設定（描画ステート）。
+  link: design/patterns/state-machine.md
+- terms: [スカラー, scalar]
+  text: 向きを持たない、ただの数。ベクトルの対になる言葉。
+  link: gamemath/vectors.md
+- terms: [スイープ, sweep]
+  text: 図形を、動かしながら、その経路で当たりを調べること。
+  link: gamemath/intersection.md
+- terms: [クラスター, クラスタ, cluster]
+  text: 近いものを、まとめたかたまり。描画では、3D の格子の 1 マスや、三角形の塊のこと。
+  link: rendering/light-culling.md
+- terms: [ISO, ICU, ISO 8859]
+  text: 国際的な規格の名前や、文字を扱うライブラリ（ICU）。
+  link: encoding/libraries.md
+- terms: [TRS, 平行移動・回転・拡大]
+  text: Translation（平行移動）・Rotation（回転）・Scale（拡大）の 3 つの変換を、まとめて表す形。
+  link: 3d/transforms-mvp.md
+- terms: [SSO, Small String Optimization]
+  text: 短い文字列を、ヒープを使わず、文字列オブジェクトの中に入れる最適化。
+  link: optimize/strings-hash.md
+- terms: [IDE, 統合開発環境]
+  text: エディタ・ビルド・デバッグを、まとめて使える開発ツール。Visual Studio など。
+  link: vs/index.md
+- terms: [GLFW]
+  text: ウィンドウや入力を扱う、軽量なライブラリ（主に OpenGL・Vulkan 向け）。
+  link: libs/imgui/basics.md
+- terms: [CRLF, LF, 改行コード]
+  text: 改行を表す文字の違い。Windows は CRLF、Unix 系は LF。
+  link: encoding/source-files.md
+- terms: [CCD, 連続衝突判定]
+  text: Continuous Collision Detection。速い物がすり抜けないように、移動の経路で衝突を調べる方法。
+  link: gamemath/intersection.md
+- terms: [SAT, 分離軸定理]
+  text: 2 つの凸形状が、ある軸で離れていれば、交差していないと判定する方法。
+  link: 3d/collision-3d.md
+- terms: [GJK]
+  text: 凸形状どうしの距離や交差を、効率よく調べるアルゴリズム。物理エンジンで使われる。
+  link: 3d/collision-3d.md
+- terms: [PID, PID 制御]
+  text: 目標との差・差の積み重ね・差の変化の速さから、操作量を決める制御。
+  link: gamemath/smoothing.md
+- terms: [HSV, HSL]
+  text: 色相・彩度・明度で色を表す方法。色相を回して、虹色にするのに向く。
+  link: gamemath/color.md
+- terms: [DPS, 秒間ダメージ]
+  text: 1 秒あたりに与えるダメージ。武器の強さの比較に使う。
+  link: gamemath/balance.md
+- terms: [TTK, 倒すまでの時間]
+  text: Time To Kill。敵を倒すまでにかかる時間。戦闘の長さの設計に使う。
+  link: gamemath/balance.md
+- terms: [RK4, ルンゲ・クッタ法]
+  text: 運動方程式を精度よく解く、数値積分の方法。ゲームでは半陰的オイラー法で足りることが多い。
+  link: gamemath/motion.md
+- terms: [ACES]
+  text: 映画の色の標準。トーンマップの方式の 1 つとして、ゲームでも使われる。
+  link: gamemath/color.md
+- terms: [RAM, メインメモリ]
+  text: コンピューターの、メインのメモリ。CPU が使うデータを置く。
+  link: optimize/memory-cache.md
+- terms: [L1, L2, L3, L1 キャッシュ, L2 キャッシュ, L3 キャッシュ]
+  text: CPU のキャッシュの階層。L1 が最も小さく速い。
+  link: optimize/memory-cache.md
+- terms: [スムージング, smoothing, 平滑化]
+  text: 値を、なめらかに変化させること。カメラの追従などに使う。
+  link: gamemath/smoothing.md
+- terms: [ステップ, step]
+  text: 1 つの手順や、1 回の更新。
+  link: gamemath/motion.md
+- terms: [ネイティブ, native]
+  text: そのコンピューター向けに、直接コンパイルされた実行形式。
+  link: basics/compiler.md
+- terms: [ステンシル, stencil, ステンシルテスト]
+  text: 画面に、マスクを作って、描く範囲を制限する仕組み。
+  link: 3d/depth-culling.md
+- terms: [スカイボックス, skybox]
+  text: 空を、箱の 6 面の画像で表す方法。
+  link: 3d/mesh-textures.md
+- terms: [キューブマップ, cubemap]
+  text: 立方体の 6 面の画像。全方向の景色や反射に使う。
+  link: 3d/mesh-textures.md
+- terms: [スポットライト, spotlight, ポイントライト, ディレクショナルライト]
+  text: 光源の種類。スポットは円錐状、ポイントは全方向、ディレクショナルは太陽のように平行な光。
+  link: 3d/lighting-normals.md
+- terms: [タンジェント, tangent, 接線]
+  text: 曲線や面に接する方向。法線マップでは、面に沿った向きの軸。
+  link: 3d/lighting-normals.md
+- terms: [ゴースト, ghost, 残像]
+  text: 過去のフレームを混ぜる処理で、動く物の後ろに、残像が出る現象。
+  link: rendering/taa-upscaling.md
+- terms: [テッセレーション, tessellation]
+  text: 面を、細かく分割して、三角形を増やす処理。
+  link: rendering/lod.md
+- terms: [デカール, decal]
+  text: 壁や地面に、あとから貼る絵。弾痕・血しぶき・看板など。
+  link: 3d/mesh-textures.md
+- terms: [エミッシブ, emissive, 自己発光]
+  text: 光を受けなくても、自分で光る色。
+  link: 3d/pbr.md
+- terms: [アンビエント, ambient, 環境光]
+  text: 周囲から回り込んで届く、弱い光。
+  link: 3d/lighting-normals.md
+- terms: [バイアス, bias]
+  text: 値を、少しずらす補正。影のにじみ（シャドウ アクネ）を防ぐのに使う。
+  link: rendering/shadows.md
+- terms: [ディスクリプタ, descriptor]
+  text: DirectX 12 で、GPU が見るリソース（テクスチャなど）の、場所と形を記した小さなデータ。
+  link: libs/imgui/dx12.md
+- terms: [ゼロベクトル, zero vector]
+  text: 長さが 0 のベクトル（0, 0, 0）。正規化すると、0 で割って NaN になる。
+  link: gamemath/vector-recipes.md
+- terms: [NaN, 非数]
+  text: Not a Number。0÷0 のような、数にならない計算の結果。計算に混ざると、全体が NaN になる。
+  link: gamemath/numeric.md
+- terms: [イプシロン, epsilon, 許容誤差]
+  text: 浮動小数点どうしを比べるときに許す、ごく小さな誤差。
+  link: gamemath/numeric.md
+- terms: [浮動小数点, 浮動小数, floating point, float, double]
+  text: 小数を表す、コンピューターの形式。誤差があるので、== で比べない。
+  link: gamemath/numeric.md
+- terms: [固定小数点, fixed point]
+  text: 整数を使って、小数を表す方法。どの環境でも同じ結果になる。
+  link: gamemath/numeric.md
+- terms: [疑似乱数, 乱数, random, PRNG, シード, seed]
+  text: 規則的な計算で作る、ランダムに見える数の列。同じシードなら、同じ列が出る。
+  link: gamemath/random.md
+- terms: [パーリンノイズ, Perlin noise, ノイズ関数, ノイズ]
+  text: 隣り合う値が、なめらかにつながったランダム。地形・雲などに使う。
+  link: gamemath/random.md
+- terms: [ベジェ曲線, ベジェ, Bezier, ベジエ]
+  text: 制御点で形を決める、なめらかな曲線。
+  link: gamemath/curves.md
+- terms: [スプライン, spline, Catmull-Rom, B スプライン]
+  text: 複数の点を、なめらかにつなぐ曲線。
+  link: gamemath/curves.md
+- terms: [イージング, easing, イーズ]
+  text: 動きの速さに、緩急をつけて、自然に見せる技術。
+  link: gamemath/easing.md
+- terms: [smoothstep, スムーズステップ]
+  text: 0 から 1 へ、なめらかに切り替える関数（3t² - 2t³）。
+  link: gamemath/interpolation.md
+- terms: [リマップ, remap]
+  text: ある範囲の値を、別の範囲の値に写すこと。
+  link: gamemath/interpolation.md
+- terms: [デッドゾーン, dead zone, deadzone]
+  text: スティックを中央付近で倒しても、入力として扱わない範囲。
+  link: gamemath/smoothing.md
+- terms: [偏差射撃, 偏差]
+  text: 動く的に当てるために、弾が届く先の位置を狙うこと。
+  link: gamemath/motion.md
+- terms: [ステアリング, steering]
+  text: 敵などの移動を、目標の速度との差で、操作する方法。追う・逃げる・群れるなど。
+  link: gamemath/vector-recipes.md
+- terms: [ウェイポイント, waypoint]
+  text: 経路の途中に置く、目印の点。
+  link: libs/recast/overview.md
+- terms: [ナビゲーション, navigation]
+  text: 目的地までの道を探して、移動すること。
+  link: libs/recast/overview.md
+- terms: [天井, ピティ, pity]
+  text: ガチャなどで、一定回数で当たりを保証する仕組み。
+  link: gamemath/balance.md
+- terms: [期待値, expected value]
+  text: 何度も繰り返したときの、平均の値。確率と値の積の合計。
+  link: gamemath/balance.md
+- terms: [ドリフト, drift]
+  text: 少しずつ、ずれていくこと。スティックを離しても、わずかに動く現象など。
+  link: gamemath/smoothing.md
+- terms: [オーバーシュート, overshoot, 行き過ぎ]
+  text: 目標を通り過ぎてしまうこと。イージングの Back や、ばねの動きで使う。
+  link: gamemath/easing.md
+- terms: [ヘックス, hex, 六角形グリッド]
+  text: 六角形のマス目。どの隣のマスにも、距離が等しい。
+  link: gamemath/grids.md
+- terms: [アイソメトリック, isometric]
+  text: 斜め上から見下ろした、立体的に見える 2D の表現。
+  link: gamemath/grids.md
+- terms: [極座標, polar]
+  text: 距離と角度で、位置を表す座標。
+  link: gamemath/grids.md
+- terms: [ラジアン, radian]
+  text: 角度の単位。180 度が π ラジアン。C++ の sin・cos はラジアンで受け取る。
+  link: gamemath/trigonometry.md
+- terms: [atan2]
+  text: (y, x) から、方向の角度を求める関数。象限も正しく扱える。
+  link: gamemath/trigonometry.md
+- terms: [ピタゴラスの定理, ピタゴラス]
+  text: 直角三角形の、斜辺の長さが √(a² + b²) になる関係。2 点の距離の計算に使う。
+  link: gamemath/trigonometry.md
+- terms: [クリティカル, critical]
+  text: 確率で出る、強い一撃。
+  link: gamemath/balance.md
+- terms: [インパルス, impulse, 力積]
+  text: 衝突のときに、物体の速度を変える量。力に時間を掛けたもの。
+  link: gamemath/motion.md
+- terms: [ばね, spring, ダンパー, damper]
+  text: 引き戻す力を出す部品（ばね）と、揺れを抑える部品（ダンパー）。
+  link: gamemath/smoothing.md
+- terms: [ブランチ, branch]
+  text: 分岐。コードの if や、Git での枝分かれ。
+  link: optimize/branching-virtual.md
+- terms: [データベース, database]
+  text: データを、整理して保存・検索する仕組み。
+  link: engine/serialization/index.md
+- terms: [プラグイン, plugin]
+  text: 本体に、あとから機能を足す部品。
+  link: libs/index.md
+- terms: [オーバーヘッド, overhead]
+  text: 本来の処理以外にかかる、余分な時間やメモリ。
+  link: optimize/index.md
+- terms: [オーバーレイ, overlay]
+  text: 画面の上に、重ねて表示するもの。
+  link: libs/imgui/debug-ui.md
+- terms: [ゲームパッド, gamepad, コントローラー]
+  text: ゲーム用の入力機器。スティックとボタンがある。
+  link: gamemath/smoothing.md
+- terms: [エイリアス, alias]
+  text: 同じものにつけた、別の名前。using による型の別名など。
+  link: basics/template.md
+- terms: [ポリシー, policy]
+  text: 振る舞いを決める、差し替えられる部品。
+  link: design/patterns/crtp-policy.md
+- terms: [ガベージコレクション, GC, garbage collection]
+  text: 使われなくなったメモリを、自動で回収する仕組み。C++ にはない（RAII で管理する）。
+  link: design/patterns/raii.md
+- terms: [コルーチン, coroutine]
+  text: 途中で止めて、あとから再開できる関数。
+  link: basics/concurrency.md
+- terms: [リフレクション, reflection]
+  text: プログラムが、自分の型やメンバの情報を、実行中に調べる仕組み。
+  link: engine/serialization/index.md
+- terms: [セマフォ, semaphore]
+  text: 同時に入れる数を、制限する同期の道具。
+  link: optimize/multithreading.md
+- terms: [ワーカー, worker, ワーカースレッド]
+  text: 仕事を引き受けて処理する、スレッド。
+  link: optimize/multithreading.md
+- terms: [クラスター メッシュ, ワイヤーフレーム, wireframe]
+  text: 面を塗らずに、辺だけを描く表示。メッシュの形を確認するのに使う。
+  link: 3d/model-basics.md
+- terms: [ミニマップ, minimap]
+  text: 画面の隅に出す、小さな地図。
+  link: gamemath/grids.md
+- terms: [ポータル, portal]
+  text: 部屋と部屋をつなぐ、入口。カリングで使う。
+  link: rendering/culling.md
+- terms: [ピボット, pivot]
+  text: 回転や拡大の、中心になる点。
+  link: 3d/transforms-mvp.md
+- terms: [モーメント, 慣性モーメント]
+  text: 回転のしにくさ。回転運動での質量にあたる。
+  link: gamemath/motion.md
+- terms: [サスペンション, suspension]
+  text: 車のばねとダンパー。車輪の上下の動きを吸収する。
+  link: libs/jolt/vehicles.md
+- terms: [ヒットスキャン, hitscan]
+  text: 撃った瞬間に、光線で当たりを判定する方式。弾が飛んでいかない。
+  link: gamemath/intersection.md
+- terms: [プリセット, preset]
+  text: あらかじめ用意された、設定の組み合わせ。
+  link: vs/settings.md
+- terms: [ビットフラグ, bit flag, フラグ, flag]
+  text: ビットの 1 つ 1 つを、オン・オフの印として使う方法。
+  link: design/foundations/class-design.md
+- terms: [バケット, bucket]
+  text: 同じ性質のものを、まとめて入れる箱。ハッシュ テーブルの 1 マスなど。
+  link: optimize/strings-hash.md
+- terms: [スナップ, snap]
+  text: 近い値や位置に、ぴったり吸い付けること。
+  link: libs/imgui/imguizmo.md
+- terms: [スロット, slot]
+  text: 何かを入れる、差し込み口。
+  link: engine/handle.md
+- terms: [スポーン, spawn, リスポーン]
+  text: 敵やアイテムなどを、ゲームの世界に出現させること。
+  link: gamemath/random.md
+- terms: [シャッフル, shuffle]
+  text: 並びを、ランダムに入れ替えること。
+  link: gamemath/random.md
+- terms: [ダーティ, dirty, ダーティフラグ]
+  text: 変更があって、更新が必要な状態。印をつけて、変わった所だけ処理する。
+  link: optimize/frame-allocation.md
+- terms: [トレードオフ, trade-off, tradeoff]
+  text: 一方を良くすると、もう一方が悪くなる関係。
+  link: optimize/index.md
+- terms: [プロトタイプ, prototype]
+  text: 試しに作った、簡単な試作品。
+  link: engine/index.md
+- terms: [プリミティブ, primitive]
+  text: 基本になる、単純な形や型。三角形・球・箱など。
+  link: 3d/model-basics.md
+- terms: [プロファイラ]
+  text: プログラムのどこに時間がかかっているかを、測る道具。
+  link: optimize/measure.md
+- terms: [マルチバイト, multibyte]
+  text: 1 文字が、複数のバイトで表される文字コード。
+  link: encoding/string-types.md
+- terms: [サロゲート, surrogate, サロゲートペア]
+  text: UTF-16 で、1 文字を 2 つの 16 ビットで表す仕組み。絵文字などで使う。
+  link: encoding/unicode-basics.md
+- terms: [コードポイント, code point]
+  text: Unicode で、文字 1 つに割り当てられた番号。
+  link: encoding/unicode-basics.md
+- terms: [コードページ, code page]
+  text: Windows で、文字コードの種類を表す番号。932 が Shift_JIS。
+  link: encoding/windows-api.md
+- terms: [バックスラッシュ, backslash, \\]
+  text: 記号の「\」。Windows のパスの区切りや、エスケープに使う。
+  link: encoding/source-files.md
+- terms: [エスケープ, escape]
+  text: 特別な意味のある文字を、普通の文字として書くための書き方。
+  link: encoding/source-files.md
+- terms: [タイムスタンプ, timestamp]
+  text: 時刻の記録。ファイルの更新日時など。
+  link: optimize/loading.md
+- terms: [ミリメートル]
+  text: 長さの単位。1 メートルの 1000 分の 1。
+  link: gamemath/numeric.md
+- terms: [チェックサム, checksum]
+  text: データが壊れていないか確かめるための、短い値。
+  link: engine/serialization/index.md
+- terms: [ストリーム, stream]
+  text: データの流れ。ファイルや入出力を、順に読み書きする。
+  link: basics/file-io.md
+- terms: [ハイブリッド, hybrid]
+  text: 2 つの方式を、組み合わせたもの。
+  link: rendering/lod.md
+- terms: [バリエーション, variation, バリアント, variant]
+  text: 同じものの、少し違う種類。シェーダーの組み合わせなど。
+  link: rendering/shader-cost.md
+- terms: [クエスト, quest]
+  text: ゲームの中で、プレイヤーに与える依頼や目的。
+  link: gamemath/balance.md
+- terms: [インベントリ, inventory]
+  text: プレイヤーが持っている、アイテムの一覧。
+  link: engine/serialization/index.md
+- terms: [NPC, ノンプレイヤーキャラクター]
+  text: プレイヤーが操作しない、ゲームの中の住人や敵。
+  link: libs/recast/index.md
+- terms: [ARPG]
+  text: アクション RPG。リアルタイムで戦う、ロールプレイング ゲーム。
+  link: gamemath/balance.md
+- terms: [VR, ブイアール]
+  text: Virtual Reality。専用の装置で、仮想の世界を体験する技術。
+  link: rendering/taa-upscaling.md
+- terms: [BGM, 効果音]
+  text: ゲームの背景に流れる音楽（BGM）や、動作に合わせた音（効果音）。
+  link: engine/resource.md
+- terms: [FMA]
+  text: 掛け算と足し算を、1 つの命令で行う CPU の機能。結果の末尾の桁が、わずかに変わることがある。
+  link: gamemath/numeric.md
+- terms: [NEON, ARM]
+  text: ARM は、スマートフォンなどの CPU の種類。NEON は、その SIMD 命令。
+  link: optimize/simd.md
+- terms: [LZ4]
+  text: 非常に速い圧縮の方式。ゲームのデータの圧縮に使われる。
+  link: optimize/loading.md
+- terms: [LTCG, リンク時コード生成]
+  text: リンクのときに、全体を見て最適化する機能。
+  link: optimize/compiler.md
+- terms: [LLVM]
+  text: コンパイラの基盤と、それを使った C++ コンパイラ。
+  link: basics/compiler.md
+- terms: [LIFO]
+  text: Last In First Out。最後に入れたものを、最初に取り出す順序。スタックの動き。
+  link: optimize/allocators/stack.md
+- terms: [IntelliSense]
+  text: Visual Studio の、入力補完や、エラーの下線を出す機能。
+  link: vs/tips.md
+- terms: [HTTP, HTTPS]
+  text: Web で通信するための決まり。
+  link: vs/libraries.md
+- terms: [DCC, DCC ツール]
+  text: Blender・Maya など、3D のモデルやアニメーションを作るツール。
+  link: 3d/model-basics.md
+- terms: [CSS]
+  text: Web ページの見た目を決める言語。
+  link: libs/imgui/style.md
+- terms: [CAD]
+  text: 設計用のコンピューターのソフト。
+  link: gamemath/curves.md
+- terms: [BSD]
+  text: ライセンスの種類（BSD ライセンス）。自由に使いやすい。
+  link: libs/index.md
+- terms: [BC4, BC6H]
+  text: GPU が直接読める、テクスチャの圧縮形式。
+  link: rendering/texture-streaming.md
+- terms: [KTX2, KTX]
+  text: GPU 向けに圧縮したテクスチャを入れる、ファイル形式。
+  link: rendering/texture-streaming.md
+- terms: [POD, trivial, トリビアル]
+  text: 単純なデータだけの型。memcpy でコピーしても安全。
+  link: engine/serialization/index.md
+- terms: [PVS, Potentially Visible Set]
+  text: ある場所から、見える可能性のあるものを、事前に計算した一覧。
+  link: rendering/culling.md
+- terms: [TBB]
+  text: Intel の、並列処理のライブラリ。
+  link: optimize/multithreading.md
+- terms: [RPC]
+  text: 別のコンピューターの関数を、呼び出す仕組み。
+  link: engine/serialization/index.md
+- terms: [マルチスレッド]
+  text: 複数のスレッドで、同時に処理すること。
+  link: optimize/multithreading.md
+- terms: [F5, F9, F10, F11]
+  text: Visual Studio のショートカット。F5 は実行、F9 はブレークポイント、F10・F11 はステップ実行。
+  link: vs/debugging.md
+- terms: [ブレークポイント, breakpoint]
+  text: デバッグで、プログラムを止める位置の印。
+  link: vs/debugging.md
+- terms: [ブラウザ, ブラウザー, browser]
+  text: Web ページを見るソフト。
+  link: vs/tips.md
+- terms: [ミキサー, mixer]
+  text: 複数の音を混ぜて、音量を調整する部品。
+  link: engine/resource.md
+- terms: [FMOD, Wwise]
+  text: ゲーム向けの、音のライブラリ（ミドルウェア）。
+  link: engine/resource.md
+- terms: [TRS 行列]
+  text: 平行移動・回転・拡大を、まとめた行列。
+  link: gamemath/matrices.md

@@ -10,7 +10,7 @@ tags:
 
 !!! tip "ポイント"
     - <strong>カメラ ＝ 位置と向き</strong>。<strong>ビュー行列 ＝ カメラのワールド行列の逆行列</strong>。
-    - 普通は<strong>`Matrix::CreateLookAt(位置, 見る点, 上方向)`</strong> で作る（右手系）。
+    - 普通は<strong>`XMMatrixLookAtLH(位置, 見る点, 上方向)`</strong> で作る（左手系・前は +Z）。
     - <strong>カメラの向きは、角度（yaw・pitch）で持つ</strong>と操作しやすい。<strong>pitch は ±89° に制限</strong>する（真上・真下で上方向が定まらなくなる）。
     - <strong>三人称カメラは、ターゲットの後ろに置いて、補間（`Lerp`）で追従</strong>させる。<strong>壁を通り抜けないように、レイキャスト</strong>で調整。
     - <strong>カメラの更新は、キャラクターの更新のあと</strong>に行う（1 フレーム遅れて、ガタつくのを防ぐ）。
@@ -20,13 +20,23 @@ tags:
 
 **カメラの位置・向きをワールド行列で表し、その逆行列がビュー行列**です。
 
-<svg class="fig flow" viewBox="0 0 605 112" role="img" aria-label="ビュー行列：世界を、カメラが原点にいる座標に直す"><defs><marker id="fl44185" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ビュー行列：世界を、カメラが原点にいる座標に直す</text><line x1="185.0" y1="64.0" x2="127.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl44185)"/><text x="156.0" y="58.0" text-anchor="middle" style="font-size:12px">原点を見ている</text><line x1="127.0" y1="64.0" x2="216.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl44185)"/><line x1="318.0" y1="64.0" x2="407.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl44185)"/><text x="362.5" y="58.0" text-anchor="middle" style="font-size:12px">直す</text><rect x="28.0" y="44.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="76.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">世界の座標</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="188.0" y="44.0" width="158" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="267.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">カメラ 位置(0,2,5)</text><circle cx="190.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="190.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="219.0" y="44.0" width="96" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="267.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ビュー行列</text><circle cx="221.0" cy="46.0" r="10" fill="#2ea043"/><text x="221.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="410.0" y="44.0" width="167" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="493.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">カメラが原点・前は-Z</text><circle cx="412.0" cy="46.0" r="10" fill="#2ea043"/><text x="412.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text></svg>
+<div class="anim" data-type="graph" data-label="ビュー行列：世界を、カメラが原点にいる座標に直す">
+n w 世界の座標 0 0
+n cam カメラ_位置(0,2,5) 1 0 hit
+l cam w - 原点を見ている
+---
+n w 世界の座標 0 0
+n v ビュー行列 1 0 hit
+n cs カメラが原点・前は+Z 2 0 new
+l w v
+l v cs - 直す
+</div>
 
 ### LookAt で作る
 
 ```cpp
-// カメラの位置、見る点（注視点）、上方向から、ビュー行列を作る（右手系）
-Matrix view = Matrix::CreateLookAt(camera_position, camera_target, Vector3::Up);
+// カメラの位置、見る点（注視点）、上方向から、ビュー行列を作る（左手系）
+Matrix view = XMMatrixLookAtLH(camera_position, camera_target, Vector3::Up);
 ```
 
 | 引数 | 型 | 意味 |
@@ -39,20 +49,20 @@ Matrix view = Matrix::CreateLookAt(camera_position, camera_target, Vector3::Up);
 
 ```cpp
 Vector3 forward = ...;   // 正規化した前方向
-Matrix view = Matrix::CreateLookAt(position, position + forward, Vector3::Up);
+Matrix view = XMMatrixLookAtLH(position, position + forward, Vector3::Up);
 ```
 
 ### LookAt が内部でやっていること
 
 カメラの 3 本の軸（右・上・前）を作り、行列にします。
 
-<svg class="fig flow" viewBox="0 0 789 112" role="img" aria-label="ビュー行列を作る手順"><defs><marker id="fl2919" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ビュー行列を作る手順</text><line x1="162.0" y1="64.0" x2="220.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2919)"/><text x="191.0" y="58.0" text-anchor="middle" style="font-size:12px">×up</text><line x1="342.0" y1="64.0" x2="400.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2919)"/><text x="371.0" y="58.0" text-anchor="middle" style="font-size:12px">right×forward</text><line x1="540.0" y1="64.0" x2="598.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2919)"/><text x="569.0" y="58.0" text-anchor="middle" style="font-size:12px">3軸と位置から</text><rect x="28.0" y="44.0" width="131" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="93.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">① forward(前)</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="223.0" y="44.0" width="116" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="281.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">② right(右)</text><circle cx="225.0" cy="46.0" r="10" fill="#2ea043"/><text x="225.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="403.0" y="44.0" width="134" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="470.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">③ up(本当の上)</text><circle cx="405.0" cy="46.0" r="10" fill="#e5a828"/><text x="405.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="601.0" y="44.0" width="160" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="681.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">④ 世界→カメラ行列</text><circle cx="603.0" cy="46.0" r="10" fill="#e5484d"/><text x="603.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
+<svg class="fig flow" viewBox="0 0 789 112" role="img" aria-label="ビュー行列を作る手順"><defs><marker id="fl2919" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ビュー行列を作る手順</text><line x1="162.0" y1="64.0" x2="220.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2919)"/><text x="191.0" y="58.0" text-anchor="middle" style="font-size:12px">up×前</text><line x1="342.0" y1="64.0" x2="400.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2919)"/><text x="371.0" y="58.0" text-anchor="middle" style="font-size:12px">前×右</text><line x1="540.0" y1="64.0" x2="598.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl2919)"/><text x="569.0" y="58.0" text-anchor="middle" style="font-size:12px">3軸と位置から</text><rect x="28.0" y="44.0" width="131" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="93.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">① forward(前)</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="223.0" y="44.0" width="116" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="281.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">② right(右)</text><circle cx="225.0" cy="46.0" r="10" fill="#2ea043"/><text x="225.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="403.0" y="44.0" width="134" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="470.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">③ up(本当の上)</text><circle cx="405.0" cy="46.0" r="10" fill="#e5a828"/><text x="405.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="601.0" y="44.0" width="160" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="681.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">④ 世界→カメラ行列</text><circle cx="603.0" cy="46.0" r="10" fill="#e5484d"/><text x="603.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
 **上方向（`up`）と、前方向が平行（真上・真下を見る）だと外積が 0 になり、右方向が決まりません**。これが真上を見たときに画面が不安定になる原因です（ジンバルロックに似た現象）。
 
 ## FPS カメラ（一人称）
 
-<svg class="fig" viewBox="0 0 620 240" role="img" aria-label="yaw と pitch"><defs><marker id="y1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">yaw（左右）：真上から見た図</text><circle cx="130" cy="130" r="8" fill="currentColor"/><text x="100" y="160">カメラ</text><line x1="130" y1="130" x2="130" y2="50" stroke="currentColor" stroke-width="3" marker-end="url(#y1)" /><text x="138" y="55">yaw = 0（前は -Z）</text><line x1="130" y1="130" x2="190" y2="70" stroke="currentColor" stroke-width="2" marker-end="url(#y1)" stroke-dasharray="4 3"/><text x="194" y="68">yaw が増える</text><path d="M 130 90 A 40 40 0 0 1 158 100" fill="none" stroke="currentColor"/><text x="330" y="20" class="fig-title">pitch（上下）：横から見た図</text><circle cx="400" cy="140" r="8" fill="currentColor"/><text x="370" y="170">カメラ</text><line x1="400" y1="140" x2="520" y2="140" stroke="currentColor" stroke-width="3" marker-end="url(#y1)" /><text x="470" y="160">pitch = 0</text><line x1="400" y1="140" x2="500" y2="80" stroke="currentColor" stroke-width="2" marker-end="url(#y1)" stroke-dasharray="4 3"/><text x="470" y="70">上を向く</text><text x="330" y="215">pitch は ±89° に制限する（真上・真下で、向きが定まらなくなるため）</text></svg>
+<svg class="fig" viewBox="0 0 786 240" role="img" aria-label="yaw と pitch"><defs><marker id="y1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">yaw（左右）：真上から見た図</text><circle cx="130" cy="130" r="8" fill="currentColor"/><text x="100" y="160">カメラ</text><line x1="130" y1="130" x2="130" y2="50" stroke="currentColor" stroke-width="3" marker-end="url(#y1)" /><text x="138" y="55">yaw = 0（前は +Z）</text><line x1="130" y1="130" x2="190" y2="70" stroke="currentColor" stroke-width="2" marker-end="url(#y1)" stroke-dasharray="4 3"/><text x="194" y="68">yaw が増える</text><path d="M 130 90 A 40 40 0 0 1 158 100" fill="none" stroke="currentColor"/><text x="330" y="20" class="fig-title">pitch（上下）：横から見た図</text><circle cx="400" cy="140" r="8" fill="currentColor"/><text x="370" y="170">カメラ</text><line x1="400" y1="140" x2="520" y2="140" stroke="currentColor" stroke-width="3" marker-end="url(#y1)" /><text x="470" y="160">pitch = 0</text><line x1="400" y1="140" x2="500" y2="80" stroke="currentColor" stroke-width="2" marker-end="url(#y1)" stroke-dasharray="4 3"/><text x="470" y="70">上を向く</text><text x="330" y="215">pitch は ±89° に制限する（真上・真下で、向きが定まらなくなるため）</text></svg>
 
 **マウスで見る方向を変える**カメラです。向きを<strong>yaw（左右）と pitch（上下）</strong>の 2 つの角度で持ちます。
 
@@ -65,14 +75,14 @@ class FpsCamera {
   }
 
   Vector3 Forward() const {
-    // yaw=0, pitch=0 で、-Z（右手系の前）を向く。yaw が正なら、左（反時計回り）へ回る
-    return Vector3(-std::sin(yaw_) * std::cos(pitch_),
+    // yaw=0, pitch=0 で、+Z（左手系の前）を向く。yaw が正なら、右（時計回り）へ回る
+    return Vector3(std::sin(yaw_) * std::cos(pitch_),
                    std::sin(pitch_),
-                   -std::cos(yaw_) * std::cos(pitch_));
+                   std::cos(yaw_) * std::cos(pitch_));
   }
 
   Matrix View() const {
-    return Matrix::CreateLookAt(position, position + Forward(), Vector3::Up);
+    return XMMatrixLookAtLH(position, position + Forward(), Vector3::Up);
   }
 
   Vector3 position;
@@ -89,7 +99,7 @@ class FpsCamera {
 | **yaw と pitch で持つ** | 行列やクォータニオンに累積させるより、角度を持つほうが傾き（roll）が溜まらず安定する |
 | **pitch を ±89° に制限** | 真上・真下（±90°）では上方向が定まらず、画面が反転する |
 | **マウスの移動量 × 感度** | 移動量（ピクセル）を、角度に変える。フレームレートに依存しない（マウスの移動量は、すでに差分） |
-| **前方向は、yaw と pitch から計算** | 右手系・前 −Z なら `forward = (−sin y × cos p, sin p, −cos y × cos p)`（座標系で式が変わる） |
+| **前方向は、yaw と pitch から計算** | 左手系・前 +Z なら `forward = (sin y × cos p, sin p, cos y × cos p)`（座標系で式が変わる） |
 
 ### 移動
 
@@ -98,7 +108,7 @@ class FpsCamera {
 ```cpp
 Vector3 flat_forward(Forward().x, 0.0f, Forward().z);      // pitch を無視した、水平方向の前
 flat_forward.Normalize();
-Vector3 right = flat_forward.Cross(Vector3::Up);            // 右手系：前 × 上 ＝ 右
+Vector3 right = Vector3::Up.Cross(flat_forward);            // 左手系：上 × 前 ＝ 右
 
 Vector3 move = flat_forward * input.forward + right * input.strafe;
 if (move.LengthSquared() > 0.0f) {
@@ -118,10 +128,10 @@ class OrbitCamera {
  public:
   Matrix View() const {
     // 球座標：注視点のまわりに、距離 distance_ で、角度 yaw_, pitch_ の位置に置く
-    Vector3 offset(distance_ * std::cos(pitch_) * std::sin(yaw_),
+    Vector3 offset(-distance_ * std::cos(pitch_) * std::sin(yaw_),
                    distance_ * std::sin(pitch_),
-                   distance_ * std::cos(pitch_) * std::cos(yaw_));
-    return Matrix::CreateLookAt(target + offset, target, Vector3::Up);
+                   -distance_ * std::cos(pitch_) * std::cos(yaw_));
+    return XMMatrixLookAtLH(target + offset, target, Vector3::Up);
   }
 
   void Rotate(float yaw_delta, float pitch_delta) {
@@ -200,7 +210,7 @@ if (RaycastWorld(target, dir, length, &hit_distance)) {
 | **ズーム** | FOV を変える（[投影](projection.md)）、または距離を変える |
 | **ヘッド ボブ**（歩くときの上下の揺れ） | 位置に、`sin(時間 × 歩く速さ)` を足す。控えめに（酔いやすい） |
 | **ロック オン**（敵を注視） | 注視点を敵の位置に補間する |
-| **カット シーン** | スプライン（曲線）に沿って動かす。キーフレームを補間（[回転](rotation.md)） |
+| **カット シーン** | スプライン（曲線）に沿って動かす。キーフレームを補間（[回転](../gamemath/rotation.md)） |
 | **スローモーション** | `dt` を小さくする（カメラは実時間の `dt` で動かすこともある） |
 
 ```cpp
@@ -278,7 +288,7 @@ struct CameraData {
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] <strong>ビュー行列 ＝ カメラのワールド行列の逆</strong>。<strong>`CreateLookAt(位置, 見る点, Up)`</strong> で作る
+    - [x] <strong>ビュー行列 ＝ カメラのワールド行列の逆</strong>。<strong>`XMMatrixLookAtLH(位置, 見る点, Up)`</strong> で作る
     - [x] FPS・軌道カメラは<strong>yaw と pitch</strong>で持つ。<strong>pitch は ±89° に制限</strong>
     - [x] 追従は<strong>`1 - exp(-k * dt)`</strong> で補間（フレームレート非依存）。壁は<strong>レイキャスト</strong>で避ける
     - [x] カメラの更新は<strong>キャラクターの更新のあと</strong>。ビュー行列は 1 フレーム 1 回
@@ -289,5 +299,5 @@ struct CameraData {
 - [3D ゲーム（目次）](index.md)
 - [MVP 変換](transforms-mvp.md)
 - [投影（プロジェクション）](projection.md)
-- [回転とクォータニオン](rotation.md)
+- [回転とクォータニオン](../gamemath/rotation.md)
 - [ピッキングとレイキャスト](picking-raycast.md)

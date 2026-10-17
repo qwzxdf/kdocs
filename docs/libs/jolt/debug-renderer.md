@@ -145,7 +145,7 @@ bool WorldToScreen(const Vector3& world, const Matrix& view, const Matrix& proj,
 
 | 点 | 説明 |
 | --- | --- |
-| **`Viewport::Project`**（SimpleMath） | **ワールド座標 → 画面のピクセル座標**（[SimpleMath](../../3d/simplemath.md)、[変換と MVP](../../3d/transforms-mvp.md)） |
+| **`Viewport::Project`**（SimpleMath） | **ワールド座標 → 画面のピクセル座標**（[SimpleMath](../../gamemath/simplemath.md)、[変換と MVP](../../3d/transforms-mvp.md)） |
 | **`screen.z`** | **0〜1 の範囲外は、カメラの後ろ・遠すぎ**。**描かない** |
 | **`ImDrawList::AddLine`** | **画面上に、線を描く**（[デバッグ画面](../imgui/debug-ui.md)） |
 
@@ -217,4 +217,4 @@ bool WorldToScreen(const Vector3& world, const Matrix& view, const Matrix& proj,
 - [ビルドと設定](build.md)
 - [ImGui でデバッグ画面](../imgui/debug-ui.md)
 - [変換と MVP](../../3d/transforms-mvp.md)
-- [SimpleMath](../../3d/simplemath.md)
+- [SimpleMath](../../gamemath/simplemath.md)

@@ -202,6 +202,6 @@ void AddArrays(const float* a, const float* b, float* out, int count) {
 - [コンパイラの最適化](compiler.md)
 - [ECS](../design/patterns/ecs.md)
 - [`<bit>` とビット演算](../stl/numeric/bit.md)
-- [DirectXMath（SIMD の数学ライブラリ）](../3d/directxmath.md)
-- [SimpleMath](../3d/simplemath.md)
+- [DirectXMath（SIMD の数学ライブラリ）](../gamemath/directxmath.md)
+- [SimpleMath](../gamemath/simplemath.md)
 - [CRTP とポリシーベース設計](../design/patterns/crtp-policy.md)

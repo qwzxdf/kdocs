@@ -74,7 +74,7 @@ PBR の式は、**鏡面と拡散の比率**をフレネル `F` で決めます�
 
 面に当たる光は、**面の上の半球**のあらゆる方向から、来ます。
 
-<svg class="fig" viewBox="0 0 560 250" role="img" aria-label="半球と入射・出射方向">
+<svg class="fig" viewBox="0 0 601 250" role="img" aria-label="半球と入射・出射方向">
 <defs><marker id="pa" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
 <path d="M 60 200 A 180 160 0 0 1 420 200" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
 <line x1="30" y1="200" x2="450" y2="200" stroke="currentColor" stroke-width="3"/>
@@ -188,7 +188,7 @@ PBR の標準の BRDF は、**拡散**と**鏡面**の和です。
 
 <div class="formula">F ＝ F0 ＋ ( 1 − F0 ) · ( 1 − (H·V) )⁵</div>
 
-<svg class="fig" viewBox="0 0 560 250" role="img" aria-label="フレネル反射率の曲線">
+<svg class="fig" viewBox="0 0 679 250" role="img" aria-label="フレネル反射率の曲線">
 <defs><marker id="pc" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
 <line x1="60" y1="200" x2="520" y2="200" stroke="currentColor" stroke-width="2" marker-end="url(#pc)"/>
 <line x1="60" y1="200" x2="60" y2="30" stroke="currentColor" stroke-width="2" marker-end="url(#pc)"/>
@@ -218,7 +218,7 @@ PBR の標準の BRDF は、**拡散**と**鏡面**の和です。
 
 ### 金属と非金属
 
-<svg class="fig" viewBox="0 0 600 220" role="img" aria-label="金属と非金属の光の振る舞い">
+<svg class="fig" viewBox="0 0 603 220" role="img" aria-label="金属と非金属の光の振る舞い">
 <defs><marker id="pd" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
 <text x="20" y="22" class="fig-title">非金属（絶縁体）</text>
 <rect x="20" y="110" width="250" height="70" fill="none" stroke="currentColor" stroke-width="2"/>
@@ -262,7 +262,7 @@ float3 diffuse_color = base_color * (1.0f - metallic);
 
 ### 材質のサンプル
 
-<svg class="fig" viewBox="0 0 640 330" role="img" aria-label="metallic と roughness の見え方">
+<svg class="fig" viewBox="0 0 709 330" role="img" aria-label="metallic と roughness の見え方">
 <defs>
 <radialGradient id="d1" cx="35%" cy="30%" r="80%"><stop offset="0" stop-color="#5f8ff0"/><stop offset="0.7" stop-color="#2a4fa8"/><stop offset="1" stop-color="#101a3a"/></radialGradient>
 <radialGradient id="h1" cx="35%" cy="30%" r="14%"><stop offset="0" stop-color="#ffffff" stop-opacity="1"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></radialGradient>

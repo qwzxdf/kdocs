@@ -65,17 +65,7 @@ tags:
 
 ## 全体の流れ
 
-<div class="anim" data-type="graph" data-label="Recast と Detour の役割">
-n a ワールドの_メッシュ 0 0
-n b Recast 1 0 new
-n c ナビメッシュ_（ファイル） 2 0
-n d Detour 3 0 new
-n e 経路・位置 4 0
-l a b - 入力
-l b c - 保存
-l c d - 読み込み
-l d e
-</div>
+<svg class="fig flow" viewBox="0 0 922 112" role="img" aria-label="Recast と Detour の役割"><defs><marker id="fl97256" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">Recast と Detour の役割</text><line x1="191.0" y1="64.0" x2="249.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl97256)"/><text x="220.0" y="58.0" text-anchor="middle" style="font-size:12px">入力</text><line x1="331.0" y1="64.0" x2="389.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl97256)"/><text x="360.0" y="58.0" text-anchor="middle" style="font-size:12px">保存</text><line x1="597.0" y1="64.0" x2="655.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl97256)"/><text x="626.0" y="58.0" text-anchor="middle" style="font-size:12px">読み込み</text><line x1="737.0" y1="64.0" x2="795.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl97256)"/><rect x="28.0" y="44.0" width="160" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="108.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワールドの メッシュ</text><rect x="252.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="290.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Recast</text><rect x="392.0" y="44.0" width="202" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="493.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ナビメッシュ （ファイル）</text><rect x="658.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="696.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Detour</text><rect x="798.0" y="44.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="846.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">経路・位置</text></svg>
 
 ## 導入
 
@@ -93,7 +83,7 @@ l d e
 ```
 
 !!! note "座標系と単位"
-    Recast は**右手系・Y が上**で**単位はメートル**を想定した設定値が多いです。DirectX（左手系）のゲームでは、**Z を反転して渡す**か、座標系を統一します（[座標系](../../3d/coordinate-systems.md)）。ライブラリの**バージョンで、関数のシグネチャが変わる**ことがあるので、自分のヘッダを確認してください。
+    Recast は**右手系・Y が上**で**単位はメートル**を想定した設定値が多いです。DirectX（左手系）のゲームでは、**Z を反転して渡す**か、座標系を統一します（[座標系](../../gamemath/coordinate-systems.md)）。ライブラリの**バージョンで、関数のシグネチャが変わる**ことがあるので、自分のヘッダを確認してください。
 
 ## ゲームでの使いどころ
 
@@ -117,7 +107,7 @@ l d e
     先に `findNearestPoly` で、ナビメッシュ上の点に補正します。
 
 ??? failure "座標系が違い、ナビメッシュが鏡像になる"
-    左手系・右手系をそろえます。
+    Recast は右手系・Y 上です。このサイトの左手系とは、**境界で Z を反転**してそろえます。
 
 ## これだけ覚える
 

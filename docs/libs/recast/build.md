@@ -18,23 +18,7 @@ Recast は、**ワールドの三角形メッシュ**から、**歩ける場所�
 
 ## 工程の全体
 
-<div class="anim" data-type="graph" data-label="Recast のビルド工程">
-n a 三角形メッシュ 0 0
-n b ボクセル化 1 0 new
-n c フィルタ 2 0
-n d コンパクト_ハイトフィールド 3 0
-n e 領域分割 4 0
-n f 輪郭 5 0
-n g ポリゴン 6 0
-n h Detour用データ 7 0 new
-l a b
-l b c
-l c d
-l d e
-l e f
-l f g
-l g h
-</div>
+<svg class="fig flow" viewBox="0 0 1390 112" role="img" aria-label="Recast のビルド工程"><defs><marker id="fl7210" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">Recast のビルド工程</text><line x1="155.0" y1="64.0" x2="213.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7210)"/><line x1="315.0" y1="64.0" x2="373.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7210)"/><line x1="461.0" y1="64.0" x2="519.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7210)"/><line x1="741.0" y1="64.0" x2="799.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7210)"/><line x1="887.0" y1="64.0" x2="945.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7210)"/><line x1="1027.0" y1="64.0" x2="1085.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7210)"/><line x1="1173.0" y1="64.0" x2="1231.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7210)"/><rect x="28.0" y="44.0" width="124" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="90.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">三角形メッシュ</text><rect x="216.0" y="44.0" width="96" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="264.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ボクセル化</text><rect x="376.0" y="44.0" width="82" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="417.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">フィルタ</text><rect x="522.0" y="44.0" width="216" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="630.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">コンパクト ハイトフィールド</text><rect x="802.0" y="44.0" width="82" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="843.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">領域分割</text><rect x="948.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="986.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">輪郭</text><rect x="1088.0" y="44.0" width="82" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="1129.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ポリゴン</text><rect x="1234.0" y="44.0" width="128" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="1298.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Detour用データ</text></svg>
 
 | 工程 | 何をするか | 関数 |
 | --- | --- | --- |

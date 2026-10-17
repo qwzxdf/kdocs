@@ -1,15 +1,9 @@
 nav:
   - index.md
-  - directxmath.md
-  - simplemath.md
-  - coordinate-systems.md
   - model-basics.md
-  - vectors.md
-  - matrices.md
   - transforms-mvp.md
   - projection.md
   - camera.md
-  - rotation.md
   - depth-culling.md
   - picking-raycast.md
   - lighting-normals.md
