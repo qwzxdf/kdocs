@@ -74,7 +74,7 @@ extra_javascript:
   - javascripts/anim-graph.js
   - javascripts/search-tune.js
   - javascripts/table-labels.js
-  - javascripts/svg-motion.js
+  - javascripts/motion-control.js
   - javascripts/glossary-filter.js
 
 extra_css:
