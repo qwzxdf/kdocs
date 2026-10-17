@@ -161,16 +161,18 @@ def Build():
             forward_waste.append((t0, forward_waste_count))
         scene.Note(t0, "Forward", "物体 %d を描く:%d マス(うち %d マスは前の物体を上書き)" % (k + 1, len(cover[k]), len(newly_overwritten)))
         cells_g = gf.add("g", clip_path="url(#fd-sph-F%d)" % k)
+        cells_in = cells_g.add("g", opacity=0)
+        cells_in.Show(t0)
         for (x, y) in cover[k]:
             colors, _, dists = shade[(k, x, y)]
-            rect = cells_g.add("rect", x=R(Px("F", x)), y=R(Py(y)), width=R(CELL + 0.3), height=R(CELL + 0.3), fill="none")
-            items = [(t0, colors[0])]
+            rect = cells_in.add("rect", x=R(Px("F", x)), y=R(Py(y)), width=R(CELL + 0.3), height=R(CELL + 0.3), fill=colors[0])
+            items = []
             for i in range(lights_n):
                 th = t0 + hit_offset + hit_step * i + stagger * min(1.0, dists[i] / LIGHT_RANGE)
                 items.append((th, colors[i + 1]))
             rect.Steps("fill", items)
         if newly_overwritten:
-            frame = cells_g.add("g", opacity=0)
+            frame = cells_in.add("g", opacity=0)
             frame.Show(t0, t0 + forward_slot - 0.02)
             for (x, y) in newly_overwritten:
                 frame.add("rect", x=R(Px("F", x)), y=R(Py(y)), width=R(CELL), height=R(CELL), fill="none", stroke=RED, stroke_width=1.2)
@@ -241,12 +243,15 @@ def Build():
             stripes.add("rect", x=R(ox + w3), y=R(oy), width=R(w3 + 0.2), height=R(CELL + 0.3), fill=stripe_normal)
             stripes.add("rect", x=R(ox + 2 * w3), y=R(oy), width=R(w3 + 0.2), height=R(CELL + 0.3), fill=depth_color)
             if owner[(x, y)] == k:
-                lit = lit_g.add("rect", x=R(ox), y=R(oy), width=R(CELL + 0.3), height=R(CELL + 0.3), fill="none")
+                lit = lit_g.add("rect", x=R(ox), y=R(oy), width=R(CELL + 0.3), height=R(CELL + 0.3), fill=colors[1], fill_opacity=0)
                 items = []
                 for i in range(lights_n):
                     s_i = pass2_start + pass2_slot * i
                     tc = s_i + wave_len * (x + y + 1) / diag
-                    items.append((tc, colors[i + 1]))
+                    if i == 0:
+                        lit.Steps("fill-opacity", [(tc, "1")])
+                    else:
+                        items.append((tc, colors[i + 1]))
                 lit.Steps("fill", items)
         outline = gd.add("circle", cx=R(Px("D", sx)), cy=R(Py(sy)), r=R((r + 0.3) * CELL), fill="none", stroke="#1e293b", stroke_width=2, opacity=0)
         outline.Set(t0, "opacity", 1)
