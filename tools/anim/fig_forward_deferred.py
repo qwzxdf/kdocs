@@ -27,8 +27,9 @@ LIGHTS = [
     {"pos": (13.4, 7.6), "rgb": (0.80, 0.25, 1.00), "name": "紫"},
 ]
 HUES = ["#e5484d", "#f08a24", "#e5b800", "#46a758", "#12a594", "#0091ff", "#3e63dd", "#8e4ec6", "#d6409f", "#8b8d98"]
-AMBIENT = 0.12
-GAIN = 4.2
+AMBIENT = 0.62
+GAIN = 3.0
+LIGHT_RANGE = 9.0
 TEXT = "#1f2937"
 RED = "#e5484d"
 
@@ -97,21 +98,21 @@ def ShadeColors(sphere, k, gx, gy, albedo):
     px, py, pz = cx, cy, r * 0.3 + nz * r
     arg = Rgb(albedo)
     base = [v / 255.0 for v in arg]
-    contribs = []
+    weights = []
     for light in LIGHTS:
         lx, ly = light["pos"]
         vx, vy, vz = lx - px, ly - py, LIGHT_Z - pz
         dist = math.sqrt(vx * vx + vy * vy + vz * vz)
         ndl = max(0.0, (normal[0] * vx + normal[1] * vy + normal[2] * vz) / dist)
-        intensity = ndl / (1.0 + (dist / 4.5) ** 2) * GAIN
-        contribs.append([light["rgb"][c] * intensity for c in range(3)])
+        falloff = max(0.0, 1.0 - dist / LIGHT_RANGE) ** 2
+        weights.append(min(0.9, ndl * falloff * GAIN))
     colors = []
     for n in range(len(LIGHTS) + 1):
-        rgb = []
-        for c in range(3):
-            total = AMBIENT + sum(contribs[j][c] for j in range(n))
-            rgb.append(255.0 * Tone(base[c] * total * 1.25))
-        colors.append(Hex(rgb))
+        rgb = list(base)
+        for j in range(n):
+            for c in range(3):
+                rgb[c] *= 1.0 - weights[j] * (1.0 - LIGHTS[j]["rgb"][c])
+        colors.append(Hex([255.0 * v for v in rgb]))
     stripe_normal = Hex([(normal[0] + 1) * 127.5, (normal[1] + 1) * 127.5, (normal[2] + 1) * 127.5])
     depth = 0.12 + 0.75 * (1.0 - (nz * r * 0.3 + (SPHERE_COUNT - k) * 0.5) / (r * 0.3 + SPHERE_COUNT * 0.5 + 0.01))
     depth = max(0.1, min(0.95, depth))
@@ -121,7 +122,7 @@ def ShadeColors(sphere, k, gx, gy, albedo):
 
 def Build():
     spheres = FindSpheres()
-    albedos = [Mix("#b8bcc4", h, 0.30) for h in HUES]
+    albedos = ["#ffffff"] * SPHERE_COUNT
     cover = []
     for sx, sy, r in spheres:
         cover.append([(x, y) for y in range(GRID_Y) for x in range(GRID_X)

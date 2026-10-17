@@ -14,7 +14,6 @@
   }
 
   function Setup() {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const svgs = document.querySelectorAll(kSelector);
     if (svgs.length === 0) return;
 
@@ -35,15 +34,10 @@
         }
         Refresh();
       };
-      if (reduce) {
-        svg.pauseAnimations();
-        const still = parseFloat(svg.getAttribute("data-still"));
-        if (!isNaN(still)) svg.setCurrentTime(still);
-      }
       Refresh();
     });
 
-    if (reduce || !("IntersectionObserver" in window)) return;
+    if (!("IntersectionObserver" in window)) return;
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
