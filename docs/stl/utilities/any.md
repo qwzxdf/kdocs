@@ -230,15 +230,6 @@ false
 ??? failure "variant で済むのに any を使う"
     any は「何が入っているか分からない」ので、取り出す側で全部の型を試す必要が出てきます。候補が決まっているなら variant + visit のほうが安全です。
 
-## 理解度チェック
-
-!!! question "Q1. `std::any a = 5; std::any_cast<double>(&a)` の結果は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `nullptr`。入っているのは int なので、double では取り出せません。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い |

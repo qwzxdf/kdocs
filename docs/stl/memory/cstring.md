@@ -397,29 +397,6 @@ int main() {
 ??? failure "構造体を `memcmp` で比べる"
     パディングのバイトが不定なので、メンバが同じでも「違う」と判定されることがあります。`operator==` を使います。
 
-## 理解度チェック
-
-!!! question "Q1. 配列 `a` の要素を 1 つ後ろにずらすのに、`memcpy(a + 1, a, n * sizeof(int))` は使える？"
-    <div class="spoiler" markdown>
-
-    **答え:** 使えません。コピー元とコピー先が重なっているので、未定義動作です。`memmove` か、`std::copy_backward` を使います。
-
-    </div>
-
-!!! question "Q2. `char buf[8]; strcpy(buf, \"hello world\");` の問題は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `"hello world"` は終端を含めて 12 バイトで、`buf` は 8 バイトなので、後ろの 4 バイトが範囲外に書かれます（バッファオーバーフロー）。`snprintf(buf, sizeof(buf), "%s", ...)` か `std::string` を使います。
-
-    </div>
-
-!!! question "Q3. `float` のビット列を `uint32_t` として読みたい。一番良い書き方は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `std::bit_cast<std::uint32_t>(f)`（C++20）です。型の大きさが違うとコンパイルエラーになります。昔は `memcpy` を使っていました。ポインタのキャストは未定義動作です。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

@@ -391,15 +391,6 @@ int main() {
 ??? failure "std::next で範囲外まで進む"
     `std::next(it, 5)` は、end を越えるかどうかを確かめません。越えると未定義動作です。
 
-## 理解度チェック
-
-!!! question "Q1. `std::advance(it, 2)` と `auto it2 = std::next(it, 2)` の違いは？"
-    <div class="spoiler" markdown>
-
-    **答え:** advance は `it` 自体を動かし、何も返しません。next は `it` を変えずに、2 つ先の新しいイテレータを返します。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

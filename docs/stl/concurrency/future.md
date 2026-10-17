@@ -286,15 +286,6 @@ int main() {
 ??? failure "get を 2 回呼ぶ"
     future の結果は 1 回しか取り出せません。何度も使うなら変数に保存するか、shared_future にします。
 
-## 理解度チェック
-
-!!! question "Q1. ロード中もローディングアニメを動かしたい。`future.get()` を毎フレーム呼ぶのは正しい？"
-    <div class="spoiler" markdown>
-
-    **答え:** 正しくありません。`get()` は終わるまで待つので、ゲームが止まります。`wait_for(0s) == std::future_status::ready` で終わったか確かめ、終わっていたら 1 回だけ `get()` します。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

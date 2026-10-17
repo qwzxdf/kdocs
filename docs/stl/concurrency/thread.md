@@ -288,15 +288,6 @@ int main() {
 ??? failure "ラムダで参照キャプチャした変数が先に消える"
     スレッドが動いている間に、キャプチャしたローカル変数のスコープを抜けると壊れます。jthread をその変数より後に宣言すると、先に jthread が消えて待ってくれます。
 
-## 理解度チェック
-
-!!! question "Q1. `std::thread` を join せずに関数を抜けるとどうなる？ jthread なら？"
-    <div class="spoiler" markdown>
-
-    **答え:** `std::thread` は `std::terminate` でプログラムが強制終了します。`std::jthread` は自動で止める合図を出して join するので安全です。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

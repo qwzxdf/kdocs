@@ -200,15 +200,6 @@ auto nearest = std::ranges::min_element(alive, {}, &Enemy::distance);
 ??? failure "Debug ビルドで遅いと感じる"
     ビューは何段も関数を重ねるので、最適化しない Debug ビルドでは普通のループよりかなり遅くなります。Release ではほぼ同じ速さになります。
 
-## 理解度チェック
-
-!!! question "Q1. `std::views::iota(1, 100) | std::views::filter(偶数) | std::views::take(3)` を回すと、filter は何回呼ばれる？"
-    <div class="spoiler" markdown>
-
-    **答え:** 8 回。1〜6 で偶数が 3 つ見つかり、範囲 for が次へ進もうとしたときに filter が 7・8 まで見たところで `take(3)` の数に達して終わります。99 まで全部は見ないので、ビューは必要な分だけ計算していることが分かります。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

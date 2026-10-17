@@ -394,20 +394,6 @@ struct variant_size;  // std::variant_size_v<T>
 ??? failure "get_if に variant そのものを渡す"
     `std::get_if<int>(v)` ではなく `std::get_if<int>(&v)`（ポインタ）です。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::variant<int, float> v;
-    std::println("{} {}", v.index(), std::get<int>(v));
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `0 0`。何も入れないと最初の型（int）のデフォルト値 0 が入ります。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

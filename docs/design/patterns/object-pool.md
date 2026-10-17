@@ -16,11 +16,11 @@ tags:
     - <strong>大量に出たり消えたりするもの（弾、パーティクル、エフェクト、ダメージ数字）に使う。</strong>
     - 一番簡単なのは「固定長の配列 + 使用中フラグ」。
     - 空きを速く見つけたいなら「空きリスト（free list）」を持つ。
-    - 外から要素を指すなら、ポインタではなく [ハンドル](handle.md)（index + generation）で。
+    - 外から要素を指すなら、ポインタではなく [ハンドル](../../engine/handle.md)（index + generation）で。
     - 実は「vector に入れて、消すときは swap して pop_back」でも十分速いことが多い。まずはそれで試す。
 
 !!! info "このページを読む前に"
-    [`std::vector`](../stl/containers/vector.md)、[`std::array`](../stl/containers/array.md)、[キャッシュ効率](../basics/cache.md) が分かると読みやすいです。
+    [`std::vector`](../../stl/containers/vector.md)、[`std::array`](../../stl/containers/array.md)、[キャッシュ効率](../../basics/cache.md) が分かると読みやすいです。
 
 ## 基本
 
@@ -96,6 +96,15 @@ int main() {
 満杯で撃てなかった
 ```
 
+<div class="anim" data-label="オブジェクトプール：使い回す">
+_ _ _ _ # 最初に、4 個ぶんの場所を用意しておく
++弾1 _ _ _ # 借りる：空きを 1 つ使う（新しく確保はしない）
+弾1 +弾2 _ _ # もう 1 つ借りる
+x弾1 弾2 _ _ # 弾1 が役目を終えた
+_ 弾2 _ _ # 返す：場所は空きに戻る（解放はしない）
++弾3 弾2 _ _ # 次に借りるときは、空いた場所を再利用する
+</div>
+
 ## 詳しく
 
 ### 空きリストで速く見つける
@@ -170,7 +179,7 @@ a=0 b=1 c=0 / 空き 1
 | 配列 + 使用中フラグ | O(n) | 使っていないものも見る | 一番簡単。数百個までなら十分 |
 | 空きリスト | O(1) | 使っていないものも見る | 取り出しが速い |
 | vector + swap して pop_back | O(1)（push_back） | 使用中だけを詰めて回せる | 回すのが一番速い。並び順は変わる。要素の位置が動くので外からはハンドルで指す |
-| [SlotMap](handle.md)（世代付き） | O(1) | 使っていないものも見る | 外から安全に指せる |
+| [SlotMap](../../engine/handle.md)（世代付き） | O(1) | 使っていないものも見る | 外から安全に指せる |
 
 ### 満杯になったら？
 
@@ -201,15 +210,6 @@ a=0 b=1 c=0 / 空き 1
 ??? failure "最初からプールを作る"
     今の PC はメモリ確保もそれなりに速いので、少ない数なら普通に vector に `push_back` / `erase_if` で十分です。測って遅いと分かってから導入します。
 
-## 理解度チェック
-
-!!! question "Q1. パーティクルが満杯になったとき、新しいものを作らずに一番古いものを上書きするには？"
-    <div class="spoiler" markdown>
-
-    **答え:** 次に使う番号を `next = (next + 1) % N` のように回していく「リングバッファ」にします。空きを探さずに、いつも次の番号を上書きします。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -220,6 +220,6 @@ a=0 b=1 c=0 / 空き 1
 
 ## 関連ページ
 
-- [ハンドルと世代 ID](handle.md)
+- [ハンドルと世代 ID](../../engine/handle.md)
 - [ECS](ecs.md)
 - [Game Programming Patterns: Object Pool](https://gameprogrammingpatterns.com/object-pool.html)

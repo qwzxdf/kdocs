@@ -105,7 +105,7 @@
 
   function Init() {
     document.querySelectorAll(".anim").forEach((root) => {
-      if (!root.dataset.ready) {
+      if (!root.dataset.ready && root.dataset.type !== "graph") {
         Build(root);
       }
     });

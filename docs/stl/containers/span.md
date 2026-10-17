@@ -593,24 +593,6 @@ constexpr reference at(size_type idx) const;  // C++26
 ??? failure "読むだけなのに const を付け忘れる"
     `std::span<int>` で受けると、`const std::vector<int>` を渡せません。読むだけなら必ず `std::span<const int>` にします。
 
-## 理解度チェック
-
-!!! question "Q1. `void F(std::span<const int> s);` に渡せるのはどれ？"
-    `std::vector<int>`、`std::array<int, 3>`、`int[5]`、`std::list<int>`
-
-    <div class="spoiler" markdown>
-
-    **答え:** `std::list<int>` 以外すべて。span は**メモリが連続している**ものしか受け取れません。list は要素がバラバラに置かれているので無理です。
-
-    </div>
-
-!!! question "Q2. span の引数は `const std::span<const T>&` と `std::span<const T>` のどちらが良い？"
-    <div class="spoiler" markdown>
-
-    **答え:** `std::span<const T>`（値渡し）。span 自体が 16 バイトしかないので、参照にすると逆に間接参照が増えます。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

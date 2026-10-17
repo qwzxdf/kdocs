@@ -335,13 +335,13 @@ Process(std::make_unique<Enemy>(1), std::make_unique<Enemy>(2));
 | `new` / `delete` | ヒープへの確保・解放。1 回数十〜数百ナノ秒かかり、時間も一定ではない |
 | 小さいオブジェクトを大量に `new` | 遅く、メモリも散らばる（[キャッシュ効率](../../basics/cache.md)） |
 | 配置 new | メモリの確保が無いので、コンストラクタを呼ぶ時間だけ |
-| 対策 | `std::vector` にまとめる、[プール](pmr.md)、[オブジェクトプール](../../engine/object-pool.md) |
+| 対策 | `std::vector` にまとめる、[プール](pmr.md)、[オブジェクトプール](../../design/patterns/object-pool.md) |
 
 ## ゲームでの使いどころ
 
 | 場面 | 使い方 |
 | --- | --- |
-| 敵・弾の動的な生成 | `std::make_unique`。大量なら [オブジェクトプール](../../engine/object-pool.md) |
+| 敵・弾の動的な生成 | `std::make_unique`。大量なら [オブジェクトプール](../../design/patterns/object-pool.md) |
 | 弾・エフェクトを使い回す | 先にまとめて確保して、配置 new / `construct_at` で作り直す |
 | 確保回数の計測 | グローバルの `operator new` を差し替えて数える |
 | キャッシュラインをそろえたデータ | `alignas(64)` を付けた型を `new` する |
@@ -371,29 +371,6 @@ Process(std::make_unique<Enemy>(1), std::make_unique<Enemy>(2));
 
 ??? failure "アラインメントが足りない場所に配置 new する"
     `char buffer[sizeof(T)]` の上に `T` を作ると、アラインメント違反で壊れることがあります。`alignas(T) std::byte buffer[sizeof(T)];` と書きます。
-
-## 理解度チェック
-
-!!! question "Q1. `Enemy* e = new Enemy[3]; delete e;` の何が問題？"
-    <div class="spoiler" markdown>
-
-    **答え:** `new[]` で作ったものは `delete[]` で消す必要があります。`delete e;` では先頭の 1 個のデストラクタしか呼ばれず、未定義動作です。そもそも `std::vector<Enemy>` を使うほうが安全です。
-
-    </div>
-
-!!! question "Q2. 配置 new で作ったオブジェクトを破棄するには？"
-    <div class="spoiler" markdown>
-
-    **答え:** `p->~T();`（または `std::destroy_at(p)`）でデストラクタを呼びます。`delete p;` は、メモリも返そうとするのでダメです。領域は、確保した方法に合わせて別に返します。
-
-    </div>
-
-!!! question "Q3. `Process(new A, new B);` が危ないのはなぜ？"
-    <div class="spoiler" markdown>
-
-    **答え:** 引数の評価順は決まっていないので、`new A` のあとに `new B` が例外を投げると、`A` が `delete` されずにリークするからです。`std::make_unique` を使えば、確保した時点で所有者がいるので安全です。
-
-    </div>
 
 ## 類似
 

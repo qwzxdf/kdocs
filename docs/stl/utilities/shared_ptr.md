@@ -412,22 +412,6 @@ int main() {
 ??? failure "値渡しで毎回参照カウントが動く"
     `void Draw(std::shared_ptr<Sprite> s)` は呼ぶたびにアトミックな増減が起きます。使うだけなら `void Draw(const Sprite& s)` にします。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    auto a = std::make_shared<int>(1);
-    auto b = a;
-    auto c = std::move(b);
-    std::println("{}", a.use_count());
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `2`。`b` は `c` にムーブされて空になったので、持ち主は `a` と `c` の 2 人です。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

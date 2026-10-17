@@ -148,15 +148,6 @@ constexpr const T& clamp(const T& v, const T& lo, const T& hi, Comp comp = {}, P
 ??? failure "マップが画面より小さくて lo > hi になる"
     カメラの位置を `std::clamp(x, 0.0f, map_width - screen_width)` で収めると、マップが画面より狭いときに上限がマイナスになり、未定義動作になります。先に上限を `std::max(0.0f, ...)` しておきます。
 
-## 理解度チェック
-
-!!! question "Q1. `std::clamp(15, 0, 10)` と `std::clamp(-3, 0, 10)` は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `10` と `0`。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

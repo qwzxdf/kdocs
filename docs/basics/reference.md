@@ -226,31 +226,6 @@ int main() {
 ??? failure "int を const 参照で渡す"
     `void F(const int& x)` は間違いではありませんが、int は値渡しのほうが速いことが多いです（参照は中身がポインタなので、かえって間接参照が増える）。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    int a = 1;
-    int& r = a;
-    int b = r;
-    b = 5;
-    r = 3;
-    std::println("{} {}", a, b);
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `3 5`。`b` は `r`（= `a`）の値をコピーした別の変数なので、`b = 5` は `a` に影響しません。`r = 3` は `a` を書き換えます。
-
-    </div>
-
-!!! question "Q2. `void Print(std::vector<int> v)` の問題点は？"
-    <div class="spoiler" markdown>
-
-    **答え:** 呼ぶたびに vector 全体がコピーされます。読むだけなら `const std::vector<int>&`（または `std::span<const int>`）にします。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

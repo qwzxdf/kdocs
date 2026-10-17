@@ -382,29 +382,6 @@ void rehash(std::size_t count);
 ??? failure "`std::hash` を暗号の代わりに使う"
     安全性はありません。パスワードの保存、署名には、SHA-256 など暗号用のハッシュを使います。
 
-## 理解度チェック
-
-!!! question "Q1. `std::unordered_map<std::pair<int, int>, int>` がコンパイルエラーになるのはなぜ？"
-    <div class="spoiler" markdown>
-
-    **答え:** 標準には `std::hash<std::pair<...>>` がないからです。自分で `PairHash` のような関数オブジェクトを書いて、3 つ目のテンプレート引数に渡します。
-
-    </div>
-
-!!! question "Q2. `operator==` が `x` と `y` を比べているとき、ハッシュには何を入れるべき？"
-    <div class="spoiler" markdown>
-
-    **答え:** `x` と `y` の両方です（比べているメンバと同じもの）。`a == b` なら必ず `hash(a) == hash(b)` になる必要があるからです。比べないメンバをハッシュに入れると、同じ扱いのキーが別の箱に入ります。
-
-    </div>
-
-!!! question "Q3. 「アセット名 → ID」をセーブデータに保存したい。`std::hash` を使ってよい？"
-    <div class="spoiler" markdown>
-
-    **答え:** よくありません。`std::hash` の値は環境・実行で変わることがあり、保存した ID が次の実行で別物になるからです。FNV-1a など、値が仕様で決まっているハッシュを使います。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

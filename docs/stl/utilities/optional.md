@@ -453,21 +453,6 @@ constexpr void swap(optional& other);
 ??? failure "参照を入れようとする"
     `std::optional<Enemy&>` は C++23 では作れません。参照したいだけならポインタ（`Enemy*`、無ければ `nullptr`）を使います。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::optional<int> a;
-    std::optional<int> b = 0;
-    std::println("{} {}", a.has_value(), b.has_value());
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `false true`。`b` は値 0 を「持っている」ので true です。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

@@ -16,7 +16,7 @@ tags:
     - <strong>継承は「〜は〜の一種」、コンポーネントは「〜は〜を持っている」。</strong> ゲームのオブジェクトは後者で考えたほうが組み合わせやすい。
     - 基本形は `GameObject` が `std::vector<std::unique_ptr<Component>>` を持ち、毎フレーム全部の `Update` を呼ぶ。
     - コンポーネント同士は `GetComponent<T>()` で探して連携する。
-    - オブジェクトが何万個にもなるなら、データの並びを最適化した [ECS](ecs.md) を検討する。
+    - オブジェクトが何万個にもなるなら、データの並びを最適化した [ECS](../design/patterns/ecs.md) を検討する。
 
 !!! info "このページを読む前に"
     [継承と仮想関数](../basics/virtual.md)、[テンプレート](../basics/template.md)、[`std::unique_ptr`](../stl/utilities/unique_ptr.md) を使います。
@@ -190,7 +190,7 @@ int main() {
 
 | 原因 | 対策 |
 | --- | --- |
-| コンポーネント 1 個ごとにヒープ確保（メモリがバラバラ） | 種類ごとに vector にまとめて持つ → [ECS](ecs.md) |
+| コンポーネント 1 個ごとにヒープ確保（メモリがバラバラ） | 種類ごとに vector にまとめて持つ → [ECS](../design/patterns/ecs.md) |
 | 毎フレーム仮想関数を呼ぶ | 種類ごとにまとめて普通の関数で回す |
 | `dynamic_cast` での検索 | 型ごとの ID を使う、ポインタを覚えておく |
 
@@ -218,15 +218,6 @@ int main() {
 ??? failure "コンポーネントの Update の順番に依存する"
     「Mover が先、Collider が後」のような順番に頼ると、取り付けた順で動きが変わります。順番が大事な処理は、種類ごとに決まった順で回す仕組み（システム）にします。
 
-## 理解度チェック
-
-!!! question "Q1. 「HP がある宝箱（壊せる）」を作るには？"
-    <div class="spoiler" markdown>
-
-    **答え:** 宝箱の GameObject に `Transform`、`SpriteRenderer`、`Collider` に加えて `Health` を付けます。敵用に作った `Health` をそのまま使い回せるのがコンポーネントの良いところです。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -237,6 +228,6 @@ int main() {
 
 ## 関連ページ
 
-- [ECS](ecs.md)
+- [ECS](../design/patterns/ecs.md)
 - [継承と仮想関数](../basics/virtual.md)
 - [Game Programming Patterns: Component](https://gameprogrammingpatterns.com/component.html)

@@ -323,17 +323,6 @@ void ForEachEnemy(auto&& func) {
 ??? failure "unique_ptr をキャプチャして入らない"
     `std::function` はコピーできる必要があるので、`unique_ptr` をムーブキャプチャしたラムダは入りません。C++23 の `std::move_only_function` を使います。
 
-## 理解度チェック
-
-!!! question "Q1. `std::function<int(int, int)> f;` に入れられるのはどれ？"
-    `[](int a, int b) { return a + b; }`、`[](int a) { return a; }`、`std::plus<int>{}`
-
-    <div class="spoiler" markdown>
-
-    **答え:** 1 つ目と 3 つ目。2 つ目は引数が 1 つなので形が合いません。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い | こっちを使うとき |

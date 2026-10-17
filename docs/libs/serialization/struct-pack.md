@@ -585,29 +585,6 @@ auto buffer = struct_pack::serialize<struct_pack::sp_config::DISABLE_ALL_META_IN
 ??? failure "DISABLE_ALL_META_INFO で保存して compatible を使う"
     メタ情報を全部消すと、型のチェックも互換フィールドも使えません。通信のような「両側のプログラムが必ず同じ」場合だけにします。
 
-## 理解度チェック
-
-!!! question "Q1. struct_pack で保存した `Player` のデータを、メンバの名前だけ変えた `Player`（`name` → `player_name`）で読むとどうなる？"
-    <div class="spoiler" markdown>
-
-    **答え:** 普通に読めます。型のハッシュは、メンバの**型と順番**から作られ、名前は使われないからです。
-
-    </div>
-
-!!! question "Q2. リリース後にセーブデータに `int stamina` を足したい。古いセーブも読めるようにするには？"
-    <div class="spoiler" markdown>
-
-    **答え:** 構造体の**最後**に `struct_pack::compatible<int, バージョン番号> stamina;` として足します。古いデータを読むと `stamina` は空（`has_value()` が false）になるので、`value_or(100)` などでデフォルト値を使います。
-
-    </div>
-
-!!! question "Q3. zpp_bits と struct_pack の一番の違いは？"
-    <div class="spoiler" markdown>
-
-    **答え:** struct_pack はデータに**型のハッシュ**を入れるので、違う形の型で読むとエラーで分かり、`compatible` でメンバを足すこともできます。zpp_bits は型の情報を入れないので少し小さくなりますが、形のチェックやバージョン管理は自分で行います。
-
-    </div>
-
 ## 類似ライブラリ
 
 | ライブラリ | 違い |

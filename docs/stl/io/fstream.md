@@ -471,15 +471,6 @@ void open(const std::filesystem::path& p, std::ios::openmode mode = /* in / out 
 ??? failure "while (!in.eof())"
     最後の要素を 2 回処理してしまいます。`while (std::getline(in, line))` か `while (in >> x)` にします。
 
-## 理解度チェック
-
-!!! question "Q1. ログを毎回ファイルの末尾に追加したい。どう開く？"
-    <div class="spoiler" markdown>
-
-    **答え:** `std::ofstream log("log.txt", std::ios::app);`。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

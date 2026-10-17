@@ -18,7 +18,7 @@ C++ の標準ライブラリは、失敗したときに**例外**を投げるこ
 !!! tip "ポイント"
     - 受け取るときは **`catch (const std::exception& e)`**（const 参照で）、`e.what()` で説明を取る。
     - 自分で投げるなら `std::runtime_error("説明")` か、それを継承した型。
-    - ゲームでは例外を使わない方針も多い（[エラー処理の方針](../../design/error-handling.md)）。その場合でも、標準ライブラリの例外を投げる関数を知っておく。
+    - ゲームでは例外を使わない方針も多い（[エラー処理の方針](../../design/foundations/error-handling.md)）。その場合でも、標準ライブラリの例外を投げる関数を知っておく。
 
 ## 例外の階層
 
@@ -239,15 +239,6 @@ int main() {
 ??? failure "catch の順番が逆"
     親の型（`std::exception`）を先に書くと、子の型（`std::out_of_range`）の catch には来ません。細かい型から順に書きます。
 
-## 理解度チェック
-
-!!! question "Q1. `std::filesystem::filesystem_error` は `catch (const std::runtime_error&)` で受け取れる？"
-    <div class="spoiler" markdown>
-
-    **答え:** 受け取れます。filesystem_error は system_error の子で、system_error は runtime_error の子です。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -257,5 +248,5 @@ int main() {
 
 ## 関連ページ
 
-- [エラー処理の方針](../../design/error-handling.md)
+- [エラー処理の方針](../../design/foundations/error-handling.md)
 - [cppreference: Exceptions](https://en.cppreference.com/w/cpp/error/exception)

@@ -371,15 +371,6 @@ template <class M, class T>
 ??? failure "ハッシュの組み合わせを x ^ y にする"
     `(1, 2)` と `(2, 1)`、`(3, 3)` と `(0, 0)` が同じハッシュになり、衝突が増えます。上の例のようにずらして混ぜます。
 
-## 理解度チェック
-
-!!! question "Q1. `std::ranges::sort(v, std::greater{})` と `std::ranges::sort(v, std::greater<int>())` の違いは？"
-    <div class="spoiler" markdown>
-
-    **答え:** 結果は同じです。`std::greater{}`（`greater<void>`）は型を引数から推論するので、型を書かなくて済み、型の違う値どうしの比較にも使えます。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

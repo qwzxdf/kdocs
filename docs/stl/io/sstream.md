@@ -260,15 +260,6 @@ int main() {
 ??? failure "文字列を作るのに使い続ける"
     `std::format` のほうが短く、速いことが多いです。
 
-## 理解度チェック
-
-!!! question "Q1. `std::istringstream ss(\"7 x 9\"); int a, b; ss >> a >> b;` のあと b は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `0`。`x` は数値にできないので読み込みに失敗し、b には 0 が入ります（C++11 以降）。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

@@ -846,36 +846,6 @@ Callbacks const& get_callbacks();
 ??? failure "エラーで突然ゲームが落ちる"
     デフォルトではエラーで abort します。人が書くデータを読むなら、`RYML_DEFAULT_CALLBACK_USES_EXCEPTIONS` などでエラーを受け取れるようにしておきます。
 
-## 理解度チェック
-
-!!! question "Q1. このコードの何がだめ？"
-    ```cpp
-    ryml::Tree LoadTree(const char* path) {
-      std::string text = ReadAll(path);
-      return ryml::parse_in_place(ryml::to_substr(text));
-    }
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `parse_in_place` は `text` の中身をそのまま使いますが、`text` は関数を抜けると消えます。返した木の中の文字列はすべて壊れています。`parse_in_arena(ryml::to_csubstr(text))` にすれば、木の中にコピーされるので安全です。
-
-    </div>
-
-!!! question "Q2. `version: 1.10` を `std::string` で読むと、何が取れる？"
-    <div class="spoiler" markdown>
-
-    **答え:** `"1.10"` です。rapidyaml は値を文字列のまま持っていて、読むときの型で変換するので、文字列として読めば書いたとおりの文字が取れます。
-
-    </div>
-
-!!! question "Q3. 自作の型を `>>` で読めるようにするには、どんな関数を書く？"
-    <div class="spoiler" markdown>
-
-    **答え:** 型と同じ名前空間に `bool read(const ryml::ConstNodeRef& n, T* v)` を書きます（書き込み用は `void write(ryml::NodeRef* n, const T& v)`）。
-
-    </div>
-
 ## 類似ライブラリ
 
 | ライブラリ | 違い |

@@ -13,7 +13,7 @@ tags:
 `#include "ImGuizmo.h"`
 </div>
 
-**ImGuizmo**（イムギズモ）は、[Dear ImGui](index.md) の拡張ライブラリで、**3D シーンの中に、移動・回転・拡大の矢印（ギズモ）を出して、マウスで操作できる**ようにします。Unity や Blender で、オブジェクトを選ぶと出てくる、赤・緑・青の矢印と同じものです。ゲーム エディタを自作するときの、**オブジェクトの配置**に欠かせない部品です。使い方は「**カメラの行列（ビューとプロジェクション）と、オブジェクトのワールド行列を渡す → 操作された結果が、行列に書き戻される**」の 1 つの関数 `Manipulate` が中心です。
+**ImGuizmo**（イムグイズモ）は、[Dear ImGui](index.md) の拡張ライブラリで、**3D シーンの中に、移動・回転・拡大の矢印（ギズモ）を出して、マウスで操作できる**ようにします。Unity や Blender で、オブジェクトを選ぶと出てくる、赤・緑・青の矢印と同じものです。ゲーム エディタを自作するときの、**オブジェクトの配置**に欠かせない部品です。使い方は「**カメラの行列（ビューとプロジェクション）と、オブジェクトのワールド行列を渡す → 操作された結果が、行列に書き戻される**」の 1 つの関数 `Manipulate` が中心です。
 
 !!! tip "ポイント"
     - 毎フレーム、**`ImGui::NewFrame()` の後に `ImGuizmo::BeginFrame()`** を呼ぶ。
@@ -103,14 +103,38 @@ void Frame(SceneView& scene) {
 
 ### 流れ
 
-```text
-① カメラから view / projection を作る（float[16]）
-② 選択したオブジェクトの位置・回転・拡大から、model（ワールド行列）を作る
-③ ImGuizmo::Manipulate(view, projection, 操作, 空間, model)
-      → ユーザーがドラッグすると、model が書き換わる
-④ 書き換わった model から、位置・回転・拡大を取り出して、オブジェクトに戻す
-      （DecomposeMatrixToComponents）
-```
+<div class="anim" data-type="graph" data-label="ギズモの流れ">
+n cam カメラ 0 0 hit
+n obj オブジェクト 0 2
+n gizmo Manipulate 2 1
+n out 書き換わった行列 4 1
+# ① カメラの view / projection と、オブジェクトのワールド行列を用意する
+---
+n cam カメラ 0 0 hit
+n obj オブジェクト 0 2 hit
+n gizmo Manipulate 2 1
+n out 書き換わった行列 4 1
+l cam gizmo hit view_projection
+l obj gizmo hit ワールド行列
+# ② ImGuizmo::Manipulate に渡す
+---
+n cam カメラ 0 0
+n obj オブジェクト 0 2
+n gizmo Manipulate 2 1 hit
+n out 書き換わった行列 4 1 new
+l cam gizmo
+l obj gizmo
+l gizmo out new ドラッグで書き換え
+# ③ ユーザーがドラッグすると、ワールド行列が書き換わる
+---
+n cam カメラ 0 0
+n obj オブジェクト 0 2 hit
+n gizmo Manipulate 2 1
+n out 書き換わった行列 4 1 hit
+l out obj hit Decompose
+# ④ 位置・回転・拡大を取り出して、オブジェクトに戻す
+</div>
+
 
 ## 位置・回転・拡大を行列と相互に変換する
 
@@ -483,29 +507,6 @@ model_matrix = DirectX::XMMatrixTranspose(DirectX::XMLoadFloat4x4(&model_dx));  
 
 ??? failure "拡大に 0 を入れる"
     `scale` に 0 があると、行列が壊れて（逆行列が作れず）、ギズモが消えます。拡大は 0 にならないようにします。
-
-## 理解度チェック
-
-!!! question "Q1. `ImGuizmo::Manipulate` に渡す `matrix` は、どうなる？"
-    <div class="spoiler" markdown>
-
-    **答え:** ギズモを操作すると、**その行列が直接書き換わります**。書き換わった行列から、`DecomposeMatrixToComponents` で位置・回転・拡大を取り出して、ゲーム側のオブジェクトに戻します。
-
-    </div>
-
-!!! question "Q2. DirectXMath の行列を、ImGuizmo に渡すときに必要なことは？"
-    <div class="spoiler" markdown>
-
-    **答え:** 行優先と列優先が違うので、**転置**して渡します。操作で書き換わった行列も、転置し直してから、DirectXMath の行列に戻します。
-
-    </div>
-
-!!! question "Q3. ギズモをドラッグ中に、マウスでカメラが回ってしまうのを防ぐには？"
-    <div class="spoiler" markdown>
-
-    **答え:** `ImGuizmo::IsUsing()`（または `IsOver()`）が `true` のあいだは、カメラ操作の入力を無視します。
-
-    </div>
 
 ## 類似
 

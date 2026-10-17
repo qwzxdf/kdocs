@@ -399,7 +399,7 @@ int main() {
 | 場面 | 使い方 |
 | --- | --- |
 | フレームごとの一時データ（当たり判定の候補など） | フレーム用アリーナから取り、フレームの最後に `Reset()` |
-| 同じ大きさのオブジェクトを大量に作って消す（弾、パーティクル） | 固定サイズのプール（[オブジェクトプール](../../engine/object-pool.md)） |
+| 同じ大きさのオブジェクトを大量に作って消す（弾、パーティクル） | 固定サイズのプール（[オブジェクトプール](../../design/patterns/object-pool.md)） |
 | ロード中のデータ | レベル用のアリーナ。ステージを抜けるときにまとめて破棄 |
 | メモリの使い方のデバッグ | 確保の回数・バイト数を数える `CountingAllocator` |
 | ゲーム機のメモリ制限 | 用途ごとに上限のある領域を割り当てる |
@@ -420,29 +420,6 @@ int main() {
 
 ??? failure "アリーナを `Reset` したあとにコンテナを使う"
     アリーナの領域は再利用されるので、別のものを入れたとたんにコンテナの中身が壊れます。コンテナを先に破棄（または `clear` して小さくして）から `Reset` します。
-
-## 理解度チェック
-
-!!! question "Q1. 自作アロケータで最低限書く必要があるものは？"
-    <div class="spoiler" markdown>
-
-    **答え:** `value_type`、`allocate`、`deallocate`、`operator==`（と `!=` は C++20 以降は自動）、別の型のアロケータから作る型変換用コンストラクタ、の 5 つです。`construct` や `rebind` は `allocator_traits` が補ってくれます。
-
-    </div>
-
-!!! question "Q2. `std::list<int, MyAlloc<int>>` で、`MyAlloc` が `Node<int>` を確保できるのはなぜ？"
-    <div class="spoiler" markdown>
-
-    **答え:** リストが、`MyAlloc<int>` から型変換用コンストラクタ（`rebind`）で `MyAlloc<Node<int>>` を作って使うからです。そのため、アロケータは「別の型から作れる」必要があります。
-
-    </div>
-
-!!! question "Q3. アロケータが違うコンテナ同士をムーブ代入すると、何が起きる？"
-    <div class="spoiler" markdown>
-
-    **答え:** デフォルトでは `propagate_on_container_move_assignment` が `false` なので、アロケータは移らず、**要素が 1 つずつ移されます**（ポインタを渡すだけの速いムーブにならない）。
-
-    </div>
 
 ## 類似
 
@@ -474,5 +451,5 @@ int main() {
 - [new と delete・配置 new](new_delete.md)
 - [malloc / free（C 由来のメモリ確保）](c-memory.md)
 - [std::vector](../containers/vector.md)
-- [オブジェクトプール](../../engine/object-pool.md)
+- [オブジェクトプール](../../design/patterns/object-pool.md)
 - [cppreference: std::allocator](https://en.cppreference.com/w/cpp/memory/allocator)

@@ -14,12 +14,12 @@ tags:
 
 !!! tip "ポイント"
     - <strong>状態が少ないうちは `enum class` + `switch` で十分。</strong>
-    - 状態ごとのデータや処理が増えたら、状態をクラスにする（State パターン）か、[`std::variant`](../stl/utilities/variant.md) で持つ。
+    - 状態ごとのデータや処理が増えたら、状態をクラスにする（State パターン）か、[`std::variant`](../../stl/utilities/variant.md) で持つ。
     - 状態に入るとき・出るときの処理（Enter / Exit）を用意すると、アニメーションやエフェクトの開始・終了を書きやすい。
     - 状態の移り方（遷移）を図に描いてから作ると、抜け漏れが減る。
 
 !!! info "このページを読む前に"
-    [継承と仮想関数](../basics/virtual.md) と [`std::variant`](../stl/utilities/variant.md) を使います。
+    [継承と仮想関数](../../basics/virtual.md) と [`std::variant`](../../stl/utilities/variant.md) を使います。
 
 ## 基本
 
@@ -111,6 +111,63 @@ int main() {
 | ジャンプ | 着地 | 立ち |
 
 作る前にこういう表や図を書いておくと、「走りながら攻撃したら？」のような抜けに気づけます。
+
+<div class="anim" data-type="graph" data-label="ステートマシン：今の状態と、遷移">
+n idle 待機 0 0 hit
+n run 走る 1 0
+n jump ジャンプ 2 0
+n atk 攻撃 1 1
+l idle run
+l run jump
+l jump idle
+l idle atk
+l atk idle
+# 最初は「待機」
+---
+n idle 待機 0 0
+n run 走る 1 0 hit
+n jump ジャンプ 2 0
+n atk 攻撃 1 1
+l idle run hit 移動入力
+l run jump
+l jump idle
+l idle atk
+l atk idle
+# 移動入力があると「走る」へ遷移
+---
+n idle 待機 0 0
+n run 走る 1 0
+n jump ジャンプ 2 0 hit
+n atk 攻撃 1 1
+l idle run
+l run jump hit ジャンプ
+l jump idle
+l idle atk
+l atk idle
+# 走っている間にジャンプすると「ジャンプ」へ
+---
+n idle 待機 0 0 hit
+n run 走る 1 0
+n jump ジャンプ 2 0
+n atk 攻撃 1 1
+l idle run
+l run jump
+l jump idle hit 着地
+l idle atk
+l atk idle
+# 着地すると「待機」に戻る
+---
+n idle 待機 0 0
+n run 走る 1 0
+n jump ジャンプ 2 0
+n atk 攻撃 1 1 hit
+l idle run
+l run jump
+l jump idle
+l idle atk hit 攻撃
+l atk idle
+# 待機中に攻撃ボタンで「攻撃」へ。決まった線以外には遷移しない
+</div>
 
 ## 詳しく
 
@@ -259,7 +316,7 @@ int main() {
 | --- | --- |
 | プレイヤー | 立ち、歩き、ジャンプ、攻撃、被ダメージ、死亡 |
 | 敵 AI | 待機、巡回、追跡、攻撃、逃走 |
-| ゲーム全体 | タイトル、プレイ中、ポーズ、ゲームオーバー（[シーン管理](scene.md)） |
+| ゲーム全体 | タイトル、プレイ中、ポーズ、ゲームオーバー（[シーン管理](../../engine/scene.md)） |
 | UI | 閉じている、開く途中、開いている、閉じる途中 |
 | ドア | 閉、開く途中、開、閉まる途中 |
 
@@ -274,15 +331,6 @@ int main() {
 ??? failure "状態を変えた同じフレームで、古い状態の処理が続く"
     状態を変えたあとは `return` するか、遷移をフレームの最後にまとめて行います。
 
-## 理解度チェック
-
-!!! question "Q1. 「攻撃中は移動できない」をフラグではなく状態で表すと？"
-    <div class="spoiler" markdown>
-
-    **答え:** 攻撃状態（Attacking）の Update では移動入力を見ないようにします。状態ごとに処理が分かれているので、「攻撃中かつ移動中」になる心配がありません。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -292,6 +340,6 @@ int main() {
 
 ## 関連ページ
 
-- [シーン管理](scene.md)
-- [std::variant](../stl/utilities/variant.md)
+- [シーン管理](../../engine/scene.md)
+- [std::variant](../../stl/utilities/variant.md)
 - [Game Programming Patterns: State](https://gameprogrammingpatterns.com/state.html)

@@ -166,7 +166,7 @@ std::unordered_map<std::string, EnemyParams> LoadEnemyTable(const std::string& p
 
 | データ駆動の利点 | |
 | --- | --- |
-| 調整にビルドが要らない | ファイルを書き換えて再読み込みするだけ（[ホットリロード](../engine/resource.md#ホットリロード)） |
+| 調整にビルドが要らない | ファイルを書き換えて再読み込みするだけ（[ホットリロード](../../engine/resource.md#ホットリロード)） |
 | プログラマー以外が触れる | プランナーがバランスを調整できる |
 | コードが短くなる | 種類ごとのクラスを作らずに済む |
 
@@ -200,15 +200,6 @@ elite.hp *= 3;       // 少しだけ変える
 ??? failure "何でもデータにする"
     動きの複雑なルールまで無理にデータで表そうとすると、データが独自のプログラミング言語のようになって、かえって扱いにくくなります。
 
-## 理解度チェック
-
-!!! question "Q1. 新しい敵「コウモリ」を追加するとき、登録式ファクトリ + データ駆動だと何を変える？"
-    <div class="spoiler" markdown>
-
-    **答え:** 動きが既存の部品の組み合わせで作れるなら、データファイル（`enemies.json`）に「bat」の項目を足すだけです。新しい動きが必要なときだけ、その部品のコードを書いてファクトリに登録します。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -220,5 +211,5 @@ elite.hp *= 3;       // 少しだけ変える
 ## 関連ページ
 
 - [ストラテジー](strategy.md)
-- [シリアライズ](../engine/serialization/index.md)
+- [シリアライズ](../../engine/serialization/index.md)
 - [Game Programming Patterns: Prototype](https://gameprogrammingpatterns.com/prototype.html)

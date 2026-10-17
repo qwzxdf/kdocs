@@ -640,22 +640,6 @@ int main() {
 ??? failure "<print> が無い"
     `std::print` / `std::println` は C++23 です。使えない環境では `std::cout << std::format(...)` で代用します。
 
-## 理解度チェック
-
-!!! question "Q1. `std::format(\"[{:>4}|{:<4}|{:^4}]\", 1, 2, 3)` の結果は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `[   1|2   | 3  ]`。中央寄せで割り切れないときは左に寄ります。
-
-    </div>
-
-!!! question "Q2. 経過秒数 `t = 3725` を `01:02:05` の形で出す書式は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `std::format("{:02}:{:02}:{:02}", t / 3600, t / 60 % 60, t % 60)`。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い | こっちを使うとき |

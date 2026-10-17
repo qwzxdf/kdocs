@@ -214,15 +214,6 @@ false true 3 5
 ??? failure "search の結果を end() と比べる"
     ranges 版の `search` は範囲を返します。見つかったかは `.empty()` で確かめ、位置は `.begin()` です。
 
-## 理解度チェック
-
-!!! question "Q1. パズルで「同じ色が 3 つ横に並んだか」を調べるのに使えるのは？"
-    <div class="spoiler" markdown>
-
-    **答え:** `std::ranges::search_n(row, 3, color)`。特定の色でなくてよいなら、各位置から `adjacent_find` を繰り返すか、自分で数えます。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

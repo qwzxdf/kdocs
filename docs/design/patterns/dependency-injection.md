@@ -82,6 +82,30 @@ int main() {
 ロード: Lv.12
 ```
 
+<div class="anim" data-type="graph" data-label="依存性の注入：中で作る → 外から渡す">
+n player プレイヤー 0 1
+n audio 音の実装 2 1 gone
+l player audio gone 中で作る
+# 中で作ると、相手を差し替えられない（実装が固定）
+---
+n main 組み立て役 0 1 new
+n player プレイヤー 1 0 new
+n audio 音の実装 2 1
+l main player new 渡す
+l main audio new 作る
+l player audio hit 使う
+# 組み立て役が、実装を作ってプレイヤーに渡す。プレイヤーは作らない
+---
+n main 組み立て役 0 1
+n player プレイヤー 1 0
+n audio 音の実装 2 1
+n fake 偽物 2 2 new
+l main player
+l main fake new 作る
+l player fake hit 使う
+# テストでは、渡すものを偽物に替えるだけ
+</div>
+
 ## 渡し方の種類
 
 | 渡し方 | 書き方 | 向いているとき |
@@ -121,19 +145,10 @@ void StartGame() {
 ## よくある失敗
 
 ??? failure "全部のクラスにインターフェースを作る"
-    差し替える予定の無いものまで抽象クラスにすると、ファイルとコードが倍になるだけです。差し替えたいものだけにします（[YAGNI](principles.md#5-yagni--kiss)）。
+    差し替える予定の無いものまで抽象クラスにすると、ファイルとコードが倍になるだけです。差し替えたいものだけにします（[YAGNI](../foundations/principles.md#5-yagni--kiss)）。
 
 ??? failure "受け取った参照の相手が先に消える"
     `IStorage&` で受け取った相手が、SaveSystem より先に消えると壊れます。作る順番と消える順番（逆順）に注意し、渡す側のほうが長生きするようにします。
-
-## 理解度チェック
-
-!!! question "Q1. 敵の AI のテストで、毎回同じ行動をさせたい。どう設計しておくと楽？"
-    <div class="spoiler" markdown>
-
-    **答え:** AI に乱数エンジン（`std::mt19937&` など）を外から渡すようにしておきます。テストでは種を固定したエンジンを渡せば、毎回同じ行動になります。
-
-    </div>
 
 ## これだけ覚える
 
@@ -145,4 +160,4 @@ void StartGame() {
 ## 関連ページ
 
 - [シングルトンとグローバル](singleton.md)
-- [設計の基本原則](principles.md)
+- [設計の基本原則](../foundations/principles.md)

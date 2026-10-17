@@ -92,15 +92,29 @@ Visual Studio を使っているなら、**この方法が一番簡単**です�
 
 cereal は**アーカイブ**（保存先・読み込み元の形式）と、型ごとの **`serialize` 関数**の 2 つでできています。
 
-```text
-            serialize 関数（型ごとに 1 つ）
-                 ar(name, level, items);
-                       │
-       ┌───────────────┼────────────────┐
-       ▼               ▼                ▼
- BinaryOutputArchive  JSONOutputArchive  BinaryInputArchive
-   （保存・バイナリ）    （保存・JSON）      （読み込み・バイナリ）
-```
+<div class="anim" data-type="graph" data-label="cereal：同じ serialize が、保存にも読み込みにも">
+n ser serialize関数 0 1 hit
+n out 出力アーカイブ 2 0
+n in 入力アーカイブ 2 2
+# 型ごとに、serialize を 1 つだけ書く
+---
+n ser serialize関数 0 1
+n out 出力アーカイブ 2 0 hit
+n in 入力アーカイブ 2 2 dim
+n file ファイル 4 0 new
+l ser out hit 保存
+l out file new 書く
+# 出力アーカイブを渡すと、ar(a, b, c) は「書く」になる
+---
+n ser serialize関数 0 1
+n out 出力アーカイブ 2 0 dim
+n in 入力アーカイブ 2 2 hit
+n file ファイル 4 2
+l ser in hit 読み込み
+l file in hit 読む
+# 入力アーカイブを渡すと、同じ ar(a, b, c) が「読む」になる（順番がずれない）
+</div>
+
 
 `ar(name, level, items);` という同じ 1 行が、**保存用のアーカイブ**が渡されたときは「書く」、**読み込み用のアーカイブ**が渡されたときは「読む」になります。そのため、保存と読み込みで順番がずれることがありません。アーカイブを入れ替えれば、同じ `serialize` 関数でバイナリにも JSON にもなります。
 
@@ -965,36 +979,6 @@ JSONOutputArchive::Options(int precision = std::numeric_limits<double>::max_digi
 
 ??? failure "子クラスで base_class を忘れる"
     子の `serialize` で `cereal::base_class<Enemy>(this)` を書かないと、親のメンバが保存されません。エラーにはならないので気づきにくいです。
-
-## 理解度チェック
-
-!!! question "Q1. このコードの何がだめ？"
-    ```cpp
-    std::stringstream stream;
-    cereal::JSONOutputArchive archive(stream);
-    archive(CEREAL_NVP(player));
-    SaveToFile(stream.str());
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** アーカイブが破棄される前に `stream.str()` を使っているので、JSON の最後の `}` が書かれていません。アーカイブを `{ }` で囲み、スコープを抜けてから `stream.str()` を使います。
-
-    </div>
-
-!!! question "Q2. `CEREAL_CLASS_VERSION(SaveData, 3);` の型で、`serialize` の `version` に 1 が入ってくるのはどんなとき？"
-    <div class="spoiler" markdown>
-
-    **答え:** バージョン 1 のときに保存されたデータを読み込むときです。保存するときは常に今のバージョン（3）が渡されます。
-
-    </div>
-
-!!! question "Q3. cereal のバイナリアーカイブで `std::string name = "Bob";` を保存すると何バイトになる？"
-    <div class="spoiler" markdown>
-
-    **答え:** 11 バイトです。長さが `std::uint64_t` で 8 バイト、中身の `Bob` が 3 バイトです。
-
-    </div>
 
 ## 類似ライブラリ
 

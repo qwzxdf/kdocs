@@ -557,21 +557,6 @@ bool operator==(const bitset& rhs) const noexcept;
 ??? failure "個数を実行時に決めようとする"
     `std::bitset<n>` の `n` は定数でないといけません。実行時に決まるなら `std::vector<bool>` を使います。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::bitset<4> a("1100");
-    std::bitset<4> b("1010");
-    std::println("{} {}", (a & b).to_string(), (a | b).count());
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `1000 3`。`a & b` は両方 1 の左端だけ、`a | b` は `1110` で 1 が 3 個です。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

@@ -43,7 +43,6 @@ class priority_queue;
 
 ## 関数一覧
 
-
 | 関数 | 重要度 | 何をする | 計算量 |
 | --- | --- | --- | --- |
 | [`push`](#push) | <span class="rank rank-must">必須</span> | 追加 | O(log n) |
@@ -376,23 +375,6 @@ void swap(priority_queue& other) noexcept;
 
 ??? failure "中身を回そうとする"
     `begin()` / `end()` が無いので範囲 for は使えません。全部見たいなら、コピーを作って `pop` しながら見るか、vector と `std::ranges::sort` で代用します。
-
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::priority_queue<int, std::vector<int>, std::greater<>> q;
-    q.push(5);
-    q.push(1);
-    q.push(3);
-    std::println("{}", q.top());
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `1`。`std::greater<>` なので小さいものが先頭に来ます。
-
-    </div>
 
 ## 類似クラス
 

@@ -194,15 +194,6 @@ int main() {
 ??? failure "セーブデータに int や long を使う"
     環境によって大きさが違い、別の PC で読めなくなることがあります。
 
-## 理解度チェック
-
-!!! question "Q1. 所持金の上限が 99 億。int32_t で足りる？"
-    <div class="spoiler" markdown>
-
-    **答え:** 足りません（約 21 億まで）。`std::int64_t` を使います。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

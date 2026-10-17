@@ -42,7 +42,6 @@ class queue;
 
 ## 関数一覧
 
-
 | 関数 | 重要度 | 何をする | 計算量 |
 | --- | --- | --- | --- |
 | [`push`](#push) | <span class="rank rank-must">必須</span> | 末尾に追加 | O(1) |
@@ -333,15 +332,6 @@ void swap(queue& other) noexcept;
 
 ??? failure "pop の戻り値を使おうとする"
     `pop` は何も返しません。`front` で取ってから `pop` します。
-
-## 理解度チェック
-
-!!! question "Q1. A, B, C の順に push して、pop を 1 回したあとの front は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `B`。先に入れた A が出ていきます。
-
-    </div>
 
 ## 類似クラス
 

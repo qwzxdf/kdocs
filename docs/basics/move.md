@@ -170,17 +170,6 @@ std::vector<int> MakeTiles() {
 ??? failure "int や小さい構造体を move する"
     中にヒープを持たない型は、ムーブしてもコピーと同じです。付けても速くなりません。
 
-## 理解度チェック
-
-!!! question "Q1. ムーブで速くなる型はどれ？"
-    `int`、`std::string`、`std::vector<float>`、`struct Vec2 { float x, y; }`、`std::unique_ptr<Enemy>`
-
-    <div class="spoiler" markdown>
-
-    **答え:** `std::string`、`std::vector<float>`、`std::unique_ptr<Enemy>`（中にヒープへのポインタを持っている型）。`int` と `Vec2` はコピーと同じです。unique_ptr はそもそもムーブしかできません。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

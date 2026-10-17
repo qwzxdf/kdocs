@@ -71,6 +71,40 @@ int main() {
 
 フレームレートが違っても、同じ時間（1/15 秒）で同じ距離だけ進みます。
 
+<div class="anim" data-type="graph" data-label="ゲームループ：1 フレームの流れ">
+n input 入力 0 0 hit
+n update 更新 1 0
+n draw 描画 2 0
+l input update
+l update draw
+l draw input 次のフレーム
+# ① 入力を受け取る
+---
+n input 入力 0 0
+n update 更新 1 0 hit
+n draw 描画 2 0
+l input update hit
+l update draw
+l draw input 次のフレーム
+# ② ゲームの状態を更新する
+---
+n input 入力 0 0
+n update 更新 1 0
+n draw 描画 2 0 hit
+l input update
+l update draw hit
+l draw input 次のフレーム
+# ③ 画面に描く
+---
+n input 入力 0 0 hit
+n update 更新 1 0
+n draw 描画 2 0
+l input update
+l update draw
+l draw input hit 次のフレーム
+# 終わったら、また最初へ（これを 1 秒に 60 回くり返す）
+</div>
+
 ## 詳しく
 
 ### 可変タイムステップの問題
@@ -196,15 +230,6 @@ while (ProcessMessage() == 0) {   // DxLib の例
 
 ??? failure "float で経過時間を足し続ける"
     長時間のプレイで誤差が溜まります。合計時間は `double` か、整数の `std::chrono::nanoseconds` などで持ちます。
-
-## 理解度チェック
-
-!!! question "Q1. 固定タイムステップ 1/60 秒で、あるフレームに 0.04 秒かかった。そのフレームで FixedUpdate は何回呼ばれる？（貯金は 0 から）"
-    <div class="spoiler" markdown>
-
-    **答え:** 2 回（1/60 ≒ 0.0167 秒。0.04 秒には 2 回分が入り、残り約 0.0067 秒は次のフレームに持ち越し）。
-
-    </div>
 
 ## これだけ覚える
 

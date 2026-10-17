@@ -534,23 +534,6 @@ void swap(deque& other) noexcept;
 ??? failure "&d[0] を C の API に渡す"
     deque の中身は連続していないので、`&d[0]` から先を配列として読むと範囲外になります。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::deque<int> d;
-    d.push_back(1);
-    d.push_front(2);
-    d.push_back(3);
-    std::println("{}", d);
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `[2, 1, 3]`。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

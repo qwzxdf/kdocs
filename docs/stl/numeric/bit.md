@@ -319,15 +319,6 @@ int main() {
 ??? failure "reinterpret_cast で float を読む"
     型の違うポインタで読むのは未定義動作（strict aliasing 違反）です。`std::bit_cast` を使います。
 
-## 理解度チェック
-
-!!! question "Q1. `std::bit_ceil(65u)` と `std::bit_floor(65u)` は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `128` と `64`。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

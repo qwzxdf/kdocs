@@ -156,15 +156,6 @@ void Crash() {
 ??? failure "関数の中で current() を呼ぶ"
     `Log` の中で `std::source_location::current()` を呼ぶと、Log 自身の場所になってしまいます。デフォルト引数に書きます。
 
-## 理解度チェック
-
-!!! question "Q1. source_location をデフォルト引数に書くと、なぜ呼んだ側の場所になる？"
-    <div class="spoiler" markdown>
-
-    **答え:** デフォルト引数は「呼び出したその場所」で評価されるからです。`current()` はそこで評価され、呼び出し元のファイル・行が入ります。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -173,5 +164,5 @@ void Crash() {
 
 ## 関連ページ
 
-- [エラー処理の方針](../../design/error-handling.md)
+- [エラー処理の方針](../../design/foundations/error-handling.md)
 - [cppreference: std::source_location](https://en.cppreference.com/w/cpp/utility/source_location)

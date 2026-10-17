@@ -245,34 +245,6 @@ void _aligned_free(void* ptr);                                    // free では
 ??? failure "確保した大きさより後ろに書く（バッファオーバーラン）"
     `malloc(10)` で確保したのに 11 バイト目に書くと、ヒープの管理情報を壊します。のちの `free` や `malloc` で、**関係のない場所で**クラッシュします。`std::vector` と `at`、または `std::span` で範囲を守ります。
 
-## 理解度チェック
-
-!!! question "Q1. このコードの問題は？"
-    ```cpp
-    int* a = static_cast<int*>(std::malloc(10));
-    a[9] = 1;
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `malloc` はバイト数なので、10 バイトしか確保されていません。`int` が 10 個ほしいなら `10 * sizeof(int)`（40 バイト）です。`a[9]` は 36〜39 バイト目なので、確保した範囲の外への書き込み（バッファオーバーラン）です。
-
-    </div>
-
-!!! question "Q2. C のライブラリが `malloc` で確保して返したデータを、`delete` してよい？"
-    <div class="spoiler" markdown>
-
-    **答え:** いけません。`malloc` ↔ `free` の組です（または、そのライブラリが用意した解放関数）。`unique_ptr<T, decltype(&std::free)>` で受ければ、`free` が自動で呼ばれます。
-
-    </div>
-
-!!! question "Q3. `realloc` で、他の変数が古いポインタを持っているとどうなる？"
-    <div class="spoiler" markdown>
-
-    **答え:** `realloc` が別の場所に引っ越すと、古いポインタは無効になります（ダングリングポインタ）。`std::vector` の再確保と同じです。ポインタではなく、番号（添字）で持つと安全です。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

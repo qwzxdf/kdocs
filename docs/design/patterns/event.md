@@ -19,7 +19,7 @@ tags:
     - 発行の最中に購読・解除・別のイベント発行が起きると壊れやすい。キューに溜めてフレームの最後に配る方法が安全。
 
 !!! info "このページを読む前に"
-    [`std::function`](../stl/utilities/function.md) と [ラムダ式](../basics/lambda.md) を使います。
+    [`std::function`](../../stl/utilities/function.md) と [ラムダ式](../../basics/lambda.md) を使います。
 
 ## 基本
 
@@ -73,6 +73,49 @@ int main() {
 爆発エフェクト（敵 2）
 スコア 350 / 撃破 2
 ```
+
+<div class="anim" data-type="graph" data-label="イベント：通知する側は、受け取る側を知らない">
+n ev イベント通知 0 1 hit
+n ui 画面UI 2 0
+n snd 効果音 2 1
+n ach 実績 2 2
+# まず、受け取りたい相手が登録（購読）する
+---
+n ev イベント通知 0 1
+n ui 画面UI 2 0
+n snd 効果音 2 1
+n ach 実績 2 2
+l ev ui new 購読
+l ev snd new 購読
+l ev ach new 購読
+# 3 つが購読した
+---
+n ev イベント通知 0 1 hit
+n ui 画面UI 2 0 hit
+n snd 効果音 2 1 hit
+n ach 実績 2 2 hit
+l ev ui hit 通知
+l ev snd hit 通知
+l ev ach hit 通知
+# イベントが起きると、購読した全員に届く
+---
+n ev イベント通知 0 1
+n ui 画面UI 2 0
+n snd 効果音 2 1 gone
+n ach 実績 2 2
+l ev ui
+l ev snd gone 解除
+l ev ach
+# 効果音が、購読を解除した
+---
+n ev イベント通知 0 1 hit
+n ui 画面UI 2 0 hit
+n snd 効果音 2 1 dim
+n ach 実績 2 2 hit
+l ev ui hit 通知
+l ev ach hit 通知
+# 次のイベントは、解除した相手には届かない
+</div>
 
 ## 詳しく
 
@@ -179,7 +222,7 @@ int main() {
 | 方法 | 特徴 |
 | --- | --- |
 | イベントの種類ごとに `Signal<T>` を作る | 型安全。どこで何が発行されるか分かりやすい |
-| `std::variant` で 1 つの型にまとめる | 1 本のキューに全部入れられる。`std::visit` で処理（[variant](../stl/utilities/variant.md)） |
+| `std::variant` で 1 つの型にまとめる | 1 本のキューに全部入れられる。`std::visit` で処理（[variant](../../stl/utilities/variant.md)） |
 | 型をキーにしたマップ（`type_index` → ハンドラの一覧） | 何でも登録できる汎用のイベントバス |
 
 ## ゲームでの例
@@ -202,15 +245,6 @@ int main() {
 ??? failure "何でもイベントにする"
     処理の流れがイベントでつながりすぎると、「何が起きたらどこが動くのか」が追えなくなります。直接呼べば済むものは直接呼びます。
 
-## 理解度チェック
-
-!!! question "Q1. 敵のクラスが ScoreManager や AchievementManager を直接呼ぶ代わりにイベントを使う利点は？"
-    <div class="spoiler" markdown>
-
-    **答え:** 敵はそれらの存在を知らなくてよくなり（依存が減る）、新しい反応（例えば統計の記録）を追加しても敵のコードを変えずに済みます。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -220,6 +254,6 @@ int main() {
 
 ## 関連ページ
 
-- [std::function](../stl/utilities/function.md)
-- [std::queue](../stl/containers/queue.md)
+- [std::function](../../stl/utilities/function.md)
+- [std::queue](../../stl/containers/queue.md)
 - [Game Programming Patterns: Observer](https://gameprogrammingpatterns.com/observer.html)

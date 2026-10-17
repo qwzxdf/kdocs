@@ -168,15 +168,6 @@ int main() {
 ??? failure "見るだけなのに reverse して元が壊れる"
     逆順に表示したいだけなら `for (auto& x : v | std::views::reverse)` を使います。`reverse` は元の並びを変えてしまいます。
 
-## 理解度チェック
-
-!!! question "Q1. `{1, 2, 3, 4, 5}` を `rotate(v, v.begin() + 2)` すると？"
-    <div class="spoiler" markdown>
-
-    **答え:** `{3, 4, 5, 1, 2}`。3 が先頭に来るように回ります。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

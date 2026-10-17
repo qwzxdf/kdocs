@@ -156,15 +156,6 @@ abc
 ??? failure "erase を忘れる"
     `unique` だけでは `size()` は変わらず、後ろに不定な値が残ります。
 
-## 理解度チェック
-
-!!! question "Q1. `{3, 3, 1, 3}` に unique → erase すると？"
-    <div class="spoiler" markdown>
-
-    **答え:** `{3, 1, 3}`。連続している 3, 3 だけがまとまります。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

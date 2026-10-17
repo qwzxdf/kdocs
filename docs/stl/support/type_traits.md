@@ -347,15 +347,6 @@ true
 ??? failure "参照付きの型で調べて false になる"
     テンプレートの `T&&` で受け取ると、T が `int&` になることがあり、`is_integral_v<T>` が false になります。`std::remove_cvref_t<T>` してから調べます。
 
-## 理解度チェック
-
-!!! question "Q1. `std::is_trivially_copyable_v<std::vector<int>>` は？ なぜ？"
-    <div class="spoiler" markdown>
-
-    **答え:** false。vector はヒープへのポインタを持っていて、ビットをそのままコピーすると 2 つの vector が同じ領域を指し、二重解放になるためです。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

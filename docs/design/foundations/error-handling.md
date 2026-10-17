@@ -107,7 +107,7 @@ int main() {
 ```
 
 - 呼んだ側は、戻り値を見ないと値を取り出せないので、エラー処理を忘れにくい
-- 詳しくは [`std::optional`](../stl/utilities/optional.md)、[`std::expected`](../stl/utilities/expected.md)
+- 詳しくは [`std::optional`](../../stl/utilities/optional.md)、[`std::expected`](../../stl/utilities/expected.md)
 
 ## 3. 例外
 
@@ -174,15 +174,6 @@ try {
 ??? failure "bool だけ返して理由が分からない"
     `bool Load()` が false を返しても、何が悪いのか分かりません。理由があるなら expected にします。
 
-## 理解度チェック
-
-!!! question "Q1. 次のそれぞれに使う道具は？ ①関数に負のレベルが渡された ②ユーザーが選んだセーブスロットが空 ③ステージの JSON の書式が壊れている"
-    <div class="spoiler" markdown>
-
-    **答え:** ① assert（呼ぶ側のバグ）、② optional（空というだけ）、③ expected（何行目がどう壊れているかを伝えたい）。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -192,6 +183,6 @@ try {
 
 ## 関連ページ
 
-- [std::expected](../stl/utilities/expected.md)
-- [std::optional](../stl/utilities/optional.md)
-- [未定義動作](../basics/ub.md)
+- [std::expected](../../stl/utilities/expected.md)
+- [std::optional](../../stl/utilities/optional.md)
+- [未定義動作](../../basics/ub.md)

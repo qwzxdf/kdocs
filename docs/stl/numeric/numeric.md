@@ -294,15 +294,6 @@ int main() {
 ??? failure "(a + b) / 2 であふれる"
     大きい int どうしだと足し算でオーバーフロー（未定義動作）します。`std::midpoint` を使います。
 
-## 理解度チェック
-
-!!! question "Q1. `std::partial_sum` で `[1, 2, 3, 4]` は何になる？"
-    <div class="spoiler" markdown>
-
-    **答え:** `[1, 3, 6, 10]`。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

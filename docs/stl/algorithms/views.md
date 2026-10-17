@@ -693,22 +693,6 @@ v | std::views::filter(f) | std::views::transform(g) | std::views::take(3)
 ??? failure "filter したビューの size() を呼ぶ"
     `filter` のビューは、全部見ないと個数が分からないので `size()` がありません。`std::ranges::distance(view)` で数えます（O(n)）。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    auto r = std::views::iota(1, 10)
-           | std::views::filter([](int x) { return x % 3 == 0; })
-           | std::views::transform([](int x) { return x * x; });
-    std::println("{}", r);
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `[9, 36, 81]`。1〜9 のうち 3 の倍数（3, 6, 9）を 2 乗しています。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

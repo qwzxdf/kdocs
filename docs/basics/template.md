@@ -375,7 +375,7 @@ main.cpp    ← #include "math.h" して使う
 | 数学の型 | `Vec2<T>`、`Rect<T>`（int 版と float 版を 1 つのコードで） |
 | リソース管理 | `ResourceCache<Texture>`、`ResourceCache<Sound>` |
 | オブジェクトプール | `Pool<Bullet, 1024>` |
-| ECS | `registry.GetComponent<Transform>(entity)`（[ECS](../engine/ecs.md)） |
+| ECS | `registry.GetComponent<Transform>(entity)`（[ECS](../design/patterns/ecs.md)） |
 | ユーティリティ | `Clamp<T>`、`Lerp<T>` |
 
 ## よくあるミス
@@ -391,27 +391,6 @@ main.cpp    ← #include "math.h" して使う
 
 ??? failure "何でもテンプレートにする"
     テンプレートはコンパイル時間を延ばし、エラーも読みにくくします。型が 1 つしかないなら普通の関数で十分です。
-
-## 理解度チェック
-
-!!! question "Q1. `std::vector<std::vector<int>>` は何を表す？"
-    <div class="spoiler" markdown>
-
-    **答え:** 「int の vector」の vector（2 次元の可変長配列）。テンプレートの引数にテンプレートを入れることもできます。
-
-    </div>
-
-!!! question "Q2. 次の関数を auto 引数で書き直すと？"
-    ```cpp
-    template <class T>
-    void Show(const T& value) { std::println("{}", value); }
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `void Show(const auto& value) { std::println("{}", value); }`
-
-    </div>
 
 ## これだけ覚える
 

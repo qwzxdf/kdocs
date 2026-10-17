@@ -125,15 +125,6 @@ for (const auto& [name, texture] : textures) {
 ??? failure "名前を短くしすぎる"
     書く時間はほんの少し増えますが、読む時間（何倍もある）が大きく減ります。
 
-## 理解度チェック
-
-!!! question "Q1. Google Style で書くと？ ①敵の最大数（定数） ②プレイヤーが地面にいるか（メンバ変数） ③テクスチャを読み込む関数"
-    <div class="spoiler" markdown>
-
-    **答え:** ① `kMaxEnemies` ② `is_grounded_` ③ `LoadTexture()`。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

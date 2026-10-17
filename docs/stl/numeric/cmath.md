@@ -539,15 +539,6 @@ int main() {
 ??? failure "マイナスの座標で int にキャストしてマスを出す"
     `static_cast<int>(-0.5f)` は 0 です。マス番号には `std::floor` を使います。
 
-## 理解度チェック
-
-!!! question "Q1. 敵がプレイヤーの方を向く角度は？（プレイヤー (px, py)、敵 (ex, ey)）"
-    <div class="spoiler" markdown>
-
-    **答え:** `std::atan2(py - ey, px - ex)`。「敵から見たプレイヤーの向き」なので、プレイヤー − 敵 の差を渡します。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

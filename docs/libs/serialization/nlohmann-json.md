@@ -1171,43 +1171,6 @@ Windows で Shift_JIS（CP932）の文字列をそのまま入れると、UTF-8 
 ??? failure "数値の型の変換に気づかない"
     `3.7` を `get<int>()` すると黙って `3` になります。`-1` を `get<unsigned>()` すると大きな値になります。外から来るデータは `is_number_integer()` などで確認します。
 
-## 理解度チェック
-
-!!! question "Q1. このコードの何がだめ？"
-    ```cpp
-    void ApplyConfig(const json& config) {
-      int volume = config["volume"];
-      SetVolume(volume);
-    }
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `const json` に対して `[]` で読んでいます。`"volume"` が無いと**未定義動作**です。`config.value("volume", 100)` のように、デフォルト値付きで読みます。
-
-    </div>
-
-!!! question "Q2. 次のコードの出力は？"
-    ```cpp
-    json j;
-    j["zeta"] = 1;
-    j["alpha"] = 2;
-    std::println("{}", j.dump());
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `{"alpha":2,"zeta":1}` です。`json` はキーをアルファベット順に並べます。入れた順にしたいなら `ordered_json` を使います。
-
-    </div>
-
-!!! question "Q3. セーブデータの構造体に `int gold = 0;` を追加しました。古いセーブファイルを読んでも落ちないようにするには、どのマクロを使う？"
-    <div class="spoiler" markdown>
-
-    **答え:** `NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT` です。キーが無いメンバはデフォルト値（`0`）のままになります。`_WITH_DEFAULT` の無いマクロだと `out_of_range` の例外になります。
-
-    </div>
-
 ## 類似ライブラリ
 
 | ライブラリ | 違い |

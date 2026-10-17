@@ -249,26 +249,6 @@ for (const auto& sprite : sprites) {
     std::ranges::sort(enemies, std::greater{}, &Enemy::hp);  // OK: 比較 → プロジェクションの順
     ```
 
-## 理解度チェック
-
-!!! question "Q1. `std::ranges::sort(v, {}, &Item::price);` は何順？"
-    <div class="spoiler" markdown>
-
-    **答え:** `price` の小さい順（安い順）。`{}` は比較関数をデフォルト（小さい順）のままにするという意味です。
-
-    </div>
-
-!!! question "Q2. このコードの何がダメ？"
-    ```cpp
-    std::ranges::sort(v, [](float a, float b) { return a >= b; });
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `>=` は等しいときに true を返すので、比較関数のルール違反（未定義動作）です。大きい順なら `a > b` か `std::greater{}` にします。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い | こっちを使うとき |

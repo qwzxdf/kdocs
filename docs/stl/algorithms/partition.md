@@ -192,15 +192,6 @@ int main() {
 ??? failure "partition の後に順番が変わって困る"
     描画順などが大事なら `stable_partition` を使います。
 
-## 理解度チェック
-
-!!! question "Q1. 1000 体の敵を「画面内」と「画面外」に分けたい。sort と partition どちらが向いている？"
-    <div class="spoiler" markdown>
-
-    **答え:** partition（O(n)）。2 グループに分けるだけなので、全部を並べる sort（O(n log n)）は不要です。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

@@ -167,15 +167,6 @@ int main() {
 ??? failure "pop_heap だけして pop_back しない"
     最大は末尾に移っただけで、まだ範囲の中にあります。
 
-## 理解度チェック
-
-!!! question "Q1. priority_queue ではなくヒープ関数を直接使う理由は？"
-    <div class="spoiler" markdown>
-
-    **答え:** 中の vector を直接見られる（全部回す、途中の要素を書き換えて make_heap し直す）からです。普段は priority_queue で十分です。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

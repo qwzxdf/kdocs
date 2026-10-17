@@ -236,15 +236,6 @@ a_b2c3
 ??? failure "長い文字列でスタックが溢れる"
     実装によっては、長い入力と複雑なパターンで再帰が深くなり落ちることがあります。
 
-## 理解度チェック
-
-!!! question "Q1. `regex_match(\"abc123\", std::regex(R\"(\\d+)\"))` は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `false`。regex_match は全体が一致する必要があります。どこかに数字があるかなら `regex_search` です。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

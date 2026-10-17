@@ -197,15 +197,6 @@ int main() {
 ??? failure "ソートせずに使う"
     ソートされていない vector を渡すと、結果がでたらめになります。先に `std::ranges::sort` します。
 
-## 理解度チェック
-
-!!! question "Q1. 前フレームに見えていた敵 {1, 3, 5} と、今見えている敵 {3, 5, 7}。新しく見えた敵を出すには？"
-    <div class="spoiler" markdown>
-
-    **答え:** `set_difference(今, 前, out)` で `{7}`。消えた敵は `set_difference(前, 今, out)` で `{1}` です。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

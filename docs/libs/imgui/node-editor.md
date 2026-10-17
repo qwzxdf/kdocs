@@ -13,7 +13,7 @@ tags:
 `#include <imgui_node_editor.h>`
 </div>
 
-**imgui-node-editor**（イムギ・ノード・エディタ）は、[Dear ImGui](index.md) の上で動く**ノード エディタ**のライブラリです。四角い**ノード**（箱）を並べて、**ピン**（接続口）を**リンク**（線）でつなぐ、あの画面を作れます。Unreal Engine の Blueprint、Unity の Shader Graph、Blender のシェーダー ノードと同じ形式です。ゲームでは、**シェーダーやマテリアルの編集、ビジュアル スクリプト、会話・クエストの分岐、AI（ビヘイビア ツリー）の編集**などに使います。作者は thedmd（Michał Cichoń）です。
+**imgui-node-editor**（イムグイ・ノード・エディタ）は、[Dear ImGui](index.md) の上で動く**ノード エディタ**のライブラリです。四角い**ノード**（箱）を並べて、**ピン**（接続口）を**リンク**（線）でつなぐ、あの画面を作れます。Unreal Engine の Blueprint、Unity の Shader Graph、Blender のシェーダー ノードと同じ形式です。ゲームでは、**シェーダーやマテリアルの編集、ビジュアル スクリプト、会話・クエストの分岐、AI（ビヘイビア ツリー）の編集**などに使います。作者は thedmd（Michał Cichoń）です。
 
 !!! tip "ポイント"
     - ノードエディタは <strong>「ノード」「ピン」「リンク」の 3 つ</strong>で成り立つ。それぞれに**一意な ID** を付けて渡す。
@@ -65,16 +65,25 @@ namespace ed = ax::NodeEditor;  // 以降、ed:: と書ける
 
 ## 仕組み：ノード・ピン・リンク
 
-```text
- ┌──────────────┐                      ┌──────────────┐
- │ 数値 (ノード 1) │                      │ 足し算 (ノード 2) │
- │              ○─ 出力ピン ─── リンク ───● 入力ピン    │
- │              │   (ID 11)     (ID 100)   (ID 21)     │
- └──────────────┘                      │ 入力ピン  ●   │
-                                       │ (ID 22)      │
-                                       │     出力ピン ○─→ ...
-                                       └──────────────┘
-```
+<div class="anim" data-type="graph" data-label="ノード・ピン・リンク">
+n a 数値 0 0
+n b 足し算 2 0
+# ノードは、四角い箱
+---
+n a 数値 0 0
+n b 足し算 2 0
+n p1 出力ピン 1 1 new
+n p2 入力ピン 1 2 new
+# ノードには、接続口（ピン）がある。出力ピンは右、入力ピンは左
+---
+n a 数値 0 0 hit
+n b 足し算 2 0 hit
+n p1 出力ピン 1 1
+n p2 入力ピン 1 2
+l a b new リンク
+# 出力ピンと入力ピンを線（リンク）でつなぐ
+</div>
+
 
 | 用語 | 意味 | ID の型 |
 | --- | --- | --- |
@@ -206,18 +215,63 @@ class NodeEditorWindow {
 
 ### 流れ
 
-```text
-初期化: ed::CreateEditor(&config)           ← エディタを作る（1 回）
-毎フレーム:
-  ed::SetCurrentEditor(context)
-  ed::Begin("名前", サイズ)
-     ノードごと: BeginNode → 中身を ImGui で描く / BeginPin → EndPin → EndNode
-     リンクごと: ed::Link(id, 出力ピン, 入力ピン)
-     操作の受け取り: BeginCreate … EndCreate / BeginDelete … EndDelete
-  ed::End()
-  ed::SetCurrentEditor(nullptr)
-終了: ed::DestroyEditor(context)
-```
+<div class="anim" data-type="graph" data-label="ノード エディタの 1 フレーム">
+n begin ed::Begin 0 0 hit
+n node ノードとピン 1 0
+n link ed::Link 2 0
+n op 操作の受け取り 3 0
+n end ed::End 4 0
+l begin node
+l node link
+l link op
+l op end
+# ① エディタを開始する
+---
+n begin ed::Begin 0 0
+n node ノードとピン 1 0 hit
+n link ed::Link 2 0
+n op 操作の受け取り 3 0
+n end ed::End 4 0
+l begin node hit
+l node link
+l link op
+l op end
+# ② ノードとピンを描く（BeginNode … EndNode）
+---
+n begin ed::Begin 0 0
+n node ノードとピン 1 0
+n link ed::Link 2 0 hit
+n op 操作の受け取り 3 0
+n end ed::End 4 0
+l begin node
+l node link hit
+l link op
+l op end
+# ③ 自分のデータにあるリンクを、すべて描く
+---
+n begin ed::Begin 0 0
+n node ノードとピン 1 0
+n link ed::Link 2 0
+n op 操作の受け取り 3 0 hit
+n end ed::End 4 0
+l begin node
+l node link
+l link op hit
+l op end
+# ④ ユーザーの操作（リンクの作成・削除）を受け取り、自分のデータに反映する
+---
+n begin ed::Begin 0 0
+n node ノードとピン 1 0
+n link ed::Link 2 0
+n op 操作の受け取り 3 0
+n end ed::End 4 0 hit
+l begin node
+l node link
+l link op
+l op end hit
+# ⑤ エディタを終了する。これを毎フレームくり返す
+</div>
+
 
 ## 関数・型の詳しい説明
 
@@ -391,6 +445,28 @@ if (ed::QueryNewLink(&from, &to)) {
 !!! note "ピンから何もない所にドラッグしたとき"
     `QueryNewNode(&pin)` を使うと、**ピンから、何もない場所までドラッグして離した**ことを受け取れます（Blueprint の「引き出してノードを作る」メニュー）。`AcceptNewItem()` のあと、メニューを開いて、新しいノードを作ります。
 
+<div class="anim" data-type="graph" data-label="リンクを作る操作（BeginCreate）">
+n a 数値 0 0
+n b 足し算 3 0
+n p1 出力ピン 1 1 hit
+n p2 入力ピン 2 1
+# ① 出力ピンから、ドラッグを始める
+---
+n a 数値 0 0
+n b 足し算 3 0
+n p1 出力ピン 1 1 hit
+n p2 入力ピン 2 1 hit
+l p1 p2 hit QueryNewLink
+# ② 入力ピンの上に来る。BeginCreate が true になり、両端のピンが分かる
+---
+n a 数値 0 0 hit
+n b 足し算 3 0 hit
+n p1 出力ピン 1 1
+n p2 入力ピン 2 1
+l p1 p2 new AcceptNewItem
+# ③ マウスを離すと、AcceptNewItem が true。ここで、自分のデータにリンクを追加する
+</div>
+
 ### BeginDelete と QueryDeletedLink {#delete}
 
 ```cpp
@@ -413,6 +489,22 @@ void EndDelete();
 
 - ノードを削除すると、**つながっていたリンクも**まとめて削除対象になります（`deleteDependencies = true`）
 - **自分のデータ（`std::vector`）から消すのを忘れる**と、次のフレームでまた描かれて、「消えない」ように見えます
+
+<div class="anim" data-type="graph" data-label="リンクを消す操作（BeginDelete）">
+n a 数値 0 0
+n b 足し算 2 0
+l a b hit リンク
+# リンクを選んで、Delete キーを押す
+---
+n a 数値 0 0
+n b 足し算 2 0
+l a b gone QueryDeletedLink
+# BeginDelete が true。消されようとしているリンクが分かる
+---
+n a 数値 0 0
+n b 足し算 2 0
+# AcceptDeletedItem のあと、自分のデータから消す。次のフレームで ed::Link が呼ばれないので、線が消える
+</div>
 
 ### SetNodePosition と GetNodePosition {#position}
 
@@ -551,7 +643,7 @@ void PopStyleVar(int count = 1);
 | --- | --- |
 | シェーダー・マテリアルを、ノードで作る | 出力のコードを生成する |
 | 会話や、クエストの分岐を編集 | ノード ＝ イベント、リンク ＝ 遷移 |
-| AI（ビヘイビア ツリー、ステートマシン）の編集 | [ステートマシン](../../engine/state-machine.md) を、画面で組む |
+| AI（ビヘイビア ツリー、ステートマシン）の編集 | [ステートマシン](../../design/patterns/state-machine.md) を、画面で組む |
 | ビジュアル スクリプトで、ゲームの仕組みを作る | ゲームデザイナーが、コードを書かずに作れる |
 | アニメーションのブレンド ツリー | 入力のアニメーションを、ノードで混ぜる |
 
@@ -574,29 +666,6 @@ void PopStyleVar(int count = 1);
 
 ??? failure "ImGui を更新したら、ビルドエラーになる"
     imgui-node-editor は、ImGui の内部に依存します。ImGui を新しくしたら、imgui-node-editor も、対応する新しいバージョンにします。両方を **Git のタグ（コミット）で固定**しておくと、突然壊れません。
-
-## 理解度チェック
-
-!!! question "Q1. ノードの位置は、どこに保存される？"
-    <div class="spoiler" markdown>
-
-    **答え:** `ed::Config::SettingsFile` で指定した JSON ファイルに、ライブラリが自動で保存します。ただし、**ノードの種類・パラメータ・リンク**は保存されません。それは、自分のデータとして、自分で保存します。
-
-    </div>
-
-!!! question "Q2. ユーザーが、ピンからピンへリンクを引いたとき、リンクを実際に追加するのはどこ？"
-    <div class="spoiler" markdown>
-
-    **答え:** `BeginCreate()` → `QueryNewLink()` で両端のピンを受け取り、`AcceptNewItem()` が `true` になったときに、**自分のコードで**リンクを `std::vector` などに追加します。ライブラリは、操作を知らせるだけです。
-
-    </div>
-
-!!! question "Q3. ノード エディタの上に、右クリック メニューを正しく出すには？"
-    <div class="spoiler" markdown>
-
-    **答え:** `ed::Suspend()` で、エディタのズーム・移動の変換を一時的に解除してから ImGui のポップアップを出し、`ed::Resume()` で戻します。
-
-    </div>
 
 ## 類似
 
@@ -621,6 +690,6 @@ void PopStyleVar(int count = 1);
 - [Dear ImGui](index.md)
 - [ImGuizmo](imguizmo.md)
 - [ImSequencer](imsequencer.md)
-- [ステートマシン](../../engine/state-machine.md)
+- [ステートマシン](../../design/patterns/state-machine.md)
 - [Visual Studio：外部ライブラリの入れ方](../../vs/libraries.md)
 - [imgui-node-editor（GitHub）](https://github.com/thedmd/imgui-node-editor)

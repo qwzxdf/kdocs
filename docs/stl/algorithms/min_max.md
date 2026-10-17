@@ -299,15 +299,6 @@ int main() {
 ??? failure "Windows で min / max がマクロとぶつかる"
     `<windows.h>` を読み込むと `min` / `max` というマクロが定義され、`std::max(a, b)` が壊れます。`windows.h` の前に `#define NOMINMAX` を書くか、`(std::max)(a, b)` と括弧で囲みます。
 
-## 理解度チェック
-
-!!! question "Q1. HP を 0〜100 に収めるコードを min と max で書くと？"
-    <div class="spoiler" markdown>
-
-    **答え:** `hp = std::min(std::max(hp, 0), 100);`。ただし [`std::clamp(hp, 0, 100)`](clamp.md) のほうが読みやすいです。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

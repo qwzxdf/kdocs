@@ -198,15 +198,6 @@ int main() {
 ??? failure "空のときに読んでしまう"
     敵が 0 体のときに `min_element(enemies)->hp` と書くと未定義動作です。必ず `!= enemies.end()` を確認します。
 
-## 理解度チェック
-
-!!! question "Q1. `{5, 2, 8, 2}` で min_element が指すのは何番目？"
-    <div class="spoiler" markdown>
-
-    **答え:** 1 番目（0 始まり）。同じ値なら最初のものが返ります。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

@@ -27,14 +27,33 @@ tags:
 
 ## 仕組み
 
-```text
-std::pmr::vector<int>  ──持つ──>  polymorphic_allocator<int>  ──持つ──>  memory_resource*
-                                                                                │（仮想関数）
-                          ┌─────────────────────────────┬──────────────────────┴───┐
-                          ▼                             ▼                          ▼
-                new_delete_resource()     monotonic_buffer_resource     unsynchronized_pool_resource
-                （普通の new/delete）      （積むだけ・一括解放）         （サイズ別のプール）
-```
+<div class="anim" data-type="graph" data-label="pmr のしくみ：リソースを差し替える">
+n vec pmr::vector 0 1 hit
+n alloc polymorphic_allocator 1.5 1
+n res memory_resource 3.2 1
+l vec alloc hit 持つ
+l alloc res hit 持つ
+# コンテナは、アロケータを通して、メモリのリソース（取り先）へ頼む
+---
+n vec pmr::vector 0 1
+n alloc polymorphic_allocator 1.5 1
+n res monotonic 3.2 0 hit
+n res2 pool 3.2 1 dim
+n res3 new_delete 3.2 2 dim
+l vec alloc
+l alloc res hit 積むだけ
+# リソースは、実行時に選べる。monotonic（積むだけ・一括解放）
+---
+n vec pmr::vector 0 1
+n alloc polymorphic_allocator 1.5 1
+n res monotonic 3.2 0 dim
+n res2 pool 3.2 1 hit
+n res3 new_delete 3.2 2 dim
+l vec alloc
+l alloc res2 hit サイズ別
+# pool（サイズ別のプール）に替えても、vector の型は変わらない
+</div>
+
 
 - **`memory_resource`**: メモリの確保・解放を行う基底クラス。3 つの仮想関数（`do_allocate`、`do_deallocate`、`do_is_equal`）を持つ
 - **`polymorphic_allocator<T>`**: `memory_resource*` を 1 つ持つアロケータ。コンテナが使う
@@ -420,35 +439,12 @@ int main() {
 ??? failure "swap やムーブでリソースが入れ替わると思う"
     pmr のコンテナは、代入・ムーブ代入でリソースが**移らない**のが基本です。リソースが違うコンテナ同士の代入は、要素を 1 つずつコピー・ムーブするので、遅く、**代入先のリソースの領域を使います**。
 
-## 理解度チェック
-
-!!! question "Q1. `std::pmr::vector<std::pmr::string>` と `std::vector<std::pmr::string>` の違いは？"
-    <div class="spoiler" markdown>
-
-    **答え:** 前者は、`vector` の確保にも、**中の文字列の確保にも**、同じリソースが自動で使われます。後者は、`vector` はデフォルトのヒープを使い、文字列だけが pmr になって、リソースがバラバラになります。
-
-    </div>
-
-!!! question "Q2. `monotonic_buffer_resource` で、`vector::clear()` をしたらメモリは戻る？"
-    <div class="spoiler" markdown>
-
-    **答え:** 戻りません。`monotonic` は個別の解放では何もしないので、`release()`（またはリソースの破棄）まで領域は残ります。
-
-    </div>
-
-!!! question "Q3. ヒープを絶対に使いたくない固定バッファの確保で、足りなくなったらどうしたい？"
-    <div class="spoiler" markdown>
-
-    **答え:** 上流に `std::pmr::null_memory_resource()` を指定します。足りなくなったときに、黙ってヒープに逃げずに `std::bad_alloc` が投げられるので、バッファの大きさが足りないことに気づけます。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`std::allocator`](allocator.md) | 型にアロケータが入る。自作すると型が変わる |
-| オブジェクトプール（[ゲームエンジン](../../engine/object-pool.md)） | 1 種類のオブジェクトを使い回す。pmr のプールは大きさごとに自動で分ける |
+| オブジェクトプール（[ゲームエンジン](../../design/patterns/object-pool.md)） | 1 種類のオブジェクトを使い回す。pmr のプールは大きさごとに自動で分ける |
 | 自作のアリーナ | monotonic と同じ考え方。標準があるので自作は不要 |
 
 ## コンパイラ対応
@@ -470,6 +466,6 @@ int main() {
 
 - [std::allocator](allocator.md)
 - [new と delete・配置 new](new_delete.md)
-- [オブジェクトプール](../../engine/object-pool.md)
+- [オブジェクトプール](../../design/patterns/object-pool.md)
 - [std::vector](../containers/vector.md)
 - [cppreference: std::pmr::memory_resource](https://en.cppreference.com/w/cpp/memory/memory_resource)

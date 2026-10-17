@@ -664,35 +664,6 @@ constexpr auto from_bytes();
 ??? failure "in / out をバッファより長く使う"
     `data_in_out` の `in` と `out` は `data` を参照しています。`data` をムーブしたり消したりした後に使うと未定義動作です。
 
-## 理解度チェック
-
-!!! question "Q1. `struct Pos { float x; float y; };` を zpp_bits で保存すると何バイト？ `std::vector<Pos>` に 3 個入れたら？"
-    <div class="spoiler" markdown>
-
-    **答え:** `Pos` は 8 バイト（float 4 バイト × 2）です。`std::vector<Pos>` に 3 個なら、要素数 4 バイト + 8 × 3 = **28 バイト**です。`Pos` は数値だけの構造体なので、3 個がまとめて memcpy されます。
-
-    </div>
-
-!!! question "Q2. このコードの何がだめ？"
-    ```cpp
-    struct Save { std::string name; int level; };
-    // リリース後に変更
-    struct Save { std::string name; int gold; int level; };
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** メンバの間に `gold` を入れたので、古いデータの `level` の 4 バイトが `gold` として読まれ、`level` を読むところでデータが足りなくなります（エラーになるか、でたらめな値になります）。zpp_bits にはバージョン管理が無いので、先頭にバージョン番号を書き、古い形の構造体を残して変換します。
-
-    </div>
-
-!!! question "Q3. ネットワークから受け取ったデータを zpp_bits で読むとき、何を付けるべき？"
-    <div class="spoiler" markdown>
-
-    **答え:** `zpp::bits::alloc_limit<N>{}` です。壊れたデータや悪意のあるデータで巨大な要素数を読んでも、確保するメモリに上限を付けられます。
-
-    </div>
-
 ## 類似ライブラリ
 
 | ライブラリ | 違い |

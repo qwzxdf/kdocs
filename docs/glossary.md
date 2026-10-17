@@ -32,16 +32,16 @@
 
 | 用語 | 一言で | 詳しく |
 | --- | --- | --- |
-| ECS | エンティティ（番号）・コンポーネント（データ）・システム（処理）に分ける設計 | [ECS](engine/ecs.md) |
-| オブジェクトプール | 作っては消すものをまとめて確保して使い回す仕組み | [オブジェクトプール](engine/object-pool.md) |
+| ECS | エンティティ（番号）・コンポーネント（データ）・システム（処理）に分ける設計 | [ECS](design/patterns/ecs.md) |
+| オブジェクトプール | 作っては消すものをまとめて確保して使い回す仕組み | [オブジェクトプール](design/patterns/object-pool.md) |
 | コンポーネント | オブジェクトに取り付ける機能の部品 | [コンポーネント指向](engine/component.md) |
 | 固定タイムステップ | ゲームの状態をいつも決まった時間ずつ進める方法 | [ゲームループ](engine/game-loop.md) |
 | シーン | タイトル・ゲーム本編など、場面ごとのまとまり | [シーン管理](engine/scene.md) |
 | シリアライズ | オブジェクトを保存・送信できるデータの並びに変換すること | [シリアライズ](engine/serialization/index.md) |
-| ステートマシン | 今の状態と、状態の移り方をはっきり管理する仕組み | [ステートマシン](engine/state-machine.md) |
+| ステートマシン | 今の状態と、状態の移り方をはっきり管理する仕組み | [ステートマシン](design/patterns/state-machine.md) |
 | デルタタイム（dt） | 前のフレームから経過した時間 | [ゲームループ](engine/game-loop.md) |
 | ハンドル | オブジェクトをポインタではなく番号（＋世代）で指すもの | [ハンドルと世代 ID](engine/handle.md) |
-| オブザーバー（イベント） | 起きたことを、購読している相手にまとめて知らせる仕組み | [イベントシステム](engine/event.md) |
+| オブザーバー（イベント） | 起きたことを、購読している相手にまとめて知らせる仕組み | [イベントシステム](design/patterns/event.md) |
 
 ## メモリ
 
@@ -65,4 +65,4 @@
 | ImSequencer | タイムラインの編集 UI | [ImSequencer](libs/imgui/imsequencer.md) |
 | imgui-node-editor | ノード エディタ | [imgui-node-editor](libs/imgui/node-editor.md) |
 | Jolt Physics | 3D 物理演算ライブラリ | [Jolt Physics](libs/jolt/index.md) |
-| sparse set | ECS で使う、番号から素早く引ける連続配列の仕組み | [ECS](engine/ecs.md#sparse-set) |
+| sparse set | ECS で使う、番号から素早く引ける連続配列の仕組み | [ECS](design/patterns/ecs.md#sparse-set) |

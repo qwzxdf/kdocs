@@ -258,15 +258,6 @@ true
 ??? failure "std::string を含む構造体を write する"
     string の中身はヒープにあるので、`write` で保存されるのはポインタの値だけです。読み込むと壊れた string になります。
 
-## 理解度チェック
-
-!!! question "Q1. ログファイルに 1 行ずつ追記したい。開くときのフラグは？"
-    <div class="spoiler" markdown>
-
-    **答え:** `std::ios::app`。付けないと、開くたびに中身が消えてしまいます。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

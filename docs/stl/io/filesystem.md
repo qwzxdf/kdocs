@@ -713,15 +713,6 @@ int main() {
 ??? failure "例外を考えずに使う"
     ファイルが無いだけで例外が飛んでゲームが落ちることがあります。`exists` で確かめるか、`std::error_code` 版を使います。
 
-## 理解度チェック
-
-!!! question "Q1. `fs::path(\"save/slot2.dat\")` の `stem()` と `extension()` は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `slot2` と `.dat`。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

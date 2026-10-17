@@ -197,15 +197,6 @@ for (const auto& sprite : sprites) {
 
     C++23 で一時オブジェクトの寿命が延びるように修正されましたが、古いコンパイラでは未定義動作です。いったん変数に受けてから回すと安全です。
 
-## 理解度チェック
-
-!!! question "Q1. string `s = \"abc\"` を範囲 for で回すと、変数には何が入る？"
-    <div class="spoiler" markdown>
-
-    **答え:** 1 文字ずつの `char`（`'a'`, `'b'`, `'c'`）。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

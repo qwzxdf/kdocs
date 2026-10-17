@@ -353,21 +353,6 @@ int main() {
 ??? failure "map で std::ranges::find を使う"
     map に対して `std::ranges::find` を使うと O(n) で全部見てしまいます。map / set / unordered_map はメンバ関数の `m.find(key)` を使います。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::vector<int> v = {3, 8, 2, 8};
-    auto it = std::ranges::find(v, 8);
-    std::println("{}", it - v.begin());
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `1`。最初に見つかった 8 の位置です。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

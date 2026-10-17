@@ -776,38 +776,6 @@ class simdjson::dom::parser {
 ??? failure "デバッグビルドで速さを比べる"
     simdjson はインライン化と最適化が前提です。デバッグビルドでは遅く、nlohmann/json と差が出ないこともあります。
 
-## 理解度チェック
-
-!!! question "Q1. このコードの何がだめ？"
-    ```cpp
-    std::vector<std::string_view> names;
-    for (const auto& path : paths) {
-      auto json = simdjson::padded_string::load(path);
-      auto doc = parser.iterate(json);
-      names.push_back(doc["name"]);
-    }
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `string_view` はパーサーのバッファを指しています。次のファイルを `iterate` すると前の中身が上書きされ、さらに `json`（`padded_string`）もループごとに消えます。`names` は `std::vector<std::string>` にして、`std::string(std::string_view(doc["name"]))` のようにコピーして保存します。
-
-    </div>
-
-!!! question "Q2. `{"version": 2, "data": {...}}` の JSON で、version によって data の読み方を変えたい。どう読む？"
-    <div class="spoiler" markdown>
-
-    **答え:** JSON に書かれた順番どおり、先に `doc["version"]` を読んでから `doc["data"]` を読めば、そのまま読めます。もし `version` が後ろに書かれているなら、`at_pointer("/version")` か `operator[]` で先に読み、その後 `doc.rewind()` で最初に戻してから data を読みます。
-
-    </div>
-
-!!! question "Q3. simdjson で JSON を書き出したい。どうする？"
-    <div class="spoiler" markdown>
-
-    **答え:** simdjson は基本的に読み込み用です。書き出しは nlohmann/json などで行い、大きなファイルの読み込みだけ simdjson を使うのが一般的です。
-
-    </div>
-
 ## 類似ライブラリ
 
 | ライブラリ | 違い |

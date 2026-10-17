@@ -388,15 +388,6 @@ void swap(pair& other);
 ??? failure "構造化束縛の数が合わない"
     `auto [a, b] = std::tuple{1, 2, 3};` はコンパイルエラーです。
 
-## 理解度チェック
-
-!!! question "Q1. `std::pair{2, 1} < std::pair{2, 5}` は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `true`。1 つ目が同じなので 2 つ目（1 < 5）で決まります。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

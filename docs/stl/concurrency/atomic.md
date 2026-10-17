@@ -426,15 +426,6 @@ true false true
 ??? failure "大きな構造体を atomic にする"
     `std::atomic<BigStruct>` は内部で mutex を使うことになり、速くありません。mutex で守るほうが分かりやすいです。
 
-## 理解度チェック
-
-!!! question "Q1. 4 スレッドが 1000 回ずつ `++counter` する。int と atomic<int> で結果はどう違う？"
-    <div class="spoiler" markdown>
-
-    **答え:** atomic<int> は必ず 4000。普通の int はデータ競争（未定義動作）で、4000 より少なくなることがあります。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

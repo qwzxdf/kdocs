@@ -274,15 +274,6 @@ struct BulletSave {
 ??? failure "float を JSON に書いて誤差が出る"
     `0.1f` は正確に表せないので、書いて読むと少し違う値になることがあります。完全に一致させたいなら、整数（ミリ単位など）で保存します。
 
-## 理解度チェック
-
-!!! question "Q1. `struct Player { std::string name; int hp; };` を `out.write((char*)&p, sizeof(p))` で保存すると何が問題？"
-    <div class="spoiler" markdown>
-
-    **答え:** `name` の文字列の中身ではなく、string の内部（ヒープへのポインタなど）が保存されます。読み込むと壊れた string になり、未定義動作です。名前は「長さ + 中身」で書くか、ライブラリを使います。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

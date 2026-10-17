@@ -10,7 +10,7 @@ tags:
 <span class="rank rank-often">よく使う</span>
 </div>
 
-**ECS** は、ゲームの世界を<strong>エンティティ（ただの番号）</strong>、<strong>コンポーネント（データだけ）</strong>、<strong>システム（処理だけ）</strong>の 3 つに分けて作る設計です。[コンポーネント指向](component.md)では「オブジェクトが部品を持ち、部品が自分で Update する」のに対し、ECS では**同じ種類のコンポーネントを 1 本の配列にまとめて並べ**、システムがその配列をまとめて処理します。データがメモリ上に連続して並ぶので、何万体ものオブジェクトでも速く回せます。Unity DOTS、Bevy、Overwatch のエンジンなどがこの形で、C++ では **EnTT** や **flecs** というライブラリが有名です。
+**ECS** は、ゲームの世界を<strong>エンティティ（ただの番号）</strong>、<strong>コンポーネント（データだけ）</strong>、<strong>システム（処理だけ）</strong>の 3 つに分けて作る設計です。[コンポーネント指向](../../engine/component.md)では「オブジェクトが部品を持ち、部品が自分で Update する」のに対し、ECS では**同じ種類のコンポーネントを 1 本の配列にまとめて並べ**、システムがその配列をまとめて処理します。データがメモリ上に連続して並ぶので、何万体ものオブジェクトでも速く回せます。Unity DOTS、Bevy、Overwatch のエンジンなどがこの形で、C++ では **EnTT** や **flecs** というライブラリが有名です。
 
 !!! tip "ポイント"
     - **エンティティ = ID 番号**、**コンポーネント = データだけの構造体**、<strong>システム = 「この組み合わせを持つエンティティ全部に対する処理」</strong>。
@@ -20,7 +20,7 @@ tags:
     - オブジェクトが数百程度なら、普通のコンポーネント指向でも十分速い。
 
 !!! info "このページを読む前に"
-    [コンポーネント指向](component.md)、[キャッシュ効率](../basics/cache.md)、[テンプレート](../basics/template.md)、[ハンドルと世代 ID](handle.md) を先に読むと分かりやすいです。
+    [コンポーネント指向](../../engine/component.md)、[キャッシュ効率](../../basics/cache.md)、[テンプレート](../../basics/template.md)、[ハンドルと世代 ID](../../engine/handle.md) を先に読むと分かりやすいです。
 
 ## 基本
 
@@ -231,7 +231,7 @@ int main() {
 | `sparse_` | <strong>エンティティ番号を添字にした vector。</strong> 「このエンティティの部品は `components_` の何番目か」が入っている。持っていなければ `kNull`。`Has` / `Get` はこれを 1 回引くだけ（O(1)） |
 | `entities_` | `components_[i]` の持ち主の番号。システムが「誰のデータか」を知るために使う |
 | `components_` | コンポーネント本体。**隙間なく連続**しているので、システムが順番に回すと速い |
-| `Remove` | 最後の要素を穴に移して詰める（[swap して pop_back](../stl/containers/vector.md#順番がどうでもいいならswap-して-pop_back)）。O(1) |
+| `Remove` | 最後の要素を穴に移して詰める（[swap して pop_back](../../stl/containers/vector.md#順番がどうでもいいならswap-して-pop_back)）。O(1) |
 | `Registry` | 型ごとのプールをまとめて持つ。`std::type_index` で型からプールを探す |
 | `Each<A, B>` | A のプールを順に回し、B も持っているものだけ処理する |
 
@@ -286,7 +286,7 @@ sparse_ をページに分ける（1 ページ = 4096 個）
 
 ### エンティティの再利用と世代
 
-上の実装は ID を増やし続けるだけですが、実際には消したエンティティの番号を再利用します。そのとき、古い番号を覚えていた人が**別の新しいエンティティを触ってしまう**問題が起きるので、「世代（generation）」を番号に含めます。詳しくは [ハンドルと世代 ID](handle.md) を見てください。
+上の実装は ID を増やし続けるだけですが、実際には消したエンティティの番号を再利用します。そのとき、古い番号を覚えていた人が**別の新しいエンティティを触ってしまう**問題が起きるので、「世代（generation）」を番号に含めます。詳しくは [ハンドルと世代 ID](../../engine/handle.md) を見てください。
 
 ### 2 つの主な方式
 
@@ -357,33 +357,6 @@ void Spawn(entt::registry& registry) {
 ??? failure "コンポーネントのポインタを保存する"
     プールの vector は伸びたり詰めたりするので、ポインタや参照はすぐ無効になります。保存するのはエンティティ ID だけにします。
 
-## 理解度チェック
-
-!!! question "Q1. 「HP が 0 以下のエンティティを全部消す」システムを、上の Registry で書くと？"
-    <div class="spoiler" markdown>
-
-    **答え:** 回しながら消すと壊れるので、先に集めてから消します。
-
-    ```cpp
-    struct Health {
-      int hp;
-    };
-
-    void DeathSystem(Registry& registry) {
-      std::vector<Entity> dead;
-      registry.Each<Health>([&](Entity e, Health& h) {
-        if (h.hp <= 0) {
-          dead.push_back(e);
-        }
-      });
-      for (Entity e : dead) {
-        registry.Destroy(e);
-      }
-    }
-    ```
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -394,8 +367,8 @@ void Spawn(entt::registry& registry) {
 
 ## 関連ページ
 
-- [コンポーネント指向](component.md)
-- [ハンドルと世代 ID](handle.md)
-- [キャッシュ効率](../basics/cache.md)
+- [コンポーネント指向](../../engine/component.md)
+- [ハンドルと世代 ID](../../engine/handle.md)
+- [キャッシュ効率](../../basics/cache.md)
 - [EnTT](https://github.com/skypjack/entt)
 - [flecs](https://github.com/SanderMertens/flecs)

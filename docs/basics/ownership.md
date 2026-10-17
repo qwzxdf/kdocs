@@ -175,15 +175,6 @@ int main() {
 ??? failure "消えたものを指し続ける"
     生ポインタや参照で覚えた相手が先に消えると、未定義動作になります。
 
-## 理解度チェック
-
-!!! question "Q1. 「UI がプレイヤーの HP を表示する」とき、UI はプレイヤーをどう持つべき？"
-    <div class="spoiler" markdown>
-
-    **答え:** 持ち主にはならないので、`const Player&` か `const Player*`、または ID で参照します。UI が `unique_ptr<Player>` を持つと、UI が消えたときにプレイヤーも消えてしまいます。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

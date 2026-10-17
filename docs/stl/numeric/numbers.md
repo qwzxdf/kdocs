@@ -177,15 +177,6 @@ int main() {
 ??? failure "float の計算に double の pi を使う"
     `std::numbers::pi` は double なので、`float a = deg * std::numbers::pi / 180;` は double で計算されます。float なら `pi_v<float>` を使います。
 
-## 理解度チェック
-
-!!! question "Q1. 270 度をラジアンにすると？"
-    <div class="spoiler" markdown>
-
-    **答え:** `270 * π / 180 = 1.5π`（約 4.712）。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

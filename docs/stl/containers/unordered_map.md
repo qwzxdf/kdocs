@@ -1013,36 +1013,6 @@ vector と違って、**要素への参照やポインタは追加しても壊�
     }
     ```
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::unordered_map<std::string, int> m;
-    if (m["gold"] == 0) {
-    }
-    std::println("{}", m.size());
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `1`。`m["gold"]` を読んだだけで `"gold"` が 0 で追加されています。
-
-    </div>
-
-!!! question "Q2. 敵が 3 体だけ。ID で引きたい。unordered_map と vector の線形探索、どちらが速い？"
-    <div class="spoiler" markdown>
-
-    **答え:** たいてい vector の線形探索です。3 個なら比較 3 回で終わり、ハッシュ計算もメモリの飛び回りもありません。unordered_map が効いてくるのは要素が多いときです。
-
-    </div>
-
-!!! question "Q3. `m.contains(k)` で確認してから `m[k]` で取り出すコードの問題点は？"
-    <div class="spoiler" markdown>
-
-    **答え:** 検索が 2 回走ります。`auto it = m.find(k);` で 1 回にまとめます。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

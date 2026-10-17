@@ -266,15 +266,6 @@ cba
 ??? failure "<numeric> を忘れる"
     `std::accumulate` は `<algorithm>` ではなく `<numeric>` にあります。
 
-## 理解度チェック
-
-!!! question "Q1. `std::accumulate(v.begin(), v.end(), 0)` で v = {1.5f, 2.5f} のときの結果は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `3`。初期値が int なので、`0 + 1.5f` が int に切り捨てられて 1、`1 + 2.5f` が 3 になります。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

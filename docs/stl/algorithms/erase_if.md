@@ -252,21 +252,6 @@ int main() {
     std::remove_if(v.begin(), v.end(), pred);  // v.size() は変わっていない
     ```
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::vector<int> v = {1, 2, 3, 4, 5, 6};
-    auto n = std::erase_if(v, [](int x) { return x % 3 == 0; });
-    std::println("{} {}", n, v);
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `2 [1, 2, 4, 5]`。3 の倍数（3 と 6）が消えます。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い | こっちを使うとき |

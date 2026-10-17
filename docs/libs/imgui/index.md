@@ -13,7 +13,7 @@ tags:
 `#include "imgui.h"`
 </div>
 
-**Dear ImGui**（ディア・イムギ）は、ゲームの**デバッグ画面**や**エディタ**を、**とても少ないコードで作れる GUI ライブラリ**です。ボタンもスライダーも、`if (ImGui::Button("Reset")) { ... }` のように**毎フレーム、関数を呼ぶだけ**で出せます。ウィンドウの部品を作って保持する、という普通の GUI の面倒さがありません。この仕組みを <strong>即時モード GUI（Immediate Mode GUI）</strong> と言います。ゲームのパラメータを実行中に変える、オブジェクトの一覧を出す、フレーム時間のグラフを出す、といった用途で、ゲーム業界で広く使われています。ここから、ギズモ（[ImGuizmo](imguizmo.md)）、タイムライン（[ImSequencer](imsequencer.md)）、ノード エディタ（[imgui-node-editor](node-editor.md)）などの拡張ライブラリも広がっています。
+**Dear ImGui**（ディア・イムグイ）は、ゲームの**デバッグ画面**や**エディタ**を、**とても少ないコードで作れる GUI ライブラリ**です。ボタンもスライダーも、`if (ImGui::Button("Reset")) { ... }` のように**毎フレーム、関数を呼ぶだけ**で出せます。ウィンドウの部品を作って保持する、という普通の GUI の面倒さがありません。この仕組みを <strong>即時モード GUI（Immediate Mode GUI）</strong> と言います。ゲームのパラメータを実行中に変える、オブジェクトの一覧を出す、フレーム時間のグラフを出す、といった用途で、ゲーム業界で広く使われています。ここから、ギズモ（[ImGuizmo](imguizmo.md)）、タイムライン（[ImSequencer](imsequencer.md)）、ノード エディタ（[imgui-node-editor](node-editor.md)）などの拡張ライブラリも広がっています。
 
 !!! tip "ポイント"
     - <strong>毎フレーム、`ImGui::` の関数を呼んで画面を作る。</strong> 部品を作って保持しない（即時モード）。
@@ -118,19 +118,63 @@ if (ImGui::Button("Reset")) {  // 押されたフレームだけ true
 
 ## 1 フレームの流れ
 
-```text
-ゲームの 1 フレーム
-  ├─ 入力を受け取る・ゲームを更新する
-  ├─ ImGui_ImplDX11_NewFrame();      ← ① バックエンドの準備
-  ├─ ImGui_ImplWin32_NewFrame();
-  ├─ ImGui::NewFrame();              ← ② ImGui のフレームを始める
-  │    ├─ ImGui::Begin("デバッグ");   ← ③ ここで ImGui の関数を好きなだけ呼ぶ
-  │    ├─ ImGui::Text(...); ImGui::Button(...); ...
-  │    └─ ImGui::End();
-  ├─ ImGui::Render();                ← ④ 描画データを作る
-  ├─ ゲームの画面を描く
-  └─ ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());  ← ⑤ ImGui を重ねて描く
-```
+<div class="anim" data-type="graph" data-label="ImGui を使う 1 フレーム">
+n a ゲーム更新 0 0 hit
+n b NewFrame 1 0
+n c ウィジェット 2 0
+n d Render 3 0
+n e ゲーム描画 4 0
+l a b
+l b c
+l c d
+l d e
+# ゲームの更新をする
+---
+n a ゲーム更新 0 0
+n b NewFrame 1 0 hit
+n c ウィジェット 2 0
+n d Render 3 0
+n e ゲーム描画 4 0
+l a b hit
+l b c
+l c d
+l d e
+# NewFrame：バックエンドと ImGui のフレームを始める
+---
+n a ゲーム更新 0 0
+n b NewFrame 1 0
+n c ウィジェット 2 0 hit
+n d Render 3 0
+n e ゲーム描画 4 0
+l a b
+l b c hit
+l c d
+l d e
+# Begin / Button / Slider など、ImGui の関数を好きなだけ呼ぶ
+---
+n a ゲーム更新 0 0
+n b NewFrame 1 0
+n c ウィジェット 2 0
+n d Render 3 0 hit
+n e ゲーム描画 4 0
+l a b
+l b c
+l c d hit
+l d e
+# Render：描画データを作る（まだ画面には出ない）
+---
+n a ゲーム更新 0 0
+n b NewFrame 1 0
+n c ウィジェット 2 0
+n d Render 3 0
+n e ゲーム描画 4 0 hit
+l a b
+l b c
+l c d
+l d e hit
+# ゲームの画面を描いたあと、最後に RenderDrawData で ImGui を重ねる
+</div>
+
 
 ### 最小のコード（DirectX 11 + Win32）
 

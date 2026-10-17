@@ -415,15 +415,6 @@ int main() {
 ??? failure "確認せずに * で取り出す"
     `auto r = Load(); Use(*r);` は失敗したときに未定義動作です。
 
-## 理解度チェック
-
-!!! question "Q1. 「見つからない」だけを伝えたいなら optional と expected のどちら？"
-    <div class="spoiler" markdown>
-
-    **答え:** `std::optional`。理由が 1 通りしかないなら、エラーの型を用意する必要はありません。理由が複数あるなら expected です。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

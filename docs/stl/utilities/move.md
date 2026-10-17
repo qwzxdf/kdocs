@@ -311,20 +311,6 @@ constexpr auto move_if_noexcept(T& x) noexcept;
     std::println("{}", name);  // 中身は分からない
     ```
 
-## 理解度チェック
-
-!!! question "Q1. `std::move(x)` を書いただけの行は何をする？"
-    ```cpp
-    std::string x = "abc";
-    std::move(x);
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** 何もしません。`std::move` はキャストするだけで、受け取る側がいないので移動は起きず、`x` は `"abc"` のままです。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

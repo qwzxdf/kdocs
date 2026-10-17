@@ -68,10 +68,12 @@ extra_javascript:
   - javascripts/home.js
   - javascripts/toc.js
   - javascripts/anim.js
+  - javascripts/anim-graph.js
   - javascripts/search-tune.js
 
 extra_css:
   - stylesheets/extra.css
+  - stylesheets/anim.css
 
 markdown_extensions:
   - abbr

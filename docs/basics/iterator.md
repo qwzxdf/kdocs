@@ -208,15 +208,6 @@ int main() {
 ??? failure "別のコンテナのイテレータと比べる"
     `a.begin() != b.end()` のように、違うコンテナのイテレータ同士を比べるのは未定義動作です。
 
-## 理解度チェック
-
-!!! question "Q1. `std::vector<int> v = {1, 2, 3};` で `*(v.end() - 1)` は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `3`。end() は最後の次なので、1 つ戻ると最後の要素です（`v.back()` と同じ）。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

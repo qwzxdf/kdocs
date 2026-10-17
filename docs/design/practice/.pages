@@ -1,0 +1,9 @@
+title: 実践
+nav:
+  - refactoring-smells.md
+  - anti-patterns.md
+  - performance-design.md
+  - concurrency-design.md
+  - logging-debug.md
+  - build-cmake.md
+  - ...

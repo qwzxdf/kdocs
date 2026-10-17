@@ -385,15 +385,6 @@ static constexpr duration max() noexcept;
 ??? failure "float の秒を足し続けて誤差が溜まる"
     長時間のプレイ時間を `float` の秒で足し続けると、誤差で進み方がおかしくなります。合計は整数の `milliseconds` などで持ちます。
 
-## 理解度チェック
-
-!!! question "Q1. `duration_cast<seconds>(1999ms).count()` は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `1`。duration_cast は切り捨てです。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

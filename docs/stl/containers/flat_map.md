@@ -471,15 +471,6 @@ size_type erase_if(std::flat_map<K, T, C, KC, MC>& c, Pred pred);
 ??? failure "map と同じつもりで参照を持ち続ける"
     map の要素への参照は追加しても壊れませんが、flat_map は vector なので壊れます。
 
-## 理解度チェック
-
-!!! question "Q1. 毎フレーム敵が追加・削除される「ID → 敵」の表。flat_map は向いている？"
-    <div class="spoiler" markdown>
-
-    **答え:** 向いていません。追加・削除のたびに後ろの要素をずらす O(n) になります。`std::unordered_map` が向いています。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

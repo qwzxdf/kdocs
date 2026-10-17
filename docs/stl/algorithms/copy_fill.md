@@ -359,15 +359,6 @@ int main() {
     std::ranges::copy(src, std::back_inserter(dst));  // OK
     ```
 
-## 理解度チェック
-
-!!! question "Q1. `std::vector<int> v(3); std::iota(v.begin(), v.end(), 5);` のあと v は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `[5, 6, 7]`。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

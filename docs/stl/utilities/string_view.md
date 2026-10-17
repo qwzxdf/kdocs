@@ -449,20 +449,6 @@ constexpr size_type copy(CharT* dest, size_type count, size_type pos = 0) const;
 ??? failure "メンバ変数に保存する"
     クラスのメンバに string_view を持つと、元の文字列の寿命を管理しなければならず、とても壊れやすくなります。保存するなら `std::string` にします。
 
-## 理解度チェック
-
-!!! question "Q1. このコードの何が危ない？"
-    ```cpp
-    std::string_view sv = std::string("hello") + " world";
-    std::println("{}", sv);
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `std::string("hello") + " world"` は一時的な string で、この行の終わりで消えます。sv は消えた文字列を指しているので未定義動作です。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

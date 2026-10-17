@@ -31,15 +31,27 @@ tags:
 
 普通のシリアライザと cista の読み込みを比べます。
 
-```text
-普通のシリアライザ（cereal、zpp_bits、struct_pack）
-  ファイル ──読む──> バイト列 ──解析して作り直す──> std::vector, std::string ...
-                                ↑ 要素ごとにメモリ確保とコピーが起きる
+<div class="anim" data-type="graph" data-label="普通のシリアライザと cista の読み込み">
+n file ファイル 0 0
+n buf バイト列 1 0
+n obj 作り直した_vector_string 3 0
+# 普通のシリアライザ：ファイルを読み込む
+---
+n file ファイル 0 0 hit
+n buf バイト列 1 0 hit
+n obj 作り直した_vector_string 3 0 new
+l file buf hit 読む
+l buf obj new 解析して作り直す
+# バイト列を解析して、vector や string を新しく作る（確保とコピーが、要素ごとに起きる）
+---
+n file ファイル 0 1
+n buf バイト列 1 1 hit
+n view 先頭を_T*_として見る 3 1 hit
+l file buf hit 読む_または_mmap
+l buf view hit 見るだけ
+# cista：バイト列の先頭を、そのままポインタとして見る。作り直しもコピーもない
+</div>
 
-cista（ゼロコピー）
-  ファイル ──読む（またはメモリマップ）──> バイト列
-                                          ↑ 先頭を Player* として見るだけ
-```
 
 cista の `cista::offset::vector` は、中身の場所を<strong>ポインタではなく「自分からの距離（オフセット）」</strong> で覚えています。保存するときに、中身を全部 1 つのバイト列の中に並べ、距離を書いておきます。読み込むときは、バイト列がメモリのどこに置かれても、距離で中身を見つけられるので、**何も作り直さずに**そのまま使えます。
 
@@ -596,36 +608,6 @@ hash_t type_hash();
 
 ??? failure "32 ビットと 64 ビットでデータを共有する"
     メモリ上の形そのまま保存するので、`std::size_t` などの大きさや、構造体のパディングが違う環境では読めません。ツールとゲームは同じ環境（64 ビット、同じコンパイラ）でビルドします。
-
-## 理解度チェック
-
-!!! question "Q1. このコードの何がだめ？"
-    ```cpp
-    const WorldData* LoadWorld(const char* path) {
-      cista::byte_buf buffer = ReadFile(path);
-      return cista::deserialize<WorldData, kMode>(buffer);
-    }
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `deserialize` が返すポインタは `buffer` の中を指していますが、`buffer` は関数を抜けると消えます。返したポインタはダングリングポインタです。バッファ（または `cista::mmap`）とポインタを、1 つのクラスのメンバとして一緒に持ちます。
-
-    </div>
-
-!!! question "Q2. cista の読み込みが、データの大きさに関係なく速いのはなぜ？"
-    <div class="spoiler" markdown>
-
-    **答え:** 読み込みで何も作り直さず、バイト列の先頭をそのまま型のポインタとして使うからです（ゼロコピー）。中のコンテナは「自分からの距離」で中身を指しているので、バイト列がどこに置かれても使えます。ただし `WITH_INTEGRITY` や `DEEP_CHECK` を付けると、全体を調べるぶん時間がかかります。
-
-    </div>
-
-!!! question "Q3. プレイヤーのセーブデータに cista が向いていない理由は？"
-    <div class="spoiler" markdown>
-
-    **答え:** cista には、型の形が変わったときに古いデータを読む仕組みが無いからです（`WITH_VERSION` は形の違いを検出するだけ）。また、プレイヤーの PC にあるデータは壊れたり書き換えられたりするので、重い `DEEP_CHECK` が必要になります。セーブデータには、バージョン管理のある cereal や struct_pack が向いています。
-
-    </div>
 
 ## 類似ライブラリ
 

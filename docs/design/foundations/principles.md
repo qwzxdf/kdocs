@@ -65,7 +65,7 @@ class Health { /* HP とダメージ */ };
 class HealthBarView { /* HP の表示 */ };
 ```
 
-役割ごとに分けると、「HP バーを変えるなら HealthBarView だけ」と、直す場所がはっきりします。[コンポーネント指向](../engine/component.md)は、この考え方をゲームオブジェクトに当てはめたものです。
+役割ごとに分けると、「HP バーを変えるなら HealthBarView だけ」と、直す場所がはっきりします。[コンポーネント指向](../../engine/component.md)は、この考え方をゲームオブジェクトに当てはめたものです。
 
 ### 目安
 
@@ -108,16 +108,16 @@ class Enemy {
 };
 ```
 
-Enemy は「倒された」と知らせるだけで、誰が反応するかは知りません（[イベントシステム](../engine/event.md)）。
+Enemy は「倒された」と知らせるだけで、誰が反応するかは知りません（[イベントシステム](../patterns/event.md)）。
 
 ### 依存を減らす方法
 
 | 方法 | 例 |
 | --- | --- |
 | 必要なものだけ引数で渡す | `Update(const Input& input)`（ゲーム全体ではなく入力だけ） |
-| イベントで知らせる | [イベントシステム](../engine/event.md) |
-| インターフェース（抽象クラス）越しに使う | [依存性の注入](dependency-injection.md) |
-| 相手を ID で指す | [ハンドル](../engine/handle.md) |
+| イベントで知らせる | [イベントシステム](../patterns/event.md) |
+| インターフェース（抽象クラス）越しに使う | [依存性の注入](../patterns/dependency-injection.md) |
+| 相手を ID で指す | [ハンドル](../../engine/handle.md) |
 
 ## 3. 継承より合成（Composition over Inheritance）
 
@@ -140,7 +140,7 @@ struct Enemy {
 };
 ```
 
-移動と攻撃を別々の部品にすると、「飛んで噛む敵」も新しいクラスを作らずに組み合わせで作れます（[ストラテジー](strategy.md)、[コンポーネント指向](../engine/component.md)）。
+移動と攻撃を別々の部品にすると、「飛んで噛む敵」も新しいクラスを作らずに組み合わせで作れます（[ストラテジー](../patterns/strategy.md)、[コンポーネント指向](../../engine/component.md)）。
 
 ### 継承を使っていいとき
 
@@ -168,7 +168,7 @@ if (loaded_hp > 100) { /* 壊れたデータ */ }
 constexpr int kMaxHp = 100;  // ルールは 1 か所に
 ```
 
-さらに、こういった数値は [データ駆動](factory.md) で外部ファイルに出すと、プログラマー以外も調整できます。
+さらに、こういった数値は [データ駆動](../patterns/factory.md) で外部ファイルに出すと、プログラマー以外も調整できます。
 
 !!! note "DRY のやりすぎに注意"
     見た目が似ているだけのコード（たまたま同じ形の計算）を無理にまとめると、片方だけ変えたいときに困ります。まとめるのは「**同じ知識・同じルール**」だけにします。
@@ -213,15 +213,6 @@ std::unique_ptr<Enemy> CreateEnemy(EnemyType type);  // 必要になったら広
 ??? failure "最初から完璧な設計を目指す"
     仕様が決まっていないうちに作り込むと、仕様変更で全部無駄になります。動かしながら、困ったところを直します（リファクタリング）。
 
-## 理解度チェック
-
-!!! question "Q1. 「ショップの UI クラスが、アイテムの価格計算（割引・税）もしている」。どの原則に反していて、どう直す？"
-    <div class="spoiler" markdown>
-
-    **答え:** 単一責任。価格計算は UI とは「変わる理由」が違う（見た目の変更と、ルールの変更）ので、`PriceCalculator` のような別のクラス（または関数）に分けます。UI はその結果を表示するだけにします。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -234,5 +225,5 @@ std::unique_ptr<Enemy> CreateEnemy(EnemyType type);  // 必要になったら広
 ## 関連ページ
 
 - [クラス設計](class-design.md)
-- [コンポーネント指向](../engine/component.md)
+- [コンポーネント指向](../../engine/component.md)
 - [Game Programming Patterns](https://gameprogrammingpatterns.com/)

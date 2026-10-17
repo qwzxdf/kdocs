@@ -208,15 +208,6 @@ int main() {
 ??? failure "remove_if で消えたと思う"
     `std::ranges::remove_if(v, pred);` のあとも `v.size()` は変わりません。vector なら `std::erase_if(v, pred)` を使います。
 
-## 理解度チェック
-
-!!! question "Q1. `std::string s = \"a-b-c\";` の `-` を全部 `_` にするには？"
-    <div class="spoiler" markdown>
-
-    **答え:** `std::ranges::replace(s, '-', '_');`。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

@@ -297,15 +297,6 @@ constexpr const mapping_type& mapping() const noexcept;
 ??? failure "`grid[y][x]` と書く"
     mdspan は `grid[y, x]`（カンマ区切り）です。`grid[y][x]` はコンパイルエラーになります。
 
-## 理解度チェック
-
-!!! question "Q1. 幅 5、高さ 4 の mdspan で `grid[2, 3]` は元の配列の何番目？"
-    <div class="spoiler" markdown>
-
-    **答え:** `2 * 5 + 3 = 13` 番目（`layout_right` のとき）。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

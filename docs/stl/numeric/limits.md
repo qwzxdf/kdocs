@@ -258,15 +258,6 @@ true
 ??? failure "Windows で max() がマクロとぶつかる"
     `<windows.h>` の `max` マクロのせいでコンパイルエラーになります。`NOMINMAX` を定義するか、`(std::numeric_limits<int>::max)()` と書きます。
 
-## 理解度チェック
-
-!!! question "Q1. 最高スコアを探すループの初期値に `std::numeric_limits<float>::min()` を使うと、全員のスコアがマイナスのときどうなる？"
-    <div class="spoiler" markdown>
-
-    **答え:** min() は正の小さな数なので、マイナスのスコアはどれも初期値より小さく、最高スコアが見つからない（初期値のまま）になります。`lowest()` を使います。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

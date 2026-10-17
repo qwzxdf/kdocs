@@ -116,7 +116,7 @@ class Enemy {
 | --- | --- |
 | クラスの宣言、関数の宣言 | ヘッダ |
 | 関数の中身 | ソース |
-| テンプレートの中身 | **ヘッダ**（[テンプレート](../basics/template.md#テンプレートはヘッダに書く)） |
+| テンプレートの中身 | **ヘッダ**（[テンプレート](../../basics/template.md#テンプレートはヘッダに書く)） |
 | 短いゲッター（1 行） | ヘッダでも OK |
 | `constexpr` / `inline` の定数・関数 | ヘッダ |
 | そのファイルの中だけで使う関数・定数 | ソースの無名名前空間 |
@@ -203,15 +203,6 @@ void Audio::Play(const char* name) { /* impl_->system を使う */ }
 ??? failure "何でも include する"
     「念のため」に include を増やすと、ビルドが遅くなり、依存関係も分かりにくくなります。
 
-## 理解度チェック
-
-!!! question "Q1. `class Player { std::vector<Item*> items_; };` を書くヘッダで、Item.h の include は必要？"
-    <div class="spoiler" markdown>
-
-    **答え:** 不要です。ポインタを持つだけなので `class Item;` の前方宣言で足ります（`<vector>` は必要）。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -222,5 +213,5 @@ void Audio::Play(const char* name) { /* impl_->system を使う */ }
 
 ## 関連ページ
 
-- [テンプレート](../basics/template.md)
+- [テンプレート](../../basics/template.md)
 - [Google C++ Style Guide: Header Files](https://google.github.io/styleguide/cppguide.html#Header_Files)

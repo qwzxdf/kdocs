@@ -1,0 +1,14 @@
+title: 設計の基礎
+nav:
+  - principles.md
+  - class-design.md
+  - ownership-lifetime.md
+  - composition-vs-inheritance.md
+  - const-and-passing.md
+  - interface-design.md
+  - layers.md
+  - header-source.md
+  - naming.md
+  - error-handling.md
+  - testability.md
+  - ...

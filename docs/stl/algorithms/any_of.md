@@ -212,15 +212,6 @@ int main() {
 ??? failure "空の範囲で all_of が true になる"
     敵が 0 体のとき、`all_of(enemies, 倒れている)` は `true` です。「敵が 1 体もいない」と「全員倒した」を区別したいなら、`!enemies.empty() &&` を付けます。
 
-## 理解度チェック
-
-!!! question "Q1. 空の vector に対する any_of / all_of / none_of の結果は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `any_of` は `false`、`all_of` と `none_of` は `true`。「満たさないものが 1 つも無い」ので all は true になります。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

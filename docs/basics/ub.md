@@ -117,15 +117,6 @@ int main() {
     };
     ```
 
-## 理解度チェック
-
-!!! question "Q1. Debug ビルドでは動くのに、Release ビルドで HP が変な値になる。まず何を疑う？"
-    <div class="spoiler" markdown>
-
-    **答え:** 初期化していない変数です。Debug では MSVC がメモリを決まった値で埋めたり、たまたま 0 だったりしますが、Release ではゴミが入ります。次に範囲外アクセスを疑い、AddressSanitizer で確かめます。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

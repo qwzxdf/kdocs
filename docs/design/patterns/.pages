@@ -1,0 +1,20 @@
+title: パターン
+nav:
+  - index.md
+  - raii.md
+  - event.md
+  - state-machine.md
+  - command.md
+  - strategy.md
+  - factory.md
+  - dependency-injection.md
+  - singleton.md
+  - ecs.md
+  - data-oriented.md
+  - object-pool.md
+  - pimpl.md
+  - crtp-policy.md
+  - visitor.md
+  - iterator-pattern.md
+  - decorator.md
+  - ...

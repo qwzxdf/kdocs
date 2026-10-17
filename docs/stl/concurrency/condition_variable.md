@@ -220,15 +220,6 @@ class condition_variable_any;
 ??? failure "notify してから push する"
     先に通知すると、起きたスレッドがまだ空のキューを見て、また眠ってしまいます（通知が無駄になる）。データを変えてから通知します。
 
-## 理解度チェック
-
-!!! question "Q1. `while (queue.empty()) {}` で待つのと condition_variable で待つのは何が違う？"
-    <div class="spoiler" markdown>
-
-    **答え:** while の空回りは、待っている間も CPU を 100% 使い続けます（しかもロックが無いとデータ競争）。condition_variable は眠って待つので CPU を使いません。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

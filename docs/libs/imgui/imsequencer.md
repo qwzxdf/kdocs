@@ -42,17 +42,23 @@ ImSequencer は、ImGuizmo のリポジトリに含まれています。[Dear Im
 
 ## 画面のしくみ
 
-```text
- ┌─ 左：項目の一覧 ─┬─ 右：時間軸（フレーム） ──────────────────────────────┐
- │                  │  0    10    20    30    40    50                     │
- │ ▼ アニメーション  │  ┃                                                   │
- │  走る            │  ┃   ▓▓▓▓▓▓▓▓▓▓▓▓▓                                  │ ← 帯（開始〜終了）
- │  ジャンプ         │  ┃                ▓▓▓▓▓▓▓▓▓▓                         │
- │ ▼ エフェクト      │  ┃        ▓▓▓▓▓▓▓                                    │
- │  爆発            │  ┃                                                   │
- └──────────────────┴───────────────────────────────────────────────────┘
-                       ↑ 縦線は「現在のフレーム」。ドラッグして動かす
-```
+<div class="anim" data-type="graph" data-label="タイムライン：帯をドラッグして編集する">
+n r1 走る 0 0
+n r2 ジャンプ 2 1
+n r3 爆発 1 2
+# 横が時間（フレーム）。帯の左端が開始、右端が終了
+---
+n r1 走る 1 0 hit
+n r2 ジャンプ 2 1
+n r3 爆発 1 2
+# 帯をドラッグすると、開始・終了フレームがまとめて動く（start / end の変数が書き換わる）
+---
+n r1 走る 1 0
+n r2 ジャンプ 2 1 hit
+n r3 爆発 3 2 hit
+# ほかの項目も、同じように動かせる。現在のフレームの縦線は、目盛りをクリックして動かす
+</div>
+
 
 - 項目の**帯の端をドラッグ**すると、開始・終了フレームが変わる
 - **帯の中をドラッグ**すると、帯ごと前後に動く
@@ -148,15 +154,33 @@ void DrawTimeline(MySequence& sequence) {
 
 ### 流れ
 
-```text
-① SequencerInterface を継承したクラスで、自分のデータを見せる
-     GetFrameMin / GetFrameMax … 全体の範囲
-     GetItemCount / Get        … 項目の数と、各項目の（開始・終了・種類・色）
-     Add / Del / Duplicate     … 追加・削除・複製（ボタンが押されたとき）
-② 毎フレーム ImSequencer::Sequencer() を呼ぶ
-③ ライブラリが、マウス操作で start / end / current_frame を書き換える
-④ ゲーム側は、書き換わった値を見て、アニメーションなどを動かす
-```
+<div class="anim" data-type="graph" data-label="ImSequencer のデータの流れ">
+n data 自分のデータ 0 1 hit
+n iface SequencerInterface 2 1
+n seq Sequencer() 4 1
+# ① 自分の項目のデータ（クリップの一覧）を持つ
+---
+n data 自分のデータ 0 1
+n iface SequencerInterface 2 1 hit
+n seq Sequencer() 4 1
+l data iface hit Get_で見せる
+# ② インターフェースを継承して、データを見せる（Get で start / end のアドレスを渡す）
+---
+n data 自分のデータ 0 1
+n iface SequencerInterface 2 1
+n seq Sequencer() 4 1 hit
+l data iface
+l iface seq hit 毎フレーム
+# ③ 毎フレーム Sequencer() を呼ぶと、画面に描かれ、マウス操作を受け付ける
+---
+n data 自分のデータ 0 1 hit
+n iface SequencerInterface 2 1
+n seq Sequencer() 4 1
+l seq data new 直接書き換え
+l data iface
+# ④ ドラッグすると、渡したアドレスを通して、自分のデータが直接書き換わる
+</div>
+
 
 ## 関数・型の詳しい説明
 
@@ -289,7 +313,7 @@ virtual void EndEdit() {}
 ```
 
 - 帯の**ドラッグを始めたとき**に `BeginEdit(index)`、**離したとき**に `EndEdit()` が呼ばれます
-- ここで**操作前と操作後の値を保存**して、アンドゥ（元に戻す）の履歴に積みます（[コマンドパターン](../../design/command.md)）。ドラッグの途中の値を全部積むと、アンドゥが使いにくくなります
+- ここで**操作前と操作後の値を保存**して、アンドゥ（元に戻す）の履歴に積みます（[コマンドパターン](../../design/patterns/command.md)）。ドラッグの途中の値を全部積むと、アンドゥが使いにくくなります
 
 ```cpp
 void BeginEdit(int index) override {
@@ -396,29 +420,6 @@ void ApplyTimeline(const MySequence& sequence, int current_frame) {
 ??? failure "Add / Del の最中に、項目の配列が壊れる"
     ライブラリは、項目の並びを使っている最中に `Add` / `Del` を呼ぶことがあります。**描画が終わったあとにまとめて反映**するか、`index` の範囲を毎回確認します。
 
-## 理解度チェック
-
-!!! question "Q1. `SequencerInterface::Get` で、開始・終了フレームを `int**` で渡すのはなぜ？"
-    <div class="spoiler" markdown>
-
-    **答え:** ライブラリが、**マウスのドラッグで、自分のデータの変数を直接書き換える**ためです。変数のアドレスを渡すことで、ゲーム側のデータが、そのまま更新されます。
-
-    </div>
-
-!!! question "Q2. 帯をドラッグした操作を、アンドゥできるようにするには？"
-    <div class="spoiler" markdown>
-
-    **答え:** `BeginEdit(index)` で操作前の値を覚え、`EndEdit()` で、変わっていれば（前の値、後の値）をアンドゥの履歴に積みます。ドラッグの途中の値は積みません。
-
-    </div>
-
-!!! question "Q3. タイムラインの縦線（現在のフレーム）を、ゲームの再生に使うには？"
-    <div class="spoiler" markdown>
-
-    **答え:** `Sequencer` に渡した `currentFrame` の変数を、ゲーム側で読みます。再生中は、自分でこの値を毎フレーム進め、`current_frame` が含まれる項目を、その進み具合（`t`）で再生します。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |
@@ -442,5 +443,5 @@ void ApplyTimeline(const MySequence& sequence, int current_frame) {
 - [Dear ImGui](index.md)
 - [ImGuizmo](imguizmo.md)
 - [imgui-node-editor](node-editor.md)
-- [コマンドパターン（アンドゥ）](../../design/command.md)
+- [コマンドパターン（アンドゥ）](../../design/patterns/command.md)
 - [ImGuizmo / ImSequencer（GitHub）](https://github.com/CedricGuillemet/ImGuizmo)

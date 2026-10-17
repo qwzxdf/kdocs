@@ -260,15 +260,6 @@ int main() {
 ??? failure "lower_bound の結果を「見つかった」と思い込む"
     `lower_bound` は値が無くても `end()` 以外を返すことがあります。値が等しいかも確かめます。
 
-## 理解度チェック
-
-!!! question "Q1. `{10, 20, 30}` で `lower_bound(25)` と `upper_bound(20)` が指す値は？"
-    <div class="spoiler" markdown>
-
-    **答え:** どちらも `30`。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

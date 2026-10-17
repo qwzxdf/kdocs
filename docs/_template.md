@@ -171,18 +171,6 @@ int main() {
 ??? failure "ミスの見出し"
     説明とコード
 
-## 理解度チェック
-
-!!! question "Q1. このコードの何がダメ？"
-    ```cpp
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:**
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

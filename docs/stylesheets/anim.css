@@ -1,0 +1,69 @@
+.md-typeset .anim[data-type="graph"] {
+  white-space: pre-line;
+}
+
+.md-typeset .anim[data-type="graph"][data-ready] {
+  white-space: normal;
+}
+
+.md-typeset .anim-graph {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.md-typeset .anim-node rect {
+  fill: var(--kd-cell-used);
+  stroke: var(--kd-cell-border);
+  stroke-width: 1.5;
+  transition: fill 0.4s;
+}
+
+.md-typeset .anim-node text {
+  fill: var(--kd-cell-text);
+  font-size: 12px;
+}
+
+.md-typeset .anim-node {
+  transition: transform 0.6s ease, opacity 0.4s;
+}
+
+.md-typeset .anim-node.new rect { fill: var(--kd-cell-new); }
+.md-typeset .anim-node.gone rect { fill: var(--kd-cell-gone); stroke-dasharray: 4 3; }
+.md-typeset .anim-node.move rect { fill: var(--kd-cell-move); }
+.md-typeset .anim-node.hit rect { fill: var(--md-accent-fg-color); }
+.md-typeset .anim-node.hit text { fill: var(--md-accent-bg-color); }
+.md-typeset .anim-node.dim { opacity: 0.35; }
+.md-typeset .anim-node.off,
+.md-typeset .anim-link.off { opacity: 0; pointer-events: none; }
+
+.md-typeset .anim-link {
+  transition: opacity 0.4s;
+}
+
+.md-typeset .anim-link path {
+  fill: none;
+  stroke: var(--kd-cell-border);
+  stroke-width: 2;
+}
+
+.md-typeset .anim-arrow { fill: var(--kd-cell-border); }
+.md-typeset .anim-link.new path,
+.md-typeset .anim-link.hit path { stroke: var(--md-accent-fg-color); stroke-width: 3; }
+.md-typeset .anim-link.gone path { stroke: #e57373; stroke-dasharray: 5 4; }
+.md-typeset .anim-link.dim { opacity: 0.3; }
+
+.md-typeset .anim-link-label {
+  fill: var(--md-default-fg-color--light);
+  font-size: 11px;
+}
+
+.md-typeset .anim-node.pop,
+.md-typeset .anim-link.pop {
+  animation: kd-flash 0.6s ease-out;
+}
+
+@keyframes kd-flash {
+  0% { opacity: 0.2; }
+  100% { opacity: 1; }
+}

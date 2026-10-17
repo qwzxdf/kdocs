@@ -1427,40 +1427,6 @@ size_type copy(CharT* dest, size_type count, size_type pos = 0) const;
     std::puts(name);                       // 未定義動作
     ```
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::string s = "hello";
-    std::println("{}", s.find("z") == std::string::npos);
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `true`。見つからないときは `std::string::npos` が返ります。
-
-    </div>
-
-!!! question "Q2. このコードの何がダメ？"
-    ```cpp
-    void PrintName(std::string name) {
-      std::println("{}", name);
-    }
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** 値渡しなので、呼ぶたびに文字列がコピーされます（長いとヒープ確保も起きます）。読むだけなら `std::string_view name` か `const std::string& name` にします。
-
-    </div>
-
-!!! question "Q3. `std::string s = "ゲーム";` の `s.size()` は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `9`（UTF-8 のとき）。日本語は 1 文字 3 バイトです。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

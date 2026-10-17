@@ -749,27 +749,6 @@ constexpr const_iterator cend() const noexcept;
 
     `std::array` は「C の配列を 1 つ持った構造体」なので、外側にもう 1 組 `{}` が必要になることがあります。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::array<int, 4> a = {1, 2};
-    std::println("{} {}", a.size(), a);
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `4 [1, 2, 0, 0]`。書かなかった分は 0 で埋まり、`size()` は常に 4 です。
-
-    </div>
-
-!!! question "Q2. 敵の最大数が 1000、実際には 0〜1000 体のあいだで増減する。array と vector のどちらを使う？"
-    <div class="spoiler" markdown>
-
-    **答え:** `std::vector`（最初に `reserve(1000)`）。`std::array` は要素数が常に 1000 なので、「今何体いるか」を別に管理する必要が出てきます。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

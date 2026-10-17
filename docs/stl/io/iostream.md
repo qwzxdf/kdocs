@@ -321,15 +321,6 @@ HP    |
 ??? failure "cin の失敗を放置する"
     数値を入れるところに文字を入れると、`cin` が失敗状態になり、そのあとの入力が全部無視されます。`std::cin.clear()` と `ignore` で回復します。
 
-## 理解度チェック
-
-!!! question "Q1. `std::cout << std::setw(4) << 7 << 8;` の出力は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `   78`。`setw` は次の 1 つ（7）にだけ効きます。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

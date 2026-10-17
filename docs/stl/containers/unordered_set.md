@@ -511,27 +511,6 @@ size_type bucket_count() const noexcept;
 ??? failure "順番が保たれると思い込む"
     unordered_set を回すと順番はバラバラです。表示順が大事なら `std::set` か vector を使います。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::unordered_set<int> s = {1, 2, 2, 3, 3, 3};
-    std::println("{}", s.size());
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `3`。重複は 1 個にまとまります。
-
-    </div>
-
-!!! question "Q2. 敵 ID が 0〜99 の整数だけ。当たった敵を覚えるのに一番速いのは？"
-    <div class="spoiler" markdown>
-
-    **答え:** `std::bitset<100>` か `std::array<bool, 100>`。ID をそのまま添字にできるので、ハッシュ計算もメモリ確保も要りません。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

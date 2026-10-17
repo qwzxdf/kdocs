@@ -166,15 +166,6 @@ int main() {
 ??? failure "partial_sort の後半も並んでいると思う"
     `middle` より後ろの順番はバラバラです。
 
-## 理解度チェック
-
-!!! question "Q1. 1 万体の敵から近い 5 体だけ欲しい。sort と partial_sort どちらが速い？"
-    <div class="spoiler" markdown>
-
-    **答え:** `partial_sort`（O(n log 5)）。sort は全部並べる O(n log n) です。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

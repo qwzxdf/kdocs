@@ -246,22 +246,6 @@ ABC
 ??? failure "vector<bool> に注意"
     bool の範囲を `to<std::vector>()` すると `std::vector<bool>`（特殊な型）になります。参照が取れないなどの制限があります。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    auto v = std::views::iota(1, 6)
-           | std::views::transform([](int x) { return x * 10; })
-           | std::ranges::to<std::vector>();
-    std::println("{} {}", v.size(), v.back());
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `5 50`。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

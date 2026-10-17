@@ -166,15 +166,6 @@ true true
 ??? failure "長さの違う範囲を古い std::equal で比べる"
     古い `std::equal(a.begin(), a.end(), b.begin())` は、b が短いと範囲外を読みます。ranges 版は長さも比べるので安全です。
 
-## 理解度チェック
-
-!!! question "Q1. `std::ranges::equal(std::vector{1, 2}, std::vector{1, 2, 3})` は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `false`。長さが違うからです。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

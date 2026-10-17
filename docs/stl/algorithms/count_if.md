@@ -167,20 +167,6 @@ int main() {
 ??? failure "戻り値を size_t と比べて警告が出る"
     戻り値は符号付きなので、`v.size()` と比べると「符号付きと符号なしの比較」の警告が出ます。`std::ssize(v)` と比べるか、キャストします。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::vector<int> v = {1, 2, 3, 4, 5};
-    std::println("{}", std::ranges::count_if(v, [](int x) { return x > 2; }));
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `3`（3, 4, 5）。
-
-    </div>
-
 ## 類似
 
 | 名前 | 違い |

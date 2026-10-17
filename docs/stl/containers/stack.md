@@ -39,7 +39,6 @@ class stack;
 
 ## 関数一覧
 
-
 | 関数 | 重要度 | 何をする | 計算量 |
 | --- | --- | --- | --- |
 | [`push`](#push) | <span class="rank rank-must">必須</span> | 上に積む | O(1) |
@@ -277,15 +276,6 @@ void swap(stack& other) noexcept;
 
 ??? failure "中身を全部表示しようとする"
     stack は一番上しか見られません。デバッグ表示などで中身も見たいなら、最初から `std::vector` を使って `push_back` / `back` / `pop_back` で書きます。
-
-## 理解度チェック
-
-!!! question "Q1. A, B, C の順に push して、pop を 1 回したあとの top は？"
-    <div class="spoiler" markdown>
-
-    **答え:** `B`。最後に入れた C が出ていきます。
-
-    </div>
 
 ## 類似クラス
 

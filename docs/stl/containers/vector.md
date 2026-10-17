@@ -1813,54 +1813,6 @@ int main() {
 ??? failure "`()` と `{}` を間違える"
     `std::vector<int> v{10};` は「10 が 1 個」です。「0 が 10 個」なら `std::vector<int> v(10);` です。[コンストラクタ](#コンストラクタ) を参照してください。
 
-## 理解度チェック
-
-!!! question "Q1. このコードの何がダメ？"
-    ```cpp
-    std::vector<int> scores;
-    scores.reserve(3);
-    scores[0] = 100;
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `reserve` は場所を取るだけで、`size` は 0 のままです。`scores[0]` は範囲外アクセスで未定義動作になります。`push_back(100)` を使うか、`resize(3)` してから代入します。
-
-    </div>
-
-!!! question "Q2. 何が出力される？"
-    ```cpp
-    std::vector<int> v(3);
-    v.push_back(7);
-    std::println("{}", v);
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `[0, 0, 0, 7]`。`v(3)` は「0 が 3 個」なので、その後ろに 7 が追加されます。
-
-    </div>
-
-!!! question "Q3. このコードが危ないのはなぜ？"
-    ```cpp
-    Enemy* boss = &enemies.back();
-    enemies.push_back(SpawnMinion());
-    boss->hp -= 10;
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `push_back` で再確保が起きると、`boss` は解放済みの古い場所を指したままになります（未定義動作）。ポインタではなく添字や ID で覚えるか、先に `reserve` しておきます。
-
-    </div>
-
-!!! question "Q4. 1000 体の敵から 1 体を消したい。順番は気にしない。一番速い方法は？"
-    <div class="spoiler" markdown>
-
-    **答え:** 消したい要素に最後の要素をムーブして `pop_back` する（[swap して pop_back](#順番がどうでもいいならswap-して-pop_back)）。`erase` だと後ろの要素を最大 999 個ずらすことになります。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

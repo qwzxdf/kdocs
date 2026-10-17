@@ -31,6 +31,29 @@ void Enemy::Update() {
 }
 ```
 
+<div class="anim" data-type="graph" data-label="ストラテジー：動き方を差し替える">
+n enemy 敵 0 1
+n patrol 巡回 2 0 hit
+n chase 追跡 2 1 dim
+n flee 逃走 2 2 dim
+l enemy patrol hit 今の行動
+# 最初は「巡回」の行動を持っている
+---
+n enemy 敵 0 1
+n patrol 巡回 2 0 dim
+n chase 追跡 2 1 hit
+n flee 逃走 2 2 dim
+l enemy chase hit 差し替え
+# プレイヤーを見つけたので、「追跡」に差し替える（敵のコードは変わらない）
+---
+n enemy 敵 0 1
+n patrol 巡回 2 0 dim
+n chase 追跡 2 1 dim
+n flee 逃走 2 2 hit
+l enemy flee hit 差し替え
+# 体力が減ったので、「逃走」に差し替える
+</div>
+
 ## 良い例 1：std::function で差し替える
 
 ```cpp
@@ -177,15 +200,6 @@ int main() {
 ??? failure "ストラテジーの中から持ち主を勝手に書き換える"
     差し替える部品が持ち主（Enemy）の内部を何でも触ると、部品を替えたときの影響が読めなくなります。必要な値だけを引数で受け取り、結果を返す形にします。
 
-## 理解度チェック
-
-!!! question "Q1. ステージごとに敵の動きのパターンをデータファイルで指定したい。どの方法が向いている？"
-    <div class="spoiler" markdown>
-
-    **答え:** 実行中（読み込み時）に決まるので、`std::function` か仮想関数。ファイルの文字列（`"zigzag"`）から対応するストラテジーを作る仕組みは [ファクトリ](factory.md) で作ります。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -195,6 +209,6 @@ int main() {
 
 ## 関連ページ
 
-- [std::function](../stl/utilities/function.md)
-- [継承と仮想関数](../basics/virtual.md)
+- [std::function](../../stl/utilities/function.md)
+- [継承と仮想関数](../../basics/virtual.md)
 - [ファクトリとデータ駆動](factory.md)

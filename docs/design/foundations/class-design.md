@@ -20,7 +20,7 @@ tags:
     - ただのデータの入れ物なら `struct` にしてメンバを公開していい。
 
 !!! info "このページを読む前に"
-    [参照](../basics/reference.md)、[ムーブ](../basics/move.md)、[所有権](../basics/ownership.md) が分かると読みやすいです。
+    [参照](../../basics/reference.md)、[ムーブ](../../basics/move.md)、[所有権](../../basics/ownership.md) が分かると読みやすいです。
 
 ## 1. カプセル化：壊れた状態を作らせない
 
@@ -203,7 +203,7 @@ class GpuBuffer {
 ```
 
 !!! note "実際は"
-    生のハンドルを持つクラスを書くより、[Deleter 付きの unique_ptr](../stl/utilities/unique_ptr.md#フラグオプション) に包むほうが簡単で安全です。そうすれば Rule of Zero に戻れます。
+    生のハンドルを持つクラスを書くより、[Deleter 付きの unique_ptr](../../stl/utilities/unique_ptr.md#フラグオプション) に包むほうが簡単で安全です。そうすれば Rule of Zero に戻れます。
 
 ## 5. その他のポイント
 
@@ -211,7 +211,7 @@ class GpuBuffer {
 | --- | --- |
 | public → protected → private の順に書く | 使う人が知りたいもの（public）が先に見える（Google Style） |
 | メンバ変数の名前の最後に `_` を付ける | ローカル変数・引数と区別できる（Google Style） |
-| 仮想関数を持つ基底クラスのデストラクタは `virtual` | [継承と仮想関数](../basics/virtual.md) |
+| 仮想関数を持つ基底クラスのデストラクタは `virtual` | [継承と仮想関数](../../basics/virtual.md) |
 | 継承させないクラスには `final` | 意図がはっきりし、最適化もされやすい |
 | 1 つのクラスが大きくなったら分ける | [単一責任](principles.md#1-単一責任single-responsibility) |
 | 比較が必要なら `operator==` / `<=>` を `= default` | メンバごとの比較を自動で作れる |
@@ -250,28 +250,10 @@ true true
     `set_hp(int)` で何でも入れられるなら、private にした意味がありません。「何をしたいか」（`Damage`、`Heal`、`Revive`）を関数にします。
 
 ??? failure "Init() を別に呼ばせる"
-    呼び忘れ、二重呼び出しのバグの元です。コンストラクタで完成させ、失敗しうるなら [ファクトリ関数](factory.md) で `std::expected` や `std::optional` を返します。
+    呼び忘れ、二重呼び出しのバグの元です。コンストラクタで完成させ、失敗しうるなら [ファクトリ関数](../patterns/factory.md) で `std::expected` や `std::optional` を返します。
 
 ??? failure "初期化リストの順番を宣言と違う順にする"
     宣言順に初期化されるので、`hp_(max_hp_)` のように後で宣言されたメンバを使うとゴミが入ります（警告 `-Wreorder` が出ます）。
-
-## 理解度チェック
-
-!!! question "Q1. このクラスの問題は？"
-    ```cpp
-    class Timer {
-     public:
-      Timer(float d) : duration(d) {}
-      float duration;
-      float elapsed;
-    };
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** ① `explicit` が無いので `float` から勝手に変換される。② `elapsed` が初期化されていない。③ メンバが public で、`elapsed` をマイナスにされても防げない。④ メンバ名に `_` が無く、Google Style に合っていない。
-
-    </div>
 
 ## これだけ覚える
 
@@ -284,5 +266,5 @@ true true
 ## 関連ページ
 
 - [設計の基本原則](principles.md)
-- [ムーブ](../basics/move.md)
+- [ムーブ](../../basics/move.md)
 - [Google C++ Style Guide: Classes](https://google.github.io/styleguide/cppguide.html#Classes)

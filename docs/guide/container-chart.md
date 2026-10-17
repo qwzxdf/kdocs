@@ -22,7 +22,6 @@ flowchart TD
 
 ## ざっくり比較
 
-
 | コンテナ | 速さ | 一言で | 追加 | 検索 | 削除 |
 | --- | --- | --- | --- | --- | --- |
 | [`vector`](../stl/containers/vector.md) | <span class="perf perf-4">◎</span> | 伸びる配列。基本これ | 末尾 O(1) | O(n) | 末尾 O(1) |

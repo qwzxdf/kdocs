@@ -204,15 +204,6 @@ void Draw(TextureHandle texture);
 ??? failure "Get したポインタを保存する"
     `Get` で取ったポインタは、そのフレームの中で使い切ります。保存するのはハンドルです（プールの vector が伸びるとポインタは壊れるため）。
 
-## 理解度チェック
-
-!!! question "Q1. ハンドル (5, 2) で Get したら、スロット 5 の世代は 4 だった。どういう状態？"
-    <div class="spoiler" markdown>
-
-    **答え:** ハンドルが指していたオブジェクトはもう消えていて、スロット 5 はその後 2 回（世代 3 と 4 で）再利用されています。`Get` は nullptr を返すべきです。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -222,6 +213,6 @@ void Draw(TextureHandle texture);
 
 ## 関連ページ
 
-- [ECS](ecs.md)
+- [ECS](../design/patterns/ecs.md)
 - [リソース管理](resource.md)
-- [オブジェクトプール](object-pool.md)
+- [オブジェクトプール](../design/patterns/object-pool.md)

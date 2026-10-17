@@ -114,6 +114,40 @@ int main() {
 リザルト: 300 点
 ```
 
+<div class="anim" data-type="graph" data-label="シーンの切り替え">
+n title タイトル 0 0 hit
+n game ゲーム 1 0
+n result リザルト 2 0
+l title game
+l game result
+l result title
+# タイトルから始まる
+---
+n title タイトル 0 0
+n game ゲーム 1 0 hit
+n result リザルト 2 0
+l title game hit 開始
+l game result
+l result title
+# 開始すると、ゲームへ（前のシーンは片付けられる）
+---
+n title タイトル 0 0
+n game ゲーム 1 0
+n result リザルト 2 0 hit
+l title game
+l game result hit クリア
+l result title
+# クリアすると、リザルトへ
+---
+n title タイトル 0 0 hit
+n game ゲーム 1 0
+n result リザルト 2 0
+l title game
+l game result
+l result title hit 戻る
+# 戻ると、タイトルへ。シーンは、同時に 1 つだけ動く
+</div>
+
 ## 詳しく
 
 ### なぜ切り替えを予約するのか
@@ -212,15 +246,6 @@ int main() {
 ??? failure "シーンの外にオブジェクトを置いて、切り替えても消えない"
     グローバル変数や static にオブジェクトを置くと、シーンを切り替えても残り続け、前のシーンの敵が次のシーンに出てくるようなバグになります。シーンのメンバとして持ちます。
 
-## 理解度チェック
-
-!!! question "Q1. ポーズ中、下のゲーム画面は描画する？ Update する？"
-    <div class="spoiler" markdown>
-
-    **答え:** 描画はする（後ろに見えている）、Update はしない（ゲームを止める）。スタックの上のシーンだけ Update し、描画は「不透明なシーン」まで下から順に行うのが定番です。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -232,5 +257,5 @@ int main() {
 ## 関連ページ
 
 - [ゲームループ](game-loop.md)
-- [ステートマシン](state-machine.md)
+- [ステートマシン](../design/patterns/state-machine.md)
 - [リソース管理](resource.md)

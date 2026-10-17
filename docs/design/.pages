@@ -1,14 +1,5 @@
 nav:
   - index.md
-  - principles.md
-  - class-design.md
-  - header-source.md
-  - naming.md
-  - error-handling.md
-  - singleton.md
-  - command.md
-  - strategy.md
-  - factory.md
-  - dependency-injection.md
-  - data-oriented.md
-  - ...
+  - 設計の基礎: foundations
+  - パターン: patterns
+  - 実践: practice

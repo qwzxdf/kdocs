@@ -193,15 +193,6 @@ int main() {
 ??? failure "コンストラクタの中で仮想関数を呼ぶ"
     基底クラスのコンストラクタの中では、派生クラスはまだできていないので、派生クラスの関数は呼ばれません。
 
-## 理解度チェック
-
-!!! question "Q1. `std::vector<Enemy*>` ではなく `std::vector<std::unique_ptr<GameObject>>` にする理由は？"
-    <div class="spoiler" markdown>
-
-    **答え:** 色々な派生クラスをまとめて持てる（基底クラスのポインタ）ことと、持ち主（unique_ptr）がはっきりして自動で消えることです。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

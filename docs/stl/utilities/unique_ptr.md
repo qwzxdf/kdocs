@@ -555,27 +555,6 @@ int main() {
 ??? failure "基底クラスのデストラクタに virtual を付け忘れる"
     `std::unique_ptr<Base>` で派生クラスを持つなら、`virtual ~Base() = default;` が必要です。
 
-## 理解度チェック
-
-!!! question "Q1. このコードの何がダメ？"
-    ```cpp
-    auto a = std::make_unique<int>(5);
-    std::unique_ptr<int> b = a;
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** unique_ptr はコピーできないのでコンパイルエラーです。持ち主を移すなら `std::move(a)` にします（その後 `a` は空になります）。
-
-    </div>
-
-!!! question "Q2. 敵の AI が「攻撃対象のプレイヤー」を覚えておきたい。unique_ptr で持つべき？"
-    <div class="spoiler" markdown>
-
-    **答え:** 持つべきではありません。プレイヤーの持ち主は別（シーンなど）なので、AI は生ポインタや ID で「参照するだけ」にします。unique_ptr にすると、AI が消えたときにプレイヤーまで消えてしまいます。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |

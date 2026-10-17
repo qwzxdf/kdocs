@@ -363,15 +363,6 @@ if (lock.owns_lock()) {
 ??? failure "守るデータを外に参照で返す"
     `const std::vector<T>& data() const { std::lock_guard l(m_); return data_; }` は、ロックが外れたあとに呼び出し側がデータを読むので守れていません。コピーを返すか、ロックの中で処理する関数を用意します。
 
-## 理解度チェック
-
-!!! question "Q1. lock_guard を使う利点は？"
-    <div class="spoiler" markdown>
-
-    **答え:** スコープを抜けると必ず unlock されるので、途中の return や例外で開け忘れることがありません（RAII）。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

@@ -156,15 +156,6 @@ int main() {
 ??? failure "par で共有データを書き換える"
     並列版の関数の中で、同じ変数（合計など）を書き換えるとデータ競争になります。合計なら `std::reduce` を使います。
 
-## 理解度チェック
-
-!!! question "Q1. for_each を使わずに範囲 for で書いたほうがいいのはどんなとき？"
-    <div class="spoiler" markdown>
-
-    **答え:** ほとんどの場合です。範囲 for のほうが読みやすく、`break` や `continue` も使えます。for_each は関数を変数で受け取りたいとき、並列にしたいときに使います。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

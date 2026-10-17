@@ -75,6 +75,39 @@ int main() {
 
 （`unordered_map` なので、解放の順番は実装によって変わることがあります。）
 
+<div class="anim" data-type="graph" data-label="リソースの共有：使っている間だけ残す">
+n a シーンA 0 0
+n b シーンB 0 2
+n tex テクスチャ 2 1 gone
+# 最初は、まだ読み込まれていない
+---
+n a シーンA 0 0 hit
+n b シーンB 0 2
+n tex テクスチャ 2 1 new
+l a tex new 使う
+# シーン A が使うと、1 回だけ読み込まれる
+---
+n a シーンA 0 0 hit
+n b シーンB 0 2 hit
+n tex テクスチャ 2 1
+l a tex
+l b tex new 使う
+# シーン B も使う。読み直さず、同じものを共有する
+---
+n a シーンA 0 0 gone
+n b シーンB 0 2
+n tex テクスチャ 2 1
+l a tex gone 手放す
+l b tex
+# A が終わっても、B が使っているので残る
+---
+n a シーンA 0 0 dim
+n b シーンB 0 2 gone
+n tex テクスチャ 2 1 gone
+l b tex gone 手放す
+# 全員が手放したとき、はじめて解放される
+</div>
+
 ## 詳しく
 
 ### 借り方の選び方
@@ -164,15 +197,6 @@ int main() {
 
 ??? failure "パスの書き方の違いで別物になる"
     `"img/a.png"` と `"img\\a.png"` と `"./img/a.png"` は、文字列としては別なので 2 回読み込まれます。`std::filesystem::path` で正規化してからキーにします。
-
-## 理解度チェック
-
-!!! question "Q1. マネージャの中を unordered_map<string, Texture>（値）にすると、Load の戻り値の参照は安全？"
-    <div class="spoiler" markdown>
-
-    **答え:** unordered_map は追加しても要素の参照は壊れないので、安全です（vector だと再確保で壊れます）。ただし、Texture がムーブできない型だと入れにくいので、unique_ptr で持つことが多いです。
-
-    </div>
 
 ## これだけ覚える
 

@@ -193,25 +193,6 @@ int main() {
 ??? failure "初期化していないポインタを使う"
     `Enemy* p;` だけだと中身はゴミです。必ず `= nullptr` か実際の場所で初期化します。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    int a = 1;
-    int b = 2;
-    int* p = &a;
-    *p = 10;
-    p = &b;
-    *p = 20;
-    std::println("{} {}", a, b);
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `10 20`。最初は a を指して 10 を書き、次に b を指し直して 20 を書いています。
-
-    </div>
-
 ## これだけ覚える
 
 !!! abstract "まとめ"

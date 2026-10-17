@@ -108,13 +108,40 @@ target_link_libraries(MyGame PRIVATE Jolt)  # 定義も自動で引き継がれ�
 | 制約（Constraint） | 物体どうしをつなぐ（ヒンジ、バネ、固定など） |
 | `CharacterVirtual` | **キャラクターの移動**専用の、軽い仕組み（剛体として扱わない） |
 
-```text
-PhysicsSystem（世界）
- ├─ Body（地面：Static）      ← Shape: 大きな箱
- ├─ Body（ボール：Dynamic）    ← Shape: 球
- ├─ Body（プレイヤー）          ← CharacterVirtual（別の仕組み）
- └─ 制約 / 衝突の判定 / 時間を進める Update()
-```
+<div class="anim" data-type="graph" data-label="Jolt の世界の構造">
+n sys PhysicsSystem 0 1 hit
+n floor 地面_Static 2 0
+n ball ボール_Dynamic 2 1
+n chara プレイヤー 2 2
+# 物理の世界（PhysicsSystem）がある
+---
+n sys PhysicsSystem 0 1
+n floor 地面_Static 2 0 new
+n ball ボール_Dynamic 2 1 new
+n chara プレイヤー 2 2
+l sys floor new 物体を追加
+l sys ball new 物体を追加
+# Body（物体）を追加していく。地面は動かない（Static）、ボールは物理で動く（Dynamic）
+---
+n sys PhysicsSystem 0 1
+n floor 地面_Static 2 0
+n ball ボール_Dynamic 2 1
+n chara プレイヤー 2 2 new
+l sys floor
+l sys ball
+l sys chara new CharacterVirtual
+# プレイヤーは剛体にせず、キャラクター専用の仕組み（CharacterVirtual）で動かす
+---
+n sys PhysicsSystem 0 1 hit
+n floor 地面_Static 2 0
+n ball ボール_Dynamic 2 1 hit
+n chara プレイヤー 2 2 hit
+l sys floor
+l sys ball hit Update
+l sys chara hit Update
+# Update(1/60 秒) で、時間が進む。物体が動き、衝突が解決される
+</div>
+
 
 ## 最小の流れ（骨組み）
 
@@ -189,13 +216,63 @@ void RunPhysics() {
 
 ### 流れ
 
-```text
-① 初期化   RegisterDefaultAllocator → Factory → RegisterTypes
-② 世界を作る  PhysicsSystem::Init(レイヤー, 上限の数)
-③ 物体を作る  Shape → BodyCreationSettings → BodyInterface::CreateAndAddBody
-④ 毎フレーム  PhysicsSystem::Update(固定の時間) → 位置・向きを読む → 描画へ
-⑤ 片付け    RemoveBody → DestroyBody → UnregisterTypes → Factory を delete
-```
+<div class="anim" data-type="graph" data-label="Jolt の使い方の流れ">
+n init 初期化 0 0 hit
+n sys 世界を作る 1 0
+n body 物体を作る 2 0
+n upd 毎フレーム_Update 3 0
+n end 片付け 4 0
+l init sys
+l sys body
+l body upd
+l upd end
+# ① 初期化：RegisterDefaultAllocator、Factory、RegisterTypes
+---
+n init 初期化 0 0
+n sys 世界を作る 1 0 hit
+n body 物体を作る 2 0
+n upd 毎フレーム_Update 3 0
+n end 片付け 4 0
+l init sys hit
+l sys body
+l body upd
+l upd end
+# ② 世界を作る：PhysicsSystem::Init（レイヤーと上限の数）
+---
+n init 初期化 0 0
+n sys 世界を作る 1 0
+n body 物体を作る 2 0 hit
+n upd 毎フレーム_Update 3 0
+n end 片付け 4 0
+l init sys
+l sys body hit
+l body upd
+l upd end
+# ③ 物体を作る：Shape、BodyCreationSettings、CreateAndAddBody
+---
+n init 初期化 0 0
+n sys 世界を作る 1 0
+n body 物体を作る 2 0
+n upd 毎フレーム_Update 3 0 hit
+n end 片付け 4 0
+l init sys
+l sys body
+l body upd hit
+l upd end
+# ④ 毎フレーム：固定の時間で Update して、位置を読み取る
+---
+n init 初期化 0 0
+n sys 世界を作る 1 0
+n body 物体を作る 2 0
+n upd 毎フレーム_Update 3 0
+n end 片付け 4 0 hit
+l init sys
+l sys body
+l body upd
+l upd end hit
+# ⑤ 片付け：RemoveBody、DestroyBody、UnregisterTypes
+</div>
+
 
 ## Jolt が得意なこと・不得意なこと
 
@@ -238,7 +315,7 @@ void RunPhysics() {
 - [Visual Studio：CMake で使う](../../vs/cmake.md)
 - [ゲームループと固定タイムステップ](../../engine/game-loop.md)
 - [ハンドルと世代 ID](../../engine/handle.md)
-- [ECS](../../engine/ecs.md)
+- [ECS](../../design/patterns/ecs.md)
 - [Dear ImGui（デバッグ画面）](../imgui/index.md)
 - [JoltPhysics（GitHub）](https://github.com/jrouwe/JoltPhysics)
 - [Jolt のドキュメント](https://jrouwe.github.io/JoltPhysics/)

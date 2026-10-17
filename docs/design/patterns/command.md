@@ -16,7 +16,7 @@ tags:
     - 入力の割り当て変更（キーコンフィグ）、アンドゥ・リドゥ、リプレイ、AI とプレイヤーで同じ操作を使う、に効く。
     - 形は「`Execute()`（と `Undo()`）を持つクラス」か、単に `std::function<void()>`。
     - アンドゥは「実行前の状態」をコマンドの中に覚えておく。
-    - 種類が決まっているなら [`std::variant`](../stl/utilities/variant.md) でコマンドを表すと、ヒープも使わず保存もしやすい。
+    - 種類が決まっているなら [`std::variant`](../../stl/utilities/variant.md) でコマンドを表すと、ヒープも使わず保存もしやすい。
 
 ## 悪い例：入力と処理が直結している
 
@@ -90,6 +90,38 @@ int main() {
 右へ → x = 2
 ジャンプ → y = 2
 ```
+
+<div class="anim" data-type="graph" data-label="コマンド：入力 → 命令 → 実行・取り消し">
+n input 入力 0 1 hit
+n cmd 移動命令 1 1
+n hist 履歴 2 1
+n actor キャラ 3 1
+# 入力を受け取る
+---
+n input 入力 0 1
+n cmd 移動命令 1 1 new
+n hist 履歴 2 1
+n actor キャラ 3 1
+l input cmd new 命令を作る
+# 入力から、「命令」というオブジェクトを作る
+---
+n input 入力 0 1
+n cmd 移動命令 1 1 hit
+n hist 履歴 2 1 hit
+n actor キャラ 3 1 hit
+l input cmd
+l cmd actor hit 実行
+l cmd hist hit 記録
+# 命令を実行し、履歴にも積む
+---
+n input 入力 0 1
+n cmd 移動命令 1 1 gone
+n hist 履歴 2 1 hit
+n actor キャラ 3 1 hit
+l hist cmd hit 取り出す
+l cmd actor hit 取り消し
+# アンドゥ：履歴から命令を取り出して、取り消す
+</div>
 
 ## 詳しく
 
@@ -235,16 +267,7 @@ int main() {
     「HP を半分にする」のように元に戻せない処理は、実行前の値をコマンドの中に覚えておき、Undo でその値に戻します。
 
 ??? failure "コマンドの中で、消えたオブジェクトを指している"
-    アンドゥ用に長く保存するコマンドがポインタで相手を覚えていると、相手が消えたあとに壊れます。ID（[ハンドル](../engine/handle.md)）で覚えます。
-
-## 理解度チェック
-
-!!! question "Q1. 「HP を 30 回復する」コマンドの Undo を「HP を 30 減らす」にすると、どんなときに困る？"
-    <div class="spoiler" markdown>
-
-    **答え:** 最大 HP の上限で回復量が切られた場合（HP 90 / 最大 100 で 10 しか回復しない）、Undo で 30 減らすと元の 90 ではなく 70 になってしまいます。実行前の HP を覚えておいて、Undo でその値に戻します。
-
-    </div>
+    アンドゥ用に長く保存するコマンドがポインタで相手を覚えていると、相手が消えたあとに壊れます。ID（[ハンドル](../../engine/handle.md)）で覚えます。
 
 ## これだけ覚える
 
@@ -255,6 +278,6 @@ int main() {
 
 ## 関連ページ
 
-- [イベントシステム](../engine/event.md)
-- [std::variant](../stl/utilities/variant.md)
+- [イベントシステム](event.md)
+- [std::variant](../../stl/utilities/variant.md)
 - [Game Programming Patterns: Command](https://gameprogrammingpatterns.com/command.html)

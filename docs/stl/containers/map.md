@@ -809,27 +809,6 @@ unordered_map と同じです（`count` → `contains`、イテレータのル�
 ??? failure "浮動小数点をキーにして find が当たらない"
     `0.1f + 0.2f` と `0.3f` は等しくないことがあります。`find` ではなく `lower_bound` で「以上の最初」を探す形にします。
 
-## 理解度チェック
-
-!!! question "Q1. 何が出力される？"
-    ```cpp
-    std::map<std::string, int> m = {{"b", 2}, {"a", 1}, {"c", 3}};
-    std::println("{}", m.begin()->first);
-    ```
-
-    <div class="spoiler" markdown>
-
-    **答え:** `a`。map はキーの小さい順（文字列なら辞書順）に並ぶので、先頭は `"a"` です。
-
-    </div>
-
-!!! question "Q2. `{10, 20, 30}` の map で `lower_bound(25)` と `upper_bound(30)` が指すのは？"
-    <div class="spoiler" markdown>
-
-    **答え:** `lower_bound(25)` は `30`（25 以上の最初）。`upper_bound(30)` は `end()`（30 より大きいキーは無い）。
-
-    </div>
-
 ## 類似クラス
 
 | 名前 | 違い | こっちを使うとき |
