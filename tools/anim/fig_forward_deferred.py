@@ -142,12 +142,29 @@ def Build():
                        stroke=Hex([v * 255 for v in light["rgb"]]), stroke_width=3, stroke_dasharray="6 4", opacity=0)
         ray_f.append(ray)
 
-    lamp_f, lamp_d = [], []
-    for panel, store in (("F", lamp_f), ("D", lamp_d)):
-        scene.Text(root, PANEL_X[panel], 324, "ライト", size=17)
+    obj_frame = {"F": [], "D": []}
+    light_frame = {"F": [], "D": []}
+    strip_y = 330
+    panel_color = {"F": "#2563eb", "D": "#7c3aed"}
+    for panel in ("F", "D"):
+        scene.Text(root, PANEL_X[panel], 306, "共通シーン(物体 %d 個・ライト %d 個)" % (SPHERE_COUNT, len(LIGHTS)), size=12, weight=500, fill="#64748b")
+        for k in range(SPHERE_COUNT):
+            cx = PANEL_X[panel] + 14 + k * 24
+            root.add("circle", cx=cx, cy=strip_y, r=10, fill="#ffffff", stroke="#64748b", stroke_width=1.2)
+            root.add("circle", cx=cx, cy=strip_y, r=10, fill="url(#fd-sphere)")
+            scene.Text(root, cx, strip_y + 25, str(k + 1), size=10, weight=500, fill="#64748b", anchor="middle")
+            frame = root.add("rect", x=cx - 14, y=strip_y - 14, width=28, height=40, rx=5, fill="none", stroke=panel_color[panel], stroke_width=3, opacity=0)
+            obj_frame[panel].append(frame)
         for i, light in enumerate(LIGHTS):
+            cx = PANEL_X[panel] + 14 + SPHERE_COUNT * 24 + 22 + i * 30
             color = Hex([v * 255 for v in light["rgb"]])
-            store.append(root.add("circle", cx=PANEL_X[panel] + 74 + i * 36, cy=318, r=11, fill=color, stroke="#1f2937", stroke_width=1.5, opacity=0.22))
+            for a_i in range(8):
+                ang = a_i * math.pi / 4.0
+                root.add("line", x1=R(cx + 8.5 * math.cos(ang)), y1=R(strip_y + 8.5 * math.sin(ang)), x2=R(cx + 13 * math.cos(ang)), y2=R(strip_y + 13 * math.sin(ang)),
+                         stroke=color, stroke_width=2.2, stroke_linecap="round")
+            root.add("circle", cx=cx, cy=strip_y, r=6.5, fill=color, stroke="#ffffff", stroke_width=1)
+            frame = root.add("rect", x=cx - 15, y=strip_y - 15, width=30, height=40, rx=5, fill="none", stroke=panel_color[panel], stroke_width=3, opacity=0)
+            light_frame[panel].append(frame)
 
     caption_items_f1 = []
 
@@ -159,6 +176,7 @@ def Build():
         forward_waste_count += len(newly_overwritten) * lights_n
         if newly_overwritten:
             forward_waste.append((t0, forward_waste_count))
+        obj_frame["F"][k].Show(t0, t0 + forward_slot if k < SPHERE_COUNT - 1 else forward_result_t)
         scene.Note(t0, "Forward", "物体 %d を描く:%d マス(うち %d マスは前の物体を上書き)" % (k + 1, len(cover[k]), len(newly_overwritten)))
         cells_g = gf.add("g", clip_path="url(#fd-sph-F%d)" % k)
         cells_in = cells_g.add("g", opacity=0)
@@ -195,31 +213,31 @@ def Build():
             ray.Set(th, "y2", R(Py(sy)))
             ray.Set(th, "opacity", 0.95)
             ray.Set(th + hit_len, "opacity", 0)
-            lamp_f[i].Set(th, "opacity", 1)
-            lamp_f[i].Set(th + hit_len, "opacity", 0.22)
+            light_frame["F"][i].Set(th, "opacity", 1)
+            light_frame["F"][i].Set(th + hit_step, "opacity", 0)
             scene.Note(th, "Forward", "  ライト %s が物体 %d の %d マスに当たる(計算 %s 回目まで)" % (light["name"], k + 1, len(cover[k]), "{:,}".format(forward_count)))
         caption_items_f1.append((t0, t0 + forward_slot if k < SPHERE_COUNT - 1 else forward_result_t,
                                  "%s 物体 %d/%d:その形のピクセルすべてにライト %d つ" % (CIRCLED[k], k + 1, SPHERE_COUNT, lights_n)))
     forward_total = forward_count
     assert forward_total == flat_total * lights_n
 
-    scene.TextStack(root, PANEL_X["F"], 412, caption_items_f1, size=15, fill=TEXT)
-    scene.TextStack(root, PANEL_X["F"], 436, [(forward_start, forward_result_t, "赤枠 = 前の物体を上書き(前の計算が無駄に)")], size=15, fill=RED)
+    scene.TextStack(root, PANEL_X["F"], 428, caption_items_f1, size=15, fill=TEXT)
+    scene.TextStack(root, PANEL_X["F"], 450, [(forward_start, forward_result_t, "赤枠 = 前の物体を上書き(前の計算が無駄に)")], size=15, fill=RED)
 
-    scene.Text(root, PANEL_X["F"], 358, "ピクセル計算:", size=20)
-    scene.Counter(root, PANEL_X["F"] + 130, 360, [(t, v) for t, v in forward_counter], size=26)
-    scene.Text(root, PANEL_X["F"], 388, "うち、あとで上書きされて無駄:", size=15, fill=RED)
-    scene.Counter(root, PANEL_X["F"] + 232, 388, forward_waste, size=18, fill=RED)
+    scene.Text(root, PANEL_X["F"], 378, "ピクセル計算:", size=20)
+    scene.Counter(root, PANEL_X["F"] + 130, 380, [(t, v) for t, v in forward_counter], size=26)
+    scene.Text(root, PANEL_X["F"], 404, "うち、あとで上書きされて無駄:", size=15, fill=RED)
+    scene.Counter(root, PANEL_X["F"] + 232, 404, forward_waste, size=18, fill=RED)
 
     pct = int(round(100.0 * (flat_total - visible_total) / flat_total))
 
     box = root.add("g", opacity=0)
     box.Show(forward_result_t)
-    box.add("rect", x=PANEL_X["F"], y=398, width=416, height=128, rx=12, fill="#eff6ff", stroke="#2563eb", stroke_width=2.5)
-    scene.Text(box, PANEL_X["F"] + 16, 428, "物体%d × ライト%d = %d回の描画" % (SPHERE_COUNT, lights_n, SPHERE_COUNT * lights_n), size=17, fill="#1e3a8a")
-    scene.Text(box, PANEL_X["F"] + 16, 458, "ピクセル計算 %s マス × ライト%d = %s回" % ("{:,}".format(flat_total), lights_n, "{:,}".format(forward_total)), size=17, fill="#1e3a8a")
-    scene.Text(box, PANEL_X["F"] + 16, 490, "隠れて見えない部分も計算:無駄 約%d%%" % pct, size=19, fill=RED)
-    scene.Text(box, PANEL_X["F"] + 16, 514, "(重なったマスの計算は、あとで上書きされて捨てられる)", size=13, weight=500, fill="#64748b")
+    box.add("rect", x=PANEL_X["F"], y=414, width=416, height=118, rx=12, fill="#eff6ff", stroke="#2563eb", stroke_width=2.5)
+    scene.Text(box, PANEL_X["F"] + 16, 436, "物体%d × ライト%d = %d回の描画" % (SPHERE_COUNT, lights_n, SPHERE_COUNT * lights_n), size=17, fill="#1e3a8a")
+    scene.Text(box, PANEL_X["F"] + 16, 462, "ピクセル計算 %s マス × ライト%d = %s回" % ("{:,}".format(flat_total), lights_n, "{:,}".format(forward_total)), size=17, fill="#1e3a8a")
+    scene.Text(box, PANEL_X["F"] + 16, 488, "隠れて見えない部分も計算:無駄 約%d%%" % pct, size=19, fill=RED)
+    scene.Text(box, PANEL_X["F"] + 16, 512, "(重なったマスの計算は、あとで上書きされて捨てられる)", size=13, weight=500, fill="#64748b")
     scene.Note(forward_result_t, "Forward", "結果ボックス:計算 %s 回、無駄 %d%%(最終カウンター %s / 無駄 %s)" % ("{:,}".format(forward_total), pct, "{:,}".format(forward_total), "{:,}".format(forward_waste_count)))
 
     deferred_counter = []
@@ -228,6 +246,7 @@ def Build():
         t0 = pass1_start + k * pass1_slot
         sx, sy, r = spheres[k]
         gd = groups["D"][k]
+        obj_frame["D"][k].Show(t0, t0 + pass1_slot)
         scene.Note(t0, "Deferred", "Pass 1:物体 %d を G-Buffer に書く(%d マス)" % (k + 1, len(cover[k])))
         clip_g = gd.add("g", clip_path="url(#fd-sph-D%d)" % k)
         stripes = clip_g.add("g", opacity=0)
@@ -271,10 +290,10 @@ def Build():
         s_i = pass2_start + pass2_slot * i
         t1 = s_i + pass2_slot if i < lights_n - 1 else deferred_result_t
         caption_d.append((s_i, t1, "② Pass 2:絵のあるピクセルにライトを1つずつ(%d/%d)" % (i + 1, lights_n)))
-    scene.TextStack(root, PANEL_X["D"], 412, caption_d, size=15, fill=TEXT)
+    scene.TextStack(root, PANEL_X["D"], 428, caption_d, size=15, fill=TEXT)
     sub_d = [(pass1_start, pass2_start, "1マスに 色 | 法線 | 深度 の3種類を保存"),
              (pass2_start, deferred_result_t, "物体の数に関係なく、画面を1回なぞる × %d ライト" % lights_n)]
-    scene.TextStack(root, PANEL_X["D"], 436, sub_d, size=15, fill="#7c3aed")
+    scene.TextStack(root, PANEL_X["D"], 450, sub_d, size=15, fill="#7c3aed")
 
     group_total = 8
     group_count = {}
@@ -291,8 +310,7 @@ def Build():
         line.Ramp(s_i, s_i + wave_len, "x1", R(Px("D", GRID_X + GRID_Y)))
         line.Ramp(s_i, s_i + wave_len, "x2", R(Px("D", GRID_X)))
         line.Set(s_i + wave_len + 0.01, "opacity", 0)
-        lamp_d[i].Set(s_i, "opacity", 1)
-        lamp_d[i].Set(s_i + pass2_slot, "opacity", 0.22)
+        light_frame["D"][i].Show(s_i, s_i + pass2_slot if i < lights_n - 1 else deferred_result_t)
         scene.Note(s_i, "Deferred", "Pass 2:ライト %s が画面 %s マスをなぞる(ここまで %s 回)" % (light["name"], "{:,}".format(visible_total), "{:,}".format((i + 1) * visible_total)))
         for gidx in sorted(group_count):
             tt = s_i + wave_len * ((gidx + 0.5) / group_total)
@@ -301,18 +319,18 @@ def Build():
     deferred_total = deferred_count
     assert deferred_total == visible_total * lights_n
 
-    scene.Text(root, PANEL_X["D"], 358, "ピクセル計算:", size=20)
-    scene.Counter(root, PANEL_X["D"] + 130, 360, deferred_counter, size=26)
-    scene.TextStack(root, PANEL_X["D"], 388, [(pass1_start, pass2_start, "いまは材質を貯めているだけ(光の計算はまだ 0)"),
+    scene.Text(root, PANEL_X["D"], 378, "ピクセル計算:", size=20)
+    scene.Counter(root, PANEL_X["D"] + 130, 380, deferred_counter, size=26)
+    scene.TextStack(root, PANEL_X["D"], 404, [(pass1_start, pass2_start, "いまは材質を貯めているだけ(光の計算はまだ 0)"),
                                               (pass2_start, deferred_result_t, "光の計算は画面のマス数(%s)が上限" % "{:,}".format(GRID_X * GRID_Y))], size=15, weight=500, fill="#64748b")
 
     box = root.add("g", opacity=0)
     box.Show(deferred_result_t)
-    box.add("rect", x=PANEL_X["D"], y=398, width=416, height=128, rx=12, fill="#f5f3ff", stroke="#7c3aed", stroke_width=2.5)
-    scene.Text(box, PANEL_X["D"] + 16, 428, "③ ライティングは画面ピクセルごとに1回", size=19, fill="#4c1d95")
-    scene.Text(box, PANEL_X["D"] + 16, 458, "%s px × ライト%d = %s回" % ("{:,}".format(visible_total), lights_n, "{:,}".format(deferred_total)), size=17, fill="#4c1d95")
-    scene.Text(box, PANEL_X["D"] + 16, 490, "物体が%d個でも100個でも、最大 %s px × %d まで" % (SPHERE_COUNT, "{:,}".format(GRID_X * GRID_Y), lights_n), size=16, fill="#4c1d95")
-    scene.Text(box, PANEL_X["D"] + 16, 514, "(代わりに G-Buffer の書き込みと読み込みが増える)", size=13, weight=500, fill="#64748b")
+    box.add("rect", x=PANEL_X["D"], y=414, width=416, height=118, rx=12, fill="#f5f3ff", stroke="#7c3aed", stroke_width=2.5)
+    scene.Text(box, PANEL_X["D"] + 16, 436, "③ ライティングは画面ピクセルごとに1回", size=19, fill="#4c1d95")
+    scene.Text(box, PANEL_X["D"] + 16, 462, "%s px × ライト%d = %s回" % ("{:,}".format(visible_total), lights_n, "{:,}".format(deferred_total)), size=17, fill="#4c1d95")
+    scene.Text(box, PANEL_X["D"] + 16, 488, "物体が%d個でも100個でも、最大 %s px × %d まで" % (SPHERE_COUNT, "{:,}".format(GRID_X * GRID_Y), lights_n), size=16, fill="#4c1d95")
+    scene.Text(box, PANEL_X["D"] + 16, 512, "(代わりに G-Buffer の書き込みと読み込みが増える)", size=13, weight=500, fill="#64748b")
     scene.Note(deferred_result_t, "Deferred", "結果ボックス:計算 %s 回" % "{:,}".format(deferred_total))
 
     for panel in ("F", "D"):
