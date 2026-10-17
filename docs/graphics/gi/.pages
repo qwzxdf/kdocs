@@ -1,0 +1,10 @@
+nav:
+  - index.md
+  - theory.md
+  - lightmaps.md
+  - probes.md
+  - ssgi.md
+  - voxel-gi.md
+  - ddgi.md
+  - rt-gi.md
+  - comparison.md

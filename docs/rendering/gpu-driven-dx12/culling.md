@@ -1,0 +1,325 @@
+---
+title: コンピュート カリングと描画コマンド生成
+tags:
+  - 描画最適化
+---
+
+# コンピュート カリングと描画コマンド生成
+
+GPU Driven の心臓部です。**コンピュート シェーダーが、全インスタンスを 1 つずつ判定**し、**見えるものだけ**を、**`ExecuteIndirect` が読む形式の「描画コマンド」としてバッファに書き出します**。このページでは、**視錐台の平面の求め方（行ベクトル・左手系・D3D の深度範囲）・境界球の判定・原子的な追加（ストリーム コンパクション）・PSO バケット・カウンタのリセット・ディスパッチ・バリア**を**実コード**で示します。
+
+!!! tip "ポイント"
+    - <strong>1 スレッド ＝ 1 インスタンス</strong>。<strong>64 スレッド</strong>のグループで<strong>ディスパッチ</strong>。
+    - <strong>視錐台の 6 平面</strong>は、<strong>ビュー射影行列の列の和・差</strong>から<strong>CPU で作る</strong>（<strong>行ベクトル・D3D の z は 0〜w</strong>）。
+    - 判定は<strong>境界球 vs 6 平面</strong>。<strong>ワールド行列のスケール</strong>を<strong>半径に反映</strong>。
+    - 見えたら<strong>`InterlockedAdd` で出力位置を確保</strong>して、<strong>コマンドを書く</strong>（<strong>ストリーム コンパクション</strong>）。
+    - <strong>カウンタは、毎フレーム 0 にリセット</strong>。<strong>PSO バケットごと</strong>に<strong>カウンタと領域を分ける</strong>。
+    - <strong>書き込み後は、UAV → INDIRECT_ARGUMENT のバリア</strong>を<strong>忘れない</strong>。
+
+## 視錐台の平面（C++）
+
+**ビュー射影行列 `VP`**（**行ベクトル規約**：`clip = p * VP`）から、**6 平面**を作ります。**クリップ空間**の**条件**は、**D3D では次**のとおりです。
+
+| 条件 | 内容 |
+| --- | --- |
+| **x** | `-w ≤ x ≤ w` |
+| **y** | `-w ≤ y ≤ w` |
+| **z** | **`0 ≤ z ≤ w`**（**OpenGL の `-w ≤ z` ではない**） |
+
+`clip.x = dot(p, 列0)`、`clip.y = dot(p, 列1)`、`clip.z = dot(p, 列2)`、`clip.w = dot(p, 列3)` なので<strong>平面（`n·p + d ≥ 0` で内側）</strong>は、**列の和・差**で**得られます**。
+
+| 平面 | 式（列は、`VP` の列ベクトル） |
+| --- | --- |
+| **左** | `列3 + 列0` |
+| **右** | `列3 − 列0` |
+| **下** | `列3 + 列1` |
+| **上** | `列3 − 列1` |
+| **近** | `列2`（`z ≥ 0`） |
+| **遠** | `列3 − 列2`（`w − z ≥ 0`） |
+
+```cpp
+std::array<DirectX::XMFLOAT4, 6> ExtractFrustumPlanes(DirectX::FXMMATRIX view_projection) {
+  DirectX::XMFLOAT4X4 m;
+  DirectX::XMStoreFloat4x4(&m, view_projection);
+
+  auto column = [&m](int c) {
+    return DirectX::XMVectorSet(m.m[0][c], m.m[1][c], m.m[2][c], m.m[3][c]);
+  };
+  DirectX::XMVECTOR c0 = column(0);
+  DirectX::XMVECTOR c1 = column(1);
+  DirectX::XMVECTOR c2 = column(2);
+  DirectX::XMVECTOR c3 = column(3);
+
+  DirectX::XMVECTOR raw[6] = {
+      DirectX::XMVectorAdd(c3, c0), DirectX::XMVectorSubtract(c3, c0),
+      DirectX::XMVectorAdd(c3, c1), DirectX::XMVectorSubtract(c3, c1),
+      c2,                           DirectX::XMVectorSubtract(c3, c2)};
+
+  std::array<DirectX::XMFLOAT4, 6> planes;
+  for (int i = 0; i < 6; ++i) {
+    DirectX::XMVECTOR length = DirectX::XMVector3Length(raw[i]);
+    DirectX::XMStoreFloat4(&planes[i], DirectX::XMVectorDivide(raw[i], length));
+  }
+  return planes;
+}
+```
+
+| 点 | 説明 |
+| --- | --- |
+| **列を取り出す** | **`m.m[行][列]`**。**列ベクトルは各行の同じ列を集める** |
+| **正規化** | **法線 `(x, y, z)` の長さで、4 成分全部を割る**。**符号付き距離がワールド単位**になる（**球の半径と比べるため**） |
+| **内側が正** | **`dot(plane.xyz, p) + plane.w ≥ 0`** が**内側** |
+| **近平面が `c2`** | **D3D の `z ≥ 0`**。**OpenGL 用の `c3 + c2` と違う**ので**注意** |
+
+## 定数バッファ
+
+```cpp
+struct CullConstants {
+  DirectX::XMFLOAT4 frustum_planes[6];
+  uint32_t instance_count;
+  uint32_t reserved[3];
+};
+static_assert(sizeof(CullConstants) == 112);
+```
+
+```hlsl
+cbuffer CullConstants : register(b0) {
+  float4 frustum_planes[6];
+  uint instance_count;
+  uint3 reserved;
+};
+```
+
+**定数バッファは、毎フレーム値が変わる**ので、<strong>[アップロード リング](scene-data.md)に書き</strong>、**GPU 仮想アドレスを、ルート CBV に渡します**（256 バイト境界に**揃える**）。
+
+## カリング シェーダー
+
+```hlsl
+#define PLANE_COUNT 6
+#define MAX_COMMANDS_PER_BUCKET 65536
+
+StructuredBuffer<Instance> instances : register(t0);
+StructuredBuffer<MeshInfo> meshes : register(t1);
+RWStructuredBuffer<IndirectCommand> commands : register(u0);
+RWByteAddressBuffer command_counts : register(u1);
+
+bool SphereInFrustum(float3 center, float radius) {
+  [unroll] for (int i = 0; i < PLANE_COUNT; ++i) {
+    float distance = dot(frustum_planes[i].xyz, center) + frustum_planes[i].w;
+    if (distance < -radius) return false;
+  }
+  return true;
+}
+
+float MaxScale(float4x4 world) {
+  float sx = length(world[0].xyz);
+  float sy = length(world[1].xyz);
+  float sz = length(world[2].xyz);
+  return max(sx, max(sy, sz));
+}
+
+[numthreads(64, 1, 1)]
+void CullMain(uint3 id : SV_DispatchThreadID) {
+  uint instance_index = id.x;
+  if (instance_index >= instance_count) return;
+
+  Instance instance = instances[instance_index];
+  MeshInfo mesh = meshes[instance.mesh_index];
+
+  float3 center = mul(float4(mesh.bounds_center, 1.0), instance.world).xyz;
+  float radius = mesh.bounds_radius * MaxScale(instance.world);
+
+  if (!SphereInFrustum(center, radius)) return;
+
+  uint slot;
+  command_counts.InterlockedAdd(mesh.pso_bucket * 4, 1, slot);
+  if (slot >= MAX_COMMANDS_PER_BUCKET) return;
+
+  IndirectCommand command;
+  command.instance_index = instance_index;
+  command.index_count = mesh.index_count;
+  command.instance_count = 1;
+  command.start_index = mesh.start_index;
+  command.base_vertex = mesh.base_vertex;
+  command.start_instance = 0;
+  commands[mesh.pso_bucket * MAX_COMMANDS_PER_BUCKET + slot] = command;
+}
+```
+
+| 点 | 説明 |
+| --- | --- |
+| **`SV_DispatchThreadID`** | **グループ番号 × 64 ＋ グループ内番号**。**インスタンス番号にそのまま使える** |
+| **`mul(float4(p, 1), world)`** | **行ベクトル規約**（`p * W`）。**このサイトの標準** |
+| **`MaxScale`** | **ワールド行列の 3 軸の長さの最大値**。**境界球の半径に掛ける**（**非一様スケールでも安全側**） |
+| **`distance < -radius`** | **球が平面の外側に完全にはみ出す**なら、**不可視** |
+| **`InterlockedAdd(..., 1, slot)`** | **カウンタを 1 増やし、増やす前の値を `slot` に受け取る**。**スレッド間で衝突しない出力位置**が得られる |
+| **`mesh.pso_bucket * 4`** | **バケットごとの 4 バイトのカウンタ**（`ByteAddressBuffer` のバイト オフセット） |
+| **`slot >= MAX`** | **領域を超えた分は、書かない**（バッファ オーバーランを防ぐ）。**カウンタは超えた値のまま**だが、**ExecuteIndirect の最大数**で**切り詰められる** |
+| **`instance_count = 1`** | **1 コマンド ＝ 1 インスタンス**。**同じメッシュを束ねる**最適化は、**後述** |
+
+### スレッドの順序は不定
+
+**`InterlockedAdd`** で**出力位置を取る**ので、**コマンドが書かれる順序は、実行のたびに変わります**。**不透明の描画では、順序は問題ない**（**深度テスト**で解決）が、<strong>半透明（ソートが必要）</strong>には**使えません**（**別の方法**：キー付きソート）。
+
+## 同じメッシュをまとめる（インスタンシング）
+
+**同じメッシュの物体が多数ある**場合、**1 インスタンスごとに 1 コマンドを出す**と**コマンド数が増えます**。**メッシュごとに見えるインスタンスを並べ**、**`InstanceCount` を大きくして 1 コマンド**にまとめる手もあります。
+
+| 方式 | 内容 | 向き |
+| --- | --- | --- |
+| <strong>1 インスタンス = 1 コマンド（本ページ）</strong> | **単純**。**ルート定数にインスタンス番号** | **メッシュの種類が多い・実装を単純にしたい** |
+| **メッシュ単位でまとめる** | **見えるインスタンス番号の「リスト」を、メッシュごとに作り**、**`InstanceCount` ＝ 個数** | **同じメッシュが大量**（木・草・岩） |
+
+**まとめる方式**は、**2 段階**（**メッシュごとのカウント → プレフィックス和でオフセット → インスタンス番号を書く**）に**なり**、**やや複雑**です。**まず単純な形を作り**、**ボトルネックなら**に**進む**のが**現実的**です。
+
+## カウンタのリセットとディスパッチ
+
+**毎フレーム**、**カウンタを 0 に戻します**。**ゼロで埋めた小さなバッファから、コピー**するのが**簡単**です。
+
+```cpp
+constexpr uint32_t kBucketCount = 4;
+constexpr uint32_t kMaxCommandsPerBucket = 65536;
+
+void Renderer::CreateCullBuffers() {
+  command_buffer_ = CreateDefaultBuffer(
+      device_.Get(), sizeof(IndirectCommand) * kBucketCount * kMaxCommandsPerBucket,
+      D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
+  count_buffer_ = CreateDefaultBuffer(device_.Get(), sizeof(uint32_t) * kBucketCount,
+                                      D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+                                      D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT);
+
+  std::array<uint32_t, kBucketCount> zeros = {};
+  zero_buffer_ = CreateUploadBuffer(device_.Get(), sizeof(zeros));
+  void* mapped = nullptr;
+  CD3DX12_RANGE read_range(0, 0);
+  ThrowIfFailed(zero_buffer_->Map(0, &read_range, &mapped));
+  std::memcpy(mapped, zeros.data(), sizeof(zeros));
+  zero_buffer_->Unmap(0, nullptr);
+}
+```
+
+```cpp
+void Renderer::RecordCull(ID3D12GraphicsCommandList* list, const CullConstants& constants,
+                          D3D12_GPU_VIRTUAL_ADDRESS constants_address) {
+  CD3DX12_RESOURCE_BARRIER to_copy = CD3DX12_RESOURCE_BARRIER::Transition(
+      count_buffer_.Get(), D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT,
+      D3D12_RESOURCE_STATE_COPY_DEST);
+  list->ResourceBarrier(1, &to_copy);
+  list->CopyBufferRegion(count_buffer_.Get(), 0, zero_buffer_.Get(), 0,
+                         sizeof(uint32_t) * kBucketCount);
+
+  CD3DX12_RESOURCE_BARRIER to_uav[2] = {
+      CD3DX12_RESOURCE_BARRIER::Transition(count_buffer_.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
+                                           D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
+      CD3DX12_RESOURCE_BARRIER::Transition(command_buffer_.Get(),
+                                           D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT,
+                                           D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
+  };
+  list->ResourceBarrier(2, to_uav);
+
+  list->SetPipelineState(cull_pso_.Get());
+  list->SetComputeRootSignature(cull_root_signature_.Get());
+  list->SetComputeRootConstantBufferView(kCullRootConstants, constants_address);
+  list->SetComputeRootShaderResourceView(kCullRootInstances,
+                                         instance_buffer_->GetGPUVirtualAddress());
+  list->SetComputeRootShaderResourceView(kCullRootMeshes, mesh_buffer_->GetGPUVirtualAddress());
+  list->SetComputeRootUnorderedAccessView(kCullRootCommands,
+                                          command_buffer_->GetGPUVirtualAddress());
+  list->SetComputeRootUnorderedAccessView(kCullRootCounts,
+                                          count_buffer_->GetGPUVirtualAddress());
+
+  uint32_t group_count = (constants.instance_count + 63) / 64;
+  list->Dispatch(group_count, 1, 1);
+
+  CD3DX12_RESOURCE_BARRIER to_indirect[2] = {
+      CD3DX12_RESOURCE_BARRIER::Transition(count_buffer_.Get(),
+                                           D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                                           D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT),
+      CD3DX12_RESOURCE_BARRIER::Transition(command_buffer_.Get(),
+                                           D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                                           D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT),
+  };
+  list->ResourceBarrier(2, to_indirect);
+}
+```
+
+| 点 | 説明 |
+| --- | --- |
+| **初期状態 `INDIRECT_ARGUMENT`** | **毎フレームの最後が `INDIRECT_ARGUMENT`**なので、**最初もそれに揃える**（**遷移の連鎖が簡単**） |
+| **コマンド バッファは、クリア不要** | **カウンタ以降の領域は読まれない**（ExecuteIndirect は、**カウント分だけ**読む） |
+| **カウンタ バッファのコピー** | **`COPY_DEST` に遷移 → ゼロをコピー → `UNORDERED_ACCESS` に遷移** |
+| **`SetComputeRootConstantBufferView`** | **GPU 仮想アドレス**を**そのまま**渡す。**ヒープ設定が不要** |
+| **`(count + 63) / 64`** | **切り上げ除算**。**範囲外のスレッドは、シェーダー先頭で `return`** |
+| **終了時の遷移** | **UAV → `INDIRECT_ARGUMENT`**。**これを忘れると、ExecuteIndirect が、書き込み途中の値を読む** |
+
+!!! note "ClearUnorderedAccessViewUint という手もある"
+    **`ClearUnorderedAccessViewUint`** でも**0 を書けます**が、**シェーダー可視ヒープ上の GPU ハンドルと、CPU ハンドル（非シェーダー可視でもよい）の両方**が**必要**です。**今回のようにルート UAV（記述子なし）で扱う**構成では、**コピー方式が簡単**です。
+
+## 負荷の見積もり
+
+| 項目 | 内容 |
+| --- | --- |
+| **スレッド数** | **インスタンス数**（10 万個で約 1,600 グループ） |
+| **メモリ読み出し** | **1 インスタンス 80 バイト ＋ メッシュ情報 32 バイト**。**10 万個で約 11 MB** |
+| **GPU 時間の目安** | **数十〜百数十マイクロ秒**（10 万インスタンス・現代の GPU） |
+| **原子操作の競合** | **全スレッドが同じカウンタ**を**叩く**。**バケットを分ける**と**緩和**。**ウェーブ単位で集約**する最適化もある（`WaveActiveCountBits` ＋ 代表レーンの 1 回の `InterlockedAdd`） |
+
+### ウェーブ単位の集約
+
+**ウェーブ内の「見える」スレッド数をまとめて、1 回だけ `InterlockedAdd`** する**最適化**です。
+
+```hlsl
+bool visible = SphereInFrustum(center, radius);
+uint wave_visible_count = WaveActiveCountBits(visible);
+uint wave_offset = 0;
+if (WaveIsFirstLane() && wave_visible_count > 0) {
+  command_counts.InterlockedAdd(bucket * 4, wave_visible_count, wave_offset);
+}
+wave_offset = WaveReadLaneFirst(wave_offset);
+uint slot = wave_offset + WavePrefixCountBits(visible);
+```
+
+**複数バケット**が**混ざる**場合は、**バケットごと**に**同様の処理**が**必要**で、**複雑**になります。**まず単純な `InterlockedAdd` で動かし**、**ボトルネックなら導入**します。
+
+## よくあるミス
+
+??? failure "近平面を OpenGL の式（c3 + c2）で作って、手前の物が消える／近くの物が残る"
+    **D3D の `z ≥ 0` は、列 2 そのもの**。**遠平面は `c3 − c2`**。
+
+??? failure "平面を正規化せず、半径と比べて、判定が距離でずれる"
+    **法線の長さ**で**4 成分を割る**。
+
+??? failure "ワールド行列のスケールを無視して、拡大された物が端で消える"
+    **境界球の半径に、`MaxScale`**を掛ける。
+
+??? failure "カウンタをリセットせず、フレームごとにコマンドが積み上がる"
+    **毎フレーム、ゼロ コピー**（または Clear）をする。
+
+??? failure "UAV → INDIRECT_ARGUMENT のバリアを忘れて、描画がたまに欠ける・壊れる"
+    **書き込み後は必ず遷移**。**デバッグ レイヤーが警告**する。
+
+??? failure "バケットの上限を超えて、他のバケットの領域を壊す"
+    **`slot >= MAX` で、書かない**。
+
+## これだけ覚える
+
+!!! abstract "まとめ"
+    - [x] <strong>1 スレッド ＝ 1 インスタンス</strong>。<strong>境界球と視錐台 6 平面</strong>で判定
+    - [x] <strong>平面は、`VP` の列の和・差</strong>で作り、<strong>正規化</strong>する。<strong>D3D の近平面は列 2</strong>
+    - [x] <strong>`InterlockedAdd` で出力位置を確保</strong>（ストリーム コンパクション）。<strong>順序は不定</strong>
+    - [x] <strong>PSO バケットごと</strong>に<strong>カウンタ・領域</strong>を分ける。<strong>上限超えは書かない</strong>
+    - [x] <strong>カウンタのリセット</strong> → <strong>ディスパッチ</strong> → <strong>UAV → INDIRECT_ARGUMENT のバリア</strong>
+
+## 参考
+
+- Gribb, Hartmann, "Fast Extraction of Viewing Frustum Planes from the World-View-Projection Matrix"（2001）
+- Microsoft, "Compute Shader Overview"（HLSL）
+- Wihlidal, "Optimizing the Graphics Pipeline with Compute"（GDC 2016）
+
+## 関連ページ
+
+- [GPU Driven（D3D12 詳細）](index.md)
+- [シーン データ](scene-data.md)
+- [ExecuteIndirect](execute-indirect.md)
+- [Hi-Z と 2 パス](hiz-two-pass.md)
+- [視錐台カリング](../culling.md)

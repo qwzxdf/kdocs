@@ -232,3 +232,6 @@ gamemath/smoothing.md: [SmoothDamp, 指数減衰, PID 制御, 移動平均]
 gamemath/color.md: [アルファ合成, プリマルチプライド, 線形空間]
 gamemath/grids.md: [極座標, ヘックスグリッド, アイソメトリック]
 gamemath/motion.md: [等加速度運動, 半陰的オイラー法, 固定タイムステップ]
+
+graphics/ao/index.md: [環境光遮蔽, Ambient Occlusion]
+graphics/ao/theory.md: [AO の理論]

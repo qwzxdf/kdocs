@@ -1,0 +1,10 @@
+nav:
+  - index.md
+  - tonemapping.md
+  - bloom.md
+  - dof.md
+  - motion-blur.md
+  - antialiasing.md
+  - color-grading.md
+  - lens-effects.md
+  - stylized.md

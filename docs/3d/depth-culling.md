@@ -122,7 +122,7 @@ context->RSSetState(rs_state.Get());
 | `FillMode` | `SOLID` / `WIREFRAME` | ワイヤーフレームは、デバッグ用 |
 
 !!! warning "DX11 の既定は `FrontCounterClockwise = FALSE`（時計回りが表）。右手系のモデルは注意"
-    **何も設定しないと、DX11 は時計回りを表とします**。このサイトの左手系（CW が表）とは合っています。ただし、<strong>右手系で作ったメッシュ（glTF・OpenGL 向けは CCW が表）</strong>を、そのまま読み込むと、**裏表が逆**になって、**外側が消え、内側が見えます**。読み込み時に巻き順を反転します。症状が出たら、`FrontCounterClockwise` と、メッシュの巻き順を確認します。
+    **何も設定しないと、DX11 は時計回りを表とします**。このサイトの左手系（CW が表）とは合っています。ただし、<strong>右手系で作ったメッシュ（glTF・OpenGL 向けは CCW が表）</strong>を、そのまま読み込むと**裏表が逆**になって、**外側が消え、内側が見えます**。読み込み時に巻き順を反転します。症状が出たら、`FrontCounterClockwise` と、メッシュの巻き順を確認します。
 
 ### 巻き順（ワインディング）
 

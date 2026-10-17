@@ -7,10 +7,12 @@ nav:
   - コンテナの選び方: container-chart.md
   - ゲーム数学: gamemath
   - 3Dゲーム: 3d
+  - 描画: graphics
   - ゲームエンジン: engine
   - 外部ライブラリ: libs
   - 設計: design
   - 最適化: optimize
   - 描画最適化: rendering
   - 文字コード: encoding
+  - 用語集: glossary.md
   - ...

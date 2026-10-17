@@ -679,3 +679,17 @@
     overflow-wrap: anywhere;
   }
 }
+
+.md-typeset .glossary-tools {
+  margin: 1em 0;
+}
+
+.md-typeset .glossary-tools input {
+  width: 100%;
+  padding: 0.6em 0.8em;
+  font-size: 1em;
+  color: var(--md-default-fg-color);
+  background: var(--md-code-bg-color);
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 6px;
+}

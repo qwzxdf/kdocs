@@ -1,0 +1,14 @@
+nav:
+  - index.md
+  - theory.md
+  - ssao-crytek.md
+  - ssao-hemisphere.md
+  - alchemy-ao.md
+  - sao.md
+  - hbao.md
+  - hbao-plus.md
+  - gtao.md
+  - world-space.md
+  - filtering.md
+  - comparison.md
+  - artifacts.md

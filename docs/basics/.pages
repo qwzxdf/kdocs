@@ -15,5 +15,6 @@ nav:
   - big-o.md
   - ub.md
   - cache.md
+  - heap.md
   - concurrency.md
   - ...

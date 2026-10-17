@@ -8,6 +8,7 @@ nav:
   - draw-calls.md
   - culling.md
   - gpu-driven.md
+  - GPU Driven（D3D12 詳細）: gpu-driven-dx12
   - mesh-shaders.md
   - visibility-buffer.md
   - overdraw.md

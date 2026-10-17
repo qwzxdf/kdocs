@@ -41,6 +41,7 @@ tags:
 | [ImGuizmo](imguizmo.md) | 3D のギズモ（移動・回転・拡大の矢印） |
 | [ImSequencer](imsequencer.md) | タイムラインの編集 |
 | [imgui-node-editor](node-editor.md) | ノード エディタ |
+| [関数早見表](reference/index.md) | **関数と、出てくる部品の一覧**。見た目のギャラリーと、動きのアニメーション付き |
 
 
 
