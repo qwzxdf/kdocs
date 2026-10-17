@@ -250,4 +250,4 @@ float3 color = total_internal_reflection
 - [波のジオメトリ](waves.md)
 - [水のシェーディング](shading.md)
 - [波紋と水面のインタラクション](interaction.md)
-- [屈折とガラス](../translucency/refraction.md)
+- [屈折とガラス](../translucency/refraction/index.md)

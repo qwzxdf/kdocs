@@ -1,0 +1,7 @@
+nav:
+  - index.md
+  - alpha-to-coverage.md
+  - hashed-alpha.md
+  - dither.md
+  - performance.md
+  - comparison.md

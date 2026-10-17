@@ -33,7 +33,7 @@ tags:
 | **大きな波の形** | **頂点シェーダー**で**メッシュを動かす**（Gerstner・FFT の高さ） |
 | **細かい波の凹凸** | **法線マップを複数重ねて流す** |
 | **映り込み** | **環境マップ・SSR・平面反射**（[反射](../reflections/index.md)） |
-| **水中の見え方** | **屈折**（[屈折](../translucency/refraction.md)） ＋ **深度による吸収** |
+| **水中の見え方** | **屈折**（[屈折](../translucency/refraction/index.md)） ＋ **深度による吸収** |
 | **岸の泡** | **水深が浅い所**に**泡のテクスチャ** |
 | **波紋・水しぶき** | **高さマップのシミュレーション・パーティクル** |
 
@@ -46,11 +46,11 @@ tags:
 | **③ 水面を描く** | **屈折・反射・フレネル・泡**を**1 回のシェーダーで合成** |
 | **④ 半透明・パーティクル** | **水しぶきなど** |
 
-<strong>水面は、「不透明の後・コピーを取った後」</strong>に描きます（[屈折](../translucency/refraction.md)と同じ構成）。
+<strong>水面は、「不透明の後・コピーを取った後」</strong>に描きます（[屈折](../translucency/refraction/index.md)と同じ構成）。
 
 ## 関連ページ
 
 - [描画](../index.md)
-- [屈折とガラス](../translucency/refraction.md)
+- [屈折とガラス](../translucency/refraction/index.md)
 - [反射](../reflections/index.md)
 - [地形](../terrain/index.md)

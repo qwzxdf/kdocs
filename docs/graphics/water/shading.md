@@ -12,7 +12,7 @@ tags:
     - 水面の色 ＝ <strong>反射 × F</strong> ＋ <strong>水中を通った光 × (1 − F)</strong>。<strong>F はフレネル</strong>。
     - <strong>真上から見ると透けて底が見え</strong>、<strong>浅い角度で見ると空を映す鏡</strong>になる。
     - <strong>水中の光は、距離に応じて指数的に減る</strong>（<strong>Beer の法則</strong>）。<strong>赤が最初に消え、青が最後まで残る</strong>。
-    - <strong>水深</strong> ＝ <strong>水面の深度と、不透明の深度の差</strong>（[屈折](../translucency/refraction.md)）。
+    - <strong>水深</strong> ＝ <strong>水面の深度と、不透明の深度の差</strong>（[屈折](../translucency/refraction/index.md)）。
     - <strong>屈折</strong>は<strong>法線で UV をずらして</strong>背景を読む。<strong>水面より手前の物を読まない</strong>ように注意。
     - <strong>スペキュラ</strong>は<strong>太陽の反射</strong>。<strong>法線マップの細かさ</strong>で<strong>きらめく</strong>。
 
@@ -118,7 +118,7 @@ float3 refracted_color = scene_color * transmittance + deep_color * (1.0 - trans
 
 ### 水深の求め方
 
-**水深**は**不透明な物の深度（水の後ろにある底）と、水面の深度の差**です（[屈折](../translucency/refraction.md)）。
+**水深**は**不透明な物の深度（水の後ろにある底）と、水面の深度の差**です（[屈折](../translucency/refraction/index.md)）。
 
 ```hlsl
 float scene_depth = LinearizeDepth(depth_texture.Sample(point_clamp, screen_uv).r);
@@ -282,5 +282,5 @@ color += specular + scatter + foam;
 - [水](index.md)
 - [波のジオメトリ](waves.md)
 - [岸辺と泡](shore-foam.md)
-- [屈折とガラス](../translucency/refraction.md)
+- [屈折とガラス](../translucency/refraction/index.md)
 - [反射](../reflections/index.md)

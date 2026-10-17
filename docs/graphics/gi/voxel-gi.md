@@ -122,7 +122,7 @@ float4 ConeTrace(float3 origin, float3 dir, float aperture) {
 | --- | --- |
 | <strong>Lumen（Unreal Engine 5）</strong> | **Software Ray Tracing では、距離場（SDF）・サーフェス キャッシュ**。**画面空間 → 距離場 → グローバル SDF** の**階層** |
 | <strong>SDFGI（Godot）</strong> | **カスケードの SDF** ＋ **プローブ** |
-| **Radiance Cascades** | **新しい、空間・方向の階層構造**（[レイトレ GI](rt-gi.md)） |
+| **Radiance Cascades** | **新しい、空間・方向の階層構造**（[レイトレ GI](rt-gi/index.md)） |
 
 <strong>「ボクセル（またはそれに類する 3D 格子）に光を保存し、円錐/レイでたどる」</strong>という**考え方**は、**多くの動的 GI に受け継がれています**。
 
@@ -158,7 +158,7 @@ float4 ConeTrace(float3 origin, float3 dir, float aperture) {
 ## 関連ページ
 
 - [間接光（GI）](index.md)
-- [GI の理論](theory.md)
+- [GI の理論](theory/index.md)
 - [SSGI](ssgi.md)
-- [レイトレ GI](rt-gi.md)
+- [レイトレ GI](rt-gi/index.md)
 - [カスケード シャドウ マップ](../shadows/cascaded.md)

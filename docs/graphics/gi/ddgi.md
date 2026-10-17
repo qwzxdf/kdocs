@@ -6,7 +6,7 @@ tags:
 
 # DDGI
 
-[ライト プローブ](probes.md)は、**ベイク**すると**固定**で**ライトが動くと追従できません**。**DDGI**（Dynamic Diffuse Global Illumination）は、**3D 格子に並べたプローブを、毎フレーム、少数のレイトレースで更新**し、**動くライト・動く物体**にも**追従する**動的 GI です。**プローブに放射照度だけでなく「距離（可視性）」も保存**して、**壁越しの光漏れ**を**抑える**のが、特徴です。<strong>NVIDIA（Majercik ら、2019）</strong>が提案し、**RTXGI** として製品化されました。
+[ライト プローブ](probes/index.md)は、**ベイク**すると**固定**で**ライトが動くと追従できません**。**DDGI**（Dynamic Diffuse Global Illumination）は、**3D 格子に並べたプローブを、毎フレーム、少数のレイトレースで更新**し、**動くライト・動く物体**にも**追従する**動的 GI です。**プローブに放射照度だけでなく「距離（可視性）」も保存**して、**壁越しの光漏れ**を**抑える**のが、特徴です。<strong>NVIDIA（Majercik ら、2019）</strong>が提案し、**RTXGI** として製品化されました。
 
 !!! tip "ポイント"
     - <strong>3D 格子</strong>にプローブを置き、<strong>毎フレーム、各プローブから数十〜百数十本のレイ</strong>を飛ばす。
@@ -171,7 +171,7 @@ float Visibility(float2 moments, float dist) {
 ## 関連ページ
 
 - [間接光（GI）](index.md)
-- [ライト プローブ](probes.md)
-- [レイトレ GI](rt-gi.md)
+- [ライト プローブ](probes/index.md)
+- [レイトレ GI](rt-gi/index.md)
 - [VSM（チェビシェフ）](../shadows/vsm/index.md)
 - [RT 反射](../reflections/rt-reflections/index.md)

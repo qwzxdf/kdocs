@@ -102,4 +102,4 @@ AO では**周囲の明るさを一様**（どの方向からも同じ強さ L_s
 
 - [AO の理論](index.md)
 - [オブスキュランス](obscurance.md)
-- [GI の理論](../../gi/theory.md)
+- [GI の理論](../../gi/theory/index.md)

@@ -1,6 +1,6 @@
 nav:
   - index.md
-  - blending-sorting.md
-  - alpha-test.md
-  - oit.md
-  - refraction.md
+  - アルファ ブレンドとソート: blending-sorting
+  - アルファ テスト: alpha-test
+  - OIT（順序非依存の透明）: oit
+  - 屈折: refraction

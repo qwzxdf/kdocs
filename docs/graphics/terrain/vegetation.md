@@ -15,7 +15,7 @@ tags:
     - 草 ＝ <strong>数枚の板ポリ（クロス）か、1 本ずつの細い葉</strong>。<strong>遠くは減らす・密度を下げる</strong>。
     - 風 ＝ <strong>頂点シェーダーで揺らす</strong>。<strong>根元は固定、先端ほど大きく</strong>。
     - 木 ＝ <strong>LOD</strong>。<strong>遠くは板（ビルボード／インポスター）に置き換え</strong>。
-    - <strong>葉の半透明</strong>は<strong>アルファ テスト＋ A2C</strong>（[半透明](../translucency/alpha-test.md)）。
+    - <strong>葉の半透明</strong>は<strong>アルファ テスト＋ A2C</strong>（[半透明](../translucency/alpha-test/index.md)）。
 
 ## 配置
 
@@ -223,7 +223,7 @@ world_position.y -= influence * push_strength * height_t;
 
 | 点 | 説明 |
 | --- | --- |
-| **LOD の切り替え** | <strong>ディザリング（市松のフェード）</strong>で、**ポップを隠す**（[半透明](../translucency/alpha-test.md)） |
+| **LOD の切り替え** | <strong>ディザリング（市松のフェード）</strong>で、**ポップを隠す**（[半透明](../translucency/alpha-test/index.md)） |
 | **葉のカード** | **1 枚に複数の葉を描いた板**。**アルファ テスト** |
 | **幹と葉でマテリアルを分ける** | **幹は不透明、葉はアルファ テスト** |
 | **影** | **影の LOD は、描画より粗くする**（[影](../shadows/index.md)） |
@@ -235,7 +235,7 @@ world_position.y -= influence * push_strength * height_t;
 | 問題 | 対策 |
 | --- | --- |
 | **ジャギー** | **A2C（Alpha To Coverage）＋ MSAA**。**または TAA で滑らかに** |
-| **遠くで草が痩せる** | **ミップでアルファが薄まる**。**ミップごとにアルファを補正**（[アルファ テスト](../translucency/alpha-test.md)） |
+| **遠くで草が痩せる** | **ミップでアルファが薄まる**。**ミップごとにアルファを補正**（[アルファ テスト](../translucency/alpha-test/index.md)） |
 | **裏面が暗い／明るい** | **両面描画で裏面の法線を反転**。**葉の透過光を足す** |
 
 ## ライティング
@@ -285,5 +285,5 @@ world_position.y -= influence * push_strength * height_t;
 
 - [地形](index.md)
 - [地形のテクスチャ](texturing.md)
-- [アルファ テスト](../translucency/alpha-test.md)
+- [アルファ テスト](../translucency/alpha-test/index.md)
 - [波紋と水面のインタラクション](../water/interaction.md)

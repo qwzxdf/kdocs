@@ -99,18 +99,11 @@ graphics/reflections/ssr-stochastic.md: {perf: 3, quality: 3}
 graphics/reflections/ssr-fallback.md: {perf: 1, quality: 3}
 
 # --- 間接光 ---
-graphics/gi/lightmaps.md: {perf: 1, quality: 3}
-graphics/gi/probes.md: {perf: 1, quality: 2}
 graphics/gi/ssgi.md: {perf: 2, quality: 2}
 graphics/gi/voxel-gi.md: {perf: 3, quality: 2}
 graphics/gi/ddgi.md: {perf: 2, quality: 3}
-graphics/gi/rt-gi.md: {perf: 3, quality: 3}
 
 # --- 半透明 ---
-graphics/translucency/blending-sorting.md: {perf: 1, quality: 2}
-graphics/translucency/alpha-test.md: {perf: 1}
-graphics/translucency/oit.md: {perf: 3, quality: 3}
-graphics/translucency/refraction.md: {perf: 2, quality: 2}
 
 # --- 水 ---
 graphics/water/waves.md: {perf: 2}
@@ -188,3 +181,45 @@ graphics/reflections/rt-reflections/ray-generation.md: {perf: 3, quality: 3}
 graphics/reflections/rt-reflections/hit-shading.md: {perf: 3, quality: 3}
 graphics/reflections/rt-reflections/hybrid.md: {perf: 3, quality: 3}
 graphics/reflections/rt-reflections/denoise.md: {perf: 3, quality: 3}
+graphics/gi/rt-gi/index.md: {perf: 3, quality: 3}
+graphics/gi/rt-gi/noise.md: {perf: 3, quality: 3}
+graphics/gi/rt-gi/restir.md: {perf: 3, quality: 3}
+graphics/gi/rt-gi/lumen-style.md: {perf: 3, quality: 3}
+graphics/gi/rt-gi/radiance-cascades.md: {perf: 2, quality: 3}
+graphics/gi/rt-gi/choosing.md: {perf: 3, quality: 3}
+graphics/gi/probes/index.md: {perf: 1, quality: 2}
+graphics/gi/probes/interpolation.md: {perf: 1, quality: 2}
+graphics/gi/probes/sh-storage.md: {perf: 1, quality: 2}
+graphics/gi/probes/placement.md: {perf: 1, quality: 2}
+graphics/gi/probes/dynamic-update.md: {perf: 2, quality: 2}
+graphics/gi/probes/compare.md: {perf: 1, quality: 2}
+graphics/gi/lightmaps/index.md: {perf: 1, quality: 3}
+graphics/gi/lightmaps/uv2.md: {perf: 1, quality: 3}
+graphics/gi/lightmaps/baking.md: {perf: 1, quality: 3}
+graphics/gi/lightmaps/dynamic-objects.md: {perf: 1, quality: 3}
+graphics/gi/lightmaps/dynamic-lights.md: {perf: 1, quality: 3}
+graphics/translucency/blending-sorting/index.md: {perf: 1, quality: 2}
+graphics/translucency/blending-sorting/blend-state.md: {perf: 1, quality: 2}
+graphics/translucency/blending-sorting/premultiplied.md: {perf: 1, quality: 3}
+graphics/translucency/blending-sorting/sorting.md: {perf: 1, quality: 2}
+graphics/translucency/blending-sorting/soft-particles.md: {perf: 1, quality: 3}
+graphics/translucency/alpha-test/index.md: {perf: 2, quality: 1}
+graphics/translucency/alpha-test/alpha-to-coverage.md: {perf: 2, quality: 3}
+graphics/translucency/alpha-test/hashed-alpha.md: {perf: 2, quality: 3}
+graphics/translucency/alpha-test/dither.md: {perf: 1, quality: 2}
+graphics/translucency/alpha-test/performance.md: {perf: 3, quality: 2}
+graphics/translucency/alpha-test/comparison.md: {perf: 2, quality: 2}
+graphics/translucency/oit/index.md: {perf: 3, quality: 3}
+graphics/translucency/oit/depth-peeling.md: {perf: 3, quality: 3}
+graphics/translucency/oit/ppll.md: {perf: 3, quality: 3}
+graphics/translucency/oit/wboit.md: {perf: 2, quality: 2}
+graphics/translucency/oit/stochastic.md: {perf: 2, quality: 2}
+graphics/translucency/oit/hybrid.md: {perf: 3, quality: 3}
+graphics/translucency/refraction/index.md: {perf: 2, quality: 2}
+graphics/translucency/refraction/screen-space.md: {perf: 2, quality: 2}
+graphics/translucency/refraction/boundary.md: {perf: 2, quality: 2}
+graphics/translucency/refraction/fresnel.md: {perf: 1, quality: 3}
+graphics/translucency/refraction/thickness-color.md: {perf: 2, quality: 3}
+graphics/translucency/refraction/dispersion.md: {perf: 2}
+graphics/translucency/refraction/thin-thick.md: {perf: 2, quality: 2}
+graphics/translucency/refraction/implementation.md: {perf: 2, quality: 2}

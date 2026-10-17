@@ -112,8 +112,8 @@ float3 color = direct_light * shadow
 ## 関連ページ
 
 - [間接光（GI）](index.md)
-- [ライトマップ](lightmaps.md)
-- [ライト プローブ](probes.md)
+- [ライトマップ](lightmaps/index.md)
+- [ライト プローブ](probes/index.md)
 - [DDGI](ddgi.md)
 - [AO](../ao/index.md)
 - [反射](../reflections/index.md)

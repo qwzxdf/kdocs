@@ -1,10 +1,10 @@
 nav:
   - index.md
-  - theory.md
-  - lightmaps.md
-  - probes.md
+  - GI の理論: theory
+  - ライトマップ: lightmaps
+  - プローブ GI: probes
   - ssgi.md
   - voxel-gi.md
   - ddgi.md
-  - rt-gi.md
+  - レイトレ GI: rt-gi
   - comparison.md

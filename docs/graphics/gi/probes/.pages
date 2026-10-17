@@ -1,0 +1,7 @@
+nav:
+  - index.md
+  - interpolation.md
+  - sh-storage.md
+  - placement.md
+  - dynamic-update.md
+  - compare.md

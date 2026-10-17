@@ -53,4 +53,4 @@ void ShadowPS(float2 uv : TEXCOORD0) {
 
 - [特殊なケース](index.md)
 - [深度を描く](../shadow-map-basics/render-depth.md)
-- [アルファ テスト](../../translucency/alpha-test.md)
+- [アルファ テスト](../../translucency/alpha-test/index.md)

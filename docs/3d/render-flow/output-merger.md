@@ -391,4 +391,4 @@ struct PSOutput {
 - [ピクセルの色](pixel-shader.md)
 - [画面に出す](present.md)
 - [深度とカリング](../depth-culling.md)
-- [ブレンドとソート](../../graphics/translucency/blending-sorting.md)
+- [ブレンドとソート](../../graphics/translucency/blending-sorting/index.md)

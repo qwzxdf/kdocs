@@ -146,7 +146,7 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 ## 関連ページ
 
 - [間接光（GI）](index.md)
-- [GI の理論](theory.md)
+- [GI の理論](theory/index.md)
 - [SSAO](../ao/ssao-hemisphere.md)
 - [SSR の基礎](../reflections/ssr-basics/index.md)
 - [Hi-Z トレース](../reflections/ssr-hiz.md)

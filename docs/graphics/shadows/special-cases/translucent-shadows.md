@@ -54,4 +54,4 @@ clip(opacity - threshold);
 ## 関連ページ
 
 - [特殊なケース](index.md)
-- [ブレンドとソート](../../translucency/blending-sorting.md)
+- [ブレンドとソート](../../translucency/blending-sorting/index.md)

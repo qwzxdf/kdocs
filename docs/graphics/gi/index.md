@@ -20,13 +20,13 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [GI の理論](theory.md) | レンダリング方程式・拡散/鏡面の間接光・放射照度・SH・モンテカルロ |
-| [ライトマップ](lightmaps.md) | 事前計算して、テクスチャに焼く。UV・ベイク・方向情報 |
-| [ライト プローブ](probes.md) | 空間の点に放射照度を保存。SH・補間・動的物体への適用 |
+| [GI の理論](theory/index.md) | レンダリング方程式・拡散/鏡面の間接光・放射照度・SH・モンテカルロ |
+| [ライトマップ](lightmaps/index.md) | 事前計算して、テクスチャに焼く。UV・ベイク・方向情報 |
+| [ライト プローブ](probes/index.md) | 空間の点に放射照度を保存。SH・補間・動的物体への適用 |
 | [SSGI](ssgi.md) | 画面空間で近くの面からの跳ね返りを拾う |
 | [ボクセル GI](voxel-gi.md) | シーンをボクセル化し、コーン トレースで間接光を得る |
 | [DDGI](ddgi.md) | レイトレで更新する動的プローブ。可視性の扱い |
-| [レイトレ GI・Radiance Cascades](rt-gi.md) | パス トレース的な GI・ReSTIR・Lumen 系の考え方 |
+| [レイトレ GI・Radiance Cascades](rt-gi/index.md) | パス トレース的な GI・ReSTIR・Lumen 系の考え方 |
 | [GI 手法の比較](comparison.md) | 方式の選び方・組み合わせ |
 
 ## 読む順序

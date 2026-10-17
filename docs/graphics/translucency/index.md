@@ -21,10 +21,10 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [ブレンドとソート](blending-sorting.md) | アルファ ブレンドの式・ブレンド ステート・ソートの方法と限界 |
-| [アルファ テスト](alpha-test.md) | clip・Alpha to Coverage・ハッシュド アルファ・ミップの罠 |
-| [OIT（順序非依存の半透明）](oit.md) | Weighted Blended・Depth Peeling・Per-Pixel Linked List・確率的 |
-| [屈折とガラス](refraction.md) | 背景のコピー・歪み・厚み・色収差・フレネル |
+| [ブレンドとソート](blending-sorting/index.md) | アルファ ブレンドの式・ブレンド ステート・ソートの方法と限界 |
+| [アルファ テスト](alpha-test/index.md) | clip・Alpha to Coverage・ハッシュド アルファ・ミップの罠 |
+| [OIT（順序非依存の半透明）](oit/index.md) | Weighted Blended・Depth Peeling・Per-Pixel Linked List・確率的 |
+| [屈折とガラス](refraction/index.md) | 背景のコピー・歪み・厚み・色収差・フレネル |
 
 ## なぜ難しいのか
 

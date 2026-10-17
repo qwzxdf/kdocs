@@ -1919,7 +1919,7 @@
   link: graphics/shadows/vsm/index.md
 - terms: [ヤコビアン, Jacobian]
   text: 座標を変換したときの、面積（体積）の変化率。
-  link: graphics/gi/rt-gi.md
+  link: graphics/gi/rt-gi/index.md
 - terms: [ハーフベクトル, Half Vector]
   text: 光の向きと視線の向きの、ちょうど中間のベクトル。
   link: 3d/pbr.md
@@ -1976,7 +1976,7 @@
   link: graphics/reflections/rt-reflections/index.md
 - terms: [サーフェス, Surface]
   text: 物体の表面。
-  link: graphics/gi/rt-gi.md
+  link: graphics/gi/rt-gi/index.md
 - terms: [ダート, Dirt, レンズ ダート]
   text: レンズの汚れの模様。ブルームに重ねる。
   link: graphics/postprocess/bloom/composite.md
@@ -2264,7 +2264,7 @@
   link: design/practice/build-cmake.md
 - terms: [SH, 球面調和関数, Spherical Harmonics]
   text: 球面上の関数を、少数の係数で近似する方法。間接光の保存に使う。
-  link: graphics/gi/probes.md
+  link: graphics/gi/probes/index.md
 - terms: [SSGI, Screen-Space Global Illumination]
   text: 画面空間の情報だけで、間接光を近似する方法。
   link: graphics/gi/ssgi.md
@@ -2330,10 +2330,10 @@
   link: libs/fbxsdk/install.md
 - terms: [Radiance Cascades]
   text: 空間と方向の解像度を階層で変え、ノイズなく間接光を求める方式。
-  link: graphics/gi/rt-gi.md
+  link: graphics/gi/rt-gi/radiance-cascades.md
 - terms: [ReSTIR]
   text: 近くの画素や前フレームの良いサンプルを再利用する、サンプリング手法。
-  link: graphics/gi/rt-gi.md
+  link: graphics/gi/rt-gi/restir.md
 - terms: [DetourCrowd]
   text: Detour で、多数の人の群衆移動を扱う機能。
   link: libs/recast/crowd.md
@@ -2357,7 +2357,7 @@
   link: gamemath/smoothing.md
 - terms: [UV2, UV セット 2]
   text: ライトマップなどに使う、2 番目のテクスチャ座標。
-  link: graphics/gi/lightmaps.md
+  link: graphics/gi/lightmaps/uv2.md
 - terms: [VS Code, Visual Studio Code]
   text: Microsoft の、軽いコード エディタ。
   link: encoding/mojibake.md
@@ -2513,7 +2513,7 @@
   link: graphics/reflections/rt-reflections/index.md
 - terms: [ReBLUR]
   text: NVIDIA NRD の、拡散・鏡面のデノイザ。
-  link: graphics/gi/rt-gi.md
+  link: graphics/gi/rt-gi/index.md
 - terms: [UNORM]
   text: 0〜1 に正規化された、符号なし整数の形式。
   link: graphics/postprocess/tonemapping/index.md
@@ -2615,7 +2615,7 @@
   link: vs/libraries.md
 - terms: [HW RT, ハードウェア レイトレース]
   text: GPU の専用回路で行うレイトレーシング。
-  link: graphics/gi/rt-gi.md
+  link: graphics/gi/rt-gi/index.md
 - terms: [MVP, MVP 行列]
   text: モデル・ビュー・射影の 3 つの行列を掛けた行列。
   link: gamemath/matrices.md
@@ -2642,10 +2642,10 @@
   link: graphics/ao/ssao-crytek.md
 - terms: [放射照度, Irradiance, E(n)]
   text: ある点に、全方向から届く光の量（余弦で重みづけた合計）。拡散反射の明るさを決める。
-  link: graphics/gi/theory.md
+  link: graphics/gi/theory/irradiance.md
 - terms: [放射輝度, Radiance]
   text: ある点から、ある方向へ出ていく（届く）光の量。レンダリング方程式の主役。
-  link: graphics/gi/rt-gi.md
+  link: graphics/gi/rt-gi/radiance-cascades.md
 - terms: [輝度, Luminance, ルミナンス]
   text: 明るさの量。色から重みづけ（0.2126, 0.7152, 0.0722）で求める。
   link: gamemath/color.md
@@ -2690,7 +2690,7 @@
   link: graphics/shadows/shadow-volumes.md
 - terms: [Normal Map]
   text: 面の細かい凹凸を、法線の向きで表した画像。
-  link: graphics/gi/lightmaps.md
+  link: graphics/gi/lightmaps/index.md
 - terms: [異方性フィルタ, Anisotropic Filtering]
   text: 斜めから見た面のテクスチャを、くっきり保つフィルタ。
   link: graphics/shadows/vsm/index.md

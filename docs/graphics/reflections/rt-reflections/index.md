@@ -60,4 +60,4 @@ tags:
 
 - [反射](../index.md)
 - [SSR の基本](../ssr-basics/index.md)
-- [レイトレ GI](../../gi/rt-gi.md)
+- [レイトレ GI](../../gi/rt-gi/index.md)
