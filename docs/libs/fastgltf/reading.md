@@ -77,10 +77,10 @@ bool ReadPrimitive(const fastgltf::Asset& asset, const fastgltf::Primitive& prim
 | **`fastgltf::math::fvec3` など** | **fastgltf の、小さなベクトル型**（`.x()`・`.y()`・`.z()`） |
 | **`primitive.indicesAccessor`** | **インデックスの accessor の番号**（`std::optional`） |
 
-**ライブラリが、`byteStride`・`componentType`（`unsigned short` → `uint32_t`）・正規化（`normalized`）**を、**自動で**処理します（tinygltf では、自分で書いた部分）。
+<strong>ライブラリが、`byteStride`・`componentType`（`unsigned short` → `uint32_t`）・正規化（`normalized`）</strong>を、**自動で**処理します（tinygltf では、自分で書いた部分）。
 
 !!! note "バージョン差に注意"
-    **ベクトル型は、古い版では `glm`**（`glm::vec3`）、**新しい版では、独自の `fastgltf::math`** です。**SimpleMath の型を、直接渡す**には、**`fastgltf::ElementTraits<Vector3>` を、特殊化**する方法もあります（要素の成分数・型を、ライブラリに教える）。**ドキュメントの「Accessor tools」**を、確認します。
+    **ベクトル型は、古い版では `glm`**（`glm::vec3`）、**新しい版では、独自の `fastgltf::math`** です。**SimpleMath の型を、直接渡す**には、**`fastgltf::ElementTraits<Vector3>` を、特殊化**する方法もあります（要素の成分数・型を、ライブラリに教える）。<strong>ドキュメントの「Accessor tools」</strong>を、確認します。
 
 ## インデックスがないとき
 
@@ -128,7 +128,7 @@ void LoadScene(const fastgltf::Asset& asset, std::vector<DrawItem>& out) {
 | **行列の並び** | **glTF は列優先**。**SimpleMath の行優先（行ベクトル規約）に、そのまま `memcpy` できる**（[tinygltf の取り出し方](../tinygltf/reading.md)と同じ理由） |
 | **`node.meshIndex`** | **`std::optional<size_t>`**。**`has_value()` を確認** |
 | **`node.children`** | **子ノードの番号**（`size_t` の配列） |
-| **`world = local * parent_world`** | **行ベクトル規約**での、**子 × 親** |
+| **`world = local * parent_world`** | **行ベクトル規約<strong>での、</strong>子 × 親** |
 | **`asset.defaultScene.value_or(0)`** | **既定のシーン、なければ 0 番** |
 
 **`Options::DecomposeNodeMatrices`** を指定すると、**ノードの行列を、TRS に分解**して持ちます（**アニメーションで、TRS が必要**なとき）。

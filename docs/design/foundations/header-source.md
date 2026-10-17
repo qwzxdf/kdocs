@@ -223,3 +223,4 @@ void Audio::Play(const char* name) { /* impl_->system を使う */ }
 - [テンプレート](../../basics/template.md)
 - [Google C++ Style Guide: Header Files](https://google.github.io/styleguide/cppguide.html#Header_Files)
 - [コンパイラの最適化（ビルド時間）](../../optimize/compiler.md)
+- [Include What You Use（IWYU）](../../optimize/build-time.md#iwyu)

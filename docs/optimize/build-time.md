@@ -121,9 +121,76 @@ class Player {
 | 方法 | 説明 |
 | --- | --- |
 | **`/showIncludes`** | どのファイルが、何を include しているかを表示 |
-| <strong>Include What You Use（IWYU）</strong> | 不要な include を指摘する |
+| <strong>[Include What You Use（IWYU）](#iwyu)</strong> | **足りない・不要な include を、提案する**ツール |
 | <strong>Visual Studio の「インクルード ファイルの整理」</strong> | 一部の機能（新しいバージョン） |
 | **include のグラフ** | 依存を可視化して、**中心にある重いヘッダ**を見つける |
+
+### Include What You Use（IWYU） {#iwyu}
+
+**Include What You Use**（インクルード・ワット・ユー・ユース、**IWYU**）は、「**使っているものの、ヘッダを、自分で include する**」という**ルール**と、**それを守るためのツール**の名前です。
+
+| 考え方 | 説明 |
+| --- | --- |
+| **使うものは、直接 include** | **`std::vector` を使う `.cpp` は、`#include <vector>` を、自分で書く**（ほかのヘッダが、たまたま include していても、頼らない） |
+| **使わないものは、include しない** | **不要な include は、消す**（読む量が減って、ビルドが速くなる） |
+| **間接的な include に、頼らない** | **`a.h` が `b.h` を include している**からと、**`a.h` だけで `b.h` の中身を使う**のは、**脆い**（`a.h` が整理されると、**突然ビルドエラー**） |
+
+```cpp
+#include "enemy.h"
+
+std::vector<int> ids;
+```
+
+**`enemy.h` が、たまたま `<vector>` を include していると、動きます**。**`enemy.h` から `<vector>` が消えた日に、ビルドが壊れます**。**IWYU の、守り方**は、**`#include <vector>` を、自分で書く**ことです。
+
+#### ツール include-what-you-use
+
+**Clang をベースにした、解析ツール**です。**ソースを解析**して、<strong>「足すべき include」「消すべき include」</strong>を、**提案**します。
+
+```text
+main.cpp should add these lines:
+#include <vector>
+
+main.cpp should remove these lines:
+- #include "unused.h"  // lines 3-3
+
+The full include-list for main.cpp:
+#include <vector>
+#include "enemy.h"
+```
+
+| 項目 | 説明 |
+| --- | --- |
+| **提案の 3 つ** | **足す行**（add）、**消す行**（remove）、**あるべき、include の全体**（full include-list） |
+| **CMake から使う** | `set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE include-what-you-use)` で、**ビルドのたびに、提案を出力** |
+| **一括で解析** | **`iwyu_tool.py -p <build>`**（**`compile_commands.json`** を使って、**全ファイルを解析**） |
+| **提案を、自動で反映** | **`fix_includes.py`**（提案を、ソースに適用） |
+| **除外・保持の指示** | **`// IWYU pragma: keep`**（消さない）、**`// IWYU pragma: export`**（この include を、再公開） |
+| **マッピングファイル** | <strong>「この型は、このヘッダ」</strong>という対応を、**自分で教える**（標準ライブラリの内部ヘッダ対策） |
+
+!!! warning "Windows・MSVC では、導入が少し面倒"
+    **IWYU は Clang 系**のツールで、**LLVM のバージョンに合わせてビルド**する必要があります。**MSVC の標準ライブラリのヘッダ**では、**提案が、不正確**になることがあります。**提案は、鵜呑みにせず**、**人が確認**します。
+
+#### Visual Studio・エディタの機能
+
+| 機能 | 説明 |
+| --- | --- |
+| **Visual Studio の「未使用の `#include`」の検出・削除** | <strong>新しい Visual Studio（2022 の後期の版）</strong>で、**使っていない include を、グレー表示・整理**する機能がある（**バージョンで、機能が違う**） |
+| **clangd の「Unused include」診断** | **VS Code など**で、**clangd** を使うと、**使われていない include が、警告**される（**`Include Cleaner`**） |
+
+**まずは、これらの、エディタの支援**で、**使っていない include を消す**だけでも、**効果があります**。
+
+#### 前方宣言との関係
+
+**IWYU は、「ヘッダに、重い include を増やす」ためのルールではありません**。
+
+| 場面 | 方針 |
+| --- | --- |
+| **`.cpp` の中** | **使うものは、すべて include**（**IWYU どおり**） |
+| **ヘッダの中**（ポインタ・参照だけ使う） | **include せず、前方宣言**（`class Enemy;`）。**重いヘッダを、持ち込まない** |
+| **ヘッダの中**（値のメンバ・継承） | **完全な定義が必要**なので、**include する** |
+
+<strong>ヘッダは、最小限の include（前方宣言を、活用）</strong>、<strong>`.cpp` は、IWYU（使うものを、全部 include）</strong>、が、**バランスの良い方針**です（[ヘッダとソースの分け方](../design/foundations/header-source.md)）。
 
 ## 3. プリコンパイル済みヘッダー（PCH）
 

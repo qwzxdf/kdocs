@@ -34,6 +34,25 @@ CALL = re.compile(r"[A-Za-z_]\w*\s*(<[^>]*>)?\s*\(")
 SCOPE = re.compile(r"[A-Za-z_]\w*::[A-Za-z_]")
 TYPE_WORD = re.compile(r"(XM[A-Za-z0-9_]+|[A-Z][a-z]+[A-Z0-9][A-Za-z0-9]*|[A-Z][a-z]+[0-9])")
 IDENT_ONLY = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+FILE_EXT = (
+    "h|hpp|hxx|hh|inl|c|cc|cpp|cxx|hlsl|hlsli|fx|cso|json|yaml|yml|toml|xml|md|txt|png|jpg|jpeg|dds|tga|bmp|"
+    "glb|gltf|fbx|obj|ini|cfg|cmake|bat|ps1|sh|sln|vcxproj|props|filters|lib|dll|exe|pdb|ttf|otf|ttc|bin|"
+    "py|js|css|html|csv|wav|ogg|mp3|ktx2|hdr|exr|mesh|mtl|editorconfig|gitignore|gitattributes|clang-format"
+)
+FILE_RE = re.compile(r"^(?P<dir>(?:[A-Za-z0-9_.\-]+/)*)(?P<name>[A-Za-z0-9_\-]*(?:\.[A-Za-z0-9_\-]+)*?)(?P<ext>\.(?:%s))$" % FILE_EXT)
+
+
+def _file_html(text):
+    m = FILE_RE.match(text)
+    if not m or len(text) > 80:
+        return None
+    out = ""
+    if m.group("dir"):
+        out += _span("pd", m.group("dir"))
+    if m.group("name"):
+        out += _span("pf", m.group("name"))
+    out += _span("pe", m.group("ext"))
+    return out
 
 
 def _looks_cpp(text):
@@ -109,10 +128,11 @@ def on_page_content(content, page, config, files):
         if code.get("class") or code.find(True):
             continue
         text = code.get_text()
-        if not _looks_cpp(text):
+        file_html = _file_html(text)
+        if file_html is None and not _looks_cpp(text):
             continue
         code["class"] = ["highlight", "inline-cpp"]
         code.clear()
-        code.append(BeautifulSoup(_highlight(text), "html.parser"))
+        code.append(BeautifulSoup(file_html if file_html is not None else _highlight(text), "html.parser"))
         changed = True
     return str(soup) if changed else content

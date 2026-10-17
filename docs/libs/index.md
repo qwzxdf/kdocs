@@ -35,6 +35,10 @@
 
 | ライブラリ | 用途 | 一言で |
 | --- | --- | --- |
+| [3D モデルの読み込みの選び方](model-loading.md) | 形式・ライブラリの比較 | glTF・FBX・OBJ と、どのライブラリを使うか |
+| [fastgltf](fastgltf/index.md) | 3D モデル（glTF）の高速な読み込み | simdjson ベース。大きなアセット向き |
+| [ufbx](ufbx/index.md) | FBX の読み込み | 2 ファイルを置くだけ。読み込み専用 |
+| [FBX SDK](fbxsdk/index.md) | FBX の公式 SDK | 全機能・書き出し。導入とライセンスが重い |
 | [tinygltf](tinygltf/index.md) | 3D モデル（glTF）の読み込み | 構造は「番号（インデックス）」でつながる。[構造](tinygltf/structure.md)・[取り出し方](tinygltf/reading.md) |
 
 ## 物理演算

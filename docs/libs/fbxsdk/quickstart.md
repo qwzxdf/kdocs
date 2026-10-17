@@ -1,0 +1,197 @@
+---
+title: FBX SDK の基本
+tags:
+  - 外部ライブラリ
+  - 3Dゲーム
+---
+
+# FBX SDK の基本
+
+FBX SDK の使い方は、<strong>「マネージャー（FbxManager）→ インポーター（FbxImporter）→ シーン（FbxScene）」</strong>の流れです。**オブジェクトの管理**（**`Create` と `Destroy`**）に、**独特のルール**があります。このページは、**最小の読み込み**、**座標系・単位の変換**、**三角形化**、**シーンの構造**をまとめます（FBX 自体の説明は、[FBX と ufbx の基本](../ufbx/quickstart.md)）。
+
+!!! tip "ポイント"
+    - <strong>最初に `FbxManager::Create()`</strong>。<strong>最後に `manager->Destroy()`</strong>（<strong>これで、関連するすべてのオブジェクトが、解放</strong>される）。
+    - <strong>オブジェクトは、`new` / `delete` ではなく、`Create` / `Destroy`</strong>。<strong>FBX SDK が、メモリを管理</strong>。
+    - 読み込みは<strong>`FbxImporter::Initialize` → `Import(scene)`</strong>。<strong>`Import` の後、インポーターは、破棄してよい</strong>。
+    - <strong>`FbxAxisSystem::DirectX.ConvertScene(scene)`</strong> で、<strong>座標系を変換</strong>（<strong>※右手系か左手系かに、注意</strong>）。<strong>`FbxSystemUnit::m.ConvertScene`</strong> で、メートルに。
+    - <strong>`FbxGeometryConverter::Triangulate`</strong> で、<strong>全メッシュを、三角形化</strong>。
+    - <strong>シーンは、ノードの木</strong>（<strong>`GetRootNode()` → `GetChild(i)`</strong>）。<strong>ノードが、属性（メッシュなど）を持つ</strong>。
+
+## 最小の読み込み
+
+```cpp
+#include <fbxsdk.h>
+
+FbxScene* LoadFbx(FbxManager* manager, const char* path) {
+  FbxIOSettings* ios = FbxIOSettings::Create(manager, IOSROOT);
+  manager->SetIOSettings(ios);
+
+  FbxImporter* importer = FbxImporter::Create(manager, "");
+  if (!importer->Initialize(path, -1, manager->GetIOSettings())) {
+    std::println("読み込みに失敗: {}", importer->GetStatus().GetErrorString());
+    importer->Destroy();
+    return nullptr;
+  }
+
+  FbxScene* scene = FbxScene::Create(manager, "scene");
+  importer->Import(scene);
+  importer->Destroy();
+  return scene;
+}
+
+int main() {
+  FbxManager* manager = FbxManager::Create();
+
+  FbxScene* scene = LoadFbx(manager, "assets/character.fbx");
+  if (scene) {
+    FbxNode* root = scene->GetRootNode();
+    std::println("子ノード数: {}", root->GetChildCount());
+  }
+
+  manager->Destroy();
+}
+```
+
+| 部分 | 意味 |
+| --- | --- |
+| **`FbxManager::Create()`** | **SDK 全体の管理者**。**最初に 1 つ作る** |
+| **`FbxIOSettings::Create(manager, IOSROOT)`** | **入出力の設定**（**何を読み込むか**） |
+| **`FbxImporter::Create(manager, "")`** | **インポーター**（ファイルを読む係） |
+| **`importer->Initialize(path, -1, ios)`** | **ファイルを開く**（**`-1` ＝ 形式を、自動判定**）。**失敗は `false`** |
+| **`FbxScene::Create(manager, "scene")`** | **シーン**（**読み込み先の入れ物**） |
+| **`importer->Import(scene)`** | **ファイルの内容を、シーンに**読む |
+| **`importer->Destroy()`** | **インポーターを破棄**（**`Import` の後、不要**） |
+| **`manager->Destroy()`** | **すべてのオブジェクトを、解放** |
+
+### Create と Destroy
+
+**FBX SDK のオブジェクトは、`new` / `delete` ではなく、`Create` / `Destroy`**で扱います。
+
+| ルール | 説明 |
+| --- | --- |
+| **`Create`**（`FbxXxx::Create(manager, ...)`） | **SDK が、メモリを確保** |
+| **`Destroy()`** | **個別に破棄**。**`manager->Destroy()` で、まとめて** |
+| **`delete` は禁止** | **SDK の内部のメモリ管理と、衝突** |
+| **シーンから取得したポインタ** | **`manager->Destroy()` の後は、無効**。**先に、ゲーム用にコピー** |
+
+!!! note "unique_ptr と組み合わせる"
+    `std::unique_ptr<FbxManager, void(*)(FbxManager*)>` に、<strong>カスタム削除子（`Destroy` を呼ぶ）</strong>を渡すと、**例外・早期 return でも、解放**されます（[RAII](../../design/patterns/raii.md)）。
+
+## 座標系・単位の変換
+
+**FBX は、ツールごとに、座標系・単位が違います**。**読み込み後に、変換**します。
+
+```cpp
+FbxAxisSystem target_axes = FbxAxisSystem::eDirectX;
+FbxAxisSystem scene_axes = scene->GetGlobalSettings().GetAxisSystem();
+if (scene_axes != target_axes) {
+  target_axes.ConvertScene(scene);
+}
+
+FbxSystemUnit scene_unit = scene->GetGlobalSettings().GetSystemUnit();
+if (scene_unit != FbxSystemUnit::m) {
+  FbxSystemUnit::m.ConvertScene(scene);
+}
+```
+
+| 設定 | 意味 |
+| --- | --- |
+| **`FbxAxisSystem::DirectX`** | **DirectX 用の座標系**（**Y 上・左手系**） |
+| **`FbxAxisSystem::OpenGL`** | **OpenGL 用**（**Y 上・右手系**）。**このサイトの規約（右手系・Y 上）は、こちらに近い** |
+| **`FbxAxisSystem::MayaYUp`** | Maya の Y 上 |
+| **`ConvertScene(scene)`** | **シーン全体を、その座標系に変換** |
+| **`FbxSystemUnit::m`** | **メートル**（`cm`・`inch` もある）。**`ConvertScene`** で、スケールを変換 |
+
+!!! warning "DirectX 用の座標系は、左手系"
+    **`FbxAxisSystem::DirectX` は、左手系**です。<strong>このサイトは、右手系（SimpleMath）</strong>なので、**`FbxAxisSystem::OpenGL`**（**右手系・Y 上**）を、使うか、**左手系 → 右手系の変換**（Z の反転・巻き順の反転）を、自分で行います（[座標系](../../3d/coordinate-systems.md)）。**変換後、実際に表示して、確認**します。
+
+## 三角形化
+
+**FBX のメッシュは、多角形（四角形以上）を含みます**。**GPU は三角形**なので、**変換**します。
+
+```cpp
+FbxGeometryConverter converter(manager);
+converter.Triangulate(scene, true);
+```
+
+| 引数 | 意味 |
+| --- | --- |
+| **`Triangulate(scene, replace)`** | **シーンの全メッシュを、三角形化**。**`true` ＝ 元のメッシュを、置き換える** |
+| **効果** | **以後、`GetPolygonSize(p)` が、すべて 3** |
+
+**スキン・ブレンドシェイプも、保ったまま、三角形化**されます。
+
+## シーンの構造
+
+**シーンは、ノードの木**で、**ノードに、属性（メッシュ・カメラ・ライトなど）が付きます**。
+
+<div class="anim" data-type="graph" data-label="FBX SDK のシーン：ノードの木と、ノードが持つ属性">
+n scene FbxScene 0 1 hit
+---
+n scene FbxScene 0 1
+n root ルート_FbxNode 1 1 new
+l scene root hit GetRootNode
+---
+n root ルート_FbxNode 1 1
+n c1 子_FbxNode 2 0 new
+n c2 子_FbxNode 2 2 new
+l root c1 hit GetChild
+l root c2 hit GetChild
+---
+n c1 子_FbxNode 2 0
+n mesh FbxMesh_（属性） 3 0 new
+n skin FbxSkin_（スキン） 4 0 new
+n c2 子_FbxNode 2 2
+n bone FbxSkeleton_（骨） 3 2 new
+l c1 mesh hit GetMesh
+l mesh skin hit
+l c2 bone hit
+</div>
+
+| クラス | 役割 |
+| --- | --- |
+| **`FbxScene`** | **シーン全体** |
+| **`FbxNode`** | **ノード**（**階層・変換**）。**`GetChild(i)`・`GetChildCount()`・`GetParent()`** |
+| **`FbxNodeAttribute`** | **ノードに付く、中身**（メッシュ・骨・カメラ・ライト） |
+| **`FbxMesh`** | **メッシュ** |
+| **`FbxSkeleton`** | **骨** |
+| **`FbxSurfaceMaterial`** | **マテリアル** |
+| **`FbxAnimStack` / `FbxAnimLayer`** | **アニメーション**（テイクとレイヤー） |
+
+```cpp
+void Traverse(FbxNode* node) {
+  FbxNodeAttribute* attribute = node->GetNodeAttribute();
+  if (attribute && attribute->GetAttributeType() == FbxNodeAttribute::eMesh) {
+    FbxMesh* mesh = node->GetMesh();
+  }
+  for (int i = 0; i < node->GetChildCount(); ++i) {
+    Traverse(node->GetChild(i));
+  }
+}
+```
+
+**ポインタ**で、つながっています（ufbx と同じ。glTF の「番号」とは違う）。
+
+## よくあるミス
+
+??? failure "`delete` で、FBX SDK のオブジェクトを解放して、クラッシュ"
+    **`Destroy()`**、または **`manager->Destroy()`** を使います。
+
+??? failure "`manager->Destroy()` の後に、ノード・メッシュを触る"
+    **すべて無効**です。**先に、ゲーム用のデータに、コピー**します。
+
+??? failure "座標系の変換をしないで、モデルが、横倒し・裏返しになる"
+    **`ConvertScene`**（座標系・単位）を呼びます。**左手系・右手系**に注意。
+
+??? failure "三角形化せずに、四角形を扱って、形が崩れる"
+    **`FbxGeometryConverter::Triangulate`**。
+
+??? failure "`importer->Initialize` が `false` で、理由が分からない"
+    **`importer->GetStatus().GetErrorString()`** を、表示します。**パスの文字コード**（UTF-8）も確認。
+
+## 関連ページ
+
+- [FBX SDK（目次）](index.md)
+- [データの取り出し方](reading.md)
+- [FBX と ufbx の基本](../ufbx/quickstart.md)
+- [座標系](../../3d/coordinate-systems.md)

@@ -78,6 +78,85 @@ if (node.mesh >= 0) {
 }
 ```
 
+## 誰が、誰を参照しているか（全体の参照図）
+
+**どの配列の、どのフィールドが、どの配列を指しているか**を、1 枚にまとめた図です。
+
+<svg class="fig" viewBox="0 0 760 470" role="img" aria-label="glTF の要素が、誰を参照しているか"><defs><marker id="rf" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="18" class="fig-title">矢印の元が、「番号」を持っている側。矢印の先が、その番号が指す配列</text><rect x="20" y="40" width="120" height="56" rx="6" fill="rgba(76,139,245,0.22)" stroke="currentColor" stroke-width="2"/><text x="30" y="68" style="font-weight:700">scenes</text><rect x="200" y="40" width="120" height="56" rx="6" fill="rgba(76,139,245,0.22)" stroke="currentColor" stroke-width="2"/><text x="210" y="68" style="font-weight:700">nodes</text><rect x="390" y="40" width="120" height="56" rx="6" fill="rgba(46,160,67,0.22)" stroke="currentColor" stroke-width="2"/><text x="400" y="68" style="font-weight:700">meshes</text><rect x="590" y="40" width="130" height="56" rx="6" fill="rgba(229,170,40,0.25)" stroke="currentColor" stroke-width="2"/><text x="600" y="68" style="font-weight:700">accessors</text><rect x="20" y="170" width="120" height="56" rx="6" fill="rgba(76,139,245,0.22)" stroke="currentColor" stroke-width="2"/><text x="30" y="198" style="font-weight:700">cameras</text><rect x="200" y="170" width="120" height="56" rx="6" fill="rgba(76,139,245,0.22)" stroke="currentColor" stroke-width="2"/><text x="210" y="198" style="font-weight:700">skins</text><rect x="390" y="170" width="120" height="56" rx="6" fill="rgba(229,72,77,0.2)" stroke="currentColor" stroke-width="2"/><text x="400" y="198" style="font-weight:700">materials</text><rect x="590" y="170" width="130" height="56" rx="6" fill="rgba(229,170,40,0.25)" stroke="currentColor" stroke-width="2"/><text x="600" y="198" style="font-weight:700">bufferViews</text><rect x="20" y="300" width="120" height="56" rx="6" fill="rgba(76,139,245,0.22)" stroke="currentColor" stroke-width="2"/><text x="30" y="328" style="font-weight:700">animations</text><rect x="390" y="300" width="120" height="56" rx="6" fill="rgba(229,72,77,0.2)" stroke="currentColor" stroke-width="2"/><text x="400" y="328" style="font-weight:700">textures</text><rect x="590" y="300" width="130" height="56" rx="6" fill="rgba(229,170,40,0.25)" stroke="currentColor" stroke-width="2"/><text x="600" y="328" style="font-weight:700">buffers</text><rect x="390" y="410" width="120" height="48" rx="6" fill="rgba(229,72,77,0.2)" stroke="currentColor" stroke-width="2"/><text x="400" y="438" style="font-weight:700">images</text><rect x="590" y="410" width="130" height="48" rx="6" fill="rgba(229,72,77,0.2)" stroke="currentColor" stroke-width="2"/><text x="600" y="438" style="font-weight:700">samplers</text><line x1="140" y1="68" x2="198" y2="68" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="142" y="60" style="font-size:11px">.nodes[]</text><line x1="320" y1="68" x2="388" y2="68" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="334" y="60" style="font-size:11px">.mesh</text><line x1="510" y1="60" x2="588" y2="60" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="510" y="52" style="font-size:11px">.attributes</text><line x1="510" y1="78" x2="588" y2="78" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="520" y="92" style="font-size:11px">.indices</text><line x1="260" y1="170" x2="260" y2="98" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="264" y="140" style="font-size:11px">.joints[]</text><line x1="210" y1="96" x2="100" y2="168" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="110" y="128" style="font-size:11px">.camera</text><line x1="450" y1="96" x2="450" y2="168" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="455" y="134" style="font-size:11px">.material</text><line x1="655" y1="96" x2="655" y2="168" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="660" y="134" style="font-size:11px">.bufferView</text><line x1="655" y1="226" x2="655" y2="298" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="660" y="266" style="font-size:11px">.buffer</text><line x1="450" y1="226" x2="450" y2="298" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="455" y="262" style="font-size:11px">.baseColorTexture.index など</text><line x1="450" y1="356" x2="450" y2="408" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="455" y="386" style="font-size:11px">.source</text><line x1="510" y1="340" x2="590" y2="420" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="552" y="372" style="font-size:11px">.sampler</text><path d="M 20 330 L 8 330 L 8 118 L 230 118 L 230 98" fill="none" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)"/><text x="14" y="318" style="font-size:11px">.channels[].target.node</text><path d="M 300 40 C 300 14 240 14 240 38" fill="none" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)"/><text x="224" y="12" style="font-size:11px">.children[]</text><text x="20" y="400" style="font-size:11px">そのほか：skins.inverseBindMatrices → accessors　／　animations.samplers[].input・output → accessors</text></svg>
+
+### 実際の参照の連なり（キャラクターの例）
+
+**1 体のキャラクターが、どの番号をたどって、数値データまで行きつくか**を、ツリーで示します。`→` の先が、その番号が指す要素です。
+
+<ul class="reftree">
+<li><code>scene: 0</code> → <b>scenes[0]</b>
+<ul>
+<li><code>nodes: [0]</code> → <b>nodes[0]</b>（Character）
+<ul>
+<li><code>children: [1, 2]</code> → <b>nodes[1]</b>（Body）、<b>nodes[2]</b>（Weapon）
+<ul>
+<li><b>nodes[1]</b>：<code>mesh: 0</code> → <b>meshes[0]</b>
+<ul>
+<li><code>primitives[0].attributes.POSITION: 1</code> → <b>accessors[1]</b> → <code>bufferView: 1</code> → <b>bufferViews[1]</b> → <code>buffer: 0</code> → <b>buffers[0]</b>
+</li>
+<li><code>primitives[0].indices: 0</code> → <b>accessors[0]</b> → <code>bufferView: 0</code> → <b>bufferViews[0]</b> → <code>buffer: 0</code> → <b>buffers[0]</b>
+</li>
+<li><code>primitives[0].material: 0</code> → <b>materials[0]</b>
+<ul>
+<li><code>baseColorTexture.index: 0</code> → <b>textures[0]</b>
+<ul>
+<li><code>source: 0</code> → <b>images[0]</b>（skin_albedo.png）</li>
+<li><code>sampler: 0</code> → <b>samplers[0]</b></li>
+</ul>
+</li>
+<li><code>normalTexture.index: 2</code> → <b>textures[2]</b> → <code>source: 2</code> → <b>images[2]</b></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><b>nodes[2]</b>：<code>mesh: 1</code> → <b>meshes[1]</b>（以下、同じ形）</li>
+</ul>
+</li>
+<li><b>nodes[0]</b>：<code>skin: 0</code> → <b>skins[0]</b>
+<ul>
+<li><code>joints: [3, 4, 5]</code> → <b>nodes[3]</b>・<b>nodes[4]</b>・<b>nodes[5]</b>（骨になるノード）</li>
+<li><code>inverseBindMatrices: 8</code> → <b>accessors[8]</b></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><b>animations[0]</b>
+<ul>
+<li><code>channels[0].target.node: 5</code> → <b>nodes[5]</b>（動かすノード）</li>
+<li><code>channels[0].sampler: 0</code> → <b>animations[0].samplers[0]</b>（※ このアニメーションの中の配列）
+<ul>
+<li><code>input: 10</code> → <b>accessors[10]</b>（時刻）</li>
+<li><code>output: 11</code> → <b>accessors[11]</b>（値）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+**読み方のコツ**：<strong>どの行も、「フィールド名: 番号 → その番号の配列の要素」</strong>の形です。**`buffer` の行まで来たら、数値データ（バイナリ）の実体に着きます**。
+
+| 参照を持つ側 | フィールド | 指す先 |
+| --- | --- | --- |
+| **scenes** | `nodes[]` | nodes |
+| **nodes** | `children[]` / `mesh` / `skin` / `camera` | nodes / meshes / skins / cameras |
+| **meshes**（primitives） | `attributes.*` / `indices` / `material` | accessors / accessors / materials |
+| **accessors** | `bufferView` | bufferViews |
+| **bufferViews** | `buffer` | buffers |
+| **materials** | `*Texture.index` | textures |
+| **textures** | `source` / `sampler` | images / samplers |
+| **skins** | `joints[]` / `inverseBindMatrices` | nodes / accessors |
+| **animations** | `channels[].target.node` / `samplers[].input・output` | nodes / accessors |
+| **images**（`.glb` 内） | `bufferView` | bufferViews |
+
+**参照を、持たない側**（**images（外部ファイル時）・samplers・buffers・cameras**）が、**行き止まり**です。
+
 ## 全体の地図
 
 <div class="anim" data-type="graph" data-label="glTF の構造：矢印はすべて「番号（インデックス）」で参照する">

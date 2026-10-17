@@ -51,10 +51,12 @@ theme:
     - content.code.annotate
     - content.tabs.link
     - content.action.edit
+    - content.tooltips
 
 hooks:
   - hooks/autolink.py
   - hooks/inlinecode.py
+  - hooks/glossary.py
 
 plugins:
   - search:

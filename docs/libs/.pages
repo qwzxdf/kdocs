@@ -3,5 +3,9 @@ nav:
   - シリアライズ: serialization
   - Dear ImGui: imgui
   - Jolt Physics: jolt
+  - 3Dモデルの読み込みの選び方: model-loading.md
   - tinygltf: tinygltf
+  - fastgltf: fastgltf
+  - ufbx: ufbx
+  - FBX SDK: fbxsdk
   - ...
