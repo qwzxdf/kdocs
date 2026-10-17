@@ -24,7 +24,7 @@ tags:
 
 ## 導入（Visual Studio）
 
-imgui-node-editor は、**ソースを数ファイル、プロジェクトに追加する**のが一番確実です。先に [Dear ImGui の導入](index.md#install) を済ませておきます。
+imgui-node-editor は、**ソースを数ファイル、プロジェクトに追加する**のが一番確実です。先に [Dear ImGui の導入](install.md) を済ませておきます。
 
 ### 方法 1：ソースを入れる
 

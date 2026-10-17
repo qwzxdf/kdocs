@@ -25,7 +25,7 @@ tags:
 
 ## 導入（Visual Studio）
 
-ImGuizmo は、**ソースを数ファイル、プロジェクトに追加する**だけで使えます。先に [Dear ImGui の導入](index.md#install) を済ませておきます。
+ImGuizmo は、**ソースを数ファイル、プロジェクトに追加する**だけで使えます。先に [Dear ImGui の導入](install.md) を済ませておきます。
 
 ### 方法 1：ソースを入れる
 

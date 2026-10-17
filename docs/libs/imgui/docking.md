@@ -25,7 +25,7 @@ tags:
 
 | 入手方法 | 説明 |
 | --- | --- |
-| **GitHub の `docking` ブランチ** | `git clone -b docking https://github.com/ocornut/imgui`。**ソースを入れる**方法（[導入](index.md#install)）で使う |
+| **GitHub の `docking` ブランチ** | `git clone -b docking https://github.com/ocornut/imgui`。**ソースを入れる**方法（[導入](install.md)）で使う |
 | **vcpkg** | `vcpkg install imgui[docking-experimental,dx11-binding,win32-binding]:x64-windows`（**機能名は、ポートの定義を確認**） |
 
 !!! note "vcpkg の機能名"

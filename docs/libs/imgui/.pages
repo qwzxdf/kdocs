@@ -1,6 +1,14 @@
 nav:
   - index.md
+  - install.md
+  - basics.md
+  - widgets.md
+  - layout.md
+  - docking.md
+  - fonts.md
+  - style.md
+  - textures.md
+  - debug-ui.md
   - imguizmo.md
   - imsequencer.md
   - node-editor.md
-  - ...

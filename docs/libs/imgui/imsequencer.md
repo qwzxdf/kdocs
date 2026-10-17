@@ -24,7 +24,7 @@ tags:
 
 ## 導入（Visual Studio）
 
-ImSequencer は、ImGuizmo のリポジトリに含まれています。[Dear ImGui の導入](index.md#install) を済ませてから、**ソースを 2 つ追加**します。
+ImSequencer は、ImGuizmo のリポジトリに含まれています。[Dear ImGui の導入](install.md) を済ませてから、**ソースを 2 つ追加**します。
 
 1. [ImGuizmo（GitHub）](https://github.com/CedricGuillemet/ImGuizmo) を取得して、`third_party/ImGuizmo/` に置く
 2. ソリューション エクスプローラーで、プロジェクトに**追加**する

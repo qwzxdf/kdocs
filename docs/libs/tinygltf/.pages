@@ -1,4 +1,7 @@
 nav:
   - index.md
+  - install.md
+  - gltf-basics.md
+  - quickstart.md
   - structure.md
   - reading.md
