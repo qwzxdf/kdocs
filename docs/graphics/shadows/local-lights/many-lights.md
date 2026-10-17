@@ -14,6 +14,74 @@ tags:
     - **静止したライトと静止した物の影は、キャッシュして、毎フレーム描かない**。
     - **影を持つライトの数に、上限**を設ける。
 
+<!-- fig:many-lights-cache:begin -->
+
+<svg class="fig illust motion" data-fig="many-lights-cache" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-many-lights-cache" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">多数のライトの影:毎フレーム、少しずつ更新して、予算に収める</text>
+<rect x="50" y="100" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="100.0" y="128" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 1</text>
+<text x="100.0" y="152" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="164" y="100" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"><animate attributeName="fill" dur="12s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0667;0.1292;0.1917;0.2542;0.3167;0.3792;0.4417;0.5042;0.5667;0.6292;0.6917;0.7542;0.8167;0.8792" values="#e0f2fe;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a"/></rect>
+<text x="214.0" y="128" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 2</text>
+<text x="214.0" y="152" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">動く</text>
+<rect x="278" y="100" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="328.0" y="128" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 3</text>
+<text x="328.0" y="152" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="392" y="100" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="442.0" y="128" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 4</text>
+<text x="442.0" y="152" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="506" y="100" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="556.0" y="128" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 5</text>
+<text x="556.0" y="152" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="620" y="100" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="670.0" y="128" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 6</text>
+<text x="670.0" y="152" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="50" y="204" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="100.0" y="232" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 7</text>
+<text x="100.0" y="256" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="164" y="204" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="214.0" y="232" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 8</text>
+<text x="214.0" y="256" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="278" y="204" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"><animate attributeName="fill" dur="12s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0667;0.1292;0.1917;0.2542;0.3167;0.3792;0.4417;0.5042;0.5667;0.6292;0.6917;0.7542;0.8167;0.8792" values="#e0f2fe;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a"/></rect>
+<text x="328.0" y="232" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 9</text>
+<text x="328.0" y="256" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">動く</text>
+<rect x="392" y="204" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="442.0" y="232" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 10</text>
+<text x="442.0" y="256" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="506" y="204" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="556.0" y="232" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 11</text>
+<text x="556.0" y="256" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="620" y="204" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="670.0" y="232" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 12</text>
+<text x="670.0" y="256" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="50" y="308" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="100.0" y="336" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 13</text>
+<text x="100.0" y="360" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="164" y="308" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="214.0" y="336" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 14</text>
+<text x="214.0" y="360" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="278" y="308" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"><animate attributeName="fill" dur="12s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0667;0.1292;0.1917;0.2542;0.3167;0.3792;0.4417;0.5042;0.5667;0.6292;0.6917;0.7542;0.8167;0.8792" values="#e0f2fe;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a;#fde68a"/></rect>
+<text x="328.0" y="336" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 15</text>
+<text x="328.0" y="360" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">動く</text>
+<rect x="392" y="308" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="442.0" y="336" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 16</text>
+<text x="442.0" y="360" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="506" y="308" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="556.0" y="336" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 17</text>
+<text x="556.0" y="360" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<rect x="620" y="308" width="100" height="90" rx="8" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+<text x="670.0" y="336" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">ライト 18</text>
+<text x="670.0" y="360" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
+<text x="50" y="66" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">黄色 = このフレームで、シャドウ マップを描き直したライト。他は、前のフレームの結果を使い回す<animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+<text x="50" y="366" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">動くライト（赤い文字）は、毎フレーム更新。静止したライトは、順番に（ラウンド ロビン）、数個ずつ更新する。</text>
+<text x="50" y="390" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 フレームに描くシャドウ マップの数に、上限を決める → コストが一定になる。</text>
+</svg>
+
+<!-- fig:many-lights-cache:end -->
+
 ## 多数のライトの影
 **ライトが多い**ほど、**影の計算がすぐに破綻**します。
 

@@ -16,6 +16,28 @@ tags:
     - <strong>TAA のジッターを、速度に混ぜない</strong>。
     - <strong>アニメーション・スキニング</strong>は<strong>前フレームの姿勢</strong>で<strong>頂点位置を計算</strong>する。
 
+<!-- fig:velocity-buffer:begin -->
+
+<svg class="fig illust motion" data-fig="velocity-buffer" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-velocity-buffer" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">速度バッファ:今のフレームと前のフレームの位置の差を、画素に書く</text>
+<rect x="40" y="90" width="340" height="240" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="210" y="80" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">画面（描画した絵）</text>
+<rect x="400" y="90" width="340" height="240" fill="#808080" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="570" y="80" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">速度バッファ（色 = 速度の向きと大きさ）</text>
+<circle cx="110" cy="210" r="30" fill="#fca5a5" fill-opacity="0.4" stroke="#e5484d" stroke-width="2" stroke-dasharray="4 3"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.3200;0.6000;0.7600;0.8640;1.0000" values="110;110;140;260;260;110;110"/></circle>
+<circle cx="110" cy="210" r="30" fill="#e5484d" stroke="#ffffff" stroke-width="2"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.3200;0.6000;0.7600;0.8640;1.0000" values="110;110;200;320;320;110;110"/></circle>
+<line x1="110" y1="210" x2="110" y2="210" stroke="#1f2937" stroke-width="3.5"><animate attributeName="x1" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.3200;0.6000;0.7600;0.8640;1.0000" values="110;110;140;260;260;110;110"/><animate attributeName="x2" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.3200;0.6000;0.7600;0.8640;1.0000" values="110;110;200;320;320;110;110"/></line>
+<circle cx="470" cy="210" r="30" fill="#808080"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.3200;0.6000;0.7600;0.8640;1.0000" values="470;470;525.8;600.2;600.2;470;470"/><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0000;0.1200;0.7600" values="#808080;#808080;#ff9030;#808080"/></circle>
+<line x1="470" y1="210" x2="470" y2="210" stroke="#1f2937" stroke-width="3"><animate attributeName="x1" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.3200;0.6000;0.7600;0.8640;1.0000" values="470;470;488.6;563;563;470;470"/><animate attributeName="x2" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.3200;0.6000;0.7600;0.8640;1.0000" values="470;470;525.8;600.2;600.2;470;470"/></line>
+<text x="40" y="366" text-anchor="start" style="font-size:14px;font-weight:500;fill:#1f2937" opacity="0">各画素に、「前のフレームの位置 → 今の位置」の差（2D ベクトル）を書く<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+<text x="40" y="392" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">動いていない物は 0（灰色）。動く物の画素だけ、速度が入る。モーション ブラーや TAA の再投影が、この速度を読む。</text>
+</svg>
+
+<!-- fig:velocity-buffer:end -->
+
 ## 速度とは
 
 **画素 P が表す 3D の点が、前フレームでは画面のどこにいたか**を**求め、現在位置との差**を**速度**とします。

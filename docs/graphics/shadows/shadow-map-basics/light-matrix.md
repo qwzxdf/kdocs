@@ -15,6 +15,29 @@ tags:
     - **範囲（箱・近い面・遠い面）を、狭く決める**と**解像度が無駄にならない**。
 
 ## ① 光の行列
+<!-- fig:light-frustum:begin -->
+
+<svg class="fig illust motion" data-fig="light-frustum" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-light-frustum" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">光の行列:平行光は「箱」、スポットは「錐」でシーンを捉える</text>
+<rect x="40" y="300" width="700" height="14" fill="#d6c7a1"/>
+<rect x="220" y="230" width="34" height="70" fill="#b8794b" stroke="#7a4b2a" stroke-width="1.5"/>
+<rect x="360" y="190" width="34" height="110" fill="#b8794b" stroke="#7a4b2a" stroke-width="1.5"/>
+<rect x="480" y="240" width="34" height="60" fill="#b8794b" stroke="#7a4b2a" stroke-width="1.5"/>
+<rect x="590" y="210" width="34" height="90" fill="#b8794b" stroke="#7a4b2a" stroke-width="1.5"/>
+<polygon points="0,0 0,0 0,0 0,0" fill="#2563eb" fill-opacity="0.12" stroke="#2563eb" stroke-width="3"><animate attributeName="points" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.0663;0.0667;0.3333;0.5833;0.9167;1.0000" values="0,0 0,0 0,0 0,0;0,0 0,0 0,0 0,0;160,90 620,90 620,305 160,305;160,90 620,90 620,305 160,305;370,90 410,90 640,305 140,305;370,90 410,90 640,305 140,305;370,90 410,90 640,305 140,305"/></polygon>
+<circle cx="390" cy="70" r="12" fill="#e5aa28" stroke="#ffffff" stroke-width="2"/>
+<text x="410" y="66" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">光</text>
+<text x="40" y="56" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">平行光（太陽）:光線は平行 → 正射影（箱）。範囲が一定<animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.3330;0.3333;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="56" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">光を近くへ（点光源・スポットライト）…<animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.3330;0.3333;0.5830;0.5833;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="56" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">スポットライト:光線は 1 点から広がる → 透視投影（錐）<animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.5830;0.5833;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="360" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">この箱 / 錐が、シャドウ マップに映る範囲。範囲を狭くするほど、1 テクセルあたりの解像度が上がる。</text>
+</svg>
+
+<!-- fig:light-frustum:end -->
+
 ### 平行光（太陽）：正射影
 
 平行光は**光が全て平行**なので**正射影**（遠近感なし）で撮ります。**光の向き**を前方向にして、**シーンの範囲（影を落とす物・受ける物）を覆う箱**を決めます。

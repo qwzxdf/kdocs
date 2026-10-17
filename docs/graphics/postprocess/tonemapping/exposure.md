@@ -16,6 +16,47 @@ tags:
     - <strong>露出補正</strong> ＝ <strong>自動露出の結果に足す EV のずれ</strong>。<strong>アーティストの調整</strong>。
     - 露出が<strong>合っていない</strong>と、<strong>明部が真っ白に飛ぶ</strong>か、<strong>暗部が真っ黒に潰れる</strong>。
 
+<!-- fig:exposure-ev:begin -->
+
+<svg class="fig illust motion" data-fig="exposure-ev" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-exposure-ev" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">露出（EV）:+1 EV で光の量が 2 倍、−1 EV で半分</text>
+<rect x="70" y="110" width="130" height="100" fill="#414141" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0552;0.1379;0.3448;0.4483;0.6552;0.7586;0.8621;1.0000" values="#414141;#414141;#414141;#a8a8a8;#a8a8a8;#191919;#191919;#414141;#414141"/></rect>
+<text x="135" y="100" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">暗い物(0.05)</text>
+<rect x="235" y="110" width="130" height="100" fill="#757575" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0552;0.1379;0.3448;0.4483;0.6552;0.7586;0.8621;1.0000" values="#757575;#757575;#757575;#ffffff;#ffffff;#2d2d2d;#2d2d2d;#757575;#757575"/></rect>
+<text x="300" y="100" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">中間の物(0.18)</text>
+<rect x="400" y="110" width="130" height="100" fill="#cacaca" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0552;0.1379;0.3448;0.4483;0.6552;0.7586;0.8621;1.0000" values="#cacaca;#cacaca;#cacaca;#ffffff;#ffffff;#4f4f4f;#4f4f4f;#cacaca;#cacaca"/></rect>
+<text x="465" y="100" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">明るい物(0.6)</text>
+<rect x="565" y="110" width="130" height="100" fill="#ffffff" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0552;0.1379;0.3448;0.4483;0.6552;0.7586;0.8621;1.0000" values="#ffffff;#ffffff;#ffffff;#ffffff;#ffffff;#a3a3a3;#a3a3a3;#ffffff;#ffffff"/></rect>
+<text x="630" y="100" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">光源(3.0)</text>
+<rect x="90" y="290" width="600" height="12" rx="6" fill="#e2e8f0"/>
+<rect x="89.0" y="284" width="2" height="24" fill="#64748b"/>
+<text x="90.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">-3 EV</text>
+<rect x="189.0" y="284" width="2" height="24" fill="#64748b"/>
+<text x="190.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">-2 EV</text>
+<rect x="289.0" y="284" width="2" height="24" fill="#64748b"/>
+<text x="290.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">-1 EV</text>
+<rect x="389.0" y="284" width="2" height="24" fill="#64748b"/>
+<text x="390.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">0 EV</text>
+<rect x="489.0" y="284" width="2" height="24" fill="#64748b"/>
+<text x="490.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">+1 EV</text>
+<rect x="589.0" y="284" width="2" height="24" fill="#64748b"/>
+<text x="590.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">+2 EV</text>
+<rect x="689.0" y="284" width="2" height="24" fill="#64748b"/>
+<text x="690.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">+3 EV</text>
+<circle cx="390.0" cy="296" r="11" fill="#2563eb" stroke="#ffffff" stroke-width="2"><animate attributeName="cx" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0552;0.1379;0.3448;0.4483;0.6552;0.7586;0.8621;1.0000" values="390;390;390;690;690;90;90;390;390"/></circle>
+<text x="90" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">露出 0 EV:中間の物が、中間の灰色<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1377;0.1379;1.0000" values="1;1;0;0"/></text>
+<text x="90" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">露出を上げる…<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1377;0.1379;0.3446;0.3448;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="90" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">+3 EV（8 倍）:明るい物が白飛び<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3446;0.3448;0.4480;0.4483;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="90" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">露出を下げる…<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4480;0.4483;0.6549;0.6552;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="90" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">−3 EV（1/8）:暗い物が真っ黒（つぶれる）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6549;0.6552;0.7583;0.7586;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="90" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">0 EV に戻す<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7583;0.7586;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:exposure-ev:end -->
+
 ## なぜ露出が要るのか
 
 **HDR の値は、「光の絶対量」に近い**ので**幅が非常に広い**です。**ディスプレイに映せるのは 0〜1 だけ**なので、**どの範囲を 0〜1 に割り当てるか**を**先に決める**必要があります。**これが露出**です。

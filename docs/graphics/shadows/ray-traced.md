@@ -53,6 +53,78 @@ float TraceShadowRay(float3 origin, float3 direction, float t_max) {
 | **`TMax`** | **光源までの距離**（点光源）。**それより先は見ない** |
 | <strong>RayQuery（インライン）</strong> | **ピクセル/コンピュート シェーダーの中**から、**直接**レイを飛ばす（DXR 1.1） |
 
+<!-- fig:rt-shadow-samples:begin -->
+
+<svg class="fig illust motion" data-fig="rt-shadow-samples" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-rt-shadow-samples" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">レイトレの影:面光源に向けた複数のレイで、半影を作る</text>
+<rect x="250" y="72" width="280" height="16" rx="8" fill="#e5aa28"/>
+<text x="542" y="84" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5aa28">面光源</text>
+<rect x="350" y="180" width="150" height="16" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
+<rect x="40" y="340" width="700" height="14" fill="#d6c7a1"/>
+<circle cx="560" cy="340" r="8" fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
+<text x="572" y="328" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">調べる点（半影の中）</text>
+<g opacity="0"><animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.0830;0.0833;0.3830;0.3833;1.0000" values="0;0;1;1;0;0"/><line x1="560" y1="340" x2="390.0" y2="80" stroke="#e5484d" stroke-width="3"/>
+<circle cx="390.0" cy="80" r="4" fill="#e5484d"/>
+<text x="60" y="76" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">レイ 1 本:見えた 0 本 → 光 0 %</text>
+<rect x="600" y="380" width="100" height="26" fill="#000000" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="580" y="398" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">結果</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.3830;0.3833;0.6830;0.6833;1.0000" values="0;0;1;1;0;0"/><line x1="560" y1="340" x2="283.6" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="283.6" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="353.6" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="353.6" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="426.4" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="426.4" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="496.4" y2="80" stroke="#2ea043" stroke-width="2"/>
+<circle cx="496.4" cy="80" r="4" fill="#2ea043"/>
+<text x="60" y="76" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">レイ 4 本:見えた 1 本 → 光 25 %</text>
+<rect x="600" y="380" width="100" height="26" fill="#888888" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="580" y="398" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">結果</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.6830;0.6833;0.9830;0.9833;1.0000" values="0;0;1;1;0;0"/><line x1="560" y1="340" x2="258.75" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="258.75" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="276.25" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="276.25" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="293.75" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="293.75" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="311.25" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="311.25" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="328.75" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="328.75" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="346.25" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="346.25" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="363.75" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="363.75" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="381.25" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="381.25" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="398.75" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="398.75" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="416.25" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="416.25" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="433.75" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="433.75" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="451.25" y2="80" stroke="#e5484d" stroke-width="2"/>
+<circle cx="451.25" cy="80" r="4" fill="#e5484d"/>
+<line x1="560" y1="340" x2="468.75" y2="80" stroke="#2ea043" stroke-width="2"/>
+<circle cx="468.75" cy="80" r="4" fill="#2ea043"/>
+<line x1="560" y1="340" x2="486.25" y2="80" stroke="#2ea043" stroke-width="2"/>
+<circle cx="486.25" cy="80" r="4" fill="#2ea043"/>
+<line x1="560" y1="340" x2="503.75" y2="80" stroke="#2ea043" stroke-width="2"/>
+<circle cx="503.75" cy="80" r="4" fill="#2ea043"/>
+<line x1="560" y1="340" x2="521.25" y2="80" stroke="#2ea043" stroke-width="2"/>
+<circle cx="521.25" cy="80" r="4" fill="#2ea043"/>
+<text x="60" y="76" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">レイ 16 本:見えた 4 本 → 光 25 %</text>
+<rect x="600" y="380" width="100" height="26" fill="#888888" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="580" y="398" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">結果</text>
+</g>
+<text x="40" y="400" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">レイが少ないと、0 か 1 のノイズ。増やすほど、なめらかな半影に近づく（デノイズで補う）。</text>
+</svg>
+
+<!-- fig:rt-shadow-samples:end -->
+
 ## 半影：面光源のサンプリング
 
 **面光源**（有限の大きさ）の影を**物理的に正確**に作るには、**光源の面上にランダムな点**を選び、**そこへレイ**を飛ばします。

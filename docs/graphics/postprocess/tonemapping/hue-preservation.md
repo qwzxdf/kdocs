@@ -15,6 +15,51 @@ tags:
     - <strong>彩度</strong>：<strong>輝度が大きいほど、彩度を落とす</strong>のが<strong>自然な白への向かい方</strong>。
     - <strong>選び方</strong>：<strong>色の忠実さ → 輝度ベース寄り、映画的な絵 → チャンネルごと寄り</strong>。
 
+<!-- fig:hue-preserve:begin -->
+
+<svg class="fig illust motion" data-fig="hue-preserve" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-hue-preserve" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">色相の保存:チャンネルごとに圧縮すると、明るい橙が、黄色く白っぽくなる</text>
+<text x="60" y="96" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d">チャンネルごと（色相が黄色い方へずれる・白くなる）</text>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="0;0;1;1"/><rect x="60" y="120" width="115" height="80" fill="#ba8a40" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="117" y="220" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">明るさ ×1</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2237;0.2240;1.0000" values="0;0;1;1"/><rect x="195" y="120" width="115" height="80" fill="#d4aa56" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="252" y="220" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">明るさ ×2</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3677;0.3680;1.0000" values="0;0;1;1"/><rect x="330" y="120" width="115" height="80" fill="#e6c871" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="387" y="220" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">明るさ ×4</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5117;0.5120;1.0000" values="0;0;1;1"/><rect x="465" y="120" width="115" height="80" fill="#f2de90" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="522" y="220" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">明るさ ×8</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6557;0.6560;1.0000" values="0;0;1;1"/><rect x="600" y="120" width="115" height="80" fill="#f8edb0" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="657" y="220" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">明るさ ×16</text>
+</g>
+<text x="60" y="266" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043">輝度で圧縮（色相を保つ）</text>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="0;0;1;1"/><rect x="60" y="290" width="115" height="80" fill="#d68537" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="117" y="390" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">明るさ ×1</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2237;0.2240;1.0000" values="0;0;1;1"/><rect x="195" y="290" width="115" height="80" fill="#ffa142" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="252" y="390" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">明るさ ×2</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3677;0.3680;1.0000" values="0;0;1;1"/><rect x="330" y="290" width="115" height="80" fill="#ffb84c" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="387" y="390" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">明るさ ×4</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5117;0.5120;1.0000" values="0;0;1;1"/><rect x="465" y="290" width="115" height="80" fill="#ffc953" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="522" y="390" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">明るさ ×8</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6557;0.6560;1.0000" values="0;0;1;1"/><rect x="600" y="290" width="115" height="80" fill="#ffd357" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="657" y="390" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">明るさ ×16</text>
+</g>
+<text x="60" y="56" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">同じ色（鮮やかな橙）を、明るさだけ 1・2・4・8・16 倍にして、トーン マップする<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+<text x="60" y="396" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">チャンネルごとの圧縮は、大きい成分ほど強く縮むので、色相がずれ、白に近づく。炎・爆発・ネオンで、色が抜ける原因になる。</text>
+</svg>
+
+<!-- fig:hue-preserve:end -->
+
 ## 違いを見る
 
 **赤 (4.0, 0.5, 0.2) という、明るい赤橙**を**Reinhard** に**通す**と、次のようになります。

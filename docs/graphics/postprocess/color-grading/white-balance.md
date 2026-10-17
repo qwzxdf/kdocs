@@ -16,6 +16,35 @@ tags:
     - <strong>ゲームでは「補正」ではなく、「演出」に使う</strong>こと<strong>が多い</strong>。
     - <strong>トーンマップの前（リニア）で行う</strong>と<strong>自然</strong>。
 
+<!-- fig:white-balance:begin -->
+
+<svg class="fig illust motion" data-fig="white-balance" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-white-balance" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+<linearGradient id="wb-grad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#60a5fa"/>
+<stop offset="0.5" stop-color="#ffffff"/>
+<stop offset="1" stop-color="#fb923c"/>
+</linearGradient>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ホワイト バランス:光源の色かぶりを打ち消して、白を白に戻す</text>
+<rect x="80" y="110" width="130" height="110" fill="#ceba9e" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.0716;0.0791;0.0867;0.0942;0.1018;0.1093;0.1169;0.1244;0.1320;0.1396;0.1471;0.1547;0.1622;0.1698;0.1773;0.1849;0.1924;0.2000;0.2178;0.2356;0.2533;0.2711;0.2889;0.3067;0.3244;0.3422;0.3600;0.3778;0.3956;0.4133;0.4311;0.4489;0.4667;0.4844;0.5022;0.5200;0.5311;0.5422;0.5533;0.5644;0.5756;0.5867;0.5978;0.6089;0.6200;0.6311;0.6422;0.6533;0.6644;0.6756;0.6867;0.6978;0.7089;0.7200;1.0000" values="#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#ceba9e;#cdbaa0;#ccbaa1;#cabaa3;#c9baa4;#c8baa6;#c7baa7;#c6baa9;#c5baaa;#c4baac;#c3baad;#c2baaf;#c0bab0;#bfbab2;#bebab3;#bdbab5;#bcbab7;#bbbab8;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa;#bababa"/></rect>
+<text x="145" y="100" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">グレーの紙</text>
+<rect x="250" y="110" width="130" height="110" fill="#fff6d1" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.0716;0.0791;0.0867;0.0942;0.1018;0.1093;0.1169;0.1244;0.1320;0.1396;0.1471;0.1547;0.1622;0.1698;0.1773;0.1849;0.1924;0.2000;0.2178;0.2356;0.2533;0.2711;0.2889;0.3067;0.3244;0.3422;0.3600;0.3778;0.3956;0.4133;0.4311;0.4489;0.4667;0.4844;0.5022;0.5200;0.5311;0.5422;0.5533;0.5644;0.5756;0.5867;0.5978;0.6089;0.6200;0.6311;0.6422;0.6533;0.6644;0.6756;0.6867;0.6978;0.7089;0.7200;1.0000" values="#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d1;#fff6d3;#fff6d5;#fff6d6;#fff6d8;#fff6da;#fff6dc;#fff6de;#fff6e0;#fff6e2;#fff6e4;#fff6e7;#fef6e9;#fdf6eb;#fbf6ed;#faf6ef;#f8f6f1;#f7f6f3;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6;#f6f6f6"/></rect>
+<text x="315" y="100" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">白い壁</text>
+<rect x="420" y="110" width="130" height="110" fill="#ff7b68" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.0716;0.0791;0.0867;0.0942;0.1018;0.1093;0.1169;0.1244;0.1320;0.1396;0.1471;0.1547;0.1622;0.1698;0.1773;0.1849;0.1924;0.2000;0.2178;0.2356;0.2533;0.2711;0.2889;0.3067;0.3244;0.3422;0.3600;0.3778;0.3956;0.4133;0.4311;0.4489;0.4667;0.4844;0.5022;0.5200;0.5311;0.5422;0.5533;0.5644;0.5756;0.5867;0.5978;0.6089;0.6200;0.6311;0.6422;0.6533;0.6644;0.6756;0.6867;0.6978;0.7089;0.7200;1.0000" values="#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#ff7b68;#fe7b69;#fc7b6a;#fb7b6b;#f97b6c;#f87b6d;#f77b6e;#f57b6f;#f47b70;#f27b71;#f17b72;#f07b73;#ee7b74;#ed7b75;#ec7b76;#ea7b77;#e97b79;#e87b7a;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b;#e67b7b"/></rect>
+<text x="485" y="100" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">赤い服</text>
+<rect x="590" y="110" width="130" height="110" fill="#8894c4" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.0716;0.0791;0.0867;0.0942;0.1018;0.1093;0.1169;0.1244;0.1320;0.1396;0.1471;0.1547;0.1622;0.1698;0.1773;0.1849;0.1924;0.2000;0.2178;0.2356;0.2533;0.2711;0.2889;0.3067;0.3244;0.3422;0.3600;0.3778;0.3956;0.4133;0.4311;0.4489;0.4667;0.4844;0.5022;0.5200;0.5311;0.5422;0.5533;0.5644;0.5756;0.5867;0.5978;0.6089;0.6200;0.6311;0.6422;0.6533;0.6644;0.6756;0.6867;0.6978;0.7089;0.7200;1.0000" values="#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8894c4;#8794c6;#8694c7;#8694c9;#8594cb;#8494cd;#8394cf;#8394d1;#8294d3;#8194d4;#8094d6;#8094d8;#7f94da;#7e94dc;#7d94de;#7d94e0;#7c94e2;#7b94e4;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6;#7b94e6"/></rect>
+<text x="655" y="100" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">青い服</text>
+<rect x="80" y="290" width="620" height="14" rx="7" fill="url(#wb-grad)"/>
+<text x="80" y="280" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">色温度（青い光 ← → 暖かい光）</text>
+<circle cx="588.4" cy="297" r="11" fill="#1f2937" stroke="#ffffff" stroke-width="2"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2000;0.5200;0.7200;1.0000" values="588.4;588.4;588.4;390;390;390"/></circle>
+<text x="80" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">暖色の光の下:グレーの紙が、橙がかって見える<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1997;0.2000;1.0000" values="1;1;0;0"/></text>
+<text x="80" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">色温度を青い側へ動かして、色かぶりを打ち消す…<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1997;0.2000;0.5197;0.5200;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="80" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">グレーの紙が、無彩色に戻った。他の色も、自然な色に<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5197;0.5200;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:white-balance:end -->
+
 ## 色温度と見た目
 
 **物体を熱すると温度に応じた色で光ります**（**黒体放射**）。<strong>この温度（ケルビン）が「色温度」</strong>で、**光源の色を表す**のに**使われます**。

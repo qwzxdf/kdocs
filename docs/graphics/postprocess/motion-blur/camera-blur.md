@@ -16,6 +16,234 @@ tags:
     - <strong>遠景（深度が最奥）</strong>は<strong>回転の影響だけ</strong>。
     - <strong>ゲーム内のカット切り替え</strong>では<strong>速度を 0 に</strong>する。
 
+<!-- fig:camera-blur:begin -->
+
+<svg class="fig illust motion" data-fig="camera-blur" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-camera-blur" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+<clipPath id="cb-clip-190"><rect x="20" y="100" width="340" height="240"/>
+</clipPath>
+<clipPath id="cb-clip-590"><rect x="420" y="100" width="340" height="240"/>
+</clipPath>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">カメラ ブラー:カメラの動きだけから、画面全体の速度が決まる</text>
+<rect x="20" y="100" width="340" height="240" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="190" y="88" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">前へ進む:中心から外へ、放射状（外ほど速い）</text>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;1.0000" values="0;0;1;1"/><line x1="40" y1="120" x2="6.72" y2="97.81" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="6.72,97.81 15.59,98.92 11.16,105.58" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1023;0.1026;1.0000" values="0;0;1;1"/><line x1="40" y1="170" x2="2.05" y2="157.35" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="2.05,157.35 10.91,156.09 8.38,163.68" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1179;0.1183;1.0000" values="0;0;1;1"/><line x1="40" y1="220" x2="0.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="0.0,220.0 8.0,216.0 8.0,224.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1336;0.1339;1.0000" values="0;0;1;1"/><line x1="40" y1="270" x2="2.05" y2="282.65" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="2.05,282.65 8.38,276.32 10.91,283.91" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1492;0.1496;1.0000" values="0;0;1;1"/><line x1="40" y1="320" x2="6.72" y2="342.19" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="6.72,342.19 11.16,334.42 15.59,341.08" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1023;0.1026;1.0000" values="0;0;1;1"/><line x1="90" y1="120" x2="62.0" y2="92.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="62.0,92.0 70.49,94.83 64.83,100.49" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1179;0.1183;1.0000" values="0;0;1;1"/><line x1="90" y1="170" x2="62.0" y2="156.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="62.0,156.0 70.94,156.0 67.37,163.16" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1336;0.1339;1.0000" values="0;0;1;1"/><line x1="90" y1="220" x2="62.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="62.0,220.0 70.0,216.0 70.0,224.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1492;0.1496;1.0000" values="0;0;1;1"/><line x1="90" y1="270" x2="62.0" y2="284.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="62.0,284.0 67.37,276.84 70.94,284.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1649;0.1652;1.0000" values="0;0;1;1"/><line x1="90" y1="320" x2="62.0" y2="348.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="62.0,348.0 64.83,339.51 70.49,345.17" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1179;0.1183;1.0000" values="0;0;1;1"/><line x1="140" y1="120" x2="126.0" y2="92.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="126.0,92.0 133.16,97.37 126.0,100.94" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1336;0.1339;1.0000" values="0;0;1;1"/><line x1="140" y1="170" x2="126.0" y2="156.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="126.0,156.0 134.49,158.83 128.83,164.49" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1492;0.1496;1.0000" values="0;0;1;1"/><line x1="140" y1="220" x2="126.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="126.0,220.0 134.0,216.0 134.0,224.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1649;0.1652;1.0000" values="0;0;1;1"/><line x1="140" y1="270" x2="126.0" y2="284.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="126.0,284.0 128.83,275.51 134.49,281.17" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1805;0.1809;1.0000" values="0;0;1;1"/><line x1="140" y1="320" x2="126.0" y2="348.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="126.0,348.0 126.0,339.06 133.16,342.63" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1336;0.1339;1.0000" values="0;0;1;1"/><line x1="190" y1="120" x2="190.0" y2="92.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="190.0,92.0 194.0,100.0 186.0,100.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1492;0.1496;1.0000" values="0;0;1;1"/><line x1="190" y1="170" x2="190.0" y2="156.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="190.0,156.0 194.0,164.0 186.0,164.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1805;0.1809;1.0000" values="0;0;1;1"/><line x1="190" y1="270" x2="190.0" y2="284.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="190.0,284.0 186.0,276.0 194.0,276.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1962;0.1965;1.0000" values="0;0;1;1"/><line x1="190" y1="320" x2="190.0" y2="348.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="190.0,348.0 186.0,340.0 194.0,340.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1492;0.1496;1.0000" values="0;0;1;1"/><line x1="240" y1="120" x2="254.0" y2="92.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="254.0,92.0 254.0,100.94 246.84,97.37" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1649;0.1652;1.0000" values="0;0;1;1"/><line x1="240" y1="170" x2="254.0" y2="156.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="254.0,156.0 251.17,164.49 245.51,158.83" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1805;0.1809;1.0000" values="0;0;1;1"/><line x1="240" y1="220" x2="254.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="254.0,220.0 246.0,224.0 246.0,216.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1962;0.1965;1.0000" values="0;0;1;1"/><line x1="240" y1="270" x2="254.0" y2="284.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="254.0,284.0 245.51,281.17 251.17,275.51" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2118;0.2122;1.0000" values="0;0;1;1"/><line x1="240" y1="320" x2="254.0" y2="348.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="254.0,348.0 246.84,342.63 254.0,339.06" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1649;0.1652;1.0000" values="0;0;1;1"/><line x1="290" y1="120" x2="318.0" y2="92.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="318.0,92.0 315.17,100.49 309.51,94.83" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1805;0.1809;1.0000" values="0;0;1;1"/><line x1="290" y1="170" x2="318.0" y2="156.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="318.0,156.0 312.63,163.16 309.06,156.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1962;0.1965;1.0000" values="0;0;1;1"/><line x1="290" y1="220" x2="318.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="318.0,220.0 310.0,224.0 310.0,216.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2118;0.2122;1.0000" values="0;0;1;1"/><line x1="290" y1="270" x2="318.0" y2="284.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="318.0,284.0 309.06,284.0 312.63,276.84" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2275;0.2278;1.0000" values="0;0;1;1"/><line x1="290" y1="320" x2="318.0" y2="348.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="318.0,348.0 309.51,345.17 315.17,339.51" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1805;0.1809;1.0000" values="0;0;1;1"/><line x1="340" y1="120" x2="373.28" y2="97.81" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="373.28,97.81 368.84,105.58 364.41,98.92" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1962;0.1965;1.0000" values="0;0;1;1"/><line x1="340" y1="170" x2="377.95" y2="157.35" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="377.95,157.35 371.62,163.68 369.09,156.09" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2118;0.2122;1.0000" values="0;0;1;1"/><line x1="340" y1="220" x2="380.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="380.0,220.0 372.0,224.0 372.0,216.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2275;0.2278;1.0000" values="0;0;1;1"/><line x1="340" y1="270" x2="377.95" y2="282.65" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="377.95,282.65 369.09,283.91 371.62,276.32" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-190)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2431;0.2435;1.0000" values="0;0;1;1"/><line x1="340" y1="320" x2="373.28" y2="342.19" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="373.28,342.19 364.41,341.08 368.84,334.42" fill="#2563eb"/>
+</g>
+<rect x="420" y="100" width="340" height="240" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="590" y="88" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">横を向く:画面全体が、同じ向きに同じ速さ</text>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;1.0000" values="0;0;1;1"/><line x1="440" y1="120" x2="468.0" y2="120.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="468.0,120.0 460.0,124.0 460.0,116.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1023;0.1026;1.0000" values="0;0;1;1"/><line x1="440" y1="170" x2="468.0" y2="170.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="468.0,170.0 460.0,174.0 460.0,166.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1179;0.1183;1.0000" values="0;0;1;1"/><line x1="440" y1="220" x2="468.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="468.0,220.0 460.0,224.0 460.0,216.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1336;0.1339;1.0000" values="0;0;1;1"/><line x1="440" y1="270" x2="468.0" y2="270.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="468.0,270.0 460.0,274.0 460.0,266.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1492;0.1496;1.0000" values="0;0;1;1"/><line x1="440" y1="320" x2="468.0" y2="320.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="468.0,320.0 460.0,324.0 460.0,316.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1023;0.1026;1.0000" values="0;0;1;1"/><line x1="490" y1="120" x2="518.0" y2="120.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="518.0,120.0 510.0,124.0 510.0,116.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1179;0.1183;1.0000" values="0;0;1;1"/><line x1="490" y1="170" x2="518.0" y2="170.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="518.0,170.0 510.0,174.0 510.0,166.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1336;0.1339;1.0000" values="0;0;1;1"/><line x1="490" y1="220" x2="518.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="518.0,220.0 510.0,224.0 510.0,216.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1492;0.1496;1.0000" values="0;0;1;1"/><line x1="490" y1="270" x2="518.0" y2="270.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="518.0,270.0 510.0,274.0 510.0,266.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1649;0.1652;1.0000" values="0;0;1;1"/><line x1="490" y1="320" x2="518.0" y2="320.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="518.0,320.0 510.0,324.0 510.0,316.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1179;0.1183;1.0000" values="0;0;1;1"/><line x1="540" y1="120" x2="568.0" y2="120.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="568.0,120.0 560.0,124.0 560.0,116.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1336;0.1339;1.0000" values="0;0;1;1"/><line x1="540" y1="170" x2="568.0" y2="170.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="568.0,170.0 560.0,174.0 560.0,166.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1492;0.1496;1.0000" values="0;0;1;1"/><line x1="540" y1="220" x2="568.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="568.0,220.0 560.0,224.0 560.0,216.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1649;0.1652;1.0000" values="0;0;1;1"/><line x1="540" y1="270" x2="568.0" y2="270.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="568.0,270.0 560.0,274.0 560.0,266.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1805;0.1809;1.0000" values="0;0;1;1"/><line x1="540" y1="320" x2="568.0" y2="320.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="568.0,320.0 560.0,324.0 560.0,316.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1336;0.1339;1.0000" values="0;0;1;1"/><line x1="590" y1="120" x2="618.0" y2="120.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="618.0,120.0 610.0,124.0 610.0,116.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1492;0.1496;1.0000" values="0;0;1;1"/><line x1="590" y1="170" x2="618.0" y2="170.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="618.0,170.0 610.0,174.0 610.0,166.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1649;0.1652;1.0000" values="0;0;1;1"/><line x1="590" y1="220" x2="618.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="618.0,220.0 610.0,224.0 610.0,216.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1805;0.1809;1.0000" values="0;0;1;1"/><line x1="590" y1="270" x2="618.0" y2="270.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="618.0,270.0 610.0,274.0 610.0,266.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1962;0.1965;1.0000" values="0;0;1;1"/><line x1="590" y1="320" x2="618.0" y2="320.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="618.0,320.0 610.0,324.0 610.0,316.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1492;0.1496;1.0000" values="0;0;1;1"/><line x1="640" y1="120" x2="668.0" y2="120.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="668.0,120.0 660.0,124.0 660.0,116.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1649;0.1652;1.0000" values="0;0;1;1"/><line x1="640" y1="170" x2="668.0" y2="170.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="668.0,170.0 660.0,174.0 660.0,166.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1805;0.1809;1.0000" values="0;0;1;1"/><line x1="640" y1="220" x2="668.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="668.0,220.0 660.0,224.0 660.0,216.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1962;0.1965;1.0000" values="0;0;1;1"/><line x1="640" y1="270" x2="668.0" y2="270.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="668.0,270.0 660.0,274.0 660.0,266.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2118;0.2122;1.0000" values="0;0;1;1"/><line x1="640" y1="320" x2="668.0" y2="320.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="668.0,320.0 660.0,324.0 660.0,316.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1649;0.1652;1.0000" values="0;0;1;1"/><line x1="690" y1="120" x2="718.0" y2="120.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="718.0,120.0 710.0,124.0 710.0,116.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1805;0.1809;1.0000" values="0;0;1;1"/><line x1="690" y1="170" x2="718.0" y2="170.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="718.0,170.0 710.0,174.0 710.0,166.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1962;0.1965;1.0000" values="0;0;1;1"/><line x1="690" y1="220" x2="718.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="718.0,220.0 710.0,224.0 710.0,216.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2118;0.2122;1.0000" values="0;0;1;1"/><line x1="690" y1="270" x2="718.0" y2="270.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="718.0,270.0 710.0,274.0 710.0,266.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2275;0.2278;1.0000" values="0;0;1;1"/><line x1="690" y1="320" x2="718.0" y2="320.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="718.0,320.0 710.0,324.0 710.0,316.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1805;0.1809;1.0000" values="0;0;1;1"/><line x1="740" y1="120" x2="768.0" y2="120.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="768.0,120.0 760.0,124.0 760.0,116.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1962;0.1965;1.0000" values="0;0;1;1"/><line x1="740" y1="170" x2="768.0" y2="170.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="768.0,170.0 760.0,174.0 760.0,166.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2118;0.2122;1.0000" values="0;0;1;1"/><line x1="740" y1="220" x2="768.0" y2="220.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="768.0,220.0 760.0,224.0 760.0,216.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2275;0.2278;1.0000" values="0;0;1;1"/><line x1="740" y1="270" x2="768.0" y2="270.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="768.0,270.0 760.0,274.0 760.0,266.0" fill="#2563eb"/>
+</g>
+<g opacity="0" clip-path="url(#cb-clip-590)"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2431;0.2435;1.0000" values="0;0;1;1"/><line x1="740" y1="320" x2="768.0" y2="320.0" stroke="#2563eb" stroke-width="2.5"/>
+<polygon points="768.0,320.0 760.0,324.0 760.0,316.0" fill="#2563eb"/>
+</g>
+<text x="40" y="380" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937" opacity="0">物体の速度は使わず、深度から求めた位置を、前フレームのカメラ行列で投影し直して、差を取る。<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+<text x="40" y="404" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">安く済むが、動く物体のブレは出ない（物体の動きは、速度バッファが必要）。</text>
+</svg>
+
+<!-- fig:camera-blur:end -->
+
 ## 並進と回転
 
 **カメラの動きは、2 種類**あります。
