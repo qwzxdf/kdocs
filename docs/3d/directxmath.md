@@ -1,0 +1,258 @@
+---
+title: DirectXMath
+tags:
+  - 3Dゲーム
+  - 数学ライブラリ
+---
+
+# DirectXMath
+
+<div class="page-badges" markdown>
+<span class="perf perf-4">◎ 速い</span>
+<span class="ver ver-11">C++11〜</span>
+`#include <DirectXMath.h>`
+</div>
+
+**DirectXMath**（ダイレクト エックス マス）は、Microsoft が提供する、**3D の数学ライブラリ**です。ベクトル、行列、クォータニオン、平面、色などを、**SIMD**（1 命令で複数のデータを計算する CPU の機能、[SIMD](../optimize/simd.md)）で高速に計算します。Visual Studio（Windows SDK）に**含まれている**ので、導入は不要です。ヘッダだけで使えて、DirectX の描画と相性がよく、ゲーム エンジンの数学の土台としても、よく使われます。ただし、**型が 2 種類あり（保存用と計算用）、書き方が少し独特**で、慣れが必要です。そこで、DirectXMath をラップして、**普通の C++ らしく書ける**ようにしたのが、[SimpleMath](simplemath.md) です。このカテゴリのサンプルは、SimpleMath を使います。このページは、DirectXMath 自体の仕組みを、説明します。
+
+!!! tip "ポイント"
+    - <strong>計算用の型 `XMVECTOR` / `XMMATRIX`</strong>（SIMD レジスタ）と、<strong>保存用の型 `XMFLOAT3` / `XMFLOAT4X4`</strong>（普通の `float` の並び）を、<strong>使い分ける</strong>。
+    - <strong>メンバ変数・配列・ファイルには、保存用</strong>。<strong>計算するときだけ、`XMLoad...` でロード</strong>し、<strong>`XMStore...` で書き戻す</strong>。
+    - <strong>`XMVECTOR` を、クラスのメンバにしない</strong>（16 バイト境界の問題でクラッシュする）。
+    - <strong>左手系と右手系の関数が、両方ある</strong>（`XMMatrixLookAtLH` / `XMMatrixLookAtRH` など）。<strong>どちらを使うか決めて、そろえる</strong>。
+    - <strong>行ベクトル規約</strong>（`v * M`）。行列の掛け順は、<strong>左から右へ</strong>（先に適用する変換が、左）。
+    - <strong>普段のコードは、SimpleMath で書く</strong>。性能が必要な所だけ、DirectXMath を直接。
+
+## 型
+
+### 計算用の型（SIMD）
+
+| 型 | 中身 | 説明 |
+| --- | --- | --- |
+| **`XMVECTOR`** | 4 つの `float`（128 ビット） | ベクトル 1 つ（`x, y, z, w`）。**SIMD レジスタ**に載る。3 次元でも、4 要素ぶんを使う |
+| **`XMMATRIX`** | 4 つの `XMVECTOR`（4×4 の行列） | 行列 1 つ |
+
+- **関数の引数や、ローカル変数**として使う型です。**クラスのメンバや、`std::vector` の要素にはしません**（16 バイト境界が必要で、`new` や `vector` が、保証できないため）。
+
+### 保存用の型（普通の float）
+
+| 型 | 中身 | 説明 |
+| --- | --- | --- |
+| **`XMFLOAT2`** / **`XMFLOAT3`** / **`XMFLOAT4`** | `x, y, (z, (w))` の `float` | 2、3、4 次元の値。**メンバ、配列、ファイル**に |
+| **`XMFLOAT4X4`** | `float[4][4]` | 4×4 の行列を、メモリに保存する |
+| `XMFLOAT3A` / `XMFLOAT4A` / `XMFLOAT4X4A` | 上と同じ、**16 バイト境界**に置く版 | アラインメントを保証できるとき、`Load` を速くする |
+| `XMINT3` / `XMUINT3` など | 整数のベクトル | |
+| `XMHALF2`、`XMUBYTE4` など | 圧縮した型 | 頂点データの圧縮 |
+
+## ロードとストア
+
+**保存用 ⇄ 計算用**の変換が、ロード（`XMLoad`）とストア（`XMStore`）です。
+
+```cpp
+#include <DirectXMath.h>
+using namespace DirectX;
+
+struct Particle {
+  XMFLOAT3 position;     // 保存用：メンバには、これ
+  XMFLOAT3 velocity;
+};
+
+void Update(Particle& p, float dt) {
+  XMVECTOR pos = XMLoadFloat3(&p.position);        // 保存用 → 計算用
+  XMVECTOR vel = XMLoadFloat3(&p.velocity);
+
+  pos = XMVectorMultiplyAdd(vel, XMVectorReplicate(dt), pos);   // pos += vel * dt
+
+  XMStoreFloat3(&p.position, pos);                  // 計算用 → 保存用
+}
+```
+
+| 関数 | 意味 |
+| --- | --- |
+| `XMLoadFloat3(const XMFLOAT3*)` | `XMFLOAT3` を `XMVECTOR` にする（w は 0） |
+| `XMStoreFloat3(XMFLOAT3*, XMVECTOR)` | `XMVECTOR` の x, y, z を、`XMFLOAT3` に書く |
+| `XMLoadFloat4` / `XMStoreFloat4` | 4 次元 |
+| `XMLoadFloat4x4` / `XMStoreFloat4x4` | 行列 |
+| `XMVectorSet(x, y, z, w)` | 値から `XMVECTOR` を作る |
+| `XMVectorReplicate(f)` | 4 つとも同じ値にする |
+| `XMVectorGetX(v)` / `XMVectorGetY(v)` | 成分を `float` で取り出す |
+| `XMVectorSetX(v, f)` | 成分を置き換える |
+
+**ロードとストアの回数を、少なく**します。ロード → 計算を連続 → ストア、と並べると速く、行き来が多いと遅くなります。
+
+## よく使う関数
+
+名前の規則: `XMVector3...`（3 次元ベクトル）、`XMVector4...`、`XMMatrix...`、`XMQuaternion...`、`XMPlane...`。
+
+### ベクトル
+
+| 関数 | 意味 |
+| --- | --- |
+| `XMVectorAdd(a, b)` / `XMVectorSubtract(a, b)` | 足し算 / 引き算 |
+| `XMVectorScale(v, s)` | スカラー倍 |
+| `XMVectorMultiply(a, b)` | 要素ごとの掛け算 |
+| `XMVectorMultiplyAdd(a, b, c)` | `a * b + c`（1 命令。FMA） |
+| **`XMVector3Length(v)`** / `XMVector3LengthSq(v)` | 長さ / 長さの 2 乗（結果は、全成分に入った `XMVECTOR`） |
+| **`XMVector3Normalize(v)`** | 正規化 |
+| **`XMVector3Dot(a, b)`** | 内積（結果は、全成分に入る） |
+| **`XMVector3Cross(a, b)`** | 外積 |
+| `XMVector3Reflect(v, n)` | 反射 |
+| `XMVectorLerp(a, b, t)` | 線形補間 |
+| `XMVector3Transform(v, M)` | 位置を、行列で変換する（w = 1 として） |
+| `XMVector3TransformNormal(v, M)` | 方向を、行列で変換する（平行移動なし、w = 0） |
+| `XMVector3TransformCoord(v, M)` | 位置を変換して、**w で割る**（射影のとき） |
+| `XMVector3Equal(a, b)` / `XMVector3NearEqual(a, b, eps)` | 等しい / ほぼ等しい |
+
+### 行列
+
+| 関数 | 意味 |
+| --- | --- |
+| `XMMatrixIdentity()` | 単位行列 |
+| `XMMatrixTranslation(x, y, z)` | 平行移動 |
+| `XMMatrixScaling(x, y, z)` | 拡大 |
+| `XMMatrixRotationX/Y/Z(angle)` | 軸まわりの回転（ラジアン） |
+| `XMMatrixRotationRollPitchYaw(pitch, yaw, roll)` | オイラー角による回転（引数の順に注意） |
+| `XMMatrixRotationQuaternion(q)` | クォータニオンから |
+| `XMMatrixMultiply(A, B)` | **A × B**（先に A、次に B を適用） |
+| `XMMatrixInverse(&det, M)` | 逆行列（第 1 引数は、行列式を受け取るポインタ。`nullptr` でよい） |
+| `XMMatrixTranspose(M)` | 転置 |
+| **`XMMatrixLookAtLH(eye, at, up)`** / `...RH(...)` | ビュー行列（左手系 / 右手系） |
+| **`XMMatrixPerspectiveFovLH(fovY, aspect, near, far)`** / `...RH(...)` | プロジェクション行列 |
+| `XMMatrixOrthographicLH(w, h, near, far)` / `...RH` | 正射影 |
+| `XMMatrixDecompose(&s, &r, &t, M)` | 行列を、拡大・回転・平行移動に分解 |
+
+### クォータニオン
+
+| 関数 | 意味 |
+| --- | --- |
+| `XMQuaternionIdentity()` | 回転なし |
+| `XMQuaternionRotationAxis(axis, angle)` | 軸と角度から |
+| `XMQuaternionRotationRollPitchYaw(pitch, yaw, roll)` | オイラー角から |
+| `XMQuaternionMultiply(q1, q2)` | 回転の合成 |
+| `XMQuaternionSlerp(q1, q2, t)` | 球面線形補間 |
+| `XMQuaternionNormalize(q)` | 正規化 |
+| `XMQuaternionInverse(q)` / `XMQuaternionConjugate(q)` | 逆回転 / 共役 |
+
+## 左手系と右手系
+
+DirectXMath は、**左手系（`LH`）と右手系（`RH`）の両方の関数を、持っています**。名前の末尾で選びます。
+
+| 作るもの | 左手系 | 右手系 |
+| --- | --- | --- |
+| ビュー行列 | `XMMatrixLookAtLH` | `XMMatrixLookAtRH` |
+| 透視投影 | `XMMatrixPerspectiveFovLH` | `XMMatrixPerspectiveFovRH` |
+| 正射影 | `XMMatrixOrthographicLH` | `XMMatrixOrthographicRH` |
+
+**どちらも使えるので、自分で決めて、全部をそろえます**。混ぜると、画面が反転するなどします（[座標系](coordinate-systems.md)）。**Direct3D 自体は、手系を決めていません**。決めるのは、ライブラリの関数と、モデルの向きです。このカテゴリは、**右手系・Y-up**に統一します（[SimpleMath](simplemath.md) の既定と同じ）。
+
+## 行ベクトル規約
+
+DirectXMath は、**行ベクトル**の規約です。ベクトルを、**行列の左から**掛けます（`v' = v * M`）。
+
+```cpp
+// ワールド行列：拡大 → 回転 → 平行移動 の順に、左から掛ける
+XMMATRIX world = XMMatrixScaling(2, 2, 2) * XMMatrixRotationY(angle) * XMMatrixTranslation(x, y, z);
+
+// 頂点の変換：頂点 × ワールド × ビュー × プロジェクション（左から順に）
+XMVECTOR clip = XMVector4Transform(local, world * view * proj);
+```
+
+| 項目 | 行ベクトル（DirectXMath） | 列ベクトル（glm、OpenGL の数式） |
+| --- | --- | --- |
+| 変換の式 | `v' = v * M` | `v' = M * v` |
+| 合成の順番 | **左から右**（`S * R * T`） | **右から左**（`T * R * S`） |
+| 平行移動の位置 | 行列の**4 行目** | 行列の**4 列目** |
+
+詳しくは [行列](matrices.md) を見てください。
+
+## アラインメントと、メンバにできない理由
+
+`XMVECTOR` は、**16 バイト境界**（アドレスが 16 の倍数）に置く必要があります。
+
+| 場面 | 問題 |
+| --- | --- |
+| スタックのローカル変数・引数 | コンパイラが、境界に置いてくれる（問題なし） |
+| **クラスのメンバ**にして、`new` でヒープに作る | `new` が、16 バイト境界を保証しない（C++17 前、32 ビット）。**クラッシュ**する |
+| **`std::vector<XMVECTOR>`** | 同上 |
+| `static` / グローバル | コンパイラが配置（問題なし） |
+
+**保存用の型（`XMFLOAT3`）をメンバにする**のが、安全で、一番簡単です。16 バイト境界が保証できるなら、`XMFLOAT3A` のように `A` が付く型を使うと、ロードが少し速くなります。
+
+## 関数の渡し方（呼び出し規約）
+
+`XMVECTOR` は、レジスタで渡すと速いので、**引数の書き方に、決まり**があります。
+
+```cpp
+// 引数は、FXMVECTOR / GXMVECTOR / HXMVECTOR / CXMVECTOR という別名で受ける
+XMVECTOR XM_CALLCONV Reflect(FXMVECTOR v, FXMVECTOR normal) {
+  return XMVector3Reflect(v, normal);
+}
+```
+
+| 別名 | 使う位置 |
+| --- | --- |
+| `FXMVECTOR` | 1〜3 番目の引数 |
+| `GXMVECTOR` | 4 番目 |
+| `HXMVECTOR` | 5、6 番目 |
+| `CXMVECTOR` | 7 番目以降（スタック渡し） |
+| `FXMMATRIX` / `CXMMATRIX` | 行列（1 番目は `FXMMATRIX`、以降は `CXMMATRIX`） |
+| **`XM_CALLCONV`** | 呼び出し規約（`__vectorcall`）。関数の戻り値の型の後に付ける |
+
+**普通は気にしなくて**よい（SimpleMath を使えば、隠れます）。自分で DirectXMath の関数を書くときに、必要になります。
+
+## 速さの特徴
+
+| 項目 | 特徴 |
+| --- | --- |
+| **SIMD で計算** | 1 つのベクトル演算が、1〜数命令。`float` 3 つを、1 回で |
+| **ロード・ストアのコスト** | メモリとレジスタの行き来。**ループの中で、計算を連続**させると速い |
+| **インライン化される** | ほとんどの関数が、`inline`。最適化（`/O2`）で、効果が出る |
+| **`/arch:AVX2`** | AVX 命令を使う（対応 CPU のみ）。`_XM_NO_INTRINSICS_` を定義すると、SIMD を使わない版 |
+| **`XMVector3Length` の結果** | 全成分に入った `XMVECTOR`。`float` が欲しいときは、`XMVectorGetX` で取り出す |
+
+`/fp:fast` を付けると、さらに速くなることがあります（結果が少し変わります、[コンパイラの最適化](../optimize/compiler.md)）。
+
+## DirectXMath と SimpleMath の使い分け
+
+| 状況 | 選ぶもの |
+| --- | --- |
+| **普通のゲームのコード**（更新、カメラ、ゲームの仕組み） | **SimpleMath**（[SimpleMath](simplemath.md)）。書きやすい |
+| **毎フレーム何万回も計算する**（パーティクル、スキニング、当たり判定の前処理） | **DirectXMath**（`XMVECTOR`）を直接。ロード・ストアを最小に |
+| **DirectXMath の関数が必要**（SimpleMath にない） | SimpleMath の型は、**`XMVECTOR` / `XMMATRIX` に、自動で変換**できる |
+
+## よくあるミス
+
+??? failure "`XMVECTOR` を、クラスのメンバにして、クラッシュする"
+    16 バイト境界が、保証されません。メンバは `XMFLOAT3`（保存用）にします。
+
+??? failure "ロードとストアを、何度も行き来して、遅くなる"
+    ロードして、計算を続けて、最後に 1 回ストアします。途中でストアして、またロードするのは、無駄です。
+
+??? failure "左手系と右手系の関数を混ぜる"
+    `XMMatrixLookAtLH` と `XMMatrixPerspectiveFovRH` を混ぜると、画面が反転したり、何も映らなくなります。LH か RH に統一します。
+
+??? failure "行列の掛け順を、列ベクトルの感覚で書く"
+    DirectXMath は行ベクトルなので、**`S * R * T`**（拡大 → 回転 → 平行移動）です。`T * R * S` と書くと、順序が逆になります。
+
+??? failure "`XMVector3Length` の結果を、`float` として使う"
+    結果は `XMVECTOR` です。`float` にするには、`XMVectorGetX(...)` で取り出します。
+
+??? failure "`XMMatrixRotationRollPitchYaw` の引数の順番を間違える"
+    引数は `(pitch, yaw, roll)` の順です（X 軸、Y 軸、Z 軸）。名前の「Roll Pitch Yaw」の順ではありません。
+
+## これだけ覚える
+
+!!! abstract "まとめ"
+    - [x] <strong>計算用 `XMVECTOR` / `XMMATRIX`</strong>と、<strong>保存用 `XMFLOAT3` / `XMFLOAT4X4`</strong> を使い分ける
+    - [x] <strong>メンバには保存用</strong>。計算は<strong>ロード → 計算 → ストア</strong>
+    - [x] <strong>行ベクトル規約</strong>（`v * M`、掛け順は左から右）。<strong>`LH` / `RH` を統一</strong>
+    - [x] 普段は <strong>SimpleMath</strong>。速さが必要な所だけ DirectXMath を直接
+    - [x] Visual Studio に<strong>標準で入っている</strong>。ヘッダだけで使える
+
+## 関連ページ
+
+- [3D ゲーム（目次）](index.md)
+- [SimpleMath](simplemath.md)
+- [行列](matrices.md)
+- [SIMD（ベクトル化）](../optimize/simd.md)
+- [DirectXMath（Microsoft Learn）](https://learn.microsoft.com/ja-jp/windows/win32/dxmath/directxmath-portal)

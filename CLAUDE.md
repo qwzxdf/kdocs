@@ -60,6 +60,7 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
 - **メモリ**（`docs/stl/memory/`）: アロケータ、pmr、new / delete、C 由来の malloc・cstring
 - **最適化**（`docs/optimize/`）: 計測 → 原因 → 直す の進め方と、ゲームで効く技術。設計（変更しやすさ）とは別カテゴリ。「速さ・軽さを、計測した数字で判断する」話だけを書く
 - **文字コード**（`docs/encoding/`）: UTF-8 統一、Windows API の A / W、変換、ソース・ファイルの強制（`.editorconfig`・`.gitattributes`・`/we4828`・CI）、文字化け。clang-format は文字コードを強制できない（改行と整形だけ）と、正確に書く
+- **3D ゲーム**（`docs/3d/`）: 数学ライブラリは **SimpleMath**（DirectX Tool Kit）、DirectXMath と SimpleMath の解説は別ページ。**描画 API は DirectX 11**（HLSL は SM5）。座標系は右手系・Y-up、前は −Z、行ベクトル（`v * M`、掛け順は左から右）、三角形は CCW が表、角度はラジアン
 - **設計**（`docs/design/`）: `foundations/`（設計の基礎）、`patterns/`（パターン。ステートマシン・イベント・ECS・オブジェクトプールもここ）、`practice/`（実践）の 3 つ。新しいパターンは `patterns/index.md` の早見表にも足す
 - **設計には重要度（必須・よく使う…）を付けない**（一覧表の列にも、ページ上部のバッジにも）
 - **設計（書き方）**: 関数の解説ではないので、「悪い例 → 問題 → 良い例 → いつ使うか」の形

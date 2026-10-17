@@ -100,7 +100,7 @@ std::erase_if(bullets, [](const Bullet& b) { return b.dead; });
 | 「一番近い敵」だけが欲しい | `sort` ではなく、`min_element`（O(n)）や `nth_element` |
 | 上位 10 個だけ欲しい | `partial_sort`、または `priority_queue`（[partial_sort](../stl/algorithms/partial_sort.md)） |
 
-### 5. 同じ計算を、毎フレーム繰り返す
+### 5. 同じ計算を、毎フレーム繰り返す {#dirty}
 
 結果が**変わらないのに**、毎フレーム計算していないか見直します。
 

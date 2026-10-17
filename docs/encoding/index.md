@@ -25,7 +25,7 @@
 
 | ページ | 内容 |
 | --- | --- |
-| [文字コードの基礎](unicode-basics.md) | Unicode、UTF-8 / UTF-16 / Shift_JIS、BOM、改行、文字数と幅 |
+| [文字コードの基礎](unicode-basics.md) | ASCII、Unicode、UTF-8 / UTF-16 / Shift_JIS、BOM、改行、文字数と幅 |
 | [C++ の文字型と文字列型](string-types.md) | `char`、`wchar_t`、`char8_t`、`string`、`wstring`、リテラル |
 | [文字コードの変換](conversion.md) | UTF-8 ⇔ UTF-16 ⇔ Shift_JIS。Win32 の関数、ライブラリ |
 | [Windows API と文字コード](windows-api.md) | A 版と W 版、`UNICODE`、`wmain`、UTF-8 マニフェスト、どちらを要求されるか |
