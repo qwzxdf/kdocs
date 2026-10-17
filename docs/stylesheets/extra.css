@@ -35,6 +35,8 @@
   border: 1.5px solid currentColor;
 }
 
+.rank-inline { display: none; }
+
 .rank-must { color: var(--kd-must); }
 .rank-often { color: var(--kd-often); }
 .rank-sometimes { color: var(--kd-sometimes); }
@@ -664,6 +666,13 @@
   .md-typeset table:not([class]) td:first-child {
     background: rgba(128, 128, 128, 0.12);
     font-weight: 600;
+  }
+  .md-typeset table:not([class]) td[data-label="重要度"] {
+    display: none;
+  }
+  .md-typeset table:not([class]) .rank-inline {
+    display: inline-block;
+    margin-left: 0.4em;
   }
   .md-typeset table:not([class]) td[data-label]:not(:first-child)::before {
     content: attr(data-label);

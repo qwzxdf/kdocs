@@ -11,6 +11,14 @@
             cell.dataset.label = heads[i];
           }
         });
+        const rank = row.querySelector('td[data-label="重要度"] .rank');
+        const first = row.firstElementChild;
+        if (rank && first && !first.querySelector(".rank-inline")) {
+          const badge = rank.cloneNode(true);
+          badge.classList.add("rank-inline");
+          first.appendChild(document.createTextNode(" "));
+          first.appendChild(badge);
+        }
       });
     });
   }
