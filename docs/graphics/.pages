@@ -5,4 +5,7 @@ nav:
   - 間接光（GI）: gi
   - 反射: reflections
   - ポストプロセス: postprocess
+  - 半透明: translucency
+  - 水: water
+  - 地形: terrain
   - ...
