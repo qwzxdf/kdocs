@@ -1,17 +1,14 @@
 import io
 import math
 import os
-import random
 import sys
-
-import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from storyboard import Hex, Scene, ReplaceBetween  # noqa: E402
 
 W, H = 960, 540
 DURATION, HOLD = 12.0, 1.5
-GRID_X, GRID_Y = 48, 27
+GRID_X, GRID_Y = 28, 16
 GRID_PIXELS = 416.0
 CELL = GRID_PIXELS / GRID_X
 SCALE = GRID_X / 16.0
@@ -35,57 +32,13 @@ RED = "#e5484d"
 
 
 def FindSpheres():
-    rng = random.Random(11)
-    cells = np.array([(x + 0.5, y + 0.5) for y in range(GRID_Y) for x in range(GRID_X)])
-    area_scale = SCALE * SCALE
-
-    def Masks(spheres):
-        return [((cells[:, 0] - sx) ** 2 + (cells[:, 1] - sy) ** 2) <= r * r for sx, sy, r in spheres]
-
-    def Score(spheres):
-        masks = Masks(spheres)
-        union = np.zeros(len(cells), dtype=bool)
-        owner = -np.ones(len(cells), dtype=int)
-        for k, m in enumerate(masks):
-            union |= m
-            owner[m] = k
-        visible = [int((owner == k).sum()) for k in range(SPHERE_COUNT)]
-        total = sum(int(m.sum()) for m in masks)
-        penalty = (len(cells) - int(union.sum())) * 2.0
-        penalty += sum(max(0, 7 * area_scale - v) * 0.7 + max(0, v - 28 * area_scale) * 0.2 for v in visible)
-        penalty += abs(total - 335 * area_scale) * 0.05
-        centers = [(s[0], s[1]) for s in spheres]
-        for i in range(SPHERE_COUNT):
-            for j in range(i):
-                d = math.dist(centers[i], centers[j])
-                if d < 2.2 * SCALE:
-                    penalty += (2.2 * SCALE - d) * 4.0
-        return penalty
-
-    best = None
-    for _restart in range(30):
-        spheres = [(rng.uniform(1.0 * SCALE, 15.0 * SCALE), rng.uniform(0.8 * SCALE, 8.2 * SCALE), rng.uniform(2.3 * SCALE, 3.8 * SCALE))
-                   for _ in range(SPHERE_COUNT)]
-        score = Score(spheres)
-        for _ in range(4000):
-            k = rng.randrange(SPHERE_COUNT)
-            sx, sy, r = spheres[k]
-            cand = list(spheres)
-            cand[k] = (min(15.5 * SCALE, max(0.5 * SCALE, sx + rng.gauss(0, 0.8 * SCALE))),
-                       min(8.5 * SCALE, max(0.5 * SCALE, sy + rng.gauss(0, 0.8 * SCALE))),
-                       min(3.9 * SCALE, max(2.3 * SCALE, r + rng.gauss(0, 0.2 * SCALE))))
-            cs = Score(cand)
-            if cs <= score:
-                spheres, score = cand, cs
-            if score == 0:
-                break
-        if best is None or score < best[0]:
-            best = (score, spheres)
-        if score == 0:
-            break
-    if best[0] > 0:
-        raise RuntimeError("no layout, best penalty %.1f" % best[0])
-    return best[1]
+    return [
+        (5.0, 3.8, 3.2), (7.0, 4.8, 3.0),
+        (22.0, 3.6, 3.2), (24.0, 4.6, 2.8),
+        (12.5, 7.4, 3.3), (15.0, 8.0, 3.0),
+        (5.6, 12.0, 3.0), (7.6, 10.4, 2.8),
+        (23.0, 12.0, 3.2), (21.0, 10.2, 2.8),
+    ]
 
 
 def ShadeColors(sphere, gx, gy):
@@ -175,7 +128,6 @@ def Build():
 
     flat_total = sum(len(c) for c in cover)
     visible_total = len(owner)
-    assert visible_total == GRID_X * GRID_Y
 
     forward_counter, forward_waste = [], []
     forward_count, forward_waste_count = 0, 0
@@ -307,18 +259,17 @@ def Build():
     for i in range(lights_n):
         s_i = pass2_start + pass2_slot * i
         t1 = s_i + pass2_slot if i < lights_n - 1 else deferred_result_t
-        caption_d.append((s_i, t1, "② Pass 2:全ピクセルにライトを1つずつ(%d/%d)" % (i + 1, lights_n)))
+        caption_d.append((s_i, t1, "② Pass 2:絵のあるピクセルにライトを1つずつ(%d/%d)" % (i + 1, lights_n)))
     scene.TextStack(root, PANEL_X["D"], 412, caption_d, size=15, fill=TEXT)
     sub_d = [(pass1_start, pass2_start, "1マスに 色 | 法線 | 深度 の3種類を保存"),
-             (pass2_start, deferred_result_t, "物体の数に関係なく、画面全体を1回なぞる × %d ライト" % lights_n)]
+             (pass2_start, deferred_result_t, "物体の数に関係なく、画面を1回なぞる × %d ライト" % lights_n)]
     scene.TextStack(root, PANEL_X["D"], 436, sub_d, size=15, fill="#7c3aed")
 
     group_total = 8
     group_count = {}
-    for gx in range(GRID_X):
-        for gy in range(GRID_Y):
-            gidx = (gx + gy) * group_total // diag
-            group_count[gidx] = group_count.get(gidx, 0) + 1
+    for (gx, gy) in owner:
+        gidx = (gx + gy) * group_total // diag
+        group_count[gidx] = group_count.get(gidx, 0) + 1
     for i, light in enumerate(LIGHTS):
         line = root.add("line", x1=PANEL_X["D"], y1=GRID_TOP, x2=PANEL_X["D"], y2=R(GRID_TOP + GRID_Y * CELL), stroke=Hex([v * 255 for v in light["rgb"]]),
                         stroke_width=5, opacity=0, clip_path="url(#fd-clip-d)")
@@ -331,25 +282,25 @@ def Build():
         line.Set(s_i + wave_len + 0.01, "opacity", 0)
         lamp_d[i].Set(s_i, "opacity", 1)
         lamp_d[i].Set(s_i + pass2_slot, "opacity", 0.22)
-        scene.Note(s_i, "Deferred", "Pass 2:ライト %s が画面 %s マスをなぞる(ここまで %s 回)" % (light["name"], "{:,}".format(GRID_X * GRID_Y), "{:,}".format((i + 1) * GRID_X * GRID_Y)))
+        scene.Note(s_i, "Deferred", "Pass 2:ライト %s が画面 %s マスをなぞる(ここまで %s 回)" % (light["name"], "{:,}".format(visible_total), "{:,}".format((i + 1) * visible_total)))
         for gidx in sorted(group_count):
             tt = s_i + wave_len * ((gidx + 0.5) / group_total)
             deferred_count += group_count[gidx]
             deferred_counter.append((tt, deferred_count))
     deferred_total = deferred_count
-    assert deferred_total == GRID_X * GRID_Y * lights_n
+    assert deferred_total == visible_total * lights_n
 
     scene.Text(root, PANEL_X["D"], 358, "ピクセル計算:", size=20)
     scene.Counter(root, PANEL_X["D"] + 130, 360, deferred_counter, size=26)
     scene.TextStack(root, PANEL_X["D"], 388, [(pass1_start, pass2_start, "いまは材質を貯めているだけ(光の計算はまだ 0)"),
-                                              (pass2_start, deferred_result_t, "光の計算は画面のマス数が上限")], size=15, weight=500, fill="#64748b")
+                                              (pass2_start, deferred_result_t, "光の計算は画面のマス数(%s)が上限" % "{:,}".format(GRID_X * GRID_Y))], size=15, weight=500, fill="#64748b")
 
     box = root.add("g", opacity=0)
     box.Show(deferred_result_t)
     box.add("rect", x=PANEL_X["D"], y=398, width=416, height=128, rx=12, fill="#f5f3ff", stroke="#7c3aed", stroke_width=2.5)
     scene.Text(box, PANEL_X["D"] + 16, 428, "③ ライティングは画面ピクセルごとに1回", size=19, fill="#4c1d95")
-    scene.Text(box, PANEL_X["D"] + 16, 458, "%s px × ライト%d = %s回" % ("{:,}".format(GRID_X * GRID_Y), lights_n, "{:,}".format(deferred_total)), size=17, fill="#4c1d95")
-    scene.Text(box, PANEL_X["D"] + 16, 490, "物体が%d個でも100個でも、この回数は変わらない" % SPHERE_COUNT, size=17, fill="#4c1d95")
+    scene.Text(box, PANEL_X["D"] + 16, 458, "%s px × ライト%d = %s回" % ("{:,}".format(visible_total), lights_n, "{:,}".format(deferred_total)), size=17, fill="#4c1d95")
+    scene.Text(box, PANEL_X["D"] + 16, 490, "物体が%d個でも100個でも、最大 %s px × %d まで" % (SPHERE_COUNT, "{:,}".format(GRID_X * GRID_Y), lights_n), size=16, fill="#4c1d95")
     scene.Text(box, PANEL_X["D"] + 16, 514, "(代わりに G-Buffer の書き込みと読み込みが増える)", size=13, weight=500, fill="#64748b")
     scene.Note(deferred_result_t, "Deferred", "結果ボックス:計算 %s 回" % "{:,}".format(deferred_total))
 
