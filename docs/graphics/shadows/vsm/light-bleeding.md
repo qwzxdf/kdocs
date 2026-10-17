@@ -1,10 +1,10 @@
 ---
-title: 光漏れ
+title: Light Bleeding
 tags:
   - 描画
 ---
 
-# 光漏れ
+# Light Bleeding
 
 **VSM は、複数の物体が重なる影で、本来は影の所に、光が漏れて見えます**。**これが光漏れ（ライト ブリーディング）**で、**VSM の最大の欠点**です。**チェビシェフの不等式は、確率の上限しか与えないので、複雑な分布では、影を薄く評価しすぎる**ためです。このページでは、**光漏れが起きる理由・見え方・簡単な対策（影の割合の再マッピング）**を説明します。
 
@@ -101,6 +101,6 @@ float ReduceLightBleeding(float p_max, float amount) {
 
 ## 関連ページ
 
-- [VSM と ESM・MSM](index.md)
+- [VSM, ESM and MSM](index.md)
 - [EVSM](evsm.md)
 - [MSM](msm.md)

@@ -1,10 +1,10 @@
 ---
-title: ノイズ・バンディング・ちらつき
+title: Noise, Banding and Flicker
 tags:
   - 描画
 ---
 
-# ノイズ・バンディング・ちらつき
+# Noise, Banding and Flicker
 
 **AO は、ノイズが残る・縞（バンディング）が見える・ちらつく**ことが**あります**。**サンプル数・ノイズ パターン・フィルタ・時間蓄積の設定**で**変わります**。このページでは、**ノイズ・バンディング・ちらつき・残像の原因と対策**を説明します。
 
@@ -47,6 +47,6 @@ tags:
 
 ## 関連ページ
 
-- [AO のアーティファクト](index.md)
-- [AO のフィルタ](../filtering/index.md)
-- [時間蓄積](../filtering/temporal.md)
+- [AO Artifacts](index.md)
+- [AO Filtering](../filtering/index.md)
+- [Temporal Accumulation](../filtering/temporal.md)

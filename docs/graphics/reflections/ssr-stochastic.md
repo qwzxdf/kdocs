@@ -1,10 +1,10 @@
 ---
-title: 確率的 SSR
+title: Stochastic SSR
 tags:
   - 描画
 ---
 
-# 確率的 SSR
+# Stochastic SSR
 
 [SSR の基礎](ssr-basics/index.md)と [Hi-Z SSR](ssr-hiz.md)は、**反射方向 R の、1 本のレイ**を追いました。これは**完全な鏡**の反射です。**粗い面**の反射は、**R の周りのさまざまな方向の景色を、BRDF の重みで平均**したものでした。**確率的 SSR**（Stochastic SSR）は、**BRDF の分布に従って、画素ごとにランダムな方向のレイ**を 1 本だけ飛ばし、**近くの画素のレイの結果を再利用し、時間方向にも平均**して、**ぼけた反射を物理的に正しく**得ます。2015 年に Frostbite の Stachowiak が発表した方式が、現在の SSR の標準的な作り方です。
 
@@ -18,7 +18,7 @@ tags:
 
 ## 発想：粗い反射をモンテカルロ法で
 
-鏡面の出射光は、次の積分でした（[反射](index.md)）。
+鏡面の出射光は、次の積分でした（[Reflections](index.md)）。
 
 <div class="formula">L_o = ∫ f_spec(ω_i, ω_o) · L_i(ω_i) · (n·ω_i) dω_i</div>
 
@@ -294,9 +294,9 @@ float3 specular = ssr_color * (F0 * brdf.x + brdf.y);
 
 ## 関連ページ
 
-- [反射](index.md)
+- [Reflections](index.md)
 - [Hi-Z SSR](ssr-hiz.md)
-- [SSR のフォールバックと合成](ssr-fallback.md)
+- [SSR Fallback and Compositing](ssr-fallback.md)
 - [レイトレース反射](rt-reflections/index.md)
 - [PBR](../../3d/pbr.md)
-- [AO のフィルタ](../ao/filtering/index.md)
+- [AO Filtering](../ao/filtering/index.md)

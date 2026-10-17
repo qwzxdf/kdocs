@@ -1,10 +1,10 @@
 ---
-title: 光の行列
+title: The Light Matrix
 tags:
   - 描画
 ---
 
-# 光の行列
+# The Light Matrix
 
 **シャドウ マップを作るには、「光から見た世界」を描く**必要があり、そのための**ビュー行列と射影行列（光の行列）**を**作ります**。**光の種類で、射影が変わります**：**太陽（平行光）は正射影、スポットライトは透視投影、点光源はキューブ マップの 6 方向**です。このページでは、**それぞれの行列の作り方・範囲の決め方・点光源の 6 方向**を説明します。
 
@@ -64,7 +64,7 @@ Matrix LightViewProjection(const Vector3& light_dir, const Vector3& center, floa
 
 ### 点光源：キューブマップ
 
-**全方向**に光が出るので<strong>6 方向（キューブマップ）</strong>で撮ります（[点光源・スポットライトの影](../local-lights/index.md)）。
+**全方向**に光が出るので<strong>6 方向（キューブマップ）</strong>で撮ります（[Point and Spot Light Shadows](../local-lights/index.md)）。
 
 ## よくあるミス
 
@@ -84,6 +84,6 @@ Matrix LightViewProjection(const Vector3& light_dir, const Vector3& center, floa
 
 ## 関連ページ
 
-- [シャドウ マップの基礎](index.md)
-- [深度を描く](render-depth.md)
-- [カスケード シャドウ マップ](../cascaded.md)
+- [Shadow Map Basics](index.md)
+- [Rendering Depth](render-depth.md)
+- [Cascaded Shadow Maps (CSM)](../cascaded.md)

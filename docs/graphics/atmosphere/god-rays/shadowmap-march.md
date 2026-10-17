@@ -1,10 +1,10 @@
 ---
-title: シャドウ マップでレイマーチ
+title: Shadow Map Raymarching
 tags:
   - 描画
 ---
 
-# シャドウ マップでレイマーチ
+# Shadow Map Raymarching
 
 **視線に沿って進み、各点で「太陽の光が届くか」をシャドウ マップで判定**して、**光の量を足し合わせる**のが**正確な方式**です。**太陽が画面外でも使えます**。このページでは、**シャドウ マップを使ったレイマーチ**を説明します。
 
@@ -15,7 +15,7 @@ tags:
     - **ステップ数が多いと重いので、ジッタ＋時間蓄積**。
 
 ## シャドウ マップでレイマーチ
-**正確な方法**は**視線に沿ってサンプル点を歩き、各点が日向か日陰かをシャドウ マップで判定して、日向の点の寄与を足す**ことです。**ボリューメトリック フォグ（[ボリューメトリック フォグ](../volumetric-fog/index.md)）と同じ原理**です。
+**正確な方法**は**視線に沿ってサンプル点を歩き、各点が日向か日陰かをシャドウ マップで判定して、日向の点の寄与を足す**ことです。**ボリューメトリック フォグ（[Volumetric Fog](../volumetric-fog/index.md)）と同じ原理**です。
 
 ```hlsl
 float3 VolumetricGodRays(float3 camera_pos, float3 pixel_world_pos, float2 pixel_coord) {
@@ -78,5 +78,5 @@ float3 VolumetricGodRays(float3 camera_pos, float3 pixel_world_pos, float2 pixel
 
 ## 関連ページ
 
-- [ゴッド レイ](index.md)
+- [God Rays](index.md)
 - [ボリュームを使う](volume.md)

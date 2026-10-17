@@ -1,10 +1,10 @@
 ---
-title: インスタンシング
+title: Instancing
 tags:
   - 描画
 ---
 
-# インスタンシング
+# Instancing
 
 **草は、同じメッシュを何十万個も描きます**。**インスタンシングは、1 回の描画命令で、同じメッシュを、位置を変えて、大量に描く**方法で、**描画命令の数を減らせます**。このページでは、**インスタンシング**を説明します。
 
@@ -69,5 +69,5 @@ VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
 
 ## 関連ページ
 
-- [植生](index.md)
+- [Vegetation](index.md)
 - [カリング](culling.md)

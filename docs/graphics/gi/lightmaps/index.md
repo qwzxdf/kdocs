@@ -1,10 +1,10 @@
 ---
-title: ライトマップ
+title: Lightmaps
 tags:
   - 描画
 ---
 
-# ライトマップ
+# Lightmaps
 
 **ライトマップは、静的なシーンの間接光（と影）を、事前に計算（ベイク）して、テクスチャに保存する手法**です。**実行時は、テクスチャを読むだけ**なので、**非常に軽く、品質も高い**です。ただし、**光や物が動くと使えません**。このセクションでは、**原理・ライトマップ UV・ベイクの流れ・方向情報・鏡面・動く物体・動的ライトとの関係**を、**1 つずつ別のページ**で説明します。
 
@@ -36,9 +36,9 @@ float3 indirect_diffuse = albedo * irradiance;
 | ページ | 内容 |
 | --- | --- |
 | [ライトマップ UV](uv2.md) | 重ならない、専用の UV |
-| [ベイクの流れ](baking.md) | 事前計算の手順・方向情報 |
-| [鏡面と動く物体](dynamic-objects.md) | 鏡面は別・動く物体との併用 |
-| [動的ライトとの関係](dynamic-lights.md) | 静的と動的を組み合わせる |
+| [Baking Workflow](baking.md) | 事前計算の手順・方向情報 |
+| [Specular and Dynamic Objects](dynamic-objects.md) | 鏡面は別・動く物体との併用 |
+| [Lightmaps and Dynamic Lights](dynamic-lights.md) | 静的と動的を組み合わせる |
 
 ## これだけ覚える
 
@@ -55,5 +55,5 @@ float3 indirect_diffuse = albedo * irradiance;
 ## 関連ページ
 
 - [GI](../index.md)
-- [プローブ GI](../probes/index.md)
+- [Probe GI](../probes/index.md)
 - [GI の比較](../comparison.md)

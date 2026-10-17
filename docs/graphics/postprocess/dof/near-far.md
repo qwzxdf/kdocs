@@ -1,10 +1,10 @@
 ---
-title: 前景と背景
+title: Foreground and Background
 tags:
   - 描画
 ---
 
-# 前景と背景
+# Foreground and Background
 
 **DOF の難しさは、「ピントの手前（前景）」と「奥（背景）」で、ぼけ方の理屈が違う**ことです。**背景のボケはピントが合った物の「後ろ」にあるので手前の物を隠さない**ですが、**前景のボケはピントが合った物の「手前」にあるのでその物の上に広がってかぶさります**。**これを分けて処理しないと、ボケた前景の輪郭がきつくなったり、ピント内の物に背景がにじんだり**します。このページでは、**前景と背景の違い・別々に処理する方法・近傍の最大 CoC（タイル）・合成・よくある破綻**を説明します。
 
@@ -233,7 +233,7 @@ void TileMaxCoc(uint3 id : SV_DispatchThreadID, uint3 group_id : SV_GroupID, uin
 
 ## 関連ページ
 
-- [被写界深度（DOF）](index.md)
-- [錯乱円（CoC）](coc.md)
-- [ギャザー方式](gather.md)
-- [スキャッター方式](scatter.md)
+- [Depth of Field (DOF)](index.md)
+- [Circle of Confusion (CoC)](coc.md)
+- [Gather Method](gather.md)
+- [Scatter Method](scatter.md)

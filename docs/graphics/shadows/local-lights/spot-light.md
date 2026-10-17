@@ -1,10 +1,10 @@
 ---
-title: スポットライト
+title: Spot Lights
 tags:
   - 描画
 ---
 
-# スポットライト
+# Spot Lights
 
 **スポットライトは、円錐状に光を照らす**ので、**光の位置から円錐の中心方向を向いた、透視投影の 1 枚のシャドウ マップ**で**影を作れます**。**平行光の正射影より、距離で解像度が変わる（近いほど細かい）**ことに**注意**します。このページでは、**スポットライトのシャドウ マップの作り方・視野角・解像度**を説明します。
 
@@ -48,6 +48,6 @@ XMMATRIX proj = XMMatrixPerspectiveFovLH(outer_cone_angle * 2.0f, 1.0f, near_z, 
 
 ## 関連ページ
 
-- [点光源・スポットライトの影](index.md)
-- [点光源：キューブ マップ](point-cubemap.md)
-- [光の行列](../shadow-map-basics/light-matrix.md)
+- [Point and Spot Light Shadows](index.md)
+- [Point Lights: Cube Maps](point-cubemap.md)
+- [The Light Matrix](../shadow-map-basics/light-matrix.md)

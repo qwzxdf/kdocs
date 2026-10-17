@@ -1,10 +1,10 @@
 ---
-title: 法線の計算
+title: Computing Normals
 tags:
   - 描画
 ---
 
-# 法線の計算
+# Computing Normals
 
 **波の見た目は、法線で決まります**。**頂点の位置を動かしても、法線を更新しないと、光の当たり方が変わらず、のっぺりします**。**解析的に（式を微分して）法線を求める**方法と、**法線マップを重ねて細かい凹凸を足す**方法があります。このページでは、**法線の求め方**を説明します。
 
@@ -104,6 +104,6 @@ float3 final_normal = normalize(float3(wave_normal.xz + detail.xy * detail_stren
 
 ## 関連ページ
 
-- [水面の波](index.md)
-- [Gerstner 波](gerstner.md)
-- [水の質感](../shading/index.md)
+- [Water Waves](index.md)
+- [Gerstner Waves](gerstner.md)
+- [Water Shading](../shading/index.md)

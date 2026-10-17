@@ -1,10 +1,10 @@
 ---
-title: 草の形
+title: Grass Shape
 tags:
   - 描画
 ---
 
-# 草の形
+# Grass Shape
 
 **草は、細長い板ポリを、数枚、交差させて作るのが基本**です。**1 枚の草を、少ない頂点で、それらしく見せる工夫**が要ります。このページでは、**草の形**を説明します。
 
@@ -57,5 +57,5 @@ local.y *= lerp(1.0, 0.9, bend);
 
 ## 関連ページ
 
-- [植生](index.md)
-- [風](wind.md)
+- [Vegetation](index.md)
+- [Wind](wind.md)

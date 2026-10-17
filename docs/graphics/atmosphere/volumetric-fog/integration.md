@@ -1,10 +1,10 @@
 ---
-title: ③ 積分と ④ 適用
+title: Steps 3 and 4: Integration and Application
 tags:
   - 描画
 ---
 
-# ③ 積分と ④ 適用
+# Steps 3 and 4: Integration and Application
 
 **注入した光を、視線に沿って奥から手前へ足し合わせます（積分）**。**その結果を、シーンの色に合成（適用）します**。このページでは、**積分と適用**を説明します。
 
@@ -90,6 +90,6 @@ float3 final_color = scene_color * fog.a + fog.rgb;
 
 ## 関連ページ
 
-- [ボリューメトリック フォグ](index.md)
+- [Volumetric Fog](index.md)
 - [光の注入](injection.md)
 - [時間蓄積](temporal.md)

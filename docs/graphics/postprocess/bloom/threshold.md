@@ -1,10 +1,10 @@
 ---
-title: しきい値
+title: Threshold
 tags:
   - 描画
 ---
 
-# しきい値
+# Threshold
 
 **ブルームの最初の工程**は、<strong>「どこを光らせるか」を決める</strong>ことです。**画面のうち、一定より明るい部分だけを取り出す**のが**しきい値（スレッショルド）方式**です。**暗い物がにじんで画面全体がぼんやりする**のを**防げます**。このページでは、**単純なしきい値・ソフト ニー（滑らかな立ち上がり）・しきい値なしの方式・HDR だからできること・より良いやり方**を説明します。
 
@@ -167,7 +167,7 @@ float3 ThresholdSoft(float3 color, float threshold, float knee) {
 
 ## 関連ページ
 
-- [ブルーム](index.md)
-- [ダウンサンプルとミップ チェーン](downsample.md)
-- [合成と強さ](composite.md)
-- [露出](../tonemapping/exposure.md)
+- [Bloom](index.md)
+- [Downsampling and the Mip Chain](downsample.md)
+- [Compositing and Intensity](composite.md)
+- [Exposure](../tonemapping/exposure.md)

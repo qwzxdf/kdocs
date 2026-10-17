@@ -88,7 +88,7 @@ float3 DualUp(Texture2D src, SamplerState linear_clamp, float2 uv, float2 half_p
 | --- | --- |
 | **① ダウン × N 段** | **各段、5 タップで半分に縮小**。**各段の結果を保存** |
 | **② アップ × N 段** | **最小の段から、8 タップで拡大**。**1 つ上の段に加算ブレンドで足す** |
-| **③ 最後に元へ足す** | **最上段の結果を強さを掛けて、元の絵に足す**（[合成と強さ](composite.md)） |
+| **③ 最後に元へ足す** | **最上段の結果を強さを掛けて、元の絵に足す**（[Compositing and Intensity](composite.md)） |
 
 <strong>全部で各段 1 パス × 2（ダウン・アップ）</strong>。**ガウスのように横・縦の 2 パスを各段で行う必要がありません**。
 
@@ -234,7 +234,7 @@ float3 DualUp(Texture2D src, SamplerState linear_clamp, float2 uv, float2 half_p
     **段数を増やして広げる**。**`offset` は 1〜2 程度**。
 
 ??? failure "最上段で足す強さが強すぎて、全体がぼんやりする"
-    **強さを下げる**（[合成と強さ](composite.md)）。
+    **強さを下げる**（[Compositing and Intensity](composite.md)）。
 
 ??? failure "四角いにじみが目立つ"
     **段数が少ない**。**4 段以上、またはガウスと併用**。
@@ -255,7 +255,7 @@ float3 DualUp(Texture2D src, SamplerState linear_clamp, float2 uv, float2 half_p
 
 ## 関連ページ
 
-- [ブルーム](index.md)
-- [ダウンサンプルとミップ チェーン](downsample.md)
-- [ガウスぼかし](gaussian.md)
-- [合成と強さ](composite.md)
+- [Bloom](index.md)
+- [Downsampling and the Mip Chain](downsample.md)
+- [Gaussian Blur](gaussian.md)
+- [Compositing and Intensity](composite.md)

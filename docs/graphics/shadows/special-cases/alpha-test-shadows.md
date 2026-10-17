@@ -1,10 +1,10 @@
 ---
-title: アルファ テストの影
+title: Alpha-Tested Shadows
 tags:
   - 描画
 ---
 
-# アルファ テストの影
+# Alpha-Tested Shadows
 
 **葉や柵・金網のように、テクスチャのアルファで形を切り抜く物**は、**シャドウ マップを描くときも、同じアルファ テストが必要**です。**さもないと、四角い板の影**が**落ちます**。**ピクセル シェーダーが必要になり、深度専用パスが少し重くなる**ので、**工夫が要ります**。このページでは、**アルファ テストの影の描き方・コスト・ミップの罠・ハッシュド アルファ**を説明します。
 
@@ -51,6 +51,6 @@ void ShadowPS(float2 uv : TEXCOORD0) {
 
 ## 関連ページ
 
-- [特殊なケース](index.md)
-- [深度を描く](../shadow-map-basics/render-depth.md)
-- [アルファ テスト](../../translucency/alpha-test/index.md)
+- [Special Cases](index.md)
+- [Rendering Depth](../shadow-map-basics/render-depth.md)
+- [Alpha Testing](../../translucency/alpha-test/index.md)

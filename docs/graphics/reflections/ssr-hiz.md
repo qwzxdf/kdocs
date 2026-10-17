@@ -349,8 +349,8 @@ bool valid = (ray_z - scene_z) < thickness;
 
 ## 関連ページ
 
-- [反射](index.md)
+- [Reflections](index.md)
 - [SSR の基礎](ssr-basics/index.md)
-- [確率的 SSR](ssr-stochastic.md)
+- [Stochastic SSR](ssr-stochastic.md)
 - [Hi-Z とスクリーン空間トレース](../../rendering/hiz.md)
 - [SAO（ミップとの違い）](../ao/sao.md)

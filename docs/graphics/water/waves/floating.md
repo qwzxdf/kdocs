@@ -1,10 +1,10 @@
 ---
-title: 物を水に浮かせる
+title: Floating Objects
 tags:
   - 描画
 ---
 
-# 物を水に浮かせる
+# Floating Objects
 
 **船や浮き輪を、波に合わせて動かすには、波の高さを、CPU 側でも求める必要があります**。**頂点シェーダーの波の式を、CPU に同じ形で実装**するのが**簡単**です。このページでは、**浮力のための高さの取得**を説明します。
 
@@ -12,7 +12,7 @@ tags:
     - **波の式を、GPU と CPU の両方に実装**する。
     - **物体の数点で高さを取り、位置と傾きを決める**。
     - **FFT の場合は、GPU から読み戻すか、CPU で近似**する。
-    - **浮力の物理は、[水との相互作用](../interaction/index.md)**を参照。
+    - **浮力の物理は、[Water Interaction](../interaction/index.md)**を参照。
 
 ## 物を水に浮かせる
 **ボートや浮き**を**波に合わせて動かす**には、**CPU 側でも同じ波の高さを計算**する必要があります。
@@ -43,5 +43,5 @@ tags:
 
 ## 関連ページ
 
-- [水面の波](index.md)
-- [水との相互作用](../interaction/index.md)
+- [Water Waves](index.md)
+- [Water Interaction](../interaction/index.md)

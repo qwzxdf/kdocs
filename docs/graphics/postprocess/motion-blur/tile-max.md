@@ -1,10 +1,10 @@
 ---
-title: タイル最大速度
+title: Tile Max Velocity
 tags:
   - 描画
 ---
 
-# タイル最大速度
+# Tile Max Velocity
 
 **画素ごとに長い距離を多数サンプル**するのは**重い**うえ、**速い物体の輪郭の外側（背景）の画素は自分の速度が 0 なので、尾が伸びません**。**そこで画面を小さなタイル（例：16×16 画素）に分け、各タイルの「最大の速度」を求め、周囲のタイルの最大速度も合わせた「近傍最大速度」を作る**のが**標準の手法**です。**ぼかしの方向・長さ・スキップの判断に使えます**。このページでは、**TileMax・NeighborMax の 2 段階・実装・使い方・コスト**を説明します。
 
@@ -303,7 +303,7 @@ if (neighbor_length < kMinVelocityPixels) {
 | **ぼかしの方向** | **NeighborMax の向きにサンプルを配置** |
 | **ぼかしの長さ** | **NeighborMax の長さ**（**最大ブラー長で制限**） |
 | **スキップ判定** | **長さが小さいタイル（< 0.5 画素）は、ぼかしを省略** |
-| **自分の速度との組み合わせ** | **サンプルの重み付けに自分の速度も使う**（[ぼかしの実装](blur-pass.md)） |
+| **自分の速度との組み合わせ** | **サンプルの重み付けに自分の速度も使う**（[Blur Pass Implementation](blur-pass.md)） |
 
 ## コスト
 
@@ -320,7 +320,7 @@ if (neighbor_length < kMinVelocityPixels) {
 | **タイル サイズ ＝ 最大ブラー長** | **16〜20 画素が一般的** |
 | **NeighborMax に向きを考慮** | **精度が上がる** |
 | **スキップ判定で分岐の一貫性** | **タイル単位で同じ分岐になり、GPU が効率的** |
-| **DOF のタイルと共用** | **同じ 16×16 のタイルで、DOF の最大 CoC も計算**（[前景と背景](../dof/near-far.md)） |
+| **DOF のタイルと共用** | **同じ 16×16 のタイルで、DOF の最大 CoC も計算**（[Foreground and Background](../dof/near-far.md)） |
 
 ## よくあるミス
 
@@ -349,7 +349,7 @@ if (neighbor_length < kMinVelocityPixels) {
 
 ## 関連ページ
 
-- [モーション ブラー](index.md)
-- [速度バッファ](velocity-buffer.md)
-- [ぼかしの実装](blur-pass.md)
+- [Motion Blur](index.md)
+- [Velocity Buffer](velocity-buffer.md)
+- [Blur Pass Implementation](blur-pass.md)
 - [前景と背景（DOF）](../dof/near-far.md)

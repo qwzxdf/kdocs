@@ -1,10 +1,10 @@
 ---
-title: ギャザー方式
+title: Gather Method
 tags:
   - 描画
 ---
 
-# ギャザー方式
+# Gather Method
 
 <strong>ギャザー（Gather）</strong>は、<strong>「各画素が自分の周りの画素を集めて平均する」</strong>方式の DOF です。**出力の画素ごとに、CoC の半径の円の中のサンプルを読み**、**加重平均**します。**実装が簡単で、GPU に向いていて速い**ので、**現代のゲームの標準**です。このページでは、**基本の考え方・サンプルの配置（ヴォーゲル螺旋）・「他の画素の CoC」を考慮した重み・ちらつきの対策・半解像度・コスト**を説明します。
 
@@ -14,7 +14,7 @@ tags:
     - <strong>重要</strong>：<strong>集める相手の CoC も見る</strong>。<strong>相手のボケが自分に届かないなら、混ぜない</strong>（<strong>ピント内の物にぼけた背景がにじむ</strong>のを防ぐ）。
     - <strong>半解像度</strong>で行い、<strong>フル解像度に合成</strong>すると<strong>コストが 1/4</strong>。
     - <strong>ノイズ的なサンプルの回転</strong>＋<strong>ぼかし</strong>で、<strong>サンプル数が少なくても滑らか</strong>。
-    - <strong>前景は別処理</strong>（[前景と背景](near-far.md)）。
+    - <strong>前景は別処理</strong>（[Foreground and Background](near-far.md)）。
 
 ## 基本の考え方
 
@@ -369,9 +369,9 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 | **サンプル側の CoC を使った重み** | **ピント内の輪郭を守る**（必須） |
 | **ブルー ノイズで回転 ＋ TAA** | **少ないサンプルでも滑らか** |
 | **半解像度 ＋ 合成** | **コストを 1/4** |
-| **前景と背景を分ける** | **前景のにじみを正しく**（[前景と背景](near-far.md)） |
-| **ボケの形に合わせた配置** | **多角形のボケ**（[ボケの形](bokeh-shape.md)） |
-| **ブルームと併用** | **明るい点が大きなボケの円盤になる**（[スキャッター方式](scatter.md)の簡易版） |
+| **前景と背景を分ける** | **前景のにじみを正しく**（[Foreground and Background](near-far.md)） |
+| **ボケの形に合わせた配置** | **多角形のボケ**（[Bokeh Shape](bokeh-shape.md)） |
+| **ブルームと併用** | **明るい点が大きなボケの円盤になる**（[Scatter Method](scatter.md)の簡易版） |
 
 ## よくあるミス
 
@@ -404,8 +404,8 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 
 ## 関連ページ
 
-- [被写界深度（DOF）](index.md)
-- [錯乱円（CoC）](coc.md)
-- [スキャッター方式](scatter.md)
-- [前景と背景](near-far.md)
-- [ボケの形](bokeh-shape.md)
+- [Depth of Field (DOF)](index.md)
+- [Circle of Confusion (CoC)](coc.md)
+- [Scatter Method](scatter.md)
+- [Foreground and Background](near-far.md)
+- [Bokeh Shape](bokeh-shape.md)

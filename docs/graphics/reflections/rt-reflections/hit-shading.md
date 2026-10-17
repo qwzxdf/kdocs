@@ -1,10 +1,10 @@
 ---
-title: ヒット点のシェーディングと BVH
+title: Hit Shading and BVH
 tags:
   - 描画
 ---
 
-# ヒット点のシェーディングと BVH
+# Hit Shading and BVH
 
 **レイが当たった所の「色」を決めるには、その点でライティングを計算する必要があります**。**そのために、材質情報の取得と、BVH（加速構造）の準備**が**必要**です。このページでは、**ヒット点のシェーディングの方法と、BVH の準備**を説明します。
 
@@ -56,7 +56,7 @@ void ReflectionClosestHit(inout ReflectionPayload payload, BuiltInTriangleInters
 | **動く・変形するメッシュ** | **スキニング後の頂点**で、BLAS を<strong>更新（リフィット）</strong>または**再構築** |
 | **メモリ** | BVH は**メッシュの数倍**のメモリを食う |
 
-詳しくは、[レイトレーシング入門](../../index.md)（予定）で扱います。
+レイトレーシング全般の話は、[描画セクションの入口](../../index.md)から関連ページをたどってください。
 
 ## よくあるミス
 
@@ -77,6 +77,6 @@ void ReflectionClosestHit(inout ReflectionPayload payload, BuiltInTriangleInters
 
 ## 関連ページ
 
-- [レイトレ反射](index.md)
-- [レイの生成](ray-generation.md)
-- [ハイブリッド構成](hybrid.md)
+- [Ray-Traced Reflections](index.md)
+- [Ray Generation](ray-generation.md)
+- [Hybrid Pipeline](hybrid.md)

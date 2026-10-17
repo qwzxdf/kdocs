@@ -1,10 +1,10 @@
 ---
-title: 散乱の色（SSS 風）
+title: Scattering Color (SSS-Like)
 tags:
   - 描画
 ---
 
-# 散乱の色（SSS 風）
+# Scattering Color (SSS-Like)
 
 **波頭などの薄い部分では、光が水の中で散乱して、明るい緑〜水色に透けて見えます**。**これを SSS 風の近似で表せます**。このページでは、**散乱の色の足し方**を説明します。
 
@@ -47,5 +47,5 @@ float3 scatter = scatter_color * wave_height_factor * sun_behind * sun_intensity
 
 ## 関連ページ
 
-- [水の質感](index.md)
-- [水深による色](depth-color.md)
+- [Water Shading](index.md)
+- [Color by Water Depth](depth-color.md)

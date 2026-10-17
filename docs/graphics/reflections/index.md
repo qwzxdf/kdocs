@@ -1,10 +1,10 @@
 ---
-title: 反射
+title: Reflections
 tags:
   - 描画
 ---
 
-# 反射
+# Reflections
 
 水たまり・磨かれた床・金属・ガラス・濡れた路面では、**周囲の景色が映り込みます**。これが**鏡面反射**です。拡散反射（ざらっとした面の明るさ）は、**面のどこから見ても同じ明るさ**でしたが、鏡面反射は**見る方向によって、映るものが変わります**。周囲の景色を**画面の中でどう調達するか**が描画手法の分かれ目です。このセクションでは、**平面反射・リフレクション プローブ・スクリーン空間反射（SSR）・レイトレース反射**を**原理から**順に説明します。
 
@@ -19,18 +19,18 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [平面反射](planar.md) | 鏡の向こうからシーンを描き直す。完全な反射・高コスト |
+| [Planar Reflections](planar.md) | 鏡の向こうからシーンを描き直す。完全な反射・高コスト |
 | [リフレクション プローブ](probes/index.md) | 全方向の写真（キューブマップ）。事前フィルタ・視差補正 |
 | [SSR の基礎](ssr-basics/index.md) | 深度バッファでレイを進める。線形マーチ・厚み |
 | [Hi-Z SSR](ssr-hiz.md) | 階層的な深度でレイを高速に進める |
-| [確率的 SSR](ssr-stochastic.md) | 粗さに合わせたレイ・ノイズ除去・再利用 |
-| [SSR のフォールバックと合成](ssr-fallback.md) | 画面外・見えない部分をプローブで補う |
+| [Stochastic SSR](ssr-stochastic.md) | 粗さに合わせたレイ・ノイズ除去・再利用 |
+| [SSR Fallback and Compositing](ssr-fallback.md) | 画面外・見えない部分をプローブで補う |
 | [レイトレース反射](rt-reflections/index.md) | 画面に頼らない反射。ハイブリッド・デノイズ |
 | [方式の比較](comparison.md) | 原理・コスト・弱点の一覧と選び方 |
 
 ## 鏡面反射とは何を計算するのか
 
-[AO の理論](../ao/theory/index.md)では**拡散反射**（方向によらず一定の反射）を考えました。**鏡面反射**の出射光は、**入射方向によって、反射の強さが変わる**BRDF を使います。
+[AO Theory](../ao/theory/index.md)では**拡散反射**（方向によらず一定の反射）を考えました。**鏡面反射**の出射光は、**入射方向によって、反射の強さが変わる**BRDF を使います。
 
 <div class="formula">L_o(ω_o) = ∫ f_spec(ω_i, ω_o) · L_i(ω_i) · (n·ω_i) dω_i</div>
 
@@ -106,4 +106,4 @@ float3 reflect_dir = reflect(-view_dir, normal);
 - [PBR](../../3d/pbr.md)
 - [法線とライティング](../../3d/lighting-normals.md)
 - [Hi-Z とスクリーン空間トレース](../../rendering/hiz.md)
-- [環境光遮蔽（AO）](../ao/index.md)
+- [Ambient Occlusion (AO)](../ao/index.md)

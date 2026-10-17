@@ -1,10 +1,10 @@
 ---
-title: 背面法の輪郭線
+title: Inverted Hull Outlines
 tags:
   - 描画
 ---
 
-# 背面法の輪郭線
+# Inverted Hull Outlines
 
 <strong>背面法（Inverted Hull Method）</strong>は、**輪郭線を作る、もっとも古典的で簡単な方法**です。**同じモデルを「もう 1 回」描き、頂点を法線方向に少し膨らませ、表面（前面）を捨てて裏面だけを黒く描く**と**元のモデルの輪郭の外側に、黒い縁**が**できます**。**シェーダーだけで実現でき、線の太さや色を物体や部位ごとにアーティストが制御できる**ので、**多くのアニメ調ゲーム**で**使われます**。このページでは、<strong>仕組み・実装・画面上の太さを一定にする方法・線の途切れ（角）の対策・太さの調整（頂点カラー）</strong>を説明します。
 
@@ -186,7 +186,7 @@ float3 expanded = input.position + smooth_normal * outline_width * width_scale;
 | **スムーズ法線を事前に焼く** | **角で途切れない** |
 | **クリップ空間で太さを一定** | **画面上の太さがそろう** |
 | **頂点カラーで太さを制御** | **部位ごとの調整** |
-| **画面空間エッジを併用** | **内側の線を足す**（[画面空間のエッジ検出](outline-edge.md)） |
+| **画面空間エッジを併用** | **内側の線を足す**（[Screen-Space Edge Detection](outline-edge.md)） |
 | **色は元の色の暗い版** | **黒より柔らかい絵に** |
 | **距離で線を細く・消す** | **遠くでうるさくならない** |
 
@@ -221,7 +221,7 @@ float3 expanded = input.position + smooth_normal * outline_width * width_scale;
 
 ## 関連ページ
 
-- [輪郭線・トゥーン](index.md)
-- [画面空間のエッジ検出](outline-edge.md)
-- [セル シェーディング](cel-shading.md)
+- [Outlines and Toon](index.md)
+- [Screen-Space Edge Detection](outline-edge.md)
+- [Cel Shading](cel-shading.md)
 - [スキニングとアニメーション](../../../3d/skinning-animation.md)

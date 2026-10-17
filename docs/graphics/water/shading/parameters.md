@@ -1,10 +1,10 @@
 ---
-title: 水の色のパラメータ
+title: Water Color Parameters
 tags:
   - 描画
 ---
 
-# 水の色のパラメータ
+# Water Color Parameters
 
 **水の見た目は、いくつかのパラメータで決まります**。**パラメータの意味と目安を知っておくと、調整が楽**になります。このページでは、**水の色のパラメータ**を説明します。
 
@@ -45,5 +45,5 @@ tags:
 
 ## 関連ページ
 
-- [水の質感](index.md)
-- [水深による色](depth-color.md)
+- [Water Shading](index.md)
+- [Color by Water Depth](depth-color.md)

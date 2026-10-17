@@ -1,24 +1,24 @@
 ---
-title: オブジェクトのブラー
+title: Object Motion Blur
 tags:
   - 描画
 ---
 
-# オブジェクトのブラー
+# Object Motion Blur
 
 <strong>動く物体（走るキャラクター・飛ぶ弾・回るプロペラ）</strong>は、**カメラが静止していても、動きに沿ってぶれます**。**オブジェクト モーション ブラー**は、**物体ごとの速度**を**速度バッファに書き込み**、**その速度に沿って、物体と周りをぼかす**ものです。**カメラ ブラーに比べて、重く、破綻しやすい**ので**実装の工夫**が**必要**です。このページでは、**物体の速度の出し方・回転する物体・スキニング・輪郭のにじみ・描画順・対象の絞り込み**を説明します。
 
 !!! tip "ポイント"
     - オブジェクト ブラー ＝ <strong>動く物体の速度</strong>に<strong>沿って、その物体（と周りの背景）をぼかす</strong>。
-    - 速度は<strong>描画時に前フレームの行列で計算して、速度バッファへ</strong>（[速度バッファ](velocity-buffer.md)）。
+    - 速度は<strong>描画時に前フレームの行列で計算して、速度バッファへ</strong>（[Velocity Buffer](velocity-buffer.md)）。
     - <strong>回転する物体</strong>（プロペラ・タイヤ）は<strong>頂点ごとに速度が違う</strong>ので、<strong>頂点シェーダーで正しく計算</strong>。
     - <strong>キャラクター</strong>は<strong>前フレームの骨の姿勢</strong>が必要。
-    - <strong>速い物体の輪郭の外側にも、尾が伸びる</strong>ように<strong>周りの速度を考慮</strong>（[タイル最大速度](tile-max.md)）。
+    - <strong>速い物体の輪郭の外側にも、尾が伸びる</strong>ように<strong>周りの速度を考慮</strong>（[Tile Max Velocity](tile-max.md)）。
     - <strong>対象を絞る</strong>（<strong>重要な物体・プレイヤー周辺</strong>）と<strong>コストが下がる</strong>。
 
 ## 物体の速度
 
-**物体の各頂点について、前フレームの位置と今の位置を計算**し、**その差をピクセル シェーダーで速度として出力**します（[速度バッファ](velocity-buffer.md)）。
+**物体の各頂点について、前フレームの位置と今の位置を計算**し、**その差をピクセル シェーダーで速度として出力**します（[Velocity Buffer](velocity-buffer.md)）。
 
 | 動きの種類 | 速度の特徴 |
 | --- | --- |
@@ -172,8 +172,8 @@ float4 previous_position = mul(mul(float4(local_position, 1.0), previous_world),
 
 | 問題 | 対処 |
 | --- | --- |
-| **物体の周りの背景がぼけない** | **周りの画素のうち、最も速い物体の速度をその画素も使う**（**タイルの最大速度・近傍最大**）（[タイル最大速度](tile-max.md)） |
-| **ぼけた物体の縁がくっきり** | **深度と速度で重みを付けて、サンプルを集める**（[ぼかしの実装](blur-pass.md)） |
+| **物体の周りの背景がぼけない** | **周りの画素のうち、最も速い物体の速度をその画素も使う**（**タイルの最大速度・近傍最大**）（[Tile Max Velocity](tile-max.md)） |
+| **ぼけた物体の縁がくっきり** | **深度と速度で重みを付けて、サンプルを集める**（[Blur Pass Implementation](blur-pass.md)） |
 
 ## 描画順と透明物
 
@@ -239,7 +239,7 @@ float4 previous_position = mul(mul(float4(local_position, 1.0), previous_world),
 
 ## 関連ページ
 
-- [モーション ブラー](index.md)
-- [速度バッファ](velocity-buffer.md)
-- [カメラのブラー](camera-blur.md)
+- [Motion Blur](index.md)
+- [Velocity Buffer](velocity-buffer.md)
+- [Camera Motion Blur](camera-blur.md)
 - [スキニングとアニメーション](../../../3d/skinning-animation.md)

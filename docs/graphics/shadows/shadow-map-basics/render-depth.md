@@ -1,10 +1,10 @@
 ---
-title: 深度を描く
+title: Rendering Depth
 tags:
   - 描画
 ---
 
-# 深度を描く
+# Rendering Depth
 
 **光の行列ができたら、その視点から、シーンの深度だけを描きます**。**色は要らず、深度バッファだけ**に書くので、**非常に安いパス**です。**描くのは「影を落とす物」だけ**に**絞る**と**さらに速くなります**。このページでは、**深度専用パスの設定・ピクセル シェーダーなし・カリングの向き・描く対象の絞り込み**を説明します。
 
@@ -12,7 +12,7 @@ tags:
     - **深度だけを描く**（**カラー書き込みなし・ピクセル シェーダーなし**）。
     - **影を落とさない物は描かない**（**カリング・フラグ**）。
     - **前面カリング**を使うと**アクネが減る**ことがある（[バイアス](../bias/front-face-culling.md)）。
-    - **アルファ テストの物**は**ピクセル シェーダーが要る**（[アルファ テストの影](../special-cases/alpha-test-shadows.md)）。
+    - **アルファ テストの物**は**ピクセル シェーダーが要る**（[Alpha-Tested Shadows](../special-cases/alpha-test-shadows.md)）。
 
 ## ② シャドウ マップを描く
 **深度だけ**を描きます。**ピクセルシェーダーは不要**（アルファ テストする物を除く）で、**非常に速い**描画です。
@@ -66,6 +66,6 @@ device->CreateShaderResourceView(shadow_tex, &srv_desc, &shadow_srv);
 
 ## 関連ページ
 
-- [シャドウ マップの基礎](index.md)
-- [光の行列](light-matrix.md)
-- [比較とサンプラー](comparison-sampler.md)
+- [Shadow Map Basics](index.md)
+- [The Light Matrix](light-matrix.md)
+- [Comparison Samplers](comparison-sampler.md)

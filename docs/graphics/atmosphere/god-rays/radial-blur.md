@@ -1,10 +1,10 @@
 ---
-title: 画面空間の放射ぼかし
+title: Screen-Space Radial Blur
 tags:
   - 描画
 ---
 
-# 画面空間の放射ぼかし
+# Screen-Space Radial Blur
 
 **太陽の画面上の位置から外側へ、画像を放射状にぼかして、光の筋を作る**のが**最も手軽**な方法です。**太陽が画面内にある時だけ使え、遮蔽物の形が筋に反映されます**。このページでは、**放射ぼかし**を説明します。
 
@@ -145,5 +145,5 @@ float3 GodRays(float2 uv, float2 sun_uv) {
 
 ## 関連ページ
 
-- [ゴッド レイ](index.md)
-- [ガウスぼかし](../../postprocess/bloom/gaussian.md)
+- [God Rays](index.md)
+- [Gaussian Blur](../../postprocess/bloom/gaussian.md)

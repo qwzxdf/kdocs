@@ -1,10 +1,10 @@
 ---
-title: 反射プローブとの違い・コスト
+title: Comparison with Reflection Probes and Cost
 tags:
   - 描画
 ---
 
-# 反射プローブとの違い・コスト
+# Comparison with Reflection Probes and Cost
 
 **GI のプローブと、反射プローブは、名前が似ていますが、役割が違います**。**GI のプローブは「拡散の間接光」、反射プローブは「鏡面の反射」**です。このページでは、**違いと、コスト・長所短所**を説明します。
 
@@ -23,7 +23,7 @@ tags:
 | **用途** | **拡散反射** | **鏡面反射** |
 | **密度** | **やや密** | <strong>疎（部屋ごと）</strong> |
 
-**反射プローブ**は、[反射プローブ](../../reflections/probes/index.md)で説明しています。**両方を置いて**、**拡散と鏡面の間接光**をそれぞれ賄います。
+**反射プローブ**は、[Reflection Probes](../../reflections/probes/index.md)で説明しています。**両方を置いて**、**拡散と鏡面の間接光**をそれぞれ賄います。
 
 ## コストと利点
 | 項目 | 内容 |
@@ -60,6 +60,6 @@ tags:
 
 ## 関連ページ
 
-- [プローブ GI](index.md)
-- [反射プローブ](../../reflections/probes/index.md)
-- [GI の理論](../theory/index.md)
+- [Probe GI](index.md)
+- [Reflection Probes](../../reflections/probes/index.md)
+- [GI Theory](../theory/index.md)

@@ -1,10 +1,10 @@
 ---
-title: サイン波の重ね合わせ
+title: Summing Sine Waves
 tags:
   - 描画
 ---
 
-# サイン波の重ね合わせ
+# Summing Sine Waves
 
 **水面の高さを、複数のサイン波の足し合わせで表す**のが**最も簡単な方法**です。**波ごとに、向き・波長・振幅・速さを変える**と、**それらしい波**になります。このページでは、**サイン波の式と、パラメータの決め方**を説明します。
 
@@ -98,5 +98,5 @@ float WaveHeight(float2 position, Wave wave, float time) {
 
 ## 関連ページ
 
-- [水面の波](index.md)
-- [Gerstner 波](gerstner.md)
+- [Water Waves](index.md)
+- [Gerstner Waves](gerstner.md)

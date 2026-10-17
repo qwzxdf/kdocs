@@ -1,10 +1,10 @@
 nav:
   - index.md
   - planar.md
-  - 反射プローブ: probes
-  - SSR の基本: ssr-basics
+  - Reflection Probes: probes
+  - SSR Basics: ssr-basics
   - ssr-hiz.md
   - ssr-stochastic.md
   - ssr-fallback.md
-  - レイトレ反射: rt-reflections
+  - Ray-Traced Reflections: rt-reflections
   - comparison.md

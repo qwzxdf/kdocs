@@ -1,10 +1,10 @@
 ---
-title: スクリーン空間の可視性
+title: Screen-Space Visibility
 tags:
   - 描画
 ---
 
-# スクリーン空間の可視性
+# Screen-Space Visibility
 
 **AO の式の中の可視性 V（その方向が、遮られているか）**を、**スクリーン空間の AO では、深度バッファだけから推定**します。**見えている面の深度しか分からない**ので、**「画面に写らない裏側」は分からず、推定には限界**があります。このページでは、**深度バッファから V を求める考え方・限界**を説明します。
 
@@ -51,6 +51,6 @@ tags:
 
 ## 関連ページ
 
-- [AO の理論](index.md)
-- [積分の近似](approximation.md)
+- [AO Theory](index.md)
+- [Approximating the Integral](approximation.md)
 - [アーティファクト](../artifacts/index.md)

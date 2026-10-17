@@ -164,13 +164,13 @@ float3 TAA(float2 uv) {
 
 | 工夫 | 内容 |
 | --- | --- |
-| **バイキュービック（Catmull-Rom）で履歴を読む** | **ぼけを減らす**（[TAA の課題](taa-challenges.md)） |
+| **バイキュービック（Catmull-Rom）で履歴を読む** | **ぼけを減らす**（[TAA Challenges](taa-challenges.md)） |
 | **YCoCg 色空間でクランプ** | **色の範囲がより自然**になり、**ゴーストが減る** |
 | <strong>分散クリップ（variance clipping）</strong> | **最小・最大の代わりに平均と分散から範囲を決める** |
 | **速度の大きさでブレンド率を変える** | **動く所は現在を多めに** |
 | **シャープ化を併用** | **TAA のぼけを戻す** |
 | <strong>履歴の拒否（リセット）</strong> | **カット・テレポート・露出の急変で履歴を捨てる** |
-| **ジッターを速度から除く** | **静止した物がぶれない**（[速度バッファ](../motion-blur/velocity-buffer.md)） |
+| **ジッターを速度から除く** | **静止した物がぶれない**（[Velocity Buffer](../motion-blur/velocity-buffer.md)） |
 
 ## よくあるミス
 
@@ -203,7 +203,7 @@ float3 TAA(float2 uv) {
 
 ## 関連ページ
 
-- [アンチエイリアシング](index.md)
-- [TAA の課題](taa-challenges.md)
-- [速度バッファ](../motion-blur/velocity-buffer.md)
+- [Anti-Aliasing](index.md)
+- [TAA Challenges](taa-challenges.md)
+- [Velocity Buffer](../motion-blur/velocity-buffer.md)
 - [TAA とアップスケール（最適化）](../../../rendering/taa-upscaling.md)

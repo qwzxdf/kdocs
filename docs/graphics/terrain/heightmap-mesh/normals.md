@@ -1,10 +1,10 @@
 ---
-title: 法線
+title: Terrain Normals
 tags:
   - 描画
 ---
 
-# 法線
+# Terrain Normals
 
 **地形の陰影は、法線で決まります**。**高さマップの隣り合う画素の差から、傾きを求めて、法線にします**。**あらかじめ法線マップとして保存**しておくと、**実行時が軽く**なります。このページでは、**地形の法線の求め方**を説明します。
 
@@ -58,5 +58,5 @@ float3 TerrainNormal(float2 uv) {
 
 ## 関連ページ
 
-- [高さマップとメッシュ](index.md)
-- [格子メッシュ](grid-mesh.md)
+- [Heightmaps and Meshes](index.md)
+- [Grid Mesh](grid-mesh.md)

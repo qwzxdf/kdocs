@@ -1,10 +1,10 @@
 ---
-title: 色の取得とフェード
+title: Color Lookup and Fading
 tags:
   - 描画
 ---
 
-# 色の取得とフェード
+# Color Lookup and Fading
 
 **当たりが見つかったら、その画素の「前フレームまたは現フレームの色」を持ってきます**。**ただし、画面の端や、カメラに向かう反射は、信頼できないので、フェード（徐々に弱める）が必要**です。このページでは、**どの色を使うか・フェードの掛け方**を説明します。
 
@@ -68,6 +68,6 @@ float SSRConfidence(float2 hit_uv, float ray_length, float roughness, float3 R_v
 
 ## 関連ページ
 
-- [SSR の基本](index.md)
+- [SSR Basics](index.md)
 - [フォールバック](../ssr-fallback.md)
-- [コストと粗さ](cost-roughness.md)
+- [Cost and Roughness](cost-roughness.md)

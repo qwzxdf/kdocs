@@ -1,10 +1,10 @@
 ---
-title: 水中の他の要素
+title: Other Underwater Elements
 tags:
   - 描画
 ---
 
-# 水中の他の要素
+# Other Underwater Elements
 
 **水中の雰囲気は、霧や光だけでなく、粒子・色補正・音でも作れます**。このページでは、**水中の他の要素**を説明します。
 
@@ -18,7 +18,7 @@ tags:
 | 要素 | 内容 |
 | --- | --- |
 | **視界** | **水中の霧で見える距離を制限** |
-| **ゆらぎ** | **画面全体を法線の動きで少し歪ませる**（[ポストプロセス](../../postprocess/index.md)） |
+| **ゆらぎ** | **画面全体を法線の動きで少し歪ませる**（[Post-Processing](../../postprocess/index.md)） |
 | **泡の粒子** | **ゆっくり上がる泡**（パーティクル） |
 | **マリン スノー** | **漂う小さな粒**（ほこり）。**奥行き感が出る** |
 | **音** | **ローパス フィルタ**（こもった音） |
@@ -42,5 +42,5 @@ tags:
 
 ## 関連ページ
 
-- [水中の表現](index.md)
-- [カラーグレーディング](../../postprocess/color-grading/index.md)
+- [Underwater Rendering](index.md)
+- [Color Grading](../../postprocess/color-grading/index.md)

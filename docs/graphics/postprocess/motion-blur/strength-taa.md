@@ -1,10 +1,10 @@
 ---
-title: 強さと TAA
+title: Strength and TAA
 tags:
   - 描画
 ---
 
-# 強さと TAA
+# Strength and TAA
 
 **モーション ブラーは、「かければ良い」ものではありません**。**強すぎると酔い、画面が見づらく、弱すぎると効果が分からない**ので、**強さの設計**が**重要**です。また、**TAA は同じ速度バッファを使い、時間方向の平均なのでモーション ブラーと見た目が混ざり、順序・ジッター・ゴーストに注意**が必要です。このページでは、**シャッター角と強さの決め方・フレームレートの補正・最大長・対象の除外・TAA との関係・オプション設計**を説明します。
 
@@ -67,7 +67,7 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
 | --- | --- |
 | **最大ブラー長** | **画面の高さの 3〜5 %** |
 | **最小** | **0.5 画素未満はスキップ** |
-| **タイル サイズ** | **最大ブラー長に合わせる**（[タイル最大速度](tile-max.md)） |
+| **タイル サイズ** | **最大ブラー長に合わせる**（[Tile Max Velocity](tile-max.md)） |
 
 ## 対象の除外
 
@@ -330,7 +330,7 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
 
 ## 関連ページ
 
-- [モーション ブラー](index.md)
-- [ぼかしの実装](blur-pass.md)
+- [Motion Blur](index.md)
+- [Blur Pass Implementation](blur-pass.md)
 - [TAA](../antialiasing/taa.md)
-- [速度バッファ](velocity-buffer.md)
+- [Velocity Buffer](velocity-buffer.md)

@@ -1,10 +1,10 @@
 ---
-title: 地形の高さへの変換
+title: Converting Noise to Height
 tags:
   - 描画
 ---
 
-# 地形の高さへの変換
+# Converting Noise to Height
 
 **ノイズの値を、そのまま高さにすると、平らな所と山が同じ比率になって不自然**です。**カーブを通して、平地を広く、山を高くする**と、**地形らしくなります**。このページでは、**ノイズから高さへの変換**を説明します。
 
@@ -43,5 +43,5 @@ tags:
 
 ## 関連ページ
 
-- [地形の生成](index.md)
+- [Terrain Generation](index.md)
 - [fBm](fbm.md)

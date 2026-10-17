@@ -1,10 +1,10 @@
 ---
-title: 昼夜のサイクル
+title: Day-Night Cycle
 tags:
   - 描画
 ---
 
-# 昼夜のサイクル
+# Day-Night Cycle
 
 **時間が進むと、太陽が動き、空の色・光の色・影の向きが変わります**。**これらを 1 つの「時刻」から連動させる**と、**管理が楽**です。このページでは、**昼夜のサイクル**を説明します。
 
@@ -100,5 +100,5 @@ sun_direction.Normalize();
 
 ## 関連ページ
 
-- [空のモデル](index.md)
-- [太陽・月・星](celestial.md)
+- [Sky Models](index.md)
+- [Sun, Moon and Stars](celestial.md)

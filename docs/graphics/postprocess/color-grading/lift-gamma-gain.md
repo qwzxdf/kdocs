@@ -1,10 +1,10 @@
 ---
-title: リフト・ガンマ・ゲイン
+title: Lift, Gamma, Gain
 tags:
   - 描画
 ---
 
-# リフト・ガンマ・ゲイン
+# Lift, Gamma, Gain
 
 <strong>リフト・ガンマ・ゲイン（LGG）</strong>は、**映画のカラー グレーディングで定番の 3 つのつまみ**で、**暗部（リフト）・中間（ガンマ）・明部（ゲイン）を、別々に調整**します。<strong>「暗い所は青く、明るい所は暖かく」</strong>のように**明るさの領域ごとに色味を変える**表現が**簡単にできます**。このページでは、**3 つの役割・式・ASC CDL（スロープ・オフセット・パワー）との関係・色（RGB）ごとの調整・シャドウ/ミッド/ハイライトのカラー バランス**を説明します。
 
@@ -179,7 +179,7 @@ float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highli
 | **CDL 形式でやり取り** | **外部のカラリストと数値を共有** |
 | **LUT に焼く** | **LGG・バランス・彩度を、1 つの 3D LUT に**（[3D LUT](lut-3d.md)） |
 | **小さな値で調整** | **リフト・カラー バランスは、± 0.05 程度** |
-| **ボリュームで補間** | **場所ごとに、LGG を補間**（[LUT の作り方](lut-authoring.md)） |
+| **ボリュームで補間** | **場所ごとに、LGG を補間**（[Authoring LUTs](lut-authoring.md)） |
 
 ## よくあるミス
 
@@ -212,7 +212,7 @@ float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highli
 
 ## 関連ページ
 
-- [カラー グレーディング](index.md)
-- [基本の調整](basic-adjustments.md)
-- [ホワイト バランス](white-balance.md)
+- [Color Grading](index.md)
+- [Basic Adjustments](basic-adjustments.md)
+- [White Balance](white-balance.md)
 - [3D LUT](lut-3d.md)

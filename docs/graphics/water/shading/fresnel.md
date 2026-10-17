@@ -1,10 +1,10 @@
 ---
-title: 水のフレネル
+title: Water Fresnel
 tags:
   - 描画
 ---
 
-# 水のフレネル
+# Water Fresnel
 
 **水は、真上から見ると、透けて底が見え、斜めから見ると、空を映す鏡のようになります**。**この反射と屈折の割合が、フレネル**です。このページでは、**水のフレネルの式と使い方**を説明します。
 
@@ -135,5 +135,5 @@ float Fresnel(float3 normal, float3 view_dir) {
 
 ## 関連ページ
 
-- [水の質感](index.md)
+- [Water Shading](index.md)
 - [フレネル（屈折）](../../translucency/refraction/fresnel.md)

@@ -1,10 +1,10 @@
 ---
-title: フォグの色を空に合わせる
+title: Matching Fog Color to the Sky
 tags:
   - 描画
 ---
 
-# フォグの色を空に合わせる
+# Matching Fog Color to the Sky
 
 **フォグの色が、地平線の空の色と違うと、地平線に境目が見えて、不自然**です。**フォグの色を、空の色から取る**ことで、**自然につながります**。このページでは、**フォグの色の決め方**を説明します。
 
@@ -42,5 +42,5 @@ tags:
 
 ## 関連ページ
 
-- [空気遠近法・フォグ](index.md)
-- [空のモデル](../sky-models/index.md)
+- [Aerial Perspective and Fog](index.md)
+- [Sky Models](../sky-models/index.md)

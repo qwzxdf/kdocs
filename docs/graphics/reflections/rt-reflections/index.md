@@ -1,10 +1,10 @@
 ---
-title: レイトレ反射
+title: Ray-Traced Reflections
 tags:
   - 描画
 ---
 
-# レイトレ反射
+# Ray-Traced Reflections
 
 **レイトレ反射は、GPU のレイトレーシング機能で、実際にシーンへレイを飛ばして、反射を求める手法**です。**画面の外の物も、隠れた物も、正確に映せます**が、**コストが高く、ノイズも出る**ので、**工夫が必要**です。このセクションでは、**SSR との違い・レイの生成・ヒット点のシェーディング・ハイブリッド構成・ノイズ除去**を、**1 つずつ別のページ**で説明します。
 
@@ -39,10 +39,10 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [レイの生成](ray-generation.md) | 反射レイ・粗さに応じた方向 |
+| [Ray Generation](ray-generation.md) | 反射レイ・粗さに応じた方向 |
 | [ヒット点のシェーディング](hit-shading.md) | 当たった先の色の求め方・BVH |
-| [ハイブリッド構成](hybrid.md) | SSR とレイトレの組み合わせ・性能の工夫 |
-| [ノイズ除去](denoise.md) | デノイズ・長所と短所 |
+| [Hybrid Pipeline](hybrid.md) | SSR とレイトレの組み合わせ・性能の工夫 |
+| [Denoising](denoise.md) | デノイズ・長所と短所 |
 
 ## これだけ覚える
 
@@ -58,6 +58,6 @@ tags:
 
 ## 関連ページ
 
-- [反射](../index.md)
-- [SSR の基本](../ssr-basics/index.md)
-- [レイトレ GI](../../gi/rt-gi/index.md)
+- [Reflections](../index.md)
+- [SSR Basics](../ssr-basics/index.md)
+- [Ray-Traced GI](../../gi/rt-gi/index.md)

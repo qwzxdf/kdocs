@@ -1,10 +1,10 @@
 ---
-title: ハッシュド アルファ
+title: Hashed Alpha
 tags:
   - 描画
 ---
 
-# ハッシュド アルファ
+# Hashed Alpha
 
 **ハッシュド アルファは、画素ごとにランダムなしきい値で clip する手法**で、**平均すると、半透明に見えます**。**TAA と組み合わせると、ノイズが消えて、なめらかな半透明**になります。このページでは、**ハッシュド アルファの仕組み**を説明します。
 
@@ -329,6 +329,6 @@ clip(alpha - threshold);
 
 ## 関連ページ
 
-- [アルファ テスト](index.md)
+- [Alpha Testing](index.md)
 - [TAA](../../postprocess/antialiasing/taa.md)
-- [ディザ透明](dither.md)
+- [Dithered Transparency](dither.md)

@@ -1,10 +1,10 @@
 ---
-title: アルファ テスト
+title: Alpha Testing
 tags:
   - 描画
 ---
 
-# アルファ テスト
+# Alpha Testing
 
 **アルファ テストは、アルファ値がしきい値より小さい画素を、捨てる（clip する）手法**で、**葉・フェンス・髪など、「ある・ない」の透明**に使います。**混ぜないので、ソートが不要**ですが、**縁がギザギザになる**のが**欠点**です。このセクションでは、**clip の基本・Alpha to Coverage・ハッシュド アルファ・ディザ・パフォーマンス・方式の比較**を、**1 つずつ別のページ**で説明します。
 
@@ -72,10 +72,10 @@ clip(alpha - 0.5);
 | ページ | 内容 |
 | --- | --- |
 | [Alpha to Coverage](alpha-to-coverage.md) | MSAA を使って、縁をなめらかに |
-| [ハッシュド アルファ](hashed-alpha.md) | 確率的に捨てて、TAA でなめらかに |
-| [ディザ透明](dither.md) | 距離・近さで、点々にして消す |
+| [Hashed Alpha](hashed-alpha.md) | 確率的に捨てて、TAA でなめらかに |
+| [Dithered Transparency](dither.md) | 距離・近さで、点々にして消す |
 | [パフォーマンス](performance.md) | Early-Z が効かない問題・影のパス |
-| [方式の比較](comparison.md) | どれを選ぶか |
+| [Method Comparison](comparison.md) | どれを選ぶか |
 
 ## これだけ覚える
 
@@ -91,6 +91,6 @@ clip(alpha - 0.5);
 
 ## 関連ページ
 
-- [半透明](../index.md)
+- [Translucency](../index.md)
 - [アルファ ブレンド](../blending-sorting/index.md)
 - [OIT](../oit/index.md)

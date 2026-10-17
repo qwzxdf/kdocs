@@ -1,10 +1,10 @@
 ---
-title: 異方性フィルタリング
+title: Anisotropic Filtering
 tags:
   - 描画
 ---
 
-# 異方性フィルタリング
+# Anisotropic Filtering
 
 **地面を斜めから見ると、遠くのテクスチャがぼやけます**。**異方性フィルタリングは、縦と横で別々にフィルタして、ぼけを防ぎます**。このページでは、**異方性フィルタの効果**を説明します。
 
@@ -35,5 +35,5 @@ tags:
 
 ## 関連ページ
 
-- [地形のテクスチャ](index.md)
+- [Terrain Texturing](index.md)
 - [テクスチャ フィルタ](../../../3d/mesh-textures.md)

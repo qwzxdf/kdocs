@@ -1,10 +1,10 @@
 ---
-title: プローブの運用
+title: Probe Operation
 tags:
   - 描画
 ---
 
-# プローブの運用
+# Probe Operation
 
 **実際のシーンでは、プローブを複数置き、場所に応じて混ぜます**。**ベイク（事前計算）か動的更新か、空との関係、といった運用の判断**も**必要**です。このページでは、**複数のプローブの混ぜ方・ベイクと動的更新・スカイボックス**を説明します。
 
@@ -74,6 +74,6 @@ float3 BlendedReflection(float3 pos, float3 R, float roughness) {
 
 ## 関連ページ
 
-- [反射プローブ](index.md)
-- [視差補正](parallax.md)
-- [SSR と組み合わせ](combine-ssr.md)
+- [Reflection Probes](index.md)
+- [Parallax Correction](parallax.md)
+- [Combining with SSR](combine-ssr.md)

@@ -1,10 +1,10 @@
 ---
-title: ポスタライズとハーフトーン
+title: Posterization and Halftone
 tags:
   - 描画
 ---
 
-# ポスタライズとハーフトーン
+# Posterization and Halftone
 
 **ポスタライズ**は、**色の段階（階調）を減らして、ポスターのように平らな色の面にする**表現です。**ハーフトーンは、網点（ドット）の大きさで濃淡を表す、漫画・印刷のような表現**です。**どちらも、3D の絵を「イラスト・漫画・印刷物」の質感に近づける**ための**後処理**で、**セル シェーディングや輪郭線と組み合わせて、画風を作ります**。**写実的な品質とは別の軸の、好みの表現**です。このページでは、**ポスタライズの式・色数・ディザリングとの組み合わせ・ハーフトーンの網点・クロスハッチ（線の濃淡）・使いどころ**を説明します。
 
@@ -314,7 +314,7 @@ float Hatch(float2 pixel_position, float luminance) {
 
 ## 関連ページ
 
-- [輪郭線・トゥーン](index.md)
-- [セル シェーディング](cel-shading.md)
-- [背面法の輪郭線](outline-hull.md)
-- [フィルム グレイン](../lens-effects/film-grain.md)
+- [Outlines and Toon](index.md)
+- [Cel Shading](cel-shading.md)
+- [Inverted Hull Outlines](outline-hull.md)
+- [Film Grain](../lens-effects/film-grain.md)

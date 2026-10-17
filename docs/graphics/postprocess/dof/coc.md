@@ -1,10 +1,10 @@
 ---
-title: 錯乱円（CoC）
+title: Circle of Confusion (CoC)
 tags:
   - 描画
 ---
 
-# 錯乱円（CoC）
+# Circle of Confusion (CoC)
 
 <strong>錯乱円（Circle of Confusion、CoC）</strong>は、<strong>ピントが合っていない点が、センサー上に作る「円」</strong>です。**この円の大きさがそのままボケの大きさ**になります。**DOF の最初の仕事は、画面の各画素について、この CoC を求めること**です。このページでは、**光学的な仕組み・薄いレンズの式・CoC のグラフ・ピクセルへの換算・符号の意味・物理ベースとアーティスト向けの簡易式**を説明します。
 
@@ -158,7 +158,7 @@ float SimpleCoc(float linear_depth, float focus, float range, float scale) {
 | --- | --- |
 | **物理式を使い、カメラのパラメータをそのまま出す** | **シネマ カメラのように、F 値・焦点距離で直感的に** |
 | **ピント距離を注視点から自動で決める** | **画面中心の深度を読んで、ピント距離を追従**（**オートフォーカス**） |
-| **ピントの移動をなめらかに** | **ピント距離を指数的に追従させる**（[自動露出](../tonemapping/auto-exposure.md)と同じ考え方） |
+| **ピントの移動をなめらかに** | **ピント距離を指数的に追従させる**（[Auto Exposure](../tonemapping/auto-exposure.md)と同じ考え方） |
 | **CoC を専用のバッファに保存** | <strong>カラーのアルファに入れる（FP16）</strong>と、**読み込みが 1 回で済む** |
 | **最大 CoC でクランプ** | **コストの上限を保証** |
 | **半解像度で処理** | **CoC も半解像度で扱い、コストを 1/4** |
@@ -172,7 +172,7 @@ float SimpleCoc(float linear_depth, float focus, float range, float scale) {
     **焦点距離・距離・センサー高さの単位をそろえる**。
 
 ??? failure "前景と背景の符号を持たず、前景のボケが背景扱いになる"
-    **符号付きで持ち、前景・背景を別に処理**する（[前景と背景](near-far.md)）。
+    **符号付きで持ち、前景・背景を別に処理**する（[Foreground and Background](near-far.md)）。
 
 ??? failure "ピント距離が、画面中心の深度に追従せず、ガクガク動く"
     **ピント距離を時間で滑らかに追従**させる。
@@ -194,7 +194,7 @@ float SimpleCoc(float linear_depth, float focus, float range, float scale) {
 
 ## 関連ページ
 
-- [被写界深度（DOF）](index.md)
-- [ギャザー方式](gather.md)
-- [前景と背景](near-far.md)
-- [露出](../tonemapping/exposure.md)
+- [Depth of Field (DOF)](index.md)
+- [Gather Method](gather.md)
+- [Foreground and Background](near-far.md)
+- [Exposure](../tonemapping/exposure.md)

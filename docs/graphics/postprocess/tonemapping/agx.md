@@ -1,10 +1,10 @@
 ---
-title: AgX ほか
+title: AgX and Others
 tags:
   - 描画
 ---
 
-# AgX ほか
+# AgX and Others
 
 **フィルミックや ACES は、明るく鮮やかな色が白や別の色へ偏る**欠点があります。**近年はこの「色相の破綻」を抑える、新しいトーンマップ**が**増えました**。このページでは、**AgX・Tony McMapface・Khronos PBR Neutral** の**考え方・特徴・使い分け**を説明します。
 
@@ -124,9 +124,9 @@ float3 TonyMcMapface(float3 color) {
 
 | 工夫 | 内容 |
 | --- | --- |
-| **ルックはトーンマップの後に分ける** | **AgX の「ルック」や、グレーディングを別の LUT に分ける**（[カラー グレーディング](../color-grading/index.md)） |
+| **ルックはトーンマップの後に分ける** | **AgX の「ルック」や、グレーディングを別の LUT に分ける**（[Color Grading](../color-grading/index.md)） |
 | **設定で切り替えられるようにする** | **ACES / AgX / Neutral をスイッチで**（**ユーザーの好み・ステージごと**） |
-| **HDR ディスプレイ用を別に用意** | **SDR の曲線をそのまま HDR に使わない**（[ガンマと HDR 出力](gamma-srgb.md)） |
+| **HDR ディスプレイ用を別に用意** | **SDR の曲線をそのまま HDR に使わない**（[Gamma and HDR Output](gamma-srgb.md)） |
 | **エフェクトの色を確認** | **選んだ曲線を通した見た目で、火・魔法の色を決める** |
 
 ## よくあるミス
@@ -161,7 +161,7 @@ float3 TonyMcMapface(float3 color) {
 
 ## 関連ページ
 
-- [トーンマッピングと露出](index.md)
+- [Tone Mapping and Exposure](index.md)
 - [ACES](aces.md)
-- [色相の保ち方](hue-preservation.md)
-- [ブルーム](../bloom/index.md)
+- [Preserving Hue](hue-preservation.md)
+- [Bloom](../bloom/index.md)

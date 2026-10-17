@@ -1,10 +1,10 @@
 ---
-title: 屈折の境界の問題
+title: Refraction Boundary Problems
 tags:
   - 描画
 ---
 
-# 屈折の境界の問題
+# Refraction Boundary Problems
 
 **画面をずらして読むと、屈折する物体より「手前にある物」まで、ずれて読んでしまう**ことがあります。**境界でにじむ**ので、**深度を見て、手前の物は除く**などの工夫が必要です。このページでは、**境界の問題と対策**を説明します。
 
@@ -55,5 +55,5 @@ float3 background = scene_color_copy.Sample(linear_clamp, refract_uv).rgb;
 
 ## 関連ページ
 
-- [屈折](index.md)
-- [画面空間の屈折](screen-space.md)
+- [Refraction](index.md)
+- [Screen-Space Refraction](screen-space.md)

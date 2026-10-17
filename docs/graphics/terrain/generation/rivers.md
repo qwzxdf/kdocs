@@ -1,10 +1,10 @@
 ---
-title: 川と湖
+title: Rivers and Lakes
 tags:
   - 描画
 ---
 
-# 川と湖
+# Rivers and Lakes
 
 **川は、高い所から低い所へ流れ、谷に沿います**。**侵食の結果から、流れの量を求めて、川を決められます**。このページでは、**川と湖の生成**を説明します。
 
@@ -24,7 +24,7 @@ tags:
 | **窪地の処理** | **行き止まり（窪み）は、湖にするか、堤を越えて流す** |
 | **幅と深さ** | **水量に比例**して**川幅を広げる** |
 
-**川の水面**は、[水](../../water/index.md)の**フローマップ**（[水面のインタラクション](../../water/interaction/index.md)）で**流れを表現**します。
+**川の水面**は、[Water](../../water/index.md)の**フローマップ**（[水面のインタラクション](../../water/interaction/index.md)）で**流れを表現**します。
 
 ## よくあるミス
 
@@ -44,6 +44,6 @@ tags:
 
 ## 関連ページ
 
-- [地形の生成](index.md)
-- [侵食](erosion.md)
-- [水](../../water/index.md)
+- [Terrain Generation](index.md)
+- [Erosion](erosion.md)
+- [Water](../../water/index.md)

@@ -1,10 +1,10 @@
 ---
-title: スロープ スケール バイアス
+title: Slope-Scale Bias
 tags:
   - 描画
 ---
 
-# スロープ スケール バイアス
+# Slope-Scale Bias
 
 **面が光に対して斜めなほど、アクネが出やすく、必要なバイアスは大きくなります**。**面の傾き（深度の勾配）に比例してバイアスを増やす**のが**スロープ スケール バイアス**です。**ハードウェアのラスタライザが、これをサポートしている**ので、**シャドウ マップを描くときに設定するだけで使えます**。このページでは、**傾きとアクネの関係・ハードウェアの設定（`SlopeScaledDepthBias`）・シェーダーでの計算**を説明します。
 
@@ -116,6 +116,6 @@ desc.DepthBiasClamp = 0.01f;
 
 ## 関連ページ
 
-- [バイアス](index.md)
-- [定数バイアス](constant-bias.md)
-- [法線オフセット](normal-offset.md)
+- [Shadow Bias](index.md)
+- [Constant Bias](constant-bias.md)
+- [Normal Offset](normal-offset.md)

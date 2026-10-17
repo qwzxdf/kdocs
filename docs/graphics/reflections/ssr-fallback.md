@@ -1,10 +1,10 @@
 ---
-title: SSR のフォールバックと合成
+title: SSR Fallback and Compositing
 tags:
   - 描画
 ---
 
-# SSR のフォールバックと合成
+# SSR Fallback and Compositing
 
 SSR は**画面に映っているものだけ**を反射できます。**画面の端・カメラの後ろ・物の裏側・画面の外**への反射は、**映りません**。そのまま使うと**反射が突然消えたり、現れたり**して、**不自然**です。そこで、**SSR が反射を作れない部分**を、**別の方式（プローブ・平面反射・空）で補い**、**滑らかに混ぜます**。このページでは、**フォールバックの考え方・信頼度・合成の順序・混ぜ方・注意点**を説明します。
 
@@ -144,7 +144,7 @@ float3 specular = reflection * (F0 * brdf.x + brdf.y) * SpecularOcclusion(...);
 
 | 優先 | 方式 | 適用範囲 |
 | --- | --- | --- |
-| **1** | **平面反射**（[平面反射](planar.md)） | 水面・鏡など、**平面のみ**。最も正確 |
+| **1** | **平面反射**（[Planar Reflections](planar.md)） | 水面・鏡など、**平面のみ**。最も正確 |
 | **2** | **SSR**（画面内の当たり） | 画面に映る物。**信頼度でフェード** |
 | **3** | **ローカル プローブ**（[プローブ](probes/index.md)） | **部屋・エリア**ごと。視差補正 |
 | **4** | **グローバル プローブ**（空・遠景） | シーン全体の最後の砦 |
@@ -245,8 +245,8 @@ color = lerp(color, planar_color, planar_weight);
 
 ## 関連ページ
 
-- [反射](index.md)
+- [Reflections](index.md)
 - [リフレクション プローブ](probes/index.md)
 - [SSR の基礎](ssr-basics/index.md)
-- [確率的 SSR](ssr-stochastic.md)
+- [Stochastic SSR](ssr-stochastic.md)
 - [GTAO（スペキュラ遮蔽）](../ao/gtao.md)

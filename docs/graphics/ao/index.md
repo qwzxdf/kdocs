@@ -1,10 +1,10 @@
 ---
-title: 環境光遮蔽（AO）
+title: Ambient Occlusion (AO)
 tags:
   - 描画
 ---
 
-# 環境光遮蔽（AO）
+# Ambient Occlusion (AO)
 
 **環境光遮蔽**（Ambient Occlusion、AO）は、<strong>「周囲から届く光が近くの物体に遮られて、どれだけ暗くなるか」</strong>を表す量です。部屋の隅・物の接地面・壁と床の境目が暗く見えるのは、周囲の空（天球）の光がそこには届きにくいからです。ライトの種類や位置には関係なく、**形だけから**決まります。ゲームでは**間接光（環境光）の項**に掛ける係数として使い、画面に**奥行きと接地感**を足します。
 
@@ -22,15 +22,15 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [AO の理論](theory/index.md) | AO の定義・積分・コサイン重み・オブスキュランス・近似の分類 |
+| [AO Theory](theory/index.md) | AO の定義・積分・コサイン重み・オブスキュランス・近似の分類 |
 | [Crytek SSAO](ssao-crytek.md) | 最初の SSAO。深度バッファと球サンプルで近似する発想 |
-| [半球 SSAO](ssao-hemisphere.md) | 法線を使った半球サンプル。現在の「標準的な SSAO」 |
+| [Hemisphere SSAO](ssao-hemisphere.md) | 法線を使った半球サンプル。現在の「標準的な SSAO」 |
 | [Alchemy AO](alchemy-ao.md) | AO の式を解析的に近似。物理的な導出がある方式 |
 | [SAO（Scalable AO）](sao.md) | Alchemy ＋ 深度のミップ。半径に依存しない速さ |
 | [HBAO](hbao.md) | 地平線（ホライゾン）を探して、遮蔽を積分する方式 |
 | [HBAO+](hbao-plus.md) | NVIDIA の高速版。フル解像度・キャッシュ効率 |
 | [GTAO](gtao.md) | コサイン重みを正しく積分する。バウンス・スペキュラ遮蔽も |
-| [レイトレース AO・距離場 AO・ボクセル AO](world-space/index.md) | 画面に頼らない方式 |
+| [Ray-Traced, Distance-Field and Voxel AO](world-space/index.md) | 画面に頼らない方式 |
 | [フィルタ（ぼかし・時間方向）](filtering/index.md) | バイラテラル ブラー・アップサンプル・ノイズ・時間蓄積 |
 | [方式の比較](comparison.md) | 原理・入力・コスト・弱点の一覧と選び方 |
 | [アーティファクト](artifacts/index.md) | ハロー・画面端・薄い物・自己遮蔽・適用方法の間違い |
@@ -56,7 +56,7 @@ l e g - コサイン重みを正しく
 ## 関連ページ
 
 - [描画](../index.md)
-- [AO の理論](theory/index.md)
+- [AO Theory](theory/index.md)
 - [法線とライティング](../../3d/lighting-normals.md)
 - [PBR（IBL と AO の使い方）](../../3d/pbr.md)
 - [低解像度のエフェクト](../../rendering/low-res-effects.md)

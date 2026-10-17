@@ -1,10 +1,10 @@
 ---
-title: 空気遠近法・フォグ
+title: Aerial Perspective and Fog
 tags:
   - 描画
 ---
 
-# 空気遠近法・フォグ
+# Aerial Perspective and Fog
 
 **遠くの景色は、空気の層を通って、青く霞んで見えます**。**これを空気遠近法と呼び、距離感を出すために、とても重要**です。このセクションでは、**必要な理由・フォグの式・高さフォグ・太陽方向のにじみ・色を空に合わせる・物理に基づく空気遠近法・適用する場所**を、**1 つずつ別のページ**で説明します。
 
@@ -31,12 +31,12 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [フォグの式](fog-equation.md) | 線形・指数・指数二乗 |
-| [高さフォグ](height-fog.md) | 低い所に霧がたまる |
-| [太陽方向のにじみ](sun-inscatter.md) | 太陽の方向が明るく霞む |
+| [Fog Equations](fog-equation.md) | 線形・指数・指数二乗 |
+| [Height Fog](height-fog.md) | 低い所に霧がたまる |
+| [Sun Inscatter](sun-inscatter.md) | 太陽の方向が明るく霞む |
 | [色を空に合わせる](color-match.md) | フォグの色の決め方 |
-| [物理に基づく空気遠近法](physical.md) | 散乱の LUT を使う |
-| [適用する場所](where.md) | 夜・屋内・閉所の扱い |
+| [Physically Based Aerial Perspective](physical.md) | 散乱の LUT を使う |
+| [Where to Apply Fog](where.md) | 夜・屋内・閉所の扱い |
 
 ## これだけ覚える
 
@@ -53,5 +53,5 @@ tags:
 ## 関連ページ
 
 - [大気](../index.md)
-- [大気散乱](../scattering/index.md)
-- [ボリューメトリック フォグ](../volumetric-fog/index.md)
+- [Atmospheric Scattering](../scattering/index.md)
+- [Volumetric Fog](../volumetric-fog/index.md)

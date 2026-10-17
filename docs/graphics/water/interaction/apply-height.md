@@ -1,10 +1,10 @@
 ---
-title: 高さマップを水面に反映する
+title: Applying a Height Map to the Surface
 tags:
   - 描画
 ---
 
-# 高さマップを水面に反映する
+# Applying a Height Map to the Surface
 
 **シミュレーションした高さマップを、水面のメッシュの高さと法線に足す**と、**波紋が見えます**。**シミュレーションする範囲は、カメラの周りに限る**のが**普通**です。このページでは、**反映の方法と、シミュレーション領域**を説明します。
 
@@ -67,5 +67,5 @@ float3 ripple_normal = normalize(float3((hl - hr) * normal_strength, 2.0 * texel
 
 ## 関連ページ
 
-- [水との相互作用](index.md)
-- [物の接触を書き込む](contact.md)
+- [Water Interaction](index.md)
+- [Writing Object Contacts](contact.md)

@@ -1,10 +1,10 @@
 ---
-title: 線形マーチ
+title: Linear Marching
 tags:
   - 描画
 ---
 
-# 線形マーチ
+# Linear Marching
 
 **SSR の中心は、「反射レイを画面上で進めて、深度と比べる」処理**です。**一定の歩幅で進めるのが「線形マーチ」**で、**歩幅が大きいと、薄い物を飛び越え、小さいと、遅くなります**。**当たりが見つかった後は、二分探索で精密化**すると、**少ないステップでも、きれいに当たります**。このページでは、**レイの進め方・歩幅の決め方・当たりの精密化**を説明します。
 
@@ -199,6 +199,6 @@ float2 RefineHit(float2 p_before, float2 p_after, int steps) {
 
 ## 関連ページ
 
-- [SSR の基本](index.md)
+- [SSR Basics](index.md)
 - [厚み](thickness.md)
 - [階層 Z（Hi-Z）](../ssr-hiz.md)

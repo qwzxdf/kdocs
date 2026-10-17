@@ -1,10 +1,10 @@
 ---
-title: 輪郭線・トゥーン
+title: Outlines and Toon
 tags:
   - 描画
 ---
 
-# 輪郭線・トゥーン
+# Outlines and Toon
 
 **写実的ではなく、アニメやイラストのような絵**を**作る技法**が<strong>ノンフォトリアリスティック レンダリング（NPR）</strong>です。<strong>輪郭線（アウトライン）で形を強調し、陰影を数段階に区切る（セル シェーディング）</strong>ことで、<strong>「手描きのアニメ」風</strong>の絵になります。**どれも写実より優れているわけではなく、作品の画風に合うかどうかの好みの問題**です。このセクションでは、**背面法の輪郭線・画面空間のエッジ検出・セル シェーディング・ポスタライズとハーフトーン**を、**1 つずつ別のページ**で説明します。
 
@@ -74,10 +74,10 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [背面法の輪郭線](outline-hull.md) | 裏返したメッシュを法線方向に膨らませて、黒く塗る |
-| [画面空間のエッジ検出](outline-edge.md) | 深度・法線・ID の差から、線を検出（Sobel） |
-| [セル シェーディング](cel-shading.md) | 陰影の段階化・ランプ テクスチャ・スペキュラとリム ライト |
-| [ポスタライズとハーフトーン](posterize-halftone.md) | 色数を減らす・網点・漫画的表現 |
+| [Inverted Hull Outlines](outline-hull.md) | 裏返したメッシュを法線方向に膨らませて、黒く塗る |
+| [Screen-Space Edge Detection](outline-edge.md) | 深度・法線・ID の差から、線を検出（Sobel） |
+| [Cel Shading](cel-shading.md) | 陰影の段階化・ランプ テクスチャ・スペキュラとリム ライト |
+| [Posterization and Halftone](posterize-halftone.md) | 色数を減らす・網点・漫画的表現 |
 
 ## 輪郭線の 2 方式
 
@@ -88,7 +88,7 @@ tags:
 
 ## 関連ページ
 
-- [ポストプロセス](../index.md)
-- [カラー グレーディング](../color-grading/index.md)
+- [Post-Processing](../index.md)
+- [Color Grading](../color-grading/index.md)
 - [PBR](../../../3d/pbr.md)
 - [法線とライティング](../../../3d/lighting-normals.md)

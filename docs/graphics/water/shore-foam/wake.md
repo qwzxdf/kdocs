@@ -1,10 +1,10 @@
 ---
-title: 航跡と衝突
+title: Wakes and Collisions
 tags:
   - 描画
 ---
 
-# 航跡と衝突
+# Wakes and Collisions
 
 **船の後ろや、物が水に当たった所には、泡の筋（航跡）ができます**。**物の位置を、泡のバッファに書き込む**ことで、**表現**できます。このページでは、**航跡と衝突の泡**を説明します。
 
@@ -41,5 +41,5 @@ tags:
 
 ## 関連ページ
 
-- [岸辺の泡](index.md)
-- [水との相互作用](../interaction/index.md)
+- [Shore Foam](index.md)
+- [Water Interaction](../interaction/index.md)

@@ -1,10 +1,10 @@
 ---
-title: ガウスぼかし
+title: Gaussian Blur
 tags:
   - 描画
 ---
 
-# ガウスぼかし
+# Gaussian Blur
 
 **ガウスぼかし**は、**画像処理でもっとも基本的なぼかし**で、**ブルームをはじめ、DOF・SSAO のぼかしなど**、**あらゆる所**で**使われます**。**中心が重く、離れるほど滑らかに軽くなる重み**で**周りを平均**するので、**自然でムラのないぼかし**になります。このページでは、**ガウス関数・分離可能性（横 → 縦の 2 パス）・バイリニアを使ったタップ数の半減・重みの作り方・カーネル サイズの決め方**を説明します。
 
@@ -507,7 +507,7 @@ std::vector<float> GaussianWeights(int radius, float sigma) {
 
 ## 関連ページ
 
-- [ブルーム](index.md)
-- [ダウンサンプルとミップ チェーン](downsample.md)
+- [Bloom](index.md)
+- [Downsampling and the Mip Chain](downsample.md)
 - [Dual Filter](dual-filter.md)
 - [SSAO のぼかし](../../ao/filtering/index.md)

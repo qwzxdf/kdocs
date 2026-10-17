@@ -1,10 +1,10 @@
 ---
-title: ソート
+title: Sorting
 tags:
   - 描画
 ---
 
-# ソート
+# Sorting
 
 **半透明は、奥から手前の順に描かないと、結果が崩れます**。**物体単位のソート・パーティクル単位のソート・面ごとのソート**など、**粒度**があります。このページでは、**ソートの方法と、順序の決め方**を説明します。
 
@@ -149,6 +149,6 @@ DrawMesh();
 
 ## 関連ページ
 
-- [アルファ ブレンドとソート](index.md)
+- [Alpha Blending and Sorting](index.md)
 - [OIT](../oit/index.md)
-- [ブレンド ステート](blend-state.md)
+- [Blend State](blend-state.md)

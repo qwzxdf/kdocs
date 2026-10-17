@@ -1,10 +1,10 @@
 ---
-title: 時間蓄積（TAA 風）
+title: Temporal Accumulation
 tags:
   - 描画
 ---
 
-# 時間蓄積（TAA 風）
+# Temporal Accumulation
 
 **froxel の解像度は低いので、ノイズや段が出ます**。**毎フレーム、サンプルの位置をずらして、前フレームと混ぜる**と、**実質の解像度が上がり、なめらか**になります。このページでは、**時間蓄積**を説明します。
 
@@ -51,5 +51,5 @@ float4 result = lerp(history, current, blend);
 
 ## 関連ページ
 
-- [ボリューメトリック フォグ](index.md)
+- [Volumetric Fog](index.md)
 - [TAA](../../postprocess/antialiasing/taa.md)

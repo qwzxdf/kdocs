@@ -1,10 +1,10 @@
 ---
-title: 泡テクスチャと合成
+title: Foam Textures and Compositing
 tags:
   - 描画
 ---
 
-# 泡テクスチャと合成
+# Foam Textures and Compositing
 
 **マスクが決まったら、泡テクスチャで見た目を付け、水面に合成します**。**テクスチャを流して、泡が動くように見せる**のが**コツ**です。このページでは、**泡テクスチャの使い方と、合成**を説明します。
 
@@ -84,5 +84,5 @@ float transparency = 1.0 - foam;
 
 ## 関連ページ
 
-- [岸辺の泡](index.md)
-- [泡を残す](foam-history.md)
+- [Shore Foam](index.md)
+- [Persistent Foam](foam-history.md)

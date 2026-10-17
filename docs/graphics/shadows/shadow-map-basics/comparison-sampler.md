@@ -1,10 +1,10 @@
 ---
-title: 比較とサンプラー
+title: Comparison Samplers
 tags:
   - 描画
 ---
 
-# 比較とサンプラー
+# Comparison Samplers
 
 **シャドウ マップが描けたら、画面の各点で「光から見た深度」と「マップの深度」を比べます**。**この比較を、GPU の比較サンプラーに任せる**と、**ハードウェア PCF（2×2 の補間）**も**同時に**得られます。このページでは、**比較の手順・比較サンプラーの設定・ハードウェア PCF の効果**を説明します。
 
@@ -34,7 +34,7 @@ float ShadowFactor(float3 world_pos) {
 | 点 | 説明 |
 | --- | --- |
 | **`ndc.xy * (0.5, −0.5) + 0.5`** | NDC（−1〜1、y は上向き）を、テクスチャ座標（0〜1、v は下向き）に |
-| **`depth = ndc.z − bias`** | **バイアス**で自己影を防ぐ（[バイアス](../bias/index.md)） |
+| **`depth = ndc.z − bias`** | **バイアス**で自己影を防ぐ（[Shadow Bias](../bias/index.md)） |
 | **範囲外** | シャドウ マップの外は、**影なし**（1）として扱う（または別の扱い） |
 | **`SampleCmpLevelZero`** | **比較サンプラー**。**比較して、結果（0〜1）を、2×2 でバイリニア補間** |
 
@@ -78,6 +78,6 @@ device->CreateSamplerState(&sampler, &shadow_sampler);
 
 ## 関連ページ
 
-- [シャドウ マップの基礎](index.md)
-- [深度を描く](render-depth.md)
+- [Shadow Map Basics](index.md)
+- [Rendering Depth](render-depth.md)
 - [PCF](../pcf.md)

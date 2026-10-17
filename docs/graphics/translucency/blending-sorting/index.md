@@ -1,10 +1,10 @@
 ---
-title: アルファ ブレンドとソート
+title: Alpha Blending and Sorting
 tags:
   - 描画
 ---
 
-# アルファ ブレンドとソート
+# Alpha Blending and Sorting
 
 **半透明は、「手前の色」と「奥の色」を、アルファ値で混ぜて表現します**。**混ぜる順序で結果が変わる**ので、**奥から手前の順（ソート）で描く必要があります**。このセクションでは、**ブレンドの式・DirectX 11 のブレンド ステート・乗算済みアルファ・ソート・ソフト パーティクル**を、**1 つずつ別のページ**で説明します。
 
@@ -42,10 +42,10 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [ブレンド ステート](blend-state.md) | DirectX 11 での設定 |
-| [乗算済みアルファ](premultiplied.md) | 式を単純にして、品質も上げる |
-| [ソート](sorting.md) | 描く順序の決め方 |
-| [ソフト パーティクル](soft-particles.md) | 深度を読んで、交差の硬い線を消す |
+| [Blend State](blend-state.md) | DirectX 11 での設定 |
+| [Premultiplied Alpha](premultiplied.md) | 式を単純にして、品質も上げる |
+| [Sorting](sorting.md) | 描く順序の決め方 |
+| [Soft Particles](soft-particles.md) | 深度を読んで、交差の硬い線を消す |
 
 ## これだけ覚える
 
@@ -61,6 +61,6 @@ tags:
 
 ## 関連ページ
 
-- [半透明](../index.md)
+- [Translucency](../index.md)
 - [OIT](../oit/index.md)
-- [アルファ テスト](../alpha-test/index.md)
+- [Alpha Testing](../alpha-test/index.md)

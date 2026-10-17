@@ -1,10 +1,10 @@
 ---
-title: 継ぎ目（クラック）
+title: Cracks and Seams
 tags:
   - 描画
 ---
 
-# 継ぎ目（クラック）
+# Cracks and Seams
 
 **LOD の異なる区画が隣り合うと、境界で頂点が合わず、隙間（クラック）ができます**。**境界の頂点を調整する**ことで、**隙間を埋められます**。このページでは、**継ぎ目の原因と対策**を説明します。
 
@@ -78,5 +78,5 @@ tags:
 
 ## 関連ページ
 
-- [地形の LOD](index.md)
-- [モーフィング](morphing.md)
+- [Terrain LOD](index.md)
+- [Geomorphing](morphing.md)

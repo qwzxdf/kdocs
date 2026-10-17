@@ -1,10 +1,10 @@
 ---
-title: 繰り返しを隠す
+title: Hiding Tiling
 tags:
   - 描画
 ---
 
-# 繰り返しを隠す
+# Hiding Tiling
 
 **タイル テクスチャは、広い範囲に貼ると、繰り返しが目立ちます**。**大きさの違うテクスチャを重ねる・ランダムに回転させる**ことで、**隠せます**。このページでは、**タイリングの隠し方**を説明します。
 
@@ -83,5 +83,5 @@ float3 color = near_color * far_color * 2.0;
 
 ## 関連ページ
 
-- [地形のテクスチャ](index.md)
-- [トライプラナー](triplanar.md)
+- [Terrain Texturing](index.md)
+- [Triplanar Mapping](triplanar.md)

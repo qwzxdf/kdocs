@@ -113,7 +113,7 @@ float3 ACESFitted(float3 color) {
 | --- | --- |
 | **Hill のフィットを使う** | **色空間変換つきで色の偏りが本物に近く、制御しやすい** |
 | **エフェクトの色を事前に調整** | **ACES を通った後の見た目で、エフェクトの色を決める** |
-| **ハイライトの色を保つ補正** | **彩度の高い明部で輝度ベースの補正をブレンド**（[色相の保ち方](hue-preservation.md)） |
+| **ハイライトの色を保つ補正** | **彩度の高い明部で輝度ベースの補正をブレンド**（[Preserving Hue](hue-preservation.md)） |
 | **AgX に替える** | <strong>色相の安定を重視するなら、[AgX](agx.md)</strong> |
 | **LUT に焼く** | **ACES を 3D LUT にして、グレーディングと統合**（[3D LUT](../color-grading/lut-3d.md)） |
 
@@ -148,7 +148,7 @@ float3 ACESFitted(float3 color) {
 
 ## 関連ページ
 
-- [トーンマッピングと露出](index.md)
-- [フィルミック（Hable）](filmic-hable.md)
-- [AgX ほか](agx.md)
-- [色相の保ち方](hue-preservation.md)
+- [Tone Mapping and Exposure](index.md)
+- [Filmic (Hable)](filmic-hable.md)
+- [AgX and Others](agx.md)
+- [Preserving Hue](hue-preservation.md)

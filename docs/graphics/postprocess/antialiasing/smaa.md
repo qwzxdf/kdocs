@@ -223,7 +223,7 @@ float4 NeighborhoodBlending(float2 uv) {
 
 ## 関連ページ
 
-- [アンチエイリアシング](index.md)
+- [Anti-Aliasing](index.md)
 - [FXAA](fxaa.md)
 - [TAA](taa.md)
-- [比較と選び方](comparison.md)
+- [Comparison and Choosing](comparison.md)

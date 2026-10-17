@@ -1,10 +1,10 @@
 ---
-title: AO の理論
+title: AO Theory
 tags:
   - 描画
 ---
 
-# AO の理論
+# AO Theory
 
 **環境光遮蔽（AO）**は、**「ある点が、周りの物にどれだけ遮られて、環境光が届きにくいか」**を**表します**。**くぼみ・隅・物の接地部が暗くなる**ので、**立体感と接地感**が**増します**。**その数学的な定義と近似の仕方を知ると、各方式（SSAO・HBAO・GTAO…）の違いが整理できます**。このセクションでは、**レンダリング方程式から AO への導出・球面座標・オブスキュランス・近似の 3 つのやり方・スクリーン空間の可視性・使い方と誤解**を、**1 つずつ別のページ**で説明します。
 
@@ -19,11 +19,11 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [レンダリング方程式から AO へ](from-rendering-equation.md) | 出発点・一様な天球の仮定・球面座標 |
-| [オブスキュランス](obscurance.md) | 距離の減衰を足す |
-| [積分の近似](approximation.md) | 3 つのやり方・方式を分けるもの |
-| [スクリーン空間の可視性](screen-space-visibility.md) | 深度バッファから V を求める |
-| [AO の使い方と誤解](usage-misconceptions.md) | 適用の仕方・よくある誤解 |
+| [From the Rendering Equation to AO](from-rendering-equation.md) | 出発点・一様な天球の仮定・球面座標 |
+| [Obscurance](obscurance.md) | 距離の減衰を足す |
+| [Approximating the Integral](approximation.md) | 3 つのやり方・方式を分けるもの |
+| [Screen-Space Visibility](screen-space-visibility.md) | 深度バッファから V を求める |
+| [Usage and Misconceptions of AO](usage-misconceptions.md) | 適用の仕方・よくある誤解 |
 
 ## これだけ覚える
 
@@ -38,5 +38,5 @@ tags:
 
 ## 関連ページ
 
-- [環境光遮蔽（AO）](../index.md)
+- [Ambient Occlusion (AO)](../index.md)
 - [方式の比較](../comparison.md)

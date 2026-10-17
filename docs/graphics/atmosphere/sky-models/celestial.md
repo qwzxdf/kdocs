@@ -1,10 +1,10 @@
 ---
-title: 太陽・月・星
+title: Sun, Moon and Stars
 tags:
   - 描画
 ---
 
-# 太陽・月・星
+# Sun, Moon and Stars
 
 **空には、太陽・月・星があります**。**太陽はディスク、月はテクスチャ付きの球、星は点の集まりで描きます**。このページでは、**天体の描き方**を説明します。
 
@@ -49,7 +49,7 @@ float3 SunColor(float sun_height) {
 }
 ```
 
-**正確には大気の透過率（光学的厚さ）から求めます**（[大気散乱](../scattering/index.md)）。
+**正確には大気の透過率（光学的厚さ）から求めます**（[Atmospheric Scattering](../scattering/index.md)）。
 
 ### 月と星
 
@@ -85,5 +85,5 @@ float3 sky = day_sky + stars * night_factor;
 
 ## 関連ページ
 
-- [空のモデル](index.md)
-- [昼夜のサイクル](day-night.md)
+- [Sky Models](index.md)
+- [Day-Night Cycle](day-night.md)

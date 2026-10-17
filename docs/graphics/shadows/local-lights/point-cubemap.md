@@ -1,10 +1,10 @@
 ---
-title: 点光源：キューブ マップ
+title: Point Lights: Cube Maps
 tags:
   - 描画
 ---
 
-# 点光源：キューブ マップ
+# Point Lights: Cube Maps
 
 **点光源は、全方向を照らす**ので、**影を作るには、全方向の深度が必要**です。**キューブ マップ（6 面）に、各方向の深度を描く**のが**標準**で、**サンプルは、ライトから画面の点への方向ベクトルで引く**ので**簡単**です。**ただし、6 回描くので、コストが 6 倍**です。このページでは、**キューブ マップの作り方・方向ベクトルでのサンプル・線形距離の保存・面の境界と PCF**を説明します。
 
@@ -113,6 +113,6 @@ float PointShadow(float3 world_pos) {
 
 ## 関連ページ
 
-- [点光源・スポットライトの影](index.md)
-- [スポットライト](spot-light.md)
-- [デュアル パラボロイド](dual-paraboloid.md)
+- [Point and Spot Light Shadows](index.md)
+- [Spot Lights](spot-light.md)
+- [Dual Paraboloid](dual-paraboloid.md)

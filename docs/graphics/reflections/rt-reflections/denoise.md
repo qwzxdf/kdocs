@@ -1,10 +1,10 @@
 ---
-title: ノイズ除去
+title: Denoising
 tags:
   - 描画
 ---
 
-# ノイズ除去
+# Denoising
 
 **1 画素 1 本のレイでは、粗い面の反射は、ノイズだらけ**になります。**これを、時間方向（前フレームの再利用）と、空間方向（周囲の画素との平均）のフィルタで消すのがデノイザ**です。このページでは、**デノイズの仕組みと、長所・短所**を説明します。
 
@@ -60,6 +60,6 @@ tags:
 
 ## 関連ページ
 
-- [レイトレ反射](index.md)
-- [ハイブリッド構成](hybrid.md)
-- [AO のフィルタ](../../ao/filtering/index.md)
+- [Ray-Traced Reflections](index.md)
+- [Hybrid Pipeline](hybrid.md)
+- [AO Filtering](../../ao/filtering/index.md)

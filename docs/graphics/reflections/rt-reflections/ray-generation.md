@@ -1,10 +1,10 @@
 ---
-title: レイの生成
+title: Ray Generation
 tags:
   - 描画
 ---
 
-# レイの生成
+# Ray Generation
 
 **レイトレ反射の最初の段階は、「どの方向へ、レイを飛ばすか」を決めること**です。**鏡のような面は、完全な反射方向 1 本**ですが、**粗い面は、GGX 分布に従って、方向をばらつかせます**。このページでは、**反射レイの作り方・粗さの扱い・サンプル数**を説明します。
 
@@ -15,7 +15,7 @@ tags:
     - **可視法線サンプリング**を使うと、**無駄なレイが減る**。
 
 ## レイの生成
-**確率的 SSR と同じ**です（[確率的 SSR](../ssr-stochastic.md)）。**画素ごと 1 本**（または**半分の解像度**で 1 本）のレイを、**GGX の可視法線サンプリング**で作ります。
+**確率的 SSR と同じ**です（[Stochastic SSR](../ssr-stochastic.md)）。**画素ごと 1 本**（または**半分の解像度**で 1 本）のレイを、**GGX の可視法線サンプリング**で作ります。
 
 ```hlsl
 [shader("raygeneration")]
@@ -80,6 +80,6 @@ void ReflectionRayGen() {
 
 ## 関連ページ
 
-- [レイトレ反射](index.md)
+- [Ray-Traced Reflections](index.md)
 - [ヒット点のシェーディング](hit-shading.md)
-- [確率的 SSR](../ssr-stochastic.md)
+- [Stochastic SSR](../ssr-stochastic.md)

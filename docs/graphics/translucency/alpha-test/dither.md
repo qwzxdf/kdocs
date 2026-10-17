@@ -1,10 +1,10 @@
 ---
-title: ディザ透明
+title: Dithered Transparency
 tags:
   - 描画
 ---
 
-# ディザ透明
+# Dithered Transparency
 
 **ディザ透明は、規則的な点の模様（ディザ パターン）で、画素を間引いて、半透明に見せる手法**です。**カメラに近づいた物体や、キャラクターを隠す壁を、なめらかに消す**のに使われます。このページでは、**ディザ透明の仕組みと使い所**を説明します。
 
@@ -50,5 +50,5 @@ clip(fade_alpha - threshold);
 
 ## 関連ページ
 
-- [アルファ テスト](index.md)
-- [ハッシュド アルファ](hashed-alpha.md)
+- [Alpha Testing](index.md)
+- [Hashed Alpha](hashed-alpha.md)

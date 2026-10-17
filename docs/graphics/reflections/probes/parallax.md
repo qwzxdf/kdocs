@@ -1,10 +1,10 @@
 ---
-title: 視差補正
+title: Parallax Correction
 tags:
   - 描画
 ---
 
-# 視差補正
+# Parallax Correction
 
 **キューブマップは、「プローブの位置から見た景色」なので、別の場所から見ると、反射が実際とずれます**。**部屋の形の箱（ボックス）を想定して、レイと箱の交点を求めて、補正する**のが**標準的な方法**です。このページでは、**視差の問題・ボックス投影・補正の限界**を説明します。
 
@@ -117,6 +117,6 @@ float3 BoxProjection(float3 world_pos, float3 R, float3 probe_pos,
 
 ## 関連ページ
 
-- [反射プローブ](index.md)
-- [プローブの運用](blending.md)
-- [平面反射](../planar.md)
+- [Reflection Probes](index.md)
+- [Probe Operation](blending.md)
+- [Planar Reflections](../planar.md)

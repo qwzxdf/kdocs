@@ -1,10 +1,10 @@
 ---
-title: 最小のコード
+title: Minimal Code
 tags:
   - 描画
 ---
 
-# 最小のコード
+# Minimal Code
 
 **ここまでの手順を、最小のコードでつなげて見ます**。**1 本の平行光（太陽）**に対する**シャドウ マップの全体の流れ**です。**実際の製品では、バイアス・フィルタ・カスケードを足します**。このページでは、**全体のコードの流れ**を示します。
 
@@ -31,7 +31,7 @@ float3 Shade(float3 world_pos, float3 N, float3 L, float3 albedo, float3 light_c
 ## よくあるミス
 
 ??? failure "最小のコードのまま製品に使って、アクネ・ジャギーが出る"
-    **バイアス（[バイアス](../bias/index.md)）とフィルタ（[PCF](../pcf.md)）を足す**。
+    **バイアス（[Shadow Bias](../bias/index.md)）とフィルタ（[PCF](../pcf.md)）を足す**。
 
 ## これだけ覚える
 
@@ -46,6 +46,6 @@ float3 Shade(float3 world_pos, float3 N, float3 L, float3 albedo, float3 light_c
 
 ## 関連ページ
 
-- [シャドウ マップの基礎](index.md)
-- [バイアス](../bias/index.md)
+- [Shadow Map Basics](index.md)
+- [Shadow Bias](../bias/index.md)
 - [PCF](../pcf.md)

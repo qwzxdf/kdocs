@@ -1,10 +1,10 @@
 ---
-title: 地形
+title: Terrain
 tags:
   - 描画
 ---
 
-# 地形
+# Terrain
 
 **地形**は**ゲームの舞台の土台**です。**地平線まで続く広大な地面を、メモリと描画コストの範囲で、近くは細かく・遠くは粗く表現する**のが**中心の課題**です。このセクションでは、**高さマップからメッシュを作る方法**、<strong>距離に応じた細かさの切り替え（LOD）</strong>、**地面のテクスチャの重ね方**、**草や木の大量配置**、<strong>地形そのものの生成（ノイズ・侵食）</strong>を、順に説明します。
 
@@ -20,11 +20,11 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [高さマップとメッシュ](heightmap-mesh/index.md) | 高さマップ・格子メッシュ・法線・高さの取得・チャンク |
+| [Heightmaps and Meshes](heightmap-mesh/index.md) | 高さマップ・格子メッシュ・法線・高さの取得・チャンク |
 | [LOD](lod/index.md) | クリップマップ・CDLOD・四分木・テッセレーション・継ぎ目 |
-| [地形のテクスチャ](texturing/index.md) | スプラット・トライプラナー・高さブレンド・仮想テクスチャ |
+| [Terrain Texturing](texturing/index.md) | スプラット・トライプラナー・高さブレンド・仮想テクスチャ |
 | [草と木](vegetation/index.md) | インスタンシング・カリング・風・ビルボード・LOD |
-| [地形の生成](generation/index.md) | ノイズ・fBm・侵食・川・手続き的な配置 |
+| [Terrain Generation](generation/index.md) | ノイズ・fBm・侵食・川・手続き的な配置 |
 
 ## 全体の構成
 
@@ -34,8 +34,8 @@ tags:
 | **細かさの制御** | **LOD**（距離で三角形の数を変える） |
 | **見た目** | **スプラット マップ ＋ 複数のテクスチャ ＋ 法線マップ** |
 | **植生** | **インスタンシング ＋ カリング ＋ 風** |
-| **光** | **影・AO・GI**（[影](../shadows/index.md)・[AO](../ao/index.md)） |
-| **水** | **湖・海・川**（[水](../water/index.md)） |
+| **光** | **影・AO・GI**（[Shadows](../shadows/index.md)・[AO](../ao/index.md)） |
+| **水** | **湖・海・川**（[Water](../water/index.md)） |
 | **当たり判定** | **高さマップから直接、地面の高さを引く** |
 
 ## 地形データの規模
@@ -53,6 +53,6 @@ tags:
 ## 関連ページ
 
 - [描画](../index.md)
-- [水](../water/index.md)
-- [影](../shadows/index.md)
+- [Water](../water/index.md)
+- [Shadows](../shadows/index.md)
 - [描画最適化](../../rendering/index.md)

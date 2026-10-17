@@ -1,10 +1,10 @@
 ---
-title: ボリューメトリック フォグ
+title: Volumetric Fog
 tags:
   - 描画
 ---
 
-# ボリューメトリック フォグ
+# Volumetric Fog
 
 **ボリューメトリック フォグは、霧の中を光が通る様子を、3D の体積として計算する手法**です。**光の筋や、影の中の霧、ライトの周りの光の玉**が**表現**できます。このセクションでは、**通常のフォグとの違い・froxel・手順・密度・光の注入・積分と適用・時間蓄積・品質と速度**を、**1 つずつ別のページ**で説明します。
 
@@ -37,12 +37,12 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [froxel](froxel.md) | 視錐台のグリッド |
-| [① 密度](density.md) | 霧の濃さを決める |
-| [② 光の注入](injection.md) | 各セルにライトを足す |
-| [③ 積分と ④ 適用](integration.md) | 視線に沿って足し、シーンに合成 |
+| [Froxels](froxel.md) | 視錐台のグリッド |
+| [Step 1: Density](density.md) | 霧の濃さを決める |
+| [Step 2: Light Injection](injection.md) | 各セルにライトを足す |
+| [Steps 3 and 4: Integration and Application](integration.md) | 視線に沿って足し、シーンに合成 |
 | [時間蓄積](temporal.md) | ノイズを消す |
-| [品質と速度](quality.md) | 解像度・スライス数の目安 |
+| [Quality and Performance](quality.md) | 解像度・スライス数の目安 |
 
 ## これだけ覚える
 
@@ -59,5 +59,5 @@ tags:
 ## 関連ページ
 
 - [大気](../index.md)
-- [空気遠近法・フォグ](../aerial-fog/index.md)
-- [ゴッド レイ](../god-rays/index.md)
+- [Aerial Perspective and Fog](../aerial-fog/index.md)
+- [God Rays](../god-rays/index.md)

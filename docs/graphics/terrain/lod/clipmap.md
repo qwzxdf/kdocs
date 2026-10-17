@@ -1,10 +1,10 @@
 ---
-title: クリップマップ
+title: Geometry Clipmaps
 tags:
   - 描画
 ---
 
-# クリップマップ
+# Geometry Clipmaps
 
 **クリップマップは、カメラを中心に、同心の格子を重ねる手法**で、**外側ほど粗く**なります。**メッシュがシンプルで、四分木が要りません**。このページでは、**クリップマップの仕組み**を説明します。
 
@@ -45,5 +45,5 @@ tags:
 
 ## 関連ページ
 
-- [地形の LOD](index.md)
+- [Terrain LOD](index.md)
 - [CDLOD](cdlod.md)

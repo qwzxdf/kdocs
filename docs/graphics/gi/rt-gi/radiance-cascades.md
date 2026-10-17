@@ -207,6 +207,6 @@ tags:
 
 ## 関連ページ
 
-- [レイトレ GI](index.md)
-- [手法の選び方](choosing.md)
+- [Ray-Traced GI](index.md)
+- [Choosing a Method](choosing.md)
 - [SSGI](../ssgi.md)

@@ -1,10 +1,10 @@
 ---
-title: 距離場の影
+title: Distance Field Shadows
 tags:
   - 描画
 ---
 
-# 距離場の影
+# Distance Field Shadows
 
 **シャドウ マップ**は、**光から見た深度**を描きます。**距離場の影**（Distance Field Shadows）は、**シーンを符号付き距離場（SDF）として持ち**、**画素から光へ向かう**レイを、**距離場の上で進め**て、**遮蔽を調べる**方式です。**距離場**には<strong>「最も近い物までの距離」</strong>が入っているので**レイを安全な距離だけ一気に進められ**（**スフィア トレーシング**）、<strong>「どれだけ、ぎりぎりをかすめたか」</strong>から、**柔らかい半影**を**ほぼ無料で**作れます。**静的なシーン**・**遠景**の影に向きます。
 
@@ -235,7 +235,7 @@ float SoftSphereTraceShadow(float3 origin, float3 light_dir, float k) {
 
 ## 関連ページ
 
-- [影](index.md)
+- [Shadows](index.md)
 - [PCSS](pcss.md)
-- [カスケード シャドウ マップ](cascaded.md)
+- [Cascaded Shadow Maps (CSM)](cascaded.md)
 - [AO のその他の手法（距離場 AO）](../ao/world-space/index.md)

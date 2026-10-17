@@ -177,7 +177,7 @@ float3 ApplyLutHdr(float3 hdr_color) {
 | **半テクセルのオフセット** | **必須** |
 | **FP16・10 ビット** | **バンディングを避ける** |
 | **32³ から始める** | **足りなければ 64³** |
-| **LUT は一度作って使い回す** | **パラメータが変わった時だけ再生成**（[LUT の作り方](lut-authoring.md)） |
+| **LUT は一度作って使い回す** | **パラメータが変わった時だけ再生成**（[Authoring LUTs](lut-authoring.md)） |
 | **トーンマップも LUT に** | **曲線と色調整をまとめて焼く** |
 | **ディザリングで、8 ビット出力のバンディングを消す** | **LUT 後にわずかなノイズを足す** |
 
@@ -212,7 +212,7 @@ float3 ApplyLutHdr(float3 hdr_color) {
 
 ## 関連ページ
 
-- [カラー グレーディング](index.md)
-- [LUT の作り方](lut-authoring.md)
-- [基本の調整](basic-adjustments.md)
-- [トーンマッピングと露出](../tonemapping/index.md)
+- [Color Grading](index.md)
+- [Authoring LUTs](lut-authoring.md)
+- [Basic Adjustments](basic-adjustments.md)
+- [Tone Mapping and Exposure](../tonemapping/index.md)

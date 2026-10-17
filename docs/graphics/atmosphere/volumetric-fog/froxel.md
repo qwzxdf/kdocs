@@ -1,10 +1,10 @@
 ---
-title: froxel
+title: Froxels
 tags:
   - 描画
 ---
 
-# froxel
+# Froxels
 
 **froxel は、カメラの視錐台（frustum）を分けた、3D のボクセルです**。**画面に近い所は細かく、遠い所は粗くなる**ので、**見た目に効率が良い**です。このページでは、**froxel の構造**を説明します。
 
@@ -108,5 +108,5 @@ float DepthToSlice(float depth, float near_z, float far_z, float slice_count) {
 
 ## 関連ページ
 
-- [ボリューメトリック フォグ](index.md)
+- [Volumetric Fog](index.md)
 - [密度](density.md)

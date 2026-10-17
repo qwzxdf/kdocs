@@ -1,10 +1,10 @@
 ---
-title: 水との相互作用
+title: Water Interaction
 tags:
   - 描画
 ---
 
-# 水との相互作用
+# Water Interaction
 
 **物が水に入ると、波紋が広がり、水が流れ、物が浮きます**。**波の高さをシミュレーションし、水面に反映する**ことで、**インタラクティブな水**ができます。このセクションでは、**波動方程式・物の接触の書き込み・高さマップの反映・フローマップ・浮力**を、**1 つずつ別のページ**で説明します。
 
@@ -90,10 +90,10 @@ void CSMain(uint3 id : SV_DispatchThreadID) {
 
 | ページ | 内容 |
 | --- | --- |
-| [物の接触を書き込む](contact.md) | 水に入った物が、波を起こす |
+| [Writing Object Contacts](contact.md) | 水に入った物が、波を起こす |
 | [高さマップを水面に反映](apply-height.md) | 波紋を、水面の形にする |
-| [フローマップ](flow-map.md) | 水の流れの表現 |
-| [浮力と反作用](buoyancy.md) | 物が浮く・水を押す |
+| [Flow Maps](flow-map.md) | 水の流れの表現 |
+| [Buoyancy and Reaction](buoyancy.md) | 物が浮く・水を押す |
 
 ## これだけ覚える
 
@@ -108,6 +108,6 @@ void CSMain(uint3 id : SV_DispatchThreadID) {
 
 ## 関連ページ
 
-- [水](../index.md)
-- [岸辺の泡](../shore-foam/index.md)
-- [水面の波](../waves/index.md)
+- [Water](../index.md)
+- [Shore Foam](../shore-foam/index.md)
+- [Water Waves](../waves/index.md)

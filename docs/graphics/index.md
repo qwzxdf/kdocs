@@ -30,26 +30,25 @@ tags:
 
 ## セクションの地図
 
-| 分野 | 内容 | 状態 |
+| 分野 | 内容 |
 | --- | --- | --- |
-| [環境光遮蔽（AO）](ao/index.md) | 原理・SSAO・Alchemy・SAO・HBAO・HBAO+・GTAO・レイトレ AO・距離場 AO・フィルタ | 完了 |
-| [影](shadows/index.md) | シャドウ マップ・バイアス・PCF・PCSS・VSM・CSM・ローカル ライト・接触影・距離場・レイトレ影・仮想シャドウ マップ | 完了 |
-| [反射](reflections/index.md) | 平面反射・プローブ・SSR（基礎・Hi-Z・確率的）・フォールバック・レイトレ反射 | 完了 |
-| [間接光（GI）](gi/index.md) | 理論・ライトマップ・プローブ・SSGI・ボクセル・DDGI・レイトレ GI・Radiance Cascades | 完了 |
-| [ポストプロセス](postprocess/index.md) | トーンマップ・ブルーム・DOF・モーション ブラー・AA・カラー グレーディング・レンズ効果・輪郭線 | 完了 |
-| [半透明](translucency/index.md) | ブレンドとソート・アルファ テスト・OIT・屈折 | 完了 |
-| [水](water/index.md) | 波・シェーディング・岸辺と泡・波紋・水中 | 完了 |
-| [地形](terrain/index.md) | 高さマップ・LOD・テクスチャ・草と木・生成 | 完了 |
-| [空と大気](atmosphere/index.md) | 空のモデル・大気散乱・距離フォグ・ボリューメトリック フォグ・雲・光の筋 | 完了 |
-| 肌と髪 | 素材ごとの表現 | 予定 |
+| [Ambient Occlusion (AO)](ao/index.md) | 原理・SSAO・Alchemy・SAO・HBAO・HBAO+・GTAO・レイトレ AO・距離場 AO・フィルタ |
+| [Shadows](shadows/index.md) | シャドウ マップ・バイアス・PCF・PCSS・VSM・CSM・ローカル ライト・接触影・距離場・レイトレ影・仮想シャドウ マップ |
+| [Reflections](reflections/index.md) | 平面反射・プローブ・SSR（基礎・Hi-Z・確率的）・フォールバック・レイトレ反射 |
+| [Global Illumination (GI)](gi/index.md) | 理論・ライトマップ・プローブ・SSGI・ボクセル・DDGI・レイトレ GI・Radiance Cascades |
+| [Post-Processing](postprocess/index.md) | トーンマップ・ブルーム・DOF・モーション ブラー・AA・カラー グレーディング・レンズ効果・輪郭線 |
+| [Translucency](translucency/index.md) | ブレンドとソート・アルファ テスト・OIT・屈折 |
+| [Water](water/index.md) | 波・シェーディング・岸辺と泡・波紋・水中 |
+| [Terrain](terrain/index.md) | 高さマップ・LOD・テクスチャ・草と木・生成 |
+| [Sky and Atmosphere](atmosphere/index.md) | 空のモデル・大気散乱・距離フォグ・ボリューメトリック フォグ・雲・光の筋 |
 
 ## 読み方
 
 | 目的 | 順番 |
 | --- | --- |
-| **AO を実装したい** | [AO の理論](ao/theory/index.md) → [SSAO（半球）](ao/ssao-hemisphere.md) → [フィルタ](ao/filtering/index.md) → 品質を上げるなら [GTAO](ao/gtao.md) |
-| **方式を選びたい** | [AO の方式比較](ao/comparison.md) |
-| **アーティファクトを直したい** | [AO のアーティファクト](ao/artifacts/index.md) |
+| **AO を実装したい** | [AO Theory](ao/theory/index.md) → [SSAO（半球）](ao/ssao-hemisphere.md) → [フィルタ](ao/filtering/index.md) → 品質を上げるなら [GTAO](ao/gtao.md) |
+| **方式を選びたい** | [AO Comparison](ao/comparison.md) |
+| **アーティファクトを直したい** | [AO Artifacts](ao/artifacts/index.md) |
 
 ## 関連ページ
 

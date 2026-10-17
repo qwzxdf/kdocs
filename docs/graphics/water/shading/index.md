@@ -1,10 +1,10 @@
 ---
-title: 水の質感
+title: Water Shading
 tags:
   - 描画
 ---
 
-# 水の質感
+# Water Shading
 
 **水の見た目は、反射・屈折・吸収・散乱が混ざったものです**。**角度によって反射と屈折の割合が変わり（フレネル）、深いほど色が濃くなります（Beer の法則）**。このセクションでは、**水面で起きていること・フレネル・水深による色・屈折の歪み・スペキュラ・反射・散乱・パラメータ**を、**1 つずつ別のページ**で説明します。
 
@@ -39,7 +39,7 @@ tags:
 
 | 成分 | 内容 |
 | --- | --- |
-| **反射** | **空・周囲の景色**を映す（[反射](../../reflections/index.md)） |
+| **反射** | **空・周囲の景色**を映す（[Reflections](../../reflections/index.md)） |
 | **屈折＋透過** | **水中の物・底**が透けて見える（歪む） |
 | **吸収** | **水を通る距離に応じて、色が変わり暗くなる** |
 | **散乱** | **水中の粒子で光が散らばり、水自体が青緑に光る** |
@@ -74,7 +74,7 @@ color += specular + scatter + foam;
 | ページ | 内容 |
 | --- | --- |
 | [フレネル](fresnel.md) | 反射と屈折の割合 |
-| [水深による色](depth-color.md) | Beer の法則 |
+| [Color by Water Depth](depth-color.md) | Beer の法則 |
 | [屈折の歪み](refraction.md) | 水中の景色を曲げる |
 | [スペキュラ](specular.md) | 太陽の反射 |
 | [反射](reflection.md) | 空と周囲の映り込み |
@@ -95,6 +95,6 @@ color += specular + scatter + foam;
 
 ## 関連ページ
 
-- [水](../index.md)
-- [水面の波](../waves/index.md)
-- [屈折](../../translucency/refraction/index.md)
+- [Water](../index.md)
+- [Water Waves](../waves/index.md)
+- [Refraction](../../translucency/refraction/index.md)

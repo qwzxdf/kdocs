@@ -1,10 +1,10 @@
 ---
-title: レンズ フレア
+title: Lens Flare
 tags:
   - 描画
 ---
 
-# レンズ フレア
+# Lens Flare
 
 **太陽やライトのような、とても明るい光源がレンズに入る**と、<strong>レンズの内部で光が何度も反射し、画面に「ゴースト（光の円）」「ハロー（輪）」「光芒（スターバースト）」</strong>が**現れます**。**これがレンズ フレア**で、**SF・映画・夕暮れの太陽**の**演出**に**欠かせません**。**表現の好みの問題**で**あれば高品質というわけではありません**。このページでは、**フレアの種類・画面空間でのゴースト生成・ハロー・光芒（スターバースト）・色と減衰・コストとオクルージョン**を説明します。
 
@@ -125,7 +125,7 @@ float3 LensFlareHalo(float2 uv, float halo_width) {
 | 方法 | 内容 |
 | --- | --- |
 | **ゴーストごとに色を変える** | **1 つ目は青、2 つ目は橙…** |
-| **色収差を付ける** | **R・G・B を少しずつずらしてサンプル**（[色収差](chromatic-aberration.md)） |
+| **色収差を付ける** | **R・G・B を少しずつずらしてサンプル**（[Chromatic Aberration](chromatic-aberration.md)） |
 | **グラデーション テクスチャ** | **画面中心からの距離で色を引く 1D テクスチャ** |
 
 ```hlsl
@@ -140,7 +140,7 @@ result += bright * weight * flare_color;
 | 方法 | 内容 |
 | --- | --- |
 | **スターバースト テクスチャ** | **星形のテクスチャを画面中心からの角度で回して、ブルームに乗算** |
-| **ダート テクスチャ** | **レンズの汚れ・傷のテクスチャを画面全体に重ね、ブルームの強さに乗算**（[合成と強さ](../bloom/composite.md)） |
+| **ダート テクスチャ** | **レンズの汚れ・傷のテクスチャを画面全体に重ね、ブルームの強さに乗算**（[Compositing and Intensity](../bloom/composite.md)） |
 | **光源位置にスプライト** | **光源の位置を投影して、スプライトを描く** |
 
 ```hlsl
@@ -214,7 +214,7 @@ float3 Starburst(float2 uv, float2 light_uv, Texture2D starburst_texture, float 
 
 ## 関連ページ
 
-- [レンズ効果](index.md)
-- [色収差](chromatic-aberration.md)
-- [ブルーム](../bloom/index.md)
+- [Lens Effects](index.md)
+- [Chromatic Aberration](chromatic-aberration.md)
+- [Bloom](../bloom/index.md)
 - [光の筋](../../atmosphere/god-rays/index.md)

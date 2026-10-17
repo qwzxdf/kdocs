@@ -1,10 +1,10 @@
 ---
-title: 適用の間違い
+title: Application Mistakes
 tags:
   - 描画
 ---
 
-# 適用の間違い
+# Application Mistakes
 
 **AO そのものは正しくても、適用の仕方を間違えると、絵が不自然**になります。**直接光に掛けてしまう・スペキュラに掛けない・深度や座標を取り違える**などです。このページでは、**適用の間違いと、深度・座標の取り違え**を説明します。
 
@@ -51,6 +51,6 @@ tags:
 
 ## 関連ページ
 
-- [AO のアーティファクト](index.md)
-- [AO の使い方と誤解](../theory/usage-misconceptions.md)
+- [AO Artifacts](index.md)
+- [Usage and Misconceptions of AO](../theory/usage-misconceptions.md)
 - [PBR](../../../3d/pbr.md)

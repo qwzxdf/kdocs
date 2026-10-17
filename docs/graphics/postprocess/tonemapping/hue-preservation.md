@@ -1,10 +1,10 @@
 ---
-title: 色相の保ち方
+title: Preserving Hue
 tags:
   - 描画
 ---
 
-# 色相の保ち方
+# Preserving Hue
 
 **トーンマップ曲線を、R・G・B に別々に掛けるか、輝度にだけ掛けるか**で**明るい色の見え方**が**大きく変わります**。**別々に掛けると彩度の高い明るい色の比率が崩れ、色相がずれます**。**輝度にだけ掛けると色相は保てますが派手な色が飽和しすぎます**。このページでは、**2 つの方式の違い・ハイブリッド・彩度の扱い・どう選ぶか**を説明します。
 
@@ -198,7 +198,7 @@ float3 DesaturateHighlights(float3 color, float threshold, float strength) {
 
 ## 関連ページ
 
-- [トーンマッピングと露出](index.md)
+- [Tone Mapping and Exposure](index.md)
 - [Reinhard](reinhard.md)
 - [ACES](aces.md)
-- [AgX ほか](agx.md)
+- [AgX and Others](agx.md)

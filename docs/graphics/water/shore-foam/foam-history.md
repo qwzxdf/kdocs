@@ -1,10 +1,10 @@
 ---
-title: 泡を残す
+title: Persistent Foam
 tags:
   - 描画
 ---
 
-# 泡を残す
+# Persistent Foam
 
 **実際の泡は、できてから、ゆっくり消えます**。**前フレームの泡を残して、少しずつ薄めながら、新しい泡を足す**と、**自然に消える泡**になります。このページでは、**履歴を使った泡の保持**を説明します。
 
@@ -53,5 +53,5 @@ float foam_now = max(decayed, crest_mask);
 
 ## 関連ページ
 
-- [岸辺の泡](index.md)
-- [泡テクスチャと合成](foam-texture.md)
+- [Shore Foam](index.md)
+- [Foam Textures and Compositing](foam-texture.md)

@@ -1,10 +1,10 @@
 ---
-title: プローブの置き方
+title: Probe Placement
 tags:
   - 描画
 ---
 
-# プローブの置き方
+# Probe Placement
 
 **プローブは、多いほど精密ですが、メモリとベイクの時間が増えます**。**格子状に置く方法と、重要な所に手動で置く方法**があります。このページでは、**置き方の方針と、密度の決め方**を説明します。
 
@@ -97,6 +97,6 @@ tags:
 
 ## 関連ページ
 
-- [プローブ GI](index.md)
-- [補間の方式](interpolation.md)
-- [動的な更新](dynamic-update.md)
+- [Probe GI](index.md)
+- [Interpolation Methods](interpolation.md)
+- [Dynamic Updates](dynamic-update.md)

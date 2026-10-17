@@ -1,10 +1,10 @@
 ---
-title: 水中の光の筋
+title: Underwater God Rays
 tags:
   - 描画
 ---
 
-# 水中の光の筋
+# Underwater God Rays
 
 **水中では、水面から差し込む光が、筋になって見えます**。**波の形で、筋が揺れる**のが**特徴**です。このページでは、**水中の光の筋**を説明します。
 
@@ -68,5 +68,5 @@ for (int i = 0; i < kStepCount; ++i) {
 
 ## 関連ページ
 
-- [水中の表現](index.md)
-- [ゴッド レイ](../../atmosphere/god-rays/index.md)
+- [Underwater Rendering](index.md)
+- [God Rays](../../atmosphere/god-rays/index.md)

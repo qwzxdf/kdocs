@@ -1,10 +1,10 @@
 ---
-title: ゴッド レイ
+title: God Rays
 tags:
   - 描画
 ---
 
-# ゴッド レイ
+# God Rays
 
 **ゴッド レイ（光の筋）は、霧や埃の中を、光が通る時に見える、筋状の光**です。**手法には、画面空間のぼかし・シャドウ マップのレイマーチ・ボリューム・メッシュなど、いくつかあります**。このセクションでは、**見える理由・画面空間の放射ぼかし・シャドウ マップでレイマーチ・ボリューム・メッシュで作る・水中・見た目の調整**を、**1 つずつ別のページ**で説明します。
 
@@ -33,12 +33,12 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [画面空間の放射ぼかし](radial-blur.md) | 最も手軽な方式 |
-| [シャドウ マップでレイマーチ](shadowmap-march.md) | 正確な筋 |
+| [Screen-Space Radial Blur](radial-blur.md) | 最も手軽な方式 |
+| [Shadow Map Raymarching](shadowmap-march.md) | 正確な筋 |
 | [ボリュームを使う](volume.md) | froxel による方式 |
 | [メッシュの光の柱](mesh-shafts.md) | 最も軽い方式 |
-| [水中の光の筋](underwater.md) | 水中での表現 |
-| [見た目の調整](tuning.md) | 強さ・色・ノイズ |
+| [Underwater God Rays](underwater.md) | 水中での表現 |
+| [Tuning the Look](tuning.md) | 強さ・色・ノイズ |
 
 ## これだけ覚える
 
@@ -55,5 +55,5 @@ tags:
 ## 関連ページ
 
 - [大気](../index.md)
-- [ボリューメトリック フォグ](../volumetric-fog/index.md)
-- [水中の表現](../../water/underwater/index.md)
+- [Volumetric Fog](../volumetric-fog/index.md)
+- [Underwater Rendering](../../water/underwater/index.md)

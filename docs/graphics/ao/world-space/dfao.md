@@ -124,4 +124,4 @@ float ConeVisibility(float3 origin, float3 dir, float tan_half_angle) {
 
 - [世界空間 AO](index.md)
 - [レイトレース AO](rtao.md)
-- [距離場の影](../../shadows/sdf-shadows.md)
+- [Distance Field Shadows](../../shadows/sdf-shadows.md)

@@ -1,10 +1,10 @@
 ---
-title: 高速化：時間蓄積
+title: Cloud Temporal Reprojection
 tags:
   - 描画
 ---
 
-# 高速化：時間蓄積
+# Cloud Temporal Reprojection
 
 **雲のレイマーチは重いので、毎フレーム全画素を計算せず、一部だけ更新して、前フレームと合成**します。**4×4 画素のうち、毎フレーム 1 画素だけ更新**する**方式**が**よく使われます**。このページでは、**時間蓄積による高速化**を説明します。
 
@@ -63,6 +63,6 @@ tags:
 
 ## 関連ページ
 
-- [雲](index.md)
+- [Clouds](index.md)
 - [レイマーチ](raymarch.md)
 - [TAA](../../postprocess/antialiasing/taa.md)

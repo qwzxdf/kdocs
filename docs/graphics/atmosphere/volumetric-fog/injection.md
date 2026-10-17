@@ -1,10 +1,10 @@
 ---
-title: ② 光の注入
+title: Step 2: Light Injection
 tags:
   - 描画
 ---
 
-# ② 光の注入
+# Step 2: Light Injection
 
 **各 froxel に、太陽やライトの光を計算して、足します**。**シャドウ マップを参照**して、**影の中は光を入れない**ので、**光の筋ができます**。このページでは、**光の注入**を説明します。
 
@@ -223,7 +223,7 @@ float3 scattering = inscattered * density * albedo;
 | 点 | 説明 |
 | --- | --- |
 | **シャドウ マップを引く** | **影の中の霧は光らない**。**この結果、物の影が光の筋として見える** |
-| **位相関数** | <strong>前方に強く散る（g ≈ 0.6〜0.8）</strong>。**太陽の方を見ると霧が明るい**（[大気散乱](../scattering/index.md)） |
+| **位相関数** | <strong>前方に強く散る（g ≈ 0.6〜0.8）</strong>。**太陽の方を見ると霧が明るい**（[Atmospheric Scattering](../scattering/index.md)） |
 | **環境光** | **全体にうっすら足す**（暗すぎる霧の防止） |
 | **ライトの数が多い場合** | **froxel ごとにライトをカリング**（[ライト カリング](../../../rendering/light-culling.md)） |
 | **解像度が低くても綺麗** | **霧は低周波**（細かい構造がない）ので低解像度で十分 |
@@ -247,6 +247,6 @@ float3 scattering = inscattered * density * albedo;
 
 ## 関連ページ
 
-- [ボリューメトリック フォグ](index.md)
+- [Volumetric Fog](index.md)
 - [密度](density.md)
 - [積分](integration.md)

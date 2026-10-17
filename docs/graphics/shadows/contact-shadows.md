@@ -1,10 +1,10 @@
 ---
-title: コンタクト シャドウ
+title: Contact Shadows
 tags:
   - 描画
 ---
 
-# コンタクト シャドウ
+# Contact Shadows
 
 シャドウ マップは、**解像度に限りがあり**、**バイアスで少し浮かせる**ので**物体が地面に接する付近の細かい影**が**欠けたり、浮いて見えたり**します（ピーター パンニング）。**コンタクト シャドウ**（Contact Shadows）は、<strong>画面空間（深度バッファ）</strong>で、**画素から光の方向へ短いレイを進め**、**手前にある物に当たるか**を調べる方式です。**接触部の細かい影**を**シャドウ マップを補って**、**安く**描きます。
 
@@ -188,7 +188,7 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 
 ## 関連ページ
 
-- [影](index.md)
-- [バイアス](bias/index.md)
+- [Shadows](index.md)
+- [Shadow Bias](bias/index.md)
 - [SSR（画面空間の反射）](../reflections/ssr-basics/index.md)
 - [SSAO](../ao/ssao-hemisphere.md)

@@ -1,10 +1,10 @@
 ---
-title: 自動露出
+title: Auto Exposure
 tags:
   - 描画
 ---
 
-# 自動露出
+# Auto Exposure
 
 **暗い所から明るい所へ出ると、目が慣れるまでまぶしい**——この**明暗順応**を**再現**するのが<strong>自動露出（Eye Adaptation）</strong>です。**画面の明るさを測って、適切な露出を決め、時間をかけて追従**させます。**これがないと明るさが大きく変わるゲームでは、どこかで真っ白か真っ暗**になります。このページでは、**平均輝度の測り方（縮小・ヒストグラム）・外れ値の除外・目標露出の決め方・時間的な追従・仕上げの工夫**を説明します。
 
@@ -295,7 +295,7 @@ float AdaptExposure(float current, float target, float delta_time, float speed_u
 
 ## 関連ページ
 
-- [トーンマッピングと露出](index.md)
-- [露出](exposure.md)
-- [ガンマと HDR 出力](gamma-srgb.md)
-- [ブルーム](../bloom/index.md)
+- [Tone Mapping and Exposure](index.md)
+- [Exposure](exposure.md)
+- [Gamma and HDR Output](gamma-srgb.md)
+- [Bloom](../bloom/index.md)

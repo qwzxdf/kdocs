@@ -41,6 +41,6 @@ tags:
 
 ## 関連ページ
 
-- [VSM と ESM・MSM](index.md)
+- [VSM, ESM and MSM](index.md)
 - [EVSM](evsm.md)
-- [比較と PCF との使い分け](comparison.md)
+- [Comparison with PCF](comparison.md)

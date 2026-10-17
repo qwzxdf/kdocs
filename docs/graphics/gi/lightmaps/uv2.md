@@ -1,10 +1,10 @@
 ---
-title: ライトマップ UV（UV2）
+title: Lightmap UVs (UV2)
 tags:
   - 描画
 ---
 
-# ライトマップ UV（UV2）
+# Lightmap UVs (UV2)
 
 **ライトマップは、モデルの面ごとに「専用の場所」が必要**で、**通常のテクスチャの UV は、同じ場所を使い回す（重なる）ので、使えません**。**重ならない、専用の UV（UV2）**を用意します。このページでは、**UV2 の条件と、作り方**を説明します。
 
@@ -59,5 +59,5 @@ tags:
 
 ## 関連ページ
 
-- [ライトマップ](index.md)
-- [ベイクの流れ](baking.md)
+- [Lightmaps](index.md)
+- [Baking Workflow](baking.md)

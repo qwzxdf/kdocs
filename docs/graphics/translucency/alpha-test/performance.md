@@ -1,10 +1,10 @@
 ---
-title: パフォーマンスと影のパス
+title: Performance and Shadow Passes
 tags:
   - 描画
 ---
 
-# パフォーマンスと影のパス
+# Performance and Shadow Passes
 
 **アルファ テストを使うシェーダーは、Early-Z（早期の深度テスト）が効かず、重くなります**。**影や深度のパスでも、アルファ テストが必要**です。このページでは、**パフォーマンスへの影響と、影・深度パスでの扱い**を説明します。
 
@@ -56,5 +56,5 @@ tags:
 
 ## 関連ページ
 
-- [アルファ テスト](index.md)
+- [Alpha Testing](index.md)
 - [影のアルファ テスト](../../shadows/special-cases/alpha-test-shadows.md)

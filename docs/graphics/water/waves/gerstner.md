@@ -1,10 +1,10 @@
 ---
-title: Gerstner 波
+title: Gerstner Waves
 tags:
   - 描画
 ---
 
-# Gerstner 波
+# Gerstner Waves
 
 **Gerstner 波は、頂点を、上下だけでなく、横方向にも動かす**ことで、**波頭が尖り、谷が広い、本物の波に近い形**を作ります。**サイン波と同じくらい軽い**です。このページでは、**Gerstner 波の式と、パラメータ（急峻さ）**を説明します。
 
@@ -111,6 +111,6 @@ for (int i = 0; i < kWaveCount; ++i) {
 
 ## 関連ページ
 
-- [水面の波](index.md)
-- [サイン波の重ね合わせ](sine-waves.md)
-- [FFT 海面](fft-ocean.md)
+- [Water Waves](index.md)
+- [Summing Sine Waves](sine-waves.md)
+- [FFT Ocean](fft-ocean.md)

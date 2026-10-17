@@ -1,10 +1,10 @@
 ---
-title: 半球 SSAO
+title: Hemisphere SSAO
 tags:
   - 描画
 ---
 
-# 半球 SSAO
+# Hemisphere SSAO
 
 **半球 SSAO**（Normal-oriented Hemisphere SSAO）は、[Crytek SSAO](ssao-crytek.md)の**球を法線の側の半球に変えた**方式です。これだけで**平らな面が灰色になる問題が消え**、見た目が大きく改善します。現在、<strong>「SSAO」と言えば、この方式</strong>を指すことが多く、チュートリアルや多くのゲームで使われる、**標準的な SSAO** です。このページでは、**原理・サンプルの作り方・コード・調整**を順に説明します。
 
@@ -383,7 +383,7 @@ float3 n = normalize(cross(ddx(p), ddy(p)));
 
 ## 関連ページ
 
-- [環境光遮蔽（AO）](index.md)
+- [Ambient Occlusion (AO)](index.md)
 - [Crytek SSAO](ssao-crytek.md)
 - [Alchemy AO](alchemy-ao.md)
 - [フィルタ](filtering/index.md)

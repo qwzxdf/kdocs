@@ -1,10 +1,10 @@
 ---
-title: フィルム グレイン
+title: Film Grain
 tags:
   - 描画
 ---
 
-# フィルム グレイン
+# Film Grain
 
 **フィルム グレイン**は、**画面に細かい粒状のノイズを加える**効果です。**フィルム写真の「粒子」の質感**を**再現**し、**映画らしい雰囲気**を**出します**。**また、グラデーション（空・暗部）の縞（バンディング）を、ノイズで目立たなくする**という**実用的な効果**も**あります**。**ノイズの質（周波数・分布）と、明るさに応じた強さの付け方**が**見た目を左右**します。このページでは、**ノイズの作り方・強さを明るさで変える方法・動かし方（毎フレーム変える）・ディザリングとの関係・使いどころ**を説明します。
 
@@ -408,7 +408,7 @@ float3 Dither(float3 color, float2 pixel_position) {
 
 ## 関連ページ
 
-- [レンズ効果](index.md)
-- [ビネット](vignette.md)
-- [色収差](chromatic-aberration.md)
-- [ガンマと HDR 出力](../tonemapping/gamma-srgb.md)
+- [Lens Effects](index.md)
+- [Vignette](vignette.md)
+- [Chromatic Aberration](chromatic-aberration.md)
+- [Gamma and HDR Output](../tonemapping/gamma-srgb.md)

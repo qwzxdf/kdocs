@@ -1,10 +1,10 @@
 ---
-title: 手法の分類
+title: Taxonomy of Methods
 tags:
   - 描画
 ---
 
-# 手法の分類
+# Taxonomy of Methods
 
 **GI の手法は数多くありますが、「2 つの軸」で整理すると、見通しが良くなります**。**1 つ目は「静的 ↔ 動的」、2 つ目は「画面内の情報 ↔ 世界の情報」**です。このページでは、**2 つの軸と、代表的な手法の位置づけ**を説明します。
 
@@ -97,6 +97,6 @@ tags:
 
 ## 関連ページ
 
-- [GI の理論](index.md)
+- [GI Theory](index.md)
 - [GI の比較](../comparison.md)
-- [ライトマップ](../lightmaps/index.md)
+- [Lightmaps](../lightmaps/index.md)

@@ -1,10 +1,10 @@
 ---
-title: アンチエイリアシング
+title: Anti-Aliasing
 tags:
   - 描画
 ---
 
-# アンチエイリアシング
+# Anti-Aliasing
 
 **ピクセルは四角い格子**なので、**斜めの線や細い物の縁が、階段状（ジャギー）に見えます**。これが**エイリアシング**で、<strong>アンチエイリアシング（AA）</strong>は、**これを滑らかにする技術**です。**方式が多く、画質・速さ・弱点がそれぞれ違います**。このセクションでは、**エイリアシングの原因・SSAA/MSAA・FXAA・SMAA・TAA・TAA の課題・比較と選び方**を、**1 つずつ別のページ**で説明します。
 
@@ -136,12 +136,12 @@ tags:
 | [FXAA](fxaa.md) | 輝度から縁を見つけてぼかす・1 パスの後処理 |
 | [SMAA](smaa.md) | 縁検出・パターン判定・重みの計算・ブレンド |
 | [TAA](taa.md) | ジッター・再投影・履歴のクランプ・合成 |
-| [TAA の課題](taa-challenges.md) | ゴースト・ぼけ・ちらつき・アップスケール |
-| [比較と選び方](comparison.md) | 方式の比較表・組み合わせ・目的別の選び方 |
+| [TAA Challenges](taa-challenges.md) | ゴースト・ぼけ・ちらつき・アップスケール |
+| [Comparison and Choosing](comparison.md) | 方式の比較表・組み合わせ・目的別の選び方 |
 
 ## 関連ページ
 
-- [ポストプロセス](../index.md)
-- [モーション ブラー](../motion-blur/index.md)
+- [Post-Processing](../index.md)
+- [Motion Blur](../motion-blur/index.md)
 - [TAA とアップスケール（最適化）](../../../rendering/taa-upscaling.md)
 - [ラスタライズ](../../../3d/render-flow/rasterize.md)

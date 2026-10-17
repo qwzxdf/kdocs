@@ -1,10 +1,10 @@
 ---
-title: ボクセル GI
+title: Voxel GI
 tags:
   - 描画
 ---
 
-# ボクセル GI
+# Voxel GI
 
 **SSGI**は**画面に映っているもの**しか見えませんでした。**ボクセル GI**（Voxel Cone Tracing、**VXGI**）は、**シーン全体を 3D の格子（ボクセル）に変換**し、**そこに「形（遮蔽）」と「光（出射光）」を保存**します。**画素から、半球の方向に「円錐（コーン）」を飛ばし**、**ボクセルの上をミップ マップをたどりながら進む**ことで、**画面外・裏側も含めた間接光**を<strong>ノイズなし（または少なく）</strong>で得られます。**2011 年の Crassin らの手法**で、**当時、リアルタイム GI の大きな進歩**でした。
 
@@ -205,7 +205,7 @@ float4 ConeTrace(float3 origin, float3 dir, float aperture) {
 
 ## カスケード（クリップマップ）
 
-**シーン全体を細かいボクセルで覆う**ことは、**メモリが足りません**。**視点の周りに入れ子になった複数のボクセル グリッド**（**カスケード**）を置き、**近くは細かく、遠くは粗く**します（[カスケード シャドウ マップ](../shadows/cascaded.md)と同じ発想）。**カメラの移動に応じて、グリッドをスクロール**させます。
+**シーン全体を細かいボクセルで覆う**ことは、**メモリが足りません**。**視点の周りに入れ子になった複数のボクセル グリッド**（**カスケード**）を置き、**近くは細かく、遠くは粗く**します（[Cascaded Shadow Maps (CSM)](../shadows/cascaded.md)と同じ発想）。**カメラの移動に応じて、グリッドをスクロール**させます。
 
 ## 現在の位置づけ
 
@@ -215,7 +215,7 @@ float4 ConeTrace(float3 origin, float3 dir, float aperture) {
 | --- | --- |
 | <strong>Lumen（Unreal Engine 5）</strong> | **Software Ray Tracing では、距離場（SDF）・サーフェス キャッシュ**。**画面空間 → 距離場 → グローバル SDF** の**階層** |
 | <strong>SDFGI（Godot）</strong> | **カスケードの SDF** ＋ **プローブ** |
-| **Radiance Cascades** | **新しい、空間・方向の階層構造**（[レイトレ GI](rt-gi/index.md)） |
+| **Radiance Cascades** | **新しい、空間・方向の階層構造**（[Ray-Traced GI](rt-gi/index.md)） |
 
 <strong>「ボクセル（またはそれに類する 3D 格子）に光を保存し、円錐/レイでたどる」</strong>という**考え方**は、**多くの動的 GI に受け継がれています**。
 
@@ -250,8 +250,8 @@ float4 ConeTrace(float3 origin, float3 dir, float aperture) {
 
 ## 関連ページ
 
-- [間接光（GI）](index.md)
-- [GI の理論](theory/index.md)
+- [Global Illumination (GI)](index.md)
+- [GI Theory](theory/index.md)
 - [SSGI](ssgi.md)
-- [レイトレ GI](rt-gi/index.md)
-- [カスケード シャドウ マップ](../shadows/cascaded.md)
+- [Ray-Traced GI](rt-gi/index.md)
+- [Cascaded Shadow Maps (CSM)](../shadows/cascaded.md)

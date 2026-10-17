@@ -1,10 +1,10 @@
 ---
-title: 屈折
+title: Refraction
 tags:
   - 描画
 ---
 
-# 屈折
+# Refraction
 
 **ガラスや水を通して見ると、後ろの景色が曲がって見えます**。**これが屈折**で、**ゲームでは「画面空間の屈折」で、安く近似**します。このセクションでは、**原理・画面空間の屈折・境界の問題・フレネル・厚みと色・色収差・薄いガラスと厚いガラス・実装の全体像**を、**1 つずつ別のページ**で説明します。
 
@@ -150,13 +150,13 @@ float3 refracted = refract(incident, normal, eta);
 
 | ページ | 内容 |
 | --- | --- |
-| [画面空間の屈折](screen-space.md) | 法線で画面をずらす |
+| [Screen-Space Refraction](screen-space.md) | 法線で画面をずらす |
 | [境界の問題](boundary.md) | 屈折の先に、手前の物が混ざる問題 |
-| [フレネル](fresnel.md) | 反射と屈折の割合 |
-| [厚みと色](thickness-color.md) | ビア＝ランバートの法則 |
-| [色収差（分散）](dispersion.md) | 色ごとにずらす |
-| [薄いガラスと厚いガラス](thin-thick.md) | 窓ガラスと、ガラスの塊 |
-| [実装の全体像とコスト](implementation.md) | 手順・限界 |
+| [Fresnel](fresnel.md) | 反射と屈折の割合 |
+| [Thickness and Color](thickness-color.md) | ビア＝ランバートの法則 |
+| [Dispersion](dispersion.md) | 色ごとにずらす |
+| [Thin and Thick Glass](thin-thick.md) | 窓ガラスと、ガラスの塊 |
+| [Implementation Overview and Cost](implementation.md) | 手順・限界 |
 
 ## これだけ覚える
 
@@ -172,6 +172,6 @@ float3 refracted = refract(incident, normal, eta);
 
 ## 関連ページ
 
-- [半透明](../index.md)
-- [水の質感](../../water/shading/index.md)
+- [Translucency](../index.md)
+- [Water Shading](../../water/shading/index.md)
 - [OIT](../oit/index.md)

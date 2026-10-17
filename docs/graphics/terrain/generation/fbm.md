@@ -1,10 +1,10 @@
 ---
-title: fBm（フラクショナル ブラウン運動）
+title: fBm (Fractional Brownian Motion)
 tags:
   - 描画
 ---
 
-# fBm（フラクショナル ブラウン運動）
+# fBm (Fractional Brownian Motion)
 
 **fBm は、ノイズを、周波数を倍にしながら、振幅を半分にして、何層も重ねる手法**で、**自然な地形の基本**です。**山の大きな形から、細かい凹凸まで**を**1 つの式で作れます**。このページでは、**fBm のパラメータ**を説明します。
 
@@ -93,5 +93,5 @@ float Fbm(float2 p, int octaves, float lacunarity, float gain) {
 
 ## 関連ページ
 
-- [地形の生成](index.md)
-- [リッジ ノイズ](ridge.md)
+- [Terrain Generation](index.md)
+- [Ridged Noise](ridge.md)

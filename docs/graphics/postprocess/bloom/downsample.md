@@ -1,10 +1,10 @@
 ---
-title: ダウンサンプルとミップ チェーン
+title: Downsampling and the Mip Chain
 tags:
   - 描画
 ---
 
-# ダウンサンプルとミップ チェーン
+# Downsampling and the Mip Chain
 
 **広くて自然なにじみ**を、**1 回の巨大なぼかし**で作るのは**重すぎます**（**ぼかしの半径が大きいほど、タップ数が増える**）。そこで**画像を半分・1/4・1/8…と縮小しながらぼかし**、**小さい画像で広いぼかしを安く得て、最後に拡大して足し合わせる**のが**ブルームの標準**です。この**縮小の連なり**が**ミップ チェーン**です。このページでは、**なぜ縮小するのか・縮小の方法（ボックス・13 タップ）・段数の決め方・拡大して足す方法・画質の工夫**を説明します。
 
@@ -235,8 +235,8 @@ float3 UpsampleTent(Texture2D src, SamplerState linear_clamp, float2 uv, float2 
 
 ## 関連ページ
 
-- [ブルーム](index.md)
-- [しきい値](threshold.md)
-- [ガウスぼかし](gaussian.md)
+- [Bloom](index.md)
+- [Threshold](threshold.md)
+- [Gaussian Blur](gaussian.md)
 - [Dual Filter](dual-filter.md)
-- [ファイアフライ（Karis）](karis-average.md)
+- [Fireflies (Karis Average)](karis-average.md)

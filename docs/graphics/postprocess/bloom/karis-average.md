@@ -1,10 +1,10 @@
 ---
-title: ファイアフライ（Karis）
+title: Fireflies (Karis Average)
 tags:
   - 描画
 ---
 
-# ファイアフライ（Karis）
+# Fireflies (Karis Average)
 
 **ブルームを動かすと小さくて非常に明るい点（スペキュラのハイライト・小さな光源）が、画面の隅々で「ぴかぴか」と点滅**することがあります。これを<strong>ファイアフライ（蛍）</strong>と呼びます。**原因は極端に明るい 1 画素が、縮小のたびに周りの数画素分の平均に混ざり、強い光が画素の位置次第で出たり消えたりする**からです。**対策が Karis Average**（Brian Karis）で、**明るい画素の重みを下げて平均**します。このページでは、**ちらつきの原因・Karis Average の式・どの段に使うか・クランプ・より良いやり方**を説明します。
 
@@ -226,7 +226,7 @@ float3 ClampBloomInput(float3 color, float max_luma) {
 
 ## 関連ページ
 
-- [ブルーム](index.md)
-- [ダウンサンプルとミップ チェーン](downsample.md)
+- [Bloom](index.md)
+- [Downsampling and the Mip Chain](downsample.md)
 - [Dual Filter](dual-filter.md)
-- [合成と強さ](composite.md)
+- [Compositing and Intensity](composite.md)

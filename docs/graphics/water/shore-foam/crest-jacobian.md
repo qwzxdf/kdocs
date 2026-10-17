@@ -1,10 +1,10 @@
 ---
-title: 波頂の泡：ヤコビアン
+title: Crest Foam: The Jacobian
 tags:
   - 描画
 ---
 
-# 波頂の泡：ヤコビアン
+# Crest Foam: The Jacobian
 
 **波頭が尖って、メッシュが縮む所に、泡が出る**のが**自然な波**です。**この縮み具合を、ヤコビアンという値で測れます**。このページでは、**ヤコビアンによる波頂の泡**を説明します。
 
@@ -77,6 +77,6 @@ float crest_mask = saturate((foam_threshold - jacobian) / foam_softness);
 
 ## 関連ページ
 
-- [岸辺の泡](index.md)
-- [Gerstner 波](../waves/gerstner.md)
-- [FFT 海面](../waves/fft-ocean.md)
+- [Shore Foam](index.md)
+- [Gerstner Waves](../waves/gerstner.md)
+- [FFT Ocean](../waves/fft-ocean.md)

@@ -29,7 +29,7 @@ tags:
 
 ## ハードウェア PCF（2×2）
 
-**比較サンプラー**（`SamplerComparisonState`）で、`SampleCmp` を呼ぶと、**ハードウェアが周りの 4 テクセルを比較**し、**バイリニアの重みで補間**します（[シャドウ マップの基礎](shadow-map-basics/index.md)）。
+**比較サンプラー**（`SamplerComparisonState`）で、`SampleCmp` を呼ぶと、**ハードウェアが周りの 4 テクセルを比較**し、**バイリニアの重みで補間**します（[Shadow Map Basics](shadow-map-basics/index.md)）。
 
 ```hlsl
 float shadow = shadow_tex.SampleCmpLevelZero(shadow_sampler, uv, depth);
@@ -108,7 +108,7 @@ float PCFPoisson(float2 uv, float depth, float filter_radius_uv, float2 rotation
 | 回転の与え方 | 内容 |
 | --- | --- |
 | **ノイズ テクスチャ** | 4×4 などのランダム角度のテクスチャ |
-| <strong>IGN（Interleaved Gradient Noise）</strong> | **画素の座標から、式で計算**（[AO のフィルタ](../ao/filtering/index.md)） |
+| <strong>IGN（Interleaved Gradient Noise）</strong> | **画素の座標から、式で計算**（[AO Filtering](../ao/filtering/index.md)） |
 | **時間方向** | **フレームごとに角度を変える**（TAA と併用して、時間方向に平均） |
 
 少ないサンプル（8〜16）に、**画素ごとの回転**と、**TAA**（または時間蓄積）を組み合わせると**実質的に非常に多くのサンプル**を使った**ソフトな影**になります。
@@ -355,7 +355,7 @@ if (shadow > 0.0 && shadow < 1.0) {
 
 | 対策 | 内容 |
 | --- | --- |
-| **受け手平面バイアス** | **サンプルごとに面の傾きで深度を補正**（[バイアス](bias/index.md)） |
+| **受け手平面バイアス** | **サンプルごとに面の傾きで深度を補正**（[Shadow Bias](bias/index.md)） |
 | **法線オフセット** | 位置を法線方向にずらす |
 | **バイアスを大きく** | 簡単だがピーター パンニング |
 
@@ -403,8 +403,8 @@ if (shadow > 0.0 && shadow < 1.0) {
 
 ## 関連ページ
 
-- [影](index.md)
-- [シャドウ マップの基礎](shadow-map-basics/index.md)
-- [バイアス](bias/index.md)
+- [Shadows](index.md)
+- [Shadow Map Basics](shadow-map-basics/index.md)
+- [Shadow Bias](bias/index.md)
 - [PCSS](pcss.md)
 - [AO のフィルタ（IGN・ノイズ）](../ao/filtering/index.md)

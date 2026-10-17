@@ -1,10 +1,10 @@
 ---
-title: 高さマップの編集
+title: Editing Heightmaps
 tags:
   - 描画
 ---
 
-# 高さマップの編集
+# Editing Heightmaps
 
 **地形を作るには、高さマップを、ブラシで盛ったり削ったりして、編集します**。このページでは、**編集の方法と保存**を説明します。
 
@@ -41,5 +41,5 @@ tags:
 
 ## 関連ページ
 
-- [高さマップとメッシュ](index.md)
+- [Heightmaps and Meshes](index.md)
 - [地形生成](../generation/index.md)

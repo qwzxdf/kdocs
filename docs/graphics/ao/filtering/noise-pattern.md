@@ -1,10 +1,10 @@
 ---
-title: ノイズ パターン
+title: Noise Patterns
 tags:
   - 描画
 ---
 
-# ノイズ パターン
+# Noise Patterns
 
 **AO のサンプル位置を、画素ごとにランダムに回す**と、**規則的な縞（バンディング）が、細かいノイズに変わり、後のぼかしで消えやすくなります**。**ノイズの質（白色ノイズ・ブルー ノイズ・インターリーブド グラディエント）**で、**フィルタの効きと、最終的な見た目**が**変わります**。このページでは、**ノイズ パターンの選び方**を説明します。
 
@@ -61,6 +61,6 @@ float InterleavedGradientNoise(float2 pixel) {
 
 ## 関連ページ
 
-- [AO のフィルタ](index.md)
-- [時間蓄積](temporal.md)
-- [バイラテラル ブラー](bilateral-blur.md)
+- [AO Filtering](index.md)
+- [Temporal Accumulation](temporal.md)
+- [Bilateral Blur](bilateral-blur.md)

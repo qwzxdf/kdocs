@@ -1,10 +1,10 @@
 ---
-title: 画面空間の屈折
+title: Screen-Space Refraction
 tags:
   - 描画
 ---
 
-# 画面空間の屈折
+# Screen-Space Refraction
 
 **屈折する物体の後ろの景色は、既に描いた画面（不透明パスの結果）に入っています**。**法線に応じて、読み出す位置をずらすだけ**で、**屈折の見た目が得られます**。このページでは、**画面空間の屈折の仕組みと、コード**を説明します。
 
@@ -79,6 +79,6 @@ float3 background = scene_color_copy.Sample(linear_clamp, refract_uv).rgb;
 
 ## 関連ページ
 
-- [屈折](index.md)
+- [Refraction](index.md)
 - [境界の問題](boundary.md)
-- [フレネル](fresnel.md)
+- [Fresnel](fresnel.md)

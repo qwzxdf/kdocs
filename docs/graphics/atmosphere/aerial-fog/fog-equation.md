@@ -1,10 +1,10 @@
 ---
-title: フォグの式
+title: Fog Equations
 tags:
   - 描画
 ---
 
-# フォグの式
+# Fog Equations
 
 **距離に応じて、物の色をフォグの色に近づけるのが、フォグ**です。**減衰の式には、線形・指数・指数二乗**があります。このページでは、**フォグの式**を説明します。
 
@@ -107,5 +107,5 @@ float distance_to_pixel = length(world_position - camera_position);
 
 ## 関連ページ
 
-- [空気遠近法・フォグ](index.md)
-- [高さフォグ](height-fog.md)
+- [Aerial Perspective and Fog](index.md)
+- [Height Fog](height-fog.md)

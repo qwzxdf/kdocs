@@ -1,10 +1,10 @@
 ---
-title: 事前フィルタ（Split-Sum）
+title: Prefiltering (Split-Sum)
 tags:
   - 描画
 ---
 
-# 事前フィルタ（Split-Sum）
+# Prefiltering (Split-Sum)
 
 **粗い面の反射は、周囲の広い範囲の光の平均**になります。**これを、毎回ピクセルごとに計算するのは重すぎる**ので、**粗さごとに、キューブマップを事前にぼかして、ミップに入れておきます**。**Split-Sum 近似**と呼ばれる、**ほとんどのエンジンで使われる方式**です。このページでは、**事前フィルタの考え方とミップの使い方**を説明します。
 
@@ -15,7 +15,7 @@ tags:
     - **実行時は、ミップ 1 回 ＋ LUT 1 回の読み出しだけ**。
 
 ## 粗さへの対応：事前フィルタ（Split-Sum）
-粗い面の反射は、**BRDF の山の範囲の景色を、重み付きで平均**したものでした（[反射](../index.md)）。これを**表面ごとに実行時に計算するのは重い**ので、**事前計算**します。Epic の Karis が提案した **Split-Sum 近似**が、標準になっています。
+粗い面の反射は、**BRDF の山の範囲の景色を、重み付きで平均**したものでした（[Reflections](../index.md)）。これを**表面ごとに実行時に計算するのは重い**ので、**事前計算**します。Epic の Karis が提案した **Split-Sum 近似**が、標準になっています。
 
 ### 式を 2 つに分ける
 
@@ -146,7 +146,7 @@ float3 SpecularIBL(float3 N, float3 V, float3 albedo, float metallic, float roug
 | **0** | 0 | 元のキューブマップ |
 | **1〜N** | 粗さを段階的に上げる | **GGX の重要度サンプリング**で、各テクセルを再計算（コンピュート・ピクセルシェーダー） |
 
-**重要度サンプリング**は、**分布の山の部分から多くサンプル**する手法で、**サンプル数を減らせます**（[確率的 SSR](../ssr-stochastic.md)で詳しく）。
+**重要度サンプリング**は、**分布の山の部分から多くサンプル**する手法で、**サンプル数を減らせます**（[Stochastic SSR](../ssr-stochastic.md)で詳しく）。
 
 ## よくあるミス
 
@@ -167,6 +167,6 @@ float3 SpecularIBL(float3 N, float3 V, float3 albedo, float metallic, float roug
 
 ## 関連ページ
 
-- [反射プローブ](index.md)
-- [視差補正](parallax.md)
-- [確率的 SSR](../ssr-stochastic.md)
+- [Reflection Probes](index.md)
+- [Parallax Correction](parallax.md)
+- [Stochastic SSR](../ssr-stochastic.md)

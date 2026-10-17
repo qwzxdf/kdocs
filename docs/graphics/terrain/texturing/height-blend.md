@@ -1,10 +1,10 @@
 ---
-title: 高さによるブレンド
+title: Height-Based Blending
 tags:
   - 描画
 ---
 
-# 高さによるブレンド
+# Height-Based Blending
 
 **重みだけで混ぜると、境目がぼやけて、のっぺりします**。**各テクスチャの「高さ（凹凸）」を使って混ぜる**と、**土の隙間から草が生える**ような、**自然な境目**になります。このページでは、**高さブレンド**を説明します。
 
@@ -54,5 +54,5 @@ final_weights /= (final_weights.r + final_weights.g + final_weights.b + final_we
 
 ## 関連ページ
 
-- [地形のテクスチャ](index.md)
-- [重みを決める](weights.md)
+- [Terrain Texturing](index.md)
+- [Splat Weights](weights.md)

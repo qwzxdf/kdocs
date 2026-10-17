@@ -1,10 +1,10 @@
 ---
-title: ベイクの流れ
+title: Baking Workflow
 tags:
   - 描画
 ---
 
-# ベイクの流れ
+# Baking Workflow
 
 **ベイクは、シーンの静的な光を、事前に計算して、テクスチャへ書き出す作業**です。**時間がかかるので、設定を段階的に上げながら、確認します**。**法線マップと併用するための「方向情報」も、一緒にベイク**できます。このページでは、**ベイクの流れと、方向情報**を説明します。
 
@@ -66,6 +66,6 @@ float3 irradiance = basis0 * w.x + basis1 * w.y + basis2 * w.z;
 
 ## 関連ページ
 
-- [ライトマップ](index.md)
+- [Lightmaps](index.md)
 - [ライトマップ UV](uv2.md)
-- [鏡面と動く物体](dynamic-objects.md)
+- [Specular and Dynamic Objects](dynamic-objects.md)

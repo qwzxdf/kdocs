@@ -1,10 +1,10 @@
 ---
-title: Hillaire 2020：4 つの LUT
+title: Hillaire 2020: Four LUTs
 tags:
   - 描画
 ---
 
-# Hillaire 2020：4 つの LUT
+# Hillaire 2020: Four LUTs
 
 **Hillaire の手法は、4 つの小さな LUT（透過率・多重散乱・空の景色・空気遠近法）に分けて計算する**ことで、**動的な大気**を**リアルタイム**で扱えます。**パラメータを変えても、すぐに反映**されます。このページでは、**4 つの LUT**を説明します。
 
@@ -92,6 +92,6 @@ float SkyViewV(float view_zenith_cos, float horizon_cos) {
 
 ## 関連ページ
 
-- [大気散乱](index.md)
-- [多重散乱](multiple-scattering.md)
+- [Atmospheric Scattering](index.md)
+- [Multiple Scattering](multiple-scattering.md)
 - [空気遠近法](../aerial-fog/index.md)

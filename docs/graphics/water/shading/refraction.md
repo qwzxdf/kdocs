@@ -1,10 +1,10 @@
 ---
-title: 水の屈折の歪み
+title: Water Refraction Distortion
 tags:
   - 描画
 ---
 
-# 水の屈折の歪み
+# Water Refraction Distortion
 
 **水の中の景色は、水面で曲がって見えます**。**法線に応じて、既に描いた画面をずらして読む**ことで、**安く表現**できます。このページでは、**水の屈折の歪みと、水面より手前の物の扱い**を説明します。
 
@@ -55,5 +55,5 @@ float3 scene_color = scene_copy.Sample(linear_clamp, refract_uv).rgb;
 
 ## 関連ページ
 
-- [水の質感](index.md)
-- [画面空間の屈折](../../translucency/refraction/screen-space.md)
+- [Water Shading](index.md)
+- [Screen-Space Refraction](../../translucency/refraction/screen-space.md)

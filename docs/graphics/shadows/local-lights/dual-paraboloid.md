@@ -1,10 +1,10 @@
 ---
-title: デュアル パラボロイド
+title: Dual Paraboloid
 tags:
   - 描画
 ---
 
-# デュアル パラボロイド
+# Dual Paraboloid
 
 **キューブ マップは 6 回描画**しますが、**デュアル パラボロイド**は、**放物面（お椀型）に投影する 2 枚のマップで、全方向を覆い、描画を 2 回に減らす**手法です。**かつてモバイルなどで使われました**が、**歪みが大きく、現代ではあまり使われません**。このページでは、**仕組み・利点と欠点**を説明します。
 
@@ -66,5 +66,5 @@ tags:
 
 ## 関連ページ
 
-- [点光源・スポットライトの影](index.md)
-- [点光源：キューブ マップ](point-cubemap.md)
+- [Point and Spot Light Shadows](index.md)
+- [Point Lights: Cube Maps](point-cubemap.md)

@@ -1,10 +1,10 @@
 ---
-title: 風
+title: Wind
 tags:
   - 描画
 ---
 
-# 風
+# Wind
 
 **風で草や木をなびかせると、世界が生きて見えます**。**頂点シェーダーで、頂点を動かす**のが**基本**です。このページでは、**風の表現**を説明します。
 
@@ -103,5 +103,5 @@ float3 ApplyWind(float3 world_position, float height_t, float2 wind_direction, f
 
 ## 関連ページ
 
-- [植生](index.md)
-- [草の形](grass-shape.md)
+- [Vegetation](index.md)
+- [Grass Shape](grass-shape.md)

@@ -1,10 +1,10 @@
 ---
-title: 厚みと色
+title: Thickness and Color
 tags:
   - 描画
 ---
 
-# 厚みと色
+# Thickness and Color
 
 **色付きのガラスや水は、光が通る距離（厚み）が長いほど、色が濃くなります**。**これがビア＝ランバートの法則**で、**吸収を指数で表します**。このページでは、**厚みの求め方と、色の付け方**を説明します。
 
@@ -138,7 +138,7 @@ float3 tinted_background = background * transmittance;
 | **`thickness`** | **厚み**。**ガラスなら、ほぼ一定**。<strong>水なら、水深（深度差）</strong> |
 | **`exp(-σd)`** | **厚いほど、急に暗く・濃く** |
 
-**水深**（水面から底までの距離）は、**不透明の深度と、水面の深度の差**から**求められます**（[水](../../water/index.md)）。
+**水深**（水面から底までの距離）は、**不透明の深度と、水面の深度の差**から**求められます**（[Water](../../water/index.md)）。
 
 ## よくあるミス
 
@@ -159,6 +159,6 @@ float3 tinted_background = background * transmittance;
 
 ## 関連ページ
 
-- [屈折](index.md)
-- [薄いガラスと厚いガラス](thin-thick.md)
-- [水の質感](../../water/shading/index.md)
+- [Refraction](index.md)
+- [Thin and Thick Glass](thin-thick.md)
+- [Water Shading](../../water/shading/index.md)

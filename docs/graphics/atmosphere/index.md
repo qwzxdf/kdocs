@@ -1,10 +1,10 @@
 ---
-title: 空と大気
+title: Sky and Atmosphere
 tags:
   - 描画
 ---
 
-# 空と大気
+# Sky and Atmosphere
 
 **空の色・遠景の霞・雲・光の筋**は**大気中の光の散乱**という**1 つの現象**から**生まれます**。**昼は青く、夕方は赤く、遠くの山は青白く霞む**のは、**どれも同じ原理**です。このセクションでは、**空のモデル**、**散乱の物理**、**距離フォグ**、**ボリューメトリック フォグ**、**雲**、**光の筋**を**安い方法から物理に忠実な方法へ**と順に説明します。
 
@@ -20,16 +20,16 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [空のモデル](sky-models/index.md) | グラデーション・Preetham・Hosek-Wilkie・太陽と月 |
-| [大気散乱](scattering/index.md) | レイリー・ミー・透過率・Bruneton・Hillaire 2020 |
+| [Sky Models](sky-models/index.md) | グラデーション・Preetham・Hosek-Wilkie・太陽と月 |
+| [Atmospheric Scattering](scattering/index.md) | レイリー・ミー・透過率・Bruneton・Hillaire 2020 |
 | [距離フォグ](aerial-fog/index.md) | 空気遠近法・距離フォグ・高さフォグ |
-| [ボリューメトリック フォグ](volumetric-fog/index.md) | froxel・光の注入・積分・時間蓄積 |
-| [雲](clouds/index.md) | レイマーチ・ノイズ・Beer-Powder・時間蓄積 |
+| [Volumetric Fog](volumetric-fog/index.md) | froxel・光の注入・積分・時間蓄積 |
+| [Clouds](clouds/index.md) | レイマーチ・ノイズ・Beer-Powder・時間蓄積 |
 | [光の筋](god-rays/index.md) | 放射ぼかし・シャドウ マップのレイマーチ |
 
 ## 関連ページ
 
 - [描画](../index.md)
-- [間接光（GI）](../gi/index.md)
-- [ポストプロセス](../postprocess/index.md)
-- [水](../water/index.md)
+- [Global Illumination (GI)](../gi/index.md)
+- [Post-Processing](../postprocess/index.md)
+- [Water](../water/index.md)

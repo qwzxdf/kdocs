@@ -1,10 +1,10 @@
 ---
-title: 見た目への効果
+title: Visual Effect
 tags:
   - 描画
 ---
 
-# 見た目への効果
+# Visual Effect
 
 **間接光があると、影の中が真っ黒ではなくなり、色が周りへにじみ（カラー ブリーディング）、物が「そこにある」ように見えます**。このページでは、**間接光が、見た目にもたらす効果**を説明します。
 
@@ -40,6 +40,6 @@ tags:
 
 ## 関連ページ
 
-- [GI の理論](index.md)
+- [GI Theory](index.md)
 - [AO](../../ao/index.md)
 - [GI の比較](../comparison.md)

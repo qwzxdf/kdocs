@@ -1,10 +1,10 @@
 ---
-title: 水深による色
+title: Color by Water Depth
 tags:
   - 描画
 ---
 
-# 水深による色
+# Color by Water Depth
 
 **水は、深いほど色が濃くなり、赤から先に吸収されます**。**Beer の法則（指数で減衰）**で、**この色の変化を表せます**。このページでは、**水深の求め方と、色の付け方**を説明します。
 
@@ -40,7 +40,7 @@ float3 refracted_color = scene_color * transmittance + deep_color * (1.0 - trans
 
 ### 水深の求め方
 
-**水深**は**不透明な物の深度（水の後ろにある底）と、水面の深度の差**です（[屈折](../../translucency/refraction/index.md)）。
+**水深**は**不透明な物の深度（水の後ろにある底）と、水面の深度の差**です（[Refraction](../../translucency/refraction/index.md)）。
 
 ```hlsl
 float scene_depth = LinearizeDepth(depth_texture.Sample(point_clamp, screen_uv).r);
@@ -73,6 +73,6 @@ float water_depth = max(scene_depth - surface_depth, 0.0);
 
 ## 関連ページ
 
-- [水の質感](index.md)
-- [厚みと色](../../translucency/refraction/thickness-color.md)
+- [Water Shading](index.md)
+- [Thickness and Color](../../translucency/refraction/thickness-color.md)
 - [色のパラメータ](parameters.md)

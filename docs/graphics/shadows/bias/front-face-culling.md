@@ -1,10 +1,10 @@
 ---
-title: 前面カリング
+title: Front-Face Culling
 tags:
   - 描画
 ---
 
-# 前面カリング
+# Front-Face Culling
 
 **シャドウ マップを描くとき、前面（光に向いた面）ではなく、裏面だけを描く**と、**深度が、物体の「奥の面」の深度になり、受け手の表面との差が大きくなって、アクネが起きにくくなります**。**簡単な対策**ですが、**薄い物体では、影が欠ける・光が漏れる**ので**向き不向き**があります。このページでは、**考え方・設定・向く物と向かない物**を説明します。
 
@@ -81,6 +81,6 @@ desc.CullMode = D3D11_CULL_FRONT;
 
 ## 関連ページ
 
-- [バイアス](index.md)
-- [深度を描く](../shadow-map-basics/render-depth.md)
-- [特殊なケース](../special-cases/index.md)
+- [Shadow Bias](index.md)
+- [Rendering Depth](../shadow-map-basics/render-depth.md)
+- [Special Cases](../special-cases/index.md)

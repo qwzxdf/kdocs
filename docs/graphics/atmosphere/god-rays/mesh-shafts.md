@@ -1,10 +1,10 @@
 ---
-title: メッシュで光の柱を作る
+title: Light Shaft Meshes
 tags:
   - 描画
 ---
 
-# メッシュで光の柱を作る
+# Light Shaft Meshes
 
 **窓から差し込む光など、位置が決まっている光の筋は、半透明のメッシュ（光の柱）で作る**と、**最も軽く済みます**。このページでは、**メッシュによる光の柱**を説明します。
 
@@ -54,5 +54,5 @@ return float4(light_color * alpha, 0);
 
 ## 関連ページ
 
-- [ゴッド レイ](index.md)
-- [ブレンド ステート](../../translucency/blending-sorting/blend-state.md)
+- [God Rays](index.md)
+- [Blend State](../../translucency/blending-sorting/blend-state.md)

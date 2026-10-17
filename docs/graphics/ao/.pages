@@ -1,6 +1,6 @@
 nav:
   - index.md
-  - AO の理論: theory
+  - AO Theory: theory
   - ssao-crytek.md
   - ssao-hemisphere.md
   - alchemy-ao.md
@@ -8,7 +8,7 @@ nav:
   - hbao.md
   - hbao-plus.md
   - gtao.md
-  - 世界空間 AO: world-space
-  - AO のフィルタ: filtering
+  - Ray-Traced, Distance-Field and Voxel AO: world-space
+  - AO Filtering: filtering
   - comparison.md
-  - アーティファクト: artifacts
+  - AO Artifacts: artifacts

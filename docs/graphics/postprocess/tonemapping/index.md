@@ -1,10 +1,10 @@
 ---
-title: トーンマッピングと露出
+title: Tone Mapping and Exposure
 tags:
   - 描画
 ---
 
-# トーンマッピングと露出
+# Tone Mapping and Exposure
 
 **現実の明るさ**は、**暗い部屋の 0.01 から、太陽の 100,000 まで**、**桁違いの幅**があります。**ディスプレイが出せる範囲**は、<strong>0〜1（LDR）</strong>です。**HDR で計算した光**を、**この狭い範囲に収める**のが**トーンマッピング**で、**その前段で「どれだけ明るく撮るか」＝露出**を決めます。このセクションでは、**露出・各トーンマップ曲線・色相の保ち方・自動露出・ガンマ**を、**1 つずつ別のページ**で説明します。
 
@@ -39,14 +39,14 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [露出](exposure.md) | EV・絞り／シャッター／ISO・EV100・露出補正 |
+| [Exposure](exposure.md) | EV・絞り／シャッター／ISO・EV100・露出補正 |
 | [Reinhard](reinhard.md) | x/(1+x)・白点付き・もっとも簡単な曲線 |
-| [フィルミック（Hable）](filmic-hable.md) | S 字・肩とつま先・Uncharted 2 の式 |
+| [Filmic (Hable)](filmic-hable.md) | S 字・肩とつま先・Uncharted 2 の式 |
 | [ACES](aces.md) | 映画業界の標準・近似式・色の偏り |
-| [AgX ほか](agx.md) | AgX・Tony McMapface・Khronos PBR Neutral |
-| [色相の保ち方](hue-preservation.md) | チャンネルごと / 輝度ベース / ハイブリッド |
-| [自動露出](auto-exposure.md) | 平均輝度・ヒストグラム・時間追従 |
-| [ガンマと HDR 出力](gamma-srgb.md) | sRGB・リニア空間・HDR10 への出力 |
+| [AgX and Others](agx.md) | AgX・Tony McMapface・Khronos PBR Neutral |
+| [Preserving Hue](hue-preservation.md) | チャンネルごと / 輝度ベース / ハイブリッド |
+| [Auto Exposure](auto-exposure.md) | 平均輝度・ヒストグラム・時間追従 |
+| [Gamma and HDR Output](gamma-srgb.md) | sRGB・リニア空間・HDR10 への出力 |
 
 ## 曲線を動かして比べる
 
@@ -134,11 +134,11 @@ tags:
 | **とにかく簡単に** | <strong>Reinhard（白点付き）</strong> |
 | **映画のような締まった画** | **ACES 近似・Hable** |
 | **色が破綻しにくい中立** | **AgX・Khronos PBR Neutral** |
-| **画作りを細かく制御** | **独自の曲線を 3D LUT にする**（[カラー グレーディング](../color-grading/index.md)） |
+| **画作りを細かく制御** | **独自の曲線を 3D LUT にする**（[Color Grading](../color-grading/index.md)） |
 
 ## 関連ページ
 
-- [ポストプロセス](../index.md)
-- [ブルーム](../bloom/index.md)
-- [カラー グレーディング](../color-grading/index.md)
+- [Post-Processing](../index.md)
+- [Bloom](../bloom/index.md)
+- [Color Grading](../color-grading/index.md)
 - [PBR](../../../3d/pbr.md)

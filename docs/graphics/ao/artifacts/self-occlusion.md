@@ -1,10 +1,10 @@
 ---
-title: 自己遮蔽
+title: Self-Occlusion
 tags:
   - 描画
 ---
 
-# 自己遮蔽
+# Self-Occlusion
 
 **平らな面なのに、縞や斑点が出る**のが**自己遮蔽の失敗**です。**深度バッファの精度が足りず、自分自身の面が、サンプルを遮ると判定される**ためです。**バイアス（わずかな余裕）や、法線に沿った半球**で**防ぎます**。このページでは、**自己遮蔽の原因・バイアス・法線方向の半球**を説明します。
 
@@ -56,6 +56,6 @@ tags:
 
 ## 関連ページ
 
-- [AO のアーティファクト](index.md)
-- [ハロー](halo.md)
-- [半球 SSAO](../ssao-hemisphere.md)
+- [AO Artifacts](index.md)
+- [Halo](halo.md)
+- [Hemisphere SSAO](../ssao-hemisphere.md)

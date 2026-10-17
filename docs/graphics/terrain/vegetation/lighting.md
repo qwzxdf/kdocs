@@ -1,10 +1,10 @@
 ---
-title: 植生のライティング
+title: Vegetation Lighting
 tags:
   - 描画
 ---
 
-# 植生のライティング
+# Vegetation Lighting
 
 **葉は薄く、光が透けるので、普通の面のライティングでは、暗く見えます**。**裏側からの光を足す（透過）**ことで、**自然な明るさ**になります。このページでは、**植生のライティング**を説明します。
 
@@ -40,5 +40,5 @@ tags:
 
 ## 関連ページ
 
-- [植生](index.md)
+- [Vegetation](index.md)
 - [影のアルファ テスト](../../shadows/special-cases/alpha-test-shadows.md)

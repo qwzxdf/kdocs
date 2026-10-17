@@ -1,10 +1,10 @@
 ---
-title: 植生
+title: Vegetation
 tags:
   - 描画
 ---
 
-# 植生
+# Vegetation
 
 **草や木は、数が非常に多く、地形の見た目を大きく左右します**。**インスタンシングとカリングで数を扱い、風やライティングで生きた見た目にします**。このセクションでは、**配置・インスタンシング・カリング・草の形・風・踏まれる草・木・半透明の問題・ライティング**を、**1 つずつ別のページ**で説明します。
 
@@ -68,12 +68,12 @@ void GenerateGrass(uint3 id : SV_DispatchThreadID) {
 
 | ページ | 内容 |
 | --- | --- |
-| [インスタンシング](instancing.md) | 同じメッシュを大量に描く |
+| [Instancing](instancing.md) | 同じメッシュを大量に描く |
 | [カリング](culling.md) | 見えない物を描かない |
-| [草の形](grass-shape.md) | 板ポリ・メッシュ |
-| [風](wind.md) | なびく動き |
-| [踏まれる草](trample.md) | キャラクターで倒れる草 |
-| [木](trees.md) | 木の LOD・ビルボード |
+| [Grass Shape](grass-shape.md) | 板ポリ・メッシュ |
+| [Wind](wind.md) | なびく動き |
+| [Trampled Grass](trample.md) | キャラクターで倒れる草 |
+| [Trees](trees.md) | 木の LOD・ビルボード |
 | [半透明の問題](translucency.md) | 葉の描画の問題 |
 | [ライティング](lighting.md) | 葉の光の扱い |
 
@@ -90,6 +90,6 @@ void GenerateGrass(uint3 id : SV_DispatchThreadID) {
 
 ## 関連ページ
 
-- [地形](../index.md)
-- [アルファ テスト](../../translucency/alpha-test/index.md)
+- [Terrain](../index.md)
+- [Alpha Testing](../../translucency/alpha-test/index.md)
 - [カリング](../../../rendering/culling.md)

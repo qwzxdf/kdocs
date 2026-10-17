@@ -1,10 +1,10 @@
 ---
-title: 高さマップの LOD（ミップ）
+title: Heightmap LOD (Mips)
 tags:
   - 描画
 ---
 
-# 高さマップの LOD（ミップ）
+# Heightmap LOD (Mips)
 
 **遠くの地形は、高さマップも粗くてよく、ミップマップが使えます**。**LOD に応じて、読むミップを選ぶ**と、**テクスチャのちらつきと帯域**を**減らせます**。このページでは、**高さマップのミップ**を説明します。
 
@@ -41,5 +41,5 @@ tags:
 
 ## 関連ページ
 
-- [地形の LOD](index.md)
-- [高さマップとメッシュ](../heightmap-mesh/index.md)
+- [Terrain LOD](index.md)
+- [Heightmaps and Meshes](../heightmap-mesh/index.md)

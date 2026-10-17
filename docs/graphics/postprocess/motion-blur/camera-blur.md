@@ -1,10 +1,10 @@
 ---
-title: カメラのブラー
+title: Camera Motion Blur
 tags:
   - 描画
 ---
 
-# カメラのブラー
+# Camera Motion Blur
 
 **カメラが動いたり回ったりすると、静止している背景全体が、流れるように見えます**。**カメラ モーション ブラー**は、**この背景の流れ**を**表現**する**ブラー**で、**コストが安く、スピード感への効果が大きい**ため、**最初に実装すべき**部分です。**必要なのは画素ごとの深度と前フレームのカメラ行列だけ**で、**動く物体の速度バッファを作らなくても実現**できます。このページでは、**深度から速度を再構成する方法・並進と回転の違い・注意点（動く物体・遠景）・より良いやり方**を説明します。
 
@@ -292,7 +292,7 @@ float2 CameraVelocity(float2 uv, float depth) {
 | --- | --- |
 | **`inverse_view_projection`** | **今フレームの逆行列**。**深度 → ワールド位置** |
 | **`previous_view_projection`** | **前フレームのカメラ**。**ワールド位置 → 前の画面位置** |
-| **`uv − previous_uv`** | **今 − 前**（<strong>[速度バッファ](velocity-buffer.md)と同じ定義</strong>） |
+| **`uv − previous_uv`** | **今 − 前**（<strong>[Velocity Buffer](velocity-buffer.md)と同じ定義</strong>） |
 | **ジッター** | **両方の行列から、ジッターを除く** |
 
 ## 特徴と注意
@@ -328,7 +328,7 @@ float2 FinalVelocity(float2 uv, float depth) {
 | **カットで即リセット** | **前フレームの行列を今に** |
 | **プレイヤーの武器・手を除外** | **カメラに固定された物は、カメラ ブラーを掛けない**（**ステンシル／マスク**） |
 | **遠景は強さを弱める** | **空の流れが強すぎるのを防ぐ** |
-| **シャッター角で強さを調整** | [強さと TAA](strength-taa.md) |
+| **シャッター角で強さを調整** | [Strength and TAA](strength-taa.md) |
 
 ## よくあるミス
 
@@ -360,7 +360,7 @@ float2 FinalVelocity(float2 uv, float depth) {
 
 ## 関連ページ
 
-- [モーション ブラー](index.md)
-- [速度バッファ](velocity-buffer.md)
-- [オブジェクトのブラー](object-blur.md)
-- [ぼかしの実装](blur-pass.md)
+- [Motion Blur](index.md)
+- [Velocity Buffer](velocity-buffer.md)
+- [Object Motion Blur](object-blur.md)
+- [Blur Pass Implementation](blur-pass.md)

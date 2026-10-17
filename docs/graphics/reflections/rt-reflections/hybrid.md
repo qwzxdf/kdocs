@@ -1,10 +1,10 @@
 ---
-title: ハイブリッド構成
+title: Hybrid Pipeline
 tags:
   - 描画
 ---
 
-# ハイブリッド構成
+# Hybrid Pipeline
 
 **全画素にレイトレを使うと重いので、「SSR で当たった所は SSR、外れた所だけレイトレ」**という、**ハイブリッド構成**が**現実的**です。**さらに、粗さが高い所はプローブにフォールバック**します。このページでは、**ハイブリッドの組み立て方と、性能の工夫**を説明します。
 
@@ -97,6 +97,6 @@ tags:
 
 ## 関連ページ
 
-- [レイトレ反射](index.md)
-- [SSR の基本](../ssr-basics/index.md)
-- [ノイズ除去](denoise.md)
+- [Ray-Traced Reflections](index.md)
+- [SSR Basics](../ssr-basics/index.md)
+- [Denoising](denoise.md)

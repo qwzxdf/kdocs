@@ -164,7 +164,7 @@ HBAO+ の発想を自前の実装に取り入れるなら、次の 3 点です�
 
 ## 関連ページ
 
-- [環境光遮蔽（AO）](index.md)
+- [Ambient Occlusion (AO)](index.md)
 - [HBAO](hbao.md)
 - [SAO（Scalable AO）](sao.md)
 - [GTAO](gtao.md)

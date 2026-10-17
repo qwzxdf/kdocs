@@ -1,10 +1,10 @@
 ---
-title: ボケの形
+title: Bokeh Shape
 tags:
   - 描画
 ---
 
-# ボケの形
+# Bokeh Shape
 
 <strong>ボケの「形」</strong>は、<strong>写真・映画の「味」</strong>を**決める**大切な要素です。**実際のレンズでは、絞りの羽根の枚数でボケの円が多角形になり**、**レンズの設計で縁が明るかったり、中心が明るかったり**します。**ゲームの DOF でも、サンプルの配置・重み付けでこの形を作り分けられます**。このページでは、**円・多角形・ボケの明るさの分布・猫の目（口径食）・サンプル配置・ブルーム的な玉ボケ**を説明します。
 
@@ -39,7 +39,7 @@ tags:
 
 ### 円盤
 
-**ヴォーゲル螺旋**（[ギャザー方式](gather.md)）が**そのまま円盤**を**作ります**。
+**ヴォーゲル螺旋**（[Gather Method](gather.md)）が**そのまま円盤**を**作ります**。
 
 ### 多角形
 
@@ -156,7 +156,7 @@ float2 ApplyCatEye(float2 offset_in_disk, float2 screen_uv, float strength) {
 | **サンプル配置を事前計算** | **多角形・形ごとにサンプルを事前に作り、定数バッファへ** |
 | **ブルー ノイズで回転** | **少ないサンプルで滑らかに** |
 | **ボケの小さい所は円で十分** | **形が見えるのは、大きな明るいボケだけ**。**そこだけ凝る** |
-| **スキャッターで形を正確に** | **玉ボケの形を重視するなら、スプライトに形のテクスチャを貼る**（[スキャッター方式](scatter.md)） |
+| **スキャッターで形を正確に** | **玉ボケの形を重視するなら、スプライトに形のテクスチャを貼る**（[Scatter Method](scatter.md)） |
 
 ## よくあるミス
 
@@ -186,7 +186,7 @@ float2 ApplyCatEye(float2 offset_in_disk, float2 screen_uv, float strength) {
 
 ## 関連ページ
 
-- [被写界深度（DOF）](index.md)
-- [ギャザー方式](gather.md)
-- [スキャッター方式](scatter.md)
-- [ブルーム](../bloom/index.md)
+- [Depth of Field (DOF)](index.md)
+- [Gather Method](gather.md)
+- [Scatter Method](scatter.md)
+- [Bloom](../bloom/index.md)

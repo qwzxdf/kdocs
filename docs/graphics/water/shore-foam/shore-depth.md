@@ -1,10 +1,10 @@
 ---
-title: 岸辺の泡：深度差
+title: Shore Foam: Depth Difference
 tags:
   - 描画
 ---
 
-# 岸辺の泡：深度差
+# Shore Foam: Depth Difference
 
 **岸辺は、水面とシーンの深度の差が小さい所**です。**この差から、泡のマスクを作る**と、**岸や物の境界に、自然に泡が出ます**。このページでは、**深度差を使った泡**を説明します。
 
@@ -79,5 +79,5 @@ float shore_mask = 1.0 - saturate(animated_depth / foam_distance);
 
 ## 関連ページ
 
-- [岸辺の泡](index.md)
-- [ソフト パーティクル](../../translucency/blending-sorting/soft-particles.md)
+- [Shore Foam](index.md)
+- [Soft Particles](../../translucency/blending-sorting/soft-particles.md)

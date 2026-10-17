@@ -1,12 +1,12 @@
 nav:
   - index.md
-  - 影: shadows
-  - 環境光遮蔽（AO）: ao
-  - 間接光（GI）: gi
-  - 反射: reflections
-  - ポストプロセス: postprocess
-  - 半透明: translucency
-  - 水: water
-  - 地形: terrain
-  - 空と大気: atmosphere
+  - Shadows: shadows
+  - Ambient Occlusion (AO): ao
+  - Global Illumination (GI): gi
+  - Reflections: reflections
+  - Post-Processing: postprocess
+  - Translucency: translucency
+  - Water: water
+  - Terrain: terrain
+  - Sky and Atmosphere: atmosphere
   - ...

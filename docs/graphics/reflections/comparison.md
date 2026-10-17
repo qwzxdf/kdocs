@@ -1,10 +1,10 @@
 ---
-title: 反射の方式比較
+title: Reflection Comparison
 tags:
   - 描画
 ---
 
-# 反射の方式比較
+# Reflection Comparison
 
 **平面反射・リフレクション プローブ・SSR・レイトレース反射**は、それぞれ得意・不得意が違います。**実際のゲームは、これらを組み合わせて使います**。このページでは、**4 方式を原理・品質・コスト・弱点で並べて比べ**、**どの場面で何を使うか**、**組み合わせの設計**をまとめます。
 
@@ -134,9 +134,9 @@ tags:
 
 ## 関連ページ
 
-- [反射](index.md)
-- [平面反射](planar.md)
+- [Reflections](index.md)
+- [Planar Reflections](planar.md)
 - [リフレクション プローブ](probes/index.md)
-- [確率的 SSR](ssr-stochastic.md)
-- [SSR のフォールバックと合成](ssr-fallback.md)
+- [Stochastic SSR](ssr-stochastic.md)
+- [SSR Fallback and Compositing](ssr-fallback.md)
 - [レイトレース反射](rt-reflections/index.md)

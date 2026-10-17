@@ -1,10 +1,10 @@
 ---
-title: 波の動かし方の工夫
+title: Wave Animation Tricks
 tags:
   - 描画
 ---
 
-# 波の動かし方の工夫
+# Wave Animation Tricks
 
 **波を動かすには、時間を進めるだけではなく、「繰り返しを隠す」「遠くを省く」といった工夫**が必要です。このページでは、**波のアニメーションの工夫**を説明します。
 
@@ -43,5 +43,5 @@ tags:
 
 ## 関連ページ
 
-- [水面の波](index.md)
-- [サイン波の重ね合わせ](sine-waves.md)
+- [Water Waves](index.md)
+- [Summing Sine Waves](sine-waves.md)

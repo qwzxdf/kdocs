@@ -1,10 +1,10 @@
 ---
-title: GI の理論
+title: GI Theory
 tags:
   - 描画
 ---
 
-# GI の理論
+# GI Theory
 
 **GI（グローバル イルミネーション）は、光が壁や床で跳ね返って、周りを照らす「間接光」を表現する技術**です。**手法はたくさんありますが、どれも「レンダリング方程式」という同じ式を、どう近似するかの違い**です。このセクションでは、**レンダリング方程式・拡散と鏡面・放射照度・球面調和関数（SH）・モンテカルロ積分・手法の分類・見た目への効果**を、**1 つずつ別のページ**で説明します。
 
@@ -42,12 +42,12 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [拡散と鏡面](diffuse-specular.md) | 間接光を 2 つに分けて考える |
-| [放射照度](irradiance.md) | 拡散の間接光を、方向で畳み込む |
-| [球面調和関数（SH）](spherical-harmonics.md) | 方向の関数を、少数の係数で持つ |
-| [モンテカルロ積分](monte-carlo.md) | ランダムな試行で積分を近似 |
-| [手法の分類](taxonomy.md) | 2 つの軸で、GI 手法を整理 |
-| [見た目への効果](visual-effect.md) | 間接光があると、何が変わるか |
+| [Diffuse and Specular](diffuse-specular.md) | 間接光を 2 つに分けて考える |
+| [Irradiance](irradiance.md) | 拡散の間接光を、方向で畳み込む |
+| [Spherical Harmonics (SH)](spherical-harmonics.md) | 方向の関数を、少数の係数で持つ |
+| [Monte Carlo Integration](monte-carlo.md) | ランダムな試行で積分を近似 |
+| [Taxonomy of Methods](taxonomy.md) | 2 つの軸で、GI 手法を整理 |
+| [Visual Effect](visual-effect.md) | 間接光があると、何が変わるか |
 
 ## これだけ覚える
 
@@ -65,4 +65,4 @@ tags:
 
 - [GI](../index.md)
 - [GI の比較](../comparison.md)
-- [AO の理論](../../ao/theory/index.md)
+- [AO Theory](../../ao/theory/index.md)

@@ -1,10 +1,10 @@
 ---
-title: 解析的な空のモデル
+title: Analytic Sky Models
 tags:
   - 描画
 ---
 
-# 解析的な空のモデル
+# Analytic Sky Models
 
 **Preetham や Hosek-Wilkie などは、太陽の位置と大気の濁りから、空の色を式で求めるモデル**です。**グラデーションより物理的で、積分も要りません**。このページでは、**解析的な空のモデル**を説明します。
 
@@ -57,7 +57,7 @@ float Perez(float cos_theta, float gamma, float cos_gamma, PerezCoefficients coe
 | **データ** | <strong>数式の係数のみ（少ない）</strong> | <strong>係数テーブルが必要（大きい）</strong> |
 | **用途** | **軽量・手軽** | **品質重視** |
 
-**どちらも空の見た目だけ**で<strong>大気の中を通る光（遠景の霞・光の筋）</strong>は**別に計算**する必要があります。**そこは[大気散乱](../scattering/index.md)の担当**です。
+**どちらも空の見た目だけ**で<strong>大気の中を通る光（遠景の霞・光の筋）</strong>は**別に計算**する必要があります。**そこは[Atmospheric Scattering](../scattering/index.md)の担当**です。
 
 ## よくあるミス
 
@@ -78,5 +78,5 @@ float Perez(float cos_theta, float gamma, float cos_gamma, PerezCoefficients coe
 
 ## 関連ページ
 
-- [空のモデル](index.md)
-- [大気散乱](../scattering/index.md)
+- [Sky Models](index.md)
+- [Atmospheric Scattering](../scattering/index.md)

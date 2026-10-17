@@ -1,10 +1,10 @@
 ---
-title: 水面の裏側と、またぐ処理
+title: The Underside of the Surface and Crossing It
 tags:
   - 描画
 ---
 
-# 水面の裏側と、またぐ処理
+# The Underside of the Surface and Crossing It
 
 **水中から水面を見上げると、水面は、鏡のように反射する部分と、空が見える部分（スネルの窓）に分かれます**。**カメラが水面をまたぐ時の、見た目の切り替え**にも**注意**が必要です。このページでは、**水面の裏側の見え方と、またぐ処理**を説明します。
 
@@ -112,5 +112,5 @@ float3 color = total_internal_reflection
 
 ## 関連ページ
 
-- [水中の表現](index.md)
-- [水中の霧](fog.md)
+- [Underwater Rendering](index.md)
+- [Underwater Fog](fog.md)

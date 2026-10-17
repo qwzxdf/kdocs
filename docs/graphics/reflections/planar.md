@@ -1,10 +1,10 @@
 ---
-title: 平面反射
+title: Planar Reflections
 tags:
   - 描画
 ---
 
-# 平面反射
+# Planar Reflections
 
 **平面反射**（Planar Reflection）は、<strong>鏡や水面のような「平らな反射面」</strong>で、**反射面の向こう側にカメラを置いて**、**シーンをもう一度描き直し**、その画像を反射として貼る方式です。**反射が完全に正確**（本物の鏡と同じ）で、**画面外の物も裏側も映ります**。その代わりに**シーンの描画がほぼ倍**になります。**水面・鏡・磨かれた床**など、**平面の反射が主役**の場面で、今も使われます。
 
@@ -218,7 +218,7 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 
 ## 関連ページ
 
-- [反射](index.md)
+- [Reflections](index.md)
 - [リフレクション プローブ](probes/index.md)
 - [SSR の基礎](ssr-basics/index.md)
 - [座標系](../../gamemath/coordinate-systems.md)

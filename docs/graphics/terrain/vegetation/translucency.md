@@ -1,10 +1,10 @@
 ---
-title: 植生の半透明の問題
+title: Foliage Translucency
 tags:
   - 描画
 ---
 
-# 植生の半透明の問題
+# Foliage Translucency
 
 **葉は、ソートできないほど多いので、通常の半透明は使えません**。**アルファ テスト・Alpha to Coverage・ハッシュド アルファ**で**対処**します。このページでは、**葉の半透明の問題と対策**を説明します。
 
@@ -20,7 +20,7 @@ tags:
 | 問題 | 対策 |
 | --- | --- |
 | **ジャギー** | **A2C（Alpha To Coverage）＋ MSAA**。**または TAA で滑らかに** |
-| **遠くで草が痩せる** | **ミップでアルファが薄まる**。**ミップごとにアルファを補正**（[アルファ テスト](../../translucency/alpha-test/index.md)） |
+| **遠くで草が痩せる** | **ミップでアルファが薄まる**。**ミップごとにアルファを補正**（[Alpha Testing](../../translucency/alpha-test/index.md)） |
 | **裏面が暗い／明るい** | **両面描画で裏面の法線を反転**。**葉の透過光を足す** |
 
 ## よくあるミス
@@ -41,5 +41,5 @@ tags:
 
 ## 関連ページ
 
-- [植生](index.md)
-- [アルファ テスト](../../translucency/alpha-test/index.md)
+- [Vegetation](index.md)
+- [Alpha Testing](../../translucency/alpha-test/index.md)

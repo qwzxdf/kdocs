@@ -1,10 +1,10 @@
 ---
-title: 色収差
+title: Chromatic Aberration
 tags:
   - 描画
 ---
 
-# 色収差
+# Chromatic Aberration
 
 <strong>色収差（Chromatic Aberration）</strong>は、**レンズを通った光が波長（色）によって、わずかに違う位置に像を結ぶ**ために起きる**現象**です。**画面の端で物の輪郭が赤と青（または緑とマゼンタ）にずれて、にじんで見えます**。**カメラの欠点**ですが<strong>ゲームでは「ホラー・SF・ダメージ・サイバーパンク」</strong>などの**演出**として**使われます**。**高品質になるわけではなく、完全に好みの問題**です。このページでは、**起きる理由・基本の実装・分散（多サンプル）による高品質版・かけ方（どこに・どれくらい）・演出での使い方**を説明します。
 
@@ -185,7 +185,7 @@ float3 ChromaticAberrationSpectral(float2 uv, float intensity) {
 
 ## 関連ページ
 
-- [レンズ効果](index.md)
-- [ビネット](vignette.md)
-- [フィルム グレイン](film-grain.md)
+- [Lens Effects](index.md)
+- [Vignette](vignette.md)
+- [Film Grain](film-grain.md)
 - [被写界深度](../dof/index.md)

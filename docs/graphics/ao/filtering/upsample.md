@@ -1,10 +1,10 @@
 ---
-title: アップサンプル
+title: Upsampling
 tags:
   - 描画
 ---
 
-# アップサンプル
+# Upsampling
 
 **AO は、半解像度（または 1/4）で計算する**と**コストが大きく減ります**が、**フル解像度に戻すとき、単純な拡大では、エッジがにじみます**。**フル解像度の深度を見ながら、近い深度の低解像度サンプルだけを重く混ぜる「深度を考慮したアップサンプル」**が**必要**です。このページでは、**低解像度で計算する理由・深度を見るアップサンプル・実装**を説明します。
 
@@ -120,6 +120,6 @@ float UpsampleAO(float2 uv_full) {
 
 ## 関連ページ
 
-- [AO のフィルタ](index.md)
-- [バイラテラル ブラー](bilateral-blur.md)
-- [典型のパイプライン](pipeline.md)
+- [AO Filtering](index.md)
+- [Bilateral Blur](bilateral-blur.md)
+- [Typical Pipeline](pipeline.md)

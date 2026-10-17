@@ -1,10 +1,10 @@
 ---
-title: ブレンド ステート
+title: Blend State
 tags:
   - 描画
 ---
 
-# ブレンド ステート
+# Blend State
 
 **半透明の描画は、GPU の「ブレンド ステート」の設定で決まります**。**DirectX 11 では、ソース係数・デスティネーション係数・演算を指定**します。このページでは、**代表的な設定（通常・加算・乗算）とコード**を説明します。
 
@@ -111,5 +111,5 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 
 ## 関連ページ
 
-- [アルファ ブレンドとソート](index.md)
-- [乗算済みアルファ](premultiplied.md)
+- [Alpha Blending and Sorting](index.md)
+- [Premultiplied Alpha](premultiplied.md)

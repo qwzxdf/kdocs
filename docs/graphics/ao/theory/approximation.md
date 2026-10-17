@@ -1,10 +1,10 @@
 ---
-title: 積分の近似
+title: Approximating the Integral
 tags:
   - 描画
 ---
 
-# 積分の近似
+# Approximating the Integral
 
 **AO の積分は、厳密には計算できない**ので、**近似**します。**近似のやり方は、大きく 3 つ**あり、**これが、SSAO・HBAO・Alchemy・GTAO などの方式の違い**を**生みます**。このページでは、**3 つの近似・方式を分けるもの**を説明します。
 
@@ -69,6 +69,6 @@ AO は**積分**なのでそのままでは計算できません。次の 3 通�
 
 ## 関連ページ
 
-- [AO の理論](index.md)
-- [半球 SSAO](../ssao-hemisphere.md)
+- [AO Theory](index.md)
+- [Hemisphere SSAO](../ssao-hemisphere.md)
 - [GTAO](../gtao.md)

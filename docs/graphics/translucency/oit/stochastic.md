@@ -1,10 +1,10 @@
 ---
-title: 確率的透明
+title: Stochastic Transparency
 tags:
   - 描画
 ---
 
-# 確率的透明
+# Stochastic Transparency
 
 **確率的透明は、アルファ値に応じて、画素をランダムに捨て、複数フレームやサンプルで平均する**ことで、**半透明を表す手法**です。**ソート不要で、深度も書けます**が、**ノイズが出るので、TAA が前提**です。このページでは、**確率的透明の仕組み**を説明します。
 
@@ -45,4 +45,4 @@ tags:
 ## 関連ページ
 
 - [OIT](index.md)
-- [ハッシュド アルファ](../alpha-test/hashed-alpha.md)
+- [Hashed Alpha](../alpha-test/hashed-alpha.md)

@@ -1,10 +1,10 @@
 ---
-title: バイラテラル ブラー
+title: Bilateral Blur
 tags:
   - 描画
 ---
 
-# バイラテラル ブラー
+# Bilateral Blur
 
 **AO のノイズを消すには、ぼかすのが基本**ですが、**普通のぼかしは、物体の境界（エッジ）をまたいでにじみ、境界に黒や白のハロー**ができます。**深度や法線が近い画素だけを混ぜる「バイラテラル ブラー」**なら、**エッジを保ったままノイズだけ消せます**。このページでは、**バイラテラル ブラーの考え方・重みの付け方・実装・パラメータ**を説明します。
 
@@ -172,7 +172,7 @@ float BilateralBlur(float2 uv, float2 dir) {
 
 ### 4×4 ノイズに合わせた、ボックス ぼかし
 
-**4×4 のノイズ テクスチャ**を使った SSAO（[半球 SSAO](../ssao-hemisphere.md)）では**ノイズが 4 画素周期**で繰り返すので、**4×4 のボックス ぼかし**で、**周期のパターンがちょうど消えます**。**深度の重み付き**にすれば、境界も守れます。
+**4×4 のノイズ テクスチャ**を使った SSAO（[Hemisphere SSAO](../ssao-hemisphere.md)）では**ノイズが 4 画素周期**で繰り返すので、**4×4 のボックス ぼかし**で、**周期のパターンがちょうど消えます**。**深度の重み付き**にすれば、境界も守れます。
 
 ## よくあるミス
 
@@ -192,6 +192,6 @@ float BilateralBlur(float2 uv, float2 dir) {
 
 ## 関連ページ
 
-- [AO のフィルタ](index.md)
-- [アップサンプル](upsample.md)
-- [ガウスぼかし](../../postprocess/bloom/gaussian.md)
+- [AO Filtering](index.md)
+- [Upsampling](upsample.md)
+- [Gaussian Blur](../../postprocess/bloom/gaussian.md)

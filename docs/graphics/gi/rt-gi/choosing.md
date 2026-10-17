@@ -1,10 +1,10 @@
 ---
-title: 手法の選び方
+title: Choosing a Method
 tags:
   - 描画
 ---
 
-# 手法の選び方
+# Choosing a Method
 
 **動的な GI の手法は、品質・コスト・必要なハードウェアで、向き不向きがあります**。このページでは、**手法の選び方の目安と、長所・短所**を説明します。
 
@@ -48,6 +48,6 @@ tags:
 
 ## 関連ページ
 
-- [レイトレ GI](index.md)
+- [Ray-Traced GI](index.md)
 - [GI の比較](../comparison.md)
 - [DDGI](../ddgi.md)

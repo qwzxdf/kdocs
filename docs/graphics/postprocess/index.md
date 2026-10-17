@@ -1,10 +1,10 @@
 ---
-title: ポストプロセス
+title: Post-Processing
 tags:
   - 描画
 ---
 
-# ポストプロセス
+# Post-Processing
 
 3D の描画が終わった<strong>画像（HDR のカラー バッファ）</strong>に、**画面全体への加工**を重ねて、**最終的な見た目**を作るのが**ポストプロセス**です。**ブルーム（光のにじみ）・被写界深度（ピンぼけ）・モーション ブラー・アンチエイリアシング・トーンマッピング・カラー グレーディング**など、**ゲームの「絵作り」の、大半**がここで決まります。**ライティングが「物理的な光」を計算する**のに対し、**ポストプロセスは「カメラ（レンズ・フィルム・目）」を模擬する**と考えると整理しやすくなります。
 
@@ -19,14 +19,14 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [トーンマッピングと露出](tonemapping/index.md) | HDR → LDR。露出・Reinhard・フィルミック・ACES・AgX・色相の保ち方・自動露出・ガンマ |
-| [ブルーム](bloom/index.md) | 明るい部分のにじみ。しきい値・ダウンサンプル・ガウス・Dual Filter・Karis・合成 |
-| [被写界深度（DOF）](dof/index.md) | 錯乱円・ギャザー・スキャッター・前景と背景・ボケの形 |
-| [モーション ブラー](motion-blur/index.md) | 速度バッファ・カメラ・オブジェクト・ぼかしの実装・タイル最大速度・強さと TAA |
-| [アンチエイリアシング](antialiasing/index.md) | MSAA・FXAA・SMAA・TAA・TAA の課題・比較 |
-| [カラー グレーディング](color-grading/index.md) | 基本の調整・リフト/ガンマ/ゲイン・ホワイト バランス・3D LUT・LUT の作り方 |
-| [レンズ効果](lens-effects/index.md) | 色収差・ビネット・フィルム グレイン・レンズ フレア |
-| [輪郭線・トゥーン](stylized/index.md) | 背面法・画面空間エッジ・セル シェーディング・ポスタライズとハーフトーン |
+| [Tone Mapping and Exposure](tonemapping/index.md) | HDR → LDR。露出・Reinhard・フィルミック・ACES・AgX・色相の保ち方・自動露出・ガンマ |
+| [Bloom](bloom/index.md) | 明るい部分のにじみ。しきい値・ダウンサンプル・ガウス・Dual Filter・Karis・合成 |
+| [Depth of Field (DOF)](dof/index.md) | 錯乱円・ギャザー・スキャッター・前景と背景・ボケの形 |
+| [Motion Blur](motion-blur/index.md) | 速度バッファ・カメラ・オブジェクト・ぼかしの実装・タイル最大速度・強さと TAA |
+| [Anti-Aliasing](antialiasing/index.md) | MSAA・FXAA・SMAA・TAA・TAA の課題・比較 |
+| [Color Grading](color-grading/index.md) | 基本の調整・リフト/ガンマ/ゲイン・ホワイト バランス・3D LUT・LUT の作り方 |
+| [Lens Effects](lens-effects/index.md) | 色収差・ビネット・フィルム グレイン・レンズ フレア |
+| [Outlines and Toon](stylized/index.md) | 背面法・画面空間エッジ・セル シェーディング・ポスタライズとハーフトーン |
 
 ## 処理の順序
 
@@ -92,4 +92,4 @@ VsOutput FullscreenVS(uint vertex_id : SV_VertexID) {
 - [ポストプロセスの最適化](../../rendering/postprocess.md)
 - [TAA・アップスケール](../../rendering/taa-upscaling.md)
 - [低解像度エフェクト](../../rendering/low-res-effects.md)
-- [反射](../reflections/index.md)
+- [Reflections](../reflections/index.md)

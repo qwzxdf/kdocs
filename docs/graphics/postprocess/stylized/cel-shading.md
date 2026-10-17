@@ -1,10 +1,10 @@
 ---
-title: セル シェーディング
+title: Cel Shading
 tags:
   - 描画
 ---
 
-# セル シェーディング
+# Cel Shading
 
 <strong>セル シェーディング（トゥーン シェーディング）</strong>は、**陰影を滑らかなグラデーションではなく、数段階（2〜3 段）に区切る**表現です。<strong>手描きアニメの「セル画」</strong>のように、<strong>「明るい面」「影の面」がくっきり分かれる</strong>ので、**アニメ調の絵**になります。**ライティングの結果（明るさ）を、段階に変換する関数**が**核**で、**ランプ テクスチャ**で**自由に調整**できます。**写実的な高品質とは別の方向の表現**で、**画風に合うかどうか**が**基準**です。このページでは、**基本の段階化・ランプ テクスチャ・なめらかな境・スペキュラとリム ライト・影の色・影を受けるときの扱い**を説明します。
 
@@ -199,7 +199,7 @@ float RimLight(float3 normal, float3 view_dir, float power, float threshold) {
 
 ## 影を受ける
 
-**シャドウ マップの影**（[影](../../shadows/index.md)）を**セルの陰影に取り込む**には**影の判定値（0〜1）を、`N·L` と掛け合わせます**。
+**シャドウ マップの影**（[Shadows](../../shadows/index.md)）を**セルの陰影に取り込む**には**影の判定値（0〜1）を、`N·L` と掛け合わせます**。
 
 ```hlsl
 float shadow = SampleShadow(world_position);
@@ -253,7 +253,7 @@ float lit = smoothstep(0.0, 0.02, toon_input);
 
 ## 関連ページ
 
-- [輪郭線・トゥーン](index.md)
-- [背面法の輪郭線](outline-hull.md)
-- [ポスタライズとハーフトーン](posterize-halftone.md)
+- [Outlines and Toon](index.md)
+- [Inverted Hull Outlines](outline-hull.md)
+- [Posterization and Halftone](posterize-halftone.md)
 - [法線とライティング](../../../3d/lighting-normals.md)

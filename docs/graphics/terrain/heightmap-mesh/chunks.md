@@ -1,10 +1,10 @@
 ---
-title: チャンク分割
+title: Chunking
 tags:
   - 描画
 ---
 
-# チャンク分割
+# Chunking
 
 **大きな地形は、1 枚のメッシュにせず、チャンク（区画）に分けます**。**見える区画だけを描き、遠い区画は粗くする**ことで、**効率よく描けます**。このページでは、**チャンク分割の考え方**を説明します。
 
@@ -56,5 +56,5 @@ struct TerrainChunk {
 
 ## 関連ページ
 
-- [高さマップとメッシュ](index.md)
+- [Heightmaps and Meshes](index.md)
 - [LOD](../lod/index.md)

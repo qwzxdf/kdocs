@@ -1,10 +1,10 @@
 ---
-title: 高さマップとメッシュ
+title: Heightmaps and Meshes
 tags:
   - 描画
 ---
 
-# 高さマップとメッシュ
+# Heightmaps and Meshes
 
 **地形の基本は、「高さマップ」という白黒の画像で、各位置の高さを持つ**ことです。**これを格子状のメッシュに変換**して、**描画**します。このセクションでは、**高さマップ・格子メッシュ・法線・任意位置の高さ・チャンク分割・編集**を、**1 つずつ別のページ**で説明します。
 
@@ -45,11 +45,11 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [格子メッシュ](grid-mesh.md) | 頂点を並べて、高さを与える |
-| [法線](normals.md) | 高さの差分から求める |
+| [Grid Mesh](grid-mesh.md) | 頂点を並べて、高さを与える |
+| [Terrain Normals](normals.md) | 高さの差分から求める |
 | [任意位置の高さ](height-query.md) | 補間して高さを取る |
-| [チャンク分割](chunks.md) | 大きな地形を分ける |
-| [高さマップの編集](editing.md) | ブラシ・保存 |
+| [Chunking](chunks.md) | 大きな地形を分ける |
+| [Editing Heightmaps](editing.md) | ブラシ・保存 |
 
 ## これだけ覚える
 
@@ -64,6 +64,6 @@ tags:
 
 ## 関連ページ
 
-- [地形](../index.md)
+- [Terrain](../index.md)
 - [LOD](../lod/index.md)
 - [地形生成](../generation/index.md)

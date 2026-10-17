@@ -244,8 +244,8 @@ N が小さい（8）ので**画素ごとに方向の開始角を回し、ステ
 
 ## 関連ページ
 
-- [環境光遮蔽（AO）](index.md)
+- [Ambient Occlusion (AO)](index.md)
 - [HBAO+](hbao-plus.md)
 - [GTAO](gtao.md)
 - [フィルタ](filtering/index.md)
-- [AO の理論](theory/index.md)
+- [AO Theory](theory/index.md)

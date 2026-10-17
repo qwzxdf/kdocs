@@ -1,10 +1,10 @@
 ---
-title: 画面端と薄い物体
+title: Screen Edges and Thin Objects
 tags:
   - 描画
 ---
 
-# 画面端と薄い物体
+# Screen Edges and Thin Objects
 
 **スクリーン空間の AO には、構造的な弱点**が**2 つ**あります。**画面の端では、画面外の情報がないため AO が欠け**、**薄い物体（柵・葉）は、厚みが分からず、後ろの面を誤って遮蔽する**ことです。このページでは、**画面端の対策（保守的な扱い・拡張）・薄い物体の対策（厚みの仮定）**を説明します。
 
@@ -68,6 +68,6 @@ tags:
 
 ## 関連ページ
 
-- [AO のアーティファクト](index.md)
+- [AO Artifacts](index.md)
 - [世界空間 AO](../world-space/index.md)
 - [GTAO](../gtao.md)

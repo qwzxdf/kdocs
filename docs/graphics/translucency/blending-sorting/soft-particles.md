@@ -1,10 +1,10 @@
 ---
-title: ソフト パーティクル
+title: Soft Particles
 tags:
   - 描画
 ---
 
-# ソフト パーティクル
+# Soft Particles
 
 **パーティクルが地面や壁と交差する所で、硬い線が見えて、不自然**になります。**シーンの深度を読んで、近いほどアルファを弱める「ソフト パーティクル」**で、**なめらかに消せます**。このページでは、**ソフト パーティクルの仕組み**を説明します。
 
@@ -172,5 +172,5 @@ color.a *= fade;
 
 ## 関連ページ
 
-- [アルファ ブレンドとソート](index.md)
-- [ソート](sorting.md)
+- [Alpha Blending and Sorting](index.md)
+- [Sorting](sorting.md)

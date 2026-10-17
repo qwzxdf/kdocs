@@ -1,10 +1,10 @@
 ---
-title: 乗算済みアルファ
+title: Premultiplied Alpha
 tags:
   - 描画
 ---
 
-# 乗算済みアルファ
+# Premultiplied Alpha
 
 **乗算済みアルファは、色にあらかじめアルファを掛けておく形式**です。**ブレンド式が単純になり、縁の黒いにじみ（フリンジ）も防げます**。**通常ブレンドと加算ブレンドを、1 つのシェーダーで両立できる**のも**利点**です。このページでは、**乗算済みアルファの意味と使い方**を説明します。
 
@@ -120,5 +120,5 @@ tags:
 
 ## 関連ページ
 
-- [アルファ ブレンドとソート](index.md)
-- [ブレンド ステート](blend-state.md)
+- [Alpha Blending and Sorting](index.md)
+- [Blend State](blend-state.md)

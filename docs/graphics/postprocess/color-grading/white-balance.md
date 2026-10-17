@@ -1,10 +1,10 @@
 ---
-title: ホワイト バランス
+title: White Balance
 tags:
   - 描画
 ---
 
-# ホワイト バランス
+# White Balance
 
 **同じ白い紙でも晴天の下では青白く、白熱灯の下では黄色く見えます**。**人間の目はこれを自動で補正して、「白い紙は白い」と感じます**（**色の恒常性**）。**カメラはこの補正を「ホワイト バランス」で行い**、**ゲームでも画面全体の色温度を調整して、「暖かい夕暮れ」や「冷たい夜」を作る**ために**使います**。このページでは、**色温度（ケルビン）と色合い・光源の色を打ち消す考え方・簡易実装（LMS 空間）・ゲームでの使い方・注意点**を説明します。
 
@@ -183,7 +183,7 @@ float3 SimpleWhiteBalance(float3 color, float temperature) {
 
 ## 関連ページ
 
-- [カラー グレーディング](index.md)
-- [基本の調整](basic-adjustments.md)
-- [リフト・ガンマ・ゲイン](lift-gamma-gain.md)
-- [空のモデル](../../atmosphere/sky-models/index.md)
+- [Color Grading](index.md)
+- [Basic Adjustments](basic-adjustments.md)
+- [Lift, Gamma, Gain](lift-gamma-gain.md)
+- [Sky Models](../../atmosphere/sky-models/index.md)

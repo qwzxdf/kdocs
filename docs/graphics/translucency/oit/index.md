@@ -1,10 +1,10 @@
 ---
-title: OIT（順序非依存の透明）
+title: Order-Independent Transparency (OIT)
 tags:
   - 描画
 ---
 
-# OIT（順序非依存の透明）
+# Order-Independent Transparency (OIT)
 
 **半透明は、ソートしないと崩れますが、入り組んだ形では、ソートで解決できません**。**OIT（Order-Independent Transparency）は、描く順序に依存せず、正しい半透明を作る手法の総称**です。このセクションでは、**問題の整理・Depth Peeling・PPLL・WBOIT・確率的透明・ハイブリッド**を、**1 つずつ別のページ**で説明します。
 
@@ -36,8 +36,8 @@ tags:
 | [Depth Peeling](depth-peeling.md) | 手前の層から、1 枚ずつ剥ぐ |
 | [PPLL](ppll.md) | 画素ごとのリストに集めて、並べ替える |
 | [WBOIT](wboit.md) | 重み付き平均で、近似する |
-| [確率的透明](stochastic.md) | ランダムに捨てて、平均する |
-| [ハイブリッドと選び方](hybrid.md) | 組み合わせと、選択の目安 |
+| [Stochastic Transparency](stochastic.md) | ランダムに捨てて、平均する |
+| [Hybrid Approaches and Choosing](hybrid.md) | 組み合わせと、選択の目安 |
 
 ## これだけ覚える
 
@@ -53,6 +53,6 @@ tags:
 
 ## 関連ページ
 
-- [半透明](../index.md)
-- [アルファ ブレンドとソート](../blending-sorting/index.md)
-- [屈折](../refraction/index.md)
+- [Translucency](../index.md)
+- [Alpha Blending and Sorting](../blending-sorting/index.md)
+- [Refraction](../refraction/index.md)

@@ -1,10 +1,10 @@
 ---
-title: シャドウ ボリューム
+title: Shadow Volumes
 tags:
   - 描画
 ---
 
-# シャドウ ボリューム
+# Shadow Volumes
 
 **シャドウ マップ**は、<strong>画像（ラスタ）</strong>に基づくので**解像度・エイリアシング**の限界があります。**シャドウ ボリューム**（Shadow Volumes、Crow 1977）は、<strong>遮蔽物のシルエットを光と反対方向に押し出した「影の体積」</strong>を**ジオメトリ**として作り、**画素がその体積の内側にあるか**を、**ステンシル バッファ**で数えて判定する方式です。**ピクセル単位で正確**で**解像度の限界・バイアスがありません**。**Doom 3**（2004）で使われました。**現在は主流ではありません**が、**原理**は**ステンシルの使い方・シルエットの考え方**として、学ぶ価値があります。
 
@@ -236,6 +236,6 @@ for each light:
 
 ## 関連ページ
 
-- [影](index.md)
-- [シャドウ マップの基礎](shadow-map-basics/index.md)
-- [レイトレース影](ray-traced.md)
+- [Shadows](index.md)
+- [Shadow Map Basics](shadow-map-basics/index.md)
+- [Ray-Traced Shadows](ray-traced.md)

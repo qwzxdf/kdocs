@@ -1,10 +1,10 @@
 ---
-title: 半透明
+title: Translucency
 tags:
   - 描画
 ---
 
-# 半透明
+# Translucency
 
 **ガラス・水・煙・炎・葉っぱ・髪の毛**のように、**向こう側が透けて見える物**の描画は、**不透明な物とはまったく別の問題**です。**不透明な物は、深度バッファで「一番手前」を決めれば、描く順番は関係ありません**。**半透明は、色を混ぜ合わせる（ブレンド）ので、「どの順番で混ぜるか」で結果が変わります**。**描く順番が結果を左右する**ため、**ソート・OIT・アルファ テスト**といった、**専用の方法**が必要になります。
 
@@ -22,7 +22,7 @@ tags:
 | ページ | 内容 |
 | --- | --- |
 | [ブレンドとソート](blending-sorting/index.md) | アルファ ブレンドの式・ブレンド ステート・ソートの方法と限界 |
-| [アルファ テスト](alpha-test/index.md) | clip・Alpha to Coverage・ハッシュド アルファ・ミップの罠 |
+| [Alpha Testing](alpha-test/index.md) | clip・Alpha to Coverage・ハッシュド アルファ・ミップの罠 |
 | [OIT（順序非依存の半透明）](oit/index.md) | Weighted Blended・Depth Peeling・Per-Pixel Linked List・確率的 |
 | [屈折とガラス](refraction/index.md) | 背景のコピー・歪み・厚み・色収差・フレネル |
 
@@ -52,4 +52,4 @@ tags:
 - [描画](../index.md)
 - [パーティクルの最適化](../../rendering/particles.md)
 - [オーバードロー](../../rendering/overdraw.md)
-- [ポストプロセス](../postprocess/index.md)
+- [Post-Processing](../postprocess/index.md)

@@ -1,10 +1,10 @@
 ---
-title: 受け手平面バイアス
+title: Receiver Plane Bias
 tags:
   - 描画
 ---
 
-# 受け手平面バイアス
+# Receiver Plane Bias
 
 **PCF のように、1 点でなく周りの複数点を調べるとき**、**中心の点に合わせたバイアスでは、周りの点（別の高さにある）で、アクネ**が出ます。**受け手の面の傾きから、周りの点それぞれの正しい深度を計算する**のが**受け手平面バイアス（Receiver Plane Depth Bias）**です。**PCF の広いカーネルでも、アクネが出にくい**ので、**高品質な影で使われます**。このページでは、**問題の理由・平面の式・実装**を説明します。
 
@@ -71,6 +71,6 @@ for (each sample offset) {
 
 ## 関連ページ
 
-- [バイアス](index.md)
-- [法線オフセット](normal-offset.md)
+- [Shadow Bias](index.md)
+- [Normal Offset](normal-offset.md)
 - [PCF](../pcf.md)

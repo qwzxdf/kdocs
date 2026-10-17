@@ -1,10 +1,10 @@
 ---
-title: 速度バッファ
+title: Velocity Buffer
 tags:
   - 描画
 ---
 
-# 速度バッファ
+# Velocity Buffer
 
 <strong>モーション ブラーは、「各画素が前フレームからどう動いたか」</strong>という**情報**に**頼ります**。<strong>これを画素ごとに保存した画像が速度バッファ（Velocity Buffer）</strong>です。**TAA・モーション ブラー・時間的なノイズ除去・アップスケール**など、**時間方向の処理すべてが使う**、**現代の描画の共通インフラ**です。このページでは、**速度の定義・書き込み方法・精度と形式・ジッターの扱い・動かない物の扱い**を説明します。
 
@@ -107,7 +107,7 @@ float2 PSMain(VSOutput input) : SV_Target {
 
 ## カメラの動き（静止した物）
 
-**静止している物体は、カメラが動いたぶんだけ、画面で動く**ので**描画時に書かなくても深度から計算**できます（[カメラのブラー](camera-blur.md)）。**動く物体だけが速度バッファに書き込み、書かれていない画素は、カメラの速度**を**使います**。
+**静止している物体は、カメラが動いたぶんだけ、画面で動く**ので**描画時に書かなくても深度から計算**できます（[Camera Motion Blur](camera-blur.md)）。**動く物体だけが速度バッファに書き込み、書かれていない画素は、カメラの速度**を**使います**。
 
 | 画素 | 速度の出どころ |
 | --- | --- |
@@ -186,7 +186,7 @@ float2 PSMain(VSOutput input) : SV_Target {
 
 ## 関連ページ
 
-- [モーション ブラー](index.md)
-- [カメラのブラー](camera-blur.md)
-- [オブジェクトのブラー](object-blur.md)
+- [Motion Blur](index.md)
+- [Camera Motion Blur](camera-blur.md)
+- [Object Motion Blur](object-blur.md)
 - [TAA](../antialiasing/taa.md)

@@ -1,10 +1,10 @@
 ---
-title: 厚み（thickness）
+title: Thickness
 tags:
   - 描画
 ---
 
-# 厚み（thickness）
+# Thickness
 
 **深度バッファには、物体の「表の面」しか入っておらず、厚みの情報がありません**。**そのため、レイが物体の裏側へ抜けたのか、本当に当たったのか、見分けがつきません**。**「厚み」のしきい値を決めて、レイとバッファの深度の差が、厚みより小さい時だけ、当たりとする**のが**標準的な対策**です。このページでは、**厚みの考え方・値の決め方・より良い方法**を説明します。
 
@@ -48,6 +48,6 @@ tags:
 
 ## 関連ページ
 
-- [SSR の基本](index.md)
-- [線形マーチ](linear-march.md)
-- [アーティファクトと評価](artifacts.md)
+- [SSR Basics](index.md)
+- [Linear Marching](linear-march.md)
+- [Artifacts and Evaluation](artifacts.md)

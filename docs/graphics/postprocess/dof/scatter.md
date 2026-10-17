@@ -1,10 +1,10 @@
 ---
-title: スキャッター方式
+title: Scatter Method
 tags:
   - 描画
 ---
 
-# スキャッター方式
+# Scatter Method
 
 <strong>スキャッター（Scatter）</strong>は、**ギャザーの逆**で、<strong>「各画素が自分の色を、CoC の円盤として周りに広げる（散らす）」</strong>方式の DOF です。<strong>特に明るい小さな点が大きな円盤（ボケ）</strong>として**広がる様子**を**ギャザーより正確に**表現できます。**映画のような、光の玉ボケ**が**得られる**反面、**重い**ため、**使い所を絞り**ます。このページでは、<strong>ギャザーとの違い・スプライトで散らす方法・明るさの扱い・コスト・使い分け（ハイブリッド）</strong>を説明します。
 
@@ -391,8 +391,8 @@ float4 PSMain(VSOutput input) : SV_Target {
 | **ハイブリッド** | **小さいボケはギャザー、大きく明るいボケだけスキャッター** |
 | **半解像度で描く** | **フィルレートを 1/4** |
 | **輝度クランプ** | **極端な点で巨大な円盤が出るのを防ぐ** |
-| <strong>円盤の中を均一でなく、「縁を明るく」</strong> | **実際のレンズの玉ボケ（縁が明るい）に近づく**（[ボケの形](bokeh-shape.md)） |
-| **奥から手前の順** | **前景・背景を別パス**（[前景と背景](near-far.md)） |
+| <strong>円盤の中を均一でなく、「縁を明るく」</strong> | **実際のレンズの玉ボケ（縁が明るい）に近づく**（[Bokeh Shape](bokeh-shape.md)） |
+| **奥から手前の順** | **前景・背景を別パス**（[Foreground and Background](near-far.md)） |
 
 ## よくあるミス
 
@@ -425,7 +425,7 @@ float4 PSMain(VSOutput input) : SV_Target {
 
 ## 関連ページ
 
-- [被写界深度（DOF）](index.md)
-- [ギャザー方式](gather.md)
-- [前景と背景](near-far.md)
-- [ボケの形](bokeh-shape.md)
+- [Depth of Field (DOF)](index.md)
+- [Gather Method](gather.md)
+- [Foreground and Background](near-far.md)
+- [Bokeh Shape](bokeh-shape.md)

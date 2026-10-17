@@ -1,10 +1,10 @@
 ---
-title: ハードウェア テッセレーション
+title: Hardware Tessellation
 tags:
   - 描画
 ---
 
-# ハードウェア テッセレーション
+# Hardware Tessellation
 
 **GPU のテッセレーションで、パッチを、距離に応じて細かく分割**できます。**メッシュの管理が楽で、細かさを連続的に変えられます**。このページでは、**テッセレーションによる地形の LOD**を説明します。
 
@@ -63,5 +63,5 @@ HullConstants ComputeConstants(InputPatch<ControlPoint, 4> patch) {
 
 ## 関連ページ
 
-- [地形の LOD](index.md)
+- [Terrain LOD](index.md)
 - [CDLOD](cdlod.md)

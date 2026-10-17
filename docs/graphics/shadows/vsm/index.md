@@ -1,10 +1,10 @@
 ---
-title: VSM と ESM・MSM
+title: VSM, ESM and MSM
 tags:
   - 描画
 ---
 
-# VSM と ESM・MSM
+# VSM, ESM and MSM
 
 **通常のシャドウ マップは、深度を比べる「0 か 1」の判定**なので、**そのままぼかす（フィルタする）と、深度の平均になってしまい、正しい影になりません**。**VSM 系は、深度でなく「深度の統計（平均と二乗の平均）」を保存**し、**統計から「影の割合」を計算する**ことで、**シャドウ マップ自体をフィルタ（ぼかし）できます**。**柔らかい影が安く得られる**反面、**光漏れ**という**独特の欠点**があります。このセクションでは、**VSM の仕組み・光漏れ・ESM・EVSM・MSM・比較**を、**1 つずつ別のページ**で説明します。
 
@@ -177,16 +177,16 @@ float2 WriteMoments(float depth) {
 
 | ページ | 内容 |
 | --- | --- |
-| [光漏れ](light-bleeding.md) | VSM の最大の弱点と、対策 |
+| [Light Bleeding](light-bleeding.md) | VSM の最大の弱点と、対策 |
 | [ESM](esm.md) | 指数で深度をゆがめる、簡単な改良 |
 | [EVSM](evsm.md) | 指数と VSM を組み合わせる |
 | [MSM](msm.md) | 高次のモーメントで、光漏れを抑える |
-| [比較と PCF との使い分け](comparison.md) | VSM 系の比較・PCF との選び方 |
+| [Comparison with PCF](comparison.md) | VSM 系の比較・PCF との選び方 |
 
 ## よくあるミス
 
 ??? failure "VSM の影の中に、光が漏れて、白い筋が出る"
-    **光漏れ**。**[光漏れ](light-bleeding.md)の対策**（**しきい値で絞る**・**EVSM・MSM**）。
+    **光漏れ**。**[Light Bleeding](light-bleeding.md)の対策**（**しきい値で絞る**・**EVSM・MSM**）。
 
 ## これだけ覚える
 
@@ -201,6 +201,6 @@ float2 WriteMoments(float depth) {
 
 ## 関連ページ
 
-- [影](../index.md)
+- [Shadows](../index.md)
 - [PCF](../pcf.md)
-- [光漏れ](light-bleeding.md)
+- [Light Bleeding](light-bleeding.md)

@@ -1,10 +1,10 @@
 ---
-title: 水中の霧
+title: Underwater Fog
 tags:
   - 描画
 ---
 
-# 水中の霧
+# Underwater Fog
 
 **水中では、遠くほど、青緑に霞みます**。**距離に応じた指数フォグ**で**表現**でき、**水の色と深さで、霧の色を変えます**。このページでは、**水中の霧**を説明します。
 
@@ -65,6 +65,6 @@ float3 final_color = scene_color * transmittance + scattered;
 
 ## 関連ページ
 
-- [水中の表現](index.md)
-- [水深による色](../shading/depth-color.md)
+- [Underwater Rendering](index.md)
+- [Color by Water Depth](../shading/depth-color.md)
 - [空気遠近法](../../atmosphere/aerial-fog/index.md)

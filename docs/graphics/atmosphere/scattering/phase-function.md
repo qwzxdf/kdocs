@@ -1,10 +1,10 @@
 ---
-title: 位相関数
+title: Phase Functions
 tags:
   - 描画
 ---
 
-# 位相関数
+# Phase Functions
 
 **光が散乱される時、どの方向へ散るかを表すのが位相関数**です。**レイリーは前後に均等、ミーは前方に強く偏ります**。このページでは、**位相関数**を説明します。
 
@@ -73,7 +73,7 @@ float HenyeyGreenstein(float cos_theta, float g) {
 }
 ```
 
-**雲や霧の散乱**（[雲](../clouds/index.md)・[ボリューメトリック フォグ](../volumetric-fog/index.md)）も、**同じ位相関数**を使います。
+**雲や霧の散乱**（[Clouds](../clouds/index.md)・[Volumetric Fog](../volumetric-fog/index.md)）も、**同じ位相関数**を使います。
 
 ## よくあるミス
 
@@ -94,5 +94,5 @@ float HenyeyGreenstein(float cos_theta, float g) {
 
 ## 関連ページ
 
-- [大気散乱](index.md)
-- [単散乱の積分](single-scattering.md)
+- [Atmospheric Scattering](index.md)
+- [Single-Scattering Integral](single-scattering.md)

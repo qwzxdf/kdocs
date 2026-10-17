@@ -1,10 +1,10 @@
 ---
-title: フレネル
+title: Fresnel
 tags:
   - 描画
 ---
 
-# フレネル
+# Fresnel
 
 **ガラスや水は、見る角度によって、反射と屈折の割合が変わります**。**真正面からは、ほぼ透明、斜めからは、鏡のようになる**のが**フレネル効果**です。このページでは、**フレネルの式（Schlick 近似）と使い方**を説明します。
 
@@ -40,7 +40,7 @@ float3 color = lerp(refracted_background, reflection, f);
 | --- | --- |
 | **`F₀ = 0.04`** | **非金属（ガラス・水・プラスチック）の標準値** |
 | **`lerp(屈折, 反射, F)`** | **F が大きいほど、反射が強く**なる |
-| **反射の色** | **環境マップ・SSR・プローブ**（[反射](../../reflections/index.md)） |
+| **反射の色** | **環境マップ・SSR・プローブ**（[Reflections](../../reflections/index.md)） |
 
 ## よくあるミス
 
@@ -61,5 +61,5 @@ float3 color = lerp(refracted_background, reflection, f);
 
 ## 関連ページ
 
-- [屈折](index.md)
-- [水の質感](../../water/shading/index.md)
+- [Refraction](index.md)
+- [Water Shading](../../water/shading/index.md)

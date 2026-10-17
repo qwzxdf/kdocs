@@ -1,10 +1,10 @@
 ---
-title: 比較と PCF との使い分け
+title: Comparison with PCF
 tags:
   - 描画
 ---
 
-# 比較と PCF との使い分け
+# Comparison with PCF
 
 **VSM 系は、方式ごとに、光漏れ・メモリ・計算のバランスが違います**。**PCF と比べても、得意な場面が違う**ので、**用途で使い分けます**。このページでは、**VSM 系の比較表・PCF との使い分け**を説明します。
 
@@ -53,6 +53,6 @@ tags:
 
 ## 関連ページ
 
-- [VSM と ESM・MSM](index.md)
+- [VSM, ESM and MSM](index.md)
 - [PCF](../pcf.md)
 - [PCSS](../pcss.md)

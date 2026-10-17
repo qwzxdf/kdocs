@@ -1,10 +1,10 @@
 ---
-title: バイアス
+title: Shadow Bias
 tags:
   - 描画
 ---
 
-# バイアス
+# Shadow Bias
 
 **シャドウ マップの深度は、解像度と精度が有限**なので、**そのまま比べると、光が当たっている面が自分自身の影になり、縞模様（シャドウ アクネ）**になります。**これを防ぐのがバイアス**ですが、**大きくしすぎると、影が物から離れて浮いて見えます（ピーター パンニング）**。このセクションでは、**アクネの原因・定数バイアス・スロープ スケール・法線オフセット・受け手平面・前面カリング・ピーター パンニング**を、**1 つずつ別のページ**で説明します。
 
@@ -115,12 +115,12 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [定数バイアス](constant-bias.md) | 比較の深度に、一定の値を足す |
-| [スロープ スケール バイアス](slope-scale-bias.md) | 面の傾きに比例して、バイアスを増やす |
-| [法線オフセット](normal-offset.md) | 受け手の位置を、法線方向にずらす |
-| [受け手平面バイアス](receiver-plane-bias.md) | 受け手の平面から、深度の傾きを求める |
-| [前面カリング](front-face-culling.md) | 裏面だけを描いて、アクネを避ける |
-| [ピーター パンニング](peter-panning.md) | バイアスが大きすぎて、影が浮く問題 |
+| [Constant Bias](constant-bias.md) | 比較の深度に、一定の値を足す |
+| [Slope-Scale Bias](slope-scale-bias.md) | 面の傾きに比例して、バイアスを増やす |
+| [Normal Offset](normal-offset.md) | 受け手の位置を、法線方向にずらす |
+| [Receiver Plane Bias](receiver-plane-bias.md) | 受け手の平面から、深度の傾きを求める |
+| [Front-Face Culling](front-face-culling.md) | 裏面だけを描いて、アクネを避ける |
+| [Peter Panning](peter-panning.md) | バイアスが大きすぎて、影が浮く問題 |
 
 ## よくあるミス
 
@@ -140,6 +140,6 @@ tags:
 
 ## 関連ページ
 
-- [影](../index.md)
-- [シャドウ マップの基礎](../shadow-map-basics/index.md)
+- [Shadows](../index.md)
+- [Shadow Map Basics](../shadow-map-basics/index.md)
 - [PCF](../pcf.md)

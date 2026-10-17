@@ -1,10 +1,10 @@
 ---
-title: 格子メッシュ
+title: Grid Mesh
 tags:
   - 描画
 ---
 
-# 格子メッシュ
+# Grid Mesh
 
 **格子状に頂点を並べ、各頂点の高さを、高さマップから読み出して設定**します。**頂点の数が、地形の細かさ**を決めます。このページでは、**格子メッシュの作り方と、頂点の高さ**を説明します。
 
@@ -161,5 +161,5 @@ VSOutput VSMain(VSInput input) {
 
 ## 関連ページ
 
-- [高さマップとメッシュ](index.md)
+- [Heightmaps and Meshes](index.md)
 - [LOD](../lod/index.md)

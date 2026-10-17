@@ -1,10 +1,10 @@
 ---
-title: プローブ GI
+title: Probe GI
 tags:
   - 描画
 ---
 
-# プローブ GI
+# Probe GI
 
 **プローブ GI は、空間のあちこちに「プローブ」を置き、そこでの間接光を保存しておいて、物体のシェーディング時に補間して使う手法**です。**動く物体にも使え、軽い**のが**利点**です。このセクションでは、**原理・補間・SH の持ち方・置き方・動的更新・反射プローブとの違い**を、**1 つずつ別のページ**で説明します。
 
@@ -34,11 +34,11 @@ float3 indirect_diffuse = albedo * irradiance;
 
 | ページ | 内容 |
 | --- | --- |
-| [補間の方式](interpolation.md) | 周囲のプローブから、値を求める |
-| [SH の持ち方](sh-storage.md) | 係数の保存形式 |
+| [Interpolation Methods](interpolation.md) | 周囲のプローブから、値を求める |
+| [Storing SH](sh-storage.md) | 係数の保存形式 |
 | [置き方](placement.md) | どこに、どの密度で置くか |
-| [動的な更新](dynamic-update.md) | 光や物の変化への追従 |
-| [反射プローブとの違い・コスト](compare.md) | 用途の違い・長所短所 |
+| [Dynamic Updates](dynamic-update.md) | 光や物の変化への追従 |
+| [Comparison with Reflection Probes and Cost](compare.md) | 用途の違い・長所短所 |
 
 ## これだけ覚える
 
@@ -56,4 +56,4 @@ float3 indirect_diffuse = albedo * irradiance;
 
 - [GI](../index.md)
 - [DDGI](../ddgi.md)
-- [ライトマップ](../lightmaps/index.md)
+- [Lightmaps](../lightmaps/index.md)

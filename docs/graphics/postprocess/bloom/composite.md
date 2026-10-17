@@ -1,10 +1,10 @@
 ---
-title: 合成と強さ
+title: Compositing and Intensity
 tags:
   - 描画
 ---
 
-# 合成と強さ
+# Compositing and Intensity
 
 **ブルームの最後の工程**は、**できあがったにじみを元の絵に足す**ことです。**足す強さ・足す位置（トーンマップの前）・段ごとの重み・レンズ ダート（汚れ）との組み合わせ・コスト**で**見た目**と**重さ**が**決まります**。このページでは、**合成の式・強さの決め方・エネルギー保存・レンズ ダート・コスト・パスの統合**を説明します。
 
@@ -146,7 +146,7 @@ float3 ApplyLensDirt(float3 bloom, float2 uv, Texture2D dirt, float dirt_intensi
 | **ブルームに掛ける** | **ブルームが強い所ほど、汚れが目立つ** |
 | **用途** | **戦争ゲームの爆風・SF の宇宙船・FPS のカメラ** |
 
-詳しい演出は[レンズ効果](../lens-effects/index.md)も参照してください。
+詳しい演出は[Lens Effects](../lens-effects/index.md)も参照してください。
 
 ## コストと最適化
 
@@ -219,8 +219,8 @@ float3 FinalPass(float2 uv) {
 
 ## 関連ページ
 
-- [ブルーム](index.md)
-- [しきい値](threshold.md)
+- [Bloom](index.md)
+- [Threshold](threshold.md)
 - [Dual Filter](dual-filter.md)
-- [レンズ効果](../lens-effects/index.md)
-- [トーンマッピングと露出](../tonemapping/index.md)
+- [Lens Effects](../lens-effects/index.md)
+- [Tone Mapping and Exposure](../tonemapping/index.md)

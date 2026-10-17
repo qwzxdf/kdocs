@@ -167,7 +167,7 @@ float3 ReinhardLuminance(float3 color, float white_point) {
 | **チャンネルごと** | **明るい色が白へ向かう**（**フィルムのよう**） | **色相がずれる**（**オレンジ → 黄**） |
 | **輝度ベース** | **色相が保たれる** | **彩度が高い明部が飽和して色が濃すぎる**ことがある |
 
-詳しくは[色相の保ち方](hue-preservation.md)で比べます。
+詳しくは[Preserving Hue](hue-preservation.md)で比べます。
 
 ## より良いやり方
 
@@ -201,7 +201,7 @@ float3 ReinhardLuminance(float3 color, float white_point) {
     **チャンネルごととブレンド**する。または**彩度を軽く落とす**。
 
 ??? failure "ガンマ変換の後に Reinhard を掛けて、暗部が潰れる"
-    **トーンマップはリニアで**。**sRGB は最後**（[ガンマと HDR 出力](gamma-srgb.md)）。
+    **トーンマップはリニアで**。**sRGB は最後**（[Gamma and HDR Output](gamma-srgb.md)）。
 
 ## これだけ覚える
 
@@ -219,7 +219,7 @@ float3 ReinhardLuminance(float3 color, float white_point) {
 
 ## 関連ページ
 
-- [トーンマッピングと露出](index.md)
-- [露出](exposure.md)
-- [フィルミック（Hable）](filmic-hable.md)
-- [色相の保ち方](hue-preservation.md)
+- [Tone Mapping and Exposure](index.md)
+- [Exposure](exposure.md)
+- [Filmic (Hable)](filmic-hable.md)
+- [Preserving Hue](hue-preservation.md)

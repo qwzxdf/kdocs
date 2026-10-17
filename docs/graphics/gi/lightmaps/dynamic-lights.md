@@ -1,10 +1,10 @@
 ---
-title: 動的ライトとの関係
+title: Lightmaps and Dynamic Lights
 tags:
   - 描画
 ---
 
-# 動的ライトとの関係
+# Lightmaps and Dynamic Lights
 
 **ライトマップは静的な光を含みますが、動的なライトは、別に足し合わせます**。**静的な光は焼き込み、動くライトはリアルタイムで計算する**のが、**一般的な組み合わせ**です。このページでは、**静的と動的の組み合わせ方と、長所・短所**を説明します。
 
@@ -52,6 +52,6 @@ tags:
 
 ## 関連ページ
 
-- [ライトマップ](index.md)
+- [Lightmaps](index.md)
 - [GI の比較](../comparison.md)
-- [プローブ GI](../probes/index.md)
+- [Probe GI](../probes/index.md)

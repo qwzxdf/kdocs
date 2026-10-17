@@ -1,10 +1,10 @@
 ---
-title: 植生のカリング
+title: Vegetation Culling
 tags:
   - 描画
 ---
 
-# 植生のカリング
+# Vegetation Culling
 
 **見えない草を描かない**ことが、**最大の最適化**です。**視錐台カリング・距離カリング・オクルージョン カリング**を**組み合わせます**。このページでは、**植生のカリング**を説明します。
 
@@ -60,5 +60,5 @@ void CullInstances(uint3 id : SV_DispatchThreadID) {
 
 ## 関連ページ
 
-- [植生](index.md)
-- [インスタンシング](instancing.md)
+- [Vegetation](index.md)
+- [Instancing](instancing.md)

@@ -1,10 +1,10 @@
 ---
-title: ドメイン ワーピング
+title: Domain Warping
 tags:
   - 描画
 ---
 
-# ドメイン ワーピング
+# Domain Warping
 
 **ノイズの入力座標を、別のノイズでゆがませる**と、**うねった、有機的な形**になります。**直線的な規則性が崩れて、自然に見えます**。このページでは、**ドメイン ワーピング**を説明します。
 
@@ -87,5 +87,5 @@ float WarpedFbm(float2 p) {
 
 ## 関連ページ
 
-- [地形の生成](index.md)
+- [Terrain Generation](index.md)
 - [fBm](fbm.md)

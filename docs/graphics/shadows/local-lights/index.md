@@ -1,10 +1,10 @@
 ---
-title: 点光源・スポットライトの影
+title: Point and Spot Light Shadows
 tags:
   - 描画
 ---
 
-# 点光源・スポットライトの影
+# Point and Spot Light Shadows
 
 **太陽のような平行光は、1 枚のシャドウ マップ（またはカスケード）で足ります**が、**点光源やスポットライトは、数が多く、影の向きも多様**です。**ライトごとにシャドウ マップを作ると、数が増えるほど、描画が重くなります**。このセクションでは、**スポットライトの影・点光源のキューブ マップ・デュアル パラボロイド・多数のライトの管理とキャッシュ**を、**1 つずつ別のページ**で説明します。
 
@@ -18,10 +18,10 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [スポットライト](spot-light.md) | 透視投影 1 枚で、円錐の影 |
-| [点光源：キューブ マップ](point-cubemap.md) | 6 方向のマップ・サンプル・面の境 |
-| [デュアル パラボロイド](dual-paraboloid.md) | 2 枚で全方向を覆う方法 |
-| [多数のライトの影](many-lights.md) | アトラス・解像度の割り当て・キャッシュ・バイアス |
+| [Spot Lights](spot-light.md) | 透視投影 1 枚で、円錐の影 |
+| [Point Lights: Cube Maps](point-cubemap.md) | 6 方向のマップ・サンプル・面の境 |
+| [Dual Paraboloid](dual-paraboloid.md) | 2 枚で全方向を覆う方法 |
+| [Shadows for Many Lights](many-lights.md) | アトラス・解像度の割り当て・キャッシュ・バイアス |
 
 ## これだけ覚える
 
@@ -36,6 +36,6 @@ tags:
 
 ## 関連ページ
 
-- [影](../index.md)
-- [カスケード シャドウ マップ](../cascaded.md)
+- [Shadows](../index.md)
+- [Cascaded Shadow Maps (CSM)](../cascaded.md)
 - [ライト カリング](../../../rendering/light-culling.md)

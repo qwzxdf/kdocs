@@ -1,10 +1,10 @@
 ---
-title: ガンマと HDR 出力
+title: Gamma and HDR Output
 tags:
   - 描画
 ---
 
-# ガンマと HDR 出力
+# Gamma and HDR Output
 
 **トーンマップの出力は、リニア（光の量に比例）の 0〜1**です。**ディスプレイに出す前に、sRGB の曲線（ガンマ ≒ 2.2）を掛ける**必要があり、**これを間違えると画面全体が暗く潰れたり、白っぽくなったり**します。**HDR ディスプレイでは、さらに別の出力**（HDR10・scRGB）になります。このページでは、**なぜガンマが要るか・sRGB 変換の位置・レンダー ターゲットの作り方・HDR ディスプレイへの出し方・UI の扱い**を説明します。
 
@@ -269,7 +269,7 @@ float3 LinearToPQ(float3 nits) {
 
 ## 関連ページ
 
-- [トーンマッピングと露出](index.md)
-- [露出](exposure.md)
-- [カラー グレーディング](../color-grading/index.md)
+- [Tone Mapping and Exposure](index.md)
+- [Exposure](exposure.md)
+- [Color Grading](../color-grading/index.md)
 - [画面に出す](../../../3d/render-flow/present.md)

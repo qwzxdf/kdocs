@@ -1,10 +1,10 @@
 ---
-title: Bruneton の事前計算
+title: Bruneton Precomputed Scattering
 tags:
   - 描画
 ---
 
-# Bruneton の事前計算
+# Bruneton Precomputed Scattering
 
 **Bruneton の手法は、散乱の結果を、高さ・視線の角度・太陽の角度の 4 次元のテーブルに、事前計算しておく**ものです。**実行時は、テーブルを引くだけ**で、**高品質**ですが、**メモリが大きい**です。このページでは、**Bruneton の事前計算**を説明します。
 
@@ -44,5 +44,5 @@ tags:
 
 ## 関連ページ
 
-- [大気散乱](index.md)
+- [Atmospheric Scattering](index.md)
 - [Hillaire 2020](hillaire.md)

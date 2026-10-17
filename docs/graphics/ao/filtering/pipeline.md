@@ -1,10 +1,10 @@
 ---
-title: 典型のパイプライン
+title: Typical Pipeline
 tags:
   - 描画
 ---
 
-# 典型のパイプライン
+# Typical Pipeline
 
 **ここまでの技法を組み合わせた、典型的な AO のパイプライン**を**見ます**。**低解像度で計算 → 時間蓄積 → 空間フィルタ → アップサンプル**の**順**が**標準**で、**各段のパラメータの目安**も**あります**。このページでは、**組み合わせの順序とパラメータの目安**を説明します。
 
@@ -52,6 +52,6 @@ tags:
 
 ## 関連ページ
 
-- [AO のフィルタ](index.md)
-- [時間蓄積](temporal.md)
-- [アップサンプル](upsample.md)
+- [AO Filtering](index.md)
+- [Temporal Accumulation](temporal.md)
+- [Upsampling](upsample.md)

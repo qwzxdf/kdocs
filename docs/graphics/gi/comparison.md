@@ -1,10 +1,10 @@
 ---
-title: GI 手法の比較
+title: GI Comparison
 tags:
   - 描画
 ---
 
-# GI 手法の比較
+# GI Comparison
 
 ここまで**ライトマップ・ライト プローブ・SSGI・ボクセル GI・DDGI・レイトレ GI**を見てきました。**どれか 1 つが万能**ということは**なく**、**実際のゲームは、複数を組み合わせて**います。このページでは、**比較表・組み合わせ方・状況別の選び方**をまとめます。
 
@@ -51,7 +51,7 @@ tags:
 | **動く物体・キャラ** | **ライト プローブ**（ライトマップと**そろえる**） |
 | <strong>動的な光（懐中電灯・爆発）</strong> | **直接光のみ**（間接光は無視・フェイク） |
 | **接触部の暗さ** | **AO**（[AO](../ao/index.md)） |
-| **鏡面の間接光** | **反射プローブ ＋ SSR**（[反射](../reflections/index.md)） |
+| **鏡面の間接光** | **反射プローブ ＋ SSR**（[Reflections](../reflections/index.md)） |
 
 ### 動的 GI の階層（Lumen 的）
 
@@ -68,10 +68,10 @@ tags:
 
 | 要素 | 担当する手法 | 参照 |
 | --- | --- | --- |
-| **直接光** | ライティング ＋ **影** | [影](../shadows/index.md) |
+| **直接光** | ライティング ＋ **影** | [Shadows](../shadows/index.md) |
 | **間接拡散光** | <strong>GI（このセクション）</strong> | — |
 | <strong>接触部の暗さ（微細な遮蔽）</strong> | **AO** | [AO](../ao/index.md) |
-| **鏡面の間接光** | **反射** | [反射](../reflections/index.md) |
+| **鏡面の間接光** | **反射** | [Reflections](../reflections/index.md) |
 | **自己発光** | エミッシブ | — |
 
 ```hlsl
@@ -81,7 +81,7 @@ float3 color = direct_light * shadow
              + emissive;
 ```
 
-**AO は間接光（拡散）に掛ける**のが**原則**です（**直接光には掛けない**）。**鏡面の間接光には、鏡面オクルージョン**を**掛け**ます（[AO のアーティファクト](../ao/artifacts/index.md)）。
+**AO は間接光（拡散）に掛ける**のが**原則**です（**直接光には掛けない**）。**鏡面の間接光には、鏡面オクルージョン**を**掛け**ます（[AO Artifacts](../ao/artifacts/index.md)）。
 
 ## デバッグのヒント
 
@@ -111,9 +111,9 @@ float3 color = direct_light * shadow
 
 ## 関連ページ
 
-- [間接光（GI）](index.md)
-- [ライトマップ](lightmaps/index.md)
+- [Global Illumination (GI)](index.md)
+- [Lightmaps](lightmaps/index.md)
 - [ライト プローブ](probes/index.md)
 - [DDGI](ddgi.md)
 - [AO](../ao/index.md)
-- [反射](../reflections/index.md)
+- [Reflections](../reflections/index.md)

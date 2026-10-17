@@ -1,10 +1,10 @@
 ---
-title: トライプラナー
+title: Triplanar Mapping
 tags:
   - 描画
 ---
 
-# トライプラナー
+# Triplanar Mapping
 
 **急斜面では、上から貼ったテクスチャが、縦に引き伸ばされます**。**X・Y・Z の 3 方向から貼って、法線に応じて混ぜる**ことで、**伸びを防げます**。このページでは、**トライプラナー マッピング**を説明します。
 
@@ -127,5 +127,5 @@ float3 Triplanar(Texture2D tex, float3 world_position, float3 normal, float scal
 
 ## 関連ページ
 
-- [地形のテクスチャ](index.md)
-- [繰り返しを隠す](tiling.md)
+- [Terrain Texturing](index.md)
+- [Hiding Tiling](tiling.md)

@@ -1,10 +1,10 @@
 ---
-title: 多数のライトの影
+title: Shadows for Many Lights
 tags:
   - 描画
 ---
 
-# 多数のライトの影
+# Shadows for Many Lights
 
 **影を持つライトが数十個になる**と、**すべてにシャドウ マップを作ると、フレームが破綻**します。**そこで、シャドウ マップを 1 枚の大きなアトラスにまとめ、画面上の大きさに応じて解像度を配分し、静止したライトの影はキャッシュ**します。このページでは、**アトラス・解像度の割り当て・キャッシュ・影付きライトの描画・バイアスと精度**を説明します。
 
@@ -128,7 +128,7 @@ float3 lit = EvaluateLight(light, surface) * shadow;
 | 点 | 内容 |
 | --- | --- |
 | **透視の深度は非線形** | **近くに集中**し、**遠くで精度不足**。**近クリップ面を大きく**・**遠クリップ面を短く**で**精度を保つ** |
-| **バイアス** | **距離によって、必要な量が変わる**ので**ワールド単位**（法線オフセット）が扱いやすい（[バイアス](../bias/index.md)） |
+| **バイアス** | **距離によって、必要な量が変わる**ので**ワールド単位**（法線オフセット）が扱いやすい（[Shadow Bias](../bias/index.md)） |
 | **Reversed-Z** | **シャドウ マップにも有効**（浮動小数点の深度） |
 
 ## よくあるミス
@@ -149,6 +149,6 @@ float3 lit = EvaluateLight(light, surface) * shadow;
 
 ## 関連ページ
 
-- [点光源・スポットライトの影](index.md)
-- [仮想シャドウ マップ](../virtual-shadow-maps.md)
+- [Point and Spot Light Shadows](index.md)
+- [Virtual Shadow Maps](../virtual-shadow-maps.md)
 - [ライト カリング](../../../rendering/light-culling.md)

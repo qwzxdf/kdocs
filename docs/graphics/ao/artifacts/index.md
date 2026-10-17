@@ -1,10 +1,10 @@
 ---
-title: AO のアーティファクト
+title: AO Artifacts
 tags:
   - 描画
 ---
 
-# AO のアーティファクト
+# AO Artifacts
 
 **AO には、方式によらず出やすい不具合（アーティファクト）**が**いくつかあります**。**物の輪郭のハロー・平らな面の斑点・画面端の欠け・薄い物の欠け・ノイズとバンディング・ちらつき・適用の間違い・座標の取り違え**などです。このセクションでは、**症状から原因と対策を引く**ために、**症状別に 1 つずつ別のページ**で説明します。
 
@@ -40,17 +40,17 @@ tags:
 | **④ ブラー・時間蓄積を切って見る** | どの段階でアーティファクトが出るか切り分ける |
 | **⑤ パラメータを極端に振る** | 半径・バイアスを極端にして、**効き方**を観察する |
 
-デバッグ表示の作り方は、[デバッグ描画](../../index.md)（予定）と、[調査ツール](../../../rendering/tools.md)を参照してください。
+デバッグ表示の作り方は、[調査ツール](../../../rendering/tools.md)を参照してください。
 
 ## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
-| [ハロー](halo.md) | 輪郭の周りの縁 |
-| [自己遮蔽](self-occlusion.md) | 平らな面の縞・斑点 |
-| [画面端と薄い物体](edge-thin.md) | 画面外・薄い物の欠け |
-| [ノイズ・バンディング・ちらつき](noise-flicker.md) | 時間・空間のノイズ |
-| [適用の間違い](application-mistakes.md) | 適用先・座標の取り違え |
+| [Halo](halo.md) | 輪郭の周りの縁 |
+| [Self-Occlusion](self-occlusion.md) | 平らな面の縞・斑点 |
+| [Screen Edges and Thin Objects](edge-thin.md) | 画面外・薄い物の欠け |
+| [Noise, Banding and Flicker](noise-flicker.md) | 時間・空間のノイズ |
+| [Application Mistakes](application-mistakes.md) | 適用先・座標の取り違え |
 
 ## これだけ覚える
 
@@ -65,6 +65,6 @@ tags:
 
 ## 関連ページ
 
-- [環境光遮蔽（AO）](../index.md)
-- [AO のフィルタ](../filtering/index.md)
+- [Ambient Occlusion (AO)](../index.md)
+- [AO Filtering](../filtering/index.md)
 - [方式の比較](../comparison.md)

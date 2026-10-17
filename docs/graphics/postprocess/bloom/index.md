@@ -1,10 +1,10 @@
 ---
-title: ブルーム
+title: Bloom
 tags:
   - 描画
 ---
 
-# ブルーム
+# Bloom
 
 **ブルーム**は<strong>明るい光の周りに柔らかいにじみ（光のもや）</strong>を**足す**効果です。**実際のカメラでは、レンズや目の中で光が少し広がる**ために**起きる**現象で、**これを足すだけで、「眩しさ」「光の強さ」が伝わります**。このセクションでは、**原理・しきい値・ダウンサンプル・ガウスぼかし・Dual Filter・ファイアフライ対策（Karis）・合成**を、**1 つずつ別のページ**で説明します。
 
@@ -101,12 +101,12 @@ tags:
 
 | 手順 | 内容 | ページ |
 | --- | --- | --- |
-| **① しきい値** | **明るい所だけを取り出す**（なしでもよい） | [しきい値](threshold.md) |
-| **② ダウンサンプル** | **半分・1/4・1/8…と縮小**してミップ チェーンを作る | [ダウンサンプルとミップ チェーン](downsample.md) |
-| **③ ぼかし** | **各段でガウスなどでぼかす** | [ガウスぼかし](gaussian.md) |
+| **① しきい値** | **明るい所だけを取り出す**（なしでもよい） | [Threshold](threshold.md) |
+| **② ダウンサンプル** | **半分・1/4・1/8…と縮小**してミップ チェーンを作る | [Downsampling and the Mip Chain](downsample.md) |
+| **③ ぼかし** | **各段でガウスなどでぼかす** | [Gaussian Blur](gaussian.md) |
 | **②+③ の一体化** | **縮小とぼかしを同時に行う** | [Dual Filter](dual-filter.md) |
-| **④ ちらつき対策** | **小さい明るい点がちらつく問題への対処** | [ファイアフライ（Karis）](karis-average.md) |
-| **⑤ 合成** | **アップサンプルして足し、元に足す・強さ・レンズ ダート** | [合成と強さ](composite.md) |
+| **④ ちらつき対策** | **小さい明るい点がちらつく問題への対処** | [Fireflies (Karis Average)](karis-average.md) |
+| **⑤ 合成** | **アップサンプルして足し、元に足す・強さ・レンズ ダート** | [Compositing and Intensity](composite.md) |
 
 ## 方式の比較
 
@@ -119,7 +119,7 @@ tags:
 
 ## 関連ページ
 
-- [ポストプロセス](../index.md)
-- [トーンマッピングと露出](../tonemapping/index.md)
+- [Post-Processing](../index.md)
+- [Tone Mapping and Exposure](../tonemapping/index.md)
 - [被写界深度](../dof/index.md)
-- [レンズ効果](../lens-effects/index.md)
+- [Lens Effects](../lens-effects/index.md)

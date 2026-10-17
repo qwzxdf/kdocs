@@ -1,10 +1,10 @@
 ---
-title: 地面と宇宙
+title: Ground and Space Views
 tags:
   - 描画
 ---
 
-# 地面と宇宙
+# Ground and Space Views
 
 **視点が地面にある時と、宇宙にある時で、大気の見え方は違います**。**地面からは空が、宇宙からは地球の縁が光る**ように見えます。このページでは、**視点の位置による違い**を説明します。
 
@@ -41,5 +41,5 @@ tags:
 
 ## 関連ページ
 
-- [大気散乱](index.md)
-- [Bruneton の事前計算](bruneton.md)
+- [Atmospheric Scattering](index.md)
+- [Bruneton Precomputed Scattering](bruneton.md)

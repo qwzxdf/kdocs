@@ -1,10 +1,10 @@
 ---
-title: 地形の生成
+title: Terrain Generation
 tags:
   - 描画
 ---
 
-# 地形の生成
+# Terrain Generation
 
 **地形を手で作るのは大変なので、ノイズなどから自動で生成します**。**ノイズを重ねて山を作り、侵食で自然な谷を刻み、川を流す**のが**標準的な流れ**です。このセクションでは、**ノイズ・fBm・リッジ ノイズ・ドメイン ワーピング・高さへの変換・侵食・川と湖・生成のタイミング・配置の生成**を、**1 つずつ別のページ**で説明します。
 
@@ -87,13 +87,13 @@ float PerlinNoise(float2 p) {
 | ページ | 内容 |
 | --- | --- |
 | [fBm](fbm.md) | ノイズを重ねる |
-| [リッジ ノイズ](ridge.md) | 尖った山脈 |
-| [ドメイン ワーピング](domain-warp.md) | 歪ませて自然に |
+| [Ridged Noise](ridge.md) | 尖った山脈 |
+| [Domain Warping](domain-warp.md) | 歪ませて自然に |
 | [高さへの変換](height-conversion.md) | ノイズを地形の高さに |
-| [侵食](erosion.md) | 雨と流れによる地形変化 |
-| [川と湖](rivers.md) | 水の流れの生成 |
-| [生成のタイミング](timing.md) | 事前か、実行時か |
-| [配置の生成](placement.md) | 木・岩の自動配置 |
+| [Erosion](erosion.md) | 雨と流れによる地形変化 |
+| [Rivers and Lakes](rivers.md) | 水の流れの生成 |
+| [When to Generate](timing.md) | 事前か、実行時か |
+| [Placement Generation](placement.md) | 木・岩の自動配置 |
 
 ## これだけ覚える
 
@@ -108,6 +108,6 @@ float PerlinNoise(float2 p) {
 
 ## 関連ページ
 
-- [地形](../index.md)
-- [高さマップとメッシュ](../heightmap-mesh/index.md)
-- [植生](../vegetation/index.md)
+- [Terrain](../index.md)
+- [Heightmaps and Meshes](../heightmap-mesh/index.md)
+- [Vegetation](../vegetation/index.md)

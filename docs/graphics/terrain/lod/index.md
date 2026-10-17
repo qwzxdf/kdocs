@@ -1,10 +1,10 @@
 ---
-title: 地形の LOD
+title: Terrain LOD
 tags:
   - 描画
 ---
 
-# 地形の LOD
+# Terrain LOD
 
 **地形は広く、全部を細かいメッシュで描くと重すぎます**。**近くは細かく、遠くは粗く**する**LOD（レベル オブ ディテール）**が、**必須**です。このセクションでは、**LOD が要る理由・CDLOD・モーフィング・継ぎ目・クリップマップ・テッセレーション・高さマップのミップ・選び方**を、**1 つずつ別のページ**で説明します。
 
@@ -45,10 +45,10 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [CDLOD（四分木）](cdlod.md) | 距離で、四分木を分割 |
-| [モーフィング](morphing.md) | 切り替えを、なめらかに |
-| [継ぎ目（クラック）](cracks.md) | LOD の境目の隙間 |
-| [クリップマップ](clipmap.md) | カメラ中心の同心の格子 |
+| [CDLOD (Quadtree)](cdlod.md) | 距離で、四分木を分割 |
+| [Geomorphing](morphing.md) | 切り替えを、なめらかに |
+| [Cracks and Seams](cracks.md) | LOD の境目の隙間 |
+| [Geometry Clipmaps](clipmap.md) | カメラ中心の同心の格子 |
 | [テッセレーション](tessellation.md) | ハードウェアで細分割 |
 | [高さマップのミップ](height-mip.md) | 遠くは粗い高さを読む |
 
@@ -66,6 +66,6 @@ tags:
 
 ## 関連ページ
 
-- [地形](../index.md)
-- [高さマップとメッシュ](../heightmap-mesh/index.md)
+- [Terrain](../index.md)
+- [Heightmaps and Meshes](../heightmap-mesh/index.md)
 - [LOD（ジオメトリ）](../../../rendering/lod.md)

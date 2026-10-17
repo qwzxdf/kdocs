@@ -79,6 +79,6 @@ device->CreateBlendState(&desc, &alpha_to_coverage_state);
 
 ## 関連ページ
 
-- [アルファ テスト](index.md)
-- [ハッシュド アルファ](hashed-alpha.md)
+- [Alpha Testing](index.md)
+- [Hashed Alpha](hashed-alpha.md)
 - [比較](comparison.md)

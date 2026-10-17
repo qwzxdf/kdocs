@@ -1,10 +1,10 @@
 ---
-title: 地形のテクスチャ
+title: Terrain Texturing
 tags:
   - 描画
 ---
 
-# 地形のテクスチャ
+# Terrain Texturing
 
 **地形は広いので、1 枚の大きな画像では足りず、草・土・岩などのタイル テクスチャを、混ぜて貼ります**。**これを「スプラット マッピング」と呼びます**。このセクションでは、**スプラット・重み・高さブレンド・トライプラナー・繰り返しを隠す・異方性フィルタ・仮想テクスチャ・デカール**を、**1 つずつ別のページ**で説明します。
 
@@ -65,12 +65,12 @@ normal_ts = normalize(normal_ts);
 
 | ページ | 内容 |
 | --- | --- |
-| [重みを決める](weights.md) | 高さ・傾き・ペイントで決める |
-| [高さによるブレンド](height-blend.md) | 境目を自然に |
-| [トライプラナー](triplanar.md) | 急斜面の伸びを防ぐ |
-| [繰り返しを隠す](tiling.md) | タイリングの隠し方 |
+| [Splat Weights](weights.md) | 高さ・傾き・ペイントで決める |
+| [Height-Based Blending](height-blend.md) | 境目を自然に |
+| [Triplanar Mapping](triplanar.md) | 急斜面の伸びを防ぐ |
+| [Hiding Tiling](tiling.md) | タイリングの隠し方 |
 | [異方性フィルタ](anisotropic.md) | 斜めから見た時のぼけ |
-| [仮想テクスチャ](virtual-texture.md) | 巨大なテクスチャ |
+| [Virtual Texturing](virtual-texture.md) | 巨大なテクスチャ |
 | [デカールと道](decals.md) | 道・足跡の表現 |
 
 ## これだけ覚える
@@ -86,5 +86,5 @@ normal_ts = normalize(normal_ts);
 
 ## 関連ページ
 
-- [地形](../index.md)
+- [Terrain](../index.md)
 - [LOD](../lod/index.md)

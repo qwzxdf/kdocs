@@ -1,10 +1,10 @@
 ---
-title: 反射プローブ
+title: Reflection Probes
 tags:
   - 描画
 ---
 
-# 反射プローブ
+# Reflection Probes
 
 **反射プローブは、ある地点から周囲を撮影して、キューブマップとして保存しておき、反射に使う手法**です。**画面の外の物も映せ、とても安い**のが**利点**ですが、**撮影した場所と、反射を見る場所がずれる（視差）ので、補正が必要**です。このセクションでは、**発想・事前フィルタ（粗さ）・視差補正・複数プローブのブレンド・SSR との併用**を、**1 つずつ別のページ**で説明します。
 
@@ -37,10 +37,10 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [事前フィルタ（Split-Sum）](prefilter.md) | 粗さごとに、ぼかしたキューブマップを用意 |
-| [視差補正](parallax.md) | 撮影位置と見る位置のずれを直す |
-| [プローブの運用](blending.md) | ブレンド・ベイクと更新・スカイボックス |
-| [SSR と組み合わせ](combine-ssr.md) | 使い分けと長所短所 |
+| [Prefiltering (Split-Sum)](prefilter.md) | 粗さごとに、ぼかしたキューブマップを用意 |
+| [Parallax Correction](parallax.md) | 撮影位置と見る位置のずれを直す |
+| [Probe Operation](blending.md) | ブレンド・ベイクと更新・スカイボックス |
+| [Combining with SSR](combine-ssr.md) | 使い分けと長所短所 |
 
 ## これだけ覚える
 
@@ -56,6 +56,6 @@ tags:
 
 ## 関連ページ
 
-- [反射](../index.md)
-- [SSR の基本](../ssr-basics/index.md)
+- [Reflections](../index.md)
+- [SSR Basics](../ssr-basics/index.md)
 - [フォールバック](../ssr-fallback.md)

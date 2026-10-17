@@ -1,10 +1,10 @@
 ---
-title: 単散乱の積分
+title: Single-Scattering Integral
 tags:
   - 描画
 ---
 
-# 単散乱の積分
+# Single-Scattering Integral
 
 **視線に沿って進みながら、各点で太陽の光が、視線方向に散乱される量を足し合わせます**。**これが単散乱の積分**で、**空の色の大部分を決めます**。このページでは、**単散乱の積分**を説明します。
 
@@ -95,6 +95,6 @@ float3 SingleScattering(float3 ray_origin, float3 ray_dir, float ray_length, flo
 
 ## 関連ページ
 
-- [大気散乱](index.md)
-- [透過率](transmittance.md)
-- [位相関数](phase-function.md)
+- [Atmospheric Scattering](index.md)
+- [Transmittance](transmittance.md)
+- [Phase Functions](phase-function.md)

@@ -1,10 +1,10 @@
 ---
-title: 空をライティングに使う
+title: Using the Sky for Lighting
 tags:
   - 描画
 ---
 
-# 空をライティングに使う
+# Using the Sky for Lighting
 
 **空は、シーンを照らす光源でもあります**。**空の色を、環境マップ（IBL）に焼いて、拡散・鏡面の環境光に使う**と、**空と地上の色が自然になじみます**。このページでは、**空のライティング**を説明します。
 
@@ -43,6 +43,6 @@ tags:
 
 ## 関連ページ
 
-- [空のモデル](index.md)
-- [反射プローブ](../../reflections/probes/index.md)
-- [GI の理論](../../gi/theory/index.md)
+- [Sky Models](index.md)
+- [Reflection Probes](../../reflections/probes/index.md)
+- [GI Theory](../../gi/theory/index.md)

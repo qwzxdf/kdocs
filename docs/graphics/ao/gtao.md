@@ -261,7 +261,7 @@ float SpecularOcclusion(float n_dot_v, float ao, float roughness) {
 
 ## 関連ページ
 
-- [環境光遮蔽（AO）](index.md)
+- [Ambient Occlusion (AO)](index.md)
 - [HBAO](hbao.md)
 - [フィルタ](filtering/index.md)
 - [方式の比較](comparison.md)

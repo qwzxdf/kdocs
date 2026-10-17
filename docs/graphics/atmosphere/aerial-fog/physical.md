@@ -1,10 +1,10 @@
 ---
-title: 物理に基づく空気遠近法
+title: Physically Based Aerial Perspective
 tags:
   - 描画
 ---
 
-# 物理に基づく空気遠近法
+# Physically Based Aerial Perspective
 
 **大気散乱の LUT（空気遠近法 LUT）を使うと、距離ごとの散乱と透過率を、物理的に正しく求められます**。**空と完全に一致する**のが**利点**です。このページでは、**物理に基づく空気遠近法**を説明します。
 
@@ -15,7 +15,7 @@ tags:
     - **Hillaire 2020 の空気遠近法 LUT**。
 
 ## 物理に基づく空気遠近法
-**大気散乱**（[大気散乱](../scattering/index.md)）の**LUT** を**使うと**、**距離フォグを物理的に決められます**。<strong>Hillaire 2020 の「空気遠近法 LUT」</strong> は、**カメラ前方の froxel ごとの「散乱光」と「透過率」を保持**します。
+**大気散乱**（[Atmospheric Scattering](../scattering/index.md)）の**LUT** を**使うと**、**距離フォグを物理的に決められます**。<strong>Hillaire 2020 の「空気遠近法 LUT」</strong> は、**カメラ前方の froxel ごとの「散乱光」と「透過率」を保持**します。
 
 ```hlsl
 float4 aerial = aerial_perspective_lut.SampleLevel(linear_clamp, float3(uv, depth_slice), 0);
@@ -50,5 +50,5 @@ float3 final_color = scene_color * transmittance + inscattered;
 
 ## 関連ページ
 
-- [空気遠近法・フォグ](index.md)
+- [Aerial Perspective and Fog](index.md)
 - [Hillaire 2020](../scattering/hillaire.md)

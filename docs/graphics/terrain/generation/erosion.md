@@ -1,10 +1,10 @@
 ---
-title: 侵食
+title: Erosion
 tags:
   - 描画
 ---
 
-# 侵食
+# Erosion
 
 **現実の地形は、雨と川の流れで削られています**。**シミュレーションで侵食を加えると、谷や尾根が自然になります**。このページでは、**侵食のシミュレーション**を説明します。
 
@@ -134,5 +134,5 @@ void ErodeDroplet(HeightMap& map, std::mt19937& rng, const ErosionParams& p) {
 
 ## 関連ページ
 
-- [地形の生成](index.md)
-- [川と湖](rivers.md)
+- [Terrain Generation](index.md)
+- [Rivers and Lakes](rivers.md)

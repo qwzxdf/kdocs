@@ -1,10 +1,10 @@
 ---
-title: LUT の作り方
+title: Authoring LUTs
 tags:
   - 描画
 ---
 
-# LUT の作り方
+# Authoring LUTs
 
 <strong>3D LUT は、「どうやって中身を作るか」</strong>が**次の問題**です。**ゲームの中で調整パラメータから LUT をコンピュート シェーダーで生成する**方法と、**外部の映像ツール（Photoshop・DaVinci Resolve）で作った LUT を読み込む**方法の**2 つ**があります。さらに**場所や時間帯ごとに LUT を切り替え・補間**して、**雰囲気を変える**のが**実用的**です。このページでは、**コンピュートでの生成・外部ツールとのやり取り・ゾーンごとの LUT と補間・更新のタイミング**を説明します。
 
@@ -147,7 +147,7 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 
 ### 時間帯の遷移
 
-**時刻に応じて、朝・昼・夕・夜の 4 つの LUT の間を補間**します。**太陽の高さ**などから**重みを決め**、**隣り合う 2 つを混ぜる**のが**自然**です（[空のモデル](../../atmosphere/sky-models/index.md)）。
+**時刻に応じて、朝・昼・夕・夜の 4 つの LUT の間を補間**します。**太陽の高さ**などから**重みを決め**、**隣り合う 2 つを混ぜる**のが**自然**です（[Sky Models](../../atmosphere/sky-models/index.md)）。
 
 <!-- fig:lut-blend-zones:begin -->
 
@@ -299,7 +299,7 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 
 ## 関連ページ
 
-- [カラー グレーディング](index.md)
+- [Color Grading](index.md)
 - [3D LUT](lut-3d.md)
-- [ホワイト バランス](white-balance.md)
-- [空のモデル](../../atmosphere/sky-models/index.md)
+- [White Balance](white-balance.md)
+- [Sky Models](../../atmosphere/sky-models/index.md)

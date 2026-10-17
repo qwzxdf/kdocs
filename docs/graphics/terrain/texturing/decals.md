@@ -1,10 +1,10 @@
 ---
-title: 地形のデカールと道
+title: Terrain Decals and Roads
 tags:
   - 描画
 ---
 
-# 地形のデカールと道
+# Terrain Decals and Roads
 
 **道や足跡のように、地形の一部に貼るものは、デカール（貼り付け）で表現します**。**地形の形に沿って、投影する**ことで、**自然に重ねられます**。このページでは、**地形のデカールと道**を説明します。
 
@@ -40,5 +40,5 @@ tags:
 
 ## 関連ページ
 
-- [地形のテクスチャ](index.md)
-- [仮想テクスチャ](virtual-texture.md)
+- [Terrain Texturing](index.md)
+- [Virtual Texturing](virtual-texture.md)

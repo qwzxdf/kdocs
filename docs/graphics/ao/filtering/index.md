@@ -1,10 +1,10 @@
 ---
-title: AO のフィルタ
+title: AO Filtering
 tags:
   - 描画
 ---
 
-# AO のフィルタ
+# AO Filtering
 
 **AO は、少ないサンプルで計算するので、そのままでは、ノイズが多い**です。**ノイズを消すために、空間方向のぼかし（バイラテラル ブラー）と、時間方向の平均（時間蓄積）**を**組み合わせます**。**さらに、低解像度で計算して、アップサンプルで戻す**と**安くなります**。このセクションでは、**ノイズの原因・バイラテラル ブラー・アップサンプル・ノイズ パターン・時間蓄積・典型のパイプライン**を、**1 つずつ別のページ**で説明します。
 
@@ -28,11 +28,11 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [バイラテラル ブラー](bilateral-blur.md) | 深度・法線でエッジを保つぼかし |
-| [アップサンプル](upsample.md) | 低解像度から、深度を見て戻す |
-| [ノイズ パターン](noise-pattern.md) | サンプルの回転・ブルー ノイズ |
-| [時間蓄積](temporal.md) | 前フレームの再投影・履歴の拒否 |
-| [典型のパイプライン](pipeline.md) | 組み合わせ・パラメータの目安 |
+| [Bilateral Blur](bilateral-blur.md) | 深度・法線でエッジを保つぼかし |
+| [Upsampling](upsample.md) | 低解像度から、深度を見て戻す |
+| [Noise Patterns](noise-pattern.md) | サンプルの回転・ブルー ノイズ |
+| [Temporal Accumulation](temporal.md) | 前フレームの再投影・履歴の拒否 |
+| [Typical Pipeline](pipeline.md) | 組み合わせ・パラメータの目安 |
 
 ## これだけ覚える
 
@@ -47,6 +47,6 @@ tags:
 
 ## 関連ページ
 
-- [環境光遮蔽（AO）](../index.md)
-- [半球 SSAO](../ssao-hemisphere.md)
+- [Ambient Occlusion (AO)](../index.md)
+- [Hemisphere SSAO](../ssao-hemisphere.md)
 - [TAA](../../postprocess/antialiasing/taa.md)

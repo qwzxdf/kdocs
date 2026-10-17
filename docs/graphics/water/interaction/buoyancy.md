@@ -1,10 +1,10 @@
 ---
-title: 浮力と反作用
+title: Buoyancy and Reaction
 tags:
   - 描画
 ---
 
-# 浮力と反作用
+# Buoyancy and Reaction
 
 **物が水に浮くには、浮力が必要**で、**水の側も、物から押されて動きます**。このページでは、**浮力の計算と、水への反作用**を説明します。
 
@@ -41,5 +41,5 @@ tags:
 
 ## 関連ページ
 
-- [水との相互作用](index.md)
+- [Water Interaction](index.md)
 - [物を浮かせる](../waves/floating.md)

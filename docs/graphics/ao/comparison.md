@@ -1,10 +1,10 @@
 ---
-title: AO の方式比較
+title: AO Comparison
 tags:
   - 描画
 ---
 
-# AO の方式比較
+# AO Comparison
 
 これまでの各方式を**原理・必要な入力・コスト・弱点**で並べて比べます。**どの方式を選ぶか**は、**対象プラットフォーム・必要な品質・使える入力・開発の手間**で決まります。このページでは、**比較表**と**選び方の目安**、**実装の骨組み**をまとめます。
 
@@ -139,8 +139,8 @@ AO が**不要**な、または**別の手段で済む**場面もあります。
 
 ## 関連ページ
 
-- [環境光遮蔽（AO）](index.md)
-- [AO の理論](theory/index.md)
+- [Ambient Occlusion (AO)](index.md)
+- [AO Theory](theory/index.md)
 - [GTAO](gtao.md)
 - [フィルタ](filtering/index.md)
 - [アーティファクト](artifacts/index.md)

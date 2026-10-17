@@ -1,10 +1,10 @@
 ---
-title: 雲の影
+title: Cloud Shadows
 tags:
   - 描画
 ---
 
-# 雲の影
+# Cloud Shadows
 
 **雲は、地上に影を落とします**。**雲の密度を、太陽方向に積分した「影マップ」**を**作り、地面の明るさに反映**します。このページでは、**雲の影**を説明します。
 
@@ -43,5 +43,5 @@ tags:
 
 ## 関連ページ
 
-- [雲](index.md)
+- [Clouds](index.md)
 - [カスケード シャドウ](../../shadows/cascaded.md)

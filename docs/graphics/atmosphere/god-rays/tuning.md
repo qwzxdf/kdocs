@@ -1,10 +1,10 @@
 ---
-title: 見た目の調整
+title: Tuning the Look
 tags:
   - 描画
 ---
 
-# 見た目の調整
+# Tuning the Look
 
 **光の筋は、強すぎると、わざとらしく見えます**。**強さ・色・ノイズを調整**して、**自然に**します。このページでは、**見た目の調整**を説明します。
 
@@ -43,5 +43,5 @@ tags:
 
 ## 関連ページ
 
-- [ゴッド レイ](index.md)
-- [ブルーム](../../postprocess/bloom/index.md)
+- [God Rays](index.md)
+- [Bloom](../../postprocess/bloom/index.md)

@@ -1,10 +1,10 @@
 ---
-title: 高さフォグ
+title: Height Fog
 tags:
   - 描画
 ---
 
-# 高さフォグ
+# Height Fog
 
 **霧は、低い所にたまります**。**フォグの密度を、高さで指数的に減らす**と、**谷にたまる霧**が**表現**できます。このページでは、**高さフォグ**を説明します。
 
@@ -122,5 +122,5 @@ float transmittance = exp(-HeightFogOpticalDepth(camera_position, world_position
 
 ## 関連ページ
 
-- [空気遠近法・フォグ](index.md)
-- [ボリューメトリック フォグ](../volumetric-fog/index.md)
+- [Aerial Perspective and Fog](index.md)
+- [Volumetric Fog](../volumetric-fog/index.md)

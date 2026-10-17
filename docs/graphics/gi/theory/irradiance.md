@@ -1,10 +1,10 @@
 ---
-title: 放射照度
+title: Irradiance
 tags:
   - 描画
 ---
 
-# 放射照度
+# Irradiance
 
 **拡散の間接光は、「その点の周りの全方向から来る光を、法線に合わせて足し合わせた量」**で、これを**放射照度**と呼びます。**法線ごとに 1 つの値**なので、**環境マップ全体を、法線ごとの放射照度マップに「畳み込んで」おく**と、**実行時は読むだけ**になります。このページでは、**放射照度の意味と、畳み込みの考え方**を説明します。
 
@@ -42,6 +42,6 @@ tags:
 
 ## 関連ページ
 
-- [GI の理論](index.md)
-- [球面調和関数（SH）](spherical-harmonics.md)
-- [拡散と鏡面](diffuse-specular.md)
+- [GI Theory](index.md)
+- [Spherical Harmonics (SH)](spherical-harmonics.md)
+- [Diffuse and Specular](diffuse-specular.md)

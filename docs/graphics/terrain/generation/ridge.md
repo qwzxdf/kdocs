@@ -1,10 +1,10 @@
 ---
-title: リッジ ノイズ
+title: Ridged Noise
 tags:
   - 描画
 ---
 
-# リッジ ノイズ
+# Ridged Noise
 
 **通常のノイズは、丸い丘になりがち**で、**山脈の鋭い稜線は出ません**。**ノイズの絶対値を反転させると、尖った稜線ができます**。このページでは、**リッジ ノイズ**を説明します。
 
@@ -60,5 +60,5 @@ float RidgedFbm(float2 p, int octaves, float lacunarity, float gain) {
 
 ## 関連ページ
 
-- [地形の生成](index.md)
+- [Terrain Generation](index.md)
 - [fBm](fbm.md)

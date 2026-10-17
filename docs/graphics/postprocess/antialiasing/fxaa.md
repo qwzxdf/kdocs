@@ -221,7 +221,7 @@ float4 FxaaPS(float2 uv) {
 
 ## 関連ページ
 
-- [アンチエイリアシング](index.md)
+- [Anti-Aliasing](index.md)
 - [MSAA](msaa.md)
 - [SMAA](smaa.md)
 - [TAA](taa.md)

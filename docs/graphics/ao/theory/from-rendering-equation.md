@@ -1,10 +1,10 @@
 ---
-title: レンダリング方程式から AO へ
+title: From the Rendering Equation to AO
 tags:
   - 描画
 ---
 
-# レンダリング方程式から AO へ
+# From the Rendering Equation to AO
 
 **AO は、レンダリング方程式を、「天球が一様に明るい」と仮定して、単純化**したものです。**この導出を追うと、AO の式の「コサイン重み」「可視性」「1/π」が、どこから来たのか**が**分かります**。このページでは、**出発点のレンダリング方程式・一様な天球の仮定・球面座標での書き直し**を説明します。
 
@@ -100,6 +100,6 @@ AO では**周囲の明るさを一様**（どの方向からも同じ強さ L_s
 
 ## 関連ページ
 
-- [AO の理論](index.md)
-- [オブスキュランス](obscurance.md)
-- [GI の理論](../../gi/theory/index.md)
+- [AO Theory](index.md)
+- [Obscurance](obscurance.md)
+- [GI Theory](../../gi/theory/index.md)

@@ -1,10 +1,10 @@
 ---
-title: モーフィング
+title: Geomorphing
 tags:
   - 描画
 ---
 
-# モーフィング
+# Geomorphing
 
 **LOD が切り替わる時、頂点が突然動くと、ポップが見えます**。**切り替えの手前で、頂点を少しずつ、粗い LOD の位置へ動かす（モーフィング）**ことで、**なめらかに**なります。このページでは、**モーフィングの仕組み**を説明します。
 
@@ -107,5 +107,5 @@ float height = SampleHeight(xz);
 
 ## 関連ページ
 
-- [地形の LOD](index.md)
+- [Terrain LOD](index.md)
 - [CDLOD](cdlod.md)

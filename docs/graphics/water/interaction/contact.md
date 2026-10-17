@@ -1,10 +1,10 @@
 ---
-title: 物の接触を書き込む
+title: Writing Object Contacts
 tags:
   - 描画
 ---
 
-# 物の接触を書き込む
+# Writing Object Contacts
 
 **物が水に触れた所を、高さマップに「押し込み」として書き込む**と、**そこから波紋が広がります**。このページでは、**接触の書き込み方**を説明します。
 
@@ -56,5 +56,5 @@ height_next[p] += brush * brush_strength;
 
 ## 関連ページ
 
-- [水との相互作用](index.md)
+- [Water Interaction](index.md)
 - [高さマップの反映](apply-height.md)

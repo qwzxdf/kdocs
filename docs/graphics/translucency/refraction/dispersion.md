@@ -1,10 +1,10 @@
 ---
-title: 色収差（分散）
+title: Dispersion
 tags:
   - 描画
 ---
 
-# 色収差（分散）
+# Dispersion
 
 **光の波長ごとに屈折率が違うため、ガラスの縁で、色が分かれて見える**ことがあります。**赤・緑・青で、ずらす量を変える**と、**この効果を作れます**。このページでは、**分散の表現**を説明します。
 
@@ -45,5 +45,5 @@ background.b = scene_color_copy.Sample(linear_clamp, screen_uv + offset * 1.06).
 
 ## 関連ページ
 
-- [屈折](index.md)
+- [Refraction](index.md)
 - [色収差（レンズ）](../../postprocess/lens-effects/index.md)

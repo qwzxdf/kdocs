@@ -1,10 +1,10 @@
 ---
-title: FFT 海面
+title: FFT Ocean
 tags:
   - 描画
 ---
 
-# FFT 海面
+# FFT Ocean
 
 **FFT 海面は、海の波のスペクトル（周波数ごとの強さ）から、逆 FFT で、高さを合成する手法**です。**映画のような本物の海を、リアルタイムで作れます**が、**計算量が大きく、タイリングの工夫も必要**です。このページでは、**FFT 海面の考え方と手順**を説明します。
 
@@ -95,6 +95,6 @@ tags:
 
 ## 関連ページ
 
-- [水面の波](index.md)
-- [Gerstner 波](gerstner.md)
+- [Water Waves](index.md)
+- [Gerstner Waves](gerstner.md)
 - [物を浮かせる](floating.md)

@@ -1,10 +1,10 @@
 ---
-title: 基本の調整
+title: Basic Adjustments
 tags:
   - 描画
 ---
 
-# 基本の調整
+# Basic Adjustments
 
 **カラー グレーディングの土台**は、**露出・コントラスト・彩度・色相**という**4 つの基本操作**です。<strong>それぞれが「画素の色を変える関数」</strong>で、**組み合わせれば、ほとんどのルックを作れます**。このページでは、**各操作の式と効き方・どの空間で行うか（リニアか、ガンマか）・ピボットの選び方・彩度の注意点・調整の順序**を説明します。
 
@@ -174,7 +174,7 @@ float3 RotateHue(float3 color, float angle_radians) {
 | **バイブランスを併用** | **鮮やかになりすぎない** |
 | **範囲外をクランプ** | **0〜1 に収める** |
 | **順序を固定** | **結果を再現できる** |
-| **パラメータをボリュームで管理** | **場所ごとに補間**（[LUT の作り方](lut-authoring.md)） |
+| **パラメータをボリュームで管理** | **場所ごとに補間**（[Authoring LUTs](lut-authoring.md)） |
 
 ## よくあるミス
 
@@ -207,7 +207,7 @@ float3 RotateHue(float3 color, float angle_radians) {
 
 ## 関連ページ
 
-- [カラー グレーディング](index.md)
-- [リフト・ガンマ・ゲイン](lift-gamma-gain.md)
+- [Color Grading](index.md)
+- [Lift, Gamma, Gain](lift-gamma-gain.md)
 - [3D LUT](lut-3d.md)
-- [露出](../tonemapping/exposure.md)
+- [Exposure](../tonemapping/exposure.md)

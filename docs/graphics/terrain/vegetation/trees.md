@@ -1,10 +1,10 @@
 ---
-title: 木
+title: Trees
 tags:
   - 描画
 ---
 
-# 木
+# Trees
 
 **木は、近くは詳細なメッシュ、遠くは簡易なメッシュやビルボード**にして、**LOD で負荷を下げます**。このページでは、**木の描画**を説明します。
 
@@ -31,7 +31,7 @@ tags:
 | **LOD の切り替え** | <strong>ディザリング（市松のフェード）</strong>で、**ポップを隠す**（[半透明](../../translucency/alpha-test/index.md)） |
 | **葉のカード** | **1 枚に複数の葉を描いた板**。**アルファ テスト** |
 | **幹と葉でマテリアルを分ける** | **幹は不透明、葉はアルファ テスト** |
-| **影** | **影の LOD は、描画より粗くする**（[影](../../shadows/index.md)） |
+| **影** | **影の LOD は、描画より粗くする**（[Shadows](../../shadows/index.md)） |
 
 ## よくあるミス
 
@@ -51,5 +51,5 @@ tags:
 
 ## 関連ページ
 
-- [植生](index.md)
-- [ディザ透明](../../translucency/alpha-test/dither.md)
+- [Vegetation](index.md)
+- [Dithered Transparency](../../translucency/alpha-test/dither.md)

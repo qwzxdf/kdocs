@@ -73,6 +73,6 @@ tags:
 
 ## 関連ページ
 
-- [VSM と ESM・MSM](index.md)
+- [VSM, ESM and MSM](index.md)
 - [ESM](esm.md)
 - [MSM](msm.md)

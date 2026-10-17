@@ -1,10 +1,10 @@
 ---
-title: 水中の光の筋
+title: Underwater God Rays
 tags:
   - 描画
 ---
 
-# 水中の光の筋
+# Underwater God Rays
 
 **水中の光の筋は、水面の波で揺れながら、差し込みます**。**波の高さを反映したレイマーチ**で、**表現できます**。このページでは、**水中のゴッド レイ**を説明します。
 
@@ -15,7 +15,7 @@ tags:
     - **詳細は、[水中の表現](../../water/underwater/god-rays.md)**。
 
 ## 水中の光の筋
-**水中の光の筋**は、**同じ原理**で**コースティクスで揺らぎが付く**のが**特徴**です（[水中の表現](../../water/underwater/index.md)）。
+**水中の光の筋**は、**同じ原理**で**コースティクスで揺らぎが付く**のが**特徴**です（[Underwater Rendering](../../water/underwater/index.md)）。
 
 ## よくあるミス
 
@@ -36,5 +36,5 @@ tags:
 
 ## 関連ページ
 
-- [ゴッド レイ](index.md)
-- [水中の光の筋](../../water/underwater/god-rays.md)
+- [God Rays](index.md)
+- [Underwater God Rays](../../water/underwater/god-rays.md)

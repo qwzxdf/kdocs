@@ -1,10 +1,10 @@
 ---
-title: レイトレース AO・距離場 AO・ボクセル AO
+title: Ray-Traced, Distance-Field and Voxel AO
 tags:
   - 描画
 ---
 
-# レイトレース AO・距離場 AO・ボクセル AO
+# Ray-Traced, Distance-Field and Voxel AO
 
 **スクリーン空間の AO は、画面に写っている物しか見ない**ため、**画面外の遮蔽物や、薄い物の裏側を扱えません**。**画面に頼らず、ワールド空間（シーンそのもの）を使って AO を求める**方式が**世界空間 AO**で、**レイトレース AO・距離場 AO・ボクセル AO**の**3 つ**が**代表的**です。このセクションでは、**共通する考え方・各方式・比較・スクリーン空間との使い分け**を、**1 つずつ別のページ**で説明します。
 
@@ -30,7 +30,7 @@ tags:
 | [レイトレース AO（RTAO）](rtao.md) | 半球にレイを飛ばして、遮蔽を数える |
 | [距離場 AO（DFAO）](dfao.md) | 符号付き距離場で、円錐を進める |
 | [ボクセル AO（VXAO）](vxao.md) | ボクセルのミップで、円錐トレース |
-| [比較とスクリーン空間との使い分け](comparison.md) | 3 方式の比較・使い分け |
+| [World-Space AO Comparison](comparison.md) | 3 方式の比較・使い分け |
 
 ## これだけ覚える
 
@@ -45,6 +45,6 @@ tags:
 
 ## 関連ページ
 
-- [環境光遮蔽（AO）](../index.md)
+- [Ambient Occlusion (AO)](../index.md)
 - [GTAO](../gtao.md)
 - [方式の比較](../comparison.md)

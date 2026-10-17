@@ -1,10 +1,10 @@
 ---
-title: 密度のモデル
+title: Cloud Density Model
 tags:
   - 描画
 ---
 
-# 密度のモデル
+# Cloud Density Model
 
 **雲の形は、ノイズで作ります**。**低周波のノイズで大きな形、高周波のノイズで細部**を**作り、重ねます**。このページでは、**雲の密度のモデル**を説明します。
 
@@ -105,6 +105,6 @@ float Remap(float v, float a, float b, float c, float d) {
 
 ## 関連ページ
 
-- [雲](index.md)
-- [雲の層](layers.md)
+- [Clouds](index.md)
+- [Cloud Layers](layers.md)
 - [レイマーチ](raymarch.md)

@@ -1,10 +1,10 @@
 ---
-title: 品質と速度
+title: Quality and Performance
 tags:
   - 描画
 ---
 
-# 品質と速度
+# Quality and Performance
 
 **ボリューメトリック フォグは、解像度とスライス数で、品質とコストが大きく変わります**。このページでは、**品質と速度の目安**を説明します。
 
@@ -42,5 +42,5 @@ tags:
 
 ## 関連ページ
 
-- [ボリューメトリック フォグ](index.md)
-- [froxel](froxel.md)
+- [Volumetric Fog](index.md)
+- [Froxels](froxel.md)

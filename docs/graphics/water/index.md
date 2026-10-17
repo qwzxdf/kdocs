@@ -1,10 +1,10 @@
 ---
-title: 水
+title: Water
 tags:
   - 描画
 ---
 
-# 水
+# Water
 
 **水の表現**はゲームの絵作りの**見せ場**です。しかし、<strong>水は、「動く形（波）」・「透ける（屈折・吸収）」・「映す（反射・フレネル）」・「泡立つ（フォーム）」</strong>と、**いくつもの要素の重ね合わせ**です。**1 つの魔法の方法があるわけではなく、それぞれを分けて作って、足し合わせる**のが基本です。このセクションでは、<strong>波のジオメトリ（Gerstner・FFT）</strong>、<strong>シェーディング（フレネル・屈折・深度による色）</strong>、**岸辺の泡**、**波紋などのインタラクション**、<strong>水中の表現（コースティクス・霧）</strong>を、順に説明します。
 
@@ -24,7 +24,7 @@ tags:
 | [水のシェーディング](shading/index.md) | フレネル・屈折・水深による色・スペキュラ・SSS 風の色 |
 | [岸辺と泡（フォーム）](shore-foam/index.md) | 深度差による泡・波の頂点の泡・テクスチャ |
 | [波紋と水面のインタラクション](interaction/index.md) | 高さマップのシミュレーション・フローマップ・ぶつかる物 |
-| [水中の表現](underwater/index.md) | 水中の霧・コースティクス・光の筋・水面の裏側 |
+| [Underwater Rendering](underwater/index.md) | 水中の霧・コースティクス・光の筋・水面の裏側 |
 
 ## 全体の構成
 
@@ -32,8 +32,8 @@ tags:
 | --- | --- |
 | **大きな波の形** | **頂点シェーダー**で**メッシュを動かす**（Gerstner・FFT の高さ） |
 | **細かい波の凹凸** | **法線マップを複数重ねて流す** |
-| **映り込み** | **環境マップ・SSR・平面反射**（[反射](../reflections/index.md)） |
-| **水中の見え方** | **屈折**（[屈折](../translucency/refraction/index.md)） ＋ **深度による吸収** |
+| **映り込み** | **環境マップ・SSR・平面反射**（[Reflections](../reflections/index.md)） |
+| **水中の見え方** | **屈折**（[Refraction](../translucency/refraction/index.md)） ＋ **深度による吸収** |
 | **岸の泡** | **水深が浅い所**に**泡のテクスチャ** |
 | **波紋・水しぶき** | **高さマップのシミュレーション・パーティクル** |
 
@@ -46,11 +46,11 @@ tags:
 | **③ 水面を描く** | **屈折・反射・フレネル・泡**を**1 回のシェーダーで合成** |
 | **④ 半透明・パーティクル** | **水しぶきなど** |
 
-<strong>水面は、「不透明の後・コピーを取った後」</strong>に描きます（[屈折](../translucency/refraction/index.md)と同じ構成）。
+<strong>水面は、「不透明の後・コピーを取った後」</strong>に描きます（[Refraction](../translucency/refraction/index.md)と同じ構成）。
 
 ## 関連ページ
 
 - [描画](../index.md)
 - [屈折とガラス](../translucency/refraction/index.md)
-- [反射](../reflections/index.md)
-- [地形](../terrain/index.md)
+- [Reflections](../reflections/index.md)
+- [Terrain](../terrain/index.md)

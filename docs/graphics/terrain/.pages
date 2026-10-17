@@ -1,7 +1,7 @@
 nav:
   - index.md
-  - 高さマップとメッシュ: heightmap-mesh
-  - 地形の LOD: lod
-  - 地形のテクスチャ: texturing
-  - 植生: vegetation
-  - 地形の生成: generation
+  - Heightmaps and Meshes: heightmap-mesh
+  - Terrain LOD: lod
+  - Terrain Texturing: texturing
+  - Vegetation: vegetation
+  - Terrain Generation: generation

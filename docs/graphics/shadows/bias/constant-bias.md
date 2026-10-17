@@ -1,10 +1,10 @@
 ---
-title: 定数バイアス
+title: Constant Bias
 tags:
   - 描画
 ---
 
-# 定数バイアス
+# Constant Bias
 
 **もっとも簡単なバイアス**は、**比較する深度から、一定の値を引く（足す）**ことです。**実装が 1 行**で**最初に試すべき**ですが、**面の傾きが大きいと足りず、小さい面では大きすぎて影が浮く**ので、**単独では不十分**です。このページでは、**定数バイアスの式・値の目安・限界**を説明します。
 
@@ -45,6 +45,6 @@ float depth = ndc.z - 0.001;
 
 ## 関連ページ
 
-- [バイアス](index.md)
-- [スロープ スケール バイアス](slope-scale-bias.md)
-- [ピーター パンニング](peter-panning.md)
+- [Shadow Bias](index.md)
+- [Slope-Scale Bias](slope-scale-bias.md)
+- [Peter Panning](peter-panning.md)

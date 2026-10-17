@@ -1,10 +1,10 @@
 ---
-title: 大気のモデル
+title: Atmosphere Model
 tags:
   - 描画
 ---
 
-# 大気のモデル
+# Atmosphere Model
 
 **大気を、高さごとの密度を持つ層として表します**。**空気分子（レイリー）、エアロゾル（ミー）、オゾンが、それぞれ違う散乱・吸収を持ちます**。このページでは、**大気のモデル**を説明します。
 
@@ -196,5 +196,5 @@ tags:
 
 ## 関連ページ
 
-- [大気散乱](index.md)
-- [透過率](transmittance.md)
+- [Atmospheric Scattering](index.md)
+- [Transmittance](transmittance.md)

@@ -1,10 +1,10 @@
 ---
-title: 雲の光の計算
+title: Cloud Lighting
 tags:
   - 描画
 ---
 
-# 雲の光の計算
+# Cloud Lighting
 
 **雲は、光が内部で散乱するので、明るく、ふわふわに見えます**。**各点で太陽の方向にもう一度進んで、光の減衰（自己影）を求めます**。このページでは、**雲のライティング**を説明します。
 
@@ -107,6 +107,6 @@ float3 MultiScatteredLight(float optical_depth, float phase_cos) {
 
 ## 関連ページ
 
-- [雲](index.md)
-- [位相関数](../scattering/phase-function.md)
-- [多重散乱](../scattering/multiple-scattering.md)
+- [Clouds](index.md)
+- [Phase Functions](../scattering/phase-function.md)
+- [Multiple Scattering](../scattering/multiple-scattering.md)

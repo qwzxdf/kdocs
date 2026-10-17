@@ -1,10 +1,10 @@
 ---
-title: 岸辺の泡
+title: Shore Foam
 tags:
   - 描画
 ---
 
-# 岸辺の泡
+# Shore Foam
 
 **水の泡は、岸辺・波頭・航跡に出て、水の動きを見せます**。**泡のマスクを作り、泡テクスチャで色を付けて、合成する**のが**基本の流れ**です。このセクションでは、**マスクの作り方・岸辺の泡（深度差）・波頂の泡（ヤコビアン）・泡テクスチャ・泡を残す・航跡**を、**1 つずつ別のページ**で説明します。
 
@@ -44,9 +44,9 @@ tags:
 | --- | --- |
 | [岸辺の泡](shore-depth.md) | 深度差で作る |
 | [波頂の泡](crest-jacobian.md) | ヤコビアンで作る |
-| [泡テクスチャと合成](foam-texture.md) | 見た目の作り方 |
-| [泡を残す](foam-history.md) | 履歴で、ゆっくり消す |
-| [航跡と衝突](wake.md) | 船・物が作る泡 |
+| [Foam Textures and Compositing](foam-texture.md) | 見た目の作り方 |
+| [Persistent Foam](foam-history.md) | 履歴で、ゆっくり消す |
+| [Wakes and Collisions](wake.md) | 船・物が作る泡 |
 
 ## これだけ覚える
 
@@ -62,6 +62,6 @@ tags:
 
 ## 関連ページ
 
-- [水](../index.md)
-- [水面の波](../waves/index.md)
-- [水との相互作用](../interaction/index.md)
+- [Water](../index.md)
+- [Water Waves](../waves/index.md)
+- [Water Interaction](../interaction/index.md)

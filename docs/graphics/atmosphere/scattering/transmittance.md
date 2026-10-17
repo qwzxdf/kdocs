@@ -1,10 +1,10 @@
 ---
-title: 透過率
+title: Transmittance
 tags:
   - 描画
 ---
 
-# 透過率
+# Transmittance
 
 **光が大気を通ると、散乱や吸収で弱まります**。**弱まる割合が透過率で、Beer の法則（指数）で表します**。このページでは、**透過率の計算**を説明します。
 
@@ -119,6 +119,6 @@ float3 Transmittance(float3 start, float3 end, int steps) {
 
 ## 関連ページ
 
-- [大気散乱](index.md)
-- [大気のモデル](atmosphere-model.md)
+- [Atmospheric Scattering](index.md)
+- [Atmosphere Model](atmosphere-model.md)
 - [単散乱](single-scattering.md)

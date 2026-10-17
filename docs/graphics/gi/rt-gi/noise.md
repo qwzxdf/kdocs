@@ -1,10 +1,10 @@
 ---
-title: ノイズとの戦い
+title: Fighting Noise
 tags:
   - 描画
 ---
 
-# ノイズとの戦い
+# Fighting Noise
 
 **画素あたり 1〜2 本のレイでは、間接光はノイズだらけ**です。**このノイズを、時間蓄積と空間フィルタで消す**のが**デノイズ**です。このページでは、**ノイズの原因と、デノイズの方針**を説明します。
 
@@ -55,6 +55,6 @@ tags:
 
 ## 関連ページ
 
-- [レイトレ GI](index.md)
+- [Ray-Traced GI](index.md)
 - [ReSTIR GI](restir.md)
-- [AO のフィルタ](../../ao/filtering/index.md)
+- [AO Filtering](../../ao/filtering/index.md)

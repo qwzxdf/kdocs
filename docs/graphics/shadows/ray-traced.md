@@ -1,10 +1,10 @@
 ---
-title: レイトレース影
+title: Ray-Traced Shadows
 tags:
   - 描画
 ---
 
-# レイトレース影
+# Ray-Traced Shadows
 
 **シャドウ マップ**は、**光から見たシーンをいったん画像（深度）に写し**、そこから**近似**します。そのため、**解像度・バイアス・エイリアシング**の問題が付きまといます。**レイトレース影**は、**画素から光へ直接レイを飛ばし**、**途中で何かに当たるか**を、**ジオメトリそのもの**に対して調べる方式です。**シャドウ マップの問題が、根本から消え**、**面光源の半影**も**レイを光源の面上にばらまく**ことで、**物理的に正しく**作れます。**DXR**（DirectX Raytracing）に対応した GPU が必要です。
 
@@ -252,7 +252,7 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 
 ## 関連ページ
 
-- [影](index.md)
+- [Shadows](index.md)
 - [PCSS](pcss.md)
 - [RT 反射](../reflections/rt-reflections/index.md)
-- [距離場の影](sdf-shadows.md)
+- [Distance Field Shadows](sdf-shadows.md)

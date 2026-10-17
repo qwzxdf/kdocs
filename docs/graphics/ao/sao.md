@@ -175,7 +175,7 @@ float3 ReconstructNormal(int2 pixel, float3 c) {
 
 ## 関連ページ
 
-- [環境光遮蔽（AO）](index.md)
+- [Ambient Occlusion (AO)](index.md)
 - [Alchemy AO](alchemy-ao.md)
 - [HBAO](hbao.md)
 - [フィルタ](filtering/index.md)

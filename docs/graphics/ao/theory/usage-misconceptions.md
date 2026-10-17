@@ -1,10 +1,10 @@
 ---
-title: AO の使い方と誤解
+title: Usage and Misconceptions of AO
 tags:
   - 描画
 ---
 
-# AO の使い方と誤解
+# Usage and Misconceptions of AO
 
 **AO は、間接光の「拡散」を暗くするもの**で、**直接光には掛けません**。**これを間違えると、画面が不自然に暗くなります**。このページでは、**AO の正しい適用先・スペキュラ遮蔽・よくある誤解**を説明します。
 
@@ -56,6 +56,6 @@ float3 color = direct_light + ambient;
 
 ## 関連ページ
 
-- [AO の理論](index.md)
+- [AO Theory](index.md)
 - [アーティファクト](../artifacts/index.md)
 - [PBR](../../../3d/pbr.md)

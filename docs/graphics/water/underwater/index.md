@@ -1,10 +1,10 @@
 ---
-title: 水中の表現
+title: Underwater Rendering
 tags:
   - 描画
 ---
 
-# 水中の表現
+# Underwater Rendering
 
 **水の中に入ると、景色が青く霞み、光の筋が差し、水面が天井のように見えます**。**水中かどうかを判定し、霧・コースティクス・光の筋・水面の裏側を切り替える**のが**基本**です。このセクションでは、**水中の判定・霧・コースティクス・光の筋・水面の裏側・水面をまたぐ処理・他の要素**を、**1 つずつ別のページ**で説明します。
 
@@ -31,11 +31,11 @@ bool underwater = camera_position.y < WaterHeightAt(camera_position.xz, time);
 
 | ページ | 内容 |
 | --- | --- |
-| [水中の霧](fog.md) | 距離で青く霞む |
-| [コースティクス](caustics.md) | 底に揺れる光の模様 |
+| [Underwater Fog](fog.md) | 距離で青く霞む |
+| [Caustics](caustics.md) | 底に揺れる光の模様 |
 | [光の筋](god-rays.md) | 水中のゴッド レイ |
-| [水面の裏側と、またぐ処理](surface-back.md) | 水面の見え方・切り替え |
-| [水中の他の要素](other.md) | 粒子・音・色補正 |
+| [The Underside of the Surface and Crossing It](surface-back.md) | 水面の見え方・切り替え |
+| [Other Underwater Elements](other.md) | 粒子・音・色補正 |
 
 ## これだけ覚える
 
@@ -50,6 +50,6 @@ bool underwater = camera_position.y < WaterHeightAt(camera_position.xz, time);
 
 ## 関連ページ
 
-- [水](../index.md)
-- [水の質感](../shading/index.md)
-- [ゴッド レイ](../../atmosphere/god-rays/index.md)
+- [Water](../index.md)
+- [Water Shading](../shading/index.md)
+- [God Rays](../../atmosphere/god-rays/index.md)

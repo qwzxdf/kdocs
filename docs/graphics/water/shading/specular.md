@@ -1,10 +1,10 @@
 ---
-title: スペキュラ（太陽の反射）
+title: Specular (Sun Glint)
 tags:
   - 描画
 ---
 
-# スペキュラ（太陽の反射）
+# Specular (Sun Glint)
 
 **水面に映る太陽のきらめきが、水らしさを決める大きな要素**です。**法線の細かい凹凸で、きらきらと散らばる反射**になります。このページでは、**スペキュラの計算と、きらめきの出し方**を説明します。
 
@@ -48,5 +48,5 @@ float specular = pow(n_dot_h, shininess) * sun_intensity;
 
 ## 関連ページ
 
-- [水の質感](index.md)
-- [水面の波](../waves/index.md)
+- [Water Shading](index.md)
+- [Water Waves](../waves/index.md)

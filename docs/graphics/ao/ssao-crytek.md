@@ -14,7 +14,7 @@ tags:
     - 入力は<strong>深度バッファだけ</strong>（法線は不要）。<strong>ポストプロセス</strong>で全画面に 1 パス。
     - 各画素で<strong>周囲の球の中にランダムなサンプル点</strong>を置く。<strong>サンプル点を画面に投影</strong>して、<strong>その画素の深度と比べ</strong>、<strong>面の奥にあれば「遮られている」</strong>と数える。
     - AO ＝ <strong>遮られていないサンプルの割合</strong>。
-    - <strong>球</strong>を使うので<strong>平らな面でも約半分が「遮られる」</strong>。<strong>面全体が灰色</strong>になるのが弱点（次の[半球 SSAO](ssao-hemisphere.md) で解決）。
+    - <strong>球</strong>を使うので<strong>平らな面でも約半分が「遮られる」</strong>。<strong>面全体が灰色</strong>になるのが弱点（次の[Hemisphere SSAO](ssao-hemisphere.md) で解決）。
     - サンプル数が少ない（16 程度）ので<strong>画素ごとにサンプルをランダムに回転</strong>し、<strong>ぼかしで消す</strong>。
 
 ## 発想
@@ -156,7 +156,7 @@ float SSAO(float2 uv) {
 | 対処 | 説明 |
 | --- | --- |
 | **0.5 を差し引いて伸ばす** | `ao = saturate((ao − 0.5) × 2)` のように**平面の値を 1 に補正**する。簡易的な対処で**凸の面は補正しすぎ**になる |
-| **半球に変える** | 法線を使い、**面の上側だけ**にサンプルを置く（[半球 SSAO](ssao-hemisphere.md)） |
+| **半球に変える** | 法線を使い、**面の上側だけ**にサンプルを置く（[Hemisphere SSAO](ssao-hemisphere.md)） |
 
 ### 2. 法線が無いので、角の向きを区別できない
 
@@ -211,9 +211,9 @@ float SSAO(float2 uv) {
 
 ## 関連ページ
 
-- [環境光遮蔽（AO）](index.md)
-- [AO の理論](theory/index.md)
-- [半球 SSAO](ssao-hemisphere.md)
+- [Ambient Occlusion (AO)](index.md)
+- [AO Theory](theory/index.md)
+- [Hemisphere SSAO](ssao-hemisphere.md)
 - [フィルタ](filtering/index.md)
 - [アーティファクト](artifacts/index.md)
 - [投影](../../3d/projection.md)

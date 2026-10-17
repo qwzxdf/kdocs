@@ -1,10 +1,10 @@
 ---
-title: レイトレ GI
+title: Ray-Traced GI
 tags:
   - 描画
 ---
 
-# レイトレ GI
+# Ray-Traced GI
 
 **レイトレ GI は、レイを飛ばして間接光を直接求める手法**で、**正確ですが、重く、ノイズが出ます**。**このセクションでは、素直な方式・ノイズ対策・ReSTIR・Lumen 的な方式・Radiance Cascades・選び方**を、**1 つずつ別のページ**で説明します。
 
@@ -40,11 +40,11 @@ float3 PathTraceGI(float3 pos, float3 normal, uint2 pixel) {
 
 | ページ | 内容 |
 | --- | --- |
-| [ノイズとの戦い](noise.md) | デノイズ・時間蓄積 |
+| [Fighting Noise](noise.md) | デノイズ・時間蓄積 |
 | [ReSTIR GI](restir.md) | サンプルの再利用 |
-| [Lumen 的な方式](lumen-style.md) | ソフトウェア トレース ＋ キャッシュ |
+| [Lumen-Style Approaches](lumen-style.md) | ソフトウェア トレース ＋ キャッシュ |
 | [Radiance Cascades](radiance-cascades.md) | 距離ごとの解像度でまとめる |
-| [手法の選び方](choosing.md) | 動的 GI の選択と長所短所 |
+| [Choosing a Method](choosing.md) | 動的 GI の選択と長所短所 |
 
 ## これだけ覚える
 
@@ -62,4 +62,4 @@ float3 PathTraceGI(float3 pos, float3 normal, uint2 pixel) {
 
 - [GI](../index.md)
 - [DDGI](../ddgi.md)
-- [レイトレ反射](../../reflections/rt-reflections/index.md)
+- [Ray-Traced Reflections](../../reflections/rt-reflections/index.md)

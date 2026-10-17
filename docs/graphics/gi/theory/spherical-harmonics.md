@@ -1,10 +1,10 @@
 ---
-title: 球面調和関数（SH）
+title: Spherical Harmonics (SH)
 tags:
   - 描画
 ---
 
-# 球面調和関数（SH）
+# Spherical Harmonics (SH)
 
 **放射照度は非常になめらかなので、わずか 9 個（L2 の SH）の係数で、ほぼ正確に表せます**。**SH は、球面上の関数を、少数の係数で持つ方法**で、**GI のプローブ・ライトマップ・環境光で広く使われます**。このページでは、**SH の考え方・次数・扱い方**を説明します。
 
@@ -85,6 +85,6 @@ float3 EvaluateSH9(float3 n, float3 sh[9]) {
 
 ## 関連ページ
 
-- [GI の理論](index.md)
-- [放射照度](irradiance.md)
-- [プローブ GI](../probes/index.md)
+- [GI Theory](index.md)
+- [Irradiance](irradiance.md)
+- [Probe GI](../probes/index.md)

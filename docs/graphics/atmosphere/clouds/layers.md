@@ -1,10 +1,10 @@
 ---
-title: 雲の層
+title: Cloud Layers
 tags:
   - 描画
 ---
 
-# 雲の層
+# Cloud Layers
 
 **雲には、高さごとに種類があります**。**低い所の積雲、高い所の巻雲など**、**層ごとに密度の分布を変える**と、**リアル**です。このページでは、**雲の層**を説明します。
 
@@ -30,7 +30,7 @@ tags:
 <ellipse cx="500" cy="95" rx="55" ry="24" fill="#fff" fill-opacity="0.75"/><ellipse cx="540" cy="108" rx="40" ry="20" fill="#fff" fill-opacity="0.7"/>
 </svg>
 
-**視線が雲の層の内側の球殻と外側の球殻のどちらにぶつかるかを求めて、その間だけレイマーチ**します（[大気散乱](../scattering/index.md)の球との交差と同じ）。
+**視線が雲の層の内側の球殻と外側の球殻のどちらにぶつかるかを求めて、その間だけレイマーチ**します（[Atmospheric Scattering](../scattering/index.md)の球との交差と同じ）。
 
 ## よくあるミス
 
@@ -51,5 +51,5 @@ tags:
 
 ## 関連ページ
 
-- [雲](index.md)
-- [密度のモデル](density-model.md)
+- [Clouds](index.md)
+- [Cloud Density Model](density-model.md)

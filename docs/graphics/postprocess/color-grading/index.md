@@ -1,10 +1,10 @@
 ---
-title: カラー グレーディング
+title: Color Grading
 tags:
   - 描画
 ---
 
-# カラー グレーディング
+# Color Grading
 
 **カラー グレーディング**は、<strong>画面全体の色味・明るさ・コントラストを調整して、作品の「ルック」（見た目の雰囲気）</strong>を**決める**工程です。**映画の色調整（カラリスト）と同じ考え方**で**暖かい夕暮れ・冷たい夜・彩度を落とした荒廃した世界**などを**作ります**。**個々の調整は画素ごとに「色 → 色」の関数**なので**まとめて 3D LUT に焼いて、1 回の表引きで適用**するのが**現代の標準**です。このセクションでは、**基本の調整・リフト/ガンマ/ゲイン・ホワイト バランス・3D LUT・LUT の作り方**を、**1 つずつ別のページ**で説明します。
 
@@ -74,24 +74,24 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [基本の調整](basic-adjustments.md) | コントラスト・彩度・露出・色相・彩度の曲線 |
-| [リフト・ガンマ・ゲイン](lift-gamma-gain.md) | 暗部・中間・明部の別々の調整・CDL・色の振り分け |
-| [ホワイト バランス](white-balance.md) | 色温度・色合い・光源の色を打ち消す |
+| [Basic Adjustments](basic-adjustments.md) | コントラスト・彩度・露出・色相・彩度の曲線 |
+| [Lift, Gamma, Gain](lift-gamma-gain.md) | 暗部・中間・明部の別々の調整・CDL・色の振り分け |
+| [White Balance](white-balance.md) | 色温度・色合い・光源の色を打ち消す |
 | [3D LUT](lut-3d.md) | 色の変換を、3D テクスチャに焼く・解像度・対数エンコード |
-| [LUT の作り方](lut-authoring.md) | コンピュートで生成・外部ツール・ゾーンごとの切り替え |
+| [Authoring LUTs](lut-authoring.md) | コンピュートで生成・外部ツール・ゾーンごとの切り替え |
 
 ## 全体の位置
 
 | 順序 | 内容 |
 | --- | --- |
 | **① HDR のカラー** | **ブルーム・DOF などを済ませた画像** |
-| **② 露出・トーンマップ** | **HDR → LDR**（[トーンマッピングと露出](../tonemapping/index.md)） |
+| **② 露出・トーンマップ** | **HDR → LDR**（[Tone Mapping and Exposure](../tonemapping/index.md)） |
 | **③ グレーディング** | **LDR（または、HDR の対数空間）で、色味を調整** |
-| **④ ガンマ → 出力** | **sRGB へ**（[ガンマと HDR 出力](../tonemapping/gamma-srgb.md)） |
+| **④ ガンマ → 出力** | **sRGB へ**（[Gamma and HDR Output](../tonemapping/gamma-srgb.md)） |
 
 ## 関連ページ
 
-- [ポストプロセス](../index.md)
-- [トーンマッピングと露出](../tonemapping/index.md)
-- [レンズ効果](../lens-effects/index.md)
-- [輪郭線・トゥーン](../stylized/index.md)
+- [Post-Processing](../index.md)
+- [Tone Mapping and Exposure](../tonemapping/index.md)
+- [Lens Effects](../lens-effects/index.md)
+- [Outlines and Toon](../stylized/index.md)

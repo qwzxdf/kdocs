@@ -1,10 +1,10 @@
 ---
-title: 方式の比較
+title: Method Comparison
 tags:
   - 描画
 ---
 
-# 方式の比較
+# Method Comparison
 
 **アルファ テスト系の方式は、縁の品質・コスト・必要な条件が違います**。このページでは、**方式の比較と、選び方**を説明します。
 
@@ -41,5 +41,5 @@ tags:
 
 ## 関連ページ
 
-- [アルファ テスト](index.md)
-- [アンチエイリアシング](../../postprocess/antialiasing/index.md)
+- [Alpha Testing](index.md)
+- [Anti-Aliasing](../../postprocess/antialiasing/index.md)

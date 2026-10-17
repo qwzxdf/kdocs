@@ -1,10 +1,10 @@
 ---
-title: 被写界深度（DOF）
+title: Depth of Field (DOF)
 tags:
   - 描画
 ---
 
-# 被写界深度（DOF）
+# Depth of Field (DOF)
 
 <strong>被写界深度（Depth of Field）</strong>は、**カメラの「ピントが合う範囲」の外がぼける**効果です。**ピントが合った物が際立ち、手前や奥がぼける**ので**視線を誘導し、「撮影された」映画的な絵**になります。**3D の描画は、すべてにピントが合ったピンホール カメラ**なので、**ぼかしを後から加える**必要があります。このセクションでは、**錯乱円・ギャザー方式・スキャッター方式・前景と背景の扱い・ボケの形**を、**1 つずつ別のページ**で説明します。
 
@@ -95,10 +95,10 @@ tags:
 | 手順 | 内容 | ページ |
 | --- | --- | --- |
 | **① CoC を求める** | **深度とカメラの設定から、各画素のボケの大きさ** | [錯乱円](coc.md) |
-| <strong>② ぼかす（集める）</strong> | **各画素が周りを集めて平均** | [ギャザー方式](gather.md) |
-| <strong>②' ぼかす（散らす）</strong> | **明るい点を円盤として広げる** | [スキャッター方式](scatter.md) |
-| **③ 前景と背景** | **ピントの手前と奥を別々に処理して、境の破綻を防ぐ** | [前景と背景](near-far.md) |
-| **④ ボケの形** | **円盤・多角形・サンプル配置・光学的な個性** | [ボケの形](bokeh-shape.md) |
+| <strong>② ぼかす（集める）</strong> | **各画素が周りを集めて平均** | [Gather Method](gather.md) |
+| <strong>②' ぼかす（散らす）</strong> | **明るい点を円盤として広げる** | [Scatter Method](scatter.md) |
+| **③ 前景と背景** | **ピントの手前と奥を別々に処理して、境の破綻を防ぐ** | [Foreground and Background](near-far.md) |
+| **④ ボケの形** | **円盤・多角形・サンプル配置・光学的な個性** | [Bokeh Shape](bokeh-shape.md) |
 
 ## 方式の比較
 
@@ -111,7 +111,7 @@ tags:
 
 ## 関連ページ
 
-- [ポストプロセス](../index.md)
-- [露出](../tonemapping/exposure.md)
-- [モーション ブラー](../motion-blur/index.md)
-- [ブルーム](../bloom/index.md)
+- [Post-Processing](../index.md)
+- [Exposure](../tonemapping/exposure.md)
+- [Motion Blur](../motion-blur/index.md)
+- [Bloom](../bloom/index.md)

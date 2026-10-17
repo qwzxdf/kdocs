@@ -1,10 +1,10 @@
 ---
-title: 大気散乱
+title: Atmospheric Scattering
 tags:
   - 描画
 ---
 
-# 大気散乱
+# Atmospheric Scattering
 
 **空が青く、夕焼けが赤いのは、大気中の分子や粒子が、光を散乱させるため**です。**この散乱を計算すると、物理的に正しい空が作れます**。このセクションでは、**空が青い理由・大気のモデル・透過率・単散乱・位相関数・多重散乱・Bruneton の事前計算・Hillaire の 4 つの LUT・地面と宇宙**を、**1 つずつ別のページ**で説明します。
 
@@ -73,14 +73,14 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [大気のモデル](atmosphere-model.md) | 層・密度・散乱係数 |
-| [透過率](transmittance.md) | 光が減衰する割合 |
-| [単散乱の積分](single-scattering.md) | 視線に沿って足し合わせる |
-| [位相関数](phase-function.md) | 散乱の方向分布 |
-| [多重散乱](multiple-scattering.md) | 何度も散乱した光 |
-| [Bruneton の事前計算](bruneton.md) | 4D のテーブル |
+| [Atmosphere Model](atmosphere-model.md) | 層・密度・散乱係数 |
+| [Transmittance](transmittance.md) | 光が減衰する割合 |
+| [Single-Scattering Integral](single-scattering.md) | 視線に沿って足し合わせる |
+| [Phase Functions](phase-function.md) | 散乱の方向分布 |
+| [Multiple Scattering](multiple-scattering.md) | 何度も散乱した光 |
+| [Bruneton Precomputed Scattering](bruneton.md) | 4D のテーブル |
 | [Hillaire 2020](hillaire.md) | 4 つの LUT |
-| [地面と宇宙](ground-space.md) | 視点の位置による違い |
+| [Ground and Space Views](ground-space.md) | 視点の位置による違い |
 
 ## これだけ覚える
 
@@ -97,5 +97,5 @@ tags:
 ## 関連ページ
 
 - [大気](../index.md)
-- [空のモデル](../sky-models/index.md)
+- [Sky Models](../sky-models/index.md)
 - [空気遠近法](../aerial-fog/index.md)

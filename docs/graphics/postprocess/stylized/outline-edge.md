@@ -1,10 +1,10 @@
 ---
-title: 画面空間のエッジ検出
+title: Screen-Space Edge Detection
 tags:
   - 描画
 ---
 
-# 画面空間のエッジ検出
+# Screen-Space Edge Detection
 
 **背面法はモデルの外側の輪郭しか出ません**。**モデルの内側の折り目（鼻・袖・服のしわの境）や、物体どうしの境の線も出したい**場合は、**画面の画像（深度・法線・ID）から、「値が大きく変わる場所」を検出して線にする**、**画面空間のエッジ検出**を使います。**どんな形状でも後処理で線を引ける**ので**柔軟**ですが、**線の太さの制御や細部のちらつき**に**注意**が**必要**です。このページでは、**深度・法線・ID による検出・Sobel フィルタ・線の太さ・ちらつきの抑制・色の付け方**を説明します。
 
@@ -451,7 +451,7 @@ float IdEdge(float2 uv) {
 
 ## 関連ページ
 
-- [輪郭線・トゥーン](index.md)
-- [背面法の輪郭線](outline-hull.md)
-- [セル シェーディング](cel-shading.md)
+- [Outlines and Toon](index.md)
+- [Inverted Hull Outlines](outline-hull.md)
+- [Cel Shading](cel-shading.md)
 - [TAA](../antialiasing/taa.md)

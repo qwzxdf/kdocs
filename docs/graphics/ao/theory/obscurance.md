@@ -1,10 +1,10 @@
 ---
-title: オブスキュランス
+title: Obscurance
 tags:
   - 描画
 ---
 
-# オブスキュランス
+# Obscurance
 
 **AO の式は、遠くの物（部屋の反対側の壁）まで「遮蔽」と数えます**。**しかし実際には、遠い物は、近い物ほどは光を遮らない**ので、**距離で遮蔽を弱める**のが**オブスキュランス（Obscurance）**です。**多くの実装は、実はオブスキュランスに近い**ものです。このページでは、**距離の減衰を足す考え方**を説明します。
 
@@ -48,6 +48,6 @@ tags:
 
 ## 関連ページ
 
-- [AO の理論](index.md)
-- [レンダリング方程式から AO へ](from-rendering-equation.md)
-- [積分の近似](approximation.md)
+- [AO Theory](index.md)
+- [From the Rendering Equation to AO](from-rendering-equation.md)
+- [Approximating the Integral](approximation.md)

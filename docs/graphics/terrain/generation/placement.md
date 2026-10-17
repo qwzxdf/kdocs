@@ -1,10 +1,10 @@
 ---
-title: 配置の生成
+title: Placement Generation
 tags:
   - 描画
 ---
 
-# 配置の生成
+# Placement Generation
 
 **木・岩・草の配置も、ルールから自動で生成**できます。**高さ・傾き・湿度などの条件から、密度を決めて、散布**します。このページでは、**配置の生成**を説明します。
 
@@ -43,5 +43,5 @@ tags:
 
 ## 関連ページ
 
-- [地形の生成](index.md)
-- [植生](../vegetation/index.md)
+- [Terrain Generation](index.md)
+- [Vegetation](../vegetation/index.md)

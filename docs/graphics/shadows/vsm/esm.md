@@ -76,6 +76,6 @@ tags:
 
 ## 関連ページ
 
-- [VSM と ESM・MSM](index.md)
+- [VSM, ESM and MSM](index.md)
 - [EVSM](evsm.md)
-- [光漏れ](light-bleeding.md)
+- [Light Bleeding](light-bleeding.md)

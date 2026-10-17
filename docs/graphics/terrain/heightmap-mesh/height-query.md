@@ -1,10 +1,10 @@
 ---
-title: 任意の位置の高さ
+title: Height at Arbitrary Positions
 tags:
   - 描画
 ---
 
-# 任意の位置の高さ
+# Height at Arbitrary Positions
 
 **キャラクターを地面に立たせるには、任意の位置の地面の高さが必要**です。**格子の 4 点から補間**して**求めます**。このページでは、**高さの取得方法**を説明します。
 
@@ -64,5 +64,5 @@ float SampleHeight(const HeightMap& map, float world_x, float world_z) {
 
 ## 関連ページ
 
-- [高さマップとメッシュ](index.md)
-- [チャンク分割](chunks.md)
+- [Heightmaps and Meshes](index.md)
+- [Chunking](chunks.md)

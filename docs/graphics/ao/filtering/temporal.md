@@ -1,16 +1,16 @@
 ---
-title: 時間蓄積
+title: Temporal Accumulation
 tags:
   - 描画
 ---
 
-# 時間蓄積
+# Temporal Accumulation
 
 **1 フレームのサンプル数が少なくても、毎フレーム違うサンプルで計算して、過去のフレームの結果と混ぜれば、時間をかけて、サンプルが蓄積されます**。これが**時間蓄積**です。**カメラや物が動くと、過去の結果は位置がずれるので、速度（動きのベクトル）で再投影**し、**合わなければ捨てます**。このページでは、**再投影・履歴の拒否・ブレンド率・ゴースト対策**を説明します。
 
 !!! tip "ポイント"
     - **毎フレーム違うサンプル ＋ 前フレームの結果と混ぜる**＝**サンプルが蓄積**。
-    - **速度バッファで、前フレームの位置を求める**（[速度バッファ](../../postprocess/motion-blur/velocity-buffer.md)）。
+    - **速度バッファで、前フレームの位置を求める**（[Velocity Buffer](../../postprocess/motion-blur/velocity-buffer.md)）。
     - **深度・法線が合わない履歴は拒否**（**ゴースト対策**）。
     - **ブレンド率は 0.05〜0.1**（**履歴 90〜95 %**）。
 
@@ -78,6 +78,6 @@ float TemporalAO(float2 uv, float current_ao) {
 
 ## 関連ページ
 
-- [AO のフィルタ](index.md)
-- [ノイズ パターン](noise-pattern.md)
+- [AO Filtering](index.md)
+- [Noise Patterns](noise-pattern.md)
 - [TAA](../../postprocess/antialiasing/taa.md)

@@ -1,10 +1,10 @@
 nav:
   - index.md
-  - トーンマッピングと露出: tonemapping
-  - ブルーム: bloom
-  - 被写界深度（DOF）: dof
-  - モーション ブラー: motion-blur
-  - アンチエイリアシング: antialiasing
-  - カラー グレーディング: color-grading
-  - レンズ効果: lens-effects
-  - 輪郭線・トゥーン: stylized
+  - Tone Mapping and Exposure: tonemapping
+  - Bloom: bloom
+  - Depth of Field (DOF): dof
+  - Motion Blur: motion-blur
+  - Anti-Aliasing: antialiasing
+  - Color Grading: color-grading
+  - Lens Effects: lens-effects
+  - Outlines and Toon: stylized

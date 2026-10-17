@@ -118,6 +118,6 @@ tags:
 
 ## 関連ページ
 
-- [レイトレ GI](index.md)
-- [ノイズとの戦い](noise.md)
-- [手法の選び方](choosing.md)
+- [Ray-Traced GI](index.md)
+- [Fighting Noise](noise.md)
+- [Choosing a Method](choosing.md)

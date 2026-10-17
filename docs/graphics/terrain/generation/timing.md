@@ -1,10 +1,10 @@
 ---
-title: 生成のタイミング
+title: When to Generate
 tags:
   - 描画
 ---
 
-# 生成のタイミング
+# When to Generate
 
 **地形の生成は、事前に行うか、実行時に行うか、選べます**。**事前なら重い処理ができ、実行時なら無限に広い地形が作れます**。このページでは、**生成のタイミングの選び方**を説明します。
 
@@ -41,5 +41,5 @@ tags:
 
 ## 関連ページ
 
-- [地形の生成](index.md)
-- [チャンク分割](../heightmap-mesh/chunks.md)
+- [Terrain Generation](index.md)
+- [Chunking](../heightmap-mesh/chunks.md)

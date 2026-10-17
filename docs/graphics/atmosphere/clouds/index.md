@@ -1,10 +1,10 @@
 ---
-title: 雲
+title: Clouds
 tags:
   - 描画
 ---
 
-# 雲
+# Clouds
 
 **雲は、空の表情を決める大事な要素**で、**本格的には、3D のノイズで密度を持ち、レイマーチで描きます**。**重いので、時間蓄積などの高速化が必須**です。このセクションでは、**描き方の段階・雲の層・密度のモデル・レイマーチ・光の計算・影・高速化・簡易な代替**を、**1 つずつ別のページ**で説明します。
 
@@ -25,13 +25,13 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [雲の層](layers.md) | 高度ごとの雲の種類 |
-| [密度のモデル](density-model.md) | ノイズで形を作る |
+| [Cloud Layers](layers.md) | 高度ごとの雲の種類 |
+| [Cloud Density Model](density-model.md) | ノイズで形を作る |
 | [レイマーチ](raymarch.md) | 視線に沿って進む |
 | [光の計算](lighting.md) | 散乱・自己影 |
-| [雲の影](shadows.md) | 地上に落ちる影 |
-| [高速化：時間蓄積](temporal.md) | 少ないサンプルを重ねる |
-| [簡易な代替](cheap.md) | スカイボックス・ビルボード |
+| [Cloud Shadows](shadows.md) | 地上に落ちる影 |
+| [Cloud Temporal Reprojection](temporal.md) | 少ないサンプルを重ねる |
+| [Cheap Alternatives](cheap.md) | スカイボックス・ビルボード |
 
 ## これだけ覚える
 
@@ -48,5 +48,5 @@ tags:
 ## 関連ページ
 
 - [大気](../index.md)
-- [空のモデル](../sky-models/index.md)
-- [大気散乱](../scattering/index.md)
+- [Sky Models](../sky-models/index.md)
+- [Atmospheric Scattering](../scattering/index.md)

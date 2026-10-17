@@ -1,10 +1,10 @@
 ---
-title: 踏まれる草
+title: Trampled Grass
 tags:
   - 描画
 ---
 
-# 踏まれる草
+# Trampled Grass
 
 **キャラクターが通ると、草が倒れる**と、**インタラクティブ**になります。**キャラクターの位置を、テクスチャに書き込み、草が読む**ことで**実現**します。このページでは、**踏まれる草**を説明します。
 
@@ -44,5 +44,5 @@ world_position.y -= influence * push_strength * height_t;
 
 ## 関連ページ
 
-- [植生](index.md)
-- [風](wind.md)
+- [Vegetation](index.md)
+- [Wind](wind.md)

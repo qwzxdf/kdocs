@@ -1,10 +1,10 @@
 ---
-title: 実装の全体像とコスト
+title: Implementation Overview and Cost
 tags:
   - 描画
 ---
 
-# 実装の全体像とコスト
+# Implementation Overview and Cost
 
 **屈折を実装する手順を、全体として見ます**。**不透明の描画 → 画面のコピー → 屈折物体の描画**の順で、**フレネル・厚み・色を組み合わせます**。このページでは、**実装の流れと、コスト・限界**を説明します。
 
@@ -64,6 +64,6 @@ float4 PSGlass(VsOutput input) : SV_Target {
 
 ## 関連ページ
 
-- [屈折](index.md)
-- [画面空間の屈折](screen-space.md)
+- [Refraction](index.md)
+- [Screen-Space Refraction](screen-space.md)
 - [OIT](../oit/index.md)

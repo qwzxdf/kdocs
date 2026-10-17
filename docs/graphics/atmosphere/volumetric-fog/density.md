@@ -1,10 +1,10 @@
 ---
-title: ① 密度
+title: Step 1: Density
 tags:
   - 描画
 ---
 
-# ① 密度
+# Step 1: Density
 
 **最初の段階で、各 froxel の霧の濃さ（密度）を決めます**。**一様な霧・高さフォグ・ノイズの雲のような濃淡**を**組み合わせます**。このページでは、**密度の決め方**を説明します。
 
@@ -52,6 +52,6 @@ density = max(density, 0.0);
 
 ## 関連ページ
 
-- [ボリューメトリック フォグ](index.md)
-- [froxel](froxel.md)
+- [Volumetric Fog](index.md)
+- [Froxels](froxel.md)
 - [光の注入](injection.md)

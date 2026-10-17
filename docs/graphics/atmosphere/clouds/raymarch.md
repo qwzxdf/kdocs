@@ -1,10 +1,10 @@
 ---
-title: 雲のレイマーチ
+title: Cloud Raymarching
 tags:
   - 描画
 ---
 
-# 雲のレイマーチ
+# Cloud Raymarching
 
 **視線に沿って少しずつ進み、各点で密度と光を計算して、足し合わせる**のが**レイマーチ**です。**ステップ数が品質とコストを決める**ので、**工夫が必要**です。このページでは、**レイマーチ**を説明します。
 
@@ -195,6 +195,6 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
 
 ## 関連ページ
 
-- [雲](index.md)
+- [Clouds](index.md)
 - [光の計算](lighting.md)
 - [高速化](temporal.md)

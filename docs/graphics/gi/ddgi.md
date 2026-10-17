@@ -222,8 +222,8 @@ float Visibility(float2 moments, float dist) {
 
 ## 関連ページ
 
-- [間接光（GI）](index.md)
+- [Global Illumination (GI)](index.md)
 - [ライト プローブ](probes/index.md)
-- [レイトレ GI](rt-gi/index.md)
+- [Ray-Traced GI](rt-gi/index.md)
 - [VSM（チェビシェフ）](../shadows/vsm/index.md)
 - [RT 反射](../reflections/rt-reflections/index.md)

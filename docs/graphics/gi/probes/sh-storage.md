@@ -1,10 +1,10 @@
 ---
-title: SH の持ち方
+title: Storing SH
 tags:
   - 描画
 ---
 
-# SH の持ち方
+# Storing SH
 
 **プローブには、SH の係数を保存します**。**次数（L1 か L2）と、保存の形式（浮動小数点・圧縮）で、メモリと品質が変わります**。このページでは、**SH の持ち方の選択肢**を説明します。
 
@@ -43,6 +43,6 @@ tags:
 
 ## 関連ページ
 
-- [プローブ GI](index.md)
-- [球面調和関数（SH）](../theory/spherical-harmonics.md)
-- [補間の方式](interpolation.md)
+- [Probe GI](index.md)
+- [Spherical Harmonics (SH)](../theory/spherical-harmonics.md)
+- [Interpolation Methods](interpolation.md)

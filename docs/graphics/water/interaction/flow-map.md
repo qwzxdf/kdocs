@@ -1,10 +1,10 @@
 ---
-title: フローマップ
+title: Flow Maps
 tags:
   - 描画
 ---
 
-# フローマップ
+# Flow Maps
 
 **川や渦の水は、一方向に流れます**。**フローマップ（流れの向きを入れたテクスチャ）で、法線マップを流す**と、**流れを表現**できます。このページでは、**フローマップの使い方**を説明します。
 
@@ -124,5 +124,5 @@ float3 flow_normal = normalize(lerp(n0, n1, blend));
 
 ## 関連ページ
 
-- [水との相互作用](index.md)
-- [水面の波](../waves/index.md)
+- [Water Interaction](index.md)
+- [Water Waves](../waves/index.md)

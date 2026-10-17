@@ -1,10 +1,10 @@
 ---
-title: 多重散乱
+title: Multiple Scattering
 tags:
   - 描画
 ---
 
-# 多重散乱
+# Multiple Scattering
 
 **光は、何度も散乱しながら進みます**。**単散乱だけだと、空の暗い部分（影・夕方）が暗すぎます**。**多重散乱を近似して足す**と、**明るさが自然**になります。このページでは、**多重散乱**を説明します。
 
@@ -42,5 +42,5 @@ tags:
 
 ## 関連ページ
 
-- [大気散乱](index.md)
+- [Atmospheric Scattering](index.md)
 - [Hillaire 2020](hillaire.md)

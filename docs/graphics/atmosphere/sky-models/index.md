@@ -1,10 +1,10 @@
 ---
-title: 空のモデル
+title: Sky Models
 tags:
   - 描画
 ---
 
-# 空のモデル
+# Sky Models
 
 **空は、背景として、画面の大きな面積を占め、シーンの雰囲気を決めます**。**単純なグラデーションから、物理に基づく計算まで、方法がいくつかあります**。このセクションでは、**空の描き方・グラデーション・解析的なモデル・太陽と月と星・空をライティングに使う・昼夜のサイクル**を、**1 つずつ別のページ**で説明します。
 
@@ -56,11 +56,11 @@ float3 ViewDirection(float2 uv) {
 
 | ページ | 内容 |
 | --- | --- |
-| [グラデーションの空](gradient.md) | 最も簡単な空 |
-| [解析的な空のモデル](analytic.md) | Preetham・Hosek-Wilkie |
-| [太陽・月・星](celestial.md) | 天体の描き方 |
-| [空をライティングに使う](sky-lighting.md) | 環境光・IBL |
-| [昼夜のサイクル](day-night.md) | 時間による変化 |
+| [Gradient Sky](gradient.md) | 最も簡単な空 |
+| [Analytic Sky Models](analytic.md) | Preetham・Hosek-Wilkie |
+| [Sun, Moon and Stars](celestial.md) | 天体の描き方 |
+| [Using the Sky for Lighting](sky-lighting.md) | 環境光・IBL |
+| [Day-Night Cycle](day-night.md) | 時間による変化 |
 
 ## これだけ覚える
 
@@ -77,5 +77,5 @@ float3 ViewDirection(float2 uv) {
 ## 関連ページ
 
 - [大気](../index.md)
-- [大気散乱](../scattering/index.md)
-- [雲](../clouds/index.md)
+- [Atmospheric Scattering](../scattering/index.md)
+- [Clouds](../clouds/index.md)

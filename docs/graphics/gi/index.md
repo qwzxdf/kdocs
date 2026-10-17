@@ -1,10 +1,10 @@
 ---
-title: 間接光（GI）
+title: Global Illumination (GI)
 tags:
   - 描画
 ---
 
-# 間接光（GI）
+# Global Illumination (GI)
 
 光源から出た光は、**面に当たって反射し、別の面を照らします**。この<strong>跳ね返った光（間接光）</strong>まで含めて計算することを、**グローバル イルミネーション**（**GI**、大域照明）と呼びます。**赤い壁の隣の白い床がほんのり赤くなる**（カラー ブリーディング）、**日陰でも真っ暗にならない**といった現実感は、**間接光**が作ります。しかし、<strong>直接光（光源 → 面 → 目）</strong>と違い、**間接光はシーン全体が互いに影響し合う**ため、**リアルタイムで正確に解くのは非常に難しい**問題です。このセクションでは、<strong>「何を解いているのか」</strong>から、**ライトマップ・プローブ・SSGI・ボクセル・DDGI・レイトレ**まで**方式ごとの発想とトレードオフ**を説明します。
 
@@ -20,14 +20,14 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [GI の理論](theory/index.md) | レンダリング方程式・拡散/鏡面の間接光・放射照度・SH・モンテカルロ |
-| [ライトマップ](lightmaps/index.md) | 事前計算して、テクスチャに焼く。UV・ベイク・方向情報 |
+| [GI Theory](theory/index.md) | レンダリング方程式・拡散/鏡面の間接光・放射照度・SH・モンテカルロ |
+| [Lightmaps](lightmaps/index.md) | 事前計算して、テクスチャに焼く。UV・ベイク・方向情報 |
 | [ライト プローブ](probes/index.md) | 空間の点に放射照度を保存。SH・補間・動的物体への適用 |
 | [SSGI](ssgi.md) | 画面空間で近くの面からの跳ね返りを拾う |
-| [ボクセル GI](voxel-gi.md) | シーンをボクセル化し、コーン トレースで間接光を得る |
+| [Voxel GI](voxel-gi.md) | シーンをボクセル化し、コーン トレースで間接光を得る |
 | [DDGI](ddgi.md) | レイトレで更新する動的プローブ。可視性の扱い |
 | [レイトレ GI・Radiance Cascades](rt-gi/index.md) | パス トレース的な GI・ReSTIR・Lumen 系の考え方 |
-| [GI 手法の比較](comparison.md) | 方式の選び方・組み合わせ |
+| [GI Comparison](comparison.md) | 方式の選び方・組み合わせ |
 
 ## 読む順序
 
@@ -36,6 +36,6 @@ tags:
 ## 関連ページ
 
 - [描画](../index.md)
-- [環境光遮蔽（AO）](../ao/index.md)
-- [反射](../reflections/index.md)
-- [影](../shadows/index.md)
+- [Ambient Occlusion (AO)](../ao/index.md)
+- [Reflections](../reflections/index.md)
+- [Shadows](../shadows/index.md)

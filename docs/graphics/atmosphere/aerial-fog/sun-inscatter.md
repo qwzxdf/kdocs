@@ -1,10 +1,10 @@
 ---
-title: 太陽方向のにじみ
+title: Sun Inscatter
 tags:
   - 描画
 ---
 
-# 太陽方向のにじみ
+# Sun Inscatter
 
 **太陽の方向を見ると、フォグが明るく黄色っぽく霞みます**。**視線と太陽の方向が近いほど、フォグの色を太陽の色に寄せる**と、**自然**です。このページでは、**太陽方向のにじみ**を説明します。
 
@@ -25,7 +25,7 @@ float3 fog_color_dir = lerp(fog_color, sun_fog_color, pow(sun_amount, 8.0));
 | 点 | 説明 |
 | --- | --- |
 | **`pow(.., 8)`** | **太陽のすぐ周りだけ** |
-| **ミー散乱の位相関数** | **より正確には、Henyey-Greenstein**（[大気散乱](../scattering/index.md)） |
+| **ミー散乱の位相関数** | **より正確には、Henyey-Greenstein**（[Atmospheric Scattering](../scattering/index.md)） |
 | **夕方** | **太陽側が赤橙、反対側が青紫**になる |
 
 ## よくあるミス
@@ -47,5 +47,5 @@ float3 fog_color_dir = lerp(fog_color, sun_fog_color, pow(sun_amount, 8.0));
 
 ## 関連ページ
 
-- [空気遠近法・フォグ](index.md)
-- [位相関数](../scattering/phase-function.md)
+- [Aerial Perspective and Fog](index.md)
+- [Phase Functions](../scattering/phase-function.md)

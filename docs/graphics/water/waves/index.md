@@ -1,10 +1,10 @@
 ---
-title: 水面の波
+title: Water Waves
 tags:
   - 描画
 ---
 
-# 水面の波
+# Water Waves
 
 **水面の波は、頂点を動かして形を作り、法線を計算して、光の当たり方を決めます**。**波の作り方には、サイン波の重ね合わせ・Gerstner 波・FFT などがあり、品質とコストが違います**。このセクションでは、**メッシュ・サイン波・Gerstner 波・法線・波の動かし方・FFT・浮力**を、**1 つずつ別のページ**で説明します。
 
@@ -29,11 +29,11 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [サイン波の重ね合わせ](sine-waves.md) | 最も簡単な波 |
-| [Gerstner 波](gerstner.md) | 尖った波頭を作る |
-| [法線の計算](normals.md) | 解析的な法線・法線マップの重ね |
-| [波の動かし方の工夫](animation-tricks.md) | 繰り返しを隠す・遠くを省く |
-| [FFT 海面](fft-ocean.md) | 周波数から波を合成する |
+| [Summing Sine Waves](sine-waves.md) | 最も簡単な波 |
+| [Gerstner Waves](gerstner.md) | 尖った波頭を作る |
+| [Computing Normals](normals.md) | 解析的な法線・法線マップの重ね |
+| [Wave Animation Tricks](animation-tricks.md) | 繰り返しを隠す・遠くを省く |
+| [FFT Ocean](fft-ocean.md) | 周波数から波を合成する |
 | [物を浮かせる](floating.md) | 波の高さを CPU 側でも求める |
 
 ## これだけ覚える
@@ -50,6 +50,6 @@ tags:
 
 ## 関連ページ
 
-- [水](../index.md)
-- [水の質感](../shading/index.md)
+- [Water](../index.md)
+- [Water Shading](../shading/index.md)
 - [海岸の泡](../shore-foam/index.md)

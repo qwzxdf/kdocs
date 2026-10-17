@@ -1,10 +1,10 @@
 ---
-title: 簡易な代替
+title: Cheap Alternatives
 tags:
   - 描画
 ---
 
-# 簡易な代替
+# Cheap Alternatives
 
 **レイマーチが重い環境では、簡易な代替があります**。**スカイボックスのテクスチャ・ビルボード・平面に貼る雲**などで、**雰囲気を出します**。このページでは、**簡易な雲の表現**を説明します。
 
@@ -44,5 +44,5 @@ tags:
 
 ## 関連ページ
 
-- [雲](index.md)
-- [グラデーションの空](../sky-models/gradient.md)
+- [Clouds](index.md)
+- [Gradient Sky](../sky-models/gradient.md)

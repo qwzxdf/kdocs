@@ -208,8 +208,8 @@ PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上�
 | **PCF** | なし（一定のぼけ） | 小〜中 | 簡単 |
 | **PCSS** | **あり** | **大** | 光源サイズの調整が直感的 |
 | **VSM 系**（[VSM](vsm/index.md)） | 近似的（フィルタの大きさを変える） | 中 | フィルタが安い。光漏れ |
-| **レイトレ影**（[レイトレース影](ray-traced.md)） | <strong>あり（正確）</strong> | 大（HW が必要） | 面光源を直接サンプル |
-| **距離場の影**（[距離場の影](sdf-shadows.md)） | あり（円錐） | 中 | 静的向き |
+| **レイトレ影**（[Ray-Traced Shadows](ray-traced.md)） | <strong>あり（正確）</strong> | 大（HW が必要） | 面光源を直接サンプル |
+| **距離場の影**（[Distance Field Shadows](sdf-shadows.md)） | あり（円錐） | 中 | 静的向き |
 
 ## 調整のしかた
 
@@ -255,8 +255,8 @@ PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上�
 
 ## 関連ページ
 
-- [影](index.md)
+- [Shadows](index.md)
 - [PCF](pcf.md)
-- [VSM と ESM・MSM](vsm/index.md)
-- [レイトレース影](ray-traced.md)
-- [バイアス](bias/index.md)
+- [VSM, ESM and MSM](vsm/index.md)
+- [Ray-Traced Shadows](ray-traced.md)
+- [Shadow Bias](bias/index.md)

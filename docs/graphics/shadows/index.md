@@ -1,10 +1,10 @@
 ---
-title: 影
+title: Shadows
 tags:
   - 描画
 ---
 
-# 影
+# Shadows
 
 影は<strong>「光源から見えない場所」</strong>です。物体の位置関係を伝え、画面に**奥行きと現実感**を与えます。ライトの計算（明るさ）は、**面の向きと光の向き**から**局所的**に決まりますが、**影は他の物体に遮られるか**という**大域的な情報**が要ります。「その点から光源へ遮るものがあるか」を、**どう安く調べるか**が影の手法の中心です。このセクションでは、**シャドウ マップを中心に**、**バイアス・フィルタ・カスケード・ソフト シャドウ・レイトレ**まで方式ごとに**原理から**説明します。
 
@@ -20,19 +20,19 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [シャドウ マップの基礎](shadow-map-basics/index.md) | 光から見た深度を撮り、比べる。行列・サンプラー・手順 |
-| [バイアス](bias/index.md) | シャドウ アクネ・ピーター パンニング。定数・スロープ・法線オフセット・受け手平面 |
+| [Shadow Map Basics](shadow-map-basics/index.md) | 光から見た深度を撮り、比べる。行列・サンプラー・手順 |
+| [Shadow Bias](bias/index.md) | シャドウ アクネ・ピーター パンニング。定数・スロープ・法線オフセット・受け手平面 |
 | [PCF](pcf.md) | 周りの複数点を比べて平均する、縁のぼかし |
 | [PCSS](pcss.md) | 遮蔽物との距離で縁のぼけを変える（接触は鋭く、離れるとソフト） |
-| [VSM と ESM・MSM](vsm/index.md) | 深度のモーメントを保存して、フィルタできる影 |
-| [カスケード シャドウ マップ](cascaded.md) | 距離ごとに分割して、近くを細かく。屋外の標準 |
-| [点光源・スポットライトの影](local-lights/index.md) | キューブマップ・アトラス・解像度の割り当て |
-| [コンタクト シャドウ](contact-shadows.md) | 画面空間で細かい接触の影を補う |
-| [距離場の影](sdf-shadows.md) | 符号付き距離場の円錐トレースで、ソフトな影 |
-| [レイトレース影](ray-traced.md) | レイで正確な影・面光源のソフトな影 |
-| [仮想シャドウ マップ](virtual-shadow-maps.md) | 巨大な仮想テクスチャ。画面の 1 ピクセルに 1 テクセル |
-| [シャドウ ボリューム](shadow-volumes.md) | ステンシルで影の領域を直接数える古典的な方式 |
-| [特殊なケース](special-cases/index.md) | アルファ テスト・半透明・植物・キャラクター・フェード |
+| [VSM, ESM and MSM](vsm/index.md) | 深度のモーメントを保存して、フィルタできる影 |
+| [Cascaded Shadow Maps (CSM)](cascaded.md) | 距離ごとに分割して、近くを細かく。屋外の標準 |
+| [Point and Spot Light Shadows](local-lights/index.md) | キューブマップ・アトラス・解像度の割り当て |
+| [Contact Shadows](contact-shadows.md) | 画面空間で細かい接触の影を補う |
+| [Distance Field Shadows](sdf-shadows.md) | 符号付き距離場の円錐トレースで、ソフトな影 |
+| [Ray-Traced Shadows](ray-traced.md) | レイで正確な影・面光源のソフトな影 |
+| [Virtual Shadow Maps](virtual-shadow-maps.md) | 巨大な仮想テクスチャ。画面の 1 ピクセルに 1 テクセル |
+| [Shadow Volumes](shadow-volumes.md) | ステンシルで影の領域を直接数える古典的な方式 |
+| [Special Cases](special-cases/index.md) | アルファ テスト・半透明・植物・キャラクター・フェード |
 | [方式の比較](comparison.md) | 原理・品質・コストの一覧と選び方 |
 
 ## 影の種類
@@ -117,7 +117,7 @@ float3 color = direct + ambient;
 ## 関連ページ
 
 - [描画](../index.md)
-- [シャドウ マップの基礎](shadow-map-basics/index.md)
+- [Shadow Map Basics](shadow-map-basics/index.md)
 - [影のコスト（最適化）](../../rendering/shadows.md)
 - [法線とライティング](../../3d/lighting-normals.md)
-- [環境光遮蔽（AO）](../ao/index.md)
+- [Ambient Occlusion (AO)](../ao/index.md)

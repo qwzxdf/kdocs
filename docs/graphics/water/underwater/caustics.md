@@ -1,10 +1,10 @@
 ---
-title: コースティクス
+title: Caustics
 tags:
   - 描画
 ---
 
-# コースティクス
+# Caustics
 
 **水面の波で光が集まり、水底にゆらゆら揺れる光の模様ができます**。**アニメーションするテクスチャを、光の方向から投影**する**のが手軽**です。このページでは、**コースティクスの作り方**を説明します。
 
@@ -146,5 +146,5 @@ float3 caustics_rgb = float3(r, g, b);
 
 ## 関連ページ
 
-- [水中の表現](index.md)
+- [Underwater Rendering](index.md)
 - [光の筋](god-rays.md)

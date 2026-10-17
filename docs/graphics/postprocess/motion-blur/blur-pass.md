@@ -1,10 +1,10 @@
 ---
-title: ぼかしの実装
+title: Blur Pass Implementation
 tags:
   - 描画
 ---
 
-# ぼかしの実装
+# Blur Pass Implementation
 
 **速度バッファができたら、画素ごとに速度の向きへ、画像を複数サンプルして平均**します。**単純な線形ブラーは、速い物体の輪郭がぷつっと切れ、静止した前景に背景の動きがにじむ**などの破綻を起こすので、**深度と速度で重みを付ける**のが**標準**です。このページでは、**基本のぼかし・ジッターでバンディングを消す方法・前景と背景の重み付け（McGuire 方式）・サンプル数・コスト**を説明します。
 
@@ -210,7 +210,7 @@ float3 MotionBlurWeighted(float2 uv, int sample_count, float noise) {
 }
 ```
 
-**サンプルの方向と長さ**には、<strong>自分の速度ではなく、近傍の最大速度（`neighbor_velocity`）</strong>を**使う**ことで**輪郭の外側にも尾が伸びます**（[タイル最大速度](tile-max.md)）。
+**サンプルの方向と長さ**には、<strong>自分の速度ではなく、近傍の最大速度（`neighbor_velocity`）</strong>を**使う**ことで**輪郭の外側にも尾が伸びます**（[Tile Max Velocity](tile-max.md)）。
 
 ## サンプル数と最大長
 
@@ -263,7 +263,7 @@ float3 MotionBlurWeighted(float2 uv, int sample_count, float noise) {
 
 ## 関連ページ
 
-- [モーション ブラー](index.md)
-- [速度バッファ](velocity-buffer.md)
-- [タイル最大速度](tile-max.md)
-- [強さと TAA](strength-taa.md)
+- [Motion Blur](index.md)
+- [Velocity Buffer](velocity-buffer.md)
+- [Tile Max Velocity](tile-max.md)
+- [Strength and TAA](strength-taa.md)

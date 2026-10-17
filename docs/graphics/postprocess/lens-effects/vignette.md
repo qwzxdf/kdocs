@@ -1,10 +1,10 @@
 ---
-title: ビネット
+title: Vignette
 tags:
   - 描画
 ---
 
-# ビネット
+# Vignette
 
 <strong>ビネット（周辺減光）</strong>は、**画面の周辺が中心より暗くなる**効果です。**実際のレンズでは、設計や絞り・フィルターの影響で周辺に届く光が減る**ために**起きます**。**視線を画面の中心に集める効果があり**、**映画風・夜・緊張した場面**で**よく使われます**。**実装はとても簡単**ですが、**かけすぎると周辺が見えずプレイしにくい**ので、**注意**が**必要**です。このページでは、**物理的な原因（cos⁴ の法則）・基本の式・形（円・楕円）・色付きのビネット・ゲームでの使い方**を説明します。
 
@@ -221,7 +221,7 @@ float3 ColoredVignette(float3 color, float2 uv, float3 vignette_color) {
 
 ## 関連ページ
 
-- [レンズ効果](index.md)
-- [色収差](chromatic-aberration.md)
-- [フィルム グレイン](film-grain.md)
-- [カラー グレーディング](../color-grading/index.md)
+- [Lens Effects](index.md)
+- [Chromatic Aberration](chromatic-aberration.md)
+- [Film Grain](film-grain.md)
+- [Color Grading](../color-grading/index.md)

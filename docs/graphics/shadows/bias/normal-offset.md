@@ -1,10 +1,10 @@
 ---
-title: 法線オフセット
+title: Normal Offset
 tags:
   - 描画
 ---
 
-# 法線オフセット
+# Normal Offset
 
 **深度にバイアスを足す**代わりに、**影を調べる点（受け手の位置）を、法線方向に少しずらす**方法が**法線オフセット**です。**面の傾きに自然に追従し、ピーター パンニングが出にくい**ので、**現在の標準的な手法**です。このページでは、**考え方・ずらす量の決め方・実装・注意（細い物・影の縁）**を説明します。
 
@@ -114,6 +114,6 @@ float4 light_clip = mul(float4(shadow_pos, 1.0), light_view_projection);
 
 ## 関連ページ
 
-- [バイアス](index.md)
-- [スロープ スケール バイアス](slope-scale-bias.md)
-- [受け手平面バイアス](receiver-plane-bias.md)
+- [Shadow Bias](index.md)
+- [Slope-Scale Bias](slope-scale-bias.md)
+- [Receiver Plane Bias](receiver-plane-bias.md)

@@ -1,10 +1,10 @@
 ---
-title: CDLOD（四分木）
+title: CDLOD (Quadtree)
 tags:
   - 描画
 ---
 
-# CDLOD（四分木）
+# CDLOD (Quadtree)
 
 **CDLOD は、地形を四分木に分け、カメラからの距離で、細かさを選ぶ手法**です。**距離に応じた連続的な LOD**で、**ポップが目立たない**のが**特徴**です。このページでは、**CDLOD の仕組み**を説明します。
 
@@ -200,6 +200,6 @@ void SelectNodes(const QuadNode& node, const Camera& camera, int level,
 
 ## 関連ページ
 
-- [地形の LOD](index.md)
-- [モーフィング](morphing.md)
+- [Terrain LOD](index.md)
+- [Geomorphing](morphing.md)
 - [継ぎ目](cracks.md)

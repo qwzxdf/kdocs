@@ -1,10 +1,10 @@
 ---
-title: 水の反射
+title: Water Reflection
 tags:
   - 描画
 ---
 
-# 水の反射
+# Water Reflection
 
 **水面には、空や周囲の景色が映ります**。**空は、環境マップで安く**、**周囲の物は、SSR や平面反射**で映します。このページでは、**水の反射の手法と、使い分け**を説明します。
 
@@ -49,6 +49,6 @@ float3 reflection = environment.SampleLevel(linear_clamp, reflect_dir, 0).rgb;
 
 ## 関連ページ
 
-- [水の質感](index.md)
-- [反射](../../reflections/index.md)
-- [平面反射](../../reflections/planar.md)
+- [Water Shading](index.md)
+- [Reflections](../../reflections/index.md)
+- [Planar Reflections](../../reflections/planar.md)

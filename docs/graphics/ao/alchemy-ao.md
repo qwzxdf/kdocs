@@ -159,8 +159,8 @@ Alchemy AO は、<strong>サンプルが少ない（9 個前後）</strong>の�
 
 ## 関連ページ
 
-- [環境光遮蔽（AO）](index.md)
-- [半球 SSAO](ssao-hemisphere.md)
+- [Ambient Occlusion (AO)](index.md)
+- [Hemisphere SSAO](ssao-hemisphere.md)
 - [SAO（Scalable AO）](sao.md)
 - [フィルタ](filtering/index.md)
-- [AO の理論](theory/index.md)
+- [AO Theory](theory/index.md)

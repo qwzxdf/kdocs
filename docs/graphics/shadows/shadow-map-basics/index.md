@@ -1,10 +1,10 @@
 ---
-title: シャドウ マップの基礎
+title: Shadow Map Basics
 tags:
   - 描画
 ---
 
-# シャドウ マップの基礎
+# Shadow Map Basics
 
 **シャドウ マップ**は、**「光から見える一番手前の物までの距離」を画像に記録し、画面の点がそれより遠ければ影**と判定する方式です。**原理が簡単で、GPU に向いている**ので、**現代のリアルタイムの影の土台**です。このセクションでは、**原理と手順・光の行列・深度を描くパス・比較と比較サンプラー・エイリアシングと安定化・最小のコード**を、**1 つずつ別のページ**で説明します。
 
@@ -46,11 +46,11 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [光の行列](light-matrix.md) | 平行光・スポット・点光源の、ビューと射影 |
-| [深度を描く](render-depth.md) | 光から見た深度だけのパス・設定 |
-| [比較とサンプラー](comparison-sampler.md) | 深度の比較・比較サンプラー（ハードウェア PCF） |
-| [エイリアシングと安定化](aliasing-stabilize.md) | 解像度不足・テクセルの揺れ・スナップ |
-| [最小のコード](minimal-code.md) | 全体の流れを、最小のコードで通す |
+| [The Light Matrix](light-matrix.md) | 平行光・スポット・点光源の、ビューと射影 |
+| [Rendering Depth](render-depth.md) | 光から見た深度だけのパス・設定 |
+| [Comparison Samplers](comparison-sampler.md) | 深度の比較・比較サンプラー（ハードウェア PCF） |
+| [Aliasing and Stabilization](aliasing-stabilize.md) | 解像度不足・テクセルの揺れ・スナップ |
+| [Minimal Code](minimal-code.md) | 全体の流れを、最小のコードで通す |
 
 ## 動きで見る
 
@@ -249,6 +249,6 @@ tags:
 
 ## 関連ページ
 
-- [影](../index.md)
-- [バイアス](../bias/index.md)
+- [Shadows](../index.md)
+- [Shadow Bias](../bias/index.md)
 - [PCF](../pcf.md)

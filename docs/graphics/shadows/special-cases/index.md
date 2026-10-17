@@ -1,10 +1,10 @@
 ---
-title: 特殊なケース
+title: Special Cases
 tags:
   - 描画
 ---
 
-# 特殊なケース
+# Special Cases
 
 **シャドウ マップは、不透明な立体には素直に使えますが、アルファ テストの葉・半透明のガラス・キャラクターの顔・遠景の雲など、そのままでは扱いにくい物**が**あります**。このセクションでは、**アルファ テストの影・半透明の影・ブロブ/平面投影の影・遠景の影・キャラクターの影と影の色**を、**1 つずつ別のページ**で説明します。
 
@@ -19,11 +19,11 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [アルファ テストの影](alpha-test-shadows.md) | 葉・柵・金網の影 |
-| [半透明の影](translucent-shadows.md) | ガラス・水・煙の影 |
-| [ブロブと平面投影の影](blob-planar.md) | 安い影の技法 |
-| [遠景の影](distant-shadows.md) | 雲の影・距離フェード |
-| [キャラクターの影と色](character-shadows.md) | 顔・髪・肌・影の色と濃さ |
+| [Alpha-Tested Shadows](alpha-test-shadows.md) | 葉・柵・金網の影 |
+| [Translucent Shadows](translucent-shadows.md) | ガラス・水・煙の影 |
+| [Blob and Planar Projected Shadows](blob-planar.md) | 安い影の技法 |
+| [Distant Shadows](distant-shadows.md) | 雲の影・距離フェード |
+| [Character Shadows and Color](character-shadows.md) | 顔・髪・肌・影の色と濃さ |
 
 ## これだけ覚える
 
@@ -37,5 +37,5 @@ tags:
 
 ## 関連ページ
 
-- [影](../index.md)
-- [シャドウ マップの基礎](../shadow-map-basics/index.md)
+- [Shadows](../index.md)
+- [Shadow Map Basics](../shadow-map-basics/index.md)

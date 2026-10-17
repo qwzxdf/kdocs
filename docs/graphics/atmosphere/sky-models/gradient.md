@@ -1,10 +1,10 @@
 ---
-title: グラデーションの空
+title: Gradient Sky
 tags:
   - 描画
 ---
 
-# グラデーションの空
+# Gradient Sky
 
 **空の色を、上と地平線で変えるだけの、最も簡単な方法**です。**軽く、制御しやすい**ので、**スタイライズされた作品や、モバイルで多用されます**。このページでは、**グラデーションの空**を説明します。
 
@@ -56,5 +56,5 @@ float3 GradientSky(float3 view_dir) {
 
 ## 関連ページ
 
-- [空のモデル](index.md)
-- [解析的な空のモデル](analytic.md)
+- [Sky Models](index.md)
+- [Analytic Sky Models](analytic.md)

@@ -1,10 +1,10 @@
 ---
-title: ブロブと平面投影の影
+title: Blob and Planar Projected Shadows
 tags:
   - 描画
 ---
 
-# ブロブと平面投影の影
+# Blob and Planar Projected Shadows
 
 **シャドウ マップが重い・使えない環境（モバイル・遠くの小物）**では、**もっと安い影の技法**を使います。**ブロブ シャドウは、足元に丸い暗い円を置くだけ**、**平面投影シャドウは、物体を地面に押しつぶして黒く描く**方法です。**どちらも、柔らかさや正確さは劣りますが、非常に安い**です。このページでは、**ブロブ・平面投影の仕組みと使いどころ**を説明します。
 
@@ -91,6 +91,6 @@ XMMATRIX shadow_matrix = XMMatrixShadow(plane, XMVectorNegate(light));
 
 ## 関連ページ
 
-- [特殊なケース](index.md)
-- [距離場の影](../sdf-shadows.md)
-- [コンタクト シャドウ](../contact-shadows.md)
+- [Special Cases](index.md)
+- [Distance Field Shadows](../sdf-shadows.md)
+- [Contact Shadows](../contact-shadows.md)

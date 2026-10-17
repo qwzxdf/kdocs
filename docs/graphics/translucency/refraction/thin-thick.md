@@ -1,10 +1,10 @@
 ---
-title: 薄いガラスと厚いガラス
+title: Thin and Thick Glass
 tags:
   - 描画
 ---
 
-# 薄いガラスと厚いガラス
+# Thin and Thick Glass
 
 **窓ガラスのような「薄いガラス」は、屈折でほとんどずれません**が、**ガラスの塊のような「厚いガラス」は、大きくずれます**。**両者で、モデルを使い分ける**と、**無駄なく、自然に見えます**。このページでは、**使い分けの基準**を説明します。
 
@@ -52,5 +52,5 @@ float3 background = scene_color_mips.SampleLevel(linear_clamp, refract_uv, mip).
 
 ## 関連ページ
 
-- [屈折](index.md)
-- [厚みと色](thickness-color.md)
+- [Refraction](index.md)
+- [Thickness and Color](thickness-color.md)

@@ -1,10 +1,10 @@
 ---
-title: TAA の課題
+title: TAA Challenges
 tags:
   - 描画
 ---
 
-# TAA の課題
+# TAA Challenges
 
 **TAA は強力**ですが、<strong>「過去のフレームを使う」</strong>という**性質**から、**独特の失敗**があります。**ゴースト（残像）・全体のぼけ・細い物のちらつき・半透明やパーティクルの扱い・カットでの破綻**などで**どれも、TAA の品質を決める調整ポイント**です。このページでは、**それぞれの原因と対策**、**履歴クランプの改良（YCoCg・分散クリップ）・シャープ化・アップスケールとの統合**を説明します。
 
@@ -207,7 +207,7 @@ float3 Sharpen(float3 center, float3 blurred, float strength) {
 | --- | --- |
 | **YCoCg ＋ 分散クリップ** | **ゴーストを大きく減らす** |
 | **バイキュービックで履歴を読む＋シャープ** | **ぼけを抑える** |
-| **速度の精度を確保** | **R16G16、動く物体の速度を正しく**（[速度バッファ](../motion-blur/velocity-buffer.md)） |
+| **速度の精度を確保** | **R16G16、動く物体の速度を正しく**（[Velocity Buffer](../motion-blur/velocity-buffer.md)） |
 | **深度・速度の不一致で履歴を拒否** | **遮蔽解除に強い** |
 | **半透明は TAA の後** | **シンプルで安全** |
 | **履歴のリセットを用意** | **カット・露出急変・解像度変更** |
@@ -243,7 +243,7 @@ float3 Sharpen(float3 center, float3 blurred, float strength) {
 
 ## 関連ページ
 
-- [アンチエイリアシング](index.md)
+- [Anti-Aliasing](index.md)
 - [TAA](taa.md)
-- [比較と選び方](comparison.md)
+- [Comparison and Choosing](comparison.md)
 - [TAA とアップスケール（最適化）](../../../rendering/taa-upscaling.md)
