@@ -11,13 +11,13 @@ hide:
 
 ## 目次
 
+- はじめに
+    - [このサイトの読み方](guide/how-to-read.md)
+    - [コンテナの選び方](guide/container-chart.md)
 - [STL](stl/index.md)
 - [基礎](basics/index.md)
 - [ゲームエンジン](engine/index.md)
 - [設計](design/index.md)
-- はじめに
-    - [このサイトの読み方](guide/how-to-read.md)
-    - [コンテナの選び方](guide/container-chart.md)
 - [自作型](custom-types/index.md)
 - [Tips](tips/index.md)
 - [用語集](glossary.md)
