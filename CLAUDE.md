@@ -86,3 +86,11 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
 
 - 検索の区切り文字に `:` を足してあり、`string` や `std::string` で C++ の名前のページが見つかる（`mkdocs.yml` の `separator`）
 - `hooks/autolink.py` が C++ の名前のページの検索順位を上げる（boost）。`docs/javascripts/search-tune.js` が、題名が一致する結果を上に並べ、結果は項目名だけを表示する（CSS で説明文を隠している）
+
+## 動く図（アニメーション）
+
+- 動く図は `tools/anim/` の**台本ライブラリ**（`storyboard.py`）で作る。座標列を手で書かない。**手順・落とし穴・API は `tools/anim/README.md` を先に読む**。見本は `tools/anim/fig_forward_deferred.py`
+- 流れ: ユーザーが日本語で台本 → Python のデータに直す → 生成 → `.report.txt` のタイミング表で確認 → 静止画（ヘッドレス Edge）→ 実 Chrome で SMIL を確認 → md に差し込み → strict ビルド → push
+- `fill` を `none` ⇔ 色で離散アニメしない（Chrome で色が出ない）。出し入れは親グループの `opacity`、色の切り替えは色だけの離散アニメ
+- 計算回数などの数字は、台本の中で数えて `assert` で確かめ、表示にも同じ値を使う
+- アプリ内ブラウザは使わない。`mkdocs serve`（`serve.bat`）は止めない
