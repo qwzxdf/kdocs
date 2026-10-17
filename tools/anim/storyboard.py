@@ -153,7 +153,7 @@ class Node:
 
 
 class Scene:
-    def __init__(self, name, width, height, duration, hold, background="#ffffff"):
+    def __init__(self, name, width, height, duration, hold, background="#ffffff", still=None):
         self.name = name
         self.width = width
         self.height = height
@@ -167,6 +167,8 @@ class Scene:
             "viewBox": "0 0 %d %d" % (width, height),
             "role": "img",
         })
+        if still is not None:
+            self.root.attrs["data-still"] = str(still)
         self.root.add("rect", x=0, y=0, width=width, height=height, rx=14, fill=background)
 
     def Note(self, t, who, text):

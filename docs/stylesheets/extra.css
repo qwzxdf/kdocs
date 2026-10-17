@@ -702,3 +702,15 @@
   border: 1px solid var(--md-default-fg-color--lighter);
   border-radius: 6px;
 }
+
+.md-typeset .motion-play {
+  display: block;
+  margin: 0.4em auto 1em;
+  padding: 0.35em 1.1em;
+  border: 1.5px solid var(--md-primary-fg-color);
+  border-radius: 1em;
+  background: transparent;
+  color: var(--md-primary-fg-color);
+  font-weight: 700;
+  cursor: pointer;
+}

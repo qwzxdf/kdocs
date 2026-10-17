@@ -135,7 +135,7 @@ def Build():
         for (x, y) in cover[k]:
             shade[(k, x, y)] = ShadeColors(spheres[k], k, x, y, albedos[k])
 
-    scene = Scene("forward-vs-deferred", W, H, DURATION, HOLD)
+    scene = Scene("forward-vs-deferred", W, H, DURATION, HOLD, still=11.5)
     root = scene.root
     lights_n = len(LIGHTS)
     forward_start, forward_slot = 0.4, 0.9

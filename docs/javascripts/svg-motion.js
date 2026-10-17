@@ -8,7 +8,26 @@
 
     if (reduce) {
       svgs.forEach((svg) => {
-        if (svg.pauseAnimations) svg.pauseAnimations();
+        if (!svg.pauseAnimations) return;
+        svg.pauseAnimations();
+        const still = parseFloat(svg.getAttribute("data-still"));
+        if (!isNaN(still)) svg.setCurrentTime(still);
+        if (svg.nextElementSibling && svg.nextElementSibling.classList.contains("motion-play")) return;
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "motion-play";
+        button.textContent = "▶ アニメーションを再生";
+        button.addEventListener("click", () => {
+          if (svg.animationsPaused()) {
+            svg.setCurrentTime(0);
+            svg.unpauseAnimations();
+            button.textContent = "⏸ 一時停止";
+          } else {
+            svg.pauseAnimations();
+            button.textContent = "▶ アニメーションを再生";
+          }
+        });
+        svg.insertAdjacentElement("afterend", button);
       });
       return;
     }

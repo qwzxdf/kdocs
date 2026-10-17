@@ -22,7 +22,7 @@ tags:
 **同じ画面（16×9 マス）・同じ球体 10 個・同じ色付きのライト 5 個**を、**Forward と Deferred で描く**様子です。**ライトが球体に当たると、ライトの色が付きます**（**近いライトほど濃く**）。**最後の絵は同じ**ですが、**計算の回数が違います**。
 
 <!-- fig:forward-deferred:begin -->
-<svg class="fig illust motion" data-fig="forward-vs-deferred" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="forward-vs-deferred" viewBox="0 0 960 540" role="img" data-still="11.5"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <line x1="480" y1="16" x2="480" y2="524" stroke="#cbd5e1" stroke-width="2"/>
 <text x="32" y="32" text-anchor="start" style="font-size:26px;font-weight:700;fill:#2563eb">Forward</text>
 <text x="512" y="32" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed">Deferred</text>
