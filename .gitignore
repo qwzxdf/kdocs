@@ -1,4 +1,20 @@
+# ビルド結果・Python の環境
 site/
 .venv/
 __pycache__/
+*.pyc
 .cache/
+
+# Claude 関連
+CLAUDE.md
+CLAUDE.local.md
+.claude/
+.mcp.json
+
+# エディタ・OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
