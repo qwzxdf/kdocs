@@ -25,6 +25,23 @@ tags:
 
 ### 型と意味の対応
 
+<div class="anim" data-type="graph" data-label="unique_ptr の所有権は、ムーブで移る（コピーはできない）">
+n a unique_ptr_a 0 0
+n o オブジェクト 1 0
+l a o hit 所有
+---
+n a unique_ptr_a 0 0 hit
+n b unique_ptr_b 0 1 new
+n o オブジェクト 1 0
+l a o - 所有
+l a b - std::move
+---
+n a a_（空になる） 0 0 dim
+n b unique_ptr_b 0 1 hit
+n o オブジェクト 1 0
+l b o hit 所有
+</div>
+
 | 書き方 | 持ち主？ | 意味 |
 | --- | --- | --- |
 | `Enemy enemy;`（値） | ○ | 自分の中に直接持つ。自分が消えると一緒に消える。**一番の基本** |

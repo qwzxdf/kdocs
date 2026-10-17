@@ -20,11 +20,17 @@ tags:
 
 **カメラの位置・向きを、ワールド行列で表し、その逆行列がビュー行列**です。
 
-```text
-カメラ：位置 (0, 2, 5)、原点（0, 0, 0）を見ている
-   ↓
-ビュー行列：世界を、「カメラが原点にいて、-Z（右手系）の向きに前を見ている」座標に直す変換
-```
+<div class="anim" data-type="graph" data-label="ビュー行列：世界を、カメラが原点にいる座標に直す">
+n w 世界の座標 0 0
+n cam カメラ_位置(0,2,5) 1 0 hit
+l cam w - 原点を見ている
+---
+n w 世界の座標 0 0
+n v ビュー行列 1 0 hit
+n cs カメラが原点・前は-Z 2 0 new
+l w v
+l v cs - 直す
+</div>
 
 ### LookAt で作る
 
@@ -50,16 +56,33 @@ Matrix view = Matrix::CreateLookAt(position, position + forward, Vector3::Up);
 
 カメラの 3 本の軸（右・上・前）を作り、行列にします。
 
-```text
-① forward（前）  ＝ normalize(target − position)
-② right（右）    ＝ normalize(forward × up)         （右手系）
-③ up（本当の上）  ＝ right × forward
-④ この 3 軸と位置から、「世界 → カメラ」の行列を作る
-```
+<div class="anim" data-type="graph" data-label="ビュー行列を作る手順">
+n c0 ①_forward(前) 0 0 hit
+---
+n c0 ①_forward(前) 0 0
+n c1 ②_right(右) 1 0 hit
+l c0 c1 hit ×up
+---
+n c0 ①_forward(前) 0 0
+n c1 ②_right(右) 1 0
+n c2 ③_up(本当の上) 2 0 hit
+l c0 c1 - ×up
+l c1 c2 hit right×forward
+---
+n c0 ①_forward(前) 0 0
+n c1 ②_right(右) 1 0
+n c2 ③_up(本当の上) 2 0
+n c3 ④_世界→カメラ行列 3 0 hit
+l c0 c1 - ×up
+l c1 c2 - right×forward
+l c2 c3 hit 3軸と位置から
+</div>
 
 **上方向（`up`）と、前方向が、平行（真上・真下を見る）だと、外積が 0 になり、右方向が決まりません**。これが、真上を見たときに、画面が不安定になる原因です（ジンバルロックに似た現象）。
 
 ## FPS カメラ（一人称）
+
+<svg class="fig" viewBox="0 0 620 240" role="img" aria-label="yaw と pitch"><defs><marker id="y1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">yaw（左右）：真上から見た図</text><circle cx="130" cy="130" r="8" fill="currentColor"/><text x="100" y="160">カメラ</text><line x1="130" y1="130" x2="130" y2="50" stroke="currentColor" stroke-width="3" marker-end="url(#y1)" /><text x="138" y="55">yaw = 0（前は -Z）</text><line x1="130" y1="130" x2="190" y2="70" stroke="currentColor" stroke-width="2" marker-end="url(#y1)" stroke-dasharray="4 3"/><text x="194" y="68">yaw が増える</text><path d="M 130 90 A 40 40 0 0 1 158 100" fill="none" stroke="currentColor"/><text x="330" y="20" class="fig-title">pitch（上下）：横から見た図</text><circle cx="400" cy="140" r="8" fill="currentColor"/><text x="370" y="170">カメラ</text><line x1="400" y1="140" x2="520" y2="140" stroke="currentColor" stroke-width="3" marker-end="url(#y1)" /><text x="470" y="160">pitch = 0</text><line x1="400" y1="140" x2="500" y2="80" stroke="currentColor" stroke-width="2" marker-end="url(#y1)" stroke-dasharray="4 3"/><text x="470" y="70">上を向く</text><text x="330" y="215">pitch は ±89° に制限する（真上・真下で、向きが定まらなくなるため）</text></svg>
 
 **マウスで、見る方向を変える**カメラです。向きを、<strong>yaw（左右）と pitch（上下）</strong>の 2 つの角度で持ちます。
 
@@ -115,6 +138,8 @@ if (move.LengthSquared() > 0.0f) {
 ```
 
 ## 軌道カメラ（オービット）
+
+<svg class="fig" viewBox="0 0 560 230" role="img" aria-label="軌道カメラ"><defs><marker id="o1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">軌道カメラ：注視点のまわりを回る</text><circle cx="200" cy="130" r="8" fill="currentColor"/><text x="215" y="150">注視点（キャラクター）</text><circle cx="200" cy="130" r="80" fill="none" stroke="currentColor" stroke-dasharray="4 4"/><circle cx="270" cy="90" r="7" fill="rgba(76,139,245,0.8)" stroke="currentColor"/><text x="282" y="86">カメラ</text><line x1="266" y1="92" x2="208" y2="126" stroke="currentColor" stroke-width="2" marker-end="url(#o1)" /><text x="230" y="100"></text><text x="330" y="60" class="fig-title">位置 ＝ 注視点 ＋ 方向 × 距離</text><text x="330" y="90">yaw と pitch で、方向を決める</text><text x="330" y="118">距離 ＝ ズーム</text><text x="330" y="146">常に、注視点を向く</text></svg>
 
 **注視点のまわりを、回るカメラ**です。モデルの鑑賞（ビューアー）、エディターのシーン ビュー、三人称ゲームの基本形です。**角度（yaw、pitch）と距離**で持ちます。
 

@@ -118,6 +118,8 @@ l ndc screen hit ビューポート変換
 | [深度バッファとカリング](depth-culling.md) | 深度テスト、z-fighting、reverse-Z、視錐台カリング |
 | [ピッキングとレイキャスト](picking-raycast.md) | マウスの位置から 3D の世界を指す、レイと交差判定 |
 | [法線とライティング](lighting-normals.md) | 法線、拡散反射、鏡面反射、シェーダーでの計算 |
+| [PBR（物理ベースレンダリング）](pbr.md) | マイクロファセット、BRDF、金属度と粗さ、IBL。原理から |
+| [3D モデルの基礎](model-basics.md) | メッシュ・頂点・三角形・テクスチャ・バッファ。ゼロから |
 | [メッシュとテクスチャ](mesh-textures.md) | 頂点、インデックス、UV、ミップマップ、サンプラー |
 | [3D の当たり判定](collision-3d.md) | 球、AABB、OBB、カプセル、判定の組み合わせ |
 | [スキニング（骨格アニメーション）](skinning-animation.md) | ボーン、スキン ウェイト、アニメーションの補間 |

@@ -220,3 +220,4 @@ a=0 b=1 c=0 / 空き 1
 - [ECS](ecs.md)
 - [Game Programming Patterns: Object Pool](https://gameprogrammingpatterns.com/object-pool.html)
 - [メモリ確保（最適化）](../../optimize/allocation.md)
+- [プールアロケータ](../../optimize/allocators/pool.md)

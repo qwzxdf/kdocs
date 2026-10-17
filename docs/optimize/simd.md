@@ -17,11 +17,31 @@ tags:
 
 ## SIMD とは
 
-```text
-普通（スカラー）：  a0+b0 → a1+b1 → a2+b2 → a3+b3        4 回の命令
-SIMD（4 並列）：    [a0 a1 a2 a3] + [b0 b1 b2 b3]          1 回の命令
-                  = [a0+b0 a1+b1 a2+b2 a3+b3]
-```
+<div class="anim" data-type="graph" data-label="スカラーは 4 回、SIMD は 1 回の命令">
+n a a0+b0 0 0 hit
+n b a1+b1 1 0
+n c a2+b2 2 0
+n d a3+b3 3 0
+---
+n a a0+b0 0 0
+n b a1+b1 1 0 hit
+n c a2+b2 2 0
+n d a3+b3 3 0
+---
+n a a0+b0 0 0
+n b a1+b1 1 0
+n c a2+b2 2 0 hit
+n d a3+b3 3 0
+---
+n a a0+b0 0 0
+n b a1+b1 1 0
+n c a2+b2 2 0
+n d a3+b3 3 0 hit
+---
+n s [a0_a1_a2_a3]_+_[b0_b1_b2_b3] 0 1 hit
+n r [a0+b0_a1+b1_a2+b2_a3+b3] 2 1 new
+l s r hit 1回の命令
+</div>
 
 <div class="anim" data-label="SIMD：4 つの足し算を、1 回で">
 1 2 3 4 | 10 20 30 40 # 4 個ずつの 2 つの配列（a と b）

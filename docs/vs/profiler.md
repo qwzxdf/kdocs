@@ -120,12 +120,15 @@ Release：  最適化 + 製品用（プロファイラーなし）
 
 ### 合計 CPU と自己 CPU
 
-```text
-Update()                      合計 40%、自己 2%
- ├ UpdateEnemies()            合計 30%、自己 5%
- │   └ FindNearest()          合計 25%、自己 25%   ← ここが「本当に、時間を使っている」
- └ UpdateParticles()          合計 8%、自己 8%
-```
+<div class="anim" data-type="graph" data-label="呼び出しツリー：自己 CPU が大きい関数が、直す対象">
+n u Update()_合計40%_自己2% 0 0
+n ue UpdateEnemies()_合計30%_自己5% 1 1
+n fn FindNearest()_合計25%_自己25% 2 2 hit
+n up UpdateParticles()_合計8%_自己8% 1 3
+l u ue
+l ue fn
+l u up
+</div>
 
 | 指標 | 意味 |
 | --- | --- |

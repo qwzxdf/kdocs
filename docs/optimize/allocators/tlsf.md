@@ -1,0 +1,245 @@
+---
+title: TLSF アロケータ
+tags:
+  - 最適化
+  - アロケータ
+---
+
+# TLSF アロケータ
+
+**TLSF**（Two-Level Segregated Fit：ティー・エル・エス・エフ）は、<strong>確保も解放も、必ず O(1)</strong> で終わる、**リアルタイム向けの汎用アロケータ**です。**空きブロックを、大きさで 2 段階に分類**し、**ビットマップで、合う空きを、一瞬で見つけます**。[フリーリスト](free-list.md)のように、**大きさがバラバラ**でも扱えて、**探す時間が一定**で、**断片化も、小さく**抑えられます。**ゲームの、固定領域の中の、汎用の確保**に向いています。
+
+!!! tip "ポイント"
+    - <strong>確保・解放が、必ず O(1)</strong>。<strong>最悪の時間が読める</strong>（リアルタイム向き）。
+    - 空きブロックを、<strong>2 段階で分類</strong>：<strong>第 1 段（FL）＝ 大きさの 2 のべき乗の範囲</strong>、<strong>第 2 段（SL）＝ その範囲を、等分した細かい区間</strong>。
+    - <strong>ビットマップ</strong>で、<strong>空きがある分類を、ビット探索命令（`countr_zero`）で、一瞬</strong>で見つける。
+    - <strong>解放で、隣の空きと結合</strong>（境界タグ）。<strong>断片化を抑える</strong>。
+    - 内部断片化は、<strong>約 3% 以下</strong>（SL を細かくすれば、さらに小さく）。
+    - 実装は複雑なので、<strong>実績のあるライブラリ</strong>（tlsf、mimalloc ほか）を使うのが、現実的。
+
+## なぜ TLSF か
+
+| アロケータ | 探す時間 | 断片化 | 時間が読めるか |
+| --- | --- | --- | --- |
+| **フリーリスト**（first-fit / best-fit） | <strong>O(n)</strong>（空きの数に比例） | 中 | **読めない** |
+| **バディ** | O(段階の数) | 内部断片化が大きい | 読める |
+| **スラブ** | O(1) | クラス間の無駄 | 読める（大きなものは別） |
+| **TLSF** | <strong>O(1)</strong> | **小さい** | **読める** |
+
+**フリーリストの弱点**（探す時間・断片化）を、**両方、解決**したものです。
+
+## 仕組み
+
+### 空きブロックの 2 段階の分類
+
+**空きブロックを、大きさで分類**し、**分類ごとに、リストを持ちます**。
+
+| 段階 | 分け方 | 例 |
+| --- | --- | --- |
+| <strong>第 1 段（FL）</strong> | **大きさの、2 のべき乗の範囲**：`[2^fl, 2^(fl+1))` | 大きさ 300 は、`fl = 8`（256〜511） |
+| <strong>第 2 段（SL）</strong> | **その範囲を、等分**（たとえば 32 区間） | 256〜511 を、32 等分（8 バイト刻み）。300 は、`sl = 5` |
+
+<svg class="fig" viewBox="0 0 640 260" role="img" aria-label="TLSF の 2 段階の分類">
+<text x="20" y="22" class="fig-title">空きリストの表：第 1 段（行）× 第 2 段（列）</text>
+<text x="20" y="60">FL＼SL</text>
+<text x="90" y="60">0</text><text x="150" y="60">1</text><text x="210" y="60">2</text><text x="270" y="60">3</text><text x="330" y="60">…</text><text x="390" y="60">31</text>
+<text x="20" y="100">fl=7（128〜255）</text>
+<rect x="80" y="82" width="50" height="26" fill="rgba(150,150,150,0.2)" stroke="currentColor"/><rect x="140" y="82" width="50" height="26" fill="rgba(76,139,245,0.5)" stroke="currentColor"/><rect x="200" y="82" width="50" height="26" fill="rgba(150,150,150,0.2)" stroke="currentColor"/><rect x="260" y="82" width="50" height="26" fill="rgba(150,150,150,0.2)" stroke="currentColor"/><rect x="380" y="82" width="50" height="26" fill="rgba(150,150,150,0.2)" stroke="currentColor"/>
+<text x="20" y="140">fl=8（256〜511）</text>
+<rect x="80" y="122" width="50" height="26" fill="rgba(150,150,150,0.2)" stroke="currentColor"/><rect x="140" y="122" width="50" height="26" fill="rgba(150,150,150,0.2)" stroke="currentColor"/><rect x="200" y="122" width="50" height="26" fill="rgba(76,139,245,0.5)" stroke="currentColor"/><rect x="260" y="122" width="50" height="26" fill="rgba(76,139,245,0.5)" stroke="currentColor"/><rect x="380" y="122" width="50" height="26" fill="rgba(150,150,150,0.2)" stroke="currentColor"/>
+<text x="20" y="180">fl=9（512〜1023）</text>
+<rect x="80" y="162" width="50" height="26" fill="rgba(150,150,150,0.2)" stroke="currentColor"/><rect x="140" y="162" width="50" height="26" fill="rgba(150,150,150,0.2)" stroke="currentColor"/><rect x="200" y="162" width="50" height="26" fill="rgba(150,150,150,0.2)" stroke="currentColor"/><rect x="260" y="162" width="50" height="26" fill="rgba(150,150,150,0.2)" stroke="currentColor"/><rect x="380" y="162" width="50" height="26" fill="rgba(76,139,245,0.5)" stroke="currentColor"/>
+<text x="20" y="225">青＝空きブロックのリストがある分類（ビットマップで 1）、灰＝空き（ビットマップで 0）</text>
+<text x="20" y="245" style="font-size:12px">各マスは、その大きさの範囲の、空きブロックのリストの先頭</text>
+</svg>
+
+### ビットマップで、空きを探す
+
+**どの分類に空きがあるか**を、**ビットマップ**に記録します。
+
+| ビットマップ | 意味 |
+| --- | --- |
+| **`fl_bitmap`** | 第 1 段で、**空きのある行**のビット |
+| **`sl_bitmap[fl]`** | その行の中で、**空きのある列**のビット |
+
+**探すときは、ビットマップを調べるだけ**です。
+
+```cpp
+int fl = FirstLevel(size);
+int sl = SecondLevel(size, fl);
+
+uint32_t sl_map = sl_bitmap_[fl] & (~0u << sl);
+if (sl_map == 0) {
+  uint32_t fl_map = fl_bitmap_ & (~0u << (fl + 1));
+  if (fl_map == 0) return nullptr;
+  fl = std::countr_zero(fl_map);
+  sl_map = sl_bitmap_[fl];
+}
+sl = std::countr_zero(sl_map);
+Block* block = free_lists_[fl][sl];
+```
+
+| 行 | 意味 |
+| --- | --- |
+| `sl_bitmap_[fl] & (~0u << sl)` | **同じ行で、`sl` 以上の列**に、空きがあるか |
+| `fl_bitmap_ & (~0u << (fl + 1))` | **なければ、上の行**（大きい範囲）に、空きがあるか |
+| **`std::countr_zero`** | **最も下位の、1 のビットの位置**（CPU の 1 命令）。**これが、O(1) の秘密** |
+| `free_lists_[fl][sl]` | **見つかった分類の、リストの先頭**を取り出す |
+
+**ループがありません**。**ビット演算だけ**で、**どの空きを使うか**が決まります。
+
+### 分類の計算
+
+```cpp
+constexpr int kSlBits = 5;
+constexpr int kSlCount = 1 << kSlBits;
+
+void Mapping(size_t size, int& fl, int& sl) {
+  fl = std::bit_width(size) - 1;
+  sl = static_cast<int>((size >> (fl - kSlBits)) - kSlCount);
+}
+```
+
+| 式 | 意味 |
+| --- | --- |
+| `fl = bit_width(size) - 1` | **最上位ビットの位置**（`floor(log2(size))`） |
+| `size >> (fl - kSlBits)` | **上位の 6 ビット**（最上位の 1 ＋ 続く 5 ビット） |
+| `- kSlCount` | **最上位の 1 を引いて**、`0..31` にする |
+
+**確保のとき**は、**要求の大きさを、分類の下限に切り上げて**から探します（**探した空きが、必ず、要求より大きい**ことを保証するため）。
+
+```cpp
+size_t RoundUp(size_t size) {
+  int fl = std::bit_width(size) - 1;
+  size_t round = (size_t{1} << (fl - kSlBits)) - 1;
+  return size + round;
+}
+```
+
+## 確保と解放
+
+<div class="anim" data-type="graph" data-label="TLSF：分類を計算し、ビットマップで空きを O(1) で見つけ、残りは分割して戻す">
+n req 要求_300バイト 0 1 hit
+---
+n req 要求_300バイト 0 1
+n map 分類を計算_fl=8_sl=5 1 1 new
+l req map hit 切り上げ
+---
+n map 分類を計算_fl=8_sl=5 1 1
+n bm ビットマップで_空きを探す 2 1 new
+l map bm hit countr_zero
+---
+n bm ビットマップで_空きを探す 2 1
+n blk 空きブロック_400バイト 3 0 new
+n use 貸す_300 4 0 new
+n rest 残り_100_→_空きに戻す 4 2 new
+l bm blk hit 取り出す
+l blk use hit 分割
+l blk rest hit 残り
+</div>
+
+### 確保
+
+| 手順 | 内容 |
+| --- | --- |
+| **1. 切り上げ** | 要求の大きさを、**分類の境界に切り上げる** |
+| **2. 分類を計算** | `(fl, sl)` を求める |
+| **3. ビットマップで探す** | **`(fl, sl)` 以上**の、空きのある分類を探す（<strong>O(1)</strong>） |
+| **4. 取り出す** | その分類の**リストの先頭**を取り出す。リストが空になれば、**ビットを 0 に** |
+| **5. 分割** | **大きすぎれば、要求の分だけ貸し**、**残りを、空きに戻す**（その分類のリストに、挿入） |
+
+### 解放
+
+| 手順 | 内容 |
+| --- | --- |
+| **1. 隣を調べる** | **前の物理ブロック**・**次の物理ブロック**が、空きか（**境界タグ**） |
+| **2. 結合** | 空きなら、**リストから外して、合体** |
+| **3. 分類して挿入** | 合体後の大きさで、**`(fl, sl)` のリストに、挿入**。**ビットを 1 に** |
+
+**すべて、リストの先頭への、挿入・取り出し**と、**ビット演算**です。<strong>ループがなく、O(1)</strong> です。
+
+### ブロックの構造（境界タグ）
+
+```cpp
+struct Block {
+  Block* prev_physical;
+  size_t size_and_flags;
+  Block* next_free;
+  Block* prev_free;
+};
+```
+
+| メンバ | 意味 |
+| --- | --- |
+| **`prev_physical`** | **メモリ上の、1 つ前のブロック**（結合のため） |
+| **`size_and_flags`** | **大きさ**と、**自分と、前のブロックが空きか**（下位ビットのフラグ） |
+| **`next_free` / `prev_free`** | **空きの双方向リスト**（空きのときだけ有効） |
+
+**使用中のブロックでは、`next_free` / `prev_free` の領域も、ユーザーのデータ**に使い、**ヘッダを小さく**します。
+
+## 特徴
+
+| 項目 | 内容 |
+| --- | --- |
+| **確保・解放の時間** | <strong>O(1)</strong>。**最悪も、一定** |
+| **断片化** | **小さい**（best-fit に近い選び方・結合あり）。**内部断片化は、SL の細かさで決まる**（SL = 32 なら、約 3% 以下） |
+| **メモリのオーバーヘッド** | **ブロックごとに、数十バイトのヘッダ**。**ビットマップ・リスト表**で、数 KB |
+| **スレッド** | **ロックなし**（1 スレッド専用）。**共有するなら、ロックで守る** |
+| **領域** | **事前に確保した、1 つの大きな領域**を、プールとして使う |
+
+## 使いどころ
+
+| 場面 | 理由 |
+| --- | --- |
+| **ゲーム機・組み込みの、固定メモリ** | **決まった領域**の中で、**汎用の確保**。**時間が読める** |
+| **リアルタイムのオーディオ・描画** | **確保の時間が一定**で、**カクつかない** |
+| **アセット・ゲームの状態の置き場** | **大きさがバラバラ**で、**個別に返す** |
+| **GPU のメモリの、サブ割り当て** | 大きなバッファの、一部を貸す（オフセットの管理） |
+
+## ライブラリ
+
+| ライブラリ | 特徴 |
+| --- | --- |
+| **tlsf**（Matthew Conte の実装） | **単純な C の実装**。1 つの `.c` と `.h`。**領域を渡して使う** |
+| **mimalloc / jemalloc / tcmalloc** | **サイズクラス ＋ スレッドキャッシュ**の、汎用の高速な `malloc`（TLSF ではない）。**普通のゲームには、こちらが手軽**（[malloc の置き換え](global-replace.md)） |
+| **VMA**（Vulkan Memory Allocator）など | **GPU メモリ**の、TLSF 風の管理 |
+
+```cpp
+#include "tlsf.h"
+
+alignas(16) static std::byte pool[16 * 1024 * 1024];
+tlsf_t tlsf = tlsf_create_with_pool(pool, sizeof(pool));
+
+void* p = tlsf_malloc(tlsf, 300);
+tlsf_free(tlsf, p);
+```
+
+## よくあるミス
+
+??? failure "要求の大きさを、切り上げずに、分類で探す"
+    **探した空きが、要求より小さい**ことがあり、**メモリを壊します**。**分類の下限に、切り上げてから探す**のが、TLSF の約束です。
+
+??? failure "プールの外のポインタを、`free` する"
+    **ヘッダを、読みに行って、メモリが壊れます**。**どのアロケータのものか**を、管理します。
+
+??? failure "複数のスレッドから、ロックなしで使う"
+    **リストとビットマップが壊れます**。**スレッドごとに別の TLSF** にするか、**ロック**で守ります。
+
+??? failure "小さな領域に、大きなヘッダの構造で使う"
+    **ヘッダのオーバーヘッド**が、無視できなくなります。**小さな固定サイズ**は、**プール**のほうが向いています。
+
+## これだけ覚える
+
+!!! abstract "まとめ"
+    - [x] <strong>確保・解放が、必ず O(1)</strong>。<strong>最悪の時間が、読める</strong>
+    - [x] <strong>空きを、大きさで 2 段階に分類</strong>（FL ＝ 2 のべき乗、SL ＝ その中の等分）。<strong>ビットマップ ＋ `countr_zero`</strong> で一瞬
+    - [x] <strong>確保は、分類の下限に切り上げ</strong>、<strong>余りは分割して戻す</strong>。<strong>解放は、隣と結合</strong>
+    - [x] 向くのは<strong>リアルタイム・固定領域の汎用確保</strong>。<strong>実装は、ライブラリを使う</strong>
+
+## 関連ページ
+
+- [アロケータ（目次）](index.md)
+- [フリーリストアロケータ](free-list.md)
+- [スラブアロケータ](slab.md)
+- [malloc の置き換え](global-replace.md)
+- [計算量（基礎）](../../basics/big-o.md)

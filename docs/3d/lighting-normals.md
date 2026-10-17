@@ -20,13 +20,11 @@ tags:
 
 **法線**は、**面に垂直な、長さ 1 のベクトル**です。陰影の計算の、中心です。
 
-```text
-          N（法線）
-          ↑
-   ───────────────  面
-```
+<svg class="fig" viewBox="0 0 360 140" role="img" aria-label="面と法線"><defs><marker id="ah2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><line x1="40" y1="110" x2="320" y2="110" stroke="currentColor" stroke-width="3"/><text x="326" y="115">面</text><line x1="180" y1="110" x2="180" y2="30" stroke="currentColor" stroke-width="2" marker-end="url(#ah2)"/><text x="190" y="45">N（法線：面に垂直・長さ 1）</text><rect x="174" y="104" width="12" height="12" fill="none" stroke="currentColor"/></svg>
 
 ### 面法線と頂点法線
+
+<svg class="fig" viewBox="0 0 560 200" role="img" aria-label="面法線と頂点法線"><defs><marker id="m1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="22" class="fig-title">面法線（フラット）：面ごとに 1 つ</text><polyline points="30,150 110,110 190,150 270,110" fill="none" stroke="currentColor" stroke-width="3"/><line x1="70" y1="130" x2="58" y2="85" stroke="currentColor" stroke-width="2" marker-end="url(#m1)" /><line x1="150" y1="130" x2="162" y2="85" stroke="currentColor" stroke-width="2" marker-end="url(#m1)" /><line x1="230" y1="130" x2="218" y2="85" stroke="currentColor" stroke-width="2" marker-end="url(#m1)" /><text x="30" y="182">法線が、面ごとにカクッと変わる → カクカクに見える</text><text x="310" y="22" class="fig-title">頂点法線（スムース）：頂点ごとに平均</text><polyline points="310,150 390,110 470,150 550,110" fill="none" stroke="currentColor" stroke-width="3"/><line x1="310" y1="150" x2="310" y2="100" stroke="currentColor" stroke-width="2" marker-end="url(#m1)" /><line x1="390" y1="110" x2="390" y2="60" stroke="currentColor" stroke-width="2" marker-end="url(#m1)" /><line x1="470" y1="150" x2="470" y2="100" stroke="currentColor" stroke-width="2" marker-end="url(#m1)" /><line x1="550" y1="110" x2="550" y2="60" stroke="currentColor" stroke-width="2" marker-end="url(#m1)" /><text x="310" y="182">三角形の中で補間 → 滑らかに見える</text></svg>
 
 | 種類 | 説明 | 見た目 |
 | --- | --- | --- |
@@ -45,6 +43,8 @@ Vector3 FaceNormal(const Vector3& v0, const Vector3& v1, const Vector3& v2) {
 
 ## 拡散光（ランバート）
 
+<svg class="fig" viewBox="0 0 560 240" role="img" aria-label="ランバート拡散光"><defs><marker id="m2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><line x1="40" y1="200" x2="300" y2="200" stroke="currentColor" stroke-width="3"/><line x1="170" y1="200" x2="170" y2="70" stroke="currentColor" stroke-width="2" marker-end="url(#m2)" /><text x="178" y="80">N（法線）</text><line x1="170" y1="200" x2="270" y2="100" stroke="currentColor" stroke-width="2" marker-end="url(#m2)" /><text x="275" y="100">L（面→光源）</text><path d="M 170 150 A 50 50 0 0 1 205 165" fill="none" stroke="currentColor"/><text x="200" y="150">θ</text><text x="330" y="60" class="fig-title">明るさ ＝ max( dot(N, L), 0 ) ＝ cosθ</text><text x="330" y="100">θ = 0°（正面）　　→ 1（最大）</text><text x="330" y="125">θ = 60°　　　　　　→ 0.5</text><text x="330" y="150">θ = 90°（真横）　　→ 0</text><text x="330" y="175">θ &gt; 90°（裏側）　　→ 0（負は 0 に）</text></svg>
+
 面が、**光に向いているほど明るく**、横を向くと**暗く**なります。**法線と、光への向きの内積**で決まります。
 
 ```text
@@ -56,6 +56,8 @@ N と L が同じ向き → 1（最大）　　直角 → 0　　逆向き → 0
 **L は、面から光源へ向かう向き**です。光が、上から下へ進む（`(0, -1, 0)`）なら、**L は `(0, 1, 0)`** です。逆にすると、陰影が反転します。
 
 ## スペキュラ（ブリン・フォン）
+
+<svg class="fig" viewBox="0 0 560 240" role="img" aria-label="ブリン・フォンのハーフベクトル"><defs><marker id="m3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><line x1="40" y1="200" x2="360" y2="200" stroke="currentColor" stroke-width="3"/><line x1="200" y1="200" x2="200" y2="60" stroke="currentColor" stroke-width="2" marker-end="url(#m3)" /><text x="206" y="66">N</text><line x1="200" y1="200" x2="90" y2="90" stroke="currentColor" stroke-width="2" marker-end="url(#m3)" /><text x="60" y="84">L（光源へ）</text><line x1="200" y1="200" x2="310" y2="90" stroke="currentColor" stroke-width="2" marker-end="url(#m3)" /><text x="296" y="84">V（カメラへ）</text><line x1="200" y1="200" x2="200" y2="85" stroke="currentColor" stroke-width="2" marker-end="url(#m3)" stroke-dasharray="5 4"/><text x="380" y="60" class="fig-title">H ＝ normalize(L + V)</text><text x="380" y="90">L と V の、ちょうど真ん中の向き</text><text x="380" y="120">N と H が重なるほど、ハイライトが強い</text><text x="380" y="150">pow( max(dot(N, H), 0), 光沢 )</text><text x="380" y="180">鏡のように反射する向きに、カメラがあると光る</text></svg>
 
 **ツヤのある反射**（ハイライト）です。**視線と光の中間のベクトル H** を使います。
 
@@ -71,6 +73,8 @@ H = normalize(L + V)          V は、面から、カメラへの向き
 
 ## ライトの種類
 
+<svg class="fig" viewBox="0 0 600 220" role="img" aria-label="ライトの種類"><defs><marker id="m4" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">ディレクショナル</text><line x1="30" y1="40" x2="50" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="70" y1="40" x2="90" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="110" y1="40" x2="130" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="150" y1="40" x2="170" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="10" y1="170" x2="190" y2="170" stroke="currentColor" stroke-width="3"/><text x="30" y="200">全体が、同じ向き（太陽）</text><text x="225" y="20" class="fig-title">ポイント</text><circle cx="300" cy="90" r="8" fill="currentColor"/><line x1="300" y1="90" x2="300" y2="30" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="355" y2="50" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="365" y2="100" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="340" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="260" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="235" y2="100" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="245" y2="50" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><text x="225" y="200">位置から四方へ（電球）。距離で減る</text><text x="430" y="20" class="fig-title">スポット</text><circle cx="480" cy="40" r="8" fill="currentColor"/><polygon points="480,40 420,170 540,170" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><line x1="480" y1="40" x2="480" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><text x="420" y="200">位置・向き・角度（懐中電灯）</text></svg>
+
 | 種類 | 向き | 減衰 | 用途 |
 | --- | --- | --- | --- |
 | **ディレクショナル** | 全体で、同じ向き | なし | 太陽、月 |
@@ -79,6 +83,40 @@ H = normalize(L + V)          V は、面から、カメラへの向き
 | <strong>環境光（アンビエント）</strong> | なし | なし | 影の部分が真っ黒にならないための、一定の明るさ |
 
 ## HLSL の例（DX11）
+
+<div class="anim" data-type="graph" data-label="ライティングの流れ：頂点で法線を渡し、ピクセルごとに明るさを計算する">
+n c0 頂点_法線を持つ 0 0 hit
+---
+n c0 頂点_法線を持つ 0 0
+n c1 頂点シェーダー_ワールドへ変換 1 0 hit
+l c0 c1 hit 逆転置行列で
+---
+n c0 頂点_法線を持つ 0 0
+n c1 頂点シェーダー_ワールドへ変換 1 0
+n c2 補間_（ラスタライズ） 2 0 hit
+l c0 c1 - 逆転置行列で
+l c1 c2 hit 三角形の中を
+---
+n c0 頂点_法線を持つ 0 0
+n c1 頂点シェーダー_ワールドへ変換 1 0
+n c2 補間_（ラスタライズ） 2 0
+n c3 ピクセルシェーダー_normalize・内積 3 0 hit
+l c0 c1 - 逆転置行列で
+l c1 c2 - 三角形の中を
+l c2 c3 hit N・L・V_を使う
+---
+n c0 頂点_法線を持つ 0 0
+n c1 頂点シェーダー_ワールドへ変換 1 0
+n c2 補間_（ラスタライズ） 2 0
+n c3 ピクセルシェーダー_normalize・内積 3 0
+n c4 画面の色 4 0 hit
+l c0 c1 - 逆転置行列で
+l c1 c2 - 三角形の中を
+l c2 c3 - N・L・V_を使う
+l c3 c4 hit
+</div>
+
+<svg class="fig" viewBox="0 0 640 200" role="img" aria-label="環境光・拡散光・スペキュラの合成"><defs><radialGradient id="g1" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#7a7f8a"/><stop offset="1" stop-color="#7a7f8a"/></radialGradient><radialGradient id="g2" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#e8e8ee"/><stop offset="0.6" stop-color="#7a7f8a"/><stop offset="1" stop-color="#15171c"/></radialGradient><radialGradient id="g3" cx="35%" cy="30%" r="22%"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#000000"/></radialGradient><radialGradient id="g4" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#ffffff"/><stop offset="0.12" stop-color="#e8e8ee"/><stop offset="0.6" stop-color="#7a7f8a"/><stop offset="1" stop-color="#1e2026"/></radialGradient></defs><circle cx="70" cy="90" r="55" fill="#3c3f47"/><text x="22" y="170">環境光（一定）</text><text x="145" y="98" class="fig-title">＋</text><circle cx="230" cy="90" r="55" fill="url(#g2)"/><text x="170" y="170">拡散光（ランバート）</text><text x="305" y="98" class="fig-title">＋</text><circle cx="390" cy="90" r="55" fill="url(#g3)"/><text x="335" y="170">スペキュラ</text><text x="465" y="98" class="fig-title">＝</text><circle cx="550" cy="90" r="55" fill="url(#g4)"/><text x="520" y="170">完成</text></svg>
 
 ### 頂点シェーダーとピクセルシェーダー
 
@@ -176,6 +214,8 @@ cb.view_proj = view * proj;
 
 ## 法線の変換（逆転置行列）
 
+<svg class="fig" viewBox="0 0 600 230" role="img" aria-label="非一様スケールで法線がずれる"><defs><marker id="m5" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="22" class="fig-title">元の面（45°）と法線</text><line x1="40" y1="170" x2="160" y2="70" stroke="currentColor" stroke-width="3"/><line x1="100" y1="120" x2="140" y2="76" stroke="currentColor" stroke-width="2" marker-end="url(#m5)" /><text x="200" y="22" class="fig-title">X を 3 倍にすると</text><line x1="210" y1="170" x2="360" y2="130" stroke="currentColor" stroke-width="3"/><line x1="285" y1="150" x2="345" y2="110" stroke="currentColor" stroke-width="2" marker-end="url(#m5)" stroke-dasharray="4 3"/><line x1="285" y1="150" x2="303" y2="88" stroke="currentColor" stroke-width="2" marker-end="url(#m5)" /><text x="210" y="205">破線：面と同じ変換をした法線（垂直でなくなる）</text><text x="210" y="222">実線：逆転置行列で変換した法線（垂直のまま）</text><text x="420" y="22" class="fig-title">法線は「向き」</text><text x="420" y="60">面と垂直であることを</text><text x="420" y="85">保つ変換が必要</text><text x="420" y="120">→ transpose( inverse(World) )</text></svg>
+
 !!! warning "法線を、ワールド行列で変換してはいけない"
     **非一様スケール**（`Scale(2, 1, 1)` など）があると、法線が**面に垂直でなくなります**。法線は、**ワールド行列の逆行列の転置**で変換します。
 
@@ -194,6 +234,8 @@ cb.view_proj = view * proj;
 逆転置行列は、**物体ごとに、C++ で 1 回**計算して、定数バッファで渡します。**ピクセルごとに、シェーダーで逆行列を計算しません**（重い）。
 
 ## 法線マップ
+
+<svg class="fig" viewBox="0 0 560 220" role="img" aria-label="接空間と TBN"><defs><marker id="m6" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><polygon points="60,180 300,180 380,110 140,110" fill="none" stroke="currentColor" stroke-width="2"/><line x1="220" y1="150" x2="300" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m6)" /><text x="304" y="154">T（接線：U の向き）</text><line x1="220" y1="150" x2="250" y2="112" stroke="currentColor" stroke-width="2" marker-end="url(#m6)" /><text x="254" y="108">B（従接線：V の向き）</text><line x1="220" y1="150" x2="220" y2="55" stroke="currentColor" stroke-width="2" marker-end="url(#m6)" /><text x="228" y="62">N（法線）</text><text x="20" y="22" class="fig-title">TBN：面の上の座標系</text><text x="400" y="190">法線マップの値を、</text><text x="400" y="210">この座標系でワールドへ</text></svg>
 
 **テクスチャで、細かい凹凸の法線**を与えると、**頂点数を増やさず**、凹凸を表現できます。
 
@@ -245,6 +287,7 @@ cb.view_proj = view * proj;
 
 ## 関連ページ
 
+- [PBR（物理ベースレンダリング）](pbr.md)
 - [3D ゲーム（目次）](index.md)
 - [変換と MVP](transforms-mvp.md)
 - [メッシュとテクスチャ](mesh-textures.md)

@@ -80,11 +80,11 @@ void Update(Particle& p, float dt) {
 
 **ロードとストアの回数を、少なく**します。ロード → 計算を連続 → ストア、と並べると速く、行き来が多いと遅くなります。
 
-## よく使う関数
+## よく使う関数 {#functions}
 
 名前の規則: `XMVector3...`（3 次元ベクトル）、`XMVector4...`、`XMMatrix...`、`XMQuaternion...`、`XMPlane...`。
 
-### ベクトル
+### ベクトル {#dx-vector}
 
 | 関数 | 意味 |
 | --- | --- |
@@ -103,7 +103,7 @@ void Update(Particle& p, float dt) {
 | `XMVector3TransformCoord(v, M)` | 位置を変換して、**w で割る**（射影のとき） |
 | `XMVector3Equal(a, b)` / `XMVector3NearEqual(a, b, eps)` | 等しい / ほぼ等しい |
 
-### 行列
+### 行列 {#dx-matrix}
 
 | 関数 | 意味 |
 | --- | --- |
@@ -121,7 +121,7 @@ void Update(Particle& p, float dt) {
 | `XMMatrixOrthographicLH(w, h, near, far)` / `...RH` | 正射影 |
 | `XMMatrixDecompose(&s, &r, &t, M)` | 行列を、拡大・回転・平行移動に分解 |
 
-### クォータニオン
+### クォータニオン {#dx-quaternion}
 
 | 関数 | 意味 |
 | --- | --- |

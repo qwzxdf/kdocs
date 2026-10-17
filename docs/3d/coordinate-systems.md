@@ -24,15 +24,7 @@ tags:
 | **左手系** | 右 | 上 | **奥**（画面の向こう） | 左手の親指＝X、人差し指＝Y、中指＝Z。**Z が奥へ伸びる** |
 | **右手系** | 右 | 上 | **手前**（自分の方） | 右手で同じ。**Z が手前へ伸びる** |
 
-```text
-左手系（Unity など）         右手系（OpenGL / SimpleMath。Blender は Z-up）
-        Y                                Y
-        │   Z（奥）                       │
-        │  /                              │
-        │ /                               │______ X
-        └────── X                        /
-                                        /  Z（手前）
-```
+<svg class="fig" viewBox="0 0 560 230" role="img" aria-label="左手系と右手系の軸の向き"><defs><marker id="ah" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="22" class="fig-title">左手系（Unity など）</text><line x1="120" y1="190" x2="120" y2="45" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="126" y="50">Y（上）</text><line x1="120" y1="190" x2="250" y2="190" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="215" y="212">X（右）</text><line x1="120" y1="190" x2="190" y2="120" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="195" y="115">Z（奥）</text><text x="300" y="22" class="fig-title">右手系（OpenGL / SimpleMath）</text><line x1="400" y1="190" x2="400" y2="45" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="406" y="50">Y（上）</text><line x1="400" y1="190" x2="530" y2="190" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="495" y="212">X（右）</text><line x1="400" y1="190" x2="345" y2="225" stroke="currentColor" stroke-width="2" marker-end="url(#ah)"/><text x="300" y="222">Z（手前）</text></svg>
 
 **同じ座標 (1, 2, 3) でも、系が違えば、別の場所**を指します。系を変換するには、**どれか 1 つの軸を反転**します（たとえば Z の符号を逆にする）。
 

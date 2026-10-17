@@ -185,10 +185,9 @@ bool LoadGame(SaveData& save, const char* path) {
 
 struct_pack は、保存するときに<strong>データの先頭に 4 バイトの「型のハッシュ値」</strong> を書きます。ハッシュ値は、構造体の**メンバの型と順番**からコンパイル時に計算されます。
 
-```text
-[型のハッシュ 4 バイト][(必要なら) 追加の情報][name][level][items] ...
-     ↑ Player の形（string, int, vector<int>）から計算した値
-```
+| 型のハッシュ（4 バイト） | （必要なら）追加の情報 | name | level | items | … |
+| --- | --- | --- | --- | --- | --- |
+| Player の形（`string`, `int`, `vector<int>`）から計算した値 | 型の情報 | データ | データ | データ | |
 
 読み込むときに、**読もうとしている型のハッシュ値**と比べて、違っていればエラーにします。
 

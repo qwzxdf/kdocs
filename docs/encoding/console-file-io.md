@@ -20,10 +20,27 @@ tags:
 
 ### 何が起きているか
 
-```text
-プログラム              コンソール
-std::string（UTF-8） ─→ バイトを送る ─→ コンソールが、自分のコード ページで解釈して、文字を描く
-```
+<div class="anim" data-type="graph" data-label="コンソールへの出力：バイトを送り、コンソールが解釈する">
+n c0 std::string_（UTF-8） 0 0 hit
+---
+n c0 std::string_（UTF-8） 0 0
+n c1 バイトを送る 1 0 hit
+l c0 c1 hit
+---
+n c0 std::string_（UTF-8） 0 0
+n c1 バイトを送る 1 0
+n c2 コンソール_（自分のコードページで解釈） 2 0 hit
+l c0 c1
+l c1 c2 hit
+---
+n c0 std::string_（UTF-8） 0 0
+n c1 バイトを送る 1 0
+n c2 コンソール_（自分のコードページで解釈） 2 0
+n c3 文字を描く 3 0 hit
+l c0 c1
+l c1 c2
+l c2 c3 hit
+</div>
 
 文字化けは、**プログラムが送るバイトの文字コード**と、<strong>コンソールが想定している文字コード（コード ページ）</strong>が、違うときに起きます。
 

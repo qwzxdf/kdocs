@@ -263,3 +263,5 @@ ImGui::TextUnformatted(buffer);
 - [std::pmr](../stl/memory/pmr.md)
 - [オブジェクトプール](../design/patterns/object-pool.md)
 - [プロファイラー（Visual Studio）](../vs/profiler.md)
+- [フレームアロケータ](allocators/frame.md)
+- [リニアアロケータ](allocators/linear.md)

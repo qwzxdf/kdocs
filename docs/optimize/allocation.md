@@ -17,12 +17,27 @@ tags:
 
 ## なぜ遅いのか
 
-```text
-new Enemy
-  ① ヒープから、空いている場所を探す        ← 断片化していると、時間がかかる
-  ② 管理情報を更新する（ロックを取ることも）  ← マルチスレッドでは、待たされる
-  ③ コンストラクタを呼ぶ
-```
+<div class="anim" data-type="graph" data-label="new は、空きを探して、管理情報を更新する">
+n c0 new_Enemy 0 0 hit
+---
+n c0 new_Enemy 0 0
+n c1 ①_空きを探す 1 0 hit
+l c0 c1 hit
+---
+n c0 new_Enemy 0 0
+n c1 ①_空きを探す 1 0
+n c2 ②_管理情報を更新 2 0 hit
+l c0 c1
+l c1 c2 hit 断片化で遅い
+---
+n c0 new_Enemy 0 0
+n c1 ①_空きを探す 1 0
+n c2 ②_管理情報を更新 2 0
+n c3 ③_コンストラクタ 3 0 hit
+l c0 c1
+l c1 c2 - 断片化で遅い
+l c2 c3 hit ロックで待たされる
+</div>
 
 | 問題 | 説明 |
 | --- | --- |
@@ -255,3 +270,4 @@ std::println("このフレームの確保: {} 回", g_alloc_count - before);
 - [new / delete](../stl/memory/new_delete.md)
 - [ハンドル](../engine/handle.md)
 - [パフォーマンス設計](../design/practice/performance-design.md)
+- [アロケータ（種類ごとの解説）](allocators/index.md)

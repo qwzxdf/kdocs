@@ -72,20 +72,20 @@ player += direction * (3.0f * dt);            // 加算代入、スカラー倍
 
 ### よく使うメンバ・静的関数
 
-| 書き方 | 意味 |
-| --- | --- |
-| `v.Length()` / `v.LengthSquared()` | [長さ](vectors.md#basics) / [長さの 2 乗](vectors.md#distance) |
-| `v.Normalize()` | **その場で**[正規化](vectors.md#normalize)（戻り値なし） |
-| `v.Normalize(Vector3& result)` | 結果を別の変数に |
-| `v.Dot(w)` | [内積](vectors.md#dot) |
-| `v.Cross(w)` | [外積](vectors.md#cross) |
-| `Vector3::Distance(a, b)` / `DistanceSquared(a, b)` | 2 点間の[距離](vectors.md#distance) / その 2 乗 |
-| `Vector3::Lerp(a, b, t)` | [線形補間](vectors.md#lerp) |
-| `Vector3::Reflect(v, normal)` | [反射](vectors.md#reflect) |
-| `Vector3::Min(a, b)` / `Max(a, b)` / `Clamp(v, lo, hi)` | [要素ごと](vectors.md#componentwise) |
-| `Vector3::Transform(v, matrix)` | [**位置**](vectors.md#position-direction)を[行列で変換](matrices.md#transform-point)（平行移動も） |
-| `Vector3::TransformNormal(v, matrix)` | [**方向**](vectors.md#position-direction)を[行列で変換](matrices.md#transform-point)（平行移動なし） |
-| `Vector3::Transform(v, quaternion)` | [クォータニオン](rotation.md#quaternion)で回転 |
+| 書き方 | 意味 | [DirectXMath](directxmath.md#dx-vector) の対応 |
+| --- | --- | --- |
+| `v.Length()` / `v.LengthSquared()` | [長さ](vectors.md#basics) / [長さの 2 乗](vectors.md#distance) | `XMVector3Length` / `XMVector3LengthSq` |
+| `v.Normalize()` | **その場で**[正規化](vectors.md#normalize)（戻り値なし） | `XMVector3Normalize` |
+| `v.Normalize(Vector3& result)` | 結果を別の変数に | `XMVector3Normalize` |
+| `v.Dot(w)` | [内積](vectors.md#dot) | `XMVector3Dot` |
+| `v.Cross(w)` | [外積](vectors.md#cross) | `XMVector3Cross` |
+| `Vector3::Distance(a, b)` / `DistanceSquared(a, b)` | 2 点間の[距離](vectors.md#distance) / その 2 乗 | `XMVector3Length(a - b)` |
+| `Vector3::Lerp(a, b, t)` | [線形補間](vectors.md#lerp) | `XMVectorLerp` |
+| `Vector3::Reflect(v, normal)` | [反射](vectors.md#reflect) | `XMVector3Reflect` |
+| `Vector3::Min(a, b)` / `Max(a, b)` / `Clamp(v, lo, hi)` | [要素ごと](vectors.md#componentwise) | `XMVectorMin` / `XMVectorMax` / `XMVectorClamp` |
+| `Vector3::Transform(v, matrix)` | [**位置**](vectors.md#position-direction)を[行列で変換](matrices.md#transform-point)（平行移動も） | `XMVector3TransformCoord` |
+| `Vector3::TransformNormal(v, matrix)` | [**方向**](vectors.md#position-direction)を[行列で変換](matrices.md#transform-point)（平行移動なし） | `XMVector3TransformNormal` |
+| `Vector3::Transform(v, quaternion)` | [クォータニオン](rotation.md#quaternion)で回転 | `XMVector3Rotate` |
 
 ### 定数
 
@@ -117,25 +117,25 @@ Matrix mvp = world * view * proj;
 
 ### よく使うメンバ・静的関数
 
-| 書き方 | 意味 |
-| --- | --- |
-| `Matrix::Identity` | [単位行列](matrices.md#identity) |
-| `Matrix::CreateTranslation(Vector3)` | [平行移動](matrices.md#translation) |
-| `Matrix::CreateScale(float)` / `CreateScale(Vector3)` | [拡大・縮小](matrices.md#scale) |
-| `Matrix::CreateRotationX/Y/Z(float)` | 軸まわりの[回転](matrices.md#rotation-matrix)（ラジアン） |
-| `Matrix::CreateFromAxisAngle(axis, angle)` | 任意の軸まわりの[回転](rotation.md#quaternion)（軸と角度） |
-| `Matrix::CreateFromQuaternion(q)` | [クォータニオン](rotation.md#quaternion)から |
-| `Matrix::CreateFromYawPitchRoll(yaw, pitch, roll)` | [オイラー角](rotation.md#euler)から |
-| **`Matrix::CreateWorld(position, forward, up)`** | 位置と向きから、[ワールド行列](transforms-mvp.md#model) |
-| **`Matrix::CreateLookAt(eye, target, up)`** | [ビュー行列](transforms-mvp.md#view)（**右手系**。[カメラ](camera.md)） |
-| **`Matrix::CreatePerspectiveFieldOfView(fovY, aspect, near, far)`** | [透視投影](projection.md)（右手系） |
-| `Matrix::CreateOrthographic(w, h, near, far)` | [正射投影](projection.md#orthographic)（遠近感のない投影） |
-| `m.Invert()` / `m.Invert(Matrix& result)` | [逆行列](matrices.md#inverse) |
-| `m.Transpose()` | [転置](matrices.md#transpose) |
-| `m.Decompose(scale, rotation, translation)` | [分解](matrices.md#extract)（拡大・回転・平行移動） |
-| `m.Translation()` | [平行移動](matrices.md#extract)の成分（4 行目） |
-| `m.Right()` / `m.Up()` / `m.Forward()` | 行列の、右・上・前の方向（回転の軸） |
-| `Matrix::Lerp(a, b, t)` | 行列の補間（要素ごと。回転の補間には向かない。回転は [Slerp](rotation.md#slerp)） |
+| 書き方 | 意味 | [DirectXMath](directxmath.md#dx-matrix) の対応 |
+| --- | --- | --- |
+| `Matrix::Identity` | [単位行列](matrices.md#identity) | `XMMatrixIdentity` |
+| `Matrix::CreateTranslation(Vector3)` | [平行移動](matrices.md#translation) | `XMMatrixTranslation` |
+| `Matrix::CreateScale(float)` / `CreateScale(Vector3)` | [拡大・縮小](matrices.md#scale) | `XMMatrixScaling` |
+| `Matrix::CreateRotationX/Y/Z(float)` | 軸まわりの[回転](matrices.md#rotation-matrix)（ラジアン） | `XMMatrixRotationX` / `XMMatrixRotationY` / `XMMatrixRotationZ` |
+| `Matrix::CreateFromAxisAngle(axis, angle)` | 任意の軸まわりの[回転](rotation.md#quaternion)（軸と角度） | `XMMatrixRotationAxis` |
+| `Matrix::CreateFromQuaternion(q)` | [クォータニオン](rotation.md#quaternion)から | `XMMatrixRotationQuaternion` |
+| `Matrix::CreateFromYawPitchRoll(yaw, pitch, roll)` | [オイラー角](rotation.md#euler)から | `XMMatrixRotationRollPitchYaw` |
+| **`Matrix::CreateWorld(position, forward, up)`** | 位置と向きから、[ワールド行列](transforms-mvp.md#model) | なし（自分で組む） |
+| **`Matrix::CreateLookAt(eye, target, up)`** | [ビュー行列](transforms-mvp.md#view)（**右手系**。[カメラ](camera.md)） | `XMMatrixLookAtRH` |
+| **`Matrix::CreatePerspectiveFieldOfView(fovY, aspect, near, far)`** | [透視投影](projection.md)（右手系） | `XMMatrixPerspectiveFovRH` |
+| `Matrix::CreateOrthographic(w, h, near, far)` | [正射投影](projection.md#orthographic)（遠近感のない投影） | `XMMatrixOrthographicRH` |
+| `m.Invert()` / `m.Invert(Matrix& result)` | [逆行列](matrices.md#inverse) | `XMMatrixInverse` |
+| `m.Transpose()` | [転置](matrices.md#transpose) | `XMMatrixTranspose` |
+| `m.Decompose(scale, rotation, translation)` | [分解](matrices.md#extract)（拡大・回転・平行移動） | `XMMatrixDecompose` |
+| `m.Translation()` | [平行移動](matrices.md#extract)の成分（4 行目） | `m.r[3]` |
+| `m.Right()` / `m.Up()` / `m.Forward()` | 行列の、右・上・前の方向（回転の軸） | `m.r[0]` / `m.r[1]` / `m.r[2]` |
+| `Matrix::Lerp(a, b, t)` | 行列の補間（要素ごと。回転の補間には向かない。回転は [Slerp](rotation.md#slerp)） | なし |
 
 **ここのメンバ関数名の `Create…` は、すべて静的関数**です（`Matrix::CreateRotationY(...)`）。
 
@@ -155,17 +155,17 @@ Quaternion mid = Quaternion::Slerp(q0, q1, 0.5f);
 Matrix m = Matrix::CreateFromQuaternion(q);
 ```
 
-| 書き方 | 意味 |
-| --- | --- |
-| `Quaternion::Identity` | 回転なし |
-| `Quaternion::CreateFromAxisAngle(axis, angle)` | [軸と角度](rotation.md#create)から |
-| `Quaternion::CreateFromYawPitchRoll(yaw, pitch, roll)` | オイラー角から |
-| `Quaternion::CreateFromRotationMatrix(m)` | 行列から |
-| `Quaternion::Slerp(a, b, t)` / `Lerp(a, b, t)` | [補間](rotation.md#slerp) |
-| `q.Normalize()` | [正規化](rotation.md#quaternion)（長さを 1 に戻す） |
-| `q.Inverse()` / `q.Conjugate()` | [逆回転](rotation.md#inverse) / 共役 |
-| `q1 * q2` | [回転の合成](rotation.md#compose)（**先に q1、次に q2**。行ベクトル規約） |
-| `q.ToEuler()` | オイラー角へ（`Vector3`：pitch, yaw, roll） |
+| 書き方 | 意味 | [DirectXMath](directxmath.md#dx-quaternion) の対応 |
+| --- | --- | --- |
+| `Quaternion::Identity` | 回転なし | `XMQuaternionIdentity` |
+| `Quaternion::CreateFromAxisAngle(axis, angle)` | [軸と角度](rotation.md#create)から | `XMQuaternionRotationAxis` |
+| `Quaternion::CreateFromYawPitchRoll(yaw, pitch, roll)` | オイラー角から | `XMQuaternionRotationRollPitchYaw` |
+| `Quaternion::CreateFromRotationMatrix(m)` | 行列から | `XMQuaternionRotationMatrix` |
+| `Quaternion::Slerp(a, b, t)` / `Lerp(a, b, t)` | [補間](rotation.md#slerp) | `XMQuaternionSlerp` |
+| `q.Normalize()` | [正規化](rotation.md#quaternion)（長さを 1 に戻す） | `XMQuaternionNormalize` |
+| `q.Inverse()` / `q.Conjugate()` | [逆回転](rotation.md#inverse) / 共役 | `XMQuaternionInverse` / `XMQuaternionConjugate` |
+| `q1 * q2` | [回転の合成](rotation.md#compose)（**先に q1、次に q2**。行ベクトル規約） | `XMQuaternionMultiply` |
+| `q.ToEuler()` | オイラー角へ（`Vector3`：pitch, yaw, roll） | なし |
 
 詳しくは [回転とクォータニオン](rotation.md) を見てください。
 

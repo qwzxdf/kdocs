@@ -59,13 +59,13 @@ tags:
 
 ## パスの方針
 
-```text
-ゲームの中のパス：UTF-8 の std::string
-        │
-        ├─→ std::filesystem::path にして、ファイルを開く（自分で読む）
-        │
-        └─→ ライブラリに「メモリ上のデータ」として渡す（ファイル名を渡さない）
-```
+<div class="anim" data-type="graph" data-label="ライブラリには、メモリ上のデータを渡す">
+n p パス_（UTF-8_std::string） 0 1
+n f std::filesystem::path_で開く 1 0
+n l ライブラリへ_メモリ上のデータ 1 2
+l p f - 自分で読む
+l p l - ファイル名は渡さない
+</div>
 
 | 方針 | 理由 |
 | --- | --- |

@@ -25,15 +25,21 @@ tags:
 
 ### 継承だけで作ると困ること
 
-```text
-GameObject
-├── Character
-│   ├── Player
-│   └── Enemy
-│       ├── WalkingEnemy
-│       └── FlyingEnemy
-└── Item
-```
+<div class="anim" data-type="graph" data-label="継承の木：機能が増えると、枝が増えていく">
+n g GameObject 0 2
+n c Character 1 1
+n i Item 1 4
+n p Player 2 0
+n e Enemy 2 2
+n w WalkingEnemy 3 1
+n f FlyingEnemy 3 3
+l g c
+l g i
+l c p
+l c e
+l e w
+l e f
+</div>
 
 ここで「**空を飛ぶアイテム**」や「**プレイヤーが操作できる敵**」を作ろうとすると、どこに入れればいいか分かりません。機能を継承の木に固定してしまうので、組み合わせが増えるとクラスが爆発します。
 
@@ -50,7 +56,9 @@ GameObject
 
 ## 詳しく
 
-### 最小の実装
+### 最小の実装 {#minimal}
+
+<p class="ng">※ 仕組みを分かりやすくするために、あえて<strong>非推奨の実装</strong>にしています（コンポーネントを個別に <code>new</code> して、ポインタで持ちます）。非推奨の理由は、<a href="#slow">「遅さの原因と対策」</a>の項目を見てください。</p>
 
 ```cpp
 #include <memory>
@@ -184,7 +192,7 @@ int main() {
 | `Draw` | 描画のとき | 見た目 |
 | `OnDestroy` / デストラクタ | 消えるとき | 後片付け |
 
-### 遅さの原因と対策
+### 遅さの原因と対策 {#slow}
 
 この素朴な実装は、オブジェクトが数百〜数千くらいまでなら十分動きます。それ以上になると次の点が効いてきます。
 

@@ -17,11 +17,25 @@ tags:
 
 ## なぜ遅いのか
 
-```text
-A.cpp ─ #include "big.h" ─┐
-B.cpp ─ #include "big.h" ─┼→ big.h を 100 回、読んで・解析して・展開する
-C.cpp ─ #include "big.h" ─┘
-```
+<div class="anim" data-type="graph" data-label="同じヘッダを、すべての .cpp が読み直す">
+n a A.cpp 0 0 hit
+n h big.h_（100回、解析・展開） 2 1 hit
+l a h hit #include
+---
+n a A.cpp 0 0
+n b B.cpp 0 1 hit
+n h big.h_（100回、解析・展開） 2 1
+l a h - #include
+l b h hit #include
+---
+n a A.cpp 0 0
+n b B.cpp 0 1
+n c C.cpp 0 2 hit
+n h big.h_（100回、解析・展開） 2 1
+l a h - #include
+l b h - #include
+l c h hit #include
+</div>
 
 | 原因 | 説明 |
 | --- | --- |

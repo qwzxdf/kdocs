@@ -19,15 +19,19 @@ tags:
 
 ## Ninja とは
 
-```text
-CMakeLists.txt（人が書く設計図）
-    │ cmake が読んで、ジェネレーターに応じた指示書を作る
-    ▼
-build.ninja（Ninja 用の指示書：全部のコマンドが並んでいる）
-    │ ninja が読んで、必要なものだけを、並列に実行
-    ▼
-ゲームの .exe
-```
+<div class="anim" data-type="graph" data-label="CMake が指示書を作り、Ninja が実行する">
+n c0 CMakeLists.txt_（人が書く設計図） 0 0 hit
+---
+n c0 CMakeLists.txt_（人が書く設計図） 0 0
+n c1 build.ninja_（Ninja_用の指示書） 0 1 hit
+l c0 c1 hit cmake_が読んで作る
+---
+n c0 CMakeLists.txt_（人が書く設計図） 0 0
+n c1 build.ninja_（Ninja_用の指示書） 0 1
+n c2 ゲームの.exe 0 2 hit
+l c0 c1 - cmake_が読んで作る
+l c1 c2 hit ninja_が必要なものだけを並列に実行
+</div>
 
 | 道具 | 特徴 |
 | --- | --- |

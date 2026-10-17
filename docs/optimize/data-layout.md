@@ -18,6 +18,8 @@ CPU は、メモリから<strong>64 バイトのかたまり（キャッシュ�
 
 ## AoS と SoA
 
+<svg class="fig" viewBox="0 0 620 240" role="img" aria-label="AoS と SoA のメモリ配置"><text x="20" y="20" class="fig-title">AoS：1 つの粒子の全項目が、並ぶ</text><rect x="30" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="56" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="82" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="108" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="134" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="160" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="186" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="212" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="238" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="264" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="290" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="316" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="342" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="368" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="394" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="420" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="446" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="472" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><text x="30" y="82">青＝位置（使う）、灰＝速度・寿命・色など（今は使わない）。位置の間に、使わないデータが挟まる</text><text x="20" y="120" class="fig-title">SoA：項目ごとに、連続して並ぶ</text><rect x="30" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="56" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="82" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="108" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="134" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="160" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="186" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="212" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="238" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="264" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="290" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="316" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="342" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="368" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="394" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="420" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="446" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="472" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><text x="30" y="182">位置だけが連続 → キャッシュを無駄なく使える（SIMD にもしやすい）</text><text x="30" y="215">位置を更新するループは、SoA の方が、読むメモリが少なくて済む</text></svg>
+
 ### AoS（Array of Structs：構造体の配列）
 
 ```cpp
@@ -207,10 +209,20 @@ struct NodeCompact {
 
 <strong>ポインタを辿る（pointer chasing）</strong>たびに、**キャッシュミス**になる可能性があります。
 
-```text
-リンクリスト：  [A] → [B] → [C] → [D]     （各要素が、メモリのあちこち）
-配列：          [A][B][C][D]               （連続。先読みが効く）
-```
+<div class="anim" data-type="graph" data-label="リストはあちこちに散らばり、配列は連続している">
+n a A 0 0
+n b B 1 2
+n c C 2 0
+n d D 3 2
+l a b
+l b c
+l c d
+---
+n a A 0 0 hit
+n b B 1 0 hit
+n c C 2 0 hit
+n d D 3 0 hit
+</div>
 
 | 遅い | 速い |
 | --- | --- |
@@ -243,9 +255,11 @@ void Remove(std::vector<Enemy>& v, size_t index) {
 
 **ID が飛び飛び**（大きな ID を持つ、少数のエンティティ）で、**連続した配列**で回したいときの構造です。
 
-```text
-sparse[ID] → dense の位置        dense[i] → ID, data[i] → データ
-```
+| 配列 | 引く / 持つもの |
+| --- | --- |
+| `sparse[ID]` | dense の位置 |
+| `dense[i]` | ID |
+| `data[i]` | データ |
 
 | 操作 | コスト |
 | --- | --- |

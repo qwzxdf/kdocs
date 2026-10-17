@@ -108,12 +108,43 @@ l twice fire new 包む
 
 ### 呼び出しの流れ
 
-```text
-weapon->Damage()                        ← 一番外側（Doubled）を呼ぶ
-  └ Doubled::Damage()   = inner->Damage() * 2
-        └ FireEnchant::Damage() = inner->Damage() + 5
-              └ Sword::Damage() = 10   ← 一番内側
-```
+<div class="anim" data-type="graph" data-label="デコレータは、外側から順に呼び、結果が内側から戻ってくる">
+n w weapon->Damage() 0 0 hit
+n d Doubled 1 0
+n f FireEnchant 2 0
+n s Sword 3 0
+l w d hit 呼ぶ
+---
+n w weapon->Damage() 0 0
+n d Doubled 1 0 hit
+n f FireEnchant 2 0
+n s Sword 3 0
+l w d
+l d f hit inner_を呼ぶ
+---
+n w weapon->Damage() 0 0
+n d Doubled 1 0
+n f FireEnchant 2 0 hit
+n s Sword_=_10 3 0 hit
+l w d
+l d f
+l f s hit inner_を呼ぶ
+---
+n w weapon->Damage() 0 0
+n d Doubled 1 0
+n f FireEnchant_10+5=15 2 0 hit
+n s Sword_=_10 3 0
+l w d
+l d f
+l s f hit 10_を返す
+---
+n w weapon->Damage()_=_30 0 0 hit
+n d Doubled_15*2=30 1 0 hit
+n f FireEnchant_=_15 2 0
+n s Sword_=_10 3 0
+l d w hit 30_を返す
+l f d hit 15_を返す
+</div>
 
 外側から内側へ呼び、結果が内側から外側へ戻りながら、**包みごとに加工されます**。
 

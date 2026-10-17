@@ -21,10 +21,16 @@ tags:
 
 ## 動的ポリモーフィズムとの違い
 
-```text
-動的（virtual）：   Shape* s = new Circle;   s->Area();   ← 実行時に、Circle の Area を探して呼ぶ
-静的（テンプレート）：  Circle c;            Area(c);      ← コンパイル時に、Circle の Area と決まる
-```
+<div class="anim" data-type="graph" data-label="virtual は実行時に探し、テンプレートはコンパイル時に決まる">
+n v1 Shape*_s->Area() 0 0
+n v2 vtable_を引く 1 0
+n v3 Circle::Area 2 0
+n t1 Circle_c_Area(c) 0 1
+n t2 Circle::Area 2 1
+l v1 v2 - 実行時
+l v2 v3
+l t1 t2 hit コンパイル時に決まる
+</div>
 
 | 項目 | 動的（`virtual`） | 静的（CRTP・テンプレート） |
 | --- | --- | --- |

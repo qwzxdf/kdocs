@@ -64,6 +64,39 @@ int main() {
 
 ### キャプチャの種類
 
+<div class="anim" data-type="graph" data-label="値キャプチャ [=]：その時点の値の「コピー」を持つ">
+n x 変数_x_=_10 0 0 hit
+---
+n x 変数_x_=_10 0 0
+n l ラムダ_（x_のコピー_=_10） 1 0 new
+l x l - コピー
+---
+n x 変数_x_=_20 0 0 hit
+n l ラムダ_（x_のコピー_=_10） 1 0
+l x l dim
+---
+n x 変数_x_=_20 0 0
+n l ラムダ_は_10_のまま 1 0 hit
+</div>
+
+<div class="anim" data-type="graph" data-label="参照キャプチャ [&]：変数そのものを見ている（消えると危険）">
+n x 変数_x_=_10 0 0 hit
+n l ラムダ_（x_を参照） 1 0 new
+l l x - 参照
+---
+n x 変数_x_=_20 0 0 hit
+n l ラムダ_（x_を参照） 1 0
+l l x
+---
+n x 変数_x_=_20 0 0
+n l ラムダ_は_20_が見える 1 0 hit
+l l x
+---
+n x x_は消えた 0 0 gone
+n l ラムダ_→_ぶら下がり 1 0 gone
+l l x gone 使うと危険
+</div>
+
 | 書き方 | 重要度 | 意味 |
 | --- | --- | --- |
 | `[]` | <span class="rank rank-must">必須</span> | 何も取り込まない |

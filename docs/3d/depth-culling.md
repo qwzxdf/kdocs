@@ -20,11 +20,27 @@ tags:
 
 各ピクセルについて、**今までに描いた中で、いちばん手前の深度**を、バッファに記録します。新しいピクセルが、**記録より手前なら描いて更新、奥なら捨てます**。
 
-```text
-ピクセルの深度     0.8（奥）          0.3（手前）        0.5
-バッファの値      1.0(初期) → 0.8     0.8 → 0.3          0.3 のまま
-                 描く(更新)          描く(更新)         奥なので、捨てる
-```
+<div class="anim" data-type="graph" data-label="深度バッファ：手前なら描いて更新、奥なら捨てる">
+n px ピクセル_深度0.8 0 0 hit
+n buf バッファ_1.0 1 0
+l px buf - 比べる
+---
+n px ピクセル_深度0.8 0 0
+n buf バッファ_0.8 1 0 new
+l px buf - 手前→描く・更新
+---
+n px ピクセル_深度0.3 0 0 hit
+n buf バッファ_0.8 1 0
+l px buf - 比べる
+---
+n px ピクセル_深度0.3 0 0
+n buf バッファ_0.3 1 0 new
+l px buf - 手前→描く・更新
+---
+n px ピクセル_深度0.5 0 0 gone
+n buf バッファ_0.3 1 0
+l px buf - 奥→捨てる
+</div>
 
 ### 作る（DX11）
 
@@ -110,6 +126,8 @@ context->RSSetState(rs_state.Get());
 
 ### 巻き順（ワインディング）
 
+<svg class="fig" viewBox="0 0 620 220" role="img" aria-label="巻き順と表裏"><defs><marker id="w1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">反時計回り（CCW）＝表</text><polygon points="60,170 200,170 130,60" fill="rgba(46,160,67,0.25)" stroke="currentColor" stroke-width="2"/><text x="40" y="190">v0</text><text x="200" y="190">v1</text><text x="122" y="52">v2</text><path d="M 100 150 A 40 40 0 1 0 160 150" fill="none" stroke="currentColor" marker-end="url(#w1)" transform="translate(0,-25)"/><text x="40" y="212">v0 → v1 → v2 が、反時計回りに見える（描く）</text><text x="330" y="20" class="fig-title">時計回り（CW）＝裏</text><polygon points="360,170 500,170 430,60" fill="rgba(229,72,77,0.25)" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><text x="340" y="190">v0</text><text x="500" y="190">v2</text><text x="422" y="52">v1</text><text x="340" y="212">カリングで、描かれない（CullMode = BACK）</text></svg>
+
 | 巻き順 | どう見えるか |
 | --- | --- |
 | <strong>反時計回り（CCW）</strong> | 見る側から、頂点が反時計回り → **表** |
@@ -170,6 +188,8 @@ context->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH, 0.0f, 0);
     **どれか 1 つ忘れる**と、何も描かれない、または、すべて手前に見えます。**射影・比較関数・クリア値・フォーマット**は、セットで切り替えます。
 
 ## 視錐台カリング
+
+<svg class="fig" viewBox="0 0 620 250" role="img" aria-label="視錐台カリング"><defs><marker id="f2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">視錐台カリング：見えない物は、描画命令を出さない（真上から見た図）</text><circle cx="80" cy="130" r="7" fill="currentColor"/><text x="55" y="155">カメラ</text><polygon points="80,130 330,40 330,220" fill="rgba(76,139,245,0.12)" stroke="currentColor" stroke-width="2"/><circle cx="200" cy="130" r="14" fill="rgba(46,160,67,0.5)" stroke="currentColor"/><text x="190" y="168">描く</text><circle cx="270" cy="85" r="14" fill="rgba(46,160,67,0.5)" stroke="currentColor"/><text x="262" y="64">描く</text><circle cx="250" cy="230" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="230" y="212">外：除外</text><circle cx="150" cy="40" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="125" y="24">外：除外</text><circle cx="420" cy="130" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="380" y="170">far より奥：除外</text><text x="400" y="80">球（BoundingSphere）で、判定する</text></svg>
 
 **視錐台**（カメラの見える範囲）の**外にあるオブジェクトを、描画命令の前に、除外**します。描画命令・頂点処理を、丸ごと省けます。
 

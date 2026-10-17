@@ -17,9 +17,37 @@ tags:
 
 ## ロードの内訳
 
-```text
-ファイルを開く・読む（I/O） → 解析・デコード（CPU） → メモリ確保 → GPU へ転送 → 初期化
-```
+<div class="anim" data-type="graph" data-label="ロードの流れ">
+n c0 ファイルを開く・読む_（I/O） 0 0 hit
+---
+n c0 ファイルを開く・読む_（I/O） 0 0
+n c1 解析・デコード_（CPU） 1 0 hit
+l c0 c1 hit
+---
+n c0 ファイルを開く・読む_（I/O） 0 0
+n c1 解析・デコード_（CPU） 1 0
+n c2 メモリ確保 2 0 hit
+l c0 c1
+l c1 c2 hit
+---
+n c0 ファイルを開く・読む_（I/O） 0 0
+n c1 解析・デコード_（CPU） 1 0
+n c2 メモリ確保 2 0
+n c3 GPU_へ転送 3 0 hit
+l c0 c1
+l c1 c2
+l c2 c3 hit
+---
+n c0 ファイルを開く・読む_（I/O） 0 0
+n c1 解析・デコード_（CPU） 1 0
+n c2 メモリ確保 2 0
+n c3 GPU_へ転送 3 0
+n c4 初期化 4 0 hit
+l c0 c1
+l c1 c2
+l c2 c3
+l c3 c4 hit
+</div>
 
 | 段階 | 遅い原因 | 対策 |
 | --- | --- | --- |
@@ -49,11 +77,13 @@ void LoadStage(const std::string& path) {
 
 JSON や YAML は、人が読める形式ですが、**パース（文字を読んで、構造を作る）が重い**です。開発中は読みやすさを優先し、**製品版では、ビルド時にバイナリへ変換**して、実行時はバイナリを読みます。
 
-```text
-開発中：  stage1.json（人が編集）
-              ↓ ビルド時に変換するツール
-製品版：  stage1.bin（バイナリ）── 実行時は、これを読むだけ
-```
+<div class="anim" data-type="graph" data-label="開発中は人が編集する形式、製品版はバイナリ">
+n j stage1.json_（人が編集） 0 0
+n t 変換ツール_（ビルド時） 1 1
+n b stage1.bin_（バイナリ） 2 0
+l j t - ビルド時に
+l t b - 実行時は、これを読むだけ
+</div>
 
 | 形式 | 読み込みの速さ | 備考 |
 | --- | --- | --- |

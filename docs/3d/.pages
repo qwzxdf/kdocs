@@ -3,6 +3,7 @@ nav:
   - directxmath.md
   - simplemath.md
   - coordinate-systems.md
+  - model-basics.md
   - vectors.md
   - matrices.md
   - transforms-mvp.md
@@ -12,6 +13,7 @@ nav:
   - depth-culling.md
   - picking-raycast.md
   - lighting-normals.md
+  - pbr.md
   - mesh-textures.md
   - collision-3d.md
   - skinning-animation.md

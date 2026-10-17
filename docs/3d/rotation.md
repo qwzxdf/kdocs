@@ -27,6 +27,8 @@ tags:
 
 ## オイラー角の問題 {#euler}
 
+<svg class="fig" viewBox="0 0 620 230" role="img" aria-label="ジンバルロック"><defs><marker id="g1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">ふつうの姿勢：3 つの軸が、独立に回せる</text><line x1="120" y1="130" x2="120" y2="50" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" /><text x="126" y="56">Y（yaw）</text><line x1="120" y1="130" x2="200" y2="130" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" /><text x="204" y="134">X（pitch）</text><line x1="120" y1="130" x2="70" y2="175" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" /><text x="30" y="190">Z（roll）</text><text x="20" y="215">どの軸まわりにも、自由に回せる</text><text x="330" y="20" class="fig-title">pitch を 90°にすると</text><line x1="430" y1="160" x2="430" y2="60" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" /><text x="436" y="66">yaw の軸</text><line x1="430" y1="160" x2="430" y2="90" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" stroke-dasharray="4 3"/><text x="436" y="120">roll の軸（同じ向き）</text><text x="330" y="190">2 つの軸が重なり、回せる自由度が 1 つ消える</text><text x="330" y="212">→ ジンバルロック（クォータニオンなら起きない）</text></svg>
+
 ### ジンバルロック
 
 **オイラー角で、3 つの回転を順に行うと、特定の姿勢で、2 つの軸が重なって、自由度が 1 つ失われます**。たとえば、「Y → X → Z」の順で、X 軸（pitch）を ±90° にすると、Y 軸（yaw）と Z 軸（roll）の回転が、**同じ軸まわりの回転**になってしまいます。
@@ -49,14 +51,20 @@ tags:
 
 ## クォータニオン {#quaternion}
 
+<svg class="fig" viewBox="0 0 560 220" role="img" aria-label="軸と角度による回転"><defs><marker id="a1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">回転 ＝「軸」と「角度」</text><line x1="150" y1="190" x2="150" y2="40" stroke="currentColor" stroke-width="3" marker-end="url(#a1)" /><text x="158" y="50">軸 n（長さ 1）</text><ellipse cx="150" cy="130" rx="85" ry="26" fill="none" stroke="currentColor" stroke-dasharray="4 4"/><circle cx="235" cy="130" r="6" fill="currentColor"/><text x="240" y="120">回す前</text><circle cx="190" cy="153" r="6" fill="currentColor"/><text x="125" y="175">回した後</text><path d="M 232 136 A 85 26 0 0 1 196 155" fill="none" stroke="currentColor" marker-end="url(#a1)"/><text x="215" y="160">θ</text><text x="340" y="90">クォータニオン q ＝ ( n × sin(θ/2) , cos(θ/2) )</text><text x="340" y="120">軸 n のまわりに、角度 θ だけ回す</text><text x="340" y="150">4 つの数字で、向きを表す</text></svg>
+
 **クォータニオン**は、`(x, y, z, w)` の 4 つの数字で、<strong>「ある軸のまわりに、ある角度だけ回す」</strong>を表します。
 
-```text
-軸 n（長さ 1）のまわりに、角度 θ だけ回すクォータニオン：
+軸 n（長さ 1）のまわりに、角度 θ だけ回すクォータニオンは、次の形です。
 
-q = ( n.x * sin(θ/2),  n.y * sin(θ/2),  n.z * sin(θ/2),  cos(θ/2) )
-      ───────────  xyz（軸の成分）  ───────────────       w（角度の成分）
-```
+<div class="formula">q ＝ ( n.x · sin(θ/2) ,　n.y · sin(θ/2) ,　n.z · sin(θ/2) ,　cos(θ/2) )</div>
+
+| 部分 | 意味 |
+| --- | --- |
+| 軸 n（長さ 1） | 回転の軸 |
+| θ | 回す角度 |
+| **x, y, z** | 軸の成分に `sin(θ/2)` を掛けたもの |
+| **w** | 角度の成分 `cos(θ/2)` |
 
 <strong>数字の中身を、直接触る必要はありません。</strong>軸と角度で作り、関数で操作します。
 
@@ -132,6 +140,8 @@ Quaternion difference = from.Inverse() * to;             // from から to へ�
 ```
 
 ## 補間（Slerp） {#slerp}
+
+<svg class="fig" viewBox="0 0 620 240" role="img" aria-label="Slerp と Lerp"><defs><marker id="s1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">Slerp：円弧に沿って、一定の速さで</text><path d="M 40 190 A 150 150 0 0 1 220 60" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="40" cy="190" r="5" fill="currentColor"/><circle cx="73" cy="130" r="5" fill="currentColor"/><circle cx="130" cy="83" r="5" fill="currentColor"/><circle cx="220" cy="60" r="5" fill="currentColor"/><text x="25" y="212">from</text><text x="215" y="50">to</text><text x="30" y="232">等間隔に動く（回転の速さが一定）</text><text x="330" y="20" class="fig-title">Lerp：弦に沿って（正規化が必要）</text><path d="M 350 190 A 150 150 0 0 1 530 60" fill="none" stroke="currentColor" stroke-dasharray="4 4"/><line x1="350" y1="190" x2="530" y2="60" stroke="currentColor" stroke-width="2"/><circle cx="350" cy="190" r="5" fill="currentColor"/><circle cx="409" cy="148" r="5" fill="currentColor"/><circle cx="468" cy="105" r="5" fill="currentColor"/><circle cx="530" cy="60" r="5" fill="currentColor"/><text x="335" y="212">from</text><text x="525" y="50">to</text><text x="340" y="232">等間隔だが、正規化すると、速さが不均一になる</text></svg>
 
 **2 つの回転の途中**を求めるのが、<strong>球面線形補間（Slerp：スラープ）</strong>です。**一定の速さで、最短の経路**で、回転が変わります。
 

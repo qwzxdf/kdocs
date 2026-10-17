@@ -20,17 +20,7 @@ tags:
 
 カメラから見える 3D の範囲は、<strong>四角錐を、near と far で切り取った形（視錐台：frustum）</strong>です。
 
-```text
-         カメラ（目）
-           ●
-          /|\
-         / | \          ← 視野角（FOV）で、広がりが決まる
-        /  |  \
- near  /───┼───\ near 面（ここより手前は映らない）
-      /    |    \
-     /     |     \
-far /──────┼──────\ far 面（ここより奥は映らない）
-```
+<svg class="fig" viewBox="0 0 520 250" role="img" aria-label="視錐台"><circle cx="260" cy="26" r="7" fill="currentColor"/><text x="272" y="22">カメラ（目）</text><line x1="260" y1="26" x2="110" y2="215" stroke="currentColor" stroke-width="2"/><line x1="260" y1="26" x2="410" y2="215" stroke="currentColor" stroke-width="2"/><line x1="215" y1="83" x2="305" y2="83" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><text x="315" y="87">near 面（これより手前は映らない）</text><line x1="110" y1="215" x2="410" y2="215" stroke="currentColor" stroke-width="2"/><text x="150" y="238">far 面（これより奥は映らない）</text><text x="100" y="110">視野角</text><text x="100" y="128">（FOV）</text><path d="M 232 63 A 45 45 0 0 0 288 63" fill="none" stroke="currentColor"/></svg>
 
 視錐台の**中にあるもの**だけが、画面に映ります。外にあるものは、**クリップ**（切り捨て）されます。
 
@@ -48,6 +38,8 @@ Matrix proj = Matrix::CreatePerspectiveFieldOfView(fov_y, aspect, near_plane, fa
 | **`far_plane`** | 一番遠い距離（これより奥は映らない） | ゲームの範囲に合わせる（1000 など） |
 
 ### 視野角（FOV）
+
+<svg class="fig" viewBox="0 0 620 220" role="img" aria-label="視野角の違い"><defs><marker id="f1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">視野角（FOV）が小さい：望遠</text><circle cx="80" cy="120" r="6" fill="currentColor"/><line x1="80" y1="120" x2="270" y2="85" stroke="currentColor"/><line x1="80" y1="120" x2="270" y2="155" stroke="currentColor"/><text x="100" y="190">見える範囲が狭く、拡大して見える</text><text x="330" y="20" class="fig-title">視野角が大きい：広角</text><circle cx="360" cy="120" r="6" fill="currentColor"/><line x1="360" y1="120" x2="580" y2="30" stroke="currentColor"/><line x1="360" y1="120" x2="580" y2="210" stroke="currentColor"/><text x="370" y="205">見える範囲が広いが、端が歪んで見える</text></svg>
 
 | FOV | 見え方 |
 | --- | --- |
@@ -73,17 +65,23 @@ void OnResize(int width, int height) {
 
 ### 遠近感は「w で割る」から生まれる
 
+<svg class="fig" viewBox="0 0 620 250" role="img" aria-label="遠近感"><defs><marker id="p1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">遠いものが小さく見えるのは、w（距離）で割るから</text><circle cx="60" cy="140" r="6" fill="currentColor"/><text x="40" y="165">カメラ</text><line x1="60" y1="140" x2="520" y2="60" stroke="currentColor" stroke-dasharray="4 4"/><line x1="60" y1="140" x2="520" y2="220" stroke="currentColor" stroke-dasharray="4 4"/><line x1="200" y1="115" x2="200" y2="165" stroke="currentColor" stroke-width="4"/><text x="190" y="105">近い（同じ高さ）</text><line x1="400" y1="85" x2="400" y2="195" stroke="currentColor" stroke-width="4"/><text x="390" y="78">遠い（同じ高さ）</text><line x1="130" y1="125" x2="130" y2="155" stroke="currentColor" stroke-width="2"/><text x="100" y="118">画面</text><text x="20" y="235">同じ高さでも、距離が 2 倍なら、画面の上では、約半分の大きさ（x ÷ w, y ÷ w）</text></svg>
+
 プロジェクション行列は、**ビュー空間の座標を、クリップ空間（同次座標 `x, y, z, w`）に変換**します。このとき、**`w` に、カメラからの距離が入ります**。
 
-```text
-ビュー空間の点 (x, y, z)    ← カメラからの距離は、右手系では -z
-            │ プロジェクション行列を掛ける
-            ▼
-クリップ空間 (x', y', z', w')   ← w' = カメラからの距離（右手系の場合 -z）
-            │ w' で割る（透視除算）
-            ▼
-NDC (x'/w', y'/w', z'/w')       ← 遠い（w' が大きい）ほど、x, y が 0 に近づく＝小さく見える
-```
+<div class="anim" data-type="graph" data-label="透視投影：ビュー空間 → クリップ空間 → NDC">
+n c0 ビュー空間_(x,y,z) 0 0 hit
+---
+n c0 ビュー空間_(x,y,z) 0 0
+n c1 クリップ空間_(x',y',z',w') 0 1 hit
+l c0 c1 hit プロジェクション行列を掛ける
+---
+n c0 ビュー空間_(x,y,z) 0 0
+n c1 クリップ空間_(x',y',z',w') 0 1
+n c2 NDC_(x'/w',y'/w',z'/w') 0 2 hit
+l c0 c1 - プロジェクション行列を掛ける
+l c1 c2 hit w'で割る（透視除算）
+</div>
 
 **遠いほど `w` が大きい**ので、`x / w`、`y / w` が小さくなり、画面の中央に寄ります。これが遠近感です。**この割り算は、GPU が自動で行います**（頂点シェーダーが `SV_POSITION` を返したあと）。
 
@@ -97,14 +95,8 @@ _ _ *C _ _ _ # 遠い（w が大きい）：1 マスぶん
 
 SimpleMath の `CreatePerspectiveFieldOfView`（右手系）は、次の行列です。
 
-```text
-f = 1 / tan(fovY / 2)
-
- ┌ f/aspect   0         0                    0  ┐
- │   0        f         0                    0  │
- │   0        0    far/(near-far)           -1  │   ← 最後の列の -1 が、w に -z を入れる
- └   0        0   near*far/(near-far)        0  ┘
-```
+<div class="formula">f = 1 / tan(fovY / 2)</div>
+<div class="mat-row"><table class="matrix"><tr><td>f/aspect</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>f</td><td>0</td><td>0</td></tr><tr><td>0</td><td>0</td><td>far/(near−far)</td><td class="hl">−1</td></tr><tr><td>0</td><td>0</td><td>near·far/(near−far)</td><td>0</td></tr></table><span class="mat-note">最後の列の −1 が、w に −z を入れる（遠いほど w が大きくなる）</span></div>
 
 | 要素 | 意味 |
 | --- | --- |

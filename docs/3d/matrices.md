@@ -31,12 +31,7 @@ SimpleMath は、**行ベクトル規約**（`v' = v * M`）です。平行移�
 
 ### 平行移動 {#translation}
 
-```text
-        ┌ 1  0  0  0 ┐
-T(x,y,z)│ 0  1  0  0 │      4 行目 (x, y, z, 1) が、移動量
-        │ 0  0  1  0 │
-        └ x  y  z  1 ┘
-```
+<div class="mat-row"><span class="mat-name">T(x, y, z) =</span><table class="matrix"><tr><td>1</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td>1</td><td>0</td><td>0</td></tr><tr><td>0</td><td>0</td><td>1</td><td>0</td></tr><tr><td class="hl">x</td><td class="hl">y</td><td class="hl">z</td><td>1</td></tr></table><span class="mat-note">4 行目 (x, y, z, 1) が、移動量</span></div>
 
 ```cpp
 Matrix t = Matrix::CreateTranslation(Vector3(3.0f, 0.0f, -2.0f));
@@ -44,12 +39,7 @@ Matrix t = Matrix::CreateTranslation(Vector3(3.0f, 0.0f, -2.0f));
 
 ### 拡大・縮小 {#scale}
 
-```text
-        ┌ sx 0  0  0 ┐
-S(sx,sy,sz)│ 0  sy 0  0 │     対角線が、各軸の倍率
-        │ 0  0  sz 0 │
-        └ 0  0  0  1 ┘
-```
+<div class="mat-row"><span class="mat-name">S(sx, sy, sz) =</span><table class="matrix"><tr><td class="hl">sx</td><td>0</td><td>0</td><td>0</td></tr><tr><td>0</td><td class="hl">sy</td><td>0</td><td>0</td></tr><tr><td>0</td><td>0</td><td class="hl">sz</td><td>0</td></tr><tr><td>0</td><td>0</td><td>0</td><td>1</td></tr></table><span class="mat-note">対角線が、各軸の倍率</span></div>
 
 ```cpp
 Matrix s = Matrix::CreateScale(2.0f);                    // 全部 2 倍
@@ -96,6 +86,8 @@ Vector3 v = Vector3::Transform(Vector3(1, 2, 3), m);   // (1, 2, 3) のまま
 | **`M × M⁻¹`** | 行列とその逆行列を掛けると、単位行列になる（[逆行列](#inverse)） |
 
 ## 行列を掛ける順番 {#order}
+
+<svg class="fig" viewBox="0 0 620 250" role="img" aria-label="掛ける順番で結果が変わる"><defs><marker id="v6" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">拡大 → 回転 → 平行移動（S × R × T）：その場で回って、あとで移動</text><line x1="30" y1="180" x2="290" y2="180" stroke="currentColor" stroke-dasharray="4 4"/><text x="30" y="198">原点</text><rect x="22" y="172" width="16" height="16" fill="rgba(76,139,245,0.5)" stroke="currentColor" transform="rotate(30 30 180)"/><line x1="40" y1="180" x2="210" y2="180" stroke="currentColor" stroke-width="2" marker-end="url(#v6)" /><rect x="212" y="172" width="16" height="16" fill="rgba(76,139,245,0.5)" stroke="currentColor" transform="rotate(30 220 180)"/><text x="160" y="160">回転の中心は、自分</text><text x="330" y="20" class="fig-title">平行移動 → 回転（T × R）：原点のまわりを回る</text><circle cx="340" cy="180" r="3" fill="currentColor"/><text x="330" y="198">原点</text><circle cx="340" cy="180" r="100" fill="none" stroke="currentColor" stroke-dasharray="4 4"/><rect x="432" y="172" width="16" height="16" fill="rgba(229,72,77,0.4)" stroke="currentColor"/><text x="425" y="160">先に移動</text><rect x="362" y="92" width="16" height="16" fill="rgba(229,72,77,0.6)" stroke="currentColor" transform="rotate(60 370 100)"/><text x="380" y="90">回転で、軌道上へ</text><path d="M 438 172 A 100 100 0 0 0 376 100" fill="none" stroke="currentColor" marker-end="url(#v6)"/><text x="20" y="238">SimpleMath は、左から右へ、適用する順に並べる（行ベクトル規約）。順番は、必ず確かめる</text></svg>
 
 **一番間違えやすい**ところです。行ベクトル規約では、**変換を適用する順番の通りに、左から右へ**並べます。
 
@@ -204,11 +196,9 @@ world.Invert(inv);                          // 結果を、別の変数に
 
 **転置**は、行列の**行と列を、入れ替える**操作です（`M` の転置は `Mᵀ`）。対角線を軸に、ひっくり返したものです。
 
-```text
-1 2 3          1 4 7
-4 5 6   →      2 5 8
-7 8 9          3 6 9
-```
+<div class="mat-row"><span class="mat-name">M =</span><table class="matrix"><tr><td>1</td><td>2</td><td>3</td></tr><tr><td>4</td><td>5</td><td>6</td></tr><tr><td>7</td><td>8</td><td>9</td></tr></table></div>
+<div class="mat-arrow">転置（行と列を入れ替える）↓</div>
+<div class="mat-row"><span class="mat-name">Mᵀ =</span><table class="matrix"><tr><td>1</td><td>4</td><td>7</td></tr><tr><td>2</td><td>5</td><td>8</td></tr><tr><td>3</td><td>6</td><td>9</td></tr></table></div>
 
 ```cpp
 Matrix t = m.Transpose();

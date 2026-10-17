@@ -77,7 +77,7 @@ n update 更新 1 0
 n draw 描画 2 0
 l input update
 l update draw
-l draw input 次のフレーム
+l draw input - 次のフレーム
 # ① 入力を受け取る
 ---
 n input 入力 0 0
@@ -85,7 +85,7 @@ n update 更新 1 0 hit
 n draw 描画 2 0
 l input update hit
 l update draw
-l draw input 次のフレーム
+l draw input - 次のフレーム
 # ② ゲームの状態を更新する
 ---
 n input 入力 0 0
@@ -93,7 +93,7 @@ n update 更新 1 0
 n draw 描画 2 0 hit
 l input update
 l update draw hit
-l draw input 次のフレーム
+l draw input - 次のフレーム
 # ③ 画面に描く
 ---
 n input 入力 0 0 hit

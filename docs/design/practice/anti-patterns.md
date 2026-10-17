@@ -7,13 +7,14 @@ tags:
 
 # アンチパターン集
 
-**アンチパターン**は、「**よくやってしまうが、あとで困る書き方**」です。デザインパターンが「うまくいく型」なら、アンチパターンは「**はまりやすい落とし穴**」です。ここには、学生のゲーム制作で本当によく見かけるものを、**なぜ困るのか**と**どう直すか**といっしょに集めました。[リファクタリングとコードの臭い](refactoring-smells.md) が「コードの見た目のサイン」なら、このページは「**設計と書き方の失敗パターン**」です。自分のコードに当てはまるものがないか、見直してみてください。
+**アンチパターン**は、「**よくやってしまうが、あとで困る書き方**」です。デザインパターンが「うまくいく型」なら、アンチパターンは「**はまりやすい落とし穴**」です。このページは、**実際のコードで、悪い例（Before）と、直した例（After）を並べて**、**なぜ困るのか**と、**どう直すか**を示します。**タブ**を切り替えて、見比べてください。
 
 !!! tip "ポイント"
     - アンチパターンは、**最初は便利に見える**から、はまる。「あとで困る」を、先に知っておく。
     - 多くは、「**1 か所に集めすぎる**」「**あちこちから触れすぎる**」「**先回りしすぎる**」のどれか。
     - 全部を避ける必要はない。**小さなゲームなら、許せるもの**もある。大きくなる前に、直す。
     - 直すときは、[リファクタリング](refactoring-smells.md)の小さな手順で。
+    - **名前より、なぜ困るのか**を理解する。
 
 ## 設計のアンチパターン
 
@@ -23,42 +24,238 @@ tags:
 | --- | --- |
 | なぜ起きる | 「とりあえずここに書けば動く」を繰り返す |
 | 困ること | 変更が怖い。複数人で同時に触れず、衝突する。テストできない |
-| 直し方 | 責任ごとに分ける（入力、敵管理、UI、保存…）。**名前に `Manager` と付けたくなったら、何をする責任か考える** |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    class GameManager {
+     public:
+      void Update(float dt) {
+        UpdateInput();
+        UpdatePlayer(dt);
+        UpdateEnemies(dt);
+        UpdateBullets(dt);
+        UpdateCollision();
+        UpdateUi();
+        UpdateSound();
+        SaveIfNeeded();
+      }
+
+      void LoadStage(int stage);
+      void SaveGame();
+      void DrawEverything();
+      void PlaySe(int id);
+      void ShowDialog(const std::string& text);
+      // …1 万行
+
+     private:
+      std::vector<Enemy> enemies_;
+      std::vector<Bullet> bullets_;
+      Player player_;
+      Ui ui_;
+      SoundEngine sound_;
+      SaveData save_;
+      // …何でも持っている
+    };
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    class Game {
+     public:
+      void Update(float dt) {
+        input_.Update();
+        player_.Update(dt, input_);
+        enemies_.Update(dt);
+        bullets_.Update(dt);
+        collision_.Resolve(player_, enemies_, bullets_);
+        ui_.Update(player_);
+      }
+
+     private:
+      InputSystem input_;
+      Player player_;
+      EnemySystem enemies_;
+      BulletSystem bullets_;
+      CollisionSystem collision_;
+      UiSystem ui_;
+    };
+    ```
+
+    **責任ごとに、クラスを分けます**（入力・敵・弾・当たり判定・UI）。`Game` は、**それらを順に呼ぶだけ**です。
+
+**直し方**：責任ごとに分ける。**名前に `Manager` と付けたくなったら、何をする責任か**を考えます。
 
 ### 過剰な継承（継承の地獄）
 
-| 症状 | 継承が 5 段以上。`Enemy → FlyingEnemy → ShootingFlyingEnemy → BossShootingFlyingEnemy…` |
+| 症状 | 継承が 5 段以上。**組み合わせごとにクラスが増える** |
 | --- | --- |
-| 困ること | 親の変更が全員に影響する。組み合わせごとにクラスが増える |
-| 直し方 | <strong>合成（コンポーネント）</strong>にする。継承は浅く（[継承と合成](../foundations/composition-vs-inheritance.md)） |
+| 困ること | 親の変更が全員に影響する。「飛ぶ + 撃つ」のような組み合わせに、新しいクラスがいる |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    class Enemy { virtual void Update(float dt); };
+    class FlyingEnemy : public Enemy { void Update(float dt) override { Fly(dt); } };
+    class ShootingEnemy : public Enemy { void Update(float dt) override { Shoot(dt); } };
+    class FlyingShootingEnemy : public FlyingEnemy {
+      void Update(float dt) override {
+        Fly(dt);
+        Shoot(dt);
+      }
+    };
+    class BossFlyingShootingEnemy : public FlyingShootingEnemy { /* … */ };
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    struct Enemy {
+      std::vector<std::unique_ptr<Behavior>> behaviors;
+
+      void Update(float dt) {
+        for (auto& b : behaviors) b->Update(*this, dt);
+      }
+    };
+
+    Enemy boss;
+    boss.behaviors.push_back(std::make_unique<FlyBehavior>());
+    boss.behaviors.push_back(std::make_unique<ShootBehavior>());
+    ```
+
+    **機能を、部品（コンポーネント）にして、組み合わせます**。新しい組み合わせでも、**クラスは増えません**（[継承と合成](../foundations/composition-vs-inheritance.md)）。
 
 ### 何でもシングルトン / グローバル変数
 
 | 症状 | `Game::Instance()`、`g_player`、`extern` の変数が、どこからでも使われる |
 | --- | --- |
-| 困ること | 誰がいつ書き換えたか分からない。初期化の順番で壊れる。テストできない |
-| 直し方 | 引数・コンストラクタで渡す（[依存性の注入](../patterns/dependency-injection.md)、[シングルトン](../patterns/singleton.md)） |
+| 困ること | **誰がいつ書き換えたか分からない**。初期化の順番で壊れる。**テストできない** |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    extern Player g_player;
+
+    void Enemy::Attack() {
+      g_player.hp -= damage_;
+      Game::Instance().Sound().Play(kHitSe);
+      Game::Instance().Score().Add(10);
+    }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    void Enemy::Attack(Player& target, ISound& sound) {
+      target.hp -= damage_;
+      sound.Play(kHitSe);
+    }
+
+    enemy.Attack(player, sound);
+    ```
+
+    **使う相手を、引数で受け取ります**。**何に依存しているかが、シグネチャで見え**、**テストでは、偽物を渡せます**（[依存性の注入](../patterns/dependency-injection.md)、[シングルトン](../patterns/singleton.md)）。
 
 ### 循環依存
 
 | 症状 | A が B を include し、B が A を include している。ヘッダの循環で、ビルドエラー |
 | --- | --- |
-| 困ること | ビルドが通らない・遅い。お互いが分離できない |
-| 直し方 | 前方宣言、インターフェース、イベントで、依存を一方向に（[レイヤー](../foundations/layers.md)） |
+| 困ること | ビルドが通らない・遅い。お互いを分離できない |
 
-### 早すぎる最適化・早すぎる一般化（YAGNI 違反）
+=== "Before（悪い例）"
+
+    ```cpp
+    // player.h
+    #include "enemy.h"
+    class Player {
+      Enemy* target_;
+    };
+
+    // enemy.h
+    #include "player.h"
+    class Enemy {
+      Player* target_;
+    };
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    // player.h
+    class Enemy;
+    class Player {
+      Enemy* target_;
+    };
+
+    // enemy.h
+    class Player;
+    class Enemy {
+      Player* target_;
+    };
+    ```
+
+    **ポインタ・参照だけ**なら、**前方宣言**で足ります。**`.cpp` で include** します。それでも循環するなら、**共通のインターフェース**（`IDamageable`）に依存するか、**イベント**で通知して、**依存を一方向に**します（[レイヤー](../foundations/layers.md)、[ヘッダとソース](../foundations/header-source.md)）。
+
+### 早すぎる一般化（YAGNI 違反）
 
 | 症状 | 「将来使うかも」で、設定だらけ・テンプレートだらけ・インターフェースだらけにする |
 | --- | --- |
-| 困ること | 使わない仕組みの分、複雑。結局、必要なものは別の形だった |
-| 直し方 | **今必要なものだけ**作る。必要になってから、広げる。最適化は、**計測してから** |
+| 困ること | 使わない仕組みの分、複雑。**結局、必要になったのは、別の形**だった |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    template <typename T, typename Policy = DefaultPolicy, typename Allocator = std::allocator<T>>
+    class AbstractEnemyFactoryProvider : public IProvider<IFactory<T>> {
+      // 使われているのは、Goblin 1 種類だけ
+    };
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    std::unique_ptr<Enemy> CreateGoblin(Vector3 position) {
+      return std::make_unique<Goblin>(position);
+    }
+    ```
+
+    **今必要なものだけ**を作ります。**2 種類目が出てきたとき**に、**共通部分を抜き出して**広げます。
 
 ### データと処理が離れている（貧血なドメイン）
 
 | 症状 | `struct` はデータだけ。処理は、`XxxManager` に全部 |
 | --- | --- |
-| 困ること | データの不整合を、どこでも作れる。変更が、いろいろなファイルに散らばる |
-| 直し方 | **不変条件を守る処理は、データを持つクラスに入れる**（[クラス設計](../foundations/class-design.md)） |
+| 困ること | **データの不整合を、どこでも作れる**。変更が、いろいろなファイルに散らばる |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    struct Player {
+      int hp;
+      int max_hp;
+    };
+
+    void PlayerManager::Damage(Player& p, int amount) { p.hp -= amount; }
+    void SomewhereElse(Player& p) { p.hp = 9999; }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    class Player {
+     public:
+      void TakeDamage(int amount) { hp_ = std::max(0, hp_ - amount); }
+      void Heal(int amount) { hp_ = std::min(max_hp_, hp_ + amount); }
+      bool IsDead() const { return hp_ == 0; }
+
+     private:
+      int hp_ = 100;
+      int max_hp_ = 100;
+    };
+    ```
+
+    <strong>「HP は 0〜最大値の範囲」という決まり（不変条件）</strong>を、**クラスの中で守ります**。外からは、**壊れた状態を作れません**（[クラス設計](../foundations/class-design.md)）。
 
 ## コードの書き方のアンチパターン
 
@@ -66,100 +263,533 @@ tags:
 
 | 症状 | `if (type == 3)`、`damage * 1.5f`、`for (i = 0; i < 64; ...)` |
 | --- | --- |
-| 直し方 | `enum class`、`constexpr` の名前付き定数、データファイル |
+| 困ること | **意味が分からない**。同じ数を、何か所も直すことになる |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    if (enemy.type == 3) {
+      damage = base * 1.5f;
+    }
+    for (int i = 0; i < 64; ++i) { ... }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    enum class EnemyType { kSlime, kGoblin, kBoss };
+    constexpr float kBossDamageRate = 1.5f;
+    constexpr int kMaxEnemies = 64;
+
+    if (enemy.type == EnemyType::kBoss) {
+      damage = base * kBossDamageRate;
+    }
+    for (int i = 0; i < kMaxEnemies; ++i) { ... }
+    ```
+
+    **名前を付ける**と、**意味が読めます**。**調整したい数値は、データファイル**に出します（[ファクトリとデータ駆動](../patterns/factory.md)）。
 
 ### コピー＆ペースト
 
 | 症状 | 同じコードを、少しだけ変えて何か所にも貼っている |
 | --- | --- |
-| 直し方 | 共通の関数・クラスにする。違いは、引数・テンプレート・ストラテジーに |
+| 困ること | **直すとき、貼った全部を直す**必要がある。直し忘れでバグ |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    void DrawHealthBarPlayer(const Player& p) {
+      float ratio = static_cast<float>(p.hp) / p.max_hp;
+      DrawRect(10, 10, 200 * ratio, 20, kGreen);
+    }
+    void DrawHealthBarEnemy(const Enemy& e) {
+      float ratio = static_cast<float>(e.hp) / e.max_hp;
+      DrawRect(e.x, e.y - 20, 50 * ratio, 6, kRed);
+    }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    void DrawHealthBar(Vector2 position, float width, float height, int hp, int max_hp, Color color) {
+      float ratio = static_cast<float>(hp) / max_hp;
+      DrawRect(position.x, position.y, width * ratio, height, color);
+    }
+
+    DrawHealthBar({10, 10}, 200, 20, player.hp, player.max_hp, kGreen);
+    DrawHealthBar({enemy.x, enemy.y - 20}, 50, 6, enemy.hp, enemy.max_hp, kRed);
+    ```
+
+    **共通の部分を関数にして、違う部分を引数**にします。
 
 ### 長い `if` / `else if` の連鎖・`switch` の増殖
 
-| 症状 | 種類の分岐が、あちこちに |
+| 症状 | **種類による分岐**が、あちこちに散らばっている |
 | --- | --- |
-| 直し方 | 仮想関数、[ストラテジー](../patterns/strategy.md)、[ステートマシン](../patterns/state-machine.md)、データ駆動 |
+| 困ること | **新しい種類を足すたびに、全部の `switch` を直す**。1 か所直し忘れる |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    float GetSpeed(const Enemy& e) {
+      switch (e.type) {
+        case EnemyType::kSlime: return 1.0f;
+        case EnemyType::kGoblin: return 2.0f;
+        case EnemyType::kBoss: return 1.5f;
+      }
+    }
+    void Attack(Enemy& e) {
+      switch (e.type) {
+        case EnemyType::kSlime: /* … */ break;
+        case EnemyType::kGoblin: /* … */ break;
+        case EnemyType::kBoss: /* … */ break;
+      }
+    }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    class Enemy {
+     public:
+      virtual ~Enemy() = default;
+      virtual float Speed() const = 0;
+      virtual void Attack() = 0;
+    };
+
+    class Slime : public Enemy {
+      float Speed() const override { return 1.0f; }
+      void Attack() override { /* … */ }
+    };
+    ```
+
+    **種類ごとの違いを、クラス（または[ストラテジー](../patterns/strategy.md)・[ステートマシン](../patterns/state-machine.md)・データ）にまとめます**。**種類を足すときは、クラスを 1 つ足すだけ**です。
 
 ### 例外を、制御の流れに使う
 
 | 症状 | 「見つからない」「入力が違う」のような、**普通に起きること**を、`throw` で表している |
 | --- | --- |
-| 困ること | 遅い。流れが追えない |
-| 直し方 | `std::optional`、`std::expected`、戻り値のエラー コード（[エラー処理](../foundations/error-handling.md)） |
+| 困ること | **遅い**。流れが追えない |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    Item FindItem(int id) {
+      auto it = items_.find(id);
+      if (it == items_.end()) throw std::runtime_error("not found");
+      return it->second;
+    }
+
+    try {
+      Item item = FindItem(id);
+    } catch (const std::exception&) {
+      // 見つからないのは、普通に起きる
+    }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    std::optional<Item> FindItem(int id) {
+      auto it = items_.find(id);
+      if (it == items_.end()) return std::nullopt;
+      return it->second;
+    }
+
+    if (auto item = FindItem(id)) {
+      Use(*item);
+    }
+    ```
+
+    <strong>「ないかもしれない」は `std::optional`</strong>、**理由付きの失敗は `std::expected`**（[エラー処理](../foundations/error-handling.md)）。例外は、**本当に例外的な事態だけ**にします。
 
 ### エラーを握りつぶす
 
 | 症状 | `catch (...) {}` と何もしない。戻り値のエラーを無視する |
 | --- | --- |
-| 困ること | 失敗に気づけず、後でおかしな所で壊れる |
-| 直し方 | ログに出す、上に伝える、`[[nodiscard]]` を付ける |
+| 困ること | **失敗に気づけず**、後でおかしな所で壊れる |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    try {
+      LoadStage(path);
+    } catch (...) {
+    }
+
+    SaveGame(data);
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    [[nodiscard]] bool SaveGame(const SaveData& data);
+
+    if (!SaveGame(data)) {
+      Log::Error("セーブに失敗しました: {}", path);
+      ShowErrorDialog();
+    }
+
+    try {
+      LoadStage(path);
+    } catch (const std::exception& e) {
+      Log::Error("ステージの読み込みに失敗: {}", e.what());
+      throw;
+    }
+    ```
+
+    **ログに出す・上に伝える**。**`[[nodiscard]]`** を付けて、**戻り値の無視に、警告**が出るようにします。
 
 ### 生の `new` / `delete`、`malloc` / `free`
 
-| 症状 | 自分で解放する。`delete` を書き忘れる・2 回書く |
+| 症状 | 自分で解放する。`delete` を書き忘れる・2 回書く・早期 `return` で飛ばされる |
 | --- | --- |
-| 直し方 | `std::make_unique`、`std::vector`（[RAII](../patterns/raii.md)） |
+| 困ること | **リーク**・二重解放・解放後の使用 |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    Enemy* e = new Enemy();
+    if (!e->Init()) {
+      return;
+    }
+    Process(e);
+    delete e;
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    auto e = std::make_unique<Enemy>();
+    if (!e->Init()) {
+      return;
+    }
+    Process(*e);
+    ```
+
+    **`std::unique_ptr`** が、**どの出口でも、自動で解放**します。**`std::vector`** などのコンテナも同じです（[RAII](../patterns/raii.md)）。
 
 ### `using namespace std;` をヘッダに書く
 
 | 症状 | ヘッダの先頭に `using namespace std;` |
 | --- | --- |
-| 困ること | そのヘッダを include した全員の名前空間が汚れ、名前が衝突する |
-| 直し方 | ヘッダでは、`std::` を付ける。`using` は、`.cpp` の中の関数内だけ |
+| 困ること | そのヘッダを include した**全員の名前空間が汚れ**、名前が衝突する |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    #pragma once
+    #include <vector>
+    using namespace std;
+
+    class Level {
+      vector<int> tiles_;
+    };
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    #pragma once
+    #include <vector>
+
+    class Level {
+      std::vector<int> tiles_;
+    };
+    ```
+
+    **ヘッダでは、`std::` を付けます**。`using` は、**`.cpp` の関数の中だけ**にします。
 
 ### 値渡しの乱用・参照のぶら下がり
 
-| 症状 | 大きなオブジェクトを値で渡す。ローカル変数の参照を返す |
+| 症状 | 大きなオブジェクトを値で渡す。**ローカル変数の参照を返す** |
 | --- | --- |
-| 直し方 | `const&`、ムーブ、値で返す（[const と引数の渡し方](../foundations/const-and-passing.md)、[所有権](../foundations/ownership-lifetime.md)） |
+| 困ること | 無駄なコピーで遅い。**消えた変数を指して、クラッシュ** |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    void Draw(std::vector<Vertex> vertices, std::string name);
+
+    const std::string& MakeName() {
+      std::string s = "enemy";
+      return s;
+    }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    void Draw(const std::vector<Vertex>& vertices, std::string_view name);
+
+    std::string MakeName() {
+      return "enemy";
+    }
+    ```
+
+    <strong>読むだけなら `const&`（文字列は `string_view`）</strong>。**新しく作ったものは、値で返す**（ムーブ・省略されるので、コピーされません）（[const と引数の渡し方](../foundations/const-and-passing.md)）。
 
 ### 初期化されていない変数
 
 | 症状 | `int hp;` と宣言して、代入前に読む |
 | --- | --- |
-| 困ること | 値が不定。Debug と Release で、動きが違う |
-| 直し方 | 宣言時に初期化する（`int hp = 0;`、メンバは `{}`）。警告 `C4700` を見る |
+| 困ること | **値が不定**。Debug と Release で、動きが違う |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    struct Enemy {
+      int hp;
+      float speed;
+      bool alive;
+    };
+
+    Enemy e;
+    if (e.alive) { ... }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    struct Enemy {
+      int hp = 100;
+      float speed = 1.0f;
+      bool alive = true;
+    };
+
+    Enemy e;
+    ```
+
+    **メンバの宣言時に、初期値**を書きます（`{}` でゼロ初期化でも）。警告 `C4700` を見逃さないようにします。
 
 ## ゲームに多いアンチパターン
 
 ### 毎フレーム、同じものを作って捨てる
 
-| 症状 | `Update` の中で、`std::vector` や `std::string` を毎回 `new` している |
+| 症状 | `Update` の中で、`std::vector` や `std::string` を毎回作っている |
 | --- | --- |
-| 困ること | メモリ確保が重く、フレームがカクつく |
-| 直し方 | メンバに持ち、使い回す（`clear()` で、容量が残る）。[オブジェクトプール](../patterns/object-pool.md) |
+| 困ること | **メモリ確保が重く**、フレームが**カクつく** |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    void Update(float dt) {
+      std::vector<Enemy*> nearby;
+      for (Enemy& e : enemies_) {
+        if (IsNear(e)) nearby.push_back(&e);
+      }
+      std::string text = "HP: " + std::to_string(hp_);
+      ui_.Draw(text);
+    }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    class Game {
+     public:
+      Game() { nearby_.reserve(256); }
+
+      void Update(float dt) {
+        nearby_.clear();
+        for (Enemy& e : enemies_) {
+          if (IsNear(e)) nearby_.push_back(&e);
+        }
+
+        char text[32];
+        std::format_to_n(text, sizeof(text) - 1, "HP: {}", hp_);
+        ui_.Draw(text);
+      }
+
+     private:
+      std::vector<Enemy*> nearby_;
+    };
+    ```
+
+    **メンバに持って、`reserve` + `clear()` で使い回す**。**文字列は、固定バッファ**に書きます（[毎フレームのヒープ確保を避ける](../../optimize/frame-allocation.md)）。
 
 ### ゲームの更新速度が、フレームレートに依存する
 
 | 症状 | `position += 5;`（毎フレーム固定の量） |
 | --- | --- |
-| 困ること | 60 FPS と 144 FPS で、速さが違う |
-| 直し方 | `position += speed * dt;`（経過時間を掛ける）。物理は固定ステップ（[ゲームループ](../../engine/game-loop.md)） |
+| 困ること | **60 FPS と 144 FPS で、速さが違う** |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    void Update() {
+      position.x += 5.0f;
+    }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    void Update(float dt) {
+      constexpr float kSpeed = 300.0f;
+      position.x += kSpeed * dt;
+    }
+    ```
+
+    <strong>「1 秒あたりの量 × 経過時間（`dt`）」</strong>にします。**物理は、固定タイムステップ**（[ゲームループ](../../engine/game-loop.md)、[フレーム時間の設計](../../optimize/frame-budget.md)）。
 
 ### オブジェクトへのポインタを、ずっと持つ
 
-| 症状 | 敵へのポインタを、弾が持っている。敵が消えると、壊れる |
+| 症状 | 敵へのポインタを、弾が持っている。**敵が消えると、壊れる** |
 | --- | --- |
-| 直し方 | ハンドル（ID + 世代）（[ハンドル](../../engine/handle.md)） |
+| 困ること | **ぶら下がりポインタ**。クラッシュ・原因不明の挙動 |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    struct Bullet {
+      Enemy* target;
+
+      void Update() {
+        direction = Normalize(target->position - position);
+      }
+    };
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    struct Bullet {
+      EnemyHandle target;
+
+      void Update(EnemyPool& enemies) {
+        if (Enemy* e = enemies.Get(target)) {
+          direction = Normalize(e->position - position);
+        }
+      }
+    };
+    ```
+
+    <strong>ハンドル（番号 + 世代）</strong>で持ち、**使うときに、まだ生きているか**を確認します（[ハンドル](../../engine/handle.md)）。
 
 ### 文字列で、種類や名前を比べる
 
 | 症状 | `if (name == "player")` を、毎フレーム何千回もやっている |
 | --- | --- |
-| 困ること | 遅い。綴りの間違いに、気づけない |
-| 直し方 | `enum class`、ID（整数）、コンパイル時のハッシュ（[std::hash](../../stl/utilities/hash.md)） |
+| 困ること | **遅い**。**綴りの間違い**に、気づけない |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    for (Entity& e : entities) {
+      if (e.name == "enemy") { ... }
+      else if (e.name == "item") { ... }
+    }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    enum class EntityKind : uint8_t { kEnemy, kItem, kPlayer };
+
+    for (Entity& e : entities) {
+      switch (e.kind) {
+        case EntityKind::kEnemy: ...
+        case EntityKind::kItem: ...
+      }
+    }
+    ```
+
+    **`enum class`・整数の ID・コンパイル時のハッシュ**にします（[文字列とハッシュ](../../optimize/strings-hash.md)、[std::hash](../../stl/utilities/hash.md)）。
 
 ### デバッグ用のコードを、そのまま残す
 
 | 症状 | `std::println` や、デバッグ描画が、製品版に残っている |
 | --- | --- |
-| 直し方 | `#ifdef _DEBUG`、ログ レベル（[ログとデバッグ支援](logging-debug.md)） |
+| 困ること | **遅く**、ログが**あふれる**。**チート用のコマンド**が、残る |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    void Update() {
+      std::println("player pos: {} {}", p.x, p.y);
+      DrawDebugBox(collider);
+    }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    void Update() {
+      LOG_DEBUG("player pos: {} {}", p.x, p.y);
+    #ifdef ENABLE_DEBUG_DRAW
+      DrawDebugBox(collider);
+    #endif
+    }
+    ```
+
+    **ログのレベル**と、**ビルド構成で消えるマクロ**で、**製品版には、残らない**ようにします（[ログとデバッグ支援](logging-debug.md)、[プリプロセッサマクロ](../../vs/preprocessor.md)）。
 
 ### 当たり判定・AI を、全員 × 全員で調べる
 
 | 症状 | 全員と全員を総当たり（[O(n²)](../../basics/big-o.md#on2)） |
 | --- | --- |
-| 直し方 | 空間分割（グリッド、四分木）、近いものだけ調べる |
+| 困ること | **数が増えると、急に重くなる**（1000 体で 100 万回） |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    for (Enemy& a : enemies) {
+      for (Enemy& b : enemies) {
+        if (&a != &b && Overlap(a, b)) Resolve(a, b);
+      }
+    }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    grid.Clear();
+    for (Enemy& e : enemies) grid.Insert(e);
+
+    for (Enemy& a : enemies) {
+      grid.ForEachNear(a.position, a.radius, [&](Enemy& b) {
+        if (&a != &b && Overlap(a, b)) Resolve(a, b);
+      });
+    }
+    ```
+
+    **空間分割**（グリッド・四分木）で、**近いものだけ**を調べます（[アルゴリズム](../../optimize/algorithms.md)、[3D の衝突判定](../../3d/collision-3d.md)）。
+
+### コンポーネントを、毎フレーム `dynamic_cast` で探す
+
+| 症状 | 毎フレーム、`dynamic_cast` で、必要なコンポーネントを探している |
+| --- | --- |
+| 困ること | **遅い**。型を調べるコストが、毎回かかる |
+
+=== "Before（悪い例）"
+
+    ```cpp
+    void Update() {
+      for (auto& c : components_) {
+        if (auto* r = dynamic_cast<Renderer*>(c.get())) {
+          r->Draw();
+        }
+      }
+    }
+    ```
+
+=== "After（直した例）"
+
+    ```cpp
+    class GameObject {
+     public:
+      void Update() {
+        if (renderer_) renderer_->Draw();
+      }
+
+     private:
+      Renderer* renderer_ = nullptr;
+      std::vector<std::unique_ptr<Component>> components_;
+    };
+    ```
+
+    **よく使うコンポーネントは、ポインタを覚えておく**。または、**種類ごとの配列**にします（[コンポーネント](../../engine/component.md)、[ECS](../patterns/ecs.md)）。
 
 ## 組織・進め方のアンチパターン
 
@@ -177,10 +807,10 @@ tags:
     小さなゲームでは、許せるものもあります。**困っているものだけ**直します。
 
 ??? failure "アンチパターンを避けるために、別のアンチパターンに入る"
-    「グローバルが悪い」と聞いて、何でも引数で渡して、10 個の引数になる、など。**コンテキスト構造体にまとめる**など、バランスを取ります。
+    「グローバルが悪い」と聞いて、何でも引数で渡して、10 個の引数になる、など。**コンテキスト構造体にまとめる**などで、バランスを取ります。
 
 ??? failure "名前だけを覚えて、理由を理解しない"
-    「シングルトンは悪」という言葉だけだと、本当に 1 つしかないものまで、無理に避けてしまいます。**なぜ困るのか**を理解して、判断します。
+    「シングルトンは悪」という言葉だけだと、本当に 1 つしかないものまで、無理に避けてしまいます。**なぜ困るのか**を理解して、**判断**します。
 
 ## これだけ覚える
 

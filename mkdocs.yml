@@ -54,6 +54,7 @@ theme:
 
 hooks:
   - hooks/autolink.py
+  - hooks/inlinecode.py
 
 plugins:
   - search:

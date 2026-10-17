@@ -6,15 +6,15 @@ tags:
 
 # メッシュとテクスチャ
 
-3D モデルは、**頂点の並び**（メッシュ）と、**表面に貼る画像**（テクスチャ）でできています。このページは、DX11 での**頂点バッファ・インデックスバッファ・入力レイアウト**の作り方、**UV 座標**、**テクスチャとサンプラー**、**ミップマップ**をまとめます。
+このページは、**3D モデルを DirectX 11 で描く**ための、データの作り方をまとめます。「**メッシュ**」は、**3D モデルの形そのもの**（三角形の集まり）、「**テクスチャ**」は、**表面に貼る画像**のことです。まだ、これらの言葉に慣れていなければ、先に [3D モデルの基礎](model-basics.md) を読んでください（頂点・三角形・UV・バッファを、ゼロから説明しています）。
 
 !!! tip "ポイント"
-    - メッシュは、<strong>頂点バッファ</strong>（頂点の配列）+ <strong>インデックスバッファ</strong>（頂点の番号の並び）。<strong>インデックスで、頂点を使い回す</strong>。
-    - 頂点には、<strong>位置・法線・UV</strong> などを持たせる。<strong>入力レイアウト</strong>で、GPU に並びを教える。
-    - <strong>UV</strong>は、テクスチャ上の座標（<strong>DX は、左上が (0, 0)</strong>）。
-    - <strong>サンプラー</strong>で、拡大縮小の補間・繰り返しを決める。<strong>ミップマップ</strong>で、遠くのちらつきを抑える。
+    - <strong>メッシュ（＝3D モデルの形）</strong>は、<strong>三角形の集まり</strong>。GPU に渡すときは、<strong>頂点バッファ</strong>（＝頂点のリストを置く、GPU 側の置き場）と、<strong>インデックスバッファ</strong>（＝「どの頂点で、三角形を作るか」の番号リストの置き場）に分ける。
+    - 頂点には、<strong>位置・法線・UV</strong> などを持たせる。<strong>入力レイアウト</strong>は、「頂点の中身が、どう並んでいるか」を GPU に教える**説明書**。
+    - <strong>UV</strong>は、「テクスチャ画像の、どこを使うか」を表す座標（<strong>DX は、左上が (0, 0)</strong>）。
+    - <strong>サンプラー</strong>は、テクスチャを読むときの**ルール**（拡大したときの補間、はみ出したときの扱い）。<strong>ミップマップ</strong>は、**縮小した画像のセット**で、遠くのちらつきを抑える。
     - <strong>バッファは、一度作って使い回す</strong>。毎フレーム作らない。
-    - <strong>頂点が多いほど、頂点バッファは、大きく</strong>。<strong>インデックス型は、16 ビットで足りるか</strong>を考える。
+    - <strong>頂点が 65536 個以下なら、インデックスは 16 ビット</strong>で足りる（メモリが半分）。
 
 ## 頂点
 
@@ -41,12 +41,7 @@ struct Vertex {
 
 四角形は、**2 つの三角形**です。**頂点を共有**して、インデックスで三角形を組みます。
 
-```text
- v3 ─── v2          頂点：  v0 v1 v2 v3    （4 個）
-  │ ╲   │           インデックス：  0 1 2,  0 2 3    （6 個）
-  │   ╲ │
- v0 ─── v1          インデックスなし： 6 頂点が必要
-```
+<svg class="fig" viewBox="0 0 520 190" role="img" aria-label="四角形を 2 つの三角形で表す"><polygon points="60,40 190,40 190,150 60,150" fill="none" stroke="currentColor" stroke-width="2"/><line x1="60" y1="150" x2="190" y2="40" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><text x="30" y="35">v3</text><text x="196" y="35">v2</text><text x="30" y="165">v0</text><text x="196" y="165">v1</text><text x="250" y="60" class="fig-title">頂点：v0 v1 v2 v3（4 個）</text><text x="250" y="90" class="fig-title">インデックス：0 1 2、0 2 3（6 個）</text><text x="250" y="130">インデックスなしなら、6 頂点が必要</text></svg>
 
 | 方式 | 頂点数（四角形） | メモリ |
 | --- | --- | --- |
@@ -161,14 +156,7 @@ context->DrawIndexed(static_cast<UINT>(indices.size()), 0, 0);
 
 **UV**は、テクスチャ上の座標です。頂点ごとに持ち、**三角形の内部は、補間**されます。
 
-```text
-(0,0) ────────→ U (1,0)        DirectX：左上が原点、V は下向き
-  │
-  │   テクスチャ
-  ↓
-  V
-(0,1)             (1,1)
-```
+<svg class="fig" viewBox="0 0 440 240" role="img" aria-label="UV 座標の向き"><defs><marker id="ah3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><rect x="60" y="30" width="160" height="160" fill="none" stroke="currentColor" stroke-width="2"/><text x="110" y="115">テクスチャ</text><line x1="60" y1="30" x2="260" y2="30" stroke="currentColor" stroke-width="2" marker-end="url(#ah3)"/><text x="262" y="35">U</text><line x1="60" y1="30" x2="60" y2="215" stroke="currentColor" stroke-width="2" marker-end="url(#ah3)"/><text x="48" y="232">V</text><text x="20" y="25">(0,0)</text><text x="225" y="22">(1,0)</text><text x="225" y="205">(1,1)</text><text x="14" y="205" style="display:none">.</text><text x="290" y="90">DirectX：左上が原点</text><text x="290" y="115">V は下向きに増える</text></svg>
 
 | API | UV の原点 |
 | --- | --- |
@@ -217,6 +205,19 @@ context->PSSetSamplers(0, 1, sampler.GetAddressOf());
 
 ### フィルター
 
+<svg class="fig" viewBox="0 0 600 190" role="img" aria-label="フィルターの違い">
+<text x="20" y="22" class="fig-title">POINT（最近傍）：ドットがくっきり</text>
+<g stroke="currentColor" stroke-width="1">
+<rect x="30" y="40" width="30" height="30" fill="#2a4fa8"/><rect x="60" y="40" width="30" height="30" fill="#e5e5e5"/><rect x="90" y="40" width="30" height="30" fill="#2a4fa8"/><rect x="120" y="40" width="30" height="30" fill="#e5e5e5"/>
+<rect x="30" y="70" width="30" height="30" fill="#e5e5e5"/><rect x="60" y="70" width="30" height="30" fill="#2a4fa8"/><rect x="90" y="70" width="30" height="30" fill="#e5e5e5"/><rect x="120" y="70" width="30" height="30" fill="#2a4fa8"/>
+</g>
+<text x="20" y="130">拡大しても、マスの色が、そのまま</text><text x="20" y="152">→ ピクセルアート向き</text>
+<text x="320" y="22" class="fig-title">LINEAR（線形補間）：なめらか</text>
+<defs><linearGradient id="lg1" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#2a4fa8"/><stop offset="0.5" stop-color="#9aa7c9"/><stop offset="1" stop-color="#2a4fa8"/></linearGradient></defs>
+<rect x="330" y="40" width="120" height="60" fill="url(#lg1)" stroke="currentColor"/>
+<text x="320" y="130">拡大すると、周りの色を混ぜて、なめらかに</text><text x="320" y="152">→ 標準。写真・テクスチャ向き</text>
+</svg>
+
 | フィルター | 説明 | 用途 |
 | --- | --- | --- |
 | `MIN_MAG_MIP_POINT` | **最近傍**（補間なし）。**ドット絵**がくっきり | ピクセルアート、データのテクスチャ |
@@ -224,6 +225,17 @@ context->PSSetSamplers(0, 1, sampler.GetAddressOf());
 | `ANISOTROPIC` | **異方性**。**斜めから見た面**が、くっきり | 床・道路など。`MaxAnisotropy` を設定 |
 
 ### アドレスモード
+
+<svg class="fig" viewBox="0 0 600 190" role="img" aria-label="アドレスモード">
+<text x="20" y="22" class="fig-title">WRAP（繰り返す）</text>
+<rect x="30" y="40" width="40" height="40" fill="#2a4fa8" stroke="currentColor"/><rect x="70" y="40" width="40" height="40" fill="#2a4fa8" stroke="currentColor"/><rect x="110" y="40" width="40" height="40" fill="#2a4fa8" stroke="currentColor"/>
+<text x="30" y="62" style="fill:#fff">絵</text><text x="70" y="62" style="fill:#fff">絵</text><text x="110" y="62" style="fill:#fff">絵</text>
+<text x="20" y="110">0〜1 の外では、画像が、</text><text x="20" y="130">タイルのように並ぶ（床・壁）</text>
+<text x="320" y="22" class="fig-title">CLAMP（端を伸ばす）</text>
+<rect x="330" y="40" width="40" height="40" fill="#2a4fa8" stroke="currentColor"/><rect x="370" y="40" width="40" height="40" fill="#5f8ff0" stroke="currentColor"/><rect x="410" y="40" width="40" height="40" fill="#5f8ff0" stroke="currentColor"/>
+<text x="330" y="62" style="fill:#fff">絵</text><text x="375" y="62" style="fill:#fff">端</text><text x="415" y="62" style="fill:#fff">端</text>
+<text x="320" y="110">外では、端の色が、</text><text x="320" y="130">そのまま伸びる（空・UI）</text>
+</svg>
 
 UV が `0..1` の外に出たときの扱いです。
 
@@ -238,9 +250,37 @@ UV が `0..1` の外に出たときの扱いです。
 
 **テクスチャを、半分・4 分の 1 ... と縮小した画像を、あらかじめ作っておく**仕組みです。遠くの面では、小さい画像を使うので、**ちらつき（モアレ）が減り**、**キャッシュにも優しく**なります。
 
-```text
-512×512 → 256×256 → 128×128 → ... → 1×1      （メモリは、約 1.33 倍）
-```
+<div class="anim" data-type="graph" data-label="ミップマップ：半分ずつ縮小した画像を用意する（メモリは約 1.33 倍）">
+n c0 512×512 0 0 hit
+---
+n c0 512×512 0 0
+n c1 256×256 1 0 hit
+l c0 c1 hit
+---
+n c0 512×512 0 0
+n c1 256×256 1 0
+n c2 128×128 2 0 hit
+l c0 c1
+l c1 c2 hit
+---
+n c0 512×512 0 0
+n c1 256×256 1 0
+n c2 128×128 2 0
+n c3 ... 3 0 hit
+l c0 c1
+l c1 c2
+l c2 c3 hit
+---
+n c0 512×512 0 0
+n c1 256×256 1 0
+n c2 128×128 2 0
+n c3 ... 3 0
+n c4 1×1 4 0 hit
+l c0 c1
+l c1 c2
+l c2 c3
+l c3 c4 hit
+</div>
 
 | 項目 | 説明 |
 | --- | --- |

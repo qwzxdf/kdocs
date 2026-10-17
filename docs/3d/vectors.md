@@ -53,6 +53,8 @@ player += direction * (3.0f * dt);
 
 ## 正規化 {#normalize}
 
+<svg class="fig" viewBox="0 0 560 220" role="img" aria-label="正規化の図"><defs><marker id="v3" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">正規化：向きはそのまま、長さを 1 にする</text><circle cx="140" cy="160" r="50" fill="none" stroke="currentColor" stroke-dasharray="4 4"/><text x="60" y="220">半径 1 の円</text><line x1="140" y1="160" x2="310" y2="60" stroke="currentColor" stroke-width="2" marker-end="url(#v3)" /><text x="250" y="58">v（長さ 3）</text><line x1="140" y1="160" x2="176" y2="139" stroke="currentColor" stroke-width="4" marker-end="url(#v3)" /><text x="180" y="150"></text><text x="188" y="132">v̂（長さ 1）</text><text x="340" y="100">v̂ ＝ v ÷ |v|</text><text x="340" y="128">向きだけが欲しいとき（方向・移動の向き）</text><text x="340" y="156">ゼロベクトルは割れない（長さ 0 に注意）</text></svg>
+
 **向きだけ**が欲しいときは、長さ 1 に正規化します。
 
 ```cpp
@@ -71,6 +73,8 @@ Vector3 n;
 | **毎回の正規化は、少し重い** | `sqrt` と割り算。向きが変わらないなら、キャッシュする |
 
 ## 内積（ドット積） {#dot}
+
+<svg class="fig" viewBox="0 0 620 230" role="img" aria-label="内積の図"><defs><marker id="v1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">内積：2 つの向きが、どれだけ揃っているか</text><line x1="60" y1="140" x2="200" y2="140" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="205" y="144">a</text><line x1="60" y1="140" x2="140" y2="70" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="140" y="62">b</text><path d="M 100 140 A 40 40 0 0 0 92 118" fill="none" stroke="currentColor"/><text x="100" y="128">θ</text><line x1="140" y1="70" x2="140" y2="140" stroke="currentColor" stroke-dasharray="4 4"/><line x1="60" y1="152" x2="140" y2="152" stroke="currentColor" stroke-width="4"/><text x="70" y="172">b を a に落とした長さ</text><text x="60" y="200">a · b ＝ |a| |b| cosθ（正規化していれば cosθ）</text><text x="330" y="60" class="fig-title">正：同じ向き（前方）</text><line x1="350" y1="110" x2="420" y2="110" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><line x1="350" y1="110" x2="410" y2="80" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="430" y="114">cos > 0</text><text x="330" y="150" class="fig-title">0：直角</text><line x1="350" y1="195" x2="420" y2="195" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><line x1="350" y1="195" x2="350" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="430" y="199">cos = 0</text><text x="500" y="60" class="fig-title">負：逆向き（後方）</text><line x1="560" y1="110" x2="500" y2="110" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><line x1="520" y1="110" x2="570" y2="80" stroke="currentColor" stroke-width="2" marker-end="url(#v1)" /><text x="500" y="130">cos < 0</text></svg>
 
 **内積**は、2 つのベクトルが**どれくらい同じ向きを向いているか**を、1 つの数字で表します。
 
@@ -123,6 +127,8 @@ float angle = std::acos(std::clamp(a.Dot(b), -1.0f, 1.0f));   // ラジアン。
 
 ## 外積（クロス積） {#cross}
 
+<svg class="fig" viewBox="0 0 560 230" role="img" aria-label="外積の図"><defs><marker id="v2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">外積：2 つのベクトルに、垂直なベクトル</text><polygon points="60,190 260,190 320,130 120,130" fill="rgba(76,139,245,0.2)" stroke="currentColor"/><line x1="150" y1="165" x2="250" y2="165" stroke="currentColor" stroke-width="2" marker-end="url(#v2)" /><text x="255" y="170">a</text><line x1="150" y1="165" x2="200" y2="135" stroke="currentColor" stroke-width="2" marker-end="url(#v2)" /><text x="204" y="132">b</text><line x1="150" y1="165" x2="150" y2="55" stroke="currentColor" stroke-width="3" marker-end="url(#v2)" /><text x="158" y="60">a × b（面に垂直）</text><text x="340" y="80">右手系：a から b へ、右手の指を</text><text x="340" y="100">曲げたとき、親指の向き</text><text x="340" y="140">順番を逆にすると（b × a）</text><text x="340" y="160">向きが逆になる</text><text x="340" y="195" class="fig-title">使いどころ：面の法線、左右の判定</text></svg>
+
 **外積**は、2 つのベクトルの**両方に垂直な**ベクトルを作ります。
 
 ```text
@@ -160,6 +166,8 @@ Vector3 right = Vector3::Forward.Cross(Vector3::Up);   // (0,0,-1) × (0,1,0) = 
 
 ## 反射と射影 {#reflect}
 
+<svg class="fig" viewBox="0 0 560 230" role="img" aria-label="反射の図"><defs><marker id="v4" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">反射：壁に当たって跳ね返る向き</text><line x1="40" y1="180" x2="320" y2="180" stroke="currentColor" stroke-width="3"/><text x="330" y="184">壁</text><line x1="180" y1="180" x2="180" y2="90" stroke="currentColor" stroke-width="2" marker-end="url(#v4)" /><text x="188" y="98">n（法線）</text><line x1="70" y1="80" x2="176" y2="176" stroke="currentColor" stroke-width="3" marker-end="url(#v4)" /><text x="40" y="70">v（入る向き）</text><line x1="184" y1="176" x2="290" y2="80" stroke="currentColor" stroke-width="3" marker-end="url(#v4)" /><text x="250" y="70">r（反射した向き）</text><text x="340" y="100">r ＝ v − 2 (v · n) n</text><text x="340" y="128">入射角と、反射角が等しい</text></svg>
+
 | 計算 | 式（`n` は正規化した法線） | 使いどころ |
 | --- | --- | --- |
 | **反射** | `r = v − 2 (v · n) n` | 壁で跳ね返る弾、鏡面反射 |
@@ -175,6 +183,8 @@ Vector3 slide = velocity - wall_normal * velocity.Dot(wall_normal);
 ```
 
 ## 補間 {#lerp}
+
+<svg class="fig" viewBox="0 0 560 200" role="img" aria-label="線形補間の図"><defs><marker id="v5" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">線形補間：a から b へ、t の割合だけ進む</text><line x1="60" y1="110" x2="480" y2="110" stroke="currentColor" stroke-width="2"/><circle cx="60" cy="110" r="6" fill="currentColor"/><text x="48" y="138">t=0</text><circle cx="165" cy="110" r="6" fill="currentColor"/><text x="153" y="138">t=0.25</text><circle cx="270" cy="110" r="6" fill="currentColor"/><text x="258" y="138">t=0.5</text><circle cx="480" cy="110" r="6" fill="currentColor"/><text x="468" y="138">t=1</text><text x="60" y="90">a</text><text x="470" y="90">b</text><text x="60" y="175">Lerp(a, b, t) ＝ a ＋ (b − a) × t　　t を 0 → 1 に動かすと、なめらかに移動する</text></svg>
 
 | 方法 | 式 | 使いどころ |
 | --- | --- | --- |

@@ -460,3 +460,87 @@
 .md-search-result .md-search-result__link:has(article > h2) {
   display: none;
 }
+
+.md-typeset code.inline-cpp {
+  white-space: nowrap;
+}
+
+.md-typeset code.inline-cpp .nv {
+  color: var(--md-code-hl-variable-color, var(--md-code-fg-color));
+}
+
+.md-typeset code.inline-cpp .nc {
+  color: var(--md-code-hl-special-color, #c2410c);
+}
+
+.md-typeset code.inline-cpp .nn {
+  color: var(--md-code-hl-name-color, var(--md-code-fg-color));
+}
+
+.md-typeset svg.fig {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1em auto;
+  color: var(--md-default-fg-color);
+}
+
+.md-typeset svg.fig text {
+  fill: currentColor;
+  font-size: 13px;
+}
+
+.md-typeset svg.fig .fig-title {
+  font-weight: 700;
+}
+
+.md-typeset .formula {
+  margin: 0.8em 0;
+  padding: 0.7em 1em;
+  background: var(--md-code-bg-color);
+  border-left: 4px solid var(--md-primary-fg-color);
+  border-radius: 4px;
+  font-family: var(--md-code-font-family);
+  overflow-x: auto;
+}
+
+.md-typeset .mat-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8em;
+  margin: 0.8em 0;
+}
+
+.md-typeset .mat-name,
+.md-typeset .mat-note,
+.md-typeset .mat-arrow {
+  font-family: var(--md-code-font-family);
+}
+
+.md-typeset .mat-arrow {
+  margin: 0.2em 0 0.2em 2em;
+}
+
+.md-typeset table.matrix {
+  display: inline-table;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-left: 3px solid currentColor;
+  border-right: 3px solid currentColor;
+  border-radius: 8px;
+  padding: 0.2em 0.4em;
+  font-family: var(--md-code-font-family);
+}
+
+.md-typeset table.matrix td {
+  padding: 0.25em 0.7em;
+  text-align: center;
+  border: 0;
+  min-width: 2.2em;
+}
+
+.md-typeset table.matrix td.hl {
+  color: var(--md-primary-fg-color);
+  font-weight: 700;
+}

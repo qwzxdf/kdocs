@@ -11,14 +11,12 @@
 
 ## 最適化の進め方
 
-```text
-① 目標を決める       ← 「60 FPS（16.6 ms）で動かす」「ロードを 5 秒以内に」
-② 計測する           ← どこが遅いか（プロファイラー）
-③ 原因を考える        ← アルゴリズム？ メモリ？ 確保？ コピー？ 描画？
-④ 1 つだけ直す        ← 1 度に 1 つ。何が効いたか分かるように
-⑤ また計測する        ← 速くなった？ なっていなければ元に戻す
-⑥ ②へ戻る            ← 目標に届くまで
-```
+1. **目標を決める**：「60 FPS（16.6 ms）で動かす」「ロードを 5 秒以内に」
+2. **計測する**：どこが遅いか（プロファイラー）
+3. **原因を考える**：アルゴリズム？ メモリ？ 確保？ コピー？ 描画？
+4. **1 つだけ直す**：1 度に 1 つ。何が効いたか分かるように
+5. **また計測する**：速くなった？ なっていなければ元に戻す
+6. **2 へ戻る**：目標に届くまで
 
 <div class="anim" data-type="graph" data-label="最適化は「測る」からはじめて、「測る」で終わる">
 n goal 目標 0 0 hit
@@ -30,7 +28,7 @@ l goal measure
 l measure find
 l find fix
 l fix check
-l check measure 戻る
+l check measure - 戻る
 # ① 目標を決める（16.6 ms など）
 ---
 n goal 目標 0 0
@@ -42,7 +40,7 @@ l goal measure hit
 l measure find
 l find fix
 l fix check
-l check measure 戻る
+l check measure - 戻る
 # ② プロファイラーで、遅い場所を探す
 ---
 n goal 目標 0 0
@@ -54,7 +52,7 @@ l goal measure
 l measure find hit
 l find fix
 l fix check
-l check measure 戻る
+l check measure - 戻る
 # ③ 一番時間を使っている場所の、原因を考える
 ---
 n goal 目標 0 0
@@ -66,7 +64,7 @@ l goal measure
 l measure find
 l find fix hit
 l fix check
-l check measure 戻る
+l check measure - 戻る
 # ④ 1 つだけ直す
 ---
 n goal 目標 0 0
@@ -78,7 +76,7 @@ l goal measure
 l measure find
 l find fix
 l fix check hit
-l check measure 戻る
+l check measure - 戻る
 # ⑤ 速くなったか確認する。目標に届かなければ、②へ戻る
 </div>
 
@@ -91,6 +89,7 @@ l check measure 戻る
 | [メモリとキャッシュ](memory-cache.md) | データの並べ方で、速さが何倍も変わる |
 | [データ構造の配置の実例集](data-layout.md) | AoS / SoA、ホット・コールド、パディング、インデックス |
 | [メモリ確保](allocation.md) | `new` を減らす。使い回す・まとめて確保する |
+| [アロケータ](allocators/index.md) | リニア・スタック・プール・フリーリスト・バディ・スラブ・TLSF・フレーム・mimalloc。種類ごとに、仕組みとコード |
 | [毎フレームのヒープ確保を避ける](frame-allocation.md) | `string`・`vector`・`new` など、ループ中の隠れた確保 |
 | [コピーとムーブ](copy-move.md) | 無駄なコピーをなくす |
 | [文字列とハッシュの最適化](strings-hash.md) | `string_view`、ハッシュ ID、透過的検索 |
@@ -98,9 +97,12 @@ l check measure 戻る
 | [SIMD（ベクトル化）](simd.md) | 1 命令で、複数のデータをまとめて計算 |
 | [マルチスレッド化](multithreading.md) | 複数のコアで分担する |
 | [コンパイラの最適化](compiler.md) | オプションと、コンパイラに任せられること |
+| [コンパイル時の計算（constexpr）](compile-time.md) | `constexpr` / `consteval` / `constinit` / `if constexpr`。実行時の計算を、ビルド時に |
 | [ビルド時間の最適化](build-time.md) | include の整理、PCH、並列ビルド、unity ビルド |
 | [フレーム時間の設計](frame-budget.md) | フレームバジェット、固定タイムステップ、スパイク対策 |
 | [描画の最適化](rendering.md) | ドロー コール、バッチ、カリング |
+| [ベイク（事前計算）](baking.md) | ライトマップ・ナビメッシュ・アニメ圧縮など、重い計算を、ビルド時に済ませる |
+| [シリアライズでロードを速く](serialization-speed.md) | JSON をバイナリに。ゼロコピー。既存のシリアライズのページへ |
 | [ロード時間・起動時間](loading.md) | 待たせない。バイナリ化・非同期 |
 | [メモリ使用量](memory-usage.md) | 軽くする。構造体のサイズ、圧縮、リーク探し |
 

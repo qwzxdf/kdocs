@@ -119,13 +119,27 @@ Enemy は「倒された」と知らせるだけで、誰が反応するかは�
 
 ### 悪い例
 
-```text
-Enemy
-├── WalkingEnemy
-│   └── WalkingShootingEnemy
-└── FlyingEnemy
-    └── FlyingShootingEnemy   ← 「撃つ」処理が 2 か所にある
-```
+<div class="anim" data-type="graph" data-label="継承で機能を足すと、同じ処理が複数の場所に増える">
+n e Enemy 0 1
+n w WalkingEnemy 1 0
+n f FlyingEnemy 1 2
+n ws WalkingShootingEnemy 2 0
+n fs FlyingShootingEnemy 2 2
+l e w
+l e f
+l w ws
+l f fs
+---
+n e Enemy 0 1
+n w WalkingEnemy 1 0
+n f FlyingEnemy 1 2
+n ws WalkingShootingEnemy 2 0 hit
+n fs FlyingShootingEnemy 2 2 hit
+l e w
+l e f
+l w ws
+l f fs
+</div>
 
 ### 良い例
 

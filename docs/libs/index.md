@@ -31,6 +31,12 @@
 | [ImSequencer](imgui/imsequencer.md) | タイムライン | アニメーションやイベントの時間軸を編集する |
 | [imgui-node-editor](imgui/node-editor.md) | ノード エディタ | ノードを線でつないで、グラフを編集する |
 
+## 3D モデル
+
+| ライブラリ | 用途 | 一言で |
+| --- | --- | --- |
+| [tinygltf](tinygltf/index.md) | 3D モデル（glTF）の読み込み | 構造は「番号（インデックス）」でつながる。[構造](tinygltf/structure.md)・[取り出し方](tinygltf/reading.md) |
+
 ## 物理演算
 
 | ライブラリ | 用途 | 一言で |

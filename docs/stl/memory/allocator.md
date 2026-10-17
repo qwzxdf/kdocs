@@ -453,3 +453,5 @@ int main() {
 - [std::vector](../containers/vector.md)
 - [オブジェクトプール](../../design/patterns/object-pool.md)
 - [cppreference: std::allocator](https://en.cppreference.com/w/cpp/memory/allocator)
+- [アロケータ（自作・種類ごとの解説）](../../optimize/allocators/index.md)
+- [STL との接続（アロケータ対応）](../../optimize/allocators/stl-adapter.md)

@@ -5,6 +5,7 @@ nav:
   - memory-cache.md
   - data-layout.md
   - allocation.md
+  - アロケータ: allocators
   - frame-allocation.md
   - copy-move.md
   - strings-hash.md
@@ -12,9 +13,12 @@ nav:
   - simd.md
   - multithreading.md
   - compiler.md
+  - compile-time.md
   - build-time.md
   - frame-budget.md
   - rendering.md
+  - baking.md
+  - serialization-speed.md
   - loading.md
   - memory-usage.md
   - ...

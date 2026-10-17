@@ -16,9 +16,6 @@ tags:
 
 **Jolt Physics**（ジョルト・フィジクス）は、**3D の物理演算（剛体、衝突判定、キャラクターの移動など）を行う C++ ライブラリ**です。オランダのゲーム会社 Guerrilla Games の開発者 Jorrit Rouwé が、**PlayStation 5 の「Horizon Forbidden West」のために作った**エンジンを、オープンソース（MIT ライセンス）として公開したものです。**マルチスレッドで速く**、<strong>同じ入力から同じ結果が出る（決定的）</strong>ことを重視していて、Godot（4.4 以降の選択肢）や Unity 以外の多くの新しいゲームでも採用されています。Bullet や PhysX と同じ種類のライブラリですが、<strong>新しくてモダンな C++</strong>で書かれていて、導入しやすいのが特徴です。
 
-!!! warning "TODO"
-    Jolt Physics は内容が深いので、**複数のページに分けて**少しずつ書いていきます。このページは、**概要・導入（Visual Studio）・全体像・最小の流れ**だけです。詳しいページは、下の「これから書くページ」に、構成だけ用意しています。
-
 !!! tip "ポイント"
     - 物理演算は、**`PhysicsSystem`（世界）に、`Body`（物体）を追加して、`Update` で時間を進める**のが基本の流れ。
     - 物体の形は **`Shape`<strong>（箱、球、カプセル、メッシュ…）、動き方は </strong>`EMotionType`**（`Static`、`Kinematic`、`Dynamic`）で決める。
@@ -145,7 +142,7 @@ l sys chara hit Update
 
 ## 最小の流れ（骨組み）
 
-初期化から、球が落ちるまでの**骨組み**です。**レイヤーの定義**（`BroadPhaseLayerInterface` など）は長いので、[レイヤー](layers.md)（TODO）に書きます。
+初期化から、球が落ちるまでの**骨組み**です。**レイヤーの定義**（`BroadPhaseLayerInterface` など）は長いので、[レイヤー](layers.md)で説明します。
 
 ```cpp
 #include <Jolt/Jolt.h>
@@ -172,7 +169,7 @@ void RunPhysics() {
   TempAllocatorImpl temp_allocator(10 * 1024 * 1024);  // 一時メモリ 10 MB
   JobSystemThreadPool job_system(cMaxPhysicsJobs, cMaxPhysicsBarriers, 3);  // スレッド 3 本
 
-  // ---- 2. 世界を作る（レイヤーは TODO のページ） ----
+  // ---- 2. 世界を作る（レイヤーは、レイヤーのページで説明） ----
   PhysicsSystem physics_system;
   // physics_system.Init(最大の物体数, ミューテックス数, 最大のペア数, 最大の接触数,
   //                     broad_phase_layer_interface,
@@ -290,24 +287,24 @@ l upd end hit
 | --- | --- |
 | 物理の世界と、**ゲームの世界は別**のものとして持つ | ゲームのオブジェクト（エンティティ）は、`BodyID` を**持つ**。毎フレーム、物理の位置を、ゲームの Transform に**コピー**する |
 | **固定のステップ**で更新する | 可変の `dt` を渡すと、結果が不安定になる。`dt` は 1/60 などで固定し、足りない時間は複数回 `Update` する（[ゲームループと固定タイムステップ](../../engine/game-loop.md)） |
-| **キャラクターは剛体にしない** | プレイヤーの動きは、`CharacterVirtual`（TODO）で、ゲームに合う操作感を作る |
+| **キャラクターは剛体にしない** | プレイヤーの動きは、`CharacterVirtual`（[キャラクター](character.md)）で、ゲームに合う操作感を作る |
 | **衝突の分類を先に決める** | 「プレイヤーと弾は衝突する、弾どうしは衝突しない」など、レイヤーの設計を最初にする |
 
-## これから書くページ
+## ページ一覧
 
 | ページ | 内容 | 状態 |
 | --- | --- | --- |
-| [ビルドと設定](build.md) | プリプロセッサの定義、Debug / Release、倍精度、決定性、vcpkg と CMake の違い | TODO |
-| [世界の初期化と更新](system.md) | `PhysicsSystem::Init` の引数、`Update`、固定ステップ、サブステップ | TODO |
-| [レイヤー](layers.md) | `ObjectLayer`、`BroadPhaseLayer`、衝突フィルターの書き方 | TODO |
-| [物体（Body）](bodies.md) | 作成・追加・削除、力・速度、摩擦と反発、スリープ、センサー | TODO |
-| [形（Shape）](shapes.md) | 箱・球・カプセル・凸包・メッシュ・複合形状、スケール、重心 | TODO |
-| [クエリ（レイキャストなど）](queries.md) | レイキャスト、形状キャスト、重なり判定、衝突フィルター | TODO |
-| [制約（Constraint）](constraints.md) | ヒンジ、バネ、固定、距離、モーター、ラグドール | TODO |
-| [キャラクター](character.md) | `CharacterVirtual`、階段・坂・動く床、`Character`（剛体版） | TODO |
-| [デバッグ描画](debug-renderer.md) | `DebugRenderer` を実装して、衝突の形を画面に出す。ImGui との組み合わせ | TODO |
-| [ECS・ゲームとの連携](integration.md) | `BodyID` とエンティティ、位置の同期、イベント（接触リスナー） | TODO |
-| [車両・ソフトボディ](vehicles.md) | 車両の物理、ソフトボディ | TODO |
+| [ビルドと設定](build.md) | プリプロセッサの定義、Debug / Release、倍精度、決定性、vcpkg と CMake の違い | **書いた** |
+| [世界の初期化と更新](system.md) | `PhysicsSystem::Init` の引数、`Update`、固定ステップ、サブステップ | **書いた** |
+| [レイヤー](layers.md) | `ObjectLayer`、`BroadPhaseLayer`、衝突フィルターの書き方 | **書いた** |
+| [物体（Body）](bodies.md) | 作成・追加・削除、力・速度、摩擦と反発、スリープ、センサー | **書いた** |
+| [形（Shape）](shapes.md) | 箱・球・カプセル・凸包・メッシュ・複合形状、スケール、重心 | **書いた** |
+| [クエリ（レイキャストなど）](queries.md) | レイキャスト、形状キャスト、重なり判定、衝突フィルター | **書いた** |
+| [制約（Constraint）](constraints.md) | ヒンジ、バネ、固定、距離、モーター、ラグドール | **書いた** |
+| [キャラクター](character.md) | `CharacterVirtual`、階段・坂・動く床、`Character`（剛体版） | **書いた** |
+| [デバッグ描画](debug-renderer.md) | `DebugRenderer` を実装して、衝突の形を画面に出す。ImGui との組み合わせ | **書いた** |
+| [ECS・ゲームとの連携](integration.md) | `BodyID` とエンティティ、位置の同期、イベント（接触リスナー） | **書いた** |
+| [車両・ソフトボディ](vehicles.md) | 車両の物理、ソフトボディ | **書いた** |
 
 ## 関連ページ
 

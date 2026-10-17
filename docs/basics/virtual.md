@@ -24,6 +24,28 @@ tags:
 
 ## 基本
 
+<div class="anim" data-type="graph" data-label="仮想関数：オブジェクトの持つ vptr から、vtable を引いて、実際の関数を呼ぶ">
+n p Enemy*_e 0 1 hit
+---
+n p Enemy*_e 0 1
+n o Goblin_オブジェクト_（vptr_を持つ） 1 1 hit
+l p o hit 指す
+---
+n p Enemy*_e 0 1
+n o Goblin_オブジェクト_（vptr_を持つ） 1 1
+n vt Goblin_の_vtable_（関数の表） 2 1 hit
+l p o - 指す
+l o vt hit vptr
+---
+n p Enemy*_e 0 1
+n o Goblin_オブジェクト_（vptr_を持つ） 1 1
+n vt Goblin_の_vtable_（関数の表） 2 1
+n f Goblin::Attack() 3 1 hit
+l p o - 指す
+l o vt - vptr
+l vt f hit 表を引く
+</div>
+
 ```cpp
 #include <memory>
 #include <print>

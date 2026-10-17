@@ -22,24 +22,55 @@ C++ の標準ライブラリは、失敗したときに**例外**を投げるこ
 
 ## 例外の階層
 
-```text
-std::exception
-├── std::logic_error         （プログラムのミス。事前に防げるもの）
-│   ├── std::out_of_range       vector::at、string::substr の範囲外
-│   ├── std::invalid_argument   std::stoi に数字でない文字列
-│   ├── std::length_error       vector::reserve が大きすぎる
-│   └── std::domain_error
-├── std::runtime_error       （実行してみないと分からないもの）
-│   ├── std::range_error / std::overflow_error / std::underflow_error
-│   ├── std::system_error       OS のエラー（filesystem_error はこの子）
-│   └── std::format_error       vformat の書式間違い
-├── std::bad_alloc           メモリ不足
-├── std::bad_optional_access optional::value() で値なし
-├── std::bad_variant_access  std::get で型違い
-├── std::bad_function_call   空の std::function を呼んだ
-├── std::bad_any_cast        any_cast で型違い
-└── std::bad_expected_access expected::value() でエラー
-```
+<div class="anim" data-type="graph" data-label="標準の例外の継承関係">
+n ex std::exception 0 6
+n lg logic_error 1 1.5
+n rt runtime_error 1 5
+n oor out_of_range 2 0
+n ia invalid_argument 2 1
+n le length_error 2 2
+n de domain_error 2 3
+n rg range_error_等 2 4
+n se system_error 2 5
+n fe format_error 2 6
+n ba bad_alloc 1 7
+n bo bad_optional_access 1 8
+n bv bad_variant_access 1 9
+n bf bad_function_call 1 10
+n bc bad_any_cast 1 11
+n be bad_expected_access 1 12
+l ex lg
+l ex rt
+l lg oor
+l lg ia
+l lg le
+l lg de
+l rt rg
+l rt se
+l rt fe
+l ex ba
+l ex bo
+l ex bv
+l ex bf
+l ex bc
+l ex be
+</div>
+
+| 例外 | いつ出るか |
+| --- | --- |
+| `logic_error` | プログラムのミス（事前に防げるもの） |
+| `out_of_range` | `vector::at`、`string::substr` の範囲外 |
+| `invalid_argument` | `std::stoi` に数字でない文字列 |
+| `length_error` | `vector::reserve` が大きすぎる |
+| `runtime_error` | 実行してみないと分からないもの |
+| `system_error` | OS のエラー（`filesystem_error` はこの子） |
+| `format_error` | `vformat` の書式間違い |
+| `bad_alloc` | メモリ不足 |
+| `bad_optional_access` | `optional::value()` で値なし |
+| `bad_variant_access` | `std::get` で型違い |
+| `bad_function_call` | 空の `std::function` を呼んだ |
+| `bad_any_cast` | `any_cast` で型違い |
+| `bad_expected_access` | `expected::value()` でエラー |
 
 ## 型一覧
 

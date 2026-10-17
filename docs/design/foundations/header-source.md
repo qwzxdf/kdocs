@@ -86,10 +86,21 @@ include を減らすと、ヘッダを書き換えたときに再コンパイル
 
 ### 循環 include を切る
 
-```text
-player.h が enemy.h を include
-enemy.h が player.h を include   ← どちらかが先に読まれ、相手がまだ分からずエラー
-```
+<div class="anim" data-type="graph" data-label="互いに include すると、循環してエラーになる">
+n p player.h 0 0
+n e enemy.h 1 0
+l p e - include
+---
+n p player.h 0 0
+n e enemy.h 1 0
+l p e - include
+l e p - include
+---
+n p player.h 0 0 gone
+n e enemy.h 1 0 hit
+l p e - include
+l e p - 相手がまだ分からずエラー
+</div>
 
 どちらか（または両方）を前方宣言に変えます。
 

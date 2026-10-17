@@ -4,16 +4,16 @@
 
 | ページ | 重要度 | 一言で |
 | --- | --- | --- |
-| [ゲームループと固定タイムステップ](game-loop.md) | <span class="rank rank-must">必須</span> | 入力 → 更新 → 描画 を正しい時間で回す |
-| [シーン管理](scene.md) | <span class="rank rank-must">必須</span> | タイトル・ゲーム・リザルトを切り替える |
-| [コンポーネント指向](component.md) | <span class="rank rank-must">必須</span> | オブジェクトを機能の部品で組み立てる |
-| [ステートマシン](../design/patterns/state-machine.md) | <span class="rank rank-often">よく使う</span> | 状態と遷移をはっきり管理する |
-| [イベントシステム](../design/patterns/event.md) | <span class="rank rank-often">よく使う</span> | 起きたことを興味のある相手に知らせる |
-| [リソース管理](resource.md) | <span class="rank rank-often">よく使う</span> | 画像・音を 1 回だけ読み込んで使い回す |
-| [シリアライズ](serialization/index.md) | <span class="rank rank-often">よく使う</span> | セーブ・ロード、JSON やバイナリのライブラリ |
-| [ハンドルと世代 ID](handle.md) | <span class="rank rank-often">よく使う</span> | 消えるかもしれない相手を安全に指す |
-| [ECS](../design/patterns/ecs.md) | <span class="rank rank-often">よく使う</span> | データと処理を分けて大量のオブジェクトを速く回す |
-| [オブジェクトプール](../design/patterns/object-pool.md) | <span class="rank rank-sometimes">たまに</span> | 作っては消すものを使い回す |
+| [ゲームループと固定タイムステップ](game-loop.md) | <span class="rank rank-must">必須</span> | 入力 → 更新 → 描画 を、正しい時間（固定タイムステップ）で、回し続ける仕組み |
+| [シーン管理](scene.md) | <span class="rank rank-must">必須</span> | タイトル・ゲーム・リザルトなどの画面（シーン）を、切り替えて管理する |
+| [コンポーネント指向](component.md) | <span class="rank rank-must">必須</span> | オブジェクトを、機能の部品（コンポーネント）で組み立てる。継承の限界を超える |
+| [ステートマシン](../design/patterns/state-machine.md) | <span class="rank rank-often">よく使う</span> | 状態（待機・移動・攻撃）と、その遷移を、はっきり管理する |
+| [イベントシステム](../design/patterns/event.md) | <span class="rank rank-often">よく使う</span> | 起きたことを、興味のある相手に、相手を知らずに知らせる |
+| [リソース管理](resource.md) | <span class="rank rank-often">よく使う</span> | 画像・音・モデルを、1 回だけ読み込んで、使い回す。キャッシュと解放 |
+| [シリアライズ](serialization/index.md) | <span class="rank rank-often">よく使う</span> | セーブ・ロード。JSON やバイナリのライブラリの選び方 |
+| [ハンドルと世代 ID](handle.md) | <span class="rank rank-often">よく使う</span> | 消えるかもしれない相手を、番号 ＋ 世代で、安全に指す |
+| [ECS](../design/patterns/ecs.md) | <span class="rank rank-often">よく使う</span> | データと処理を分けて、大量のオブジェクトを、速く回す |
+| [オブジェクトプール](../design/patterns/object-pool.md) | <span class="rank rank-sometimes">たまに</span> | 作っては消すもの（弾・敵）を、あらかじめ用意して、使い回す |
 
 ## 読む順番のおすすめ
 

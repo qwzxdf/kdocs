@@ -469,3 +469,5 @@ int main() {
 - [オブジェクトプール](../../design/patterns/object-pool.md)
 - [std::vector](../containers/vector.md)
 - [cppreference: std::pmr::memory_resource](https://en.cppreference.com/w/cpp/memory/memory_resource)
+- [アロケータ（種類ごとの解説）](../../optimize/allocators/index.md)
+- [STL との接続（アロケータ対応）](../../optimize/allocators/stl-adapter.md)

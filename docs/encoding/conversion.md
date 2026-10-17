@@ -18,12 +18,14 @@ tags:
 
 ## 変換の全体像
 
-```text
-[UTF-8 の std::string]  ←→  [UTF-16 の std::wstring]   Windows API との境界
-         ↑
-         │ 古いファイルを読むときだけ
-[Shift_JIS (CP932) のバイト列]
-```
+<div class="anim" data-type="graph" data-label="変換が必要なのは、境界だけ">
+n u8 std::string_（UTF-8） 0 0
+n u16 std::wstring_（UTF-16） 2 0
+n sj Shift_JIS_（CP932）のバイト列 0 2
+l u8 u16 - Windows_API_との境界
+l u16 u8 - 戻す
+l sj u8 - 古いファイルを読むときだけ
+</div>
 
 | 変換 | 場面 |
 | --- | --- |

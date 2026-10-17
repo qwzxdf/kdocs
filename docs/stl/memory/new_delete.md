@@ -26,6 +26,8 @@ tags:
 
 ## 4 つの組み合わせ
 
+<svg class="fig" viewBox="0 0 620 250" role="img" aria-label="スタックとヒープ"><defs><marker id="h1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">スタック（自動で片付く）</text><rect x="30" y="40" width="190" height="150" fill="none" stroke="currentColor" stroke-width="2"/><rect x="40" y="50" width="170" height="36" fill="rgba(76,139,245,0.3)" stroke="currentColor"/><text x="50" y="73">int a = 5</text><rect x="40" y="94" width="170" height="36" fill="rgba(76,139,245,0.3)" stroke="currentColor"/><text x="50" y="117">Enemy* p（ポインタ）</text><text x="30" y="215">関数を出ると、自動で消える</text><text x="330" y="20" class="fig-title">ヒープ（new で確保・delete で解放）</text><rect x="340" y="40" width="250" height="150" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><rect x="400" y="80" width="130" height="50" fill="rgba(229,72,77,0.3)" stroke="currentColor"/><text x="412" y="110">Enemy の実体</text><line x1="210" y1="112" x2="398" y2="108" stroke="currentColor" stroke-width="2" marker-end="url(#h1)" /><text x="260" y="98">指す</text><text x="340" y="215">delete を忘れると、消えない（リーク）</text><text x="340" y="235">ポインタが先に消えると、場所が分からなくなる</text></svg>
+
 | 作る | 消す | 書き方 |
 | --- | --- | --- |
 | オブジェクト 1 個 | `delete` | `Enemy* e = new Enemy(10);` → `delete e;` |

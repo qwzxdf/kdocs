@@ -26,13 +26,22 @@ class FlyingShootingEnemy : public ??? { /* 飛んで、撃つ → どっちを�
 
 ### 何が困るか
 
-```text
-        Enemy
-       /      \
- FlyingEnemy  ShootingEnemy      ← 両方の性質が欲しい敵は、どちらの子にもできない
-       \      /
-   FlyingShootingEnemy           ← 多重継承は複雑（ダイヤモンド継承）
-```
+<div class="anim" data-type="graph" data-label="継承だけでは、両方の性質を持つ敵が作れない">
+n e Enemy 1 0
+n f FlyingEnemy 0 1
+n s ShootingEnemy 2 1
+l e f
+l e s
+---
+n e Enemy 1 0
+n f FlyingEnemy 0 1
+n s ShootingEnemy 2 1
+n fs FlyingShootingEnemy 1 2 gone
+l e f
+l e s
+l f fs
+l s fs - 多重継承は複雑
+</div>
 
 | 問題 | 説明 |
 | --- | --- |

@@ -148,11 +148,17 @@ rapidyaml を使うには、まず次の 3 つの型を覚えます。
 | `ryml::NodeRef` / `ryml::ConstNodeRef` | 木の中の 1 つのノードを指すもの。軽くてコピーしてよい | イテレータ・ポインタ |
 | `ryml::csubstr` / `ryml::substr` | 文字列の一部を指すもの（`const` 付きと無し） | `std::string_view` |
 
-```text
-Tree
-├── ノードの配列  [root][name][hp][drops][drops/0]...   ← NodeRef はここを番号で指す
-└── アリーナ（文字列置き場） "スライム" "10" "potion" ...   ← csubstr はここを指す
-```
+<div class="anim" data-type="graph" data-label="rapidyaml：ノードの配列と、文字列置き場">
+n t Tree 0 1
+n n ノードの配列_[root][name][hp]... 1 0
+n a アリーナ_（文字列置き場） 1 2
+n nr NodeRef 2 0
+n cs csubstr 2 2
+l t n
+l t a
+l nr n - 番号で指す
+l cs a - ここを指す
+</div>
 
 rapidyaml が速いのは、ノードを**1 つの配列にまとめて**持ち、文字列も**元の入力（またはアリーナ）を指すだけ**で、値ごとにメモリを確保しないからです。その代わり、`csubstr` が指している先（入力やアリーナ）が消えると使えなくなります。
 

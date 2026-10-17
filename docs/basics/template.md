@@ -361,10 +361,11 @@ int main() {
 
 テンプレートは「使われたときに型を当てはめて作られる」ので、使う側からテンプレートの中身（定義）が見えている必要があります。
 
-```text
-math.h      ← template <class T> T Larger(T a, T b) { ... } を全部ここに書く
-main.cpp    ← #include "math.h" して使う
-```
+<div class="anim" data-type="graph" data-label="テンプレートは、ヘッダに全部書く">
+n h math.h_（テンプレートの中身を全部書く） 0 0
+n m main.cpp 1 1
+l m h - #include_して使う
+</div>
 
 宣言だけをヘッダに書いて中身を .cpp に書くと、**リンクエラー**（「未解決の外部シンボル」）になります。
 

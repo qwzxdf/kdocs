@@ -119,11 +119,47 @@ int main() {
 
 ### ゲームでのよくある形
 
-```text
-メインスレッド:  入力 → 更新 → 描画 → 入力 → 更新 → 描画 → ...
-ロードスレッド:     [ステージ読み込み..................] → 完了フラグ（atomic）
-メインスレッド:  完了フラグを毎フレーム確認 → 読み込み済みならシーンを切り替える
-```
+<div class="anim" data-type="graph" data-label="ロードスレッドで読み込み、完了フラグでメインスレッドが切り替える">
+n in 入力 0 0 hit
+n up 更新 1 0 hit
+n dr 描画 2 0 hit
+l in up hit
+l up dr hit
+l dr in hit 繰り返す
+---
+n in 入力 0 0
+n up 更新 1 0
+n dr 描画 2 0
+n ld ロードスレッド_ステージ読み込み 1 1.5 hit
+l in up
+l up dr
+l dr in - 繰り返す
+l up ld hit 開始
+---
+n in 入力 0 0
+n up 更新 1 0
+n dr 描画 2 0
+n ld ロードスレッド_ステージ読み込み 1 1.5
+n fl 完了フラグ_（atomic） 2 1.5 hit
+l in up
+l up dr
+l dr in - 繰り返す
+l up ld - 開始
+l ld fl hit 終わったら
+---
+n in 入力 0 0
+n up 更新 1 0
+n dr 描画 2 0
+n ld ロードスレッド_ステージ読み込み 1 1.5
+n fl 完了フラグ_（atomic） 2 1.5
+n sw シーン切り替え 3 0 hit
+l in up
+l up dr
+l dr in - 繰り返す
+l up ld - 開始
+l ld fl - 終わったら
+l fl sw hit 毎フレーム確認
+</div>
 
 ## よくあるミス
 

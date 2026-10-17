@@ -18,15 +18,37 @@ tags:
 
 ## スキニングの仕組み
 
-```text
-骨の階層：   Hips
-              ├─ Spine ── Chest ── Head
-              ├─ LeftLeg ── LeftFoot
-              └─ RightLeg ── RightFoot
+<svg class="fig" viewBox="0 0 620 240" role="img" aria-label="スキニング：骨と頂点の重み"><defs><marker id="k1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">肘を曲げると、関節の頂点は、2 本の骨に影響される</text><line x1="60" y1="130" x2="200" y2="130" stroke="currentColor" stroke-width="5"/><text x="80" y="112">上腕の骨</text><line x1="200" y1="130" x2="300" y2="60" stroke="currentColor" stroke-width="5"/><text x="260" y="55">前腕の骨</text><circle cx="200" cy="130" r="9" fill="currentColor"/><circle cx="120" cy="128" r="6" fill="rgba(76,139,245,0.9)"/><text x="100" y="160">重み 1.0 / 0.0</text><circle cx="195" cy="118" r="6" fill="rgba(229,170,40,0.9)"/><text x="150" y="190">重み 0.5 / 0.5</text><circle cx="270" cy="82" r="6" fill="rgba(229,72,77,0.9)"/><text x="280" y="98">重み 0.0 / 1.0</text><text x="350" y="80">頂点の位置 ＝ 重み × (骨 A で動かした位置)</text><text x="350" y="105">　　　　　　＋ 重み × (骨 B で動かした位置)</text><text x="350" y="140">関節では、2 つの骨の動きが、混ざる</text><text x="350" y="165">→ 曲がっても、皮膚が自然につながる</text></svg>
 
-頂点：  各頂点が、近くの骨 1〜4 本と、重み（合計 1）を持つ
-動かす：  骨を動かす → 頂点が、重み付きの平均で、追従する
-```
+<div class="anim" data-type="graph" data-label="骨は親子の階層（子の姿勢は親に積み重なる）">
+n h Hips 0 1 hit
+---
+n h Hips 0 1
+n s Spine 1 0 hit
+n c Chest 2 0 hit
+n hd Head 3 0 hit
+l h s hit
+l s c hit
+l c hd hit
+---
+n h Hips 0 1
+n s Spine 1 0
+n c Chest 2 0
+n hd Head 3 0
+n ll LeftLeg 1 1 hit
+n lf LeftFoot 2 1 hit
+n rl RightLeg 1 2 hit
+n rf RightFoot 2 2 hit
+l h s
+l s c
+l c hd
+l h ll hit
+l ll lf hit
+l h rl hit
+l rl rf hit
+</div>
+
+各頂点は、近くの骨 1〜4 本と重み（合計 1）を持ちます。骨を動かすと、頂点が重み付きの平均で追従します。
 
 ## ボーンの階層
 
@@ -244,12 +266,26 @@ Pose Blend(const Pose& a, const Pose& b, float t) {
 
 **どのアニメーションを再生するか**は、**状態**（待機・歩き・攻撃・死亡）で決めます。
 
-```text
- 待機 ──(速度 > 0)──→ 歩き ──(速度 > 3)──→ 走り
-  ↑                                           │
-  └────────────(速度 = 0)─────────────────────┘
- 任意 ──(ダメージ)──→ 被弾 ──(終了)──→ 待機
-```
+<div class="anim" data-type="graph" data-label="アニメーションのステートマシン">
+n idle 待機 0 1 hit
+n walk 歩き 1 1
+n run 走り 2 1
+l idle walk - 速度>0
+l walk run - 速度>3
+---
+n idle 待機 0 1
+n walk 歩き 1 1
+n run 走り 2 1 hit
+l idle walk - 速度>0
+l walk run - 速度>3
+l run idle - 速度=0
+---
+n any 任意の状態 0 0
+n hit 被弾 1 0 hit
+n idle 待機 2 0
+l any hit - ダメージ
+l hit idle - 終了
+</div>
 
 状態遷移の作り方は、[ステートマシン](../design/patterns/state-machine.md)で解説しています。
 

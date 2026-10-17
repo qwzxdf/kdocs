@@ -1,5 +1,6 @@
 nav:
   - index.md
+  - compiler.md
   - reference.md
   - pointer.md
   - virtual.md

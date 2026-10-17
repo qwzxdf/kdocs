@@ -91,12 +91,27 @@ int main() {
 
 クラッシュしたり、ブレークポイントで止まったりしたとき、**どの関数から呼ばれてここに来たか**が分かります。メニュー「デバッグ → ウィンドウ → 呼び出し履歴」（Alt + 7）。
 
-```text
-Enemy::Attack(Enemy* target)         ← 今ここ（クラッシュした場所）
-Scene::UpdateEnemies(float dt)       ← これが呼んだ
-Game::Update(float dt)               ← これが呼んだ
-main()                               ← 最初
-```
+<div class="anim" data-type="graph" data-label="呼び出し履歴は、クラッシュした場所から、呼び出し元をさかのぼる">
+n a Enemy::Attack(...) 0 3 hit
+---
+n a Enemy::Attack(...) 0 3 hit
+n b Scene::UpdateEnemies(...) 0 2
+l b a - 呼んだ
+---
+n a Enemy::Attack(...) 0 3 hit
+n b Scene::UpdateEnemies(...) 0 2
+n c Game::Update(...) 0 1
+l b a - 呼んだ
+l c b - 呼んだ
+---
+n a Enemy::Attack(...)_←_クラッシュ 0 3 hit
+n b Scene::UpdateEnemies(...) 0 2
+n c Game::Update(...) 0 1
+n d main()_←_最初 0 0
+l b a - 呼んだ
+l c b - 呼んだ
+l d c - 呼んだ
+</div>
 
 - **行をダブルクリック**すると、その関数のソースに移り、**その時点の変数**が見られます。「引数が `nullptr` だったのは誰が渡したのか」を、上にたどって調べます
 - クラッシュしたら、まず **呼び出し履歴で自分のコードの一番上の行**を見ます

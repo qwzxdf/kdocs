@@ -18,6 +18,8 @@ tags:
 
 ## 形状の選び方
 
+<svg class="fig" viewBox="0 0 620 210" role="img" aria-label="当たり判定の形"><defs><marker id="c1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">コライダー（当たり判定の形）：複雑なモデルを、単純な形で近似する</text><circle cx="80" cy="110" r="44" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2"/><text x="45" y="190">球（最速）</text><rect x="170" y="70" width="90" height="80" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2"/><text x="165" y="190">AABB（軸に平行）</text><rect x="330" y="75" width="90" height="60" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2" transform="rotate(25 375 105)"/><text x="325" y="190">OBB（回転した箱）</text><rect x="490" y="65" width="50" height="100" rx="25" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2"/><line x1="515" y1="90" x2="515" y2="140" stroke="currentColor" stroke-dasharray="3 3"/><text x="480" y="190">カプセル（人型）</text></svg>
+
 | 形状 | クラス | 速さ | 向いているもの |
 | --- | --- | --- | --- |
 | **球** | `BoundingSphere` | **最速** | 弾、キャラクターの大まかな判定、近接の検出 |
@@ -180,13 +182,54 @@ bool SphereVsSphereContact(const Vector3& c1, float r1, const Vector3& c2, float
 | **ブロードフェーズ** | **当たりそうな組だけ**を、**安く**選ぶ | 空間分割（グリッド・八分木・BVH）、AABB、sweep and prune |
 | **ナローフェーズ** | 選んだ組を、**正確に**判定 | 球・OBB・カプセル・GJK・三角形 |
 
-```text
-全物体 1000 個 → ブロード（近くの組だけ）→ 50 組 → ナロー（正確に）→ 5 組が衝突
-```
+<div class="anim" data-type="graph" data-label="ブロードフェーズで絞り、ナローフェーズで正確に判定する">
+n c0 全物体_1000個 0 0 hit
+---
+n c0 全物体_1000個 0 0
+n c1 ブロード_（近い組だけ） 1 0 hit
+l c0 c1 hit
+---
+n c0 全物体_1000個 0 0
+n c1 ブロード_（近い組だけ） 1 0
+n c2 50組 2 0 hit
+l c0 c1
+l c1 c2 hit
+---
+n c0 全物体_1000個 0 0
+n c1 ブロード_（近い組だけ） 1 0
+n c2 50組 2 0
+n c3 ナロー_（正確に） 3 0 hit
+l c0 c1
+l c1 c2
+l c2 c3 hit
+---
+n c0 全物体_1000個 0 0
+n c1 ブロード_（近い組だけ） 1 0
+n c2 50組 2 0
+n c3 ナロー_（正確に） 3 0
+n c4 5組が衝突 4 0 hit
+l c0 c1
+l c1 c2
+l c2 c3
+l c3 c4 hit
+</div>
 
 空間分割は、[空間分割](../optimize/algorithms.md)で、詳しく解説しています。
 
 ## 高速な物体（トンネリング）
+
+<div class="anim" data-type="graph" data-label="トンネリング：速い弾は、1 フレームで壁を通り抜ける。レイキャストで防ぐ">
+n b 弾_（前フレーム） 0 1 hit
+n w 壁 2 1
+---
+n b 弾_（今フレーム） 4 1 gone
+n w 壁_（判定されない） 2 1 dim
+l b w gone 通り抜けた
+---
+n b 弾_（前フレーム） 0 1
+n w 壁_（レイが当たる） 2 1 hit
+l b w hit 前→今の位置にレイ
+</div>
 
 **弾のように速い**物体は、**1 フレームで、壁を通り抜ける**ことがあります（トンネリング）。
 

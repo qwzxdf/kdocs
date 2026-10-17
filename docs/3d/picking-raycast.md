@@ -20,12 +20,28 @@ tags:
 
 画面の 1 点は、3D 空間では、**カメラから奥へ伸びる 1 本の線**に対応します。**MVP 変換の逆**（スクリーン → ワールド）で、その線を作ります。
 
-```text
-画面の 1 点 (sx, sy)
-  → 近い面の点 (sx, sy, 0) をワールドに戻す → near_point
-  → 遠い面の点 (sx, sy, 1) をワールドに戻す → far_point
-  → レイ：始点 = near_point、向き = normalize(far_point - near_point)
-```
+<div class="anim" data-type="graph" data-label="ピッキング：画面の 1 点から、奥へ向かうレイを作る">
+n s 画面の点_(sx,sy) 0 1 hit
+---
+n s 画面の点_(sx,sy) 0 1
+n n 近い面の点_near_point 1 0 hit
+l s n hit z=0_をワールドへ
+---
+n s 画面の点_(sx,sy) 0 1
+n n 近い面の点_near_point 1 0
+n f 遠い面の点_far_point 1 2 hit
+l s n - z=0_をワールドへ
+l s f hit z=1_をワールドへ
+---
+n s 画面の点_(sx,sy) 0 1
+n n 近い面の点_near_point 1 0
+n f 遠い面の点_far_point 1 2
+n r レイ_始点near・向き=far-near 2 1 hit
+l s n - z=0_をワールドへ
+l s f - z=1_をワールドへ
+l n r hit
+l f r hit
+</div>
 
 ## スクリーン座標からレイを作る
 
