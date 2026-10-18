@@ -8,9 +8,28 @@ RATINGS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 LINK = re.compile(r"\[([^\]]+)\]\(([^)#\s]+\.md)(#[^)\s]*)?\)")
 H1 = re.compile(r"^# (.+)$", re.M)
 
-PERF_LABEL = {1: "軽い", 2: "普通", 3: "重い"}
-PERF_TITLE = {1: "パフォーマンス:軽い（負荷が小さい）", 2: "パフォーマンス:普通（中程度の負荷）", 3: "パフォーマンス:重い（負荷が大きい）"}
-QUAL_TITLE = {1: "品質:低め（簡易）", 2: "品質:標準", 3: "品質:高い"}
+PERF_LABEL = {1: "とても軽い", 2: "軽い", 3: "普通", 4: "重い", 5: "とても重い"}
+PERF_TITLE = {
+    1: "重さ:とても軽い（ほぼ無料。フレームの 0.1 ms 未満）",
+    2: "重さ:軽い（0.1〜0.3 ms）",
+    3: "重さ:普通（0.3〜1 ms）",
+    4: "重さ:重い（1〜3 ms。使いどころを選ぶ）",
+    5: "重さ:とても重い（3 ms 超。品質設定で切る）",
+}
+QUAL_TITLE = {
+    1: "品質:かんたんな近似（粗い）",
+    2: "品質:簡易",
+    3: "品質:標準",
+    4: "品質:高い",
+    5: "品質:基準になる正確さ",
+}
+DIFF_TITLE = {
+    1: "難易度:入門（式も要らない）",
+    2: "難易度:やさしい（基本の数学・1 回の描画で書ける）",
+    3: "難易度:ふつう（複数パス・行列・サンプリングの理解）",
+    4: "難易度:難しい（確率・積分・時間方向・技術の組み合わせ）",
+    5: "難易度:上級（論文レベル・自前の実装が大変）",
+}
 
 _ratings = {}
 
@@ -30,10 +49,13 @@ def Badges(rating):
     parts = []
     perf = rating.get("perf")
     if perf in PERF_LABEL:
-        parts.append('<span class="perf perf-%d" title="%s">⚡%s</span>' % (4 - perf, PERF_TITLE[perf], PERF_LABEL[perf]))
+        parts.append('<span class="perf perf-lv%d" title="%s">⚡%s</span>' % (perf, PERF_TITLE[perf], PERF_LABEL[perf]))
     qual = rating.get("quality")
     if qual in QUAL_TITLE:
-        parts.append('<span class="qual qual-%d" title="%s">%s%s</span>' % (qual, QUAL_TITLE[qual], "★" * qual, "☆" * (3 - qual)))
+        parts.append('<span class="qual qual-%d" title="%s">%s%s</span>' % (qual, QUAL_TITLE[qual], "★" * qual, "☆" * (5 - qual)))
+    diff = rating.get("diff")
+    if diff in DIFF_TITLE:
+        parts.append('<span class="diff diff-%d" title="%s">難易度 %s%s</span>' % (diff, DIFF_TITLE[diff], "◆" * diff, "◇" * (5 - diff)))
     return " ".join(parts)
 
 
@@ -62,7 +84,7 @@ def on_page_markdown(markdown, page, config, files):
             continue
         first = cells[1]
         match = LINK.search(first)
-        if not match or "perf-" in first:
+        if not match or "perf-lv" in first or "qual-" in first or "diff-" in first:
             continue
         target = posixpath.normpath(posixpath.join(base, match.group(2)))
         rating = _ratings.get(target)

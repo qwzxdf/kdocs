@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup, NavigableString
 
 SKIP_TAGS = {"code", "pre", "a", "abbr", "h1", "h2", "h3", "h4", "h5", "h6", "script", "style",
              "button", "summary", "svg", "textarea", "kbd"}
-SKIP_CLASSES = {"anim", "page-badges", "admonition-title", "mat-row", "formula", "headerlink", "perf", "qual"}
+SKIP_CLASSES = {"anim", "page-badges", "admonition-title", "mat-row", "formula", "headerlink", "perf", "qual", "diff"}
 
 _entries = None
 

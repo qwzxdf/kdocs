@@ -11,7 +11,7 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
     2. `python .handoff/scripts/check_anchors.py <site>`
     3. `python .handoff/scripts/check_docs.py docs`
   - 1 つでも失敗したら push しない。直してからやり直す
-  - 新しいページや図を足したときは、push の前に `ratings.yml` も更新する
+  - 新しいページや図を足したときは、push の前に `ratings.yml` も更新する（描画の項目は、重さ `perf`・品質 `quality`・難易度 `diff` の 5 段階。基準は `ratings.yml` の冒頭に書いてある）
   - `Co-Authored-By` などの attribution は、そのとき渡される指示に従う
   - 途中で確認は取らない。作業が全部終わるまで続ける
 - 書き方を変えるときは、まず見本の 1 ページで試して OK をもらってから全体に広げる
