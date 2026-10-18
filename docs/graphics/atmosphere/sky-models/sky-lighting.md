@@ -14,34 +14,34 @@ tags:
     - **時間が変わるたびに、更新する**。
     - **1 フレームで少しずつ更新**して、**コストを分散**する。
 
-## Using the Sky for Lighting {#空をライティングに使う}
+## 空をライティングに使う
 **空は大きな光源**でもあります。**地面や物は空から環境光を受けます**。
 
 | 方法 | 内容 |
 | --- | --- |
 | **キューブマップに焼く** | **空を 6 面に描画し、ミップで粗さを作る**（**IBL**）。**空が変わったら更新** |
-| <strong>球面調和関数（SH）</strong> | **空の色を SH（L2 の 9 係数）に投影**し、**拡散の環境光に使う**（[ライティング](../../../3d/lighting-normals.md)） |
+| <strong>球面調和関数（SH）</strong> | **空の色を SH（L2 の 9 係数）に投影**し、**拡散の環境光に使う**（[法線とライティング](../../../3d/lighting-normals.md)） |
 | **更新の頻度** | **時間変化はゆっくり**なので、**数秒に 1 回、数フレームかけて更新** |
 | **太陽は直接光** | **太陽の寄与は環境マップから除き、平行光源として別に扱う**（**二重に数えない**） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "時間が変わっても、地上の明るさが変わらない"
     **環境マップを、空に合わせて更新**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **空を環境マップにして、光源に使う**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Sky Models](index.md)
 - [Reflection Probes](../../reflections/probes/index.md)

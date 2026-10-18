@@ -478,7 +478,7 @@ tags:
 
 <!-- fig:hashed-alpha-sweep:end -->
 
-## Hashed Alpha (Stochastic Alpha Test) {#ハッシュド-アルファ確率的アルファ-テスト}
+## ハッシュド アルファ（確率的アルファ テスト）
 **アルファを「確率」と見なし、画素ごとのノイズ（ハッシュ）と比べて、捨てるか残すか**を決めます。**1 フレームでは、ノイズ状**ですが、**TAA（時間蓄積）で平均されて、滑らかな半透明**に見えます。
 
 ```hlsl
@@ -500,24 +500,24 @@ clip(alpha - threshold);
 
 **ハッシュ（ノイズ）を、ワールド座標・オブジェクト座標**から作る（**Wyman と McGuire の Hashed Alpha Testing**）と、**動いても、ノイズが物体に貼りつく**ので**安定**します。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "ハッシュド アルファのノイズが消えない"
     **TAA を有効**にする。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **ランダムなしきい値で clip**
     - [x] **TAA でなめらかになる**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Alpha Testing](index.md)
 - [TAA](../../postprocess/antialiasing/taa.md)

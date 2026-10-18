@@ -15,7 +15,7 @@ tags:
     - <strong>露出倍率</strong>（`× 2.0`）を<strong>曲線の前に</strong>掛けて、<strong>中間の明るさを合わせる</strong>。
     - <strong>より良いやり方</strong>：<strong>係数をアーティストが調整できる</strong>ように**パラメータとして出す**。**3D LUT に焼く**。
 
-## The Three Regions of the S-Curve {#s-字の-3-つの領域}
+## S 字の 3 つの領域
 
 <svg class="fig illust" viewBox="0 0 780 300" role="img" aria-label="S 字カーブの 3 領域">
 <text x="20" y="26" class="fig-title">フィルミック曲線：つま先・直線部・肩</text>
@@ -182,7 +182,7 @@ tags:
 
 <!-- fig:tonemap-hable:end -->
 
-## Hable's Formula (Uncharted 2) {#hable-の式uncharted-2}
+## Hable の式（Uncharted 2）
 
 **有理関数**で**S 字を作る**式です。
 
@@ -208,7 +208,7 @@ float3 HableTonemap(float3 color) {
 }
 ```
 
-### Meaning of Each Coefficient {#各係数の意味}
+### 各係数の意味
 
 | 係数 | 名前 | 効き方 |
 | --- | --- | --- |
@@ -220,7 +220,7 @@ float3 HableTonemap(float3 color) {
 | <strong>F（0.30）</strong> | **つま先の分母** | **つま先の細かい形** |
 | <strong>W（11.2）</strong> | **白点** | **この入力で出力がちょうど 1** |
 
-### Why Normalize by the White Point {#白点で正規化する理由}
+### 白点で正規化する理由
 
 **曲線は、x が大きくても 1 に届きません**。**白点 W の出力で割る**（`white_scale`）ことで**入力 W のとき出力がちょうど 1** になります。
 
@@ -235,21 +235,21 @@ float3 HableTonemap(float3 color) {
 
 **曲線の前に掛ける倍率**で、**中間の明るさを合わせる**ためのものです。**露出（[Exposure](exposure.md)）が別にある**ので**二重にならないよう**、**この値は「曲線に合わせた補正」と考え、あまり動かさない**ようにします。
 
-## Preserving Color {#色の保ち方}
+## 色の保ち方
 
 **Hable をチャンネルごとに掛ける**と、**フィルムのように明るい色が白へ向かう**絵になります。**色相を保ちたい**なら、**輝度に掛けて比率を保つ**方式もあります（[Preserving Hue](hue-preservation.md)）。
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
 | **係数をパラメータで出す** | **A〜F をアーティストが調整できる**ようにする（**肩・つま先・白点**を**スライダー**で） |
 | **形を「見た目の言葉」で設定** | <strong>「つま先の強さ」「肩の長さ」「白点」</strong> の**3 つだけ**を出し、**内部で A〜F に変換** |
-| **3D LUT に焼く** | **計算の重い曲線を、LUT に焼いて、1 回の表引き**にする（[カラー グレーディング](../color-grading/index.md)） |
+| **3D LUT に焼く** | **計算の重い曲線を、LUT に焼いて、1 回の表引き**にする（[Color Grading](../color-grading/index.md)） |
 | **ACES・AgX と比べる** | **同じシーンで比べ、色の出方で選ぶ**（[ACES](aces.md)・[AgX](agx.md)） |
-| **HDR 出力と分ける** | **HDR ディスプレイでは、別の曲線**（[ガンマと HDR 出力](gamma-srgb.md)） |
+| **HDR 出力と分ける** | **HDR ディスプレイでは、別の曲線**（[Gamma and HDR Output](gamma-srgb.md)） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "露出を `exposure_bias` で調整して、自動露出と二重になる"
     **明るさの調整は、露出（EV）で**。**`exposure_bias` は固定**。
@@ -263,7 +263,7 @@ float3 HableTonemap(float3 color) {
 ??? failure "色相が変わって、赤い物がオレンジに見える"
     **チャンネルごとの副作用**。**輝度ベースにする、または AgX・ACES の色補正**を検討。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] フィルミック ＝ <strong>S 字（つま先・直線部・肩）</strong>。<strong>暗部を締め、明部を滑らかに</strong>
@@ -272,13 +272,13 @@ float3 HableTonemap(float3 color) {
     - [x] <strong>露出は別に</strong>。<strong>`exposure_bias` は固定</strong>
     - [x] <strong>パラメータ化・LUT 化</strong>で<strong>画作りを制御しやすく</strong>
 
-## References {#参考}
+## 参考
 
 - Hable, "Uncharted 2: HDR Lighting"（GDC 2010）
 - Hable, "Filmic Tonemapping Operators"（filmicworlds.com）
 - Duiker, "Filmic Tonemapping for Real-time Rendering"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Tone Mapping and Exposure](index.md)
 - [Reinhard](reinhard.md)

@@ -44,7 +44,7 @@ tags:
 
 <!-- fig:tiling-hide:end -->
 
-## Hiding Repetition (Tiling) {#繰り返しタイリングを隠す}
+## 繰り返し（タイリング）を隠す
 **繰り返しテクスチャは、広い範囲に貼ると同じ模様の並びが目立ちます**。
 
 | 工夫 | 内容 |
@@ -65,23 +65,23 @@ float3 color = near_color * far_color * 2.0;
 
 **2 枚を掛けて 2 倍**にすると、**平均の明るさが保たれます**。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "格子状の繰り返しが、遠くから見て目立つ"
     **スケールを変えた重ね貼り**をする。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **スケールを変えて重ね、ノイズでずらす**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain Texturing](index.md)
 - [Triplanar Mapping](triplanar.md)

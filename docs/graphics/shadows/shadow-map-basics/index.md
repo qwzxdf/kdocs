@@ -8,7 +8,7 @@ tags:
 
 **シャドウ マップ**は、**「光から見える一番手前の物までの距離」を画像に記録し、画面の点がそれより遠ければ影**と判定する方式です。**原理が簡単で、GPU に向いている**ので、**現代のリアルタイムの影の土台**です。このセクションでは、**原理と手順・光の行列・深度を描くパス・比較と比較サンプラー・エイリアシングと安定化・最小のコード**を、**1 つずつ別のページ**で説明します。
 
-## Principle {#原理}
+## 原理
 <svg class="fig illust" viewBox="0 0 780 290" role="img" aria-label="シャドウ マップの原理">
 <text x="20" y="24" class="fig-title">光から見た一番手前の深度（シャドウ マップ）と、点の深度を比べる</text>
 <circle cx="90" cy="130" r="11" fill="#e5a828"/><text x="70" y="112" style="font-size:12px">光源</text>
@@ -26,7 +26,7 @@ tags:
 <text x="500" y="184" style="font-size:12px">点の深度 ≦ マップの深度 → 光が当たっている</text>
 </svg>
 
-## Steps {#手順}
+## 手順
 | 手順 | 内容 |
 | --- | --- |
 | **① 光のビュー・射影行列を作る** | 光の位置・向きから、**ビュー**と**射影**（平行光は正射影） |
@@ -35,7 +35,7 @@ tags:
 | **④ シャドウ マップを引く** | 変換した <strong>(u, v)</strong> で、保存された深度を読む |
 | **⑤ 深度を比べる** | <strong>自分の深度（光から見た）</strong>が、**保存された深度より奥**なら、影 |
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
@@ -45,7 +45,7 @@ tags:
 | [Aliasing and Stabilization](aliasing-stabilize.md) | 解像度不足・テクセルの揺れ・スナップ |
 | [Minimal Code](minimal-code.md) | 全体の流れを、最小のコードで通す |
 
-## See It in Motion {#動きで見る}
+## 動きで見る
 
 <!-- fig:shadow-map-probe:begin -->
 
@@ -314,24 +314,24 @@ tags:
 
 <!-- fig:shadow-map-probe:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "影が出ない・全面が影になる"
     **深度の向き（比較の向き）・行列の掛け順・ビューポート**を**確認**する。**RenderDoc でシャドウ マップの中身を見る**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **光から見た深度を撮り、画面の点と比べる**
     - [x] **行列 → 深度パス → 比較**の 3 手順
     - [x] **バイアスとエイリアシング対策が品質の鍵**
 
-## References {#参考}
+## 参考
 
 - Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shadows](../index.md)
 - [Shadow Bias](../bias/index.md)

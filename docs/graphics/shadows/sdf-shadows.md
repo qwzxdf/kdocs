@@ -16,7 +16,7 @@ tags:
     - <strong>メッシュの SDF を、事前に作る</strong>（<strong>静的</strong>）。<strong>動く物・変形</strong>に弱い。
     - <strong>メモリ・SDF の解像度</strong>が品質を決める。<strong>細い物</strong>が<strong>消える</strong>ことがある。
 
-## What a Signed Distance Field (SDF) Is {#符号付き距離場sdfとは}
+## 符号付き距離場（SDF）とは
 
 **SDF**（Signed Distance Field）は、<strong>空間の各点に、「最も近い表面までの距離」</strong>を入れたものです。**表面の外側は正、内側は負**です。
 
@@ -24,7 +24,7 @@ SDF の値は、点の位置で符号が変わります。表面の外側は正�
 
 **メッシュ**からは、<strong>格子（3D テクスチャ）</strong>に、**各点の距離**を**事前計算**して作ります（**ボクセルごとに最も近い三角形までの距離**）。
 
-## Sphere Tracing {#スフィア-トレーシング}
+## スフィア トレーシング
 
 **距離場の最大の利点**は、<strong>「距離」が、「安全に進める量」</strong>だということです。**ある点の距離が d** なら、**半径 d の球の中には、表面がない**ので**どの方向にも、d だけ進んでも表面にぶつかりません**。
 
@@ -343,7 +343,7 @@ float SphereTraceShadow(float3 origin, float3 light_dir) {
 
 <!-- fig:sdf-soft-shadow:end -->
 
-## How Soft Shadows Work {#ソフト-シャドウの仕組み}
+## ソフト シャドウの仕組み
 
 **スフィア トレーシングの途中**で、**レイがどれだけ物に近づいたか**を、記録します。**ぎりぎりをかすめたレイ**は、**半影の領域**にあります。
 
@@ -378,19 +378,19 @@ float SoftSphereTraceShadow(float3 origin, float3 light_dir, float k) {
 
 **物に近づくほど `d` が小さく**、**遠くの物（`t` が大きい）ほど、`d / t` がさらに小さく**なります。**接触部（`t` が小さい）は鋭く**、**遠くの遮蔽物は、ぼける**ので**接触硬化**が自然に出ます（[PCSS](pcss.md)と同じ性質）。
 
-### Improvement: Smooth Penumbra {#改良滑らかな半影}
+### 改良：滑らかな半影
 
 単純な `min(k · d / t)` は、**半影に縞**（段差）が出ることがあります。**1 つ前のステップの `d` との差**から、**より正確な距離**（「最も近づいた点」）を**補間して求める**改良（**Inigo Quilez の improved soft shadows**）があります。
 
-## Distance Fields from Meshes {#メッシュからの距離場}
+## メッシュからの距離場
 
 SDF の作り方は 3 通りです。<strong>メッシュ SDF（オブジェクトごと）</strong>は、各メッシュの SDF を事前計算し、3D テクスチャに保存します。配置された物体ごとに、ワールド空間から物体のローカル空間へ変換して引きます（Unreal Engine の Distance Field Shadows）。<strong>グローバル SDF</strong>は、オブジェクトの SDF を、視点の周りの大きな 1 つの SDF に合成します。1 回のサンプルでシーン全体の距離が得られ、カスケードで遠くを粗くします。<strong>解析 SDF</strong>は、球・箱・カプセルのように、式で距離が出る形で、キャラクターの影（カプセル シャドウ）などに使います。
 
-### Capsule Shadows {#カプセル-シャドウ}
+### カプセル シャドウ
 
 **キャラクターの骨**に<strong>カプセル（線分 ＋ 半径）</strong>を割り当て、**カプセルの SDF の式**で、**ソフトな影**を作ります。**変形するキャラクター**にも、**安い近似の影**が作れます（**シャドウ マップと併用**）。
 
-## Pros and Cons {#長所と短所}
+## 長所と短所
 
 | 長所 | 短所 |
 | --- | --- |
@@ -400,16 +400,16 @@ SDF の作り方は 3 通りです。<strong>メッシュ SDF（オブジェク�
 | **遠景の影に低コスト** | **動く物・変形する物**は**別の手段**が必要 |
 | **光源サイズの調整が直感的** | **半影の近似**が**物理的に正確ではない** |
 
-## Where to Use It {#使いどころ}
+## 使いどころ
 
 | 状況 | 使い方 |
 | --- | --- |
 | **遠景の大きな影** | **カスケードの遠い範囲を距離場の影で**（シャドウ マップは、近くだけ） |
 | **静的なシーン** | **柔らかい太陽の影**を全域で |
 | **キャラクター** | **カプセル シャドウ**で柔らかい接地影 |
-| <strong>間接的な、空の遮蔽（距離場 AO）</strong> | **同じ SDF を、AO にも使う**（[AO の手法](../ao/world-space/index.md)） |
+| <strong>間接的な、空の遮蔽（距離場 AO）</strong> | **同じ SDF を、AO にも使う**（[Ray-Traced, Distance-Field and Voxel AO](../ao/world-space/index.md)） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "SDF の解像度が粗く、細い物（柵・葉）の影が消える"
     **解像度を上げる**・**細い物は別扱い**（シャドウ マップ）にします。
@@ -423,7 +423,7 @@ SDF の作り方は 3 通りです。<strong>メッシュ SDF（オブジェク�
 ??? failure "`min(k · d / t)` で、半影に縞が出る"
     **改良版**（補間による距離の補正）を使います。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] <strong>SDF</strong> ＝ <strong>各点に、最も近い表面までの距離</strong>を保存した 3D テクスチャ
@@ -432,15 +432,15 @@ SDF の作り方は 3 通りです。<strong>メッシュ SDF（オブジェク�
     - [x] <strong>静的なシーン・遠景・カプセル影</strong>に向く。<strong>動く物・細い物</strong>は苦手
     - [x] <strong>シャドウ マップと併用</strong>が、実用的
 
-## References {#参考}
+## 参考
 
 - Quilez, "soft shadows in raymarched SDFs"（iquilezles.org）
 - Epic Games, "Distance Field Shadows"（Unreal Engine ドキュメント）
 - Hart, "Sphere Tracing: A Geometric Method for the Antialiased Ray Tracing of Implicit Surfaces"（1996）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shadows](index.md)
 - [PCSS](pcss.md)
 - [Cascaded Shadow Maps (CSM)](cascaded.md)
-- [AO のその他の手法（距離場 AO）](../ao/world-space/index.md)
+- [Ray-Traced, Distance-Field and Voxel AO](../ao/world-space/index.md)

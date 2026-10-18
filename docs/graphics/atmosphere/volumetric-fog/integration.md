@@ -14,7 +14,7 @@ tags:
     - **適用：シーンの色 × 透過率 ＋ 散乱光**。
     - **シーンの深度から、froxel の位置を引く**。
 
-## ③ Integration {#③-積分}
+## ③ 積分
 **視線に沿って、手前から奥へ光と透過率を累積します**。**奥行き方向（Z）にループ**し、**各 froxel の寄与を足します**。
 
 <div class="formula">
@@ -197,7 +197,7 @@ void IntegrateCS(uint3 id : SV_DispatchThreadID) {
 
 <!-- fig:fog-integrate:end -->
 
-## ④ Application {#④-適用}
+## ④ 適用
 **不透明のシーンの色に積分結果を合成します**。**ピクセルの深度から、対応するスライスを求めて、3D テクスチャを引きます**。
 
 ```hlsl
@@ -216,7 +216,7 @@ float3 final_color = scene_color * fog.a + fog.rgb;
 | **三線形補間** | **froxel の粗さを滑らかにする** |
 | **半透明** | **半透明の物もピクセル シェーダー内で同じ式を適用** |
 
-### Deriving the Integration Formula {#積分式の導出}
+### 積分式の導出
 
 累積の式が、なぜこの形なのかを確認します。1 つのスライスの内側で、散乱光 S（単位長さあたりに散乱される光）と消散 σ が一定だとします。スライスの手前の端から距離 x の位置で散乱された光は、スライスの手前の端に届くまでに `exp(−σ x)` の割合に弱まります。スライス全体で足し合わせると、次の積分になります。
 
@@ -226,25 +226,25 @@ float3 final_color = scene_color * fog.a + fog.rgb;
 
 スライス全体を手前から奥へ回し、それまでの透過率 `transmittance` を、現在のスライスの寄与に掛けてから足します。手前の濃い霧は、奥の光を隠すので、奥の寄与が手前の透過率で減衰します。この累積を、スライスごとに保存すれば、適用のときは、画素の深度に対応するスライスの値を 1 回引くだけで、「カメラからその距離までの全フォグ」が得られます。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "積分の結果が、手前の物にも霧がかかる"
     **物体の深度**で**積分の位置を引く**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **奥から累積して、深度で引いて合成**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Volumetric Fog](index.md)
-- [光の注入](injection.md)
-- [時間蓄積](temporal.md)
+- [Step 2: Light Injection](injection.md)
+- [Temporal Accumulation](temporal.md)

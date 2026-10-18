@@ -16,7 +16,7 @@ tags:
     - <strong>少ないレイ</strong>（画素あたり 1 本）＋<strong>デノイズ</strong>で<strong>リアルタイム</strong>に。
     - 最適化：<strong>Any-Hit 不要</strong>（<strong>当たった時点で終了</strong>）・<strong>RayQuery（インライン）</strong>。
 
-## Principle {#原理}
+## 原理
 
 画素の**ワールド位置 `P`** から、**光源への方向**へ**レイ**を飛ばします。**途中で何かに当たったら影**です。
 
@@ -24,7 +24,7 @@ tags:
 
 **ランダムに方向をずらす**ことで、<strong>1 本ずつのレイは「影か日向か」の 0/1 だが平均すると半影（0〜1）</strong>になります。
 
-### Shadow Test {#影の判定}
+### 影の判定
 
 ```hlsl
 float TraceShadowRay(float3 origin, float3 direction, float t_max) {
@@ -198,7 +198,7 @@ float TraceShadowRay(float3 origin, float3 direction, float t_max) {
 
 <!-- fig:rt-shadow-samples:end -->
 
-## Penumbra: Sampling an Area Light {#半影面光源のサンプリング}
+## 半影：面光源のサンプリング
 
 **面光源**（有限の大きさ）の影を**物理的に正確**に作るには、**光源の面上にランダムな点**を選び、**そこへレイ**を飛ばします。
 
@@ -216,11 +216,11 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 
 **1 画素あたり 1 本**のレイでは、**半影は、0 か 1 のノイズ**になります。**複数本を平均**するか、**デノイズ**して滑らかにします。
 
-### Contact Hardening Is Exact {#接触硬化は正確}
+### 接触硬化は、正確
 
 **遮蔽物が近い**と**光源の面上のどの点へのレイも、同じ遮蔽物に当たる**ので、**影は鋭く**なります。**遮蔽物が離れる**と**光源の面上の点によって、当たる・当たらないが分かれ**、**ぼけます**。[PCSS](pcss.md)が近似した性質が**ここでは自然に再現**されます。
 
-## Denoising {#デノイズ}
+## デノイズ
 
 **1 画素 1 本**の**ノイズの多い影**を、**滑らかにする**には、**デノイズ**します。
 
@@ -233,7 +233,7 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 
 **影専用のデノイザ**は、<strong>可視性（0〜1）</strong>を、<strong>距離（遮蔽物までの距離）</strong>とともに受け取り、**半影の幅**に応じて、**フィルタの強さ**を変えます。
 
-## Acceleration Structures {#加速構造}
+## 加速構造
 
 **レイトレース影**には、<strong>シーンの加速構造（BVH）</strong>が必要です。
 
@@ -241,7 +241,7 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 
 **影に使う BLAS は、見た目より単純でよい**（**低ポリのプロキシ**）ことが多く、**メモリ・構築コスト**を減らせます。
 
-## Hybrid Setup {#ハイブリッド構成}
+## ハイブリッド構成
 
 **全画素をレイトレース**すると重いので、**シャドウ マップと併用**します。
 
@@ -254,7 +254,7 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 
 **画面空間のマスク**（半影のありそうな画素）を作り、**その画素だけレイを飛ばす**と、**大幅に安く**なります。
 
-## Cost {#コスト}
+## コスト
 
 | 項目 | 内容 |
 | --- | --- |
@@ -265,7 +265,7 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 
 **ライトが多数**ある場合は、**ライトの重要度でサンプルするライトを 1 つ選ぶ**（**ReSTIR**・**重要度サンプリング**）手法があります。
 
-## Comparison with Shadow Maps {#シャドウ-マップとの比較}
+## シャドウ マップとの比較
 
 | 項目 | シャドウ マップ | レイトレース |
 | --- | --- | --- |
@@ -277,7 +277,7 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 | **コスト** | 中 | **大**（デノイズ込み） |
 | **多数のライト** | 負荷が増える | **ライト数に比例** |
 
-## Pros and Cons {#長所と短所}
+## 長所と短所
 
 | 長所 | 短所 |
 | --- | --- |
@@ -286,7 +286,7 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 | **シャドウ マップのレンダリング パスが不要** | **ノイズ ＋ デノイズ** |
 | **アルファ テストの物（葉）も、正確** | **ライト数に比例**して重い |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "自己交差で、面が黒いノイズだらけ"
     **`TMin` を小さく設定**し、**レイの原点を法線方向にわずかにずらす**。
@@ -300,7 +300,7 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 ??? failure "全ライトに、全画素でレイを飛ばして、重い"
     **主ライトだけ RT**・**マスクした画素のみ**にします。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] レイトレース影 ＝ <strong>画素から光へ、シャドウ レイを飛ばし、当たれば影</strong>
@@ -309,15 +309,15 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
     - [x] <strong>最初のヒットで終了</strong>（<strong>ACCEPT_FIRST_HIT</strong>）で速くする。<strong>デノイズ</strong>が必須
     - [x] <strong>ハイブリッド</strong>（シャドウ マップ ＋ RT）が実用的。<strong>DXR 対応 GPU</strong>が必要
 
-## References {#参考}
+## 参考
 
 - Microsoft, "DirectX Raytracing (DXR) Functional Spec"
 - NVIDIA, "Ray Tracing Gems"（シャドウ・デノイズの章）
 - NVIDIA, "NRD (NVIDIA Real-Time Denoisers)"（SIGMA：影用デノイザ）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shadows](index.md)
 - [PCSS](pcss.md)
-- [RT 反射](../reflections/rt-reflections/index.md)
+- [Ray-Traced Reflections](../reflections/rt-reflections/index.md)
 - [Distance Field Shadows](sdf-shadows.md)

@@ -14,7 +14,7 @@ tags:
     - **方向情報を一緒に焼くと、法線マップの凹凸が反映**される。
     - **ベイクは時間がかかる**ので、**自動化・並列化**する。
 
-## The Baking Flow {#ベイクの流れ}
+## ベイクの流れ
 | 手順 | 内容 |
 | --- | --- |
 | **① UV2 の生成・パッキング** | 全メッシュの UV2 を、**ライトマップ アトラス**に配置 |
@@ -34,7 +34,7 @@ tags:
 
 **ベイクには数分〜数時間**かかります。**GPU ベイク**（GPU レイトレース）で、**大幅に短縮**できます。
 
-## Directional Information (Combined with Normal Maps) {#方向情報法線マップとの併用}
+## 方向情報（法線マップとの併用）
 
 通常のライトマップが持つのは、「その点に届く光の総量」（スカラー、色は RGB）だけです。法線マップで細かい凹凸を付けても、ライトマップの明るさは法線に応じて変わらないので、間接光の陰影が平坦に見えてしまいます。たとえば、レンガの壁に法線マップで凹凸を付けても、レンガの出っ張りと引っ込みの間接光が同じ明るさになります。
 
@@ -56,25 +56,25 @@ float3 irradiance = basis0 * w.x + basis1 * w.y + basis2 * w.z;
 
 方向情報を持たせると、法線マップの凹凸に応じた陰影が、間接光にも加わります。代償は、テクスチャが 3 枚に増えること（メモリと読み込み回数）です。モバイルなどでは、Directional（2 枚）や、スカラー 1 枚で妥協する選択もあります。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "ライトマップが、法線マップの凹凸と合わず、平らに見える"
     **方向情報も一緒にベイク**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **低品質で確認 → 高品質でベイク**
     - [x] **方向情報で、法線マップと併用**
 
-## References {#参考}
+## 参考
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Lightmaps](index.md)
-- [ライトマップ UV](uv2.md)
+- [Lightmap UVs (UV2)](uv2.md)
 - [Specular and Dynamic Objects](dynamic-objects.md)

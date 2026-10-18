@@ -14,8 +14,8 @@ tags:
     - **箱の形が実際と違うと、ずれが残る**。
     - **床の反射は、補正しても、不自然になりやすい**（平面反射を併用）。
 
-## The Parallax Problem and Its Correction {#視差の問題と補正}
-### The Parallax Problem {#視差の問題}
+## 視差の問題と補正
+### 視差の問題
 
 プローブは、**1 点（プローブの位置）から見た景色**です。**面とプローブの位置が離れている**と、**面から見た景色とプローブから見た景色が、ずれます**。
 
@@ -165,7 +165,7 @@ tags:
 
 <!-- fig:parallax-box:end -->
 
-### Parallax Correction: Approximating the Probe Range with a Box {#視差補正プローブの範囲を箱で近似する}
+### 視差補正：プローブの範囲を箱で近似する
 
 **プローブが写している範囲（部屋）を、箱（または球）で近似**します。**反射レイ**を**表面の位置 p から R 方向に飛ばして、箱と交差する点 H** を求めます。**プローブの位置から H への方向**で、キューブマップを引きます。
 
@@ -173,7 +173,7 @@ tags:
 
 **表面の位置 p から**、<strong>本当に当たる壁（H）</strong>を求めて、そこを**プローブから見た方向**で引き直すので、**視差のずれが補正されます**。
 
-### Intersection with a Box (AABB) {#箱aabbとの交差}
+### 箱（AABB）との交差
 
 ```hlsl
 float3 BoxProjection(float3 world_pos, float3 R, float3 probe_pos,
@@ -197,7 +197,7 @@ float3 BoxProjection(float3 world_pos, float3 R, float3 probe_pos,
 !!! note "箱の範囲の決め方"
     **プローブが写す範囲**（影響範囲）を、**部屋の大きさに合わせた箱**にします。**箱が実際の壁と合っているほど**、補正が正確です。**合っていないと補正が逆効果**になることもあります。
 
-### Limits of Parallax Correction {#視差補正の限界}
+### 視差補正の限界
 
 | 限界 | 説明 |
 | --- | --- |
@@ -206,24 +206,24 @@ float3 BoxProjection(float3 world_pos, float3 R, float3 probe_pos,
 | **不規則な形の部屋** | 箱で表せない部屋では、**補正が合わない** |
 | **動く物** | プローブには映らない（動的な更新が必要） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "床や壁に映る景色が、動くと滑って見える"
     **ボックス投影（視差補正）**を入れる。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **箱を想定して、読み出す方向を補正**
     - [x] **箱の形が、実際に近いほど良い**
 
-## References {#参考}
+## 参考
 
 - McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
 - Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
 - Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Reflection Probes](index.md)
 - [Probe Operation](blending.md)

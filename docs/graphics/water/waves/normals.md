@@ -14,7 +14,7 @@ tags:
     - **法線マップを 2 枚、逆向きに流して重ねる**と、**細かい波が出る**。
     - **遠くは、法線マップの効果を弱める**（ちらつき防止）。
 
-## Computing Normals {#法線の計算}
+## 法線の計算
 **波の法線**は**頂点位置の偏微分**から**求められます**。**Gerstner 波は、解析的な式**があります。
 
 ```hlsl
@@ -62,7 +62,7 @@ normal = normalize(normal);
 
 <!-- fig:normal-blend:end -->
 
-## Fine Detail: Layering Normal Maps {#細かい凹凸法線マップの重ね}
+## 細かい凹凸：法線マップの重ね
 **メッシュの頂点密度は限られる**ので、<strong>細かい波（さざ波）</strong>は、**法線マップ**で**表現**します。**2 枚以上の法線マップを、違う向き・速さで流して重ねる**と**周期性が目立たず、動きが生まれます**。
 
 ```hlsl
@@ -81,24 +81,24 @@ float3 final_normal = normalize(float3(wave_normal.xz + detail.xy * detail_stren
 | **法線の合成** | **XY を足し、Z は掛ける**（**Whiteout・Reoriented Normal Mapping** などの正確な合成法もある） |
 | **ワールド座標の UV** | **カメラが動いても波が水面に貼りつく** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "水面がのっぺりして、波が見えない"
     **法線を、波の式から計算し直す**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **法線は、微分で求める**
     - [x] **法線マップを重ねて、細部を足す**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Water Waves](index.md)
 - [Gerstner Waves](gerstner.md)

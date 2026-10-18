@@ -14,8 +14,8 @@ tags:
     - **可視性（そのプローブから見えるか）で、重みを減らす**。
     - **DDGI は、深度情報で可視性を判定**する（[DDGI](../ddgi.md)）。
 
-## Interpolation Methods {#補間の方式}
-### Tetrahedral Decomposition (Delaunay) {#四面体分割delaunay}
+## 補間の方式
+### 四面体分割（Delaunay）
 
 **プローブを不規則に置いて**、**その点群を四面体に分割**します。**物体がどの四面体の中にいるか**を調べ、**その 4 つの頂点のプローブ**を、**重心座標の重み**で**補間**します。
 
@@ -74,43 +74,43 @@ tags:
 
 <!-- fig:probe-bilinear:end -->
 
-### 3D Grid {#3d-格子}
+### 3D 格子
 
 **プローブを規則的な 3D 格子**に並べ、**格子上でトライリニア補間**します。
 
 3D 格子の利点は、補間が安いことです。GPU で 3D テクスチャとして引けるので、画素ごとに補間できます。欠点は、密度が一様で疎な所が無駄になること、メモリが体積に比例して増えることです。Light Probe Volume、DDGI、モバイル向けの実装で採用されます。
 
-### Inside Tetrahedral Interpolation {#四面体補間の中身}
+### 四面体補間の中身
 
 四面体の中の点 p は、4 つの頂点 a, b, c, d の<strong>重心座標</strong>で表せます。`p = w_a·a + w_b·b + w_c·c + w_d·d`（重みの合計は 1）。各頂点のプローブの SH 係数に、同じ重みを掛けて足したものが、p での SH です。重みは、p と他の 3 頂点が作る小さな四面体の体積の比で求まります。計算は軽いですが、どの四面体に p が入っているかを探す処理が必要で、物体が動くたびに、前フレームの四面体から隣へ辿って更新するのが一般的です。
 
-### Inside Trilinear Interpolation {#トライリニア補間の中身}
+### トライリニア補間の中身
 
 格子の場合は、p を囲む 8 つの格子点があり、各軸で 0〜1 の小数部分を使って、2×2×2 の重みを作ります。ハードウェアの三線形フィルタがそのまま使えるので、SH の係数を 3D テクスチャに入れておけば、1 回のテクスチャ読み込みで補間が済みます。ただし、壁の向こう側のプローブも等しく混ざってしまうので、光漏れが起きます。DDGI のように、各プローブに距離情報を持たせ、見えないプローブの重みを下げる方式があります（[DDGI](../ddgi.md)）。
 
-### Per-Pixel Lookup {#画素ごとの引き}
+### 画素ごとの引き
 
 <strong>物体ごと（1 点）</strong>でなく、**画素ごと**に**プローブを引く**（**GPU で、3D テクスチャ**から）と、**大きな物体・地形の場所による変化**が**反映**されます。**1 つの物体を 1 点で代表**すると、**大きな物体**で**不自然**です。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "壁の向こうの明るさが、手前に漏れる"
     **可視性を考慮した補間**にする。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **周囲のプローブを、重み付きで補間**
     - [x] **可視性で、光漏れを防ぐ**
 
-## References {#参考}
+## 参考
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Probe GI](index.md)
 - [DDGI](../ddgi.md)
-- [置き方](placement.md)
+- [Probe Placement](placement.md)

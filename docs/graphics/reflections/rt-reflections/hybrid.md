@@ -53,7 +53,7 @@ tags:
 
 <!-- fig:rt-hybrid-flow:end -->
 
-## Hybrid Setup: Combining SSR and Ray Tracing {#ハイブリッド構成ssr-とレイトレの組み合わせ}
+## ハイブリッド構成：SSR とレイトレの組み合わせ
 **画面内に当たりがある**場合は、**SSR（Hi-Z）で足りる**ことが多いです。**画面に当たりがない**（画面外・裏側・失敗）レイだけを**レイトレ**にします。
 
 ハイブリッド構成は、3 段階です。最初に、SSR（Hi-Z）を先に実行し、画面内で当たればその色を使います（安いため）。次に、当たらなかったレイだけをレイトレに回します。画面外へ出たレイや、厚みで弾かれたレイが対象です。最後に、両方の結果を画素ごとに選んで合成します。
@@ -64,7 +64,7 @@ tags:
 
 **注意**：**SSR とレイトレで見た目（色・ぼけ）が違う**と**境目が見える**。**同じ BRDF・同じ色空間**でそろえます。
 
-## Performance Tricks {#性能の工夫}
+## 性能の工夫
 | 工夫 | 内容 |
 | --- | --- |
 | **粗さによる、レイの省略** | 粗い面はレイを飛ばさない |
@@ -76,24 +76,24 @@ tags:
 | **アルファ テスト** | **any-hit** は重い。**葉・フェンス**は必要最小限に |
 | **動く物体の BVH 更新** | **リフィット**（再構築より安い）・**更新頻度の削減** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "レイトレの負荷が、画面いっぱいで重い"
     **SSR で当たった画素は、レイトレを飛ばさない**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **SSR → レイトレ → プローブ の順に、フォールバック**
     - [x] **半解像度とレイ数の上限で、コストを抑える**
 
-## References {#参考}
+## 参考
 
 - McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
 - Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
 - Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Ray-Traced Reflections](index.md)
 - [SSR Basics](../ssr-basics/index.md)

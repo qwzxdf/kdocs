@@ -8,7 +8,7 @@ tags:
 
 **草や木は、数が非常に多く、地形の見た目を大きく左右します**。**インスタンシングとカリングで数を扱い、風やライティングで生きた見た目にします**。このセクションでは、**配置・インスタンシング・カリング・草の形・風・踏まれる草・木・半透明の問題・ライティング**を、**1 つずつ別のページ**で説明します。
 
-## Placement {#配置}
+## 配置
 **植生の位置**は**何を元に決めるか**です。
 
 | 方法 | 内容 |
@@ -58,31 +58,31 @@ void GenerateGrass(uint3 id : SV_DispatchThreadID) {
 | **カメラ周りのセルだけ** | **遠くのセルは生成しない** |
 | **`AppendInstance`** | **`AppendStructuredBuffer`**に書く。**後で `DrawIndexedInstancedIndirect`** |
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
 | [Instancing](instancing.md) | 同じメッシュを大量に描く |
-| [カリング](culling.md) | 見えない物を描かない |
+| [Vegetation Culling](culling.md) | 見えない物を描かない |
 | [Grass Shape](grass-shape.md) | 板ポリ・メッシュ |
 | [Wind](wind.md) | なびく動き |
 | [Trampled Grass](trample.md) | キャラクターで倒れる草 |
 | [Trees](trees.md) | 木の LOD・ビルボード |
-| [半透明の問題](translucency.md) | 葉の描画の問題 |
-| [ライティング](lighting.md) | 葉の光の扱い |
+| [Foliage Translucency](translucency.md) | 葉の描画の問題 |
+| [Vegetation Lighting](lighting.md) | 葉の光の扱い |
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **数は、インスタンシングとカリングで扱う**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain](../index.md)
 - [Alpha Testing](../../translucency/alpha-test/index.md)

@@ -14,13 +14,13 @@ tags:
     - **法線で反射方向をずらして、波の歪みを出す**。
     - **フォールバックの順：SSR → 平面反射 → 環境マップ**。
 
-## Reflection {#反射}
+## 反射
 **反射はフレネルの F で重みを付けて合成**します。**反射の取り方は、状況で選びます**。
 
 | 方式 | 内容 |
 | --- | --- |
 | <strong>環境マップ（キューブ）</strong> | **安い**。**空や遠景だけ**。**近くの物は映らない** |
-| **平面反射** | **水面は平らなので鏡像用にもう一度描く**。**正確だが重い**（[平面反射](../../reflections/index.md)） |
+| **平面反射** | **水面は平らなので鏡像用にもう一度描く**。**正確だが重い**（[Reflections](../../reflections/index.md)） |
 | **SSR** | **画面内の物を映す**。**画面外は環境マップに落とす** |
 | **レイトレ反射** | **最も正確**。**重い** |
 
@@ -31,29 +31,29 @@ float3 reflect_dir = reflect(-view_dir, normal);
 float3 reflection = environment.SampleLevel(linear_clamp, reflect_dir, 0).rgb;
 ```
 
-### How to Combine {#組み合わせ方}
+### 組み合わせ方
 
 実際のゲームでは、これらを重ねます。基本は環境マップで、空と遠景を安定して映します。その上に SSR を足して、近くの岸辺や船、橋の映り込みを出します。SSR が当たらなかった画素（画面外や画面端）は、環境マップにフェードで戻します（[SSR Fallback and Compositing](../../reflections/ssr-fallback.md)）。湖や池のように水面が完全に平らな場合は、平面反射が品質で勝ります。波のある海は、法線が場所ごとに違い、反射方向がバラバラになるので、平面反射の鏡像を、波の法線の XZ 成分で歪ませて使います。
 
 反射の強さは、フレネルで決まります（[Water Fresnel](fresnel.md)）。真上から見るとほとんど反射せず、斜めから見るほど鏡に近づくので、反射の質が目立つのは遠くの水面です。遠くの水面は法線が細かく揺れてちらつきやすいため、距離に応じて法線を平らにする（粗さを上げる）処理を入れます。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "水面の反射が、画面の端で途切れる"
     **環境マップへフォールバック**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **空は環境マップ、周囲は SSR か平面反射**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Water Shading](index.md)
 - [Reflections](../../reflections/index.md)

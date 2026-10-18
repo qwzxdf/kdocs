@@ -14,7 +14,7 @@ tags:
     - **高さマップは、16bit で保存**。
     - **元に戻せる（アンドゥ）ように、差分を記録**する。
 
-## Editing the Heightmap {#高さマップの編集}
+## 高さマップの編集
 | 方法 | 内容 |
 | --- | --- |
 | **ブラシで盛る・削る** | **高さマップに丸いブラシを加算・減算** |
@@ -23,23 +23,23 @@ tags:
 | **道・建物の整地** | **指定範囲を一定の高さに合わせる**（**スプライン沿いに整地**） |
 | **ランタイムの変形** | **爆発で穴が開く**など。**高さマップを書き換え、法線・当たり判定も更新** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "編集のたびに、全体を再生成して遅い"
     **編集した範囲だけ更新**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **範囲だけ更新して、軽く編集**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Heightmaps and Meshes](index.md)
-- [地形生成](../generation/index.md)
+- [Terrain Generation](../generation/index.md)

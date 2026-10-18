@@ -156,7 +156,7 @@ tags:
 
 <!-- fig:rayleigh-wavelength:end -->
 
-## Atmosphere Model {#大気のモデル}
+## 大気のモデル
 **地球の大気は球殻**です。**密度は高さに対して指数的に減ります**。
 
 <div class="formula">ρ(h) = exp( −h / H )　（H：スケール ハイト）</div>
@@ -177,24 +177,24 @@ tags:
 
 <strong>レイリー散乱係数（海面）</strong> は、**RGB で (5.8, 13.5, 33.1) × 10⁻⁶ /m** 程度（**青が大きい**）、**ミー散乱は (3.9, 3.9, 3.9) × 10⁻⁶ /m** 程度です。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "夕焼けが、赤くならない"
     **オゾンの吸収**と **波長ごとの散乱係数**を**入れる**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **高さごとの密度と、波長ごとの係数**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Atmospheric Scattering](index.md)
 - [Transmittance](transmittance.md)

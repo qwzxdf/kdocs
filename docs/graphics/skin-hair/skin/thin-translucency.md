@@ -15,7 +15,7 @@ tags:
     - 厚みから透過率への変換は、**拡散プロファイルを、厚みの関数にした形**（**ガウスの和**）。
     - **裏側の法線**を使って、**透過光の向き**を決める。**表面の光は別**に計算する。
 
-## What Is Happening {#何が起きているか}
+## 何が起きているか
 
 肌の内部で光は散乱しながら進み、少しずつ吸収されます。薄い部位では、反対側から入った光が、**吸収されきる前に**こちら側の表面にたどり着けます。吸収されやすさは、色で違います。赤は吸収されにくく、緑や青は吸収されやすいので、通り抜けた光は、**赤みを帯びます**。耳を光に透かすと赤橙色に見えるのは、そのためです。
 
@@ -26,7 +26,7 @@ tags:
 
 したがって、各点 P で、光の方向に沿った**肌の厚み s**を知る必要があります。
 
-## Measuring Thickness with the Shadow Map {#シャドウ-マップで厚みを測る}
+## シャドウ マップで厚みを測る
 
 厚みを知る方法として、**シャドウ マップ**が利用できます。シャドウ マップは、光から見た、最も手前の面までの距離を保存しています。
 
@@ -867,7 +867,7 @@ float Thickness(float3 world_pos, float3 normal) {
 
 <!-- fig:thin-transmit:end -->
 
-## From Thickness to Transmitted Light {#厚みから透過光へ}
+## 厚みから透過光へ
 
 厚み s から、透過する光の量を計算します。これは、**拡散プロファイルを、厚みの関数にしたもの**です。肌の内部を、距離 s だけ光が通り抜けたとき、どれだけ光が残るかを表します。Jimenez らは、これを、拡散プロファイル R(r) の近似に使うガウスの和で、そのまま表せることを示しました。
 
@@ -889,7 +889,7 @@ float3 Transmittance(float s) {
 
 厚みの単位は mm です。シャドウ マップから得た距離が m 単位なら、変換が必要です。
 
-## Final Assembly {#最終的な組み立て}
+## 最終的な組み立て
 
 透過した光を、肌の色に反映して、拡散反射に足します。
 
@@ -904,7 +904,7 @@ float3 TransmittedLight(float3 world_pos, float3 normal, float3 light_dir, float
 
 `back_lit` は、光が裏側から当たっているか（法線の裏が光を向くか）の係数です。表側が光を向いている場合は、通常の拡散反射に任せて、`back_lit` で透過の寄与を 0 にします。反対に、表側が影の側のときだけ、透過が効きます。
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 厚みを求める方法には、いくつかの改良があります。
 
@@ -914,7 +914,7 @@ float3 TransmittedLight(float3 world_pos, float3 normal, float3 light_dir, float
 
 **画面空間のぼかしと併用**。透過光は、表面の光と同じ散乱を受けるので、透過光の結果も SSS のぼかしの対象に含めると、自然になじみます。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "耳が光の側でも赤く透けて、不自然"
     透過は、**表側が影の側（光が裏から当たる）**のときだけ。`dot(-N, L)` で重みを掛けて、**光が表から当たるときは 0** にする。
@@ -928,7 +928,7 @@ float3 TransmittedLight(float3 world_pos, float3 normal, float3 light_dir, float
 ??? failure "厚い頭の中央まで、光が透けて見える"
     ガウスの広い項を入れすぎている。**s が大きいときに T が十分小さくなる**ように、項を絞る。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 薄い部位は<strong>裏から入った光が透ける</strong>。**赤みを帯びる**
@@ -936,12 +936,12 @@ float3 TransmittedLight(float3 world_pos, float3 normal, float3 light_dir, float
     - [x] 透過率は<strong>ガウスの和 T(s) = Σ w exp(−s²/v)</strong>。**厚いほど赤だけが残る**
     - [x] **表が影の側のときだけ**効かせる。**厚みマップで代用**もできる
 
-## References {#参考}
+## 参考
 
 - Jimenez, Whelan, Sundstedt, Gutierrez, "Real-Time Realistic Skin Translucency"（IEEE Computer Graphics and Applications, 2010）
 - d'Eon, Luebke, "Advanced Techniques for Realistic Real-Time Skin Rendering"（GPU Gems 3, 2007）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Skin Overview](index.md)
 - [Diffusion Profiles](diffusion-profile.md)

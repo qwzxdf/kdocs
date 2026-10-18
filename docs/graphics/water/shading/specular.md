@@ -14,7 +14,7 @@ tags:
     - **粗さを、波の大きさに合わせる**。
     - **遠くは、ちらつくので、粗さを上げる**。
 
-## Specular (Sun Reflection) {#スペキュラ太陽の反射}
+## スペキュラ（太陽の反射）
 **太陽が水面に映ると細かい波ごとに小さな反射が散らばって見えます**（**グリント**）。**法線マップの細かい法線**で、**Blinn–Phong・GGX のスペキュラ**を**計算**します。
 
 ```hlsl
@@ -27,7 +27,7 @@ float specular = pow(n_dot_h, shininess) * sun_intensity;
 | --- | --- |
 | **高い `shininess`** | **水面は滑らかなので鋭いハイライト**（例：256 以上） |
 | **GGX を使う** | **PBR の規約と揃える**（[PBR](../../../3d/pbr.md)）。**粗さ（roughness）を小さく** |
-| **HDR で出す** | **太陽の反射は非常に明るい**。**ブルームで光る**（[ブルーム](../../postprocess/index.md)） |
+| **HDR で出す** | **太陽の反射は非常に明るい**。**ブルームで光る**（[Post-Processing](../../postprocess/index.md)） |
 | **ちらつき対策** | **細かい法線は距離でぼかす**（**粗さを距離で上げる**）。**さもないと遠くがチカチカする** |
 
 <!-- fig:ggx-lobe:begin -->
@@ -60,23 +60,23 @@ float specular = pow(n_dot_h, shininess) * sun_intensity;
 
 <!-- fig:ggx-lobe:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "遠くの水面で、反射がちらつく"
     **距離に応じて粗さを上げる**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **法線の凹凸で、太陽が散らばって映る**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Water Shading](index.md)
 - [Water Waves](../waves/index.md)

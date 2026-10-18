@@ -46,7 +46,7 @@ tags:
 
 <!-- fig:front-face-cull:end -->
 
-## Fix 5: Render with Front-Face Culling (Back-Face Rendering) {#対策-5前面カリングで描く裏面レンダリング}
+## 対策 5：前面カリングで描く（裏面レンダリング）
 **シャドウ マップを描くとき**、<strong>表面（光に向いた面）ではなく、裏面（光に背を向けた面）</strong>を描く方法です。
 
 表面を描く場合と裏面を描く場合の違いは、次のとおりです。表面（光に向いた面）を描くと、光に向いた面の深度が保存されます。受け手の面と深度がほぼ同じなので、アクネが出やすくなりますが、ピーター パンニングは小さいです。裏面（光に背を向けた面）を描くと、物体の裏側の深度が保存されます。これは表面より奥にあるので、表面は裏面より手前にあることになり、自己遮蔽にならず、アクネが出にくいです。その代わり、薄い物体では、裏面と表面の間隔が狭いために、影が離れたり漏れたりするピーター パンニングが出ます。
@@ -60,23 +60,23 @@ desc.CullMode = D3D11_CULL_FRONT;
 
 **表裏の定義**は**時計回りが表**（[座標系](../../../gamemath/coordinate-systems.md)）に従います。**光から見て**、表を向いた面（光に面した面）が**カリングされ**、裏が描かれます。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "薄い板（葉・布）が、影を落とさなくなった"
     **薄い物は、両面描画に切り替える**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **裏面だけを描いて、アクネを避ける**
     - [x] **閉じた立体向き**。**薄い物は不向き**
 
-## References {#参考}
+## 参考
 
 - Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shadow Bias](index.md)
 - [Rendering Depth](../shadow-map-basics/render-depth.md)

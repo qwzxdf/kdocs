@@ -14,13 +14,13 @@ tags:
     - **ローカルなボリューム（部屋の霧）も足せる**。
     - **密度は、散乱係数と吸収係数に分ける**。
 
-## ① Density {#①-密度}
+## ① 密度
 **霧の濃さを各 froxel に書きます**。**複数の要素を足し合わせます**。
 
 | 要素 | 内容 |
 | --- | --- |
 | **全体の霧** | **一様な基準の密度**（`global_density`） |
-| **高さフォグ** | **高さで指数的に減る**（[距離フォグ](../aerial-fog/index.md)） |
+| **高さフォグ** | **高さで指数的に減る**（[Aerial Perspective and Fog](../aerial-fog/index.md)） |
 | **ノイズ** | **3D ノイズで濃淡**を付け、**風で流す** |
 | **ローカルな霧のボリューム** | **箱・球で局所的に濃くする**（部屋の煙、洞窟） |
 | **パーティクル** | **煙のパーティクルが密度を足す** |
@@ -33,7 +33,7 @@ density *= 1.0 + noise_strength * Noise3D(world_position * noise_scale + wind * 
 density = max(density, 0.0);
 ```
 
-### From Density to Scattering and Extinction {#密度から散乱と消散へ}
+### 密度から散乱と消散へ
 
 密度は、そのまま光の計算に使うのではなく、物理的な係数に変換します。媒質を光が通るときに、光を弱める要因は 2 つあります。<strong>散乱</strong>は、光が別の方向に飛ばされることで、霧が白く見える理由です。<strong>吸収</strong>は、光が熱などに変わって消えることで、煙が暗く見える理由です。この 2 つを合わせた「光が弱まる量」を<strong>消散</strong>（extinction）と呼びます。
 
@@ -43,29 +43,29 @@ density = max(density, 0.0);
 
 この分け方のおかげで、同じ「密度」でも、霧と煙で見た目を変えられます。密度は「どれだけ濃いか」、散乱と吸収のアルベドは「どんな物質か」を表す、2 つの独立なパラメータです。
 
-### How to Use Noise {#ノイズの使い方}
+### ノイズの使い方
 
 ノイズは、3D ノイズ テクスチャ（Perlin や Worley）を、ワールド座標でサンプルします。座標に風の速度 × 時間を足すと、霧が風で流れます。複数のスケールのノイズを重ねると（フラクタル）、大きな塊と細かい揺らぎを持つ、自然な濃淡になります。ただし、froxel の解像度が粗いので、細かいノイズは時間蓄積でないとちらつきやすいです（[Temporal Accumulation](temporal.md)）。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "霧が一様で、単調"
     **ノイズ**で**濃淡**を付ける。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **基本の密度に、ノイズと高さを組み合わせる**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Volumetric Fog](index.md)
 - [Froxels](froxel.md)
-- [光の注入](injection.md)
+- [Step 2: Light Injection](injection.md)

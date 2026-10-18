@@ -14,7 +14,7 @@ tags:
     - **分割数（16〜32）で、精度とコストが決まる**。
     - **LUT に入れると、積分が不要**になる。
 
-## Single-Scattering Integral {#単散乱の積分}
+## 単散乱の積分
 **視線に沿った各点で、「太陽光が届く量」×「視線方向へ散る割合」を足し合わせる**のが**空の色**です。
 
 <div class="formula">L = ∫ T(カメラ → p) · σs(p) · P(θ) · T(p → 太陽) · E_sun ds</div>
@@ -102,24 +102,24 @@ float3 SingleScattering(float3 ray_origin, float3 ray_dir, float ray_length, flo
 
 <!-- fig:hg-phase:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "積分の分割が粗く、空に段が出る"
     **分割数を増やす**、または**サンプルをずらす**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **視線に沿って、散乱を足し合わせる**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Atmospheric Scattering](index.md)
 - [Transmittance](transmittance.md)

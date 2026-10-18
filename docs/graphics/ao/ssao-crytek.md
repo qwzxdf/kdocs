@@ -17,7 +17,7 @@ tags:
     - <strong>球</strong>を使うので<strong>平らな面でも約半分が「遮られる」</strong>。<strong>面全体が灰色</strong>になるのが弱点（次の[Hemisphere SSAO](ssao-hemisphere.md) で解決）。
     - サンプル数が少ない（16 程度）ので<strong>画素ごとにサンプルをランダムに回転</strong>し、<strong>ぼかしで消す</strong>。
 
-## The Idea {#発想}
+## 発想
 
 [理論](theory/index.md)のとおり、AO は「**点 p の周りの遮られていない方向の割合**」でした。本来は**シーンにレイを飛ばして**調べます。Crytek 方式は、<strong>レイを飛ばす代わりに、「p の近くの点が物体の内側にあるか」</strong>を調べます。
 
@@ -36,7 +36,7 @@ tags:
 <text x="20" y="290" style="font-size:12px">この「球の下半分」の問題が、Crytek 方式の最大の弱点</text>
 </svg>
 
-## Steps {#手順}
+## 手順
 
 実際の処理を、順番に見ていきます。
 
@@ -44,7 +44,7 @@ tags:
 
 そして、サンプル点 s = p + R·ベクトル を画面に投影して、s が画面のどの画素に映るかを求めます。その画素の深度をバッファから読み、「画面から見える面の深度」を得ます。この面が s よりも手前（深度が小さい）にあれば、s は面の奥側、つまり何かの内側にあるので「遮られている」と数えます。最後に `AO = 1 − (遮られた数 / N)` として割合を出します。
 
-## ① Reconstruct Position from Depth {#①-深度から位置を復元する}
+## ① 深度から位置を復元する
 
 深度バッファの値（0〜1）から、<strong>カメラからの距離（ビュー空間の z）</strong>を求め、そこから **x・y** を逆算します。**プロジェクション行列の式を、逆に解く**だけです（[投影](../../3d/projection.md)）。
 
@@ -75,7 +75,7 @@ float3 ViewPosition(float2 uv, float z) {
 !!! note "reverse-Z のとき"
     深度が 1 → 0 に反転している場合（[投影](../../3d/projection.md)）、`LinearizeDepth` の式が変わります。**自分の射影行列に合わせた式**を使います。
 
-## ②③ Generating the Samples {#②③-サンプルの作り方}
+## ②③ サンプルの作り方
 
 **球の中**に N 個（16 前後）のベクトルを用意します。**原点の近くに多く**置くと、**近い遮蔽ほど強く効く**ので、見た目が良くなります。
 
@@ -111,7 +111,7 @@ float3 ray = reflect(kernel[i].xyz, random_vec);
 
 `reflect` で**ランダム ベクトルを軸にサンプルを鏡映**します。これで画素ごとにサンプルの向きが変わります。
 
-## ④–⑦ Test and Code {#④⑦-判定とコード}
+## ④〜⑦ 判定とコード
 
 ```hlsl
 float SSAO(float2 uv) {
@@ -143,7 +143,7 @@ float SSAO(float2 uv) {
 | **`SampleLevel`** | ループの中でミップを選ぶ命令（勾配が使えないため） |
 | **ポイント サンプル** | 深度は**補間せずに**読む（補間すると境界で嘘の深度ができる） |
 
-## Problems with This Method {#この方式の問題点}
+## この方式の問題点
 
 <!-- fig:sphere-vs-hemisphere:begin -->
 
@@ -235,7 +235,7 @@ float SSAO(float2 uv) {
 
 <!-- fig:sphere-vs-hemisphere:end -->
 
-### 1. Flat Surfaces Turn Gray {#1-平らな面が灰色になる}
+### 1. 平らな面が灰色になる
 
 **球**を使うので**平らな面の上の点**でもサンプルの**約半分が面の下**に入り、「遮られた」と数えられます。何も遮るものが無いのに、**AO が 0.5 程度**になり、**全体が灰色**に見えます。
 
@@ -244,25 +244,25 @@ float SSAO(float2 uv) {
 | **0.5 を差し引いて伸ばす** | `ao = saturate((ao − 0.5) × 2)` のように**平面の値を 1 に補正**する。簡易的な対処で**凸の面は補正しすぎ**になる |
 | **半球に変える** | 法線を使い、**面の上側だけ**にサンプルを置く（[Hemisphere SSAO](ssao-hemisphere.md)） |
 
-### 2. No Normals, So Corner Orientation Is Unclear {#2-法線が無いので角の向きを区別できない}
+### 2. 法線が無いので、角の向きを区別できない
 
 法線が無いため、<strong>凸の角（外側）</strong>と<strong>凹の角（内側）</strong>を区別できません。<strong>凸の縁にも暗い輪郭（ハロー）</strong>が出やすくなります。
 
-### 3. Halos {#3-ハロー}
+### 3. ハロー
 
 **手前の物体の縁**に**背景が暗く**なる輪が出ます。深度の差が大きい境界で、**背景側の点が手前の物に遮られている**と判定されるためです。**`range_check`** で弱められますが、完全には消えません（[アーティファクト](artifacts/index.md)）。
 
-### 4. Noise and Banding {#4-ノイズとバンディング}
+### 4. ノイズとバンディング
 
 サンプル数が少ないので、**ノイズ**か**縞模様**が出ます。**4×4 のランダム回転 ＋ 4×4 のぼかし**で消すのが定番ですが、**ぼかしが物体の境界をにじませる**ので、深度を考慮した**バイラテラル ブラー**が必要です（[フィルタ](filtering/index.md)）。
 
-## Historical Position {#歴史的な位置づけ}
+## 歴史的な位置づけ
 
 この方式は 2007 年に CryEngine 2（『Crysis』）で登場し、SIGGRAPH 2007 の講演で公開されました。それまでの AO はモデルへの焼き込みか事前計算でしたが、事前計算なしで動的なシーンに AO を付けられること、深度バッファだけで動くこと（G-Buffer に依存しない）が画期的でした。「深度から位置を復元し、近傍をサンプルする」という発想は、以降のすべての SSAO 系の基礎になりました。
 
 そして、この方式の欠点を一つずつ直す形で、後の方式が生まれました。球を半球にする（法線の利用）、式を理論から導く（Alchemy）、地平線を直接扱う（HBAO）、深度のミップで高速化する（SAO）、コサイン重みを正確に扱う（GTAO）という順です。この順に読むと、それぞれの方式が「何を直したのか」が分かりやすくなります。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "球を使い、平らな面が灰色になる"
     法線を使って**半球**にします。または、0.5 を補正します。
@@ -279,7 +279,7 @@ float SSAO(float2 uv) {
 ??? failure "`bias` が小さすぎて、平らな面に縞が出る"
     `bias` を少し大きくします（0.01〜0.05 程度）。大きすぎると接地の暗さが消えます。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] Crytek SSAO ＝ <strong>深度バッファだけで、球のサンプルを画面に投影し、面の奥にあれば遮られた、と数える</strong>
@@ -288,15 +288,15 @@ float SSAO(float2 uv) {
     - [x] <strong>球のため、平らな面が灰色</strong>になるのが最大の弱点 → 半球にする
     - [x] <strong>ランダム回転＋ぼかし</strong>が前提
 
-## References {#参考}
+## 参考
 
 - Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007 Advanced Real-Time Rendering in 3D Graphics and Games）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Ambient Occlusion (AO)](index.md)
 - [AO Theory](theory/index.md)
 - [Hemisphere SSAO](ssao-hemisphere.md)
-- [フィルタ](filtering/index.md)
-- [アーティファクト](artifacts/index.md)
-- [投影](../../3d/projection.md)
+- [AO Filtering](filtering/index.md)
+- [AO Artifacts](artifacts/index.md)
+- [投影（プロジェクション）](../../3d/projection.md)

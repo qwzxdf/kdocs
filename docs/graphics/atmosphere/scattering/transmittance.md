@@ -72,7 +72,7 @@ tags:
 
 <!-- fig:sun-transmittance:end -->
 
-## Transmittance {#透過率}
+## 透過率
 **光が距離 d を進むと、強さは指数的に減ります**（Beer–Lambert の法則）。
 
 <div class="formula">T(a → b) = exp( −∫ σt(s) ds )　（光学的厚さ τ = ∫ σt ds）</div>
@@ -96,25 +96,25 @@ float3 Transmittance(float3 start, float3 end, int steps) {
 
 コードの要点です。中点法で、各区間の中点で密度を取ります。色ごとに別の値を持ちます（RGB の消散係数が違うので、青が先に減ります）。球の外や内への扱いとして、地面にぶつかる向きは、光が届かない（T = 0）として扱います。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "日没の太陽が、白いまま"
     **透過率を RGB ごと**に**計算**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **距離と係数で、指数で減衰する**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Atmospheric Scattering](index.md)
 - [Atmosphere Model](atmosphere-model.md)
-- [単散乱](single-scattering.md)
+- [Single-Scattering Integral](single-scattering.md)

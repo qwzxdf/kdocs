@@ -8,7 +8,7 @@ tags:
 
 **水の見た目は、反射・屈折・吸収・散乱が混ざったものです**。**角度によって反射と屈折の割合が変わり（フレネル）、深いほど色が濃くなります（Beer の法則）**。このセクションでは、**水面で起きていること・フレネル・水深による色・屈折の歪み・スペキュラ・反射・散乱・パラメータ**を、**1 つずつ別のページ**で説明します。
 
-## What Happens at the Water Surface {#水面で何が起きているか}
+## 水面で何が起きているか
 **光が水面に当たると一部は反射し、残りは水の中へ屈折して入ります**。**水の中では吸収と散乱を受けながら進み**、**底や水中の物で跳ね返り**、**再び水面を通って目に入ります**。
 
 <svg class="fig illust" viewBox="0 0 780 300" role="img" aria-label="水面で起きること">
@@ -33,13 +33,13 @@ tags:
 
 | 成分 | 内容 |
 | --- | --- |
-| **反射** | **空・周囲の景色**を映す（[反射](../../reflections/index.md)） |
+| **反射** | **空・周囲の景色**を映す（[Reflections](../../reflections/index.md)） |
 | **屈折＋透過** | **水中の物・底**が透けて見える（歪む） |
 | **吸収** | **水を通る距離に応じて、色が変わり暗くなる** |
 | **散乱** | **水中の粒子で光が散らばり、水自体が青緑に光る** |
 | **スペキュラ** | **太陽・光源の鋭い反射** |
 
-## Overview of the Composite {#合成の全体像}
+## 合成の全体像
 ```hlsl
 float3 N = ComputeNormal(input);
 float3 V = normalize(camera_position - input.world_position);
@@ -56,38 +56,38 @@ color += specular + scatter + foam;
 
 | 手順 | 内容 |
 | --- | --- |
-| **① 法線** | **波の法線 ＋ 細かい法線マップ**（[波のジオメトリ](../waves/index.md)） |
+| **① 法線** | **波の法線 ＋ 細かい法線マップ**（[Water Waves](../waves/index.md)） |
 | **② フレネル** | **反射と透過の割合** |
 | **③ 屈折の色** | **歪ませた背景 ＋ 深度による吸収** |
 | **④ 反射の色** | **環境マップ・SSR・平面反射** |
 | **⑤ 混ぜる** | **`lerp(屈折, 反射, F)`** |
-| **⑥ 足す** | **スペキュラ・散乱・泡**（[岸辺と泡](../shore-foam/index.md)） |
+| **⑥ 足す** | **スペキュラ・散乱・泡**（[Shore Foam](../shore-foam/index.md)） |
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
-| [フレネル](fresnel.md) | 反射と屈折の割合 |
+| [Water Fresnel](fresnel.md) | 反射と屈折の割合 |
 | [Color by Water Depth](depth-color.md) | Beer の法則 |
-| [屈折の歪み](refraction.md) | 水中の景色を曲げる |
-| [スペキュラ](specular.md) | 太陽の反射 |
-| [反射](reflection.md) | 空と周囲の映り込み |
-| [散乱（SSS 風）](scattering.md) | 波頭の透け感 |
-| [色のパラメータ](parameters.md) | 水の色の決め方 |
+| [Water Refraction Distortion](refraction.md) | 水中の景色を曲げる |
+| [Specular (Sun Glint)](specular.md) | 太陽の反射 |
+| [Water Reflection](reflection.md) | 空と周囲の映り込み |
+| [Scattering Color (SSS-Like)](scattering.md) | 波頭の透け感 |
+| [Water Color Parameters](parameters.md) | 水の色の決め方 |
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **水 ＝ 反射 ＋ 屈折 ＋ 吸収 ＋ 散乱**
     - [x] **フレネルと水深で、見た目が決まる**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Water](../index.md)
 - [Water Waves](../waves/index.md)

@@ -14,7 +14,7 @@ tags:
     - **BVH ＝ レイの交差判定を速くする、木構造**。
     - **動く物体は、BVH を毎フレーム更新（再構築・リフィット）**する。
 
-## Shading the Hit Point {#ヒット点のシェーディング}
+## ヒット点のシェーディング
 **当たった点**の**色**を**その場で計算**します。**最も重い部分**です。
 
 | 方法 | 内容 | コスト |
@@ -24,7 +24,7 @@ tags:
 | **ライティング済みの結果を使う**（**ライト キャッシュ**・**G-Buffer のスクリーン空間が使える場合**） | **画面内のヒット**は、**スクリーン空間のライティング結果**を再利用 | 小 |
 | **ミス → 空** | スカイ プローブ・スカイ ドーム | 最小 |
 
-### Lighting at the Hit Point {#ヒット点でのライティング}
+### ヒット点でのライティング
 
 ヒット点でのライティングは、直接光、間接光、反射の反射に分けて考えます。直接光は、ライトごとに影のレイ（または影マップ）を使います。間接光は、ライト プローブや環境マップで近似し、さらにレイを飛ばしません（コストが大きすぎるため）。反射の反射は、再帰を 1 回までにして、2 回目はプローブを引きます。
 
@@ -44,7 +44,7 @@ void ReflectionClosestHit(inout ReflectionPayload payload, BuiltInTriangleInters
 
 **マテリアルの評価**（テクスチャの読み込み）は、**画面の外**なので**ミップが決まらない**問題があります（レイは**微分**がない）。**ミップを距離・粗さから推定**します（**レイ コーン**）。
 
-## Preparing the BVH {#bvh-の準備}
+## BVH の準備
 | 項目 | 内容 |
 | --- | --- |
 | **BLAS**（Bottom-Level AS） | **メッシュごと**の BVH。**静的**メッシュは、1 回作る |
@@ -54,24 +54,24 @@ void ReflectionClosestHit(inout ReflectionPayload payload, BuiltInTriangleInters
 
 レイトレーシング全般の話は、[描画セクションの入口](../../index.md)から関連ページをたどってください。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "BVH の更新が重く、フレーム時間が伸びる"
     **動かない物は静的 BVH**に、**動く物だけ更新**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **当たった点で、ライティングを計算**
     - [x] **BVH で、交差判定を速くする**
 
-## References {#参考}
+## 参考
 
 - McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
 - Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
 - Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Ray-Traced Reflections](index.md)
 - [Ray Generation](ray-generation.md)

@@ -16,7 +16,7 @@ tags:
     - <strong>Nanite など</strong>の<strong>GPU 駆動のジオメトリ</strong>と相性が良い（<strong>ページごとにカリング・描画</strong>）。
     - <strong>実装が複雑</strong>。<strong>ページ管理・間接テーブル・間接描画</strong>が必要。
 
-## The Idea: Fine Only Where Needed {#発想必要な所だけ細かく}
+## 発想：必要な所だけ、細かく
 
 **画面に映る影**に**本当に必要な解像度**は、**画素ごと**に決まります。**近い画素**は**細かい**シャドウ マップ、**遠い画素**は**粗い**ものでよいのです。**カスケード**はこれを<strong>階段状（3〜4 段）</strong>で近似しますが**仮想シャドウ マップ**は、**画素ごとに連続的に**（ミップごとに）選びます。
 
@@ -370,9 +370,9 @@ tags:
 
 <!-- fig:vsm-pages:end -->
 
-## Structure {#構造}
+## 構造
 
-### Pages and Mips {#ページとミップ}
+### ページとミップ
 
 **仮想シャドウ マップ**は、**ミップ マップ**の階層を持ちます。**レベル 0 が最も細かく**、**上のレベルほど粗く**なります。<strong>各レベルを固定サイズの「ページ」</strong>（例：128×128 テクセル）に**分割**します。
 
@@ -384,13 +384,13 @@ tags:
 | **物理ページ プール** | **実際に確保した、シャドウ マップの実体**（大きな 1 枚のテクスチャ。ページの寄せ集め） |
 | <strong>ページ テーブル（間接テーブル）</strong> | **仮想ページ → 物理ページ**の対応表（GPU バッファ） |
 
-### Per Light {#ライトごと}
+### ライトごと
 
 **ライトごとに仮想シャドウ マップ**を持ちます（**平行光**は**クリップマップ**（視点の周りに**ミップごとに粒度の違う範囲**を置く）、**ローカル ライト**は、<strong>キューブ（6 面）</strong>など）。
 
-## Steps {#手順}
+## 手順
 
-### ① Determining the Needed Pages {#①-必要なページの判定}
+### ① 必要なページの判定
 
 **毎フレーム**、**画面の各画素**の**深度**から、**ワールド位置**を復元し、**ライト空間の位置**に変換します。<strong>その画素の影に必要な解像度（ミップ レベル）</strong>を、**画面での 1 画素の大きさ**から決め、**そのミップのそのページ**を<strong>「必要」とマーク</strong>します。
 
@@ -404,17 +404,17 @@ MarkPageNeeded(mip, page);
 
 コードの要点です。`pixel_footprint` は、画面の 1 画素がワールドで覆う大きさです（距離と視野角から求めます）。`SelectMipForPixel` は、シャドウ マップの 1 テクセルが画面の 1 画素にほぼ等しくなるミップを選びます。`MarkPageNeeded` は、フラグ バッファに InterlockedOr などで書き込み、並列に安全に必要なページを記録します。
 
-### ② Allocating Pages {#②-ページの割り当て}
+### ② ページの割り当て
 
 **必要とマークされ、まだ物理ページがない**ページに、**物理ページを割り当てます**。**使われなくなった**ページは、<strong>解放（再利用）</strong>します（**LRU など**）。
 
-### ③ Rendering Pages {#③-ページの描画}
+### ③ ページの描画
 
 **割り当てられた（または無効になった）ページ**だけ、**シャドウ マップの描画**を行います。**各ページの範囲に入る物体**を、**カリングして**描きます。
 
 ページの描画の工夫です。ページごとに、ページの範囲（ライト空間の箱）に入るクラスタや物体だけを描きます。ページ × オブジェクトの判定を GPU で行い、間接描画します（[GPU Driven](../../rendering/gpu-driven.md)）。Nanite の小さな三角形は、コンピュートでソフトウェア ラスタライズします。ハードウェアより効率が良いことがあります。
 
-### ④ Sampling the Shadow {#④-影の参照}
+### ④ 影の参照
 
 **ライティング時**、**画素のワールド位置**から、**ライト空間・ミップ・ページ**を求め、**ページ テーブルで物理ページ**を引き、**そこから深度をサンプル**します。
 
@@ -427,7 +427,7 @@ float shadow = physical_pool.SampleCmpLevelZero(shadow_sampler, physical_uv, dep
 
 **ページの境界**をまたぐ **PCF**は、**隣のページを引く必要**があるので、**境界の処理**に**注意**します。
 
-## Caching {#キャッシュ}
+## キャッシュ
 
 **仮想シャドウ マップの大きな利点**は、**キャッシュ**です。
 
@@ -440,7 +440,7 @@ float shadow = physical_pool.SampleCmpLevelZero(shadow_sampler, physical_uv, dep
 
 **静的な背景が多い**シーンでは、**毎フレームの描画ページ数**が**非常に少なく**なります。
 
-## Benefits and Cautions {#利点と注意}
+## 利点と注意
 
 | 利点 | 注意 |
 | --- | --- |
@@ -450,11 +450,11 @@ float shadow = physical_pool.SampleCmpLevelZero(shadow_sampler, physical_uv, dep
 | **小さな物体の影・遠景の細部**まで**一貫した品質** | **動く物体が多い**と**無効化が増える** |
 | **Nanite などの GPU 駆動描画**と**相性が良い** | **ソフト シャドウ**は、別途（**PCF ＋ レイトレースで半影**など） |
 
-### Combining with Soft Shadows {#ソフト-シャドウとの組み合わせ}
+### ソフト シャドウとの組み合わせ
 
 **非常に細かい**シャドウ マップは、**エッジが鋭い**ので**半影**を作るため、**画素の周辺をシャドウ マップ上でレイ マーチ**し、**遮蔽物までの距離から、半影の幅**を求める**手法**（UE5 の **Shadow Map Ray Tracing**）があります。**PCSS**の**効率化版**とも言える方式です。
 
-## Choosing Among Other Methods {#他の方式との使い分け}
+## 他の方式との使い分け
 
 | 状況 | 向いている方式 |
 | --- | --- |
@@ -463,7 +463,7 @@ float shadow = physical_pool.SampleCmpLevelZero(shadow_sampler, physical_uv, dep
 | **モバイル** | **少数のカスケード ＋ 軽い PCF** |
 | **RT 対応のハイエンド** | **レイトレース影** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "必要なページの判定を、毎フレーム全画素で行って重い"
     **ダウンサンプルした深度**・**タイル単位の最小/最大**で、**判定を減らし**ます。
@@ -477,7 +477,7 @@ float shadow = physical_pool.SampleCmpLevelZero(shadow_sampler, physical_uv, dep
 ??? failure "ページ境界で、PCF が途切れて、継ぎ目が見える"
     **境界の隣のページ**も参照するか、**境界にテクセルを余分に持つ**（ボーダー）。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 仮想シャドウ マップ ＝ <strong>巨大な仮想解像度</strong>を<strong>ページ</strong>に分割し、<strong>必要なページだけ</strong>実体化
@@ -486,15 +486,15 @@ float shadow = physical_pool.SampleCmpLevelZero(shadow_sampler, physical_uv, dep
     - [x] <strong>カスケードの境目がなく</strong>、<strong>Nanite など GPU 駆動</strong>と相性が良い
     - [x] <strong>実装が複雑</strong>で、<strong>ページ プールの管理</strong>が重要
 
-## References {#参考}
+## 参考
 
 - Epic Games, "Virtual Shadow Maps"（Unreal Engine ドキュメント）
 - Karis et al., "A Deep Dive into Nanite Virtualized Geometry"（SIGGRAPH 2021、仮想シャドウ マップにも言及）
 - Lefohn et al., "Resolution-Matched Shadow Maps"（ACM TOG 2007）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shadows](index.md)
 - [Cascaded Shadow Maps (CSM)](cascaded.md)
 - [PCSS](pcss.md)
-- [GPU Driven（最適化）](../../rendering/gpu-driven.md)
+- [GPU Driven Rendering](../../rendering/gpu-driven.md)

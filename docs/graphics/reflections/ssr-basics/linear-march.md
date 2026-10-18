@@ -13,10 +13,10 @@ tags:
     - **レイの深度 ＞ バッファの深度になったら、当たり候補**。
     - **歩幅が大きいと、薄い物を飛び越える**。**小さいと、ステップ数が増える**。
     - **当たり候補の前後で二分探索すると、少ないステップで、精密になる**。
-    - **より良いやり方は、Hi-Z トレース**（[階層 Z](../ssr-hiz.md)）。
+    - **より良いやり方は、Hi-Z トレース**（[Hi-Z SSR](../ssr-hiz.md)）。
 
-## Advancing the Ray {#レイの進め方}
-### Method 1: Linear March in View Space {#方法-1ビュー空間の線形マーチ}
+## レイの進め方
+### 方法 1：ビュー空間の線形マーチ
 
 **ビュー空間**で**一定の長さ**ずつレイを進め、**各点を画面に投影**して深度を比べます。
 
@@ -33,7 +33,7 @@ for (int i = 0; i < kMaxSteps; ++i) {
 
 線形マーチには、3 つの課題があります。第 1 は、ステップ長の選択です。長いと薄い物を飛び越し、短いとステップ数が増えて重くなります。第 2 は、画面上の歩幅が不均一なことです。ビュー空間で一定の長さは、画面では遠いほど短く、近いほど長くなり、無駄や取りこぼしを生みます。第 3 は、画面外に出た後も進み続けることで、これは無駄な計算になります。
 
-### Method 2: Screen-Space DDA (Recommended) {#方法-2画面空間の-dda推奨}
+### 方法 2：画面空間の DDA（推奨）
 
 **画面上で、1 ピクセルずつ**進みます。**全ての画素を、1 回ずつ確認**でき、**取りこぼしがなく**、**無駄もありません**。McGuire と Mara の方法（「Efficient GPU Screen-Space Ray Tracing」、JCGT 2014）が、標準です。
 
@@ -164,7 +164,7 @@ bool TraceSSR(float3 origin_vs, float3 dir_vs, float2 jitter,
 
 <!-- fig:ssr-march:end -->
 
-## Refining the Hit {#当たりの精密化}
+## 当たりの精密化
 **歩幅が 1 より大きい**と、**当たりの位置が粗く**（歩幅分のずれ）なります。**当たった後**に**区間を二分探索**で精密化します。
 
 ```hlsl
@@ -181,25 +181,25 @@ float2 RefineHit(float2 p_before, float2 p_after, int steps) {
 
 **2〜5 回**の二分探索で、**歩幅の誤差がほぼ無くなります**。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "薄い柵や線が、反射に映らない"
     **歩幅を小さく**するか、**Hi-Z トレース**にする。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **画面空間でレイを進め、深度を比べる**
     - [x] **当たりを見つけたら、二分探索で精密化**
 
-## References {#参考}
+## 参考
 
 - McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
 - Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
 - Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [SSR Basics](index.md)
-- [厚み](thickness.md)
-- [階層 Z（Hi-Z）](../ssr-hiz.md)
+- [Thickness](thickness.md)
+- [Hi-Z SSR](../ssr-hiz.md)

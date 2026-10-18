@@ -16,7 +16,7 @@ tags:
     - <strong>画面端のゴーストは弱める</strong>。<strong>色収差を付ける</strong>と<strong>虹色でリアル</strong>。
     - <strong>光源が隠れたら消える</strong>よう、<strong>オクルージョン</strong>を考慮する。
 
-## Elements {#要素}
+## 要素
 
 <svg class="fig illust" viewBox="0 0 780 250" role="img" aria-label="レンズ フレアの要素">
 <text x="20" y="26" class="fig-title">フレアの要素：ゴーストは、画面中心を挟んで反対側に並ぶ</text>
@@ -43,7 +43,7 @@ tags:
 | <strong>光芒（スターバースト）</strong> | **光源から放射状に伸びる筋**（**羽根の数 × 2 本**など） | **絞りの羽根による回折** |
 | **ストリーク** | **横に長く伸びる光** | **アナモルフィック レンズ**（**映画的**） |
 
-## Screen-Space Ghosts {#画面空間のゴースト}
+## 画面空間のゴースト
 
 **ブルームで明るい部分を取り出した画像**から、**反転した位置を複数回サンプルして、ゴーストを作る**方法です（**光源の位置を別に知る必要がありません**）。
 
@@ -179,7 +179,7 @@ float3 LensFlareGhosts(float2 uv, int ghost_count, float dispersal, float distor
 
 <!-- fig:lens-flare-ghosts:end -->
 
-## Halos {#ハロー}
+## ハロー
 
 **画面中心を中心にした、大きな輪**を**足し**ます。**反転位置から、中心方向へ一定の長さだけ進んだ位置をサンプル**します。
 
@@ -196,7 +196,7 @@ float3 LensFlareHalo(float2 uv, float halo_width) {
 
 ハローのコードの要点です。`halo_width` は輪の半径で、0.4〜0.6 程度です。向きを正規化して、どの画素でも同じ長さにすると、輪になります。
 
-## Color and Chromatic Aberration {#色と色収差}
+## 色と色収差
 
 <strong>ゴーストやハローに色（虹色）</strong>を**付ける**と**リアルになります**。
 
@@ -207,7 +207,7 @@ float3 flare_color = color_gradient.SampleLevel(linear_clamp, float2(length(0.5 
 result += bright * weight * flare_color;
 ```
 
-## Starburst {#光芒スターバースト}
+## 光芒（スターバースト）
 
 **絞りの羽根の数に応じた、星形の筋**です。**テクスチャを光源の位置に貼る**のが**簡単**です。
 
@@ -222,7 +222,7 @@ float3 Starburst(float2 uv, float2 light_uv, Texture2D starburst_texture, float 
 }
 ```
 
-## When the Light Source Is Hidden {#光源が隠れたとき}
+## 光源が隠れたとき
 
 **太陽が建物に隠れたのに、フレアが残る**と**不自然**です。<strong>光源の可視性（オクルージョン）</strong>を**考慮**します。
 
@@ -233,7 +233,7 @@ float3 Starburst(float2 uv, float2 light_uv, Texture2D starburst_texture, float 
 | **画面外の光源** | **画面の外の太陽は、画面空間では抽出できない**。**別途（光源位置から）スプライト** |
 | **可視性のフェード** | **見える面積の割合で強さを滑らかに** |
 
-## Cost {#コスト}
+## コスト
 
 | 項目 | 目安 |
 | --- | --- |
@@ -242,7 +242,7 @@ float3 Starburst(float2 uv, float2 light_uv, Texture2D starburst_texture, float 
 | **スターバースト・ダート** | **テクスチャ 1〜2 枚 → 軽い** |
 | **ぼかし** | <strong>ゴーストを少しぼかすと、なめらか（半解像度なら、安い）</strong> |
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -254,7 +254,7 @@ float3 Starburst(float2 uv, float2 light_uv, Texture2D starburst_texture, float 
 | **光源の可視性を考慮** | **隠れたら消える** |
 | **強さを光源の明るさで** | **強い光だけ、フレア** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "画面端にゴーストが出て、不自然に光る"
     **端の重みを弱める**（`weight = pow(1 − 距離, 10)`）。
@@ -268,7 +268,7 @@ float3 Starburst(float2 uv, float2 light_uv, Texture2D starburst_texture, float 
 ??? failure "ゴーストがぎざぎざに見える"
     **半解像度のぼかし**を足す、**バイリニアで滑らかに**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] レンズ フレア ＝ <strong>強い光源から出る、ゴースト・ハロー・光芒</strong>
@@ -277,14 +277,14 @@ float3 Starburst(float2 uv, float2 light_uv, Texture2D starburst_texture, float 
     - [x] <strong>光芒・ダート</strong>は<strong>テクスチャ</strong>で
     - [x] <strong>隠れた光源は消える</strong>ように。<strong>控えめに</strong>
 
-## References {#参考}
+## 参考
 
 - Hullin et al., "Physically-Based Real-Time Lens Flare Rendering"（SIGGRAPH 2011）
 - Chapman, "Pseudo Lens Flare"（john-chapman-graphics.blogspot.com, 2013）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Lens Effects](index.md)
 - [Chromatic Aberration](chromatic-aberration.md)
 - [Bloom](../bloom/index.md)
-- [光の筋](../../atmosphere/god-rays/index.md)
+- [God Rays](../../atmosphere/god-rays/index.md)

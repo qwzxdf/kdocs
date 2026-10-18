@@ -16,7 +16,7 @@ tags:
     - <strong>角（平らな面の境）で、法線が割れて、線が途切れる</strong> → <strong>スムーズ法線を別に持つ</strong>。
     - <strong>線の太さは、頂点カラーで部位ごとに調整</strong>できる。
 
-## How It Works {#仕組み}
+## 仕組み
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="背面法の仕組み">
 <text x="20" y="26" class="fig-title">膨らませた裏面が、輪郭線として見える</text>
@@ -38,7 +38,7 @@ tags:
 
 背面法の手順は 3 段階です。元のモデルを通常のシェーディングで描きます。同じモデルをもう一度描き、頂点を法線方向に膨らませ、前面をカリングして黒で塗ります。結果として、元のモデルが手前にあり、膨らんだ裏面が縁として見えます。
 
-## Implementation {#実装}
+## 実装
 
 ```hlsl
 cbuffer OutlineParams : register(b2) {
@@ -128,7 +128,7 @@ device->CreateRasterizerState(&desc, outline_rasterizer.GetAddressOf());
 
 <!-- fig:outline-hull-width:end -->
 
-## Keeping Thickness Constant on Screen {#画面上の太さを一定にする}
+## 画面上の太さを一定にする
 
 **ワールド空間で `normal × width` を足す**と、**カメラから遠いと線が細く見え、近いと太く見えます**（**遠近法**）。**画面上の太さを一定**にするには、**クリップ空間で膨らませます**。
 
@@ -152,7 +152,7 @@ VSOutput OutlineConstantWidthVS(VSInput input) {
 | **`outline_width_pixels`** | **画面上の画素単位の太さ** |
 | **遠近感を残したい場合** | **ワールド空間版を使い、距離で太さを補正** |
 
-## Broken Lines (Corners) {#線が途切れる問題角}
+## 線が途切れる問題（角）
 
 **立方体のような、角のあるモデル**は、**角の頂点が面ごとに別の法線を持つ**ので、<strong>法線方向に膨らませると、頂点が面ごとに別の方向へ離れ、角に隙間（線の途切れ）</strong>ができます。
 
@@ -177,7 +177,7 @@ float3 smooth_normal = input.smooth_normal;
 float3 expanded = input.position + smooth_normal * outline_width;
 ```
 
-## Adjusting Thickness (Vertex Color) {#太さの調整頂点カラー}
+## 太さの調整（頂点カラー）
 
 **線の太さを部位ごとに変えたい**ことが**あります**（**顔は細く・体は太く**）。<strong>頂点カラー（またはテクスチャ）</strong>で**太さの係数を持ちます**。
 
@@ -188,7 +188,7 @@ float3 expanded = input.position + smooth_normal * outline_width * width_scale;
 
 頂点カラーによる制御です。部位ごとの太さは、頂点カラーの R に係数を入れて決めます。線を消したい部分（目・口の中・内側の線）は、係数を 0 にします。遠くで細くするために、距離のフェードも使えます。
 
-## Pros and Cons {#長所と短所}
+## 長所と短所
 
 | 長所 | 短所 |
 | --- | --- |
@@ -197,18 +197,18 @@ float3 expanded = input.position + smooth_normal * outline_width * width_scale;
 | **MSAA・TAA と相性が良い** | <strong>頂点数が 2 倍になる（描画が 2 回）</strong> |
 | **ジオメトリに沿った綺麗な線** | **薄いオブジェクトで裏と表の線が干渉** |
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
 | **スムーズ法線を事前に焼く** | **角で途切れない** |
 | **クリップ空間で太さを一定** | **画面上の太さがそろう** |
 | **頂点カラーで太さを制御** | **部位ごとの調整** |
-| **画面空間エッジを併用** | **内側の線を足す**（[画面空間のエッジ検出](outline-edge.md)） |
+| **画面空間エッジを併用** | **内側の線を足す**（[Screen-Space Edge Detection](outline-edge.md)） |
 | **色は元の色の暗い版** | **黒より柔らかい絵に** |
 | **距離で線を細く・消す** | **遠くでうるさくならない** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "立方体の角で、線が途切れる"
     **スムーズ法線**を使う。
@@ -222,7 +222,7 @@ float3 expanded = input.position + smooth_normal * outline_width * width_scale;
 ??? failure "スキニングしたキャラの輪郭が、動いて崩れる"
     **輪郭パスでも同じスキニングを適用**する（**スムーズ法線も同じ骨で変形**）。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 背面法 ＝ <strong>法線方向に膨らませた裏面を、黒く描く</strong>。<strong>前面はカリング</strong>
@@ -231,13 +231,13 @@ float3 expanded = input.position + smooth_normal * outline_width * width_scale;
     - [x] <strong>角の途切れ</strong>は<strong>スムーズ法線</strong>で<strong>解決</strong>
     - [x] <strong>内側の線は出ない</strong> → <strong>画面空間エッジと併用</strong>
 
-## References {#参考}
+## 参考
 
 - Raskar & Cohen, "Image Precision Silhouette Edges"（I3D 1999）
 - Xu et al., "Guilty Gear Xrd's Art Style"（GDC 2015）
 - Ohno et al., "Rendering the Outlines in 3D Game Characters"
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Outlines and Toon](index.md)
 - [Screen-Space Edge Detection](outline-edge.md)

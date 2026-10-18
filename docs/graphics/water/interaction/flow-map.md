@@ -51,7 +51,7 @@ tags:
 
 <!-- fig:flowmap-blend:end -->
 
-## Flow Map (Water Flow) {#フローマップ水の流れ}
+## フローマップ（水の流れ）
 **川の流れ**は**波動のシミュレーションとは別**に、<strong>流れの向きを描いたテクスチャ（フローマップ）</strong>で**表現**します。**法線マップをその向きに流す**ことで**水が流れて見えます**。
 
 **フローマップは、各点の流れの向き（RG に 2D ベクトル）を持つテクスチャ**です。
@@ -101,7 +101,7 @@ float3 flow_normal = normalize(lerp(n0, n1, blend));
 <text x="60" y="188" style="font-size:12px">流れの向き →</text>
 </svg>
 
-### How to Make a Flow Map {#フローマップの作り方}
+### フローマップの作り方
 
 | 方法 | 内容 |
 | --- | --- |
@@ -110,24 +110,24 @@ float3 flow_normal = normalize(lerp(n0, n1, blend));
 | **障害物を避ける** | **岩の周りで流れが曲がる**ように、**向きを描く** |
 | **流速を長さで** | **ベクトルの長さを流れの速さ**にする |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "流れが、時間とともに引き伸ばされる"
     **位相をずらした 2 層**を**交互にブレンド**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **向きを入れたテクスチャで、UV を流す**
     - [x] **2 層のブレンドで、歪みを防ぐ**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Water Interaction](index.md)
 - [Water Waves](../waves/index.md)

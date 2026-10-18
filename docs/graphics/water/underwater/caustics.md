@@ -339,12 +339,12 @@ tags:
 
 <!-- fig:caustics-rays:end -->
 
-## Caustics {#コースティクス}
+## コースティクス
 **コースティクス**は、**波打つ水面がレンズのように光を集め、底に明るい網目模様ができる**現象です。**波の凹凸の形で光が集まる所と散る所ができます**。
 
 コースティクスの方式は 3 つです。アニメする模様のテクスチャは、ループするコースティクス模様を、ライトの方向から底に投影して足す定番の安い方法です。シミュレーションは、水面の法線から屈折を計算し、底に落ちる光の集まりを求める重い正確な方法です。ヤコビアン風の近似は、水面の法線のラプラシアン（凸凹）から、集光の強さを近似します。
 
-### Projecting a Texture {#テクスチャを投影する}
+### テクスチャを投影する
 
 ```hlsl
 float3 light_space = mul(float4(world_position, 1), light_view_projection).xyz;
@@ -366,7 +366,7 @@ float3 lit = base_color + sun_color * caustics * depth_fade * n_dot_l;
 | **水面より上は出さない** | **水位より下の位置だけに投影** |
 | **ワールド座標の UV** | **カメラが動いても底に貼りつく**（**真上から投影**が簡単） |
 
-### Improving the Look with Chromatic Aberration {#色収差で見栄えを上げる}
+### 色収差で見栄えを上げる
 
 **コースティクスを、RGB でわずかにずらして取る**と、**縁が虹色に光って**、**よりそれらしく**見えます。
 
@@ -377,23 +377,23 @@ float b = caustics_texture.Sample(linear_wrap, caustics_uv - float2(0.002, 0)).r
 float3 caustics_rgb = float3(r, g, b);
 ```
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "水底の模様が、動かない・単調"
     **2 枚を逆向きに流して重ねる**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **揺れる模様を、光の方向から投影**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Underwater Rendering](index.md)
-- [光の筋](god-rays.md)
+- [Underwater God Rays](god-rays.md)

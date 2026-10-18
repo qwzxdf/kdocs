@@ -14,7 +14,7 @@ tags:
     - **カメラに近づくと、フェードで消す**。
     - **動かない光に、最適**。
 
-## Making Light Beams with Meshes {#メッシュで光の柱を作る}
+## メッシュで光の柱を作る
 <strong>固定された光の柱（窓から差す光、洞窟の天井の穴）</strong>は、**半透明メッシュ**で**作れます**。
 
 | 工夫 | 内容 |
@@ -35,7 +35,7 @@ float alpha = edge_fade * depth_fade * near_fade * (0.7 + 0.3 * dust) * intensit
 return float4(light_color * alpha, 0);
 ```
 
-### Tips for Building Them {#作り方のコツ}
+### 作り方のコツ
 
 メッシュの光の柱は、アーティストが作るので、見た目の自由度が最も高い方式です。作るときのコツを挙げます。
 
@@ -47,24 +47,24 @@ return float4(light_color * alpha, 0);
 
 メッシュ方式の弱点は、動的な光に対応しにくいことです。太陽が動けば柱の向きも動かす必要があり、窓の前に人が立てば本来は影が出るはずですが、メッシュは対応しません。昼夜サイクルのあるゲームでは、時刻に合わせて柱の向きと色を動かす仕組みが必要になります。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "メッシュの縁が硬く、板に見える"
     **縁をフェード**させる。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **加算メッシュで、手軽に光の柱**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [God Rays](index.md)
 - [Blend State](../../translucency/blending-sorting/blend-state.md)

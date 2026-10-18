@@ -14,7 +14,7 @@ tags:
     - **水が濁っているほど、筋が見える**。
     - **画面空間のぼかしで、安く作る方法もある**。
 
-## Light Shafts (God Rays) {#光の筋ゴッド-レイ}
+## 光の筋（ゴッド レイ）
 **水中に差し込む光の柱**です。**水中の粒子が光を散らして見える**ことで**生じます**。
 
 光の筋の方式は 3 つです。レイマーチ（ボリューム）は、視線に沿って進み、光が当たる点を数える方法で、シャドウ マップで光が届くかを判定します。ポストプロセスの放射ぼかしは、画面上で光源から放射状にぼかす安い方法です。ビルボード（メッシュ）は、光の筋の形をした半透明メッシュを加算で描きます。
@@ -46,23 +46,23 @@ for (int i = 0; i < kStepCount; ++i) {
 | **コースティクス** | **光の筋が波の形で揺れる**（水面のうねりに応じて明暗） |
 | **透過率** | **遠くほど減衰** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "光の筋が、揺れずに固定されて見える"
     **水面の波を、光の筋に反映**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **波に応じて揺れる光の筋**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Underwater Rendering](index.md)
 - [God Rays](../../atmosphere/god-rays/index.md)

@@ -180,25 +180,25 @@ device->CreateBlendState(&desc, &alpha_to_coverage_state);
 
 **4x MSAA では 5 段階**（0/4〜4/4）の**透明度**しか**表せません**。**ディザリングのようなパターン**が**見える**ことがあります。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "A2C を設定したのに、効果が出ない"
     **MSAA を有効**にし、**ブレンド ステートで A2C を ON**にする。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **アルファを MSAA のカバレッジに変換**
     - [x] **葉や草に最適**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Alpha Testing](index.md)
 - [Hashed Alpha](hashed-alpha.md)
-- [比較](comparison.md)
+- [Method Comparison](comparison.md)

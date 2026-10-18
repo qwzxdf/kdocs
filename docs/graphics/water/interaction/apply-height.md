@@ -14,7 +14,7 @@ tags:
     - **シミュレーション領域は、カメラの周りの四角**。
     - **領域が動く時は、マップをずらす**。
 
-## Applying the Heightmap to the Water Surface {#高さマップを水面に反映する}
+## 高さマップを水面に反映する
 **シミュレーションの高さを、水面に反映**します。
 
 反映先は 2 つです。頂点の高さは、頂点シェーダーで高さマップを読み、波の高さに足します。法線は、高さマップの勾配から法線を作り、波の法線に足します（細かい凹凸が見えます）。
@@ -31,7 +31,7 @@ float3 ripple_normal = normalize(float3((hl - hr) * normal_strength, 2.0 * texel
 
 コードの要点です。中心差分で、左右・上下の差が勾配になります。`normal_strength` が大きいほど、凹凸がはっきりします。合成は、波の法線の XZ に波紋の XZ を足して正規化します。
 
-## Simulation Region {#シミュレーション領域}
+## シミュレーション領域
 **水面全体を高解像度でシミュレーションするのは、重すぎます**。**カメラ周りの狭い領域だけ**を**対象にします**。
 
 | 工夫 | 内容 |
@@ -41,24 +41,24 @@ float3 ripple_normal = normalize(float3((hl - hr) * normal_strength, 2.0 * texel
 | **解像度** | **512×512 を、20〜30 m 四方**など。**1 テクセル 5 cm 程度** |
 | **端でフェード** | **領域の端で高さを 0 に近づける**（**切れ目が見えない**） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "領域の端で、波紋が途切れる"
     **端でフェード**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **高さと法線に、足し込む**
     - [x] **領域はカメラに追従**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Water Interaction](index.md)
 - [Writing Object Contacts](contact.md)

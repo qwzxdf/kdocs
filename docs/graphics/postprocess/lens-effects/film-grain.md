@@ -16,7 +16,7 @@ tags:
     - <strong>ディザリング</strong>（<strong>バンディング隠し</strong>）にも<strong>効く</strong>（<strong>1 ビット分のノイズ</strong>で十分）。
     - <strong>かけすぎない</strong>。<strong>細部が見えなくなる</strong>。<strong>設定で切れる</strong>。
 
-## Real Film Grain {#実際のグレイン}
+## 実際のグレイン
 
 **フィルムの感光材料は、微小な銀の粒子**からできています。**露光された粒子の分布が、ランダムなので画像に粒状のノイズ**が**見えます**。**感度（ISO）が高いフィルムほど、粒子が大きく、ノイズが目立つ**です。
 
@@ -27,7 +27,7 @@ tags:
 | **フレームごとに違う** | **1 秒間に 24 回違うノイズ → 動いて見える** |
 | **色** | **カラーフィルムは色つきのノイズ。白黒は輝度のみ** |
 
-## Basic Implementation {#基本の実装}
+## 基本の実装
 
 **ランダムな値を作り、色に足します**。
 
@@ -235,7 +235,7 @@ float3 ApplyGrain(float3 color, float2 uv, float time, float intensity) {
 
 <!-- fig:film-grain-luma:end -->
 
-## Changing the Strength by Brightness {#明るさで強さを変える}
+## 明るさで強さを変える
 
 **真っ黒や真っ白にもグレインを足す**と、**黒が浮き、白が汚れます**。**中間調で最も強く、暗部と明部で弱める**のが**自然**です。
 
@@ -250,7 +250,7 @@ float3 ApplyGrainLuma(float3 color, float2 uv, float time, float intensity) {
 
 明るさ依存のコードの要点です。`4 · luma · (1 − luma)` は、luma が 0.5 で最大（1）、0 と 1 で 0 になる放物線です。効果として、中間調の質感が出て、黒と白はクリーンになります。
 
-## Noise Quality {#ノイズの質}
+## ノイズの質
 
 | ノイズ | 特徴 | 見た目 |
 | --- | --- | --- |
@@ -268,13 +268,13 @@ float noise = Hash(coarse + time * 61.0) - 0.5;
 
 `grain_size` による見た目の違いです。1 は細かく、デジタル ノイズ寄りです。2〜3 はフィルムのような粒子になります。
 
-## How to Animate It {#動かし方}
+## 動かし方
 
 **フィルムでは、1 コマごとに別の粒子**が**写る**ので、**グレインは毎フレーム変わる**のが**自然**です。**変わらないと画面に汚れが貼りついたように見えます**。
 
 フィルムでは、1 コマごとに別の粒子が写るので、グレインは毎フレーム変わるのが自然です。変わらないと、画面に汚れが貼りついたように見えます。毎フレーム変える方法は、`time` やフレーム番号でシードを変えます。24 FPS 相当で変える方法は、映画の動きに合わせて、ゲームが 60 FPS でも、グレインは 1 秒に 24 回変えます。TAA との関係では、TAA がノイズを平均して弱めてしまうので、TAA の後に足します。
 
-## Relation to Dithering {#ディザリングとの関係}
+## ディザリングとの関係
 
 <strong>8 ビット出力のグラデーション（暗い空・霧）</strong>は、<strong>量子化で縞（バンディング）</strong>が**出ます**。<strong>±0.5 ステップ程度の、微小なノイズを足す（ディザリング）</strong>と、**縞が見えなくなります**。
 
@@ -289,7 +289,7 @@ float3 Dither(float3 color, float2 pixel_position) {
 
 **グレインを足すとディザリングも兼ねられます**（**強さが十分あれば、バンディングも見えなくなる**）。
 
-## Where to Use It {#使いどころ}
+## 使いどころ
 
 | 場面 | 使い方 |
 | --- | --- |
@@ -298,7 +298,7 @@ float3 Dither(float3 color, float2 pixel_position) {
 | **暗いシーン** | **暗部のバンディング隠し** |
 | **ゲーム全体** | **ほぼ不要**（**クリアな絵が好まれる場合も**） |
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -310,7 +310,7 @@ float3 Dither(float3 color, float2 pixel_position) {
 | **オプションで切れる** | **細部が見えづらい人のため** |
 | **ディザリングを別に常時オン** | **グレインを使わなくても、バンディングを防ぐ** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "グレインが固定で、画面に汚れが貼り付いて見える"
     **毎フレーム、シードを変える**。
@@ -324,7 +324,7 @@ float3 Dither(float3 color, float2 pixel_position) {
 ??? failure "強すぎて、細部が見えない"
     **0.01〜0.03 に**、**オプションで調整**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] グレイン ＝ <strong>画面に、粒状のノイズを足す</strong>。<strong>フィルムの質感</strong>
@@ -333,13 +333,13 @@ float3 Dither(float3 color, float2 pixel_position) {
     - [x] <strong>ディザリング（1/255）</strong>で<strong>バンディング隠し</strong>にもなる
     - [x] <strong>控えめに設定で切れる</strong>
 
-## References {#参考}
+## 参考
 
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 - Gjøl & Svendsen, "The Rendering of INSIDE"（GDC 2016, ディザリング）
 - Wikipedia, "Film grain"
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Lens Effects](index.md)
 - [Vignette](vignette.md)

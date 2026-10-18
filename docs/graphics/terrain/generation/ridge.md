@@ -14,7 +14,7 @@ tags:
     - **山脈・峡谷**に向く。
     - **丘と混ぜて、使い分ける**。
 
-## Ridge Noise {#リッジ-ノイズ}
+## リッジ ノイズ
 **山脈の尾根**を作るには、**ノイズの絶対値を取って反転**します。**ゼロ付近が鋭い尾根**になります。
 
 ```hlsl
@@ -86,23 +86,23 @@ float RidgedFbm(float2 p, int octaves, float lacunarity, float gain) {
 
 <!-- fig:ridge-steps:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "山が、丸くて、山脈らしくない"
     **リッジ ノイズ**を混ぜる。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **絶対値を反転して、尖らせる**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain Generation](index.md)
 - [fBm](fbm.md)

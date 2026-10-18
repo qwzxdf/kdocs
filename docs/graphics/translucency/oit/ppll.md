@@ -17,7 +17,7 @@ tags:
 ## Per-Pixel Linked List（PPLL）
 **画素ごとに、重なったフラグメントを「連結リスト」で全部保存**し、**最後に、画素ごとに、深度順に並べて合成**します。**DirectX 11 の UAV とアトミック操作**で**実現**できます（**Yang らの手法**）。
 
-### Data Structure {#データ構造}
+### データ構造
 
 PPLL のデータ構造は、3 つです。ヘッド ポインタ バッファ（`RWTexture2D<uint>`）は、画素ごとのリストの先頭の番号を持ちます。ノード バッファ（`RWStructuredBuffer<Node>`）は、フラグメントの色・深度・次のノード番号を持ちます。カウンタは、次に使えるノード番号です（`InterlockedAdd`）。
 
@@ -59,7 +59,7 @@ void PSCollect(VsOutput input) {
 | **`InterlockedExchange`** | **ヘッドを、自分に付け替え**、**元のヘッドを `next` に**（**先頭に挿入**） |
 | **`kMaxNodes`** | **ノード バッファの上限**（**超えたら、捨てる**）。**画面解像度 × 平均層数 × 係数**で決める |
 
-### Composite Pass {#合成パス}
+### 合成パス
 
 **画素ごとに、リストをたどって配列に取り出し、深度でソートして、奥から合成**します。
 
@@ -129,25 +129,25 @@ PPLL の利点は、正確なこと（ソート済みで合成）、層数に上
 
 <!-- fig:ppll-chain:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "重なりが多い所で、リストがあふれる"
     **リストの長さに上限**を設け、**超えた分は破棄**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **断片を記録して、最後に並べ替える**
     - [x] **正確だが、メモリを食う**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [OIT](index.md)
 - [Depth Peeling](depth-peeling.md)
-- [ハイブリッド](hybrid.md)
+- [Hybrid Approaches and Choosing](hybrid.md)

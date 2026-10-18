@@ -14,11 +14,11 @@ tags:
     - **周囲のプローブ（SH）から、間接光を受け取る**。
     - **静的な背景と、動く物体の明るさが、揃うように調整**する。
 
-## Specular Is Separate {#鏡面は別}
+## 鏡面は別
 
 ライトマップが保存するのは、拡散の間接光だけです。鏡面反射（周りの景色の映り込み）は含みません。鏡面は視線に依存するので、1 つの値としてテクスチャに焼いておくことができないからです（[Diffuse and Specular](../theory/diffuse-specular.md)）。鏡面反射は、[反射プローブ](../../reflections/probes/index.md)や SSR が担当します。ライトマップだけを使うと、つるつるした面が周りを映さず、違和感が出ます。
 
-## Combining with Moving Objects {#動く物体との併用}
+## 動く物体との併用
 
 ライトマップは、メッシュの表面（UV2）に焼き込むため、動く物体・キャラクターには使えません。動く物体は、位置が変わるたびに受ける間接光が変わるからです。そこで、空間の点に間接光を保存した[ライト プローブ](../probes/index.md)から、周囲の間接光を受け取ります。静的な背景はライトマップ、動く物はプローブ、というのが標準的な組み合わせです。
 
@@ -26,23 +26,23 @@ tags:
 
 限界もあります。動く物体が背景に落とす間接光（キャラクターの赤い服が壁をほんのり赤くする）は、ライトマップに反映されません。ライトマップは焼き込み済みで、動く物体の存在を知らないためです。また、動く物体が背景に作る接触の暗さは、AO で補います（[AO](../../ao/index.md)）。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "動く物体だけ、背景と明るさが合わない"
     **ライトプローブ**を置いて、**間接光を揃える**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **鏡面は反射の手法で、動く物体はプローブで**
 
-## References {#参考}
+## 参考
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Lightmaps](index.md)
 - [Probe GI](../probes/index.md)

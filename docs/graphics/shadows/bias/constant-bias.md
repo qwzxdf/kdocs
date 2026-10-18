@@ -14,7 +14,7 @@ tags:
     - **値は、シーンの大きさと深度の精度で決まる**。
     - **他の方式と組み合わせる**前提で使う。
 
-## Fix 1: Constant Bias {#対策-1定数バイアス}
+## 対策 1：定数バイアス
 **比較する深度から、一定の値を引きます**。
 
 ```hlsl
@@ -57,23 +57,23 @@ float depth = ndc.z - 0.001;
 
 <!-- fig:bias-needed:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "定数バイアスだけで調整して、斜めの面と正面を両立できない"
     **スロープ スケールや法線オフセットを併用**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **定数バイアス ＝ 一定の値を足す**
     - [x] **単独では不十分**。**併用が前提**
 
-## References {#参考}
+## 参考
 
 - Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shadow Bias](index.md)
 - [Slope-Scale Bias](slope-scale-bias.md)

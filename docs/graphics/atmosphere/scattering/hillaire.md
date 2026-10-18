@@ -15,7 +15,7 @@ tags:
     - **空気遠近法 LUT**：カメラからの距離ごとの散乱。
     - **動的に更新できる**（時刻・天候）。
 
-## Hillaire 2020: Four LUTs {#hillaire-20204-つの-lut}
+## Hillaire 2020：4 つの LUT
 <strong>Hillaire（2020, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"）</strong>は、**軽い LUT を毎フレーム更新する**方式です。**大気の組成（霧の濃さ・時間帯）を動的に変えられる**のが**強み**で、**Unreal Engine の SkyAtmosphere**などに**使われています**。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="Hillaire の 4 つの LUT">
@@ -40,9 +40,9 @@ tags:
 | **透過率 LUT** | <strong>(高さ, 太陽の天頂角) → 大気の外までの透過率</strong>（**ほぼ固定。大気の組成が変わると更新**） |
 | **多重散乱 LUT** | <strong>(高さ, 太陽の天頂角) → 多重散乱の寄与</strong>（**近似**） |
 | **スカイビュー LUT** | **カメラ位置での全方向の空の色**（**緯度経度で圧縮**。**地平線付近を細かく取る**） |
-| **空気遠近法 LUT** | **カメラ前方の froxel**（**視錐台の 3D 格子**）**ごとの散乱光と透過率**。**物体への霞に使う**（[距離フォグ](../aerial-fog/index.md)） |
+| **空気遠近法 LUT** | **カメラ前方の froxel**（**視錐台の 3D 格子**）**ごとの散乱光と透過率**。**物体への霞に使う**（[Aerial Perspective and Fog](../aerial-fog/index.md)） |
 
-### Tricks in the Sky-View LUT {#スカイビュー-lut-の工夫}
+### スカイビュー LUT の工夫
 
 **空の色は地平線付近で急に変わります**。**天頂角をそのまま格子にすると、地平線の解像度が足りません**。**非線形な割り当て**で**地平線付近を細かく取ります**。
 
@@ -62,14 +62,14 @@ float SkyViewV(float view_zenith_cos, float horizon_cos) {
 
 **平方根で割り当てる**ことで、**地平線の周り（v = 0.5）が細かく**なります。
 
-### Runtime Flow {#実行時の流れ}
+### 実行時の流れ
 
 | 手順 | 内容 |
 | --- | --- |
 | **① LUT 更新** | **透過率・多重散乱・スカイビュー・空気遠近法**を**コンピュートで更新** |
 | **② 空を描く** | **ピクセルの視線から、スカイビュー LUT を引く**（1 回の表引き） |
 | **③ 太陽の円盤** | **透過率 LUT で減衰させて足す** |
-| **④ 物体にかける** | **空気遠近法 LUT で、物体の色を霞ませる**（[距離フォグ](../aerial-fog/index.md)） |
+| **④ 物体にかける** | **空気遠近法 LUT で、物体の色を霞ませる**（[Aerial Perspective and Fog](../aerial-fog/index.md)） |
 
 
 原典は、Hillaire の "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（Eurographics Symposium on Rendering 2020）です。この方式の特長は、Bruneton の 4D テーブルを、毎フレーム更新できる小さな LUT に分解したことです。LUT が小さいので、大気の組成（ミーの密度、オゾンの量）をリアルタイムに変えて、天候の変化も表現できます。モバイルから高性能 PC まで、LUT の解像度を変えるだけで対応でき、Unreal Engine の Sky Atmosphere などに採用されています。
@@ -78,25 +78,25 @@ float SkyViewV(float view_zenith_cos, float horizon_cos) {
 
 **LUT は小さい**ので<strong>毎フレーム更新しても軽く（0.1〜0.3 ms 程度）</strong>、**時刻・天気・大気の濃さを動的に変えられます**。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "LUT の解像度が低く、空にバンディング"
     **解像度を上げる**・**非線形のマッピング**を**使う**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **4 つの小さな LUT で、動的な大気**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Atmospheric Scattering](index.md)
 - [Multiple Scattering](multiple-scattering.md)
-- [空気遠近法](../aerial-fog/index.md)
+- [Aerial Perspective and Fog](../aerial-fog/index.md)

@@ -14,7 +14,7 @@ tags:
     - **区画ごとに行う**と、**効率的**。
     - **GPU カリングで、インスタンスごとに判定**。
 
-## Culling {#カリング}
+## カリング
 **画面に映らない・遠すぎる植生は、描きません**。
 
 | 種類 | 内容 |
@@ -42,23 +42,23 @@ void CullInstances(uint3 id : SV_DispatchThreadID) {
 
 詳しい構成は、[GPU Driven](../../../rendering/index.md) と同じ考え方です。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "遠くの草が、急に消える"
     **距離でフェード**させる。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **画面外・遠方・隠れた草を、描かない**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Vegetation](index.md)
 - [Instancing](instancing.md)

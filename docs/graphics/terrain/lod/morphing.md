@@ -60,7 +60,7 @@ tags:
 
 <!-- fig:lod-morph:end -->
 
-## Morphing {#モーフィング}
+## モーフィング
 <strong>LOD が切り替わる瞬間に、地形の形が急に変わると「ポップ」</strong>が見えます。**モーフィング**は、**切り替わる手前から、細かい側の頂点を粗い側の位置へ滑らかに寄せる**手法です。
 
 **粗い LOD では、頂点が 1 つおきに間引かれる**ので、**間引かれる側の頂点を両隣の頂点の中点へ寄せます**。
@@ -89,23 +89,23 @@ float height = SampleHeight(xz);
 | **効果** | **切り替え時に形が同じ**になり、**ポップが消える** |
 | **高さも補間** | **XZ を寄せたうえで高さを読み直す** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "LOD の切り替わりで、地形がポップする"
     **モーフィング**を入れる。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **切り替えの手前で、粗い位置へ寄せる**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain LOD](index.md)
 - [CDLOD](cdlod.md)

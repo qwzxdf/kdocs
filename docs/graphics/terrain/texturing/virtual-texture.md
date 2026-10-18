@@ -14,7 +14,7 @@ tags:
     - **ページ テーブルで、仮想アドレスを引く**。
     - **複雑だが、広大な地形では強力**。
 
-## Virtual Texturing {#仮想テクスチャ}
+## 仮想テクスチャ
 **地形全体に固有のテクスチャを描きたい**（**手描きの道・足跡・建物の跡**）とき、<strong>巨大なテクスチャ（例：128K×128K）</strong>が**必要**になりますが**メモリに全部は載せられません**。**仮想テクスチャ**（**Sparse Virtual Texture**）は、**見える部分を必要な解像度でタイル単位に読み込み**ます。
 
 | 要素 | 内容 |
@@ -29,23 +29,23 @@ tags:
 
 ランタイム仮想テクスチャ（RVT）の利点は、ピクセルごとの合成を省略できること、地形全体の巨大な固有テクスチャを持てること、デカールを焼き込めることです。欠点は、仕組みが複雑なことと、フィードバックの遅延で一瞬ぼやける（ポップイン）こと、メモリの管理が必要なことです。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "近づいた時、テクスチャがぼやけて、後から鮮明になる"
     **先読み**を**強める**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **必要なタイルだけ、メモリに載せる**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain Texturing](index.md)
-- [デカールと道](decals.md)
+- [Terrain Decals and Roads](decals.md)

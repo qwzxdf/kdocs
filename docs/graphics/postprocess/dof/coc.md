@@ -17,7 +17,7 @@ tags:
     - <strong>画素数に換算し、最大値でクランプ</strong>する（<strong>コストの上限</strong>）。
     - <strong>線形な深度</strong>（ビュー空間の z）を使う。
 
-## How the Optics Work {#光学の仕組み}
+## 光学の仕組み
 
 **レンズはある距離の点をセンサー上の 1 点に集めます**（**ピントが合う距離**）。**それより近い点・遠い点はセンサーの前や後ろで像を結び、センサー上では広がった円**になります。
 
@@ -35,7 +35,7 @@ tags:
 <text x="300" y="232" style="font-size:12px">像を結ぶ点がセンサーの手前 → センサー上では光が広がる</text>
 </svg>
 
-## From the Thin-Lens Formula {#薄いレンズの式から}
+## 薄いレンズの式から
 
 **薄いレンズの式**から、**CoC の直径**（**センサー上の長さ**）が**導けます**。
 
@@ -111,7 +111,7 @@ tags:
 
 <!-- fig:coc-graph:end -->
 
-## Shape of the CoC Graph {#coc-のグラフの形}
+## CoC のグラフの形
 
 **被写体の距離 S₂ を横軸**にすると、**CoC は次の形**になります。
 
@@ -158,7 +158,7 @@ float SignedCocPixels(float linear_depth) {
 
 **単位をそろえる**ことが**大切**です（**焦点距離・距離・センサー高さをすべてミリメートルかメートル**に）。
 
-## A Simple Formula for Artists {#アーティスト向けの簡易式}
+## アーティスト向けの簡易式
 
 **物理式はパラメータの意味が直感的でない**ことがあります。<strong>「ピント距離・ピントが合う幅・ぼかしの強さ」</strong>だけで**決める簡易式**も**よく使われます**。
 
@@ -172,18 +172,18 @@ float SimpleCoc(float linear_depth, float focus, float range, float scale) {
 
 簡易版のパラメータです。`focus` はピント距離、`range` はピントが十分に合って見える幅（この幅で最大のボケに達する）、`scale` はぼかしの最大強さ（画素）です。
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
 | **物理式を使い、カメラのパラメータをそのまま出す** | **シネマ カメラのように、F 値・焦点距離で直感的に** |
 | **ピント距離を注視点から自動で決める** | **画面中心の深度を読んで、ピント距離を追従**（**オートフォーカス**） |
-| **ピントの移動をなめらかに** | **ピント距離を指数的に追従させる**（[自動露出](../tonemapping/auto-exposure.md)と同じ考え方） |
+| **ピントの移動をなめらかに** | **ピント距離を指数的に追従させる**（[Auto Exposure](../tonemapping/auto-exposure.md)と同じ考え方） |
 | **CoC を専用のバッファに保存** | <strong>カラーのアルファに入れる（FP16）</strong>と、**読み込みが 1 回で済む** |
 | **最大 CoC でクランプ** | **コストの上限を保証** |
 | **半解像度で処理** | **CoC も半解像度で扱い、コストを 1/4** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "非線形の深度バッファの値を、そのまま CoC の計算に使う"
     **ビュー空間の線形な z に直してから**使う。
@@ -197,7 +197,7 @@ float SimpleCoc(float linear_depth, float focus, float range, float scale) {
 ??? failure "ピント距離が、画面中心の深度に追従せず、ガクガク動く"
     **ピント距離を時間で滑らかに追従**させる。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] CoC ＝ <strong>ピント外の点が、センサー上に作る円</strong>。<strong>大きさ ＝ ボケの大きさ</strong>
@@ -206,13 +206,13 @@ float SimpleCoc(float linear_depth, float focus, float range, float scale) {
     - [x] <strong>画素数に換算し、最大値でクランプ</strong>
     - [x] <strong>線形な深度</strong>を使う。<strong>単位をそろえる</strong>
 
-## References {#参考}
+## 参考
 
 - Potmesil & Chakravarty, "A Lens and Aperture Camera Model for Synthetic Image Generation"（SIGGRAPH 1981）
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 - Wikipedia, "Circle of confusion"
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Depth of Field (DOF)](index.md)
 - [Gather Method](gather.md)

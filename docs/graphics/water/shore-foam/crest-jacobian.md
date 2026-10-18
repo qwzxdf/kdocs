@@ -14,7 +14,7 @@ tags:
     - **Gerstner 波・FFT で、計算できる**。
     - **しきい値を決めて、泡のマスクにする**。
 
-## Crest Foam: The Jacobian {#波頂の泡ヤコビアン}
+## 波頂の泡：ヤコビアン
 **波が尖りすぎると頂が折れて砕けます**。**折れる所は水平変位の面積が潰れる所**で、<strong>ヤコビアン（変位の面積比）</strong>で**検出できます**。
 
 <strong>水面の位置を `P = P₀ + D(P₀)`（`D` は水平変位）</strong>とすると**面積の変化率**は**次の行列式**です。
@@ -457,24 +457,24 @@ float crest_mask = saturate((foam_threshold - jacobian) / foam_softness);
 
 <!-- fig:jacobian-fold:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "波頭に、泡がまったく出ない"
     **ヤコビアンのしきい値**を**調整**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **波が尖る所に、泡**
     - [x] **ヤコビアンで測る**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shore Foam](index.md)
 - [Gerstner Waves](../waves/gerstner.md)

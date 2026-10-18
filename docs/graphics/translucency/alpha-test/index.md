@@ -8,7 +8,7 @@ tags:
 
 **アルファ テストは、アルファ値がしきい値より小さい画素を、捨てる（clip する）手法**で、**葉・フェンス・髪など、「ある・ない」の透明**に使います。**混ぜないので、ソートが不要**ですが、**縁がギザギザになる**のが**欠点**です。このセクションでは、**clip の基本・Alpha to Coverage・ハッシュド アルファ・ディザ・パフォーマンス・方式の比較**を、**1 つずつ別のページ**で説明します。
 
-## Basic Alpha Test with clip {#clip-による基本のアルファ-テスト}
+## clip による基本のアルファ テスト
 **ピクセル シェーダーで、アルファが閾値未満なら、その画素を捨てます**。
 
 ```hlsl
@@ -28,18 +28,18 @@ float4 PSMain(VsOutput input) : SV_Target {
 
 **不透明と同じパス**で描け、**ソート不要**です。**葉・草・金網**は、**これで十分**なことが多いです。
 
-## Drawbacks of Alpha Test {#アルファ-テストの欠点}
-### Jagged Edges {#縁がギザギザ}
+## アルファ テストの欠点
+### 縁がギザギザ
 
 **アルファの境目を、0 か 1 で切る**ので、**縁が階段状**になります（**エイリアシング**）。**MSAA でも、`clip` の結果は、画素単位**なので、**滑らかになりません**。
 
-### Distant Leaves Fade with Mips {#ミップで遠くの葉が薄くなる}
+### ミップで遠くの葉が薄くなる
 
 **葉のテクスチャを、ミップ マップで縮小**すると、**アルファ チャンネルも平均**されて、**遠くで、アルファが全体に低くなります**。**閾値 0.5 を超える画素が減り、遠くの木が、スカスカ**に見えます。
 
 葉のテクスチャをミップで縮小すると、アルファ チャンネルも平均されます。近いときは、ミップ 0 で葉の形が正しく見えます。遠いときは、高いミップでアルファが平均されて、0.5 未満の画素が多くなり、葉が消えます。
 
-### Fix: Preserve Mip Coverage {#対策ミップの面積を保つカバレッジ保存}
+### 対策：ミップの面積を保つ（カバレッジ保存）
 
 **ミップごとに、アルファの閾値を超える画素の割合（カバレッジ）が、元と同じになる**よう、**アルファを調整**します。
 
@@ -54,30 +54,30 @@ clip(alpha - 0.5);
 
 **ミップ生成の段階**で**カバレッジを保存**するのが、**正確**です（**テクスチャ ツールのオプション**）。
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
 | [Alpha to Coverage](alpha-to-coverage.md) | MSAA を使って、縁をなめらかに |
 | [Hashed Alpha](hashed-alpha.md) | 確率的に捨てて、TAA でなめらかに |
 | [Dithered Transparency](dither.md) | 距離・近さで、点々にして消す |
-| [パフォーマンス](performance.md) | Early-Z が効かない問題・影のパス |
+| [Performance and Shadow Passes](performance.md) | Early-Z が効かない問題・影のパス |
 | [Method Comparison](comparison.md) | どれを選ぶか |
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **clip で捨てる。混ぜないのでソート不要**
     - [x] **縁は、A2C・ハッシュドで改善**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Translucency](../index.md)
-- [アルファ ブレンド](../blending-sorting/index.md)
+- [Alpha Blending and Sorting](../blending-sorting/index.md)
 - [OIT](../oit/index.md)

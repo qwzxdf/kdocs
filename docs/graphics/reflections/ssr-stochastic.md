@@ -16,7 +16,7 @@ tags:
     - <strong>時間蓄積</strong>と<strong>バイラテラル フィルタ</strong>で、ノイズを消す。
     - 結果は<strong>BRDF の積分（スケール・バイアス）を掛けて</strong>合成する。
 
-## The Idea: Rough Reflections with Monte Carlo {#発想粗い反射をモンテカルロ法で}
+## 発想：粗い反射をモンテカルロ法で
 
 鏡面の出射光は、次の積分でした（[Reflections](index.md)）。
 
@@ -324,7 +324,7 @@ tags:
 
 <!-- fig:roughness-lobe:end -->
 
-## GGX Distribution and Importance Sampling {#ggx-分布と重要度サンプリング}
+## GGX 分布と重要度サンプリング
 
 **GGX**（Trowbridge-Reitz）は、<strong>微小な面の向き（ハーフベクトル h）の分布 D(h)</strong> を表す、**標準的な式**です。
 
@@ -332,13 +332,13 @@ tags:
 
 記号の意味です。α は粗さのパラメータ（`roughness²` が一般的）です。n·h は法線とハーフベクトルのコサインで、1 に近いほど D が大きくなります（山の頂上）。
 
-### Generating Sample Directions {#サンプルの方向を作る}
+### サンプルの方向を作る
 
 **ランダムな h** を、**D(h) に比例する確率**で選べば、**効率のよい（分散の小さい）サンプル**になります。**反射方向 L は `reflect(−V, h)`** です。
 
 ランダムな h を D(h) に比例する確率で選ぶと、効率のよい（分散の小さい）サンプルになります。手順は 3 つです。GGX の分布（あるいは可視法線の分布）から、ランダムに h を選びます。反射方向を `L = reflect(−V, h)` で作ります。最後に、`L·N < 0`（面の裏側）なら無効とし、再サンプルするか、寄与を 0 にします。
 
-### Visible Normal Sampling (VNDF) {#可視法線サンプリングvndf}
+### 可視法線サンプリング（VNDF）
 
 素朴な GGX サンプリングは、**視線から見えない向き**（裏向きの微小面）も選んで**無駄**（無効なレイ）が多くなります。<strong>可視法線の分布（VNDF）</strong>は、**視線 V から見える向きだけ**を、確率的に選ぶので**無駄が少なく、ノイズが小さい**です（Heitz, 2018）。
 
@@ -375,7 +375,7 @@ float3 SampleGGXVNDF(float3 view_ts, float alpha, float2 u) {
 
 式の項は、次のとおりです。G1(V) は、視線方向の遮蔽関数（Smith の G1）で、見える割合を表します。`4 (V·h)` は、h の分布から反射方向 L の分布へ変換する係数（ヤコビアン）です。
 
-## Overall Flow {#全体の流れ}
+## 全体の流れ
 
 | パス | 内容 |
 | --- | --- |
@@ -387,7 +387,7 @@ float3 SampleGGXVNDF(float3 view_ts, float alpha, float2 u) {
 | **⑥ バイラテラル フィルタ** | 粗さ・深度・法線を考慮して、ノイズを消す |
 | **⑦ 合成** | <strong>BRDF の積分（スケール・バイアス）</strong>を掛け、**フォールバックと混ぜる** |
 
-## Spatial Resolve: Reusing Neighboring Rays {#空間リゾルブ近隣のレイの再利用}
+## 空間リゾルブ：近隣のレイの再利用
 
 **1 画素 1 本**のレイでは、ノイズが大きすぎます。**近隣の画素（たとえば 4〜9 個）が、それぞれ飛ばしたレイの当たり点**を、**自分のサンプルとして再利用**します。
 
@@ -432,7 +432,7 @@ float4 ResolveSpatial(int2 pixel) {
 | **有効性** | **深度・法線が近くない**近隣は除外（別の面） |
 | **サンプルの偏り** | 大きな近隣の範囲（ぼけすぎ）を避けるため、**範囲は小さく** |
 
-## Temporal Accumulation {#時間蓄積}
+## 時間蓄積
 
 **フレームごとにランダムな方向**を変えて、**過去のフレームと平均**します。
 
@@ -446,13 +446,13 @@ float4 ResolveSpatial(int2 pixel) {
 
 **粗い面**は**反射がぼけている**ので**少々のずれは目立たず**、**強く蓄積**できます。**鏡面に近い面**は、**くっきり**しているので**ずれ（ゴースト）が目立ち**、**慎重に**扱います。
 
-### Motion of Reflections (Virtual Position) {#反射の動き仮想的な位置}
+### 反射の動き（仮想的な位置）
 
 反射像は**表面の動きと映っている物の動きとカメラの動き**で**複雑に動き**ます。**表面の動きだけ**で再投影すると、**反射像が引きずられます**。
 
 再投影の方法は、反射の種類で変わります。表面の動きベクトルは、粗い反射には十分ですが、鏡面に近いとゴーストが出ます。当たり点の動き（レイの先の動き）を使うと、鏡面反射でも映った物体の動きに追従します。仮想的な位置（反射像が鏡の向こうに見える位置）を使う方法は、鏡面反射に最適ですが、複雑です。
 
-## Filtering and Denoising {#フィルタとノイズ除去}
+## フィルタとノイズ除去
 
 リゾルブと時間蓄積のあとも、**ノイズが残る**ことがあります。**空間フィルタ**（バイラテラル）で、**さらに滑らか**にします。
 
@@ -463,7 +463,7 @@ float4 ResolveSpatial(int2 pixel) {
 | **ホタル（極端に明るい点）の除去** | **色の上限**（輝度クランプ）、**外れ値の除去** |
 | **解像度を下げて計算** | 粗い反射は半分・4 分の 1 でも十分 |
 
-## Multiplying by the BRDF Integral {#brdf-の積分を掛ける}
+## BRDF の積分を掛ける
 
 確率的 SSR の出力は、<strong>「その方向の景色の（重み付き）平均」</strong>です。**反射の最終的な明るさ**には、**BRDF の積分**（Split-Sum の第 2 項）を掛けます（[プローブ](probes/index.md)）。
 
@@ -475,7 +475,7 @@ float3 specular = ssr_color * (F0 * brdf.x + brdf.y);
 
 **プローブ**で使うのと**同じ式**なので、**SSR とプローブを同じ調子で混ぜられます**（[フォールバック](ssr-fallback.md)）。
 
-## Tuning Cost and Quality {#コストと品質の調整}
+## コストと品質の調整
 
 | 設定 | 品質への影響 | コスト |
 | --- | --- | --- |
@@ -485,7 +485,7 @@ float3 specular = ssr_color * (F0 * brdf.x + brdf.y);
 | **最大レイ長・Hi-Z 反復数** | 長いと遠くの映り込み | 増える |
 | **粗さの上限** | これ以上の粗さは、SSR をやめる（プローブへ） | 大きく減る |
 
-## Pros and Cons {#長所と短所}
+## 長所と短所
 
 | 長所 | 短所 |
 | --- | --- |
@@ -499,7 +499,7 @@ float3 specular = ssr_color * (F0 * brdf.x + brdf.y);
 
 原典は、Stachowiak と Uludag の "Stochastic Screen-Space Reflections"（SIGGRAPH 2015、Frostbite）と、Heitz の可視法線サンプリング（2018）です。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "GGX のサンプリングで、裏向き（地平線の下）のレイを使って、暗い縞・ノイズ"
     `L·N < 0` を**無効**にします。**VNDF** で無駄を減らします。
@@ -516,7 +516,7 @@ float3 specular = ssr_color * (F0 * brdf.x + brdf.y);
 ??? failure "BRDF の積分（スケール・バイアス）を掛け忘れて、反射が明るすぎる・暗すぎる"
     Split-Sum の第 2 項を、掛けます。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 確率的 SSR ＝ <strong>粗さに合わせた GGX（VNDF）で、画素ごとにランダムなレイを 1 本飛ばす</strong>
@@ -525,16 +525,16 @@ float3 specular = ssr_color * (F0 * brdf.x + brdf.y);
     - [x] <strong>BRDF の積分（スケール・バイアス）</strong>を掛けて、<strong>プローブと同じ調子</strong>で合成
     - [x] レイトレ反射と、<strong>ほぼ同じ構造</strong>（レイ生成 → 当たり → デノイズ）
 
-## References {#参考}
+## 参考
 
 - Stachowiak, Uludag, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015 Advances in Real-Time Rendering、Frostbite）
 - Heitz, "Sampling the GGX Distribution of Visible Normals"（Journal of Computer Graphics Techniques, 2018）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Reflections](index.md)
 - [Hi-Z SSR](ssr-hiz.md)
 - [SSR Fallback and Compositing](ssr-fallback.md)
-- [レイトレース反射](rt-reflections/index.md)
+- [Ray-Traced Reflections](rt-reflections/index.md)
 - [PBR](../../3d/pbr.md)
 - [AO Filtering](../ao/filtering/index.md)

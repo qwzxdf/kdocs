@@ -14,7 +14,7 @@ tags:
     - **画面空間の微分（`ddx`・`ddy`）**から、**光の空間での勾配**を求める。
     - **広い PCF・PCSS で効果が大きい**。
 
-## Fix 4: Receiver Plane Depth Bias {#対策-4受け手平面バイアスreceiver-plane-depth-bias}
+## 対策 4：受け手平面バイアス（Receiver Plane Depth Bias）
 **PCF**（複数点のサンプル）と組み合わせると**周りのサンプル点**の深度を、**中心の点と同じ面の上にあるもの**として**補正**する必要があります。**面の傾き**から、**サンプルごとに深度を補正**します。
 
 **シャドウ マップの座標 (u, v) が動いたときの面の深度の変化**（`dz/du`、`dz/dv`）を、**画面上の微分**（`ddx`・`ddy`）から求めます。
@@ -48,23 +48,23 @@ for (each sample offset) {
 
 原典は、Isidoro の "Shadow Mapping: GPU-based Tips and Techniques"（GDC 2006）です。PCF では、中心の画素の深度勾配から、サンプル位置ごとの本来の深度を外挿して比べることで、広いカーネルでも自己影を避けます。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "平らな面の端で、勾配が壊れて、影がおかしい"
     **勾配に上限を設ける**。**ポリゴンの縁**に注意。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **面の傾きから、周りのサンプルの深度を補正**
     - [x] **広い PCF でアクネを防ぐ**
 
-## References {#参考}
+## 参考
 
 - Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shadow Bias](index.md)
 - [Normal Offset](normal-offset.md)

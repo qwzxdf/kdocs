@@ -14,16 +14,16 @@ tags:
     - **ずらす量 ＝ 屈折の強さ**。
     - **画面の外は読めない**ので、**端で破綻**する。
 
-## Screen-Space Refraction {#画面空間の屈折}
+## 画面空間の屈折
 **屈折した光線を、本当に追跡する**（レイトレ）のは重いので、**ゲームでは、画面の画像を「背景」として、歪めて読む**方法が**標準**です。
 
-### Steps {#手順}
+### 手順
 
 画面空間屈折の手順は 3 段階です。不透明な物を、すべて描画します。この時点の画面（HDR カラー）を、別のテクスチャ（`scene_color_copy`）にコピーします。最後に、半透明を描くときに、ガラスの面で `scene_color_copy` を歪んだ UV で読み、背景とします。
 
 **なぜコピーが要るか**：**ガラスを描くレンダー ターゲットを、同時にテクスチャとして読めない**（**読み書きの競合**）ためです。
 
-### How to Distort the UV {#uv-の歪ませ方}
+### UV の歪ませ方
 
 **法線の XY 成分（ビュー空間）に応じて、UV をずらす**のが**簡易**です。
 
@@ -49,24 +49,24 @@ float3 background = scene_color_copy.Sample(linear_clamp, refract_uv).rgb;
 
 厚みを考慮した版のコードの要点です。`thickness` はガラスの厚みで、屈折した光が進む距離の見積もりです。固定値・テクスチャ・深度差から決めます。`sample_world` は、屈折光がガラスを出たあたりのワールド位置です。`refract_uv` は、その位置を画面に投影した UV で、ここの背景を読みます。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "画面の端で、屈折が引き伸ばされる"
     **端でずらす量を弱める**（フェード）。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **法線で UV をずらして、画面を読む**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Refraction](index.md)
-- [境界の問題](boundary.md)
+- [Refraction Boundary Problems](boundary.md)
 - [Fresnel](fresnel.md)

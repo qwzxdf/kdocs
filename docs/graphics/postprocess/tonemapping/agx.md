@@ -16,7 +16,7 @@ tags:
     - <strong>選ぶ基準</strong>：<strong>色の再現（忠実）か、映画的な絵（フィルム）か</strong>。
     - <strong>どれも露出の後・ガンマの前</strong>。
 
-## What Improved {#何が改善されたか}
+## 何が改善されたか
 
 **ACES や Hable では**、**R・G・B に別々に曲線を掛ける**ため、**明るい色の比率が崩れます**（**青い光が紫に赤が黄色に**）。**新しい方式は色空間を工夫したり、LUT で調整したり**して、**これを緩和**します。
 
@@ -103,7 +103,7 @@ Khronos PBR Neutral の特徴です。暗部から中間は曲線を掛けず、
 
 **映画的な絵ではなく、「見たままの色」が大切な場面**（**商品・建築・カスタマイズ画面**）に**向きます**。**ゲームでも色の正確さが大事な UI の 3D 表示**に**使えます**。
 
-## Choosing Between Them {#使い分け}
+## 使い分け
 
 | 方式 | 絵の性格 | 色相 | コスト | 向く場面 |
 | --- | --- | --- | --- | --- |
@@ -112,16 +112,16 @@ Khronos PBR Neutral の特徴です。暗部から中間は曲線を掛けず、
 | **Tony McMapface** | **自然・ブルームと好相性** | **安定** | <strong>軽い（LUT）</strong> | **エフェクトが多い** |
 | **PBR Neutral** | **ほぼ素通し・忠実** | **ほぼ保つ** | **軽い** | **商品・色の正確さ** |
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
-| **ルックはトーンマップの後に分ける** | **AgX の「ルック」や、グレーディングを別の LUT に分ける**（[カラー グレーディング](../color-grading/index.md)） |
+| **ルックはトーンマップの後に分ける** | **AgX の「ルック」や、グレーディングを別の LUT に分ける**（[Color Grading](../color-grading/index.md)） |
 | **設定で切り替えられるようにする** | **ACES / AgX / Neutral をスイッチで**（**ユーザーの好み・ステージごと**） |
-| **HDR ディスプレイ用を別に用意** | **SDR の曲線をそのまま HDR に使わない**（[ガンマと HDR 出力](gamma-srgb.md)） |
+| **HDR ディスプレイ用を別に用意** | **SDR の曲線をそのまま HDR に使わない**（[Gamma and HDR Output](gamma-srgb.md)） |
 | **エフェクトの色を確認** | **選んだ曲線を通した見た目で、火・魔法の色を決める** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "AgX の行列や係数を、自分で書き写して、一部間違える"
     **公開されている実装をそのまま使う**。**テスト画像（グレースケールと彩度のグラデーション）で、確認**する。
@@ -135,7 +135,7 @@ Khronos PBR Neutral の特徴です。暗部から中間は曲線を掛けず、
 ??? failure "曲線を切り替えたら、全体の明るさが変わって、露出がずれる"
     **各曲線の中間灰の出力が違う**。**切り替えたら、露出補正で合わせる**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 新しい方式の狙い ＝ <strong>明るい彩度の高い色でも、色相が破綻しない</strong>
@@ -144,14 +144,14 @@ Khronos PBR Neutral の特徴です。暗部から中間は曲線を掛けず、
     - [x] <strong>PBR Neutral</strong> ＝ <strong>色の忠実さ重視</strong>（商品向け）
     - [x] <strong>曲線を替えたら、露出も見直す</strong>
 
-## References {#参考}
+## 参考
 
 - Sobotka, "AgX"（GitHub: sobotka/AgX）
 - Stachowiak, "Tony McMapface"（GitHub: h3r2tic/tony-mc-mapface）
 - Khronos, "PBR Neutral Tone Mapper"（KhronosGroup/ToneMapping）
 - Blender Foundation, "Color Management: AgX"
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Tone Mapping and Exposure](index.md)
 - [ACES](aces.md)

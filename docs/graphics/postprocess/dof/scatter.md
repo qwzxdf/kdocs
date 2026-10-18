@@ -16,7 +16,7 @@ tags:
     - <strong>明るさ</strong>：<strong>円盤は面積で割って、エネルギーを保存</strong>する。
     - <strong>描画順（奥から手前）</strong>が<strong>重要</strong>。
 
-## Difference from Gather {#ギャザーとの違い}
+## ギャザーとの違い
 
 | 項目 | ギャザー（集める） | スキャッター（散らす） |
 | --- | --- | --- |
@@ -47,11 +47,11 @@ tags:
 </g>
 </svg>
 
-## Implementation: Scattering with Sprites {#実装スプライトで散らす}
+## 実装：スプライトで散らす
 
 **各画素について、CoC の大きさの四角形（スプライト）を描き、円盤状のマスクで色を加算**します。
 
-### Method 1: Geometry Shader / Mesh Shader {#方式-1ジオメトリ-シェーダーメッシュ-シェーダー}
+### 方式 1：ジオメトリ シェーダー／メッシュ シェーダー
 
 **画素をポイントとして描き**、**ジオメトリ シェーダー（またはメッシュ シェーダー）で、CoC の大きさの四角形に拡大**します。
 
@@ -91,11 +91,11 @@ float4 PSMain(VSOutput input) : SV_Target {
 
 コードの要点です。円の面積で割るのは、エネルギー保存のためで、大きく広がっても全体の明るさは同じになります。加算ブレンド（ONE, ONE）で、円盤を重ねて足します。円盤のマスクは `length(uv) < 1` の内側だけで、縁は少し滑らかにします。
 
-### Method 2: Tiling with Compute {#方式-2コンピュートでタイル分け}
+### 方式 2：コンピュートでタイル分け
 
 **ボケの大きい画素だけを、コンピュートで分類してから描画**する方法もあります。**画素の数が多いので**ボケが大きい画素（CoC が閾値以上）だけ**を**スキャッター**します。
 
-## Hybrid (the Practical Standard) {#ハイブリッド実用の標準}
+## ハイブリッド（実用の標準）
 
 **全画素をスキャッター**すると**重すぎる**ので、**使い分けます**。
 
@@ -174,27 +174,27 @@ float4 PSMain(VSOutput input) : SV_Target {
 
 <!-- fig:dof-scatter-gather:end -->
 
-## Handling Brightness {#明るさの扱い}
+## 明るさの扱い
 
 **玉ボケの見た目は、元の点の「明るさ」で決まります**。**HDR の高い値（1 を超える）が、そのまま円盤に広がる**ことで、**明るい玉ボケ**が**できます**。
 
 玉ボケの見た目は、元の点の明るさで決まります。HDR の高い値（1 を超える）が、そのまま円盤に広がるので、明るい玉ボケができます。そのため、トーンマップの前の HDR で処理します。面積で割る（エネルギー保存）ことで、広げても合計の明るさは同じになり、円盤は薄くても十分明るくなります。極端に明るい 1 点が巨大な円盤になって目立つファイアフライには、輝度のクランプを併用します。
 
-## Cost {#コスト}
+## コスト
 
 コストです。ジオメトリ数は、スキャッターする画素の数で、数万〜数十万になります。フィルレートは、円盤の面積の合計で、大きいボケの画素が多いと爆発的に増えます。対策は、スキャッターを明るい画素だけに限定する、半解像度にする、タイルごとの上限を設ける、といった方法です。
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
 | **ハイブリッド** | **小さいボケはギャザー、大きく明るいボケだけスキャッター** |
 | **半解像度で描く** | **フィルレートを 1/4** |
 | **輝度クランプ** | **極端な点で巨大な円盤が出るのを防ぐ** |
-| <strong>円盤の中を均一でなく、「縁を明るく」</strong> | **実際のレンズの玉ボケ（縁が明るい）に近づく**（[ボケの形](bokeh-shape.md)） |
-| **奥から手前の順** | **前景・背景を別パス**（[前景と背景](near-far.md)） |
+| <strong>円盤の中を均一でなく、「縁を明るく」</strong> | **実際のレンズの玉ボケ（縁が明るい）に近づく**（[Bokeh Shape](bokeh-shape.md)） |
+| **奥から手前の順** | **前景・背景を別パス**（[Foreground and Background](near-far.md)） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "スキャッターで、画面全体が明るくなりすぎる"
     **面積で割っていない**。**エネルギー保存**にする。
@@ -208,7 +208,7 @@ float4 PSMain(VSOutput input) : SV_Target {
 ??? failure "前景と背景の円盤が、正しい順序で重ならない"
     **前景・背景を別々の画像に描き、合成**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] スキャッター ＝ <strong>各画素が、色を円盤として周りに広げる</strong>
@@ -217,13 +217,13 @@ float4 PSMain(VSOutput input) : SV_Target {
     - [x] <strong>ハイブリッド</strong>（<strong>小さいボケはギャザー</strong>）が<strong>実用的</strong>
     - [x] <strong>輝度クランプ</strong>と<strong>半解像度</strong>で<strong>コスト管理</strong>
 
-## References {#参考}
+## 参考
 
 - Sousa, "Graphics Gems from CryENGINE 3"（SIGGRAPH 2013）
 - McIntosh et al., "Efficiently Simulating the Bokeh of Polygonal Apertures in a Post-Process Depth of Field Shader"（2012）
 - Abadie, "A Life of a Bokeh"（SIGGRAPH 2018, DOOM）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Depth of Field (DOF)](index.md)
 - [Gather Method](gather.md)

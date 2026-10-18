@@ -16,7 +16,7 @@ tags:
     - <strong>線の太さ</strong>は<strong>サンプル間隔</strong>で調整する。<strong>距離で補正</strong>。
     - <strong>斜めの面で深度の差が出て、不要な線</strong>が出る → <strong>深度勾配で補正</strong>。
 
-## Three Kinds of Detection {#3-つの検出}
+## 3 つの検出
 
 **検出に使う画像**は、**不透明パスの出力**（**深度バッファ・法線バッファ・ID バッファ**）です。
 
@@ -35,7 +35,7 @@ tags:
 </g>
 </svg>
 
-## Sobel Filter {#sobel-フィルタ}
+## Sobel フィルタ
 
 <strong>画像の勾配（変化の大きさ）</strong>を**測る標準的な方法**が**Sobel フィルタ**です。**周囲 3×3 の画素に、重みを掛けて、縦・横の勾配を求めます**。
 
@@ -962,7 +962,7 @@ float Sobel(Texture2D<float> source, float2 uv, float2 texel) {
 
 <!-- fig:outline-edge-detect:end -->
 
-## Depth-Based Edges {#深度によるエッジ}
+## 深度によるエッジ
 
 **線形化した深度**に**Sobel を適用**し、**差が一定以上の所を線**に**します**。
 
@@ -977,7 +977,7 @@ float DepthEdge(float2 uv) {
 
 深度の扱いの要点です。線形な深度を使います（非線形な深度では遠くで差が出ません）。しきい値を深度に比例させます（遠い物体ほど深度の差が大きく出るため補正します）。斜めの面の誤検出は、地面のような斜めの面で、隣の画素の深度が少し違う（勾配）ことで起きるので、深度の勾配を法線から予測して差し引きます。
 
-### Countering False Detection on Slanted Surfaces {#斜めの面の誤検出の対策}
+### 斜めの面の誤検出の対策
 
 **斜めの面では隣の画素との深度の差が、自然に生じます**（**エッジではない**）。**法線と視線の角度**から、**その差の予想値**を**求め、予想を超える差だけをエッジ**とします。
 
@@ -991,7 +991,7 @@ float DepthEdgeCorrected(float2 uv, float3 normal, float3 view_dir) {
 }
 ```
 
-## Normal-Based Edges {#法線によるエッジ}
+## 法線によるエッジ
 
 **隣り合う法線の差（内積）が小さい所**が**折り目**です。
 
@@ -1007,7 +1007,7 @@ float NormalEdge(float2 uv) {
 
 法線の扱いの要点です。`1 − dot(n, n_neighbor)` は、同じ向きなら 0、直角なら 1 になります。法線マップの影響で、細かい凹凸の法線マップが入るとノイズになるので、ジオメトリの法線（法線マップなし）を別に使います。
 
-## ID-Based Edges {#id-によるエッジ}
+## ID によるエッジ
 
 **物体 ID・材質 ID を画素ごとに別のバッファへ書き**、**隣と ID が違えば線**とします。
 
@@ -1022,7 +1022,7 @@ float IdEdge(float2 uv) {
 }
 ```
 
-## Line Thickness {#線の太さ}
+## 線の太さ
 
 | 方法 | 内容 |
 | --- | --- |
@@ -1033,7 +1033,7 @@ float IdEdge(float2 uv) {
 
 **注意**：**間隔を広げると離れた 2 点の差を見るので、細かい形状の線が出にくく**なります。
 
-## Flicker and Stability {#ちらつきと安定}
+## ちらつきと安定
 
 **画面空間のエッジは、カメラが動くと検出される画素が変わり、線がちらつく**ことが**あります**。
 
@@ -1044,7 +1044,7 @@ float IdEdge(float2 uv) {
 | **アンチエイリアス済みの深度・法線から検出** | **ジャギーが少ない** |
 | **線をジオメトリ側（背面法）で出す部分を併用** | **外側の輪郭は背面法で安定** |
 
-## How to Color {#色の付け方}
+## 色の付け方
 
 | 方法 | 内容 |
 | --- | --- |
@@ -1053,7 +1053,7 @@ float IdEdge(float2 uv) {
 | **材質ごとの色** | **肌は赤っぽい、髪は暗い** |
 | **深度でフェード** | **遠くの線を薄く** |
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -1064,7 +1064,7 @@ float IdEdge(float2 uv) {
 | **背面法と併用** | **外側は背面法、内側は画面空間** |
 | **線の強さを `smoothstep`** | **滑らか** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "地面（斜めの面）に、縞のような線が出る"
     **深度の勾配補正**を入れる。
@@ -1078,7 +1078,7 @@ float IdEdge(float2 uv) {
 ??? failure "動くと線がちらつく"
     **`smoothstep` で滑らかに**、**TAA を併用**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 画面空間エッジ ＝ <strong>隣の画素との、深度・法線・ID の差が大きい所を線にする</strong>
@@ -1087,13 +1087,13 @@ float IdEdge(float2 uv) {
     - [x] <strong>斜めの面の誤検出</strong>は<strong>深度勾配の補正</strong>で防ぐ
     - [x] <strong>背面法と併用</strong>。<strong>TAA でちらつきを抑える</strong>
 
-## References {#参考}
+## 参考
 
 - Saito & Takahashi, "Comprehensible Rendering of 3-D Shapes"（SIGGRAPH 1990）
 - Decaudin, "Cartoon-Looking Rendering of 3D-Scenes"（1996）
 - Vergne et al., "Apparent Relief"（SIGGRAPH 2011）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Outlines and Toon](index.md)
 - [Inverted Hull Outlines](outline-hull.md)

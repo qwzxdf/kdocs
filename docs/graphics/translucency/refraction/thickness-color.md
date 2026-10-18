@@ -430,7 +430,7 @@ tags:
 
 <!-- fig:beer-thickness:end -->
 
-## Thickness and Color (Beer–Lambert Law) {#厚みと色ビアランバートの法則}
+## 厚みと色（ビア＝ランバートの法則）
 **色付きガラスや水は、厚いほど、光が吸収されて色が濃く**なります。
 
 <div class="formula">T = exp(−σ · d)　（T：透過率、σ：吸収係数（RGB）、d：厚み）</div>
@@ -447,24 +447,24 @@ float3 tinted_background = background * transmittance;
 
 **水深**（水面から底までの距離）は、**不透明の深度と、水面の深度の差**から**求められます**（[Water](../../water/index.md)）。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "厚いガラスも薄いガラスも、同じ色"
     **厚みで、濃さを変える**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **厚みが長いほど、色が濃い**
     - [x] **exp で吸収を表す**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Refraction](index.md)
 - [Thin and Thick Glass](thin-thick.md)

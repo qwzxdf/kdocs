@@ -14,18 +14,18 @@ tags:
     - **距離フェード**：**シャドウ マップの最大距離で、影を滑らかに消す**。
     - **遠くの影は、ベイク・距離場・簡易方式**。
 
-## Distant Shadows {#遠景の影}
+## 遠景の影
 **カスケードの最大距離**を超えた先は、**影がなくなります**。**遠景の山・建物**の**大きな影**を**どう扱うか**です。
 
 | 方法 | 内容 |
 | --- | --- |
-| **フェードアウト** | **最大距離で影を徐々に消す**（[カスケード](../cascaded.md)） |
+| **フェードアウト** | **最大距離で影を徐々に消す**（[Cascaded Shadow Maps (CSM)](../cascaded.md)） |
 | **ベイク済みの影** | **静的な遠景**は**ライトマップ・影のマスク**に**ベイク** |
-| **距離場の影** | **遠景に距離場の影**を使う（[距離場の影](../sdf-shadows.md)） |
+| **距離場の影** | **遠景に距離場の影**を使う（[Distance Field Shadows](../sdf-shadows.md)） |
 | **大きな最後のカスケード** | **最後のカスケードを非常に大きく**（粗いが**遠くの大きな影**は捉える） |
 | **雲の影** | **雲のテクスチャを地面に投影して**、**大規模な、移動する影**を**安く**表現 |
 
-### Cloud Shadows {#雲の影}
+### 雲の影
 
 **雲のアルファ テクスチャ**を、**太陽の方向**から**地面に投影**し、**ライティングに乗算**します。**時間でスクロール**させれば、**雲の影がゆっくり動く**様子になります。
 
@@ -35,23 +35,23 @@ float cloud_shadow = lerp(1.0, cloud_tex.Sample(linear_sampler, cloud_uv).r, clo
 lit *= cloud_shadow;
 ```
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "シャドウ マップの最大距離で、影が急に消える"
     **最大距離の手前から、滑らかにフェード**させる。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **遠景は別の方法で影を表す**
     - [x] **雲の影・距離フェードが定番**
 
-## References {#参考}
+## 参考
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Special Cases](index.md)
 - [Cascaded Shadow Maps (CSM)](../cascaded.md)

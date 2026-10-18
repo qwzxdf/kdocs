@@ -158,7 +158,7 @@ tags:
 
 <!-- fig:snell-refraction:end -->
 
-## The Principle of Refraction {#屈折の原理}
+## 屈折の原理
 **光が、空気からガラスや水へ入るとき、境目で曲がります**。<strong>曲がり方は、媒質ごとの「屈折率」</strong>で決まります。
 
 | 媒質 | 屈折率（n） |
@@ -168,7 +168,7 @@ tags:
 | **ガラス** | **約 1.5** |
 | **ダイヤモンド** | **約 2.4** |
 
-### Snell's Law {#スネルの法則}
+### スネルの法則
 
 <div class="formula">n₁ · sin θ₁ = n₂ · sin θ₂</div>
 
@@ -193,7 +193,7 @@ tags:
 <path d="M 390 175 A 35 35 0 0 0 407 170" fill="none" stroke="#4c8bf5" stroke-width="2"/><text x="406" y="196" style="font-size:12px;fill:#4c8bf5">θ₂（θ₁ より小さい）</text>
 </svg>
 
-### HLSL refract {#hlsl-の-refract}
+### HLSL の refract
 
 **HLSL の組み込み関数 `refract`** が、**屈折した向き**を返します。
 
@@ -210,31 +210,31 @@ float3 refracted = refract(incident, normal, eta);
 
 **視線方向**（カメラから面へ向かう向き）を `incident` に渡します。**反射は `reflect(incident, normal)`** で得られます。
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
 | [Screen-Space Refraction](screen-space.md) | 法線で画面をずらす |
-| [境界の問題](boundary.md) | 屈折の先に、手前の物が混ざる問題 |
+| [Refraction Boundary Problems](boundary.md) | 屈折の先に、手前の物が混ざる問題 |
 | [Fresnel](fresnel.md) | 反射と屈折の割合 |
 | [Thickness and Color](thickness-color.md) | ビア＝ランバートの法則 |
 | [Dispersion](dispersion.md) | 色ごとにずらす |
 | [Thin and Thick Glass](thin-thick.md) | 窓ガラスと、ガラスの塊 |
 | [Implementation Overview and Cost](implementation.md) | 手順・限界 |
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **屈折は、画面をずらして読む近似が基本**
     - [x] **フレネル・厚み・色で、リアルになる**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Translucency](../index.md)
 - [Water Shading](../../water/shading/index.md)

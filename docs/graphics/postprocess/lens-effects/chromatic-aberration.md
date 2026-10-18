@@ -16,7 +16,7 @@ tags:
     - <strong>強さは 0.005〜0.02 程度</strong>。<strong>強すぎると画面が溶けて見え、酔う</strong>。
     - <strong>演出</strong>：<strong>被ダメージ・ワープ・ホラー・グリッチ</strong>。<strong>一時的に強くする</strong>。
 
-## Why It Happens {#起きる理由}
+## 起きる理由
 
 **ガラスの屈折率は、光の波長で少し違います**（**青は強く曲がり、赤は弱く曲がる**）。**そのため、レンズに入った白い光は、色ごとに少しずつ違う場所に像を結びます**。
 
@@ -36,7 +36,7 @@ tags:
 
 色収差には 2 種類あります。軸上色収差は、色ごとにピントの位置が違うもので、ぼけた部分に色のにじみが出ます。倍率色収差は、色ごとに像の倍率が違うもので、画面の端で輪郭が色ずれします。ゲームで再現するのは、主に倍率色収差です。レンズの屈折率が波長ごとに違うことが原因です。
 
-## Basic Implementation {#基本の実装}
+## 基本の実装
 
 **緑を基準に赤と青を画面中心からの距離に応じて、逆方向にずらしてサンプル**します。
 
@@ -205,7 +205,7 @@ float3 ChromaticAberration(float2 uv, float intensity) {
 
 <!-- fig:chromatic-aberration-compare:end -->
 
-## High-Quality Version: Many Samples {#高品質版多サンプル}
+## 高品質版：多サンプル
 
 **3 チャンネルだけをずらす**と、**縁取りが赤と青の 2 色で、くっきり段になります**。**実際のレンズでは、波長ごとに連続的にずれる**ので、**縁取りが虹のように滑らか**です。
 
@@ -234,7 +234,7 @@ float3 ChromaticAberrationSpectral(float2 uv, float intensity) {
 | **サンプル数** | **8 程度**。**多いほど虹が滑らか** |
 | **正規化** | **重みの合計で割る**（**明るさを保つ**） |
 
-## Usage {#使い方}
+## 使い方
 
 | 設定 | 内容 |
 | --- | --- |
@@ -243,7 +243,7 @@ float3 ChromaticAberrationSpectral(float2 uv, float intensity) {
 | **向き** | **画面中心から放射状**（**倍率色収差**） |
 | **順序** | <strong>トーンマップ後（LDR）</strong>に**かける** |
 
-### Use in Direction and Effects {#演出での使い方}
+### 演出での使い方
 
 | 場面 | 使い方 |
 | --- | --- |
@@ -253,7 +253,7 @@ float3 ChromaticAberrationSpectral(float2 uv, float intensity) {
 | **グリッチ** | **横方向だけ、大きくずらす** |
 | **サイバーパンク** | **常時、控えめにかける** |
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -264,7 +264,7 @@ float3 ChromaticAberrationSpectral(float2 uv, float intensity) {
 | **オプションで切れる／強さ調整** | **酔いやすい人・アクセシビリティ** |
 | **UI の前に** | **文字が色ずれしない** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "強くしすぎて、画面が溶けて見え、酔う"
     **0.005〜0.02**。**オプションで調整**できるように。
@@ -278,7 +278,7 @@ float3 ChromaticAberrationSpectral(float2 uv, float intensity) {
 ??? failure "縁取りが赤と青の 2 色だけで、安っぽい"
     **多サンプル（スペクトル）版**にする。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 色収差 ＝ <strong>波長ごとに屈折が違い、画面の端で赤・緑・青がずれる</strong>
@@ -287,15 +287,15 @@ float3 ChromaticAberrationSpectral(float2 uv, float intensity) {
     - [x] <strong>控えめに（0.005〜0.02）</strong>。<strong>演出では一時的に強く</strong>
     - [x] <strong>表現の好み</strong>。<strong>設定で切れるように</strong>
 
-## References {#参考}
+## 参考
 
 - Wikipedia, "Chromatic aberration"
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 - Pharr, Jakob, Humphreys, "Physically Based Rendering"（レンズのモデル）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Lens Effects](index.md)
 - [Vignette](vignette.md)
 - [Film Grain](film-grain.md)
-- [被写界深度](../dof/index.md)
+- [Depth of Field (DOF)](../dof/index.md)

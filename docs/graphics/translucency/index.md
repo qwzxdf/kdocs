@@ -8,16 +8,16 @@ tags:
 
 **ガラス・水・煙・炎・葉っぱ・髪の毛**のように、**向こう側が透けて見える物**の描画は、**不透明な物とはまったく別の問題**です。**不透明な物は、深度バッファで「一番手前」を決めれば、描く順番は関係ありません**。**半透明は、色を混ぜ合わせる（ブレンド）ので、「どの順番で混ぜるか」で結果が変わります**。**描く順番が結果を左右する**ため、**ソート・OIT・アルファ テスト**といった、**専用の方法**が必要になります。
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
-| [ブレンドとソート](blending-sorting/index.md) | アルファ ブレンドの式・ブレンド ステート・ソートの方法と限界 |
+| [Alpha Blending and Sorting](blending-sorting/index.md) | アルファ ブレンドの式・ブレンド ステート・ソートの方法と限界 |
 | [Alpha Testing](alpha-test/index.md) | clip・Alpha to Coverage・ハッシュド アルファ・ミップの罠 |
-| [OIT（順序非依存の半透明）](oit/index.md) | Weighted Blended・Depth Peeling・Per-Pixel Linked List・確率的 |
-| [屈折とガラス](refraction/index.md) | 背景のコピー・歪み・厚み・色収差・フレネル |
+| [Order-Independent Transparency (OIT)](oit/index.md) | Weighted Blended・Depth Peeling・Per-Pixel Linked List・確率的 |
+| [Refraction](refraction/index.md) | 背景のコピー・歪み・厚み・色収差・フレネル |
 
-## Why It Is Hard {#なぜ難しいのか}
+## なぜ難しいのか
 
 | 不透明 | 半透明 |
 | --- | --- |
@@ -27,7 +27,7 @@ tags:
 | **ライティングは、画素ごとに 1 回** | **層ごとに計算が必要** |
 | **ポストプロセスの対象が明確** | **深度がない**ので、**DOF・SSAO などと相性が悪い** |
 
-## Rendering Flow (Typical) {#描画の流れ典型}
+## 描画の流れ（典型）
 
 | 順序 | 内容 |
 | --- | --- |
@@ -38,9 +38,9 @@ tags:
 
 **半透明は、不透明の後・ポストプロセスの前**に**描く**のが**基本**です。
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [描画](../index.md)
-- [パーティクルの最適化](../../rendering/particles.md)
+- [パーティクルと半透明](../../rendering/particles.md)
 - [オーバードロー](../../rendering/overdraw.md)
 - [Post-Processing](../postprocess/index.md)

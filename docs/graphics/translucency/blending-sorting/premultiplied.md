@@ -87,7 +87,7 @@ tags:
 
 <!-- fig:premult-fringe:end -->
 
-## Premultiplied Alpha {#乗算済みアルファ}
+## 乗算済みアルファ
 **色にあらかじめアルファを掛けて保存**しておく方式です（**Premultiplied Alpha**）。
 
 <div class="formula">C_s' = C_s · α_s　（保存する色）　、　C_out = C_s' + C_d · (1 − α_s)</div>
@@ -101,24 +101,24 @@ tags:
 
 **ストレート アルファ**（通常の画像）は、**完全に透明な画素の RGB が不定**で、**縮小・補間時に、縁に、白や黒の線（ハロー）が出ます**。**乗算済みアルファのテクスチャ**を使うと、**これが起きません**。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "半透明テクスチャの縁に、黒い線が出る"
     **乗算済みアルファ**にする（または縁の色を広げる）。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **色にアルファを先に掛ける**
     - [x] **縁のにじみを防ぎ、式も単純**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Alpha Blending and Sorting](index.md)
 - [Blend State](blend-state.md)

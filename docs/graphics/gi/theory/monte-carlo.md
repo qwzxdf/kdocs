@@ -193,7 +193,7 @@ tags:
 
 <!-- fig:monte-carlo-converge:end -->
 
-## Monte Carlo Integration {#モンテカルロ積分}
+## モンテカルロ積分
 **半球の積分**を**ランダムな方向をサンプルして平均する**ことで、**近似**する方法です。
 
 <div class="formula">E ≈ (1/N) · Σ  L_i(ω_k) · (n·ω_k) / pdf(ω_k)</div>
@@ -214,24 +214,24 @@ tags:
 
 **サンプルの方向をどう選ぶか**（重要度サンプリング・ブルー ノイズ）、**ノイズをどう消すか**（時間蓄積・空間フィルタ・ReSTIR）が、**レイトレ GI の中心**です。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "サンプルを増やしても、ノイズが減るのが遅い"
     **重点サンプリング**と**デノイズ**を併用する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **ランダムに試して平均を取る**
     - [x] **少数サンプル ＋ デノイズ**が基本
 
-## References {#参考}
+## 参考
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [GI Theory](index.md)
 - [Ray-Traced GI](../rt-gi/index.md)

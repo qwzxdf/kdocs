@@ -8,7 +8,7 @@ tags:
 
 **ピクセルは四角い格子**なので、**斜めの線や細い物の縁が、階段状（ジャギー）に見えます**。これが**エイリアシング**で、<strong>アンチエイリアシング（AA）</strong>は、**これを滑らかにする技術**です。**方式が多く、画質・速さ・弱点がそれぞれ違います**。このセクションでは、**エイリアシングの原因・SSAA/MSAA・FXAA・SMAA・TAA・TAA の課題・比較と選び方**を、**1 つずつ別のページ**で説明します。
 
-## Three Kinds of Aliasing {#エイリアシングの-3-つの種類}
+## エイリアシングの 3 つの種類
 
 <svg class="fig illust" viewBox="0 0 780 220" role="img" aria-label="エイリアシングの種類">
 <text x="20" y="26" class="fig-title">エイリアシングは、見え方で 3 種類</text>
@@ -35,7 +35,7 @@ tags:
 | **シェーダー内のエイリアシング** | **スペキュラ・法線マップなど、1 画素内で急変する値** | **TAA・SSAA**（MSAA は効かない） |
 | **時間的なちらつき** | **動くとき、サンプルの位置が変わり、出たり消えたりする** | **TAA** |
 
-## See It in Motion: TAA Jitter {#動きで見るtaa-のジッター}
+## 動きで見る：TAA のジッター
 
 <!-- fig:taa-jitter:begin -->
 
@@ -482,7 +482,7 @@ tags:
 
 <!-- fig:taa-jitter:end -->
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
@@ -493,9 +493,9 @@ tags:
 | [TAA Challenges](taa-challenges.md) | ゴースト・ぼけ・ちらつき・アップスケール |
 | [Comparison and Choosing](comparison.md) | 方式の比較表・組み合わせ・目的別の選び方 |
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Post-Processing](../index.md)
 - [Motion Blur](../motion-blur/index.md)
-- [TAA とアップスケール（最適化）](../../../rendering/taa-upscaling.md)
+- [TAA・アップスケーラ・VRS](../../../rendering/taa-upscaling.md)
 - [ラスタライズ](../../../3d/render-flow/rasterize.md)

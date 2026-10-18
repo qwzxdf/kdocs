@@ -14,7 +14,7 @@ tags:
     - **ジッタで開始位置をずらし、縞を消す**。
     - **透過率が低くなったら、打ち切る**。
 
-## Ray Marching {#レイマーチ}
+## レイマーチ
 **視線に沿って、雲の層の中を一定のステップで進み、各点の密度から光を積みます**。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="雲のレイマーチ">
@@ -745,25 +745,25 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
 
 <!-- fig:cloud-raymarch:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "雲に縞模様（バンディング）が出る"
     **ジッタ**を入れて、**時間蓄積**で消す。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **進みながら足す。歩幅とジッタが鍵**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Clouds](index.md)
-- [光の計算](lighting.md)
-- [高速化](temporal.md)
+- [Cloud Lighting](lighting.md)
+- [Cloud Temporal Reprojection](temporal.md)

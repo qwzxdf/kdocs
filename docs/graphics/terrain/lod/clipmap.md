@@ -14,7 +14,7 @@ tags:
     - **カメラが動くと、格子をずらす**。
     - **高さデータも、同じ入れ子で持つ**。
 
-## Clipmap {#クリップマップ}
+## クリップマップ
 **ジオメトリ クリップマップ**（Losasso & Hoppe、2004）は、**カメラを中心に入れ子になった正方形リング**で**LOD を表現**します。**一番内側が最も細かく、外側ほど 2 倍ずつ粗く**なります。
 
 | 項目 | 内容 |
@@ -23,7 +23,7 @@ tags:
 | **カメラ追従** | **カメラが動くとリングをグリッド単位でスクロール**（**円環バッファ**で高さを更新） |
 | **利点** | **三角形の数が一定**。**構造が単純**。**GPU に向く** |
 | **欠点** | **視点から遠くてもリングの数だけは描く**（**画面外を捨てにくい**）。**高さデータをリングごとに管理** |
-| **用途** | **広大な地形・海面**（[水面のクリップマップ](../../water/waves/index.md)と同じ構造） |
+| **用途** | **広大な地形・海面**（[Water Waves](../../water/waves/index.md)と同じ構造） |
 
 **四分木はノードごとにカリングができて柔軟**、**クリップマップは、構造が単純で三角形数が一定**という**違い**があります。
 
@@ -158,23 +158,23 @@ tags:
 
 <!-- fig:clipmap-rings:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "カメラの移動で、地形が揺れる"
     **格子の幅の整数倍で移動**して、**スナップ**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **カメラ中心の、入れ子の格子**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain LOD](index.md)
 - [CDLOD](cdlod.md)

@@ -14,7 +14,7 @@ tags:
     - **各区画は、同じ格子メッシュを再利用**。
     - **距離で LOD の範囲を決める**。
 
-## Quadtree (CDLOD) {#四分木cdlod}
+## 四分木（CDLOD）
 **CDLOD**（Continuous Distance-Dependent LOD）は、**地形を四分木で管理**します。**根（地形全体）から始め、カメラに近いノードを、4 つの子に分割**していきます。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="四分木 LOD">
@@ -384,24 +384,24 @@ void SelectNodes(const QuadNode& node, const Camera& camera, int level,
 
 <!-- fig:terrain-quadtree:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "LOD の範囲が狭すぎて、粗い所が目立つ"
     **LOD の範囲を広げる**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **距離に応じて、四分木を分割**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain LOD](index.md)
 - [Geomorphing](morphing.md)
-- [継ぎ目](cracks.md)
+- [Cracks and Seams](cracks.md)

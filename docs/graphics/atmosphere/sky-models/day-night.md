@@ -62,7 +62,7 @@ tags:
 
 <!-- fig:day-night:end -->
 
-## Day-Night Cycle {#昼夜のサイクル}
+## 昼夜のサイクル
 **時刻から太陽の方向を決める**と、**すべてが連動します**。
 
 ```cpp
@@ -79,26 +79,26 @@ sun_direction.Normalize();
 | **環境光** | **空から更新** |
 | **影の向き** | **平行光源の向き** |
 | **月と星** | **夜に現れる** |
-| **フォグの色** | **空の色に合わせる**（[距離フォグ](../aerial-fog/index.md)） |
+| **フォグの色** | **空の色に合わせる**（[Aerial Perspective and Fog](../aerial-fog/index.md)） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "日没で、影が長くならない・向きが変わらない"
     **太陽の向きを、時刻から計算**して、**影**に使う。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **時刻から、すべてを連動させる**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Sky Models](index.md)
 - [Sun, Moon and Stars](celestial.md)

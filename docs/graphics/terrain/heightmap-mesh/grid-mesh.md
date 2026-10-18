@@ -126,7 +126,7 @@ tags:
 
 <!-- fig:heightmap-lift:end -->
 
-## Grid Mesh {#格子メッシュ}
+## 格子メッシュ
 **高さマップの各テクセルに、頂点を 1 つ**対応させると、**格子状のメッシュ**になります。**N×N 頂点の格子は、(N−1)×(N−1) マスで、1 マスが三角形 2 枚**です。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="格子メッシュ">
@@ -167,7 +167,7 @@ std::vector<uint32_t> BuildGridIndices(uint32_t n) {
 
 格子メッシュのインデックスのコードの要点です。時計回りが表です（左手系・Y 上・+Z 前方で、上から見て時計回り。[座標系](../../../3d/index.md)）。対角線の向きは、一方向に揃えると斜めの縞が出ることがあるので、交互に切り替える（ジグザグ）と自然です。インデックス数は (N−1)² × 6 で、65×65 頂点で約 2.5 万です。
 
-### Reading Height in the Vertex Shader {#頂点シェーダーで高さを読む}
+### 頂点シェーダーで高さを読む
 
 ```hlsl
 Texture2D<float> height_map : register(t0);
@@ -196,23 +196,23 @@ VSOutput VSMain(VSInput input) {
 
 高さを読む頂点シェーダーのコードの要点です。`SampleLevel` は、頂点シェーダーではミップ レベルを自分で指定するために使います（`Sample` は使えません）。ミップ レベルを距離で選び、遠くの頂点は粗いミップから読むとちらつきません。UV はワールド座標から求め、タイルの位置が違っても同じ高さマップを共有します。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "地形がカクカクして見える"
     **頂点密度を上げる**・**法線を滑らかに**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **格子の頂点を、高さマップで持ち上げる**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Heightmaps and Meshes](index.md)
 - [LOD](../lod/index.md)

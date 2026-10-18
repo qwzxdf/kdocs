@@ -16,7 +16,7 @@ tags:
     - 限界：<strong>画面外・裏側・隠れた面</strong>は<strong>見えない</strong>。<strong>画面端でゲインが変わる</strong>。
     - <strong>他の GI（プローブ等）の補助</strong>として、<strong>近距離の細かい間接光</strong>を足す使い方が多い。
 
-## Principle {#原理}
+## 原理
 
 **SSAO**は<strong>半球に飛ばしたレイが「遮られたか」</strong>だけを見ました。**SSGI**は<strong>レイが当たった画素の「光（色）」</strong>を**読みます**。
 
@@ -239,7 +239,7 @@ tags:
 
 <!-- fig:ssgi-bounce:end -->
 
-### Steps {#手順}
+### 手順
 
 | 手順 | 内容 |
 | --- | --- |
@@ -267,13 +267,13 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 
 コードの要点です。`prev_frame_color` は、前フレームの最終的な画像（ライティング済み、ポストプロセス前）で、間接光も含んでいるので多バウンスになります。余弦重み付きのサンプルは、`(n·ω)/pdf` が定数になり、単純な平均で済みます。`ScreenSpaceTrace` は、画面空間のレイマーチです（[SSR](../reflections/ssr-basics/index.md)、[Hi-Z トレース](../reflections/ssr-hiz.md)）。
 
-## Getting Multiple Bounces {#多バウンスの得かた}
+## 多バウンスの得かた
 
 **前フレームの最終画像に、前フレームの SSGI の結果が含まれている**ので、**フレームを重ねるごとに**、**バウンスが増える**ように見えます。
 
 バウンス数は、何を読むかで決まります。現在のフレームの直接光だけを読めば、1 バウンスです。前フレームの最終画像（間接光を含む）を読めば、フレームごとに 1 バウンスずつ蓄積するので、多バウンスが無料で得られます。注意すべきは、ゲインが 1 を超えると発散する（明るくなり続ける）ことです。必ず 1 未満の減衰を掛けます。
 
-## Noise and Denoising {#ノイズとデノイズ}
+## ノイズとデノイズ
 
 **画素あたり 1〜数本**のレイでは、**ノイズ**が**非常に目立ちます**。
 
@@ -292,7 +292,7 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 
 **ノイズが大きい**ので**時間蓄積と空間フィルタ**の**組み合わせ**が、**ほぼ必須**です。
 
-## Screen-Space Limits {#画面空間の限界}
+## 画面空間の限界
 
 | 限界 | 内容 |
 | --- | --- |
@@ -309,7 +309,7 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 
 **そのため、SSGI 単体で安定した GI にはなりません**。**プローブやライトマップなどの、ベースの GI**に**近距離の細かい間接光・カラー ブリーディングを足す**使い方が、一般的です。
 
-## Cost and Tricks {#コストと工夫}
+## コストと工夫
 
 | 項目 | 内容 |
 | --- | --- |
@@ -319,7 +319,7 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 | **Hi-Z トレース** | **遠くまで少ないステップ**で |
 | **法線・深度の事前フィルタ** | **ノイズ低減**に有利 |
 
-## Pros and Cons {#長所と短所}
+## 長所と短所
 
 | 長所 | 短所 |
 | --- | --- |
@@ -330,15 +330,15 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 | **他の GI の補助**として良い | **単独では安定しない** |
 
 
-### Better Approaches {#より良いやり方}
+### より良いやり方
 
 SSGI の弱点は、「画面外が見えない」の一点に集約されます。そのため、より良い設計は、SSGI を単独で使わずに、<strong>見えなかった分を別の GI に任せる</strong>ことです。レイが画面外に出たり、深度バッファで当たらなかったりしたとき、その方向の光を、ライト プローブや DDGI のような世界空間の GI から読みます。つまり、<strong>SSGI は近距離の細部を担当し、遠くと画面外は世界空間の GI が担当する</strong>階層にします。Lumen が、画面空間トレースを最初の手段として使い、外れたら距離場、さらに外れたらワールド プローブ、と順に落ちていく設計は、まさにこの考え方です（[Lumen-Style Approaches](rt-gi/lumen-style.md)）。
 
-### Better Approaches {#より良いやり方_1}
+### より良いやり方
 
 SSGI の弱点は、「画面外が見えない」の一点に集約されます。そのため、より良い設計は、SSGI を単独で使わずに、<strong>見えなかった分を別の GI に任せる</strong>ことです。レイが画面外に出たり、深度バッファで当たらなかったりしたとき、その方向の光を、ライト プローブや DDGI のような世界空間の GI から読みます。つまり、<strong>SSGI は近距離の細部を担当し、遠くと画面外は世界空間の GI が担当する</strong>階層にします。Lumen が、画面空間トレースを最初の手段として使い、外れたら距離場、さらに外れたらワールド プローブ、と順に落ちていく設計は、まさにこの考え方です（[Lumen-Style Approaches](rt-gi/lumen-style.md)）。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "画面端で、間接光が急に暗くなる"
     **画面端付近をフェード**させる・**ベースの GI にフォールバック**します。
@@ -352,7 +352,7 @@ SSGI の弱点は、「画面外が見えない」の一点に集約されます
 ??? failure "ノイズが残って、チラつく"
     **時間蓄積 ＋ 空間フィルタ**を強め、**ブルー ノイズ**を使います。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] SSGI ＝ <strong>SSAO の拡張</strong>。<strong>半球レイが当たった画素の「色」</strong>を、<strong>間接光</strong>として集める
@@ -361,17 +361,17 @@ SSGI の弱点は、「画面外が見えない」の一点に集約されます
     - [x] <strong>画面外・裏側は見えない</strong>。<strong>視点依存</strong>。<strong>単独は不安定</strong>
     - [x] <strong>ベースの GI ＋ SSGI（近距離の補助）</strong>が、実用的
 
-## References {#参考}
+## 参考
 
 - Ritschel, Grosch, Seidel, "Approximating Dynamic Global Illumination in Image Space"（I3D 2009）
 - Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015、レイ再利用の手法）
 - Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（GTAO）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Global Illumination (GI)](index.md)
 - [GI Theory](theory/index.md)
 - [SSAO](../ao/ssao-hemisphere.md)
-- [SSR の基礎](../reflections/ssr-basics/index.md)
-- [Hi-Z トレース](../reflections/ssr-hiz.md)
+- [SSR Basics](../reflections/ssr-basics/index.md)
+- [Hi-Z SSR](../reflections/ssr-hiz.md)
 - [AO Filtering](../ao/filtering/index.md)

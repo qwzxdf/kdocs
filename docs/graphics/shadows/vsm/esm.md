@@ -54,7 +54,7 @@ tags:
 
 <!-- fig:esm-exp:end -->
 
-## ESM (Exponential Shadow Maps) {#esm指数シャドウ-マップ}
+## ESM（指数シャドウ マップ）
 **ESM**（Exponential Shadow Maps）は、**深度の指数 `exp(c · z)`** を保存します。
 
 <div class="formula">日向 = clamp( exp(−c · t) · E[exp(c · z)] , 0, 1 )</div>
@@ -67,23 +67,23 @@ tags:
 | **利点** | **1 チャンネル**で済む。**VSM のような、光漏れは小さい** |
 | **欠点** | **受け手が遮蔽物に近い**と**影が薄く**なる（**接触部が明るく漏れる**）。`c` と**精度のトレードオフ** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "`c` を大きくしすぎて、オーバーフローして真っ白"
     **`c` は 20〜80 程度・32 ビット浮動小数・深度を 0〜1 に正規化**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **ESM ＝ 指数で保存し、乗算で比較**
     - [x] **光漏れが少ないが、数値の範囲に注意**
 
-## References {#参考}
+## 参考
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [VSM, ESM and MSM](index.md)
 - [EVSM](evsm.md)

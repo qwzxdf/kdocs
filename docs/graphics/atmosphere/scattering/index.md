@@ -8,7 +8,7 @@ tags:
 
 **空が青く、夕焼けが赤いのは、大気中の分子や粒子が、光を散乱させるため**です。**この散乱を計算すると、物理的に正しい空が作れます**。このセクションでは、**空が青い理由・大気のモデル・透過率・単散乱・位相関数・多重散乱・Bruneton の事前計算・Hillaire の 4 つの LUT・地面と宇宙**を、**1 つずつ別のページ**で説明します。
 
-## Why the Sky Is Blue {#なぜ空は青いか}
+## なぜ空は青いか
 **太陽光は白色**（全波長を含む）ですが**大気の分子に当たると短い波長（青）ほど強く散らされます**。
 
 <div class="formula">レイリー散乱の強さ ∝ 1 / λ⁴</div>
@@ -143,7 +143,7 @@ tags:
 
 <!-- fig:sunset-path:end -->
 
-## Flow of This Section {#このセクションの流れ}
+## このセクションの流れ
 
 大気散乱は、物理の式が多く出てくる分野なので、見通しを先に示します。目標は、「空の色」と「遠景のかすみ」を、物理的に正しく計算することです。
 
@@ -151,7 +151,7 @@ tags:
 
 ここまでが単散乱（光が 1 回だけ散乱する場合）です。実際には、散乱された光がさらに散乱される<strong>多重散乱</strong>も効いてきます（[Multiple Scattering](multiple-scattering.md)）。これを毎フレーム計算するのは重いので、実用的な方式が 2 つ提案されています。Bruneton の方式は、すべてを 4 次元のテーブルに事前計算します（[Bruneton Precomputed Scattering](bruneton.md)）。Hillaire の方式は、小さな LUT を毎フレーム更新して、動的な大気にも対応します（[Hillaire 2020: Four LUTs](hillaire.md)）。最後に、地上と宇宙で、視点の位置による違いを扱います（[Ground and Space Views](ground-space.md)）。
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
@@ -164,20 +164,20 @@ tags:
 | [Hillaire 2020](hillaire.md) | 4 つの LUT |
 | [Ground and Space Views](ground-space.md) | 視点の位置による違い |
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **散乱の積分を、LUT で高速化する**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
-- [大気](../index.md)
+- [Sky and Atmosphere](../index.md)
 - [Sky Models](../sky-models/index.md)
-- [空気遠近法](../aerial-fog/index.md)
+- [Aerial Perspective and Fog](../aerial-fog/index.md)

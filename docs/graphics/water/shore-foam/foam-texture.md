@@ -14,7 +14,7 @@ tags:
     - **テクスチャを流して、動きを付ける**。
     - **水の色の上に、白を乗せる**。
 
-## Foam Textures {#泡テクスチャ}
+## 泡テクスチャ
 **マスクだけでは、べったりした白**になります。**泡の模様（粒の集まり）のテクスチャ**を**乗せます**。
 
 ```hlsl
@@ -49,7 +49,7 @@ float foam = saturate(mask * 2.0 - (1.0 - foam_pattern * 2.0));
 <text x="640" y="190" text-anchor="middle" style="font-size:12px">マスク強：ほぼ真っ白</text>
 </svg>
 
-## Compositing Foam {#泡の合成}
+## 泡の合成
 **泡は水面の色の上に白く乗せます**。**泡の部分は水中が見えず（不透明）、光沢も無く**なります。
 
 ```hlsl
@@ -62,23 +62,23 @@ float transparency = 1.0 - foam;
 
 合成のコードの要点です。泡の色は白ですが、光に照らされた色にします（暗い所で光らないよう、ライティングを掛けます）。泡は荒れた面なので、粗さを上げ、水の鋭いスペキュラを消します。泡の下は見えないので、屈折を弱め、水中の色の寄与を減らします。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "泡が、水面に貼り付いたシールのように見える"
     **テクスチャを流す**・**2 層重ねる**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **マスク × テクスチャで、泡の濃さ**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shore Foam](index.md)
 - [Persistent Foam](foam-history.md)

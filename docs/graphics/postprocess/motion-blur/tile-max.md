@@ -1348,7 +1348,7 @@ tags:
 
 <!-- fig:tile-max:end -->
 
-## Why It Is Needed {#なぜ必要か}
+## なぜ必要か
 
 **速い物体のブラー**は、**物体の外側にも**尾を引くべきです。**画素 P 自身の速度**だけを**使う**と、**P が背景（速度 0）なら、ぼけません**。**P の近くに速い物体があれば、その速度の分だけ、P の周りを見る必要があります**。
 
@@ -1371,7 +1371,7 @@ tags:
 <text x="400" y="176" style="font-weight:700">→ 背景のタイルにも、物体の速度が伝わる</text></g>
 </svg>
 
-## Steps {#手順}
+## 手順
 
 タイル最大速度の手順は 3 段階です。TileMax は、各タイル内の速度のうち、長さが最大のベクトルを求めます（共有メモリで縮約）。NeighborMax は、周囲 3×3 の TileMax の最大を求めます。ぼかしでは、NeighborMax の方向と長さでサンプルします。
 
@@ -1432,11 +1432,11 @@ void NeighborMaxMain(uint3 id : SV_DispatchThreadID) {
 
 NeighborMax のコードの要点です。3×3 で見るのは、隣のタイルの速い物体が、1 タイル先まで影響するためです（タイルの大きさが最大ブラー長だからです）。端は `clamp` で、画面の外は端のタイルを繰り返します。
 
-### A More Accurate NeighborMax {#より正確な-neighbormax}
+### より正確な NeighborMax
 
 **単純な 3×3 の最大**は、**向きを無視して長さだけ**で選びます。<strong>「そのタイルの速度が自分のタイルに向かっているか」</strong>を**考慮**する**と**、**より正確**です（**McGuire 方式**）。
 
-## Using It in the Blur {#ぼかしでの使い方}
+## ぼかしでの使い方
 
 ```hlsl
 float2 neighbor_velocity = neighbor_max.SampleLevel(point_clamp, uv, 0).xy;
@@ -1451,22 +1451,22 @@ if (neighbor_length < kMinVelocityPixels) {
 | **ぼかしの方向** | **NeighborMax の向きにサンプルを配置** |
 | **ぼかしの長さ** | **NeighborMax の長さ**（**最大ブラー長で制限**） |
 | **スキップ判定** | **長さが小さいタイル（< 0.5 画素）は、ぼかしを省略** |
-| **自分の速度との組み合わせ** | **サンプルの重み付けに自分の速度も使う**（[ぼかしの実装](blur-pass.md)） |
+| **自分の速度との組み合わせ** | **サンプルの重み付けに自分の速度も使う**（[Blur Pass Implementation](blur-pass.md)） |
 
-## Cost {#コスト}
+## コスト
 
 コストです。TileMax は、フル解像度の速度を 1 回読むだけで、帯域は R16G16 のみです。NeighborMax は、タイル数分（1080p で 120×68）で、ほぼ無料です。効果として、静止している多くの画素でぼかしをスキップでき、フレーム全体で大幅に節約できます。
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
 | **タイル サイズ ＝ 最大ブラー長** | **16〜20 画素が一般的** |
 | **NeighborMax に向きを考慮** | **精度が上がる** |
 | **スキップ判定で分岐の一貫性** | **タイル単位で同じ分岐になり、GPU が効率的** |
-| **DOF のタイルと共用** | **同じ 16×16 のタイルで、DOF の最大 CoC も計算**（[前景と背景](../dof/near-far.md)） |
+| **DOF のタイルと共用** | **同じ 16×16 のタイルで、DOF の最大 CoC も計算**（[Foreground and Background](../dof/near-far.md)） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "NeighborMax を使わず、輪郭の外にブラーが出ない"
     **周囲の速度をタイルの最大で伝える**。
@@ -1477,7 +1477,7 @@ if (neighbor_length < kMinVelocityPixels) {
 ??? failure "画面の端のタイルで、範囲外を読んで壊れる"
     **`clamp` で端をそろえる**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] <strong>TileMax</strong> ＝ <strong>タイルごとの最大速度</strong>。<strong>NeighborMax</strong> ＝ <strong>周囲 3×3 の最大</strong>
@@ -1486,14 +1486,14 @@ if (neighbor_length < kMinVelocityPixels) {
     - [x] <strong>タイル サイズ ＝ 最大ブラー長</strong>
     - [x] <strong>共有メモリで縮約</strong>
 
-## References {#参考}
+## 参考
 
 - McGuire et al., "A Reconstruction Filter for Plausible Motion Blur"（I3D 2012）
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Motion Blur](index.md)
 - [Velocity Buffer](velocity-buffer.md)
 - [Blur Pass Implementation](blur-pass.md)
-- [前景と背景（DOF）](../dof/near-far.md)
+- [Foreground and Background](../dof/near-far.md)

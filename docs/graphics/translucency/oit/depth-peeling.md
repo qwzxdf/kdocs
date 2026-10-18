@@ -180,24 +180,24 @@ float4 PSMain(VsOutput input) : SV_Target {
 | **コスト** | **N 回の描画**（**シーン全体の半透明ジオメトリを、N 回流す**） |
 | **派生** | **Dual Depth Peeling**（**手前と奥を、同時に剥がす**：パスが半分） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "層が多いシーンで、Depth Peeling が遅すぎる"
     **PPLL や WBOIT**に切り替える。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **1 層ずつ剥いで、正確に描く**
     - [x] **重いので、現在は少数派**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [OIT](index.md)
 - [PPLL](ppll.md)

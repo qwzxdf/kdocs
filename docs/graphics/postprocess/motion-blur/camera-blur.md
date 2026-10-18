@@ -88,7 +88,7 @@ tags:
 
 <!-- fig:camera-blur:end -->
 
-## Translation and Rotation {#並進と回転}
+## 並進と回転
 
 **カメラの動きは、2 種類**あります。
 
@@ -112,7 +112,7 @@ tags:
 </g>
 </svg>
 
-## Making Velocity from Depth {#深度から速度を作る}
+## 深度から速度を作る
 
 **画素の深度から、その点のワールド位置を再構成し**、**前フレームのカメラでその点がどこに見えていたか**を**計算**します。
 
@@ -133,10 +133,10 @@ float2 CameraVelocity(float2 uv, float depth) {
 | --- | --- |
 | **`inverse_view_projection`** | **今フレームの逆行列**。**深度 → ワールド位置** |
 | **`previous_view_projection`** | **前フレームのカメラ**。**ワールド位置 → 前の画面位置** |
-| **`uv − previous_uv`** | **今 − 前**（<strong>[速度バッファ](velocity-buffer.md)と同じ定義</strong>） |
+| **`uv − previous_uv`** | **今 − 前**（<strong>[Velocity Buffer](velocity-buffer.md)と同じ定義</strong>） |
 | **ジッター** | **両方の行列から、ジッターを除く** |
 
-## Features and Cautions {#特徴と注意}
+## 特徴と注意
 
 | 項目 | 内容 |
 | --- | --- |
@@ -146,7 +146,7 @@ float2 CameraVelocity(float2 uv, float depth) {
 | **カメラが速く回る** | **ブラーが強くなりすぎる**ので、**最大長で制限** |
 | **ジャンプ・カット** | **カメラが瞬間移動したフレームは、前フレームの行列を今に置き換え、速度 0** |
 
-## Combining Velocities {#速度の合成}
+## 速度の合成
 
 **最終的な速度**は、**動く物体は速度バッファ、それ以外はカメラ速度**を**使います**。
 
@@ -160,7 +160,7 @@ float2 FinalVelocity(float2 uv, float depth) {
 
 **ステンシル・専用ビットで、「速度を書いた画素」を区別**する**と**、<strong>「速度ぴったり 0 の動く物体」と「書かれていない画素」を、取り違えません</strong>。
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -169,9 +169,9 @@ float2 FinalVelocity(float2 uv, float depth) {
 | **カットで即リセット** | **前フレームの行列を今に** |
 | **プレイヤーの武器・手を除外** | **カメラに固定された物は、カメラ ブラーを掛けない**（**ステンシル／マスク**） |
 | **遠景は強さを弱める** | **空の流れが強すぎるのを防ぐ** |
-| **シャッター角で強さを調整** | [強さと TAA](strength-taa.md) |
+| **シャッター角で強さを調整** | [Strength and TAA](strength-taa.md) |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "カメラに固定された武器まで、ブラーがかかる"
     **ビューモデルは、カメラと同じ動きなので、速度 0**。**マスクして除外**。
@@ -185,7 +185,7 @@ float2 FinalVelocity(float2 uv, float depth) {
 ??? failure "静止した物の速度が、ジッターでふるえる"
     **行列からジッターを除いて**速度を計算。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] カメラ ブラー ＝ <strong>カメラの動きによる、静止物の見かけの動き</strong>を<strong>ぼかす</strong>
@@ -194,12 +194,12 @@ float2 FinalVelocity(float2 uv, float depth) {
     - [x] <strong>動く物体は、物体の速度で上書き</strong>
     - [x] <strong>カットで速度 0</strong>、<strong>最大長で制限</strong>
 
-## References {#参考}
+## 参考
 
 - Rosado, "Motion Blur as a Post-Processing Effect"（GPU Gems 3）
 - McGuire et al., "A Reconstruction Filter for Plausible Motion Blur"（I3D 2012）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Motion Blur](index.md)
 - [Velocity Buffer](velocity-buffer.md)

@@ -14,7 +14,7 @@ tags:
     - **層ごとに、レイマーチの範囲を限定**する。
     - **天気（晴れ・曇り）を、カバレッジで制御**。
 
-## Cloud Layers {#雲の層}
+## 雲の層
 **積雲（もこもこした雲）などの雲は地面から離れた高さ 1.5〜4 km 程度の層**にできます。**空に「雲の層」（地表からの高さの範囲）を決め、その中だけを描きます**。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="雲の層">
@@ -32,7 +32,7 @@ tags:
 
 **視線が雲の層の内側の球殻と外側の球殻のどちらにぶつかるかを求めて、その間だけレイマーチ**します（[Atmospheric Scattering](../scattering/index.md)の球との交差と同じ）。
 
-### Cloud Types and Altitudes {#雲の種類と高度}
+### 雲の種類と高度
 
 大気中の雲は、現れる高度で種類が分かれます。高い順に見ていきます。
 
@@ -69,7 +69,7 @@ tags:
 
 <!-- fig:cloud-profiles:end -->
 
-### Thinking About Altitude Profiles {#高度プロファイルの考え方}
+### 高度プロファイルの考え方
 
 雲の種類ごとに、「雲の層の中での高さ」と「密度」の関係が違います。層の下端を 0、上端を 1 とした正規化した高さ h で表します。
 
@@ -79,32 +79,32 @@ tags:
 
 これらを関数として、`h` から密度の倍率を返す形で持ちます（たとえば、積雲なら `saturate(remap(h, 0.0, 0.07, 0, 1)) * saturate(remap(h, 0.2, 1.0, 1, 0))` のような台形）。ノイズで作った形に、この高度プロファイルを掛けると、雲底が平らで頂上が丸い、雲らしい輪郭が得られます。
 
-### Controlling the Weather {#天気の制御}
+### 天気の制御
 
 どの種類の雲が、どこにどれだけあるかは、<strong>天気マップ</strong>（2D のテクスチャ）で制御するのが一般的です。たとえば、R チャンネルにカバレッジ（雲の量）、G チャンネルに降水（雨雲かどうか）、B チャンネルに雲の種類（層雲〜積雲の混合比）を入れます。このマップを風でスクロールさせるだけで、天気が時間とともに移り変わります。晴れの日は R を小さく、曇りの日は大きくすれば、同じ仕組みで天候が切り替わります。
 
-### Layer Shape (Spherical Shell) {#層の形状球殻}
+### 層の形状（球殻）
 
 地球は丸いので、雲の層は<strong>平面でなく球殻</strong>として扱います。内側の球（地表から高度 1.5 km）と外側の球（高度 4 km）の間が雲の層です。平面の層にすると、地平線の方向で層が際限なく遠くまで続いて、雲が細長く伸びて見えます。球殻なら、遠くの雲は地平線の向こうに自然に消えます。半径は、地球の半径 6371 km に高度を足したものです。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "どの雲も同じ形に見える"
     **高さ別の密度プロファイル**を**使い分ける**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **高度ごとに、密度のプロファイルを変える**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Clouds](index.md)
 - [Cloud Density Model](density-model.md)

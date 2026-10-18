@@ -14,10 +14,10 @@ tags:
     - **1 画素ごとに式を評価するだけ**。
     - **宇宙からの視点には、向かない**。
 
-## Analytic Sky Models {#解析的な空のモデル}
+## 解析的な空のモデル
 <strong>Preetham（1999）・Hosek-Wilkie（2012）</strong>は、**空の輝度分布を少数のパラメータの数式で近似**します。<strong>パラメータは太陽の高さ（天頂角）と、大気の濁り（turbidity）</strong>です。**実測・シミュレーションにフィットさせた式**なので、**手作業のグラデーションより自然**で、**時刻による移り変わりも連続**します。
 
-### Preetham (Perez Formula) {#preethamperez-の式}
+### Preetham（Perez の式）
 
 **Perez の式**で<strong>視線ごとの輝度（Y）と色度（x, y）</strong>を**求めます**。
 
@@ -56,24 +56,24 @@ float Perez(float cos_theta, float gamma, float cos_gamma, PerezCoefficients coe
 
 **どちらも空の見た目だけ**で<strong>大気の中を通る光（遠景の霞・光の筋）</strong>は**別に計算**する必要があります。**そこは[Atmospheric Scattering](../scattering/index.md)の担当**です。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "日没近くで、空の色が不自然"
     **Hosek-Wilkie** などの**精度の高いモデル**を使う。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **式で空の色を求める。軽い**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Sky Models](index.md)
 - [Atmospheric Scattering](../scattering/index.md)

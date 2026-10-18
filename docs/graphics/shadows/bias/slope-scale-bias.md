@@ -75,7 +75,7 @@ tags:
 
 <!-- fig:slope-bias:end -->
 
-## Fix 2: Slope-Scale Bias {#対策-2スロープ-スケール-バイアス}
+## 対策 2：スロープ スケール バイアス
 **面の傾き（深度の勾配）に比例**して、バイアスを大きくします。**Direct3D のラスタライザ ステート**に、機能があります。
 
 ```cpp
@@ -91,23 +91,23 @@ desc.DepthBiasClamp = 0.01f;
 
 スロープ スケール バイアスの利点は、斜めの面ほど自動で大きくなること、ハードウェアが処理するので追加のシェーダー コストがないことです。欠点は、浮動小数点の深度では定数バイアスの意味が変わること（値の大きさで単位が変わる）、すべての面に同じ係数を使うので、極端に斜めな面では結局浮いてしまうことです。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "`N·L` が 0 に近い面で、バイアスが無限大になって影が消える"
     **上限（クランプ）を設ける**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **傾きに比例してバイアスを増やす**
     - [x] **ハードウェアの設定で簡単に使える**。**上限を設ける**
 
-## References {#参考}
+## 参考
 
 - Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shadow Bias](index.md)
 - [Constant Bias](constant-bias.md)

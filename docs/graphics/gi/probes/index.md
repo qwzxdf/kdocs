@@ -8,7 +8,7 @@ tags:
 
 **プローブ GI は、空間のあちこちに「プローブ」を置き、そこでの間接光を保存しておいて、物体のシェーディング時に補間して使う手法**です。**動く物体にも使え、軽い**のが**利点**です。このセクションでは、**原理・補間・SH の持ち方・置き方・動的更新・反射プローブとの違い**を、**1 つずつ別のページ**で説明します。
 
-## Principle {#原理}
+## 原理
 **プローブの位置 `p_i`** で、**全方向の入射光**を**キャプチャ**（ベイク・または動的に計算）し、<strong>放射照度 E_i(n)</strong>を**SH に投影**して、**係数**として**保存**します。
 
 | 手順 | 内容 |
@@ -24,7 +24,7 @@ float3 irradiance = EvaluateSH9(world_normal, sh);
 float3 indirect_diffuse = albedo * irradiance;
 ```
 
-### History and Actual Practice {#歴史と実際の姿}
+### 歴史と実際の姿
 
 「空間の点に間接光を保存し、補間して使う」という発想は、Greger らの<strong>Irradiance Volume</strong>（1998）に遡ります。ゲームでの広い採用は、Valve の Source エンジンが使った<strong>アンビエント キューブ</strong>（6 方向の色で拡散光を表す方式）や、Sloan らの SH を使った Precomputed Radiance Transfer（2002）の流れから来ています。いまの Unity のライト プローブや、Unreal Engine の Volumetric Lightmap は、この系統です。
 
@@ -32,29 +32,29 @@ float3 indirect_diffuse = albedo * irradiance;
 
 代償は、<strong>低周波しか持てない</strong>ことです。プローブ 1 個が表すのは、その点の周りの滑らかな明るさだけです。床と壁の接触部分の細かい暗さ（接触影）は、プローブには入りません。これは AO や[コンタクト シャドウ](../../shadows/contact-shadows.md)で補います。
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
 | [Interpolation Methods](interpolation.md) | 周囲のプローブから、値を求める |
 | [Storing SH](sh-storage.md) | 係数の保存形式 |
-| [置き方](placement.md) | どこに、どの密度で置くか |
+| [Probe Placement](placement.md) | どこに、どの密度で置くか |
 | [Dynamic Updates](dynamic-update.md) | 光や物の変化への追従 |
 | [Comparison with Reflection Probes and Cost](compare.md) | 用途の違い・長所短所 |
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **プローブに間接光を保存し、補間して使う**
     - [x] **動く物体にも使える**
 
-## References {#参考}
+## 参考
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [GI](../index.md)
 - [DDGI](../ddgi.md)

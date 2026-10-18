@@ -347,7 +347,7 @@ tags:
 
 <!-- fig:light-injection:end -->
 
-## ② Light Injection {#②-光の注入}
+## ② 光の注入
 **各 froxel が受けている光を計算します**。<strong>太陽光とローカル ライト（点光源・スポットライト）</strong>が**対象**です。
 
 <div class="formula">散乱光 = 密度 × アルベド × Σ ( 光の色 × 影 × 位相関数(θ) )</div>
@@ -376,30 +376,30 @@ float3 scattering = inscattered * density * albedo;
 | 点 | 説明 |
 | --- | --- |
 | **シャドウ マップを引く** | **影の中の霧は光らない**。**この結果、物の影が光の筋として見える** |
-| **位相関数** | <strong>前方に強く散る（g ≈ 0.6〜0.8）</strong>。**太陽の方を見ると霧が明るい**（[大気散乱](../scattering/index.md)） |
+| **位相関数** | <strong>前方に強く散る（g ≈ 0.6〜0.8）</strong>。**太陽の方を見ると霧が明るい**（[Atmospheric Scattering](../scattering/index.md)） |
 | **環境光** | **全体にうっすら足す**（暗すぎる霧の防止） |
-| **ライトの数が多い場合** | **froxel ごとにライトをカリング**（[ライト カリング](../../../rendering/light-culling.md)） |
+| **ライトの数が多い場合** | **froxel ごとにライトをカリング**（[Tiled と Clustered](../../../rendering/light-culling.md)） |
 | **解像度が低くても綺麗** | **霧は低周波**（細かい構造がない）ので低解像度で十分 |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "光の筋が出ない"
     **シャドウ マップを参照**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **セルごとに、ライトと影を計算**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Volumetric Fog](index.md)
-- [密度](density.md)
-- [積分](integration.md)
+- [Step 1: Density](density.md)
+- [Steps 3 and 4: Integration and Application](integration.md)

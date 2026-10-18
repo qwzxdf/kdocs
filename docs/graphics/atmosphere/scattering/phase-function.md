@@ -42,16 +42,16 @@ tags:
 
 <!-- fig:phase-polar:end -->
 
-## Phase Function {#位相関数}
+## 位相関数
 <strong>位相関数 P(θ)</strong> は、**散乱の方向分布**です。**θ は元の光の進行方向と散乱後の方向のなす角**です。
 
-### Rayleigh {#レイリー}
+### レイリー
 
 <div class="formula">P_R(θ) = (3 / 16π) · (1 + cos²θ)</div>
 
 **前後に対称**で**横方向へ少し弱い**形です。
 
-### Mie (Henyey-Greenstein) {#ミーhenyey-greenstein}
+### ミー（Henyey-Greenstein）
 
 <div class="formula">P_HG(θ) = (1 / 4π) · (1 − g²) / (1 + g² − 2g·cosθ)^(3/2)</div>
 
@@ -71,24 +71,24 @@ float HenyeyGreenstein(float cos_theta, float g) {
 
 **雲や霧の散乱**（[Clouds](../clouds/index.md)・[Volumetric Fog](../volumetric-fog/index.md)）も、**同じ位相関数**を使います。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "太陽の周りの、白いにじみが出ない"
     **ミー散乱の位相関数**を**入れる**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **レイリーは均等、ミーは前方に偏る**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Atmospheric Scattering](index.md)
 - [Single-Scattering Integral](single-scattering.md)

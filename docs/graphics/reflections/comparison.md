@@ -14,7 +14,7 @@ tags:
     - <strong>組み合わせの基本</strong>：<strong>平面反射 → SSR → ローカル プローブ → グローバル プローブ</strong>（上ほど正確、下ほど安定）。
     - <strong>信頼度で滑らかに混ぜ</strong>、<strong>BRDF の積分を共通に掛ける</strong>。
 
-## Overall Comparison Table {#総合比較表}
+## 総合比較表
 
 | 項目 | 平面反射 | プローブ | SSR | レイトレ反射 |
 | --- | --- | --- | --- | --- |
@@ -30,7 +30,7 @@ tags:
 | **実装の手間** | 小〜中 | 中 | 中〜大 | **大** |
 | **主な弱点** | 平面のみ・重い | 視差・動的でない | 画面外が映らない | コスト・ノイズ |
 
-## Choosing by Scene {#場面別の使い分け}
+## 場面別の使い分け
 
 | 場面 | おすすめ | 理由 |
 | --- | --- | --- |
@@ -43,7 +43,7 @@ tags:
 | <strong>高品質を優先（PC 上位）</strong> | **レイトレ反射**（ハイブリッド） | 画面外・裏側まで |
 | **モバイル** | プローブ（＋簡易な平面反射） | 軽さ優先 |
 
-## Designing the Combination {#組み合わせの設計}
+## 組み合わせの設計
 
 **現実的な構成**は、**階層**です。
 
@@ -55,17 +55,17 @@ tags:
 | **4** | グローバル プローブ | 最後の砦（空・遠景） |
 | <strong>（高品質）</strong> | レイトレ | **SSR が失敗したレイ**を補う（ハイブリッド） |
 
-### Principles of Blending {#混ぜる原則}
+### 混ぜる原則
 
 | 原則 | 内容 |
 | --- | --- |
-| **信頼度で滑らかに** | **急に切り替えない**（[フォールバック](ssr-fallback.md)） |
+| **信頼度で滑らかに** | **急に切り替えない**（[SSR Fallback and Compositing](ssr-fallback.md)） |
 | **BRDF の積分は、共通** | `F0 · A + B` を、最後に 1 回（**全方式で同じ**） |
 | **同じ粗さの対応** | **同じ粗さ→ぼけ**になるよう、**方式間で揃える** |
 | **同じ露出・色空間** | SSR の入力色・プローブの色を**同じ条件**にそろえる |
 | **スペキュラ遮蔽** | **プローブ由来の反射**に、AO ベースで掛ける |
 
-## Strengths and Weaknesses by Roughness {#粗さごとの得意不得意}
+## 粗さごとの得意不得意
 
 | 粗さ | 平面反射 | プローブ | SSR | レイトレ |
 | --- | --- | --- | --- | --- |
@@ -74,7 +74,7 @@ tags:
 | <strong>中（0.4〜0.6）</strong> | △（ぼかしが難しい） | ◎ | ○（ノイズ） | ○（重い） |
 | <strong>高（0.7〜）</strong> | × | ◎ | △（不安定） | △（コストに見合わない） |
 
-## Handling Off-Screen and Back Sides {#画面外裏側の扱い}
+## 画面外・裏側の扱い
 
 | 方式 | 画面外・裏側 |
 | --- | --- |
@@ -83,7 +83,7 @@ tags:
 | **SSR** | **映らない** → フォールバック |
 | **レイトレ** | **映る** |
 
-## Cost Estimates (Rough) {#コストの目安概算}
+## コストの目安（概算）
 
 **フル HD の目安**です。**実装・GPU・設定**で大きく変わります。
 
@@ -96,7 +96,7 @@ tags:
 
 **実際の速さは実機で測ってください**（[調査ツール](../../rendering/tools.md)）。
 
-## Design Flow {#設計の流れ}
+## 設計の流れ
 
 | 手順 | 内容 |
 | --- | --- |
@@ -106,7 +106,7 @@ tags:
 | <strong>④ レイトレを足す（任意）</strong> | 対応 GPU で、**SSR の失敗分**を補う |
 | **⑤ チューニング** | 粗さのしきい値・解像度・更新頻度 |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "SSR だけで、反射を済ませようとする"
     画面外・端で反射が消えます。**プローブ**で補います。
@@ -123,7 +123,7 @@ tags:
 ??? failure "レイトレを入れたが、ノイズ除去を軽視して、ざらざら"
     **デノイザーに時間をかけて**設計します。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] <strong>平面反射</strong>（正確・平面のみ・重い）、<strong>プローブ</strong>（安い・視差）、<strong>SSR</strong>（細かい・画面内のみ）、<strong>レイトレ</strong>（正確・重い）
@@ -132,11 +132,11 @@ tags:
     - [x] <strong>信頼度で滑らかに混ぜ、BRDF の積分は共通</strong>
     - [x] <strong>まずプローブ、次に SSR、必要なら平面とレイトレ</strong>の順で導入
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Reflections](index.md)
 - [Planar Reflections](planar.md)
-- [リフレクション プローブ](probes/index.md)
+- [Reflection Probes](probes/index.md)
 - [Stochastic SSR](ssr-stochastic.md)
 - [SSR Fallback and Compositing](ssr-fallback.md)
-- [レイトレース反射](rt-reflections/index.md)
+- [Ray-Traced Reflections](rt-reflections/index.md)

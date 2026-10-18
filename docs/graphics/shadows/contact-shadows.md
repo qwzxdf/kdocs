@@ -16,7 +16,7 @@ tags:
     - <strong>画素ごとにジッター</strong>して、<strong>サンプル数を減らし</strong>、ノイズを<strong>時間蓄積</strong>で消す。
     - <strong>[SSR](../reflections/ssr-basics/index.md)・[SSAO](../ao/ssao-hemisphere.md) と同じ「画面空間」の方式</strong>で<strong>同じ限界</strong>を持つ。
 
-## Why Shadows Are Missing at Contact Points {#なぜ接触部で影が欠けるのか}
+## なぜ接触部で影が欠けるのか
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="接触部の影の欠け">
 <text x="20" y="24" class="fig-title">シャドウ マップは、接触部で影が浮く・欠ける（ピーター パンニング）</text>
@@ -248,7 +248,7 @@ tags:
 
 <!-- fig:contact-shadow-march:end -->
 
-## Principle: Screen-Space Ray Marching {#原理画面空間のレイマーチ}
+## 原理：画面空間のレイマーチ
 
 **画素のビュー空間位置** `P` から、**光の方向** `L` へ**短いレイ**を**少しずつ進め**ます。**各ステップの位置を画面に投影**し、**その画素の深度**と比べます。**レイが深度バッファの面より奥に入った**ら、**面の裏側に潜った＝遮蔽**されたと判断します。
 
@@ -291,7 +291,7 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 | **`kThickness`** | **厚み**。**これ以上、遮蔽物の奥にある**ものは、**遮蔽物ではない**として扱う |
 | **`kContactDistance`** | **短い距離**（0.1〜1 m 程度） |
 
-## The Thickness Problem {#厚みの問題}
+## 厚みの問題
 
 **深度バッファは、「一番手前の面」の深度しか持たない**ので、**その面の厚み**（裏側までの奥行き）が、**分かりません**。
 
@@ -299,13 +299,13 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 
 **完全な解決はなく**、**パラメータの調整**で**妥当な見た目**に寄せます。
 
-## Combining with Shadow Maps {#シャドウ-マップとの合成}
+## シャドウ マップとの合成
 
 **コンタクト シャドウ**は、**単独ではなく、シャドウ マップを補う**ために使います。
 
 コンタクト シャドウは、単独でなく、シャドウ マップを補うために使います。合成は、暗い方を取る `shadow = min(shadow_map, contact)` が一般的です。コンタクト シャドウは近くだけで使うので、距離でフェードアウトさせます。接触部をコンタクト シャドウが担当してくれるので、シャドウ マップのバイアスは安全側（アクネを避ける方）に振れます。
 
-## Cost and Tricks {#コストと工夫}
+## コストと工夫
 
 | 項目 | 内容 |
 | --- | --- |
@@ -316,7 +316,7 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 | **ライト ごとに計算** | **主ライト（太陽）だけ**に適用することが多い |
 | **コンピュート シェーダー** | **グループ共有メモリ**に**深度を読み込み**、**キャッシュ効率**を上げる実装もある |
 
-## Screen-Space Limits {#画面空間の限界}
+## 画面空間の限界
 
 | 限界 | 内容 |
 | --- | --- |
@@ -327,7 +327,7 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 
 **そのため、あくまで補助**で**シャドウ マップの代わりには、できません**。
 
-## Pros and Cons {#長所と短所}
+## 長所と短所
 
 | 長所 | 短所 |
 | --- | --- |
@@ -336,7 +336,7 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 | **シャドウ マップのバイアスの問題を補える** | **画面外・裏側は不可** |
 | **細い物（草・髪・ディテール）にもある程度、効く** | **ノイズ**が出る（ジッターのとき） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "自己遮蔽で、面全体が暗くなる"
     **小さなバイアス**を入れる、**レイの開始位置を法線方向に少しずらす**。
@@ -350,7 +350,7 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 ??? failure "全画面・長い距離で計算して、重い"
     **近景だけ・短い距離**にします。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] コンタクト シャドウ ＝ <strong>画素から光の方向へ、深度バッファ上で短いレイを進め</strong>、<strong>遮蔽</strong>を調べる
@@ -359,14 +359,14 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
     - [x] <strong>画面にある物しか見えない</strong>（<strong>補助</strong>として使う）
     - [x] <strong>ジッター ＋ 時間蓄積</strong>で、<strong>ステップ数を減らす</strong>
 
-## References {#参考}
+## 参考
 
 - Sousa, "Secrets of CryEngine 3 Graphics Technology"（2011、画面空間の影）
 - Bend Studio, "Screen Space Shadows"（GDC 2023 など）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shadows](index.md)
 - [Shadow Bias](bias/index.md)
-- [SSR（画面空間の反射）](../reflections/ssr-basics/index.md)
+- [SSR Basics](../reflections/ssr-basics/index.md)
 - [SSAO](../ao/ssao-hemisphere.md)

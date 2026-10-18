@@ -14,28 +14,28 @@ tags:
     - **遠くで細る問題は、アルファの補正で対処**。
     - **A2C やハッシュドで、縁をなめらかに**。
 
-## The Transparency Problem {#半透明の問題}
+## 半透明の問題
 **草と葉はアルファ テスト（切り抜き）で描きます**。**半透明ブレンドは、ソートが要るので不向き**です。
 
 半透明の問題と対策です。ジャギーには、A2C と MSAA、または TAA で滑らかにします。遠くで草が痩せる問題は、ミップでアルファが薄まるためで、ミップごとにアルファを補正します（[Alpha Testing](../../translucency/alpha-test/index.md)）。裏面が暗い、または明るい問題は、両面描画で裏面の法線を反転し、葉の透過光を足します。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "遠くの木の葉が、スカスカに見える"
     **ミップごとにアルファを補正**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **葉は、アルファ テスト系で処理**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Vegetation](index.md)
 - [Alpha Testing](../../translucency/alpha-test/index.md)

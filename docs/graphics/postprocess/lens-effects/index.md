@@ -8,18 +8,18 @@ tags:
 
 <strong>CG の画面は、本来「完璧すぎる」</strong>ものです。**実際のカメラは、レンズの歪み・色のずれ・周辺の暗さ・センサーのノイズ・光の反射**など、<strong>さまざまな「不完全さ」</strong>を**持ちます**。<strong>ポストプロセスでこれらを再現すると、「カメラで撮った絵」</strong>に**見え**、**リアリティや映画らしさ**が**増します**。**ただし、どれも「あれば高品質」というものではなく、表現の好みの問題**です。このセクションでは、**色収差・ビネット・フィルム グレイン・レンズ フレア**を、**1 つずつ別のページ**で説明します。
 
-## Summary of Effects {#効果の一覧}
+## 効果の一覧
 
 | 効果 | 内容 | 向く場面 |
 | --- | --- | --- |
-| [色収差](chromatic-aberration.md) | **画面の端で赤・緑・青がずれる** | **ホラー・SF・被ダメージの演出** |
-| [ビネット](vignette.md) | **周辺が暗くなる** | **視線の誘導・映画風・夜のシーン** |
-| [フィルム グレイン](film-grain.md) | <strong>細かいノイズ（粒子）</strong> | **フィルムの質感・暗部のバンディング隠し** |
-| [レンズ フレア](lens-flare.md) | **強い光源から、ゴーストと光芒** | **SF・日光・ヘッドライト** |
+| [Chromatic Aberration](chromatic-aberration.md) | **画面の端で赤・緑・青がずれる** | **ホラー・SF・被ダメージの演出** |
+| [Vignette](vignette.md) | **周辺が暗くなる** | **視線の誘導・映画風・夜のシーン** |
+| [Film Grain](film-grain.md) | <strong>細かいノイズ（粒子）</strong> | **フィルムの質感・暗部のバンディング隠し** |
+| [Lens Flare](lens-flare.md) | **強い光源から、ゴーストと光芒** | **SF・日光・ヘッドライト** |
 
-<strong>光の筋（ゴッド レイ）</strong>は、**大気の効果**なので[光の筋](../../atmosphere/god-rays/index.md)で扱います。
+<strong>光の筋（ゴッド レイ）</strong>は、**大気の効果**なので[God Rays](../../atmosphere/god-rays/index.md)で扱います。
 
-## See It in Motion: The Spread of Chromatic Aberration {#動きで見る色収差の広がり}
+## 動きで見る：色収差の広がり
 
 <!-- fig:chromatic-aberration-shift:begin -->
 
@@ -326,7 +326,7 @@ tags:
 
 <!-- fig:chromatic-aberration-shift:end -->
 
-## Order of Application {#適用の順序}
+## 適用の順序
 
 | 順序 | 効果 | 理由 |
 | --- | --- | --- |
@@ -337,7 +337,7 @@ tags:
 
 **1 つのパスに色収差・ビネット・グレイン・トーンマップ・ガンマをまとめる**と**フル解像度のパスが 1 回で済み**、**帯域が減ります**。
 
-## Do Not Overdo It {#かけすぎない}
+## かけすぎない
 
 | 効果 | かけすぎると |
 | --- | --- |
@@ -348,9 +348,9 @@ tags:
 
 **これらは全部「オプションでオフ」にできる**ように**します**。<strong>アクセシビリティ（光過敏・酔いやすい人）</strong>にも**重要**です。
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Post-Processing](../index.md)
 - [Bloom](../bloom/index.md)
 - [Color Grading](../color-grading/index.md)
-- [光の筋](../../atmosphere/god-rays/index.md)
+- [God Rays](../../atmosphere/god-rays/index.md)

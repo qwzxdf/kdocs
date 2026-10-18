@@ -16,7 +16,7 @@ tags:
     - <strong>ASC CDL</strong> は<strong>業界標準の形式</strong>（<strong>スロープ・オフセット・パワー・彩度</strong>）。
     - <strong>ゲーム</strong>では<strong>リニアでなく、ガンマ・対数空間</strong>で<strong>行う</strong>と<strong>感覚が合う</strong>。
 
-## Three Knobs {#3-つのつまみ}
+## 3 つのつまみ
 
 <svg class="fig illust" viewBox="0 0 780 250" role="img" aria-label="リフト・ガンマ・ゲイン">
 <text x="20" y="26" class="fig-title">3 つのつまみは、トーン曲線の別々の部分を動かす</text>
@@ -49,7 +49,7 @@ tags:
 | <strong>リフト（Lift）</strong> | **足す** | **暗部**（**白（1）は、ほぼ動かない**） |
 | <strong>ガンマ（Gamma）</strong> | **べき乗** | **中間調**（**0 と 1 は動かない**） |
 
-## Formula {#式}
+## 式
 
 ```hlsl
 float3 LiftGammaGain(float3 color, float3 lift, float3 gamma, float3 gain) {
@@ -61,7 +61,7 @@ float3 LiftGammaGain(float3 color, float3 lift, float3 gamma, float3 gain) {
 
 コードの要点です。`color * gain + lift` は、直線の傾き（ゲイン）と切片（リフト）を表します。`pow(color, 1 / gamma)` は中間調を曲げ、`gamma > 1` で明るくなります。各パラメータは `float3` で、RGB ごとに別の値を持つので、領域ごとの色味づけができます。
 
-### Another Definition of Lift {#リフトの別の定義}
+### リフトの別の定義
 
 **多くのツールでは、「リフトが白点を動かさない」よう**に**次の形**にします。
 
@@ -69,7 +69,7 @@ float3 LiftGammaGain(float3 color, float3 lift, float3 gamma, float3 gain) {
 
 **黒（c = 0）は `lift` だけ持ち上がり、白（c = 1）は変わりません**。**黒を沈めたり持ち上げたりする**のが**自然**になります。
 
-## ASC CDL (Slope, Offset, Power) {#asc-cdlスロープオフセットパワー}
+## ASC CDL（スロープ・オフセット・パワー）
 
 **ASC CDL**（American Society of Cinematographers Color Decision List）は、**映像業界で標準の色調整の交換形式**です。**LGG に近い 3 つのつまみ＋彩度**で**構成**されます。
 
@@ -97,7 +97,7 @@ float3 ApplyCDL(float3 color, float3 slope, float3 offset, float3 power, float s
 
 **Resolve・Nuke などのツールと、数値をやり取りできる**ので、**外部で作ったルックをゲームに持ち込めます**。
 
-## Per-Range Color Balance {#領域ごとのカラー-バランス}
+## 領域ごとのカラー バランス
 
 <strong>「暗部は青、中間はそのまま、明部は橙」</strong>のように**明るさの領域に別々の色味を乗せる**調整です。**ティール＆オレンジ**など、**映画的なルックの定番**です。
 
@@ -179,7 +179,7 @@ float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highli
 
 <!-- fig:color-lgg-curves:end -->
 
-## Where to Use It {#使いどころ}
+## 使いどころ
 
 | ルック | 設定の例 |
 | --- | --- |
@@ -189,7 +189,7 @@ float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highli
 | <strong>映画的（ティール＆オレンジ）</strong> | **暗部に青緑、明部にオレンジ** |
 | **コントラストの強い劇画風** | **ゲインを上げ、リフトを下げ、ガンマを調整** |
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -197,9 +197,9 @@ float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highli
 | **CDL 形式でやり取り** | **外部のカラリストと数値を共有** |
 | **LUT に焼く** | **LGG・バランス・彩度を、1 つの 3D LUT に**（[3D LUT](lut-3d.md)） |
 | **小さな値で調整** | **リフト・カラー バランスは、± 0.05 程度** |
-| **ボリュームで補間** | **場所ごとに、LGG を補間**（[LUT の作り方](lut-authoring.md)） |
+| **ボリュームで補間** | **場所ごとに、LGG を補間**（[Authoring LUTs](lut-authoring.md)） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "リフトを上げたら、白まで動いて、全体が白っぽい"
     **リフトの式を、`c + lift · (1 − c)` に**（白を動かさない）。
@@ -213,7 +213,7 @@ float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highli
 ??? failure "リニア空間で LGG を掛けて、効き方がおかしい"
     **ガンマ・対数空間で行う**、またはツールと同じ空間にそろえる。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] <strong>ゲイン（掛ける・明部）・リフト（足す・暗部）・ガンマ（べき乗・中間）</strong>
@@ -222,13 +222,13 @@ float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highli
     - [x] <strong>カラー バランス（シャドウ/ミッド/ハイライト）</strong>は<strong>輝度で重み</strong>
     - [x] <strong>LUT に焼く</strong>。<strong>ガンマ・対数空間で調整</strong>
 
-## References {#参考}
+## 参考
 
 - American Society of Cinematographers, "ASC CDL"
 - Selan, "Cinematic Color: From Your Monitor to the Big Screen"（SIGGRAPH 2012）
 - Blackmagic Design, "DaVinci Resolve: Primary Color Correction"
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Color Grading](index.md)
 - [Basic Adjustments](basic-adjustments.md)

@@ -14,7 +14,7 @@ tags:
     - **反射と屈折を、F で混ぜる**。
     - **ガラスの F0 は 0.04 程度**。
 
-## Fresnel {#フレネル}
+## フレネル
 **浅い角度**（面すれすれ）で見るほど、**反射が強く、透過（屈折）が弱く**なります。**水面を、真上から見ると底が見え、遠くを見ると空が映る**のは、**フレネル**です。
 
 **Schlick の近似**：
@@ -63,24 +63,24 @@ float3 color = lerp(refracted_background, reflection, f);
 
 <!-- fig:fresnel-f0:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "ガラスが、どの角度でも同じ透明度"
     **フレネルで、反射と屈折の割合を変える**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **角度で、反射と屈折の割合が変わる**
     - [x] **Schlick 近似で、安く計算**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Refraction](index.md)
 - [Water Shading](../../water/shading/index.md)

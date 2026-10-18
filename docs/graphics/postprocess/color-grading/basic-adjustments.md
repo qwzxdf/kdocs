@@ -94,7 +94,7 @@ tags:
 
 <!-- fig:basic-adjustments:end -->
 
-## Four Basic Operations {#4-つの基本操作}
+## 4 つの基本操作
 
 | 操作 | 内容 | 式 |
 | --- | --- | --- |
@@ -103,7 +103,7 @@ tags:
 | **彩度** | **鮮やかさ** | <strong>lerp(輝度, 色, 彩度)</strong> |
 | **色相** | **色の種類** | **色相環で回転** |
 
-## Contrast {#コントラスト}
+## コントラスト
 
 **ピボット（中心）より明るい部分はより明るく、暗い部分はより暗く**します。
 
@@ -131,7 +131,7 @@ float3 ApplyContrast(float3 color, float contrast, float pivot) {
 
 **線形のコントラスト**は、**0〜1 の外にはみ出す**ことがあるので、<strong>S 字（シグモイド）</strong>や**クランプ**で**抑える**ことが**あります**。
 
-## Saturation {#彩度}
+## 彩度
 
 ```hlsl
 float3 ApplySaturation(float3 color, float saturation) {
@@ -157,7 +157,7 @@ float3 ApplyVibrance(float3 color, float vibrance) {
 
 鮮やかさの調整には、2 つの方式があります。<strong>彩度（Saturation）</strong>は、全体を同じ割合で変えます。<strong>バイブランス（Vibrance）</strong>は、もともと地味な色をより強く鮮やかにします。肌の色などを不自然にしないための方式です。
 
-## Hue {#色相}
+## 色相
 
 **色相環（色の輪）の上で色を回転**させます。**RGB を直接回すより、色相・彩度・明度（HSV）や YCoCg に変換して回す**のが**一般的**です。
 
@@ -176,13 +176,13 @@ float3 RotateHue(float3 color, float angle_radians) {
 
 **色相の回転**は**ゲームでは特殊効果（毒・凍結・サイケデリック）や、全体の色味の調整**に**使われます**。
 
-## Space to Compute In {#計算する空間}
+## 計算する空間
 
 計算する空間によって、調整の効き方が変わります。<strong>リニア</strong>（光の量）は、物理的に正しい空間ですが、コントラストの効きが暗部に弱く、明部に強くなります。<strong>ガンマ（sRGB）</strong>は、見た目に近く、画像編集ソフトの感覚と合います。<strong>対数（Log）</strong>は、広いダイナミック レンジを均等に扱え、映画のグレーディングで標準です。
 
 **アーティストが写真編集ソフトの感覚で調整できる**ように、**ガンマ空間か、対数空間で調整**する**のが一般的**です（[3D LUT](lut-3d.md)）。
 
-## Order of Tuning {#調整の順序}
+## 調整の順序
 
 **これらの調整は、順序を入れ替えると結果が変わります**（**非可換**）。**ゲーム（エンジン）で順序を決めて固定**します。
 
@@ -194,7 +194,7 @@ float3 RotateHue(float3 color, float angle_radians) {
 | **④ コントラスト** | **ピボット中心で** |
 | **⑤ 彩度** | **最後に鮮やかさ** |
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -203,9 +203,9 @@ float3 RotateHue(float3 color, float angle_radians) {
 | **バイブランスを併用** | **鮮やかになりすぎない** |
 | **範囲外をクランプ** | **0〜1 に収める** |
 | **順序を固定** | **結果を再現できる** |
-| **パラメータをボリュームで管理** | **場所ごとに補間**（[LUT の作り方](lut-authoring.md)） |
+| **パラメータをボリュームで管理** | **場所ごとに補間**（[Authoring LUTs](lut-authoring.md)） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "コントラストを強くしたら、暗部が真っ黒、明部が真っ白"
     <strong>S 字（シグモイド）</strong>にする、**ピボットを正しく**、**適度に**。
@@ -219,7 +219,7 @@ float3 RotateHue(float3 color, float angle_radians) {
 ??? failure "調整の順序を変えて、ルックが変わった"
     **順序を固定**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 基本は<strong>露出・コントラスト・彩度・色相</strong>
@@ -228,13 +228,13 @@ float3 RotateHue(float3 color, float angle_radians) {
     - [x] <strong>リニア・ガンマ・対数</strong>で<strong>効き方が違う</strong>。<strong>ピボットを合わせる</strong>
     - [x] <strong>順序を固定</strong>。<strong>LUT に焼く</strong>
 
-## References {#参考}
+## 参考
 
 - Hable, "Color Grading with Look-Up Tables"（解説）
 - Colourist Guide, "Color Grading Fundamentals"
 - Selan, "Cinematic Color: From Your Monitor to the Big Screen"（SIGGRAPH 2012）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Color Grading](index.md)
 - [Lift, Gamma, Gain](lift-gamma-gain.md)

@@ -8,7 +8,7 @@ tags:
 
 **AO には、方式によらず出やすい不具合（アーティファクト）**が**いくつかあります**。**物の輪郭のハロー・平らな面の斑点・画面端の欠け・薄い物の欠け・ノイズとバンディング・ちらつき・適用の間違い・座標の取り違え**などです。このセクションでは、**症状から原因と対策を引く**ために、**症状別に 1 つずつ別のページ**で説明します。
 
-## List by Symptom {#症状別の一覧}
+## 症状別の一覧
 | 症状 | 主な原因 | 対策 |
 | --- | --- | --- |
 | <strong>手前の物の周りに暗い輪（ハロー）</strong> | 範囲チェック不足・手前の物の厚みが無限とみなされる | 範囲チェック・厚みの近似・バイラテラル ブラー |
@@ -24,7 +24,7 @@ tags:
 | **直接光の当たりも暗い** | AO を直接光に掛けた | **間接光だけ**に掛ける |
 | **遠景がにじんで暗い** | 半径が画面上で大きすぎる・減衰なし | 距離でフェード・半径の制限 |
 
-## Debugging Process {#デバッグの進め方}
+## デバッグの進め方
 
 AO の不具合は、原因が 1 つとは限りません。段階ごとに切り分けるのが、遠回りに見えて一番早い方法です。
 
@@ -40,7 +40,7 @@ AO の不具合は、原因が 1 つとは限りません。段階ごとに切�
 
 デバッグ表示の作り方は、[調査ツール](../../../rendering/tools.md)を参照してください。
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
@@ -50,19 +50,19 @@ AO の不具合は、原因が 1 つとは限りません。段階ごとに切�
 | [Noise, Banding and Flicker](noise-flicker.md) | 時間・空間のノイズ |
 | [Application Mistakes](application-mistakes.md) | 適用先・座標の取り違え |
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **症状別に原因と対策を探す**
     - [x] **AO 単体を画面に出して、デバッグ**
 
-## References {#参考}
+## 参考
 
 - Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
 - Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Ambient Occlusion (AO)](../index.md)
 - [AO Filtering](../filtering/index.md)
-- [方式の比較](../comparison.md)
+- [AO Comparison](../comparison.md)

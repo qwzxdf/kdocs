@@ -8,7 +8,7 @@ tags:
 
 **肌をきれいに描く**ことは、ゲーム描画の最も難しい課題の 1 つです。難しい理由は、肌が<strong>半透明の物体</strong>だからです。ふつうの描画では、物体の表面に当たった光を、そこで反射して終わり、と考えます。ところが肌では、**光の多くが皮膚の中へ入り込み、内部で散らばり、少し離れた場所から出てきます**。この出てくる光が肌の「柔らかさ」と「血色」を作ります。このページでは、肌の構造と、光がどう振る舞うかを整理し、後のページで扱う技術の全体像を示します。
 
-## Structure of Skin {#肌の構造}
+## 肌の構造
 
 人間の皮膚を、光の振る舞いの観点で、3 つの層に分けて考えます。
 
@@ -18,7 +18,7 @@ tags:
 
 最も深い<strong>真皮</strong>（数 mm）には、**血管**があり、**ヘモグロビン**を含む血液が流れています。ヘモグロビンは緑の光を吸収して、赤い光を残します。真皮の中で光は強く散乱され、広がり、**赤い光ほど遠くまで広がります**。この散らばって出てくる光が、肌の柔らかい赤みを作ります。
 
-## How Light Behaves {#光の振る舞い}
+## 光の振る舞い
 
 肌に光が当たると、次の 2 つの経路に分かれます。
 
@@ -30,7 +30,7 @@ tags:
 !!! note "なぜ赤く染まるのか"
     赤い光は、肌の中で吸収されにくく、遠くまで広がります。緑や青の光は、吸収されやすく、あまり広がりません。そのため、光が当たった点の周りには、赤い光だけが遠くまで漏れ出し、**明暗の境が赤みを帯びます**。これが、耳に強い光を当てたときに、耳が赤く透けて見える理由でもあります。
 
-## Overall Assembly {#全体の組み立て}
+## 全体の組み立て
 
 実際のゲームでは、肌の見た目を次の部品に分けて作ります。
 
@@ -44,7 +44,7 @@ shaded += EvaluateTransmittance(...);
 shaded *= ao;
 ```
 
-## Choosing a Technique {#技術の選び方}
+## 技術の選び方
 
 肌の SSS を実装する技術は、品質とコストで並べると、次のようになります。
 
@@ -54,7 +54,7 @@ shaded *= ao;
 
 最も高品質で重いのが、[ガウス和によるテクスチャ空間のぼかし](diffusion-profile.md)です。顔の UV 空間に、ライティングの結果を一度書き出し、6 枚のガウスで何段もぼかして足し合わせます。映画に近い品質ですが、UV 空間を使うため、キャラクターごとに専用のパスが要り、重いです。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "肌が、のっぺりしたプラスチックに見える"
     SSS を入れていない、または**影の縁の広がりが足りない**。散乱の幅（`sss_width`）を、顔の大きさに合わせる。
@@ -68,7 +68,7 @@ shaded *= ao;
 ??? failure "テクスチャの色を、ぼかしの前後で二重に掛ける"
     アルベドは、**ぼかしの前後に半分ずつ（√アルベド）掛ける**か、ぼかしの前にまとめて外す（[Separable SSS](screen-space-sss.md)）。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 肌 ＝ <strong>表面の鏡面反射 ＋ 内部で広がる光（SSS）</strong>
@@ -76,14 +76,14 @@ shaded *= ao;
     - [x] 実装は<strong>事前積分（軽い）／分離ぼかし（標準）／ガウス和（高品質）</strong>
     - [x] 鏡面は**ぼかさない**。薄い部分と目は、**別に処理する**
 
-## References {#参考}
+## 参考
 
 - Jensen, Marschner, Levoy, Hanrahan, "A Practical Model for Subsurface Light Transport"（SIGGRAPH 2001）
 - d'Eon, Luebke, "Advanced Techniques for Realistic Real-Time Skin Rendering"（GPU Gems 3, 2007）
 - Jimenez et al., "Separable Subsurface Scattering"（Computer Graphics Forum, 2015）
 - Penner, Borshukov, "Pre-Integrated Skin Shading"（GPU Pro 2, 2011）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Skin and Hair](../index.md)
 - [Subsurface Scattering](subsurface-theory.md)

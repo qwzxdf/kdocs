@@ -16,7 +16,7 @@ tags:
     - <strong>入力が広いダイナミック レンジ（HDR）なら、対数などでエンコードしてから引く</strong>。
     - <strong>外部ツールで作った LUT を、そのまま使える</strong>（<strong>.cube・.png 形式</strong>）。
 
-## How It Works {#仕組み}
+## 仕組み
 
 **RGB の各成分（0〜1）を、そのまま 3D テクスチャの X・Y・Z 座標**とします。**その座標の位置に、「変換後の色」を格納**しておきます。
 
@@ -45,7 +45,7 @@ tags:
 | **格子の点** | **32³ ＝ 32,768 個**（**各点に変換後の RGB**） |
 | **間の点** | **GPU の 3 線形補間**が、**自動で滑らかにつなぐ** |
 
-## Applying in DX11 {#dx11-での適用}
+## DX11 での適用
 
 ```hlsl
 Texture3D<float3> color_lut : register(t4);
@@ -66,7 +66,7 @@ float3 ApplyLut(float3 color) {
 | **`linear_clamp`** | **3 線形補間・端で止める** |
 | **形式** | **`R10G10B10A2_UNORM`・`R16G16B16A16_FLOAT`**（**8 ビットだとバンディング**） |
 
-### Why the Half Texel Is Needed {#なぜ半テクセルが要るのか}
+### なぜ半テクセルが要るのか
 
 <strong>テクスチャ座標 0.0 は、最初のテクセルの「端」</strong>で、**中心は 0.5/N** です。**LUT の格子点 0 と 1 を、そのまま 0.0・1.0 に対応させる**と、**最初と最後の格子点が補間で薄まります**。**`× (N−1)/N + 0.5/N`** で、**格子点の中心に合わせる**と、**正確な値**が**得られます**。
 
@@ -129,7 +129,7 @@ float3 ApplyLut(float3 color) {
 
 <!-- fig:lut-half-texel:end -->
 
-## Resolution {#解像度}
+## 解像度
 
 | 解像度 | メモリ（FP16×4） | 特徴 |
 | --- | --- | --- |
@@ -139,7 +139,7 @@ float3 ApplyLut(float3 color) {
 
 **調整が滑らか（なだらかな曲線）なら、小さな LUT でも補間で十分**きれいです。**急激な変化（切り捨て・強い色の入れ替え）が含まれる**と**大きな LUT** が**必要**です。
 
-## Laying Out in a 2D Texture (Strip) {#2d-テクスチャに並べるストリップ}
+## 2D テクスチャに並べる（ストリップ）
 
 **3D テクスチャを、2D の画像に「スライスを横に並べて」保存**する形式も**よく使われます**（**.png で外部ツールとのやり取り**）。
 
@@ -147,7 +147,7 @@ LUT を 2D の画像に保存する形式もよく使われます。32×32×32 �
 
 **ゲームでは読み込み時に、2D のストリップを、3D テクスチャに変換**して**使います**。
 
-## Handling a Wide Dynamic Range (Log Encoding) {#広いダイナミック-レンジを扱う対数エンコード}
+## 広いダイナミック レンジを扱う（対数エンコード）
 
 <strong>HDR の値（0〜数十）</strong>を**そのまま 0〜1 に収めて LUT を引く**と、**暗部の細かい階調が足りず、バンディング**が**出ます**。**対数（Log）で、広い範囲を 0〜1 に圧縮してから LUT を引く**ことが**多い**です。
 
@@ -170,18 +170,18 @@ float3 ApplyLutHdr(float3 hdr_color) {
 
 LUT には 2 つの方式があります。LDR LUT は、トーンマップ後（0〜1）を入力にし、簡単で、外部ツールの LUT にも対応できます。HDR（対数）LUT は、HDR のリニアを対数でエンコードして入力にし、トーンマップも LUT に含められます。
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
 | **半テクセルのオフセット** | **必須** |
 | **FP16・10 ビット** | **バンディングを避ける** |
 | **32³ から始める** | **足りなければ 64³** |
-| **LUT は一度作って使い回す** | **パラメータが変わった時だけ再生成**（[LUT の作り方](lut-authoring.md)） |
+| **LUT は一度作って使い回す** | **パラメータが変わった時だけ再生成**（[Authoring LUTs](lut-authoring.md)） |
 | **トーンマップも LUT に** | **曲線と色調整をまとめて焼く** |
 | **ディザリングで、8 ビット出力のバンディングを消す** | **LUT 後にわずかなノイズを足す** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "LUT を適用したら、黒と白の色がずれる"
     **半テクセルのオフセット**を入れる。
@@ -195,7 +195,7 @@ LUT には 2 つの方式があります。LDR LUT は、トーンマップ後�
 ??? failure "LUT を作る側と引く側で、エンコードが違って、色が変"
     <strong>同じエンコード（対数・ガンマ）</strong>にそろえる。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 3D LUT ＝ <strong>入力色を座標に、変換後の色を格納した 3D テクスチャ</strong>
@@ -204,13 +204,13 @@ LUT には 2 つの方式があります。LDR LUT は、トーンマップ後�
     - [x] <strong>FP16・10 ビット</strong>で<strong>バンディングを避ける</strong>
     - [x] <strong>HDR は対数エンコード</strong>してから引く
 
-## References {#参考}
+## 参考
 
 - Hable, "Uncharted 2: HDR Lighting"（GDC 2010, LUT）
 - Selan, "Cinematic Color: From Your Monitor to the Big Screen"（SIGGRAPH 2012）
 - Adobe, "Cube LUT Specification"
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Color Grading](index.md)
 - [Authoring LUTs](lut-authoring.md)

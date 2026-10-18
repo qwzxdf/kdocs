@@ -8,7 +8,7 @@ tags:
 
 3D の描画が終わった<strong>画像（HDR のカラー バッファ）</strong>に、**画面全体への加工**を重ねて、**最終的な見た目**を作るのが**ポストプロセス**です。**ブルーム（光のにじみ）・被写界深度（ピンぼけ）・モーション ブラー・アンチエイリアシング・トーンマッピング・カラー グレーディング**など、**ゲームの「絵作り」の、大半**がここで決まります。**ライティングが「物理的な光」を計算する**のに対し、**ポストプロセスは「カメラ（レンズ・フィルム・目）」を模擬する**と考えると整理しやすくなります。
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
@@ -21,7 +21,7 @@ tags:
 | [Lens Effects](lens-effects/index.md) | 色収差・ビネット・フィルム グレイン・レンズ フレア |
 | [Outlines and Toon](stylized/index.md) | 背面法・画面空間エッジ・セル シェーディング・ポスタライズとハーフトーン |
 
-## Order of Processing {#処理の順序}
+## 処理の順序
 
 **ポストプロセスは、順序を間違える**と**見た目が不自然**になります。**典型的な並び**です。
 
@@ -49,7 +49,7 @@ tags:
 
 **例外**：**グレーディングをトーンマップの前に行う**（**ACES の流れ**）・**ブルームをトーンマップ後に重ねる**など、**エンジンごとの流儀**があります。
 
-## Shared Techniques {#共通の技術}
+## 共通の技術
 
 | 技術 | 内容 |
 | --- | --- |
@@ -59,7 +59,7 @@ tags:
 | **HDR フォーマット** | <strong>R11G11B10_FLOAT（軽い）</strong>・<strong>R16G16B16A16_FLOAT（高精度）</strong> |
 | **ping-pong** | **2 枚のバッファを交互に入出力**にして**連鎖** |
 
-### Full-Screen Triangle {#フルスクリーン-トライアングル}
+### フルスクリーン トライアングル
 
 **頂点バッファなし**で、**`SV_VertexID`** から**3 頂点**を作ります。
 
@@ -79,10 +79,10 @@ VsOutput FullscreenVS(uint vertex_id : SV_VertexID) {
 
 コードの要点です。`uv` は `(0,0)`・`(2,0)`・`(0,2)` で、画面を覆う大きな三角形になります。`position` は uv を NDC に変換したもので、y は D3D のテクスチャ座標（上が 0）に合わせて反転します。描画は `Draw(3, 0)` で、インデックスも頂点バッファも不要です。
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [描画](../index.md)
-- [ポストプロセスの最適化](../../rendering/postprocess.md)
-- [TAA・アップスケール](../../rendering/taa-upscaling.md)
-- [低解像度エフェクト](../../rendering/low-res-effects.md)
+- [ポストプロセス](../../rendering/postprocess.md)
+- [TAA・アップスケーラ・VRS](../../rendering/taa-upscaling.md)
+- [縮小バッファの効果](../../rendering/low-res-effects.md)
 - [Reflections](../reflections/index.md)

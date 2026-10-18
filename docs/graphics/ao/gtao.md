@@ -16,13 +16,13 @@ tags:
     - <strong>時間方向</strong>にスライスの向きを回して、<strong>少ない方向数でも</strong>収束させる。
     - <strong>マルチ バウンス</strong>（間接光の回り込み）の近似、<strong>ベント法線</strong>、<strong>スペキュラ遮蔽</strong>が付く。
 
-## Improvements over HBAO {#hbao-からの改良}
+## HBAO からの改良
 
 HBAO と GTAO は、どちらも「地平線を探す」方式ですが、積分の扱いが違います。HBAO は<strong>立体角の割合</strong>を積分し、コサイン重みを省略していました。GTAO はコサイン重みを含めて、正しい AO の積分を行います。そのため、スライスごとに法線をスライス平面へ<strong>投影</strong>し、投影された法線の長さを、そのスライスの重みにします。
 
 内側の積分も違います。HBAO は `sin h − sin t` でしたが、GTAO は、コサイン重みを含めた<strong>閉じた式</strong> `â(h1, h2, γ)` を使います。地平線の探し方も、HBAO は片側に歩くだけですが、GTAO は両側（±）に歩いて、h1 と h2 の 2 つを求めます。さらに GTAO は、マルチ バウンスの近似、ベント法線、スペキュラ遮蔽を同じ枠組みで扱い、薄い物体のための簡単なヒューリスティックも持っています。
 
-## Theory: Integration over Slices {#理論スライスに分けた積分}
+## 理論：スライスに分けた積分
 
 [理論](theory/index.md)の AO は次の積分でした。
 
@@ -93,7 +93,7 @@ GTAO は<strong>視線ベクトル v を含む平面（スライス）</strong>�
 
 <!-- fig:gtao-visibility:end -->
 
-### Formula for the Inner Integral {#内側の積分の式}
+### 内側の積分の式
 
 地平線 h₁・h₂ が**法線を中心にした、cos の半円**にクランプされたあとの、スライス内の可視性は、次の式です。
 
@@ -107,13 +107,13 @@ GTAO は<strong>視線ベクトル v を含む平面（スライス）</strong>�
 
 この式は、「**h から法線の方向まで、`cos(角度 − γ)` を積分する**」ことを`∫ cos x · …` として解いたものです。**サンプルで数える代わりに、地平線 2 つの角度を入れるだけで、積分が出る**のが、GTAO の核心です。
 
-### Clamping the Horizon {#地平線のクランプ}
+### 地平線のクランプ
 
 **法線から ±90 度**より外は、**コサイン重みが 0**（面の裏側）です。**地平線が法線の半円の外に出ないよう**に、丸めます。
 
 <div class="formula">h₁ ← γ + max(h₁ − γ, −π/2)、　h₂ ← γ + min(h₂ − γ, +π/2)</div>
 
-## Searching for the Horizon {#地平線の探し方}
+## 地平線の探し方
 
 各スライスで、両側（＋方向と −方向）に深度バッファを歩きます。角度をそのまま測らず「コサイン」で扱うと、`acos` を毎ステップ呼ばずに済み、計算が安く済みます。
 
@@ -126,7 +126,7 @@ float falloff = saturate((radius_dist - dist) * falloff_mul + falloff_add);
 horizon_cos = max(horizon_cos, lerp(low_horizon_cos, shc, falloff));
 ```
 
-## Computing One Slice {#1-つのスライスの計算}
+## 1 つのスライスの計算
 
 ```hlsl
 float SliceVisibility(float3 p, float3 v, float3 n, float2 dir, float2 h_cos) {
@@ -167,7 +167,7 @@ float SliceVisibility(float3 p, float3 v, float3 n, float2 dir, float2 h_cos) {
 !!! note "実装の参考"
     Intel の **XeGTAO**（GameTechDev/XeGTAO）は、GTAO の実装を、**HLSL の完全なコード**として公開しています。**パラメータの意味・ノイズ・時間蓄積・ベント法線**まで含んでおり、**自分で実装する際の最もよい参考資料**です。
 
-## Slice Count and Noise {#スライスの数とノイズ}
+## スライスの数とノイズ
 
 画素あたりのスライス数は、1〜2 本です（リアルタイムでは、これが限界です）。これでどうやって収束させるのでしょうか。答えは、<strong>空間と時間の両方に分散させる</strong>ことです。
 
@@ -175,13 +175,13 @@ float SliceVisibility(float3 p, float3 v, float3 n, float2 dir, float2 h_cos) {
 
 GTAO が実用的な速さで動くのは、この<strong>時間蓄積</strong>のおかげです。1 フレームの結果は非常に粗いものですが、数フレームを重ねるときれいになります（[Temporal Accumulation](filtering/temporal.md)）。
 
-## Handling Thin Objects {#薄い物体への対策}
+## 薄い物体への対策
 
 スクリーン空間では、手前の物体の「厚み」が分かりません。深度バッファが示すのは、面の手前側だけです。薄い柱の後ろにある面は、柱が無限に厚いとみなされ、必要以上に暗くなります（[Screen Edges and Thin Objects](artifacts/edge-thin.md)）。
 
 GTAO の論文は、簡単なヒューリスティックを提案しています。「物体は手前の面から、奥へ一定の厚みしかない」と仮定して、<strong>遠い遮蔽物による地平線の更新を弱める</strong>方法です。これで、薄い物の後ろが暗くなりすぎるのを防げます。ほかの選択肢は、距離の減衰を強めに掛けること、あるいは（高コストですが）手前の面とその裏の面の 2 枚の深度を持つことです。実装は XeGTAO などを参照してください。
 
-## Multi-Bounce: Approximating Interreflection {#マルチ-バウンス回り込みの近似}
+## マルチ バウンス：回り込みの近似
 
 AO は、「**遮蔽された方向は、真っ暗**」と考えます。しかし、現実には**遮蔽物の表面で光が反射して、そこそこ明るい**です（間接光の、2 回目以降の反射＝**マルチ バウンス**）。**明るい色の部屋の隅**が真っ黒になるのは、不自然です。
 
@@ -206,15 +206,15 @@ float3 MultiBounce(float ao, float3 albedo) {
 
 **明るい色**（ρ が大きい）ほど、**AO が持ち上がり**、**暗い色**ではほぼそのままです。**色ごと（RGB）に**計算すると**赤い壁の隅が赤く照らされる**効果も出ます。
 
-## Bent Normals and Specular Occlusion {#ベント法線とスペキュラ遮蔽}
+## ベント法線とスペキュラ遮蔽
 
-### Bent Normals {#ベント法線}
+### ベント法線
 
 可視な範囲の平均の方向を、<strong>ベント法線</strong>（bent normal）と呼びます。普通の法線は面が向いている方向ですが、ベント法線は<strong>空が見えている方向</strong>を向きます。
 
 拡散の環境光（IBL）では、法線の代わりにベント法線で環境マップを引くと、遮られた方向の光を拾わなくなります。また、スペキュラ遮蔽では、可視円錐の向きとして使います。GTAO では、スライスごとの可視な範囲の中心から、ベント法線を作れます。
 
-### Specular Occlusion {#スペキュラ遮蔽}
+### スペキュラ遮蔽
 
 AO は拡散（ざらっとした反射）に掛けるものです。鏡面反射にも遮蔽があります。隅の見えないはずの所に、環境マップの反射が見えてしまう破綻です。これを<strong>スペキュラ遮蔽</strong>で弱めます。
 
@@ -228,19 +228,19 @@ float SpecularOcclusion(float n_dot_v, float ao, float roughness) {
 
 粗さが低い（鏡面に近い）ほど AO の影響を弱くし、粗いほど AO に近づけます。Lagarde による、広く使われている近似です。
 
-## Where GTAO Fits {#gtao-の位置づけ}
+## GTAO の位置づけ
 
 精度の面では、コサイン重みが正確で積分が解析的なので、レイトレース AO に近い結果が出ます。コストは、スライス 1〜2 本 × 両側のステップ 8〜12 で、時間蓄積が前提です。入力は深度と（あれば）法線で、深度から復元もできます。マルチ バウンス・ベント法線・スペキュラ遮蔽も付いてきます。実装は XeGTAO が公開されており、主要なエンジンが GTAO 系を採用または提供しています。
 
-## Weaknesses {#弱点}
+## 弱点
 
 スクリーン空間の限界（画面外・隠れた物・薄い物）は残り、薄い物はヒューリスティックで軽減するだけです。ノイズと時間蓄積に依存するので、動きの速い場面ではゴースト（残像）やちらつきが出ることがあります。角度・クランプ・符号の管理が細かく、実装は複雑です。画素 × スライス × 両側のステップという、ステップのコストもかかります。
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 GTAO を超える精度が必要なら、レイトレース AO に切り替えます（[RTAO](world-space/rtao.md)）。ハードウェアのレイトレーシングが使える環境では、画面外や薄い物の問題が根本的に消えます。そうでない環境では、GTAO を基本として、画面に映らない大きな遮蔽は、距離場 AO や、焼き込んだ AO で補うのが現実的です（[World-Space AO Comparison](world-space/comparison.md)）。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "地平線のクランプを忘れて、面の裏側の遮蔽が効く"
     `h₁, h₂` を法線の ±90 度に丸めます。
@@ -257,7 +257,7 @@ GTAO を超える精度が必要なら、レイトレース AO に切り替え�
 ??? failure "スペキュラ遮蔽を入れず、隅に環境マップの反射が、まぶしく映る"
     スペキュラ遮蔽を足します。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] GTAO ＝ <strong>コサイン重みを正しく積分する、地平線ベースの AO</strong>
@@ -266,16 +266,16 @@ GTAO を超える精度が必要なら、レイトレース AO に切り替え�
     - [x] <strong>時間・空間でスライスの向きを変え</strong>、ブラーと時間蓄積で収束
     - [x] <strong>マルチ バウンス・ベント法線・スペキュラ遮蔽</strong>も扱える
 
-## References {#参考}
+## 参考
 
 - Jimenez, Wu, Pesce, Jarabo, "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
 - Intel, XeGTAO（GameTechDev/XeGTAO、GTAO の HLSL 実装）
 - Lagarde, Rousiers, "Moving Frostbite to Physically Based Rendering"（スペキュラ遮蔽の近似式）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Ambient Occlusion (AO)](index.md)
 - [HBAO](hbao.md)
-- [フィルタ](filtering/index.md)
-- [方式の比較](comparison.md)
+- [AO Filtering](filtering/index.md)
+- [AO Comparison](comparison.md)
 - [PBR](../../3d/pbr.md)

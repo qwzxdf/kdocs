@@ -15,7 +15,7 @@ tags:
     - 深度だけから、位置と法線を<strong>高精度に復元</strong>する。<strong>G-Buffer 不要</strong>。
     - <strong>後の多くの SSAO 実装に影響</strong>した方式（深度のミップ・キャッシュを意識した設計）。
 
-## Problem: Why a Large Radius Is Slow {#問題半径が大きいとなぜ遅いか}
+## 問題：半径が大きいとなぜ遅いか
 
 Alchemy AO は、**画面上の螺旋**でサンプルを置きます。**半径 R が大きい**とサンプルは**画面上で遠く**に散ります。深度テクスチャの**離れた位置を、バラバラに読む**ので**テクスチャ キャッシュが効かず**、メモリ アクセスが**遅く**なります。
 
@@ -23,7 +23,7 @@ GPU のテクスチャ読み込みは、隣り合う画素をまとめてキャ�
 
 HBAO や Alchemy AO でも、半径を大きくすると急に重くなることがありました。これは式の問題でなく、<strong>深度の読み方の問題</strong>です。SAO は式を変えず、読み方だけを変えて、この問題を解きます。
 
-## Solution: Depth Mip Maps {#解決深度のミップ-マップ}
+## 解決：深度のミップ マップ
 
 **深度テクスチャのミップ チェーン**を作ります。**遠くのサンプルは、粗いミップ**から読みます。**粗いミップは小さい**ので、**キャッシュに収まり**、**散らばっても速い**のです。
 
@@ -232,7 +232,7 @@ HBAO や Alchemy AO でも、半径を大きくすると急に重くなること
 
 <!-- fig:sao-mip:end -->
 
-### Which Mip to Read {#どのミップから読むか}
+### どのミップから読むか
 
 **画面上のサンプルまでの距離**（ピクセル）に応じて、ミップを選びます。
 
@@ -251,7 +251,7 @@ float3 SamplePosition(float2 uv, int mip) {
 }
 ```
 
-## Building the Mips: Do Not Average {#ミップの作り方平均してはいけない}
+## ミップの作り方：平均してはいけない
 
 深度のミップは、**普通のミップ（4 画素の平均）で作ってはいけません**。**物体の境界**で**手前の画素と奥の画素を平均**すると、**どちらにも存在しない、中間の深度**ができます。この**嘘の深度**が、AO で**幽霊のような遮蔽**を作ります。
 
@@ -267,7 +267,7 @@ float MipDown(float2 uv_in_src) {
 }
 ```
 
-## Reconstructing Position and Normal from Depth {#位置と法線を深度から復元する}
+## 位置と法線を深度から復元する
 
 SAO は、**G-Buffer の法線を使いません**。**深度だけ**から、位置と法線を復元します。
 
@@ -290,7 +290,7 @@ float3 ReconstructNormal(int2 pixel, float3 c) {
 }
 ```
 
-## Processing Flow {#処理の流れ}
+## 処理の流れ
 
 SAO は 5 つのパスで構成されます。
 
@@ -298,25 +298,25 @@ SAO は 5 つのパスで構成されます。
 
 論文には、実装の細かい最適化もあります。AO の結果と深度を、1 枚のテクスチャのチャンネルに<strong>詰めて</strong>保存し、ブラーのパスでテクスチャを読む回数を減らします。1 回のテクスチャ読み込みで、AO と深度の両方が手に入るためです。メモリ帯域が律速になる処理では、こういう工夫の積み重ねが効きます。
 
-## Performance Characteristics {#性能の特徴}
+## 性能の特徴
 
 SAO のコストは、主に 3 つで決まります。サンプル数に比例して増えます（9〜13 個が目安）。画素数に比例して増えます（半分の解像度で計算すれば、さらに軽くなります。[低解像度のエフェクト](../../rendering/low-res-effects.md)）。そして、<strong>半径にはほぼ依存しません</strong>。これが「スケーラブル」の意味です。ブラーは分離可能なので、コストは小さいです。
 
-## Comparison with Alchemy AO {#alchemy-ao-との比較}
+## Alchemy AO との比較
 
 AO の式そのものは Alchemy AO と同じで、変わったのは「読み方」だけです。Alchemy AO は常にミップ 0（フル解像度）の深度を読みます。SAO は距離に応じて粗いミップを読むので、半径を大きくしてもコストがほぼ一定です。法線も、G-Buffer に頼らず、深度だけから高精度に復元できます。ほかにも、キャッシュ、パッキング、ブラーの最適化など、実装面の工夫を多く入れています。
 
-## Weaknesses {#弱点}
+## 弱点
 
 式が Alchemy のままなので、ハロー、薄い物、画面外といった[スクリーン空間 AO の共通の弱点](artifacts/index.md)は、そのまま残ります。
 
 粗いミップを使うことによる弱点もあります。遠くの細かい遮蔽は、粗い深度では取りこぼします。半径が大きい場合に目立ちます。また、代表の 1 点を選ぶ方式は、カメラが動くと選ばれる画素が切り替わり、縮小した深度が<strong>ちらつく</strong>ことがあります（[Noise, Banding and Flicker](artifacts/noise-flicker.md)）。コサイン重みも近似なので、[GTAO](gtao.md) のような正確な積分ではありません。
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 SAO の「深度のミップ」の発想は、その後の多くの実装に受け継がれています。最近の実装は、深度のミップを Hi-Z（階層化深度バッファ）として使い回します。シーンの他の処理（SSR のレイ マーチ、カリング）と共有できるためです（[Hi-Z とスクリーン空間トレース](../../rendering/hiz.md)）。また、精度を重視するなら、SAO の速さの工夫に GTAO の積分を組み合わせた構成を取ります（実際、XeGTAO は深度のミップ チェーンに、GTAO の積分を載せています）。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "深度のミップを、通常の平均で作って、境界にゴーストが出る"
     **代表の 1 点を選ぶ**（または最小・最大）方式で作ります。
@@ -330,7 +330,7 @@ SAO の「深度のミップ」の発想は、その後の多くの実装に受�
 ??? failure "16 ビットの深度で、平らな面に縞が出る"
     32 ビットの浮動小数点か、**2 チャンネルに分けて**精度を確保します。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] SAO ＝ <strong>Alchemy AO の式 ＋ 深度のミップ チェーン</strong>
@@ -339,16 +339,16 @@ SAO の「深度のミップ」の発想は、その後の多くの実装に受�
     - [x] <strong>深度だけから</strong>、位置と法線を復元（G-Buffer 不要）
     - [x] <strong>後の多くの SSAO 実装に影響</strong>した方式
 
-## References {#参考}
+## 参考
 
 - McGuire, Mara, Luebke, "Scalable Ambient Obscurance"（HPG 2012）
 - McGuire et al., "The Alchemy Screen-Space Ambient Obscurance Algorithm"（HPG 2011）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Ambient Occlusion (AO)](index.md)
 - [Alchemy AO](alchemy-ao.md)
 - [HBAO](hbao.md)
-- [フィルタ](filtering/index.md)
-- [低解像度のエフェクト](../../rendering/low-res-effects.md)
+- [AO Filtering](filtering/index.md)
+- [縮小バッファの効果](../../rendering/low-res-effects.md)
 - [Hi-Z とスクリーン空間トレース](../../rendering/hiz.md)

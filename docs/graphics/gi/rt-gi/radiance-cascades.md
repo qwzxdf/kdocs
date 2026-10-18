@@ -555,7 +555,7 @@ tags:
 
 <!-- fig:radiance-cascades:end -->
 
-### The Idea: Trading Space for Direction {#発想空間と方向のトレードオフ}
+### 発想：空間と方向のトレードオフ
 
 ある点が受け取る光を正確に知りたいとします。素朴に考えれば、点（空間）を細かく取り、さらに方向も細かく取って、その積の数だけレイが要ります。画面全体に対して、画素ごとに数百本のレイは、とても払えません。
 
@@ -565,7 +565,7 @@ tags:
 
 つまり、「細かい点 × 粗い方向」で近距離を、「粗い点 × 細かい方向」で遠距離を担当させれば、どちらも少ないサンプルで済みます。
 
-### Cascades {#カスケード}
+### カスケード
 
 この観察を、複数の<strong>カスケード</strong>という階層で実現します。カスケード 0 は、最も細かい間隔で配置したプローブで、持つ方向の数は少なく、担当するのは近距離です。カスケード 1 は、プローブの間隔が倍（数は 1/4）、方向の数は 4 倍（2D の場合）で、やや遠い距離を担当します。カスケード 2 は、さらに間隔が倍、方向が 4 倍で、さらに遠くを担当し、以下同様に続きます。
 
@@ -573,7 +573,7 @@ tags:
 
 プローブの数が 1/4 になり、方向の数が 4 倍になるので、<strong>カスケードごとのレイの総数は一定</strong>になります。カスケードの数は距離の対数に比例して増えるだけなので、全体の計算量は「画素数 × カスケードの数」と、とても小さく済みます。
 
-### Merging: Passing Distant Light to the Near Side {#マージ遠い光を近い方に伝える}
+### マージ：遠い光を近い方に伝える
 
 各カスケードは、自分の区間の光しか知りません。全体の光を得るには、<strong>遠いカスケードの結果を、近いカスケードに伝えます</strong>（マージ）。
 
@@ -594,34 +594,34 @@ float3 MergeCascade(int cascade, float2 probe_pos, int dir_index) {
 
 `near.a` は、区間の途中で何かに遮られなかった割合（透過率）で、遮られていれば遠くの光は見えないので、0 に近づきます。補間によって、段差が出ないように、カスケード間をなめらかにつなぎます。
 
-### Computing a Pixel's Irradiance {#画素の放射照度の求め方}
+### 画素の放射照度の求め方
 
 カスケード 0 のプローブは、全方向（少数の方向）の光を持っています。各画素は、近傍のカスケード 0 のプローブから、法線に沿った余弦重みで方向を足し合わせることで、放射照度を得ます。
 
-### Properties {#性質}
+### 性質
 
 Radiance Cascades は、ランダムを使わず、規則的なサンプルなので、<strong>ノイズがありません</strong>。計算量は、画素数に比例して、ほぼ一定です。2D ゲームの GI で特に成功しており、『Path of Exile 2』の GI の仕組みとして使われています。3D への拡張は、方向が球面（2 次元）に広がり、サンプル数が増えるため、研究と実装が進んでいる段階です。
 
 原典は、Alexander Sannikov による公開資料と、Osborne らによる論文（2024 年）です。この手法は発展の途中なので、最新の情報は原典を確認してください。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "階層の境目に、段差が見える"
     **階層間を補間**して、なめらかにつなぐ。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **距離ごとに、解像度を変えて持つ**
     - [x] **ノイズが少なく、安定**
 
-## References {#参考}
+## 参考
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Ray-Traced GI](index.md)
 - [Choosing a Method](choosing.md)

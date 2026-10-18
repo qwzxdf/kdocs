@@ -11,10 +11,10 @@ tags:
 !!! tip "ポイント"
     - **深度だけを描く**（**カラー書き込みなし・ピクセル シェーダーなし**）。
     - **影を落とさない物は描かない**（**カリング・フラグ**）。
-    - **前面カリング**を使うと**アクネが減る**ことがある（[バイアス](../bias/front-face-culling.md)）。
+    - **前面カリング**を使うと**アクネが減る**ことがある（[Front-Face Culling](../bias/front-face-culling.md)）。
     - **アルファ テストの物**は**ピクセル シェーダーが要る**（[Alpha-Tested Shadows](../special-cases/alpha-test-shadows.md)）。
 
-## ② Rendering the Shadow Map {#②-シャドウ-マップを描く}
+## ② シャドウ マップを描く
 **深度だけ**を描きます。**ピクセルシェーダーは不要**（アルファ テストする物を除く）で、**非常に速い**描画です。
 
 ```cpp
@@ -48,23 +48,23 @@ device->CreateShaderResourceView(shadow_tex, &srv_desc, &shadow_srv);
 | **フォーマット** | 16 ビットで足りることも多い（精度を許容できれば、帯域が半分） |
 | **描画する物** | **影を落とす物だけ**。**ライティングなし**のシェーダー（頂点シェーダーのみ） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "画面に映らない物だけを描いて、影が欠ける"
     **光から見える物を描く**。**画面外の物も、影を落とす**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **光から見た深度だけを描く、軽いパス**
     - [x] **対象を絞る**。**ピクセル シェーダー不要（アルファ テスト以外）**
 
-## References {#参考}
+## 参考
 
 - Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shadow Map Basics](index.md)
 - [The Light Matrix](light-matrix.md)

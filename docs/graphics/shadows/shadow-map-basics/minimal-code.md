@@ -12,7 +12,7 @@ tags:
     - **全体 ＝ 光の行列 → 深度パス → 比較（ライティング）**。
     - **最小版は、バイアス・フィルタなし**。**これに、バイアスと PCF を足して実用に**。
 
-## Full Code (Minimal) {#全体のコード最小}
+## 全体のコード（最小）
 ```hlsl
 Texture2D<float> shadow_tex : register(t5);
 SamplerComparisonState shadow_sampler : register(s5);
@@ -28,23 +28,23 @@ float3 Shade(float3 world_pos, float3 N, float3 L, float3 albedo, float3 light_c
 }
 ```
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "最小のコードのまま製品に使って、アクネ・ジャギーが出る"
     **バイアス（[Shadow Bias](../bias/index.md)）とフィルタ（[PCF](../pcf.md)）を足す**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **最小のコードで、全体の流れを確認**
     - [x] **実用にはバイアスとフィルタが必須**
 
-## References {#参考}
+## 参考
 
 - Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Shadow Map Basics](index.md)
 - [Shadow Bias](../bias/index.md)

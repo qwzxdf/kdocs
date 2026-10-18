@@ -299,7 +299,7 @@ tags:
 
 <!-- fig:velocity-buffer:end -->
 
-## What Velocity Is {#速度とは}
+## 速度とは
 
 **画素 P が表す 3D の点が、前フレームでは画面のどこにいたか**を**求め、現在位置との差**を**速度**とします。
 
@@ -319,7 +319,7 @@ tags:
 <text x="400" y="164">この画像を、ブラー・TAA・アップスケールが読む</text></g>
 </svg>
 
-## Writing It (Moving Objects) {#書き込み動く物体}
+## 書き込み（動く物体）
 
 **物体を描くときに、「今の位置」と「前フレームの位置」を、両方計算**して、**差を出力**します。
 
@@ -366,13 +366,13 @@ float2 PSMain(VSOutput input) : SV_Target {
 | **NDC → UV の差** | **`× (0.5, −0.5)`**（**NDC の Y 向きと、UV の Y 向きは逆**） |
 | **ジッターを引く** | **TAA のサブピクセル ジッター**を**差し引いてから比較** |
 
-## Camera Motion (Static Objects) {#カメラの動き静止した物}
+## カメラの動き（静止した物）
 
 **静止している物体は、カメラが動いたぶんだけ、画面で動く**ので**描画時に書かなくても深度から計算**できます（[Camera Motion Blur](camera-blur.md)）。**動く物体だけが速度バッファに書き込み、書かれていない画素は、カメラの速度**を**使います**。
 
 画素ごとの速度の出どころです。動く物体は、速度バッファに書き込んだ値を使います。静止した物（書かれていない画素）は、深度から再構成したカメラの速度を使います。
 
-## Precision and Format {#精度と形式}
+## 精度と形式
 
 | 項目 | 内容 |
 | --- | --- |
@@ -383,19 +383,19 @@ float2 PSMain(VSOutput input) : SV_Target {
 
 **8 ビットは不十分**です（**小さな速度が量子化で消える**）。
 
-## Handling Jitter {#ジッターの扱い}
+## ジッターの扱い
 
 <strong>TAA は毎フレーム、サブピクセル単位でカメラを揺らします（ジッター）</strong>。**速度を揺らした位置どうしで比べる**と、**ジッターの差がすべての画素の速度に混ざり、静止した物がブレます**。
 
 ジッターの対処は 2 つです。現在と前フレームの NDC のそれぞれから、そのフレームのジッターを引きます。あるいは、速度計算用の `view_projection` を、ジッターなしで別に持ちます。
 
-## Skinning and Animation {#スキニングアニメーション}
+## スキニング・アニメーション
 
 **キャラクターの手足**などは、**前フレームの姿勢**で**頂点位置**を**再計算**する必要があります。
 
 スキニング済みの頂点の速度は、3 通りで求めます。前フレームのボーン行列を保存して、スキニングを今と前の 2 回行う方法。前フレームの頂点位置をバッファに保存し、スキニング後の頂点位置をスワップして使う方法。メッシュ シェーダーで、頂点位置を今と前の両方計算する方法です。
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -406,7 +406,7 @@ float2 PSMain(VSOutput input) : SV_Target {
 | **TAA・ブラー・アップスケールで共有** | **1 枚を作り、複数の効果が読む** |
 | **新しく現れた物体は速度 0** | **初出のフレームで前の行列がないと速度が壊れるので現在 = 前にする** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "静止している物が、ブラーやゴーストでぼける"
     **ジッターを速度に混ぜている**。**ジッターを引く**。
@@ -420,7 +420,7 @@ float2 PSMain(VSOutput input) : SV_Target {
 ??? failure "速度を 8 ビットで保存して、小さな動きが 0 になる"
     **`R16G16_FLOAT`** にする。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 速度 ＝ <strong>今の画面位置 − 前フレームの画面位置</strong>
@@ -429,13 +429,13 @@ float2 PSMain(VSOutput input) : SV_Target {
     - [x] <strong>ジッターは引く</strong>。<strong>前フレームの行列を保持</strong>
     - [x] <strong>スキニングは前フレームの姿勢で</strong>
 
-## References {#参考}
+## 参考
 
 - Karis, "High Quality Temporal Supersampling"（SIGGRAPH 2014）
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 - McGuire et al., "A Reconstruction Filter for Plausible Motion Blur"（I3D 2012）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Motion Blur](index.md)
 - [Camera Motion Blur](camera-blur.md)

@@ -1261,7 +1261,7 @@ tags:
 
 <!-- fig:domain-warp:end -->
 
-## Domain Warping {#ドメイン-ワーピング}
+## ドメイン ワーピング
 **ノイズの入力座標を別のノイズでゆがめる**と、**自然に曲がりくねった形**になります。
 
 ```hlsl
@@ -1279,23 +1279,23 @@ float WarpedFbm(float2 p) {
 | **層を重ねる** | **q → r → 最終**と**2 段**で**複雑に** |
 | **コスト** | **fBm を何度も呼ぶ**ので**重い**。**生成時（ベイク）に使い、実行時には焼いたテクスチャを読む** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "地形に、規則的な模様が見える"
     **ドメイン ワーピング**で**ゆがめる**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **座標をノイズでゆがませる**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain Generation](index.md)
 - [fBm](fbm.md)

@@ -14,7 +14,7 @@ tags:
     - **色付きの影**：**半透明の色を、別の画像に描き、影に掛ける**。
     - **簡易には、半透明は影を落とさない**ことも**多い**。
 
-## Translucent Shadows {#半透明の影}
+## 半透明の影
 **ガラス・煙・半透明の布**は**光を部分的に通します**。**シャドウ マップは、深度しか持たない**ので<strong>「完全に遮る」か「完全に通す」</strong>の**2 択**になります。
 
 | 方法 | 内容 |
@@ -24,7 +24,7 @@ tags:
 | **不透明として扱う** | **ガラスでも影を濃く**落とす（**嘘だが手軽**） |
 | **色付きシャドウ マップ** | **別のシャドウ マップ**（**RGB ＋ 深度**）に、**半透明の物の色と透過率**を**乗算ブレンド**で保存。**ステンドグラス**のような**色付きの影**。**不透明の物の影とは、別に引く** |
 | <strong>多層（Deep Shadow Maps）</strong> | **深度ごとの透過率**を保存（**煙・髪**）。**メモリが重く**、**専用** |
-| <strong>レイトレース影（Any-Hit）</strong> | **Any-Hit シェーダー**で、**透過率を累積**（[レイトレース影](../ray-traced.md)） |
+| <strong>レイトレース影（Any-Hit）</strong> | **Any-Hit シェーダー**で、**透過率を累積**（[Ray-Traced Shadows](../ray-traced.md)） |
 
 <!-- fig:stipple-shadow:begin -->
 
@@ -204,7 +204,7 @@ tags:
 
 <!-- fig:stipple-shadow:end -->
 
-### Example of Stippling {#ステッポリングの例}
+### ステッポリングの例
 
 ```hlsl
 float threshold = Bayer4x4(pixel_position);
@@ -213,23 +213,23 @@ clip(opacity - threshold);
 
 <strong>ディザ（Bayer 行列・IGN）</strong>で、**透明度の割合**だけ**画素を残し**、**影の濃さ**を**確率的に**表現します。**ノイズ**が出るので、**PCF や TAA**で**消します**。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "ガラスが真っ黒な影を落とす"
     **半透明は影を落とさない・ステップリング・色付き影**のいずれか。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **深度のシャドウ マップは、半透明の薄い影を表せない**
     - [x] **ステップリング・色付きの影で近似**
 
-## References {#参考}
+## 参考
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Special Cases](index.md)
-- [ブレンドとソート](../../translucency/blending-sorting/index.md)
+- [Alpha Blending and Sorting](../../translucency/blending-sorting/index.md)

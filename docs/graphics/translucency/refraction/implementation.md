@@ -14,7 +14,7 @@ tags:
     - **屈折物体同士の重なりは、扱えない**（片方の層のみ）。
     - **限界：画面外・重なり・手前の物**。
 
-## Implementation Overview {#実装の全体像}
+## 実装の全体像
 ```hlsl
 float4 PSGlass(VsOutput input) : SV_Target {
   float3 n = normalize(input.normal);
@@ -37,32 +37,32 @@ float4 PSGlass(VsOutput input) : SV_Target {
 
 **出力アルファは 1**（**背景を、自分で混ぜている**ため）。<strong>ブレンドは、不要（上書き）</strong>です。
 
-## Cost and Limits of Refraction {#屈折のコストと限界}
+## 屈折のコストと限界
 | 項目 | 内容 |
 | --- | --- |
 | **背景のコピー** | **フル解像度の HDR カラー 1 枚**（**帯域**） |
 | **半透明の重なり** | **コピーは不透明のみ**。**重なるガラスは、別途** |
 | **画面空間の限界** | **画面外・裏側の物は、屈折で写らない** |
-| **レイトレの屈折** | **正確**（画面外・多重屈折も OK）。**HW RT が必要**（[RT 反射](../../reflections/rt-reflections/index.md)） |
+| **レイトレの屈折** | **正確**（画面外・多重屈折も OK）。**HW RT が必要**（[Ray-Traced Reflections](../../reflections/rt-reflections/index.md)） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "屈折物体の重なりが、正しく表示されない"
     **重なりは、1 層だけ屈折**とし、**OIT** などで補う。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **不透明 → コピー → 屈折の順**
     - [x] **重なりと画面外が限界**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Refraction](index.md)
 - [Screen-Space Refraction](screen-space.md)

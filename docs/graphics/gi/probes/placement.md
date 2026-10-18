@@ -14,7 +14,7 @@ tags:
     - **壁の中に置かない**（無効なプローブは、補間から外す）。
     - **密度が低いと、光がぼやけ、漏れる**。
 
-## Placement {#置き方}
+## 置き方
 **プローブの配置**は、**品質**に直結します。
 
 | 指針 | 内容 |
@@ -76,7 +76,7 @@ tags:
 
 <!-- fig:probe-light-leak:end -->
 
-### Light Leaks (Leaking Through Walls) {#ライト-リーク壁越しの漏れ}
+### ライト リーク（壁越しの漏れ）
 
 **プローブ間の補間**は、**壁の存在を知らない**ので、**壁の向こう側のプローブの光**が、**こちら側に漏れる**ことがあります。
 
@@ -88,32 +88,32 @@ tags:
 | **法線バイアス** | **物体の位置を法線方向に少しずらして**、**補間** |
 
 
-### Adaptive Placement {#適応的な配置}
+### 適応的な配置
 
 均一な格子は、広い空き地では無駄が多く、複雑な室内では足りません。そこで、シーンの複雑さに応じて密度を変える方式があります。Unreal Engine の Volumetric Lightmap は、シーンの幾何の複雑さに応じて、八分木（ブリック）の細かさを変えます。重要な部分（建物の近くなど）は細かいブリック、何もない空は大きなブリックになります。メモリを保ちながら、必要な場所に密度を集中できます。
 
-### Adaptive Placement {#適応的な配置_1}
+### 適応的な配置
 
 均一な格子は、広い空き地では無駄が多く、複雑な室内では足りません。そこで、シーンの複雑さに応じて密度を変える方式があります。Unreal Engine の Volumetric Lightmap は、シーンの幾何の複雑さに応じて、八分木（ブリック）の細かさを変えます。重要な部分（建物の近くなど）は細かいブリック、何もない空は大きなブリックになります。メモリを保ちながら、必要な場所に密度を集中できます。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "プローブが壁の中にあって、暗い・おかしな色になる"
     **壁の中のプローブは無効にして、補間から外す**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **格子 ＋ 手動で補う**
     - [x] **変化の大きい所を密に**
 
-## References {#参考}
+## 参考
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Probe GI](index.md)
 - [Interpolation Methods](interpolation.md)

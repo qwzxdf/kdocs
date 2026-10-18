@@ -373,7 +373,7 @@ tags:
 
 <!-- fig:msaa-samples:end -->
 
-## Difference from SSAA {#ssaa-との違い}
+## SSAA との違い
 
 <strong>SSAA（スーパー サンプリング）</strong>は、**画面全体を縦横 2 倍（面積 4 倍）で描いて縮小**する方式です。**最も高品質**ですが**ピクセル シェーダーも 4 倍回るので、非常に重い**です。
 
@@ -402,7 +402,7 @@ SSAA 4x と MSAA 4x を比べます。SSAA 4x は、ピクセル シェーダー
 <text x="520" y="146">最終的な 1 画素の色にする</text></g>
 </svg>
 
-## How It Works {#仕組み}
+## 仕組み
 
 | 手順 | 内容 |
 | --- | --- |
@@ -413,7 +413,7 @@ SSAA 4x と MSAA 4x を比べます。SSAA 4x は、ピクセル シェーダー
 
 **内側の画素**は**全サンプルが同じ色**なので、**平均しても変わりません**。**縁の画素**だけ、<strong>サンプルごとに色が違い（三角形の色と背景の色）</strong>、**平均すると中間色になり、滑らか**になります。
 
-## Sample Patterns {#サンプル-パターン}
+## サンプル パターン
 
 **サンプル点の位置**は、**規則格子ではなく、回転した（ずらした）配置**が使われます。
 
@@ -421,7 +421,7 @@ SSAA 4x と MSAA 4x を比べます。SSAA 4x は、ピクセル シェーダー
 
 **規則格子**（**縦横にそろう**）だと**水平・垂直に近い縁でサンプルの高さが同じになり、段階が減ります**。**回転・ずらした配置**にすると**どの傾きの縁でも多くの段階**が**得られます**。
 
-## Settings in DX11 {#dx11-での設定}
+## DX11 での設定
 
 ```cpp
 DXGI_SAMPLE_DESC sample_desc = {4, 0};
@@ -441,13 +441,13 @@ context->ResolveSubresource(resolved.Get(), 0, msaa_color.Get(), 0, DXGI_FORMAT_
 
 設定の要点です。`SampleDesc = {4, 0}` で 4x MSAA になり、カラーも深度も同じサンプル数です。`ResolveSubresource` は、ハードウェアがサンプルを平均して 1 サンプルの画像にします。HDR では、リゾルブが単純平均なので、明るい点が混ざってトーンマップ後の見た目が悪化することがあります（次の節）。
 
-### Caution for Resolve in HDR {#hdr-でのリゾルブの注意}
+### HDR でのリゾルブの注意
 
 <strong>HDR（値が 1 を超える）</strong>を**そのまま平均**すると**明るい点が支配的になり、トーンマップ後に縁がジャギーのまま見えます**。**対策**：
 
 HDR（値が 1 を超える）をそのまま平均すると、明るい点が支配的になり、トーンマップ後に縁がジャギーのまま見えます。対策は 2 つです。サンプルごとにトーンマップ（またはその近似）してから平均して戻す方法。コンピュート シェーダーのカスタム リゾルブで、サンプルを読み、輝度で重み付けして平均する方法です（ファイアフライ対策と同様です）。
 
-## Weaknesses {#弱点}
+## 弱点
 
 | 弱点 | 理由 | 対処 |
 | --- | --- | --- |
@@ -457,7 +457,7 @@ HDR（値が 1 を超える）をそのまま平均すると、明るい点が�
 | **メモリと帯域が サンプル数 倍** | **深度・カラーのサンプルが増える** | **サンプル数を下げる・圧縮に頼る** |
 | **ポストプロセスと相性が悪い** | **リゾルブ前のサンプルは、画面全体の加工に使いにくい** | **リゾルブしてから加工** |
 
-### Alpha to Coverage (A2C) {#アルファ-トゥ-カバレッジa2c}
+### アルファ トゥ カバレッジ（A2C）
 
 **葉・フェンスのアルファ テスト**の縁は、**MSAA で滑らかになりません**。**A2C** を**有効にする**と、**ピクセル シェーダーが出力したアルファを、カバレッジ マスクに変換**し、**サンプルごとに覆う・覆わないを決めます**。
 
@@ -466,7 +466,7 @@ D3D11_BLEND_DESC blend = {};
 blend.AlphaToCoverageEnable = TRUE;
 ```
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -476,7 +476,7 @@ blend.AlphaToCoverageEnable = TRUE;
 | **HDR はトーンマップ後の見た目でリゾルブ** | **明るい点でジャギーが復活しないよう** |
 | **スペキュラ AA を併用** | **シェーダー内のちらつきは、別に対策**（法線の分散を粗さに足す） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "MSAA を有効にしたのに、スペキュラのちらつきが消えない"
     **MSAA はジオメトリの縁だけ**。**TAA・スペキュラ AA** を使う。
@@ -490,7 +490,7 @@ blend.AlphaToCoverageEnable = TRUE;
 ??? failure "葉のアルファ テストの縁が、ジャギーのまま"
     <strong>A2C（`AlphaToCoverageEnable`）</strong>を使う。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] MSAA ＝ <strong>1 画素に複数サンプル</strong>。<strong>縁だけサンプルごとに判定</strong>。<strong>シェーダーは 1 回</strong>
@@ -499,16 +499,16 @@ blend.AlphaToCoverageEnable = TRUE;
     - [x] <strong>メモリ・帯域が サンプル数 倍</strong>。<strong>ディファードとは相性が悪い</strong>
     - [x] <strong>A2C</strong> で<strong>アルファ テストの縁</strong>も
 
-## References {#参考}
+## 参考
 
 - Akeley, "RealityEngine Graphics"（SIGGRAPH 1993）
 - Microsoft, "Multisampling Anti-Aliasing"（Microsoft Learn）
 - Pettineo, "A Quick Overview of MSAA"（The Danger Zone）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Anti-Aliasing](index.md)
 - [FXAA](fxaa.md)
 - [TAA](taa.md)
 - [Comparison and Choosing](comparison.md)
-- [ラスタライズ（MSAA）](../../../3d/render-flow/rasterize.md)
+- [ラスタライズ](../../../3d/render-flow/rasterize.md)

@@ -14,7 +14,7 @@ tags:
     - **TAA や複数サンプルで、平均してなめらかに**。
     - **ノイズが出る**。
 
-## Stochastic Transparency {#確率的透明}
+## 確率的透明
 <strong>アルファを「そのフラグメントが残る確率」</strong>と考え、**画素ごとのランダムな値と比べて、残すか捨てるか**を決めます（[アルファ テストのハッシュド アルファ](../alpha-test/index.md)と同じ発想）。**不透明として深度に書ける**ので、**ソート不要**で、<strong>TAA（時間平均）</strong>で**滑らかな半透明**に**収束**します。
 
 確率的透明の利点は、ソート不要で深度が書けること（DOF や SSAO などと相性が良い）、正確な期待値に収束すること、実装が簡単なことです。欠点は、ノイズが出て TAA やデノイズが必須なこと、1 フレームでは粗いこと、アルファが小さいと収束が遅いことです。
@@ -72,24 +72,24 @@ tags:
 
 <!-- fig:stochastic-alpha:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "ノイズが残る"
     **TAA** や **サンプル数を増やして**、**平均**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **ランダムに捨てて、平均する**
     - [x] **TAA が前提**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [OIT](index.md)
 - [Hashed Alpha](../alpha-test/hashed-alpha.md)

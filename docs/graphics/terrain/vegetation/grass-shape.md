@@ -14,7 +14,7 @@ tags:
     - **頂点カラーで、風の効き方（根元は動かない）を指定**。
     - **テクスチャで、葉の形を切り抜く**。
 
-## Grass Shape {#草の形}
+## 草の形
 **草は細い葉が大量に生えている**ので、**ポリゴンを工夫**します。
 
 | 方式 | 内容 |
@@ -39,23 +39,23 @@ local.y *= lerp(1.0, 0.9, bend);
 | **根元の色を暗く** | **地面との馴染み・AO の代わり**。**先端を明るく** |
 | **地形の色に合わせる** | **草の根元の色を地形のテクスチャの色から取る**と、**境目が消える** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "草が、横から見ると、板に見える"
     **複数枚を交差**させる・**向きをカメラに合わせる**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **板ポリの交差と、切り抜きテクスチャ**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Vegetation](index.md)
 - [Wind](wind.md)

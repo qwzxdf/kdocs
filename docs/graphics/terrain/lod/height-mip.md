@@ -14,7 +14,7 @@ tags:
     - **ミップで高さの平均を取ると、山が低くなる**。
     - **最大・最小のミップも用意すると、カリングに使える**。
 
-## Heightmap LOD (Mips) {#高さマップの-lodミップ}
+## 高さマップの LOD（ミップ）
 **メッシュだけでなく、高さマップもミップを使います**。**遠くの頂点は粗いミップから読む**と**ちらつかず、メモリ アクセスも減ります**。
 
 対応の要点です。ミップ レベルは LOD レベルに対応し、LOD が 1 下がるごとに、ミップを 1 上げます。高さのミップは平均でよいですが、最大値のミップもカリングに使えます。最小・最大の高さは、ノードの境界ボックスに使います。
@@ -93,23 +93,23 @@ tags:
 
 <!-- fig:height-mip-bars:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "遠くの山が、低く見える"
     **最大値のミップ**も**併用**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **LOD に合わせて、ミップを選ぶ**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain LOD](index.md)
 - [Heightmaps and Meshes](../heightmap-mesh/index.md)

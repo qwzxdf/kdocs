@@ -74,7 +74,7 @@ tags:
 
 <!-- fig:lod-cracks:end -->
 
-## Seams (Cracks) {#継ぎ目クラック}
+## 継ぎ目（クラック）
 **LOD の違うタイルが隣り合う**と、<strong>境界で頂点の位置が合わず、隙間（クラック）</strong>ができます。**細かい側の境界の頂点が、粗い側の辺の上にないため**です。
 
 <svg class="fig illust" viewBox="0 0 780 220" role="img" aria-label="LOD の継ぎ目">
@@ -96,23 +96,23 @@ tags:
 | **共通の頂点を使う** | **境界の頂点の高さを両側で同じ式（粗い側の補間）で決める** |
 | **隣のレベル差を 1 までに制限** | **隣接するタイルの LOD の差を 1 以内**にする（**四分木の制約**） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "LOD の境界に、背景が見える隙間が出る"
     **スカート**または**境界の頂点調整**を入れる。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **境界の頂点を合わせるか、スカートで隠す**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain LOD](index.md)
 - [Geomorphing](morphing.md)

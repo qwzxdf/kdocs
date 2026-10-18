@@ -79,7 +79,7 @@ tags:
 
 <!-- fig:radial-streak:end -->
 
-## Screen-Space Radial Blur {#画面空間の放射ぼかし}
+## 画面空間の放射ぼかし
 **画面上の太陽の位置を中心に、各ピクセルから太陽へ向かう直線上の明るさを、何度かサンプルして足し合わせる**方法です。**簡単・安価で古くから使われています**。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="放射ぼかし">
@@ -124,36 +124,36 @@ float3 GodRays(float2 uv, float2 sun_uv) {
 | **サンプル数** | **32〜100**。**半解像度で描く**と**軽い** |
 | **欠点** | **太陽が画面の外だと使えない**。**太陽の向きを見ていないと、筋が消える**。**空気の濃さ・影の奥行きは表現できない** |
 
-### Principle {#原理}
+### 原理
 
 この方式は、Mitchell の GPU Gems 3 の記事 "Volumetric Light Scattering as a Post-Process"（2007）で広まりました。考え方は、「画面上で太陽に近い位置の明るさが、そこから伸びる光の筋の源である」ことです。まず、シーンを「太陽の明るさだけが残り、物体は黒いシルエット」になる画像（オクルージョン画像）に直します。次に、各ピクセルから太陽の画面位置へ向かう直線に沿って、この画像をサンプルして足します。太陽に近い方向の明るい部分（空）が、直線上にあれば、そのピクセルは明るくなります。物体のシルエットが直線上にあれば、その分は暗いままです。結果として、シルエットの背後から放射状に伸びる光の筋が出ます。
 
 直線に沿ったサンプルは、太陽から遠ざかるほど弱める減衰（`decay`）を掛けて足します。この減衰が、光が遠くへ届くほど弱まる様子を表します。
 
-### Why the Constraints Exist {#制約の理由}
+### 制約の理由
 
 この方式は、あくまで「画面の絵」を加工しているだけで、3D の空間を解いていません。そのため、太陽が画面外にあると、そもそも太陽の画面位置が定義できず、ぼかしの中心がなくなります。また、手前の物体と奥の物体は区別できず、すべてが同じ平面のシルエットとして扱われます。「霧の奥行き」も存在しません。これらの制約は、後の節で説明するシャドウ マップによる方式で解決されます。
 
 **太陽が画面外のときにも自然にするため**、**太陽が画面に近いほど強く、離れると弱くする**フェードを**付けます**。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "太陽が画面外に出ると、光の筋が消える"
     **他の方式**に**切り替える**、または**フェード**させる。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **太陽から放射状にぼかす。手軽だが制約あり**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [God Rays](index.md)
 - [Gaussian Blur](../../postprocess/bloom/gaussian.md)

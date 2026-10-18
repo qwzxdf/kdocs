@@ -16,7 +16,7 @@ tags:
     - <strong>重みは合計 1 に正規化</strong>（<strong>明るさを保つ</strong>）。
     - <strong>ブルームでは、縮小した画像にかける</strong>ので、<strong>小さなカーネル（5〜9 タップ）で済む</strong>。
 
-## The Gaussian Function {#ガウス関数}
+## ガウス関数
 
 <div class="formula">G(x) = (1 / (σ√(2π))) · exp( −x² / (2σ²) )</div>
 
@@ -32,7 +32,7 @@ tags:
 <text x="390" y="224" text-anchor="middle" style="font-size:12px">中心からの距離 →</text>
 </svg>
 
-## Separability {#分離可能性}
+## 分離可能性
 
 **2D のガウスは、横の 1D ガウス × 縦の 1D ガウス**に**分解できます**。**そこで、「横方向にぼかす」→「縦方向にぼかす」の 2 パス**に**分ける**と、**タップ数が大幅に減ります**。
 
@@ -506,7 +506,7 @@ tags:
 
 <!-- fig:gaussian-separable:end -->
 
-## Implementation (Horizontal and Vertical) {#実装横方向と縦方向}
+## 実装（横方向と縦方向）
 
 ```hlsl
 Texture2D src : register(t0);
@@ -533,7 +533,7 @@ float4 BlurMain(float4 position : SV_POSITION, float2 uv : TEXCOORD0) : SV_Targe
 
 コードの要点です。`direction` は、横なら (1, 0)、縦なら (0, 1) で、同じシェーダーを 2 回使います。`kWeights` は σ ≒ 2 の 9 タップ（中心 + 片側 4）で、合計は 1 です。中心だけ 1 回、左右は対称に足します。重みが左右対称だからです。
 
-## Halving the Taps with Bilinear {#バイリニアでタップ数を半分に}
+## バイリニアでタップ数を半分に
 
 **隣り合う 2 画素をちょうど良い位置の 1 回のバイリニア読み込みで**まとめられます。**2 画素の重み w1, w2 と、位置 o1, o2 に対して**：
 
@@ -561,7 +561,7 @@ float4 BlurLinear(float4 position : SV_POSITION, float2 uv : TEXCOORD0) : SV_Tar
 
 **9 タップが 5 回の読み込み**で**済みます**（**約 55 %**）。**ただし、精度（FP16 のフォーマット）やフィルタ可能なフォーマットが条件**です。
 
-## σ and Kernel Size {#σ-とカーネル-サイズ}
+## σ とカーネル サイズ
 
 σ とカーネルの大きさの目安です。半径 R は約 3σ にします（それ以降はほぼ 0 です）。σ は、ぼかしたい広さ（画素）を 2〜3 で割った値にします。重みの合計は 1 に正規化して、明るさが変わらないようにします。
 
@@ -580,7 +580,7 @@ std::vector<float> GaussianWeights(int radius, float sigma) {
 }
 ```
 
-## Using It for Bloom {#ブルームでの使い方}
+## ブルームでの使い方
 
 <strong>ブルームでは縮小した画像（1/2〜1/64）に、小さなカーネル（5〜9 タップ）</strong>で**ぼかします**。**元の解像度では、広い範囲**になるので**ガウスの半径が小さくても、十分なにじみ**になります。
 
@@ -592,17 +592,17 @@ std::vector<float> GaussianWeights(int radius, float sigma) {
 
 **縮小とぼかしを同時に行う方式**が<strong>[Dual Filter](dual-filter.md)</strong> です。
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
 | **分離 ＋ バイリニアで読み込み** | **タップ数を最小に** |
 | **共有メモリで読み込みを再利用**（コンピュート） | **隣接スレッドが同じ画素を何度も読むのを避ける** |
-| **縮小した画像にかける** | **カーネルを小さくできる**（[ダウンサンプル](downsample.md)） |
+| **縮小した画像にかける** | **カーネルを小さくできる**（[Downsampling and the Mip Chain](downsample.md)） |
 | **ガンマ・HDR に注意** | **リニアな HDR 値でぼかす**（ガンマ空間でぼかすと暗くなる） |
 | **端の処理** | **`clamp` で端を延ばす**（**黒が混ざらないように**） |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "ぼかしたら、画面全体が暗く（明るく）なった"
     **重みの合計が 1 でない**。**正規化**する。
@@ -616,7 +616,7 @@ std::vector<float> GaussianWeights(int radius, float sigma) {
 ??? failure "ガンマ空間（LDR）でぼかして、暗くなる"
     **リニアでぼかす**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] ガウス ＝ <strong>釣り鐘の重みで周りを平均</strong>。<strong>σ が強さ、半径は 3σ</strong>
@@ -625,15 +625,15 @@ std::vector<float> GaussianWeights(int radius, float sigma) {
     - [x] <strong>重みの合計は 1</strong>。<strong>端は clamp</strong>
     - [x] ブルームでは<strong>縮小した画像に、小さなカーネル</strong>
 
-## References {#参考}
+## 参考
 
 - Rákos, "Efficient Gaussian blur with linear sampling"（2010）
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 - Gonzalez & Woods, "Digital Image Processing"
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Bloom](index.md)
 - [Downsampling and the Mip Chain](downsample.md)
 - [Dual Filter](dual-filter.md)
-- [SSAO のぼかし](../../ao/filtering/index.md)
+- [AO Filtering](../../ao/filtering/index.md)

@@ -14,33 +14,33 @@ tags:
     - **音を、こもらせる**（ローパス フィルタ）。
     - **画面の端を少し歪ませる**と、水中らしい。
 
-## Other Underwater Elements {#水中の他の要素}
+## 水中の他の要素
 | 要素 | 内容 |
 | --- | --- |
 | **視界** | **水中の霧で見える距離を制限** |
-| **ゆらぎ** | **画面全体を法線の動きで少し歪ませる**（[ポストプロセス](../../postprocess/index.md)） |
+| **ゆらぎ** | **画面全体を法線の動きで少し歪ませる**（[Post-Processing](../../postprocess/index.md)） |
 | **泡の粒子** | **ゆっくり上がる泡**（パーティクル） |
 | **マリン スノー** | **漂う小さな粒**（ほこり）。**奥行き感が出る** |
 | **音** | **ローパス フィルタ**（こもった音） |
 | **色補正** | **青緑に寄せる** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "水中なのに、地上と同じ雰囲気"
     **粒子・色補正・音**も**切り替える**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **粒子・色・音も、水中用に切り替える**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Underwater Rendering](index.md)
 - [Color Grading](../../postprocess/color-grading/index.md)

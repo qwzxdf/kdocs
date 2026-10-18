@@ -14,7 +14,7 @@ tags:
     - **乗算：Zero / SrcColor**（影・色付きガラス）。
     - **深度の書き込みは OFF、読み取りは ON**。
 
-## DirectX 11 Blend State {#directx-11-のブレンド-ステート}
+## DirectX 11 のブレンド ステート
 ```cpp
 D3D11_BLEND_DESC blend_desc = {};
 blend_desc.RenderTarget[0].BlendEnable = TRUE;
@@ -80,7 +80,7 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 
 <!-- fig:blend-modes:end -->
 
-### Kinds of Blending {#ブレンドの種類}
+### ブレンドの種類
 
 | 種類 | `SrcBlend` / `DestBlend` | 式 | 用途 |
 | --- | --- | --- | --- |
@@ -92,24 +92,24 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 
 **加算と乗算は、順序に依存しない**（足し算・掛け算は、交換できる）ので、**ソートが不要**です。**炎・光の粒・影**は、**この性質を利用**して**ソートなしで描ける**ことが多いです。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "半透明の物が、後ろの物を隠して、穴が開いたように見える"
     **深度の書き込みを OFF**にする。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **通常・加算・乗算の 3 つを覚える**
     - [x] **半透明は、深度の書き込み OFF**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Alpha Blending and Sorting](index.md)
 - [Premultiplied Alpha](premultiplied.md)

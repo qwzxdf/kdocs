@@ -8,7 +8,7 @@ tags:
 
 **地形は広く、全部を細かいメッシュで描くと重すぎます**。**近くは細かく、遠くは粗く**する**LOD（レベル オブ ディテール）**が、**必須**です。このセクションでは、**LOD が要る理由・CDLOD・モーフィング・継ぎ目・クリップマップ・テッセレーション・高さマップのミップ・選び方**を、**1 つずつ別のページ**で説明します。
 
-## Why LOD Is Needed {#なぜ-lod-が要るか}
+## なぜ LOD が要るか
 **透視投影では遠くの物は小さく見える**ので、**同じ大きさのマスでも遠くは画面上でとても小さい**です。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="距離とマスの大きさ">
@@ -24,13 +24,13 @@ tags:
 
 LOD の目標は 3 つあります。画面上の誤差を、LOD を下げたことによる見た目のずれが数ピクセル以下にすること。三角形の大きさを、画面上でおおむね均一にすること（小さな三角形は GPU が不得意です）。総数の上限を決め、視点がどこでも三角形の数がほぼ一定になるようにすることです。
 
-### Why LOD Is Needed {#なぜ-lod-が必要なのか}
+### なぜ LOD が必要なのか
 
 地形を最高の細かさで全域に描くと、三角形が多すぎて描けません。たとえば 4 km 四方を 1 m 刻みで作ると、約 3200 万の三角形になります。ところが、遠くの地形は、画面上では 1 画素にも満たない大きさなので、細かく描く意味がありません。距離に応じて細かさを変えて、画面上でどの三角形もほぼ同じ大きさ（たとえば 2〜4 画素）になるようにすれば、総数は視点の周りの数万〜数十万に収まります。
 
 LOD の設計で難しいのは、切り替えです。細かさが変わる境目で、メッシュの形が突然変わると「ポップ」が見え、隣り合う LOD の境目に隙間（クラック）ができます。この 2 つの問題に対して、モーフィングとクラック処理が必要になります。
 
-## Guidelines for Choosing LOD {#lod-の選び方の目安}
+## LOD の選び方の目安
 | 状況 | 向く方式 |
 | --- | --- |
 | <strong>標準的なゲーム（数 km）</strong> | <strong>四分木（CDLOD）</strong>。**モーフィング付き** |
@@ -38,7 +38,7 @@ LOD の設計で難しいのは、切り替えです。細かさが変わる境�
 | **既存のエンジンで簡単に** | **テッセレーション ＋ 距離係数** |
 | **非常に大規模・密** | **メッシュ シェーダー ＋ GPU ドリブン**（[GPU Driven](../../../rendering/index.md)） |
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
@@ -46,23 +46,23 @@ LOD の設計で難しいのは、切り替えです。細かさが変わる境�
 | [Geomorphing](morphing.md) | 切り替えを、なめらかに |
 | [Cracks and Seams](cracks.md) | LOD の境目の隙間 |
 | [Geometry Clipmaps](clipmap.md) | カメラ中心の同心の格子 |
-| [テッセレーション](tessellation.md) | ハードウェアで細分割 |
-| [高さマップのミップ](height-mip.md) | 遠くは粗い高さを読む |
+| [Hardware Tessellation](tessellation.md) | ハードウェアで細分割 |
+| [Heightmap LOD (Mips)](height-mip.md) | 遠くは粗い高さを読む |
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **近くは細かく、遠くは粗く**
     - [x] **切り替えは、モーフィングでなめらかに**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain](../index.md)
 - [Heightmaps and Meshes](../heightmap-mesh/index.md)
-- [LOD（ジオメトリ）](../../../rendering/lod.md)
+- [LOD とインポスター](../../../rendering/lod.md)

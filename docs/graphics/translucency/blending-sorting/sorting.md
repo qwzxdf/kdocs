@@ -14,7 +14,7 @@ tags:
     - **パーティクルは、系統ごと・距離でソート**。
     - **描画順は、不透明 → 半透明（奥から手前）**。
 
-## Sorting {#ソート}
+## ソート
 **奥から手前**の順に描くため、**半透明のオブジェクトを、カメラからの距離で並べ替えます**。
 
 ```cpp
@@ -47,7 +47,7 @@ std::sort(sorted.begin(), sorted.end(),
 float view_depth = Vector3::Dot(center - camera_position, camera_forward);
 ```
 
-### Limits of Sorting {#ソートの限界}
+### ソートの限界
 
 | 問題 | 内容 | 対策 |
 | --- | --- | --- |
@@ -57,7 +57,7 @@ float view_depth = Vector3::Dot(center - camera_position, camera_forward);
 | **パーティクル** | **数が多い**ので、**ソートが重い** | **GPU ソート・加算ブレンドで回避** |
 | **ポップ** | **カメラが動くと、順序が突然入れ替わり、見た目が変わる** | **中心の取り方・OIT** |
 
-### Self-Overlap (Two Passes) {#自己重なり2-パス}
+### 自己重なり（2 パス）
 
 **ガラスの瓶**のように、**閉じたメッシュ**は、**背面（奥の面）を先に描き、前面（手前の面）を後に描く**と、**正しい順序**に近づきます。
 
@@ -118,7 +118,7 @@ DrawMesh();
 
 <!-- fig:alpha-sort-order:end -->
 
-## Deciding Blend Order (Summary) {#ブレンド順序の決め方まとめ}
+## ブレンド順序の決め方（まとめ）
 | 物 | ブレンド | ソート |
 | --- | --- | --- |
 | **ガラス・水面** | 通常 | **必要** |
@@ -127,24 +127,24 @@ DrawMesh();
 | <strong>影の板（ブロブ）</strong> | 乗算 | **不要** |
 | **UI** | 通常 | **描画順を、レイヤーで決める** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "入り組んだ半透明が、前後逆に見える"
     **ソートの粒度を細かく**する、または **OIT**を使う。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **不透明の後に、半透明を奥から手前へ**
     - [x] **入り組むなら、OIT**
 
-## References {#参考}
+## 参考
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Alpha Blending and Sorting](index.md)
 - [OIT](../oit/index.md)

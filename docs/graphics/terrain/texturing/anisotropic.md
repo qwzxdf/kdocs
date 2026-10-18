@@ -14,7 +14,7 @@ tags:
     - **地形では、ほぼ必須**。
     - **設定で ON にするだけ**。
 
-## Anisotropic Filtering {#異方性フィルタリング}
+## 異方性フィルタリング
 **斜めから見る地面**は、**テクスチャが縦に潰れる**ので、**ぼやけます**。<strong>異方性フィルタリング（16x など）</strong>を**有効**にすると**遠くの地面もくっきり**します。**地形ではほぼ必須**です。
 
 <!-- fig:aniso-footprint:begin -->
@@ -35,23 +35,23 @@ tags:
 
 <!-- fig:aniso-footprint:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "遠くの地面が、ぼやけている"
     **異方性フィルタリング（8x〜16x）**を有効にする。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **斜めの面のぼけを防ぐ**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain Texturing](index.md)
-- [テクスチャ フィルタ](../../../3d/mesh-textures.md)
+- [メッシュとテクスチャ](../../../3d/mesh-textures.md)

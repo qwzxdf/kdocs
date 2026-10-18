@@ -14,7 +14,7 @@ tags:
     - **動く物体の周りで、ゴーストに注意**。
     - **TAA と同じ考え方**。
 
-## Temporal Accumulation (TAA-Style) {#時間蓄積taa-風}
+## 時間蓄積（TAA 風）
 **froxel の解像度が低く、サンプルが少ない**ので**そのままだとノイズや縞が出ます**。**前フレームの結果を再利用して、時間方向に平均します**。
 
 | 工夫 | 内容 |
@@ -32,7 +32,7 @@ float blend = IsValidHistory(previous_uvw) ? 0.05 : 1.0;
 float4 result = lerp(history, current, blend);
 ```
 
-### The Effect and Why It Works {#効果とその仕組み}
+### 効果とその仕組み
 
 ジッターを入れて時間蓄積すると、実質的な解像度が上がります。毎フレーム、セル内のサンプル位置（セルの中心でなく、少しずれた位置）を変えて計算し、その結果を平均すると、セルの内側の構造が、時間をかけて少しずつ埋まっていくからです。TAA が、画素の中のサブピクセル位置をずらして平均し、エッジを滑らかにするのと同じ原理です。
 
@@ -72,24 +72,24 @@ float4 result = lerp(history, current, blend);
 
 <!-- fig:ema-converge:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "霧が、動くと尾を引く"
     **履歴の拒否**・**ブレンド率の調整**をする。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **ジッタと再投影で、実質の解像度を上げる**
 
-## References {#参考}
+## 参考
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Volumetric Fog](index.md)
 - [TAA](../../postprocess/antialiasing/taa.md)

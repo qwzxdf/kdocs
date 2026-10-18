@@ -88,7 +88,7 @@ tags:
 
 <!-- fig:fft-spectrum:end -->
 
-## FFT Ocean Surface {#fft-海面}
+## FFT 海面
 **FFT 海面**（Tessendorf、2001）は、**海の波を「周波数ごとの成分の重ね合わせ」として、統計的に生成**します。**非常にリアルな海**が作れるので、**映画や、AAA ゲームの海**に使われます。
 
 | 手順 | 内容 |
@@ -103,25 +103,25 @@ FFT 海面の利点は、非常にリアルなこと（自然で、無限に近�
 
 **ヤコビアン**（**水平変位の面積の変化**）が**小さい（負）所は波が折れている**ので**フォーム（泡）を出す目印**になります（[岸辺と泡](../shore-foam/index.md)）。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "FFT 海面のタイルの繰り返しが目立つ"
     **異なるスケールの FFT を重ねる**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **スペクトルから、逆 FFT で波を合成**
     - [x] **重いので、近景に限定**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Water Waves](index.md)
 - [Gerstner Waves](gerstner.md)
-- [物を浮かせる](floating.md)
+- [Floating Objects](floating.md)

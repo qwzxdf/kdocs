@@ -82,12 +82,12 @@ tags:
 
 <!-- fig:many-lights-cache:end -->
 
-## Shadows from Many Lights {#多数のライトの影}
+## 多数のライトの影
 **ライトが多い**ほど、**影の計算がすぐに破綻**します。
 
 ライトが増えると、3 つのコストが同時に膨らみます。描画回数は、点光源が 6 回、スポットが 1 回で、ライトごとに掛かります。メモリは、キューブ 1 つ（1024²×6 面）が約 24 MB（D32）なので、数十個で数百 MB になります。フィルタのコストは、画素ごとに、影付きのライトの数だけサンプルが必要です。
 
-### Management Methods {#管理の方法}
+### 管理の方法
 
 | 方法 | 内容 |
 | --- | --- |
@@ -98,7 +98,7 @@ tags:
 | **更新頻度** | **静的なライト・静的な物**は**キャッシュ**し、**動く物が入ったときだけ更新** |
 | **遠方・画面外の除外** | **視錐台の外・遠いライト**は**描かない** |
 
-### Shadow Map Cache {#シャドウ-マップのキャッシュ}
+### シャドウ マップのキャッシュ
 
 **静的なシーンのシャドウ マップ**は、**一度描いた結果を再利用**できます。
 
@@ -106,7 +106,7 @@ tags:
 
 **2 枚**（静的用・動的用）を**持ち、画素ごとに両方を引いて、小さい方（より暗い方）を取る**方法もあります。
 
-## Use When Rendering Shadowed Lights {#影のあるライトの描画での使い方}
+## 影のあるライトの描画での使い方
 **ライティング**の段階で**ライトごとの影の係数**を、**そのライトの寄与に掛けます**。
 
 ```hlsl
@@ -116,27 +116,27 @@ float3 lit = EvaluateLight(light, surface) * shadow;
 
 **クラスター ライティング**・**タイル ベース**と組み合わせると、**影付きライトの情報**を**ライト リストに含めて、引けるようにします**（[ライト カリング](../../../rendering/light-culling.md)）。
 
-## Bias and Precision {#バイアスと精度}
+## バイアスと精度
 バイアスと精度の注意点です。透視投影の深度は非線形で、近くに集中して遠くで精度が不足します。近クリップ面を大きく、遠クリップ面を短くして精度を保ちます。バイアスは距離によって必要な量が変わるので、ワールド単位の法線オフセットが扱いやすいです（[Shadow Bias](../bias/index.md)）。Reversed-Z は、シャドウ マップにも有効です（浮動小数点の深度）。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "影付きライトの数が増えて、フレーム時間が増える一方"
     **影付きライトの数に上限・距離で影を切る・キャッシュ**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **アトラスで管理・解像度を配分・キャッシュ**
     - [x] **影付きライトの数を制限**
 
-## References {#参考}
+## 参考
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Point and Spot Light Shadows](index.md)
 - [Virtual Shadow Maps](../virtual-shadow-maps.md)
-- [ライト カリング](../../../rendering/light-culling.md)
+- [Tiled と Clustered](../../../rendering/light-culling.md)

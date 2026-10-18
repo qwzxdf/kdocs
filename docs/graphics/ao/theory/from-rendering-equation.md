@@ -14,7 +14,7 @@ tags:
     - **球面座標**（天頂角 θ・方位角 φ）で**書き直す**と、**AO の式**が**現れる**。
     - **AO ＝ (1/π) ∫ V(ω) cosθ dω**。
 
-## Starting Point: The Rendering Equation {#出発点レンダリング方程式}
+## 出発点：レンダリング方程式
 面上の点 p から、方向 ω_o へ出ていく光の量 L_o は、次の式で表されます。
 
 <div class="formula">L_o(p, ω_o) = ∫ f_r(p, ω_i, ω_o) · L_i(p, ω_i) · (n·ω_i) dω_i　（積分は法線 n 側の半球 Ω）</div>
@@ -25,13 +25,13 @@ tags:
 | **f_r** | 面の反射の仕方（BRDF）。物体の色・粗さ・金属度で決まる |
 | **n·ω_i** | 入射方向と法線のなす角のコサイン。**斜めから来る光ほど、面を照らす量が少ない** |
 
-### When the Surface Is Purely Diffuse {#面が拡散反射だけの場合}
+### 面が拡散反射だけの場合
 
 拡散反射（ランバート）では、`f_r = ρ / π`（ρ はアルベド）で、**方向によらず一定**です。式は次のように簡単になります。
 
 <div class="formula">L_o = (ρ / π) · ∫ L_i(ω_i) · (n·ω_i) dω_i</div>
 
-## Assuming a Uniformly Bright Sky {#天球が一様に明るいと仮定する}
+## 天球が一様に明るいと仮定する
 AO では**周囲の明るさを一様**（どの方向からも同じ強さ L_sky）と仮定します。遮られていなければ、空の光がそのまま届きます。遮られている方向からは、**空の光が来ません**（遮蔽物自体の明るさは、ここでは考えません）。
 
 そこで**可視性** V(ω) を導入します。
@@ -75,7 +75,7 @@ AO では**周囲の明るさを一様**（どの方向からも同じ強さ L_s
 <text x="40" y="285" style="font-size:12px">AO ＝ 空が見える方向の、コサイン重み付きの割合。法線に近い方向ほど、重みが大きい</text>
 </svg>
 
-## Rewriting in Spherical Coordinates {#球面座標での書き直し}
+## 球面座標での書き直し
 半球の方向 ω を**法線を軸にした角度**で表します。法線からの角度を θ（0 〜 π/2）、方位角を φ（0 〜 2π）とすると、`n·ω = cosθ`、`dω = sinθ dθ dφ` です。
 
 <div class="formula">AO = (1 / π) · ∫₀^{2π} ∫₀^{π/2} V(θ, φ) · cosθ · sinθ  dθ dφ</div>
@@ -115,23 +115,23 @@ AO では**周囲の明るさを一様**（どの方向からも同じ強さ L_s
 
 <!-- fig:cos-weighted-fraction:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "AO は、光の方向に依存すると思い込む"
     **AO は、光の方向に依存しない**（**周囲が一様に明るいと仮定している**）。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **一様な天球の仮定で、レンダリング方程式が AO になる**
     - [x] **AO ＝ (1/π) ∫ V cosθ dω**
 
-## References {#参考}
+## 参考
 
 - Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
 - Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [AO Theory](index.md)
 - [Obscurance](obscurance.md)

@@ -16,7 +16,7 @@ tags:
     - <strong>丸めの境は、ちらつきやすい</strong>。<strong>TAA・ディザリングで抑える</strong>。
     - <strong>どれも画風の選択</strong>。<strong>写実的な絵を良くする技法ではない</strong>。
 
-## Posterization {#ポスタライズ}
+## ポスタライズ
 
 **色の連続的な階調**を**少ない段階に丸めます**。
 
@@ -42,7 +42,7 @@ float3 Posterize(float3 color, float levels) {
 </g>
 </svg>
 
-### Rounding Only Luminance {#輝度だけ丸める}
+### 輝度だけ丸める
 
 **RGB 別々に丸めると、色相がずれます**（**例：茶色が緑や赤に分かれる**）。**輝度だけを丸め、色の比率を保つ**方が**色の自然さが保たれます**。
 
@@ -56,7 +56,7 @@ float3 PosterizeLuma(float3 color, float levels) {
 
 ポスタライズの対象は 2 通りです。RGB 別々に丸めると、カラフルでグラフィック的になりますが、色がずれます。輝度だけを丸めると、色味は保ち、陰影だけが段階化され、セル シェーディングに近くなります。
 
-## Combining with Dithering {#ディザリングと組み合わせる}
+## ディザリングと組み合わせる
 
 **丸めるだけだと段の境がくっきりします**。**丸める前にノイズやパターン（ディザ）を足す**と**境が模様のように混ざります**（**古いゲーム機・版画風**）。
 
@@ -69,7 +69,7 @@ float3 PosterizeDithered(float3 color, float levels, float2 pixel_position) {
 
 段の境の処理です。ベイヤー（規則的）ディザは、レトロで格子状の模様になります。ブルー ノイズは自然な粒状になります。ディザなしなら、平らな色の面になります。
 
-## Halftone (Dots) {#ハーフトーン網点}
+## ハーフトーン（網点）
 
 **印刷・漫画の網点**は**明るさに応じた大きさの円を、格子状に並べて濃淡を表します**。
 
@@ -158,7 +158,7 @@ float Halftone(float2 pixel_position, float luminance, float cell_size, float an
 
 <!-- fig:halftone-dots:end -->
 
-### Color Halftone {#カラーのハーフトーン}
+### カラーのハーフトーン
 
 **CMYK の 4 色**を**別々の角度**で**重ねる**と、**印刷物のような、カラーの網点**になります。
 
@@ -171,7 +171,7 @@ float Halftone(float2 pixel_position, float luminance, float cell_size, float an
 
 **角度をずらす**ことで**モアレ（干渉縞）を避けます**。
 
-## Cross-Hatching (Line Density) {#クロスハッチ線の濃淡}
+## クロスハッチ（線の濃淡）
 
 **線の本数と向きで濃淡**を**表す**のが**クロスハッチ**で、<strong>ペン画・版画・ゲーム「オブラ・ディン号の帰還」</strong>の**ような絵**になります。
 
@@ -194,7 +194,7 @@ float Hatch(float2 pixel_position, float luminance) {
 
 **画面に固定した網点・線**は<strong>カメラが動くと、「画面に張り付いた模様」</strong>に**見えます**（**シャワー ドア効果**）。**物体の表面（UV やワールド座標）に貼る**と**物体と一緒に動いて自然**です（**トゥーン レンダリングの手法の 1 つ**）。
 
-## Where to Use It {#使いどころ}
+## 使いどころ
 
 | 表現 | 使い方 |
 | --- | --- |
@@ -203,7 +203,7 @@ float Hatch(float2 pixel_position, float luminance) {
 | **クロスハッチ** | **ペン画・版画・ノワール** |
 | **ディザ付きポスタライズ** | **古いゲーム機風・レトロ・Pixel Art 風** |
 
-## Better Approaches {#より良いやり方}
+## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -214,7 +214,7 @@ float Hatch(float2 pixel_position, float luminance) {
 | **強さを時間で切り替える** | **回想・特殊状態** |
 | **輪郭線・セルと組み合わせる** | **統一した画風に** |
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "RGB 別々にポスタライズして、色相がずれる"
     **輝度だけを丸める**。
@@ -228,7 +228,7 @@ float Hatch(float2 pixel_position, float luminance) {
 ??? failure "段の境がちらつく"
     **丸める前に軽くぼかす**、**TAA**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] ポスタライズ ＝ <strong>色の階調を N 段階に丸める</strong>。<strong>輝度だけ丸めると色相を保てる</strong>
@@ -237,13 +237,13 @@ float Hatch(float2 pixel_position, float luminance) {
     - [x] <strong>クロスハッチ</strong> ＝ <strong>線の本数で濃淡</strong>
     - [x] <strong>画面固定の模様に注意</strong>。<strong>画風の選択</strong>（<strong>好みの問題</strong>）
 
-## References {#参考}
+## 参考
 
 - Praun et al., "Real-Time Hatching"（SIGGRAPH 2001）
 - Lake et al., "Stylized Rendering Techniques for Scalable Real-Time 3D Animation"（NPAR 2000）
 - Pope, "Return of the Obra Dinn" 開発日誌（TIGSource, ディザリングの解説）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Outlines and Toon](index.md)
 - [Cel Shading](cel-shading.md)

@@ -14,7 +14,7 @@ tags:
     - **水の抵抗（ダンピング）で、揺れが収まる**。
     - **物が水を押す反作用は、高さマップに書く**。
 
-## Buoyancy and the Reaction on Water {#浮力と水への反作用}
+## 浮力と水への反作用
 **水面と物の相互作用は、見た目だけでなく、物理にも影響します**。
 
 相互作用の物理の要素です。浮力は、水に浸かった体積に比例します（[Water Waves](../waves/index.md)）。抵抗は、水中を動く物が、速さに比例して減速する効果です。波紋の起点は、物理エンジンの接触や速度から、ブラシの強さを決めます。
@@ -54,23 +54,23 @@ tags:
 
 <!-- fig:buoyancy-draft:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "物が、水の上で跳ね続ける"
     **ダンピング**を**加える**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **沈んだ体積に応じた力で浮かせる**
 
-## References {#参考}
+## 参考
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Water Interaction](index.md)
-- [物を浮かせる](../waves/floating.md)
+- [Floating Objects](../waves/floating.md)

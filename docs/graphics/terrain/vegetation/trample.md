@@ -14,7 +14,7 @@ tags:
     - **時間とともに、ゆっくり戻る**。
     - **範囲は、カメラの周りに限る**。
 
-## Trampled Grass {#踏まれる草}
+## 踏まれる草
 **キャラクターが歩くと草が倒れる**表現です。**キャラクターの位置をシェーダーに渡し、近い草を押しのけます**。
 
 ```hlsl
@@ -58,23 +58,23 @@ world_position.y -= influence * push_strength * height_t;
 
 <!-- fig:trample-falloff:end -->
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "草が、倒れたまま戻らない"
     **マップを、徐々に薄める**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **位置をマップに描き、草が読む**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Vegetation](index.md)
 - [Wind](wind.md)

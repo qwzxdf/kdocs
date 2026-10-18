@@ -8,7 +8,7 @@ tags:
 
 **地形は広いので、1 枚の大きな画像では足りず、草・土・岩などのタイル テクスチャを、混ぜて貼ります**。**これを「スプラット マッピング」と呼びます**。このセクションでは、**スプラット・重み・高さブレンド・トライプラナー・繰り返しを隠す・異方性フィルタ・仮想テクスチャ・デカール**を、**1 つずつ別のページ**で説明します。
 
-## Splat Mapping {#スプラット-マッピング}
+## スプラット マッピング
 **スプラット マップ**は、**各位置で「どのテクスチャをどれだけ使うか」を表す重みテクスチャ**です。**RGBA の 4 チャンネルで 4 種類**を**扱います**。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="スプラット マッピング">
@@ -55,7 +55,7 @@ normal_ts = normalize(normal_ts);
 | **層数が多い** | **スプラット マップを複数枚にして、重みの大きい上位 4 つだけ読む** |
 | **法線・粗さも混ぜる** | **アルベドだけでなく、法線・粗さ・AO も同じ重みで** |
 
-## Page List {#ページ一覧}
+## ページ一覧
 
 | ページ | 内容 |
 | --- | --- |
@@ -63,22 +63,22 @@ normal_ts = normalize(normal_ts);
 | [Height-Based Blending](height-blend.md) | 境目を自然に |
 | [Triplanar Mapping](triplanar.md) | 急斜面の伸びを防ぐ |
 | [Hiding Tiling](tiling.md) | タイリングの隠し方 |
-| [異方性フィルタ](anisotropic.md) | 斜めから見た時のぼけ |
+| [Anisotropic Filtering](anisotropic.md) | 斜めから見た時のぼけ |
 | [Virtual Texturing](virtual-texture.md) | 巨大なテクスチャ |
-| [デカールと道](decals.md) | 道・足跡の表現 |
+| [Terrain Decals and Roads](decals.md) | 道・足跡の表現 |
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **スプラットで混ぜ、トライプラナーで伸びを防ぐ**
 
-## References {#参考}
+## 参考
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [Terrain](../index.md)
 - [LOD](../lod/index.md)

@@ -70,7 +70,7 @@ tags:
 
 <!-- fig:sh-bands:end -->
 
-## Spherical Harmonics (SH) {#球面調和関数sh}
+## 球面調和関数（SH）
 **球面上の関数**（たとえば、**全方向の入射光 `L_i(ω)`**）を、**少数の係数**で近似する方法が、**球面調和関数**（Spherical Harmonics、SH）です。**球面上のフーリエ級数**のようなものです。
 
 | 次数 | 係数の数 | 表せる細かさ |
@@ -95,17 +95,17 @@ float3 EvaluateSH9(float3 n, float3 sh[9]) {
 
 **実用**では、<strong>L1（4 係数）</strong>や、<strong>アンビエント キューブ（6 方向の色）</strong>など、**さらに軽い表現**もよく使われます。
 
-## A Closer Look Inside SH {#sh-の中身をもう少し詳しく}
+## SH の中身をもう少し詳しく
 
 SH を「ただ使う」だけなら、上のコードで足ります。しかし、なぜこれが成り立つのかを知っておくと、ライト プローブの不具合の原因も追えるようになります。
 
-### What It Does: Fourier Expansion on a Sphere {#何をしているのか球面のフーリエ展開}
+### 何をしているのか：球面のフーリエ展開
 
 普通のフーリエ変換は、1 次元の周期的な関数を、いろいろな周波数の sin/cos の重ね合わせで表します。低い周波数の係数だけを残せば、なだらかな近似になります。SH は、これを<strong>球面</strong>でやる方法です。球面上の関数（各方向の明るさ）を、周波数の異なる「基底関数」の重ね合わせで表します。
 
 基底関数は、次数 l と番号 m（−l〜+l）で区別され、Y_l^m と書きます。0 次は球全体で一定の値です。1 次は、X・Y・Z の各軸に沿って明るさが変わる 3 つの関数（球を片側が正、反対側が負に分ける）です。2 次はもう少し複雑で、四つ葉のクローバーのような形が混ざります。次数が上がるほど、球面上の変化が細かくなります。
 
-### Projection: Finding the Coefficients {#投影係数を求める}
+### 投影：係数を求める
 
 球面上の関数 f(ω)（たとえば入射光）から、SH の係数を求める操作を<strong>投影</strong>と呼びます。基底関数が互いに直交しているので、係数は次の積分で求まります。
 
@@ -115,17 +115,17 @@ SH を「ただ使う」だけなら、上のコードで足ります。しか�
 
 逆に、係数から元の関数を復元する操作が<strong>再構成</strong>です。`f(ω) ≈ Σ c_l^m · Y_l^m(ω)` で、係数と基底関数を掛けて足すだけです。
 
-### Useful Properties of SH {#sh-の便利な性質}
+### SH の便利な性質
 
 SH が GI でよく使われるのは、数学的な性質が便利だからです。
 
 1 つ目は、<strong>線形性</strong>です。2 つの関数を足したものの係数は、それぞれの係数を足したものになります。複数のライトの SH を足し合わせれば、全部のライトの SH になります。プローブの補間も、係数どうしを重み付きで足すだけで済みます。2 つ目は、<strong>回転に強い</strong>ことです。物体が回転しても、係数を別の係数に線形変換するだけで対応できます（次数が同じ範囲の中で閉じています）。3 つ目は、<strong>畳み込みが単純</strong>になることです。余弦のような、軸対称なカーネルとの畳み込みは、各次数の係数に、次数ごとの定数を掛けるだけで済みます。これが、先ほどのコードの `c1〜c5` の正体で、[放射照度](irradiance.md)の畳み込みが、SH では掛け算になる理由です。
 
-### Limits: High Frequencies Cannot Be Represented {#限界高周波は表せない}
+### 限界：高周波は表せない
 
 SH は低次の打ち切りなので、鋭い変化は表せません。太陽のような小さく明るい光源は、低次では広がってぼやけ、さらに<strong>リンギング</strong>（本来 0 以上であるべき値が負になる）が出ます。拡散の放射照度は、余弦の畳み込みで十分になめらかなので、L2 で足ります。しかし、鏡面反射のような鋭い反射には、SH は使えません（[Diffuse and Specular](diffuse-specular.md)）。
 
-### Practical Tips {#実用上のコツ}
+### 実用上のコツ
 
 * 輝度の極端に高い光源（太陽）は、SH に入れず、直接光として別に計算します。SH に混ぜると、リンギングの原因になります。
 * リンギングが気になるときは、高次の係数をなだらかに弱める<strong>窓関数</strong>（ハンニング窓など）を掛けます。
@@ -134,24 +134,24 @@ SH は低次の打ち切りなので、鋭い変化は表せません。太陽�
 
 詳しい手順は Peter-Pike Sloan の "Stupid Spherical Harmonics (SH) Tricks"（GDC 2008）がよくまとまっています。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "SH で鏡面の反射を出そうとして、ぼやける"
     **SH は拡散の間接光専用**。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **SH は、方向の関数を、少数の係数で持つ**
     - [x] **拡散の間接光は、L2（9 係数）で足りる**
 
-## References {#参考}
+## 参考
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [GI Theory](index.md)
 - [Irradiance](irradiance.md)

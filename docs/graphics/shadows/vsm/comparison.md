@@ -14,7 +14,7 @@ tags:
     - **VSM 系は、大きなぼかしが安い**が、**光漏れ・メモリ**。
     - **柔らかい影が主役なら VSM 系、安定・単純さなら PCF**。
 
-## Comparing the VSM Family {#vsm-系の比較}
+## VSM 系の比較
 | 項目 | VSM | ESM | EVSM | MSM |
 | --- | --- | --- | --- | --- |
 | **チャンネル数** | 2 | 1 | 4（または 2） | 4 |
@@ -24,7 +24,7 @@ tags:
 | **フィルタ可能** | ○ | ○ | ○ | ○ |
 | **実装の簡単さ** | ○ | ○ | △ | × |
 
-## Choosing Between It and PCF {#pcf-との使い分け}
+## PCF との使い分け
 | 状況 | おすすめ |
 | --- | --- |
 | **広いソフト シャドウを、安く** | VSM・EVSM（**シャドウ マップをぼかすだけ**） |
@@ -35,23 +35,23 @@ tags:
 
 **現代のゲームでは、PCF（＋ ノイズ ＋ TAA）が、主流**です。VSM 系は**光漏れ・精度・メモリ**の問題から、**限定的**に使われます（**スポットライト・遠景・UI や特殊な効果**など）。
 
-## Common Mistakes {#よくあるミス}
+## よくあるミス
 
 ??? failure "VSM 系を選んだのに、光漏れの調整に時間がかかる"
     **最初から、EVSM・MSM を検討**する。
 
-## Key Takeaways {#これだけ覚える}
+## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] **方式ごとに光漏れ・メモリ・複雑さが違う**
     - [x] **PCF は安定、VSM 系は大きなぼかしが安い**
 
-## References {#参考}
+## 参考
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## Related Pages {#関連ページ}
+## 関連ページ
 
 - [VSM, ESM and MSM](index.md)
 - [PCF](../pcf.md)
