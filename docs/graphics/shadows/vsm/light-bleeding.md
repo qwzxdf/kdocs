@@ -16,39 +16,67 @@ tags:
 
 <!-- fig:vsm-light-bleeding:begin -->
 
-<svg class="fig illust motion" data-fig="vsm-light-bleeding" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="vsm-light-bleeding" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-vsm-light-bleeding" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">光漏れ:重なった 2 枚の影を、1 つの分布にすると、漏れが出る</text>
-<rect x="60" y="90" width="440" height="220" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
-<line x1="170.0" y1="90" x2="170.0" y2="310" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="60" y1="145.0" x2="500" y2="145.0" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="280.0" y1="90" x2="280.0" y2="310" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="60" y1="200.0" x2="500" y2="200.0" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="390.0" y1="90" x2="390.0" y2="310" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="60" y1="255.0" x2="500" y2="255.0" stroke="#e2e8f0" stroke-width="1"/>
-<text x="500" y="330" text-anchor="end" style="font-size:12px;font-weight:500;fill:#64748b">受け手の深度 t</text>
-<text x="60" y="82" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">光が届く割合</text>
-<path d="M60.0,90.0 L62.2,90.0 L64.4,90.0 L66.6,90.0 L68.8,90.0 L71.0,90.0 L73.2,90.0 L75.4,90.0 L77.6,90.0 L79.8,90.0 L82.0,90.0 L84.2,90.0 L86.4,90.0 L88.6,90.0 L90.8,90.0 L93.0,90.0 L95.2,90.0 L97.4,90.0 L99.6,90.0 L101.8,90.0 L104.0,90.0 L106.2,90.0 L108.4,90.0 L110.6,90.0 L112.8,90.0 L115.0,90.0 L117.2,90.0 L119.4,90.0 L121.6,90.0 L123.8,90.0 L126.0,90.0 L128.2,90.0 L130.4,90.0 L132.6,90.0 L134.8,90.0 L137.0,90.0 L139.2,90.0 L141.4,90.0 L143.6,90.0 L145.8,90.0 L148.0,90.0 L150.2,90.0 L152.4,90.0 L154.6,90.0 L156.8,90.0 L159.0,90.0 L161.2,90.0 L163.4,90.0 L165.6,90.0 L167.8,90.0 L170.0,90.0 L172.2,90.0 L174.4,90.0 L176.6,90.0 L178.8,90.0 L181.0,90.0 L183.2,90.0 L185.4,90.0 L187.6,90.0 L189.8,90.0 L192.0,90.0 L194.2,200.0 L196.4,200.0 L198.6,200.0 L200.8,200.0 L203.0,200.0 L205.2,200.0 L207.4,200.0 L209.6,200.0 L211.8,200.0 L214.0,200.0 L216.2,200.0 L218.4,200.0 L220.6,200.0 L222.8,200.0 L225.0,200.0 L227.2,200.0 L229.4,200.0 L231.6,200.0 L233.8,200.0 L236.0,200.0 L238.2,200.0 L240.4,200.0 L242.6,200.0 L244.8,200.0 L247.0,200.0 L249.2,200.0 L251.4,200.0 L253.6,200.0 L255.8,200.0 L258.0,200.0 L260.2,200.0 L262.4,200.0 L264.6,200.0 L266.8,200.0 L269.0,200.0 L271.2,200.0 L273.4,200.0 L275.6,200.0 L277.8,200.0 L280.0,200.0 L282.2,200.0 L284.4,200.0 L286.6,200.0 L288.8,200.0 L291.0,200.0 L293.2,200.0 L295.4,200.0 L297.6,200.0 L299.8,200.0 L302.0,200.0 L304.2,200.0 L306.4,200.0 L308.6,200.0 L310.8,200.0 L313.0,200.0 L315.2,200.0 L317.4,200.0 L319.6,200.0 L321.8,200.0 L324.0,200.0 L326.2,310.0 L328.4,310.0 L330.6,310.0 L332.8,310.0 L335.0,310.0 L337.2,310.0 L339.4,310.0 L341.6,310.0 L343.8,310.0 L346.0,310.0 L348.2,310.0 L350.4,310.0 L352.6,310.0 L354.8,310.0 L357.0,310.0 L359.2,310.0 L361.4,310.0 L363.6,310.0 L365.8,310.0 L368.0,310.0 L370.2,310.0 L372.4,310.0 L374.6,310.0 L376.8,310.0 L379.0,310.0 L381.2,310.0 L383.4,310.0 L385.6,310.0 L387.8,310.0 L390.0,310.0 L392.2,310.0 L394.4,310.0 L396.6,310.0 L398.8,310.0 L401.0,310.0 L403.2,310.0 L405.4,310.0 L407.6,310.0 L409.8,310.0 L412.0,310.0 L414.2,310.0 L416.4,310.0 L418.6,310.0 L420.8,310.0 L423.0,310.0 L425.2,310.0 L427.4,310.0 L429.6,310.0 L431.8,310.0 L434.0,310.0 L436.2,310.0 L438.4,310.0 L440.6,310.0 L442.8,310.0 L445.0,310.0 L447.2,310.0 L449.4,310.0 L451.6,310.0 L453.8,310.0 L456.0,310.0 L458.2,310.0 L460.4,310.0 L462.6,310.0 L464.8,310.0 L467.0,310.0 L469.2,310.0 L471.4,310.0 L473.6,310.0 L475.8,310.0 L478.0,310.0 L480.2,310.0 L482.4,310.0 L484.6,310.0 L486.8,310.0 L489.0,310.0 L491.2,310.0 L493.4,310.0 L495.6,310.0 L497.8,310.0 L500.0,310.0" fill="none" stroke="#2ea043" stroke-width="4" opacity="1"/>
-<path d="M60.0,90.0 L64.4,90.0 L68.8,90.0 L73.2,90.0 L77.6,90.0 L82.0,90.0 L86.4,90.0 L90.8,90.0 L95.2,90.0 L99.6,90.0 L104.0,90.0 L108.4,90.0 L112.8,90.0 L117.2,90.0 L121.6,90.0 L126.0,90.0 L130.4,90.0 L134.8,90.0 L139.2,90.0 L143.6,90.0 L148.0,90.0 L152.4,90.0 L156.8,90.0 L161.2,90.0 L165.6,90.0 L170.0,90.0 L174.4,90.0 L178.8,90.0 L183.2,90.0 L187.6,90.0 L192.0,90.0 L196.4,90.0 L200.8,90.0 L205.2,90.0 L209.6,90.0 L214.0,90.0 L218.4,90.0 L222.8,90.0 L227.2,90.0 L231.6,90.0 L236.0,90.0 L240.4,90.0 L244.8,90.0 L249.2,90.0 L253.6,90.0 L258.0,90.0 L262.4,90.97 L266.8,93.84 L271.2,98.46 L275.6,104.61 L280.0,112.0 L284.4,120.34 L288.8,129.34 L293.2,138.72 L297.6,148.24 L302.0,157.69 L306.4,166.94 L310.8,175.85 L315.2,184.37 L319.6,192.42 L324.0,200.0 L328.4,207.09 L332.8,213.7 L337.2,219.84 L341.6,225.53 L346.0,230.8 L350.4,235.68 L354.8,240.18 L359.2,244.35 L363.6,248.2 L368.0,251.76 L372.4,255.06 L376.8,258.11 L381.2,260.94 L385.6,263.56 L390.0,266.0 L394.4,268.26 L398.8,270.37 L403.2,272.33 L407.6,274.16 L412.0,275.86 L416.4,277.46 L420.8,278.95 L425.2,280.34 L429.6,281.65 L434.0,282.88 L438.4,284.03 L442.8,285.11 L447.2,286.13 L451.6,287.09 L456.0,288.0 L460.4,288.86 L464.8,289.66 L469.2,290.43 L473.6,291.15 L478.0,291.83 L482.4,292.48 L486.8,293.1 L491.2,293.68 L495.6,294.24 L500.0,294.77" fill="none" stroke="#e5484d" stroke-width="4" opacity="1"/>
-<text x="332.8" y="186.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">VSM の見積もり（赤）</text>
-<text x="332.8" y="270.4" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">本当（緑）</text>
-<rect x="324.0" y="211.0" width="176.0" height="99.0" fill="#e5484d" fill-opacity="0.12" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/></rect>
-<text x="332.0" y="233.0" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d" opacity="0">ここが漏れ（本当は 0）<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<circle cx="126.0" cy="90.0" r="7" fill="#2ea043" stroke="#ffffff" stroke-width="1.5"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.0763;0.0886;0.1009;0.1132;0.1255;0.1378;0.1502;0.1625;0.1748;0.1871;0.1994;0.2117;0.2240;0.2363;0.2486;0.2609;0.2732;0.2855;0.2978;0.3102;0.3225;0.3348;0.3471;0.3594;0.3717;0.3840;1.0000" values="126;126;139.54;153.08;166.62;180.15;193.69;207.23;220.77;234.31;247.85;261.38;274.92;288.46;302;315.54;329.08;342.62;356.15;369.69;383.23;396.77;410.31;423.85;437.38;450.92;464.46;478;478"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.0763;0.0886;0.1009;0.1132;0.1255;0.1378;0.1502;0.1625;0.1748;0.1871;0.1994;0.2117;0.2240;0.2363;0.2486;0.2609;0.2732;0.2855;0.2978;0.3102;0.3225;0.3348;0.3471;0.3594;0.3717;0.3840;1.0000" values="90;90;90;90;90;90;200;200;200;200;200;200;200;200;200;200;310;310;310;310;310;310;310;310;310;310;310;310;310"/></circle>
-<circle cx="126.0" cy="90.0" r="7" fill="#e5484d" stroke="#ffffff" stroke-width="1.5"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.0763;0.0886;0.1009;0.1132;0.1255;0.1378;0.1502;0.1625;0.1748;0.1871;0.1994;0.2117;0.2240;0.2363;0.2486;0.2609;0.2732;0.2855;0.2978;0.3102;0.3225;0.3348;0.3471;0.3594;0.3717;0.3840;1.0000" values="126;126;139.54;153.08;166.62;180.15;193.69;207.23;220.77;234.31;247.85;261.38;274.92;288.46;302;315.54;329.08;342.62;356.15;369.69;383.23;396.77;410.31;423.85;437.38;450.92;464.46;478;478"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.0763;0.0886;0.1009;0.1132;0.1255;0.1378;0.1502;0.1625;0.1748;0.1871;0.1994;0.2117;0.2240;0.2363;0.2486;0.2609;0.2732;0.2855;0.2978;0.3102;0.3225;0.3348;0.3471;0.3594;0.3717;0.3840;1.0000" values="90;90;90;90;90;90;90;90;90;90;90;90.58;103.57;128.63;157.69;185;208.14;226.78;241.5;253.06;262.18;269.42;275.22;279.92;283.77;286.95;289.6;291.83;291.83"/></circle>
-<text x="540" y="90" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">ぼかした 1 テクセルの中身</text>
-<rect x="540" y="110" width="180" height="22" fill="#fecaca" stroke="#e5484d" stroke-width="2"/>
-<text x="630" y="126" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">手前の遮蔽物（深度 0.3）</text>
-<rect x="580" y="150" width="140" height="22" fill="#fed7aa" stroke="#e5aa28" stroke-width="2"/>
-<text x="650" y="166" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">奥の遮蔽物（深度 0.6）</text>
-<text x="540" y="210" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">平均 μ = 0.45、分散 σ² = 0.022</text>
-<text x="540" y="236" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">→ 1 つの山として扱うので、</text>
-<text x="540" y="258" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">2 枚の間の空間の情報が失われる</text>
-<text x="60" y="360" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">受け手の深度を 0.15 → 0.95 へ動かして、本当の明るさと VSM を比べる<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="1;1;0;0"/></text>
-<text x="60" y="360" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">奥の遮蔽物より後ろ（t &gt; 0.6）で、VSM は明るいと答える（光漏れ）<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="60" y="390" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">対策:p を [0.3, 1] を引き伸ばして、小さい値を 0 にする（光漏れ低減）、または MSM・EVSM<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">VSM の光漏れ: 手前の物が 2 段あると、平均と分散だけでは、影が薄くなる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">手前の物 A(0.15)と B(0.45)が重なる所の、奥(深度 0.6)の点。正解は 4 分の 3 が影。式で出した光の割合を比べる</text>
+<rect x="30" y="96" width="440" height="200" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 16 個のサンプルの深度</text>
+<rect x="48" y="257.5" width="21" height="22.5" fill="#fca5a5" stroke="#64748b" stroke-width="1"/>
+<rect x="74" y="257.5" width="21" height="22.5" fill="#fca5a5" stroke="#64748b" stroke-width="1"/>
+<rect x="100" y="257.5" width="21" height="22.5" fill="#fca5a5" stroke="#64748b" stroke-width="1"/>
+<rect x="126" y="257.5" width="21" height="22.5" fill="#fca5a5" stroke="#64748b" stroke-width="1"/>
+<rect x="152" y="257.5" width="21" height="22.5" fill="#fca5a5" stroke="#64748b" stroke-width="1"/>
+<rect x="178" y="257.5" width="21" height="22.5" fill="#fca5a5" stroke="#64748b" stroke-width="1"/>
+<rect x="204" y="212.5" width="21" height="67.5" fill="#fcd34d" stroke="#64748b" stroke-width="1"/>
+<rect x="230" y="212.5" width="21" height="67.5" fill="#fcd34d" stroke="#64748b" stroke-width="1"/>
+<rect x="256" y="212.5" width="21" height="67.5" fill="#fcd34d" stroke="#64748b" stroke-width="1"/>
+<rect x="282" y="212.5" width="21" height="67.5" fill="#fcd34d" stroke="#64748b" stroke-width="1"/>
+<rect x="308" y="212.5" width="21" height="67.5" fill="#fcd34d" stroke="#64748b" stroke-width="1"/>
+<rect x="334" y="212.5" width="21" height="67.5" fill="#fcd34d" stroke="#64748b" stroke-width="1"/>
+<rect x="360" y="137.5" width="21" height="142.5" fill="#93c5fd" stroke="#64748b" stroke-width="1"/>
+<rect x="386" y="137.5" width="21" height="142.5" fill="#93c5fd" stroke="#64748b" stroke-width="1"/>
+<rect x="412" y="137.5" width="21" height="142.5" fill="#93c5fd" stroke="#64748b" stroke-width="1"/>
+<rect x="438" y="137.5" width="21" height="142.5" fill="#93c5fd" stroke="#64748b" stroke-width="1"/>
+<line x1="40" y1="190.0" x2="460" y2="190.0" stroke="#1f2937" stroke-width="2.5" stroke-dasharray="5 4"/>
+<text x="458" y="184.0" text-anchor="end" style="font-size:12px;font-weight:700;fill:#1f2937">受ける点 t = 0.6</text>
+<text x="48" y="118" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">A = 0.15(6 個)、B = 0.45(6 個)、地面 0.95(4 個)</text>
+<rect x="500" y="96" width="430" height="200" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
+<text x="500" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">② 数える と 式で出す</text>
+<text x="520" y="134" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043">正解: t より奥のサンプル = 4 / 16 → 光 0.25</text>
+<text x="520" y="164" text-anchor="start" style="font-size:14px;font-weight:500;fill:#1f2937">平均 μ = 0.462、分散 σ² = 0.096</text>
+<text x="520" y="194" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">σ² ÷ (σ² + (t − μ)²) = 0.836</text>
+<text x="520" y="226" text-anchor="start" style="font-size:15px;font-weight:700;fill:#991b1b">→ 本当は 0.25 なのに、0.84 も光が漏れる</text>
+<rect x="30" y="320" width="900" height="170" fill="#ffffff" stroke="#2ea043" stroke-width="1.8" rx="6"/>
+<text x="30" y="310" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043">③ 漏れを減らす補正(低い値を 0 にして、残りを 0〜1 に伸ばす)</text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1393;0.1395;1.0000" values="0;0;1;1"/><text x="50" y="366" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">何もしない</text>
+<rect x="300" y="352" width="350.95" height="20" fill="#e5484d" opacity="0.85"/>
+<text x="658.9510869565217" y="367" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">光 0.84</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2975;0.2977;1.0000" values="0;0;1;1"/><text x="50" y="398" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">0.2 以下を 0 にして伸ばす</text>
+<rect x="300" y="384" width="333.69" height="20" fill="#e5484d" opacity="0.85"/>
+<text x="641.6888586956522" y="399" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">光 0.79</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4556;0.4558;1.0000" values="0;0;1;1"/><text x="50" y="430" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">0.4 以下を 0 にして伸ばす</text>
+<rect x="300" y="416" width="304.92" height="20" fill="#e5484d" opacity="0.85"/>
+<text x="612.9184782608695" y="431" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">光 0.73</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6138;0.6140;1.0000" values="0;0;1;1"/><text x="50" y="462" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">0.6 以下を 0 にして伸ばす</text>
+<rect x="300" y="448" width="247.38" height="20" fill="#e5484d" opacity="0.85"/>
+<text x="555.3777173913044" y="463" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">光 0.59</text>
+</g>
+<line x1="405.0" y1="340" x2="405.0" y2="482" stroke="#2ea043" stroke-width="2.5" stroke-dasharray="6 5"/>
+<text x="411.0" y="336" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">正解 0.25</text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.7719;0.7721;1.0000" values="0;0;1;1"/><rect x="500" y="96" width="430" height="200" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="516" y="120" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">補正を強くすると漏れは減るが、</text>
+<text x="516" y="144" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">薄い影も消えやすい(補正 0.6 で光 0.59)</text>
+<text x="516" y="168" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">→ 補正値は、見た目で調整する</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">平均と分散だけでは、「手前の物が 2 段ある」ことが分からない<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1393;0.1395;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">漏れを、低い値を切り捨てる補正で、減らしていく<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1393;0.1395;0.7719;0.7721;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">補正のしすぎは、薄い影を消す<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.7719;0.7721;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:vsm-light-bleeding:end -->

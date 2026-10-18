@@ -51,72 +51,149 @@ float TraceShadowRay(float3 origin, float3 direction, float t_max) {
 
 <!-- fig:rt-shadow-samples:begin -->
 
-<svg class="fig illust motion" data-fig="rt-shadow-samples" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="rt-shadow-samples" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-rt-shadow-samples" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">レイトレの影:面光源に向けた複数のレイで、半影を作る</text>
-<rect x="250" y="72" width="280" height="16" rx="8" fill="#e5aa28"/>
-<text x="542" y="84" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5aa28">面光源</text>
-<rect x="350" y="180" width="150" height="16" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
-<rect x="40" y="340" width="700" height="14" fill="#d6c7a1"/>
-<circle cx="560" cy="340" r="8" fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
-<text x="572" y="328" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">調べる点（半影の中）</text>
-<g opacity="0"><animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.0830;0.0833;0.3830;0.3833;1.0000" values="0;0;1;1;0;0"/><line x1="560" y1="340" x2="390.0" y2="80" stroke="#e5484d" stroke-width="3"/>
-<circle cx="390.0" cy="80" r="4" fill="#e5484d"/>
-<text x="60" y="76" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">レイ 1 本:見えた 0 本 → 光 0 %</text>
-<rect x="600" y="380" width="100" height="26" fill="#000000" stroke="#94a3b8" stroke-width="1.5"/>
-<text x="580" y="398" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">結果</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">レイトレースの影: 面積のある光に、影の光線を N 本飛ばして、割合で濃さを決める</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 つの点から、光(幅 4)の上のでたらめな点へ N 本。遮られた本数の割合が影の濃さ。同じ点で何度もやって、ばらつきを見る</text>
+<rect x="30" y="96" width="440" height="250" fill="#ffffff" stroke="#e5aa28" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5aa28">① 光・遮る板・受ける点(断面)</text>
+<rect x="216.0" y="112.0" width="104.0" height="8" fill="#e5aa28"/>
+<rect x="229.0" y="222.0" width="78.0" height="7" fill="#475569"/>
+<line x1="60.0" y1="324.0" x2="450.0" y2="324.0" stroke="#94a3b8" stroke-width="3"/>
+<circle cx="203.0" cy="324.0" r="7" fill="#1f2937"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2532;0.2533;1.0000" values="1;1;0;0"/><line x1="203.0" y1="324.0" x2="244.58" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<text x="50" y="338" text-anchor="start" style="font-size:14px;font-weight:700;fill:#7c3aed">光線 1 本 → 届いた 1 本 → 光 1.00(正解 0.38)</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.3830;0.3833;0.6830;0.6833;1.0000" values="0;0;1;1;0;0"/><line x1="560" y1="340" x2="283.6" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="283.6" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="353.6" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="353.6" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="426.4" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="426.4" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="496.4" y2="80" stroke="#2ea043" stroke-width="2"/>
-<circle cx="496.4" cy="80" r="4" fill="#2ea043"/>
-<text x="60" y="76" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">レイ 4 本:見えた 1 本 → 光 25 %</text>
-<rect x="600" y="380" width="100" height="26" fill="#888888" stroke="#94a3b8" stroke-width="1.5"/>
-<text x="580" y="398" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">結果</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2532;0.2533;0.4398;0.4400;1.0000" values="0;0;1;1;0;0"/><line x1="203.0" y1="324.0" x2="244.7" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="280.59" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="251.83" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="265.98" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<text x="50" y="338" text-anchor="start" style="font-size:14px;font-weight:700;fill:#7c3aed">光線 4 本 → 届いた 2 本 → 光 0.50(正解 0.38)</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.6830;0.6833;0.9830;0.9833;1.0000" values="0;0;1;1;0;0"/><line x1="560" y1="340" x2="258.75" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="258.75" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="276.25" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="276.25" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="293.75" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="293.75" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="311.25" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="311.25" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="328.75" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="328.75" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="346.25" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="346.25" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="363.75" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="363.75" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="381.25" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="381.25" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="398.75" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="398.75" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="416.25" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="416.25" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="433.75" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="433.75" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="451.25" y2="80" stroke="#e5484d" stroke-width="2"/>
-<circle cx="451.25" cy="80" r="4" fill="#e5484d"/>
-<line x1="560" y1="340" x2="468.75" y2="80" stroke="#2ea043" stroke-width="2"/>
-<circle cx="468.75" cy="80" r="4" fill="#2ea043"/>
-<line x1="560" y1="340" x2="486.25" y2="80" stroke="#2ea043" stroke-width="2"/>
-<circle cx="486.25" cy="80" r="4" fill="#2ea043"/>
-<line x1="560" y1="340" x2="503.75" y2="80" stroke="#2ea043" stroke-width="2"/>
-<circle cx="503.75" cy="80" r="4" fill="#2ea043"/>
-<line x1="560" y1="340" x2="521.25" y2="80" stroke="#2ea043" stroke-width="2"/>
-<circle cx="521.25" cy="80" r="4" fill="#2ea043"/>
-<text x="60" y="76" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">レイ 16 本:見えた 4 本 → 光 25 %</text>
-<rect x="600" y="380" width="100" height="26" fill="#888888" stroke="#94a3b8" stroke-width="1.5"/>
-<text x="580" y="398" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">結果</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4398;0.4400;0.6265;0.6267;1.0000" values="0;0;1;1;0;0"/><line x1="203.0" y1="324.0" x2="245.19" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="289.79" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="274.34" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="312.17" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="218.88" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="279.29" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="310.95" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="319.75" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="217.04" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="235.59" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="317.42" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="267.06" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="315.1" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="251.79" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="243.49" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="228.03" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<text x="50" y="338" text-anchor="start" style="font-size:14px;font-weight:700;fill:#7c3aed">光線 16 本 → 届いた 7 本 → 光 0.44(正解 0.38)</text>
 </g>
-<text x="40" y="400" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">レイが少ないと、0 か 1 のノイズ。増やすほど、なめらかな半影に近づく（デノイズで補う）。</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6265;0.6267;1.0000" values="0;0;1;1"/><line x1="203.0" y1="324.0" x2="247.12" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="222.58" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="260.41" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="288.96" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="217.88" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="267.86" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="278.69" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="317.19" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="260.55" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="314.37" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="294.42" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="253.64" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="303.59" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="219.26" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="239.3" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="266.78" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="285.87" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="298.09" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="221.54" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="235.75" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="233.89" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="245.41" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="283.42" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="313.32" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="231.42" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="245.19" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="286.08" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="283.13" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="263.75" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="294.57" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="228.74" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="247.94" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="256.64" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="238.76" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="295.37" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="219.47" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="240.04" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="232.49" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="260.04" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="262.51" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="280.79" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="225.86" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="300.0" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="271.79" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="270.41" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="217.99" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="299.67" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="254.41" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="304.04" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="240.33" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="266.6" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="248.35" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="228.72" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="305.03" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="242.6" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="281.67" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="293.13" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="268.15" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="303.11" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="283.14" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="280.88" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="311.29" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="223.94" y2="120.0" stroke="#2ea043" stroke-width="1.5" opacity="0.8"/>
+<line x1="203.0" y1="324.0" x2="296.73" y2="120.0" stroke="#e5484d" stroke-width="1.5" opacity="0.8"/>
+<text x="50" y="338" text-anchor="start" style="font-size:14px;font-weight:700;fill:#7c3aed">光線 64 本 → 届いた 26 本 → 光 0.41(正解 0.38)</text>
+</g>
+<rect x="500" y="96" width="430" height="250" fill="#ffffff" stroke="#e5484d" stroke-width="1.8" rx="6"/>
+<text x="500" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">② 同じ点で 200 回やったときの、ばらつき</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0887;0.0889;1.0000" values="0;0;1;1"/><text x="520" y="158" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">1 本</text>
+<rect x="590" y="140" width="260.0" height="26" fill="#e5484d" opacity="0.85"/>
+<text x="858.0" y="159" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">ばらつき 0.480</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2754;0.2756;1.0000" values="0;0;1;1"/><text x="520" y="208" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">4 本</text>
+<rect x="590" y="190" width="124.05" height="26" fill="#e5484d" opacity="0.85"/>
+<text x="722.0508681395614" y="209" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">ばらつき 0.229</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4620;0.4622;1.0000" values="0;0;1;1"/><text x="520" y="258" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">16 本</text>
+<rect x="590" y="240" width="64.91" height="26" fill="#e5484d" opacity="0.85"/>
+<text x="662.9118643662416" y="259" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">ばらつき 0.120</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6487;0.6489;1.0000" values="0;0;1;1"/><text x="520" y="308" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">64 本</text>
+<rect x="590" y="290" width="32.65" height="26" fill="#e5484d" opacity="0.85"/>
+<text x="630.6482897434265" y="309" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">ばらつき 0.060</text>
+</g>
+<text x="40" y="384" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">影の光線の本数:</text>
+<text x="190" y="388" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="1">0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;1.0000" values="1;1;0;0"/></text>
+<text x="190" y="388" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">1<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;0.2665;0.2667;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="190" y="388" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">4<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2665;0.2667;0.4532;0.4533;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="190" y="388" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">16<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4532;0.4533;0.6398;0.6400;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="190" y="388" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">64<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6398;0.6400;1.0000" values="0;0;1;1"/></text>
+<text x="40" y="420" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">画面 1920×1080 での 1 フレームの光線:</text>
+<text x="40" y="452" text-anchor="start" style="font-size:26px;font-weight:700;fill:#2563eb" opacity="1">0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="452" text-anchor="start" style="font-size:26px;font-weight:700;fill:#2563eb" opacity="0">2,073,600<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;0.2665;0.2667;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="452" text-anchor="start" style="font-size:26px;font-weight:700;fill:#2563eb" opacity="0">8,294,400<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2665;0.2667;0.4532;0.4533;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="452" text-anchor="start" style="font-size:26px;font-weight:700;fill:#2563eb" opacity="0">33,177,600<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4532;0.4533;0.6398;0.6400;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="452" text-anchor="start" style="font-size:26px;font-weight:700;fill:#2563eb" opacity="0">132,710,400<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6398;0.6400;1.0000" values="0;0;1;1"/></text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8132;0.8133;1.0000" values="0;0;1;1"/><rect x="520" y="380" width="410" height="116" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="536" y="404" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">4 倍の本数で、ばらつきは約 半分(1/√N)</text>
+<text x="536" y="428" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">1 本 0.480 → 64 本 0.060(約 8.0 分の 1)</text>
+<text x="536" y="451" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">実際は 1 本で撮って、時間方向に重ねて(デノイズ)消す</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">面積のある光の影は、半影ができる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光の上の点を、ばらつかせて選び、遮られた割合を数える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8132;0.8133;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">本数を増やすほど、きれい。でも、光線は、画素数に比例して増える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8132;0.8133;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:rt-shadow-samples:end -->
