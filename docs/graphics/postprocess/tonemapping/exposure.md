@@ -18,41 +18,117 @@ tags:
 
 <!-- fig:exposure-ev:begin -->
 
-<svg class="fig illust motion" data-fig="exposure-ev" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="exposure-ev" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-exposure-ev" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">露出（EV）:+1 EV で光の量が 2 倍、−1 EV で半分</text>
-<rect x="70" y="110" width="130" height="100" fill="#414141" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0552;0.1379;0.3448;0.4483;0.6552;0.7586;0.8621;1.0000" values="#414141;#414141;#414141;#a8a8a8;#a8a8a8;#191919;#191919;#414141;#414141"/></rect>
-<text x="135" y="100" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">暗い物(0.05)</text>
-<rect x="235" y="110" width="130" height="100" fill="#757575" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0552;0.1379;0.3448;0.4483;0.6552;0.7586;0.8621;1.0000" values="#757575;#757575;#757575;#ffffff;#ffffff;#2d2d2d;#2d2d2d;#757575;#757575"/></rect>
-<text x="300" y="100" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">中間の物(0.18)</text>
-<rect x="400" y="110" width="130" height="100" fill="#cacaca" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0552;0.1379;0.3448;0.4483;0.6552;0.7586;0.8621;1.0000" values="#cacaca;#cacaca;#cacaca;#ffffff;#ffffff;#4f4f4f;#4f4f4f;#cacaca;#cacaca"/></rect>
-<text x="465" y="100" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">明るい物(0.6)</text>
-<rect x="565" y="110" width="130" height="100" fill="#ffffff" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0552;0.1379;0.3448;0.4483;0.6552;0.7586;0.8621;1.0000" values="#ffffff;#ffffff;#ffffff;#ffffff;#ffffff;#a3a3a3;#a3a3a3;#ffffff;#ffffff"/></rect>
-<text x="630" y="100" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">光源(3.0)</text>
-<rect x="90" y="290" width="600" height="12" rx="6" fill="#e2e8f0"/>
-<rect x="89.0" y="284" width="2" height="24" fill="#64748b"/>
-<text x="90.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">-3 EV</text>
-<rect x="189.0" y="284" width="2" height="24" fill="#64748b"/>
-<text x="190.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">-2 EV</text>
-<rect x="289.0" y="284" width="2" height="24" fill="#64748b"/>
-<text x="290.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">-1 EV</text>
-<rect x="389.0" y="284" width="2" height="24" fill="#64748b"/>
-<text x="390.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">0 EV</text>
-<rect x="489.0" y="284" width="2" height="24" fill="#64748b"/>
-<text x="490.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">+1 EV</text>
-<rect x="589.0" y="284" width="2" height="24" fill="#64748b"/>
-<text x="590.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">+2 EV</text>
-<rect x="689.0" y="284" width="2" height="24" fill="#64748b"/>
-<text x="690.0" y="326" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">+3 EV</text>
-<circle cx="390.0" cy="296" r="11" fill="#2563eb" stroke="#ffffff" stroke-width="2"><animate attributeName="cx" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0552;0.1379;0.3448;0.4483;0.6552;0.7586;0.8621;1.0000" values="390;390;390;690;690;90;90;390;390"/></circle>
-<text x="90" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">露出 0 EV:中間の物が、中間の灰色<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1377;0.1379;1.0000" values="1;1;0;0"/></text>
-<text x="90" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">露出を上げる…<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1377;0.1379;0.3446;0.3448;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="90" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">+3 EV（8 倍）:明るい物が白飛び<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3446;0.3448;0.4480;0.4483;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="90" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">露出を下げる…<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4480;0.4483;0.6549;0.6552;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="90" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">−3 EV（1/8）:暗い物が真っ黒（つぶれる）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6549;0.6552;0.7583;0.7586;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="90" y="360" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">0 EV に戻す<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7583;0.7586;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">露出(EV): 1 段上げると、明るさが 2 倍。同じ絵を、−3 〜 +3 段で並べる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">線形の明るさ 0.02 〜 3 の 5 つの面。EV を変えて、画面(sRGB)での見え方がどう変わるか</text>
+<text x="170.0" y="116" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">黒い布</text>
+<text x="170.0" y="134" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">明るさ 0.02</text>
+<text x="304.0" y="116" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">濃い灰</text>
+<text x="304.0" y="134" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">明るさ 0.07</text>
+<text x="438.0" y="116" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">中間の灰</text>
+<text x="438.0" y="134" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">明るさ 0.18</text>
+<text x="572.0" y="116" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">明るい壁</text>
+<text x="572.0" y="134" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">明るさ 0.7</text>
+<text x="706.0" y="116" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">光る面</text>
+<text x="706.0" y="134" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">明るさ 3</text>
+<rect x="110.0" y="146" width="120.0" height="100" fill="#050505" stroke="#94a3b8" stroke-width="1.5"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0732;0.2293;0.3854;0.5415;0.6976" values="#050505;#010101;#030303;#050505;#0a0a0a;#292929"/></rect>
+<text x="170.0" y="205" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ef4444"/>
+<rect x="244.0" y="146" width="120.0" height="100" fill="#121212" stroke="#94a3b8" stroke-width="1.5"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0732;0.2293;0.3854;0.5415;0.6976" values="#121212;#020202;#090909;#121212;#242424;#8f8f8f"/></rect>
+<text x="304.0" y="205" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ef4444"/>
+<rect x="378.0" y="146" width="120.0" height="100" fill="#2e2e2e" stroke="#94a3b8" stroke-width="1.5"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0732;0.2293;0.3854;0.5415;0.6976" values="#2e2e2e;#060606;#171717;#2e2e2e;#5c5c5c;#ffffff"/></rect>
+<text x="438.0" y="205" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ef4444"/>
+<rect x="512.0" y="146" width="120.0" height="100" fill="#b2b2b2" stroke="#94a3b8" stroke-width="1.5"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0732;0.2293;0.3854;0.5415;0.6976" values="#b2b2b2;#161616;#595959;#b2b2b2;#ffffff;#ffffff"/></rect>
+<text x="572.0" y="205" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ef4444"/>
+<rect x="646.0" y="146" width="120.0" height="100" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0732;0.2293;0.3854;0.5415;0.6976" values="#ffffff;#606060;#ffffff;#ffffff;#ffffff;#ffffff"/></rect>
+<text x="706.0" y="205" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ef4444"/>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.2291;0.2293;1.0000" values="1;1;0;0"/><text x="40" y="290" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed">露出 -3 EV(×0.125)</text>
+<text x="170.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.003</text>
+<text x="170.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">17 / 255</text>
+<text x="304.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.009</text>
+<text x="304.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">30 / 255</text>
+<text x="438.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.022</text>
+<text x="438.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">45 / 255</text>
+<text x="572.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.087</text>
+<text x="572.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">84 / 255</text>
+<text x="706.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.375</text>
+<text x="706.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">163 / 255</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.2291;0.2293;0.3852;0.3854;1.0000" values="0;0;1;1;0;0"/><text x="40" y="290" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed">露出 -1 EV(×0.5)</text>
+<text x="170.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.010</text>
+<text x="170.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">31 / 255</text>
+<text x="304.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.035</text>
+<text x="304.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">56 / 255</text>
+<text x="438.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.090</text>
+<text x="438.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">85 / 255</text>
+<text x="572.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.350</text>
+<text x="572.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">158 / 255</text>
+<text x="706.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ef4444">1.500</text>
+<text x="706.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ef4444">白飛び</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.3852;0.3854;0.5413;0.5415;1.0000" values="0;0;1;1;0;0"/><text x="40" y="290" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed">露出 +0 EV(×1)</text>
+<text x="170.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.020</text>
+<text x="170.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">43 / 255</text>
+<text x="304.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.070</text>
+<text x="304.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">76 / 255</text>
+<text x="438.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.180</text>
+<text x="438.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">117 / 255</text>
+<text x="572.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.700</text>
+<text x="572.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">217 / 255</text>
+<text x="706.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ef4444">3.000</text>
+<text x="706.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ef4444">白飛び</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.5413;0.5415;0.6974;0.6976;1.0000" values="0;0;1;1;0;0"/><text x="40" y="290" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed">露出 +1 EV(×2)</text>
+<text x="170.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.040</text>
+<text x="170.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">59 / 255</text>
+<text x="304.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.140</text>
+<text x="304.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">104 / 255</text>
+<text x="438.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.360</text>
+<text x="438.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">160 / 255</text>
+<text x="572.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ef4444">1.400</text>
+<text x="572.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ef4444">白飛び</text>
+<text x="706.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ef4444">6.000</text>
+<text x="706.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ef4444">白飛び</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.6974;0.6976;1.0000" values="0;0;1;1"/><text x="40" y="290" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed">露出 +3 EV(×8)</text>
+<text x="170.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.160</text>
+<text x="170.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">111 / 255</text>
+<text x="304.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">0.560</text>
+<text x="304.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">196 / 255</text>
+<text x="438.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ef4444">1.440</text>
+<text x="438.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ef4444">白飛び</text>
+<text x="572.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ef4444">5.600</text>
+<text x="572.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ef4444">白飛び</text>
+<text x="706.0" y="322" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ef4444">24.000</text>
+<text x="706.0" y="342" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ef4444">白飛び</text>
+</g>
+<text x="60" y="322" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">掛けた後</text>
+<text x="60" y="342" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">画面の値</text>
+<rect x="30" y="372" width="900" height="100" fill="#ffffff" stroke="#e5484d" stroke-width="1.8" rx="6"/>
+<text x="30" y="362" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">白飛びした面と、黒くつぶれた面の数</text>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;1.0000" values="0;0;1;1"/><text x="70" y="414" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">-3 EV</text>
+<text x="70" y="436" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">白飛び 0 / つぶれ 2</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.2291;0.2293;1.0000" values="0;0;1;1"/><text x="245" y="414" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">-1 EV</text>
+<text x="245" y="436" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">白飛び 1 / つぶれ 0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.3852;0.3854;1.0000" values="0;0;1;1"/><text x="420" y="414" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">+0 EV</text>
+<text x="420" y="436" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">白飛び 1 / つぶれ 0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.5413;0.5415;1.0000" values="0;0;1;1"/><text x="595" y="414" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">+1 EV</text>
+<text x="595" y="436" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">白飛び 2 / つぶれ 0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.6974;0.6976;1.0000" values="0;0;1;1"/><text x="770" y="414" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">+3 EV</text>
+<text x="770" y="436" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">白飛び 3 / つぶれ 0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.8535;0.8537;1.0000" values="0;0;1;1"/><rect x="560" y="480" width="370" height="40" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="576" y="504" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1e3a8a">全部がちょうど見える露出は、無い → トーンマップが必要</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">1 EV 上げる = 光の量が 2 倍(カメラの絞り 1 段)<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">5 つの面は、明るさがバラバラ。露出を変えると、見える面が、入れ替わる<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;0.8535;0.8537;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">暗い面を見えるように上げると、明るい面が白飛びする<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.8535;0.8537;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:exposure-ev:end -->
