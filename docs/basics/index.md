@@ -14,6 +14,7 @@ STL やゲームエンジンのページを読むために必要な、C++ の基
 | [イテレータ](iterator.md) | <span class="rank rank-often">よく使う</span> | コンテナの「今どこ」を指すもの。無効になる場面に注意 |
 | [ムーブ](move.md) | <span class="rank rank-often">よく使う</span> | コピーせず、中身を「移す」。`std::move` と、移した後の状態 |
 | [所有権](ownership.md) | <span class="rank rank-often">よく使う</span> | 誰が消す責任を持つか。`unique_ptr` と生ポインタの使い分け |
+| [コンテナの選び方](container-chart.md) | <span class="rank rank-must">必須</span> | 迷ったら `std::vector`。ほかのコンテナを選ぶ理由を、フローチャートで |
 | [ファイル入出力](file-io.md) | <span class="rank rank-often">よく使う</span> | セーブ・設定・ステージの、読み書き。テキストとバイナリ |
 | [ranges とビュー](ranges.md) | <span class="rank rank-often">よく使う</span> | 範囲をまとめて扱い、`filter`・`transform` で、コピーせず加工して見る |
 | [計算量](big-o.md) | <span class="rank rank-often">よく使う</span> | データが増えたとき、処理の重さが、どう増えるか（O(1)・O(n)・O(n²)） |

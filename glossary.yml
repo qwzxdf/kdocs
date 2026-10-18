@@ -1024,7 +1024,7 @@
   link: vs/debugging.md
 - terms: [コンテナ, container]
   text: データをたくさん入れておく入れ物。std::vector・std::map など。
-  link: container-chart.md
+  link: basics/container-chart.md
 - terms: [リソース, resource]
   text: ゲームが使う、画像・音・モデルなどのデータ。メモリの確保や解放の対象でもある。
   link: engine/resource.md

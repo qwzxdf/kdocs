@@ -19,7 +19,6 @@ C++ の入門書や、cppreference のようなリファレンスは、「何が
 - [Visual Studio](vs/index.md)
 - [STL](stl/index.md)
 - [基礎](basics/index.md)
-- [コンテナの選び方](container-chart.md)
 - [ゲーム数学](gamemath/index.md)
 - [3D ゲーム](3d/index.md)
 - [ゲームエンジン](engine/index.md)

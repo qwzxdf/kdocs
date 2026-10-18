@@ -4,7 +4,6 @@ nav:
   - Visual Studio: vs
   - STL: stl
   - 基礎: basics
-  - コンテナの選び方: container-chart.md
   - ゲーム数学: gamemath
   - 3Dゲーム: 3d
   - ゲームエンジン: engine

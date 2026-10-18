@@ -200,7 +200,7 @@ class Transform {
 - [計算量（基礎）](../basics/big-o.md)
 - [メモリとキャッシュ](memory-cache.md)
 - [std::erase_if](../stl/algorithms/erase_if.md)
-- [コンテナの選び方](../container-chart.md)
+- [コンテナの選び方](../basics/container-chart.md)
 - [std::hash とハッシュ](../stl/utilities/hash.md)
 - [std::unordered_map](../stl/containers/unordered_map.md)
 - [std::flat_map](../stl/containers/flat_map.md)

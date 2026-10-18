@@ -80,7 +80,7 @@
 | **ビルド** | [ビルドと CMake の構成](../design/practice/build-cmake.md)、[Ninja](../vs/ninja.md) | ビルドの高速化 |
 | **仮想関数のコスト** | [仮想関数（基礎）](../basics/virtual.md) | 間接呼び出しと、インライン化の阻害 |
 | **キャッシュ・計算量** | [キャッシュ効率（基礎）](../basics/cache.md)、[計算量（基礎）](../basics/big-o.md) | 速さの土台になる知識 |
-| **コンテナの選択** | [コンテナの選び方](../container-chart.md)、[std::flat_map](../stl/containers/flat_map.md)、[std::hash](../stl/utilities/hash.md) | 連続メモリ・ハッシュで速く |
+| **コンテナの選択** | [コンテナの選び方](../basics/container-chart.md)、[std::flat_map](../stl/containers/flat_map.md)、[std::hash](../stl/utilities/hash.md) | 連続メモリ・ハッシュで速く |
 | <strong>メモリ確保（STL）</strong> | [std::pmr](../stl/memory/pmr.md)、[std::allocator](../stl/memory/allocator.md) | アロケーターで確保を速く |
 | **ハンドル・リソース** | [ハンドル](../engine/handle.md)、[リソース管理](../engine/resource.md) | ポインタの無効化を防ぎ、確保を減らす |
 | **シリアライズ** | [シリアライズ](../engine/serialization/index.md)、[simdjson](../libs/serialization/simdjson.md)、[zpp-bits](../libs/serialization/zpp-bits.md) | ロード時間・ファイルサイズ |

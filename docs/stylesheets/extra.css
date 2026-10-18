@@ -121,20 +121,26 @@
 .perf-lv5 { background-color: var(--kd-lv-5); }
 .perf-lv3 { color: #1e1e1e; }
 
+/* 品質・難易度も、速度と同じ、角丸バッジ。同じ 5 色 */
 .qual, .diff {
   display: inline-block;
+  padding: 0.05em 0.55em;
+  border-radius: 0.3em;
   font-size: 0.72em;
   font-weight: 700;
   line-height: 1.6;
   vertical-align: middle;
   white-space: nowrap;
   letter-spacing: 0.02em;
+  color: #fff;
 }
-
-.qual { color: #e0a000; }
-.diff { color: #5c6bc0; }
-[data-md-color-scheme="slate"] .qual { color: #ffca28; }
-[data-md-color-scheme="slate"] .diff { color: #9fa8da; }
+/* 品質: Ⅴ が緑(良い)、Ⅰ が赤。難易度: Ⅰ が緑(やさしい)、Ⅴ が赤(難しい) */
+.qual-5, .diff-1 { background-color: var(--kd-lv-1); }
+.qual-4, .diff-2 { background-color: var(--kd-lv-2); }
+.qual-3, .diff-3 { background-color: var(--kd-lv-3); color: #1e1e1e; }
+.qual-2, .diff-4 { background-color: var(--kd-lv-4); }
+.qual-1, .diff-5 { background-color: var(--kd-lv-5); }
+[data-md-color-scheme="slate"] .qual, [data-md-color-scheme="slate"] .diff { color: #1e1e1e; }
 
 .md-typeset .godbolt-link {
   display: inline-block;
@@ -840,3 +846,20 @@
 .md-typeset ul.page-list .pl-head a { color: inherit; text-decoration: none; }
 .md-typeset ul.page-list .pl-head a:hover { color: var(--md-accent-fg-color); }
 .md-typeset ul.page-list .pl-desc { font-size: 0.74rem; line-height: 1.65; opacity: 0.8; margin-top: 0.15rem; }
+
+/* ===== 目次の階層をはっきり: 分野(大)と、ページ(小)。リンクは青 ===== */
+.md-typeset details.map > summary { font-size: 1.02rem; font-weight: 800; padding-top: 0.9rem; padding-bottom: 0.9rem;
+  background: color-mix(in srgb, var(--md-accent-fg-color) 12%, transparent); }
+.md-typeset details.map[open] > summary { border-bottom: 1px solid var(--md-default-fg-color--lightest); }
+.md-typeset details.map > p { padding: 0.7rem 1rem 0.3rem 1.6rem; margin: 0; }
+.md-typeset details.map ul { margin: 0 0 0.6rem 1.4rem; border-top: 0; border-left: 2px solid color-mix(in srgb, var(--md-accent-fg-color) 35%, transparent); }
+.md-typeset details.map li { border-bottom: 0; }
+.md-typeset details.map li a { font-weight: 500; font-size: 0.8rem; color: var(--md-typeset-a-color); padding: 0.45rem 2rem 0.45rem 1rem; }
+.md-typeset details.map li a:hover { color: var(--md-accent-fg-color); padding-left: 1.25rem; }
+.md-typeset ul.page-list .pl-head a { color: var(--md-typeset-a-color); }
+.md-typeset ul.page-list .pl-head a:hover { color: var(--md-accent-fg-color); }
+
+/* 行のどこをクリックしても、リンク先へ飛ぶ(ページ一覧・地図の行) */
+.md-typeset ul.page-list > li { cursor: pointer; }
+.md-typeset ul.page-list .pl-head a::after { content: ""; position: absolute; inset: 0; z-index: 0; }
+.md-typeset ul.page-list .pl-desc a, .md-typeset ul.page-list .pl-head .rank, .md-typeset ul.page-list .pl-head span { position: relative; z-index: 1; }
