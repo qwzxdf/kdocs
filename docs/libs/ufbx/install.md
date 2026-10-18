@@ -68,6 +68,53 @@ ufbx は**`ufbx.c` と `ufbx.h` の 2 ファイルだけ**です。**ファイ�
 ??? failure "Debug で、読み込みが極端に遅い"
     **Release** で測ります（[コンパイラとビルド](../../basics/compiler.md)）。
 
+## 動作確認：FBX を 1 つ読んでみる
+
+`.fbx` ファイルを 1 つ用意して、次のプログラムで読めるかを確かめます。
+
+```cpp
+#include <print>
+
+#include "ufbx.h"
+
+int main() {
+  ufbx_load_opts opts = {};                                        // 既定の設定（すべて 0）
+  ufbx_error error;
+  ufbx_scene* scene = ufbx_load_file("model.fbx", &opts, &error);
+  if (!scene) {
+    std::println("読み込みに失敗: {}", error.description.data);    // 理由が、文字列で入る
+    return 1;
+  }
+
+  std::println("メッシュ: {} 個、ノード: {} 個、マテリアル: {} 個", scene->meshes.count, scene->nodes.count,
+               scene->materials.count);
+
+  ufbx_free_scene(scene);                                           // 使い終わったら、必ず、解放する
+}
+```
+
+`ufbx_load_file` は失敗すると `nullptr` を返し、理由が `error.description` に入ります。<strong>戻り値の確認が必須</strong>です。読めたシーンは `ufbx_free_scene` で解放します（`ComPtr` のような自動解放は、ないので `std::unique_ptr` にカスタム デリーターを付けると、安全です）。
+
+```cpp
+// 解放を、自動にする。
+struct SceneDeleter { void operator()(ufbx_scene* s) const { ufbx_free_scene(s); } };
+using ScenePtr = std::unique_ptr<ufbx_scene, SceneDeleter>;
+```
+
+## よくあるエラー
+
+| エラー | 原因 | 直し方 |
+| --- | --- | --- |
+| `C1010`（プリコンパイル済みヘッダーを探している間にファイルの終わり） | `ufbx.c` に、プリコンパイル済みヘッダー（`pch.h`）の設定が、掛かっている | `ufbx.c` のプロパティで、<strong>プリコンパイル済みヘッダー → 使用しない</strong> |
+| `LNK2019`（`ufbx_load_file` が未解決） | `ufbx.c` をプロジェクトに追加していない | ソリューション エクスプローラーで、`ufbx.c` を追加 |
+| `ufbx.c` が C++ としてコンパイルされて、大量のエラー | ファイルのプロパティで、コンパイル言語が C++ になっている | <strong>C/C++ → 詳細設定 → コンパイル言語</strong>を、「既定」（`.c` は C として）にする |
+| `C4244` などの警告が大量 | ufbx の内部コード | `ufbx.c` だけ警告レベルを下げる（`/W3`）。自分のコードには影響しない |
+| 読み込みが遅い（Debug） | ufbx は、最適化が効かないと遅い | Debug でも `ufbx.c` だけ最適化（`/O2`）を有効にする |
+
+## ビルドの時間を抑える
+
+`ufbx.c` は 1 ファイルで数万行あるので、<strong>変更しないファイル</strong>です。プロジェクトを整理するときは `ufbx.c` を静的ライブラリに分けるかプリコンパイルを避けて、再ビルドの対象から外します（[ビルド時間の最適化](../../optimize/build-time.md)）。
+
 ## 関連ページ
 
 - [ufbx（目次）](index.md)
