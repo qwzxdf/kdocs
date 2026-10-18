@@ -8,6 +8,7 @@ RATINGS_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 LINK = re.compile(r"\[([^\]]+)\]\(([^)#\s]+\.md)(#[^)\s]*)?\)")
 H1 = re.compile(r"^# (.+)$", re.M)
 
+ROMAN = {1: "Ⅰ", 2: "Ⅱ", 3: "Ⅲ", 4: "Ⅳ", 5: "Ⅴ"}
 PERF_LABEL = {1: "とても軽い", 2: "軽い", 3: "普通", 4: "重い", 5: "とても重い"}
 PERF_TITLE = {
     1: "重さ:とても軽い（ほぼ無料。フレームの 0.1 ms 未満）",
@@ -49,13 +50,13 @@ def Badges(rating):
     parts = []
     perf = rating.get("perf")
     if perf in PERF_LABEL:
-        parts.append('<span class="perf perf-lv%d" title="%s">⚡%s</span>' % (perf, PERF_TITLE[perf], PERF_LABEL[perf]))
+        parts.append('<span class="perf perf-lv%d" title="%s">%s</span>' % (perf, "速度 %s ／ %s" % (ROMAN[6 - perf], PERF_TITLE[perf]), "速度 " + ROMAN[6 - perf]))
     qual = rating.get("quality")
     if qual in QUAL_TITLE:
-        parts.append('<span class="qual qual-%d" title="%s">%s%s</span>' % (qual, QUAL_TITLE[qual], "★" * qual, "☆" * (5 - qual)))
+        parts.append('<span class="qual qual-%d" title="%s">%s%s</span>' % (qual, QUAL_TITLE[qual], "品質 ", ROMAN[qual]))
     diff = rating.get("diff")
     if diff in DIFF_TITLE:
-        parts.append('<span class="diff diff-%d" title="%s">難易度 %s%s</span>' % (diff, DIFF_TITLE[diff], "◆" * diff, "◇" * (5 - diff)))
+        parts.append('<span class="diff diff-%d" title="%s">%s%s</span>' % (diff, DIFF_TITLE[diff], "難易度 ", ROMAN[diff]))
     return " ".join(parts)
 
 
