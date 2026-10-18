@@ -41,30 +41,110 @@ tags:
 
 <!-- fig:sunset-path:begin -->
 
-<svg class="fig illust motion" data-fig="sunset-path" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="sunset-path" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-sunset-path" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
+<clipPath id="sun-clip"><rect x="32" y="98" width="596" height="336"/>
+</clipPath>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">夕焼け:太陽が低いほど、光が大気を長く通って青が散り尽くす</text>
-<rect x="40" y="150" width="700" height="170" fill="#6fb3ff"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1087;0.1304;0.1522;0.1739;0.1957;0.2174;0.2391;0.2609;0.2826;0.3043;0.3261;0.3478;0.3696;0.3913;0.4130;0.4348;0.4565;0.4783;0.5000;0.5217;0.5435;0.5652;0.5870;0.6087;0.6304;0.6522;0.6739;0.6957;0.7174;0.7391;1.0000" values="#6fb3ff;#6fb3ff;#6fb3fe;#71b2fd;#73b2fa;#76b1f6;#7ab0f2;#7eafec;#83ade6;#88ace0;#8eaad8;#94a8d1;#9ba7c8;#a2a5c0;#a9a3b7;#b0a1ae;#b79ea6;#be9c9d;#c59a94;#cc988b;#d39683;#da957a;#e09373;#e6916b;#eb9065;#f08e5f;#f48d59;#f88c55;#fb8b51;#fd8b4e;#ff8a4d;#ff8a4c;#ff8a4c"/></rect>
-<rect x="40" y="320" width="700" height="40" fill="#3f5d3a"/>
-<text x="46" y="142" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">大気の層（上端）</text>
-<line x1="40" y1="150" x2="740" y2="150" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/>
-<circle cx="390" cy="320" r="7" fill="#e5484d"/>
-<text x="402" y="342" text-anchor="start" style="font-size:13px;font-weight:700;fill:#ffffff">観測者</text>
-<circle cx="500" cy="100" r="22" fill="#fff3b0" stroke="#f59e0b" stroke-width="2"><animate attributeName="cx" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.1087;0.1304;0.1522;0.1739;0.1957;0.2174;0.2391;0.2609;0.2826;0.3043;0.3261;0.3478;0.3696;0.3913;0.4130;0.4348;0.4565;0.4783;0.5000;0.5217;0.5435;0.5652;0.5870;0.6087;0.6304;0.6522;0.6739;0.6957;0.7174;0.7391;1.0000" values="500;500;447.3;461.43;475.41;489.23;502.87;516.29;529.46;542.38;555;567.31;579.28;590.89;602.12;612.94;623.35;633.3;642.79;651.81;660.32;668.32;675.79;682.71;689.08;694.88;700.1;704.73;708.76;712.18;714.99;717.18;718.74;718.74"/><animate attributeName="cy" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.1087;0.1304;0.1522;0.1739;0.1957;0.2174;0.2391;0.2609;0.2826;0.3043;0.3261;0.3478;0.3696;0.3913;0.4130;0.4348;0.4565;0.4783;0.5000;0.5217;0.5435;0.5652;0.5870;0.6087;0.6304;0.6522;0.6739;0.6957;0.7174;0.7391;1.0000" values="100;100;-4.99;-2.18;1.24;5.27;9.9;15.12;20.92;27.29;34.21;41.68;49.68;58.19;67.21;76.7;86.65;97.06;107.88;119.11;130.72;142.69;155;167.62;180.54;193.71;207.13;220.77;234.59;248.57;262.7;276.93;291.24;291.24"/></circle>
-<line x1="500" y1="150" x2="390" y2="320" stroke="#ffffff" stroke-width="5"><animate attributeName="x1" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.1087;0.1304;0.1522;0.1739;0.1957;0.2174;0.2391;0.2609;0.2826;0.3043;0.3261;0.3478;0.3696;0.3913;0.4130;0.4348;0.4565;0.4783;0.5000;0.5217;0.5435;0.5652;0.5870;0.6087;0.6304;0.6522;0.6739;0.6957;0.7174;0.7391;1.0000" values="500;500;419.98;427.69;435.55;443.6;451.87;460.42;469.27;478.5;488.15;498.3;509.04;520.45;532.65;545.78;560;575.52;592.6;611.55;632.79;656.85;684.45;716.57;735;735;735;735;735;735;735;735;735;735"/><animate attributeName="stroke" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1087;0.1304;0.1522;0.1739;0.1957;0.2174;0.2391;0.2609;0.2826;0.3043;0.3261;0.3478;0.3696;0.3913;0.4130;0.4348;0.4565;0.4783;0.5000;0.5217;0.5435;0.5652;0.5870;0.6087;0.6304;0.6522;0.6739;0.6957;0.7174;0.7391;1.0000" values="#ffffff;#ffffff;#fffefe;#fffdfc;#fffaf9;#fff6f5;#fff2f0;#ffece9;#ffe6e2;#ffe0da;#ffd9d2;#ffd1c9;#ffc9bf;#ffc0b5;#ffb8ab;#ffafa1;#ffa696;#ff9d8c;#ff9482;#ff8c78;#ff836e;#ff7b64;#ff735b;#ff6c53;#ff664b;#ff6044;#ff5a3d;#ff5638;#ff5234;#ff4f31;#ff4e2f;#ff4d2e;#ff4d2e"/></line>
-<text x="540" y="80" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">光が大気を通る距離</text>
-<rect x="540" y="90" width="190" height="14" fill="#f1f5f9" stroke="#94a3b8"/>
-<rect x="540" y="90" width="17" height="14" fill="#ff6b3d"><animate attributeName="width" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1087;0.1304;0.1522;0.1739;0.1957;0.2174;0.2391;0.2609;0.2826;0.3043;0.3261;0.3478;0.3696;0.3913;0.4130;0.4348;0.4565;0.4783;0.5000;0.5217;0.5435;0.5652;0.5870;0.6087;0.6304;0.6522;0.6739;0.6957;0.7174;0.7391;1.0000" values="17;17;17.15;17.33;17.55;17.82;18.12;18.47;18.87;19.33;19.85;20.44;21.1;21.85;22.71;23.68;24.78;26.05;27.5;29.19;31.16;33.48;36.26;39.61;43.75;48.95;55.67;64.69;77.35;96.41;128.26;190;190"/></rect>
-<text x="40" y="392" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">太陽の高さ 80°:大気を通る距離 = 1.0 倍<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.2605;0.2609;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="392" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">太陽の高さ 60°:大気を通る距離 = 1.1 倍<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2605;0.2609;0.4344;0.4348;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="392" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">太陽の高さ 40°:大気を通る距離 = 1.5 倍<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;0.6083;0.6087;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="392" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">太陽の高さ 20°:大気を通る距離 = 2.9 倍<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6083;0.6087;0.6953;0.6957;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="392" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">太陽の高さ 10°:大気を通る距離 = 5.7 倍<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6953;0.6957;0.7388;0.7391;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="392" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">太陽の高さ 5°:大気を通る距離 = 11.3 倍<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.7388;0.7391;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">昼:光は大気を短く通る → 青い光が散って空は青い<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;1.0000" values="1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">夕方:長く通る間に青が散り尽くし、赤だけが残って届く<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">夕焼け: 太陽が低いほど、光が空気の中を長く通り、青から先に散ってなくなる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">図は大気の厚みを誇張。太陽の高さを 90° → 30° → 10° → 2° に下げて、色を計算する</text>
+<rect x="30" y="96" width="600" height="340" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">地面と大気(断面)</text>
+<g clip-path="url(#sun-clip)"><circle cx="330.0" cy="740.0" r="420.0" fill="#d1fae5" stroke="#34d399" stroke-width="2"/>
+<circle cx="330.0" cy="740.0" r="476.0" fill="#e0f2fe" fill-opacity="0.0" stroke="#93c5fd" stroke-width="2.5" stroke-dasharray="6 5"/>
+</g>
+<circle cx="330.0" cy="320.0" r="7" fill="#1f2937"/>
+<text x="330.0" y="344.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">見る人</text>
+<g opacity="0" clip-path="url(#sun-clip)"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.2535;0.2537;1.0000" values="1;1;0;0"/><line x1="330.0" y1="320.0" x2="330.0" y2="105.0" stroke="#fde68a" stroke-width="2" stroke-dasharray="6 5"/>
+<line x1="330.0" y1="320.0" x2="330.0" y2="264.0" stroke="#e5484d" stroke-width="4"/>
+<circle cx="330.0" cy="105.0" r="14" fill="#e5aa28"/>
+<text x="370.0" y="342.0" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d">太陽の高さ 90°</text>
+</g>
+<g opacity="0" clip-path="url(#sun-clip)"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.2535;0.2537;0.4583;0.4585;1.0000" values="0;0;1;1;0;0"/><line x1="330.0" y1="320.0" x2="516.2" y2="212.5" stroke="#fde68a" stroke-width="2" stroke-dasharray="6 5"/>
+<line x1="330.0" y1="320.0" x2="414.04" y2="271.48" stroke="#e5484d" stroke-width="4"/>
+<circle cx="516.2" cy="212.5" r="14" fill="#e5aa28"/>
+<text x="370.0" y="342.0" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d">太陽の高さ 30°</text>
+</g>
+<g opacity="0" clip-path="url(#sun-clip)"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.4583;0.4585;0.6632;0.6634;1.0000" values="0;0;1;1;0;0"/><line x1="330.0" y1="320.0" x2="541.73" y2="282.67" stroke="#fde68a" stroke-width="2" stroke-dasharray="6 5"/>
+<line x1="330.0" y1="320.0" x2="490.17" y2="291.76" stroke="#e5484d" stroke-width="4"/>
+<circle cx="541.73" cy="282.67" r="14" fill="#e5aa28"/>
+<text x="370.0" y="342.0" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d">太陽の高さ 10°</text>
+</g>
+<g opacity="0" clip-path="url(#sun-clip)"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.6632;0.6634;1.0000" values="0;0;1;1"/><line x1="330.0" y1="320.0" x2="544.87" y2="312.5" stroke="#fde68a" stroke-width="2" stroke-dasharray="6 5"/>
+<line x1="330.0" y1="320.0" x2="539.69" y2="312.68" stroke="#e5484d" stroke-width="4"/>
+<circle cx="544.87" cy="312.5" r="14" fill="#e5aa28"/>
+<text x="370.0" y="342.0" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d">太陽の高さ 2°</text>
+</g>
+<rect x="660" y="96" width="270" height="340" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
+<text x="660" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">太陽の色(大気を抜けた後)</text>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.2535;0.2537;1.0000" values="1;1;0;0"/><circle cx="795" cy="170" r="44" fill="#faedce" stroke="#334155" stroke-width="2"/>
+<text x="795" y="238" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">空気の通る長さ: 天頂の 1.0 倍</text>
+<rect x="700" y="262" width="182.26" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="688" y="276" text-anchor="end" style="font-size:12px;font-weight:700;fill:#e5484d">R</text>
+<text x="888.2603306620972" y="276" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">96%</text>
+<rect x="700" y="292" width="172.44" height="18" fill="#2ea043" opacity="0.85"/>
+<text x="688" y="306" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2ea043">G</text>
+<text x="878.4404585309053" y="306" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">91%</text>
+<rect x="700" y="322" width="149.92" height="18" fill="#2563eb" opacity="0.85"/>
+<text x="688" y="336" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2563eb">B</text>
+<text x="855.9185775059016" y="336" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">79%</text>
+<text x="795" y="370" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#7c3aed">真上: ほぼ白</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.2535;0.2537;0.4583;0.4585;1.0000" values="0;0;1;1;0;0"/><circle cx="795" cy="170" r="44" fill="#f6dca7" stroke="#334155" stroke-width="2"/>
+<text x="795" y="238" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">空気の通る長さ: 天頂の 2.0 倍</text>
+<rect x="700" y="262" width="174.87" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="688" y="276" text-anchor="end" style="font-size:12px;font-weight:700;fill:#e5484d">R</text>
+<text x="880.8732611407656" y="276" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">92%</text>
+<rect x="700" y="292" width="156.58" height="18" fill="#2ea043" opacity="0.85"/>
+<text x="688" y="306" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2ea043">G</text>
+<text x="862.5816603808343" y="306" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">82%</text>
+<rect x="700" y="322" width="118.44" height="18" fill="#2563eb" opacity="0.85"/>
+<text x="688" y="336" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2563eb">B</text>
+<text x="824.4364661439507" y="336" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">62%</text>
+<text x="795" y="370" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#7c3aed">少し黄色っぽい</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.4583;0.4585;0.6632;0.6634;1.0000" values="0;0;1;1;0;0"/><circle cx="795" cy="170" r="44" fill="#e7aa4e" stroke="#334155" stroke-width="2"/>
+<text x="795" y="238" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">空気の通る長さ: 天頂の 5.6 倍</text>
+<rect x="700" y="262" width="150.6" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="688" y="276" text-anchor="end" style="font-size:12px;font-weight:700;fill:#e5484d">R</text>
+<text x="856.6026602509437" y="276" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">79%</text>
+<rect x="700" y="292" width="110.52" height="18" fill="#2ea043" opacity="0.85"/>
+<text x="688" y="306" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2ea043">G</text>
+<text x="816.5180207990045" y="306" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">58%</text>
+<rect x="700" y="322" width="50.56" height="18" fill="#2563eb" opacity="0.85"/>
+<text x="688" y="336" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2563eb">B</text>
+<text x="756.558625737061" y="336" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">27%</text>
+<text x="795" y="370" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#7c3aed">オレンジ</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.6632;0.6634;1.0000" values="0;0;1;1"/><circle cx="795" cy="170" r="44" fill="#bf4104" stroke="#334155" stroke-width="2"/>
+<text x="795" y="238" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">空気の通る長さ: 天頂の 19.4 倍</text>
+<rect x="700" y="262" width="84.66" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="688" y="276" text-anchor="end" style="font-size:12px;font-weight:700;fill:#e5484d">R</text>
+<text x="790.6564308598158" y="276" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">45%</text>
+<rect x="700" y="292" width="28.85" height="18" fill="#2ea043" opacity="0.85"/>
+<text x="688" y="306" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2ea043">G</text>
+<text x="734.8468065905714" y="306" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">15%</text>
+<rect x="700" y="322" width="1.9" height="18" fill="#2563eb" opacity="0.85"/>
+<text x="688" y="336" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2563eb">B</text>
+<text x="707.8990333274305" y="336" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">1%</text>
+<text x="795" y="370" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#7c3aed">深い赤</text>
+</g>
+<text x="70" y="470" text-anchor="start" style="font-size:30px;font-weight:700;fill:#e5484d" opacity="1">0<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0486;0.0488;1.0000" values="1;1;0;0"/></text>
+<text x="70" y="470" text-anchor="start" style="font-size:30px;font-weight:700;fill:#e5484d" opacity="0">90<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0486;0.0488;0.2535;0.2537;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="470" text-anchor="start" style="font-size:30px;font-weight:700;fill:#e5484d" opacity="0">30<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.2535;0.2537;0.4583;0.4585;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="470" text-anchor="start" style="font-size:30px;font-weight:700;fill:#e5484d" opacity="0">10<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.4583;0.4585;0.6632;0.6634;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="470" text-anchor="start" style="font-size:30px;font-weight:700;fill:#e5484d" opacity="0">2<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.6632;0.6634;1.0000" values="0;0;1;1"/></text>
+<text x="120" y="470" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937">度(太陽の高さ)</text>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.8681;0.8683;1.0000" values="0;0;1;1"/><rect x="330" y="450" width="600" height="70" rx="12" fill="#fef2f2" stroke="#e5484d" stroke-width="2.5"/>
+<text x="346" y="474" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7f1d1d">青の光は、2° では 1% しか届かない。赤は 45%</text>
+<text x="346" y="498" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">短い波長ほど散りやすい(レイリー散乱)。だから夕日は赤く、昼の空は青い</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">太陽の光が、大気を通る長さを計算する<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0486;0.0488;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">真上: 一番短い。ほぼ白<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0486;0.0488;0.2535;0.2537;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">30°: 通る長さ 2 倍<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.2535;0.2537;0.4583;0.4585;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">10°: 5〜6 倍。青が減る<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.4583;0.4585;0.6632;0.6634;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">2°: 20 倍以上。青も緑もほとんど散って、赤だけ残る<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.6632;0.6634;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:sunset-path:end -->
