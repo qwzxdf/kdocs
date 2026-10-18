@@ -52,7 +52,6 @@ graphics/postprocess/motion-blur/camera-blur.md: {perf: 2, quality: 1, diff: 2}
 graphics/postprocess/motion-blur/object-blur.md: {perf: 3, quality: 4, diff: 3}
 
 # --- 影 ---
-graphics/shadows/index.md: {diff: 2}
 graphics/shadows/shadow-map-basics/index.md: {perf: 3, quality: 3, diff: 2}
 graphics/shadows/shadow-map-basics/light-matrix.md: {perf: 1, diff: 1}
 graphics/shadows/shadow-map-basics/render-depth.md: {perf: 3, diff: 2}

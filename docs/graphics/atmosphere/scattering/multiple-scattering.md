@@ -6,16 +6,16 @@ tags:
 
 # Multiple Scattering
 
-**光は、何度も散乱しながら進みます**。**単散乱だけだと、空の暗い部分（影・夕方）が暗すぎます**。**多重散乱を近似して足す**と、**明るさが自然**になります。このページでは、**多重散乱**を説明します。
+<strong>光は、何度も散乱しながら進みます</strong>。<strong>単散乱だけだと、空の暗い部分（影・夕方）が暗すぎます</strong>。多重散乱を近似して足すと、明るさが自然になります。このページでは、多重散乱を説明します。
 
 !!! tip "ポイント"
-    - **単散乱だけだと、暗すぎる**。
-    - **多重散乱は、全方向からの光の和**。
-    - **LUT で、近似的に計算する**（Hillaire 2020）。
-    - **空の暗部・影・雲が、自然になる**。
+    - 単散乱だけだと、暗すぎる。
+    - 多重散乱は、全方向からの光の和。
+    - LUT で、近似的に計算する（Hillaire 2020）。
+    - 空の暗部・影・雲が、自然になる。
 
 ## 多重散乱
-**単散乱だけだと夕方や影の側の空が暗くなりすぎます**。**実際には一度散った光が何度も散ります**（**多重散乱**）。**地球の大気では、昼間の空の明るさの 1〜2 割は多重散乱**で、**夕暮れの空の明るさは多重散乱で決まります**。
+<strong>単散乱だけだと夕方や影の側の空が暗くなりすぎます</strong>。<strong>実際には一度散った光が何度も散ります</strong>（多重散乱）。地球の大気では、昼間の空の明るさの 1〜2 割は多重散乱で、夕暮れの空の明るさは多重散乱で決まります。
 
 多重散乱の近似は 3 通りあります。<strong>ambient の底上げ</strong>は、単散乱に一定の環境光を足す方法で、手軽ですが粗いです。<strong>Bruneton の多重散乱</strong>は、散乱の次数ごとに事前計算を繰り返す方法で、正確ですが重いです。<strong>Hillaire の近似</strong>は、多重散乱を、等方で無限級数の閉じた式で近似し、小さな 2D LUT にまとめます。軽く、動的な大気にも使えます。
 
@@ -83,22 +83,151 @@ Hillaire の近似は、大胆な仮定に基づいています。「2 次以降
 
 <!-- fig:multi-scatter-sum:end -->
 
+## 多重散乱：なぜ、必要か
+
+[Single-Scattering Integral](single-scattering.md) では、<strong>光が、1 回だけ散乱</strong>する場合を、扱いました。しかし、実際の、光は、<strong>何度も、散乱</strong>を、繰り返します。2 回目以降の、散乱を、足さないと、空が、暗く、色が、不足します。
+
+| 散乱の回数 | 内容 |
+| --- | --- |
+| 1 回 | 太陽の光が、1 回だけ曲がって、カメラへ |
+| 2 回 | 1 回目に、曲がった光が、もう 1 回、別の点で、曲がって、カメラへ |
+| 3 回以上 | さらに、続く。光は、回数が増えるほど、弱く、全方向に、均される |
+
+地球の大気では、<strong>2 回目以降の、散乱</strong>が、<strong>空の明るさの、2 割〜3 割</strong>を、占めます。夕方・夜明け（太陽が、低い）では、割合が、さらに大きくなります。
+
+## 光が、何度も、散乱すると
+
+<strong>散乱を、繰り返す</strong>たびに、光の向きは、<strong>ばらばら</strong>になります。3 回目以降は、向きが、ほぼ、均一（等方）と、みなせます。これを、利用した、近似があります。
+
+## Hillaire の、近似
+
+Hillaire（2020）は、多重散乱を、<strong>次の、2 つの、仮定</strong>で、近似しました。
+
+1. 2 回目以降の、散乱は、位相関数が、等方（`1 / 4π`）
+2. ある点での、多重散乱の、光は、その点の、周りの、情報で、決まる（空間的に、ゆるやかに、変化する）
+
+この仮定の下では、<strong>多重散乱の、総和</strong>は、<strong>等比級数</strong>で、解析的に、表せます。
+
+```text
+全散乱 = L₂ × (1 + f + f² + f³ + …) = L₂ / (1 − f)        （f < 1）
+```
+
+`L₂` は、<strong>2 回散乱の光</strong>、`f` は、<strong>「1 回散乱するたびに、光が、散乱して、再び、その点の周りへ戻ってくる、割合」</strong>です。
+
+## 多重散乱 LUT
+
+<strong>高度</strong>と、<strong>太陽の天頂角</strong>の、2 変数に、依存する、`L₂` と `f` を、小さな、LUT（Hillaire は 32×32）に、事前計算します。
+
+### 計算の考え方
+
+各点（高度 `h`、太陽の、天頂角 `θ_s`）で、<strong>球面上の、全方向</strong>に、視線を、<strong>飛ばし</strong>、各方向の、1 回散乱の光（`L₂` の、材料）と、その方向の、透過率（`f` の材料）を、積分します。
+
+```hlsl
+// 多重散乱 LUT の、1 つの画素（= 1 つの、高度と、太陽の角度）を、計算する。
+// 全方向（64 方向）に、視線を飛ばし、2 つの量を、平均する:
+//   L2: 等方な位相関数で、1 回散乱した光（= 2 回目の散乱の、光源）
+//   f:  各方向の、散乱で、再び、その点へ戻る、割合
+[numthreads(1, 1, 64)]
+void MultiScatteringCS(uint3 id : SV_DispatchThreadID, uint group_index : SV_GroupIndex) {
+  // 画素から、高度と、太陽の天頂角の cos を求める。
+  float2 uv = (id.xy + 0.5) / float2(32, 32);
+  float cos_sun_zenith = uv.x * 2.0 - 1.0;
+  float view_height = g_bottom_radius + uv.y * (g_top_radius - g_bottom_radius);
+```
+
+LUT の、<strong>横軸が、太陽の天頂角</strong>、<strong>縦軸が、高度</strong>です。64 本の方向を、グループ内の、スレッド（`id.z`）に、割り当てます。
+
+```hlsl
+  float3 sun_dir = float3(0.0, cos_sun_zenith, sqrt(saturate(1.0 - cos_sun_zenith * cos_sun_zenith)));
+  float3 world_pos = float3(0.0, view_height, 0.0);
+
+  // 球面上の 64 方向（フィボナッチ螺旋などで、均等に）。各スレッドが、1 方向を担当。
+  float3 ray_dir = SphereDirection(group_index, 64);
+  float3 L2 = 0.0;                                    // この方向の、「等方な 1 回散乱」
+  float3 f_ms = 0.0;                                  // この方向の、「戻ってくる割合」
+```
+
+<strong>方向の、選び方</strong>は、<strong>球面を、均等に</strong>、覆う、パターンです。64 方向で、滑らかな、LUT が、得られます。
+
+```hlsl
+  // この方向に、視線を進めて、1 回散乱（位相関数は、等方 = 1/4π）を、積分する。
+  IntegrateMultiScatter(world_pos, ray_dir, sun_dir, /*out*/ L2, /*out*/ f_ms);
+
+  // 64 方向を、グループ内で、合計して、平均する（共有メモリで、リダクション）。
+  // ... 合計の処理 ...
+
+  // 最終結果: 等比級数の、和。f が 1 に近いほど、多重散乱が、強い。
+  float3 multi_scattering = L2 / (1.0 - f_ms);
+  g_multi_scattering_lut[id.xy] = multi_scattering;
+}
+```
+
+`IntegrateMultiScatter` の、中身は、<strong>1 回散乱の、積分</strong>（[Single-Scattering Integral](single-scattering.md)）と、<strong>ほぼ同じ</strong>ですが、位相関数が、等方（`1 / 4π`）で、同時に、`f_ms` も、足します。
+
+## 空の、計算で、使う
+
+<strong>多重散乱 LUT</strong> は、<strong>1 回散乱の、ループ</strong>の中で、各点に、足すだけです。
+
+```hlsl
+    // 各サンプル点で、多重散乱の光を、足す（LUT を、1 回、読むだけ）。
+    float2 ms_uv = float2(saturate(cos_sun_zenith_at_p * 0.5 + 0.5), saturate((h - g_bottom_radius) / (g_top_radius - g_bottom_radius)));
+    float3 multi = g_multi_scattering_lut.SampleLevel(g_linear_clamp, ms_uv, 0).rgb;
+    float3 scatter = (g_rayleigh_scatter * density_r + g_mie_scatter * density_m) * (sun_t * phase_term * sun_illuminance + multi * sun_illuminance);
+```
+
+<strong>多重散乱の光は、位相関数なし</strong>（等方）で、<strong>散乱係数だけ</strong>を、掛けて、足します。1 回散乱（太陽の透過率 × 位相関数）と、多重散乱（LUT）を、足し合わせる形です。
+
+## 効果
+
+| 状況 | 1 回散乱のみ | 多重散乱あり |
+| --- | --- | --- |
+| 昼の空の、明るさ | 暗め | 実際の明るさ |
+| 太陽が、低い、空 | 暗く、色が、不足 | 全体が、明るく、紫〜青の、グラデーション |
+| 雲の、中や、霧の、中 | 暗い（光が、奥まで、届かない） | 明るい（光が、散乱を、繰り返して、奥まで、届く） |
+
+## 雲・霧の、多重散乱
+
+雲は、<strong>ミー散乱が、強く</strong>、<strong>アルベド</strong>（散乱の割合）が、非常に、高い（ほぼ 1）ため、光が、何十回も、散乱します。多重散乱を、無視すると、雲の、内部が、暗く、墨のようになります。
+
+| 方法 | 内容 |
+| --- | --- |
+| オクターブによる近似（Wrenninge、2015） | 散乱を、数段階（オクターブ）に、分け、各段階で、減衰を、弱め、位相関数を、等方に、近づける。各オクターブを、足し合わせる |
+| 事前計算 | 雲の、密度から、多重散乱の、ライトマップを、作る |
+
+```hlsl
+// Wrenninge の、オクターブによる、多重散乱の、近似（雲のライティングで、使われる）。
+float3 MultiScatterOctaves(float density_along_light, float cos_theta) {
+  float3 sum = 0.0;
+  float a = 1.0, b = 1.0, c = 1.0;           // 各オクターブの、散乱量、減衰、位相関数の、偏りの、倍率
+  for (int octave = 0; octave < 4; ++octave) {
+    float phase = DualLobePhase(cos_theta, 0.8 * c, -0.5 * c, 0.7);
+    sum += a * phase * exp(-density_along_light * g_sigma_t * b);
+    a *= 0.5;                                // 散乱量は、半分ずつ
+    b *= 0.25;                               // 減衰は、弱く（光が、深くまで、届く）
+    c *= 0.5;                                // 位相関数の、偏りは、弱く（等方に近づく）
+  }
+  return sum;
+}
+```
+
+<strong>オクターブが、進むほど</strong>、<strong>散乱量が、減り</strong>（`a`）、減衰が、弱まり（`b`、光が、深く届く）、位相関数が、等方に、近づく（`c`）。この、3 つの、調整が、多重散乱の、性質（弱く、深く、均一）を、模倣します（[Cloud Lighting](../clouds/lighting.md)）。
+
 ## よくあるミス
 
 ??? failure "影になる部分の空が、真っ黒"
-    **多重散乱**を**足す**。
+    <strong>多重散乱</strong>を<strong>足す</strong>。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **何度も散乱した光を、近似で足す**
+    - [x] 何度も散乱した光を、近似で足す
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique", Computer Graphics Forum (Eurographics Symposium on Rendering 2020)（4 つの LUT を使う方式。公開デモの実装がある）
+- Wrenninge, "Art-Directable Multiple Volumetric Scattering", SIGGRAPH 2015 Talks（多重散乱の、オクターブによる近似）
+- Bruneton, Neyret, "Precomputed Atmospheric Scattering", Computer Graphics Forum (Eurographics Symposium on Rendering 2008)
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大気散乱、参加媒質の章）
 
 ## 関連ページ
 

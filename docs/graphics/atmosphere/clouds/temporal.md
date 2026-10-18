@@ -6,16 +6,16 @@ tags:
 
 # Cloud Temporal Reprojection
 
-**雲のレイマーチは重いので、毎フレーム全画素を計算せず、一部だけ更新して、前フレームと合成**します。**4×4 画素のうち、毎フレーム 1 画素だけ更新**する**方式**が**よく使われます**。このページでは、**時間蓄積による高速化**を説明します。
+<strong>雲のレイマーチは重いので、毎フレーム全画素を計算せず、一部だけ更新して、前フレームと合成</strong>します。<strong>4×4 画素のうち、毎フレーム 1 画素だけ更新</strong>する方式がよく使われます。このページでは、時間蓄積による高速化を説明します。
 
 !!! tip "ポイント"
-    - **4×4 の中の 1 画素だけ、毎フレーム更新**（16 フレームで全体）。
-    - **他の画素は、前フレームを再投影**。
-    - **低解像度で計算して、アップサンプル**。
-    - **動きが速いと、ゴーストに注意**。
+    - 4×4 の中の 1 画素だけ、毎フレーム更新（16 フレームで全体）。
+    - 他の画素は、前フレームを再投影。
+    - 低解像度で計算して、アップサンプル。
+    - 動きが速いと、ゴーストに注意。
 
 ## 高速化：時間蓄積
-**雲のレイマーチは重い**ので、**画面全体を毎フレーム描かず、1/4 の画素だけ描いて、時間をかけて埋めます**。
+<strong>雲のレイマーチは重い</strong>ので、<strong>画面全体を毎フレーム描かず、1/4 の画素だけ描いて、時間をかけて埋めます</strong>。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="雲の時間蓄積">
 <text x="20" y="24" class="fig-title">4×4 のうち 1 ピクセルだけ毎フレーム更新して、16 フレームで全体が埋まる</text>
@@ -38,11 +38,11 @@ tags:
 
 | 工夫 | 内容 |
 | --- | --- |
-| **低解像度で描く** | **半分／1/4 の解像度**で**レイマーチ**し、**アップサンプル** |
-| **ブルー ノイズ ジッター** | **フレームごとに開始位置を変えて、平均で滑らか** |
-| **履歴の再投影** | **前フレームの雲をカメラ移動分だけ動かす**（雲は遠いので回転だけで近似できる） |
-| **層の距離を使う** | **雲までの距離（深度）を持って、再投影の精度を上げる** |
-| **早期の打ち切り** | **透過率が低ければ打ち切る** |
+| 低解像度で描く | 半分／1/4 の解像度でレイマーチし、アップサンプル |
+| ブルー ノイズ ジッター | フレームごとに開始位置を変えて、平均で滑らか |
+| 履歴の再投影 | 前フレームの雲をカメラ移動分だけ動かす（雲は遠いので回転だけで近似できる） |
+| 層の距離を使う | 雲までの距離（深度）を持って、再投影の精度を上げる |
+| 早期の打ち切り | 透過率が低ければ打ち切る |
 
 ### 4×4 の更新パターンの仕組み
 
@@ -214,22 +214,131 @@ Horizon Zero Dawn の方式は、画面を 4×4 画素のブロックに区切�
 
 雲の描画を低解像度の別のターゲットに行い、最後に空と合成する構成にしておくと、この更新方式を他のパスから独立させて扱えます。
 
+## なぜ、時間方向の、処理か
+
+雲の、レイマーチ（[Cloud Raymarching](raymarch.md)）は、<strong>重い</strong>です。<strong>全画素</strong>で、毎フレーム、数十ステップを、行うと、数ミリ秒〜十数ミリ秒かかります。そこで、時間方向に、計算を、分散します。1 フレームで、一部の画素だけを、計算し、残りは、前のフレームの結果を、使い回します。
+
+## 2 つの、工夫
+
+| 工夫 | 内容 | 効果 |
+| --- | --- | --- |
+| 低解像度で、描く | 画面の、1/4（縦横、各 1/2）の、解像度で、レイマーチ | 画素数が、1/4 |
+| 更新する画素を、間引く | 1 フレームに、16 画素に 1 つ（4×4 の、1 つ）だけ、レイマーチ。残りの、15 は、前のフレームから、再投影 | さらに、1/16 |
+
+<strong>組み合わせる</strong>と、<strong>画面の、約 1/64</strong> の画素しか、毎フレーム、レイマーチしません。64 倍、軽くなります。
+
+## 4×4 の、更新パターン
+
+<strong>4×4 のブロック</strong>（16 画素）の、<strong>どの 1 つを、更新するか</strong>を、フレームごとに、順番に、変えます。16 フレームで、全画素が、1 回ずつ、更新されます（[Cloud Bayer の図、参照]）。
+
+```hlsl
+// 4×4 の、更新順（Bayer 行列）。0〜15。フレーム番号 % 16 と、一致する画素が、今フレームの、更新対象。
+static const int kBayer4x4[16] = { 0, 8, 2, 10,  12, 4, 14, 6,  3, 11, 1, 9,  15, 7, 13, 5 };
+
+bool ShouldUpdate(uint2 pixel, uint frame_index) {
+  uint2 p = pixel & 3;                                          // 4×4 ブロック内の位置
+  return kBayer4x4[p.y * 4 + p.x] == (frame_index & 15);
+}
+```
+
+<strong>ベイヤー行列の、順序</strong>で、<strong>離れた画素</strong>を、次々に、更新します。隣り合う画素が、同じフレームで、更新されないので、更新の、むらが、目立ちません（[Dithered Transparency](../../translucency/alpha-test/dither.md) と、同じ、順序）。
+
+## 再投影：前のフレームを、使う
+
+<strong>更新しない画素</strong>は、<strong>前のフレームの、結果</strong>を、使い回します。カメラが、動いているので、前のフレームの、どの画素が、今の画素に、対応するか（再投影）を、求めます。
+
+```hlsl
+// 今フレームの画素に対応する、前フレームの uv を求める（カメラの動きを、考慮）。
+float2 ReprojectToPrevious(float2 uv, float depth_distance) {
+  // 雲は、遠いので、深度は、遠景の距離として、扱う（視線方向 × 距離 → ワールド位置）。
+  float3 ray_dir = ScreenToWorldDir(uv);
+  float3 world_pos = g_camera_position + ray_dir * depth_distance;
+  float4 prev_clip = mul(float4(world_pos, 1.0), g_prev_view_proj);
+  return prev_clip.xy / prev_clip.w * float2(0.5, -0.5) + 0.5;
+}
+```
+
+<strong>今の、画素の位置</strong>（<strong>距離つき</strong>）から、ワールド位置を、復元し、前フレームの、ビュー・射影行列で、前の、画面の位置を、求めます。雲は、遠くにあるので、距離は、大きな、固定値（雲の殻までの、距離）で、近似できます。
+
+```hlsl
+float4 CloudTemporalPS(float2 uv : TEXCOORD0, float4 pos : SV_Position) : SV_Target {
+  uint2 pixel = (uint2)pos.xy;
+  float2 prev_uv = ReprojectToPrevious(uv, g_cloud_reference_distance);
+  float4 history = g_cloud_history.Sample(g_linear_clamp, prev_uv);      // 前フレームの結果（色 + 透過率）
+
+  if (ShouldUpdate(pixel, g_frame_index)) {
+    float4 current = RaymarchCloud(uv);                                  // 今フレームに、更新する画素: レイマーチ
+    return lerp(history, current, 0.1 + ...);                            // 履歴と、混ぜる（下記）
+  }
+  return history;                                                        // 更新しない画素: 履歴を、そのまま
+}
+```
+
+<strong>更新する画素</strong>は、<strong>レイマーチ</strong>した結果を、履歴に、混ぜ、更新しない画素は、履歴を、そのまま、返します。
+
+## 履歴の、クランプ（ゴースト対策）
+
+<strong>カメラや、雲が、動く</strong>と、<strong>前のフレームの結果が、今の状態と、合わなく</strong>なり、ゴースト（残像）が、出ます。履歴の色を、今フレームの、周囲の色の、範囲に、クランプします（Karis、2014、TAA と、同じ考え方）。
+
+```hlsl
+// 周囲 3×3 の、今フレームの結果の、最小・最大の範囲に、履歴を、クランプして、ゴーストを抑える。
+float4 min_c = 1e9, max_c = -1e9;
+for (int y = -1; y <= 1; ++y)
+  for (int x = -1; x <= 1; ++x) {
+    float4 c = g_cloud_current_lowres.Load(int3(pixel / 4 + int2(x, y), 0));
+    min_c = min(min_c, c); max_c = max(max_c, c);
+  }
+history = clamp(history, min_c, max_c);
+```
+
+<strong>履歴が、今の周囲の色の範囲から、外れて</strong>いたら、<strong>範囲の中に、押し込みます</strong>。雲が、動いたことで、古い値が、残る場合に、ゴーストが、消えます。
+
+| 履歴の、混ぜ方 | 効果 |
+| --- | --- |
+| 混ぜる割合を、小さく（履歴を、強く） | なめらか、ノイズが、少ない。ゴーストが、出やすい |
+| 混ぜる割合を、大きく（履歴を、弱く） | ゴーストが、少ない。ノイズが、目立つ |
+| 速い動きのときは、割合を、大きく | カメラの、動きの、速度で、混ぜる割合を、変える |
+
+```hlsl
+float camera_motion = length(g_camera_position - g_prev_camera_position);
+float blend = saturate(0.05 + camera_motion * g_motion_blend_scale);     // 速く動くほど、今フレームを、強く
+```
+
+## ジッターと、組み合わせる
+
+<strong>レイマーチの、開始位置</strong>に、<strong>フレームごとに、違うノイズ</strong>を、使うと、16 フレームの、平均で、ノイズが、均され、なめらかな、雲に、なります（[Cloud Raymarching](raymarch.md) の、ジッター）。
+
+```hlsl
+float jitter = InterleavedGradientNoise(pixel + g_frame_index * 5.588238);   // フレームごとに、ずらす
+```
+
+## 品質と、コストの、トレードオフ
+
+| 設定 | コスト | 品質 |
+| --- | --- | --- |
+| フル解像度、毎フレーム、全画素 | 非常に、重い | 最高 |
+| 1/4 解像度、毎フレーム、全画素 | 重い | 高 |
+| 1/4 解像度、4×4 で、1/16 更新 | 軽い | 中〜高（カメラが、止まっていれば、高い） |
+| 1/4 解像度、2×2 で、1/4 更新 | 中 | 高 |
+
+<strong>カメラが、速く、動く</strong>と、<strong>ゴースト、ノイズ</strong>が、増えます。動きの、速さに応じて、更新の、割合を、変える（速いときは、多く、更新）と、品質が、保たれます。
+
 ## よくあるミス
 
 ??? failure "カメラを動かすと、雲がちらつく"
-    **再投影の精度**を**上げ**、**履歴の拒否**をする。
+    <strong>再投影の精度</strong>を<strong>上げ</strong>、履歴の拒否をする。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **一部の画素だけ更新して、重ねる**
+    - [x] 一部の画素だけ更新して、重ねる
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Karis, "High Quality Temporal Supersampling", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Schneider, Vos, "The Real-Time Volumetric Cloudscapes of Horizon: Zero Dawn", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Hillaire, "Physically Based Sky, Atmosphere and Cloud Rendering in Frostbite", SIGGRAPH 2016, Physically Based Shading in Theory and Practice
+- Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare", SIGGRAPH 2014（Interleaved Gradient Noise）
 
 ## 関連ページ
 

@@ -6,13 +6,13 @@ tags:
 
 # Atmosphere Model
 
-**大気を、高さごとの密度を持つ層として表します**。**空気分子（レイリー）、エアロゾル（ミー）、オゾンが、それぞれ違う散乱・吸収を持ちます**。このページでは、**大気のモデル**を説明します。
+<strong>大気を、高さごとの密度を持つ層として表します</strong>。<strong>空気分子（レイリー）、エアロゾル（ミー）、オゾンが、それぞれ違う散乱・吸収を持ちます</strong>。このページでは、大気のモデルを説明します。
 
 !!! tip "ポイント"
-    - **レイリー：高さとともに指数で薄くなる（約 8 km）**。
-    - **ミー：低い所に多い（約 1.2 km）**。
-    - **オゾン：青を吸収し、夕空の色に効く**。
-    - **散乱係数は、波長ごとに持つ**。
+    - レイリー：高さとともに指数で薄くなる（約 8 km）。
+    - ミー：低い所に多い（約 1.2 km）。
+    - オゾン：青を吸収し、夕空の色に効く。
+    - 散乱係数は、波長ごとに持つ。
 
 <!-- fig:rayleigh-wavelength:begin -->
 
@@ -87,17 +87,17 @@ tags:
 <!-- fig:rayleigh-wavelength:end -->
 
 ## 大気のモデル
-**地球の大気は球殻**です。**密度は高さに対して指数的に減ります**。
+<strong>地球の大気は球殻</strong>です。<strong>密度は高さに対して指数的に減ります</strong>。
 
 <div class="formula">ρ(h) = exp( −h / H )　（H：スケール ハイト）</div>
 
 | 成分 | スケール ハイト H | 特徴 |
 | --- | --- | --- |
-| <strong>レイリー（空気分子）</strong> | **約 8 km** | **青く散る。後ろにも前にも均等に** |
-| <strong>ミー（エアロゾル）</strong> | **約 1.2 km** | <strong>ほぼ白く散る。前方に強い（太陽の周りのにじみ）</strong> |
-| **オゾン** | **高さ 25 km 付近に層** | **散らさず、吸収する**（**朝夕の空の青みの基**） |
+| <strong>レイリー（空気分子）</strong> | 約 8 km | 青く散る。後ろにも前にも均等に |
+| <strong>ミー（エアロゾル）</strong> | 約 1.2 km | <strong>ほぼ白く散る。前方に強い（太陽の周りのにじみ）</strong> |
+| オゾン | 高さ 25 km 付近に層 | 散らさず、吸収する（朝夕の空の青みの基） |
 
-**地球の半径は 6360 km、大気の上端は 6460 km**（高さ 100 km）です。
+<strong>地球の半径は 6360 km、大気の上端は 6460 km</strong>（高さ 100 km）です。
 
 係数は 3 種類あります。<strong>散乱係数 σs</strong>は、単位長さあたり散らされる割合で、RGB で値が違います。<strong>吸収係数 σa</strong>は、単位長さあたり吸われる割合です。<strong>消散係数 σt = σs + σa</strong>は、減る割合の合計です。
 
@@ -105,24 +105,141 @@ tags:
 
 これらの値に、高さごとの密度 ρ(h) = exp(−h / H) を掛けると、その高さでの係数になります。ミーとレイリーは指数関数的に薄くなりますが、オゾンは高さ 25 km を中心とした三角形状の分布で近似します。
 
-<strong>レイリー散乱係数（海面）</strong> は、**RGB で (5.8, 13.5, 33.1) × 10⁻⁶ /m** 程度（**青が大きい**）、**ミー散乱は (3.9, 3.9, 3.9) × 10⁻⁶ /m** 程度です。
+<strong>レイリー散乱係数（海面）</strong> は、<strong>RGB で (5.8, 13.5, 33.1) × 10⁻⁶ /m</strong> 程度（<strong>青が大きい</strong>）、ミー散乱は (3.9, 3.9, 3.9) × 10⁻⁶ /m 程度です。
+
+## 大気を、どうモデル化するか
+
+空の色や、遠景の、霞を、物理的に、計算するには、<strong>大気を、層状の、媒質</strong>として、モデル化します。<strong>惑星は、球</strong>、大気は、その周りの、薄い殻です。
+
+```text
+         大気の上端（半径 6460 km）
+       ╭──────────────────╮
+      ╱  ╭────────────╮    ╲
+     │  ╱   惑星        ╲    │       大気の厚さ ≈ 100 km（地球の半径の、約 1.6%）
+     │ │  （半径 6360 km）│    │
+      ╲  ╲              ╱    ╱
+       ╰──╰────────────╯───╯
+```
+
+| 要素 | 値の例（地球） |
+| --- | --- |
+| 惑星の半径（地表） | 6,360 km |
+| 大気の上端 | 6,460 km（地表から、100 km） |
+| 地表の、反射率（アルベド） | 0.3 程度（草地・土・海の平均） |
+
+大気の厚さは、<strong>惑星の半径に比べて、非常に、薄い</strong>ので、<strong>地表付近</strong>では、平らな層と、みなせますが、地平線の近くや、宇宙から見るときは、球の曲率が、重要になります。
+
+## 3 つの、成分
+
+大気は、<strong>光を、散乱・吸収</strong>する、<strong>3 種類の、成分</strong>で、できています。
+
+| 成分 | 大きさ | 散乱の性質 | 層の厚さ（スケール ハイト） |
+| --- | --- | --- | --- |
+| 空気の分子（レイリー） | 波長より、はるかに小さい | 波長の 4 乗に、反比例。前後に、均等に、散る | 8 km（厚い） |
+| エアロゾル（ミー） | 波長と、同程度 | 波長に、ほぼ、無関係（白っぽい）。前方に、強く散る | 1.2 km（地表近く） |
+| オゾン | 分子 | 散乱せず、吸収のみ。赤〜緑の、一部を、吸収 | 高度 25 km 付近に、集中（帯状） |
+
+### レイリー散乱：空が、青い理由
+
+レイリー散乱の、強さは、<strong>波長の 4 乗に、反比例</strong>します。<strong>青い光</strong>（波長が、短い）は、赤い光（波長が、長い）の、約 5〜6 倍、強く散ります。太陽の光が、大気を通る間に、青が、あらゆる方向へ、散り、空全体が、青く見えます。
+
+```text
+散乱の強さ ∝ 1 / λ⁴
+   青（450 nm）: 1 / 450⁴ ≈ 2.4e-11
+   赤（650 nm）: 1 / 650⁴ ≈ 5.6e-12      → 青は、赤の約 4.3 倍
+```
+
+### ミー散乱：霞と、白い空
+
+エアロゾルは、<strong>波長に、依存せず</strong>、<strong>白く</strong>散ります。地平線の近くで、空が、白っぽくなるのは、視線が、地表近くの、濃いエアロゾルの層を、長く通るためです。
+
+### オゾン：空の、深い青
+
+オゾンは、<strong>吸収だけ</strong>を、行います。<strong>赤〜緑の光</strong>を、少し吸うので、日没の、太陽の光が、長い距離を、通ったとき、空の、深い青（天頂付近）が、保たれます。オゾンを、無視すると、夕方の空が、緑がかります。
+
+## 係数の値
+
+Hillaire（2020）の、実装が、使っている、地球の、大気の係数です（単位は、<strong>1 / km</strong>）。
+
+| 成分 | 散乱係数 | 吸収係数 | RGB |
+| --- | --- | --- | --- |
+| レイリー | (0.005802, 0.013558, 0.0331) | 0 | 青が、最大 |
+| ミー | 0.003996 | 0.00444 | 白（RGB 同じ） |
+| オゾン | 0 | (0.00065, 0.001881, 0.000085) | 赤・緑を、吸う |
+
+```hlsl
+// 係数の定義。単位は、1 / km。メートル単位で、計算するなら、1000 で割る。
+static const float3 kRayleighScattering = float3(0.005802, 0.013558, 0.0331);
+static const float kMieScattering = 0.003996;
+static const float kMieAbsorption = 0.00444;
+static const float3 kOzoneAbsorption = float3(0.00065, 0.001881, 0.000085);
+```
+
+レイリーの、`(0.0058, 0.0136, 0.0331)` は、<strong>赤:緑:青 ≈ 1 : 2.3 : 5.7</strong> で、<strong>青が、約 6 倍</strong>です。この、比が、空の、青さの、源です。
+
+## 密度の、分布
+
+各成分の、密度は、<strong>高度の、関数</strong>です。
+
+```hlsl
+// 高度 h（km）での、各成分の、密度（地表で 1）。
+float RayleighDensity(float h_km) { return exp(-h_km / 8.0); }
+float MieDensity(float h_km) { return exp(-h_km / 1.2); }
+// オゾンは、高度 25 km を中心とした、三角形の分布（15 km 〜 35 km の、層）。
+float OzoneDensity(float h_km) {
+  return (h_km < 25.0) ? saturate(h_km / 15.0 - 2.0 / 3.0) : saturate(-h_km / 15.0 + 8.0 / 3.0);
+}
+```
+
+<strong>レイリーと、ミー</strong>は、<strong>指数関数</strong>で、高度とともに、薄くなります。オゾンは、特定の高度の、層（25 km 付近）に、集中するので、三角形の、関数で、近似します。
+
+## 消散係数の、合計
+
+ある点での、<strong>光を、失う割合</strong>（消散係数）は、<strong>各成分の、散乱と吸収の、合計</strong>です。
+
+```hlsl
+// 点での、消散係数 σ_t（RGB）。散乱 + 吸収の、全成分。
+float3 ExtinctionAt(float h_km) {
+  float3 rayleigh = kRayleighScattering * RayleighDensity(h_km);
+  float mie = (kMieScattering + kMieAbsorption) * MieDensity(h_km);
+  float3 ozone = kOzoneAbsorption * OzoneDensity(h_km);
+  return rayleigh + mie + ozone;
+}
+```
+
+<strong>散乱だけ</strong>が、<strong>視線の方向へ、光を足す</strong>（空の色を、作る）のに、使われる一方、消散（散乱 + 吸収）は、透過率（光が、失われる量）に、使われます（[Transmittance](transmittance.md)）。
+
+## 大気の、パラメーターを、変える
+
+係数を、変えると、<strong>別の惑星</strong>や、<strong>天候</strong>を、表現できます。
+
+| 変更 | 効果 |
+| --- | --- |
+| ミー散乱を、増やす | 霞んだ空（スモッグ、湿気）。地平線が、白い |
+| ミー散乱を、減らす | 澄んだ空（高山、乾燥）。青が、濃く、遠くまで見える |
+| レイリーの、スケール ハイトを、変える | 大気の、厚さの感じ |
+| オゾンを、ゼロに | 夕方の空が、緑がかる |
+| 惑星の半径を、変える | 地平線の、見え方。小さい惑星は、地平線が、近く、曲がって見える |
+
+火星の空（赤い塵が、多い）は、<strong>ミー散乱が、強く</strong>、<strong>赤い</strong>エアロゾルを、持つ、モデルで、表現できます。
 
 ## よくあるミス
 
 ??? failure "夕焼けが、赤くならない"
-    **オゾンの吸収**と **波長ごとの散乱係数**を**入れる**。
+    <strong>オゾンの吸収</strong>と <strong>波長ごとの散乱係数</strong>を入れる。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **高さごとの密度と、波長ごとの係数**
+    - [x] 高さごとの密度と、波長ごとの係数
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique", Computer Graphics Forum (Eurographics Symposium on Rendering 2020)
+- Bruneton, Neyret, "Precomputed Atmospheric Scattering", Computer Graphics Forum (Eurographics Symposium on Rendering 2008)
+- Bruneton, "A Qualitative and Quantitative Evaluation of 8 Clear Sky Models", IEEE Transactions on Visualization and Computer Graphics, Vol. 23, No. 12, 2017
+- Nishita, Sirai, Tadamura, Nakamae, "Display of the Earth Taking into Account Atmospheric Scattering", SIGGRAPH 1993
+- O'Neil, "Accurate Atmospheric Scattering", GPU Gems 2, Chapter 16, 2005
 
 ## 関連ページ
 

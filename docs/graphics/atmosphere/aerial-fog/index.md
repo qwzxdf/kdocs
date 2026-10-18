@@ -6,10 +6,10 @@ tags:
 
 # Aerial Perspective and Fog
 
-**遠くの景色は、空気の層を通って、青く霞んで見えます**。**これを空気遠近法と呼び、距離感を出すために、とても重要**です。このセクションでは、**必要な理由・フォグの式・高さフォグ・太陽方向のにじみ・色を空に合わせる・物理に基づく空気遠近法・適用する場所**を、**1 つずつ別のページ**で説明します。
+<strong>遠くの景色は、空気の層を通って、青く霞んで見えます</strong>。<strong>これを空気遠近法と呼び、距離感を出すために、とても重要</strong>です。このセクションでは、必要な理由・フォグの式・高さフォグ・太陽方向のにじみ・色を空に合わせる・物理に基づく空気遠近法・適用する場所を、1 つずつ別のページで説明します。
 
 ## なぜ必要か
-**フォグがない**と**遠くの物が近くの物と同じコントラストで見え**、**平面的**で**スケール感が出ません**。**フォグ**は**遠い物ほど霞ませる**ことで、**奥行きを伝えます**。
+<strong>フォグがない</strong>と<strong>遠くの物が近くの物と同じコントラストで見え</strong>、平面的でスケール感が出ません。フォグは遠い物ほど霞ませることで、奥行きを伝えます。
 
 <svg class="fig illust" viewBox="0 0 780 220" role="img" aria-label="空気遠近法">
 <text x="20" y="24" class="fig-title">フォグなし（上）とあり（下）：遠くほど空の色に近づく</text>
@@ -45,14 +45,14 @@ tags:
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **距離で霞ませ、空の色になじませる**
+    - [x] 距離で霞ませ、空の色になじませる
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique", Computer Graphics Forum (Eurographics Symposium on Rendering 2020)
+- Wronski, "Volumetric Fog: Unified Compute Shader Based Solution to Atmospheric Scattering", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Beer, "Bestimmung der Absorption des rothen Lichts in farbigen Flüssigkeiten", Annalen der Physik, 1852（吸収の法則）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（参加媒質、雲、霧の章）
 
 ## 関連ページ
 

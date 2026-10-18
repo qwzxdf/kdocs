@@ -6,23 +6,23 @@ tags:
 
 # Temporal Accumulation
 
-**froxel の解像度は低いので、ノイズや段が出ます**。**毎フレーム、サンプルの位置をずらして、前フレームと混ぜる**と、**実質の解像度が上がり、なめらか**になります。このページでは、**時間蓄積**を説明します。
+<strong>froxel の解像度は低いので、ノイズや段が出ます</strong>。<strong>毎フレーム、サンプルの位置をずらして、前フレームと混ぜる</strong>と、実質の解像度が上がり、なめらかになります。このページでは、時間蓄積を説明します。
 
 !!! tip "ポイント"
-    - **毎フレーム、サンプル位置を少しずらす（ジッタ）**。
-    - **前フレームの結果を、再投影して混ぜる**。
-    - **動く物体の周りで、ゴーストに注意**。
-    - **TAA と同じ考え方**。
+    - 毎フレーム、サンプル位置を少しずらす（ジッタ）。
+    - 前フレームの結果を、再投影して混ぜる。
+    - 動く物体の周りで、ゴーストに注意。
+    - TAA と同じ考え方。
 
 ## 時間蓄積（TAA 風）
-**froxel の解像度が低く、サンプルが少ない**ので**そのままだとノイズや縞が出ます**。**前フレームの結果を再利用して、時間方向に平均します**。
+<strong>froxel の解像度が低く、サンプルが少ない</strong>ので<strong>そのままだとノイズや縞が出ます</strong>。前フレームの結果を再利用して、時間方向に平均します。
 
 | 工夫 | 内容 |
 | --- | --- |
-| **ジッター** | **毎フレーム、froxel 内のサンプル位置を少しずらす**（ブルー ノイズなど） |
-| **履歴の再投影** | **前フレームの froxel の位置を、カメラの動きで求めて、その値を混ぜる** |
-| **ブレンド率** | **新 5〜10 %、履歴 90〜95 %** |
-| **履歴の拒否** | **ライトが動いたとき／急な変化は、履歴を弱める** |
+| ジッター | 毎フレーム、froxel 内のサンプル位置を少しずらす（ブルー ノイズなど） |
+| 履歴の再投影 | 前フレームの froxel の位置を、カメラの動きで求めて、その値を混ぜる |
+| ブレンド率 | 新 5〜10 %、履歴 90〜95 % |
+| 履歴の拒否 | ライトが動いたとき／急な変化は、履歴を弱める |
 
 ```hlsl
 float3 previous_uvw = ReprojectFroxel(world_position, previous_view_projection);
@@ -72,22 +72,108 @@ float4 result = lerp(history, current, blend);
 
 <!-- fig:ema-converge:end -->
 
+## 時間方向の、平均で、品質を、上げる
+
+<strong>froxel</strong> は、<strong>低解像度</strong>（160×90×64）なので、そのまま使うと、縞（バンディング）や、ちらつきが、出ます。フレームごとに、サンプル位置を、わずかに、ずらし（ジッター）、前のフレームの結果と、混ぜる（時間方向の、平均）と、多くの、フレームの情報が、集まり、なめらかで、高品質に、なります（Wronski、2014、Hillaire、2015）。
+
+## ジッター：サンプル位置を、ずらす
+
+<strong>各フレームで</strong>、<strong>セルの中の、どの位置で、密度や、影を、サンプルするか</strong>を、少しずつ、変えます。
+
+```hlsl
+// フレームごとに、違うジッター（0〜1）を、返す。ハルトン数列などの、低食い違い量列を、使う。
+float3 JitterOffset() {
+  return float3(Halton(g_frame_index, 2), Halton(g_frame_index, 3), Halton(g_frame_index, 5)) - 0.5;
+}
+
+// セルの、ワールド位置を求めるとき、ジッターを足す（Step 1、Step 2 の、FroxelToWorld の、引数に、足す）。
+float3 world = FroxelToWorld(float3(id) + 0.5 + JitterOffset());
+```
+
+<strong>セルの、中心</strong>ではなく、<strong>セルの中の、ランダムな位置</strong>で、サンプルします。フレームごとに、違う位置を、サンプルするので、複数フレームを、平均すると、セル全体の、平均に、近づきます。ハルトン数列は、一様に、かたよりなく、点を、並べる（低食い違い量列）ので、ランダムより、少ないフレームで、収束します。
+
+## 再投影：前のフレームを、探す
+
+<strong>カメラが、動く</strong>と、<strong>前のフレームの、froxel</strong>の、同じセルは、今のフレームの、別の位置に、対応します。前のフレームの、ビュー・射影行列で、今のセルの、ワールド位置を、前の froxel の、座標へ、変換します。
+
+```hlsl
+// 今のセルのワールド位置から、前のフレームの froxel の、uvw を求める。
+float3 ReprojectToPrevFroxel(float3 world) {
+  float4 prev_clip = mul(float4(world, 1.0), g_prev_view_proj);
+  float2 prev_uv = prev_clip.xy / prev_clip.w * float2(0.5, -0.5) + 0.5;
+  float prev_depth = prev_clip.w;                                           // 前のフレームでの、ビュー深度
+  float prev_slice = ViewDepthToSlice(prev_depth);
+  return float3(prev_uv, prev_slice);
+}
+```
+
+<strong>ワールド位置は、同じ</strong>（<strong>霧の、その場所</strong>）ですが、前のフレームでは、画面の、別の位置でした。前の行列で、前の画面座標と、スライスを、求めます。
+
+## 履歴と、混ぜる
+
+```hlsl
+// 注入後の、散乱光（今フレーム）を、前フレームの、履歴と、混ぜる。
+float3 uvw = ReprojectToPrevFroxel(world);
+bool valid = all(uvw >= 0.0) && all(uvw <= 1.0);                           // 前の froxel の、範囲内か
+float4 history = valid ? g_froxel_history.SampleLevel(g_linear_clamp, uvw, 0) : current;
+
+float blend = valid ? 0.05 : 1.0;                                          // 履歴が、有効なら、今フレームは 5%、無効なら 100%
+float4 result = lerp(history, current, blend);
+g_froxel_lighting_out[id] = result;
+```
+
+<strong>履歴を、95%</strong> 残し、<strong>今フレームを、5%</strong> だけ、混ぜます。約 20 フレームの、指数移動平均に、相当し、ノイズ・縞が、大きく、減ります。履歴が、範囲の外（カメラが、動いて、新しく、見える領域）なら、今フレームの値を、100% 使います。
+
+| 混ぜる割合（今フレーム） | 効果 |
+| --- | --- |
+| 0.02〜0.05（履歴を、強く） | 非常に、なめらか。ゴースト（動いたものの、残像）が、出やすい |
+| 0.1〜0.2 | ほどほど。ゴーストが、少ない、ノイズが、残る |
+| 1.0 | 時間方向の平均なし（縞が、そのまま） |
+
+## ゴーストを、抑える
+
+<strong>ライトが、動く</strong>、<strong>霧が、動く</strong>、物が、動くと、前のフレームの、結果が、古く、残像（ゴースト）が、出ます。
+
+| 対策 | 内容 |
+| --- | --- |
+| 履歴の、クランプ | 今フレームの、周囲の、セルの、最小・最大に、履歴を、押し込む（[Cloud Temporal Reprojection](../clouds/temporal.md) と、同じ） |
+| 動きの、速さで、割合を、変える | カメラ・ライトが、速く動くほど、今フレームの、割合を、大きく |
+| ライトが、動いたら、リセット | 動く、ライトの、周囲の、セルだけ、履歴を、捨てる |
+| ライトの、強さが、急に変わる | 履歴を、捨てる（フラッシュなど） |
+
+```hlsl
+// 動いているライトの、影響範囲では、履歴を、弱める。
+float light_motion = g_moving_light_influence(world);                       // 0（静止）〜 1（動いている）
+float blend = lerp(0.05, 0.5, light_motion);
+```
+
+## 描画への、影響
+
+<strong>時間方向の、平均</strong>は、<strong>ボリューム フォグの、品質</strong>に、大きく、貢献します。ほぼ、必須です。
+
+| 設定 | 効果 |
+| --- | --- |
+| 時間方向の平均なし | 縞、ちらつき。高解像度（重い）が、必要 |
+| ジッター + 履歴（95%） | なめらか。低解像度（160×90×64）で、十分 |
+
+<strong>カメラが、止まっている</strong>と、<strong>履歴が、収束</strong>して、非常に、なめらかに、なります。カメラが、急に動くと、一時的に、品質が、落ちます。
+
 ## よくあるミス
 
 ??? failure "霧が、動くと尾を引く"
-    **履歴の拒否**・**ブレンド率の調整**をする。
+    <strong>履歴の拒否</strong>・<strong>ブレンド率の調整</strong>をする。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **ジッタと再投影で、実質の解像度を上げる**
+    - [x] ジッタと再投影で、実質の解像度を上げる
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Wronski, "Volumetric Fog: Unified Compute Shader Based Solution to Atmospheric Scattering", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Hillaire, "Physically Based and Unified Volumetric Rendering in Frostbite", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Karis, "High Quality Temporal Supersampling", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Halton, "On the Efficiency of Certain Quasi-Random Sequences of Points in Evaluating Multi-Dimensional Integrals", Numerische Mathematik, Vol. 2, 1960（ハルトン数列）
 
 ## 関連ページ
 

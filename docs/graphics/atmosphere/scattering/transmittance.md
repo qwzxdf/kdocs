@@ -6,13 +6,13 @@ tags:
 
 # Transmittance
 
-**光が大気を通ると、散乱や吸収で弱まります**。**弱まる割合が透過率で、Beer の法則（指数）で表します**。このページでは、**透過率の計算**を説明します。
+<strong>光が大気を通ると、散乱や吸収で弱まります</strong>。<strong>弱まる割合が透過率で、Beer の法則（指数）で表します</strong>。このページでは、透過率の計算を説明します。
 
 !!! tip "ポイント"
-    - **透過率 ＝ exp(−∫ 消散係数 ds)**。
-    - **波長（RGB）ごとに計算**する。
-    - **長い道のり ＝ 低い太陽 ＝ 赤くなる**（青が先に消える）。
-    - **LUT に事前計算しておく**と**速い**。
+    - 透過率 ＝ exp(−∫ 消散係数 ds)。
+    - 波長（RGB）ごとに計算する。
+    - 長い道のり ＝ 低い太陽 ＝ 赤くなる（青が先に消える）。
+    - LUT に事前計算しておくと速い。
 
 <!-- fig:sun-transmittance:begin -->
 
@@ -73,7 +73,7 @@ tags:
 <!-- fig:sun-transmittance:end -->
 
 ## 透過率
-**光が距離 d を進むと、強さは指数的に減ります**（Beer–Lambert の法則）。
+<strong>光が距離 d を進むと、強さは指数的に減ります</strong>（Beer–Lambert の法則）。
 
 <div class="formula">T(a → b) = exp( −∫ σt(s) ds )　（光学的厚さ τ = ∫ σt ds）</div>
 
@@ -96,22 +96,170 @@ float3 Transmittance(float3 start, float3 end, int steps) {
 
 コードの要点です。中点法で、各区間の中点で密度を取ります。色ごとに別の値を持ちます（RGB の消散係数が違うので、青が先に減ります）。球の外や内への扱いとして、地面にぶつかる向きは、光が届かない（T = 0）として扱います。
 
+## 透過率とは、何か
+
+光が、霧や大気の中を、距離 `d` だけ進むと、<strong>一部が、吸収・散乱で、進行方向から、失われます</strong>。<strong>そのまま、進行方向に、残る光の割合</strong>が、透過率 `T` です。
+
+```text
+T = exp( −σ × d )                       一様な媒質（霧）の場合
+
+T = exp( −∫ σ(s) ds )                   密度が、場所で変わる媒質（大気）の場合。積分は、光の通り道に沿って
+```
+
+`σ`（消散係数、1/m）は、<strong>単位長さあたり、どれだけ、光が失われるか</strong>を表します。指数関数の形（Beer–Lambert の法則）なのは、<strong>進んだ分の、一定の割合</strong>が、失われ続けるためです。
+
+## 一様な、媒質：1 行で、済む
+
+霧の、密度が、一定なら、積分は、不要です。
+
+```hlsl
+float3 transmittance = exp(-g_sigma_t * distance);
+```
+
+`g_sigma_t` は、<strong>RGB の、3 成分</strong>の、消散係数です。空気中の、レイリー散乱は、<strong>青の方が、大きく</strong>、赤の方が、小さいので、遠くの景色は、青みを帯びます（[Rayleigh Scattering](../scattering/index.md)）。
+
+## 密度が、変わる媒質：数値積分
+
+大気の、密度は、<strong>高度とともに、指数関数的に、薄く</strong>なります。
+
+```text
+ρ(h) = exp( −h / H )         h: 地表からの高さ、H: スケール ハイト（レイリー 8 km、ミー 1.2 km）
+```
+
+光の通り道に沿った、積分は、<strong>分割して、足し合わせる</strong>ことで、近似します。
+
+```hlsl
+// 地表の中心を原点とした、座標で、位置 p の、高さ（地表からの高さ）を求める。
+float HeightAt(float3 p) { return length(p) - g_planet_radius; }
+```
+
+大気は、<strong>惑星の中心を、原点</strong>にした、<strong>球</strong>として、扱います。`length(p)` が、中心からの距離で、惑星の半径を引くと、高度です。
+
+```hlsl
+// 密度（高度 h での、基準の密度に対する、割合）。レイリーと、ミーで、スケール ハイトが違う。
+float DensityRayleigh(float h) { return exp(-h / 8000.0); }       // 8 km
+float DensityMie(float h) { return exp(-h / 1200.0); }            // 1.2 km
+```
+
+レイリー散乱（空気の分子）の、層は、<strong>厚く</strong>（8 km）、ミー散乱（エアロゾル、細かい塵や、水滴）の層は、<strong>薄い</strong>（1.2 km、地表の近く）です。ミー散乱が、地表の近くに、集まっているので、地平線の、すぐ上だけ、白っぽく濁ります。
+
+```hlsl
+// 光の通り道（点 a から、方向 dir へ、長さ length）の、光学的な厚さ（密度の積分）を、数値で求める。
+float2 OpticalDepth(float3 a, float3 dir, float length_m, int steps) {
+  float step_len = length_m / steps;
+  float2 sum = 0.0;                                               // x = レイリー、y = ミー
+  for (int i = 0; i < steps; ++i) {
+    float3 p = a + dir * ((i + 0.5) * step_len);                  // 区間の中央で、評価（中点法）
+    float h = HeightAt(p);
+    sum += float2(DensityRayleigh(h), DensityMie(h)) * step_len;
+  }
+  return sum;
+}
+```
+
+ループの中で、<strong>各区間の中央</strong>の、密度を、読み、<strong>区間の長さを掛けて</strong>、足し合わせます。これが、積分の、近似です（中点法）。`steps` は、精度と、速さの、バランスで、16〜64 が、よく使われます。
+
+```hlsl
+// 透過率 = exp( −(σ_レイリー × 光学的厚さ_レイリー + σ_ミー × 光学的厚さ_ミー) )
+float3 Transmittance(float3 a, float3 dir, float length_m) {
+  float2 od = OpticalDepth(a, dir, length_m, 32);
+  float3 tau = g_rayleigh_extinction * od.x + g_mie_extinction * od.y;       // RGB ごとの、光学的な深さ
+  return exp(-tau);
+}
+```
+
+<strong>消散係数</strong>（`σ`）は、<strong>基準の密度での、値</strong>で、光学的厚さ（密度の積分）と、掛け合わせます。RGB ごとに、別の `σ` を持つので、透過率も、RGB ごとに、違う値になります。
+
+## 計算量の、問題
+
+太陽の光は、<strong>大気の外から、各点まで</strong>、<strong>透過率</strong>を掛けて、届きます。空の、各方向について、視線に沿った、各サンプル点で、太陽方向の透過率を、求めると、二重ループになります。
+
+```text
+空の画素 × 視線のサンプル（32） × 太陽方向のサンプル（32）  =  画素あたり 約 1,000 回の、密度計算
+```
+
+画面の、全画素で、これを行うのは、<strong>重すぎます</strong>。そこで、<strong>太陽方向の透過率</strong>は、事前に、テクスチャ（LUT）に、計算しておきます。
+
+## 透過率 LUT
+
+<strong>透過率</strong>は、<strong>「点の高度」と「方向の、天頂角」</strong>の、2 つだけで、決まります（大気は、球対称なので）。この 2 変数の、関数を、2 次元のテクスチャに、焼いておきます（Bruneton と Neyret、2008）。Hillaire（2020）の、実装では、256×64 画素です。
+
+```hlsl
+// LUT の uv から、（高度、天頂角の cos）を、求める。
+// uv.y は、高度、uv.x は、「大気の上端までの距離」を、正規化した値で、地平線の近くを、細かく取る。
+void UvToTransmittanceParams(float2 uv, out float view_height, out float cos_zenith) {
+  float H = sqrt(g_top_radius * g_top_radius - g_bottom_radius * g_bottom_radius);   // 地表の接線の、大気の上端までの距離
+  float rho = H * uv.y;                                                              // 地平線までの距離
+  view_height = sqrt(rho * rho + g_bottom_radius * g_bottom_radius);
+  float d_min = g_top_radius - view_height;                                          // 真上に向かう場合の、距離
+  float d_max = rho + H;                                                             // 地平線の方向に向かう場合の、距離
+  float d = d_min + uv.x * (d_max - d_min);                                          // 大気の上端までの距離
+  cos_zenith = (d == 0.0) ? 1.0 : (H * H - rho * rho - d * d) / (2.0 * view_height * d);
+  cos_zenith = clamp(cos_zenith, -1.0, 1.0);
+}
+```
+
+<strong>uv を、角度や、高度に、そのまま、割り当てる</strong>と、<strong>地平線の近く</strong>（変化が、急）の、解像度が、足りません。大気の上端までの距離で、横軸を、決めると、地平線の近くを、細かく、取れます（Hillaire の実装）。この関数は、LUT を、作るとき（各画素が、どの高度・角度を、表すか）に、使います。
+
+```hlsl
+// 逆変換: （高度、天頂角の cos）から、LUT の uv を求める。LUT を読むときに使う。
+float2 TransmittanceParamsToUv(float view_height, float cos_zenith) {
+  float H = sqrt(max(0.0, g_top_radius * g_top_radius - g_bottom_radius * g_bottom_radius));
+  float rho = sqrt(max(0.0, view_height * view_height - g_bottom_radius * g_bottom_radius));
+  float discriminant = view_height * view_height * (cos_zenith * cos_zenith - 1.0) + g_top_radius * g_top_radius;
+  float d = max(0.0, -view_height * cos_zenith + sqrt(discriminant));                // 大気の上端までの距離
+  float d_min = g_top_radius - view_height;
+  float d_max = rho + H;
+  return float2((d - d_min) / (d_max - d_min), rho / H);
+}
+```
+
+読むときは、<strong>この逆変換で、uv を求め</strong>、<strong>テクスチャを 1 回引く</strong>だけです。透過率の、積分が、1 回の、テクスチャ読み込みに、化けます。
+
+```hlsl
+// 太陽方向の、透過率を、LUT から引く（一瞬で済む）。
+float3 SunTransmittance(float3 position, float3 sun_dir) {
+  float h = length(position);
+  float cos_zenith = dot(position / h, sun_dir);
+  return g_transmittance_lut.SampleLevel(g_linear_clamp, TransmittanceParamsToUv(h, cos_zenith), 0).rgb;
+}
+```
+
+`position / h` は、<strong>位置での、真上の向き</strong>（地表の、法線）で、`sun_dir` との内積が、<strong>太陽の天頂角の cos</strong> です。
+
+## 地面に、遮られる光
+
+光の、通り道が、<strong>地面</strong>に当たる場合（太陽が、地平線の、下にある）、<strong>その方向の、透過率は、0</strong> と、みなします。
+
+```hlsl
+// 惑星（地面）に、遮られるか。
+float2 RaySphere(float3 origin, float3 dir, float radius);      // 交点までの、距離（2 つ。当たらなければ、負）
+
+bool HitsGround(float3 position, float3 dir) {
+  float2 t = RaySphere(position, dir, g_bottom_radius);
+  return t.x > 0.0 || t.y > 0.0;                                   // 前方で、地面と交わる
+}
+```
+
+太陽が、地平線の、<strong>少し下</strong>に、沈んだ後も、<strong>空が、しばらく、明るい</strong>のは、散乱した光が、回り込んでくるためです（[Day-Night Cycle](../sky-models/day-night.md)）。透過率だけでは、直接の光が、消える瞬間は、出せますが、残照は、出ません。
+
 ## よくあるミス
 
 ??? failure "日没の太陽が、白いまま"
-    **透過率を RGB ごと**に**計算**する。
+    <strong>透過率を RGB ごと</strong>に<strong>計算</strong>する。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **距離と係数で、指数で減衰する**
+    - [x] 距離と係数で、指数で減衰する
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique", Computer Graphics Forum (Eurographics Symposium on Rendering 2020)（4 つの LUT を使う方式。公開デモの実装がある）
+- Bruneton, Neyret, "Precomputed Atmospheric Scattering", Computer Graphics Forum (Eurographics Symposium on Rendering 2008)
+- Bruneton, "A Qualitative and Quantitative Evaluation of 8 Clear Sky Models", IEEE Transactions on Visualization and Computer Graphics, Vol. 23, No. 12, 2017（参照実装 `ebruneton/precomputed_atmospheric_scattering` が公開されている）
+- Nishita, Sirai, Tadamura, Nakamae, "Display of the Earth Taking into Account Atmospheric Scattering", SIGGRAPH 1993（大気散乱の、CG への導入）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大気散乱、参加媒質の章）
 
 ## 関連ページ
 

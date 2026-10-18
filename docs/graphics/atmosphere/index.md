@@ -6,7 +6,7 @@ tags:
 
 # Sky and Atmosphere
 
-**空の色・遠景の霞・雲・光の筋**は**大気中の光の散乱**という**1 つの現象**から**生まれます**。**昼は青く、夕方は赤く、遠くの山は青白く霞む**のは、**どれも同じ原理**です。このセクションでは、**空のモデル**、**散乱の物理**、**距離フォグ**、**ボリューメトリック フォグ**、**雲**、**光の筋**を**安い方法から物理に忠実な方法へ**と順に説明します。
+<strong>空の色・遠景の霞・雲・光の筋</strong>は<strong>大気中の光の散乱</strong>という1 つの現象から生まれます。昼は青く、夕方は赤く、遠くの山は青白く霞むのは、どれも同じ原理です。このセクションでは、空のモデル、散乱の物理、距離フォグ、ボリューメトリック フォグ、雲、光の筋を安い方法から物理に忠実な方法へと順に説明します。
 
 ## 空と大気の設計
 
@@ -26,6 +26,13 @@ tags:
 | [Volumetric Fog](volumetric-fog/index.md) | froxel・光の注入・積分・時間蓄積 |
 | [Clouds](clouds/index.md) | レイマーチ・ノイズ・Beer-Powder・時間蓄積 |
 | [God Rays](god-rays/index.md) | 放射ぼかし・シャドウ マップのレイマーチ |
+
+## 参考
+
+- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique", Computer Graphics Forum (Eurographics Symposium on Rendering 2020)
+- Bruneton, Neyret, "Precomputed Atmospheric Scattering", Computer Graphics Forum (EGSR 2008)
+- Schneider, Vos, "The Real-Time Volumetric Cloudscapes of Horizon: Zero Dawn", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Wronski, "Volumetric Fog: Unified Compute Shader Based Solution to Atmospheric Scattering", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
 
 ## 関連ページ
 

@@ -6,10 +6,10 @@ tags:
 
 # God Rays
 
-**ゴッド レイ（光の筋）は、霧や埃の中を、光が通る時に見える、筋状の光**です。**手法には、画面空間のぼかし・シャドウ マップのレイマーチ・ボリューム・メッシュなど、いくつかあります**。このセクションでは、**見える理由・画面空間の放射ぼかし・シャドウ マップでレイマーチ・ボリューム・メッシュで作る・水中・見た目の調整**を、**1 つずつ別のページ**で説明します。
+<strong>ゴッド レイ（光の筋）は、霧や埃の中を、光が通る時に見える、筋状の光</strong>です。<strong>手法には、画面空間のぼかし・シャドウ マップのレイマーチ・ボリューム・メッシュなど、いくつかあります</strong>。このセクションでは、見える理由・画面空間の放射ぼかし・シャドウ マップでレイマーチ・ボリューム・メッシュで作る・水中・見た目の調整を、1 つずつ別のページで説明します。
 
 ## 光の筋が見える理由
-**光は空気中を通っても何もなければ見えません**。**粒（ほこり・水蒸気）があると光が散らされて、視線の方向に光が飛んできます**。**途中に影を作る物があると、影の部分では光が通らないので、光る部分と暗い部分が筋になります**。
+<strong>光は空気中を通っても何もなければ見えません</strong>。<strong>粒（ほこり・水蒸気）があると光が散らされて、視線の方向に光が飛んできます</strong>。途中に影を作る物があると、影の部分では光が通らないので、光る部分と暗い部分が筋になります。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="光の筋の原理">
 <text x="20" y="24" class="fig-title">遮る物があるから、光の部分と暗い部分の「筋」ができる</text>
@@ -48,17 +48,68 @@ tags:
 | [Underwater God Rays](underwater.md) | 水中での表現 |
 | [Tuning the Look](tuning.md) | 強さ・色・ノイズ |
 
+## ゴッド レイとは
+
+<strong>雲の切れ間</strong>、<strong>木々の間</strong>、窓から、差し込む、光の筋です（光芒、クレパスキュラー レイとも）。空気中の、細かい粒子（霧、ほこり、水蒸気）が、光の通り道を、散乱して、見えるようにする現象です。光が、遮られた場所（影）は、暗く、光が、通った、場所だけが、明るい筋になります。
+
+```text
+        太陽
+         ╲  ╲  ╲
+          ╲  ╲  ╲          ← 光の筋（空気の粒子が、散乱して、光って見える）
+    ██████╲  ╲██╲████       ← 遮蔽物（木、建物）の隙間を、光が、通る
+          ╲   ╲
+       ───────────── 地面
+```
+
+<strong>光の筋が、見える、条件</strong>は、<strong>3 つ</strong>です。
+
+| 条件 | 内容 |
+| --- | --- |
+| 光源が、強い | 太陽、強い、ライト |
+| 空気中に、粒子（霧、ほこり） | 散乱する、媒質が、必要。澄んだ空気では、筋が、見えない |
+| 遮蔽物が、あり、光が、部分的に遮られる | 光と影の、コントラストが、筋を作る |
+
+## 実装方法の、一覧
+
+| 方法 | 内容 | 品質 | コスト | ページ |
+| --- | --- | --- | --- | --- |
+| 放射状ブラー（画面空間） | 太陽の、画面上の位置から、放射状に、明るい部分を、引き伸ばす | 低〜中 | 小 | [Screen-Space Radial Blur](radial-blur.md) |
+| シャドウ マップ レイマーチ | 視線に沿って、各点が、光を受けているか（シャドウ マップ）を、積分 | 高 | 中〜大 | [Shadow Map Raymarching](shadowmap-march.md) |
+| ボリューム ライティング（froxel） | 空間を、3D グリッドに、分割し、光の、散乱を、格納 | 高（霧と、統合） | 中 | [Volume-Based God Rays](volume.md)、[Volumetric Fog](../volumetric-fog/index.md) |
+| 光の筋の、メッシュ | 半透明の、板を、置く | 低〜中（アーティスト制御） | 小 | [Light Shaft Meshes](mesh-shafts.md) |
+
+## 選び方
+
+| 状況 | おすすめ |
+| --- | --- |
+| まず、出したい、軽く | 放射状ブラー（[Screen-Space Radial Blur](radial-blur.md)） |
+| 影の、正確さが、欲しい（木漏れ日） | シャドウ マップ レイマーチ |
+| 霧の、全体を、リアルにしたい | ボリューム フォグ（froxel。光の筋も、同時に、出る） |
+| 特定の場所（窓、洞窟の入口）に、演出として | 光の筋の、メッシュ |
+
+近年の、ゲームでは、<strong>ボリューム フォグ</strong>（[Volumetric Fog](../volumetric-fog/index.md)）に、<strong>統合</strong>されることが、多く、霧と、光の筋が、同じ、計算で、出ます。
+
+## 調整の、ポイント
+
+| 項目 | 内容 |
+| --- | --- |
+| 強さ | 強すぎると、画面が、白く、もやもやする。控えめに |
+| 色 | 太陽の色（暖色）。朝夕は、橙。青い、空の光は、筋に、ならない |
+| 方向性 | 太陽の方を、見たときに、強く（前方散乱）。太陽に、背を向けると、弱い（[Tuning the Look](tuning.md)） |
+| ちらつき | レイマーチの、ステップ数が、少ないと、縞が、出る。ノイズ + TAA で、ならす（[Cloud Temporal Reprojection](../clouds/temporal.md)） |
+
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **散乱を、霧の中で可視化したもの**
+    - [x] 散乱を、霧の中で可視化したもの
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Mitchell, "Volumetric Light Scattering as a Post-Process", GPU Gems 3, Chapter 13, 2007（放射状ブラーによる、光の筋）
+- Mitchell, "Light Shafts: Rendering Shadows in Participating Media", Game Developers Conference 2004
+- Wronski, "Volumetric Fog: Unified Compute Shader Based Solution to Atmospheric Scattering", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Hillaire, "Physically Based and Unified Volumetric Rendering in Frostbite", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（参加媒質、雲、霧の章）
 
 ## 関連ページ
 

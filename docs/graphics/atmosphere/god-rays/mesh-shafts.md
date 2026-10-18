@@ -6,25 +6,25 @@ tags:
 
 # Light Shaft Meshes
 
-**窓から差し込む光など、位置が決まっている光の筋は、半透明のメッシュ（光の柱）で作る**と、**最も軽く済みます**。このページでは、**メッシュによる光の柱**を説明します。
+<strong>窓から差し込む光など、位置が決まっている光の筋は、半透明のメッシュ（光の柱）で作る</strong>と、<strong>最も軽く済みます</strong>。このページでは、メッシュによる光の柱を説明します。
 
 !!! tip "ポイント"
-    - **加算ブレンドの、細長いメッシュ**を置く。
-    - **縁と端を、フェードさせる**。
-    - **カメラに近づくと、フェードで消す**。
-    - **動かない光に、最適**。
+    - 加算ブレンドの、細長いメッシュを置く。
+    - 縁と端を、フェードさせる。
+    - カメラに近づくと、フェードで消す。
+    - 動かない光に、最適。
 
 ## メッシュで光の柱を作る
-<strong>固定された光の柱（窓から差す光、洞窟の天井の穴）</strong>は、**半透明メッシュ**で**作れます**。
+<strong>固定された光の柱（窓から差す光、洞窟の天井の穴）</strong>は、<strong>半透明メッシュ</strong>で<strong>作れます</strong>。
 
 | 工夫 | 内容 |
 | --- | --- |
-| **形** | **光が通る形の錐台や箱のメッシュ** |
-| **加算ブレンド** | **背景に足して光らせる** |
-| **フレネル風の縁** | **視線と面の角度で縁を薄く**（輪郭を消す） |
-| **深度フェード** | **床・壁との交差部を薄く**（ハードな線を消す） |
-| **ノイズ・流れ** | **テクスチャを流して、ほこりの揺らぎ** |
-| **カメラが近づくと薄く** | **近すぎるとフェードアウト** |
+| 形 | 光が通る形の錐台や箱のメッシュ |
+| 加算ブレンド | 背景に足して光らせる |
+| フレネル風の縁 | 視線と面の角度で縁を薄く（輪郭を消す） |
+| 深度フェード | 床・壁との交差部を薄く（ハードな線を消す） |
+| ノイズ・流れ | テクスチャを流して、ほこりの揺らぎ |
+| カメラが近づくと薄く | 近すぎるとフェードアウト |
 
 ```hlsl
 float edge_fade = pow(saturate(abs(dot(normal, view_dir))), 2.0);
@@ -47,22 +47,111 @@ return float4(light_color * alpha, 0);
 
 メッシュ方式の弱点は、動的な光に対応しにくいことです。太陽が動けば柱の向きも動かす必要があり、窓の前に人が立てば本来は影が出るはずですが、メッシュは対応しません。昼夜サイクルのあるゲームでは、時刻に合わせて柱の向きと色を動かす仕組みが必要になります。
 
+## 光の筋を、メッシュで、描く
+
+<strong>計算で、光の筋を、作る</strong>代わりに、<strong>半透明の、板（メッシュ）</strong>を、光の通り道に、置き、光の筋に、見える、テクスチャを、貼る方法です。アーティストが、完全に、制御でき、非常に、軽いので、特定の場所（窓、洞窟の、入口、森の、木漏れ日）の、演出に、使われます。
+
+## 作り方
+
+| 要素 | 内容 |
+| --- | --- |
+| メッシュ | 光の筋の、方向（太陽の方向）に、沿って、細長い、板（または、円錐、箱）を、置く |
+| テクスチャ | 縦方向に、薄れるグラデーション。横方向に、縁が、なめらか。縞（細かい筋）を、描いてもよい |
+| ブレンド | 加算ブレンド（光の、足し算）。重なる所が、明るくなる |
+| ライト | ない（自己発光）。太陽の色を、マテリアルの色で、与える |
+
+```text
+窓から、差し込む、光の筋（横から見た図）:
+
+   窓
+   │ ╲    ← 板（光の筋）。窓から、床に向かって、広がる
+   │  ╲
+   │   ╲
+   └────╲──── 床
+```
+
+## シェーダー
+
+```hlsl
+float4 main(PSInput input) : SV_Target {
+  // 縞のテクスチャ（縦方向に、細かい筋）。
+  float stripes = g_shaft_tex.Sample(g_linear_wrap, input.uv * float2(4.0, 1.0)).r;
+
+  // 長さ方向（窓 → 床）に、薄れる。0（窓）で 1、1（床）で 0。
+  float along = 1.0 - input.uv.y;
+
+  // 横方向（板の幅）に、縁を、なめらかに。中心で 1、縁で 0。
+  float across = 1.0 - abs(input.uv.x * 2.0 - 1.0);
+  across = smoothstep(0.0, 0.5, across);
+
+  float intensity = stripes * along * across * g_intensity;
+  return float4(g_sun_color * intensity, 1.0);                    // 加算ブレンドで、描く
+}
+```
+
+<strong>3 つの要素</strong>（縞、長さ方向の、減衰、横方向の、縁）を、<strong>掛け合わせて</strong>、光の筋の、形を、作ります。縞のテクスチャで、細かい筋（空気中の、ほこりが、作る、不均一さ）を、与えます。
+
+### ゆらぎ
+
+<strong>光の筋が、ゆらゆら、動く</strong>と、<strong>生きた、空気</strong>に、見えます。縞の、UV を、時間で、ずらす、強さを、ゆっくり、脈打たせる。
+
+```hlsl
+float flicker = 0.85 + 0.15 * sin(g_time * 0.7 + input.world_position.x * 0.3);   // ゆっくり、脈打つ
+float2 scroll = float2(g_time * 0.02, 0.0);
+float stripes = g_shaft_tex.Sample(g_linear_wrap, input.uv * float2(4.0, 1.0) + scroll).r;
+```
+
+## 近くで、見たとき
+
+<strong>板</strong>は、<strong>平らな面</strong>なので、カメラが、近づくと、板の、縁が、見え、不自然になります。
+
+| 問題 | 対策 |
+| --- | --- |
+| 板の、縁が、見える | 視線に平行な向き（板を、真横から見る）で、縁が、薄くなるよう、法線と視線の、内積で、フェード |
+| 板に、近づきすぎる | カメラに、近いほど、フェード アウト（ソフト パーティクルと、同じ。[Soft Particles](../../translucency/blending-sorting/soft-particles.md)） |
+| 床や壁との、交差線 | 深度の差で、フェード（[Soft Particles](../../translucency/blending-sorting/soft-particles.md)） |
+
+```hlsl
+// 板が、視線と、ほぼ平行（縁が見える角度）のとき、薄くする。
+float facing = abs(dot(normalize(input.world_normal), normalize(g_camera_position - input.world_position)));
+intensity *= smoothstep(0.0, 0.4, facing);
+```
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | 非常に、軽い（半透明の、板を、数枚、描くだけ） |
+| 長所 | アーティストの、完全な、制御（形、色、動き） |
+| 長所 | カメラ・太陽の、位置に、依存しない（常に、同じ形で、見える） |
+| 短所 | 影や、遮蔽物と、連動しない（動く物が、光を、遮っても、筋が、変わらない） |
+| 短所 | 太陽が、動く（時間帯）と、板の向きを、合わせる必要がある（手動） |
+| 短所 | 近くで、見ると、板だと、分かる |
+| 短所 | 配置が、手作業（レベルデザイナーが、置く） |
+
+## 使いどころ
+
+| 場面 | 判断 |
+| --- | --- |
+| 固定の、演出（教会の窓、洞窟の穴） | 適している（光の筋が、変わらない） |
+| 動く、太陽で、屋外全体 | 不向き（[Volume-Based God Rays](volume.md) など） |
+| モバイル、低スペック | 有効（計算が、ほぼ、不要） |
+
 ## よくあるミス
 
 ??? failure "メッシュの縁が硬く、板に見える"
-    **縁をフェード**させる。
+    <strong>縁をフェード</strong>させる。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **加算メッシュで、手軽に光の柱**
+    - [x] 加算メッシュで、手軽に光の柱
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Mitchell, "Volumetric Light Scattering as a Post-Process", GPU Gems 3, Chapter 13, 2007（放射状ブラーによる、光の筋）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（参加媒質、雲、霧の章）
+- Microsoft Learn, "D3D11_RENDER_TARGET_BLEND_DESC"（加算ブレンド）
 
 ## 関連ページ
 

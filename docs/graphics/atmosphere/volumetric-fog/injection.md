@@ -6,13 +6,13 @@ tags:
 
 # Step 2: Light Injection
 
-**各 froxel に、太陽やライトの光を計算して、足します**。**シャドウ マップを参照**して、**影の中は光を入れない**ので、**光の筋ができます**。このページでは、**光の注入**を説明します。
+<strong>各 froxel に、太陽やライトの光を計算して、足します</strong>。<strong>シャドウ マップを参照</strong>して、影の中は光を入れないので、光の筋ができます。このページでは、光の注入を説明します。
 
 !!! tip "ポイント"
-    - **各セルで、ライトの光 × 位相関数 × 影**。
-    - **太陽・点光源・スポットライトのすべてに対応**。
-    - **シャドウ マップを参照**して、**光の筋**を作る。
-    - **ライトの数が多いと、重い**（クラスタ化で軽く）。
+    - 各セルで、ライトの光 × 位相関数 × 影。
+    - 太陽・点光源・スポットライトのすべてに対応。
+    - シャドウ マップを参照して、光の筋を作る。
+    - ライトの数が多いと、重い（クラスタ化で軽く）。
 
 <!-- fig:light-injection:begin -->
 
@@ -348,7 +348,7 @@ tags:
 <!-- fig:light-injection:end -->
 
 ## ② 光の注入
-**各 froxel が受けている光を計算します**。<strong>太陽光とローカル ライト（点光源・スポットライト）</strong>が**対象**です。
+<strong>各 froxel が受けている光を計算します</strong>。<strong>太陽光とローカル ライト（点光源・スポットライト）</strong>が<strong>対象</strong>です。
 
 <div class="formula">散乱光 = 密度 × アルベド × Σ ( 光の色 × 影 × 位相関数(θ) )</div>
 
@@ -375,28 +375,129 @@ float3 scattering = inscattered * density * albedo;
 
 | 点 | 説明 |
 | --- | --- |
-| **シャドウ マップを引く** | **影の中の霧は光らない**。**この結果、物の影が光の筋として見える** |
-| **位相関数** | <strong>前方に強く散る（g ≈ 0.6〜0.8）</strong>。**太陽の方を見ると霧が明るい**（[Atmospheric Scattering](../scattering/index.md)） |
-| **環境光** | **全体にうっすら足す**（暗すぎる霧の防止） |
-| **ライトの数が多い場合** | **froxel ごとにライトをカリング**（[Tiled と Clustered](../../../rendering/light-culling.md)） |
-| **解像度が低くても綺麗** | **霧は低周波**（細かい構造がない）ので低解像度で十分 |
+| シャドウ マップを引く | 影の中の霧は光らない。この結果、物の影が光の筋として見える |
+| 位相関数 | <strong>前方に強く散る（g ≈ 0.6〜0.8）</strong>。太陽の方を見ると霧が明るい（[Atmospheric Scattering](../scattering/index.md)） |
+| 環境光 | 全体にうっすら足す（暗すぎる霧の防止） |
+| ライトの数が多い場合 | froxel ごとにライトをカリング（[Tiled と Clustered](../../../rendering/light-culling.md)） |
+| 解像度が低くても綺麗 | 霧は低周波（細かい構造がない）ので低解像度で十分 |
+
+## ステップ 2：ライトの、光を、注入する
+
+<strong>密度</strong>（[Step 1: Density](density.md)）が、決まったら、<strong>各セルに</strong>、ライトの光を、散乱光として、書き込みます（注入）。そのセルの、霧が、ライトに照らされて、どれだけ、光るかを、計算します。
+
+## セルでの、光の、計算
+
+<strong>ライト 1 つ</strong>について、<strong>そのセルで、カメラの方向へ、散乱される光</strong>は、次のとおりです。
+
+```text
+散乱光 = 散乱係数 × 位相関数 × ライトの強さ × 影（光が、届くか） × 減衰（距離）
+```
+
+| 項 | 内容 |
+| --- | --- |
+| 散乱係数（`σ_s`） | セルの、密度（霧が、濃いほど、よく光る） |
+| 位相関数 | ライトの向きと、カメラへの向きの、角度に、依存（[Phase Functions](../scattering/phase-function.md)） |
+| ライトの強さ | 太陽、点光源の、明るさ |
+| 影 | シャドウ マップで、光が、届くか |
+| 減衰 | 点光源の、距離による、減衰 |
+
+## 太陽（平行光）を、注入する
+
+```hlsl
+// 計算シェーダー: 各セルに、太陽の光の、散乱を、足す。
+[numthreads(8, 8, 4)]
+void InjectSunCS(uint3 id : SV_DispatchThreadID) {
+  float4 cell = g_froxel_scatter[id];                                      // 密度のステップで書いた値
+  float3 scattering = cell.xyz;                                            // 散乱係数（RGB）
+  if (cell.w < 1e-6) return;                                               // 霧が、無いセルは、スキップ
+
+  float3 world = FroxelToWorld(float3(id) + JitterOffset());
+  float3 view_dir = normalize(world - g_camera_position);                  // カメラから、セルへ向かう向き
+```
+
+<strong>霧が、ない</strong>セル（密度 0）は、<strong>光らない</strong>ので、スキップします。カメラから、セルへの、向きが、位相関数に、必要です。
+
+```hlsl
+  // 太陽の光が、このセルに、届くか。シャドウ マップ（カスケード）を、1 回引く。雲の影も、掛ける。
+  float shadow = SampleCascadedShadow(world) * CloudShadow(world);
+
+  // 位相関数: 太陽の光が、カメラの方向へ、散る割合。霧は、前方に、やや強く、散る。
+  float phase = HenyeyGreenstein(dot(view_dir, g_sun_dir), g_phase_g);
+
+  float3 sun_scatter = scattering * g_sun_color * shadow * phase;
+  g_froxel_scatter[id] = float4(cell.xyz, cell.w);                          // 密度は、そのまま
+  g_froxel_lighting[id] += float4(sun_scatter, 0);                          // 散乱光を、別のテクスチャに、足す
+}
+```
+
+<strong>シャドウ マップ</strong>（[CSM](../../shadows/cascaded.md)）を、<strong>セルごとに、1 回</strong>、引きます。影の中のセルは、光らず、光が、届くセルだけが、散乱光を、持ちます。これが、光の筋（ゴッド レイ）の、源です（[Volume-Based God Rays](../god-rays/volume.md)）。
+
+## 点光源・スポットライトを、注入する
+
+<strong>ライトの、周りの、霧</strong>は、<strong>光の玉</strong>になります。セルごとに、影響する、ライトを、探して、足し合わせます。
+
+```hlsl
+// 点光源: セルから、ライトへの距離で、減衰させ、位相関数と、影（ライトの、シャドウ マップ）を、掛ける。
+float3 InjectPointLight(Light light, float3 world, float3 view_dir, float3 scattering) {
+  float3 to_light = light.position - world;
+  float dist = length(to_light);
+  if (dist > light.range) return 0.0;                                       // 範囲外
+  float3 light_dir = to_light / dist;
+
+  float attenuation = saturate(1.0 - pow(dist / light.range, 4.0));        // 距離による、減衰（窓関数）
+  attenuation *= attenuation / (dist * dist + 1.0);                         // 逆二乗の、減衰
+  float shadow = (light.shadow_slot >= 0) ? SamplePointShadow(light, world) : 1.0;
+  float phase = HenyeyGreenstein(dot(view_dir, -light_dir), g_phase_g);
+
+  return scattering * light.color * light.intensity * attenuation * shadow * phase;
+}
+```
+
+<strong>光源からの距離</strong>の<strong>2 乗に、反比例</strong>して、暗くなる、逆二乗の法則と、範囲での、打ち切り（窓関数）を、組み合わせます。影つきの、ライトは、ライトの、シャドウ マップ（[Point Lights: Cube Maps](../../shadows/local-lights/point-cubemap.md)）を、セルごとに、引きます。
+
+```hlsl
+// ライトが、多いとき: クラスターごとの、ライトのリストを、使い、そのセルに影響する、ライトだけを、ループする。
+uint cluster = ClusterIndexAt(world);
+uint count = g_cluster_light_count[cluster];
+float3 total = 0.0;
+for (uint i = 0; i < count; ++i) {
+  Light light = g_lights[g_cluster_light_indices[cluster * kMaxLightsPerCluster + i]];
+  total += InjectPointLight(light, world, view_dir, scattering);
+}
+```
+
+<strong>ライトが、数百個</strong>ある場合、<strong>全ライト</strong>を、全セルで、ループすると、非常に、重いです。クラスター（空間を、小さな領域に、分け、各領域に、影響する、ライトの、リストを、持つ）を、使います（[Shadows for Many Lights](../../shadows/local-lights/many-lights.md)）。
+
+## 環境光（空の光）を、足す
+
+<strong>ライトが、無い</strong>場所でも、<strong>霧は、空の光</strong>で、ぼんやりと、明るいものです。環境光を、一様に、足します。
+
+```hlsl
+float3 ambient_scatter = scattering * g_ambient_color * g_ambient_strength;     // 空の光が、霧を、全方向から、照らす
+```
+
+<strong>霧の中の、日陰が、真っ黒に、ならない</strong>ための、<strong>重要な、項</strong>です。空の色（青い）が、霧の、日陰の色です（[Using the Sky for Lighting](../sky-models/sky-lighting.md)）。
+
+## 結果
+
+注入が、終わると、<strong>3D テクスチャの、各セル</strong>に、<strong>そのセルの、散乱光</strong>（RGB）と、消散係数（A）が、入っています。次の段階（[Steps 3 and 4: Integration and Application](integration.md)）で、奥行き方向に、積分します。
 
 ## よくあるミス
 
 ??? failure "光の筋が出ない"
-    **シャドウ マップを参照**する。
+    <strong>シャドウ マップを参照</strong>する。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **セルごとに、ライトと影を計算**
+    - [x] セルごとに、ライトと影を計算
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Wronski, "Volumetric Fog: Unified Compute Shader Based Solution to Atmospheric Scattering", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Hillaire, "Physically Based and Unified Volumetric Rendering in Frostbite", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Olsson, Billeter, Assarsson, "Clustered Deferred and Forward Shading", High-Performance Graphics 2012
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（参加媒質、雲、霧の章）
 
 ## 関連ページ
 

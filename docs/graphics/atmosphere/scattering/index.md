@@ -6,20 +6,20 @@ tags:
 
 # Atmospheric Scattering
 
-**空が青く、夕焼けが赤いのは、大気中の分子や粒子が、光を散乱させるため**です。**この散乱を計算すると、物理的に正しい空が作れます**。このセクションでは、**空が青い理由・大気のモデル・透過率・単散乱・位相関数・多重散乱・Bruneton の事前計算・Hillaire の 4 つの LUT・地面と宇宙**を、**1 つずつ別のページ**で説明します。
+<strong>空が青く、夕焼けが赤いのは、大気中の分子や粒子が、光を散乱させるため</strong>です。<strong>この散乱を計算すると、物理的に正しい空が作れます</strong>。このセクションでは、空が青い理由・大気のモデル・透過率・単散乱・位相関数・多重散乱・Bruneton の事前計算・Hillaire の 4 つの LUT・地面と宇宙を、1 つずつ別のページで説明します。
 
 ## なぜ空は青いか
-**太陽光は白色**（全波長を含む）ですが**大気の分子に当たると短い波長（青）ほど強く散らされます**。
+<strong>太陽光は白色</strong>（全波長を含む）ですが<strong>大気の分子に当たると短い波長（青）ほど強く散らされます</strong>。
 
 <div class="formula">レイリー散乱の強さ ∝ 1 / λ⁴</div>
 
 | 波長 | 色 | 相対的な散乱の強さ |
 | --- | --- | --- |
-| **700 nm** | **赤** | **1.0** |
-| **550 nm** | **緑** | **約 2.6** |
-| **450 nm** | **青** | **約 5.9** |
+| 700 nm | 赤 | 1.0 |
+| 550 nm | 緑 | 約 2.6 |
+| 450 nm | 青 | 約 5.9 |
 
-**青い光が全方向に散って空が青く見えます**。**夕方は太陽の光が大気を長く通り、青が散り尽くして赤だけが残る**ので、**太陽が赤く、空が赤く染まります**。
+<strong>青い光が全方向に散って空が青く見えます</strong>。<strong>夕方は太陽の光が大気を長く通り、青が散り尽くして赤だけが残る</strong>ので、太陽が赤く、空が赤く染まります。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="夕焼けの理由">
 <text x="20" y="24" class="fig-title">昼と夕方：光が通る大気の長さが違う</text>
@@ -167,14 +167,15 @@ tags:
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **散乱の積分を、LUT で高速化する**
+    - [x] 散乱の積分を、LUT で高速化する
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique", Computer Graphics Forum (Eurographics Symposium on Rendering 2020)（4 つの LUT を使う方式。公開デモの実装がある）
+- Bruneton, Neyret, "Precomputed Atmospheric Scattering", Computer Graphics Forum (Eurographics Symposium on Rendering 2008)
+- Nishita, Sirai, Tadamura, Nakamae, "Display of the Earth Taking into Account Atmospheric Scattering", SIGGRAPH 1993（大気散乱の、CG への導入）
+- O'Neil, "Accurate Atmospheric Scattering", GPU Gems 2, Chapter 16, 2005
+- Wrenninge, "Art-Directable Multiple Volumetric Scattering", SIGGRAPH 2015 Talks（多重散乱の、オクターブによる近似）
 
 ## 関連ページ
 

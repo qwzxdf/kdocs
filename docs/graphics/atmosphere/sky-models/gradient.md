@@ -6,16 +6,16 @@ tags:
 
 # Gradient Sky
 
-**空の色を、上と地平線で変えるだけの、最も簡単な方法**です。**軽く、制御しやすい**ので、**スタイライズされた作品や、モバイルで多用されます**。このページでは、**グラデーションの空**を説明します。
+<strong>空の色を、上と地平線で変えるだけの、最も簡単な方法</strong>です。<strong>軽く、制御しやすい</strong>ので、スタイライズされた作品や、モバイルで多用されます。このページでは、グラデーションの空を説明します。
 
 !!! tip "ポイント"
-    - **天頂の色と、地平線の色を、視線の高さで補間**。
-    - **太陽の周りを、明るくする**。
-    - **とても軽い**。
-    - **物理的には正確でない**。
+    - 天頂の色と、地平線の色を、視線の高さで補間。
+    - 太陽の周りを、明るくする。
+    - とても軽い。
+    - 物理的には正確でない。
 
 ## グラデーションの空
-**もっとも簡単**なのは、**視線の仰角（上下の角度）で、地平線の色と天頂の色を混ぜる**方法です。
+<strong>もっとも簡単</strong>なのは、<strong>視線の仰角（上下の角度）で、地平線の色と天頂の色を混ぜる</strong>方法です。
 
 ```hlsl
 float3 GradientSky(float3 view_dir) {
@@ -30,12 +30,12 @@ float3 GradientSky(float3 view_dir) {
 
 | 点 | 説明 |
 | --- | --- |
-| **`pow(elevation, 0.5)`** | **地平線付近で色が急に変わる**（**天頂は広く青い**）。**空の見た目に近づく** |
-| **地面の色** | <strong>地平線より下は、地面（暗い色）</strong>で**塞ぐ**（実際の地面が見えない場合） |
-| **太陽の方向で色を寄せる** | **太陽のそばを明るく暖色にする**（下の「太陽」） |
-| **時間帯のプリセット** | **朝・昼・夕・夜の色セットを補間** |
+| `pow(elevation, 0.5)` | 地平線付近で色が急に変わる（天頂は広く青い）。空の見た目に近づく |
+| 地面の色 | <strong>地平線より下は、地面（暗い色）</strong>で塞ぐ（実際の地面が見えない場合） |
+| 太陽の方向で色を寄せる | 太陽のそばを明るく暖色にする（下の「太陽」） |
+| 時間帯のプリセット | 朝・昼・夕・夜の色セットを補間 |
 
-**グラデーションは、安く・調整しやすい**ですが**太陽の位置で色が変わる**（夕焼けで太陽の側だけ赤い）**といった表現は、手作業になります**。
+<strong>グラデーションは、安く・調整しやすい</strong>ですが<strong>太陽の位置で色が変わる</strong>（夕焼けで太陽の側だけ赤い）といった表現は、手作業になります。
 
 <!-- fig:sky-gradient-day:begin -->
 
@@ -66,22 +66,116 @@ float3 GradientSky(float3 view_dir) {
 
 <!-- fig:sky-gradient-day:end -->
 
+## 最も、単純な、空
+
+<strong>グラデーション スカイ</strong>は、<strong>天頂の色</strong>から地平線の色へ、補間するだけの、空です。物理計算は、ありません。非常に、軽く、自由に、色を、決められるので、スタイライズされた、ゲームや、モバイルで、よく使われます。
+
+## 実装
+
+視線の、<strong>高さ</strong>（上向きか、水平か）に、応じて、<strong>天頂の色と、地平線の色を、混ぜます</strong>。
+
+```hlsl
+// 視線の向き（正規化）から、空の色を求める。
+float3 GradientSky(float3 view_dir) {
+  float t = saturate(view_dir.y);                       // 0 = 水平、1 = 真上
+```
+
+`view_dir.y` は、<strong>視線が、どれだけ上を、向いているか</strong>（−1〜1）です。<strong>地平線より、下</strong>（負）は、0 に、切ります（`saturate`）。
+
+```hlsl
+  // 地平線に近いところで、急に色が変わるように、べき乗で曲げる。
+  t = pow(t, 0.5);
+  return lerp(g_horizon_color, g_zenith_color, t);
+}
+```
+
+<strong>べき乗</strong>（`pow(t, 0.5)` = 平方根）で、<strong>地平線の近くを、広く</strong>取ります。そうしないと、地平線の色が、狭い帯に、押し込まれ、不自然に見えます。現実の空でも、地平線の、明るい帯は、幅が広いです。
+
+```hlsl
+// 地面の方向（view_dir.y < 0）は、別の色で。
+float3 sky = GradientSky(view_dir);
+float3 ground = g_ground_color;
+float3 color = (view_dir.y >= 0.0) ? sky : lerp(g_horizon_color, ground, saturate(-view_dir.y * 4.0));
+```
+
+<strong>水平線より下</strong>は、<strong>地面の色</strong>へ、移ります。地面が、描かれていない（水平線の、下が見える）なら、ここで、補う必要があります。
+
+## 3 色以上の、グラデーション
+
+<strong>2 色だけ</strong>では、<strong>夕焼けの、複雑な色</strong>を、表せません。複数の色を、高さの、段階で、補間します。
+
+```hlsl
+// 4 つの色（地平線の下、地平線、中間、天頂）を、高さで、区分線形に、補間する。
+float3 MultiGradientSky(float y) {                      // y: −1（真下）〜 1（真上）
+  float3 colors[4] = { g_below_horizon, g_horizon, g_mid, g_zenith };
+  float stops[4] = { -0.1, 0.0, 0.3, 1.0 };
+  for (int i = 0; i < 3; ++i) {
+    if (y < stops[i + 1]) {
+      float t = saturate((y - stops[i]) / (stops[i + 1] - stops[i]));
+      return lerp(colors[i], colors[i + 1], t);
+    }
+  }
+  return colors[3];
+}
+```
+
+<strong>色と、境目の高さ</strong>を、<strong>配列</strong>に、並べ、該当する、区間を、探して、その区間の、2 色を、補間します。色の数を、増やすほど、自由な、グラデーションが、描けます。グラデーションを、1 次元の、テクスチャに、描いて、`SampleLevel` で、引く方法も、あります（アーティストが、画像で、編集できる）。
+
+## 太陽の方向への、変化
+
+空は、<strong>太陽の、近くが、明るく</strong>、<strong>反対側が、暗い</strong>ので、太陽の方向を、反映すると、ぐっと、それらしくなります。
+
+```hlsl
+// 太陽の方向に近いほど、地平線の色を、太陽の色の方へ、寄せる。
+float sun_amount = saturate(dot(view_dir, g_sun_dir));
+float3 horizon = lerp(g_horizon_color, g_sun_glow_color, pow(sun_amount, 8.0));
+```
+
+`dot(view_dir, g_sun_dir)` は、<strong>視線と、太陽の、近さ</strong>です。<strong>べき乗で、太陽の近くだけ</strong>に、絞ります（`pow(…, 8.0)`）。これで、太陽の周りの、ぼんやりした、明るさ（グロー）が、出ます。
+
+## 時間帯で、色を、変える
+
+<strong>1 日の、時間</strong>に応じて、<strong>色を、補間</strong>します。朝、昼、夕方、夜の、色のセット（天頂、地平線、太陽のグロー）を、用意して、時間で、混ぜます。
+
+```cpp
+// 時間帯のキーフレーム（時刻、天頂の色、地平線の色）。
+struct SkyKey { float time; float3 zenith; float3 horizon; };
+std::vector<SkyKey> keys = {
+    {0.0f,  {0.01f, 0.01f, 0.05f}, {0.02f, 0.02f, 0.08f}},     // 深夜
+    {6.0f,  {0.20f, 0.30f, 0.60f}, {0.90f, 0.50f, 0.30f}},     // 朝焼け
+    {12.0f, {0.10f, 0.30f, 0.80f}, {0.60f, 0.75f, 0.90f}},     // 昼
+    {18.0f, {0.20f, 0.25f, 0.50f}, {1.00f, 0.40f, 0.20f}},     // 夕焼け
+    {24.0f, {0.01f, 0.01f, 0.05f}, {0.02f, 0.02f, 0.08f}},     // 深夜（0 時と同じ）
+};
+// 現在の時刻が、どの 2 つの、キーの間にあるかを探し、線形補間する（時間帯の補間）。
+```
+
+<strong>時刻</strong>を、キーフレームの、<strong>間で、補間</strong>すると、なめらかに、色が、変わる空が、できます。キーフレームを、アーティストが、編集できる、データにしておくと、調整が、楽です（[Day-Night Cycle](day-night.md)）。
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | 最も、軽い（数命令）。アーティストが、完全に、制御できる。スタイライズに、最適 |
+| 短所 | 物理的に、正しくない。夕焼けの、太陽の周りの、複雑な色、地平線の、霞が、出ない |
+| 短所 | 太陽の高さに応じた、色の、変化を、手で、設計する必要 |
+| 短所 | 空気遠近法（遠景の霞）と、色が、合わないことがある（空の色と、霧の色を、合わせる。[Matching Fog Color to the Sky](../aerial-fog/color-match.md)） |
+
 ## よくあるミス
 
 ??? failure "地平線に、色の帯（バンディング）が出る"
-    **ディザ**を**加える**。
+    <strong>ディザ</strong>を<strong>加える</strong>。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **高さで色を補間するだけ**
+    - [x] 高さで色を補間するだけ
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Preetham, Shirley, Smits, "A Practical Analytic Model for Daylight", SIGGRAPH 1999
+- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique", Computer Graphics Forum (Eurographics Symposium on Rendering 2020)
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018
 
 ## 関連ページ
 

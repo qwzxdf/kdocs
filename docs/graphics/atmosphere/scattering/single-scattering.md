@@ -6,26 +6,26 @@ tags:
 
 # Single-Scattering Integral
 
-**視線に沿って進みながら、各点で太陽の光が、視線方向に散乱される量を足し合わせます**。**これが単散乱の積分**で、**空の色の大部分を決めます**。このページでは、**単散乱の積分**を説明します。
+<strong>視線に沿って進みながら、各点で太陽の光が、視線方向に散乱される量を足し合わせます</strong>。<strong>これが単散乱の積分</strong>で、空の色の大部分を決めます。このページでは、単散乱の積分を説明します。
 
 !!! tip "ポイント"
-    - **視線を分割し、各点で「太陽の光 × 散乱 × 透過率」を足す**。
-    - **太陽の光も、大気で減衰した後のもの**。
-    - **分割数（16〜32）で、精度とコストが決まる**。
-    - **LUT に入れると、積分が不要**になる。
+    - 視線を分割し、各点で「太陽の光 × 散乱 × 透過率」を足す。
+    - 太陽の光も、大気で減衰した後のもの。
+    - 分割数（16〜32）で、精度とコストが決まる。
+    - LUT に入れると、積分が不要になる。
 
 ## 単散乱の積分
-**視線に沿った各点で、「太陽光が届く量」×「視線方向へ散る割合」を足し合わせる**のが**空の色**です。
+<strong>視線に沿った各点で、「太陽光が届く量」×「視線方向へ散る割合」を足し合わせる</strong>のが<strong>空の色</strong>です。
 
 <div class="formula">L = ∫ T(カメラ → p) · σs(p) · P(θ) · T(p → 太陽) · E_sun ds</div>
 
 | 項 | 意味 |
 | --- | --- |
-| <strong>T(カメラ → p)</strong> | **点 p から、カメラまで届く間の減衰** |
-| <strong>σs(p)</strong> | **点 p の散乱係数**（高さで決まる） |
-| <strong>P(θ)</strong> | **位相関数**：**太陽の向きから視線の向きへ、どれだけ散るか** |
-| <strong>T(p → 太陽)</strong> | **太陽から点 p まで届く間の減衰** |
-| **E_sun** | **大気の外での太陽の強さ** |
+| <strong>T(カメラ → p)</strong> | 点 p から、カメラまで届く間の減衰 |
+| <strong>σs(p)</strong> | 点 p の散乱係数（高さで決まる） |
+| <strong>P(θ)</strong> | 位相関数：太陽の向きから視線の向きへ、どれだけ散るか |
+| <strong>T(p → 太陽)</strong> | 太陽から点 p まで届く間の減衰 |
+| E_sun | 大気の外での太陽の強さ |
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="単散乱">
 <text x="20" y="24" class="fig-title">単散乱：視線の上の各点で、太陽光が届いて、視線方向へ散る</text>
@@ -102,22 +102,132 @@ float3 SingleScattering(float3 ray_origin, float3 ray_dir, float ray_length, flo
 
 <!-- fig:hg-phase:end -->
 
+## 1 回散乱の、積分
+
+<strong>カメラに、届く光</strong>を、考えます。太陽の光は、<strong>大気の外から</strong>来て、視線の途中の、ある点で、1 回だけ、散乱し、カメラの方向へ、向きを変えます。この、1 回散乱の光を、視線に沿って、すべての点について、足し合わせるのが、1 回散乱の、積分です（Nishita ら、1993）。
+
+```text
+L(x, v) = ∫₀^D  T(x → p(s))  ×  σ_s(p(s))  ×  Σ [ P(θ) × E_sun × T(p(s) → 大気の外) ]  ds
+```
+
+| 項 | 意味 |
+| --- | --- |
+| `T(x → p(s))` | 点 `p(s)` から、カメラ `x` までの、透過率（散乱した光が、カメラまで、届く割合） |
+| `σ_s(p)` | 点 `p` での、散乱係数（密度に、比例） |
+| `P(θ)` | 位相関数（太陽の光が、視線の方向へ、散る割合） |
+| `E_sun` | 太陽の光の、強さ |
+| `T(p → 外)` | 点 `p` から、太陽方向への、透過率（太陽の光が、点 `p` まで、届く割合） |
+
+<strong>3 つの透過率の、掛け算</strong>です。<strong>太陽 → 点 `p`</strong>（太陽の光が、点まで来る）、点 `p` で散乱、点 `p` → カメラ（散乱した光が、カメラまで来る）。
+
+## 実装：視線に沿った、ループ
+
+```hlsl
+// 視線（カメラ位置 origin、方向 dir、長さ ray_length）に沿って、1 回散乱を積分する。
+float3 SingleScattering(float3 origin, float3 dir, float ray_length, float3 sun_dir, float3 sun_illuminance) {
+  const int kSteps = 32;
+  float step_len = ray_length / kSteps;
+```
+
+視線を、<strong>32 区間に分けて</strong>、各区間の、<strong>中央</strong>で、評価します。`step_len` は、1 区間の長さです。
+
+```hlsl
+  float cos_theta = dot(dir, sun_dir);                    // 視線と太陽の間の角度（太陽が、視線の向こうにあるとき 1）
+  float phase_r = RayleighPhase(cos_theta);
+  float phase_m = CornetteShanks(cos_theta, 0.8);
+```
+
+位相関数は、<strong>視線と太陽の、間の角度</strong>だけで決まり、<strong>視線に沿って、一定</strong>なので、ループの外で、1 回だけ、計算します。
+
+```hlsl
+  float3 sum = 0.0;                                       // 散乱光の、積算
+  float3 throughput = 1.0;                                // 視線に沿った、ここまでの、透過率（カメラ → 点）
+  for (int i = 0; i < kSteps; ++i) {
+    float3 p = origin + dir * ((i + 0.5) * step_len);
+    float h = length(p) - g_planet_radius;
+    float density_r = exp(-h / 8000.0);
+    float density_m = exp(-h / 1200.0);
+```
+
+ループの中で、<strong>点 `p` の高度</strong>から、<strong>レイリーと、ミーの、密度</strong>を、求めます。
+
+```hlsl
+    // この区間での、消散（吸収 + 散乱）で、視線の光が、どれだけ減るか。
+    float3 sigma_t = g_rayleigh_scatter * density_r + g_mie_extinction * density_m;
+    float3 step_transmittance = exp(-sigma_t * step_len);
+```
+
+<strong>区間を、通るときの、透過率</strong>です。これを、<strong>`throughput` に、掛けていく</strong>ことで、カメラから、各点までの、透過率が、順に、求まります（区間ごとの、透過率の、積）。
+
+```hlsl
+    // 太陽方向の透過率（LUT から）。大気の外から、この点まで、太陽の光が届く割合。
+    float3 sun_t = SunTransmittance(p, sun_dir);
+```
+
+<strong>太陽の光が、点 `p` まで、届く割合</strong>を、<strong>透過率 LUT</strong>（[Transmittance](transmittance.md)）から、1 回の読み込みで、得ます。
+
+```hlsl
+    // この点で、視線の方向に、散乱される光。
+    float3 scatter = (g_rayleigh_scatter * density_r * phase_r + g_mie_scatter * density_m * phase_m) * sun_t * sun_illuminance;
+```
+
+<strong>散乱係数 × 位相関数 × 太陽の光</strong>が、<strong>この点で、視線の方向へ散る光</strong>です。レイリーと、ミーを、別々の、位相関数で、足します。
+
+```hlsl
+    // 区間内の、積分（解析的に、減衰を考慮した形）を、足し込む。throughput は、カメラまでの、透過率。
+    float3 scatter_integral = (scatter - scatter * step_transmittance) / max(sigma_t, 1e-6);
+    sum += throughput * scatter_integral;
+    throughput *= step_transmittance;
+  }
+  return sum;
+}
+```
+
+<strong>区間の中でも</strong>、<strong>光は、進むほど、減る</strong>ので、区間の中の、積分を、解析的に、計算します（`(1 − exp(−σ_t Δs)) / σ_t`）。Hillaire（2020）が、区間が、粗くても、エネルギーを、保つために、使っている、改良です。単純に、`scatter × step_len` を足す方法より、ステップ数が、少なくても、安定します。
+
+## 地面に、当たる場合
+
+視線が、<strong>地面に、当たる</strong>場合は、<strong>地面までで、積分を止め</strong>、地面の色を、足します（地平線の、下を向いている、空ではなく、地面を見ている場合）。
+
+```hlsl
+float2 t_ground = RaySphere(origin, dir, g_bottom_radius);
+float2 t_top = RaySphere(origin, dir, g_top_radius);
+float ray_length = (t_ground.x > 0.0) ? t_ground.x : t_top.y;       // 地面に当たるなら、そこまで。そうでなければ、大気の上端まで
+```
+
+| 視線の向き | 積分する範囲 |
+| --- | --- |
+| 空へ向かう | カメラ → 大気の上端 |
+| 地面へ向かう | カメラ → 地面 |
+| カメラが、宇宙にある | 大気の入口から、上端、または、地面まで |
+
+## 1 回散乱の、限界
+
+<strong>1 回だけ</strong>散乱した光を、足し合わせた空は、<strong>見た目が、暗く</strong>、不自然です（特に、太陽が、低いとき、日陰、夜明け、日没後）。現実の、大気では、光が、何度も、散乱して、空全体が、明るくなります（[Multiple Scattering](multiple-scattering.md)）。
+
+| 状況 | 1 回散乱のみ | 実際 |
+| --- | --- | --- |
+| 昼の空 | やや暗い（青が、足りない） | 明るい青 |
+| 夕焼けの、反対側の空 | 暗い | 青紫に、うっすら、明るい |
+| 太陽が、地平線の、下 | ほぼ、真っ暗 | しばらく、空が、明るい（薄明） |
+
 ## よくあるミス
 
 ??? failure "積分の分割が粗く、空に段が出る"
-    **分割数を増やす**、または**サンプルをずらす**。
+    <strong>分割数を増やす</strong>、または<strong>サンプルをずらす</strong>。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **視線に沿って、散乱を足し合わせる**
+    - [x] 視線に沿って、散乱を足し合わせる
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Nishita, Sirai, Tadamura, Nakamae, "Display of the Earth Taking into Account Atmospheric Scattering", SIGGRAPH 1993（大気散乱の、CG への導入）
+- O'Neil, "Accurate Atmospheric Scattering", GPU Gems 2, Chapter 16, 2005
+- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique", Computer Graphics Forum (Eurographics Symposium on Rendering 2020)（4 つの LUT を使う方式。公開デモの実装がある）
+- Bruneton, Neyret, "Precomputed Atmospheric Scattering", Computer Graphics Forum (Eurographics Symposium on Rendering 2008)
+- Preetham, Shirley, Smits, "A Practical Analytic Model for Daylight", SIGGRAPH 1999
 
 ## 関連ページ
 

@@ -6,13 +6,13 @@ tags:
 
 # Day-Night Cycle
 
-**時間が進むと、太陽が動き、空の色・光の色・影の向きが変わります**。**これらを 1 つの「時刻」から連動させる**と、**管理が楽**です。このページでは、**昼夜のサイクル**を説明します。
+<strong>時間が進むと、太陽が動き、空の色・光の色・影の向きが変わります</strong>。<strong>これらを 1 つの「時刻」から連動させる</strong>と、管理が楽です。このページでは、昼夜のサイクルを説明します。
 
 !!! tip "ポイント"
-    - **時刻 → 太陽の位置 → 空・光・影、が連動**。
-    - **日の出・日没は、色が大きく変わる**（オレンジ）。
-    - **夜は、月と星**。
-    - **時間経過のコスト（環境マップの更新）に注意**。
+    - 時刻 → 太陽の位置 → 空・光・影、が連動。
+    - 日の出・日没は、色が大きく変わる（オレンジ）。
+    - 夜は、月と星。
+    - 時間経過のコスト（環境マップの更新）に注意。
 
 <!-- fig:day-night:begin -->
 
@@ -63,7 +63,7 @@ tags:
 <!-- fig:day-night:end -->
 
 ## 昼夜のサイクル
-**時刻から太陽の方向を決める**と、**すべてが連動します**。
+<strong>時刻から太陽の方向を決める</strong>と、<strong>すべてが連動します</strong>。
 
 ```cpp
 float time_of_day = std::fmod(game_hours, 24.0f) / 24.0f;
@@ -74,29 +74,120 @@ sun_direction.Normalize();
 
 | 連動する物 | 内容 |
 | --- | --- |
-| **空の色** | **太陽の方向から自動で** |
-| **太陽光の色と強さ** | **高さで赤く・弱く**。**地平線の下で 0** |
-| **環境光** | **空から更新** |
-| **影の向き** | **平行光源の向き** |
-| **月と星** | **夜に現れる** |
-| **フォグの色** | **空の色に合わせる**（[Aerial Perspective and Fog](../aerial-fog/index.md)） |
+| 空の色 | 太陽の方向から自動で |
+| 太陽光の色と強さ | 高さで赤く・弱く。地平線の下で 0 |
+| 環境光 | 空から更新 |
+| 影の向き | 平行光源の向き |
+| 月と星 | 夜に現れる |
+| フォグの色 | 空の色に合わせる（[Aerial Perspective and Fog](../aerial-fog/index.md)） |
+
+## 時間帯が、変わると、何が変わるか
+
+<strong>昼から夜へ</strong>、1 日を通して、変わるものを、整理します。
+
+| 時間帯 | 太陽の高さ | 空 | 光 |
+| --- | --- | --- | --- |
+| 昼（正午） | 高い | 明るい青 | 白〜やや黄色、強い |
+| 朝・夕（日の出・日の入り前後） | 低い | 地平線付近が、橙・赤。反対側は、青紫 | 橙〜赤、影が、長い |
+| 薄明（日没後、約 30〜60 分） | 地平線の下（0〜−18°） | 深い青〜紫。地平線付近だけ、わずかに、明るい | ほぼ、空の光だけ（太陽の、直接光は、無い） |
+| 夜 | −18° 以下 | 暗い。星空 | 月（あれば）、星 |
+
+## 太陽の、高さと、光の、色
+
+<strong>太陽が、低い</strong>ほど、<strong>光が、大気を、長く、通り</strong>、青から、先に、散って、失われます。赤い光が、残るので、朝夕の、太陽は、赤い。
+
+```hlsl
+// 太陽の、高さ（天頂角の cos = sun_dir.y）から、地表での、太陽の光の色を求める（大気の透過率を、掛ける）。
+float3 SunColorAtGround(float3 sun_dir) {
+  float3 ground_pos = float3(0, g_bottom_radius + 1.0, 0);           // 地表に近い点
+  return g_sun_illuminance * SunTransmittance(ground_pos, sun_dir);   // 透過率 LUT で、大気を通った、光の色
+}
+```
+
+<strong>透過率</strong>は、<strong>RGB ごと</strong>に、違います（青が、よく散る）。太陽の、高さに応じて、自動的に、昼は白、夕方は橙、日没は赤に、なります。色を、手で、設定する必要は、ありません。
+
+## 光の、強さ
+
+<strong>太陽の、光の、強さ</strong>は、<strong>高さとともに、急に、変わります</strong>。
+
+| 太陽の高さ | 地表の照度（目安、lux） |
+| --- | --- |
+| 90°（真上） | 約 100,000 |
+| 30° | 約 60,000 |
+| 10° | 約 10,000 |
+| 0°（地平線） | 約 1,000 |
+| −6°（市民薄明の終わり） | 約 3 |
+| −12° | 約 0.01 |
+| 夜（満月） | 約 0.1〜0.3 |
+| 夜（月なし） | 約 0.001 |
+
+<strong>対数的</strong>に、<strong>桁が、変わる</strong>ので、HDR と、露出の、自動調整（[Auto Exposure](../../postprocess/tonemapping/auto-exposure.md)）が、ほぼ、必須です。固定の露出では、昼が、白飛びするか、夜が、真っ暗になります。
+
+## 薄明（トワイライト）
+
+<strong>太陽が、地平線の、下に、沈んだ後</strong>も、<strong>空は、しばらく、明るい</strong>です。大気の、高い部分（太陽の光が、まだ、当たっている）が、光を、散乱して、地上へ、届けるためです。
+
+| 太陽の高さ | 名前 | 見え方 |
+| --- | --- | --- |
+| 0° 〜 −6° | 市民薄明 | 空が、明るい。屋外で、活動できる |
+| −6° 〜 −12° | 航海薄明 | 明るい星が、見える。地平線が、ぼんやり見える |
+| −12° 〜 −18° | 天文薄明 | ほぼ、夜。かすかな、明るさ |
+
+大気散乱の、<strong>物理計算</strong>（[Hillaire 2020: Four LUTs](../scattering/hillaire.md)）は、<strong>多重散乱</strong>と、オゾンの、吸収を、含めると、薄明も、自然に、再現します（1 回散乱だけでは、足りない。[Multiple Scattering](../scattering/multiple-scattering.md)）。
+
+## 1 日の、時間を、進める
+
+ゲームでは、<strong>1 日を、数十分</strong>に、縮めます。<strong>時刻</strong>を、一定の速さで、進めます。
+
+```cpp
+// ゲーム内の時刻（時）を、進める。1 日を day_length_minutes 分に、縮める。
+float AdvanceTime(float hour, float dt_seconds, float day_length_minutes) {
+  const float hours_per_second = 24.0f / (day_length_minutes * 60.0f);
+  hour += dt_seconds * hours_per_second;
+  if (hour >= 24.0f) hour -= 24.0f;
+  return hour;
+}
+```
+
+| 設計 | 内容 |
+| --- | --- |
+| 昼夜の、長さを、変える | 昼を、長く、夜を、短く（プレイしやすい）など、時間の進みを、時刻に応じて、変える |
+| 季節 | 日付で、太陽の、最大の高さ（赤緯）が、変わる（夏は、高い） |
+| 時刻の、固定 | ある場面だけ、夕方で、固定（演出） |
+
+## 夜への、移行で、変えるもの
+
+時刻が、進むと、<strong>複数の、システムを、連動</strong>させます。
+
+| システム | 変化 |
+| --- | --- |
+| 空（大気散乱） | LUT を、太陽の位置で、更新（Hillaire の方式なら、自動） |
+| 太陽の、光（方向光） | 向き・色・強さを、透過率から、更新 |
+| 月の光 | 夜は、月を、方向光に（太陽が、下がったら、月の光に、切り替え。または、足す） |
+| 環境光（空のライティング） | 空の色から、再計算（[Using the Sky for Lighting](sky-lighting.md)） |
+| 星 | 夜に、フェード イン（[Sun, Moon and Stars](celestial.md)） |
+| 霧（空気遠近法） | 空の色に、合わせて、色・強さを、変える（[Matching Fog Color to the Sky](../aerial-fog/color-match.md)） |
+| 人工の光（街灯、窓） | 夜に、点灯 |
+| 影 | 太陽が、低いと、影が、長く（シャドウ マップの、範囲、バイアスの、調整が、必要） |
+| 露出 | 自動露出が、数秒かけて、追従 |
+| 色補正（カラー グレーディング） | 夜は、青みがかり、彩度が、下がる（人間の目の、暗所での、見え方） |
 
 ## よくあるミス
 
 ??? failure "日没で、影が長くならない・向きが変わらない"
-    **太陽の向きを、時刻から計算**して、**影**に使う。
+    <strong>太陽の向きを、時刻から計算</strong>して、<strong>影</strong>に使う。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **時刻から、すべてを連動させる**
+    - [x] 時刻から、すべてを連動させる
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique", Computer Graphics Forum (Eurographics Symposium on Rendering 2020)
+- Meeus, "Astronomical Algorithms", Willmann-Bell, 1991（太陽・月の位置の計算）
+- Bruneton, "A Qualitative and Quantitative Evaluation of 8 Clear Sky Models", IEEE Transactions on Visualization and Computer Graphics, Vol. 23, No. 12, 2017
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018
 
 ## 関連ページ
 

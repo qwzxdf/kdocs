@@ -6,7 +6,7 @@ tags:
 
 # Lift, Gamma, Gain
 
-<strong>リフト・ガンマ・ゲイン（LGG）</strong>は、**映画のカラー グレーディングで定番の 3 つのつまみ**で、**暗部（リフト）・中間（ガンマ）・明部（ゲイン）を、別々に調整**します。<strong>「暗い所は青く、明るい所は暖かく」</strong>のように**明るさの領域ごとに色味を変える**表現が**簡単にできます**。このページでは、**3 つの役割・式・ASC CDL（スロープ・オフセット・パワー）との関係・色（RGB）ごとの調整・シャドウ/ミッド/ハイライトのカラー バランス**を説明します。
+<strong>リフト・ガンマ・ゲイン（LGG）</strong>は、<strong>映画のカラー グレーディングで定番の 3 つのつまみ</strong>で、<strong>暗部（リフト）・中間（ガンマ）・明部（ゲイン）を、別々に調整</strong>します。<strong>「暗い所は青く、明るい所は暖かく」</strong>のように明るさの領域ごとに色味を変える表現が簡単にできます。このページでは、3 つの役割・式・ASC CDL（スロープ・オフセット・パワー）との関係・色（RGB）ごとの調整・シャドウ/ミッド/ハイライトのカラー バランスを説明します。
 
 !!! tip "ポイント"
     - <strong>ゲイン</strong> ＝ <strong>掛け算</strong>。<strong>明部</strong>に<strong>強く効く</strong>（<strong>傾き</strong>）。
@@ -45,9 +45,9 @@ tags:
 
 | つまみ | 操作 | 影響が大きい範囲 |
 | --- | --- | --- |
-| <strong>ゲイン（Gain）</strong> | **掛ける** | **明部**（**黒（0）は動かない**） |
-| <strong>リフト（Lift）</strong> | **足す** | **暗部**（**白（1）は、ほぼ動かない**） |
-| <strong>ガンマ（Gamma）</strong> | **べき乗** | **中間調**（**0 と 1 は動かない**） |
+| <strong>ゲイン（Gain）</strong> | 掛ける | 明部（黒（0）は動かない） |
+| <strong>リフト（Lift）</strong> | 足す | 暗部（白（1）は、ほぼ動かない） |
+| <strong>ガンマ（Gamma）</strong> | べき乗 | 中間調（0 と 1 は動かない） |
 
 ## 式
 
@@ -63,22 +63,22 @@ float3 LiftGammaGain(float3 color, float3 lift, float3 gamma, float3 gain) {
 
 ### リフトの別の定義
 
-**多くのツールでは、「リフトが白点を動かさない」よう**に**次の形**にします。
+<strong>多くのツールでは、「リフトが白点を動かさない」よう</strong>に<strong>次の形</strong>にします。
 
 <div class="formula">c' = gain · ( c + lift · (1 − c) )</div>
 
-**黒（c = 0）は `lift` だけ持ち上がり、白（c = 1）は変わりません**。**黒を沈めたり持ち上げたりする**のが**自然**になります。
+<strong>黒（c = 0）は `lift` だけ持ち上がり、白（c = 1）は変わりません</strong>。<strong>黒を沈めたり持ち上げたりする</strong>のが自然になります。
 
 ## ASC CDL（スロープ・オフセット・パワー）
 
-**ASC CDL**（American Society of Cinematographers Color Decision List）は、**映像業界で標準の色調整の交換形式**です。**LGG に近い 3 つのつまみ＋彩度**で**構成**されます。
+<strong>ASC CDL</strong>（American Society of Cinematographers Color Decision List）は、<strong>映像業界で標準の色調整の交換形式</strong>です。LGG に近い 3 つのつまみ＋彩度で構成されます。
 
 | ASC CDL | 対応 | 式 |
 | --- | --- | --- |
-| <strong>スロープ（Slope）</strong> | **ゲイン** | **掛ける** |
-| <strong>オフセット（Offset）</strong> | <strong>リフト（に近い）</strong> | **足す** |
-| <strong>パワー（Power）</strong> | <strong>ガンマ（の逆数）</strong> | **べき乗** |
-| <strong>彩度（Saturation）</strong> | **彩度** | **輝度との補間** |
+| <strong>スロープ（Slope）</strong> | ゲイン | 掛ける |
+| <strong>オフセット（Offset）</strong> | <strong>リフト（に近い）</strong> | 足す |
+| <strong>パワー（Power）</strong> | <strong>ガンマ（の逆数）</strong> | べき乗 |
+| <strong>彩度（Saturation）</strong> | 彩度 | 輝度との補間 |
 
 
 CDL は、撮影現場とポストプロダクションの間で、色調整を数値で受け渡すための標準で、数値が少なく（3×3 + 彩度 1 の 10 個）、ツールを問わず同じ結果になるのが利点です。
@@ -95,11 +95,11 @@ float3 ApplyCDL(float3 color, float3 slope, float3 offset, float3 power, float s
 }
 ```
 
-**Resolve・Nuke などのツールと、数値をやり取りできる**ので、**外部で作ったルックをゲームに持ち込めます**。
+<strong>Resolve・Nuke などのツールと、数値をやり取りできる</strong>ので、<strong>外部で作ったルックをゲームに持ち込めます</strong>。
 
 ## 領域ごとのカラー バランス
 
-<strong>「暗部は青、中間はそのまま、明部は橙」</strong>のように**明るさの領域に別々の色味を乗せる**調整です。**ティール＆オレンジ**など、**映画的なルックの定番**です。
+<strong>「暗部は青、中間はそのまま、明部は橙」</strong>のように<strong>明るさの領域に別々の色味を乗せる</strong>調整です。<strong>ティール＆オレンジ</strong>など、映画的なルックの定番です。
 
 ```hlsl
 float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highlights) {
@@ -183,35 +183,35 @@ float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highli
 
 | ルック | 設定の例 |
 | --- | --- |
-| **夜・冷たい** | **リフトに青、ゲインを少し下げる** |
-| **夕暮れ・暖かい** | **ゲインにオレンジ** |
-| **荒廃・色あせ** | **リフトを持ち上げる（黒が浮く）、彩度を下げる** |
-| <strong>映画的（ティール＆オレンジ）</strong> | **暗部に青緑、明部にオレンジ** |
-| **コントラストの強い劇画風** | **ゲインを上げ、リフトを下げ、ガンマを調整** |
+| 夜・冷たい | リフトに青、ゲインを少し下げる |
+| 夕暮れ・暖かい | ゲインにオレンジ |
+| 荒廃・色あせ | リフトを持ち上げる（黒が浮く）、彩度を下げる |
+| <strong>映画的（ティール＆オレンジ）</strong> | 暗部に青緑、明部にオレンジ |
+| コントラストの強い劇画風 | ゲインを上げ、リフトを下げ、ガンマを調整 |
 
 ## より良いやり方
 
 | 工夫 | 内容 |
 | --- | --- |
-| **ガンマ・対数空間で** | **映像ツールと感覚が合う** |
-| **CDL 形式でやり取り** | **外部のカラリストと数値を共有** |
-| **LUT に焼く** | **LGG・バランス・彩度を、1 つの 3D LUT に**（[3D LUT](lut-3d.md)） |
-| **小さな値で調整** | **リフト・カラー バランスは、± 0.05 程度** |
-| **ボリュームで補間** | **場所ごとに、LGG を補間**（[Authoring LUTs](lut-authoring.md)） |
+| ガンマ・対数空間で | 映像ツールと感覚が合う |
+| CDL 形式でやり取り | 外部のカラリストと数値を共有 |
+| LUT に焼く | LGG・バランス・彩度を、1 つの 3D LUT に（[3D LUT](lut-3d.md)） |
+| 小さな値で調整 | リフト・カラー バランスは、± 0.05 程度 |
+| ボリュームで補間 | 場所ごとに、LGG を補間（[Authoring LUTs](lut-authoring.md)） |
 
 ## よくあるミス
 
 ??? failure "リフトを上げたら、白まで動いて、全体が白っぽい"
-    **リフトの式を、`c + lift · (1 − c)` に**（白を動かさない）。
+    <strong>リフトの式を、`c + lift · (1 − c)` に</strong>（白を動かさない）。
 
 ??? failure "ガンマの向き（`gamma` か `1 / gamma`）を間違えて、逆に動く"
-    **`pow(c, 1 / gamma)` で、`gamma > 1` が明るく**。**ツールの定義を確認**。
+    <strong>`pow(c, 1 / gamma)` で、`gamma > 1` が明るく</strong>。<strong>ツールの定義を確認</strong>。
 
 ??? failure "領域ごとのカラー バランスが強すぎて、肌が不自然"
-    <strong>小さな値（± 0.05）</strong>、**肌のハイライトを避ける**。
+    <strong>小さな値（± 0.05）</strong>、<strong>肌のハイライトを避ける</strong>。
 
 ??? failure "リニア空間で LGG を掛けて、効き方がおかしい"
-    **ガンマ・対数空間で行う**、またはツールと同じ空間にそろえる。
+    <strong>ガンマ・対数空間で行う</strong>、またはツールと同じ空間にそろえる。
 
 ## これだけ覚える
 

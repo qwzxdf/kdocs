@@ -7,7 +7,7 @@ tags:
 
 # 深度・ブレンド
 
-**ピクセル シェーダーが色を決めても、すぐ画面に書かれるわけではありません**。**書き込む前に「その色を書いてよいか」「すでにある色とどう混ぜるか」を決める最後の工程**があります。**出力マージャー**（Output Merger）と呼ばれ、**深度テスト・ステンシルテスト・ブレンド**を行います。**手前にある物が奥の物を隠す**のも、**半透明の物が透けて見える**のも**この工程**です。
+<strong>ピクセル シェーダーが色を決めても、すぐ画面に書かれるわけではありません</strong>。<strong>書き込む前に「その色を書いてよいか」「すでにある色とどう混ぜるか」を決める最後の工程</strong>があります。<strong>出力マージャー</strong>（Output Merger）と呼ばれ、<strong>深度テスト・ステンシルテスト・ブレンド</strong>を行います。<strong>手前にある物が奥の物を隠す</strong>のも、<strong>半透明の物が透けて見える</strong>のも<strong>この工程</strong>です。
 
 !!! tip "ポイント"
     - 出力マージャー ＝ <strong>書き込む前の最後の関門</strong>：<strong>① 深度テスト → ② ステンシル → ③ ブレンド → ④ 書き込み</strong>。
@@ -35,7 +35,7 @@ tags:
 
 ## 深度テスト
 
-**3D では手前の物が奥の物を隠します**。**描く順番に関係なく、手前が勝つ**ように**ピクセルごとの「今までで一番手前の距離」を深度バッファに記録**します。
+<strong>3D では手前の物が奥の物を隠します</strong>。<strong>描く順番に関係なく、手前が勝つ</strong>ように<strong>ピクセルごとの「今までで一番手前の距離」を深度バッファに記録</strong>します。
 
 <svg class="fig illust motion" data-fig="depth-test" viewBox="0 0 780 300" role="img" aria-label="深度テスト">
 <text x="20" y="24" class="fig-title">深度テスト：描く順番が逆でも、手前の物が勝つ</text>
@@ -67,10 +67,10 @@ tags:
 
 | 設定 | 意味 |
 | --- | --- |
-| **`DepthEnable`** | **深度テストを使う** |
-| **`DepthFunc = LESS`** | **今の深度 < 記録された深度 のとき通す**（手前なら通す） |
-| **`DepthWriteMask = ALL`** | **通ったら深度バッファを更新**（半透明では `ZERO`＝更新しない） |
-| **`LESS_EQUAL`** | **同じ深度も通す**（空・多パスの重ね描きで使う） |
+| <strong>`DepthEnable`</strong> | <strong>深度テストを使う</strong> |
+| <strong>`DepthFunc = LESS`</strong> | <strong>今の深度 < 記録された深度 のとき通す</strong>（手前なら通す） |
+| <strong>`DepthWriteMask = ALL`</strong> | <strong>通ったら深度バッファを更新</strong>（半透明では `ZERO`＝更新しない） |
+| <strong>`LESS_EQUAL`</strong> | <strong>同じ深度も通す</strong>（空・多パスの重ね描きで使う） |
 
 ```cpp
 D3D11_DEPTH_STENCIL_DESC desc = {};
@@ -211,7 +211,7 @@ context->OMSetDepthStencilState(depth_state.Get(), 0);
 
 ### 深度バッファの中身
 
-**深度バッファは、描画先と同じ大きさの 2D の画像**で、**各ピクセルに 0〜1 の深度値**を**持ちます**。**フレームの始めに 1（一番奥）で初期化**します（**クリア**）。
+<strong>深度バッファは、描画先と同じ大きさの 2D の画像</strong>で、<strong>各ピクセルに 0〜1 の深度値</strong>を<strong>持ちます</strong>。<strong>フレームの始めに 1（一番奥）で初期化</strong>します（<strong>クリア</strong>）。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="深度バッファ">
 <text x="20" y="24" class="fig-title">カラー バッファと深度バッファ：同じ大きさの 2 枚の画像</text>
@@ -231,25 +231,25 @@ context->OMSetDepthStencilState(depth_state.Get(), 0);
 <text x="400" y="228" style="font-size:12px">近い物ほど暗く（小さい値）。空は一番奥の 1.0（白）。</text>
 </svg>
 
-**深度バッファは、描画の仕組み以外にも使われます**。**ライティング（ピクセルの位置の再構築）・SSAO・フォグ・水の深度差**など、**後の工程が深度を読みます**。
+<strong>深度バッファは、描画の仕組み以外にも使われます</strong>。<strong>ライティング（ピクセルの位置の再構築）・SSAO・フォグ・水の深度差</strong>など、<strong>後の工程が深度を読みます</strong>。
 
 ## ステンシル
 
-**ステンシル**は**ピクセルごとに 8 ビットの整数を持つバッファ**で、<strong>「描く範囲」を絞る</strong>のに**使います**（深度バッファと 1 枚にまとめる、24 ビット深度 + 8 ビットステンシルが一般的）。
+<strong>ステンシル</strong>は<strong>ピクセルごとに 8 ビットの整数を持つバッファ</strong>で、<strong>「描く範囲」を絞る</strong>のに<strong>使います</strong>（深度バッファと 1 枚にまとめる、24 ビット深度 + 8 ビットステンシルが一般的）。
 
 | 用途 | 内容 |
 | --- | --- |
-| **マスク** | **窓や鏡の枠の中だけに描く** |
-| **アウトライン** | **キャラクター本体のあるピクセルを 1 にして、その外側だけ輪郭色で描く** |
-| **シルエット表示** | **壁の向こうの味方を隠れた部分だけ別の色で描く** |
-| **影のボリューム** | **古い影の方式** |
-| **デカール・ライト ボリューム** | **ライトが影響するピクセルだけ**を**計算する** |
+| <strong>マスク</strong> | <strong>窓や鏡の枠の中だけに描く</strong> |
+| <strong>アウトライン</strong> | <strong>キャラクター本体のあるピクセルを 1 にして、その外側だけ輪郭色で描く</strong> |
+| <strong>シルエット表示</strong> | <strong>壁の向こうの味方を隠れた部分だけ別の色で描く</strong> |
+| <strong>影のボリューム</strong> | <strong>古い影の方式</strong> |
+| <strong>デカール・ライト ボリューム</strong> | <strong>ライトが影響するピクセルだけ</strong>を<strong>計算する</strong> |
 
-**テスト条件と更新方法を、表側・裏側で別々に設定できます**。
+<strong>テスト条件と更新方法を、表側・裏側で別々に設定できます</strong>。
 
 ## ブレンド
 
-**色を書くとき、すでにある色とどう混ぜるか**を**決めるのが**ブレンド<strong>です。</strong>半透明（ガラス・煙）・加算（光・炎）**などを**実現します**。
+<strong>色を書くとき、すでにある色とどう混ぜるか</strong>を<strong>決めるのが</strong>ブレンド<strong>です。</strong>半透明（ガラス・煙）・加算（光・炎）<strong>などを</strong>実現します**。
 
 <div class="formula">結果 = 新しい色 × 係数 A　⊕　既存の色 × 係数 B　（⊕：足す・引くなど）</div>
 
@@ -284,11 +284,11 @@ context->OMSetDepthStencilState(depth_state.Get(), 0);
 
 | ブレンド | 式（係数） | 使い道 |
 | --- | --- | --- |
-| **不透明** | **1, 0** | **ふつうの物体** |
-| **アルファ ブレンド** | **α, 1 − α** | **ガラス・半透明の物・UI** |
-| **加算** | **1, 1** | **光る物・炎・魔法の粒子** |
-| **乗算** | **0, 元の色** | <strong>影・色付きガラス（暗くする）</strong> |
-| **プリマルチプライド アルファ** | **1, 1 − α** | **粒子で加算と半透明を混ぜたいとき** |
+| <strong>不透明</strong> | <strong>1, 0</strong> | <strong>ふつうの物体</strong> |
+| <strong>アルファ ブレンド</strong> | <strong>α, 1 − α</strong> | <strong>ガラス・半透明の物・UI</strong> |
+| <strong>加算</strong> | <strong>1, 1</strong> | <strong>光る物・炎・魔法の粒子</strong> |
+| <strong>乗算</strong> | <strong>0, 元の色</strong> | <strong>影・色付きガラス（暗くする）</strong> |
+| <strong>プリマルチプライド アルファ</strong> | <strong>1, 1 − α</strong> | <strong>粒子で加算と半透明を混ぜたいとき</strong> |
 
 ```cpp
 D3D11_BLEND_DESC desc = {};
@@ -306,7 +306,7 @@ device->CreateBlendState(&desc, blend_state.GetAddressOf());
 
 ## 描く順番が大事
 
-**不透明な物**は**深度テストがあるので順番に関係なく正しく描かれます**。**でも手前から描くほうが速い**です。**半透明な物**は**深度に頼れないので奥から手前の順に描きます**。
+<strong>不透明な物</strong>は<strong>深度テストがあるので順番に関係なく正しく描かれます</strong>。<strong>でも手前から描くほうが速い</strong>です。<strong>半透明な物</strong>は<strong>深度に頼れないので奥から手前の順に描きます</strong>。
 
 <svg class="fig illust" viewBox="0 0 780 270" role="img" aria-label="描画順"><defs><marker id="rfa" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs>
 <text x="20" y="24" class="fig-title">描画の順番：不透明 → 半透明</text>
@@ -328,7 +328,7 @@ device->CreateBlendState(&desc, blend_state.GetAddressOf());
 
 ## 複数の描画先（MRT）
 
-**1 回のドロー コールで、複数の画像に同時に書き込む**ことが**できます**（Multiple Render Targets）。**ディファード レンダリングで、色・法線・材質を別々の画像に書く**ときに使います。
+<strong>1 回のドロー コールで、複数の画像に同時に書き込む</strong>ことが<strong>できます</strong>（Multiple Render Targets）。<strong>ディファード レンダリングで、色・法線・材質を別々の画像に書く</strong>ときに使います。
 
 ```hlsl
 struct PSOutput {
@@ -338,37 +338,37 @@ struct PSOutput {
 };
 ```
 
-**G バッファ**など、**この仕組みを使う方式**は[フォワードとディファード](../../rendering/forward-deferred.md)で扱います。
+<strong>G バッファ</strong>など、<strong>この仕組みを使う方式</strong>は[フォワードとディファード](../../rendering/forward-deferred.md)で扱います。
 
 ## 早期深度テスト（Early-Z）
 
-**深度テストはピクセル シェーダーの後**ですが、**GPU は結果が同じなら、ピクセル シェーダーの前に深度テストを行います**（**Early-Z**）。**隠れているピクセルのシェーダー計算を省略できます**。
+<strong>深度テストはピクセル シェーダーの後</strong>ですが、<strong>GPU は結果が同じなら、ピクセル シェーダーの前に深度テストを行います</strong>（<strong>Early-Z</strong>）。<strong>隠れているピクセルのシェーダー計算を省略できます</strong>。
 
 | 条件 | 効果 |
 | --- | --- |
-| **ピクセル シェーダーが深度を変更しない** | **Early-Z が有効** |
-| **`discard`（クリップ）を使う** | **Early-Z が使えない場合がある**（**アルファ テストの物は遅くなる**） |
-| **手前から描く** | **隠れるピクセルが前もって捨てられる** |
-| **深度プリパス** | **先に深度だけ描いて、後で色を描く**（**オーバードローを完全に省く**） |
+| <strong>ピクセル シェーダーが深度を変更しない</strong> | <strong>Early-Z が有効</strong> |
+| <strong>`discard`（クリップ）を使う</strong> | <strong>Early-Z が使えない場合がある</strong>（<strong>アルファ テストの物は遅くなる</strong>） |
+| <strong>手前から描く</strong> | <strong>隠れるピクセルが前もって捨てられる</strong> |
+| <strong>深度プリパス</strong> | <strong>先に深度だけ描いて、後で色を描く</strong>（<strong>オーバードローを完全に省く</strong>） |
 
 詳しくは[オーバードロー](../../rendering/overdraw.md)で扱います。
 
 ## よくあるミス
 
 ??? failure "半透明の物が、奥の物を消してしまう"
-    **半透明は深度の書き込みを切る**（`DepthWriteMask = ZERO`）。**奥から手前の順に描く**。
+    <strong>半透明は深度の書き込みを切る</strong>（`DepthWriteMask = ZERO`）。<strong>奥から手前の順に描く</strong>。
 
 ??? failure "深度バッファをクリアし忘れて、前フレームの絵が残る／消える"
-    **毎フレーム、深度を 1.0 でクリア**する。
+    <strong>毎フレーム、深度を 1.0 でクリア</strong>する。
 
 ??? failure "近い面と遠い面を極端に設定して、遠くで Z ファイティング（ちらつき）"
-    **近い面を遠ざける**、**リバース Z（1 が近い）と 32 ビット浮動小数の深度**を使う。
+    <strong>近い面を遠ざける</strong>、<strong>リバース Z（1 が近い）と 32 ビット浮動小数の深度</strong>を使う。
 
 ??? failure "深度とカラーの描画先の大きさが違い、描画されない"
-    **深度ステンシルとレンダー ターゲットは同じ大きさ**にする。
+    <strong>深度ステンシルとレンダー ターゲットは同じ大きさ</strong>にする。
 
 ??? failure "ブレンドの順序で、パーティクルの明るさが変わる"
-    **加算は順序に依らない**が、**アルファ ブレンドは順序で変わる**。
+    <strong>加算は順序に依らない</strong>が、<strong>アルファ ブレンドは順序で変わる</strong>。
 
 ## これだけ覚える
 

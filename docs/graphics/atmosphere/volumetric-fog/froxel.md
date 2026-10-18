@@ -6,13 +6,13 @@ tags:
 
 # Froxels
 
-**froxel は、カメラの視錐台（frustum）を分けた、3D のボクセルです**。**画面に近い所は細かく、遠い所は粗くなる**ので、**見た目に効率が良い**です。このページでは、**froxel の構造**を説明します。
+<strong>froxel は、カメラの視錐台（frustum）を分けた、3D のボクセルです</strong>。<strong>画面に近い所は細かく、遠い所は粗くなる</strong>ので、見た目に効率が良いです。このページでは、froxel の構造を説明します。
 
 !!! tip "ポイント"
-    - **froxel ＝ frustum ＋ voxel**。
-    - **画面の縦横に分割し、奥行きを対数的に分割**。
-    - **3D テクスチャ（例：160×90×64）**で持つ。
-    - **近くが細かい**ので、**効率的**。
+    - froxel ＝ frustum ＋ voxel。
+    - 画面の縦横に分割し、奥行きを対数的に分割。
+    - 3D テクスチャ（例：160×90×64）で持つ。
+    - 近くが細かいので、効率的。
 
 <!-- fig:froxel-slices:begin -->
 
@@ -51,7 +51,7 @@ tags:
 <!-- fig:froxel-slices:end -->
 
 ## froxel
-**froxel**（frustum voxel）は、**カメラの視錐台を画面の格子（X, Y）と奥行き（Z）で分割した 3D 格子**です。
+<strong>froxel</strong>（frustum voxel）は、<strong>カメラの視錐台を画面の格子（X, Y）と奥行き（Z）で分割した 3D 格子</strong>です。
 
 <svg class="fig illust" viewBox="0 0 780 280" role="img" aria-label="froxel">
 <text x="20" y="24" class="fig-title">froxel：視錐台を、画面に沿った 3D の格子に切る</text>
@@ -74,10 +74,10 @@ tags:
 
 | 項目 | 内容 |
 | --- | --- |
-| **解像度** | **160×90×64 程度**（画面の 1/8 の解像度）。**ピクセルを 1 つずつでなく、まとめて計算** |
-| **形式** | **3D テクスチャ**（`RGBA16F`：散乱光 RGB ＋ 密度） |
-| **奥行きの割り当て** | **近くを細かく**（指数的）。**`z = near * pow(far/near, slice/N)`** |
-| **カメラに追従** | **視錐台と一緒に動く**。**画面の解像度に依存しない** |
+| 解像度 | 160×90×64 程度（画面の 1/8 の解像度）。ピクセルを 1 つずつでなく、まとめて計算 |
+| 形式 | 3D テクスチャ（`RGBA16F`：散乱光 RGB ＋ 密度） |
+| 奥行きの割り当て | 近くを細かく（指数的）。`z = near * pow(far/near, slice/N)` |
+| カメラに追従 | 視錐台と一緒に動く。画面の解像度に依存しない |
 
 ```hlsl
 float SliceToDepth(float slice, float near_z, float far_z, float slice_count) {
@@ -99,22 +99,115 @@ float DepthToSlice(float depth, float near_z, float far_z, float slice_count) {
 
 3D テクスチャの形式で持つと、ハードウェアの三線形補間が使えます。ピクセルの位置 (u, v, スライス) で引くだけで、周囲 8 個のセルから自動で補間されます。また、コンピュート シェーダーでセルごとに並列に計算するのに向いています。
 
+## froxel の、グリッドを、作る
+
+<strong>froxel</strong> は、<strong>カメラの視錐台</strong>を、細かく分割した、3D グリッドです（frustum + voxel）。カメラから見た、画面の、横・縦と、奥行きで、セルを、並べます。ボクセル（立方体の、グリッド）と、違い、セルの、形が、遠いほど、大きい（視錐台は、遠くで、広がるため）。
+
+```text
+  カメラ ●
+          ╲╲
+           ╲ ╲      奥行き方向に、スライス（スライス = 奥行きの 1 段）
+            ╲  ╲
+             [z=0][z=1][z=2]...[z=63]
+```
+
+## 3D テクスチャで、持つ
+
+<strong>3D テクスチャ</strong>に、<strong>各セルの、値</strong>を、書き込みます。
+
+```cpp
+// 160×90×64 の、3D テクスチャを、2 枚（散乱と、積分結果）作る。計算シェーダーが、書き込む。
+D3D11_TEXTURE3D_DESC desc = {};
+desc.Width = 160;
+desc.Height = 90;
+desc.Depth = 64;
+desc.MipLevels = 1;
+desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;               // 散乱光（RGB）+ 消散（A）
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;   // 読む + 計算シェーダーで書く
+device->CreateTexture3D(&desc, nullptr, &froxel_tex);
+```
+
+`R16G16B16A16_FLOAT` は、<strong>HDR の色</strong>（明るい光）を、<strong>収める</strong>ためです。`BIND_UNORDERED_ACCESS` は、計算シェーダーが、書き込むために、必要です。3D テクスチャの、1 つの値が、1 つの、froxelです。
+
+## セル ↔ ワールド座標
+
+<strong>セルの、番号</strong>から、<strong>ワールド位置</strong>を、求める変換が、すべての段階（密度、ライト、積分、適用）で、必要です。
+
+```hlsl
+// froxel の番号 (x, y, z) から、ワールド位置を求める。z は、スライス番号（小数も可）。
+float3 FroxelToWorld(float3 froxel_id) {
+  float2 uv = (froxel_id.xy + 0.5) / float2(160, 90);                    // 画面上の位置（0〜1）
+  float view_depth = SliceToViewDepth(froxel_id.z / 64.0);              // スライス → カメラからの、奥行き（メートル）
+  // 画面の位置と、奥行きから、ビュー空間の位置 → ワールド空間へ
+  float2 ndc = uv * float2(2, -2) + float2(-1, 1);
+  float3 view_pos = float3(ndc.x * view_depth / g_proj_x, ndc.y * view_depth / g_proj_y, -view_depth);   // 右手系: 前方が −Z
+  return mul(float4(view_pos, 1.0), g_inv_view).xyz;
+}
+```
+
+<strong>画面上の位置</strong>（`x`、`y`）と、<strong>奥行き</strong>（`z`）から、ビュー空間の位置を、作り、逆ビュー行列で、ワールドへ、戻します。奥行きの、割り当て（`SliceToViewDepth`）が、次の節です。
+
+## 奥行きの、割り当て
+
+<strong>奥行き方向</strong>は、<strong>均等に</strong>分割しません。近くは、細かく、遠くは、粗くします。近くの、霧の変化は、画面上で、大きく、遠くは、小さいためです。
+
+```hlsl
+// 奥行きの割り当て: 指数的に（近くを、細かく）。near から far まで、64 スライス。
+float SliceToViewDepth(float slice01) {                                  // slice01: 0〜1
+  // slice01 = 0 で near、1 で far。指数的に、広がる。
+  return g_near * pow(g_far / g_near, slice01);
+}
+float ViewDepthToSlice(float view_depth) {
+  return log(view_depth / g_near) / log(g_far / g_near);
+}
+```
+
+<strong>対数</strong>（`log`）の、割り当てで、<strong>スライスの、厚さ</strong>が、距離に、比例します（近くは、薄く、遠くは、厚い）。画面上で、各スライスが、ほぼ、同じ、見た目の厚さに、なります。
+
+| 割り当て | 内容 |
+| --- | --- |
+| 均等 | 簡単だが、近くが、粗く、縞が、目立つ |
+| 指数（対数） | 近くを、細かく。標準 |
+| べき乗（`slice²`） | 指数より、ゆるやか。近くを、細かく、簡単な、式 |
+
+## 近・遠の、範囲
+
+<strong>froxel</strong> は、<strong>カメラの、近くから、一定の、距離</strong>（数十〜数百メートル）までを、覆います。それより、遠くの、霧は、別の方法（高さフォグ、空気遠近法）で、補います。
+
+| 範囲 | 方式 |
+| --- | --- |
+| 〜 64 m 〜 200 m（froxel の、範囲） | ボリューム フォグ |
+| それより遠く | 空気遠近法（[Physically Based Aerial Perspective](../aerial-fog/physical.md)）、高さフォグ |
+
+<strong>境目</strong>では、<strong>froxel の、最後のスライスの、値</strong>を、遠景の霧へ、フェードして、つなぎます。
+
+## 解像度の、選び方
+
+| 解像度 | セル数 | 品質 | コスト |
+| --- | --- | --- | --- |
+| 80×45×32 | 約 11 万 | 低（ぼやける、縞） | 最小 |
+| 160×90×64 | 約 92 万 | 標準 | 中 |
+| 320×180×128 | 約 740 万 | 高（細かい光の筋） | 重い |
+
+<strong>画面の、解像度</strong>（1920×1080）の、<strong>1/12</strong>（160×90）が、標準的です。霧は、ゆるやかに変化するので、低解像度でも、十分です。時間方向の、平均（[Temporal Accumulation](temporal.md)）で、品質を、補います。
+
 ## よくあるミス
 
 ??? failure "奥行きの分割が粗く、層状の縞が見える"
-    **スライス数を増やす**・**ジッタ**を入れる。
+    <strong>スライス数を増やす</strong>・<strong>ジッタ</strong>を入れる。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **視錐台を分けた、3D のグリッド**
+    - [x] 視錐台を分けた、3D のグリッド
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Wronski, "Volumetric Fog: Unified Compute Shader Based Solution to Atmospheric Scattering", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Hillaire, "Physically Based and Unified Volumetric Rendering in Frostbite", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Microsoft Learn, "D3D11_TEXTURE3D_DESC"（3D テクスチャ、`D3D11_BIND_UNORDERED_ACCESS`）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（参加媒質、雲、霧の章）
 
 ## 関連ページ
 

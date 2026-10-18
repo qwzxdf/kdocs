@@ -6,18 +6,18 @@ tags:
 
 # Cloud Lighting
 
-**雲は、光が内部で散乱するので、明るく、ふわふわに見えます**。**各点で太陽の方向にもう一度進んで、光の減衰（自己影）を求めます**。このページでは、**雲のライティング**を説明します。
+<strong>雲は、光が内部で散乱するので、明るく、ふわふわに見えます</strong>。<strong>各点で太陽の方向にもう一度進んで、光の減衰（自己影）を求めます</strong>。このページでは、雲のライティングを説明します。
 
 !!! tip "ポイント"
-    - **太陽方向へ、短くマーチして、光の減衰を求める**。
-    - **位相関数（前方散乱）で、縁が光る**。
-    - **多重散乱の近似を足して、暗くなりすぎを防ぐ**。
-    - **パウダー効果で、縁が暗く沈む表現**。
+    - 太陽方向へ、短くマーチして、光の減衰を求める。
+    - 位相関数（前方散乱）で、縁が光る。
+    - 多重散乱の近似を足して、暗くなりすぎを防ぐ。
+    - パウダー効果で、縁が暗く沈む表現。
 
 ## 光の計算
 ### Beer の法則
 
-**太陽に向かって雲の中を進むと、水滴にぶつかって光が減ります**。**密度を太陽方向に積分した「厚み」から、届く光が決まります**。
+<strong>太陽に向かって雲の中を進むと、水滴にぶつかって光が減ります</strong>。<strong>密度を太陽方向に積分した「厚み」から、届く光が決まります</strong>。
 
 <div class="formula">届く光 = exp( −厚み × 消散係数 )</div>
 
@@ -156,7 +156,7 @@ float LightMarch(float3 position, float3 sun_dir) {
 
 ### Powder 効果
 
-**雲の縁（薄い所）は、Beer の法則だと「明るすぎる」ですが実際には暗いことがあります**。**散乱された光が雲の奥から出てこないため**です。**Powder 効果**は**これを近似**します。
+<strong>雲の縁（薄い所）は、Beer の法則だと「明るすぎる」ですが実際には暗いことがあります</strong>。<strong>散乱された光が雲の奥から出てこないため</strong>です。Powder 効果はこれを近似します。
 
 <div class="formula">Powder = 1 − exp( −2 · density )</div>
 
@@ -166,11 +166,11 @@ float PowderEffect(float density) {
 }
 ```
 
-**Beer（薄いほど明るい）と Powder（薄いほど暗い）を掛ける**と**縁が暗く、中が明るい**という**実際の雲の見え方**に**近づきます**（**Beer-Powder**）。
+<strong>Beer（薄いほど明るい）と Powder（薄いほど暗い）を掛ける</strong>と<strong>縁が暗く、中が明るい</strong>という実際の雲の見え方に近づきます（Beer-Powder）。
 
 ### 位相関数
 
-**雲の水滴は大きいため、光を前方に強く散らします**。**太陽の方を見ると雲の縁が銀色に光る（シルバーライニング）のはこれが理由**です。**前方ローブと後方ローブを混ぜた二重 Henyey-Greenstein** を使います。
+<strong>雲の水滴は大きいため、光を前方に強く散らします</strong>。<strong>太陽の方を見ると雲の縁が銀色に光る（シルバーライニング）のはこれが理由</strong>です。前方ローブと後方ローブを混ぜた二重 Henyey-Greenstein を使います。
 
 ```hlsl
 float CloudPhase(float cos_theta) {
@@ -182,7 +182,7 @@ float CloudPhase(float cos_theta) {
 
 ### 多重散乱の近似
 
-**雲の中では光が何度も散らされ、明るく見えます**。**Beer の法則だけだと、厚い雲が暗くなりすぎます**。**消散・位相の寄与を数オクターブ分、減衰させながら足す近似**で、**厚い雲を適度に明るくします**。
+<strong>雲の中では光が何度も散らされ、明るく見えます</strong>。<strong>Beer の法則だけだと、厚い雲が暗くなりすぎます</strong>。消散・位相の寄与を数オクターブ分、減衰させながら足す近似で、厚い雲を適度に明るくします。
 
 ```hlsl
 float3 MultiScatteredLight(float optical_depth, float phase_cos) {
@@ -215,22 +215,132 @@ float3 MultiScatteredLight(float optical_depth, float phase_cos) {
 
 厚い積乱雲の中心は、Beer の法則だけでは、太陽光が届かず真っ暗になってしまいます。しかし実際には、雲の中で光が何度も散乱して、雲全体が白く明るく見えます。多重散乱の近似（上のコード）は、この「何度も散乱した光」を、消散を弱めながら、位相関数を等方に近づけながら、数回分重ねて表現します。Wrenninge らの Production Volume Rendering（2012）で紹介された方法で、Schneider の Horizon Zero Dawn のあとも、Hillaire ら多くのゲーム エンジンの雲で使われています。
 
+## 雲の、光の、特徴
+
+<strong>雲が、白く、ふわふわして、立体的</strong>に、見えるのは、<strong>光の、散らばり方</strong>に、特徴が、あるためです。
+
+| 現象 | 見え方 |
+| --- | --- |
+| 前方散乱（ミー散乱が、強い） | 太陽の方向の、雲の縁が、明るく、銀色に、光る（シルバー ライニング） |
+| 多重散乱 | 雲の、内側まで、光が、届き、真っ黒にならない |
+| 吸収と、散乱の、バランス | 厚い雲は、暗い、底（光が、届かない）、薄い縁は、明るい |
+| 粉っぽさ（Powder） | 雲の、縁は、暗く、縁取られて見える（光が、散乱しきっていない） |
+
+## 1 点での、光の、計算
+
+レイマーチの、<strong>各サンプル点</strong>で、<strong>太陽の光が、その点に、どれだけ、届くか</strong>を、求め、位相関数を、掛けて、視線の方向へ、散る光を、得ます。
+
+```hlsl
+float3 CloudLighting(float3 p, float3 view_dir, float density) {
+  // ① 太陽の光が、この点まで、どれだけ届くか（太陽方向へ、密度を積分して、Beer の法則で、減衰）。
+  float light_optical_depth = LightMarchDensity(p, g_sun_dir);
+  float beer = exp(-light_optical_depth * g_extinction);
+```
+
+<strong>太陽の方向</strong>へ、<strong>短く、レイマーチ</strong>し（6〜8 ステップ）、途中の、密度を、積分します。Beer の法則（`exp(−τ)`）で、太陽の光が、点まで、届く割合を、求めます。雲の、厚い部分を、通った光ほど、弱くなります。
+
+```hlsl
+  // ② 位相関数（前方散乱 + 後方散乱の、2 つの HG）。太陽の方向を、向いているとき、強く光る。
+  float cos_theta = dot(view_dir, g_sun_dir);
+  float phase = lerp(HenyeyGreenstein(cos_theta, -0.3), HenyeyGreenstein(cos_theta, 0.8), 0.7);
+```
+
+<strong>2 つの、HG</strong>（<strong>前方の、強い山</strong>と、後方の、弱い山）を、混ぜた位相関数です（[Phase Functions](../scattering/phase-function.md)）。太陽の方を、向くと、前方散乱で、縁が、強く、光ります。
+
+```hlsl
+  // ③ 粉っぽさ（Powder）: 薄い所（密度が低い所）では、光が、まだ、散乱しきらず、暗く見える。
+  float powder = 1.0 - exp(-density * g_extinction * 2.0);
+  float beer_powder = 2.0 * beer * powder;
+```
+
+<strong>Beer の法則</strong>だけだと、<strong>雲の縁（薄い所）が、明るすぎ</strong>ます。Powder 効果（1 − exp(−2τ)）を、掛けると、縁が、暗く縁取られ、ふわふわした、雲らしさが、出ます（[Cloud Beer-Powder]の、図、参照）。太陽の方向を、向くときは、Powder の影響を、弱めます（縁が、輝くので）。
+
+```hlsl
+  // ④ 太陽の方を向くほど、Powder を弱める（縁が、輝くので）。
+  float powder_blend = lerp(beer_powder, beer, saturate(cos_theta * 0.5 + 0.5));
+  float3 sun_light = g_sun_color * powder_blend * phase;
+```
+
+<strong>太陽に、背を向ける</strong>ときは、<strong>Powder を、強く</strong>（縁が、暗く）、太陽に、向かうときは、Beer だけ（縁が、明るい）、と、補間します。
+
+```hlsl
+  // ⑤ 環境光（空の光）: 雲の、上は、空の光で、明るく、底は、地面からの、暗い反射光だけ。
+  float height_fraction = HeightFractionAt(p);
+  float3 ambient = lerp(g_ambient_bottom, g_ambient_top, saturate(height_fraction));
+  return sun_light + ambient * 0.5;
+}
+```
+
+<strong>環境光</strong>は、<strong>高さ</strong>で、変えます。雲の、上の方は、空の光で、明るく、底は、地面から、反射した、暗い光だけです。雲の底が、暗い（影っぽい）のは、雲の、厚みで、太陽の光が、届かず、環境光も、弱いためです。
+
+## 光の、方向への、レイマーチ
+
+<strong>太陽の方向</strong>へ、<strong>短く、レイマーチ</strong>して、密度を、積分します。この計算が、レイマーチの、各サンプルで、必要なので、ステップ数は、少なく（6〜8）します。
+
+```hlsl
+// 太陽方向への、密度の、積分（光学的な厚さ）。少ないステップ数で、近似する。
+float LightMarchDensity(float3 p, float3 sun_dir) {
+  const int kLightSteps = 6;
+  float step_len = g_light_march_length / kLightSteps;
+  float sum = 0.0;
+  for (int i = 1; i <= kLightSteps; ++i) {
+    // ステップを、だんだん、大きく（遠い所は、粗くてよい）。ランダムな、円錐状のずれを、足す（ノイズ）。
+    float t = step_len * i * i * 0.3;
+    float3 sample_pos = p + sun_dir * t + RandomConeOffset(i) * t * 0.1;
+    sum += CloudDensityCheap(sample_pos) * step_len;                 // 安い密度（細部のノイズは、読まない）
+  }
+  return sum;
+}
+```
+
+<strong>光の方向の、積分</strong>は、<strong>細部が、不要</strong>（ぼんやり、減衰するだけ）なので、安い密度（基本の形だけ）で、十分です。ステップを、だんだん大きくし、円錐状に、少しずらす（ノイズ）と、少ないステップでも、なめらかに、なります。
+
+## 多重散乱の、近似
+
+<strong>1 回散乱</strong>（太陽 → 点 → 目）だけでは、<strong>雲の、内部が、暗すぎ</strong>ます。光は、雲の中で、何度も、散乱して、奥まで、届くためです。オクターブによる、近似（[Multiple Scattering](../scattering/multiple-scattering.md)）で、足します。
+
+```hlsl
+// 多重散乱: 散乱量 a を、半分ずつ、減衰 b を、弱く、位相の偏り c を、弱く（等方に、近づける）、4 回、足す。
+float3 multi = 0.0;
+float a = 1.0, b = 1.0, c = 1.0;
+for (int octave = 0; octave < 4; ++octave) {
+  float ph = DualLobePhase(cos_theta, 0.8 * c, -0.3 * c, 0.7);
+  multi += a * ph * exp(-light_optical_depth * g_extinction * b);
+  a *= 0.5; b *= 0.25; c *= 0.5;
+}
+float3 sun_light = g_sun_color * multi;
+```
+
+<strong>オクターブが、進むほど</strong>、<strong>散乱量が、半分</strong>に、減衰が、弱まり（深くまで、届く）、位相関数が、等方に近づく（散らばる）。これで、厚い雲の、内部でも、光が、ほどよく、届き、ふわっとした、明るさが、出ます。
+
+## 長所と、調整
+
+| 要素 | 効果 | 調整 |
+| --- | --- | --- |
+| 前方散乱（`g_forward`） | 太陽側の、縁が、光る | 0.6〜0.9。大きいほど、太陽の近くだけ、強く光る |
+| 後方散乱（`g_back`） | 太陽の反対側の、うっすらとした、明るさ | −0.2〜−0.5 |
+| Powder | 縁の、暗い縁取り | 強すぎると、雲が、ごつごつする |
+| 消散係数 | 雲の、濃さ（暗さ） | 大きいと、暗く、濃い |
+| 環境光 | 底の、明るさ | 底が、黒すぎないよう、少し、足す |
+
 ## よくあるミス
 
 ??? failure "雲が、のっぺり白い・立体感がない"
-    **自己影（太陽方向のマーチ）**を**入れる**。
+    <strong>自己影（太陽方向のマーチ）</strong>を<strong>入れる</strong>。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **自己影・前方散乱・多重散乱の近似**
+    - [x] 自己影・前方散乱・多重散乱の近似
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Schneider, Vos, "The Real-Time Volumetric Cloudscapes of Horizon: Zero Dawn", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Wrenninge, "Art-Directable Multiple Volumetric Scattering", SIGGRAPH 2015 Talks
+- Henyey, Greenstein, "Diffuse Radiation in the Galaxy", Astrophysical Journal, Vol. 93, 1941
+- Beer, "Bestimmung der Absorption des rothen Lichts in farbigen Flüssigkeiten", Annalen der Physik, 1852
+- Hillaire, "Physically Based Sky, Atmosphere and Cloud Rendering in Frostbite", SIGGRAPH 2016, Physically Based Shading in Theory and Practice
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（参加媒質、雲、霧の章）
 
 ## 関連ページ
 

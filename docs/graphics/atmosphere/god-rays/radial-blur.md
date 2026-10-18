@@ -6,13 +6,13 @@ tags:
 
 # Screen-Space Radial Blur
 
-**太陽の画面上の位置から外側へ、画像を放射状にぼかして、光の筋を作る**のが**最も手軽**な方法です。**太陽が画面内にある時だけ使え、遮蔽物の形が筋に反映されます**。このページでは、**放射ぼかし**を説明します。
+<strong>太陽の画面上の位置から外側へ、画像を放射状にぼかして、光の筋を作る</strong>のが<strong>最も手軽</strong>な方法です。太陽が画面内にある時だけ使え、遮蔽物の形が筋に反映されます。このページでは、放射ぼかしを説明します。
 
 !!! tip "ポイント"
-    - **明るい部分を抽出し、太陽の位置から放射状にぼかす**。
-    - **遮蔽物の影が、筋として現れる**。
-    - **太陽が画面外にあると、使えない**。
-    - **サンプル数が少ないと、縞が出る**。
+    - 明るい部分を抽出し、太陽の位置から放射状にぼかす。
+    - 遮蔽物の影が、筋として現れる。
+    - 太陽が画面外にあると、使えない。
+    - サンプル数が少ないと、縞が出る。
 
 <!-- fig:radial-streak:begin -->
 
@@ -348,7 +348,7 @@ tags:
 <!-- fig:radial-streak:end -->
 
 ## 画面空間の放射ぼかし
-**画面上の太陽の位置を中心に、各ピクセルから太陽へ向かう直線上の明るさを、何度かサンプルして足し合わせる**方法です。**簡単・安価で古くから使われています**。
+<strong>画面上の太陽の位置を中心に、各ピクセルから太陽へ向かう直線上の明るさを、何度かサンプルして足し合わせる</strong>方法です。<strong>簡単・安価で古くから使われています</strong>。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="放射ぼかし">
 <text x="20" y="24" class="fig-title">放射ぼかし：各ピクセルから太陽に向かって、明るさを平均する</text>
@@ -386,11 +386,11 @@ float3 GodRays(float2 uv, float2 sun_uv) {
 
 | 点 | 説明 |
 | --- | --- |
-| **`occlusion_texture`** | **空の明るい部分だけが残り、物は黒**の画像（深度から作る） |
-| **`decay`** | **0.95〜0.99**。**光源から遠いほど弱くする** |
-| **`density`** | **ぼかしの長さ**（0.5〜1.0） |
-| **サンプル数** | **32〜100**。**半解像度で描く**と**軽い** |
-| **欠点** | **太陽が画面の外だと使えない**。**太陽の向きを見ていないと、筋が消える**。**空気の濃さ・影の奥行きは表現できない** |
+| `occlusion_texture` | 空の明るい部分だけが残り、物は黒の画像（深度から作る） |
+| `decay` | 0.95〜0.99。光源から遠いほど弱くする |
+| `density` | ぼかしの長さ（0.5〜1.0） |
+| サンプル数 | 32〜100。半解像度で描くと軽い |
+| 欠点 | 太陽が画面の外だと使えない。太陽の向きを見ていないと、筋が消える。空気の濃さ・影の奥行きは表現できない |
 
 ### 原理
 
@@ -402,24 +402,123 @@ float3 GodRays(float2 uv, float2 sun_uv) {
 
 この方式は、あくまで「画面の絵」を加工しているだけで、3D の空間を解いていません。そのため、太陽が画面外にあると、そもそも太陽の画面位置が定義できず、ぼかしの中心がなくなります。また、手前の物体と奥の物体は区別できず、すべてが同じ平面のシルエットとして扱われます。「霧の奥行き」も存在しません。これらの制約は、後の節で説明するシャドウ マップによる方式で解決されます。
 
-**太陽が画面外のときにも自然にするため**、**太陽が画面に近いほど強く、離れると弱くする**フェードを**付けます**。
+<strong>太陽が画面外のときにも自然にするため</strong>、<strong>太陽が画面に近いほど強く、離れると弱くする</strong>フェードを付けます。
+
+## 画面空間の、放射状ブラー
+
+<strong>放射状ブラー</strong>（Mitchell、2007）は、<strong>画面に、描かれた、画像</strong>を、太陽の画面上の位置から、放射状に、ぼかして（引き伸ばして）、光の筋を、作ります。3D の、シーンを、再計算せず、画面の、画像だけで、行うので、非常に、軽いです。
+
+```text
+ 画面:  太陽（画面上の点）●
+         ╲   ╲   ╲
+          ╲   ╲   ╲        各画素から、太陽に向かって、何回か読んで、明るさを足す
+           ・   ・   ・
+```
+
+## 手順
+
+| 手順 | 内容 |
+| --- | --- |
+| ① 光の、マスクを作る | 太陽の、円盤と、明るい空を、白、遮蔽物（木、建物）を、黒にした画像（低解像度） |
+| ② 放射状に、ぼかす | 各画素から、太陽の画面位置へ向かって、数十回、読んで、足す。明るい部分が、太陽から、放射状に、伸びる |
+| ③ 合成 | ぼかした結果を、加算ブレンドで、シーンに、足す |
+
+## ① 光の、マスク
+
+<strong>シーンを、白黒に</strong>します。<strong>空（太陽）は、明るく</strong>、物体は、黒にします。物体の、隙間から、空が、見える所だけが、明るく残ります。
+
+```hlsl
+// 光のマスク: 深度が最大（空）の画素は、シーンの色を、そのまま。物体の画素は、黒。
+float3 LightMaskPS(float2 uv : TEXCOORD0) : SV_Target {
+  float depth = g_scene_depth.Sample(g_point_clamp, uv).r;
+  float3 color = g_scene_color.Sample(g_linear_clamp, uv).rgb;
+  float is_sky = step(0.9999, depth);                    // 深度が、ほぼ最大 = 空
+  // 太陽の円盤、明るい空だけを、取り出す。しきい値で、明るい部分に、絞ってもよい。
+  return color * is_sky;
+}
+```
+
+`step(0.9999, depth)` で、<strong>空の画素だけ</strong>を、<strong>1</strong>、物体の画素を 0 にします。空の色（太陽の、周りの明るさ）が、マスクの、明るさになります。画面の、半分または、1/4 の、解像度で、描くと、後の、ぼかしが、軽くなります。
+
+## ② 放射状に、ぼかす
+
+```hlsl
+// 太陽の画面上の位置（0〜1 の uv）から、各画素に向かって、何度か読んで、足す。
+float4 RadialBlurPS(float2 uv : TEXCOORD0) : SV_Target {
+  const int kSamples = 48;
+  float2 delta = (uv - g_sun_screen_uv) * (g_density / kSamples);   // 太陽から、この画素への、向きと、1 歩の長さ
+```
+
+`delta` は、<strong>この画素から、太陽へ向かう、1 歩</strong>です（<strong>逆向き</strong>に進むので、符号は、`uv − sun`）。`g_density` が、筋の、長さ（大きいほど、遠くまで、読む）を、決めます。
+
+```hlsl
+  float2 sample_uv = uv;
+  float illumination_decay = 1.0;                                    // 減衰（遠くを、読んだ分ほど、弱く）
+  float3 sum = 0.0;
+  for (int i = 0; i < kSamples; ++i) {
+    sample_uv -= delta;                                              // 太陽に向かって、1 歩進む
+    float3 s = g_light_mask.SampleLevel(g_linear_clamp, sample_uv, 0).rgb;
+    sum += s * illumination_decay * g_weight;
+    illumination_decay *= g_decay;                                   // 1 回ごとに、弱める（0.95〜0.99）
+  }
+  return float4(sum, 1.0);
+}
+```
+
+<strong>太陽に向かって</strong>、<strong>48 回</strong>、マスクを読み、明るさを、足し合わせます。途中に、遮蔽物（黒）が、あれば、その分、暗くなり、空が、見える方向は、明るいので、光の筋と、影が、放射状に、現れます。`g_decay`（減衰）は、遠くを読むほど、弱くする、重みです。1 に近いほど、筋が、長く伸びます（[Tuning the Look](tuning.md)）。
+
+## ③ 合成
+
+```hlsl
+// 放射状ブラーの結果を、太陽の色で着色して、シーンに加算する。
+float3 rays = g_radial_blur.Sample(g_linear_clamp, uv).rgb * g_sun_color * g_intensity;
+float3 final_color = scene_color + rays;
+```
+
+<strong>加算ブレンド</strong>で、<strong>シーンに、足す</strong>だけです。HDR で、足すと、ブルーム（[Bloom](../../postprocess/bloom/index.md)）と、組み合わさって、まぶしい筋になります。
+
+## 太陽が、画面の外にある
+
+<strong>太陽が、画面の外</strong>（背後、または、画面の端の外）にあるとき、<strong>放射状ブラー</strong>の、起点が、画面の外になり、計算が、不安定になります。
+
+| 状況 | 対策 |
+| --- | --- |
+| 太陽が、カメラの、背後 | 筋を、消す（太陽の方向と、視線の、内積が、負なら、強さ 0） |
+| 太陽が、画面の外（横） | 画面の、端の外まで、計算する（起点は、uv の範囲外でも、よい）。太陽に、近いほど、強く、離れるほど、フェード |
+| 太陽が、真上や、地平線の下 | 太陽が、地平線の下なら、筋を、消す |
+
+```hlsl
+// 太陽の方向に応じた、フェード。視線が、太陽の方を、向いているほど、強い。
+float facing = saturate(dot(g_camera_forward, g_sun_dir));
+float intensity = g_intensity * pow(facing, 3.0);
+```
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | 軽い（低解像度の、後処理。数十回の、テクスチャ読み込み） |
+| 長所 | 実装が、簡単 |
+| 短所 | 画面の中に、太陽（または、明るい空）が、映っていないと、出ない（光が、画面の外から、差し込む場合は、不正確） |
+| 短所 | 影の、正確さが、無い（画面に、映った、明るい空しか、使えない） |
+| 短所 | 視点（カメラの向き）に、依存し、視線を、動かすと、筋が、ずれる |
+| 短所 | 読み込みの、回数が、少ないと、縞が、出る |
 
 ## よくあるミス
 
 ??? failure "太陽が画面外に出ると、光の筋が消える"
-    **他の方式**に**切り替える**、または**フェード**させる。
+    <strong>他の方式</strong>に<strong>切り替える</strong>、またはフェードさせる。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **太陽から放射状にぼかす。手軽だが制約あり**
+    - [x] 太陽から放射状にぼかす。手軽だが制約あり
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Mitchell, "Volumetric Light Scattering as a Post-Process", GPU Gems 3, Chapter 13, 2007（放射状ブラーによる、光の筋）
+- Mitchell, "Light Shafts: Rendering Shadows in Participating Media", Game Developers Conference 2004
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（参加媒質、雲、霧の章）
 
 ## 関連ページ
 

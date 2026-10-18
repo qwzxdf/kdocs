@@ -6,23 +6,23 @@ tags:
 
 # Volume-Based God Rays
 
-**ボリューメトリック フォグの froxel を使うと、ゴッド レイも自然に得られます**。**光の注入の段階で、シャドウを参照するだけ**で、**複数のライトにも対応**します。このページでは、**ボリュームを使った方法**を説明します。
+<strong>ボリューメトリック フォグの froxel を使うと、ゴッド レイも自然に得られます</strong>。<strong>光の注入の段階で、シャドウを参照するだけ</strong>で、複数のライトにも対応します。このページでは、ボリュームを使った方法を説明します。
 
 !!! tip "ポイント"
-    - **froxel の光の注入で、影を参照するだけ**。
-    - **複数のライトで、筋が出る**。
-    - **フォグを使うなら、追加コストがほぼ無い**。
-    - **解像度が低いので、細い筋は出にくい**。
+    - froxel の光の注入で、影を参照するだけ。
+    - 複数のライトで、筋が出る。
+    - フォグを使うなら、追加コストがほぼ無い。
+    - 解像度が低いので、細い筋は出にくい。
 
 ## ボリュームを使う方法
-**ボリューメトリック フォグ**（[Volumetric Fog](../volumetric-fog/index.md)）を**使っていれば、光の筋は自動で出ます**。**froxel に太陽光とシャドウを注入**しているため、**影による筋が自然に現れます**。**別途レイマーチを用意する必要はありません**。
+<strong>ボリューメトリック フォグ</strong>（[Volumetric Fog](../volumetric-fog/index.md)）を<strong>使っていれば、光の筋は自動で出ます</strong>。froxel に太陽光とシャドウを注入しているため、影による筋が自然に現れます。別途レイマーチを用意する必要はありません。
 
 | 状況 | おすすめ |
 | --- | --- |
-| **ボリューメトリック フォグを使っている** | <strong>それを使う（自動）</strong> |
-| **光の筋だけ欲しい** | **シャドウ マップのレイマーチ** |
-| **とにかく軽く** | **放射ぼかし** |
-| **固定の窓の光** | **メッシュの光の柱** |
+| ボリューメトリック フォグを使っている | <strong>それを使う（自動）</strong> |
+| 光の筋だけ欲しい | シャドウ マップのレイマーチ |
+| とにかく軽く | 放射ぼかし |
+| 固定の窓の光 | メッシュの光の柱 |
 
 ### 仕組み
 
@@ -34,22 +34,115 @@ tags:
 
 froxel の解像度は、画面の 160×90 程度の粗さのため、細い筋は出にくくなります。また、奥行き方向の分割（64 スライス前後）が粗いと、筋が距離に沿って階段状になります。この問題には、時間蓄積（フレームごとに格子をずらして平均する）で見かけの解像度を上げる、シャドウ マップの参照を PCF のようにぼかす、などの対策があります。それでも足りない細かい筋が必要な場合は、その場所だけシャドウ マップのレイマーチを追加する構成もあります。
 
+## ボリュームで、ゴッド レイを、作る
+
+<strong>ボリューム ライティング</strong>（<strong>froxel</strong>、[Froxels](../volumetric-fog/froxel.md)）は、カメラの、前方の、空間を、3D グリッドに、分割し、各セルに、光の、散乱を、事前に、計算しておきます。画素ごとの、レイマーチ（[Shadow Map Raymarching](shadowmap-march.md)）を、セルごとの、計算に、置き換えるので、効率的です。ゴッド レイは、このボリュームの、副産物として、自動で、現れます。
+
+## 考え方
+
+<strong>カメラから見て、奥行き方向に、分割された、セル</strong>（froxel、「フラスタム」+「ボクセル」）の、各セルで、<strong>光の、散乱</strong>（太陽の、光が、そのセルで、カメラの方へ、散る量）を、計算して、3D テクスチャに、格納します。画面の、各画素は、視線に沿って、セルを、順に、足して、散乱光を、合計します。
+
+```text
+3D テクスチャ（froxel）: 横 × 縦 × 奥行き（160 × 90 × 64 など）
+
+カメラ ●─────→ 奥行き方向に、セルを、足していく（積分）
+        [セル0][セル1][セル2]...[セル63]
+```
+
+## ボリュームを、作る：光の、注入
+
+<strong>各セル</strong>に、<strong>太陽の光</strong>を、注入します。セルの、位置が、影の中かを、シャドウ マップで、調べ、光が、届くセルだけ、散乱光を、格納します。
+
+```hlsl
+// 計算シェーダー: 各セルに、太陽の光の、散乱を、書き込む。
+[numthreads(8, 8, 4)]
+void InjectLightCS(uint3 id : SV_DispatchThreadID) {
+  float3 cell_world = FroxelToWorld(id);                         // セルの中心の、ワールド位置
+  float density = SampleFogDensity(cell_world);                   // そのセルの、霧の密度
+
+  // 太陽の光が、届いているか（シャドウ マップ）。1 = 届く、0 = 影。
+  float shadow = SampleShadowMap(cell_world);
+
+  // 視線の方向（カメラから、セルへ）と、太陽の、間の位相関数。
+  float3 view_dir = normalize(cell_world - g_camera_position);
+  float phase = HenyeyGreenstein(dot(view_dir, g_sun_dir), g_phase_g);
+
+  // 散乱光 = 密度 × 光が届く割合 × 位相関数 × 太陽の光
+  float3 scattering = g_sun_color * shadow * phase * density;
+  g_froxel_scatter[id] = float4(scattering, density);              // 散乱光と、消散（密度）を、格納
+}
+```
+
+<strong>シャドウ マップの、読み込み</strong>は、<strong>セルごとに、1 回</strong>です。画素ごと、ステップごとの、レイマーチ（[Shadow Map Raymarching](shadowmap-march.md)）より、はるかに、少ない回数で、済みます（160×90×64 = 約 92 万セル）。
+
+## ボリュームを、積分する
+
+<strong>奥行き方向</strong>に、<strong>手前から奥へ</strong>、散乱光を、累積しながら、透過率を、更新します。
+
+```hlsl
+// 計算シェーダー: 各 (x, y) の列について、奥行き方向に、散乱光を、累積する。
+[numthreads(8, 8, 1)]
+void IntegrateCS(uint3 id : SV_DispatchThreadID) {
+  float3 accumulated = 0.0;
+  float transmittance = 1.0;
+  for (uint z = 0; z < kFroxelDepth; ++z) {
+    float4 cell = g_froxel_scatter[uint3(id.xy, z)];              // xyz = 散乱光、w = 密度（消散）
+    float step_len = SliceThickness(z);                           // このスライスの、厚み（メートル）
+    float cell_transmittance = exp(-cell.w * step_len);           // このセルを、通る、透過率
+
+    // 区間内の積分（解析的）: 散乱光 × (1 − 透過率) / 消散
+    float3 integral = cell.xyz * (1.0 - cell_transmittance) / max(cell.w, 1e-5);
+    accumulated += transmittance * integral;                       // ここまでの、透過率を、掛けて、足す
+    transmittance *= cell_transmittance;
+
+    g_froxel_integrated[uint3(id.xy, z)] = float4(accumulated, transmittance);   // 「カメラから、スライス z まで」の結果
+  }
+}
+```
+
+<strong>奥行き方向の、累積</strong>を、<strong>各スライス</strong>に、保存しておくと、画面の画素は、自分の、深度に、対応するスライスを、1 回読むだけで、カメラから、その物体までの、散乱光と、透過率を、得られます。
+
+## 画面に、適用する
+
+```hlsl
+// 物体の色に、ボリューム ライティングを、適用する。
+float3 ApplyVolumetric(float3 scene_color, float2 screen_uv, float distance_m) {
+  float slice = DistanceToSlice(distance_m);
+  float4 v = g_froxel_integrated.SampleLevel(g_linear_clamp, float3(screen_uv, slice), 0);
+  return scene_color * v.a + v.rgb;                                // 物の色 × 透過率 + 散乱光
+}
+```
+
+<strong>物体の色に、透過率を掛け</strong>、<strong>散乱光を足す</strong>。霧の式と、同じ形ですが、散乱光に、影と、光の筋が、含まれている点が、違います。
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | 画素ごとの、レイマーチより、効率的（セルごとに、1 回） |
+| 長所 | 霧の密度（場所で、変わる）、局所光（ランプ、ライトの、散乱）も、同じ仕組みで、扱える（[Light Injection](../volumetric-fog/injection.md)） |
+| 長所 | 半透明の物にも、同じ、ボリュームを、引くだけで、適用できる |
+| 長所 | 時間方向の、フィルタ（TAA）で、品質を、上げられる（[Temporal Accumulation](../volumetric-fog/temporal.md)） |
+| 短所 | 解像度が、低い（画面の 1/8 程度）。細かい、光の筋は、ぼやける |
+| 短所 | 奥行き方向の、分割による、縞（[Quality and Performance](../volumetric-fog/quality.md)） |
+| 短所 | メモリ（3D テクスチャ数枚） |
+
 ## よくあるミス
 
 ??? failure "細い光の筋が、ぼやける"
-    **froxel の解像度を上げる**。
+    <strong>froxel の解像度を上げる</strong>。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **フォグのボリュームに、影を入れるだけ**
+    - [x] フォグのボリュームに、影を入れるだけ
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Wronski, "Volumetric Fog: Unified Compute Shader Based Solution to Atmospheric Scattering", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Hillaire, "Physically Based and Unified Volumetric Rendering in Frostbite", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Hillaire, "Physically Based Sky, Atmosphere and Cloud Rendering in Frostbite", SIGGRAPH 2016, Physically Based Shading in Theory and Practice
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（参加媒質、雲、霧の章）
 
 ## 関連ページ
 

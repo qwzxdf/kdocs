@@ -6,13 +6,13 @@ tags:
 
 # Cloud Density Model
 
-**雲の形は、ノイズで作ります**。**低周波のノイズで大きな形、高周波のノイズで細部**を**作り、重ねます**。このページでは、**雲の密度のモデル**を説明します。
+<strong>雲の形は、ノイズで作ります</strong>。<strong>低周波のノイズで大きな形、高周波のノイズで細部</strong>を作り、重ねます。このページでは、雲の密度のモデルを説明します。
 
 !!! tip "ポイント"
-    - **基本形：Perlin-Worley ノイズ**。
-    - **細部：高周波のノイズで、縁を削る**。
-    - **カバレッジで、雲の量を制御**。
-    - **3D テクスチャに事前計算して、実行時に読む**。
+    - 基本形：Perlin-Worley ノイズ。
+    - 細部：高周波のノイズで、縁を削る。
+    - カバレッジで、雲の量を制御。
+    - 3D テクスチャに事前計算して、実行時に読む。
 
 <!-- fig:cloud-coverage:begin -->
 
@@ -1588,15 +1588,15 @@ tags:
 <!-- fig:cloud-coverage:end -->
 
 ## 密度のモデル
-**雲の密度は複数の要素を掛け合わせて作ります**。
+<strong>雲の密度は複数の要素を掛け合わせて作ります</strong>。
 
 | 要素 | 役割 |
 | --- | --- |
-| <strong>天気マップ（2D）</strong> | **どこに雲があるか（被覆率）・どんな種類か** |
-| <strong>高さの形（ゲイン）</strong> | **層の下と上で薄くなる**（**雲の底は平ら、頂は丸い**） |
-| **基本形の 3D ノイズ** | **雲全体の大まかな塊**（低周波。Perlin–Worley） |
-| **ディテールの 3D ノイズ** | **塊の縁の細かい凹凸**（高周波。Worley） |
-| **風の流れ** | **ノイズの座標を時間で動かす** |
+| <strong>天気マップ（2D）</strong> | どこに雲があるか（被覆率）・どんな種類か |
+| <strong>高さの形（ゲイン）</strong> | 層の下と上で薄くなる（雲の底は平ら、頂は丸い） |
+| 基本形の 3D ノイズ | 雲全体の大まかな塊（低周波。Perlin–Worley） |
+| ディテールの 3D ノイズ | 塊の縁の細かい凹凸（高周波。Worley） |
+| 風の流れ | ノイズの座標を時間で動かす |
 
 ```hlsl
 float CloudDensity(float3 position, float height_fraction) {
@@ -1628,31 +1628,163 @@ float Remap(float v, float a, float b, float c, float d) {
 
 | 点 | 説明 |
 | --- | --- |
-| **`Remap`** | **値の範囲を変換する道具**。**閾値で塊を切り出すのに便利** |
-| **`height_fraction`** | **層の下端を 0、上端を 1 とした位置** |
-| **`height_gradient`** | **下と上で薄くなる山型**（底が柔らかく、頂が丸く） |
-| <strong>被覆率（coverage）</strong> | **大きいほど雲が多い** |
-| **ディテールは密度がある所だけ** | **`if (density > 0)` で計算を省く** |
-| **3D ノイズは事前生成** | **128³ と 32³ のテクスチャ**（Perlin と Worley を重ねる） |
+| `Remap` | 値の範囲を変換する道具。閾値で塊を切り出すのに便利 |
+| `height_fraction` | 層の下端を 0、上端を 1 とした位置 |
+| `height_gradient` | 下と上で薄くなる山型（底が柔らかく、頂が丸く） |
+| <strong>被覆率（coverage）</strong> | 大きいほど雲が多い |
+| ディテールは密度がある所だけ | `if (density > 0)` で計算を省く |
+| 3D ノイズは事前生成 | 128³ と 32³ のテクスチャ（Perlin と Worley を重ねる） |
 
-**ノイズ テクスチャ**は**事前に生成**します（Perlin ノイズに Worley ノイズを重ね、4 チャンネルに異なる周波数を入れる）。
+<strong>ノイズ テクスチャ</strong>は<strong>事前に生成</strong>します（Perlin ノイズに Worley ノイズを重ね、4 チャンネルに異なる周波数を入れる）。
+
+## 雲の、密度を、どう作るか
+
+<strong>ボリューム レンダリング</strong>で、雲を描くには、<strong>空間の、各点での、雲の密度</strong>（どれだけ、濃いか）が、必要です。3D の、密度の、データを、そのまま、持つ（ボクセル）と、巨大になるので、ノイズ テクスチャを、組み合わせて、実行時に、密度を、作ります（Schneider と Vos、2015）。
+
+| 材料 | 内容 |
+| --- | --- |
+| 天気マップ（2D） | どこに、雲があるか（カバレッジ）、どんな種類か。大きなスケールの、配置 |
+| 基本の形（3D ノイズ、低周波） | 雲の、大きな、もこもこの形 |
+| 細部（3D ノイズ、高周波） | 雲の縁の、細かい、ちぎれ・渦 |
+| 高さの、グラデーション | 雲の種類ごとの、高さ方向の、密度の、山 |
+
+## 密度を、組み立てる、手順
+
+<strong>5 つの手順</strong>で、密度が、決まります。<strong>1 つずつ、コード</strong>を、追います。
+
+### ① 天気マップから、カバレッジと、種類を読む
+
+```hlsl
+// 天気マップ: R = 雲の量（カバレッジ）、G = 雨の確率、B = 雲の種類（0 = 層雲、0.5 = 積雲、1 = 積乱雲）。
+float3 weather = g_weather_map.SampleLevel(g_linear_wrap, position.xz * g_weather_scale, 0).rgb;
+float coverage = weather.r;
+float cloud_type = weather.b;
+```
+
+<strong>天気マップ</strong>は、<strong>空を、真上から見た、2D の画像</strong>です。どこに、雲があるか（R）、どんな種類か（B）を、画素ごとに、決めるので、アーティストが、空の、雲の配置を、描けます。位置（`position.xz`）から、UV を、作って、読みます。
+
+### ② 高さの、グラデーション
+
+```hlsl
+// 雲の層の中での、高さの割合（0 = 底、1 = 上端）。
+float height_fraction = (length(position) - g_cloud_bottom_radius) / (g_cloud_top_radius - g_cloud_bottom_radius);
+float gradient = HeightGradient(height_fraction, cloud_type);        // 種類ごとの、高さ方向の、密度の山
+```
+
+雲の、<strong>層</strong>（惑星の周りの、球殻）の中で、<strong>どの高さか</strong>を、0〜1 で、求めます。種類ごとの、グラデーション（[Cloud Layers](layers.md)）を、掛けて、底は、平ら、上端は、丸い形に、します。
+
+### ③ 基本の、形
+
+```hlsl
+// 低周波の 3D ノイズ（Perlin-Worley）: 雲の、大きなもこもこ。R = Perlin-Worley、GBA = 異なる周波数の Worley。
+float4 low = g_base_noise.SampleLevel(g_linear_wrap, position * g_base_scale + g_wind_offset, 0);
+float low_freq_fbm = low.g * 0.625 + low.b * 0.25 + low.a * 0.125;     // Worley の 3 オクターブを、足す
+float base_cloud = Remap(low.r, -(1.0 - low_freq_fbm), 1.0, 0.0, 1.0); // Perlin-Worley を、Worley の fBm で、持ち上げる
+base_cloud *= gradient;                                                 // 高さの、グラデーションを、掛ける
+```
+
+<strong>基本の形</strong>は、<strong>128³ の、3D テクスチャ</strong>から、読みます。R チャンネルは、Perlin ノイズ（なめらかな、うねり）に、Worley ノイズ（もこもこの、粒）を、混ぜたもので、GBA は、周波数の違う、Worley ノイズです。Worley の fBm で、Perlin-Worley を、持ち上げる（`Remap` の、下限を、動かす）ことで、雲の、もこもこした、輪郭が、できます。
+
+```hlsl
+// Remap: 値 v を、範囲 [l0, h0] から、範囲 [l1, h1] へ、線形に、写す（範囲の外は、そのまま、外挿）。
+float Remap(float v, float l0, float h0, float l1, float h1) {
+  return l1 + (v - l0) * (h1 - l1) / (h0 - l0);
+}
+```
+
+`Remap` は、<strong>この方式の、基本の道具</strong>です。<strong>ノイズの値の、範囲を、動かして</strong>、雲の量（カバレッジ）や、輪郭の、細かさを、調整します。
+
+### ④ カバレッジを、適用する
+
+```hlsl
+// カバレッジ（0〜1）で、雲の量を決める。カバレッジが、大きいほど、下限が、下がり、雲が、増える。
+float base_with_coverage = Remap(base_cloud, coverage, 1.0, 0.0, 1.0);
+base_with_coverage *= coverage;                                          // カバレッジが、小さいとき、密度も、薄く
+```
+
+<strong>カバレッジ</strong>以下の、ノイズの値は、<strong>0</strong>（雲なし）に、切られ、それより上が、雲になります。カバレッジが、大きいほど、切られる部分が、減って、雲が、増えます。最後に、カバレッジを掛けて、少ない雲が、薄くなるようにします。
+
+### ⑤ 細部で、縁を、削る（エロージョン）
+
+```hlsl
+// 高周波の 3D ノイズ（Worley の fBm）で、雲の縁を、削って、細かいちぎれを、作る。
+float3 high = g_detail_noise.SampleLevel(g_linear_wrap, position * g_detail_scale + g_wind_offset * 0.3, 0).rgb;
+float high_freq_fbm = high.r * 0.625 + high.g * 0.25 + high.b * 0.125;
+// 底（height_fraction が小さい）では、ノイズを、反転して、ふわっとした底に。上は、そのまま。
+float detail_modifier = lerp(high_freq_fbm, 1.0 - high_freq_fbm, saturate(height_fraction * 10.0));
+float density = Remap(base_with_coverage, detail_modifier * 0.2, 1.0, 0.0, 1.0);
+```
+
+<strong>細部のノイズ</strong>（<strong>32³</strong>）で、基本の形の、縁を、削ります。雲の、内側（密度が、高い所）は、ほとんど、削られず、縁（密度が、低い所）が、大きく、削られるので、縁だけが、ちぎれたような、細かい形に、なります。`height_fraction` で、底と上端の、削り方を、変えて、底は、ふわっと、上は、もこもこに、します。
+
+```hlsl
+return max(density, 0.0) * g_density_scale;                              // 負の値を、切り、全体の濃さの、係数を、掛ける
+```
+
+## ノイズ テクスチャの、作り方
+
+<strong>ノイズ テクスチャ</strong>は、<strong>事前に、ツールで、作って</strong>、3D テクスチャとして、読み込みます（実行時には、作りません）。
+
+| テクスチャ | 大きさ | 内容 |
+| --- | --- | --- |
+| 基本の形 | 128×128×128（`R8G8B8A8`） | R = Perlin-Worley、G/B/A = Worley（周波数 1×、2×、4×） |
+| 細部 | 32×32×32（`R8G8B8A8`） | R/G/B = Worley（周波数 2×、4×、8×） |
+
+```hlsl
+// Worley ノイズ（セル ノイズ）: 各セルに、ランダムな点を置き、最も近い点までの、距離を、返す。1 から引いて、「もこもこ」にする。
+float Worley3D(float3 p, float frequency) {
+  float3 q = p * frequency;
+  float3 cell = floor(q);
+  float3 f = frac(q);
+  float min_dist = 1.0;
+  for (int z = -1; z <= 1; ++z)
+    for (int y = -1; y <= 1; ++y)
+      for (int x = -1; x <= 1; ++x) {
+        float3 neighbor = float3(x, y, z);
+        float3 point = Hash33(fmod(cell + neighbor, frequency));       // 周期的になるように、frequency で、折り返す
+        float d = length(neighbor + point - f);
+        min_dist = min(min_dist, d);
+      }
+  return 1.0 - saturate(min_dist);                                     // 点の近くが、明るい（雲の、もこもこ）
+}
+```
+
+<strong>Worley ノイズ</strong>（Worley、1996）は、<strong>各セルに、1 つ、ランダムな点</strong>を置き、各位置から、最も近い点までの、距離で、値を決めます。1 から引くと、点の周りが、明るい、丸い塊に、なり、雲の、もこもこに、似ます。`fmod(cell + neighbor, frequency)` で、周期的に（端で、つながる）、3D テクスチャを、繰り返して、使えるようにします。
+
+## 風で、動かす
+
+<strong>ノイズの、読み込み位置</strong>を、<strong>時間とともに、ずらす</strong>と、雲が、風で、流れます。
+
+```hlsl
+float3 wind_offset = g_wind_direction * g_time * g_wind_speed;          // 風の向きに、時間とともに、ずらす
+// 基本の形は、ゆっくり、細部は、少し速く（細部が、基本の形の中を、流れる、ように見える）。
+float4 low = g_base_noise.SampleLevel(g_linear_wrap, position * g_base_scale + wind_offset, 0);
+float3 high = g_detail_noise.SampleLevel(g_linear_wrap, position * g_detail_scale + wind_offset * 1.5, 0).rgb;
+```
+
+<strong>基本の形と、細部の、動く速さを、少し、変える</strong>と、<strong>雲が、変形しながら、流れる</strong>ように、見えます（ただ、並行移動する、だけだと、平板）。
+
+## 密度の、使い方
+
+ここで、求めた、<strong>密度</strong>は、<strong>レイマーチの、各サンプル</strong>で、散乱・吸収の、計算に、使います（[Cloud Raymarching](raymarch.md)）。密度が、高い所ほど、光を、よく散らし、よく、遮ります。
 
 ## よくあるミス
 
 ??? failure "雲の縁が、なめらかすぎる"
-    **高周波のノイズ**で**縁を削る**。
+    <strong>高周波のノイズ</strong>で<strong>縁を削る</strong>。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **低周波で形、高周波で細部**
+    - [x] 低周波で形、高周波で細部
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Schneider, Vos, "The Real-Time Volumetric Cloudscapes of Horizon: Zero Dawn", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Schneider, "Nubis: Authoring Real-Time Volumetric Cloudscapes with the Decima Engine", SIGGRAPH 2017, Advances in Real-Time Rendering in Games
+- Worley, "A Cellular Texture Basis Function", SIGGRAPH 1996（Worley ノイズ。雲のもこもこに使う）
+- Perlin, "An Image Synthesizer", SIGGRAPH 1985
+- Hillaire, "Physically Based Sky, Atmosphere and Cloud Rendering in Frostbite", SIGGRAPH 2016, Physically Based Shading in Theory and Practice
 
 ## 関連ページ
 

@@ -6,14 +6,14 @@ tags:
 
 # Clouds
 
-**雲は、空の表情を決める大事な要素**で、**本格的には、3D のノイズで密度を持ち、レイマーチで描きます**。**重いので、時間蓄積などの高速化が必須**です。このセクションでは、**描き方の段階・雲の層・密度のモデル・レイマーチ・光の計算・影・高速化・簡易な代替**を、**1 つずつ別のページ**で説明します。
+<strong>雲は、空の表情を決める大事な要素</strong>で、<strong>本格的には、3D のノイズで密度を持ち、レイマーチで描きます</strong>。重いので、時間蓄積などの高速化が必須です。このセクションでは、描き方の段階・雲の層・密度のモデル・レイマーチ・光の計算・影・高速化・簡易な代替を、1 つずつ別のページで説明します。
 
 ## 雲の描き方の段階
 | 方式 | 内容 | 特徴 |
 | --- | --- | --- |
-| **スカイボックスの絵** | **雲の絵を空に貼る** | **最も安い。動かない・光が変わらない** |
-| <strong>板ポリ（ビルボード）</strong> | **雲の絵を貼った板を空に多数置く** | **動かせる。近づくと板だと分かる** |
-| <strong>レイマーチ（ボリューム）</strong> | **雲の体積を視線に沿って積分** | **リアル。重い** |
+| スカイボックスの絵 | 雲の絵を空に貼る | 最も安い。動かない・光が変わらない |
+| <strong>板ポリ（ビルボード）</strong> | 雲の絵を貼った板を空に多数置く | 動かせる。近づくと板だと分かる |
+| <strong>レイマーチ（ボリューム）</strong> | 雲の体積を視線に沿って積分 | リアル。重い |
 
 ## 現代のボリューメトリック クラウドの流れ
 
@@ -38,14 +38,15 @@ tags:
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **雲は、3D の密度をレイマーチで描く**
+    - [x] 雲は、3D の密度をレイマーチで描く
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Schneider, Vos, "The Real-Time Volumetric Cloudscapes of Horizon: Zero Dawn", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Schneider, "Nubis: Authoring Real-Time Volumetric Cloudscapes with the Decima Engine", SIGGRAPH 2017, Advances in Real-Time Rendering in Games
+- Hillaire, "Physically Based Sky, Atmosphere and Cloud Rendering in Frostbite", SIGGRAPH 2016, Physically Based Shading in Theory and Practice
+- Wrenninge, "Art-Directable Multiple Volumetric Scattering", SIGGRAPH 2015 Talks
+- Worley, "A Cellular Texture Basis Function", SIGGRAPH 1996（Worley ノイズ。雲のもこもこに使う）
 
 ## 関連ページ
 

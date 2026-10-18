@@ -6,22 +6,22 @@ tags:
 
 # Quality and Performance
 
-**ボリューメトリック フォグは、解像度とスライス数で、品質とコストが大きく変わります**。このページでは、**品質と速度の目安**を説明します。
+<strong>ボリューメトリック フォグは、解像度とスライス数で、品質とコストが大きく変わります</strong>。このページでは、<strong>品質と速度の目安</strong>を説明します。
 
 !!! tip "ポイント"
-    - **解像度：160×90 が標準**（1080p の場合）。
-    - **スライス数：64**が**標準**。
-    - **ライトの数が多いと、重い**。
-    - **品質設定で、解像度とスライス数を切り替える**。
+    - 解像度：160×90 が標準（1080p の場合）。
+    - スライス数：64が標準。
+    - ライトの数が多いと、重い。
+    - 品質設定で、解像度とスライス数を切り替える。
 
 ## 品質と速度
 | 項目 | 内容 |
 | --- | --- |
-| **解像度** | **160×90×64 で十分**。**重ければ 80×45×32** |
-| **コスト** | **0.3〜1 ms 程度** |
-| **局所ライトの数** | **多いほど重い**。**影付きのライトは数本まで** |
-| **遠距離** | **範囲外は距離フォグ（[Aerial Perspective and Fog](../aerial-fog/index.md)）に任せる** |
-| **雲・大気との組み合わせ** | **近くはボリューメトリック フォグ、遠くは空気遠近法 LUT** |
+| 解像度 | 160×90×64 で十分。重ければ 80×45×32 |
+| コスト | 0.3〜1 ms 程度 |
+| 局所ライトの数 | 多いほど重い。影付きのライトは数本まで |
+| 遠距離 | 範囲外は距離フォグ（[Aerial Perspective and Fog](../aerial-fog/index.md)）に任せる |
+| 雲・大気との組み合わせ | 近くはボリューメトリック フォグ、遠くは空気遠近法 LUT |
 
 ### どこでコストが決まるか
 
@@ -89,22 +89,99 @@ froxel は、カメラの前方のごく近い範囲だけを覆うのが現実�
 
 <!-- fig:froxel-depth-split:end -->
 
+## 品質を、決める、要素
+
+ボリューム フォグの、<strong>見た目</strong>と、<strong>コスト</strong>は、いくつかの、設定で、決まります。
+
+| 要素 | 内容 | 大きくすると |
+| --- | --- | --- |
+| froxel の、解像度（x、y） | 画面の、横・縦の、分割数 | 細かい光の筋。重い |
+| 奥行きの、分割数（z） | 奥行きの、スライス数 | 縞が、減る。重い |
+| 最大の距離 | froxel が、覆う範囲 | 遠くまで、ボリュームの霧。スライスが、粗くなる |
+| ライトの数 | 注入する、ライトの、数 | 光の玉が、増える。重い |
+| 影の、品質 | 注入での、シャドウ マップの、読み方 | 光の筋が、きれい |
+
+## よくある、見た目の、問題と、対策
+
+### ① 縞（バンディング）
+
+<strong>奥行き方向の、スライス</strong>に、沿って、<strong>縞模様</strong>が、見えます。スライスの境目で、値が、急に、変わるためです。
+
+| 原因 | 対策 |
+| --- | --- |
+| スライスが、粗い | スライス数を、増やす。近くを、細かく（指数的な、割り当て。[Froxels](froxel.md)） |
+| トライリニア補間でも、滑らかさが、足りない | トリキュービック補間（高次の補間）で、読む。コストが、増える |
+| ジッターなし | ジッター + 時間方向の平均（[Temporal Accumulation](temporal.md)）で、縞を、細かいノイズに、変えて、平均 |
+
+### ② 光の筋が、ぼやける
+
+<strong>低解像度</strong>の、froxel では、<strong>細い、光の筋</strong>（窓の、格子）が、ぼやけ、消えます。
+
+| 対策 | 内容 |
+| --- | --- |
+| 解像度を、上げる | 160×90 → 240×135 など。メモリ・コストが、増える |
+| 重要な、ライトだけ、別の、方法（放射状ブラー、メッシュ）で、補う | [Screen-Space Radial Blur](../god-rays/radial-blur.md)、[Light Shaft Meshes](../god-rays/mesh-shafts.md) |
+| ぼやけを、許容 | 霧は、ゆるやかな、効果。ある程度の、ぼやけは、自然 |
+
+### ③ 光漏れ（ライトが、壁を、越える）
+
+<strong>低解像度の、froxel</strong>では、<strong>壁の、向こう側の、セル</strong>も、壁の、こちら側と、同じセルに、混ざり、壁の向こうの、光が、漏れて見えます。
+
+| 対策 | 内容 |
+| --- | --- |
+| 解像度を、上げる | セルを、小さくする |
+| セルの、影を、複数サンプル | セルの、中の、複数の位置で、シャドウ マップを、引き、平均 |
+| ジッター + 履歴 | 複数フレームで、平均すると、漏れが、目立ちにくい |
+
+### ④ 遠景で、解像度が、粗い
+
+<strong>奥行きが、遠い</strong>スライスは、<strong>厚く</strong>、1 つの、セルが、非常に、広い範囲を、代表します。遠くの、霧の、細部（光の筋、局所的な、霧）が、失われます。
+
+| 対策 | 内容 |
+| --- | --- |
+| 最大距離を、短く（64 m〜128 m） | 近くだけ、細かく |
+| 遠景は、別の方法（空気遠近法） | [Physically Based Aerial Perspective](../aerial-fog/physical.md)、[Height Fog](../aerial-fog/height-fog.md) |
+
+## コストの、内訳（目安、1080p）
+
+| 処理 | コスト |
+| --- | --- |
+| 密度（ノイズ読み込み、ボリューム） | 0.1〜0.2 ms |
+| ライト注入（太陽 + 数個の、ライト、影の読み込み） | 0.3〜0.8 ms（ライトの数、影の有無で、変わる） |
+| 積分（奥行き方向の、ループ） | 0.05〜0.1 ms |
+| 時間方向の、平均 | 0.05〜0.1 ms |
+| 適用（全画素で、1 回の、3D テクスチャ読み込み） | 0.1〜0.2 ms |
+| 合計 | 0.6〜1.4 ms |
+
+<strong>ライト注入が、最も、重い</strong>ことが、多いです。<strong>影つきライトの数を、絞る</strong>（[Shadows for Many Lights](../../shadows/local-lights/many-lights.md)）、重要な、ライトだけ、ボリューム フォグに、注入する、といった、工夫が、効きます。
+
+## 品質設定の、プリセット
+
+| 設定 | froxel | 最大距離 | ライト | 時間方向 |
+| --- | --- | --- | --- | --- |
+| 低 | 80×45×32 | 64 m | 太陽のみ | あり |
+| 中 | 160×90×64 | 128 m | 太陽 + 影つき 2 | あり |
+| 高 | 240×135×96 | 256 m | 太陽 + 影つき 4 + 影なし 多数 | あり |
+| 最高 | 320×180×128 | 512 m | すべて | あり |
+
+<strong>ユーザー設定</strong>で、<strong>切り替えられる</strong>ように、しておくと、幅広い環境で、動かせます。
+
 ## よくあるミス
 
 ??? failure "フォグの計算が重く、フレーム時間が伸びる"
-    **解像度・スライス数を下げる**。
+    <strong>解像度・スライス数を下げる</strong>。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] **解像度とスライス数で、調整**
+    - [x] 解像度とスライス数で、調整
 
 ## 参考
 
-- Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
-- Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
-- Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
-- Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
+- Wronski, "Volumetric Fog: Unified Compute Shader Based Solution to Atmospheric Scattering", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Hillaire, "Physically Based and Unified Volumetric Rendering in Frostbite", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Karis, "High Quality Temporal Supersampling", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（参加媒質、雲、霧の章）
 
 ## 関連ページ
 
