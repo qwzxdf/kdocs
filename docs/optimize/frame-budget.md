@@ -171,6 +171,32 @@ void UpdateAi(std::span<Enemy> enemies, int frame_index) {
 | **動的解像度** | 重いとき、描画の解像度を下げて、フレームを守る |
 | **負荷の監視** | フレーム時間が予算を超えたら、エフェクトを減らす |
 
+<!-- fig:frame-budget-bar:begin -->
+
+<svg class="fig illust motion" data-fig="frame-budget-bar" viewBox="0 0 780 360" role="img"><rect x="0" y="0" width="780" height="360" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-frame-budget-bar" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">60fps は 1 フレーム 16.7 ms。その中に、全部の処理を入れる</text>
+<rect x="70" y="130" width="640" height="50" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<rect x="70.0" y="130" width="19.2" height="50" fill="#64748b" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/></rect>
+<text x="79.6" y="208" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b" opacity="0">入力 0.5<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/></text>
+<rect x="89.2" y="130" width="115.19999999999999" height="50" fill="#2563eb" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2071;0.2074;1.0000" values="0;0;1;1"/></rect>
+<text x="146.8" y="228" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#2563eb" opacity="0">ゲーム更新 3.0<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2071;0.2074;1.0000" values="0;0;1;1"/></text>
+<rect x="204.4" y="130" width="76.8" height="50" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3404;0.3407;1.0000" values="0;0;1;1"/></rect>
+<text x="242.8" y="208" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#2ea043" opacity="0">物理 2.0<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3404;0.3407;1.0000" values="0;0;1;1"/></text>
+<rect x="281.2" y="130" width="153.6" height="50" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4738;0.4741;1.0000" values="0;0;1;1"/></rect>
+<text x="358.0" y="228" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5aa28" opacity="0">描画の準備(CPU) 4.0<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4738;0.4741;1.0000" values="0;0;1;1"/></text>
+<rect x="434.79999999999995" y="130" width="57.599999999999994" height="50" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6071;0.6074;1.0000" values="0;0;1;1"/></rect>
+<text x="463.59999999999997" y="208" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d" opacity="0">GPU 待ち 1.5<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6071;0.6074;1.0000" values="0;0;1;1"/></text>
+<text x="710" y="120" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">16.7 ms</text>
+<text x="390" y="300" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">バーの全体が 1 フレーム(16.7 ms)<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="300" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">処理を 1 つずつ足していく<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.7404;0.7407;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="300" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">合計 11.0 ms。残り 5.7 ms が余裕（ここを使い切らない）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7404;0.7407;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:frame-budget-bar:end -->
+
 ## よくあるミス
 
 ??? failure "平均 FPS だけで、判断している"

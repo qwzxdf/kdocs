@@ -196,6 +196,35 @@ void Draw(TextureHandle texture);
 | ECS | エンティティ ID |
 | セーブデータ | オブジェクト同士の関係（ポインタは保存できないが、番号なら保存できる） |
 
+<!-- fig:handle-generation:begin -->
+
+<svg class="fig illust motion" data-fig="handle-generation" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-handle-generation" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ハンドルの世代番号: 古いハンドルで、別の物を触らない</text>
+<rect x="150" y="110" width="120" height="70" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="210.0" y="102" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">スロット 0</text>
+<rect x="280" y="110" width="120" height="70" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="340.0" y="102" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">スロット 1</text>
+<rect x="410" y="110" width="120" height="70" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="470.0" y="102" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">スロット 2</text>
+<rect x="540" y="110" width="120" height="70" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+<text x="600.0" y="102" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">スロット 3</text>
+<text x="470.0" y="152" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#64748b" opacity="0">空き  世代 1<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;1.0000" values="1;1;0;0"/></text>
+<text x="470.0" y="152" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2ea043" opacity="0">敵 A  世代 1<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;0.3868;0.3871;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="470.0" y="152" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#64748b" opacity="0">空き  世代 2<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.3868;0.3871;0.5804;0.5806;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="470.0" y="152" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2563eb" opacity="0">敵 B  世代 2<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5804;0.5806;1.0000" values="0;0;1;1"/></text>
+<text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">（まだ、ハンドルはない）<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">敵 A を作る → ハンドル hA = (スロット 2, 世代 1)<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;0.3868;0.3871;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">A を破壊 → スロット 2 の世代が 2 に上がる<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.3868;0.3871;0.5804;0.5806;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">敵 B を作る → スロット 2 を再利用。hB = (2, 世代 2)<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5804;0.5806;0.7739;0.7742;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">古い hA = (2, 世代 1) で触ろうとする → 世代が違う → 拒否<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.7739;0.7742;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="390" y="330" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2ea043" opacity="0">世代が一致しないので、B を壊さずに済む<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.7739;0.7742;1.0000" values="0;0;1;1"/></text>
+</svg>
+
+<!-- fig:handle-generation:end -->
+
 ## よくあるミス
 
 ??? failure "世代を付けずに index だけ使う"

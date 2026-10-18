@@ -188,6 +188,48 @@ while (ProcessMessage() == 0) {   // DxLib の例
 }
 ```
 
+<!-- fig:fixed-step-accum:begin -->
+
+<svg class="fig illust motion" data-fig="fixed-step-accum" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-fixed-step-accum" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">固定タイムステップ: 描画の間隔がバラバラでも、物理は一定の刻みで進める</text>
+<text x="70" y="100" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2563eb">物理の刻み（1/60 秒ごと）</text>
+<text x="70" y="215" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">描画フレーム（実際の経過時間）</text>
+<line x1="70" y1="140" x2="710" y2="140" stroke="#94a3b8" stroke-width="2"/>
+<line x1="70" y1="255" x2="710" y2="255" stroke="#94a3b8" stroke-width="2"/>
+<rect x="115.6124031007752" y="235" width="8" height="40" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="0;0;1;1"/></rect>
+<text x="119.6124031007752" y="295" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b" opacity="0">10 ms<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="0;0;1;1"/></text>
+<rect x="214.8372093023256" y="235" width="8" height="40" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1859;0.1862;1.0000" values="0;0;1;1"/></rect>
+<text x="218.8372093023256" y="295" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b" opacity="0">20 ms<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1859;0.1862;1.0000" values="0;0;1;1"/></text>
+<rect x="149.68733850129198" y="120" width="6" height="40" fill="#2563eb" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2066;0.2069;1.0000" values="0;0;1;1"/></rect>
+<rect x="438.09302325581393" y="235" width="8" height="40" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3032;0.3034;1.0000" values="0;0;1;1"/></rect>
+<text x="442.09302325581393" y="295" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b" opacity="0">45 ms<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3032;0.3034;1.0000" values="0;0;1;1"/></text>
+<rect x="232.37467700258395" y="120" width="6" height="40" fill="#2563eb" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3239;0.3241;1.0000" values="0;0;1;1"/></rect>
+<rect x="315.06201550387595" y="120" width="6" height="40" fill="#2563eb" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3239;0.3241;1.0000" values="0;0;1;1"/></rect>
+<rect x="397.7493540051679" y="120" width="6" height="40" fill="#2563eb" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3239;0.3241;1.0000" values="0;0;1;1"/></rect>
+<rect x="517.4728682170542" y="235" width="8" height="40" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4204;0.4207;1.0000" values="0;0;1;1"/></rect>
+<text x="521.4728682170542" y="295" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b" opacity="0">16 ms<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4204;0.4207;1.0000" values="0;0;1;1"/></text>
+<rect x="480.43669250645996" y="120" width="6" height="40" fill="#2563eb" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4411;0.4414;1.0000" values="0;0;1;1"/></rect>
+<rect x="557.1627906976744" y="235" width="8" height="40" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5377;0.5379;1.0000" values="0;0;1;1"/></rect>
+<text x="561.1627906976744" y="295" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b" opacity="0">8 ms<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5377;0.5379;1.0000" values="0;0;1;1"/></text>
+<rect x="706.0" y="235" width="8" height="40" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6549;0.6552;1.0000" values="0;0;1;1"/></rect>
+<text x="710.0" y="295" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b" opacity="0">30 ms<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6549;0.6552;1.0000" values="0;0;1;1"/></text>
+<rect x="563.1240310077519" y="120" width="6" height="40" fill="#2563eb" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6756;0.6759;1.0000" values="0;0;1;1"/></rect>
+<rect x="645.811369509044" y="120" width="6" height="40" fill="#2563eb" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6756;0.6759;1.0000" values="0;0;1;1"/></rect>
+<text x="390" y="345" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">実際の経過時間は、ばらつく（10〜45 ms）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="345" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 1（10 ms）: 物理を 0 回進める<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.1859;0.1862;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="345" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 2（20 ms）: 物理を 1 回進める<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1859;0.1862;0.3032;0.3034;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="345" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 3（45 ms）: 物理を 3 回進める<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3032;0.3034;0.4204;0.4207;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="345" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 4（16 ms）: 物理を 1 回進める<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4204;0.4207;0.5377;0.5379;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="345" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 5（8 ms）: 物理を 0 回進める<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5377;0.5379;0.6549;0.6552;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="345" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 6（30 ms）: 物理を 2 回進める<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6549;0.6552;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="390" y="385" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">溜まった時間（アキュムレータ）から、1/60 秒ずつ引いて、引けた回数だけ物理を進める</text>
+</svg>
+
+<!-- fig:fixed-step-accum:end -->
+
 ## よくあるミス
 
 ??? failure "フレーム数で動かす"

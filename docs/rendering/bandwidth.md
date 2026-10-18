@@ -151,6 +151,37 @@ tags:
 
 **計算は安く、メモリが高い**——という**GPU の性質**を、**活かします**。
 
+<!-- fig:gbuffer-bytes:begin -->
+
+<svg class="fig illust motion" data-fig="gbuffer-bytes" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-gbuffer-bytes" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">G-Buffer が 1 フレームに必要とするメモリ帯域（1920×1080、60fps）</text>
+<text x="138" y="120" text-anchor="end" style="font-size:13px;font-weight:500;fill:#1f2937">アルベド</text>
+<rect x="150" y="100" width="88" height="28" fill="#2563eb" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/></rect>
+<text x="248" y="120" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">4 バイト/画素<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/></text>
+<text x="138" y="160" text-anchor="end" style="font-size:13px;font-weight:500;fill:#1f2937">法線</text>
+<rect x="150" y="140" width="88" height="28" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1923;0.1926;1.0000" values="0;0;1;1"/></rect>
+<text x="248" y="160" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">4 バイト/画素<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1923;0.1926;1.0000" values="0;0;1;1"/></text>
+<text x="138" y="200" text-anchor="end" style="font-size:13px;font-weight:500;fill:#1f2937">材質(粗さ・金属)</text>
+<rect x="150" y="180" width="88" height="28" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3108;0.3111;1.0000" values="0;0;1;1"/></rect>
+<text x="248" y="200" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">4 バイト/画素<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3108;0.3111;1.0000" values="0;0;1;1"/></text>
+<text x="138" y="240" text-anchor="end" style="font-size:13px;font-weight:500;fill:#1f2937">エミッシブ</text>
+<rect x="150" y="220" width="88" height="28" fill="#7c3aed" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4293;0.4296;1.0000" values="0;0;1;1"/></rect>
+<text x="248" y="240" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">4 バイト/画素<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4293;0.4296;1.0000" values="0;0;1;1"/></text>
+<text x="138" y="280" text-anchor="end" style="font-size:13px;font-weight:500;fill:#1f2937">深度</text>
+<rect x="150" y="260" width="88" height="28" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5479;0.5481;1.0000" values="0;0;1;1"/></rect>
+<text x="248" y="280" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">4 バイト/画素<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5479;0.5481;1.0000" values="0;0;1;1"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">画面の 1 画素あたり、各ターゲットが書き込むバイト数<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">ターゲットを 1 つずつ足していく<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.6293;0.6296;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">合計 20 バイト/画素 × 207 万画素 = 約 41.5 MB / フレーム<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6293;0.6296;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="390" y="375" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6293;0.6296;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="375" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#e5484d" opacity="0">60fps で 書き込み 約 2.5 GB/s。ライティングで読むと、合計 約 5 GB/s<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6293;0.6296;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:gbuffer-bytes:end -->
+
 ## よくあるミス
 
 ??? failure "G-Buffer に、RGBA32F を何枚も使う"
