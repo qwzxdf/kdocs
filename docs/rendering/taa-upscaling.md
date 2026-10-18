@@ -135,6 +135,120 @@ MSAA は、1 フレームの中でサンプルを増やします。TAA は**複�
 
 <!-- fig:halton-jitter:end -->
 
+## TAA の解決パスを、実装する
+
+履歴を混ぜるパスを、シェーダーで見ます。要点は、<strong>履歴を、そのまま混ぜず、「今の周りの色の範囲」に、収めてから、混ぜる</strong>ことです。これでゴーストを、抑えます（[TAA](../graphics/postprocess/antialiasing/taa.md)）。
+
+```hlsl
+Texture2D<float3> g_current : register(t0);       // 今フレームの色（ジッター付き）
+Texture2D<float3> g_history : register(t1);       // 前フレームの結果
+Texture2D<float2> g_velocity : register(t2);      // 動きベクトル（UV 単位）
+SamplerState g_linear_clamp : register(s0);
+
+float3 RgbToYCoCg(float3 c) {                      // 色空間を変えると、クランプが、色味を保ちやすい
+  return float3(0.25 * c.r + 0.5 * c.g + 0.25 * c.b, 0.5 * c.r - 0.5 * c.b, -0.25 * c.r + 0.5 * c.g - 0.25 * c.b);
+}
+float3 YCoCgToRgb(float3 c) {
+  return float3(c.x + c.y - c.z, c.x + c.z, c.x - c.y - c.z);
+}
+
+float4 PSResolve(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
+  const int2 p = int2(pos.xy);
+
+  // ① 今のピクセルと、周りの 3×3 の色から、「今フレームで、ありうる色の範囲」（平均と分散）を求める。
+  float3 current = RgbToYCoCg(g_current.Load(int3(p, 0)));
+  float3 m1 = 0, m2 = 0;
+  [unroll] for (int y = -1; y <= 1; ++y) {
+    [unroll] for (int x = -1; x <= 1; ++x) {
+      float3 c = RgbToYCoCg(g_current.Load(int3(p + int2(x, y), 0)));
+      m1 += c;
+      m2 += c * c;
+    }
+  }
+  float3 mean = m1 / 9.0;
+  float3 sigma = sqrt(max(m2 / 9.0 - mean * mean, 0.0));
+  float3 box_min = mean - 1.25 * sigma;               // 分散クリッピング（Salvi）。1.0〜1.5 が目安
+  float3 box_max = mean + 1.25 * sigma;
+
+  // ② 動きベクトルで、前フレームの同じ点を探して、履歴の色を読む。
+  float2 velocity = g_velocity.Load(int3(p, 0));
+  float3 history = RgbToYCoCg(g_history.SampleLevel(g_linear_clamp, uv - velocity, 0));
+
+  // ③ 履歴を、範囲の中に、収める（範囲の外の履歴は、古い・間違った色なので、引き戻す）。
+  history = clamp(history, box_min, box_max);
+
+  // ④ 混ぜる。動きが大きいほど、履歴を、信用しない。
+  float motion = length(velocity * float2(1920.0, 1080.0));     // 画素単位の、動きの大きさ
+  float history_weight = lerp(0.95, 0.7, saturate(motion / 8.0));
+  float3 result = lerp(current, history, history_weight);
+  return float4(YCoCgToRgb(result), 1.0);
+}
+```
+
+数行ずつ見ると、①で「今、ありうる色の範囲」を作り、②で履歴を読み、③で、その範囲に収め、④で、混ぜています。<strong>③のクランプが、ゴースト対策の、要</strong>です。動いた物の、後ろに、古い色が残っても、範囲の外なので、引き戻されます。範囲を、広げる（`1.25` を大きく）と、ゴーストが増え、狭めると、ちらつきが増えます。
+
+## ジッターの、入れ方
+
+```cpp
+// Halton 数列（底 2 と 3）で、サブピクセルのずらしを作る。8 フレームで、1 周。
+float Halton(int index, int base) {
+  float result = 0.0f;
+  float f = 1.0f;
+  while (index > 0) {
+    f /= base;
+    result += f * (index % base);
+    index /= base;
+  }
+  return result;
+}
+
+DirectX::XMFLOAT2 JitterOffset(int frame, int width, int height) {
+  const int i = (frame % 8) + 1;
+  // -0.5〜0.5 ピクセルを、NDC（-1〜1）の単位に直す（1 ピクセル = 2/width）。
+  return {(Halton(i, 2) - 0.5f) * 2.0f / width, (Halton(i, 3) - 0.5f) * 2.0f / height};
+}
+// 射影行列の _31, _32 に、ずらしを入れる（符号の理由は、TAA のページ）。速度の計算では、ジッターを、引いて使う。
+```
+
+## 動的解像度の、制御
+
+GPU 時間を測って、次のフレームの、解像度を決めます。
+
+```cpp
+// 目標の GPU 時間（たとえば 60 FPS なら 14 ms）に、近づけるよう、解像度の倍率を、少しずつ、動かす。
+class DynamicResolution {
+ public:
+  float Update(float gpu_ms) {
+    const float target_ms = 14.0f;
+    const float error = (target_ms - gpu_ms) / target_ms;     // 速すぎれば正、遅すぎれば負
+    scale_ += error * 0.1f;                                    // 少しずつ動かす（急に変えると、ちらつく）
+    scale_ = std::clamp(scale_, 0.6f, 1.0f);                   // 60%〜100%
+    return scale_;
+  }
+
+ private:
+  float scale_ = 1.0f;
+};
+// 使い方: 解像度 = 出力解像度 × scale。ピクセル数は scale² に比例して減るので、scale 0.7 でも、約半分。
+```
+
+ピクセル数は、<strong>倍率の 2 乗</strong>で減ります（0.7 倍なら 0.49 倍）。そのため、少しの倍率の変化で、GPU 時間が、大きく変わります。UI は、出力解像度のまま描き、3D の結果だけを、拡大して重ねます。
+
+## アップスケーラに、渡すもの
+
+DLSS・FSR・XeSS などは、TAA と同じ入力を、必要とします。
+
+| 入力 | 内容 |
+| --- | --- |
+| 低解像度の色 | ジッター付きで描いた、HDR の色（トーン マッピング前） |
+| 深度 | 低解像度の深度（逆 Z が多い） |
+| 動きベクトル | 低解像度、または出力解像度。ジッターを、含まない |
+| ジッターの値 | そのフレームで、入れたずらし（ピクセル単位） |
+| 露出 | 露出の値（明るさの変化を、正しく扱うため） |
+| リセット フラグ | カットシーンの切り替えなど、履歴が使えないとき |
+
+動きベクトルが、不正確（スキニングや、パーティクルが、出ていない）と、アップスケーラの結果にも、ゴーストが出ます。<strong>エンジン側で、正しい入力を、そろえることが、品質の、ほとんど全て</strong>です。
+
 ## よくあるミス
 
 ??? failure "動きベクトルを出さずに TAA を入れて、ゴーストが出る"

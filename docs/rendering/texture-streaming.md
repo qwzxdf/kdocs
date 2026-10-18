@@ -128,6 +128,108 @@ GPU が**圧縮したまま読める**フォーマットを使います。読み
 
 <!-- fig:mip-memory:end -->
 
+## 圧縮後の、大きさを計算する
+
+BC 圧縮は、4×4 ピクセルの<strong>ブロック</strong>ごとに、決まったバイト数で保存します。大きさは、計算で出せます。
+
+| 形式 | 1 ブロック（4×4 = 16 ピクセル）のバイト数 | 1 ピクセルあたり |
+| --- | --- | --- |
+| BC1、BC4 | 8 バイト | 4 ビット（0.5 バイト） |
+| BC3、BC5、BC6H、BC7 | 16 バイト | 8 ビット（1 バイト） |
+| RGBA8（無圧縮） | — | 32 ビット（4 バイト） |
+
+```cpp
+// 圧縮テクスチャの、1 つのミップの大きさ（バイト）。幅・高さは、4 ピクセル単位に、切り上げる。
+size_t BlockCompressedSize(uint32_t width, uint32_t height, size_t bytes_per_block) {
+  const size_t blocks_x = std::max<size_t>(1, (width + 3) / 4);
+  const size_t blocks_y = std::max<size_t>(1, (height + 3) / 4);
+  return blocks_x * blocks_y * bytes_per_block;
+}
+
+// 全ミップの合計（1×1 まで）。ミップを足すと、元の約 1.33 倍。
+size_t TotalMipSize(uint32_t width, uint32_t height, size_t bytes_per_block) {
+  size_t total = 0;
+  for (;;) {
+    total += BlockCompressedSize(width, height, bytes_per_block);
+    if (width == 1 && height == 1) break;
+    width = std::max(1u, width / 2);
+    height = std::max(1u, height / 2);
+  }
+  return total;
+}
+// 例: 4096×4096 の BC7（16 バイト/ブロック）→ 約 21 MB。RGBA8 の無圧縮（約 85 MB）の 1/4。
+```
+
+## 必要なミップを、決める
+
+ストリーミングの核心は、「<strong>この物体に、どのミップが必要か</strong>」を、決めることです。画面上で、1 ピクセルが、テクスチャの、何テクセルに当たるかで決まります。
+
+```cpp
+// 物体の、画面上の大きさから、必要なミップを求める。
+// texture_size: テクスチャの 1 辺（テクセル）。uv_density: 物体の 1 メートルあたりの UV の長さ。
+float RequiredMip(float texture_size, float uv_density, float distance, float screen_height_px, float fov_y) {
+  // 距離 distance での、1 ピクセルが覆う、ワールドの長さ。
+  const float meters_per_pixel = 2.0f * distance * std::tan(fov_y * 0.5f) / screen_height_px;
+  // 1 ピクセルが、テクスチャの何テクセルに当たるか。
+  const float texels_per_pixel = meters_per_pixel * uv_density * texture_size;
+  return std::max(0.0f, std::log2(texels_per_pixel));        // 1 テクセル/ピクセルなら、ミップ 0。2 倍で、ミップ 1。
+}
+```
+
+たとえば、1080p、縦の視野 60°、距離 10 m では、1 ピクセルが約 0.011 m です。1 m に 1 周する、4096 のテクスチャなら、1 ピクセル ≒ 45 テクセルで、ミップは `log2(45) ≈ 5.5`、つまり、<strong>ミップ 5（128×128）以下で足りる</strong>ことになります。
+
+## 予算内で、ミップを割り当てる
+
+必要なミップが決まったら、VRAM の予算内で、<strong>見た目への効きが大きい物から</strong>、高いミップを割り当てます。
+
+```cpp
+struct StreamedTexture {
+  float required_mip;          // 今、画面で必要なミップ（小さいほど細かい）
+  int resident_mip;            // 今、VRAM に置いてあるミップ
+  int lowest_mip;              // 常駐させる、最も粗いミップ（読み込みが、間に合わない時の代わり）
+  size_t SizeAtMip(int mip) const;   // そのミップ以下を、全部置くときの、大きさ
+};
+
+// 毎フレーム（または、数フレームに 1 回）: 予算に収まるよう、各テクスチャの、目標のミップを決める。
+void UpdateStreaming(std::vector<StreamedTexture>& textures, size_t budget_bytes) {
+  // ① まず、全テクスチャを、最低限のミップ（小さい）にする。
+  size_t used = 0;
+  for (auto& t : textures) {
+    t.target_mip = t.lowest_mip;
+    used += t.SizeAtMip(t.target_mip);
+  }
+  // ② 必要なミップに、近づける。画面で大きい（required_mip が小さい）物から、1 段ずつ、細かくする。
+  bool changed = true;
+  while (changed) {
+    changed = false;
+    for (auto& t : SortedByPriority(textures)) {            // 優先: 画面で、大きく映る物から
+      const int wanted = static_cast<int>(std::floor(t.required_mip));
+      if (t.target_mip <= wanted) continue;                 // すでに、必要な細かさ
+      const size_t extra = t.SizeAtMip(t.target_mip - 1) - t.SizeAtMip(t.target_mip);
+      if (used + extra > budget_bytes) continue;            // 予算オーバーなら、細かくしない
+      --t.target_mip;
+      used += extra;
+      changed = true;
+    }
+  }
+  // ③ target_mip と resident_mip を比べて、足りない分は、非同期に読み込み、余った分は、解放する。
+}
+```
+
+予算内で、足りなければ、<strong>遠くや、小さい物の、ミップを下げます</strong>。画面に大きく映る物は、細かいミップが、確保されます。読み込みは、別スレッドで、ディスクから行い、完了したら、`resident_mip` を、更新します。
+
+## ストリーミングの、実装上の、注意
+
+| 注意 | 内容 |
+| --- | --- |
+| ポップイン | 読み込みが間に合わず、ぼやけた画像から、急に細かい画像に、切り替わる。ミップ バイアスを、徐々に変えて、なじませる |
+| ヒステリシス | 境目で、上げ下げを、繰り返すと、読み込みが、止まらない。下げるのは、少し遅らせる |
+| 最低ミップの常駐 | 小さいミップ（たとえば 64×64 以下）は、常に VRAM に置いて、読み込みが間に合わないときの、保険にする |
+| ミップ チェーンの、ファイル配置 | 小さいミップを、ファイルの先頭に置くと、先に読める。細かいミップだけを、後から、追加で読める |
+| 先読み | カメラの移動方向や、場面の切り替えを予測して、事前に、読み込む |
+
+D3D12 には、ミップ単位で、メモリを、確保・解放できる、<strong>予約リソース</strong>（Reserved Resource、タイルド リソース）の機能があり、GPU が、一部のミップだけを、メモリに、持てます。仮想テクスチャの土台でもあります（[Texture Upload](../directx/dx12/texture-upload.md)）。
+
 ## よくあるミス
 
 ??? failure "全テクスチャを無圧縮・全ミップで常駐させる"

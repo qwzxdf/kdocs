@@ -7,15 +7,15 @@ tags:
 
 # Visibility Buffer
 
-[Deferred](forward-deferred.md) は、**ライティングを画面のピクセル数に比例**させましたが、代わりに **G-Buffer（4 枚前後の画面サイズのテクスチャ）の書き込みと読み込み**という、**帯域幅の重い仕事**が生まれました（[メモリ帯域幅](bandwidth.md)）。**Visibility Buffer** は、**G-Buffer に材質の値を書く代わりに、「どの物体の何番目の三角形か」という ID だけ**を書きます。**材質の計算は後で、ID から、頂点データを引き直して行う**ので、**画面サイズの書き込みが、1 枚（32 ビット程度）で済みます**。このページは**何が改善するのか**、**仕組み**、**代償**を説明します。
+[Deferred](forward-deferred.md) は**ライティングを画面のピクセル数に比例**させましたが、代わりに **G-Buffer（4 枚前後の画面サイズのテクスチャ）の書き込みと読み込み**という、**帯域幅の重い仕事**が生まれました（[メモリ帯域幅](bandwidth.md)）。**Visibility Buffer** は、**G-Buffer に材質の値を書く代わりに「どの物体の何番目の三角形か」という ID だけ**を書きます。**材質の計算は後で ID から、頂点データを引き直して行う**ので、**画面サイズの書き込みが 1 枚（32 ビット程度）で済みます**。このページは**何が改善するのか**、**仕組み**、**代償**を説明します。
 
 !!! tip "ポイント"
     - 目的：<strong>G-Buffer の帯域幅（4 枚 → 1 枚）</strong>と、<strong>小さな三角形でのピクセルシェーダーの無駄（quad overdraw）</strong>の削減。
     - 書くもの：<strong>インスタンス番号・三角形番号</strong>（例：32 ビット 1 枚）。<strong>材質の値は書かない</strong>。
-    - 後のパス：<strong>ID から、三角形の頂点を読み、重心座標を計算し、属性（UV・法線）を補間し、テクスチャを引いて、ライティング</strong>。
+    - 後のパス：<strong>ID から、三角形の頂点を読み重心座標を計算し、属性（UV・法線）を補間しテクスチャを引いて、ライティング</strong>。
     - 利点：<strong>書き込みの帯域が小さい</strong>・<strong>ジオメトリ パスが軽い</strong>（ピクセルシェーダーがほぼ空）・<strong>材質ごとにまとめて計算できる</strong>。
-    - 代償：<strong>後のパスが複雑</strong>（<strong>頂点を自分で読み直す</strong>）。<strong>テクスチャのミップ選択（微分）を、自分で計算</strong>。<strong>バインドレスがほぼ必須</strong>。
-    - <strong>Nanite・Meshlet ベースのレンダラ</strong>と、相性が良い（[Mesh Shader](mesh-shaders.md)）。
+    - 代償：<strong>後のパスが複雑</strong>（<strong>頂点を自分で読み直す</strong>）。<strong>テクスチャのミップ選択（微分）を自分で計算</strong>。<strong>バインドレスがほぼ必須</strong>。
+    - <strong>Nanite・Meshlet ベースのレンダラ</strong>と相性が良い（[Mesh Shader](mesh-shaders.md)）。
 
 ## G-Buffer の何が重いのか
 
@@ -23,8 +23,8 @@ tags:
 | --- | --- |
 | **書き込み** | **1080p・4 枚で約 33 MB / フレーム**（60 FPS で約 2 GB/s） |
 | **読み込み** | **ライティングで毎回、読む**（Tiled なら 1 回） |
-| **オーバードロー** | **後ろで隠れる物も、G-Buffer に全部書く**（[オーバードロー](overdraw.md)） |
-| **小さな三角形** | **ピクセルシェーダーが、2×2 ピクセル単位で動く**ため、**小さな三角形ほど、無駄**（quad overdraw） |
+| **オーバードロー** | **後ろで隠れる物も G-Buffer に全部書く**（[オーバードロー](overdraw.md)） |
+| **小さな三角形** | **ピクセルシェーダーが、2×2 ピクセル単位で動く**ため、**小さな三角形ほど無駄**（quad overdraw） |
 
 ## 仕組み
 
@@ -45,12 +45,12 @@ tags:
 
 | 段階 | 内容 |
 | --- | --- |
-| **① ID パス** | **ピクセルシェーダーは、`SV_PrimitiveID` とインスタンス番号を、書くだけ**（軽い）。**深度も書く** |
-| **② 属性の復元** | **ピクセルごとに三角形の 3 頂点を読み、ピクセルの位置から、重心座標を計算**し、**UV・法線を補間** |
-| **③ 材質** | **補間した UV でテクスチャを引く**。**UV の微分（ミップ選択）は、重心座標の差から、自分で計算** |
+| **① ID パス** | **ピクセルシェーダーは、`SV_PrimitiveID` とインスタンス番号を書くだけ**（軽い）。**深度も書く** |
+| **② 属性の復元** | **ピクセルごとに三角形の 3 頂点を読み、ピクセルの位置から重心座標を計算**し、**UV・法線を補間** |
+| **③ 材質** | **補間した UV でテクスチャを引く**。**UV の微分（ミップ選択）は重心座標の差から、自分で計算** |
 | **④ ライティング** | **Deferred と同じ**（Tiled / Clustered と、組み合わせられる） |
 
-**②③ のパスは、材質ごとにピクセルをまとめて処理**できる（**タイル分類**）ので**同じシェーダーが連続して動き**、**効率が上がります**。
+**②③ のパスは材質ごとにピクセルをまとめて処理**できる（**タイル分類**）ので**同じシェーダーが連続して動き**、**効率が上がります**。
 
 ## 何が改善するのか
 
@@ -58,7 +58,7 @@ tags:
 | --- | --- |
 | **書き込み帯域** | **4 枚 → 1 枚**（**約 4 分の 1**） |
 | **ジオメトリ パスの軽さ** | **ピクセルシェーダーがほぼ空**。**大量の三角形・小さな三角形に強い** |
-| **材質計算の、1 回化** | **最終的に見えるピクセルだけ**、材質を計算（**隠れた面の材質計算はゼロ**） |
+| **材質計算の 1 回化** | **最終的に見えるピクセルだけ**、材質を計算（**隠れた面の材質計算はゼロ**） |
 | **材質の自由度** | **材質ごとのバリエーション**を**後のパスで分類して**処理 |
 
 ## 代償
@@ -66,9 +66,9 @@ tags:
 | 代償 | 説明 |
 | --- | --- |
 | **実装が複雑** | **頂点の再読み込み・重心座標・微分の自前計算** |
-| **テクスチャの読み込み** | <strong>バインドレス（番号でテクスチャを参照）</strong>が、事実上、必要（**DX11 では、難しい**） |
-| **頂点の読み直し** | **ピクセルごとに、3 頂点を読む**（**キャッシュに乗る**ので通常は軽い） |
-| **MSAA との相性** | **サンプルごとの、ID が必要**（**TAA 前提**の設計が多い） |
+| **テクスチャの読み込み** | <strong>バインドレス（番号でテクスチャを参照）</strong>が事実上、必要（**DX11 では難しい**） |
+| **頂点の読み直し** | **ピクセルごとに 3 頂点を読む**（**キャッシュに乗る**ので通常は軽い） |
+| **MSAA との相性** | **サンプルごとの ID が必要**（**TAA 前提**の設計が多い） |
 | **透明・アルファテスト** | **ID パスでアルファ テストのテクスチャ参照が必要** |
 
 ## 他の方式との使い分け
@@ -81,24 +81,118 @@ tags:
 
 <strong>「G-Buffer の帯域が、ボトルネックと測れた」</strong>ときに**検討**します（[何が重いのか](bottlenecks.md)）。
 
+## Visibility Buffer を実装する
+
+G バッファは「マテリアルの値」を全部、書きます。Visibility Buffer は、<strong>「どの三角形か」だけ</strong>を書きマテリアルの値は、<strong>後のパスで</strong>、1 回だけ計算します。
+
+### ① 可視性のパス：三角形の ID だけを書く
+
+```hlsl
+// 1 つのレンダー ターゲット（R32_UINT）に、「どの描画の、どの三角形か」を、詰めて書く。
+cbuffer DrawCB : register(b1) {
+  uint g_draw_id;                                   // この描画（インスタンス）の番号。0〜255
+};
+
+uint PSVisibility(float4 pos : SV_Position, uint primitive_id : SV_PrimitiveID) : SV_Target {
+  return (g_draw_id << 24) | (primitive_id & 0x00FFFFFF);        // 上位 8 ビット: 描画の番号、下位 24 ビット: 三角形の番号
+}
+```
+
+ピクセル シェーダーはテクスチャを読まず色の計算もしません。<strong>1 ピクセルあたり 4 バイトを書くだけ</strong>で、G バッファ（数枚 × 4〜8 バイト）より帯域が、大きく減ります。深度も同時に書きます（[Multiple Render Targets](../directx/dx11/mrt.md)）。
+
+### ② シェーディングのパス：三角形から、全部を復元する
+
+画面の全ピクセルについて三角形の番号から、頂点を読み <strong>そのピクセルの位置での重心座標</strong>を求め属性（UV、法線）を補間してマテリアルを評価します。
+
+```hlsl
+Texture2D<uint> g_visibility : register(t0);
+StructuredBuffer<uint> g_indices : register(t1);          // 全メッシュのインデックス
+StructuredBuffer<Vertex> g_vertices : register(t2);       // 全メッシュの頂点
+StructuredBuffer<DrawInfo> g_draws : register(t3);        // 描画ごとの、ワールド行列、頂点・インデックスの開始位置、マテリアル番号
+
+// カメラの、ピクセルを通る光線と、三角形の交点から、重心座標を求める（Möller–Trumbore 法）。
+float3 Barycentrics(float3 ray_origin, float3 ray_dir, float3 p0, float3 p1, float3 p2) {
+  float3 e1 = p1 - p0;
+  float3 e2 = p2 - p0;
+  float3 pvec = cross(ray_dir, e2);
+  float inv_det = 1.0 / dot(e1, pvec);
+  float3 tvec = ray_origin - p0;
+  float u = dot(tvec, pvec) * inv_det;
+  float3 qvec = cross(tvec, e1);
+  float v = dot(ray_dir, qvec) * inv_det;
+  return float3(1.0 - u - v, u, v);                       // 頂点 0・1・2 の重み
+}
+
+float4 PSShading(float4 pos : SV_Position) : SV_Target {
+  uint packed = g_visibility.Load(int3(pos.xy, 0));
+  if (packed == 0xFFFFFFFF) return SkyColor(pos.xy);       // 何も描かれていないピクセル（クリア値）
+
+  uint draw_id = packed >> 24;
+  uint triangle = packed & 0x00FFFFFF;
+  DrawInfo draw = g_draws[draw_id];
+
+  // 三角形の 3 頂点を、読む（インデックス → 頂点 → ワールド座標）。
+  uint i0 = g_indices[draw.index_offset + triangle * 3 + 0];
+  uint i1 = g_indices[draw.index_offset + triangle * 3 + 1];
+  uint i2 = g_indices[draw.index_offset + triangle * 3 + 2];
+  Vertex v0 = g_vertices[draw.vertex_offset + i0];
+  Vertex v1 = g_vertices[draw.vertex_offset + i1];
+  Vertex v2 = g_vertices[draw.vertex_offset + i2];
+  float3 w0 = mul(float4(v0.position, 1), draw.world).xyz;
+  float3 w1 = mul(float4(v1.position, 1), draw.world).xyz;
+  float3 w2 = mul(float4(v2.position, 1), draw.world).xyz;
+
+  // このピクセルを通る、カメラの光線。
+  float3 ray_dir = normalize(PixelToWorldRay(pos.xy));
+  float3 bary = Barycentrics(g_camera_position, ray_dir, w0, w1, w2);
+
+  // 属性を、重心座標で補間して、マテリアルを評価し、ライティング。
+  float2 uv = v0.uv * bary.x + v1.uv * bary.y + v2.uv * bary.z;
+  float3 normal = normalize(v0.normal * bary.x + v1.normal * bary.y + v2.normal * bary.z);
+  return ShadeMaterial(draw.material_id, uv, normal /* , ... */);
+}
+```
+
+数行ずつ見ると <strong>頂点の読み込みと補間を自分で行っている</strong>のが、G バッファ方式との違いです。ラスタライザーがやってくれていた、属性の補間をシェーダーで再現しています。
+
+### 注意：ミップの選択（微分）
+
+ピクセル シェーダーでは `Sample` が、隣のピクセルとの UV の差（微分）から、ミップを自動で選びます。シェーディングのパスは <strong>全画面のパス</strong>で、隣のピクセルが別の三角形のため、この微分が使えません。
+
+| 方法 | 内容 |
+| --- | --- |
+| 光線の差分（ray differentials） | 隣のピクセルの光線も、三角形と交差させて UV の差を求める。`SampleGrad` に渡す |
+| 解析的な微分 | 重心座標の画面空間の微分を解析的に求める（高速。実装が複雑） |
+| `SampleLevel` で固定のミップ | 遠近で、品質が落ちる。簡易版 |
+
+この微分の計算が Visibility Buffer の実装で、いちばん手間のかかる部分です。
+
+### どんなときに向くか
+
+| 向く | 向かない |
+| --- | --- |
+| 三角形が非常に多い（細かいメッシュ。Nanite のようなメッシュ シェーダー系） | 三角形が少なく、ピクセルが重い場面（G バッファで、足りる） |
+| G バッファの帯域がボトルネック | マテリアルの種類が多く、シェーダーの分岐が重くなる（シェーディングのパスが、肥大する） |
+| オーバードローで G バッファの書き込みが、無駄になる | 古い GPU（構造化バッファの大量の読み込みが、重い） |
+
 ## よくあるミス
 
-??? failure "帯域が、ボトルネックでないのに、導入する"
+??? failure "帯域が、ボトルネックでないのに導入する"
     **複雑さが見合いません**。**測ってから**。
 
-??? failure "テクスチャの、ミップ選択が合わず、ちらつく"
-    **重心座標から、UV の微分を正しく、計算**します（**勾配を手計算**）。
+??? failure "テクスチャのミップ選択が合わずちらつく"
+    **重心座標から UV の微分を正しく、計算**します（**勾配を手計算**）。
 
-??? failure "アルファ テストの物を、ID パスで考慮していない"
-    **ID パスのピクセルシェーダーで、テクスチャを引いて、`discard`** します。
+??? failure "アルファ テストの物を ID パスで考慮していない"
+    **ID パスのピクセルシェーダーで、テクスチャを引いて `discard`** します。
 
 ??? failure "DX11 で、バインドレスを前提に設計する"
-    **DX11 では、テクスチャ配列・アトラス**で代用します。
+    **DX11 ではテクスチャ配列・アトラス**で代用します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] Visibility Buffer ＝ <strong>三角形の ID だけを書き、材質は後で、ID から計算</strong>
+    - [x] Visibility Buffer ＝ <strong>三角形の ID だけを書き、材質は後で ID から計算</strong>
     - [x] 改善：<strong>G-Buffer の書き込み帯域（4 枚 → 1 枚）</strong>・<strong>小さな三角形の無駄</strong>
     - [x] 代償：<strong>属性の復元・微分の自前計算・バインドレス</strong>。<strong>実装が複雑</strong>
     - [x] <strong>GPU Driven / Meshlet / 大量の三角形</strong>と、相性が良い（<strong>Nanite の方式</strong>）

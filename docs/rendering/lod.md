@@ -136,6 +136,75 @@ LOD が切り替わる瞬間に、形が急に変わって目立つことがあ�
 
 <!-- fig:lod-steps:end -->
 
+## LOD を、実装する
+
+### どの LOD を使うか：画面上の大きさで決める
+
+距離だけで決めると、大きな物と小さな物で、見え方が、そろいません。<strong>画面上で、その物が、何ピクセルに見えるか</strong>で決めます。
+
+```cpp
+// 物体の、画面上の直径（ピクセル）を求める。
+float ProjectedSize(float bounding_radius, float distance, float screen_height_px, float fov_y) {
+  const float world_per_screen = 2.0f * distance * std::tan(fov_y * 0.5f);   // 距離 distance で、画面の縦が覆う長さ
+  return (bounding_radius * 2.0f) / world_per_screen * screen_height_px;
+}
+
+// しきい値（ピクセル）。画面で大きいほど、細かい LOD。
+constexpr float kThresholds[3] = {200.0f, 80.0f, 30.0f};   // LOD0: 200px 以上、LOD1: 80px 以上、LOD2: 30px 以上、それ未満は LOD3
+
+// ヒステリシスつき: 境目で、LOD が、行ったり来たりしない（ちらつかない）ように、少しだけ、余裕を持たせる。
+int SelectLod(float projected_px, int current_lod) {
+  for (int lod = 0; lod < 3; ++lod) {
+    // 現在の LOD から、粗い側へ移るときは、しきい値より少し下で、細かい側へ戻るときは、少し上で。
+    const float margin = (lod < current_lod) ? 1.1f : 0.9f;
+    if (projected_px >= kThresholds[lod] * margin) return lod;
+  }
+  return 3;
+}
+```
+
+しきい値の、前後に、10% の余裕（ヒステリシス）を持たせると、カメラが、境目で、止まっても、LOD が、切り替わり続けません。
+
+### 切り替えを、ディザで、なじませる
+
+LOD が、突然、切り替わると、形が、ポンと変わります（ポップ）。<strong>2 つの LOD を、同時に、ディザで、入れ替えながら</strong>描くと、目立たなくなります。
+
+```hlsl
+// 4×4 のベイヤー行列（0〜1）。ピクセルごとに、違うしきい値を作る。
+float Bayer4(uint2 p) {
+  static const float m[16] = {0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5};
+  return (m[(p.x & 3) + 4 * (p.y & 3)] + 0.5) / 16.0;
+}
+
+// fade: この LOD の、濃さ（0〜1）。切り替え中、LOD A は 1→0、LOD B は 0→1 と変える。
+void PSMain(float4 pos : SV_Position /* ... */) {
+  clip(g_fade - Bayer4(uint2(pos.xy)));            // しきい値より、fade が小さいピクセルを、捨てる
+  // 通常のシェーディング
+}
+```
+
+切り替え中は、LOD A（`fade` が 1 から 0 へ）と LOD B（0 から 1 へ）の両方を描き、ピクセルごとに、一方だけが、残ります。TAA と組み合わせると、ディザが、平均されて、なめらかなフェードに見えます（[TAA・アップスケーラ・VRS](taa-upscaling.md)）。
+
+### LOD の作り方：メッシュの簡略化
+
+LOD は、手作業で作るのは、大変なので、<strong>自動で、三角形を、減らす</strong>ライブラリを使います。meshoptimizer が、広く使われています。
+
+```cpp
+#include <meshoptimizer.h>
+
+// 元のメッシュから、三角形を、約 25% に減らした LOD を作る。
+size_t target_index_count = (indices.size() / 3) / 4 * 3;          // 三角形の数を 1/4 に
+float target_error = 0.01f;                                         // 許す誤差（メッシュの大きさに対する割合）
+std::vector<uint32_t> lod_indices(indices.size());
+size_t lod_index_count = meshopt_simplify(
+    lod_indices.data(), indices.data(), indices.size(),
+    &vertices[0].position.x, vertices.size(), sizeof(Vertex),
+    target_index_count, target_error, 0, nullptr);
+lod_indices.resize(lod_index_count);                                // 実際に、得られた個数
+```
+
+LOD ごとに、三角形を、およそ半分から 1/4 に減らして、3〜4 段作るのが一般的です。ビルド時に、作って、ファイルに保存します（[ベイク](../optimize/baking.md)）。
+
 ## よくあるミス
 
 ??? failure "距離だけで切り替えて、見た目が不安定になる"
