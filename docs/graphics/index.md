@@ -41,6 +41,7 @@ tags:
 | [Water](water/index.md) | 波・シェーディング・岸辺と泡・波紋・水中 |
 | [Terrain](terrain/index.md) | 高さマップ・LOD・テクスチャ・草と木・生成 |
 | [Sky and Atmosphere](atmosphere/index.md) | 空のモデル・大気散乱・距離フォグ・ボリューメトリック フォグ・雲・光の筋 |
+| [Skin and Hair](skin-hair/index.md) | 次表面散乱・肌の鏡面・目・髪のシェーディング・髪の透明と影 |
 
 ## 読み方
 

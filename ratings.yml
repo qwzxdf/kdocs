@@ -322,3 +322,17 @@ graphics/atmosphere/god-rays/volume.md: {perf: 2, quality: 3}
 graphics/atmosphere/god-rays/mesh-shafts.md: {perf: 1, quality: 2}
 graphics/atmosphere/god-rays/underwater.md: {perf: 2, quality: 3}
 graphics/atmosphere/god-rays/tuning.md: {perf: 1}
+
+# --- 肌と髪 ---
+graphics/skin-hair/skin/diffusion-profile.md: {perf: 3, quality: 3}
+graphics/skin-hair/skin/screen-space-sss.md: {perf: 2, quality: 3}
+graphics/skin-hair/skin/pre-integrated.md: {perf: 1, quality: 2}
+graphics/skin-hair/skin/thin-translucency.md: {perf: 1, quality: 2}
+graphics/skin-hair/skin/specular.md: {perf: 1, quality: 3}
+graphics/skin-hair/skin/micro-detail.md: {perf: 1, quality: 3}
+graphics/skin-hair/skin/eyes.md: {perf: 1, quality: 3}
+graphics/skin-hair/hair/kajiya-kay.md: {perf: 1, quality: 1}
+graphics/skin-hair/hair/marschner.md: {perf: 2, quality: 3}
+graphics/skin-hair/hair/transparency.md: {perf: 2, quality: 2}
+graphics/skin-hair/hair/shadows.md: {perf: 2, quality: 3}
+graphics/skin-hair/hair/anti-aliasing.md: {perf: 2, quality: 3}

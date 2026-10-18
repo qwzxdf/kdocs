@@ -1,0 +1,10 @@
+nav:
+  - index.md
+  - subsurface-theory.md
+  - diffusion-profile.md
+  - screen-space-sss.md
+  - pre-integrated.md
+  - thin-translucency.md
+  - specular.md
+  - micro-detail.md
+  - eyes.md
