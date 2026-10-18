@@ -95,8 +95,10 @@ SSAO の積分はモンテカルロ法です。画素ごとにサンプルを 8�
 
 ## 参考
 
-- Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
-- Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
+- Georgiev, Fajardo, "Blue-Noise Dithered Sampling", SIGGRAPH 2016 Talks
+- Heitz, Belcour, Ostromoukhov, Coeurjolly, Iehl, "A Low-Discrepancy Sampler that Distributes Monte Carlo Errors as a Blue Noise in Screen Space", SIGGRAPH 2019 Talks
+- Karis, "High Quality Temporal Supersampling", SIGGRAPH 2014, Advances in Real-Time Rendering in Games（時間蓄積・履歴のクランプ）
+- Salvi, "An Excursion in Temporal Supersampling", GDC 2016（分散クリッピング）
 
 ## 関連ページ
 

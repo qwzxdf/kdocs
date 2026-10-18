@@ -268,9 +268,10 @@ GTAO を超える精度が必要なら、レイトレース AO に切り替え�
 
 ## 参考
 
-- Jimenez, Wu, Pesce, Jarabo, "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
-- Intel, XeGTAO（GameTechDev/XeGTAO、GTAO の HLSL 実装）
-- Lagarde, Rousiers, "Moving Frostbite to Physically Based Rendering"（スペキュラ遮蔽の近似式）
+- Jimenez, Wu, Pesce, Jarabo, "Practical Real-Time Strategies for Accurate Indirect Occlusion", SIGGRAPH 2016, Physically Based Shading in Theory and Practice
+- Intel, XeGTAO（GitHub: GameTechDev/XeGTAO、GTAO の、HLSL 実装）
+- Bavoil, Sainz, Dimitrov, "Image-Space Horizon-Based Ambient Occlusion", SIGGRAPH 2008 Talks
+- Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering 3.0", SIGGRAPH 2014（スペキュラ オクルージョン）
 
 ## 関連ページ
 

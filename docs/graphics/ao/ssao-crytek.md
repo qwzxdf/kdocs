@@ -290,7 +290,10 @@ float SSAO(float2 uv) {
 
 ## 参考
 
-- Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007 Advanced Real-Time Rendering in 3D Graphics and Games）
+- Mittring, "Finding Next Gen: CryEngine 2", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games
+- Filion, McNaughton, "StarCraft II: Effects & Techniques", SIGGRAPH 2008, Advances in Real-Time Rendering in 3D Graphics and Games（深度バッファによる、SSAO）
+- Kajalin, "Screen Space Ambient Occlusion", ShaderX7, 2009
+- de Vries, "SSAO", LearnOpenGL（半球カーネル・ノイズ・バイアス・範囲チェックの、実装解説）
 
 ## 関連ページ
 

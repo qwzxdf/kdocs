@@ -381,8 +381,10 @@ float UpsampleAO(float2 uv_full) {
 
 ## 参考
 
-- Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
-- Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
+- Kopf, Cohen, Lischinski, Uyttendaele, "Joint Bilateral Upsampling", ACM Transactions on Graphics (SIGGRAPH 2007), 26(3)
+- Tomasi, Manduchi, "Bilateral Filtering for Gray and Color Images", ICCV 1998
+- McGuire, Mara, Luebke, "Scalable Ambient Obscurance", High-Performance Graphics 2012
+- Bavoil, Jansen, "Particle Shadows & Cache-Efficient Post-Processing", GDC 2013（デインターリーブ テクスチャリング）
 
 ## 関連ページ
 

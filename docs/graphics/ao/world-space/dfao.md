@@ -200,8 +200,9 @@ DFAO は、現在は単独の AO としてよりも、Lumen のような<strong>
 
 ## 参考
 
-- Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
-- Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
+- Wright, "Dynamic Occlusion with Signed Distance Fields", SIGGRAPH 2015, Advances in Real-Time Rendering in Games（Unreal Engine 4 の DFAO）
+- Quilez, "Sphere soft shadows / Distance functions"（距離関数の、基礎。iquilezles.org）
+- Crassin, Neyret, Sainz, Green, Eisemann, "Interactive Indirect Illumination Using Voxel Cone Tracing", Computer Graphics Forum (Pacific Graphics 2011)
 
 ## 関連ページ
 

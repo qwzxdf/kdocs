@@ -113,9 +113,9 @@ HBAO+ の発想を自前の実装に取り入れるなら、3 つの点を押さ
 
 ## 参考
 
-- NVIDIA, "Horizon-Based Ambient Occlusion Plus (HBAO+)"（NVIDIA Developer）
-- NVIDIA GameWorks, HBAO+ ドキュメント（"HBAO+ does not use any randomization texture ..." の説明）
-- NVIDIA nvpro-samples, `gl_ssao`（デインターリーブされたテクスチャで、キャッシュに優しい AO を実装した、公開サンプル。HBAO+ そのものではない）
+- NVIDIA, "HBAO+"（NVIDIA GameWorks、公開ドキュメント）
+- Bavoil, Jansen, "Particle Shadows & Cache-Efficient Post-Processing", GDC 2013（デインターリーブ テクスチャリング）
+- Bavoil, Sainz, Dimitrov, "Image-Space Horizon-Based Ambient Occlusion", SIGGRAPH 2008 Talks
 
 ## 関連ページ
 

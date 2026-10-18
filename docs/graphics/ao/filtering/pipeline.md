@@ -87,8 +87,10 @@ tags:
 
 ## 参考
 
-- Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
-- Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
+- McGuire, Mara, Luebke, "Scalable Ambient Obscurance", High-Performance Graphics 2012
+- Jimenez, Wu, Pesce, Jarabo, "Practical Real-Time Strategies for Accurate Indirect Occlusion", SIGGRAPH 2016, Physically Based Shading in Theory and Practice
+- Bavoil, Jansen, "Particle Shadows & Cache-Efficient Post-Processing", GDC 2013（デインターリーブ テクスチャリング）
+- Karis, "High Quality Temporal Supersampling", SIGGRAPH 2014, Advances in Real-Time Rendering in Games（時間蓄積・履歴のクランプ）
 
 ## 関連ページ
 

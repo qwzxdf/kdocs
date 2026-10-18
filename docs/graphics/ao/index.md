@@ -53,6 +53,15 @@ l e f - 高速化
 l e g - コサイン重みを正しく
 </div>
 
+## 参考
+
+- Landis, "Production-Ready Global Illumination", SIGGRAPH 2002 Course 16（ambient occlusion の、映画制作での、使われ方）
+- Zhukov, Iones, Kronin, "An Ambient Light Illumination Model", Rendering Techniques '98（Eurographics Workshop on Rendering 1998）（obscurance の原典）
+- Mittring, "Finding Next Gen: CryEngine 2", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games
+- Bavoil, Sainz, Dimitrov, "Image-Space Horizon-Based Ambient Occlusion", SIGGRAPH 2008 Talks
+- Jimenez, Wu, Pesce, Jarabo, "Practical Real-Time Strategies for Accurate Indirect Occlusion", SIGGRAPH 2016, Physically Based Shading in Theory and Practice
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（Ambient Occlusion の章）
+
 ## 関連ページ
 
 - [描画](../index.md)

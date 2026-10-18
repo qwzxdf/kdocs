@@ -24,6 +24,16 @@ RTAO は、三角形の BVH（加速構造）を使い、実際にレイを飛�
 | [Voxel AO (VXAO)](vxao.md) | ボクセルのミップで、円錐トレース |
 | [World-Space AO Comparison](comparison.md) | 3 方式の比較・使い分け |
 
+## 3 つの方式の、距離の測り方
+
+| 方式 | 何を持つか | 空間の問い | 更新 |
+| --- | --- | --- | --- |
+| RTAO | 三角形の BVH | 「この方向のレイは、近くで何かに当たるか」を、直接調べる | TLAS を毎フレーム更新 |
+| DFAO | メッシュごとの、距離場（SDF） | 「この点から、どれだけ進んでも、物に当たらないか」を、距離で知る | 動く物は、変換だけ。メッシュ自体の変形は不可 |
+| VXAO | ボクセル格子 | 「この円錐の中は、どれだけ埋まっているか」を、ミップで知る | 動く物を、毎フレーム再ボクセル化 |
+
+どれも、<strong>画面の外や、手前の物の裏側の遮蔽</strong>を扱える点が、スクリーン空間の AO との違いです（[Screen-Space Visibility](../theory/screen-space-visibility.md)）。そのかわり、ジオメトリをもう 1 つ（BVH、SDF、ボクセル）持つコストと、手間がかかります。
+
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -32,8 +42,10 @@ RTAO は、三角形の BVH（加速構造）を使い、実際にレイを飛�
 
 ## 参考
 
-- Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
-- Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
+- Wright, "Dynamic Occlusion with Signed Distance Fields", SIGGRAPH 2015, Advances in Real-Time Rendering in Games（Unreal Engine 4 の DFAO）
+- Crassin, Neyret, Sainz, Green, Eisemann, "Interactive Indirect Illumination Using Voxel Cone Tracing", Computer Graphics Forum (Pacific Graphics 2011)
+- Microsoft, "DirectX Raytracing (DXR) Functional Spec"
+- Barré-Brisebois, Halén, Wihlidal, Lauritzen, Bekkers, Stachowiak, Andersson, "Hybrid Rendering for Real-Time Ray Tracing", Ray Tracing Gems, Chapter 25, 2019
 
 ## 関連ページ
 

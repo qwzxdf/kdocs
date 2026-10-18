@@ -92,6 +92,15 @@ AO が不要な、または別の手段で済む場面もあります。静的�
     - [x] <strong>静的なものは焼き、動くものとの接触はスクリーン空間 AO</strong>
     - [x] どれも<strong>ブラー・時間蓄積・間接光への乗算</strong>が共通
 
+## 参考
+
+- Mittring, "Finding Next Gen: CryEngine 2", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games
+- Bavoil, Sainz, Dimitrov, "Image-Space Horizon-Based Ambient Occlusion", SIGGRAPH 2008 Talks
+- McGuire, Osman, Bukowski, Hennessy, "The Alchemy Screen-Space Ambient Obscurance Algorithm", High-Performance Graphics 2011
+- McGuire, Mara, Luebke, "Scalable Ambient Obscurance", High-Performance Graphics 2012
+- Jimenez, Wu, Pesce, Jarabo, "Practical Real-Time Strategies for Accurate Indirect Occlusion", SIGGRAPH 2016, Physically Based Shading in Theory and Practice
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（Ambient Occlusion の章）
+
 ## 関連ページ
 
 - [Ambient Occlusion (AO)](index.md)

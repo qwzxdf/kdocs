@@ -341,8 +341,9 @@ SAO の「深度のミップ」の発想は、その後の多くの実装に受�
 
 ## 参考
 
-- McGuire, Mara, Luebke, "Scalable Ambient Obscurance"（HPG 2012）
-- McGuire et al., "The Alchemy Screen-Space Ambient Obscurance Algorithm"（HPG 2011）
+- McGuire, Mara, Luebke, "Scalable Ambient Obscurance", High-Performance Graphics 2012
+- McGuire, Osman, Bukowski, Hennessy, "The Alchemy Screen-Space Ambient Obscurance Algorithm", High-Performance Graphics 2011
+- Bavoil, Sainz, Dimitrov, "Image-Space Horizon-Based Ambient Occlusion", SIGGRAPH 2008 Talks
 
 ## 関連ページ
 

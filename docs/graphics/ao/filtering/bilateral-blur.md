@@ -398,8 +398,9 @@ float BilateralBlur(float2 uv, float2 dir) {
 
 ## 参考
 
-- Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
-- Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
+- Tomasi, Manduchi, "Bilateral Filtering for Gray and Color Images", ICCV 1998
+- McGuire, Mara, Luebke, "Scalable Ambient Obscurance", High-Performance Graphics 2012
+- Schied et al., "Spatiotemporal Variance-Guided Filtering: Real-Time Reconstruction for Path-Traced Global Illumination", High-Performance Graphics 2017
 
 ## 関連ページ
 

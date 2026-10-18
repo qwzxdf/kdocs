@@ -46,8 +46,10 @@ AO は、画素 p の周りの半球を「どれだけ遮られているか」�
 
 ## 参考
 
-- Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
-- Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
+- Tomasi, Manduchi, "Bilateral Filtering for Gray and Color Images", ICCV 1998
+- Kopf, Cohen, Lischinski, Uyttendaele, "Joint Bilateral Upsampling", ACM Transactions on Graphics (SIGGRAPH 2007), 26(3)
+- Karis, "High Quality Temporal Supersampling", SIGGRAPH 2014, Advances in Real-Time Rendering in Games（時間蓄積・履歴のクランプ）
+- Bavoil, Jansen, "Particle Shadows & Cache-Efficient Post-Processing", GDC 2013（デインターリーブ テクスチャリング）
 
 ## 関連ページ
 

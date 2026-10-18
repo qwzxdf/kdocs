@@ -32,8 +32,10 @@ AO を実装するだけなら、理論を読まなくても動くコードは�
 
 ## 参考
 
-- Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
-- Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
+- Landis, "Production-Ready Global Illumination", SIGGRAPH 2002 Course 16（ambient occlusion の、映画制作での、使われ方）
+- Zhukov, Iones, Kronin, "An Ambient Light Illumination Model", Rendering Techniques '98（Eurographics Workshop on Rendering 1998）（obscurance の原典）
+- Iones, Krupkin, Sbert, Zhukov, "Fast, Realistic Lighting for Video Games", IEEE Computer Graphics and Applications, 23(3), 2003
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（Ambient Occlusion の章）
 
 ## 関連ページ
 

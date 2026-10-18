@@ -171,7 +171,9 @@ Alchemy AO の長所は、判定に if がなく連続なので、少ないサ�
 
 ## 参考
 
-- McGuire, Osman, Bukowski, Hennessy, "The Alchemy Screen-Space Ambient Obscurance Algorithm"（HPG 2011）
+- McGuire, Osman, Bukowski, Hennessy, "The Alchemy Screen-Space Ambient Obscurance Algorithm", High-Performance Graphics 2011
+- McGuire, Mara, Luebke, "Scalable Ambient Obscurance", High-Performance Graphics 2012
+- Zhukov, Iones, Kronin, "An Ambient Light Illumination Model", Rendering Techniques '98（Eurographics Workshop on Rendering 1998）（obscurance の原典）
 
 ## 関連ページ
 

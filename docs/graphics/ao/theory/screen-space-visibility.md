@@ -42,6 +42,56 @@ tags:
 
 具体的な不具合の見え方と対策は、[AO Artifacts](../artifacts/index.md) にまとめています。
 
+## 深度バッファから、サンプル点の可視性を求める
+
+### 再構成：深度から、ビュー空間の位置へ
+
+```hlsl
+// 深度（0〜1）と uv から、ビュー空間の位置を復元する（右手系、前は −Z）。
+float3 ViewPosition(float2 uv, float depth) {
+  float4 clip = float4(uv * float2(2.0, -2.0) + float2(-1.0, 1.0), depth, 1.0);
+  float4 view = mul(clip, g_inv_proj);
+  return view.xyz / view.w;
+}
+```
+
+AO の計算は、ほぼすべてビュー空間で行います。カメラが原点で、深度の比較が、単純になるからです。
+
+### サンプル点を投影して、深度と比べる
+
+```hlsl
+// 点 p の近くのサンプル点 s が、見えている面の奥にあるか。
+float3 s = p + offset;                                              // offset は、法線の向きの半球内
+float4 clip = mul(float4(s, 1.0), g_proj);
+float2 uv = clip.xy / clip.w * float2(0.5, -0.5) + 0.5;
+float scene_z = ViewPosition(uv, g_depth.SampleLevel(g_point_clamp, uv, 0)).z;   // その画素で見えている面の、z
+bool occluded = scene_z >= s.z + g_bias;                            // −Z が前なので、z が大きいほど手前。面が手前にあれば、遮蔽
+```
+
+サンプル点 `s` をカメラの射影で画面に落とし、その画素に見えている面の深度と比べます。面が `s` より手前なら、`s` はその面の裏にあるので、遮られていると数えます。`g_bias` は、同じ面の上の点を、自分で遮ってしまわないための、わずかな余裕です。
+
+### 範囲チェック：遠い面を、遮蔽に数えない
+
+```hlsl
+// 手前にあるのが、ずっと手前の別の物体（柱の向こうの壁など）なら、遮蔽に数えない。
+float range = smoothstep(0.0, 1.0, g_radius / abs(p.z - scene_z));
+occlusion += occluded ? range : 0.0;
+```
+
+深度の差が半径より大きい場合、その面は、`p` の周りの遮蔽物ではなく、ただ手前を横切っているだけです。放置すると、物体の輪郭に沿って、暗いハローが出ます（[Halo](../artifacts/halo.md)）。
+
+## D3D11 での、深度の準備
+
+```cpp
+// 深度は、typeless で作り、DSV（書き込み）と SRV（AO の読み込み）の両方から見る。
+D3D11_TEXTURE2D_DESC desc = {};
+desc.Format = DXGI_FORMAT_R32_TYPELESS;
+desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+// DSV: DXGI_FORMAT_D32_FLOAT、SRV: DXGI_FORMAT_R32_FLOAT
+```
+
+AO のパスを走らせる前に、深度の DSV を外してから SRV として束ねます（同じリソースを、書き込みと読み込みで同時に束ねない）。
+
 ## よくあるミス
 
 ??? failure "画面端で AO が消える"
@@ -55,8 +105,10 @@ tags:
 
 ## 参考
 
-- Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
-- Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
+- Mittring, "Finding Next Gen: CryEngine 2", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games
+- Filion, McNaughton, "StarCraft II: Effects & Techniques", SIGGRAPH 2008, Advances in Real-Time Rendering in 3D Graphics and Games（深度バッファによる、SSAO）
+- Bavoil, Sainz, Dimitrov, "Image-Space Horizon-Based Ambient Occlusion", SIGGRAPH 2008 Talks
+- Reinbothe, Boubekeur, Alexa, "Hybrid Ambient Occlusion", Eurographics 2009 Areas Papers
 
 ## 関連ページ
 

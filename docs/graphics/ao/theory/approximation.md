@@ -53,6 +53,59 @@ AO は<strong>積分</strong>なのでそのままでは計算できません。
 
 したがって、方式を「名前の新しさ」で選ぶのでなく、<strong>自分のゲームの制約（G-Buffer があるか、解像度、予算、必要な正確さ）に合う近似はどれか</strong>で選ぶのが正解です（[AO Comparison](../comparison.md)）。
 
+## 3 つの近似を、コードで比べる
+
+### ① サンプルを撒く：コサイン分布の半球サンプリング
+
+```hlsl
+// コサイン重みの分布で、半球の方向を 1 つ選ぶ（ローカル座標。z が法線）。pdf = cosθ / π。
+float3 CosineSampleHemisphere(float2 u) {
+  float r = sqrt(u.x);
+  float phi = 2.0 * 3.14159265 * u.y;
+  return float3(r * cos(phi), r * sin(phi), sqrt(max(0.0, 1.0 - u.x)));
+}
+```
+
+円盤の上に一様に点を取り、それを半球に持ち上げると、`cosθ` に比例した密度になります。AO の式の `(n·ω)` と、モンテカルロ法の `1/pdf` が打ち消し合い、残るのは可視性 V の平均だけです。
+
+```hlsl
+// 可視性を数えて、割合にする。Visible() は、方向ごとの遮蔽判定（レイ、または、深度の比較）。
+float ao = 0.0;
+for (uint i = 0; i < kSamples; ++i) {
+  float3 w = TangentToWorld(CosineSampleHemisphere(Hammersley(i, kSamples)), normal);
+  ao += Visible(position, w) ? 1.0 : 0.0;
+}
+ao /= kSamples;
+```
+
+これが、Crytek 系や半球 SSAO の、骨格です。サンプル数が少ないぶん、ノイズになります。
+
+### ② 水平線を探す：スライスごとに解析的に積分する
+
+```hlsl
+// 1 本のスライスで、左右の水平線の角度 h1, h2（法線から測る）が分かれば、可視な弧の積分は式で出る（GTAO）。
+float IntegrateArcCosWeighted(float h1, float h2, float n) {
+  float cos_n = cos(n);
+  float sin_n = sin(n);
+  return 0.25 * (-cos(2.0 * h1 - n) + cos_n + 2.0 * h1 * sin_n
+               + -cos(2.0 * h2 - n) + cos_n + 2.0 * h2 * sin_n);
+}
+```
+
+水平線の角度を 2 つ探すだけで、そのスライスの可視度が、サンプルを撒かずに、閉じた式で得られます。サンプル点の数は、水平線を探す歩数だけで済みます（[GTAO](../gtao.md)）。
+
+### ③ 式で近似する：遮蔽物の点ごとに寄与を足す
+
+```hlsl
+// Alchemy 型: 周りの点 q が p を遮る量を、ベクトル v = q - p だけで書き、足し合わせる。
+float3 v = q - p;
+float vv = dot(v, v);
+float vn = dot(v, n);
+occlusion += max(0.0, vn + p_depth * kBeta) / (vv + kEpsilon);
+```
+
+法線の向きにある点ほど（`vn` が大きい）、近い点ほど（`vv` が小さい）強く遮る、という形です。方向を探さないので軽く、ただし、物理的な厳密さは、水平線の方式に劣ります。
+
 ## よくあるミス
 
 ??? failure "方式を、名前だけで選んで、特徴を知らない"
@@ -66,8 +119,10 @@ AO は<strong>積分</strong>なのでそのままでは計算できません。
 
 ## 参考
 
-- Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
-- Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
+- Mittring, "Finding Next Gen: CryEngine 2", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games
+- Bavoil, Sainz, Dimitrov, "Image-Space Horizon-Based Ambient Occlusion", SIGGRAPH 2008 Talks
+- McGuire, Osman, Bukowski, Hennessy, "The Alchemy Screen-Space Ambient Obscurance Algorithm", High-Performance Graphics 2011
+- Jimenez, Wu, Pesce, Jarabo, "Practical Real-Time Strategies for Accurate Indirect Occlusion", SIGGRAPH 2016, Physically Based Shading in Theory and Practice
 
 ## 関連ページ
 

@@ -59,6 +59,63 @@ float ConeOcclusion(float3 origin, float3 dir, float aperture) {
 
 NVIDIA の VXAO は、この考え方を AO に絞って最適化した実装で、ボクセルに占有度だけを保存し、通常の AO（スクリーン空間）より高品質な接触の暗さを得ています。
 
+## ボクセル化を、D3D11 で組む
+
+### 3D テクスチャと UAV
+
+```cpp
+// 占有度を持つ、ボクセル格子（128³、1 チャンネル）。ピクセル シェーダーから UAV で書き、後でミップを作る。
+D3D11_TEXTURE3D_DESC desc = {};
+desc.Width = desc.Height = desc.Depth = 128;
+desc.MipLevels = 0;                                                    // 全ミップ（円錐トレースで使う）
+desc.Format = DXGI_FORMAT_R8_UNORM;
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_RENDER_TARGET;
+desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+device->CreateTexture3D(&desc, nullptr, &voxel_tex);
+```
+
+ピクセル シェーダーから UAV に書き込むために、レンダー ターゲットは、無しにして、`OMSetRenderTargetsAndUnorderedAccessViews` で、UAV だけを束ねます。ビューポートは、格子の解像度（128×128）に合わせます。
+
+### 三角形の向きを選んで、ラスタライズする
+
+```hlsl
+// ジオメトリ シェーダー: 三角形の法線が、最も大きい軸（X / Y / Z）に向けて、直交投影し直す。面積が最大になる軸で描くと、取りこぼしが少ない。
+[maxvertexcount(3)]
+void VoxelizeGS(triangle VSOut input[3], inout TriangleStream<GSOut> stream) {
+  float3 n = abs(cross(input[1].world - input[0].world, input[2].world - input[0].world));
+  uint axis = (n.x > n.y && n.x > n.z) ? 0 : (n.y > n.z ? 1 : 2);
+  for (uint i = 0; i < 3; ++i) {
+    GSOut o;
+    o.world = input[i].world;
+    float3 p = (input[i].world - g_voxel_origin) / g_voxel_extent * 2.0 - 1.0;   // 格子の範囲を −1〜1 に
+    o.position = float4(axis == 0 ? p.yzx : (axis == 1 ? p.zxy : p.xyz), 1.0);  // 軸ごとに、向きを回す
+    stream.Append(o);
+  }
+}
+```
+
+三角形を、その面積が最大に見える軸から描くと、ラスタライザーが、三角形をほぼ漏れなく、画素（= ボクセル）に分けてくれます。細い三角形の取りこぼしは、保守的ラスタライズ（D3D11.3 / D3D12 の機能）で防げます。
+
+```hlsl
+// ピクセル シェーダー: 当たったボクセルの占有度を 1 にする。
+RWTexture3D<float> g_voxel : register(u1);
+void VoxelizePS(GSOut input) {
+  int3 voxel = (int3)((input.world - g_voxel_origin) / g_voxel_extent * 128.0);
+  g_voxel[voxel] = 1.0;
+}
+```
+
+ここで書くのは、占有度だけです。色や法線まで保存すると、GI 用のボクセルになります（[Voxel GI](../../gi/voxel-gi.md)）。
+
+### ミップを作る：占有度の平均
+
+```cpp
+context->GenerateMips(voxel_srv.Get());   // 8 つのボクセルの平均。粗いミップほど、「部分的に埋まっている」を表す
+```
+
+円錐の直径が大きくなるほど、粗いミップを読みます。ミップの値は、領域のうち、埋まっている割合なので、円錐の中の、遮蔽の割合として、そのまま使えます。
+
 ## よくあるミス
 
 ??? failure "ボクセルが粗くて、AO がブロック状に見える"
@@ -72,8 +129,9 @@ NVIDIA の VXAO は、この考え方を AO に絞って最適化した実装で
 
 ## 参考
 
-- Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
-- Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
+- Crassin, Neyret, Sainz, Green, Eisemann, "Interactive Indirect Illumination Using Voxel Cone Tracing", Computer Graphics Forum (Pacific Graphics 2011)
+- Crassin, Green, "Octree-Based Sparse Voxelization Using the GPU Hardware Rasterizer", OpenGL Insights, Chapter 22, 2012
+- NVIDIA, "VXAO"（NVIDIA GameWorks）
 
 ## 関連ページ
 

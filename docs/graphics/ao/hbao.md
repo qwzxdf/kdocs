@@ -488,7 +488,9 @@ HBAO の重さとキャッシュの効きにくさは、フル解像度で処理
 
 ## 参考
 
-- Bavoil, Sainz, Dimitrov, "Image-Space Horizon-Based Ambient Occlusion"（SIGGRAPH 2008 Talks）
+- Bavoil, Sainz, Dimitrov, "Image-Space Horizon-Based Ambient Occlusion", SIGGRAPH 2008 Talks
+- NVIDIA, "HBAO+"（NVIDIA GameWorks、公開ドキュメント）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（Ambient Occlusion の章）
 
 ## 関連ページ
 
