@@ -46,6 +46,91 @@ tags:
 | 品質が高い（ハロー・厚みの問題なし） | ノイズが出る。デノイザーが必須 |
 | シーン全体を一貫して扱える | 動く物体の BVH 更新・メモリ |
 
+## 反射の、ノイズ
+
+<strong>粗い面</strong>の、RT 反射は、<strong>1 画素 1 本の、レイ</strong>を、ランダムな、方向に、飛ばすので、ノイズだらけです。GI の、デノイズ（[Fighting Noise](../../gi/rt-gi/noise.md)）と、似ていますが、反射には、反射特有の、問題が、あります。
+
+| | GI（拡散の、間接光） | 反射（鏡面） |
+| --- | --- | --- |
+| ノイズの、性質 | 低周波（なめらかな、光） | 高周波（反射する物の、細かい形が、見える） |
+| 視点依存 | 無し | 有り（見る角度で、反射が、変わる） |
+| 時間蓄積 | 画面上の、同じ点を、再投影で、追える | 反射像は、画面上の、点とは、別の位置に、動く（視差）。再投影が、難しい |
+| フィルタの、範囲 | 広く、ぼかしても、よい（なめらか） | 広く、ぼかすと、反射の、形が、失われる（鏡面は、くっきり） |
+
+## 反射の、時間蓄積：反射像の、位置を、追う
+
+<strong>反射する面</strong>（床）の、<strong>画素</strong>は、カメラが、動かなくても、反射像（映っている、物）が、動けば、変わります。普通の再投影（面の位置を、再投影）は、面の、色には、正しいですが、反射像は、面より、奥に、映っているので、ずれて、反射が、ぼやけます。
+
+```text
+カメラが、右に、動く:
+   床の点 P は、画面上で、左へ動く（面の動き）
+   P に映る、反射像（遠い物）は、画面上で、もっと、少ししか、動かない（遠いので）
+   → P の位置で、再投影すると、反射像が、ずれて、ぼやける（ゴースト）
+```
+
+### 反射像の、位置を、再投影する
+
+<strong>反射像が、当たった</strong>、<strong>ヒット位置</strong>（反射の、中の、物の位置）を、再投影します。ヒット位置の、前フレームでの、画面位置で、履歴を、読みます。
+
+```hlsl
+// 反射の、ヒット位置（ワールド）を、前フレームの画面へ投影して、反射像の、履歴を読む。
+float3 hit_world = position + reflect_dir * hit_distance;                    // 反射レイが、当たった位置
+float4 prev_clip = mul(float4(hit_world, 1.0), g_prev_view_proj);
+float2 prev_uv = prev_clip.xy / prev_clip.w * float2(0.5, -0.5) + 0.5;
+float4 history = g_reflection_history.SampleLevel(g_linear_clamp, prev_uv, 0);
+```
+
+<strong>鏡面の</strong>、<strong>反射像</strong>は、「ヒット位置」が、画面上で、どこに動くかで、追えます（仮想的な、鏡像の、位置を、追う、考え方）。面の位置で、再投影するより、反射像が、ずれません。
+
+<strong>粗い面</strong>（反射が、ぼやけている）では、<strong>面の位置での、再投影</strong>でも、あまり、目立たない（ぼけて、いるので）。粗さに応じて、2 つの再投影を、混ぜる方法も、あります。
+
+## 空間フィルタ
+
+<strong>時間蓄積の、後</strong>、<strong>まだ、残る、ノイズ</strong>を、空間フィルタで、ぼかします。GI の、デノイザーと、同じ、エッジを、保つ、フィルタ（À-Trous など）を、使いますが、反射の、特徴に、合わせます。
+
+| 工夫 | 内容 |
+| --- | --- |
+| 粗さに、比例した、フィルタ半径 | 粗い面は、広くぼかす、つるつるの面は、ほとんどぼかさない（ぼかすと、反射が、失われる） |
+| ヒット距離を、考慮 | 反射の、ヒット位置が、遠いほど、ぼけが、大きい（反射の、円錐が、広がる）。ヒット距離に応じて、フィルタ半径を、変える |
+| 法線・深度で、エッジを、保つ | GI と同じ。別の面を、またいで、混ぜない |
+| ヒット位置で、エッジを、保つ | 反射像の、境目（別の物が、映っている）を、越えない |
+
+```hlsl
+// フィルタ半径を、粗さとヒット距離から決める。つるつる・近い反射は、ほとんど、ぼかさない。
+float radius = g_max_filter_radius * saturate(roughness * 2.0) * saturate(hit_distance / g_blur_distance);
+```
+
+## ノイズを、減らす、入力側の、工夫
+
+| 工夫 | 内容 |
+| --- | --- |
+| 可視法線の、サンプリング（Heitz、2018） | 無駄な、サンプルを、減らし、ノイズが、少ない（[Ray Generation](ray-generation.md)） |
+| ブルー ノイズ | ノイズの、粒が、均一で、フィルタが、効きやすい |
+| 明るさの、クランプ | ファイアフライ（太陽を、拾った、白い点）を、抑える |
+| 粗さに、応じた、ミップ | 反射先の、テクスチャを、粗いミップで、読む（高周波を、減らす） |
+| 複数レイ（粗い面） | 粗さが、大きい画素は、レイを、増やす |
+
+## 専用の、デノイザーを、使う
+
+<strong>デノイザーを、自作</strong>するのは、<strong>大変</strong>です。ライブラリが、あります。
+
+| ライブラリ | 内容 |
+| --- | --- |
+| NVIDIA Real-Time Denoisers（NRD） | 反射・拡散・影の、リアルタイム デノイザー。ReBLUR、ReLAX など |
+| AMD FidelityFX Denoiser | 反射・影の、デノイザー |
+| Intel Open Image Denoise | オフライン向けの、高品質デノイザー（ニューラル ネット）。リアルタイムには、重い |
+
+<strong>反射と、拡散</strong>を、<strong>別々に</strong>、デノイズするのが、一般的です（性質が、違うため。[Diffuse and Specular](../../gi/theory/diffuse-specular.md)）。
+
+## 限界
+
+| 問題 | 内容 |
+| --- | --- |
+| ぼやけ | 強くフィルタすると、鏡面反射の、細部が、失われる |
+| ゴースト | 時間蓄積で、動く物の、反射が、残像を、引く |
+| ちらつき | 粗い面で、デノイザーの、判断が、揺れる |
+| つるつるの面 | ほぼ、ノイズが、ないので、デノイズ不要（ぼかさない） |
+
 ## よくあるミス
 
 ??? failure "動く反射が、尾を引く（ゴースト）"
@@ -59,9 +144,11 @@ tags:
 
 ## 参考
 
-- McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
-- Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
-- Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
+- Schied et al., "Spatiotemporal Variance-Guided Filtering: Real-Time Reconstruction for Path-Traced Global Illumination", High-Performance Graphics 2017
+- Heitz, "Sampling the GGX Distribution of Visible Normals", Journal of Computer Graphics Techniques, Vol. 7, No. 4, 2018
+- Stachowiak, "Stochastic All The Things: Raytracing in Hybrid Real-Time Rendering", Digital Dragons 2018
+- Barré-Brisebois, Halén, Wihlidal, Lauritzen, Bekkers, Stachowiak, Andersson, "Hybrid Rendering for Real-Time Ray Tracing", Ray Tracing Gems, Chapter 25, 2019
+- NVIDIA, "Real-Time Denoisers (NRD)"（公開ライブラリ、GitHub: NVIDIAGameWorks/RayTracingDenoiser）
 
 ## 関連ページ
 

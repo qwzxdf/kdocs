@@ -31,6 +31,81 @@ tags:
 
 <strong>確率的な方式</strong>（[Stochastic SSR](../ssr-stochastic.md)）は、<strong>GGX の分布からレイをサンプル</strong>して、ぼけを物理的に正しく得ます。
 
+## 粗さと、SSR の、関係
+
+<strong>SSR の、レイ</strong>は、<strong>反射方向</strong>に、1 本飛ばして、当たった、色を、読みます。これは、粗さ 0（完全な、鏡）の、反射です。粗い面は、反射が、ぼやけ（周りの、広い範囲が、混ざる）ので、1 本の、レイでは、足りません。
+
+| 粗さ | 反射の見え方 | SSR で、必要なこと |
+| --- | --- | --- |
+| 0（鏡） | くっきり | レイ 1 本で、よい |
+| 0.2〜0.4 | 少し、ぼやける | ぼかし、または、複数のレイ |
+| 0.5〜0.7 | かなり、ぼやける | 多数の、レイ、または、大きな、ぼかし |
+| 0.8 以上 | ほぼ、拡散（景色が、判別できない） | SSR は、やめて、反射プローブ（ミップで、ぼかした）に、任せる |
+
+## 方法 1：反射を、ぼかす
+
+<strong>くっきり、1 本のレイ</strong>で、<strong>反射を、取り</strong>、粗さに応じて、ぼかします。安いが、偽物（距離による、ぼけの、変化が、出ない）です。
+
+```hlsl
+// SSR の結果（反射色）を、粗さに応じて、ぼかす。画面（色）のミップマップを、使う。
+float mip = roughness * g_max_blur_mip;                                      // 粗さ → ミップ（粗いほど、ぼやける）
+float3 reflected = g_lit_scene_mips.SampleLevel(g_linear_clamp, hit_uv, mip).rgb;
+```
+
+<strong>当たった、画素の位置</strong>で、<strong>画面の色の、ミップマップ</strong>を、読む（粗いほど、高いミップ）と、当たった点の、周りが、ぼけて、反射が、ぼやけます。1 回の、テクスチャ読み込みで、安いです。
+
+### 距離による、ぼけの、変化
+
+<strong>現実の、反射</strong>は、<strong>反射する物が、遠い</strong>ほど、ぼけが、大きくなります（反射の、円錐が、広がるため）。レイの長さに、応じて、ミップを、上げると、これを、近似できます。
+
+```hlsl
+float cone_radius = ray_length * tan(roughness_to_cone_angle(roughness));    // レイの長さに、比例して、円錐が広がる
+float mip = log2(cone_radius * g_screen_size_pixels / pixel_world_size);      // 円錐の広がりに合う、ミップ
+```
+
+<strong>レイが、長い</strong>（遠くの物が、映る）ほど、<strong>ぼけが、大きく</strong>なります。コーン トレーシングの、考え方です（[Hi-Z SSR](../ssr-hiz.md) の、Uludag の、方法）。
+
+## 方法 2：確率的に、複数のレイ
+
+<strong>粗さに応じた、分布</strong>で、<strong>反射方向を、ランダムに</strong>（GGX の、重点サンプリング）、数本飛ばし、平均します（確率的 SSR、Stachowiak と Uludag、2015）。本物の、ぼけが、得られますが、ノイズが、出るので、時間蓄積と、空間フィルタが、必要です（[Stochastic SSR](../ssr-stochastic.md)）。
+
+```hlsl
+// 粗さに応じて、反射方向を、GGX の分布で、ランダムに、ずらす（重点サンプリング）。
+float3 H = LocalToWorld(ImportanceSampleGGX(Random2(pixel, g_frame_index), roughness), normal_vs);
+float3 R = reflect(view_dir_vs, H);                                           // 法線を、H に、ずらして、反射
+```
+
+<strong>GGX の分布</strong>に従って、<strong>法線</strong>を、ずらしたもの（ハーフ ベクトル `H`）で、反射させます。粗い面ほど、大きく、ずれるので、周りの、広い範囲を、サンプルします。
+
+## コストの、内訳
+
+| 処理 | コスト（1080p、目安） |
+| --- | --- |
+| レイマーチ（画素ごと、16〜32 ステップ） | 0.5〜2 ms（最大の、コスト） |
+| 反射色の、読み込み + ぼかし | 0.1〜0.3 ms |
+| 時間蓄積・空間フィルタ（確率的 SSR の場合） | 0.3〜1 ms |
+| プローブとの、合成 | 0.1 ms |
+
+<strong>SSR の、コスト</strong>の、<strong>大部分</strong>は、レイマーチです。
+
+## コストを、下げる
+
+| 工夫 | 効果 |
+| --- | --- |
+| 半分の、解像度で、トレースして、アップサンプル | 約 1/4 のコスト。反射が、少し、ぼける |
+| 粗さが、大きい（0.7 以上）画素は、スキップ | 多くの画素を、スキップ（プローブに、任せる） |
+| 反射しない面（粗さが、高い、非金属で、反射が、弱い）を、スキップ | 反射が、見えない画素の、レイマーチを、省く |
+| レイの、最大距離を、短く | ステップ数が、減る |
+| Hi-Z（[Hi-Z SSR](../ssr-hiz.md)） | 同品質で、数倍、速い |
+
+```hlsl
+// 反射が、ほぼ見えない画素は、レイマーチを、スキップする。
+float fresnel_scale = 0.04 + metallic * 0.96;                                 // 非金属は、約 4% しか、反射しない
+if (roughness > 0.7 || fresnel_scale * (1.0 - roughness) < 0.01) return float4(0, 0, 0, 0);   // SSR なし → プローブに、任せる
+```
+
+<strong>非金属</strong>（<strong>反射率 4%</strong>）で、粗い面は、反射が、ほとんど、見えません。レイマーチを、省いて、反射プローブに、任せます。画素の、多くを、スキップできるので、大きな、節約に、なります。
+
 ## よくあるミス
 
 ??? failure "粗い面にも、鏡のようにくっきりした反射が出る"
@@ -44,9 +119,11 @@ tags:
 
 ## 参考
 
-- McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
-- Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
-- Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
+- Stachowiak, Uludag, "Stochastic Screen-Space Reflections", SIGGRAPH 2015, Advances in Real-Time Rendering in Games（Frostbite の SSR）
+- Uludag, "Hi-Z Screen-Space Cone-Traced Reflections", GPU Pro 5, 2014
+- Heitz, "Sampling the GGX Distribution of Visible Normals", Journal of Computer Graphics Techniques, Vol. 7, No. 4, 2018
+- Walter, Marschner, Li, Torrance, "Microfacet Models for Refraction through Rough Surfaces", Eurographics Symposium on Rendering 2007
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（反射、IBL の章）
 
 ## 関連ページ
 

@@ -46,6 +46,54 @@ tags:
 | [Hybrid Pipeline](hybrid.md) | SSR とレイトレの組み合わせ・性能の工夫 |
 | [Denoising](denoise.md) | デノイズ・長所と短所 |
 
+## レイトレーシングで、反射を、描く
+
+<strong>ハードウェア レイトレーシング</strong>（DXR）を、使うと、<strong>反射</strong>を、実際の、三角形に、レイを、飛ばして、正確に、求められます。SSR の、限界（画面の外、隠れた面）が、ありません。反射の、反射（多重反射）、屈折、ガラスの、反射も、自然に、扱えます。
+
+## 基本の、流れ
+
+```text
+各画素（反射する面）から、反射方向に、レイを、飛ばす（DXR の TraceRay）
+   ↓ 当たった面の、色を、求める（ヒット シェーダー）
+当たった面の、ライティング（直接光 + 影レイ）+ 当たった面が、さらに、反射するなら、もう一度、レイ
+   ↓
+ノイズを、取る（デノイズ）→ 反射を、画面に、合成
+```
+
+## 構成要素
+
+| 要素 | 内容 | ページ |
+| --- | --- | --- |
+| レイの、生成 | どの画素から、どの方向に、レイを、飛ばすか（粗さに、応じた、分布） | [Ray Generation](ray-generation.md) |
+| ヒット シェーディング | 当たった面の、色を、求める。BVH（加速構造）の、管理 | [Hit Shading and BVH](hit-shading.md) |
+| ハイブリッド | SSR と、レイトレーシングの、組み合わせ（画面内は SSR、外れたら RT） | [Hybrid Pipeline](hybrid.md) |
+| デノイズ | ノイズを、取り除く | [Denoising](denoise.md) |
+
+## SSR との、比較
+
+| | SSR | レイトレーシング（RT） |
+| --- | --- | --- |
+| 画面の外の物 | ×（映らない） | ○（映る） |
+| 隠れた面（物の裏） | ×（穴が、あく） | ○（正確） |
+| 反射の、反射 | △（前フレームの色で、近似） | ○（正確。再帰） |
+| ガラスの、屈折・反射 | ×（簡易） | ○（レイを、屈折・反射させられる） |
+| コスト | 中 | 大（レイ、BVH、シェーディング） |
+| 必要な、ハードウェア | 不要（どの GPU でも） | DXR 対応の GPUが、必要 |
+| ノイズ | 中（粗い面） | 大（粗い面は、レイが、散らばる） |
+| 実装の、難しさ | 中 | 高（BVH、シェーダー テーブル、デノイズ） |
+
+## RT 反射の、現実的な、使い方
+
+<strong>フルスクリーンの、RT 反射</strong>は、<strong>重い</strong>ので、工夫して、使います。
+
+| 工夫 | 内容 |
+| --- | --- |
+| ハイブリッド | SSR で、取れる画素は、SSR（安い）、取れなかった画素だけ、RT（[Hybrid Pipeline](hybrid.md)） |
+| 反射が、強い（つるつるの）面だけ、RT | 粗い面や、非金属は、反射プローブで、十分 |
+| 半分の、解像度で、RT | レイ数が、1/4。アップサンプルして、デノイズ |
+| レイの、最大距離を、短く | 遠くは、プローブに、任せる |
+| ヒット シェーディングを、簡略化 | 当たった面は、低品質なシェーディング（影なし、簡易ライティング） |
+
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -54,9 +102,11 @@ tags:
 
 ## 参考
 
-- McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
-- Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
-- Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
+- Microsoft, "DirectX Raytracing (DXR) Functional Spec"
+- Stachowiak, "Stochastic All The Things: Raytracing in Hybrid Real-Time Rendering", Digital Dragons 2018
+- Barré-Brisebois, Halén, Wihlidal, Lauritzen, Bekkers, Stachowiak, Andersson, "Hybrid Rendering for Real-Time Ray Tracing", Ray Tracing Gems, Chapter 25, 2019
+- Schied et al., "Spatiotemporal Variance-Guided Filtering: Real-Time Reconstruction for Path-Traced Global Illumination", High-Performance Graphics 2017
+- Heitz, "Sampling the GGX Distribution of Visible Normals", Journal of Computer Graphics Techniques, Vol. 7, No. 4, 2018
 
 ## 関連ページ
 

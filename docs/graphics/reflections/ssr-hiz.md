@@ -418,8 +418,10 @@ bool valid = (ray_z - scene_z) < thickness;
 
 ## 参考
 
-- Uludag, "Hi-Z Screen-Space Cone-Tracing"（GPU Pro 5, 2014）
-- Stachowiak, Uludag, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015 Advances in Real-Time Rendering、Frostbite）
+- Uludag, "Hi-Z Screen-Space Cone-Traced Reflections", GPU Pro 5, 2014
+- McGuire, Mara, "Efficient GPU Screen-Space Ray Tracing", Journal of Computer Graphics Techniques, Vol. 3, No. 4, 2014
+- Stachowiak, Uludag, "Stochastic Screen-Space Reflections", SIGGRAPH 2015, Advances in Real-Time Rendering in Games（Frostbite の SSR）
+- Tevs, Ihrke, Seidel, "Maximum Mipmaps for Fast, Accurate, and Scalable Dynamic Height Field Rendering", Symposium on Interactive 3D Graphics and Games 2008（最大ミップマップによる、高速なレイ交差）
 
 ## 関連ページ
 

@@ -225,7 +225,9 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 
 ## 参考
 
-- Lengyel, "Oblique View Frustum Depth Projection and Clipping"（Journal of Game Development, 2005）
+- Mittring, "Finding Next Gen: CryEngine 2", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（反射、IBL の章）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（斜めクリップ面）
 
 ## 関連ページ
 

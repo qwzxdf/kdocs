@@ -224,8 +224,10 @@ color = lerp(color, planar_color, planar_weight);
 
 ## 参考
 
-- Stachowiak, Uludag, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
-- Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering"（プローブと反射の階層）
+- Stachowiak, Uludag, "Stochastic Screen-Space Reflections", SIGGRAPH 2015, Advances in Real-Time Rendering in Games（Frostbite の SSR）
+- Valient, "Reflections and Volumetrics of Killzone Shadow Fall", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering 3.0", SIGGRAPH 2014, Physically Based Shading in Theory and Practice
+- McGuire, Mara, "Efficient GPU Screen-Space Ray Tracing", Journal of Computer Graphics Techniques, Vol. 3, No. 4, 2014
 
 ## 関連ページ
 

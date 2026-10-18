@@ -84,6 +84,98 @@ float SSRConfidence(float2 hit_uv, float ray_length, float roughness, float3 R_v
 
 <!-- fig:ssr-fade-width:end -->
 
+## 当たった画素の、色を、使う
+
+<strong>レイが、当たった</strong>（交差した）画素の、<strong>色</strong>が、反射の色です。どの色を、読むか、どう、フェードするかで、反射の見た目が、決まります。
+
+## どの色を、読むか
+
+<strong>当たった画素の、色</strong>は、<strong>ライティング済みの、画面の色</strong>（HDR）を、使います。ただし、今フレームの、ライティングは、まだ、完了していない（SSR は、ライティングの、一部）ので、2 通りの、方法が、あります。
+
+| 方法 | 内容 | 長所 | 短所 |
+| --- | --- | --- | --- |
+| 前フレームの、色（履歴） | 前のフレームの、最終的な色（反射を、含む）を、読む | 反射の、反射（多重反射）が、自然に、出る。ライティング完了後の色なので、正確 | 1 フレームの、遅れ（物が、動くと、反射が、遅れる）。再投影が、必要 |
+| 今フレームの、色（反射なし） | 今フレームの、ライティング（SSR を、含まない、直接光 + 間接光）を、読む | 遅れが、ない | 反射の、反射が、出ない。SSR の、前に、ライティングを、完了させる必要 |
+
+<strong>多くの、ゲーム</strong>は、<strong>前フレームの色</strong>を、使います（反射の、反射が、簡単に、手に入るため）。
+
+### 前フレームの色を、読む（再投影）
+
+<strong>前フレームの、画面</strong>は、<strong>カメラが、動いて</strong>いるので、当たった点が、前のフレームの、画面の、どこに映っていたかを、再投影で、求めます。
+
+```hlsl
+// 当たった点の、ワールド位置から、前フレームの uv を求めて、前フレームの最終色を読む。
+float3 hit_world = ViewToWorld(hit_position_vs);
+float4 prev_clip = mul(float4(hit_world, 1.0), g_prev_view_proj);
+float2 prev_uv = prev_clip.xy / prev_clip.w * float2(0.5, -0.5) + 0.5;
+float3 reflected_color = g_prev_frame_color.SampleLevel(g_linear_clamp, prev_uv, mip).rgb;
+```
+
+<strong>当たった点の、ワールド位置</strong>を、<strong>前のフレームの、行列</strong>で、投影して、前フレームの、画面座標を、得ます。動く物は、前のフレームで、別の位置にいた（位置が、ずれる）ので、速度バッファ（[Velocity Buffer](../../postprocess/motion-blur/velocity-buffer.md)）で、補正します。
+
+## フェード：信頼できない、反射を、薄める
+
+<strong>SSR の、結果</strong>が、<strong>あまり、信頼できない</strong>状況で、急に、消えると、反射が、ぱっと、変わって見えます。状況に、応じて、徐々に、薄めます（フェード）。薄めた分は、反射プローブ（[Combining with SSR](../probes/combine-ssr.md)）が、補います。
+
+### ① 画面の端
+
+<strong>レイが、画面の端に、近い所</strong>に、<strong>当たる</strong>と、画面の外の、情報が、欠けて、不正確です。端に、近いほど、薄めます。
+
+```hlsl
+// 当たった uv が、画面の端に近いほど、フェード アウト（端から 10% の幅で、0 になる）。
+float2 edge = saturate((0.5 - abs(hit_uv - 0.5)) * 10.0);                    // 端で 0、端から 0.1 以上内側で 1
+float edge_fade = min(edge.x, edge.y);
+```
+
+### ② レイの、長さ
+
+<strong>遠くに、当たった</strong>反射は、<strong>精度が、低く</strong>（ステップが、粗い）、画面の外へ、出やすいので、薄めます。
+
+```hlsl
+float distance_fade = 1.0 - saturate(ray_length / g_max_distance);           // 遠いほど、弱く
+```
+
+### ③ 反射の向き
+
+<strong>反射方向が、カメラに、向かう</strong>（鏡に、真正面から、向き合う）と、<strong>カメラの背後</strong>（画面に、映っていない）の、景色が、必要です。情報が、無いので、薄めます。
+
+```hlsl
+float facing = dot(reflect_dir_vs, view_dir_vs);                              // 反射が、視線と、同じ向き（奥へ向かう）なら 1、カメラへ戻るなら −1
+float direction_fade = saturate(facing * 3.0 + 1.0);                          // カメラに戻る反射（facing < −1/3）で、0
+```
+
+### ④ 粗さ
+
+<strong>粗い面</strong>は、<strong>SSR の、1 本のレイが、あまり、意味を、持たない</strong>（ぼけが、大きい）ので、粗さが、大きいほど、薄め、プローブに、任せます。
+
+```hlsl
+float roughness_fade = 1.0 - saturate((roughness - 0.5) / 0.3);               // 粗さ 0.5 から、0.8 にかけて、0 へ
+```
+
+### ⑤ フェードを、まとめる
+
+```hlsl
+float confidence = edge_fade * distance_fade * direction_fade * roughness_fade;
+float3 reflection = lerp(probe_reflection, ssr_color, confidence);            // 信頼度が低いほど、プローブ
+```
+
+<strong>4 つの、フェード</strong>を、<strong>掛け合わせ</strong>、1 つの、信頼度にまとめます。どれか 1 つでも、0 に、近ければ、プローブに、切り替わります。
+
+## 明るさの、問題：ファイアフライ
+
+<strong>反射色に、非常に、明るい</strong>画素（<strong>太陽、光源</strong>）が、含まれると、反射が、まぶしい、点（ファイアフライ）に、なります。ぼかしで、周りに、広がって、目立つことも、あります。
+
+| 対策 | 内容 |
+| --- | --- |
+| 明るさを、クランプ | 反射色の、輝度に、上限（たとえば、10）を、設ける。太陽の、反射が、明るすぎないように |
+| トーン マッピングの、前に、クランプしない（太陽の、輝きは、残したい） | ブルームで、光らせる 用途では、クランプは、弱めに |
+
+```hlsl
+// 明るすぎる、反射を、抑える（色相を保ったまま、輝度に上限）。
+float lum = Luminance(reflected_color);
+reflected_color *= min(1.0, g_max_reflection_luminance / max(lum, 1e-4));
+```
+
 ## よくあるミス
 
 ??? failure "画面の端で、反射が急に消える"
@@ -97,9 +189,10 @@ float SSRConfidence(float2 hit_uv, float ray_length, float roughness, float3 R_v
 
 ## 参考
 
-- McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
-- Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
-- Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
+- Stachowiak, Uludag, "Stochastic Screen-Space Reflections", SIGGRAPH 2015, Advances in Real-Time Rendering in Games（Frostbite の SSR）
+- Valient, "Reflections and Volumetrics of Killzone Shadow Fall", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- McGuire, Mara, "Efficient GPU Screen-Space Ray Tracing", Journal of Computer Graphics Techniques, Vol. 3, No. 4, 2014
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（反射、IBL の章）
 
 ## 関連ページ
 

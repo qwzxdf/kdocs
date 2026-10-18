@@ -219,9 +219,10 @@ float3 BoxProjection(float3 world_pos, float3 R, float3 probe_pos,
 
 ## 参考
 
-- McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
-- Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
-- Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
+- Lagarde, Zanuttini, "Local Image-Based Lighting With Parallax-Corrected Cubemap", SIGGRAPH 2012 Talks（箱による、視差補正）
+- Bjorke, "Image-Based Lighting", GPU Gems, Chapter 19, 2004（キューブマップの、視差補正のはしり）
+- Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering 3.0", SIGGRAPH 2014, Physically Based Shading in Theory and Practice
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（反射、IBL の章）
 
 ## 関連ページ
 

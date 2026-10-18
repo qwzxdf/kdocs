@@ -96,6 +96,14 @@ float3 reflect_dir = reflect(-view_dir, normal);
 ??? failure "反射は、粗さに関係なく同じように計算できる"
     粗さによって、<strong>必要な範囲の平均</strong>が変わります。<strong>ぼけ方の扱い</strong>が各方式の難所です。
 
+## 参考
+
+- Karis, "Real Shading in Unreal Engine 4", SIGGRAPH 2013, Physically Based Shading in Theory and Practice（split-sum 近似）
+- Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering 3.0", SIGGRAPH 2014, Physically Based Shading in Theory and Practice
+- McGuire, Mara, "Efficient GPU Screen-Space Ray Tracing", Journal of Computer Graphics Techniques, Vol. 3, No. 4, 2014
+- Stachowiak, Uludag, "Stochastic Screen-Space Reflections", SIGGRAPH 2015, Advances in Real-Time Rendering in Games（Frostbite の SSR）
+- Barré-Brisebois, Halén, Wihlidal, Lauritzen, Bekkers, Stachowiak, Andersson, "Hybrid Rendering for Real-Time Ray Tracing", Ray Tracing Gems, Chapter 25, 2019
+
 ## 関連ページ
 
 - [描画](../index.md)

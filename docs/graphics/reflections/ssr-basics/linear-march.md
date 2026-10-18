@@ -181,6 +181,118 @@ float2 RefineHit(float2 p_before, float2 p_after, int steps) {
 
 <strong>2〜5 回</strong>の二分探索で、<strong>歩幅の誤差がほぼ無くなります</strong>。
 
+## 線形マーチ：画面空間で、レイを、辿る
+
+<strong>最も、単純な、SSR</strong> は、<strong>反射レイを、画面空間で、一定の歩幅で、辿り</strong>、各点で、深度バッファと、比べる方法です（線形マーチ）。当たりを、見つけるまで、繰り返します。
+
+```text
+画面上の、線分（始点 → 終点）を、N 区間に、分ける。各区間で:
+   レイ上の点の、深度 と、その画素の、深度バッファの値 を、比べる
+   レイの方が、奥（面の、裏）に、入った → 交差
+```
+
+## 実装
+
+```hlsl
+// 線形マーチ: 画面空間で、レイを、一定の歩幅で、進める。戻り値: 当たった uv（当たらなければ、-1）。
+float2 LinearMarch(float3 origin_vs, float3 dir_vs, float2 pixel) {
+  // 始点・終点を、クリップ空間→ uv へ（前のページと同じ）。
+  float3 end_vs = origin_vs + dir_vs * g_max_distance;
+  float4 s = mul(float4(origin_vs, 1.0), g_proj);
+  float4 e = mul(float4(end_vs, 1.0), g_proj);
+  float2 start_uv = s.xy / s.w * float2(0.5, -0.5) + 0.5;
+  float2 end_uv = e.xy / e.w * float2(0.5, -0.5) + 0.5;
+  float start_inv_w = 1.0 / s.w;                                          // 1/w（透視補正のため）
+  float end_inv_w = 1.0 / e.w;
+```
+
+<strong>始点と終点</strong>を、<strong>uv に、投影</strong>します。`1/w` を、覚えておくのは、透視投影の、補間（画面空間で、直線的に、補間しても、奥行きは、直線的でない）を、正しく、行うためです。
+
+```hlsl
+  const int kSteps = 32;
+  float jitter = InterleavedGradientNoise(pixel) * 0.5;                   // 開始位置を、ずらして、縞を、減らす
+  for (int i = 1; i <= kSteps; ++i) {
+    float t = (i + jitter) / kSteps;                                        // 線分上の、位置（0〜1）。画面空間で、等間隔
+    float2 uv = lerp(start_uv, end_uv, t);                                  // 画面上の位置
+    if (any(uv < 0.0) || any(uv > 1.0)) return -1.0;                        // 画面の外に出た → 当たらない
+```
+
+<strong>画面空間で、等間隔</strong>に、進みます。<strong>画面の外</strong>に、出たら、情報が、無いので、打ち切ります。
+
+```hlsl
+    // レイ上の点の、深度（ビュー空間の距離）。1/w を、画面空間で線形補間して、逆数を取る（透視補正）。
+    float inv_w = lerp(start_inv_w, end_inv_w, t);
+    float ray_depth = 1.0 / inv_w;                                          // レイ上の点の、ビュー空間での、深度（正の距離）
+
+    float scene_depth = LinearizeDepth(g_depth.SampleLevel(g_point_clamp, uv, 0));   // その画素の、実際の深度
+
+    float diff = ray_depth - scene_depth;
+    if (diff > 0.0 && diff < g_thickness) return uv;                        // レイが、面の「裏」に入った（厚み以内）→ 当たり
+  }
+  return -1.0;                                                              // 当たらなかった
+}
+```
+
+<strong>レイ上の、点の、深度</strong>は、<strong>`1 / w` を、画面空間で、線形補間し</strong>、その逆数を、取ると、正しい値です（透視補正）。画面の深度と、比べ、レイが、面より、奥に、入って、かつ、厚み以内なら、当たりです。
+
+## 線形マーチの、問題
+
+### ① 細い物を、すり抜ける
+
+<strong>歩幅が、粗い</strong>と、<strong>細い物</strong>（フェンス、手すり）の、上を、飛び越えて、当たりを、見逃します。
+
+```text
+ステップ:  ●     ●     ●     ●     ●          ← 粗い歩幅
+                  ┃ 細い物
+                 ●が、物の、手前と奥に、またがって、当たりを、検出できない（厚みの範囲を、飛び越える）
+```
+
+| 対策 | 内容 |
+| --- | --- |
+| 歩幅を、細かく | ステップ数を、増やす。重い |
+| 厚みを、大きく | すり抜けは、減るが、偽の当たり（物の、手前の面に、誤って当たる）が、増える（[Thickness](thickness.md)） |
+| 二分探索で、洗練 | 当たりを、見つけた後、直前の、ステップと、の間で、二分探索し、正確な、交点を、求める |
+| Hi-Z | 階層的な深度で、空の部分を、大きく、飛ばし、細かい所は、細かく（[Hi-Z SSR](../ssr-hiz.md)） |
+
+### ② 二分探索で、交点を、洗練する
+
+<strong>当たった、ステップ</strong>の、<strong>1 つ前</strong>（まだ、当たっていない）と、当たったステップの、間に、真の、交点が、あります。二分探索で、絞り込みます。
+
+```hlsl
+// 当たった t_hit と、その 1 つ前 t_prev の間を、二分探索して、正確な交点を求める。
+float lo = t_prev, hi = t_hit;
+for (int k = 0; k < 6; ++k) {                                               // 6 回で、歩幅の 1/64 の精度
+  float mid = 0.5 * (lo + hi);
+  float2 uv_mid = lerp(start_uv, end_uv, mid);
+  float ray_d = 1.0 / lerp(start_inv_w, end_inv_w, mid);
+  float scene_d = LinearizeDepth(g_depth.SampleLevel(g_point_clamp, uv_mid, 0));
+  if (ray_d > scene_d) hi = mid; else lo = mid;                              // レイが、面の裏なら、手前へ。そうでなければ、奥へ
+}
+float2 hit_uv = lerp(start_uv, end_uv, hi);
+```
+
+<strong>6 回の、二分探索</strong>で、<strong>歩幅の、1/64</strong>の、精度に、なります。粗い歩幅でも、正確な、交点が、得られ、反射が、なめらかになります。
+
+### ③ 画面空間で、等間隔でも、3D では、不均等
+
+<strong>画面空間で、等間隔</strong>に、進むと、<strong>カメラに、近い所</strong>では、3D の歩幅が、小さく、遠い所では、大きくなります。遠くの物は、粗い歩幅で、すり抜けやすくなります。
+
+| 方式 | 内容 |
+| --- | --- |
+| 画面空間で、等間隔 | 実装が、簡単。遠くが、粗い |
+| 3D 空間で、等間隔 | 歩幅が、3D で、一定。画面上の、歩幅が、不均等（近くは、画素を、飛ばす） |
+| DDA（デジタル微分解析器）で、1 画素ずつ | 画面上の、すべての画素を、1 つずつ、辿る。取りこぼしが、無い。線が、長いと、重い |
+
+<strong>DDA</strong> は、<strong>線分が、通る、すべての画素</strong>を、辿るので、取りこぼしが、ありません（McGuire と Mara、2014）。画面上の、線分が、長いと、ステップが、非常に、多くなるので、最大のステップ数を、制限します。
+
+## 速さの、目安
+
+| 設定 | コスト |
+| --- | --- |
+| 線形マーチ 16 ステップ + 二分探索 | 約 0.5 ms（1080p、半解像度） |
+| 線形マーチ 32 ステップ + 二分探索 | 約 1 ms |
+| Hi-Z（[Hi-Z SSR](../ssr-hiz.md)） | 同品質で、数倍速い |
+
 ## よくあるミス
 
 ??? failure "薄い柵や線が、反射に映らない"
@@ -194,9 +306,10 @@ float2 RefineHit(float2 p_before, float2 p_after, int steps) {
 
 ## 参考
 
-- McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
-- Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
-- Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
+- McGuire, Mara, "Efficient GPU Screen-Space Ray Tracing", Journal of Computer Graphics Techniques, Vol. 3, No. 4, 2014
+- Stachowiak, Uludag, "Stochastic Screen-Space Reflections", SIGGRAPH 2015, Advances in Real-Time Rendering in Games（Frostbite の SSR）
+- Uludag, "Hi-Z Screen-Space Cone-Traced Reflections", GPU Pro 5, 2014
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（反射、IBL の章）
 
 ## 関連ページ
 

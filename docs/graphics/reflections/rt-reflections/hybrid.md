@@ -76,6 +76,85 @@ tags:
 | アルファ テスト | any-hit は重い。葉・フェンスは必要最小限に |
 | 動く物体の BVH 更新 | リフィット（再構築より安い）・更新頻度の削減 |
 
+## ハイブリッド：SSR と、RT の、いいとこ取り
+
+<strong>フルスクリーンの、RT 反射</strong>は、<strong>重い</strong>です。SSRは、安いが、画面の外・隠れた面は、映せません。組み合わせます。SSR で、取れる画素は、SSR（安い）、取れなかった画素だけ、RT（高い）で、補います（Stachowiak、2018、Barré-Brisebois ら、2019）。
+
+```text
+各画素:
+   ① まず、SSR を、試す（画面空間の、レイマーチ）
+        ↓ 当たった（信頼できる）→ SSR の結果を使う（RT は、不要）
+        ↓ 当たらなかった / 信頼できない → ② RT を、飛ばす
+```
+
+## 利点
+
+| 利点 | 内容 |
+| --- | --- |
+| コストが、下がる | SSR で、取れる画素（多くの、画面内の反射）は、RT を、飛ばさない。RT の、レイ数が、大幅に、減る |
+| 画質が、高い | SSR が、取れない（画面の外、隠れた面）部分は、RT で、正確 |
+| 近距離の、精度 | SSR は、画面の、実際の、ジオメトリを、使うので、近距離で、細かく、正確（RT の、BVH は、簡略化した、メッシュかもしれない） |
+
+## 流れ（概略）
+
+```hlsl
+// ① SSR パス: 各画素で、SSR を試す。結果と、成否を、書き出す。
+float4 ssr = TraceSSR(pixel);                                          // rgb = 色、a = 信頼度（0 = 失敗）
+g_ssr_result[pixel] = ssr;
+
+// ② RT パス: SSR が、失敗（信頼度が低い）した画素だけ、RT を飛ばす。
+[shader("raygeneration")]
+void HybridRayGen() {
+  uint2 pixel = DispatchRaysIndex().xy;
+  float4 ssr = g_ssr_result[pixel];
+  if (ssr.a > 0.99) { g_final_reflection[pixel] = ssr.rgb; return; }   // SSR が、十分 → RT は、不要
+  // ... 反射レイを、飛ばす（[Ray Generation]）...
+  float3 rt = payload.radiance;
+  g_final_reflection[pixel] = lerp(rt, ssr.rgb, ssr.a);                // 信頼度で、混ぜる（SSR が、一部、成功した画素）
+}
+```
+
+<strong>SSR の、信頼度が、十分に、高い</strong>画素は、<strong>RT を、飛ばしません</strong>。信頼度が、低い（画面の端、物の裏、SSR が、外れた）画素だけ、RT を、飛ばします。RT の、画素数が、画面の、数 %〜数十 % に、減ります。
+
+## DXR の、インライン レイトレーシング
+
+<strong>RT を、飛ばす、画素が、少ない</strong>（疎）なら、<strong>計算シェーダー</strong>の、中から、インラインで、レイを、飛ばす（`RayQuery`）方法が、効率的です。DXR 1.1 の、機能で、レイ生成シェーダーの、ディスパッチ（シェーダー テーブル）が、不要です。
+
+```hlsl
+// 計算シェーダーの中から、インラインで、レイを飛ばす（DXR 1.1 の RayQuery）。
+[numthreads(8, 8, 1)]
+void InlineRTCS(uint3 id : SV_DispatchThreadID) {
+  if (g_ssr_result[id.xy].a > 0.99) return;                              // SSR が、十分な画素は、スキップ
+  RayDesc ray = MakeReflectionRay(id.xy);
+  RayQuery<RAY_FLAG_CULL_NON_OPAQUE | RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH> q;
+  q.TraceRayInline(g_scene, RAY_FLAG_NONE, 0xFF, ray);
+  q.Proceed();                                                           // BVH を辿る
+  if (q.CommittedStatus() == COMMITTED_TRIANGLE_HIT) {
+    // 当たった: 三角形の情報から、手で、シェーディング
+  }
+}
+```
+
+<strong>`RayQuery`</strong> は、<strong>計算シェーダー・ピクセル シェーダー</strong>から、呼べます。画素を、絞って、シェーダー テーブルを、使わず、手軽に、RT を、組み込めます。ただし、当たった面の、マテリアルを、動的に、切り替える（シェーダー テーブルの、利点）ことは、自分で、書く必要が、あります。
+
+## SSR と RT の、継ぎ目
+
+<strong>SSR の画素</strong>と、<strong>RT の画素</strong>が、隣り合うと、色が、ずれて、境目が、見えることが、あります。
+
+| 問題 | 対策 |
+| --- | --- |
+| 明るさ・色の、ずれ | SSR と RT の、ライティングを、そろえる（同じ、露出、環境光） |
+| 境目の、ギザギザ | 信頼度を、なめらかに変化させる（SSR の、フェード。[Color Lookup and Fading](../ssr-basics/color-fade.md)）、RT の、重みを、少しずつ増やす |
+| SSR の、細部と、RT の、粗さ | RT の、BVH が、簡略（LOD、細部が、無い）だと、SSR の、詳細な反射と、差が、出る。BVH の、LOD を、高めに |
+
+## 選択の、目安
+
+| 状況 | 方式 |
+| --- | --- |
+| コストを、最小に | SSR + 反射プローブ（RT なし） |
+| 品質と、コストの、バランス | ハイブリッド（SSR + RT、SSR が、外れた、画素だけ） |
+| 最高品質（ハイエンド） | フル RT（全反射面で、RT） |
+
 ## よくあるミス
 
 ??? failure "レイトレの負荷が、画面いっぱいで重い"
@@ -89,9 +168,11 @@ tags:
 
 ## 参考
 
-- McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
-- Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
-- Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
+- Stachowiak, "Stochastic All The Things: Raytracing in Hybrid Real-Time Rendering", Digital Dragons 2018
+- Barré-Brisebois, Halén, Wihlidal, Lauritzen, Bekkers, Stachowiak, Andersson, "Hybrid Rendering for Real-Time Ray Tracing", Ray Tracing Gems, Chapter 25, 2019
+- Microsoft, "DirectX Raytracing (DXR) Functional Spec"
+- Stachowiak, Uludag, "Stochastic Screen-Space Reflections", SIGGRAPH 2015, Advances in Real-Time Rendering in Games（Frostbite の SSR）
+- McGuire, Mara, "Efficient GPU Screen-Space Ray Tracing", Journal of Computer Graphics Techniques, Vol. 3, No. 4, 2014
 
 ## 関連ページ
 

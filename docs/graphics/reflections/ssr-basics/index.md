@@ -50,6 +50,64 @@ tags:
 | [Cost and Roughness](cost-roughness.md) | 解像度・簡易のぼかし |
 | [Artifacts and Evaluation](artifacts.md) | SSR の問題点・長所と短所 |
 
+## SSR とは
+
+<strong>SSR</strong>（Screen-Space Reflections、<strong>画面空間の、反射</strong>）は、画面に、映っている、情報（深度、色）だけを、使って、反射を、近似する方法です。反射する面の、各画素から、反射方向に、レイを、飛ばし、画面の中の、何かに、当たったら、その画素の、色を、反射として、使います。
+
+```text
+反射する面の画素 P:
+   視線 V と法線 N から、反射方向 R を求める
+   P から R の向きに、画面空間で、レイを進める（深度バッファを、辿る）
+   何かに、当たったら、当たった画素の「ライティング済みの色」を、P の反射色にする
+```
+
+## 最小の、考え方
+
+<strong>1 つの、画素</strong>について、<strong>5 つの手順</strong>です。
+
+| 手順 | 内容 | ページ |
+| --- | --- | --- |
+| ① 反射ベクトルを、求める | 視線と、法線から | このページ |
+| ② レイを、進める | 画面空間で、1 歩ずつ、深度を、確かめる | [Linear Marching](linear-march.md) |
+| ③ 当たりを、判定する | レイが、面の、裏に、入った（厚み以内） | [Thickness](thickness.md) |
+| ④ 色を、読む・フェードする | 当たった画素の、色。画面の端、遠いほど、薄く | [Color Lookup and Fading](color-fade.md) |
+| ⑤ 粗さに、応じて、ぼかす | 粗い面は、ぼかす（[Cost and Roughness](cost-roughness.md)） | [Cost and Roughness](cost-roughness.md) |
+
+## ① 反射ベクトルと、画面空間への、投影
+
+```hlsl
+// G バッファから、ビュー空間の位置と、法線を読み、反射ベクトルを求める。
+float3 position_vs = ReconstructViewPosition(uv, depth);                    // ビュー空間の位置（カメラが原点）
+float3 normal_vs = DecodeNormal(g_gbuffer_normal.Load(int3(pixel, 0)));
+float3 view_dir_vs = normalize(position_vs);                                // カメラから、画素へ向かう向き
+float3 reflect_dir_vs = reflect(view_dir_vs, normal_vs);                    // 反射ベクトル
+```
+
+<strong>カメラから、画素への、向き</strong>（視線）を、<strong>法線で、反射</strong>させた向きが、反射ベクトルです。ビュー空間で、扱うと、カメラが、原点で、簡単です。
+
+```hlsl
+// レイの、始点と終点を、画面（uv）に、投影して、画面上の、線分にする。
+float3 end_vs = position_vs + reflect_dir_vs * g_max_distance;
+float4 start_clip = mul(float4(position_vs, 1.0), g_proj);
+float4 end_clip = mul(float4(end_vs, 1.0), g_proj);
+float2 start_uv = start_clip.xy / start_clip.w * float2(0.5, -0.5) + 0.5;
+float2 end_uv = end_clip.xy / end_clip.w * float2(0.5, -0.5) + 0.5;
+```
+
+<strong>レイの始点と終点</strong>を、<strong>画面空間</strong>（uv）に、投影します。画面上の、線分を、1 画素ずつ（または、数画素ずつ）辿ると、画面の、深度と、比べられます（[Linear Marching](linear-march.md)）。
+
+## SSR の、限界
+
+SSR は、<strong>画面の、情報だけ</strong>を、使うので、<strong>根本的な、限界</strong>が、あります。
+
+| 限界 | 内容 | 対策 |
+| --- | --- | --- |
+| 画面の外が、映らない | 画面に、映っていない物は、反射に、出ない | 反射プローブで、補う（[Combining with SSR](../probes/combine-ssr.md)） |
+| 隠れた面が、映らない | 手前の物の、裏は、深度バッファに、無い。物の、裏側の、反射が、欠ける | 厚みを、仮定（[Thickness](thickness.md)）、プローブで補う |
+| 画面の端で、反射が、消える | レイが、画面の外に、出る | 端で、フェード（[Color Lookup and Fading](color-fade.md)） |
+| カメラに、向かう反射が、弱い | 反射方向が、カメラの方向に、近い（鏡に、真正面から、向き合う）と、カメラの、背後の、景色が、必要（画面に、無い） | 信頼度を、下げて、プローブへ |
+| 細い物を、すり抜ける | ステップが、粗いと、細い物を、飛び越える | ステップを、細かく、Hi-Z（[Hi-Z SSR](../ssr-hiz.md)） |
+
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -59,9 +117,11 @@ tags:
 
 ## 参考
 
-- McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
-- Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
-- Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
+- McGuire, Mara, "Efficient GPU Screen-Space Ray Tracing", Journal of Computer Graphics Techniques, Vol. 3, No. 4, 2014
+- Stachowiak, Uludag, "Stochastic Screen-Space Reflections", SIGGRAPH 2015, Advances in Real-Time Rendering in Games（Frostbite の SSR）
+- Uludag, "Hi-Z Screen-Space Cone-Traced Reflections", GPU Pro 5, 2014
+- Valient, "Reflections and Volumetrics of Killzone Shadow Fall", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（反射、IBL の章）
 
 ## 関連ページ
 

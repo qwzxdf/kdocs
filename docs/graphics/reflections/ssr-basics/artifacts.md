@@ -45,6 +45,74 @@ tags:
 
 <strong>シーンが複雑でも、コストがほぼ一定</strong>であることも、SSR の大きな長所です。レイトレーシングは、シーンの三角形が増えるほど遅くなりますが、SSR は画面の画素数と歩数でコストが決まるので、ポリゴン数に左右されません。この性質が、SSR を現代のゲームの標準的な反射手法にしました。
 
+## SSR で、よく出る、見た目の、問題
+
+SSR は、<strong>画面の、情報だけ</strong>で、反射を、作るので、<strong>いくつかの、典型的な、見た目の、問題</strong>が、出ます。原因と対策を、整理します。
+
+| 症状 | 原因 | 対策 |
+| --- | --- | --- |
+| 反射が、画面の端で、途切れる | レイが、画面の外に出る | 端でフェード、プローブで、補う |
+| 反射が、手前の物の、裏で、欠ける（反射の、穴） | 手前の物に、隠れた部分は、画面に、無い | プローブで補う、厚みの、調整 |
+| 反射が、引き伸ばされる（縞） | 厚みが、大きすぎ、物の、縁を、またぐ | 厚みを、小さく、当たった面の、法線を、確認（[Thickness](thickness.md)） |
+| 細い物が、反射に、映らない | ステップが、粗く、すり抜ける | ステップを、細かく、Hi-Z（[Hi-Z SSR](../ssr-hiz.md)） |
+| 反射が、ちらつく | ステップの、位置が、フレームごとに、ずれる、ノイズ | ジッターを、固定、時間蓄積 |
+| 反射が、ざらざら（ノイズ）（粗い面） | 確率的な、レイ | 時間蓄積 + 空間フィルタ（[Stochastic SSR](../ssr-stochastic.md)） |
+| 反射が、1 フレーム遅れる | 前フレームの色を、使っている | 速度バッファで、補正、許容 |
+| 動く物の、反射が、ゴースト | 前フレームの、色が、古い | 速度バッファ、履歴の、クランプ |
+| 反射が、地面の下に、突き抜ける | 反射ベクトルが、面の下を向く（法線と、視線の、角度が、浅い） | 反射ベクトルを、法線に、押し戻す、レイの、始点を、面から、少し、離す |
+
+## 反射の、穴
+
+<strong>反射する面の、前に、物がある</strong>とき、<strong>その物の、裏側に、映るはず</strong>の、景色が、画面に、無いため、反射に、穴が、あきます（黒くなる、または、背景が、見える）。
+
+```text
+ カメラ ●
+         ╲
+          ╲   ┃柱（手前）
+           ╲  ┃
+        ━━━━╲━┃━━━━━ 床
+              ╲┃     床の、柱の裏側にある部分の、反射には、柱の「裏面」が、映るはずだが、画面には、柱の「表面」しか、無い
+```
+
+<strong>この問題は、SSR の、根本的な、限界</strong>です。<strong>反射プローブ</strong>（[Combining with SSR](../probes/combine-ssr.md)）で、穴を、埋めます。
+
+## 反射の、引き伸ばし
+
+<strong>レイが、物の、縁</strong>（シルエット）で、<strong>当たる</strong>と、縁の、先の、遠くの、背景を、物の色で、引き伸ばしたような、縞が、出ます。
+
+<strong>原因</strong>は、<strong>当たった画素の、深度</strong>と、レイ上の点の、深度の差が、厚み以内であれば、当たりと、見なすため、物の縁の、すぐ後ろの、遠い背景まで、同じ物に、当たったと、誤認することです。
+
+| 対策 | 内容 |
+| --- | --- |
+| 厚みを、小さく（距離に比例） | 偽の当たりが、減る（[Thickness](thickness.md)） |
+| 当たった面の、法線を、確認 | 面が、反射レイの方を、向いている場合だけ、有効 |
+| 深度の、不連続を、検出 | 当たった画素の、周りの、深度が、大きく、違う（縁）なら、信頼度を、下げる |
+
+## 時間方向の、問題
+
+| 問題 | 内容 | 対策 |
+| --- | --- | --- |
+| ちらつき | ジッターが、フレームごとに、変わる、ノイズが、揺れる | ジッターに、ブルー ノイズ + フレーム番号（TAA で、平均される）。時間蓄積 |
+| ゴースト | 前フレームの、反射が、今の状態と、合わない | 履歴の、クランプ、動き（速度バッファ）の、考慮 |
+| 反射の、遅れ | 前フレームの、色を、読むため、動く物の、反射が、遅れる | 速度で、補正、または、今フレームの、色を、読む |
+
+## デバッグ
+
+SSR の、<strong>問題を、見つける</strong>には、<strong>中間結果を、画面に、表示</strong>します。
+
+| 表示するもの | 見つかる問題 |
+| --- | --- |
+| 反射ベクトル（色で、方向を表示） | 法線が、間違っている、反射の向きが、おかしい |
+| 当たったか（白 = 当たり、黒 = 外れ） | ステップが、足りない、厚みが、合わない |
+| 当たった位置の uv（色で、表示） | レイが、思った場所に、当たっているか |
+| 信頼度（フェードの、結果） | フェードが、効きすぎ・足りない |
+| SSR だけ（プローブなしで、表示） | SSR の、本来の、品質を、確認 |
+
+```hlsl
+// デバッグ: 当たったか否かを、色で表示（緑 = 当たり、赤 = 外れ、青 = 画面の外）。
+return hit ? float4(0, 1, 0, 1) : (out_of_screen ? float4(0, 0, 1, 1) : float4(1, 0, 0, 1));
+```
+
 ## よくあるミス
 
 ??? failure "画面の端で、反射が途切れる"
@@ -58,9 +126,11 @@ tags:
 
 ## 参考
 
-- McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
-- Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
-- Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
+- McGuire, Mara, "Efficient GPU Screen-Space Ray Tracing", Journal of Computer Graphics Techniques, Vol. 3, No. 4, 2014
+- Stachowiak, Uludag, "Stochastic Screen-Space Reflections", SIGGRAPH 2015, Advances in Real-Time Rendering in Games（Frostbite の SSR）
+- Valient, "Reflections and Volumetrics of Killzone Shadow Fall", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Uludag, "Hi-Z Screen-Space Cone-Traced Reflections", GPU Pro 5, 2014
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（反射、IBL の章）
 
 ## 関連ページ
 

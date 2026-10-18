@@ -130,6 +130,138 @@ float3 SpecularIBL(float3 N, float3 V, float3 albedo, float metallic, float roug
 
 <strong>重要度サンプリング</strong>は、<strong>分布の山の部分から多くサンプル</strong>する手法で、サンプル数を減らせます（[Stochastic SSR](../ssr-stochastic.md)で詳しく）。
 
+## 粗さと、ぼかし
+
+<strong>鏡面反射</strong>の、<strong>見た目</strong>は、粗さで、変わります（[Diffuse and Specular](../../gi/theory/diffuse-specular.md)）。つるつるなら、周りの景色が、くっきり、ざらざらなら、ぼんやり、広い範囲が、混ざります。反射プローブの、キューブマップを、そのまま引くと、常に、くっきり映り、粗い面でも、鏡のように、なって、不自然です。粗さに応じた、ぼかしが、必要です。
+
+## ミップに、ぼかしを、焼く
+
+<strong>キューブマップの、ミップ</strong>を、<strong>粗さごとの、ぼかし</strong>として、使います。ミップ 0 が、粗さ 0（くっきり）、高いミップが、粗さが、大きい（ぼやけ）に、対応するよう、各ミップを、事前に、ぼかして、作ります（Kautz と McCool、2000。事前フィルタ環境マップ）。
+
+```text
+ミップ 0（128×128）: 粗さ 0.0  ← ほぼ、元の画像
+ミップ 1（64×64）  : 粗さ 0.2
+ミップ 2（32×32）  : 粗さ 0.4
+ミップ 3（16×16）  : 粗さ 0.6
+ミップ 4（8×8）    : 粗さ 0.8
+ミップ 5（4×4）    : 粗さ 1.0  ← ほぼ、全方向の平均
+```
+
+<strong>通常のミップ</strong>（4 画素を、平均）では、<strong>粗さに対応する、正しい、ぼかし</strong>にならないので、GGX の、反射ローブに、合わせた、ぼかしで、各ミップを、作ります。
+
+## 重点サンプリングで、ぼかす
+
+<strong>各ミップの、各テクセル</strong>（<strong>反射方向 `R`</strong> に、対応）について、GGX の、分布に、従って、周りの方向を、サンプルし、環境マップを、引いて、平均します。重点サンプリング（[Monte Carlo Integration](../../gi/theory/monte-carlo.md)）で、少ないサンプルでも、正しい、ぼかしが、得られます。
+
+```hlsl
+// GGX の分布に従って、ハーフ ベクトル H をサンプルする（ローカル座標。z が法線）。
+float3 ImportanceSampleGGX(float2 u, float roughness) {
+  float a = roughness * roughness;                                      // 知覚的な粗さ → GGX の α
+  float phi = 2.0 * 3.14159265 * u.x;
+  float cos_theta = sqrt((1.0 - u.y) / (1.0 + (a * a - 1.0) * u.y));    // GGX の、逆累積分布
+  float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+  return float3(sin_theta * cos(phi), sin_theta * sin(phi), cos_theta);
+}
+```
+
+<strong>GGX の、法線分布</strong>に、<strong>比例した、確率</strong>で、ハーフ ベクトル `H` を、選びます（Walter ら、2007）。粗さが、小さいほど、`H` は、法線の、近くに、集中し、粗さが、大きいほど、広がります。
+
+```hlsl
+// 事前フィルタ: 反射方向 R に対応する、1 テクセルを、GGX の重点サンプリングで、環境マップから、ぼかして作る。
+float3 PrefilterEnvMap(float3 R, float roughness) {
+  float3 N = R;                                  // 近似: 法線 = 反射方向 = 視線（Karis の、仮定）
+  float3 V = R;
+  const uint kSamples = 256;
+  float3 sum = 0.0;
+  float weight = 0.0;
+  for (uint i = 0; i < kSamples; ++i) {
+    float2 u = Hammersley(i, kSamples);                                  // 低食い違い量列
+    float3 H = LocalToWorld(ImportanceSampleGGX(u, roughness), N);       // GGX に従った、ハーフ ベクトル
+    float3 L = normalize(2.0 * dot(V, H) * H - V);                       // 反射: 光の方向
+    float n_dot_l = saturate(dot(N, L));
+    if (n_dot_l > 0.0) {
+      sum += g_env.SampleLevel(g_linear_clamp, L, 0).rgb * n_dot_l;      // その方向の、環境の光（余弦で重みづけ）
+      weight += n_dot_l;
+    }
+  }
+  return sum / max(weight, 1e-4);
+}
+```
+
+<strong>ハーフ ベクトル `H`</strong> を、サンプルし、<strong>それで、視線 `V` を、反射</strong>させた、光の方向 `L` で、環境マップを、引きます。余弦で、重みづけして、平均します。粗さごとに、各ミップを、この関数で、焼きます（制作時、または、起動時）。
+
+!!! note "`N = V = R` の、近似"
+    実際の、鏡面反射は、<strong>視線と、法線が、別</strong>ですが、<strong>事前フィルタの、キューブマップ</strong>は、反射方向 `R` だけで、引くので、`N = V = R` と、仮定します（Karis、2013）。視線が、面に、斜めのとき、実際の反射の、伸び（斜めから見ると、反射が、縦に、伸びる）は、再現できません。これは、既知の、近似の、限界です。
+
+## 反射の、式の、分解：split-sum
+
+<strong>鏡面反射の、間接光</strong>は、<strong>環境の、光 `L_i` と、BRDF の、積</strong>を、半球で、積分した、ものです。この積分を、2 つに、分けて、近似する、split-sum（Karis、2013）が、標準です。
+
+```text
+∫ L_i(l) × f(l, v) × cosθ dl  ≈  ( 1/N Σ L_i(l_k) × cosθ_k / Σ cosθ_k )  ×  ( 1/N Σ f(l_k, v) × cosθ_k / pdf )
+                                    └── ① 事前フィルタした環境マップ ──┘      └── ② BRDF の積分（LUT） ──┘
+```
+
+| 項 | 内容 | 事前計算 |
+| --- | --- | --- |
+| ① 環境光の、積分 | 粗さごとに、ぼかした、環境マップ（上の、`PrefilterEnvMap`） | キューブマップの、ミップ（粗さ × 反射方向） |
+| ② BRDF の、積分 | 視線と法線の角度（`n·v`）と、粗さの、関数。2 つの数（`A`、`B`）に、まとまる | 2D の、LUT（`n·v` × 粗さ。256×256 の `R16G16`） |
+
+<strong>積を、2 つの、積分の、積に、分ける</strong>（<strong>厳密には、正しくない</strong>が、十分に、近い）ことで、どちらも、事前計算できます。
+
+### BRDF の LUT
+
+```hlsl
+// BRDF の LUT: (n·v, roughness) → (A, B)。鏡面反射の、フレネルと、可視性を含めた、積分。
+float2 IntegrateBRDF(float n_dot_v, float roughness) {
+  float3 V = float3(sqrt(1.0 - n_dot_v * n_dot_v), 0.0, n_dot_v);        // 視線（ローカル座標。法線は +Z）
+  float A = 0.0, B = 0.0;
+  const uint kSamples = 1024;
+  for (uint i = 0; i < kSamples; ++i) {
+    float2 u = Hammersley(i, kSamples);
+    float3 H = ImportanceSampleGGX(u, roughness);
+    float3 L = 2.0 * dot(V, H) * H - V;
+    float n_dot_l = saturate(L.z);
+    float n_dot_h = saturate(H.z);
+    float v_dot_h = saturate(dot(V, H));
+    if (n_dot_l > 0.0) {
+      float G = GeometrySmith(n_dot_v, n_dot_l, roughness);               // 幾何減衰（マスキング・シャドウイング）
+      float G_vis = G * v_dot_h / (n_dot_h * n_dot_v);                    // 可視性項
+      float Fc = pow(1.0 - v_dot_h, 5.0);                                 // フレネル（Schlick）の、可変部分
+      A += (1.0 - Fc) * G_vis;                                            // F0 に掛かる係数
+      B += Fc * G_vis;                                                    // F0 に関係しない、加算の係数
+    }
+  }
+  return float2(A, B) / kSamples;
+}
+```
+
+<strong>フレネルの、Schlick 近似</strong>（`F = F0 + (1 − F0) × Fc`）を、<strong>`F0` に、掛かる項と、そうでない項に、分けて</strong>、`A`、`B` に、積分します。実行時、`F0 × A + B` で、BRDF の、積分が、得られます（[Water Fresnel](../../water/shading/fresnel.md) の、Schlick 近似と、同じ）。
+
+## 実行時の、使い方
+
+```hlsl
+// 鏡面の間接光: 粗さに応じたミップで、反射方向を読み、split-sum の、BRDF の積分を掛ける。
+float3 SpecularIBL(float3 N, float3 V, float3 f0, float roughness) {
+  float3 R = reflect(-V, N);
+  float n_dot_v = saturate(dot(N, V));
+  float mip = roughness * (kEnvMipCount - 1);                              // 粗さ → ミップ
+  float3 prefiltered = g_probe_cube.SampleLevel(g_linear_clamp, R, mip).rgb;
+  float2 brdf = g_brdf_lut.SampleLevel(g_linear_clamp, float2(n_dot_v, roughness), 0).xy;
+  return prefiltered * (f0 * brdf.x + brdf.y);
+}
+```
+
+<strong>ミップの、選択</strong>は、<strong>粗さに、比例</strong>（`roughness × (ミップ数 − 1)`）が、標準的ですが、ミップ数、ミップごとの、粗さの割り当ては、事前フィルタを、作るときと、同じ式に、そろえます。`SampleLevel` の、ミップは、連続（小数）なので、トライリニアで、2 つの、ミップが、補間され、粗さが、なめらかに、変わります。
+
+## 注意点
+
+| 問題 | 内容 | 対策 |
+| --- | --- | --- |
+| ミップ間の、継ぎ目（面の境目） | キューブマップの、面の、境目で、ぼかしが、途切れる（ミップで、特に目立つ） | シームレス キューブマップ（DirectX 11 は、標準でシームレス）、事前フィルタを、全方向で、サンプル |
+| 粗さ 0（完全な鏡）で、ぼやける | ミップ 0 が、128×128。つるつるの、面では、解像度が、足りない | 解像度を上げる（256×256）、または、SSR / RT で、補う |
+| ファイアフライ（明るい点が、散らばる） | 明るい光源（太陽）が、少ないサンプルで、拾われる | サンプル数を、増やす、元のキューブマップの、ミップを、読んで、サンプルする（フィルタード重点サンプリング）、明るさを、クランプ |
+
 ## よくあるミス
 
 ??? failure "粗い面の反射が、鏡のようにくっきり"
@@ -143,9 +275,11 @@ float3 SpecularIBL(float3 N, float3 V, float3 albedo, float metallic, float roug
 
 ## 参考
 
-- McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
-- Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
-- Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
+- Karis, "Real Shading in Unreal Engine 4", SIGGRAPH 2013, Physically Based Shading in Theory and Practice（split-sum 近似）
+- Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering 3.0", SIGGRAPH 2014, Physically Based Shading in Theory and Practice
+- Kautz, McCool, "Approximation of Glossy Reflection with Prefiltered Environment Maps", Graphics Interface 2000
+- Walter, Marschner, Li, Torrance, "Microfacet Models for Refraction through Rough Surfaces", Eurographics Symposium on Rendering 2007
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（反射、IBL の章）
 
 ## 関連ページ
 
