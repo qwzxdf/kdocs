@@ -55,12 +55,9 @@ void SelectNodes(const QuadNode& node, const Camera& camera, int level,
 }
 ```
 
-| 点 | 説明 |
-| --- | --- |
-| **`lod_ranges[level]`** | **レベルごとの距離**。**倍々**にする（例：50・100・200・400 m …） |
-| **同じ格子メッシュ** | <strong>どのノードも同じ頂点数の格子（例：33×33）</strong>を**拡大縮小して描く**（**インスタンシング**） |
-| **視錐台カリング** | **画面外のノードは捨てる** |
-| **AABB の高さ** | **ノードごとの最小・最大の高さ**で**境界を作る** |
+CDLOD のコードの要点です。`lod_ranges[level]` はレベルごとの距離で、倍々にします（例：50・100・200・400 m …）。どのノードも同じ頂点数の格子（例：33×33）を拡大縮小して描きます（インスタンシング）。画面外のノードは視錐台カリングで捨てます。ノードごとの最小・最大の高さで AABB を作ります。
+
+原典は、Strugar の "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（Journal of Graphics, GPU, and Game Tools、2010）です。
 
 <!-- fig:terrain-quadtree:begin -->
 

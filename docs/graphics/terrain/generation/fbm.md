@@ -38,11 +38,9 @@ tags:
 
 <div class="formula">fBm(p) = Σ  gain^i · noise( p · lacunarity^i )　（i = 0 … オクターブ数 − 1）</div>
 
-| パラメータ | 意味 |
-| --- | --- |
-| **オクターブ数** | **重ねる層の数**（普通 4〜8）。**多いほど細かい起伏** |
-| <strong>lacunarity（周波数の倍率）</strong> | **層ごとに周波数を何倍にするか**（**通常 2.0**） |
-| <strong>gain（振幅の倍率）</strong> | **層ごとに振幅を何倍にするか**（**通常 0.5**）。**小さいと滑らか、大きいとギザギザ** |
+fBm のパラメータです。オクターブ数は重ねる層の数で、普通は 4〜8、多いほど細かい起伏になります。lacunarity（周波数の倍率）は、層ごとに周波数を何倍にするかで、通常 2.0 です。gain（振幅の倍率）は、層ごとに振幅を何倍にするかで、通常 0.5、小さいと滑らか、大きいとギザギザになります。
+
+fBm（fractional Brownian motion）は、Mandelbrot が自然界の形を数学的に表すために導入したフラクタルな運動で、ノイズを重ねる手法は Musgrave の "Texturing and Modeling"（Ebert ら、1994〜）で地形に広まりました。
 
 ```hlsl
 float Fbm(float2 p, int octaves, float lacunarity, float gain) {
@@ -69,11 +67,7 @@ float Fbm(float2 p, int octaves, float lacunarity, float gain) {
 <text x="40" y="170" style="font-size:12px">合計：大きな起伏の上に細かい起伏</text>
 </svg>
 
-| 点 | 説明 |
-| --- | --- |
-| **`max_amplitude` で割る** | **値の範囲を揃える**（0〜1 などに） |
-| **層ごとに位置をずらす** | **各層で座標をずらす**と**格子の揃いが目立たない** |
-| **高さの調整** | **fBm の結果にカーブ（べき乗など）を掛けて、平地と山の比率を調整** |
+コードの要点です。`max_amplitude` で割って、値の範囲を揃えます（0〜1 など）。層ごとに位置をずらすと、各層で座標がずれて、格子の揃いが目立ちません。高さの調整として、fBm の結果にカーブ（べき乗など）を掛けて、平地と山の比率を調整します。
 
 ## よくあるミス
 

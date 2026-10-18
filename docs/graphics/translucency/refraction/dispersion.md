@@ -26,6 +26,25 @@ background.b = scene_color_copy.Sample(linear_clamp, screen_uv + offset * 1.06).
 
 **わずか（数%）の差**で**十分**です。**宝石・水晶・厚いガラス**で**効果的**です。
 
+### 分散の原理
+
+物質の屈折率は、光の波長によってわずかに違います。たとえばガラスでは、青い光（波長が短い）のほうが、赤い光より少し大きく曲がります。ふつうの窓ガラスでは差が小さく気づきませんが、プリズムやダイヤモンド、水滴の縁では、この差が白い光を虹色に分けて見せます。これが分散です。
+
+### 実装の考え方
+
+RGB の 3 チャンネルで、屈折率を少しずつ変えて、背景を 3 回読みます。赤は屈折率が小さいので歪みが小さく、緑は中間、青は歪みが大きい、というようにします。それぞれのチャンネルの結果だけを取り出して合成すれば、縁に虹色の色ずれが出ます。
+
+```hlsl
+float3 DispersedRefraction(float2 uv, float2 offset, float spread) {
+  float r = scene_color_copy.Sample(linear_clamp, uv + offset * (1.0 - spread)).r;
+  float g = scene_color_copy.Sample(linear_clamp, uv + offset).g;
+  float b = scene_color_copy.Sample(linear_clamp, uv + offset * (1.0 + spread)).b;
+  return float3(r, g, b);
+}
+```
+
+`spread` は 0.02〜0.1 程度の小さな値です。多くのサンプルで波長を細かく分けるほど、虹が滑らかになります（[Chromatic Aberration](../../postprocess/lens-effects/chromatic-aberration.md) の多サンプル版と同じ方法です）。ダイヤモンドのような強い分散を見せたいときは、サンプルを 8 個以上に増やし、各サンプルに波長に応じた色の重みを付けます。コストは屈折の読み込みの回数倍になるので、宝石のように、分散が主役の物にだけ使うのが現実的です。
+
 ## よくあるミス
 
 ??? failure "すべてのガラスに強い色収差を付けて、安っぽくなる"

@@ -34,13 +34,7 @@ depth_desc.DepthFunc = D3D11_COMPARISON_LESS;
 device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 ```
 
-| 項目 | 設定 | 意味 |
-| --- | --- | --- |
-| **`SrcBlend`** | `SRC_ALPHA` | **ソースの色に、ソースのアルファを掛ける** |
-| **`DestBlend`** | `INV_SRC_ALPHA` | **デスティネーションに、(1 − ソースのアルファ) を掛ける** |
-| **`BlendOp`** | `ADD` | **足す** |
-| **`DepthWriteMask`** | `ZERO` | **深度を書かない**（半透明が、後の半透明を隠さない） |
-| **`DepthFunc`** | `LESS` | **深度テストは行う**（不透明の後ろにある物は描かない） |
+ブレンド ステートの設定の意味です。`SrcBlend` に `SRC_ALPHA` を指定すると、ソースの色にソースのアルファを掛けます。`DestBlend` に `INV_SRC_ALPHA` を指定すると、デスティネーションに (1 − ソースのアルファ) を掛けます。`BlendOp` は `ADD` で足します。`DepthWriteMask` は `ZERO` で深度を書きません（半透明が後の半透明を隠さないため）。`DepthFunc` は `LESS` で深度テストは行います（不透明の後ろにある物は描かないため）。
 
 **深度書き込みを ON のままにする**と、**手前の半透明が、奥の半透明の描画を妨げ**ます（**奥が、描かれなくなる**）。
 
@@ -82,13 +76,7 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 
 ### ブレンドの種類
 
-| 種類 | `SrcBlend` / `DestBlend` | 式 | 用途 |
-| --- | --- | --- | --- |
-| <strong>通常（アルファ）</strong> | `SRC_ALPHA` / `INV_SRC_ALPHA` | `C_s·α + C_d·(1−α)` | ガラス・水・UI |
-| **加算** | `SRC_ALPHA` / `ONE` | `C_s·α + C_d` | 炎・光・魔法・爆発 |
-| <strong>加算（アルファなし）</strong> | `ONE` / `ONE` | `C_s + C_d` | 明るい光の粒 |
-| **乗算** | `ZERO` / `SRC_COLOR` | `C_d · C_s` | 影・色付きガラス・暗くする |
-| **乗算済みアルファ** | `ONE` / `INV_SRC_ALPHA` | `C_s + C_d·(1−α)` | 通常の、安定した方式 |
+ブレンドの種類は 5 つあります。通常（アルファ）は `SRC_ALPHA` と `INV_SRC_ALPHA` で `C_s·α + C_d·(1−α)`、ガラス・水・UI に使います。加算は `SRC_ALPHA` と `ONE` で `C_s·α + C_d`、炎・光・魔法・爆発に使います。アルファなしの加算は `ONE` と `ONE` で `C_s + C_d`、明るい光の粒に使います。乗算は `ZERO` と `SRC_COLOR` で `C_d · C_s`、影・色付きガラス・暗くする用途です。乗算済みアルファは `ONE` と `INV_SRC_ALPHA` で `C_s + C_d·(1−α)` となり、通常の、安定した方式です。
 
 **加算と乗算は、順序に依存しない**（足し算・掛け算は、交換できる）ので、**ソートが不要**です。**炎・光の粒・影**は、**この性質を利用**して**ソートなしで描ける**ことが多いです。
 
