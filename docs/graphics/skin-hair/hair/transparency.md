@@ -71,6 +71,49 @@ AMD の TressFX は、<strong>PPLL</strong>（Per-Pixel Linked List）を使い�
 5. ほかの半透明（パーティクルなど）。
 6. TAA・ポストプロセス。
 
+## 実装：ハッシュド アルファ テストと、2 パス描画
+
+### ハッシュド アルファ テスト（Wyman と McGuire、2017）
+
+アルファ テストの閾値を、固定の 0.5 にすると、細い毛が、ぷつぷつ途切れます。閾値を、画素ごとに、ばらつかせ、時間で変えると、TAA が平均して、半透明に見えます。
+
+```hlsl
+// 画素ごとに、疑似乱数の閾値を決め、アルファがそれより小さければ捨てる（ワールド位置から決めるので、動いても貼りつく）。
+float Hash(float2 p) { return frac(sin(dot(p, float2(127.1, 311.7))) * 43758.5453); }
+
+float HashedThreshold(float3 object_pos, float3 object_dx, float3 object_dy) {
+  float max_deriv = max(length(object_dx), length(object_dy));            // 画面上の 1 画素が、オブジェクト空間で覆う大きさ
+  float pix_scale = 1.0 / max_deriv;
+  float2 pix_scale_pair = float2(exp2(floor(log2(pix_scale))), exp2(ceil(log2(pix_scale))));
+  float2 alpha = float2(Hash(floor(pix_scale_pair.x * object_pos.xy)), Hash(floor(pix_scale_pair.y * object_pos.xy)));
+  float lerp_factor = frac(log2(pix_scale));
+  return lerp(alpha.x, alpha.y, lerp_factor);                              // 2 つのスケールの閾値を補間
+}
+```
+
+閾値の模様を、物体に貼りつけておくと、カメラが動いても、ちらつきません。スケールを、距離に応じて 2 の冪で切り替えるのは、遠くでも、近くでも、同じ粗さに見せるためです。
+
+```hlsl
+// ピクセル シェーダーの最後で、アルファと閾値を比べる。
+float threshold = clamp(HashedThreshold(input.object_pos, ddx(input.object_pos), ddy(input.object_pos)), 1e-3, 1.0);
+if (alpha < threshold) discard;
+```
+
+### 2 パス描画：まず、毛先を、深度に書き、次に、色を描く
+
+```cpp
+// パス 1: アルファ テスト（閾値 0.5 ほど）で、深度だけ書く。毛の芯の部分が、確実に、深度を作る。
+context->OMSetDepthStencilState(depth_write_state.Get(), 0);
+DrawHairDepthOnly();
+
+// パス 2: 深度は、書かずに、比較だけ（EQUAL ではなく LESS_EQUAL）。色を、アルファ ブレンドで描く（奥から手前の順に並べ替えた、ストランド）。
+context->OMSetDepthStencilState(depth_test_only_state.Get(), 0);
+context->OMSetBlendState(alpha_blend_state.Get(), nullptr, 0xFFFFFFFF);
+DrawHairColor();
+```
+
+パス 1 で、髪の「芯」を確定させると、パス 2 では、毛の周りの、柔らかい縁だけが、アルファ ブレンドされ、重なりの順序の乱れが、目立ちません。
+
 ## よくあるミス
 
 ??? failure "髪の輪郭がギザギザで、ちらつく"

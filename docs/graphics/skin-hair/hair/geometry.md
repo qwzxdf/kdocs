@@ -82,6 +82,58 @@ Unreal Engine の Groom は、同じヘア アセットから、ストランド�
 
 ストランド方式では、ガイド ヘアを物理シミュレーションします。各ストランドを、質点とバネ（または位置ベース動力学の拘束）の列としてモデル化し、重力・風・頭の動き・衝突（頭や肩との接触）を解きます。シミュレーションは GPU のコンピュート シェーダーで並列に実行されます（AMD の TressFX、NVIDIA の HairWorks）。計算は重いため、シミュレーションを行うのは、ガイド ヘアの数千本程度に絞ります。
 
+## 実装：ストランドを、カメラに向けて、帯にする
+
+ストランドは、1 本の線（頂点の列）ですが、線のままでは、細すぎて描けません。頂点シェーダーで、カメラを向く、細い帯（ビルボード）に広げます。
+
+### 頂点バッファ
+
+```cpp
+// 各ストランドの、頂点（位置と太さ）を、StructuredBuffer に入れる。
+struct StrandVertex { DirectX::XMFLOAT3 position; float thickness; };
+D3D11_BUFFER_DESC desc = {};
+desc.ByteWidth = sizeof(StrandVertex) * vertex_count;
+desc.StructureByteStride = sizeof(StrandVertex);
+desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;   // 物理シミュレーションが書き込む
+desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+device->CreateBuffer(&desc, nullptr, &strand_vertices);
+```
+
+シミュレーション（髪の動き）を、計算シェーダーで行うなら、UAV で書き込み、描画では、SRV で読みます。
+
+### 帯に広げる
+
+```hlsl
+// 頂点 ID から、どのセグメントの、どちら側の頂点かを決め、線の接線に直交する向きに、幅だけ広げる。
+VSOut StrandVS(uint vertex_id : SV_VertexID) {
+  uint segment = vertex_id / 2;
+  float side = (vertex_id & 1) ? 1.0 : -1.0;
+  StrandVertex v = g_strand[segment];
+  StrandVertex next = g_strand[min(segment + 1, g_strand_vertex_count - 1)];
+  float3 tangent = normalize(next.position - v.position);                  // 毛の向き
+  float3 to_camera = normalize(g_camera_position - v.position);
+  float3 side_dir = normalize(cross(tangent, to_camera));                  // カメラに向いた帯の、幅の向き
+  float3 world = v.position + side_dir * side * v.thickness * 0.5;
+  VSOut o;
+  o.position = mul(float4(world, 1.0), g_view_proj);
+  o.tangent = tangent;                                                       // シェーディング（Kajiya-Kay、Marschner）で使う
+  return o;
+}
+```
+
+`cross(接線, 視線)` で、帯の幅の向きが決まります。接線は、シェーディングで、必要なので、ピクセル シェーダーへ渡します（[Kajiya-Kay](kajiya-kay.md)、[Marschner](marschner.md)）。
+
+### 太さの下限：細すぎる毛は、サブピクセルに消える
+
+```hlsl
+// 画面上で 1 画素より細くなる毛は、幅を 1 画素に保ち、かわりにアルファを下げて、ちらつきを防ぐ。
+float pixel_world = length(clip_w) * g_pixel_size;                          // 1 画素が、その距離で覆う、ワールドの幅
+float width = max(thickness, pixel_world);
+float coverage = thickness / width;                                          // 太さが足りない分は、アルファで補う
+```
+
+幅を、画素より細くすると、ストランドが、ラスタライザーに拾われず、ちらちら消えます。幅を保ち、アルファで、実際の太さを表す方法が、定番です（TressFX など）。
+
 ## よくあるミス
 
 ??? failure "カードが 1 層で、髪が薄っぺらい"
