@@ -170,6 +170,30 @@ int main() {
 | 検索結果 | 見つからなければ `nullptr` |
 | C の API | `SDL_Window*`、`FILE*`（解放は Deleter 付き unique_ptr に任せる） |
 
+<!-- fig:pointer-deref:begin -->
+
+<svg class="fig illust motion" data-fig="pointer-deref" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-pointer-deref" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ポインタ = 住所を入れた変数。*p で、その住所の中身を読み書きする</text>
+<rect x="100" y="140" width="150" height="80" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="175" y="130" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2563eb">int hp（住所 0x100）</text>
+<text x="175" y="192" text-anchor="middle" style="font-size:30px;font-weight:700;fill:#1f2937" opacity="0">30<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5159;0.5161;1.0000" values="1;1;0;0"/></text>
+<text x="175" y="192" text-anchor="middle" style="font-size:30px;font-weight:700;fill:#e5484d" opacity="0">50<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5159;0.5161;1.0000" values="0;0;1;1"/></text>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;1.0000" values="0;0;1;1"/><rect x="440" y="140" width="190" height="80" fill="#ffffff" stroke="#2ea043" stroke-width="2.5"/>
+<text x="535" y="130" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2ea043">int* p（住所 0x200）</text>
+<text x="535" y="190" text-anchor="middle" style="font-size:26px;font-weight:700;fill:#1f2937">0x100</text>
+</g>
+<line x1="436" y1="180" x2="256" y2="180" stroke="#2ea043" stroke-width="3" marker-end="url(#arr-pointer-deref)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2578;0.2581;1.0000" values="0;0;1;1"/></line>
+<text x="390" y="300" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">int hp = 30;  hp という箱に 30 が入っている<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="300" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">int* p = &amp;hp;  p の箱には、hp の住所 0x100 を入れる<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;0.3868;0.3871;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="300" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">p は hp を「指している」<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.3868;0.3871;0.5159;0.5161;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="300" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">*p = 50;  p が指す先(hp)の中身が 50 になる<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5159;0.5161;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:pointer-deref:end -->
+
 ## よくあるミス
 
 ??? failure "nullptr チェックを忘れる"

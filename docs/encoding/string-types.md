@@ -146,6 +146,64 @@ bool IsHiragana(char32_t cp) { return cp >= 0x3041 && cp <= 0x3096; }
 | ソート（五十音順） | バイト比較ではダメ。読み仮名のデータを持つか、ICU の照合順序 |
 | 文字列の検索・置換 | UTF-8 同士なら `find` で OK |
 
+<!-- fig:encoding-sizes:begin -->
+
+<svg class="fig illust motion" data-fig="encoding-sizes" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-encoding-sizes" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">同じ 1 文字でも、文字コードで必要なバイト数が違う</text>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/><text x="70" y="130" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937">A  半角英字</text>
+<rect x="250" y="90" width="48" height="22" fill="#2563eb" opacity="0.9"/>
+<text x="310" y="107" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">UTF-8: 1 バイト</text>
+<rect x="250" y="118" width="48" height="22" fill="#2ea043" opacity="0.9"/>
+<rect x="302" y="118" width="48" height="22" fill="#2ea043" opacity="0.9"/>
+<text x="362" y="135" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">UTF-16: 2 バイト</text>
+<rect x="250" y="146" width="48" height="22" fill="#e5aa28" opacity="0.9"/>
+<rect x="302" y="146" width="48" height="22" fill="#e5aa28" opacity="0.9"/>
+<rect x="354" y="146" width="48" height="22" fill="#e5aa28" opacity="0.9"/>
+<rect x="406" y="146" width="48" height="22" fill="#e5aa28" opacity="0.9"/>
+<text x="466" y="163" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5aa28">UTF-32: 4 バイト</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3108;0.3111;1.0000" values="0;0;1;1"/><text x="70" y="225" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937">あ  ひらがな</text>
+<rect x="250" y="185" width="48" height="22" fill="#2563eb" opacity="0.9"/>
+<rect x="302" y="185" width="48" height="22" fill="#2563eb" opacity="0.9"/>
+<rect x="354" y="185" width="48" height="22" fill="#2563eb" opacity="0.9"/>
+<text x="414" y="202" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">UTF-8: 3 バイト</text>
+<rect x="250" y="213" width="48" height="22" fill="#2ea043" opacity="0.9"/>
+<rect x="302" y="213" width="48" height="22" fill="#2ea043" opacity="0.9"/>
+<text x="362" y="230" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">UTF-16: 2 バイト</text>
+<rect x="250" y="241" width="48" height="22" fill="#e5aa28" opacity="0.9"/>
+<rect x="302" y="241" width="48" height="22" fill="#e5aa28" opacity="0.9"/>
+<rect x="354" y="241" width="48" height="22" fill="#e5aa28" opacity="0.9"/>
+<rect x="406" y="241" width="48" height="22" fill="#e5aa28" opacity="0.9"/>
+<text x="466" y="258" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5aa28">UTF-32: 4 バイト</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5479;0.5481;1.0000" values="0;0;1;1"/><text x="70" y="320" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937">😀  絵文字</text>
+<rect x="250" y="280" width="48" height="22" fill="#2563eb" opacity="0.9"/>
+<rect x="302" y="280" width="48" height="22" fill="#2563eb" opacity="0.9"/>
+<rect x="354" y="280" width="48" height="22" fill="#2563eb" opacity="0.9"/>
+<rect x="406" y="280" width="48" height="22" fill="#2563eb" opacity="0.9"/>
+<text x="466" y="297" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">UTF-8: 4 バイト</text>
+<rect x="250" y="308" width="48" height="22" fill="#2ea043" opacity="0.9"/>
+<rect x="302" y="308" width="48" height="22" fill="#2ea043" opacity="0.9"/>
+<rect x="354" y="308" width="48" height="22" fill="#2ea043" opacity="0.9"/>
+<rect x="406" y="308" width="48" height="22" fill="#2ea043" opacity="0.9"/>
+<text x="466" y="325" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">UTF-16: 4 バイト</text>
+<rect x="250" y="336" width="48" height="22" fill="#e5aa28" opacity="0.9"/>
+<rect x="302" y="336" width="48" height="22" fill="#e5aa28" opacity="0.9"/>
+<rect x="354" y="336" width="48" height="22" fill="#e5aa28" opacity="0.9"/>
+<rect x="406" y="336" width="48" height="22" fill="#e5aa28" opacity="0.9"/>
+<text x="466" y="353" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5aa28">UTF-32: 4 バイト</text>
+</g>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">1 バイト = 1 つの四角<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">英字: UTF-8 が最小(1 バイト)<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.3108;0.3111;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">日本語: UTF-8 は 3 バイト、UTF-16 は 2 バイト<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3108;0.3111;0.5479;0.5481;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">絵文字: どれも 4 バイト(UTF-16 では 2 つで 1 文字)<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5479;0.5481;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:encoding-sizes:end -->
+
 ## よくあるミス
 
 ??? failure "`std::wstring` を、ゲームの標準の文字列にする"

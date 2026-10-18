@@ -188,6 +188,50 @@ int main() {
 | 位置の指定 | `v.insert(v.begin() + i, x)`、`v.erase(v.begin() + i)` |
 | 自作コンテナ | インベントリ、シーン内のオブジェクト一覧を範囲 for で回せるようにする |
 
+<!-- fig:iterator-invalidate:begin -->
+
+<svg class="fig illust motion" data-fig="iterator-invalidate" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-iterator-invalidate" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">push_back で領域が引っ越すと、手持ちのイテレータは、解放された場所を指す</text>
+<g opacity="1"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.5452;0.5455;1.0000" values="1;1;0.3;0.3"/><rect x="100" y="110" width="48" height="44" fill="#2563eb" stroke="#94a3b8" stroke-width="1.5" opacity="0.9"/>
+<rect x="152" y="110" width="48" height="44" fill="#2563eb" stroke="#94a3b8" stroke-width="1.5" opacity="0.9"/>
+<rect x="204" y="110" width="48" height="44" fill="#2563eb" stroke="#94a3b8" stroke-width="1.5" opacity="0.9"/>
+<rect x="256" y="110" width="48" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" opacity="0.9"/>
+<text x="124.0" y="138" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">10</text>
+<text x="176.0" y="138" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">20</text>
+<text x="228.0" y="138" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">30</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;0.5452;0.5455;1.0000" values="0;0;1;1;0.3;0.3"/><rect x="256" y="110" width="48" height="44" fill="#2ea043" opacity="0.9"/>
+<text x="280.0" y="138" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">40</text>
+</g>
+<text x="100" y="100" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">元の領域（容量 4）</text>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.5452;0.5455;1.0000" values="0;0;1;1"/><rect x="100" y="250" width="48" height="44" fill="#2563eb" stroke="#94a3b8" stroke-width="1.5" opacity="0.9"/>
+<rect x="152" y="250" width="48" height="44" fill="#2563eb" stroke="#94a3b8" stroke-width="1.5" opacity="0.9"/>
+<rect x="204" y="250" width="48" height="44" fill="#2563eb" stroke="#94a3b8" stroke-width="1.5" opacity="0.9"/>
+<rect x="256" y="250" width="48" height="44" fill="#2563eb" stroke="#94a3b8" stroke-width="1.5" opacity="0.9"/>
+<rect x="308" y="250" width="48" height="44" fill="#2563eb" stroke="#94a3b8" stroke-width="1.5" opacity="0.9"/>
+<rect x="360" y="250" width="48" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" opacity="0.9"/>
+<rect x="412" y="250" width="48" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" opacity="0.9"/>
+<rect x="464" y="250" width="48" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5" opacity="0.9"/>
+<text x="124.0" y="278" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">10</text>
+<text x="176.0" y="278" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">20</text>
+<text x="228.0" y="278" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">30</text>
+<text x="280.0" y="278" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">40</text>
+<text x="332.0" y="278" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">50</text>
+<text x="100" y="240" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">新しい領域（容量 8）に引っ越した</text>
+</g>
+<line x1="176.0" y1="200" x2="176.0" y2="160" stroke="#e5484d" stroke-width="3" marker-end="url(#arr-iterator-invalidate)" opacity="1"/>
+<text x="176.0" y="218" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">it（20 を指す）</text>
+<text x="600" y="130" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#e5484d" opacity="0">解放済み → it は無効<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.5452;0.5455;1.0000" values="0;0;1;1"/></text>
+<text x="390" y="375" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">it = v.begin() + 1;  要素 20 を指している<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="375" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">push_back(40): 容量に空きがあるので、同じ場所に追加。it は有効<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;0.5452;0.5455;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="375" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">push_back(50): 容量オーバー → 引っ越し。古い領域は解放され、it は壊れる<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.5452;0.5455;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:iterator-invalidate:end -->
+
 ## よくあるミス
 
 ??? failure "end() を読む"

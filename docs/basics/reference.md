@@ -193,6 +193,39 @@ int main() {
 | 全員を回して表示 | `for (const auto& e : enemies)` |
 | ゲッター | `const std::string& name() const { return name_; }` |
 
+<!-- fig:reference-alias:begin -->
+
+<svg class="fig illust motion" data-fig="reference-alias" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-reference-alias" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">値渡しはコピーを直す。参照渡しは、元の変数そのものを直す</text>
+<text x="60" y="80" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">値渡し  void Heal(int x)</text>
+<rect x="100" y="100" width="110" height="60" fill="#ffffff" stroke="#64748b" stroke-width="2.5"/>
+<text x="155" y="94" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">hp（元）</text>
+<text x="155" y="140" text-anchor="middle" style="font-size:24px;font-weight:700;fill:#1f2937">30</text>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1377;0.1379;1.0000" values="0;0;1;1"/><rect x="380" y="100" width="110" height="60" fill="#ffffff" stroke="#e5484d" stroke-width="2.5"/>
+<text x="435" y="94" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">x（コピー）</text>
+</g>
+<text x="435" y="140" text-anchor="middle" style="font-size:24px;font-weight:700;fill:#1f2937" opacity="0">30<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1377;0.1379;0.3446;0.3448;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="435" y="140" text-anchor="middle" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">31<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3446;0.3448;1.0000" values="0;0;1;1"/></text>
+<line x1="214" y1="130" x2="376" y2="130" stroke="#e5484d" stroke-width="2" marker-end="url(#arr-reference-alias)" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1377;0.1379;1.0000" values="0;0;1;1"/></line>
+<text x="520" y="135" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">← 新しい箱に、値を複製<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1377;0.1379;1.0000" values="0;0;1;1"/></text>
+<text x="60" y="235" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043">参照渡し  void Heal(int&amp; x)</text>
+<rect x="100" y="255" width="110" height="60" fill="#ffffff" stroke="#2ea043" stroke-width="2.5"/>
+<text x="155" y="249" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">hp</text>
+<text x="250" y="249" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043" opacity="0">= x（別名）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5514;0.5517;1.0000" values="0;0;1;1"/></text>
+<text x="155" y="295" text-anchor="middle" style="font-size:24px;font-weight:700;fill:#1f2937" opacity="0">30<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7583;0.7586;1.0000" values="1;1;0;0"/></text>
+<text x="155" y="295" text-anchor="middle" style="font-size:24px;font-weight:700;fill:#2ea043" opacity="0">31<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7583;0.7586;1.0000" values="0;0;1;1"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">同じ関数 Heal を、2 通りの渡し方で呼ぶ<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1377;0.1379;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">値渡し: x は別の箱。元の hp とは無関係<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1377;0.1379;0.3446;0.3448;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">x を 31 にしても、元の hp は 30 のまま<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3446;0.3448;0.5514;0.5517;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">参照渡し: x は hp の別名(同じ箱)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5514;0.5517;0.7583;0.7586;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">x を 31 にすると、hp も 31 になる<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7583;0.7586;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:reference-alias:end -->
+
 ## よくあるミス
 
 ??? failure "ローカル変数の参照を返す"

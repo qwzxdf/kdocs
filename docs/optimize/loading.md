@@ -145,6 +145,46 @@ void UpdateLoading() {
 | セーブデータの読み込み | バイナリ形式（[cereal](../libs/serialization/cereal.md)）。サイズが小さければ、JSON でも十分 |
 | ホット リロード（開発中） | 開発中は読み込みを速くするより、**変更をすぐ反映**できるほうを優先 |
 
+<!-- fig:load-gantt:begin -->
+
+<svg class="fig illust motion" data-fig="load-gantt" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-load-gantt" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ロード時間: 順番に待つと 10 秒、並べて進めると 5 秒</text>
+<text x="40" y="85" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d">順番に実行（1 本のスレッド）</text>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="0;0;1;1"/><rect x="70" y="105" width="183" height="38" fill="#2563eb" opacity="0.9"/>
+<text x="163.0" y="130" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">テクスチャ 3s</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1514;0.1517;1.0000" values="0;0;1;1"/><rect x="256" y="105" width="121" height="38" fill="#2ea043" opacity="0.9"/>
+<text x="318.0" y="130" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">メッシュ 2s</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2342;0.2345;1.0000" values="0;0;1;1"/><rect x="380" y="105" width="121" height="38" fill="#7c3aed" opacity="0.9"/>
+<text x="442.0" y="130" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">デコード 2s</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3170;0.3172;1.0000" values="0;0;1;1"/><rect x="504" y="105" width="183" height="38" fill="#e5aa28" opacity="0.9"/>
+<text x="597.0" y="130" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">シェーダー 3s</text>
+</g>
+<text x="40" y="205" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043">並べて実行（3 本のスレッド）</text>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4480;0.4483;1.0000" values="0;0;1;1"/><rect x="70" y="225" width="183" height="38" fill="#2563eb" opacity="0.9"/>
+<text x="163.0" y="250" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">テクスチャ 3s</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4756;0.4759;1.0000" values="0;0;1;1"/><rect x="70" y="269" width="121" height="38" fill="#2ea043" opacity="0.9"/>
+<text x="132.0" y="294" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">メッシュ 2s</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5032;0.5034;1.0000" values="0;0;1;1"/><rect x="70" y="313" width="183" height="38" fill="#e5aa28" opacity="0.9"/>
+<text x="163.0" y="338" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">シェーダー 3s</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5308;0.5310;1.0000" values="0;0;1;1"/><rect x="256" y="269" width="121" height="38" fill="#7c3aed" opacity="0.9"/>
+<text x="318.0" y="294" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">デコード 2s</text>
+</g>
+<text x="690" y="160" text-anchor="end" style="font-size:14px;font-weight:700;fill:#e5484d" opacity="0">10 秒<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3790;0.3793;1.0000" values="0;0;1;1"/></text>
+<text x="380" y="360" text-anchor="end" style="font-size:14px;font-weight:700;fill:#2ea043" opacity="0">5 秒<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6204;0.6207;1.0000" values="0;0;1;1"/></text>
+<text x="390" y="385" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">デコードは、テクスチャとメッシュが終わってから始める(依存関係)。シェーダーは独立</text>
+</svg>
+
+<!-- fig:load-gantt:end -->
+
 ## よくあるミス
 
 ??? failure "ロードの内訳を測らずに、圧縮ツールを入れる"

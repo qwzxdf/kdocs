@@ -121,6 +121,53 @@ int main() {
 
 <svg class="fig flow" viewBox="0 0 870 298" role="img" aria-label="ロードスレッドで読み込み、完了フラグでメインスレッドが切り替える"><defs><marker id="fl33769" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ロードスレッドで読み込み、完了フラグでメインスレッドが切り替える</text><line x1="107.0" y1="124.0" x2="249.0" y2="124.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl33769)"/><line x1="331.0" y1="124.0" x2="524.0" y2="124.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl33769)"/><path d="M565.0,102.0 Q315.5,50.0 66.0,102.0" fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#fl33769)"/><text x="315.5" y="64.0" text-anchor="middle" style="font-size:12px">繰り返す</text><line x1="290.0" y1="147.0" x2="290.0" y2="227.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl33769)"/><text x="290.0" y="181.0" text-anchor="middle" style="font-size:12px">開始</text><line x1="415.0" y1="250.0" x2="473.0" y2="250.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl33769)"/><text x="444.0" y="244.0" text-anchor="middle" style="font-size:12px">終わったら</text><line x1="604.2" y1="227.0" x2="740.8" y2="147.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl33769)"/><text x="672.5" y="181.0" text-anchor="middle" style="font-size:12px">毎フレーム確認</text><rect x="28.0" y="104.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="124.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">入力</text><circle cx="30.0" cy="106.0" r="10" fill="#4c8bf5"/><text x="30.0" y="106.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="252.0" y="104.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="290.0" y="124.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">更新</text><circle cx="254.0" cy="106.0" r="10" fill="#4c8bf5"/><text x="254.0" y="106.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="527.0" y="104.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="565.0" y="124.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">描画</text><circle cx="529.0" cy="106.0" r="10" fill="#4c8bf5"/><text x="529.0" y="106.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="168.0" y="230.0" width="244" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="290.0" y="250.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ロードスレッド ステージ読み込み</text><circle cx="170.0" cy="232.0" r="10" fill="#2ea043"/><text x="170.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="476.0" y="230.0" width="178" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="565.0" y="250.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">完了フラグ （atomic）</text><circle cx="478.0" cy="232.0" r="10" fill="#e5a828"/><text x="478.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="718.0" y="104.0" width="124" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="780.0" y="124.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">シーン切り替え</text><circle cx="720.0" cy="106.0" r="10" fill="#e5484d"/><text x="720.0" y="106.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
+<!-- fig:data-race-counter:begin -->
+
+<svg class="fig illust motion" data-fig="data-race-counter" viewBox="0 0 780 460" role="img"><rect x="0" y="0" width="780" height="460" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-data-race-counter" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">2 つのスレッドが、同じカウンターを +1 する: ロックなしで 1 になる</text>
+<text x="60" y="85" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">ロックなし</text>
+<line x1="110" y1="138" x2="720" y2="138" stroke="#e2e8f0" stroke-width="1.5"/>
+<text x="100" y="144" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">スレッド A</text>
+<line x1="110" y1="193" x2="720" y2="193" stroke="#e2e8f0" stroke-width="1.5"/>
+<text x="100" y="199" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">スレッド B</text>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="0;0;1;1"/><rect x="140" y="120" width="120" height="36" fill="#2563eb" opacity="0.9"/>
+<text x="200" y="144" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">読む(0)</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.1513;0.1515;1.0000" values="0;0;1;1"/><rect x="280" y="175" width="120" height="36" fill="#2ea043" opacity="0.9"/>
+<text x="340" y="199" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">読む(0)</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;1.0000" values="0;0;1;1"/><rect x="420" y="120" width="120" height="36" fill="#2563eb" opacity="0.9"/>
+<text x="480" y="144" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">書く(1)</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.3331;0.3333;1.0000" values="0;0;1;1"/><rect x="560" y="175" width="120" height="36" fill="#2ea043" opacity="0.9"/>
+<text x="620" y="199" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">書く(1)</text>
+</g>
+<text x="390" y="255" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">共有カウンター = 0<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="255" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">共有カウンター = 0<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;0.2422;0.2424;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="255" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">共有カウンター = 1<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;0.3331;0.3333;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="255" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#e5484d" opacity="0">共有カウンター = 1  ← 2 回足したのに 1<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.3331;0.3333;0.4846;0.4848;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="60" y="305" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043">std::mutex でロックあり</text>
+<line x1="110" y1="353" x2="720" y2="353" stroke="#e2e8f0" stroke-width="1.5"/>
+<text x="100" y="359" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">スレッド A</text>
+<line x1="110" y1="403" x2="720" y2="403" stroke="#e2e8f0" stroke-width="1.5"/>
+<text x="100" y="409" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">スレッド B</text>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.5149;0.5152;1.0000" values="0;0;1;1"/><rect x="140" y="335" width="260" height="36" fill="#2563eb" opacity="0.9"/>
+<text x="270" y="359" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">ロック+読む+書く</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.5149;0.5152;1.0000" values="0;0;1;1"/><rect x="140" y="385" width="260" height="36" fill="#64748b" opacity="0.9"/>
+<text x="270" y="409" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">待つ</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.6664;0.6667;1.0000" values="0;0;1;1"/><rect x="420" y="385" width="260" height="36" fill="#2ea043" opacity="0.9"/>
+<text x="550" y="409" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">ロック+読む+書く</text>
+</g>
+<text x="390" y="450" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">共有カウンター = 2（正しい）<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.7573;0.7576;1.0000" values="0;0;1;1"/></text>
+</svg>
+
+<!-- fig:data-race-counter:end -->
+
 ## よくあるミス
 
 ??? failure "守らずに共有する"

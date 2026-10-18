@@ -176,6 +176,44 @@ void Update() {
 | コンテナの選び方で迷う | ベンチマークで、実際のデータ量で比べる |
 | 製品版の前 | 実機（最低スペックの PC）で測る。開発 PC より遅い |
 
+<!-- fig:amdahl-bars:begin -->
+
+<svg class="fig illust motion" data-fig="amdahl-bars" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-amdahl-bars" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">全体の 50% を占める所を 2 倍速くするほうが、30% の所より効く</text>
+<g opacity="1"><text x="70" y="92" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">今の状態（100）</text>
+<rect x="70" y="100" width="270.0" height="44" fill="#2563eb" opacity="0.9"/>
+<text x="205.0" y="128" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">A 50</text>
+<rect x="340.0" y="100" width="162.0" height="44" fill="#2ea043" opacity="0.9"/>
+<text x="421.0" y="128" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">B 30</text>
+<rect x="502.0" y="100" width="108.0" height="44" fill="#e5aa28" opacity="0.9"/>
+<text x="556.0" y="128" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">C 20</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2219;0.2222;1.0000" values="0;0;1;1"/><text x="70" y="122" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">B を 2 倍速く → 85</text>
+<rect x="70" y="130" width="270.0" height="44" fill="#2563eb" opacity="0.9"/>
+<text x="205.0" y="158" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">A 50</text>
+<rect x="340.0" y="130" width="81.0" height="44" fill="#2ea043" opacity="0.9"/>
+<text x="380.5" y="158" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">B 15</text>
+<rect x="421.0" y="130" width="108.0" height="44" fill="#e5aa28" opacity="0.9"/>
+<text x="475.0" y="158" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">C 20</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000" values="0;0;1;1"/><text x="70" y="212" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">A を 2 倍速く → 75</text>
+<rect x="70" y="220" width="135.0" height="44" fill="#2563eb" opacity="0.9"/>
+<text x="137.5" y="248" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">A 25</text>
+<rect x="205.0" y="220" width="162.0" height="44" fill="#2ea043" opacity="0.9"/>
+<text x="286.0" y="248" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">B 30</text>
+<rect x="367.0" y="220" width="108.0" height="44" fill="#e5aa28" opacity="0.9"/>
+<text x="421.0" y="248" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">C 20</text>
+</g>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">A 50、B 30、C 20(合計 100)の処理がある<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2219;0.2222;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">B を半分にしても、全体は 85。15 しか減らない<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2219;0.2222;0.4812;0.4815;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">A を半分にすると、全体は 75。25 減る → 重い所から直す<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:amdahl-bars:end -->
+
 ## よくあるミス
 
 ??? failure "Debug ビルドで測る"

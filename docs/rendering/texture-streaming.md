@@ -95,6 +95,39 @@ GPU が**圧縮したまま読める**フォーマットを使います。読み
 | **利点** | 巨大なテクスチャを扱える。VRAM の使用が一定 |
 | **代償** | 実装が複雑。フィルタリングの境界処理が必要 |
 
+<!-- fig:mip-memory:begin -->
+
+<svg class="fig illust motion" data-fig="mip-memory" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-mip-memory" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ミップを使うと、小さく表示される時、小さな絵だけ読める(全体は +33%)</text>
+<text x="238" y="114" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">ミップ 0（1024×1024）</text>
+<rect x="250" y="90" width="400.0" height="34" fill="#2563eb" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/></rect>
+<text x="660.0" y="113" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">4.00 MB<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/></text>
+<text x="238" y="162" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">ミップ 1（512×512）</text>
+<rect x="250" y="138" width="100.0" height="34" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1610;0.1613;1.0000" values="0;0;1;1"/></rect>
+<text x="360.0" y="161" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">1.00 MB<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1610;0.1613;1.0000" values="0;0;1;1"/></text>
+<text x="238" y="210" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">ミップ 2（256×256）</text>
+<rect x="250" y="186" width="25.0" height="34" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2578;0.2581;1.0000" values="0;0;1;1"/></rect>
+<text x="285.0" y="209" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">0.25 MB<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2578;0.2581;1.0000" values="0;0;1;1"/></text>
+<text x="238" y="258" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">ミップ 3（128×128）</text>
+<rect x="250" y="234" width="6.25" height="34" fill="#7c3aed" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.3546;0.3548;1.0000" values="0;0;1;1"/></rect>
+<text x="266.25" y="257" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">64 KB<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.3546;0.3548;1.0000" values="0;0;1;1"/></text>
+<text x="238" y="306" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">ミップ 4（64×64）</text>
+<rect x="250" y="282" width="3.0" height="34" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.4514;0.4516;1.0000" values="0;0;1;1"/></rect>
+<text x="263.0" y="305" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">16 KB<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.4514;0.4516;1.0000" values="0;0;1;1"/></text>
+<text x="238" y="354" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">ミップ 5（32×32）</text>
+<rect x="250" y="330" width="3.0" height="34" fill="#64748b" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5481;0.5484;1.0000" values="0;0;1;1"/></rect>
+<text x="263.0" y="353" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">4 KB<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5481;0.5484;1.0000" values="0;0;1;1"/></text>
+<text x="390" y="400" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">1024×1024 の画像（1 画素 4 バイト）<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="400" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">ミップ 0: 4 MB<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;0.1933;0.1935;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="400" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">1 段下がるごとに、縦横が半分 → 容量は 1/4<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;0.6126;0.6129;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="400" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">全部足しても約 5.33 MB（元の 4/3 倍）。遠い物は、小さい層だけ読めばよい<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.6126;0.6129;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:mip-memory:end -->
+
 ## よくあるミス
 
 ??? failure "全テクスチャを無圧縮・全ミップで常駐させる"

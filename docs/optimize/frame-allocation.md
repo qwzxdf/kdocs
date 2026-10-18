@@ -225,6 +225,53 @@ ImGui::TextUnformatted(buffer);
 
 **ルール**：<strong>「毎フレーム・毎エンティティ」で実行される所だけ、確保なしにする</strong>。それ以外は、読みやすさを優先します。
 
+<!-- fig:arena-bump:begin -->
+
+<svg class="fig illust motion" data-fig="arena-bump" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-arena-bump" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">フレーム アロケータ: ポインタを進めるだけで確保し、フレーム末に巻き戻す</text>
+<rect x="70" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="110" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="150" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="190" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="230" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="270" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="310" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="350" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="390" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="430" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="470" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="510" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="550" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="590" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="630" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="670" y="150" width="38" height="44" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="67" y="128" width="6" height="18" fill="#e5484d"><animate attributeName="x" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0581;0.0968;0.2065;0.2452;0.3548;0.3935;0.5032;0.5419;0.7097;0.7613;1.0000" values="67;67;147;147;307;307;347;347;467;467;67;67"/></rect>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0965;0.0968;0.7094;0.7097;1.0000" values="0;0;1;1;0;0"/><rect x="70" y="150" width="78" height="44" fill="#2563eb" opacity="0.9"/>
+<text x="110.0" y="178" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">A (2)</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2449;0.2452;0.7094;0.7097;1.0000" values="0;0;1;1;0;0"/><rect x="150" y="150" width="158" height="44" fill="#2ea043" opacity="0.9"/>
+<text x="230.0" y="178" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">B (4)</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.3933;0.3935;0.7094;0.7097;1.0000" values="0;0;1;1;0;0"/><rect x="310" y="150" width="38" height="44" fill="#e5aa28" opacity="0.9"/>
+<text x="330.0" y="178" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">C (1)</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5417;0.5419;0.7094;0.7097;1.0000" values="0;0;1;1;0;0"/><rect x="350" y="150" width="118" height="44" fill="#7c3aed" opacity="0.9"/>
+<text x="410.0" y="178" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">D (3)</text>
+</g>
+<text x="70" y="116" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">先頭からの使用量(赤い印 = 次に確保する位置)</text>
+<text x="390" y="290" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">最初に大きな領域を 1 つ確保しておく(16 マス)<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0965;0.0968;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="290" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">A を確保: 印を 2 マス進めるだけ<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0965;0.0968;0.2449;0.2452;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="290" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">B を確保: 4 マス進める<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2449;0.2452;0.3933;0.3935;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="290" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">C, D も同様。確保 1 回につき、足し算 1 回だけ<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.3933;0.3935;0.5417;0.5419;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="290" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">合計 10 マス使用<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5417;0.5419;0.7094;0.7097;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="290" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム末: 印を先頭に戻す。解放は 1 回だけで、個別の free は不要<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.7094;0.7097;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:arena-bump:end -->
+
 ## よくあるミス
 
 ??? failure "ループの中で、ローカルの `std::vector` を作っている"

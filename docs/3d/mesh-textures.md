@@ -282,6 +282,92 @@ UV が `0..1` の外に出たときの扱いです。
 | **インスタンシング** | **同じメッシュを大量に**描く（木・草・弾）。1 回の描画命令で |
 | **LOD** | 遠くは頂点の少ないモデル |
 
+<!-- fig:uv-sampling:begin -->
+
+<svg class="fig illust motion" data-fig="uv-sampling" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-uv-sampling" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">UV 座標から、テクスチャの画素(テクセル)を選ぶ</text>
+<rect x="230" y="90" width="40" height="40" fill="#dbeafe" stroke="#ffffff" stroke-width="1"/>
+<rect x="270" y="90" width="40" height="40" fill="#94aae0" stroke="#ffffff" stroke-width="1"/>
+<rect x="310" y="90" width="40" height="40" fill="#4d6ac3" stroke="#ffffff" stroke-width="1"/>
+<rect x="350" y="90" width="40" height="40" fill="#c3d5f4" stroke="#ffffff" stroke-width="1"/>
+<rect x="390" y="90" width="40" height="40" fill="#7c95d6" stroke="#ffffff" stroke-width="1"/>
+<rect x="430" y="90" width="40" height="40" fill="#3655b9" stroke="#ffffff" stroke-width="1"/>
+<rect x="470" y="90" width="40" height="40" fill="#acc0ea" stroke="#ffffff" stroke-width="1"/>
+<rect x="510" y="90" width="40" height="40" fill="#6580cd" stroke="#ffffff" stroke-width="1"/>
+<rect x="230" y="130" width="40" height="40" fill="#6580cd" stroke="#ffffff" stroke-width="1"/>
+<rect x="270" y="130" width="40" height="40" fill="#dbeafe" stroke="#ffffff" stroke-width="1"/>
+<rect x="310" y="130" width="40" height="40" fill="#94aae0" stroke="#ffffff" stroke-width="1"/>
+<rect x="350" y="130" width="40" height="40" fill="#4d6ac3" stroke="#ffffff" stroke-width="1"/>
+<rect x="390" y="130" width="40" height="40" fill="#c3d5f4" stroke="#ffffff" stroke-width="1"/>
+<rect x="430" y="130" width="40" height="40" fill="#7c95d6" stroke="#ffffff" stroke-width="1"/>
+<rect x="470" y="130" width="40" height="40" fill="#3655b9" stroke="#ffffff" stroke-width="1"/>
+<rect x="510" y="130" width="40" height="40" fill="#acc0ea" stroke="#ffffff" stroke-width="1"/>
+<rect x="230" y="170" width="40" height="40" fill="#acc0ea" stroke="#ffffff" stroke-width="1"/>
+<rect x="270" y="170" width="40" height="40" fill="#6580cd" stroke="#ffffff" stroke-width="1"/>
+<rect x="310" y="170" width="40" height="40" fill="#dbeafe" stroke="#ffffff" stroke-width="1"/>
+<rect x="350" y="170" width="40" height="40" fill="#94aae0" stroke="#ffffff" stroke-width="1"/>
+<rect x="390" y="170" width="40" height="40" fill="#4d6ac3" stroke="#ffffff" stroke-width="1"/>
+<rect x="430" y="170" width="40" height="40" fill="#c3d5f4" stroke="#ffffff" stroke-width="1"/>
+<rect x="470" y="170" width="40" height="40" fill="#7c95d6" stroke="#ffffff" stroke-width="1"/>
+<rect x="510" y="170" width="40" height="40" fill="#3655b9" stroke="#ffffff" stroke-width="1"/>
+<rect x="230" y="210" width="40" height="40" fill="#3655b9" stroke="#ffffff" stroke-width="1"/>
+<rect x="270" y="210" width="40" height="40" fill="#acc0ea" stroke="#ffffff" stroke-width="1"/>
+<rect x="310" y="210" width="40" height="40" fill="#6580cd" stroke="#ffffff" stroke-width="1"/>
+<rect x="350" y="210" width="40" height="40" fill="#dbeafe" stroke="#ffffff" stroke-width="1"/>
+<rect x="390" y="210" width="40" height="40" fill="#94aae0" stroke="#ffffff" stroke-width="1"/>
+<rect x="430" y="210" width="40" height="40" fill="#4d6ac3" stroke="#ffffff" stroke-width="1"/>
+<rect x="470" y="210" width="40" height="40" fill="#c3d5f4" stroke="#ffffff" stroke-width="1"/>
+<rect x="510" y="210" width="40" height="40" fill="#7c95d6" stroke="#ffffff" stroke-width="1"/>
+<rect x="230" y="250" width="40" height="40" fill="#7c95d6" stroke="#ffffff" stroke-width="1"/>
+<rect x="270" y="250" width="40" height="40" fill="#3655b9" stroke="#ffffff" stroke-width="1"/>
+<rect x="310" y="250" width="40" height="40" fill="#acc0ea" stroke="#ffffff" stroke-width="1"/>
+<rect x="350" y="250" width="40" height="40" fill="#6580cd" stroke="#ffffff" stroke-width="1"/>
+<rect x="390" y="250" width="40" height="40" fill="#dbeafe" stroke="#ffffff" stroke-width="1"/>
+<rect x="430" y="250" width="40" height="40" fill="#94aae0" stroke="#ffffff" stroke-width="1"/>
+<rect x="470" y="250" width="40" height="40" fill="#4d6ac3" stroke="#ffffff" stroke-width="1"/>
+<rect x="510" y="250" width="40" height="40" fill="#c3d5f4" stroke="#ffffff" stroke-width="1"/>
+<rect x="230" y="290" width="40" height="40" fill="#c3d5f4" stroke="#ffffff" stroke-width="1"/>
+<rect x="270" y="290" width="40" height="40" fill="#7c95d6" stroke="#ffffff" stroke-width="1"/>
+<rect x="310" y="290" width="40" height="40" fill="#3655b9" stroke="#ffffff" stroke-width="1"/>
+<rect x="350" y="290" width="40" height="40" fill="#acc0ea" stroke="#ffffff" stroke-width="1"/>
+<rect x="390" y="290" width="40" height="40" fill="#6580cd" stroke="#ffffff" stroke-width="1"/>
+<rect x="430" y="290" width="40" height="40" fill="#dbeafe" stroke="#ffffff" stroke-width="1"/>
+<rect x="470" y="290" width="40" height="40" fill="#94aae0" stroke="#ffffff" stroke-width="1"/>
+<rect x="510" y="290" width="40" height="40" fill="#4d6ac3" stroke="#ffffff" stroke-width="1"/>
+<rect x="230" y="330" width="40" height="40" fill="#4d6ac3" stroke="#ffffff" stroke-width="1"/>
+<rect x="270" y="330" width="40" height="40" fill="#c3d5f4" stroke="#ffffff" stroke-width="1"/>
+<rect x="310" y="330" width="40" height="40" fill="#7c95d6" stroke="#ffffff" stroke-width="1"/>
+<rect x="350" y="330" width="40" height="40" fill="#3655b9" stroke="#ffffff" stroke-width="1"/>
+<rect x="390" y="330" width="40" height="40" fill="#acc0ea" stroke="#ffffff" stroke-width="1"/>
+<rect x="430" y="330" width="40" height="40" fill="#6580cd" stroke="#ffffff" stroke-width="1"/>
+<rect x="470" y="330" width="40" height="40" fill="#dbeafe" stroke="#ffffff" stroke-width="1"/>
+<rect x="510" y="330" width="40" height="40" fill="#94aae0" stroke="#ffffff" stroke-width="1"/>
+<rect x="230" y="370" width="40" height="40" fill="#94aae0" stroke="#ffffff" stroke-width="1"/>
+<rect x="270" y="370" width="40" height="40" fill="#4d6ac3" stroke="#ffffff" stroke-width="1"/>
+<rect x="310" y="370" width="40" height="40" fill="#c3d5f4" stroke="#ffffff" stroke-width="1"/>
+<rect x="350" y="370" width="40" height="40" fill="#7c95d6" stroke="#ffffff" stroke-width="1"/>
+<rect x="390" y="370" width="40" height="40" fill="#3655b9" stroke="#ffffff" stroke-width="1"/>
+<rect x="430" y="370" width="40" height="40" fill="#acc0ea" stroke="#ffffff" stroke-width="1"/>
+<rect x="470" y="370" width="40" height="40" fill="#6580cd" stroke="#ffffff" stroke-width="1"/>
+<rect x="510" y="370" width="40" height="40" fill="#dbeafe" stroke="#ffffff" stroke-width="1"/>
+<text x="230" y="80" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">8×8 のテクスチャ。UV は (0,0) が左上、(1,1) が右下</text>
+<rect x="310" y="290" width="40" height="40" fill="none" stroke="#e5aa28" stroke-width="5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.3308;0.3310;1.0000" values="0;0;1;1;0;0"/></rect>
+<circle cx="326.0" cy="314.0" r="7" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.3308;0.3310;1.0000" values="0;0;1;1;0;0"/></circle>
+<rect x="390" y="130" width="40" height="40" fill="none" stroke="#e5aa28" stroke-width="5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3308;0.3310;0.5928;0.5931;1.0000" values="0;0;1;1;0;0"/></rect>
+<circle cx="406.0" cy="154.0" r="7" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3308;0.3310;0.5928;0.5931;1.0000" values="0;0;1;1;0;0"/></circle>
+<rect x="510" y="370" width="40" height="40" fill="none" stroke="#e5aa28" stroke-width="5" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5928;0.5931;1.0000" values="0;0;1;1"/></rect>
+<circle cx="527.6" cy="387.6" r="7" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5928;0.5931;1.0000" values="0;0;1;1"/></circle>
+<text x="390" y="430" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">三角形の内側の点には、UV が補間されて届く<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="430" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">UV (0.30, 0.70) × 8 = (2.40, 5.60) → テクセル (2, 5)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.3308;0.3310;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="430" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">UV (0.55, 0.20) × 8 = (4.40, 1.60) → テクセル (4, 1)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3308;0.3310;0.5928;0.5931;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="430" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">UV (0.93, 0.93) × 8 = (7.44, 7.44) → テクセル (7, 7)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5928;0.5931;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:uv-sampling:end -->
+
 ## よくあるミス
 
 ??? failure "メッシュが表示されない"

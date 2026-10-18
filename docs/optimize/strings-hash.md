@@ -218,6 +218,67 @@ struct Entity {
 
 **デバッグ用の名前**は、**開発中だけ**持てば十分です。製品では**メモリも文字列も消せます**（[プリプロセッサマクロ](../vs/preprocessor.md)）。
 
+<!-- fig:hash-buckets:begin -->
+
+<svg class="fig illust motion" data-fig="hash-buckets" viewBox="0 0 780 460" role="img"><rect x="0" y="0" width="780" height="460" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-hash-buckets" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ハッシュ表: キーを数値に変え、その番号のバケツへ入れる(衝突は同じバケツに並ぶ)</text>
+<text x="110" y="112" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">バケツ 0</text>
+<rect x="120" y="90" width="60" height="30" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="110" y="150" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">バケツ 1</text>
+<rect x="120" y="128" width="60" height="30" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="110" y="188" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">バケツ 2</text>
+<rect x="120" y="166" width="60" height="30" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="110" y="226" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">バケツ 3</text>
+<rect x="120" y="204" width="60" height="30" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="110" y="264" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">バケツ 4</text>
+<rect x="120" y="242" width="60" height="30" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="110" y="302" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">バケツ 5</text>
+<rect x="120" y="280" width="60" height="30" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="110" y="340" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">バケツ 6</text>
+<rect x="120" y="318" width="60" height="30" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="110" y="378" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">バケツ 7</text>
+<rect x="120" y="356" width="60" height="30" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.0809;0.0811;1.0000" values="0;0;1;1"/><rect x="190" y="280" width="90" height="30" fill="#2563eb" opacity="0.9"/>
+<text x="235" y="301" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">hp</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.1619;0.1622;1.0000" values="0;0;1;1"/><rect x="190" y="90" width="90" height="30" fill="#2563eb" opacity="0.9"/>
+<text x="235" y="111" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">mp</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.2430;0.2432;1.0000" values="0;0;1;1"/><rect x="190" y="128" width="90" height="30" fill="#2563eb" opacity="0.9"/>
+<text x="235" y="149" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">atk</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.3241;0.3243;1.0000" values="0;0;1;1"/><rect x="190" y="242" width="90" height="30" fill="#2563eb" opacity="0.9"/>
+<text x="235" y="263" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">def</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.4052;0.4054;1.0000" values="0;0;1;1"/><rect x="190" y="318" width="90" height="30" fill="#2563eb" opacity="0.9"/>
+<text x="235" y="339" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">spd</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.4863;0.4865;1.0000" values="0;0;1;1"/><rect x="190" y="204" width="90" height="30" fill="#2563eb" opacity="0.9"/>
+<text x="235" y="225" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">luk</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.5674;0.5676;1.0000" values="0;0;1;1"/><rect x="290" y="90" width="90" height="30" fill="#e5484d" opacity="0.9"/>
+<text x="335" y="111" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">exp</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.6484;0.6486;1.0000" values="0;0;1;1"/><rect x="290" y="204" width="90" height="30" fill="#e5484d" opacity="0.9"/>
+<text x="335" y="225" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">gold</text>
+</g>
+<text x="600" y="250" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">キーを FNV-1a でハッシュ → 8 で割った余りがバケツ番号<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.0809;0.0811;1.0000" values="1;1;0;0"/></text>
+<text x="600" y="250" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">"hp" → バケツ 5<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.0809;0.0811;0.1619;0.1622;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="600" y="250" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">"mp" → バケツ 0<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.1619;0.1622;0.2430;0.2432;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="600" y="250" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">"atk" → バケツ 1<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.2430;0.2432;0.3241;0.3243;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="600" y="250" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">"def" → バケツ 4<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.3241;0.3243;0.4052;0.4054;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="600" y="250" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">"spd" → バケツ 6<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.4052;0.4054;0.4863;0.4865;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="600" y="250" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">"luk" → バケツ 3<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.4863;0.4865;0.5674;0.5676;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="600" y="250" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">"exp" → バケツ 0（先客あり: 衝突。同じバケツに連ねる）<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.5674;0.5676;0.6484;0.6486;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="600" y="250" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">"gold" → バケツ 3（先客あり: 衝突。同じバケツに連ねる）<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.6484;0.6486;0.7295;0.7297;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="600" y="250" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">8 個を入れて、衝突が 2 回。多いと検索が遅くなる<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.7295;0.7297;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:hash-buckets:end -->
+
 ## よくあるミス
 
 ??? failure "毎フレーム、`std::string` で名前を比較している"

@@ -125,6 +125,87 @@ context->DrawIndexedInstanced(index_count, instance_count, 0, 0, 0);
 | **数千〜数万** | **GPU Driven**（[GPU Driven](gpu-driven.md)） |
 | **それ以上** | **GPU Driven ＋ Meshlet**（[Mesh Shader](mesh-shaders.md)） |
 
+<!-- fig:state-sort:begin -->
+
+<svg class="fig illust motion" data-fig="state-sort" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-state-sort" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">マテリアルでソートすると、状態の切り替え回数が減る</text>
+<text x="70" y="88" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">描く順（ソートなし）</text>
+<rect x="70" y="100" width="56" height="56" fill="#2563eb" opacity="0.9"/>
+<text x="98.0" y="133.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">A</text>
+<rect x="132" y="100" width="56" height="56" fill="#2ea043" opacity="0.9"/>
+<text x="160.0" y="133.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">B</text>
+<rect x="127" y="98" width="4" height="60" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0933;0.0935;1.0000" values="0;0;1;1"/></rect>
+<rect x="194" y="100" width="56" height="56" fill="#2563eb" opacity="0.9"/>
+<text x="222.0" y="133.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">A</text>
+<rect x="189" y="98" width="4" height="60" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1223;0.1226;1.0000" values="0;0;1;1"/></rect>
+<rect x="256" y="100" width="56" height="56" fill="#e5aa28" opacity="0.9"/>
+<text x="284.0" y="133.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">C</text>
+<rect x="251" y="98" width="4" height="60" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1514;0.1516;1.0000" values="0;0;1;1"/></rect>
+<rect x="318" y="100" width="56" height="56" fill="#2ea043" opacity="0.9"/>
+<text x="346.0" y="133.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">B</text>
+<rect x="313" y="98" width="4" height="60" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1804;0.1806;1.0000" values="0;0;1;1"/></rect>
+<rect x="380" y="100" width="56" height="56" fill="#e5aa28" opacity="0.9"/>
+<text x="408.0" y="133.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">C</text>
+<rect x="375" y="98" width="4" height="60" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2094;0.2097;1.0000" values="0;0;1;1"/></rect>
+<rect x="442" y="100" width="56" height="56" fill="#2563eb" opacity="0.9"/>
+<text x="470.0" y="133.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">A</text>
+<rect x="437" y="98" width="4" height="60" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2385;0.2387;1.0000" values="0;0;1;1"/></rect>
+<rect x="504" y="100" width="56" height="56" fill="#2ea043" opacity="0.9"/>
+<text x="532.0" y="133.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">B</text>
+<rect x="499" y="98" width="4" height="60" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2675;0.2677;1.0000" values="0;0;1;1"/></rect>
+<rect x="566" y="100" width="56" height="56" fill="#e5aa28" opacity="0.9"/>
+<text x="594.0" y="133.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">C</text>
+<rect x="561" y="98" width="4" height="60" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2965;0.2968;1.0000" values="0;0;1;1"/></rect>
+<text x="70" y="194" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="1">0<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="1;1;0;0"/></text>
+<text x="70" y="194" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">0<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;0.0933;0.0935;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="194" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">1<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0933;0.0935;0.1223;0.1226;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="194" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">2<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1223;0.1226;0.1514;0.1516;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="194" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">3<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1514;0.1516;0.1804;0.1806;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="194" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">4<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1804;0.1806;0.2094;0.2097;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="194" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">5<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2094;0.2097;0.2385;0.2387;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="194" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">6<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2385;0.2387;0.2675;0.2677;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="194" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">7<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2675;0.2677;0.2965;0.2968;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="194" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">8<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2965;0.2968;1.0000" values="0;0;1;1"/></text>
+<text x="98" y="194" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">回、マテリアルを切り替えた（赤い線）</text>
+<text x="70" y="238" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">マテリアルで並べ替えた順</text>
+<rect x="70" y="250" width="56" height="56" fill="#2563eb" opacity="0.9"/>
+<text x="98.0" y="283.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">A</text>
+<rect x="132" y="250" width="56" height="56" fill="#2563eb" opacity="0.9"/>
+<text x="160.0" y="283.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">A</text>
+<rect x="194" y="250" width="56" height="56" fill="#2563eb" opacity="0.9"/>
+<text x="222.0" y="283.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">A</text>
+<rect x="256" y="250" width="56" height="56" fill="#2ea043" opacity="0.9"/>
+<text x="284.0" y="283.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">B</text>
+<rect x="251" y="248" width="4" height="60" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1514;0.1516;1.0000" values="0;0;1;1"/></rect>
+<rect x="318" y="250" width="56" height="56" fill="#2ea043" opacity="0.9"/>
+<text x="346.0" y="283.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">B</text>
+<rect x="380" y="250" width="56" height="56" fill="#2ea043" opacity="0.9"/>
+<text x="408.0" y="283.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">B</text>
+<rect x="442" y="250" width="56" height="56" fill="#e5aa28" opacity="0.9"/>
+<text x="470.0" y="283.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">C</text>
+<rect x="437" y="248" width="4" height="60" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2385;0.2387;1.0000" values="0;0;1;1"/></rect>
+<rect x="504" y="250" width="56" height="56" fill="#e5aa28" opacity="0.9"/>
+<text x="532.0" y="283.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">C</text>
+<rect x="566" y="250" width="56" height="56" fill="#e5aa28" opacity="0.9"/>
+<text x="594.0" y="283.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">C</text>
+<text x="70" y="344" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="1">0<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="1;1;0;0"/></text>
+<text x="70" y="344" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">0<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;0.0933;0.0935;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="344" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">0<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0933;0.0935;0.1223;0.1226;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="344" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">0<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1223;0.1226;0.1514;0.1516;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="344" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">1<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1514;0.1516;0.1804;0.1806;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="344" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">1<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1804;0.1806;0.2094;0.2097;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="344" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">1<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2094;0.2097;0.2385;0.2387;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="344" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">2<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2385;0.2387;0.2675;0.2677;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="344" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">2<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2675;0.2677;0.2965;0.2968;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="70" y="344" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">2<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2965;0.2968;1.0000" values="0;0;1;1"/></text>
+<text x="98" y="344" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">回、マテリアルを切り替えた（赤い線）</text>
+</svg>
+
+<!-- fig:state-sort:end -->
+
 ## よくあるミス
 
 ??? failure "GPU が、ボトルネックなのにドロー コールを減らす"
