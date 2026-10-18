@@ -25,27 +25,76 @@ tags:
 
 <!-- fig:eye-refraction:begin -->
 
-<svg class="fig illust motion" data-fig="eye-refraction" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="eye-refraction" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-eye-refraction" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">角膜で屈折するので、虹彩は、実際の位置からずれて見える</text>
-<rect x="120" y="110.0" width="420" height="40" fill="#bae6fd" fill-opacity="0.55"/>
-<line x1="120" y1="150.0" x2="540" y2="150.0" stroke="#0284c7" stroke-width="3"/>
-<line x1="120" y1="270.0" x2="540" y2="270.0" stroke="#7c3aed" stroke-width="4"/>
-<text x="126" y="104.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">空気</text>
-<text x="126" y="172.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#0284c7">角膜・前房（屈折率 1.376）</text>
-<text x="126" y="292.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#7c3aed">虹彩の面</text>
-<line x1="330.0" y1="150.0" x2="330.0" y2="270.0" stroke="#94a3b8" stroke-width="3" stroke-dasharray="6 4"><animate attributeName="x2" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1250;0.1630;0.2011;0.2391;0.2772;0.3152;0.3533;0.3913;0.4293;0.4674;0.5054;0.5435;0.5815;0.6196;0.6576;0.6957;1.0000" values="330;330;336.55;343.14;349.81;356.6;363.56;370.73;378.18;385.96;394.14;402.82;412.09;422.08;432.94;444.88;458.12;473.01;473.01"/></line>
-<line x1="330.0" y1="150.0" x2="330.0" y2="270.0" stroke="#e5484d" stroke-width="4"><animate attributeName="x2" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1250;0.1630;0.2011;0.2391;0.2772;0.3152;0.3533;0.3913;0.4293;0.4674;0.5054;0.5435;0.5815;0.6196;0.6576;0.6957;1.0000" values="330;330;334.76;339.52;344.31;349.11;353.95;358.83;363.75;368.73;373.76;378.85;383.99;389.2;394.46;399.75;405.08;410.42;410.42"/></line>
-<line x1="330.0" y1="60.0" x2="330.0" y2="150.0" stroke="#1f2937" stroke-width="3"><animate attributeName="x1" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1250;0.1630;0.2011;0.2391;0.2772;0.3152;0.3533;0.3913;0.4293;0.4674;0.5054;0.5435;0.5815;0.6196;0.6576;0.6957;1.0000" values="330;330;325.09;320.14;315.14;310.05;304.83;299.45;293.87;288.03;281.89;275.39;268.43;260.94;252.79;243.84;233.91;222.74;222.74"/></line>
-<circle cx="330.0" cy="270.0" r="7" fill="#94a3b8"><animate attributeName="cx" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1250;0.1630;0.2011;0.2391;0.2772;0.3152;0.3533;0.3913;0.4293;0.4674;0.5054;0.5435;0.5815;0.6196;0.6576;0.6957;1.0000" values="330;330;336.55;343.14;349.81;356.6;363.56;370.73;378.18;385.96;394.14;402.82;412.09;422.08;432.94;444.88;458.12;473.01;473.01"/></circle>
-<circle cx="330.0" cy="270.0" r="7" fill="#e5484d"><animate attributeName="cx" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1250;0.1630;0.2011;0.2391;0.2772;0.3152;0.3533;0.3913;0.4293;0.4674;0.5054;0.5435;0.5815;0.6196;0.6576;0.6957;1.0000" values="330;330;334.76;339.52;344.31;349.11;353.95;358.83;363.75;368.73;373.76;378.85;383.99;389.2;394.46;399.75;405.08;410.42;410.42"/></circle>
-<text x="570" y="200" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">灰: 屈折なしで見えるはずの位置</text>
-<text x="570" y="222" text-anchor="start" style="font-size:12px;font-weight:500;fill:#e5484d">赤: 屈折した、実際に見える位置</text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">正面から見ると、ずれない<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;1.0000" values="1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">斜めから見るほど、虹彩の見える位置がずれる<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.6953;0.6957;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">パララックス マッピングで、この動きを近似できる<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6953;0.6957;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">目の屈折: 角膜(透明な丸いドーム)の中を光が曲がり、虹彩が、本当の位置からずれて見える</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。角膜の屈折率 n = 1.376。斜めから見るほど、虹彩の見える位置が、横にずれる</text>
+<rect x="30" y="96" width="900" height="330" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 目の断面(上 = 外、下 = 目の中)</text>
+<line x1="271.0" y1="232.0" x2="689.0" y2="232.0" stroke="#38bdf8" stroke-width="5"/>
+<text x="274.79999999999995" y="224.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#0284c7">角膜の表面</text>
+<rect x="271.0" y="232.0" width="418.0" height="117.8" fill="#bae6fd" fill-opacity="0.35"/>
+<line x1="271.0" y1="349.8" x2="689.0" y2="349.8" stroke="#7c3aed" stroke-width="5"/>
+<text x="274.79999999999995" y="367.8" text-anchor="start" style="font-size:12px;font-weight:700;fill:#7c3aed">虹彩(色のついた円盤)</text>
+<circle cx="480.0" cy="349.8" r="7" fill="#7c3aed"/>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2603;0.2605;1.0000" values="1;1;0;0"/><line x1="480.0" y1="232.0" x2="480.0" y2="118.0" stroke="#2ea043" stroke-width="3.5"/>
+<line x1="480.0" y1="232.0" x2="480.0" y2="349.8" stroke="#e5484d" stroke-width="3.5"/>
+<line x1="480.0" y1="232.0" x2="480.0" y2="349.8" stroke="#64748b" stroke-width="2.5" stroke-dasharray="6 5"/>
+<circle cx="480.0" cy="349.8" r="8" fill="#e9d5ff" stroke="#7c3aed" stroke-width="2"/>
+<text x="480.0" y="373.8" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">屈折を無視した位置</text>
+<text x="50" y="130" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed">見る角度 0°</text>
+<text x="50" y="156" text-anchor="start" style="font-size:14px;font-weight:500;fill:#1f2937">目の中での角度 0.0°(sin θ ÷ 1.376 から)</text>
+<text x="50" y="178" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">虹彩の位置のずれ: 0.00 mm</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2603;0.2605;0.4742;0.4744;1.0000" values="0;0;1;1;0;0"/><line x1="510.23" y1="232.0" x2="549.22" y2="124.88" stroke="#2ea043" stroke-width="3.5"/>
+<line x1="510.23" y1="232.0" x2="480.0" y2="349.8" stroke="#e5484d" stroke-width="3.5"/>
+<line x1="510.23" y1="232.0" x2="467.35" y2="349.8" stroke="#64748b" stroke-width="2.5" stroke-dasharray="6 5"/>
+<circle cx="467.35" cy="349.8" r="8" fill="#e9d5ff" stroke="#7c3aed" stroke-width="2"/>
+<text x="467.3535172820183" y="373.8" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">屈折を無視した位置</text>
+<text x="50" y="130" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed">見る角度 20°</text>
+<text x="50" y="156" text-anchor="start" style="font-size:14px;font-weight:500;fill:#1f2937">目の中での角度 14.4°(sin θ ÷ 1.376 から)</text>
+<text x="50" y="178" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">虹彩の位置のずれ: 0.33 mm</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4742;0.4744;0.6882;0.6884;1.0000" values="0;0;1;1;0;0"/><line x1="542.24" y1="232.0" x2="615.52" y2="144.67" stroke="#2ea043" stroke-width="3.5"/>
+<line x1="542.24" y1="232.0" x2="480.0" y2="349.8" stroke="#e5484d" stroke-width="3.5"/>
+<line x1="542.24" y1="232.0" x2="443.39" y2="349.8" stroke="#64748b" stroke-width="2.5" stroke-dasharray="6 5"/>
+<circle cx="443.39" cy="349.8" r="8" fill="#e9d5ff" stroke="#7c3aed" stroke-width="2"/>
+<text x="443.3916257789785" y="373.8" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">屈折を無視した位置</text>
+<text x="50" y="130" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed">見る角度 40°</text>
+<text x="50" y="156" text-anchor="start" style="font-size:14px;font-weight:500;fill:#1f2937">目の中での角度 27.8°(sin θ ÷ 1.376 から)</text>
+<text x="50" y="178" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">虹彩の位置のずれ: 0.96 mm</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6882;0.6884;1.0000" values="0;0;1;1"/><line x1="575.41" y1="232.0" x2="674.13" y2="175.0" stroke="#2ea043" stroke-width="3.5"/>
+<line x1="575.41" y1="232.0" x2="480.0" y2="349.8" stroke="#e5484d" stroke-width="3.5"/>
+<line x1="575.41" y1="232.0" x2="371.37" y2="349.8" stroke="#64748b" stroke-width="2.5" stroke-dasharray="6 5"/>
+<circle cx="371.37" cy="349.8" r="8" fill="#e9d5ff" stroke="#7c3aed" stroke-width="2"/>
+<text x="371.3716666638468" y="373.8" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">屈折を無視した位置</text>
+<text x="50" y="130" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed">見る角度 60°</text>
+<text x="50" y="156" text-anchor="start" style="font-size:14px;font-weight:500;fill:#1f2937">目の中での角度 39.0°(sin θ ÷ 1.376 から)</text>
+<text x="50" y="178" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">虹彩の位置のずれ: 2.86 mm</text>
+</g>
+<circle cx="56" cy="400" r="6" fill="#2ea043"/>
+<text x="66" y="404" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">外から見る向き</text>
+<circle cx="161.8" cy="400" r="6" fill="#e5484d"/>
+<text x="171.8" y="404" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">目の中の光(曲がる)</text>
+<circle cx="301.8" cy="400" r="6" fill="#64748b"/>
+<text x="311.8" y="404" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">曲がらないと考えたとき</text>
+<text x="40" y="452" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">ずれの大きさ:</text>
+<text x="150" y="456" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="1">0<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0603;0.0605;1.0000" values="1;1;0;0"/></text>
+<text x="150" y="456" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">0<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0603;0.0605;0.2742;0.2744;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="150" y="456" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">33<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2742;0.2744;0.4882;0.4884;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="150" y="456" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">96<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4882;0.4884;0.7021;0.7023;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="150" y="456" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">286<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.7021;0.7023;1.0000" values="0;0;1;1"/></text>
+<text x="205" y="456" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">(0.01 mm 単位)</text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.8789;0.8791;1.0000" values="0;0;1;1"/><rect x="340" y="436" width="590" height="80" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="356" y="460" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">正面から見ると、ずれ 0。斜めになるほど、虹彩が横にずれて見える</text>
+<text x="356" y="483" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">ゲームでは、虹彩のテクスチャ座標を、この分だけずらす(視差オフセット)</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">角膜は透明なドーム。光は、その中で曲がる(屈折)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">斜めから見ると、虹彩の見える位置が、本当の位置から、横にずれる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;0.9021;0.9023;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">このずれを、テクスチャ座標の補正で作ると、目が「奥行きのある丸い物」に見える<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.9021;0.9023;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:eye-refraction:end -->
