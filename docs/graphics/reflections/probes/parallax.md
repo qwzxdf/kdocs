@@ -206,6 +206,83 @@ float3 BoxProjection(float3 world_pos, float3 R, float3 probe_pos,
 | 不規則な形の部屋 | 箱で表せない部屋では、補正が合わない |
 | 動く物 | プローブには映らない（動的な更新が必要） |
 
+## 箱による、視差補正
+
+<strong>部屋を、箱</strong>と、<strong>近似</strong>します。反射レイを、箱と、交差させて、当たった位置を、求め、その位置から、プローブへの、向きで、キューブマップを、引き直します（Bjorke、2004、Lagarde と Zanuttini、2012）。
+
+```text
+  P ──R──→ A（箱の壁との、交点）
+  プローブ ● から A への向き R' で、キューブマップを引く → 実際に、A が映るはずの、景色
+```
+
+```hlsl
+// 箱（軸に平行）による、視差補正。box_min, box_max: 箱の範囲（ワールド座標）、probe_pos: プローブの位置。
+float3 ParallaxCorrect(float3 R, float3 world_pos, float3 box_min, float3 box_max, float3 probe_pos) {
+  // レイ（world_pos から、R の向き）と、箱の、交点を求める（スラブ法）。
+  float3 first_plane = (box_max - world_pos) / R;
+  float3 second_plane = (box_min - world_pos) / R;
+  float3 furthest = max(first_plane, second_plane);                      // 各軸で、遠い方の、平面までの距離
+  float dist = min(min(furthest.x, furthest.y), furthest.z);             // 3 つの軸のうち、最も近い（= 箱から、出る）距離
+  float3 hit = world_pos + R * dist;                                      // 箱の壁との交点
+  return hit - probe_pos;                                                 // プローブから、交点への向き（これで、キューブマップを引く）
+}
+```
+
+<strong>スラブ法</strong>で、<strong>レイと、箱の交点</strong>を、求めます。各軸について、レイが、箱の、外へ出る、平面までの距離を、求め、その、最小が、箱から、出る、距離です。交点から、プローブへの、向きが、補正した、反射方向です。
+
+```hlsl
+float3 corrected = ParallaxCorrect(R, input.world_position, g_probe_box_min, g_probe_box_max, g_probe_position);
+float3 prefiltered = g_probe_cube.SampleLevel(g_linear_clamp, corrected, mip).rgb;
+```
+
+<strong>補正した、方向</strong>で、<strong>キューブマップを、引く</strong>だけで、反射が、面の位置に、合い、窓が、歩くと、動いて、見えます。
+
+## 箱の、設定
+
+<strong>箱</strong>は、<strong>部屋の、形に、合わせて</strong>、アーティストが、設定します。
+
+| 設定 | 内容 |
+| --- | --- |
+| 箱の、大きさ | 部屋の壁に、ぴったり（壁の内側）。大きすぎると、補正が、弱く、小さすぎると、映像が、歪む |
+| プローブの位置 | 箱の中央付近（最も、バランスが、良い） |
+| 影響範囲（ブレンド用） | プローブが、効く、範囲（箱より、少し、大きく）。範囲の端で、フェード（[Probe Operation](blending.md)） |
+
+## 球による、補正（屋外）
+
+<strong>屋外</strong>（<strong>箱では、ない、広い空間</strong>）では、球で、近似する方法も、あります。半径を、環境の、大きさに、合わせます。
+
+```hlsl
+// 球による、視差補正（プローブを、中心とした、半径 radius の球）。
+float3 ParallaxCorrectSphere(float3 R, float3 world_pos, float3 center, float radius) {
+  float3 oc = world_pos - center;
+  float b = dot(oc, R);
+  float c = dot(oc, oc) - radius * radius;
+  float dist = -b + sqrt(max(b * b - c, 0.0));                             // レイが、球から出る距離
+  return (world_pos + R * dist) - center;                                   // 球の、交点への向き
+}
+```
+
+<strong>球は、箱より、単純</strong>ですが、<strong>部屋の、形</strong>（直方体）には、合いにくいので、屋内には、箱、屋外・円形の空間には、球を、使い分けます。
+
+## 補正の、限界
+
+| 限界 | 内容 |
+| --- | --- |
+| 箱は、近似 | 実際の部屋が、直方体でない（柱、家具、凹み）と、補正が、ずれる |
+| 物は、補正されない | キューブマップに、焼かれた、家具は、箱の壁に、あるものとして、扱われる。家具の、反射位置は、ずれる |
+| 視線が、箱の外 | 面が、箱の、外にある（プローブの、影響範囲の、端）と、補正が、破綻する。ブレンドで、薄める |
+| 近い面の、補正が、強い | 壁の、すぐ近くの、面では、補正の、効果が、極端で、歪む。箱を、少し、小さく、補正を、弱める |
+
+## 補正の、強さを、調整する
+
+<strong>補正した、方向</strong>と、<strong>補正なしの、方向</strong>を、補間して、補正の、強さを、調整します。
+
+```hlsl
+float3 dir = lerp(R, corrected, g_parallax_strength);                    // 0 = 補正なし、1 = 完全な補正
+```
+
+<strong>部屋の、形に、合わない</strong>場合、<strong>弱める</strong>（0.5〜0.8）と、破綻が、目立ちません。
+
 ## よくあるミス
 
 ??? failure "床や壁に映る景色が、動くと滑って見える"

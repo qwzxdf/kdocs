@@ -1,5 +1,6 @@
 nav:
   - index.md
+  - D3D11 Pass Recipes: d3d11-recipes.md
   - Shadows: shadows
   - Ambient Occlusion (AO): ao
   - Global Illumination (GI): gi

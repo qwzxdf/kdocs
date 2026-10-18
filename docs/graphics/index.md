@@ -63,6 +63,7 @@ tags:
 
 | 目的 | 順番 |
 | --- | --- |
+| コードを実際に動かしたい（DirectX 11 の、土台） | [D3D11 Pass Recipes](d3d11-recipes.md)（ビュー・フルスクリーン三角形・ディスパッチ・定数バッファ・束縛の衝突）→ 各セクションへ |
 | AO を実装したい | [AO Theory](ao/theory/index.md) → [Hemisphere SSAO](ao/ssao-hemisphere.md) → [AO Filtering](ao/filtering/index.md) → 品質を上げるなら [GTAO](ao/gtao.md) |
 | 方式を選びたい | [AO Comparison](ao/comparison.md) |
 | アーティファクトを直したい | [AO Artifacts](ao/artifacts/index.md) |

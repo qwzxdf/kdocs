@@ -18,6 +18,8 @@
 # quality を書かない = 好みや表現の問題で、「高いほど良い」とは言えない項目
 # perf を書かない = 手法の比較・理論など、負荷を一つに決められないページ
 
+graphics/d3d11-recipes.md: {perf: 1, diff: 2}
+
 # --- ポストプロセス:トーンマッピング ---
 graphics/postprocess/tonemapping/exposure.md: {perf: 1, diff: 1}
 graphics/postprocess/tonemapping/reinhard.md: {perf: 1, quality: 2, diff: 2}
