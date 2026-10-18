@@ -41,6 +41,45 @@
       }
     });
   }
-  if (typeof document$ !== "undefined") document$.subscribe(Build);
-  else document.addEventListener("DOMContentLoaded", Build);
+
+  // 「ページ | 内容」の目次の表を、1 ページ 1 項目の縦のリスト(題名の下に説明)にする。
+  function BuildPageLists() {
+    document.querySelectorAll(".md-typeset table").forEach((table) => {
+      if (table.dataset.pc) return;
+      const heads = Array.from(table.querySelectorAll("thead th")).map((th) => th.textContent.trim());
+      if (heads[0] !== "ページ" || heads.length < 2 || heads.length > 3) return;
+      const descIndex = heads.findIndex((h, i) => i > 0 && h !== "重要度");
+      if (descIndex < 0) return;
+      const rows = Array.from(table.querySelectorAll("tbody tr"));
+      const ok = rows.length >= 3 && rows.every((r) => {
+        const a = r.firstElementChild && r.firstElementChild.querySelectorAll("a");
+        return a && a.length === 1 && /\.md|\/$|\/#|\.html/.test(a[0].getAttribute("href") || "") === true;
+      });
+      if (!ok) return;
+      table.dataset.pc = "list";
+      const ul = document.createElement("ul");
+      ul.className = "page-list";
+      rows.forEach((r) => {
+        const cells = Array.from(r.children);
+        const li = document.createElement("li");
+        const head = document.createElement("div");
+        head.className = "pl-head";
+        head.innerHTML = cells[0].innerHTML;
+        heads.forEach((h, i) => {
+          if (h === "重要度" && cells[i]) head.insertAdjacentHTML("beforeend", " " + cells[i].innerHTML);
+        });
+        const desc = document.createElement("div");
+        desc.className = "pl-desc";
+        desc.innerHTML = cells[descIndex].innerHTML;
+        li.appendChild(head);
+        li.appendChild(desc);
+        ul.appendChild(li);
+      });
+      const wrap = table.closest(".md-typeset__scrollwrap") || table;
+      wrap.replaceWith(ul);
+    });
+  }
+  const Run = () => { Build(); BuildPageLists(); };
+  if (typeof document$ !== "undefined") document$.subscribe(Run);
+  else document.addEventListener("DOMContentLoaded", Run);
 })();
