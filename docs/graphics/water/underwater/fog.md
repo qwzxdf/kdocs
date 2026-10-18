@@ -26,7 +26,12 @@ float3 scattered = water_color * (1.0 - transmittance);
 float3 final_color = scene_color * transmittance + scattered;
 ```
 
-コードの要点です。赤が先に消えるので、遠くは青緑になります。`distance_to_pixel` は、深度から求めたカメラからの距離で、水面を通る分も含みます。水深で明るさを変え、深いほど暗くします（太陽光が届かないため）。`exp(−k · depth)` の形です。空の部分は遠距離扱いで、水の色になります。
+| 点 | 説明 |
+| --- | --- |
+| **赤が先に消える** | **遠くは青緑**になる |
+| **`distance_to_pixel`** | **深度から求めた、カメラからの距離**（水面を通る分も含む） |
+| **水深で明るさを変える** | **深いほど暗い**（**太陽光が届かない**）。**`exp(−k · depth)`** |
+| **空は水の色** | **空の部分は遠距離扱いで水の色になる** |
 
 <svg class="fig illust" viewBox="0 0 780 200" role="img" aria-label="水中の霧">
 <text x="20" y="24" class="fig-title">水中の霧：距離とともに、赤 → 緑 → 青の順に消える</text>

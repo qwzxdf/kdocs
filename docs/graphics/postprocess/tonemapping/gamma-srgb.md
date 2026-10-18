@@ -171,13 +171,24 @@ device->CreateRenderTargetView(back_buffer.Get(), &rtv_desc, rtv.GetAddressOf())
 
 ### テクスチャの読み込み
 
-テクスチャの読み込みの形式です。アルベド（色）は `_SRGB` で、画像が sRGB で保存されているので、読み込み時にリニアへ変換します。法線マップは UNORM（リニア）で、データであって色ではないためです。粗さ・金属度・AO も UNORM で、同じ理由です。HDR テクスチャは FLOAT で、すでにリニアです。
+| テクスチャ | 形式 | 理由 |
+| --- | --- | --- |
+| <strong>アルベド（色）</strong> | **`_SRGB`** | **画像が sRGB で保存されているので、読み込み時にリニアへ** |
+| **法線マップ** | <strong>UNORM（リニア）</strong> | **データであって、色ではない** |
+| **粗さ・金属度・AO** | **UNORM** | **同上** |
+| **HDR テクスチャ** | **FLOAT** | **すでにリニア** |
 
 ## HDR ディスプレイへの出力
 
 **HDR ディスプレイは、SDR より広い明るさ（数百〜数千ニト）と広い色域**を**出せます**。**SDR 用のトーンマップの結果をそのまま送る**と、**HDR の良さが活きません**。
 
-HDR ディスプレイ出力の設定です。色空間は Rec.2020（広い色域）です。伝達関数は PQ（ST.2084）で、絶対的な明るさ（ニト）を 10 ビットに効率よく入れる曲線です。スワップチェーン形式は、`R10G10B10A2_UNORM`（HDR10）か `R16G16B16A16_FLOAT`（scRGB）です。色空間の設定は `IDXGISwapChain3::SetColorSpace1` で `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` を指定します。トーンマップは、ディスプレイの最大輝度（ニト）に合わせた HDR 用の曲線で、SDR 用とは別に用意します。
+| 項目 | 内容 |
+| --- | --- |
+| **色空間** | **Rec.2020**（広い色域） |
+| **伝達関数** | <strong>PQ（ST.2084）</strong>：**絶対的な明るさ（ニト）を、10 ビットに効率よく入れる曲線** |
+| **スワップチェーン形式** | <strong>`R10G10B10A2_UNORM`（HDR10）</strong>、または <strong>`R16G16B16A16_FLOAT`（scRGB）</strong> |
+| **色空間の設定** | **`IDXGISwapChain3::SetColorSpace1`** で **`DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020`** |
+| **トーンマップ** | **ディスプレイの最大輝度（ニト）に合わせた HDR 用の曲線**。**SDR 用とは別** |
 
 ```cpp
 swap_chain->SetColorSpace1(DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020);

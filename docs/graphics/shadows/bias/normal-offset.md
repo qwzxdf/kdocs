@@ -76,7 +76,12 @@ tags:
 
 <div class="formula">P′ = P + N · offset · texel_size · (1 − N·L)</div>
 
-各項の意味です。N は面の法線、offset は調整値（0.5〜2 程度）、texel_size はシャドウ マップの 1 テクセルのワールドでの大きさです。`(1 − N·L)` は、斜めの面ほど大きくずらす係数です。
+| 項 | 意味 |
+| --- | --- |
+| **N** | 面の法線 |
+| **offset** | 調整値（0.5〜2 程度） |
+| **texel_size** | シャドウ マップの 1 テクセルの、ワールドでの大きさ |
+| <strong>(1 − N·L)</strong> | **斜めの面ほど、大きく**ずらす |
 
 ```hlsl
 float3 shadow_pos = world_pos + normal * (normal_offset * texel_world_size * (1.0 - saturate(dot(normal, light_dir))));

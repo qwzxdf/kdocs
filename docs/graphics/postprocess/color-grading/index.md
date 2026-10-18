@@ -90,7 +90,12 @@ tags:
 
 ## 全体の位置
 
-グレーディングの位置づけです。まず、ブルームや DOF などを済ませた HDR のカラー画像があります。次に、露出とトーンマップで HDR を LDR に変換します（[Tone Mapping and Exposure](../tonemapping/index.md)）。その後のグレーディングで、LDR（または HDR の対数空間）の色味を調整します。最後に、ガンマ変換して sRGB へ出力します（[Gamma and HDR Output](../tonemapping/gamma-srgb.md)）。
+| 順序 | 内容 |
+| --- | --- |
+| **① HDR のカラー** | **ブルーム・DOF などを済ませた画像** |
+| **② 露出・トーンマップ** | **HDR → LDR**（[トーンマッピングと露出](../tonemapping/index.md)） |
+| **③ グレーディング** | **LDR（または、HDR の対数空間）で、色味を調整** |
+| **④ ガンマ → 出力** | **sRGB へ**（[ガンマと HDR 出力](../tonemapping/gamma-srgb.md)） |
 
 ## 関連ページ
 

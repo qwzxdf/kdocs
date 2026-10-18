@@ -133,7 +133,12 @@ tags:
 
 ## どれを選ぶか
 
-目的別の選び方です。とにかく簡単にしたいなら、白点付きの Reinhard です。映画のような締まった画にしたいなら、ACES 近似か Hable です。色が破綻しにくい中立な絵にしたいなら、AgX か Khronos PBR Neutral です。画作りを細かく制御したいなら、独自の曲線を 3D LUT にします（[Color Grading](../color-grading/index.md)）。
+| 目的 | 選ぶ曲線 |
+| --- | --- |
+| **とにかく簡単に** | <strong>Reinhard（白点付き）</strong> |
+| **映画のような締まった画** | **ACES 近似・Hable** |
+| **色が破綻しにくい中立** | **AgX・Khronos PBR Neutral** |
+| **画作りを細かく制御** | **独自の曲線を 3D LUT にする**（[カラー グレーディング](../color-grading/index.md)） |
 
 ## 関連ページ
 

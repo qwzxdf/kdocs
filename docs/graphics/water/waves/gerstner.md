@@ -51,7 +51,15 @@ z = z₀ + Σ ( Q · A · D.z · cos(ω · D·P₀ + φt) )<br>
 y = Σ ( A · sin(ω · D·P₀ + φt) )
 </div>
 
-記号の意味です。Q は波の尖り具合で、0 でサイン波、大きいほど波頂が尖り、範囲は 0〜1/(ω·A) です。A は振幅、D は波の向き、ω と φ は波数と位相の速さです。
+| 記号 | 意味 |
+| --- | --- |
+| **Q** | **波の尖り具合**（0 でサイン波、**大きいほど、波頂が尖る**）。**0〜1/(ω·A) の範囲** |
+| **A** | **振幅** |
+| **D** | **波の向き** |
+| **ω・φ** | **波数・位相の速さ** |
+
+
+Gerstner 波の原典は、Fournier と Reeves の "A Simple Model of Ocean Waves"（SIGGRAPH 1986）で、GPU 向けの実装は、Finch の "Effective Water Simulation from Physical Models"（GPU Gems、2004）が広まりました。
 
 Gerstner 波の原典は、Fournier と Reeves の "A Simple Model of Ocean Waves"（SIGGRAPH 1986）で、GPU 向けの実装は、Finch の "Effective Water Simulation from Physical Models"（GPU Gems、2004）が広まりました。
 

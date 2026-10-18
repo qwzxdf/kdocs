@@ -5,7 +5,15 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
 ## 作業の進め方
 
 - サンプルコードの検証（Compiler Explorer で実行して実行結果と照合）は、ユーザーが指示したときだけ行う
-- git の commit / push、`mkdocs build --strict` などのビルド確認は、ユーザーが指示したときだけ行う（編集したら止めて報告する）
+- **作業が一区切りつくたびに、ユーザーの指示を待たず commit して `main` に push する。** 一区切りとは、1 ページの追加・分割・深掘りや、動く図 1 グループの追加など、まとまった単位が終わったとき
+  - push の前に、次の 3 つを必ず実行して、すべて通ることを確認する
+    1. `mkdocs build --strict`
+    2. `python .handoff/scripts/check_anchors.py <site>`
+    3. `python .handoff/scripts/check_docs.py docs`
+  - 1 つでも失敗したら push しない。直してからやり直す
+  - 新しいページや図を足したときは、push の前に `ratings.yml` も更新する
+  - `Co-Authored-By` などの attribution は、そのとき渡される指示に従う
+  - 途中で確認は取らない。作業が全部終わるまで続ける
 - 書き方を変えるときは、まず見本の 1 ページで試して OK をもらってから全体に広げる
 - 一括の修正は Python スクリプトで行う。`sed` で `|` や `\|` を含むパターンは使わない（GNU sed では `\|` が「または」になる）
 
@@ -90,7 +98,7 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
 ## 動く図（アニメーション）
 
 - 動く図は `tools/anim/` の**台本ライブラリ**（`storyboard.py`）で作る。座標列を手で書かない。**手順・落とし穴・API は `tools/anim/README.md` を先に読む**。見本は `tools/anim/fig_forward_deferred.py`
-- 流れ: ユーザーが日本語で台本 → Python のデータに直す → 生成 → `.report.txt` のタイミング表で確認 → 静止画（ヘッドレス Edge）→ 実 Chrome で SMIL を確認 → md に差し込み → strict ビルド → push
+- 流れ: ユーザーが日本語で台本 → Python のデータに直す → 生成 → `.report.txt` のタイミング表で確認 → 静止画（ヘッドレス Edge）→ 実 Chrome で SMIL を確認 → md に差し込み → strict ビルド → 検証スクリプト → 区切りごとに push（上の「作業の進め方」に従う）
 - `fill` を `none` ⇔ 色で離散アニメしない（Chrome で色が出ない）。出し入れは親グループの `opacity`、色の切り替えは色だけの離散アニメ
 - 計算回数などの数字は、台本の中で数えて `assert` で確かめ、表示にも同じ値を使う
 - アプリ内ブラウザは使わない。`mkdocs serve`（`serve.bat`）は止めない

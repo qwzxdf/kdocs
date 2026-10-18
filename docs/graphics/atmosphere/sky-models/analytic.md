@@ -42,7 +42,15 @@ float Perez(float cos_theta, float gamma, float cos_gamma, PerezCoefficients coe
 
 **Hosek-Wilkie** は **Preetham の改良版**で、**特に太陽が低いとき、地面の反射率（アルベド）を考慮したとき**に**精度が高い**です。<strong>係数テーブル（9 つのパラメータ × 3 色 × turbidity × albedo × 高さ）</strong>を**公開データとして持ち、式の形は Preetham に似ています**。
 
-2 つのモデルの違いです。精度は、Preetham が太陽が低いと不正確で、Hosek-Wilkie はより正確です。パラメータは、Preetham が turbidity のみ、Hosek-Wilkie は turbidity に地面のアルベドが加わります。データは、Preetham が数式の係数のみで少なく、Hosek-Wilkie は大きな係数テーブルが必要です。用途は、Preetham が軽量で手軽、Hosek-Wilkie が品質重視です。
+| 項目 | Preetham | Hosek-Wilkie |
+| --- | --- | --- |
+| **精度** | **太陽が低いと不正確** | **より正確** |
+| **パラメータ** | **turbidity** | **turbidity ＋ 地面のアルベド** |
+| **データ** | <strong>数式の係数のみ（少ない）</strong> | <strong>係数テーブルが必要（大きい）</strong> |
+| **用途** | **軽量・手軽** | **品質重視** |
+
+
+原典は、Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を、少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、非常に軽い代わりに、地上の視点から見た空にしか使えず、宇宙から見た地球や、遠景のかすみ（空気遠近法）は扱えません。
 
 原典は、Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を、少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、非常に軽い代わりに、地上の視点から見た空にしか使えず、宇宙から見た地球や、遠景のかすみ（空気遠近法）は扱えません。
 

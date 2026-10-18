@@ -74,7 +74,12 @@ float3 detail = normalize(float3(n1.xy + n2.xy, n1.z * n2.z));
 float3 final_normal = normalize(float3(wave_normal.xz + detail.xy * detail_strength, wave_normal.y).xzy);
 ```
 
-法線マップの重ねのコードの要点です。UV の拡大率を変えて、大きさの違う 2 層にすると、スケールが異なるので繰り返しが見えません。逆向きに流すと、互いに違う方向へ動くので、波が複雑に見えます。法線の合成は、XY を足して Z を掛けます（Whiteout や Reoriented Normal Mapping のような正確な合成法もあります）。ワールド座標の UV を使うと、カメラが動いても波が水面に貼りつきます。
+| 点 | 説明 |
+| --- | --- |
+| **UV の拡大率を変える** | **大きさの違う 2 層**（**スケールが異なる**ので**繰り返しが見えない**） |
+| **逆向きに流す** | **互いに違う方向へ動く**ので、**波が複雑に見える** |
+| **法線の合成** | **XY を足し、Z は掛ける**（**Whiteout・Reoriented Normal Mapping** などの正確な合成法もある） |
+| **ワールド座標の UV** | **カメラが動いても波が水面に貼りつく** |
 
 ## よくあるミス
 
