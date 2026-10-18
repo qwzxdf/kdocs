@@ -82,6 +82,85 @@ ALU の計算は安く、メモリ読み込みが高いので、**計算を足�
 
 順序を間違えると見た目が不自然になります。ブルームは必ず HDR のうちに行います。
 
+## 帯域を、パスの数で、計算する
+
+1920×1080 の画像 1 枚は、フォーマットで、大きさが変わります。1 パスは、「入力を読み、出力を書く」ので、2 枚ぶんです。
+
+| フォーマット | 1 枚の大きさ | 1 パス（読み + 書き） | 60 FPS、10 パス |
+| --- | --- | --- | --- |
+| RGBA16F（8 バイト） | 約 16.6 MB | 約 33 MB | 約 20 GB/s |
+| R11G11B10F（4 バイト） | 約 8.3 MB | 約 17 MB | 約 10 GB/s |
+| RGBA8（4 バイト） | 約 8.3 MB | 約 17 MB | 約 10 GB/s |
+
+フォーマットを、半分にすれば、帯域も、半分です。<strong>パスを 10 から 3 に</strong>減らせば、帯域は、さらに、約 3 分の 1 です。両方で、約 1/6 になります。
+
+## 最終パスを、1 つにまとめる
+
+トーン マッピング、カラー グレーディング（LUT）、ビネット、フィルム グレインを、<strong>1 つのパス</strong>で行います。入力を読むのは、1 回だけです。
+
+```hlsl
+Texture2D<float3> g_scene : register(t0);                     // HDR のシーン
+Texture3D<float3> g_lut : register(t1);                       // カラー グレーディングの 3D LUT（32³）
+Texture2D<float> g_bloom : register(t2);
+SamplerState g_linear_clamp : register(s0);
+
+cbuffer FinalCB : register(b0) {
+  float g_exposure;
+  float g_vignette_strength;
+  float g_grain_strength;
+  float g_time;
+};
+
+float3 TonemapAces(float3 x) {                                // ACES の近似（Narkowicz）
+  return saturate((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14));
+}
+
+float4 PSFinal(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
+  float3 color = g_scene.Load(int3(pos.xy, 0));               // ① 読むのは、ここ 1 回
+  color += g_bloom.Sample(g_linear_clamp, uv);                // ブルームを足す（HDR のうちに）
+  color *= g_exposure;                                        // 露出
+  color = TonemapAces(color);                                 // トーン マッピング（HDR → LDR）
+
+  // カラー グレーディング: LUT を引く。LUT の端に、半テクセルの余白を足して、補間の誤差を避ける。
+  float3 lut_uv = color * (31.0 / 32.0) + 0.5 / 32.0;
+  color = g_lut.SampleLevel(g_linear_clamp, lut_uv, 0);
+
+  // ビネット: 画面の端を暗く。
+  float2 d = uv - 0.5;
+  color *= 1.0 - g_vignette_strength * dot(d, d) * 2.0;
+
+  // フィルム グレイン: 軽いノイズを足す（LDR のうちに）。
+  float noise = frac(sin(dot(pos.xy + g_time, float2(12.9898, 78.233))) * 43758.5453) - 0.5;
+  color += noise * g_grain_strength;
+
+  return float4(color, 1.0);                                  // ② 書くのは、ここ 1 回
+}
+```
+
+数行ずつ見ると、<strong>読み込み（①）が 1 回、書き込み（②）が 1 回</strong>です。個別のパスで行うと、4 回の読み書き（約 130 MB）になる所が、1 回（約 33 MB）に減ります。ALU の計算（ACES、LUT の補間、ビネット）は、安いので、<strong>計算を足して、パスを減らす</strong>ほうが、得です（[Tone Mapping and Exposure](../graphics/postprocess/tonemapping/index.md)、[3D LUT](../graphics/postprocess/color-grading/lut-3d.md)）。
+
+## ガウスぼかしを、バイリニアで、半分の回数に
+
+分離可能な、ガウスぼかしは、横 1 回 + 縦 1 回に分けて、サンプルを、N 回にできます。さらに、<strong>テクセルの間を、バイリニアで読む</strong>と、1 回の読み込みで、2 つのテクセルぶんが、得られ、回数が、ほぼ半分になります。
+
+```hlsl
+// 9 タップのガウス（横方向）を、5 回の読み込みで行う。重みとオフセットは、バイリニアで 2 点分を、1 回にまとめた値。
+static const float kOffsets[3] = {0.0, 1.3846153846, 3.2307692308};
+static const float kWeights[3] = {0.2270270270, 0.3162162162, 0.0702702703};
+
+float3 BlurHorizontal(Texture2D<float3> src, SamplerState linear_clamp, float2 uv, float2 texel) {
+  float3 color = src.SampleLevel(linear_clamp, uv, 0) * kWeights[0];
+  for (int i = 1; i < 3; ++i) {
+    float2 offset = float2(kOffsets[i] * texel.x, 0.0);
+    color += src.SampleLevel(linear_clamp, uv + offset, 0) * kWeights[i];
+    color += src.SampleLevel(linear_clamp, uv - offset, 0) * kWeights[i];
+  }
+  return color;
+}
+```
+
+重みの合計は `0.2270 + 2 × (0.3162 + 0.0703) ≈ 1.0` です。9 タップが、5 回の読み込みで済みます（[Gaussian Blur](../graphics/postprocess/bloom/gaussian.md)）。さらに、<strong>縮小してから、ぼかす</strong>と、ピクセル数が 1/4 になり、同じ見た目で、数倍速くなります。
+
 ## よくあるミス
 
 ??? failure "効果ごとに別パスにして、全画面を何度も読み書きする"

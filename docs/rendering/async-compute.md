@@ -123,6 +123,62 @@ GPU の処理は、段階ごとに使う部品が違います。1 つの処理�
 
 <!-- fig:async-compute-gantt:end -->
 
+## D3D12 での実装
+
+コンピュート キューを作って、グラフィックス キューと、フェンスでつなぎます（[Command Queue](../directx/dx12/command-queue.md)、[Fence](../directx/dx12/fence.md)）。
+
+```cpp
+// コンピュート キュー（描画と並列に走る）。
+D3D12_COMMAND_QUEUE_DESC desc = {};
+desc.Type = D3D12_COMMAND_LIST_TYPE_COMPUTE;
+device->CreateCommandQueue(&desc, IID_PPV_ARGS(&compute_queue));
+// コマンド アロケーターと、コマンド リストも、COMPUTE の種類で作る。
+```
+
+流れの例です。<strong>深度を描き終えたら、AO の計算を、コンピュート キューで始め</strong>、同時に、グラフィックス キューで、影を描きます。ライティングは、AO の完了を待ちます。
+
+```cpp
+// ① グラフィックス: 深度プリパス。
+graphics_queue->ExecuteCommandLists(1, depth_prepass_list);
+graphics_queue->Signal(fence.Get(), ++depth_done);            // 深度が、できた目印
+
+// ② コンピュート: 深度を待って、AO を計算（GPU 同士の待ち。CPU は止まらない）。
+compute_queue->Wait(fence.Get(), depth_done);
+compute_queue->ExecuteCommandLists(1, ao_list);
+compute_queue->Signal(fence.Get(), ++ao_done);                // AO が、できた目印
+
+// ③ グラフィックス: AO と並列に、影マップを描く。
+graphics_queue->ExecuteCommandLists(1, shadow_list);
+
+// ④ グラフィックス: ライティングは、AO の完了を待ってから。
+graphics_queue->Wait(fence.Get(), ao_done);
+graphics_queue->ExecuteCommandLists(1, lighting_list);
+```
+
+②の `Wait` は、<strong>GPU 側の待ち</strong>で、CPU は止まりません。③の影マップは、AO と<strong>並列</strong>に、実行されます。
+
+## リソースの扱い
+
+コンピュート キューは、グラフィックス キューと、<strong>別のキュー</strong>なので、リソースの状態の扱いに、注意が要ります。
+
+| 注意 | 内容 |
+| --- | --- |
+| 状態の遷移は、リストを実行するキューで | コンピュート キューは、描画用の状態（`RENDER_TARGET` など）への遷移が、できない |
+| 深度を、読む前に | 深度を、`NON_PIXEL_SHADER_RESOURCE` へ遷移するバリアを、<strong>グラフィックス キューの、リストの最後に</strong>入れて、`Signal` する |
+| 結果の、受け渡し | AO の出力は、`UNORDERED_ACCESS` で書き、ライティングで読む前に、`PIXEL_SHADER_RESOURCE` へ遷移（グラフィックス キュー側） |
+| 同時に、触らない | 2 つのキューが、同じリソースを、同時に読み書きしない |
+
+## 効果が出る場面と、出ない場面
+
+| 状況 | 結果 |
+| --- | --- |
+| 影マップ（ALU が空く）と AO（ALU を使う） | 重なって、全体が速くなりやすい |
+| 帯域を、使い切る処理どうし | 並列にしても、帯域を、奪い合って、速くならない |
+| 1 つの処理が、GPU 全体を、使い切っている | 並列にする余地がない。順番に走るだけ |
+| 同期（`Wait`）が、多すぎる | 待ちが、増えて、かえって遅くなる |
+
+効果は、GPU の世代や、処理の内容で、大きく変わります。<strong>必ず、PIX の、タイミング キャプチャで、2 つのキューが、実際に重なって走っているか</strong>を確認し、フレーム時間を、導入前後で比べます。重なっていなければ、効果は、ありません（[調査ツール](tools.md)）。
+
 ## よくあるミス
 
 ??? failure "効果を測らずに導入する"

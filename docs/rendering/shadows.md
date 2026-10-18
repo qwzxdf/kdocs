@@ -98,6 +98,71 @@ tags:
 | **解像度** | 必要最小限。ゲームの見た目に合わせて調整する |
 | **スロープ バイアス** | 面が斜めのときほど、バイアスを増やす |
 
+## 影のコストを、数字で見積もる
+
+影マップは、シーンを、もう一度描くので、コストの目安は、「影用の描画 ＝ 見える物の、頂点とドロー コール × 光源の数」です。
+
+| 構成 | 描画の追加 |
+| --- | --- |
+| 太陽（CSM、4 枚） | カスケードごとに、シーンを再描画 → <strong>約 4 倍</strong>のドロー コール（カリングで、かなり減る） |
+| 点光源 1 個（キューブ） | 6 面 → 約 6 倍 |
+| スポットライト 1 個 | 1 枚 → 約 1 倍 |
+| 影つきのライト 10 個（点光源） | 60 面 → <strong>非常に重い</strong> |
+
+カスケードと光源ごとに、<strong>光の視錐台でカリング</strong>すると、実際に描く量は、大きく減ります（[カリング](culling.md)）。
+
+## カスケードの分割と、ちらつきの防止
+
+### 分割の位置：実用分割
+
+カメラの手前を細かく、奥を粗く分けます。対数分割と線形分割の、中間（実用分割）が、よく使われます。
+
+```cpp
+// 各カスケードの境目（カメラからの距離）を、実用分割で求める。lambda: 0 で線形、1 で対数。0.5〜0.9 が実用的。
+std::array<float, kCascadeCount + 1> SplitDistances(float near_z, float far_z, float lambda) {
+  std::array<float, kCascadeCount + 1> d;
+  for (int i = 0; i <= kCascadeCount; ++i) {
+    const float p = static_cast<float>(i) / kCascadeCount;
+    const float log_split = near_z * std::pow(far_z / near_z, p);       // 対数: 手前を細かく
+    const float lin_split = near_z + (far_z - near_z) * p;              // 線形: 均等
+    d[i] = lambda * log_split + (1.0f - lambda) * lin_split;
+  }
+  return d;
+}
+```
+
+例えば、`near = 0.1`、`far = 200`、4 分割、`lambda = 0.8` なら、境目は、約 0.1、5、24、72、200 m と、手前ほど細かくなります（数値は目安）。
+
+### テクセル スナップ：カメラが動いても、影がちらつかない
+
+カスケードの範囲が、カメラの動きに合わせて、連続的に動くと、影マップの、テクセルの境目が、毎フレーム、ずれて、影の縁が、ちらつきます。<strong>範囲の中心を、1 テクセルの大きさの倍数に、そろえて</strong>動かします。
+
+```cpp
+// 光の空間で、カスケードの中心を、影マップの 1 テクセルの大きさの倍数に切り捨てる。
+// radius: カスケードを囲む球の半径（回転しても、大きさが変わらないよう、球で囲む）。
+const float world_units_per_texel = (2.0f * radius) / shadow_map_size;
+center_light_space.x = std::floor(center_light_space.x / world_units_per_texel) * world_units_per_texel;
+center_light_space.y = std::floor(center_light_space.y / world_units_per_texel) * world_units_per_texel;
+```
+
+範囲を、カメラの向きで回転する四角形ではなく、<strong>球</strong>で囲んでおくと、カメラを回しても、範囲の大きさが、変わらず、スナップが、有効になります（[Aliasing and Stabilization](../graphics/shadows/shadow-map-basics/aliasing-stabilize.md)）。
+
+## 静的な影を、キャッシュする
+
+動かない物（地形、建物）の影は、毎フレーム、描き直す必要がありません。<strong>静的な影マップを、1 度作って、使い回し</strong>、動く物だけを、毎フレーム、足します。
+
+```cpp
+// 静的な影マップ（建物・地形）は、光が動いたとき、または、静的な物が、変わったときだけ、描き直す。
+if (light_moved || static_changed) {
+  RenderShadow(static_shadow_map, static_casters);
+}
+// 毎フレーム: 静的な影マップを、動的な影マップにコピーして、動く物だけを、上から描く。
+context->CopyResource(dynamic_shadow_map.Get(), static_shadow_map.Get());
+RenderShadow(dynamic_shadow_map, dynamic_casters);
+```
+
+太陽が、ゆっくり動くゲームでは、静的な影を、数秒に 1 回だけ、更新するのが一般的です。コピーの帯域は、かかりますが、シーン全体の再描画（頂点とドロー コール）より、はるかに、安く済みます（遠いカスケードは、さらに、頻度を落とす）。
+
 ## よくあるミス
 
 ??? failure "カメラ用のカリング結果を、そのまま影に使う"

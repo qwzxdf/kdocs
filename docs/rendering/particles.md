@@ -93,6 +93,102 @@ tags:
 | **描画** | インスタンシング（インダイレクト）で、生きている粒子だけ描く |
 | **衝突** | 深度バッファを読んで画面空間で簡易な衝突をする |
 
+## 半透明が、どれだけ重いか：数字で見る
+
+1920×1080 は、約 207 万ピクセルです。画面全体を、覆う半透明を、10 枚重ねると、どれだけのピクセルを、ブレンドするでしょうか。
+
+```text
+ブレンドするピクセル数 ＝ 207 万 × 10 枚 ＝ 約 2,070 万ピクセル / フレーム
+
+1 ピクセルのブレンド（RGBA16F のレンダー ターゲット）:
+  読む 8 バイト + 書く 8 バイト ＝ 16 バイト
+帯域 ＝ 2,070 万 × 16 バイト ≒ 330 MB / フレーム
+60 FPS なら ≒ 20 GB/s
+```
+
+20 GB/s は、GPU の帯域の、数%〜十数%に、当たります（GPU による）。<strong>1 つの煙の演出だけで</strong>、これだけ使います。半分の解像度で描けば、ピクセル数が 1/4 になり、帯域も、約 5 GB/s に、減ります。
+
+## 縮小バッファに描いて、合成する
+
+煙のような、ぼんやりした物は、半分の解像度で描いて、最後に、フル解像度へ重ねます。
+
+```cpp
+// ① 半分の解像度の、レンダー ターゲットと、縮小した深度（深度テスト用）を用意する。
+SetViewport(width / 2, height / 2);
+context->OMSetRenderTargets(1, half_rtv.GetAddressOf(), half_depth_dsv.Get());
+Clear(half_rtv, {0, 0, 0, 0});                                    // 透明な黒で、クリア
+
+// ② 半透明のパーティクルを、ここに描く（プリマルチプライド アルファ）。
+DrawParticles();
+
+// ③ フル解像度のシーンに、重ねて合成する。
+SetViewport(width, height);
+context->OMSetRenderTargets(1, scene_rtv.GetAddressOf(), nullptr);
+context->PSSetShaderResources(0, 1, half_srv.GetAddressOf());
+DrawFullscreenTriangle();                                         // 合成シェーダー（下）
+```
+
+```hlsl
+// ③ の合成シェーダー: 縮小バッファ（rgb は色、a は、後ろを、どれだけ隠すか）を、バイリニアで、拡大して重ねる。
+Texture2D g_particles : register(t0);
+SamplerState g_linear : register(s0);
+
+float4 PSComposite(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
+  float4 p = g_particles.Sample(g_linear, uv);                    // プリマルチプライド（色に、アルファが掛け済み）
+  return p;                                                       // ブレンド: ONE, INV_SRC_ALPHA で、シーンに重ねる
+}
+```
+
+縮小して描くと、物体の縁で、煙が、にじみます（低解像度の深度が、縁を、またぐため）。縁が気になるときは、<strong>深度を考慮した拡大</strong>（フル解像度の深度と、近い縮小の深度を、比べて、似た位置の値だけを、混ぜる）にします（[Upsampling](../graphics/ao/filtering/upsample.md) と同じ考え方）。
+
+## GPU パーティクルを、実装する
+
+粒子が数万を超えるなら、<strong>計算シェーダーで、粒子を更新し、そのまま描く</strong>のが、効率的です。
+
+```hlsl
+struct Particle {
+  float3 position;
+  float life;                // 残りの寿命（秒）。0 以下で、死ぬ
+  float3 velocity;
+  float size;
+};
+
+RWStructuredBuffer<Particle> g_particles : register(u0);
+AppendStructuredBuffer<uint> g_alive_list : register(u1);        // 今フレーム、生きている粒子の番号
+
+cbuffer UpdateCB : register(b0) {
+  float g_dt;
+  float3 g_gravity;
+  uint g_particle_count;
+};
+
+[numthreads(64, 1, 1)]
+void UpdateCS(uint3 id : SV_DispatchThreadID) {
+  if (id.x >= g_particle_count) return;
+  Particle p = g_particles[id.x];
+  if (p.life <= 0.0) return;                                       // 死んでいる粒子は、飛ばす
+
+  p.velocity += g_gravity * g_dt;
+  p.position += p.velocity * g_dt;
+  p.life -= g_dt;
+  g_particles[id.x] = p;
+  if (p.life > 0.0) g_alive_list.Append(id.x);                     // 生きている粒子の番号を、追加
+}
+```
+
+```cpp
+// 更新: 生きている粒子のリスト（Append バッファ）を、毎フレーム空にして、作り直す。
+UINT zero = 0;
+context->CSSetUnorderedAccessViews(1, 1, alive_uav.GetAddressOf(), &zero);   // カウンターを 0 に
+context->Dispatch((max_particles + 63) / 64, 1, 1);
+
+// 描画: 生きている粒子の数を、間接描画の引数へコピーして、CPU に戻さず、描く。
+context->CopyStructureCount(draw_args_buffer.Get(), sizeof(UINT), alive_uav.Get());   // InstanceCount の位置へ
+context->DrawInstancedIndirect(draw_args_buffer.Get(), 0);        // 4 頂点（四角形）× 生きている数
+```
+
+頂点シェーダーは、`SV_InstanceID` で、`g_alive_list` から粒子の番号を引き、`SV_VertexID` で、四角形の 4 隅を作って、カメラの方を向けます（ビルボード）。<strong>CPU は、粒子の生成の指示を送るだけで、更新も、描画の数の決定も、GPU が行います</strong>（[Structured and Raw Buffers](../directx/dx11/structured-buffer.md)、[Instanced Drawing](../directx/dx11/instancing-draw.md)）。
+
 ## よくあるミス
 
 ??? failure "画面を覆う巨大な煙を、フル解像度で描く"
