@@ -55,6 +55,102 @@ float foam_now = max(decayed, crest_mask);
 
 <!-- fig:foam-decay:end -->
 
+## なぜ、履歴が、要るのか
+
+波頭や、岸の泡を、**そのフレームの、条件だけ**で決めると、**波頭が、通り過ぎた瞬間に、泡も消えて**、ちらつきます。現実の泡は、**ゆっくり消え**、**水の動き**に乗って、**流れます**。**泡の量を、テクスチャに、記録して、毎フレーム更新**します（履歴）。
+
+| 現象 | 履歴での表現 |
+| --- | --- |
+| 波頭が、通った後に、泡が、残る | 新しい泡を、足し、**減衰**で、ゆっくり消す |
+| 泡が、水の流れに乗って、動く | 履歴を、流れの向きに、**移流**させる |
+| 泡が、広がって、薄くなる | 履歴を、少し、**ぼかす** |
+| 物（船）が、通ると、泡が、出る | 物の位置に、泡を、**描き込む**（[Wakes and Collisions](wake.md)） |
+
+## 泡の、履歴テクスチャ
+
+カメラの周りの、**数十〜数百メートル**を、覆う、小さな、**テクスチャ**（`R8_UNORM` で十分）を、用意します。2 枚を、**ping-pong**（前のフレームを、読み、今のフレームに、書く）します。
+
+```cpp
+D3D11_TEXTURE2D_DESC desc = {};
+desc.Width = 512; desc.Height = 512;
+desc.MipLevels = 1; desc.ArraySize = 1;
+desc.Format = DXGI_FORMAT_R8_UNORM;                        // 泡の量（0〜1）
+desc.SampleDesc.Count = 1;
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+device->CreateTexture2D(&desc, nullptr, &foam_tex[0]);
+device->CreateTexture2D(&desc, nullptr, &foam_tex[1]);
+// 毎フレーム: foam_tex[prev] を読み、foam_tex[cur] に書く。終わったら、役割を、入れ替える。
+```
+
+## 更新のシェーダー
+
+全画面の、ピクセル シェーダーで、更新します。**前のフレームの、泡を、流れに沿って、動かし（移流）、減衰させ、新しい泡を、足し**ます。
+
+```hlsl
+Texture2D<float> g_foam_prev : register(t0);
+Texture2D<float2> g_flow : register(t1);             // 水の流れ（ワールド XZ の速度）
+Texture2D<float> g_new_foam : register(t2);          // このフレームで、新しく出る泡（波頭、物）
+
+cbuffer FoamCB : register(b0) {
+  float g_dt;
+  float g_decay;          // 1 秒あたりの減衰率（例: 0.5 → 約 2 秒で、半分以下）
+  float g_blur;           // 広がり（0〜1）
+  float g_texel;          // 1 画素の、UV 上の大きさ
+  float2 g_origin_shift;  // 窓が、動いた分（UV）
+  float2 pad;
+};
+
+float4 main(float2 uv : TEXCOORD0) : SV_Target {
+  // ① 移流: 上流の位置から、前の泡を読む（窓の移動分も、補正する）
+  float2 flow = g_flow.Sample(g_linear_clamp, uv);
+  float2 prev_uv = uv - flow * g_dt * g_flow_to_uv - g_origin_shift;
+  float prev = g_foam_prev.Sample(g_linear_clamp, prev_uv);
+
+  // ② 広がり: 周りの泡を、少し混ぜる（ぼかし）
+  float blur = 0.25 * (g_foam_prev.Sample(g_linear_clamp, prev_uv + float2( g_texel, 0))
+                     + g_foam_prev.Sample(g_linear_clamp, prev_uv + float2(-g_texel, 0))
+                     + g_foam_prev.Sample(g_linear_clamp, prev_uv + float2(0,  g_texel))
+                     + g_foam_prev.Sample(g_linear_clamp, prev_uv + float2(0, -g_texel)));
+  prev = lerp(prev, blur, g_blur);
+
+  // ③ 減衰
+  prev *= exp(-g_decay * g_dt);
+
+  // ④ 新しい泡を足す（大きい方）
+  float fresh = g_new_foam.Sample(g_linear_clamp, uv);
+  return max(prev, fresh);
+}
+```
+
+| 段階 | 内容 |
+| --- | --- |
+| 移流 | 流れが、無い海では、**省く**（`flow = 0`）。川や、波の押し寄せる岸で、効く |
+| ぼかし | **強すぎる**と、泡が、にじんで、輪郭が失われる。弱く（0.05〜0.2） |
+| 減衰 | 遅いと、泡が、ずっと残る。**波の周期と、同じくらい**（2〜5 秒） |
+| 新しい泡 | ヤコビアン、物の位置、岸の深度差など、**複数の源を、`max` でまとめる** |
+
+## 窓を、カメラに追従させる
+
+履歴は、**カメラの周りだけ**を、覆います。窓が、動いたとき、**中身を、ずらす**必要があります。
+
+| 方法 | 内容 |
+| --- | --- |
+| UV を、ずらして、読む | 上のコードの `g_origin_shift`。窓が、動いた分だけ、読む位置を、ずらす。**ずらすと、ぼやける**（補間のため） |
+| 画素単位で、動かす | 窓を、**画素の整数倍**でだけ動かす。ぼやけない。窓が、少しずつ、カクカク動く |
+| 円環バッファ | `WRAP` で、コピーせずに済む（[Trampled Grass](../../terrain/vegetation/trample.md)） |
+
+**窓が、1 画素動くたびに、更新**する方式では、**ぼやけない**ので、泡のように、**細かい模様**に、向きます。
+
+## 解像度と、見た目
+
+泡の履歴は、**低解像度**（512×512）でも、**ディテール**を、別に、足せば、十分です。泡の、**形（細かい模様）**は、**高解像度の、泡のテクスチャ**で、作り、履歴は、**どこに、どれだけ、泡があるか**（マスク）だけを、持ちます（[Foam Textures and Compositing](foam-texture.md)）。
+
+| 解像度の、役割 | 内容 |
+| --- | --- |
+| 履歴（低解像度） | 泡の**量**。大きなスケールで、変化する |
+| 泡のテクスチャ（高解像度） | 泡の**形**。履歴の値を、しきい値に、使って、**切り出す** |
+
 ## よくあるミス
 
 ??? failure "泡が、いつまでも消えない"
@@ -67,9 +163,10 @@ float foam_now = max(decayed, crest_mask);
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（水平変位と、波頭の折れ）
+- Jensen, Golias, "Deep-Water Animation and Rendering", Gamasutra, 2001（海の描画。泡、波頭）
+- Vlachos, "Water Flow in Portal 2", SIGGRAPH 2010, Advances in Real-Time Rendering in 3D Graphics and Games（フロー マップと、2 位相の繰り返し）
+- Neyret, "Advected Textures", Symposium on Computer Animation 2003（流れに乗せて、テクスチャを動かす）
 
 ## 関連ページ
 

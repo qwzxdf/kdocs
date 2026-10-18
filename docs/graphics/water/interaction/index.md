@@ -96,9 +96,10 @@ void CSMain(uint3 id : SV_DispatchThreadID) {
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Müller, "Fast Water Simulation for Games Using Height Fields", Game Developers Conference 2008（高さ場の波動方程式による水面）
+- Tessendorf, "Interactive Water Surfaces", Game Programming Gems 4, 2004（高さ場の、波紋の、シミュレーション）
+- Vlachos, "Water Flow in Portal 2", SIGGRAPH 2010, Advances in Real-Time Rendering in 3D Graphics and Games（フロー マップと、2 位相の繰り返し）
+- Kerner, "Water Interaction Model for Boats in Video Games", Gamedeveloper.com (Gamasutra), 2015
 
 ## 関連ページ
 

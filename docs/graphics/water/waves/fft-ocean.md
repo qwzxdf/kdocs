@@ -103,6 +103,229 @@ FFT 海面の利点は、非常にリアルなこと（自然で、無限に近�
 
 **ヤコビアン**（**水平変位の面積の変化**）が**小さい（負）所は波が折れている**ので**フォーム（泡）を出す目印**になります（[岸辺と泡](../shore-foam/index.md)）。
 
+## なぜ、FFT を使うのか
+
+サイン波や Gerstner 波を、足すだけの海は、**8 本ほど**が限界で、**周期が、見えて**しまいます。本物の海は、**非常に多くの、波長と向きの波が、ランダムに、重なって**います。数千本の波を、足し合わせたいのですが、**1 頂点で、数千回の `sin` は、計算できません**。
+
+**高速フーリエ変換（FFT、Cooley と Tukey、1965）**を使うと、**N×N 個の、周波数成分を、`O(N² log N)` で、一度に、空間の高さに変換**できます。256×256 の海面（65,536 本の波）を、数ミリ秒で、合成できます。Tessendorf（2001）の方法が、ほとんどの、FFT 海面の、出発点です。
+
+## 全体の流れ
+
+```text
+① 初期スペクトル h0(k)        （起動時に 1 回、ランダムに生成する）
+        ↓
+② 時間発展 h(k, t)            （毎フレーム: 各周波数の位相を回す）
+        ↓
+③ 逆 FFT                      （周波数空間 → 空間。高さ、水平変位、傾きの、3〜5 枚）
+        ↓
+④ 水面の頂点シェーダーが、結果のテクスチャを読んで、頂点を動かす
+```
+
+## ① 初期スペクトル
+
+海の波は、波数ベクトル `k = (kx, kz)`（向きと波長を表す）ごとに、**強さ（スペクトル）**を持ちます。**Phillips スペクトル**（1958）は、風が、十分に吹き続けた海の、統計を表します。
+
+```text
+P(k) = A × exp( −1 / (|k| L)² ) / |k|⁴ × | k̂ · ŵ |²
+
+L = V² / g          風速 V の風が、作る最大の波の、大きさ
+ŵ                    風向き（単位ベクトル）
+k̂ = k / |k|         波の向き
+A                    全体の強さ（調整用）
+```
+
+| 項 | 意味 |
+| --- | --- |
+| `exp(−1/(kL)²)` | `L` より、長い波は、存在しない（`k` が小さいと、0 に近づく） |
+| `1 / k⁴` | 短い波ほど、弱い（波長が半分になると、強さが 1/16） |
+| `|k̂ · ŵ|²` | 風と同じ向きの波が、強い。直角の波は、弱い |
+
+実装では、風と**逆向き**の波（`k̂·ŵ < 0`）を、さらに弱めたり、**非常に短い波を、消す**（`exp(−k² l²)`、`l` は小さい長さ）項を、足したりします。
+
+### 初期値 h0 を、乱数で作る
+
+各 `k` について、**ガウス分布の乱数 2 つ**（`ξr`、`ξi`）を、使って、複素数の `h0(k)` を作ります。
+
+```text
+h0(k) = (1/√2) × (ξr + i ξi) × √P(k)
+```
+
+```cpp
+// CPU で、起動時に 1 回、h0(k) を作る（GPU の乱数も、ガウス分布を作るのが面倒なため）。
+std::vector<float4> h0(N * N);          // xy = h0(k)、zw = h0(-k) の共役
+for (int m = 0; m < N; ++m) {
+  for (int n = 0; n < N; ++n) {
+    const float kx = (n - N / 2) * 2.0f * kPi / patch_size;
+    const float kz = (m - N / 2) * 2.0f * kPi / patch_size;
+    const float2 k = {kx, kz};
+    const float ph = PhillipsSpectrum(k, wind, amplitude);
+    const float2 g = Gaussian2(rng);                       // 標準正規分布の乱数 2 つ
+    const float s = std::sqrt(ph * 0.5f);
+    h0[m * N + n] = {g.x * s, g.y * s, 0, 0};
+  }
+}
+// h0(-k) も、同じ配列から引いて、zw に入れる（中心について、反対側の要素）。
+```
+
+スペクトルは、**Phillips 以外**も、あります。JONSWAP（1973）は、**波が、育つ距離（吹送距離）**も考慮し、Horvath（2015）は、**方向の広がり**まで含めた、実測に基づくモデルを、示しています。**Phillips は、簡単で、十分に、海らしい**ので、まず、これで作ります。
+
+## ② 時間発展
+
+各周波数成分を、**時間とともに、位相を回し**ます。回る速さは、**分散関係**で、波長ごとに、決まります（深い水）。
+
+```text
+ω(k) = sqrt( g × |k| )
+
+h(k, t) = h0(k) × e^{ i ω t }  +  conj( h0(−k) ) × e^{ −i ω t }
+```
+
+2 つの項は、**反対向きに進む、同じ波長の波**を表します。足し合わせると、**逆 FFT の結果が、実数**になります（海面の高さは、実数であるため）。
+
+```hlsl
+Texture2D<float4> g_h0 : register(t0);            // xy = h0(k)、zw = h0(-k)
+RWTexture2D<float2> g_height_k : register(u0);    // h(k, t)
+RWTexture2D<float2> g_dx_k : register(u1);        // 水平変位 x（周波数空間）
+RWTexture2D<float2> g_dz_k : register(u2);        // 水平変位 z
+
+cbuffer EvolveCB : register(b0) {
+  float g_time;
+  float g_patch_size;
+  int g_n;
+  float g_choppy;       // 水平変位の強さ（尖り具合）
+};
+
+float2 ComplexMul(float2 a, float2 b) { return float2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x); }
+
+[numthreads(8, 8, 1)]
+void Evolve(uint3 id : SV_DispatchThreadID) {
+  float2 k = (float2(id.xy) - g_n * 0.5) * (2.0 * 3.14159265 / g_patch_size);
+  float k_len = max(length(k), 1e-4);
+  float w = sqrt(9.81 * k_len);
+
+  float4 h0 = g_h0[id.xy];
+  float c = cos(w * g_time), s = sin(w * g_time);
+
+  // h(k,t) = h0(k) e^{iwt} + conj(h0(-k)) e^{-iwt}
+  float2 a = ComplexMul(h0.xy, float2(c, s));
+  float2 b = ComplexMul(float2(h0.z, -h0.w), float2(c, -s));
+  float2 hk = a + b;
+  g_height_k[id.xy] = hk;
+
+  // 水平変位（Tessendorf の式）: D(k) = −i (k / |k|) h(k)
+  float2 minus_i_h = float2(hk.y, -hk.x);                      // −i × h
+  g_dx_k[id.xy] = minus_i_h * (k.x / k_len) * g_choppy;
+  g_dz_k[id.xy] = minus_i_h * (k.y / k_len) * g_choppy;
+}
+```
+
+## ③ 逆 FFT
+
+周波数空間の画像（複素数）を、空間の画像に、変換します。**2 次元の FFT は、行ごとに 1 次元の FFT をして、そのあと、列ごとに、1 次元の FFT をする**ことで、行えます。
+
+### 1 次元の FFT（バタフライ演算）
+
+N 点の FFT は、`log₂ N` 段の**バタフライ**で、できます。N = 256 なら、8 段です。各段で、**2 つの要素から、2 つの要素を作ります**。
+
+```text
+段 s（0 〜 log₂N − 1）、要素 x について:
+  span = 2^s
+  上の翼（top）か:  (x mod 2^(s+1)) < span
+  相手: top なら (x, x + span)、bottom なら (x − span, x)
+  twiddle w = e^{ 2πi × (x mod 2^(s+1)) / 2^(s+1) }       （逆変換なので、符号は +）
+  出力[x] = 入力[lo] + w × 入力[hi]                         （lo = 小さい方の番号、hi = 大きい方）
+```
+
+最初の段（`s = 0`）だけ、入力を、**ビット反転した番号**から読みます（`x = 0b001` なら `0b100`）。これは、FFT の、決まりごとです。
+
+```hlsl
+// バタフライ 1 段（横方向）。ping-pong する 2 枚のテクスチャで、段ごとに、読み書きを入れ替える。
+Texture2D<float2> g_src : register(t0);
+RWTexture2D<float2> g_dst : register(u0);
+
+cbuffer FftCB : register(b0) { int g_stage; int g_n; int2 pad; };
+
+uint BitReverse(uint x, uint bits) { return reversebits(x) >> (32 - bits); }
+
+[numthreads(8, 8, 1)]
+void ButterflyHorizontal(uint3 id : SV_DispatchThreadID) {
+  uint x = id.x;
+  uint span = 1u << g_stage;
+  uint group = x & ((span << 1) - 1);                 // x mod 2^(s+1)
+  bool top = group < span;
+  uint lo = top ? x : x - span;
+  uint hi = lo + span;
+  float angle = 2.0 * 3.14159265 * float(group) / float(span << 1);
+  float2 w = float2(cos(angle), sin(angle));
+
+  uint bits = firstbithigh((uint)g_n);                // log2(N)
+  uint lo_idx = (g_stage == 0) ? BitReverse(lo, bits) : lo;
+  uint hi_idx = (g_stage == 0) ? BitReverse(hi, bits) : hi;
+  float2 p = g_src[uint2(lo_idx, id.y)];
+  float2 q = g_src[uint2(hi_idx, id.y)];
+  g_dst[id.xy] = p + ComplexMul(w, q);
+}
+// 縦方向は、同じ計算を、x と y を入れ替えて行う。
+```
+
+実際の実装では、**1 つの計算シェーダーで、行全体を、グループ共有メモリに載せて、全段を一度に行う**ほうが、はるかに速いです（読み書きが、段ごとにメモリを往復しないため）。まず、上のように、段ごとの実装で、仕組みを理解してから、最適化します。
+
+### 符号の補正
+
+`h(k)` の、`k` の原点を、**画像の中心**に、置いたので、逆 FFT の結果は、**1 画素おきに、符号が反転**しています。`(−1)^(x+z)` を、掛けて、補正します。
+
+```hlsl
+float sign_fix = ((id.x + id.y) & 1) ? -1.0 : 1.0;
+height = fft_result.x * sign_fix;
+```
+
+## ④ 水面に使う
+
+逆 FFT で、次の画像が得られます。
+
+| 画像 | 内容 | 使い方 |
+| --- | --- | --- |
+| 高さ `h` | 水面の高さ | 頂点の y 座標 |
+| 水平変位 `Dx`、`Dz` | 頂点の水平の動き（尖らせるため） | 頂点の x、z 座標に足す |
+| 傾き `∂h/∂x`、`∂h/∂z` | 法線の元 | ピクセルの法線 |
+| ヤコビアン | 波頭が折れているか | 泡（[Crest Foam: The Jacobian](../shore-foam/crest-jacobian.md)） |
+
+```hlsl
+// 頂点シェーダー: FFT の結果を読んで、頂点を動かす。
+float3 disp = g_displacement.SampleLevel(g_linear_wrap, p0 / g_patch_size, 0).xyz;   // x = Dx, y = h, z = Dz
+float3 world = float3(p0.x + disp.x, disp.y, p0.y + disp.z);
+```
+
+## カスケード（繰り返しを隠す）
+
+FFT の結果は、**`patch_size` ごとに、同じ模様が、繰り返します**（周期的）。1 枚だけだと、**遠くで、繰り返しが、見えます**。
+
+**大きさの違う、複数の FFT（カスケード）**を、重ねて、解決します。
+
+| カスケード | 領域の大きさ | 担当する波 |
+| --- | --- | --- |
+| 0 | 約 1,000 m | 長いうねり |
+| 1 | 約 200 m | 中くらいの波 |
+| 2 | 約 30 m | 短いさざ波 |
+
+大きさを、**互いに素に近い比**（たとえば 250 m と 37 m）にすると、**全体の、繰り返しの周期が、非常に、長く**なります。各カスケードには、**それぞれが担当する波長の範囲**のスペクトルだけを、入れます（重複を、避けるため）。
+
+## コストと、使い分け
+
+| 項目 | 目安 |
+| --- | --- |
+| FFT の大きさ | 256×256（標準）、512×512（高品質） |
+| 1 カスケードの、FFT | 高さ・水平変位・傾きで、3〜5 回の逆 FFT。GPU で、0.1〜0.5 ms |
+| カスケード 3 つ | 数 ms 以内 |
+| メモリ | 256×256 の `R32G32_FLOAT` が、数枚（数 MB） |
+
+| 場面 | 方式 |
+| --- | --- |
+| 近景（プレイヤーの周り） | FFT（細かい波、波頭の折れ、泡） |
+| 遠景 | 低周波のカスケードだけ、または、サイン波 |
+| 低スペックの環境 | Gerstner 波（[Gerstner Waves](gerstner.md)） |
+
+FFT 海面は、**物を浮かべる**ときに、CPU でも、高さが必要になります（[Floating Objects](floating.md)）。
+
 ## よくあるミス
 
 ??? failure "FFT 海面のタイルの繰り返しが目立つ"
@@ -116,9 +339,12 @@ FFT 海面の利点は、非常にリアルなこと（自然で、無限に近�
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（FFT による海面の合成。ほとんどの FFT 海面の、出発点）
+- Phillips, "The Equilibrium Range in the Spectrum of Wind-Generated Waves", Journal of Fluid Mechanics, Vol. 4, 1958（Phillips スペクトル）
+- Hasselmann et al., "Measurements of Wind-Wave Growth and Swell Decay during the Joint North Sea Wave Project (JONSWAP)", Deutsche Hydrographische Zeitschrift, Reihe A, Vol. 8, No. 12, 1973
+- Horvath, "Empirical Directional Wave Spectra for Computer Graphics", Digital Production Symposium 2015（方向分布を含む、実測に基づくスペクトル）
+- Cooley, Tukey, "An Algorithm for the Machine Calculation of Complex Fourier Series", Mathematics of Computation, Vol. 19, 1965（FFT の原典）
+- Pierson, Moskowitz, "A Proposed Spectral Form for Fully Developed Wind Seas Based on the Similarity Theory of S. A. Kitaigorodskii", Journal of Geophysical Research, Vol. 69, 1964
 
 ## 関連ページ
 

@@ -457,6 +457,94 @@ float crest_mask = saturate((foam_threshold - jacobian) / foam_softness);
 
 <!-- fig:jacobian-fold:end -->
 
+## 波頭の、泡は、いつ出るか
+
+海の波は、**波頭が、尖り**、さらに強くなると、**波頭が、砕けて、泡**になります。波が、砕けるのは、**波の、斜面が、急になりすぎたとき**です。**水の粒が、波頭で、集まりすぎて、ぶつかる**とも、言えます。
+
+波の頂点を、水平にも動かす方式（Gerstner 波、FFT 海面）では、**頂点が、集まって、面積が、小さくなった場所**が、砕けそうな場所です。この「**面積の縮み具合**」を、数値にしたものが、**ヤコビアン**です。
+
+## ヤコビアン
+
+各頂点を、動く前の位置 `P₀ = (x₀, z₀)` から、動いた後の位置 `P = P₀ + D(P₀)` へ、移すとします（`D` は、水平の変位）。この写像が、**面積を、どれだけ変えるか**を表すのが、ヤコビアン `J` です。
+
+```text
+J = ( 1 + ∂Dx/∂x )( 1 + ∂Dz/∂z ) − ( ∂Dx/∂z )( ∂Dz/∂x )
+```
+
+| J の値 | 意味 |
+| --- | --- |
+| 1 | 面積が、変わらない（頂点の、間隔が、そのまま） |
+| 1 より大きい | 面積が、広がる（谷。頂点が、散る） |
+| 0 に近づく | 面積が、つぶれる（**波頭。頂点が、集まる**） |
+| 負 | 写像が、裏返る（頂点が、追い越して、波頭が、折れている） |
+
+**`J` が、小さい（しきい値より、小さい）場所に、泡を出します**。
+
+```hlsl
+// ヤコビアンが、しきい値（たとえば 0.5）より小さい場所を、泡にする。
+float foam = saturate((foam_threshold - jacobian) / foam_softness);
+```
+
+| パラメーター | 目安 | 効果 |
+| --- | --- | --- |
+| `foam_threshold` | 0.3〜0.8 | 大きいほど、**多くの場所**に、泡が出る |
+| `foam_softness` | 0.1〜0.5 | 大きいほど、泡の縁が、**なだらか** |
+
+## Gerstner 波の、ヤコビアン
+
+Gerstner 波では、水平変位の偏微分が、**解析的**に、求まります（[Gerstner Waves](../waves/gerstner.md)）。
+
+```text
+∂Dx/∂x = −Σ Q A ω Dx² sinθ         ∂Dz/∂z = −Σ Q A ω Dz² sinθ
+∂Dx/∂z = −Σ Q A ω Dx Dz sinθ      ∂Dz/∂x = ∂Dx/∂z（対称）
+```
+
+```hlsl
+// 各波について、足し込む。
+float s = sin(theta);
+dxdx -= w.steepness * w.amplitude * k * s * w.direction.x * w.direction.x;
+dzdz -= w.steepness * w.amplitude * k * s * w.direction.y * w.direction.y;
+dxdz -= w.steepness * w.amplitude * k * s * w.direction.x * w.direction.y;
+// 最後に:
+float jacobian = (1.0 + dxdx) * (1.0 + dzdz) - dxdz * dxdz;
+```
+
+## FFT 海面の、ヤコビアン
+
+FFT 海面（[FFT Ocean](../waves/fft-ocean.md)）では、**水平変位の画像 `Dx`、`Dz`** が、テクスチャとして、得られます。その**隣の画素との差**（中央差分）から、偏微分を求めます。
+
+```hlsl
+// 変位テクスチャ（xy = Dx, Dz）から、ヤコビアンを求める。
+float2 d_right = g_displacement.SampleLevel(g_point_wrap, uv + float2(texel, 0), 0).xz;
+float2 d_left  = g_displacement.SampleLevel(g_point_wrap, uv - float2(texel, 0), 0).xz;
+float2 d_up    = g_displacement.SampleLevel(g_point_wrap, uv + float2(0, texel), 0).xz;
+float2 d_down  = g_displacement.SampleLevel(g_point_wrap, uv - float2(0, texel), 0).xz;
+
+float2 ddx_ = (d_right - d_left) / (2.0 * texel_world);       // (∂Dx/∂x, ∂Dz/∂x)
+float2 ddz_ = (d_up - d_down) / (2.0 * texel_world);          // (∂Dx/∂z, ∂Dz/∂z)
+
+float jacobian = (1.0 + ddx_.x) * (1.0 + ddz_.y) - ddz_.x * ddx_.y;
+```
+
+`texel_world` は、変位マップの、**1 画素のワールド上の大きさ**（`patch_size / N`）です。
+
+!!! tip "ヤコビアンを、FFT で、直接求める"
+    差分は、**ノイズを増やしやすい**です。**周波数空間で、微分を掛けて、逆 FFT する**と、正確に、偏微分が、得られます（`∂/∂x ↔ i kx`）。逆 FFT の、画像の枚数が、増えますが、**きれいな泡**になります。
+
+## 泡の、ためる・消す
+
+ヤコビアンが、小さい瞬間だけ、泡を出すと、**一瞬で消えて、ちらつきます**。**泡を、ためて、ゆっくり消す**と、波頭が、通り過ぎた後にも、**泡が、尾を引いて**残ります（[Persistent Foam](foam-history.md)）。
+
+```hlsl
+// 泡の蓄積: 新しい泡と、前の泡（減衰させたもの）の、大きい方を取る。
+float new_foam = saturate((foam_threshold - jacobian) / foam_softness);
+float foam = max(new_foam, prev_foam * exp(-decay_rate * dt));
+```
+
+## 泡の、位置の補正
+
+ヤコビアンは、**動く前の位置 `P₀`** の関数です。泡を、**画面の、どこに、出すか**は、**動いた後の位置 `P`** です。**頂点シェーダーで、ヤコビアンを求めて、補間して**、ピクセルへ、渡すなら、自動で、合います。**テクスチャに焼く**場合は、`P₀` の座標に、書かれるので、**波頭の位置と、泡が、わずかに、ずれて**見えることがあります。変位を、足して、**`P` の位置で、読む**ように、補正します（水平変位は、頂点シェーダーが、すでに、反映しているので、頂点の `P₀` を、UV として、読めばよい）。
+
 ## よくあるミス
 
 ??? failure "波頭に、泡がまったく出ない"
@@ -470,9 +558,9 @@ float crest_mask = saturate((foam_threshold - jacobian) / foam_softness);
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（水平変位と、波頭の折れ）
+- Jensen, Golias, "Deep-Water Animation and Rendering", Gamasutra, 2001（海の描画。泡、波頭）
+- Fournier, Reeves, "A Simple Model of Ocean Waves", SIGGRAPH 1986
 
 ## 関連ページ
 

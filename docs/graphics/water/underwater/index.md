@@ -34,9 +34,10 @@ bool underwater = camera_position.y < WaterHeightAt(camera_position.xz, time);
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Guardado, Sánchez-Crespo, "Rendering Water Caustics", GPU Gems, Chapter 2, 2004
+- Mitchell, "Light Shafts: Rendering Shadows in Participating Media", Game Developers Conference 2004
+- Pope, Fry, "Absorption Spectrum (380–700 nm) of Pure Water. II. Integrating Cavity Measurements", Applied Optics, Vol. 36, No. 33, 1997
+- Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（水平変位と、波頭の折れ）
 
 ## 関連ページ
 

@@ -110,6 +110,159 @@ for (int i = 0; i < kWaveCount; ++i) {
 
 **`steepness` の合計が 1 を超えない**ように**注意**します（**波頂がねじれて、メッシュが裏返る**）。
 
+## 水の粒は、円を描く
+
+深い水を、進む波では、水の粒（水面の 1 点）は、**上下に動くだけでなく、波の進行方向にも、前後に動きます**。軌跡は、**円**です。波頭では、進行方向へ、谷では、逆向きに動きます。
+
+```text
+         波の進む向き →
+      ╭───╮        ╭───╮
+    ╭╯     ╰╮    ╭╯     ╰╮         ← 水面
+  ╱         ╲╱╲╱         ╲
+      ○ 粒は、円運動（波頭で前、谷で後ろ）
+```
+
+この動きを、そのまま、頂点に使ったのが、Gerstner 波です。粒の位置を、水平にも動かすと、**波頭の周りに、粒が集まって、尖り**、**谷では、粒が散って、広がります**。サイン波では、できない形です。
+
+## 式
+
+位置 `P₀ = (x₀, z₀)` にあった頂点が、時刻 `t` に、動く先は、次のとおりです。
+
+```text
+θ = ω (D · P₀) + φ t
+
+x = x₀ + Σ Q A D.x cos θ
+z = z₀ + Σ Q A D.z cos θ
+y =      Σ     A       sin θ
+```
+
+| 記号 | 意味 |
+| --- | --- |
+| `A` | 振幅（円の半径に当たる） |
+| `ω` | 波数（`2π / 波長`） |
+| `φ` | 位相の速さ（`c × ω`） |
+| `D` | 波の進む向き（単位ベクトル） |
+| `Q` | 急峻さ（0 でサイン波、大きいほど波頭が尖る） |
+
+`Q` を 0 にすると、水平の動きが 0 になり、サイン波と、一致します。
+
+## 急峻さ Q の、上限
+
+`Q` を大きくしすぎると、**波頭で、頂点が、追い越し合って、メッシュが、裏返ります**（ループができる）。裏返らない条件は、**水平の動きの、微分（ヤコビアン）が、正のまま**であることです。1 本の波なら、
+
+```text
+Q × ω × A ≤ 1       （1 本だけのとき）
+```
+
+複数の波があるとき、全部の波の水平の動きが、足し合わされるので、**合計で、1 を超えないように**します。
+
+```text
+Σ Q_i ω_i A_i ≤ 1
+```
+
+Finch（2004）は、これを、使いやすくする、**全体の急峻さ `Q`（0〜1）**を、1 つ決めて、波ごとに、次のように割る方法を、示しています。
+
+```text
+Q_i = Q / ( ω_i × A_i × 波の本数 )
+```
+
+| 全体の Q | 見た目 |
+| --- | --- |
+| 0 | サイン波と同じ |
+| 0.5 | 適度に、尖った波頭 |
+| 1.0 | 波頭が、ほぼ、ぎりぎりまで尖る（裏返らない限界） |
+
+## 頂点シェーダー
+
+```hlsl
+struct GerstnerWave {
+  float2 direction;
+  float amplitude;
+  float wavelength;
+  float speed;
+  float steepness;     // Q_i（上の式で、割った後の値）
+  float2 pad;
+};
+
+cbuffer GerstnerCB : register(b2) {
+  GerstnerWave g_waves[8];
+  int g_wave_count;
+  float g_time;
+  float2 pad2;
+};
+
+// 元の位置 p0 に対する、水面の位置を返す。
+float3 GerstnerDisplace(float2 p0, out float3 normal, out float jacobian) {
+  float3 pos = float3(p0.x, 0.0, p0.y);
+  float3 n = float3(0, 1, 0);
+  // ヤコビアン（波頭が、折れているかの目安）を作る要素
+  float dxdx = 0, dzdz = 0, dxdz = 0;
+
+  [unroll] for (int i = 0; i < 8; ++i) {
+    if (i >= g_wave_count) break;
+    GerstnerWave w = g_waves[i];
+    float k = 2.0 * 3.14159265 / w.wavelength;
+    float theta = k * dot(w.direction, p0) + g_time * w.speed * k;
+    float c = cos(theta), s = sin(theta);
+
+    // 位置
+    pos.x += w.steepness * w.amplitude * w.direction.x * c;
+    pos.z += w.steepness * w.amplitude * w.direction.y * c;
+    pos.y += w.amplitude * s;
+
+    // 法線（Finch の式）。WA = ω A
+    float wa = k * w.amplitude;
+    n.x -= w.direction.x * wa * c;
+    n.z -= w.direction.y * wa * c;
+    n.y -= w.steepness * wa * s;
+
+    // 水平変位の、偏微分（ヤコビアンのため）
+    float ds = -w.steepness * w.amplitude * k * s;
+    dxdx += ds * w.direction.x * w.direction.x;
+    dzdz += ds * w.direction.y * w.direction.y;
+    dxdz += ds * w.direction.x * w.direction.y;
+  }
+  normal = normalize(n);
+  // ヤコビアン = (1 + ∂Dx/∂x)(1 + ∂Dz/∂z) − (∂Dx/∂z)(∂Dz/∂x)
+  jacobian = (1.0 + dxdx) * (1.0 + dzdz) - dxdz * dxdz;
+  return pos;
+}
+```
+
+法線の式の `n.y` の項に、`steepness` が、掛かっていることに注意してください（サイン波の法線との違い）。
+
+### ヤコビアンと、泡
+
+最後の `jacobian` は、「**水平方向の、面積の変化率**」です。1 のとき変化なし、**0 に近づくと、頂点が、集まって（波頭が、折れそうに）**なり、**負になると、裏返っています**。**この値が、小さい場所に、泡を出す**のが、定番の方法です（[Crest Foam: The Jacobian](../shore-foam/crest-jacobian.md)）。
+
+## 法線の、計算は、ピクセルで
+
+頂点で求めた法線を、補間して渡すと、**細かい波の陰影が、出ません**。**ピクセル シェーダーでも、小さい波だけ、もう一度、計算**します。位置の水平変位が、画素ごとに、異なる点に、注意します（次の節）。
+
+## 「元の位置」の、問題
+
+Gerstner 波の式の入力は、**水平に動く前の位置 `P₀`** です。ところが、**画素に見えている水面の位置は、動いた後の位置 `P`** です。画素で、波の計算をするとき、`P` を `P₀` の代わりに使うと、**位置が、水平に、ずれます**。
+
+| 状況 | 影響 |
+| --- | --- |
+| 頂点シェーダー | 格子の頂点が、`P₀`。そのまま使える |
+| ピクセル シェーダーで、細かい波の法線を足す | `P` を、`P₀` の近似として使う。**誤差は、小さい**（急峻さが低いとき、水平の動きは小さい） |
+| CPU で、浮かぶ物の、高さを求める | `P` から `P₀` を、**逆に求める**必要がある（[Floating Objects](floating.md)） |
+
+## サイン波との、比較
+
+| | サイン波 | Gerstner 波 |
+| --- | --- | --- |
+| 頂点の動き | 上下だけ | 上下 + 水平 |
+| 波頭 | 丸い | **尖る** |
+| 谷 | 丸い | 広い |
+| 法線 | 簡単な式 | やや複雑な式 |
+| コスト | `sin` 1 回 / 波 | `sin` と `cos` 1 回ずつ / 波（ほぼ同じ） |
+| 泡（ヤコビアン） | 作れない | **作れる** |
+| 破綻 | しない | `Q` が大きいと、メッシュが裏返る |
+
+コストは、サイン波と、ほとんど変わりません。**Gerstner 波に、しない理由は、ほぼありません**。
+
 ## よくあるミス
 
 ??? failure "波頭がめくれて、メッシュがねじれる"
@@ -123,9 +276,10 @@ for (int i = 0; i < kWaveCount; ++i) {
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Fournier, Reeves, "A Simple Model of Ocean Waves", SIGGRAPH 1986（Gerstner 波を、CG に持ち込んだ論文）
+- Finch, "Effective Water Simulation from Physical Models", GPU Gems, Chapter 1, 2004（サイン波と Gerstner 波の、GPU 実装）
+- Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（FFT による海面の合成。ほとんどの FFT 海面の、出発点）
+- Jensen, Golias, "Deep-Water Animation and Rendering", Gamasutra, 2001
 
 ## 関連ページ
 

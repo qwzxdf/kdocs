@@ -82,6 +82,169 @@ float water_depth = max(scene_depth - surface_depth, 0.0);
 
 <!-- fig:water-depth-color:end -->
 
+## 水は、色を吸収する
+
+純水は、**赤い光を、よく吸収し、青い光を、あまり吸収しません**。厚い水の層を、通った光は、**赤が先に消え、青が最後まで残り**ます。これが、**海や、プールが、青い**理由です。
+
+| 波長 | 吸収係数 a（1/m、純水） | 1 m で、残る割合 | 10 m で、残る割合 |
+| --- | --- | --- | --- |
+| 赤（650 nm） | 約 0.34 | 71% | 3% |
+| 緑（550 nm） | 約 0.06 | 94% | 55% |
+| 青（450 nm） | 約 0.01 | 99% | 90% |
+
+数値は、純水の測定値（Pope と Fry、1997）の目安です。実際の海水や湖水は、**植物プランクトンや、濁り**で、**緑や、茶色に、寄る**ので、もっと、大きな値になります（Jerlov、1976 の水質分類）。
+
+## Beer–Lambert の法則
+
+光が、吸収だけで減る媒質を、距離 `d` だけ進んだとき、**残る光の割合（透過率）**は、指数関数で、減ります。
+
+```text
+T = exp( −a × d )
+```
+
+`a` は、色（RGB）ごとに、違う値を持ちます。
+
+| 吸収係数（RGB） | 水の種類 |
+| --- | --- |
+| (0.34, 0.06, 0.01) | 純水（理論値。南の海のように、非常に澄んだ水） |
+| (0.45, 0.07, 0.03) | きれいな、海水 |
+| (0.8, 0.2, 0.15) | 少し、濁った水 |
+| (1.5, 0.6, 0.5) | 湖、川（緑〜茶色） |
+
+```hlsl
+float3 absorption = float3(0.45, 0.07, 0.03);       // 1/m（RGB）
+float3 transmittance = exp(-absorption * water_depth);
+```
+
+## 水の色は、2 つの項でできている
+
+水を通して、底を見るときの色は、**底から来る光が、減ったもの**と、**水自体が、散乱して返す光**の、足し算です。
+
+```text
+見える色 = 底の色 × T  +  水の色 × (1 − T)
+```
+
+| 項 | 内容 |
+| --- | --- |
+| `底の色 × T` | 底（砂、岩）で反射した光が、水を通ってくる間に、吸収されて、減った分 |
+| `水の色 × (1 − T)` | 水の中で、**散乱**されて、目に届く光。深くなるほど、増える |
+
+```hlsl
+float3 refracted = scene_color * transmittance + deep_color * (1.0 - transmittance);
+```
+
+**浅いと**、`T ≈ 1` なので、底の色が、そのまま見えます。**深いと**、`T ≈ 0` なので、底は見えず、**水自体の色（`deep_color`）**になります。
+
+### `deep_color` は、どう決めるか
+
+`deep_color` は、**水が、空の光を、散乱して返す色**です。散乱が、強く、吸収が、弱いほど、明るく、青くなります。**吸収と散乱から、計算**できます（[Scattering Color (SSS-Like)](scattering.md)）。
+
+```text
+deep_color ≈ 空と太陽の光 × f × b_b / (a + b_b)        f ≈ 0.33、b_b: 後方散乱係数
+```
+
+簡単には、**吸収係数と同じ傾向を持つ、青緑の色**を、アーティストが、直接決めます。
+
+## 水深の、求め方
+
+水深 `d` は、**水面の位置**と、**水の向こうにある、不透明な物（底）の位置**の、距離です。**深度バッファ**から、求めます。
+
+```text
+水深 = 底までの距離（視線方向）− 水面までの距離
+```
+
+### 視線方向の距離か、鉛直方向の水深か
+
+| 距離 | 内容 | 使う場面 |
+| --- | --- | --- |
+| 視線方向の距離 | 目から、水面、底までの、**視線に沿った**距離の差 | **光が、水の中を、進む距離**。吸収に使う（斜めから見ると、長く進むので、色が、濃い） |
+| 鉛直方向の水深 | 水面から、底までの、**真下への**深さ | 泡、岸辺の、境界（岸に近い所で、水が浅い） |
+
+吸収（Beer の法則）には、**視線方向の距離**を、使います。**斜めから見るほど、光が、水の中を長く通る**ので、色が、濃くなります。
+
+```hlsl
+// 水面のピクセルで、水深（視線方向）を求める。
+float scene_ndc_depth = g_scene_depth.Sample(g_point_clamp, screen_uv).r;
+float scene_linear = LinearizeDepth(scene_ndc_depth);       // 底（不透明な物）までの、視点深度
+float surface_linear = input.view_depth;                      // 水面までの、視点深度
+float water_depth = max(scene_linear - surface_linear, 0.0);  // 視線方向の距離ではなく、視点深度（z）の差
+
+// 視点深度の差は、「カメラの前方向」に沿った距離。視線方向の距離にするには、cos で割る。
+float3 view_dir = normalize(input.world_position - camera_position);
+float cos_view = max(dot(view_dir, camera_forward), 0.1);
+float path_length = water_depth / cos_view;
+```
+
+`LinearizeDepth` は、深度バッファの値を、カメラからの距離（ビュー空間の `z`）に直す関数です。
+
+```hlsl
+// 通常の（非 reversed）射影行列の場合。near, far はカメラのクリップ面。
+float LinearizeDepth(float d) {
+  return near_plane * far_plane / (far_plane - d * (far_plane - near_plane));
+}
+```
+
+## DirectX 11 で、深度バッファを、シェーダーで読む
+
+水面を描くとき、**水より手前に、描かれた、不透明な物の深度**を、読む必要があります。深度バッファを、**深度ステンシル ビュー（書き込み用）**と、**シェーダー リソース ビュー（読み取り用）**の、両方で使えるように、作ります。
+
+```cpp
+// 深度テクスチャ: TYPELESS で作って、DSV と SRV で、別々の形式のビューを作る。
+D3D11_TEXTURE2D_DESC desc = {};
+desc.Width = width;
+desc.Height = height;
+desc.MipLevels = 1;
+desc.ArraySize = 1;
+desc.Format = DXGI_FORMAT_R32_TYPELESS;                       // 型なし
+desc.SampleDesc.Count = 1;
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+device->CreateTexture2D(&desc, nullptr, &depth_tex);
+
+D3D11_DEPTH_STENCIL_VIEW_DESC dsv = {};
+dsv.Format = DXGI_FORMAT_D32_FLOAT;                           // 書き込み用
+dsv.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+device->CreateDepthStencilView(depth_tex.Get(), &dsv, &depth_dsv);
+
+D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
+srv.Format = DXGI_FORMAT_R32_FLOAT;                           // 読み取り用
+srv.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+srv.Texture2D.MipLevels = 1;
+device->CreateShaderResourceView(depth_tex.Get(), &srv, &depth_srv);
+```
+
+**同じ深度テクスチャを、DSV として、設定したまま、SRV としても、読むことは、できません**（読み書きの衝突）。水の描画では、**深度の書き込みを、無効**にして、DSV を **読み取り専用**（`D3D11_DSV_READ_ONLY_DEPTH` を指定した DSV）にするか、**深度を、コピー**してから、読みます。
+
+```cpp
+// 読み取り専用の DSV: 深度テストはできるが、書き込みはしない。同時に SRV としても読める。
+D3D11_DEPTH_STENCIL_VIEW_DESC dsv_ro = dsv;
+dsv_ro.Flags = D3D11_DSV_READ_ONLY_DEPTH;
+device->CreateDepthStencilView(depth_tex.Get(), &dsv_ro, &depth_dsv_readonly);
+```
+
+## 水の色の、仕上げ
+
+### 光が、水深とともに、減る（環境光）
+
+深い所では、**太陽の光そのもの**が、届かなくなります。水中の物（底の岩）を、ライティングするとき、光の、減衰も、考える必要があります。
+
+```hlsl
+// 水面から深さ d の所へ届く、太陽光の減衰（赤が、先に消える）。
+float3 sun_at_depth = sun_color * exp(-absorption * depth_below_surface);
+```
+
+### 水自体の色（`deep_color`）も、時間帯で変わる
+
+`deep_color` を、固定の色にすると、**夜も、昼と同じ色**になります。`deep_color` は、**空の光を、散乱して返す**ので、空の明るさ（太陽の高さ、天気）に、**比例させます**。
+
+```hlsl
+float3 deep_color = base_deep_color * (sky_irradiance + sun_color * saturate(sun_dir.y) * 0.5);
+```
+
+### 浅瀬：底の色を、見せる
+
+浅い水で、**底の色が、見える**ためには、**屈折（歪み）を、適用した位置で、底の色を、読む**必要があります（[Water Refraction Distortion](refraction.md)）。**水深を、読む位置も、歪ませた位置**にして、深さの、整合性を、保ちます。
+
 ## よくあるミス
 
 ??? failure "深い所も浅い所も、同じ水色"
@@ -95,9 +258,11 @@ float water_depth = max(scene_depth - surface_depth, 0.0);
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Pope, Fry, "Absorption Spectrum (380–700 nm) of Pure Water. II. Integrating Cavity Measurements", Applied Optics, Vol. 36, No. 33, 1997（純水の吸収係数の測定値）
+- Jerlov, "Marine Optics", Elsevier, 1976（海水の水質の分類 Jerlov water types）
+- Gordon, Brown, Jacobs, "Computed Relationships between the Inherent and Apparent Optical Properties of a Flat Homogeneous Ocean", Applied Optics, Vol. 14, No. 2, 1975（水中の散乱と吸収から、水の色を求める式）
+- Microsoft Learn, "Reading depth-stencil as shader resource"（深度バッファを、`R32_TYPELESS` で作って、SRV として読む方法）
+- Mittring, "Finding Next Gen: CryEngine 2", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games（水の描画、平面反射と、屈折のコピー）
 
 ## 関連ページ
 

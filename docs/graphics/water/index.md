@@ -40,6 +40,13 @@ tags:
 
 <strong>水面は、「不透明の後・コピーを取った後」</strong>に描きます（[Refraction](../translucency/refraction/index.md)と同じ構成）。
 
+## 参考
+
+- Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（FFT による海面の合成。ほとんどの FFT 海面の、出発点）
+- Finch, "Effective Water Simulation from Physical Models", GPU Gems, Chapter 1, 2004（サイン波と Gerstner 波の、GPU 実装）
+- Vlachos, "Water Flow in Portal 2", SIGGRAPH 2010, Advances in Real-Time Rendering in 3D Graphics and Games
+- Kerner, "Water Interaction Model for Boats in Video Games", Gamedeveloper.com (Gamasutra), 2015（船の浮力・抗力・水しぶき）
+
 ## 関連ページ
 
 - [描画](../index.md)

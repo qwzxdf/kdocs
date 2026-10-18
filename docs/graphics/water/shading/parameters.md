@@ -33,6 +33,121 @@ tags:
 
 実在の水の吸収係数は、赤が約 0.45 /m、緑が約 0.07 /m、青が約 0.02 /m です（きれいな水）。この値をそのまま使うと、水深 5 m でほぼ赤が消える物理的に正しい見た目になります。ゲームでは、見やすさのために、これを数倍〜十倍に誇張することが多いです。アーティストが扱いやすいように、σ を直接触らせるのでなく、「この深さで底が見えなくなる」という透明度の距離をパラメータにして、内部で σ に変換する設計がよく使われます。
 
+## 物理的な、パラメーターと、アーティスト向けの、パラメーター
+
+水のマテリアルには、2 つの流儀があります。
+
+| 流儀 | パラメーター | 長所 | 短所 |
+| --- | --- | --- | --- |
+| 物理ベース | 吸収係数 `a`（RGB）、後方散乱 `b_b`、屈折率 | **現実の水を、再現できる**。値の意味が、明確 | アーティストが、直感で扱いにくい |
+| アーティスト向け | 浅い所の色、深い所の色、「透明度の距離」 | 直感的。色を、直接、指定できる | 現実から、ずれても、気づきにくい。照明の変化に、追従しにくい |
+
+おすすめは、**内部を物理ベースにして、入力は、アーティスト向けにする**組み合わせです。アーティストが、「**この深さで、底が、見えなくなる**（透明度の距離）」「**深い所の色**」を指定し、そこから、吸収係数を、**自動で計算**します。
+
+## 透明度の距離から、吸収係数を決める
+
+「**ここまでの深さなら、底が、見える**」という、**透明度の距離**（セッキ ディスクの深さに近い）を、指定すると、吸収係数に、換算できます。
+
+```text
+透過率が、ほぼ見えなくなる値（たとえば 5%）になる距離を、D とすると:
+exp(−a × D) = 0.05   →   a = −ln(0.05) / D = 3.0 / D
+```
+
+```cpp
+// 透明度の距離（メートル）から、吸収係数を作る。RGB で、赤が強く、青が弱くなるよう、比を掛ける。
+float3 AbsorptionFromVisibility(float visibility_m, float3 color_ratio) {
+  const float a = 3.0f / visibility_m;            // 赤、緑、青の平均が、この値になる
+  return {a * color_ratio.x, a * color_ratio.y, a * color_ratio.z};
+}
+
+// 例: 澄んだ海（透明度 20 m）。赤は、青の 15 倍吸収される。
+const float3 absorption = AbsorptionFromVisibility(20.0f, {2.1f, 0.5f, 0.14f});
+```
+
+比 `color_ratio` は、水の種類で決めます。**赤を、よく吸収**するほど、**青く澄んだ水**です。
+
+## パラメーターの一覧と、目安
+
+| パラメーター | 内容 | 目安 |
+| --- | --- | --- |
+| 吸収係数 `a`（RGB、1/m） | 色ごとの、吸収の強さ | 澄んだ水 (0.3, 0.05, 0.01)、濁った水 (1.0, 0.4, 0.3) |
+| 後方散乱 `b_b`（1/m） | 水自体が、返す光の量 | 澄んだ水 0.003、濁った水 0.02 |
+| 屈折率 | スネルの法則と、フレネル | 1.33（水）。ほぼ変えない |
+| 屈折の歪み | 画面のコピーの、ずらし量 | 0.02〜0.05 |
+| 反射の強さ | フレネルに、掛ける倍率 | 1.0（物理どおり）。0.8〜1.2 で、調整 |
+| 粗さ（`roughness`） | スペキュラーと、反射のぼけ | 風速から決める（[Specular](specular.md)）。0.02〜0.3 |
+| 波の法線の強さ | 細かい法線の、傾きの倍率 | 1.0 |
+| 泡の色・量 | 波頭と、岸の泡 | 白、密度は、風と地形で、変える |
+| 水面の高さ | 海面のレベル | ワールドの基準 |
+
+## 水の種類の、プリセット
+
+場所ごとに、パラメーターのセット（プリセット）を持つと、**海、湖、池、プール、沼**を、1 つの水シェーダーで、作り分けられます。
+
+| 種類 | 吸収 a（RGB） | 後方散乱 b_b | 透明度 | 粗さ | 特徴 |
+| --- | --- | --- | --- | --- | --- |
+| 南国の海 | (0.35, 0.06, 0.02) | 0.004 | 30 m | 0.1〜 | 鮮やかな青緑。浅瀬は、白い砂が、透ける |
+| 外洋 | (0.45, 0.07, 0.03) | 0.005 | 20 m | 0.15〜 | 深い青。波が大きい |
+| 湖 | (0.7, 0.25, 0.2) | 0.015 | 8 m | 0.05〜 | 緑がかった、静かな水面 |
+| 川 | (1.0, 0.45, 0.4) | 0.03 | 3 m | 0.05〜 | 茶〜緑。流れがある |
+| 沼 | (2.0, 1.0, 0.9) | 0.05 | 1 m | 0.03 | 暗い緑茶色。透けない |
+| プール | (0.25, 0.04, 0.02) | 0.002 | 全部見える | 0.02 | 底のタイルが、見える。塩素の青 |
+
+数値は、**見た目の出発点**です。ゲームの、明るさ・露出に合わせて、**調整**してください。
+
+```cpp
+// プリセットを、構造体で持つ。
+struct WaterMaterial {
+  float3 absorption;          // 1/m
+  float backscatter;          // 1/m
+  float visibility_m;         // 透明度（参考値。absorption を、自動で決めるときに使う）
+  float roughness;
+  float refraction_strength;
+  float reflection_scale;
+  float normal_strength;
+  float foam_amount;
+};
+
+constexpr WaterMaterial kOcean = {{0.45f, 0.07f, 0.03f}, 0.005f, 20.0f, 0.15f, 0.03f, 1.0f, 1.0f, 0.6f};
+constexpr WaterMaterial kLake  = {{0.70f, 0.25f, 0.20f}, 0.015f, 8.0f, 0.05f, 0.02f, 1.0f, 0.6f, 0.1f};
+```
+
+```hlsl
+cbuffer WaterMaterialCB : register(b3) {
+  float3 g_absorption;
+  float g_backscatter;
+  float g_roughness;
+  float g_refraction_strength;
+  float g_reflection_scale;
+  float g_normal_strength;
+  float g_foam_amount;
+  float3 pad;
+};
+```
+
+## 場所ごとに、水を変える
+
+湖から、川へ、**水の種類が、つながっている**ところは、**境目で、パラメーターを、補間**します。
+
+| 方法 | 内容 |
+| --- | --- |
+| 水域ごとに、別のメッシュ | メッシュごとに、マテリアルを設定。境目が、はっきり分かれる |
+| 頂点カラーで、補間 | 頂点に、プリセットの、重みを持たせて、補間する |
+| テクスチャで、パラメーターを、描く | 水の、濁り、深さを、**マップ**に描いて、読む（岸の近くだけ、緑にする、など） |
+
+## 天候と、時間帯
+
+水の見た目は、**空の光**で、変わります。
+
+| 要因 | 変わるもの |
+| --- | --- |
+| 晴れ → 曇り | `deep_color` が暗く、グレーに。太陽の反射が、消える |
+| 昼 → 夕方 | 反射が、オレンジに。深い水の色が、暗くなる |
+| 夜 | 空の光が、ほぼ、無い。水は、ほぼ、黒（月や街灯の反射だけ） |
+| 雨 | 粗さが、増える（水面に、雨粒の波）。反射が、にじむ |
+
+吸収係数は、**水そのもの**の性質なので、**時間帯では、変えません**。変えるのは、**入ってくる光**（`incident_light`）です（[Scattering Color (SSS-Like)](scattering.md)）。
+
 ## よくあるミス
 
 ??? failure "海も湖も同じパラメータで、変化が出ない"
@@ -45,9 +160,10 @@ tags:
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Pope, Fry, "Absorption Spectrum (380–700 nm) of Pure Water. II. Integrating Cavity Measurements", Applied Optics, Vol. 36, No. 33, 1997（純水の吸収係数の測定値）
+- Jerlov, "Marine Optics", Elsevier, 1976（海水の水質の分類 Jerlov water types）
+- Gordon, Brown, Jacobs, "Computed Relationships between the Inherent and Apparent Optical Properties of a Flat Homogeneous Ocean", Applied Optics, Vol. 14, No. 2, 1975（水中の散乱と吸収から、水の色を求める式）
+- Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes
 
 ## 関連ページ
 

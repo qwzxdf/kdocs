@@ -117,6 +117,135 @@ float Fresnel(float3 normal, float3 view_dir) {
 
 **水面の見た目の大半は、この 1 つの式で決まります**。**足元の水は透けて底が見え**、**遠くの水は空を映す**のは、**フレネルのため**です。
 
+## 反射率は、角度で決まる
+
+水面に、光が当たると、一部は、**反射**し、残りは、水の中へ**屈折**して入ります。**反射する割合**が、フレネル反射率 `F` です。`F` は、**入射の角度**と、**2 つの物質の屈折率**で、決まります。
+
+| 見る角度 | 水面の反射率 F | 見え方 |
+| --- | --- | --- |
+| 真上から（0°） | 約 2% | ほぼ、透明。底が見える |
+| 45° | 約 2.5% | まだ、透けている |
+| 60° | 約 6% | 少し、空が映る |
+| 80° | 約 35% | 空と、水面が、混ざって見える |
+| 89°（地平線のあたり） | 約 90% | **ほぼ、鏡** |
+
+遠くの水面が、**空の色に、光って見える**のは、視線が、水面に浅い角度で、当たっているためです。
+
+## 正確な式（フレネルの式）
+
+屈折率 `n₁`（空気 1.0）から、`n₂`（水 1.33）へ、入射角 `θᵢ`、屈折角 `θₜ` のとき、**偏光の 2 成分**（s 偏光と p 偏光）の反射率は、次のとおりです。
+
+```text
+Rs = ( (n₁ cosθᵢ − n₂ cosθₜ) / (n₁ cosθᵢ + n₂ cosθₜ) )²
+Rp = ( (n₁ cosθₜ − n₂ cosθᵢ) / (n₁ cosθₜ + n₂ cosθᵢ) )²
+F  = (Rs + Rp) / 2                      ← 偏光していない光（太陽光、空の光）の平均
+```
+
+`θₜ` は、**スネルの法則** `n₁ sinθᵢ = n₂ sinθₜ` から、求めます。
+
+```hlsl
+// 正確なフレネル反射率（偏光していない光）。eta = n2 / n1（空気 → 水なら 1.33）。
+float FresnelExact(float cos_i, float eta) {
+  float sin_t2 = (1.0 - cos_i * cos_i) / (eta * eta);     // sin²θt（スネルの法則から）
+  if (sin_t2 >= 1.0) return 1.0;                           // 全反射（水中から、空を見るとき）
+  float cos_t = sqrt(1.0 - sin_t2);
+  float rs = (cos_i - eta * cos_t) / (cos_i + eta * cos_t);
+  float rp = (eta * cos_i - cos_t) / (eta * cos_i + cos_t);
+  return 0.5 * (rs * rs + rp * rp);
+}
+```
+
+水中から、水面を見上げるとき（`n₁ = 1.33`、`n₂ = 1.0`）、`sin θₜ` が 1 を超える角度では、**光が、外へ出られず、すべて反射**します（全反射）。この現象は、[The Underside of the Surface and Crossing It](../underwater/surface-back.md) で扱います。
+
+## F₀ を、屈折率から求める
+
+真上から（`θ = 0`）のときの反射率 `F₀` は、式を簡単にできます。
+
+```text
+F₀ = ( (n₂ − n₁) / (n₂ + n₁) )²  =  ( (1.33 − 1.0) / (1.33 + 1.0) )²  ≈ 0.0201
+```
+
+水の `F₀` は、**約 2%** です。ガラス（`n = 1.5`）が 4%、ダイヤモンド（`n = 2.4`）が 17% なので、水は、反射率が、低い部類です。
+
+## Schlick 近似
+
+正確な式は、`sqrt` や、割り算を含んでいて、重いです。**Schlick の近似**（1994）は、ほぼ同じ形を、**5 乗の式**で、表します。
+
+```text
+F(θ) ≈ F₀ + (1 − F₀) × (1 − cosθ)⁵
+```
+
+```hlsl
+float FresnelSchlick(float cos_theta, float f0) {
+  return f0 + (1.0 - f0) * pow(1.0 - saturate(cos_theta), 5.0);
+}
+```
+
+### 近似は、どのくらい合うか
+
+| 入射角 | 正確な式 | Schlick | 差 |
+| --- | --- | --- | --- |
+| 0° | 0.020 | 0.020 | 0 |
+| 60° | 0.021 | 0.021 | 小さい |
+| 70° | 0.034 | 0.031 | 小さい |
+| 80° | 0.138 | 0.113 | やや差がある |
+| 88° | 0.62 | 0.60 | 小さい |
+
+水の場合、Schlick 近似は、**全体として、十分に、近い**です。**低い角度（80° 付近）で、やや、小さく出る**程度で、見た目では、ほとんど、気づきません。**特別な理由がなければ、Schlick を使います**。
+
+## 水面で気をつけること
+
+### ① 法線で、`cos θ` を求める
+
+`cos θ` は、**波で傾いた法線**と、視線の内積です。**波の法線**を、使います。
+
+```hlsl
+float cos_theta = saturate(dot(wave_normal, view_dir));
+float F = FresnelSchlick(cos_theta, 0.02);
+```
+
+幾何学的な（平らな水面の）法線 `(0, 1, 0)` を、使うと、**波による、反射の変化**が出ません。
+
+### ② 遠くで、波の法線を弱める
+
+遠くの水面は、**波の法線が、ちらつく**ので、弱めます（[Computing Normals](../waves/normals.md)）。弱めると、法線が、真上に近づき、`cos θ` が、**実際の、見る角度より、大きく**なって、**反射が、弱く**なります。これを避けるには、**フレネルの計算に、使う法線は、遠くで、弱めすぎず、粗さで補う**か、**平らな水面の `cos θ`** を、遠くで、混ぜます。
+
+```hlsl
+// 遠くでは、波の法線の影響を弱めすぎず、地平線に近づくと、反射が強くなる効果を保つ。
+float3 N_fresnel = normalize(lerp(wave_normal, float3(0, 1, 0), saturate(dist / 500.0)));
+float F = FresnelSchlick(saturate(dot(N_fresnel, view_dir)), 0.02);
+```
+
+### ③ 粗さと、フレネル
+
+表面が、粗いと、**浅い角度での、反射率が、少し下がり**ます（微小な凹凸が、反射を、遮るため）。水面でも、波が荒れると、効きます。PBR では、フレネル反射率を、**粗さで、少し、下げる**補正が、使われます（IBL の、フレネルの扱いは、Lagarde と de Rousiers、2014 を参照）。
+
+```hlsl
+// 粗さで、浅い角度の反射の上限を、下げる（Lagarde）。
+float3 FresnelSchlickRoughness(float cos_theta, float3 f0, float roughness) {
+  return f0 + (max(float3(1.0 - roughness, 1.0 - roughness, 1.0 - roughness), f0) - f0)
+              * pow(1.0 - saturate(cos_theta), 5.0);
+}
+```
+
+## 反射と、屈折の混ぜ方
+
+`F` は、**反射する割合**です。残りの `1 − F` が、**水の中へ入る**割合です。
+
+```hlsl
+float3 reflection = SampleReflection(...);          // 空、周囲の景色
+float3 refraction = SampleRefraction(...);          // 水の中の景色（底、水の色）
+float3 color = lerp(refraction, reflection, F);     // F が大きいほど、反射が、見える
+```
+
+| 状況 | F | 見え方 |
+| --- | --- | --- |
+| 足元の水（真上から見る） | 0.02 | 屈折（底が見える）が、ほぼ全て |
+| 少し先の水 | 0.05〜0.1 | 底が、見えながら、空が、うっすら映る |
+| 遠くの水 | 0.5〜0.9 | 空が、ほぼ全て。水の中は、見えない |
+
+**1 つの式（`F`）で、水面の見た目の大半が、決まります**。フレネルを、**入れ忘れる**（反射を、一定の割合で混ぜる）と、**水が、プラスチックのように、不自然**に見えます。
+
 ## よくあるミス
 
 ??? failure "水が、どの角度でも同じ透明度"
@@ -129,9 +258,10 @@ float Fresnel(float3 normal, float3 view_dir) {
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Schlick, "An Inexpensive BRDF Model for Physically-based Rendering", Computer Graphics Forum, Vol. 13, No. 3, 1994（Schlick 近似）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（フレネル、屈折、スネルの法則）
+- Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering 3.0", SIGGRAPH 2014（反射と、フレネルの扱い）
+- Walter, Marschner, Li, Torrance, "Microfacet Models for Refraction through Rough Surfaces", Eurographics Symposium on Rendering 2007（GGX 分布の原典）
 
 ## 関連ページ
 

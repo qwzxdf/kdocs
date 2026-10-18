@@ -79,6 +79,161 @@ float WaveHeight(float2 position, Wave wave, float time) {
 
 **欠点**：**サイン波は波頂が丸く、谷も同じ形**で**海の「尖った波頂・広い谷」の形にならない**。
 
+## 波の式を、1 つずつ読む
+
+進行波を、1 本ぶん、書き下します。位置を `p = (x, z)`、進行方向を単位ベクトル `D`、振幅を `A`、波長を `λ`、位相速度を `c` とします。
+
+```text
+h(p, t) = A × sin( ω × (D · p) + φ × t )
+
+ω = 2π / λ          波数（1 m あたりの位相の進み）
+φ = c × ω           時間方向の角周波数（1 秒あたりの位相の進み）
+D · p               波の進む向きに、測った距離
+```
+
+`D · p` は、波の進行方向に沿った、距離です。これが 0 のとき、`x = 0` から見た、波頭の位置は変わりません。**位相が `ω (D·p) + φ t`** なので、時間が進むと、同じ位相の場所が、**`D` の向きに、`c` の速さで、進みます**。確かめます。位相が一定なら、`ω (D·p) + φ t = const` です。時間 `t` が `Δt` 進んだとき、`D·p` は、`−φ Δt / ω = −c Δt` だけ変わらなければなりません。符号を整理すると、波頭は `c` の速さで、`D` の逆向き、つまり、符号を `−φt` と書けば、`D` の向きに進みます。コードでは、`sin(ω D·p − φ t)` と書く実装もあります。**符号の、どちらを使うかを、CPU 側と GPU 側で、そろえます。**
+
+### 波が複数あると
+
+複数の波を足すだけです。
+
+```text
+h(p, t) = Σ_i A_i × sin( ω_i (D_i · p) + φ_i t + θ_i )
+```
+
+`θ_i` は、波ごとの、初期の位相のずれです。
+
+## 振幅と波長の関係
+
+波の形（尖り方）は、**振幅と波長の比**で、決まります。この比を、**急峻さ（steepness）**と呼びます。
+
+```text
+急峻さ = A / λ  （または 2πA / λ = ω A、波の、最大の傾き）
+```
+
+実際の海の波は、**波長が長いほど、振幅も大きく**、急峻さは、ほぼ一定です。
+
+| 急峻さ ω·A | 見た目 |
+| --- | --- |
+| 0.05 | なだらかな、うねり |
+| 0.2 | 標準的な、海の波 |
+| 0.5 | 荒れた海。波頭が、尖る |
+| 1.0 以上 | **物理的に、成り立たない**（波が砕ける） |
+
+波を、手で作るとき、**「波長を決めて、振幅は、波長に比例させる」**とすると、見た目が、自然になります。
+
+```cpp
+// 波を、波長から作る。急峻さを、一定に保つ。
+std::vector<Wave> MakeWaves(int count, float base_wavelength, float steepness, uint32_t seed) {
+  std::vector<Wave> waves;
+  Rng rng(seed);
+  float wavelength = base_wavelength;
+  for (int i = 0; i < count; ++i) {
+    const float angle = rng.Uniform(-0.6f, 0.6f) + wind_angle;          // 風向きの周りに、ばらす
+    Wave w;
+    w.direction = {std::cos(angle), std::sin(angle)};
+    w.wavelength = wavelength;
+    w.amplitude = steepness * wavelength / (2.0f * 3.14159265f);         // A = steepness / ω
+    w.speed = std::sqrt(9.81f * wavelength / (2.0f * 3.14159265f));      // 深い水の分散関係
+    waves.push_back(w);
+    wavelength *= rng.Uniform(0.55f, 0.75f);                             // 次の波は、短く（約 0.6 倍）
+  }
+  return waves;
+}
+```
+
+「**次の波長を、前の 0.6 倍前後**」にすると、波の大きさが、**等比数列**で並びます。波長が 2 倍違えば、見え方が、違う波になるので、バラエティが出ます。
+
+## 速さ：深い水の分散関係
+
+波の速さ `c` は、勝手に決められません。**深い水（波長に比べて、水深が十分深い）**の波は、波長が決まれば、速さが決まります。
+
+```text
+c = sqrt( g λ / (2π) )         g = 9.81 m/s²
+```
+
+| 波長 λ | 速さ c |
+| --- | --- |
+| 1 m | 1.25 m/s |
+| 10 m | 3.95 m/s |
+| 100 m | 12.5 m/s |
+
+長い波ほど、速く進みます。**すべての波を、同じ速さにすると、不自然**です（[Wave Animation Tricks](animation-tricks.md)）。
+
+## 頂点シェーダーで、波を足す
+
+```hlsl
+struct Wave {
+  float2 direction;     // 単位ベクトル
+  float amplitude;
+  float wavelength;
+  float speed;
+  float phase_offset;
+  float2 pad;
+};
+
+cbuffer WaveCB : register(b2) {
+  Wave g_waves[8];
+  int g_wave_count;
+  float g_time;
+  float2 pad2;
+};
+
+// 高さと、偏微分（傾き）を、同時に計算する。
+// 傾きは、法線のために使う（高さの微分を、解析的に、求められるのがサイン波の長所）。
+float WaterHeight(float2 p, out float2 slope) {
+  float h = 0.0;
+  slope = 0.0;
+  [unroll] for (int i = 0; i < 8; ++i) {
+    if (i >= g_wave_count) break;
+    float w = 2.0 * 3.14159265 / g_waves[i].wavelength;
+    float phase = w * dot(g_waves[i].direction, p) + g_time * g_waves[i].speed * w + g_waves[i].phase_offset;
+    h += g_waves[i].amplitude * sin(phase);
+    // d/dp [A sin(phase)] = A × w × cos(phase) × D
+    slope += g_waves[i].amplitude * w * cos(phase) * g_waves[i].direction;
+  }
+  return h;
+}
+
+float3 WaterNormal(float2 slope) {
+  // 面 y = h(x, z) の法線: (-∂h/∂x, 1, -∂h/∂z)
+  return normalize(float3(-slope.x, 1.0, -slope.y));
+}
+```
+
+偏微分は、微分の公式（`sin` の微分は `cos`）から、**式で求まります**。隣の頂点を、読んで差分を取る必要がなく、正確です。
+
+## 水面メッシュ
+
+波を、頂点シェーダーで、足すなら、水面を、**格子メッシュ**にして、各頂点を、動かします。
+
+| 項目 | 内容 |
+| --- | --- |
+| メッシュ | 平らな格子。カメラの周りを、細かく（[Geometry Clipmaps](../../terrain/lod/clipmap.md) と同じ構造が、よく使われる） |
+| 頂点の間隔 | 波の、最も短い波長の、**半分以下**にする（ナイキスト）。それより粗いと、波が、**エイリアシング**する |
+| 法線 | 頂点でなく、**ピクセル シェーダーで**、波を、もう一度、計算して、求める。細かい波の、陰影が出る |
+
+### 短すぎる波を、消す
+
+頂点の間隔が `d` のとき、**波長が `2d` より短い波**は、頂点では、正しく、表現できません。**消さずに足し込むと、波が、ちらつきます**。距離とともに、振幅を、減らします。
+
+```hlsl
+// 頂点の間隔に対して、短すぎる波は、振幅を 0 に近づける。
+float AliasFade(float wavelength, float vertex_spacing) {
+  return saturate((wavelength / vertex_spacing - 2.0) / 2.0);
+}
+```
+
+## サイン波の、限界
+
+| 限界 | 内容 |
+| --- | --- |
+| 形が、対称 | 波頭と谷が、同じ形（上下対称）。実際の波は、**波頭が尖って、谷が広い** |
+| 水平には動かない | 頂点は、上下にしか動かない。波が、押し寄せる感じが、弱い |
+| 規則的 | 波の数が少ないと、**周期が見える** |
+
+尖った波頭が、欲しいときは、[Gerstner Waves](gerstner.md) に、進みます。
+
 ## よくあるミス
 
 ??? failure "波が、規則的な縞に見える"
@@ -92,9 +247,10 @@ float WaveHeight(float2 position, Wave wave, float time) {
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Finch, "Effective Water Simulation from Physical Models", GPU Gems, Chapter 1, 2004（サイン波と Gerstner 波の、GPU 実装）
+- Fournier, Reeves, "A Simple Model of Ocean Waves", SIGGRAPH 1986（Gerstner 波を、CG に持ち込んだ論文）
+- Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（FFT による海面の合成。ほとんどの FFT 海面の、出発点）
+- Akenine-Möller et al., "Real-Time Rendering", 4th Edition, CRC Press, 2018（サンプリングとエイリアシング）
 
 ## 関連ページ
 

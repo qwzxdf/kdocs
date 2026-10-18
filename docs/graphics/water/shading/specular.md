@@ -60,6 +60,121 @@ float specular = pow(n_dot_h, shininess) * sun_intensity;
 
 <!-- fig:ggx-lobe:end -->
 
+## 太陽の反射は、細かい波の集まり
+
+水面に、太陽が映ると、**1 つの、丸い光ではなく、波ごとに散らばった、細かい光の帯**になります（**グリッター、sun glitter**）。**波の表面は、細かい、無数の、小さな傾き**を持っています。**太陽の方向を、反射する向きに傾いた波の面**だけが、光ります。
+
+```text
+太陽 ↘      ↙ 目
+      ╱╲╱╲╱╲        ← 波。目に向かって光を反射する向きの面だけが光る
+```
+
+## 風速と、傾きの分布（Cox と Munk）
+
+波の面の、傾きの分布は、**風速**で決まります。Cox と Munk（1954）は、**海面の、写真から、太陽の光の分布を調べ**、傾きの、2 乗平均が、風速に、ほぼ比例することを示しました。
+
+```text
+波の傾きの 2 乗平均 m² ≈ 0.003 + 0.00512 × U         U: 風速（m/s）
+```
+
+| 風速 U（m/s） | m² | 傾きの目安（√m²） | 見た目 |
+| --- | --- | --- | --- |
+| 0 | 0.003 | 0.055（約 3°） | 鏡のような水面。光が、1 つに、集まる |
+| 5 | 0.029 | 0.17（約 10°） | 光が、広がり始める |
+| 10 | 0.054 | 0.23（約 13°） | 光の帯が、太く、散らばる |
+| 15 | 0.080 | 0.28（約 16°） | 広い範囲が、ぎらつく |
+
+**風が強いほど、波が、荒れて、光る範囲は、広くなり、1 点の明るさは、下がります**。
+
+## 粗さへの、対応
+
+GGX や Beckmann などの、**微小面分布**（法線の分布）の、粗さを、波の傾きの分布に、合わせます。Beckmann 分布のパラメーター `m` は、**傾きの 2 乗平均の、平方根**そのものです。
+
+```text
+m² = 傾きの 2 乗平均 = 0.003 + 0.00512 × U         ← Beckmann の m
+GGX の roughness（α）≈ m                            ← 近似（GGX は、裾が長い。最終は、見た目で調整）
+```
+
+```hlsl
+// 風速から、粗さを決める。
+float WaterRoughness(float wind_speed) {
+  float m2 = 0.003 + 0.00512 * wind_speed;
+  return sqrt(m2);                                // GGX の α の目安
+}
+```
+
+## 太陽の反射を、計算する
+
+PBR の、スペキュラー（GGX）で、計算します。太陽は、**平行光**として、扱います（[PBR](../../../3d/pbr.md)）。
+
+```hlsl
+float D_GGX(float n_dot_h, float a) {
+  float a2 = a * a;
+  float d = n_dot_h * n_dot_h * (a2 - 1.0) + 1.0;
+  return a2 / (3.14159265 * d * d);
+}
+
+float V_SmithGGX(float n_dot_l, float n_dot_v, float a) {
+  // 高さ相関 Smith（可視性項）
+  float a2 = a * a;
+  float gv = n_dot_l * sqrt(n_dot_v * n_dot_v * (1.0 - a2) + a2);
+  float gl = n_dot_v * sqrt(n_dot_l * n_dot_l * (1.0 - a2) + a2);
+  return 0.5 / max(gv + gl, 1e-5);
+}
+
+float3 WaterSunSpecular(float3 N, float3 V, float3 L, float3 sun_radiance, float roughness) {
+  float3 H = normalize(V + L);
+  float n_dot_h = saturate(dot(N, H));
+  float n_dot_l = saturate(dot(N, L));
+  float n_dot_v = saturate(dot(N, V)) + 1e-4;
+  float a = max(roughness, 0.02);                 // 0 にすると、点光源が 1 画素に落ちて、ちらつく
+  float F = FresnelSchlick(saturate(dot(H, V)), 0.02);
+  return sun_radiance * F * D_GGX(n_dot_h, a) * V_SmithGGX(n_dot_l, n_dot_v, a) * n_dot_l;
+}
+```
+
+**フレネル項**は、`H` と `V` の内積で、計算します（反射を起こす、微小面の向きで、角度を測る）。水の場合、`F₀ = 0.02` です。
+
+## 見た目を、決める 3 つの要素
+
+### ① 強さ（HDR）
+
+太陽の反射は、**空よりはるかに、明るい**です（太陽は、空の数万倍）。**HDR で出力**して、**ブルーム**を、かけると、**まぶしく光る**様子が出ます。LDR のまま、クランプすると、**白く、ただ飽和**するだけです（[Post-Processing](../../postprocess/index.md)）。
+
+| 太陽の、輝度（放射輝度）の目安 | 値 |
+| --- | --- |
+| 青空 | 数千 cd/m² |
+| 太陽（直視） | 10⁹ cd/m²（約 10 億） |
+
+実際の値を、そのまま使うのではなく、**露出と、ブルームを、見た目で調整**します（[Exposure](../../postprocess/tonemapping/exposure.md)）。
+
+### ② 法線の、細かさ
+
+**細かい法線**（さざ波）を、使うほど、光が、**細かく、散らばって**、きらきら光ります。**大きな波の法線だけ**だと、**1 つの、大きな光**になります（[Computing Normals](../waves/normals.md)）。
+
+### ③ 遠くの、ちらつき
+
+**遠くの水面**では、1 画素に、**多数の波が、入り**、法線が、画素ごとに、ばらついて、**光が、ちらつきます**。対策は、2 つです。
+
+| 対策 | 内容 |
+| --- | --- |
+| 距離で、粗さを、上げる | 遠くほど、`roughness` を大きくして、光を、広げて、ならす |
+| 法線の分散を、粗さに足す | 法線マップの、ミップで、失われる、ばらつきを、粗さに足す（LEAN マッピング、Olano と Baker、2010） |
+
+```hlsl
+// 距離で、粗さを上げる。
+float roughness = lerp(base_roughness, base_roughness + 0.25, saturate(dist / 300.0));
+```
+
+## 太陽以外の、光源
+
+| 光源 | 扱い |
+| --- | --- |
+| 太陽 | 上の式（方向光） |
+| 月 | 同じ式で、強さだけ、下げる |
+| 点光源（街灯、船のランプ） | 同じ式で、点光源の方向・減衰を使う。**水面に、**縦に、伸びた光の帯**が出る（波で、光源の反射が、縦に散る） |
+| 空（環境光） | 反射は、別（[Water Reflection](reflection.md)） |
+
 ## よくあるミス
 
 ??? failure "遠くの水面で、反射がちらつく"
@@ -72,9 +187,11 @@ float specular = pow(n_dot_h, shininess) * sun_intensity;
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Cox, Munk, "Measurement of the Roughness of the Sea Surface from Photographs of the Sun's Glitter", Journal of the Optical Society of America, Vol. 44, No. 11, 1954（風速と波の傾きの関係）
+- Walter, Marschner, Li, Torrance, "Microfacet Models for Refraction through Rough Surfaces", Eurographics Symposium on Rendering 2007（GGX 分布の原典）
+- Olano, Baker, "LEAN Mapping", Symposium on Interactive 3D Graphics and Games 2010
+- Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering 3.0", SIGGRAPH 2014（反射と、フレネルの扱い）
+- Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes
 
 ## 関連ページ
 

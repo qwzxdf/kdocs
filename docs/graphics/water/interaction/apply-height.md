@@ -41,6 +41,117 @@ float3 ripple_normal = normalize(float3((hl - hr) * normal_strength, 2.0 * texel
 | **解像度** | **512×512 を、20〜30 m 四方**など。**1 テクセル 5 cm 程度** |
 | **端でフェード** | **領域の端で高さを 0 に近づける**（**切れ目が見えない**） |
 
+## 波紋を、シミュレーションする（波動方程式）
+
+水面に、物が触れたとき、**波紋が、広がる**様子は、**波動方程式**を、**高さ場**（格子の、各点が、高さを持つ）で、解くと、再現できます（Tessendorf、2004、Müller、2008）。
+
+```text
+∂²h/∂t² = c² × ∇²h            h: 水面の高さ、c: 波の速さ、∇²h: 周りとの、高さの差（ラプラシアン）
+```
+
+「**周りより、高い所は、下がる方向へ、加速し、周りより低い所は、上がる方向へ、加速する**」という意味です。バネが、つながったような動きで、**波が、伝わります**。
+
+## 離散化
+
+格子の各点 `h[x, z]` を、時間ステップ `dt` ごとに、更新します。**今のフレーム**の高さ `h` と、**1 つ前のフレーム**の高さ `h_prev` を持ちます。
+
+```text
+laplacian = h[x+1,z] + h[x−1,z] + h[x,z+1] + h[x,z−1] − 4 h[x,z]
+h_new = 2 h − h_prev + (c dt / dx)² × laplacian
+h_new *= damping            （1 より少し小さい値。波が、だんだん消える）
+```
+
+| 値 | 意味 |
+| --- | --- |
+| `2 h − h_prev` | 速度（前回からの変化）を、そのまま続ける（慣性） |
+| `(c dt / dx)² × laplacian` | 周りに、引っ張られる力 |
+| `damping` | 0.99〜0.999。小さいほど、波が早く消える |
+
+!!! warning "時間ステップには、上限がある（CFL 条件）"
+    `c dt / dx` が、大きすぎると、**計算が、発散**します（波が、爆発的に、大きくなる）。2 次元の格子では、**`c dt / dx ≤ 1/√2 ≈ 0.707`** を守ります。`dx` が小さいほど、`dt` も、小さくする必要があります。**固定の時間ステップ**で、計算するのが、安全です。
+
+## 計算シェーダー
+
+3 つの高さマップ（今、前、次）を、**ローテーション**して使います。
+
+```hlsl
+Texture2D<float> g_h : register(t0);              // 現在の高さ
+Texture2D<float> g_h_prev : register(t1);         // 1 つ前
+RWTexture2D<float> g_h_next : register(u0);       // 次（出力）
+
+cbuffer WaveSimCB : register(b0) {
+  float g_wave_coeff;      // (c dt / dx)²（0.5 以下）
+  float g_damping;         // 0.995 など
+  int g_size;
+  float pad;
+};
+
+[numthreads(8, 8, 1)]
+void Step(uint3 id : SV_DispatchThreadID) {
+  int2 p = int2(id.xy);
+  float h = g_h[p];
+  float lap = g_h[min(p + int2(1, 0), g_size - 1)] + g_h[max(p - int2(1, 0), 0)]
+            + g_h[min(p + int2(0, 1), g_size - 1)] + g_h[max(p - int2(0, 1), 0)]
+            - 4.0 * h;
+  float next = 2.0 * h - g_h_prev[p] + g_wave_coeff * lap;
+  g_h_next[p] = next * g_damping;
+}
+```
+
+```cpp
+// 3 枚を、ローテーションして、毎フレーム（または、固定ステップごとに）実行する。
+std::swap(h_prev, h);          // h_prev ← 今の h
+std::swap(h, h_next);          // h ← 計算した次の h
+// （h_next は、次のステップで、上書きされる）
+context->CSSetShader(step_cs.Get(), nullptr, 0);
+ID3D11ShaderResourceView* srvs[2] = {h_srv.Get(), h_prev_srv.Get()};
+context->CSSetShaderResources(0, 2, srvs);
+context->CSSetUnorderedAccessViews(0, 1, h_next_uav.GetAddressOf(), nullptr);
+context->Dispatch(size / 8, size / 8, 1);
+```
+
+読み書きに、**同じテクスチャを、同時に使えない**ので、3 枚を、役割を替えながら使います（今を読み、前を読み、次に書く）。
+
+## 波を起こす（外力）
+
+物が水面に触れたとき、**その位置の高さを、押し下げる（または、持ち上げる）**ことで、波紋を、起こします（[Writing Object Contacts](contact.md)）。
+
+```hlsl
+// 物が、水面を押した位置に、高さを足す（ブラシ）。
+float d = distance(float2(id.xy), impact_pos);
+float push = impact_strength * saturate(1.0 - d / impact_radius);
+g_h_next[id.xy] += push;
+```
+
+## 水面メッシュに、適用する
+
+シミュレーションの結果（高さマップ）を、**水面の頂点の高さに、足し込み**ます。
+
+```hlsl
+// 頂点シェーダー: 通常の波（FFT、Gerstner）に、波紋の高さを、足す。
+float2 interaction_uv = (world_xz - g_interaction_origin) / g_interaction_size;
+float ripple = g_ripple_height.SampleLevel(g_linear_clamp, interaction_uv, 0);
+// 範囲の端では、波紋の影響を、0 にする（窓の外へ、波紋が、はみ出さないよう）
+float edge_fade = 1.0 - saturate(max(abs(interaction_uv.x - 0.5), abs(interaction_uv.y - 0.5)) * 2.0 - 0.9) * 10.0;
+world_pos.y += ripple * edge_fade;
+```
+
+**法線**も、波紋の高さから、**差分で**、求めて、水面の法線に、足します（[Computing Normals](../waves/normals.md)、傾きを足し合わせる）。
+
+## 窓を、カメラに合わせる
+
+高さマップは、**プレイヤーの周りの、数十メートル**だけを覆います（256×256 を、50 m に、割り当てて、1 画素 約 20 cm）。カメラが動くと、窓も動き、**中身を、ずらす**必要があります。**円環バッファ**（`WRAP`）を使うと、コピーなしで、窓を動かせます（[Trampled Grass](../../terrain/vegetation/trample.md) と、同じ考え方）。窓が動いたとき、**新しく、範囲に入った帯**は、**0 にクリア**します。
+
+## 性能と、品質
+
+| 項目 | 内容 |
+| --- | --- |
+| 解像度 | 256×256〜512×512。**1 画素 10〜20 cm** が、波紋の細かさの、限界 |
+| 計算量 | 1 ステップ、数万〜数十万画素。GPU では、**0.05 ms** 程度 |
+| 波の速さ | `c` を小さくすると、波紋が、**ゆっくり**広がる。見た目で調整 |
+| 減衰 | 小さい波紋は、**すぐ消える**ように、`damping` を小さめにする |
+| 反射 | 窓の端で、波が、**跳ね返る**。端で、減衰を、強くして、吸収する（スポンジ層） |
+
 ## よくあるミス
 
 ??? failure "領域の端で、波紋が途切れる"
@@ -54,9 +165,9 @@ float3 ripple_normal = normalize(float3((hl - hr) * normal_strength, 2.0 * texel
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Müller, "Fast Water Simulation for Games Using Height Fields", Game Developers Conference 2008（高さ場の波動方程式による水面）
+- Tessendorf, "Interactive Water Surfaces", Game Programming Gems 4, 2004（高さ場の、波紋の、シミュレーション）
+- Courant, Friedrichs, Lewy, "Über die partiellen Differenzengleichungen der mathematischen Physik", Mathematische Annalen, Vol. 100, 1928（CFL 条件の原典）
 
 ## 関連ページ
 

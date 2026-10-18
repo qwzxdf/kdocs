@@ -81,6 +81,122 @@ float3 final_normal = normalize(float3(wave_normal.xz + detail.xy * detail_stren
 | **法線の合成** | **XY を足し、Z は掛ける**（**Whiteout・Reoriented Normal Mapping** などの正確な合成法もある） |
 | **ワールド座標の UV** | **カメラが動いても波が水面に貼りつく** |
 
+## 法線の、3 つの源
+
+水面の、陰影を決める法線は、**複数の源を、重ねて**作ります。
+
+| 源 | 内容 | 波長の目安 |
+| --- | --- | --- |
+| 大きな波（頂点で動かすもの） | 波の式の、解析的な微分、または FFT の傾き | 数メートル以上 |
+| 中くらいの波 | ピクセルで、もう一度、波の式を計算する | 数十センチ〜数メートル |
+| 細かいさざ波 | **法線マップ**を、2 枚、逆向きに流して重ねる | 数センチ〜数十センチ |
+
+頂点の間隔より、細かい波は、**ジオメトリには、現れません**。**法線だけで、表現**します。
+
+## 解析的な法線
+
+高さ関数 `h(x, z)` が、式で書けるなら、**偏微分も、式で書けます**。法線は、`(−∂h/∂x, 1, −∂h/∂z)` を、正規化したものです。
+
+```hlsl
+// サイン波の高さの偏微分: A × ω × cos(phase) × D
+float2 slope = 0;
+[unroll] for (int i = 0; i < kWaveCount; ++i) {
+  float w = 2.0 * 3.14159265 / g_waves[i].wavelength;
+  float phase = w * dot(g_waves[i].direction, p) + g_time * g_waves[i].speed * w;
+  slope += g_waves[i].amplitude * w * cos(phase) * g_waves[i].direction;
+}
+float3 normal = normalize(float3(-slope.x, 1.0, -slope.y));
+```
+
+Gerstner 波の法線の式は、[Gerstner Waves](gerstner.md) にあります。**差分で求める**（隣の点との高さの差）方法より、**速く、正確**です。差分は、頂点の間隔より、細かい波を、取りこぼします。
+
+## 法線マップを、2 枚、流す
+
+細かいさざ波は、**タイルできる法線マップ**を使い、**向きを変えて、2 枚**を、**逆向きに、流して**重ねます。1 枚だと、**一方向に、流れているだけ**に、見えます。
+
+```hlsl
+Texture2D<float2> g_normal_map : register(t3);        // R8G8: xz の傾きを、格納
+
+float3 DetailNormal(float2 world_xz, float time) {
+  // 2 枚を、異なる大きさ、向き、速さで、読む。
+  float2 uv1 = world_xz * 0.13 + float2( 0.03, 0.02) * time;
+  float2 uv2 = world_xz * 0.07 + float2(-0.02, 0.04) * time;
+  float2 n1 = g_normal_map.Sample(g_linear_wrap, uv1) * 2.0 - 1.0;
+  float2 n2 = g_normal_map.Sample(g_linear_wrap, uv2) * 2.0 - 1.0;
+  // 傾きを足し合わせる（法線マップの、傾きは、そのまま足してよい）。
+  float2 slope = n1 + n2;
+  return normalize(float3(-slope.x, 1.0, -slope.y));
+}
+```
+
+法線ベクトルを、そのまま足すのではなく、**傾き（`xz` 成分）を、足してから、`y = 1` で正規化**します。傾きは、足し合わせて、良い量です。
+
+### 大きな波と、細かい波を、組み合わせる
+
+大きな波の、法線 `N_big` の上に、細かい波の傾きを、**乗せます**。
+
+```hlsl
+// 大きな波の法線の、傾きと、細かい波の傾きを足す（簡易な合成）。
+float2 slope_big = float2(-N_big.x, -N_big.z) / max(N_big.y, 1e-3);
+float2 slope_total = slope_big + slope_detail;
+float3 N = normalize(float3(-slope_total.x, 1.0, -slope_total.y));
+```
+
+法線マップの合成方法は、ほかにも、いくつかあります（UDN、whiteout、RNM。[Triplanar Mapping](../../terrain/texturing/triplanar.md) の、法線の混ぜ方の表を、参照）。水面は、**ほぼ水平**なので、傾きを、足す、簡易な方法で、十分です。
+
+## 距離で、弱める（エイリアシングを防ぐ）
+
+遠くの水面で、**細かい法線が、ちらつきます**。1 画素の中に、法線の細かい凹凸が、**何周期も**入るためです。距離とともに、**法線の傾きを、弱めます**。
+
+```hlsl
+// 距離に応じて、細かい波の傾きを弱める（1 画素に収まる凹凸は、平均すると、ほぼ平らになるため）。
+float fade = saturate(1.0 - (dist - fade_start) / (fade_end - fade_start));
+slope_detail *= fade;
+```
+
+| 距離 | 細かい波の傾き |
+| --- | --- |
+| 近い（〜50 m） | そのまま |
+| 中間（50〜200 m） | だんだん、弱める |
+| 遠い（200 m〜） | 0（水面は、ほぼ平ら） |
+
+ただし、**傾きを、弱めるだけだと、遠くの水面の、反射が、鏡のように**、なります。実際の水面は、細かい凹凸のために、**ぼやけた反射**になります。弱めた分は、**粗さ（roughness）に、足します**。
+
+### 法線の分散を、粗さに
+
+細かい凹凸を、**法線の、ばらつき（分散）**として、粗さへ、反映する考え方があります（LEAN マッピング、Olano と Baker、2010）。
+
+```hlsl
+// 傾きの、平均と、2 乗の平均を、ミップで、保存しておく（LEAN マッピング）。
+// ミップを下がると、傾きの平均は、0 に近づくが、「ばらつき」は、残る。
+float2 mean_slope = lean_b.Sample(g_linear_wrap, uv).xy;                 // 傾きの平均
+float3 mean_sq = lean_a.Sample(g_linear_wrap, uv).xyz;                   // 傾きの 2 乗の平均
+float2 variance = float2(mean_sq.x - mean_slope.x * mean_slope.x,
+                         mean_sq.y - mean_slope.y * mean_slope.y);
+float roughness_add = sqrt(max(variance.x + variance.y, 0.0));            // 遠くで、粗さが増える
+```
+
+法線マップを、そのまま、ミップで、平均すると、**遠くの傾きが、0 に近づいて、水面が、ピカピカの鏡**になります。LEAN マッピングは、この問題を解決する方法です。簡易には、**距離で、粗さを、上げていく**（`roughness = lerp(r0, r1, fade)`）だけでも、効果があります。
+
+## FFT 海面の法線
+
+FFT の逆変換で、**高さ**だけでなく、**傾き（∂h/∂x、∂h/∂z）**も、得られます。周波数空間で、`i k h(k)` を計算して、逆 FFT します。
+
+```hlsl
+// 傾きの、周波数空間での計算: ∂h/∂x ↔ i kx h(k)、∂h/∂z ↔ i kz h(k)
+float2 i_h = float2(-hk.y, hk.x);                // i × h
+g_slope_x_k[id.xy] = i_h * k.x;
+g_slope_z_k[id.xy] = i_h * k.y;
+```
+
+水平変位（Gerstner 波や FFT の、尖った波頭）が、あるときは、**法線に、水平変位の影響を、補正**します。
+
+```text
+N = normalize( −slope_x / (1 + ∂Dx/∂x),  1,  −slope_z / (1 + ∂Dz/∂z) )
+```
+
+波頭で、水平に頂点が、集まっているところは、**面積が小さく**、補正がないと、法線が、やや、緩く、出ます。
+
 ## よくあるミス
 
 ??? failure "水面がのっぺりして、波が見えない"
@@ -94,9 +210,10 @@ float3 final_normal = normalize(float3(wave_normal.xz + detail.xy * detail_stren
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
-- Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
-- Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
+- Finch, "Effective Water Simulation from Physical Models", GPU Gems, Chapter 1, 2004（サイン波と Gerstner 波の、GPU 実装）
+- Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（FFT による海面の合成。ほとんどの FFT 海面の、出発点）
+- Olano, Baker, "LEAN Mapping", Symposium on Interactive 3D Graphics and Games 2010（法線マップを、ミップで正しく平均する）
+- Toksvig, "Mipmapping Normal Maps", Journal of Graphics Tools, Vol. 10, No. 3, 2005
 
 ## 関連ページ
 
