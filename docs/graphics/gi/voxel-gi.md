@@ -38,93 +38,210 @@ tags:
 
 <!-- fig:voxel-cone-trace:begin -->
 
-<svg class="fig illust motion" data-fig="voxel-cone-trace" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="voxel-cone-trace" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-voxel-cone-trace" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
-<clipPath id="vx-clip"><rect x="40" y="92" width="700" height="240"/>
-</clipPath>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">コーン トレース:遠いほど、粗いミップ（大きなボクセル）を読む</text>
-<line x1="40" y1="100" x2="40" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="60" y1="100" x2="60" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="80" y1="100" x2="80" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="100" y1="100" x2="100" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="120" y1="100" x2="120" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="140" y1="100" x2="140" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="160" y1="100" x2="160" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="180" y1="100" x2="180" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="200" y1="100" x2="200" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="220" y1="100" x2="220" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="240" y1="100" x2="240" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="260" y1="100" x2="260" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="280" y1="100" x2="280" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="300" y1="100" x2="300" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="320" y1="100" x2="320" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="340" y1="100" x2="340" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="360" y1="100" x2="360" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="380" y1="100" x2="380" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="400" y1="100" x2="400" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="420" y1="100" x2="420" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="440" y1="100" x2="440" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="460" y1="100" x2="460" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="480" y1="100" x2="480" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="500" y1="100" x2="500" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="520" y1="100" x2="520" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="540" y1="100" x2="540" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="560" y1="100" x2="560" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="580" y1="100" x2="580" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="600" y1="100" x2="600" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="620" y1="100" x2="620" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="640" y1="100" x2="640" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="660" y1="100" x2="660" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="680" y1="100" x2="680" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="700" y1="100" x2="700" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="720" y1="100" x2="720" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="40" y1="100" x2="740" y2="100" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="40" y1="120" x2="740" y2="120" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="40" y1="140" x2="740" y2="140" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="40" y1="160" x2="740" y2="160" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="40" y1="180" x2="740" y2="180" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="40" y1="200" x2="740" y2="200" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="40" y1="220" x2="740" y2="220" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="40" y1="240" x2="740" y2="240" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="40" y1="260" x2="740" y2="260" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="40" y1="280" x2="740" y2="280" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="40" y1="300" x2="740" y2="300" stroke="#f1f5f9" stroke-width="1"/>
-<line x1="40" y1="320" x2="740" y2="320" stroke="#f1f5f9" stroke-width="1"/>
-<rect x="600" y="130" width="40" height="150" fill="#e5aa28"/>
-<text x="620" y="120" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5aa28">光る面</text>
-<circle cx="40" cy="200" r="8" fill="#2563eb"/>
-<polygon points="40,200 600,60.38 600,339.62" fill="#2563eb" fill-opacity="0.08" stroke="#2563eb" stroke-width="1.5"/>
-<g opacity="0" clip-path="url(#vx-clip)"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/><rect x="60.0" y="190.0" width="20" height="20" fill="#fde68a" fill-opacity="0.5" stroke="#e5aa28" stroke-width="2"/>
-<text x="70.0" y="226.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#1f2937">ミップ 0</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ボクセル コーン トレーシング: 太る円錐で進み、遠いほど「粗いボクセル」を読む</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">2 次元のボクセル(24×12)。光線ではなく、広がる円錐を 1 本飛ばして、周りの色と遮蔽を一度に集める</text>
+<rect x="30" y="96" width="596.0" height="318.0" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① ボクセル(色つきが壁・床・箱)と、円錐</text>
+<rect x="40.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="64.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="88.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="112.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="136.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="160.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="184.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="208.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="232.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="256.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="280.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="304.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="328.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="352.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="376.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="400.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="424.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="448.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="472.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="496.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="520.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="544.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="568.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="592.0" y="360.0" width="23.0" height="23.0" fill="#ccccb2" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="448.0" y="336.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="448.0" y="312.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="448.0" y="288.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="448.0" y="264.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="448.0" y="240.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="448.0" y="216.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="448.0" y="192.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="472.0" y="336.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="472.0" y="312.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="472.0" y="288.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="472.0" y="264.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="472.0" y="240.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="472.0" y="216.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="472.0" y="192.0" width="23.0" height="23.0" fill="#f2332e" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="304.0" y="336.0" width="23.0" height="23.0" fill="#f2d933" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="304.0" y="312.0" width="23.0" height="23.0" fill="#f2d933" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="328.0" y="336.0" width="23.0" height="23.0" fill="#f2d933" stroke="#ffffff" stroke-width="0.8"/>
+<rect x="328.0" y="312.0" width="23.0" height="23.0" fill="#f2d933" stroke="#ffffff" stroke-width="0.8"/>
+<circle cx="208.0" cy="359.52" r="7" fill="#1f2937"/>
+<text x="208.0" y="381.52" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">調べる点(床の上)</text>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3317;0.3319;1.0000" values="1;1;0;0"/><line x1="208.0" y1="359.52" x2="523.74" y2="474.44" stroke="#93c5fd" stroke-width="1.5" stroke-dasharray="5 4"/>
+<line x1="208.0" y1="359.52" x2="479.83" y2="162.02" stroke="#93c5fd" stroke-width="1.5" stroke-dasharray="5 4"/>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0679;0.0681;1.0000" values="0;0;1;1"/><circle cx="231.77" cy="356.18" r="12.76" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="231.77" cy="356.18" r="4" fill="#2ea043"/>
 </g>
-<g opacity="0" clip-path="url(#vx-clip)"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1553;0.1556;1.0000" values="0;0;1;1"/><rect x="84.0" y="190.0" width="20" height="20" fill="#fde68a" fill-opacity="0.5" stroke="#e5aa28" stroke-width="2"/>
-<text x="94.0" y="226.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#1f2937">ミップ 0</text>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0892;0.0894;1.0000" values="0;0;1;1"/><circle cx="255.53" cy="352.84" r="25.52" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="255.53" cy="352.84" r="4" fill="#e5484d"/>
 </g>
-<g opacity="0" clip-path="url(#vx-clip)"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2367;0.2370;1.0000" values="0;0;1;1"/><rect x="98.0" y="180.0" width="40" height="40" fill="#fcd34d" fill-opacity="0.5" stroke="#e5aa28" stroke-width="2"/>
-<text x="118.0" y="236.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#1f2937">ミップ 1</text>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1105;0.1106;1.0000" values="0;0;1;1"/><circle cx="280.81" cy="349.29" r="39.09" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="280.81" cy="349.29" r="4" fill="#e5484d"/>
 </g>
-<g opacity="0" clip-path="url(#vx-clip)"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3182;0.3185;1.0000" values="0;0;1;1"/><rect x="120.0" y="160.0" width="80" height="80" fill="#fbbf24" fill-opacity="0.5" stroke="#e5aa28" stroke-width="2"/>
-<text x="160.0" y="256.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#1f2937">ミップ 2</text>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1317;0.1319;1.0000" values="0;0;1;1"/><circle cx="319.52" cy="343.85" r="59.88" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="319.52" cy="343.85" r="4" fill="#e5484d"/>
 </g>
-<g opacity="0" clip-path="url(#vx-clip)"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/><rect x="198.0" y="160.0" width="80" height="80" fill="#fbbf24" fill-opacity="0.5" stroke="#e5aa28" stroke-width="2"/>
-<text x="238.0" y="256.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#1f2937">ミップ 2</text>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1530;0.1532;1.0000" values="0;0;1;1"/><circle cx="378.81" cy="335.51" r="91.72" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="378.81" cy="335.51" r="4" fill="#e5484d"/>
 </g>
-<g opacity="0" clip-path="url(#vx-clip)"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000" values="0;0;1;1"/><rect x="236.0" y="120.0" width="160" height="160" fill="#f59e0b" fill-opacity="0.5" stroke="#e5aa28" stroke-width="2"/>
-<text x="316.0" y="296.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#1f2937">ミップ 3</text>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1743;0.1745;1.0000" values="0;0;1;1"/><circle cx="469.64" cy="322.75" r="140.48" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="469.64" cy="322.75" r="4" fill="#e5484d"/>
 </g>
-<g opacity="0" clip-path="url(#vx-clip)"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5627;0.5630;1.0000" values="0;0;1;1"/><rect x="386.0" y="120.0" width="160" height="160" fill="#f59e0b" fill-opacity="0.5" stroke="#e5aa28" stroke-width="2"/>
-<text x="466.0" y="296.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#1f2937">ミップ 3</text>
+<text x="560" y="120" text-anchor="start" style="font-size:16px;font-weight:700;fill:#7c3aed">円錐 1(角度 8°)</text>
 </g>
-<text x="40" y="60" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 1:円錐の幅 ≒ 20 → ミップ 0（1 辺 20）を読む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.1553;0.1556;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="60" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 2:円錐の幅 ≒ 27 → ミップ 0（1 辺 20）を読む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1553;0.1556;0.2367;0.2370;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="60" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 3:円錐の幅 ≒ 39 → ミップ 1（1 辺 40）を読む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2367;0.2370;0.3182;0.3185;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="60" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 4:円錐の幅 ≒ 60 → ミップ 2（1 辺 80）を読む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3182;0.3185;0.3997;0.4000;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="60" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 5:円錐の幅 ≒ 99 → ミップ 2（1 辺 80）を読む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;0.4812;0.4815;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="60" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 6:円錐の幅 ≒ 138 → ミップ 3（1 辺 160）を読む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;0.5627;0.5630;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="60" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ステップ 7:円錐の幅 ≒ 212 → ミップ 3（1 辺 160）を読む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5627;0.5630;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="40" y="396" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">近くは細かいボクセル、遠くは粗いミップ。少ない読み取りで、広い範囲の光を集められる（拡散は 5〜6 本の円錐）。</text>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3317;0.3319;0.6211;0.6213;1.0000" values="0;0;1;1;0;0"/><line x1="208.0" y1="359.52" x2="543.18" y2="336.08" stroke="#93c5fd" stroke-width="1.5" stroke-dasharray="5 4"/>
+<line x1="208.0" y1="359.52" x2="376.0" y2="68.54" stroke="#93c5fd" stroke-width="1.5" stroke-dasharray="5 4"/>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3573;0.3574;1.0000" values="0;0;1;1"/><circle cx="228.35" cy="346.8" r="12.76" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="228.35" cy="346.8" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3786;0.3787;1.0000" values="0;0;1;1"/><circle cx="248.71" cy="334.08" r="25.52" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="248.71" cy="334.08" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3998;0.4000;1.0000" values="0;0;1;1"/><circle cx="270.35" cy="320.56" r="39.09" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="270.35" cy="320.56" r="4" fill="#e5484d"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4211;0.4213;1.0000" values="0;0;1;1"/><circle cx="303.5" cy="299.84" r="59.88" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="303.5" cy="299.84" r="4" fill="#e5484d"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4424;0.4426;1.0000" values="0;0;1;1"/><circle cx="354.28" cy="268.11" r="91.72" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="354.28" cy="268.11" r="4" fill="#e5484d"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4637;0.4638;1.0000" values="0;0;1;1"/><circle cx="432.06" cy="219.51" r="140.48" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="432.06" cy="219.51" r="4" fill="#e5484d"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4849;0.4851;1.0000" values="0;0;1;1"/><circle cx="551.2" cy="145.07" r="215.18" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="551.2" cy="145.07" r="4" fill="#2ea043"/>
+</g>
+<text x="560" y="120" text-anchor="start" style="font-size:16px;font-weight:700;fill:#7c3aed">円錐 2(角度 32°)</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6211;0.6213;1.0000" values="0;0;1;1"/><line x1="208.0" y1="359.52" x2="486.56" y2="171.63" stroke="#93c5fd" stroke-width="1.5" stroke-dasharray="5 4"/>
+<line x1="208.0" y1="359.52" x2="208.0" y2="23.52" stroke="#93c5fd" stroke-width="1.5" stroke-dasharray="5 4"/>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6466;0.6468;1.0000" values="0;0;1;1"/><circle cx="219.27" cy="338.33" r="12.76" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="219.27" cy="338.33" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6679;0.6681;1.0000" values="0;0;1;1"/><circle cx="230.53" cy="317.14" r="25.52" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="230.53" cy="317.14" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6892;0.6894;1.0000" values="0;0;1;1"/><circle cx="242.52" cy="294.6" r="39.09" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="242.52" cy="294.6" r="4" fill="#e5484d"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.7105;0.7106;1.0000" values="0;0;1;1"/><circle cx="260.87" cy="260.09" r="59.88" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="260.87" cy="260.09" r="4" fill="#2ea043"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.7317;0.7319;1.0000" values="0;0;1;1"/><circle cx="288.98" cy="207.22" r="91.72" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="288.98" cy="207.22" r="4" fill="#e5484d"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.7530;0.7532;1.0000" values="0;0;1;1"/><circle cx="332.04" cy="126.24" r="140.48" fill="#60a5fa" fill-opacity="0.14" stroke="#3b82f6" stroke-width="1.5"/>
+<circle cx="332.04" cy="126.24" r="4" fill="#2ea043"/>
+</g>
+<text x="560" y="120" text-anchor="start" style="font-size:16px;font-weight:700;fill:#7c3aed">円錐 3(角度 62°)</text>
+</g>
+<rect x="690" y="96" width="240" height="330" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
+<text x="690" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">② 進むたびの読み込み</text>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3317;0.3319;1.0000" values="1;1;0;0"/><g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0679;0.0681;1.0000" values="0;0;1;1"/><text x="702" y="130" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 1: 幅 1.1 → ミップ 0</text>
+<text x="915" y="130" text-anchor="end" style="font-size:11px;font-weight:700;fill:#64748b">遮蔽 0.00</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0892;0.0894;1.0000" values="0;0;1;1"/><text x="702" y="151" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 2: 幅 2.1 → ミップ 1</text>
+<text x="915" y="151" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5484d">遮蔽 0.65</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1105;0.1106;1.0000" values="0;0;1;1"/><text x="702" y="172" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 3: 幅 3.3 → ミップ 2</text>
+<text x="915" y="172" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5484d">遮蔽 0.82</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1317;0.1319;1.0000" values="0;0;1;1"/><text x="702" y="193" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 4: 幅 5.0 → ミップ 2</text>
+<text x="915" y="193" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5484d">遮蔽 0.91</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1530;0.1532;1.0000" values="0;0;1;1"/><text x="702" y="214" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 5: 幅 7.6 → ミップ 3</text>
+<text x="915" y="214" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5484d">遮蔽 0.93</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1743;0.1745;1.0000" values="0;0;1;1"/><text x="702" y="235" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 6: 幅 11.7 → ミップ 3</text>
+<text x="915" y="235" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5484d">遮蔽 0.96</text>
+</g>
+<text x="702" y="392" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">集めた色:</text>
+<rect x="780" y="376" width="60" height="22" fill="#c8c29d" stroke="#334155" stroke-width="1.5"/>
+<text x="850" y="392" text-anchor="start" style="font-size:13px;font-weight:700;fill:#7c3aed">遮蔽 0.96</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3317;0.3319;0.6211;0.6213;1.0000" values="0;0;1;1;0;0"/><g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3573;0.3574;1.0000" values="0;0;1;1"/><text x="702" y="130" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 1: 幅 1.1 → ミップ 0</text>
+<text x="915" y="130" text-anchor="end" style="font-size:11px;font-weight:700;fill:#64748b">遮蔽 0.00</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3786;0.3787;1.0000" values="0;0;1;1"/><text x="702" y="151" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 2: 幅 2.1 → ミップ 1</text>
+<text x="915" y="151" text-anchor="end" style="font-size:11px;font-weight:700;fill:#64748b">遮蔽 0.00</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3998;0.4000;1.0000" values="0;0;1;1"/><text x="702" y="172" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 3: 幅 3.3 → ミップ 2</text>
+<text x="915" y="172" text-anchor="end" style="font-size:11px;font-weight:700;fill:#64748b">遮蔽 0.49</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4211;0.4213;1.0000" values="0;0;1;1"/><text x="702" y="193" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 4: 幅 5.0 → ミップ 2</text>
+<text x="915" y="193" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5484d">遮蔽 0.74</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4424;0.4426;1.0000" values="0;0;1;1"/><text x="702" y="214" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 5: 幅 7.6 → ミップ 3</text>
+<text x="915" y="214" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5484d">遮蔽 0.80</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4637;0.4638;1.0000" values="0;0;1;1"/><text x="702" y="235" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 6: 幅 11.7 → ミップ 3</text>
+<text x="915" y="235" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5484d">遮蔽 0.89</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4849;0.4851;1.0000" values="0;0;1;1"/><text x="702" y="256" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 7: 幅 17.9 → ミップ 3</text>
+<text x="915" y="256" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5484d">遮蔽 0.89</text>
+</g>
+<text x="702" y="392" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">集めた色:</text>
+<rect x="780" y="376" width="60" height="22" fill="#c2b075" stroke="#334155" stroke-width="1.5"/>
+<text x="850" y="392" text-anchor="start" style="font-size:13px;font-weight:700;fill:#7c3aed">遮蔽 0.89</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6211;0.6213;1.0000" values="0;0;1;1"/><g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6466;0.6468;1.0000" values="0;0;1;1"/><text x="702" y="130" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 1: 幅 1.1 → ミップ 0</text>
+<text x="915" y="130" text-anchor="end" style="font-size:11px;font-weight:700;fill:#64748b">遮蔽 0.00</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6679;0.6681;1.0000" values="0;0;1;1"/><text x="702" y="151" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 2: 幅 2.1 → ミップ 1</text>
+<text x="915" y="151" text-anchor="end" style="font-size:11px;font-weight:700;fill:#64748b">遮蔽 0.00</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6892;0.6894;1.0000" values="0;0;1;1"/><text x="702" y="172" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 3: 幅 3.3 → ミップ 2</text>
+<text x="915" y="172" text-anchor="end" style="font-size:11px;font-weight:700;fill:#64748b">遮蔽 0.49</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.7105;0.7106;1.0000" values="0;0;1;1"/><text x="702" y="193" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 4: 幅 5.0 → ミップ 2</text>
+<text x="915" y="193" text-anchor="end" style="font-size:11px;font-weight:700;fill:#64748b">遮蔽 0.49</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.7317;0.7319;1.0000" values="0;0;1;1"/><text x="702" y="214" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 5: 幅 7.6 → ミップ 3</text>
+<text x="915" y="214" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5484d">遮蔽 0.61</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.7530;0.7532;1.0000" values="0;0;1;1"/><text x="702" y="235" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">歩 6: 幅 11.7 → ミップ 3</text>
+<text x="915" y="235" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5484d">遮蔽 0.61</text>
+</g>
+<text x="702" y="392" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">集めた色:</text>
+<rect x="780" y="376" width="60" height="22" fill="#858053" stroke="#334155" stroke-width="1.5"/>
+<text x="850" y="392" text-anchor="start" style="font-size:13px;font-weight:700;fill:#7c3aed">遮蔽 0.61</text>
+</g>
+<text x="40" y="452" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">円錐 1 本あたりの歩数:</text>
+<text x="240" y="456" text-anchor="start" style="font-size:22px;font-weight:700;fill:#2563eb" opacity="1">0<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1956;0.1957;1.0000" values="1;1;0;0"/></text>
+<text x="240" y="456" text-anchor="start" style="font-size:22px;font-weight:700;fill:#2563eb" opacity="0">6<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1956;0.1957;0.5062;0.5064;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="240" y="456" text-anchor="start" style="font-size:22px;font-weight:700;fill:#2563eb" opacity="0">7<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.5062;0.5064;0.7743;0.7745;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="240" y="456" text-anchor="start" style="font-size:22px;font-weight:700;fill:#2563eb" opacity="0">6<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.7743;0.7745;1.0000" values="0;0;1;1"/></text>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.8892;0.8894;1.0000" values="0;0;1;1"/><rect x="330" y="436" width="600" height="80" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="346" y="460" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">円錐 3 本で 19 歩。1 歩ごとに、広い範囲を 1 回で読める</text>
+<text x="346" y="484" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">最後の幅は 12 ボクセル。細い光線なら、同じ幅を埋めるのに 12 本ずつ必要</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">細い光線を何百本も飛ばす代わりに、広がる円錐を数本飛ばす<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0424;0.0426;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">遠くなるほど円錐が太くなり、粗い(ぼかした)ボクセルを読む<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0424;0.0426;0.9105;0.9106;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">遮蔽が十分に溜まったら終わり。壁の赤い色が、床へにじむ<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.9105;0.9106;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:voxel-cone-trace:end -->
