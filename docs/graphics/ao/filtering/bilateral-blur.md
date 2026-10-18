@@ -6,13 +6,13 @@ tags:
 
 # Bilateral Blur
 
-<strong>AO のノイズを消すには、ぼかすのが基本</strong>ですが、<strong>普通のぼかしは、物体の境界（エッジ）をまたいでにじみ、境界に黒や白のハロー</strong>ができます。深度や法線が近い画素だけを混ぜる「バイラテラル ブラー」なら、エッジを保ったままノイズだけ消せます。このページでは、バイラテラル ブラーの考え方・重みの付け方・実装・パラメータを説明します。
+<strong>AO のノイズを消すにはぼかすのが基本</strong>ですが、<strong>普通のぼかしは物体の境界（エッジ）をまたいでにじみ境界に黒や白のハロー</strong>ができます。深度や法線が近い画素だけを混ぜる「バイラテラル ブラー」ならエッジを保ったままノイズだけ消せます。このページではバイラテラル ブラーの考え方・重みの付け方・実装・パラメータを説明します。
 
 !!! tip "ポイント"
-    - バイラテラル ブラー ＝ 空間的に近く、かつ、深度・法線も近い画素だけを混ぜる。
+    - バイラテラル ブラー ＝ 空間的に近くかつ深度・法線も近い画素だけを混ぜる。
     - エッジをまたがないのでハローが出ない。
     - 横 → 縦の 2 パスに分離する（厳密には分離できないが、実用上は十分）。
-    - 重みは、ガウス ×（深度の差の重み）×（法線の差の重み）。
+    - 重みはガウス ×（深度の差の重み）×（法線の差の重み）。
 
 ## 空間フィルタ：バイラテラル ブラー
 <!-- fig:bilateral-blur:begin -->
@@ -329,11 +329,11 @@ tags:
 
 ### 通常のぼかしの問題
 
-AO の画像を<strong>そのままぼかす</strong>と<strong>物体の境界</strong>で手前の物体の AO と、奥の物体の AO が混ざります。手前の物体の縁に暗い輪が出たり、接地の暗さがにじんで広がることがあります。
+AO の画像を<strong>そのままぼかす</strong>と<strong>物体の境界</strong>で手前の物体の AO と、奥の物体の AO が混ざります。手前の物体の縁に暗い輪が出たり接地の暗さがにじんで広がることがあります。
 
 ### バイラテラル：「近いもの」だけを混ぜる
 
-<strong>バイラテラル フィルタ</strong>は、中心の画素と<strong>似た画素だけ</strong>を、重み付きで混ぜます。似ているとは、AO では深度（と法線）が近いことです。
+<strong>バイラテラル フィルタ</strong>は中心の画素と<strong>似た画素だけ</strong>を重み付きで混ぜます。似ているとは AO では深度（と法線）が近いことです。
 
 <div class="formula">AO′(p) = Σ_q w(p, q) · AO(q) / Σ_q w(p, q)　、　w = w_空間 · w_深度 · w_法線</div>
 
@@ -368,22 +368,93 @@ float BilateralBlur(float2 uv, float2 dir) {
 
 | 点 | 説明 |
 | --- | --- |
-| 深度の差を中心の深度で割る | 遠いほど、深度の差が大きく出るので、相対的な差で比べる |
-| `depth_sharpness` | 大きいほど、境界を厳しく守る |
+| 深度の差を中心の深度で割る | 遠いほど深度の差が大きく出るので、相対的な差で比べる |
+| `depth_sharpness` | 大きいほど境界を厳しく守る |
 | ポイント サンプリング | AO と深度は、補間せずに読む |
 
 ### 分離可能にする（横 → 縦）
 
-2D のぼかしを<strong>横 1 回 ＋ 縦 1 回</strong>に分けると、<strong>N² → 2N</strong> 回の読み込みで済みます。バイラテラルは、厳密には分離できません（重みが、2D の位置に依存）が、実用上は分離して近似します。
+2D のぼかしを<strong>横 1 回 ＋ 縦 1 回</strong>に分けると、<strong>N² → 2N</strong> 回の読み込みで済みます。バイラテラルは厳密には分離できません（重みが、2D の位置に依存）が実用上は分離して近似します。
 
 | 方式 | 読み込み回数（半径 4 の例） | 品質 |
 | --- | --- | --- |
 | <strong>2D（全画素）</strong> | 81 | 正確 |
 | <strong>分離（横 → 縦）</strong> | 18 | 縦横の斜めでわずかな乱れ |
 
-### 4×4 ノイズに合わせた、ボックス ぼかし
+### 4×4 ノイズに合わせたボックス ぼかし
 
-<strong>4×4 のノイズ テクスチャ</strong>を使った SSAO（[Hemisphere SSAO](../ssao-hemisphere.md)）では<strong>ノイズが 4 画素周期</strong>で繰り返すので、4×4 のボックス ぼかしで、周期のパターンがちょうど消えます。深度の重み付きにすれば、境界も守れます。
+<strong>4×4 のノイズ テクスチャ</strong>を使った SSAO（[Hemisphere SSAO](../ssao-hemisphere.md)）では<strong>ノイズが 4 画素周期</strong>で繰り返すので、4×4 のボックス ぼかしで、周期のパターンがちょうど消えます。深度の重み付きにすれば境界も守れます。
+
+## DirectX 11 で、2 パスにつなぐ
+
+バイラテラル ブラーは <strong>横と縦の 2 パス</strong>で、フルスクリーン三角形で行います（[D3D11 Pass Recipes](../../../directx/dx11/pass-recipes.md)）。
+
+```cpp
+// 入力: AO（R8_UNORM）、深度、法線。出力: 横ブラーの結果 → 縦ブラーの結果。
+struct BlurCB {
+  DirectX::XMFLOAT2 direction;      // (1, 0) で横、(0, 1) で縦
+  DirectX::XMFLOAT2 texel_size;     // 1 ピクセルの大きさ（UV）
+  float depth_sharpness;            // 大きいほど、境界を厳しく守る
+  float pad[3];
+};
+
+// 横ブラー: ao_raw → ao_temp
+SetBlurConstants({1, 0}, texel, 16.0f);
+context->OMSetRenderTargets(1, ao_temp_rtv.GetAddressOf(), nullptr);
+ID3D11ShaderResourceView* srvs_h[] = {ao_raw_srv.Get(), depth_srv.Get(), normal_srv.Get()};
+context->PSSetShaderResources(0, 3, srvs_h);
+DrawFullscreenTriangle();
+
+// 縦ブラー: ao_temp → ao_blurred（同じテクスチャを、読み書きしない。別のテクスチャに出す）
+SetBlurConstants({0, 1}, texel, 16.0f);
+context->OMSetRenderTargets(1, ao_blurred_rtv.GetAddressOf(), nullptr);
+ID3D11ShaderResourceView* srvs_v[] = {ao_temp_srv.Get(), depth_srv.Get(), normal_srv.Get()};
+context->PSSetShaderResources(0, 3, srvs_v);
+DrawFullscreenTriangle();
+```
+
+2 つのパスの間で書き込みの束縛を外してから、読み取りに切り替えます（読みながら書けない）。AO はポイント サンプラーで読み <strong>隣の画素と補間しない</strong>ようにします（補間すると境界を、またいで混ざります）。
+
+## ガウスの重みを作る
+
+空間の重み（距離が近いほど大）はガウス関数で、起動時に計算して定数にします。
+
+```cpp
+// 半径 radius のガウスの重み（中心から片側 radius+1 個）を、合計が 1 になるように、正規化して作る。
+std::vector<float> MakeGaussianWeights(int radius, float sigma) {
+  std::vector<float> w(radius + 1);
+  float sum = 0.0f;
+  for (int i = 0; i <= radius; ++i) {
+    w[i] = std::exp(-0.5f * (i * i) / (sigma * sigma));
+    sum += (i == 0) ? w[i] : 2.0f * w[i];                    // 中心以外は、左右の 2 回ぶん
+  }
+  for (float& v : w) v /= sum;
+  return w;
+}
+// radius = 4、sigma = 2 など。シェーダーの定数配列に渡す。
+```
+
+## パラメータの目安
+
+| パラメータ | 目安 | 効き方 |
+| --- | --- | --- |
+| 半径（片側） | 2〜4 画素 | 大きいほどノイズが消えるが、読み込みが増える。ノイズの周期（4×4）に合わせる |
+| `depth_sharpness` | 8〜32 | 大きいほど境界を厳しく守る（ハローは減るが、ノイズが境界の近くに残る） |
+| 法線の指数 | 4〜16 | 大きいほど向きの違う面を混ぜない |
+| 解像度 | AO と同じ | 半分の解像度の AO なら半分の解像度で、ぼかす（その後、アップサンプル） |
+
+読み込みの回数は半径 4 の分離ぼかしで、1 画素あたり約 18 回（横 9 + 縦 9）。深度と法線も読むので実際は約 3 倍の読み込みです。半分の解像度で行うとピクセル数が 1/4 になりこれが、大きな節約になります（[Upsampling](upsample.md)）。
+
+## 見た目の確認
+
+ぼかしの効きは <strong>AO だけを画面に出して</strong>確認します。
+
+| 見え方 | 原因 |
+| --- | --- |
+| 物の輪郭に黒い縁・白い縁 | 境界をまたいで、混ぜている。`depth_sharpness` を上げる。法線の重みを足す |
+| 平らな面にざらざらが残る | 半径が小さいまたは、サンプル数が少ない。半径を上げる時間蓄積を足す |
+| 細い物の AO が消える | 深度の重みが、強すぎて周りを混ぜられない。値を少し下げる |
+| 遠くの AO がにじむ | 深度の差を中心の深度で、割っていない（相対差にする） |
 
 ## よくあるミス
 

@@ -201,6 +201,61 @@ float InterleavedGradientNoise(float2 pixel) {
 
 さらに、空間（画素）と時間（フレーム）の両方でずらせば、「ある画素で何フレーム経っても同じ向き」や「ある瞬間に画面全体で同じ向き」を避けられます。
 
+## ノイズを、作るコード
+
+AO のサンプルの向きは、画素ごとに、ずらします。ずらす値（ノイズ）は、シェーダーの中で、計算で作れます。
+
+### Interleaved Gradient Noise（IGN）
+
+画素の座標だけから、ブルー ノイズに近い値を、1 行で作ります（Jimenez）。テクスチャを読まないので、安く、TAA と相性が良いです。
+
+```hlsl
+// 画素の座標（SV_Position.xy）から、0〜1 のノイズを作る。
+float InterleavedGradientNoise(float2 pixel) {
+  return frac(52.9829189 * frac(dot(pixel, float2(0.06711056, 0.00583715))));
+}
+
+// フレームごとに、ずらして、時間方向にも、ばらつかせる（TAA や時間蓄積が、平均してくれる）。
+float IgnTemporal(float2 pixel, uint frame) {
+  return InterleavedGradientNoise(pixel + 5.588238 * (frame % 64));
+}
+```
+
+### ブルー ノイズ テクスチャ
+
+あらかじめ作った、ブルー ノイズの、小さな画像（64×64 など）を、画面に敷き詰めて、読みます。
+
+```hlsl
+Texture2D<float> g_blue_noise : register(t6);      // 64×64、R8_UNORM。WRAP サンプラーで、繰り返す
+
+float BlueNoise(uint2 pixel, uint frame) {
+  float n = g_blue_noise.Load(int3(pixel % 64, 0));
+  // 黄金比で、フレームごとにずらす（0〜1 を、均等に巡る）。
+  return frac(n + 0.61803398875 * (frame % 64));
+}
+```
+
+| 方式 | 見た目 | コスト |
+| --- | --- | --- |
+| `frac(sin(…))` のハッシュ | 白色ノイズ。粒が目立つ | 最小（ただし、GPU ごとに、結果が違う） |
+| IGN | ブルー ノイズに近い。縞は出にくい | 最小（計算だけ） |
+| ブルー ノイズ テクスチャ | 最も、粒が細かく、均一 | 読み込み 1 回 |
+| 4×4 のタイル テクスチャ | 4 画素周期の模様が出る。4×4 のぼかしで消せる | 読み込み 1 回 |
+
+### ノイズを、サンプルの向きに使う
+
+```hlsl
+float noise = IgnTemporal(pos.xy, g_frame_index);               // 0〜1
+float rotation = noise * 6.2831853;                             // 画素ごとに、サンプル全体を、回す角度
+float2x2 rot = float2x2(cos(rotation), -sin(rotation), sin(rotation), cos(rotation));
+for (int i = 0; i < kSamples; ++i) {
+  float2 offset = mul(kernel[i].xy, rot);                       // 回したサンプル位置で、深度を読む
+  ...
+}
+```
+
+回転の角度が、画素ごとに違うので、同じ向きの取りこぼし（縞）が、細かい粒に変わり、ぼかしと、時間蓄積で、均されます。フレームごとに、ずらすのは、<strong>1 フレームだけでは、足りない分を、時間で、補う</strong>ためです（[Temporal Accumulation](temporal.md)）。
+
 ## よくあるミス
 
 ??? failure "ノイズを全画素で同じにして、規則的な縞が見える"
