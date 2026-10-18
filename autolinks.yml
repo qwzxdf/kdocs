@@ -33,6 +33,7 @@ basics/big-o.md#on: [O(n)]
 basics/big-o.md#onlogn: [O(n log n)]
 basics/big-o.md#on2: [O(n²), O(n^2)]
 basics/ub.md: [未定義動作, AddressSanitizer]
+basics/bit-operations.md: [ビット演算, ビットフラグ, ビットマスク, ビットシフト]
 basics/cache.md: [キャッシュ効率, キャッシュミス, キャッシュ]
 basics/concurrency.md: [並行処理, マルチスレッド, データ競争, デッドロック]
 
