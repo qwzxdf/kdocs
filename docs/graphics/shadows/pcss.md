@@ -376,7 +376,10 @@ PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上�
 
 ## 参考
 
-- Fernando, "Percentage-Closer Soft Shadows"（SIGGRAPH 2005 Sketches、NVIDIA）
+- Fernando, "Percentage-Closer Soft Shadows", SIGGRAPH 2005 Sketches
+- Reeves, Salesin, Cook, "Rendering Antialiased Shadows with Depth Maps", SIGGRAPH 1987
+- Annen, Mertens, Bekaert, Seidel, Sillion, "Convolution Shadow Maps", Eurographics Symposium on Rendering 2007
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018
 
 ## 関連ページ
 

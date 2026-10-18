@@ -314,6 +314,64 @@ tags:
 
 <!-- fig:shadow-map-probe:end -->
 
+## シャドウ マップの、考え方
+
+**「光から見えない所が、影」** という、単純な、考え方から、シャドウ マップは、できています（Williams、1978）。
+
+1. **光の位置**に、カメラを置いて、シーンを描き、**光から、一番近い物までの、距離（深度）**を、テクスチャに、保存する（**シャドウ マップ**）
+2. 普通に、カメラから、シーンを描くとき、**画素ごとに**、「この点を、**光から見たら**、どこに映り、**光からの距離**は、いくつか」を、求める
+3. その距離が、シャドウ マップに、保存された**深度より、遠い**なら、**光との間に、別の物がある**（影の中）。**ほぼ同じ**なら、**光が、当たる**
+
+```text
+光 ●────────●────────●
+        遮蔽物      地面
+        深度 5      深度 10   ← シャドウ マップには、深度 5（遮蔽物）が保存されている
+地面の点を、光から見ると、深度 10。保存された 5 より、遠い → 影の中
+```
+
+## 全体の、流れ
+
+| 段階 | 内容 | 描くもの |
+| --- | --- | --- |
+| ① シャドウ パス | 光の視点で、**深度だけ**を、描く | シャドウ マップ（深度テクスチャ） |
+| ② メイン パス | カメラの視点で、描く。**各画素で**、光の座標系に、変換して、シャドウ マップを、比べる | 最終の色 |
+
+①は、**色を、計算しない**ので、**非常に軽く**（深度だけ）、②では、**1 画素あたり、テクスチャ読み込み 1 回（比較つき）**が、増えます。
+
+## 光の種類ごとの、カメラ
+
+| 光 | 光の視点の、射影 | シャドウ マップの数 |
+| --- | --- | --- |
+| 平行光源（太陽） | **正射影**（平行投影） | 1 枚（広い場所では、複数。[CSM](../cascaded.md)） |
+| スポットライト | **透視投影**（円錐の、開き角が、視野角） | 1 枚 |
+| 点光源 | 全方向。**6 面のキューブマップ**（各面が、90° の透視投影） | 6 枚 |
+
+## シャドウ マップの、課題
+
+シャドウ マップは、**解像度に、限りのある、深度の画像**です。そのため、次の、問題が、避けられません。
+
+| 問題 | 原因 | 対策 |
+| --- | --- | --- |
+| **影の、ジャギー**（階段状の、縁） | 解像度が、足りない（シャドウ マップの 1 画素が、画面の複数画素に、拡大） | フィルタリング（[PCF](../pcf.md)）、解像度を、上げる、カスケード |
+| **シャドウ アクネ**（縞模様の、自己影） | 深度の、精度の誤差と、斜めの面で、自分自身を、遮蔽 | **バイアス**（[Shadow Bias](../bias/index.md)） |
+| **ピーター パンニング**（影が、物から、浮く） | バイアスが、大きすぎる | バイアスを、適切に、小さく、法線オフセット |
+| **影が、ちらつく**（カメラの動きで） | シャドウ マップの、画素の位置が、フレームごとに、ずれる | **テクセル スナップ**（[Aliasing and Stabilization](aliasing-stabilize.md)） |
+| 遠くで、解像度が、足りない | 太陽の、シャドウ マップが、広い範囲を、覆う | **カスケード**（[CSM](../cascaded.md)） |
+| 影の縁が、硬い | 点光源の、仮定 | [PCSS](../pcss.md)、[VSM](../vsm/index.md) |
+
+## 実装の、順序
+
+シャドウ マップは、次の、順で、作ります。
+
+1. [Rendering Depth](render-depth.md)：光の視点で、深度を、描く
+2. [The Light Matrix](light-matrix.md)：光の、ビュー・射影行列を、作る
+3. [Comparison Samplers](comparison-sampler.md)：シャドウ マップを、読み、比較する
+4. [Shadow Bias](../bias/index.md)：自己影を、防ぐ
+5. [Aliasing and Stabilization](aliasing-stabilize.md)：ちらつきを、抑える
+6. [PCF](../pcf.md)：縁を、なめらかにする
+
+[Minimal Code](minimal-code.md) に、全体を、通した、最小の、コードが、あります。
+
 ## よくあるミス
 
 ??? failure "影が出ない・全面が影になる"
@@ -328,8 +386,10 @@ tags:
 
 ## 参考
 
-- Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Williams, "Casting Curved Shadows on Curved Surfaces", SIGGRAPH 1978（シャドウ マップの原典）
+- Brabec, Annen, Seidel, "Practical Shadow Mapping", Journal of Graphics Tools, Vol. 7, No. 4, 2002
+- Microsoft Learn, "Common Techniques to Improve Shadow Depth Maps"（Direct3D 11 のドキュメント。バイアス、平行光源、PCF）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（影の章）
 
 ## 関連ページ
 

@@ -116,8 +116,11 @@ tags:
 
 ## 参考
 
-- Eisemann et al., "Real-Time Shadows"（CRC Press、2011）
-- Scherzer, Wimmer, Purgathofer, "A Survey of Real-Time Hard Shadow Mapping Methods"（Eurographics STAR 2010）
+- Reeves, Salesin, Cook, "Rendering Antialiased Shadows with Depth Maps", SIGGRAPH 1987
+- Dimitrov, "Cascaded Shadow Maps", NVIDIA White Paper, 2007
+- Donnelly, Lauritzen, "Variance Shadow Maps", Symposium on Interactive 3D Graphics and Games 2006
+- Wright, "Dynamic Occlusion with Signed Distance Fields", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018
 
 ## 関連ページ
 

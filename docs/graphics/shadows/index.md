@@ -102,6 +102,13 @@ float3 color = direct + ambient;
 
 **描画コストの減らし方**は、[描画最適化の「影のコスト」](../../rendering/shadows.md)にまとめています。**このセクションは、手法の原理と品質**を扱います。
 
+## 参考
+
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018
+- Reeves, Salesin, Cook, "Rendering Antialiased Shadows with Depth Maps", SIGGRAPH 1987
+- Dimitrov, "Cascaded Shadow Maps", NVIDIA White Paper, 2007
+- Williams, "Casting Curved Shadows on Curved Surfaces", SIGGRAPH 1978
+
 ## 関連ページ
 
 - [描画](../index.md)

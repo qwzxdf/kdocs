@@ -373,9 +373,11 @@ shadow = lerp(1.0, shadow, fade);
 
 ## 参考
 
-- Dimitrov, "Cascaded Shadow Maps"（NVIDIA 2007）
-- Zhang et al., "Parallel-Split Shadow Maps for Large-scale Virtual Environments"（VRCIA 2006）
-- Microsoft, "Cascaded Shadow Maps"（DirectX ドキュメント）
+- Engel, "Cascaded Shadow Maps", ShaderX5, 2006
+- Dimitrov, "Cascaded Shadow Maps", NVIDIA White Paper, 2007
+- Zhang, Sun, Zhu, "Parallel-Split Shadow Maps for Large-Scale Virtual Environments", VRCIA 2006
+- Valient, "Stable Rendering of Cascaded Shadow Maps", ShaderX6, 2008
+- Lloyd, Govindaraju, Quammen, Molnar, Manocha, "Logarithmic Perspective Shadow Maps", ACM Transactions on Graphics, Vol. 27, No. 4, 2008
 
 ## 関連ページ
 

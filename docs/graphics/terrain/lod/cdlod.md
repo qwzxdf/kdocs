@@ -504,7 +504,9 @@ for (int j = 0; j < kGridCells; ++j) {
 
 ## DirectX 11 で描く
 
-ノードごとに変わる値は、**インスタンス データ**として、頂点バッファに積みます。1 回の `DrawIndexedInstanced` で、選ばれたすべてのノードを描けます。
+ノードごとに変わる値は、**インスタンス データ**として、頂点バッファに積みます。1 回の `DrawIndexedInstanced` で、選ばれたすべてのノードを描けます。順に、コードを見ていきます。
+
+### ノードごとのデータを、決める
 
 ```cpp
 // ノードごとのデータ。インスタンス バッファに、ノードの数だけ並べる。
@@ -515,20 +517,44 @@ struct NodeInstance {
   float morph_start, morph_end;  // モーフィングを始める距離、終える距離
   float pad[2];
 };
+```
 
+1 つのノードを描くのに、必要な情報は、**どこに置くか**（`origin`）、**どれだけ大きいか**（`size`）、**どの細かさか**（`level`）、**いつから寄せ始めるか**（`morph_start`、`morph_end`）の、5 つだけです。最後の `pad` は、**構造体の大きさを、32 バイト**にそろえるための、詰め物です（GPU は、16 バイトの倍数の並びを、扱いやすい）。
+
+### 頂点バッファを、2 本つなぐ入力レイアウト
+
+```cpp
 // 入力レイアウト: 0 番スロット = 格子の頂点、1 番スロット = インスタンス
 D3D11_INPUT_ELEMENT_DESC layout[] = {
     {"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
     {"NODE", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1},
     {"MORPH", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1},
 };
+```
 
+入力レイアウトは、「**バッファの、どの位置の、何バイトを、シェーダーの、どの入力として、読むか**」を、GPU に伝える表です。
+
+- 1 行目の `POSITION` は、**スロット 0**（格子の頂点バッファ）から読み、`PER_VERTEX_DATA` なので、**頂点ごとに、次の値**へ進みます
+- 2 行目の `NODE` は、**スロット 1**（インスタンス バッファ）の、先頭から 16 バイト（`origin_x`、`origin_z`、`size`、`level`）を読みます。最後の `1` は、**1 インスタンスにつき 1 回**だけ、次の値へ進む、という意味です
+- 3 行目の `MORPH` は、同じスロット 1 の、**16 バイト目から**（`morph_start`、`morph_end`、`pad`）を読みます
+
+つまり、**同じ格子の頂点を、インスタンスの数だけ、繰り返し使い**、そのたびに、**インスタンス側の値だけが、切り替わる**仕組みです。
+
+### 毎フレーム、選んだノードを書き込む
+
+```cpp
 // 毎フレーム: 選ばれたノードを、インスタンス バッファに書く
 D3D11_MAPPED_SUBRESOURCE mapped;
 context->Map(instance_buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 std::memcpy(mapped.pData, instances.data(), instances.size() * sizeof(NodeInstance));
 context->Unmap(instance_buffer.Get(), 0);
+```
 
+ノードの選択（上の「ノードを選ぶアルゴリズム」）が終わったら、結果を、GPU のバッファへ、コピーします。`D3D11_MAP_WRITE_DISCARD` は、「**古い中身は、もう要らない**」という指定で、GPU がまだ前のフレームを描いていても、**待たされずに、新しい領域をもらえます**。バッファは、`D3D11_USAGE_DYNAMIC` で作っておく必要があります。
+
+### バッファを設定して、1 回で描く
+
+```cpp
 UINT strides[2] = {sizeof(GridVertex), sizeof(NodeInstance)};
 UINT offsets[2] = {0, 0};
 ID3D11Buffer* buffers[2] = {grid_vb.Get(), instance_buffer.Get()};
@@ -539,7 +565,11 @@ context->DrawIndexedInstanced(static_cast<UINT>(indices.size()),
                               static_cast<UINT>(instances.size()), 0, 0, 0);
 ```
 
-頂点シェーダーは、格子の位置（0〜1）を、ノードの位置・大きさで、ワールド座標へ変えます。そのあと、モーフィングして、高さを読みます。
+前半の 4 行は、**2 本の頂点バッファ**（格子と、インスタンス）と、**インデックス バッファ**を、描画の入口（入力アセンブラー）に、つなぐ作業です。最後の `DrawIndexedInstanced` が、本番で、**「この格子（インデックスの数）を、ノードの数だけ、繰り返して描け」**という、1 回の命令です。ドローコールが、**ノードの数に関係なく、1 回**で済むのが、この方式の、利点です。
+
+### 頂点シェーダー：定数と、入力
+
+頂点シェーダーは、**格子の位置**（0〜1）を、**ノードの位置と大きさ**で、ワールド座標へ変えます。そのあと、モーフィングして、高さを読みます。まず、シェーダーが受け取る、**定数**と、**入力**です。
 
 ```hlsl
 cbuffer FrameCB : register(b0) {
@@ -552,7 +582,11 @@ cbuffer FrameCB : register(b0) {
   float height_offset;
   float2 pad;
 };
+```
 
+`cbuffer` は、**フレームに 1 回、CPU から渡す、共通の値**の置き場です。カメラの位置（距離を測るため）、高さマップが、**ワールドのどこを覆うか**（UV を求めるため）、高さを**メートルに直す係数**（`height_scale`、`height_offset`）が入っています。
+
+```hlsl
 Texture2D<float> g_height : register(t0);   // R16_UNORM（線形補間ができる形式）
 SamplerState g_linear_clamp : register(s0);
 
@@ -561,31 +595,70 @@ struct VSInput {
   float4 node : NODE;           // xy = 原点, z = 大きさ, w = レベル
   float4 morph : MORPH;         // x = 開始距離, y = 終了距離
 };
+```
 
+高さマップは、**頂点シェーダーから読む**テクスチャです。`R16_UNORM`（16 ビットの、0〜1 の値）にしておくのは、**32 ビット浮動小数点**（`R32_FLOAT`）は、**線形補間（フィルタリング）が、環境によって、使えない**ためです。`VSInput` は、さきほどの、**入力レイアウトと、対応**しています（`POSITION`、`NODE`、`MORPH`）。
+
+### 高さを読む関数
+
+```hlsl
 float SampleHeight(float2 world_xz) {
   float2 uv = (world_xz - heightmap_origin) / heightmap_size;
   return g_height.SampleLevel(g_linear_clamp, uv, 0) * height_scale + height_offset;
 }
+```
 
+ワールドの `(x, z)` から、**高さマップの UV**（0〜1）を求め、**高さを読んで、メートルに直す**、小さな関数です。頂点シェーダーでは、**画面の微分が、使えない**ので、`Sample` ではなく、**`SampleLevel`**（ミップを、自分で指定）を使います。ここでは、ミップ 0 を、読んでいます（ミップの選び方は、[Heightmap LOD (Mips)](height-mip.md) で扱います）。
+
+### 本体 1：まず、動かす前の位置で、距離を測る
+
+```hlsl
 float4 main(VSInput input) : SV_Position {
   // ① まず、モーフィングなしの XZ で、高さを読み、距離を測る
   float2 xz = input.node.xy + input.grid * input.node.z;
   float3 p = float3(xz.x, SampleHeight(xz), xz.y);
   float dist = distance(p, camera_position);
+```
 
+1 行目の計算で、**格子の位置（0〜1）**に、ノードの大きさを掛け、原点を足して、**ワールドの XZ** にします。次に、その位置の、**高さを読んで**、3 次元の位置 `p` を作り、**カメラまでの、3 次元の距離**を測ります。この距離が、**どれだけ、モーフィングするか**を、決める材料です。
+
+### 本体 2：モーフ係数を、決める
+
+```hlsl
   // ② モーフ係数: 開始距離まで 0、終了距離で 1
   float morph = saturate((dist - input.morph.x) / (input.morph.y - input.morph.x));
+```
 
+`dist` が、**開始距離以下**なら 0、**終了距離以上**なら 1 で、**その間は、直線的に**、0 から 1 へ増えます。`saturate` は、値を、0〜1 の範囲に、収める関数です。**近いうちは 0**（何もしない）で、**LOD の境目に近づくと、1 に向かう**、というのが、モーフィングの、時間割りです。
+
+### 本体 3：奇数番の頂点を、寄せる
+
+```hlsl
   // ③ 奇数番の頂点を、ひとつ前の偶数番の位置へ寄せる
   float2 frac_part = frac(input.grid * (grid_size * 0.5)) * (2.0 / grid_size);
   float2 grid_morphed = input.grid - frac_part * morph;
+```
 
+この 2 行が、モーフィングの、中心です。
+
+- `input.grid * (grid_size * 0.5)` は、格子の位置を、**マスの番号の、半分**にします。**偶数番の頂点**では、**整数**になり、**奇数番の頂点**では、**小数部が、0.5** になります
+- `frac(...)` で、その**小数部**だけを取り出します。**偶数番は 0、奇数番は 0.5** です
+- `* (2.0 / grid_size)` で、**格子 1 マス分の長さ**（`1 / grid_size`）に、直します。つまり、**偶数番は 0、奇数番は 1 マス分**になります
+- 最後に、`morph` を掛けて、位置から**引きます**。`morph = 1` のとき、**奇数番の頂点だけが、1 マス分、手前**（ひとつ前の偶数番）に、動きます
+
+こうして、**粗い LOD に存在しない頂点（奇数番）**が、**粗い LOD に存在する頂点（偶数番）に、重なって**いきます。
+
+### 本体 4：寄せた位置で、高さを読み直す
+
+```hlsl
   // ④ 寄せた XZ で、高さを読み直す
   xz = input.node.xy + grid_morphed * input.node.z;
   p = float3(xz.x, SampleHeight(xz), xz.y);
   return mul(float4(p, 1.0), view_proj);
 }
 ```
+
+XZ が動いたので、**動いた先の高さ**を、もう一度、読みます。そうしないと、頂点が、**元の高さのまま、横にずれて**、地形が、崩れます。最後に、**ビュー・射影行列**を掛けて、画面上の位置にして、返します。行ベクトル（`mul(v, M)`）の、順序であることに、注意してください。
 
 ### 速度が出る理由
 

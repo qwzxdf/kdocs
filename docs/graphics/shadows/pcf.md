@@ -1353,8 +1353,10 @@ if (shadow > 0.0 && shadow < 1.0) {
 
 ## 参考
 
-- Reeves, Salesin, Cook, "Rendering Antialiased Shadows with Depth Maps"（SIGGRAPH 1987、PCF の原典）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"
+- Reeves, Salesin, Cook, "Rendering Antialiased Shadows with Depth Maps", SIGGRAPH 1987
+- Fernando, "Percentage-Closer Soft Shadows", SIGGRAPH 2005 Sketches
+- Microsoft Learn, "D3D11_SAMPLER_DESC"（比較フィルター）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018
 
 ## 関連ページ
 

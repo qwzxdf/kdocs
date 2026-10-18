@@ -434,9 +434,9 @@ SDF の作り方は 3 通りです。<strong>メッシュ SDF（オブジェク�
 
 ## 参考
 
-- Quilez, "soft shadows in raymarched SDFs"（iquilezles.org）
-- Epic Games, "Distance Field Shadows"（Unreal Engine ドキュメント）
-- Hart, "Sphere Tracing: A Geometric Method for the Antialiased Ray Tracing of Implicit Surfaces"（1996）
+- Wright, "Dynamic Occlusion with Signed Distance Fields", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Quilez, "Soft Shadows in Raymarched SDFs", iquilezles.org
+- Hart, "Sphere Tracing: A Geometric Method for the Antialiased Ray Tracing of Implicit Surfaces", The Visual Computer, Vol. 12, 1996
 
 ## 関連ページ
 

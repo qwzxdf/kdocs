@@ -213,6 +213,99 @@ clip(opacity - threshold);
 
 <strong>ディザ（Bayer 行列・IGN）</strong>で、**透明度の割合**だけ**画素を残し**、**影の濃さ**を**確率的に**表現します。**ノイズ**が出るので、**PCF や TAA**で**消します**。
 
+## 問題：半透明の物は、光を、一部、通す
+
+ガラス窓、色付きの、ステンド グラス、煙、薄い、布は、**光を、一部だけ、通します**。通常の、シャドウ マップは、**光が通るか、完全に遮られるか**の、**二択**です。そのまま、**半透明の物を、描く**と、**完全な影**に、なるか、**影が、まったく、できない**かの、**どちらか**に、なってしまいます。
+
+| 物 | 現実の影 | 通常のシャドウ マップ（不透明として、描く） | 描かない場合 |
+| --- | --- | --- | --- |
+| 無色の、ガラス | ほぼ、透明（わずかに、暗い） | **真っ黒**（間違い） | 影なし（近い） |
+| 色付きガラス | **色付きの影** | 真っ黒 | 影なし |
+| 煙・霧 | **薄い**影（密度に、比例） | 真っ黒 | 影なし |
+
+## 方法 1：影を、落とさない（最も簡単）
+
+**半透明の物は、シャドウ パスで、描かない**。**無色の、ガラス**や、**薄い**物は、これで、**十分**な場合が、多いです。
+
+## 方法 2：アルファに応じた、確率的な影
+
+**アルファが、0.3 の、物**を、**30% の画素だけ、不透明として、シャドウ マップに、描きます**。**PCF**で、読むと、**平均されて、30% の、濃さの影**に、なります（[Hashed Alpha](../../translucency/alpha-test/hashed-alpha.md)）。
+
+```hlsl
+// 半透明の影: アルファを、ランダムなしきい値と、比べて、確率的に、深度を書く。
+void main(float4 pos : SV_Position, float2 uv : TEXCOORD0) {
+  float alpha = g_albedo.Sample(g_linear_wrap, uv).a * g_opacity;
+  clip(alpha - BlueNoiseThreshold(pos.xy));        // アルファが小さいほど、深度が書かれにくい
+}
+```
+
+| 長所 | 短所 |
+| --- | --- |
+| 簡単。**PCF が、そのまま、使える** | **ノイズ**（TAA や、広い PCF で、減らす） |
+| 半透明の度合いが、**反映**される | **色**は、反映されない（影は、グレー） |
+
+## 方法 3：色付きの、影
+
+**色付きガラス**の、影は、**ガラスの色**に、染まります。**光が、ガラスを、通る間に、吸収**されて、**ガラスの色**だけが、残るためです。**色付きの、影**を、作るには、**シャドウ マップを、2 枚**、使います。
+
+| シャドウ マップ | 内容 |
+| --- | --- |
+| ① **不透明な物だけ**の、深度 | 通常のシャドウ マップ |
+| ② **半透明な物の、色（透過色）** | **半透明な物**を、描き、**各画素の、光の、透過色**を、**乗算ブレンド**で、書き込む（カラー テクスチャ） |
+
+```hlsl
+// 半透明の、シャドウ パス（②）: 光の透過色を、乗算で積む（RGB のレンダー ターゲット）。
+// ブレンド: SrcBlend = ZERO、DestBlend = SRC_COLOR（現在の値 × 出力色）。初期値は (1,1,1)。
+float4 main(PSInput input) : SV_Target {
+  float4 tint = g_albedo.Sample(g_linear_wrap, input.uv);
+  // 透過色: α が小さい（透明）ほど、白（影響なし）。α が大きいほど、ガラスの色。
+  float3 transmit = lerp(float3(1, 1, 1), tint.rgb, tint.a);
+  return float4(transmit, 1.0);
+}
+```
+
+```hlsl
+// メイン パス: 不透明な影（深度）で光を遮り、半透明な影（色）で光を染める。
+float opaque_lit = SampleOpaqueShadow(world_pos);             // 0 or 1（PCF 込み）
+float3 tint = g_translucent_shadow.Sample(g_linear_clamp, uv).rgb;   // 光が、ガラスを通ったあとの、色
+// ただし、ガラスより、手前にある画素だけ、色を受ける（ガラスの、奥にある物だけが、染まる）。
+float glass_depth = g_translucent_depth.Sample(g_linear_clamp, uv);
+float3 light_color = (depth > glass_depth) ? g_light_color * tint : g_light_color;
+float3 lit = light_color * opaque_lit;
+```
+
+**「画素が、ガラスの、奥にあるか」**を、判定するために、**ガラスの、深度**（半透明な物の、最も、手前の深度）も、**別に、保存**します。
+
+## 方法 4：深度の、分布を、保存する（Deep / Opacity シャドウ マップ）
+
+**半透明の物が、複数、重なる**（煙、髪、葉）と、**光は、重なった層を、順に、通る**ので、**通過した、光の割合**は、**奥に進むほど、減っていきます**。この、**深度ごとの、光の通過率**を、**シャドウ マップに、保存**する方法です。
+
+| 手法 | 内容 |
+| --- | --- |
+| **Deep Shadow Maps**（Lokovic と Veach、2000） | 画素ごとに、**深度に対する、透過率の、関数**（区分的な、線形）を、保存。**映画の、レンダリング**で、使われた |
+| **Opacity Shadow Maps**（Kim と Neumann、2001） | 深度を、**複数の層**（スライス）に、分け、**各層での、不透明度**を、**テクスチャ**に、保存 |
+
+```text
+Opacity Shadow Maps:
+   層 1（手前） 層 2    層 3    層 4（奥）
+   ┌────┐     ┌────┐  ┌────┐  ┌────┐        各層で、そこまでの、累積した、不透明度を、保存
+   │ 0.2│     │ 0.5│  │ 0.8│  │ 0.9│
+   └────┘     └────┘  └────┘  └────┘
+画素の深度が、層 3 と 4 の間 → 層 3 と 4 の、不透明度を、補間 → 約 0.85 の、影
+```
+
+実装は、**複雑**で、**メモリも、重い**（層の数だけ、テクスチャ）。**髪の毛**（[Hair Shadows](../../skin-hair/hair/shadows.md)）、**煙・雲**（[Cloud Shadows](../../atmosphere/clouds/shadows.md)）など、**半透明の層が、密に重なる**物で、使われます。
+
+## 使い分け
+
+| 物 | 方法 |
+| --- | --- |
+| 無色の、窓ガラス | **影を、落とさない**（方法 1） |
+| 薄い、布、半透明の、植物 | **確率的な影**（方法 2） |
+| **色付きガラス**、ステンド グラス | **色付きの影**（方法 3）。重要な、演出なら |
+| 煙、霧、パーティクル | **確率的な影**、または、**ボリューム ライティング**（[Volumetric Fog](../../atmosphere/volumetric-fog/index.md)） |
+| 髪、雲（密に重なる、層） | **Deep / Opacity シャドウ マップ**、または、専用の手法 |
+
 ## よくあるミス
 
 ??? failure "ガラスが真っ黒な影を落とす"
@@ -226,8 +319,10 @@ clip(opacity - threshold);
 
 ## 参考
 
-- Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Lokovic, Veach, "Deep Shadow Maps", SIGGRAPH 2000（半透明の、影）
+- Kim, Neumann, "Opacity Shadow Maps", Eurographics Workshop on Rendering 2001
+- Wyman, McGuire, "Hashed Alpha Testing", Symposium on Interactive 3D Graphics and Games 2017
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018
 
 ## 関連ページ
 

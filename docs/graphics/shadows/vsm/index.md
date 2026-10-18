@@ -133,6 +133,84 @@ float2 WriteMoments(float depth) {
 | [MSM](msm.md) | 高次のモーメントで、光漏れを抑える |
 | [Comparison with PCF](comparison.md) | VSM 系の比較・PCF との選び方 |
 
+## 通常の、シャドウ マップの、弱点
+
+通常のシャドウ マップは、**「画素の深度」と「保存された深度」を、比較**して、**0 か 1** を、返します。この結果は、**フィルタ（ぼかし）**が、**かけられません**（**深度を、ぼかしてから**比べると、**間違った影**になる）。**PCF**は、**複数回、比較**して、平均しますが、**1 画素あたり、数十回の、読み込み**が、必要で、**重い**です。
+
+**フィルタ可能な、シャドウ マップ**は、**深度を、ぼかして**から、**比較**できる、**表現**に、変えます。**ぼかしは、シャドウ マップに**、**1 回だけ**かけ、**シェーダーでは、1 回の、読み込み**で、**なめらかな影**が、得られます。
+
+| 手法 | 保存するもの | ぼかしの、可否 |
+| --- | --- | --- |
+| 通常 | 深度 `z` | **ぼかせない**（比較結果の、平均が、必要） |
+| **VSM**（Variance） | 深度の、**平均**と**2 乗の平均**（分散を、求めるため） | **ぼかせる**（ガウスぼかし、ミップ、異方性フィルタ） |
+| **ESM**（Exponential） | `exp(c × z)` | **ぼかせる** |
+| **EVSM** | `exp(c × z)` の、**平均と、2 乗の平均** + `exp(−c × z)` | **ぼかせる**。光漏れを、減らす |
+| **MSM**（Moment） | 深度の、**4 つのモーメント**（`z`、`z²`、`z³`、`z⁴`） | **ぼかせる**。光漏れが、少ない |
+
+## 共通の、利点
+
+| 利点 | 内容 |
+| --- | --- |
+| **ぼかしを、安く** | シャドウ マップに、**ガウスぼかし**をかけるだけで、**柔らかい影**。1 画素あたり、**シェーダーで、1 回の読み込み** |
+| **ミップマップ、異方性フィルタ** | **シャドウ マップに、ミップ**を、作れる。**遠くの影**の、**エイリアシング**が、減る |
+| **影の、ハードウェア フィルタリング** | テクスチャの、**バイリニア**、**トライリニア**、**異方性**が、**そのまま、使える** |
+| **バイアスが、小さい** | 比較は、確率的な、推定なので、**自己影が、出にくい** |
+
+## 共通の、欠点
+
+| 欠点 | 内容 |
+| --- | --- |
+| **光漏れ**（light bleeding） | **影の中**に、**明るい、斑点**が、出る。**重なる、遮蔽物**で、起きやすい（[Light Bleeding](light-bleeding.md)） |
+| **メモリが、増える** | 深度 1 値ではなく、**2〜4 値**（`R32G32`、`R32G32B32A32`）を、保存する |
+| **精度** | 浮動小数点の、精度が、**必要**（16 ビットでは、足りないことがある） |
+| **シャドウ パスが、重い** | 深度を、**値の、変換**して、書き出す（ピクセル シェーダーが、必要） |
+
+## 手法の、選び方
+
+| 優先すること | 手法 |
+| --- | --- |
+| まず、フィルタ可能に（シンプル） | **VSM**（[VSM](#vsm)）。光漏れが、許容できる場面（遮蔽物が、単純） |
+| 光漏れを、減らしたい | **EVSM**（[EVSM](evsm.md)）、**MSM**（[MSM](msm.md)） |
+| 実装を、軽く（1 チャンネル） | **ESM**（[ESM](esm.md)）。遮蔽物と、受け手が、**離れている**場面（**光漏れ・影の、薄れ**が、出る） |
+| PCF で、足りる | **VSM 系は、使わない**。PCF のほうが、**光漏れがなく**、**確実** |
+
+近年は、**PCF と、ブルー ノイズ、TAA**（[PCF](../pcf.md)）、**ハードウェア レイトレーシング**で、**柔らかい影**を、得る方向に、移っています。VSM 系は、**特定の、場面**（特に、カスケードの、フィルタ、**ぼかしの、広い影**）で、**使われます**。
+
+## VSM（分散シャドウ マップ） {#vsm}
+
+Donnelly と Lauritzen（2006）の、**VSM**は、**シャドウ マップに、深度 `z` と、深度の 2 乗 `z²`** を、保存します。
+
+```hlsl
+// シャドウ パス: 深度と、深度の 2 乗を、書き出す（R32G32_FLOAT のレンダー ターゲット）。
+float2 main(float4 pos : SV_Position) : SV_Target {
+  float z = pos.z;                           // 0〜1 の深度（正射影では線形）
+  float dx = ddx(z), dy = ddy(z);
+  float moment2 = z * z + 0.25 * (dx * dx + dy * dy);       // 画素内の、深度の変化を、2 乗の項に加える
+  return float2(z, moment2);
+}
+```
+
+```hlsl
+// メイン パス: ぼかした、2 つのモーメントから、チェビシェフの不等式で、光が当たる確率の、上限を求める。
+float ChebyshevUpperBound(float2 moments, float t) {
+  float mean = moments.x;                    // E[z]
+  float variance = max(moments.y - mean * mean, 1e-5);       // E[z²] − E[z]²
+  float d = t - mean;
+  float p_max = variance / (variance + d * d);                // チェビシェフの不等式
+  return (t <= mean) ? 1.0 : p_max;                           // 手前なら、完全に光が当たる
+}
+
+float lit = ChebyshevUpperBound(g_shadow_vsm.SampleLevel(g_linear_clamp, uv, 0).xy, depth);
+```
+
+**考え方**：シャドウ マップの、1 画素（ぼかした後は、周りの、複数の画素）に、**深度の分布**（平均 `μ` と、分散 `σ²`）が、**入っている**。**画素の深度 `t` が、`μ` より、遠い**とき、**「`t` より、手前に、遮蔽物がある確率」**の、**上限**を、**チェビシェフの不等式**で、**求めます**。
+
+```text
+P(z ≥ t) ≤ σ² / (σ² + (t − μ)²)             （t > μ のとき）
+```
+
+これが、**光が、当たる確率の、上限**で、**影の、なめらかさ**に、使います。
+
 ## よくあるミス
 
 ??? failure "VSM の影の中に、光が漏れて、白い筋が出る"
@@ -146,8 +224,11 @@ float2 WriteMoments(float depth) {
 
 ## 参考
 
-- Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Donnelly, Lauritzen, "Variance Shadow Maps", Symposium on Interactive 3D Graphics and Games 2006
+- Annen, Mertens, Seidel, Eisemann, Durand, "Exponential Shadow Maps", Graphics Interface 2008
+- Lauritzen, McGuire, "Layered Variance Shadow Maps", Graphics Interface 2008（光漏れの、軽減）
+- Peters, Klein, "Moment Shadow Mapping", Symposium on Interactive 3D Graphics and Games 2015
+- Lauritzen, "Summed-Area Variance Shadow Maps", GPU Gems 3, Chapter 8, 2007
 
 ## 関連ページ
 

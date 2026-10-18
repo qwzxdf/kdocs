@@ -119,6 +119,132 @@ float3 lit = EvaluateLight(light, surface) * shadow;
 ## バイアスと精度
 バイアスと精度の注意点です。透視投影の深度は非線形で、近くに集中して遠くで精度が不足します。近クリップ面を大きく、遠クリップ面を短くして精度を保ちます。バイアスは距離によって必要な量が変わるので、ワールド単位の法線オフセットが扱いやすいです（[Shadow Bias](../bias/index.md)）。Reversed-Z は、シャドウ マップにも有効です（浮動小数点の深度）。
 
+## 問題：影を落とす光は、数に限りがある
+
+光が、**100 個**あっても、**すべてに、シャドウ マップを、作る**ことは、できません（点光源 1 つで、シーンを、6 回、描く）。**どの光に、影を、与えるか**、**どう効率よく、作るか**を、設計する必要があります。
+
+## 影を、落とす光を、選ぶ
+
+| 基準 | 内容 |
+| --- | --- |
+| **画面に、映っている** | 視錐台の外にある光（光の、範囲球が、視錐台と、交わらない）は、**影を、作らない** |
+| **画面上の、大きさ** | 光が、画面に、**大きく**映る（近い、明るい光）ほど、**優先** |
+| **明るさ** | 暗い光は、影が、見えない。**影を、省く** |
+| **距離** | **遠い光**は、影が、細かく見えない。**影なし**、または、**低解像度** |
+| **重要さ** | ゲームの、**演出上、重要な光**（プレイヤーの懐中電灯、重要な、ランプ）は、**優先** |
+
+```cpp
+// 光ごとに、「影の優先度」を、計算して、上位 N 個だけ、影を作る。
+float ShadowPriority(const Light& light, const Camera& camera) {
+  const float dist = Distance(light.position, camera.position);
+  if (dist > light.range + camera.far_plane) return 0.0f;
+  if (!camera.frustum.Intersects(Sphere{light.position, light.range})) return 0.0f;
+  // 画面上の、おおよその大きさ（半径 / 距離）× 明るさ
+  const float screen_size = light.range / std::max(dist, 1.0f);
+  return screen_size * light.intensity * light.importance;
+}
+
+// 優先度の高い順に、N 個（8 個など）を選んで、シャドウ マップを割り当てる。
+std::sort(lights.begin(), lights.end(), [&](auto& a, auto& b) { return a.priority > b.priority; });
+for (int i = 0; i < std::min<int>(kMaxShadowLights, lights.size()); ++i) lights[i].shadow_slot = i;
+```
+
+## シャドウ マップを、アトラスに
+
+影を、落とす、光が、複数あるとき、シャドウ マップを、**1 枚の大きなテクスチャ（アトラス）**に、**まとめます**。ライトごとに、テクスチャを、**バインドし直す**必要が、なくなります。
+
+```text
+┌──────────┬──────┬──────┐
+│          │ 光 2 │ 光 3 │
+│  光 1     ├──────┼──────┤
+│ (2048²)  │ 光 4 │ 光 5 │
+│          │ (512²)│(512²)│
+└──────────┴──────┴──────┘
+   4096×4096 のアトラスに、解像度の違う、シャドウ マップを、詰める
+```
+
+| 利点 | 内容 |
+| --- | --- |
+| **1 つのテクスチャ** | シェーダーに、渡す、リソースが、1 つ |
+| **解像度を、光ごとに、変えられる** | 画面上で、大きい光は、**大きなタイル**。小さい光は、**小さなタイル** |
+
+各光の、**アトラス内の、位置と大きさ**（`offset`、`scale`）を、**定数バッファ**に、持たせ、**UV を、変換**して、読みます。
+
+```hlsl
+struct ShadowTile { float4 uv_scale_offset; };      // xy = スケール、zw = オフセット（アトラス内の位置）
+StructuredBuffer<ShadowTile> g_tiles : register(t10);
+
+float SampleShadowAtlas(uint tile_index, float2 local_uv, float depth) {
+  ShadowTile t = g_tiles[tile_index];
+  float2 atlas_uv = local_uv * t.uv_scale_offset.xy + t.uv_scale_offset.zw;
+  return g_shadow_atlas.SampleCmpLevelZero(g_shadow_sampler, atlas_uv, depth);
+}
+```
+
+**タイルの境界**では、**PCF が、隣のタイルを、読んで**しまうので、**タイルの縁に、余白**を設け、**UV を、余白の内側に、クランプ**します。
+
+## 描画の、頻度を、減らす
+
+**すべての光の影を、毎フレーム、更新**する必要は、ありません。
+
+| 光の種類 | 更新 |
+| --- | --- |
+| **静止した光 + 静止した物** | **一度作って、保存**（キャッシュ）。**更新しない** |
+| **静止した光 + 動く物** | **静止した物の、シャドウ マップ**を、キャッシュし、**動く物だけ**を、毎フレーム、描き足す（2 枚を、合成） |
+| **動く光** | 毎フレーム更新（重い）。**数を、制限** |
+| **遠い光** | **数フレームに 1 回**（影が、少し、遅れても、気づかない） |
+
+### 静止物のキャッシュ
+
+```text
+キャッシュ（起動時、または、変更時に 1 回）:  静止した物だけを、深度に描く → static_shadow_map
+毎フレーム:  static_shadow_map を、コピー → dynamic_shadow_map に、動く物を、描き足す（深度テストで、手前が、勝つ）
+```
+
+```cpp
+// 静止物の影のキャッシュを、毎フレームの、シャドウ マップに、コピーしてから、動く物を、描き足す。
+context->CopyResource(shadow_map.Get(), static_shadow_cache.Get());     // 静止物の深度を、コピー
+context->OMSetRenderTargets(0, nullptr, shadow_dsv.Get());
+// ここでは、Clear しない（コピーした深度を、残したまま、動く物を、重ねて描く）
+DrawDynamicShadowCasters();
+```
+
+**動く物が、少なければ**、**シャドウ パスが、劇的に、軽くなります**。
+
+## ライトの、種類による、判断
+
+| 光 | 影の扱い |
+| --- | --- |
+| **太陽**（1 つ） | CSM、毎フレーム更新（[CSM](../cascaded.md)） |
+| **プレイヤーの、懐中電灯** | **スポットライト**の、影。毎フレーム更新。高解像度 |
+| **近くの、点光源**（数個） | キューブマップ。静止物は、キャッシュ |
+| **遠くの、点光源**（多数） | **影なし**（または、低解像度、更新を、間引く） |
+| **小さな、装飾の光**（ろうそく） | **影なし**。コンタクト シャドウで、補う（[Contact Shadows](../contact-shadows.md)） |
+
+## 影なしの光に、影の、効果を
+
+影を、落とさない、光でも、**暗さの、手がかり**が、欲しい場面があります。
+
+| 方法 | 内容 |
+| --- | --- |
+| **コンタクト シャドウ** | 画面空間で、**短い距離**の、影を作る（[Contact Shadows](../contact-shadows.md)） |
+| **AO**（アンビエント オクルージョン） | 物の、隙間・接触部分を、暗くする（[AO](../../ao/index.md)） |
+| **距離フィールドの、影** | 全体に、**安く**、ソフトな影（[Distance Field Shadows](../sdf-shadows.md)） |
+
+## クラスタード シェーディングとの、関係
+
+数百の光を、**画面の、小さな領域（クラスター）**ごとに、**影響する光を、絞って**、シェーディングする方法です（Olsson ら、2012）。**影を、落とす光**は、**クラスターごとの、光のリスト**の中で、**影のアトラスの、タイル番号**を、持ちます。
+
+```hlsl
+// クラスターの、光のリストを、走査して、影つきの光だけ、シャドウ マップを読む。
+for (uint i = 0; i < light_count_in_cluster; ++i) {
+  Light light = g_lights[light_indices[i]];
+  float shadow = 1.0;
+  if (light.shadow_tile >= 0) shadow = SampleLightShadow(light, world_pos, normal);
+  color += ShadeLight(light, ...) * shadow;
+}
+```
+
 ## よくあるミス
 
 ??? failure "影付きライトの数が増えて、フレーム時間が増える一方"
@@ -132,8 +258,10 @@ float3 lit = EvaluateLight(light, surface) * shadow;
 
 ## 参考
 
-- Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Olsson, Billeter, Assarsson, "Clustered Deferred and Forward Shading", High-Performance Graphics 2012
+- Harada, McKee, Yang, "Forward+: Bringing Deferred Lighting to the Next Level", Eurographics 2012 Short Papers
+- Brabec, Annen, Seidel, "Shadow Mapping for Hemispherical and Omnidirectional Light Sources", Advances in Modelling, Animation and Rendering (Computer Graphics International 2002)（放物面マッピング）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（影の章）
 
 ## 関連ページ
 

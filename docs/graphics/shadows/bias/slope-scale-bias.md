@@ -91,6 +91,86 @@ desc.DepthBiasClamp = 0.01f;
 
 スロープ スケール バイアスの利点は、斜めの面ほど自動で大きくなること、ハードウェアが処理するので追加のシェーダー コストがないことです。欠点は、浮動小数点の深度では定数バイアスの意味が変わること（値の大きさで単位が変わる）、すべての面に同じ係数を使うので、極端に斜めな面では結局浮いてしまうことです。
 
+## 傾き依存バイアスとは
+
+面が、**光に対して、斜めになるほど**、シャドウ マップの 1 画素の中で、**深度が、大きく、変わります**。**その変化の大きさ（深度の傾き）に、比例して**、バイアスを、**大きくする**のが、**傾き依存（slope-scale）バイアス**です。
+
+```text
+バイアス = 定数 + 傾き係数 × 深度の傾き
+```
+
+| 面の向き | 深度の傾き | バイアス |
+| --- | --- | --- |
+| 光に、正面 | 小さい | 小さい |
+| 斜め | 中くらい | 中くらい |
+| 光と、ほぼ平行 | **非常に大きい** | **大きい** |
+
+## ハードウェアで、行う
+
+`D3D11_RASTERIZER_DESC` の、**`SlopeScaledDepthBias`** が、これです。**ハードウェアが、三角形ごとに、深度の傾きを、計算**して、**自動で**、バイアスに、反映します。
+
+```cpp
+D3D11_RASTERIZER_DESC rs = {};
+rs.DepthBias = 1000;                  // 定数分
+rs.SlopeScaledDepthBias = 1.5f;       // 傾き係数。深度の最大の傾きに、この値を掛ける
+rs.DepthBiasClamp = 0.01f;            // バイアスの、上限（ピーター パンニングの、暴走を、防ぐ）
+device->CreateRasterizerState(&rs, &shadow_rs);
+```
+
+バイアスの、全体の式は、次のとおりです（Direct3D の、仕様）。
+
+```text
+Bias = DepthBias × r  +  SlopeScaledDepthBias × MaxDepthSlope
+Bias は、DepthBiasClamp を、超えない
+```
+
+| 値 | 意味 |
+| --- | --- |
+| `DepthBias × r` | 定数バイアス（`r` は、最小の、深度の刻み） |
+| `MaxDepthSlope` | **三角形の、深度の傾き**（`max(|∂z/∂x|, |∂z/∂y|)`、画面空間での、変化） |
+| `SlopeScaledDepthBias` | 傾きに、掛ける係数。**1〜3** が、一般的 |
+| `DepthBiasClamp` | **上限**。非常に、斜めの面で、バイアスが、暴走して、影が、消えるのを防ぐ |
+
+### 傾きの、直感
+
+**光に、ほぼ平行な面**（朝夕の光が、地面に、すれすれ）では、シャドウ マップの 1 画素が、**地面の、非常に長い範囲**を、覆い、**その範囲での、深度の変化が、大きい**。ハードウェアが、**その大きな、傾きに、比例**して、バイアスを、自動で、足します。
+
+## シェーダーで、行う
+
+ハードウェアの、バイアスは、**シャドウ パスで、書く深度**に、効きます。**メイン パスで、比較する側**を、シェーダーで、補正する方法もあります。**面の法線と、光の方向**から、傾きを、計算します。
+
+```hlsl
+// 法線と光の方向から、深度の傾きに、比例した、バイアスを求める。
+float SlopeScaledBias(float3 normal, float3 light_dir, float base_bias, float slope_bias) {
+  float cos_theta = saturate(dot(normal, -light_dir));
+  float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+  float tan_theta = sin_theta / max(cos_theta, 0.05);          // tan(光と法線の角度)。斜めほど大きい
+  return base_bias + slope_bias * min(tan_theta, 10.0);         // 暴走を、防ぐ上限
+}
+
+float bias = SlopeScaledBias(N, g_light_dir, 0.0005, 0.0005);
+float lit = g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, coord.xy, coord.z - bias);
+```
+
+`tan θ` は、**光に、正面で 0**、**平行に近づくと、無限大**に近づきます。**上限**（`min(…, 10)`）を、入れて、暴走を、防ぎます。
+
+| 方式 | 長所 | 短所 |
+| --- | --- | --- |
+| ハードウェア（`SlopeScaledDepthBias`） | 設定が、簡単。**三角形ごと**に、正確な傾きを、使える | シャドウ パスの、深度に、効く。**値の意味が、直感的でない**（プリミティブごとに、傾きが、決まる） |
+| シェーダー（法線と光から） | **メイン パス側**で、調整できる。値の意味が、明確 | **法線**が、必要。カスケードごとの、調整が、必要 |
+
+## 限界
+
+傾き依存バイアスは、**ほとんどの、場面で、有効**ですが、次の問題が、残ります。
+
+| 問題 | 内容 |
+| --- | --- |
+| **非常に斜めの面** | バイアスが、非常に、大きくなり、ピーター パンニング |
+| **PCF を、広く取る** | PCF の、範囲の中で、面の深度は、**さらに変化**する。傾き依存だけでは、**足りない**（[Receiver Plane Bias](receiver-plane-bias.md)） |
+| **曲面** | 1 つの、三角形内で、傾きが、一定とは、限らない |
+
+**法線オフセット**（[Normal Offset](normal-offset.md)）と、**併用**すると、バイアスを、小さく、保ったまま、**自己影を、抑えられます**。
+
 ## よくあるミス
 
 ??? failure "`N·L` が 0 に近い面で、バイアスが無限大になって影が消える"
@@ -104,8 +184,10 @@ desc.DepthBiasClamp = 0.01f;
 
 ## 参考
 
-- Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Microsoft Learn, "D3D11_RASTERIZER_DESC"（`DepthBias`、`SlopeScaledDepthBias`、`DepthBiasClamp`）
+- Microsoft Learn, "Common Techniques to Improve Shadow Depth Maps"（Direct3D 11 のドキュメント。バイアス、平行光源、PCF）
+- Isidoro, "Shadow Mapping: GPU-based Tips and Techniques", Game Developers Conference 2006（レシーバー平面の深度バイアスなど）
+- Brabec, Annen, Seidel, "Practical Shadow Mapping", Journal of Graphics Tools, Vol. 7, No. 4, 2002
 
 ## 関連ページ
 

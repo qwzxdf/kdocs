@@ -87,6 +87,137 @@ float PointShadow(float3 world_pos) {
 
 **面の境界をまたぐ PCF**は、**隣の面のテクセル**を参照する必要があります。**キューブ マップのハードウェア サンプラー**は、**面をまたぐ補間**を**正しく**処理します。**自前で面ごとの 2D テクスチャ配列**を使うと、**境界で PCF が途切れる**ので、**注意**が必要です。
 
+## キューブマップで、全方向を、覆う
+
+点光源の、光は、**全方向**に、広がります。全方向の、影を、**1 枚の透視投影**では、作れません。**6 つの面**（+X、−X、+Y、−Y、+Z、−Z）、それぞれを、**視野角 90° の、透視投影**で、描き、**キューブマップ**に、保存します。**画素の、光からの方向**で、**どの面を、読むか**が、決まります。
+
+```text
+        +Y
+         │
+   −X ───┼─── +X       （キューブマップの、6 面）
+        ╱│
+      +Z  −Y                  光を、中心とした、立方体の 6 面に、深度を、保存
+```
+
+## DirectX 11 で、キューブマップを、作る
+
+6 つの面を、**テクスチャ配列**（6 スライス）として、作り、**キューブとして、読む**ように、ビューを、設定します。
+
+```cpp
+// 点光源のシャドウ キューブマップ（1024×1024 × 6 面）。
+D3D11_TEXTURE2D_DESC desc = {};
+desc.Width = 1024;
+desc.Height = 1024;
+desc.MipLevels = 1;
+desc.ArraySize = 6;                                         // 6 面
+desc.Format = DXGI_FORMAT_R32_TYPELESS;
+desc.SampleDesc.Count = 1;
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;           // キューブとして、使える
+device->CreateTexture2D(&desc, nullptr, &shadow_cube_tex);
+
+// 各面に書き込む DSV（6 つ）。
+for (UINT face = 0; face < 6; ++face) {
+  D3D11_DEPTH_STENCIL_VIEW_DESC dsv = {};
+  dsv.Format = DXGI_FORMAT_D32_FLOAT;
+  dsv.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
+  dsv.Texture2DArray.FirstArraySlice = face;
+  dsv.Texture2DArray.ArraySize = 1;
+  device->CreateDepthStencilView(shadow_cube_tex.Get(), &dsv, &face_dsv[face]);
+}
+
+// 読み取り用: キューブとして。
+D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
+srv.Format = DXGI_FORMAT_R32_FLOAT;
+srv.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
+srv.TextureCube.MipLevels = 1;
+device->CreateShaderResourceView(shadow_cube_tex.Get(), &srv, &shadow_cube_srv);
+```
+
+## 6 面の、行列
+
+各面の、**向き**（前、上方向）を、**決まりに従って**、決めます。**視野角は、90°**、**アスペクト比 1**。
+
+```cpp
+using namespace DirectX::SimpleMath;
+
+// キューブの 6 面の、向きと、上方向。+X, −X, +Y, −Y, +Z, −Z の順（DirectX の、キューブの面の順）。
+const Vector3 kForward[6] = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0, 1}, {0, 0, -1}};
+const Vector3 kUp[6] =      {{0, 1, 0}, {0, 1, 0}, {0, 0, -1}, {0, 0, 1}, {0, 1, 0}, {0, 1, 0}};
+
+for (int face = 0; face < 6; ++face) {
+  Matrix view = Matrix::CreateLookAt(light.position, light.position + kForward[face], kUp[face]);
+  Matrix proj = Matrix::CreatePerspectiveFieldOfView(DirectX::XM_PIDIV2, 1.0f, near_z, light.range);
+  face_view_proj[face] = view * proj;
+}
+```
+
+!!! warning "面の、向きと、上方向は、DirectX の、キューブの規約に、合わせる"
+    キューブマップの、各面の、**上方向と、左右**は、**規約**で、決まっています。**間違えると**、**面が、回転、反転**して、**影が、ずれたり、つぎはぎ**になります。**シェーダーの、キューブの読み方**（方向ベクトル）と、**シャドウ パスの、行列**を、**合わせる**。**書き込みと、読み込みで、同じ規約**を、使うことが、肝心です。
+
+## 6 面を、描く
+
+```cpp
+// 6 面のそれぞれに、深度を描く。各面ごとに、光の行列を、変える。
+for (int face = 0; face < 6; ++face) {
+  context->OMSetRenderTargets(0, nullptr, face_dsv[face].Get());
+  context->ClearDepthStencilView(face_dsv[face].Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+  UpdateLightCB(face_view_proj[face]);
+  DrawShadowCasters(face);                   // この面の視錐台に入る物だけ（面ごとに、カリング）
+}
+```
+
+**面ごとの、視錐台カリング**が、重要です。**ある面の、視錐台に入らない物**は、その面で、**描かない**。**全部の物を、6 回描く**と、**重い**です。
+
+## シェーダーで、読む
+
+**画素の、光からの方向ベクトル**で、キューブマップを、読みます。**どの面を、読むか**は、**ハードウェアが、方向の、最大の成分**から、**自動で**、決めます。
+
+```hlsl
+TextureCube<float> g_shadow_cube : register(t6);
+SamplerComparisonState g_shadow_sampler : register(s5);
+
+float PointShadow(float3 world_pos, float3 world_normal) {
+  float3 to_pixel = world_pos - g_light_position;               // 光から、画素へ向かう、方向
+  // 法線オフセット（距離に応じて）
+  float dist = length(to_pixel);
+  float3 offset = world_normal * normal_offset;
+  float3 dir = to_pixel + offset;
+
+  // この方向で、どの面か、ハードウェアが、決めて、その面の、深度を読む。
+  // 比較に使う深度は、その面の、射影で変換した値。面ごとに、射影を適用する必要がある。
+  float3 abs_dir = abs(dir);
+  float major = max(abs_dir.x, max(abs_dir.y, abs_dir.z));        // 最大の成分（奥行き方向の距離）
+  // 透視投影の、深度（非線形）を、再現する: z' = (f / (f − n)) × (1 − n / major)
+  float depth = (g_far / (g_far - g_near)) * (1.0 - g_near / major);
+  return g_shadow_cube.SampleCmpLevelZero(g_shadow_sampler, dir, depth);
+}
+```
+
+**深度の、再現**が、ポイントです。シャドウ パスで、書かれた、深度は、**面の透視投影**で、変換された値で、**その面での、奥行き成分**（`dir` の、最大成分）で、決まります。**メイン パスでも、同じ変換**を、**再現**して、比べる必要があります。
+
+**距離を、直接、保存**する方法（[Point and Spot Light Shadows](index.md)）なら、**この変換**は、**不要**になります。
+
+## 面の、継ぎ目
+
+キューブの、**面の境界**で、PCF などの、フィルタが、**隣の面**の、情報を、**読めない**ことがあります。**境界で、影が、途切れる**、**線が出る**ことがあります。
+
+| 対策 | 内容 |
+| --- | --- |
+| **視野角を、少し、広げる**（90° → 91°〜92°） | 各面が、**隣の面と、少し、重なる**。境界の、フィルタが、**自分の面の、内側**で、完結する |
+| キューブマップの、**ハードウェア フィルタ** | `TextureCube` の、サンプラーは、**面の境界を、またいで**、補間する（シームレス キューブマップ。DirectX 11 では、標準） |
+
+## 解像度と、コスト
+
+| 解像度 | メモリ（`D32_FLOAT`、6 面） | 用途 |
+| --- | --- | --- |
+| 512×512 | 6 MB | 小さい光、遠くの光 |
+| 1024×1024 | 24 MB | 標準 |
+| 2048×2048 | 96 MB | 主要な光（高品質） |
+
+**1 つの、点光源**で、**6 面**を、描き、メモリも、大きいので、**影を、落とす点光源の数は、限る**（**画面の、近くの、重要な、光だけ**）。
+
 ## よくあるミス
 
 ??? failure "キューブ マップの面の継ぎ目に線が出る"
@@ -100,8 +231,10 @@ float PointShadow(float3 world_pos) {
 
 ## 参考
 
-- Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Brabec, Annen, Seidel, "Shadow Mapping for Hemispherical and Omnidirectional Light Sources", Advances in Modelling, Animation and Rendering (Computer Graphics International 2002)（放物面マッピング）
+- Olsson, Billeter, Assarsson, "Clustered Deferred and Forward Shading", High-Performance Graphics 2012
+- Microsoft Learn, "Common Techniques to Improve Shadow Depth Maps"
+- Microsoft Learn, "D3D11_RESOURCE_MISC_FLAG"（`D3D11_RESOURCE_MISC_TEXTURECUBE`）
 
 ## 関連ページ
 

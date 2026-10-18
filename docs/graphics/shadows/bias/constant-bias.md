@@ -57,6 +57,84 @@ float depth = ndc.z - 0.001;
 
 <!-- fig:bias-needed:end -->
 
+## 定数バイアスとは
+
+**深度に、一定の値を、足し引きする**、最も、単純な、バイアスです。**画素の深度から、一定量を、引いて**から、シャドウ マップと、比べます。
+
+```hlsl
+// 画素の深度から、定数を引いてから、比較する。
+float lit = g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, coord.xy, coord.z - kConstantBias);
+```
+
+## 2 つの、掛け方
+
+### ① シェーダーで、引く
+
+比較する深度から、**直接**、定数を引きます。上のコードです。値の**単位**は、**正規化された深度**（0〜1）です。
+
+| 射影 | 深度の分布 | バイアスの、効き方 |
+| --- | --- | --- |
+| 正射影（太陽） | **線形** | 一定の、**距離**に、相当する、バイアス。扱いやすい |
+| 透視投影（スポット、点光源） | **非線形**（遠くで、粗い） | **同じ値でも**、近くと、遠くで、**ワールドの距離**が、**違う**。遠くで、**大きすぎる**（ピーター パンニング） |
+
+### ② ハードウェアの、深度バイアス
+
+**シャドウ パス**（深度を、書くとき）に、**書き込む深度に、バイアスを、足す**ことも、できます。**ラスタライザー ステート**の、`DepthBias` です。
+
+```cpp
+D3D11_RASTERIZER_DESC rs = {};
+rs.DepthBias = 1000;                  // 整数。最小の、深度の刻み × この値
+rs.DepthBiasClamp = 0.0f;
+rs.SlopeScaledDepthBias = 0.0f;       // 傾き依存は、別のページ
+```
+
+| 深度形式 | `DepthBias` の、意味 |
+| --- | --- |
+| 24 ビット固定小数点（`D24_UNORM`） | `bias × r`（`r` は、最小の、表現できる、正の値 = 1 / 2²⁴） |
+| 32 ビット浮動小数点（`D32_FLOAT`） | `bias × 2^(e − 23)`（`e` は、プリミティブの、最大の、深度の指数）。**浮動小数点なので、深度によって、刻みが違う** |
+
+!!! warning "浮動小数点の、深度では、DepthBias の、効きが、深度で変わる"
+    `D32_FLOAT` では、`DepthBias` の、効果が、**深度の大きさ**（指数）に、依存します。近くでは、ごく小さく、遠くでは、大きく、効きます。**固定小数点**（`D24_UNORM`）のほうが、**一定**で、扱いやすいですが、**精度は、浮動小数点が、高い**。通常は、**シェーダーで、引く方式**（①）のほうが、**値の意味が、はっきり**しています。
+
+## 値の、決め方
+
+| 項目 | 目安 |
+| --- | --- |
+| 正射影（太陽） | 深度の範囲の、**0.0005〜0.005**（ワールドで、数 cm〜数十 cm） |
+| `DepthBias`（24 ビット） | 数百〜数千 |
+| カスケード | **カスケードごとに**、スケールする（遠いカスケードは、シャドウ マップの 1 画素が、大きいので、バイアスも、大きく） |
+
+```cpp
+// カスケードごとに、バイアスを、スケールする（遠いカスケードほど、大きく）。
+float bias_cascade = base_bias * (cascade_far - cascade_near) / (cascade0_far - cascade0_near);
+```
+
+**ワールドの距離**で、バイアスを、指定する（「5 cm」）と、直感的です。深度の範囲に、換算します。
+
+```hlsl
+// ワールド空間の距離（メートル）から、正規化深度のバイアスに、換算する（正射影）。
+float bias_depth = bias_world_meters / (light_far - light_near);
+```
+
+## 定数バイアスの、限界
+
+定数バイアスだけでは、**面が、光に対して、斜め**になるほど、**足りなく**なります。
+
+| 面の向き | 必要な、バイアス |
+| --- | --- |
+| 光に、**正面**（垂直） | 小さい |
+| **斜め**（45°） | 中くらい |
+| ほぼ、**平行**（80°〜） | **非常に大きい** |
+
+**定数**では、**どれかに、合わせる**と、**他で、破綻**します。
+
+| 破綻 | 内容 |
+| --- | --- |
+| 正面の面に、合わせる（小さい） | 斜めの面で、シャドウ アクネ |
+| 斜めの面に、合わせる（大きい） | 正面の面で、ピーター パンニング |
+
+そこで、**面の傾きに、応じて、変える**、**傾き依存バイアス**が、必要です（[Slope-Scale Bias](slope-scale-bias.md)）。
+
 ## よくあるミス
 
 ??? failure "定数バイアスだけで調整して、斜めの面と正面を両立できない"
@@ -70,8 +148,10 @@ float depth = ndc.z - 0.001;
 
 ## 参考
 
-- Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Williams, "Casting Curved Shadows on Curved Surfaces", SIGGRAPH 1978（シャドウ マップの原典）
+- Microsoft Learn, "Common Techniques to Improve Shadow Depth Maps"（Direct3D 11 のドキュメント。バイアス、平行光源、PCF）
+- Microsoft Learn, "D3D11_RASTERIZER_DESC"（`DepthBias`、`SlopeScaledDepthBias`、`DepthBiasClamp`）
+- Isidoro, "Shadow Mapping: GPU-based Tips and Techniques", Game Developers Conference 2006（レシーバー平面の深度バイアスなど）
 
 ## 関連ページ
 

@@ -223,9 +223,9 @@ for each light:
 
 ## 参考
 
-- Crow, "Shadow Algorithms for Computer Graphics"（SIGGRAPH 1977）
-- Heidmann, "Real Shadows, Real Time"（1991）
-- Kilgard, "Robust Stencil Shadow Volumes"（NVIDIA、2001）
+- Crow, "Shadow Algorithms for Computer Graphics", SIGGRAPH 1977
+- Everitt, Kilgard, "Practical and Robust Stenciled Shadow Volumes for Hardware-Accelerated Rendering", NVIDIA White Paper, 2002
+- Heidmann, "Real Shadows Real Time", Iris Universe, No. 18, 1991（ステンシルを使った、シャドウ ボリューム）
 
 ## 関連ページ
 

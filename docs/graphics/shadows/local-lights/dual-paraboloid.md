@@ -48,6 +48,95 @@ tags:
 
 **描画回数が少ない**利点がありますが、**歪みが扱いにくい**ため、**現在はキューブが主流**です。
 
+## 考え方：6 面を、2 面に
+
+キューブマップは、**6 面**を、描くので、重いです。**放物面マッピング**（Brabec ら、2002）は、**全方向を、2 枚**のテクスチャで、覆います。**前半球**と**後半球**を、**放物面**（パラボロイド）で、それぞれ、**1 枚に、投影**します。**描画は、2 回**で、済みます。
+
+```text
+ 光を中心に:
+   前半球 → 放物面 1（1 枚のテクスチャ）
+   後半球 → 放物面 2（1 枚のテクスチャ）
+```
+
+放物面への、投影は、**頂点シェーダー**で、行います。**方向ベクトルから、2D 座標**に、変換します。
+
+```hlsl
+// 前半球の、放物面投影。dir は、光から頂点への、単位方向（光の座標系）。
+float2 ParaboloidProject(float3 dir) {
+  // dir.z が、前向き（+Z）の半球。
+  return dir.xy / (1.0 + dir.z);        // 放物面の、写像（−1〜1 の範囲に収まる）
+}
+```
+
+## 頂点シェーダー
+
+```hlsl
+cbuffer ParaboloidCB : register(b0) {
+  float4x4 g_world_to_light;     // ワールド → 光の座標系（位置だけ引いて、向きを合わせる）
+  float g_light_range;
+  float g_direction_sign;        // +1 = 前半球、−1 = 後半球
+  float2 pad;
+};
+
+struct VSOut {
+  float4 position : SV_Position;
+  float clip_z : TEXCOORD0;      // 半球の外（反対側）を、クリップするため
+};
+
+VSOut main(float3 position : POSITION) {
+  float3 p = mul(float4(position, 1.0), g_world_to_light).xyz;       // 光の座標系での、頂点位置
+  float dist = length(p);
+  float3 dir = p / dist;
+  dir.z *= g_direction_sign;                                          // 後半球は、反転して、前半球と同じ式で
+
+  VSOut o;
+  float2 xy = dir.xy / (1.0 + dir.z);                                 // 放物面投影
+  o.position = float4(xy, dist / g_light_range, 1.0);                 // z には、光からの距離（0〜1）
+  o.clip_z = dir.z + 0.0;                                             // 半球の外は、クリップ（負の値）
+  return o;
+}
+```
+
+| 要素 | 内容 |
+| --- | --- |
+| `dir.xy / (1 + dir.z)` | **放物面の、写像**。`dir.z = 1`（真正面）で、`xy = dir.xy / 2`、`dir.z = 0`（真横）で、`xy = dir.xy`（円周） |
+| 深度 | **光からの、距離**（`dist / range`）を、**直接**、書く（放物面は、**透視投影の、深度が、定義できない**ため） |
+| 半球の、クリップ | `dir.z < 0` の頂点は、反対側の半球なので、**クリップ** |
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | **描画が、2 回**（キューブマップは 6 回）。**シャドウ パスが、安い** |
+| 長所 | **メモリが、小さい**（2 枚）。キューブマップの、1/3 |
+| 短所 | **非線形な、投影を、頂点シェーダーで**、行う。**三角形が、直線でなく、曲線に、変形される**のに、**頂点だけ変換**するので、**大きな三角形で、歪む**。**メッシュを、細かく**（テッセレーション）、する必要 |
+| 短所 | **解像度が、不均一**（中心で、高く、縁で、低い） |
+| 短所 | **半球の、境界**（真横）で、**継ぎ目**ができる |
+| 短所 | **ハードウェアの、比較サンプラー**（PCF）が、**使えない**（距離を、保存するため） |
+| 短所 | **現代では、あまり、使われない**（キューブマップの、描画が、**ジオメトリ シェーダー**や、**1 回のインスタンス描画**で、**効率化**できるため） |
+
+### 歪みの、問題
+
+**放物面の、投影**は、**直線を、曲線に、変換**します。ところが、ラスタライザーは、**投影後の、頂点を、結ぶ**、**直線の三角形**として、描きます。**大きな三角形**（地面）では、**頂点間の、曲線**が、**直線で、近似**され、**影が、歪みます**。
+
+| 対策 | 内容 |
+| --- | --- |
+| **メッシュを、細分化** | 大きな三角形を、**細かく**、分割する（テッセレーションで、**シャドウ パス**だけ） |
+| 影を落とす物を、**細かいメッシュ**に限る | 地面などは、**影を、落とさない**（受けるだけ）にする |
+
+## キューブマップとの、比較
+
+| | キューブマップ | 放物面（デュアル） |
+| --- | --- | --- |
+| 描画回数 | 6（面ごとに、視錐台カリングで、減らせる） | 2 |
+| 歪み | **なし**（通常の、透視投影） | **あり**（細分化が、必要） |
+| PCF（ハードウェア） | **使える** | 使えない（距離保存） |
+| 精度 | 面の全体で、**比較的、均一** | 中心が、高く、縁が、低い |
+| 実装 | **簡単** | やや複雑（頂点シェーダー、クリップ） |
+| 現状 | **標準** | **古い手法**。**メモリが、厳しい、古い環境**で、使われた |
+
+**現在の、ゲーム**では、**キューブマップ**が、標準で、**放物面は、ほとんど、使われません**。**歴史的な手法として**、知っておく程度で、十分です。
+
 ## よくあるミス
 
 ??? failure "大きな三角形が、投影で歪んで、影が崩れる"
@@ -61,8 +150,10 @@ tags:
 
 ## 参考
 
-- Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Brabec, Annen, Seidel, "Shadow Mapping for Hemispherical and Omnidirectional Light Sources", Advances in Modelling, Animation and Rendering (Computer Graphics International 2002)（放物面マッピング）
+- Heidrich, Seidel, "View-Independent Environment Maps", Eurographics/SIGGRAPH Graphics Hardware Workshop 1998（放物面による、環境マップ）
+- Olsson, Billeter, Assarsson, "Clustered Deferred and Forward Shading", High-Performance Graphics 2012
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（影の章）
 
 ## 関連ページ
 

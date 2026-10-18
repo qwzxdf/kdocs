@@ -312,8 +312,9 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 ## 参考
 
 - Microsoft, "DirectX Raytracing (DXR) Functional Spec"
-- NVIDIA, "Ray Tracing Gems"（シャドウ・デノイズの章）
-- NVIDIA, "NRD (NVIDIA Real-Time Denoisers)"（SIGMA：影用デノイザ）
+- Heitz, Hill, McGuire, "Combining Analytic Direct Illumination and Stochastic Shadows", Symposium on Interactive 3D Graphics and Games 2018
+- Schied et al., "Spatiotemporal Variance-Guided Filtering: Real-Time Reconstruction for Path-Traced Global Illumination", High-Performance Graphics 2017
+- Whitted, "An Improved Illumination Model for Shaded Display", Communications of the ACM, Vol. 23, No. 6, 1980（レイトレーシングの原典）
 
 ## 関連ページ
 

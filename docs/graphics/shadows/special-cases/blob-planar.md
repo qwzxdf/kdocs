@@ -73,6 +73,117 @@ XMMATRIX shadow_matrix = XMMatrixShadow(plane, XMVectorNegate(light));
 
 **古い手法**ですが**平らな床のゲーム**（スポーツ・シンプルな 3D）では今でも**有効**です。
 
+## シャドウ マップを、使わない、影
+
+**シャドウ マップ**は、**強力**ですが、**コストが、高く**、**画質の、調整**（バイアス、ちらつき）も、**大変**です。**用途によっては**、**もっと、簡単な方法**で、**十分に、見栄えのする影**が、作れます。
+
+## ブロブ影（丸い、影）
+
+**物の、足元に、丸くて、ぼんやりした、暗い絵**（**ブロブ**）を、**地面に、貼る**だけの、**最も、簡単な影**です。
+
+```text
+     ●  キャラクター
+     │
+   ░░▓▓░░     ← 足元の、丸いブロブ影
+ ━━━━━━━━━━━  地面
+```
+
+| 長所 | 短所 |
+| --- | --- |
+| **非常に、軽い**（四角形 1 枚） | **形が、丸い**（物の形に、ならない） |
+| **ちらつかない、安定** | **光の方向**に、依存しない（真下に、できる） |
+| **接地感**が、しっかり出る | 地面が、**凸凹**だと、**浮いて**見える |
+| モバイル、**低スペック**で、使える | 他の物に、**影が、落ちない** |
+
+### 実装
+
+```hlsl
+// ブロブ影: 地面に貼った、四角形（デカール）の、ピクセル シェーダー。中心から、距離で、暗くする。
+float4 main(float2 uv : TEXCOORD0) : SV_Target {
+  float d = distance(uv, float2(0.5, 0.5)) * 2.0;            // 中心 0、縁 1
+  float alpha = saturate(1.0 - d);
+  alpha *= alpha;                                             // 縁を、なだらかに（2 乗）
+  return float4(0, 0, 0, alpha * g_shadow_opacity);          // アルファ ブレンドで、地面に、重ねる
+}
+```
+
+| 工夫 | 内容 |
+| --- | --- |
+| **高さで、薄くする** | 物が、地面から、**離れる**（ジャンプ）ほど、**薄く、広がる** |
+| **地面に、沿わせる** | 四角形を、**地面の、形に**、**投影**（デカール、[Terrain Decals and Roads](../../terrain/texturing/decals.md)）。**斜面でも、浮かない** |
+| **複数**（足ごと） | 足ごとに、ブロブを置くと、**歩く、足元の、接地**が、強調される |
+
+## 平面への、投影影（プラナー シャドウ）
+
+**物の頂点を、平面（地面）に、投影**して、**影の形**を、**そのまま、描く**方法です（Blinn、1988）。**物の、形に、なった、影**が、**平らな地面**に、できます。
+
+```text
+ 光
+  ╲
+    ╲     ●物
+      ╲   │
+ ━━━━━━━▓▓▓▓━━━  地面  ← 物の形を、地面に、投影した、影
+```
+
+**光の方向**と、**平面の式**から、**投影行列**を、作ります。
+
+```cpp
+using namespace DirectX::SimpleMath;
+
+// 平面 n·p + d = 0 に、光の方向 l（光が進む向き）で、投影する行列（右手系、行ベクトル）。
+// 投影行列 = d·I − l·nᵀ  の形（頂点を、同次座標で、平面上へ、移す）。
+Matrix PlanarShadowMatrix(const Vector3& plane_normal, float plane_d, const Vector3& light_dir) {
+  const float dot = plane_normal.Dot(light_dir);
+  Matrix m;
+  m._11 = dot - light_dir.x * plane_normal.x * -1.0f;   // 実装の詳細は、行列の転置と符号に注意
+  // （ここでは、概念を示す。実際には DirectX::XMMatrixShadow を使うと、簡単）
+  return DirectX::XMMatrixShadow(DirectX::XMVectorSet(plane_normal.x, plane_normal.y, plane_normal.z, plane_d),
+                                 DirectX::XMVectorSet(-light_dir.x, -light_dir.y, -light_dir.z, 0.0f));
+}
+```
+
+`DirectX::XMMatrixShadow`（DirectXMath）が、**平面と、光の位置（または方向）**から、**投影行列**を、**作ってくれます**。
+
+| 要素 | 内容 |
+| --- | --- |
+| 描き方 | **物を、投影行列で、変換して、もう一度描く**。色は、**半透明の、黒** |
+| **二重ブレンド**の問題 | 物の、**三角形が、重なる**部分が、**2 回描かれ**、**濃くなる**（ムラ）。**ステンシル**で、**1 画素 1 回**に、制限する |
+| **Z ファイティング** | 影の平面が、地面と、**同じ高さ**で、**チラつく**。**少し、持ち上げる**（バイアス）、または、**深度バイアス** |
+
+```cpp
+// 二重ブレンドの防止: ステンシルが 0 の画素にだけ描き、描いたら、ステンシルを 1 にする。
+D3D11_DEPTH_STENCIL_DESC ds = {};
+ds.DepthEnable = TRUE;
+ds.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+ds.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+ds.StencilEnable = TRUE;
+ds.StencilReadMask = ds.StencilWriteMask = 0xFF;
+ds.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;              // ステンシルが 0 のとき、だけ
+ds.FrontFace.StencilPassOp = D3D11_STENCIL_OP_INCR_SAT;         // 描いたら、1 に増やす
+ds.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+ds.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+ds.BackFace = ds.FrontFace;
+device->CreateDepthStencilState(&ds, &planar_shadow_ds);
+// 参照値 0 で設定する: context->OMSetDepthStencilState(planar_shadow_ds.Get(), 0);
+```
+
+| 長所 | 短所 |
+| --- | --- |
+| **物の形**の影が、出る | **平らな地面にしか**、落ちない（階段、壁、他の物に、落ちない） |
+| **光の方向**に、従う | 影の縁が、**硬い**（ぼかしが、難しい） |
+| シャドウ マップが、不要 | **物を、もう一度描く**（コストが、かかる） |
+| 古い、ゲーム機、**モバイル**で、使われる | **自己影、他の物への影**が、無い |
+
+## 使い分け
+
+| 状況 | 方法 |
+| --- | --- |
+| **モバイル、低スペック** | ブロブ影（最も安い） |
+| **キャラクターの、接地感の、補強** | ブロブ影（シャドウ マップと、**併用**） |
+| 平らな地面の、**物の形**の影 | プラナー シャドウ |
+| **遠くの、小さな物**（群衆、車） | ブロブ影（シャドウ マップは、**省く**） |
+| 本格的な、ゲーム（PC、コンソール） | **シャドウ マップ + コンタクト シャドウ**。ブロブ影は、**補助** |
+
 ## よくあるミス
 
 ??? failure "段差のある地面で、平面投影の影が空中に浮く"
@@ -86,8 +197,9 @@ XMMATRIX shadow_matrix = XMMatrixShadow(plane, XMVectorNegate(light));
 
 ## 参考
 
-- Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Blinn, "Me and My (Fake) Shadow", IEEE Computer Graphics and Applications, Vol. 8, No. 1, 1988（平面への、投影影）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018
+- Microsoft Learn, "XMMatrixShadow function (DirectXMath)"
 
 ## 関連ページ
 

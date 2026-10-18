@@ -361,8 +361,8 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 
 ## 参考
 
-- Sousa, "Secrets of CryEngine 3 Graphics Technology"（2011、画面空間の影）
-- Bend Studio, "Screen Space Shadows"（GDC 2023 など）
+- McGuire, Mara, "Efficient GPU Screen-Space Ray Tracing", Journal of Computer Graphics Techniques, Vol. 3, No. 4, 2014
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018
 
 ## 関連ページ
 

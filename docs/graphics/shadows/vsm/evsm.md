@@ -55,6 +55,91 @@ tags:
 | **光漏れ** | **VSM より、大幅に減る**（exp で深度の差が強調される） |
 | **欠点** | **4 チャンネル**（メモリ・帯域が倍）。**浮動小数点の精度・範囲**に注意（32 ビット推奨） |
 
+## 考え方：VSM と ESM の、いいとこ取り
+
+**EVSM**（Exponential Variance Shadow Maps）は、**VSM の分散**（チェビシェフの不等式）と、**ESM の指数**を、**組み合わせた**手法です。深度 `z` を、**指数に変換**してから、その**平均と 2 乗の平均**（分散）を、保存し、チェビシェフの不等式で、**判定**します。
+
+```text
+VSM:   z、z² を、保存
+ESM:   exp(c × z) を、保存
+EVSM:  warp(z) = exp(c × z)   →   warp(z) と warp(z)² を、保存し、チェビシェフで判定
+```
+
+**指数変換**で、深度の差を、**増幅**するため、**光漏れ**（VSM の、最大の、弱点）が、**大きく減ります**。
+
+## 2 つの、指数（正と負）
+
+EVSM は、**2 つの方向の指数**（`+c` と `−c`）を、使います。
+
+| 指数 | 変換 | 役割 |
+| --- | --- | --- |
+| **正**の指数 | `exp(+c × z)` | 遮蔽物の**奥**（遠く）に、**影を落とす**。通常の、判定を、担当 |
+| **負**の指数 | `−exp(−c × z)` | **反対向き**の、光漏れを、抑える。**2 つの判定の、小さい方**を、採用する |
+
+```hlsl
+// シャドウ パス: 4 チャンネル（正の指数の、1 次と 2 次、負の指数の、1 次と 2 次）を、書き出す。
+float2 WarpDepth(float z, float2 exponents) {
+  // exponents.x = c+、exponents.y = c−
+  float pos = exp(exponents.x * z);
+  float neg = -exp(-exponents.y * z);
+  return float2(pos, neg);
+}
+
+float4 main(float4 pos_in : SV_Position) : SV_Target {
+  float2 warped = WarpDepth(pos_in.z, g_exponents);
+  // 4 チャンネル: (pos, pos², neg, neg²)
+  return float4(warped.x, warped.x * warped.x, warped.y, warped.y * warped.y);
+}
+```
+
+```hlsl
+// メイン パス: 正と負の、それぞれで、チェビシェフの判定をして、小さい方（暗い方）を採用する。
+float ChebyshevUpperBound(float2 moments, float t, float min_variance) {
+  float variance = max(moments.y - moments.x * moments.x, min_variance);
+  float d = t - moments.x;
+  float p_max = variance / (variance + d * d);
+  return (t <= moments.x) ? 1.0 : p_max;
+}
+
+float EvsmShadow(float4 moments, float depth) {
+  float2 warped = WarpDepth(depth, g_exponents);
+  float pos_lit = ChebyshevUpperBound(moments.xy, warped.x, g_min_variance_pos);
+  float neg_lit = ChebyshevUpperBound(moments.zw, warped.y, g_min_variance_neg);
+  return min(pos_lit, neg_lit);                      // どちらかが影なら影
+}
+```
+
+## 精度の、問題
+
+指数関数は、**非常に大きい値**になります。精度に、注意が必要です。
+
+| 形式 | 指数の上限（`exp(c × z)` の、あふれない `c`） |
+| --- | --- |
+| 16 ビット浮動小数点（`R16G16B16A16_FLOAT`） | `c ≈ 5`（`e⁵ ≈ 148`、**16 ビットの上限は 65504**） |
+| 32 ビット浮動小数点（`R32G32B32A32_FLOAT`） | `c ≈ 40`（`e⁴⁰ ≈ 2×10¹⁷`、2 乗しても、収まる）|
+
+**16 ビット**では、`c` を、小さくせざるを得ず、**光漏れの、削減効果が、減ります**。**32 ビット**（メモリが、2 倍）が、**標準**です。
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | **光漏れが、VSM より、大きく減る** |
+| 長所 | **ぼかし、ミップ、異方性**が、使える |
+| 長所 | **バイアスが、ほぼ、不要**（確率的に、判定するため） |
+| 短所 | **メモリ**：4 チャンネル × 32 ビット = **16 バイト / 画素**（通常の、深度の、4 倍） |
+| 短所 | **指数の、調整**（`c` の、値）。**深度の範囲に、依存** |
+| 短所 | **光漏れは、ゼロにならない**（重なる、遮蔽物では、残る） |
+| 短所 | シャドウ パスが、**ピクセル シェーダー付き**（指数の、計算） |
+
+## 使いどころ
+
+| 場面 | 判断 |
+| --- | --- |
+| **ぼかしを、広くかけたい**（柔らかい影） | **有効**。ガウスぼかしを、シャドウ マップに、1 回かけるだけ |
+| **カスケードの、**遠い**側**（広い範囲を、覆う、粗い、シャドウ マップ） | **有効**。ミップ、フィルタで、**エイリアシングを、減らせる** |
+| **接触部分の、正確さ**が、必要 | PCF や、レイトレーシングの、ほうが、確実 |
+
 ## よくあるミス
 
 ??? failure "16 ビット浮動小数で保存して、精度が足りず、縞が出る"
@@ -68,8 +153,10 @@ tags:
 
 ## 参考
 
-- Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Lauritzen, McGuire, "Layered Variance Shadow Maps", Graphics Interface 2008（光漏れの、軽減）
+- Annen, Mertens, Seidel, Eisemann, Durand, "Exponential Shadow Maps", Graphics Interface 2008
+- Donnelly, Lauritzen, "Variance Shadow Maps", Symposium on Interactive 3D Graphics and Games 2006
+- Peters, Klein, "Moment Shadow Mapping", Symposium on Interactive 3D Graphics and Games 2015
 
 ## 関連ページ
 

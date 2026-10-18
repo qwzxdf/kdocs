@@ -92,6 +92,93 @@ float4 light_clip = mul(float4(shadow_pos, 1.0), light_view_projection);
 
 **スロープ スケール＋法線オフセット**を併用するのが、**実用上の定番**です。
 
+## 法線オフセットとは
+
+**深度を、引く**代わりに、**画素の位置そのもの**を、**面の法線の向きに、少し、ずらして**から、シャドウ マップを、引きます。**面の、少し上**（**表面の、外側**）の点を、調べることになるので、**自分自身の面と、交差しません**。
+
+```text
+              光
+              ↓
+ ──────────●─────────  地面（P）
+            ↑ 法線の向きに、少し持ち上げる
+           ●             P' = P + N × offset  ← この点で、シャドウ マップを引く
+```
+
+**深度の値は、いじらず**、**位置を動かす**ので、**バイアスの、副作用**（影が、浮く）が、**小さくなります**。
+
+## 実装
+
+```hlsl
+float ShadowFactorNormalOffset(float3 world_pos, float3 world_normal, float3 light_dir, float offset_scale) {
+  // 面が、光に対して、斜めなほど、大きくずらす（斜めの面ほど、自己影が、出やすいため）。
+  float cos_theta = saturate(dot(world_normal, -light_dir));
+  float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+  float3 offset = world_normal * (sin_theta * offset_scale);
+
+  // 位置を、法線方向に、ずらしてから、光の座標に変換する。
+  float4 p = mul(float4(world_pos + offset, 1.0), g_shadow_matrix);
+  float3 coord = p.xyz / p.w;
+  return g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, coord.xy, coord.z);
+}
+```
+
+| 要素 | 内容 |
+| --- | --- |
+| `offset_scale` | ずらす距離。**シャドウ マップの、1 画素の、ワールドでの、大きさ**の、1〜3 倍が、目安 |
+| `sin_theta` | 光に**正面**（`sin = 0`）なら、ずらさない。**斜め**（`sin` が大きい）ほど、大きくずらす |
+
+### ずらす距離の、決め方
+
+シャドウ マップの 1 画素が、ワールドで、**どのくらいの、大きさか**を、基準にします。
+
+```cpp
+// 太陽（正射影）のとき、1 画素の、ワールドでの大きさ（メートル）。
+float texel_world_size = (2.0f * radius) / shadow_map_resolution;
+// 法線オフセットの距離は、その 1〜3 倍。
+float normal_offset = texel_world_size * 2.0f;
+```
+
+**解像度が、粗い**（遠いカスケード）ほど、1 画素が、大きいので、**オフセットも、大きく**します。**カスケードごとに、`texel_world_size` を、計算**します。
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | **ピーター パンニングが、少ない**（深度を、動かさないので、影が、物から、離れにくい） |
+| 長所 | **斜めの面**でも、自己影を、抑えられる（傾きに、応じて、ずらすため） |
+| 長所 | **ワールドの距離**で、指定できる（**直感的**。カスケードごとに、スケールしやすい） |
+| 短所 | **法線**が、必要（シャドウを引く、メイン パスで、法線を、持っている必要がある） |
+| 短所 | **影が、わずかに、ずれる**（位置を、動かすので）。**物の、縁・角**で、**影が、欠ける**ことがある |
+| 短所 | 法線が、**滑らか**（頂点法線の、補間）でないと、**面の境目で、影が、段差**になる。**ノーマル マップ**は、**使わず**、**ジオメトリの、法線**を、使う |
+
+### 角（エッジ）での、問題
+
+**物の角**で、法線方向に、ずらすと、**隣の面の、影の内部**に、入ってしまう**ことがあります。**ずらす距離が、大きすぎる**と、**角の影が、欠けます**。
+
+| 対策 | 内容 |
+| --- | --- |
+| ずらす距離を、**控えめ**に | 1 画素の、1〜2 倍に、とどめる |
+| **補間した法線**（頂点法線）を使う | 面法線ではなく、頂点法線を、補間して、使う（角で、法線が、滑らかに、変わる） |
+| **定数バイアス**と、併用 | 法線オフセットで、大部分を、抑え、残りを、**小さな、定数バイアス**で、補う |
+
+## 他のバイアスとの、組み合わせ
+
+**実用的な、組み合わせ**は、次のとおりです。
+
+```text
+① 法線オフセット（斜めの面の、自己影を、抑える。ワールド距離で、指定）
+② + 小さな定数バイアス（深度の精度の誤差を、補う）
+③ + ハードウェアの、傾き依存バイアス（シャドウ パスで、ごく小さく）
+```
+
+| 役割 | 方式 |
+| --- | --- |
+| 斜めの面（射影エイリアシング） | **法線オフセット** |
+| 深度の、量子化誤差 | **小さな、定数バイアス** |
+| 三角形ごとの、微調整 | **傾き依存**（ごく小さく） |
+
+どれも、**大きく**すると、副作用が、出るので、**小さな値を、組み合わせる**のが、**コツ**です。
+
 ## よくあるミス
 
 ??? failure "オフセットが大きすぎて、細い物の影が欠ける"
@@ -105,8 +192,10 @@ float4 light_clip = mul(float4(shadow_pos, 1.0), light_view_projection);
 
 ## 参考
 
-- Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Isidoro, "Shadow Mapping: GPU-based Tips and Techniques", Game Developers Conference 2006（レシーバー平面の深度バイアスなど）
+- Microsoft Learn, "Common Techniques to Improve Shadow Depth Maps"（Direct3D 11 のドキュメント。バイアス、平行光源、PCF）
+- Dimitrov, "Cascaded Shadow Maps", NVIDIA White Paper, 2007
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（影の章）
 
 ## 関連ページ
 

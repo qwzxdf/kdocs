@@ -31,6 +31,11 @@ def Add(path, md, before="## よくあるミス", key=None):
         return False
     i = text.find("\n" + before)
     if i < 0:
+        for alt in ("## これだけ覚える", "## 参考", "## 関連ページ"):
+            i = text.find("\n" + alt)
+            if i >= 0:
+                break
+    if i < 0:
         raise SystemExit("見出しが無い: %s %s" % (path, before))
     text = text[:i + 1] + md + text[i + 1:]
     Save(path, text, crlf)

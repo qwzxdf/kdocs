@@ -66,6 +66,129 @@ Matrix LightViewProjection(const Vector3& light_dir, const Vector3& center, floa
 
 **全方向**に光が出るので<strong>6 方向（キューブマップ）</strong>で撮ります（[Point and Spot Light Shadows](../local-lights/index.md)）。
 
+## 光の行列：ビューと射影
+
+シャドウ マップを、描くには、**光の視点**から、見た、**ビュー行列**と、**射影行列**が、必要です。**メインの、カメラ**の行列と、**同じ**考え方で、作ります。このサイトの、座標系は、**右手系・Y 上・行ベクトル（`v * M`）**です（[座標系](../../../3d/index.md)）。
+
+```text
+ワールド座標 → [ビュー行列] → 光の視点の座標 → [射影行列] → 光のクリップ空間 → シャドウ マップの UV と深度
+```
+
+## 平行光源（太陽）：正射影
+
+太陽の光は、**平行**なので、**正射影**（遠近感なし）で、描きます。
+
+### ビュー行列
+
+光の**向き**だけが、重要で、**位置**は、**影を、落とす範囲の、中心**から、光の逆向きに、離れた所に、置きます。
+
+```cpp
+using namespace DirectX::SimpleMath;
+
+// 太陽の方向（光が進む向き）。例: 斜め下へ。
+Vector3 light_dir = Vector3(-0.4f, -1.0f, -0.3f);
+light_dir.Normalize();
+
+// 影を落とす範囲の、中心（たとえば、カメラの視錐台の、中心）と、半径。
+Vector3 center = frustum_center;
+float radius = frustum_radius;
+
+// 光の位置: 中心から、光の来る側（光の進む向きの、逆）へ、radius だけ、下がる。
+Vector3 eye = center - light_dir * radius;
+
+// 上向きは、光の方向と、平行にならないものを選ぶ。
+Vector3 up = (std::abs(light_dir.y) > 0.99f) ? Vector3::UnitZ : Vector3::UnitY;
+Matrix light_view = Matrix::CreateLookAt(eye, center, up);       // 右手系
+```
+
+### 射影行列
+
+**影を落とす範囲を、ちょうど、覆う**、**箱（正射影の、ボリューム）**を、作ります。
+
+```cpp
+// 正射影: 左、右、下、上、ニア、ファー（光のビュー空間で）。右手系の、オフ センター版。
+float near_z = 0.0f;
+float far_z = 2.0f * radius;
+Matrix light_proj = Matrix::CreateOrthographicOffCenter(
+    -radius, radius, -radius, radius, near_z, far_z);              // SimpleMath（右手系）
+
+Matrix light_view_proj = light_view * light_proj;                  // 行ベクトルなので、左から右（ビュー → 射影）
+```
+
+| パラメーター | 内容 |
+| --- | --- |
+| `radius` | 影の範囲の、半径。**小さい**ほど、シャドウ マップの、解像度が、**有効**に使われる。**大きい**と、広く覆えるが、ぼやける |
+| `near_z`、`far_z` | **光の方向の、奥行き範囲**。**影を落とす物が、すべて含まれる**ように、広めに取る |
+
+**影を落とす物が、範囲の外**（光の、さらに手前、たとえば、高い山）に、あると、**影が、欠けます**。ニアを、手前に、延ばすか、**光の、後ろにある、物の深度を、クランプ**します（**深度クランプ**、`DepthClipEnable = FALSE`）。
+
+## スポットライト：透視投影
+
+スポットライトは、**円錐状**に、光を出すので、**透視投影**で、描きます。**円錐の、開き角**が、**視野角**です。
+
+```cpp
+Vector3 position = spot.position;
+Vector3 target = spot.position + spot.direction;
+Matrix light_view = Matrix::CreateLookAt(position, target, Vector3::UnitY);
+
+float fov = 2.0f * spot.outer_angle;                              // 開き角（ラジアン）
+float aspect = 1.0f;                                              // シャドウ マップは、正方形
+Matrix light_proj = Matrix::CreatePerspectiveFieldOfView(fov, aspect, spot.near_z, spot.range);
+Matrix light_view_proj = light_view * light_proj;
+```
+
+視野角は、**170° 未満**に、します（180° に、近づくと、透視投影が、破綻する）。
+
+## メイン パスで：ワールドから、シャドウ マップの座標へ
+
+メインの、描画で、各画素の、**ワールド座標**を、**光の行列**で、変換し、**シャドウ マップの UV と、深度**を、求めます。
+
+```hlsl
+cbuffer ShadowCB : register(b2) { float4x4 g_light_view_proj; };
+Texture2D<float> g_shadow_map : register(t5);
+SamplerComparisonState g_shadow_sampler : register(s5);
+
+float ShadowFactor(float3 world_pos) {
+  // ① 光のクリップ空間へ
+  float4 light_clip = mul(float4(world_pos, 1.0), g_light_view_proj);
+  float3 ndc = light_clip.xyz / light_clip.w;                    // 正射影では w = 1
+
+  // ② NDC（-1〜1、y は上が +）を、テクスチャ UV（0〜1、v は下が +）へ
+  float2 uv = ndc.xy * float2(0.5, -0.5) + 0.5;
+
+  // ③ 範囲外は、影なし
+  if (any(uv < 0.0) || any(uv > 1.0) || ndc.z > 1.0) return 1.0;
+
+  // ④ 深度を比較して、影の中なら 0、光が当たるなら 1
+  return g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, uv, ndc.z);
+}
+```
+
+**v を反転**（`-0.5`）するのは、**NDC の y は、上が正**で、**テクスチャの v は、下が正**だからです。この反転を、忘れると、**影が、上下に、逆転**します。
+
+### 変換を、1 つの行列に、まとめる
+
+**NDC から UV への、変換**（`* 0.5 + 0.5`、y の反転）も、**行列**にして、光の行列と、**掛けておく**と、シェーダーが、簡単になります。
+
+```cpp
+// NDC (-1..1) → UV (0..1)、y 反転。行ベクトル用。
+Matrix ndc_to_uv(0.5f, 0.0f, 0.0f, 0.0f,
+                 0.0f, -0.5f, 0.0f, 0.0f,
+                 0.0f, 0.0f, 1.0f, 0.0f,
+                 0.5f, 0.5f, 0.0f, 1.0f);
+Matrix shadow_matrix = light_view * light_proj * ndc_to_uv;        // ワールド → シャドウ マップの UV + 深度
+```
+
+```hlsl
+float4 shadow_pos = mul(float4(world_pos, 1.0), g_shadow_matrix);
+float3 shadow_coord = shadow_pos.xyz / shadow_pos.w;                // xy = UV、z = 深度
+float lit = g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, shadow_coord.xy, shadow_coord.z);
+```
+
+## 視錐台に、ぴったり合わせる
+
+太陽の、`radius` を、**メインの、カメラの視錐台**に、**合わせて**、**毎フレーム、計算**すると、**無駄なく**、解像度を、使えます。ただし、**カメラが、動くたびに、範囲が、変わり**、**影が、ちらつきます**（[Aliasing and Stabilization](aliasing-stabilize.md)）。**カスケード**では、**視錐台を、分割**して、それぞれに、合わせた、行列を、作ります（[CSM](../cascaded.md)）。
+
 ## よくあるミス
 
 ??? failure "太陽の範囲を、シーン全体にして、影がぼやける"
@@ -79,8 +202,10 @@ Matrix LightViewProjection(const Vector3& light_dir, const Vector3& center, floa
 
 ## 参考
 
-- Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Williams, "Casting Curved Shadows on Curved Surfaces", SIGGRAPH 1978（シャドウ マップの原典）
+- Microsoft Learn, "Common Techniques to Improve Shadow Depth Maps"（Direct3D 11 のドキュメント。バイアス、平行光源、PCF）
+- Dimitrov, "Cascaded Shadow Maps", NVIDIA White Paper, 2007
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（影の章）
 
 ## 関連ページ
 

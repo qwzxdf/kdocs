@@ -67,6 +67,64 @@ tags:
 | **利点** | **1 チャンネル**で済む。**VSM のような、光漏れは小さい** |
 | **欠点** | **受け手が遮蔽物に近い**と**影が薄く**なる（**接触部が明るく漏れる**）。`c` と**精度のトレードオフ** |
 
+## 考え方：深度を、指数に、変える
+
+**ESM**（Exponential Shadow Maps、Annen ら、2008）は、**深度 `z`** の代わりに、**`exp(c × z)`** を、保存します。**`c` は、大きな正の定数**（80 など）です。
+
+通常の、影の判定は、**`t ≤ z_保存` なら、光が当たる**（1）、**そうでなければ、影**（0）、という、**階段関数**です。これを、**指数関数で、近似**します。
+
+```text
+通常:   lit = (t ≤ z) ? 1 : 0
+ESM:    lit = saturate( exp(c × z) × exp(−c × t) ) = saturate( exp(c × (z − t)) )
+```
+
+| 状況 | `z − t` | `exp(c(z−t))` | 意味 |
+| --- | --- | --- | --- |
+| 画素が、遮蔽物より、**手前**（光が当たる） | `z − t > 0` | **1 以上**（saturate で 1） | 光が当たる |
+| 画素が、遮蔽物と、**同じ**位置 | 0 | 1 | 光が当たる（境界） |
+| 画素が、遮蔽物の、**奥**（影の中） | `z − t < 0` | **0 に近い**（`c` が、大きいほど、急に 0） | 影 |
+
+`c` が、**大きい**と、**階段関数に近づき**（影の縁が、鋭い）、**小さい**と、**なめらか**ですが、**影が、薄れます**。
+
+## フィルタの、うまみ
+
+**`exp(c × z)`** は、**ぼかして、平均しても、正しい**性質を持ちます。**平均の `exp` は、`exp` の平均**ではありませんが、**`exp(c × z)` を、ぼかした**ものは、**「周りの、遮蔽物の、深度の、重みつき平均」**として、**意味があります**。
+
+```hlsl
+// シャドウ パス: exp(c × z) を、書き出す（R32_FLOAT のレンダー ターゲット）。
+// c が大きいと、浮動小数点が、あふれる。c × z を、ある範囲に、収める（c = 40〜80、z は、0〜1）。
+float main(float4 pos : SV_Position) : SV_Target {
+  return exp(kExponent * pos.z);
+}
+```
+
+```hlsl
+// メイン パス: ぼかした exp(c × z) を読み、exp(−c × t) を掛ける。
+float stored = g_shadow_esm.SampleLevel(g_linear_clamp, uv, 0);
+float lit = saturate(stored * exp(-kExponent * depth));
+```
+
+`exp(c × z)` は、**非常に大きい値**になります（`c = 80`、`z = 1` で、`e⁸⁰ ≈ 5×10³⁴`）。**32 ビット浮動小数点の、上限**（約 3.4×10³⁸）に、**近い**ので、`c` を、**大きくしすぎない**。**logarithmic ブラー**（`log(exp(a) + exp(b))` の形で、ぼかす）という、**あふれない、ぼかし方**も、あります。
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | **1 チャンネル**（メモリが、小さい）。**VSM より、光漏れが、起きにくい**（分散を、使わないので） |
+| 長所 | 実装が、**簡単**。ぼかしも、**ミップも、使える** |
+| 短所 | **影が、薄くなる**（遮蔽物から、**離れた所**で、影が、薄れる）。`exp(c(z−t))` は、**差が、大きいほど、0 に近づく**ので、**遠くの影は、濃い**が、**近くの影は、薄い**（逆の性質） |
+| 短所 | **`c` の、調整が、必要**（大きすぎる→あふれる、小さすぎる→影が、薄い） |
+| 短所 | **深度の、範囲**に、依存する（正規化した、深度の、範囲が、広いと、精度が、足りない） |
+
+### 影が、薄れる、問題
+
+**遮蔽物の、すぐ近く**（同じ面の、少し奥）では、`z − t` が、**小さい**ので、`exp(c(z − t))` は、**1 に近く**、**影が、薄い**（光が、当たると、判定）。遮蔽物から、**十分に、離れた**所（`z − t` が、大きい負）で、**初めて、濃い影**になります。**接地部分の、影が、薄くなる**ので、**足元が、浮いて**見える（[Peter Panning](../bias/peter-panning.md) に、似た見え方）。
+
+| 対策 | 内容 |
+| --- | --- |
+| `c` を、**大きく** | 影が、濃くなるが、あふれる危険 |
+| **EVSM** に、する | 2 つの、指数（正と負）で、影を、補強（[EVSM](evsm.md)） |
+
 ## よくあるミス
 
 ??? failure "`c` を大きくしすぎて、オーバーフローして真っ白"
@@ -80,8 +138,10 @@ tags:
 
 ## 参考
 
-- Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
-- Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
+- Annen, Mertens, Seidel, Eisemann, Durand, "Exponential Shadow Maps", Graphics Interface 2008
+- Donnelly, Lauritzen, "Variance Shadow Maps", Symposium on Interactive 3D Graphics and Games 2006
+- Salvi, "Rendering Filtered Shadows with Exponential Shadow Maps", ShaderX6, 2008
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（影の章）
 
 ## 関連ページ
 

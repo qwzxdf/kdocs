@@ -488,9 +488,10 @@ float shadow = physical_pool.SampleCmpLevelZero(shadow_sampler, physical_uv, dep
 
 ## 参考
 
-- Epic Games, "Virtual Shadow Maps"（Unreal Engine ドキュメント）
-- Karis et al., "A Deep Dive into Nanite Virtualized Geometry"（SIGGRAPH 2021、仮想シャドウ マップにも言及）
-- Lefohn et al., "Resolution-Matched Shadow Maps"（ACM TOG 2007）
+- Fernando, Fernandez, Bala, Greenberg, "Adaptive Shadow Maps", SIGGRAPH 2001
+- Lefohn, Sengupta, Owens, "Resolution-Matched Shadow Maps", ACM Transactions on Graphics, Vol. 26, No. 4, 2007
+- Giegl, Wimmer, "Queried Virtual Shadow Maps", Symposium on Interactive 3D Graphics and Games 2007
+- Epic Games, "Virtual Shadow Maps", Unreal Engine 5 ドキュメント
 
 ## 関連ページ
 
