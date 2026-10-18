@@ -246,6 +246,51 @@ Texture2D<float4> tex = ResourceDescriptorHeap[NonUniformResourceIndex(material.
 | **バケット数を絞る** | **不透明・アルファ テスト・両面**など、**PSO の状態が本当に違うもの**だけ**分ける** |
 | **テクスチャ番号をフラグで制御** | **ない場合はデフォルト値** |
 
+<!-- fig:bindless-index:begin -->
+
+<svg class="fig illust motion" data-fig="bindless-index" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-bindless-index" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ビンドレス: マテリアルが「テクスチャの番号」を持ち、シェーダーが番号で引く</text>
+<rect x="60" y="100" width="120" height="56" fill="#ffffff" stroke="#7c3aed" stroke-width="3"/>
+<text x="120" y="134" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937">物体: 岩</text>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="300" y="100" width="150" height="56" fill="#ffffff" stroke="#7c3aed" stroke-width="3"/>
+<text x="375" y="134" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#7c3aed">textureIndex = 2</text>
+</g>
+<line x1="184" y1="128" x2="296" y2="128" stroke="#7c3aed" stroke-width="3" marker-end="url(#arr-bindless-index)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/></line>
+<line x1="454" y1="128" x2="596" y2="252" stroke="#7c3aed" stroke-width="3" marker-end="url(#arr-bindless-index)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1288;0.1290;1.0000" values="0;0;1;1"/></line>
+<rect x="60" y="180" width="120" height="56" fill="#ffffff" stroke="#2ea043" stroke-width="3"/>
+<text x="120" y="214" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937">物体: 木</text>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2836;0.2839;1.0000" values="0;0;1;1"/><rect x="300" y="180" width="150" height="56" fill="#ffffff" stroke="#2ea043" stroke-width="3"/>
+<text x="375" y="214" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2ea043">textureIndex = 0</text>
+</g>
+<line x1="184" y1="208" x2="296" y2="208" stroke="#2ea043" stroke-width="3" marker-end="url(#arr-bindless-index)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2836;0.2839;1.0000" values="0;0;1;1"/></line>
+<line x1="454" y1="208" x2="596" y2="128" stroke="#2ea043" stroke-width="3" marker-end="url(#arr-bindless-index)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.3481;0.3484;1.0000" values="0;0;1;1"/></line>
+<rect x="60" y="260" width="120" height="56" fill="#ffffff" stroke="#e5aa28" stroke-width="3"/>
+<text x="120" y="294" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937">物体: 壁</text>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5030;0.5032;1.0000" values="0;0;1;1"/><rect x="300" y="260" width="150" height="56" fill="#ffffff" stroke="#e5aa28" stroke-width="3"/>
+<text x="375" y="294" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#e5aa28">textureIndex = 1</text>
+</g>
+<line x1="184" y1="288" x2="296" y2="288" stroke="#e5aa28" stroke-width="3" marker-end="url(#arr-bindless-index)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5030;0.5032;1.0000" values="0;0;1;1"/></line>
+<line x1="454" y1="288" x2="596" y2="190" stroke="#e5aa28" stroke-width="3" marker-end="url(#arr-bindless-index)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5675;0.5677;1.0000" values="0;0;1;1"/></line>
+<rect x="600" y="100" width="130" height="52" fill="#2ea043" opacity="0.9"/>
+<text x="665" y="132" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">heap[0] 画像</text>
+<rect x="600" y="162" width="130" height="52" fill="#e5aa28" opacity="0.9"/>
+<text x="665" y="194" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">heap[1] 画像</text>
+<rect x="600" y="224" width="130" height="52" fill="#7c3aed" opacity="0.9"/>
+<text x="665" y="256" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">heap[2] 画像</text>
+<rect x="600" y="286" width="130" height="52" fill="#cbd5e1" opacity="0.9"/>
+<text x="665" y="318" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">heap[3] 画像</text>
+<text x="665" y="88" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">記述子ヒープ(全テクスチャ)</text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">全テクスチャを、1 つの配列(ヒープ)に入れておく<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">岩: 番号 2 → heap[2]<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;0.2836;0.2839;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">木: 番号 0 → heap[0]<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2836;0.2839;0.5030;0.5032;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">壁: 番号 1 → heap[1]。物体ごとのテクスチャ切り替え命令が、要らなくなる<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5030;0.5032;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:bindless-index:end -->
+
 ## よくあるミス
 
 ??? failure "NonUniformResourceIndex を付けず、画素ごとに違うテクスチャが引かれるはずが、全部同じになる"

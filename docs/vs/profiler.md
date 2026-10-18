@@ -235,6 +235,44 @@ void MainLoop() {
 | **ボトルネックは移動する** | 1 つ直すと**次の場所が一番重く**なる。**また測る** |
 | **最悪のフレームを見る** | 平均でなく、**カクつくフレーム**の内訳（[フレーム時間の設計](../optimize/frame-budget.md)） |
 
+<!-- fig:flame-graph:begin -->
+
+<svg class="fig illust motion" data-fig="flame-graph" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-flame-graph" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">フレーム グラフ: 幅 = かかった時間。幅の広い所が、直す候補</text>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="70.0" y="290" width="638.0" height="54" fill="#64748b" opacity="0.9"/>
+<text x="390.0" y="322" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">Frame 16.0 ms</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2901;0.2903;1.0000" values="0;0;1;1"/><rect x="70.0" y="228" width="238.0" height="54" fill="#2563eb" opacity="0.9"/>
+<text x="190.0" y="260" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">Update 6.0</text>
+<rect x="310.0" y="228" width="318.0" height="54" fill="#2ea043" opacity="0.9"/>
+<text x="470.0" y="260" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">Render 8.0</text>
+<rect x="630.0" y="228" width="78.0" height="54" fill="#cbd5e1" opacity="0.9"/>
+<text x="670.0" y="260" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">待ち 2.0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5159;0.5161;1.0000" values="0;0;1;1"/><rect x="70.0" y="166" width="138.0" height="54" fill="#2563eb" opacity="0.9"/>
+<text x="140.0" y="198" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">AI 3.5</text>
+<rect x="210.0" y="166" width="78.0" height="54" fill="#2563eb" opacity="0.9"/>
+<text x="250.0" y="198" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">Physics 2.0</text>
+<rect x="290.0" y="166" width="18.0" height="54" fill="#2563eb" opacity="0.9"/>
+<text x="300.0" y="198" text-anchor="middle" style="font-size:9px;font-weight:700;fill:#ffffff">他 0.5</text>
+<rect x="310.0" y="166" width="58.0" height="54" fill="#2ea043" opacity="0.9"/>
+<text x="340.0" y="198" text-anchor="middle" style="font-size:9px;font-weight:700;fill:#ffffff">Culling 1.5</text>
+<rect x="370.0" y="166" width="198.0" height="54" fill="#e5484d" opacity="0.9"/>
+<text x="470.0" y="198" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">Draw 5.0</text>
+<rect x="570.0" y="166" width="58.0" height="54" fill="#2ea043" opacity="0.9"/>
+<text x="600.0" y="198" text-anchor="middle" style="font-size:9px;font-weight:700;fill:#ffffff">UI 1.5</text>
+</g>
+<text x="390" y="375" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">1 フレーム(16 ms)の、関数ごとの時間を積み上げる<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="375" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">一番下: フレーム全体<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;0.2901;0.2903;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="375" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">1 段上: Update / Render / 待ち に分ける<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2901;0.2903;0.5159;0.5161;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="375" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">さらに内訳。Draw が 5.0 ms で最大 → まずここを調べる<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5159;0.5161;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:flame-graph:end -->
+
 ## よくあるミス
 
 ??? failure "Debug で測って、本番と違う場所を直してしまう"

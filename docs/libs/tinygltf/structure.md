@@ -471,6 +471,53 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 
 **すべて、「配列の何番目か」で、つながっています**。
 
+<!-- fig:gltf-chain:begin -->
+
+<svg class="fig illust motion" data-fig="gltf-chain" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-gltf-chain" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">glTF は、番号でたどる: シーン → ノード → メッシュ → データの場所</text>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.0538;0.0541;1.0000" values="0;0;1;1"/><rect x="70" y="110" width="170" height="60" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+<text x="155" y="136" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#1f2937">scene</text>
+<text x="155" y="156" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">scenes[0].nodes = [0]</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.1728;0.1730;1.0000" values="0;0;1;1"/><rect x="280" y="110" width="170" height="60" fill="#ffffff" stroke="#2ea043" stroke-width="3"/>
+<text x="365" y="136" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#1f2937">node</text>
+<text x="365" y="156" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">nodes[0].mesh = 0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.2917;0.2919;1.0000" values="0;0;1;1"/><rect x="490" y="110" width="170" height="60" fill="#ffffff" stroke="#e5aa28" stroke-width="3"/>
+<text x="575" y="136" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#1f2937">mesh</text>
+<text x="575" y="156" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">meshes[0].primitives[0]</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.4106;0.4108;1.0000" values="0;0;1;1"/><rect x="490" y="250" width="170" height="60" fill="#ffffff" stroke="#7c3aed" stroke-width="3"/>
+<text x="575" y="276" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#1f2937">accessor</text>
+<text x="575" y="296" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">attributes.POSITION = 2</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.5295;0.5297;1.0000" values="0;0;1;1"/><rect x="280" y="250" width="170" height="60" fill="#ffffff" stroke="#e5484d" stroke-width="3"/>
+<text x="365" y="276" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#1f2937">bufferView</text>
+<text x="365" y="296" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">accessors[2].bufferView = 1</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.6484;0.6486;1.0000" values="0;0;1;1"/><rect x="70" y="250" width="170" height="60" fill="#ffffff" stroke="#64748b" stroke-width="3"/>
+<text x="155" y="276" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#1f2937">buffer</text>
+<text x="155" y="296" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">bufferViews[1].buffer = 0</text>
+</g>
+<line x1="240" y1="140" x2="276" y2="140" stroke="#e5484d" stroke-width="3" marker-end="url(#arr-gltf-chain)" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.1565;0.1568;1.0000" values="0;0;1;1"/></line>
+<line x1="450" y1="140" x2="486" y2="140" stroke="#e5484d" stroke-width="3" marker-end="url(#arr-gltf-chain)" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.2755;0.2757;1.0000" values="0;0;1;1"/></line>
+<line x1="575" y1="172" x2="575" y2="246" stroke="#e5484d" stroke-width="3" marker-end="url(#arr-gltf-chain)" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.3944;0.3946;1.0000" values="0;0;1;1"/></line>
+<line x1="486" y1="280" x2="450" y2="280" stroke="#e5484d" stroke-width="3" marker-end="url(#arr-gltf-chain)" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.5133;0.5135;1.0000" values="0;0;1;1"/></line>
+<line x1="276" y1="280" x2="240" y2="280" stroke="#e5484d" stroke-width="3" marker-end="url(#arr-gltf-chain)" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.6322;0.6324;1.0000" values="0;0;1;1"/></line>
+<text x="390" y="370" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">glTF の JSON は、配列の添字(番号)でつながっている<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.0538;0.0541;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="370" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">シーンは、ルートのノードの番号を持つ<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.0538;0.0541;0.1728;0.1730;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="370" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">ノードは、メッシュの番号を持つ<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.1728;0.1730;0.2917;0.2919;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="370" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">メッシュは、プリミティブを持つ<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.2917;0.2919;0.4106;0.4108;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="370" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">プリミティブの属性(POSITION)が、アクセサの番号を指す<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.4106;0.4108;0.5295;0.5297;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="370" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">アクセサは、バッファビューの番号を指す(どのバイト範囲か)<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.5295;0.5297;0.6484;0.6486;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="370" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">バッファビューは、バッファ(.bin)の番号を指す。ここに実データがある<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.6484;0.6486;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:gltf-chain:end -->
+
 ## よくあるミス
 
 ??? failure "番号を、別の配列の番号と取り違える"

@@ -261,6 +261,52 @@ int main() {
 | UI | 閉じている、開く途中、開いている、閉じる途中 |
 | ドア | 閉、開く途中、開、閉まる途中 |
 
+<!-- fig:state-transition-walk:begin -->
+
+<svg class="fig illust motion" data-fig="state-transition-walk" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-state-transition-walk" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ステートマシン: 入力があったときだけ、決められた先へ移る</text>
+<line x1="252.0" y1="159.0" x2="504.0" y2="159.0" stroke="#cbd5e1" stroke-width="2.5" marker-end="url(#arr-state-transition-walk)" opacity="1"/>
+<line x1="551.0" y1="202.0" x2="551.0" y2="244.0" stroke="#cbd5e1" stroke-width="2.5" marker-end="url(#arr-state-transition-walk)" opacity="1"/>
+<line x1="515.4615384615385" y1="271.6923076923077" x2="255.15384615384613" y2="163.23076923076923" stroke="#cbd5e1" stroke-width="2.5" marker-end="url(#arr-state-transition-walk)" opacity="1"/>
+<line x1="191.0" y1="202.0" x2="191.0" y2="244.0" stroke="#cbd5e1" stroke-width="2.5" marker-end="url(#arr-state-transition-walk)" opacity="1"/>
+<line x1="209.0" y1="248.0" x2="209.0" y2="206.0" stroke="#cbd5e1" stroke-width="2.5" marker-end="url(#arr-state-transition-walk)" opacity="1"/>
+<line x1="508.0" y1="141.0" x2="256.0" y2="141.0" stroke="#cbd5e1" stroke-width="2.5" marker-end="url(#arr-state-transition-walk)" opacity="1"/>
+<circle cx="200" cy="150" r="46" fill="#ffffff" stroke="#94a3b8" stroke-width="3"/>
+<text x="200" y="155" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937">待機</text>
+<circle cx="560" cy="150" r="46" fill="#ffffff" stroke="#94a3b8" stroke-width="3"/>
+<text x="560" y="155" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937">走る</text>
+<circle cx="560" cy="300" r="46" fill="#ffffff" stroke="#94a3b8" stroke-width="3"/>
+<text x="560" y="305" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937">ジャンプ</text>
+<circle cx="200" cy="300" r="46" fill="#ffffff" stroke="#94a3b8" stroke-width="3"/>
+<text x="200" y="305" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937">攻撃</text>
+<line x1="252.0" y1="159.0" x2="504.0" y2="159.0" stroke="#e5484d" stroke-width="4" marker-end="url(#arr-state-transition-walk)" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.0538;0.0541;0.2160;0.2162;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="560" cy="150" r="46" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.0971;0.0973;0.2592;0.2595;1.0000" values="0;0;1;1;0;0"/></circle>
+<line x1="551.0" y1="202.0" x2="551.0" y2="244.0" stroke="#e5484d" stroke-width="4" marker-end="url(#arr-state-transition-walk)" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.2160;0.2162;0.3782;0.3784;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="560" cy="300" r="46" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.2592;0.2595;0.4214;0.4216;1.0000" values="0;0;1;1;0;0"/></circle>
+<line x1="515.4615384615385" y1="271.6923076923077" x2="255.15384615384613" y2="163.23076923076923" stroke="#e5484d" stroke-width="4" marker-end="url(#arr-state-transition-walk)" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.3782;0.3784;0.5403;0.5405;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="200" cy="150" r="46" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.4214;0.4216;0.5836;0.5838;1.0000" values="0;0;1;1;0;0"/></circle>
+<line x1="191.0" y1="202.0" x2="191.0" y2="244.0" stroke="#e5484d" stroke-width="4" marker-end="url(#arr-state-transition-walk)" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.5403;0.5405;0.7025;0.7027;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="200" cy="300" r="46" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.5836;0.5838;0.7457;0.7459;1.0000" values="0;0;1;1;0;0"/></circle>
+<line x1="209.0" y1="248.0" x2="209.0" y2="206.0" stroke="#e5484d" stroke-width="4" marker-end="url(#arr-state-transition-walk)" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.7025;0.7027;0.8646;0.8649;1.0000" values="0;0;1;1;0;0"/></line>
+<circle cx="200" cy="150" r="46" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.7457;0.7459;1.0000" values="0;0;1;1"/></circle>
+<circle cx="200" cy="150" r="46" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.0003;0.0005;0.0971;0.0973;1.0000" values="0;0;1;1;0;0"/></circle>
+<text x="200" y="155" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937">待機</text>
+<text x="560" y="155" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937">走る</text>
+<text x="560" y="305" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937">ジャンプ</text>
+<text x="200" y="305" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937">攻撃</text>
+<text x="390" y="405" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">最初は「待機」<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.0538;0.0541;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="405" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">入力「右キー」: 待機 → 走る<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.0538;0.0541;0.2160;0.2162;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="405" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">入力「ジャンプ」: 走る → ジャンプ<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.2160;0.2162;0.3782;0.3784;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="405" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">入力「着地」: ジャンプ → 待機<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.3782;0.3784;0.5403;0.5405;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="405" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">入力「攻撃」: 待機 → 攻撃<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.5403;0.5405;0.7025;0.7027;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="405" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">入力「終了」: 攻撃 → 待機<animate attributeName="opacity" dur="18.5s" repeatCount="indefinite" keyTimes="0.0000;0.7025;0.7027;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:state-transition-walk:end -->
+
 ## よくあるミス
 
 ??? failure "bool のフラグを増やしていく"

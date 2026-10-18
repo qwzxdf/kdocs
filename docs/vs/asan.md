@@ -245,6 +245,53 @@ int x = v[3];
 
 CMake に **`SANITIZE` オプション**を作って、**切り替えられる**ようにしておくと、使いやすくなります（[ビルドと CMake の構成](../design/practice/build-cmake.md)）。
 
+<!-- fig:asan-redzone:begin -->
+
+<svg class="fig illust motion" data-fig="asan-redzone" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-asan-redzone" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">AddressSanitizer: 配列の両側に「立入禁止」の領域を置き、触ったら止める</text>
+<rect x="150" y="150" width="66" height="60" fill="#fecaca" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="183.0" y="186" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">禁止</text>
+<rect x="220" y="150" width="66" height="60" fill="#dbeafe" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="253.0" y="186" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2563eb">a[0]</text>
+<rect x="290" y="150" width="66" height="60" fill="#dbeafe" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="323.0" y="186" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2563eb">a[1]</text>
+<rect x="360" y="150" width="66" height="60" fill="#dbeafe" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="393.0" y="186" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2563eb">a[2]</text>
+<rect x="430" y="150" width="66" height="60" fill="#dbeafe" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="463.0" y="186" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2563eb">a[3]</text>
+<rect x="500" y="150" width="66" height="60" fill="#fecaca" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="533.0" y="186" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">禁止</text>
+<rect x="570" y="150" width="66" height="60" fill="#fecaca" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="603.0" y="186" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">禁止</text>
+<rect x="640" y="150" width="66" height="60" fill="#fecaca" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="673.0" y="186" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">禁止</text>
+<text x="360" y="136" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2563eb">int a[4]（4 要素）</text>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.1928;0.1931;1.0000" values="0;0;1;1;0;0"/><path d="M253,220 l-10,-18 l20,0 z" fill="#2ea043"/>
+<text x="253.0" y="262" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2ea043">a[0] に書く</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1928;0.1931;0.3170;0.3172;1.0000" values="0;0;1;1;0;0"/><path d="M323,220 l-10,-18 l20,0 z" fill="#2ea043"/>
+<text x="323.0" y="262" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2ea043">a[1] に書く</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3170;0.3172;0.4411;0.4414;1.0000" values="0;0;1;1;0;0"/><path d="M393,220 l-10,-18 l20,0 z" fill="#2ea043"/>
+<text x="393.0" y="262" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2ea043">a[2] に書く</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4411;0.4414;0.5652;0.5655;1.0000" values="0;0;1;1;0;0"/><path d="M463,220 l-10,-18 l20,0 z" fill="#2ea043"/>
+<text x="463.0" y="262" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2ea043">a[3] に書く</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5652;0.5655;1.0000" values="0;0;1;1"/><path d="M533,220 l-10,-18 l20,0 z" fill="#e5484d"/>
+<text x="533.0" y="262" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">a[4] に書く</text>
+</g>
+<text x="390" y="315" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#e5484d" opacity="0">ERROR: AddressSanitizer: stack-buffer-overflow（a[4] への書き込み）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6756;0.6759;1.0000" values="0;0;1;1"/></text>
+<text x="390" y="360" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">配列の前後に、禁止領域(赤)が自動で置かれる<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="360" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">a[0]〜a[3] に書く: 範囲内なので問題なし<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.6204;0.6207;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="360" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">a[4] に書く: 禁止領域に触れた → その場でプログラムを止めて、行番号を表示<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6204;0.6207;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:asan-redzone:end -->
+
 ## よくあるミス
 
 ??? failure "「C++ AddressSanitizer」をインストールしていなくて、ビルドエラーになる"

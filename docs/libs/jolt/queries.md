@@ -233,6 +233,30 @@ IgnoreSingleBodyFilter body_filter(shooter_id);
 | **毎フレームの大量のクエリ** | **数百本までは軽い**。**数千本以上**は、**まとめて**・**頻度を下げる**（[フレーム時間の設計](../../optimize/frame-budget.md)） |
 | **結果を溜める** | **コレクターの、確保**を**使い回す**（[毎フレームのヒープ確保を避ける](../../optimize/frame-allocation.md)） |
 
+<!-- fig:raycast-hit:begin -->
+
+<svg class="fig illust motion" data-fig="raycast-hit" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-raycast-hit" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">レイキャスト: 線を伸ばし、最初に当たった物を返す</text>
+<rect x="250" y="200" width="80" height="80" fill="#2563eb" opacity="0.85"/>
+<text x="290.0" y="245.0" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#ffffff">B1</text>
+<rect x="430" y="150" width="90" height="80" fill="#2ea043" opacity="0.85"/>
+<text x="475.0" y="195.0" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#ffffff">B2</text>
+<circle cx="90.0" cy="300.0" r="8" fill="#1f2937"/>
+<text x="90.0" y="326.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">レイの始点</text>
+<line x1="90.0" y1="300.0" x2="90.0" y2="300.0" stroke="#e5484d" stroke-width="3.5"><animate attributeName="x2" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0741;0.3704;1.0000" values="90;90;250;250"/><animate attributeName="y2" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0741;0.3704;1.0000" values="300;300;260;260"/></line>
+<line x1="250.0" y1="260.0" x2="633.2798000813858" y2="164.18004997965355" stroke="#e5484d" stroke-width="2" stroke-dasharray="5 5" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000" values="0;0;1;1"/></line>
+<circle cx="250.0" cy="260.0" r="9" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3701;0.3704;1.0000" values="0;0;1;1"/></circle>
+<text x="390" y="360" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">始点と向きから、直線を伸ばす<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="360" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">線を伸ばしていく<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.3701;0.3704;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="360" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">最初に B1 に当たった。距離 165<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3701;0.3704;0.4812;0.4815;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="360" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">B2 も線の先にあるが、手前の B1 に遮られる。通常は、最初の 1 つだけ返す<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:raycast-hit:end -->
+
 ## よくあるミス
 
 ??? failure "`RRayCast` の第 2 引数に、正規化した方向を、そのまま渡して、短すぎる"

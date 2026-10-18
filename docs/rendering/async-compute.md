@@ -69,6 +69,60 @@ GPU の処理は、段階ごとに使う部品が違います。1 つの処理�
 | **デバッグが難しい** | 実行順序が非決定的になる。ツールで確認する |
 | **DX11 では不可** | 単一のキューで直列に実行される |
 
+<!-- fig:async-compute-gantt:begin -->
+
+<svg class="fig illust motion" data-fig="async-compute-gantt" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-async-compute-gantt" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">非同期コンピュート: 別の列で同時に走らせ、全体の時間を縮める</text>
+<text x="40" y="85" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d">ふつう（1 列で順番に）</text>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="0;0;1;1"/><rect x="70.0" y="105" width="77.0" height="38" fill="#2563eb" opacity="0.9"/>
+<text x="110.0" y="129" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">影</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1170;0.1172;1.0000" values="0;0;1;1"/><rect x="150.0" y="105" width="157.0" height="38" fill="#2ea043" opacity="0.9"/>
+<text x="230.0" y="129" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">G-Buffer</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1652;0.1655;1.0000" values="0;0;1;1"/><rect x="310.0" y="105" width="117.0" height="38" fill="#e5aa28" opacity="0.9"/>
+<text x="370.0" y="129" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">ライティング</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2135;0.2138;1.0000" values="0;0;1;1"/><rect x="430.0" y="105" width="37.0" height="38" fill="#64748b" opacity="0.9"/>
+<text x="450.0" y="129" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">合成</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2618;0.2621;1.0000" values="0;0;1;1"/><rect x="470.0" y="105" width="77.0" height="38" fill="#7c3aed" opacity="0.9"/>
+<text x="510.0" y="129" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">パーティクル</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3101;0.3103;1.0000" values="0;0;1;1"/><rect x="550.0" y="105" width="77.0" height="38" fill="#e5484d" opacity="0.9"/>
+<text x="590.0" y="129" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">SSAO</text>
+</g>
+<text x="630.0" y="160" text-anchor="end" style="font-size:13px;font-weight:700;fill:#e5484d" opacity="0">14 ms<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3790;0.3793;1.0000" values="0;0;1;1"/></text>
+<text x="40" y="205" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043">非同期（グラフィックス列 + コンピュート列）</text>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4480;0.4483;1.0000" values="0;0;1;1"/><rect x="70.0" y="225" width="77.0" height="38" fill="#2563eb" opacity="0.9"/>
+<text x="110.0" y="249" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">影</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4825;0.4828;1.0000" values="0;0;1;1"/><rect x="150.0" y="225" width="157.0" height="38" fill="#2ea043" opacity="0.9"/>
+<text x="230.0" y="249" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">G-Buffer</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5170;0.5172;1.0000" values="0;0;1;1"/><rect x="310.0" y="225" width="117.0" height="38" fill="#e5aa28" opacity="0.9"/>
+<text x="370.0" y="249" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">ライティング</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5514;0.5517;1.0000" values="0;0;1;1"/><rect x="430.0" y="225" width="37.0" height="38" fill="#64748b" opacity="0.9"/>
+<text x="450.0" y="249" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">合成</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5859;0.5862;1.0000" values="0;0;1;1"/><rect x="70.0" y="272" width="77.0" height="38" fill="#7c3aed" opacity="0.9"/>
+<text x="110.0" y="296" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">パーティクル</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6204;0.6207;1.0000" values="0;0;1;1"/><rect x="310.0" y="272" width="77.0" height="38" fill="#e5484d" opacity="0.9"/>
+<text x="350.0" y="296" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">SSAO</text>
+</g>
+<text x="470.0" y="340" text-anchor="end" style="font-size:13px;font-weight:700;fill:#2ea043" opacity="0">10 ms<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6894;0.6897;1.0000" values="0;0;1;1"/></text>
+<text x="40" y="252" text-anchor="start" style="font-size:11px;font-weight:700;fill:#64748b">GFX</text>
+<text x="40" y="298" text-anchor="start" style="font-size:11px;font-weight:700;fill:#64748b">計算</text>
+<text x="390" y="385" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">パーティクルは影と同時に、SSAO はライティングと同時に走らせる(GPU に空きがあるときだけ得をする)</text>
+</svg>
+
+<!-- fig:async-compute-gantt:end -->
+
 ## よくあるミス
 
 ??? failure "効果を測らずに導入する"

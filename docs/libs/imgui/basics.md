@@ -144,6 +144,39 @@ ImGui は、**プラットフォーム**（ウィンドウ・入力）と**レ�
     ImGui の使い方で迷ったら、**`ImGui::ShowDemoWindow();` を毎フレーム呼んで、動かして<strong>見ます。ほとんどの部品の見た目と、</strong>その部品を出すコードの場所**が分かります（`imgui_demo.cpp` に全部書いてあります）。
 
 
+<!-- fig:imgui-frame-loop:begin -->
+
+<svg class="fig illust motion" data-fig="imgui-frame-loop" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-imgui-frame-loop" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ImGui は毎フレーム、画面を最初から組み立て直す(状態は自分の変数に持つ)</text>
+<rect x="70" y="120" width="190" height="80" fill="#ffffff" stroke="#94a3b8" stroke-width="2.5"/>
+<text x="165" y="166" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">NewFrame()</text>
+<line x1="262" y1="160" x2="366" y2="160" stroke="#64748b" stroke-width="3" marker-end="url(#arr-imgui-frame-loop)" opacity="1"/>
+<rect x="300" y="120" width="190" height="80" fill="#ffffff" stroke="#94a3b8" stroke-width="2.5"/>
+<text x="395" y="166" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">Button() などの呼び出し</text>
+<line x1="492" y1="160" x2="596" y2="160" stroke="#64748b" stroke-width="3" marker-end="url(#arr-imgui-frame-loop)" opacity="1"/>
+<rect x="530" y="120" width="190" height="80" fill="#ffffff" stroke="#94a3b8" stroke-width="2.5"/>
+<text x="625" y="166" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">Render() → 描画</text>
+<rect x="70" y="120" width="190" height="80" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.0569;0.0571;0.1255;0.1257;1.0000" values="0;0;0.35;0.35;0;0"/></rect>
+<rect x="300" y="120" width="190" height="80" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.1255;0.1257;0.1941;0.1943;1.0000" values="0;0;0.35;0.35;0;0"/></rect>
+<rect x="530" y="120" width="190" height="80" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.1941;0.1943;0.2626;0.2629;1.0000" values="0;0;0.35;0.35;0;0"/></rect>
+<rect x="70" y="120" width="190" height="80" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.3141;0.3143;0.3826;0.3829;1.0000" values="0;0;0.35;0.35;0;0"/></rect>
+<rect x="300" y="120" width="190" height="80" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.3826;0.3829;0.4512;0.4514;1.0000" values="0;0;0.35;0.35;0;0"/></rect>
+<rect x="530" y="120" width="190" height="80" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.4512;0.4514;0.5198;0.5200;1.0000" values="0;0;0.35;0.35;0;0"/></rect>
+<rect x="70" y="120" width="190" height="80" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.5712;0.5714;0.6398;0.6400;1.0000" values="0;0;0.35;0.35;0;0"/></rect>
+<rect x="300" y="120" width="190" height="80" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.6398;0.6400;0.7083;0.7086;1.0000" values="0;0;0.35;0.35;0;0"/></rect>
+<rect x="530" y="120" width="190" height="80" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.7083;0.7086;0.7769;0.7771;1.0000" values="0;0;0.35;0.35;0;0"/></rect>
+<text x="390" y="290" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">ゲームのループが 1 回まわるのが、1 フレーム<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.0569;0.0571;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="290" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 1: ボタンは押されていない → Button() は false を返す。hp = 100<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.0569;0.0571;0.3141;0.3143;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="290" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 2: ボタンが押された → Button() が true を返す。if の中で hp-- して 99 に<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.3141;0.3143;0.5712;0.5714;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="290" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">フレーム 3: 押されていない → false。hp は 99 のまま(変数に残っている)<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.5712;0.5714;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">UI の部品は残らない。毎回「いま何を表示するか」を書き直す(即時モード)</text>
+</svg>
+
+<!-- fig:imgui-frame-loop:end -->
+
 ## よくあるミス
 
 ??? failure "ウィジェットの名前が重複して、片方しか動かない"

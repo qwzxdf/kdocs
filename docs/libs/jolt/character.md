@@ -215,6 +215,30 @@ character->PostSimulation(0.05f);
 | **ナビメッシュと組み合わせる** | **経路 → 次の目標点 → 速度 → `ExtendedUpdate`**（[ベイク](../../optimize/baking.md)のナビメッシュ） |
 | **レイヤー** | **敵どうしの衝突をレイヤーで制御**（[レイヤー](layers.md)） |
 
+<!-- fig:character-slide:begin -->
+
+<svg class="fig illust motion" data-fig="character-slide" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-character-slide" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">壁にぶつかったら、速度を壁に沿った成分だけにする(スライド)</text>
+<rect x="440" y="90" width="22" height="230" fill="#94a3b8"/>
+<text x="451" y="80" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">壁</text>
+<circle cx="240.0" cy="240.0" r="11" fill="#1f2937"/>
+<line x1="240.0" y1="240.0" x2="390.0" y2="165.0" stroke="#e5484d" stroke-width="4" marker-end="url(#arr-character-slide)" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="0;0;1;1"/></line>
+<text x="295.0" y="184.5" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d" opacity="0">速度 v<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="0;0;1;1"/></text>
+<line x1="240.0" y1="246.0" x2="390.0" y2="246.0" stroke="#64748b" stroke-width="3" marker-end="url(#arr-character-slide)" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2756;0.2759;1.0000" values="0;0;1;1"/></line>
+<text x="310.0" y="274.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b" opacity="0">壁に向かう成分(捨てる)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2756;0.2759;1.0000" values="0;0;1;1"/></text>
+<line x1="234.0" y1="240.0" x2="234.0" y2="165.0" stroke="#2ea043" stroke-width="4" marker-end="url(#arr-character-slide)" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4825;0.4828;1.0000" values="0;0;1;1"/></line>
+<text x="220.0" y="200.0" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2ea043" opacity="0">壁に沿う成分(残す)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4825;0.4828;1.0000" values="0;0;1;1"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">法線 n = (−1, 0) の壁に、v = (3, −1.5) で突っ込む<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">そのまま進むと、壁にめり込む<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.2756;0.2759;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">壁に向かう成分 (v·n)n を、取り除く<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2756;0.2759;0.4825;0.4828;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">v − (v·n)n = (0, −1.5)。壁に沿って、滑るように動く<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4825;0.4828;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:character-slide:end -->
+
 ## よくあるミス
 
 ??? failure "キャラクターを、`Dynamic` な剛体にして、操作感が悪い"

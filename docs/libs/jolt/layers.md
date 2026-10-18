@@ -219,6 +219,57 @@ DefaultObjectLayerFilter obj_filter(object_pair_filter, Layers::PLAYER_BULLET);
 
 <strong>「PLAYER_BULLET が衝突する相手」だけ</strong>を、レイキャストの対象にできます。**衝突のルールを、そのまま使い回す**ので、**一貫**します。
 
+<!-- fig:layer-matrix:begin -->
+
+<svg class="fig illust motion" data-fig="layer-matrix" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-layer-matrix" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">レイヤーの組み合わせで、「何と何をぶつけるか」を先に決める</text>
+<text x="238" y="157.0" text-anchor="end" style="font-size:13px;font-weight:700;fill:#1f2937">床（NON_MOVING）</text>
+<text x="301.0" y="108" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#1f2937">床（NON_MOVING）</text>
+<text x="238" y="223.0" text-anchor="end" style="font-size:13px;font-weight:700;fill:#1f2937">キャラ（MOVING）</text>
+<text x="411.0" y="108" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#1f2937">キャラ（MOVING）</text>
+<text x="238" y="289.0" text-anchor="end" style="font-size:13px;font-weight:700;fill:#1f2937">破片（DEBRIS）</text>
+<text x="521.0" y="108" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#1f2937">破片（DEBRIS）</text>
+<rect x="250" y="120.0" width="106" height="62.0" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="360" y="120.0" width="106" height="62.0" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="470" y="120.0" width="106" height="62.0" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="250" y="186.0" width="106" height="62.0" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="360" y="186.0" width="106" height="62.0" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="470" y="186.0" width="106" height="62.0" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="250" y="252.0" width="106" height="62.0" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="360" y="252.0" width="106" height="62.0" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<rect x="470" y="252.0" width="106" height="62.0" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="0;0;1;1"/><rect x="250" y="120.0" width="106" height="62.0" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="303.0" y="159.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#64748b">通り抜け</text>
+<rect x="360" y="120.0" width="106" height="62.0" fill="#bbf7d0" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="413.0" y="159.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2ea043">ぶつかる</text>
+<rect x="470" y="120.0" width="106" height="62.0" fill="#bbf7d0" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="523.0" y="159.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2ea043">ぶつかる</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2756;0.2759;1.0000" values="0;0;1;1"/><rect x="250" y="186.0" width="106" height="62.0" fill="#bbf7d0" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="303.0" y="225.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2ea043">ぶつかる</text>
+<rect x="360" y="186.0" width="106" height="62.0" fill="#bbf7d0" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="413.0" y="225.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2ea043">ぶつかる</text>
+<rect x="470" y="186.0" width="106" height="62.0" fill="#bbf7d0" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="523.0" y="225.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2ea043">ぶつかる</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4825;0.4828;1.0000" values="0;0;1;1"/><rect x="250" y="252.0" width="106" height="62.0" fill="#bbf7d0" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="303.0" y="291.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2ea043">ぶつかる</text>
+<rect x="360" y="252.0" width="106" height="62.0" fill="#bbf7d0" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="413.0" y="291.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#2ea043">ぶつかる</text>
+<rect x="470" y="252.0" width="106" height="62.0" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="523.0" y="291.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#64748b">通り抜け</text>
+</g>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">3 つのレイヤーの、行 × 列の組み合わせを調べる<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">床: 床どうしは調べない。キャラと破片とは、ぶつかる<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.2756;0.2759;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">キャラ: 全部とぶつかる<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2756;0.2759;0.4825;0.4828;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">破片: キャラとは通り抜け、破片どうしも通り抜け(数が多いので、計算を減らす)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4825;0.4828;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:layer-matrix:end -->
+
 ## よくあるミス
 
 ??? failure "3 つのクラスのうち、1 つを実装し忘れる"
