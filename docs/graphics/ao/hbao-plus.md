@@ -27,6 +27,14 @@ HBAO は、画素ごとに方向を回して縞をノイズに変えるために
 
 HBAO+ の設計思想は、「式を速くする」でなく、「<strong>メモリの読み方を整える</strong>」ことにあります。
 
+!!! info "ここで使われる「積分」を、やさしく言うと"
+    HBAO+ の積分は、<strong>HBAO と同じ</strong>（断面ごとに、仰角を探して、式で、見えている割合を出し、平均する）です。違いは、<strong>計算の進め方</strong>だけです。
+
+    - ランダムな向きを、毎画素、変えるのをやめて、<strong>決まった模様</strong>で、画面を、分ける（インターリーブ）。キャッシュが、効いて、速くなる。
+    - 積分の式を、<strong>簡単な形に</strong>して、計算を、減らす。
+
+    <strong>数式を使わない、くわしい説明</strong>は [Integrals and Elevation Angles in Plain Words](theory/integral-intuition.md) です。
+
 ## 改良 1：ランダムをやめて、インターリーブ
 
 <strong>ランダムなノイズ テクスチャを使わず</strong>、<strong>画面を 4×4 の画素ごとに、あらかじめ決めた 16 通りの「向きの組」</strong>に割り当てます。

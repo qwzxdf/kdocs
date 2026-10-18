@@ -290,6 +290,16 @@ float3 ReconstructNormal(int2 pixel, float3 c) {
 }
 ```
 
+!!! info "ここで使われる「積分」を、やさしく言うと"
+    SAO は、<strong>Alchemy AO と同じ式</strong>（周りの点ごとの寄与を足す）を使います。違いは、<strong>「点を、どこから読むか」</strong>だけです。
+
+    - 遠い点は、細かく読んでも、AO に、ほとんど効かない。
+    - そこで、遠い点は、<strong>深度のミップ マップ</strong>（縮小した深度）から読む。メモリを、読む量が減り、半径が大きくても、遅くならない。
+
+    積分（足し算）の中身は、同じで、<strong>足す材料の、読み方だけを速くした</strong>方式です。
+
+    <strong>数式を使わない、くわしい説明</strong>は [Integrals and Elevation Angles in Plain Words](theory/integral-intuition.md) です。
+
 ## 処理の流れ
 
 SAO は 5 つのパスで構成されます。

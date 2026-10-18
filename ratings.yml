@@ -350,3 +350,4 @@ graphics/skin-hair/hair/marschner.md: {perf: 3, quality: 4, diff: 5}
 graphics/skin-hair/hair/transparency.md: {perf: 3, quality: 3, diff: 4}
 graphics/skin-hair/hair/shadows.md: {perf: 3, quality: 4, diff: 4}
 graphics/skin-hair/hair/anti-aliasing.md: {perf: 3, quality: 4, diff: 3}
+graphics/ao/theory/integral-intuition.md: {diff: 1}

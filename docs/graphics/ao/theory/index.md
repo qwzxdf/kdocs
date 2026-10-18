@@ -18,6 +18,7 @@ AO を実装するだけなら、理論を読まなくても動くコードは�
 
 | ページ | 内容 |
 | --- | --- |
+| [Integrals and Elevation Angles in Plain Words](integral-intuition.md) | 積分と仰角を、数式なしで。刻んで足す、重み、断面の計算 |
 | [From the Rendering Equation to AO](from-rendering-equation.md) | 出発点・一様な天球の仮定・球面座標 |
 | [Obscurance](obscurance.md) | 距離の減衰を足す |
 | [Approximating the Integral](approximation.md) | 3 つのやり方・方式を分けるもの |

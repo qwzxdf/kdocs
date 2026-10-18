@@ -1,0 +1,244 @@
+---
+title: Integrals and Elevation Angles in Plain Words
+tags:
+  - 描画
+---
+
+# Integrals and Elevation Angles in Plain Words
+
+AO の説明には <strong>積分</strong>と<strong>仰角</strong>（地平線の角度）という言葉が、何度も出てきます。式を見ただけでは分かりにくいので、このページでは <strong>数式を使わずに言葉と小さなプログラムだけ</strong>で、AO の中で積分が何をしているのかを説明します。HBAO、GTAO など各方式のページはここで説明した考え方の続きです。
+
+!!! tip "ポイント"
+    - <strong>積分は「細かく刻んで、足し算する」</strong>こと。AO では「全方向について見えている度合いを足して、平均する」という計算になる。
+    - 足すときの<strong>重み</strong>は真上に近い方向ほど大きい（コサイン重み）。真上から来る光が面をいちばん強く照らすから。
+    - <strong>仰角</strong>は地面（面）から測った、見上げる角度。壁が高いほど仰角が大きい。<strong>その方向でどこまで空が見えるか</strong>を 1 つの角度で表せる。
+    - 1 つの断面では仰角が分かれば、<strong>刻まずに式 1 つで</strong>、見えている割合が出る。HBAO・GTAO はこれを使う。
+    - 立体（3D）では断面の向きを変えて、何枚も計算して <strong>平均</strong>する。
+
+## 積分とは細かく刻んで足すこと
+
+<strong>積分</strong>は難しい言葉ですがやっていることは、「<strong>細かく刻んで足し算する</strong>」ことです。
+
+たとえば、雨が 1 時間ごとに違う強さで降った日の 1 日の雨量を知りたいとします。1 時間ごとの雨量を 24 個、足せばおおよその合計が出ます。もっと正確にしたければ 30 分ごと 10 分ごと…と <strong>細かく刻んで</strong>、足せばよく刻みを無限に細かくした極限が、積分です。
+
+```text
+1 日の雨量 ≈ （1 時間目の雨量）+（2 時間目の雨量）+ … +（24 時間目の雨量）
+              └ 刻んで、足す ┘   刻みを、細かくするほど、正確になる
+```
+
+コンピューターでは無限に細かくはできないので、<strong>有限の数に刻んで足す</strong>ことで、積分を近似します。AO のすべての方式は「何をどう刻んで、足すか」の違いです。
+
+## AO で足しているもの
+
+AO はある点 `p` が <strong>周りの物にどれだけ遮られているか</strong>です。周りのあらゆる方向（半球）について、<strong>その方向が遮られているかいないか</strong>を調べて、足します。
+
+```text
+AO（見えている度合い）
+  ＝ 半球の全方向について、
+       「その方向が、空に抜けているか（1）、遮られているか（0）」 × 「その方向の、重み」
+     を足して、重みの合計で、割る（平均する）
+```
+
+- <strong>全方向</strong>は無限にあるので、<strong>刻みます</strong>。1 度ずつ 10 度ずつあるいはランダムに選んだ、16 個の方向。
+- 方向ごとに「抜けているか」は <strong>1 か 0</strong>（遮られていれば 0）。
+- その結果を <strong>重み</strong>をつけて足し、平均すると「どれだけ見えているか」（0〜1）になります。1 なら全方向が空に抜けている（遮蔽なし）、0 なら全方向が遮られている（真っ暗）。
+
+これが AO の「積分」のすべてです。
+
+## 重み：真上の方向ほど大事
+
+すべての方向を同じ重みで足すわけでは、ありません。<strong>真上に近い方向ほど大きな重み</strong>で足します（コサイン重み）。
+
+理由は光の当たり方です。面に対して真上から来る光は面を垂直に強く照らしますが、真横に近い浅い角度で来る光は面をかすめるだけで、弱くしか照らしません。だから、「真上が遮られている」ことは AO に大きく効き「真横が、遮られている」ことはあまり効きません。
+
+| 方向（法線からの角度） | 重み（コサイン） | 意味 |
+| --- | --- | --- |
+| 0°（真上） | 1.00 | 最も重要 |
+| 30° | 0.87 | かなり重要 |
+| 60° | 0.50 | 半分 |
+| 80° | 0.17 | ほとんど効かない |
+| 90°（真横） | 0.00 | 効かない |
+
+この重みを掛けて足すのが「コサイン重みつきの積分」です。
+
+## 仰角と地平線
+
+<strong>仰角</strong>は <strong>地面（面）から測った、見上げる角度</strong>です。真横が 0°、真上が 90° です。
+
+ある 1 方向（たとえば右）を見たときそこに壁が立っていれば、壁のてっぺんが見える角度がその方向の<strong>地平線の仰角</strong>です。壁が高いほど近いほど仰角は大きくなります。
+
+```text
+         ┃ 壁
+         ┃
+         ┃←── てっぺんが見える角度（仰角 h）
+   p ●━━━┛        p から壁のてっぺんを見上げる角度が仰角。
+   ━━━━━━━━        仰角より上は、空が見える。仰角より下は、壁に遮られている。
+```
+
+<strong>仰角が分かれば</strong>、その方向で <strong>どこまで遮られていて、どこから空が見えるか</strong>が 1 つの角度で、分かります。HBAO や GTAO はこの「仰角を探す」ことで、方向を細かく刻む手間を省いています。
+
+## 1 つの断面で実際に足してみる
+
+3D の半球は複雑なのでまず <strong>真横から見た断面（2 次元）</strong>で、考えます。断面では方向は「真上から左へ何度」「右へ何度」という 1 つの角度だけです。左右の壁がどれだけの高さ（仰角）かを決め方向を細かく刻んで、見えている度合いを足します。
+
+```cpp
+#include <cmath>
+#include <numbers>
+#include <print>
+
+// 1 つの断面の、見えている割合を、角度を細かく刻んで、足して求める。
+// theta は、法線（真上）から測る。左の地平線が -90°、右の地平線が +90°。
+// left_elevation, right_elevation: 左右の壁の、仰角（地面から測る。壁が無ければ 0）。
+double Visibility(double left_elevation, double right_elevation, int steps) {
+  const double pi = std::numbers::pi;
+  const double dtheta = pi / steps;                          // 刻み幅（全体 180° を steps 個に刻む）
+  double visible = 0.0;                                      // 見えている方向の、重みの合計
+  double total = 0.0;                                        // 全方向の、重みの合計
+
+  for (int i = 0; i < steps; ++i) {
+    const double theta = -pi / 2 + (i + 0.5) * dtheta;       // この区間の、真ん中の方向
+    const double weight = std::cos(theta) * dtheta;          // 真上ほど重い（コサイン重み）
+    total += weight;
+
+    // 地面から測った、この方向の仰角は (pi/2 - |theta|)。壁の仰角より低ければ、壁に遮られる。
+    const bool blocked_left = theta < 0 && (pi / 2 + theta) < left_elevation;
+    const bool blocked_right = theta > 0 && (pi / 2 - theta) < right_elevation;
+    if (!blocked_left && !blocked_right) visible += weight;  // 抜けている方向だけ、足す
+  }
+  return visible / total;                                    // 平均（0〜1）
+}
+
+int main() {
+  const double deg = std::numbers::pi / 180.0;
+  const int steps = 1800;                                    // 0.1° ずつ
+  std::println("壁なし            : {:.3f}", Visibility(0, 0, steps));
+  std::println("左に 45° の壁     : {:.3f}", Visibility(45 * deg, 0, steps));
+  std::println("両側に 45° の壁   : {:.3f}", Visibility(45 * deg, 45 * deg, steps));
+  std::println("両側に 60° の壁   : {:.3f}", Visibility(60 * deg, 60 * deg, steps));
+  std::println("両側に 80° の壁   : {:.3f}", Visibility(80 * deg, 80 * deg, steps));
+}
+```
+
+```text title="実行結果"
+壁なし            : 1.000
+左に 45° の壁     : 0.854
+両側に 45° の壁   : 0.707
+両側に 60° の壁   : 0.500
+両側に 80° の壁   : 0.174
+```
+
+数行ずつ見ていきます。
+
+```cpp
+const double dtheta = pi / steps;
+...
+const double theta = -pi / 2 + (i + 0.5) * dtheta;
+```
+
+180° 分の方向を `steps` 個の細い扇形に刻んでいます。これが「刻む」の実体です。`theta` はその扇形の真ん中の方向です。
+
+```cpp
+const double weight = std::cos(theta) * dtheta;
+total += weight;
+```
+
+その方向の重みをコサインで決めています。真上（`theta = 0`）が 1 で真横（±90°）が 0 に近づきます。`dtheta` を掛けるのは扇形の幅の分です。`total` は全方向の重みの合計（正規化に使う）です。
+
+```cpp
+const bool blocked_left = theta < 0 && (pi / 2 + theta) < left_elevation;
+```
+
+この方向が壁に遮られているかの判定です。この方向の仰角（地面から測った角度）は `pi/2 − |theta|` でこれが、壁の仰角より低いと壁のかげに入っています。ここに <strong>仰角</strong>がそのまま使われています。
+
+```cpp
+if (!blocked_left && !blocked_right) visible += weight;
+return visible / total;
+```
+
+遮られていない方向の重みだけを足して全体で、割ります。これが「見えている割合」で <strong>積分の近似</strong>です。
+
+結果を見ると壁が高い（仰角が大きい）ほど見えている割合が、下がっています。両側に 80°（ほぼ垂直）の壁が迫った、深い割れ目は 0.174 ととても暗くなります。
+
+## 刻まずに式で出す
+
+実は断面の中では <strong>刻まなくても</strong>、仰角から式 1 つで同じ答えが、出ます。左右の地平線を法線から測った角度で `h1`、`h2` とすると見えている割合は次の式になります。
+
+```text
+見えている割合 ＝ ( sin(h1) + sin(h2) ) / 2
+```
+
+左右の壁の仰角を `e1`、`e2` とすると `h1 = 90° − e1`、`h2 = 90° − e2` です。
+
+| 場面 | h1、h2 | 式 | 上のプログラムの結果 |
+| --- | --- | --- | --- |
+| 壁なし | 90°、90° | (1 + 1) / 2 = 1.000 | 1.000 |
+| 左に 45° の壁 | 45°、90° | (0.707 + 1) / 2 = 0.854 | 0.854 |
+| 両側に 45° の壁 | 45°、45° | 0.707 | 0.707 |
+| 両側に 60° の壁 | 30°、30° | 0.500 | 0.500 |
+| 両側に 80° の壁 | 10°、10° | 0.174 | 0.174 |
+
+刻んで足した結果と式の結果が、一致しています。<strong>コサインの積分がサインになる</strong>（数学のきまり）ので、`sin(h)` の式で一発で出ます。HBAO・GTAO はこの式を使うことで、<strong>断面の中の方向を 1 つも刻まずに</strong>、仰角（地平線）を 2 つ探すだけで、積分を済ませています。
+
+## 立体にするには断面を何枚も
+
+実際の、AO は 3D の半球ですが <strong>断面を向きを変えて、何枚も</strong>、計算して平均すれば近似できます。
+
+```text
+断面 1（右向き）:  仰角を探す → 見えている割合 a1
+断面 2（斜め右上）: 仰角を探す → 見えている割合 a2
+断面 3（上向き）:  仰角を探す → 見えている割合 a3
+ ⋮
+AO（見えている割合）≈ (a1 + a2 + a3 + …) / 断面の数
+```
+
+これが HBAO・GTAO の骨格です。断面の数（スライス数）は <strong>2〜8 枚</strong>で、画素ごとに断面の向きをランダムにずらして（ノイズ）、後でぼかす（[AO Filtering](../filtering/index.md)）ことで、少ない枚数でもなめらかに見せます。
+
+## 方式ごとの積分の取り方
+
+「何をどう刻んで足すか」が方式の違いです。
+
+| 方式 | 刻み方（積分の近似のしかた） | 一言で |
+| --- | --- | --- |
+| [Crytek SSAO](../ssao-crytek.md)・[Hemisphere SSAO](../ssao-hemisphere.md) | 半球の中に、<strong>ランダムな点</strong>を 16 個ほど撒いて、遮られている点の割合を数える（モンテカルロ法） | 方向を <strong>くじ引きで刻む</strong> |
+| [Alchemy AO](../alchemy-ao.md)・[SAO](../sao.md) | 周りの点ごとに「どれだけ遮るか」の、簡単な式を足し合わせる | 点ごとの <strong>式を足す</strong> |
+| [HBAO](../hbao.md) | 断面ごとに <strong>仰角</strong>（地平線）を探して、2 つの仰角から式で見えている割合を出す | 断面を <strong>仰角で、一気に積分</strong> |
+| [GTAO](../gtao.md) | HBAO と同じ。ただし、コサイン重みを正確に積分する式を使う | 同上（より正確） |
+| [RTAO](../world-space/rtao.md) | 半球に <strong>ランダムなレイ</strong>を飛ばして、当たらなかった割合を数える（モンテカルロ法） | 方向をくじ引きで刻む（レイで） |
+| [DFAO](../world-space/dfao.md)・[VXAO](../world-space/vxao.md) | 半球を <strong>数本の円錐</strong>に分けて、円錐ごとの遮られ具合を足す | 方向を <strong>円錐で、粗く刻む</strong> |
+
+どの方式も「半球の全方向の遮られ具合をコサイン重みで足して、平均する」という同じ目標を <strong>別の刻み方</strong>で、近似しているだけです。
+
+## よくあるミス
+
+??? failure "「積分」と聞いて、難しい計算がシェーダーの中で、動いていると思う"
+    実際に動いているのは、「少数の方向（または点、仰角）を選んで足して平均する」だけ。積分は考え方でコードはループと足し算。
+
+??? failure "仰角を法線から測る角度と取り違える"
+    仰角は <strong>地面（面）から測る</strong>（真横が 0°、真上が 90°）。法線から測る角度（真上が 0°）とは、`90° − 仰角` の関係。式の `sin(h)` の `h` は法線から測った角度。
+
+??? failure "重みを掛け忘れて、全方向を同じ重みで足す"
+    真横の遮蔽が強く効きすぎて地面が全体に暗くなる。コサイン重みを掛ける（または重みが、組み込まれた式を使う）。
+
+## これだけ覚える
+
+!!! abstract "まとめ"
+    - [x] 積分 ＝ 細かく刻んで足す。AO では全方向の「見えている度合い」を重みつきで足して、平均すること
+    - [x] 重みは真上ほど大きい（コサイン）
+    - [x] 仰角 ＝ 地面から測った、見上げる角度。壁が高いほど大きい。その方向でどこまで空が見えるかを 1 つの角度で表す
+    - [x] 断面の中では仰角 2 つから、式 `(sin h1 + sin h2) / 2` で積分が一発で出る
+    - [x] 立体は断面を何枚も平均する（HBAO・GTAO）
+    - [x] SSAO・RTAO は、ランダムな方向で刻む（モンテカルロ法）。DFAO・VXAO は円錐で刻む
+
+## 参考
+
+- Bavoil, Sainz, Dimitrov, "Image-Space Horizon-Based Ambient Occlusion", SIGGRAPH 2008 Talks
+- Jimenez, Wu, Pesce, Jarabo, "Practical Real-Time Strategies for Accurate Indirect Occlusion", SIGGRAPH 2016, Physically Based Shading in Theory and Practice
+- Pharr, Jakob, Humphreys, "Physically Based Rendering: From Theory to Implementation", 4th Edition, MIT Press, 2023（モンテカルロ積分）
+
+## 関連ページ
+
+- [AO Theory](index.md)
+- [From the Rendering Equation to AO](from-rendering-equation.md)
+- [Approximating the Integral](approximation.md)
+- [HBAO](../hbao.md)
+- [GTAO](../gtao.md)

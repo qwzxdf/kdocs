@@ -14,6 +14,13 @@ tags:
     - 球面座標（天頂角 θ・方位角 φ）で書き直すと、AO の式が現れる。
     - AO ＝ (1/π) ∫ V(ω) cosθ dω。
 
+!!! info "ここで使われる「積分」を、やさしく言うと"
+    このページの式には、「積分」が出てきます。身構えなくて大丈夫です。AO で、積分と言うときは、<strong>「半球の全方向について、空が見えているか（1）遮られているか（0）を、重みつきで足して、平均する」</strong>という意味です。
+
+    先に、[Integrals and Elevation Angles in Plain Words](integral-intuition.md) を読むと、このページの式が、「あの足し算を、式で書いただけ」と分かります。
+
+    <strong>数式を使わない、くわしい説明</strong>は [Integrals and Elevation Angles in Plain Words](integral-intuition.md) です。
+
 ## 出発点：レンダリング方程式
 面上の点 p から、方向 ω_o へ出ていく光の量 L_o は、次の式で表されます。
 

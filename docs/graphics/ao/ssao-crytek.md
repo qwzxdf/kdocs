@@ -36,6 +36,17 @@ tags:
 <text x="20" y="290" style="font-size:12px">この「球の下半分」の問題が、Crytek 方式の最大の弱点</text>
 </svg>
 
+!!! info "ここで使われる「積分」を、やさしく言うと"
+    Crytek SSAO の積分は、<strong>くじ引き</strong>です。
+
+    - 半球の全方向を、細かく調べる代わりに、<strong>球の中に、ランダムな点を 16 個ほど撒く</strong>。
+    - 各点が、物の裏側に入っていれば（遮られていれば）1、そうでなければ 0 と数える。
+    - 遮られた点の<strong>割合</strong>が、AO。
+
+    点の数が少ないので、ざらざらしたノイズが出ます。これを、ぼかしで、ならします。この「ランダムに選んで、平均する」考え方を、<strong>モンテカルロ法</strong>と呼びます。
+
+    <strong>数式を使わない、くわしい説明</strong>は [Integrals and Elevation Angles in Plain Words](theory/integral-intuition.md) です。
+
 ## 手順
 
 実際の処理を、順番に見ていきます。

@@ -14,6 +14,14 @@ tags:
     - ③ 解析的に近似：式を直接評価（Alchemy・SAO）。
     - 方式を分けるもの：入力（深度・法線）・サンプルの方法・重み付け・コスト。
 
+!!! info "ここで使われる「積分」を、やさしく言うと"
+    AO の積分は、<strong>「全方向の、見えている度合いを、重みつきで足して、平均する」</strong>ことです。方向は無限にあるので、<strong>刻んで</strong>足します。
+
+    - 3 つの近似は、<strong>刻み方の違い</strong>です。方向を、<strong>くじ引きで選ぶ</strong>（①）、<strong>仰角で、断面ごとに、一気に足す</strong>（②）、<strong>点ごとの式を足す</strong>（③）。
+    - 重みは、<strong>真上ほど大きい</strong>（コサイン重み）。真上から来る光が、面を、最も強く照らすため。
+
+    <strong>数式を使わない、くわしい説明</strong>は [Integrals and Elevation Angles in Plain Words](integral-intuition.md) です。
+
 ## 積分を近似する 3 つのやり方
 AO は<strong>積分</strong>なのでそのままでは計算できません。次の 3 通りの近似があります。
 
