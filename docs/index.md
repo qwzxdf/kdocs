@@ -25,7 +25,7 @@ C++ の入門書や、cppreference のようなリファレンスは、「何が
 - [ゲームエンジン](engine/index.md)
 - [設計](design/index.md)
 - [最適化](optimize/index.md)
-- [描画最適化](rendering/index.md)
 - [描画](graphics/index.md)
+- [描画最適化](rendering/index.md)
 - [文字コード](encoding/index.md)
 - [外部ライブラリ](libs/index.md)

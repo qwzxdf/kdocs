@@ -45,30 +45,189 @@ HBAO や Alchemy AO でも、半径を大きくすると急に重くなること
 
 <!-- fig:sao-mip:begin -->
 
-<svg class="fig illust motion" data-fig="sao-mip" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="sao-mip" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-sao-mip" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">サンプルまでの画面上の距離が 2 倍になるごとに、ミップが 1 つ上がる</text>
-<rect x="70" y="70" width="640" height="240" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
-<line x1="230.0" y1="70" x2="230.0" y2="310" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="70" y1="130.0" x2="710" y2="130.0" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="390.0" y1="70" x2="390.0" y2="310" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="70" y1="190.0" x2="710" y2="190.0" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="550.0" y1="70" x2="550.0" y2="310" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="70" y1="250.0" x2="710" y2="250.0" stroke="#e2e8f0" stroke-width="1"/>
-<text x="70" y="62" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">読むミップ レベル</text>
-<text x="710" y="346" text-anchor="end" style="font-size:12px;font-weight:500;fill:#64748b">サンプルまでの画面上の距離（画素）</text>
-<path d="M75.0,290.0 L80.0,290.0 L85.0,290.0 L90.0,290.0 L95.0,290.0 L100.0,290.0 L105.0,290.0 L110.0,290.0 L115.0,290.0 L120.0,290.0 L125.0,290.0 L130.0,290.0 L135.0,290.0 L140.0,290.0 L145.0,290.0 L150.0,250.0 L155.0,250.0 L160.0,250.0 L165.0,250.0 L170.0,250.0 L175.0,250.0 L180.0,250.0 L185.0,250.0 L190.0,250.0 L195.0,250.0 L200.0,250.0 L205.0,250.0 L210.0,250.0 L215.0,250.0 L220.0,250.0 L225.0,250.0 L230.0,210.0 L235.0,210.0 L240.0,210.0 L245.0,210.0 L250.0,210.0 L255.0,210.0 L260.0,210.0 L265.0,210.0 L270.0,210.0 L275.0,210.0 L280.0,210.0 L285.0,210.0 L290.0,210.0 L295.0,210.0 L300.0,210.0 L305.0,210.0 L310.0,210.0 L315.0,210.0 L320.0,210.0 L325.0,210.0 L330.0,210.0 L335.0,210.0 L340.0,210.0 L345.0,210.0 L350.0,210.0 L355.0,210.0 L360.0,210.0 L365.0,210.0 L370.0,210.0 L375.0,210.0 L380.0,210.0 L385.0,210.0 L390.0,170.0 L395.0,170.0 L400.0,170.0 L405.0,170.0 L410.0,170.0 L415.0,170.0 L420.0,170.0 L425.0,170.0 L430.0,170.0 L435.0,170.0 L440.0,170.0 L445.0,170.0 L450.0,170.0 L455.0,170.0 L460.0,170.0 L465.0,170.0 L470.0,170.0 L475.0,170.0 L480.0,170.0 L485.0,170.0 L490.0,170.0 L495.0,170.0 L500.0,170.0 L505.0,170.0 L510.0,170.0 L515.0,170.0 L520.0,170.0 L525.0,170.0 L530.0,170.0 L535.0,170.0 L540.0,170.0 L545.0,170.0 L550.0,170.0 L555.0,170.0 L560.0,170.0 L565.0,170.0 L570.0,170.0 L575.0,170.0 L580.0,170.0 L585.0,170.0 L590.0,170.0 L595.0,170.0 L600.0,170.0 L605.0,170.0 L610.0,170.0 L615.0,170.0 L620.0,170.0 L625.0,170.0 L630.0,170.0 L635.0,170.0 L640.0,170.0 L645.0,170.0 L650.0,170.0 L655.0,170.0 L660.0,170.0 L665.0,170.0 L670.0,170.0 L675.0,170.0 L680.0,170.0 L685.0,170.0 L690.0,170.0 L695.0,170.0 L700.0,170.0 L705.0,170.0 L710.0,130.0" fill="none" stroke="#2ea043" stroke-width="4"/>
-<circle cx="75.0" cy="290.0" r="7" fill="#1f2937"><animate attributeName="cx" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.0978;0.1087;0.1196;0.1304;0.1413;0.1522;0.1630;0.1739;0.1848;0.1957;0.2065;0.2174;0.2283;0.2391;0.2500;0.2609;0.2717;0.2826;0.2935;0.3043;0.3152;0.3261;0.3370;0.3478;0.3587;0.3696;0.3804;0.3913;0.4022;0.4130;0.4239;0.4348;0.4457;0.4565;0.4674;0.4783;0.4891;0.5000;0.5109;0.5217;0.5326;0.5435;0.5543;0.5652;0.5761;0.5870;0.5978;0.6087;0.6196;0.6304;0.6413;0.6522;0.6630;0.6739;0.6848;0.6957;0.7065;0.7174;0.7283;0.7391;0.7500;0.7609;0.7717;0.7826;1.0000" values="75;75;84.92;94.84;104.77;114.69;124.61;134.53;144.45;154.38;164.3;174.22;184.14;194.06;203.98;213.91;223.83;233.75;243.67;253.59;263.52;273.44;283.36;293.28;303.2;313.12;323.05;332.97;342.89;352.81;362.73;372.66;382.58;392.5;402.42;412.34;422.27;432.19;442.11;452.03;461.95;471.88;481.8;491.72;501.64;511.56;521.48;531.41;541.33;551.25;561.17;571.09;581.02;590.94;600.86;610.78;620.7;630.62;640.55;650.47;660.39;670.31;680.23;690.16;700.08;710;710"/><animate attributeName="cy" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.0978;0.1087;0.1196;0.1304;0.1413;0.1522;0.1630;0.1739;0.1848;0.1957;0.2065;0.2174;0.2283;0.2391;0.2500;0.2609;0.2717;0.2826;0.2935;0.3043;0.3152;0.3261;0.3370;0.3478;0.3587;0.3696;0.3804;0.3913;0.4022;0.4130;0.4239;0.4348;0.4457;0.4565;0.4674;0.4783;0.4891;0.5000;0.5109;0.5217;0.5326;0.5435;0.5543;0.5652;0.5761;0.5870;0.5978;0.6087;0.6196;0.6304;0.6413;0.6522;0.6630;0.6739;0.6848;0.6957;0.7065;0.7174;0.7283;0.7391;0.7500;0.7609;0.7717;0.7826;1.0000" values="290;290;290;290;290;290;290;290;290;250;250;250;250;250;250;250;250;210;210;210;210;210;210;210;210;210;210;210;210;210;210;210;210;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;170;130;130"/></circle>
-<text x="110.0" y="328" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">8</text>
-<text x="150.0" y="328" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">16</text>
-<text x="230.0" y="328" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">32</text>
-<text x="390.0" y="328" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">64</text>
-<text x="695.0" y="328" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">128</text>
-<text x="390" y="365" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">8 画素以内: ミップ 0（細かい深度）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2605;0.2609;1.0000" values="1;1;0;0"/></text>
-<text x="390" y="365" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">16〜32 画素: ミップ 1〜2<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2605;0.2609;0.4779;0.4783;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="365" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">遠いサンプルほど粗いミップ → 小さい画像なのでキャッシュに乗る<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4779;0.4783;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">SAO: 遠いサンプルほど、深度の「ミップ」の、粗い層から読む。半径が大きくても、読む範囲は一定</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 画素あたり 16 サンプル。サンプルの距離ごとに、読むミップの層を選ぶ。普通に読むと、キャッシュに入りきらない範囲を、読む</text>
+<rect x="30" y="96" width="900" height="190" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 距離ごとに、読むミップの層(サンプル 16 個の、層番号)</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="0;0;1;1"/><text x="44" y="152" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">半径 4</text>
+<rect x="130" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="152" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="178" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="200" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="226" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="248" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="274" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="296" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="322" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="344" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="370" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="392" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="418" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="440" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="466" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="488" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="514" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="536" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="562" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="584" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="610" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="632" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="658" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="680" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="706" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="728" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="754" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="776" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="802" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="824" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="850" y="138" width="44" height="24" fill="#2ea043" fill-opacity="0.25" stroke="#2ea043" stroke-width="1.5"/>
+<text x="872" y="155" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2709;0.2711;1.0000" values="0;0;1;1"/><text x="44" y="188" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2563eb">半径 16</text>
+<rect x="130" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.25" stroke="#2563eb" stroke-width="1.5"/>
+<text x="152" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="178" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.25" stroke="#2563eb" stroke-width="1.5"/>
+<text x="200" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="226" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.25" stroke="#2563eb" stroke-width="1.5"/>
+<text x="248" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="274" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.25" stroke="#2563eb" stroke-width="1.5"/>
+<text x="296" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="322" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.25" stroke="#2563eb" stroke-width="1.5"/>
+<text x="344" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="370" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.25" stroke="#2563eb" stroke-width="1.5"/>
+<text x="392" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="418" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.25" stroke="#2563eb" stroke-width="1.5"/>
+<text x="440" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="466" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.4" stroke="#2563eb" stroke-width="1.5"/>
+<text x="488" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L1</text>
+<rect x="514" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.4" stroke="#2563eb" stroke-width="1.5"/>
+<text x="536" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L1</text>
+<rect x="562" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.4" stroke="#2563eb" stroke-width="1.5"/>
+<text x="584" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L1</text>
+<rect x="610" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.4" stroke="#2563eb" stroke-width="1.5"/>
+<text x="632" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L1</text>
+<rect x="658" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.4" stroke="#2563eb" stroke-width="1.5"/>
+<text x="680" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L1</text>
+<rect x="706" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.4" stroke="#2563eb" stroke-width="1.5"/>
+<text x="728" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L1</text>
+<rect x="754" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.4" stroke="#2563eb" stroke-width="1.5"/>
+<text x="776" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L1</text>
+<rect x="802" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.4" stroke="#2563eb" stroke-width="1.5"/>
+<text x="824" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L1</text>
+<rect x="850" y="174" width="44" height="24" fill="#2563eb" fill-opacity="0.55" stroke="#2563eb" stroke-width="1.5"/>
+<text x="872" y="191" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L2</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4754;0.4756;1.0000" values="0;0;1;1"/><text x="44" y="224" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">半径 64</text>
+<rect x="130" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.25" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="152" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L0</text>
+<rect x="178" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.4" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="200" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L1</text>
+<rect x="226" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.4" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="248" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L1</text>
+<rect x="274" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.55" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="296" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L2</text>
+<rect x="322" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.55" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="344" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L2</text>
+<rect x="370" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.55" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="392" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L2</text>
+<rect x="418" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.55" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="440" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L2</text>
+<rect x="466" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.7" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="488" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L3</text>
+<rect x="514" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.7" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="536" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L3</text>
+<rect x="562" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.7" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="584" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L3</text>
+<rect x="610" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.7" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="632" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L3</text>
+<rect x="658" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.7" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="680" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L3</text>
+<rect x="706" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.7" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="728" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L3</text>
+<rect x="754" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.7" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="776" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L3</text>
+<rect x="802" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.7" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="824" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L3</text>
+<rect x="850" y="210" width="44" height="24" fill="#e5aa28" fill-opacity="0.85" stroke="#e5aa28" stroke-width="1.5"/>
+<text x="872" y="227" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L4</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6798;0.6800;1.0000" values="0;0;1;1"/><text x="44" y="260" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">半径 256</text>
+<rect x="130" y="246" width="44" height="24" fill="#e5484d" fill-opacity="0.55" stroke="#e5484d" stroke-width="1.5"/>
+<text x="152" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L2</text>
+<rect x="178" y="246" width="44" height="24" fill="#e5484d" fill-opacity="0.7" stroke="#e5484d" stroke-width="1.5"/>
+<text x="200" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L3</text>
+<rect x="226" y="246" width="44" height="24" fill="#e5484d" fill-opacity="0.7" stroke="#e5484d" stroke-width="1.5"/>
+<text x="248" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L3</text>
+<rect x="274" y="246" width="44" height="24" fill="#e5484d" fill-opacity="0.85" stroke="#e5484d" stroke-width="1.5"/>
+<text x="296" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L4</text>
+<rect x="322" y="246" width="44" height="24" fill="#e5484d" fill-opacity="0.85" stroke="#e5484d" stroke-width="1.5"/>
+<text x="344" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L4</text>
+<rect x="370" y="246" width="44" height="24" fill="#e5484d" fill-opacity="0.85" stroke="#e5484d" stroke-width="1.5"/>
+<text x="392" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L4</text>
+<rect x="418" y="246" width="44" height="24" fill="#e5484d" fill-opacity="0.85" stroke="#e5484d" stroke-width="1.5"/>
+<text x="440" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L4</text>
+<rect x="466" y="246" width="44" height="24" fill="#e5484d" fill-opacity="1.0" stroke="#e5484d" stroke-width="1.5"/>
+<text x="488" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L5</text>
+<rect x="514" y="246" width="44" height="24" fill="#e5484d" fill-opacity="1.0" stroke="#e5484d" stroke-width="1.5"/>
+<text x="536" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L5</text>
+<rect x="562" y="246" width="44" height="24" fill="#e5484d" fill-opacity="1.0" stroke="#e5484d" stroke-width="1.5"/>
+<text x="584" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L5</text>
+<rect x="610" y="246" width="44" height="24" fill="#e5484d" fill-opacity="1.0" stroke="#e5484d" stroke-width="1.5"/>
+<text x="632" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L5</text>
+<rect x="658" y="246" width="44" height="24" fill="#e5484d" fill-opacity="1.0" stroke="#e5484d" stroke-width="1.5"/>
+<text x="680" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L5</text>
+<rect x="706" y="246" width="44" height="24" fill="#e5484d" fill-opacity="1.0" stroke="#e5484d" stroke-width="1.5"/>
+<text x="728" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L5</text>
+<rect x="754" y="246" width="44" height="24" fill="#e5484d" fill-opacity="1.0" stroke="#e5484d" stroke-width="1.5"/>
+<text x="776" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L5</text>
+<rect x="802" y="246" width="44" height="24" fill="#e5484d" fill-opacity="1.0" stroke="#e5484d" stroke-width="1.5"/>
+<text x="824" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L5</text>
+<rect x="850" y="246" width="44" height="24" fill="#e5484d" fill-opacity="1.15" stroke="#e5484d" stroke-width="1.5"/>
+<text x="872" y="263" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">L6</text>
+</g>
+<rect x="30" y="306" width="900" height="150" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
+<text x="30" y="296" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">② 半径ごとの、読み込み回数</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.1198;0.1200;1.0000" values="0;0;1;1"/><text x="44" y="354" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">半径 4</text>
+<rect x="130" y="340" width="3" height="10" fill="#e5484d" opacity="0.85"/>
+<text x="138.126953125" y="350" text-anchor="start" style="font-size:11px;font-weight:700;fill:#e5484d">全部読むなら 64</text>
+<rect x="130" y="352" width="3" height="9" fill="#2ea043" opacity="0.9"/>
+<text x="141" y="361" text-anchor="start" style="font-size:11px;font-weight:700;fill:#2ea043">SAO 16</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3243;0.3244;1.0000" values="0;0;1;1"/><text x="44" y="380" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">半径 16</text>
+<rect x="130" y="366" width="3" height="10" fill="#e5484d" opacity="0.85"/>
+<text x="140.03125" y="376" text-anchor="start" style="font-size:11px;font-weight:700;fill:#e5484d">全部読むなら 1,024</text>
+<rect x="130" y="378" width="3" height="9" fill="#2ea043" opacity="0.9"/>
+<text x="141" y="387" text-anchor="start" style="font-size:11px;font-weight:700;fill:#2ea043">SAO 16</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5287;0.5289;1.0000" values="0;0;1;1"/><text x="44" y="406" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5aa28">半径 64</text>
+<rect x="130" y="392" width="32.5" height="10" fill="#e5484d" opacity="0.85"/>
+<text x="170.5" y="402" text-anchor="start" style="font-size:11px;font-weight:700;fill:#e5484d">全部読むなら 16,384</text>
+<rect x="130" y="404" width="3" height="9" fill="#2ea043" opacity="0.9"/>
+<text x="141" y="413" text-anchor="start" style="font-size:11px;font-weight:700;fill:#2ea043">SAO 16</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7332;0.7333;1.0000" values="0;0;1;1"/><text x="44" y="432" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">半径 256</text>
+<rect x="130" y="418" width="520.0" height="10" fill="#e5484d" opacity="0.85"/>
+<text x="658.0" y="428" text-anchor="start" style="font-size:11px;font-weight:700;fill:#e5484d">全部読むなら 262,144</text>
+<rect x="130" y="430" width="3" height="9" fill="#2ea043" opacity="0.9"/>
+<text x="141" y="439" text-anchor="start" style="font-size:11px;font-weight:700;fill:#2ea043">SAO 16</text>
+</g>
+<text x="40" y="484" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">サンプル数(画素あたり):</text>
+<text x="240" y="488" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2ea043" opacity="1">0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.1198;0.1200;1.0000" values="1;1;0;0"/></text>
+<text x="240" y="488" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2ea043" opacity="0">16<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.1198;0.1200;0.3243;0.3244;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="240" y="488" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2ea043" opacity="0">16<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3243;0.3244;0.5287;0.5289;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="240" y="488" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2ea043" opacity="0">16<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5287;0.5289;0.7332;0.7333;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="240" y="488" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2ea043" opacity="0">16<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7332;0.7333;1.0000" values="0;0;1;1"/></text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8709;0.8711;1.0000" values="0;0;1;1"/><rect x="360" y="468" width="570" height="60" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="376" y="492" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">半径 256 でも、サンプル 16 個。全部読むと 262,144 回(約 16384 倍)</text>
+<text x="376" y="515" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">遠い層は小さく、キャッシュに収まる。ミップの作り方(平均しない)に注意</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">広い範囲を調べたいが、全部読むのは高い<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">遠いサンプルは、粗いミップから読む(1 テクセルが、広い範囲)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8843;0.8844;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">半径が 64 倍になっても、読む回数は、ほぼ同じ<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8843;0.8844;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:sao-mip:end -->

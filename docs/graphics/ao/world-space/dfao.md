@@ -19,48 +19,111 @@ tags:
 
 <!-- fig:dfao-cone:begin -->
 
-<svg class="fig illust motion" data-fig="dfao-cone" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="dfao-cone" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-dfao-cone" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">距離場 AO:円錐を進めて、距離と円錐の幅を比べる</text>
-<rect x="40" y="330" width="700" height="16" fill="#d6c7a1"/>
-<circle cx="430" cy="205" r="42" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
-<circle cx="120" cy="330" r="8" fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
-<line x1="120" y1="330" x2="678.6358681455016" y2="369.06362529671014" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="5 4"/>
-<line x1="120" y1="330" x2="614.4506520009991" y2="67.09592483990116" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="5 4"/>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/><circle cx="143.48" cy="325.01" r="6.88" fill="none" stroke="#e5aa28" stroke-width="2"/>
-<circle cx="143.48" cy="325.01" r="160" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="143.48" cy="325.01" r="4" fill="#1f2937"/>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">距離場 AO: 法線方向へ、円錐を数歩だけ進み、「距離場の値が、進んだ距離より小さい分」を遮蔽にする</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。壁の近くの床の点。壁までの距離 a を 0.2 → 0.5 → 1.0 → 2.0 にして、5 歩の計算で AO を求める</text>
+<rect x="30" y="96" width="560" height="300" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 断面(灰 = 壁、円 = 距離場の値)</text>
+<line x1="40" y1="370.0" x2="570" y2="370.0" stroke="#475569" stroke-width="4"/>
+<circle cx="90.0" cy="370.0" r="7" fill="#1f2937"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2798;0.2800;1.0000" values="1;1;0;0"/><rect x="106.0" y="130" width="14" height="240.0" fill="#94a3b8"/>
+<circle cx="96.88" cy="360.17" r="9.12" fill="#e5484d" fill-opacity="0.12" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="96.88" cy="360.17" r="3.5" fill="#e5484d"/>
+<circle cx="103.77" cy="350.34" r="2.23" fill="#e5484d" fill-opacity="0.12" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="103.77" cy="350.34" r="3.5" fill="#e5484d"/>
+<circle cx="117.53" cy="330.68" r="0.0" fill="#e5484d" fill-opacity="0.12" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="117.53" cy="330.68" r="3.5" fill="#e5484d"/>
+<circle cx="145.06" cy="291.36" r="0.0" fill="#e5484d" fill-opacity="0.12" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="145.06" cy="291.36" r="3.5" fill="#e5484d"/>
+<circle cx="200.13" cy="212.72" r="0.0" fill="#e5484d" fill-opacity="0.12" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="200.13" cy="212.72" r="3.5" fill="#e5484d"/>
+<text x="50" y="128" text-anchor="start" style="font-size:18px;font-weight:700;fill:#7c3aed">壁までの距離 a = 0.2</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1553;0.1556;1.0000" values="0;0;1;1"/><circle cx="379.97" cy="274.74" r="76.21" fill="none" stroke="#e5aa28" stroke-width="2"/>
-<circle cx="379.97" cy="274.74" r="43.83" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="379.97" cy="274.74" r="4" fill="#1f2937"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2798;0.2800;0.4932;0.4933;1.0000" values="0;0;1;1;0;0"/><rect x="130.0" y="130" width="14" height="240.0" fill="#94a3b8"/>
+<circle cx="96.88" cy="360.17" r="33.12" fill="#2ea043" fill-opacity="0.12" stroke="#2ea043" stroke-width="1.5"/>
+<circle cx="96.88" cy="360.17" r="3.5" fill="#2ea043"/>
+<circle cx="103.77" cy="350.34" r="26.23" fill="#2ea043" fill-opacity="0.12" stroke="#2ea043" stroke-width="1.5"/>
+<circle cx="103.77" cy="350.34" r="3.5" fill="#2ea043"/>
+<circle cx="117.53" cy="330.68" r="12.47" fill="#e5484d" fill-opacity="0.12" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="117.53" cy="330.68" r="3.5" fill="#e5484d"/>
+<circle cx="145.06" cy="291.36" r="0.0" fill="#e5484d" fill-opacity="0.12" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="145.06" cy="291.36" r="3.5" fill="#e5484d"/>
+<circle cx="200.13" cy="212.72" r="0.0" fill="#e5484d" fill-opacity="0.12" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="200.13" cy="212.72" r="3.5" fill="#e5484d"/>
+<text x="50" y="128" text-anchor="start" style="font-size:18px;font-weight:700;fill:#7c3aed">壁までの距離 a = 0.5</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2367;0.2370;1.0000" values="0;0;1;1"/><circle cx="420.97" cy="266.03" r="88.23" fill="none" stroke="#e5aa28" stroke-width="2"/>
-<circle cx="420.97" cy="266.03" r="19.69" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="420.97" cy="266.03" r="4" fill="#1f2937"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4932;0.4933;0.7065;0.7067;1.0000" values="0;0;1;1;0;0"/><rect x="170.0" y="130" width="14" height="240.0" fill="#94a3b8"/>
+<circle cx="96.88" cy="360.17" r="73.12" fill="#2ea043" fill-opacity="0.12" stroke="#2ea043" stroke-width="1.5"/>
+<circle cx="96.88" cy="360.17" r="3.5" fill="#2ea043"/>
+<circle cx="103.77" cy="350.34" r="66.23" fill="#2ea043" fill-opacity="0.12" stroke="#2ea043" stroke-width="1.5"/>
+<circle cx="103.77" cy="350.34" r="3.5" fill="#2ea043"/>
+<circle cx="117.53" cy="330.68" r="52.47" fill="#2ea043" fill-opacity="0.12" stroke="#2ea043" stroke-width="1.5"/>
+<circle cx="117.53" cy="330.68" r="3.5" fill="#2ea043"/>
+<circle cx="145.06" cy="291.36" r="24.94" fill="#e5484d" fill-opacity="0.12" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="145.06" cy="291.36" r="3.5" fill="#e5484d"/>
+<circle cx="200.13" cy="212.72" r="0.0" fill="#e5484d" fill-opacity="0.12" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="200.13" cy="212.72" r="3.5" fill="#e5484d"/>
+<text x="50" y="128" text-anchor="start" style="font-size:18px;font-weight:700;fill:#7c3aed">壁までの距離 a = 1</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3182;0.3185;1.0000" values="0;0;1;1"/><circle cx="468.44" cy="255.94" r="102.14" fill="none" stroke="#e5aa28" stroke-width="2"/>
-<circle cx="468.44" cy="255.94" r="21.81" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="468.44" cy="255.94" r="4" fill="#1f2937"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000" values="0;0;1;1"/><rect x="250.0" y="130" width="14" height="240.0" fill="#94a3b8"/>
+<circle cx="96.88" cy="360.17" r="89.83" fill="#2ea043" fill-opacity="0.12" stroke="#2ea043" stroke-width="1.5"/>
+<circle cx="96.88" cy="360.17" r="3.5" fill="#2ea043"/>
+<circle cx="103.77" cy="350.34" r="99.66" fill="#2ea043" fill-opacity="0.12" stroke="#2ea043" stroke-width="1.5"/>
+<circle cx="103.77" cy="350.34" r="3.5" fill="#2ea043"/>
+<circle cx="117.53" cy="330.68" r="119.32" fill="#2ea043" fill-opacity="0.12" stroke="#2ea043" stroke-width="1.5"/>
+<circle cx="117.53" cy="330.68" r="3.5" fill="#2ea043"/>
+<circle cx="145.06" cy="291.36" r="104.94" fill="#2ea043" fill-opacity="0.12" stroke="#2ea043" stroke-width="1.5"/>
+<circle cx="145.06" cy="291.36" r="3.5" fill="#2ea043"/>
+<circle cx="200.13" cy="212.72" r="49.87" fill="#e5484d" fill-opacity="0.12" stroke="#e5484d" stroke-width="1.5"/>
+<circle cx="200.13" cy="212.72" r="3.5" fill="#e5484d"/>
+<text x="50" y="128" text-anchor="start" style="font-size:18px;font-weight:700;fill:#7c3aed">壁までの距離 a = 2</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/><circle cx="523.39" cy="244.26" r="118.25" fill="none" stroke="#e5aa28" stroke-width="2"/>
-<circle cx="523.39" cy="244.26" r="59.3" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="523.39" cy="244.26" r="4" fill="#1f2937"/>
+<rect x="620" y="96" width="310" height="300" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
+<text x="620" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">② 5 歩の計算</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2798;0.2800;1.0000" values="1;1;0;0"/><text x="636" y="136" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">歩 1: 距離 0.15 / 距離場 0.11 → 遮蔽 0.24</text>
+<text x="636" y="166" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">歩 2: 距離 0.30 / 距離場 0.03 → 遮蔽 0.91</text>
+<text x="636" y="196" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">歩 3: 距離 0.60 / 距離場 0.00 → 遮蔽 1.00</text>
+<text x="636" y="226" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">歩 4: 距離 1.20 / 距離場 0.00 → 遮蔽 1.00</text>
+<text x="636" y="256" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">歩 5: 距離 2.40 / 距離場 0.00 → 遮蔽 1.00</text>
+<text x="636" y="330" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed">AO = 0.35</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000" values="0;0;1;1"/><circle cx="587.01" cy="230.73" r="136.9" fill="none" stroke="#e5aa28" stroke-width="2"/>
-<circle cx="587.01" cy="230.73" r="117.1" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="587.01" cy="230.73" r="4" fill="#1f2937"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2798;0.2800;0.4932;0.4933;1.0000" values="0;0;1;1;0;0"/><text x="636" y="136" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">歩 1: 距離 0.15 / 距離場 0.41 → 遮蔽 0.00</text>
+<text x="636" y="166" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">歩 2: 距離 0.30 / 距離場 0.33 → 遮蔽 0.00</text>
+<text x="636" y="196" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">歩 3: 距離 0.60 / 距離場 0.16 → 遮蔽 0.74</text>
+<text x="636" y="226" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">歩 4: 距離 1.20 / 距離場 0.00 → 遮蔽 1.00</text>
+<text x="636" y="256" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">歩 5: 距離 2.40 / 距離場 0.00 → 遮蔽 1.00</text>
+<text x="636" y="330" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed">AO = 0.69</text>
 </g>
-<text x="40" y="60" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">ステップ 1:最も近い物までの距離 d = 269、円錐の半径 = 7 → 遮蔽を 0.00 足す（合計 0.00）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.1553;0.1556;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="60" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">ステップ 2:最も近い物までの距離 d = 44、円錐の半径 = 76 → 遮蔽を 0.42 足す（合計 0.42）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1553;0.1556;0.2367;0.2370;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="60" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">ステップ 3:最も近い物までの距離 d = 20、円錐の半径 = 88 → 遮蔽を 0.45 足す（合計 0.87）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2367;0.2370;0.3182;0.3185;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="60" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">ステップ 4:最も近い物までの距離 d = 22、円錐の半径 = 102 → 遮蔽を 0.10 足す（合計 0.97）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3182;0.3185;0.3997;0.4000;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="60" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">ステップ 5:最も近い物までの距離 d = 59、円錐の半径 = 118 → 遮蔽を 0.01 足す（合計 0.99）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;0.4812;0.4815;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="60" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">ステップ 6:最も近い物までの距離 d = 117、円錐の半径 = 137 → 遮蔽を 0.00 足す（合計 0.99）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="40" y="394" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d" opacity="0">→ この円錐の遮蔽 ≒ 0.99。円錐を数方向に飛ばして、平均が AO になる<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5627;0.5630;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="40" y="412" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">緑の点線の円 = 距離場の距離 d、橙の円 = 円錐の断面。d が円錐より小さいほど、遮蔽される。</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4932;0.4933;0.7065;0.7067;1.0000" values="0;0;1;1;0;0"/><text x="636" y="136" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">歩 1: 距離 0.15 / 距離場 0.91 → 遮蔽 0.00</text>
+<text x="636" y="166" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">歩 2: 距離 0.30 / 距離場 0.83 → 遮蔽 0.00</text>
+<text x="636" y="196" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">歩 3: 距離 0.60 / 距離場 0.66 → 遮蔽 0.00</text>
+<text x="636" y="226" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">歩 4: 距離 1.20 / 距離場 0.31 → 遮蔽 0.74</text>
+<text x="636" y="256" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">歩 5: 距離 2.40 / 距離場 0.00 → 遮蔽 1.00</text>
+<text x="636" y="330" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed">AO = 0.83</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000" values="0;0;1;1"/><text x="636" y="136" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">歩 1: 距離 0.15 / 距離場 1.12 → 遮蔽 0.00</text>
+<text x="636" y="166" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">歩 2: 距離 0.30 / 距離場 1.25 → 遮蔽 0.00</text>
+<text x="636" y="196" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">歩 3: 距離 0.60 / 距離場 1.49 → 遮蔽 0.00</text>
+<text x="636" y="226" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">歩 4: 距離 1.20 / 距離場 1.31 → 遮蔽 0.00</text>
+<text x="636" y="256" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">歩 5: 距離 2.40 / 距離場 0.62 → 遮蔽 0.74</text>
+<text x="636" y="330" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed">AO = 0.94</text>
+</g>
+<text x="40" y="428" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">AO(×100):</text>
+<text x="150" y="432" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="1">0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;1.0000" values="1;1;0;0"/></text>
+<text x="150" y="432" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">35<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;0.2932;0.2933;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="150" y="432" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">69<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2932;0.2933;0.5065;0.5067;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="150" y="432" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">83<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5065;0.5067;0.7198;0.7200;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="150" y="432" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">94<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7198;0.7200;1.0000" values="0;0;1;1"/></text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.9065;0.9067;1.0000" values="0;0;1;1"/><rect x="360" y="410" width="570" height="80" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="376" y="434" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">壁に近いほど、距離場の値が小さく(赤)、AO が暗くなる(0.35 → 0.94)</text>
+<text x="376" y="457" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">読み込みは 5 回(距離場の 3D テクスチャ)。画素ごとの深度のサンプルより、少ない</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">距離場は、各点から、いちばん近い物までの距離<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">円錐の中心を数歩進み、距離場が、進んだ距離より小さければ、その分が遮蔽<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.9198;0.9200;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">画面に映らない物も、遮蔽に数えられる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.9198;0.9200;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:dfao-cone:end -->

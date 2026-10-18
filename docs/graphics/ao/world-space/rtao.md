@@ -19,65 +19,149 @@ tags:
 
 <!-- fig:rtao-rays:begin -->
 
-<svg class="fig illust motion" data-fig="rtao-rays" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="rtao-rays" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-rtao-rays" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">RTAO:半球に短いレイを飛ばして、当たった割合が遮蔽</text>
-<rect x="40" y="320" width="700" height="16" fill="#d6c7a1"/>
-<rect x="460" y="200" width="90" height="120" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
-<rect x="200" y="260" width="60" height="60" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
-<circle cx="390" cy="320" r="8" fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
-<line x1="390" y1="316" x2="460.11" y2="296.34" stroke="#e5484d" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/></line>
-<circle cx="460.11" cy="296.34" r="4" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="460.25" y2="281.73" stroke="#e5484d" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1145;0.1148;1.0000" values="0;0;1;1"/></line>
-<circle cx="460.25" cy="281.73" r="4" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1145;0.1148;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="460.81" y2="276.69" stroke="#e5484d" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1553;0.1556;1.0000" values="0;0;1;1"/></line>
-<circle cx="460.81" cy="276.69" r="4" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1553;0.1556;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="460.95" y2="256.83" stroke="#e5484d" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1960;0.1963;1.0000" values="0;0;1;1"/></line>
-<circle cx="460.95" cy="256.83" r="4" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1960;0.1963;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="460.03" y2="209.29" stroke="#e5484d" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2367;0.2370;1.0000" values="0;0;1;1"/></line>
-<circle cx="460.03" cy="209.29" r="4" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2367;0.2370;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="464.58" y2="145.25" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2775;0.2778;1.0000" values="0;0;1;1"/></line>
-<circle cx="464.58" cy="145.25" r="4" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2775;0.2778;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="434.81" y2="135.36" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3182;0.3185;1.0000" values="0;0;1;1"/></line>
-<circle cx="434.81" cy="135.36" r="4" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3182;0.3185;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="411.62" y2="131.23" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3590;0.3593;1.0000" values="0;0;1;1"/></line>
-<circle cx="411.62" cy="131.23" r="4" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3590;0.3593;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="370.64" y2="130.99" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/></line>
-<circle cx="370.64" cy="130.99" r="4" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="338.09" y2="137.23" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4404;0.4407;1.0000" values="0;0;1;1"/></line>
-<circle cx="338.09" cy="137.23" r="4" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4404;0.4407;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="307.76" y2="148.72" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000" values="0;0;1;1"/></line>
-<circle cx="307.76" cy="148.72" r="4" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="288.57" y2="159.34" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5219;0.5222;1.0000" values="0;0;1;1"/></line>
-<circle cx="288.57" cy="159.34" r="4" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5219;0.5222;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="256.96" y2="184.36" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5627;0.5630;1.0000" values="0;0;1;1"/></line>
-<circle cx="256.96" cy="184.36" r="4" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5627;0.5630;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="236.0" y2="208.72" stroke="#2ea043" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6034;0.6037;1.0000" values="0;0;1;1"/></line>
-<circle cx="236.0" cy="208.72" r="4" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6034;0.6037;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="258.58" y2="263.63" stroke="#e5484d" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6441;0.6444;1.0000" values="0;0;1;1"/></line>
-<circle cx="258.58" cy="263.63" r="4" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6441;0.6444;1.0000" values="0;0;1;1"/></circle>
-<line x1="390" y1="316" x2="258.48" y2="294.34" stroke="#e5484d" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6849;0.6852;1.0000" values="0;0;1;1"/></line>
-<circle cx="258.48" cy="294.34" r="4" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6849;0.6852;1.0000" values="0;0;1;1"/></circle>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 1 / 16:遮蔽物に当たった（赤）   当たり 1 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.1145;0.1148;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 2 / 16:遮蔽物に当たった（赤）   当たり 2 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1145;0.1148;0.1553;0.1556;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 3 / 16:遮蔽物に当たった（赤）   当たり 3 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1553;0.1556;0.1960;0.1963;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 4 / 16:遮蔽物に当たった（赤）   当たり 4 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1960;0.1963;0.2367;0.2370;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 5 / 16:遮蔽物に当たった（赤）   当たり 5 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2367;0.2370;0.2775;0.2778;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 6 / 16:届いた（緑）   当たり 5 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2775;0.2778;0.3182;0.3185;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 7 / 16:届いた（緑）   当たり 5 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3182;0.3185;0.3590;0.3593;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 8 / 16:届いた（緑）   当たり 5 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3590;0.3593;0.3997;0.4000;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 9 / 16:届いた（緑）   当たり 5 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;0.4404;0.4407;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 10 / 16:届いた（緑）   当たり 5 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4404;0.4407;0.4812;0.4815;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 11 / 16:届いた（緑）   当たり 5 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;0.5219;0.5222;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 12 / 16:届いた（緑）   当たり 5 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5219;0.5222;0.5627;0.5630;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 13 / 16:届いた（緑）   当たり 5 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5627;0.5630;0.6034;0.6037;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 14 / 16:届いた（緑）   当たり 5 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6034;0.6037;0.6441;0.6444;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 15 / 16:遮蔽物に当たった（赤）   当たり 6 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6441;0.6444;0.6849;0.6852;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">レイ 16 / 16:遮蔽物に当たった（赤）   当たり 7 本<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6849;0.6852;0.7256;0.7259;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="66" text-anchor="start" style="font-size:18px;font-weight:700;fill:#e5484d" opacity="0">遮蔽 = 7 / 16 → AO = 1 − 0.44 = 0.56<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7256;0.7259;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="40" y="396" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">レイの長さは短く（AO の半径）。1 画素 1〜2 本 ＋ デノイズで使う。画面外の物体の遮蔽も、正確に得られる。</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">レイトレース AO: 半球にレイを N 本飛ばし、近くに当たった割合を、数える。N が少ないとノイズが出る</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">床と壁の角(90°)の近くの点。cos 重みで 2 次元の向きを選び、半径 1.5 以内の壁に当たったら、遮蔽。N = 1・4・16・64</text>
+<rect x="30" y="96" width="440" height="260" fill="#ffffff" stroke="#e5aa28" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5aa28">① 点と壁(断面)</text>
+<line x1="150.0" y1="330.0" x2="438.0" y2="330.0" stroke="#475569" stroke-width="4"/>
+<rect x="138.0" y="138.0" width="12.0" height="192.0" fill="#94a3b8"/>
+<circle cx="234.0" cy="330.0" r="7" fill="#1f2937"/>
+<path d="M54.0,330.0 A180.0,180.0 0 0 1 414.0,330.0" fill="none" stroke="#93c5fd" stroke-width="2" stroke-dasharray="5 4"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2709;0.2711;1.0000" values="1;1;0;0"/><line x1="234.0" y1="330.0" x2="318.13" y2="170.87" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<text x="44" y="128" text-anchor="start" style="font-size:14px;font-weight:700;fill:#7c3aed">レイ 1 本 → 当たり 0 本 → AO 1.00(正解 0.73)</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2709;0.2711;0.4754;0.4756;1.0000" values="0;0;1;1;0;0"/><line x1="234.0" y1="330.0" x2="317.71" y2="170.65" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="188.79" y2="155.77" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="312.87" y2="168.2" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="174.17" y2="160.23" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<text x="44" y="128" text-anchor="start" style="font-size:14px;font-weight:700;fill:#7c3aed">レイ 4 本 → 当たり 0 本 → AO 1.00(正解 0.73)</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4754;0.4756;0.6798;0.6800;1.0000" values="0;0;1;1;0;0"/><line x1="234.0" y1="330.0" x2="316.04" y2="169.78" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="156.95" y2="167.32" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="234.93" y2="150.0" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="374.26" y2="217.19" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="282.44" y2="156.64" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="356.79" y2="198.38" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="259.14" y2="151.76" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="240.54" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="228.23" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="277.72" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="316.01" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="260.96" y2="152.03" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="247.71" y2="150.52" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="268.5" y2="153.34" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="327.19" y2="176.0" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="249.79" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<text x="44" y="128" text-anchor="start" style="font-size:14px;font-weight:700;fill:#7c3aed">レイ 16 本 → 当たり 5 本 → AO 0.69(正解 0.73)</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6798;0.6800;1.0000" values="0;0;1;1"/><line x1="234.0" y1="330.0" x2="309.34" y2="166.53" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="389.59" y2="239.5" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="283.18" y2="156.85" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="261.36" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="285.9" y2="157.65" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="396.35" y2="252.26" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="370.82" y2="213.04" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="227.87" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="328.82" y2="177.0" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="168.47" y2="162.35" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="200.46" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="307.41" y2="165.65" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="287.55" y2="158.15" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="381.1" y2="226.26" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="341.71" y2="185.78" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="329.7" y2="177.55" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="305.11" y2="164.64" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="250.23" y2="150.73" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="239.62" y2="150.09" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="168.93" y2="162.17" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="298.48" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="267.25" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="268.36" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="285.05" y2="157.39" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="210.42" y2="151.55" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="212.11" y2="151.34" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="238.08" y2="150.05" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="198.96" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="182.75" y2="157.45" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="351.14" y2="193.33" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="343.72" y2="187.3" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="264.54" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="342.76" y2="186.57" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="257.35" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="406.46" y2="278.45" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.15" y2="170.72" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="274.87" y2="154.7" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="387.17" y2="235.45" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="177.26" y2="159.18" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="333.42" y2="179.95" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="231.15" y2="150.02" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="225.74" y2="150.19" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="235.15" y2="150.0" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="308.92" y2="166.33" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="328.81" y2="176.99" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="400.05" y2="260.51" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="388.54" y2="237.72" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="397.27" y2="254.22" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="308.36" y2="166.08" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="254.14" y2="151.13" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="322.03" y2="172.99" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="271.86" y2="154.03" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="409.47" y2="289.86" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="176.38" y2="159.47" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="150.0" y2="226.7" stroke="#e5484d" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="202.94" y2="152.7" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="231.18" y2="150.02" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="384.59" y2="231.39" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="372.07" y2="214.52" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="251.19" y2="150.82" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="273.67" y2="154.43" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="188.99" y2="155.72" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="383.04" y2="229.06" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<line x1="234.0" y1="330.0" x2="284.85" y2="157.33" stroke="#2ea043" stroke-width="1.6" opacity="0.85"/>
+<text x="44" y="128" text-anchor="start" style="font-size:14px;font-weight:700;fill:#7c3aed">レイ 64 本 → 当たり 10 本 → AO 0.84(正解 0.73)</text>
+</g>
+<rect x="500" y="96" width="430" height="260" fill="#ffffff" stroke="#e5484d" stroke-width="1.8" rx="6"/>
+<text x="500" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">② 同じ点で 300 回やったときの、ばらつき</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0932;0.0933;1.0000" values="0;0;1;1"/><text x="520" y="158" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">1 本</text>
+<rect x="590" y="140" width="280.0" height="26" fill="#e5484d" opacity="0.85"/>
+<text x="878.0" y="159" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">0.442</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2976;0.2978;1.0000" values="0;0;1;1"/><text x="520" y="208" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">4 本</text>
+<rect x="590" y="190" width="127.6" height="26" fill="#e5484d" opacity="0.85"/>
+<text x="725.5987807296074" y="209" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">0.202</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5020;0.5022;1.0000" values="0;0;1;1"/><text x="520" y="258" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">16 本</text>
+<rect x="590" y="240" width="74.62" height="26" fill="#e5484d" opacity="0.85"/>
+<text x="672.618842803869" y="259" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">0.118</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000" values="0;0;1;1"/><text x="520" y="308" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">64 本</text>
+<rect x="590" y="290" width="35.19" height="26" fill="#e5484d" opacity="0.85"/>
+<text x="633.1944526748666" y="309" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">0.056</text>
+</g>
+<text x="40" y="392" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">AO のレイの本数:</text>
+<text x="200" y="396" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="1">0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;1.0000" values="1;1;0;0"/></text>
+<text x="200" y="396" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">1<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;0.2843;0.2844;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="200" y="396" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">4<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2843;0.2844;0.4887;0.4889;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="200" y="396" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">16<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4887;0.4889;0.6932;0.6933;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="200" y="396" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">64<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6932;0.6933;1.0000" values="0;0;1;1"/></text>
+<text x="40" y="428" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">画面 1920×1080 での、1 フレームのレイの数:</text>
+<text x="40" y="460" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2563eb" opacity="1">0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="460" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2563eb" opacity="0">2,073,600<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;0.2843;0.2844;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="460" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2563eb" opacity="0">8,294,400<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2843;0.2844;0.4887;0.4889;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="460" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2563eb" opacity="0">33,177,600<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4887;0.4889;0.6932;0.6933;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="460" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2563eb" opacity="0">132,710,400<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6932;0.6933;1.0000" values="0;0;1;1"/></text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8709;0.8711;1.0000" values="0;0;1;1"/><rect x="520" y="400" width="410" height="112" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="536" y="424" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">4 倍のレイで、ばらつきは約 半分(1/√N)</text>
+<text x="536" y="448" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">1 本 0.442 → 64 本 0.056(約 8.0 分の 1)</text>
+<text x="536" y="470" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">実際は 1 本で撮って、時間方向に重ねて(デノイズ)消す</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">近くに当たったレイの割合が、遮蔽<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">レイが少ないと、割合がばらつく(ノイズ)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8843;0.8844;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ノイズは、デノイズで消す。レイ自体は、画面の外の物にも当たる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8843;0.8844;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:rtao-rays:end -->

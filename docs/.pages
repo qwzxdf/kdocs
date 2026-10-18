@@ -10,8 +10,8 @@ nav:
   - ゲームエンジン: engine
   - 設計: design
   - 最適化: optimize
-  - 描画最適化: rendering
   - 描画: graphics
+  - 描画最適化: rendering
   - 文字コード: encoding
   - 外部ライブラリ: libs
   - 用語集: glossary.md
