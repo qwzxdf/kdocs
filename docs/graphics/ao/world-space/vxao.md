@@ -1,5 +1,5 @@
 ---
-title: ボクセル AO（VXAO）
+title: Voxel AO (VXAO)
 tags:
   - 描画
 ---

@@ -1,10 +1,10 @@
 ---
-title: SAO（Scalable AO）
+title: SAO (Scalable AO)
 tags:
   - 描画
 ---
 
-# SAO（Scalable AO）
+# SAO (Scalable AO)
 
 **SAO**（Scalable Ambient Obscurance）は、2012 年に McGuire らが発表した方式です。[Alchemy AO](alchemy-ao.md)の**式はそのまま**に**メモリ アクセスと実装を徹底的に最適化**しました。最大の改良は**深度バッファのミップ マップ**を作って、**遠いサンプルは、粗いミップから読む**ことです。これで**半径をいくら大きくしても、実行時間がほぼ一定**になります（スケーラブル）。論文では、**2560×1600 で、Alchemy の約 7 倍速**と報告されています。
 

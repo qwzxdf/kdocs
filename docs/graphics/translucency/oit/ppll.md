@@ -1,10 +1,10 @@
 ---
-title: Per-Pixel Linked List（PPLL）
+title: Per-Pixel Linked List (PPLL)
 tags:
   - 描画
 ---
 
-# Per-Pixel Linked List（PPLL）
+# Per-Pixel Linked List (PPLL)
 
 **PPLL は、画素ごとに、重なった半透明の断片をリストに記録し、最後に深度で並べ替えて、ブレンドする手法**です。**正確ですが、メモリと並べ替えのコストが大きい**です。このページでは、**PPLL の仕組みと実装**を説明します。
 

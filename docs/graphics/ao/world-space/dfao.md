@@ -1,5 +1,5 @@
 ---
-title: 距離場 AO（DFAO）
+title: Distance Field AO (DFAO)
 tags:
   - 描画
 ---

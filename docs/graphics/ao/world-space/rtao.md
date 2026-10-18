@@ -1,5 +1,5 @@
 ---
-title: レイトレース AO（RTAO）
+title: Ray-Traced AO (RTAO)
 tags:
   - 描画
 ---

@@ -1,10 +1,10 @@
 ---
-title: Weighted Blended OIT（WBOIT）
+title: Weighted Blended OIT (WBOIT)
 tags:
   - 描画
 ---
 
-# Weighted Blended OIT（WBOIT）
+# Weighted Blended OIT (WBOIT)
 
 **WBOIT は、深度に応じた重みで、半透明の色を加重平均する、近似の手法**です。**1 パスで描けて、とても軽い**ので、**実用的**です。**ただし、近似なので、正確さは劣ります**。このページでは、**WBOIT の式と、重みの選び方**を説明します。
 
