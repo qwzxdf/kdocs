@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "fig
 from common import Place, Save  # noqa: E402
 from preview import Preview  # noqa: E402
 
-MODULES = ["pipeline", "graphics", "pp1", "pp2", "pp3", "pp4", "gfx_shadows", "gfx_ao_gi", "gfx_refl_trans", "gfx_water_terrain", "gfx_atmo", "pp5", "gfx_shadows2", "gfx_skin_hair", "gfx_more", "gfx_more2", "gfx_more3", "gfx_more4", "gfx_more5", "gfx_more6", "gfx_more7", "gfx_more8", "gfx_more9", "g2_ao", "g2_shadow", "g2_refl", "g2_pp", "g2_gi", "g2_ao2", "g2_trans", "g2_water", "g2_world", "g2_pp2", "g2_shadow2", "g2_gi2"]
+MODULES = ["pipeline", "graphics", "pp1", "pp2", "pp3", "pp4", "gfx_shadows", "gfx_ao_gi", "gfx_refl_trans", "gfx_water_terrain", "gfx_atmo", "pp5", "gfx_shadows2", "gfx_skin_hair", "gfx_more", "gfx_more2", "gfx_more3", "gfx_more4", "gfx_more5", "gfx_more6", "gfx_more7", "gfx_more8", "gfx_more9", "g2_ao", "g2_shadow", "g2_refl", "g2_pp", "g2_gi", "g2_ao2", "g2_trans", "g2_water", "g2_world", "g2_pp2", "g2_shadow2", "g2_gi2", "g2_refl2"]
 
 
 def Superseded():

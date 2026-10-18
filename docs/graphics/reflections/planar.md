@@ -45,26 +45,50 @@ tags:
 
 <!-- fig:planar-mirror:begin -->
 
-<svg class="fig illust motion" data-fig="planar-mirror" viewBox="0 0 780 460" role="img"><rect x="0" y="0" width="780" height="460" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="planar-mirror" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-planar-mirror" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">平面反射:鏡の裏側に、鏡映したカメラを置いて、もう一度描く</text>
-<rect x="60" y="246" width="660" height="8" fill="#38bdf8"/>
-<text x="700" y="238" text-anchor="end" style="font-size:12px;font-weight:700;fill:#0284c7">鏡（水面）</text>
-<rect x="60" y="254" width="660" height="150" fill="#e0f2fe" fill-opacity="0.5"/>
-<polygon points="498,210 542,210 520,160" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
-<polygon points="498,290 542,290 520,340" fill="#b8794b" fill-opacity="0.35" stroke="#7a4b2a" stroke-width="1.5" stroke-dasharray="4 3"/>
-<text x="550" y="330" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">鏡像の物体</text>
-<circle cx="140" cy="110" r="11" fill="#2563eb" stroke="#ffffff" stroke-width="2"><animate attributeName="cx" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.2963;0.5556;0.7778;1.0000" values="140;140;300;420;140;140"/></circle>
-<circle cx="140" cy="390" r="11" fill="#2563eb" fill-opacity="0.35" stroke="#2563eb" stroke-width="2" stroke-dasharray="4 3"><animate attributeName="cx" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.2963;0.5556;0.7778;1.0000" values="140;140;300;420;140;140"/></circle>
-<text x="160" y="104" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">カメラ</text>
-<text x="160" y="396" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2563eb">鏡映したカメラ</text>
-<line x1="140" y1="110" x2="300" y2="250" stroke="#2563eb" stroke-width="2.5"><animate attributeName="x1" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.2963;0.5556;0.7778;1.0000" values="140;140;300;420;140;140"/><animate attributeName="x2" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2963;0.5556;0.7778;1.0000" values="300;300;393.33;446.67;486.67;393.33;393.33"/></line>
-<line x1="300" y1="250" x2="520" y2="180" stroke="#2563eb" stroke-width="2.5"><animate attributeName="x1" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.2963;0.5556;0.7778;1.0000" values="300;300;393.33;446.67;486.67;393.33;393.33"/></line>
-<line x1="140" y1="390" x2="520" y2="330" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="5 4"><animate attributeName="x1" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.2963;0.5556;0.7778;1.0000" values="140;140;300;420;140;140"/></line>
-<text x="40" y="60" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">カメラを動かすと、鏡映カメラも、鏡の反対側で同じ動きをする<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
-<text x="40" y="440" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">鏡映カメラで普通にシーンを描く → それがそのまま、鏡に映る絵。実線の経路 = 鏡映カメラの点線の経路（同じ点に当たる）。<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">平面反射: カメラを鏡に対して反転して、もう 1 回シーンを描く</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。床が鏡。本物のカメラが見る「床に映った像」は、鏡の下に置いた仮想カメラから見た景色と同じ</text>
+<rect x="30" y="96" width="900" height="330" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 断面(灰色の線 = 鏡の床)</text>
+<line x1="120.0" y1="250.0" x2="900.0" y2="250.0" stroke="#475569" stroke-width="5"/>
+<line x1="345.0" y1="250.0" x2="345.0" y2="160.0" stroke="#94a3b8" stroke-width="6"/>
+<circle cx="345.0" cy="160.0" r="8" fill="#e5aa28"/>
+<line x1="450.0" y1="250.0" x2="450.0" y2="190.0" stroke="#94a3b8" stroke-width="6"/>
+<circle cx="450.0" cy="190.0" r="8" fill="#e5aa28"/>
+<circle cx="150.0" cy="124.0" r="9" fill="#1f2937"/>
+<text x="150.0" y="110.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">カメラ</text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;1.0000" values="0;0;1;1"/></g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0603;0.0605;1.0000" values="0;0;1;1"/><line x1="150.0" y1="124.0" x2="263.75" y2="250.0" stroke="#e5484d" stroke-width="3"/>
+<line x1="263.75" y1="250.0" x2="345.0" y2="160.0" stroke="#e5484d" stroke-width="3"/>
+<circle cx="263.75" cy="250.0" r="6" fill="#e5484d"/>
+<text x="263.75" y="272.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">光が鏡で曲がる点 x = 4.79</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2463;0.2465;1.0000" values="0;0;1;1"/><line x1="150.0" y1="124.0" x2="353.23" y2="250.0" stroke="#e5484d" stroke-width="3"/>
+<line x1="353.23" y1="250.0" x2="450.0" y2="190.0" stroke="#e5484d" stroke-width="3"/>
+<circle cx="353.23" cy="250.0" r="6" fill="#e5484d"/>
+<text x="353.2258064516129" y="272.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#e5484d">光が鏡で曲がる点 x = 7.77</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4649;0.4651;1.0000" values="0;0;1;1"/><circle cx="150.0" cy="376.0" r="9" fill="#94a3b8" stroke="#1f2937" stroke-width="2" stroke-dasharray="3 3"/>
+<text x="150.0" y="398.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">仮想カメラ(鏡の下に反転)</text>
+<circle cx="345.0" cy="340.0" r="8" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+<line x1="150.0" y1="376.0" x2="345.0" y2="340.0" stroke="#2ea043" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="357.0" y="345.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#92400e">像</text>
+<circle cx="450.0" cy="310.0" r="8" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+<line x1="150.0" y1="376.0" x2="450.0" y2="310.0" stroke="#2ea043" stroke-width="3" stroke-dasharray="7 5"/>
+<text x="462.0" y="315.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#92400e">像</text>
+</g>
+<text x="40" y="452" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">鏡で曲がる点(2 つの物体):</text>
+<text x="270" y="452" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d" opacity="0">x = 4.79 と 7.77<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2510;0.2512;1.0000" values="0;0;1;1"/></text>
+<text x="470" y="452" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043" opacity="0">仮想カメラの直線と交わる点: 同じ値 (一致)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.5114;0.5116;1.0000" values="0;0;1;1"/></text>
+<rect x="30" y="470" width="900" height="48" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
+<text x="44" y="500" text-anchor="start" style="font-size:14px;font-weight:700;fill:#7c3aed" opacity="0">描画回数: 反射なし 120 → 平面反射 240(シーンを 2 回描く)/ SSR は 120 + 画面全体 1 回<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6045;0.6047;1.0000" values="0;0;1;1"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">床の鏡に映る像は、鏡の下にある「もう 1 つの世界」を見ているのと同じ<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">本物のカメラから見ると、光は鏡で曲がって物体へ届く<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;0.4649;0.4651;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">鏡の下に、カメラを反転して置くと、同じ線が、まっすぐ物体の像へ伸びる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4649;0.4651;0.6045;0.6047;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">反転したカメラで、もう 1 回シーンを描く(描画 2 倍)。完全に正確だが、鏡が平面のときだけ<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6045;0.6047;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:planar-mirror:end -->
