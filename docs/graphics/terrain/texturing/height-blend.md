@@ -14,7 +14,7 @@ tags:
     - **境目に、凹凸に沿った模様が出る**。
     - **コストは少し増える**。
 
-## 高さによるブレンド
+## Blending by Height {#高さによるブレンド}
 **重みの線形ブレンドは、境目がぼんやり混ざって不自然**です。**実際の地面は、「石の隙間に土が入り込む」ように凹凸に沿って境ができます**。**各テクスチャの高さ（ハイトマップ）を足し込んでから、一番高い層を優先**すると**自然な境目**になります。
 
 ```hlsl
@@ -60,23 +60,23 @@ final_weights /= (final_weights.r + final_weights.g + final_weights.b + final_we
 
 <!-- fig:height-blend-contrast:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "テクスチャの境目が、ぼやけてのっぺり"
     **高さブレンド**を使う。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **凹凸の高さを使って、混ぜる**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Terrain Texturing](index.md)
 - [Splat Weights](weights.md)

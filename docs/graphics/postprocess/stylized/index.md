@@ -8,15 +8,7 @@ tags:
 
 **写実的ではなく、アニメやイラストのような絵**を**作る技法**が<strong>ノンフォトリアリスティック レンダリング（NPR）</strong>です。<strong>輪郭線（アウトライン）で形を強調し、陰影を数段階に区切る（セル シェーディング）</strong>ことで、<strong>「手描きのアニメ」風</strong>の絵になります。**どれも写実より優れているわけではなく、作品の画風に合うかどうかの好みの問題**です。このセクションでは、**背面法の輪郭線・画面空間のエッジ検出・セル シェーディング・ポスタライズとハーフトーン**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - NPR ＝ <strong>写実でなく、アニメ・イラスト・絵画のような絵</strong>。<strong>画風の選択</strong>。
-    - <strong>輪郭線</strong>は<strong>2 通り</strong>：<strong>背面法（裏返したメッシュを膨らませる）</strong>と<strong>画面空間のエッジ検出（深度・法線・ID の差）</strong>。
-    - <strong>セル シェーディング</strong> ＝ <strong>陰影を、数段階に区切る</strong>（<strong>ランプ テクスチャ</strong>）。
-    - <strong>ポスタライズ</strong> ＝ <strong>色の段階を減らす</strong>。<strong>ハーフトーン</strong> ＝ <strong>網点で濃淡を表す</strong>。
-    - <strong>方式の組み合わせ</strong>で<strong>画風を作る</strong>（<strong>輪郭 ＋ セル ＋ 質感</strong>）。
-    - <strong>写実的な高品質とは別軸</strong>。<strong>画風に合うものを選ぶ</strong>。
-
-## 動きで見る
+## See It in Motion {#動きで見る}
 
 <!-- fig:toon-stages:begin -->
 
@@ -255,7 +247,7 @@ tags:
 
 <!-- fig:toon-stages:end -->
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -264,11 +256,11 @@ tags:
 | [Cel Shading](cel-shading.md) | 陰影の段階化・ランプ テクスチャ・スペキュラとリム ライト |
 | [Posterization and Halftone](posterize-halftone.md) | 色数を減らす・網点・漫画的表現 |
 
-## 輪郭線の 2 方式
+## Two Outline Methods {#輪郭線の-2-方式}
 
 輪郭線の 2 方式を比べます。背面法（Inverted Hull）は、裏面を法線方向に膨らませて黒く描く方法で、線の太さや色を物体ごとに制御でき、安く、きれいです。短所は、角の鋭い物の線が途切れることと、内側の線が出ないことです。画面空間エッジ検出は、深度・法線・ID の画像から差の大きい所を線にする方法で、内側の線も出て、形状に依存しません。短所は、線の太さが一定になりにくいことと、コストが画面サイズに比例することです。
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Post-Processing](../index.md)
 - [Color Grading](../color-grading/index.md)

@@ -8,14 +8,7 @@ tags:
 
 髪は、ゲームの描画で、肌と並んで難しい対象です。難しさは、髪の**構造**から来ます。人間の頭には、約 10 万本の髪の毛があります。1 本の太さは、約 0.05〜0.1 mm と、**画面の 1 画素よりずっと細い**のが普通です。しかも、各々が半透明で、互いに影を落とし合い、光を内部で屈折・反射させます。このページでは、髪の構造と、描画で解かなければならない 4 つの問題を整理し、後のページの全体像を示します。
 
-!!! tip "ポイント"
-    - 髪は<strong>細い円柱の集まり</strong>。**1 本が 1 画素より細い**ので、エイリアシングとの戦いになる。
-    - 描画の課題は<strong>形（ジオメトリ）・光り方（シェーディング）・透明・影</strong>の 4 つ。
-    - 形は<strong>カード（板ポリ）</strong>か<strong>ストランド（1 本ずつ）</strong>。**ゲームの大半はカード**。
-    - 光り方は <strong>Kajiya-Kay（軽い）</strong>か <strong>Marschner（本格）</strong>。**ハイライトは 2 本**。
-    - 髪は<strong>半透明で自己影が重要</strong>。**Deep Opacity Maps**などで影を付ける。
-
-## 髪の構造
+## Hair Structure {#髪の構造}
 
 髪の毛 1 本は、細い円柱で、内側から順に、3 つの層でできています。
 
@@ -29,7 +22,7 @@ tags:
 
 髪の見た目は、この 3 つの成分の組み合わせです（[Marschner Model](marschner.md)）。
 
-## 描画の 4 つの課題
+## Four Challenges in Rendering {#描画の-4-つの課題}
 
 髪の描画は、4 つの問題が重なり合っています。
 
@@ -43,7 +36,7 @@ tags:
 
 さらに、これらに加えて、**エイリアシング**の問題があります。1 画素より細い髪を描くと、ちらつき・ジャギーが出やすくなります（[Hair Anti-Aliasing](anti-aliasing.md)）。
 
-## 技術の選び方
+## Choosing a Technique {#技術の選び方}
 
 髪のレンダリングは、予算で大きく 3 段階に分かれます。
 
@@ -53,7 +46,7 @@ tags:
 
 最も重いのは、**ストランド**（1 本ずつ）の描画です。数万〜十万本のストランドを、線として描きます。NVIDIA の HairWorks、AMD の TressFX、Unreal Engine の Groom などがあります。物理シミュレーションで動かし、Marschner 風のシェーディングと、ボリュームの影を併用します。品質は最高ですが、GPU への負荷が大きく、主人公など限られたキャラクターに使われます。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "髪が一枚の板に見える"
     カードを**層状に重ねて**厚みを出す。**自己影**を入れる。**ハイライトを髪の流れに沿わせる**。
@@ -64,7 +57,7 @@ tags:
 ??? failure "髪の端が、ジャギーとちらつきでうるさい"
     **TAA**と、**ストランドの太さを画素以上に補正する**工夫を入れる（[Hair Anti-Aliasing](anti-aliasing.md)）。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] 髪は<strong>細い半透明の円柱</strong>。**R・TT・TRT の 3 経路**で光る
@@ -72,13 +65,13 @@ tags:
     - [x] **カード（軽い）→ カード＋高品質シェーディング → ストランド（重い）**
     - [x] **自己影**が髪の立体感を作る
 
-## 参考
+## References {#参考}
 
 - Marschner, Jensen, Cammarano, Worley, Hanrahan, "Light Scattering from Human Hair Fibers"（SIGGRAPH 2003）
 - Ward, Bertails, Kim, Marschner, Cani, Lin, "A Survey on Hair Modeling: Styling, Simulation, and Rendering"（IEEE TVCG, 2007）
 - Scheuermann, "Hair Rendering and Shading"（GDC 2004）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Skin and Hair](../index.md)
 - [Hair Geometry](geometry.md)

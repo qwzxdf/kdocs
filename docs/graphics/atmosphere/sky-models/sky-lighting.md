@@ -14,7 +14,7 @@ tags:
     - **時間が変わるたびに、更新する**。
     - **1 フレームで少しずつ更新**して、**コストを分散**する。
 
-## 空をライティングに使う
+## Using the Sky for Lighting {#空をライティングに使う}
 **空は大きな光源**でもあります。**地面や物は空から環境光を受けます**。
 
 | 方法 | 内容 |
@@ -24,24 +24,24 @@ tags:
 | **更新の頻度** | **時間変化はゆっくり**なので、**数秒に 1 回、数フレームかけて更新** |
 | **太陽は直接光** | **太陽の寄与は環境マップから除き、平行光源として別に扱う**（**二重に数えない**） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "時間が変わっても、地上の明るさが変わらない"
     **環境マップを、空に合わせて更新**する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **空を環境マップにして、光源に使う**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Sky Models](index.md)
 - [Reflection Probes](../../reflections/probes/index.md)

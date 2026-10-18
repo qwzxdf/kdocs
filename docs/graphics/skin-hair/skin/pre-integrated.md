@@ -15,7 +15,7 @@ tags:
     - **法線マップの法線を、色ごとにぼかす**（赤は大きく、青は小さく）と、**肌の柔らかさ**が増す。
     - **安い**が、**影の縁の赤みや、薄い部位の透けは、別に処理**。
 
-## 考え方
+## The Idea {#考え方}
 
 肌に光が当たると、光が当たった側で入った光が、内部で広がって、**影の側にも染み出します**。その結果、明暗の境（N·L が 0 の付近）が、通常のランバート反射のようにくっきり切れず、なだらかに暗くなります。さらに、このなだらかさは、**赤の方が大きい**ので、境が赤く染まります。
 
@@ -262,7 +262,7 @@ tags:
 
 <!-- fig:preint-lut:end -->
 
-## LUT の作り方
+## How to Build the LUT {#lut-の作り方}
 
 LUT は、次のように計算します。曲率は、半径 r の球で表します（曲率 = 1/r）。球の表面の点 P を考え、光の方向と法線のなす角 θ（N·L = cos θ）を決めます。点 P での拡散光は、**球の全表面に当たった光が、拡散プロファイル R_d で P に広がってきた量の合計**です。
 
@@ -272,7 +272,7 @@ LUT は、次のように計算します。曲率は、半径 r の球で表し�
 
 分母は正規化で、プロファイルの合計を 1 にします。この積分を、**θ（または N·L）と、1/r の組み合わせごとに**、RGB の各チャンネルについて計算し、2 次元のテクスチャに書き込みます。横軸が N·L（−1〜1 を 0〜1 に変換）、縦軸が曲率です。各テクセルに、RGB の拡散光の値が入ります。この計算はオフラインで行い、1 つの LUT をすべての肌に共通で使います（プロファイルは肌の種類で共通とします）。
 
-## 曲率の求め方
+## Computing Curvature {#曲率の求め方}
 
 実行時に必要な「曲率」は、画素ごとに次のように求めます。**法線の変化量**と、**位置の変化量**の比です。
 
@@ -286,7 +286,7 @@ float curvature = saturate(length(fwidth(normal)) / length(fwidth(world_pos)) * 
 
 画素単位の計算は、ノイズが出やすいので、頂点ごとに曲率を計算して頂点属性に持たせたり、事前に曲率のテクスチャを焼いておいたりする方法もあります。
 
-## 実行時の計算
+## Runtime Computation {#実行時の計算}
 
 LUT を引く部分は、次のようになります。
 
@@ -301,7 +301,7 @@ float3 SkinDiffuse(float3 n, float3 l, float curvature, float3 albedo, float3 li
 
 通常のランバートでは `saturate(n_dot_l)` を使いますが、ここでは負の N·L（影の側）まで LUT に含めます。LUT の値は、N·L が 0 を下回っても 0 にならず、赤の成分がゆっくり減衰します。これが、影の縁の赤みを作ります。
 
-## 法線の扱い：色ごとにぼかす
+## Handling Normals: Blur per Color {#法線の扱い色ごとにぼかす}
 
 さらに、事前積分の論文には、**法線の扱い**の工夫があります。肌の表面の細かい凹凸（毛穴、小じわ）は、法線マップで表されます。ところが、SSS で光が広がると、**細かい凹凸の陰影は、赤の光では弱く、青の光では強く**見えます（赤は広がるので、細部が平均されてなめらかになります）。
 
@@ -321,7 +321,7 @@ diffuse.b = skin_lut.SampleLevel(linear_clamp, float2(dot(n_b, l) * 0.5 + 0.5, c
 
 この小さな工夫で、毛穴の凹凸の陰影が、青ではくっきり、赤ではぼんやり見える、現実の肌の柔らかさに近づきます。
 
-## 長所と限界
+## Strengths and Limits {#長所と限界}
 
 事前積分の長所は、軽いことです。画素ごとに LUT を引くだけで、別のパスも追加のレンダー ターゲットも不要です。SSS のぼかしにある、輪郭をまたぐにじみの問題もありません。ライトごとに、独立して計算できるので、複数のライトにも素直に使えます。
 
@@ -329,7 +329,7 @@ diffuse.b = skin_lut.SampleLevel(linear_clamp, float2(dot(n_b, l) * 0.5 + 0.5, c
 
 そのため、現代のゲームでは、事前積分と画面空間のぼかしを**併用**することもよくあります。事前積分で N·L のなだらかさを担当し、画面空間のぼかしで、影の縁などの広い範囲の散乱を担当します。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "曲率をそのまま使って、顔の表面がまだら模様になる"
     画素ごとの `fwidth` はノイズが出る。**頂点ごとに曲率を計算して補間する**か、**曲率のテクスチャを焼く**。
@@ -340,7 +340,7 @@ diffuse.b = skin_lut.SampleLevel(linear_clamp, float2(dot(n_b, l) * 0.5 + 0.5, c
 ??? failure "影の縁に、赤みが出ない"
     事前積分は、シャドウ マップの影の縁には効かない。**影の縁の赤み**は、**影の判定にぼかしを掛ける**か、画面空間の SSS を併用する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] 入力は<strong>N·L</strong>と<strong>曲率</strong>。**LUT を 1 回引くだけで、SSS のなだらかさ**が出る
@@ -348,13 +348,13 @@ diffuse.b = skin_lut.SampleLevel(linear_clamp, float2(dot(n_b, l) * 0.5 + 0.5, c
     - [x] **法線を色ごとにぼかす**と、肌の柔らかさが増す
     - [x] **軽い**が、**影の縁の赤みと薄い部位の透け**は別に処理する
 
-## 参考
+## References {#参考}
 
 - Penner, Borshukov, "Pre-Integrated Skin Shading"（GPU Pro 2, 2011）
 - Penner, "Pre-Integrated Skin Shading"（SIGGRAPH 2011 Advances in Real-Time Rendering in Games）
 - d'Eon, Luebke, "Advanced Techniques for Realistic Real-Time Skin Rendering"（GPU Gems 3, 2007）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Skin Overview](index.md)
 - [Subsurface Scattering](subsurface-theory.md)

@@ -14,36 +14,36 @@ tags:
     - **FFT の場合は、GPU から読み戻すか、CPU で近似**する。
     - **浮力の物理は、[Water Interaction](../interaction/index.md)**を参照。
 
-## 物を水に浮かせる
+## Floating Objects on Water {#物を水に浮かせる}
 **ボートや浮き**を**波に合わせて動かす**には、**CPU 側でも同じ波の高さを計算**する必要があります。
 
 波の高さを CPU 側で得る方法は 3 つです。同じ式を CPU で計算する方法は、Gerstner 波ならシェーダーと同じ式を C++ で実装し、複数点をサンプルして傾きと高さを決めます。GPU から読み戻す方法は、FFT の高さマップを読み戻してサンプルしますが、数フレーム遅れます。簡易な近似として、大きな波だけを CPU で計算し、細かい波は無視する方法もあります。
 
 <strong>浮力（アルキメデスの原理）</strong>で、**水に浸かった体積に応じた力**を**与える**と、**物理的に浮く**動きになります。
 
-### 浮力の考え方
+### The Idea of Buoyancy {#浮力の考え方}
 
 船が波に浮かぶ動きは、物体のいくつかの点（船体の四隅など）で水面の高さを調べ、そこから浮力を決めて作ります。各点について、水面の高さと点の高さを比べて、点が水面より下にあれば、その深さに比例した上向きの力を加えます。複数の点に別々の力が加わるので、波の傾きに応じて、船が傾いたり揺れたりします。
 
 注意が必要なのは、Gerstner 波では頂点が水平にも動くため、「ある位置 (x, z) の水面の高さ」を求めるには、逆変換が必要なことです。簡単な方法は、反復法で、元の位置 P₀ を推定し、その位置で波のずれを計算し、結果の位置とのずれを補正する、という計算を数回繰り返して収束させます。ゲームでは 2〜3 回の反復で十分です。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "船が、見た目の波と合わずに浮く"
     **GPU と同じ式・同じ時間**で、**CPU 側も計算**する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **CPU 側でも、波の高さを求める**
 
-## 参考
+## References {#参考}
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Water Waves](index.md)
 - [Water Interaction](../interaction/index.md)

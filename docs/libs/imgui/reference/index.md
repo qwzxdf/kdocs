@@ -9,13 +9,6 @@ tags:
 
 ImGui の関数は数百個あり、<strong>「どの関数を呼ぶと画面に何が出るのか」</strong>を覚えるのが最初の壁です。このセクションは、**関数を目的別に並べて、「何が出るか・主な引数・戻り値」を一覧**にした**早見表**です。<strong>実際の見た目（ギャラリー）</strong>と<strong>動き（アニメーション）</strong>も付けています。**読む本ではなく、引く辞書**として使ってください。
 
-!!! tip "ポイント"
-    - <strong>戻り値が `bool` の関数は、「操作された（押された・値が変わった・開いている）」</strong>を返す。<strong>`if` で受ける</strong>。
-    - <strong>値を編集する関数は、変数のポインタ（`&x`）</strong>を渡す。<strong>ImGui が直接書き換える</strong>。
-    - <strong>`Begin` / `End` のように、対になる関数</strong>は、<strong>`End` の呼び出し規則</strong>（常に呼ぶ／true のときだけ呼ぶ）が<strong>関数ごとに違う</strong>。表の「閉じ方」の列を確認する。
-    - <strong>ラベルが同じ部品は、同じものと見なされる</strong>。<strong>`##` や `PushID`</strong> で区別する。
-    - <strong>フラグ（`ImGuiXxxFlags_`）</strong>は<strong>ビット OR</strong>で組み合わせる。一覧は[フラグ早見表](flags.md)。
-
 ## 早見表の一覧
 
 | ページ | 内容 |

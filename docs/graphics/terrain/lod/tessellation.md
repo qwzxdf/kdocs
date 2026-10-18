@@ -14,7 +14,7 @@ tags:
     - **隣のパッチと、境界の分割数を揃える**。
     - **対応していない環境もある**。
 
-## ハードウェア テッセレーション
+## Hardware Tessellation {#ハードウェア-テッセレーション}
 **DX11 のテッセレーション**は、**ハル シェーダー・ドメイン シェーダー**で**パッチ（四角形）を、GPU 内で細分**します。**地形ではパッチ（例：64×64 m）を渡し、距離に応じた細分数を決めます**。
 
 テッセレーションのステージの役割です。ハル シェーダーは、パッチの 4 辺と内側の細分係数を決めます（距離から）。固定機能のテッセレータは、係数に従ってパッチを細分します。ドメイン シェーダーは、細分された点の位置を計算し、高さマップを読んで持ち上げます。
@@ -41,23 +41,23 @@ HullConstants ComputeConstants(InputPatch<ControlPoint, 4> patch) {
 
 **近年はコンピュート シェーダーで四分木を選び、メッシュ シェーダーで描く**構成も**増えています**。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "パッチの境目に、隙間が見える"
     **境界の分割数を、隣と揃える**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **GPU で、距離に応じて分割**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Terrain LOD](index.md)
 - [CDLOD](cdlod.md)

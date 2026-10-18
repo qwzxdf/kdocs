@@ -8,13 +8,7 @@ tags:
 
 **半透明は、ソートしないと崩れますが、入り組んだ形では、ソートで解決できません**。**OIT（Order-Independent Transparency）は、描く順序に依存せず、正しい半透明を作る手法の総称**です。このセクションでは、**問題の整理・Depth Peeling・PPLL・WBOIT・確率的透明・ハイブリッド**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - **ソートでは、入り組んだ半透明を直せない**。
-    - **OIT ＝ 描く順序に依存しない半透明**。
-    - **正確な方式（PPLL・Depth Peeling）は重く、近似の方式（WBOIT）は軽い**。
-    - **用途に合わせて選ぶ**。
-
-## 問題の整理
+## Organizing the Problem {#問題の整理}
 **画素ごとに、複数の半透明の層が重なる**場合、**正しい色は、奥から手前の順に合成した結果**です。
 
 <div class="formula">C = C₁α₁ + (1−α₁)(C₂α₂ + (1−α₂)(C₃α₃ + …))　（1 が最も手前）</div>
@@ -29,7 +23,7 @@ tags:
 | **Weighted Blended** | **順序を無視し、重みで近似** | **近似** | **小**（1 パス） | 小（2 枚） |
 | **確率的** | **アルファを確率にして、TAA で平均** | 収束すれば正確 | 小〜中 | 小 |
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -39,19 +33,19 @@ tags:
 | [Stochastic Transparency](stochastic.md) | ランダムに捨てて、平均する |
 | [Hybrid Approaches and Choosing](hybrid.md) | 組み合わせと、選択の目安 |
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **OIT は、順序に依存しない半透明**
     - [x] **正確さとコストのトレードオフ**
 
-## 参考
+## References {#参考}
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Translucency](../index.md)
 - [Alpha Blending and Sorting](../blending-sorting/index.md)

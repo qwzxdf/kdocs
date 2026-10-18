@@ -14,12 +14,12 @@ tags:
     - **LUT で、近似的に計算する**（Hillaire 2020）。
     - **空の暗部・影・雲が、自然になる**。
 
-## 多重散乱
+## Multiple Scattering {#多重散乱}
 **単散乱だけだと夕方や影の側の空が暗くなりすぎます**。**実際には一度散った光が何度も散ります**（**多重散乱**）。**地球の大気では、昼間の空の明るさの 1〜2 割は多重散乱**で、**夕暮れの空の明るさは多重散乱で決まります**。
 
 多重散乱の近似は 3 通りあります。<strong>ambient の底上げ</strong>は、単散乱に一定の環境光を足す方法で、手軽ですが粗いです。<strong>Bruneton の多重散乱</strong>は、散乱の次数ごとに事前計算を繰り返す方法で、正確ですが重いです。<strong>Hillaire の近似</strong>は、多重散乱を、等方で無限級数の閉じた式で近似し、小さな 2D LUT にまとめます。軽く、動的な大気にも使えます。
 
-### Hillaire の近似の考え方
+### The Idea Behind Hillaire's Approximation {#hillaire-の近似の考え方}
 
 Hillaire の近似は、大胆な仮定に基づいています。「2 次以降の散乱光は、散乱のたびに方向がランダムになり、ほぼ等方（どの方向にも均等）になる」。この仮定のもとでは、2 次散乱の光の量 L₂ は、1 次散乱の量から簡単に求まります。3 次の量は 2 次の何倍か、4 次は 3 次の何倍か、と考えると、次数ごとに、同じ比率 f で減っていくと見なせます。すると、すべての次数を足した多重散乱は、等比級数の和になります。
 
@@ -75,24 +75,24 @@ Hillaire の近似は、大胆な仮定に基づいています。「2 次以降
 
 <!-- fig:multi-scatter-sum:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "影になる部分の空が、真っ黒"
     **多重散乱**を**足す**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **何度も散乱した光を、近似で足す**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Atmospheric Scattering](index.md)
 - [Hillaire 2020](hillaire.md)

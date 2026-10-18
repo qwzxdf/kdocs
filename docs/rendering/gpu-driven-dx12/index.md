@@ -8,14 +8,6 @@ tags:
 
 [GPU Driven Rendering](../gpu-driven.md)のページでは、<strong>「カリングと描画引数の生成を GPU に任せる」</strong>という**考え方**を説明しました。このパートでは、それを **Direct3D 12 の実コード**で**組み立てます**。**バッファの作り方・ルート シグネチャ・コンピュート シェーダーによるカリング・`ExecuteIndirect`・Hi-Z オクルージョン・メッシュレット・バリア**まで**コピーして動かせる粒度**で、**なぜそう書くのか**とともに**解説**します。
 
-!!! tip "ポイント"
-    - 目標：<strong>CPU は「シーンを 1 回アップロードして、数回の呼び出しを積む」だけ</strong>。<strong>何を描くかは GPU が決める</strong>。
-    - 核になる API は<strong>`ExecuteIndirect`</strong>。<strong>引数バッファ（GPU が書く）</strong>と<strong>カウント バッファ</strong>から、<strong>描画を連続発行</strong>する。
-    - <strong>D3D12 では、リソース バリアと状態管理が自己責任</strong>。<strong>GPU Driven は、バリアの置き方が成否を分ける</strong>。
-    - 描画ごとの違いは<strong>ルート定数（インスタンス番号）</strong>と<strong>ビンドレス（記述子ヒープの直接参照）</strong>で<strong>GPU 側が引く</strong>。
-    - <strong>PSO は、間接描画の途中で変えられない</strong>。<strong>PSO ごとにバケットを分けて</strong>ExecuteIndirect を数回呼ぶ。
-    - 発展：<strong>Hi-Z の 2 パス</strong>、<strong>メッシュレット ＋ メッシュ シェーダー</strong>。
-
 ## このパートの前提
 
 | 項目 | 内容 |

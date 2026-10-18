@@ -14,7 +14,7 @@ tags:
     - **とても軽い**。
     - **物理的には正確でない**。
 
-## グラデーションの空
+## Gradient Sky {#グラデーションの空}
 **もっとも簡単**なのは、**視線の仰角（上下の角度）で、地平線の色と天頂の色を混ぜる**方法です。
 
 ```hlsl
@@ -66,24 +66,24 @@ float3 GradientSky(float3 view_dir) {
 
 <!-- fig:sky-gradient-day:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "地平線に、色の帯（バンディング）が出る"
     **ディザ**を**加える**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **高さで色を補間するだけ**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Sky Models](index.md)
 - [Analytic Sky Models](analytic.md)

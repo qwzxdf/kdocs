@@ -14,12 +14,12 @@ tags:
     - **葉などは、ポリゴンで形に切り抜くと、clip を減らせる**。
     - **影のパスでも、アルファ テストが必要**（葉の影が板状にならない）。
 
-## パフォーマンス：Early-Z が効かない
+## Performance: Early-Z Does Not Work {#パフォーマンスearly-z-が効かない}
 **`clip` を含むシェーダーは、「深度を書くかどうか」が、シェーダー実行後でないと決まらない**ため、**Early-Z（シェーダーの前に深度テスト）が、使えません**。
 
 Early-Z が効かない理由です。Early-Z は、ピクセル シェーダーの前に深度テストを行い、隠れた画素のシェーダーを省く仕組みです。`clip` があると、ハードウェアはシェーダーの後でないと、深度を書くか分かりません。その影響で、隠れた葉でもシェーダーが走り、オーバードローが重くなります。
 
-### 対策
+### Fixes {#対策}
 
 | 方法 | 内容 |
 | --- | --- |
@@ -30,27 +30,27 @@ Early-Z が効かない理由です。Early-Z は、ピクセル シェーダー
 
 **不透明 → アルファ テスト → 半透明**の**順で描く**のが、**一般的な構成**です。
 
-## 影・深度パスでのアルファ テスト
+## Alpha Test in Shadow and Depth Passes {#影深度パスでのアルファ-テスト}
 **影（シャドウ マップ）や深度プリパス**でも、**葉の形で影を落とす**には、**アルファ テストが必要**です。**これらのパスにも、同じ `clip`** を**入れ**ます（[特殊な影](../../shadows/special-cases/index.md)）。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "葉が多いシーンで、フレーム時間が伸びる"
     **ポリゴンを切り抜いて**、**clip の面積を減らす**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **clip は Early-Z を妨げる**
     - [x] **切り抜きポリゴンで軽くする**
 
-## 参考
+## References {#参考}
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Alpha Testing](index.md)
 - [影のアルファ テスト](../../shadows/special-cases/alpha-test-shadows.md)

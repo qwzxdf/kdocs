@@ -14,7 +14,7 @@ tags:
     - **アクネを消すためにバイアスを上げると、必ずトレードオフ**になる。
     - **対策**：**法線オフセット・前面カリング・受け手平面**など、**浮きにくい方法を使う**。
 
-## ピーター パンニング
+## Peter Panning {#ピーター-パンニング}
 **バイアスが大きすぎる**と、**影が物体の接地部から離れて**見えます（物体が地面から浮いたように見える）。これが**ピーター パンニング**（影が体から離れる、ピーター パンの影の話から）です。
 
 ピーター パンニングの症状と原因を対応づけます。影が足元から離れるのは、定数バイアスが大きすぎるためです。薄い壁の向こうに光が漏れるのは、法線オフセットが大きすぎる、あるいは薄い物に裏面レンダリングを使っているためです。細い物体の影が消えるのは、バイアスで遮蔽物自体が無視されるためです。
@@ -56,23 +56,23 @@ tags:
 
 <!-- fig:bias-tradeoff:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "1 つの定数バイアスだけで、両立しようとして調整が終わらない"
     **複数の方法を少しずつ**組み合わせる（[Shadow Bias](index.md)）。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **バイアスが大きいと、影が浮く**
     - [x] **アクネとのトレードオフ**。**複数の方法を少しずつ**
 
-## 参考
+## References {#参考}
 
 - Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Shadow Bias](index.md)
 - [Normal Offset](normal-offset.md)

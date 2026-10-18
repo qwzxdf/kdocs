@@ -16,7 +16,7 @@ tags:
     - <strong>明るい点</strong>ほど<strong>形がはっきり見える</strong>。<strong>HDR で処理</strong>する。
     - <strong>形を凝るほど、サンプル数が増える</strong>。<strong>コストと相談</strong>。
 
-## 形の種類
+## Kinds of Shapes {#形の種類}
 
 <svg class="fig illust" viewBox="0 0 780 220" role="img" aria-label="ボケの形">
 <text x="20" y="26" class="fig-title">ボケの形：絞り羽根の枚数で決まる</text>
@@ -35,13 +35,13 @@ tags:
 | **多角形** | **5〜9 枚の絞り羽根を絞った状態** | **角張った玉ボケ。写真っぽい** |
 | <strong>ドーナツ（リング）</strong> | **反射望遠レンズ** | **中央が欠けた、輪っかのボケ** |
 
-## サンプルの配置で形を作る
+## Making the Shape with Sample Placement {#サンプルの配置で形を作る}
 
-### 円盤
+### Disk {#円盤}
 
 **ヴォーゲル螺旋**（[Gather Method](gather.md)）が**そのまま円盤**を**作ります**。
 
-### 多角形
+### Polygon {#多角形}
 
 **円盤を多角形の領域に押し込む**関数で**サンプルを写します**。
 
@@ -63,7 +63,7 @@ float2 MapDiskToPolygon(float2 p, int sides, float rotation) {
 | **`cos(半角) / cos(局所角)`** | **円の半径を多角形の辺までの距離に置き換える** |
 | **サンプルをこの関数で円盤から多角形に写す** | **ギャザーのサンプル位置**として使う |
 
-## ボケの中の明るさ
+## Brightness Inside the Bokeh {#ボケの中の明るさ}
 
 **実際のレンズ**では、**ボケの円盤の内側が均一ではありません**。
 
@@ -1082,7 +1082,7 @@ float BokehWeight(float2 sample_offset, float edge_boost) {
 
 <!-- fig:bokeh-shapes-anim:end -->
 
-## 口径食（猫の目ボケ）
+## Optical Vignetting (Cat's-Eye Bokeh) {#口径食猫の目ボケ}
 
 **画面の端**では**レンズの筒の影響でボケが丸くなく、楕円形（猫の目）に欠ける**ことがあります。**映画的な味**として**人気**があります。
 
@@ -1102,13 +1102,13 @@ float2 ApplyCatEye(float2 offset_in_disk, float2 screen_uv, float strength) {
 
 <strong>欠けたサンプルは使わず（重み 0 に）</strong>、**残りのサンプル数で割り直す**必要があります。
 
-## 玉ボケをブルームと兼ねる
+## Using Bokeh Balls for Bloom Too {#玉ボケをブルームと兼ねる}
 
 **明るい点が大きなボケの円盤になる**ので、**ブルームと DOF の見た目は近い**です。**重複して、ぼけすぎないよう**：
 
 明るい点が大きなボケの円盤になるので、ブルームと DOF の見た目は近くなります。重複してぼけすぎないための工夫です。DOF の後にブルームをかけて、DOF でぼけた玉ボケをさらに柔らかくします。ブルームのしきい値を調整します（DOF で広がって薄くなった光は、しきい値を超えにくいため）。スキャッター方式なら、面積で割りつつ HDR の明るさを残して、玉ボケの明るさを保ちます。
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -1118,7 +1118,7 @@ float2 ApplyCatEye(float2 offset_in_disk, float2 screen_uv, float strength) {
 | **ボケの小さい所は円で十分** | **形が見えるのは、大きな明るいボケだけ**。**そこだけ凝る** |
 | **スキャッターで形を正確に** | **玉ボケの形を重視するなら、スプライトに形のテクスチャを貼る**（[スキャッター方式](scatter.md)） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "多角形のボケにしたら、サンプルが偏って、片側が薄い"
     **サンプルを多角形の中に均等に**配置する。**重みをサンプル数で正規化**。
@@ -1129,7 +1129,7 @@ float2 ApplyCatEye(float2 offset_in_disk, float2 screen_uv, float strength) {
 ??? failure "ボケの形が、小さい画素ではまったく見えない"
     **形が見えるのは、大きなボケだけ**。**小さいボケは円で十分**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] ボケの形 ＝ <strong>絞りの形</strong>。<strong>円・多角形（羽根の枚数）</strong>
@@ -1138,13 +1138,13 @@ float2 ApplyCatEye(float2 offset_in_disk, float2 screen_uv, float strength) {
     - [x] <strong>猫の目（口径食）</strong>は<strong>画面の端でボケが楕円に欠ける</strong>
     - [x] <strong>形はパラメータ化</strong>し、<strong>大きなボケだけ凝る</strong>
 
-## 参考
+## References {#参考}
 
 - McIntosh et al., "Efficiently Simulating the Bokeh of Polygonal Apertures in a Post-Process Depth of Field Shader"（Computer Graphics Forum 2012）
 - Abadie, "A Life of a Bokeh"（SIGGRAPH 2018）
 - Wikipedia, "Bokeh"
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Depth of Field (DOF)](index.md)
 - [Gather Method](gather.md)

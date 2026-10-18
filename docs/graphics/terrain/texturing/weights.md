@@ -76,7 +76,7 @@ tags:
 
 <!-- fig:splat-weights:end -->
 
-## 重みを決める
+## Deciding the Weights {#重みを決める}
 重みの決め方です。手描きは、地形エディタでブラシで塗ります。ルールで自動は、高さや傾きから決めます（次の段落）。侵食の結果から決める方法は、堆積した所は土や砂、削られた所は岩とします（[Terrain Generation](../generation/index.md)）。
 
 | 条件 | 地面 |
@@ -95,23 +95,23 @@ float grass = (1.0 - rock) * (1.0 - snow);
 
 **ルールで基礎を作り、手描きの重みを足して調整する**のが**実用的**です。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "重みの合計が 1 でなく、地形が暗い・明るい"
     **重みを正規化**する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **ペイントか自動で決め、合計 1 にする**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Terrain Texturing](index.md)
 - [Height-Based Blending](height-blend.md)

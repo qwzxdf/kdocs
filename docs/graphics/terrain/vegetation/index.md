@@ -8,13 +8,7 @@ tags:
 
 **草や木は、数が非常に多く、地形の見た目を大きく左右します**。**インスタンシングとカリングで数を扱い、風やライティングで生きた見た目にします**。このセクションでは、**配置・インスタンシング・カリング・草の形・風・踏まれる草・木・半透明の問題・ライティング**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - **数が多い ＝ インスタンシングとカリングが必須**。
-    - **草は、板ポリを交差させて作る**。
-    - **風でなびかせると、生きた見た目**。
-    - **半透明の葉は、ソートできないので、アルファ テスト系**。
-
-## 配置
+## Placement {#配置}
 **植生の位置**は**何を元に決めるか**です。
 
 | 方法 | 内容 |
@@ -64,7 +58,7 @@ void GenerateGrass(uint3 id : SV_DispatchThreadID) {
 | **カメラ周りのセルだけ** | **遠くのセルは生成しない** |
 | **`AppendInstance`** | **`AppendStructuredBuffer`**に書く。**後で `DrawIndexedInstancedIndirect`** |
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -77,18 +71,18 @@ void GenerateGrass(uint3 id : SV_DispatchThreadID) {
 | [半透明の問題](translucency.md) | 葉の描画の問題 |
 | [ライティング](lighting.md) | 葉の光の扱い |
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **数は、インスタンシングとカリングで扱う**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Terrain](../index.md)
 - [Alpha Testing](../../translucency/alpha-test/index.md)

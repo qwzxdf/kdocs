@@ -16,7 +16,7 @@ tags:
     - コストは<strong>探索 ＋ 大きな PCF</strong>で、重い。<strong>サンプル数を減らす工夫</strong>が要る。
     - シャドウ マップは<strong>1 枚</strong>だけ。<strong>1 つの遮蔽物（平均）</strong>を仮定する近似。
 
-## 半影の幾何
+## Penumbra Geometry {#半影の幾何}
 
 <svg class="fig illust" viewBox="0 0 780 300" role="img" aria-label="半影の幅の計算">
 <text x="20" y="24" class="fig-title">相似三角形：半影の幅 ＝ (d_receiver − d_blocker) × 光源の幅 ÷ d_blocker</text>
@@ -226,9 +226,9 @@ tags:
 
 <!-- fig:pcss-penumbra:end -->
 
-## 3 つの手順
+## Three Steps {#3-つの手順}
 
-### ① 遮蔽物の探索（Blocker Search）
+### ① Blocker Search {#①-遮蔽物の探索blocker-search}
 
 **受け手の点**から、**光源の方向**に**シャドウ マップのある範囲**を探索し、<strong>「受け手より手前にある（遮蔽物の）深度」</strong>の**平均**を求めます。
 
@@ -259,7 +259,7 @@ float AverageBlockerDepth(float2 uv, float receiver_depth, float search_radius_u
 | **`count == 0`** | **遮蔽物が見つからない** → **日向**（影なし）。以降の計算は不要 |
 | **サンプル数** | 8〜16（ポワソン円盤）。**探索範囲の大きさ**が品質とコストを決める |
 
-### ② 半影の幅を計算
+### ② Computing the Penumbra Width {#②-半影の幅を計算}
 
 見つかった**平均の遮蔽物の深度 `d_b`** から、**半影の幅**を計算します。
 
@@ -271,7 +271,7 @@ float AverageBlockerDepth(float2 uv, float receiver_depth, float search_radius_u
 float penumbra_width = (receiver_z - blocker_z) * light_size_uv / blocker_z;
 ```
 
-### ③ 可変幅の PCF
+### ③ Variable-Width PCF {#③-可変幅の-pcf}
 
 **半影の幅**を、**PCF のカーネルの半径**にして、通常の PCF を行います。
 
@@ -291,7 +291,7 @@ float PCSS(float2 uv, float receiver_depth, float receiver_z) {
 
 フィルタ側のコードの要点です。`filter_radius = penumbra · near / d_r` で、半影の幅を近クリップ面での大きさに直します（透視投影のシャドウ マップ上の幅です）。遮蔽物がなければ 1.0 を返して、無駄な PCF を避けます。PCF は通常の `SampleCmp` で、ポワソン円盤の半径を可変にします。
 
-## 平行光（太陽）の PCSS
+## PCSS for Directional Lights (Sun) {#平行光太陽の-pcss}
 
 **太陽**は**平行光**で**正射影**のシャドウ マップです。**光源の大きさ**は、**視直径**（約 0.53 度、半角で約 0.27 度）で表します。**半影の幅**は**深度の差に角度のタンジェントを掛けた**ものです。
 
@@ -301,7 +301,7 @@ float PCSS(float2 uv, float receiver_depth, float receiver_z) {
 
 **正射影**では**探索範囲も一定**（遠近の補正が不要）なので**単純**です。
 
-## 現実の影との違い
+## Differences from Real Shadows {#現実の影との違い}
 
 PCSS は、**1 枚のシャドウ マップ**から、**半影を近似**します。以下の**仮定・限界**があります。
 
@@ -312,7 +312,7 @@ PCSS は、**1 枚のシャドウ マップ**から、**半影を近似**しま�
 | **探索範囲の限界** | 探索範囲外の遮蔽物は、**見逃す** |
 | **光源の形** | 円・矩形程度。**複雑な形の面光源**は、近似 |
 
-## コストと工夫
+## Cost and Tricks {#コストと工夫}
 
 PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上）</strong>で、**画素あたり 30 回以上**シャドウ マップを読む、**重い**方式です。
 
@@ -326,7 +326,7 @@ PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上�
 | **半分の解像度で計算** | 影のマスクを**半分の解像度**で作り、**アップサンプル**（バイラテラル） |
 | **カスケードの近くだけ** | **遠くは通常の PCF**、**近くだけ PCSS** |
 
-## 他の方式との比較
+## Comparison with Other Methods {#他の方式との比較}
 
 | 方式 | 接触硬化 | コスト | 備考 |
 | --- | --- | --- | --- |
@@ -336,7 +336,7 @@ PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上�
 | **レイトレ影**（[レイトレース影](ray-traced.md)） | <strong>あり（正確）</strong> | 大（HW が必要） | 面光源を直接サンプル |
 | **距離場の影**（[距離場の影](sdf-shadows.md)） | あり（円錐） | 中 | 静的向き |
 
-## 調整のしかた
+## How to Tune {#調整のしかた}
 
 | パラメータ | 意味 | 目安 |
 | --- | --- | --- |
@@ -348,7 +348,7 @@ PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上�
 
 **半影の幅に最小値**（たとえば 1〜2 テクセル）を設けると**接触部でもエイリアシングが目立ちません**。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "非線形の深度のまま、半影の式に入れて、ぼけが変"
     **線形（光からの距離）に変換**してから計算します。
@@ -365,7 +365,7 @@ PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上�
 ??? failure "サンプルが少なすぎて、ノイズがひどい"
     **画素ごとの回転 ＋ TAA**、または**サンプルを増やす**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] PCSS ＝ <strong>遮蔽物との距離で、PCF のぼけの幅を変える</strong>（接触硬化を再現）
@@ -374,11 +374,11 @@ PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上�
     - [x] 深度は<strong>線形</strong>にして計算。<strong>遮蔽物が無ければ、日向で終了</strong>
     - [x] <strong>重い</strong>ので<strong>サンプルを減らして、ノイズ ＋ 時間蓄積</strong>で補う
 
-## 参考
+## References {#参考}
 
 - Fernando, "Percentage-Closer Soft Shadows"（SIGGRAPH 2005 Sketches、NVIDIA）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Shadows](index.md)
 - [PCF](pcf.md)

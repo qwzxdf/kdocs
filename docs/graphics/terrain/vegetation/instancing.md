@@ -14,7 +14,7 @@ tags:
     - **GPU 駆動なら、カリングも GPU で**行える。
     - **描画命令の数が、減る**。
 
-## インスタンシング
+## Instancing {#インスタンシング}
 **同じメッシュを位置・向き・大きさだけ変えて、大量に描く**のが**インスタンシング**です。
 
 インスタンシングの方式です。`DrawIndexedInstanced` は、インスタンス数を指定して描き、インスタンスごとのデータは頂点バッファか StructuredBuffer に置きます。`DrawIndexedInstancedIndirect` は、インスタンス数を GPU が決める方式で、カリング結果をそのまま使え、CPU 待ちがありません。インスタンス データは、位置（float3）・回転（1 つの角度）・スケール・色の個体差などで、16〜32 バイトに収めます。
@@ -136,23 +136,23 @@ VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
 
 <!-- fig:instancing-calls:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "草の描画命令が多すぎて、CPU が遅い"
     **インスタンシング**を使う。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **同じメッシュを、1 命令で大量に**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Vegetation](index.md)
 - [カリング](culling.md)

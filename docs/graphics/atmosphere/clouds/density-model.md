@@ -36,7 +36,7 @@ tags:
 
 <!-- fig:cloud-coverage:end -->
 
-## 密度のモデル
+## Density Model {#密度のモデル}
 **雲の密度は複数の要素を掛け合わせて作ります**。
 
 | 要素 | 役割 |
@@ -86,24 +86,24 @@ float Remap(float v, float a, float b, float c, float d) {
 
 **ノイズ テクスチャ**は**事前に生成**します（Perlin ノイズに Worley ノイズを重ね、4 チャンネルに異なる周波数を入れる）。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "雲の縁が、なめらかすぎる"
     **高周波のノイズ**で**縁を削る**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **低周波で形、高周波で細部**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Clouds](index.md)
 - [Cloud Layers](layers.md)

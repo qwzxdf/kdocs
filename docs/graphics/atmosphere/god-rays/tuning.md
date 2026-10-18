@@ -14,7 +14,7 @@ tags:
     - **ノイズで、筋にむらを付ける**。
     - **天気（晴れ・霧）で、強さを変える**。
 
-## 見た目の調整
+## Tuning the Look {#見た目の調整}
 | パラメータ | 影響 |
 | --- | --- |
 | **霧の密度** | **濃いほど光の筋が強い** |
@@ -24,7 +24,7 @@ tags:
 | **ノイズ・風** | **揺らぎを足す** |
 | **カメラが太陽側へ向くとき強く** | **前方散乱** |
 
-### 自然に見せる考え方
+### Thinking About Natural Looks {#自然に見せる考え方}
 
 光の筋は、目立つ効果なので、やりすぎると「いかにも CG」になります。自然に見せるコツを挙げます。
 
@@ -61,24 +61,24 @@ tags:
 
 <!-- fig:decay-weights:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "光の筋が強すぎて、画面が白っぽい"
     **強さを下げる**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **控えめな強さと、ノイズのむら**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [God Rays](index.md)
 - [Bloom](../../postprocess/bloom/index.md)

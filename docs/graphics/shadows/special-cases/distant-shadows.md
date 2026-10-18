@@ -14,7 +14,7 @@ tags:
     - **距離フェード**：**シャドウ マップの最大距離で、影を滑らかに消す**。
     - **遠くの影は、ベイク・距離場・簡易方式**。
 
-## 遠景の影
+## Distant Shadows {#遠景の影}
 **カスケードの最大距離**を超えた先は、**影がなくなります**。**遠景の山・建物**の**大きな影**を**どう扱うか**です。
 
 | 方法 | 内容 |
@@ -25,7 +25,7 @@ tags:
 | **大きな最後のカスケード** | **最後のカスケードを非常に大きく**（粗いが**遠くの大きな影**は捉える） |
 | **雲の影** | **雲のテクスチャを地面に投影して**、**大規模な、移動する影**を**安く**表現 |
 
-### 雲の影
+### Cloud Shadows {#雲の影}
 
 **雲のアルファ テクスチャ**を、**太陽の方向**から**地面に投影**し、**ライティングに乗算**します。**時間でスクロール**させれば、**雲の影がゆっくり動く**様子になります。
 
@@ -35,23 +35,23 @@ float cloud_shadow = lerp(1.0, cloud_tex.Sample(linear_sampler, cloud_uv).r, clo
 lit *= cloud_shadow;
 ```
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "シャドウ マップの最大距離で、影が急に消える"
     **最大距離の手前から、滑らかにフェード**させる。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **遠景は別の方法で影を表す**
     - [x] **雲の影・距離フェードが定番**
 
-## 参考
+## References {#参考}
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Special Cases](index.md)
 - [Cascaded Shadow Maps (CSM)](../cascaded.md)

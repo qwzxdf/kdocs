@@ -14,7 +14,7 @@ tags:
     - **線形フィルタ ＋ 比較**で、**2×2 のハードウェア PCF**になる。
     - **範囲外（マップの外）は、光が当たる扱い**にする（**境界色・クランプ**）。
 
-## ③〜⑤ 比較
+## ③–⑤ Comparison {#③⑤-比較}
 **ワールド位置**を**光のクリップ空間**に変換し、**シャドウ マップの座標と深度**を得ます。
 
 ```hlsl
@@ -38,7 +38,7 @@ float ShadowFactor(float3 world_pos) {
 | **範囲外** | シャドウ マップの外は、**影なし**（1）として扱う（または別の扱い） |
 | **`SampleCmpLevelZero`** | **比較サンプラー**。**比較して、結果（0〜1）を、2×2 でバイリニア補間** |
 
-### 比較サンプラー
+### Comparison Sampler {#比較サンプラー}
 
 **比較サンプラー**は、**ハードウェアが「保存された深度」と「参照値」を比べる**機能です。結果は**比較が真なら 1、偽なら 0**で**バイリニアで補間**されます（4 点の比較結果を混ぜる）。
 
@@ -56,23 +56,23 @@ device->CreateSamplerState(&sampler, &shadow_sampler);
 !!! note "標準 Z のとき"
     標準の Z（near → 0、far → 1）では**遠いほど深度が大きい**ので、`LESS_EQUAL` を使います。**reverse-Z** のときは、`GREATER_EQUAL` です（[投影](../../../3d/projection.md)）。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "比較サンプラーなのに、通常のサンプラーで読んで、おかしい"
     **`SamplerComparisonState` を使い、`SampleCmp` で読む**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **光の空間の深度とマップの深度を比べる**
     - [x] **比較サンプラーで、ハードウェア PCF も得られる**
 
-## 参考
+## References {#参考}
 
 - Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Shadow Map Basics](index.md)
 - [Rendering Depth](render-depth.md)

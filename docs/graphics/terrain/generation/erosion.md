@@ -227,7 +227,7 @@ tags:
 
 <!-- fig:erosion-droplet:end -->
 
-## 侵食
+## Erosion {#侵食}
 **ノイズだけの地形は、「ふにゃふにゃ」して不自然**です。**本物の山は水の流れが削った谷と尾根の網目**があります。**水による侵食を模擬**すると**劇的にリアル**になります。
 
 | 方式 | 内容 |
@@ -237,7 +237,7 @@ tags:
 | **粒子ベース** | **水滴を 1 つずつ、地形の上で転がす**。**簡単** |
 | <strong>格子ベース（パイプ モデル）</strong> | **水の量・流れ・土砂を格子で計算**。**GPU 向き** |
 
-### 粒子ベースの水力侵食
+### Particle-Based Hydraulic Erosion {#粒子ベースの水力侵食}
 
 **水滴をランダムな位置に落とし**、**高さの勾配に沿って転がします**。**勢い（速さ）と水量で運べる土砂の量が決まり**、**多すぎれば堆積、少なければ削ります**。
 
@@ -300,7 +300,7 @@ void ErodeDroplet(HeightMap& map, std::mt19937& rng, const ErosionParams& p) {
 
 **削った・積もらせた量は、周囲のセルに重みを付けて配る**（**半径 3 程度のブラシ**）と、**滑らかな谷**になります。
 
-### 結果
+### Results {#結果}
 
 | 変化 | 内容 |
 | --- | --- |
@@ -309,23 +309,23 @@ void ErodeDroplet(HeightMap& map, std::mt19937& rng, const ErosionParams& p) {
 | **扇状地・堆積** | **谷の出口に土砂が平らに積もる** |
 | **地面の種類のヒント** | **堆積した所は土、削れた所は岩**（**スプラット マップに使える**） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "侵食後も、地形が不自然に滑らか"
     **水滴の数・反復**を**増やす**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **水が削り、運ぶ様子をシミュレート**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Terrain Generation](index.md)
 - [Rivers and Lakes](rivers.md)

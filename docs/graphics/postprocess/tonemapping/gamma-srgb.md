@@ -127,7 +127,7 @@ tags:
 
 <!-- fig:gamma-srgb:end -->
 
-## なぜガンマがあるのか
+## Why Gamma Exists {#なぜガンマがあるのか}
 
 **人間の目は暗い所の違いに敏感**で**明るい所の違いには鈍感**です。**8 ビット（256 段階）に、明るさを比例で割り当てると**、**暗部の段階が少なすぎて、縞（バンディング）が出ます**。**そこで暗部に多くの段階を割り当てる曲線**（**ガンマ**）を**かけて保存**します。
 
@@ -149,13 +149,13 @@ tags:
 
 色の空間は 2 つに使い分けます。<strong>リニア</strong>は、光の計算・合成・ブルーム・トーンマップに使います。物理的に正しい足し算ができるからです。<strong>sRGB（ガンマ）</strong>は、保存と表示に使います（画像ファイルとディスプレイ）。
 
-## 変換の位置
+## Where to Convert {#変換の位置}
 
 変換の位置は、次のとおりです。色のテクスチャの読み込みでは、sRGB からリニアへ変換します（`_SRGB` 形式で自動）。ライティング・露出・ブルーム・トーンマップは、リニアで行います。画面への出力で、リニアから sRGB へ変換します（最後に、`_SRGB` の RTV で自動）。
 
 **ガンマ変換をトーンマップの前に入れる**と、**暗部が潰れて眠い絵**になります（**典型的な事故**）。
 
-## sRGB の式
+## The sRGB Formula {#srgb-の式}
 
 <div class="formula">
 sRGB(c) = 12.92 · c　　（c ≦ 0.0031308）<br>
@@ -178,7 +178,7 @@ float3 SRGBToLinear(float3 c) {
 
 ガンマ変換の近似は 2 通りです。`pow(c, 1/2.2)` はよく使われる近似ですが、暗部で少しずれます。正確な sRGB は、区分式を使う方法で、ハードウェアの自動変換もこちらです。
 
-## DX11 での設定
+## Settings in DX11 {#dx11-での設定}
 
 ```cpp
 DXGI_SWAP_CHAIN_DESC1 desc = {};
@@ -192,7 +192,7 @@ device->CreateRenderTargetView(back_buffer.Get(), &rtv_desc, rtv.GetAddressOf())
 
 出力設定の要点です。スワップチェーンの形式は UNORM にします。FLIP モデルでは `_SRGB` のスワップチェーンが作れないので、RTV だけを `_SRGB` にします。RTV を `_SRGB` にすると、シェーダーのリニアな出力を、ハードウェアが sRGB に変換して書き込みます。RTV が `_SRGB` なのにシェーダーで `pow` もすると、二重にガンマがかかって白っぽくなるので、シェーダーでは `pow` しません。
 
-### テクスチャの読み込み
+### Reading Textures {#テクスチャの読み込み}
 
 | テクスチャ | 形式 | 理由 |
 | --- | --- | --- |
@@ -201,7 +201,7 @@ device->CreateRenderTargetView(back_buffer.Get(), &rtv_desc, rtv.GetAddressOf())
 | **粗さ・金属度・AO** | **UNORM** | **同上** |
 | **HDR テクスチャ** | **FLOAT** | **すでにリニア** |
 
-## HDR ディスプレイへの出力
+## Output to HDR Displays {#hdr-ディスプレイへの出力}
 
 **HDR ディスプレイは、SDR より広い明るさ（数百〜数千ニト）と広い色域**を**出せます**。**SDR 用のトーンマップの結果をそのまま送る**と、**HDR の良さが活きません**。
 
@@ -231,13 +231,13 @@ float3 LinearToPQ(float3 nits) {
 
 コードの要点です。`nits / 10000` は、PQ が 10,000 ニトを 1 とするためです。最大輝度は `IDXGIOutput6::GetDesc1` でディスプレイの値を得て、曲線のロールオフに使います。
 
-### ペーパー ホワイトと UI
+### Paper White and UI {#ペーパー-ホワイトと-ui}
 
 **HDR では、「白」の明るさに決まりがありません**。**UI の白をゲーム画面の最大輝度で出すと、まぶしすぎる**ので、**UI の白を「ペーパー ホワイト」（約 200〜300 ニト）に決め**、**ゲーム画面とは別に変換して合成**します。
 
 HDR での UI の扱いです。ゲーム画面は、HDR 用トーンマップで PQ にします。UI は、ペーパー ホワイトに合わせたニトに変換してから合成します。ユーザー設定として、最大輝度とペーパー ホワイトを調整できるようにします。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "ガンマ変換を二重にして、全体が白っぽい"
     **RTV が `_SRGB` なら、シェーダーで `pow` しない**。
@@ -254,7 +254,7 @@ HDR での UI の扱いです。ゲーム画面は、HDR 用トーンマップ�
 ??? failure "HDR で UI がまぶしすぎる"
     **ペーパー ホワイトを決めて、UI を別に変換**する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] <strong>計算はリニア、保存・表示は sRGB</strong>。<strong>ガンマは最後</strong>
@@ -263,13 +263,13 @@ HDR での UI の扱いです。ゲーム画面は、HDR 用トーンマップ�
     - [x] <strong>HDR ディスプレイ</strong>は<strong>別のトーンマップ ＋ PQ ＋ Rec.2020</strong>
     - [x] <strong>UI はペーパー ホワイト</strong>で<strong>別に合成</strong>
 
-## 参考
+## References {#参考}
 
 - Microsoft, "DXGI Color Space"・"High Dynamic Range and Wide Color Gamut"（Microsoft Learn）
 - SMPTE ST 2084, "High Dynamic Range Electro-Optical Transfer Function"
 - IEC 61966-2-1, "sRGB"
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Tone Mapping and Exposure](index.md)
 - [Exposure](exposure.md)

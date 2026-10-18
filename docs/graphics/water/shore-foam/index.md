@@ -8,13 +8,7 @@ tags:
 
 **水の泡は、岸辺・波頭・航跡に出て、水の動きを見せます**。**泡のマスクを作り、泡テクスチャで色を付けて、合成する**のが**基本の流れ**です。このセクションでは、**マスクの作り方・岸辺の泡（深度差）・波頂の泡（ヤコビアン）・泡テクスチャ・泡を残す・航跡**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - **泡 ＝ 白いマスク × テクスチャ**。
-    - **岸辺は、水深が浅い所に出る**。
-    - **波頭は、波が尖る所（ヤコビアン）に出る**。
-    - **泡が、時間をかけて消えていく**と、自然。
-
-## 泡のマスクを作る
+## Building the Foam Mask {#泡のマスクを作る}
 **泡は、「0 なら泡なし、1 なら泡で真っ白」のマスク値**として扱います。**複数の原因（岸辺・波頂・航跡）のマスクを足し合わせ**、**最後にテクスチャで模様を付けます**。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="泡のマスク">
@@ -38,7 +32,7 @@ tags:
 <text x="705" y="140" text-anchor="middle" style="font-size:13px">色に足す</text>
 </svg>
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -48,19 +42,19 @@ tags:
 | [Persistent Foam](foam-history.md) | 履歴で、ゆっくり消す |
 | [Wakes and Collisions](wake.md) | 船・物が作る泡 |
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **泡のマスク × テクスチャ**
     - [x] **深度差とヤコビアンで、位置を決める**
 
-## 参考
+## References {#参考}
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Water](../index.md)
 - [Water Waves](../waves/index.md)

@@ -8,15 +8,7 @@ tags:
 
 <strong>被写界深度（Depth of Field）</strong>は、**カメラの「ピントが合う範囲」の外がぼける**効果です。**ピントが合った物が際立ち、手前や奥がぼける**ので**視線を誘導し、「撮影された」映画的な絵**になります。**3D の描画は、すべてにピントが合ったピンホール カメラ**なので、**ぼかしを後から加える**必要があります。このセクションでは、**錯乱円・ギャザー方式・スキャッター方式・前景と背景の扱い・ボケの形**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - DOF ＝ <strong>ピント面から離れるほど、ぼかす</strong>。<strong>ぼかしの大きさ ＝ 錯乱円（CoC）</strong>。
-    - 処理は<strong>① 各画素の CoC を計算 → ② CoC に応じてぼかす</strong>。
-    - <strong>ギャザー</strong>：<strong>各画素が周りを集めてぼける</strong>（<strong>簡単・速い</strong>）。<strong>スキャッター</strong>：<strong>明るい点が円盤として広がる</strong>（<strong>きれい・重い</strong>）。
-    - <strong>前景</strong>は<strong>手前の物が奥にぼけて広がる</strong>ので、<strong>背景と別に処理</strong>する。
-    - <strong>ボケの形</strong>（<strong>円・絞り羽根の多角形</strong>）が<strong>画の味</strong>を決める。
-    - <strong>コスト</strong>は<strong>ボケの最大半径</strong>で決まる。<strong>半解像度・タイル</strong>で抑える。
-
-## 動きで見る
+## See It in Motion {#動きで見る}
 
 <!-- fig:dof-focus-sweep:begin -->
 
@@ -347,7 +339,7 @@ tags:
 
 <!-- fig:dof-focus-sweep:end -->
 
-## 全体の流れ
+## Overall Flow {#全体の流れ}
 
 | 手順 | 内容 | ページ |
 | --- | --- | --- |
@@ -357,7 +349,7 @@ tags:
 | **③ 前景と背景** | **ピントの手前と奥を別々に処理して、境の破綻を防ぐ** | [前景と背景](near-far.md) |
 | **④ ボケの形** | **円盤・多角形・サンプル配置・光学的な個性** | [ボケの形](bokeh-shape.md) |
 
-## 方式の比較
+## Comparing the Methods {#方式の比較}
 
 | 方式 | 内容 | 品質 | 速さ | 向く場面 |
 | --- | --- | --- | --- | --- |
@@ -366,7 +358,7 @@ tags:
 | **スキャッター** | **明るい点をスプライトとして広げる** | <strong>最高（ボケの形が正確）</strong> | **重い** | **映画風・ハイエンド** |
 | **レイトレ DOF** | **光線をレンズ上でずらして撮る** | **最高** | **非常に重い** | **オフライン・研究** |
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Post-Processing](../index.md)
 - [Exposure](../tonemapping/exposure.md)

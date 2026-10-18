@@ -89,34 +89,34 @@ float DepthToSlice(float depth, float near_z, float far_z, float slice_count) {
 }
 ```
 
-### 奥行きの割り当ての理由
+### Why Depth Is Allocated This Way {#奥行きの割り当ての理由}
 
 奥行き方向を指数的に割り当てるのは、画面上のセルの形を、なるべく正方形（立方体）に近づけるためです。画面の格子は、遠くへ行くほど、実際のワールド空間で大きくなります（透視投影）。奥行き方向を一様にすると、遠くのセルは「画面方向に広く、奥行き方向に薄い」平たい形になります。奥行きを遠くほど厚くすれば、セルの形が立方体に近くなり、どの距離でも均等な品質になります。
 
 また、近くを細かくする理由は、近くのフォグの変化（光の筋の細かい構造など）は目につきやすい一方、遠くの変化は目につきにくいからです。たとえば、near が 0.1 m、far が 128 m（比率 1280）、64 スライスなら、最初のスライスは約 0.11 m、32 番目のスライスで約 3.6 m、最後が 128 m に達します。近くの数 m を、全体の半分のスライスで覆っていることになります。
 
-### 3D テクスチャで持つ利点
+### Benefits of Holding It in a 3D Texture {#3d-テクスチャで持つ利点}
 
 3D テクスチャの形式で持つと、ハードウェアの三線形補間が使えます。ピクセルの位置 (u, v, スライス) で引くだけで、周囲 8 個のセルから自動で補間されます。また、コンピュート シェーダーでセルごとに並列に計算するのに向いています。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "奥行きの分割が粗く、層状の縞が見える"
     **スライス数を増やす**・**ジッタ**を入れる。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **視錐台を分けた、3D のグリッド**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Volumetric Fog](index.md)
 - [密度](density.md)

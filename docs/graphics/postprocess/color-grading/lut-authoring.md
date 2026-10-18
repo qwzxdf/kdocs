@@ -16,7 +16,7 @@ tags:
     - <strong>2 つの LUT を混ぜる</strong>：<strong>1 回の表引きで両方読み、`lerp`</strong>。
     - <strong>再生成は毎フレーム不要</strong>。<strong>パラメータの変化時のみ</strong>。
 
-## ゲーム内で生成（コンピュート）
+## Generating In-Game (Compute) {#ゲーム内で生成コンピュート}
 
 <strong>3D の各格子点（r, g, b）</strong>について、**その色に調整（露出・ホワイト バランス・LGG・彩度・トーンマップ）を順に適用**し、**結果を LUT に書きます**。
 
@@ -64,13 +64,13 @@ void GenerateLut(uint3 id : SV_DispatchThreadID) {
 | **調整を順に適用** | **露出 → ホワイト バランス → LGG → コントラスト → 彩度 → トーンマップ** |
 | **コスト** | **32³ ＝ 32,768 回の計算のみ**。**1920×1080 の画面の 1.6 % 程度**で**非常に軽い** |
 
-### いつ再生成するか
+### When to Regenerate {#いつ再生成するか}
 
 いつ再生成するかです。パラメータが変わったときは、調整ボリュームの補間中は毎フレーム再生成します。変わらないときは再生成せず、LUT をテクスチャとして保持します。ステージ読み込み時に、初期の LUT を作ります。
 
 **コンピュートの 1 回あたりが非常に軽い**ので、**毎フレーム再生成**しても**問題ない**場合も多いです。
 
-## 外部ツールで作る
+## Making It with External Tools {#外部ツールで作る}
 
 **映像のプロ用ツールで実際の画面を見ながら、ルックを調整し、LUT に書き出す**方法です。
 
@@ -81,7 +81,7 @@ void GenerateLut(uint3 id : SV_DispatchThreadID) {
 | **③ LUT を書き出す** | **加工後の基準 LUT 画像を保存**（**.png**）または **.cube** |
 | **④ ゲームに読み込む** | **3D テクスチャとして使う** |
 
-### 基準の LUT（アイデンティティ LUT）
+### The Reference LUT (Identity LUT) {#基準の-lutアイデンティティ-lut}
 
 **入力色をそのまま出力する LUT** です。**各格子点の値がその座標の色と同じ**です。
 
@@ -105,7 +105,7 @@ std::vector<uint16_t> BuildIdentityLut(int size) {
 
 **ツールで基準の LUT 画像を加工して保存**すれば、**加工した内容が LUT に焼かれます**。
 
-### 外部ツール使用時の注意
+### Cautions When Using External Tools {#外部ツール使用時の注意}
 
 | 注意 | 内容 |
 | --- | --- |
@@ -114,7 +114,7 @@ std::vector<uint16_t> BuildIdentityLut(int size) {
 | **ビット深度** | **8 ビット画像だとバンディング**。**16 ビット・.cube** が望ましい |
 | **解像度** | **32³ が一般的**（**ツールの出力も、32 か 33**） |
 
-## ゾーンごと・時間帯ごとの LUT
+## LUTs per Zone and per Time of Day {#ゾーンごと時間帯ごとの-lut}
 
 <strong>場所（洞窟・森・砂漠）や時間帯（朝・昼・夕・夜）</strong>ごとに**別の LUT** を**用意**し、**状態に応じて切り替え・補間**します。
 
@@ -134,7 +134,7 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 
 補間の方式は 2 つです。LUT どうしを `lerp` する方法は、完成した LUT を混ぜるので、簡単で速いです。パラメータを補間して再生成する方法は、露出や LGG などを補間して LUT を作り直すので、非線形な調整も正しく補間できます。
 
-### 時間帯の遷移
+### Transitions Between Times of Day {#時間帯の遷移}
 
 **時刻に応じて、朝・昼・夕・夜の 4 つの LUT の間を補間**します。**太陽の高さ**などから**重みを決め**、**隣り合う 2 つを混ぜる**のが**自然**です（[Sky Models](../../atmosphere/sky-models/index.md)）。
 
@@ -254,7 +254,7 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 
 <!-- fig:lut-blend-zones:end -->
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -265,7 +265,7 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 | **更新は変化時のみ** | **毎フレーム再生成しない** |
 | **デバッグ用に、LUT を画像に出す** | **LUT の中身を確認できるように** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "外部ツールで作った LUT を使ったら、色がずれる"
     **色空間（sRGB かリニアか）・LUT の入力の定義**を**そろえる**。
@@ -279,7 +279,7 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 ??? failure "毎フレーム 64³ の LUT を生成して、無駄が出る"
     **パラメータが変わった時だけ**再生成する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] LUT は<strong>ゲーム内でコンピュート生成</strong>、または<strong>外部ツールで作って読み込む</strong>
@@ -288,13 +288,13 @@ float3 ApplyBlendedLut(float3 color, float blend) {
     - [x] <strong>ゾーン・時間帯ごとに LUT を切り替え、`lerp` で補間</strong>
     - [x] <strong>再生成は、パラメータが変わった時だけ</strong>
 
-## 参考
+## References {#参考}
 
 - Hable, "Uncharted 2: HDR Lighting"（GDC 2010）
 - Adobe, "Cube LUT Specification"
 - Blackmagic Design, "DaVinci Resolve: LUT Export"
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Color Grading](index.md)
 - [3D LUT](lut-3d.md)

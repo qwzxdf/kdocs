@@ -15,7 +15,7 @@ tags:
     - **ハードウェア RT が無い環境でも動く**。
     - **細部の精度は、ハードウェア RT に劣る**。
 
-## Lumen 的な方式
+## Lumen-Style Methods {#lumen-的な方式}
 **Unreal Engine 5 の Lumen**は、**ハードウェア レイトレースが無くても**動く**GI**です。**複数の手法を階層的に組み合わせて**います。
 
 | 要素 | 内容 |
@@ -38,30 +38,30 @@ tags:
 
 <strong>「画素ごと」ではなく「間引いたプローブ」からレイを飛ばす</strong>ことで、**コストを大幅に下げ**ています。
 
-## 考え方のまとめ
+## Summary of the Ideas {#考え方のまとめ}
 
 Lumen の設計思想は、<strong>「正確さを段階ごとに捨てて、コストを下げる」</strong>ことです。近距離は画面の深度で精密に、中距離は距離場で粗く、遠距離はワールド プローブでさらに粗く追います。見た目への影響は、近いほど大きく、遠いほど小さいので、この配分が理にかなっています。レイは画素ごとでなく、間引いたプローブから飛ばし、結果はキャッシュとして時間方向に再利用します。
 
 トレードオフは、簡略化したシーンを使うことで、細部の精度が落ちることです。薄い壁、小さな隙間、細かい模様の物体では、距離場の解像度が足りず、光漏れや暗すぎる箇所が出ます。ハードウェアのレイトレースを併用すれば、これらは大きく改善されます。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "薄い壁や小さい物で、光漏れが起きる"
     **簡略化の精度を上げる**・**ハードウェア RT を併用**する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **簡略化したシーンへトレースして、キャッシュ**
     - [x] **ハードウェア RT 無しでも動く**
 
-## 参考
+## References {#参考}
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Ray-Traced GI](index.md)
 - [距離場 AO](../../ao/world-space/dfao.md)

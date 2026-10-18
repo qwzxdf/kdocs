@@ -136,7 +136,7 @@ tags:
 
 <!-- fig:soft-particles-depth:end -->
 
-## 深度の読み取り（ソフト パーティクル）
+## Reading Depth (Soft Particles) {#深度の読み取りソフト-パーティクル}
 **パーティクルの板**が、**地面や壁と交差する所で、硬い線**が出ます。**シーンの深度を読んで、近いほど透明にする**と、**なじみます**（**ソフト パーティクル**）。
 
 ```hlsl
@@ -153,24 +153,24 @@ color.a *= fade;
 | **`fade_distance`** | **この距離で、完全に不透明に** |
 | **要件** | **深度バッファを、読み取りと深度テストで、同時に使えない**ので、**深度のコピー**（または読み取り専用 DSV）が要る |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "煙が地面と交差して、硬い線が出る"
     **ソフト パーティクル**にする。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **深度の差でアルファを弱める**
     - [x] **交差の硬い線が消える**
 
-## 参考
+## References {#参考}
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Alpha Blending and Sorting](index.md)
 - [Sorting](sorting.md)

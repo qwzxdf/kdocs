@@ -14,7 +14,7 @@ tags:
     - **雲が動くと、影も動く**。
     - **低解像度で十分**。
 
-## 影
+## Shadows {#影}
 **雲は地面や他の雲に影を落とします**。
 
 | 影の種類 | 内容 |
@@ -24,7 +24,7 @@ tags:
 | **山の影が雲に** | **シャドウ マップを雲のサンプルで引く** |
 | **光の筋** | **雲の隙間から差す光**（[光の筋](../god-rays/index.md)） |
 
-### 雲の影マップの作り方
+### Building the Cloud Shadow Map {#雲の影マップの作り方}
 
 雲の影マップは、太陽方向から見た、雲の透過率の 2D テクスチャです。次の手順で作ります。
 
@@ -34,24 +34,24 @@ tags:
 
 この透過率は、通常のシャドウ マップ（地面の物体が落とす影）と<strong>掛け合わせて</strong>使います。それぞれ独立した遮蔽なので、確率の積と同じです。また、ボリューメトリック フォグ（[Volumetric Fog](../volumetric-fog/index.md)）の光の注入にも、同じ透過率を使うと、雲の影の下で霧が暗くなり、雲の隙間から差す光の筋が出る、つながった画面になります。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "雲の影が地上に落ちない"
     **雲の影マップ**を作り、**地面で参照**する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **雲の透過率を、影マップにして使う**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Clouds](index.md)
 - [カスケード シャドウ](../../shadows/cascaded.md)

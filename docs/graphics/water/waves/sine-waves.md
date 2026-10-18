@@ -40,7 +40,7 @@ tags:
 
 <!-- fig:sine-sum:end -->
 
-## サイン波の重ね合わせ
+## Summing Sine Waves {#サイン波の重ね合わせ}
 **1 本のサイン波**は、**進行方向 `D`・波長 `λ`・振幅 `A`・速さ `s`** で決まります。
 
 <div class="formula">h(x, z, t) = A · sin( ω · (D · (x, z)) + φ · t )　（ω = 2π/λ、φ = s · ω）</div>
@@ -79,24 +79,24 @@ float WaveHeight(float2 position, Wave wave, float time) {
 
 **欠点**：**サイン波は波頂が丸く、谷も同じ形**で**海の「尖った波頂・広い谷」の形にならない**。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "波が、規則的な縞に見える"
     **向き・波長をばらつかせる**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **サイン波を足して、波を作る**
     - [x] **向きと波長をばらつかせる**
 
-## 参考
+## References {#参考}
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Water Waves](index.md)
 - [Gerstner Waves](gerstner.md)

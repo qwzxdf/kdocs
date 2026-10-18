@@ -16,7 +16,7 @@ tags:
     - 描画時、<strong>画素の深度から、カスケードを選ぶ</strong>。<strong>境目はブレンド</strong>する。
     - <strong>影を落とす物は、視錐台の外</strong>（光に近い側）にもある。<strong>範囲を光の方向に広げる</strong>。
 
-## 遠近エイリアシングの解消
+## Resolving Perspective Aliasing {#遠近エイリアシングの解消}
 
 <svg class="fig illust" viewBox="0 0 780 300" role="img" aria-label="カスケード">
 <text x="20" y="24" class="fig-title">視錐台を奥行きで分割し、近いほど小さな範囲を同じ解像度で覆う（真上から見た図）</text>
@@ -109,7 +109,7 @@ tags:
 
 <!-- fig:cascade-splits:end -->
 
-## 分割の決め方
+## Deciding the Splits {#分割の決め方}
 
 **視錐台の近クリップ面 `n` から遠クリップ面 `f`** までを、N 個に分けます。**一様**に分けると**近くの細かさが足りず**、**対数**で分けると**近くが極端に狭く**なります。**中間**（**PSSM**、Parallel-Split Shadow Maps）が、実用的です。
 
@@ -135,7 +135,7 @@ std::array<float, kCascadeCount + 1> SplitDistances(float n, float f, float lamb
 
 **影の最大距離**（`f`）は、**遠クリップ面より短く**します（**遠すぎる影は見えないので描画しない**）。**100〜300 m**程度が、多くのゲームの設定です。
 
-## 各カスケードの光の射影
+## Light Projection for Each Cascade {#各カスケードの光の射影}
 
 **各分割の視錐台**（8 つの角）を、**光の視点から、ちょうど覆う正射影**を作ります。
 
@@ -217,7 +217,7 @@ radius = std::ceil(radius * 16.0f) / 16.0f;
 
 <!-- fig:texel-snapping:end -->
 
-## テクセルのスナップ
+## Texel Snapping {#テクセルのスナップ}
 
 カメラが動くと**シャドウ マップの範囲**も動きます。**範囲の位置がテクセルの境界とずれていく**と**影の縁がちらちらと揺れます**（テクセルをまたぐたびに、サンプルの位置が変わる）。**範囲の位置をテクセル単位に揃える**（スナップ）と、**縁が動かず**、**ちらつきが止まります**。
 
@@ -234,7 +234,7 @@ Vector3 snapped_center = Vector3::Transform(center_ls, light_view.Invert());
 
 **回転に強い（球でのフィット）と、スナップ**を併用します。
 
-## 深度範囲：視錐台の外の遮蔽物
+## Depth Range: Occluders Outside the Frustum {#深度範囲視錐台の外の遮蔽物}
 
 **影を落とす物体**は、<strong>視錐台の外（光に近い側）</strong>にもあります。**視錐台の中だけ**を覆う正射影では、**その物体がシャドウ マップに入らず**、**影が欠けます**。
 
@@ -247,7 +247,7 @@ desc.DepthClipEnable = FALSE;
 
 **深度クランプ**で**シャドウ マップの深度範囲**を、**その分割に必要な分だけ**にできます。
 
-## カスケードの選択
+## Choosing a Cascade {#カスケードの選択}
 
 描画時、**各画素のカメラからの深度**（**ビュー空間の z**）を、**分割の境界と比べ**、**どのカスケードを使うか**を決めます。
 
@@ -263,7 +263,7 @@ int SelectCascade(float view_depth) {
 
 カスケードの選び方は 2 つあります。深度で選ぶ方式は、`view_depth` と分割の距離を比べるだけで簡単です。シャドウ マップの範囲で選ぶ方式は、各カスケードの uv が範囲内（0〜1）に入るかを、細かい順に調べ、入った最初のものを使います。範囲を安全に使えるので、ブレンドと相性が良いです。
 
-### シャドウ マップを選んで引く
+### Selecting and Sampling the Shadow Map {#シャドウ-マップを選んで引く}
 
 ```hlsl
 float CascadeShadow(float3 world_pos, float view_depth) {
@@ -277,7 +277,7 @@ float CascadeShadow(float3 world_pos, float view_depth) {
 
 **カスケードはテクスチャ配列**（`Texture2DArray`）に入れると**インデックスで切り替え**られて便利です（**1 つの SRV**）。
 
-## カスケード間のブレンド
+## Blending Between Cascades {#カスケード間のブレンド}
 
 **カスケードの境界**で**シャドウ マップが切り替わる**と、<strong>解像度の違い（ぼけの違い）</strong>により、**影が突然、変わって見え**ます。**境界の近く**で**隣のカスケードと混ぜます**。
 
@@ -293,7 +293,7 @@ if (blend > 0.0) {
 
 **ブレンドは境界の画素だけ**で、**2 回サンプルする**ので、**わずかにコストが増えます**。
 
-## 最大距離でのフェード
+## Fading at the Maximum Distance {#最大距離でのフェード}
 
 **影の最大距離**を超えた先は、**影なし**になります。**突然、影が消える**と目立つので、**最大距離の手前でフェード**します。
 
@@ -302,7 +302,7 @@ float fade = saturate((max_shadow_distance - view_depth) / fade_length);
 shadow = lerp(1.0, shadow, fade);
 ```
 
-## カスケードごとの調整
+## Per-Cascade Tuning {#カスケードごとの調整}
 
 | 項目 | 内容 |
 | --- | --- |
@@ -311,7 +311,7 @@ shadow = lerp(1.0, shadow, fade);
 | **LOD・カリング** | **遠いカスケード**は、**低い LOD**・**小さい物を省く** |
 | **更新頻度** | **遠いカスケード**は、**数フレームに 1 回**更新（[影のコスト](../../rendering/shadows.md)） |
 
-## カスケードごとのカリング
+## Per-Cascade Culling {#カスケードごとのカリング}
 
 各カスケードは、<strong>別の視錐台（光の正射影）</strong>で、シーンを描きます。**カスケードごとに視錐台カリング**を行い、**そのカスケードに入る物体だけ**を描きます。
 
@@ -322,7 +322,7 @@ shadow = lerp(1.0, shadow, fade);
 | **インスタンシング・GPU Driven** | カスケードごとの描画を、**まとめて**（[GPU Driven](../../rendering/gpu-driven.md)） |
 | **1 回の描画で全カスケード** | **ジオメトリ シェーダー**や、**ビュー インスタンシング**で、1 回のドローで複数のカスケードへ。ただし、**効果は環境による** |
 
-## 設計のパラメータ
+## Design Parameters {#設計のパラメータ}
 
 | パラメータ | 目安 |
 | --- | --- |
@@ -333,7 +333,7 @@ shadow = lerp(1.0, shadow, fade);
 | **ブレンド幅** | 各カスケードの 5〜10% |
 | **フォーマット** | D32_FLOAT（または D16 で帯域を半分に） |
 
-## 長所と短所
+## Pros and Cons {#長所と短所}
 
 | 長所 | 短所 |
 | --- | --- |
@@ -342,7 +342,7 @@ shadow = lerp(1.0, shadow, fade);
 | **実装が標準的で資料が豊富** | **ちらつき対策**（スナップ・球フィット）が要る |
 | **PCF などとそのまま組み合わせられる** | **遠くは粗い**（距離の限界） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "カメラが動くと、影の縁がちらちらする"
     **テクセルのスナップ**と**球でのフィット**を入れます。
@@ -362,7 +362,7 @@ shadow = lerp(1.0, shadow, fade);
 ??? failure "全カスケードを、毎フレーム フル品質で描いて、重い"
     **遠いカスケードは、更新頻度・LOD・カリング**で軽くします。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] CSM ＝ <strong>視錐台を奥行きで分割し、分割ごとにシャドウ マップ</strong>。<strong>近いほど、細かい</strong>
@@ -371,13 +371,13 @@ shadow = lerp(1.0, shadow, fade);
     - [x] <strong>視錐台の外の遮蔽物</strong>のため、<strong>光の方向に範囲を延ばす（深度クランプ）</strong>
     - [x] <strong>境界はブレンド</strong>、<strong>最大距離はフェード</strong>、<strong>カスケードごとにバイアス・PCF を調整</strong>
 
-## 参考
+## References {#参考}
 
 - Dimitrov, "Cascaded Shadow Maps"（NVIDIA 2007）
 - Zhang et al., "Parallel-Split Shadow Maps for Large-scale Virtual Environments"（VRCIA 2006）
 - Microsoft, "Cascaded Shadow Maps"（DirectX ドキュメント）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Shadows](index.md)
 - [Shadow Map Basics](shadow-map-basics/index.md)

@@ -14,7 +14,7 @@ tags:
     - **深いほど、暗くする**。
     - **水面からの光の量を、深さで減らす**。
 
-## 水中の霧
+## Underwater Fog {#水中の霧}
 **水中では遠くの物ほど、水の色に近づきます**。**地上のフォグと同じ構造**ですが、**吸収が色ごとに違う**のが**特徴**です。
 
 <div class="formula">T = exp( −σ · d )　（σ：吸収係数（RGB）、d：カメラから物までの距離）</div>
@@ -47,23 +47,23 @@ float3 final_color = scene_color * transmittance + scattered;
 <text x="420" y="64" style="font-size:12px;fill:#4c8bf5">青（最後まで残る）</text>
 </svg>
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "水中なのに、遠くまでくっきり見える"
     **距離フォグ**を**かける**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **距離と深さで、色と明るさが変わる**
 
-## 参考
+## References {#参考}
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Underwater Rendering](index.md)
 - [Color by Water Depth](../shading/depth-color.md)

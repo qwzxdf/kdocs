@@ -12,13 +12,6 @@ tags:
 
 **シリアライズ**は、**メモリ上のオブジェクトを、ファイルに保存したりネットワークで送ったりできる「1 本のデータの並び」に変換すること**です。逆に、データの並びからオブジェクトを作り直すことを**デシリアライズ**と言います。セーブデータ、設定ファイル、ステージデータ、エディタで作ったシーン、オンラインの通信など、ゲームのあちこちで必要になります。形式には人が読める<strong>テキスト（JSON など）</strong> と、小さくて速い**バイナリ**があり、それぞれに便利なライブラリがあります。
 
-!!! tip "ポイント"
-    - <strong>最初は JSON + [nlohmann/json](../../libs/serialization/nlohmann-json.md) が一番手軽。</strong> 人が読めて、手で直せて、デバッグしやすい。
-    - 用途で使い分ける：JSON の速さ重視は [simdjson](../../libs/serialization/simdjson.md)、YAML は [rapidyaml](../../libs/serialization/rapidyaml.md)、バイナリの定番は [cereal](../../libs/serialization/cereal.md)、バイナリの速さ重視は [zpp_bits](../../libs/serialization/zpp-bits.md) / [struct_pack](../../libs/serialization/struct-pack.md)、さらに速さ重視（読み込みゼロコピー）は [cista](../../libs/serialization/cista.md)。
-    - <strong>必ずバージョン番号を入れる。</strong> あとからデータの形を変えても、古いセーブを読めるようにする。
-    - ポインタはそのまま保存できない。ID（[ハンドル](../handle.md)）に置き換えて保存する。
-    - 構造体を `write` で丸ごと書くのは、string や vector を含むと壊れる（[ファイル入出力](../../basics/file-io.md)）。
-
 !!! info "このページを読む前に"
     [ファイル入出力](../../basics/file-io.md)、[テンプレート](../../basics/template.md) を先に読むと分かりやすいです。
 

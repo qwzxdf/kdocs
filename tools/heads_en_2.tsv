@@ -1,0 +1,380 @@
+380	SH L2 (9 Coefficients × RGB = 27 Values)
+381	Octahedral Map (a Small Texture)
+382	Countering Ringing
+383	How to Store It
+384	Choosing a Method (Dynamic GI)
+385	Plain Ray-Traced GI
+386	Why "No Recursion" Is the Key
+387	Lumen-Style Methods
+388	Summary of the Ideas
+389	Fighting Noise
+390	Importance Sampling
+391	The Ghosting-Blur Tradeoff
+392	The Idea: Trading Space for Direction
+393	Cascades
+394	Merging: Passing Distant Light to the Near Side
+395	Computing a Pixel's Irradiance
+396	Starting Point: Choosing Samples Wisely
+397	RIS: Generate Candidates and Pick a Good One
+398	Reservoir: Remember Just One
+399	Reuse: Merging Reservoirs
+400	What a ReSTIR GI Sample Is
+401	Managing Bias: Jacobian and Visibility
+402	Final Shading
+403	Extensions and Implementation
+404	Diffuse Indirect Light
+405	Specular Indirect Light
+406	Division of Labor Among Methods
+407	The Rendering Equation
+408	Irradiance: Convolving Diffuse Indirect Light
+409	Why It Is "Smooth"
+410	Pre-Convolution
+411	Better Approach: Hold It in Spherical Harmonics
+412	Monte Carlo Integration
+413	Spherical Harmonics (SH)
+414	A Closer Look Inside SH
+415	What It Does: Fourier Expansion on a Sphere
+416	Projection: Finding the Coefficients
+417	Useful Properties of SH
+418	Limits: High Frequencies Cannot Be Represented
+419	Practical Tips
+420	Two Axes That Separate the Methods
+421	Axis 1: When to Compute
+422	Axis 2: Where to Hold the Information
+423	Effect on the Look of Indirect Light
+424	Brightness of Shade
+425	Color Bleeding
+426	Grounding
+427	Brightness of Interiors
+428	Size of the Effect
+429	Order of Processing
+430	Shared Techniques
+431	Full-Screen Triangle
+432	Overall Comparison
+433	Kinds of Aliasing That Can Be Removed
+434	Compatibility with Rendering Methods
+435	Choosing by Purpose
+436	How to Think About Choosing
+437	② Edge Direction and Searching Along the Edge
+438	③ Blurring Perpendicular to the Edge
+439	Quality Presets
+440	Three Kinds of Aliasing
+441	See It in Motion: TAA Jitter
+442	Difference from SSAA
+443	Sample Patterns
+444	Caution for Resolve in HDR
+445	Alpha to Coverage (A2C)
+446	Three Passes
+447	② Blend Weights
+448	③ Neighborhood Blending
+449	Difference from FXAA
+450	SMAA T2x (Temporal)
+451	List of Problems and Countermeasures
+452	Ghosting
+453	Countermeasure: Improving Neighborhood Clamping
+454	Blur
+455	Flicker on Thin Objects
+456	Transparency and Particles
+457	Cuts and Resets
+458	Integration with Upscaling
+459	Jitter
+460	Reprojecting and Compositing the History
+461	Why Clamp
+462	Summary of the Flow
+463	Compositing Formula
+464	Deciding the Strength
+465	Where to Add It
+466	Energy Conservation
+467	Weights per Level
+468	Lens Dirt
+469	Cost and Optimization
+470	Merging Passes
+471	Why Downscale
+472	Downsampling Methods
+473	One Bilinear Tap (2×2 Average)
+474	13 Taps (Call of Duty: Advanced Warfare Method)
+475	Choosing the Number of Levels
+476	Upsample and Sum
+477	Tuning the PSF with Per-Level Weights
+478	Downsample (5 Taps)
+479	Upsample (8 Taps)
+480	Overall Procedure
+481	Effective Spread
+482	Comparison with Gaussian
+483	The Gaussian Function
+484	Separability
+485	Implementation (Horizontal and Vertical)
+486	Halving the Taps with Bilinear
+487	σ and Kernel Size
+488	Using It for Bloom
+489	See How It Works in Motion
+490	Principle: Light Does Not Converge to a Point
+491	Cause of Flicker
+492	Building It into the 13-Tap Downsample
+493	Use It Only on the First Level
+494	Clamping Luminance
+495	Extracting Only the Bright Parts
+496	Hard Threshold
+497	Soft Knee
+498	What HDR Makes Possible
+499	No Threshold
+500	Four Basic Operations
+501	Contrast
+502	Saturation
+503	Hue
+504	Space to Compute In
+505	See It in Motion: A LUT Changes the Colors
+506	What Color Grading Is
+507	Overall Placement
+508	Three Knobs
+509	Another Definition of Lift
+510	ASC CDL (Slope, Offset, Power)
+511	Per-Range Color Balance
+512	Applying in DX11
+513	Why the Half Texel Is Needed
+514	Resolution
+515	Laying Out in a 2D Texture (Strip)
+516	Handling a Wide Dynamic Range (Log Encoding)
+517	Generating In-Game (Compute)
+518	When to Regenerate
+519	Making It with External Tools
+520	The Reference LUT (Identity LUT)
+521	Cautions When Using External Tools
+522	LUTs per Zone and per Time of Day
+523	Transitions Between Times of Day
+524	Color Temperature and Appearance
+525	The Idea of Restoring White to White
+526	Implementation (LMS Space)
+527	Tint
+528	Kinds of Shapes
+529	Making the Shape with Sample Placement
+530	Disk
+531	Polygon
+532	Brightness Inside the Bokeh
+533	Optical Vignetting (Cat's-Eye Bokeh)
+534	Using Bokeh Balls for Bloom Too
+535	How the Optics Work
+536	From the Thin-Lens Formula
+537	Shape of the CoC Graph
+538	A Simple Formula for Artists
+539	Scattering Samples with a Vogel Spiral
+540	Gather Implementation
+541	Why Look at the Sample's CoC
+542	Handling Flicker and Noise
+543	Processing at Half Resolution
+544	Foreground vs. Background
+545	Processing Them Separately
+546	Background Blur: Do Not Bleed In-Focus Objects
+547	Foreground Blur: Neighborhood Max CoC
+548	Neighborhood Max CoC (Tiles)
+549	Compositing Order
+550	Common Breakdowns and Fixes
+551	Difference from Gather
+552	Implementation: Scattering with Sprites
+553	Method 1: Geometry Shader / Mesh Shader
+554	Method 2: Tiling with Compute
+555	Hybrid (the Practical Standard)
+556	Handling Brightness
+557	High-Quality Version: Many Samples
+558	Usage
+559	Use in Direction and Effects
+560	Real Film Grain
+561	Changing the Strength by Brightness
+562	Noise Quality
+563	How to Animate It
+564	Relation to Dithering
+565	Summary of Effects
+566	See It in Motion: The Spread of Chromatic Aberration
+567	Order of Application
+568	Do Not Overdo It
+569	Elements
+570	Screen-Space Ghosts
+571	Color and Chromatic Aberration
+572	Starburst
+573	When the Light Source Is Hidden
+574	Basic Formula
+575	Physical cos⁴
+576	Shape
+577	Colored Vignette
+578	Basic Blur
+579	Removing Banding with Jitter
+580	The Foreground-Background Problem
+581	Weighting by Depth and Velocity
+582	Sample Count and Maximum Length
+583	Translation and Rotation
+584	Making Velocity from Depth
+585	Features and Cautions
+586	Combining Velocities
+587	Object Velocity
+588	Rotating Objects
+589	Skinning
+590	Tails Extending Outside the Outline
+591	Draw Order and Transparency
+592	Narrowing the Targets
+593	Shutter Angle
+594	Frame-Rate Compensation
+595	Maximum Blur Length
+596	Excluding Targets
+597	Relation to TAA
+598	Designing the Settings
+599	A More Accurate NeighborMax
+600	Using It in the Blur
+601	What Velocity Is
+602	Writing It (Moving Objects)
+603	Camera Motion (Static Objects)
+604	Precision and Format
+605	Handling Jitter
+606	Skinning and Animation
+607	Basics: Quantizing N·L
+608	Smooth Boundaries
+609	Ramp Texture
+610	Specular and Rim Light
+611	Receiving Shadows
+612	Two Outline Methods
+613	Three Kinds of Detection
+614	Sobel Filter
+615	Depth-Based Edges
+616	Countering False Detection on Slanted Surfaces
+617	Normal-Based Edges
+618	ID-Based Edges
+619	Line Thickness
+620	Flicker and Stability
+621	How to Color
+622	Implementation
+623	Keeping Thickness Constant on Screen
+624	Broken Lines (Corners)
+625	Adjusting Thickness (Vertex Color)
+626	Posterization
+627	Rounding Only Luminance
+628	Combining with Dithering
+629	Halftone (Dots)
+630	Color Halftone
+631	Cross-Hatching (Line Density)
+632	What ACES Is
+633	Approximation: Narkowicz
+634	Fit with Color Space: Stephen Hill
+635	Why Colors Shift
+636	What Improved
+637	Choosing Between Them
+638	① Measuring Brightness
+639	Log Average
+640	Measuring by Downscaling
+641	Measuring with a Histogram
+642	Averaging Without Outliers
+643	② Deciding the Target Exposure
+644	③ Following Over Time
+645	Why Exposure Is Needed
+646	EV (Exposure Value)
+647	The Camera's Three Elements
+648	EV100 and Physically Based Exposure
+649	Typical EV100
+650	Exposure Compensation
+651	How to Decide Exposure in Games
+652	The Three Regions of the S-Curve
+653	Hable's Formula (Uncharted 2)
+654	Meaning of Each Coefficient
+655	Why Normalize by the White Point
+656	Preserving Color
+657	Why Gamma Exists
+658	Where to Convert
+659	The sRGB Formula
+660	Reading Textures
+661	Output to HDR Displays
+662	Paper White and UI
+663	See the Difference
+664	Per Channel
+665	Luminance-Based
+666	Desaturating Toward White
+667	Flow
+668	Why Tone Mapping Is Needed
+669	Compare by Moving the Curve
+670	Formula and Shape
+671	Reinhard with a White Point
+672	Per-Channel and Luminance-Based
+673	Choosing by Scene
+674	Principles of Blending
+675	Strengths and Weaknesses by Roughness
+676	Handling Off-Screen and Back Sides
+677	Cost Estimates (Rough)
+678	Design Flow
+679	How to Learn
+680	What Specular Reflection Computes
+681	Roughness and the "Blur" of Reflections
+682	Four Ways to Obtain the View
+683	Finding the Reflection Direction
+684	Relation Between Reflections and Other Effects
+685	The Mirror Matrix
+686	Reversing the Winding Order
+687	Oblique Near Clip Plane (Oblique Clipping)
+688	Usage When Drawing the Reflective Surface
+689	Roughness and Blurring
+690	Multiple Planes and Tilted Surfaces
+691	What SSR Cannot Reflect
+692	Confidence
+693	Compositing: Blending SSR and the Fallback
+694	Hierarchy of Fallbacks
+695	When the Ray Leaves the Screen
+696	Matching the Color Tone of SSR and Probes
+697	Moving Objects, Shadows, and Specular Occlusion
+698	Relation to Transparency and Water
+699	Designing the Screen-Edge Fade
+700	Pros and Cons (Combinations)
+701	Why It Gets Faster
+702	Building the Hi-Z
+703	Rays in Screen Space
+704	Search Algorithm
+705	Validating Thickness
+706	Precision and Artifacts
+707	Overview of Hi-Z SSR
+708	Choosing Between It and Linear March (DDA)
+709	The Idea: Rough Reflections with Monte Carlo
+710	GGX Distribution and Importance Sampling
+711	Generating Sample Directions
+712	Spatial Resolve: Reusing Neighboring Rays
+713	Temporal Accumulation
+714	Motion of Reflections (Virtual Position)
+715	Filtering and Denoising
+716	Multiplying by the BRDF Integral
+717	Tuning Cost and Quality
+718	Blending Multiple Probes
+719	Baking and Dynamic Updates
+720	Relation to the Sky (Skybox)
+721	Combining with SSR
+722	Creating the Cubemap
+723	How Probes Work and Their Limits
+724	The Parallax Problem and Its Correction
+725	The Parallax Problem
+726	Parallax Correction: Approximating the Probe Range with a Box
+727	Intersection with a Box (AABB)
+728	Limits of Parallax Correction
+729	Handling Roughness: Pre-Filtering (Split-Sum)
+730	Splitting the Formula in Two
+731	Choosing the Mip Level
+732	How to Build the Pre-Filter
+733	Noise Removal (Denoising)
+734	Shading the Hit Point
+735	Lighting at the Hit Point
+736	Preparing the BVH
+737	Hybrid Setup: Combining SSR and Ray Tracing
+738	Performance Tricks
+739	Difference from SSR
+740	Generating Rays
+741	Handling Roughness
+742	Problems (Artifacts)
+743	Fetching the Color
+744	Fade: Weakening Unreliable Reflections
+745	How to Think About Confidence
+746	Resolution and Cost
+747	Simple Handling of Roughness
+748	Advancing the Ray
+749	Method 1: Linear March in View Space
+750	Method 2: Screen-Space DDA (Recommended)
+751	Refining the Hit
+752	Thickness
+753	Thickness Threshold
+754	Better Approach: Use Back-Face Depth
+755	Resolving Perspective Aliasing
+756	Deciding the Splits
+757	Light Projection for Each Cascade
+758	Texel Snapping
+759	Depth Range: Occluders Outside the Frustum

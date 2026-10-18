@@ -14,7 +14,7 @@ tags:
     - **Q が大きすぎると、波頭が交差して、メッシュが破綻する**。
     - **サイン波より少し重いが、見た目が大きく向上する**。
 
-## Gerstner 波
+## Gerstner Waves {#gerstner-波}
 **Gerstner 波**は、**水面の「粒子」を、円を描くように動かす**モデルです。**上下に動くだけでなく、水平方向にも動く**ので**波頂に向かって粒子が集まり、波頂が尖り、谷が広がります**。
 
 <!-- fig:water-gerstner:begin -->
@@ -110,24 +110,24 @@ for (int i = 0; i < kWaveCount; ++i) {
 
 **`steepness` の合計が 1 を超えない**ように**注意**します（**波頂がねじれて、メッシュが裏返る**）。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "波頭がめくれて、メッシュがねじれる"
     **Q の合計を、1 以下**に抑える。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **頂点を円運動させて、波頭を尖らせる**
     - [x] **急峻さの合計に注意**
 
-## 参考
+## References {#参考}
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Water Waves](index.md)
 - [Summing Sine Waves](sine-waves.md)

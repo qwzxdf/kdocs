@@ -16,7 +16,7 @@ tags:
     - <strong>低スペック・簡易</strong>は<strong>FXAA・SMAA</strong>。
     - <strong>組み合わせ</strong>：<strong>MSAA ＋ 後処理</strong>、<strong>TAA ＋ シャープ化</strong>。
 
-## 総合比較
+## Overall Comparison {#総合比較}
 
 | 方式 | ジオメトリの縁 | シェーダー内 | 時間的ちらつき | コスト | 副作用 | 必要なもの |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -28,7 +28,7 @@ tags:
 | **TAA** | **◎** | **◎** | **◎** | **小〜中** | **ゴースト・ぼけ** | **速度バッファ・ジッター** |
 | **TAAU・DLSS・FSR** | **◎** | **◎** | **◎** | <strong>小〜中（解像度を下げるので総コストは減る）</strong> | **ゴースト・調整が必要** | **速度・深度・ジッター** |
 
-## 消せるエイリアシングの種類
+## Kinds of Aliasing That Can Be Removed {#消せるエイリアシングの種類}
 
 | エイリアシング | MSAA | FXAA | SMAA | TAA |
 | --- | --- | --- | --- | --- |
@@ -1303,7 +1303,7 @@ tags:
 
 <!-- fig:aa-compare:end -->
 
-## 描画方式との相性
+## Compatibility with Rendering Methods {#描画方式との相性}
 
 | 描画方式 | 向く AA | 理由 |
 | --- | --- | --- |
@@ -1313,7 +1313,7 @@ tags:
 | **VR** | **MSAA ＋ 軽い後処理** | **TAA のぼけ・遅延が苦手**（**左右の目でずれる**） |
 | <strong>モバイル（タイルベース）</strong> | **MSAA** | **タイル内で解決、ほぼ無料** |
 
-## 目的別の選び方
+## Choosing by Purpose {#目的別の選び方}
 
 | 目的 | おすすめ |
 | --- | --- |
@@ -1325,7 +1325,7 @@ tags:
 | **モバイル** | **MSAA 4x** |
 | <strong>最高品質（オフライン・スクリーンショット）</strong> | **SSAA ＋ TAA** |
 
-## 組み合わせの例
+## Example Combinations {#組み合わせの例}
 
 | 組み合わせ | 内容 |
 | --- | --- |
@@ -1334,7 +1334,7 @@ tags:
 | **TAA ＋ 低解像度レンダリング** | **TAAU・DLSS・FSR**（**総コストが下がる**） |
 | **TAA が使えない物だけ別 AA** | **半透明・UI は、TAA の後に別途**（MSAA/FXAA） |
 
-## 選ぶときの考え方
+## How to Think About Choosing {#選ぶときの考え方}
 
 | 問い | 判断 |
 | --- | --- |
@@ -1345,7 +1345,7 @@ tags:
 | **ターゲット機の性能** | **低ければ FXAA** |
 | **VR か** | **TAA は避けるか、慎重に** |
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -1355,7 +1355,7 @@ tags:
 | **アップスケールで総コストを下げる** | **AA とアップスケールを同時に** |
 | **画質の評価を動画で行う** | **静止画では分からない、ちらつき・ゴースト** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "ディファードで MSAA を使い、重くなりすぎる"
     **TAA・SMAA に切り替える**。
@@ -1369,7 +1369,7 @@ tags:
 ??? failure "静止画でだけ AA を評価して、動いたときに失敗"
     **動画で確認する**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] <strong>縁のジャギー</strong>は多くの方式が効く。<strong>シェーダー内・ちらつきは TAA 系のみ</strong>
@@ -1378,13 +1378,13 @@ tags:
     - [x] <strong>簡易は FXAA・SMAA</strong>
     - [x] <strong>組み合わせて</strong>使い、<strong>動画で評価</strong>する
 
-## 参考
+## References {#参考}
 
 - Jimenez et al., "Filtering Approaches for Real-Time Anti-Aliasing"（SIGGRAPH 2011 Course）
 - Yang et al., "A Survey of Temporal Antialiasing Techniques"（Eurographics 2020）
 - Pettineo, "Anti-Aliasing Comparison"（The Danger Zone）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Anti-Aliasing](index.md)
 - [MSAA](msaa.md)

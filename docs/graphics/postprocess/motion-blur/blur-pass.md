@@ -16,7 +16,7 @@ tags:
     - <strong>速度の長さ</strong>を<strong>最大値で制限</strong>し、<strong>短い速度（< 0.5 画素）はスキップ</strong>。
     - <strong>半解像度</strong>や<strong>タイル</strong>で<strong>コストを下げる</strong>。
 
-## 基本のぼかし
+## Basic Blur {#基本のぼかし}
 
 ```hlsl
 float3 MotionBlurBasic(float2 uv, float2 velocity_uv, int sample_count) {
@@ -34,7 +34,7 @@ float3 MotionBlurBasic(float2 uv, float2 velocity_uv, int sample_count) {
 
 **線形ブラーの欠点**：**サンプルが一直線に並ぶので、サンプル数が少ないと、「点の列」が見える**。**輪郭がくっきり**出ない**。
 
-## ジッターで縞を消す
+## Removing Banding with Jitter {#ジッターで縞を消す}
 
 **サンプルの位置を画素ごとに少しずらす**と、**規則的な縞が細かいノイズに変わり、目立たなくなります**。
 
@@ -354,13 +354,13 @@ float3 MotionBlurJitter(float2 uv, float2 velocity_uv, int sample_count, float n
 
 <!-- fig:motion-blur-jitter:end -->
 
-## 前景と背景の問題
+## The Foreground-Background Problem {#前景と背景の問題}
 
 **単純な平均では、次の破綻が起きます**。
 
 単純な平均では、2 つの破綻が起きます。速い物体の輪郭の外（背景）は、背景の画素の速度が 0 なので、ぼけず、物体の尾が輪郭でぷつっと切れます。静止した前景の物の縁では、背景の速い動きでぼかした色が、静止した前景にまでにじみます。
 
-## 深度と速度による重み付け
+## Weighting by Depth and Velocity {#深度と速度による重み付け}
 
 **サンプルを集めるとき**、**そのサンプルが自分より手前か奥か**、**サンプルの速度が自分の位置まで届くか**で**重み**を**決めます**（**McGuire らの方法**）。
 
@@ -409,7 +409,7 @@ float3 MotionBlurWeighted(float2 uv, int sample_count, float noise) {
 
 **サンプルの方向と長さ**には、<strong>自分の速度ではなく、近傍の最大速度（`neighbor_velocity`）</strong>を**使う**ことで**輪郭の外側にも尾が伸びます**（[Tile Max Velocity](tile-max.md)）。
 
-## サンプル数と最大長
+## Sample Count and Maximum Length {#サンプル数と最大長}
 
 | 項目 | 目安 |
 | --- | --- |
@@ -418,7 +418,7 @@ float3 MotionBlurWeighted(float2 uv, int sample_count, float noise) {
 | **最小速度** | **0.5 画素未満の画素は、ブラーをスキップ** |
 | **解像度** | **半解像度でも見た目は大きく変わらない**（**合成時に境界に注意**） |
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -429,7 +429,7 @@ float3 MotionBlurWeighted(float2 uv, int sample_count, float noise) {
 | **TAA と併用** | **ノイズをさらにならす** |
 | **カメラ・物体を同じパスで** | **速度バッファで一括処理** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "サンプルが点の列に見える（縞）"
     **画素ごとのジッター**を入れる。
@@ -443,7 +443,7 @@ float3 MotionBlurWeighted(float2 uv, int sample_count, float noise) {
 ??? failure "サンプル数を増やしても、重いだけで効果が少ない"
     **ジッター**で**ノイズ化**する方が**効く**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] ぼかし ＝ <strong>速度に沿って前後にサンプルして平均</strong>
@@ -452,13 +452,13 @@ float3 MotionBlurWeighted(float2 uv, int sample_count, float noise) {
     - [x] <strong>近傍最大速度</strong>で<strong>輪郭の外にも尾を伸ばす</strong>
     - [x] <strong>最大長で制限、遅い画素はスキップ</strong>
 
-## 参考
+## References {#参考}
 
 - McGuire et al., "A Reconstruction Filter for Plausible Motion Blur"（I3D 2012）
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 - Sousa, "Graphics Gems from CryENGINE 3"（SIGGRAPH 2013）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Motion Blur](index.md)
 - [Velocity Buffer](velocity-buffer.md)

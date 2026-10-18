@@ -14,7 +14,7 @@ tags:
     - **ライトの数が多いと、重い**。
     - **品質設定で、解像度とスライス数を切り替える**。
 
-## 品質と速度
+## Quality and Speed {#品質と速度}
 | 項目 | 内容 |
 | --- | --- |
 | **解像度** | **160×90×64 で十分**。**重ければ 80×45×32** |
@@ -23,13 +23,13 @@ tags:
 | **遠距離** | **範囲外は距離フォグ（[距離フォグ](../aerial-fog/index.md)）に任せる** |
 | **雲・大気との組み合わせ** | **近くはボリューメトリック フォグ、遠くは空気遠近法 LUT** |
 
-### どこでコストが決まるか
+### Where the Cost Is Decided {#どこでコストが決まるか}
 
 ボリューメトリック フォグのコストは、主に 3 つのパスで発生します。<strong>光の注入</strong>は、セルごとに、すべてのライトと影を評価するので、セル数 × ライト数に比例します。最も重いパスで、影付きライトの数が最大の要因です。<strong>積分</strong>は、奥行き方向の累積で、セル数に比例しますが、1 セルあたりの処理は軽く、全体で 0.1 ms 以下です。<strong>適用</strong>は、画素ごとに 3D テクスチャを 1 回引くだけで、安価です。
 
 したがって、コストを下げたいときは、まず光の注入を見ます。影付きライトを減らす、ライトを遠くのものから省く、セル数（解像度）を下げる、のいずれかです。解像度を下げると、品質が落ちるのは主に光の筋の細かさなので、時間蓄積（[Temporal Accumulation](temporal.md)）で補うと、見た目を保ちながら軽くできます。
 
-### 範囲の選び方
+### Choosing the Range {#範囲の選び方}
 
 froxel は、カメラの前方のごく近い範囲だけを覆うのが現実的です。たとえば最大距離を 64〜128 m にすれば、64 スライスで十分な密度が出ます。それより遠くは、空気遠近法の LUT で連続的につなぎます。境目で急に変わらないよう、最大距離の手前でボリューメトリック フォグの寄与をフェードアウトさせ、遠景のフォグと重ねます。
 
@@ -89,24 +89,24 @@ froxel は、カメラの前方のごく近い範囲だけを覆うのが現実�
 
 <!-- fig:froxel-depth-split:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "フォグの計算が重く、フレーム時間が伸びる"
     **解像度・スライス数を下げる**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **解像度とスライス数で、調整**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Volumetric Fog](index.md)
 - [Froxels](froxel.md)

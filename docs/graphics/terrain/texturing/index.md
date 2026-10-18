@@ -8,13 +8,7 @@ tags:
 
 **地形は広いので、1 枚の大きな画像では足りず、草・土・岩などのタイル テクスチャを、混ぜて貼ります**。**これを「スプラット マッピング」と呼びます**。このセクションでは、**スプラット・重み・高さブレンド・トライプラナー・繰り返しを隠す・異方性フィルタ・仮想テクスチャ・デカール**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - **複数のタイル テクスチャを、重みで混ぜる**。
-    - **急斜面は、トライプラナーで伸びを防ぐ**。
-    - **繰り返しは、目立つので、隠す工夫**が要る。
-    - **広大な地形は、仮想テクスチャ**。
-
-## スプラット マッピング
+## Splat Mapping {#スプラット-マッピング}
 **スプラット マップ**は、**各位置で「どのテクスチャをどれだけ使うか」を表す重みテクスチャ**です。**RGBA の 4 チャンネルで 4 種類**を**扱います**。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="スプラット マッピング">
@@ -61,7 +55,7 @@ normal_ts = normalize(normal_ts);
 | **層数が多い** | **スプラット マップを複数枚にして、重みの大きい上位 4 つだけ読む** |
 | **法線・粗さも混ぜる** | **アルベドだけでなく、法線・粗さ・AO も同じ重みで** |
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -73,18 +67,18 @@ normal_ts = normalize(normal_ts);
 | [Virtual Texturing](virtual-texture.md) | 巨大なテクスチャ |
 | [デカールと道](decals.md) | 道・足跡の表現 |
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **スプラットで混ぜ、トライプラナーで伸びを防ぐ**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Terrain](../index.md)
 - [LOD](../lod/index.md)

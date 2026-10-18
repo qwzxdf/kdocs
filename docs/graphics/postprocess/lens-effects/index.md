@@ -8,15 +8,7 @@ tags:
 
 <strong>CG の画面は、本来「完璧すぎる」</strong>ものです。**実際のカメラは、レンズの歪み・色のずれ・周辺の暗さ・センサーのノイズ・光の反射**など、<strong>さまざまな「不完全さ」</strong>を**持ちます**。<strong>ポストプロセスでこれらを再現すると、「カメラで撮った絵」</strong>に**見え**、**リアリティや映画らしさ**が**増します**。**ただし、どれも「あれば高品質」というものではなく、表現の好みの問題**です。このセクションでは、**色収差・ビネット・フィルム グレイン・レンズ フレア**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - レンズ効果 ＝ <strong>実際のカメラの「不完全さ」を、後から足す</strong>。
-    - <strong>どれも表現の好み</strong>。<strong>かけすぎると画面が見づらく、安っぽい</strong>。
-    - <strong>色収差</strong>：<strong>画面の端で色がずれる</strong>。<strong>ビネット</strong>：<strong>周辺が暗い</strong>。
-    - <strong>フィルム グレイン</strong>：<strong>細かいノイズ</strong>。<strong>レンズ フレア</strong>：<strong>強い光源から、光の反射が出る</strong>。
-    - <strong>順序</strong>：<strong>HDR のうち（ブルーム・フレア）→ トーンマップ → LDR（ビネット・色収差・グレイン）</strong>。
-    - <strong>かけすぎない</strong>。<strong>設定で切れるように</strong>する。
-
-## 効果の一覧
+## Summary of Effects {#効果の一覧}
 
 | 効果 | 内容 | 向く場面 |
 | --- | --- | --- |
@@ -27,7 +19,7 @@ tags:
 
 <strong>光の筋（ゴッド レイ）</strong>は、**大気の効果**なので[光の筋](../../atmosphere/god-rays/index.md)で扱います。
 
-## 動きで見る：色収差の広がり
+## See It in Motion: The Spread of Chromatic Aberration {#動きで見る色収差の広がり}
 
 <!-- fig:chromatic-aberration-shift:begin -->
 
@@ -334,7 +326,7 @@ tags:
 
 <!-- fig:chromatic-aberration-shift:end -->
 
-## 適用の順序
+## Order of Application {#適用の順序}
 
 | 順序 | 効果 | 理由 |
 | --- | --- | --- |
@@ -345,7 +337,7 @@ tags:
 
 **1 つのパスに色収差・ビネット・グレイン・トーンマップ・ガンマをまとめる**と**フル解像度のパスが 1 回で済み**、**帯域が減ります**。
 
-## かけすぎない
+## Do Not Overdo It {#かけすぎない}
 
 | 効果 | かけすぎると |
 | --- | --- |
@@ -356,7 +348,7 @@ tags:
 
 **これらは全部「オプションでオフ」にできる**ように**します**。<strong>アクセシビリティ（光過敏・酔いやすい人）</strong>にも**重要**です。
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Post-Processing](../index.md)
 - [Bloom](../bloom/index.md)

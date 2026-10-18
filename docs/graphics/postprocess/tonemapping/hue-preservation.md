@@ -103,7 +103,7 @@ tags:
 
 <!-- fig:hue-preserve:end -->
 
-## 違いを見る
+## See the Difference {#違いを見る}
 
 **赤 (4.0, 0.5, 0.2) という、明るい赤橙**を**Reinhard** に**通す**と、次のようになります。
 
@@ -129,7 +129,7 @@ tags:
 </g>
 </svg>
 
-## チャンネルごと
+## Per Channel {#チャンネルごと}
 
 ```hlsl
 float3 TonemapPerChannel(float3 color) {
@@ -143,7 +143,7 @@ float3 TonemapPerChannel(float3 color) {
 | **実装が簡単** | **意図した色が強い光で変わる**（**エフェクト**） |
 | **フィルムのような質感** | — |
 
-## 輝度ベース
+## Luminance-Based {#輝度ベース}
 
 ```hlsl
 float Luminance(float3 c) {
@@ -161,7 +161,7 @@ float3 TonemapByLuminance(float3 color) {
 
 **1 を超える値の処理**が**課題**です。**飽和した成分を他の成分に分配**（**ガマット マッピング**）したり、**白へ混ぜたり**して**対処**します。
 
-## ハイブリッド
+## Hybrid {#ハイブリッド}
 
 **両者を混ぜる**のが**定番**です。
 
@@ -177,7 +177,7 @@ float3 TonemapHybrid(float3 color, float blend) {
 
 `blend` の値による見た目です。0 なら色相を完全に保ちます（輝度ベース）。1 ならフィルム的になります（チャンネルごと）。0.3〜0.6 が、ほどよく自然です。
 
-## 彩度を落として白へ向かわせる
+## Desaturating Toward White {#彩度を落として白へ向かわせる}
 
 **実際の光は非常に明るいと目やセンサーの飽和で白っぽく**見えます。**輝度が大きいほど彩度を落とす**と、**自然に白へ向かいます**。
 
@@ -193,7 +193,7 @@ float3 DesaturateHighlights(float3 color, float threshold, float strength) {
 
 **AgX・Tony McMapface は、こうした彩度の処理を曲線の設計に組み込んで**います。
 
-## 選び方
+## How to Choose {#選び方}
 
 | 優先すること | 選ぶ方式 |
 | --- | --- |
@@ -202,7 +202,7 @@ float3 DesaturateHighlights(float3 color, float threshold, float strength) {
 | **まず簡単に** | **チャンネルごと**（1 行） |
 | **色相の破綻を許さない** | **AgX・Tony McMapface・PBR Neutral** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "輝度ベースで、1 を超えた値をそのまま出力して、色が破綻する"
     **最後に `saturate`**、または**ガマット マッピング**（超えた分を他の成分へ分配）。
@@ -213,7 +213,7 @@ float3 DesaturateHighlights(float3 color, float threshold, float strength) {
 ??? failure "彩度を落とす処理を、トーンマップの後で行って、効きが弱い"
     **HDR のうち（トーンマップの前）に**行う。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] <strong>チャンネルごと</strong> ＝ <strong>フィルム的。色相がずれる</strong>
@@ -222,13 +222,13 @@ float3 DesaturateHighlights(float3 color, float threshold, float strength) {
     - [x] <strong>輝度が大きいほど彩度を落とす</strong>と<strong>自然に白へ</strong>
     - [x] <strong>輝度の係数は Rec.709</strong>（0.2126, 0.7152, 0.0722）
 
-## 参考
+## References {#参考}
 
 - Troy Sobotka, "AgX"（色相の保持）
 - Pharr, Jakob, Humphreys, "Physically Based Rendering"（色と輝度）
 - Hart, "Tone Mapping with Hue Preservation"（解説）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Tone Mapping and Exposure](index.md)
 - [Reinhard](reinhard.md)

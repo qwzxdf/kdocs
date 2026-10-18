@@ -16,7 +16,7 @@ tags:
     - <strong>ノイズ的なサンプルの回転</strong>＋<strong>ぼかし</strong>で、<strong>サンプル数が少なくても滑らか</strong>。
     - <strong>前景は別処理</strong>（[Foreground and Background](near-far.md)）。
 
-## 基本の考え方
+## Basic Idea {#基本の考え方}
 
 **出力画素 P の CoC が R 画素なら、P を中心に半径 R の円内の画素を、集めて平均**します。
 
@@ -36,7 +36,7 @@ tags:
 <text x="320" y="196" style="font-weight:700">重み：サンプルの CoC が P まで届くか</text></g>
 </svg>
 
-## ヴォーゲル螺旋でサンプルを散らす
+## Scattering Samples with a Vogel Spiral {#ヴォーゲル螺旋でサンプルを散らす}
 
 **円盤の中に均等に近い配置**で**サンプルを置く**には、<strong>ヴォーゲル螺旋（黄金角）</strong>が**簡単**です。
 
@@ -52,7 +52,7 @@ float2 VogelDisk(int index, int count, float phi) {
 
 螺旋サンプルのコードの要点です。`sqrt((i+0.5)/N)` は、円盤の面積が均等になる半径を与えます。黄金角（約 2.4 rad）で、サンプルが重ならず偏らず散ります。`phi` を画素ごとにランダムに回して、縞をノイズに変えます。
 
-## ギャザーの実装
+## Gather Implementation {#ギャザーの実装}
 
 ```hlsl
 Texture2D<float4> color_coc : register(t0);
@@ -85,7 +85,7 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 | **`w = saturate(sample_coc − 距離 + 1)`** | **サンプルの CoC が、自分までの距離以上なら、重みが大きい**（**その画素のボケが自分に届く**） |
 | **中心を 1 つ足す** | **サンプルが 0 でも自分自身は残す** |
 
-### なぜ、サンプルの CoC を見るのか
+### Why Look at the Sample's CoC {#なぜサンプルの-coc-を見るのか}
 
 **自分の CoC だけで円内を平均する**と、**ピントが合った前景の物のすぐ後ろに、ぼけた背景があるとき**、**ピント内の物の輪郭に背景の色がにじんで**しまいます。**サンプル側の CoC を見て、そのサンプルのボケが自分まで届かないなら重みを 0 に**することで、**ピントが合った物の輪郭が保たれます**。
 
@@ -268,7 +268,7 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 
 <!-- fig:dof-gather-weight:end -->
 
-## ちらつきとノイズの扱い
+## Handling Flicker and Noise {#ちらつきとノイズの扱い}
 
 **サンプル数が少ない**と**円盤が点の集まりに見えて、ざらつきます**。
 
@@ -280,17 +280,17 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 | **サンプル数を CoC に応じて変える** | **ボケの小さい画素は、サンプルを減らす**（**半径 1 画素以下は、元のまま**） |
 | **TAA で時間的に平均** | **毎フレーム `phi` を変え、TAA で滑らかに** |
 
-## 半解像度で処理する
+## Processing at Half Resolution {#半解像度で処理する}
 
 **ボケは低周波**なので**半解像度で計算して、フル解像度に戻して合成**しても、**見た目はほぼ変わりません**。**コストが 1/4**になります。
 
 半解像度の手順は 3 段階です。色と CoC を半解像度にダウンサンプルします（CoC は重み付き平均）。半解像度でギャザーを行います。アップサンプルして、CoC に応じて元の絵と混ぜます（ボケが小さい所は元の絵を残します）。
 
-## コスト
+## Cost {#コスト}
 
 コストの目安です。サンプル数 32 で、1080p の半解像度なら約 0.3〜0.5 ms です。最大 CoC が大きいほど、サンプルの間隔が開いて、ノイズや粗さが出ます。帯域は、色と CoC の 8 バイト（FP16×4）の読み込みに、サンプル数を掛けた量です。
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -301,7 +301,7 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 | **ボケの形に合わせた配置** | **多角形のボケ**（[ボケの形](bokeh-shape.md)） |
 | **ブルームと併用** | **明るい点が大きなボケの円盤になる**（[スキャッター方式](scatter.md)の簡易版） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "ピントが合った物の輪郭に、背景の色がにじむ"
     **サンプル側の CoC を重みに使っていない**。<strong>重みに「サンプルの CoC が自分まで届くか」</strong>を入れる。
@@ -315,7 +315,7 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 ??? failure "前景がボケても、背景にしか効かず、輪郭がきつい"
     **前景を別に処理**し、**ぼけた前景が奥にも広がる**ようにする。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] ギャザー ＝ <strong>各画素が、CoC の半径で周りを集めて平均</strong>
@@ -324,13 +324,13 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
     - [x] <strong>半解像度</strong>で<strong>コスト 1/4</strong>
     - [x] <strong>前景は別処理</strong>
 
-## 参考
+## References {#参考}
 
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 - Kleber & Hammon, "Bokeh depth of field"（解説）
 - Kraus & Strengert, "Depth-of-Field Rendering by Pyramidal Image Processing"（2007）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Depth of Field (DOF)](index.md)
 - [Circle of Confusion (CoC)](coc.md)

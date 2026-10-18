@@ -16,7 +16,7 @@ tags:
     - <strong>背景はピント内の物を貫通しない</strong>ように、<strong>重みを制御</strong>。
     - <strong>半解像度</strong>でも<strong>前景と背景は分けて保存</strong>する。
 
-## 前景と背景の違い
+## Foreground vs. Background {#前景と背景の違い}
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="前景と背景のボケ">
 <text x="20" y="26" class="fig-title">ぼけた前景は奥へ広がる、ぼけた背景は手前の物を隠さない</text>
@@ -43,7 +43,7 @@ tags:
 | **ピント内の物との関係** | **ピント内の物は、手前にあるので隠れない** | **ピント内の物の上に広がる** |
 | **ボケた縁** | **ピント内の物の縁できっぱり切れる** | **縁がやわらかく、透ける** |
 
-## 別々に処理する
+## Processing Them Separately {#別々に処理する}
 
 **CoC の符号**で**前景と背景に分け**、**別々にぼかし、最後に合成**します。
 
@@ -65,7 +65,7 @@ float3 CompositeDof(float3 sharp, float4 far_blur, float4 near_blur, float coc) 
 
 合成のコードの要点です。`far_alpha = saturate(coc)` で、背景のボケは CoC が大きいほど強く混ぜます。`near_blur.a` は前景のぼけた濃さで、ぼけた輪郭の外側は薄く透けます。最後に前景を重ねるのは、前景が最も手前にあるからです。
 
-## 背景のぼかし：ピント内の物を貫通させない
+## Background Blur: Do Not Bleed In-Focus Objects {#背景のぼかしピント内の物を貫通させない}
 
 **背景をぼかすとき**、**ピント内の物（手前にある）の色を背景のボケに混ぜてはいけません**（**ピント内の物がぼけて見えてしまう**）。
 
@@ -79,7 +79,7 @@ float BackgroundWeight(float sample_coc, float distance_in_pixels) {
 
 背景のぼかしのコードの要点です。`is_far` は、サンプルが背景（CoC > 0）なら有効で、前景やピント内なら 0 にします。`reach` は、そのサンプルのボケが自分まで届くかを表します。
 
-## 前景のぼかし：近傍の最大 CoC
+## Foreground Blur: Neighborhood Max CoC {#前景のぼかし近傍の最大-coc}
 
 **前景のボケは前景の輪郭の「外側」にまで広がります**。**その位置の画素自体の CoC は 0（ピント内か背景）でも近くに前景の画素があれば、その CoC の分だけボケが届く**ので、**周りの画素の最大 CoC**を**使います**。
 
@@ -310,7 +310,7 @@ float BackgroundWeight(float sample_coc, float distance_in_pixels) {
 
 <!-- fig:dof-near-field:end -->
 
-### 近傍の最大 CoC（タイル）
+### Neighborhood Max CoC (Tiles) {#近傍の最大-cocタイル}
 
 **画面をたとえば 16×16 のタイルに分け**、**各タイルの前景の最大 CoC（最も負に大きい値）を求め**、**それを周りのタイルへ広げます**（**ダイレーション**）。
 
@@ -332,13 +332,13 @@ void TileMaxCoc(uint3 id : SV_DispatchThreadID, uint3 group_id : SV_GroupID, uin
 
 **タイルの最大 CoC が 0 のタイル**（**前景がまったくない**）は、**前景のぼかしを丸ごとスキップ**でき、**高速化**になります。
 
-## 合成の順序
+## Compositing Order {#合成の順序}
 
 合成の順序は、背景のぼけをピント内の画像に混ぜ、ピント内はそのままにして、ぼけた前景をアルファで上に重ねる、という順です。
 
 **半解像度**で**前景・背景を処理**する場合、**前景と背景を別の画像として保存**し、**最後にフル解像度の画像へ合成**します。
 
-## よくある破綻と対処
+## Common Breakdowns and Fixes {#よくある破綻と対処}
 
 | 破綻 | 原因 | 対処 |
 | --- | --- | --- |
@@ -347,7 +347,7 @@ void TileMaxCoc(uint3 id : SV_DispatchThreadID, uint3 group_id : SV_GroupID, uin
 | <strong>前景と背景の境にハロ（白い縁）</strong> | **混ざり方の誤り** | **符号付きの重み・別画像で合成** |
 | **ピント内の物の背後にぼけた物が突き抜けて見える** | **深度の考慮漏れ** | **背景の重みに深度の順序を反映** |
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -357,7 +357,7 @@ void TileMaxCoc(uint3 id : SV_DispatchThreadID, uint3 group_id : SV_GroupID, uin
 | **ピント内はできるだけ元の絵のまま** | **くっきりを保つ** |
 | **背景の「裏側」の補完** | **前景の下に隠れた背景が見えるよう、周囲の色で補う**（高度） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "前景のボケが、奥にしかかからず、手前の物の輪郭が切れている"
     **近傍の最大 CoC**で**前景の外へも広げる**。
@@ -368,7 +368,7 @@ void TileMaxCoc(uint3 id : SV_DispatchThreadID, uint3 group_id : SV_GroupID, uin
 ??? failure "前景も背景も、1 枚でぼかして、境が破綻する"
     **符号で分け、別々にぼかして、合成**する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] <strong>背景のボケは、ピント内の物を隠さない</strong>。<strong>前景のボケは奥にかぶさる</strong>
@@ -377,13 +377,13 @@ void TileMaxCoc(uint3 id : SV_DispatchThreadID, uint3 group_id : SV_GroupID, uin
     - [x] <strong>背景のぼかしで、ピント内・前景のサンプルを除外</strong>
     - [x] <strong>合成は、背景 → ピント内 → 前景（アルファ）</strong>
 
-## 参考
+## References {#参考}
 
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 - Abadie, "A Life of a Bokeh"（SIGGRAPH 2018）
 - Sousa, "Graphics Gems from CryENGINE 3"（SIGGRAPH 2013）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Depth of Field (DOF)](index.md)
 - [Circle of Confusion (CoC)](coc.md)

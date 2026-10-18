@@ -347,7 +347,7 @@ tags:
 
 <!-- fig:light-injection:end -->
 
-## ② 光の注入
+## ② Light Injection {#②-光の注入}
 **各 froxel が受けている光を計算します**。<strong>太陽光とローカル ライト（点光源・スポットライト）</strong>が**対象**です。
 
 <div class="formula">散乱光 = 密度 × アルベド × Σ ( 光の色 × 影 × 位相関数(θ) )</div>
@@ -381,24 +381,24 @@ float3 scattering = inscattered * density * albedo;
 | **ライトの数が多い場合** | **froxel ごとにライトをカリング**（[ライト カリング](../../../rendering/light-culling.md)） |
 | **解像度が低くても綺麗** | **霧は低周波**（細かい構造がない）ので低解像度で十分 |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "光の筋が出ない"
     **シャドウ マップを参照**する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **セルごとに、ライトと影を計算**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Volumetric Fog](index.md)
 - [密度](density.md)

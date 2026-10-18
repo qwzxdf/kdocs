@@ -14,7 +14,7 @@ tags:
     - **VXAO**：**動的に強い・メモリ**。
     - **スクリーン空間 AO**は**安いが、画面外に弱い**。**併用**も**多い**。
 
-## 3 方式の比較
+## Comparing the Three Methods {#3-方式の比較}
 
 3 つの方式は、「V（遮蔽の有無）を何から求めるか」が違います。RTAO は三角形の BVH、DFAO は符号付き距離場（SDF）、VXAO はボクセルとそのミップです。
 
@@ -24,29 +24,29 @@ tags:
 
 向く場面は、RTAO は高品質・レイトレ対応の環境、DFAO は静的な屋外や広い範囲、VXAO は動的なシーンや GI との併用です。
 
-## スクリーン空間との使い分け
+## Choosing Between This and Screen Space {#スクリーン空間との使い分け}
 
 広い対応環境なら、スクリーン空間（[GTAO](../gtao.md) など）を選びます。画面外の遮蔽が必要で最高品質を求めるなら RTAO、広い屋外の静的な AO なら DFAO、GI とまとめて動的に扱うなら VXAO などです。
 
 実際には<strong>併用</strong>が多いです。大きな遮蔽は世界空間の方式で、細部の接触はスクリーン空間で、というように、得意な範囲を分担させます。世界空間の方式は解像度が粗く、スクリーン空間の方式は画面外を扱えないので、互いの弱点を補い合う関係になります。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "世界空間 AO だけにして、細かい接地感が足りない"
     **スクリーン空間の AO（GTAO など）も併用**して、**細部を補う**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **3 方式は、精度・必要な機能・コストが違う**
     - [x] **スクリーン空間と併用することが多い**
 
-## 参考
+## References {#参考}
 
 - Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
 - Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [世界空間 AO](index.md)
 - [GTAO](../gtao.md)

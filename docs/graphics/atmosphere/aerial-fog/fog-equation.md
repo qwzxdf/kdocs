@@ -50,7 +50,7 @@ tags:
 
 <!-- fig:fog-curves:end -->
 
-## フォグの式
+## The Fog Equation {#フォグの式}
 **光は距離 d を進むと減衰して散乱光と入れ替わります**。**物の色 C は、フォグの色 F と混ざります**。
 
 <div class="formula">C_final = C · T + F · (1 − T)　（T：透過率）</div>
@@ -79,7 +79,7 @@ float3 ApplyFog(float3 color, float distance_to_pixel) {
 | **HDR で適用** | **トーンマップの前**に掛ける |
 | **空にもフォグ** | **地平線付近の空の色をフォグの色と一致させる**（**山が空に溶ける**） |
 
-### 深度から距離を求める
+### Getting Distance from Depth {#深度から距離を求める}
 
 **フル スクリーン パスで、深度バッファから位置を再構築**して**距離**を**出します**。
 
@@ -88,24 +88,24 @@ float3 world_position = ReconstructWorldPosition(uv, depth);
 float distance_to_pixel = length(world_position - camera_position);
 ```
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "フォグの境目が急で、不自然"
     **指数フォグ**にする。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **指数フォグが標準**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Aerial Perspective and Fog](index.md)
 - [Height Fog](height-fog.md)

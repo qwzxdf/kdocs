@@ -36,7 +36,7 @@ tags:
 
 <!-- fig:dual-paraboloid:end -->
 
-## デュアル パラボロイド
+## Dual Paraboloid {#デュアル-パラボロイド}
 **パラボロイド**（放物面）で、**半球ごと**を**1 枚**に**写す**方式です。**2 枚**で**全方向を覆えます**。
 
 | 項目 | キューブ | デュアル パラボロイド |
@@ -48,23 +48,23 @@ tags:
 
 **描画回数が少ない**利点がありますが、**歪みが扱いにくい**ため、**現在はキューブが主流**です。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "大きな三角形が、投影で歪んで、影が崩れる"
     **細かいテッセレーション**が**必要**。**通常はキューブ マップ**を使う。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **2 枚で全方向を覆う**
     - [x] **歪みが大きく、現代では少ない**
 
-## 参考
+## References {#参考}
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Point and Spot Light Shadows](index.md)
 - [Point Lights: Cube Maps](point-cubemap.md)

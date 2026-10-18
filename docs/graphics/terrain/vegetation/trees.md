@@ -14,7 +14,7 @@ tags:
     - **遠く：ビルボード（板に木の絵）**。
     - **LOD の切り替えは、ディザでなめらかに**。
 
-## 木
+## Trees {#木}
 **木はポリゴンが多く（数万）、枚数も多い**ので、**LOD が重要**です。
 
 | LOD | 内容 |
@@ -33,23 +33,23 @@ tags:
 | **幹と葉でマテリアルを分ける** | **幹は不透明、葉はアルファ テスト** |
 | **影** | **影の LOD は、描画より粗くする**（[影](../../shadows/index.md)） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "LOD が切り替わる時、木がポップする"
     **ディザ フェード**で**切り替える**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **近くは詳細、遠くはビルボード**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Vegetation](index.md)
 - [Dithered Transparency](../../translucency/alpha-test/dither.md)

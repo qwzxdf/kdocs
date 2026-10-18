@@ -14,7 +14,7 @@ tags:
     - **横 → 縦の 2 パス**に**分離**する（**厳密には分離できないが、実用上は十分**）。
     - **重みは、ガウス ×（深度の差の重み）×（法線の差の重み）**。
 
-## 空間フィルタ：バイラテラル ブラー
+## Spatial Filter: Bilateral Blur {#空間フィルタバイラテラル-ブラー}
 <!-- fig:bilateral-blur:begin -->
 
 <svg class="fig illust motion" data-fig="bilateral-blur" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
@@ -327,11 +327,11 @@ tags:
 
 <!-- fig:bilateral-blur:end -->
 
-### 通常のぼかしの問題
+### The Problem with a Plain Blur {#通常のぼかしの問題}
 
 AO の画像を**そのままぼかす**と**物体の境界**で**手前の物体の AO と、奥の物体の AO が混ざり**ます。手前の物体の縁に**暗い輪**が出たり、**接地の暗さがにじんで広がる**ことがあります。
 
-### バイラテラル：「近いもの」だけを混ぜる
+### Bilateral: Blend Only "Nearby" Pixels {#バイラテラル近いものだけを混ぜる}
 
 **バイラテラル フィルタ**は、中心の画素と**似た画素だけ**を、重み付きで混ぜます。**似ている**とは、AO では**深度（と法線）が近い**ことです。
 
@@ -372,7 +372,7 @@ float BilateralBlur(float2 uv, float2 dir) {
 | **`depth_sharpness`** | 大きいほど、境界を厳しく守る |
 | **ポイント サンプリング** | AO と深度は、**補間せず**に読む |
 
-### 分離可能にする（横 → 縦）
+### Making It Separable (Horizontal, Then Vertical) {#分離可能にする横--縦}
 
 2D のぼかしを**横 1 回 ＋ 縦 1 回**に分けると、**N² → 2N** 回の読み込みで済みます。**バイラテラルは、厳密には分離できません**（重みが、2D の位置に依存）が、**実用上は分離して近似**します。
 
@@ -381,27 +381,27 @@ float BilateralBlur(float2 uv, float2 dir) {
 | <strong>2D（全画素）</strong> | 81 | 正確 |
 | <strong>分離（横 → 縦）</strong> | 18 | 縦横の斜めでわずかな乱れ |
 
-### 4×4 ノイズに合わせた、ボックス ぼかし
+### A Box Blur Matched to 4×4 Noise {#44-ノイズに合わせたボックス-ぼかし}
 
 **4×4 のノイズ テクスチャ**を使った SSAO（[Hemisphere SSAO](../ssao-hemisphere.md)）では**ノイズが 4 画素周期**で繰り返すので、**4×4 のボックス ぼかし**で、**周期のパターンがちょうど消えます**。**深度の重み付き**にすれば、境界も守れます。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "通常のガウスでぼかして、物の輪郭に AO のにじみ（ハロー）が出る"
     **深度・法線で重みを付ける**（バイラテラル）。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **深度・法線が近い画素だけ混ぜる**
     - [x] **エッジを保って、ノイズだけ消す**
 
-## 参考
+## References {#参考}
 
 - Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
 - Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [AO Filtering](index.md)
 - [Upsampling](upsample.md)

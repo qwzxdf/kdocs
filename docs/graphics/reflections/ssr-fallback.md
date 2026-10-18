@@ -16,7 +16,7 @@ SSR は**画面に映っているものだけ**を反射できます。**画面�
     - <strong>スペキュラ遮蔽</strong>（隅で反射を弱める）を、<strong>プローブ側に</strong>掛ける。
     - 画面外へ出たレイは、<strong>空（またはプローブ）</strong>を引く。
 
-## SSR が反射できないもの
+## What SSR Cannot Reflect {#ssr-が反射できないもの}
 
 | 状況 | 理由 |
 | --- | --- |
@@ -88,7 +88,7 @@ SSR は**画面に映っているものだけ**を反射できます。**画面�
 
 <!-- fig:ssr-edge-fade:end -->
 
-## 信頼度（Confidence）
+## Confidence {#信頼度confidence}
 
 SSR の各画素に、<strong>「この反射をどれだけ信頼してよいか」</strong>の値（**信頼度**）を持たせます。
 
@@ -118,7 +118,7 @@ float Confidence(float2 hit_uv, float ray_length, float roughness,
 
 <strong>滑らかに（`smoothstep` で）</strong>変化させるのが重要です。**急に切り替える**と**反射の境目がはっきり見えます**。
 
-## 合成：SSR とフォールバックを混ぜる
+## Compositing: Blending SSR and the Fallback {#合成ssr-とフォールバックを混ぜる}
 
 **SSR の出力**を、<strong>RGB（反射の色）＋ A（信頼度）</strong>とします。**ライティングのパス**で**フォールバック（プローブ・空）と混ぜます**。
 
@@ -134,7 +134,7 @@ float3 specular = reflection * (F0 * brdf.x + brdf.y) * SpecularOcclusion(...);
 
 コードの要点です。`lerp(probe, ssr, confidence)` で、信頼度が高いほど SSR、低いほどプローブを使います。BRDF の積分（`F0 · A + B`）は、最後に SSR とプローブで共通に掛けます。スペキュラ遮蔽は、隅で反射を弱める処理で（[GTAO](../ao/gtao.md)）、特にプローブ由来の反射に必要です。SSR は画面にあるものだけを映すので、遮蔽が自然に入っているからです。
 
-## フォールバックの階層
+## Hierarchy of Fallbacks {#フォールバックの階層}
 
 **複数の手段**があるとき、**優先順位**をつけて、**信頼度の低い順**に補います。
 
@@ -154,13 +154,13 @@ color = lerp(color, ssr.rgb, ssr.a);
 color = lerp(color, planar_color, planar_weight);
 ```
 
-## レイが画面外へ出たとき
+## When the Ray Leaves the Screen {#レイが画面外へ出たとき}
 
 **レイが画面の外**に出てしまったとき、**何を映すか**は**フォールバックの役目**です。
 
 レイが画面の外に出たときに何を映すかは、フォールバックの役目です。レイが画面の上端から上へ抜けたなら、空（スカイ プローブ）です。屋外では、これが正解のことが多いです。レイが画面の左右や下へ抜けたなら、ローカル プローブが、画面外の景色を持っているのでそれを映します。レイがカメラの後ろへ向かう場合は、SSR が使えないので、プローブを使います。
 
-## SSR とプローブの、色の調子を合わせる
+## Matching the Color Tone of SSR and Probes {#ssr-とプローブの色の調子を合わせる}
 
 **SSR の色**（シーンの HDR）と、**プローブの色**は、**調子が違う**ことがあります。**境目で色がずれる**と**フェードが目立ちます**。
 
@@ -171,15 +171,15 @@ color = lerp(color, planar_color, planar_weight);
 | **プローブに物体の影が映っていない** | **ライティングの条件**をそろえる |
 | **粗さの扱いの違い** | **同じ粗さ→ミップの対応**を使う |
 
-## 動く物体・影・スペキュラ遮蔽
+## Moving Objects, Shadows, and Specular Occlusion {#動く物体影スペキュラ遮蔽}
 
 動く物体、影、スペキュラ遮蔽の扱いです。動く物体は、SSR には映りますが（画面にあれば）、プローブには映りません。フェードによって、動く物の反射が突然消えることがあります。影は、SSR がシーン色をそのまま使うので影込みで映りますが、プローブはベイク時の影なのでずれます。スペキュラ遮蔽は、プローブの反射に AO ベースのものを掛けます。SSR 側は、すでに遮蔽が入っているので不要か、弱めで構いません。
 
-## 半透明・水面との関係
+## Relation to Transparency and Water {#半透明水面との関係}
 
 半透明や水面との関係です。半透明（ガラス・水）の反射は、深度が書かれないので SSR が使えません。専用の反射（平面反射やプローブ）を、半透明のシェーダーの中で計算します。半透明の後ろにある不透明物の反射は、通常の SSR が、半透明より前のシーン色で動きます。水面は、平面反射（あるいは SSR とプローブ）をフレネルで合成し、屈折と混ぜます（[Water](../water/index.md)）。
 
-## 画面端のフェードの設計
+## Designing the Screen-Edge Fade {#画面端のフェードの設計}
 
 | 方式 | 内容 |
 | --- | --- |
@@ -188,7 +188,7 @@ color = lerp(color, planar_color, planar_weight);
 | **反射する画素の位置は、見ない** | **反射する面が画面の端**にあることは、問題ない（問題は**当たり点**が画面外に近いか） |
 | **ガード バンド** | **画面より少し広い範囲**を描画して、端の反射を改善 |
 
-## 長所と短所（組み合わせ）
+## Pros and Cons (Combinations) {#長所と短所組み合わせ}
 
 | 長所 | 短所 |
 | --- | --- |
@@ -196,7 +196,7 @@ color = lerp(color, planar_color, planar_weight);
 | **SSR の細かさ ＋ プローブの安定** | **プローブ・SSR の調子がずれる** |
 | **コストを方式ごとに配分**できる | **デバッグが難しい**（どの方式が効いているか） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "信頼度で、急に切り替えて、反射の境目が見える"
     `smoothstep` で、**滑らかに**変化させます。
@@ -213,7 +213,7 @@ color = lerp(color, planar_color, planar_weight);
 ??? failure "デバッグで、どの方式が効いているか分からない"
     **SSR のみ・プローブのみ・信頼度**をそれぞれ**画面に出して**確認します。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] SSR は<strong>画面に映らないものを反射できない</strong>。<strong>信頼度</strong>で<strong>フォールバック（プローブ・空）と滑らかに混ぜる</strong>
@@ -222,12 +222,12 @@ color = lerp(color, planar_color, planar_weight);
     - [x] <strong>BRDF の積分は、最後に共通で</strong>掛ける。<strong>スペキュラ遮蔽</strong>も
     - [x] <strong>半透明・水面</strong>は別の反射の仕組み
 
-## 参考
+## References {#参考}
 
 - Stachowiak, Uludag, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
 - Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering"（プローブと反射の階層）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Reflections](index.md)
 - [リフレクション プローブ](probes/index.md)

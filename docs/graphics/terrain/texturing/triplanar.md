@@ -73,7 +73,7 @@ tags:
 
 <!-- fig:triplanar-weights:end -->
 
-## トライプラナー
+## Triplanar {#トライプラナー}
 **XZ 平面に投影する UV は、急斜面や崖でテクスチャが縦に引き伸ばされます**。**X・Y・Z の 3 方向から投影した 3 枚を、法線の向きで混ぜる**のが**トライプラナー マッピング**です。
 
 <svg class="fig illust" viewBox="0 0 780 220" role="img" aria-label="トライプラナー">
@@ -109,23 +109,23 @@ float3 Triplanar(Texture2D tex, float3 world_position, float3 normal, float scal
 | **法線マップも要注意** | **接線空間でなくワールド空間の法線に直す**（**投影ごとに軸を入れ替えて、法線を戻す**） |
 | **傾きで使い分け** | **平らな所は 1 方向（安い）、急な所だけ 3 方向** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "崖のテクスチャが、縦に伸びている"
     **トライプラナー**にする。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **3 方向から貼って、法線で混ぜる**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Terrain Texturing](index.md)
 - [Hiding Tiling](tiling.md)

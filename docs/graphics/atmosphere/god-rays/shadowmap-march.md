@@ -14,7 +14,7 @@ tags:
     - **太陽が画面外でも、動く**。
     - **ステップ数が多いと重いので、ジッタ＋時間蓄積**。
 
-## シャドウ マップでレイマーチ
+## Ray Marching with the Shadow Map {#シャドウ-マップでレイマーチ}
 **正確な方法**は**視線に沿ってサンプル点を歩き、各点が日向か日陰かをシャドウ マップで判定して、日向の点の寄与を足す**ことです。**ボリューメトリック フォグ（[Volumetric Fog](../volumetric-fog/index.md)）と同じ原理**です。
 
 ```hlsl
@@ -59,7 +59,7 @@ float3 VolumetricGodRays(float3 camera_pos, float3 pixel_world_pos, float2 pixel
 <text x="440" y="228" style="font-size:12px">灰 ＝ 日陰（足されない）</text>
 </svg>
 
-### 式の意味
+### Meaning of the Formula {#式の意味}
 
 この方式は、単散乱の積分を、ステップで離散化したものです。視線上の位置 s における太陽光の寄与は、「その位置が日向か（シャドウ）」「その位置の霧の密度」「太陽と視線のなす角による散乱の強さ（位相関数）」の積です。これを、視線に沿って足し合わせます（さらに厳密には、各サンプルからカメラまでの透過率も掛けますが、薄い霧では省略されることも多いです）。
 
@@ -67,32 +67,32 @@ float3 VolumetricGodRays(float3 camera_pos, float3 pixel_world_pos, float2 pixel
 
 コードの `accumulated += shadow * height_density * phase * step_length` が、この和の 1 項です。`shadow` は 0 か 1（PCF を使えば 0〜1）の値で、シャドウ マップから得ます。
 
-### シャドウ マップの参照
+### Sampling the Shadow Map {#シャドウ-マップの参照}
 
 シャドウ マップの参照には、通常の描画と同じカスケード シャドウ マップを使います。各サンプル点のワールド位置が、どのカスケードに入るかを調べ、そのカスケードの深度を引いて比べます（[Cascaded Shadow Maps (CSM)](../../shadows/cascaded.md)）。シャドウ マップの 1 テクセルの大きさは、画面のどの距離でも同じなので、遠くのサンプルでは、シャドウ マップの粗さがそのまま筋のにじみになります。近くのカスケードで見える範囲を、光の筋の最大距離として選ぶのが現実的です。
 
-### ステップ数を減らす工夫
+### Ways to Reduce Steps {#ステップ数を減らす工夫}
 
 ステップが 16 回では、筋の間隔がステップ幅に近い細い筋で縞（バンディング）が出ます。ジッター（画素ごとに開始位置をずらす）を入れて縞をノイズに変え、時間蓄積とぼかしで消すのが基本です。さらに、ステップの間隔を、近くで細かく、遠くで粗くする（距離に対して二乗に増やす）と、同じステップ数で近くの品質が上がります。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "光の筋に縞（バンディング）が出る"
     **ジッタ**＋ **時間蓄積**を使う。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **視線に沿って、影を判定して足す**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [God Rays](index.md)
 - [ボリュームを使う](volume.md)

@@ -16,7 +16,7 @@ tags:
     - <strong>レンズ ダート</strong>：<strong>汚れのテクスチャでブルームの強さを画面の場所ごとに変える</strong>。
     - <strong>コスト</strong>は<strong>帯域が支配的</strong>。<strong>半解像度・パスの統合</strong>で下げる。
 
-## 合成の式
+## Compositing Formula {#合成の式}
 
 <strong>元の絵に足す（加算）</strong>のが**基本**です。
 
@@ -275,7 +275,7 @@ float3 CompositeBloom(float3 scene, float3 bloom, float intensity) {
 
 <!-- fig:bloom-intensity:end -->
 
-## 強さの決め方
+## Deciding the Strength {#強さの決め方}
 
 | 強さ | 見た目 |
 | --- | --- |
@@ -286,13 +286,13 @@ float3 CompositeBloom(float3 scene, float3 bloom, float intensity) {
 
 **強さ**は**ステージや演出ごとに変える**のが**自然**です（**夜のネオン街は強め、昼の砂漠は控えめ**）。
 
-## 足す位置
+## Where to Add It {#足す位置}
 
 **ブルームは、HDR のリニア画像に足し、その後でトーンマップ**します。
 
 ブルームは、HDR のリニア画像に足し、その後でトーンマップします。ブルームの後にトーンマップする順序なら、明るい光のにじみが、トーンマップで自然に白へ向かいます。これが正しい順序です。トーンマップの後にブルームを足すと、LDR（0〜1）の絵にぼかしを足すことになり、明るさが足りず、にじみません。これは誤りです。
 
-## エネルギー保存
+## Energy Conservation {#エネルギー保存}
 
 **単純に足す**と**画面全体が少し明るくなります**。**足す分だけ元を減らす**と、**全体の明るさが保たれます**。
 
@@ -306,7 +306,7 @@ float3 CompositeEnergyConserving(float3 scene, float3 bloom, float intensity) {
 
 **しきい値なしのブルーム**（全画素をぼかす）と**この合成**の組み合わせは、**物理的**にも**自然**です。
 
-## 段ごとの重み
+## Weights per Level {#段ごとの重み}
 
 **ミップ チェーンの各段を足し合わせるとき、重みを付ける**と**すそ野の形が変わります**。
 
@@ -318,7 +318,7 @@ float3 CombineLevels(float3 l0, float3 l1, float3 l2, float3 l3, float3 l4, floa
 }
 ```
 
-## レンズ ダート
+## Lens Dirt {#レンズ-ダート}
 
 **カメラのレンズに付いた汚れ・傷**に**強い光が当たると汚れが光って見えます**。**汚れのテクスチャをブルームに掛ける**と、**この効果**が**出ます**。
 
@@ -333,7 +333,7 @@ float3 ApplyLensDirt(float3 bloom, float2 uv, Texture2D dirt, float dirt_intensi
 
 詳しい演出は[Lens Effects](../lens-effects/index.md)も参照してください。
 
-## コストと最適化
+## Cost and Optimization {#コストと最適化}
 
 **ブルームは画面全体を何度も読み書きする**ので、**帯域が支配的**です。
 
@@ -344,7 +344,7 @@ float3 ApplyLensDirt(float3 bloom, float2 uv, Texture2D dirt, float dirt_intensi
 | **最終合成** | **フル解像度の読み書き** | **トーンマップと同じパスにまとめる** |
 | **フォーマット** | **R16G16B16A16_FLOAT** | <strong>R11G11B10_FLOAT（半分のメモリ）</strong> |
 
-### パスの統合
+### Merging Passes {#パスの統合}
 
 **ブルームの最後の足し算**は、**トーンマップ・ビネット・色収差などの画面全体のパス**と**同じシェーダーにまとめる**ことが**できます**。
 
@@ -362,7 +362,7 @@ float3 FinalPass(float2 uv) {
 
 **フル解像度のパスを 1 回に減らす**だけで、**帯域が大きく減ります**。
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -373,7 +373,7 @@ float3 FinalPass(float2 uv) {
 | **品質設定で段数を変える** | **低スペックでは 4 段、高スペックでは 7 段** |
 | **画面の明るさに合わせる** | **露出が変わる場面では、ブルームの強さも追従**させる |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "ブルームを強くしすぎて、画面全体が眠く、ぼんやりする"
     **強さを 0.05〜0.1 に**。**しきい値なしなら、エネルギー保存**。
@@ -387,7 +387,7 @@ float3 FinalPass(float2 uv) {
 ??? failure "レンズ ダートを強くしすぎて、汚れが常に見える"
     **強い光のときだけ見える**よう、**強さを弱く**する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] 合成 ＝ <strong>元 + ブルーム × 強さ</strong>。<strong>HDR のうちにトーンマップの前</strong>
@@ -396,13 +396,13 @@ float3 FinalPass(float2 uv) {
     - [x] <strong>レンズ ダート</strong>で<strong>場所ごとの強さ</strong>を<strong>演出</strong>
     - [x] <strong>パスを統合</strong>して<strong>帯域を節約</strong>
 
-## 参考
+## References {#参考}
 
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 - Unity, "Post-processing: Bloom, Lens Dirt"
 - Epic Games, "Unreal Engine: Bloom"
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Bloom](index.md)
 - [Threshold](threshold.md)

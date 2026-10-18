@@ -75,7 +75,7 @@ tags:
 
 <!-- fig:water-fresnel:end -->
 
-## フレネル
+## Fresnel {#フレネル}
 **フレネル**は、<strong>「見る角度が浅いほど、反射が強くなる」</strong>という現象です。**水面に真上から（垂直に）近い角度で見ると反射は約 2 %** で**ほとんどが透過**します。**水平に近い角度で見ると、反射は 100 % に近づき**、**鏡のように**なります。
 
 <div class="formula">F(θ) = F₀ + (1 − F₀) · (1 − cos θ)⁵　（Schlick 近似、水の F₀ ≈ 0.02）</div>
@@ -117,23 +117,23 @@ float Fresnel(float3 normal, float3 view_dir) {
 
 **水面の見た目の大半は、この 1 つの式で決まります**。**足元の水は透けて底が見え**、**遠くの水は空を映す**のは、**フレネルのため**です。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "水が、どの角度でも同じ透明度"
     **フレネルで混ぜ比を変える**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **角度で、反射と屈折が入れ替わる**
 
-## 参考
+## References {#参考}
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Water Shading](index.md)
 - [フレネル（屈折）](../../translucency/refraction/fresnel.md)

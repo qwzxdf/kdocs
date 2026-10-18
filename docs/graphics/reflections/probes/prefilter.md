@@ -14,10 +14,10 @@ tags:
     - **もう 1 つの項（BRDF の積分）は、LUT に入れておく**。
     - **実行時は、ミップ 1 回 ＋ LUT 1 回の読み出しだけ**。
 
-## 粗さへの対応：事前フィルタ（Split-Sum）
+## Handling Roughness: Pre-Filtering (Split-Sum) {#粗さへの対応事前フィルタsplit-sum}
 粗い面の反射は、**BRDF の山の範囲の景色を、重み付きで平均**したものでした（[Reflections](../index.md)）。これを**表面ごとに実行時に計算するのは重い**ので、**事前計算**します。Epic の Karis が提案した **Split-Sum 近似**が、標準になっています。
 
-### 式を 2 つに分ける
+### Splitting the Formula in Two {#式を-2-つに分ける}
 
 <div class="formula">∫ L_i · f_spec · cosθ dω　≈　( ∫ L_i · D · cosθ dω ) × ( ∫ f_spec · cosθ dω )</div>
 
@@ -97,7 +97,7 @@ Karis が Unreal Engine 4 で提案した split-sum 近似（"Real Shading in Un
 
 <!-- fig:prefilter-mips:end -->
 
-### ミップ レベルの選び方
+### Choosing the Mip Level {#ミップ-レベルの選び方}
 
 **粗さが大きいほど、ぼけた（高いミップの）レベル**を読みます。
 
@@ -122,7 +122,7 @@ float3 SpecularIBL(float3 N, float3 V, float3 albedo, float metallic, float roug
 | **`F0`** | 非金属は約 0.04、金属はアルベド色 |
 | **ミップ間はトリリニア補間** | 滑らかに粗さが変わる |
 
-### 事前フィルタの作り方
+### How to Build the Pre-Filter {#事前フィルタの作り方}
 
 **各ミップ**は**その粗さの GGX 分布**で、**環境マップを重要度サンプリング**して作ります。
 
@@ -130,24 +130,24 @@ float3 SpecularIBL(float3 N, float3 V, float3 albedo, float metallic, float roug
 
 **重要度サンプリング**は、**分布の山の部分から多くサンプル**する手法で、**サンプル数を減らせます**（[Stochastic SSR](../ssr-stochastic.md)で詳しく）。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "粗い面の反射が、鏡のようにくっきり"
     **粗さに応じたミップ**を選ぶ。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **粗さごとに、事前にぼかす**
     - [x] **実行時は、ミップと LUT を読むだけ**
 
-## 参考
+## References {#参考}
 
 - McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
 - Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
 - Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Reflection Probes](index.md)
 - [Parallax Correction](parallax.md)

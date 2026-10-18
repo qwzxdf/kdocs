@@ -16,7 +16,7 @@ tags:
     - <strong>ガウスよりやや四角い形</strong>になるが、<strong>多段にすると見分けにくい</strong>。
     - <strong>オフセット（広がり）</strong>を<strong>パラメータ</strong>にして、<strong>ぼかしの強さを調整</strong>できる。
 
-## 考え方
+## The Idea {#考え方}
 
 **従来**は、「縮小」と「ぼかし」を**別々のパス**で行いました。**Dual Filter は、縮小するときの「サンプルの取り方」自体をぼかしの形に**します。
 
@@ -40,7 +40,7 @@ tags:
 </g>
 </svg>
 
-## ダウンサンプル（5 タップ）
+## Downsample (5 Taps) {#ダウンサンプル5-タップ}
 
 <strong>中心（重み 4）と、斜めの 4 点（重み 1）</strong>を**バイリニアで読み、合計を 8 で割ります**。
 
@@ -57,7 +57,7 @@ float3 DualDown(Texture2D src, SamplerState linear_clamp, float2 uv, float2 half
 
 コードの要点です。`half_pixel` は、ソース（縮小前）の 1 画素の半分の UV 幅（`0.5 / ソース幅`）です。`offset` は広がりのパラメータで、1.0 が標準、大きくすると広くぼけます。中心は 4 倍の重みで、出力 1 画素に対応する 2×2 の中央です。
 
-## アップサンプル（8 タップ）
+## Upsample (8 Taps) {#アップサンプル8-タップ}
 
 <strong>辺の 4 点（重み 1）と、斜めの 4 点（重み 2）</strong>を**バイリニアで読み、合計を 12 で割ります**。
 
@@ -78,7 +78,7 @@ float3 DualUp(Texture2D src, SamplerState linear_clamp, float2 uv, float2 half_p
 
 **拡大側の `half_pixel`** は、**ソース（小さい画像）の半画素**です。
 
-## 全体の手順
+## Overall Procedure {#全体の手順}
 
 Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各段で 5 タップで半分に縮小し、各段の結果を保存します。アップは最小の段から N 段繰り返し、8 タップで拡大して、1 つ上の段に加算ブレンドで足します。最後に、最上段の結果に強さを掛けて、元の絵に足します（[Compositing and Intensity](composite.md)）。
 
@@ -305,7 +305,7 @@ Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各�
 
 <!-- fig:dual-filter-passes:end -->
 
-## 実質の広がり
+## Effective Spread {#実質の広がり}
 
 **バイリニアで読むので、1 タップが 2×2 画素を混ぜます**。**ダウンサンプルは、ソースの 約 6×6 画素**を**混ぜている**ことになります。**これを数段重ねる**と**十分に広く滑らか**です。
 
@@ -313,7 +313,7 @@ Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各�
 
 **`offset` を大きくする**と、**段数を増やさずに広がりを増やせます**。**ただし大きすぎるとサンプルがまばらになり、格子状の模様**が**出ます**。
 
-## ガウスとの比較
+## Comparison with Gaussian {#ガウスとの比較}
 
 | 項目 | ガウス（分離・ミップ） | Dual Filter |
 | --- | --- | --- |
@@ -323,7 +323,7 @@ Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各�
 | **帯域** | **大きい** | **小さい** |
 | **向く場面** | <strong>品質重視（PC・コンソール）</strong> | <strong>帯域重視（モバイル・VR）</strong> |
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -333,7 +333,7 @@ Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各�
 | **半精度フォーマット** | **R11G11B10_FLOAT で帯域を減らす** |
 | **動的な段数** | **画面サイズ・品質設定で段数を変える** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "`half_pixel` の基準が、ダウン（ソース側）とアップ（小さい画像側）で混同される"
     **どちらも「読む側のテクスチャ」の半画素**。**読むテクスチャごとに計算**する。
@@ -347,7 +347,7 @@ Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各�
 ??? failure "四角いにじみが目立つ"
     **段数が少ない**。**4 段以上、またはガウスと併用**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] Dual Filter ＝ <strong>縮小・拡大のサンプルの取り方自体をぼかしにする</strong>
@@ -356,12 +356,12 @@ Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各�
     - [x] <strong>`offset`</strong> で<strong>広がりを調整</strong>。<strong>大きすぎると格子模様</strong>
     - [x] <strong>やや四角い形</strong>だが、<strong>多段でほぼ円</strong>
 
-## 参考
+## References {#参考}
 
 - Marius Bjørge, "Bandwidth-Efficient Rendering"（SIGGRAPH 2015, ARM）
 - Masaki Kawase, "Frame Buffer Postprocessing Effects in DOUBLE-S.T.E.A.L"（GDC 2003）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Bloom](index.md)
 - [Downsampling and the Mip Chain](downsample.md)

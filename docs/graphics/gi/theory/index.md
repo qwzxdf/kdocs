@@ -8,13 +8,7 @@ tags:
 
 **GI（グローバル イルミネーション）は、光が壁や床で跳ね返って、周りを照らす「間接光」を表現する技術**です。**手法はたくさんありますが、どれも「レンダリング方程式」という同じ式を、どう近似するかの違い**です。このセクションでは、**レンダリング方程式・拡散と鏡面・放射照度・球面調和関数（SH）・モンテカルロ積分・手法の分類・見た目への効果**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - **間接光 ＝ 他の面で跳ね返ってきた光**。
-    - **どの GI 手法も、レンダリング方程式の近似**。
-    - **拡散の間接光は低周波（なめらか）**なので、**少ない情報で表せる**。
-    - **手法は、「静的か動的か」「画面内か世界か」などの軸で分類できる**。
-
-## レンダリング方程式
+## The Rendering Equation {#レンダリング方程式}
 点 `p` から、方向 `ω_o` に出る光の量（放射輝度）は、次のとおりです。
 
 <div class="formula">L_o(p, ω_o) = L_e(p, ω_o) + ∫ L_i(p, ω_i) · f(p, ω_i, ω_o) · (n·ω_i) dω_i</div>
@@ -34,7 +28,7 @@ tags:
 
 リアルタイムの GI は、ほとんどが 1〜数バウンスを近似したものです。反射するたびに、光は面の反射率（アルベド）の分だけ弱まります。たとえばアルベドが 0.5 の部屋なら、1 バウンス目の光は直接光の約半分、2 バウンス目は約 1/4、3 バウンス目は約 1/8 です。バウンス数が増えるほど急速に弱まるので、<strong>1 バウンスが一番重要</strong>で、その後は急に効きが小さくなります。ただし、アルベドの高い白い部屋では減り方が遅く、バウンスを多く取らないと暗く見えます。そのため、後でマルチ バウンスを補正する工夫が必要になります。
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -45,19 +39,19 @@ tags:
 | [Taxonomy of Methods](taxonomy.md) | 2 つの軸で、GI 手法を整理 |
 | [Visual Effect](visual-effect.md) | 間接光があると、何が変わるか |
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **GI はレンダリング方程式の近似**
     - [x] **拡散の間接光は低周波で、軽く表せる**
 
-## 参考
+## References {#参考}
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [GI](../index.md)
 - [GI の比較](../comparison.md)

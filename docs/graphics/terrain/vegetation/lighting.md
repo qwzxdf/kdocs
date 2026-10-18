@@ -14,7 +14,7 @@ tags:
     - **影は、アルファ テストで、切り抜く**。
     - **環境光（AO）で、根元を暗くする**。
 
-## ライティング
+## Lighting {#ライティング}
 | 要素 | 内容 |
 | --- | --- |
 | **法線** | **草の法線を地形の法線に寄せる**と**草原が面として一様に照らされ、ごちゃつかない** |
@@ -22,23 +22,23 @@ tags:
 | **AO** | **根元を暗く**（高さで）。**木の内側も暗く** |
 | **影** | **草は影を落とさない・受けるだけ**にして、**軽くする** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "逆光の葉が、真っ暗"
     **透過のライティング**を足す。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **透過と、法線の調整で、自然な明るさ**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Vegetation](index.md)
 - [影のアルファ テスト](../../shadows/special-cases/alpha-test-shadows.md)

@@ -16,7 +16,7 @@ tags:
     - <strong>明→暗は遅く、暗→明は速く</strong>（<strong>目は暗順応が遅い</strong>）。
     - <strong>最小・最大の EV を制限</strong>し、<strong>露出補正</strong>で画作りを残す。
 
-## 全体の流れ
+## Overall Flow {#全体の流れ}
 
 <svg class="fig illust" viewBox="0 0 780 170" role="img" aria-label="自動露出の流れ">
 <text x="20" y="26" class="fig-title">自動露出：測る → 決める → 追従する</text>
@@ -30,9 +30,9 @@ tags:
 <g stroke="currentColor" stroke-width="2"><line x1="192" y1="91" x2="228" y2="91" marker-end="url(#ae-arrow)"/><line x1="402" y1="91" x2="438" y2="91" marker-end="url(#ae-arrow)"/><line x1="612" y1="91" x2="648" y2="91" marker-end="url(#ae-arrow)"/></g>
 </svg>
 
-## ① 明るさを測る
+## ① Measuring Brightness {#①-明るさを測る}
 
-### 対数平均
+### Log Average {#対数平均}
 
 **単純な平均は太陽のような非常に明るい点に引きずられて、シーン全体が暗くなります**。<strong>対数をとってから平均する（幾何平均）</strong>と、**外れ値の影響が小さくなります**。
 
@@ -44,7 +44,7 @@ tags:
 | **ヒストグラム** | **輝度を数十〜256 のビンに数える** | **外れ値を除ける**。**頑健** |
 | **中心重み** | **画面中心を重くして平均** | **視線が中心にあると仮定** |
 
-### 縮小で測る
+### Measuring by Downscaling {#縮小で測る}
 
 ```hlsl
 float LogLuminance(float3 c) {
@@ -54,7 +54,7 @@ float LogLuminance(float3 c) {
 
 **画面の `log(L)` を書いたテクスチャをミップで 1×1 まで縮小**し、**`exp` で戻す**と**対数平均**です。**実装が最も簡単**ですが**明るい点・暗い点が混ざる**ので**シーンによっては安定しません**。
 
-### ヒストグラムで測る
+### Measuring with a Histogram {#ヒストグラムで測る}
 
 **輝度を `log2` 空間で、等間隔のビンに数える**方式です。**各ビンのピクセル数をコンピュートで集計**します。
 
@@ -737,7 +737,7 @@ void HistogramMain(uint3 id : SV_DispatchThreadID, uint group_index : SV_GroupIn
 
 <!-- fig:auto-exposure-histogram:end -->
 
-### 外れ値を除いて平均を取る
+### Averaging Without Outliers {#外れ値を除いて平均を取る}
 
 **ヒストグラムの下位 10〜40 %（暗い部分）・上位 5〜10 %（明るい部分）を除いた範囲**で**加重平均**します。**太陽・暗い隅・黒い UI の影響を抑えられます**。
 
@@ -762,7 +762,7 @@ float AverageLogLuminance(float low_percent, float high_percent) {
 }
 ```
 
-## ② 目標の露出を決める
+## ② Deciding the Target Exposure {#②-目標の露出を決める}
 
 **平均輝度を「中間灰」（約 0.18）にするよう**、**EV を決めます**。
 
@@ -778,7 +778,7 @@ float TargetExposure(float avg_luminance, float key_value, float compensation_ev
 
 露出を決めるコードの要点です。キー値 0.18 は、中間灰を画面の平均的な明るさにする値で、写真の標準です。0.1〜0.3 で明暗のトーンが変わります。最小・最大 EV は、極端な暗所や明所で暴走しないようにする上下限です。補正 EV で、画作りに合わせて全体を明るく・暗くします。
 
-## ③ 時間で追従する
+## ③ Following Over Time {#③-時間で追従する}
 
 **目標が決まっても一気に変えず、時間をかけて近づけます**。
 
@@ -834,7 +834,7 @@ float AdaptExposure(float current, float target, float delta_time, float speed_u
 | **典型の速度** | **明るくなるとき 約 3〜5 /秒、暗くなるとき 約 1〜2 /秒** |
 | **EV の空間で補間** | **露出の倍率ではなく、EV（対数）の値を補間する**と**自然** |
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -846,7 +846,7 @@ float AdaptExposure(float current, float target, float delta_time, float speed_u
 | **シーン切り替えで即時リセット** | **カットやロード後は、追従を飛ばして目標値へ** |
 | **UI は露出の外** | **UI は露出・トーンマップの後に描く**（UI の明るさが変わらない） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "太陽が画面に入ると、全体が暗くなる"
     **単純平均**になっている。**対数平均・ヒストグラム（上位を除く）・中心重み**を使う。
@@ -863,7 +863,7 @@ float AdaptExposure(float current, float target, float delta_time, float speed_u
 ??? failure "GPU の結果を CPU へ読み戻して、パイプラインが止まる"
     **露出は GPU のバッファのまま、シェーダーが読む**。**CPU は触らない**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] 自動露出 ＝ <strong>測る（対数平均・ヒストグラム）→ 目標露出 → 指数的に追従</strong>
@@ -872,13 +872,13 @@ float AdaptExposure(float current, float target, float delta_time, float speed_u
     - [x] <strong>追従は `1 − exp(−dt · speed)`</strong>。<strong>暗くなるほうが遅い</strong>
     - [x] <strong>読み戻しを避け</strong>、<strong>カットでリセット</strong>
 
-## 参考
+## References {#参考}
 
 - Reinhard et al., "Photographic Tone Reproduction for Digital Images"（SIGGRAPH 2002）
 - Pattanaik et al., "Time-Dependent Visual Adaptation for Fast Realistic Image Display"（SIGGRAPH 2000）
 - Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering"（SIGGRAPH 2014）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Tone Mapping and Exposure](index.md)
 - [Exposure](exposure.md)

@@ -8,15 +8,7 @@ tags:
 
 **ピクセルは四角い格子**なので、**斜めの線や細い物の縁が、階段状（ジャギー）に見えます**。これが**エイリアシング**で、<strong>アンチエイリアシング（AA）</strong>は、**これを滑らかにする技術**です。**方式が多く、画質・速さ・弱点がそれぞれ違います**。このセクションでは、**エイリアシングの原因・SSAA/MSAA・FXAA・SMAA・TAA・TAA の課題・比較と選び方**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - エイリアシング ＝ <strong>連続した絵を、画素の格子で標本化するときの、ずれ</strong>（<strong>ジャギー・ちらつき・モアレ</strong>）。
-    - <strong>根本の対策</strong>は<strong>1 画素あたりのサンプルを増やす</strong>（<strong>SSAA / MSAA</strong>）。
-    - <strong>画像後処理</strong>の方式（<strong>FXAA・SMAA</strong>）は<strong>安いが細部をぼかし、時間的なちらつきは残る</strong>。
-    - <strong>TAA</strong>は<strong>フレームごとにサンプル位置をずらして、時間方向に蓄積</strong>。<strong>ほぼ全種類のエイリアシングに効く</strong>が、<strong>ゴーストとぼけ</strong>が出る。
-    - <strong>現代の主流は TAA 系</strong>（<strong>TAAU・DLSS・FSR・TSR</strong>）。
-    - <strong>方式は組み合わせられる</strong>（<strong>MSAA ＋ 後処理、TAA ＋ シャープ</strong>）。
-
-## エイリアシングの 3 つの種類
+## Three Kinds of Aliasing {#エイリアシングの-3-つの種類}
 
 <svg class="fig illust" viewBox="0 0 780 220" role="img" aria-label="エイリアシングの種類">
 <text x="20" y="26" class="fig-title">エイリアシングは、見え方で 3 種類</text>
@@ -43,7 +35,7 @@ tags:
 | **シェーダー内のエイリアシング** | **スペキュラ・法線マップなど、1 画素内で急変する値** | **TAA・SSAA**（MSAA は効かない） |
 | **時間的なちらつき** | **動くとき、サンプルの位置が変わり、出たり消えたりする** | **TAA** |
 
-## 動きで見る：TAA のジッター
+## See It in Motion: TAA Jitter {#動きで見るtaa-のジッター}
 
 <!-- fig:taa-jitter:begin -->
 
@@ -490,7 +482,7 @@ tags:
 
 <!-- fig:taa-jitter:end -->
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -501,7 +493,7 @@ tags:
 | [TAA Challenges](taa-challenges.md) | ゴースト・ぼけ・ちらつき・アップスケール |
 | [Comparison and Choosing](comparison.md) | 方式の比較表・組み合わせ・目的別の選び方 |
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Post-Processing](../index.md)
 - [Motion Blur](../motion-blur/index.md)

@@ -46,7 +46,7 @@ tags:
 
 <!-- fig:evsm-warp:end -->
 
-## EVSM（指数 VSM）
+## EVSM (Exponential VSM) {#evsm指数-vsm}
 **EVSM**（Exponential Variance Shadow Maps）は、**深度を exp でワープしてから、VSM**を行います。**正のワープ `exp(c z)`** と**負のワープ `−exp(−c z)`** を、**それぞれ VSM**にして、**小さい方**（保守的な方）を採用します。
 
 | 項目 | 内容 |
@@ -55,23 +55,23 @@ tags:
 | **光漏れ** | **VSM より、大幅に減る**（exp で深度の差が強調される） |
 | **欠点** | **4 チャンネル**（メモリ・帯域が倍）。**浮動小数点の精度・範囲**に注意（32 ビット推奨） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "16 ビット浮動小数で保存して、精度が足りず、縞が出る"
     **32 ビット浮動小数**にする。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **EVSM ＝ 指数変換 ＋ VSM の統計**
     - [x] **光漏れが少ないが、メモリが重い**
 
-## 参考
+## References {#参考}
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [VSM, ESM and MSM](index.md)
 - [ESM](esm.md)

@@ -14,7 +14,7 @@ tags:
     - **4 チャンネル**。**EVSM と同程度のメモリ**。
     - **比較の計算は、少し複雑**（**方程式を解く**）。
 
-## MSM（モーメント シャドウ マップ）
+## MSM (Moment Shadow Maps) {#msmモーメント-シャドウ-マップ}
 **MSM**（Moment Shadow Maps、Peters & Klein 2015）は、**4 つのモーメント**（z, z², z³, z⁴）を保存し、**ハンバーガーのモーメント問題**を解いて、**より正確な、可視性の上限**を求めます。
 
 | 項目 | 内容 |
@@ -23,23 +23,23 @@ tags:
 | **利点** | **光漏れが非常に小さい**。**VSM・ESM より、安定** |
 | **欠点** | **計算が複雑**（4 モーメントから、可視性を求める計算が重い） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "モーメントを 16 ビットで保存して、精度が足りない"
     **専用の最適化ベクトル変換**を使い、**16 ビット整数で保存**する実装（Peters 方式）を**参照**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **MSM ＝ 4 つのモーメントで、光漏れを抑える**
     - [x] **高品質だが、計算は複雑**
 
-## 参考
+## References {#参考}
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [VSM, ESM and MSM](index.md)
 - [EVSM](evsm.md)

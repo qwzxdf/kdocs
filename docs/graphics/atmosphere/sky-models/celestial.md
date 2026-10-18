@@ -14,10 +14,10 @@ tags:
     - **星 ＝ キューブマップ、または点の集まり**。
     - **昼は、星が見えない（空の明るさに負ける）**。
 
-## 太陽・月・星
+## Sun, Moon, and Stars {#太陽月星}
 **空の主役**は**太陽**です。
 
-### 太陽の円盤
+### The Sun Disk {#太陽の円盤}
 
 **太陽は視線と太陽の方向の角度が小さい所だけ、非常に明るい円盤**です。**実際の太陽の見た目の大きさは、約 0.53°**（**半径 約 0.265°**）です。
 
@@ -38,7 +38,7 @@ float SunDisk(float3 view_dir, float3 sun_dir) {
 | <strong>周りのにじみ（コロナ）</strong> | **指数関数的に減る光を足す**：`exp(-angle * k)` |
 | **大きすぎる太陽は不自然** | **誇張しすぎない** |
 
-### 夕焼けの色
+### Sunset Colors {#夕焼けの色}
 
 **太陽が地平線に近づくと、光が大気を長く通る**ので、**青が散り尽くして、赤が残ります**。**太陽の色を高さに応じて変える**だけで、**夕焼けの雰囲気**が**出ます**。
 
@@ -51,7 +51,7 @@ float3 SunColor(float sun_height) {
 
 **正確には大気の透過率（光学的厚さ）から求めます**（[Atmospheric Scattering](../scattering/index.md)）。
 
-### 月と星
+### Moon and Stars {#月と星}
 
 | 要素 | 内容 |
 | --- | --- |
@@ -89,24 +89,24 @@ float3 sky = day_sky + stars * night_factor;
 
 <!-- fig:sun-arc:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "昼なのに、星が透けて見える"
     **空の明るさに応じて、星を弱める**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **太陽・月・星を、それぞれに合う方法で**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Sky Models](index.md)
 - [Day-Night Cycle](day-night.md)

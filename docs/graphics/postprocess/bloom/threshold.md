@@ -552,7 +552,7 @@ tags:
 
 <!-- fig:bloom-threshold:end -->
 
-## 明るい所だけ取り出す
+## Extracting Only the Bright Parts {#明るい所だけ取り出す}
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="しきい値の曲線">
 <text x="20" y="26" class="fig-title">入力の明るさ → 取り出す量</text>
@@ -567,7 +567,7 @@ tags:
 
 しきい値の方式は 2 つあります。<strong>ハード</strong>は、しきい値未満を 0、以上をそのまま通す方法で、境がくっきりして、動くと「ぱっ」と光ります。<strong>ソフト ニー</strong>は、しきい値の周りを滑らかな曲線でつなぐ方法で、自然に光り始めます。
 
-## ハードなしきい値
+## Hard Threshold {#ハードなしきい値}
 
 ```hlsl
 float3 ThresholdHard(float3 color, float threshold) {
@@ -579,7 +579,7 @@ float3 ThresholdHard(float3 color, float threshold) {
 
 コードの要点です。`brightness` は明るさの目安で、最大成分か輝度を使います。`brightness − threshold` は、しきい値を超えた分（超過分）だけを光らせます。`/ brightness` で割るのは、色の比率を保つためで、色相が変わりません。
 
-## ソフト ニー
+## Soft Knee {#ソフト-ニー}
 
 **しきい値の周り**で**滑らかに立ち上げる**方法です（**Unity・Unreal などの標準**）。
 
@@ -597,7 +597,7 @@ float3 ThresholdSoft(float3 color, float threshold, float knee) {
 
 **`knee` を大きくする**と、**しきい値より少し暗い所から、じわっと光り**始め、**動いてもちらつきません**。
 
-## HDR だからできること
+## What HDR Makes Possible {#hdr-だからできること}
 
 **LDR（0〜1）の時代**は、<strong>「0.8 以上」のような、見た目の明るさでしきい値</strong>を決めていました。<strong>HDR では、「1.0 を超えた」＝「ディスプレイで表現できる以上に明るい」</strong>という**物理的な意味**を**持たせられます**。
 
@@ -605,7 +605,7 @@ float3 ThresholdSoft(float3 color, float threshold, float knee) {
 
 **露出を掛けた後の値で比べる**ことが**大切**です（**露出が変わると光る範囲も変わる**）。
 
-## しきい値なし
+## No Threshold {#しきい値なし}
 
 **しきい値を使わず、全画素をぼかして、少しだけ足す**方式です（**エネルギー保存型**）。
 
@@ -617,7 +617,7 @@ float3 ThresholdSoft(float3 color, float threshold, float knee) {
 
 **現代のゲームでは、しきい値なしに少ない強さ（0.04〜0.1 程度）で足す**方式が**増えて**います。
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -628,7 +628,7 @@ float3 ThresholdSoft(float3 color, float threshold, float knee) {
 | **ミップの最初の段で一緒に** | **しきい値を最初のダウンサンプルと同時に**行い、**パスを減らす** |
 | **エミッシブ・光源だけ光らせる** | **マスクで光らせたい物だけ**にする（**ゲームごとの演出**） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "動くと、光がぱっと点いたり消えたりする"
     **ハードなしきい値**。**ソフト ニー**にする。
@@ -642,7 +642,7 @@ float3 ThresholdSoft(float3 color, float threshold, float knee) {
 ??? failure "しきい値なしにしたら、全体が霞んで眠い"
     **足す強さを下げる**（**0.05 前後**）。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] しきい値 ＝ <strong>明るい所だけを取り出す</strong>。<strong>超過分</strong>を光らせる
@@ -651,13 +651,13 @@ float3 ThresholdSoft(float3 color, float threshold, float knee) {
     - [x] <strong>色の比率を保つ</strong>（<strong>`/ brightness`</strong>）
     - [x] <strong>しきい値なし ＋ 弱く足す</strong>も<strong>定番</strong>
 
-## 参考
+## References {#参考}
 
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 - Unity, "Post-processing: Bloom"（ソフト ニーの実装）
 - Epic Games, "Unreal Engine: Bloom"
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Bloom](index.md)
 - [Downsampling and the Mip Chain](downsample.md)

@@ -8,18 +8,12 @@ tags:
 
 **地形を手で作るのは大変なので、ノイズなどから自動で生成します**。**ノイズを重ねて山を作り、侵食で自然な谷を刻み、川を流す**のが**標準的な流れ**です。このセクションでは、**ノイズ・fBm・リッジ ノイズ・ドメイン ワーピング・高さへの変換・侵食・川と湖・生成のタイミング・配置の生成**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - **ノイズを、複数の周波数で重ねると、地形らしくなる**。
-    - **侵食を加えると、自然な谷や尾根が出る**。
-    - **事前生成か、実行時生成かを選ぶ**。
-    - **植生や岩の配置も、生成する**。
-
-## ノイズとは
+## What Noise Is {#ノイズとは}
 **ノイズ関数**は**位置を入れると滑らかに変化するランダムな値を返す**関数です。**同じ位置はいつも同じ値**（**決定的**）で、**近い位置は近い値**になります。
 
 ノイズには 3 種類あります。値ノイズ（Value noise）は、格子点にランダムな値を置き、間を補間します。簡単ですが、格子の向きが目立ちます。勾配ノイズ（Perlin / Simplex）は、格子点にランダムな勾配（向き）を置き、その内積を補間します。自然で滑らかです。ワーリー ノイズ（Worley / セル）は、ランダムな点からの距離で、石・細胞・ひび割れのような模様になります。
 
-### 値ノイズ
+### Value Noise {#値ノイズ}
 
 **2D の値ノイズ**は、**位置の整数部が属する格子の 4 隅の値を、小数部で補間**します。
 
@@ -45,7 +39,7 @@ float ValueNoise(float2 p) {
 
 値ノイズのコードの要点です。`f·f·(3 − 2f)` は smoothstep で補間の重みを滑らかにし、格子の境で傾きが連続になります。ハッシュ関数は、整数の格子座標から再現性のある乱数を作ります。値の範囲は 0〜1 で、使うときは −1〜1 に直すこともあります。
 
-### 勾配ノイズ（Perlin）
+### Gradient Noise (Perlin) {#勾配ノイズperlin}
 
 **勾配ノイズ**は<strong>各格子点にランダムな単位ベクトル（勾配）</strong>を持ち、**点から位置までのベクトルとの内積**を**補間**します。**値ノイズより、向きの偏りが少なく**、**自然な見た目**です。
 
@@ -72,7 +66,7 @@ Perlin ノイズのコードの要点です。補間の重みは `6f⁵ − 15f�
 
 原典は、Perlin の "An Image Synthesizer"（SIGGRAPH 1985）と、改良版の "Improving Noise"（SIGGRAPH 2002）、Worley の "A Cellular Texture Basis Function"（SIGGRAPH 1996）です。
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -85,18 +79,18 @@ Perlin ノイズのコードの要点です。補間の重みは `6f⁵ − 15f�
 | [When to Generate](timing.md) | 事前か、実行時か |
 | [Placement Generation](placement.md) | 木・岩の自動配置 |
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **ノイズで形、侵食でリアルさ**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Terrain](../index.md)
 - [Heightmaps and Meshes](../heightmap-mesh/index.md)

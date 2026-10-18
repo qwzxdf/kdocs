@@ -40,7 +40,7 @@ tags:
 
 <!-- fig:blob-planar:end -->
 
-## ブロブ シャドウ（丸い影）
+## Blob Shadows (Round Shadows) {#ブロブ-シャドウ丸い影}
 **足元に柔らかい丸い暗い画像**（**ブロブ**）を、**地面に貼る**だけの影です。**シャドウ マップなし**で、**最も安く**、<strong>「地面に接している」感じ</strong>を出せます。
 
 | 項目 | 内容 |
@@ -52,7 +52,7 @@ tags:
 
 **ブロブ ＋ 本格的な影**を組み合わせ、**近くは本格、遠くはブロブ**のように<strong>切り替える（LOD）</strong>ことも一般的です。
 
-## 平面投影シャドウ
+## Planar Projected Shadows {#平面投影シャドウ}
 **物体のジオメトリを、「地面の平面」に押し潰す**行列を**かけて**描き、**暗い単色**で塗ります。
 
 <div class="formula">平面 n·x + d = 0 へ、光の方向 L に沿って投影する行列（4×4）</div>
@@ -73,23 +73,23 @@ XMMATRIX shadow_matrix = XMMatrixShadow(plane, XMVectorNegate(light));
 
 **古い手法**ですが**平らな床のゲーム**（スポーツ・シンプルな 3D）では今でも**有効**です。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "段差のある地面で、平面投影の影が空中に浮く"
     **平らな地面でのみ使う**、または**シャドウ マップに切り替え**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **ブロブ・平面投影は、非常に安い影**
     - [x] **平らな地面向き**。**モバイル・遠景向き**
 
-## 参考
+## References {#参考}
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Special Cases](index.md)
 - [Distance Field Shadows](../sdf-shadows.md)

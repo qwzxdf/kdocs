@@ -14,7 +14,7 @@ tags:
     - **色付きの影**：**半透明の色を、別の画像に描き、影に掛ける**。
     - **簡易には、半透明は影を落とさない**ことも**多い**。
 
-## 半透明の影
+## Translucent Shadows {#半透明の影}
 **ガラス・煙・半透明の布**は**光を部分的に通します**。**シャドウ マップは、深度しか持たない**ので<strong>「完全に遮る」か「完全に通す」</strong>の**2 択**になります。
 
 | 方法 | 内容 |
@@ -204,7 +204,7 @@ tags:
 
 <!-- fig:stipple-shadow:end -->
 
-### ステッポリングの例
+### Example of Stippling {#ステッポリングの例}
 
 ```hlsl
 float threshold = Bayer4x4(pixel_position);
@@ -213,23 +213,23 @@ clip(opacity - threshold);
 
 <strong>ディザ（Bayer 行列・IGN）</strong>で、**透明度の割合**だけ**画素を残し**、**影の濃さ**を**確率的に**表現します。**ノイズ**が出るので、**PCF や TAA**で**消します**。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "ガラスが真っ黒な影を落とす"
     **半透明は影を落とさない・ステップリング・色付き影**のいずれか。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **深度のシャドウ マップは、半透明の薄い影を表せない**
     - [x] **ステップリング・色付きの影で近似**
 
-## 参考
+## References {#参考}
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Special Cases](index.md)
 - [ブレンドとソート](../../translucency/blending-sorting/index.md)

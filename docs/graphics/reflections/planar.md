@@ -16,7 +16,7 @@ tags:
     - <strong>粗い面の反射</strong>は、<strong>ぼかす</strong>（距離に応じて）。
     - <strong>反射面が平らであることが前提</strong>。曲面・でこぼこには使えない。
 
-## 仕組み
+## How It Works {#仕組み}
 
 反射を、「**鏡の向こう側にある、もう 1 つの世界を覗き込んでいる**」と見なします。**カメラを反射面を挟んで反対側に置いた**（鏡映した）位置から、シーンを描けば、**鏡に映る景色**が得られます。
 
@@ -34,7 +34,7 @@ tags:
 <text x="520" y="200" style="font-size:12px">カメラから見た反射 ＝ 鏡映カメラから見た景色</text>
 </svg>
 
-## 手順
+## Steps {#手順}
 
 | 手順 | 内容 |
 | --- | --- |
@@ -93,7 +93,7 @@ tags:
 
 <!-- fig:planar-mirror:end -->
 
-## 鏡映の行列
+## The Mirror Matrix {#鏡映の行列}
 
 **平面 `n·x + d = 0`**（n は単位法線）に関する、**鏡映行列**（行ベクトル規約）は、次のとおりです。
 
@@ -119,13 +119,13 @@ Matrix reflect_view = MakeReflectionMatrix(plane_normal, plane_d) * camera_view;
 
 **ワールド行列を鏡映してから**、通常のビュー・プロジェクションを掛けます。
 
-## 巻き方向の反転
+## Reversing the Winding Order {#巻き方向の反転}
 
 **鏡映**は**左右（または上下）を反転する変換**なので**三角形の巻き方向が逆**になります（[座標系](../../gamemath/coordinate-systems.md)の鏡像変換と同じ）。そのまま描くと**表と裏が逆**になり、**カリングで見えるはずの面が消えます**。
 
 この対処は 2 つです。反射パスの間だけ、カリング設定を反転します（`FrontCounterClockwise` を逆にする、あるいは `CullMode` を `FRONT` にする）。法線は、鏡映行列で変換すれば（位置と同じ行列なので）、そのままで正しくなります。
 
-## 斜めの近クリップ面（Oblique Clipping）
+## Oblique Near Clip Plane (Oblique Clipping) {#斜めの近クリップ面oblique-clipping}
 
 **反射面より下**（水面の下の地面・川底）は、**鏡映カメラから見ると反射面の手前**に来ます。**これを描くと反射に「水面の下の物」が映り込み**ます。**反射面より下は描かない**必要があります。
 
@@ -133,7 +133,7 @@ Matrix reflect_view = MakeReflectionMatrix(plane_normal, plane_d) * camera_view;
 
 **射影行列の書き換え**は、「近クリップ面の式を反射面にする」ものです（計算の詳細は参考の資料を参照）。**深度の精度がわずかに下がる**ので**反射パスだけ**で使います。
 
-## 反射面を描くときの使い方
+## Usage When Drawing the Reflective Surface {#反射面を描くときの使い方}
 
 **スクリーン座標**で反射テクスチャを引きます。
 
@@ -149,7 +149,7 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 !!! note "鏡映カメラの画面位置"
     反射テクスチャは、**鏡映カメラの視点**で描いたものです。**鏡映すると左右が反転する**ことを、行列（ビュー）が吸収しているので**通常のカメラと同じ画面位置**で引けば、正しい位置に映ります。**射影行列は通常のものと同じ**（斜めクリップを除く）です。
 
-## 粗さとぼかし
+## Roughness and Blurring {#粗さとぼかし}
 
 平面反射は**完全な鏡**の反射です。<strong>粗い面（磨りガラス・濡れた石）</strong>では反射は**ぼけて**見えるべきです。
 
@@ -160,7 +160,7 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 | **ミップマップ** | 反射テクスチャのミップを作り、**粗さに応じて、ミップを選ぶ** |
 | **コーン トレース風** | 距離に応じたミップ選択（SSR の考え方に近い。[SSR の基礎](ssr-basics/index.md)） |
 
-## コストと工夫
+## Cost and Tricks {#コストと工夫}
 
 **平面反射はシーンをもう 1 回描く**ので**描画コストがほぼ倍**になります。
 
@@ -173,7 +173,7 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 | **キューブマップで代用** | **遠景はプローブ**（[プローブ](probes/index.md)） |
 | **反射用の簡易シェーダー** | **ライティングを簡略化** |
 
-## 複数の平面・傾いた面
+## Multiple Planes and Tilted Surfaces {#複数の平面傾いた面}
 
 | 状況 | 対応 |
 | --- | --- |
@@ -182,7 +182,7 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 | **曲面・でこぼこの面** | **平面反射は使えない**（SSR・プローブ・レイトレに任せる） |
 | **反射の中の反射**（向かい合う鏡） | 再帰が必要。通常は、**1 回だけ**に制限 |
 
-## 長所と短所
+## Pros and Cons {#長所と短所}
 
 | 長所 | 短所 |
 | --- | --- |
@@ -191,7 +191,7 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 | **実装がほぼ「描き直す」だけ** | **粗さのぼけ**を別途工夫する必要がある |
 | **粗い物体でも高解像度で映る** | **複数の面でコストが増える** |
 
-## 使いどころ
+## Where to Use It {#使いどころ}
 
 | 場面 | 方式 |
 | --- | --- |
@@ -200,7 +200,7 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 | **磨かれた床** | 平面反射、または SSR・プローブで安く |
 | **広い範囲の濡れた路面** | SSR ＋ プローブ（平面反射は面が多く重い） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "反射パスで、カリングの設定を反転せず、反射が消える・内側が見える"
     反射パスの間だけ、巻き方向（`FrontCounterClockwise`）を**反転**します。
@@ -214,7 +214,7 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 ??? failure "全てのフレームで、フル解像度・フル品質で反射を描いて、重い"
     **半分の解像度・LOD の削減・簡易シェーダー**で軽くします。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] 平面反射 ＝ <strong>反射面でカメラを鏡映し、シーンを描き直して、反射テクスチャにする</strong>
@@ -223,11 +223,11 @@ float3 color = lerp(refraction_color, reflection, fresnel);
     - [x] <strong>粗さ</strong>は、距離に応じたぼかし・ミップで
     - [x] <strong>解像度・LOD・更新頻度</strong>で軽くする
 
-## 参考
+## References {#参考}
 
 - Lengyel, "Oblique View Frustum Depth Projection and Clipping"（Journal of Game Development, 2005）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Reflections](index.md)
 - [リフレクション プローブ](probes/index.md)

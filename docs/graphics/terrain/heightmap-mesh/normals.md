@@ -14,7 +14,7 @@ tags:
     - **LOD で頂点が減っても、法線マップで細部を保てる**。
     - **精度が足りないと、段々（バンディング）が出る**。
 
-## 法線
+## Normals {#法線}
 **地形の法線**は**高さマップの勾配**から**求めます**。**隣のテクセルとの高さの差**（**中心差分**）を使います。
 
 <div class="formula">N = normalize( (h_left − h_right,　2·Δ,　h_down − h_up) )　（Δ：テクセル間のワールド距離）</div>
@@ -40,23 +40,23 @@ float3 TerrainNormal(float2 uv) {
 
 **法線を計算する `Δ`** は、**高さのスケールと揃えます**（**テクセル間のワールド距離**）。**ここがずれると斜面が急すぎる・緩すぎる見た目**になります。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "地形の陰影に、段々の模様が出る"
     **高さマップを 16bit** にする。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **隣の高さの差で、法線を求める**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Heightmaps and Meshes](index.md)
 - [Grid Mesh](grid-mesh.md)

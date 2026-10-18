@@ -8,15 +8,7 @@ tags:
 
 **水の表現**はゲームの絵作りの**見せ場**です。しかし、<strong>水は、「動く形（波）」・「透ける（屈折・吸収）」・「映す（反射・フレネル）」・「泡立つ（フォーム）」</strong>と、**いくつもの要素の重ね合わせ**です。**1 つの魔法の方法があるわけではなく、それぞれを分けて作って、足し合わせる**のが基本です。このセクションでは、<strong>波のジオメトリ（Gerstner・FFT）</strong>、<strong>シェーディング（フレネル・屈折・深度による色）</strong>、**岸辺の泡**、**波紋などのインタラクション**、<strong>水中の表現（コースティクス・霧）</strong>を、順に説明します。
 
-!!! tip "ポイント"
-    - 水 ＝ <strong>波（形）</strong> ＋ <strong>シェーディング（反射・屈折・色）</strong> ＋ <strong>泡・波紋（細部）</strong>。
-    - <strong>波</strong>は<strong>サイン波の重ね合わせ</strong>（Gerstner）か、<strong>周波数空間から作る（FFT）</strong>。
-    - <strong>見た目の大半は、フレネルで決まる</strong>：<strong>浅い角度は反射、深い角度は透過</strong>。
-    - <strong>水深（水面と底の深度差）</strong>から、<strong>色・透明度・岸の泡</strong>を<strong>決める</strong>。
-    - <strong>法線の細かい動き（法線マップの重ね）</strong>で、<strong>ジオメトリが粗くても細かい波に見せる</strong>。
-    - <strong>水は半透明・屈折・反射・深度を全部使う</strong>ので<strong>描画パイプラインの中で、特殊な位置</strong>に置く。
-
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -26,7 +18,7 @@ tags:
 | [波紋と水面のインタラクション](interaction/index.md) | 高さマップのシミュレーション・フローマップ・ぶつかる物 |
 | [Underwater Rendering](underwater/index.md) | 水中の霧・コースティクス・光の筋・水面の裏側 |
 
-## 全体の構成
+## Overall Structure {#全体の構成}
 
 | 要素 | 担当する技術 |
 | --- | --- |
@@ -37,7 +29,7 @@ tags:
 | **岸の泡** | **水深が浅い所**に**泡のテクスチャ** |
 | **波紋・水しぶき** | **高さマップのシミュレーション・パーティクル** |
 
-## 描画の順序
+## Draw Order {#描画の順序}
 
 | 手順 | 内容 |
 | --- | --- |
@@ -48,7 +40,7 @@ tags:
 
 <strong>水面は、「不透明の後・コピーを取った後」</strong>に描きます（[Refraction](../translucency/refraction/index.md)と同じ構成）。
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [描画](../index.md)
 - [屈折とガラス](../translucency/refraction/index.md)

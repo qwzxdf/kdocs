@@ -200,7 +200,7 @@ tags:
 
 <!-- fig:wboit-layers:end -->
 
-### 考え方
+### The Idea {#考え方}
 
 **手前の物ほど、重みを大きく**して、**平均**します。**順序を知らなくても、「手前らしさ」を深度から推定**して、**近似的な順序づけ**を得ます。
 
@@ -210,7 +210,7 @@ tags:
 
 原典は、McGuire と Bavoil の "Weighted Blended Order-Independent Transparency"（Journal of Computer Graphics Techniques、2013）です。
 
-### 2 枚のレンダー ターゲット
+### Two Render Targets {#2-枚のレンダー-ターゲット}
 
 2 枚のレンダー ターゲットを使います。アキュムレーションは `R16G16B16A16_FLOAT` で、`(Cᵢ·αᵢ·wᵢ, αᵢ·wᵢ)` を加算します（ブレンドは ONE / ONE）。リビールは `R8_UNORM` で、`αᵢ` を透過率として乗算します（ブレンドは ZERO / INV_SRC_COLOR で、`(1 − αᵢ)` を掛けます）。
 
@@ -235,7 +235,7 @@ PsOutput PSWeighted(VsOutput input) {
 
 出力のコードの要点です。`weight` は McGuire らの、深度に基づく重み関数で、手前（z 小）ほど大きくなります。`output.accumulation` は `(RGB·α·w, α·w)` で、加算ブレンドで累積します。`output.reveal` は `α` で、乗算ブレンドにより `(1 − α)` の積が残ります。
 
-### 合成
+### Compositing {#合成}
 
 ```hlsl
 float4 PSComposite(VsOutput input) : SV_Target {
@@ -251,24 +251,24 @@ float4 PSComposite(VsOutput input) : SV_Target {
 
 WBOIT の利点は、1 パスで軽いこと（2 枚の RT）、ソート不要なこと、パーティクル・草・髪などの大量の重なりに強いことです。欠点は、近似であること（同じ色の層が多いと順序が反映されません）、色が違う層の重なりで順序が違って見えること（手前の赤と奥の青が混ざって見える）、重み関数の調整が必要なこと（シーンの深度範囲に合わせます）です。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "半透明の重なりの色が、不自然"
     **重み関数を調整**する、または **PPLL**にする。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **重み付き平均で、近似**
     - [x] **軽くて、実用的**
 
-## 参考
+## References {#参考}
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [OIT](index.md)
 - [PPLL](ppll.md)

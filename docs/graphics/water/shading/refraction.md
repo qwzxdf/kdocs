@@ -14,7 +14,7 @@ tags:
     - **歪みが強すぎると、不自然**。
     - **水深が浅いほど、歪みを弱める**。
 
-## 屈折の歪み
+## Refraction Distortion {#屈折の歪み}
 **水面の法線は波で傾く**ので、**水中の物は歪んで見えます**。**法線の XZ 成分で背景を読む UV をずらします**。
 
 ```hlsl
@@ -36,24 +36,24 @@ float3 scene_color = scene_copy.Sample(linear_clamp, refract_uv).rgb;
 | **距離で弱める** | **遠くの水は歪みを減らす**（**ちらつき防止**） |
 | **水深で強める** | **深いほど、歪みが大きい**（**浅い所はほとんど歪まない**） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "岸辺の物が、水面に引き込まれて歪む"
     **深度を比べて、手前の物は除く**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **法線で画面をずらす**
     - [x] **手前の物は除く**
 
-## 参考
+## References {#参考}
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Water Shading](index.md)
 - [Screen-Space Refraction](../../translucency/refraction/screen-space.md)

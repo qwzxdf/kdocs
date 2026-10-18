@@ -16,7 +16,7 @@ tags:
     - <strong>TAA と速度バッファを共有</strong>。<strong>ジッターを速度に混ぜない</strong>。
     - <strong>好みが分かれる</strong>ので、<strong>設定でオフにできる</strong>ようにする。
 
-## シャッター角
+## Shutter Angle {#シャッター角}
 
 <strong>実際のカメラ（映画）</strong>では、**1 フレームの時間のうち、シャッターが開いている割合**を<strong>「シャッター角」</strong>で**表します**。**180° なら、フレーム時間の半分**が**開いています**。
 
@@ -36,7 +36,7 @@ tags:
 
 シャッター角と見た目の関係です。90° は控えめで、スポーティでくっきりした動きになります。180° は標準的で、映画の見た目です。270°〜360° は強く、夢のような流れる動きになります。
 
-## フレームレートの補正
+## Frame-Rate Compensation {#フレームレートの補正}
 
 **速度バッファの速度**は<strong>「前フレームからの移動量」</strong>なので**フレームレートが違うと、同じ動きでも速度が違います**（**30 FPS は 60 FPS の 2 倍の移動量**）。**そのままブラーにすると、低 FPS でブラーが長くなりすぎます**。**実際のカメラは「時間」で決まる**ので**ブラー長 ＝ 速度 ÷ フレーム時間 × シャッター時間**で**一定にする**のが**理想**です。
 
@@ -51,13 +51,13 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
 
 **もう 1 つの考え方**は、<strong>「シャッター角を固定」</strong>（**常にフレーム時間の割合**）です。**どちらが良いかは、ゲームの見せ方**で**決めます**。
 
-## 最大ブラー長
+## Maximum Blur Length {#最大ブラー長}
 
 <strong>極端に速い動き（急旋回・瞬間移動）</strong>で、**ブラーが画面の広い範囲に伸びると、画面が崩れ・酔います**。
 
 極端に速い動き（急旋回・瞬間移動）では、ブラーが画面の広い範囲に伸びて、画面が崩れ、酔います。最大ブラー長は画面の高さの 3〜5 %、最小は 0.5 画素未満をスキップ、タイル サイズは最大ブラー長に合わせます（[Tile Max Velocity](tile-max.md)）。
 
-## 対象の除外
+## Excluding Targets {#対象の除外}
 
 **ブラーを掛けない方が良い物**があります。
 
@@ -69,7 +69,7 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
 | **小さい物体** | **ブラーが見えず、コストだけ** |
 | **カット・瞬間移動の直後** | **速度が壊れている** |
 
-## TAA との関係
+## Relation to TAA {#taa-との関係}
 
 **TAA は速度バッファ（動きのベクトル）で、前フレームの結果を再投影**するので、**モーション ブラーと速度バッファを共有**します。
 
@@ -130,7 +130,7 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
 
 <!-- fig:motion-blur-vs-taa:end -->
 
-## 設定項目の設計
+## Designing the Settings {#設定項目の設計}
 
 | 項目 | 内容 |
 | --- | --- |
@@ -141,7 +141,7 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
 
 **モーション ブラーは、好き嫌いが分かれます**。**デフォルトは控えめ**にして、**ユーザーが調整できる**ようにします。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "低 FPS でブラーが長すぎる、高 FPS で短すぎる"
     **フレーム時間で補正**する（`速度 ÷ dt × シャッター時間`）。
@@ -155,7 +155,7 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
 ??? failure "武器・UI までぼける"
     **ビューモデル・UI を除外**（**マスク・描画順**）。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] 強さ ＝ <strong>シャッター角</strong>（<strong>180° が標準</strong>）。<strong>ブラー長 ＝ 速度 × 角度/360°</strong>
@@ -164,13 +164,13 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
     - [x] <strong>武器・UI・遠景は除外</strong>
     - [x] <strong>TAA と速度バッファを共有</strong>。<strong>ジッターを引く</strong>。<strong>設定で切れるように</strong>
 
-## 参考
+## References {#参考}
 
 - Karis, "High Quality Temporal Supersampling"（SIGGRAPH 2014）
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 - Sousa, "Graphics Gems from CryENGINE 3"（SIGGRAPH 2013）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Motion Blur](index.md)
 - [Blur Pass Implementation](blur-pass.md)

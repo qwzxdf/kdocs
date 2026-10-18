@@ -578,7 +578,7 @@ tags:
 
 <!-- fig:fxaa-edge:end -->
 
-## 考え方
+## The Idea {#考え方}
 
 **FXAA は画像を見て、次の 3 段階**を**行います**。
 
@@ -593,7 +593,7 @@ tags:
 <g stroke="currentColor" stroke-width="2"><line x1="222" y1="101" x2="288" y2="101" marker-end="url(#fx-arrow)"/><line x1="492" y1="101" x2="558" y2="101" marker-end="url(#fx-arrow)"/></g>
 </svg>
 
-## ① 縁の検出
+## ① Edge Detection {#①-縁の検出}
 
 **画素とその上下左右の 5 画素の輝度**を**調べ、最大と最小の差**が**しきい値より小さければ、縁ではない**として**そのまま返します**（**早期終了**）。
 
@@ -627,7 +627,7 @@ float4 FxaaPS(float2 uv) {
 | <strong>`kEdgeThresholdMin`（約 0.0312）</strong> | **暗すぎる所は無視**する下限 |
 | **早期終了** | **縁でない画素（大半）は、ここで終わる → 速い** |
 
-## ② 縁の向きと端の探索
+## ② Edge Direction and Searching Along the Edge {#②-縁の向きと端の探索}
 
 **縁が水平か垂直か**を**判定**し、**縁に沿って両方向へ進み、縁の端**を**探します**。
 
@@ -635,13 +635,13 @@ float4 FxaaPS(float2 uv) {
 
 **縁の端までの距離**から、**画素が縁のどの位置にあるか**が**分かり**、<strong>ぼかす量（サブピクセルのずらし）</strong>を**決めます**。
 
-## ③ 縁と直交方向のぼかし
+## ③ Blurring Perpendicular to the Edge {#③-縁と直交方向のぼかし}
 
 <strong>画素の位置（縁の端に近いか、中央か）</strong>に**応じて**、**縁と直交する方向にサンプル位置をずらして読み**ます。**バイリニア補間が隣の画素と混ぜてくれる**ので、**縁がなめらか**になります。
 
 ぼかしの要点です。サブピクセルのずれは、縁に対する画素の位置から、ずらす量を決めます。ずらした位置を読むだけで、バイリニア補間が隣と混ぜてくれます（サンプル 1 回）。孤立した細い線や点には、別計算のサブピクセル AA で、周りと平均してぼかします（係数で強さを調整できます）。
 
-## 品質プリセット
+## Quality Presets {#品質プリセット}
 
 **FXAA には、品質プリセット**（**サンプル数・端の探索の歩数**が違う）が**あります**。
 
@@ -653,7 +653,7 @@ float4 FxaaPS(float2 uv) {
 
 **実際の実装**（**Timothy Lottes の FXAA 3.11**）は、**数百行の HLSL**です。**公開されているものをそのまま使う**のが**一般的**です。
 
-## 弱点
+## Weaknesses {#弱点}
 
 | 弱点 | 理由 |
 | --- | --- |
@@ -668,7 +668,7 @@ float4 FxaaPS(float2 uv) {
 
 原典は、Timothy Lottes（NVIDIA）の "FXAA" の白書（2009）です。
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -679,7 +679,7 @@ float4 FxaaPS(float2 uv) {
 | **他の方式に置き換える** | **品質重視なら SMIL・TAA**（[SMAA](smaa.md)・[TAA](taa.md)） |
 | **文字をマスクして除外** | **ぼけを避ける** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "UI や文字まで、ぼけてしまう"
     **UI を描く前**に FXAA を掛ける。**UI は別パス**。
@@ -693,7 +693,7 @@ float4 FxaaPS(float2 uv) {
 ??? failure "シーン全体がぼやけて見える"
     **しきい値を上げる**、**サブピクセル AA の係数を下げる**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] FXAA ＝ <strong>最終画像の輝度から縁を見つけ、縁と直交方向にぼかす</strong>。<strong>1 パス</strong>
@@ -702,13 +702,13 @@ float4 FxaaPS(float2 uv) {
     - [x] <strong>LDR（トーンマップ後）で、UI の前</strong>に掛ける
     - [x] <strong>品質重視なら SMAA・TAA</strong>
 
-## 参考
+## References {#参考}
 
 - Lottes, "FXAA"（NVIDIA White Paper, 2009）
 - Lottes, "FXAA 3.11 Source"
 - Jimenez et al., "Filtering Approaches for Real-Time Anti-Aliasing"（SIGGRAPH 2011 Course）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Anti-Aliasing](index.md)
 - [MSAA](msaa.md)

@@ -14,7 +14,7 @@ tags:
     - **影専用の、粗いミップのアルファ**を使うと**軽い**。
     - **ハッシュド アルファ**で**滑らかなフェード**にできる。
 
-## アルファ テストの影（葉・柵）
+## Alpha-Tested Shadows (Leaves, Fences) {#アルファ-テストの影葉柵}
 **葉・柵・金網**などは**テクスチャの透明部分を `clip` で捨てて**、**形**を作っています。**シャドウ マップ**を描くときも、**同じアルファ テスト**をしないと、<strong>影がポリゴンの形（四角）</strong>になってしまいます。
 
 ```hlsl
@@ -33,23 +33,23 @@ void ShadowPS(float2 uv : TEXCOORD0) {
 
 **描画順**を<strong>「不透明（PS なし）→ アルファ テスト（PS あり）」</strong>にすると**効率**が良いです。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "葉が板の影になる"
     **深度パスにも、アルファ テストを入れる**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **影の深度パスにもアルファ テストが必要**
     - [x] **ピクセル シェーダーが増える**ので**コストに注意**
 
-## 参考
+## References {#参考}
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Special Cases](index.md)
 - [Rendering Depth](../shadow-map-basics/render-depth.md)

@@ -14,7 +14,7 @@ tags:
     - **CPU 側にも、高さマップを持つ**。
     - **格子の三角形の分割と、補間を合わせる**。
 
-## 任意の位置の高さを取る
+## Getting Height at Any Position {#任意の位置の高さを取る}
 **キャラクターを地面に立たせる・草を置く・当たり判定**には、**CPU で任意の (x, z) の高さ**が**必要**です。**高さマップの 4 点を、双線形補間**します。
 
 ```cpp
@@ -84,23 +84,23 @@ float SampleHeight(const HeightMap& map, float world_x, float world_z) {
 
 <!-- fig:bilinear-height:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "キャラクターが、地面にめり込む・浮く"
     **描画と同じ補間方法**で**高さを求める**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **4 点を補間して、高さを求める**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Heightmaps and Meshes](index.md)
 - [Chunking](chunks.md)

@@ -16,14 +16,6 @@ tags:
 
 **Jolt Physics**（ジョルト・フィジクス）は、**3D の物理演算（剛体、衝突判定、キャラクターの移動など）を行う C++ ライブラリ**です。オランダのゲーム会社 Guerrilla Games の開発者 Jorrit Rouwé が、**PlayStation 5 の「Horizon Forbidden West」のために作った**エンジンを、オープンソース（MIT ライセンス）として公開したものです。**マルチスレッドで速く**、<strong>同じ入力から同じ結果が出る（決定的）</strong>ことを重視していて、Godot（4.4 以降の選択肢）や Unity 以外の多くの新しいゲームでも採用されています。Bullet や PhysX と同じ種類のライブラリですが、<strong>新しくてモダンな C++</strong>で書かれていて、導入しやすいのが特徴です。
 
-!!! tip "ポイント"
-    - 物理演算は、**`PhysicsSystem`（世界）に、`Body`（物体）を追加して、`Update` で時間を進める**のが基本の流れ。
-    - 物体の形は **`Shape`<strong>（箱、球、カプセル、メッシュ…）、動き方は </strong>`EMotionType`**（`Static`、`Kinematic`、`Dynamic`）で決める。
-    - **レイヤー**（`ObjectLayer` / `BroadPhaseLayer`）で「何と何が衝突するか」を決める。最初に必ず作る必要がある。
-    - 初期化では **メモリ確保・ファクトリ・型の登録**（`RegisterDefaultAllocator`、`Factory`、`RegisterTypes`）が必要。
-    - **ライブラリのビルド設定（プリプロセッサの定義）を、自分のプロジェクトと一致させる**。ずれると原因のわかりにくいクラッシュになる。
-    - 時間は**固定のステップ**（たとえば 1/60 秒）で進める（[ゲームループ](../../engine/game-loop.md)）。
-
 ## ページ一覧
 
 **読む順番**：導入 → 全体像 → 最小の流れ → 各機能。
@@ -44,8 +36,6 @@ tags:
 | [デバッグ描画](debug-renderer.md) | `DebugRenderer` を実装して、衝突の形を画面に出す |
 | [ECS・ゲームとの連携](integration.md) | `BodyID` とエンティティ、位置の同期、イベント（接触リスナー） |
 | [車両・ソフトボディ](vehicles.md) | 車両の物理、ソフトボディ |
-
-
 
 ## 関連ページ
 

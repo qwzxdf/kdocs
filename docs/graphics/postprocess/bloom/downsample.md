@@ -16,7 +16,7 @@ tags:
     - <strong>各段の重み</strong>を決めると<strong>PSF の形</strong>（<strong>すそ野の長さ</strong>）を<strong>調整</strong>できる。
     - <strong>画面サイズの端数</strong>に注意（<strong>奇数サイズで半分にすると、ずれる</strong>）。
 
-## なぜ縮小するのか
+## Why Downscale {#なぜ縮小するのか}
 
 **ぼかしの半径 R（ピクセル）を直接かけると、1 ピクセルあたり約 2R+1 回のタップ**が**要ります**（**分離可能ガウスでも**）。**画像を半分に縮小すれば、同じ半径 R のぼかしが、元の画像では 2R 相当の広さ**になります。
 
@@ -35,11 +35,11 @@ tags:
 
 ぼかしの広さとコストを比べます。元の解像度で半径 64 のガウスをかけると、約 130 タップ（分離しても 2 パス）が必要で、広さは半径 64 です。ミップ 6 段で各段に小さなぼかしをかける方法は、各段で数タップに済み、画素数が急減するので、半径 64 以上の広さまでカバーできます。広いぼかしを、元の解像度で直接かけるのは、割に合いません。
 
-## ダウンサンプルの方法
+## Downsampling Methods {#ダウンサンプルの方法}
 
 **縮小のとき、ただ間引く（点サンプル）と、小さな明るい点が画素の位置次第で「出たり消えたり」して、ちらつきます**。**周りを平均して縮小**する必要があります。
 
-### バイリニア 1 回（2×2 の平均）
+### One Bilinear Tap (2×2 Average) {#バイリニア-1-回22-の平均}
 
 ```hlsl
 float3 DownsampleBilinear(Texture2D src, SamplerState linear_clamp, float2 uv) {
@@ -49,7 +49,7 @@ float3 DownsampleBilinear(Texture2D src, SamplerState linear_clamp, float2 uv) {
 
 **GPU のバイリニア補間が、4 画素の平均**を**1 タップで**与えます。**速いですがちらつきを完全には防げません**。
 
-### 13 タップ（Call of Duty: Advanced Warfare 方式）
+### 13 Taps (Call of Duty: Advanced Warfare Method) {#13-タップcall-of-duty-advanced-warfare-方式}
 
 **中心と周囲 13 点を、重み付きで平均**する方式です。**小さな明るい点のちらつきを、ほぼ消せる**ため、**定番**です。
 
@@ -381,7 +381,7 @@ float3 Downsample13(Texture2D src, SamplerState linear_clamp, float2 uv, float2 
 
 <!-- fig:bloom-mip-chain:end -->
 
-## 段数の決め方
+## Choosing the Number of Levels {#段数の決め方}
 
 | 項目 | 内容 |
 | --- | --- |
@@ -392,7 +392,7 @@ float3 Downsample13(Texture2D src, SamplerState linear_clamp, float2 uv, float2 
 
 **画面の端数**に注意します。**奇数の幅を半分にすると、1 画素ずつずれ**、**光が少し動いて見えます**。**切り上げ（`(w + 1) / 2`）で作り、サンプルの位置も合わせる**と**安定**します。
 
-## アップサンプルして足し合わせる
+## Upsample and Sum {#アップサンプルして足し合わせる}
 
 **小さい方から、順に拡大して、1 段上に足していきます**。
 
@@ -416,13 +416,13 @@ float3 UpsampleTent(Texture2D src, SamplerState linear_clamp, float2 uv, float2 
 
 アップサンプルのコードの要点です。テント フィルタ（3×3）は、中心 4、辺 2、角 1 の重みで、滑らかに拡大できます。加算ブレンドで、1 段上の画像にブレンド（加算）で書き込むと、足し算のパスが不要になります。バイリニアの拡大だけでは、ブロック状のアーティファクトが出るので、テントで滑らかにします。
 
-## 各段の重みで PSF を調整する
+## Tuning the PSF with Per-Level Weights {#各段の重みで-psf-を調整する}
 
 **各段を足すときの重み**を**変える**と、**にじみの形**（**すそ野の長さ**）を**調整**できます。
 
 各段を足すときの重みを変えると、にじみの形（すそ野の長さ）を調整できます。均等なら、標準的なにじみです。小さい段（細かい段）を強くすると、すそ野が短くてくっきりします。大きい段（粗い段）を強くすると、広い「もや」が目立ち、眩しい夢のような絵になります。
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -433,7 +433,7 @@ float3 UpsampleTent(Texture2D src, SamplerState linear_clamp, float2 uv, float2 
 | **解像度を画面の高さで決める** | **段数が画面サイズで変わっても、見た目をそろえる** |
 | **Dual Filter を使う** | **縮小とぼかしを兼ねて、さらに安く**（[Dual Filter](dual-filter.md)） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "縮小を点サンプルにして、小さな明るい点がちらつく"
     **バイリニア（最低）、できれば 13 タップ**で縮小。<strong>さらに[ファイアフライ対策](karis-average.md)</strong>。
@@ -447,7 +447,7 @@ float3 UpsampleTent(Texture2D src, SamplerState linear_clamp, float2 uv, float2 
 ??? failure "アップサンプルをバイリニアだけにして、四角いブロックが見える"
     <strong>テント フィルタ（3×3）</strong>を使う。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] <strong>縮小しながらぼかす</strong>と、<strong>広いぼかしが安い</strong>（<strong>ミップ チェーン</strong>）
@@ -456,13 +456,13 @@ float3 UpsampleTent(Texture2D src, SamplerState linear_clamp, float2 uv, float2 
     - [x] <strong>拡大はテント</strong>、<strong>加算ブレンドで足し合わせる</strong>
     - [x] <strong>各段の重み</strong>で<strong>すそ野の長さ</strong>を調整
 
-## 参考
+## References {#参考}
 
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 - Mittring, "A Bit More Deferred - CryEngine 3"（GDC 2009）
 - Williams, "Pyramidal Parametrics"（SIGGRAPH 1983）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Bloom](index.md)
 - [Threshold](threshold.md)

@@ -14,7 +14,7 @@ tags:
     - **品質設定で、解像度とサンプル数を変える**。
     - **全体で 0.3〜1 ms**（1080p）が**目安**。
 
-## 全体の流れ
+## Overall Flow {#全体の流れ}
 
 これまでの技法は、1 本のパイプラインとして組み合わせて使います。典型的な構成を、順番に説明します。
 
@@ -28,11 +28,11 @@ tags:
 
 <strong>⑤ 適用</strong>。最終的な AO を、間接光（環境光）に掛けます（[Application Mistakes](../artifacts/application-mistakes.md)）。
 
-### 順番について
+### About the Order {#順番について}
 
 時間蓄積とブラーの順番は、実装によって異なります。「空間 → 時間」の構成では、ブラーしたものを履歴に混ぜるので、ノイズが入る前の安定した値が履歴に溜まります。逆に「時間 → 空間」の構成は、時間蓄積で十分に減ったノイズを、最後にブラーで仕上げます。履歴にブラーの結果を混ぜると、にじみが履歴に残ってゴーストが強くなることがあるため、後者を採る実装もあります。どちらが良いかはシーン次第なので、**両方を切り替えて見比べる**のが確実です。
 
-## パラメータの目安
+## Parameter Guidelines {#パラメータの目安}
 
 初期値の目安は、次のとおりです。
 
@@ -74,23 +74,23 @@ tags:
 
 <!-- fig:bilateral-weight:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "段の順序を間違えて、ノイズが残る・にじむ"
     **計算 → 時間 → 空間 → アップサンプル**の順にする。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **半解像度計算 → 時間 → 空間 → アップサンプル**
     - [x] **品質設定でパラメータを切り替える**
 
-## 参考
+## References {#参考}
 
 - Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
 - Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [AO Filtering](index.md)
 - [Temporal Accumulation](temporal.md)

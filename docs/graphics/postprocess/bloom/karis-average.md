@@ -16,7 +16,7 @@ tags:
     - <strong>輝度のクランプ</strong>（上限を決める）も<strong>併用</strong>できる。
     - <strong>TAA</strong> があれば<strong>さらに安定</strong>する。
 
-## ちらつきの原因
+## Cause of Flicker {#ちらつきの原因}
 
 <strong>縮小は「周りの画素を平均して 1 画素にする」</strong>処理です。**ここにとても明るい（例：値 1000）画素が 1 つ混ざる**と、**平均の値がその 1 画素に支配されます**。**画面が少し動くとこの明るい画素がどの縮小画素に混ざるかが変わり**、**ある縮小画素は 1000 ÷ 4 = 250、次のフレームは別の画素に移って 0**——<strong>これが「ぴかぴか」</strong>です。
 
@@ -231,7 +231,7 @@ float3 KarisAverage(float3 a, float3 b, float3 c, float3 d) {
 
 <!-- fig:karis-fireflies:end -->
 
-## 13 タップ ダウンサンプルに組み込む
+## Building It into the 13-Tap Downsample {#13-タップ-ダウンサンプルに組み込む}
 
 **13 タップの縮小**（[ダウンサンプル](downsample.md)）では、**5 つの 2×2 ボックス（中央 1・四隅 4）それぞれに Karis 重みを掛けて平均**します。
 
@@ -262,13 +262,13 @@ float3 Downsample13Karis(Texture2D src, SamplerState linear_clamp, float2 uv, fl
 
 **各グループの Karis 平均を、通常のボックス平均の代わりに使う**だけです。
 
-## 最初の段だけに使う
+## Use It Only on the First Level {#最初の段だけに使う}
 
 **Karis Average は、重みが輝度で変わるので、すべての段に使う**と**広いにじみまで明るい部分が弱くなりすぎます**。**ちらつきの原因は、最初の縮小**（**元の高解像度 → 1/2**）で**極端な値が混ざること**なので、**最初の 1 段だけ**に**使い**、**2 段目以降は普通の平均**にします。
 
 Karis Average は、重みが輝度で変わるので、すべての段に使うと、広いにじみまで明るい部分が弱くなりすぎます。ちらつきの原因は最初の縮小（元の高解像度から 1/2）なので、1 段目だけ Karis Average（13 タップ）を使い、2 段目以降は通常の平均（4 タップのバイリニア）にします。
 
-## 輝度のクランプ
+## Clamping Luminance {#輝度のクランプ}
 
 **もう 1 つの対策**は、<strong>輝度の上限（クランプ）</strong>です。**ブルームに入れる明るさを、たとえば 10 まで**に**切る**と、**極端な値が混ざらず、ちらつきが減ります**。
 
@@ -285,7 +285,7 @@ float3 ClampBloomInput(float3 color, float max_luma) {
 | **クランプ** | **簡単・安い** | **非常に明るい光源が弱くなる**（**太陽が控えめなブルーム**） |
 | **併用** | **安定する** | **調整項目が増える** |
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -295,7 +295,7 @@ float3 ClampBloomInput(float3 color, float max_luma) {
 | **スペキュラ側で抑える** | **ライティングの段階で極端なハイライトを抑える**（**スペキュラ エイリアシングの対策**） |
 | **ブルームの入力を半解像度に** | **最初から 1/2 で作ると、元の高解像度の極端な点が、混ざりにくい** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "ブルームを動かすと、小さな光がぴかぴかする"
     **ファイアフライ**。**最初の縮小に Karis Average**、または**輝度クランプ**。
@@ -309,7 +309,7 @@ float3 ClampBloomInput(float3 color, float max_luma) {
 ??? failure "クランプを強くしすぎて、太陽が光らない"
     **上限を上げる**、または**Karis に切り替える**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] ファイアフライ ＝ <strong>極端に明るい小さな点が、縮小でちらつく</strong>
@@ -318,12 +318,12 @@ float3 ClampBloomInput(float3 color, float max_luma) {
     - [x] <strong>輝度クランプ</strong>も併用できる
     - [x] <strong>TAA</strong> で<strong>さらに安定</strong>
 
-## 参考
+## References {#参考}
 
 - Brian Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013 Course）
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Bloom](index.md)
 - [Downsampling and the Mip Chain](downsample.md)

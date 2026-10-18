@@ -14,7 +14,7 @@ tags:
     - **時間の値が大きくなると、精度が落ちる**ので、**周期でリセット**する。
     - **風向きと強さで、波のパラメータを切り替える**。
 
-## 波の動かし方の工夫
+## Tricks for Animating Waves {#波の動かし方の工夫}
 | 工夫 | 内容 |
 | --- | --- |
 | **距離で波の本数を減らす** | **遠くは細かい波を省略**（**LOD**）。**ちらつきの防止** |
@@ -24,30 +24,30 @@ tags:
 
 <div class="formula">波の速さ c = √( g · λ / (2π) )　（g = 9.8 m/s²、λ = 波長）</div>
 
-### 分散関係の意味
+### Meaning of the Dispersion Relation {#分散関係の意味}
 
 水の波は、波長によって進む速さが違います。長い波（うねり）は速く進み、短い波（さざ波）は遅いです。これを<strong>分散</strong>といいます。深い水では、角周波数 ω と波数 k（= 2π/λ）の関係が `ω = √(g·k)` になります（g は重力加速度 9.8 m/s²）。波長が 100 m の波は、速さ約 12.5 m/s、波長が 1 m の波は約 1.25 m/s です。
 
 この関係を使わずに、すべての波を同じ速さで進ませると、波の形が変わらずに滑っていくだけで、人工的に見えます。分散関係を使えば、長い波が短い波を追い越していくので、波の模様が時間とともに変化し続け、海らしい不規則さが自然に出ます。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "長時間プレイすると、波がカクつく"
     **時間を周期でラップ**させる。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **ノイズで規則性を崩し、遠くは省く**
     - [x] **時間は周期でラップ**
 
-## 参考
+## References {#参考}
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Water Waves](index.md)
 - [Summing Sine Waves](sine-waves.md)

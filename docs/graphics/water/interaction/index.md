@@ -8,13 +8,7 @@ tags:
 
 **物が水に入ると、波紋が広がり、水が流れ、物が浮きます**。**波の高さをシミュレーションし、水面に反映する**ことで、**インタラクティブな水**ができます。このセクションでは、**波動方程式・物の接触の書き込み・高さマップの反映・フローマップ・浮力**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - **波紋 ＝ 高さマップ上の波動方程式**。
-    - **物の接触を、高さマップに書き込む**。
-    - **フローマップで、水の流れを見せる**。
-    - **浮力で、物が浮く・水が反作用する**。
-
-## 波動方程式
+## The Wave Equation {#波動方程式}
 **水面の高さ `h(x, y, t)` は、波動方程式に従います**。
 
 <div class="formula">∂²h/∂t² = c² · ∇²h　（c：波の速さ、∇²：ラプラシアン）</div>
@@ -86,7 +80,7 @@ void CSMain(uint3 id : SV_DispatchThreadID) {
 <text x="402" y="116" style="font-size:12px">物が触れた点</text>
 </svg>
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -95,18 +89,18 @@ void CSMain(uint3 id : SV_DispatchThreadID) {
 | [Flow Maps](flow-map.md) | 水の流れの表現 |
 | [Buoyancy and Reaction](buoyancy.md) | 物が浮く・水を押す |
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **高さマップで波紋を、フローマップで流れを**
 
-## 参考
+## References {#参考}
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Water](../index.md)
 - [Shore Foam](../shore-foam/index.md)

@@ -14,7 +14,7 @@ tags:
     - **影の整合性（ベイクの影とリアルタイムの影）に注意**。
     - **長所：軽い・高品質。短所：静的限定・ベイクの時間**。
 
-## 動的なライトとの関係
+## Relation to Dynamic Lights {#動的なライトとの関係}
 **ライトマップに焼いた光は、固定**です。**時間で動く太陽**（昼夜サイクル）には**対応できません**。
 
 | 対策 | 内容 |
@@ -24,7 +24,7 @@ tags:
 | <strong>影だけ別に（シャドウマスク）</strong> | **静的な影**を**別のチャンネル**に焼く |
 | <strong>動的な GI（プローブ・DDGI・RT）</strong> | **昼夜サイクルが必須**なら、**動的な方式** |
 
-## 長所と短所
+## Pros and Cons {#長所と短所}
 | 長所 | 短所 |
 | --- | --- |
 | **実行時のコストがほぼゼロ** | **静的なものだけ**（動く物・動くライトを反映できない） |
@@ -38,24 +38,24 @@ tags:
 
 実際の現場では、**イテレーションの遅さ**が最大の問題になります。ライトの位置を少し動かすたびに、数十分から数時間のベイクが必要では、アーティストの作業が止まります。最近のエンジンは、GPU ベイクや、低解像度のプレビュー ベイクで、この待ち時間を縮めています。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "ベイク済みのライトが二重に効いて、明るすぎる"
     **ベイク済みのライトは、リアルタイムの計算から外す**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **静的はベイク、動的はリアルタイム**
     - [x] **二重に足さない**
 
-## 参考
+## References {#参考}
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Lightmaps](index.md)
 - [GI の比較](../comparison.md)

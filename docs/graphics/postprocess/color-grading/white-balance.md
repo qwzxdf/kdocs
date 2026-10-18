@@ -83,7 +83,7 @@ tags:
 
 <!-- fig:white-balance:end -->
 
-## 色温度と見た目
+## Color Temperature and Appearance {#色温度と見た目}
 
 **物体を熱すると温度に応じた色で光ります**（**黒体放射**）。<strong>この温度（ケルビン）が「色温度」</strong>で、**光源の色を表す**のに**使われます**。
 
@@ -106,7 +106,7 @@ tags:
 | **正午の日光** | **約 5500〜6500 K**（**ほぼ白**） |
 | **曇り・日陰** | **約 7000〜10000 K**（**青白い**） |
 
-## 白を白に戻す考え方
+## The Idea of Restoring White to White {#白を白に戻す考え方}
 
 **光源が橙（低い色温度）のとき、白い物は橙に映ります**。<strong>その橙を打ち消す（青を足す・橙を減らす）</strong>と、**白が白に戻ります**。**これがホワイト バランスの補正**です。
 
@@ -114,7 +114,7 @@ tags:
 
 <strong>ゲームでは、「補正」というより、画面の色味を作る「演出」</strong>として**使います**。**温度を上げて暖かく・下げて冷たく**調整します。
 
-## 実装（LMS 空間）
+## Implementation (LMS Space) {#実装lms-空間}
 
 **人間の錐体（L・M・S）の反応**を**表す LMS 空間**で、**光源の白点を基準の白に合わせる**のが**標準的**です。
 
@@ -153,13 +153,13 @@ float3 SimpleWhiteBalance(float3 color, float temperature) {
 
 2 つの方式を比べます。LMS 空間（本格）は、錐体の応答に近い空間でゲインを掛けるので精度が高く、行列を使います。RGB ゲイン（簡易）は、RGB の各チャンネルに直接ゲインを掛けるので粗く（明るさが変わります）、1 行で済みます。
 
-## 色合い（Tint）
+## Tint {#色合いtint}
 
 **色温度が「橙〜青」の軸**だとすると**色合いは「緑〜マゼンタ」の軸**です。**蛍光灯の緑かぶり**を**打ち消したり**、**ファンタジーな色味**を**作るのに使います**。
 
 2 つのつまみの軸です。温度（Temperature）は橙と青の軸です。色合い（Tint）は緑とマゼンタの軸です。
 
-## ゲームでの使い方
+## How It Is Used in Games {#ゲームでの使い方}
 
 | 使い方 | 内容 |
 | --- | --- |
@@ -170,7 +170,7 @@ float3 SimpleWhiteBalance(float3 color, float temperature) {
 
 **時間帯の変化**に**合わせて、色温度を補間**すると**自然な移り変わり**になります（[空と大気](../../atmosphere/sky-models/index.md)）。
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -180,7 +180,7 @@ float3 SimpleWhiteBalance(float3 color, float temperature) {
 | **ボリュームで補間** | **場所ごとに温度を変えて、境で滑らかに** |
 | **ライトの色と合わせる** | **光源の色（ライト）と、ホワイト バランスで二重に偏らない** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "ホワイト バランスと、ライトの色の両方を動かして、色かぶりが強すぎる"
     **ライトの色と全体のホワイト バランスの役割を分ける**（**光源は物理的に全体の色味は演出**）。
@@ -194,7 +194,7 @@ float3 SimpleWhiteBalance(float3 color, float temperature) {
 ??? failure "場所の切り替えで、色温度が急に変わる"
     **ボリュームで補間**する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] ホワイト バランス ＝ <strong>光源の色を打ち消して、全体の色味をずらす</strong>
@@ -203,13 +203,13 @@ float3 SimpleWhiteBalance(float3 color, float temperature) {
     - [x] <strong>ゲームでは「演出」</strong>に使う（<strong>時間帯・場所・状態</strong>）
     - [x] <strong>リニア・トーンマップの前</strong>で行う
 
-## 参考
+## References {#参考}
 
 - CIE, "Colorimetry"（色度図・色温度）
 - Selan, "Cinematic Color: From Your Monitor to the Big Screen"（SIGGRAPH 2012）
 - Bruce Lindbloom, "RGB/XYZ Matrices"
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Color Grading](index.md)
 - [Basic Adjustments](basic-adjustments.md)

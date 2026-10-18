@@ -15,13 +15,6 @@ tags:
 
 **Dear ImGui**（ディア・イムグイ）は、ゲームの**デバッグ画面**や**エディタ**を、**とても少ないコードで作れる GUI ライブラリ**です。ボタンもスライダーも、`if (ImGui::Button("Reset")) { ... }` のように**毎フレーム、関数を呼ぶだけ**で出せます。ウィンドウの部品を作って保持する、という普通の GUI の面倒さがありません。この仕組みを <strong>即時モード GUI（Immediate Mode GUI）</strong> と言います。ゲームのパラメータを実行中に変える、オブジェクトの一覧を出す、フレーム時間のグラフを出す、といった用途で、ゲーム業界で広く使われています。ここから、ギズモ（[ImGuizmo](imguizmo.md)）、タイムライン（[ImSequencer](imsequencer.md)）、ノード エディタ（[imgui-node-editor](node-editor.md)）などの拡張ライブラリも広がっています。
 
-!!! tip "ポイント"
-    - <strong>毎フレーム、`ImGui::` の関数を呼んで画面を作る。</strong> 部品を作って保持しない（即時モード）。
-    - 1 フレームは **`NewFrame()` → 好きな ImGui の関数 → `Render()` → 描画** の流れ。
-    - ImGui 本体は**描画そのものをしない**。描画する **バックエンド**（DirectX 11、OpenGL、Vulkan など）と、ウィンドウの**プラットフォーム**（Win32、GLFW、SDL）の組み合わせを選ぶ。
-    - Windows + Visual Studio なら、**Win32 + DirectX 11** の組み合わせが一番簡単。
-    - 同じ名前のウィジェットは**同じもの**として扱われる。複数並べるなら `##id` や `PushID` で区別する。
-
 ## ページ一覧
 
 **読む順番**：導入 → 仕組みと最小のコード → 部品・レイアウト → 見た目 → 応用。
@@ -42,8 +35,6 @@ tags:
 | [ImSequencer](imsequencer.md) | タイムラインの編集 |
 | [imgui-node-editor](node-editor.md) | ノード エディタ |
 | [関数早見表](reference/index.md) | **関数と、出てくる部品の一覧**。見た目のギャラリーと、動きのアニメーション付き |
-
-
 
 ## 関連ページ
 

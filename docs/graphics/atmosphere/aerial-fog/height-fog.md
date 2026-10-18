@@ -217,7 +217,7 @@ tags:
 
 <!-- fig:height-fog-ray:end -->
 
-## 高さフォグ
+## Height Fog {#高さフォグ}
 **谷や低地に霧が溜まる**表現です。**霧の密度が高さに対して指数的に減る**と**仮定します**。
 
 <div class="formula">density(h) = density₀ · exp( −falloff · h )</div>
@@ -254,7 +254,7 @@ float transmittance = exp(-HeightFogOpticalDepth(camera_position, world_position
 
 **雲海・谷の霧・朝霧**の表現に**効果的**です。
 
-### 積分の導出
+### Deriving the Integral {#積分の導出}
 
 なぜ解析解が出るのかを確認します。視線を、カメラから画素までの線分としてパラメータ s（0 から d）で表します。カメラの高さを h₀、画素の高さとの差を Δh とすると、線分上の高さは `h(s) = h₀ + Δh · s / d` です。密度は `density₀ · exp(−falloff · h)` なので、光学的厚さは次の積分になります。
 
@@ -262,30 +262,30 @@ float transmittance = exp(-HeightFogOpticalDepth(camera_position, world_position
 
 指数関数の積分は、指数関数のままなので、閉じた式で書けます。コードの `integral` がこの `(1 − exp(−k Δh)) / (k Δh)` の部分です。Δh が 0 に近いと分母が 0 になりますが、極限は 1 です（水平に近い視線では、高さが変わらず、一定密度の霧と同じです）。これは Wenzel の GDC 2007 の講演 "Real-time Atmospheric Effects in Games Revisited" で広まった、実用的な高さフォグの定式化です。
 
-### 使い方のコツ
+### Usage Tips {#使い方のコツ}
 
 `falloff` は、霧の層の厚みを決めます。たとえば 0.1 なら、高さ 10 m ごとに密度が約 1/e（37 %）に下がります。層の厚みを 20〜50 m にしたければ、falloff を 0.02〜0.05 程度にします。`fog_base_height` を水面の高さに合わせれば、海岸の霞が自然に出ます。複数の層を重ねたり、時間で `fog_base_height` を動かしたりすると、朝霧が晴れていく演出も作れます。
 
 高さフォグの弱点は、<strong>霧が空間に一様に広がる</strong>ことです。特定の谷だけに霧を溜めたい場合や、光線が差し込む様子（ライト シャフト）を出したい場合には、3D ボリュームを使う[ボリューメトリック フォグ](../volumetric-fog/index.md)が必要になります。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "霧が、高さに関係なく一様"
     **高さで密度を減らす**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **高さで密度を減らして、霧をたまらせる**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Aerial Perspective and Fog](index.md)
 - [Volumetric Fog](../volumetric-fog/index.md)

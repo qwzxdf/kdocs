@@ -31,7 +31,7 @@ tags:
 
 <!-- fig:shore-foam-depth:end -->
 
-## 岸辺の泡：深度差
+## Shore Foam: Depth Difference {#岸辺の泡深度差}
 **水面と底の深度の差が小さい所は、水が浅い所**＝**岸辺や水中の物の周り**です。**浅いほど泡が強くなるマスク**を作ります。
 
 ```hlsl
@@ -45,7 +45,7 @@ shore_mask = pow(shore_mask, foam_sharpness);
 
 コードの要点です。`foam_distance` は泡が出る水深の範囲（例：0.5 m）で、これより深いと 0 になります。`pow(..., sharpness)` は端の鋭さで、大きいと岸のすぐそばだけになります。岩・杭・船の周りにも泡の輪ができます（深度差で自動的に出ます）。
 
-### 波打ち際の動き
+### Motion at the Waterline {#波打ち際の動き}
 
 **岸辺の泡は波が寄せては引くように動く**と**自然**です。**水深に時間で揺れる値を足す**と**波打ち際が動きます**。
 
@@ -57,23 +57,23 @@ float shore_mask = 1.0 - saturate(animated_depth / foam_distance);
 
 **波が寄せる位相と引く位相で泡の線が前後します**。**位置（`world_position.x`）で位相をずらす**と**波が一斉に動かず、ばらけます**。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "泡が、岸の形に沿った一定の線になる"
     **ノイズや波で、境界を揺らす**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **深度差が小さい所に、泡**
 
-## 参考
+## References {#参考}
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Shore Foam](index.md)
 - [Soft Particles](../../translucency/blending-sorting/soft-particles.md)

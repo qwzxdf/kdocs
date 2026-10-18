@@ -10,15 +10,7 @@ tags:
 
 このセクションでは、AO を**方式ごとに**扱います。最初に「AO とは何を計算しているのか」を式で整理し（[理論](theory/index.md)）、そのあと画面の深度バッファだけで近似する**スクリーン空間**の方式（SSAO・Alchemy・SAO・HBAO・HBAO+・GTAO）を、**古い方式から順**に**何を改善したのか**を追いながら見ます。
 
-!!! tip "ポイント"
-    - AO ＝ <strong>可視な半球の割合（コサイン重み）</strong>。<strong>式は 1 つ</strong>。方式の違いは<strong>その積分をどう安く近似するか</strong>。
-    - スクリーン空間 AO（SSAO 系）は<strong>深度バッファ（と法線）</strong>から計算。<strong>ライトに依存せず、ジオメトリを増やさない</strong>。
-    - 古い順に<strong>Crytek SSAO → 半球 SSAO → Alchemy → SAO → HBAO → HBAO+ → GTAO</strong>。<strong>精度（コサイン重み・地平線）と速さ（キャッシュ・ミップ）の両面</strong>で進化。
-    - どの方式も<strong>見えない情報を持たない</strong>：<strong>画面外・隠れた物・薄い物</strong>で破綻する。
-    - サンプル数を減らして<strong>ノイズ＋ぼかし（時間方向の再利用）</strong>で補うのが前提。
-    - 画面に頼らない方式：<strong>レイトレ AO・距離場 AO・ボクセル AO</strong>。
-
-## AO を学ぶ順番
+## Order for Learning AO {#ao-を学ぶ順番}
 
 方式が多く、名前も似ているので、迷いやすい分野です。次の順で読むと、それぞれの方式が「前の方式の何を直したのか」が分かり、自然に頭に入ります。
 
@@ -26,7 +18,7 @@ tags:
 
 ここから先は、目的で分かれます。精度を追うなら [HBAO](hbao.md) から [GTAO](gtao.md) へ。速さを追うなら [Alchemy AO](alchemy-ao.md) から [SAO](sao.md)、[HBAO+](hbao-plus.md) へ。どちらの道でも、[AO Filtering](filtering/index.md) のノイズ除去が必須です。ノイズを抑えられなければ、どの方式でも使い物になりません。最後に、画面に頼らない[世界空間の方式](world-space/index.md)と、[方式の比較](comparison.md)で全体を整理します。不具合が出たときは、[AO Artifacts](artifacts/index.md) を症状から引いてください。
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -43,7 +35,7 @@ tags:
 | [方式の比較](comparison.md) | 原理・入力・コスト・弱点の一覧と選び方 |
 | [アーティファクト](artifacts/index.md) | ハロー・画面端・薄い物・自己遮蔽・適用方法の間違い |
 
-## 時間の流れで見る AO
+## AO Through the Flow of Time {#時間の流れで見る-ao}
 
 <div class="anim" data-type="graph" data-label="スクリーン空間 AO の系譜">
 n a Crytek_SSAO 0 0 new
@@ -61,7 +53,7 @@ l e f - 高速化
 l e g - コサイン重みを正しく
 </div>
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [描画](../index.md)
 - [AO Theory](theory/index.md)

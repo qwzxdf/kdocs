@@ -16,7 +16,7 @@ tags:
     - <strong>近似式は本物と同じではない</strong>。<strong>「ACES っぽい」曲線</strong>だと理解して使う。
     - <strong>より良いやり方</strong>：<strong>Hill のフィット（色空間変換つき）</strong>、または<strong>[AgX](agx.md)</strong>。
 
-## ACES とは
+## What ACES Is {#aces-とは}
 
 **ACES** は**撮影機材やデジタル素材の色を、共通の広い色空間（AP0・AP1）にそろえ**、**最後に出力デバイスに合わせて変換**する**仕組み全体**の名前です。
 
@@ -34,7 +34,7 @@ tags:
 
 **ゲームがほしいのは、この中の「RRT + ODT」が作る曲線の形**です。**入力の色空間変換（IDT）は、リニアな sRGB のレンダリング結果をそのまま使う**ので、**省略**します。
 
-## 近似式：Narkowicz
+## Approximation: Narkowicz {#近似式narkowicz}
 
 **Krzysztof Narkowicz** が提案した、**有理関数 1 つ**の**近似**です。**軽くて、ゲームの定番**です。
 
@@ -53,7 +53,7 @@ float3 ACESNarkowicz(float3 x) {
 
 Narkowicz 版のコードの要点です。入力に露出を掛けておく必要があります。この式は、ACES の曲線を、露出済みの値に合わせてフィットしたもので、中間灰 0.18 付近が、おおよそ 0.27 になります。`saturate` で、1 を超えた分を切ります（式はほぼ 1 に漸近しますが、超えることがあります）。R・G・B にチャンネルごとに適用するので、これが色の偏りの原因にもなります。
 
-## 色空間つきのフィット：Stephen Hill
+## Fit with Color Space: Stephen Hill {#色空間つきのフィットstephen-hill}
 
 **もっと本物に近い**のが、**Stephen Hill のフィット**です。**ACES の「色空間の行列変換」も含みます**。
 
@@ -96,7 +96,7 @@ float3 ACESFitted(float3 color) {
 
 原典は、映画業界の標準である Academy Color Encoding System (ACES) で、Narkowicz（2016）と Hill（2017）が、この変換をゲーム向けの軽い式にフィットしました。
 
-## 色が偏る理由
+## Why Colors Shift {#色が偏る理由}
 
 <strong>ACES は、「ハイライトの色が白へ向かう」</strong>ように作られた**フィルム的な曲線**です。**そのため**、次の現象が起きます。
 
@@ -104,7 +104,7 @@ ACES は、ハイライトの色が白へ向かうように作られた、フィ
 
 **ゲームではネオンやエフェクトの鮮やかな色が、意図とずれる**ことがあります。**その場合は、AgX や色補正で対処**します。
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -150,7 +150,7 @@ ACES は、ハイライトの色が白へ向かうように作られた、フィ
 
 <!-- fig:tonemap-aces-curves:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "「ACES を使っている」と言いつつ、近似式だけで色空間変換がない"
     <strong>近似式は「ACES っぽい曲線」</strong>。**本物の色再現が必要なら、Hill のフィットや OpenColorIO**。
@@ -164,7 +164,7 @@ ACES は、ハイライトの色が白へ向かうように作られた、フィ
 ??? failure "ブルームやエフェクトが、紫・黄に偏って見える"
     **ACES の色の偏り**。**エフェクトの色を調整する**、または**AgX を検討**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] ACES ＝ <strong>映画の色管理の標準</strong>。<strong>ゲームはトーンマップの形を借りる</strong>
@@ -173,13 +173,13 @@ ACES は、ハイライトの色が白へ向かうように作られた、フィ
     - [x] <strong>行列の向き（転置）</strong>に注意
     - [x] <strong>色の安定を重視</strong>するなら <strong>AgX</strong>
 
-## 参考
+## References {#参考}
 
 - Narkowicz, "ACES Filmic Tone Mapping Curve"（2016）
 - Hill, "ACES Fitted"（BakingLab, GitHub）
 - Academy of Motion Picture Arts and Sciences, "Academy Color Encoding System"
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Tone Mapping and Exposure](index.md)
 - [Filmic (Hable)](filmic-hable.md)

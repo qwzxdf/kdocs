@@ -16,7 +16,7 @@ tags:
     - <strong>縁検出は輝度（または色・深度）の差</strong>で行う。
     - <strong>SMAA T2x</strong> は<strong>ジッターと時間蓄積を足した版</strong>（<strong>TAA の簡易版</strong>）。
 
-## 3 つのパス
+## Three Passes {#3-つのパス}
 
 <svg class="fig illust" viewBox="0 0 780 200" role="img" aria-label="SMAA の 3 パス">
 <text x="20" y="26" class="fig-title">SMAA：3 つのパス</text>
@@ -35,7 +35,7 @@ tags:
 | **② ブレンドの重み** | **縁テクスチャ・Area・Search** | <strong>重みテクスチャ（`R8G8B8A8`）</strong> |
 | **③ 近傍ブレンド** | **元の画像・重みテクスチャ** | **最終画像** |
 
-## ① 縁の検出
+## ① Edge Detection {#①-縁の検出}
 
 **画素とその左・上の画素の輝度を比べ、差がしきい値以上なら縁**です（<strong>さらに「局所コントラストの適応」</strong>で、**近くにより強い縁があれば、弱い縁を無視**します）。
 
@@ -57,7 +57,7 @@ float2 EdgeDetection(float2 uv) {
 | **局所コントラスト適応** | <strong>「近くにもっと強い縁がある」とき、弱い縁を捨てる</strong>（**テクスチャの細部を縁と誤認しない**） |
 | **深度・色での検出** | **輝度のほか、深度や色（RGB の差）でも検出できる** |
 
-## ② ブレンドの重み
+## ② Blend Weights {#②-ブレンドの重み}
 
 <strong>縁を縁に沿って両方向へたどり、縁の端の形（L 字・Z 字・U 字など）</strong>を**判定**します。<strong>その形と画素の位置から、「この画素のうち、反対側に属する面積の割合（＝ブレンドの重み）」</strong>を**計算**します。
 
@@ -727,7 +727,7 @@ float2 EdgeDetection(float2 uv) {
 
 <!-- fig:smaa-edge-weights:end -->
 
-## ③ 近傍ブレンド
+## ③ Neighborhood Blending {#③-近傍ブレンド}
 
 **重みテクスチャの値に従い、元の画像の隣の画素の色を混ぜます**。**重みが 0 なら、元のまま**です。
 
@@ -752,7 +752,7 @@ float4 NeighborhoodBlending(float2 uv) {
 
 **重みが 0 の画素（大半）は、そのまま返す**ので**縁でない領域は、まったくぼけません**。
 
-## FXAA との違い
+## Difference from FXAA {#fxaa-との違い}
 
 | 項目 | FXAA | SMAA |
 | --- | --- | --- |
@@ -762,11 +762,11 @@ float4 NeighborhoodBlending(float2 uv) {
 | **斜めの縁** | **そこそこ** | **きれい** |
 | **コスト** | **最小** | **FXAA の 2〜3 倍** |
 
-## SMAA T2x（時間方向）
+## SMAA T2x (Temporal) {#smaa-t2x時間方向}
 
 **SMAA に、TAA のようなジッターと時間蓄積**を**足した**のが**SMAA T2x**です。**1 フレームごとに半画素ずらして描き、前のフレームと混ぜる**ことで、**時間的なちらつきも抑えます**（[TAA](taa.md)）。**SMAA 1x（空間のみ）で足りない場合の軽量な代替**です。
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -776,7 +776,7 @@ float4 NeighborhoodBlending(float2 uv) {
 | **品質プリセットを選ぶ** | <strong>Low・Medium・High・Ultra（探索の歩数）</strong> |
 | **ステンシルで縁の画素だけ処理** | **2・3 パス目を縁のある所だけに限定**して速くする |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "Area・Search テクスチャを自作して、縁がおかしい"
     **公開されているテクスチャ・データをそのまま使う**。
@@ -790,7 +790,7 @@ float4 NeighborhoodBlending(float2 uv) {
 ??? failure "テクスチャの細部が、縁と誤検出されて、ぼやける"
     **しきい値を上げる**、**局所コントラスト適応を有効に**、**深度で検出**する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] SMAA ＝ <strong>縁検出 → 縁の形を分類して、面積から重みを計算 → ブレンド</strong>。<strong>3 パス</strong>
@@ -799,13 +799,13 @@ float4 NeighborhoodBlending(float2 uv) {
     - [x] <strong>LDR・UI の前</strong>に掛ける
     - [x] <strong>時間的なちらつきには、SMAA T2x か TAA</strong>
 
-## 参考
+## References {#参考}
 
 - Jimenez et al., "SMAA: Enhanced Subpixel Morphological Antialiasing"（Eurographics 2012）
 - iryoku/smaa（GitHub, 公式実装）
 - Reshetov, "Morphological Antialiasing"（HPG 2009）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Anti-Aliasing](index.md)
 - [FXAA](fxaa.md)

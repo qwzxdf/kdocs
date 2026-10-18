@@ -66,7 +66,7 @@ tags:
 
 <!-- fig:fbm-octaves:end -->
 
-## fBm（フラクショナル ブラウン運動）
+## fBm (Fractional Brownian Motion) {#fbmフラクショナル-ブラウン運動}
 **自然の地形は大きな山、小さな丘、岩、砂粒とどの縮尺でも起伏があります**（**自己相似**）。**ノイズを周波数を上げ、振幅を下げながら足し合わせる**と、**この性質を再現できます**。
 
 <div class="formula">fBm(p) = Σ  gain^i · noise( p · lacunarity^i )　（i = 0 … オクターブ数 − 1）</div>
@@ -102,23 +102,23 @@ float Fbm(float2 p, int octaves, float lacunarity, float gain) {
 
 コードの要点です。`max_amplitude` で割って、値の範囲を揃えます（0〜1 など）。層ごとに位置をずらすと、各層で座標がずれて、格子の揃いが目立ちません。高さの調整として、fBm の結果にカーブ（べき乗など）を掛けて、平地と山の比率を調整します。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "地形が、のっぺりしている"
     **オクターブを増やす**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **周波数を倍・振幅を半分で、重ねる**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Terrain Generation](index.md)
 - [Ridged Noise](ridge.md)

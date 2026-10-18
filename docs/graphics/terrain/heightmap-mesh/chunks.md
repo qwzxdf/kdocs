@@ -14,7 +14,7 @@ tags:
     - **境界の継ぎ目**に注意。
     - **区画の大きさは、64〜256 頂点**が**目安**。
 
-## チャンクに分割する
+## Splitting into Chunks {#チャンクに分割する}
 **広大な地形を 1 枚のメッシュで描く**と、**画面外も全部描いてしまいます**。**チャンク（タイル）に分けて、見える所だけ描きます**。
 
 | 項目 | 内容 |
@@ -281,23 +281,23 @@ struct TerrainChunk {
 
 <!-- fig:chunk-stream:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "区画の境目に、隙間が見える"
     **境界の頂点の高さを揃える**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **区画に分けて、描画・読み込みを効率化**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Heightmaps and Meshes](index.md)
 - [LOD](../lod/index.md)

@@ -9,14 +9,6 @@ tags:
 
 このセクションは、<strong>現代のゲームの描画が、「何が重くて」「どう直してきたか」</strong>を、**段階を追って**、**言葉で**説明します。<strong>「ライティングを、Forward から Deferred に」「ライトをタイルで分ける（Tiled）」「3 次元に分ける（Clustered）」「カリングを、GPU に任せる（GPU Driven）」「三角形の塊（Meshlet）で、細かくカリング」「ビジビリティ バッファ」</strong>など、**名前だけは聞くが何が嬉しいのか分からない**手法を、<strong>目的（何を減らしたいのか）</strong>から、理解することが狙いです。**コードは要点だけ**で**考え方**が中心です。
 
-!!! tip "ポイント"
-    - 描画の最適化は、<strong>「何が足りないのか」を、先に決める</strong>：<strong>CPU の時間・GPU の計算・メモリ帯域・ピクセル数（塗る面積）</strong>。
-    - 手法は<strong>「無駄な仕事を減らす」か「仕事の単位を変えて、まとめる」</strong>のどちらか。
-    - ライティングの流れ：<strong>Forward → Deferred → Tiled → Clustered</strong>。<strong>「物体 × ピクセル × ライト」を、「ピクセル × ライト」に、さらに「ピクセル × 近くのライトだけ」に</strong>減らしていく。
-    - ジオメトリの流れ：<strong>ドロー コールを減らす → カリング → GPU Driven → Meshlet（Mesh Shader）</strong>。<strong>「CPU が 1 つずつ判断」から「GPU がまとめて判断」へ</strong>。
-    - <strong>メモリ帯域</strong>は、近年の<strong>最大の敵</strong>。<strong>計算（ALU）は、安く、メモリアクセスが高い</strong>。
-    - <strong>まず測る</strong>。<strong>ボトルネックでない所を、最適化しても速くならない</strong>。
-
 ## ページ一覧
 
 **読む順番**：しくみと測り方 → ライティング → ジオメトリ → ピクセル・解像度 → 周辺の最適化 → 実践。

@@ -16,7 +16,7 @@ tags:
     - <strong>色付き（暗い赤・黒以外）</strong>のビネットも<strong>演出</strong>に<strong>使える</strong>。
     - <strong>強すぎない</strong>。<strong>周辺のゲーム情報が見づらくなる</strong>。<strong>設定で切れる</strong>。
 
-## 起きる理由
+## Why It Happens {#起きる理由}
 
 **レンズの設計上、光軸（画面の中心）から離れた方向から来る光は、レンズの端で遮られたり、斜めに入る分だけ弱くなったりします**。
 
@@ -31,7 +31,7 @@ tags:
 <rect x="400" y="50" width="300" height="140" fill="#fff7d1" stroke="#94a3b8"/><rect x="400" y="50" width="300" height="140" fill="url(#vg-g)"/><text x="400" y="206" style="font-size:12px">ビネットあり：周辺が暗い</text>
 </svg>
 
-## 基本の式
+## Basic Formula {#基本の式}
 
 ```hlsl
 float Vignette(float2 uv, float intensity, float smoothness, float roundness) {
@@ -1904,7 +1904,7 @@ float3 ApplyVignette(float3 color, float2 uv) {
 
 <!-- fig:vignette-params:end -->
 
-### 物理的な cos⁴
+### Physical cos⁴ {#物理的な-cos⁴}
 
 **画面中心からの距離と視野角から、`cos⁴(θ)` で暗くする**と**自然なビネット**になります。
 
@@ -1923,7 +1923,7 @@ float NaturalVignette(float2 uv, float vertical_fov_radians, float aspect) {
 
 **広角（視野角が大きい）ほど、周辺が暗くなる**ことが**自然**に**再現**されます。
 
-## 形
+## Shape {#形}
 
 ビネットの形は 3 種類です。円形は、`roundness` を画面のアスペクト比にして真円にします。楕円（画面に沿う）は、`roundness` を 1 にして、画面の縦横比に沿った楕円にします。四角寄りは、距離に最大ノルム（`max(|x|, |y|)`）を使い、画面の四隅だけをほんのり暗くします。
 
@@ -1935,7 +1935,7 @@ float BoxVignette(float2 uv, float intensity, float smoothness) {
 }
 ```
 
-## 色付きのビネット
+## Colored Vignette {#色付きのビネット}
 
 **黒だけでなく、色を付ける**と**演出**になります。
 
@@ -1953,7 +1953,7 @@ float3 ColoredVignette(float3 color, float2 uv, float3 vignette_color) {
 }
 ```
 
-## ゲームでの使い方
+## How It Is Used in Games {#ゲームでの使い方}
 
 | 場面 | 使い方 |
 | --- | --- |
@@ -1963,7 +1963,7 @@ float3 ColoredVignette(float3 color, float2 uv, float3 vignette_color) {
 | **狙い・ズーム** | <strong>スコープ中は強いビネット（円）</strong> |
 | **会話・カットシーン** | **視線を中心に集める** |
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -1975,7 +1975,7 @@ float3 ColoredVignette(float3 color, float2 uv, float3 vignette_color) {
 | **他のパスと統合** | **色収差・グレイン・トーンマップと 1 パス** |
 | **オプションで切れる** | **プレイしにくい人のため** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "ビネットが強すぎて、周辺の敵や UI が見えない"
     <strong>控えめに（0.2〜0.3）</strong>、**オプションで調整**。
@@ -1989,7 +1989,7 @@ float3 ColoredVignette(float3 color, float2 uv, float3 vignette_color) {
 ??? failure "UI まで暗くなる"
     **ビネットは UI の前に掛ける**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] ビネット ＝ <strong>画面の周辺ほど暗くする</strong>。<strong>視線を中心へ</strong>
@@ -1998,13 +1998,13 @@ float3 ColoredVignette(float3 color, float2 uv, float3 vignette_color) {
     - [x] <strong>色付き</strong>で<strong>体力・水中・毒</strong>などの<strong>演出</strong>
     - [x] <strong>控えめに</strong>。<strong>UI の前に設定で切れる</strong>
 
-## 参考
+## References {#参考}
 
 - Wikipedia, "Vignetting"
 - Pharr, Jakob, Humphreys, "Physically Based Rendering"（cos⁴ の法則）
 - Unity, "Post-processing: Vignette"
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Lens Effects](index.md)
 - [Chromatic Aberration](chromatic-aberration.md)

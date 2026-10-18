@@ -14,7 +14,7 @@ tags:
     - **高さに応じて、ノイズの種類を変える**。
     - **スケール（高さの最大）を調整**。
 
-## 地形の高さへの変換
+## Converting to Terrain Height {#地形の高さへの変換}
 **ノイズ値をそのまま高さにするのではなく、形を整えます**。
 
 | 工夫 | 内容 |
@@ -73,23 +73,23 @@ tags:
 
 <!-- fig:height-pow-curve:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "どこも似た起伏で、変化が無い"
     **カーブで、平地と山の差を付ける**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **カーブで、高さの分布を整える**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Terrain Generation](index.md)
 - [fBm](fbm.md)

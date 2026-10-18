@@ -14,7 +14,7 @@ tags:
     - **カメラ近くの物の、フェード アウトに便利**。
     - **ハッシュド アルファより、パターンが見える**。
 
-## ディザ透明
+## Dithered Transparency {#ディザ透明}
 **カメラに近づいた物を、半透明にして向こうを見えるようにする**（例：**キャラの前の壁・木**）ときに、**ブレンドではなく、ディザ パターンで捨てる**方法があります。
 
 ```hlsl
@@ -31,7 +31,7 @@ clip(fade_alpha - threshold);
 
 **不透明のまま、深度も書き、ソートも不要**で、**半透明のような見た目**になります（**ゲームのカメラが、壁を透かす**用途で定番）。
 
-### ディザ透明の仕組み
+### How Dithered Transparency Works {#ディザ透明の仕組み}
 
 ディザ透明は、透明度を<strong>画素の点々の密度</strong>で表します。たとえば透明度 50 % なら、画素の半分を捨て、残り半分を不透明に描きます。捨てる画素は、画面上で規則的な模様（ベイヤー行列など）で決めます。ベイヤー行列は、4×4 の画素に 0〜1 のしきい値を割り当てた表で、アルファが各画素のしきい値より大きいときだけ残します。
 
@@ -46,11 +46,11 @@ float threshold = kBayer4x4[(pixel.y % 4) * 4 + (pixel.x % 4)];
 clip(alpha - threshold);
 ```
 
-### 使いどころ：カメラ前の遮蔽物を透かす
+### Use: See Through Obstacles in Front of the Camera {#使いどころカメラ前の遮蔽物を透かす}
 
 最もよく使われるのは、カメラとプレイヤーの間に入った壁や木を、近づくほど透かして消す表現です。距離に応じてアルファを下げ、ディザで抜けば、ソートも深度の問題もなく、不透明のまま（深度を書けるので、影やポストプロセスも正しく動きます）、自然にフェードアウトします。
 
-### TAA と組み合わせる
+### Combining with TAA {#taa-と組み合わせる}
 
 規則的な模様は、そのままだと網目が見えます。TAA を使うなら、フレームごとにしきい値の表をずらし（ベイヤー行列の代わりにブルー ノイズや、フレーム番号で回転した行列を使い）、TAA に平均させると、網目が溶けて、滑らかな半透明に見えます（[Hashed Alpha](hashed-alpha.md) と同じ原理です）。
 
@@ -120,24 +120,24 @@ clip(alpha - threshold);
 
 <!-- fig:dither-alpha:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "ディザの点々が目立つ"
     **TAA を併用**する・**ブルー ノイズ**を使う。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **パターンで間引いて、半透明に見せる**
     - [x] **カメラ近くのフェードに便利**
 
-## 参考
+## References {#参考}
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Alpha Testing](index.md)
 - [Hashed Alpha](hashed-alpha.md)

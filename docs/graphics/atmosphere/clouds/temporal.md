@@ -14,7 +14,7 @@ tags:
     - **低解像度で計算して、アップサンプル**。
     - **動きが速いと、ゴーストに注意**。
 
-## 高速化：時間蓄積
+## Speeding Up: Temporal Accumulation {#高速化時間蓄積}
 **雲のレイマーチは重い**ので、**画面全体を毎フレーム描かず、1/4 の画素だけ描いて、時間をかけて埋めます**。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="雲の時間蓄積">
@@ -44,7 +44,7 @@ tags:
 | **層の距離を使う** | **雲までの距離（深度）を持って、再投影の精度を上げる** |
 | **早期の打ち切り** | **透過率が低ければ打ち切る** |
 
-### 4×4 の更新パターンの仕組み
+### How the 4×4 Update Pattern Works {#44-の更新パターンの仕組み}
 
 Horizon Zero Dawn の方式は、画面を 4×4 画素のブロックに区切り、各ブロックの 16 画素のうち、毎フレーム<strong>1 画素だけ</strong>をレイマーチします。更新する画素の位置は、ブルー ノイズや決まった順列で、フレームごとに変えます。16 フレームで、全画素が一巡します。
 
@@ -131,30 +131,30 @@ Horizon Zero Dawn の方式は、画面を 4×4 画素のブロックに区切�
 
 <!-- fig:cloud-bayer:end -->
 
-### 破綻とその対策
+### Breakdowns and Countermeasures {#破綻とその対策}
 
 この方式の弱点は、動きが速いときです。カメラが急に回転したり、雲が速く動いたりすると、再投影した前フレームの画素が、今のフレームの内容と合わなくなります。対策は、再投影で参照した履歴が信頼できるかを調べることです。たとえば、再投影先が画面外ならそのフレームで強制的に新しく計算する、あるいは、今のフレームの周囲の画素の最小値と最大値の範囲に、履歴を収める（近傍クランプ）などの方法があります。また、新しく計算した画素は、前の履歴と混ぜず、すぐに置き換えるほうが、残像が出にくくなります。
 
 雲の描画を低解像度の別のターゲットに行い、最後に空と合成する構成にしておくと、この更新方式を他のパスから独立させて扱えます。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "カメラを動かすと、雲がちらつく"
     **再投影の精度**を**上げ**、**履歴の拒否**をする。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **一部の画素だけ更新して、重ねる**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Clouds](index.md)
 - [レイマーチ](raymarch.md)

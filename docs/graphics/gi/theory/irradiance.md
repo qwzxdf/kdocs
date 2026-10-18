@@ -14,7 +14,7 @@ tags:
     - **環境マップを事前に畳み込んで、放射照度マップを作る**。
     - **実行時は、法線で 1 回読むだけ**。
 
-## 放射照度：拡散の間接光を畳み込む
+## Irradiance: Convolving Diffuse Indirect Light {#放射照度拡散の間接光を畳み込む}
 
 ランバート面（理想的な拡散面）では、出ていく光の量は視線方向に依存せず、<strong>入ってくる光を余弦で重みづけて足し合わせた量</strong>だけで決まります。この量を放射照度 E と呼びます。
 
@@ -51,40 +51,40 @@ E を π で割って albedo を掛けるのは、エネルギー保存のため
 
 <!-- fig:irradiance-conv:end -->
 
-### なぜ「なめらか」なのか
+### Why It Is "Smooth" {#なぜなめらかなのか}
 
 E は、法線 n だけの関数です（位置 p を固定すれば）。入ってくる光 L_i が、空の青や周りの壁の色のように、方向によって激しく変化していても、それに<strong>余弦のなだらかなカーネルを畳み込む</strong>ので、結果の E(n) は非常になめらかに変わります。法線が 10 度回転しても、E はほとんど変わりません。画像のぼかしと同じで、大きなぼかしの後には細かい情報が残らないのです。
 
 この性質のおかげで、拡散の間接光は<strong>粗い情報で保存できます</strong>。環境マップ（解像度が数百 × 数百のキューブマップ）をそのまま持たなくても、数十個の数値で E(n) をほぼ表せます。
 
-### 事前の畳み込み
+### Pre-Convolution {#事前の畳み込み}
 
 実行時に毎回半球の積分をするのは重いので、あらかじめ積分しておきます。環境マップ（キューブマップ）から、法線ごとの放射照度を計算して、小さなキューブマップ（たとえば 32×32 × 6 面）に保存します。これを<strong>放射照度マップ</strong>と呼びます。実行時は、法線で 1 回読むだけで済みます。
 
 作り方は、放射照度マップの各テクセル（法線 n に対応）について、元の環境マップの全テクセルを余弦重み付きで足し合わせます。ブルート フォースだと重いので、元のキューブマップのミップの高い（小さい）レベルを使ったり、ランダム サンプルで近似したりして作るのが普通です。
 
-### より良いやり方：球面調和関数で持つ
+### Better Approach: Hold It in Spherical Harmonics {#より良いやり方球面調和関数で持つ}
 
 放射照度マップよりもさらに小さく持つ方法が、[球面調和関数（SH）](spherical-harmonics.md)です。Ramamoorthi と Hanrahan（2001）は、拡散の放射照度が、わずか 9 個の SH 係数（3 バンド）で、**平均誤差 1 % 程度**まで表せることを示しました。余弦のカーネルが強い低域通過フィルタとして働くため、高周波の情報がほぼ残らないからです。9 個の係数を、RGB で 27 個の数値として持てば、法線から E を計算できます。ライトプローブは、この考え方で作られています（[Storing SH](../probes/sh-storage.md)）。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "環境マップをそのまま拡散に使って、ざらざらする"
     **放射照度マップ（畳み込み済み）**を使う。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **放射照度 ＝ 法線ごとの、なめらかな光の量**
     - [x] **事前の畳み込みで、実行時は読むだけ**
 
-## 参考
+## References {#参考}
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [GI Theory](index.md)
 - [Spherical Harmonics (SH)](spherical-harmonics.md)

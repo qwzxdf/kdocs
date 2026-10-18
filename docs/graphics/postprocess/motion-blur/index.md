@@ -8,15 +8,7 @@ tags:
 
 **モーション ブラー**は、<strong>動いている物（またはカメラ）が、動いた方向に「にじむ・流れる」</strong>効果です。**実際のカメラは、シャッターが開いている間に物が動くので、その軌跡がぶれて写ります**。**ゲームの 1 フレームは「一瞬」を切り取った絵**なので**動きがカクカクに見えがち**ですが、**ブラーを足すと滑らかでスピード感のある動き**になります。このセクションでは、**速度バッファ・カメラのブラー・オブジェクトのブラー・ぼかしの実装・タイル最大速度・強さと TAA** を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - モーション ブラー ＝ <strong>各画素の動き（速度）に沿って、画像をぼかす</strong>。
-    - <strong>速度バッファ</strong>が<strong>主役</strong>。<strong>画素ごとに前フレームから今フレームへの移動量を持つ</strong>。
-    - <strong>カメラ ブラー</strong>（<strong>カメラの動きで背景全体が流れる</strong>）と<strong>オブジェクト ブラー</strong>（<strong>動く物体</strong>）に分けて考える。
-    - <strong>ぼかしの強さ ＝ シャッター角</strong>（<strong>180° が標準</strong>）。
-    - <strong>前景・背景の重み付け</strong>で<strong>速い物の輪郭が自然</strong>になる。
-    - <strong>タイル最大速度</strong>で<strong>高速化</strong>。<strong>TAA と速度バッファを共有</strong>。
-
-## 動きで見る
+## See It in Motion {#動きで見る}
 
 <!-- fig:motion-blur-shutter:begin -->
 
@@ -330,7 +322,7 @@ tags:
 
 <!-- fig:motion-blur-shutter:end -->
 
-## 全体の流れ
+## Overall Flow {#全体の流れ}
 
 | 手順 | 内容 | ページ |
 | --- | --- | --- |
@@ -341,7 +333,7 @@ tags:
 | **④ 高速化** | **タイルの最大速度で無駄を省く** | [タイル最大速度](tile-max.md) |
 | **⑤ 設計** | **シャッター角・最大長・TAA との関係** | [強さと TAA](strength-taa.md) |
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Post-Processing](../index.md)
 - [被写界深度](../dof/index.md)

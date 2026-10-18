@@ -16,7 +16,7 @@ tags:
     - <strong>影の色</strong>を<strong>暗い灰色でなく、色相を変えた暗い色</strong>に。
     - <strong>スペキュラ</strong>は<strong>しきい値で、くっきりした白いハイライト</strong>。<strong>リム ライト</strong>で<strong>輪郭を明るく</strong>。
 
-## 基本：N·L を段階化
+## Basics: Quantizing N·L {#基本nl-を段階化}
 
 **普通のライティング**は、**`N·L`（法線と光の向きの内積）で、明るさが滑らかに変わります**。**セルではこれをしきい値で数段階に変換**します。
 
@@ -49,7 +49,7 @@ float3 CelShade(float3 albedo, float3 normal, float3 light_dir, float3 light_col
 
 2 段階のセル シェーディングのコードの要点です。`step(0, N·L)` は、光に向いていれば 1、背を向けていれば 0 で、2 段になります。`shadow_color` は影の色で、暗い灰色でなく、色味のある暗い色にします。`lerp` で、影と明部を切り替えます。
 
-## なめらかな境
+## Smooth Boundaries {#なめらかな境}
 
 **`step` は境がジャギーで、動くとちらつきます**。<strong>境を少しだけぼかす（`smoothstep`）</strong>と**きれい**です。
 
@@ -61,7 +61,7 @@ float Toon(float n_dot_l, float threshold, float softness) {
 
 `softness` による見た目です。0.0〜0.01 はほぼシャープで、アニメ調になります。0.05〜0.1 は少し柔らかく、水彩やイラスト調になります。
 
-## ランプ テクスチャ
+## Ramp Texture {#ランプ-テクスチャ}
 
 **`N·L`（0〜1 に直したもの）を座標に色を引く 1D テクスチャ**です。**アーティストが段階の数・境の位置・色の変化を自由に描けます**。
 
@@ -310,7 +310,7 @@ float3 CelShadeRamp(float3 albedo, float3 normal, float3 light_dir) {
 
 <!-- fig:cel-ramp:end -->
 
-## 影の色
+## Shadow Color {#影の色}
 
 **影を単純に「暗くする」と、絵が重く、汚く見えます**。**影は色相を少し変え、彩度を保った、暗い色**に**するとアニメ的**です。
 
@@ -326,7 +326,7 @@ float3 shadow_tint = lerp(float3(1, 1, 1), float3(0.6, 0.55, 0.85), shadow_stren
 float3 shaded = albedo * shadow_tint;
 ```
 
-## スペキュラとリム ライト
+## Specular and Rim Light {#スペキュラとリム-ライト}
 
 スペキュラとリム ライトの要素です。スペキュラは、ハーフ ベクトルとの内積をしきい値で 2 値化して、くっきりした白いハイライトにします。リム ライトは、視線と法線が直角に近い所（輪郭付近）を明るくして、輪郭を際立たせます。
 
@@ -345,7 +345,7 @@ float RimLight(float3 normal, float3 view_dir, float power, float threshold) {
 
 コードの要点です。`step(threshold, pow(...))` で、くっきりしたはっきりした形のハイライトになります。リム ライトは、輪郭が背景から浮き出る効果で、暗い背景で特に効きます。光の向きに沿ったリムだけにすると自然です（`rim × N·L`）。
 
-## 影を受ける
+## Receiving Shadows {#影を受ける}
 
 **シャドウ マップの影**（[Shadows](../../shadows/index.md)）を**セルの陰影に取り込む**には**影の判定値（0〜1）を、`N·L` と掛け合わせます**。
 
@@ -358,7 +358,7 @@ float lit = smoothstep(0.0, 0.02, toon_input);
 
 **シャドウ マップの境が、PCF などで柔らかいと、セルの境がぎざぎざになる**ので、**境の硬さを合わせる**（**影も段階化する**）のがよい**です**。
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -370,7 +370,7 @@ float lit = smoothstep(0.0, 0.02, toon_input);
 | **顔の影を別に調整** | <strong>顔の陰影は法線を補正（顔の影が汚くならない）</strong> |
 | **キャラごとのランプ・影色** | **材質ごとのパラメータ** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "影の境がジャギー・ちらつく"
     **`smoothstep` で、狭い範囲をぼかす**。
@@ -384,7 +384,7 @@ float lit = smoothstep(0.0, 0.02, toon_input);
 ??? failure "顔に、鼻や顎の汚い影が出る"
     **顔の法線を平らにする**（**法線の補正**）。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] セル シェーディング ＝ <strong>ライティングの明るさを、数段階に区切る</strong>
@@ -393,13 +393,13 @@ float lit = smoothstep(0.0, 0.02, toon_input);
     - [x] <strong>影は、色相を変えた暗い色</strong>に
     - [x] <strong>スペキュラ・リム ライトは、くっきり</strong>。<strong>輪郭線と併用</strong>
 
-## 参考
+## References {#参考}
 
 - Xu et al., "Guilty Gear Xrd's Art Style: The X Factor Between 2D and 3D"（GDC 2015）
 - Lake et al., "Stylized Rendering Techniques for Scalable Real-Time 3D Animation"（NPAR 2000）
 - Barla et al., "X-Toon: An Extended Toon Shader"（NPAR 2006）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Outlines and Toon](index.md)
 - [Inverted Hull Outlines](outline-hull.md)

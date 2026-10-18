@@ -16,7 +16,7 @@ tags:
     - <strong>ステップ数が距離に依存せず、数十回に収まる</strong>。
     - 終盤に<strong>厚み（thickness）の検証</strong>が必要。
 
-## なぜ速くなるか
+## Why It Gets Faster {#なぜ速くなるか}
 
 線形マーチは**空いている空間でも、1 ピクセルずつ**進みます。**レイの周りに何も遮る物がない**と分かれば、**一気に進める**はずです。
 
@@ -35,7 +35,7 @@ tags:
 
 線形マーチのステップ数は、距離（ピクセル）に比例し、数百回に及ぶことがあります。Hi-Z は<strong>距離の対数</strong>に比例する数十回で済みます。空いている所は一気に飛べるからです。この違いは、特に遠くまで届く反射（長いレイ）で効いてきます。
 
-## Hi-Z の作り方
+## Building the Hi-Z {#hi-z-の作り方}
 
 **深度バッファから、ミップ チェーン**を作ります。<strong>各ミップの 1 画素は、下のミップの 2×2 画素の「最小」</strong>（最も手前＝**標準 Z では最小値**）です。
 
@@ -59,7 +59,7 @@ float HiZMin(Texture2D<float> src, int2 pixel) {
 }
 ```
 
-## 画面空間でのレイ
+## Rays in Screen Space {#画面空間でのレイ}
 
 Hi-Z の探索は、**ビュー空間ではなく、(画面 x, 画面 y, 深度) の空間**で行います。**透視投影の性質**：**画面上の直線は、ビュー空間の直線**であり、**非線形深度 z/w（NDC の z）も、画面上で線形に変化します**。つまり、**レイは (x, y, z_ndc) の空間で直線**です。
 
@@ -273,7 +273,7 @@ float3 dir_ss = end_ss - origin_ss;
 
 <!-- fig:ssr-hiz-steps:end -->
 
-## 探索アルゴリズム
+## Search Algorithm {#探索アルゴリズム}
 
 **ミップ レベルを上げ下げしながら**、レイを進めます。
 
@@ -330,7 +330,7 @@ bool TraceHiZ(float3 origin, float3 dir, out float3 hit) {
 !!! note "アルゴリズムは、実装で細部が違う"
     境界の扱い（epsilon）、**レイの向きによる、セルの選び方**、**ミップ 0 での終了条件**など、**細部は実装ごとに異なります**。ここは**考え方**を示したものです。**詳しい実装**は参考の資料（Stachowiak の講演、Uludag の章）を参照してください。
 
-## 厚みの検証
+## Validating Thickness {#厚みの検証}
 
 Hi-Z は**レイが最も細かいセルで深度に達した**所を当たりとします。<strong>この点が本当に「その物体の表面」</strong>かを**厚み**で検証します。
 
@@ -344,7 +344,7 @@ bool valid = (ray_z - scene_z) < thickness;
 
 **単純に諦める**と**手前の細い物の後ろにある面が、反射に映らず**、**穴**が開きます。**厚みで弾かれたら、探索を続ける**実装もあります（**手前の物体を飛び越えて**、奥を探す）。
 
-## 精度とアーティファクト
+## Precision and Artifacts {#精度とアーティファクト}
 
 | 問題 | 原因 | 対策 |
 | --- | --- | --- |
@@ -355,7 +355,7 @@ bool valid = (ray_z - scene_z) < thickness;
 | **ミップの精度** | 低い精度の深度 | 32 ビット浮動小数点の深度 |
 | **ステップ数の上限** | 複雑なシーンで収束しない | **上限**を設けて、**当たらなかった**扱い（または近似） |
 
-## Hi-Z SSR の全体像
+## Overview of Hi-Z SSR {#hi-z-ssr-の全体像}
 
 | パス | 内容 |
 | --- | --- |
@@ -365,7 +365,7 @@ bool valid = (ray_z - scene_z) < thickness;
 | **④ 色の取得** | 当たった画素の色（前フレーム・動きベクトル） |
 | **⑤ フェード・合成** | 信頼度でフォールバックと混ぜる（[フォールバック](ssr-fallback.md)） |
 
-## 線形マーチ（DDA）との使い分け
+## Choosing Between It and Linear March (DDA) {#線形マーチddaとの使い分け}
 
 | 状況 | おすすめ |
 | --- | --- |
@@ -376,7 +376,7 @@ bool valid = (ray_z - scene_z) < thickness;
 
 **併用**する実装もあります（**近距離は DDA、遠距離は Hi-Z**）。
 
-## 長所と短所
+## Pros and Cons {#長所と短所}
 
 | 長所 | 短所 |
 | --- | --- |
@@ -390,7 +390,7 @@ bool valid = (ray_z - scene_z) < thickness;
 
 原典は、Uludag の "Hi-Z Screen-Space Cone Tracing"（GPU Pro 5, 2014）で、Hi-Z によるレイ トレースを広めました。その後、Stachowiak らの確率的 SSR の発表が、Hi-Z と確率的サンプリングの組み合わせを標準にしました。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "Hi-Z を、平均でミップ化して、誤った当たりが出る"
     <strong>最小（reverse-Z なら最大）</strong>で作ります。
@@ -407,7 +407,7 @@ bool valid = (ray_z - scene_z) < thickness;
 ??? failure "ビュー空間と画面空間の、座標を混ぜる"
     探索は、<strong>(画面 xy, NDC の z)</strong> で一貫させます。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] Hi-Z SSR ＝ <strong>階層的な最小深度で、空いている領域を一気に飛ばす</strong>レイ探索
@@ -416,12 +416,12 @@ bool valid = (ray_z - scene_z) < thickness;
     - [x] 探索は<strong>(画面 xy, NDC の z) の直線</strong>。<strong>最後に厚みで検証</strong>
     - [x] <strong>ステップ数が、距離に依存しない</strong>。<strong>確率的 SSR の基盤</strong>
 
-## 参考
+## References {#参考}
 
 - Uludag, "Hi-Z Screen-Space Cone-Tracing"（GPU Pro 5, 2014）
 - Stachowiak, Uludag, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015 Advances in Real-Time Rendering、Frostbite）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Reflections](index.md)
 - [SSR の基礎](ssr-basics/index.md)

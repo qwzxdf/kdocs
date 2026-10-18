@@ -14,7 +14,7 @@ tags:
     - **赤の吸収が強い**ので、**深いと青緑**になる。
     - **浅い所は透けて、底の色が見える**。
 
-## 水深による色（Beer の法則）
+## Color by Water Depth (Beer's Law) {#水深による色beer-の法則}
 **光が水の中を距離 d だけ進むと、強さは指数関数的に減ります**（**Beer–Lambert の法則**）。**吸収の強さは色（波長）ごとに違い**、**水は赤を強く吸収し、青をあまり吸収しません**。**そのため、深くなるほど青緑に変わります**。
 
 <div class="formula">透過率 T = exp( −σ · d )　（σ：色ごとの吸収係数、d：水中を通った距離）</div>
@@ -34,7 +34,7 @@ float3 refracted_color = scene_color * transmittance + deep_color * (1.0 - trans
 | **浅い所** | **T ≈ 1**。**底がはっきり見える** |
 | **深い所** | **T ≈ 0**。**水自身の色（深い青）だけ** |
 
-### 水深の求め方
+### Finding Water Depth {#水深の求め方}
 
 **水深**は**不透明な物の深度（水の後ろにある底）と、水面の深度の差**です（[Refraction](../../translucency/refraction/index.md)）。
 
@@ -82,24 +82,24 @@ float water_depth = max(scene_depth - surface_depth, 0.0);
 
 <!-- fig:water-depth-color:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "深い所も浅い所も、同じ水色"
     **水深から、透過率を計算**する。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **深いほど、指数で濃くなる**
     - [x] **赤から先に消える**
 
-## 参考
+## References {#参考}
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Water Shading](index.md)
 - [Thickness and Color](../../translucency/refraction/thickness-color.md)

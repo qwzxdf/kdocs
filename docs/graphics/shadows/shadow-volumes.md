@@ -16,7 +16,7 @@ tags:
     - <strong>ピクセル単位で正確</strong>（解像度・バイアス・エイリアシングなし）。ただし<strong>常にハード エッジ</strong>。
     - 欠点：<strong>フィル レートが重い</strong>。<strong>ジオメトリが複雑だと体積が増える</strong>。<strong>半影・アルファ・植物が苦手</strong>。
 
-## 原理：影の体積
+## Principle: The Shadow Volume {#原理影の体積}
 
 **光源**から見て、<strong>遮蔽物の「シルエット」</strong>（光に面した面と背いた面の境界の辺）を、**光と反対の方向に無限遠まで押し出し**ます。**押し出した面で囲まれた領域**が、**影の体積**です。**この体積に入った点は、光から隠れている**ので**影**です。
 
@@ -30,7 +30,7 @@ tags:
 <text x="260" y="240" style="font-size:12px">シルエットの辺 → 光と反対方向へ延長して、面（側面）を作る</text>
 </svg>
 
-### シルエット辺
+### Silhouette Edges {#シルエット辺}
 
 **三角形が光に面しているか**は、**法線と光への方向の内積**で判定します。**光に面した三角形と背いた三角形が辺を共有している**とき、**その辺はシルエット**です。
 
@@ -111,7 +111,7 @@ tags:
 
 <!-- fig:shadow-volume-stencil:end -->
 
-## ステンシルによる判定
+## Stencil Test {#ステンシルによる判定}
 
 **画素から、カメラへ向かう（またはカメラから画素へ向かう）視線**が**影の体積の面を何回またぐか**を数えます。**体積に入る（前面）と +1、出る（背面）と −1**。**合計が 0 でなければ、体積の内側**＝影です。
 
@@ -160,7 +160,7 @@ desc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
 ステート設定の要点です。`DepthWriteMask = ZERO` で、ボリュームは深度に書かず、ステンシルだけを更新します。`StencilDepthFailOp` は、深度テストが失敗したときの動作（Z-Fail）で、背面で +1、前面で −1 とします。カリングなしの両面描画にして、ステンシルの前面・背面の設定を分ければ、1 パスで描けます。
 
-## 光のパス
+## Light Pass {#光のパス}
 
 **ライトごと**に**ステンシルをクリア**し、**影の体積を描いて**ステンシルを更新します。**ステンシルが 0 の画素だけ**に、**そのライトの寄与**を**加算ブレンド**で加えます。
 
@@ -173,7 +173,7 @@ for each light:
 
 **ライトが多い**と**パスが増え**、**重く**なります。
 
-## 利点と欠点
+## Advantages and Disadvantages {#利点と欠点}
 
 | 利点 | 欠点 |
 | --- | --- |
@@ -184,7 +184,7 @@ for each light:
 | | **シルエットの検出**（CPU または GPU）が必要 |
 | | **ジオメトリが複雑**だと**ボリュームが爆発** |
 
-## 現在の位置づけ
+## Where It Stands Today {#現在の位置づけ}
 
 **シャドウ マップ**が<strong>ハードウェアの進歩（比較サンプラー・PCF・大きなテクスチャ）</strong>で、**品質・柔軟性・コスト**で**上回った**ため、**シャドウ ボリュームは、ほとんど使われなく**なりました。
 
@@ -198,7 +198,7 @@ for each light:
 
 **学ぶ意義**：**ステンシルの活用**（**カウントによる内外判定**）・**シルエットの概念**は、<strong>他の場面（デカール・UI のクリッピング・ボリューム ライト）</strong>にも**応用**できます。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "Z-Pass で、カメラが影の中にあると、影が反転する"
     **Z-Fail** を使います（キャップが必要）。
@@ -212,7 +212,7 @@ for each light:
 ??? failure "全ライト・全物体でボリュームを描いて、重い"
     **影響範囲の外・見えない物**を除外します。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] シャドウ ボリューム ＝ <strong>シルエットを、光と反対へ押し出した「影の体積」</strong>を作り、<strong>ステンシルで内外を判定</strong>
@@ -221,13 +221,13 @@ for each light:
     - [x] <strong>ピクセル単位で正確</strong>だが、<strong>ハード エッジのみ・フィル レートが重い・閉じたメッシュが必要</strong>
     - [x] <strong>現在は、シャドウ マップが主流</strong>。<strong>ステンシルの発想</strong>は応用が効く
 
-## 参考
+## References {#参考}
 
 - Crow, "Shadow Algorithms for Computer Graphics"（SIGGRAPH 1977）
 - Heidmann, "Real Shadows, Real Time"（1991）
 - Kilgard, "Robust Stencil Shadow Volumes"（NVIDIA、2001）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Shadows](index.md)
 - [Shadow Map Basics](shadow-map-basics/index.md)

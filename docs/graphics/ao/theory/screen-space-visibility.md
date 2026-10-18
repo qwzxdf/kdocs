@@ -14,7 +14,7 @@ tags:
     - **限界**：**画面外・薄い物の裏側・遮蔽物の厚み**は**分からない**。
     - **これがハロー・画面端の欠点**につながる（[アーティファクト](../artifacts/index.md)）。
 
-## スクリーン空間では、V をどう求めるか
+## How to Find V in Screen Space {#スクリーン空間ではv-をどう求めるか}
 
 本来の可視性 V(ω) は、点 p から方向 ω にレイを飛ばして、シーンのどこかに当たるかを調べて決まります。レイトレーシングなら、これをそのまま実行できます。しかし、ラスタライズ中心のゲームでは、シーンのジオメトリ全体は GPU のメモリに BVH のような形で用意されておらず、使えるのは<strong>画面に描き終えた深度バッファ</strong>だけです。
 
@@ -26,7 +26,7 @@ tags:
 
 つまり、本来の「方向に遮蔽物があるか」を、「サンプル点の位置が、見えている面の奥にあるか」という深度の比較に置き換えます。1 回の比較は軽いので、画素あたり十数回でも実行できます。
 
-## この代用が持つ誤差
+## Error of This Substitute {#この代用が持つ誤差}
 
 この近似は便利ですが、深度バッファが<strong>画面から見える一番手前の面しか持たない</strong>ことに由来する、避けられない誤差があります。
 
@@ -42,23 +42,23 @@ tags:
 
 具体的な不具合の見え方と対策は、[AO Artifacts](../artifacts/index.md) にまとめています。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "画面端で AO が消える"
     **画面外は情報がない**。**[アーティファクト](../artifacts/index.md)の対策**を参照。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **深度バッファから V を推定**
     - [x] **画面外・厚み・裏側は分からない**
 
-## 参考
+## References {#参考}
 
 - Mittring, "Finding Next Gen: CryEngine 2"（SIGGRAPH 2007）
 - Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（SIGGRAPH 2016）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [AO Theory](index.md)
 - [Approximating the Integral](approximation.md)

@@ -14,7 +14,7 @@ tags:
     - **髪・肌**は**光が透ける（散乱）**ので、**影の色を、少し暖かく・薄く**する。
     - **影の色と濃さ**：**真っ黒でなく、環境光の色を残す**。
 
-## キャラクターの影
+## Character Shadows {#キャラクターの影}
 **キャラクター**は、**画面の主役**で**影の品質**が**目立ち**ます。**専用の工夫**がよく使われます。
 
 | 方法 | 内容 |
@@ -24,11 +24,11 @@ tags:
 | **コンタクト シャドウ** | **足元・細部**の**接触**を**補う**（[コンタクト シャドウ](../contact-shadows.md)） |
 | **フェイク ライト** | **キャラクター用に専用のライト**（**リム ライト・影の向き**を**演出的に調整**） |
 
-### 髪・肌の影
+### Hair and Skin Shadows {#髪肌の影}
 
 **髪**は**細い**ので**シャドウ マップ**では**ほぼ点**になります。**髪専用の深いシャドウ（Deep Opacity Maps）・近似的な、半透明の影**が使われます（[Hair Shadows](../../skin-hair/hair/shadows.md) と [Skin and Hair](../../skin-hair/index.md) を参照）。
 
-## 影の色・濃さの調整
+## Adjusting Shadow Color and Density {#影の色濃さの調整}
 影の色と濃さの調整です。影の色は、真っ黒でなく、環境光の色（空の青）に寄せます。間接光が影の中にも届くからです。影の濃さは、0〜1 の係数で調整し（`lerp(1, shadow, strength)`）、シーンの雰囲気に合わせます。AO と併用すれば、シャドウ マップが覆えない細かい隙間の暗さを補えます（[AO](../../ao/index.md)）。
 
 ```hlsl
@@ -39,23 +39,23 @@ float3 lit = direct + ambient;
 
 **影の中も環境光で少し明るい**ので**影を完全な黒にしない**ことが、**自然な見た目**の基本です。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "顔に、鼻や顎の汚い影が出る"
     **顔の専用バイアス**・**専用ライト**・**影の濃さを下げる**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **キャラクターは、専用の影の設定を持つ**
     - [x] **影の色と濃さを調整**して**真っ黒にしない**
 
-## 参考
+## References {#参考}
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Special Cases](index.md)
 - [Shadow Bias](../bias/index.md)

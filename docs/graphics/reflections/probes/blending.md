@@ -14,7 +14,7 @@ tags:
     - **屋外は、空（スカイボックス）のプローブを基準**にする。
     - **動的更新は、1 フレームに 1 面だけ**など、**分割**して**コストを抑える**。
 
-## 複数のプローブを混ぜる
+## Blending Multiple Probes {#複数のプローブを混ぜる}
 **1 つのプローブ**では、**広いシーンをカバーできません**。**場所ごとに複数のプローブ**を置き、**表面の位置に応じて、混ぜます**。
 
 | 方式 | 内容 |
@@ -43,7 +43,7 @@ float3 BlendedReflection(float3 pos, float3 R, float roughness) {
 
 <strong>クラスタード（セル分割）</strong>で、各セルに影響するプローブを**事前に絞り込む**と、速くなります（[Tiled と Clustered](../../../rendering/light-culling.md)のライトと同じ構造）。
 
-## ベイクと動的更新
+## Baking and Dynamic Updates {#ベイクと動的更新}
 | 方式 | 内容 | 向く場面 |
 | --- | --- | --- |
 | **事前ベイク** | ビルド時に撮影・フィルタ。**実行時のコストなし** | **静的な背景** |
@@ -57,27 +57,27 @@ float3 BlendedReflection(float3 pos, float3 R, float roughness) {
 
 **事前フィルタ**（ミップの作成）は、**ベイクなら事前、動的なら、コンピュート シェーダーで毎回**行います。**コストが大きい**ので**更新頻度を下げる**のが普通です。
 
-## 空（スカイボックス）との関係
+## Relation to the Sky (Skybox) {#空スカイボックスとの関係}
 <strong>屋外の遠い景色（空）</strong>は、**プローブの視差を気にしなくてよい**（無限遠）ので<strong>グローバルなプローブ（スカイ）</strong>として、**全シーンに適用**します。**近くの建物・地面**は**ローカル プローブ**で補います。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "プローブの境界で、反射が急に切り替わる"
     **影響範囲の端でフェード**して、混ぜる。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **複数のプローブを、距離で混ぜる**
     - [x] **ベイク中心、動的は最小限**
 
-## 参考
+## References {#参考}
 
 - McGuire & Mara, "Efficient GPU Screen-Space Ray Tracing"（JCGT 2014）
 - Karis, "Real Shading in Unreal Engine 4"（SIGGRAPH 2013）
 - Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Reflection Probes](index.md)
 - [Parallax Correction](parallax.md)

@@ -14,15 +14,15 @@ tags:
     - **ライトマップ ＝ 静的・世界**。**SSGI ＝ 動的・画面**。**DDGI・Lumen ＝ 動的・世界**。
     - **用途と予算に合わせて選ぶ**。
 
-## 手法を分ける 2 つの軸
+## Two Axes That Separate the Methods {#手法を分ける-2-つの軸}
 
-### 軸 1：いつ計算するか
+### Axis 1: When to Compute {#軸-1いつ計算するか}
 
 1 つ目の軸は、計算の時点です。
 
 <strong>事前（ベイク）</strong>は、オフラインで時間をかけて計算し、結果を保存します。ライトマップとベイク済みプローブが代表です。実行時のコストが小さく、品質も高く出せますが、光が動くと対応できません。<strong>準動的</strong>は、ジオメトリは静的なままで、光だけを動的に更新する方式です。プローブの再ライティングや DDGI が当てはまります。太陽が動く、ライトのオン・オフを切り替えるといった変化に対応できます。<strong>完全動的</strong>は、ジオメトリも光も動いてよい方式で、毎フレーム計算します。SSGI・ボクセル GI・レイトレ GI が当てはまります。自由度が最も高い代わりに、コストが最も大きくなります。
 
-### 軸 2：どこに情報を持つか
+### Axis 2: Where to Hold the Information {#軸-2どこに情報を持つか}
 
 2 つ目の軸は、光の情報の保存先です。
 
@@ -75,24 +75,24 @@ tags:
 
 <!-- fig:gi-color-bleeding:end -->
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "動的な光に、ライトマップを使ってしまう"
     **動的な光には、動的な GI**（プローブ・SSGI など）を選ぶ。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **静的か動的か、画面か世界か**
     - [x] **用途に合わせて選ぶ**
 
-## 参考
+## References {#参考}
 
 - Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
 - Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [GI Theory](index.md)
 - [GI の比較](../comparison.md)

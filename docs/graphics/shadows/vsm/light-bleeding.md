@@ -81,7 +81,7 @@ tags:
 
 <!-- fig:vsm-light-bleeding:end -->
 
-## 弱点：光漏れ（ライト ブリーディング）
+## Weakness: Light Bleeding {#弱点光漏れライト-ブリーディング}
 VSM は<strong>「分散」と「平均」だけ</strong>しか見ません。**遮蔽物が複数あり、深度が違う**場合、**統計だけでは区別できず**、**影の中に光が漏れた**ように見える部分が出ます。
 
 <svg class="fig illust" viewBox="0 0 780 270" role="img" aria-label="VSM の光漏れ">
@@ -96,7 +96,7 @@ VSM は<strong>「分散」と「平均」だけ</strong>しか見ません。**
 <text x="400" y="118" style="font-size:12px">「どちらが、何割か」が、分からない</text>
 </svg>
 
-### 対策
+### Fixes {#対策}
 
 | 対策 | 内容 |
 | --- | --- |
@@ -111,23 +111,23 @@ float ReduceLightBleeding(float p_max, float amount) {
 }
 ```
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "光漏れを消そうとしきい値を上げすぎて、影の縁が硬くなる"
     **しきい値を段階的に調整**。**EVSM・MSM への切り替えも検討**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **光漏れ ＝ VSM の欠点**。**多重の影で、影が薄くなりすぎる**
     - [x] **簡単な対策はしきい値、本格的には EVSM・MSM**
 
-## 参考
+## References {#参考}
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [VSM, ESM and MSM](index.md)
 - [EVSM](evsm.md)

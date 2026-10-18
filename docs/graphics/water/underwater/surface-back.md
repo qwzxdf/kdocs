@@ -38,7 +38,7 @@ tags:
 
 <!-- fig:snell-window:end -->
 
-## 水面の裏側
+## The Back of the Water Surface {#水面の裏側}
 **水中から水面を見上げる**と、**水面は「鏡」と「窓」の両方**になります。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="水中から見上げる窓">
@@ -76,7 +76,7 @@ float3 color = total_internal_reflection
 
 コードの要点です。`refract` の戻り値が 0 なら全反射（屈折できない）です。水中側から見るので、法線を反転します。水面の下側のシェーディングは、水中側の屈折率でフレネルを計算します。
 
-## 水面をまたぐ処理
+## Processing That Crosses the Water Surface {#水面をまたぐ処理}
 **水面ぎりぎりにカメラがあるとき、画面の上半分は水の外、下半分は水の中**になります。
 
 | 工夫 | 内容 |
@@ -86,24 +86,24 @@ float3 color = total_internal_reflection
 | **体積の判定** | **水のボリューム（メッシュ）を描き、前面・裏面で内外を決める** |
 | **遷移** | **水に入る瞬間は、フェードで急変を隠す** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "水に入る瞬間、画面がちらつく"
     **水面のメッシュは、裏面も描き**、**水中の判定をなめらかに**切り替える。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **裏面も描く**
     - [x] **またぐ瞬間の処理に注意**
 
-## 参考
+## References {#参考}
 
 - Tessendorf, "Simulating Ocean Water"（SIGGRAPH Course Notes 2001）
 - Finch, "Effective Water Simulation from Physical Models"（GPU Gems 2004）
 - Vlachos, "Water Flow in Portal 2"（SIGGRAPH 2010）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Underwater Rendering](index.md)
 - [Underwater Fog](fog.md)

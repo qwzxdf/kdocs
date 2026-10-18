@@ -14,7 +14,7 @@ tags:
     - **ハッシュド：TAA が必要。遠くでも安定**。
     - **ディザ：フェード アウト向き**。
 
-## 方式の比較
+## Comparing the Methods {#方式の比較}
 | 方式 | 縁 | 順序 | 深度 | コスト | 用途 |
 | --- | --- | --- | --- | --- | --- |
 | <strong>clip（アルファ テスト）</strong> | ギザギザ | 不要 | 書ける | 低〜中 | 草・葉・金網 |
@@ -23,23 +23,23 @@ tags:
 | **ディザ透明** | 網目状 | 不要 | 書ける | 低 | カメラ前の遮蔽物を透かす |
 | **ブレンド** | 滑らか | **必要** | 書かない | 中〜大 | ガラス・煙 |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "MSAA も TAA も無いのに、A2C やハッシュドを選ぶ"
     **アンチエイリアスの方式に合わせて選ぶ**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **AA の方式に合わせて、選ぶ**
 
-## 参考
+## References {#参考}
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Alpha Testing](index.md)
 - [Anti-Aliasing](../../postprocess/antialiasing/index.md)

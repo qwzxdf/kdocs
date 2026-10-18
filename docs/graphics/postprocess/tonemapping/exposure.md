@@ -133,7 +133,7 @@ tags:
 
 <!-- fig:exposure-ev:end -->
 
-## なぜ露出が要るのか
+## Why Exposure Is Needed {#なぜ露出が要るのか}
 
 **HDR の値は、「光の絶対量」に近い**ので**幅が非常に広い**です。**ディスプレイに映せるのは 0〜1 だけ**なので、**どの範囲を 0〜1 に割り当てるか**を**先に決める**必要があります。**これが露出**です。
 
@@ -150,7 +150,7 @@ tags:
 <text x="40" y="236" style="font-size:13px">屋内から屋外へ出ると、見える範囲を切り替える（＝露出を変える）必要がある。</text>
 </svg>
 
-## EV（露出値）
+## EV (Exposure Value) {#ev露出値}
 
 <div class="formula">露出後の値 = 輝度 × 2^(−EV)　（EV が大きいほど暗くなる）</div>
 
@@ -163,7 +163,7 @@ tags:
 
 <strong>「1 段（ストップ）」で 2 倍・半分</strong>という**単位**は、**人間の明るさの感じ方が対数的**であることに合っています。**EV が等間隔なら、見た目の明るさもほぼ等間隔に変わります**。
 
-## カメラの 3 つの要素
+## The Camera's Three Elements {#カメラの-3-つの要素}
 
 **実際のカメラは、3 つの要素で光の量を決めます**。**どれも「1 段」変えると光が 2 倍・半分**になります。
 
@@ -182,7 +182,7 @@ tags:
 
 **ゲームではこれを 1 つの倍率にまとめます**。**絞りは DOF**（[被写界深度](../dof/index.md)）、**シャッターはモーション ブラー**（[Motion Blur](../motion-blur/index.md)）と**別に決める**ことも多く、**露出としては合計の EV だけ使います**。
 
-## EV100 と物理ベースの露出
+## EV100 and Physically Based Exposure {#ev100-と物理ベースの露出}
 
 **EV100** は、**ISO 100 に換算した EV** です。**絞り・シャッターの組み合わせが違っても、同じ EV100 なら、同じ明るさ**になります。
 
@@ -199,7 +199,7 @@ float3 ApplyExposure(float3 hdr_color, float ev100) {
 
 コードの要点です。`1.2 * exp2(ev100)` は、この輝度のときにちょうど 1（真っ白）になる飽和輝度です。1.2 は、カメラの標準的な係数です。`1.0 / …` で、その逆数を倍率にします（輝度に倍率を掛けると、0〜1 付近になります）。単位を揃えることも大切で、ライトの強さを物理値（ルクス・カンデラ）にすると、露出とセットで明るさが一貫します。
 
-### 典型的な EV100
+### Typical EV100 {#典型的な-ev100}
 
 | 状況 | EV100 |
 | --- | --- |
@@ -224,7 +224,7 @@ float3 ApplyExposure(float3 hdr_color, float ev100) {
 <text x="40" y="60" style="font-size:12px">暗い ←　　　　　　　　　　　　　　　　　　　　　　　　　　　　　→ 明るい（EV100 が大きいほど、倍率は小さい＝暗く映す）</text>
 </svg>
 
-## 露出補正
+## Exposure Compensation {#露出補正}
 
 **自動露出が決めた EV に、手で EV を足す**のが**露出補正**です。**画作りの意図**（**ここは少し暗く、雰囲気を出す**）を**反映**できます。
 
@@ -234,7 +234,7 @@ float finalEV100 = autoEV100 + exposure_compensation;
 
 露出の補正（Exposure Compensation）の使い道です。ステージごとの調整として、ホラー ステージは −1、砂漠は +0.5 のように設定します。イベント演出として、爆発の瞬間だけ −2 してまぶしさを演出します。ユーザー設定として、明るさ（ガンマ）スライダーにも使えます。
 
-## ゲームでの露出の決め方
+## How to Decide Exposure in Games {#ゲームでの露出の決め方}
 
 | 方式 | 内容 | 向く場面 |
 | --- | --- | --- |
@@ -243,7 +243,7 @@ float finalEV100 = autoEV100 + exposure_compensation;
 | **自動露出** | **画面の明るさから毎フレーム決める**（[自動露出](auto-exposure.md)） | **明るさが大きく変わるゲーム** |
 | **自動 ＋ 補正 ＋ 範囲制限** | **自動の結果に補正を足し、最小・最大 EV を決める** | **多くのゲームの標準** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "露出をトーンマップの後に掛けて、明るさが調整できない"
     **露出は HDR のリニア値に、トーンマップの前**に掛ける。
@@ -260,7 +260,7 @@ float finalEV100 = autoEV100 + exposure_compensation;
 ??? failure "絞り・シャッターの値をそのまま倍率に使って、DOF やブレとぶつかる"
     **露出（明るさ）と、DOF・ブレ（見た目の効果）は、別に設計する**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] 露出 ＝ <strong>HDR に掛ける倍率</strong>。<strong>トーンマップの前</strong>に掛ける
@@ -269,13 +269,13 @@ float finalEV100 = autoEV100 + exposure_compensation;
     - [x] <strong>EV100</strong>（ISO 100 基準）と<strong>物理単位のライト</strong>で<strong>明るさが一貫</strong>
     - [x] <strong>露出補正</strong>は<strong>自動露出に足す EV</strong>
 
-## 参考
+## References {#参考}
 
 - Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering"（SIGGRAPH 2014、EV100 と露出）
 - ISO 2720:1974, "General Purpose Photographic Exposure Meters"
 - Hoffman, "Physically Based Shading in Theory and Practice"（SIGGRAPH Course）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Tone Mapping and Exposure](index.md)
 - [Auto Exposure](auto-exposure.md)

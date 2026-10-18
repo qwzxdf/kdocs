@@ -8,13 +8,7 @@ tags:
 
 **地形の基本は、「高さマップ」という白黒の画像で、各位置の高さを持つ**ことです。**これを格子状のメッシュに変換**して、**描画**します。このセクションでは、**高さマップ・格子メッシュ・法線・任意位置の高さ・チャンク分割・編集**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - **高さマップ ＝ 各位置の高さを入れた画像**。
-    - **格子メッシュの頂点を、高さマップで持ち上げる**。
-    - **法線は、高さの差分から求める**。
-    - **大きな地形は、チャンクに分けて扱う**。
-
-## 高さマップ
+## Heightmap {#高さマップ}
 **高さマップ**は**白黒の画像**です。**明るいほど高く、暗いほど低い**。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="高さマップと地形">
@@ -41,7 +35,7 @@ tags:
 
 <div class="formula">高さ(x, z) = height_map(x / world_size, z / world_size) × height_scale + base_height</div>
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -51,18 +45,18 @@ tags:
 | [Chunking](chunks.md) | 大きな地形を分ける |
 | [Editing Heightmaps](editing.md) | ブラシ・保存 |
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **高さマップを、格子メッシュに変換して描く**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Terrain](../index.md)
 - [LOD](../lod/index.md)

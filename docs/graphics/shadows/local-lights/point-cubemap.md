@@ -46,7 +46,7 @@ tags:
 
 <!-- fig:point-cubemap-faces:end -->
 
-## 点光源：キューブ マップ
+## Point Lights: Cube Maps {#点光源キューブ-マップ}
 **点光源**は**あらゆる方向**に光を出します。**6 方向（±X, ±Y, ±Z）に、視野角 90 度の透視投影**で描けば、**全方向を覆えます**（**キューブ シャドウ マップ**）。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="キューブ シャドウ マップ">
@@ -63,7 +63,7 @@ tags:
 
 6 面の描き方は 3 通りです。6 枚のレンダー ターゲットに 6 回描く方法（`Texture2DArray` の 6 スライス、または `TextureCube`）が基本です。ジオメトリ シェーダーで `SV_RenderTargetArrayIndex` を使い、1 回の描画で 6 面に出す方法もありますが、効率は環境によります。ビュー インスタンシングに対応した環境なら、1 回のドローで複数面に出せます。
 
-### サンプル：方向ベクトルで引く
+### Sampling: Look Up by Direction Vector {#サンプル方向ベクトルで引く}
 
 **キューブ マップ**は、**ライトから画素へのベクトル**で、**サンプル**できます。**比較には保存された深度**と<strong>そのベクトルの長さ（または面ごとの深度）</strong>を使います。
 
@@ -79,31 +79,31 @@ float PointShadow(float3 world_pos) {
 
 サンプリングのコードの要点です。`major` は絶対値が最大の成分で、その面のビュー空間の z にあたります。`depth` は、透視投影の深度の式で、射影後の深度（0〜1）に変換します（左手系の `XMMatrixPerspectiveFovLH` と同じです）。`shadow_cube` は比較サンプラー付きの `TextureCube` で、面の境界もハードウェアが補間してくれます。
 
-### 線形な距離を保存する方法
+### Storing Linear Distance {#線形な距離を保存する方法}
 
 **射影後の深度**でなく、**ライトからの線形距離**（`length(v) / light_far`）を、**ピクセル シェーダーで書く**方式もあります。**比較は単純**ですが**ハードウェアの深度テスト・Early-Z を使えない**（深度を自分で書く）ので**描画が遅く**なります。**射影後の深度**が一般的です。
 
-### 面の境界と PCF
+### Face Borders and PCF {#面の境界と-pcf}
 
 **面の境界をまたぐ PCF**は、**隣の面のテクセル**を参照する必要があります。**キューブ マップのハードウェア サンプラー**は、**面をまたぐ補間**を**正しく**処理します。**自前で面ごとの 2D テクスチャ配列**を使うと、**境界で PCF が途切れる**ので、**注意**が必要です。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "キューブ マップの面の継ぎ目に線が出る"
     **PCF のサンプルが面を跨ぐ**ので、**方向ベクトルでサンプル**し、**境界の処理**をする。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **点光源の影 ＝ 6 面のキューブ マップ**
     - [x] **方向ベクトルで引く**。**コストは 6 倍**
 
-## 参考
+## References {#参考}
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Point and Spot Light Shadows](index.md)
 - [Spot Lights](spot-light.md)

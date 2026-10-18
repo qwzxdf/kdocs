@@ -16,7 +16,7 @@ tags:
     - <strong>合成</strong>：<strong>履歴 90 %・現在 10 %</strong> が<strong>目安</strong>。<strong>小さいほど滑らか・ゴースト増</strong>。
     - <strong>必要なもの</strong>：<strong>速度バッファ・前フレームの結果・ジッター</strong>。
 
-## 基本の考え方
+## Basic Idea {#基本の考え方}
 
 **1 フレームでは、1 画素につき 1 つのサンプル**しか取れません。**毎フレーム、サンプルの位置を画素内でずらし**、**過去のフレームの結果を、動きに合わせて持ってきて、平均**します。**静止した物なら、数フレームで複数のサンプルが蓄積**され、**SSAA のような画質**になります。
 
@@ -32,7 +32,7 @@ tags:
 <text x="40" y="228">混ぜるたびに、縁の画素が「何割内側か」に収束 → 滑らかな縁（SSAA と同じ）</text></g>
 </svg>
 
-## ジッター
+## Jitter {#ジッター}
 
 **投影行列にサブピクセルの微小なオフセット**を**加え**、**毎フレーム、画素内の違う位置**を**サンプル**します。**位置の列には低食い違い列の Halton(2, 3) が一般的**です。
 
@@ -70,7 +70,7 @@ jittered_projection.r[2] = DirectX::XMVectorAdd(
 | **`r[2]` に足す** | **行ベクトル規約**で、**x・y の同次座標が、z（w）に比例してずれる** |
 | **8 フレームで一巡** | **周期が短すぎるとパターンが見える**。**8〜16** |
 
-## 履歴の再投影と合成
+## Reprojecting and Compositing the History {#履歴の再投影と合成}
 
 **現フレームの画素について、速度バッファから、前フレームの画面位置を求め、履歴を読み、現在と混ぜます**。
 
@@ -297,13 +297,13 @@ float3 TAA(float2 uv) {
 
 <!-- fig:taa-history-clamp:end -->
 
-## なぜクランプするのか
+## Why Clamp {#なぜクランプするのか}
 
 **履歴は前のフレームの結果**です。<strong>物が動いて、別の物が現れた画素の履歴は、「前に別の物が見えていた色」</strong>で**間違っています**。<strong>そのまま混ぜるとゴースト（残像）</strong>になります。**現在の周囲の色の範囲（最小〜最大）に、履歴を押し込む**と**周囲の色と大きく違う履歴は、範囲内に引き戻され**、**ゴーストが抑えられます**。
 
 クランプの効果を状況別に見ます。静止した物は、履歴が範囲内にあるので、そのまま蓄積されます。新しく現れた物は、履歴（前の物）が範囲外なので、範囲に引き戻されます。急に暗くなった所は、履歴の明るい色が範囲に押し込まれます。
 
-## 流れのまとめ
+## Summary of the Flow {#流れのまとめ}
 
 | 手順 | 内容 |
 | --- | --- |
@@ -318,7 +318,7 @@ float3 TAA(float2 uv) {
 
 原典は、Karis の "High Quality Temporal Supersampling"（SIGGRAPH 2014、Unreal Engine 4）と、Salvi の "An Excursion in Temporal Supersampling"（GDC 2016）です。ジッター・再投影・クランプという基本の構成は、Karis の発表で確立されました。
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -330,7 +330,7 @@ float3 TAA(float2 uv) {
 | <strong>履歴の拒否（リセット）</strong> | **カット・テレポート・露出の急変で履歴を捨てる** |
 | **ジッターを速度から除く** | **静止した物がぶれない**（[速度バッファ](../motion-blur/velocity-buffer.md)） |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "静止した物が、ぼやける・ちらつく"
     **ジッターが速度に混ざっている**。**速度から、ジッターを除く**。
@@ -344,7 +344,7 @@ float3 TAA(float2 uv) {
 ??? failure "カット・瞬間移動の後、前の絵が残る"
     **履歴をリセット**（**ブレンド率を 1 に**）。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] TAA ＝ <strong>毎フレーム サブピクセルずらして描き、履歴と混ぜて、時間方向に蓄積</strong>
@@ -353,13 +353,13 @@ float3 TAA(float2 uv) {
     - [x] <strong>ゴースト対策がクランプ</strong>。<strong>履歴 90 %・現在 10 %</strong>
     - [x] <strong>ジッターを速度から除く</strong>。<strong>カットで履歴をリセット</strong>
 
-## 参考
+## References {#参考}
 
 - Karis, "High Quality Temporal Supersampling"（SIGGRAPH 2014）
 - Salvi, "An Excursion in Temporal Supersampling"（GDC 2016）
 - Yang et al., "A Survey of Temporal Antialiasing Techniques"（Eurographics 2020）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Anti-Aliasing](index.md)
 - [TAA Challenges](taa-challenges.md)

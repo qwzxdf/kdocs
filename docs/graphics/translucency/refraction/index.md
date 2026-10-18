@@ -8,12 +8,6 @@ tags:
 
 **ガラスや水を通して見ると、後ろの景色が曲がって見えます**。**これが屈折**で、**ゲームでは「画面空間の屈折」で、安く近似**します。このセクションでは、**原理・画面空間の屈折・境界の問題・フレネル・厚みと色・色収差・薄いガラスと厚いガラス・実装の全体像**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - **屈折 ＝ 光が、物質の境界で曲がる現象**（スネルの法則）。
-    - **ゲームでは、既に描いた画面を、ずらして読むだけで近似**。
-    - **フレネル（見る角度による反射の強さ）**も**組み合わせる**。
-    - **厚み・色（吸収）・色収差**で、**リアルさが増す**。
-
 <!-- fig:snell-refraction:begin -->
 
 <svg class="fig illust motion" data-fig="snell-refraction" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
@@ -164,7 +158,7 @@ tags:
 
 <!-- fig:snell-refraction:end -->
 
-## 屈折の原理
+## The Principle of Refraction {#屈折の原理}
 **光が、空気からガラスや水へ入るとき、境目で曲がります**。<strong>曲がり方は、媒質ごとの「屈折率」</strong>で決まります。
 
 | 媒質 | 屈折率（n） |
@@ -174,7 +168,7 @@ tags:
 | **ガラス** | **約 1.5** |
 | **ダイヤモンド** | **約 2.4** |
 
-### スネルの法則
+### Snell's Law {#スネルの法則}
 
 <div class="formula">n₁ · sin θ₁ = n₂ · sin θ₂</div>
 
@@ -199,7 +193,7 @@ tags:
 <path d="M 390 175 A 35 35 0 0 0 407 170" fill="none" stroke="#4c8bf5" stroke-width="2"/><text x="406" y="196" style="font-size:12px;fill:#4c8bf5">θ₂（θ₁ より小さい）</text>
 </svg>
 
-### HLSL の refract
+### HLSL refract {#hlsl-の-refract}
 
 **HLSL の組み込み関数 `refract`** が、**屈折した向き**を返します。
 
@@ -216,7 +210,7 @@ float3 refracted = refract(incident, normal, eta);
 
 **視線方向**（カメラから面へ向かう向き）を `incident` に渡します。**反射は `reflect(incident, normal)`** で得られます。
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -228,19 +222,19 @@ float3 refracted = refract(incident, normal, eta);
 | [Thin and Thick Glass](thin-thick.md) | 窓ガラスと、ガラスの塊 |
 | [Implementation Overview and Cost](implementation.md) | 手順・限界 |
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **屈折は、画面をずらして読む近似が基本**
     - [x] **フレネル・厚み・色で、リアルになる**
 
-## 参考
+## References {#参考}
 
 - McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
 - Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
 - Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Translucency](../index.md)
 - [Water Shading](../../water/shading/index.md)

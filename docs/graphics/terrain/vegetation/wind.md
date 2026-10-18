@@ -52,7 +52,7 @@ tags:
 
 <!-- fig:grass-wind:end -->
 
-## 風
+## Wind {#風}
 **風で揺れる草・木は画面に動きと生気**を**与えます**。**頂点シェーダーで頂点をずらす**のが**基本**です。
 
 <svg class="fig illust motion" data-fig="grass-wind" viewBox="0 0 780 200" role="img" aria-label="風で揺れる草">
@@ -85,23 +85,23 @@ float3 ApplyWind(float3 world_position, float height_t, float2 wind_direction, f
 
 **頂点カラーに揺れの強さ（幹 0・先端 1）を焼いておく**と**美術側で調整**できます。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "すべての草が、同じ動きで揺れる"
     **位置ごとに位相をずらす**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **頂点を揺らす。根元は固定**
 
-## 参考
+## References {#参考}
 
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
 - Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
 - Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Vegetation](index.md)
 - [Grass Shape](grass-shape.md)

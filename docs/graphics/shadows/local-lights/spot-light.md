@@ -14,7 +14,7 @@ tags:
     - **比較の深度は、距離に対して非線形**。**線形深度で保存**すると**扱いやすい**。
     - **近い面・遠い面**を**ライトの範囲**に**合わせる**。
 
-## スポットライト
+## Spot Lights {#スポットライト}
 **スポットライト**の光は、**位置・向き・円錐の角度**で決まります。**円錐の外には光が届かない**ので**円錐を覆う透視投影**の**シャドウ マップ 1 枚**で済みます。
 
 スポットライトのシャドウ マップの設定です。ビュー行列は、ライトの位置と向きから作ります（`XMMatrixLookToLH`）。射影行列は、視野角を円錐の全角、アスペクト比を 1 にして、近遠はライトの範囲にします。シャドウ マップは正方形の 1 枚です。
@@ -28,23 +28,23 @@ XMMATRIX proj = XMMatrixPerspectiveFovLH(outer_cone_angle * 2.0f, 1.0f, near_z, 
 
 **近クリップ面**を**小さくしすぎない**ことが大切です。**近すぎる**と**深度の精度**が**遠くで足りなく**なります（透視投影の深度は、近くに集中）。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "円錐の縁で、影が切れる"
     **視野角に少し余裕**を持たせる。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **スポットの影 ＝ 透視投影 1 枚**
     - [x] **視野角・近い面・遠い面を、ライトの範囲に合わせる**
 
-## 参考
+## References {#参考}
 
 - Eisemann et al., "Real-Time Shadows"（CRC Press 2011）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Point and Spot Light Shadows](index.md)
 - [Point Lights: Cube Maps](point-cubemap.md)

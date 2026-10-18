@@ -8,13 +8,7 @@ tags:
 
 **ゴッド レイ（光の筋）は、霧や埃の中を、光が通る時に見える、筋状の光**です。**手法には、画面空間のぼかし・シャドウ マップのレイマーチ・ボリューム・メッシュなど、いくつかあります**。このセクションでは、**見える理由・画面空間の放射ぼかし・シャドウ マップでレイマーチ・ボリューム・メッシュで作る・水中・見た目の調整**を、**1 つずつ別のページ**で説明します。
 
-!!! tip "ポイント"
-    - **光の筋 ＝ 霧の中で、光が散乱して見える**。
-    - **画面空間のぼかしは、安いが、制約が多い**。
-    - **シャドウ マップのレイマーチは、正確**。
-    - **メッシュの光の柱は、最も軽い**。
-
-## 光の筋が見える理由
+## Why Light Shafts Are Visible {#光の筋が見える理由}
 **光は空気中を通っても何もなければ見えません**。**粒（ほこり・水蒸気）があると光が散らされて、視線の方向に光が飛んできます**。**途中に影を作る物があると、影の部分では光が通らないので、光る部分と暗い部分が筋になります**。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="光の筋の原理">
@@ -29,7 +23,7 @@ tags:
 <text x="360" y="220" style="font-size:12px">暗い帯：遮られた所（光が通らない）　明るい帯：光が通る所</text>
 </svg>
 
-## 方式の選び方
+## Choosing a Method {#方式の選び方}
 
 光の筋の方式は、品質と軽さ、そして使える条件で選びます。
 
@@ -43,7 +37,7 @@ tags:
 
 実際のゲームでは、これらを組み合わせます。たとえば、広い屋外はボリューメトリック フォグ、窓の光はメッシュ、太陽に向かうときの強い光のにじみは放射ぼかし、というように、場面ごとに最も効率のよい方式を使い分けます。
 
-## ページ一覧
+## Page List {#ページ一覧}
 
 | ページ | 内容 |
 | --- | --- |
@@ -54,19 +48,19 @@ tags:
 | [Underwater God Rays](underwater.md) | 水中での表現 |
 | [Tuning the Look](tuning.md) | 強さ・色・ノイズ |
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **散乱を、霧の中で可視化したもの**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [大気](../index.md)
 - [Volumetric Fog](../volumetric-fog/index.md)

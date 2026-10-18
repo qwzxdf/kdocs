@@ -71,7 +71,7 @@ tags:
 
 <!-- fig:normal-offset:end -->
 
-## 対策 3：法線オフセット
+## Fix 3: Normal Offset {#対策-3法線オフセット}
 **バイアスを深度ではなく、位置**で与えます。**サンプルする点を法線方向に少しずらして**から、光の座標に変換します。
 
 <div class="formula">P′ = P + N · offset · texel_size · (1 − N·L)</div>
@@ -92,23 +92,23 @@ float4 light_clip = mul(float4(shadow_pos, 1.0), light_view_projection);
 
 **スロープ スケール＋法線オフセット**を併用するのが、**実用上の定番**です。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "オフセットが大きすぎて、細い物の影が欠ける"
     **ずらす量を、テクセルの大きさ程度に抑える**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **法線方向にずらして比べる**
     - [x] **テクセル サイズに比例**。**現在の標準**
 
-## 参考
+## References {#参考}
 
 - Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Shadow Bias](index.md)
 - [Slope-Scale Bias](slope-scale-bias.md)

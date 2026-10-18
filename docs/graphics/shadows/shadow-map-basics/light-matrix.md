@@ -14,7 +14,7 @@ tags:
     - **点光源**：**90° の透視投影を 6 面**（**キューブ マップ**）。
     - **範囲（箱・近い面・遠い面）を、狭く決める**と**解像度が無駄にならない**。
 
-## ① 光の行列
+## ① The Light Matrix {#①-光の行列}
 <!-- fig:light-frustum:begin -->
 
 <svg class="fig illust motion" data-fig="light-frustum" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
@@ -38,7 +38,7 @@ tags:
 
 <!-- fig:light-frustum:end -->
 
-### 平行光（太陽）：正射影
+### Directional Light (Sun): Orthographic Projection {#平行光太陽正射影}
 
 平行光は**光が全て平行**なので**正射影**（遠近感なし）で撮ります。**光の向き**を前方向にして、**シーンの範囲（影を落とす物・受ける物）を覆う箱**を決めます。
 
@@ -58,31 +58,31 @@ Matrix LightViewProjection(const Vector3& light_dir, const Vector3& center, floa
 | **近・遠クリップ** | 影を落とす物体が範囲内に入るように |
 | **上方向 `Up`** | 光の向きと平行だと破綻する（真上からの光）。別の軸を使う |
 
-### スポットライト：透視投影
+### Spot Light: Perspective Projection {#スポットライト透視投影}
 
 **スポットライト**は、**一点から円錐状**に光が出るので、**透視投影**で撮ります。**視野角**はスポットの**円錐の角度**に合わせます。
 
-### 点光源：キューブマップ
+### Point Light: Cube Map {#点光源キューブマップ}
 
 **全方向**に光が出るので<strong>6 方向（キューブマップ）</strong>で撮ります（[Point and Spot Light Shadows](../local-lights/index.md)）。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "太陽の範囲を、シーン全体にして、影がぼやける"
     **カメラの視錐台を覆う最小の箱**にする（[カスケード](../cascaded.md)）。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **光の種類で射影が違う**（正射影・透視・キューブ）
     - [x] **範囲は狭く、必要な所だけ**
 
-## 参考
+## References {#参考}
 
 - Williams, "Casting Curved Shadows on Curved Surfaces"（SIGGRAPH 1978）
 - Microsoft, "Common Techniques to Improve Shadow Depth Maps"（Microsoft Learn）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Shadow Map Basics](index.md)
 - [Rendering Depth](render-depth.md)

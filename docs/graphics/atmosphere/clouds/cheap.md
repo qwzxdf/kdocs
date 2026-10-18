@@ -14,7 +14,7 @@ tags:
     - **ビルボードの雲**を配置する。
     - **モバイルでは、これが標準**。
 
-## 簡易な代替
+## Simple Alternatives {#簡易な代替}
 **重いレイマーチが使えない場面**の**代替**です。
 
 | 方式 | 内容 |
@@ -25,7 +25,7 @@ tags:
 | <strong>ボリューム テクスチャ（事前焼き）</strong> | **雲の塊を 3D テクスチャに焼き、ビルボードで描く** |
 | <strong>雲の板（インポスター）</strong> | **遠景の雲を板で置く** |
 
-### どれを選ぶか
+### Which One to Choose {#どれを選ぶか}
 
 簡易な方式の選択は、「雲をどれだけ近くから見るか」で決まります。地上の視点から、ほぼ動かない遠くの空として見るだけなら、スカイボックスか 2D のスクロールで十分です。2D の雲に<strong>視差</strong>（視点移動で見え方が変わる効果）を足したければ、雲の高さのテクスチャをもとに、視線の方向に UV をずらす「パララックス マッピング」を雲のドームに適用します。雲の層を 2〜3 枚、高さを変えて重ねれば、奥行きが生まれます。
 
@@ -33,24 +33,24 @@ tags:
 
 モバイルでは、スカイボックスと 2D の雲が標準的な選択です。これに時刻に応じた色の変化（ライティングの色を空の色に合わせる）を足せば、静的な絵でも、昼から夕方への移り変わりを違和感なく表現できます。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "簡易な雲が、動かず、不自然"
     **テクスチャを、ゆっくりスクロール**させる。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **重い環境では、テクスチャとビルボードで代替**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Clouds](index.md)
 - [Gradient Sky](../sky-models/gradient.md)

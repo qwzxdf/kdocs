@@ -1,0 +1,380 @@
+0	Related Pages
+1	Key Takeaways
+2	References
+3	Common Mistakes
+4	Page List
+5	Better Approaches
+6	Pros and Cons
+7	Steps
+8	Overall Flow
+9	Principle
+10	Cost
+11	Where to Use It
+12	How It Works
+13	The Idea
+14	Weaknesses
+15	Symptoms
+16	Cost and Tricks
+17	See It in Motion
+18	Designing the Combination
+19	Formula
+20	How to Choose
+21	The Idea
+22	Characteristics
+23	Denoising
+24	Comparing the Methods
+25	Next Method
+26	Overall Comparison Table
+27	Parameters
+28	Halos
+29	Cause
+30	Troubleshooting Steps
+31	Common Misconceptions
+32	Cone Tracing
+33	Why It Is Needed
+34	Which One to Choose
+35	Phase Function
+36	Choosing a Method
+37	Implementation Approach
+38	Flow of This Section
+39	② Light Injection
+40	Comparing All Methods
+41	Example Combinations
+42	Debugging Tips
+43	Benefits and Limits
+44	Screen-Space Limits
+45	Diffuse and Specular
+46	Where It Stands Today
+47	Which to Use When
+48	Limiting Updates
+49	What Gets Updated
+50	Adaptive Placement
+51	Order of Choosing
+52	Properties
+53	① Edge Detection
+54	Settings in DX11
+55	Basic Idea
+56	Order of Tuning
+57	How It Is Used in Games
+58	Why It Happens
+59	Basic Implementation
+60	Shadow Color
+61	Hybrid
+62	Visible Normal Sampling (VNDF)
+63	Why Reproject by the "Virtual Position"
+64	History
+65	Why March the Ray in Screen Space
+66	Organizing the Problem
+67	Fixes
+68	Choosing a Technique
+69	Why It Is Hard
+70	Overall Structure
+71	Fresnel
+72	How to Read the Icons
+73	Section Map
+74	How to Read
+75	Differences from Hemisphere SSAO
+76	Meaning of Each Term
+77	Role of the Bias β
+78	Sample Placement: A Spiral on the Screen
+79	Post-Processing
+80	Classification by Principle
+81	Visual Differences
+82	Cost Estimates
+83	Alternatives to Using AO
+84	Implementation Skeleton
+85	Implementation Checklist
+86	Improvements over HBAO
+87	Theory: Integration over Slices
+88	Formula for the Inner Integral
+89	Clamping the Horizon
+90	Searching for the Horizon
+91	Computing One Slice
+92	Slice Count and Noise
+93	Handling Thin Objects
+94	Multi-Bounce: Approximating Interreflection
+95	Bent Normals and Specular Occlusion
+96	Bent Normals
+97	Specular Occlusion
+98	Where GTAO Fits
+99	What Was Slow
+100	Improvement 1: Interleaving Instead of Random
+101	Improvement 2: Always Full Resolution
+102	Improvement 3: Simplifying the AO Formula
+103	Usage Overview (Library)
+104	Relation to HBAO and SAO
+105	If You Implement It Yourself
+106	The Idea: Search for the Horizon
+107	Tangent Angle t
+108	Updating the Elevation Angle
+109	Randomization
+110	Comparison with Point-Counting Methods
+111	Order for Learning AO
+112	AO Through the Flow of Time
+113	Problem: Why a Large Radius Is Slow
+114	Solution: Depth Mip Maps
+115	Which Mip to Read
+116	Building the Mips: Do Not Average
+117	Reconstructing Position and Normal from Depth
+118	Processing Flow
+119	Performance Characteristics
+120	Comparison with Alchemy AO
+121	① Reconstruct Position from Depth
+122	②③ Generating the Samples
+123	④–⑦ Test and Code
+124	Problems with This Method
+125	1. Flat Surfaces Turn Gray
+126	2. No Normals, So Corner Orientation Is Unclear
+127	3. Halos
+128	4. Noise and Banding
+129	Historical Position
+130	Changes from the Crytek Method
+131	Generating Hemisphere Samples
+132	Sample Distribution and Cosine Weighting
+133	Building a Random TBN
+134	Test
+135	Meaning of the Range Check
+136	Choosing the Bias
+137	Blur
+138	Reconstructing Normals from Depth
+139	Using Screen-Space Derivatives
+140	Choosing Neighboring Pixels
+141	Weaknesses of This Method
+142	On to the Next Method
+143	Misapplication (Visual Defects)
+144	Sunlit Areas Get Dark Too
+145	Everything Looks Dull
+146	Shadows Crush (Gamma)
+147	Specular Corners Glare
+148	Sky, Transparency, UI
+149	Mixing Up Depth and Coordinates
+150	Screen Edges
+151	Cause: Nobody Knows What Is Off-Screen
+152	Fix 1: Treat the Outside as "No Occlusion"
+153	Fix 2: Fade at the Edges
+154	Better Approach: Guard Band
+155	Thin Objects
+156	Cause: Depth Knows Nothing About Thickness
+157	Fix 1: Assume a Thickness
+158	Fix 2: Reduce the Radius
+159	Better Approach: Combine with a World-Space Method
+160	Why Distance in Depth Alone Causes Misjudgment
+161	Range Check: Weakening Distant Occluders
+162	How Each Method Weakens by Distance
+163	Remaining Problems and Better Approaches
+164	List by Symptom
+165	Debugging Process
+166	Noise and Banding
+167	Grainy Noise
+168	Regular Stripes (Banding)
+169	Flicker and Afterimages
+170	Flicker Even When Still
+171	Flicker When the Camera Moves
+172	Afterimages on Moving Objects (Ghosting)
+173	Self-Occlusion (Stripes and Spots on Flat Surfaces)
+174	Cause: Depth Quantization and Surface Slope
+175	Fix 1: Allow a Margin with Bias
+176	Fix 2: Use a Hemisphere Along the Normal
+177	Fix 3: Ensure Precision
+178	Better Approach: Bias Based on Surface Slope
+179	Spatial Filter: Bilateral Blur
+180	The Problem with a Plain Blur
+181	Bilateral: Blend Only "Nearby" Pixels
+182	Making It Separable (Horizontal, Then Vertical)
+183	A Box Blur Matched to 4×4 Noise
+184	Why Noise Appears
+185	Two Ways to Remove It
+186	Why "Noise Quality" Matters
+187	White Noise
+188	4×4 Tiled Texture
+189	Blue Noise
+190	Bayer Matrix (Dither Matrix)
+191	Shifting Over Time Too
+192	About the Order
+193	Parameter Guidelines
+194	What Temporal Accumulation Is
+195	① Reprojection
+196	② Reading the History
+197	③ Validating the History
+198	④ Blending
+199	α Depending on History Length
+200	Ghosting and Countermeasures
+201	Variance Clamping
+202	Upsampling: Returning from Low Resolution
+203	Why Simple Enlargement Is Not Enough
+204	Joint Bilateral Upsampling
+205	Implementation Notes
+206	Better Approach: Use Normals Too
+207	Three Ways to Approximate the Integral
+208	① Monte Carlo
+209	② Horizon Integration
+210	③ Formula Approximation
+211	What Separates the Methods
+212	Starting Point: The Rendering Equation
+213	When the Surface Is Purely Diffuse
+214	Assuming a Uniformly Bright Sky
+215	Rewriting in Spherical Coordinates
+216	How to Read This Section
+217	Obscurance: Adding Distance Falloff
+218	Choosing the Radius
+219	Choosing the Falloff Function
+220	Optical Meaning
+221	How to Find V in Screen Space
+222	Error of This Substitute
+223	How to Use AO
+224	What to Multiply: Only the Indirect Diffuse Term
+225	Specular Ambient Light
+226	Using It with Baked AO
+227	Multiply in Linear Space
+228	Adjusting the Strength
+229	Comparing the Three Methods
+230	Choosing Between This and Screen Space
+231	Distance Field AO (DFAO)
+232	Where Distance Fields Come From
+233	Cone Layout and Steps
+234	Shared Ideas
+235	Ray-Traced AO (RTAO)
+236	Generating Ray Directions
+237	Thinking About Cost
+238	Better Approach: Combine with Screen Space
+239	Voxel AO (VXAO)
+240	Voxelization
+241	Tricks for Higher Accuracy
+242	Designing Sky and Atmosphere
+243	Matching the Fog Color to the Sky
+244	Thinking About Color
+245	Relation to Exposure
+246	The Fog Equation
+247	Getting Distance from Depth
+248	Height Fog
+249	Deriving the Integral
+250	Usage Tips
+251	The Physics of Aerial Perspective
+252	Physically Based Aerial Perspective
+253	Building the Aerial Perspective LUT
+254	Glow Toward the Sun
+255	Formulation with the Phase Function
+256	Where to Apply It
+257	Night and Enclosed Spaces
+258	Design Notes
+259	Simple Alternatives
+260	Density Model
+261	Stages of Drawing Clouds
+262	The Flow of Modern Volumetric Clouds
+263	Cloud Layers
+264	Cloud Types and Altitudes
+265	Thinking About Altitude Profiles
+266	Controlling the Weather
+267	Layer Shape (Spherical Shell)
+268	Lighting Calculation
+269	Beer's Law
+270	The Powder Effect
+271	Approximating Multiple Scattering
+272	How the Four Terms Relate
+273	Why Multiple Scattering Is Needed
+274	Ray Marching
+275	Shadows
+276	Building the Cloud Shadow Map
+277	Speeding Up: Temporal Accumulation
+278	How the 4×4 Update Pattern Works
+279	Breakdowns and Countermeasures
+280	Why Light Shafts Are Visible
+281	Making Light Beams with Meshes
+282	Tips for Building Them
+283	Screen-Space Radial Blur
+284	Why the Constraints Exist
+285	Ray Marching with the Shadow Map
+286	Meaning of the Formula
+287	Sampling the Shadow Map
+288	Ways to Reduce Steps
+289	Tuning the Look
+290	Thinking About Natural Looks
+291	Underwater Light Shafts
+292	Why Light Shafts Appear Underwater
+293	Using a Volume
+294	Resolution Limits
+295	Atmosphere Model
+296	Bruneton's Precomputation
+297	The Original Paper and How It Works
+298	Ground and Space
+299	Hillaire 2020: Four LUTs
+300	Tricks in the Sky-View LUT
+301	Runtime Flow
+302	Why the Sky Is Blue
+303	Multiple Scattering
+304	The Idea Behind Hillaire's Approximation
+305	Rayleigh
+306	Mie (Henyey-Greenstein)
+307	Single-Scattering Integral
+308	Transmittance
+309	Analytic Sky Models
+310	Preetham (Perez Formula)
+311	Sun, Moon, and Stars
+312	The Sun Disk
+313	Sunset Colors
+314	Moon and Stars
+315	Day-Night Cycle
+316	Gradient Sky
+317	How to Draw the Sky
+318	Finding the View Direction
+319	Drawing Only at the Far Plane with the Depth Test
+320	Using the Sky for Lighting
+321	① Density
+322	From Density to Scattering and Extinction
+323	How to Use Noise
+324	Why Depth Is Allocated This Way
+325	Benefits of Holding It in a 3D Texture
+326	What Differs
+327	Background: Why Froxels
+328	③ Integration
+329	④ Application
+330	Deriving the Integration Formula
+331	Quality and Speed
+332	Where the Cost Is Decided
+333	Choosing the Range
+334	Temporal Accumulation (TAA-Style)
+335	The Effect and Why It Works
+336	Mixing Static and Dynamic
+337	Hierarchy of Dynamic GI (Lumen-Style)
+338	The Elements That Make Up "GI"
+339	Probe Data
+340	Octahedral Mapping
+341	Updating Probes (Temporal Accumulation)
+342	Optimizing Updates
+343	Visibility (Suppressing Light Leaks)
+344	Pixel Shading
+345	Comparison with Light Probes
+346	How to Learn GI
+347	Reading Order
+348	Getting Multiple Bounces
+349	Noise and Denoising
+350	① Voxelization
+351	③ Generating Mip Maps
+352	④ Cone Tracing
+353	Light Leaks
+354	Cascades (Clipmap)
+355	The Baking Flow
+356	Directional Information (Combined with Normal Maps)
+357	Relation to Dynamic Lights
+358	Specular Is Separate
+359	Combining with Moving Objects
+360	Why Lightmaps Have Been Used for So Long
+361	Why a Dedicated UV Is Needed
+362	Conditions UV2 Must Satisfy
+363	Automatic Generation and Packing
+364	Texel Density
+365	Difference from Reflection Probes
+366	Cost and Benefits
+367	Dynamic Updates
+368	History and Actual Practice
+369	Interpolation Methods
+370	Tetrahedral Decomposition (Delaunay)
+371	3D Grid
+372	Inside Tetrahedral Interpolation
+373	Inside Trilinear Interpolation
+374	Per-Pixel Lookup
+375	Placement
+376	Light Leaks (Leaking Through Walls)
+377	How to Hold SH
+378	Ambient Cube (6 Directions)
+379	SH L1 (4 Coefficients × RGB = 12 Values)

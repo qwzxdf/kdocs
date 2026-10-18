@@ -16,7 +16,7 @@ tags:
     - <strong>速い物体の輪郭の外側にも、尾が伸びる</strong>ように<strong>周りの速度を考慮</strong>（[Tile Max Velocity](tile-max.md)）。
     - <strong>対象を絞る</strong>（<strong>重要な物体・プレイヤー周辺</strong>）と<strong>コストが下がる</strong>。
 
-## 物体の速度
+## Object Velocity {#物体の速度}
 
 **物体の各頂点について、前フレームの位置と今の位置を計算**し、**その差をピクセル シェーダーで速度として出力**します（[Velocity Buffer](velocity-buffer.md)）。
 
@@ -171,7 +171,7 @@ tags:
 
 <!-- fig:object-blur-rotation:end -->
 
-## 回転する物体
+## Rotating Objects {#回転する物体}
 
 **プロペラやタイヤ**は、**回転軸から離れた点ほど、大きな速度**です。**頂点シェーダーで前フレームの回転を適用した位置を計算**すれば、**自動的に頂点ごとの速度**が**得られます**。
 
@@ -182,7 +182,7 @@ float4 previous_position = mul(mul(float4(local_position, 1.0), previous_world),
 
 <strong>注意：回転が大きい（1 フレームで 90° 以上）</strong>と、**前後の位置の差が実際の弧の動きを表さず、速度の向きが不正確**になります。**速い回転はブラーを円弧に沿わせる**特別な処理が**必要**です（**多くのゲームは、回転の大きい物体のブラーを弱める**）。
 
-## スキニング
+## Skinning {#スキニング}
 
 **キャラクター**は、<strong>骨の行列で頂点を動かす（スキニング）</strong>ので**前フレームの骨の姿勢**が**必要**です。
 
@@ -192,13 +192,13 @@ float4 previous_position = mul(mul(float4(local_position, 1.0), previous_world),
 | **前フレームのスキニング済み頂点を保存** | **スキニング結果をバッファに保存し、次フレームに使う** | **メモリ ＋ 帯域** |
 | **コンピュートでスキニング** | **スキニングを事前に行い、今・前を保存**（[スキニング](../../../3d/skinning-animation.md)） | **一括で効率的** |
 
-## 輪郭の外側に伸びる尾
+## Tails Extending Outside the Outline {#輪郭の外側に伸びる尾}
 
 **速い物体の輪郭の外側（背景）にもぼけた尾が伸びる**べきです。**物体の画素の速度**だけを**使う**と、**物体の縁でぼかしが急にぷつっと切れます**。
 
 物体の輪郭に関する問題と対処です。物体の周りの背景がぼけない問題には、周りの画素のうち最も速い物体の速度を、その画素も使います（タイルの最大速度、近傍最大。[Tile Max Velocity](tile-max.md)）。ぼけた物体の縁がくっきりする問題には、深度と速度で重みを付けてサンプルを集めます（[Blur Pass Implementation](blur-pass.md)）。
 
-## 描画順と透明物
+## Draw Order and Transparency {#描画順と透明物}
 
 **半透明の物体**は、**速度バッファに書き込めない**（**背景の速度が上書きされる**）ことが**多い**ので**扱いに注意**します。
 
@@ -209,7 +209,7 @@ float4 previous_position = mul(mul(float4(local_position, 1.0), previous_world),
 | **パーティクル** | **ストレッチ ビルボードなど、速度を表す形そのものに**。**ブラーの対象外**に |
 | **UI** | **ブラーの対象外**（**ポストプロセスの後に描く**） |
 
-## 対象を絞る
+## Narrowing the Targets {#対象を絞る}
 
 **すべての動く物をブラーする**と**重く、不自然**な場合があります。
 
@@ -220,7 +220,7 @@ float4 previous_position = mul(mul(float4(local_position, 1.0), previous_world),
 | **速度の閾値以下は 0** | **ほぼ止まっている物にコストをかけない** |
 | **マテリアルのフラグ** | **ブラーを掛けない物（武器・UI・遠景）を除外** |
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -231,7 +231,7 @@ float4 previous_position = mul(mul(float4(local_position, 1.0), previous_world),
 | **TAA の速度バッファと共有** | **同じバッファを使う** |
 | **速度の上限を設ける** | **速すぎる物で画面が崩れない** |
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "物体のブラーが、輪郭でぷつっと切れる"
     <strong>近傍の最大速度（タイル）</strong>を使い、**サンプルの重み付け**をする。
@@ -245,7 +245,7 @@ float4 previous_position = mul(mul(float4(local_position, 1.0), previous_world),
 ??? failure "半透明の物体が、背景の速度を上書きして、ブラーがおかしい"
     **半透明は速度を書かない**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] オブジェクト ブラー ＝ <strong>動く物体の速度に沿ってぼかす</strong>
@@ -254,13 +254,13 @@ float4 previous_position = mul(mul(float4(local_position, 1.0), previous_world),
     - [x] <strong>半透明・パーティクル・UI は対象外</strong>が基本
     - [x] <strong>重要な物体だけ</strong>に絞って<strong>コストと破綻を減らす</strong>
 
-## 参考
+## References {#参考}
 
 - McGuire et al., "A Reconstruction Filter for Plausible Motion Blur"（I3D 2012）
 - Sousa, "Graphics Gems from CryENGINE 3"（SIGGRAPH 2013）
 - Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare"（SIGGRAPH 2014）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Motion Blur](index.md)
 - [Velocity Buffer](velocity-buffer.md)

@@ -14,7 +14,7 @@ tags:
     - **フォグを使うなら、追加コストがほぼ無い**。
     - **解像度が低いので、細い筋は出にくい**。
 
-## ボリュームを使う方法
+## Using a Volume {#ボリュームを使う方法}
 **ボリューメトリック フォグ**（[Volumetric Fog](../volumetric-fog/index.md)）を**使っていれば、光の筋は自動で出ます**。**froxel に太陽光とシャドウを注入**しているため、**影による筋が自然に現れます**。**別途レイマーチを用意する必要はありません**。
 
 | 状況 | おすすめ |
@@ -24,34 +24,34 @@ tags:
 | **とにかく軽く** | **放射ぼかし** |
 | **固定の窓の光** | **メッシュの光の柱** |
 
-### 仕組み
+### How It Works {#仕組み}
 
 ボリューメトリック フォグは、カメラの視錐台を 3D のセル（froxel）に分けて、セルごとに「その位置の霧に、各ライトの光がどれだけ届いているか」を計算します（[Volumetric Fog](../volumetric-fog/index.md)）。太陽の光を注入するとき、各セルの位置でシャドウ マップを引き、日向なら光を入れ、日陰なら入れません。この処理がそのまま光の筋を作ります。
 
 視線方向にセルを積分する最後のパスで、日向のセルの光が積み上がり、日陰のセルは何も足さないので、「影を作る物体の後ろは暗く、そうでない所は明るい」筋が自然に出ます。放射ぼかしやレイマーチの専用処理は不要で、しかも、太陽以外のライト（スポットライト、点光源）も同じ仕組みで筋を出せます。懐中電灯の光線が、霧の中でくっきり見える表現が、これで追加コストなく得られます。
 
-### 解像度の限界
+### Resolution Limits {#解像度の限界}
 
 froxel の解像度は、画面の 160×90 程度の粗さのため、細い筋は出にくくなります。また、奥行き方向の分割（64 スライス前後）が粗いと、筋が距離に沿って階段状になります。この問題には、時間蓄積（フレームごとに格子をずらして平均する）で見かけの解像度を上げる、シャドウ マップの参照を PCF のようにぼかす、などの対策があります。それでも足りない細かい筋が必要な場合は、その場所だけシャドウ マップのレイマーチを追加する構成もあります。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "細い光の筋が、ぼやける"
     **froxel の解像度を上げる**。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] **フォグのボリュームに、影を入れるだけ**
 
-## 参考
+## References {#参考}
 
 - Hillaire, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（EGSR 2020）
 - Bruneton & Neyret, "Precomputed Atmospheric Scattering"（EGSR 2008）
 - Wronski, "Volumetric Fog and Lighting"（SIGGRAPH 2014）
 - Schneider, "The Real-Time Volumetric Cloudscapes of Horizon Zero Dawn"（SIGGRAPH 2015）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [God Rays](index.md)
 - [Volumetric Fog](../volumetric-fog/index.md)

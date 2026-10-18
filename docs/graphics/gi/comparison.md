@@ -16,7 +16,7 @@ tags:
     - <strong>鏡面の間接光は別</strong>（<strong>反射</strong>の手法）。
     - <strong>ベースの GI ＋ AO ＋ 反射</strong>を、<strong>三位一体</strong>で設計する。
 
-## 全方式の比較
+## Comparing All Methods {#全方式の比較}
 
 | 方式 | 動くライト | 動く物 | 画面外 | ノイズ | 実行コスト | 事前計算 | 必要な HW |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -34,7 +34,7 @@ tags:
 
 <strong>ライトマップ</strong>は、動くライトにも動く物にも対応できませんが（背景のみ）、ノイズがなく、実行コストが極小で、画面外も正しく反映されます。代償は、重い事前計算が必要なことです。<strong>ベイク済みプローブ</strong>は、受ける側の動く物には対応でき、同じく実行コストは極小です。<strong>SSGI</strong> は、動くライトにも動く物にも対応し、事前計算も不要ですが、画面外の情報を持たず、ノイズが大きいのが弱点です。<strong>ボクセル GI</strong> は、すべての条件に対応しますが、実行コストが大きく、ある程度の GPU 性能が必要です。<strong>DDGI</strong> は、時間蓄積でノイズが小さく、コストは中程度ですが、DXR（ハードウェア レイトレ）が必要です。<strong>レイトレ GI（ReSTIR）</strong>は、最も正確ですが、ノイズがありデノイズが必須で、コストも大きいです。<strong>Lumen 的（ソフトウェア）</strong>は、メッシュ SDF を作る以外に事前計算がなく、ノイズは小〜中、コストは大きめです。<strong>Radiance Cascades</strong> は、ノイズがなく、中程度のコストで動きますが、2D 向きです。
 
-## 選び方
+## How to Choose {#選び方}
 
 | 状況 | おすすめ |
 | --- | --- |
@@ -46,9 +46,9 @@ tags:
 | **2D ゲーム** | **Radiance Cascades**・**距離場ベースの 2D GI** |
 | **プロトタイプ・簡易** | <strong>SSGI ＋ アンビエント（定数）</strong> |
 
-## 組み合わせの例
+## Example Combinations {#組み合わせの例}
 
-### 静的 ＋ 動的の混合
+### Mixing Static and Dynamic {#静的--動的の混合}
 
 | 対象 | 方式 |
 | --- | --- |
@@ -58,7 +58,7 @@ tags:
 | **接触部の暗さ** | **AO**（[AO](../ao/index.md)） |
 | **鏡面の間接光** | **反射プローブ ＋ SSR**（[反射](../reflections/index.md)） |
 
-### 動的 GI の階層（Lumen 的）
+### Hierarchy of Dynamic GI (Lumen-Style) {#動的-gi-の階層lumen-的}
 
 | 距離・用途 | 方式 |
 | --- | --- |
@@ -67,7 +67,7 @@ tags:
 | **遠距離** | <strong>世界空間プローブ（粗い）</strong> |
 | **ノイズ処理** | **時間蓄積 ＋ 空間フィルタ** |
 
-## 「GI」を構成する要素
+## The Elements That Make Up "GI" {#giを構成する要素}
 
 **実際の画面の明るさ**は、**複数の要素の合計**です。
 
@@ -88,7 +88,7 @@ float3 color = direct_light * shadow
 
 **AO は間接光（拡散）に掛ける**のが**原則**です（**直接光には掛けない**）。**鏡面の間接光には、鏡面オクルージョン**を**掛け**ます（[AO Artifacts](../ao/artifacts/index.md)）。
 
-## デバッグのヒント
+## Debugging Tips {#デバッグのヒント}
 
 | 症状 | 確認すること |
 | --- | --- |
@@ -100,7 +100,7 @@ float3 color = direct_light * shadow
 | **ライトを動かしても反応しない** | **ベイク済みの GI は、固定**。**動的な方式**が必要 |
 | **間接光が二重に効いている** | **ライトマップと動的 GI の重複**・**AO の二重掛け** |
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] <strong>静的は、ライトマップ ＋ プローブ</strong>（最安・高品質）。<strong>動的は、DDGI・Lumen 的・レイトレ</strong>
@@ -109,12 +109,12 @@ float3 color = direct_light * shadow
     - [x] <strong>ベースの GI ＋ AO ＋ 反射</strong>を<strong>組み合わせ</strong>、<strong>重複（二重掛け）</strong>に注意
     - [x] <strong>AO は間接拡散光に</strong>、<strong>鏡面オクルージョンは間接鏡面光に</strong>掛ける
 
-## 参考
+## References {#参考}
 
 - Wright et al., "Lumen: Real-time Global Illumination in Unreal Engine 5"（SIGGRAPH 2022）
 - Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Global Illumination (GI)](index.md)
 - [Lightmaps](lightmaps/index.md)

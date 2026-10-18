@@ -15,7 +15,7 @@ tags:
     - <strong>輝度にだけ掛ける</strong>と<strong>色相を保てる</strong>が、<strong>鮮やかな明部が飽和しすぎる</strong>ことがある。
     - <strong>より良いやり方</strong>：<strong>白点付き ＋ 輝度ベースで色を保つ ＋ 軽いコントラストの調整</strong>。
 
-## 式と形
+## Formula and Shape {#式と形}
 
 <div class="formula">c = x / (1 + x)</div>
 
@@ -141,7 +141,7 @@ float3 Reinhard(float3 x) {
 
 <!-- fig:tonemap-reinhard:end -->
 
-### 性質
+### Properties {#性質}
 
 | 性質 | 内容 |
 | --- | --- |
@@ -155,7 +155,7 @@ float3 Reinhard(float3 x) {
 
 原典は、Reinhard らの "Photographic Tone Reproduction for Digital Images"（SIGGRAPH 2002）です。論文では、写真家が使う「ゾーン システム」の考え方を取り入れ、画像全体の平均輝度（キー値）に基づいて、全体の明るさを揃えてから、`x / (1 + x)` で圧縮する構成が示されています。式が簡単で、1 行で書けるため、現在でも広く使われています。
 
-## 白点付き Reinhard
+## Reinhard with a White Point {#白点付き-reinhard}
 
 **白点 `L_w`**（**この入力値でちょうど 1 になる**）を決める**拡張**です。
 
@@ -172,7 +172,7 @@ float3 ReinhardExtended(float3 x, float white_point) {
 
 **白点を使うと、「真っ白」が出せる**ので**太陽や強い光がちゃんと白く飛びます**。
 
-## チャンネルごと・輝度ベース
+## Per-Channel and Luminance-Based {#チャンネルごと輝度ベース}
 
 **R・G・B に別々に掛ける**と**彩度の高い明るい色の色相がずれます**。**輝度にだけ掛けて、色の比率を保つ**方法もあります。
 
@@ -192,7 +192,7 @@ float3 ReinhardLuminance(float3 color, float white_point) {
 
 詳しくは[Preserving Hue](hue-preservation.md)で比べます。
 
-## より良いやり方
+## Better Approaches {#より良いやり方}
 
 **Reinhard をそのまま使う**と**眠い絵**になりがちです。**次の工夫で簡単なまま見栄えを上げられます**。
 
@@ -204,11 +204,11 @@ float3 ReinhardLuminance(float3 color, float white_point) {
 | **ブレンド** | **チャンネルごと 50 % ＋ 輝度ベース 50 %**（**ハイブリッド**） |
 | **早めに卒業する** | <strong>画作りが固まったら、[フィルミック](filmic-hable.md)・[ACES](aces.md)・[AgX](agx.md)</strong> へ |
 
-## 使いどころ
+## Where to Use It {#使いどころ}
 
 使いどころの目安です。プロトタイプやデバッグ表示には向きます（1 行で済むため）。UI や 2D 寄りの絵にも向きます（コントラストを強く出さないため）。映画のような画作りの本番には不向きです（眠い絵になるため）。
 
-## よくあるミス
+## Common Mistakes {#よくあるミス}
 
 ??? failure "Reinhard を掛けたら、全体が白っぽく眠い"
     **曲線の性質**。**白点を設定し、軽くコントラストを足す**、または**別の曲線**へ。
@@ -222,7 +222,7 @@ float3 ReinhardLuminance(float3 color, float white_point) {
 ??? failure "ガンマ変換の後に Reinhard を掛けて、暗部が潰れる"
     **トーンマップはリニアで**。**sRGB は最後**（[Gamma and HDR Output](gamma-srgb.md)）。
 
-## これだけ覚える
+## Key Takeaways {#これだけ覚える}
 
 !!! abstract "まとめ"
     - [x] Reinhard ＝ <strong>`x / (1 + x)`</strong>。<strong>1 行でどんな明るさも 0〜1 に収まる</strong>
@@ -231,12 +231,12 @@ float3 ReinhardLuminance(float3 color, float white_point) {
     - [x] <strong>輝度ベース</strong>で<strong>色相を保つ</strong>。ただし<strong>飽和に注意</strong>
     - [x] <strong>本番の画作りは、フィルミック・ACES・AgX へ</strong>
 
-## 参考
+## References {#参考}
 
 - Reinhard et al., "Photographic Tone Reproduction for Digital Images"（SIGGRAPH 2002）
 - Reinhard, Stark, Shirley, Ferwerda, "Photographic Tone Reproduction for Images"（同）
 
-## 関連ページ
+## Related Pages {#関連ページ}
 
 - [Tone Mapping and Exposure](index.md)
 - [Exposure](exposure.md)
