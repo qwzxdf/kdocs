@@ -16,72 +16,123 @@ tags:
 
 <!-- fig:restir-reservoir:begin -->
 
-<svg class="fig illust motion" data-fig="restir-reservoir" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="restir-reservoir" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-restir-reservoir" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">リザーバー:候補を流して見ながら、良さそうな 1 つだけ覚える</text>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0825;0.0828;1.0000" values="0;0;1;1"/><rect x="60" y="130" width="62" height="24.0" fill="#94a3b8" stroke="#1f2937" stroke-width="1.5"/>
-<text x="91" y="122" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">候補 A</text>
-<text x="91" y="172.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">明るさ 0.1</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ReSTIR: たくさんの光から、明るさに比例して 1 つだけ選ぶ(リザーバー)</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">光 16 個のうち、影の光線を飛ばせるのは 1 本だけ。選び方で、結果のばらつきが大きく変わる</text>
+<rect x="30" y="92" width="480" height="220" fill="#ffffff" stroke="#e5aa28" stroke-width="1.8" rx="6"/>
+<text x="30" y="82" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5aa28">16 個の光(棒 = 影を無視した明るさ)</text>
+<rect x="44.0" y="282.0" width="26.0" height="6.0" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="57.0" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">1</text>
+<rect x="73.5" y="279.0" width="26.0" height="9.0" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="86.5" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">2</text>
+<rect x="103.0" y="282.0" width="26.0" height="6.0" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="116.0" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">3</text>
+<rect x="132.5" y="276.0" width="26.0" height="12.0" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="145.5" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">4</text>
+<rect x="162.0" y="138.0" width="26.0" height="150.0" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="175.0" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">5</text>
+<rect x="191.5" y="279.0" width="26.0" height="9.0" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="204.5" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">6</text>
+<rect x="221.0" y="282.0" width="26.0" height="6.0" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="234.0" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">7</text>
+<rect x="250.5" y="279.0" width="26.0" height="9.0" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="263.5" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">8</text>
+<rect x="280.0" y="279.0" width="26.0" height="9.0" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="293.0" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">9</text>
+<rect x="309.5" y="183.0" width="26.0" height="105.0" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="322.5" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">10</text>
+<rect x="339.0" y="282.0" width="26.0" height="6.0" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="352.0" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">11</text>
+<rect x="368.5" y="282.0" width="26.0" height="6.0" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="381.5" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">12</text>
+<rect x="398.0" y="279.0" width="26.0" height="9.0" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="411.0" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">13</text>
+<rect x="427.5" y="276.0" width="26.0" height="12.0" fill="#cbd5e1" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="440.5" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">14</text>
+<rect x="457.0" y="282.0" width="26.0" height="6.0" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="470.0" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">15</text>
+<rect x="486.5" y="279.0" width="26.0" height="9.0" fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+<text x="499.5" y="302.0" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">16</text>
+<circle cx="50" cy="110" r="6" fill="#fbbf24"/>
+<text x="60" y="114" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">光が届く</text>
+<circle cx="121.6" cy="110" r="6" fill="#cbd5e1"/>
+<text x="131.6" y="114" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">影になる(隠れている)</text>
+<text x="44" y="136" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043">正解 = 届く光の合計 = 8.0</text>
+<rect x="130.5" y="272.0" width="30.0" height="20.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;0.0593;0.0595;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M145.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;0.0593;0.0595;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="455.0" y="278.0" width="30.0" height="14.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.0595;0.0724;0.0726;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M145.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.0595;0.0724;0.0726;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="307.5" y="179.0" width="30.0" height="113.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0724;0.0726;0.0854;0.0856;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M145.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0724;0.0726;0.0854;0.0856;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="455.0" y="278.0" width="30.0" height="14.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0854;0.0856;0.0984;0.0986;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M145.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0854;0.0856;0.0984;0.0986;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="42.0" y="278.0" width="30.0" height="14.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0984;0.0986;0.1114;0.1116;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M145.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0984;0.0986;0.1114;0.1116;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="425.5" y="272.0" width="30.0" height="20.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1114;0.1116;0.1245;0.1247;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M145.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1114;0.1116;0.1245;0.1247;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="189.5" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1245;0.1247;0.1375;0.1377;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M145.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1245;0.1247;0.1375;0.1377;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="42.0" y="278.0" width="30.0" height="14.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1375;0.1377;0.1505;0.1507;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M145.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1375;0.1377;0.1905;0.1907;1.0000" values="0;0;1;1;0;0"/></path>
+<text x="560" y="130" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed" opacity="0">試行 1<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;0.1952;0.1953;1.0000" values="0;0;1;1;0;0"/></text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1505;0.1507;0.2045;0.2047;1.0000" values="0;0;1;1;0;0"/><text x="560" y="152" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937">候補 8 個の合計 5.4 → 選んだ光 #4(届く)</text>
+<text x="560" y="172" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043">推定 = 10.8(正解 8.0)</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1652;0.1655;1.0000" values="0;0;1;1"/><rect x="140" y="130" width="62" height="32.0" fill="#60a5fa" stroke="#1f2937" stroke-width="1.5"/>
-<text x="171" y="122" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">候補 B</text>
-<text x="171" y="180.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">明るさ 0.3</text>
+<rect x="484.5" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2045;0.2047;0.2175;0.2177;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M499.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2045;0.2047;0.2175;0.2177;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="484.5" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2175;0.2177;0.2305;0.2307;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M499.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2175;0.2177;0.2305;0.2307;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="278.0" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2305;0.2307;0.2435;0.2437;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M293.0,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2305;0.2307;0.2435;0.2437;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="248.5" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2435;0.2437;0.2566;0.2567;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M263.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2435;0.2437;0.2566;0.2567;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="278.0" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2566;0.2567;0.2696;0.2698;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M263.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2566;0.2567;0.2696;0.2698;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="307.5" y="179.0" width="30.0" height="113.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2696;0.2698;0.2826;0.2828;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M322.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2696;0.2698;0.2826;0.2828;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="396.0" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2826;0.2828;0.2956;0.2958;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M322.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2826;0.2828;0.2956;0.2958;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="396.0" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2956;0.2958;0.3087;0.3088;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M322.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2956;0.2958;0.3487;0.3488;1.0000" values="0;0;1;1;0;0"/></path>
+<text x="560" y="196" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed" opacity="0">試行 2<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2045;0.2047;0.3533;0.3535;1.0000" values="0;0;1;1;0;0"/></text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3087;0.3088;0.3626;0.3628;1.0000" values="0;0;1;1;0;0"/><text x="560" y="218" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937">候補 8 個の合計 5.6 → 選んだ光 #10(影)</text>
+<text x="560" y="238" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">推定 = 0.0(正解 8.0)</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2480;0.2483;1.0000" values="0;0;1;1"/><rect x="220" y="130" width="62" height="116.0" fill="#e5484d" stroke="#1f2937" stroke-width="1.5"/>
-<text x="251" y="122" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">候補 C</text>
-<text x="251" y="264.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">明るさ 2.4</text>
+<rect x="248.5" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3626;0.3628;0.3756;0.3758;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M263.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3626;0.3628;0.3756;0.3758;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="425.5" y="272.0" width="30.0" height="20.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3756;0.3758;0.3887;0.3888;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M263.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3756;0.3758;0.3887;0.3888;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="189.5" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3887;0.3888;0.4017;0.4019;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M204.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3887;0.3888;0.4017;0.4019;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="248.5" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4017;0.4019;0.4147;0.4149;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M204.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4017;0.4019;0.4147;0.4149;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="71.5" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4147;0.4149;0.4277;0.4279;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M204.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4147;0.4149;0.4277;0.4279;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="366.5" y="278.0" width="30.0" height="14.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4277;0.4279;0.4407;0.4409;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M204.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4277;0.4279;0.4407;0.4409;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="425.5" y="272.0" width="30.0" height="20.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4407;0.4409;0.4538;0.4540;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M204.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4407;0.4409;0.4538;0.4540;1.0000" values="0;0;1;1;0;0"/></path>
+<rect x="189.5" y="275.0" width="30.0" height="17.0" fill="none" stroke="#7c3aed" stroke-width="3" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4538;0.4540;0.4668;0.4670;1.0000" values="0;0;1;1;0;0"/></rect>
+<path d="M204.5,312.0 l-8,-14 l16,0 z" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4538;0.4540;0.5068;0.5070;1.0000" values="0;0;1;1;0;0"/></path>
+<text x="560" y="262" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed" opacity="0">試行 3<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3626;0.3628;1.0000" values="0;0;1;1"/></text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4668;0.4670;1.0000" values="0;0;1;1"/><text x="560" y="284" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937">候補 8 個の合計 2.5 → 選んだ光 #6(届く)</text>
+<text x="560" y="304" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043">推定 = 5.0(正解 8.0)</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3308;0.3310;1.0000" values="0;0;1;1"/><rect x="300" y="130" width="62" height="28.0" fill="#94a3b8" stroke="#1f2937" stroke-width="1.5"/>
-<text x="331" y="122" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">候補 D</text>
-<text x="331" y="176.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">明るさ 0.2</text>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4135;0.4138;1.0000" values="0;0;1;1"/><rect x="380" y="130" width="62" height="40.0" fill="#fbbf24" stroke="#1f2937" stroke-width="1.5"/>
-<text x="411" y="122" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">候補 E</text>
-<text x="411" y="188.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">明るさ 0.5</text>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4963;0.4966;1.0000" values="0;0;1;1"/><rect x="460" y="130" width="62" height="64.0" fill="#2ea043" stroke="#1f2937" stroke-width="1.5"/>
-<text x="491" y="122" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">候補 F</text>
-<text x="491" y="212.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">明るさ 1.1</text>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5790;0.5793;1.0000" values="0;0;1;1"/><rect x="540" y="130" width="62" height="26.0" fill="#94a3b8" stroke="#1f2937" stroke-width="1.5"/>
-<text x="571" y="122" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">候補 G</text>
-<text x="571" y="174.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">明るさ 0.1</text>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6618;0.6621;1.0000" values="0;0;1;1"/><rect x="620" y="130" width="62" height="36.0" fill="#a78bfa" stroke="#1f2937" stroke-width="1.5"/>
-<text x="651" y="122" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">候補 H</text>
-<text x="651" y="184.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#64748b">明るさ 0.4</text>
-</g>
-<rect x="60" y="290" width="200" height="70" fill="#ffffff" stroke="#1f2937" stroke-width="2.5" rx="6"/>
-<text x="160" y="282" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">リザーバー（1 つだけ保持）</text>
-<rect x="70" y="300" width="60" height="50" fill="#e2e8f0"><animate attributeName="fill" dur="14.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1172;0.2000;0.2828;0.3655;0.4483;0.5310;0.6138;0.6966" values="#e2e8f0;#94a3b8;#60a5fa;#e5484d;#e5484d;#e5484d;#e5484d;#e5484d;#e5484d"/></rect>
-<text x="140" y="335" text-anchor="start" style="font-size:18px;font-weight:700;fill:#1f2937" opacity="0">= 候補 A<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1170;0.1172;0.1997;0.2000;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="140" y="335" text-anchor="start" style="font-size:18px;font-weight:700;fill:#1f2937" opacity="0">= 候補 B<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1997;0.2000;0.2825;0.2828;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="140" y="335" text-anchor="start" style="font-size:18px;font-weight:700;fill:#1f2937" opacity="0">= 候補 C<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2825;0.2828;0.3652;0.3655;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="140" y="335" text-anchor="start" style="font-size:18px;font-weight:700;fill:#1f2937" opacity="0">= 候補 C<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3652;0.3655;0.4480;0.4483;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="140" y="335" text-anchor="start" style="font-size:18px;font-weight:700;fill:#1f2937" opacity="0">= 候補 C<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4480;0.4483;0.5308;0.5310;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="140" y="335" text-anchor="start" style="font-size:18px;font-weight:700;fill:#1f2937" opacity="0">= 候補 C<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5308;0.5310;0.6135;0.6138;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="140" y="335" text-anchor="start" style="font-size:18px;font-weight:700;fill:#1f2937" opacity="0">= 候補 C<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6135;0.6138;0.6963;0.6966;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="140" y="335" text-anchor="start" style="font-size:18px;font-weight:700;fill:#1f2937" opacity="0">= 候補 C<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6963;0.6966;0.7790;0.7793;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="300" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">候補 A 到着:採用の確率 = 0.1 / (累計 0.1) = 100 %<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0825;0.0828;0.1652;0.1655;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="300" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">候補 B 到着:採用の確率 = 0.3 / (累計 0.4) = 75 %<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1652;0.1655;0.2480;0.2483;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="300" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">候補 C 到着:採用の確率 = 2.4 / (累計 2.8) = 86 %<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2480;0.2483;0.3308;0.3310;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="300" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">候補 D 到着:採用の確率 = 0.2 / (累計 3.0) = 7 %<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3308;0.3310;0.4135;0.4138;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="300" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">候補 E 到着:採用の確率 = 0.5 / (累計 3.5) = 14 %<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4135;0.4138;0.4963;0.4966;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="300" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">候補 F 到着:採用の確率 = 1.1 / (累計 4.6) = 24 %<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4963;0.4966;0.5790;0.5793;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="300" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">候補 G 到着:採用の確率 = 0.1 / (累計 4.8) = 3 %<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5790;0.5793;0.6618;0.6621;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="300" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">候補 H 到着:採用の確率 = 0.4 / (累計 5.2) = 8 %<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6618;0.6621;0.7446;0.7448;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="328" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">サイコロ → 採用! リザーバーを入れ替える<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0825;0.0828;0.1652;0.1655;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="328" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">サイコロ → 採用! リザーバーを入れ替える<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1652;0.1655;0.2480;0.2483;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="328" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">サイコロ → 採用! リザーバーを入れ替える<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2480;0.2483;0.3308;0.3310;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="328" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">サイコロ → 不採用（今のまま）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3308;0.3310;0.4135;0.4138;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="328" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">サイコロ → 不採用（今のまま）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4135;0.4138;0.4963;0.4966;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="328" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">サイコロ → 不採用（今のまま）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4963;0.4966;0.5790;0.5793;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="328" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">サイコロ → 不採用（今のまま）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5790;0.5793;0.6618;0.6621;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="300" y="328" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">サイコロ → 不採用（今のまま）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6618;0.6621;0.7446;0.7448;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="60" y="390" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">最後に残った 1 つが、重みに比例して選ばれた「良い」サンプル。全部を覚えなくても、1 つだけで済む。<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7790;0.7793;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="60" y="70" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">候補を 1 つずつ流す。明るい（寄与の大きい）候補ほど、残りやすい。</text>
+<rect x="30" y="332" width="900" height="168" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="322" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">2000 回ためしたときの、正解からのずれ(小さいほど良い)</text>
+<text x="50" y="392" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d">光を 1 つ、でたらめに選ぶ</text>
+<rect x="420" y="372" width="1" height="28" fill="#e5484d" opacity="0.85"><animate attributeName="width" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.5488;0.6233;1.0000" values="1;1;316.21;316.21"/></rect>
+<text x="746.2090669161781" y="393" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d" opacity="0">ずれ 243%<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6231;0.6233;1.0000" values="0;0;1;1"/></text>
+<text x="50" y="446" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2563eb">ReSTIR: 8 個の候補から、明るさに比例して 1 つ選ぶ</text>
+<rect x="420" y="426" width="1" height="28" fill="#2563eb" opacity="0.85"><animate attributeName="width" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.5488;0.6233;1.0000" values="1;1;139.52;139.52"/></rect>
+<text x="569.5201758483339" y="447" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb" opacity="0">ずれ 107%<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6231;0.6233;1.0000" values="0;0;1;1"/></text>
+<text x="50" y="485" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">ずれ = 2000 回の推定値の、二乗平均の平方根 ÷ 正解</text>
+<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光は 16 個。影の光線を飛ばせるのは 1 本だけ<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">候補を 1 つずつ受け取り、明るさに比例した確率で「選択中」を入れ替える<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;0.5487;0.5488;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">明るい光を選びやすいので、同じ 1 本でも、ばらつきが大幅に減る<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.5487;0.5488;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:restir-reservoir:end -->
