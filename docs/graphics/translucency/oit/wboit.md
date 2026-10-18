@@ -251,6 +251,144 @@ float4 PSComposite(VsOutput input) : SV_Target {
 
 WBOIT の利点は、1 パスで軽いこと（2 枚の RT）、ソート不要なこと、パーティクル・草・髪などの大量の重なりに強いことです。欠点は、近似であること（同じ色の層が多いと順序が反映されません）、色が違う層の重なりで順序が違って見えること（手前の赤と奥の青が混ざって見える）、重み関数の調整が必要なこと（シーンの深度範囲に合わせます）です。
 
+## 考え方：順序の、**近似**
+
+**WBOIT**（Weighted Blended OIT、McGuire と Bavoil、2013）は、**ソートも、複数パスも、リストも、使わず**、**1 パスで、順序の影響を、近似**する方法です。
+
+通常のアルファ ブレンドは、**順序に、依存**します。そこで、**各フラグメントに、重みを付けた、平均**を、取ります。**重みは、手前ほど、大きく**します。**順序に、依存しない**計算（足し算）だけで、**手前が、より、強く、見える**結果を、近似的に、作ります。
+
+## 式
+
+各フラグメント `i`（色 `Cᵢ`、アルファ `αᵢ`、深度 `zᵢ`）に、**重み `wᵢ`** を、付けます。
+
+```text
+累積色     = Σ  Cᵢ × αᵢ × wᵢ                ← 加算ブレンドで、足せる
+累積重み   = Σ  αᵢ × wᵢ                      ← 加算ブレンドで、足せる
+透過度     = Π  (1 − αᵢ)                      ← 乗算ブレンドで、掛けられる（reveal）
+
+合成色     = 累積色 / 累積重み                 ← 重みつき平均の、色
+最終       = 合成色 × (1 − 透過度) + 背景 × 透過度
+```
+
+| 値 | 意味 |
+| --- | --- |
+| 累積色 / 累積重み | **半透明全体の、平均的な色**（手前ほど、重みが大きい） |
+| 透過度（reveal） | **すべての層を、通過して**、背景に届く光の割合。`Π(1 − α)` |
+| 最終色 | 半透明全体の色を、`1 − 透過度` の割合で、背景に重ねる |
+
+**足し算と、掛け算だけ**なので、**順序に、依存しません**。**加算ブレンド**と、**乗算ブレンド**の、組み合わせで、**1 パス**で、実現できます。
+
+## 2 つの、レンダー ターゲット
+
+| ターゲット | 形式 | 内容 | ブレンド |
+| --- | --- | --- | --- |
+| 0：累積（accum） | `R16G16B16A16_FLOAT` | `rgb` = 累積色、`a` = 累積重み | **加算**（`ONE`、`ONE`） |
+| 1：透過度（reveal） | `R8_UNORM`（または `R16_FLOAT`） | `Π(1 − α)` | **乗算**（`ZERO`、`INV_SRC_COLOR`） |
+
+```cpp
+// WBOIT の、ブレンド ステート。2 つのレンダー ターゲットに、別のブレンドを使う。
+D3D11_BLEND_DESC blend = {};
+blend.IndependentBlendEnable = TRUE;
+
+// ターゲット 0: 累積（加算）
+D3D11_RENDER_TARGET_BLEND_DESC& accum = blend.RenderTarget[0];
+accum.BlendEnable = TRUE;
+accum.SrcBlend = D3D11_BLEND_ONE;       accum.DestBlend = D3D11_BLEND_ONE;
+accum.BlendOp = D3D11_BLEND_OP_ADD;
+accum.SrcBlendAlpha = D3D11_BLEND_ONE;  accum.DestBlendAlpha = D3D11_BLEND_ONE;
+accum.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+accum.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+// ターゲット 1: 透過度（乗算）。出力した値 α が、(1 − α) として、掛けられる。
+D3D11_RENDER_TARGET_BLEND_DESC& reveal = blend.RenderTarget[1];
+reveal.BlendEnable = TRUE;
+reveal.SrcBlend = D3D11_BLEND_ZERO;     reveal.DestBlend = D3D11_BLEND_INV_SRC_COLOR;
+reveal.BlendOp = D3D11_BLEND_OP_ADD;
+reveal.SrcBlendAlpha = D3D11_BLEND_ZERO; reveal.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+reveal.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+reveal.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED;
+
+device->CreateBlendState(&blend, &wboit_blend);
+// ターゲット 0 は 0 で、ターゲット 1 は 1（reveal の初期値 = 透過度 1）で、クリアしておく。
+```
+
+## 半透明の、ピクセル シェーダー
+
+```hlsl
+struct WboitOut {
+  float4 accum : SV_Target0;
+  float reveal : SV_Target1;
+};
+
+WboitOut main(PSInput input) {
+  float4 color = ShadeFragment(input);        // 通常のライティング。color.a は、アルファ
+  float z = input.position.z;                  // 0（近い）〜 1（遠い）
+
+  // 重み関数: 手前ほど大きく、アルファが大きいほど大きい。論文の候補の 1 つ。
+  float weight = max(min(1.0, max(max(color.r, color.g), color.b) * color.a), color.a)
+               * clamp(0.03 / (1e-5 + pow(z / 200.0, 4.0)), 1e-2, 3e3);
+
+  WboitOut o;
+  o.accum = float4(color.rgb * color.a, color.a) * weight;     // 累積色（α 乗算済み）と、累積重み（α）に、重みを掛ける
+  o.reveal = color.a;                                            // 乗算ブレンドの、(1 − α) 用
+  return o;
+}
+```
+
+重みは、**深度 `z`**（遠いほど小さい）と、**色・アルファ**で決まります。論文には、**複数の候補**が、載っています。**場面の、深度の範囲**（近い面、遠い面）に、**合わせて**、**調整が必要**です。
+
+## 合成パス
+
+全画面の、ピクセル シェーダーで、**累積と、透過度から、最終色**を、作って、**背景に、重ねます**。
+
+```hlsl
+Texture2D<float4> g_accum : register(t0);
+Texture2D<float> g_reveal : register(t1);
+
+float4 main(float4 pos : SV_Position) : SV_Target {
+  int3 p = int3(pos.xy, 0);
+  float reveal = g_reveal.Load(p);                    // 透過度（1 = 何も描かれていない）
+  if (reveal >= 1.0) discard;                         // 半透明が、何もない画素
+
+  float4 accum = g_accum.Load(p);
+  // 極端に大きい値（オーバーフロー）の対策
+  if (isinf(accum.a)) accum.a = max(max(accum.r, accum.g), accum.b);
+  float3 average_color = accum.rgb / max(accum.a, 1e-5);       // 重みつき平均の色
+
+  // 出力: 色 = 平均色、アルファ = 1 − 透過度。通常のアルファ ブレンド（SRC_ALPHA, INV_SRC_ALPHA）で、背景に重ねる。
+  return float4(average_color, 1.0 - reveal);
+}
+```
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | **1 パス**。**ソート不要**。**メモリ、帯域が、小さい**（2 枚のターゲット） |
+| 長所 | 実装が、**簡単**。**ブレンド ステートだけ**で、実現 |
+| 長所 | **多くの層**（煙、葉）が、重なっても、**コストが、変わらない** |
+| 短所 | **近似**。**色が、正しくない**ことがある（特に、**色が、大きく違う、層**が重なるとき） |
+| 短所 | **手前の、不透明に近い物が、奥の物より、うっすら**に、見えることがある |
+| 短所 | **重み関数の調整**が、場面ごとに、必要 |
+| 短所 | **アルファが、非常に、大きい**（不透明に近い）物の、**前後関係**は、**不正確** |
+
+### どんな時に、うまくいく / 悪いか
+
+| 状況 | 結果 |
+| --- | --- |
+| 煙・霧・パーティクル（同じような色が、重なる） | **よく合う** |
+| ガラス（色が、違う、層が、重なる） | **前後が、混ざる**（赤が、手前、青が、奥のはずが、紫になる） |
+| 髪の毛 | 近い色が、重なるので、**まずまず** |
+| 不透明に近い、半透明（アルファ 0.9） | **悪い**（手前が、ちゃんと、手前に見えない） |
+
+## 改良版
+
+| 改良 | 内容 |
+| --- | --- |
+| **色の、補正** | 論文の後続で、**色の、ずれを、減らす**、工夫が、提案されている |
+| **屈折** | WBOIT の、**画面のコピー**を、使い、背景の、屈折を、扱う |
+| **ハイブリッド** | **手前の数層だけ、正確に**（PPLL、デプス ピーリング）、**残りを、WBOIT** で、近似（[Hybrid Approaches and Choosing](hybrid.md)） |
+
 ## よくあるミス
 
 ??? failure "半透明の重なりの色が、不自然"
@@ -264,9 +402,10 @@ WBOIT の利点は、1 パスで軽いこと（2 枚の RT）、ソート不要�
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- McGuire, Bavoil, "Weighted Blended Order-Independent Transparency", Journal of Computer Graphics Techniques, Vol. 2, No. 2, 2013
+- Wyman, "Exploring and Expanding the Continuum of OIT Algorithms", High-Performance Graphics 2016
+- Microsoft Learn, "D3D11_RENDER_TARGET_BLEND_DESC"（`SrcBlend`、`DestBlend`、`BlendOp`）
+- Münstermann, Krumpen, Klein, Peters, "Moment-Based Order-Independent Transparency", High-Performance Graphics 2018
 
 ## 関連ページ
 

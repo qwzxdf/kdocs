@@ -447,6 +447,120 @@ float3 tinted_background = background * transmittance;
 
 **水深**（水面から底までの距離）は、**不透明の深度と、水面の深度の差**から**求められます**（[Water](../../water/index.md)）。
 
+## 色付きガラスは、厚いほど、濃い
+
+色付きの、ガラス（緑のボトル、青い氷）は、**光が、ガラスの中を、通る距離が、長いほど、濃く**見えます。光が、**ガラスに吸収**されるためで、水の中の光と、**同じ原理**です（[Color by Water Depth](../../water/shading/depth-color.md)）。
+
+```text
+透過率 T = exp( −σ × 厚み )          σ: 吸収係数（RGB ごと）
+```
+
+| 厚み | 緑のガラス（赤と青を、吸収） |
+| --- | --- |
+| 薄い（縁の、とがった所） | ほぼ透明 |
+| 中くらい | 薄い緑 |
+| 厚い（底、中心） | 濃い緑 |
+
+**厚みが、場所で違う**ことが、**ガラスの、立体感**を、作ります（コップの底が、濃い、ボトルの肩の、薄い所が、明るい）。
+
+## 厚みを、求める
+
+### ① 解析的な形（球、箱）
+
+形が、単純なら、**視線が、物体を、通る長さ**を、数式で、求められます。
+
+```hlsl
+// 球: 視線（原点 ro、方向 rd）が、中心 c、半径 r の球を、通り抜ける長さ。
+float SphereThickness(float3 ro, float3 rd, float3 c, float r) {
+  float3 oc = ro - c;
+  float b = dot(oc, rd);
+  float h = b * b - (dot(oc, oc) - r * r);
+  if (h < 0.0) return 0.0;                       // 当たらない
+  return 2.0 * sqrt(h);                           // 入口と出口の距離
+}
+```
+
+### ② 手前と奥の、深度の差
+
+任意の形では、**物体の、背面の深度**と、**前面の深度**の、差が、**その画素での、厚み**です。**背面を、先に描いて、深度を、別のテクスチャに、保存**し、**前面を描くとき**に、読みます。
+
+```text
+① 背面だけを描く（表面をカリング）→ 背面の深度を、テクスチャに保存
+② 前面を描く → 前面の深度と、保存した背面の深度の、差が、厚み
+```
+
+```hlsl
+Texture2D<float> g_back_depth : register(t2);          // 背面の深度（視点深度）
+
+float4 main(PSInput input) : SV_Target {
+  float front = LinearizeDepth(input.position.z);
+  float back = LinearizeDepth(g_back_depth.Load(int3(input.position.xy, 0)));
+  float thickness = max(back - front, 0.0);
+  // 視線方向の距離にする（視点深度の差は、カメラの前方向に沿っているので、cos で割る）
+  thickness /= max(dot(normalize(input.world_position - g_camera_position), g_camera_forward), 0.1);
+
+  float3 T = exp(-g_absorption * thickness);            // 色ごとの透過率
+  float3 refracted = SampleBackground(...) * T;
+  ...
+}
+```
+
+### ③ 厚みを、テクスチャに、焼く
+
+**物体ごとの、厚みの分布**を、事前に、テクスチャ（**厚みマップ**）に、**焼いて**おく方法です。**物体の内側から、外へ、レイを飛ばして**、厚みを、求め、**UV に、焼きます**（ツールで、事前計算）。**実行時は、テクスチャを、読むだけ**で、安いです。**視線の向きに、よらない**（近似）ので、**簡易**です。
+
+| 方法 | 正確さ | コスト | 向き |
+| --- | --- | --- | --- |
+| 解析的 | 完全 | 最小 | 球、箱、円柱 |
+| 背面の深度 | **視線に、正しい** | 追加のパス（背面を描く） | 任意の、凸な形 |
+| 厚みマップ | 視線に依存しない（近似） | 最小 | 複雑な、静止物（彫像、瓶） |
+
+背面の、深度を使う方法は、**凸な形**（瓶、球）で、正確です。**凹んだ形**（ドーナツ、コップ）では、視線が、物体を、**2 回以上**通るので、**不正確**になります。
+
+## 色の付け方
+
+### 吸収係数 σ を、色から作る
+
+「**1 m の厚さで、この色になる**」と、アーティストが、色を指定し、そこから、`σ` を、逆算します。
+
+```text
+T(1m) = exp(−σ)   →   σ = −ln( T(1m) )
+```
+
+```hlsl
+// 「1 メートル通ったあとの色」から、吸収係数を作る。
+float3 AbsorptionFromColor(float3 color_at_1m) {
+  return -log(max(color_at_1m, 0.001));
+}
+// 例: 緑のガラス（赤と青を吸収）
+float3 sigma = AbsorptionFromColor(float3(0.2, 0.8, 0.3));
+```
+
+**ガラスは、薄い（数 mm〜数 cm）**ので、`color_at_1m` を、そのまま使うと、ほとんど、色が付きません。**厚みのスケール**（`thickness × scale`）を、調整するか、**「厚み 1 cm の色」**を、基準にします。
+
+### 表面の色と、内部の色
+
+| 色 | 原因 | 表現 |
+| --- | --- | --- |
+| **内部の吸収** | 光が、ガラスの中を、通る間に、吸収される | `exp(−σ × 厚み)`（このページ） |
+| **表面の反射** | 表面の、反射。**色が、付かない**（ガラスは、反射が、白い）。**金属は、反射に、色が付く** | フレネル（[Fresnel](fresnel.md)）。白い反射 |
+| **内部の散乱** | すりガラス、**乳白色**、氷の気泡 | 屈折を、ぼかし、**散乱の色**を、足す |
+
+## 濁り（散乱）
+
+すりガラス、氷、乳白色のガラスは、**内部の、散乱**で、**背景が、ぼやけます**。
+
+```hlsl
+// 厚みに応じて、背景を、ぼかす（粗さを、厚みで増やす）。
+float lod = saturate(thickness / g_scatter_distance) * kMaxMip;
+float3 background = g_scene_copy_blurred.SampleLevel(g_linear_clamp, refract_uv, lod).rgb;
+// 散乱の色（白っぽい）を、厚みに応じて、足す
+float scatter = 1.0 - exp(-thickness * g_scatter_coeff);
+float3 color = lerp(background * T, g_scatter_color, scatter);
+```
+
+厚みが、増えるほど、**背景が、ぼやけ、散乱の色**（白、乳白）に、近づきます。
+
 ## よくあるミス
 
 ??? failure "厚いガラスも薄いガラスも、同じ色"
@@ -460,9 +574,10 @@ float3 tinted_background = background * transmittance;
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（屈折、フレネル、透過の章）
+- Hecht, "Optics", 5th Edition, Pearson, 2016（スネルの法則、フレネルの式、分散）
+- Beer, "Bestimmung der Absorption des rothen Lichts in farbigen Flüssigkeiten", Annalen der Physik, 1852（吸収の法則）
+- Sousa, "Generic Refraction Simulation", GPU Gems 2, Chapter 19, 2005
 
 ## 関連ページ
 

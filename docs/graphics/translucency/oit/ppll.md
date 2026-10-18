@@ -129,6 +129,145 @@ PPLL の利点は、正確なこと（ソート済みで合成）、層数に上
 
 <!-- fig:ppll-chain:end -->
 
+## 考え方：全部、リストに、溜める
+
+**PPLL（Per-Pixel Linked List、画素ごとの、連結リスト）**は、**画面の各画素に、重なる、すべての、フラグメントを、リストとして、溜めて**、**最後に、画素ごとに、ソートして、ブレンド**する方法です（Yang ら、2010）。**デプス ピーリングのような、複数パスが、不要**で、**1 パスで、すべての層を、集められます**。
+
+```text
+画素 (x, y):  head ──→ [赤, 深度 0.3] ──→ [青, 深度 0.7] ──→ [緑, 深度 0.5] ──→ 終わり
+                          リストの順序は、描かれた順（深度の順ではない）
+
+最後に、画素ごとに、リストを取り出して、深度で並べ替え、奥から手前へブレンドする
+```
+
+## データ構造
+
+| 要素 | 内容 |
+| --- | --- |
+| **ヘッド ポインタ バッファ**（画面と同じ大きさ） | 各画素の、リストの**先頭の、番号**。最初は `0xFFFFFFFF`（空） |
+| **フラグメント バッファ**（大きな配列） | 全フラグメントを、**1 本の配列**に、書き込む。各要素は、`色`、`深度`、`次の要素の番号` |
+| **カウンター** | 次に、使う、フラグメント バッファの、位置（アトミックに、増やす） |
+
+```hlsl
+struct FragmentNode {
+  uint packed_color;      // RGBA8 に詰めた色
+  float depth;            // 深度（並べ替え用）
+  uint next;              // 同じ画素の、次のフラグメントの番号（0xFFFFFFFF なら、終わり）
+};
+
+RWStructuredBuffer<FragmentNode> g_fragments : register(u1);     // フラグメント バッファ
+RWByteAddressBuffer g_head : register(u2);                       // ヘッド ポインタ（画素ごと）
+RWByteAddressBuffer g_counter : register(u3);                    // 割り当て済みの、数
+```
+
+## 構築パス：フラグメントを、溜める
+
+半透明の、ピクセル シェーダーで、**フラグメントを、書き込み**ます。**レンダー ターゲットには、描きません**（`discard` するか、書き込みマスクを、無効に）。
+
+```hlsl
+// 構築パス（半透明のオブジェクトを描くとき）。
+[earlydepthstencil]                                              // 不透明の深度で、隠れたフラグメントを、事前に捨てる
+void BuildPS(PSInput input) {
+  float4 color = ShadeFragment(input);
+
+  // ① フラグメント バッファの、空き位置を、アトミックに、確保する
+  uint index;
+  g_counter.InterlockedAdd(0, 1, index);
+  if (index >= kMaxFragments) return;                             // 溢れたら、捨てる
+
+  // ② この画素の、ヘッドを、新しいノードに、入れ替え、前のヘッドを、受け取る
+  uint pixel = (uint)input.position.y * g_screen_width + (uint)input.position.x;
+  uint prev_head;
+  g_head.InterlockedExchange(pixel * 4, index, prev_head);
+
+  // ③ 新しいノードを、書き込む（次 = 前のヘッド）
+  FragmentNode node;
+  node.packed_color = PackColor(color);
+  node.depth = input.position.z;
+  node.next = prev_head;
+  g_fragments[index] = node;
+}
+```
+
+| 命令 | 内容 |
+| --- | --- |
+| `InterlockedAdd` | カウンターを、アトミックに、増やして、**自分の、番号**を得る |
+| `InterlockedExchange` | ヘッドを、自分の番号に、**入れ替え**、**前のヘッド**を受け取る。これで、**リストの、先頭に、追加**される |
+| `[earlydepthstencil]` | 不透明な物で、隠れた、フラグメントは、シェーダー実行前に、捨てる |
+
+## 解決パス：ソートして、ブレンド
+
+**全画面の、ピクセル シェーダー**で、**画素ごとに、リストを、取り出し、ソートして、ブレンド**します。
+
+```hlsl
+float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
+  uint pixel = (uint)pos.y * g_screen_width + (uint)pos.x;
+  uint node_index = g_head.Load(pixel * 4);
+
+  // ① リストを、ローカル配列に、取り出す（最大 kMaxLayers 個）
+  FragmentNode layers[kMaxLayers];
+  int count = 0;
+  while (node_index != 0xFFFFFFFF && count < kMaxLayers) {
+    layers[count++] = g_fragments[node_index];
+    node_index = layers[count - 1].next;
+  }
+
+  // ② 深度の大きい順（奥から手前）に、並べ替える（挿入ソート。層が、少ないので、これで十分）
+  for (int i = 1; i < count; ++i) {
+    FragmentNode key = layers[i];
+    int j = i - 1;
+    while (j >= 0 && layers[j].depth < key.depth) { layers[j + 1] = layers[j]; --j; }
+    layers[j + 1] = key;
+  }
+
+  // ③ 背景（不透明の描画結果）から、奥から手前へ、順にブレンドする
+  float3 color = g_opaque_color.Load(int3(pos.xy, 0)).rgb;
+  for (int k = 0; k < count; ++k) {
+    float4 c = UnpackColor(layers[k].packed_color);
+    color = lerp(color, c.rgb, c.a);                              // 通常のアルファ ブレンド
+  }
+  return float4(color, 1.0);
+}
+```
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | **正確**（最大 `kMaxLayers` まで）。**1 パス**で、全層を、集められる |
+| 長所 | **半透明の、ジオメトリを、1 回だけ、描く**（デプス ピーリングは、層の数だけ描く） |
+| 短所 | **メモリ**が、大きい（フラグメント バッファ）。画面の、数倍〜数十倍の、フラグメントを、想定する |
+| 短所 | **バッファが、溢れる**と、**フラグメントが、捨てられる**（画面が、欠ける）。上限の見積もりが、必要 |
+| 短所 | **アトミック命令**が、**同じ画素に、集中**すると、競合して、遅い |
+| 短所 | 解決パスの、画素ごとの、**ソートが、重い**（層が、多い画素） |
+| 短所 | **画素ごとに、リストの長さが、バラバラ**で、**GPU の、スレッドが、待たされる**（ワープ内のばらつき） |
+
+## 最適化
+
+| 工夫 | 内容 |
+| --- | --- |
+| 色を、詰める | 色を `RGBA8`（4 バイト）にして、深度と合わせて、**8 バイト**に。**ノード全体で、12 バイト**（次の番号を含む） |
+| 層の数の上限 | `kMaxLayers = 8〜16`。それ以上は、**近似**（奥の層を、まとめる） |
+| 手前を残して、奥を、まとめる | 最も手前の、数層だけ、正確に。残りは、**WBOIT で、近似**（ハイブリッド、[Hybrid Approaches and Choosing](hybrid.md)） |
+| 低解像度で、集める | 煙のような、ぼやけた物は、**画面の半分の解像度**で、集めて、**アップサンプル** |
+| 画面を、タイルに分ける | タイルごとに、**フラグメントの、上限を、決める** |
+
+## DirectX 11 での、リソース
+
+PPLL には、**`RWByteAddressBuffer`** と **`RWStructuredBuffer`**（**UAV**）を、**ピクセル シェーダーから、書き込む**必要があります。DirectX 11 では、**ピクセル シェーダーでの、UAV の、使用**が、できます（`OMSetRenderTargetsAndUnorderedAccessViews`）。
+
+```cpp
+// レンダー ターゲット 0 個（描かない）+ UAV 3 つ（ヘッド、フラグメント、カウンター）を、ピクセル シェーダーへ設定する。
+ID3D11UnorderedAccessView* uavs[3] = {fragment_uav.Get(), head_uav.Get(), counter_uav.Get()};
+UINT initial_counts[3] = {0, 0, 0};
+context->OMSetRenderTargetsAndUnorderedAccessViews(
+    0, nullptr, depth_dsv_readonly.Get(),    // レンダー ターゲットなし。深度は、読み取り専用
+    1, 3, uavs, initial_counts);             // UAV はスロット 1 から
+// 毎フレームの最初に、ヘッド バッファを 0xFFFFFFFF で、カウンターを 0 で、クリアする。
+const UINT clear_head[4] = {0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF};
+context->ClearUnorderedAccessViewUint(head_uav.Get(), clear_head);
+```
+
 ## よくあるミス
 
 ??? failure "重なりが多い所で、リストがあふれる"
@@ -142,9 +281,11 @@ PPLL の利点は、正確なこと（ソート済みで合成）、層数に上
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Yang, Hensley, Grün, Thibieroz, "Real-Time Concurrent Linked List Construction on the GPU", Computer Graphics Forum (Eurographics Symposium on Rendering 2010)
+- Carpenter, "The A-buffer, an Antialiased Hidden Surface Method", SIGGRAPH 1984
+- Salvi, Montgomery, Lefohn, "Adaptive Transparency", High-Performance Graphics 2011
+- Wyman, "Exploring and Expanding the Continuum of OIT Algorithms", High-Performance Graphics 2016
+- Microsoft Learn, "RWStructuredBuffer / RWByteAddressBuffer"（HLSL のバッファ）と "InterlockedExchange"
 
 ## 関連ページ
 

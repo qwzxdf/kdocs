@@ -230,9 +230,11 @@ float3 refracted = refract(incident, normal, eta);
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Sousa, "Generic Refraction Simulation", GPU Gems 2, Chapter 19, 2005
+- Wyman, "An Approximate Image-Space Approach for Interactive Refraction", ACM Transactions on Graphics (SIGGRAPH 2005)
+- Schlick, "An Inexpensive BRDF Model for Physically-based Rendering", Computer Graphics Forum, Vol. 13, No. 3, 1994
+- Walter, Marschner, Li, Torrance, "Microfacet Models for Refraction through Rough Surfaces", Eurographics Symposium on Rendering 2007
+- Hecht, "Optics", 5th Edition, Pearson, 2016（スネルの法則、フレネルの式、分散）
 
 ## 関連ページ
 

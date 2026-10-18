@@ -23,6 +23,40 @@ tags:
 | **ディザ透明** | 網目状 | 不要 | 書ける | 低 | カメラ前の遮蔽物を透かす |
 | **ブレンド** | 滑らか | **必要** | 書かない | 中〜大 | ガラス・煙 |
 
+## 5 つの方式を、並べて比べる
+
+| 観点 | アルファ テスト | Alpha to Coverage | ディザ | ハッシュ アルファ | アルファ ブレンド |
+| --- | --- | --- | --- | --- | --- |
+| 縁 | ジャギー | **なめらか** | 粒状 | なめらか（TAA で） | なめらか |
+| 半透明 | 0 か 1 | 段階的（MSAA の段階） | 確率的 | 確率的 | **連続** |
+| 深度の書き込み | 可能 | 可能 | 可能 | 可能 | **不可**（普通は） |
+| ソート | **不要** | **不要** | **不要** | **不要** | **必要** |
+| 前提 | なし | **MSAA** | なし | **TAA**（推奨） | なし |
+| ノイズ | なし | なし | あり | あり | なし |
+| コスト | Early-Z が、効かない | 同左 + MSAA | 同左 | 同左 | ブレンドの帯域 |
+| 向く対象 | 柵、金網 | **葉、草（フォワード）** | フェード、LOD | **葉、髪（TAA あり）** | ガラス、煙、水 |
+
+## 選び方
+
+| 状況 | おすすめ |
+| --- | --- |
+| まず、動かしたい | アルファ テスト |
+| フォワード + MSAA の、植生 | **Alpha to Coverage** |
+| ディファード + TAA の、植生 | **ハッシュ アルファ**（または、IGN / ブルー ノイズのディザ） |
+| LOD の切り替え、近接フェード | ディザ（ブルー ノイズ） |
+| 本当の、半透明（ガラス、煙） | アルファ ブレンド（[Alpha Blending and Sorting](../blending-sorting/index.md)）、OIT |
+
+## 組み合わせる
+
+1 つだけでなく、**組み合わせる**のが、普通です。
+
+| 組み合わせ | 内容 |
+| --- | --- |
+| A2C + アルファの、シャープ化 | 縁を、1 画素幅に、保つ（[Alpha to Coverage](alpha-to-coverage.md)） |
+| ハッシュ アルファ + TAA | ノイズを、時間方向に、平均して、なめらかに |
+| ディザ + LOD | 2 つの LOD を、補い合うパターンで、切り替える |
+| Z プリパス + 上のどれか | 隠れた画素の、重いシェーダーを、省く（[Performance and Shadow Passes](performance.md)） |
+
 ## よくあるミス
 
 ??? failure "MSAA も TAA も無いのに、A2C やハッシュドを選ぶ"
@@ -35,9 +69,10 @@ tags:
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Wyman, McGuire, "Hashed Alpha Testing", Symposium on Interactive 3D Graphics and Games 2017
+- Castaño, "Computing Alpha Mipmaps", 2010（ミップごとに、アルファを補正して、カバレッジを保つ）
+- Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare", SIGGRAPH 2014, Advances in Real-Time Rendering in Games（Interleaved Gradient Noise）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（透明と、アルファ合成の章）
 
 ## 関連ページ
 

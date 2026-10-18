@@ -75,6 +75,119 @@ float3 DispersedRefraction(float2 uv, float2 offset, float spread) {
 
 <!-- fig:dispersion-delta:end -->
 
+## 分散とは
+
+ガラスの屈折率は、**光の波長によって、少し違います**。**青い光は、赤い光より、少し、大きく**曲がります。結果、**白い光が、プリズムを、通ると、虹色に、分かれます**。これが**分散**です。
+
+| 色 | 波長 | 屈折率（クラウン ガラス） |
+| --- | --- | --- |
+| 赤 | 約 650 nm | 約 1.514 |
+| 緑 | 約 550 nm | 約 1.519 |
+| 青 | 約 450 nm | 約 1.527 |
+
+差は、**わずか**（1% 以下）ですが、**曲がる角度の、わずかな違い**が、**距離を、進むと、はっきりした色の、ずれ**になります。ダイヤモンドの、**きらめき（ファイア）**、プリズム、**縁の、虹色**は、すべて、分散による現象です。
+
+## 屈折率の、波長依存
+
+屈折率は、波長に対して、**単調に、減る**（長い波長ほど、小さい）。経験式（Cauchy の式、Sellmeier の式）が、あります。
+
+```text
+Cauchy の式:  n(λ) = A + B / λ²                  λ は、マイクロメートル。A、B は、材料ごとの定数
+```
+
+| 材料 | A | B（μm²） |
+| --- | --- | --- |
+| 水 | 1.3199 | 0.00306 |
+| クラウン ガラス | 1.5046 | 0.00420 |
+| フリント ガラス | 1.7280 | 0.01342 |
+| ダイヤモンド | 2.3780 | 0.01158 |
+
+フリント ガラス（鉛を含み、分散が大きい）や、ダイヤモンドは、`B` が、大きく、**分散が、強い**。
+
+```hlsl
+// Cauchy の式で、波長（マイクロメートル）から屈折率を求める。
+float CauchyIOR(float lambda_um, float A, float B) {
+  return A + B / (lambda_um * lambda_um);
+}
+float ior_r = CauchyIOR(0.65, 1.5046, 0.00420);     // 赤
+float ior_g = CauchyIOR(0.55, 1.5046, 0.00420);     // 緑
+float ior_b = CauchyIOR(0.45, 1.5046, 0.00420);     // 青
+```
+
+## 実装：RGB を、別々に、屈折させる
+
+最も、簡単な方法は、**赤・緑・青の、3 つの屈折率**で、**屈折ベクトルを、3 回**求め、**それぞれ、違う位置を、読む**ことです。
+
+```hlsl
+float3 view = normalize(input.world_position - g_camera_position);
+float3 N = normalize(input.world_normal);
+
+// RGB で、別の屈折率（空気 → ガラス: eta = 1 / n）。
+float3 refr_r = refract(view, N, 1.0 / ior_r);
+float3 refr_g = refract(view, N, 1.0 / ior_g);
+float3 refr_b = refract(view, N, 1.0 / ior_b);
+
+// 画面空間の屈折: それぞれの屈折ベクトルから、ずらし量を求め、別々に、読む。
+float2 uv_r = screen_uv + ViewOffset(refr_r) * g_refraction_strength;
+float2 uv_g = screen_uv + ViewOffset(refr_g) * g_refraction_strength;
+float2 uv_b = screen_uv + ViewOffset(refr_b) * g_refraction_strength;
+
+float3 refracted;
+refracted.r = g_scene_copy.Sample(g_linear_clamp, uv_r).r;
+refracted.g = g_scene_copy.Sample(g_linear_clamp, uv_g).g;
+refracted.b = g_scene_copy.Sample(g_linear_clamp, uv_b).b;
+```
+
+簡易版は、**法線から、ずらし量を求め**、**RGB に、少しだけ違う係数**を、掛けます。
+
+```hlsl
+float2 offset = view_normal.xy * g_refraction_strength;
+refracted.r = g_scene_copy.Sample(g_linear_clamp, screen_uv + offset * 0.95).r;     // 赤: 小さく曲がる
+refracted.g = g_scene_copy.Sample(g_linear_clamp, screen_uv + offset * 1.00).g;
+refracted.b = g_scene_copy.Sample(g_linear_clamp, screen_uv + offset * 1.05).b;     // 青: 大きく曲がる
+```
+
+0.95、1.00、1.05 の、**差**を、広げるほど、**虹色の、縁取り**が、強くなります。**水のように、分散が小さい物**では、差を、**ごく小さく**します。
+
+## 3 色では、足りない
+
+RGB の、**3 色だけ**だと、**色の、分離が、3 つの、ずれた、像**に、見えます（赤の像、緑の像、青の像）。**なめらかな、虹**にするには、**もっと多くの波長**で、サンプルします。
+
+```hlsl
+// 波長を 8 つに分けて、それぞれ屈折させ、RGB に、変換して足す（スペクトルの、近似）。
+float3 acc = 0;
+float3 weight_sum = 0;
+for (int i = 0; i < 8; ++i) {
+  float t = (i + 0.5) / 8.0;                           // 0（赤）〜 1（青）
+  float lambda = lerp(0.70, 0.40, t);                   // 波長（μm）
+  float ior = CauchyIOR(lambda, A, B);
+  float3 refr = refract(view, N, 1.0 / ior);
+  float3 sample_color = g_scene_copy.Sample(g_linear_clamp, screen_uv + ViewOffset(refr) * g_refraction_strength).rgb;
+  float3 w = WavelengthToRGB(lambda);                   // 波長に対応する、RGB の重み（虹の色）
+  acc += sample_color * w;
+  weight_sum += w;
+}
+float3 refracted = acc / weight_sum;
+```
+
+`WavelengthToRGB` は、**波長（380〜700 nm）から、RGB の重みを返す関数**です（虹色の、グラデーションの近似）。8〜16 サンプルで、**なめらかな虹**に、なります。コストは、サンプル数に、比例して、増えます。
+
+## どこに、現れるか
+
+| 対象 | 分散の、見え方 |
+| --- | --- |
+| 窓ガラス | ほとんど、見えない（薄く、分散も小さい） |
+| 水 | ほとんど、見えない（分散が、小さい） |
+| **ガラスの、縁**、**切り子** | 縁の、**細い、虹色**。曲面で、強い |
+| **プリズム** | 白い光が、**虹色**に、分かれる |
+| **ダイヤモンド、宝石** | 内部の、反射・屈折で、**カラフルな、きらめき（ファイア）** |
+
+**平らな、薄いガラス**では、**分散は、ほぼ、見えません**。**縁や、曲がった、厚い部分**で、効果が、現れるので、**そこに、使う**と、**コストの割に、見栄えが、よくなります**。
+
+## 色収差（レンズ）との違い
+
+[Chromatic Aberration](../../postprocess/lens-effects/chromatic-aberration.md) は、**カメラの、レンズ**が、起こす、**色の、ずれ**で、**画面の、周辺**に、現れます。**物体（ガラス）の分散**は、**ガラスの、**物体**の、部分だけ**に、現れます。**原因も、場所も、別**です。
+
 ## よくあるミス
 
 ??? failure "すべてのガラスに強い色収差を付けて、安っぽくなる"
@@ -88,9 +201,10 @@ float3 DispersedRefraction(float2 uv, float2 offset, float spread) {
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Hecht, "Optics", 5th Edition, Pearson, 2016（スネルの法則、フレネルの式、分散）
+- Sellmeier, "Zur Erklärung der abnormen Farbenfolge im Spectrum einiger Substanzen", Annalen der Physik und Chemie, Vol. 219, 1871（屈折率の波長依存の式）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（屈折、フレネル、透過の章）
+- Cauchy, "Mémoire sur la dispersion de la lumière", Prague, 1836（Cauchy の式）
 
 ## 関連ページ
 

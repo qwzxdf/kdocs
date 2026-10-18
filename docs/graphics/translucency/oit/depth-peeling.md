@@ -180,6 +180,103 @@ float4 PSMain(VsOutput input) : SV_Target {
 | **コスト** | **N 回の描画**（**シーン全体の半透明ジオメトリを、N 回流す**） |
 | **派生** | **Dual Depth Peeling**（**手前と奥を、同時に剥がす**：パスが半分） |
 
+## 考え方：1 層ずつ、剥がす
+
+**デプス ピーリング**（Everitt、2001）は、**最も手前の層から、順に、1 層ずつ**、**剥がす**ように、取り出していく方法です。
+
+```text
+視線 ──→  ┌────┐   ┌────┐   ┌────┐
+          │ 層1 │   │ 層2 │   │ 層3 │     層 1 が、最も手前
+          └────┘   └────┘   └────┘
+```
+
+1. 最初のパスで、**最も手前の層**（層 1）を、描く
+2. 2 つ目のパスで、**層 1 より、奥の、最も手前**（層 2）を、描く
+3. 3 つ目のパスで、**層 2 より、奥の、最も手前**（層 3）を、描く
+4. …（層が、なくなるまで）
+5. 取り出した層を、**奥から手前**の順に、**ブレンド**する
+
+**各層は、画素ごとに、1 つの、フラグメント**です。**正確な順序**で、ブレンドできるので、**順序に依存しない透明が、正確に**、得られます。
+
+## 仕組み：深度を、2 枚、使う
+
+**前のパスの深度**を、テクスチャとして、**ピクセル シェーダーで、読み**、**それより、手前のフラグメントを、捨てます**。
+
+```hlsl
+Texture2D<float> g_prev_depth : register(t0);       // 前のパスで取り出した層の深度
+
+struct PSOut { float4 color : SV_Target; };
+
+PSOut main(PSInput input) {
+  // 前の層の深度以下（手前）のフラグメントは、すでに取り出したので、捨てる。
+  float prev = g_prev_depth.Load(int3(input.position.xy, 0));
+  if (input.position.z <= prev + 1e-6) discard;
+
+  PSOut o;
+  o.color = ShadeFragment(input);                    // 通常の、ライティング
+  return o;
+}
+```
+
+| 設定 | 内容 |
+| --- | --- |
+| 深度テスト | `LESS`（最も手前の、1 つだけが、残る） |
+| 深度の書き込み | 有効（そのパスでの、最も手前を、決めるため） |
+| 前の深度 | **ping-pong**（2 枚の深度を、交互に、読み書き）。**書き込み先と、読み取り元は、別のテクスチャ** |
+| 色 | 各パスの、色を、別の、レンダー ターゲットに、保存 |
+
+```cpp
+// 各層: 深度は 2 枚を交互に使う。色は、層ごとに別のテクスチャへ。
+for (int layer = 0; layer < kMaxLayers; ++layer) {
+  const int write = layer & 1, read = 1 - write;
+  context->OMSetRenderTargets(1, layer_rtv[layer].GetAddressOf(), depth_dsv[write].Get());
+  context->ClearDepthStencilView(depth_dsv[write].Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+  context->PSSetShaderResources(0, 1, depth_srv[read].GetAddressOf());
+  DrawTransparentObjects();
+}
+// 最後に、層を奥（最後に取り出した層）から手前（最初）の順に、ブレンドする。
+```
+
+## 層の、数
+
+必要な、パスの数は、**画素ごとの、最大の重なり（深度の複雑度）**です。
+
+| 場面 | 重なり | パス |
+| --- | --- | --- |
+| 窓ガラス | 1〜2 | 2 |
+| 葉の群れ | 5〜20 | 多い（重い） |
+| 髪の毛 | 10〜50 | 非常に、多い |
+
+**すべての層を、取り出す**には、**パスの数 × 半透明の描画コスト**が、かかります。実用では、**手前の、数層（3〜4 層）**だけを、正確に、残りは、近似、という使い方に、なります。
+
+## デュアル デプス ピーリング
+
+Bavoil と Myers（2008）の、**デュアル デプス ピーリング**は、**最も手前と、最も奥の、両方を、同時に、剥がす**方法です。**パスの数が、約半分**になります。
+
+| 方式 | 1 パスで剥がす層 | 必要なパス（層が 8 のとき） |
+| --- | --- | --- |
+| 通常 | 手前から、1 層 | 8 |
+| デュアル | 手前と奥から、各 1 層 | 4 |
+
+**最小深度と、最大深度**を、同時に、追跡し、**ブレンドの、MIN / MAX 演算**を、使って、実現します（`BlendOp = MAX`、深度を、`-depth` で、2 つを、1 つのテクスチャに、格納する）。実装は、複雑ですが、**パスの、半減**が、得られます。
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | **正確**（順序が、完全に、正しい）。**ソート不要**。実装が、**概念的に**単純 |
+| 短所 | **重い**。層の数 × 描画。**層が、足りないと、奥が、欠ける** |
+| 短所 | **メモリ**：層ごとの、レンダー ターゲット（1 層 = 画面 1 枚） |
+| 短所 | **半透明を、層の数だけ、何度も描く**（ジオメトリ、頂点シェーダーも、繰り返す） |
+
+## 使いどころ
+
+| 場面 | 判断 |
+| --- | --- |
+| 小さな、**重要な**半透明（ガラスの、造形物） | 使える |
+| 重なりが、非常に多い（髪、葉、煙） | **重すぎる**。他の方式（[WBOIT](wboit.md)、[PPLL](ppll.md)） |
+| オフラインの、正解画像の作成 | 最適（比較用の、リファレンス） |
+
 ## よくあるミス
 
 ??? failure "層が多いシーンで、Depth Peeling が遅すぎる"
@@ -193,9 +290,10 @@ float4 PSMain(VsOutput input) : SV_Target {
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Everitt, "Interactive Order-Independent Transparency", NVIDIA White Paper, 2001（デプス ピーリング）
+- Bavoil, Myers, "Order Independent Transparency with Dual Depth Peeling", NVIDIA White Paper, 2008
+- Carpenter, "The A-buffer, an Antialiased Hidden Surface Method", SIGGRAPH 1984
+- Wyman, "Exploring and Expanding the Continuum of OIT Algorithms", High-Performance Graphics 2016
 
 ## 関連ページ
 

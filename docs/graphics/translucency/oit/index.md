@@ -41,9 +41,12 @@ tags:
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Carpenter, "The A-buffer, an Antialiased Hidden Surface Method", SIGGRAPH 1984
+- Everitt, "Interactive Order-Independent Transparency", NVIDIA White Paper, 2001（デプス ピーリング）
+- Yang, Hensley, Grün, Thibieroz, "Real-Time Concurrent Linked List Construction on the GPU", Computer Graphics Forum (Eurographics Symposium on Rendering 2010)
+- McGuire, Bavoil, "Weighted Blended Order-Independent Transparency", Journal of Computer Graphics Techniques, Vol. 2, No. 2, 2013
+- Enderton, Sintorn, Shirley, Luebke, "Stochastic Transparency", Symposium on Interactive 3D Graphics and Games 2010
+- Wyman, "Exploring and Expanding the Continuum of OIT Algorithms", High-Performance Graphics 2016
 
 ## 関連ページ
 

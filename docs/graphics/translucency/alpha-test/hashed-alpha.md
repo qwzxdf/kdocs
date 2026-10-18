@@ -500,6 +500,109 @@ clip(alpha - threshold);
 
 **ハッシュ（ノイズ）を、ワールド座標・オブジェクト座標**から作る（**Wyman と McGuire の Hashed Alpha Testing**）と、**動いても、ノイズが物体に貼りつく**ので**安定**します。
 
+## ハッシュ アルファの、考え方
+
+Wyman と McGuire（2017）は、**アルファ テストを、確率的に行う**方法を、示しました。**画素ごとに、ランダムなしきい値**を、決め、アルファが、そのしきい値より大きければ、描きます。
+
+```text
+通常のアルファ テスト:    alpha > 0.5          （全画素で、しきい値が、同じ）
+ハッシュ アルファ:        alpha > hash(位置)    （画素ごとに、しきい値が、ランダム）
+```
+
+**確率の考え方**：しきい値が、0〜1 の、一様乱数なら、**アルファ `a` の画素が、描かれる確率は、ちょうど `a`** です。**アルファ 0.3 なら、画素の 30% が、描かれる**。TAA で、複数フレームを、平均すると、**30% の濃さの半透明**に、見えます。
+
+## 通常の、アルファ テストとの違い
+
+| | アルファ テスト（0.5 で切る） | ハッシュ アルファ |
+| --- | --- | --- |
+| しきい値 | 0.5（固定） | **ランダム**（画素ごと） |
+| アルファ 0.3 の部分 | **常に、捨てる**（消える） | **30% の画素が、描かれる**（薄く見える） |
+| 縁 | 階段状（ジャギー） | なめらか（ノイズが、混ざる） |
+| 半透明の表現 | 不可（0 か 1 か） | **可能**（確率的に） |
+| 遠くの、葉 | ミップで、アルファが、薄くなり、**スカスカ** | 薄くなった、アルファが、**確率として、残る** |
+| ノイズ | なし | **あり**（TAA で、減る） |
+
+アルファ 0.3 の部分が、**通常の、アルファ テストでは、消えますが**、ハッシュ アルファでは、**30% の確率で、描かれて**、**ミップで、薄くなった、遠くの葉**が、**スカスカに、ならずに**、**平均すると、元の、密度**に近くなります（[Foliage Translucency](../../terrain/vegetation/translucency.md)）。
+
+## ハッシュの、作り方：安定させる
+
+しきい値は、**画素ごと**に、決まりますが、**フレームごとに、変わる**と、**ちらつき**ます。TAA を、使わないなら、**同じ物の、同じ点が、いつも、同じしきい値**を、持ってほしいです。そこで、**画面の座標ではなく、物の表面の位置**（オブジェクト空間）から、ハッシュを作ります。
+
+```hlsl
+// 画面ではなく、物体の表面の位置から、安定した乱数を作る（カメラが動いても、同じ点は、同じしきい値）。
+float Hash(float2 p) {
+  return frac(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
+}
+
+// オブジェクト空間の位置から作る。
+float HashedThreshold(float3 object_pos) {
+  return Hash(object_pos.xy + Hash(object_pos.zz));
+}
+```
+
+| 方法 | 動き | 向く場面 |
+| --- | --- | --- |
+| 画面座標から作る | カメラが動くと、パターンは、画面に固定。**画面に、ノイズが、貼り付いた**ように見える（スクリーン ドア効果） | TAA あり（フレームごとに、ずらして、平均） |
+| オブジェクト空間から作る | **物に、パターンが、貼り付く**。物と一緒に動く。安定している | TAA なしでも、安定。ただし、**物に、ざらざらの模様**が、貼り付いて見える |
+
+## スケールの、問題
+
+オブジェクト空間の、ハッシュは、**近づくと、ノイズの粒が、大きく**、**遠ざかると、小さく**（画素より小さく）なります。**画面上で、一定の、粒の大きさ**に、保つには、**画面上の、1 画素に、対応する、オブジェクト空間の、大きさ**で、ハッシュを、**スケール**する必要があります。
+
+Wyman と McGuire の、方法は、**画面の微分**（`ddx`、`ddy`）から、**画素の、大きさ**を、求めて、**ハッシュする座標を、離散化**（その大きさに、丸める）します。
+
+```hlsl
+// 論文の考え方: 1 画素の大きさに合わせて、ハッシュ用の座標を丸める。
+float HashedAlphaThreshold(float3 object_pos, float hash_scale) {
+  // 画素の、オブジェクト空間での大きさ（最大の微分の長さ）
+  float max_deriv = max(length(ddx(object_pos)), length(ddy(object_pos)));
+  float pix_scale = 1.0 / (hash_scale * max_deriv);                  // 画素の大きさに、比例
+  // 2 の累乗に丸めて、座標を離散化（スケールが、なめらかに、切り替わるよう、2 つを補間）
+  float2 pix_scales = float2(exp2(floor(log2(pix_scale))), exp2(ceil(log2(pix_scale))));
+  float2 alpha_xy = float2(Hash(floor(pix_scales.x * object_pos.xy)),
+                           Hash(floor(pix_scales.y * object_pos.xy)));
+  float lerp_factor = frac(log2(pix_scale));
+  float x = lerp(alpha_xy.x, alpha_xy.y, lerp_factor);
+  // 一様な分布にするための、補正（論文の式）
+  float a = min(lerp_factor, 1.0 - lerp_factor);
+  float3 cases = float3(x * x / (2.0 * a * (1.0 - a)),
+                        (x - 0.5 * a) / (1.0 - a),
+                        1.0 - ((1.0 - x) * (1.0 - x) / (2.0 * a * (1.0 - a))));
+  float threshold = (x < (1.0 - a)) ? ((x < a) ? cases.x : cases.y) : cases.z;
+  return clamp(threshold, 1e-6, 1.0);
+}
+```
+
+上のコードは、論文の、実装の骨子です。**ポイント**は、**スケールを、2 の累乗に、丸めて、2 つを、補間する**ことで、**距離が変わっても、粒の大きさが、画面上で、ほぼ一定**になる点です。
+
+実用上は、**画面座標から作る、簡単な方法（ブルー ノイズ、IGN）+ TAA**が、十分なことが、多いです。
+
+## シェーダーでの、使い方
+
+```hlsl
+float alpha = g_albedo.Sample(g_linear_wrap, input.uv).a;
+float threshold = HashedAlphaThreshold(input.object_pos, 1.0);
+clip(alpha - threshold);
+```
+
+| 項目 | 内容 |
+| --- | --- |
+| 組み合わせる | **TAA** と一緒に使うと、ノイズが、平均されて、**半透明のように、見える** |
+| MSAA との併用 | A2C と併用すると、**縁が、さらに、なめらか**（ただし、重い） |
+| 影 | **影のパス**でも、同じハッシュで、描く。影も、**確率的に、薄く**なる（[Alpha-Tested Shadows](../../shadows/special-cases/alpha-test-shadows.md)） |
+| ノイズ | TAA が、**なければ**、ノイズが、目立つ。静止画で、ざらつく |
+
+## 使い分け
+
+| 方式 | 縁 | 半透明 | ノイズ | 必要なもの |
+| --- | --- | --- | --- | --- |
+| アルファ テスト | ジャギー | なし | なし | なし |
+| A2C | なめらか | 段階的 | なし | MSAA |
+| ディザ | 粒状 | あり（確率） | あり | なし（TAA が、あると良い） |
+| ハッシュ アルファ | なめらか（TAA あり） | あり（確率） | あり | **TAA** |
+
+TAA が、すでにあるゲームでは、**ハッシュ アルファ**が、**最も、手軽で、品質が良い**選択です。
+
 ## よくあるミス
 
 ??? failure "ハッシュド アルファのノイズが消えない"
@@ -513,9 +616,10 @@ clip(alpha - threshold);
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Wyman, McGuire, "Hashed Alpha Testing", Symposium on Interactive 3D Graphics and Games 2017
+- Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare", SIGGRAPH 2014, Advances in Real-Time Rendering in Games（Interleaved Gradient Noise）
+- Castaño, "Computing Alpha Mipmaps", 2010（ミップごとに、アルファを補正して、カバレッジを保つ）
+- Georgiev, Fajardo, "Blue-Noise Dithered Sampling", SIGGRAPH 2016 Talks
 
 ## 関連ページ
 

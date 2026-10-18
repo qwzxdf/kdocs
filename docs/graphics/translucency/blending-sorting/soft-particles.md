@@ -153,6 +153,103 @@ color.a *= fade;
 | **`fade_distance`** | **この距離で、完全に不透明に** |
 | **要件** | **深度バッファを、読み取りと深度テストで、同時に使えない**ので、**深度のコピー**（または読み取り専用 DSV）が要る |
 
+## 問題：パーティクルが、地面と、交差して、線が見える
+
+煙や、霧のパーティクルは、**板（ビルボード）**で、描かれます。板が、**地面や壁に、突き刺さる**と、**板と地面の交差線**が、**ぱっきりと**見えます。煙が、**地面に、板が、刺さっている**ように見えて、**不自然**です。
+
+```text
+ 煙の板
+     ╲
+      ╲   ← 板が、地面に刺さっている
+ ━━━━━━╲━━━━━ 地面
+        ╲
+         ← 交差した所に、くっきり線が出る
+```
+
+## ソフト パーティクル
+
+**ソフト パーティクル**（Lorach、2007）は、**パーティクルの、深度**と、**後ろにある、物の深度**の、**差が、小さい所**（交差に近い所）で、**パーティクルを、透明に、フェード**させる手法です。**交差線が、消え、板が、地面に、なめらかに、溶け込み**ます。
+
+```text
+アルファ = 元のアルファ × saturate( (シーン深度 − パーティクル深度) / フェード距離 )
+```
+
+| 深度の差 | アルファ |
+| --- | --- |
+| 0（交差している） | 0（透明） |
+| フェード距離の半分 | 半分 |
+| フェード距離以上 | 元のまま |
+
+## 実装
+
+深度バッファを、**シェーダー リソース**として、読みます。パーティクルの、描画では、深度の書き込みは、無効なので、**同じ深度バッファを、読み取り専用の、DSV と、SRV の、両方**で使えます（[Color by Water Depth](../../water/shading/depth-color.md)、深度の、読み方）。
+
+```hlsl
+Texture2D<float> g_scene_depth : register(t0);
+
+float4 main(PSInput input) : SV_Target {
+  float4 color = g_particle_tex.Sample(g_linear_clamp, input.uv) * input.color;
+
+  // ① 後ろにある、物の深度（視点深度）を、読む
+  float scene_ndc = g_scene_depth.Load(int3(input.position.xy, 0));
+  float scene_depth = LinearizeDepth(scene_ndc);
+
+  // ② このパーティクルの、深度（視点深度）
+  float particle_depth = LinearizeDepth(input.position.z);
+
+  // ③ 差に応じて、アルファを、フェードさせる
+  float fade = saturate((scene_depth - particle_depth) / g_soft_distance);
+  color.a *= fade;
+  return color;
+}
+```
+
+| パラメーター | 目安 | 効果 |
+| --- | --- | --- |
+| `g_soft_distance` | 0.5〜2 m | **フェードする、深度の範囲**。大きいほど、交差線の、近くから、ゆっくり、透明になる |
+
+ほとんどの、煙や霧では、**パーティクルの、大きさの、半分くらい**の、フェード距離が、使われます。
+
+### 線形の深度で、比べる
+
+深度バッファの値は、**非線形**（近くで、精度が高く、遠くで、粗い）です。**差を取るとき**は、**必ず、線形の、視点深度に、直して**から、引きます。
+
+```hlsl
+// 線形の視点深度に直す（通常の射影行列）。
+float LinearizeDepth(float d) {
+  return near_plane * far_plane / (far_plane - d * (far_plane - near_plane));
+}
+```
+
+非線形のまま、差を取ると、**遠くで、フェードが、効かなくなったり**、**近くで、効きすぎたり**します。
+
+## 逆方向：パーティクルが、カメラに近すぎる
+
+パーティクルが、**カメラに、近づきすぎる**と、**画面全体を、覆う**ほど、大きくなり、**ブレンドの、コストが、跳ね上がり**、見た目も、うるさいです。**カメラに近いほど、フェードアウト**させます。
+
+```hlsl
+float near_fade = saturate((particle_depth - near_fade_start) / near_fade_range);
+color.a *= near_fade;
+```
+
+## 光る、パーティクルへの、応用
+
+**加算ブレンド**の、パーティクル（火花、光）でも、ソフト パーティクルは、**有効**です。**フェード**を、**アルファではなく、色（明るさ）**に掛けます（加算では、アルファが、色を、決めるため）。
+
+```hlsl
+// 加算ブレンド: 色そのものに、フェードを掛ける。
+color.rgb *= fade;
+```
+
+## 注意点
+
+| 項目 | 内容 |
+| --- | --- |
+| 深度を、読む | **MSAA** を、使っているとき、深度は、**MSAA の深度**。`Load` で、**サンプルを、指定**して、読む（または、リゾルブした、深度を使う） |
+| 同じバッファの、読み書き | 深度を、**読み取り専用**にする（書き込みを、無効にする）。同時に、SRV で読む |
+| 水と、同じ原理 | 水面と、地形が、交差する線を、消す（[Shore Foam: Depth Difference](../../water/shore-foam/shore-depth.md)）。**水の、岸の、アルファ**も、同じ式 |
+| 解像度 | パーティクルを、**低解像度**で、描くときは、**深度も、縮小して、読む**（縮小する深度は、**最も近い値**で、縮める） |
+
 ## よくあるミス
 
 ??? failure "煙が地面と交差して、硬い線が出る"
@@ -166,9 +263,10 @@ color.a *= fade;
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Lorach, "Soft Particles", NVIDIA White Paper, 2007
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（透明、屈折、フレネルの章）
+- Microsoft Learn, "D3D11_RENDER_TARGET_BLEND_DESC"（`SrcBlend`、`DestBlend`、`BlendOp`）
+- Microsoft Learn, "Reading depth-stencil as shader resource"
 
 ## 関連ページ
 

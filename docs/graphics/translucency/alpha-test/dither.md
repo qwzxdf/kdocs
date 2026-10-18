@@ -120,6 +120,133 @@ clip(alpha - threshold);
 
 <!-- fig:dither-alpha:end -->
 
+## ディザリングとは
+
+**ディザリング**は、**限られた段階しか、表現できないとき**に、**小さな点の、配置**で、**中間の濃さ**を、表現する方法です。新聞の、写真が、**黒い点の、大きさと密度**で、グレーを表すのと、同じです。
+
+**透明の表現**に、使うと、**アルファ 0.5 を、画素の半分を描き、半分を捨てる**ことで、表します。**半透明のブレンドを使わず**、**深度を書き込み、ソートも不要**で、半透明に、見せられます。
+
+## ディザ パターン
+
+画素ごとに、**しきい値**を、決めておき、**アルファが、そのしきい値を、超えた画素だけ、描きます**。
+
+```text
+アルファ 0.25      0.50          0.75
+□□□□              ■□■□          ■■■■
+□■□□              □■□■          ■□■■
+□□□□              ■□■□          ■■■■
+□□□■              □■□■          ■■□■
+```
+
+### ベイヤー行列（Bayer）
+
+古典的な、ディザ パターンです（Bayer、1973）。**規則的な、行列**で、しきい値を決めます。
+
+```hlsl
+// 4×4 のベイヤー行列。値は 0〜15。16 で割って、0〜1 のしきい値にする。
+static const float kBayer4x4[16] = {
+     0.0,  8.0,  2.0, 10.0,
+    12.0,  4.0, 14.0,  6.0,
+     3.0, 11.0,  1.0,  9.0,
+    15.0,  7.0, 13.0,  5.0};
+
+float BayerThreshold(float2 screen_pos) {
+  uint2 p = uint2(screen_pos) & 3;                        // 画素の座標の、下位 2 ビット
+  return (kBayer4x4[p.y * 4 + p.x] + 0.5) / 16.0;
+}
+
+// ディザ透明: アルファが、しきい値より小さい画素を、捨てる。
+void DitherClip(float2 screen_pos, float alpha) {
+  clip(alpha - BayerThreshold(screen_pos));
+}
+```
+
+| 特徴 | 内容 |
+| --- | --- |
+| 規則的 | **格子状の、パターン**が、見える。近くで、見ると、目立つ |
+| 17 段階 | 4×4 では、**17 段階**（0〜16 個の、画素）しか、表現できない |
+| 安い | テーブル引きと、比較だけ |
+
+### Interleaved Gradient Noise
+
+Jimenez（2014）の、**画面座標から、安い式で、疑似ランダムな、しきい値**を作る方法です。ベイヤーより、**規則性が、目立ちません**。
+
+```hlsl
+float IGN(float2 screen_pos) {
+  return frac(52.9829189 * frac(dot(screen_pos, float2(0.06711056, 0.00583715))));
+}
+void DitherClipIGN(float2 screen_pos, float alpha) { clip(alpha - IGN(screen_pos)); }
+```
+
+### ブルー ノイズ
+
+**ブルー ノイズ**（Ulichney、1988）は、**低周波の成分が少なく、点が、均等に、散らばる**ノイズです。**規則性もなく、ダマにもならず**、**ディザに、最適**です。事前に作った、**ブルー ノイズの、テクスチャ**を、画面に、タイルして、しきい値として、読みます（Georgiev と Fajardo、2016）。
+
+```hlsl
+Texture2D<float> g_blue_noise : register(t8);             // 64×64 など（R8_UNORM、タイルできる）
+
+float BlueNoiseThreshold(float2 screen_pos) {
+  return g_blue_noise.Load(int3(int2(screen_pos) & 63, 0));
+}
+```
+
+| パターン | 見た目 | コスト | 段階 |
+| --- | --- | --- | --- |
+| ベイヤー 4×4 | 格子状。規則性が見える | 最小 | 17 |
+| IGN | 規則性が、目立たない | 小 | 実質、連続 |
+| ブルー ノイズ | **最もなめらか**。粒が、均一 | 小（テクスチャ 1 回） | 実質、連続（64×64 なら、4,096 段階） |
+
+## 用途 1：距離で、フェードして、消える
+
+**近づきすぎた、物**（カメラの前の、木、柵）を、**ディザで、消す**と、**視界を、塞がず**、**ポップもしません**。
+
+```hlsl
+// カメラに近いほど、消える（ディザ フェード）。
+float fade = saturate((distance_to_camera - near_fade_start) / (near_fade_end - near_fade_start));
+clip(fade - BlueNoiseThreshold(input.position.xy));
+```
+
+## 用途 2：LOD の、切り替え
+
+**2 つの LOD を、ディザで、混ぜて**、切り替える。**一方の、描く画素と、もう一方の、描く画素が、補い合う**ように、しきい値を、**反転**させます。
+
+```hlsl
+// LOD A: fade が 1 → 0 に向かうとき、少しずつ、消える。
+clip(fade_a - BlueNoiseThreshold(input.position.xy));
+// LOD B: 同じしきい値で、反転（A が捨てた画素を、B が描く）。
+clip((1.0 - fade_a) - (1.0 - BlueNoiseThreshold(input.position.xy)));   // = clip(BlueNoise - fade_a)
+```
+
+**同じ、しきい値パターン**を、2 つの LOD で、使うことが、肝心です。**A が描かない画素を、B が描く**ので、重なりも、穴も、ありません。
+
+## 用途 3：半透明を、**安く**
+
+**ソートできない、大量の物**（草、髪）の、アルファを、ディザで、近似します。深度に、書き込め、ソートが不要です。
+
+| 場面 | 内容 |
+| --- | --- |
+| 一時的な、フェード | キャラクターの、出現・消滅 |
+| 遠くの、草 | 密度を、距離で、間引く（ディザで、**画素単位**に） |
+| 透けるキャラ（ステルス） | 半透明風に |
+
+## ディザの、**最大の問題**：ざらつき
+
+ディザは、**点の、粗さ**が、見えます。**1 画素の粒**が、**ちらちら**して、**ザラザラ**した見た目です。
+
+| 対策 | 内容 |
+| --- | --- |
+| TAA（時間的アンチエイリアス） | ディザのパターンを、**フレームごとに、ずらして**、TAA で、平均すると、**滑らかな、半透明**に見える（[TAA](../../postprocess/antialiasing/taa.md)） |
+| ブルー ノイズ | 粒が、均一で、ダマにならず、**ザラつきが、目立たない** |
+| 高解像度 | 画素が、小さい（4K）ほど、点が、目立たない |
+
+TAA と組み合わせるときは、**パターンを、フレームごとに、ずらす**（ノイズの座標に、フレーム番号に応じた、オフセットを足す）。
+
+```hlsl
+// フレームごとに、ノイズの参照位置を、ずらす（TAA で、平均されて、なめらかに見える）。
+float2 jitter = float2(frame_index * 17, frame_index * 31);
+float threshold = g_blue_noise.Load(int3(int2(screen_pos + jitter) & 63, 0));
+```
+
 ## よくあるミス
 
 ??? failure "ディザの点々が目立つ"
@@ -133,9 +260,11 @@ clip(alpha - threshold);
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Bayer, "An Optimum Method for Two-Level Rendition of Continuous-Tone Pictures", IEEE International Conference on Communications, 1973（ベイヤー行列によるディザ）
+- Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare", SIGGRAPH 2014, Advances in Real-Time Rendering in Games（Interleaved Gradient Noise）
+- Ulichney, "Dithering with Blue Noise", Proceedings of the IEEE, Vol. 76, No. 1, 1988
+- Georgiev, Fajardo, "Blue-Noise Dithered Sampling", SIGGRAPH 2016 Talks
+- Wyman, McGuire, "Hashed Alpha Testing", Symposium on Interactive 3D Graphics and Games 2017
 
 ## 関連ページ
 

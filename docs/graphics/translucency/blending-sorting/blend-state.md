@@ -92,6 +92,135 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 
 **加算と乗算は、順序に依存しない**（足し算・掛け算は、交換できる）ので、**ソートが不要**です。**炎・光の粒・影**は、**この性質を利用**して**ソートなしで描ける**ことが多いです。
 
+## ブレンドの式
+
+半透明の描画は、**これから描く色（ソース）**と、**すでに画面に、ある色（デスティネーション）**を、**式**で、混ぜます。DirectX 11 の、ブレンド ステートは、この式の、**部品**を、指定します。
+
+```text
+結果 = ソース × SrcBlend  [演算 BlendOp]  デスティネーション × DestBlend
+```
+
+| 部品 | 意味 | よく使う値 |
+| --- | --- | --- |
+| `SrcBlend` | ソース（これから描く色）に、掛ける係数 | `SRC_ALPHA`、`ONE` |
+| `DestBlend` | デスティネーション（画面の色）に、掛ける係数 | `INV_SRC_ALPHA`、`ONE` |
+| `BlendOp` | 2 つを、どう組み合わせるか | `ADD`（足す）、`MAX`、`MIN` |
+
+## 代表的なブレンド
+
+### ① 通常の、アルファ ブレンド
+
+```text
+結果 = ソース × α  +  デスティネーション × (1 − α)
+```
+
+ガラス、煙、フェードする物の、**標準**です。
+
+```cpp
+D3D11_RENDER_TARGET_BLEND_DESC& rt = blend.RenderTarget[0];
+rt.BlendEnable = TRUE;
+rt.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+rt.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+rt.BlendOp = D3D11_BLEND_OP_ADD;
+rt.SrcBlendAlpha = D3D11_BLEND_ONE;                // アルファ チャンネルの合成
+rt.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+rt.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+```
+
+### ② 加算ブレンド
+
+```text
+結果 = ソース × α  +  デスティネーション × 1
+```
+
+火、光、魔法の、輝きなど、**明るさを、足していく**表現です。**順序に、依存しない**（足し算は、順序を、入れ替えても同じ）ので、**ソートが不要**です。
+
+```cpp
+rt.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+rt.DestBlend = D3D11_BLEND_ONE;                    // 画面の色を、そのまま残して、足す
+rt.BlendOp = D3D11_BLEND_OP_ADD;
+```
+
+加算ブレンドは、**重なるほど、明るく**なり、**白に近づきます**。HDR で、**明るさの上限が、無い**場合は、**ブルームで、光る**表現に、つながります（[Bloom](../../postprocess/bloom/index.md)）。
+
+### ③ 乗算ブレンド
+
+```text
+結果 = ソース × デスティネーション
+```
+
+**色付きガラス**、**影**、**汚れ**のように、**背景の色を、暗くする**表現です。
+
+```cpp
+rt.SrcBlend = D3D11_BLEND_ZERO;
+rt.DestBlend = D3D11_BLEND_SRC_COLOR;              // 画面の色 × ソースの色
+```
+
+乗算も、**順序に依存しません**（掛け算は、順序を入れ替えても、同じ）。
+
+### ④ 乗算済みアルファ
+
+```text
+結果 = ソース（すでに α が掛かっている）  +  デスティネーション × (1 − α)
+```
+
+アルファ ブレンドの、**ソースに、あらかじめ、アルファを、掛けておく**形です（[Premultiplied Alpha](premultiplied.md)）。
+
+```cpp
+rt.SrcBlend = D3D11_BLEND_ONE;                     // ソースには、掛けない（掛け済み）
+rt.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+```
+
+## 比較
+
+| ブレンド | SrcBlend | DestBlend | 向く表現 | 順序依存 |
+| --- | --- | --- | --- | --- |
+| アルファ | SRC_ALPHA | INV_SRC_ALPHA | ガラス、フェード | **依存する** |
+| 乗算済みアルファ | ONE | INV_SRC_ALPHA | 煙 + 光を、1 つのレイヤーで | 依存する |
+| 加算 | SRC_ALPHA（または ONE） | ONE | 火、光、魔法 | **しない** |
+| 乗算 | ZERO | SRC_COLOR | 色ガラス、影 | しない |
+| 最大値（MAX） | ONE | ONE（`BlendOp = MAX`） | 重なっても、強い方だけ残す（[Trampled Grass](../../terrain/vegetation/trample.md)） | しない |
+
+## 深度の設定との組み合わせ
+
+半透明は、**深度テストは、行い、深度の書き込みは、しない**のが、基本です。
+
+```cpp
+D3D11_DEPTH_STENCIL_DESC ds = {};
+ds.DepthEnable = TRUE;                                  // 不透明な物の後ろは、隠す
+ds.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;        // 半透明は、深度を書かない
+ds.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+device->CreateDepthStencilState(&ds, &transparent_depth_state);
+```
+
+| 設定 | 理由 |
+| --- | --- |
+| テスト：有効 | 不透明な物の、**後ろ**にある、半透明は、描かない |
+| 書き込み：無効 | 半透明が、深度を書くと、**その後ろの、半透明が、隠れて**しまう |
+
+## 描画の順番
+
+半透明は、**不透明の後**に、描きます。
+
+```text
+① 不透明を描く（深度を書く）
+② 半透明を描く（深度テストのみ、書き込みなし）、ソートして、奥から手前へ
+③ ポストプロセス
+```
+
+半透明の中の、順序は、**ソート**で決めます（[Sorting](sorting.md)）。
+
+## 複数の、レンダー ターゲットと、ブレンド
+
+レンダー ターゲットごとに、**別のブレンド**を、指定できます（`IndependentBlendEnable = TRUE`）。OIT の、実装（[WBOIT](../oit/wboit.md)）で、**2 つのターゲット**に、別々の、ブレンドを、使います。
+
+```cpp
+blend.IndependentBlendEnable = TRUE;
+blend.RenderTarget[0] = accum_blend;         // 加算（WBOIT の、積算）
+blend.RenderTarget[1] = reveal_blend;        // 乗算風（WBOIT の、透過度）
+```
+
 ## よくあるミス
 
 ??? failure "半透明の物が、後ろの物を隠して、穴が開いたように見える"
@@ -105,9 +234,10 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Porter, Duff, "Compositing Digital Images", SIGGRAPH 1984（アルファ合成の原典）
+- Smith, "Image Compositing Fundamentals", Microsoft Technical Memo 4, 1995（乗算済みアルファ）
+- Microsoft Learn, "D3D11_RENDER_TARGET_BLEND_DESC"（`SrcBlend`、`DestBlend`、`BlendOp`）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（透明、屈折、フレネルの章）
 
 ## 関連ページ
 

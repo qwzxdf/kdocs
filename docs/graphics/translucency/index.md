@@ -38,6 +38,13 @@ tags:
 
 **半透明は、不透明の後・ポストプロセスの前**に**描く**のが**基本**です。
 
+## 参考
+
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（屈折、フレネル、透過の章）
+- Sousa, "Generic Refraction Simulation", GPU Gems 2, Chapter 19, 2005
+- McGuire, Bavoil, "Weighted Blended Order-Independent Transparency", Journal of Computer Graphics Techniques, Vol. 2, No. 2, 2013
+- Wyman, McGuire, "Hashed Alpha Testing", Symposium on Interactive 3D Graphics and Games 2017
+
 ## 関連ページ
 
 - [描画](../index.md)

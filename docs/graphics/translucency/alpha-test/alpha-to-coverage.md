@@ -180,6 +180,138 @@ device->CreateBlendState(&desc, &alpha_to_coverage_state);
 
 **4x MSAA では 5 段階**（0/4〜4/4）の**透明度**しか**表せません**。**ディザリングのようなパターン**が**見える**ことがあります。
 
+## アルファ テストの、縁が、ギザギザになる理由
+
+`clip(alpha - 0.5)` は、**画素の中心**で、アルファを調べて、残すか捨てるかを、決めます。**縁の画素は、残るか、消えるかの、二択**なので、**階段状の、ジャギー**になります。MSAA（マルチサンプル アンチエイリアス）を使っていても、**ピクセル シェーダーが、1 画素に 1 回しか、走らない**ので、`clip` の結果は、**4 つのサンプルすべてに、同じ**ように、適用されます。**ポリゴンの縁**には、MSAA が効きますが、**テクスチャの、アルファの縁**には、効きません。
+
+## Alpha to Coverage の仕組み
+
+**Alpha to Coverage（A2C）**は、**ピクセル シェーダーが、出力したアルファ**を、**MSAA の、カバレッジ**（その画素の、**サンプルのうち、何個を、描くか**）に、**変換する**機能です。
+
+| アルファ | 4x MSAA で、描かれるサンプル |
+| --- | --- |
+| 0.0 | 0 個（何も描かない） |
+| 0.25 | 1 個 |
+| 0.5 | 2 個 |
+| 0.75 | 3 個 |
+| 1.0 | 4 個（すべて描く） |
+
+画素は、**サンプルごとの、描く・描かない**が、決まり、**解像（リゾルブ）**のとき、**サンプルが、平均**されます。結果、**アルファが 0.5 の画素は、半分の明るさ**で、混ざります。**縁が、なめらかな、ブレンド**に見えます。
+
+```text
+アルファ テスト                 Alpha to Coverage（4x MSAA）
+████████                       ████████
+████▀▀▀▀                       ████▓▒░·       ← 縁の画素が、段階的に、薄くなる
+████                           ████
+```
+
+**深度を、書き込み**ながら、**縁が、なめらか**になる、**ソート不要**の、半透明表現です。
+
+## DirectX 11 で、設定する
+
+MSAA の、レンダー ターゲットと、深度バッファを、作り、**ブレンド ステートで、A2C を、有効にします**。
+
+```cpp
+// ① MSAA のレンダー ターゲット（4x）を作る。
+D3D11_TEXTURE2D_DESC color_desc = {};
+color_desc.Width = width; color_desc.Height = height;
+color_desc.MipLevels = 1; color_desc.ArraySize = 1;
+color_desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+color_desc.SampleDesc.Count = 4;                         // 4x MSAA
+color_desc.SampleDesc.Quality = 0;
+color_desc.Usage = D3D11_USAGE_DEFAULT;
+color_desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+device->CreateTexture2D(&color_desc, nullptr, &msaa_color);
+// 深度バッファも、SampleDesc.Count = 4 で作る。
+
+// ② ブレンド ステートで、Alpha to Coverage を有効にする。
+D3D11_BLEND_DESC blend = {};
+blend.AlphaToCoverageEnable = TRUE;                      // ここが肝心
+blend.IndependentBlendEnable = FALSE;
+blend.RenderTarget[0].BlendEnable = FALSE;               // 通常のブレンドは、使わない
+blend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+device->CreateBlendState(&blend, &a2c_blend_state);
+
+const float factor[4] = {0, 0, 0, 0};
+context->OMSetBlendState(a2c_blend_state.Get(), factor, 0xffffffff);
+```
+
+| 設定 | 内容 |
+| --- | --- |
+| `AlphaToCoverageEnable` | `TRUE`。ピクセル シェーダーの、**SV_Target の、アルファ**を、カバレッジに変換する |
+| `BlendEnable` | `FALSE`。A2C は、ブレンドではなく、**サンプルの、描く・描かない**で、動く |
+| MSAA | **必須**。MSAA が無い（サンプル 1 つ）と、A2C は、**アルファ テストと、ほぼ同じ**で、意味がない |
+
+```hlsl
+// ピクセル シェーダー: アルファを、そのまま出力する。clip は、使わない。
+float4 main(PSInput input) : SV_Target {
+  float4 color = g_albedo.Sample(g_linear_wrap, input.uv);
+  return float4(color.rgb, color.a);        // color.a が、カバレッジに変換される
+}
+```
+
+## アルファの、**シャープ化**
+
+テクスチャの、アルファが、**なだらかな、勾配**を持つ（ぼやけた縁）と、A2C の効果で、**縁が、広く、ぼやけて**しまいます。**しきい値の周りの、狭い範囲だけ**を、段階的にして、ぴったりの縁を、作ります。
+
+```hlsl
+// アルファを、しきい値の周りで、鋭くする（画面上の、1 画素の幅に合わせて）。
+float alpha = g_albedo.Sample(g_linear_wrap, uv).a;
+float width = fwidth(alpha);                              // 画面の 1 画素あたりの、アルファの変化
+alpha = saturate((alpha - 0.5) / max(width, 1e-4) + 0.5); // しきい値 0.5 を中心に、1 画素の幅だけ、なだらか
+```
+
+`fwidth(alpha)` は、**隣の画素との、アルファの差**です。これを、**縁のなだらかさの、幅**に使うと、**どの距離でも、縁が、ちょうど、1 画素ぶん、なだらか**になります。**近くで、ぼやけず**、**遠くで、ちらつかない**、定番の、書き方です。
+
+## MSAA の、サンプル数と、段階
+
+| MSAA | アルファの段階 | 縁の見え方 |
+| --- | --- | --- |
+| 2x | 3 段階 | まだ、ジャギーが、残る |
+| 4x | 5 段階 | まずまず。標準 |
+| 8x | 9 段階 | なめらか。メモリ、帯域が、増える |
+
+**サンプル数が、少ない**と、アルファの、段階が、粗く、**縁に、縞（バンディング）**が、出ます。ディザで、ごまかす手法もあります（次の節）。
+
+## バンディングを、隠す
+
+4x では、**5 段階しか**、**アルファを、表現できません**。広い範囲で、**なだらかに、薄くなる**表現（フェード）では、**縞**が見えます。画素ごとに、**ランダムな、オフセット**を、アルファに足して、段階を、ディザで、ならします。
+
+```hlsl
+// 画素ごとの、ノイズで、アルファを、少しずらして、バンディングを、細かい点に変える。
+float noise = InterleavedGradientNoise(input.position.xy);           // 0〜1（Jimenez 2014）
+float alpha_dithered = saturate(alpha + (noise - 0.5) * (1.0 / 4.0)); // サンプル数の逆数だけ、揺らす
+return float4(color.rgb, alpha_dithered);
+```
+
+```hlsl
+// Interleaved Gradient Noise（Jimenez 2014）。画面座標から、安い式で、ノイズを作る。
+float InterleavedGradientNoise(float2 screen_pos) {
+  float3 magic = float3(0.06711056, 0.00583715, 52.9829189);
+  return frac(magic.z * frac(dot(screen_pos, magic.xy)));
+}
+```
+
+## A2C の、**注意点**
+
+| 項目 | 内容 |
+| --- | --- |
+| MSAA が必要 | **ディファード レンダリング**では、MSAA が、重いので、使いにくい。**フォワード**向き |
+| 他の、アルファ | A2C を使うと、ブレンド ステートが、占有される。**通常のアルファ ブレンドと、併用できない** |
+| 色 | アルファ以外の、出力（色）は、通常どおり。カバレッジが、決まるだけ |
+| ミップ | 遠くで、アルファが、薄くなる問題は、残る（[Foliage Translucency](../../terrain/vegetation/translucency.md)） |
+| 重なり | 複数の、A2C の面が、**同じ画素に、重なる**と、**同じサンプルが、取り合い**になる。**重なりに、強くない**（アルファの合計が、1 を超えると、もう、描けない） |
+| 動き | **TAA**を使うなら、A2C なしでも、**ハッシュ アルファ**（時間方向に、平均）で、同等のことが、できる（[Hashed Alpha](hashed-alpha.md)） |
+
+## 使いどころ
+
+| 対象 | A2C |
+| --- | --- |
+| 木の葉、草（フォワード + MSAA） | **最も、有効**（縁が、なめらか、ソート不要、深度書き込み可） |
+| フェンス、金網 | 有効 |
+| 髪の毛 | 有効（ただし、重なりが、多い。[Hair Transparency](../../skin-hair/hair/transparency.md)） |
+| ガラス、水など、本当の半透明 | **不向き**（アルファを、段階的な、サンプルに、変換するだけで、混ざらない） |
+
 ## よくあるミス
 
 ??? failure "A2C を設定したのに、効果が出ない"
@@ -193,9 +325,11 @@ device->CreateBlendState(&desc, &alpha_to_coverage_state);
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Microsoft Learn, "D3D11_BLEND_DESC"（`AlphaToCoverageEnable`、`D3D11_RENDER_TARGET_BLEND_DESC`）
+- Castaño, "Computing Alpha Mipmaps", 2010（ミップごとに、アルファを補正して、カバレッジを保つ）
+- Jimenez, "Next Generation Post Processing in Call of Duty: Advanced Warfare", SIGGRAPH 2014, Advances in Real-Time Rendering in Games（Interleaved Gradient Noise）
+- Wyman, McGuire, "Hashed Alpha Testing", Symposium on Interactive 3D Graphics and Games 2017
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（透明と、アルファ合成の章）
 
 ## 関連ページ
 

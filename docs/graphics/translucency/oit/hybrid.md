@@ -28,6 +28,74 @@ tags:
 | <strong>精度が重要（CAD・可視化）</strong> | **PPLL・Depth Peeling** |
 | **ゲームで、広く使える軽い OIT** | **Weighted Blended OIT** |
 
+## 方式の、一覧（比べる）
+
+| 方式 | 正確さ | パス数 | メモリ | 速さ | 向く対象 |
+| --- | --- | --- | --- | --- | --- |
+| ソート + アルファ ブレンド | 物体単位で、正確。**物体内、交差は、不正確** | 1 | 小 | 速い | 少数の、ガラス、パーティクル |
+| デプス ピーリング | **正確** | 層の数 | 中（層ごとに、ターゲット） | **遅い** | 重要な、少数の物 |
+| PPLL | **正確**（上限まで） | 2（構築 + 解決） | **大**（バッファ） | 中 | 重なりが、多く、正確さが、必要 |
+| WBOIT | **近似** | 2（描画 + 合成） | 小（2 枚） | **速い** | 煙、霧、パーティクル（色が、近い） |
+| 確率的透明 | 期待値は、正しい | 1 | 中（MSAA） | 速い | TAA ありの、髪、葉 |
+| アルファ テスト系 | 縁を、切り抜く | 1 | 小 | 速い | 葉、草、柵 |
+
+## 選び方
+
+```text
+半透明の物が、少ない（数個）？
+   └ Yes → ソート + アルファ ブレンド（物体内の、問題があれば、裏面 → 表面の 2 パス）
+   └ No ↓
+重なりが、多い（数十層）？
+   ├ 縁を、切り抜く物（葉、草、髪）？ → アルファ テスト系（A2C、ハッシュ アルファ + TAA）
+   ├ ぼんやりした、物（煙、霧、パーティクル）？ → WBOIT
+   └ 正確さが、必要（ガラス、水中の物）？ → PPLL、または、少数層に、デプス ピーリング
+```
+
+## ハイブリッド
+
+**1 つの方式だけ**で、すべてを、まかなうのは、**難しい**です。**物の種類で、使い分け**ます。
+
+| 物 | 方式 |
+| --- | --- |
+| 窓ガラス、車の窓（重要で、数が少ない） | **ソート + アルファ ブレンド**（または、デプス ピーリング） |
+| 煙、霧、魔法のパーティクル | **WBOIT**（別のレンダー ターゲットに、描いて、最後に、合成） |
+| 木の葉、草 | **アルファ テスト**（A2C、ハッシュ） |
+| 髪の毛 | **ハッシュ アルファ + TAA**、または、**PPLL** で、手前の数層（[Hair Transparency](../../skin-hair/hair/transparency.md)） |
+| 水面 | 専用の、水のシェーダー（[Water](../../water/index.md)） |
+
+### 描画の順番
+
+```text
+① 不透明（深度を書く）
+② アルファ テスト系（葉、草、柵）
+③ 水
+④ ソートした、半透明（ガラス）
+⑤ WBOIT の、パーティクル（別ターゲットに、描いて、合成）
+⑥ ポストプロセス
+```
+
+**各方式の、結果を、順に、画面に、重ねる**ので、**方式の間の、前後関係**は、**描く順番**で、決まります。**ガラスの向こうの、煙**は、ガラスより先に、描く必要があります。**1 つの、場面に、混ざる**場合は、**全体の、順番を、設計**します。
+
+## 手前だけ、正確に
+
+**画面の、手前の、数層**は、**見た目の影響が、大きく**、**奥の層は、小さい**。この性質を、使った、ハイブリッドが、あります。
+
+| 層 | 方式 |
+| --- | --- |
+| 手前の、数層（たとえば、4 層） | **正確**（PPLL や、デプス ピーリング） |
+| 奥の、残り | **近似**（WBOIT で、まとめて、1 つの層に） |
+
+Salvi らの、**適応的な透明度**（Adaptive Transparency、2011）や、**マルチレイヤー アルファ ブレンド**（2014）は、**少数の層で、近似する**考え方です。**メモリを、固定**できます（**PPLL のように、溢れない**）。
+
+## 実装の、現実
+
+| 項目 | 内容 |
+| --- | --- |
+| まず、**測る** | 半透明の、**オーバードロー**が、実際に、何層なのか。問題が、起きて**いない**なら、単純な方式で、十分 |
+| まず、**単純な方式**から | ソート + アルファ ブレンドで、**問題が、出たら**、その部分だけ、他の方式に |
+| **品質設定** | PPLL や、WBOIT の、**層の数、解像度**を、設定で、変えられるように、しておく |
+| **対応環境** | PPLL は、**UAV をピクセル シェーダーで、書ける**必要がある（DX11 の、機能レベル 11_0 以上） |
+
 ## よくあるミス
 
 ??? failure "すべてを PPLL にして、重くなる"
@@ -40,9 +108,11 @@ tags:
 
 ## 参考
 
-- McGuire & Bavoil, "Weighted Blended Order-Independent Transparency"（JCGT 2013）
-- Everitt, "Interactive Order-Independent Transparency"（NVIDIA 2001）
-- Wyman & McGuire, "Hashed Alpha Testing"（I3D 2017）
+- Wyman, "Exploring and Expanding the Continuum of OIT Algorithms", High-Performance Graphics 2016
+- Salvi, Montgomery, Lefohn, "Adaptive Transparency", High-Performance Graphics 2011
+- Salvi, Vaidyanathan, "Multi-Layer Alpha Blending", Symposium on Interactive 3D Graphics and Games 2014
+- McGuire, Bavoil, "Weighted Blended Order-Independent Transparency", Journal of Computer Graphics Techniques, Vol. 2, No. 2, 2013
+- Münstermann, Krumpen, Klein, Peters, "Moment-Based Order-Independent Transparency", High-Performance Graphics 2018
 
 ## 関連ページ
 
