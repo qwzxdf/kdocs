@@ -10,16 +10,16 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-ウィンドウの大きさを、変えると、<strong>バック バッファ</strong>（と、それに合わせた、深度バッファ、G バッファなど）の、大きさも、変えなければ、画像が、引き伸ばされて、ぼやけます。また、GPU の、ドライバーの、更新や、クラッシュで、<strong>デバイスが、失われる</strong>ことも、あります。このページは、その、2 つの、対処です。
+ウィンドウの大きさを変えると、<strong>バック バッファ</strong>（とそれに合わせた深度バッファ、G バッファなど）の大きさも変えなければ画像が引き伸ばされて、ぼやけます。また、GPU のドライバーの更新やクラッシュで <strong>デバイスが失われる</strong>こともあります。このページはその 2 つの対処です。
 
 !!! tip "ポイント"
-    - `WM_SIZE` で、<strong>バック バッファの参照（RTV など）を、すべて、解放</strong>してから、`ResizeBuffers`、その後、作り直す。
-    - 参照が、1 つでも、残っていると、`ResizeBuffers` が、失敗する。
+    - `WM_SIZE` で <strong>バック バッファの参照（RTV など）をすべて、解放</strong>してから `ResizeBuffers`、その後、作り直す。
+    - 参照が 1 つでも残っていると `ResizeBuffers` が失敗する。
     - 最小化（幅か高さが 0）のときは、何もしない。
-    - 画面の大きさに、依存する、リソース（深度、G バッファ、ポスト プロセスの、中間バッファ）も、全部、作り直す。
-    - `Present` が `DXGI_ERROR_DEVICE_REMOVED` を、返したら、デバイスごと、作り直す。
+    - 画面の大きさに依存する、リソース（深度、G バッファ、ポスト プロセスの中間バッファ）も全部、作り直す。
+    - `Present` が `DXGI_ERROR_DEVICE_REMOVED` を返したら、デバイスごと作り直す。
 
-## バック バッファの、作り直し
+## バック バッファの作り直し
 
 ```cpp
 void OnResize(UINT new_width, UINT new_height) {
@@ -50,28 +50,28 @@ void OnResize(UINT new_width, UINT new_height) {
 }
 ```
 
-`ResizeBuffers` は、スワップ チェーンの、バッファへの、<strong>参照が、残っていると、`DXGI_ERROR_INVALID_CALL` で失敗</strong>します。`GetBuffer` で取った、`ID3D11Texture2D` も、RTV も、`OMSetRenderTargets` での、束縛も、すべて、外してから、呼びます。
+`ResizeBuffers` はスワップ チェーンのバッファへの <strong>参照が残っていると `DXGI_ERROR_INVALID_CALL` で失敗</strong>します。`GetBuffer` で取った `ID3D11Texture2D` も RTV も `OMSetRenderTargets` での束縛もすべて外してから、呼びます。
 
 ### 引数
 
 | 引数 | 内容 |
 | --- | --- |
-| `BufferCount` | バッファの数。0 で、今のまま |
-| `Width`・`Height` | 新しい大きさ。0 で、ウィンドウの、描画領域に、合わせる |
-| `NewFormat` | フォーマット。`DXGI_FORMAT_UNKNOWN` で、今のまま |
-| `SwapChainFlags` | 作成時の、フラグと、同じものを、渡す |
+| `BufferCount` | バッファの数。0 で今のまま |
+| `Width`・`Height` | 新しい大きさ。0 でウィンドウの描画領域に合わせる |
+| `NewFormat` | フォーマット。`DXGI_FORMAT_UNKNOWN` で今のまま |
+| `SwapChainFlags` | 作成時のフラグと同じものを渡す |
 
-## 画面の大きさに、依存する、リソース
+## 画面の大きさに依存する、リソース
 
-バック バッファ以外にも、画面の大きさで、作った、リソースは、すべて、作り直します。
+バック バッファ以外にも画面の大きさで作った、リソースはすべて作り直します。
 
 | リソース | 大きさ |
 | --- | --- |
 | 深度バッファ | 画面と同じ |
 | G バッファ（MRT） | 画面と同じ |
 | HDR のシーン色 | 画面と同じ |
-| ポスト プロセスの、中間バッファ | 画面（または、半分・1/4） |
-| TAA の履歴 | 画面と同じ（作り直したら、履歴は、無効。最初のフレームは、履歴を、使わない） |
+| ポスト プロセスの中間バッファ | 画面（または、半分・1/4） |
+| TAA の履歴 | 画面と同じ（作り直したら履歴は無効。最初のフレームは履歴を使わない） |
 
 ```cpp
 void CreateScreenSizedResources() {
@@ -83,7 +83,7 @@ void CreateScreenSizedResources() {
 }
 ```
 
-大きさの変更を、ドラッグで、連続して、行うと、`WM_SIZE` が、何度も、来ます。そのたびに、重いリソースを、作り直すと、カクつくので、<strong>ドラッグが、終わるまで、待つ</strong>（`WM_EXITSIZEMOVE`）方法も、あります。
+大きさの変更をドラッグで連続して行うと `WM_SIZE` が何度も来ます。そのたびに重いリソースを作り直すとカクつくので <strong>ドラッグが終わるまで、待つ</strong>（`WM_EXITSIZEMOVE`）方法もあります。
 
 ```cpp
 case WM_ENTERSIZEMOVE: resizing_ = true; return 0;         // ドラッグ開始
@@ -95,7 +95,7 @@ case WM_EXITSIZEMOVE:
 
 ## デバイス リセット（DEVICE_REMOVED）
 
-GPU のドライバーの更新、GPU の、ハングアップ（TDR: Timeout Detection and Recovery）、GPU の取り外し、などで、<strong>デバイスが、使えなくなる</strong>ことが、あります。`Present` や `ResizeBuffers` が、エラーを、返します。
+GPU のドライバーの更新、GPU のハングアップ（TDR: Timeout Detection and Recovery）、GPU の取り外しなどで <strong>デバイスが、使えなくなる</strong>ことがあります。`Present` や `ResizeBuffers` がエラーを返します。
 
 ```cpp
 HRESULT hr = swap_chain_->Present(1, 0);
@@ -108,15 +108,15 @@ if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 
 | `GetDeviceRemovedReason` の値 | 内容 |
 | --- | --- |
-| `DXGI_ERROR_DEVICE_HUNG` | GPU が、応答しなくなった（重すぎる、無限ループのシェーダー） |
-| `DXGI_ERROR_DEVICE_REMOVED` | GPU が、取り外された、または、ドライバーが、更新された |
+| `DXGI_ERROR_DEVICE_HUNG` | GPU が応答しなくなった（重すぎる無限ループのシェーダー） |
+| `DXGI_ERROR_DEVICE_REMOVED` | GPU が取り外されたまたは、ドライバーが更新された |
 | `DXGI_ERROR_DEVICE_RESET` | 不正な描画命令で、リセットされた |
-| `DXGI_ERROR_DRIVER_INTERNAL_ERROR` | ドライバーの、内部エラー |
-| `DXGI_ERROR_INVALID_CALL` | API の、使い方が、間違っていた |
+| `DXGI_ERROR_DRIVER_INTERNAL_ERROR` | ドライバーの内部エラー |
+| `DXGI_ERROR_INVALID_CALL` | API の使い方が、間違っていた |
 
 ### 作り直し
 
-デバイスが、失われると、<strong>全リソースが、無効</strong>に、なります。デバイス、スワップ チェーン、全テクスチャ、バッファ、シェーダー、ステートを、作り直します。
+デバイスが失われると <strong>全リソースが、無効</strong>になります。デバイス、スワップ チェーン、全テクスチャ、バッファ、シェーダー、ステートを作り直します。
 
 ```cpp
 void RecreateDevice() {
@@ -127,20 +127,20 @@ void RecreateDevice() {
 }
 ```
 
-リソースを、「作る関数」に、まとめておくと、起動時と、リセット時で、同じコードを、使えます。製品では、ゲームの、状態は、保つ（シーンは、そのまま）ように、作ります。
+リソースを「作る関数」にまとめておくと起動時とリセット時で同じコードを使えます。製品ではゲームの状態は保つ（シーンは、そのまま）ように作ります。
 
-## 最小化・フォーカスの、扱い
+## 最小化・フォーカスの扱い
 
 | 状態 | 対処 |
 | --- | --- |
-| 最小化（`SIZE_MINIMIZED`） | 描画を、止める。バック バッファは、作り直さない |
-| 最小化から、復帰（`SIZE_RESTORED`） | 大きさが、変わっていれば、作り直す |
-| `Present` が `DXGI_STATUS_OCCLUDED` | ウィンドウが、隠れている。描画を、スキップして、少し待つ |
-| フォーカスを失う | 必要なら、更新を、一時停止 |
+| 最小化（`SIZE_MINIMIZED`） | 描画を止める。バック バッファは作り直さない |
+| 最小化から復帰（`SIZE_RESTORED`） | 大きさが、変わっていれば作り直す |
+| `Present` が `DXGI_STATUS_OCCLUDED` | ウィンドウが、隠れている。描画をスキップして少し待つ |
+| フォーカスを失う | 必要なら更新を一時停止 |
 
 ## フルスクリーン
 
-`IDXGISwapChain::SetFullscreenState`（排他フルスクリーン）は、古い方法で、問題が、多いです。現在は、<strong>ボーダーレス ウィンドウ</strong>（枠なしで、画面全体の大きさの、ウィンドウ）が、標準で、フリップ モデルの、スワップ チェーンは、これでも、独占に近い、低遅延で、動きます。
+`IDXGISwapChain::SetFullscreenState`（排他フルスクリーン）は古い方法で問題が、多いです。現在は <strong>ボーダーレス ウィンドウ</strong>（枠なしで、画面全体の大きさのウィンドウ）が標準で、フリップ モデルのスワップ チェーンは、これでも独占に近い低遅延で動きます。
 
 ```cpp
 // ボーダーレス フルスクリーンへの、切り替え: ウィンドウのスタイルを変えて、モニター全体に広げる。
@@ -155,30 +155,30 @@ SetWindowPos(hwnd, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top,
 
 ## よくあるミス
 
-??? failure "`ResizeBuffers` が、`DXGI_ERROR_INVALID_CALL` で、失敗する"
-    バック バッファへの、参照（RTV、`GetBuffer` で取った `Texture2D`、`OMSetRenderTargets` の束縛）が、残っている。全部、解放してから、呼ぶ。
+??? failure "`ResizeBuffers` が `DXGI_ERROR_INVALID_CALL` で、失敗する"
+    バック バッファへの参照（RTV、`GetBuffer` で取った `Texture2D`、`OMSetRenderTargets` の束縛）が残っている。全部、解放してから呼ぶ。
 
-??? failure "大きさを、変えると、画像が、引き伸ばされて、ぼやける"
-    `ResizeBuffers` を、呼んでいない（スワップ チェーンの、大きさが、変わらない）。または、深度・G バッファを、作り直していない。
+??? failure "大きさを変えると画像が引き伸ばされて、ぼやける"
+    `ResizeBuffers` を呼んでいない（スワップ チェーンの大きさが変わらない）。または、深度・G バッファを作り直していない。
 
 ??? failure "最小化すると、クラッシュする"
-    幅か高さが 0 の、サイズで、`ResizeBuffers` や、テクスチャを、作ろうとしている。`WM_SIZE` で、0 を、除く。
+    幅か高さが 0 のサイズで `ResizeBuffers` やテクスチャを作ろうとしている。`WM_SIZE` で 0 を除く。
 
-??? failure "リサイズの、直後に、TAA の、ゴーストが、出る"
-    履歴を、作り直した後も、古い内容を、使っている。履歴を、無効にして、最初のフレームは、今のフレームだけで、描く。
+??? failure "リサイズの直後に TAA のゴーストが出る"
+    履歴を作り直した後も古い内容を使っている。履歴を無効にして最初のフレームは今のフレームだけで描く。
 
-??? failure "ドライバーの、更新後に、画面が、固まる"
-    `Present` の、戻り値を、見ていない。`DEVICE_REMOVED` を、検出して、デバイスを、作り直す。
+??? failure "ドライバーの更新後に画面が固まる"
+    `Present` の戻り値を見ていない。`DEVICE_REMOVED` を検出してデバイスを作り直す。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 大きさ変更は、`WM_SIZE` → 参照を全部解放 → `ResizeBuffers` → 作り直す
+    - [x] 大きさ変更は `WM_SIZE` → 参照を全部解放 → `ResizeBuffers` → 作り直す
     - [x] 最小化（幅か高さが 0）は、何もしない
-    - [x] 画面の大きさに、依存する、全リソースを、作り直す。TAA の、履歴は、捨てる
-    - [x] `Present` の戻り値で、`DEVICE_REMOVED` を、検出し、`GetDeviceRemovedReason` で、原因を、ログに出す
-    - [x] リソースの作成を、関数に、まとめて、再作成に備える
-    - [x] フルスクリーンは、ボーダーレス ウィンドウが、標準
+    - [x] 画面の大きさに依存する全リソースを作り直す。TAA の履歴は捨てる
+    - [x] `Present` の戻り値で `DEVICE_REMOVED` を検出し `GetDeviceRemovedReason` で原因をログに出す
+    - [x] リソースの作成を関数にまとめて再作成に備える
+    - [x] フルスクリーンは、ボーダーレス ウィンドウが標準
 
 ## 関連ページ
 

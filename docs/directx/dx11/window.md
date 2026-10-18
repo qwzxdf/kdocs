@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-D3D11 は、画像を作る API で、ウィンドウは、作りません。画面に出すには、まず、<strong>Win32 のウィンドウ</strong>（`HWND`）を作り、<strong>メッセージ ループ</strong>を回します。このページは、そのための、最小のコードです。
+D3D11 は画像を作る API で、ウィンドウは作りません。画面に出すにはまず <strong>Win32 のウィンドウ</strong>（`HWND`）を作り、<strong>メッセージ ループ</strong>を回します。このページはそのための最小のコードです。
 
 !!! tip "ポイント"
     - D3D11 に渡すのは、ウィンドウ ハンドル `HWND` と、描画領域（クライアント領域）の大きさ。
-    - メッセージ ループは、`PeekMessage` で、メッセージが無いときに、フレームを描く（`GetMessage` は、待ってしまう）。
-    - ウィンドウの大きさと、描画領域の大きさは、違う。`AdjustWindowRect` で、枠ぶんを、足す。
-    - `WM_SIZE`（大きさの変更）、`WM_DESTROY`（閉じる）は、必ず処理する。
-    - ウィンドウ ライブラリ（SDL、GLFW）を使うなら、このページは、飛ばしてよい。`HWND` の取り出し方だけ、見る。
+    - メッセージ ループは `PeekMessage` で、メッセージが無いときにフレームを描く（`GetMessage` は、待ってしまう）。
+    - ウィンドウの大きさと、描画領域の大きさは違う。`AdjustWindowRect` で枠ぶんを足す。
+    - `WM_SIZE`（大きさの変更）、`WM_DESTROY`（閉じる）は必ず処理する。
+    - ウィンドウ ライブラリ（SDL、GLFW）を使うならこのページは、飛ばしてよい。`HWND` の取り出し方だけ見る。
 
 ## ウィンドウ クラスの登録
 
@@ -37,9 +37,9 @@ HWND CreateGameWindow(HINSTANCE instance, int width, int height) {
   RegisterClassExW(&wc);
 ```
 
-ウィンドウは、まず、<strong>クラス</strong>（ウィンドウの、型紙）を、登録して、そのクラスから、作ります。`lpfnWndProc` が、このウィンドウ宛ての、メッセージ（閉じる、大きさ変更、キー入力など）を、受け取る関数です。
+ウィンドウはまず <strong>クラス</strong>（ウィンドウの、型紙）を登録してそのクラスから、作ります。`lpfnWndProc` がこのウィンドウ宛てのメッセージ（閉じる、大きさ変更、キー入力など）を受け取る関数です。
 
-## 描画領域の大きさを、指定する
+## 描画領域の大きさを指定する
 
 ```cpp
   // 指定した大きさは「描画領域」の大きさ。タイトル バーや枠のぶんを、足して、ウィンドウ全体の大きさにする。
@@ -53,7 +53,7 @@ HWND CreateGameWindow(HINSTANCE instance, int width, int height) {
 }
 ```
 
-`CreateWindowExW` の幅と高さは、枠を含む、ウィンドウ全体の大きさです。1280×720 の描画領域が欲しいときに、そのまま 1280×720 を渡すと、枠のぶん、描画領域が、小さくなります。`AdjustWindowRect` が、枠のぶんを、足した、大きさを、計算してくれます。
+`CreateWindowExW` の幅と高さは枠を含むウィンドウ全体の大きさです。1280×720 の描画領域が欲しいときに、そのまま 1280×720 を渡すと、枠のぶん描画領域が小さくなります。`AdjustWindowRect` が枠のぶんを足した大きさを、計算してくれます。
 
 ## ウィンドウ プロシージャ
 
@@ -75,7 +75,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lpara
 }
 ```
 
-`WM_SIZE` で、バック バッファを、作り直します（[Window Resize and Device Removal](resize.md)）。`WM_DESTROY` で、`PostQuitMessage` を呼ぶと、メッセージ ループに、`WM_QUIT` が届き、終了します。処理しないメッセージは、`DefWindowProcW` に、必ず、渡します。
+`WM_SIZE` でバック バッファを作り直します（[Window Resize and Device Removal](resize.md)）。`WM_DESTROY` で `PostQuitMessage` を呼ぶとメッセージ ループに、`WM_QUIT` が届き終了します。処理しないメッセージは `DefWindowProcW` に必ず、渡します。
 
 ## メッセージ ループ
 
@@ -100,7 +100,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 }
 ```
 
-`GetMessage` は、メッセージが来るまで、待つので、ゲームのループには、使えません。`PeekMessage` は、無ければ、すぐ戻るので、メッセージが無い間に、ゲームの更新と、描画を、回せます。フレームの、速さは、`Present` の垂直同期（[Clear and Present](clear-present.md)）で、決まります。
+`GetMessage` はメッセージが来るまで待つので、ゲームのループには使えません。`PeekMessage` は無ければすぐ戻るのでメッセージが無い間に、ゲームの更新と描画を回せます。フレームの速さは `Present` の垂直同期（[Clear and Present](clear-present.md)）で、決まります。
 
 ## クライアント領域の大きさを、取り出す
 
@@ -111,7 +111,7 @@ const UINT width = client.right - client.left;
 const UINT height = client.bottom - client.top;
 ```
 
-スワップ チェーンや、ビューポートの、大きさには、<strong>ウィンドウ全体ではなく、クライアント領域</strong>の大きさを、使います（[Swap Chain](swap-chain.md)）。
+スワップ チェーンやビューポートの、大きさには <strong>ウィンドウ全体ではなく、クライアント領域</strong>の大きさを、使います（[Swap Chain](swap-chain.md)）。
 
 ## ウィンドウ ライブラリを使うとき
 
@@ -120,30 +120,30 @@ const UINT height = client.bottom - client.top;
 | SDL | `SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr)` |
 | GLFW | `glfwGetWin32Window(window)`（`#define GLFW_EXPOSE_NATIVE_WIN32`） |
 
-どちらも、`HWND` さえ取り出せれば、以降の D3D11 のコードは、同じです。
+どちらも、`HWND` さえ取り出せれば以降の D3D11 のコードは、同じです。
 
 ## よくあるミス
 
-??? failure "描画領域が、指定した大きさより、小さい"
-    `AdjustWindowRect` を、通していない。ウィンドウ全体の大きさと、描画領域の大きさを、混同している。
+??? failure "描画領域が、指定した大きさより小さい"
+    `AdjustWindowRect` を通していない。ウィンドウ全体の大きさと描画領域の大きさを、混同している。
 
-??? failure "ウィンドウを閉じても、プロセスが、残る"
-    `WM_DESTROY` で `PostQuitMessage` を、呼んでいない。または、ループの条件が、`WM_QUIT` を、見ていない。
+??? failure "ウィンドウを閉じても、プロセスが残る"
+    `WM_DESTROY` で `PostQuitMessage` を呼んでいない。または、ループの条件が `WM_QUIT` を見ていない。
 
-??? failure "最小化すると、`ResizeBuffers` が、失敗する"
-    最小化のとき、`WM_SIZE` の幅と高さが 0 になる。`SIZE_MINIMIZED` のときは、作り直さない。
+??? failure "最小化すると `ResizeBuffers` が、失敗する"
+    最小化のとき `WM_SIZE` の幅と高さが 0 になる。`SIZE_MINIMIZED` のときは作り直さない。
 
 ??? failure "メッセージ ループが、固まる"
-    `GetMessage` で、待っている。ゲームのループは、`PeekMessage` で書く。
+    `GetMessage` で待っている。ゲームのループは `PeekMessage` で書く。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] D3D11 の前に、Win32 のウィンドウ（`HWND`）が要る
     - [x] クラス登録 → `AdjustWindowRect` → `CreateWindowExW` → `ShowWindow`
-    - [x] ループは `PeekMessage`。無ければ、1 フレーム描く
-    - [x] `WM_SIZE` で、バック バッファを作り直す。最小化は、除く
-    - [x] 大きさは、クライアント領域（`GetClientRect`）で、決める
+    - [x] ループは `PeekMessage`。無ければ 1 フレーム描く
+    - [x] `WM_SIZE` でバック バッファを作り直す。最小化は除く
+    - [x] 大きさは、クライアント領域（`GetClientRect`）で決める
 
 ## 関連ページ
 

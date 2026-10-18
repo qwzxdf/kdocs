@@ -6,13 +6,13 @@ tags:
 
 # EVSM
 
-<strong>EVSM（指数 VSM）</strong>は、<strong>VSM と ESM を組み合わせ、深度を指数で変換してから、VSM の統計（平均と二乗平均）を取る</strong>方式です。光漏れが少なく、フィルタも使えるので、VSM 系で、実用的な選択肢の1 つです。保存するデータが多く（4 チャンネル）、メモリと帯域は重いです。このページでは、EVSM の考え方・保存する値・実装のポイントを説明します。
+<strong>EVSM（指数 VSM）</strong>は、<strong>VSM と ESM を組み合わせ、深度を指数で変換してから VSM の統計（平均と二乗平均）を取る</strong>方式です。光漏れが少なくフィルタも使えるので、VSM 系で実用的な選択肢の1 つです。保存するデータが多く（4 チャンネル）、メモリと帯域は重いです。このページでは EVSM の考え方・保存する値・実装のポイントを説明します。
 
 !!! tip "ポイント"
     - EVSM ＝ 深度を `exp(c·d)` と `−exp(−c·d)` に変換し、それぞれ VSM の統計を取る。
     - 2 つの指数を使う（正と負）ので、4 チャンネル保存（`R32G32B32A32_FLOAT`）。
-    - 光漏れが、VSM より大幅に少ない。
-    - メモリは、VSM の 2 倍。
+    - 光漏れが VSM より大幅に少ない。
+    - メモリは VSM の 2 倍。
 
 <!-- fig:evsm-warp:begin -->
 
@@ -47,7 +47,7 @@ tags:
 <!-- fig:evsm-warp:end -->
 
 ## EVSM（指数 VSM）
-<strong>EVSM</strong>（Exponential Variance Shadow Maps）は、<strong>深度を exp でワープしてから、VSM</strong>を行います。正のワープ `exp(c z)` と負のワープ `−exp(−c z)` を、それぞれ VSMにして、小さい方（保守的な方）を採用します。
+<strong>EVSM</strong>（Exponential Variance Shadow Maps）は、<strong>深度を exp でワープしてから、VSM</strong>を行います。正のワープ `exp(c z)` と負のワープ `−exp(−c z)` を、それぞれ VSMにして小さい方（保守的な方）を採用します。
 
 | 項目 | 内容 |
 | --- | --- |
@@ -57,7 +57,7 @@ tags:
 
 ## 考え方：VSM と ESM の、いいとこ取り
 
-<strong>EVSM</strong>（Exponential Variance Shadow Maps）は、<strong>VSM の分散</strong>（チェビシェフの不等式）と、ESM の指数を、組み合わせた手法です。深度 `z` を、指数に変換してから、その平均と 2 乗の平均（分散）を、保存し、チェビシェフの不等式で、判定します。
+<strong>EVSM</strong>（Exponential Variance Shadow Maps）は、<strong>VSM の分散</strong>（チェビシェフの不等式）と、ESM の指数を組み合わせた手法です。深度 `z` を指数に変換してから、その平均と 2 乗の平均（分散）を保存し、チェビシェフの不等式で判定します。
 
 ```text
 VSM:   z、z² を、保存
@@ -65,16 +65,16 @@ ESM:   exp(c × z) を、保存
 EVSM:  warp(z) = exp(c × z)   →   warp(z) と warp(z)² を、保存し、チェビシェフで判定
 ```
 
-<strong>指数変換</strong>で、深度の差を、<strong>増幅</strong>するため、光漏れ（VSM の、最大の、弱点）が、大きく減ります。
+<strong>指数変換</strong>で深度の差を <strong>増幅</strong>するため、光漏れ（VSM の最大の弱点）が、大きく減ります。
 
-## 2 つの、指数（正と負）
+## 2 つの指数（正と負）
 
-EVSM は、<strong>2 つの方向の指数</strong>（`+c` と `−c`）を、使います。
+EVSM は <strong>2 つの方向の指数</strong>（`+c` と `−c`）を、使います。
 
 | 指数 | 変換 | 役割 |
 | --- | --- | --- |
-| 正の指数 | `exp(+c × z)` | 遮蔽物の奥（遠く）に、影を落とす。通常の、判定を、担当 |
-| 負の指数 | `−exp(−c × z)` | 反対向きの、光漏れを、抑える。2 つの判定の、小さい方を、採用する |
+| 正の指数 | `exp(+c × z)` | 遮蔽物の奥（遠く）に、影を落とす。通常の、判定を担当 |
+| 負の指数 | `−exp(−c × z)` | 反対向きの、光漏れを抑える。2 つの判定の小さい方を採用する |
 
 ```hlsl
 // シャドウ パス: 4 チャンネル（正の指数の、1 次と 2 次、負の指数の、1 次と 2 次）を、書き出す。
@@ -109,40 +109,40 @@ float EvsmShadow(float4 moments, float depth) {
 }
 ```
 
-## 精度の、問題
+## 精度の問題
 
-指数関数は、<strong>非常に大きい値</strong>になります。精度に、注意が必要です。
+指数関数は <strong>非常に大きい値</strong>になります。精度に注意が必要です。
 
 | 形式 | 指数の上限（`exp(c × z)` の、あふれない `c`） |
 | --- | --- |
 | 16 ビット浮動小数点（`R16G16B16A16_FLOAT`） | `c ≈ 5`（`e⁵ ≈ 148`、16 ビットの上限は 65504） |
-| 32 ビット浮動小数点（`R32G32B32A32_FLOAT`） | `c ≈ 40`（`e⁴⁰ ≈ 2×10¹⁷`、2 乗しても、収まる）|
+| 32 ビット浮動小数点（`R32G32B32A32_FLOAT`） | `c ≈ 40`（`e⁴⁰ ≈ 2×10¹⁷`、2 乗しても収まる）|
 
-<strong>16 ビット</strong>では、`c` を、小さくせざるを得ず、<strong>光漏れの、削減効果が、減ります</strong>。32 ビット（メモリが、2 倍）が、標準です。
+<strong>16 ビット</strong>では `c` を小さくせざるを得ず、<strong>光漏れの削減効果が減ります</strong>。32 ビット（メモリが 2 倍）が、標準です。
 
 ## 長所と短所
 
 | | 内容 |
 | --- | --- |
-| 長所 | 光漏れが、VSM より、大きく減る |
-| 長所 | ぼかし、ミップ、異方性が、使える |
-| 長所 | バイアスが、ほぼ、不要（確率的に、判定するため） |
-| 短所 | メモリ：4 チャンネル × 32 ビット = 16 バイト / 画素（通常の、深度の、4 倍） |
-| 短所 | 指数の、調整（`c` の、値）。深度の範囲に、依存 |
-| 短所 | 光漏れは、ゼロにならない（重なる、遮蔽物では、残る） |
+| 長所 | 光漏れが VSM より、大きく減る |
+| 長所 | ぼかしミップ、異方性が使える |
+| 長所 | バイアスがほぼ、不要（確率的に判定するため） |
+| 短所 | メモリ：4 チャンネル × 32 ビット = 16 バイト / 画素（通常の深度の、4 倍） |
+| 短所 | 指数の調整（`c` の値）。深度の範囲に依存 |
+| 短所 | 光漏れはゼロにならない（重なる、遮蔽物では残る） |
 | 短所 | シャドウ パスが、ピクセル シェーダー付き（指数の、計算） |
 
 ## 使いどころ
 
 | 場面 | 判断 |
 | --- | --- |
-| ぼかしを、広くかけたい（柔らかい影） | 有効。ガウスぼかしを、シャドウ マップに、1 回かけるだけ |
-| カスケードの、遠い側（広い範囲を、覆う、粗い、シャドウ マップ） | 有効。ミップ、フィルタで、エイリアシングを、減らせる |
-| 接触部分の、正確さが、必要 | PCF や、レイトレーシングの、ほうが、確実 |
+| ぼかしを広くかけたい（柔らかい影） | 有効。ガウスぼかしをシャドウ マップに、1 回かけるだけ |
+| カスケードの遠い側（広い範囲を覆う粗い、シャドウ マップ） | 有効。ミップ、フィルタでエイリアシングを減らせる |
+| 接触部分の正確さが必要 | PCF や、レイトレーシングのほうが確実 |
 
 ## よくあるミス
 
-??? failure "16 ビット浮動小数で保存して、精度が足りず、縞が出る"
+??? failure "16 ビット浮動小数で保存して、精度が足りず縞が出る"
     <strong>32 ビット浮動小数</strong>にする。
 
 ## これだけ覚える
@@ -153,7 +153,7 @@ float EvsmShadow(float4 moments, float depth) {
 
 ## 参考
 
-- Lauritzen, McGuire, "Layered Variance Shadow Maps", Graphics Interface 2008（光漏れの、軽減）
+- Lauritzen, McGuire, "Layered Variance Shadow Maps", Graphics Interface 2008（光漏れの軽減）
 - Annen, Mertens, Seidel, Eisemann, Durand, "Exponential Shadow Maps", Graphics Interface 2008
 - Donnelly, Lauritzen, "Variance Shadow Maps", Symposium on Interactive 3D Graphics and Games 2006
 - Peters, Klein, "Moment Shadow Mapping", Symposium on Interactive 3D Graphics and Games 2015

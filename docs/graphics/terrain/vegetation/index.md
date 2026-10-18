@@ -6,7 +6,7 @@ tags:
 
 # Vegetation
 
-<strong>草や木は、数が非常に多く、地形の見た目を大きく左右します</strong>。<strong>インスタンシングとカリングで数を扱い、風やライティングで生きた見た目にします</strong>。このセクションでは、配置・インスタンシング・カリング・草の形・風・踏まれる草・木・半透明の問題・ライティングを、1 つずつ別のページで説明します。
+<strong>草や木は数が非常に多く地形の見た目を大きく左右します</strong>。<strong>インスタンシングとカリングで数を扱い風やライティングで生きた見た目にします</strong>。このセクションでは配置・インスタンシング・カリング・草の形・風・踏まれる草・木・半透明の問題・ライティングを、1 つずつ別のページで説明します。
 
 ## 配置
 <strong>植生の位置</strong>は<strong>何を元に決めるか</strong>です。
@@ -18,7 +18,7 @@ tags:
 | ルールで自動 | 地形の高さ・傾き・スプラット マップ・ノイズから決定的に生成 |
 | GPU 生成 | カメラ周りのセルについて、コンピュートで毎フレーム生成（保存が不要） |
 
-<strong>GPU 生成の草</strong>は、<strong>ワールドを小さなセル（例：1 m）に区切り</strong>、セルのハッシュから、乱数で位置・向き・大きさを決めます。同じセルは毎回同じ結果になるので、保存が要りません。
+<strong>GPU 生成の草</strong>は <strong>ワールドを小さなセル（例：1 m）に区切り</strong>、セルのハッシュから乱数で位置・向き・大きさを決めます。同じセルは毎回同じ結果になるので、保存が要りません。
 
 ```hlsl
 uint HashCell(int2 cell) {
@@ -30,7 +30,7 @@ uint HashCell(int2 cell) {
 }
 ```
 
-セルの座標から、乱数の種を作る、ハッシュです。同じセルは、いつでも、同じ値になるので、カメラが、動いても、草は、同じ場所に、生えます。
+セルの座標から乱数の種を作るハッシュです。同じセルはいつでも同じ値になるので、カメラが動いても草は同じ場所に生えます。
 
 ```hlsl
 float Random01(inout uint state) {
@@ -39,7 +39,7 @@ float Random01(inout uint state) {
 }
 ```
 
-種から、次々に、0〜1 の乱数を取り出す、簡単な、線形合同法です。`state` を、更新しながら、使い回すので、1 つのセルで、位置、向き、大きさを、別々の乱数で、決められます。
+種から次々に 0〜1 の乱数を取り出す簡単な線形合同法です。`state` を更新しながら使い回すので、1 つのセルで位置、向き大きさを別々の乱数で決められます。
 
 ```hlsl
 [numthreads(8, 8, 1)]
@@ -53,7 +53,7 @@ void GenerateGrass(uint3 id : SV_DispatchThreadID) {
   if (Random01(state) > density) return;
 ```
 
-1 スレッドが、カメラの周りの、1 セルを、受け持ちます。セルの中の、位置を、ランダムに、ずらし、密度マップを、読んで、密度が、低い所では、確率で、生やしません。
+1 スレッドがカメラの周りの 1 セルを受け持ちます。セルの中の位置をランダムにずらし、密度マップを読んで密度が低い所では確率で、生やしません。
 
 ```hlsl
   float height = SampleTerrainHeight(xz);
@@ -86,14 +86,14 @@ void GenerateGrass(uint3 id : SV_DispatchThreadID) {
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 数は、インスタンシングとカリングで扱う
+    - [x] 数はインスタンシングとカリングで扱う
 
 ## 参考
 
 - Pelzer, "Rendering Countless Blades of Waving Grass", GPU Gems, Chapter 7, 2004（草の板ポリ、風、クロス ブレンド）
 - Sousa, "Vegetation Procedural Animation and Shading in Crysis", GPU Gems 3, Chapter 16, 2007（幹・枝・葉の 3 層の揺れ、葉の透過）
 - Wohllaib, "Procedural Grass in Ghost of Tsushima", Game Developers Conference 2021
-- Wihlidal, "Optimizing the Graphics Pipeline with Compute", Game Developers Conference 2016（フラスタム、背面、オクルージョンの、GPU カリング）
+- Wihlidal, "Optimizing the Graphics Pipeline with Compute", Game Developers Conference 2016（フラスタム、背面、オクルージョンの GPU カリング）
 - Castaño, "Computing Alpha Mipmaps", 2010（ミップごとに、アルファを補正する）
 
 ## 関連ページ

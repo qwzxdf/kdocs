@@ -10,29 +10,29 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-GPU のメモリ（バッファ、テクスチャ）に、<strong>CPU から、データを、書く</strong>方法は、2 つあります。`Map`/`Unmap`（メモリを、直接、開いて、書く）と、`UpdateSubresource`（データを、渡して、コピーしてもらう）です。どちらを、使うかは、リソースを作るときの、<strong>`Usage`</strong>（用途）で、決まります。これを、間違えると、遅くなったり、`Map` が、失敗したり、GPU が、止まったり（ストール）します。
+GPU のメモリ（バッファ、テクスチャ）に <strong>CPU から、データを書く</strong>方法は 2 つあります。`Map`/`Unmap`（メモリを直接、開いて書く）と `UpdateSubresource`（データを渡して、コピーしてもらう）です。どちらを使うかはリソースを作るときの <strong>`Usage`</strong>（用途）で決まります。これを間違えると遅くなったり `Map` が、失敗したり GPU が止まったり（ストール）します。
 
 !!! tip "ポイント"
-    - `Usage` は、<strong>誰が、読み書きするか</strong>の、宣言: `IMMUTABLE`（変えない）、`DEFAULT`（GPU が、使う）、`DYNAMIC`（CPU が、毎フレーム、書く）、`STAGING`（CPU が、読み書き、GPU から、持ってくる）。
-    - 毎フレーム、書くなら、`DYNAMIC` + `Map(D3D11_MAP_WRITE_DISCARD)`。
-    - たまにしか、書かない、または、テクスチャの一部なら、`DEFAULT` + `UpdateSubresource`。
-    - GPU の結果を、CPU で、読むなら、`STAGING` に、`CopyResource` して、`Map(READ)`。
-    - `WRITE_DISCARD` は、前の内容を、捨てる。一部だけを、更新したいなら、`WRITE_NO_OVERWRITE`。
+    - `Usage` は <strong>誰が読み書きするか</strong>の宣言: `IMMUTABLE`（変えない）、`DEFAULT`（GPU が使う）、`DYNAMIC`（CPU が毎フレーム、書く）、`STAGING`（CPU が読み書き GPU から、持ってくる）。
+    - 毎フレーム、書くなら `DYNAMIC` + `Map(D3D11_MAP_WRITE_DISCARD)`。
+    - たまにしか書かないまたは、テクスチャの一部なら `DEFAULT` + `UpdateSubresource`。
+    - GPU の結果を CPU で読むなら `STAGING` に `CopyResource` して `Map(READ)`。
+    - `WRITE_DISCARD` は前の内容を捨てる。一部だけを更新したいなら `WRITE_NO_OVERWRITE`。
 
-## Usage（用途）の、4 種類
+## Usage（用途）の 4 種類
 
 | `Usage` | GPU | CPU | 使いどころ |
 | --- | --- | --- | --- |
-| `IMMUTABLE` | 読む | なし（作成時の、初期データだけ） | 変わらない、メッシュ、テクスチャ。最速 |
+| `IMMUTABLE` | 読む | なし（作成時の初期データだけ） | 変わらない、メッシュ、テクスチャ。最速 |
 | `DEFAULT` | 読み書き | なし（`UpdateSubresource` は、可） | レンダー ターゲット、UAV、たまに更新する物 |
-| `DYNAMIC` | 読む | 書く（`Map`） | 毎フレーム変わる、定数バッファ、動的な頂点 |
-| `STAGING` | なし（コピー元・先に、なれる） | 読み書き（`Map`） | GPU の結果の読み出し、アップロード用 |
+| `DYNAMIC` | 読む | 書く（`Map`） | 毎フレーム変わる定数バッファ、動的な頂点 |
+| `STAGING` | なし（コピー元・先になれる） | 読み書き（`Map`） | GPU の結果の読み出し、アップロード用 |
 
-`DYNAMIC` は、`BindFlags` に、制限があります（レンダー ターゲット、UAV、深度に、できない）。
+`DYNAMIC` は `BindFlags` に制限があります（レンダー ターゲット、UAV、深度にできない）。
 
 ## DYNAMIC + Map
 
-毎フレーム、変わる、データ（定数バッファ、動的な頂点バッファ）の、標準の書き方です。
+毎フレーム、変わるデータ（定数バッファ、動的な頂点バッファ）の標準の書き方です。
 
 ```cpp
 D3D11_MAPPED_SUBRESOURCE mapped = {};
@@ -45,25 +45,25 @@ if (SUCCEEDED(hr)) {
 
 | 引数 | 内容 |
 | --- | --- |
-| `pResource` | `Map` する、リソース |
-| `Subresource` | サブリソース番号（バッファは 0。テクスチャは、ミップと配列で、決まる） |
+| `pResource` | `Map` するリソース |
+| `Subresource` | サブリソース番号（バッファは 0。テクスチャはミップと配列で決まる） |
 | `MapType` | 下の表 |
-| `MapFlags` | `D3D11_MAP_FLAG_DO_NOT_WAIT`（GPU が、使用中なら、待たずに、失敗） |
+| `MapFlags` | `D3D11_MAP_FLAG_DO_NOT_WAIT`（GPU が使用中なら待たずに失敗） |
 | `pMappedResource` | 出力: `pData`（ポインター）、`RowPitch`、`DepthPitch` |
 
-### MapType の、種類
+### MapType の種類
 
 | `MapType` | 内容 | 使える `Usage` |
 | --- | --- | --- |
-| `WRITE_DISCARD` | 古い内容を、捨てて、全部を、書き直す。GPU を、待たない | `DYNAMIC` |
-| `WRITE_NO_OVERWRITE` | GPU が、まだ、使っていない、部分だけ、追記する。待たない | `DYNAMIC`（頂点・インデックス バッファのみ） |
-| `WRITE` | 書く（古い内容を、保つ）。GPU の使用が、終わるまで、待つ | `STAGING` |
+| `WRITE_DISCARD` | 古い内容を捨てて全部を書き直す。GPU を待たない | `DYNAMIC` |
+| `WRITE_NO_OVERWRITE` | GPU がまだ使っていない、部分だけ追記する。待たない | `DYNAMIC`（頂点・インデックス バッファのみ） |
+| `WRITE` | 書く（古い内容を保つ）。GPU の使用が終わるまで待つ | `STAGING` |
 | `READ` | 読む | `STAGING` |
 | `READ_WRITE` | 読み書き | `STAGING` |
 
 ### WRITE_DISCARD が、待たない理由
 
-`WRITE_DISCARD` は、「古い内容は、もう、要らない」と、宣言して、ドライバーに、<strong>新しい領域を、割り当ててもらいます</strong>（バッファの、名前変更、renaming）。GPU は、古い領域で、前のフレームの、描画を、続け、CPU は、新しい領域に、書きます。待ちが、発生しません。
+`WRITE_DISCARD` は「古い内容はもう要らない」と宣言してドライバーに <strong>新しい領域を割り当ててもらいます</strong>（バッファの、名前変更、renaming）。GPU は古い領域で前のフレームの描画を続け CPU は新しい領域に書きます。待ちが発生しません。
 
 ```cpp
 // 1 フレームに、物ごとに、何度も、Map（DISCARD）して、描ける。毎回、別の領域が、渡る。
@@ -74,11 +74,11 @@ for (const Object& object : objects) {
 }
 ```
 
-物ごとに、`Map` する、方法は、1 つの、バッファでも、動きます（ドライバーが、名前変更する）。ただし、数千回の、`Map` は、遅いので、大量の物は、まとめて、1 つの、大きなバッファに、書き、オフセットで、つなぎます（[Constant Buffer](constant-buffer.md)）。
+物ごとに `Map` する方法は 1 つのバッファでも動きます（ドライバーが、名前変更する）。ただし、数千回の `Map` は遅いので大量の物はまとめて 1 つの大きなバッファに書き、オフセットでつなぎます（[Constant Buffer](constant-buffer.md)）。
 
 ### WRITE_NO_OVERWRITE：リングバッファ
 
-大きな、動的な、頂点バッファ（UI、パーティクル）に、<strong>追記</strong>していくときは、`NO_OVERWRITE` が、使えます。
+大きな動的な頂点バッファ（UI、パーティクル）に <strong>追記</strong>していくときは `NO_OVERWRITE` が、使えます。
 
 ```cpp
 // 1 つの大きな頂点バッファを、リングのように、使う。先頭から、追記し、末尾まで来たら、DISCARD で、先頭へ戻る。
@@ -95,7 +95,7 @@ const UINT start_vertex = write_offset_ / sizeof(Vertex);
 write_offset_ += size;
 ```
 
-`NO_OVERWRITE` は、「GPU が、すでに、使っている部分には、書かない」という、約束です。約束を、守れば、待たずに、追記でき、約束を、破ると（使用中の、部分に、書くと）、描画が、壊れます。
+`NO_OVERWRITE` は「GPU がすでに使っている部分には、書かない」という約束です。約束を守れば待たずに追記でき約束を破ると（使用中の部分に書くと）、描画が壊れます。
 
 ## DEFAULT + UpdateSubresource
 
@@ -108,10 +108,10 @@ context->UpdateSubresource(buffer.Get(), 0, nullptr, data, 0, 0);
 | --- | --- |
 | `pDstResource` | 更新先 |
 | `DstSubresource` | サブリソース番号 |
-| `pDstBox` | 更新する、範囲（`nullptr` で、全部） |
+| `pDstBox` | 更新する範囲（`nullptr` で、全部） |
 | `pSrcData` | 元のデータ（CPU のメモリ） |
-| `SrcRowPitch` | テクスチャの、1 行の、バイト数 |
-| `SrcDepthPitch` | 3D テクスチャの、1 層の、バイト数 |
+| `SrcRowPitch` | テクスチャの 1 行のバイト数 |
+| `SrcDepthPitch` | 3D テクスチャの 1 層のバイト数 |
 
 ```cpp
 // テクスチャの、一部の範囲（x: 10〜50, y: 20〜60）だけを、更新する。
@@ -119,15 +119,15 @@ D3D11_BOX box = {10, 20, 0, 50, 60, 1};                    // left, top, front, 
 context->UpdateSubresource(texture.Get(), 0, &box, pixels, (50 - 10) * 4, 0);
 ```
 
-`UpdateSubresource` は、ドライバーが、データを、<strong>内部で、コピーして</strong>から、GPU へ、送るので、呼んだ後に、CPU 側の、メモリを、すぐ、解放しても、安全です。ただし、毎フレームの、定数バッファの、更新には、`Map` の方が、速いことが、多いです。
+`UpdateSubresource` はドライバーがデータを <strong>内部で、コピーして</strong>から GPU へ送るので、呼んだ後に CPU 側のメモリをすぐ解放しても安全です。ただし、毎フレームの定数バッファの更新には `Map` の方が速いことが多いです。
 
 | | `Map`（`DYNAMIC`） | `UpdateSubresource`（`DEFAULT`） |
 | --- | --- | --- |
-| 向く | 毎フレーム、全部を、書く | たまの更新、テクスチャの一部 |
-| コピー | 直接、GPU のメモリへ | ドライバーが、一度、コピー |
-| 定数バッファ | 速い | やや、遅いことが、ある |
+| 向く | 毎フレーム、全部を書く | たまの更新、テクスチャの一部 |
+| コピー | 直接、GPU のメモリへ | ドライバーが一度、コピー |
+| 定数バッファ | 速い | やや遅いことがある |
 
-## STAGING：GPU の結果を、CPU で、読む
+## STAGING：GPU の結果を CPU で読む
 
 ```cpp
 // ① CPU が読める、STAGING テクスチャを、作る。GPU からは、直接、使えない。
@@ -154,11 +154,11 @@ for (UINT y = 0; y < desc.Height; ++y) {
 context->Unmap(staging.Get(), 0);
 ```
 
-スクリーンショット、GPU の計算結果の、検証、ピッキング（ID バッファの読み出し）に、使います。<strong>`Map(READ)` は、GPU の、完了を、待つ</strong>ので、毎フレームの、読み出しは、フレームを、止めます。数フレーム前の、結果を、読む（STAGING を、リングで、複数用意）と、止まりません。
+スクリーンショット、GPU の計算結果の検証、ピッキング（ID バッファの読み出し）に使います。<strong>`Map(READ)` は GPU の完了を待つ</strong>ので、毎フレームの読み出しはフレームを止めます。数フレーム前の結果を読む（STAGING をリングで複数用意）と止まりません。
 
-## RowPitch に、注意
+## RowPitch に注意
 
-テクスチャの、`Map` で、得られる、`RowPitch` は、<strong>幅 × 画素の大きさ、とは、限りません</strong>（アラインメントの、パディングが、入る）。行ごとに、`RowPitch` ずつ、進めて、読み書きします。
+テクスチャの `Map` で得られる `RowPitch` は、<strong>幅 × 画素の大きさとは限りません</strong>（アラインメントのパディングが入る）。行ごとに `RowPitch` ずつ進めて読み書きします。
 
 ```cpp
 // 書くとき: 1 行ずつ、コピーする。memcpy で、全体を、一気に、コピーしてはいけない。
@@ -171,19 +171,19 @@ for (UINT y = 0; y < height; ++y) {
 ## よくあるミス
 
 ??? failure "`Map` が、失敗する（`E_INVALIDARG`）"
-    `Usage` と、`MapType` の、組み合わせが、違う。`DEFAULT` や `IMMUTABLE` は、`Map` できない。`DYNAMIC` に `READ` は、できない。
+    `Usage` と `MapType` の組み合わせが違う。`DEFAULT` や `IMMUTABLE` は `Map` できない。`DYNAMIC` に `READ` はできない。
 
-??? failure "テクスチャの、読み書きが、斜めに、ずれる"
-    `RowPitch` を、無視して、`width * 4` ずつ、進めている。パディングが、あるので、`RowPitch` ずつ、進める。
+??? failure "テクスチャの読み書きが斜めにずれる"
+    `RowPitch` を無視して `width * 4` ずつ進めている。パディングがあるので `RowPitch` ずつ進める。
 
-??? failure "`Map(READ)` で、フレームが、ガクッと、止まる"
-    GPU の、完了を、待っている。数フレーム遅れで、読む（複数の、STAGING を、リングで）か、非同期のクエリで、完了を、確認する。
+??? failure "`Map(READ)` で、フレームがガクッと止まる"
+    GPU の完了を待っている。数フレーム遅れで読む（複数の STAGING をリングで）か非同期のクエリで完了を確認する。
 
-??? failure "`WRITE_NO_OVERWRITE` で、描画が、壊れる"
-    GPU が、使っている、領域に、書いている。リングバッファの、使い方を、間違えている。満杯になったら、`DISCARD` で、先頭に、戻る。
+??? failure "`WRITE_NO_OVERWRITE` で描画が、壊れる"
+    GPU が使っている領域に書いている。リングバッファの使い方を間違えている。満杯になったら `DISCARD` で先頭に戻る。
 
-??? failure "`DYNAMIC` のレンダー ターゲットを、作ろうとして、失敗する"
-    `DYNAMIC` は、レンダー ターゲット、UAV、深度に、できない。それらは、`DEFAULT`。
+??? failure "`DYNAMIC` のレンダー ターゲットを作ろうとして失敗する"
+    `DYNAMIC` はレンダー ターゲット、UAV、深度にできない。それらは `DEFAULT`。
 
 ## これだけ覚える
 
@@ -193,7 +193,7 @@ for (UINT y = 0; y < height; ++y) {
     - [x] たまの更新 → `DEFAULT` + `UpdateSubresource`
     - [x] 追記 → `WRITE_NO_OVERWRITE`（リング）
     - [x] 読み出し → `STAGING` + `CopyResource` + `Map(READ)`（遅れて読む）
-    - [x] テクスチャは、`RowPitch` ずつ、進める
+    - [x] テクスチャは `RowPitch` ずつ進める
 
 ## 関連ページ
 

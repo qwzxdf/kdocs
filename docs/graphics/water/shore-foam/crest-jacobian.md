@@ -6,7 +6,7 @@ tags:
 
 # Crest Foam: The Jacobian
 
-<strong>波頭が尖って、メッシュが縮む所に、泡が出る</strong>のが<strong>自然な波</strong>です。この縮み具合を、ヤコビアンという値で測れます。このページでは、ヤコビアンによる波頂の泡を説明します。
+<strong>波頭が尖ってメッシュが縮む所に、泡が出る</strong>のが<strong>自然な波</strong>です。この縮み具合をヤコビアンという値で測れます。このページではヤコビアンによる波頂の泡を説明します。
 
 !!! tip "ポイント"
     - ヤコビアン ＝ 水面の面積の変化率。
@@ -28,7 +28,7 @@ tags:
 | J < 1 | 縮んでいる（波頂に向かって粒子が集まる） |
 | J ≤ 0 | 折れている（粒子が追い越した）。泡が出る |
 
-<strong>Gerstner 波なら、解析的に求まります</strong>。
+<strong>Gerstner 波なら解析的に求まります</strong>。
 
 ```hlsl
 float3 GerstnerJacobian(float2 position, GerstnerWave wave, float time) {
@@ -50,9 +50,9 @@ jacobian = (1.0 - sum.x) * (1.0 - sum.y) - sum.z * sum.z;
 float crest_mask = saturate((foam_threshold - jacobian) / foam_softness);
 ```
 
-コードの要点です。`foam_threshold` は、この値より J が小さいと泡になるしきい値で（例：0.7）、1 より小さい値にします。`foam_softness` は泡が立ち上がる幅（例：0.3）です。FFT 海面では、ヤコビアンを変位マップから計算して、テクスチャに出します（[Water Waves](../waves/index.md)）。
+コードの要点です。`foam_threshold` はこの値より J が小さいと泡になるしきい値で（例：0.7）、1 より小さい値にします。`foam_softness` は泡が立ち上がる幅（例：0.3）です。FFT 海面ではヤコビアンを変位マップから計算して、テクスチャに出します（[Water Waves](../waves/index.md)）。
 
-この方法は、Tessendorf の "Simulating Ocean Water"（SIGGRAPH Course Notes、2001）で提案されたもので、波の水平方向の変位（Gerstner 波の尖り）から、波が折れる場所を判定します。
+この方法は Tessendorf の "Simulating Ocean Water"（SIGGRAPH Course Notes、2001）で提案されたもので、波の水平方向の変位（Gerstner 波の尖り）から、波が折れる場所を判定します。
 
 <strong>FFT では水平変位マップの差分</strong>から<strong>ヤコビアンを求め</strong>、別のテクスチャに書き出すのが定番です。
 
@@ -457,15 +457,15 @@ float crest_mask = saturate((foam_threshold - jacobian) / foam_softness);
 
 <!-- fig:jacobian-fold:end -->
 
-## 波頭の、泡は、いつ出るか
+## 波頭の泡はいつ出るか
 
-海の波は、<strong>波頭が、尖り</strong>、さらに強くなると、<strong>波頭が、砕けて、泡</strong>になります。波が、砕けるのは、波の、斜面が、急になりすぎたときです。水の粒が、波頭で、集まりすぎて、ぶつかるとも、言えます。
+海の波は <strong>波頭が尖り</strong>、さらに強くなると <strong>波頭が砕けて、泡</strong>になります。波が砕けるのは波の斜面が急になりすぎたときです。水の粒が波頭で集まりすぎてぶつかるとも、言えます。
 
-波の頂点を、水平にも動かす方式（Gerstner 波、FFT 海面）では、<strong>頂点が、集まって、面積が、小さくなった場所</strong>が、砕けそうな場所です。この「<strong>面積の縮み具合</strong>」を、数値にしたものが、ヤコビアンです。
+波の頂点を水平にも動かす方式（Gerstner 波、FFT 海面）では <strong>頂点が集まって面積が、小さくなった場所</strong>が砕けそうな場所です。この「<strong>面積の縮み具合</strong>」を、数値にしたものがヤコビアンです。
 
 ## ヤコビアン
 
-各頂点を、動く前の位置 `P₀ = (x₀, z₀)` から、動いた後の位置 `P = P₀ + D(P₀)` へ、移すとします（`D` は、水平の変位）。この写像が、<strong>面積を、どれだけ変えるか</strong>を表すのが、ヤコビアン `J` です。
+各頂点を動く前の位置 `P₀ = (x₀, z₀)` から、動いた後の位置 `P = P₀ + D(P₀)` へ移すとします（`D` は、水平の変位）。この写像が <strong>面積をどれだけ変えるか</strong>を表すのが、ヤコビアン `J` です。
 
 ```text
 J = ( 1 + ∂Dx/∂x )( 1 + ∂Dz/∂z ) − ( ∂Dx/∂z )( ∂Dz/∂x )
@@ -473,12 +473,12 @@ J = ( 1 + ∂Dx/∂x )( 1 + ∂Dz/∂z ) − ( ∂Dx/∂z )( ∂Dz/∂x )
 
 | J の値 | 意味 |
 | --- | --- |
-| 1 | 面積が、変わらない（頂点の、間隔が、そのまま） |
-| 1 より大きい | 面積が、広がる（谷。頂点が、散る） |
-| 0 に近づく | 面積が、つぶれる（波頭。頂点が、集まる） |
-| 負 | 写像が、裏返る（頂点が、追い越して、波頭が、折れている） |
+| 1 | 面積が変わらない（頂点の間隔が、そのまま） |
+| 1 より大きい | 面積が、広がる（谷。頂点が散る） |
+| 0 に近づく | 面積が、つぶれる（波頭。頂点が集まる） |
+| 負 | 写像が裏返る（頂点が、追い越して波頭が折れている） |
 
-<strong>`J` が、小さい（しきい値より、小さい）場所に、泡を出します</strong>。
+<strong>`J` が小さい（しきい値より、小さい）場所に泡を出します</strong>。
 
 ```hlsl
 // ヤコビアンが、しきい値（たとえば 0.5）より小さい場所を、泡にする。
@@ -487,12 +487,12 @@ float foam = saturate((foam_threshold - jacobian) / foam_softness);
 
 | パラメーター | 目安 | 効果 |
 | --- | --- | --- |
-| `foam_threshold` | 0.3〜0.8 | 大きいほど、多くの場所に、泡が出る |
-| `foam_softness` | 0.1〜0.5 | 大きいほど、泡の縁が、なだらか |
+| `foam_threshold` | 0.3〜0.8 | 大きいほど、多くの場所に泡が出る |
+| `foam_softness` | 0.1〜0.5 | 大きいほど、泡の縁がなだらか |
 
 ## Gerstner 波の、ヤコビアン
 
-Gerstner 波では、水平変位の偏微分が、<strong>解析的</strong>に、求まります（[Gerstner Waves](../waves/gerstner.md)）。
+Gerstner 波では水平変位の偏微分が、<strong>解析的</strong>に求まります（[Gerstner Waves](../waves/gerstner.md)）。
 
 ```text
 ∂Dx/∂x = −Σ Q A ω Dx² sinθ         ∂Dz/∂z = −Σ Q A ω Dz² sinθ
@@ -509,9 +509,9 @@ dxdz -= w.steepness * w.amplitude * k * s * w.direction.x * w.direction.y;
 float jacobian = (1.0 + dxdx) * (1.0 + dzdz) - dxdz * dxdz;
 ```
 
-## FFT 海面の、ヤコビアン
+## FFT 海面のヤコビアン
 
-FFT 海面（[FFT Ocean](../waves/fft-ocean.md)）では、<strong>水平変位の画像 `Dx`、`Dz`</strong> が、テクスチャとして、得られます。その<strong>隣の画素との差</strong>（中央差分）から、偏微分を求めます。
+FFT 海面（[FFT Ocean](../waves/fft-ocean.md)）では、<strong>水平変位の画像 `Dx`、`Dz`</strong> がテクスチャとして得られます。その<strong>隣の画素との差</strong>（中央差分）から、偏微分を求めます。
 
 ```hlsl
 // 変位テクスチャ（xy = Dx, Dz）から、ヤコビアンを求める。
@@ -526,14 +526,14 @@ float2 ddz_ = (d_up - d_down) / (2.0 * texel_world);          // (∂Dx/∂z, �
 float jacobian = (1.0 + ddx_.x) * (1.0 + ddz_.y) - ddz_.x * ddx_.y;
 ```
 
-`texel_world` は、変位マップの、<strong>1 画素のワールド上の大きさ</strong>（`patch_size / N`）です。
+`texel_world` は変位マップの <strong>1 画素のワールド上の大きさ</strong>（`patch_size / N`）です。
 
-!!! tip "ヤコビアンを、FFT で、直接求める"
-    差分は、<strong>ノイズを増やしやすい</strong>です。<strong>周波数空間で、微分を掛けて、逆 FFT する</strong>と、正確に、偏微分が、得られます（`∂/∂x ↔ i kx`）。逆 FFT の、画像の枚数が、増えますが、きれいな泡になります。
+!!! tip "ヤコビアンを、FFT で直接求める"
+    差分は <strong>ノイズを増やしやすい</strong>です。<strong>周波数空間で微分を掛けて逆 FFT する</strong>と正確に、偏微分が得られます（`∂/∂x ↔ i kx`）。逆 FFT の画像の枚数が増えますが、きれいな泡になります。
 
-## 泡の、ためる・消す
+## 泡のためる・消す
 
-ヤコビアンが、小さい瞬間だけ、泡を出すと、<strong>一瞬で消えて、ちらつきます</strong>。<strong>泡を、ためて、ゆっくり消す</strong>と、波頭が、通り過ぎた後にも、泡が、尾を引いて残ります（[Persistent Foam](foam-history.md)）。
+ヤコビアンが小さい瞬間だけ泡を出すと、<strong>一瞬で消えてちらつきます</strong>。<strong>泡をためてゆっくり消す</strong>と波頭が、通り過ぎた後にも泡が尾を引いて残ります（[Persistent Foam](foam-history.md)）。
 
 ```hlsl
 // 泡の蓄積: 新しい泡と、前の泡（減衰させたもの）の、大きい方を取る。
@@ -541,9 +541,9 @@ float new_foam = saturate((foam_threshold - jacobian) / foam_softness);
 float foam = max(new_foam, prev_foam * exp(-decay_rate * dt));
 ```
 
-## 泡の、位置の補正
+## 泡の位置の補正
 
-ヤコビアンは、<strong>動く前の位置 `P₀`</strong> の関数です。泡を、<strong>画面の、どこに、出すか</strong>は、動いた後の位置 `P` です。頂点シェーダーで、ヤコビアンを求めて、補間して、ピクセルへ、渡すなら、自動で、合います。テクスチャに焼く場合は、`P₀` の座標に、書かれるので、波頭の位置と、泡が、わずかに、ずれて見えることがあります。変位を、足して、`P` の位置で、読むように、補正します（水平変位は、頂点シェーダーが、すでに、反映しているので、頂点の `P₀` を、UV として、読めばよい）。
+ヤコビアンは <strong>動く前の位置 `P₀`</strong> の関数です。泡を <strong>画面のどこに出すか</strong>は、動いた後の位置 `P` です。頂点シェーダーでヤコビアンを求めて、補間してピクセルへ渡すなら自動で、合います。テクスチャに焼く場合は `P₀` の座標に、書かれるので波頭の位置と泡が、わずかにずれて見えることがあります。変位を足して `P` の位置で読むように、補正します（水平変位は頂点シェーダーがすでに、反映しているので頂点の `P₀` を、UV として読めばよい）。
 
 ## よくあるミス
 
@@ -553,7 +553,7 @@ float foam = max(new_foam, prev_foam * exp(-decay_rate * dt));
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 波が尖る所に、泡
+    - [x] 波が尖る所に泡
     - [x] ヤコビアンで測る
 
 ## 参考

@@ -7,15 +7,15 @@ tags:
 
 # ImGui のスタイルとテーマ
 
-ImGui の見た目（色・角丸・余白・線の太さ）は、**`ImGuiStyle`**という構造体で決まります。**標準のテーマ**（ダーク・ライト・クラシック）を**選ぶだけ**でも、**項目を書き換えて、自分のテーマ**を作れます。**一部の部品だけ**、**一時的に**変えたいときは、**`PushStyleColor` / `PushStyleVar`**を使います。このページは、**テーマの選び方、色と大きさの変更、一時的な変更、保存、高 DPI への対応**をまとめます。
+ImGui の見た目（色・角丸・余白・線の太さ）は、**`ImGuiStyle`**という構造体で決まります。**標準のテーマ**（ダーク・ライト・クラシック）を**選ぶだけ**でも、**項目を書き換えて自分のテーマ**を作れます。**一部の部品だけ**、**一時的に**変えたいときは**`PushStyleColor` / `PushStyleVar`**を使います。このページは**テーマの選び方、色と大きさの変更、一時的な変更、保存、高 DPI への対応**をまとめます。
 
 !!! tip "ポイント"
     - <strong>標準のテーマは 3 つ</strong>：<strong>`StyleColorsDark`</strong>（既定）・<strong>`StyleColorsLight`</strong>・<strong>`StyleColorsClassic`</strong>。
-    - <strong>`ImGui::GetStyle()`</strong> で <strong>`ImGuiStyle`</strong> を取得し、<strong>色（`Colors[ImGuiCol_*]`）と、大きさ（`WindowRounding` など）</strong>を直接変える。
-    - <strong>一時的な変更は、`PushStyleColor` / `PushStyleVar` と、対応する `Pop`</strong>。<strong>個数を、そろえる</strong>。
+    - <strong>`ImGui::GetStyle()`</strong> で <strong>`ImGuiStyle`</strong> を取得し、<strong>色（`Colors[ImGuiCol_*]`）と大きさ（`WindowRounding` など）</strong>を直接変える。
+    - <strong>一時的な変更は `PushStyleColor` / `PushStyleVar` と対応する `Pop`</strong>。<strong>個数をそろえる</strong>。
     - <strong>色は `ImVec4(R, G, B, A)`（0〜1）</strong>。
-    - <strong>高 DPI は、`style.ScaleAllSizes(scale)` とフォントの拡大</strong>。<strong>スケールは、1 回だけ</strong>。
-    - <strong>テーマは、コードか、ファイルに保存</strong>して、<strong>起動時に適用</strong>する。
+    - <strong>高 DPI は `style.ScaleAllSizes(scale)` とフォントの拡大</strong>。<strong>スケールは 1 回だけ</strong>。
+    - <strong>テーマはコードかファイルに保存</strong>して、<strong>起動時に適用</strong>する。
 
 ## 標準のテーマ
 
@@ -27,15 +27,15 @@ ImGui::StyleColorsClassic();
 
 | テーマ | 見た目 |
 | --- | --- |
-| **`StyleColorsDark`** | **暗い背景**（**既定**）。ゲーム・ツールに、よく使われる |
+| **`StyleColorsDark`** | **暗い背景**（**既定**）。ゲーム・ツールによく使われる |
 | `StyleColorsLight` | **明るい背景** |
-| `StyleColorsClassic` | **昔ながらの、青灰色** |
+| `StyleColorsClassic` | **昔ながらの青灰色** |
 
 **`ImGui::CreateContext()` の後、ループの前に 1 回**呼びます。
 
 <svg class="fig imgui" data-fig="imgui-style-colors" viewBox="0 0 780 260" role="img" aria-label="色の項目と画面上の場所"><rect x="0" y="0" width="780" height="260" fill="#1b1b1f" rx="6"/><rect x="20.0" y="20.0" width="340.0" height="210.0" rx="0" fill="#0f0f0f" stroke="#4b4b57" stroke-width="1" /><rect x="20.0" y="20.0" width="340.0" height="19.0" rx="0" fill="#294a7a" /><path d="M27,26 l5,0 l-2.5,7 z" fill="#ffffff"/><text x="40.0" y="34.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Style</text><text x="28.0" y="61.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Text  (ImGuiCol_Text)</text><rect x="28.0" y="70.0" width="64.0" height="19.0" rx="3" fill="#23456d" /><text x="36.0" y="84.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Button</text><rect x="28.0" y="93.0" width="17.0" height="17.0" rx="3" fill="#1d2f49" /><path d="M32,102 l4,4 l7,-8" fill="none" stroke="#4296fa" stroke-width="2.2"/><text x="49.0" y="107.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >CheckMark</text><rect x="28.0" y="116.0" width="200.0" height="19.0" rx="3" fill="#1d2f49" /><rect x="105.0" y="118.0" width="10.0" height="15.0" rx="2" fill="#3d85e0" /><text x="116.0" y="130.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >4.0</text><text x="236.0" y="130.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >SliderGrab</text><rect x="28.0" y="139.0" width="200.0" height="19.0" rx="3" fill="#1d2f49" /><text x="32.0" y="153.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >abc</text><text x="236.0" y="153.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >FrameBg</text><rect x="22.0" y="162.0" width="336.0" height="19.0" rx="0" fill="#24435f" /><path d="M30,168 l10,0 l-5,9 z" fill="#ffffff"/><text x="46.0" y="176.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Header</text><text x="390.0" y="40.0" style="fill:#9ec5ff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >ImGuiCol_WindowBg … ウィンドウの背景</text><text x="390.0" y="62.0" style="fill:#9ec5ff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >ImGuiCol_TitleBgActive … タイトル バー</text><text x="390.0" y="84.0" style="fill:#9ec5ff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >ImGuiCol_Button / ButtonHovered / ButtonActive</text><text x="390.0" y="106.0" style="fill:#9ec5ff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >ImGuiCol_CheckMark … チェックの色</text><text x="390.0" y="128.0" style="fill:#9ec5ff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >ImGuiCol_SliderGrab … つまみ</text><text x="390.0" y="150.0" style="fill:#9ec5ff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >ImGuiCol_FrameBg … 入力欄・スライダーの下地</text><text x="390.0" y="172.0" style="fill:#9ec5ff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >ImGuiCol_Header … 折りたたみ・選択行</text><text x="390.0" y="194.0" style="fill:#9ec5ff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >ImGuiCol_Border … 枠線</text></svg>
 
-**色の名前が、画面のどこに対応するか**の見取り図です。<strong>一覧は、[フラグ早見表](reference/flags.md)の「色の名前」</strong>を参照してください。
+**色の名前が画面のどこに対応するか**の見取り図です。<strong>一覧は[フラグ早見表](reference/flags.md)の「色の名前」</strong>を参照してください。
 
 ## ImGuiStyle
 
@@ -57,19 +57,19 @@ style.ItemSpacing = ImVec2(8, 6);
 | **`FramePadding`** | **部品（ボタン・入力欄）の内側の余白** |
 | **`FrameRounding`** | **部品の角丸** |
 | `FrameBorderSize` | 部品の枠線の太さ |
-| **`ItemSpacing`** | **部品と部品の、間隔** |
-| `ItemInnerSpacing` | 部品の中の、要素間隔（ラベルとの間など） |
+| **`ItemSpacing`** | **部品と部品の間隔** |
+| `ItemInnerSpacing` | 部品の中の要素間隔（ラベルとの間など） |
 | `IndentSpacing` | 字下げ・ツリーの幅 |
 | `ScrollbarSize` / `ScrollbarRounding` | **スクロールバーの太さ・角丸** |
 | `GrabMinSize` / `GrabRounding` | **スライダーのつまみ**の大きさ・角丸 |
 | `TabRounding` | **タブの角丸** |
 | `WindowTitleAlign` | タイトルの揃え（`ImVec2(0.5f, 0.5f)` で中央） |
 | `Alpha` | **全体の透明度** |
-| `AntiAliasedLines` / `AntiAliasedFill` | **線・塗りの、ぎざぎざ防止** |
+| `AntiAliasedLines` / `AntiAliasedFill` | **線・塗りのぎざぎざ防止** |
 
 ### 色の変更
 
-**色は、`style.Colors[ImGuiCol_*]` の配列**に入っています。
+**色は `style.Colors[ImGuiCol_*]` の配列**に入っています。
 
 ```cpp
 ImVec4* colors = style.Colors;
@@ -95,11 +95,11 @@ colors[ImGuiCol_ButtonActive] = ImVec4(0.15f, 0.35f, 0.65f, 1.00f);
 | `ImGuiCol_ScrollbarBg` / `ScrollbarGrab` | **スクロールバー** |
 | `ImGuiCol_PlotLines` / `PlotHistogram` | **グラフ** |
 
-**ボタンなどは、「通常・ホバー・押下」の 3 色**を、**セットで決める**と、操作感が良くなります。
+**ボタンなどは「通常・ホバー・押下」の 3 色**を**セットで決める**と、操作感が良くなります。
 
 ## 一時的な変更（Push / Pop）
 
-**一部の部品だけ**、**色や大きさを変える**には、**`Push` で積み、`Pop` で戻します**。
+**一部の部品だけ**、**色や大きさを変える**には**`Push` で積み `Pop` で戻します**。
 
 ```cpp
 ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.7f, 0.2f, 0.2f, 1.0f));
@@ -114,12 +114,12 @@ ImGui::PopStyleVar();
 
 | 関数 | 説明 |
 | --- | --- |
-| **`PushStyleColor(idx, color)` / `PopStyleColor(count)`** | **色**を、一時的に変える |
-| **`PushStyleVar(idx, 値)` / `PopStyleVar(count)`** | **大きさ・余白**を、一時的に変える |
-| `PushFont(font)` / `PopFont()` | **フォント**を、一時的に変える（[フォント](fonts.md)） |
+| **`PushStyleColor(idx, color)` / `PopStyleColor(count)`** | **色**を一時的に変える |
+| **`PushStyleVar(idx, 値)` / `PopStyleVar(count)`** | **大きさ・余白**を一時的に変える |
+| `PushFont(font)` / `PopFont()` | **フォント**を一時的に変える（[フォント](fonts.md)） |
 
 !!! warning "Push と Pop の個数をそろえる"
-    **`Push` した数と、`Pop` する数が合わない**と、**assert** で止まります（または、**以降の見た目が壊れます**）。**`PopStyleColor(2)`** のように、**数を渡して**、**まとめて戻せます**。
+    **`Push` した数と `Pop` する数が合わない**と**assert** で止まります（または、**以降の見た目が壊れます**）。**`PopStyleColor(2)`** のように**数を渡して**、**まとめて戻せます**。
 
 ### 無効な部品の見た目
 
@@ -129,11 +129,11 @@ ImGui::Button("攻撃");
 ImGui::EndDisabled();
 ```
 
-**`BeginDisabled(true)`** で、**囲んだ部品が、薄くなり、操作できなくなります**（`Push` で色を変えるより、簡単）。
+**`BeginDisabled(true)`** で**囲んだ部品が、薄くなり操作できなくなります**（`Push` で色を変えるより簡単）。
 
 ## 自作のテーマ
 
-**よく使う設定を、1 つの関数にまとめる**と、**使い回せます**。
+**よく使う設定を 1 つの関数にまとめる**と**使い回せます**。
 
 ```cpp
 void ApplyMyTheme() {
@@ -164,28 +164,28 @@ void ApplyMyTheme() {
 
 | コツ | 説明 |
 | --- | --- |
-| **基準の色を 1 つ決める** | **ボタン・ヘッダ・つまみ**などを、**その色の、明るさ違い**にする |
-| **ホバーは、少し明るく** | **押下は、少し暗く** |
-| **文字と背景の、コントラスト** | **読める**ことが、最優先 |
-| **ImGui のスタイル エディタ** | **`ImGui::ShowStyleEditor()`** を開くと、**リアルタイムで**、**全項目を、調整できる** |
+| **基準の色を 1 つ決める** | **ボタン・ヘッダ・つまみ**などを、**その色の明るさ違い**にする |
+| **ホバーは少し明るく** | **押下は、少し暗く** |
+| **文字と背景のコントラスト** | **読める**ことが、最優先 |
+| **ImGui のスタイル エディタ** | **`ImGui::ShowStyleEditor()`** を開くと**リアルタイムで**、**全項目を調整できる** |
 
 ```cpp
 ImGui::ShowStyleEditor();
 ```
 
-**スタイル エディタで、見た目を決めてから、数値をコードに写す**のが、**一番簡単**です。
+**スタイル エディタで見た目を決めてから、数値をコードに写す**のが**一番簡単**です。
 
 ### 保存と読み込み
 
 | 方法 | 説明 |
 | --- | --- |
 | **コードに書く** | **テーマ関数**（上の例）。**最もシンプル** |
-| **JSON などのファイル** | **色・大きさを、ファイルに保存**して、**起動時に読む**。**再ビルドなしで、調整できる**（[nlohmann/json](../serialization/nlohmann-json.md)） |
-| <strong>`ShowStyleEditor` の「Export」</strong> | **色の配列を、C++ コード**として、出力できる |
+| **JSON などのファイル** | **色・大きさをファイルに保存**して、**起動時に読む**。**再ビルドなしで調整できる**（[nlohmann/json](../serialization/nlohmann-json.md)） |
+| <strong>`ShowStyleEditor` の「Export」</strong> | **色の配列を C++ コード**として、出力できる |
 
 ## 高 DPI（ディスプレイの拡大率）への対応 {#dpi}
 
-**高解像度のディスプレイ**では、**ImGui の部品が、小さく**見えます。
+**高解像度のディスプレイ**では**ImGui の部品が、小さく**見えます。
 
 ```cpp
 float dpi_scale = GetDpiScaleForWindow(hwnd);
@@ -198,13 +198,13 @@ io.Fonts->AddFontFromFileTTF("font.ttf", 16.0f * dpi_scale);
 
 | 点 | 説明 |
 | --- | --- |
-| **`style.ScaleAllSizes(scale)`** | **余白・角丸・スクロールバーなど、すべての大きさ**を、`scale` 倍する |
-| **フォントも、拡大して読み込む** | **`io.FontGlobalScale` で拡大**すると、**ぼやける**。**フォントの大きさを、DPI に合わせて作る**（[フォント](fonts.md)） |
-| **スケールは、1 回だけ** | **`ScaleAllSizes` を、何度も呼ぶ**と、**掛け算が重なって**、大きくなりすぎる |
-| **DPI の変化** | **ウィンドウを、別のモニターに動かした**とき、**スタイルを、元に戻して、再度スケール**する |
+| **`style.ScaleAllSizes(scale)`** | **余白・角丸・スクロールバーなどすべての大きさ**を、`scale` 倍する |
+| **フォントも拡大して読み込む** | **`io.FontGlobalScale` で拡大**すると、**ぼやける**。**フォントの大きさを DPI に合わせて作る**（[フォント](fonts.md)） |
+| **スケールは 1 回だけ** | **`ScaleAllSizes` を何度も呼ぶ**と**掛け算が重なって**、大きくなりすぎる |
+| **DPI の変化** | **ウィンドウを別のモニターに動かした**とき、**スタイルを元に戻して再度スケール**する |
 
-!!! note "スタイルを、元に戻してから、スケールする"
-    `ScaleAllSizes` は、**今の値に掛ける**ので、**DPI が変わるたびに呼ぶ**と、**積み重なります**。**元のスタイルを、保存**しておき、**コピーして、スケール**します。
+!!! note "スタイルを元に戻してから、スケールする"
+    `ScaleAllSizes` は**今の値に掛ける**ので、**DPI が変わるたびに呼ぶ**と**積み重なります**。**元のスタイルを保存**しておき**コピーして、スケール**します。
 
 ```cpp
 ImGuiStyle base_style;
@@ -219,31 +219,31 @@ void OnDpiChanged(float scale) {
 
 ## よくあるミス
 
-??? failure "`Push` と `Pop` の数が合わず、assert で止まる"
-    **積んだ数だけ、戻します**（`PopStyleColor(2)`）。
+??? failure "`Push` と `Pop` の数が合わず assert で止まる"
+    **積んだ数だけ戻します**（`PopStyleColor(2)`）。
 
-??? failure "`StyleColors...` を、`Colors[...]` の変更の後に呼ぶ"
-    **標準テーマが、変更を上書き**します。**テーマを選んでから、個別に変更**します。
+??? failure "`StyleColors...` を `Colors[...]` の変更の後に呼ぶ"
+    **標準テーマが変更を上書き**します。**テーマを選んでから個別に変更**します。
 
-??? failure "`ScaleAllSizes` を、毎フレーム呼ぶ"
-    **大きさが、どんどん大きく**なります。**1 回だけ**。
+??? failure "`ScaleAllSizes` を毎フレーム呼ぶ"
+    **大きさがどんどん大きく**なります。**1 回だけ**。
 
 ??? failure "`io.FontGlobalScale` で拡大して、文字がぼやける"
-    **フォント自体を、大きく読み込み直す**（[フォント](fonts.md)）。
+    **フォント自体を大きく読み込み直す**（[フォント](fonts.md)）。
 
 ??? failure "背景が、透けて見える（アルファ）"
     `ImGuiCol_WindowBg` の **アルファ（4 つ目）が、1 未満**です。
 
-??? failure "色の値を、0〜255 で書いている"
-    **`ImVec4` は、0〜1** の `float` です。**`IM_COL32`** は、0〜255 の整数（`ImU32`）で、**用途が別**です。
+??? failure "色の値を 0〜255 で書いている"
+    **`ImVec4` は 0〜1** の `float` です。**`IM_COL32`** は 0〜255 の整数（`ImU32`）で、**用途が別**です。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] <strong>標準テーマは `StyleColorsDark` / `Light` / `Classic`</strong>。<strong>最初に 1 回</strong>
-    - [x] <strong>`ImGui::GetStyle()`</strong> で、<strong>色（`Colors[ImGuiCol_*]`）と、大きさ（`WindowRounding` など）</strong>を変える
+    - [x] <strong>`ImGui::GetStyle()`</strong> で、<strong>色（`Colors[ImGuiCol_*]`）と大きさ（`WindowRounding` など）</strong>を変える
     - [x] <strong>一時的な変更は `PushStyleColor` / `PushStyleVar`</strong>。<strong>個数をそろえて `Pop`</strong>
-    - [x] <strong>`ShowStyleEditor()`</strong> で、<strong>見た目を調整して、値をコードに写す</strong>
+    - [x] <strong>`ShowStyleEditor()`</strong> で、<strong>見た目を調整して値をコードに写す</strong>
     - [x] <strong>高 DPI は `ScaleAllSizes`（1 回だけ）＋ フォントを大きく</strong>
 
 ## 関連ページ

@@ -6,7 +6,7 @@ tags:
 
 # Transmittance
 
-<strong>光が大気を通ると、散乱や吸収で弱まります</strong>。<strong>弱まる割合が透過率で、Beer の法則（指数）で表します</strong>。このページでは、透過率の計算を説明します。
+<strong>光が大気を通ると散乱や吸収で弱まります</strong>。<strong>弱まる割合が透過率で Beer の法則（指数）で表します</strong>。このページでは透過率の計算を説明します。
 
 !!! tip "ポイント"
     - 透過率 ＝ exp(−∫ 消散係数 ds)。
@@ -73,7 +73,7 @@ tags:
 <!-- fig:sun-transmittance:end -->
 
 ## 透過率
-<strong>光が距離 d を進むと、強さは指数的に減ります</strong>（Beer–Lambert の法則）。
+<strong>光が距離 d を進むと強さは指数的に減ります</strong>（Beer–Lambert の法則）。
 
 <div class="formula">T(a → b) = exp( −∫ σt(s) ds )　（光学的厚さ τ = ∫ σt ds）</div>
 
@@ -94,11 +94,11 @@ float3 Transmittance(float3 start, float3 end, int steps) {
 }
 ```
 
-コードの要点です。中点法で、各区間の中点で密度を取ります。色ごとに別の値を持ちます（RGB の消散係数が違うので、青が先に減ります）。球の外や内への扱いとして、地面にぶつかる向きは、光が届かない（T = 0）として扱います。
+コードの要点です。中点法で各区間の中点で密度を取ります。色ごとに別の値を持ちます（RGB の消散係数が違うので、青が先に減ります）。球の外や内への扱いとして地面にぶつかる向きは、光が届かない（T = 0）として扱います。
 
-## 透過率とは、何か
+## 透過率とは何か
 
-光が、霧や大気の中を、距離 `d` だけ進むと、<strong>一部が、吸収・散乱で、進行方向から、失われます</strong>。<strong>そのまま、進行方向に、残る光の割合</strong>が、透過率 `T` です。
+光が霧や大気の中を距離 `d` だけ進むと、<strong>一部が吸収・散乱で進行方向から、失われます</strong>。<strong>そのまま進行方向に残る光の割合</strong>が、透過率 `T` です。
 
 ```text
 T = exp( −σ × d )                       一様な媒質（霧）の場合
@@ -106,34 +106,34 @@ T = exp( −σ × d )                       一様な媒質（霧）の場合
 T = exp( −∫ σ(s) ds )                   密度が、場所で変わる媒質（大気）の場合。積分は、光の通り道に沿って
 ```
 
-`σ`（消散係数、1/m）は、<strong>単位長さあたり、どれだけ、光が失われるか</strong>を表します。指数関数の形（Beer–Lambert の法則）なのは、<strong>進んだ分の、一定の割合</strong>が、失われ続けるためです。
+`σ`（消散係数、1/m）は <strong>単位長さあたりどれだけ、光が失われるか</strong>を表します。指数関数の形（Beer–Lambert の法則）なのは、<strong>進んだ分の一定の割合</strong>が失われ続けるためです。
 
-## 一様な、媒質：1 行で、済む
+## 一様な媒質：1 行で済む
 
-霧の、密度が、一定なら、積分は、不要です。
+霧の密度が一定なら積分は不要です。
 
 ```hlsl
 float3 transmittance = exp(-g_sigma_t * distance);
 ```
 
-`g_sigma_t` は、<strong>RGB の、3 成分</strong>の、消散係数です。空気中の、レイリー散乱は、<strong>青の方が、大きく</strong>、赤の方が、小さいので、遠くの景色は、青みを帯びます（[Rayleigh Scattering](../scattering/index.md)）。
+`g_sigma_t` は <strong>RGB の 3 成分</strong>の、消散係数です。空気中のレイリー散乱は <strong>青の方が、大きく</strong>、赤の方が小さいので遠くの景色は、青みを帯びます（[Rayleigh Scattering](../scattering/index.md)）。
 
-## 密度が、変わる媒質：数値積分
+## 密度が変わる媒質：数値積分
 
-大気の、密度は、<strong>高度とともに、指数関数的に、薄く</strong>なります。
+大気の密度は <strong>高度とともに指数関数的に、薄く</strong>なります。
 
 ```text
 ρ(h) = exp( −h / H )         h: 地表からの高さ、H: スケール ハイト（レイリー 8 km、ミー 1.2 km）
 ```
 
-光の通り道に沿った、積分は、<strong>分割して、足し合わせる</strong>ことで、近似します。
+光の通り道に沿った積分は <strong>分割して、足し合わせる</strong>ことで近似します。
 
 ```hlsl
 // 地表の中心を原点とした、座標で、位置 p の、高さ（地表からの高さ）を求める。
 float HeightAt(float3 p) { return length(p) - g_planet_radius; }
 ```
 
-大気は、<strong>惑星の中心を、原点</strong>にした、<strong>球</strong>として、扱います。`length(p)` が、中心からの距離で、惑星の半径を引くと、高度です。
+大気は <strong>惑星の中心を原点</strong>にした、<strong>球</strong>として扱います。`length(p)` が中心からの距離で惑星の半径を引くと、高度です。
 
 ```hlsl
 // 密度（高度 h での、基準の密度に対する、割合）。レイリーと、ミーで、スケール ハイトが違う。
@@ -141,7 +141,7 @@ float DensityRayleigh(float h) { return exp(-h / 8000.0); }       // 8 km
 float DensityMie(float h) { return exp(-h / 1200.0); }            // 1.2 km
 ```
 
-レイリー散乱（空気の分子）の、層は、<strong>厚く</strong>（8 km）、ミー散乱（エアロゾル、細かい塵や、水滴）の層は、<strong>薄い</strong>（1.2 km、地表の近く）です。ミー散乱が、地表の近くに、集まっているので、地平線の、すぐ上だけ、白っぽく濁ります。
+レイリー散乱（空気の分子）の層は、<strong>厚く</strong>（8 km）、ミー散乱（エアロゾル、細かい塵や水滴）の層は <strong>薄い</strong>（1.2 km、地表の近く）です。ミー散乱が地表の近くに集まっているので、地平線のすぐ上だけ白っぽく濁ります。
 
 ```hlsl
 // 光の通り道（点 a から、方向 dir へ、長さ length）の、光学的な厚さ（密度の積分）を、数値で求める。
@@ -157,7 +157,7 @@ float2 OpticalDepth(float3 a, float3 dir, float length_m, int steps) {
 }
 ```
 
-ループの中で、<strong>各区間の中央</strong>の、密度を、読み、<strong>区間の長さを掛けて</strong>、足し合わせます。これが、積分の、近似です（中点法）。`steps` は、精度と、速さの、バランスで、16〜64 が、よく使われます。
+ループの中で <strong>各区間の中央</strong>の密度を読み、<strong>区間の長さを掛けて</strong>、足し合わせます。これが積分の近似です（中点法）。`steps` は精度と速さのバランスで、16〜64 がよく使われます。
 
 ```hlsl
 // 透過率 = exp( −(σ_レイリー × 光学的厚さ_レイリー + σ_ミー × 光学的厚さ_ミー) )
@@ -168,21 +168,21 @@ float3 Transmittance(float3 a, float3 dir, float length_m) {
 }
 ```
 
-<strong>消散係数</strong>（`σ`）は、<strong>基準の密度での、値</strong>で、光学的厚さ（密度の積分）と、掛け合わせます。RGB ごとに、別の `σ` を持つので、透過率も、RGB ごとに、違う値になります。
+<strong>消散係数</strong>（`σ`）は <strong>基準の密度での値</strong>で、光学的厚さ（密度の積分）と掛け合わせます。RGB ごとに別の `σ` を持つので、透過率も RGB ごとに違う値になります。
 
-## 計算量の、問題
+## 計算量の問題
 
-太陽の光は、<strong>大気の外から、各点まで</strong>、<strong>透過率</strong>を掛けて、届きます。空の、各方向について、視線に沿った、各サンプル点で、太陽方向の透過率を、求めると、二重ループになります。
+太陽の光は <strong>大気の外から各点まで</strong>、<strong>透過率</strong>を掛けて届きます。空の各方向について視線に沿った、各サンプル点で太陽方向の透過率を、求めると二重ループになります。
 
 ```text
 空の画素 × 視線のサンプル（32） × 太陽方向のサンプル（32）  =  画素あたり 約 1,000 回の、密度計算
 ```
 
-画面の、全画素で、これを行うのは、<strong>重すぎます</strong>。そこで、<strong>太陽方向の透過率</strong>は、事前に、テクスチャ（LUT）に、計算しておきます。
+画面の全画素でこれを行うのは、<strong>重すぎます</strong>。そこで、<strong>太陽方向の透過率</strong>は事前に、テクスチャ（LUT）に計算しておきます。
 
 ## 透過率 LUT
 
-<strong>透過率</strong>は、<strong>「点の高度」と「方向の、天頂角」</strong>の、2 つだけで、決まります（大気は、球対称なので）。この 2 変数の、関数を、2 次元のテクスチャに、焼いておきます（Bruneton と Neyret、2008）。Hillaire（2020）の、実装では、256×64 画素です。
+<strong>透過率</strong>は <strong>「点の高度」と「方向の、天頂角」</strong>の 2 つだけで決まります（大気は、球対称なので）。この 2 変数の関数を 2 次元のテクスチャに、焼いておきます（Bruneton と Neyret、2008）。Hillaire（2020）の、実装では 256×64 画素です。
 
 ```hlsl
 // LUT の uv から、（高度、天頂角の cos）を、求める。
@@ -199,7 +199,7 @@ void UvToTransmittanceParams(float2 uv, out float view_height, out float cos_zen
 }
 ```
 
-<strong>uv を、角度や、高度に、そのまま、割り当てる</strong>と、<strong>地平線の近く</strong>（変化が、急）の、解像度が、足りません。大気の上端までの距離で、横軸を、決めると、地平線の近くを、細かく、取れます（Hillaire の実装）。この関数は、LUT を、作るとき（各画素が、どの高度・角度を、表すか）に、使います。
+<strong>uv を角度や高度にそのまま、割り当てる</strong>と <strong>地平線の近く</strong>（変化が急）の、解像度が足りません。大気の上端までの距離で横軸を、決めると地平線の近くを細かく、取れます（Hillaire の実装）。この関数は LUT を作るとき（各画素が、どの高度・角度を表すか）に使います。
 
 ```hlsl
 // 逆変換: （高度、天頂角の cos）から、LUT の uv を求める。LUT を読むときに使う。
@@ -214,7 +214,7 @@ float2 TransmittanceParamsToUv(float view_height, float cos_zenith) {
 }
 ```
 
-読むときは、<strong>この逆変換で、uv を求め</strong>、<strong>テクスチャを 1 回引く</strong>だけです。透過率の、積分が、1 回の、テクスチャ読み込みに、化けます。
+読むときは <strong>この逆変換で uv を求め</strong>、<strong>テクスチャを 1 回引く</strong>だけです。透過率の積分が 1 回のテクスチャ読み込みに、化けます。
 
 ```hlsl
 // 太陽方向の、透過率を、LUT から引く（一瞬で済む）。
@@ -225,11 +225,11 @@ float3 SunTransmittance(float3 position, float3 sun_dir) {
 }
 ```
 
-`position / h` は、<strong>位置での、真上の向き</strong>（地表の、法線）で、`sun_dir` との内積が、<strong>太陽の天頂角の cos</strong> です。
+`position / h` は <strong>位置での真上の向き</strong>（地表の、法線）で `sun_dir` との内積が <strong>太陽の天頂角の cos</strong> です。
 
-## 地面に、遮られる光
+## 地面に遮られる光
 
-光の、通り道が、<strong>地面</strong>に当たる場合（太陽が、地平線の、下にある）、<strong>その方向の、透過率は、0</strong> と、みなします。
+光の通り道が <strong>地面</strong>に当たる場合（太陽が、地平線の下にある）、<strong>その方向の透過率は 0</strong> と、みなします。
 
 ```hlsl
 // 惑星（地面）に、遮られるか。
@@ -241,7 +241,7 @@ bool HitsGround(float3 position, float3 dir) {
 }
 ```
 
-太陽が、地平線の、<strong>少し下</strong>に、沈んだ後も、<strong>空が、しばらく、明るい</strong>のは、散乱した光が、回り込んでくるためです（[Day-Night Cycle](../sky-models/day-night.md)）。透過率だけでは、直接の光が、消える瞬間は、出せますが、残照は、出ません。
+太陽が地平線の <strong>少し下</strong>に沈んだ後も <strong>空が、しばらく明るい</strong>のは散乱した光が、回り込んでくるためです（[Day-Night Cycle](../sky-models/day-night.md)）。透過率だけでは直接の光が消える瞬間は、出せますが残照は出ません。
 
 ## よくあるミス
 

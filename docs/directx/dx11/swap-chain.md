@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>スワップ チェーン</strong>は、画面に出す、画像の、入れ替えの仕組みです。GPU が、次のフレームを、描いている間に、前のフレームを、画面に出す、というふうに、<strong>2 枚以上の画像（バック バッファ）を、交代で</strong>使います。1 枚だけだと、描きかけの画像が、画面に出てしまいます。
+<strong>スワップ チェーン</strong>は画面に出す画像の、入れ替えの仕組みです。GPU が次のフレームを描いている間に、前のフレームを画面に出すというふうに、<strong>2 枚以上の画像（バック バッファ）を、交代で</strong>使います。1 枚だけだと描きかけの画像が、画面に出てしまいます。
 
 !!! tip "ポイント"
-    - スワップ チェーンは、<strong>ウィンドウに結びついた、バック バッファの、束</strong>。`Present` で、描いた画像を、画面へ出す。
-    - 今の標準は、<strong>フリップ モデル</strong>（`DXGI_SWAP_EFFECT_FLIP_DISCARD`）。バッファは 2 枚以上。
-    - フリップ モデルでは、スワップ チェーンの、フォーマットに、`_SRGB` を、指定できない。<strong>`R8G8B8A8_UNORM` で作り、RTV を `_SRGB` で作る</strong>。
-    - 作成は、`IDXGIFactory2::CreateSwapChainForHwnd`。ファクトリーは、デバイスから、辿る。
-    - 大きさを、0 にすると、ウィンドウの描画領域に、合わせてくれる。
+    - スワップ チェーンは、<strong>ウィンドウに結びついたバック バッファの束</strong>。`Present` で描いた画像を画面へ出す。
+    - 今の標準は <strong>フリップ モデル</strong>（`DXGI_SWAP_EFFECT_FLIP_DISCARD`）。バッファは 2 枚以上。
+    - フリップ モデルでは、スワップ チェーンのフォーマットに `_SRGB` を、指定できない。<strong>`R8G8B8A8_UNORM` で作り RTV を `_SRGB` で作る</strong>。
+    - 作成は `IDXGIFactory2::CreateSwapChainForHwnd`。ファクトリーはデバイスから辿る。
+    - 大きさを 0 にすると、ウィンドウの描画領域に合わせてくれる。
 
 ## 作る
 
@@ -39,25 +39,25 @@ desc.Flags = 0;
 
 | メンバー | 内容 |
 | --- | --- |
-| `Width`・`Height` | バック バッファの大きさ。0 で、ウィンドウの描画領域に、合わせる |
+| `Width`・`Height` | バック バッファの大きさ。0 でウィンドウの描画領域に、合わせる |
 | `Format` | バック バッファの形式。`R8G8B8A8_UNORM`、HDR なら `R16G16B16A16_FLOAT`、`R10G10B10A2_UNORM` |
-| `SampleDesc` | 常に `{1, 0}`。MSAA は、別の、レンダー ターゲットで、描いて、`ResolveSubresource` する |
-| `BufferUsage` | `RENDER_TARGET_OUTPUT`（描く先）。計算シェーダーで、書くなら、`UNORDERED_ACCESS` も |
+| `SampleDesc` | 常に `{1, 0}`。MSAA は別のレンダー ターゲットで描いて、`ResolveSubresource` する |
+| `BufferUsage` | `RENDER_TARGET_OUTPUT`（描く先）。計算シェーダーで書くなら `UNORDERED_ACCESS` も |
 | `BufferCount` | バッファの数。2（ダブル）か 3（トリプル） |
-| `SwapEffect` | `FLIP_DISCARD`（標準）、`FLIP_SEQUENTIAL`（前の内容を、保つ）。古い `DISCARD` と `SEQUENTIAL` は、ビット ブリット モデル |
+| `SwapEffect` | `FLIP_DISCARD`（標準）、`FLIP_SEQUENTIAL`（前の内容を保つ）。古い `DISCARD` と `SEQUENTIAL` はビット ブリット モデル |
 | `Flags` | `ALLOW_TEARING`（垂直同期なしの表示）、`FRAME_LATENCY_WAITABLE_OBJECT`（遅延の制御） |
 
-### フリップ モデルと、ビット ブリット モデル
+### フリップ モデルとビット ブリット モデル
 
 | | フリップ モデル（`FLIP_*`） | ビット ブリット モデル（`DISCARD`、`SEQUENTIAL`） |
 | --- | --- | --- |
-| 画面への出し方 | バッファを、そのまま、画面に出す（コピー無し） | バッファを、画面に、コピーする |
-| 速さ・遅延 | 速い、遅延が小さい | 遅い |
+| 画面への出し方 | バッファを、そのまま画面に出す（コピー無し） | バッファを画面に、コピーする |
+| 速さ・遅延 | 速い遅延が小さい | 遅い |
 | MSAA | 不可 | 可 |
 | `_SRGB` フォーマット | 不可 | 可 |
 | 今の推奨 | <strong>こちら</strong> | 古い |
 
-MSAA が、使えない点は、困りませんが、別の、レンダー ターゲットに、MSAA で、描いて、バック バッファへ、`ResolveSubresource` します（[Multiple Render Targets](mrt.md)）。
+MSAA が使えない点は困りませんが別の、レンダー ターゲットに MSAA で描いて、バック バッファへ `ResolveSubresource` します（[Multiple Render Targets](mrt.md)）。
 
 ```cpp
 Microsoft::WRL::ComPtr<IDXGISwapChain1> swap_chain;
@@ -70,7 +70,7 @@ factory2->CreateSwapChainForHwnd(device.Get(),             // D3D11 のデバイ
 factory2->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);   // Alt+Enter での、DXGI 任せのフルスクリーンを、無効にする
 ```
 
-`factory2` は、デバイスから、辿ったもの（[DXGI Factory and Adapter](dxgi.md)）です。`MakeWindowAssociation` で、`Alt + Enter` の、自動フルスクリーン切り替えを、無効にします（ゲーム側で、制御するため）。
+`factory2` はデバイスから辿ったもの（[DXGI Factory and Adapter](dxgi.md)）です。`MakeWindowAssociation` で `Alt + Enter` の自動フルスクリーン切り替えを、無効にします（ゲーム側で制御するため）。
 
 ## バック バッファを取り出す
 
@@ -79,7 +79,7 @@ Microsoft::WRL::ComPtr<ID3D11Texture2D> back_buffer;
 swap_chain->GetBuffer(0, IID_PPV_ARGS(&back_buffer));      // 0 番のバッファ（フリップ モデルは、常に 0 番に描く）
 ```
 
-フリップ モデルでは、<strong>常に、バッファ 0 番</strong>に、描きます。`Present` のたびに、裏で、バッファが、入れ替わり、`GetBuffer(0)` が、今の、描き先を、指します。バック バッファは、普通の `ID3D11Texture2D` なので、ビュー（[Render Target View (RTV)](render-target-view.md)）を、作って、描き込みます。
+フリップ モデルでは <strong>常にバッファ 0 番</strong>に、描きます。`Present` のたびに裏でバッファが入れ替わり `GetBuffer(0)` が今の、描き先を指します。バック バッファは普通の `ID3D11Texture2D` なので、ビュー（[Render Target View (RTV)](render-target-view.md)）を作って、描き込みます。
 
 ## Present
 
@@ -87,11 +87,11 @@ swap_chain->GetBuffer(0, IID_PPV_ARGS(&back_buffer));      // 0 番のバッフ�
 swap_chain->Present(1, 0);                                 // 垂直同期を待って、画面に出す
 ```
 
-`Present` の使い方は、[Clear and Present](clear-present.md) です。
+`Present` の使い方は[Clear and Present](clear-present.md) です。
 
-## sRGB とリニアの、扱い
+## sRGB とリニアの扱い
 
-フリップ モデルの、スワップ チェーンの、フォーマットは、`R8G8B8A8_UNORM` ですが、<strong>RTV を、`R8G8B8A8_UNORM_SRGB` で作る</strong>と、シェーダーが、リニアの値を、書いたとき、ハードウェアが、自動で、sRGB に、変換して、書き込みます。
+フリップ モデルのスワップ チェーンの、フォーマットは `R8G8B8A8_UNORM` ですが <strong>RTV を、`R8G8B8A8_UNORM_SRGB` で作る</strong>とシェーダーがリニアの値を、書いたときハードウェアが自動で、sRGB に変換して書き込みます。
 
 ```cpp
 D3D11_RENDER_TARGET_VIEW_DESC rtv_desc = {};
@@ -100,34 +100,34 @@ rtv_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 device->CreateRenderTargetView(back_buffer.Get(), &rtv_desc, &rtv);
 ```
 
-バック バッファ自体は、`UNORM` でも、ビューを `UNORM_SRGB` にできるのは、同じ、ビット幅の、フォーマット同士（`R8G8B8A8_UNORM` と `_UNORM_SRGB`）が、同じ「型のファミリー」だからです（[Formats and Typeless](../concepts/formats.md)）。
+バック バッファ自体は `UNORM` でも、ビューを `UNORM_SRGB` にできるのは同じ、ビット幅のフォーマット同士（`R8G8B8A8_UNORM` と `_UNORM_SRGB`）が、同じ「型のファミリー」だからです（[Formats and Typeless](../concepts/formats.md)）。
 
 ## HDR 出力
 
-HDR の、モニターへの、出力は、`R16G16B16A16_FLOAT` と、色空間（`DXGI_COLOR_SPACE_RGB_FULL_G10_NONE_P709`）の設定が、必要です。`IDXGISwapChain3::SetColorSpace1` で、色空間を、指定します。詳しくは、[Gamma and sRGB](../../graphics/postprocess/tonemapping/gamma-srgb.md) を、参照してください。
+HDR のモニターへの出力は `R16G16B16A16_FLOAT` と、色空間（`DXGI_COLOR_SPACE_RGB_FULL_G10_NONE_P709`）の設定が必要です。`IDXGISwapChain3::SetColorSpace1` で色空間を指定します。詳しくは[Gamma and sRGB](../../graphics/postprocess/tonemapping/gamma-srgb.md) を、参照してください。
 
 ## よくあるミス
 
 ??? failure "`CreateSwapChainForHwnd` が、`E_INVALIDARG` で失敗する"
-    フリップ モデルで、`_SRGB` の、フォーマットや、`SampleDesc.Count > 1`、`BufferCount < 2` を、指定している。
+    フリップ モデルで `_SRGB` の、フォーマットや `SampleDesc.Count > 1`、`BufferCount < 2` を指定している。
 
-??? failure "画面が、暗い・明るすぎる（ガンマが、おかしい）"
-    リニアの値を、sRGB に、変換せずに、書いている。RTV を `_SRGB` で、作るか、シェーダーで、`pow(x, 1/2.2)` する。両方やると、二重に、変換される。
+??? failure "画面が、暗い・明るすぎる（ガンマがおかしい）"
+    リニアの値を sRGB に、変換せずに書いている。RTV を `_SRGB` で作るかシェーダーで、`pow(x, 1/2.2)` する。両方やると二重に変換される。
 
-??? failure "Alt+Enter で、画面が、おかしくなる"
-    DXGI の、自動フルスクリーン切り替えが、有効のまま。`MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER)` で、無効にする。
+??? failure "Alt+Enter で画面が、おかしくなる"
+    DXGI の自動フルスクリーン切り替えが、有効のまま。`MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER)` で無効にする。
 
-??? failure "描き込んでも、画面に、反映されない"
-    `GetBuffer` で、取った、バック バッファの、RTV を、`OMSetRenderTargets` に、束ねていない。または、`Present` を、呼んでいない。
+??? failure "描き込んでも画面に、反映されない"
+    `GetBuffer` で取ったバック バッファの、RTV を `OMSetRenderTargets` に束ねていない。または、`Present` を呼んでいない。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] スワップ チェーン＝画面に出す画像の、入れ替え機構
-    - [x] 標準は、フリップ モデル（`FLIP_DISCARD`、`BufferCount = 2`）
+    - [x] 標準はフリップ モデル（`FLIP_DISCARD`、`BufferCount = 2`）
     - [x] フリップ モデルは、`_SRGB` 不可・MSAA 不可。RTV を `_SRGB` にする
-    - [x] `GetBuffer(0)` で、バック バッファを、取り、RTV を作る
-    - [x] 画面に出すのは、`Present`
+    - [x] `GetBuffer(0)` でバック バッファを取り、RTV を作る
+    - [x] 画面に出すのは `Present`
 
 ## 関連ページ
 

@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-often">よく使う</span>
 </div>
 
-<strong>計算シェーダー</strong>は、描画パイプラインと、別に、GPU の並列計算を、自由に、使う、シェーダーです。ぼかし、ヒストグラム、パーティクルの更新、カリングなど、画面の、ピクセルに、縛られない、処理を、書けます。D3D12 では、<strong>計算用の PSO と、ルート シグネチャ</strong>を、作り、リソースを、<strong>UAV の状態</strong>（`UNORDERED_ACCESS`）に、して、`Dispatch` します。連続する、`Dispatch` の、間には、<strong>UAV バリア</strong>が、要ります。
+<strong>計算シェーダー</strong>は描画パイプラインと別に GPU の並列計算を自由に使う、シェーダーです。ぼかしヒストグラム、パーティクルの更新、カリングなど画面のピクセルに縛られない処理を書けます。D3D12 では <strong>計算用の PSO とルート シグネチャ</strong>を作りリソースを、<strong>UAV の状態</strong>（`UNORDERED_ACCESS`）にして、`Dispatch` します。連続する `Dispatch` の間には <strong>UAV バリア</strong>が、要ります。
 
 !!! tip "ポイント"
-    - 計算用の、ルート シグネチャと、PSO（`CreateComputePipelineState`）を、作る。コマンド リストは、`SetComputeRootSignature` と `SetComputeRoot…`。
-    - 書き込む、リソースは、`ALLOW_UNORDERED_ACCESS` つきで、作り、<strong>`UNORDERED_ACCESS` の状態</strong>で、使う。
-    - 入力は SRV、出力は UAV。両方とも、ディスクリプタ ヒープに、並べて、ディスクリプタ テーブルで、渡す。
-    - `Dispatch(x, y, z)` の、グループ数は、切り上げ。シェーダーで、範囲チェック。
-    - 連続する、`Dispatch` で、前の書き込みを、後が、読むなら、<strong>UAV バリア</strong>。
+    - 計算用のルート シグネチャと PSO（`CreateComputePipelineState`）を作る。コマンド リストは `SetComputeRootSignature` と `SetComputeRoot…`。
+    - 書き込むリソースは `ALLOW_UNORDERED_ACCESS` つきで作り <strong>`UNORDERED_ACCESS` の状態</strong>で使う。
+    - 入力は SRV、出力は UAV。両方ともディスクリプタ ヒープに並べて、ディスクリプタ テーブルで渡す。
+    - `Dispatch(x, y, z)` のグループ数は切り上げ。シェーダーで範囲チェック。
+    - 連続する `Dispatch` で前の書き込みを後が、読むなら <strong>UAV バリア</strong>。
 
 ## HLSL
 
@@ -38,7 +38,7 @@ void GrayscaleCS(uint3 id : SV_DispatchThreadID) {
 }
 ```
 
-HLSL の、書き方（`numthreads`、`groupshared`、アトミック）は、ほかのシェーダーと、同じ HLSL です。ウェーブ命令（SM 6.0 以上）が、使えます（[Shaders and DXC](shaders-dxc.md)）。
+HLSL の書き方（`numthreads`、`groupshared`、アトミック）はほかのシェーダーと同じ HLSL です。ウェーブ命令（SM 6.0 以上）が、使えます（[Shaders and DXC](shaders-dxc.md)）。
 
 ## ルート シグネチャ
 
@@ -57,7 +57,7 @@ desc.Init(ARRAYSIZE(parameters), parameters, 0, nullptr, D3D12_ROOT_SIGNATURE_FL
 // → D3D12SerializeRootSignature → CreateRootSignature（root-signature.md）
 ```
 
-計算用の、ルート シグネチャには、<strong>頂点入力の、フラグは、不要</strong>です。
+計算用のルート シグネチャには <strong>頂点入力のフラグは不要</strong>です。
 
 ## PSO
 
@@ -70,9 +70,9 @@ ComPtr<ID3D12PipelineState> compute_pso;
 device->CreateComputePipelineState(&pso_desc, IID_PPV_ARGS(&compute_pso));
 ```
 
-計算用 PSO は、<strong>ルート シグネチャと、シェーダー</strong>だけです（[PSO](pso.md)）。
+計算用 PSO は <strong>ルート シグネチャとシェーダー</strong>だけです（[PSO](pso.md)）。
 
-## 出力の、リソース
+## 出力のリソース
 
 ```cpp
 // UAV で書く、テクスチャ。ALLOW_UNORDERED_ACCESS が必要。UAV の状態で、作る。
@@ -87,7 +87,7 @@ device->CreateShaderResourceView(input_texture.Get(), &srv_desc, srv_handle);
 device->CreateUnorderedAccessView(output_texture.Get(), nullptr, &uav_desc, uav_handle);
 ```
 
-UAV に、できない、フォーマット（`_SRGB`、圧縮、深度）は、使えません。型つきの、UAV の、読み込みは、`R32_*` だけ、保証されます（[Descriptor](descriptor.md)）。
+UAV にできないフォーマット（`_SRGB`、圧縮、深度）は使えません。型つきの UAV の読み込みは `R32_*` だけ保証されます（[Descriptor](descriptor.md)）。
 
 ## ディスパッチ
 
@@ -107,16 +107,16 @@ command_list->Dispatch(groups_x, groups_y, 1);
 
 | 関数 | 内容 |
 | --- | --- |
-| `SetComputeRootSignature` | 計算用の、ルート シグネチャ |
+| `SetComputeRootSignature` | 計算用のルート シグネチャ |
 | `SetComputeRootDescriptorTable` | ディスクリプタ テーブル |
 | `SetComputeRoot32BitConstants` | ルート定数 |
 | `SetComputeRootConstantBufferView` | ルート CBV |
-| `Dispatch(x, y, z)` | グループ数を、指定して、起動 |
-| `ExecuteIndirect` | 引数を、GPU のバッファから、読む（GPU ドリブン） |
+| `Dispatch(x, y, z)` | グループ数を指定して、起動 |
+| `ExecuteIndirect` | 引数を GPU のバッファから、読む（GPU ドリブン） |
 
-描画用（`SetGraphics…`）と、計算用（`SetCompute…`）の、ルート シグネチャは、<strong>別々に、保持</strong>されます。
+描画用（`SetGraphics…`）と計算用（`SetCompute…`）のルート シグネチャは <strong>別々に保持</strong>されます。
 
-## バリア：連続する、Dispatch
+## バリア：連続する Dispatch
 
 ```cpp
 // A が書いた UAV を、B が読む。UAV バリアで、A の書き込み完了を、待たせる。
@@ -128,9 +128,9 @@ command_list->ResourceBarrier(1, &barrier);
 command_list->Dispatch(groups_x, groups_y, 1);                         // B（A の結果を読む）
 ```
 
-`UAV` バリアが、無いと、B が、A の、書き込み途中の値を、読みます。FFT の、段ごとの `Dispatch`、ヒストグラムの集計、ブルームの、ダウンサンプルで、必須です。
+`UAV` バリアが無いと B が A の書き込み途中の値を読みます。FFT の段ごとの `Dispatch`、ヒストグラムの集計、ブルームのダウンサンプルで必須です。
 
-### 計算の結果を、描画で、読む
+### 計算の結果を描画で読む
 
 ```cpp
 // 計算シェーダーで書いた結果を、次の描画（ピクセル シェーダー）で、読む。状態を、遷移する。
@@ -141,46 +141,46 @@ command_list->ResourceBarrier(1, &to_read);
 // 次のフレームで、また、書くなら、UNORDERED_ACCESS に、戻す。
 ```
 
-## 描画と、計算の、キュー
+## 描画と計算のキュー
 
-計算シェーダーは、DIRECT キューでも、COMPUTE キューでも、実行できます。<strong>COMPUTE キュー</strong>に、投げると、描画と、並列に、動きます（非同期コンピュート）。キュー間の、順序は、フェンスで、そろえます（[Command Queue](command-queue.md)、[Fence](fence.md)）。
+計算シェーダーは DIRECT キューでも COMPUTE キューでも実行できます。<strong>COMPUTE キュー</strong>に投げると描画と並列に動きます（非同期コンピュート）。キュー間の順序はフェンスでそろえます（[Command Queue](command-queue.md)、[Fence](fence.md)）。
 
 ## 注意点
 
 | 注意 | 内容 |
 | --- | --- |
-| グループ数 | `(size + N − 1) / N`。範囲チェックを、シェーダーに入れる |
-| UAV の、状態 | 書くときは、`UNORDERED_ACCESS`。読み込みの前に、遷移 |
-| ディスクリプタ ヒープ | `SetDescriptorHeaps` を、`Dispatch` の前に |
-| スレッド数 | 1 グループは、64 の倍数（効率）。上限 1024 |
-| SM 6 の機能 | ウェーブ命令などは、`CheckFeatureSupport` で、確認 |
+| グループ数 | `(size + N − 1) / N`。範囲チェックをシェーダーに入れる |
+| UAV の状態 | 書くときは `UNORDERED_ACCESS`。読み込みの前に遷移 |
+| ディスクリプタ ヒープ | `SetDescriptorHeaps` を `Dispatch` の前に |
+| スレッド数 | 1 グループは 64 の倍数（効率）。上限 1024 |
+| SM 6 の機能 | ウェーブ命令などは `CheckFeatureSupport` で、確認 |
 
 ## よくあるミス
 
-??? failure "出力が、真っ黒、または、前の値のまま"
-    UAV の、ディスクリプタを、書いていない。`SetDescriptorHeaps` を、呼んでいない。リソースが、`UNORDERED_ACCESS` の、状態でない。
+??? failure "出力が真っ黒、または前の値のまま"
+    UAV のディスクリプタを書いていない。`SetDescriptorHeaps` を呼んでいない。リソースが `UNORDERED_ACCESS` の状態でない。
 
-??? failure "連続した `Dispatch` で、結果が、不安定"
-    UAV バリアを、入れていない。前の書き込みが、終わる前に、次が、読んでいる。
+??? failure "連続した `Dispatch` で結果が、不安定"
+    UAV バリアを入れていない。前の書き込みが終わる前に次が、読んでいる。
 
-??? failure "描画で、計算の結果を、読むと、乱れる"
-    `UNORDERED_ACCESS` から、`PIXEL_SHADER_RESOURCE` への、遷移バリアを、忘れた。
+??? failure "描画で、計算の結果を読むと乱れる"
+    `UNORDERED_ACCESS` から `PIXEL_SHADER_RESOURCE` への遷移バリアを忘れた。
 
-??? failure "`SetGraphicsRoot…` を、計算シェーダーに、使って、エラー"
-    計算用は、`SetComputeRoot…`。描画用と、別の、系列。
+??? failure "`SetGraphicsRoot…` を計算シェーダーに使ってエラー"
+    計算用は `SetComputeRoot…`。描画用と別の系列。
 
-??? failure "画面の、右端・下端が、処理されない"
-    グループ数を、切り捨てで、計算した。`(size + 7) / 8`。
+??? failure "画面の右端・下端が処理されない"
+    グループ数を切り捨てで、計算した。`(size + 7) / 8`。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 計算用の、ルート シグネチャと PSO（`CreateComputePipelineState`）を、作る
-    - [x] 出力は、`ALLOW_UNORDERED_ACCESS` で作り、`UNORDERED_ACCESS` の状態で、UAV を、ヒープに
-    - [x] `SetComputeRoot…` で、ディスクリプタ テーブルを、渡して、`Dispatch`
-    - [x] グループ数は、切り上げ。シェーダーで、範囲チェック
-    - [x] 連続する、`Dispatch` の間には、UAV バリア。描画で、読むなら、遷移バリア
-    - [x] COMPUTE キューで、描画と、並列に（非同期コンピュート）
+    - [x] 計算用のルート シグネチャと PSO（`CreateComputePipelineState`）を作る
+    - [x] 出力は `ALLOW_UNORDERED_ACCESS` で作り `UNORDERED_ACCESS` の状態で UAV をヒープに
+    - [x] `SetComputeRoot…` でディスクリプタ テーブルを渡して `Dispatch`
+    - [x] グループ数は切り上げ。シェーダーで範囲チェック
+    - [x] 連続する、`Dispatch` の間には UAV バリア。描画で読むなら遷移バリア
+    - [x] COMPUTE キューで描画と並列に（非同期コンピュート）
 
 ## 関連ページ
 

@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>深度ステンシル ステート</strong>は、<strong>深度テストと、ステンシル テストを、どう行うか</strong>の、設定です。「深度を、比べるか」「テストに通ったら、深度を、書くか」「ステンシルを、どう使うか」を、決めます。不透明な物、半透明の物、ポスト プロセス、シャドウで、それぞれ、設定が、違うので、用途ごとに、ステートを、作って、切り替えます。
+<strong>深度ステンシル ステート</strong>は、<strong>深度テストとステンシル テストを、どう行うか</strong>の設定です。「深度を比べるか」「テストに通ったら深度を、書くか」「ステンシルをどう使うか」を、決めます。不透明な物、半透明の物、ポスト プロセス、シャドウでそれぞれ設定が違うので、用途ごとにステートを作って切り替えます。
 
 !!! tip "ポイント"
     - 深度ステート ＝ 深度テストの、有効・無効、比較関数、書き込みの有無。
     - <strong>不透明</strong>: テスト有り・書き込み有り・`LESS`。<strong>半透明</strong>: テスト有り・書き込み<strong>無し</strong>。<strong>ポスト プロセス</strong>: テスト無し・書き込み無し。
-    - ステートは、`CreateDepthStencilState` で作り、`OMSetDepthStencilState` で、つなぐ。
+    - ステートは `CreateDepthStencilState` で作り `OMSetDepthStencilState` で、つなぐ。
     - 作ったステートは、使い回す（毎フレーム、作らない）。
-    - ステンシルは、マスク（皮膚だけ、ポータルの中だけ）に、使う。
+    - ステンシルはマスク（皮膚だけ、ポータルの中だけ）に使う。
 
 ## 不透明な物（既定）
 
@@ -35,30 +35,30 @@ context->OMSetDepthStencilState(state.Get(), 0);            // 第 2 引数: ス
 
 | メンバー | 内容 |
 | --- | --- |
-| `DepthEnable` | 深度テストを、行うか |
+| `DepthEnable` | 深度テストを行うか |
 | `DepthWriteMask` | `ALL`（書く）、`ZERO`（書かない） |
 | `DepthFunc` | 比較関数（下の表） |
-| `StencilEnable` | ステンシルを、使うか |
-| `StencilReadMask`・`StencilWriteMask` | ステンシルの、読み書きの、ビット マスク |
-| `FrontFace`・`BackFace` | 表面・裏面の、ステンシルの、動作 |
+| `StencilEnable` | ステンシルを使うか |
+| `StencilReadMask`・`StencilWriteMask` | ステンシルの、読み書きのビット マスク |
+| `FrontFace`・`BackFace` | 表面・裏面の、ステンシルの動作 |
 
-D3D11 の、既定のステート（何も、設定しないとき）は、`DepthEnable = TRUE`、`WriteMask = ALL`、`DepthFunc = LESS`、`StencilEnable = FALSE` です。
+D3D11 の既定のステート（何も、設定しないとき）は `DepthEnable = TRUE`、`WriteMask = ALL`、`DepthFunc = LESS`、`StencilEnable = FALSE` です。
 
 ## 比較関数
 
 | `DepthFunc` | 通る条件（新しい深度 `<op>` バッファの深度） | 使いどころ |
 | --- | --- | --- |
 | `LESS` | より小さい（近い） | 通常の、不透明 |
-| `LESS_EQUAL` | 以下 | 深度を、事前に描いた後の、本描画（同じ深度を、通す） |
+| `LESS_EQUAL` | 以下 | 深度を、事前に描いた後の本描画（同じ深度を、通す） |
 | `GREATER` | より大きい | reverse-Z で、通常の描画 |
 | `GREATER_EQUAL` | 以上 | reverse-Z で、事前深度の後 |
-| `EQUAL` | 等しい | 事前深度の後、同じ深度の、ピクセルだけ、シェーディング |
-| `ALWAYS` | 常に通る | 深度に、関係なく、描く（UI） |
+| `EQUAL` | 等しい | 事前深度の後、同じ深度のピクセルだけシェーディング |
+| `ALWAYS` | 常に通る | 深度に、関係なく描く（UI） |
 | `NEVER` | 通らない | 使わない |
 
-<strong>reverse-Z</strong>（近い面が 1、遠い面が 0）を、使うときは、`LESS` を、`GREATER` に、`LESS_EQUAL` を、`GREATER_EQUAL` に、読み替えます。クリア値も、`1.0` から `0.0` に、変えます。
+<strong>reverse-Z</strong>（近い面が 1、遠い面が 0）を使うときは `LESS` を `GREATER` に `LESS_EQUAL` を `GREATER_EQUAL` に、読み替えます。クリア値も `1.0` から `0.0` に変えます。
 
-## 用途別の、ステート
+## 用途別のステート
 
 ### 半透明（深度テストだけ）
 
@@ -69,7 +69,7 @@ desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;          // 書かない（�
 desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 ```
 
-半透明の、物は、不透明な物に、隠れる（深度テスト有り）が、半透明同士は、互いを、隠さない（書き込み無し）ように、します。奥から、手前の順に、描きます（[Alpha Blending and Sorting](../../graphics/translucency/index.md)）。
+半透明の物は不透明な物に隠れる（深度テスト有り）が、半透明同士は互いを隠さない（書き込み無し）ように、します。奥から手前の順に描きます（[Alpha Blending and Sorting](../../graphics/translucency/index.md)）。
 
 ### ポスト プロセス・フルスクリーン
 
@@ -78,7 +78,7 @@ D3D11_DEPTH_STENCIL_DESC desc = {};
 desc.DepthEnable = FALSE;                                   // 深度テストなし・書き込みなし
 ```
 
-画面全体に、パスを、走らせるときは、深度テストを、無効にします。
+画面全体にパスを走らせるときは、深度テストを無効にします。
 
 ### 事前深度パス（Z プリパス）
 
@@ -91,7 +91,7 @@ color_pass.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 color_pass.DepthFunc = D3D11_COMPARISON_EQUAL;
 ```
 
-深度を、先に描くと、本描画の、ピクセル シェーダーが、見える物だけで、走り、<strong>オーバードロー</strong>（隠れる物の、シェーディング）が、なくなります（[Overdraw](../../rendering/overdraw.md)）。
+深度を先に描くと本描画のピクセル シェーダーが、見える物だけで走り <strong>オーバードロー</strong>（隠れる物の、シェーディング）がなくなります（[Overdraw](../../rendering/overdraw.md)）。
 
 ### スカイボックス
 
@@ -101,11 +101,11 @@ desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;               // 頂点シェーダーで、z = w（深度 1.0）に、固定して、描く
 ```
 
-不透明な物を、先に描いた後、空を、最後に、深度 1.0 で、描くと、空に、隠れていない、ピクセルだけが、塗られます。
+不透明な物を先に描いた後、空を最後に深度 1.0 で描くと空に、隠れていないピクセルだけが塗られます。
 
 ## ステンシル
 
-ステンシルは、深度と、同じ、バッファに、同居する、8 ビットの、<strong>マスク</strong>です。ピクセルごとに、整数の、値を、書き、後の、パスで、その値で、描くかを、決めます。
+ステンシルは深度と同じバッファに、同居する 8 ビットの <strong>マスク</strong>です。ピクセルごとに整数の値を書き後のパスで、その値で描くかを決めます。
 
 ```cpp
 // 例: 皮膚のピクセルに、ステンシル値 1 を書く（描画パス）。
@@ -144,16 +144,16 @@ context->OMSetDepthStencilState(skin_test_state.Get(), 1);
 | --- | --- |
 | `KEEP` | 変えない |
 | `ZERO` | 0 にする |
-| `REPLACE` | 参照値で、置き換える |
+| `REPLACE` | 参照値で置き換える |
 | `INCR_SAT`・`DECR_SAT` | 増やす・減らす（0・255 で止まる） |
 | `INCR`・`DECR` | 増やす・減らす（巻き戻る） |
 | `INVERT` | ビット反転 |
 
-ステンシルの、使いどころは、皮膚の SSS のマスク（[Screen-Space SSS](../../graphics/skin-hair/skin/screen-space-sss.md)）、輪郭線、ポータル、シャドウ ボリュームなどです。
+ステンシルの使いどころは皮膚の SSS のマスク（[Screen-Space SSS](../../graphics/skin-hair/skin/screen-space-sss.md)）、輪郭線、ポータル、シャドウ ボリュームなどです。
 
-## ステートの、使い回し
+## ステートの使い回し
 
-ステートは、<strong>不変（イミュータブル）</strong>な、オブジェクトで、作ったら、変更できません。用途ごとに、起動時に、作り、毎フレーム、`OMSetDepthStencilState` で、切り替えます。
+ステートは <strong>不変（イミュータブル）</strong>な、オブジェクトで作ったら変更できません。用途ごとに起動時に作り毎フレーム、`OMSetDepthStencilState` で切り替えます。
 
 ```cpp
 struct DepthStates {
@@ -166,27 +166,27 @@ struct DepthStates {
 
 ## よくあるミス
 
-??? failure "半透明の物が、互いを、隠して、おかしく見える"
-    半透明の物に、深度の書き込みが、有効。`DepthWriteMask = ZERO` にする。
+??? failure "半透明の物が互いを隠して、おかしく見える"
+    半透明の物に深度の書き込みが有効。`DepthWriteMask = ZERO` にする。
 
-??? failure "ポスト プロセスが、画面の一部しか、描かれない"
-    深度テストが、有効のまま。`DepthEnable = FALSE` にする。または、DSV が、`OMSetRenderTargets` に、束ねられたまま。
+??? failure "ポスト プロセスが、画面の一部しか描かれない"
+    深度テストが有効のまま。`DepthEnable = FALSE` にする。または、DSV が `OMSetRenderTargets` に束ねられたまま。
 
-??? failure "事前深度の後、本描画で、ちらつく（Z ファイティング）"
-    `LESS` で、同じ深度を、通そうとして、はじかれている。`EQUAL`、または、`LESS_EQUAL` を、使う。頂点シェーダーの、計算が、2 つのパスで、同じ結果になるように、`invariant` を、考える。
+??? failure "事前深度の後、本描画でちらつく（Z ファイティング）"
+    `LESS` で同じ深度を通そうとして、はじかれている。`EQUAL`、または `LESS_EQUAL` を使う。頂点シェーダーの計算が 2 つのパスで、同じ結果になるように `invariant` を考える。
 
-??? failure "reverse-Z にしたのに、何も、描かれない"
-    `DepthFunc` が、`LESS` のまま。クリア値が、`1.0` のまま。`GREATER` と `0.0` に、そろえる。
+??? failure "reverse-Z にしたのに何も、描かれない"
+    `DepthFunc` が `LESS` のまま。クリア値が `1.0` のまま。`GREATER` と `0.0` にそろえる。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 深度ステート ＝ 深度テストの、設定（有効・書き込み・比較関数）
-    - [x] 不透明は、テスト有り・書き込み有り。半透明は、書き込み無し。ポスト プロセスは、無し
+    - [x] 不透明は、テスト有り・書き込み有り。半透明は書き込み無し。ポスト プロセスは無し
     - [x] 事前深度の後は、`EQUAL`（または `LESS_EQUAL`）
-    - [x] reverse-Z は、`GREATER`、クリア 0.0
+    - [x] reverse-Z は `GREATER`、クリア 0.0
     - [x] ステンシルは、マスク（皮膚、ポータル）
-    - [x] ステートは、起動時に作り、使い回す
+    - [x] ステートは、起動時に作り使い回す
 
 ## 関連ページ
 

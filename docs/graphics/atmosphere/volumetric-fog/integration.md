@@ -6,16 +6,16 @@ tags:
 
 # Steps 3 and 4: Integration and Application
 
-<strong>注入した光を、視線に沿って奥から手前へ足し合わせます（積分）</strong>。<strong>その結果を、シーンの色に合成（適用）します</strong>。このページでは、積分と適用を説明します。
+<strong>注入した光を視線に沿って奥から手前へ足し合わせます（積分）</strong>。<strong>その結果をシーンの色に合成（適用）します</strong>。このページでは積分と適用を説明します。
 
 !!! tip "ポイント"
-    - 奥行き方向に、散乱光を累積し、透過率も求める。
-    - 結果は、3D テクスチャ（累積済み）。
+    - 奥行き方向に散乱光を累積し、透過率も求める。
+    - 結果は 3D テクスチャ（累積済み）。
     - 適用：シーンの色 × 透過率 ＋ 散乱光。
     - シーンの深度から、froxel の位置を引く。
 
 ## ③ 積分
-<strong>視線に沿って、手前から奥へ光と透過率を累積します</strong>。<strong>奥行き方向（Z）にループ</strong>し、各 froxel の寄与を足します。
+<strong>視線に沿って手前から奥へ光と透過率を累積します</strong>。<strong>奥行き方向（Z）にループ</strong>し、各 froxel の寄与を足します。
 
 <div class="formula">
 累積光 += 透過率 × 散乱光 × (1 − exp(−消散 × 厚み)) / 消散<br>
@@ -198,7 +198,7 @@ void IntegrateCS(uint3 id : SV_DispatchThreadID) {
 <!-- fig:fog-integrate:end -->
 
 ## ④ 適用
-<strong>不透明のシーンの色に積分結果を合成します</strong>。<strong>ピクセルの深度から、対応するスライスを求めて、3D テクスチャを引きます</strong>。
+<strong>不透明のシーンの色に積分結果を合成します</strong>。<strong>ピクセルの深度から対応するスライスを求めて、3D テクスチャを引きます</strong>。
 
 ```hlsl
 float depth = LinearizeDepth(depth_texture.Sample(point_clamp, uv).r);
@@ -218,17 +218,17 @@ float3 final_color = scene_color * fog.a + fog.rgb;
 
 ### 積分式の導出
 
-累積の式が、なぜこの形なのかを確認します。1 つのスライスの内側で、散乱光 S（単位長さあたりに散乱される光）と消散 σ が一定だとします。スライスの手前の端から距離 x の位置で散乱された光は、スライスの手前の端に届くまでに `exp(−σ x)` の割合に弱まります。スライス全体で足し合わせると、次の積分になります。
+累積の式がなぜこの形なのかを確認します。1 つのスライスの内側で散乱光 S（単位長さあたりに散乱される光）と消散 σ が一定だとします。スライスの手前の端から距離 x の位置で散乱された光は、スライスの手前の端に届くまでに `exp(−σ x)` の割合に弱まります。スライス全体で足し合わせると、次の積分になります。
 
 <div class="formula">∫₀^Δz S · exp(−σ x) dx = S · (1 − exp(−σ Δz)) / σ</div>
 
-コードの `(scattering - scattering * slice_transmittance) / extinction` が、まさにこれです。この<strong>区間内の解析積分</strong>がポイントです。単純に `scattering * thickness` を足すだけでは、密度が高いときにエネルギーが保存されず、濃い霧で光が過剰になります（特に、スライスが厚い遠方）。解析積分なら、どんなに濃くても、光の量が上限（S / σ）を超えません。この定式化は、Hillaire の Frostbite の発表で広まりました。
+コードの `(scattering - scattering * slice_transmittance) / extinction` がまさにこれです。この<strong>区間内の解析積分</strong>がポイントです。単純に `scattering * thickness` を足すだけでは密度が高いときにエネルギーが保存されず、濃い霧で光が過剰になります（特に、スライスが厚い遠方）。解析積分ならどんなに濃くても、光の量が上限（S / σ）を超えません。この定式化は Hillaire の Frostbite の発表で広まりました。
 
-スライス全体を手前から奥へ回し、それまでの透過率 `transmittance` を、現在のスライスの寄与に掛けてから足します。手前の濃い霧は、奥の光を隠すので、奥の寄与が手前の透過率で減衰します。この累積を、スライスごとに保存すれば、適用のときは、画素の深度に対応するスライスの値を 1 回引くだけで、「カメラからその距離までの全フォグ」が得られます。
+スライス全体を手前から奥へ回し、それまでの透過率 `transmittance` を現在のスライスの寄与に掛けてから足します。手前の濃い霧は奥の光を隠すので、奥の寄与が手前の透過率で減衰します。この累積をスライスごとに保存すれば、適用のときは画素の深度に対応するスライスの値を 1 回引くだけで、「カメラからその距離までの全フォグ」が得られます。
 
-## ステップ 3：奥行き方向の、積分
+## ステップ 3：奥行き方向の積分
 
-<strong>注入</strong>（[Step 2: Light Injection](injection.md)）で、<strong>各セルの、散乱光と、消散係数</strong>が、決まりました。画面の、各画素に、必要なのは、「カメラから、そこまでの、すべてのセルの、散乱光の、合計」です。これを、奥行き方向の、積分で、事前に、求めておきます。
+<strong>注入</strong>（[Step 2: Light Injection](injection.md)）で、<strong>各セルの散乱光と消散係数</strong>が、決まりました。画面の各画素に必要なのは「カメラから、そこまでのすべてのセルの散乱光の、合計」です。これを奥行き方向の積分で事前に、求めておきます。
 
 ```text
 画素 (x, y) の、列:  カメラ ──→  [z=0] [z=1] [z=2] ... [z=63]
@@ -236,9 +236,9 @@ float3 final_color = scene_color * fog.a + fog.rgb;
                       「z = k までの、累積した、散乱光と、透過率」を、各 z に、保存
 ```
 
-## 積分の、計算シェーダー
+## 積分の計算シェーダー
 
-<strong>画面の、各 (x, y) の、列</strong>について、<strong>1 スレッド</strong>が、奥行き方向に、ループします。
+<strong>画面の各 (x, y) の、列</strong>について <strong>1 スレッド</strong>が、奥行き方向にループします。
 
 ```hlsl
 Texture3D<float4> g_froxel_lighting : register(t0);        // 各セルの、散乱光（xyz）と、消散（w）
@@ -250,7 +250,7 @@ void IntegrateCS(uint3 id : SV_DispatchThreadID) {
   float transmittance = 1.0;                                // これまでの、透過率（カメラ → このスライス）
 ```
 
-<strong>スレッドの、ブロック</strong>は、<strong>(x, y) を</strong>、担当し、z は、ループで、手前から、奥へ、進みます。
+<strong>スレッドのブロック</strong>は <strong>(x, y) を</strong>、担当し z はループで手前から奥へ、進みます。
 
 ```hlsl
   for (uint z = 0; z < 64; ++z) {
@@ -260,7 +260,7 @@ void IntegrateCS(uint3 id : SV_DispatchThreadID) {
     float slice_thickness = SliceThickness(z);              // このスライスの、厚み（メートル。奥ほど、厚い）
 ```
 
-<strong>セルの、散乱光と、消散係数</strong>を、<strong>読み</strong>、スライスの、厚み（奥行き方向の、長さ）を、求めます。奥のスライスほど、厚い（[Froxels](froxel.md) の、奥行きの割り当て）ので、厚みを、掛けることが、重要です。
+<strong>セルの散乱光と消散係数</strong>を、<strong>読み</strong>、スライスの厚み（奥行き方向の、長さ）を求めます。奥のスライスほど厚い（[Froxels](froxel.md) の、奥行きの割り当て）ので厚みを、掛けることが重要です。
 
 ```hlsl
     // このスライスを、通るときの、透過率（Beer の法則）。
@@ -272,7 +272,7 @@ void IntegrateCS(uint3 id : SV_DispatchThreadID) {
     transmittance *= slice_transmittance;                    // 透過率を、更新
 ```
 
-<strong>区間の中でも、光は、減る</strong>ので、<strong>解析的な、積分</strong>（[Single-Scattering Integral](../scattering/single-scattering.md) と、同じ）を、使います。単純に、散乱光 × 厚みを、足す方法は、ステップが、粗いと、不安定で、エネルギーが、保存されません。
+<strong>区間の中でも光は減る</strong>ので、<strong>解析的な積分</strong>（[Single-Scattering Integral](../scattering/single-scattering.md) と、同じ）を使います。単純に散乱光 × 厚みを足す方法は、ステップが粗いと不安定でエネルギーが、保存されません。
 
 ```hlsl
     g_froxel_integrated[uint3(id.xy, z)] = float4(accumulated, transmittance);   // z までの結果を、保存
@@ -280,11 +280,11 @@ void IntegrateCS(uint3 id : SV_DispatchThreadID) {
 }
 ```
 
-<strong>各スライス `z` に、「カメラから、`z` まで」の、累積結果</strong>を、保存します。<strong>画素は、自分の距離に、対応する、スライスを、1 回読む</strong>だけで、カメラから、その物までの、霧の効果が、得られます。
+<strong>各スライス `z` に「カメラから、`z` まで」の累積結果</strong>を保存します。<strong>画素は自分の距離に対応する、スライスを 1 回読む</strong>だけで、カメラからその物までの霧の効果が、得られます。
 
-## ステップ 4：画面に、適用する
+## ステップ 4：画面に適用する
 
-<strong>物体を、描く</strong>とき（またはポスト プロセス）に、<strong>物体の、距離</strong>から、対応するスライスを、読んで、霧を、かけます。
+<strong>物体を描く</strong>とき（またはポスト プロセス）に、<strong>物体の距離</strong>から対応するスライスを読んで霧を、かけます。
 
 ```hlsl
 // ピクセル シェーダーの、最後（または、ポスト プロセス）で、ボリューム フォグを、かける。
@@ -295,11 +295,11 @@ float3 ApplyVolumetricFog(float3 scene_color, float2 screen_uv, float view_depth
 }
 ```
 
-<strong>3D テクスチャの、トライリニア補間</strong>（`SampleLevel` + `LINEAR`）が、<strong>スライスの間</strong>も、なめらかに、補間します。1 回の、読み込みで、霧の、色と、透過率が、得られます。
+<strong>3D テクスチャのトライリニア補間</strong>（`SampleLevel` + `LINEAR`）が、<strong>スライスの間</strong>もなめらかに、補間します。1 回の読み込みで霧の色と透過率が、得られます。
 
-### 物体の、深度が、froxel の範囲の外
+### 物体の深度が froxel の範囲の外
 
-<strong>物体が、froxel の、最大距離より、遠い</strong>とき、<strong>最後のスライス</strong>の、値を、使います（クランプ）。それ以上の、遠景の、霧は、空気遠近法など、別の方法で、補います（[Froxels](froxel.md)）。
+<strong>物体が froxel の最大距離より、遠い</strong>とき <strong>最後のスライス</strong>の値を、使います（クランプ）。それ以上の遠景の霧は空気遠近法など、別の方法で補います（[Froxels](froxel.md)）。
 
 ```hlsl
 float slice = saturate(ViewDepthToSlice(view_depth));                       // 0〜1 に、クランプ。範囲の外は、最後のスライス
@@ -307,18 +307,18 @@ float slice = saturate(ViewDepthToSlice(view_depth));                       // 0
 
 ### 半透明の物にも
 
-<strong>半透明の物</strong>（パーティクル）も、<strong>自分の、距離</strong>で、同じ、ボリュームを、引いて、霧を、かけることができます。ポスト プロセスでなく、物体の、ピクセル シェーダーで、行うのが、一般的です（[Where to Apply Fog](../aerial-fog/where.md)）。
+<strong>半透明の物</strong>（パーティクル）も、<strong>自分の距離</strong>で同じボリュームを引いて霧を、かけることができます。ポスト プロセスでなく物体の、ピクセル シェーダーで行うのが、一般的です（[Where to Apply Fog](../aerial-fog/where.md)）。
 
-## 描画の、順序
+## 描画の順序
 
 | 順 | 内容 |
 | --- | --- |
 | 1 | シャドウ マップを、描く |
-| 2 | 密度（[Step 1: Density](density.md)）、ライト注入（[Step 2: Light Injection](injection.md)）、積分（このページ）を、計算シェーダーで、実行 |
-| 3 | 不透明な物を、描く（ピクセル シェーダーで、ボリュームを、引いて、霧を、かける） |
-| 4 | 半透明の物を、描く（同様に、霧を、かける） |
+| 2 | 密度（[Step 1: Density](density.md)）、ライト注入（[Step 2: Light Injection](injection.md)）、積分（このページ）を計算シェーダーで、実行 |
+| 3 | 不透明な物を描く（ピクセル シェーダーで、ボリュームを引いて霧をかける） |
+| 4 | 半透明の物を描く（同様に霧を、かける） |
 
-<strong>ボリュームの、計算</strong>は、<strong>画面を、描く前</strong>に、行います。物体の、描画が、ボリュームを、引くためです。
+<strong>ボリュームの計算</strong>は <strong>画面を、描く前</strong>に行います。物体の描画がボリュームを引くためです。
 
 ## よくあるミス
 

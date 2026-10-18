@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>フェンス</strong>（`ID3D12Fence`）は、<strong>CPU と GPU（または、GPU 同士）の、同期</strong>の、道具です。中身は、<strong>1 つの、64 ビットの、整数</strong>で、「GPU が、ここまで、終わった」という、<strong>目印</strong>を、書き込み、CPU が、その値を、読む、または、その値に、なるまで、待ちます。D3D12 では、GPU が、非同期に、動くので、「いつ、リソースを、再利用してよいか」を、知る、唯一の、方法です。
+<strong>フェンス</strong>（`ID3D12Fence`）は <strong>CPU と GPU（または、GPU 同士）の同期</strong>の道具です。中身は <strong>1 つの 64 ビットの整数</strong>で「GPU がここまで、終わった」という <strong>目印</strong>を書き込み CPU がその値を読むまたは、その値になるまで待ちます。D3D12 では GPU が非同期に動くので「いつリソースを再利用してよいか」を知る唯一の、方法です。
 
 !!! tip "ポイント"
-    - フェンス ＝ 増えていく、整数。GPU が、`Signal` で、値を、書く。CPU が、`GetCompletedValue` で、読む。
-    - 使い方: <strong>`Signal(fence, N)` を、キューに積む → GPU が、そこまで、実行したら、値が N に → CPU は、値が N になるまで、待つ</strong>。
-    - CPU が、待つには、イベント（`HANDLE`）に、`SetEventOnCompletion` で、結びつけ、`WaitForSingleObject`。
-    - 値は、<strong>単調に、増やす</strong>。フレームごとに、`+1`。
-    - フレーム イン フライト、終了時の、全完了待ち、アップロードの、完了確認に、必須。
+    - フェンス ＝ 増えていく整数。GPU が `Signal` で値を書く。CPU が `GetCompletedValue` で読む。
+    - 使い方: <strong>`Signal(fence, N)` をキューに積む → GPU が、そこまで実行したら値が N に → CPU は、値が N になるまで待つ</strong>。
+    - CPU が待つにはイベント（`HANDLE`）に `SetEventOnCompletion` で結びつけ `WaitForSingleObject`。
+    - 値は <strong>単調に増やす</strong>。フレームごとに `+1`。
+    - フレーム イン フライト、終了時の全完了待ちアップロードの完了確認に必須。
 
 ## 作る
 
@@ -31,7 +31,7 @@ device->CreateFence(0,                                       // 初期値
                     IID_PPV_ARGS(&fence));
 ```
 
-イベントは、Win32 の `CreateEventW` で、作ります。フェンスが、目的の、値に、達した、とき、GPU（ドライバー）が、このイベントを、シグナル状態に、します。
+イベントは Win32 の `CreateEventW` で、作ります。フェンスが目的の値に達したとき GPU（ドライバー）がこのイベントをシグナル状態にします。
 
 ## Signal と待ち
 
@@ -49,14 +49,14 @@ void WaitForGpu() {
 
 | 関数 | 呼ぶ側 | 内容 |
 | --- | --- | --- |
-| `ID3D12CommandQueue::Signal(fence, value)` | CPU（積むだけ） | GPU が、そこまで、実行したら、フェンスに `value` を書く |
-| `ID3D12Fence::GetCompletedValue()` | CPU | 今、フェンスに、書かれている、値を、返す（待たない） |
-| `ID3D12Fence::SetEventOnCompletion(value, event)` | CPU | フェンスが `value` 以上になったら、イベントを、シグナルする |
-| `WaitForSingleObject(event, timeout)` | CPU | イベントが、シグナルするまで、待つ（Win32） |
-| `ID3D12CommandQueue::Wait(fence, value)` | CPU（積むだけ） | <strong>キューを</strong>、フェンスが `value` になるまで、止める（GPU の、待ち） |
-| `ID3D12Fence::Signal(value)` | CPU | CPU が、直接、フェンスに、値を書く（まれ） |
+| `ID3D12CommandQueue::Signal(fence, value)` | CPU（積むだけ） | GPU が、そこまで実行したらフェンスに `value` を書く |
+| `ID3D12Fence::GetCompletedValue()` | CPU | 今、フェンスに書かれている値を返す（待たない） |
+| `ID3D12Fence::SetEventOnCompletion(value, event)` | CPU | フェンスが `value` 以上になったら、イベントをシグナルする |
+| `WaitForSingleObject(event, timeout)` | CPU | イベントが、シグナルするまで待つ（Win32） |
+| `ID3D12CommandQueue::Wait(fence, value)` | CPU（積むだけ） | <strong>キューを</strong>、フェンスが `value` になるまで止める（GPU の待ち） |
+| `ID3D12Fence::Signal(value)` | CPU | CPU が直接、フェンスに値を書く（まれ） |
 
-流れを、図にすると、次のとおりです。
+流れを図にすると次のとおりです。
 
 ```text
 CPU:  ExecuteCommandLists(list)        ← 仕事を、キューに、投げる
@@ -68,7 +68,7 @@ CPU:  GetCompletedValue() == 5 ?        ← 5 になっていれば、list の�
 
 ## フレーム イン フライト
 
-CPU が、次のフレームを、記録している間、GPU は、前のフレームを、実行しています。<strong>フレームごとに、フェンスの、値を、覚えておき</strong>、そのフレームの、リソース（アロケーター、定数バッファ）を、再利用する前に、その値に、達したかを、確認します。
+CPU が次のフレームを記録している間、GPU は前のフレームを実行しています。<strong>フレームごとにフェンスの値を覚えておき</strong>、そのフレームのリソース（アロケーター、定数バッファ）を再利用する前にその値に達したかを確認します。
 
 ```cpp
 UINT64 frame_fence_values[kFrameCount] = {};                 // 各フレームの、「ここまで終われば、再利用できる」値
@@ -89,11 +89,11 @@ void EndFrame(UINT frame_index) {
 }
 ```
 
-フレーム イン フライトが、2 なら、CPU は、GPU より、最大 2 フレーム、先に、進めます（[Frame Resources](frame-resources.md)）。
+フレーム イン フライトが 2 なら CPU は GPU より最大 2 フレーム、先に進めます（[Frame Resources](frame-resources.md)）。
 
-## 複数のキューの、同期
+## 複数のキューの同期
 
-別の、キュー（COMPUTE と DIRECT）の、順序を、<strong>GPU の中で</strong>、そろえるには、`Signal` と `Wait` を、使います。CPU は、止まりません。
+別のキュー（COMPUTE と DIRECT）の順序を <strong>GPU の中で</strong>、そろえるには `Signal` と `Wait` を使います。CPU は止まりません。
 
 ```cpp
 // COMPUTE キューの仕事が、終わるまで、DIRECT キューを、待たせる。
@@ -104,9 +104,9 @@ direct_queue->Wait(compute_fence.Get(), compute_value);               // DIRECT 
 direct_queue->ExecuteCommandLists(1, direct_lists);                   // 計算結果を、使う描画
 ```
 
-`ID3D12CommandQueue::Wait` は、CPU を、止めず、<strong>GPU の、キューを</strong>、止めます。非同期コンピュートの、結果を、描画で、使うときの、定番です（[Command Queue](command-queue.md)）。
+`ID3D12CommandQueue::Wait` は CPU を止めず <strong>GPU のキューを</strong>、止めます。非同期コンピュートの結果を描画で、使うときの定番です（[Command Queue](command-queue.md)）。
 
-## 終了時の、後始末
+## 終了時の後始末
 
 ```cpp
 void Shutdown() {
@@ -116,9 +116,9 @@ void Shutdown() {
 }
 ```
 
-GPU が、まだ、実行中の、リソースを、解放すると、クラッシュします。終了前に、必ず、フェンスで、待ちます。
+GPU がまだ実行中のリソースを解放するとクラッシュします。終了前に必ずフェンスで待ちます。
 
-## タイムアウトと、GPU のハング
+## タイムアウトと GPU のハング
 
 ```cpp
 DWORD result = WaitForSingleObject(fence_event, 5000);       // 5 秒で、タイムアウト
@@ -128,33 +128,33 @@ if (result == WAIT_TIMEOUT) {
 }
 ```
 
-`INFINITE` で、待つと、GPU が、ハングしたとき、永久に、止まります。製品では、タイムアウトを、設定して、`GetDeviceRemovedReason` で、原因を、記録します（[Debug Layer](debug-layer.md)）。
+`INFINITE` で待つと GPU がハングしたとき永久に止まります。製品ではタイムアウトを設定して `GetDeviceRemovedReason` で原因を記録します（[Debug Layer](debug-layer.md)）。
 
 ## よくあるミス
 
-??? failure "画面が、乱れる、またはクラッシュする（再現が不安定）"
-    フェンスで、完了を、待たずに、アロケーターを、`Reset` した、または、GPU が、使用中の、リソースを、書き換えた。
+??? failure "画面が乱れる、またはクラッシュする（再現が不安定）"
+    フェンスで完了を待たずにアロケーターを `Reset` したまたは、GPU が使用中のリソースを書き換えた。
 
-??? failure "フレームレートが、異様に、低い"
-    毎フレーム、`WaitForGpu`（全完了待ち）を、している。CPU と GPU が、直列に、なり、並列性が、失われる。フレーム イン フライト（2〜3）で、1 フレームずつ、遅れて、待つ。
+??? failure "フレームレートが異様に低い"
+    毎フレーム、`WaitForGpu`（全完了待ち）をしている。CPU と GPU が直列になり並列性が失われる。フレーム イン フライト（2〜3）で、1 フレームずつ遅れて待つ。
 
-??? failure "終了時に、クラッシュする"
-    終了前に、GPU の、完了を、待っていない。
+??? failure "終了時にクラッシュする"
+    終了前に GPU の完了を待っていない。
 
-??? failure "`WaitForSingleObject` で、永久に、止まる"
-    `Signal` を、キューに、積んでいない、または、`SetEventOnCompletion` の、値が、`Signal` した、値と、違う。GPU が、ハングしている（タイムアウトを、設定する）。
+??? failure "`WaitForSingleObject` で永久に止まる"
+    `Signal` をキューに積んでいないまたは `SetEventOnCompletion` の値が、`Signal` した値と違う。GPU がハングしている（タイムアウトを設定する）。
 
-??? failure "フェンスの値が、巻き戻る・同じ値で、2 回待つ"
-    値は、単調に、増やす。使い回す変数を、複数の、場所で、更新して、順序が、崩れている。
+??? failure "フェンスの値が、巻き戻る・同じ値で 2 回待つ"
+    値は単調に増やす。使い回す変数を複数の場所で更新して順序が、崩れている。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] フェンス ＝ 増える整数。GPU が `Signal` で書き、CPU が、読む・待つ
+    - [x] フェンス ＝ 増える整数。GPU が `Signal` で書き CPU が、読む・待つ
     - [x] 待つ: `SetEventOnCompletion(value, event)` + `WaitForSingleObject`
-    - [x] 毎フレーム、全完了待ちは、しない。フェンスの値を、フレームごとに、覚える
-    - [x] キュー同士は、`Signal` + `Wait`（GPU の待ち）
-    - [x] 終了前に、全完了を、待つ。タイムアウトを、設定する
+    - [x] 毎フレーム、全完了待ちはしない。フェンスの値をフレームごとに覚える
+    - [x] キュー同士は `Signal` + `Wait`（GPU の待ち）
+    - [x] 終了前に全完了を待つ。タイムアウトを設定する
 
 ## 関連ページ
 

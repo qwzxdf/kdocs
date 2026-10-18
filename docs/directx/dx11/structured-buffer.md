@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-often">よく使う</span>
 </div>
 
-頂点バッファ、インデックス バッファ、定数バッファは、<strong>決まった用途</strong>の、バッファです。シェーダーが、<strong>自由な、構造体の配列</strong>を、読み書きしたいとき（インスタンス データ、パーティクル、ライトの一覧、カリングの結果）に、使うのが、<strong>構造化バッファ</strong>（Structured Buffer）と、<strong>生のバッファ</strong>（Raw / ByteAddress Buffer）です。計算シェーダーの、入出力の、中心です。
+頂点バッファ、インデックス バッファ、定数バッファは <strong>決まった用途</strong>のバッファです。シェーダーが <strong>自由な構造体の配列</strong>を読み書きしたいとき（インスタンス データ、パーティクル、ライトの一覧、カリングの結果）に使うのが <strong>構造化バッファ</strong>（Structured Buffer）と、<strong>生のバッファ</strong>（Raw / ByteAddress Buffer）です。計算シェーダーの入出力の中心です。
 
 !!! tip "ポイント"
     - <strong>構造化バッファ</strong> ＝ 構造体の配列。HLSL では `StructuredBuffer<T>`（読む）、`RWStructuredBuffer<T>`（読み書き）。
-    - <strong>生のバッファ</strong> ＝ バイトの列。`ByteAddressBuffer`、`RWByteAddressBuffer`。4 バイト単位で、自由に読み書き。
-    - 作成は `CreateBuffer` に、`MiscFlags` で、種類を、指定する。`StructureByteStride` に、構造体の大きさ。
-    - 読む用に SRV、書く用に UAV を、作る（[Shader Resource View (SRV)](shader-resource-view.md)、[Unordered Access View (UAV)](uav.md)）。
-    - 定数バッファと違い、16 バイト境界の、制約は、緩い（構造体は、そのまま並ぶ）。サイズの、上限も、大きい。
+    - <strong>生のバッファ</strong> ＝ バイトの列。`ByteAddressBuffer`、`RWByteAddressBuffer`。4 バイト単位で自由に読み書き。
+    - 作成は `CreateBuffer` に `MiscFlags` で種類を指定する。`StructureByteStride` に構造体の大きさ。
+    - 読む用に SRV、書く用に UAV を作る（[Shader Resource View (SRV)](shader-resource-view.md)、[Unordered Access View (UAV)](uav.md)）。
+    - 定数バッファと違い 16 バイト境界の制約は緩い（構造体は、そのまま並ぶ）。サイズの上限も大きい。
 
 ## 構造化バッファ
 
@@ -76,11 +76,11 @@ void UpdateCS(uint3 id : SV_DispatchThreadID) {
 }
 ```
 
-HLSL の、構造体と、C++ の構造体を、<strong>同じ並び・同じ大きさ</strong>に、そろえます。定数バッファと、違い、16 バイト境界の、規則は、ありませんが、`float3` の次に `float` を、置くと、きれいに、16 バイトに、収まる、並びに、しておくと、GPU の、アクセスが、効率的です。
+HLSL の構造体と C++ の構造体を <strong>同じ並び・同じ大きさ</strong>にそろえます。定数バッファと違い 16 バイト境界の規則は、ありませんが `float3` の次に `float` を置くときれいに 16 バイトに収まる並びに、しておくと GPU のアクセスが、効率的です。
 
 ## 生のバッファ（ByteAddressBuffer）
 
-構造体の、型を、持たず、<strong>バイト アドレス</strong>で、読み書きします。1 つのバッファに、いろいろな、型の、データを、詰めるときに、使います。
+構造体の型を持たず <strong>バイト アドレス</strong>で、読み書きします。1 つのバッファにいろいろな型のデータを詰めるときに使います。
 
 ```cpp
 D3D11_BUFFER_DESC desc = {};
@@ -107,11 +107,11 @@ g_raw.InterlockedAdd(byte_offset, 1);                       // アトミック�
 uint4 four = g_raw.Load4(byte_offset);                      // 16 バイトを、まとめて
 ```
 
-ヒストグラム（[Auto Exposure](../../graphics/postprocess/tonemapping/auto-exposure.md)）、描画の、引数バッファ（間接描画）、ビンドレスな、データの詰め合わせに、使います。
+ヒストグラム（[Auto Exposure](../../graphics/postprocess/tonemapping/auto-exposure.md)）、描画の引数バッファ（間接描画）、ビンドレスなデータの詰め合わせに使います。
 
-## カウンターと、追加・消費（Append / Consume）
+## カウンターと追加・消費（Append / Consume）
 
-UAV に、<strong>カウンター</strong>を、付けると、「要素の、追加」と、「取り出し」を、アトミックに、できます。パーティクルの、生成・消滅や、カリング後の、リストの作成に、向いています。
+UAV に <strong>カウンター</strong>を付けると、「要素の追加」と「取り出し」をアトミックにできます。パーティクルの生成・消滅やカリング後のリストの作成に向いています。
 
 ```cpp
 uav_desc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_APPEND;                // 追加・消費バッファ（カウンターつき）
@@ -135,33 +135,33 @@ context->CSSetUnorderedAccessViews(0, 1, append_uav.GetAddressOf(), initial_coun
 context->CopyStructureCount(args_buffer.Get(), sizeof(UINT), append_uav.Get());
 ```
 
-`CopyStructureCount` は、カウンターを、GPU 上で、別のバッファに、コピーして、CPU に、読み戻さずに、間接描画の、引数に、使えます（[Instanced Drawing](instancing-draw.md)）。
+`CopyStructureCount` はカウンターを GPU 上で、別のバッファにコピーして CPU に読み戻さずに間接描画の引数に使えます（[Instanced Drawing](instancing-draw.md)）。
 
-## 構造化バッファと、定数バッファの、違い
+## 構造化バッファと定数バッファの違い
 
 | | 定数バッファ | 構造化バッファ |
 | --- | --- | --- |
-| 用途 | 少量の、パラメータ | 大量の、構造体の配列 |
+| 用途 | 少量のパラメータ | 大量の構造体の配列 |
 | 大きさの上限 | 64 KB | 数百 MB 以上 |
-| 16 バイト境界の、制約 | きびしい | ゆるい |
-| 読み書き | 読み取り専用 | SRV で読む、UAV で書く |
-| 速さ | 全スレッドが、同じ値を、読むなら、速い | スレッドごとに、別の要素を、読むなら、速い |
+| 16 バイト境界の制約 | きびしい | ゆるい |
+| 読み書き | 読み取り専用 | SRV で読む UAV で書く |
+| 速さ | 全スレッドが同じ値を読むなら速い | スレッドごとに別の要素を読むなら速い |
 
-全ピクセルが、同じ値（カメラ行列）を、読むなら、定数バッファが、速く、頂点・インスタンスごとに、別の要素を、読むなら、構造化バッファが、向きます。
+全ピクセルが同じ値（カメラ行列）を読むなら定数バッファが速く頂点・インスタンスごとに、別の要素を読むなら構造化バッファが、向きます。
 
 ## よくあるミス
 
 ??? failure "`CreateBuffer` が、失敗する（構造化バッファ）"
-    `StructureByteStride` が、0、または、`ByteWidth` が、ストライドの、倍数でない。構造化バッファに、`BIND_CONSTANT_BUFFER`、`BIND_VERTEX_BUFFER` を、同時に、指定している。
+    `StructureByteStride` が 0、または `ByteWidth` がストライドの倍数でない。構造化バッファに `BIND_CONSTANT_BUFFER`、`BIND_VERTEX_BUFFER` を同時に指定している。
 
-??? failure "C++ で書いた、データと、シェーダーで読んだ値が、ずれる"
-    HLSL の構造体と、C++ の構造体の、並びが、違う。`float3` の後の、パディングの、扱いが、違う。`static_assert(sizeof(T) == ...)` で、確かめる。
+??? failure "C++ で書いた、データとシェーダーで読んだ値が、ずれる"
+    HLSL の構造体と C++ の構造体の並びが違う。`float3` の後のパディングの扱いが違う。`static_assert(sizeof(T) == ...)` で確かめる。
 
 ??? failure "`CreateShaderResourceView` が、失敗する（構造化バッファ）"
-    `Format` が、`UNKNOWN` でない。`NumElements` が、バッファの、要素数を、超えている。
+    `Format` が `UNKNOWN` でない。`NumElements` がバッファの要素数を超えている。
 
-??? failure "Append バッファに、追加したのに、要素数が、増えない"
-    UAV の束縛時の、初期カウント（`pUAVInitialCounts`）が、毎回、0 で、リセットされている。維持したいときは、`-1`。
+??? failure "Append バッファに追加したのに要素数が増えない"
+    UAV の束縛時の初期カウント（`pUAVInitialCounts`）が毎回、0 でリセットされている。維持したいときは `-1`。
 
 ## これだけ覚える
 
@@ -169,8 +169,8 @@ context->CopyStructureCount(args_buffer.Get(), sizeof(UINT), append_uav.Get());
     - [x] 構造化バッファ ＝ 構造体の配列。`MiscFlags = BUFFER_STRUCTURED`、`StructureByteStride`
     - [x] 生のバッファ ＝ バイトの列。`ALLOW_RAW_VIEWS`、`ByteAddressBuffer`
     - [x] 読む SRV（`Format = UNKNOWN`）、書く UAV
-    - [x] HLSL と C++ の構造体を、そろえる
-    - [x] Append / Consume + `CopyStructureCount` で、GPU 上の、リストと、間接描画
+    - [x] HLSL と C++ の構造体をそろえる
+    - [x] Append / Consume + `CopyStructureCount` で、GPU 上のリストと間接描画
 
 ## 関連ページ
 

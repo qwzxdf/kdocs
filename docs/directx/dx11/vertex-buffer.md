@@ -10,16 +10,16 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>頂点バッファ</strong>は、メッシュの、<strong>頂点のデータ</strong>（位置、法線、uv、色など）を、GPU のメモリに、並べた、バッファです。三角形を描くには、頂点の、データを、頂点バッファに、入れて、パイプラインに、つなぎます。
+<strong>頂点バッファ</strong>はメッシュの <strong>頂点のデータ</strong>（位置、法線、uv、色など）を GPU のメモリに並べたバッファです。三角形を描くには頂点のデータを頂点バッファに入れてパイプラインにつなぎます。
 
 !!! tip "ポイント"
-    - 頂点バッファ ＝ 頂点の配列を、GPU に置いたもの。`CreateBuffer` で、`D3D11_BIND_VERTEX_BUFFER` を指定して作る。
-    - 1 頂点のデータの、大きさが、<strong>ストライド</strong>。つなぐとき、ストライドと、オフセットを、渡す。
-    - 変わらない、メッシュは、`D3D11_USAGE_IMMUTABLE`（作成時に、初期データを、渡す）。毎フレーム、変わるものは、`DYNAMIC`。
-    - 頂点のデータの、<strong>並び</strong>は、入力レイアウトで、GPU に、教える（[Input Layout](input-layout.md)）。
-    - 座標系は、右手系・Y 上。三角形は、反時計回り（CCW）が、表。
+    - 頂点バッファ ＝ 頂点の配列を GPU に置いたもの。`CreateBuffer` で `D3D11_BIND_VERTEX_BUFFER` を指定して作る。
+    - 1 頂点のデータの大きさが <strong>ストライド</strong>。つなぐときストライドとオフセットを渡す。
+    - 変わらないメッシュは `D3D11_USAGE_IMMUTABLE`（作成時に初期データを渡す）。毎フレーム、変わるものは `DYNAMIC`。
+    - 頂点のデータの <strong>並び</strong>は、入力レイアウトで GPU に教える（[Input Layout](input-layout.md)）。
+    - 座標系は右手系・Y 上。三角形は反時計回り（CCW）が表。
 
-## 頂点の、構造体
+## 頂点の構造体
 
 ```cpp
 #include <DirectXMath.h>
@@ -37,7 +37,7 @@ const Vertex vertices[] = {
 };
 ```
 
-`Vertex` の並び（位置 3 つの `float`、色 4 つの `float`）が、そのまま、GPU に、渡るメモリの並びです。入力レイアウトは、この並びを、記述します。上の、3 頂点は、上、左下、右下の順で、`y` が上向きの、座標で、反時計回りです。
+`Vertex` の並び（位置 3 つの `float`、色 4 つの `float`）がそのまま GPU に渡るメモリの並びです。入力レイアウトはこの並びを記述します。上の 3 頂点は上、左下、右下の順で `y` が上向きの座標で、反時計回りです。
 
 ## 作る
 
@@ -58,12 +58,12 @@ device->CreateBuffer(&desc, &init, &vertex_buffer);
 | メンバー | 内容 |
 | --- | --- |
 | `ByteWidth` | バッファの大きさ（バイト） |
-| `Usage` | `IMMUTABLE`（変更しない）、`DEFAULT`（GPU が読み書き）、`DYNAMIC`（CPU が、毎フレーム書く）、`STAGING`（CPU が、読み書き） |
-| `BindFlags` | `VERTEX_BUFFER`、`INDEX_BUFFER`、`CONSTANT_BUFFER`、`SHADER_RESOURCE` など。複数の、OR も、可能 |
+| `Usage` | `IMMUTABLE`（変更しない）、`DEFAULT`（GPU が読み書き）、`DYNAMIC`（CPU が毎フレーム書く）、`STAGING`（CPU が読み書き） |
+| `BindFlags` | `VERTEX_BUFFER`、`INDEX_BUFFER`、`CONSTANT_BUFFER`、`SHADER_RESOURCE` など。複数の OR も可能 |
 | `CPUAccessFlags` | `DYNAMIC` のとき `WRITE` |
-| `StructureByteStride` | 構造化バッファのとき、1 要素の大きさ |
+| `StructureByteStride` | 構造化バッファのとき 1 要素の大きさ |
 
-`Usage` の、選び方は、[Map, Unmap and UpdateSubresource](map-update.md) です。
+`Usage` の選び方は[Map, Unmap and UpdateSubresource](map-update.md) です。
 
 ## パイプラインにつなぐ
 
@@ -76,24 +76,24 @@ context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 | 引数 | 内容 |
 | --- | --- |
-| `StartSlot` | 入力スロット（0〜15）。入力レイアウトの、`InputSlot` と、対応 |
-| `NumBuffers` | つなぐ、バッファの数 |
-| `ppVertexBuffers` | バッファの、配列 |
-| `pStrides` | 各バッファの、1 頂点の、大きさ |
-| `pOffsets` | 各バッファの、使い始める、位置（バイト） |
+| `StartSlot` | 入力スロット（0〜15）。入力レイアウトの `InputSlot` と対応 |
+| `NumBuffers` | つなぐバッファの数 |
+| `ppVertexBuffers` | バッファの配列 |
+| `pStrides` | 各バッファの 1 頂点の大きさ |
+| `pOffsets` | 各バッファの使い始める位置（バイト） |
 
-`IASetPrimitiveTopology` で、頂点の、つなぎ方を、決めます。
+`IASetPrimitiveTopology` で頂点のつなぎ方を決めます。
 
 | 値 | 内容 |
 | --- | --- |
-| `TRIANGLELIST` | 3 頂点ごとに、三角形 1 つ（最も、普通） |
-| `TRIANGLESTRIP` | 前の 2 頂点を、共有して、三角形を、つなぐ |
-| `LINELIST` | 2 頂点ごとに、線 1 本（デバッグ描画） |
+| `TRIANGLELIST` | 3 頂点ごとに三角形 1 つ（最も普通） |
+| `TRIANGLESTRIP` | 前の 2 頂点を共有して三角形をつなぐ |
+| `LINELIST` | 2 頂点ごとに線 1 本（デバッグ描画） |
 | `POINTLIST` | 点（パーティクル） |
 
-## 複数のバッファに、分ける
+## 複数のバッファに分ける
 
-位置・法線・uv を、別々の、バッファに、分けて、持つこともできます（SoA）。
+位置・法線・uv を別々のバッファに分けて、持つこともできます（SoA）。
 
 ```cpp
 ID3D11Buffer* buffers[] = {position_buffer.Get(), normal_buffer.Get(), uv_buffer.Get()};
@@ -102,7 +102,7 @@ UINT offsets[] = {0, 0, 0};
 context->IASetVertexBuffers(0, 3, buffers, strides, offsets);
 ```
 
-シャドウ パスのように、位置だけを、使う描画では、位置のバッファだけを、つなぐと、読み込む、データが、減ります。入力レイアウトの、`InputSlot`（0、1、2）が、各バッファに、対応します。
+シャドウ パスのように位置だけを使う描画では位置のバッファだけをつなぐと読み込むデータが減ります。入力レイアウトの `InputSlot`（0、1、2）が各バッファに対応します。
 
 ## 描く
 
@@ -110,11 +110,11 @@ context->IASetVertexBuffers(0, 3, buffers, strides, offsets);
 context->Draw(3, 0);                                       // 頂点 3 つ、先頭（0 番）から
 ```
 
-インデックス バッファを、使う描画は、[Index Buffer](index-buffer.md) です。
+インデックス バッファを使う描画は[Index Buffer](index-buffer.md) です。
 
 ## 動的な頂点バッファ
 
-毎フレーム、頂点が変わる（パーティクル、UI の四角形）ときは、`DYNAMIC` で作り、`Map` で、書きます。
+毎フレーム、頂点が変わる（パーティクル、UI の四角形）ときは `DYNAMIC` で作り `Map` で、書きます。
 
 ```cpp
 desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -129,21 +129,21 @@ std::memcpy(mapped.pData, vertices.data(), sizeof(Vertex) * vertices.size());
 context->Unmap(dynamic_vertex_buffer.Get(), 0);
 ```
 
-`WRITE_DISCARD` は、GPU が、前のフレームを、読んでいても、待たず、新しい領域を、渡します（[Map, Unmap and UpdateSubresource](map-update.md)）。
+`WRITE_DISCARD` は GPU が前のフレームを読んでいても待たず新しい領域を渡します（[Map, Unmap and UpdateSubresource](map-update.md)）。
 
 ## よくあるミス
 
 ??? failure "三角形が、見えない（クリアの色のまま）"
-    頂点が、時計回り（CW）で、裏面として、捨てられている。ラスタライザー ステートの `FrontCounterClockwise = TRUE`（このサイトの規約）にするか、頂点の順序を、変える（[Rasterizer State](rasterizer-state.md)）。
+    頂点が時計回り（CW）で、裏面として捨てられている。ラスタライザー ステートの `FrontCounterClockwise = TRUE`（このサイトの規約）にするか頂点の順序を変える（[Rasterizer State](rasterizer-state.md)）。
 
-??? failure "頂点が、化けて、ぐちゃぐちゃに見える"
-    入力レイアウトの、フォーマットや、オフセットが、`Vertex` 構造体と、合っていない。ストライドが、間違っている。
+??? failure "頂点が化けて、ぐちゃぐちゃに見える"
+    入力レイアウトのフォーマットやオフセットが `Vertex` 構造体と合っていない。ストライドが間違っている。
 
-??? failure "`IMMUTABLE` なのに、`Map` しようとして、失敗する"
-    `IMMUTABLE` は、作成後に、変更できない。変えたいなら、`DYNAMIC`（毎フレーム）か、`DEFAULT` と `UpdateSubresource`。
+??? failure "`IMMUTABLE` なのに、`Map` しようとして失敗する"
+    `IMMUTABLE` は作成後に変更できない。変えたいなら `DYNAMIC`（毎フレーム）か `DEFAULT` と `UpdateSubresource`。
 
-??? failure "バッファの、一部だけを、描くつもりが、全部描かれる"
-    `Draw` の、第 2 引数（`StartVertexLocation`）と、`IASetVertexBuffers` の、オフセットの、使い分けを、混同している。
+??? failure "バッファの一部だけを描くつもりが全部描かれる"
+    `Draw` の第 2 引数（`StartVertexLocation`）と `IASetVertexBuffers` のオフセットの使い分けを混同している。
 
 ## これだけ覚える
 
@@ -151,8 +151,8 @@ context->Unmap(dynamic_vertex_buffer.Get(), 0);
     - [x] 頂点バッファ ＝ 頂点データの配列。`CreateBuffer` + `D3D11_BIND_VERTEX_BUFFER`
     - [x] 変わらないなら `IMMUTABLE`、毎フレームなら `DYNAMIC` + `Map`
     - [x] ストライド ＝ 1 頂点の大きさ。`IASetVertexBuffers` に渡す
-    - [x] 並びは、入力レイアウトで教える
-    - [x] 三角形は、反時計回りが表
+    - [x] 並びは入力レイアウトで教える
+    - [x] 三角形は反時計回りが表
 
 ## 関連ページ
 

@@ -6,14 +6,14 @@ tags:
 
 # Order-Independent Transparency (OIT)
 
-<strong>半透明は、ソートしないと崩れますが、入り組んだ形では、ソートで解決できません</strong>。<strong>OIT（Order-Independent Transparency）は、描く順序に依存せず、正しい半透明を作る手法の総称</strong>です。このセクションでは、問題の整理・Depth Peeling・PPLL・WBOIT・確率的透明・ハイブリッドを、1 つずつ別のページで説明します。
+<strong>半透明はソートしないと崩れますが、入り組んだ形ではソートで解決できません</strong>。<strong>OIT（Order-Independent Transparency）は、描く順序に依存せず正しい半透明を作る手法の総称</strong>です。このセクションでは問題の整理・Depth Peeling・PPLL・WBOIT・確率的透明・ハイブリッドを、1 つずつ別のページで説明します。
 
 ## 問題の整理
-<strong>画素ごとに、複数の半透明の層が重なる</strong>場合、<strong>正しい色は、奥から手前の順に合成した結果</strong>です。
+<strong>画素ごとに複数の半透明の層が重なる</strong>場合、<strong>正しい色は奥から手前の順に合成した結果</strong>です。
 
 <div class="formula">C = C₁α₁ + (1−α₁)(C₂α₂ + (1−α₂)(C₃α₃ + …))　（1 が最も手前）</div>
 
-<strong>この式は、層の順序に依存</strong>します。<strong>OIT は、「層の順序」を知らなくても、この結果を近似または再現</strong>します。
+<strong>この式は層の順序に依存</strong>します。<strong>OIT は「層の順序」を知らなくても、この結果を近似または再現</strong>します。
 
 | 方式 | 順序の扱い | 精度 | コスト | メモリ |
 | --- | --- | --- | --- | --- |
@@ -36,7 +36,7 @@ tags:
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] OIT は、順序に依存しない半透明
+    - [x] OIT は順序に依存しない半透明
     - [x] 正確さとコストのトレードオフ
 
 ## 参考

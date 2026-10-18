@@ -7,19 +7,19 @@ tags:
 
 # glTF の構造
 
-glTF のファイルは、**種類ごとの配列**（`nodes`、`meshes`、`accessors` ...）の集まりです。**配列の要素同士は、ポインタではなく、「配列の何番目か」という番号（インデックス）でつながっています**。この<strong>「参照は、インデックスで表す」</strong>という約束を理解すれば、glTF の構造は、ほぼ、分かります。このページは、**各配列の役割**と、**番号でつながる仕組み**を、図と一緒に説明します。ここで説明する構造は、そのまま、tinygltf の `tinygltf::Model` の構造です。
+glTF のファイルは**種類ごとの配列**（`nodes`、`meshes`、`accessors` ...）の集まりです。**配列の要素同士はポインタではなく、「配列の何番目か」という番号（インデックス）でつながっています**。この<strong>「参照はインデックスで表す」</strong>という約束を理解すれば、glTF の構造はほぼ分かります。このページは**各配列の役割**と**番号でつながる仕組み**を図と一緒に説明します。ここで説明する構造はそのまま tinygltf の `tinygltf::Model` の構造です。
 
 !!! tip "ポイント"
-    - glTF の中の<strong>「参照」は、すべて「配列の番号（インデックス）」</strong>。<strong>ポインタでも、名前でもない</strong>。
-    - たとえば、<strong>`"mesh": 0`</strong> は、「<strong>`meshes` 配列の、0 番目</strong>」という意味。
+    - glTF の中の<strong>「参照」は、すべて「配列の番号（インデックス）」</strong>。<strong>ポインタでも名前でもない</strong>。
+    - たとえば <strong>`"mesh": 0`</strong> は「<strong>`meshes` 配列の 0 番目</strong>」という意味。
     - <strong>どの配列の番号なのかは、キーの名前で決まっている</strong>（`mesh` なら `meshes`、`material` なら `materials`）。
-    - <strong>データ本体は、`buffers` → `bufferViews` → `accessors` の 3 段階</strong>で、「どこを、どう読むか」を指定する。
-    - <strong>番号は 0 始まり</strong>。<strong>配列の順番を変えると、番号の参照が、すべてずれる</strong>（書き換えるときは、全部直す）。
-    - tinygltf では、<strong>`model.meshes[i]`、`model.accessors[j]` のように、番号で、そのまま配列を引く</strong>。
+    - <strong>データ本体は `buffers` → `bufferViews` → `accessors` の 3 段階</strong>で、「どこをどう読むか」を指定する。
+    - <strong>番号は 0 始まり</strong>。<strong>配列の順番を変えると番号の参照が、すべてずれる</strong>（書き換えるときは全部直す）。
+    - tinygltf では <strong>`model.meshes[i]`、`model.accessors[j]` のように番号でそのまま配列を引く</strong>。
 
 ## 参照は「番号」で表す
 
-glTF の要素は、**配列の中に並んでいます**。ほかの要素を指したいときは、**その要素が、配列の何番目かを書く**だけです。
+glTF の要素は**配列の中に並んでいます**。ほかの要素を指したいときは**その要素が、配列の何番目かを書く**だけです。
 
 <svg class="fig" viewBox="0 0 665 300" role="img" aria-label="配列の番号による参照">
 <defs><marker id="sa" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
@@ -47,15 +47,15 @@ glTF の要素は、**配列の中に並んでいます**。ほかの要素を�
 
 | 理由 | 説明 |
 | --- | --- |
-| **ファイルに書ける** | ポインタ（アドレス）は、ファイルに保存しても意味がない。**番号なら、そのまま保存できる** |
-| **読み込み側で、自由に配置できる** | メモリのどこに置くかは、**読み込む側が決める**。番号は、**配列の位置**さえ分かれば、引ける |
-| **共有しやすい** | **1 つのメッシュを、複数のノードから参照**（インスタンス）できる。**同じ番号を書く**だけ |
+| **ファイルに書ける** | ポインタ（アドレス）は、ファイルに保存しても意味がない。**番号ならそのまま保存できる** |
+| **読み込み側で自由に配置できる** | メモリのどこに置くかは、**読み込む側が決める**。番号は**配列の位置**さえ分かれば、引ける |
+| **共有しやすい** | **1 つのメッシュを複数のノードから参照**（インスタンス）できる。**同じ番号を書く**だけ |
 | **コンパクト** | 数字 1 つで済む |
 | **どの言語でも読める** | JSON の数字なので、**言語に依存しない** |
 
-[ハンドル](../../engine/handle.md)や、[ポインタをインデックスにする](../../optimize/data-layout.md)のと、同じ考え方です。
+[ハンドル](../../engine/handle.md)や[ポインタをインデックスにする](../../optimize/data-layout.md)のと同じ考え方です。
 
-### 番号は、配列の何番目か（0 始まり）
+### 番号は配列の何番目か（0 始まり）
 
 ```json
 {
@@ -69,7 +69,7 @@ glTF の要素は、**配列の中に並んでいます**。ほかの要素を�
 | `nodes[1]` の `"mesh": 0` | `meshes` 配列の **0 番目**（`Enemy`）を使う |
 | `-1`（tinygltf の既定値） | **参照なし**（その要素は、使わない） |
 
-**tinygltf では、「参照なし」は `-1` で表されます**（`int` の既定値が `-1`）。**使う前に、`-1` かどうかを必ず調べます**。
+**tinygltf では「参照なし」は `-1` で表されます**（`int` の既定値が `-1`）。**使う前に `-1` かどうかを必ず調べます**。
 
 ```cpp
 const tinygltf::Node& node = model.nodes[1];
@@ -78,15 +78,15 @@ if (node.mesh >= 0) {
 }
 ```
 
-## 誰が、誰を参照しているか（全体の参照図）
+## 誰が誰を参照しているか（全体の参照図）
 
-**どの配列の、どのフィールドが、どの配列を指しているか**を、1 枚にまとめた図です。
+**どの配列のどのフィールドが、どの配列を指しているか**を 1 枚にまとめた図です。
 
 <svg class="fig" viewBox="0 0 760 470" role="img" aria-label="glTF の要素が、誰を参照しているか"><defs><marker id="rf" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="18" class="fig-title">矢印の元が、「番号」を持っている側。矢印の先が、その番号が指す配列</text><rect x="20" y="40" width="120" height="56" rx="6" fill="rgba(76,139,245,0.22)" stroke="currentColor" stroke-width="2"/><text x="30" y="68" style="font-weight:700">scenes</text><rect x="200" y="40" width="120" height="56" rx="6" fill="rgba(76,139,245,0.22)" stroke="currentColor" stroke-width="2"/><text x="210" y="68" style="font-weight:700">nodes</text><rect x="390" y="40" width="120" height="56" rx="6" fill="rgba(46,160,67,0.22)" stroke="currentColor" stroke-width="2"/><text x="400" y="68" style="font-weight:700">meshes</text><rect x="590" y="40" width="130" height="56" rx="6" fill="rgba(229,170,40,0.25)" stroke="currentColor" stroke-width="2"/><text x="600" y="68" style="font-weight:700">accessors</text><rect x="20" y="170" width="120" height="56" rx="6" fill="rgba(76,139,245,0.22)" stroke="currentColor" stroke-width="2"/><text x="30" y="198" style="font-weight:700">cameras</text><rect x="200" y="170" width="120" height="56" rx="6" fill="rgba(76,139,245,0.22)" stroke="currentColor" stroke-width="2"/><text x="210" y="198" style="font-weight:700">skins</text><rect x="390" y="170" width="120" height="56" rx="6" fill="rgba(229,72,77,0.2)" stroke="currentColor" stroke-width="2"/><text x="400" y="198" style="font-weight:700">materials</text><rect x="590" y="170" width="130" height="56" rx="6" fill="rgba(229,170,40,0.25)" stroke="currentColor" stroke-width="2"/><text x="600" y="198" style="font-weight:700">bufferViews</text><rect x="20" y="300" width="120" height="56" rx="6" fill="rgba(76,139,245,0.22)" stroke="currentColor" stroke-width="2"/><text x="30" y="328" style="font-weight:700">animations</text><rect x="390" y="300" width="120" height="56" rx="6" fill="rgba(229,72,77,0.2)" stroke="currentColor" stroke-width="2"/><text x="400" y="328" style="font-weight:700">textures</text><rect x="590" y="300" width="130" height="56" rx="6" fill="rgba(229,170,40,0.25)" stroke="currentColor" stroke-width="2"/><text x="600" y="328" style="font-weight:700">buffers</text><rect x="390" y="410" width="120" height="48" rx="6" fill="rgba(229,72,77,0.2)" stroke="currentColor" stroke-width="2"/><text x="400" y="438" style="font-weight:700">images</text><rect x="590" y="410" width="130" height="48" rx="6" fill="rgba(229,72,77,0.2)" stroke="currentColor" stroke-width="2"/><text x="600" y="438" style="font-weight:700">samplers</text><line x1="140" y1="68" x2="198" y2="68" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="142" y="60" style="font-size:11px">.nodes[]</text><line x1="320" y1="68" x2="388" y2="68" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="334" y="60" style="font-size:11px">.mesh</text><line x1="510" y1="60" x2="588" y2="60" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="514" y="52" style="font-size:11px">.attributes</text><line x1="510" y1="78" x2="588" y2="78" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="520" y="92" style="font-size:11px">.indices</text><line x1="260" y1="170" x2="260" y2="98" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="264" y="140" style="font-size:11px">.joints[]</text><line x1="210" y1="96" x2="100" y2="168" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="110" y="128" style="font-size:11px">.camera</text><line x1="450" y1="96" x2="450" y2="168" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="455" y="134" style="font-size:11px">.material</text><line x1="655" y1="96" x2="655" y2="168" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="660" y="134" style="font-size:11px">.bufferView</text><line x1="655" y1="226" x2="655" y2="298" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="660" y="266" style="font-size:11px">.buffer</text><line x1="450" y1="226" x2="450" y2="298" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="455" y="262" style="font-size:11px">.baseColorTexture.index など</text><line x1="450" y1="356" x2="450" y2="408" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="455" y="386" style="font-size:11px">.source</text><line x1="510" y1="340" x2="590" y2="420" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)" /><text x="552" y="372" style="font-size:11px">.sampler</text><path d="M 20 330 L 8 330 L 8 118 L 230 118 L 230 98" fill="none" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)"/><text x="150" y="316" style="font-size:11px">.channels[].target.node</text><path d="M 300 40 C 300 14 240 14 240 38" fill="none" stroke="currentColor" stroke-width="1.8" marker-end="url(#rf)"/><text x="224" y="32" style="font-size:11px">.children[]</text><text x="20" y="400" style="font-size:11px">そのほか：skins.inverseBindMatrices → accessors　／　animations.samplers[].input・output → accessors</text></svg>
 
 ### 実際の参照の連なり（キャラクターの例）
 
-**1 体のキャラクターが、どの番号をたどって、数値データまで行きつくか**を、ツリーで示します。`→` の先が、その番号が指す要素です。
+**1 体のキャラクターがどの番号をたどって、数値データまで行きつくか**をツリーで示します。`→` の先がその番号が指す要素です。
 
 <ul class="reftree">
 <li><code>scene: 0</code> → <b>scenes[0]</b>
@@ -140,7 +140,7 @@ if (node.mesh >= 0) {
 </li>
 </ul>
 
-**読み方のコツ**：<strong>どの行も、「フィールド名: 番号 → その番号の配列の要素」</strong>の形です。**`buffer` の行まで来たら、数値データ（バイナリ）の実体に着きます**。
+**読み方のコツ**：<strong>どの行も「フィールド名: 番号 → その番号の配列の要素」</strong>の形です。**`buffer` の行まで来たら数値データ（バイナリ）の実体に着きます**。
 
 | 参照を持つ側 | フィールド | 指す先 |
 | --- | --- | --- |
@@ -155,7 +155,7 @@ if (node.mesh >= 0) {
 | **animations** | `channels[].target.node` / `samplers[].input・output` | nodes / accessors |
 | **images**（`.glb` 内） | `bufferView` | bufferViews |
 
-**参照を、持たない側**（**images（外部ファイル時）・samplers・buffers・cameras**）が、**行き止まり**です。
+**参照を持たない側**（**images（外部ファイル時）・samplers・buffers・cameras**）が、**行き止まり**です。
 
 ## 全体の地図
 
@@ -183,7 +183,7 @@ if (node.mesh >= 0) {
 
 ## 実際のファイルを読んでみる
 
-glTF の最も小さな例（三角形 1 つ）です。**番号で、どうつながっているか**を、追いかけます。
+glTF の最も小さな例（三角形 1 つ）です。**番号でどうつながっているか**を追いかけます。
 
 ```json
 {
@@ -204,25 +204,25 @@ glTF の最も小さな例（三角形 1 つ）です。**番号で、どうつ�
 }
 ```
 
-### 番号を、順に追いかける
+### 番号を順に追いかける
 
 <svg class="fig flow" viewBox="0 0 1052 196" role="img" aria-label="三角形の頂点の位置を探す：番号をたどって、バイナリのどこかを見つける"><defs><marker id="fl5299" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">三角形の頂点の位置を探す：番号をたどって、バイナリのどこかを見つける</text><line x1="126.0" y1="64.0" x2="195.5" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl5299)"/><line x1="381.5" y1="64.0" x2="516.5" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl5299)"/><line x1="671.5" y1="64.0" x2="818.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl5299)"/><line x1="911.0" y1="87.0" x2="911.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl5299)"/><text x="911.0" y="100.0" text-anchor="middle" style="font-size:12px">POSITION</text><line x1="795.0" y1="148.0" x2="737.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl5299)"/><line x1="451.0" y1="148.0" x2="393.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl5299)"/><rect x="28.0" y="44.0" width="95" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="75.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">scene = 0</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="198.5" y="44.0" width="180" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="288.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">scenes[0] .nodes=[0]</text><circle cx="200.5" cy="46.0" r="10" fill="#2ea043"/><text x="200.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="519.5" y="44.0" width="149" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="594.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[0] .mesh=0</text><circle cx="521.5" cy="46.0" r="10" fill="#e5a828"/><text x="521.5" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="821.0" y="44.0" width="180" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="911.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">meshes[0] POSITION=1</text><circle cx="823.0" cy="46.0" r="10" fill="#e5484d"/><text x="823.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="798.0" y="128.0" width="226" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="911.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">accessors[1] .bufferView=1</text><circle cx="800.0" cy="130.0" r="10" fill="#9664e6"/><text x="800.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="454.0" y="128.0" width="280" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="594.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">bufferViews[1] .buffer=0 offset=8</text><circle cx="456.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="456.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">6</text><rect x="187.0" y="128.0" width="203" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="288.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">buffers[0] triangle.bin</text><circle cx="189.0" cy="130.0" r="10" fill="#2ea043"/><text x="189.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">7</text></svg>
 
 | 手順 | 見るところ | 値 | 意味 |
 | --- | --- | --- | --- |
-| 1 | `scene` | `0` | 表示する**シーン**は、`scenes[0]` |
-| 2 | `scenes[0].nodes` | `[0]` | シーンの**ノード**は、`nodes[0]` |
-| 3 | `nodes[0].mesh` | `0` | そのノードの**メッシュ**は、`meshes[0]` |
-| 4 | `meshes[0].primitives[0].attributes.POSITION` | `1` | **頂点の位置**は、`accessors[1]` |
+| 1 | `scene` | `0` | 表示する**シーン**は `scenes[0]` |
+| 2 | `scenes[0].nodes` | `[0]` | シーンの**ノード**は `nodes[0]` |
+| 3 | `nodes[0].mesh` | `0` | そのノードの**メッシュ**は `meshes[0]` |
+| 4 | `meshes[0].primitives[0].attributes.POSITION` | `1` | **頂点の位置**は `accessors[1]` |
 | 5 | `accessors[1].bufferView` | `1` | そのデータは、`bufferViews[1]` の範囲 |
-| 6 | `bufferViews[1].buffer` | `0` | その範囲は、`buffers[0]`（`triangle.bin`）の、**8 バイト目から 36 バイト** |
-| 7 | `meshes[0].primitives[0].indices` | `0` | <strong>インデックス（三角形の番号リスト）</strong>は、`accessors[0]` |
+| 6 | `bufferViews[1].buffer` | `0` | その範囲は、`buffers[0]`（`triangle.bin`）の**8 バイト目から 36 バイト** |
+| 7 | `meshes[0].primitives[0].indices` | `0` | <strong>インデックス（三角形の番号リスト）</strong>は `accessors[0]` |
 
-**番号をたどるだけで、「どのファイルの、何バイト目から、何を読むか」が、分かります**。
+**番号をたどるだけで「どのファイルの何バイト目から、何を読むか」が分かります**。
 
 ## データ本体：buffers・bufferViews・accessors
 
-**頂点やインデックスなどの数値**は、**バイナリ**で保存されています。それを取り出すために、**3 段階**で指定します。
+**頂点やインデックスなどの数値**は、**バイナリ**で保存されています。それを取り出すために**3 段階**で指定します。
 
 <svg class="fig" viewBox="0 0 640 300" role="img" aria-label="buffer・bufferView・accessor の関係">
 <defs><marker id="sb" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
@@ -250,7 +250,7 @@ glTF の最も小さな例（三角形 1 つ）です。**番号で、どうつ�
 | --- | --- | --- |
 | **buffer** | **バイナリ全体**（`.bin` ファイル、または `.glb` 内のデータ） | `uri`（ファイル名）、`byteLength` |
 | **bufferView** | buffer の**ある範囲** | `buffer`（番号）、`byteOffset`、`byteLength`、`byteStride`、`target` |
-| **accessor** | bufferView の中の、<strong>「どう読むか」</strong> | `bufferView`（番号）、`byteOffset`、`componentType`、`count`、`type` |
+| **accessor** | bufferView の中の <strong>「どう読むか」</strong> | `bufferView`（番号）、`byteOffset`、`componentType`、`count`、`type` |
 
 ### accessor が持つ情報
 
@@ -259,15 +259,15 @@ glTF の最も小さな例（三角形 1 つ）です。**番号で、どうつ�
 | **`componentType`** | **1 つの数の型** | `5126`＝float、`5123`＝unsigned short、`5125`＝unsigned int、`5121`＝unsigned byte |
 | **`type`** | **まとまりの種類** | `"SCALAR"`（1 つ）、`"VEC2"`、`"VEC3"`、`"VEC4"`、`"MAT4"` |
 | **`count`** | **要素の個数** | 頂点の数 |
-| **`byteOffset`** | bufferView の先頭からの、ずれ | `0`、`12` |
-| `normalized` | 整数を、0〜1 に変換して読むか | UV や色（`unsigned byte`）に使う |
+| **`byteOffset`** | bufferView の先頭からのずれ | `0`、`12` |
+| `normalized` | 整数を 0〜1 に変換して読むか | UV や色（`unsigned byte`）に使う |
 | `min` / `max` | 値の範囲 | **POSITION は必須**（境界の計算に使える） |
 
-<strong>「`VEC3` の `float` が、`count` 個」</strong>と指定すれば、**頂点の位置の並び**が、取り出せます。
+<strong>「`VEC3` の `float` が `count` 個」</strong>と指定すれば、**頂点の位置の並び**が取り出せます。
 
 ### byteStride（インターリーブ）
 
-**位置・法線・UV を、1 頂点ぶんずつ交互に並べる**（インターリーブ）と、**頂点バッファそのまま**で GPU に渡せます。
+**位置・法線・UV を 1 頂点ぶんずつ交互に並べる**（インターリーブ）と、**頂点バッファそのまま**で GPU に渡せます。
 
 ```text
 通常：  [位置×N] [法線×N] [UV×N]           （項目ごとに、まとまる）
@@ -276,14 +276,14 @@ glTF の最も小さな例（三角形 1 つ）です。**番号で、どうつ�
 
 | 項目 | 説明 |
 | --- | --- |
-| **`byteStride` が無い** | 要素は、**隙間なく**並ぶ |
+| **`byteStride` が無い** | 要素は**隙間なく**並ぶ |
 | **`byteStride` がある** | **次の要素までの距離**。要素の大きさより大きい |
 
-tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔**を返します（隙間なしなら、要素のサイズ）。
+tinygltf では**`Accessor::ByteStride(bufferView)`** が、**実際の間隔**を返します（隙間なしなら要素のサイズ）。
 
 ## シーンとノード
 
-**ノード**は、<strong>3D 空間の中の、1 つの「物」</strong>です。**親子関係**を持ち、**位置・回転・拡大**を持ちます。
+**ノード**は <strong>3D 空間の中の 1 つの「物」</strong>です。**親子関係**を持ち**位置・回転・拡大**を持ちます。
 
 ```json
 "nodes": [
@@ -297,23 +297,23 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 
 | キー | 意味 |
 | --- | --- |
-| **`children`** | **子ノードの番号**のリスト。**子の位置・回転は、親からの相対値** |
+| **`children`** | **子ノードの番号**のリスト。**子の位置・回転は親からの相対値** |
 | **`mesh`** | このノードに**表示するメッシュ**の番号 |
 | **`translation`** | 位置 `[x, y, z]` |
 | **`rotation`** | 回転 `[x, y, z, w]`（クォータニオン） |
 | **`scale`** | 拡大 `[x, y, z]` |
-| **`matrix`** | 上の 3 つの代わりに、**4×4 行列**（16 個、列優先）で指定 |
-| `skin` | **ボーン**を使うとき、スキンの番号 |
-| `camera` | カメラを使うとき、カメラの番号 |
+| **`matrix`** | 上の 3 つの代わりに**4×4 行列**（16 個、列優先）で指定 |
+| `skin` | **ボーン**を使うときスキンの番号 |
+| `camera` | カメラを使うときカメラの番号 |
 
 !!! warning "TRS と matrix は、どちらか一方"
-    `translation` / `rotation` / `scale` と `matrix` は、**どちらか一方**で指定されます。tinygltf では、**`matrix` が空かどうかで、判断**します（[データの取り出し方](reading.md)）。
+    `translation` / `rotation` / `scale` と `matrix` は、**どちらか一方**で指定されます。tinygltf では**`matrix` が空かどうかで、判断**します（[データの取り出し方](reading.md)）。
 
-**`scenes[i].nodes`** は、**そのシーンの根（ルート）のノード**の番号です。**根から `children` をたどると、全ノードに到達**します。
+**`scenes[i].nodes`** は**そのシーンの根（ルート）のノード**の番号です。**根から `children` をたどると全ノードに到達**します。
 
 ## メッシュとプリミティブ
 
-**`meshes` の 1 つ**は、<strong>複数の「プリミティブ」</strong>を持ちます。**プリミティブ**は、**1 つのマテリアルで描く、三角形の集まり**です。
+**`meshes` の 1 つ**は <strong>複数の「プリミティブ」</strong>を持ちます。**プリミティブ**は**1 つのマテリアルで描く、三角形の集まり**です。
 
 ```json
 "meshes": [
@@ -340,18 +340,18 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 | --- | --- | --- |
 | **`POSITION`** | 位置 | `VEC3` float |
 | **`NORMAL`** | 法線 | `VEC3` float |
-| **`TANGENT`** | 接線（法線マップ用）。<strong>w は、従接線の向き（±1）</strong> | `VEC4` float |
+| **`TANGENT`** | 接線（法線マップ用）。<strong>w は従接線の向き（±1）</strong> | `VEC4` float |
 | **`TEXCOORD_0`** | UV（1 組目） | `VEC2` |
 | `TEXCOORD_1` | UV（2 組目。ライトマップなど） | `VEC2` |
 | `COLOR_0` | 頂点カラー | `VEC3` / `VEC4` |
 | **`JOINTS_0`** | **影響を受けるボーン**の番号（4 つ） | `VEC4` unsigned byte/short |
 | **`WEIGHTS_0`** | **ボーンの重み**（4 つ。合計 1） | `VEC4` float |
 
-**このプリミティブごとに、1 回の描画**（`DrawIndexed`）になります。**マテリアルが 2 つなら、プリミティブは 2 つ**です（[メッシュとテクスチャ](../../3d/mesh-textures.md)）。
+**このプリミティブごとに 1 回の描画**（`DrawIndexed`）になります。**マテリアルが 2 つならプリミティブは 2 つ**です（[メッシュとテクスチャ](../../3d/mesh-textures.md)）。
 
 ## マテリアル・テクスチャ・画像・サンプラー
 
-**マテリアル**は、**質感の設定**です。**テクスチャ**を、番号で参照します。
+**マテリアル**は**質感の設定**です。**テクスチャ**を番号で参照します。
 
 ```json
 "materials": [
@@ -394,7 +394,7 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 | **マテリアル → テクスチャ** | `{ "index": 0 }` ＝ `textures[0]` |
 | **テクスチャ → 画像・サンプラー** | `source` ＝ `images[…]`、`sampler` ＝ `samplers[…]` |
 
-**同じ画像を、別のサンプラーで使う**ときは、`textures` の要素が増えます（画像は 1 つ、テクスチャが 2 つ）。
+**同じ画像を別のサンプラーで使う**ときは、`textures` の要素が増えます（画像は 1 つテクスチャが 2 つ）。
 
 ### PBR のテクスチャ
 
@@ -406,13 +406,13 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 | `occlusionTexture` | **R ＝ AO**（metallicRoughness と、**同じ画像**を使うことが多い） | リニア |
 | `emissiveTexture` | 自己発光 | sRGB |
 
-**色空間を、間違えない**ようにします（[PBR](../../3d/pbr.md#色空間とトーンマッピング)）。
+**色空間を間違えない**ようにします（[PBR](../../3d/pbr.md#色空間とトーンマッピング)）。
 
 ## スキンとアニメーション
 
 ### スキン（ボーン）
 
-**ボーンは、普通のノードです**。**スキン**は、<strong>「どのノードを、ボーンとして使うか」の一覧</strong>を持ちます。
+**ボーンは普通のノードです**。**スキン**は <strong>「どのノードをボーンとして使うか」の一覧</strong>を持ちます。
 
 ```json
 "skins": [
@@ -422,17 +422,17 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 
 | キー | 意味 |
 | --- | --- |
-| **`joints`** | **ボーンになるノードの番号**のリスト。**順番が、`JOINTS_0` の番号に対応** |
-| **`inverseBindMatrices`** | **逆バインド行列**の accessor の番号（`MAT4`）。**ボーンごとに 1 つ**（[スキニング](../../3d/skinning-animation.md)の、オフセット行列） |
+| **`joints`** | **ボーンになるノードの番号**のリスト。**順番が `JOINTS_0` の番号に対応** |
+| **`inverseBindMatrices`** | **逆バインド行列**の accessor の番号（`MAT4`）。**ボーンごとに 1 つ**（[スキニング](../../3d/skinning-animation.md)のオフセット行列） |
 | `skeleton` | ボーンの根のノードの番号 |
 
-<strong>頂点の `JOINTS_0` の値 `2` は、「`skins[0].joints[2]` のボーン」</strong>という意味です（**ノードの番号そのものではなく、`joints` 配列の位置**）。ここも、**番号の、もう 1 段の参照**です。
+<strong>頂点の `JOINTS_0` の値 `2` は「`skins[0].joints[2]` のボーン」</strong>という意味です（**ノードの番号そのものではなく、`joints` 配列の位置**）。ここも**番号のもう 1 段の参照**です。
 
 <svg class="fig flow" viewBox="0 0 634 112" role="img" aria-label="頂点のボーン番号は、joints 配列の位置。その先が、ノードの番号"><defs><marker id="fl7390" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">頂点のボーン番号は、joints 配列の位置。その先が、ノードの番号</text><line x1="149.0" y1="64.0" x2="207.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7390)"/><text x="178.0" y="58.0" text-anchor="middle" style="font-size:12px">joints の 2 番目</text><line x1="408.0" y1="64.0" x2="466.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7390)"/><text x="437.0" y="58.0" text-anchor="middle" style="font-size:12px">ノード番号</text><rect x="28.0" y="44.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="87.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">JOINTS 0 = 2</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="210.0" y="44.0" width="195" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="307.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">skins[0].joints[2] = 5</text><circle cx="212.0" cy="46.0" r="10" fill="#2ea043"/><text x="212.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="469.0" y="44.0" width="137" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="537.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[5] （ボーン）</text><circle cx="471.0" cy="46.0" r="10" fill="#e5a828"/><text x="471.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 ### アニメーション
 
-**アニメーション**は、<strong>「どのノードの、何を、どう変えるか」</strong>です。
+**アニメーション**は <strong>「どのノードの何をどう変えるか」</strong>です。
 
 ```json
 "animations": [
@@ -455,7 +455,7 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 | **`samplers[j].output`** | **値**の accessor の番号（`VEC3` / `VEC4`） |
 | `interpolation` | 補間：`LINEAR`、`STEP`、`CUBICSPLINE` |
 
-**時刻の配列と、値の配列は、同じ数**で、**時刻 `input[k]` のときの値が `output[k]`** です（[スキニング](../../3d/skinning-animation.md)の、キーフレーム）。
+**時刻の配列と値の配列は同じ数**で、**時刻 `input[k]` のときの値が `output[k]`** です（[スキニング](../../3d/skinning-animation.md)のキーフレーム）。
 
 ## 構造の覚え方
 
@@ -466,10 +466,10 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 | **メッシュの形は** | `meshes` → `primitives` → `attributes` / `indices`（**accessor の番号**） |
 | **数値の実体は** | `accessors` → `bufferViews` → `buffers`（**3 段階**で、番号をたどる） |
 | **見た目は** | `primitives[].material` → `materials` → `textures` → `images` + `samplers` |
-| **ボーンは** | `skins[].joints`（**ノードの番号の一覧**）、頂点の `JOINTS_0` は、**joints の位置** |
+| **ボーンは** | `skins[].joints`（**ノードの番号の一覧**）、頂点の `JOINTS_0` は**joints の位置** |
 | **動きは** | `animations` → `channels`（**どのノードを**）、`samplers`（**時刻と値の accessor**） |
 
-**すべて、「配列の何番目か」で、つながっています**。
+**すべて「配列の何番目か」で、つながっています**。
 
 <!-- fig:gltf-chain:begin -->
 
@@ -520,35 +520,35 @@ tinygltf では、**`Accessor::ByteStride(bufferView)`** が、**実際の間隔
 
 ## よくあるミス
 
-??? failure "番号を、別の配列の番号と取り違える"
-    `nodes[1].mesh = 0` は、**`meshes[0]`**です。`nodes[0]` ではありません。**キー名で、配列を判断**します。
+??? failure "番号を別の配列の番号と取り違える"
+    `nodes[1].mesh = 0` は**`meshes[0]`**です。`nodes[0]` ではありません。**キー名で配列を判断**します。
 
-??? failure "`-1`（参照なし）を調べず、`model.meshes[-1]` を引く"
-    範囲外アクセスです。**使う前に、`>= 0` を確認**します。
+??? failure "`-1`（参照なし）を調べず `model.meshes[-1]` を引く"
+    範囲外アクセスです。**使う前に `>= 0` を確認**します。
 
-??? failure "`JOINTS_0` の値を、ノード番号として使う"
+??? failure "`JOINTS_0` の値をノード番号として使う"
     **`skins[…].joints[値]`** を引いた先が、ノード番号です。
 
 ??? failure "`byteStride` を無視して、隙間なしで読む"
-    **インターリーブ**のデータは、`byteStride` ごとに、次の要素が来ます。
+    **インターリーブ**のデータは、`byteStride` ごとに次の要素が来ます。
 
-??? failure "accessor の `byteOffset` と、bufferView の `byteOffset` の、足し忘れ"
+??? failure "accessor の `byteOffset` と bufferView の `byteOffset` の、足し忘れ"
     **データの先頭 ＝ buffer の先頭 ＋ bufferView.byteOffset ＋ accessor.byteOffset** です。
 
 ??? failure "配列の順番を入れ替えて、参照が壊れる"
-    **番号の参照は、すべて、ずれます**。入れ替えたら、**参照している場所も、すべて書き換え**ます（ツールを使う）。
+    **番号の参照はすべて、ずれます**。入れ替えたら**参照している場所もすべて書き換え**ます（ツールを使う）。
 
-??? failure "1 つのメッシュに、複数のプリミティブがあることを忘れる"
-    **マテリアルごとに、プリミティブが分かれます**。`primitives[0]` だけを読むと、**一部が表示されません**。
+??? failure "1 つのメッシュに複数のプリミティブがあることを忘れる"
+    **マテリアルごとにプリミティブが分かれます**。`primitives[0]` だけを読むと**一部が表示されません**。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] glTF は<strong>種類ごとの配列</strong>。<strong>参照は、すべて「配列の番号（0 始まり）」</strong>
-    - [x] <strong>どの配列かは、キー名で決まる</strong>（`mesh` → `meshes`、`material` → `materials`）。<strong>`-1` は、参照なし</strong>
-    - [x] <strong>データ本体は、buffer → bufferView → accessor の 3 段階</strong>。<strong>accessor が「どう読むか」</strong>
-    - [x] <strong>ノードは親子の木</strong>。<strong>メッシュは、プリミティブ（マテリアルごと）の集まり</strong>
-    - [x] <strong>マテリアル → texture → image + sampler</strong>。<strong>ボーンの番号（`JOINTS_0`）は、`joints` の位置</strong>
+    - [x] glTF は<strong>種類ごとの配列</strong>。<strong>参照はすべて「配列の番号（0 始まり）」</strong>
+    - [x] <strong>どの配列かはキー名で決まる</strong>（`mesh` → `meshes`、`material` → `materials`）。<strong>`-1` は参照なし</strong>
+    - [x] <strong>データ本体は buffer → bufferView → accessor の 3 段階</strong>。<strong>accessor が「どう読むか」</strong>
+    - [x] <strong>ノードは親子の木</strong>。<strong>メッシュはプリミティブ（マテリアルごと）の集まり</strong>
+    - [x] <strong>マテリアル → texture → image + sampler</strong>。<strong>ボーンの番号（`JOINTS_0`）は `joints` の位置</strong>
     - [x] <strong>アニメーションは、channel（どのノード）＋ sampler（時刻と値の accessor）</strong>
 
 ## 関連ページ

@@ -6,16 +6,16 @@ tags:
 
 # Cloud Raymarching
 
-<strong>視線に沿って少しずつ進み、各点で密度と光を計算して、足し合わせる</strong>のが<strong>レイマーチ</strong>です。ステップ数が品質とコストを決めるので、工夫が必要です。このページでは、レイマーチを説明します。
+<strong>視線に沿って少しずつ進み各点で密度と光を計算して、足し合わせる</strong>のが<strong>レイマーチ</strong>です。ステップ数が品質とコストを決めるので、工夫が必要です。このページではレイマーチを説明します。
 
 !!! tip "ポイント"
     - 視線に沿って進み、密度を足す。
-    - 雲に入るまでは、大きな歩幅。
+    - 雲に入るまでは大きな歩幅。
     - ジッタで開始位置をずらし、縞を消す。
     - 透過率が低くなったら、打ち切る。
 
 ## レイマーチ
-<strong>視線に沿って、雲の層の中を一定のステップで進み、各点の密度から光を積みます</strong>。
+<strong>視線に沿って雲の層の中を一定のステップで進み、各点の密度から光を積みます</strong>。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="雲のレイマーチ">
 <text x="20" y="24" class="fig-title">視線に沿って進み、各点で「太陽に向けても少し進んで」光の量を調べる</text>
@@ -37,7 +37,7 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
   float3 scattered = 0;
 ```
 
-レイの、区間を、`kStepCount` 個に、分け、歩幅を、決めます。開始位置を、ブルー ノイズで、ずらして、縞を、ノイズに、変えます。`transmittance`（透過率）は、1 から、減らしていき、`scattered` に、散乱光を、貯めます。
+レイの区間を `kStepCount` 個に分け歩幅を、決めます。開始位置をブルー ノイズでずらして縞を、ノイズに変えます。`transmittance`（透過率）は 1 から減らしていき `scattered` に、散乱光を貯めます。
 
 ```hlsl
   for (int i = 0; i < kStepCount; ++i) {
@@ -48,7 +48,7 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
     if (density <= 0.001) continue;
 ```
 
-1 歩ごとの、位置を、求め、そこの、雲の、密度を、調べます。雲の外（密度が、ほぼ 0）は、飛ばします。高さの割合 `height_fraction` は、雲の層の、中で、どの高さかを、表します（0 が、底、1 が、頂上）。
+1 歩ごとの位置を求めそこの雲の密度を、調べます。雲の外（密度がほぼ 0）は飛ばします。高さの割合 `height_fraction` は雲の層の中で、どの高さかを表します（0 が底、1 が頂上）。
 
 ```hlsl
     float light_optical_depth = LightMarch(position, sun_dir);
@@ -58,7 +58,7 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
     float3 ambient = ambient_color * lerp(0.4, 1.0, height_fraction);
 ```
 
-太陽の光を、求めます。その位置から、太陽へ、短く、もう一度、進んで、光学的な厚さを、測り、ビア・ランベルトの法則で、減衰させます。粉砂糖効果（雲の、縁が、暗くなる）と、位相関数（太陽の、向きによる、明るさの違い）を、掛け、空からの、環境光を、足します。
+太陽の光を求めます。その位置から太陽へ短くもう一度、進んで光学的な厚さを測りビア・ランベルトの法則で、減衰させます。粉砂糖効果（雲の縁が暗くなる）と、位相関数（太陽の向きによる明るさの違い）を掛け、空からの環境光を足します。
 
 ```hlsl
     float3 luminance = (sun_light * phase + ambient) * density * scattering_coeff;
@@ -66,7 +66,7 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
     float3 integrated = (luminance - luminance * step_transmittance) / max(density * extinction, 1e-5);
 ```
 
-この区間で、散乱される光を、求めます。区間の中で、密度が、一定と、みなし、解析的に、積分した、式で、歩幅が、大きくても、安定します。
+この区間で散乱される光を求めます。区間の中で密度が一定とみなし、解析的に積分した式で歩幅が大きくても、安定します。
 
 ```hlsl
     scattered += integrated * transmittance;
@@ -75,7 +75,7 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
   }
 ```
 
-散乱光を、足し、透過率を、下げます。透過率が、ほぼ 0 になったら、奥は、見えないので、打ち切ります。戻り値は、散乱光と、透過率で、あとで、空の色に、合成します。
+散乱光を足し透過率を下げます。透過率がほぼ 0 になったら奥は、見えないので打ち切ります。戻り値は散乱光と透過率であとで、空の色に合成します。
 
 ```hlsl
   return float4(scattered, transmittance);
@@ -766,11 +766,11 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
 
 <!-- fig:cloud-raymarch:end -->
 
-## レイマーチで、雲を、描く
+## レイマーチで雲を描く
 
-<strong>雲</strong>は、<strong>空間に、密度が、分布する、ボリューム</strong>です。画面の、各画素から、視線を、雲の殻（[Cloud Layers](layers.md)）の中へ、少しずつ進み、各点で、密度と、光を、調べて、色を、積算します。レイマーチです。
+<strong>雲</strong>は <strong>空間に密度が分布する、ボリューム</strong>です。画面の各画素から視線を雲の殻（[Cloud Layers](layers.md)）の中へ、少しずつ進み各点で密度と光を調べて色を、積算します。レイマーチです。
 
-## 全体の、骨格
+## 全体の骨格
 
 ```hlsl
 float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
@@ -780,7 +780,7 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
   if (range.y <= range.x) return float4(0, 0, 0, 1);                    // 交わらない → 雲なし（透過率 1）
 ```
 
-まず、<strong>視線が、雲の殻と、交わる区間</strong>（入口と出口）を、求めます（[Cloud Layers](layers.md)）。<strong>交わらなければ</strong>、雲は、ありません（色 0、透過率 1）。
+まず、<strong>視線が雲の殻と交わる区間</strong>（入口と出口）を、求めます（[Cloud Layers](layers.md)）。<strong>交わらなければ</strong>、雲はありません（色 0、透過率 1）。
 
 ```hlsl
   const int kSteps = 64;
@@ -789,7 +789,7 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
   float t = range.x + step_len * InterleavedGradientNoise(uv * g_screen_size);   // 開始位置を、ノイズで、ずらす（ジッター）
 ```
 
-<strong>区間を、64 に分け</strong>、<strong>開始位置を、ノイズで、ずらします</strong>（ジッター）。画素ごとに、違う位置から、始まるので、縞（バンディング）が、細かいノイズに、変わり、TAA で、なめらかに、ならされます（[Cloud Temporal Reprojection](temporal.md)）。
+<strong>区間を 64 に分け</strong>、<strong>開始位置をノイズでずらします</strong>（ジッター）。画素ごとに違う位置から始まるので、縞（バンディング）が細かいノイズに変わり、TAA でなめらかにならされます（[Cloud Temporal Reprojection](temporal.md)）。
 
 ```hlsl
   float3 scattered = 0.0;                                               // 積算した、散乱光
@@ -800,7 +800,7 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
     if (density > 0.001) {
 ```
 
-各ステップで、<strong>その点の、密度</strong>を、求めます。<strong>密度が、ほぼ 0</strong>（雲の、外）の点は、何も、しません（空の、部分は、スキップ）。
+各ステップで <strong>その点の密度</strong>を、求めます。<strong>密度がほぼ 0</strong>（雲の外）の点は何も、しません（空の部分はスキップ）。
 
 ```hlsl
       float3 light = CloudLighting(p, ray_dir, density);                // その点で、視線の方向へ、散る光（[Cloud Lighting]）
@@ -812,7 +812,7 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
       transmittance *= step_transmittance;
 ```
 
-<strong>散乱光</strong>を、<strong>積算</strong>します。区間の中でも、光は、減るので、解析的な、積分（`(1 − exp(−σΔs)) / σ`）を、使うと、ステップが、粗くても、安定します（[Single-Scattering Integral](../scattering/single-scattering.md)）。透過率は、区間ごとに、掛けて、更新します。
+<strong>散乱光</strong>を <strong>積算</strong>します。区間の中でも光は減るので解析的な、積分（`(1 − exp(−σΔs)) / σ`）を使うとステップが、粗くても安定します（[Single-Scattering Integral](../scattering/single-scattering.md)）。透過率は区間ごとに掛けて更新します。
 
 ```hlsl
       if (transmittance < 0.01) break;                                  // ほぼ、不透明になったら、打ち切る（以降は、見えない）
@@ -823,7 +823,7 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
 }
 ```
 
-<strong>透過率が、ほぼ 0</strong>（雲が、濃く、<strong>向こうが、見えない</strong>）なら、それ以上進んでも、結果が、変わらないので、打ち切ります（早期終了）。最後に、散乱光と、透過率を、返し、空の色（背景）を、透過率で、重ねます。
+<strong>透過率がほぼ 0</strong>（雲が濃く、<strong>向こうが見えない</strong>）ならそれ以上進んでも結果が、変わらないので打ち切ります（早期終了）。最後に、散乱光と透過率を返し空の色（背景）を、透過率で重ねます。
 
 ```hlsl
 // 呼び出し側: 空の色（背景）に、雲を重ねる。
@@ -831,13 +831,13 @@ float4 cloud = CloudPS(uv);
 float3 final_color = sky_color * cloud.a + cloud.rgb;                   // 背景 × 透過率 + 雲の散乱光
 ```
 
-## ステップの、工夫（速くする）
+## ステップの工夫（速くする）
 
-64 ステップを、<strong>全画素</strong>で、回すと、重いです。<strong>無駄</strong>を、減らす、工夫です。
+64 ステップを <strong>全画素</strong>で回すと、重いです。<strong>無駄</strong>を減らす工夫です。
 
-### ① 空の部分は、大きく進む
+### ① 空の部分は大きく進む
 
-<strong>雲が、ない、空間</strong>（密度 0）では、<strong>細かく、進む必要が、ありません</strong>。粗い、サンプル（安い）で、密度を、調べ、雲に、入ったら、細かい、サンプル（重い）に、切り替えます。
+<strong>雲がない空間</strong>（密度 0）では、<strong>細かく進む必要がありません</strong>。粗いサンプル（安い）で密度を調べ雲に、入ったら細かいサンプル（重い）に、切り替えます。
 
 ```hlsl
 // 2 段階: 最初は、粗い歩幅で、安い密度（基本の形だけ）を、調べる。雲に入ったら、細かい歩幅で、細部まで。
@@ -855,36 +855,36 @@ for (int i = 0; i < kSteps; ++i) {
 }
 ```
 
-<strong>空の部分</strong>は、<strong>基本の形だけの、安い密度</strong>で、大きな歩幅で、進み、雲に、当たったら、1 歩戻って、細かく、進みます。雲が、少ない画素では、大幅に、速くなります。
+<strong>空の部分</strong>は <strong>基本の形だけの、安い密度</strong>で大きな歩幅で進み雲に、当たったら 1 歩戻って細かく、進みます。雲が少ない画素では大幅に速くなります。
 
-### ② 遠くほど、歩幅を、広げる
+### ② 遠くほど歩幅を広げる
 
-<strong>遠くの雲の、細部</strong>は、<strong>画面上で、小さく</strong>、見えません。距離に応じて、歩幅を、広げます。
+<strong>遠くの雲の細部</strong>は <strong>画面上で、小さく</strong>、見えません。距離に応じて歩幅を広げます。
 
 ```hlsl
 float step_len = lerp(g_min_step, g_max_step, saturate((t - range.x) / g_step_growth_distance));
 ```
 
-### ③ 低解像度で、描く
+### ③ 低解像度で描く
 
-<strong>雲は、ふわふわ</strong>で、<strong>細かい、エッジが、少ない</strong>ので、画面の、1/4 の解像度（縦横、半分）で、描いて、アップサンプルしても、目立ちません（[Cloud Temporal Reprojection](temporal.md)）。
+<strong>雲はふわふわ</strong>で <strong>細かいエッジが、少ない</strong>ので画面の 1/4 の解像度（縦横、半分）で描いてアップサンプルしても、目立ちません（[Cloud Temporal Reprojection](temporal.md)）。
 
 | 工夫 | 効果（目安） |
 | --- | --- |
-| 空の部分を、大きく進む | 2〜3 倍 速い（雲が、疎な画素で） |
-| 遠くで、歩幅を、広げる | 約 1.5 倍 |
+| 空の部分を大きく進む | 2〜3 倍 速い（雲が、疎な画素で） |
+| 遠くで歩幅を広げる | 約 1.5 倍 |
 | 低解像度（1/4 の画素数） | 4 倍 |
-| 時間方向の、更新の、間引き（1/16 の画素だけ、毎フレーム） | 16 倍（[Cloud Temporal Reprojection](temporal.md)） |
-| 早期終了（透過率が、小さい） | 濃い雲で、大幅 |
+| 時間方向の更新の間引き（1/16 の画素だけ、毎フレーム） | 16 倍（[Cloud Temporal Reprojection](temporal.md)） |
+| 早期終了（透過率が小さい） | 濃い雲で、大幅 |
 
-## 視線の、起点
+## 視線の起点
 
-<strong>カメラが、雲の殻の中</strong>（飛行機）や、<strong>上</strong>（宇宙）にある場合、入口の位置が、変わります（[Cloud Layers](layers.md)）。どの場合でも、入口から、出口までの、区間を、マーチする、1 つの、コードで、書けます。
+<strong>カメラが雲の殻の中</strong>（飛行機）や、<strong>上</strong>（宇宙）にある場合、入口の位置が変わります（[Cloud Layers](layers.md)）。どの場合でも入口から出口までの区間を、マーチする 1 つのコードで書けます。
 
 ## よくあるミス
 
 ??? failure "雲に縞模様（バンディング）が出る"
-    <strong>ジッタ</strong>を入れて、<strong>時間蓄積</strong>で消す。
+    <strong>ジッタ</strong>を入れて <strong>時間蓄積</strong>で消す。
 
 ## これだけ覚える
 

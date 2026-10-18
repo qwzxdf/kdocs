@@ -7,25 +7,25 @@ tags:
 
 # tinygltf のデータの取り出し方
 
-[glTF の構造](structure.md)で見たように、glTF の要素は、<strong>配列の番号（インデックス）</strong>でつながっています。このページは、その番号をたどって、**頂点・インデックス・マテリアル・テクスチャ・ノード・アニメーション**を、**C++（SimpleMath、DX11）で取り出す方法**をまとめます。**番号 → 配列を引く**、という操作を、順に重ねていく形です。
+[glTF の構造](structure.md)で見たように glTF の要素は、<strong>配列の番号（インデックス）</strong>でつながっています。このページはその番号をたどって、**頂点・インデックス・マテリアル・テクスチャ・ノード・アニメーション**を、**C++（SimpleMath、DX11）で取り出す方法**をまとめます。**番号 → 配列を引く**、という操作を順に重ねていく形です。
 
 !!! tip "ポイント"
-    - <strong>番号は、そのまま配列の添字</strong>：<strong>`model.meshes[node.mesh]`</strong> のように引く。<strong>使う前に、`-1`（参照なし）を確認</strong>。
+    - <strong>番号はそのまま配列の添字</strong>：<strong>`model.meshes[node.mesh]`</strong> のように引く。<strong>使う前に `-1`（参照なし）を確認</strong>。
     - 頂点データは<strong>accessor → bufferView → buffer</strong> をたどって、<strong>先頭アドレス・間隔（stride）・個数</strong>を求める。
     - 先頭は <strong>`buffer.data` ＋ `bufferView.byteOffset` ＋ `accessor.byteOffset`</strong>。間隔は<strong>`accessor.ByteStride(bufferView)`</strong>。
     - インデックスの型は<strong>`unsigned byte / short / int` の 3 種類</strong>。<strong>`uint32_t` にそろえる</strong>と楽。
     - <strong>ノードの行列は `S × R × T`</strong>（行ベクトル規約）。<strong>ワールド ＝ ローカル × 親のワールド</strong>。
-    - <strong>glTF の `matrix`（列優先 16 個）は、SimpleMath の `Matrix` に、そのまま入る</strong>。<strong>左手系へは、ルートに X 反転の行列を掛ける</strong>（[glTF の基本と規約](gltf-basics.md#to-left-handed)）。
+    - <strong>glTF の `matrix`（列優先 16 個）は、SimpleMath の `Matrix` にそのまま入る</strong>。<strong>左手系へはルートに X 反転の行列を掛ける</strong>（[glTF の基本と規約](gltf-basics.md#to-left-handed)）。
 
 ## 全体の流れ
 
 <svg class="fig flow" viewBox="0 0 797 112" role="img" aria-label="読み込みの流れ：ファイル → Model → 自分のデータ構造 → GPU のバッファ"><defs><marker id="fl45181" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">読み込みの流れ：ファイル → Model → 自分のデータ構造 → GPU のバッファ</text><line x1="151.0" y1="64.0" x2="209.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl45181)"/><text x="180.0" y="58.0" text-anchor="middle" style="font-size:12px">LoadASCIIFromFile</text><line x1="357.0" y1="64.0" x2="415.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl45181)"/><text x="386.0" y="58.0" text-anchor="middle" style="font-size:12px">番号をたどって取り出す</text><line x1="595.0" y1="64.0" x2="653.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl45181)"/><text x="624.0" y="58.0" text-anchor="middle" style="font-size:12px">CreateBuffer</text><rect x="28.0" y="44.0" width="120" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="88.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">glTF ファイル</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="212.0" y="44.0" width="142" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="283.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">tinygltf::Model</text><circle cx="214.0" cy="46.0" r="10" fill="#2ea043"/><text x="214.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="418.0" y="44.0" width="174" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="505.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">自分のメッシュ データ</text><circle cx="420.0" cy="46.0" r="10" fill="#e5a828"/><text x="420.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="656.0" y="44.0" width="113" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="712.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">GPU バッファ</text><circle cx="658.0" cy="46.0" r="10" fill="#e5484d"/><text x="658.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
-**`tinygltf::Model` は、ファイルの内容を、そのまま持っているだけ**です。**ゲームで使う形**（頂点バッファ・マテリアルの定数バッファなど）には、**自分で、変換**します。
+**`tinygltf::Model` はファイルの内容をそのまま持っているだけ**です。**ゲームで使う形**（頂点バッファ・マテリアルの定数バッファなど）には、**自分で変換**します。
 
 ## accessor からデータを取り出す
 
-**頂点・インデックス・アニメーションの値**は、どれも、**accessor から取り出します**。まず、**先頭アドレス・間隔・個数**を求める関数を、作ります。
+**頂点・インデックス・アニメーションの値**はどれも**accessor から取り出します**。まず、**先頭アドレス・間隔・個数**を求める関数を作ります。
 
 ```cpp
 struct AccessorData {
@@ -58,10 +58,10 @@ AccessorData GetAccessorData(const tinygltf::Model& model, int accessor_index) {
 | `model.buffers[view.buffer]` | bufferView が持つ **buffer の番号**で、引く |
 | **`buffer.data`** | **バイナリ本体**（`std::vector<unsigned char>`） |
 | **先頭** | **`buffer.data` ＋ `view.byteOffset` ＋ `accessor.byteOffset`** |
-| **`ByteStride(view)`** | **要素と要素の間隔**（インターリーブなら、`byteStride`。隙間なしなら、要素のサイズ） |
+| **`ByteStride(view)`** | **要素と要素の間隔**（インターリーブなら `byteStride`。隙間なしなら要素のサイズ） |
 
 !!! warning "accessor.bufferView が -1 のとき"
-    `bufferView` が **`-1`**（無い）の accessor は、**すべてゼロの配列**を意味します（**スパース accessor** の土台など）。**頂点の位置では、まず起きません**が、**念のため確認**します。
+    `bufferView` が **`-1`**（無い）の accessor は、**すべてゼロの配列**を意味します（**スパース accessor** の土台など）。**頂点の位置ではまず起きません**が、**念のため確認**します。
 
 ### 型と大きさ
 
@@ -107,9 +107,9 @@ std::vector<Vector3> ReadVec3(const tinygltf::Model& model, int accessor_index) 
 }
 ```
 
-**`std::memcpy` で、1 要素ずつ読む**のは、**アドレスが、`float` の境界に揃っていない**かもしれないからです（**アライメント**）。直接 `reinterpret_cast<const float*>` すると、未定義動作になることがあります。
+**`std::memcpy` で 1 要素ずつ読む**のは、**アドレスが `float` の境界に揃っていない**かもしれないからです（**アライメント**）。直接 `reinterpret_cast<const float*>` すると未定義動作になることがあります。
 
-### プリミティブごとに、取り出す
+### プリミティブごとに取り出す
 
 ```cpp
 MeshData ReadPrimitive(const tinygltf::Model& model, const tinygltf::Primitive& prim) {
@@ -147,7 +147,7 @@ MeshData ReadPrimitive(const tinygltf::Model& model, const tinygltf::Primitive& 
 | 点 | 説明 |
 | --- | --- |
 | **`prim.attributes`** | `std::map<std::string, int>`。**キー（`"POSITION"`）→ accessor の番号** |
-| **`find` で調べる** | **無い属性**（法線がない、UV がない）は、**既定値で埋める** |
+| **`find` で調べる** | **無い属性**（法線がない、UV がない）は**既定値で埋める** |
 | **`prim.indices`** | **インデックスの accessor の番号**。**`-1` なら無い**（頂点を順に並べて三角形にする） |
 | **`prim.material`** | **マテリアルの番号**（`-1` なら既定） |
 | 描画の単位 | **プリミティブごとに 1 回**の `DrawIndexed`（[メッシュとテクスチャ](../../3d/mesh-textures.md)） |
@@ -182,7 +182,7 @@ std::vector<uint32_t> ReadIndices(const tinygltf::Model& model, int accessor_ind
 }
 ```
 
-**インデックスの型は、メッシュごとに違います**（頂点が少なければ `unsigned short`、多ければ `unsigned int`）。**読むときに `uint32_t` にそろえて**おくと、**DX11 で、`DXGI_FORMAT_R32_UINT`** に統一できます（メモリを節約したいなら、頂点数に応じて、`R16_UINT` を使う）。
+**インデックスの型はメッシュごとに違います**（頂点が少なければ `unsigned short`、多ければ `unsigned int`）。**読むときに `uint32_t` にそろえて**おくと**DX11 で、`DXGI_FORMAT_R32_UINT`** に統一できます（メモリを節約したいなら頂点数に応じて、`R16_UINT` を使う）。
 
 ### DX11 のバッファにする
 
@@ -197,7 +197,7 @@ vb_data.pSysMem = mesh.vertices.data();
 device->CreateBuffer(&vb_desc, &vb_data, &vertex_buffer);
 ```
 
-（インデックスバッファも同様。詳しくは、[メッシュとテクスチャ](../../3d/mesh-textures.md)）
+（インデックスバッファも同様。詳しくは[メッシュとテクスチャ](../../3d/mesh-textures.md)）
 
 ## ノードの階層
 
@@ -228,13 +228,13 @@ Matrix LocalMatrix(const tinygltf::Node& node) {
 
 | 点 | 説明 |
 | --- | --- |
-| **`node.matrix`** | **`std::vector<double>`**。**16 個あれば、行列で指定**されている。**空なら TRS** |
-| **TRS が無い項目** | **既定値**（拡大 1、回転なし、移動 0） |
+| **`node.matrix`** | **`std::vector<double>`**。**16 個あれば行列で指定**されている。**空なら TRS** |
+| **TRS が無い項目** | **既定値**（拡大 1、回転なし移動 0） |
 | **`rotation` の順** | **`[x, y, z, w]`**。SimpleMath の `Quaternion(x, y, z, w)` と**同じ並び**。ノードの回転は**変換せず**、ルートの行列でまとめて反転する |
 | **`S × R × T`** | SimpleMath の**行ベクトル規約**で、**この順に掛ける**（[行列](../../gamemath/matrices.md)） |
-| **`matrix` の並び** | glTF は**列優先**。**行ベクトル規約の行優先に、同じ並びで読める**（転置と同じ並びのため） |
+| **`matrix` の並び** | glTF は**列優先**。**行ベクトル規約の行優先に同じ並びで読める**（転置と同じ並びのため） |
 
-### 親から子へ、たどる
+### 親から子へたどる
 
 ```cpp
 void Traverse(const tinygltf::Model& model, int node_index, const Matrix& parent_world,
@@ -263,14 +263,14 @@ void LoadScene(const tinygltf::Model& model, std::vector<DrawItem>& out) {
 
 | 点 | 説明 |
 | --- | --- |
-| **`model.defaultScene`** | 既定のシーンの番号（**`-1` なら、0 番**を使う） |
+| **`model.defaultScene`** | 既定のシーンの番号（**`-1` なら 0 番**を使う） |
 | **`scene.nodes`** | **ルートのノード**の番号の一覧 |
 | **`node.children`** | **子ノードの番号**（`std::vector<int>`） |
 | **`world = local * parent_world`** | **子の行列を先に<strong>。</strong>行ベクトル規約**（[行列](../../gamemath/matrices.md)） |
-| **`node.mesh >= 0`** | メッシュを持つノードだけ、**描画の対象**にする |
-| **再帰** | 木が深いと、深くなる。**数千ノード**の巨大なモデルは、**スタックを使った繰り返し**にする |
+| **`node.mesh >= 0`** | メッシュを持つノードだけ**描画の対象**にする |
+| **再帰** | 木が深いと深くなる。**数千ノード**の巨大なモデルは**スタックを使った繰り返し**にする |
 
-**ノードの数と、メッシュの数は、別**です。**同じメッシュを、複数のノードが参照**できます（**インスタンス**）。**メッシュのバッファは 1 つ作り、ノードごとに、ワールド行列だけを変えて描画**します。
+**ノードの数とメッシュの数は別**です。**同じメッシュを複数のノードが参照**できます（**インスタンス**）。**メッシュのバッファは 1 つ作りノードごとにワールド行列だけを変えて描画**します。
 
 ## マテリアルとテクスチャ
 
@@ -312,8 +312,8 @@ MaterialData ReadMaterial(const tinygltf::Material& m) {
 | --- | --- |
 | **`.index`** | **`textures` の番号**。**`-1` ならテクスチャなし**（**`Factor` の値だけ**を使う） |
 | **`baseColorFactor`** | ベースカラーの**倍率**（テクスチャの色に**掛ける**） |
-| **`metallicFactor` / `roughnessFactor`** | **テクスチャの値に掛ける**倍率。テクスチャがなければ、**この値そのもの** |
-| **既定値** | **metallic = 1、roughness = 1**（仕様の既定値）。**tinygltf も、これで初期化**される |
+| **`metallicFactor` / `roughnessFactor`** | **テクスチャの値に掛ける**倍率。テクスチャがなければ**この値そのもの** |
+| **既定値** | **metallic = 1、roughness = 1**（仕様の既定値）。**tinygltf もこれで初期化**される |
 | **`alphaMode`** | `"OPAQUE"`（不透明）、`"MASK"`（抜き）、`"BLEND"`（半透明） |
 | **`doubleSided`** | **両面描画**（カリングを切る） |
 
@@ -331,7 +331,7 @@ const unsigned char* pixels = image.image.data();
 | 項目 | 説明 |
 | --- | --- |
 | **`texture.source`** | **`images` の番号** |
-| **`texture.sampler`** | **`samplers` の番号**（`-1` なら、既定のサンプラー） |
+| **`texture.sampler`** | **`samplers` の番号**（`-1` なら既定のサンプラー） |
 | **`image.image`** | **読み込み済みのピクセル**（`std::vector<unsigned char>`）。**tinygltf が `stb_image` でデコード**している |
 | **`image.width` / `height`** | 画像の大きさ |
 | **`image.component`** | チャンネル数（**通常は RGBA の 4**。**確認する**） |
@@ -358,11 +358,11 @@ device->CreateTexture2D(&desc, &data, &texture2d);
 
 | 注意 | 説明 |
 | --- | --- |
-| **sRGB か、リニアか** | **ベースカラー・エミッシブ**は **sRGB**（`_SRGB`）。**法線・metallicRoughness・AO は、リニア**（[PBR](../../3d/pbr.md#色空間とトーンマッピング)） |
-| **同じ画像を、両方で使う** | まれに、**同じ画像を sRGB とリニアの両方**で使う。**用途ごとに、ビューを作る** |
+| **sRGB かリニアか** | **ベースカラー・エミッシブ**は **sRGB**（`_SRGB`）。**法線・metallicRoughness・AO は、リニア**（[PBR](../../3d/pbr.md#色空間とトーンマッピング)） |
+| **同じ画像を両方で使う** | まれに**同じ画像を sRGB とリニアの両方**で使う。**用途ごとにビューを作る** |
 | **ミップマップ** | 作る場合は、`GenerateMips`（[メッシュとテクスチャ](../../3d/mesh-textures.md)） |
 | **`SysMemPitch`** | **1 行のバイト数**（`幅 × 4`） |
-| **画像がファイルに残る** | `image.image` は、**GPU に転送したら、解放**してよい（`image.image.clear(); shrink_to_fit();`） |
+| **画像がファイルに残る** | `image.image` は、**GPU に転送したら解放**してよい（`image.image.clear(); shrink_to_fit();`） |
 
 ### サンプラー
 
@@ -378,7 +378,7 @@ if (texture.sampler >= 0) {
 | `minFilter` | `9984〜9987`（ミップマップの組み合わせ。`9987`＝LINEAR_MIPMAP_LINEAR） |
 | `wrapS` / `wrapT` | `10497`＝REPEAT、`33071`＝CLAMP_TO_EDGE、`33648`＝MIRRORED_REPEAT |
 
-数字は **OpenGL の定数**です。**DX11 の `D3D11_SAMPLER_DESC`**（`D3D11_TEXTURE_ADDRESS_WRAP` など）に、**変換**します（[メッシュとテクスチャ](../../3d/mesh-textures.md)）。
+数字は **OpenGL の定数**です。**DX11 の `D3D11_SAMPLER_DESC`**（`D3D11_TEXTURE_ADDRESS_WRAP` など）に**変換**します（[メッシュとテクスチャ](../../3d/mesh-textures.md)）。
 
 ## スキンとアニメーション
 
@@ -425,20 +425,20 @@ for (const tinygltf::AnimationChannel& channel : anim.channels) {
 | **`channel.target_path`** | `"translation"`、`"rotation"`、`"scale"`、`"weights"` |
 | **`sampler.input`** | **時刻**の accessor の番号（`float`、秒） |
 | **`sampler.output`** | **値**の accessor の番号（`VEC3` / `VEC4`） |
-| **補間** | `LINEAR` は、位置・拡大は `Lerp`、回転は `Slerp`（[回転](../../gamemath/rotation.md)） |
+| **補間** | `LINEAR` は位置・拡大は `Lerp`、回転は `Slerp`（[回転](../../gamemath/rotation.md)） |
 
-**ここでも、番号の参照先の配列が、場所によって違います**（`channel.sampler` は、そのアニメーションの `samplers`）。
+**ここでも番号の参照先の配列が、場所によって違います**（`channel.sampler` はそのアニメーションの `samplers`）。
 
-## 読み込み後の、まとめ方
+## 読み込み後のまとめ方
 
 | やること | 説明 |
 | --- | --- |
-| **メッシュを、プリミティブごとの `MeshData` にする** | **1 プリミティブ ＝ 1 回の描画** |
-| **マテリアルの番号を、そのまま使う** | `MeshData::material` から、**自分のマテリアル配列**を引く |
-| **テクスチャは、番号で重複を避ける** | **同じ `textures[i]` を、複数のマテリアルが参照**するので、**一度だけ作る**（番号 → GPU テクスチャの表） |
-| **ノードの木は、自分の構造に変換** | ゲームの**シーンのノード**・エンティティにする |
-| **読み込んだら、`Model` を解放** | `tinygltf::Model` は、**大きい**（画像・バイナリを持つ）。**変換が終わったら捨てる** |
-| **ゲームで使う形式に変換** | 開発中は glTF、**製品は独自の軽い形式**に、**ビルド時に変換**（[ロード時間](../../optimize/loading.md)） |
+| **メッシュをプリミティブごとの `MeshData` にする** | **1 プリミティブ ＝ 1 回の描画** |
+| **マテリアルの番号をそのまま使う** | `MeshData::material` から、**自分のマテリアル配列**を引く |
+| **テクスチャは番号で重複を避ける** | **同じ `textures[i]` を複数のマテリアルが参照**するので、**一度だけ作る**（番号 → GPU テクスチャの表） |
+| **ノードの木は自分の構造に変換** | ゲームの**シーンのノード**・エンティティにする |
+| **読み込んだら `Model` を解放** | `tinygltf::Model` は、**大きい**（画像・バイナリを持つ）。**変換が終わったら捨てる** |
+| **ゲームで使う形式に変換** | 開発中は glTF、**製品は独自の軽い形式**に**ビルド時に変換**（[ロード時間](../../optimize/loading.md)） |
 
 ### 番号の表（重複を避ける）
 
@@ -454,49 +454,49 @@ ID3D11ShaderResourceView* GetTexture(int texture_index, bool srgb) {
 }
 ```
 
-<strong>「番号 → 作ったもの」の配列</strong>を用意して、**初めて参照されたときに作る**ことで、**同じテクスチャを、何度も作らない**ようにします。
+<strong>「番号 → 作ったもの」の配列</strong>を用意して、**初めて参照されたときに作る**ことで、**同じテクスチャを何度も作らない**ようにします。
 
 ## よくあるミス
 
-??? failure "`-1` を調べず、配列を引いてクラッシュする"
-    `node.mesh`、`prim.indices`、`prim.material`、`texture.sampler`、`.index` は、<strong>`-1` が「なし」</strong>です。
+??? failure "`-1` を調べず配列を引いてクラッシュする"
+    `node.mesh`、`prim.indices`、`prim.material`、`texture.sampler`、`.index` は <strong>`-1` が「なし」</strong>です。
 
 ??? failure "`reinterpret_cast<const float*>` で、直接読む"
     **アライメントが合わない**ことがあります。**`std::memcpy`** で読みます。
 
-??? failure "`byteStride` を使わず、`sizeof(float) * 3` ずつ進める"
+??? failure "`byteStride` を使わず `sizeof(float) * 3` ずつ進める"
     **インターリーブ**のデータで、**ずれます**。`accessor.ByteStride(view)` を使います。
 
-??? failure "インデックスを、すべて `unsigned short` として読む"
-    **型は accessor ごとに違います**。`componentType` で、分岐します。
+??? failure "インデックスをすべて `unsigned short` として読む"
+    **型は accessor ごとに違います**。`componentType` で分岐します。
 
-??? failure "プリミティブが、複数あるのに、先頭だけを読む"
-    **マテリアルごとに、プリミティブが分かれます**。**全部**読みます。
+??? failure "プリミティブが、複数あるのに先頭だけを読む"
+    **マテリアルごとにプリミティブが分かれます**。**全部**読みます。
 
 ??? failure "`JOINTS_0` の値で、直接 `model.nodes` を引く"
     **`skin.joints[値]`** を引いた先が、ノード番号です。
 
-??? failure "ワールド行列を、`parent_world * local`（逆順）で掛ける"
-    **行ベクトル規約**では、**`local * parent_world`** です。
+??? failure "ワールド行列を `parent_world * local`（逆順）で掛ける"
+    **行ベクトル規約**では**`local * parent_world`** です。
 
-??? failure "ベースカラーを、リニアの形式で読む"
+??? failure "ベースカラーをリニアの形式で読む"
     **色が薄く・白っぽく**なります。**ベースカラーは sRGB**（`_SRGB`）です。
 
 ??? failure "法線マップを sRGB で読む"
     **法線がゆがみます**。**リニア**で読みます。
 
-??? failure "読み込み後も、`tinygltf::Model` を持ち続けて、メモリを使い続ける"
+??? failure "読み込み後も `tinygltf::Model` を持ち続けて、メモリを使い続ける"
     **GPU に転送したら、`Model` を解放**します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] <strong>番号 ＝ 配列の添字</strong>。<strong>`-1` は「なし」</strong>。<strong>使う前に、必ず確認</strong>
+    - [x] <strong>番号 ＝ 配列の添字</strong>。<strong>`-1` は「なし」</strong>。<strong>使う前に必ず確認</strong>
     - [x] データは<strong>accessor → bufferView → buffer</strong>。<strong>先頭 ＝ `buffer.data ＋ view.byteOffset ＋ accessor.byteOffset`</strong>、<strong>間隔 ＝ `ByteStride(view)`</strong>
     - [x] 読むときは<strong>`std::memcpy`</strong>。<strong>インデックスは型で分岐</strong>して、`uint32_t` にそろえる
-    - [x] ノードは<strong>`S × R × T`</strong>、<strong>`world ＝ local × parent_world`</strong>。<strong>`matrix` は、そのまま `Matrix` に入る</strong>
+    - [x] ノードは<strong>`S × R × T`</strong>、<strong>`world ＝ local × parent_world`</strong>。<strong>`matrix` はそのまま `Matrix` に入る</strong>
     - [x] <strong>ベースカラーは sRGB、ほかのテクスチャはリニア</strong>
-    - [x] <strong>プリミティブごとに 1 回の描画</strong>。<strong>同じテクスチャは、番号の表で重複を避ける</strong>
+    - [x] <strong>プリミティブごとに 1 回の描画</strong>。<strong>同じテクスチャは番号の表で重複を避ける</strong>
 
 ## 関連ページ
 

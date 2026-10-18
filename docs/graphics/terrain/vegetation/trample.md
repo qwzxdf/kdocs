@@ -6,13 +6,13 @@ tags:
 
 # Trampled Grass
 
-<strong>キャラクターが通ると、草が倒れる</strong>と、<strong>インタラクティブ</strong>になります。キャラクターの位置を、テクスチャに書き込み、草が読むことで実現します。このページでは、踏まれる草を説明します。
+<strong>キャラクターが通ると草が倒れる</strong>と、<strong>インタラクティブ</strong>になります。キャラクターの位置をテクスチャに書き込み、草が読むことで実現します。このページでは踏まれる草を説明します。
 
 !!! tip "ポイント"
     - キャラクターの位置を、インタラクション マップに描く。
-    - 草は、マップを読んで、倒れる。
-    - 時間とともに、ゆっくり戻る。
-    - 範囲は、カメラの周りに限る。
+    - 草はマップを読んで、倒れる。
+    - 時間とともにゆっくり戻る。
+    - 範囲はカメラの周りに限る。
 
 ## 踏まれる草
 <strong>キャラクターが歩くと草が倒れる</strong>表現です。<strong>キャラクターの位置をシェーダーに渡し、近い草を押しのけます</strong>。
@@ -24,7 +24,7 @@ world_position.xz += normalize(away.xz) * influence * push_strength * height_t;
 world_position.y -= influence * push_strength * height_t;
 ```
 
-<strong>複数の物を扱うなら、物の位置を高さマップ風のテクスチャに描き、それを草が読む</strong>（[波紋のブラシ](../../water/interaction/index.md)と同じ）のが<strong>スケールします</strong>。
+<strong>複数の物を扱うなら物の位置を高さマップ風のテクスチャに描き、それを草が読む</strong>（[波紋のブラシ](../../water/interaction/index.md)と同じ）のが<strong>スケールします</strong>。
 
 <!-- fig:trample-falloff:begin -->
 
@@ -58,26 +58,26 @@ world_position.y -= influence * push_strength * height_t;
 
 <!-- fig:trample-falloff:end -->
 
-## 位置を、直接、渡す方法の、限界
+## 位置を直接、渡す方法の限界
 
-上のコードは、<strong>キャラクターの位置を、シェーダーに渡し、近くの草を、押す</strong>方法です。1 体なら、うまく動きますが、<strong>増えると、破綻</strong>します。
+上のコードは <strong>キャラクターの位置を、シェーダーに渡し近くの草を押す</strong>方法です。1 体ならうまく動きますが <strong>増えると、破綻</strong>します。
 
 | 状況 | 問題 |
 | --- | --- |
-| 敵が 20 体 | 20 個の位置を、全部の草が、ループで調べる。重い |
-| 戦車、車 | 通った跡が、残らない（通り過ぎると、すぐ、元に戻る） |
-| 爆発 | 瞬間の、局所的な、押しつぶし。履歴が、必要 |
+| 敵が 20 体 | 20 個の位置を、全部の草がループで調べる。重い |
+| 戦車、車 | 通った跡が残らない（通り過ぎるとすぐ、元に戻る） |
+| 爆発 | 瞬間の局所的な、押しつぶし。履歴が必要 |
 
-そこで、<strong>「踏まれた跡を、テクスチャに、描く」</strong>方式に、します。草は、<strong>その場所の、テクスチャの値を、読む</strong>だけです。物の数に、関係なく、草が 1 回読むだけです。
+そこで、<strong>「踏まれた跡をテクスチャに、描く」</strong>方式にします。草は <strong>その場所のテクスチャの値を、読む</strong>だけです。物の数に関係なく草が 1 回読むだけです。
 
 ## インタラクション マップ
 
-カメラの周りの、<strong>数十メートル四方</strong>を、覆う、<strong>小さなテクスチャ</strong>（256×256 など）を、用意します。
+カメラの周りの <strong>数十メートル四方</strong>を覆う、<strong>小さなテクスチャ</strong>（256×256 など）を、用意します。
 
 | チャンネル | 内容 |
 | --- | --- |
-| R | 倒れる量（0 = 立っている、1 = 完全に、倒れている） |
-| G, B | 倒れる向き（x, z）。物から、遠ざかる向き |
+| R | 倒れる量（0 = 立っている、1 = 完全に倒れている） |
+| G, B | 倒れる向き（x, z）。物から遠ざかる向き |
 
 ```text
         ← 50 m →
@@ -88,9 +88,9 @@ world_position.y -= influence * push_strength * height_t;
    └───────────────┘
 ```
 
-### 物を、マップに描く
+### 物をマップに描く
 
-毎フレーム、<strong>動く物の位置に、円（ブラシ）を、描き込み</strong>ます。
+毎フレーム、<strong>動く物の位置に円（ブラシ）を、描き込み</strong>ます。
 
 ```hlsl
 // ブラシを描く（ピクセル シェーダー。物の位置を中心にした、四角形を描く）。
@@ -104,7 +104,7 @@ float4 BrushPS(float2 uv : TEXCOORD0, float2 center_uv, float radius_uv, float2 
 }
 ```
 
-ブレンド ステートは、<strong>最大値（`D3D11_BLEND_OP_MAX`）</strong>にします。複数の物が、重なっても、<strong>強い方が、残ります</strong>。
+ブレンド ステートは <strong>最大値（`D3D11_BLEND_OP_MAX`）</strong>にします。複数の物が重なっても <strong>強い方が、残ります</strong>。
 
 ```cpp
 D3D11_BLEND_DESC blend = {};
@@ -119,9 +119,9 @@ blend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 device->CreateBlendState(&blend, &max_blend);
 ```
 
-## 時間とともに、戻す
+## 時間とともに戻す
 
-毎フレーム、マップ全体を、<strong>少しずつ、薄めます</strong>。そうすると、踏まれた草が、<strong>ゆっくり、立ち上がります</strong>。
+毎フレーム、マップ全体を <strong>少しずつ薄めます</strong>。そうすると、踏まれた草が <strong>ゆっくり立ち上がります</strong>。
 
 ```hlsl
 // 全画面の描画: 前のフレームの結果を、少しだけ薄めて、コピーする。
@@ -136,21 +136,21 @@ float4 DecayPS(float2 uv : TEXCOORD0) : SV_Target {
 
 | パラメーター | 目安 | 効果 |
 | --- | --- | --- |
-| 回復の速さ | 0.2〜1 / 秒 | 小さいと、長く、跡が残る（雪、泥、深い草） |
-| ブラシの大きさ | 物の、足元の半径 | 大きいほど、広く、倒れる |
+| 回復の速さ | 0.2〜1 / 秒 | 小さいと長く、跡が残る（雪、泥、深い草） |
+| ブラシの大きさ | 物の、足元の半径 | 大きいほど広く、倒れる |
 | ブラシの強さ | 0.5〜1 | 物の、重さ |
 
 ## カメラについていく窓
 
-マップは、<strong>カメラの周りだけ</strong>を覆います。カメラが動くと、窓が動きます。窓が動くとき、<strong>マップの内容も、ずらす</strong>必要があります。
+マップは <strong>カメラの周りだけ</strong>を覆います。カメラが動くと窓が動きます。窓が動くとき <strong>マップの内容も、ずらす</strong>必要があります。
 
 ### 毎フレーム、全体をコピーする方法
 
-<strong>カメラが、1 画素分動いたら、マップ全体を、ずらして、コピー</strong>します。単純ですが、毎回、全体を、書き込むので、無駄です。
+<strong>カメラが 1 画素分動いたら、マップ全体をずらしてコピー</strong>します。単純ですが毎回、全体を書き込むので無駄です。
 
 ### 円環バッファ（トロイダル）
 
-<strong>ずらす代わりに、読み書きの位置を、ずらします</strong>。テクスチャの `WRAP`（繰り返し）のアドレッシングを使うと、<strong>窓の端を、超えた座標が、反対側に戻る</strong>ので、内容を、コピーせずに済みます（[Geometry Clipmaps](../lod/clipmap.md) と、同じ発想）。
+<strong>ずらす代わりに読み書きの位置を、ずらします</strong>。テクスチャの `WRAP`（繰り返し）のアドレッシングを使うと、<strong>窓の端を超えた座標が反対側に戻る</strong>ので内容を、コピーせずに済みます（[Geometry Clipmaps](../lod/clipmap.md) と、同じ発想）。
 
 ```hlsl
 // ワールド座標から、マップの UV を求める。WRAP で、窓の外へ出ても、反対側から、読まれる。
@@ -161,7 +161,7 @@ float2 InteractionUV(float3 world_pos) {
 float inside = step(distance(world_pos.xz, camera_position.xz), map_world_size * 0.5);
 ```
 
-窓が、動いて、<strong>新しく範囲に入った帯</strong>だけは、<strong>クリア</strong>します（前の位置の、古い内容が、残っているため）。
+窓が動いて <strong>新しく範囲に入った帯</strong>だけは、<strong>クリア</strong>します（前の位置の、古い内容が残っているため）。
 
 ## 草の側で読む
 
@@ -179,27 +179,27 @@ float3 ApplyTrample(float3 world_pos, float height_t) {
 }
 ```
 
-風（[Wind](wind.md)）と、足し合わせます。<strong>踏まれた草には、風の揺れを、弱めます</strong>（倒れた草は、風で、揺れにくい）。
+風（[Wind](wind.md)）と足し合わせます。<strong>踏まれた草には風の揺れを弱めます</strong>（倒れた草は風で、揺れにくい）。
 
 ```hlsl
 float3 pos = ApplyGrassWind(world_pos, height_t, wind_dir, strength, time);
 pos = ApplyTrample(pos, height_t);
 ```
 
-## 水や雪との、共有
+## 水や雪との共有
 
-同じ仕組みは、<strong>波紋のブラシ</strong>（[Water Interaction](../../water/interaction/index.md)）、<strong>雪の足跡</strong>、砂の跡にも、使えます。1 つの、インタラクション マップに、複数の用途を、まとめることも、できます。
+同じ仕組みは <strong>波紋のブラシ</strong>（[Water Interaction](../../water/interaction/index.md)）、<strong>雪の足跡</strong>、砂の跡にも使えます。1 つのインタラクション マップに、複数の用途をまとめることもできます。
 
 | 用途 | 使うチャンネル |
 | --- | --- |
 | 草の倒れ | R, G, B |
 | 雪・砂の足跡の深さ | A |
-| 水の波紋 | 別のマップ（高さを、波動方程式で、更新する） |
+| 水の波紋 | 別のマップ（高さを、波動方程式で更新する） |
 
 ## よくあるミス
 
 ??? failure "草が、倒れたまま戻らない"
-    <strong>マップを、徐々に薄める</strong>。
+    <strong>マップを徐々に薄める</strong>。
 
 ## これだけ覚える
 

@@ -6,18 +6,18 @@ tags:
 
 # Instancing
 
-<strong>草は、同じメッシュを何十万個も描きます</strong>。<strong>インスタンシングは、1 回の描画命令で、同じメッシュを、位置を変えて、大量に描く</strong>方法で、描画命令の数を減らせます。このページでは、インスタンシングを説明します。
+<strong>草は同じメッシュを何十万個も描きます</strong>。<strong>インスタンシングは 1 回の描画命令で、同じメッシュを位置を変えて大量に描く</strong>方法で、描画命令の数を減らせます。このページではインスタンシングを説明します。
 
 !!! tip "ポイント"
     - 1 回の DrawIndexedInstanced で、大量に描く。
     - 位置・向き・大きさは、インスタンス バッファに。
     - GPU 駆動なら、カリングも GPU で行える。
-    - 描画命令の数が、減る。
+    - 描画命令の数が減る。
 
 ## インスタンシング
 <strong>同じメッシュを位置・向き・大きさだけ変えて、大量に描く</strong>のが<strong>インスタンシング</strong>です。
 
-インスタンシングの方式です。`DrawIndexedInstanced` は、インスタンス数を指定して描き、インスタンスごとのデータは頂点バッファか StructuredBuffer に置きます。`DrawIndexedInstancedIndirect` は、インスタンス数を GPU が決める方式で、カリング結果をそのまま使え、CPU 待ちがありません。インスタンス データは、位置（float3）・回転（1 つの角度）・スケール・色の個体差などで、16〜32 バイトに収めます。
+インスタンシングの方式です。`DrawIndexedInstanced` はインスタンス数を指定して描き、インスタンスごとのデータは頂点バッファか StructuredBuffer に置きます。`DrawIndexedInstancedIndirect` はインスタンス数を GPU が決める方式で、カリング結果をそのまま使え CPU 待ちがありません。インスタンス データは位置（float3）・回転（1 つの角度）・スケール・色の個体差などで、16〜32 バイトに収めます。
 
 ```hlsl
 struct GrassInstance {
@@ -29,20 +29,20 @@ struct GrassInstance {
 };
 ```
 
-草 1 本ぶんの、データです。位置、回転、大きさ、色のばらつきだけを、持ちます。16 バイトの倍数に、そろえるために、末尾に、詰め物を入れます。
+草 1 本ぶんのデータです。位置、回転、大きさ色のばらつきだけを持ちます。16 バイトの倍数にそろえるために末尾に、詰め物を入れます。
 
 ```hlsl
 StructuredBuffer<GrassInstance> instances : register(t0);
 ```
 
-全部の草の、データを、1 つの、構造化バッファに、入れて、頂点シェーダーから、読みます。頂点バッファに、草ごとの、データを、複製しないので、メモリが、少なく済みます。
+全部の草のデータを 1 つの構造化バッファに入れて、頂点シェーダーから読みます。頂点バッファに草ごとのデータを、複製しないのでメモリが少なく済みます。
 
 ```hlsl
 VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
   GrassInstance instance = instances[instance_id];
 ```
 
-`SV_InstanceID` で、今の草の、番号を、受け取り、その草の、データを、バッファから、読みます。
+`SV_InstanceID` で今の草の番号を受け取り、その草のデータをバッファから、読みます。
 
 ```hlsl
   float s = sin(instance.rotation);
@@ -52,7 +52,7 @@ VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
   float3 world = rotated + instance.position;
 ```
 
-1 枚の、草の形（共通のメッシュ）を、大きさで、拡大し、Y 軸の周りに、回転し、草の位置へ、移動します。1 つのメッシュを、インスタンスごとに、変形して、置いているだけです。
+1 枚の草の形（共通のメッシュ）を、大きさで拡大し Y 軸の周りに回転し、草の位置へ移動します。1 つのメッシュをインスタンスごとに、変形して置いているだけです。
 
 ```hlsl
   VSOutput output;
@@ -153,18 +153,18 @@ VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
 
 <!-- fig:instancing-calls:end -->
 
-## なぜ、普通に描くと、遅いのか
+## なぜ普通に描くと遅いのか
 
-草を 1 本ずつ、`DrawIndexed` で描くと、<strong>ドローコールが、数十万回</strong>になります。ドローコール 1 回ごとに、CPU が、状態の設定と、ドライバーの処理を行うので、<strong>1 回あたり数マイクロ秒</strong>でも、積もると、フレームを、使い切ります。
+草を 1 本ずつ `DrawIndexed` で描くと、<strong>ドローコールが数十万回</strong>になります。ドローコール 1 回ごとに CPU が、状態の設定とドライバーの処理を行うので、<strong>1 回あたり数マイクロ秒</strong>でも、積もるとフレームを使い切ります。
 
 | 方式 | ドローコール | CPU の負荷 |
 | --- | --- | --- |
 | 1 本ずつ描く | 数十万 | 非常に高い |
-| 区画ごとに、まとめる | 数百 | 中程度（メッシュの結合が要る） |
+| 区画ごとにまとめる | 数百 | 中程度（メッシュの結合が要る） |
 | インスタンシング | 1〜数回 | 低い |
 | GPU 駆動（間接描画） | 1 回（インスタンス数も、GPU が決める） | 最小 |
 
-インスタンシングの、基本的な考え方は、Carucci（2005）が、整理しています。
+インスタンシングの基本的な考え方は、Carucci（2005）が、整理しています。
 
 ## インスタンスのデータ
 
@@ -181,7 +181,7 @@ struct GrassInstance {
 static_assert(sizeof(GrassInstance) == 32);
 ```
 
-インスタンスは、<strong>構造化バッファ（StructuredBuffer）</strong>に、並べます。頂点シェーダーが、`SV_InstanceID` で、自分の番号を受け取って、バッファから読みます。
+インスタンスは <strong>構造化バッファ（StructuredBuffer）</strong>に、並べます。頂点シェーダーが `SV_InstanceID` で自分の番号を受け取って、バッファから読みます。
 
 ```cpp
 D3D11_BUFFER_DESC desc = {};
@@ -201,7 +201,7 @@ device->CreateShaderResourceView(instance_buffer.Get(), &srv, &instance_srv);
 
 ## 間接描画（GPU 駆動）
 
-<strong>カリングを GPU で行う</strong>と、「何個、描くか」が、CPU には、分かりません（GPU が、計算してから、決まる）。CPU に読み戻すと、<strong>GPU の処理を、待つことになり、遅くなります</strong>。そこで、描画の引数を、GPU が書き、そのまま、描画に使うのが、間接描画です。
+<strong>カリングを GPU で行う</strong>と「何個、描くか」が CPU には分かりません（GPU が、計算してから決まる）。CPU に読み戻すと <strong>GPU の処理を、待つことになり遅くなります</strong>。そこで、描画の引数を GPU が書きそのまま、描画に使うのが間接描画です。
 
 ### 全体の流れ
 
@@ -236,7 +236,7 @@ D3D11_SUBRESOURCE_DATA data = {&init};
 device->CreateBuffer(&args_desc, &data, &args_buffer);
 ```
 
-### 見えたものを、詰めるバッファ
+### 見えたものを詰めるバッファ
 
 ```cpp
 D3D11_BUFFER_DESC vis_desc = {};
@@ -277,7 +277,7 @@ context->VSSetShaderResources(0, 1, visible_srv.GetAddressOf());
 context->DrawIndexedInstancedIndirect(args_buffer.Get(), 0);
 ```
 
-この流れでは、<strong>CPU は、見えた個数を、一度も読みません</strong>。GPU が、自分で決めた個数を、そのまま描画に、使います。
+この流れでは <strong>CPU は見えた個数を、一度も読みません</strong>。GPU が自分で決めた個数を、そのまま描画に使います。
 
 ## 描画のシェーダー
 
@@ -289,13 +289,13 @@ struct GrassInstance {
 StructuredBuffer<GrassInstance> g_instances : register(t0);
 ```
 
-草 1 本ぶんの、データです。位置、向き、大きさ、高さ、色のばらつき、しなり、を、持ちます。
+草 1 本ぶんのデータです。位置、向き大きさ高さ色のばらつきしなりを、持ちます。
 
 ```hlsl
 cbuffer FrameCB : register(b0) { float4x4 view_proj; float3 camera_position; float time; };
 ```
 
-フレームごとの、定数と、頂点シェーダーの、出力です。色は、頂点シェーダーで、決めて、渡します。
+フレームごとの定数と頂点シェーダーの、出力です。色は頂点シェーダーで決めて渡します。
 
 ```hlsl
 struct VSOut {
@@ -304,7 +304,7 @@ struct VSOut {
 };
 ```
 
-頂点シェーダーの、出力です。クリップ空間の、位置と、色だけを、持ちます。
+頂点シェーダーの出力です。クリップ空間の位置と色だけを、持ちます。
 
 ```hlsl
 VSOut main(uint vertex_id : SV_VertexID, uint instance_id : SV_InstanceID) {
@@ -312,7 +312,7 @@ VSOut main(uint vertex_id : SV_VertexID, uint instance_id : SV_InstanceID) {
   float3 local = BladeVertex(vertex_id, 0.05 * inst.scale, inst.height, inst.bend);
 ```
 
-頂点 ID から、草の葉の、どの頂点かを、決め、`BladeVertex` で、葉の形（幅、高さ、しなり）を、作ります。草ごとに、メッシュを、持たず、頂点 ID だけで、形を、作るので、頂点バッファが、要りません。
+頂点 ID から草の葉のどの頂点かを決め `BladeVertex` で、葉の形（幅、高さしなり）を作ります。草ごとにメッシュを持たず頂点 ID だけで形を、作るので頂点バッファが要りません。
 
 ```hlsl
   // Y 軸の回転
@@ -320,7 +320,7 @@ VSOut main(uint vertex_id : SV_VertexID, uint instance_id : SV_InstanceID) {
   float3 rotated = float3(local.x * c + local.z * s, local.y, -local.x * s + local.z * c);
 ```
 
-Y 軸の周りに、回転します。
+Y 軸の周りに回転します。
 
 ```hlsl
   VSOut o;
@@ -335,15 +335,15 @@ Y 軸の周りに、回転します。
 
 | 項目 | 内容 |
 | --- | --- |
-| 順序 | Append バッファの、並びは、スレッドの実行順で決まる（毎フレーム、順序が変わる）。順序に依存する処理（半透明の、ソート）には、使えない |
-| ドローコールを減らしすぎない | 種類（草・花・低木）が、違うメッシュは、別のドローコール。1 種類につき 1 回 |
-| インスタンスの総数 | 数百万本を超えると、全部の、カリングが、重い。区画ごとに、まとめて、粗いカリングを先に行う（[Vegetation Culling](culling.md)） |
-| `SV_InstanceID` の限界 | インスタンスの数が、65,535 を超えても、問題ない（32 ビット）。ただし、1 回の `Dispatch` の、スレッド グループ数に、上限（65,535）がある。数が、多いなら、複数回に分ける |
-| デバッグ | 間接描画は、中身が見えにくい。ステージング バッファに、コピーして、読み戻すデバッグ用の経路を、用意しておく |
+| 順序 | Append バッファの並びは、スレッドの実行順で決まる（毎フレーム、順序が変わる）。順序に依存する処理（半透明の、ソート）には使えない |
+| ドローコールを減らしすぎない | 種類（草・花・低木）が、違うメッシュは別のドローコール。1 種類につき 1 回 |
+| インスタンスの総数 | 数百万本を超えると全部の、カリングが重い。区画ごとにまとめて粗いカリングを先に行う（[Vegetation Culling](culling.md)） |
+| `SV_InstanceID` の限界 | インスタンスの数が、65,535 を超えても問題ない（32 ビット）。ただし、1 回の `Dispatch` のスレッド グループ数に、上限（65,535）がある。数が多いなら複数回に分ける |
+| デバッグ | 間接描画は、中身が見えにくい。ステージング バッファにコピーして、読み戻すデバッグ用の経路を用意しておく |
 
-## 間接描画を、使わない方法
+## 間接描画を使わない方法
 
-DirectX 11 が使えない環境（古い GPU）や、シンプルな実装では、<strong>CPU でカリングして、見えるものだけを、インスタンス バッファに書く</strong>方法も、あります。
+DirectX 11 が使えない環境（古い GPU）や、シンプルな実装では <strong>CPU でカリングして、見えるものだけをインスタンス バッファに書く</strong>方法も、あります。
 
 ```cpp
 // CPU 側で、見えるインスタンスだけを集めて、毎フレーム、書き込む（草が、数万本までなら、十分）。
@@ -375,7 +375,7 @@ context->DrawIndexedInstanced(index_count, UINT(visible.size()), 0, 0, 0);
 
 - Carucci, "Inside Geometry Instancing", GPU Gems 2, Chapter 3, 2005
 - Haar, Aaltonen, "GPU-Driven Rendering Pipelines", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
-- Wihlidal, "Optimizing the Graphics Pipeline with Compute", Game Developers Conference 2016（フラスタム、背面、オクルージョンの、GPU カリング）
+- Wihlidal, "Optimizing the Graphics Pipeline with Compute", Game Developers Conference 2016（フラスタム、背面、オクルージョンの GPU カリング）
 - Microsoft Learn, "ID3D11DeviceContext::DrawIndexedInstancedIndirect"
 - Microsoft Learn, "ID3D11DeviceContext::CopyStructureCount"
 

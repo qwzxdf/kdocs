@@ -6,7 +6,7 @@ tags:
 
 # Comparison Samplers
 
-<strong>シャドウ マップが描けたら、画面の各点で「光から見た深度」と「マップの深度」を比べます</strong>。<strong>この比較を、GPU の比較サンプラーに任せる</strong>と、ハードウェア PCF（2×2 の補間）も同時に得られます。このページでは、比較の手順・比較サンプラーの設定・ハードウェア PCF の効果を説明します。
+<strong>シャドウ マップが描けたら、画面の各点で「光から見た深度」と「マップの深度」を比べます</strong>。<strong>この比較を GPU の比較サンプラーに任せる</strong>と、ハードウェア PCF（2×2 の補間）も同時に得られます。このページでは比較の手順・比較サンプラーの設定・ハードウェア PCF の効果を説明します。
 
 !!! tip "ポイント"
     - 画面の点を光の空間へ変換し、マップの深度と比べる。奥なら影。
@@ -33,14 +33,14 @@ float ShadowFactor(float3 world_pos) {
 
 | 点 | 説明 |
 | --- | --- |
-| `ndc.xy * (0.5, −0.5) + 0.5` | NDC（−1〜1、y は上向き）を、テクスチャ座標（0〜1、v は下向き）に |
+| `ndc.xy * (0.5, −0.5) + 0.5` | NDC（−1〜1、y は上向き）をテクスチャ座標（0〜1、v は下向き）に |
 | `depth = ndc.z − bias` | バイアスで自己影を防ぐ（[Shadow Bias](../bias/index.md)） |
 | 範囲外 | シャドウ マップの外は、影なし（1）として扱う（または別の扱い） |
-| `SampleCmpLevelZero` | 比較サンプラー。比較して、結果（0〜1）を、2×2 でバイリニア補間 |
+| `SampleCmpLevelZero` | 比較サンプラー。比較して結果（0〜1）を 2×2 でバイリニア補間 |
 
 ### 比較サンプラー
 
-<strong>比較サンプラー</strong>は、<strong>ハードウェアが「保存された深度」と「参照値」を比べる</strong>機能です。結果は比較が真なら 1、偽なら 0でバイリニアで補間されます（4 点の比較結果を混ぜる）。
+<strong>比較サンプラー</strong>は <strong>ハードウェアが「保存された深度」と「参照値」を比べる</strong>機能です。結果は比較が真なら 1、偽なら 0でバイリニアで補間されます（4 点の比較結果を混ぜる）。
 
 ```cpp
 D3D11_SAMPLER_DESC sampler = {};
@@ -51,16 +51,16 @@ sampler.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 device->CreateSamplerState(&sampler, &shadow_sampler);
 ```
 
-サンプラー設定の意味です。`COMPARISON_..._LINEAR` は、4 点の比較結果を線形補間するもので、これが最も簡単な PCF になります。`ComparisonFunc = LESS_EQUAL` は、参照値が保存された深度以下なら 1（光が当たる）を返します。アドレス モードを BORDER、色を 1.0 にすると、シャドウ マップの外は影なし（1）になります。
+サンプラー設定の意味です。`COMPARISON_..._LINEAR` は 4 点の比較結果を線形補間するもので、これが最も簡単な PCF になります。`ComparisonFunc = LESS_EQUAL` は参照値が保存された深度以下なら 1（光が当たる）を返します。アドレス モードを BORDER、色を 1.0 にするとシャドウ マップの外は影なし（1）になります。
 
 !!! note "標準 Z のとき"
     標準の Z（near → 0、far → 1）では<strong>遠いほど深度が大きい</strong>ので、`LESS_EQUAL` を使います。<strong>reverse-Z</strong> のときは、`GREATER_EQUAL` です（[投影](../../../3d/projection.md)）。
 
 ## 比較サンプラーとは
 
-影の判定は、<strong>「シャドウ マップの深度」と、「画素の、光からの深度」を、比較</strong>する作業です。この比較を、<strong>ハードウェアが、やってくれる</strong>のが、比較サンプラーです。さらに、4 つの隣の画素で、比較して、結果を、バイリニア補間してくれる（2×2 の PCF が、ただで、できる）ため、シャドウ マップの、読み取りは、比較サンプラーを使うのが、定番です。
+影の判定は <strong>「シャドウ マップの深度」と、「画素の光からの深度」を比較</strong>する作業です。この比較を <strong>ハードウェアがやってくれる</strong>のが、比較サンプラーです。さらに、4 つの隣の画素で比較して結果を、バイリニア補間してくれる（2×2 の PCF がただで、できる）ためシャドウ マップの、読み取りは比較サンプラーを使うのが、定番です。
 
-## 比較サンプラーの、作り方
+## 比較サンプラーの作り方
 
 ```cpp
 D3D11_SAMPLER_DESC desc = {};
@@ -79,13 +79,13 @@ device->CreateSamplerState(&desc, &shadow_sampler);
 
 | 設定 | 内容 |
 | --- | --- |
-| `Filter` | `COMPARISON_` で始まるものを、選ぶ。`MIN_MAG_LINEAR_MIP_POINT` なら、比較した結果を、バイリニアで、補間（影の縁が、なめらか）。`MIN_MAG_MIP_POINT` なら、補間なし（硬い縁） |
-| `ComparisonFunc` | `LESS_EQUAL`：参照値（画素の深度）が、テクスチャの値以下なら、1（光が当たる）。通常の、深度（小さいほど、近い）で、使う |
-| `AddressU/V` | `BORDER`：範囲外は、`BorderColor`。1.0にすると、範囲外は、影にならない |
+| `Filter` | `COMPARISON_` で始まるものを選ぶ。`MIN_MAG_LINEAR_MIP_POINT` なら比較した結果をバイリニアで、補間（影の縁がなめらか）。`MIN_MAG_MIP_POINT` なら補間なし（硬い縁） |
+| `ComparisonFunc` | `LESS_EQUAL`：参照値（画素の深度）が、テクスチャの値以下なら 1（光が当たる）。通常の、深度（小さいほど近い）で使う |
+| `AddressU/V` | `BORDER`：範囲外は `BorderColor`。1.0にすると範囲外は影にならない |
 
-## シェーダーでの、使い方
+## シェーダーでの使い方
 
-比較サンプラーは、HLSL では、<strong>`SamplerComparisonState`</strong> 型で、受け、<strong>`SampleCmp`</strong> または、`SampleCmpLevelZero` で、読みます。
+比較サンプラーは HLSL では、<strong>`SamplerComparisonState`</strong> 型で受け <strong>`SampleCmp`</strong> または `SampleCmpLevelZero` で、読みます。
 
 ```hlsl
 Texture2D<float> g_shadow_map : register(t5);
@@ -97,10 +97,10 @@ float lit = g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, shadow_uv, shadow_
 
 | 関数 | 内容 |
 | --- | --- |
-| `SampleCmp` | ミップ レベルを、自動で選ぶ（画面の微分を使う）。分岐の中では、使えない（微分が、不定になる） |
-| `SampleCmpLevelZero` | ミップ 0 を、使う。分岐の中でも、使える。シャドウ マップは、ミップを持たないので、これが標準 |
+| `SampleCmp` | ミップ レベルを、自動で選ぶ（画面の微分を使う）。分岐の中では使えない（微分が、不定になる） |
+| `SampleCmpLevelZero` | ミップ 0 を使う。分岐の中でも使える。シャドウ マップはミップを持たないので、これが標準 |
 
-## 比較の、意味
+## 比較の意味
 
 ```text
 SampleCmpLevelZero(map, uv, ref):
@@ -109,9 +109,9 @@ SampleCmpLevelZero(map, uv, ref):
    その 4 つの結果を、uv の小数部で、バイリニア補間
 ```
 
-<strong>重要</strong>：<strong>深度を、補間してから、比較</strong>するのではなく、比較してから、補間します。深度を、先に補間すると、遮蔽物の、縁で、存在しない、中間の深度が、できて、間違った影になります。比較してから、補間するのが、PCF の、正しい手順で、ハードウェアが、それを行います（[PCF](../pcf.md)）。
+<strong>重要</strong>：<strong>深度を補間してから、比較</strong>するのではなく比較してから、補間します。深度を先に補間すると遮蔽物の縁で、存在しない中間の深度ができて、間違った影になります。比較してから補間するのが PCF の、正しい手順でハードウェアがそれを行います（[PCF](../pcf.md)）。
 
-### 手動で、比較する場合（比較サンプラーが、使えない）
+### 手動で比較する場合（比較サンプラーが、使えない）
 
 ```hlsl
 // 通常のサンプラーで、深度を、読んで、手で比較する（補間なし。ハードの PCF は、無い）。
@@ -119,29 +119,29 @@ float stored = g_shadow_map.SampleLevel(g_point_clamp, shadow_uv, 0);
 float lit = (shadow_depth <= stored) ? 1.0 : 0.0;
 ```
 
-比較サンプラーが、<strong>使えない場面</strong>（VSM や、ESM のように、<strong>深度そのものを、使う</strong>場合、深度の、別の形式）では、この方法に、なります（[VSM, ESM and MSM](../vsm/index.md)）。
+比較サンプラーが <strong>使えない場面</strong>（VSM や、ESM のように <strong>深度そのものを、使う</strong>場合、深度の別の形式）ではこの方法に、なります（[VSM, ESM and MSM](../vsm/index.md)）。
 
 ## 使うべき理由
 
 | | 手動の比較 | 比較サンプラー |
 | --- | --- | --- |
-| 速さ | 4 回読む場合は、4 回の、テクスチャ読み込み | ハードウェアが、1 回で、2×2 を、処理 |
-| 縁のなめらかさ | 自分で、実装 | 標準で、2×2 の、バイリニア PCF |
+| 速さ | 4 回読む場合は、4 回のテクスチャ読み込み | ハードウェアが、1 回で 2×2 を処理 |
+| 縁のなめらかさ | 自分で、実装 | 標準で 2×2 のバイリニア PCF |
 | コード | 長い | 1 行 |
 
 ## 注意点
 
 | 項目 | 内容 |
 | --- | --- |
-| 深度の向き | reversed-Z（遠いほど、小さい）を、使っているなら、`ComparisonFunc` を、`GREATER_EQUAL` にする |
-| 形式 | シャドウ マップの、SRV は、`R32_FLOAT`（または `R24_UNORM_X8_TYPELESS`）。比較サンプラーで、読める |
-| ミップ | シャドウ マップは、ミップを、作らない（深度の、平均は、意味がない） |
-| テクスチャ配列 | カスケードを、配列にするなら、`Texture2DArray` と、`float3(uv, slice)` で読む |
+| 深度の向き | reversed-Z（遠いほど、小さい）を使っているなら `ComparisonFunc` を、`GREATER_EQUAL` にする |
+| 形式 | シャドウ マップの、SRV は `R32_FLOAT`（または `R24_UNORM_X8_TYPELESS`）。比較サンプラーで読める |
+| ミップ | シャドウ マップは、ミップを作らない（深度の平均は、意味がない） |
+| テクスチャ配列 | カスケードを、配列にするなら `Texture2DArray` と `float3(uv, slice)` で読む |
 
 ## よくあるミス
 
-??? failure "比較サンプラーなのに、通常のサンプラーで読んで、おかしい"
-    <strong>`SamplerComparisonState` を使い、`SampleCmp` で読む</strong>。
+??? failure "比較サンプラーなのに、通常のサンプラーで読んでおかしい"
+    <strong>`SamplerComparisonState` を使い `SampleCmp` で読む</strong>。
 
 ## これだけ覚える
 

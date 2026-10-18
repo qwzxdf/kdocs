@@ -6,18 +6,18 @@ tags:
 
 # Applying a Height Map to the Surface
 
-<strong>シミュレーションした高さマップを、水面のメッシュの高さと法線に足す</strong>と、<strong>波紋が見えます</strong>。シミュレーションする範囲は、カメラの周りに限るのが普通です。このページでは、反映の方法と、シミュレーション領域を説明します。
+<strong>シミュレーションした高さマップを、水面のメッシュの高さと法線に足す</strong>と、<strong>波紋が見えます</strong>。シミュレーションする範囲はカメラの周りに限るのが普通です。このページでは反映の方法とシミュレーション領域を説明します。
 
 !!! tip "ポイント"
     - 高さマップを読んで、頂点の高さに足す。
-    - 傾きから、法線にも足す。
+    - 傾きから法線にも足す。
     - シミュレーション領域は、カメラの周りの四角。
-    - 領域が動く時は、マップをずらす。
+    - 領域が動く時はマップをずらす。
 
 ## 高さマップを水面に反映する
-<strong>シミュレーションの高さを、水面に反映</strong>します。
+<strong>シミュレーションの高さを水面に反映</strong>します。
 
-反映先は 2 つです。頂点の高さは、頂点シェーダーで高さマップを読み、波の高さに足します。法線は、高さマップの勾配から法線を作り、波の法線に足します（細かい凹凸が見えます）。
+反映先は 2 つです。頂点の高さは頂点シェーダーで高さマップを読み、波の高さに足します。法線は高さマップの勾配から法線を作り、波の法線に足します（細かい凹凸が見えます）。
 
 ```hlsl
 float2 texel = 1.0 / sim_size;
@@ -29,7 +29,7 @@ float hu = ripple_map.Sample(linear_clamp, uv + float2(0, texel.y)).r;
 float3 ripple_normal = normalize(float3((hl - hr) * normal_strength, 2.0 * texel_world, (hd - hu) * normal_strength));
 ```
 
-コードの要点です。中心差分で、左右・上下の差が勾配になります。`normal_strength` が大きいほど、凹凸がはっきりします。合成は、波の法線の XZ に波紋の XZ を足して正規化します。
+コードの要点です。中心差分で左右・上下の差が勾配になります。`normal_strength` が大きいほど凹凸がはっきりします。合成は波の法線の XZ に波紋の XZ を足して正規化します。
 
 ## シミュレーション領域
 <strong>水面全体を高解像度でシミュレーションするのは、重すぎます</strong>。<strong>カメラ周りの狭い領域だけ</strong>を対象にします。
@@ -37,23 +37,23 @@ float3 ripple_normal = normalize(float3((hl - hr) * normal_strength, 2.0 * texel
 | 工夫 | 内容 |
 | --- | --- |
 | カメラ追従 | 領域の中心をカメラの近くに置く |
-| ずれの処理 | 領域が動くとき、テクセル単位で動かして、高さを読み替える（波がずれないようにワールド座標をテクセルに揃える） |
+| ずれの処理 | 領域が動くとき、テクセル単位で動かして高さを読み替える（波がずれないようにワールド座標をテクセルに揃える） |
 | 解像度 | 512×512 を、20〜30 m 四方など。1 テクセル 5 cm 程度 |
 | 端でフェード | 領域の端で高さを 0 に近づける（切れ目が見えない） |
 
-## 波紋を、シミュレーションする（波動方程式）
+## 波紋をシミュレーションする（波動方程式）
 
-水面に、物が触れたとき、<strong>波紋が、広がる</strong>様子は、<strong>波動方程式</strong>を、高さ場（格子の、各点が、高さを持つ）で、解くと、再現できます（Tessendorf、2004、Müller、2008）。
+水面に物が触れたとき <strong>波紋が、広がる</strong>様子は <strong>波動方程式</strong>を、高さ場（格子の各点が高さを持つ）で解くと、再現できます（Tessendorf、2004、Müller、2008）。
 
 ```text
 ∂²h/∂t² = c² × ∇²h            h: 水面の高さ、c: 波の速さ、∇²h: 周りとの、高さの差（ラプラシアン）
 ```
 
-「<strong>周りより、高い所は、下がる方向へ、加速し、周りより低い所は、上がる方向へ、加速する</strong>」という意味です。バネが、つながったような動きで、<strong>波が、伝わります</strong>。
+「<strong>周りより高い所は下がる方向へ加速し、周りより低い所は上がる方向へ、加速する</strong>」という意味です。バネがつながったような動きで <strong>波が、伝わります</strong>。
 
 ## 離散化
 
-格子の各点 `h[x, z]` を、時間ステップ `dt` ごとに、更新します。<strong>今のフレーム</strong>の高さ `h` と、<strong>1 つ前のフレーム</strong>の高さ `h_prev` を持ちます。
+格子の各点 `h[x, z]` を時間ステップ `dt` ごとに、更新します。<strong>今のフレーム</strong>の高さ `h` と、<strong>1 つ前のフレーム</strong>の高さ `h_prev` を持ちます。
 
 ```text
 laplacian = h[x+1,z] + h[x−1,z] + h[x,z+1] + h[x,z−1] − 4 h[x,z]
@@ -64,15 +64,15 @@ h_new *= damping            （1 より少し小さい値。波が、だんだ�
 | 値 | 意味 |
 | --- | --- |
 | `2 h − h_prev` | 速度（前回からの変化）を、そのまま続ける（慣性） |
-| `(c dt / dx)² × laplacian` | 周りに、引っ張られる力 |
-| `damping` | 0.99〜0.999。小さいほど、波が早く消える |
+| `(c dt / dx)² × laplacian` | 周りに引っ張られる力 |
+| `damping` | 0.99〜0.999。小さいほど波が早く消える |
 
 !!! warning "時間ステップには、上限がある（CFL 条件）"
-    `c dt / dx` が、大きすぎると、<strong>計算が、発散</strong>します（波が、爆発的に、大きくなる）。2 次元の格子では、<strong>`c dt / dx ≤ 1/√2 ≈ 0.707`</strong> を守ります。`dx` が小さいほど、`dt` も、小さくする必要があります。固定の時間ステップで、計算するのが、安全です。
+    `c dt / dx` が大きすぎると <strong>計算が、発散</strong>します（波が爆発的に大きくなる）。2 次元の格子では <strong>`c dt / dx ≤ 1/√2 ≈ 0.707`</strong> を守ります。`dx` が小さいほど `dt` も小さくする必要があります。固定の時間ステップで計算するのが、安全です。
 
 ## 計算シェーダー
 
-3 つの高さマップ（今、前、次）を、<strong>ローテーション</strong>して使います。
+3 つの高さマップ（今、前、次）を <strong>ローテーション</strong>して使います。
 
 ```hlsl
 Texture2D<float> g_h : register(t0);              // 現在の高さ
@@ -110,11 +110,11 @@ context->CSSetUnorderedAccessViews(0, 1, h_next_uav.GetAddressOf(), nullptr);
 context->Dispatch(size / 8, size / 8, 1);
 ```
 
-読み書きに、<strong>同じテクスチャを、同時に使えない</strong>ので、3 枚を、役割を替えながら使います（今を読み、前を読み、次に書く）。
+読み書きに <strong>同じテクスチャを、同時に使えない</strong>ので 3 枚を、役割を替えながら使います（今を読み、前を読み次に書く）。
 
 ## 波を起こす（外力）
 
-物が水面に触れたとき、<strong>その位置の高さを、押し下げる（または、持ち上げる）</strong>ことで、波紋を、起こします（[Writing Object Contacts](contact.md)）。
+物が水面に触れたとき <strong>その位置の高さを、押し下げる（または持ち上げる）</strong>ことで波紋を、起こします（[Writing Object Contacts](contact.md)）。
 
 ```hlsl
 // 物が、水面を押した位置に、高さを足す（ブラシ）。
@@ -123,9 +123,9 @@ float push = impact_strength * saturate(1.0 - d / impact_radius);
 g_h_next[id.xy] += push;
 ```
 
-## 水面メッシュに、適用する
+## 水面メッシュに適用する
 
-シミュレーションの結果（高さマップ）を、<strong>水面の頂点の高さに、足し込み</strong>ます。
+シミュレーションの結果（高さマップ）を、<strong>水面の頂点の高さに足し込み</strong>ます。
 
 ```hlsl
 // 頂点シェーダー: 通常の波（FFT、Gerstner）に、波紋の高さを、足す。
@@ -136,21 +136,21 @@ float edge_fade = 1.0 - saturate(max(abs(interaction_uv.x - 0.5), abs(interactio
 world_pos.y += ripple * edge_fade;
 ```
 
-<strong>法線</strong>も、波紋の高さから、<strong>差分で</strong>、求めて、水面の法線に、足します（[Computing Normals](../waves/normals.md)、傾きを足し合わせる）。
+<strong>法線</strong>も波紋の高さから <strong>差分で</strong>、求めて水面の法線に足します（[Computing Normals](../waves/normals.md)、傾きを足し合わせる）。
 
-## 窓を、カメラに合わせる
+## 窓をカメラに合わせる
 
-高さマップは、<strong>プレイヤーの周りの、数十メートル</strong>だけを覆います（256×256 を、50 m に、割り当てて、1 画素 約 20 cm）。カメラが動くと、窓も動き、<strong>中身を、ずらす</strong>必要があります。円環バッファ（`WRAP`）を使うと、コピーなしで、窓を動かせます（[Trampled Grass](../../terrain/vegetation/trample.md) と、同じ考え方）。窓が動いたとき、新しく、範囲に入った帯は、0 にクリアします。
+高さマップは <strong>プレイヤーの周りの、数十メートル</strong>だけを覆います（256×256 を、50 m に割り当てて 1 画素 約 20 cm）。カメラが動くと窓も動き <strong>中身を、ずらす</strong>必要があります。円環バッファ（`WRAP`）を使うとコピーなしで、窓を動かせます（[Trampled Grass](../../terrain/vegetation/trample.md) と、同じ考え方）。窓が動いたとき新しく範囲に入った帯は、0 にクリアします。
 
-## 性能と、品質
+## 性能と品質
 
 | 項目 | 内容 |
 | --- | --- |
-| 解像度 | 256×256〜512×512。1 画素 10〜20 cm が、波紋の細かさの、限界 |
-| 計算量 | 1 ステップ、数万〜数十万画素。GPU では、0.05 ms 程度 |
-| 波の速さ | `c` を小さくすると、波紋が、ゆっくり広がる。見た目で調整 |
-| 減衰 | 小さい波紋は、すぐ消えるように、`damping` を小さめにする |
-| 反射 | 窓の端で、波が、跳ね返る。端で、減衰を、強くして、吸収する（スポンジ層） |
+| 解像度 | 256×256〜512×512。1 画素 10〜20 cm が、波紋の細かさの限界 |
+| 計算量 | 1 ステップ、数万〜数十万画素。GPU では 0.05 ms 程度 |
+| 波の速さ | `c` を小さくすると波紋が、ゆっくり広がる。見た目で調整 |
+| 減衰 | 小さい波紋はすぐ消えるように、`damping` を小さめにする |
+| 反射 | 窓の端で波が跳ね返る。端で減衰を強くして吸収する（スポンジ層） |
 
 ## よくあるミス
 
@@ -166,7 +166,7 @@ world_pos.y += ripple * edge_fade;
 ## 参考
 
 - Müller, "Fast Water Simulation for Games Using Height Fields", Game Developers Conference 2008（高さ場の波動方程式による水面）
-- Tessendorf, "Interactive Water Surfaces", Game Programming Gems 4, 2004（高さ場の、波紋の、シミュレーション）
+- Tessendorf, "Interactive Water Surfaces", Game Programming Gems 4, 2004（高さ場の波紋の、シミュレーション）
 - Courant, Friedrichs, Lewy, "Über die partiellen Differenzengleichungen der mathematischen Physik", Mathematische Annalen, Vol. 100, 1928（CFL 条件の原典）
 
 ## 関連ページ

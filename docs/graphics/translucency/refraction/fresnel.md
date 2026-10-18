@@ -6,22 +6,22 @@ tags:
 
 # Fresnel
 
-<strong>ガラスや水は、見る角度によって、反射と屈折の割合が変わります</strong>。<strong>真正面からは、ほぼ透明、斜めからは、鏡のようになる</strong>のがフレネル効果です。このページでは、フレネルの式（Schlick 近似）と使い方を説明します。
+<strong>ガラスや水は見る角度によって、反射と屈折の割合が変わります</strong>。<strong>真正面からはほぼ透明、斜めからは鏡のようになる</strong>のがフレネル効果です。このページではフレネルの式（Schlick 近似）と使い方を説明します。
 
 !!! tip "ポイント"
     - 正面 ＝ 屈折（透過）が主。斜め ＝ 反射が主。
     - Schlick 近似：F = F0 + (1 − F0)(1 − cosθ)⁵。
-    - 反射と屈折を、F で混ぜる。
+    - 反射と屈折を F で混ぜる。
     - ガラスの F0 は 0.04 程度。
 
 ## フレネル
-<strong>浅い角度</strong>（面すれすれ）で見るほど、<strong>反射が強く、透過（屈折）が弱く</strong>なります。水面を、真上から見ると底が見え、遠くを見ると空が映るのは、フレネルです。
+<strong>浅い角度</strong>（面すれすれ）で見るほど、<strong>反射が強く透過（屈折）が弱く</strong>なります。水面を真上から見ると底が見え、遠くを見ると空が映るのはフレネルです。
 
 <strong>Schlick の近似</strong>：
 
 <div class="formula">F = F₀ + (1 − F₀) · (1 − cos θ)⁵　　F₀ = ((n₁ − n₂) / (n₁ + n₂))²</div>
 
-記号の意味です。F₀ は真正面から見たときの反射率で、ガラスや水は約 0.02〜0.04 です。cos θ は視線と法線の内積です。F は反射率（0〜1）で、透過は `1 − F` です。
+記号の意味です。F₀ は真正面から見たときの反射率で、ガラスや水は約 0.02〜0.04 です。cos θ は視線と法線の内積です。F は反射率（0〜1）で透過は `1 − F` です。
 
 ```hlsl
 float Fresnel(float cos_theta, float f0) {
@@ -32,7 +32,7 @@ float f = Fresnel(dot(normal, -view_dir), 0.04);
 float3 color = lerp(refracted_background, reflection, f);
 ```
 
-コードの要点です。`F₀ = 0.04` は、非金属（ガラス・水・プラスチック）の標準値です。`lerp(屈折, 反射, F)` で、F が大きいほど反射が強くなります。反射の色は、環境マップ・SSR・プローブから得ます（[Reflections](../../reflections/index.md)）。
+コードの要点です。`F₀ = 0.04` は非金属（ガラス・水・プラスチック）の標準値です。`lerp(屈折, 反射, F)` で F が大きいほど反射が強くなります。反射の色は環境マップ・SSR・プローブから得ます（[Reflections](../../reflections/index.md)）。
 
 <!-- fig:fresnel-f0:begin -->
 
@@ -63,19 +63,19 @@ float3 color = lerp(refracted_background, reflection, f);
 
 <!-- fig:fresnel-f0:end -->
 
-## 反射と、屈折の、割合
+## 反射と屈折の割合
 
-ガラスや水の表面に、光が、当たると、<strong>反射する光</strong>と、<strong>屈折して、中へ入る光</strong>に、分かれます。反射の割合が、フレネル反射率 `F`、屈折（透過）の割合が `1 − F` です（エネルギーは、保存される。吸収を、ここでは、無視する）。
+ガラスや水の表面に光が当たると、<strong>反射する光</strong>と <strong>屈折して中へ入る光</strong>に、分かれます。反射の割合がフレネル反射率 `F`、屈折（透過）の割合が `1 − F` です（エネルギーは、保存される。吸収をここでは無視する）。
 
 ```text
 最終の色 = 反射の色 × F  +  屈折の色 × (1 − F)
 ```
 
-`F` は、<strong>見る角度</strong>と、<strong>屈折率</strong>で、決まります。真上から見ると、反射は、少なく、浅い角度で見るほど、反射が、増えます。
+`F` は <strong>見る角度</strong>と <strong>屈折率</strong>で、決まります。真上から見ると反射は少なく浅い角度で見るほど反射が、増えます。
 
 ## 屈折率と F₀
 
-<strong>屈折率</strong>（n）が、大きい物ほど、<strong>真上から見たとき</strong>の、反射率 `F₀` が、大きくなります。
+<strong>屈折率</strong>（n）が大きい物ほど、<strong>真上から見たとき</strong>の反射率 `F₀` が、大きくなります。
 
 ```text
 F₀ = ( (n − 1) / (n + 1) )²              空気（n = 1）から、屈折率 n の物へ
@@ -90,7 +90,7 @@ F₀ = ( (n − 1) / (n + 1) )²              空気（n = 1）から、屈折�
 | サファイア | 1.77 | 0.077 |
 | ダイヤモンド | 2.42 | 0.172 |
 
-ガラスの、<strong>4%</strong> が、反射します（正面から、見ても、ガラスに、<strong>自分の、姿が、うっすら映る</strong>のは、このため）。ダイヤモンドが、よく光るのは、屈折率が、高く、反射が、強いためです。
+ガラスの <strong>4%</strong> が反射します（正面から見ても、ガラスに <strong>自分の姿がうっすら映る</strong>のは、このため）。ダイヤモンドがよく光るのは屈折率が高く反射が、強いためです。
 
 ## Schlick 近似
 
@@ -100,7 +100,7 @@ float FresnelSchlick(float cos_theta, float f0) {
 }
 ```
 
-詳しい式と、近似の精度は、[Water Fresnel](../../water/shading/fresnel.md) で説明しています（水は `F₀ = 0.02`、ガラスは `0.04`）。ガラスでは、<strong>`F₀` を、屈折率から、計算</strong>して、渡します。
+詳しい式と近似の精度は[Water Fresnel](../../water/shading/fresnel.md) で説明しています（水は `F₀ = 0.02`、ガラスは `0.04`）。ガラスでは <strong>`F₀` を屈折率から、計算</strong>して渡します。
 
 ```hlsl
 float F0FromIOR(float ior) {
@@ -109,16 +109,16 @@ float F0FromIOR(float ior) {
 }
 ```
 
-## ガラスの、見た目への、影響
+## ガラスの見た目への影響
 
 | 見る角度 | F | 見え方 |
 | --- | --- | --- |
-| 真正面（0°） | 4% | ほぼ透明。向こうの景色が、はっきり見える。反射は、うっすら |
-| 60° | 9% | 少し、反射が、見える |
-| 80° | 33% | 反射が、強い。景色が、はっきり映る |
+| 真正面（0°） | 4% | ほぼ透明。向こうの景色がはっきり見える。反射はうっすら |
+| 60° | 9% | 少し反射が、見える |
+| 80° | 33% | 反射が強い。景色がはっきり映る |
 | 89° | 90% | ほぼ鏡 |
 
-<strong>ガラス窓を、斜めから見る</strong>と、<strong>向こうが、見えにくく</strong>なり、空や、周囲が、映るのは、このためです。
+<strong>ガラス窓を斜めから見る</strong>と、<strong>向こうが見えにくく</strong>なり空や周囲が、映るのはこのためです。
 
 ## 実装
 
@@ -133,11 +133,11 @@ float3 refraction = SampleRefraction(...);                         // 画面の�
 float3 color = lerp(refraction * tint, reflection, F);
 ```
 
-<strong>反射</strong>は、環境マップ（[Reflection Probes](../../reflections/probes/index.md)）、SSR（[SSR](../../reflections/ssr-basics/index.md)）などで、与えます。
+<strong>反射</strong>は環境マップ（[Reflection Probes](../../reflections/probes/index.md)）、SSR（[SSR](../../reflections/ssr-basics/index.md)）などで与えます。
 
-## ガラスの、内側から
+## ガラスの内側から
 
-ガラスの<strong>中から、外を見る</strong>（ガラスの、厚みの中を、通って、裏面に当たる光）とき、<strong>屈折率の、関係が、逆</strong>になります（`n₁ = 1.5`、`n₂ = 1.0`）。入射角が、臨界角を、超えると、全反射が起きます（ガラスで、約 41.8°、水で、約 48.6°）。
+ガラスの<strong>中から外を見る</strong>（ガラスの、厚みの中を通って裏面に当たる光）とき、<strong>屈折率の関係が逆</strong>になります（`n₁ = 1.5`、`n₂ = 1.0`）。入射角が臨界角を超えると全反射が起きます（ガラスで、約 41.8°、水で約 48.6°）。
 
 ```text
 臨界角 θ_c = asin(1 / n)          ガラス: asin(1/1.5) ≈ 41.8°、ダイヤ: asin(1/2.42) ≈ 24.4°
@@ -149,11 +149,11 @@ float3 color = lerp(refraction * tint, reflection, F);
 | ガラス（1.5） | 41.8° |
 | ダイヤモンド（2.42） | 24.4° |
 
-ダイヤモンドは、<strong>臨界角が、小さい</strong>ので、<strong>内部で、多くの光が、全反射</strong>を、繰り返し、光が、閉じ込められ、きらめきます（カットの、設計と、組み合わさる）。画面空間の屈折では、内部の、複数回の反射は、扱えません（[Thin and Thick Glass](thin-thick.md)）。
+ダイヤモンドは <strong>臨界角が小さい</strong>ので、<strong>内部で多くの光が全反射</strong>を、繰り返し光が閉じ込められきらめきます（カットの設計と、組み合わさる）。画面空間の屈折では内部の複数回の反射は、扱えません（[Thin and Thick Glass](thin-thick.md)）。
 
 ## 粗い面（すりガラス）
 
-すりガラスや、荒れた水面は、<strong>微小な、凹凸</strong>で、反射と屈折が、<strong>散らばります</strong>。GGX 分布を、使った、屈折（Walter ら、2007）が、理論的な、モデルです。実用では、反射も、屈折も、ぼかす（粗さに応じて、ミップを、読む）。
+すりガラスや荒れた水面は <strong>微小な、凹凸</strong>で反射と屈折が <strong>散らばります</strong>。GGX 分布を使った屈折（Walter ら、2007）が理論的なモデルです。実用では反射も屈折もぼかす（粗さに応じて、ミップを読む）。
 
 ```hlsl
 // 粗さに応じて、背景（画面のコピー）の、ぼかした版を、読む。
@@ -161,17 +161,17 @@ float lod = roughness * kMaxMip;
 float3 refracted = g_scene_copy_blurred.SampleLevel(g_linear_clamp, refract_uv, lod).rgb;
 ```
 
-画面のコピーに、<strong>ミップを、作って</strong>（`GenerateMips`）おくと、<strong>粗さ</strong>に応じた、ぼけが、安く、得られます。
+画面のコピーに <strong>ミップを作って</strong>（`GenerateMips`）おくと、<strong>粗さ</strong>に応じたぼけが安く得られます。
 
 ## よくあるミス
 
 ??? failure "ガラスが、どの角度でも同じ透明度"
-    <strong>フレネルで、反射と屈折の割合を変える</strong>。
+    <strong>フレネルで反射と屈折の割合を変える</strong>。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 角度で、反射と屈折の割合が変わる
+    - [x] 角度で反射と屈折の割合が変わる
     - [x] Schlick 近似で、安く計算
 
 ## 参考

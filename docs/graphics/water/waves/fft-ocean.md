@@ -6,14 +6,14 @@ tags:
 
 # FFT Ocean
 
-<strong>FFT 海面は、海の波のスペクトル（周波数ごとの強さ）から、逆 FFT で、高さを合成する手法</strong>です。<strong>映画のような本物の海を、リアルタイムで作れます</strong>が、計算量が大きく、タイリングの工夫も必要です。このページでは、FFT 海面の考え方と手順を説明します。
+<strong>FFT 海面は海の波のスペクトル（周波数ごとの強さ）から、逆 FFT で高さを合成する手法</strong>です。<strong>映画のような本物の海をリアルタイムで作れます</strong>が、計算量が大きくタイリングの工夫も必要です。このページでは FFT 海面の考え方と手順を説明します。
 
 !!! tip "ポイント"
     - 海のスペクトル（Phillips など）から、初期の波を作る。
     - 時間とともに位相を回して、逆 FFT で高さに変換。
     - GPU の Compute Shaderで計算する。
     - 複数のスケールを重ねて、繰り返しを隠す。
-    - 重いので、近景だけ FFT、遠景はサイン波など使い分ける。
+    - 重いので近景だけ FFT、遠景はサイン波など使い分ける。
 
 <!-- fig:fft-spectrum:begin -->
 
@@ -89,7 +89,7 @@ tags:
 <!-- fig:fft-spectrum:end -->
 
 ## FFT 海面
-<strong>FFT 海面</strong>（Tessendorf、2001）は、<strong>海の波を「周波数ごとの成分の重ね合わせ」として、統計的に生成</strong>します。非常にリアルな海が作れるので、映画や、AAA ゲームの海に使われます。
+<strong>FFT 海面</strong>（Tessendorf、2001）は <strong>海の波を「周波数ごとの成分の重ね合わせ」として、統計的に生成</strong>します。非常にリアルな海が作れるので映画や、AAA ゲームの海に使われます。
 
 | 手順 | 内容 |
 | --- | --- |
@@ -99,15 +99,15 @@ tags:
 | ④ 変位・法線・フォーム | <strong>高さ・水平変位・法線・波の折れ（ヤコビアン）</strong> をテクスチャに出す |
 | ⑤ 水面メッシュで読む | 頂点シェーダーで高さマップを読んでメッシュを動かす |
 
-FFT 海面の利点は、非常にリアルなこと（自然で、無限に近い多様性）、周期的だが複数のスケールを重ねて目立たなくできること、波の折れ（フォーム）の位置も得られることです。欠点は、コンピュート シェーダーと複数のテクスチャが必要で実装が複雑なこと、正方形のタイルが繰り返されるのでタイリング対策が必要なこと、ゲームプレイとの連携（物を浮かせる）には、同じ計算を CPU 側でも行うか読み戻す必要があることです。
+FFT 海面の利点は非常にリアルなこと（自然で、無限に近い多様性）、周期的だが複数のスケールを重ねて目立たなくできること、波の折れ（フォーム）の位置も得られることです。欠点はコンピュート シェーダーと複数のテクスチャが必要で実装が複雑なこと、正方形のタイルが繰り返されるのでタイリング対策が必要なこと、ゲームプレイとの連携（物を浮かせる）には、同じ計算を CPU 側でも行うか読み戻す必要があることです。
 
 <strong>ヤコビアン</strong>（<strong>水平変位の面積の変化</strong>）が小さい（負）所は波が折れているのでフォーム（泡）を出す目印になります（[岸辺と泡](../shore-foam/index.md)）。
 
-## なぜ、FFT を使うのか
+## なぜ FFT を使うのか
 
-サイン波や Gerstner 波を、足すだけの海は、<strong>8 本ほど</strong>が限界で、<strong>周期が、見えて</strong>しまいます。本物の海は、非常に多くの、波長と向きの波が、ランダムに、重なっています。数千本の波を、足し合わせたいのですが、1 頂点で、数千回の `sin` は、計算できません。
+サイン波や Gerstner 波を、足すだけの海は <strong>8 本ほど</strong>が限界で、<strong>周期が見えて</strong>しまいます。本物の海は非常に多くの波長と向きの波が、ランダムに重なっています。数千本の波を足し合わせたいのですが、1 頂点で数千回の `sin` は計算できません。
 
-<strong>高速フーリエ変換（FFT、Cooley と Tukey、1965）</strong>を使うと、<strong>N×N 個の、周波数成分を、`O(N² log N)` で、一度に、空間の高さに変換</strong>できます。256×256 の海面（65,536 本の波）を、数ミリ秒で、合成できます。Tessendorf（2001）の方法が、ほとんどの、FFT 海面の、出発点です。
+<strong>高速フーリエ変換（FFT、Cooley と Tukey、1965）</strong>を使うと <strong>N×N 個の、周波数成分を `O(N² log N)` で一度に空間の高さに変換</strong>できます。256×256 の海面（65,536 本の波）を、数ミリ秒で合成できます。Tessendorf（2001）の方法が、ほとんどの FFT 海面の出発点です。
 
 ## 全体の流れ
 
@@ -123,7 +123,7 @@ FFT 海面の利点は、非常にリアルなこと（自然で、無限に近�
 
 ## ① 初期スペクトル
 
-海の波は、波数ベクトル `k = (kx, kz)`（向きと波長を表す）ごとに、<strong>強さ（スペクトル）</strong>を持ちます。<strong>Phillips スペクトル</strong>（1958）は、風が、十分に吹き続けた海の、統計を表します。
+海の波は波数ベクトル `k = (kx, kz)`（向きと波長を表す）ごとに、<strong>強さ（スペクトル）</strong>を持ちます。<strong>Phillips スペクトル</strong>（1958）は風が、十分に吹き続けた海の統計を表します。
 
 ```text
 P(k) = A × exp( −1 / (|k| L)² ) / |k|⁴ × | k̂ · ŵ |²
@@ -136,15 +136,15 @@ A                    全体の強さ（調整用）
 
 | 項 | 意味 |
 | --- | --- |
-| `exp(−1/(kL)²)` | `L` より、長い波は、存在しない（`k` が小さいと、0 に近づく） |
-| `1 / k⁴` | 短い波ほど、弱い（波長が半分になると、強さが 1/16） |
-| `|k̂ · ŵ|²` | 風と同じ向きの波が、強い。直角の波は、弱い |
+| `exp(−1/(kL)²)` | `L` より長い波は、存在しない（`k` が小さいと 0 に近づく） |
+| `1 / k⁴` | 短い波ほど弱い（波長が半分になると、強さが 1/16） |
+| `|k̂ · ŵ|²` | 風と同じ向きの波が強い。直角の波は弱い |
 
-実装では、風と<strong>逆向き</strong>の波（`k̂·ŵ < 0`）を、さらに弱めたり、<strong>非常に短い波を、消す</strong>（`exp(−k² l²)`、`l` は小さい長さ）項を、足したりします。
+実装では風と<strong>逆向き</strong>の波（`k̂·ŵ < 0`）を、さらに弱めたり <strong>非常に短い波を、消す</strong>（`exp(−k² l²)`、`l` は小さい長さ）項を足したりします。
 
-### 初期値 h0 を、乱数で作る
+### 初期値 h0 を乱数で作る
 
-各 `k` について、<strong>ガウス分布の乱数 2 つ</strong>（`ξr`、`ξi`）を、使って、複素数の `h0(k)` を作ります。
+各 `k` について <strong>ガウス分布の乱数 2 つ</strong>（`ξr`、`ξi`）を使って複素数の `h0(k)` を作ります。
 
 ```text
 h0(k) = (1/√2) × (ξr + i ξi) × √P(k)
@@ -167,11 +167,11 @@ for (int m = 0; m < N; ++m) {
 // h0(-k) も、同じ配列から引いて、zw に入れる（中心について、反対側の要素）。
 ```
 
-スペクトルは、<strong>Phillips 以外</strong>も、あります。JONSWAP（1973）は、<strong>波が、育つ距離（吹送距離）</strong>も考慮し、Horvath（2015）は、方向の広がりまで含めた、実測に基づくモデルを、示しています。Phillips は、簡単で、十分に、海らしいので、まず、これで作ります。
+スペクトルは <strong>Phillips 以外</strong>も、あります。JONSWAP（1973）は <strong>波が、育つ距離（吹送距離）</strong>も考慮し、Horvath（2015）は、方向の広がりまで含めた実測に基づくモデルを、示しています。Phillips は簡単で十分に、海らしいのでまずこれで作ります。
 
 ## ② 時間発展
 
-各周波数成分を、<strong>時間とともに、位相を回し</strong>ます。回る速さは、<strong>分散関係</strong>で、波長ごとに、決まります（深い水）。
+各周波数成分を <strong>時間とともに、位相を回し</strong>ます。回る速さは <strong>分散関係</strong>で波長ごとに、決まります（深い水）。
 
 ```text
 ω(k) = sqrt( g × |k| )
@@ -179,7 +179,7 @@ for (int m = 0; m < N; ++m) {
 h(k, t) = h0(k) × e^{ i ω t }  +  conj( h0(−k) ) × e^{ −i ω t }
 ```
 
-2 つの項は、<strong>反対向きに進む、同じ波長の波</strong>を表します。足し合わせると、<strong>逆 FFT の結果が、実数</strong>になります（海面の高さは、実数であるため）。
+2 つの項は <strong>反対向きに進む、同じ波長の波</strong>を表します。足し合わせると <strong>逆 FFT の結果が、実数</strong>になります（海面の高さは、実数であるため）。
 
 ```hlsl
 Texture2D<float4> g_h0 : register(t0);            // xy = h0(k)、zw = h0(-k)
@@ -188,7 +188,7 @@ RWTexture2D<float2> g_dx_k : register(u1);        // 水平変位 x（周波数�
 RWTexture2D<float2> g_dz_k : register(u2);        // 水平変位 z
 ```
 
-入力は、初期スペクトル `h0`（`h0(k)` と `h0(−k)` を、1 枚に、詰めたもの）です。出力は、周波数空間の、高さ、水平変位（X と Z）の、3 枚で、いずれも、複素数（実部・虚部）を、`float2` に入れます。
+入力は初期スペクトル `h0`（`h0(k)` と `h0(−k)` を、1 枚に詰めたもの）です。出力は周波数空間の高さ水平変位（X と Z）の、3 枚でいずれも複素数（実部・虚部）を、`float2` に入れます。
 
 ```hlsl
 cbuffer EvolveCB : register(b0) {
@@ -199,13 +199,13 @@ cbuffer EvolveCB : register(b0) {
 };
 ```
 
-`g_choppy` は、水平変位の強さで、大きいほど、波が、尖ります。`g_patch_size` は、海のタイル 1 枚の、実際の大きさ（メートル）で、周波数の、間隔を、決めます。
+`g_choppy` は水平変位の強さで大きいほど波が、尖ります。`g_patch_size` は海のタイル 1 枚の実際の大きさ（メートル）で、周波数の間隔を決めます。
 
 ```hlsl
 float2 ComplexMul(float2 a, float2 b) { return float2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x); }
 ```
 
-複素数の、掛け算です。HLSL には、複素数型が、無いので、`(a + bi)(c + di) = (ac − bd) + (ad + bc)i` を、手で書きます。
+複素数の掛け算です。HLSL には複素数型が無いので `(a + bi)(c + di) = (ac − bd) + (ad + bc)i` を、手で書きます。
 
 ```hlsl
 [numthreads(8, 8, 1)]
@@ -218,7 +218,7 @@ void Evolve(uint3 id : SV_DispatchThreadID) {
   float c = cos(w * g_time), s = sin(w * g_time);
 ```
 
-各画素が、1 つの周波数 `k` を、受け持ちます。画素の座標から、波数ベクトルを、作り、深い水の、分散関係 `ω = √(g|k|)` で、角周波数を、求めます。波が、長い（`k` が小さい）ほど、ゆっくり、動きます。`h0` を、読み、`cos ωt`、`sin ωt` を、用意します。
+各画素が 1 つの周波数 `k` を、受け持ちます。画素の座標から波数ベクトルを作り、深い水の分散関係 `ω = √(g|k|)` で角周波数を、求めます。波が長い（`k` が小さい）ほど、ゆっくり動きます。`h0` を読み `cos ωt`、`sin ωt` を用意します。
 
 ```hlsl
   // h(k,t) = h0(k) e^{iwt} + conj(h0(-k)) e^{-iwt}
@@ -228,7 +228,7 @@ void Evolve(uint3 id : SV_DispatchThreadID) {
   g_height_k[id.xy] = hk;
 ```
 
-時刻 `t` の、スペクトルを、求めます。`h0(k)` に、`e^{iωt}`、共役の `h0(−k)` に、`e^{−iωt}` を、掛けて、足します。この足し算の、おかげで、逆 FFT の結果が、実数（高さ）になります。
+時刻 `t` のスペクトルを求めます。`h0(k)` に `e^{iωt}`、共役の `h0(−k)` に `e^{−iωt}` を掛けて足します。この足し算のおかげで逆 FFT の結果が、実数（高さ）になります。
 
 ```hlsl
   // 水平変位（Tessendorf の式）: D(k) = −i (k / |k|) h(k)
@@ -240,11 +240,11 @@ void Evolve(uint3 id : SV_DispatchThreadID) {
 
 ## ③ 逆 FFT
 
-周波数空間の画像（複素数）を、空間の画像に、変換します。<strong>2 次元の FFT は、行ごとに 1 次元の FFT をして、そのあと、列ごとに、1 次元の FFT をする</strong>ことで、行えます。
+周波数空間の画像（複素数）を、空間の画像に変換します。<strong>2 次元の FFT は行ごとに 1 次元の FFT をして、そのあと列ごとに 1 次元の FFT をする</strong>ことで、行えます。
 
 ### 1 次元の FFT（バタフライ演算）
 
-N 点の FFT は、`log₂ N` 段の<strong>バタフライ</strong>で、できます。N = 256 なら、8 段です。各段で、<strong>2 つの要素から、2 つの要素を作ります</strong>。
+N 点の FFT は `log₂ N` 段の<strong>バタフライ</strong>で、できます。N = 256 なら 8 段です。各段で <strong>2 つの要素から 2 つの要素を作ります</strong>。
 
 ```text
 段 s（0 〜 log₂N − 1）、要素 x について:
@@ -255,7 +255,7 @@ N 点の FFT は、`log₂ N` 段の<strong>バタフライ</strong>で、でき
   出力[x] = 入力[lo] + w × 入力[hi]                         （lo = 小さい方の番号、hi = 大きい方）
 ```
 
-最初の段（`s = 0`）だけ、入力を、<strong>ビット反転した番号</strong>から読みます（`x = 0b001` なら `0b100`）。これは、FFT の、決まりごとです。
+最初の段（`s = 0`）だけ入力を <strong>ビット反転した番号</strong>から読みます（`x = 0b001` なら `0b100`）。これは FFT の決まりごとです。
 
 ```hlsl
 // バタフライ 1 段（横方向）。ping-pong する 2 枚のテクスチャで、段ごとに、読み書きを入れ替える。
@@ -265,13 +265,13 @@ RWTexture2D<float2> g_dst : register(u0);
 cbuffer FftCB : register(b0) { int g_stage; int g_n; int2 pad; };
 ```
 
-FFT を、1 段ずつ、2 枚のテクスチャで、読み書きを、入れ替えながら、進めます（ピンポン）。`g_stage` が、今の段（0 から `log2(N) − 1`）です。
+FFT を 1 段ずつ 2 枚のテクスチャで、読み書きを入れ替えながら進めます（ピンポン）。`g_stage` が今の段（0 から `log2(N) − 1`）です。
 
 ```hlsl
 uint BitReverse(uint x, uint bits) { return reversebits(x) >> (32 - bits); }
 ```
 
-最初の段で、入力を、ビット反転した順に、読むために使います。バタフライ演算の、入力の並びが、ビット反転順だと、出力が、自然な順になるからです。
+最初の段で入力をビット反転した順に、読むために使います。バタフライ演算の入力の並びが、ビット反転順だと出力が自然な順になるからです。
 
 ```hlsl
 [numthreads(8, 8, 1)]
@@ -284,14 +284,14 @@ void ButterflyHorizontal(uint3 id : SV_DispatchThreadID) {
   uint hi = lo + span;
 ```
 
-1 画素が、バタフライの、片側 1 点を、受け持ちます。この段の、組の間隔 `span`（`2^段`）から、自分が、組の上半分か、下半分か、組の相手は、どれかを、決めます。
+1 画素がバタフライの片側 1 点を、受け持ちます。この段の組の間隔 `span`（`2^段`）から自分が、組の上半分か下半分か組の相手は、どれかを決めます。
 
 ```hlsl
   float angle = 2.0 * 3.14159265 * float(group) / float(span << 1);
   float2 w = float2(cos(angle), sin(angle));
 ```
 
-回転因子 `w = e^{iθ}` を、求めます。角度は、組の中での、位置 `group` を、組の大きさ `2·span` で、割った割合です。
+回転因子 `w = e^{iθ}` を求めます。角度は組の中での位置 `group` を、組の大きさ `2·span` で割った割合です。
 
 ```hlsl
   uint bits = firstbithigh((uint)g_n);                // log2(N)
@@ -301,7 +301,7 @@ void ButterflyHorizontal(uint3 id : SV_DispatchThreadID) {
   float2 q = g_src[uint2(hi_idx, id.y)];
 ```
 
-最初の段だけ、入力の位置を、ビット反転します。ほかの段は、前の段の、出力を、そのまま、読みます。`p`、`q` が、組の 2 点の値です。
+最初の段だけ入力の位置をビット反転します。ほかの段は前の段の出力をそのまま、読みます。`p`、`q` が組の 2 点の値です。
 
 ```hlsl
   g_dst[id.xy] = p + ComplexMul(w, q);
@@ -309,11 +309,11 @@ void ButterflyHorizontal(uint3 id : SV_DispatchThreadID) {
 // 縦方向は、同じ計算を、x と y を入れ替えて行う。
 ```
 
-実際の実装では、<strong>1 つの計算シェーダーで、行全体を、グループ共有メモリに載せて、全段を一度に行う</strong>ほうが、はるかに速いです（読み書きが、段ごとにメモリを往復しないため）。まず、上のように、段ごとの実装で、仕組みを理解してから、最適化します。
+実際の実装では <strong>1 つの計算シェーダーで、行全体をグループ共有メモリに載せて、全段を一度に行う</strong>ほうがはるかに速いです（読み書きが、段ごとにメモリを往復しないため）。まず、上のように段ごとの実装で仕組みを理解してから、最適化します。
 
 ### 符号の補正
 
-`h(k)` の、`k` の原点を、<strong>画像の中心</strong>に、置いたので、逆 FFT の結果は、<strong>1 画素おきに、符号が反転</strong>しています。`(−1)^(x+z)` を、掛けて、補正します。
+`h(k)` の `k` の原点を <strong>画像の中心</strong>に、置いたので逆 FFT の結果は、<strong>1 画素おきに符号が反転</strong>しています。`(−1)^(x+z)` を掛けて補正します。
 
 ```hlsl
 float sign_fix = ((id.x + id.y) & 1) ? -1.0 : 1.0;
@@ -322,7 +322,7 @@ height = fft_result.x * sign_fix;
 
 ## ④ 水面に使う
 
-逆 FFT で、次の画像が得られます。
+逆 FFT で次の画像が得られます。
 
 | 画像 | 内容 | 使い方 |
 | --- | --- | --- |
@@ -356,9 +356,9 @@ auto MakeComplexTexture = [&](Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& 
 // 高さ・水平変位 X・水平変位 Z の、それぞれに、2 枚（FFT のピンポン用）が要る。
 ```
 
-複素数は、`R32G32_FLOAT` の、2 チャンネル（x = 実部、y = 虚部）で、持ちます。FFT の、途中の、精度が、必要なので、16 ビットでなく、32 ビットの、浮動小数に、します。最終的な、水面の、テクスチャ（高さ、変位、法線、泡）は、`R16G16B16A16_FLOAT` で、足ります。
+複素数は `R32G32_FLOAT` の 2 チャンネル（x = 実部、y = 虚部）で持ちます。FFT の途中の精度が必要なので、16 ビットでなく 32 ビットの、浮動小数にします。最終的な水面のテクスチャ（高さ変位、法線、泡）は `R16G16B16A16_FLOAT` で足ります。
 
-### 毎フレームの、ディスパッチ
+### 毎フレームのディスパッチ
 
 ```cpp
 const UINT groups = N / 8;
@@ -383,13 +383,13 @@ Dispatch(assemble_cs, {height_srv, dx_srv, dz_srv}, {displacement_uav}, groups, 
 context->GenerateMips(displacement_srv.Get());                  // 遠くの水面は、ミップで読む（ちらつきを、減らす）
 ```
 
-1 回の FFT が、段の数（`log2 N`）だけ、ディスパッチを、呼ぶので、`N = 256` なら、横 8 回、縦 8 回の、計 16 回です。1 回ごとに、UAV を、外して、次の、SRV として、読む、束縛の入れ替えが、必要です（[D3D11 Pass Recipes](../../../directx/dx11/pass-recipes.md)）。`GenerateMips` を、使うには、テクスチャに、`D3D11_BIND_RENDER_TARGET` と `D3D11_RESOURCE_MISC_GENERATE_MIPS` が、必要です。
+1 回の FFT が段の数（`log2 N`）だけ、ディスパッチを呼ぶので `N = 256` なら、横 8 回、縦 8 回の計 16 回です。1 回ごとに UAV を外して次の、SRV として読む束縛の入れ替えが、必要です（[D3D11 Pass Recipes](../../../directx/dx11/pass-recipes.md)）。`GenerateMips` を使うにはテクスチャに `D3D11_BIND_RENDER_TARGET` と `D3D11_RESOURCE_MISC_GENERATE_MIPS` が、必要です。
 
 ## カスケード（繰り返しを隠す）
 
-FFT の結果は、<strong>`patch_size` ごとに、同じ模様が、繰り返します</strong>（周期的）。1 枚だけだと、<strong>遠くで、繰り返しが、見えます</strong>。
+FFT の結果は <strong>`patch_size` ごとに、同じ模様が繰り返します</strong>（周期的）。1 枚だけだと <strong>遠くで繰り返しが、見えます</strong>。
 
-<strong>大きさの違う、複数の FFT（カスケード）</strong>を、重ねて、解決します。
+<strong>大きさの違う複数の FFT（カスケード）</strong>を重ねて、解決します。
 
 | カスケード | 領域の大きさ | 担当する波 |
 | --- | --- | --- |
@@ -397,24 +397,24 @@ FFT の結果は、<strong>`patch_size` ごとに、同じ模様が、繰り返�
 | 1 | 約 200 m | 中くらいの波 |
 | 2 | 約 30 m | 短いさざ波 |
 
-大きさを、<strong>互いに素に近い比</strong>（たとえば 250 m と 37 m）にすると、<strong>全体の、繰り返しの周期が、非常に、長く</strong>なります。各カスケードには、それぞれが担当する波長の範囲のスペクトルだけを、入れます（重複を、避けるため）。
+大きさを <strong>互いに素に近い比</strong>（たとえば 250 m と 37 m）にすると、<strong>全体の繰り返しの周期が非常に、長く</strong>なります。各カスケードにはそれぞれが担当する波長の範囲のスペクトルだけを、入れます（重複を避けるため）。
 
-## コストと、使い分け
+## コストと使い分け
 
 | 項目 | 目安 |
 | --- | --- |
 | FFT の大きさ | 256×256（標準）、512×512（高品質） |
-| 1 カスケードの、FFT | 高さ・水平変位・傾きで、3〜5 回の逆 FFT。GPU で、0.1〜0.5 ms |
+| 1 カスケードの FFT | 高さ・水平変位・傾きで、3〜5 回の逆 FFT。GPU で 0.1〜0.5 ms |
 | カスケード 3 つ | 数 ms 以内 |
 | メモリ | 256×256 の `R32G32_FLOAT` が、数枚（数 MB） |
 
 | 場面 | 方式 |
 | --- | --- |
-| 近景（プレイヤーの周り） | FFT（細かい波、波頭の折れ、泡） |
-| 遠景 | 低周波のカスケードだけ、または、サイン波 |
+| 近景（プレイヤーの周り） | FFT（細かい波、波頭の折れ泡） |
+| 遠景 | 低周波のカスケードだけまたは、サイン波 |
 | 低スペックの環境 | Gerstner 波（[Gerstner Waves](gerstner.md)） |
 
-FFT 海面は、<strong>物を浮かべる</strong>ときに、CPU でも、高さが必要になります（[Floating Objects](floating.md)）。
+FFT 海面は <strong>物を浮かべる</strong>ときに、CPU でも高さが必要になります（[Floating Objects](floating.md)）。
 
 ## よくあるミス
 
@@ -429,7 +429,7 @@ FFT 海面は、<strong>物を浮かべる</strong>ときに、CPU でも、高�
 
 ## 参考
 
-- Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（FFT による海面の合成。ほとんどの FFT 海面の、出発点）
+- Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（FFT による海面の合成。ほとんどの FFT 海面の出発点）
 - Phillips, "The Equilibrium Range in the Spectrum of Wind-Generated Waves", Journal of Fluid Mechanics, Vol. 4, 1958（Phillips スペクトル）
 - Hasselmann et al., "Measurements of Wind-Wave Growth and Swell Decay during the Joint North Sea Wave Project (JONSWAP)", Deutsche Hydrographische Zeitschrift, Reihe A, Vol. 8, No. 12, 1973
 - Horvath, "Empirical Directional Wave Spectra for Computer Graphics", Digital Production Symposium 2015（方向分布を含む、実測に基づくスペクトル）

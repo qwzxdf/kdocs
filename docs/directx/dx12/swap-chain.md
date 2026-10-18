@@ -10,15 +10,15 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>スワップ チェーン</strong>は、画面に出す、画像（バック バッファ）を、交代で、使う、仕組みです。D3D12 では、<strong>コマンド キュー</strong>に、結びつけて作り、バック バッファが、<strong>複数の、リソース</strong>として、見えます。今、どの、バッファに、描くかを、自分で、管理し、描く前後で、<strong>リソースの状態</strong>（`PRESENT` ↔ `RENDER_TARGET`）を、バリアで、切り替えます。
+<strong>スワップ チェーン</strong>は画面に出す画像（バック バッファ）を交代で使う仕組みです。D3D12 では <strong>コマンド キュー</strong>に結びつけて作りバック バッファが、<strong>複数のリソース</strong>として見えます。今、どのバッファに描くかを自分で管理し、描く前後で <strong>リソースの状態</strong>（`PRESENT` ↔ `RENDER_TARGET`）をバリアで切り替えます。
 
 !!! tip "ポイント"
-    - スワップ チェーンは、<strong>DIRECT コマンド キュー</strong>を、渡して、作る（`CreateSwapChainForHwnd(command_queue, …)`）。
-    - バッファの数は、2 か 3。フリップ モデル（`FLIP_DISCARD`）が、必須。
-    - 今の、描き先は、`GetCurrentBackBufferIndex()` で、取る。
-    - 各バッファに、RTV を、作って、ディスクリプタ ヒープに、並べる。
-    - 描く前に、`PRESENT` → `RENDER_TARGET`、描いた後に、`RENDER_TARGET` → `PRESENT` の、バリア。
-    - `_SRGB` は、スワップ チェーンに、指定できない。`UNORM` で作り、RTV を、`_SRGB` で、作る。
+    - スワップ チェーンは <strong>DIRECT コマンド キュー</strong>を渡して、作る（`CreateSwapChainForHwnd(command_queue, …)`）。
+    - バッファの数は 2 か 3。フリップ モデル（`FLIP_DISCARD`）が必須。
+    - 今の描き先は `GetCurrentBackBufferIndex()` で取る。
+    - 各バッファに RTV を作って、ディスクリプタ ヒープに並べる。
+    - 描く前に `PRESENT` → `RENDER_TARGET`、描いた後に `RENDER_TARGET` → `PRESENT` のバリア。
+    - `_SRGB` はスワップ チェーンに指定できない。`UNORM` で作り RTV を `_SRGB` で作る。
 
 ## 作る
 
@@ -47,13 +47,13 @@ swap_chain1.As(&swap_chain);
 | メンバー | 内容 |
 | --- | --- |
 | `BufferCount` | バック バッファの数。2（ダブル）か 3（トリプル） |
-| `SwapEffect` | `FLIP_DISCARD`（標準）、`FLIP_SEQUENTIAL`。D3D12 は、フリップ モデルだけ |
+| `SwapEffect` | `FLIP_DISCARD`（標準）、`FLIP_SEQUENTIAL`。D3D12 はフリップ モデルだけ |
 | `Format` | `R8G8B8A8_UNORM`。HDR は `R16G16B16A16_FLOAT` |
 | `Flags` | `ALLOW_TEARING`、`FRAME_LATENCY_WAITABLE_OBJECT` |
 
-D3D12 の、スワップ チェーンは、<strong>デバイスではなく、コマンド キュー</strong>を、渡します。`Present` が、そのキューの、仕事の、後に、実行されるためです。
+D3D12 のスワップ チェーンは <strong>デバイスではなくコマンド キュー</strong>を、渡します。`Present` がそのキューの仕事の後に実行されるためです。
 
-## バック バッファの、リソースと、RTV
+## バック バッファのリソースと RTV
 
 ```cpp
 // ① RTV 用のディスクリプタ ヒープ（バック バッファの数だけ）。
@@ -76,9 +76,9 @@ for (UINT i = 0; i < kFrameCount; ++i) {
 }
 ```
 
-D3D12 では、バック バッファは、<strong>複数の、別々の、リソース</strong>として、見えます（`GetBuffer(0)`、`GetBuffer(1)`…）。各々に、RTV を、作り、ヒープに、並べます。ディスクリプタ ヒープと、ハンドルの、詳細は、[Descriptor Heap](descriptor-heap.md) と [Descriptor](descriptor.md) です。
+D3D12 ではバック バッファは <strong>複数の別々のリソース</strong>として、見えます（`GetBuffer(0)`、`GetBuffer(1)`…）。各々に RTV を作りヒープに並べます。ディスクリプタ ヒープとハンドルの詳細は、[Descriptor Heap](descriptor-heap.md) と [Descriptor](descriptor.md) です。
 
-## 毎フレームの、骨格
+## 毎フレームの骨格
 
 ```cpp
 void RenderFrame() {
@@ -115,16 +115,16 @@ void RenderFrame() {
 }
 ```
 
-<strong>描く前に、バリアで、`PRESENT` から `RENDER_TARGET` に</strong>、<strong>描いた後に、`PRESENT` に戻す</strong>のが、決まりです。バリアを、忘れると、デバッグ レイヤーが、エラーを、出し、画面が、乱れます（[Resource Barrier](resource-barrier.md)）。
+<strong>描く前にバリアで `PRESENT` から `RENDER_TARGET` に</strong>、<strong>描いた後に `PRESENT` に戻す</strong>のが、決まりです。バリアを忘れるとデバッグ レイヤーが、エラーを出し画面が乱れます（[Resource Barrier](resource-barrier.md)）。
 
 ## GetCurrentBackBufferIndex
 
-フリップ モデルでは、`Present` のたびに、バック バッファが、入れ替わります。<strong>今フレームで、描くべき、バッファの番号</strong>は、`GetCurrentBackBufferIndex()` で、取ります（自分で、`+1` して、数えるより、確実です）。
+フリップ モデルでは `Present` のたびにバック バッファが入れ替わります。<strong>今フレームで描くべきバッファの番号</strong>は `GetCurrentBackBufferIndex()` で、取ります（自分で `+1` して数えるより確実です）。
 
 | 時点 | `GetCurrentBackBufferIndex()` |
 | --- | --- |
 | 最初のフレーム | 0 |
-| `Present` の後 | 次のバッファ（1、2、0、1、…。`BufferCount` で、循環） |
+| `Present` の後 | 次のバッファ（1、2、0、1、…。`BufferCount` で循環） |
 
 ## Present
 
@@ -135,9 +135,9 @@ if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 }
 ```
 
-`Present(1, 0)` は、垂直同期を、待ちます。`Present(0, DXGI_PRESENT_ALLOW_TEARING)` で、待たずに、表示できます（スワップ チェーンの作成時に `ALLOW_TEARING` が、必要）。
+`Present(1, 0)` は垂直同期を待ちます。`Present(0, DXGI_PRESENT_ALLOW_TEARING)` で待たずに表示できます（スワップ チェーンの作成時に `ALLOW_TEARING` が、必要）。
 
-## 大きさの、変更
+## 大きさの変更
 
 ```cpp
 void OnResize(UINT width, UINT height) {
@@ -148,31 +148,31 @@ void OnResize(UINT width, UINT height) {
 }
 ```
 
-バック バッファを、GPU が、まだ、使っている間は、解放・作り直しが、できません。フェンスで、完了を、待ってから、行います（[Fence](fence.md)）。
+バック バッファを GPU がまだ使っている間は解放・作り直しが、できません。フェンスで完了を待ってから行います（[Fence](fence.md)）。
 
 ## よくあるミス
 
 ??? failure "`CreateSwapChainForHwnd` が、失敗する"
-    デバイスを、渡している（D3D12 は、コマンド キューを、渡す）。`_SRGB` や MSAA、`SwapEffect` が、ビット ブリット モデルになっている。
+    デバイスを渡している（D3D12 は、コマンド キューを渡す）。`_SRGB` や MSAA、`SwapEffect` がビット ブリット モデルになっている。
 
-??? failure "画面が、乱れる、描かれない（バリア）"
-    `PRESENT` ↔ `RENDER_TARGET` の、バリアを、入れていない、または、前後が、逆。デバッグ レイヤーの、メッセージを、見る。
+??? failure "画面が乱れる、描かれない（バリア）"
+    `PRESENT` ↔ `RENDER_TARGET` のバリアを入れていないまたは前後が逆。デバッグ レイヤーのメッセージを見る。
 
 ??? failure "`ResizeBuffers` が、失敗する"
-    バック バッファへの、参照（`ComPtr`）が、残っている、または、GPU が、まだ、使用中。全部、解放し、フェンスで、待ってから、呼ぶ。
+    バック バッファへの参照（`ComPtr`）が残っているまたは、GPU がまだ使用中。全部、解放しフェンスで待ってから呼ぶ。
 
 ??? failure "色が、暗い（明るい）"
-    リニアの値を、`UNORM` の RTV に、書いている。RTV を `_SRGB` にして、作る。
+    リニアの値を `UNORM` の RTV に書いている。RTV を `_SRGB` にして作る。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] D3D12 の、スワップ チェーンは、コマンド キューを、渡して、作る
-    - [x] フリップ モデル（`FLIP_DISCARD`）、2〜3 枚。`_SRGB` は、RTV で
-    - [x] バック バッファは、複数の、リソース。各々に、RTV を、作る
-    - [x] 今の描き先は、`GetCurrentBackBufferIndex()`
-    - [x] 描く前後に、バリア（`PRESENT` ↔ `RENDER_TARGET`）
-    - [x] 大きさ変更の前に、GPU の、完了を、待つ
+    - [x] D3D12 のスワップ チェーンはコマンド キューを渡して作る
+    - [x] フリップ モデル（`FLIP_DISCARD`）、2〜3 枚。`_SRGB` は RTV で
+    - [x] バック バッファは複数のリソース。各々に RTV を作る
+    - [x] 今の描き先は `GetCurrentBackBufferIndex()`
+    - [x] 描く前後にバリア（`PRESENT` ↔ `RENDER_TARGET`）
+    - [x] 大きさ変更の前に GPU の完了を待つ
 
 ## 関連ページ
 

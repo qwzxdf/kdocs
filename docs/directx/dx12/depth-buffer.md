@@ -10,15 +10,15 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>深度バッファ</strong>は、各ピクセルで、カメラから、最も近い、面までの、距離を、覚えておく、テクスチャです。後から、描いた物が、手前の物を、上書きしないよう、深度で、判定します（深度テスト）。D3D12 では、深度を、<strong>DEPTH_STENCIL の、フラグつきの、リソース</strong>として、作り、<strong>DSV</strong>（深度ステンシル ビュー）を、専用の、ヒープに、作って、描画で、束ねます。
+<strong>深度バッファ</strong>は各ピクセルで、カメラから最も近い面までの距離を、覚えておくテクスチャです。後から描いた物が手前の物を上書きしないよう深度で、判定します（深度テスト）。D3D12 では深度を <strong>DEPTH_STENCIL の、フラグつきのリソース</strong>として作り、<strong>DSV</strong>（深度ステンシル ビュー）を専用の、ヒープに作って描画で束ねます。
 
 !!! tip "ポイント"
-    - 深度バッファ ＝ `ALLOW_DEPTH_STENCIL` つきの、テクスチャ。DSV は、<strong>DSV 用ヒープ</strong>に、作る。
+    - 深度バッファ ＝ `ALLOW_DEPTH_STENCIL` つきの、テクスチャ。DSV は <strong>DSV 用ヒープ</strong>に作る。
     - フォーマットは `D32_FLOAT`（精度が高い）か `D24_UNORM_S8_UINT`（ステンシルつき）。
-    - 読む（SRV）なら、<strong>`R32_TYPELESS`</strong> で作り、DSV と SRV で、型を、分ける。
-    - 初期状態は `DEPTH_WRITE`。クリア値は、作成時に、最適化の、ヒントとして、渡す。
-    - PSO の `DSVFormat` と、深度テストの、設定（`DepthStencilState`）が、必要。
-    - 毎フレーム、<strong>`ClearDepthStencilView`</strong> で、クリアする。
+    - 読む（SRV）なら、<strong>`R32_TYPELESS`</strong> で作り DSV と SRV で型を、分ける。
+    - 初期状態は `DEPTH_WRITE`。クリア値は作成時に最適化のヒントとして渡す。
+    - PSO の `DSVFormat` と、深度テストの設定（`DepthStencilState`）が必要。
+    - 毎フレーム、<strong>`ClearDepthStencilView`</strong> でクリアする。
 
 ## 作る
 
@@ -50,7 +50,7 @@ dsv.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
 device->CreateDepthStencilView(depth_buffer.Get(), &dsv, dsv_heap->GetCPUDescriptorHandleForHeapStart());
 ```
 
-深度バッファの、大きさは、<strong>レンダー ターゲットと、同じ</strong>にします。
+深度バッファの大きさは <strong>レンダー ターゲットと、同じ</strong>にします。
 
 ## フォーマット
 
@@ -61,7 +61,7 @@ device->CreateDepthStencilView(depth_buffer.Get(), &dsv, dsv_heap->GetCPUDescrip
 | `D32_FLOAT_S8X24_UINT` | 32 ビット浮動小数点 + ステンシル | 精度とステンシルの、両方 |
 | `D16_UNORM` | 16 ビット | シャドウ マップ（軽量） |
 
-## 描画で、使う
+## 描画で使う
 
 ```cpp
 // PSO: 深度の、フォーマットと、深度テストの、設定。
@@ -83,14 +83,14 @@ command_list->ClearDepthStencilView(dsv_handle, D3D12_CLEAR_FLAG_DEPTH | D3D12_C
 | --- | --- |
 | `DepthStencilView` | DSV の CPU ハンドル |
 | `ClearFlags` | `CLEAR_FLAG_DEPTH`、`CLEAR_FLAG_STENCIL` |
-| `Depth`・`Stencil` | クリア値（作成時の、最適化値と、同じに） |
-| `NumRects`・`pRects` | 範囲を、限定（`0`、`nullptr` で、全体） |
+| `Depth`・`Stencil` | クリア値（作成時の、最適化値と同じに） |
+| `NumRects`・`pRects` | 範囲を限定（`0`、`nullptr` で全体） |
 
-毎フレーム、必ず、クリアします。クリアしないと、前のフレームの、深度が、残り、新しい描画が、はじかれます。
+毎フレーム、必ずクリアします。クリアしないと前のフレームの深度が残り、新しい描画がはじかれます。
 
-## 深度を、読む（SRV）
+## 深度を読む（SRV）
 
-AO・SSR・ソフト パーティクル・フォグで、深度を、シェーダーから、読むには、<strong>TYPELESS で作り、DSV と SRV で、型を、分けます</strong>。
+AO・SSR・ソフト パーティクル・フォグで深度を、シェーダーから読むには <strong>TYPELESS で作り、DSV と SRV で型を分けます</strong>。
 
 ```cpp
 auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R32_TYPELESS, width, height, 1, 1, 1, 0,
@@ -113,11 +113,11 @@ srv.Texture2D.MipLevels = 1;
 device->CreateShaderResourceView(depth_buffer.Get(), &srv, srv_cpu_handle);
 ```
 
-深度を、描いた後、読む前に、<strong>バリア</strong>で、`DEPTH_WRITE` から、`PIXEL_SHADER_RESOURCE`（または `NON_PIXEL_SHADER_RESOURCE`）に、切り替えます（[Resource Barrier](resource-barrier.md)）。読み終えたら、次のフレームの、描画の前に、`DEPTH_WRITE` に、戻します。
+深度を描いた後、読む前に <strong>バリア</strong>で `DEPTH_WRITE` から、`PIXEL_SHADER_RESOURCE`（または `NON_PIXEL_SHADER_RESOURCE`）に切り替えます（[Resource Barrier](resource-barrier.md)）。読み終えたら次のフレームの描画の前に `DEPTH_WRITE` に、戻します。
 
-## 読み取り専用の、深度
+## 読み取り専用の深度
 
-深度テストを、しつつ、同じ深度を、SRV として、読みたい（ソフト パーティクル、半透明）ときは、<strong>読み取り専用の DSV</strong> を、作り、状態を、`DEPTH_READ`（と `PIXEL_SHADER_RESOURCE`）にします。
+深度テストをしつつ同じ深度を、SRV として読みたい（ソフト パーティクル、半透明）ときは <strong>読み取り専用の DSV</strong> を作り状態を、`DEPTH_READ`（と `PIXEL_SHADER_RESOURCE`）にします。
 
 ```cpp
 dsv.Flags = D3D12_DSV_FLAG_READ_ONLY_DEPTH;                    // 深度の、書き込みを、禁止（テストだけ）
@@ -127,7 +127,7 @@ device->CreateDepthStencilView(depth_buffer.Get(), &dsv, readonly_dsv_handle);
 
 ## 深度ステンシル ステート
 
-深度テストの、設定は、PSO の `DepthStencilState` で、行います（[PSO](pso.md)）。
+深度テストの設定は PSO の `DepthStencilState` で、行います（[PSO](pso.md)）。
 
 ```cpp
 D3D12_DEPTH_STENCIL_DESC ds = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
@@ -141,38 +141,38 @@ ds.DepthFunc = D3D12_COMPARISON_FUNC_LESS;                     // reverse-Z は�
 | 不透明 | TRUE | ALL | LESS |
 | 半透明 | TRUE | ZERO | LESS_EQUAL |
 | ポスト プロセス | FALSE | — | — |
-| 事前深度の後の、本描画 | TRUE | ZERO | EQUAL |
+| 事前深度の後の本描画 | TRUE | ZERO | EQUAL |
 | reverse-Z | TRUE | ALL | GREATER |
 
 ## リサイズ時
 
-画面の、大きさが、変わったら、深度バッファも、作り直します。GPU が、使い終わるのを、フェンスで、待ってから、古いものを、解放し、新しいものを、作り、DSV も、書き直します（[Swap Chain](swap-chain.md)）。
+画面の大きさが変わったら深度バッファも、作り直します。GPU が使い終わるのをフェンスで、待ってから古いものを解放し新しいものを作り、DSV も書き直します（[Swap Chain](swap-chain.md)）。
 
 ## よくあるミス
 
-??? failure "物が、前後、逆に見える"
-    PSO の、`DepthStencilState` で、深度テストが、無効。`OMSetRenderTargets` に、DSV を、渡していない。PSO の `DSVFormat` が、`UNKNOWN`。
+??? failure "物が前後、逆に見える"
+    PSO の `DepthStencilState` で深度テストが無効。`OMSetRenderTargets` に DSV を渡していない。PSO の `DSVFormat` が `UNKNOWN`。
 
 ??? failure "深度の SRV を、作れない"
-    `D32_FLOAT` で、作っている。`R32_TYPELESS` で作り、DSV と SRV で、型を、分ける。
+    `D32_FLOAT` で作っている。`R32_TYPELESS` で作り DSV と SRV で型を、分ける。
 
-??? failure "デバッグ レイヤーが、クリア値の、警告を、出す"
-    `ClearDepthStencilView` の、値が、作成時の、最適化クリア値と、違う。そろえる。
+??? failure "デバッグ レイヤーが、クリア値の警告を出す"
+    `ClearDepthStencilView` の値が作成時の最適化クリア値と違う。そろえる。
 
-??? failure "深度を、読むと、真っ黒、または、乱れる"
-    バリアで、`DEPTH_WRITE` から、読み取り用の、状態に、遷移していない。
+??? failure "深度を読むと真っ黒、または乱れる"
+    バリアで `DEPTH_WRITE` から読み取り用の状態に、遷移していない。
 
-??? failure "画面が、真っ黒（深度テストで、全部、はじかれる）"
-    深度を、クリアしていない、または、クリア値が、`0`（`LESS` で、全部、はじく）。`1.0` で、クリア（reverse-Z は 0.0）。
+??? failure "画面が、真っ黒（深度テストで全部、はじかれる）"
+    深度をクリアしていないまたは、クリア値が `0`（`LESS` で全部、はじく）。`1.0` でクリア（reverse-Z は 0.0）。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 深度バッファ ＝ `ALLOW_DEPTH_STENCIL` つきのリソース。DSV は、DSV ヒープに
+    - [x] 深度バッファ ＝ `ALLOW_DEPTH_STENCIL` つきのリソース。DSV は DSV ヒープに
     - [x] `D32_FLOAT`（読むなら `R32_TYPELESS`）。初期状態は `DEPTH_WRITE`
-    - [x] PSO に、`DSVFormat` と、深度ステート。描画で、`OMSetRenderTargets` に DSV
-    - [x] 毎フレーム `ClearDepthStencilView`（作成時の、クリア値と、同じ値で）
-    - [x] 読む前に、バリアで、状態を、切り替える
+    - [x] PSO に `DSVFormat` と、深度ステート。描画で `OMSetRenderTargets` に DSV
+    - [x] 毎フレーム `ClearDepthStencilView`（作成時の、クリア値と同じ値で）
+    - [x] 読む前に、バリアで状態を切り替える
 
 ## 関連ページ
 

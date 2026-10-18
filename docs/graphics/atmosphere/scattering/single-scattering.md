@@ -6,16 +6,16 @@ tags:
 
 # Single-Scattering Integral
 
-<strong>視線に沿って進みながら、各点で太陽の光が、視線方向に散乱される量を足し合わせます</strong>。<strong>これが単散乱の積分</strong>で、空の色の大部分を決めます。このページでは、単散乱の積分を説明します。
+<strong>視線に沿って進みながら各点で太陽の光が、視線方向に散乱される量を足し合わせます</strong>。<strong>これが単散乱の積分</strong>で空の色の大部分を決めます。このページでは単散乱の積分を説明します。
 
 !!! tip "ポイント"
-    - 視線を分割し、各点で「太陽の光 × 散乱 × 透過率」を足す。
-    - 太陽の光も、大気で減衰した後のもの。
+    - 視線を分割し各点で「太陽の光 × 散乱 × 透過率」を足す。
+    - 太陽の光も大気で減衰した後のもの。
     - 分割数（16〜32）で、精度とコストが決まる。
     - LUT に入れると、積分が不要になる。
 
 ## 単散乱の積分
-<strong>視線に沿った各点で、「太陽光が届く量」×「視線方向へ散る割合」を足し合わせる</strong>のが<strong>空の色</strong>です。
+<strong>視線に沿った各点で「太陽光が届く量」×「視線方向へ散る割合」を足し合わせる</strong>のが<strong>空の色</strong>です。
 
 <div class="formula">L = ∫ T(カメラ → p) · σs(p) · P(θ) · T(p → 太陽) · E_sun ds</div>
 
@@ -52,7 +52,7 @@ float3 SingleScattering(float3 ray_origin, float3 ray_dir, float ray_length, flo
   float phase_m = HenyeyGreenstein(cos_theta, kMieG);
 ```
 
-レイを、`steps` 個に、分け、歩幅を、決めます。レイリー散乱と、ミー散乱の、積分を、別々に、貯め、視線方向の、光学的厚さ `optical_depth_view` も、足していきます。位相関数は、散乱の向きによる、明るさで、レイ全体で、同じ角度なので、ループの外で、1 度だけ、求めます。
+レイを `steps` 個に分け歩幅を決めます。レイリー散乱とミー散乱の積分を別々に貯め、視線方向の光学的厚さ `optical_depth_view` も、足していきます。位相関数は散乱の向きによる明るさで、レイ全体で同じ角度なのでループの外で、1 度だけ求めます。
 
 ```hlsl
   for (int i = 0; i < steps; ++i) {
@@ -64,14 +64,14 @@ float3 SingleScattering(float3 ray_origin, float3 ray_dir, float ray_length, flo
     optical_depth_view += (kRayleighScattering * density_r + kMieExtinction * density_m) * step_length;
 ```
 
-区間の、中点の、位置を、求め、惑星の中心からの、高さに、直します。高さが、上がるほど、空気は、指数関数的に、薄くなるので、`exp(−高さ / スケール高さ)` で、密度を、求めます。視線に、沿って、ここまでの、光学的厚さを、足します。
+区間の中点の位置を求め惑星の中心からの高さに、直します。高さが上がるほど空気は指数関数的に、薄くなるので `exp(−高さ / スケール高さ)` で密度を求めます。視線に沿ってここまでの光学的厚さを、足します。
 
 ```hlsl
     float3 optical_depth_sun = SunOpticalDepth(p, sun_dir);
     float3 attenuation = exp(-(optical_depth_view + optical_depth_sun));
 ```
 
-太陽から、この点までの、光学的厚さを、求め（別の関数）、視線側と、足して、減衰を、ビア・ランベルトの法則で、求めます。
+太陽からこの点までの光学的厚さを、求め（別の関数）、視線側と足して減衰をビア・ランベルトの法則で、求めます。
 
 ```hlsl
     rayleigh_sum += attenuation * density_r * step_length;
@@ -79,7 +79,7 @@ float3 SingleScattering(float3 ray_origin, float3 ray_dir, float ray_length, flo
   }
 ```
 
-減衰した、光に、密度と、歩幅を、掛けて、積分に、足します。
+減衰した光に密度と歩幅を掛けて積分に、足します。
 
 ```hlsl
   return sun_intensity * (kRayleighScattering * phase_r * rayleigh_sum
@@ -87,7 +87,7 @@ float3 SingleScattering(float3 ray_origin, float3 ray_dir, float ray_length, flo
 }
 ```
 
-コードの要点です。`SunOpticalDepth` は、点 p から太陽方向へ、大気の外まで進んだ光学的厚さで、内側のループです。地面で遮られる向きは 0 として扱います。二重ループになるので、視線 16 ステップに太陽 8 ステップで 128 回の密度計算が必要になり、リアルタイムには重い処理です。レイリーとミーは、位相関数が違うため、別々に足します。
+コードの要点です。`SunOpticalDepth` は点 p から太陽方向へ、大気の外まで進んだ光学的厚さで、内側のループです。地面で遮られる向きは 0 として扱います。二重ループになるので視線 16 ステップに太陽 8 ステップで 128 回の密度計算が必要になり、リアルタイムには重い処理です。レイリーとミーは位相関数が違うため、別々に足します。
 
 <!-- fig:hg-phase:begin -->
 
@@ -119,9 +119,9 @@ float3 SingleScattering(float3 ray_origin, float3 ray_dir, float ray_length, flo
 
 <!-- fig:hg-phase:end -->
 
-## 1 回散乱の、積分
+## 1 回散乱の積分
 
-<strong>カメラに、届く光</strong>を、考えます。太陽の光は、<strong>大気の外から</strong>来て、視線の途中の、ある点で、1 回だけ、散乱し、カメラの方向へ、向きを変えます。この、1 回散乱の光を、視線に沿って、すべての点について、足し合わせるのが、1 回散乱の、積分です（Nishita ら、1993）。
+<strong>カメラに届く光</strong>を考えます。太陽の光は <strong>大気の外から</strong>来て、視線の途中のある点で 1 回だけ散乱し、カメラの方向へ向きを変えます。この 1 回散乱の光を視線に沿って、すべての点について足し合わせるのが、1 回散乱の積分です（Nishita ら、1993）。
 
 ```text
 L(x, v) = ∫₀^D  T(x → p(s))  ×  σ_s(p(s))  ×  Σ [ P(θ) × E_sun × T(p(s) → 大気の外) ]  ds
@@ -129,15 +129,15 @@ L(x, v) = ∫₀^D  T(x → p(s))  ×  σ_s(p(s))  ×  Σ [ P(θ) × E_sun × T(
 
 | 項 | 意味 |
 | --- | --- |
-| `T(x → p(s))` | 点 `p(s)` から、カメラ `x` までの、透過率（散乱した光が、カメラまで、届く割合） |
-| `σ_s(p)` | 点 `p` での、散乱係数（密度に、比例） |
-| `P(θ)` | 位相関数（太陽の光が、視線の方向へ、散る割合） |
-| `E_sun` | 太陽の光の、強さ |
-| `T(p → 外)` | 点 `p` から、太陽方向への、透過率（太陽の光が、点 `p` まで、届く割合） |
+| `T(x → p(s))` | 点 `p(s)` からカメラ `x` までの、透過率（散乱した光がカメラまで、届く割合） |
+| `σ_s(p)` | 点 `p` での散乱係数（密度に、比例） |
+| `P(θ)` | 位相関数（太陽の光が、視線の方向へ散る割合） |
+| `E_sun` | 太陽の光の強さ |
+| `T(p → 外)` | 点 `p` から太陽方向への、透過率（太陽の光が点 `p` まで、届く割合） |
 
-<strong>3 つの透過率の、掛け算</strong>です。<strong>太陽 → 点 `p`</strong>（太陽の光が、点まで来る）、点 `p` で散乱、点 `p` → カメラ（散乱した光が、カメラまで来る）。
+<strong>3 つの透過率の掛け算</strong>です。<strong>太陽 → 点 `p`</strong>（太陽の光が、点まで来る）、点 `p` で散乱、点 `p` → カメラ（散乱した光が、カメラまで来る）。
 
-## 実装：視線に沿った、ループ
+## 実装：視線に沿ったループ
 
 ```hlsl
 // 視線（カメラ位置 origin、方向 dir、長さ ray_length）に沿って、1 回散乱を積分する。
@@ -146,7 +146,7 @@ float3 SingleScattering(float3 origin, float3 dir, float ray_length, float3 sun_
   float step_len = ray_length / kSteps;
 ```
 
-視線を、<strong>32 区間に分けて</strong>、各区間の、<strong>中央</strong>で、評価します。`step_len` は、1 区間の長さです。
+視線を <strong>32 区間に分けて</strong>、各区間の <strong>中央</strong>で評価します。`step_len` は 1 区間の長さです。
 
 ```hlsl
   float cos_theta = dot(dir, sun_dir);                    // 視線と太陽の間の角度（太陽が、視線の向こうにあるとき 1）
@@ -154,7 +154,7 @@ float3 SingleScattering(float3 origin, float3 dir, float ray_length, float3 sun_
   float phase_m = CornetteShanks(cos_theta, 0.8);
 ```
 
-位相関数は、<strong>視線と太陽の、間の角度</strong>だけで決まり、<strong>視線に沿って、一定</strong>なので、ループの外で、1 回だけ、計算します。
+位相関数は <strong>視線と太陽の間の角度</strong>だけで決まり、<strong>視線に沿って一定</strong>なのでループの外で、1 回だけ計算します。
 
 ```hlsl
   float3 sum = 0.0;                                       // 散乱光の、積算
@@ -166,7 +166,7 @@ float3 SingleScattering(float3 origin, float3 dir, float ray_length, float3 sun_
     float density_m = exp(-h / 1200.0);
 ```
 
-ループの中で、<strong>点 `p` の高度</strong>から、<strong>レイリーと、ミーの、密度</strong>を、求めます。
+ループの中で <strong>点 `p` の高度</strong>から、<strong>レイリーとミーの密度</strong>を求めます。
 
 ```hlsl
     // この区間での、消散（吸収 + 散乱）で、視線の光が、どれだけ減るか。
@@ -174,21 +174,21 @@ float3 SingleScattering(float3 origin, float3 dir, float ray_length, float3 sun_
     float3 step_transmittance = exp(-sigma_t * step_len);
 ```
 
-<strong>区間を、通るときの、透過率</strong>です。これを、<strong>`throughput` に、掛けていく</strong>ことで、カメラから、各点までの、透過率が、順に、求まります（区間ごとの、透過率の、積）。
+<strong>区間を通るときの透過率</strong>です。これを <strong>`throughput` に掛けていく</strong>ことで、カメラから各点までの透過率が順に、求まります（区間ごとの透過率の積）。
 
 ```hlsl
     // 太陽方向の透過率（LUT から）。大気の外から、この点まで、太陽の光が届く割合。
     float3 sun_t = SunTransmittance(p, sun_dir);
 ```
 
-<strong>太陽の光が、点 `p` まで、届く割合</strong>を、<strong>透過率 LUT</strong>（[Transmittance](transmittance.md)）から、1 回の読み込みで、得ます。
+<strong>太陽の光が点 `p` まで届く割合</strong>を、<strong>透過率 LUT</strong>（[Transmittance](transmittance.md)）から、1 回の読み込みで得ます。
 
 ```hlsl
     // この点で、視線の方向に、散乱される光。
     float3 scatter = (g_rayleigh_scatter * density_r * phase_r + g_mie_scatter * density_m * phase_m) * sun_t * sun_illuminance;
 ```
 
-<strong>散乱係数 × 位相関数 × 太陽の光</strong>が、<strong>この点で、視線の方向へ散る光</strong>です。レイリーと、ミーを、別々の、位相関数で、足します。
+<strong>散乱係数 × 位相関数 × 太陽の光</strong>が、<strong>この点で視線の方向へ散る光</strong>です。レイリーとミーを別々の位相関数で、足します。
 
 ```hlsl
     // 区間内の、積分（解析的に、減衰を考慮した形）を、足し込む。throughput は、カメラまでの、透過率。
@@ -200,11 +200,11 @@ float3 SingleScattering(float3 origin, float3 dir, float ray_length, float3 sun_
 }
 ```
 
-<strong>区間の中でも</strong>、<strong>光は、進むほど、減る</strong>ので、区間の中の、積分を、解析的に、計算します（`(1 − exp(−σ_t Δs)) / σ_t`）。Hillaire（2020）が、区間が、粗くても、エネルギーを、保つために、使っている、改良です。単純に、`scatter × step_len` を足す方法より、ステップ数が、少なくても、安定します。
+<strong>区間の中でも</strong>、<strong>光は進むほど減る</strong>ので区間の中の積分を、解析的に計算します（`(1 − exp(−σ_t Δs)) / σ_t`）。Hillaire（2020）が区間が、粗くてもエネルギーを保つために、使っている改良です。単純に `scatter × step_len` を足す方法よりステップ数が、少なくても安定します。
 
-## 地面に、当たる場合
+## 地面に当たる場合
 
-視線が、<strong>地面に、当たる</strong>場合は、<strong>地面までで、積分を止め</strong>、地面の色を、足します（地平線の、下を向いている、空ではなく、地面を見ている場合）。
+視線が <strong>地面に当たる</strong>場合は、<strong>地面までで積分を止め</strong>、地面の色を足します（地平線の、下を向いている空ではなく地面を見ている場合）。
 
 ```hlsl
 float2 t_ground = RaySphere(origin, dir, g_bottom_radius);
@@ -216,17 +216,17 @@ float ray_length = (t_ground.x > 0.0) ? t_ground.x : t_top.y;       // 地面に
 | --- | --- |
 | 空へ向かう | カメラ → 大気の上端 |
 | 地面へ向かう | カメラ → 地面 |
-| カメラが、宇宙にある | 大気の入口から、上端、または、地面まで |
+| カメラが宇宙にある | 大気の入口から上端、または地面まで |
 
-## 1 回散乱の、限界
+## 1 回散乱の限界
 
-<strong>1 回だけ</strong>散乱した光を、足し合わせた空は、<strong>見た目が、暗く</strong>、不自然です（特に、太陽が、低いとき、日陰、夜明け、日没後）。現実の、大気では、光が、何度も、散乱して、空全体が、明るくなります（[Multiple Scattering](multiple-scattering.md)）。
+<strong>1 回だけ</strong>散乱した光を足し合わせた空は、<strong>見た目が暗く</strong>、不自然です（特に太陽が低いとき日陰、夜明け日没後）。現実の大気では光が何度も散乱して、空全体が明るくなります（[Multiple Scattering](multiple-scattering.md)）。
 
 | 状況 | 1 回散乱のみ | 実際 |
 | --- | --- | --- |
 | 昼の空 | やや暗い（青が、足りない） | 明るい青 |
-| 夕焼けの、反対側の空 | 暗い | 青紫に、うっすら、明るい |
-| 太陽が、地平線の、下 | ほぼ、真っ暗 | しばらく、空が、明るい（薄明） |
+| 夕焼けの反対側の空 | 暗い | 青紫に、うっすら明るい |
+| 太陽が地平線の下 | ほぼ、真っ暗 | しばらく空が明るい（薄明） |
 
 ## よくあるミス
 

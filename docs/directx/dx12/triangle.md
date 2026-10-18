@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-ここまでのページで、作った部品（デバイス、キュー、アロケーター、リスト、フェンス、スワップ チェーン、ディスクリプタ ヒープ、ルート シグネチャ、PSO、頂点バッファ）を、<strong>つないで、三角形を、描きます</strong>。D3D12 の「Hello World」で、コード量は、多いですが、1 つずつの、部品は、これまでの、ページで、説明した物です。
+ここまでのページで作った部品（デバイス、キュー、アロケーター、リスト、フェンス、スワップ チェーン、ディスクリプタ ヒープ、ルート シグネチャ、PSO、頂点バッファ）を <strong>つないで三角形を描きます</strong>。D3D12 の「Hello World」で、コード量は多いですが 1 つずつの部品は、これまでのページで説明した物です。
 
 !!! tip "ポイント"
     - 準備（1 回）: デバイス → キュー → スワップ チェーン → RTV → ルート シグネチャ → PSO → 頂点バッファ（アップロード）→ フェンス。
     - 毎フレーム: アロケーター・リストの `Reset` → バリア（`PRESENT` → `RENDER_TARGET`）→ 描画 → バリア（戻す）→ `Close` → `ExecuteCommandLists` → `Present` → フェンスで待つ。
-    - ビューポートと、<strong>シザー矩形</strong>は、必ず、設定する（シザーは、常に、有効）。
-    - ここでは、簡単のため、毎フレーム、GPU の完了を、待つ。実用では、[Frame Resources](frame-resources.md) で、並列にする。
-    - 見えないときは、バリア・ビューポート/シザー・PSO の、フォーマット・面の向きを、疑う。
+    - ビューポートと <strong>シザー矩形</strong>は必ず設定する（シザーは常に有効）。
+    - ここでは簡単のため、毎フレーム、GPU の完了を待つ。実用では[Frame Resources](frame-resources.md) で、並列にする。
+    - 見えないときはバリア・ビューポート/シザー・PSO のフォーマット・面の向きを疑う。
 
 ## 流れ
 
@@ -30,7 +30,7 @@ tags:
 | 準備 ⑤ | 頂点バッファ（アップロード） | [Upload Buffer](upload-buffer.md)、[Vertex and Index Buffer Views](vertex-index-view.md) |
 | 毎フレーム | 記録 → 実行 → `Present` → 待つ | 下 |
 
-## 毎フレームの、記録
+## 毎フレームの記録
 
 ```cpp
 void RenderFrame() {
@@ -41,7 +41,7 @@ void RenderFrame() {
   command_list_->Reset(allocator_.Get(), pipeline_state_.Get());
 ```
 
-`Reset` で、PSO を、渡すと、最初から、その PSO が、設定された状態で、記録を、始められます。
+`Reset` で PSO を渡すと最初から、その PSO が設定された状態で記録を始められます。
 
 ```cpp
   // ② ルート シグネチャ、ビューポート、シザー矩形を、設定する（Reset で、全部、初期化されている）
@@ -50,7 +50,7 @@ void RenderFrame() {
   command_list_->RSSetScissorRects(1, &scissor_);
 ```
 
-<strong>シザー矩形</strong>を、設定し忘れると、描画範囲が、0 に、なり、何も、描かれません（D3D12 は、シザーが、常に、有効）。
+<strong>シザー矩形</strong>を設定し忘れると、描画範囲が 0 になり何も描かれません（D3D12 は、シザーが常に有効）。
 
 ```cpp
   // ③ バック バッファを、PRESENT → RENDER_TARGET に、切り替える
@@ -65,7 +65,7 @@ void RenderFrame() {
   command_list_->ClearRenderTargetView(rtv, clear_color, 0, nullptr);
 ```
 
-バック バッファの、状態を、`RENDER_TARGET` に、してから、描き込み先に、設定し、クリアします（[Resource Barrier](resource-barrier.md)）。
+バック バッファの状態を `RENDER_TARGET` にしてから描き込み先に設定しクリアします（[Resource Barrier](resource-barrier.md)）。
 
 ```cpp
   // ⑤ 三角形を描く
@@ -89,9 +89,9 @@ void RenderFrame() {
 }
 ```
 
-## 動く、完全なプログラム
+## 動く完全なプログラム
 
-部品を、1 つに、まとめた、完成形です。`triangle.hlsl` は、[Shaders and Compilation](../dx11/shaders.md) と、同じシェーダーで、ここでは、`D3DCompileFromFile`（SM 5.0）で、コンパイルします（`dxc` を、使うなら、[Shaders and DXC](shaders-dxc.md)）。
+部品を 1 つにまとめた完成形です。`triangle.hlsl` は[Shaders and Compilation](../dx11/shaders.md) と同じシェーダーでここでは `D3DCompileFromFile`（SM 5.0）で、コンパイルします（`dxc` を使うなら[Shaders and DXC](shaders-dxc.md)）。
 
 ```cpp
 #include <d3d12.h>
@@ -285,43 +285,43 @@ void Renderer::Shutdown() {
 }
 ```
 
-`RenderFrame` は、上の「毎フレームの、記録」の通りです。ウィンドウの、作成と、メッセージ ループは、[Win32 Window and Message Loop](../dx11/window.md) と、同じで、`Renderer::Init(hwnd)` を、呼び、ループで `RenderFrame()` を、呼びます。リンクする、ライブラリは、`d3d12.lib`、`dxgi.lib`、`d3dcompiler.lib` です。
+`RenderFrame` は上の「毎フレームの記録」の通りです。ウィンドウの作成とメッセージ ループは、[Win32 Window and Message Loop](../dx11/window.md) と同じで `Renderer::Init(hwnd)` を呼び、ループで `RenderFrame()` を呼びます。リンクするライブラリは `d3d12.lib`、`dxgi.lib`、`d3dcompiler.lib` です。
 
-## 何も、見えないときの、チェックリスト
+## 何も見えないときのチェックリスト
 
 | 順 | 確認 | 原因の例 |
 | --- | --- | --- |
-| 1 | クリアの色は、出ているか | 出ない → スワップ チェーン・RTV・バリア・`Present` |
-| 2 | シザー矩形を、設定したか | 設定忘れで、描画範囲が 0 |
-| 3 | ビューポートを、設定したか | 大きさ 0 |
-| 4 | PSO の `RTVFormats` は、RTV と、一致か | `_SRGB` の、有無の、食い違い |
-| 5 | `FrontCounterClockwise` | 反時計回りの三角形が、裏面として、捨てられている |
-| 6 | 頂点バッファの、状態遷移と、完了待ち | `COPY_DEST` のまま、または、コピーが、終わる前に、描いた |
-| 7 | デバッグ レイヤーの、メッセージ | 原因が、ほぼ、必ず、出ている（[Debug Layer](debug-layer.md)） |
-| 8 | PIX で、1 フレームを、撮る | 各命令の、結果を、目で、見る |
+| 1 | クリアの色は出ているか | 出ない → スワップ チェーン・RTV・バリア・`Present` |
+| 2 | シザー矩形を設定したか | 設定忘れで、描画範囲が 0 |
+| 3 | ビューポートを設定したか | 大きさ 0 |
+| 4 | PSO の `RTVFormats` は RTV と一致か | `_SRGB` の有無の食い違い |
+| 5 | `FrontCounterClockwise` | 反時計回りの三角形が、裏面として捨てられている |
+| 6 | 頂点バッファの状態遷移と完了待ち | `COPY_DEST` のまままたは、コピーが終わる前に描いた |
+| 7 | デバッグ レイヤーのメッセージ | 原因がほぼ必ず出ている（[Debug Layer](debug-layer.md)） |
+| 8 | PIX で 1 フレームを撮る | 各命令の結果を目で、見る |
 
 ## よくあるミス
 
-??? failure "クリアの色は、出るが、三角形が、出ない"
-    シザー矩形が、未設定。または、PSO の、面の向きが、時計回りが、表のまま。
+??? failure "クリアの色は出るが、三角形が出ない"
+    シザー矩形が未設定。または、PSO の面の向きが時計回りが、表のまま。
 
-??? failure "最初のフレームだけ、描ける、または、2 フレーム目に、エラー"
-    アロケーターを、GPU の、完了を、待たずに、`Reset` した。毎フレーム、`WaitForGpu` する（この例）。または、フレーム ごとの、フェンスで、管理する。
+??? failure "最初のフレームだけ描けるまたは、2 フレーム目にエラー"
+    アロケーターを GPU の完了を待たずに `Reset` した。毎フレーム、`WaitForGpu` する（この例）。または、フレーム ごとのフェンスで管理する。
 
-??? failure "デバッグ レイヤーが、「リソースの、状態が、違う」と、言う"
-    バリアの、前の状態（`StateBefore`）が、実際と、違う。バック バッファの、遷移を、確認する。
+??? failure "デバッグ レイヤーが、「リソースの状態が違う」と言う"
+    バリアの前の状態（`StateBefore`）が実際と違う。バック バッファの遷移を確認する。
 
-??? failure "終了時に、クラッシュ"
-    終了前に、GPU の完了を、待っていない。`Shutdown` で、`WaitForGpu`。
+??? failure "終了時にクラッシュ"
+    終了前に GPU の完了を待っていない。`Shutdown` で `WaitForGpu`。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 準備（1 回）: デバイス・キュー・スワップ チェーン・RTV・ルート シグネチャ・PSO・頂点バッファ・フェンス
     - [x] 毎フレーム: `Reset` → ルート シグネチャ・ビューポート・シザー → バリア → 描画 → バリア → `Close` → `Execute` → `Present` → 待つ
-    - [x] シザー矩形は、必須。設定し忘れると、何も、出ない
-    - [x] PSO の、フォーマットは、描く先と、一致させる
-    - [x] ここでは、毎フレーム待つ。実用は、フレーム イン フライトで、並列に
+    - [x] シザー矩形は必須。設定し忘れると何も出ない
+    - [x] PSO のフォーマットは描く先と一致させる
+    - [x] ここでは毎フレーム待つ。実用はフレーム イン フライトで並列に
 
 ## 関連ページ
 

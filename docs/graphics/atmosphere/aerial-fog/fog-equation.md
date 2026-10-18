@@ -6,7 +6,7 @@ tags:
 
 # Fog Equations
 
-<strong>距離に応じて、物の色をフォグの色に近づけるのが、フォグ</strong>です。<strong>減衰の式には、線形・指数・指数二乗</strong>があります。このページでは、フォグの式を説明します。
+<strong>距離に応じて物の色をフォグの色に近づけるのが、フォグ</strong>です。<strong>減衰の式には線形・指数・指数二乗</strong>があります。このページではフォグの式を説明します。
 
 !!! tip "ポイント"
     - 線形：距離に比例して増える。
@@ -90,7 +90,7 @@ tags:
 <!-- fig:fog-curves:end -->
 
 ## フォグの式
-<strong>光は距離 d を進むと減衰して散乱光と入れ替わります</strong>。<strong>物の色 C は、フォグの色 F と混ざります</strong>。
+<strong>光は距離 d を進むと減衰して散乱光と入れ替わります</strong>。<strong>物の色 C はフォグの色 F と混ざります</strong>。
 
 <div class="formula">C_final = C · T + F · (1 − T)　（T：透過率）</div>
 
@@ -120,28 +120,28 @@ float3 ApplyFog(float3 color, float distance_to_pixel) {
 
 ### 深度から距離を求める
 
-<strong>フル スクリーン パスで、深度バッファから位置を再構築</strong>して<strong>距離</strong>を出します。
+<strong>フル スクリーン パスで深度バッファから位置を再構築</strong>して<strong>距離</strong>を出します。
 
 ```hlsl
 float3 world_position = ReconstructWorldPosition(uv, depth);
 float distance_to_pixel = length(world_position - camera_position);
 ```
 
-## 霧を、式で書く
+## 霧を式で書く
 
-<strong>霧</strong>（フォグ）は、<strong>遠くの物の、色を、霧の色へ、近づける</strong>効果です。距離が、遠いほど、霧の色に、染まります。式の、骨格は、1 つです。
+<strong>霧</strong>（フォグ）は <strong>遠くの物の色を、霧の色へ近づける</strong>効果です。距離が遠いほど霧の色に染まります。式の骨格は 1 つです。
 
 ```text
 最終の色 = 物の色 × 透過率  +  霧の色 × (1 − 透過率)
 ```
 
-<strong>透過率</strong>（物の色が、<strong>どれだけ残るか</strong>）の、決め方が、方式ごとに、違います（[Fog Equations](#) の、上の図）。
+<strong>透過率</strong>（物の色が <strong>どれだけ残るか</strong>）の、決め方が方式ごとに違います（[Fog Equations](#) の、上の図）。
 
-## 3 つの、透過率の式
+## 3 つの透過率の式
 
 ### ① 線形フォグ
 
-<strong>開始距離</strong>から、<strong>終了距離</strong>まで、直線的に、霧が、濃くなります。
+<strong>開始距離</strong>から <strong>終了距離</strong>まで、直線的に霧が濃くなります。
 
 ```hlsl
 float LinearFog(float distance, float fog_start, float fog_end) {
@@ -149,11 +149,11 @@ float LinearFog(float distance, float fog_start, float fog_end) {
 }
 ```
 
-`fog_start` より、近くでは、<strong>透過率 1</strong>（霧なし）、`fog_end` より、遠くでは、<strong>透過率 0</strong>（霧の色だけ）です。最も、単純で、古い方式ですが、物理的には、正しくありません（霧の、濃さが、直線で、変わることは、ない）。
+`fog_start` より近くでは <strong>透過率 1</strong>（霧なし）、`fog_end` より遠くでは <strong>透過率 0</strong>（霧の色だけ）です。最も単純で古い方式ですが物理的には、正しくありません（霧の濃さが直線で、変わることはない）。
 
 ### ② 指数フォグ
 
-<strong>物理に、近い</strong>式です。<strong>進んだ、距離に、比例して、同じ割合ずつ、光が、減る</strong>（Beer の法則）。
+<strong>物理に近い</strong>式です。<strong>進んだ距離に比例して同じ割合ずつ光が、減る</strong>（Beer の法則）。
 
 ```hlsl
 float ExpFog(float distance, float density) {
@@ -161,11 +161,11 @@ float ExpFog(float distance, float density) {
 }
 ```
 
-`density` は、<strong>霧の、濃さ</strong>です。<strong>距離が、2 倍</strong>になると、透過率が、2 乗に（0.5 → 0.25）なります。霧の、現実の、振る舞いに、近い、標準的な式です。
+`density` は <strong>霧の濃さ</strong>です。<strong>距離が 2 倍</strong>になると透過率が、2 乗に（0.5 → 0.25）なります。霧の現実の振る舞いに近い標準的な式です。
 
 ### ③ 指数の 2 乗フォグ
 
-<strong>近くは、ほぼ、霧なし</strong>、<strong>ある距離から、急に、濃くなる</strong>、濃霧の、見た目です。
+<strong>近くはほぼ霧なし</strong>、<strong>ある距離から急に濃くなる</strong>、濃霧の見た目です。
 
 ```hlsl
 float Exp2Fog(float distance, float density) {
@@ -174,15 +174,15 @@ float Exp2Fog(float distance, float density) {
 }
 ```
 
-`exp(−(d × k)²)` は、<strong>近くで、ほぼ 1</strong>（霧が、ほとんど、見えない）で、<strong>ある距離</strong>（`1 / k` くらい）から、急に、0 へ落ちます。霧の中に、入ったような、急な、視界の悪化を、表現できます。
+`exp(−(d × k)²)` は <strong>近くでほぼ 1</strong>（霧が、ほとんど見えない）で <strong>ある距離</strong>（`1 / k` くらい）から急に、0 へ落ちます。霧の中に入ったような急な視界の悪化を、表現できます。
 
 | 式 | 透過率 | 見た目 | 物理的な、正しさ |
 | --- | --- | --- | --- |
-| 線形 | 直線で、減る | 霧の、開始と終了が、はっきり | 正しくない |
+| 線形 | 直線で減る | 霧の、開始と終了がはっきり | 正しくない |
 | 指数 | `exp(−kd)` | 自然な、霞 | 正しい（Beer の法則） |
-| 指数の 2 乗 | `exp(−(kd)²)` | 近くは、澄み、遠くで、急に、濃い | 正しくない（見た目の、調整用） |
+| 指数の 2 乗 | `exp(−(kd)²)` | 近くは澄み遠くで急に、濃い | 正しくない（見た目の、調整用） |
 
-## 霧の、色を、適用する
+## 霧の色を適用する
 
 ```hlsl
 // 物の色に、霧を、かける（ピクセル シェーダーの最後。距離は、カメラからの、実際の距離）。
@@ -192,27 +192,27 @@ float3 ApplyFog(float3 scene_color, float distance) {
 }
 ```
 
-最初の式を、そのまま、コードにしたものです。`distance` は、<strong>カメラから、その画素までの、距離</strong>です。<strong>深度</strong>（視点の、奥行き）では、視線が、斜めの画素で、霧が、薄くなります（距離が、実際より、短く測られるため）。視線方向の、距離を、使います。
+最初の式をそのままコードにしたものです。`distance` は <strong>カメラからその画素までの、距離</strong>です。<strong>深度</strong>（視点の奥行き）では視線が、斜めの画素で霧が薄くなります（距離が、実際より短く測られるため）。視線方向の距離を使います。
 
 ```hlsl
 // 視線方向の距離: ワールド位置から、カメラまでの、実際の距離。
 float distance = length(input.world_position - g_camera_position);
 ```
 
-## RGB ごとの、減衰
+## RGB ごとの減衰
 
-<strong>霧の、色が、青っぽい</strong>（空気遠近法）のは、<strong>青い光が、よく散る</strong>ためで、RGB ごとに、透過率が、違うからです。簡易な、霧では、1 つの、透過率で、霧の色を、混ぜます。物理ベースの方式では、RGB ごとに、別の、消散係数を、持ちます（[Physically Based Aerial Perspective](physical.md)）。
+<strong>霧の色が青っぽい</strong>（空気遠近法）のは、<strong>青い光がよく散る</strong>ためで RGB ごとに、透過率が違うからです。簡易な霧では 1 つの透過率で、霧の色を混ぜます。物理ベースの方式では RGB ごとに別の、消散係数を持ちます（[Physically Based Aerial Perspective](physical.md)）。
 
 ```hlsl
 float3 transmittance = exp(-g_extinction_rgb * distance);              // RGB ごとの、透過率
 float3 result = scene_color * transmittance + g_inscatter_color * (1.0 - transmittance);
 ```
 
-<strong>赤は、遠くまで、残り</strong>、<strong>青は、先に、霧の色へ</strong>染まるので、霞む遠景が、青みがかる、空気遠近法の、効果が、出ます。
+<strong>赤は遠くまで残り</strong>、<strong>青は先に霧の色へ</strong>染まるので、霞む遠景が青みがかる空気遠近法の効果が、出ます。
 
-## 密度の、決め方
+## 密度の決め方
 
-`density`（`σ`）は、<strong>「ここまでの、距離で、霧の色に、染まりきる」</strong>という、<strong>見た目の、要求</strong>から、決められます。
+`density`（`σ`）は <strong>「ここまでの距離で、霧の色に染まりきる」</strong>という、<strong>見た目の要求</strong>から決められます。
 
 ```text
 透過率が、ほぼ見えなくなる（5%）距離を D とすると:  exp(−σ D) = 0.05  →  σ = 3.0 / D
@@ -225,21 +225,21 @@ float DensityFromVisibility(float visibility_m) { return 3.0 / visibility_m; }
 
 | 視界の距離 | 霧の状態 | `σ`（1/m） |
 | --- | --- | --- |
-| 10 km | 澄んだ、昼 | 0.0003 |
-| 2 km | 薄い、霞 | 0.0015 |
+| 10 km | 澄んだ昼 | 0.0003 |
+| 2 km | 薄い霞 | 0.0015 |
 | 500 m | 霧 | 0.006 |
 | 100 m | 濃霧 | 0.03 |
 
-<strong>ゲームの、視界を、制御</strong>するのに、<strong>「見える距離」で、指定</strong>するほうが、直感的です。
+<strong>ゲームの視界を制御</strong>するのに、<strong>「見える距離」で指定</strong>するほうが、直感的です。
 
 ## 注意点
 
 | 項目 | 内容 |
 | --- | --- |
-| HDR | 霧の色は、HDR の値（空の、明るさ）に、合わせる。霧の色が、暗すぎると、遠景が、暗く沈み、明るすぎると、白く浮く（[Matching Fog Color to the Sky](color-match.md)） |
-| 加算ブレンドの物 | 火や、光の、パーティクル（加算）は、霧で、暗くなるが、霧の色を、足してはいけない（光の物が、霧で、白く、浮く）。霧の、適用は、透過率の、掛け算だけに、する |
-| 半透明 | 半透明の物にも、霧を、かける（透過率を、掛ける）。かけ忘れると、遠くの煙が、霧の中で、浮く |
-| 空 | 空にも、霧を、かけるかは、場面による。霧の中では、空も、霧の色に、近づく |
+| HDR | 霧の色は HDR の値（空の、明るさ）に合わせる。霧の色が暗すぎると遠景が暗く沈み、明るすぎると白く浮く（[Matching Fog Color to the Sky](color-match.md)） |
+| 加算ブレンドの物 | 火や光の、パーティクル（加算）は霧で暗くなるが、霧の色を足してはいけない（光の物が霧で白く、浮く）。霧の適用は透過率の掛け算だけに、する |
+| 半透明 | 半透明の物にも霧を、かける（透過率を掛ける）。かけ忘れると遠くの煙が霧の中で、浮く |
+| 空 | 空にも霧をかけるかは、場面による。霧の中では空も霧の色に近づく |
 
 ## よくあるミス
 

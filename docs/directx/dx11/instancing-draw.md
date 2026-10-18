@@ -10,18 +10,18 @@ tags:
 <span class="rank rank-often">よく使う</span>
 </div>
 
-<strong>インスタンス描画</strong>は、<strong>同じメッシュを、位置や色だけ変えて、何千個も、1 回の命令で、描く</strong>仕組みです。木、草、岩、弾、パーティクルのように、同じ形が、大量に、並ぶものを、1 つずつ、`Draw` すると、CPU が、命令の、発行で、手一杯になります（ドロー コールの、ボトルネック）。インスタンス描画は、1 回の `DrawIndexedInstanced` で、まとめます。
+<strong>インスタンス描画</strong>は <strong>同じメッシュを位置や色だけ変えて何千個も 1 回の命令で、描く</strong>仕組みです。木、草、岩、弾、パーティクルのように同じ形が大量に並ぶものを 1 つずつ `Draw` すると、CPU が命令の発行で手一杯になります（ドロー コールのボトルネック）。インスタンス描画は 1 回の `DrawIndexedInstanced` で、まとめます。
 
 !!! tip "ポイント"
-    - 1 回の命令で、同じメッシュを、N 個描く。物ごとの、違い（位置、色）は、<strong>インスタンス データ</strong>で、渡す。
-    - インスタンス データの、渡し方は、2 通り。<strong>入力レイアウトの `PER_INSTANCE_DATA`</strong>（頂点バッファの 2 本目）、または、<strong>`StructuredBuffer` を `SV_InstanceID` で、引く</strong>。
+    - 1 回の命令で同じメッシュを N 個描く。物ごとの違い（位置、色）は <strong>インスタンス データ</strong>で渡す。
+    - インスタンス データの渡し方は 2 通り。<strong>入力レイアウトの `PER_INSTANCE_DATA`</strong>（頂点バッファの 2 本目）、または <strong>`StructuredBuffer` を `SV_InstanceID` で引く</strong>。
     - 描画は `DrawIndexedInstanced`（`DrawInstanced`）。
-    - インスタンスの数が、GPU で決まるなら、`DrawIndexedInstancedIndirect`（間接描画）。
-    - ドロー コールを、減らす、最も、基本の手段（[Draw Calls](../../rendering/draw-calls.md)）。
+    - インスタンスの数が、GPU で決まるなら `DrawIndexedInstancedIndirect`（間接描画）。
+    - ドロー コールを減らす最も基本の手段（[Draw Calls](../../rendering/draw-calls.md)）。
 
 ## 方法 1：PER_INSTANCE_DATA（頂点バッファの 2 本目）
 
-メッシュの、頂点バッファ（スロット 0）に、加えて、<strong>インスタンスごとの、データ</strong>を、入れた、バッファ（スロット 1）を、用意します。
+メッシュの頂点バッファ（スロット 0）に加えて、<strong>インスタンスごとのデータ</strong>を入れたバッファ（スロット 1）を用意します。
 
 ```cpp
 struct InstanceData {
@@ -44,7 +44,7 @@ const D3D11_INPUT_ELEMENT_DESC elements[] = {
 };
 ```
 
-`PER_INSTANCE_DATA` の、要素は、<strong>インスタンスが、1 つ進むごと</strong>（最後の引数 `1`）に、次の、データに、進みます。1 つの要素は、最大 16 バイトなので、4×4 行列は、`float4` の 4 要素（`WORLD0`〜`WORLD3`）に、分けます。
+`PER_INSTANCE_DATA` の要素は <strong>インスタンスが、1 つ進むごと</strong>（最後の引数 `1`）に次のデータに進みます。1 つの要素は最大 16 バイトなので、4×4 行列は `float4` の 4 要素（`WORLD0`〜`WORLD3`）に分けます。
 
 ```hlsl
 struct VSInput {
@@ -74,7 +74,7 @@ context->DrawIndexedInstanced(index_count, instance_count, 0, 0, 0);
 
 ## 方法 2：StructuredBuffer と SV_InstanceID
 
-インスタンス データを、<strong>構造化バッファ</strong>に、入れて、頂点シェーダーが、`SV_InstanceID` で、引きます。入力レイアウトに、インスタンスの要素が、要らず、構造体を、自由に、設計できます。
+インスタンス データを <strong>構造化バッファ</strong>に入れて、頂点シェーダーが `SV_InstanceID` で引きます。入力レイアウトにインスタンスの要素が要らず構造体を自由に設計できます。
 
 ```hlsl
 struct InstanceData {
@@ -111,14 +111,14 @@ context->VSSetShaderResources(0, 1, instance_srv.GetAddressOf());
 context->DrawIndexedInstanced(index_count, instance_count, 0, 0, 0);
 ```
 
-構造化バッファの、作り方は、[Structured and Raw Buffers](structured-buffer.md) です。計算シェーダーで、カリングした結果を、そのまま、描画に、使う場合（GPU ドリブン）は、この方法が、向いています（[GPU Driven Rendering](../../rendering/gpu-driven.md)）。
+構造化バッファの作り方は[Structured and Raw Buffers](structured-buffer.md) です。計算シェーダーでカリングした結果をそのまま描画に使う場合（GPU ドリブン）は、この方法が向いています（[GPU Driven Rendering](../../rendering/gpu-driven.md)）。
 
 | | `PER_INSTANCE_DATA` | `StructuredBuffer` + `SV_InstanceID` |
 | --- | --- | --- |
 | 入力レイアウト | インスタンスの要素が、要る | 要らない |
 | 構造体の自由度 | 1 要素 16 バイトまで、分ける | 自由 |
-| 計算シェーダーとの連携 | UAV で、書いた、バッファを、頂点バッファに（`BIND_VERTEX_BUFFER` と `BIND_UNORDERED_ACCESS` は、同時に不可の場合あり） | UAV で書いて、SRV で、読める |
-| 向く場面 | 単純な、インスタンス（草、弾） | 大量・複雑な、データ、GPU カリング |
+| 計算シェーダーとの連携 | UAV で書いた、バッファを頂点バッファに（`BIND_VERTEX_BUFFER` と `BIND_UNORDERED_ACCESS` は、同時に不可の場合あり） | UAV で書いて、SRV で読める |
+| 向く場面 | 単純なインスタンス（草、弾） | 大量・複雑なデータ、GPU カリング |
 
 ## 描画関数
 
@@ -134,12 +134,12 @@ context->DrawIndexedInstanced(IndexCountPerInstance,   // 1 インスタンス�
 | --- | --- |
 | `DrawInstanced(VertexCountPerInstance, InstanceCount, StartVertexLocation, StartInstanceLocation)` | インデックスなしで、インスタンス描画 |
 | `DrawIndexedInstanced(…)` | インデックスつき |
-| `DrawInstancedIndirect(buffer, offset)` | 引数を、GPU のバッファから、読む |
-| `DrawIndexedInstancedIndirect(buffer, offset)` | インデックスつき、間接 |
+| `DrawInstancedIndirect(buffer, offset)` | 引数を GPU のバッファから、読む |
+| `DrawIndexedInstancedIndirect(buffer, offset)` | インデックスつき間接 |
 
 ## 間接描画（Indirect）
 
-描画の引数（インデックスの数、インスタンスの数など）を、<strong>GPU 上のバッファ</strong>に、置き、CPU を、介さず、描きます。計算シェーダーで、カリングして、描く数が、GPU で、決まるときに、使います。
+描画の引数（インデックスの数、インスタンスの数など）を <strong>GPU 上のバッファ</strong>に置き CPU を介さず描きます。計算シェーダーでカリングして、描く数が GPU で決まるときに使います。
 
 ```cpp
 // 引数バッファ: D3D11_DRAW_INDEXED_INSTANCED_INDIRECT_ARGS の形（5 つの uint）。
@@ -153,40 +153,40 @@ device->CreateBuffer(&desc, nullptr, &args_buffer);
 context->DrawIndexedInstancedIndirect(args_buffer.Get(), 0);   // 引数は、バッファの、先頭から
 ```
 
-引数バッファの、中身は、`IndexCountPerInstance`、`InstanceCount`、`StartIndexLocation`、`BaseVertexLocation`、`StartInstanceLocation` の、5 つの `uint` です。計算シェーダーが、`InstanceCount` を、書き込みます（[Compute Shader](compute-shader.md)）。`CopyStructureCount` で、追加型の、構造化バッファの、要素数を、引数バッファへ、コピーする方法も、あります。
+引数バッファの中身は `IndexCountPerInstance`、`InstanceCount`、`StartIndexLocation`、`BaseVertexLocation`、`StartInstanceLocation` の 5 つの `uint` です。計算シェーダーが `InstanceCount` を書き込みます（[Compute Shader](compute-shader.md)）。`CopyStructureCount` で追加型の構造化バッファの要素数を引数バッファへコピーする方法もあります。
 
-## ドロー コールを、減らす、効果
+## ドロー コールを減らす効果
 
-| 方法 | 1000 本の木を描くときの、ドロー コール |
+| 方法 | 1000 本の木を描くときのドロー コール |
 | --- | --- |
 | 1 本ずつ `DrawIndexed` | 1000 回 |
 | `DrawIndexedInstanced`（同じ木） | 1 回 |
-| 種類の違う木（5 種類）ごとに、インスタンス描画 | 5 回 |
+| 種類の違う木（5 種類）ごとにインスタンス描画 | 5 回 |
 
-ドロー コールが、数千回を、超えると、CPU の、ドライバーの、処理が、ボトルネックに、なります。インスタンス描画で、数十回に、減らせます。
+ドロー コールが数千回を超えると、CPU のドライバーの処理が、ボトルネックになります。インスタンス描画で数十回に減らせます。
 
 ## よくあるミス
 
-??? failure "全部の、インスタンスが、同じ位置に、描かれる"
-    `PER_INSTANCE_DATA` の、`InstanceDataStepRate` が 0（頂点ごと）。`1` にする。または、`SV_InstanceID` で、バッファを、引いていない。
+??? failure "全部のインスタンスが同じ位置に描かれる"
+    `PER_INSTANCE_DATA` の `InstanceDataStepRate` が 0（頂点ごと）。`1` にする。または、`SV_InstanceID` でバッファを引いていない。
 
 ??? failure "入力レイアウトの作成が、失敗する（行列）"
-    `WORLD` の、セマンティクス番号（`WORLD0`〜`WORLD3`）が、シェーダーの、`float4x4` の、入力と、合っていない。4 つの `float4` に、分けて、書く。
+    `WORLD` のセマンティクス番号（`WORLD0`〜`WORLD3`）が、シェーダーの `float4x4` の入力と合っていない。4 つの `float4` に分けて書く。
 
-??? failure "インスタンスの、一部だけ、描かれる"
-    バッファの、要素数が、`InstanceCount` より、少ない。`DYNAMIC` バッファの、`Map` で、全インスタンスぶん、書いていない。
+??? failure "インスタンスの一部だけ描かれる"
+    バッファの要素数が `InstanceCount` より少ない。`DYNAMIC` バッファの `Map` で全インスタンスぶん書いていない。
 
-??? failure "大量のインスタンスで、フレームレートが、落ちる"
-    見えない物（視錐台の外、遠すぎる物）も、描いている。カリングしてから、インスタンス バッファを、作る（[Culling](../../rendering/culling.md)）。
+??? failure "大量のインスタンスで、フレームレートが落ちる"
+    見えない物（視錐台の外、遠すぎる物）も描いている。カリングしてからインスタンス バッファを作る（[Culling](../../rendering/culling.md)）。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] インスタンス描画 ＝ 同じメッシュを、1 回の命令で、N 個描く。ドロー コールを、減らす基本
-    - [x] インスタンス データは、`PER_INSTANCE_DATA`（2 本目の頂点バッファ）か、`StructuredBuffer` + `SV_InstanceID`
+    - [x] インスタンス描画 ＝ 同じメッシュを 1 回の命令で N 個描く。ドロー コールを減らす基本
+    - [x] インスタンス データは、`PER_INSTANCE_DATA`（2 本目の頂点バッファ）か `StructuredBuffer` + `SV_InstanceID`
     - [x] 描画は `DrawIndexedInstanced`
-    - [x] 4×4 行列は、`float4` の 4 要素に、分けて、入力する
-    - [x] 描く数が、GPU で決まるなら、間接描画（`…Indirect`）
+    - [x] 4×4 行列は `float4` の 4 要素に分けて入力する
+    - [x] 描く数が、GPU で決まるなら間接描画（`…Indirect`）
 
 ## 関連ページ
 

@@ -6,12 +6,12 @@ tags:
 
 # Shore Foam: Depth Difference
 
-<strong>岸辺は、水面とシーンの深度の差が小さい所</strong>です。<strong>この差から、泡のマスクを作る</strong>と、岸や物の境界に、自然に泡が出ます。このページでは、深度差を使った泡を説明します。
+<strong>岸辺は水面とシーンの深度の差が小さい所</strong>です。<strong>この差から泡のマスクを作る</strong>と、岸や物の境界に自然に泡が出ます。このページでは深度差を使った泡を説明します。
 
 !!! tip "ポイント"
     - 深度差 ＝ シーンの深度 − 水面の深度。
-    - 差が小さいほど、泡が濃い。
-    - 波で、泡の幅を揺らすと、自然。
+    - 差が小さいほど泡が濃い。
+    - 波で泡の幅を揺らすと自然。
     - ソフト パーティクルと同じ発想。
 
 <!-- fig:shore-foam-depth:begin -->
@@ -43,7 +43,7 @@ float shore_mask = 1.0 - saturate(water_depth / foam_distance);
 shore_mask = pow(shore_mask, foam_sharpness);
 ```
 
-コードの要点です。`foam_distance` は泡が出る水深の範囲（例：0.5 m）で、これより深いと 0 になります。`pow(..., sharpness)` は端の鋭さで、大きいと岸のすぐそばだけになります。岩・杭・船の周りにも泡の輪ができます（深度差で自動的に出ます）。
+コードの要点です。`foam_distance` は泡が出る水深の範囲（例：0.5 m）で、これより深いと 0 になります。`pow(..., sharpness)` は端の鋭さで大きいと岸のすぐそばだけになります。岩・杭・船の周りにも泡の輪ができます（深度差で自動的に出ます）。
 
 ### 波打ち際の動き
 
@@ -57,13 +57,13 @@ float shore_mask = 1.0 - saturate(animated_depth / foam_distance);
 
 <strong>波が寄せる位相と引く位相で泡の線が前後します</strong>。<strong>位置（`world_position.x`）で位相をずらす</strong>と波が一斉に動かず、ばらけます。
 
-## 岸の、泡の、位置
+## 岸の泡の位置
 
-波が、岸に打ち寄せるとき、<strong>水が、浅くなるにつれて、波が、砕け、岸に沿って、泡の帯</strong>が、できます。泡の位置は、<strong>水深</strong>で、決まります。水深が、浅いほど、泡が、多く出ます。
+波が岸に打ち寄せるとき <strong>水が、浅くなるにつれて波が砕け岸に沿って、泡の帯</strong>ができます。泡の位置は <strong>水深</strong>で決まります。水深が浅いほど泡が多く出ます。
 
-## 水深を、求める
+## 水深を求める
 
-水深は、<strong>水面の深度</strong>と、<strong>水の後ろの、地形（不透明な物）の深度</strong>の、差から、求めます（[Color by Water Depth](../shading/depth-color.md)）。
+水深は <strong>水面の深度</strong>と <strong>水の後ろの、地形（不透明な物）の深度</strong>の差から、求めます（[Color by Water Depth](../shading/depth-color.md)）。
 
 ```hlsl
 float scene_depth = LinearizeDepth(g_scene_depth.Sample(g_point_clamp, screen_uv).r);
@@ -73,7 +73,7 @@ float depth_diff = max(scene_depth - surface_depth, 0.0);         // 視点深�
 
 ## 泡の帯
 
-<strong>水深が、浅いほど、泡が出る</strong>ように、水深から、泡のマスクを作ります。
+<strong>水深が浅いほど泡が出る</strong>ように、水深から泡のマスクを作ります。
 
 ```hlsl
 // 水深が foam_width より浅い所に、泡を出す。0 に近いほど濃い。
@@ -83,21 +83,21 @@ shore_foam = shore_foam * shore_foam;           // 岸に近いほど、急に�
 
 | パラメーター | 目安 | 効果 |
 | --- | --- | --- |
-| `foam_width` | 0.5〜2 m | 泡の帯の、幅。大きいほど、岸から、沖まで、泡が出る |
-| 2 乗 | — | 岸の、ごく近くを、強調する |
+| `foam_width` | 0.5〜2 m | 泡の帯の幅。大きいほど岸から沖まで泡が出る |
+| 2 乗 | — | 岸の、ごく近くを強調する |
 
-### 縁に、ノイズを、足す
+### 縁にノイズを足す
 
-泡の帯が、<strong>なめらかな、直線</strong>だと、不自然です。<strong>ノイズ</strong>で、境界を、ゆらします。
+泡の帯が <strong>なめらかな直線</strong>だと、不自然です。<strong>ノイズ</strong>で境界をゆらします。
 
 ```hlsl
 float noise = g_noise.Sample(g_linear_wrap, world_uv * 2.0 + time * 0.05).r;
 float shore_foam = saturate(1.0 - depth_diff / (foam_width * (0.5 + noise)));
 ```
 
-## 波が、押し寄せて、引く
+## 波が押し寄せて引く
 
-岸の泡は、<strong>静止した帯</strong>ではなく、<strong>波が来て、引くたびに、岸に沿って、前後に動き</strong>ます。水深に、時間とともに、動く、しきい値を使うと、この動きを、再現できます。
+岸の泡は <strong>静止した帯</strong>ではなく、<strong>波が来て引くたびに岸に沿って、前後に動き</strong>ます。水深に時間とともに動くしきい値を使うと、この動きを再現できます。
 
 ```hlsl
 // 波の周期で、泡の帯が、岸へ寄せて、引く。
@@ -106,11 +106,11 @@ float threshold = foam_width * wave;                                            
 float shore_foam = saturate(1.0 - depth_diff / max(threshold, 0.01));
 ```
 
-`depth_diff × wave_frequency` を、位相に入れると、<strong>波の位相が、水深によって、ずれる</strong>ので、<strong>岸に向かって、進む帯</strong>のように見えます。波が、岸へ進む向きは、`−depth_diff` の符号で、決まります。符号を、逆にすると、沖へ引いて行く動きになります。
+`depth_diff × wave_frequency` を位相に入れると <strong>波の位相が、水深によってずれる</strong>ので <strong>岸に向かって、進む帯</strong>のように見えます。波が岸へ進む向きは `−depth_diff` の符号で、決まります。符号を逆にすると沖へ引いて行く動きになります。
 
-## 水と陸の、境目を、なめらかにする
+## 水と陸の境目をなめらかにする
 
-水面と地形が、交差する線は、<strong>ぱっきり、線が見えます</strong>。<strong>深度の差が、小さい所の、アルファ</strong>を、下げて、水面を、岸で、透明に、フェードさせます（ソフト パーティクルと、同じ考え方、[Soft Particles](../../translucency/blending-sorting/soft-particles.md)）。
+水面と地形が交差する線は <strong>ぱっきり、線が見えます</strong>。<strong>深度の差が小さい所のアルファ</strong>を下げて水面を岸で透明に、フェードさせます（ソフト パーティクルと、同じ考え方、[Soft Particles](../../translucency/blending-sorting/soft-particles.md)）。
 
 ```hlsl
 // 水面の、岸の近くを、透明にして、交差の線を、消す。
@@ -121,14 +121,14 @@ float alpha = edge_alpha;
 
 | 要素 | 役割 |
 | --- | --- |
-| 水面の、アルファ | 岸で、透明に。交差の線が、見えない |
-| 泡 | 岸の近くで、濃い。水面が、透けても、泡が、境目を、隠す |
+| 水面のアルファ | 岸で、透明に。交差の線が見えない |
+| 泡 | 岸の近くで濃い。水面が透けても泡が境目を隠す |
 
-<strong>泡の帯が、境目を、隠す</strong>ので、この 2 つは、<strong>セット</strong>で使います。
+<strong>泡の帯が境目を隠す</strong>のでこの 2 つは、<strong>セット</strong>で使います。
 
-## 波の、勢いと、泡の、強さ
+## 波の勢いと泡の強さ
 
-波が<strong>強い</strong>日は、<strong>泡が、広く、濃く</strong>出ます。泡の強さを、波の振幅（風の強さ）で、変えます。
+波が<strong>強い</strong>日は <strong>泡が広く濃く</strong>出ます。泡の強さを波の振幅（風の強さ）で、変えます。
 
 ```hlsl
 float shore_foam_strength = lerp(0.4, 1.0, saturate(wind_strength));
@@ -137,26 +137,26 @@ float foam_width = base_width * lerp(0.7, 1.5, saturate(wind_strength));
 
 ## 地形の傾き
 
-<strong>傾きが、緩やか</strong>な浜辺では、水深が、<strong>ゆっくり</strong>浅くなるので、泡の帯が、広くなります。崖の下では、水深が、急に、深くなり、帯が、細くなります。水深マップを使うので、この違いは、自動で出ます。
+<strong>傾きが緩やか</strong>な浜辺では水深が、<strong>ゆっくり</strong>浅くなるので泡の帯が、広くなります。崖の下では水深が急に深くなり帯が、細くなります。水深マップを使うのでこの違いは、自動で出ます。
 
 ## 注意点
 
 | 項目 | 内容 |
 | --- | --- |
-| 屈折との、整合 | 水深を、読む UV を、屈折で歪ませた位置と、そろえる（[Water Refraction Distortion](../shading/refraction.md)） |
-| 画面外の地形 | 画面の外の、地形の深度は、読めない。水深マップ（別のテクスチャ）を、持つと、安定する |
-| 深度の精度 | 遠くでは、深度の精度が低く、泡の帯が、ちらつく。水深を、事前に、テクスチャに焼いておく（地形から、ツールで作る） |
-| ノイズの、サイズ | 小さすぎると、ちらつく。大きめの、ゆっくり動くノイズを使う |
+| 屈折との整合 | 水深を、読む UV を屈折で歪ませた位置と、そろえる（[Water Refraction Distortion](../shading/refraction.md)） |
+| 画面外の地形 | 画面の外の、地形の深度は読めない。水深マップ（別のテクスチャ）を持つと、安定する |
+| 深度の精度 | 遠くでは、深度の精度が低く泡の帯がちらつく。水深を事前にテクスチャに焼いておく（地形から、ツールで作る） |
+| ノイズのサイズ | 小さすぎると、ちらつく。大きめのゆっくり動くノイズを使う |
 
 ## よくあるミス
 
 ??? failure "泡が、岸の形に沿った一定の線になる"
-    <strong>ノイズや波で、境界を揺らす</strong>。
+    <strong>ノイズや波で境界を揺らす</strong>。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 深度差が小さい所に、泡
+    - [x] 深度差が小さい所に泡
 
 ## 参考
 

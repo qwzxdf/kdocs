@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-テクスチャを、GPU に、送る流れは、頂点バッファと、同じで、<strong>UPLOAD ヒープの、中継バッファに、書き、GPU の、コピー命令で、DEFAULT ヒープの、テクスチャへ、送ります</strong>。ただし、テクスチャは、<strong>行の幅（ピッチ）に、アラインメントが、ある</strong>ので、中継バッファでの、並びが、画像と、違います。`UpdateSubresources` が、その面倒を、見てくれます。ミップマップも、D3D12 では、<strong>自動生成が、無い</strong>ので、自分で、作ります。
+テクスチャを GPU に送る流れは頂点バッファと同じで <strong>UPLOAD ヒープの、中継バッファに書き GPU のコピー命令で DEFAULT ヒープのテクスチャへ送ります</strong>。ただし、テクスチャは <strong>行の幅（ピッチ）にアラインメントがある</strong>ので中継バッファでの並びが画像と、違います。`UpdateSubresources` がその面倒を見てくれます。ミップマップも D3D12 では <strong>自動生成が無い</strong>ので自分で、作ります。
 
 !!! tip "ポイント"
-    - 流れ: DEFAULT の、テクスチャを、作る → UPLOAD の、中継バッファを、作る → `UpdateSubresources` で、コピーを、記録 → バリアで、`PIXEL_SHADER_RESOURCE` へ → SRV を、作る。
-    - 中継バッファの、1 行の、幅は、<strong>256 バイト</strong>の倍数（`D3D12_TEXTURE_DATA_PITCH_ALIGNMENT`）。
-    - 中継バッファの、大きさは、`GetRequiredIntermediateSize` で、求める。
-    - GPU が、コピーを、終えるまで、中継バッファは、解放できない（フェンス）。
-    - ミップマップは、自動で、作られない。ビルド時に、DDS に、入れておく、または、計算シェーダーで、作る。
+    - 流れ: DEFAULT のテクスチャを作る → UPLOAD の、中継バッファを作る → `UpdateSubresources` で、コピーを記録 → バリアで `PIXEL_SHADER_RESOURCE` へ → SRV を作る。
+    - 中継バッファの 1 行の幅は、<strong>256 バイト</strong>の倍数（`D3D12_TEXTURE_DATA_PITCH_ALIGNMENT`）。
+    - 中継バッファの大きさは `GetRequiredIntermediateSize` で、求める。
+    - GPU がコピーを終えるまで中継バッファは解放できない（フェンス）。
+    - ミップマップは自動で、作られない。ビルド時に DDS に入れておくまたは、計算シェーダーで作る。
 
 ## 作る
 
@@ -36,9 +36,9 @@ device->CreateCommittedResource(&upload_heap, D3D12_HEAP_FLAG_NONE, &upload_desc
                                 nullptr, IID_PPV_ARGS(&upload_buffer));
 ```
 
-`GetRequiredIntermediateSize` は、行の、アラインメントを、含んだ、中継バッファの、必要な、大きさを、返します（画像の、大きさ `width × height × 4` より、大きくなりうる）。
+`GetRequiredIntermediateSize` は行のアラインメントを含んだ、中継バッファの必要な大きさを返します（画像の大きさ `width × height × 4` より大きくなりうる）。
 
-## コピーを、記録する
+## コピーを記録する
 
 ```cpp
 // ③ 画素データを、記述して、UpdateSubresources で、コピー（中継バッファへの、書き込みと、コピー命令の、記録）。
@@ -58,7 +58,7 @@ auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(texture.Get(), D3D12_RESOURC
 command_list->ResourceBarrier(1, &barrier);
 ```
 
-`UpdateSubresources`（`d3dx12.h`）は、中継バッファに、<strong>行ごとに、256 バイト境界に、そろえて</strong>、画素を、コピーし、`CopyTextureRegion` の、命令を、コマンド リストに、記録します。<strong>実際の、GPU への、コピーは、`ExecuteCommandLists` の、後</strong>です。
+`UpdateSubresources`（`d3dx12.h`）は中継バッファに <strong>行ごとに 256 バイト境界にそろえて</strong>、画素をコピーし `CopyTextureRegion` の命令をコマンド リストに記録します。<strong>実際の GPU へのコピーは `ExecuteCommandLists` の後</strong>です。
 
 ```cpp
 command_list->Close();
@@ -80,11 +80,11 @@ srv.Texture2D.MipLevels = 1;
 device->CreateShaderResourceView(texture.Get(), &srv, srv_cpu_handle);
 ```
 
-ディスクリプタの、作り方は、[Descriptor](descriptor.md) です。色のテクスチャは、`_SRGB`、法線マップなどは、リニアの `_UNORM` です。
+ディスクリプタの作り方は[Descriptor](descriptor.md) です。色のテクスチャは `_SRGB`、法線マップなどはリニアの `_UNORM` です。
 
-## 行の、アラインメント
+## 行のアラインメント
 
-中継バッファでは、画像の、1 行が、<strong>256 バイトの倍数</strong>の幅に、そろえられて、並びます（`D3D12_TEXTURE_DATA_PITCH_ALIGNMENT`）。`UpdateSubresources` は、これを、自動で、行いますが、自分で、コピーするとき（`CopyTextureRegion`）は、注意が、必要です。
+中継バッファでは画像の 1 行が、<strong>256 バイトの倍数</strong>の幅にそろえられて並びます（`D3D12_TEXTURE_DATA_PITCH_ALIGNMENT`）。`UpdateSubresources` はこれを自動で行いますが自分で、コピーするとき（`CopyTextureRegion`）は注意が、必要です。
 
 ```cpp
 // 例: 幅 100 ピクセル（400 バイト）の画像 → 中継バッファの、1 行は、512 バイト（256 の倍数に切り上げ）。
@@ -97,17 +97,17 @@ device->GetCopyableFootprints(&texture_desc, 0, 1, 0, &footprint, nullptr, nullp
 // footprint.Footprint.RowPitch が、中継バッファでの、1 行のバイト数
 ```
 
-`CopyTextureRegion` を、自分で、使うときは、`GetCopyableFootprints` で、レイアウトを、取り、その `RowPitch` で、画素を、並べます。
+`CopyTextureRegion` を自分で使うときは `GetCopyableFootprints` で、レイアウトを取りその `RowPitch` で画素を並べます。
 
 ## ミップマップ
 
-D3D12 には、ミップを、自動で、作る、関数が、<strong>ありません</strong>。ミップは、次のいずれかで、用意します。
+D3D12 にはミップを自動で作る関数が、<strong>ありません</strong>。ミップは次のいずれかで用意します。
 
 | 方法 | 内容 |
 | --- | --- |
-| ビルド時に、DDS に、入れる | 画像ツール（`texconv`）で、ミップを、作り、DDS に、保存。実行時は、全ミップを、アップロード。最も、一般的 |
-| 計算シェーダーで、作る | ミップ 0 から、順に、半分に、縮小する、計算シェーダーを、ミップごとに、ディスパッチ |
-| CPU で、作る | 起動時に、縮小して、全ミップを、アップロード |
+| ビルド時に DDS に入れる | 画像ツール（`texconv`）で、ミップを作り DDS に保存。実行時は全ミップをアップロード。最も一般的 |
+| 計算シェーダーで作る | ミップ 0 から順に半分に縮小する計算シェーダーをミップごとに、ディスパッチ |
+| CPU で作る | 起動時に縮小して全ミップをアップロード |
 
 ```cpp
 // 全ミップを、アップロードする（サブリソース = ミップごと）。
@@ -120,17 +120,17 @@ for (UINT m = 0; m < mip_count; ++m) {
 UpdateSubresources(command_list.Get(), texture.Get(), upload_buffer.Get(), 0, 0, mip_count, subresources.data());
 ```
 
-テクスチャの、作成時の、`MipLevels` を、ミップの数に、し、`GetRequiredIntermediateSize(texture, 0, mip_count)` で、中継バッファを、作ります。
+テクスチャの作成時の `MipLevels` をミップの数にし `GetRequiredIntermediateSize(texture, 0, mip_count)` で、中継バッファを作ります。
 
-## 画像ファイルの、読み込み
+## 画像ファイルの読み込み
 
-D3D12 自身は、PNG・JPG を、デコードしません。ライブラリを、使います。
+D3D12 自身は PNG・JPG をデコードしません。ライブラリを使います。
 
 | 方法 | 内容 |
 | --- | --- |
-| DirectXTK12 の `LoadWICTextureFromFile`、`LoadDDSTextureFromFile` | デコードして、`D3D12_SUBRESOURCE_DATA` を、返す。`ResourceUploadBatch` が、アップロードを、まとめる |
-| DirectXTex | 画像の、読み込み、ミップ生成、圧縮 |
-| `stb_image` | 軽量の、デコーダー。RGBA の、ピクセル列を、返す |
+| DirectXTK12 の `LoadWICTextureFromFile`、`LoadDDSTextureFromFile` | デコードして `D3D12_SUBRESOURCE_DATA` を返す。`ResourceUploadBatch` がアップロードをまとめる |
+| DirectXTex | 画像の読み込みミップ生成、圧縮 |
+| `stb_image` | 軽量のデコーダー。RGBA のピクセル列を返す |
 
 ```cpp
 // DirectXTK12: アップロードを、まとめて、非同期に、行う。
@@ -141,38 +141,38 @@ auto finished = upload.End(command_queue.Get());            // std::future。完
 finished.wait();
 ```
 
-製品では、ビルド時に、圧縮（BC7）つきの DDS に、変換して、実行時は、そのまま、アップロードします（[Texture Streaming](../../rendering/texture-streaming.md)）。
+製品ではビルド時に圧縮（BC7）つきの DDS に変換して実行時はそのままアップロードします（[Texture Streaming](../../rendering/texture-streaming.md)）。
 
-## 多数の、テクスチャを、まとめて
+## 多数のテクスチャをまとめて
 
-ロード時に、数百枚の、テクスチャを、アップロードするとき、1 枚ずつ、`WaitForGpu` すると、遅いです。<strong>1 つの、コマンド リストに、全部の、コピーを、記録し</strong>、<strong>1 回、投げて、1 回、待つ</strong>のが、効率的です。中継バッファは、全部の、コピーが、終わるまで、保ちます。
+ロード時に数百枚のテクスチャをアップロードするとき 1 枚ずつ `WaitForGpu` すると遅いです。<strong>1 つのコマンド リストに全部のコピーを記録し</strong>、<strong>1 回、投げて 1 回、待つ</strong>のが効率的です。中継バッファは全部のコピーが、終わるまで保ちます。
 
 ## よくあるミス
 
-??? failure "テクスチャが、斜めに、ずれる、ノイズのように、見える"
-    行のピッチを、`width * 4` のまま、中継バッファに、並べている（256 の倍数に、そろえていない）。`UpdateSubresources` を、使う。
+??? failure "テクスチャが斜めにずれる、ノイズのように見える"
+    行のピッチを `width * 4` のまま中継バッファに並べている（256 の倍数に、そろえていない）。`UpdateSubresources` を使う。
 
-??? failure "コピー後に、テクスチャが、真っ黒（または、化ける）"
-    GPU が、コピーを、終える前に、中継バッファを、解放した。または、`COPY_DEST` → `PIXEL_SHADER_RESOURCE` の、バリアを、入れていない。
+??? failure "コピー後にテクスチャが真っ黒（または化ける）"
+    GPU がコピーを終える前に中継バッファを解放した。または、`COPY_DEST` → `PIXEL_SHADER_RESOURCE` のバリアを入れていない。
 
-??? failure "遠くが、ちらつく（ミップが、無い）"
-    D3D12 に、`GenerateMips` は、無い。ミップを、DDS で、用意するか、計算シェーダーで、作る。
+??? failure "遠くが、ちらつく（ミップが無い）"
+    D3D12 に `GenerateMips` は無い。ミップを DDS で用意するか計算シェーダーで作る。
 
 ??? failure "色が、くすむ（暗い）"
-    色の画像を、`_UNORM`（リニア）で、読んでいる。`_SRGB` にする。
+    色の画像を `_UNORM`（リニア）で、読んでいる。`_SRGB` にする。
 
-??? failure "ロードが、遅い"
-    テクスチャごとに、`WaitForGpu` している。まとめて、1 回、待つ。
+??? failure "ロードが遅い"
+    テクスチャごとに `WaitForGpu` している。まとめて 1 回、待つ。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] DEFAULT のテクスチャ + UPLOAD の中継バッファ → `UpdateSubresources`
-    - [x] 中継バッファの、1 行は、256 バイトの倍数。`GetRequiredIntermediateSize` で、大きさを、求める
-    - [x] コピー後は、バリア（`COPY_DEST` → `PIXEL_SHADER_RESOURCE`）。完了まで、中継バッファを、解放しない
-    - [x] ミップは、自動で、作られない。DDS か、計算シェーダー
-    - [x] 色は `_SRGB`、データは、リニア
-    - [x] 多数は、1 つのリストに、まとめて、1 回待つ
+    - [x] 中継バッファの 1 行は 256 バイトの倍数。`GetRequiredIntermediateSize` で大きさを求める
+    - [x] コピー後はバリア（`COPY_DEST` → `PIXEL_SHADER_RESOURCE`）。完了まで中継バッファを解放しない
+    - [x] ミップは自動で、作られない。DDS か計算シェーダー
+    - [x] 色は `_SRGB`、データはリニア
+    - [x] 多数は 1 つのリストにまとめて 1 回待つ
 
 ## 関連ページ
 

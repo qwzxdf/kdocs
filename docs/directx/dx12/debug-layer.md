@@ -10,15 +10,15 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-D3D12 は、リソースの状態、同期、ディスクリプタ、ルート シグネチャと、<strong>間違える所が、非常に多い</strong>ので、デバッグ レイヤーが、必須です。API の、使い方の、誤りを、出力ウィンドウに、メッセージで、出し、さらに、<strong>GPU ベース検証</strong>は、GPU の実行中に、バリアの、間違いや、ディスクリプタの、不正を、検出します。GPU が、ハングした、ときの、原因を、探る、<strong>DRED</strong> も、あります。
+D3D12 はリソースの状態、同期、ディスクリプタ、ルート シグネチャと <strong>間違える所が、非常に多い</strong>のでデバッグ レイヤーが、必須です。API の使い方の誤りを出力ウィンドウにメッセージで出しさらに <strong>GPU ベース検証</strong>は、GPU の実行中にバリアの間違いやディスクリプタの不正を検出します。GPU がハングしたときの原因を探る <strong>DRED</strong> もあります。
 
 !!! tip "ポイント"
-    - `ID3D12Debug::EnableDebugLayer()` を、<strong>デバイスを、作る前</strong>に、呼ぶ。
-    - <strong>GPU ベース検証</strong>（`SetEnableGPUBasedValidation`）は、遅いが、バリアの、ミスを、正確に、見つける。
-    - `ID3D12InfoQueue` で、エラーの、時に、ブレーク（止める）できる。
-    - オブジェクトに、`SetName` で、名前を付ける。メッセージが、読みやすくなる。
-    - GPU ハング（`DEVICE_REMOVED`）の、原因は、<strong>DRED</strong>（Device Removed Extended Data）で、調べる。
-    - 製品（Release）では、外す。
+    - `ID3D12Debug::EnableDebugLayer()` を <strong>デバイスを作る前</strong>に呼ぶ。
+    - <strong>GPU ベース検証</strong>（`SetEnableGPUBasedValidation`）は遅いが、バリアのミスを正確に見つける。
+    - `ID3D12InfoQueue` でエラーの時にブレーク（止める）できる。
+    - オブジェクトに `SetName` で、名前を付ける。メッセージが読みやすくなる。
+    - GPU ハング（`DEVICE_REMOVED`）の原因は、<strong>DRED</strong>（Device Removed Extended Data）で、調べる。
+    - 製品（Release）では外す。
 
 ## 有効にする
 
@@ -31,7 +31,7 @@ if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)))) {
 #endif
 ```
 
-デバイスを、作った後で、有効にすると、既存の、デバイスが、削除されます。必ず、先に、呼びます（[Device and Factory](factory-device.md)）。
+デバイスを作った後で有効にすると既存のデバイスが削除されます。必ず先に呼びます（[Device and Factory](factory-device.md)）。
 
 ## GPU ベース検証
 
@@ -44,14 +44,14 @@ if (SUCCEEDED(debug.As(&debug1))) {
 #endif
 ```
 
-通常の、デバッグ レイヤーは、<strong>CPU 側</strong>（API の呼び出し）の、誤りを、検出します。GPU ベース検証は、シェーダーに、<strong>計測コードを、挿入</strong>して、実行中の、リソースの、<strong>状態違反</strong>（バリア忘れ）、<strong>ディスクリプタの、不正</strong>、未初期化のリソースを、検出します。ゲームが、数倍、遅くなるので、バグを、探すときだけ、有効にします。
+通常の、デバッグ レイヤーは <strong>CPU 側</strong>（API の呼び出し）の誤りを検出します。GPU ベース検証はシェーダーに <strong>計測コードを挿入</strong>して実行中のリソースの <strong>状態違反</strong>（バリア忘れ）、<strong>ディスクリプタの不正</strong>、未初期化のリソースを検出します。ゲームが数倍、遅くなるのでバグを探すときだけ有効にします。
 
 | 検証 | 検出するもの | コスト |
 | --- | --- | --- |
-| デバッグ レイヤー | API の使い方の、誤り（パラメータ、状態の、組み合わせ） | 小〜中 |
-| GPU ベース検証 | バリア忘れ、ディスクリプタの、不正、範囲外アクセス | 大（数倍遅い） |
+| デバッグ レイヤー | API の使い方の誤り（パラメータ、状態の組み合わせ） | 小〜中 |
+| GPU ベース検証 | バリア忘れディスクリプタの不正、範囲外アクセス | 大（数倍遅い） |
 
-## メッセージの、見え方
+## メッセージの見え方
 
 ```text
 D3D12 ERROR: ID3D12CommandQueue::ExecuteCommandLists: Using ResourceBarrier on Command List (0x...):
@@ -60,9 +60,9 @@ with the state (0x0: D3D12_RESOURCE_STATE_PRESENT) specified by the previous cal
 [ RESOURCE_MANIPULATION ERROR #527: RESOURCE_BARRIER_BEFORE_AFTER_MISMATCH]
 ```
 
-この例は、「バリアの、`StateBefore` が、実際の状態と、違う」という、典型的な、エラーです。メッセージに、リソースの、名前（`SetName` で、付けた物）が、出るので、どのリソースか、すぐ、分かります。
+この例は「バリアの `StateBefore` が実際の状態と違う」という典型的なエラーです。メッセージにリソースの名前（`SetName` で、付けた物）が出るのでどのリソースかすぐ分かります。
 
-## InfoQueue：エラーで、止める
+## InfoQueue：エラーで止める
 
 ```cpp
 #include <d3d12sdklayers.h>
@@ -82,9 +82,9 @@ if (SUCCEEDED(device.As(&info_queue))) {
 }
 ```
 
-`SetBreakOnSeverity` で、エラーが、起きた、<strong>まさに、その呼び出し</strong>で、デバッガーが、止まり、コール スタックが、原因の行を、指します。ただし、バリアや、同期の、誤りは、<strong>実行時</strong>（`ExecuteCommandLists`）に、報告されることが、多く、記録した、場所では、なく、投げた場所で、止まります。
+`SetBreakOnSeverity` でエラーが起きた <strong>まさにその呼び出し</strong>でデバッガーが止まりコール スタックが原因の行を、指します。ただし、バリアや同期の誤りは <strong>実行時</strong>（`ExecuteCommandLists`）に報告されることが多く記録した場所ではなく投げた場所で止まります。
 
-## オブジェクトに、名前を、付ける
+## オブジェクトに名前を付ける
 
 ```cpp
 device->SetName(L"Main Device");
@@ -93,11 +93,11 @@ vertex_buffer->SetName(L"Triangle Vertex Buffer");
 constant_buffer->SetName(L"Per-Object Constants");
 ```
 
-名前が、あると、メッセージと、PIX の画面で、どのオブジェクトか、分かります。「リソース 0x000001... の、状態が、違う」より、「`GBuffer Albedo` の、状態が、違う」の、方が、はるかに、探しやすい。
+名前があるとメッセージと PIX の画面で、どのオブジェクトか分かります。「リソース 0x000001... の状態が、違う」より「`GBuffer Albedo` の状態が違う」の方が、はるかに探しやすい。
 
-## DRED：GPU ハングの、原因を、調べる
+## DRED：GPU ハングの原因を調べる
 
-GPU が、ハングする（無限ループ、不正なアクセス）と、`DXGI_ERROR_DEVICE_REMOVED` が、返ります。<strong>DRED</strong>（Device Removed Extended Data）を、有効にすると、「GPU が、最後に、実行していた、命令」が、分かります。
+GPU がハングする（無限ループ、不正なアクセス）と `DXGI_ERROR_DEVICE_REMOVED` が返ります。<strong>DRED</strong>（Device Removed Extended Data）を、有効にすると「GPU が最後に実行していた命令」が分かります。
 
 ```cpp
 ComPtr<ID3D12DeviceRemovedExtendedDataSettings> dred_settings;
@@ -120,9 +120,9 @@ if (hr == DXGI_ERROR_DEVICE_REMOVED) {
 }
 ```
 
-「パンくずリスト」は、各コマンド リストの、命令の、実行状況（完了、実行中、未実行）を、示します。ハングした、命令を、特定できます。DRED は、設定を、<strong>デバイスを、作る前</strong>に、有効にします。
+「パンくずリスト」は各コマンド リストの命令の実行状況（完了、実行中、未実行）を示します。ハングした命令を特定できます。DRED は設定を <strong>デバイスを作る前</strong>に有効にします。
 
-## GPU ハングの、検出
+## GPU ハングの検出
 
 ```cpp
 HRESULT hr = swap_chain->Present(1, 0);
@@ -135,9 +135,9 @@ if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 }
 ```
 
-GPU が、2 秒以上、応答しないと、Windows の TDR（Timeout Detection and Recovery）が、ドライバーを、リセットし、デバイスが、失われます。1 回の `Dispatch`・`Draw` を、重くしすぎないように、します。
+GPU が 2 秒以上、応答しないと Windows の TDR（Timeout Detection and Recovery）が、ドライバーをリセットしデバイスが、失われます。1 回の `Dispatch`・`Draw` を重くしすぎないようにします。
 
-## 終了時の、リーク検出
+## 終了時のリーク検出
 
 ```cpp
 // 終了時（デバイスを解放する直前）に、生きている、オブジェクトを、一覧にする。
@@ -147,18 +147,18 @@ if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgi_debug)))) {
 }
 ```
 
-`ComPtr` を、グローバルや `static` に、持つと、デバイスの、解放より、後に、解放され、報告に、出ます。
+`ComPtr` をグローバルや `static` に持つとデバイスの解放より後に解放され報告に出ます。
 
 ## グラフィックス デバッガー
 
-デバッグ レイヤーで、分からない、<strong>見た目の問題</strong>は、PIX で、1 フレームを、撮って、各ドロー コールの、入出力を、見ます。
+デバッグ レイヤーで分からない、<strong>見た目の問題</strong>は PIX で、1 フレームを撮って各ドロー コールの入出力を見ます。
 
 | ツール | 特徴 |
 | --- | --- |
-| PIX on Windows | D3D12 の、標準。バリア・ヒープ・ディスクリプタの、可視化。GPU キャプチャ |
-| RenderDoc | 軽量で、無料。D3D12 にも、対応 |
+| PIX on Windows | D3D12 の標準。バリア・ヒープ・ディスクリプタの可視化。GPU キャプチャ |
+| RenderDoc | 軽量で無料。D3D12 にも対応 |
 | NVIDIA Nsight Graphics | NVIDIA 固有の、詳細 |
-| AMD Radeon GPU Profiler | AMD 固有の、詳細 |
+| AMD Radeon GPU Profiler | AMD 固有の詳細 |
 
 ```cpp
 // コマンド リストに、マーカーを、付ける（PIX・RenderDoc で、パスの名前が、見える）。
@@ -170,27 +170,27 @@ PIXEndEvent(command_list.Get());
 
 ## よくあるミス
 
-??? failure "デバッグ レイヤーを、有効にしたのに、メッセージが、出ない"
-    `EnableDebugLayer` を、デバイスを、作った後に、呼んでいる。デバイスの作成前に、呼ぶ。
+??? failure "デバッグ レイヤーを有効にしたのにメッセージが出ない"
+    `EnableDebugLayer` をデバイスを作った後に呼んでいる。デバイスの作成前に呼ぶ。
 
-??? failure "バリアの、ミスを、見逃す（見た目は、動く）"
-    GPU ベース検証を、使っていない。デバッグ レイヤーだけでは、実行時の、状態違反を、全部は、検出できない。バグの、調査では、GPU ベース検証を、有効に。
+??? failure "バリアのミスを見逃す（見た目は動く）"
+    GPU ベース検証を使っていない。デバッグ レイヤーだけでは実行時の状態違反を全部は検出できない。バグの調査では GPU ベース検証を有効に。
 
-??? failure "GPU ハングの、原因が、分からない"
-    DRED を、有効にしていない。パンくずリストで、最後に、実行した命令を、特定する。
+??? failure "GPU ハングの原因が、分からない"
+    DRED を有効にしていない。パンくずリストで最後に実行した命令を特定する。
 
-??? failure "メッセージが、多すぎて、読めない"
-    警告の一部を、フィルタで、絞る。`SetBreakOnSeverity` を、エラーだけにして、1 つずつ、直す。
+??? failure "メッセージが、多すぎて読めない"
+    警告の一部をフィルタで絞る。`SetBreakOnSeverity` をエラーだけにして 1 つずつ直す。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] D3D12 は、間違えやすい。デバッグ レイヤーは、必須。デバイス作成の「前」に、有効に
-    - [x] GPU ベース検証で、バリアと、ディスクリプタの誤りを、見つける（遅いので、調査時だけ）
-    - [x] `ID3D12InfoQueue` で、エラー時に、ブレーク
-    - [x] `SetName` で、全オブジェクトに、名前を付ける
-    - [x] GPU ハングは、DRED（パンくずリスト）で、原因を、調べる
-    - [x] 見た目の問題は、PIX・RenderDoc
+    - [x] D3D12 は間違えやすい。デバッグ レイヤーは必須。デバイス作成の「前」に有効に
+    - [x] GPU ベース検証で、バリアとディスクリプタの誤りを見つける（遅いので調査時だけ）
+    - [x] `ID3D12InfoQueue` でエラー時にブレーク
+    - [x] `SetName` で全オブジェクトに名前を付ける
+    - [x] GPU ハングは、DRED（パンくずリスト）で原因を調べる
+    - [x] 見た目の問題は PIX・RenderDoc
 
 ## 関連ページ
 

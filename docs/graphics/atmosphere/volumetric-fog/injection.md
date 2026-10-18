@@ -6,10 +6,10 @@ tags:
 
 # Step 2: Light Injection
 
-<strong>各 froxel に、太陽やライトの光を計算して、足します</strong>。<strong>シャドウ マップを参照</strong>して、影の中は光を入れないので、光の筋ができます。このページでは、光の注入を説明します。
+<strong>各 froxel に太陽やライトの光を計算して、足します</strong>。<strong>シャドウ マップを参照</strong>して、影の中は光を入れないので光の筋ができます。このページでは光の注入を説明します。
 
 !!! tip "ポイント"
-    - 各セルで、ライトの光 × 位相関数 × 影。
+    - 各セルでライトの光 × 位相関数 × 影。
     - 太陽・点光源・スポットライトのすべてに対応。
     - シャドウ マップを参照して、光の筋を作る。
     - ライトの数が多いと、重い（クラスタ化で軽く）。
@@ -381,13 +381,13 @@ float3 scattering = inscattered * density * albedo;
 | ライトの数が多い場合 | froxel ごとにライトをカリング（[Tiled と Clustered](../../../rendering/light-culling.md)） |
 | 解像度が低くても綺麗 | 霧は低周波（細かい構造がない）ので低解像度で十分 |
 
-## ステップ 2：ライトの、光を、注入する
+## ステップ 2：ライトの光を、注入する
 
-<strong>密度</strong>（[Step 1: Density](density.md)）が、決まったら、<strong>各セルに</strong>、ライトの光を、散乱光として、書き込みます（注入）。そのセルの、霧が、ライトに照らされて、どれだけ、光るかを、計算します。
+<strong>密度</strong>（[Step 1: Density](density.md)）が、決まったら <strong>各セルに</strong>、ライトの光を散乱光として書き込みます（注入）。そのセルの霧がライトに照らされて、どれだけ光るかを計算します。
 
-## セルでの、光の、計算
+## セルでの光の計算
 
-<strong>ライト 1 つ</strong>について、<strong>そのセルで、カメラの方向へ、散乱される光</strong>は、次のとおりです。
+<strong>ライト 1 つ</strong>について <strong>そのセルで、カメラの方向へ散乱される光</strong>は、次のとおりです。
 
 ```text
 散乱光 = 散乱係数 × 位相関数 × ライトの強さ × 影（光が、届くか） × 減衰（距離）
@@ -395,13 +395,13 @@ float3 scattering = inscattered * density * albedo;
 
 | 項 | 内容 |
 | --- | --- |
-| 散乱係数（`σ_s`） | セルの、密度（霧が、濃いほど、よく光る） |
-| 位相関数 | ライトの向きと、カメラへの向きの、角度に、依存（[Phase Functions](../scattering/phase-function.md)） |
-| ライトの強さ | 太陽、点光源の、明るさ |
-| 影 | シャドウ マップで、光が、届くか |
-| 減衰 | 点光源の、距離による、減衰 |
+| 散乱係数（`σ_s`） | セルの、密度（霧が濃いほどよく光る） |
+| 位相関数 | ライトの向きと、カメラへの向きの角度に依存（[Phase Functions](../scattering/phase-function.md)） |
+| ライトの強さ | 太陽、点光源の明るさ |
+| 影 | シャドウ マップで光が、届くか |
+| 減衰 | 点光源の距離による、減衰 |
 
-## 太陽（平行光）を、注入する
+## 太陽（平行光）を注入する
 
 ```hlsl
 // 計算シェーダー: 各セルに、太陽の光の、散乱を、足す。
@@ -415,7 +415,7 @@ void InjectSunCS(uint3 id : SV_DispatchThreadID) {
   float3 view_dir = normalize(world - g_camera_position);                  // カメラから、セルへ向かう向き
 ```
 
-<strong>霧が、ない</strong>セル（密度 0）は、<strong>光らない</strong>ので、スキップします。カメラから、セルへの、向きが、位相関数に、必要です。
+<strong>霧がない</strong>セル（密度 0）は、<strong>光らない</strong>のでスキップします。カメラからセルへの向きが位相関数に、必要です。
 
 ```hlsl
   // 太陽の光が、このセルに、届くか。シャドウ マップ（カスケード）を、1 回引く。雲の影も、掛ける。
@@ -430,11 +430,11 @@ void InjectSunCS(uint3 id : SV_DispatchThreadID) {
 }
 ```
 
-<strong>シャドウ マップ</strong>（[CSM](../../shadows/cascaded.md)）を、<strong>セルごとに、1 回</strong>、引きます。影の中のセルは、光らず、光が、届くセルだけが、散乱光を、持ちます。これが、光の筋（ゴッド レイ）の、源です（[Volume-Based God Rays](../god-rays/volume.md)）。
+<strong>シャドウ マップ</strong>（[CSM](../../shadows/cascaded.md)）を、<strong>セルごとに 1 回</strong>、引きます。影の中のセルは光らず光が届くセルだけが、散乱光を持ちます。これが光の筋（ゴッド レイ）の、源です（[Volume-Based God Rays](../god-rays/volume.md)）。
 
 ## 点光源・スポットライトを、注入する
 
-<strong>ライトの、周りの、霧</strong>は、<strong>光の玉</strong>になります。セルごとに、影響する、ライトを、探して、足し合わせます。
+<strong>ライトの周りの霧</strong>は <strong>光の玉</strong>になります。セルごとに影響するライトを探して、足し合わせます。
 
 ```hlsl
 // 点光源: セルから、ライトへの距離で、減衰させ、位相関数と、影（ライトの、シャドウ マップ）を、掛ける。
@@ -453,7 +453,7 @@ float3 InjectPointLight(Light light, float3 world, float3 view_dir, float3 scatt
 }
 ```
 
-<strong>光源からの距離</strong>の<strong>2 乗に、反比例</strong>して、暗くなる、逆二乗の法則と、範囲での、打ち切り（窓関数）を、組み合わせます。影つきの、ライトは、ライトの、シャドウ マップ（[Point Lights: Cube Maps](../../shadows/local-lights/point-cubemap.md)）を、セルごとに、引きます。
+<strong>光源からの距離</strong>の<strong>2 乗に、反比例</strong>して暗くなる逆二乗の法則と、範囲での打ち切り（窓関数）を、組み合わせます。影つきのライトはライトのシャドウ マップ（[Point Lights: Cube Maps](../../shadows/local-lights/point-cubemap.md)）を、セルごとに引きます。
 
 ```hlsl
 // ライトが、多いとき: クラスターごとの、ライトのリストを、使い、そのセルに影響する、ライトだけを、ループする。
@@ -466,21 +466,21 @@ for (uint i = 0; i < count; ++i) {
 }
 ```
 
-<strong>ライトが、数百個</strong>ある場合、<strong>全ライト</strong>を、全セルで、ループすると、非常に、重いです。クラスター（空間を、小さな領域に、分け、各領域に、影響する、ライトの、リストを、持つ）を、使います（[Shadows for Many Lights](../../shadows/local-lights/many-lights.md)）。
+<strong>ライトが数百個</strong>ある場合、<strong>全ライト</strong>を全セルでループすると非常に、重いです。クラスター（空間を小さな領域に分け、各領域に影響するライトのリストを、持つ）を使います（[Shadows for Many Lights](../../shadows/local-lights/many-lights.md)）。
 
-## 環境光（空の光）を、足す
+## 環境光（空の光）を足す
 
-<strong>ライトが、無い</strong>場所でも、<strong>霧は、空の光</strong>で、ぼんやりと、明るいものです。環境光を、一様に、足します。
+<strong>ライトが無い</strong>場所でも <strong>霧は、空の光</strong>でぼんやりと明るいものです。環境光を一様に足します。
 
 ```hlsl
 float3 ambient_scatter = scattering * g_ambient_color * g_ambient_strength;     // 空の光が、霧を、全方向から、照らす
 ```
 
-<strong>霧の中の、日陰が、真っ黒に、ならない</strong>ための、<strong>重要な、項</strong>です。空の色（青い）が、霧の、日陰の色です（[Using the Sky for Lighting](../sky-models/sky-lighting.md)）。
+<strong>霧の中の日陰が真っ黒にならない</strong>ための、<strong>重要な項</strong>です。空の色（青い）が霧の日陰の色です（[Using the Sky for Lighting](../sky-models/sky-lighting.md)）。
 
 ## 結果
 
-注入が、終わると、<strong>3D テクスチャの、各セル</strong>に、<strong>そのセルの、散乱光</strong>（RGB）と、消散係数（A）が、入っています。次の段階（[Steps 3 and 4: Integration and Application](integration.md)）で、奥行き方向に、積分します。
+注入が終わると <strong>3D テクスチャの、各セル</strong>に <strong>そのセルの散乱光</strong>（RGB）と、消散係数（A）が入っています。次の段階（[Steps 3 and 4: Integration and Application](integration.md)）で、奥行き方向に積分します。
 
 ## よくあるミス
 

@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>レンダー ターゲット ビュー（RTV）</strong>は、「テクスチャを、<strong>描き込み先</strong>として、見る窓」です。ピクセル シェーダーの出力は、RTV を通して、テクスチャに、書き込まれます。画面に出す、バック バッファも、シーンの HDR 色も、G バッファも、すべて、RTV を作って、描きます。
+<strong>レンダー ターゲット ビュー（RTV）</strong>は、「テクスチャを <strong>描き込み先</strong>として、見る窓」です。ピクセル シェーダーの出力は RTV を通してテクスチャに書き込まれます。画面に出すバック バッファもシーンの HDR 色も G バッファもすべて、RTV を作って描きます。
 
 !!! tip "ポイント"
-    - D3D11 では、リソース（テクスチャ）を、直接、パイプラインに、つなげない。<strong>ビュー</strong>を作って、つなぐ（[Resources and Views](../concepts/resources-views.md)）。
-    - RTV は、<strong>書く用</strong>。読むには、別に、SRV を作る（[Shader Resource View (SRV)](shader-resource-view.md)）。
+    - D3D11 ではリソース（テクスチャ）を直接、パイプラインにつなげない。<strong>ビュー</strong>を作ってつなぐ（[Resources and Views](../concepts/resources-views.md)）。
+    - RTV は <strong>書く用</strong>。読むには別に SRV を作る（[Shader Resource View (SRV)](shader-resource-view.md)）。
     - 作成は `CreateRenderTargetView`。つなぐのは `OMSetRenderTargets`。
-    - テクスチャを作るとき、`D3D11_BIND_RENDER_TARGET` を、付けておく。
-    - 同じテクスチャを、読みながら、書けない（RTV と SRV を、同時に束ねない）。
+    - テクスチャを作るとき `D3D11_BIND_RENDER_TARGET` を付けておく。
+    - 同じテクスチャを読みながら書けない（RTV と SRV を同時に束ねない）。
 
 ## バック バッファの RTV
 
@@ -34,15 +34,15 @@ Microsoft::WRL::ComPtr<ID3D11RenderTargetView> rtv;
 device->CreateRenderTargetView(back_buffer.Get(), &desc, &rtv);
 ```
 
-`desc` を、`nullptr` にすると、リソースと、同じ形式の、既定の、ビューが、できます。バック バッファは、`UNORM` で、作られているので、`_SRGB` の、ビューにしたいときだけ、記述子を、書きます。
+`desc` を `nullptr` にするとリソースと同じ形式の既定のビューができます。バック バッファは `UNORM` で作られているので `_SRGB` のビューにしたいときだけ記述子を、書きます。
 
 | メンバー | 内容 |
 | --- | --- |
-| `Format` | ビューの、フォーマット。`DXGI_FORMAT_UNKNOWN` で、リソースと同じ |
-| `ViewDimension` | `TEXTURE2D`（普通）、`TEXTURE2DARRAY`（配列の、一部の面）、`TEXTURE2DMS`（MSAA）、`TEXTURE3D` |
-| `Texture2D.MipSlice` | どのミップに、書くか。ミップ チェーンの、各段に、描くときに、使う |
+| `Format` | ビューのフォーマット。`DXGI_FORMAT_UNKNOWN` でリソースと同じ |
+| `ViewDimension` | `TEXTURE2D`（普通）、`TEXTURE2DARRAY`（配列の一部の面）、`TEXTURE2DMS`（MSAA）、`TEXTURE3D` |
+| `Texture2D.MipSlice` | どのミップに書くか。ミップ チェーンの各段に描くときに使う |
 
-## 自分で作る、レンダー ターゲット
+## 自分で作るレンダー ターゲット
 
 ```cpp
 // シーンを描く、HDR のテクスチャ。RTV で描き、SRV で読む（ポスト プロセス用）。
@@ -62,7 +62,7 @@ device->CreateRenderTargetView(scene_texture.Get(), nullptr, &scene_rtv);
 device->CreateShaderResourceView(scene_texture.Get(), nullptr, &scene_srv);
 ```
 
-`BindFlags` に、`D3D11_BIND_RENDER_TARGET` を、付けると、RTV が作れます。あとで、読む（SRV）予定が、あるなら、`D3D11_BIND_SHADER_RESOURCE` も、同時に、付けます。<strong>`BindFlags` に、書かなかった種類の、ビューは、あとから、作れません。</strong>
+`BindFlags` に `D3D11_BIND_RENDER_TARGET` を付けると RTV が作れます。あとで読む（SRV）予定があるなら `D3D11_BIND_SHADER_RESOURCE` も同時に付けます。<strong>`BindFlags` に書かなかった種類のビューはあとから作れません。</strong>
 
 ## パイプラインにつなぐ
 
@@ -71,7 +71,7 @@ ID3D11RenderTargetView* targets[] = {scene_rtv.Get()};
 context->OMSetRenderTargets(1, targets, depth_dsv.Get());   // 第 3 引数: 深度ステンシル ビュー（無ければ nullptr）
 ```
 
-`OMSetRenderTargets` は、<strong>出力マージャー</strong>（OM）に、描き込み先を、設定します。1 回で、最大 8 枚の、RTV を、束ねられます（[Multiple Render Targets](mrt.md)）。第 3 引数の、深度バッファが、無ければ、`nullptr` で、深度テストは、行われません（[Depth Buffer and DSV](depth-stencil.md)）。
+`OMSetRenderTargets` は <strong>出力マージャー</strong>（OM）に描き込み先を設定します。1 回で最大 8 枚の RTV を束ねられます（[Multiple Render Targets](mrt.md)）。第 3 引数の深度バッファが、無ければ `nullptr` で深度テストは行われません（[Depth Buffer and DSV](depth-stencil.md)）。
 
 | 引数 | 内容 |
 | --- | --- |
@@ -79,9 +79,9 @@ context->OMSetRenderTargets(1, targets, depth_dsv.Get());   // 第 3 引数: 深
 | `ppRenderTargetViews` | RTV の配列 |
 | `pDepthStencilView` | DSV。無ければ `nullptr` |
 
-## 読みながら、書けない
+## 読みながら書けない
 
-<strong>同じテクスチャを、RTV で書きつつ、SRV で読む</strong>ことは、できません。D3D11 は、エラーを、出さず、読む側の、束縛を、黙って、外します（デバッグ レイヤーが、有効なら、警告が、出ます）。
+<strong>同じテクスチャを RTV で書きつつ SRV で読む</strong>ことはできません。D3D11 はエラーを出さず読む側の束縛を黙って外します（デバッグ レイヤーが、有効なら警告が出ます）。
 
 ```cpp
 // パス A で scene_texture に描いた後、パス B で、それを、読む前に、書き込みの束縛を、外す。
@@ -90,30 +90,30 @@ context->OMSetRenderTargets(1, none, nullptr);
 context->PSSetShaderResources(0, 1, scene_srv.GetAddressOf());
 ```
 
-詳しくは、[D3D11 Pass Recipes](pass-recipes.md) の、「束縛の衝突」です。
+詳しくは[D3D11 Pass Recipes](pass-recipes.md) の「束縛の衝突」です。
 
 ## よくあるミス
 
 ??? failure "`CreateRenderTargetView` が、失敗する"
-    テクスチャに、`D3D11_BIND_RENDER_TARGET` を、付けていない。圧縮フォーマット（BC）や、深度フォーマットは、RTV に、できない。
+    テクスチャに `D3D11_BIND_RENDER_TARGET` を付けていない。圧縮フォーマット（BC）や深度フォーマットは、RTV にできない。
 
-??? failure "描いたのに、画面が、真っ黒"
-    `OMSetRenderTargets` を、呼んでいない。または、ビューポートが、0 のまま。または、`Present` していない。
+??? failure "描いたのに画面が、真っ黒"
+    `OMSetRenderTargets` を呼んでいない。または、ビューポートが 0 のまま。または、`Present` していない。
 
-??? failure "読もうとした、テクスチャが、真っ黒"
-    同じテクスチャが、まだ、RTV として、束ねられている。`OMSetRenderTargets` で、外してから、SRV で、束ねる。
+??? failure "読もうとしたテクスチャが真っ黒"
+    同じテクスチャがまだ RTV として束ねられている。`OMSetRenderTargets` で外してから SRV で束ねる。
 
-??? failure "画面の色が、暗い（または、明るい）"
-    バック バッファの、RTV を、`_SRGB` にしたのに、シェーダーで、ガンマ変換も、している（二重）。または、その逆。
+??? failure "画面の色が、暗い（または明るい）"
+    バック バッファの RTV を `_SRGB` にしたのにシェーダーでガンマ変換も、している（二重）。または、その逆。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] RTV ＝ テクスチャを、描き込み先として、見る窓
+    - [x] RTV ＝ テクスチャを描き込み先として見る窓
     - [x] 作成 `CreateRenderTargetView`、束縛 `OMSetRenderTargets`
-    - [x] `BindFlags` に、`RENDER_TARGET`（読むなら `SHADER_RESOURCE` も）
+    - [x] `BindFlags` に `RENDER_TARGET`（読むなら `SHADER_RESOURCE` も）
     - [x] バック バッファの RTV は、`_SRGB` にできる
-    - [x] 読みながら、書けない。つなぎ目で、外す
+    - [x] 読みながら、書けない。つなぎ目で外す
 
 ## 関連ページ
 

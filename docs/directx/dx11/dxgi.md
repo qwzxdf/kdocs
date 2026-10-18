@@ -10,14 +10,14 @@ tags:
 <span class="rank rank-often">よく使う</span>
 </div>
 
-<strong>DXGI</strong>（DirectX Graphics Infrastructure）は、D3D11・D3D12 に、共通の、「GPU と、画面の間」を、つなぐ層です。<strong>どの GPU（アダプター）を使うか、画面にどう出すか（スワップ チェーン）、画面の形式（フォーマット）</strong>を、扱います。D3D11 の、デバイスを、作る前に、アダプターを、選びたいときや、スワップ チェーンを、作るときに、DXGI の、ファクトリーを、使います。
+<strong>DXGI</strong>（DirectX Graphics Infrastructure）は、D3D11・D3D12 に共通の「GPU と画面の間」をつなぐ層です。<strong>どの GPU（アダプター）を使うか画面にどう出すか（スワップ チェーン）、画面の形式（フォーマット）</strong>を扱います。D3D11 のデバイスを作る前にアダプターを選びたいときやスワップ チェーンを、作るときに DXGI のファクトリーを使います。
 
 !!! tip "ポイント"
-    - DXGI は、D3D とは別の、層。`<dxgi1_6.h>` の、`IDXGIFactory…` と `IDXGIAdapter…` が、中心。
-    - <strong>ファクトリー</strong>で、アダプターを、列挙し、スワップ チェーンを、作る。
-    - ノート PC の、内蔵 GPU と、外付け GPU から、<strong>高性能なほう</strong>を、選ぶには、`EnumAdapterByGpuPreference` を使う。
-    - デバイスから、辿って、ファクトリーを、得ると、デバイスと、同じ GPU の、ファクトリーが、手に入る。
-    - フォーマットの名前（`DXGI_FORMAT_…`）も、DXGI の、定義（[Formats and Typeless](../concepts/formats.md)）。
+    - DXGI は D3D とは別の層。`<dxgi1_6.h>` の `IDXGIFactory…` と `IDXGIAdapter…` が中心。
+    - <strong>ファクトリー</strong>で、アダプターを列挙しスワップ チェーンを作る。
+    - ノート PC の内蔵 GPU と外付け GPU から、<strong>高性能なほう</strong>を選ぶには `EnumAdapterByGpuPreference` を使う。
+    - デバイスから辿って、ファクトリーを得るとデバイスと同じ GPU のファクトリーが、手に入る。
+    - フォーマットの名前（`DXGI_FORMAT_…`）も DXGI の定義（[Formats and Typeless](../concepts/formats.md)）。
 
 ## ファクトリーを作る
 
@@ -33,7 +33,7 @@ flags |= DXGI_CREATE_FACTORY_DEBUG;                        // DXGI のデバッ�
 CreateDXGIFactory2(flags, IID_PPV_ARGS(&factory));
 ```
 
-`IDXGIFactory6` は、Windows 10 1803 以降で、使えます（GPU の、性能による選択が、可能）。`IID_PPV_ARGS` は、COM の、型の取り違えを、防ぐ、マクロで、`IID` と、ポインターの、キャストを、1 度に、書きます。
+`IDXGIFactory6` は Windows 10 1803 以降で、使えます（GPU の性能による選択が、可能）。`IID_PPV_ARGS` は COM の型の取り違えを防ぐマクロで `IID` とポインターのキャストを、1 度に書きます。
 
 ## アダプターを選ぶ
 
@@ -54,13 +54,13 @@ for (UINT i = 0;
 }
 ```
 
-`DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE` を、指定すると、性能の高い順に、並びます。ここで、選んだ `adapter` を、`D3D11CreateDevice` の、第 1 引数に、渡し、`DriverType` に、`D3D_DRIVER_TYPE_UNKNOWN` を、指定します（アダプターを、渡すときは、`UNKNOWN` が、決まりです）。
+`DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE` を指定すると性能の高い順に並びます。ここで選んだ `adapter` を `D3D11CreateDevice` の第 1 引数に渡し `DriverType` に `D3D_DRIVER_TYPE_UNKNOWN` を指定します（アダプターを渡すときは `UNKNOWN` が、決まりです）。
 
 | 値 | 内容 |
 | --- | --- |
 | `DXGI_GPU_PREFERENCE_UNSPECIFIED` | 並びの指定なし |
-| `DXGI_GPU_PREFERENCE_MINIMUM_POWER` | 省電力（内蔵 GPU）を、先に |
-| `DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE` | 高性能（外付け GPU）を、先に |
+| `DXGI_GPU_PREFERENCE_MINIMUM_POWER` | 省電力（内蔵 GPU）を先に |
+| `DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE` | 高性能（外付け GPU）を先に |
 
 ```cpp
 // アダプターの情報を表示する（デバッグ用）。
@@ -69,11 +69,11 @@ adapter->GetDesc1(&desc);
 std::wprintf(L"GPU: %s, VRAM: %zu MB\n", desc.Description, desc.DedicatedVideoMemory / (1024 * 1024));
 ```
 
-`DedicatedVideoMemory` は、GPU 専用の、メモリ（VRAM）の大きさです。内蔵 GPU は、小さく、共有メモリを使います。
+`DedicatedVideoMemory` は GPU 専用のメモリ（VRAM）の大きさです。内蔵 GPU は小さく共有メモリを使います。
 
-## デバイスから、ファクトリーを辿る
+## デバイスからファクトリーを辿る
 
-すでに、デバイスを、作っている場合は、デバイスから、ファクトリーを、辿れます。<strong>デバイスと、同じ GPU</strong> の、ファクトリーが、得られるので、スワップ チェーンの作成に、使います。
+すでにデバイスを作っている場合はデバイスからファクトリーを辿れます。<strong>デバイスと同じ GPU</strong> のファクトリーが得られるのでスワップ チェーンの作成に、使います。
 
 ```cpp
 // ID3D11Device → IDXGIDevice → IDXGIAdapter → IDXGIFactory2
@@ -87,7 +87,7 @@ Microsoft::WRL::ComPtr<IDXGIFactory2> factory2;
 adapter->GetParent(IID_PPV_ARGS(&factory2));
 ```
 
-`ComPtr::As` は、COM の、`QueryInterface` で、1 つのオブジェクトの、別の顔（インターフェース）を、取り出します。`ID3D11Device` と `IDXGIDevice` は、同じ、デバイスの、別の、見方です。別の GPU の、ファクトリーを、使うと、スワップ チェーンが、作れません。
+`ComPtr::As` は COM の `QueryInterface` で 1 つのオブジェクトの別の顔（インターフェース）を、取り出します。`ID3D11Device` と `IDXGIDevice` は同じデバイスの別の見方です。別の GPU のファクトリーを使うとスワップ チェーンが作れません。
 
 ## 出力（モニター）の列挙
 
@@ -101,9 +101,9 @@ for (UINT i = 0; adapter->EnumOutputs(i, &output) != DXGI_ERROR_NOT_FOUND; ++i) 
 }
 ```
 
-フルスクリーンの解像度の選択、HDR の対応の確認で、使います。普通の、ウィンドウ モードの、ゲームでは、列挙の、必要は、ありません。
+フルスクリーンの解像度の選択、HDR の対応の確認で使います。普通の、ウィンドウ モードのゲームでは列挙の必要は、ありません。
 
-## ティアリング（垂直同期なしの、表示）
+## ティアリング（垂直同期なしの表示）
 
 ```cpp
 // 垂直同期なしで、表示してよいか（可変リフレッシュレート G-Sync・FreeSync 対応環境で、有用）。
@@ -111,27 +111,27 @@ BOOL allow_tearing = FALSE;
 factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allow_tearing, sizeof(allow_tearing));
 ```
 
-対応していれば、スワップ チェーンの作成時に `DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING` を、付け、`Present` で、`DXGI_PRESENT_ALLOW_TEARING` を、使えます（[Swap Chain](swap-chain.md)）。
+対応していればスワップ チェーンの作成時に `DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING` を付け `Present` で `DXGI_PRESENT_ALLOW_TEARING` を使えます（[Swap Chain](swap-chain.md)）。
 
 ## よくあるミス
 
-??? failure "ノート PC で、内蔵 GPU が、選ばれて、遅い"
-    アダプターを、`nullptr` の、既定に、任せている。`EnumAdapterByGpuPreference` で、高性能な GPU を、選ぶ。
+??? failure "ノート PC で、内蔵 GPU が選ばれて遅い"
+    アダプターを `nullptr` の既定に任せている。`EnumAdapterByGpuPreference` で高性能な GPU を選ぶ。
 
-??? failure "スワップ チェーンの作成で、`DXGI_ERROR_INVALID_CALL`"
-    デバイスを、作った GPU と、別の GPU の、ファクトリーを、使っている。デバイスから、辿った、ファクトリーを、使う。
+??? failure "スワップ チェーンの作成で `DXGI_ERROR_INVALID_CALL`"
+    デバイスを作った GPU と別の GPU のファクトリーを使っている。デバイスから辿ったファクトリーを使う。
 
-??? failure "WARP（ソフトウェア）を、選んで、極端に、遅い"
-    アダプターの列挙で、`DXGI_ADAPTER_FLAG_SOFTWARE` を、除いていない。
+??? failure "WARP（ソフトウェア）を選んで極端に遅い"
+    アダプターの列挙で `DXGI_ADAPTER_FLAG_SOFTWARE` を除いていない。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] DXGI は、D3D11・D3D12 で、共通の、GPU と、画面の層
-    - [x] ファクトリー → アダプター（GPU）を、列挙・選択
-    - [x] 高性能な GPU は、`EnumAdapterByGpuPreference(HIGH_PERFORMANCE)`
-    - [x] デバイスから、辿ると、同じ GPU の、ファクトリーが、得られる
-    - [x] 次は、スワップ チェーンの作成
+    - [x] DXGI は D3D11・D3D12 で共通の GPU と画面の層
+    - [x] ファクトリー → アダプター（GPU）を列挙・選択
+    - [x] 高性能な GPU は `EnumAdapterByGpuPreference(HIGH_PERFORMANCE)`
+    - [x] デバイスから辿ると、同じ GPU のファクトリーが、得られる
+    - [x] 次はスワップ チェーンの作成
 
 ## 関連ページ
 

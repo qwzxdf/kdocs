@@ -10,16 +10,16 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>アップロード バッファ</strong>は、CPU の、データを、GPU の、専用メモリ（DEFAULT ヒープ）へ、送るための、<strong>中継用</strong>の、バッファです。メッシュの、頂点、テクスチャの、画素は、DEFAULT ヒープに、置きたい（速い）のに、CPU は、DEFAULT ヒープに、書けません。そこで、<strong>CPU が、見える、UPLOAD ヒープに、いったん、書き</strong>、GPU の、コピー命令で、DEFAULT ヒープへ、送ります。
+<strong>アップロード バッファ</strong>は CPU のデータを GPU の専用メモリ（DEFAULT ヒープ）へ、送るための <strong>中継用</strong>のバッファです。メッシュの頂点、テクスチャの画素は DEFAULT ヒープに置きたい（速い）のに CPU は、DEFAULT ヒープに書けません。そこで、<strong>CPU が見える UPLOAD ヒープにいったん書き</strong>、GPU のコピー命令で DEFAULT ヒープへ送ります。
 
 !!! tip "ポイント"
-    - 流れ: <strong>UPLOAD に、`memcpy` → コマンド リストで、`CopyBufferRegion` → DEFAULT のリソースが、使えるようになる</strong>。
-    - コピーは、GPU が、あとで、実行する。UPLOAD の、バッファは、<strong>コピーが、終わるまで、解放できない</strong>（フェンスで、確認）。
-    - コピー先は、`COPY_DEST` で、コピー後、`VERTEX_AND_CONSTANT_BUFFER` などに、バリアで、遷移する。
-    - 毎フレーム、変わる、データ（定数バッファ）は、UPLOAD ヒープの、バッファに、直接、書く（DEFAULT へは、送らない）。
-    - ヘルパー `UpdateSubresources`（`d3dx12.h`）が、テクスチャの、アップロードの、面倒を、見てくれる。
+    - 流れ: <strong>UPLOAD に `memcpy` → コマンド リストで `CopyBufferRegion` → DEFAULT のリソースが、使えるようになる</strong>。
+    - コピーは GPU があとで、実行する。UPLOAD のバッファは <strong>コピーが、終わるまで解放できない</strong>（フェンスで、確認）。
+    - コピー先は `COPY_DEST` で、コピー後、`VERTEX_AND_CONSTANT_BUFFER` などにバリアで遷移する。
+    - 毎フレーム、変わるデータ（定数バッファ）は UPLOAD ヒープのバッファに直接、書く（DEFAULT へは送らない）。
+    - ヘルパー `UpdateSubresources`（`d3dx12.h`）が、テクスチャのアップロードの面倒を見てくれる。
 
-## 頂点バッファの、アップロード
+## 頂点バッファのアップロード
 
 ```cpp
 // ① DEFAULT ヒープの、頂点バッファ（GPU 専用）。初期状態は COPY_DEST。
@@ -53,7 +53,7 @@ auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(vertex_buffer.Get(), D3D12_R
 command_list->ResourceBarrier(1, &barrier);
 ```
 
-この、コマンド リストを、`Close` して、キューに、投げ、<strong>フェンスで、完了を、待つ</strong>と、`vertex_buffer` が、使えます。
+このコマンド リストを `Close` して、キューに投げ <strong>フェンスで完了を待つ</strong>と `vertex_buffer` が使えます。
 
 ```cpp
 command_list->Close();
@@ -63,9 +63,9 @@ WaitForGpu();                                                    // コピーの
 upload_buffer.Reset();                                           // ここで初めて、UPLOAD バッファを、解放できる
 ```
 
-<strong>GPU が、コピーを、終えるまで、`upload_buffer` を、解放してはいけません</strong>。ロード時は、`WaitForGpu` で、まとめて、待ち、その後、中継バッファを、解放します。
+<strong>GPU がコピーを終えるまで `upload_buffer` を解放してはいけません</strong>。ロード時は `WaitForGpu` でまとめて待ちその後、中継バッファを解放します。
 
-## 流れの、図
+## 流れの図
 
 ```text
 CPU メモリ  ──memcpy──▶  UPLOAD ヒープ  ──CopyBufferRegion（GPU が実行）──▶  DEFAULT ヒープ
@@ -73,9 +73,9 @@ CPU メモリ  ──memcpy──▶  UPLOAD ヒープ  ──CopyBufferRegion�
                                                                                   ↑ 描画は、こちらを使う（高速）
 ```
 
-## 配列の、アップロード（複数メッシュ）
+## 配列のアップロード（複数メッシュ）
 
-多数のメッシュを、ロードするとき、メッシュごとに、中継バッファを、作ると、重いので、<strong>1 つの、大きな、UPLOAD バッファに、並べて</strong>、まとめてコピーします。
+多数のメッシュをロードするときメッシュごとに中継バッファを作ると、重いので <strong>1 つの大きな UPLOAD バッファに並べて</strong>、まとめてコピーします。
 
 ```cpp
 // 大きな UPLOAD バッファ（64 MB）を 1 つ持ち、先頭から、順に、書いていく。
@@ -87,24 +87,24 @@ for (const Mesh& mesh : meshes) {
 }
 ```
 
-## テクスチャの、アップロード
+## テクスチャのアップロード
 
-テクスチャの、アップロードは、<strong>行の幅（ピッチ）の、アラインメント</strong>が、あり、面倒なので、`UpdateSubresources`（`d3dx12.h`）を、使います（[Texture Upload](texture-upload.md)）。
+テクスチャのアップロードは <strong>行の幅（ピッチ）のアラインメント</strong>があり面倒なので、`UpdateSubresources`（`d3dx12.h`）を使います（[Texture Upload](texture-upload.md)）。
 
-## 毎フレームの、データ（定数バッファ）
+## 毎フレームのデータ（定数バッファ）
 
-毎フレーム、変わる、データは、DEFAULT へ、送らず、<strong>UPLOAD ヒープの、バッファに、直接、書き</strong>、GPU が、そこから、読みます（UPLOAD ヒープは、GPU から、読める）。
+毎フレーム、変わるデータは DEFAULT へ送らず <strong>UPLOAD ヒープのバッファに直接、書き</strong>、GPU がそこから読みます（UPLOAD ヒープは、GPU から読める）。
 
 ```cpp
 // UPLOAD ヒープの、定数バッファを、永続的に Map したまま、毎フレーム、書き換える。
 std::memcpy(mapped_constants + frame_offset, &constants, sizeof(constants));
 ```
 
-GPU が、前のフレームを、読んでいる間に、同じ領域を、書き換えないよう、<strong>フレームごとに、別の領域</strong>に、書きます（[Frame Resources](frame-resources.md)、[Constant Buffer](constant-buffer.md)）。
+GPU が前のフレームを読んでいる間に同じ領域を書き換えないよう <strong>フレームごとに、別の領域</strong>に書きます（[Frame Resources](frame-resources.md)、[Constant Buffer](constant-buffer.md)）。
 
-## 動的な、頂点バッファ
+## 動的な頂点バッファ
 
-毎フレーム、頂点が、変わる（パーティクル、UI）ときも、UPLOAD ヒープの、バッファに、直接、書き、頂点バッファ ビューで、そこを、指します。速度は、DEFAULT より、やや、落ちますが、コピーの、手間が、要りません。
+毎フレーム、頂点が変わる（パーティクル、UI）ときも UPLOAD ヒープのバッファに直接、書き頂点バッファ ビューでそこを指します。速度は DEFAULT よりやや落ちますがコピーの手間が要りません。
 
 ## READBACK：GPU から、CPU へ
 
@@ -125,11 +125,11 @@ CD3DX12_RANGE no_write(0, 0);
 readback_buffer->Unmap(0, &no_write);                            // CPU は、書かなかった
 ```
 
-結果を、読む前に、<strong>フェンスで、コピーの完了を、待ちます</strong>。毎フレーム、待つと、止まるので、数フレーム遅れて、読みます（[GPU Queries and Timing](query-timing.md)）。
+結果を読む前に <strong>フェンスでコピーの完了を待ちます</strong>。毎フレーム、待つと止まるので数フレーム遅れて、読みます（[GPU Queries and Timing](query-timing.md)）。
 
 ## ヘルパー：UpdateSubresources
 
-`d3dx12.h` の、`UpdateSubresources` は、中継バッファへの、書き込みと、コピーの、命令を、まとめて、行います。
+`d3dx12.h` の `UpdateSubresources` は中継バッファへの書き込みとコピーの命令をまとめて、行います。
 
 ```cpp
 // バッファ・テクスチャの、サブリソース配列を、中継バッファ経由で、DEFAULT リソースへ、アップロードする。
@@ -140,31 +140,31 @@ data.SlicePitch = data.RowPitch * height;
 UpdateSubresources(command_list.Get(), texture.Get(), upload_buffer.Get(), 0, 0, 1, &data);
 ```
 
-テクスチャの、場合は、中継バッファの、大きさを、`GetRequiredIntermediateSize` で、求めます（[Texture Upload](texture-upload.md)）。
+テクスチャの場合は中継バッファの大きさを `GetRequiredIntermediateSize` で求めます（[Texture Upload](texture-upload.md)）。
 
 ## よくあるミス
 
-??? failure "コピー後、頂点バッファが、化ける、または、空"
-    GPU が、コピーを、終える前に、UPLOAD バッファを、解放した。または、コピー先の、状態遷移（`COPY_DEST` → `VERTEX_AND_CONSTANT_BUFFER`）を、忘れた。フェンスで、待つ。
+??? failure "コピー後、頂点バッファが化けるまたは空"
+    GPU がコピーを終える前に UPLOAD バッファを解放した。または、コピー先の状態遷移（`COPY_DEST` → `VERTEX_AND_CONSTANT_BUFFER`）を忘れた。フェンスで待つ。
 
-??? failure "UPLOAD ヒープの、リソースを、`COPY_DEST` に、して、エラー"
-    UPLOAD ヒープは、`GENERIC_READ` で、固定。コピー先には、できない。コピー先は、DEFAULT。
+??? failure "UPLOAD ヒープのリソースを `COPY_DEST` にしてエラー"
+    UPLOAD ヒープは `GENERIC_READ` で固定。コピー先にはできない。コピー先は DEFAULT。
 
-??? failure "毎フレームの、定数が、ちらつく、前のフレームの値が、混ざる"
-    GPU が、読んでいる、同じ領域を、CPU が、書き換えている。フレームごとに、別の領域に、書く。
+??? failure "毎フレームの定数が、ちらつく前のフレームの値が混ざる"
+    GPU が読んでいる、同じ領域を CPU が書き換えている。フレームごとに別の領域に書く。
 
-??? failure "ロードが、遅い（メッシュごとに、中継バッファを作る）"
-    大きな、UPLOAD バッファを、1 つ、使い回して、まとめて、コピーする。
+??? failure "ロードが、遅い（メッシュごとに中継バッファを作る）"
+    大きな UPLOAD バッファを 1 つ使い回してまとめてコピーする。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] CPU は、DEFAULT に、書けない。UPLOAD（中継）→ `CopyBufferRegion` → DEFAULT
-    - [x] コピーは、GPU が、あとで実行。完了まで、UPLOAD バッファを、解放しない
-    - [x] コピー先は、`COPY_DEST`。コピー後に、バリアで、使う状態へ
-    - [x] 毎フレームの、データは、UPLOAD に、直接書く。フレームごとに、別の領域
-    - [x] テクスチャは、`UpdateSubresources`
-    - [x] GPU の結果の読み出しは、READBACK。遅れて、読む
+    - [x] CPU は DEFAULT に書けない。UPLOAD（中継）→ `CopyBufferRegion` → DEFAULT
+    - [x] コピーは GPU があとで実行。完了まで UPLOAD バッファを解放しない
+    - [x] コピー先は `COPY_DEST`。コピー後にバリアで使う状態へ
+    - [x] 毎フレームのデータは UPLOAD に直接書く。フレームごとに別の領域
+    - [x] テクスチャは `UpdateSubresources`
+    - [x] GPU の結果の読み出しは、READBACK。遅れて読む
 
 ## 関連ページ
 

@@ -10,24 +10,24 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>ルート シグネチャ</strong>は、<strong>シェーダーが、受け取る、リソースの、「型」</strong>を、GPU に、教える、設定です。「定数バッファが 1 つ、テクスチャが 3 つ、サンプラーが 1 つ」といった、<strong>引数の、並びと、種類</strong>を、決めます。関数の、シグネチャ（引数の型）に、似ています。実際の、リソース（ディスクリプタ）は、描画時に、コマンド リストで、このルート シグネチャの、スロットに、割り当てます。
+<strong>ルート シグネチャ</strong>は <strong>シェーダーが、受け取るリソースの「型」</strong>を GPU に教える設定です。「定数バッファが 1 つテクスチャが 3 つサンプラーが 1 つ」といった、<strong>引数の並びと種類</strong>を決めます。関数のシグネチャ（引数の型）に似ています。実際の、リソース（ディスクリプタ）は描画時にコマンド リストでこのルート シグネチャの、スロットに割り当てます。
 
 !!! tip "ポイント"
-    - ルート シグネチャ ＝ シェーダーの、引数の、型（どんなリソースが、どのレジスタに、来るか）。<strong>PSO に、組み込まれる</strong>。
-    - ルート パラメータの、3 種類: <strong>ルート定数</strong>（値を、直接）、<strong>ルート ディスクリプタ</strong>（CBV・SRV・UAV を、アドレスで）、<strong>ディスクリプタ テーブル</strong>（ヒープの、範囲を、指す）。
-    - ルート シグネチャの、大きさの上限は、<strong>64 DWORD</strong>（256 バイト）。パラメータごとに、コスト（DWORD）がある。
-    - 使う、頻度の、高い物を、前に、置く（性能の、ヒント）。
-    - サンプラーは、<strong>静的サンプラー</strong>として、ルート シグネチャに、埋め込める。
+    - ルート シグネチャ ＝ シェーダーの引数の型（どんなリソースがどのレジスタに、来るか）。<strong>PSO に組み込まれる</strong>。
+    - ルート パラメータの 3 種類: <strong>ルート定数</strong>（値を直接）、<strong>ルート ディスクリプタ</strong>（CBV・SRV・UAV をアドレスで）、<strong>ディスクリプタ テーブル</strong>（ヒープの範囲を指す）。
+    - ルート シグネチャの大きさの上限は <strong>64 DWORD</strong>（256 バイト）。パラメータごとにコスト（DWORD）がある。
+    - 使う頻度の高い物を前に置く（性能のヒント）。
+    - サンプラーは <strong>静的サンプラー</strong>として、ルート シグネチャに埋め込める。
 
-## 3 種類の、ルート パラメータ
+## 3 種類のルート パラメータ
 
 | 種類 | 内容 | コスト（DWORD） | 向く用途 |
 | --- | --- | --- | --- |
-| <strong>ルート定数</strong>（32 ビット定数） | 数値を、ルート シグネチャに、直接、持つ | 値の数 | 少量の、頻繁に変わる値（物の ID、マテリアルの番号） |
-| <strong>ルート ディスクリプタ</strong>（ルート CBV / SRV / UAV） | バッファの、GPU アドレスを、直接、持つ | 2 | 物ごとの、定数バッファ（毎回、別のバッファ） |
-| <strong>ディスクリプタ テーブル</strong> | ディスクリプタ ヒープの、連続範囲を、指す | 1 | テクスチャ、バッファの、まとまり |
+| <strong>ルート定数</strong>（32 ビット定数） | 数値をルート シグネチャに直接、持つ | 値の数 | 少量の頻繁に変わる値（物の ID、マテリアルの番号） |
+| <strong>ルート ディスクリプタ</strong>（ルート CBV / SRV / UAV） | バッファの、GPU アドレスを直接、持つ | 2 | 物ごとの定数バッファ（毎回、別のバッファ） |
+| <strong>ディスクリプタ テーブル</strong> | ディスクリプタ ヒープの連続範囲を指す | 1 | テクスチャ、バッファのまとまり |
 
-ルート ディスクリプタは、<strong>バッファだけ</strong>（テクスチャは、不可）。テクスチャは、ディスクリプタ テーブルで、渡します。
+ルート ディスクリプタは <strong>バッファだけ</strong>（テクスチャは、不可）。テクスチャはディスクリプタ テーブルで、渡します。
 
 ## 作る
 
@@ -60,9 +60,9 @@ device->CreateRootSignature(0, serialized->GetBufferPointer(), serialized->GetBu
                             IID_PPV_ARGS(&root_signature));
 ```
 
-作成は、2 段階です。まず、`D3D12SerializeRootSignature` で、バイナリ（`ID3DBlob`）に、して、次に、`CreateRootSignature` で、オブジェクトに、します。<strong>シリアライズの、エラー</strong>（`errors`）は、必ず、表示します。
+作成は 2 段階です。まず、`D3D12SerializeRootSignature` でバイナリ（`ID3DBlob`）にして次に `CreateRootSignature` で、オブジェクトにします。<strong>シリアライズのエラー</strong>（`errors`）は必ず表示します。
 
-## コマンド リストで、割り当てる
+## コマンド リストで割り当てる
 
 ```cpp
 command_list->SetGraphicsRootSignature(root_signature.Get());   // ルート シグネチャを、設定
@@ -78,15 +78,15 @@ command_list->SetGraphicsRootDescriptorTable(1, texture_gpu_handle);
 
 | 関数 | 内容 |
 | --- | --- |
-| `SetGraphicsRootSignature` | 描画用の、ルート シグネチャを、設定 |
+| `SetGraphicsRootSignature` | 描画用のルート シグネチャを設定 |
 | `SetComputeRootSignature` | 計算用 |
-| `SetGraphicsRoot32BitConstants(index, count, data, offset)` | ルート定数を、書く |
+| `SetGraphicsRoot32BitConstants(index, count, data, offset)` | ルート定数を書く |
 | `SetGraphicsRootConstantBufferView(index, address)` | ルート CBV |
 | `SetGraphicsRootShaderResourceView(index, address)` | ルート SRV（バッファ） |
 | `SetGraphicsRootUnorderedAccessView(index, address)` | ルート UAV（バッファ） |
 | `SetGraphicsRootDescriptorTable(index, handle)` | ディスクリプタ テーブル |
 
-計算シェーダーは、`SetCompute…` の、系列を、使います。
+計算シェーダーは `SetCompute…` の系列を使います。
 
 ## ルート定数
 
@@ -107,24 +107,24 @@ cbuffer ObjectInfo : register(b1) {
 };
 ```
 
-ルート定数は、<strong>最速</strong>の、渡し方ですが、ルート シグネチャの、容量（64 DWORD）を、食うので、少量だけにします。
+ルート定数は <strong>最速</strong>の渡し方ですが、ルート シグネチャの容量（64 DWORD）を食うので少量だけにします。
 
-## 容量と、コスト
+## 容量とコスト
 
-ルート シグネチャは、<strong>最大 64 DWORD</strong>（1 DWORD = 4 バイト、合計 256 バイト）です。
+ルート シグネチャは <strong>最大 64 DWORD</strong>（1 DWORD = 4 バイト、合計 256 バイト）です。
 
 | パラメータ | コスト |
 | --- | --- |
 | ルート定数 | 1 つにつき 1 DWORD |
 | ルート ディスクリプタ（CBV・SRV・UAV） | 2 DWORD（64 ビットアドレス） |
 | ディスクリプタ テーブル | 1 DWORD |
-| 静的サンプラー | 0（容量を、使わない） |
+| 静的サンプラー | 0（容量を使わない） |
 
 ```text
 例: ルート CBV 2 つ（4）+ ディスクリプタ テーブル 3 つ（3）+ ルート定数 4 つ（4）= 11 DWORD
 ```
 
-容量が、足りないときは、パラメータを、<strong>ディスクリプタ テーブルに、まとめる</strong>（1 DWORD で、多数の、ディスクリプタを、指せる）ことで、節約します。
+容量が足りないときはパラメータを <strong>ディスクリプタ テーブルにまとめる</strong>（1 DWORD で多数の、ディスクリプタを指せる）ことで、節約します。
 
 ## 静的サンプラー
 
@@ -138,32 +138,32 @@ CD3DX12_STATIC_SAMPLER_DESC samplers[2] = {
 };
 ```
 
-固定の、サンプラー（異方性、ポイント、シャドウの比較）は、静的サンプラーに、すると、ヒープの、管理が、要らず、容量も、使いません。
+固定のサンプラー（異方性、ポイント、シャドウの比較）は静的サンプラーにすると、ヒープの管理が要らず容量も使いません。
 
 ## 可視性
 
-パラメータは、<strong>どのシェーダーから、見えるか</strong>（`D3D12_SHADER_VISIBILITY_*`）を、指定できます。
+パラメータは <strong>どのシェーダーから、見えるか</strong>（`D3D12_SHADER_VISIBILITY_*`）を指定できます。
 
 | 値 | 内容 |
 | --- | --- |
-| `ALL` | 全段から、見える |
+| `ALL` | 全段から見える |
 | `VERTEX`、`PIXEL`、`GEOMETRY`、`HULL`、`DOMAIN` | その段だけ |
 | `MESH`、`AMPLIFICATION` | メッシュ・増幅シェーダー |
 
-特定の段だけに、制限すると、ドライバーが、最適化できる、ことが、あります。
+特定の段だけに制限するとドライバーが、最適化できることがあります。
 
-## ルート シグネチャの、フラグ
+## ルート シグネチャのフラグ
 
 | フラグ | 内容 |
 | --- | --- |
-| `ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT` | 頂点バッファの、入力レイアウトを、使う（頂点入力を、使うなら、必須） |
+| `ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT` | 頂点バッファの入力レイアウトを使う（頂点入力を使うなら必須） |
 | `DENY_VERTEX_SHADER_ROOT_ACCESS` など | その段から、アクセスさせない（最適化） |
-| `CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED` | ビンドレス（SM 6.6 の `ResourceDescriptorHeap`）を、使う |
-| `SAMPLER_HEAP_DIRECTLY_INDEXED` | サンプラーの、ビンドレス |
+| `CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED` | ビンドレス（SM 6.6 の `ResourceDescriptorHeap`）を使う |
+| `SAMPLER_HEAP_DIRECTLY_INDEXED` | サンプラーのビンドレス |
 
-## パラメータの、順序
+## パラメータの順序
 
-ルート パラメータは、<strong>変わる頻度が、高い物を、前に</strong>、置くのが、推奨です。ドライバーが、ルート シグネチャを、一部、レジスタに、置いて、前の、パラメータを、速く、読めるようにする、ことが、あるためです。
+ルート パラメータは <strong>変わる頻度が、高い物を前に</strong>、置くのが推奨です。ドライバーがルート シグネチャを一部、レジスタに置いて前のパラメータを速く、読めるようにすることがあるためです。
 
 ```text
 推奨の、並び（頻度の、高い順）:
@@ -172,36 +172,36 @@ CD3DX12_STATIC_SAMPLER_DESC samplers[2] = {
   2: フレーム共通の、ディスクリプタ テーブル（フレームに 1 回）
 ```
 
-## ルート シグネチャと、PSO
+## ルート シグネチャと PSO
 
-ルート シグネチャは、<strong>PSO に、組み込む</strong>必要があります（`pso_desc.pRootSignature`）。コマンド リストにも、同じ、ルート シグネチャを、設定します。<strong>PSO の、ルート シグネチャと、コマンド リストに、設定した、ルート シグネチャが、一致</strong>しないと、エラーです（[PSO](pso.md)）。
+ルート シグネチャは <strong>PSO に組み込む</strong>必要があります（`pso_desc.pRootSignature`）。コマンド リストにも同じルート シグネチャを設定します。<strong>PSO のルート シグネチャとコマンド リストに設定したルート シグネチャが、一致</strong>しないとエラーです（[PSO](pso.md)）。
 
 ## よくあるミス
 
 ??? failure "`D3D12SerializeRootSignature` が、失敗する"
-    パラメータの、設定が、不正（レジスタの、重複、容量超過）。`errors` の文字列を、表示して、確認する。
+    パラメータの設定が不正（レジスタの重複、容量超過）。`errors` の文字列を表示して確認する。
 
-??? failure "描画しても、リソースが、シェーダーに、届かない（真っ黒）"
-    パラメータの、番号（`SetGraphicsRoot…` の、第 1 引数）が、ルート シグネチャの、並びと、違う。`SetDescriptorHeaps` を、呼んでいない。
+??? failure "描画しても、リソースがシェーダーに届かない（真っ黒）"
+    パラメータの番号（`SetGraphicsRoot…` の第 1 引数）がルート シグネチャの並びと違う。`SetDescriptorHeaps` を呼んでいない。
 
-??? failure "ルート シグネチャの、容量（64 DWORD）が、足りない"
-    ルート ディスクリプタ（2 DWORD）を、多用している。ディスクリプタ テーブルに、まとめる。
+??? failure "ルート シグネチャの容量（64 DWORD）が足りない"
+    ルート ディスクリプタ（2 DWORD）を多用している。ディスクリプタ テーブルにまとめる。
 
-??? failure "PSO と、ルート シグネチャが、合わない、エラー"
-    コマンド リストに、設定した、ルート シグネチャが、PSO に、組み込んだ物と、違う。同じオブジェクトを、使う。
+??? failure "PSO とルート シグネチャが合わない、エラー"
+    コマンド リストに設定したルート シグネチャが PSO に組み込んだ物と違う。同じオブジェクトを使う。
 
-??? failure "テクスチャを、ルート SRV で、渡そうとして、失敗する"
-    ルート ディスクリプタは、バッファだけ。テクスチャは、ディスクリプタ テーブル。
+??? failure "テクスチャをルート SRV で渡そうとして、失敗する"
+    ルート ディスクリプタはバッファだけ。テクスチャはディスクリプタ テーブル。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ルート シグネチャ ＝ シェーダーの、引数の、型。PSO に、組み込む
-    - [x] 3 種類: ルート定数（直接の値）、ルート ディスクリプタ（バッファの、アドレス）、ディスクリプタ テーブル（ヒープの範囲）
+    - [x] ルート シグネチャ ＝ シェーダーの引数の型。PSO に組み込む
+    - [x] 3 種類: ルート定数（直接の値）、ルート ディスクリプタ（バッファのアドレス）、ディスクリプタ テーブル（ヒープの範囲）
     - [x] 容量は 64 DWORD。ルート定数 1、ルート ディスクリプタ 2、テーブル 1
-    - [x] 作成: `D3D12SerializeRootSignature` → `CreateRootSignature`。エラー文字列を、表示
+    - [x] 作成: `D3D12SerializeRootSignature` → `CreateRootSignature`。エラー文字列を表示
     - [x] 固定サンプラーは、静的サンプラー
-    - [x] 変わる頻度の、高いものを、前に
+    - [x] 変わる頻度の高いものを前に
 
 ## 関連ページ
 

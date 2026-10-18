@@ -10,15 +10,15 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>コマンド キュー</strong>（`ID3D12CommandQueue`）は、<strong>GPU に、仕事を、渡す、窓口</strong>です。CPU が、[コマンド リスト](command-list.md)に、記録した、命令を、キューに、投げる（`ExecuteCommandLists`）と、GPU が、キューの、順に、実行します。キューは、GPU の、実行エンジン（描画、計算、コピー）の、入口で、<strong>種類ごとに、別のキュー</strong>を、持てます。
+<strong>コマンド キュー</strong>（`ID3D12CommandQueue`）は <strong>GPU に仕事を渡す窓口</strong>です。CPU が[コマンド リスト](command-list.md)に記録した命令をキューに投げる（`ExecuteCommandLists`）と GPU がキューの順に実行します。キューは GPU の実行エンジン（描画、計算、コピー）の入口で <strong>種類ごとに別のキュー</strong>を持てます。
 
 !!! tip "ポイント"
-    - コマンド キュー ＝ GPU への、仕事の、投入口。`ExecuteCommandLists` で、リストを、投げる。
+    - コマンド キュー ＝ GPU への仕事の投入口。`ExecuteCommandLists` でリストを投げる。
     - 種類は 3 つ: <strong>DIRECT</strong>（描画・計算・コピー、全部）、<strong>COMPUTE</strong>（計算・コピー）、<strong>COPY</strong>（コピーだけ）。
-    - 投げた、リストは、<strong>CPU を、待たせず</strong>、すぐ、戻る。GPU は、あとで、実行する。
-    - キューは、<strong>順に</strong>、実行する。別々の、キューは、<strong>並列</strong>に、動ける（非同期コンピュート）。
-    - GPU の完了は、[フェンス](fence.md)で、確認する。
-    - スワップ チェーンは、DIRECT キューに、結びつく。
+    - 投げたリストは <strong>CPU を待たせず</strong>、すぐ戻る。GPU はあとで実行する。
+    - キューは <strong>順に</strong>、実行する。別々のキューは <strong>並列</strong>に動ける（非同期コンピュート）。
+    - GPU の完了は[フェンス](fence.md)で確認する。
+    - スワップ チェーンは DIRECT キューに結びつく。
 
 ## 作る
 
@@ -37,19 +37,19 @@ device->CreateCommandQueue(&desc, IID_PPV_ARGS(&command_queue));
 | --- | --- |
 | `Type` | キューの種類（下の表） |
 | `Priority` | `NORMAL`、`HIGH`、`GLOBAL_REALTIME`（特権が要る） |
-| `Flags` | `DISABLE_GPU_TIMEOUT`（GPU の、タイムアウト検出を、切る。通常は、使わない） |
-| `NodeMask` | マルチ GPU のとき、どの GPU か。1 つなら 0 |
+| `Flags` | `DISABLE_GPU_TIMEOUT`（GPU のタイムアウト検出を切る。通常は、使わない） |
+| `NodeMask` | マルチ GPU のときどの GPU か。1 つなら 0 |
 
-## キューの、種類
+## キューの種類
 
 | `D3D12_COMMAND_LIST_TYPE_*` | できること | 使いどころ |
 | --- | --- | --- |
-| `DIRECT` | 描画、計算、コピー（全部） | メインの描画。必須（スワップ チェーンも、これ） |
-| `COMPUTE` | 計算、コピー | <strong>非同期コンピュート</strong>（描画と、並列に、計算） |
-| `COPY` | コピーのみ | 非同期の、アップロード（テクスチャの、ストリーミング）。専用の、DMA エンジンを、使える |
-| `BUNDLE` | （キューには、投げない） | 小さな、命令の、再利用（バンドル） |
+| `DIRECT` | 描画、計算、コピー（全部） | メインの描画。必須（スワップ チェーンもこれ） |
+| `COMPUTE` | 計算、コピー | <strong>非同期コンピュート</strong>（描画と並列に計算） |
+| `COPY` | コピーのみ | 非同期のアップロード（テクスチャのストリーミング）。専用の DMA エンジンを使える |
+| `BUNDLE` | （キューには投げない） | 小さな命令の再利用（バンドル） |
 
-多くの GPU は、描画エンジンと、計算エンジン、コピー エンジンを、<strong>別々に</strong>、持っています。別のキューで、投げると、並列に、実行されます。
+多くの GPU は描画エンジンと計算エンジン、コピー エンジンを <strong>別々に</strong>、持っています。別のキューで投げると並列に実行されます。
 
 ```text
 DIRECT キュー:  [シャドウ] [G バッファ] [ライティング] [ポスト プロセス]
@@ -57,26 +57,26 @@ COMPUTE キュー:     [パーティクル更新] [カリング]          ← DI
 COPY キュー:     [テクスチャの、アップロード]               ← 描画を、止めずに、裏で、読み込む
 ```
 
-キュー同士の、順序の、保証（「COMPUTE が、終わるまで、DIRECT は、待つ」）は、フェンスで、行います（[Fence](fence.md)）。
+キュー同士の順序の保証（「COMPUTE が、終わるまで DIRECT は待つ」）は、フェンスで行います（[Fence](fence.md)）。
 
-## コマンド リストを、投げる
+## コマンド リストを投げる
 
 ```cpp
 ID3D12CommandList* lists[] = {command_list.Get()};
 command_queue->ExecuteCommandLists(ARRAYSIZE(lists), lists);
 ```
 
-`ExecuteCommandLists` は、リストを、キューに、<strong>積んで、すぐ戻ります</strong>。GPU が、実行を、終えるのを、待ちません。投げる前に、リストは、`Close()` されている必要が、あります（[Command List](command-list.md)）。
+`ExecuteCommandLists` はリストをキューに <strong>積んで、すぐ戻ります</strong>。GPU が実行を終えるのを待ちません。投げる前にリストは `Close()` されている必要が、あります（[Command List](command-list.md)）。
 
 | 注意 | 内容 |
 | --- | --- |
-| 投げた、リストの、再利用 | 投げた直後に、`Reset` して、別の命令を、記録できる（アロケーターは、GPU が、使い終わるまで、`Reset` できない） |
-| 複数のリスト | 配列で、まとめて、投げられる。配列の、順に、実行される |
-| 呼び出しの、コスト | `ExecuteCommandLists` は、<strong>重い</strong>ので、フレームに、数回に、まとめる（リストごとに、1 回ずつ、投げない） |
+| 投げたリストの再利用 | 投げた直後に `Reset` して別の命令を記録できる（アロケーターは、GPU が使い終わるまで `Reset` できない） |
+| 複数のリスト | 配列で、まとめて投げられる。配列の順に実行される |
+| 呼び出しのコスト | `ExecuteCommandLists` は <strong>重い</strong>のでフレームに数回にまとめる（リストごとに 1 回ずつ、投げない） |
 
 ## Signal と Wait
 
-キューに、<strong>フェンスへの、書き込み</strong>（`Signal`）や、<strong>フェンスの、待ち</strong>（`Wait`）を、積めます。これが、GPU の、完了の、通知と、キュー同士の、順序づけの、基本です。
+キューに <strong>フェンスへの書き込み</strong>（`Signal`）や <strong>フェンスの待ち</strong>（`Wait`）を積めます。これが GPU の完了の通知とキュー同士の順序づけの基本です。
 
 ```cpp
 // このキューの、ここまでの仕事が、終わったら、フェンスに value を書く（GPU が、実行時に、行う）。
@@ -86,17 +86,17 @@ command_queue->Signal(fence.Get(), value);
 other_queue->Wait(fence.Get(), value);
 ```
 
-`Signal` と `Wait` は、<strong>GPU が、実行する</strong>命令で、CPU は、待ちません。CPU が、待つには、`fence->SetEventOnCompletion` と、`WaitForSingleObject` を、使います（[Fence](fence.md)）。
+`Signal` と `Wait` は <strong>GPU が実行する</strong>命令で、CPU は待ちません。CPU が待つには `fence->SetEventOnCompletion` と `WaitForSingleObject` を使います（[Fence](fence.md)）。
 
-## 複数のキューの、使い分け
+## 複数のキューの使い分け
 
 | 構成 | 内容 |
 | --- | --- |
-| DIRECT だけ | 最も、単純。最初は、これ |
-| DIRECT + COPY | テクスチャ・メッシュの、アップロードを、裏で、行う（ロード画面を、減らす） |
-| DIRECT + COMPUTE | パーティクルの更新、カリング、ポスト プロセスの、一部を、描画と、並列に |
+| DIRECT だけ | 最も単純。最初はこれ |
+| DIRECT + COPY | テクスチャ・メッシュのアップロードを裏で行う（ロード画面を、減らす） |
+| DIRECT + COMPUTE | パーティクルの更新、カリング、ポスト プロセスの一部を描画と並列に |
 
-非同期コンピュートは、<strong>描画が、GPU の、一部しか、使っていない</strong>（メモリ帯域や、固定機能が、ボトルネック）ときに、効果が、あります。計算が、重い処理を、並列に、すると、GPU の、空き時間を、埋められます（[Async Compute](../../rendering/async-compute.md)）。
+非同期コンピュートは <strong>描画が、GPU の一部しか使っていない</strong>（メモリ帯域や固定機能がボトルネック）ときに効果が、あります。計算が重い処理を並列にすると、GPU の空き時間を埋められます（[Async Compute](../../rendering/async-compute.md)）。
 
 ## タイムスタンプ
 
@@ -105,30 +105,30 @@ UINT64 frequency;
 command_queue->GetTimestampFrequency(&frequency);           // 1 秒あたりの、チック数（GPU のクロック）
 ```
 
-GPU の、処理時間の、計測に、使います（[GPU Queries and Timing](query-timing.md)）。
+GPU の処理時間の計測に使います（[GPU Queries and Timing](query-timing.md)）。
 
 ## よくあるミス
 
 ??? failure "`ExecuteCommandLists` で、クラッシュする"
-    リストが、`Close()` されていない。または、記録中に、エラーが、あった（`Close` の戻り値が、`FAILED`）。デバッグ レイヤーの、メッセージを、見る。
+    リストが `Close()` されていない。または、記録中にエラーがあった（`Close` の戻り値が `FAILED`）。デバッグ レイヤーのメッセージを見る。
 
-??? failure "投げた後、すぐ、アロケーターを、`Reset` して、クラッシュする"
-    GPU が、まだ、そのアロケーターの、命令を、実行している。フェンスで、完了を、確認してから、`Reset` する（[Command Allocator](command-allocator.md)）。
+??? failure "投げた後、すぐアロケーターを `Reset` してクラッシュする"
+    GPU がまだそのアロケーターの命令を実行している。フェンスで完了を確認してから、`Reset` する（[Command Allocator](command-allocator.md)）。
 
-??? failure "COMPUTE キューで、描画命令を、使って、エラーになる"
-    COMPUTE キューは、描画（`DrawInstanced` など）を、実行できない。DIRECT キューに、投げる。
+??? failure "COMPUTE キューで、描画命令を使ってエラーになる"
+    COMPUTE キューは描画（`DrawInstanced` など）を実行できない。DIRECT キューに投げる。
 
-??? failure "リストごとに、`ExecuteCommandLists` を、呼んで、CPU が、重い"
-    複数のリストを、配列に、まとめて、1 回で、投げる。
+??? failure "リストごとに `ExecuteCommandLists` を呼んで、CPU が重い"
+    複数のリストを配列にまとめて 1 回で投げる。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] コマンド キュー ＝ GPU への、仕事の投入口。`ExecuteCommandLists`
-    - [x] 種類は、DIRECT（全部）・COMPUTE・COPY。最初は、DIRECT だけ
-    - [x] 投げたら、すぐ戻る。GPU は、あとで、実行する
-    - [x] 完了は、フェンスで、確認する（`Signal` / `Wait`）
-    - [x] 別のキューは、並列。順序づけは、フェンスで
+    - [x] コマンド キュー ＝ GPU への仕事の投入口。`ExecuteCommandLists`
+    - [x] 種類は DIRECT（全部）・COMPUTE・COPY。最初は DIRECT だけ
+    - [x] 投げたら、すぐ戻る。GPU はあとで実行する
+    - [x] 完了はフェンスで、確認する（`Signal` / `Wait`）
+    - [x] 別のキューは並列。順序づけはフェンスで
 
 ## 関連ページ
 
