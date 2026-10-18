@@ -292,6 +292,43 @@ fBm(x) = Σ  振幅_i × noise(x × 周波数_i)   （i = 0, 1, 2, ...）
 
 詳しくは[ゲームバランスの数学](balance.md)にあります。
 
+<!-- fig:weighted-pick:begin -->
+
+<svg class="fig illust motion" data-fig="weighted-pick" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-weighted-pick" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">重み付き抽選: 重みを並べた帯に、乱数で矢を刺す</text>
+<rect x="70.0" y="150" width="320.0" height="50" fill="#64748b" opacity="0.9"/>
+<text x="230.0" y="172" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">ノーマル</text>
+<text x="230.0" y="190" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">50</text>
+<rect x="390.0" y="150" width="192.0" height="50" fill="#2563eb" opacity="0.9"/>
+<text x="486.0" y="172" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">レア</text>
+<text x="486.0" y="190" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">30</text>
+<rect x="582.0" y="150" width="96.0" height="50" fill="#7c3aed" opacity="0.9"/>
+<text x="630.0" y="172" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">エピック</text>
+<text x="630.0" y="190" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">15</text>
+<rect x="678.0" y="150" width="32.0" height="50" fill="#e5aa28" opacity="0.9"/>
+<text x="694.0" y="172" text-anchor="middle" style="font-size:10px;font-weight:700;fill:#ffffff">伝説</text>
+<text x="694.0" y="190" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">5</text>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.3308;0.3310;1.0000" values="0;0;1;1;0;0"/><line x1="146.8" y1="100" x2="146.8" y2="146" stroke="#e5484d" stroke-width="4" marker-end="url(#arr-weighted-pick)"/>
+<text x="146.8" y="92" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">乱数 12</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3308;0.3310;0.5928;0.5931;1.0000" values="0;0;1;1;0;0"/><line x1="473.2" y1="100" x2="473.2" y2="146" stroke="#e5484d" stroke-width="4" marker-end="url(#arr-weighted-pick)"/>
+<text x="473.2" y="92" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">乱数 63</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5928;0.5931;1.0000" values="0;0;1;1"/><line x1="690.8" y1="100" x2="690.8" y2="146" stroke="#e5484d" stroke-width="4" marker-end="url(#arr-weighted-pick)"/>
+<text x="690.8" y="92" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">乱数 97</text>
+</g>
+<text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">重みの合計 100 の帯を、重みの長さで分ける<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">0〜99 の乱数 12 → ノーマル<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.3308;0.3310;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">0〜99 の乱数 63 → レア<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3308;0.3310;0.5928;0.5931;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">0〜99 の乱数 97 → 伝説<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5928;0.5931;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="390" y="330" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">確率 = 重み ÷ 合計。伝説は 5%、ノーマルは 50%</text>
+</svg>
+
+<!-- fig:weighted-pick:end -->
+
 ## よくあるミス
 
 ??? failure "`rand() % n` を使う"

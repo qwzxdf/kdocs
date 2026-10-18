@@ -206,6 +206,27 @@ int main() {
 | ResultScene | スコア表示 |
 | LoadingScene | 読み込み中の表示 |
 
+<!-- fig:scene-parent-child:begin -->
+
+<svg class="fig illust motion" data-fig="scene-parent-child" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-scene-parent-child" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">親を動かすと、子も付いてくる: ワールド位置 = 親の位置 + 子の相対位置</text>
+<line x1="60" y1="230" x2="720" y2="230" stroke="#e2e8f0" stroke-width="1.5"/>
+<rect x="100" y="160" width="64" height="64" fill="#2563eb" opacity="0.9"><animate attributeName="x" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2759;0.5517;1.0000" values="100;100;460;460"/></rect>
+<rect x="240" y="175" width="34" height="34" fill="#e5aa28" opacity="0.95"><animate attributeName="x" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2759;0.5517;1.0000" values="240;240;600;600"/></rect>
+<line x1="132" y1="192" x2="257" y2="192" stroke="#64748b" stroke-width="2" stroke-dasharray="5 4"><animate attributeName="x1" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2759;0.5517;1.0000" values="132;132;492;492"/><animate attributeName="x2" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2759;0.5517;1.0000" values="257;257;617;617"/></line>
+<text x="132" y="150" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2563eb">親<animate attributeName="x" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2759;0.5517;1.0000" values="132;132;492;492"/></text>
+<text x="257" y="150" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5aa28">子<animate attributeName="x" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2759;0.5517;1.0000" values="257;257;617;617"/></text>
+<text x="390" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">子は「親から右へ 140」という相対位置を持つ<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">親が x = 132 にいれば、子は 132 + 140 = 272 に表示される<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.2756;0.2759;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">親を右へ動かす。子の相対位置は、そのまま<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2756;0.2759;0.5514;0.5517;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="320" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">親が 492 に来た → 子は 492 + 140 = 632。子のデータは、書き換えていない<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5514;0.5517;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:scene-parent-child:end -->
+
 ## よくあるミス
 
 ??? failure "Update の中ですぐに切り替える"
