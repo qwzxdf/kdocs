@@ -1603,14 +1603,26 @@ float CloudDensity(float3 position, float height_fraction) {
   float coverage = weather_map.SampleLevel(linear_wrap, position.xz * weather_scale, 0).r;
   float height_gradient = saturate(Remap(height_fraction, 0.0, 0.1, 0.0, 1.0))
                         * saturate(Remap(height_fraction, 0.6, 1.0, 1.0, 0.0));
+```
 
+天気マップから、雲の量（`coverage`）を、読み、高さによる、形の、重みを、作ります。底と、頂上で、密度が、0 に、近づき、中ほどが、最も、濃くなる形です。
+
+```hlsl
   float3 shape_uvw = position * shape_scale + wind * time;
   float4 noise = shape_noise.SampleLevel(linear_wrap, shape_uvw, 0);
   float shape_fbm = dot(noise.gba, float3(0.5, 0.25, 0.125)) ;
   float base = Remap(noise.r, shape_fbm - 1.0, 1.0, 0.0, 1.0);
+```
 
+形を、決める、3D ノイズを、風で、流しながら、読みます。`r` チャンネルが、低周波の、基本形、`gba` が、その、細かい、成分です。基本形を、細かい成分で、削る形に、再マップします。
+
+```hlsl
   float density = Remap(base * height_gradient, 1.0 - coverage, 1.0, 0.0, 1.0) * coverage;
+```
 
+基本形に、高さの重みを、掛け、雲の量で、しきい値を、動かして、密度を、決めます。量が、多いほど、広く、濃い雲に、なります。
+
+```hlsl
   if (density > 0.0) {
     float3 detail_uvw = position * detail_scale + wind * time * 2.0;
     float3 detail = detail_noise.SampleLevel(linear_wrap, detail_uvw, 0).rgb;
@@ -1620,7 +1632,11 @@ float CloudDensity(float3 position, float height_fraction) {
   }
   return max(density, 0.0);
 }
+```
 
+密度が、あるときだけ、細かい、ノイズで、輪郭を、削ります。底に、近いほど、ふわっと、頂上に、近いほど、もこもこに、なるよう、高さで、混ぜ方を、変えます。
+
+```hlsl
 float Remap(float v, float a, float b, float c, float d) {
   return c + (v - a) / (b - a) * (d - c);
 }

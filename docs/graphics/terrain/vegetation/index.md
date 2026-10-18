@@ -28,12 +28,20 @@ uint HashCell(int2 cell) {
   h ^= h >> 15;
   return h;
 }
+```
 
+セルの座標から、乱数の種を作る、ハッシュです。同じセルは、いつでも、同じ値になるので、カメラが、動いても、草は、同じ場所に、生えます。
+
+```hlsl
 float Random01(inout uint state) {
   state = state * 1664525u + 1013904223u;
   return float(state >> 8) / 16777216.0;
 }
+```
 
+種から、次々に、0〜1 の乱数を取り出す、簡単な、線形合同法です。`state` を、更新しながら、使い回すので、1 つのセルで、位置、向き、大きさを、別々の乱数で、決められます。
+
+```hlsl
 [numthreads(8, 8, 1)]
 void GenerateGrass(uint3 id : SV_DispatchThreadID) {
   int2 cell = camera_cell + int2(id.xy) - kHalfCells;
@@ -43,7 +51,11 @@ void GenerateGrass(uint3 id : SV_DispatchThreadID) {
   float2 xz = (float2(cell) + offset) * cell_size;
   float density = density_map.SampleLevel(linear_clamp, WorldToUV(xz), 0).r;
   if (Random01(state) > density) return;
+```
 
+1 スレッドが、カメラの周りの、1 セルを、受け持ちます。セルの中の、位置を、ランダムに、ずらし、密度マップを、読んで、密度が、低い所では、確率で、生やしません。
+
+```hlsl
   float height = SampleTerrainHeight(xz);
   float rotation = Random01(state) * 6.2831853;
   float scale = lerp(0.7, 1.3, Random01(state));

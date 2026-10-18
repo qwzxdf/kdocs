@@ -285,21 +285,41 @@ bool TraceHiZ(float3 origin, float3 dir, out float3 hit) {
   float t = 0.0;
   float2 inv_dir = 1.0 / dir.xy;
   int2 step_dir = int2(dir.x > 0 ? 1 : 0, dir.y > 0 ? 1 : 0);
+```
 
+Hi-Z の、トレースの、初期化です。`level` は、今、見ている、ミップの階層で、高いほど、粗い（広い範囲を、1 マスで、見る）です。`inv_dir` と `step_dir` は、レイが、マスの、どの境界に向かうかを、決めるために、使います。
+
+```hlsl
   for (int i = 0; i < kMaxIterations && level >= 0; ++i) {
     float3 p = origin + dir * t;
     if (any(p.xy < 0.0) || any(p.xy > 1.0)) return false;
+```
 
+毎回、レイ上の、今の位置を、求め、画面の外に出たら、外れです。
+
+```hlsl
     float2 dims = hiz_size >> level;
     int2 cell = int2(p.xy * dims);
     float min_z = hiz.Load(int3(cell, level)).r;
+```
 
+今の階層で、レイが、いるマスを、求め、そのマスの、<strong>最小の深度</strong> `min_z`（そのマスの中で、最も手前の面）を、読みます。Hi-Z は、深度の最小値の、ミップなので、レイが、`min_z` より、手前なら、そのマスの中には、何も、無いと、言えます。
+
+```hlsl
     float2 boundary = (cell + step_dir) / dims;
     float2 t_xy = (boundary - origin.xy) * inv_dir;
     float t_boundary = min(t_xy.x, t_xy.y);
+```
 
+レイが、今のマスの、外へ出る、境界までの、距離 `t_boundary` を、求めます。x と y の、近いほうです。
+
+```hlsl
     float t_z = (min_z - origin.z) / dir.z;
+```
 
+レイが、`min_z` に、達するまでの距離 `t_z` を、求めます。
+
+```hlsl
     if (p.z < min_z) {
       if (t_z < t_boundary) {
         t = t_z;
@@ -312,6 +332,11 @@ bool TraceHiZ(float3 origin, float3 dir, out float3 hit) {
       level -= 1;
     }
   }
+```
+
+判定です。レイが、`min_z` より、手前なら、レイが、マスの中で、面に達する前に、境界を、出るかを、比べます。面に先に着くなら、そこまで進み、階層を、1 つ下げて、細かく、調べ直します。境界を、先に出るなら、境界の少し先まで、進み、階層を、1 つ上げて、大きく飛びます。レイが、すでに、面の奥なら、階層を、下げて、調べ直します。階層が、0 の、さらに下（-1）まで、下がれば、当たりです（[Hi-Z SSR](ssr-hiz.md)）。
+
+```hlsl
   hit = origin + dir * t;
   return level < 0;
 }

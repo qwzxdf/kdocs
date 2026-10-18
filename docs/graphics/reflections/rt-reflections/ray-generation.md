@@ -25,22 +25,42 @@ void ReflectionRayGen() {
   float3 n = WorldNormal(pixel);
   float3 v = normalize(camera_pos - p);
   float roughness = Roughness(pixel);
+```
 
+レイ生成シェーダーの、入口です。画素の、位置・法線・粗さを、G バッファから、読み、視線ベクトルを、求めます。
+
+```hlsl
   if (roughness > kMaxRoughness) { output[pixel] = 0; return; }
+```
 
+粗すぎる、画素は、レイを、飛ばさず、反射プローブに、任せます。
+
+```hlsl
   float3 h = SampleGGXVNDFWorld(v, n, roughness, Random2(pixel, frame));
   float3 dir = reflect(-v, h);
   if (dot(dir, n) <= 0.0) { output[pixel] = 0; return; }
+```
 
+GGX の、可視法線 `h` を、乱数で、サンプルして、その `h` で、視線を、反射します。反射方向が、面の下を、向いたら、捨てます。
+
+```hlsl
   RayDesc ray;
   ray.Origin = p + n * kRayBias;
   ray.Direction = dir;
   ray.TMin = 0.0;
   ray.TMax = kMaxRayLength;
+```
 
+レイを、組み立てます。始点は、面から、少し、浮かせて、自己交差を、避けます。`TMax` で、最大距離を、制限します。
+
+```hlsl
   ReflectionPayload payload = (ReflectionPayload)0;
   TraceRay(scene, RAY_FLAG_NONE, 0xFF, 0, 0, 0, ray, payload);
+```
 
+レイを、飛ばします。ヒット シェーダーが、ペイロードに、色と、距離を、書き込みます。
+
+```hlsl
   output[pixel] = float4(payload.color, payload.hit_distance);
 }
 ```

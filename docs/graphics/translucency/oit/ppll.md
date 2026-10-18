@@ -29,21 +29,37 @@ struct Node {
   float depth;
   uint next;
 };
+```
 
+リストの 1 つの、ノード（フラグメント 1 枚ぶん）です。色（パック済み）、深度、そして、同じ画素の、次の、ノードの番号を、持ちます。
+
+```hlsl
 RWTexture2D<uint> head_pointers : register(u1);
 RWStructuredBuffer<Node> nodes : register(u2);
 RWByteAddressBuffer counter : register(u3);
+```
 
+3 つの UAV を、使います。`head_pointers` は、画素ごとの、リストの先頭、`nodes` は、全ノードを、入れる、バッファ、`counter` は、次に、使う、ノードの番号を、数える、カウンターです。
+
+```hlsl
 [earlydepthstencil]
 void PSCollect(VsOutput input) {
   float4 color = Shade(input);
   uint node_index;
   counter.InterlockedAdd(0, 1, node_index);
   if (node_index >= kMaxNodes) return;
+```
 
+`[earlydepthstencil]` は、深度テストを、ピクセル シェーダーの、前に、行う指定です。不透明な物の、後ろに、隠れた、フラグメントは、ノードを、作らずに、捨てられます。ノードの番号を、カウンターで、アトミックに、確保し、バッファが、満杯なら、捨てます。
+
+```hlsl
   uint previous_head;
   InterlockedExchange(head_pointers[uint2(input.position.xy)], node_index, previous_head);
+```
 
+この画素の、先頭を、新しい、ノードの番号に、入れ替え、前の先頭を、受け取ります。1 命令で、行うので、同じ画素に、同時に、書く、スレッドが、あっても、リストが、壊れません。
+
+```hlsl
   Node node;
   node.color = PackColor(color);
   node.depth = input.position.z;
@@ -72,7 +88,11 @@ float4 PSResolve(VsOutput input) : SV_Target {
     list[count++] = nodes[head];
     head = list[count - 1].next;
   }
+```
 
+合成パスです。画素の、先頭から、リストを、辿って、ローカルの、配列に、取り出します。長すぎる、リストは、`kMaxLayers` で、打ち切ります。
+
+```hlsl
   for (int i = 1; i < count; ++i) {
     Node key = list[i];
     int j = i - 1;
@@ -82,7 +102,11 @@ float4 PSResolve(VsOutput input) : SV_Target {
     }
     list[j + 1] = key;
   }
+```
 
+奥の物が、先になるよう、深度の、大きい順に、並べ替えます。層が、数枚〜十数枚なので、挿入ソートで、十分です。
+
+```hlsl
   float4 result = float4(0, 0, 0, 0);
   for (int k = 0; k < count; ++k) {
     float4 c = UnpackColor(list[k].color);
@@ -169,17 +193,29 @@ RWByteAddressBuffer g_counter : register(u3);                    // 割り当て
 [earlydepthstencil]                                              // 不透明の深度で、隠れたフラグメントを、事前に捨てる
 void BuildPS(PSInput input) {
   float4 color = ShadeFragment(input);
+```
 
+構築パスの、冒頭です。`[earlydepthstencil]` で、隠れた、フラグメントを、先に捨て、色を、計算します。
+
+```hlsl
   // ① フラグメント バッファの、空き位置を、アトミックに、確保する
   uint index;
   g_counter.InterlockedAdd(0, 1, index);
   if (index >= kMaxFragments) return;                             // 溢れたら、捨てる
+```
 
+①ノードを、入れる、場所（番号）を、カウンターで、アトミックに、確保します。溢れたら、そのフラグメントは、捨てます。
+
+```hlsl
   // ② この画素の、ヘッドを、新しいノードに、入れ替え、前のヘッドを、受け取る
   uint pixel = (uint)input.position.y * g_screen_width + (uint)input.position.x;
   uint prev_head;
   g_head.InterlockedExchange(pixel * 4, index, prev_head);
+```
 
+②この画素の、先頭を、自分の番号に、入れ替えて、前の先頭を、受け取ります。
+
+```hlsl
   // ③ 新しいノードを、書き込む（次 = 前のヘッド）
   FragmentNode node;
   node.packed_color = PackColor(color);
@@ -203,7 +239,11 @@ void BuildPS(PSInput input) {
 float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
   uint pixel = (uint)pos.y * g_screen_width + (uint)pos.x;
   uint node_index = g_head.Load(pixel * 4);
+```
 
+合成パスの、冒頭です。画素の、番号から、先頭の、ノードを、読みます。
+
+```hlsl
   // ① リストを、ローカル配列に、取り出す（最大 kMaxLayers 個）
   FragmentNode layers[kMaxLayers];
   int count = 0;
@@ -211,7 +251,11 @@ float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
     layers[count++] = g_fragments[node_index];
     node_index = layers[count - 1].next;
   }
+```
 
+①リストを、辿って、ローカルの、配列に、取り出します（最大 `kMaxLayers` 個）。
+
+```hlsl
   // ② 深度の大きい順（奥から手前）に、並べ替える（挿入ソート。層が、少ないので、これで十分）
   for (int i = 1; i < count; ++i) {
     FragmentNode key = layers[i];
@@ -219,7 +263,11 @@ float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
     while (j >= 0 && layers[j].depth < key.depth) { layers[j + 1] = layers[j]; --j; }
     layers[j + 1] = key;
   }
+```
 
+②深度の大きい順（奥から手前）に、挿入ソートします。
+
+```hlsl
   // ③ 背景（不透明の描画結果）から、奥から手前へ、順にブレンドする
   float3 color = g_opaque_color.Load(int3(pos.xy, 0)).rgb;
   for (int k = 0; k < count; ++k) {

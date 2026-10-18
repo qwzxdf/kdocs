@@ -64,13 +64,21 @@ desc.SampleDesc.Count = 1;
 desc.Usage = D3D11_USAGE_DEFAULT;
 desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 device->CreateTexture2D(&desc, nullptr, &shadow_map_tex);
+```
 
+シャドウ マップを、2048×2048 の、32 ビット浮動小数点で、作ります。型なし（`TYPELESS`）にしておくと、書き込む、ビューと、読み込む、ビューで、別の型を、使えます。`BindFlags` に、深度ステンシルと、シェーダー リソースの、両方を、指定します。
+
+```cpp
 // 書き込み用（シャドウ パスで使う）
 D3D11_DEPTH_STENCIL_VIEW_DESC dsv = {};
 dsv.Format = DXGI_FORMAT_D32_FLOAT;
 dsv.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 device->CreateDepthStencilView(shadow_map_tex.Get(), &dsv, &shadow_dsv);
+```
 
+書き込み用の、ビュー（DSV）です。`D32_FLOAT` として、深度を、書きます。シャドウ パスでは、これを、出力に、束ねます。
+
+```cpp
 // 読み取り用（メイン パスで使う）
 D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
 srv.Format = DXGI_FORMAT_R32_FLOAT;

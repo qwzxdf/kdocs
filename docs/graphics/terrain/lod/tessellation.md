@@ -81,7 +81,11 @@ struct HullConstants {
   float edge[4]   : SV_TessFactor;        // 辺ごとの分割数（左・下・右・上）
   float inside[2] : SV_InsideTessFactor;  // 内側の分割数（横・縦）
 };
+```
 
+ハル シェーダーが、パッチごとに、GPU へ、伝える、分割数です。四角形パッチなので、4 辺（左・下・右・上）それぞれの、分割数と、内側の、横・縦の、分割数を、持ちます。
+
+```hlsl
 // 辺の中点と、カメラの距離から、その辺の分割数を決める。
 float EdgeFactor(float3 p0, float3 p1) {
   float3 mid = 0.5 * (p0 + p1);
@@ -89,7 +93,11 @@ float EdgeFactor(float3 p0, float3 p1) {
   // 距離が 2 倍になったら、係数を半分に（画面上の三角形の大きさを、一定にしたい）
   return clamp(kFactorAtOneMeter / dist, 1.0, 64.0);
 }
+```
 
+辺の分割数を、辺の中点と、カメラの、距離から、決めます。距離が、2 倍になれば、係数を、半分にして、画面上の、三角形の大きさが、一定になるようにします。1〜64 に、制限するのは、ハードウェアの、上限（64）と、下限（1 = 分割しない）に、合わせるためです。
+
+```hlsl
 HullConstants ComputeConstants(InputPatch<ControlPoint, 4> patch) {
   HullConstants c;
   // 辺の係数は、辺の両端の点だけから決める。隣のパッチも、同じ両端から計算するので、
@@ -103,7 +111,11 @@ HullConstants ComputeConstants(InputPatch<ControlPoint, 4> patch) {
   c.inside[1] = 0.5 * (c.edge[0] + c.edge[2]);
   return c;
 }
+```
 
+辺の係数は、<strong>辺の両端の点だけ</strong>から、決めます。隣り合うパッチは、共有する辺を、同じ両端から、計算するので、必ず、同じ値になり、隙間（ひび割れ）が、出ません。内側の係数は、向かい合う 2 辺の、平均にします。
+
+```hlsl
 [domain("quad")]
 [partitioning("fractional_odd")]
 [outputtopology("triangle_cw")]

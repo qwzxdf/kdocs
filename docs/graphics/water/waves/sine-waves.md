@@ -171,17 +171,30 @@ struct Wave {
   float phase_offset;
   float2 pad;
 };
+```
 
+波 1 本の、設定です。向きは、長さ 1 の、ベクトルで、`phase_offset` は、波ごとに、位相を、ずらして、揃って見えないようにするためのものです。
+
+```hlsl
 cbuffer WaveCB : register(b2) {
   Wave g_waves[8];
   int g_wave_count;
   float g_time;
   float2 pad2;
 };
+```
 
+波は、最大 8 本まで、定数バッファに、入れます。`g_wave_count` と `g_time` も、同じバッファに、置いて、CPU から、毎フレーム、更新します。
+
+```hlsl
 // 高さと、偏微分（傾き）を、同時に計算する。
 // 傾きは、法線のために使う（高さの微分を、解析的に、求められるのがサイン波の長所）。
 float WaterHeight(float2 p, out float2 slope) {
+```
+
+高さと、傾き（偏微分）を、同時に、返します。サイン波は、微分も、解析的に、求められるので、法線のために、高さを、何度も、読み直す必要が、ありません。
+
+```hlsl
   float h = 0.0;
   slope = 0.0;
   [unroll] for (int i = 0; i < 8; ++i) {
@@ -194,7 +207,11 @@ float WaterHeight(float2 p, out float2 slope) {
   }
   return h;
 }
+```
 
+波 1 本ごとに、位相を、求め、高さには、`A sin θ`、傾きには、`A ω cos θ` を、波の向きに、掛けて、足します。8 本分を、足すだけなので、頂点シェーダーでも、画素シェーダーでも、軽く、使えます。
+
+```hlsl
 float3 WaterNormal(float2 slope) {
   // 面 y = h(x, z) の法線: (-∂h/∂x, 1, -∂h/∂z)
   return normalize(float3(-slope.x, 1.0, -slope.y));

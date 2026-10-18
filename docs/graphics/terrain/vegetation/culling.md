@@ -87,24 +87,49 @@ for (const GrassTile& t : tiles) {
 float DistanceKeepProbability(float dist, float fade_start, float fade_end) {
   return 1.0 - smoothstep(fade_start, fade_end, dist);
 }
+```
 
+距離に応じて、描く確率を、下げる関数です。`smoothstep` で、近いほど 1、遠いほど 0 に、なだらかに、近づけます。
+
+```hlsl
 [numthreads(64, 1, 1)]
 void CullGrass(uint3 id : SV_DispatchThreadID) {
   if (id.x >= instance_count) return;
+```
+
+1 スレッドが、草 1 本を、受け持ちます。範囲外の、スレッドは、何もせずに、戻ります。
+
+```hlsl
   GrassInstance g = g_all_instances[id.x];
 
   float dist = distance(g.position, camera_position);
   if (dist > fade_end) return;                                  // 遠すぎる
+```
 
+草までの、距離を、求め、描画しない、遠さなら、捨てます。
+
+```hlsl
   // 1 本ごとに、固定の乱数（0〜1）。確率より小さい物だけ、描く。
   float keep = DistanceKeepProbability(dist, fade_start, fade_end);
   if (g.color_variation > keep) return;                         // 乱数の代わりに、固定の値を使う
+```
 
+距離に応じた、確率で、間引きます。乱数は、草 1 本ごとに、固定の値（`color_variation`）を、使うので、フレームごとに、結果が、変わらず、ちらつきません。
+
+```hlsl
   // 間引いた分だけ、残りを太くする（面積の保存）
   g.scale *= 1.0 / max(sqrt(keep), 0.3);
+```
 
+間引いた分だけ、残りの草を、太くします。間引くと、地面を、覆う面積が、減って、遠くが、すかすかに、見えるのを、防ぎます。
+
+```hlsl
   if (!SphereInFrustum(g.position + float3(0, g.height * 0.5, 0), g.height)) return;
+```
 
+視錐台の外の、草を、捨てます。残った草だけを、「描く草」の、バッファに、追加します。
+
+```hlsl
   g_visible.Append(g);
 }
 ```
@@ -146,25 +171,41 @@ bool SphereInFrustum(float3 center, float radius) {
 
 ```hlsl
 Texture2D<float> g_hiz : register(t1);        // 前のフレームの深度の、Hi-Z（ミップつき）
+```
 
+前のフレームの、深度から、作った、Hi-Z（深度の最大値の、ミップ）を、読みます。
+
+```hlsl
 bool OccludedByHiZ(float3 center, float radius) {
   // 球を、画面に投影した、矩形を求める（簡略化: 中心と半径から）
   float4 clip = mul(float4(center, 1), view_proj);
   float2 ndc = clip.xy / clip.w;
   float2 uv = ndc * float2(0.5, -0.5) + 0.5;
   float screen_radius = radius * proj_scale / clip.w;       // 画面上の半径（UV 単位）
+```
 
+草を、囲む球を、画面に、投影して、画面上の、位置と、半径を、求めます。
+
+```hlsl
   // 矩形の大きさに合う、ミップを選ぶ
   float2 size_px = screen_radius * 2.0 * hiz_size;
   float mip = ceil(log2(max(size_px.x, size_px.y)));
+```
 
+画面上の、矩形の、大きさに、ちょうど合う、ミップを、選びます。そのミップでは、矩形が、1〜2 画素に、収まるので、読み取りが、4 回で、済みます。
+
+```hlsl
   // 矩形の四隅の深度の、最大（最も遠い）を取る
   float2 corner = screen_radius;
   float d = max(max(g_hiz.SampleLevel(g_point, uv + float2(-corner.x, -corner.y), mip),
                     g_hiz.SampleLevel(g_point, uv + float2( corner.x, -corner.y), mip)),
                 max(g_hiz.SampleLevel(g_point, uv + float2(-corner.x,  corner.y), mip),
                     g_hiz.SampleLevel(g_point, uv + float2( corner.x,  corner.y), mip)));
+```
 
+矩形の、4 隅の、深度の、最大（最も遠い）を、取ります。これが、「この範囲の、手前の面が、どこまで、遠いか」の、保守的な、見積もりです。
+
+```hlsl
   // 球の最も近い点の、深度（クリップ空間の z/w）
   float nearest = (clip.z - radius) / (clip.w - radius);
   return nearest > d;     // 球の方が遠い → 隠れている（深度は、遠いほど大きい通常の設定）

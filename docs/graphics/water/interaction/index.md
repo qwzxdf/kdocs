@@ -30,13 +30,21 @@ tags:
 Texture2D<float> height_now : register(t0);
 Texture2D<float> height_prev : register(t1);
 RWTexture2D<float> height_next : register(u0);
+```
 
+波の方程式を、数値的に、解く、計算シェーダーです。今の高さ、1 つ前の高さ、次の高さの、3 枚を、使い、毎フレーム、入れ替えて、回します。
+
+```hlsl
 cbuffer WaveParams : register(b0) {
   float wave_speed_squared;
   float damping;
   uint2 size;
 };
+```
 
+波の速さの 2 乗と、減衰を、定数で、与えます。波の速さは、格子の間隔と、時間刻みから、決まり、大きすぎると、計算が、発散します。
+
+```hlsl
 [numthreads(8, 8, 1)]
 void CSMain(uint3 id : SV_DispatchThreadID) {
   if (id.x >= size.x || id.y >= size.y) return;
@@ -47,7 +55,11 @@ void CSMain(uint3 id : SV_DispatchThreadID) {
   float right = height_now[clamp(p + int2(1, 0), 0, int2(size) - 1)];
   float up = height_now[clamp(p + int2(0, -1), 0, int2(size) - 1)];
   float down = height_now[clamp(p + int2(0, 1), 0, int2(size) - 1)];
+```
 
+今の高さと、上下左右の、4 点の高さを、読みます。端は、`clamp` で、外側を、端と、同じ値にして、はみ出しを、防ぎます。
+
+```hlsl
   float laplacian = left + right + up + down - 4.0 * h;
   float next = 2.0 * h - height_prev[p] + wave_speed_squared * laplacian;
   height_next[p] = next * damping;

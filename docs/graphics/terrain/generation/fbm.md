@@ -165,19 +165,31 @@ uint Pcg(uint v) {
   uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
   return (word >> 22u) ^ word;
 }
+```
 
+整数の、ハッシュ（PCG）です。`sin` を、使う、ハッシュは、GPU によって、結果が、違うので、使いません。同じ入力には、どの GPU でも、同じ値を、返します。
+
+```hlsl
 float2 GradientAt(int2 p, uint seed) {
   uint h = Pcg(p.x + Pcg(p.y + seed));
   float angle = (h & 0xffffu) * (6.2831853 / 65536.0);
   return float2(cos(angle), sin(angle));      // 長さ 1 の勾配
 }
+```
 
+格子点ごとに、長さ 1 の、勾配（ランダムな向き）を、決めます。向きは、ハッシュの、下位 16 ビットを、角度に、直して、作ります。
+
+```hlsl
 float GradientNoise(float2 p, uint seed) {
   int2 i = (int2)floor(p);
   float2 f = frac(p);
   // 5 次式の補間（Perlin 2002）。3 次式（f*f*(3-2f)）より、格子の目立ちが、少ない。
   float2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+```
 
+点を、格子の、整数部と、小数部に、分け、補間の重みを、5 次式で、作ります（Perlin、2002）。3 次式より、格子の、目立ちが、少なくなります。
+
+```hlsl
   float a = dot(GradientAt(i + int2(0, 0), seed), f - float2(0, 0));
   float b = dot(GradientAt(i + int2(1, 0), seed), f - float2(1, 0));
   float c = dot(GradientAt(i + int2(0, 1), seed), f - float2(0, 1));

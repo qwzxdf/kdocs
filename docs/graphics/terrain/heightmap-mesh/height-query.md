@@ -113,6 +113,11 @@ c───d                            c───d
 float InterpolateTriangle(float h00, float h10, float h01, float h11,
                           float fx, float fz, bool diagonal_a) {
   if (diagonal_a) {
+```
+
+関数の入口です。マスの 4 隅の高さと、マスの中での位置 `(fx, fz)`（0〜1）、そして、このマスの対角線が、どちらかを、受け取ります。メッシュは、マスを、2 枚の三角形に、割っているので、高さも、<strong>三角形の平面</strong>で、補間しないと、見た目の地面と、ずれます（双一次補間だと、曲面になって、メッシュと一致しません）。
+
+```cpp
     // 対角線 a−d。a, c, d の三角形（左下側）と、a, d, b の三角形（右上側）
     if (fx <= fz) {
       // 左下側: a, c, d
@@ -122,6 +127,11 @@ float InterpolateTriangle(float h00, float h10, float h01, float h11,
       return h00 + (h10 - h00) * fx + (h11 - h10) * fz;
     }
   } else {
+```
+
+対角線が、左上 a と右下 d を、結ぶとき、マスは、左下側（a、c、d）と、右上側（a、d、b）に、割れます。`fx <= fz` なら、点は、左下側にあります。どちらも、基準の頂点の高さに、2 方向への傾きを、足すだけの、平面の式です。
+
+```cpp
     // 対角線 b−c。a, c, b の三角形（左上側）と、b, c, d の三角形（右下側）
     if (fx + fz <= 1.0f) {
       // 左上側: a, c, b
@@ -132,13 +142,27 @@ float InterpolateTriangle(float h00, float h10, float h01, float h11,
     }
   }
 }
+```
 
+対角線が、右上 b と左下 c を、結ぶときは、`fx + fz <= 1` が、左上側（a、c、b）と、右下側（b、c、d）の、境目です。右下側は、d を、基準にして、`1 − fx`、`1 − fz` 方向に、足します。
+
+```cpp
 float SampleHeightMatchingMesh(const HeightMap& map, float world_x, float world_z) {
   const float u = (world_x - map.origin_x) / map.cell_size;
   const float v = (world_z - map.origin_z) / map.cell_size;
+```
+
+ワールド座標から、マスの番号と、マスの中の位置を、求めます。`u`、`v` は、マス単位の、座標です。マスの番号は、端で、はみ出さないよう、`width − 2` までに、制限します（右隣の頂点も、読むため）。
+
+```cpp
   const int x0 = std::clamp(int(std::floor(u)), 0, map.width - 2);
   const int z0 = std::clamp(int(std::floor(v)), 0, map.height - 2);
   const float fx = u - x0, fz = v - z0;
+```
+
+対角線の向きは、メッシュを作ったときと、<strong>同じ規則</strong>（市松）で、決めます。ここが、メッシュと、食い違うと、高さが、半マスぶん、ずれます（[Grid Mesh](grid-mesh.md)）。最後に、4 隅の高さを、読んで、先ほどの関数に、渡します。
+
+```cpp
   const bool diagonal_a = ((x0 + z0) & 1) == 0;       // 市松の貼り方と、同じ規則
   return InterpolateTriangle(map.At(x0, z0), map.At(x0 + 1, z0),
                              map.At(x0, z0 + 1), map.At(x0 + 1, z0 + 1), fx, fz, diagonal_a);
@@ -177,11 +201,21 @@ bool RaycastTerrain(const HeightMap& map, float3 origin, float3 dir, float max_d
                     float step, float3& hit) {
   float t = 0.0f;
   float prev_diff = origin.y - SampleHeightMatchingMesh(map, origin.x, origin.z);
+```
+
+レイを、地面に当てる関数です。始点が、地面の上にあるか下にあるかを、`diff = レイの高さ − 地面の高さ` で、持ちます。
+
+```cpp
   while (t < max_dist) {
     t += step;
     const float3 p = origin + dir * t;
     const float diff = p.y - SampleHeightMatchingMesh(map, p.x, p.z);
     if (diff < 0.0f && prev_diff >= 0.0f) {
+```
+
+一定の歩幅 `step` で、進みます。`diff` が、正から負に、変わった瞬間が、地面に、入ったときです。
+
+```cpp
       // 地面の下に入った。直前の位置との間で、二分探索して、交点を絞り込む。
       float lo = t - step, hi = t;
       for (int i = 0; i < 8; ++i) {
@@ -189,6 +223,11 @@ bool RaycastTerrain(const HeightMap& map, float3 origin, float3 dir, float max_d
         const float3 q = origin + dir * mid;
         if (q.y - SampleHeightMatchingMesh(map, q.x, q.z) < 0.0f) hi = mid; else lo = mid;
       }
+```
+
+入った区間（直前の位置と、今の位置）の間で、二分探索して、交点を絞ります。8 回で、歩幅の、256 分の 1 の、精度になります。歩幅が、大きいと、細い尾根を、飛び越えるので、地形の、起伏に合わせて、歩幅を、決めます。
+
+```cpp
       hit = origin + dir * hi;
       return true;
     }

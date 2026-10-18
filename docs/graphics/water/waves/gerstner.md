@@ -183,45 +183,74 @@ struct GerstnerWave {
   float steepness;     // Q_i（上の式で、割った後の値）
   float2 pad;
 };
+```
 
+波 1 本ぶんの設定です。`steepness` は、上の式で、波の数で割ったあとの値（`Q_i`）を、入れておきます。シェーダー内で割ると、画素ごと（頂点ごと）に、同じ割り算を繰り返すことになるので、CPU 側で、済ませます。末尾の `pad` は、16 バイト境界に、そろえるための、詰め物です。
+
+```hlsl
 cbuffer GerstnerCB : register(b2) {
   GerstnerWave g_waves[8];
   int g_wave_count;
   float g_time;
   float2 pad2;
 };
+```
 
+波を、最大 8 本まで、定数バッファに入れます。`g_wave_count` で、実際に使う数を決めるので、波の数を変えても、シェーダーを、作り直さずに済みます。`g_time` は、毎フレーム、CPU から、更新します。
+
+```hlsl
 // 元の位置 p0 に対する、水面の位置を返す。
 float3 GerstnerDisplace(float2 p0, out float3 normal, out float jacobian) {
   float3 pos = float3(p0.x, 0.0, p0.y);
   float3 n = float3(0, 1, 0);
   // ヤコビアン（波頭が、折れているかの目安）を作る要素
   float dxdx = 0, dzdz = 0, dxdz = 0;
+```
 
+関数の入口です。`p0` は、水面を、平らに敷いたときの、格子点の位置（XZ）です。ゲルストナー波は、この点が、波によって、横にも、動くので、変位前の位置を、基準にします。法線は、上向き (0, 1, 0) から、波ごとに、傾きを、引いていきます。`dxdx`、`dzdz`、`dxdz` は、あとで、ヤコビアンを、作る材料です。
+
+```hlsl
   [unroll] for (int i = 0; i < 8; ++i) {
     if (i >= g_wave_count) break;
     GerstnerWave w = g_waves[i];
     float k = 2.0 * 3.14159265 / w.wavelength;
     float theta = k * dot(w.direction, p0) + g_time * w.speed * k;
     float c = cos(theta), s = sin(theta);
+```
 
+1 本ぶんの位相を、求めます。`theta = k·(d·p0) + ω t` で、`k` は、波数（`2π / 波長`）、`d` は、波の進む向き、`w.speed * k` が、角速度 ω です。位相が、進行方向 `d·p0` に、そって、増えるので、波が、`d` の向きに、進んで見えます。
+
+```hlsl
     // 位置
     pos.x += w.steepness * w.amplitude * w.direction.x * c;
     pos.z += w.steepness * w.amplitude * w.direction.y * c;
     pos.y += w.amplitude * s;
+```
 
+位置の、足し込みです。縦方向（`pos.y`）は、普通のサイン波と、同じ `A sin θ` です。水平方向は、`Q A d cos θ` を、波の向きに、足します。山の頂では、`cos θ` が、正で、点が、波の進む向きに、寄るので、山が、尖り、谷が、広がります。
+
+```hlsl
     // 法線（Finch の式）。WA = ω A
     float wa = k * w.amplitude;
     n.x -= w.direction.x * wa * c;
     n.z -= w.direction.y * wa * c;
     n.y -= w.steepness * wa * s;
+```
 
+法線は、位置の式を、偏微分して、得られる接線から、作りますが、結果は、この簡単な形になります（Finch、GPU Gems Chapter 1）。`n.y` の項に、`steepness` が、掛かる点が、サイン波との、違いです。
+
+```hlsl
     // 水平変位の、偏微分（ヤコビアンのため）
     float ds = -w.steepness * w.amplitude * k * s;
     dxdx += ds * w.direction.x * w.direction.x;
     dzdz += ds * w.direction.y * w.direction.y;
     dxdz += ds * w.direction.x * w.direction.y;
   }
+```
+
+水平変位を、位置で、偏微分した値を、`dxdx` などに、足します。これは、水平方向の、面積が、どれだけ、縮んだか（波頭が、折れ返す兆し）を、調べる材料です。
+
+```hlsl
   normal = normalize(n);
   // ヤコビアン = (1 + ∂Dx/∂x)(1 + ∂Dz/∂z) − (∂Dx/∂z)(∂Dz/∂x)
   jacobian = (1.0 + dxdx) * (1.0 + dzdz) - dxdz * dxdz;

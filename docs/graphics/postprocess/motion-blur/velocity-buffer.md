@@ -332,13 +332,21 @@ cbuffer PerObject : register(b0) {
   float2 jitter_current;
   float2 jitter_previous;
 };
+```
 
+オブジェクトごとの、定数です。今フレームと、前フレームの、ワールド行列と、ビュー射影行列を、持ちます。`jitter_*` は、TAA が、画面を、ずらす量で、速度から、取り除くために、必要です。
+
+```hlsl
 struct VSOutput {
   float4 position : SV_POSITION;
   float4 current_clip : TEXCOORD0;
   float4 previous_clip : TEXCOORD1;
 };
+```
 
+頂点シェーダーから、ピクセル シェーダーへ、渡すものです。今の位置と、前の位置を、<strong>クリップ空間のまま</strong>、渡します。
+
+```hlsl
 VSOutput VSMain(VSInput input) {
   VSOutput output;
   float4 world_position = mul(float4(input.position, 1.0), world);
@@ -348,7 +356,11 @@ VSOutput VSMain(VSInput input) {
   output.position = output.current_clip;
   return output;
 }
+```
 
+頂点を、今の行列と、前の行列で、それぞれ、変換します。前の位置は、「同じ頂点が、前のフレームで、どこにあったか」で、スキニングなど、頂点が、変形する物は、前のフレームの、変形後の位置を、使います。
+
+```hlsl
 float2 PSMain(VSOutput input) : SV_Target {
   float2 current_ndc = input.current_clip.xy / input.current_clip.w;
   float2 previous_ndc = input.previous_clip.xy / input.previous_clip.w;

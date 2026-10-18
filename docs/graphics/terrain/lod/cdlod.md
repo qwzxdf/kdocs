@@ -437,7 +437,11 @@ struct SelectedNode {
   const QuadNode* node;
   int level;
 };
+```
 
+選ばれた、ノードと、そのレベルを、記録する、構造体です。
+
+```cpp
 // level は、現在のノードのレベル（根が最大、葉が 0）。
 void SelectNodes(const QuadNode& node, int level, const Camera& camera,
                  std::vector<SelectedNode>& out) {
@@ -445,16 +449,31 @@ void SelectNodes(const QuadNode& node, int level, const Camera& camera,
   if (!node.bounds.IntersectsSphere(camera.position, lod_ranges[level])) {
     return;
   }
+```
+
+①このレベルの、範囲の外なら、描きません。親が、より粗いレベルで、すでに、描いているので、ここで、描くと、二重になります。
+
+```cpp
   // ② 画面の外なら捨てる
   if (!camera.frustum.Intersects(node.bounds)) {
     return;
   }
+```
+
+②視錐台の外なら、捨てます。
+
+```cpp
   // ③ 最も細かいレベル、または、ひとつ細かい範囲に入っていないなら、このノードで描く
   if (level == 0 ||
       !node.bounds.IntersectsSphere(camera.position, lod_ranges[level - 1])) {
     out.push_back({&node, level});
     return;
   }
+```
+
+③最も細かいレベル、または、1 つ細かいレベルの、範囲に、入っていないなら、このノードを、このレベルで、描きます。
+
+```cpp
   // ④ 範囲の内側にも入っている部分は、子に任せる。
   //    ノードの一部だけが近いとき、4 つの子はそれぞれ、別のレベルになる。
   for (const QuadNode& child : node.children) {
@@ -474,7 +493,11 @@ constexpr int kGridCells = 32;
 constexpr int kGridVerts = kGridCells + 1;
 
 struct GridVertex { float x, z; };  // 0〜1 の範囲
+```
 
+格子の、大きさを、決めます。1 枚の、ノードは、32×32 マスの、同じ格子を、使い回し、レベルが違っても、頂点の数は、変わりません。
+
+```cpp
 // 頂点: 0〜1 を kGridCells 等分
 std::vector<GridVertex> vertices;
 for (int j = 0; j < kGridVerts; ++j) {
@@ -482,7 +505,11 @@ for (int j = 0; j < kGridVerts; ++j) {
     vertices.push_back({float(i) / kGridCells, float(j) / kGridCells});
   }
 }
+```
 
+頂点を、0〜1 の範囲に、等間隔で、並べます。ノードの、位置と、大きさは、頂点シェーダーで、掛けて、決めます。
+
+```cpp
 // インデックス: 偶数マスと奇数マスで、対角線の向きを変える。
 // こうすると、粗いレベルの三角形に、モーフィング後の形がぴったり一致する。
 std::vector<uint16_t> indices;

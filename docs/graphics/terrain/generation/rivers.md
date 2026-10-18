@@ -73,7 +73,11 @@ FlowDir ComputeFlowDirection(const HeightMap& h, int x, int y) {
 // Priority-Flood（簡略版）: 縁から、低い順に、内側へ広げながら、窪地を埋める。
 struct Cell { float height; int x, y; };
 struct Greater { bool operator()(const Cell& a, const Cell& b) const { return a.height > b.height; } };
+```
 
+セルの、高さと、位置を、まとめた、構造体と、高さの、低い順に、取り出すための、比較関数です。優先度つきキューは、これで、最も低いセルを、常に、先頭に、置きます。
+
+```cpp
 void FillDepressions(HeightMap& h) {
   std::priority_queue<Cell, std::vector<Cell>, Greater> open;
   Grid<bool> closed(h.width, h.height, false);
@@ -82,6 +86,11 @@ void FillDepressions(HeightMap& h) {
     open.push({h.At(x, y), x, y});
     closed.At(x, y) = true;
   }
+```
+
+優先度つきキューと、「処理済み」の、印を、用意し、縁のセルを、すべて、開始点に、入れます。縁は、水が、地形の外へ、流れ出せる、出口と、みなします。
+
+```cpp
   while (!open.empty()) {
     const Cell c = open.top();
     open.pop();

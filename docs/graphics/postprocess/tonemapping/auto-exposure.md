@@ -69,24 +69,46 @@ cbuffer HistogramConstants : register(b0) {
   float min_log_luminance;
   float inverse_log_luminance_range;
 };
+```
 
+ヒストグラムは、256 個の、ビンで、輝度（の、対数）を、数えます。入力は、HDR の色で、出力は、全グループで、共有する、ヒストグラムの、バッファ（UAV）です。
+
+```hlsl
 groupshared uint s_histogram[HISTOGRAM_BINS];
+```
 
+グループ内で、まず、数えるための、共有メモリです。全画素が、直接、グローバルの、ヒストグラムに、足すと、同じビンに、衝突が、集中して、遅くなるので、グループ内で、数えてから、まとめて、足します。
+
+```hlsl
 uint LuminanceToBin(float luminance) {
   if (luminance < 0.001) return 0;
   float log_luminance = saturate((log2(luminance) - min_log_luminance) * inverse_log_luminance_range);
   return uint(log_luminance * 254.0 + 1.0);
 }
+```
 
+輝度を、ビンの番号に、変えます。対数に直して、範囲に、正規化し、1〜255 に、割り当てます。ビン 0 は、ほぼ、真っ暗な画素（`0.001` 未満）を、数えて、平均から、除くための、専用です。
+
+```hlsl
 [numthreads(16, 16, 1)]
 void HistogramMain(uint3 id : SV_DispatchThreadID, uint group_index : SV_GroupIndex) {
   s_histogram[group_index] = 0;
   GroupMemoryBarrierWithGroupSync();
+```
+
+共有メモリを、0 に、初期化して、グループ全体で、そろうのを、待ちます。
+
+```hlsl
   if (all(id.xy < size)) {
     float3 color = hdr_color.Load(int3(id.xy, 0)).rgb;
     uint bin = LuminanceToBin(dot(color, float3(0.2126, 0.7152, 0.0722)));
     InterlockedAdd(s_histogram[bin], 1);
   }
+```
+
+画素の色を、読み、輝度（Rec.709 の、重み）から、ビンを、求めて、共有メモリの、カウンターを、1 増やします。`InterlockedAdd` で、グループ内の、スレッドが、同時に、足しても、正しく、数えられます。
+
+```hlsl
   GroupMemoryBarrierWithGroupSync();
   InterlockedAdd(histogram[group_index], s_histogram[group_index]);
 }

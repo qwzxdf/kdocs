@@ -54,7 +54,11 @@ CPU で、高さマップを書き換えて、毎フレーム、GPU に転送す
 
 ```hlsl
 RWTexture2D<float> g_height : register(u0);          // R32_FLOAT（編集中は精度が必要）
+```
 
+高さマップは、`R32_FLOAT` の、UAV にします。編集を、重ねると、誤差が、たまるので、16 ビットでは、足りず、32 ビットの、浮動小数が、必要です。
+
+```hlsl
 cbuffer BrushCB : register(b0) {
   float2 brush_center;     // ブラシの中心（高さマップの画素座標）
   float brush_radius;      // 画素
@@ -64,16 +68,28 @@ cbuffer BrushCB : register(b0) {
   float flatten_target;
   float dt;
 };
+```
 
+ブラシの、設定です。中心、半径、強さ、硬さ、モード（盛る、削る、ならす、平らにする）を、定数バッファで、渡します。`dt` を、強さに、掛けるので、フレームレートが、違っても、同じ速さで、編集できます。
+
+```hlsl
 [numthreads(8, 8, 1)]
 void main(uint3 id : SV_DispatchThreadID) {
   float2 p = float2(id.xy);
   float d = distance(p, brush_center);
   if (d > brush_radius) return;                       // ブラシの外は、何もしない
+```
 
+ブラシの、範囲の画素だけが、処理します。外側は、何もしないので、画面全体を、ディスパッチしても、範囲外は、すぐ終わります。
+
+```hlsl
   float w = Falloff(d, brush_radius, hardness) * brush_strength * dt;
   float h = g_height[id.xy];
+```
 
+ブラシの、中心からの、距離に、応じた、重み `w` を、求めます。`Falloff` は、中心で 1、縁で 0 に、なる、関数で、`hardness` が、縁の、柔らかさを、決めます。
+
+```hlsl
   if (mode == 0) h += w;
   else if (mode == 1) h -= w;
   else if (mode == 3) h = lerp(h, flatten_target, saturate(w));
@@ -84,6 +100,11 @@ void main(uint3 id : SV_DispatchThreadID) {
       for (int i = -1; i <= 1; ++i) sum += g_height[id.xy + int2(i, j)];
     h = lerp(h, sum / 9.0, saturate(w));
   }
+```
+
+モードごとに、高さを、更新します。盛る、削るは、`w` を、足し引きするだけです。平らにするは、目標の高さに、寄せ、ならすは、周りの 9 画素の、平均に、寄せます。
+
+```hlsl
   g_height[id.xy] = h;
 }
 ```

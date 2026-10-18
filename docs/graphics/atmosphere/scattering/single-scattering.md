@@ -50,7 +50,11 @@ float3 SingleScattering(float3 ray_origin, float3 ray_dir, float ray_length, flo
   float cos_theta = dot(ray_dir, sun_dir);
   float phase_r = RayleighPhase(cos_theta);
   float phase_m = HenyeyGreenstein(cos_theta, kMieG);
+```
 
+レイを、`steps` 個に、分け、歩幅を、決めます。レイリー散乱と、ミー散乱の、積分を、別々に、貯め、視線方向の、光学的厚さ `optical_depth_view` も、足していきます。位相関数は、散乱の向きによる、明るさで、レイ全体で、同じ角度なので、ループの外で、1 度だけ、求めます。
+
+```hlsl
   for (int i = 0; i < steps; ++i) {
     float3 p = ray_origin + ray_dir * (i + 0.5) * step_length;
     float h = length(p) - kPlanetRadius;
@@ -58,13 +62,26 @@ float3 SingleScattering(float3 ray_origin, float3 ray_dir, float ray_length, flo
     float density_m = exp(-h / kMieScaleHeight);
 
     optical_depth_view += (kRayleighScattering * density_r + kMieExtinction * density_m) * step_length;
+```
 
+区間の、中点の、位置を、求め、惑星の中心からの、高さに、直します。高さが、上がるほど、空気は、指数関数的に、薄くなるので、`exp(−高さ / スケール高さ)` で、密度を、求めます。視線に、沿って、ここまでの、光学的厚さを、足します。
+
+```hlsl
     float3 optical_depth_sun = SunOpticalDepth(p, sun_dir);
     float3 attenuation = exp(-(optical_depth_view + optical_depth_sun));
+```
 
+太陽から、この点までの、光学的厚さを、求め（別の関数）、視線側と、足して、減衰を、ビア・ランベルトの法則で、求めます。
+
+```hlsl
     rayleigh_sum += attenuation * density_r * step_length;
     mie_sum += attenuation * density_m * step_length;
   }
+```
+
+減衰した、光に、密度と、歩幅を、掛けて、積分に、足します。
+
+```hlsl
   return sun_intensity * (kRayleighScattering * phase_r * rayleigh_sum
                         + kMieScattering * phase_m * mie_sum);
 }

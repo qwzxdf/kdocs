@@ -57,7 +57,11 @@ bool TraceSSR(float3 origin_vs, float3 dir_vs, float2 jitter,
   float ray_length = (origin_vs.z + dir_vs.z * max_distance < near_z)
       ? (near_z - origin_vs.z) / dir_vs.z : max_distance;
   float3 end_vs = origin_vs + dir_vs * ray_length;
+```
 
+レイを、画面の線分にするための、準備です。レイが、近クリップ面より手前（カメラの後ろ）に、出る場合は、近クリップ面で、切ります。そうしないと、投影した終点が、画面の外の、おかしな位置になります。
+
+```hlsl
   float4 h0 = mul(float4(origin_vs, 1.0), projection);
   float4 h1 = mul(float4(end_vs, 1.0), projection);
   float k0 = 1.0 / h0.w;
@@ -66,23 +70,39 @@ bool TraceSSR(float3 origin_vs, float3 dir_vs, float2 jitter,
   float3 q1 = end_vs * k1;
   float2 p0 = (h0.xy * k0 * float2(0.5, -0.5) + 0.5) * screen_size;
   float2 p1 = (h1.xy * k1 * float2(0.5, -0.5) + 0.5) * screen_size;
+```
 
+始点と終点を、クリップ空間へ、投影します。`k = 1/w` と、`q = 位置 × k` を、持っておくのが、要点です。この 2 つは、画面空間で、線形に、補間できるので、透視補正を、正しく、行えます。`p0`、`p1` は、画素単位の、画面座標です。
+
+```hlsl
   float2 delta = p1 - p0;
   bool permute = abs(delta.x) < abs(delta.y);
   if (permute) {
     delta = delta.yx; p0 = p0.yx; p1 = p1.yx;
   }
+```
 
+線分が、縦に長いとき（`|dy| > |dx|`）は、x と y を、入れ替えます（`permute`）。こうすると、常に、x を 1 画素ずつ進める形にでき、ループが、単純になります（DDA の、準備です）。
+
+```hlsl
   float step_dir = sign(delta.x);
   float inv_dx = step_dir / delta.x;
   float2 dp = float2(step_dir, delta.y * inv_dx) * stride;
   float3 dq = (q1 - q0) * inv_dx * stride;
   float dk = (k1 - k0) * inv_dx * stride;
+```
 
+x を、1 画素進めるごとの、y・`q`・`k` の増分を、求めます。`stride` は、何画素ずつ進むか（1 なら、全画素）で、大きくすると、速いが、取りこぼします。
+
+```hlsl
   float2 p = p0 + dp * jitter.x;
   float3 q = q0 + dq * jitter.x;
   float k = k0 + dk * jitter.x;
+```
 
+開始位置を、ジッターで、少しずらします。画素ごとに、ずらし方を、変えると、規則的な、縞が、ノイズに、変わり、TAA や、ぼかしで、消せます。
+
+```hlsl
   float prev_z_max = origin_vs.z;
   for (int i = 0; i < kMaxSteps && p.x * step_dir <= p1.x * step_dir; ++i) {
     p += dp; q += dq; k += dk;
@@ -91,7 +111,11 @@ bool TraceSSR(float3 origin_vs, float3 dir_vs, float2 jitter,
     float ray_z_max = (dq.z * 0.5 + q.z) / (dk * 0.5 + k);
     prev_z_max = ray_z_max;
     if (ray_z_min > ray_z_max) { float t = ray_z_min; ray_z_min = ray_z_max; ray_z_max = t; }
+```
 
+1 歩ごとに、レイの、この区間の、深度の範囲 `[ray_z_min, ray_z_max]` を、求めます。区間の終端の深度は、`q.z / k` で、取り出します。前の区間の終端を、今の区間の始端にして、つなぎ目の、隙間を、なくします。
+
+```hlsl
     hit_pixel = permute ? p.yx : p;
     float scene_z = LinearDepth(hit_pixel);
 
@@ -100,6 +124,11 @@ bool TraceSSR(float3 origin_vs, float3 dir_vs, float2 jitter,
       return true;
     }
   }
+```
+
+この画素の、実際の深度 `scene_z` と、レイの区間を、比べます。レイの区間が、`[scene_z, scene_z + thickness]` と、重なれば、当たりです。当たったら、`q / k` で、ビュー空間の位置に、戻して、返します。ステップを使い切るか、線分の終点に、達したら、外れです（[Thickness](thickness.md)）。
+
+```hlsl
   return false;
 }
 ```

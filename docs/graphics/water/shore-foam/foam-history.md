@@ -91,7 +91,11 @@ device->CreateTexture2D(&desc, nullptr, &foam_tex[1]);
 Texture2D<float> g_foam_prev : register(t0);
 Texture2D<float2> g_flow : register(t1);             // 水の流れ（ワールド XZ の速度）
 Texture2D<float> g_new_foam : register(t2);          // このフレームで、新しく出る泡（波頭、物）
+```
 
+前のフレームの、泡、水の流れ、このフレームで、新しく出る、泡の、3 枚を、入力にします。泡は、1 枚の、テクスチャに、貯めて、毎フレーム、更新します。
+
+```hlsl
 cbuffer FoamCB : register(b0) {
   float g_dt;
   float g_decay;          // 1 秒あたりの減衰率（例: 0.5 → 約 2 秒で、半分以下）
@@ -100,23 +104,39 @@ cbuffer FoamCB : register(b0) {
   float2 g_origin_shift;  // 窓が、動いた分（UV）
   float2 pad;
 };
+```
 
+減衰や、広がりの、強さは、定数バッファから、与えます。`g_origin_shift` は、泡の、テクスチャが、カメラに、ついて動くとき、窓が、動いた分を、補正するためのものです。
+
+```hlsl
 float4 main(float2 uv : TEXCOORD0) : SV_Target {
   // ① 移流: 上流の位置から、前の泡を読む（窓の移動分も、補正する）
   float2 flow = g_flow.Sample(g_linear_clamp, uv);
   float2 prev_uv = uv - flow * g_dt * g_flow_to_uv - g_origin_shift;
   float prev = g_foam_prev.Sample(g_linear_clamp, prev_uv);
+```
 
+①の、移流です。今の画素に、泡が、流れてきたと、考え、流れの、逆向きの、位置（上流）から、前の泡を、読みます。窓の移動分も、引いて、泡が、地面に、貼りついたように、見せます。
+
+```hlsl
   // ② 広がり: 周りの泡を、少し混ぜる（ぼかし）
   float blur = 0.25 * (g_foam_prev.Sample(g_linear_clamp, prev_uv + float2( g_texel, 0))
                      + g_foam_prev.Sample(g_linear_clamp, prev_uv + float2(-g_texel, 0))
                      + g_foam_prev.Sample(g_linear_clamp, prev_uv + float2(0,  g_texel))
                      + g_foam_prev.Sample(g_linear_clamp, prev_uv + float2(0, -g_texel)));
   prev = lerp(prev, blur, g_blur);
+```
 
+②の、広がりです。上下左右の、4 点の、平均を、取り、`g_blur` の割合で、混ぜます。泡が、時間とともに、少しずつ、にじむように、広がります。
+
+```hlsl
   // ③ 減衰
   prev *= exp(-g_decay * g_dt);
+```
 
+③の、減衰です。`exp(−減衰率 × dt)` を、掛けて、フレームレートに、依存せず、同じ速さで、泡を、薄くします。
+
+```hlsl
   // ④ 新しい泡を足す（大きい方）
   float fresh = g_new_foam.Sample(g_linear_clamp, uv);
   return max(prev, fresh);

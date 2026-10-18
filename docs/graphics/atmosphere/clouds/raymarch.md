@@ -35,28 +35,49 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
   float jitter = BlueNoise(input.position.xy);
   float transmittance = 1.0;
   float3 scattered = 0;
+```
 
+レイの、区間を、`kStepCount` 個に、分け、歩幅を、決めます。開始位置を、ブルー ノイズで、ずらして、縞を、ノイズに、変えます。`transmittance`（透過率）は、1 から、減らしていき、`scattered` に、散乱光を、貯めます。
+
+```hlsl
   for (int i = 0; i < kStepCount; ++i) {
     float t = t_start + (i + jitter) * step_length;
     float3 position = ray_origin + ray_dir * t;
     float height_fraction = HeightFraction(position);
     float density = CloudDensity(position, height_fraction);
     if (density <= 0.001) continue;
+```
 
+1 歩ごとの、位置を、求め、そこの、雲の、密度を、調べます。雲の外（密度が、ほぼ 0）は、飛ばします。高さの割合 `height_fraction` は、雲の層の、中で、どの高さかを、表します（0 が、底、1 が、頂上）。
+
+```hlsl
     float light_optical_depth = LightMarch(position, sun_dir);
     float3 sun_light = sun_color * exp(-light_optical_depth * extinction);
     sun_light *= PowderEffect(density);
     float phase = CloudPhase(dot(ray_dir, sun_dir));
     float3 ambient = ambient_color * lerp(0.4, 1.0, height_fraction);
+```
 
+太陽の光を、求めます。その位置から、太陽へ、短く、もう一度、進んで、光学的な厚さを、測り、ビア・ランベルトの法則で、減衰させます。粉砂糖効果（雲の、縁が、暗くなる）と、位相関数（太陽の、向きによる、明るさの違い）を、掛け、空からの、環境光を、足します。
+
+```hlsl
     float3 luminance = (sun_light * phase + ambient) * density * scattering_coeff;
     float step_transmittance = exp(-density * extinction * step_length);
     float3 integrated = (luminance - luminance * step_transmittance) / max(density * extinction, 1e-5);
+```
 
+この区間で、散乱される光を、求めます。区間の中で、密度が、一定と、みなし、解析的に、積分した、式で、歩幅が、大きくても、安定します。
+
+```hlsl
     scattered += integrated * transmittance;
     transmittance *= step_transmittance;
     if (transmittance < 0.01) break;
   }
+```
+
+散乱光を、足し、透過率を、下げます。透過率が、ほぼ 0 になったら、奥は、見えないので、打ち切ります。戻り値は、散乱光と、透過率で、あとで、空の色に、合成します。
+
+```hlsl
   return float4(scattered, transmittance);
 }
 ```

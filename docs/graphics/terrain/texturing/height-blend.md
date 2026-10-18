@@ -103,14 +103,22 @@ float4 SampleHeights(float2 uv) {
       g_albedo_height.Sample(g_linear_wrap, float3(uv, 2)).a,
       g_albedo_height.Sample(g_linear_wrap, float3(uv, 3)).a);
 }
+```
 
+4 層の、高さを、読みます。高さを、アルベドの、アルファ チャンネルに、入れておくと、色と、同時に、読めます。
+
+```hlsl
 float4 HeightBlendWeights(float4 weights, float4 heights, float depth) {
   float4 v = weights + heights;
   float m = max(max(v.x, v.y), max(v.z, v.w)) - depth;
   float4 b = max(v - m, 0.0);
   return b / max(dot(b, 1.0), 1e-4);
 }
+```
 
+ブレンドの、重みを、高さで、調整します。普通の重み（スプラット マップ）に、高さを、足し、最大値から、`depth`（なじませる幅）を、引いた、基準を、下回る層は、0 にします。高い層ほど、残りやすいので、境目で、石の隙間に、土が、たまるように、見えます。残った分を、合計 1 に、そろえます。
+
+```hlsl
 float4 main(PSInput input) : SV_Target {
   float4 w = LoadWeights(input.splat_uv);
   float4 h = SampleHeights(input.tile_uv);

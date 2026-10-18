@@ -186,16 +186,28 @@ Texture2D<float4> g_h0 : register(t0);            // xy = h0(k)、zw = h0(-k)
 RWTexture2D<float2> g_height_k : register(u0);    // h(k, t)
 RWTexture2D<float2> g_dx_k : register(u1);        // 水平変位 x（周波数空間）
 RWTexture2D<float2> g_dz_k : register(u2);        // 水平変位 z
+```
 
+入力は、初期スペクトル `h0`（`h0(k)` と `h0(−k)` を、1 枚に、詰めたもの）です。出力は、周波数空間の、高さ、水平変位（X と Z）の、3 枚で、いずれも、複素数（実部・虚部）を、`float2` に入れます。
+
+```hlsl
 cbuffer EvolveCB : register(b0) {
   float g_time;
   float g_patch_size;
   int g_n;
   float g_choppy;       // 水平変位の強さ（尖り具合）
 };
+```
 
+`g_choppy` は、水平変位の強さで、大きいほど、波が、尖ります。`g_patch_size` は、海のタイル 1 枚の、実際の大きさ（メートル）で、周波数の、間隔を、決めます。
+
+```hlsl
 float2 ComplexMul(float2 a, float2 b) { return float2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x); }
+```
 
+複素数の、掛け算です。HLSL には、複素数型が、無いので、`(a + bi)(c + di) = (ac − bd) + (ad + bc)i` を、手で書きます。
+
+```hlsl
 [numthreads(8, 8, 1)]
 void Evolve(uint3 id : SV_DispatchThreadID) {
   float2 k = (float2(id.xy) - g_n * 0.5) * (2.0 * 3.14159265 / g_patch_size);
@@ -204,13 +216,21 @@ void Evolve(uint3 id : SV_DispatchThreadID) {
 
   float4 h0 = g_h0[id.xy];
   float c = cos(w * g_time), s = sin(w * g_time);
+```
 
+各画素が、1 つの周波数 `k` を、受け持ちます。画素の座標から、波数ベクトルを、作り、深い水の、分散関係 `ω = √(g|k|)` で、角周波数を、求めます。波が、長い（`k` が小さい）ほど、ゆっくり、動きます。`h0` を、読み、`cos ωt`、`sin ωt` を、用意します。
+
+```hlsl
   // h(k,t) = h0(k) e^{iwt} + conj(h0(-k)) e^{-iwt}
   float2 a = ComplexMul(h0.xy, float2(c, s));
   float2 b = ComplexMul(float2(h0.z, -h0.w), float2(c, -s));
   float2 hk = a + b;
   g_height_k[id.xy] = hk;
+```
 
+時刻 `t` の、スペクトルを、求めます。`h0(k)` に、`e^{iωt}`、共役の `h0(−k)` に、`e^{−iωt}` を、掛けて、足します。この足し算の、おかげで、逆 FFT の結果が、実数（高さ）になります。
+
+```hlsl
   // 水平変位（Tessendorf の式）: D(k) = −i (k / |k|) h(k)
   float2 minus_i_h = float2(hk.y, -hk.x);                      // −i × h
   g_dx_k[id.xy] = minus_i_h * (k.x / k_len) * g_choppy;
@@ -243,9 +263,17 @@ Texture2D<float2> g_src : register(t0);
 RWTexture2D<float2> g_dst : register(u0);
 
 cbuffer FftCB : register(b0) { int g_stage; int g_n; int2 pad; };
+```
 
+FFT を、1 段ずつ、2 枚のテクスチャで、読み書きを、入れ替えながら、進めます（ピンポン）。`g_stage` が、今の段（0 から `log2(N) − 1`）です。
+
+```hlsl
 uint BitReverse(uint x, uint bits) { return reversebits(x) >> (32 - bits); }
+```
 
+最初の段で、入力を、ビット反転した順に、読むために使います。バタフライ演算の、入力の並びが、ビット反転順だと、出力が、自然な順になるからです。
+
+```hlsl
 [numthreads(8, 8, 1)]
 void ButterflyHorizontal(uint3 id : SV_DispatchThreadID) {
   uint x = id.x;
@@ -254,14 +282,28 @@ void ButterflyHorizontal(uint3 id : SV_DispatchThreadID) {
   bool top = group < span;
   uint lo = top ? x : x - span;
   uint hi = lo + span;
+```
+
+1 画素が、バタフライの、片側 1 点を、受け持ちます。この段の、組の間隔 `span`（`2^段`）から、自分が、組の上半分か、下半分か、組の相手は、どれかを、決めます。
+
+```hlsl
   float angle = 2.0 * 3.14159265 * float(group) / float(span << 1);
   float2 w = float2(cos(angle), sin(angle));
+```
 
+回転因子 `w = e^{iθ}` を、求めます。角度は、組の中での、位置 `group` を、組の大きさ `2·span` で、割った割合です。
+
+```hlsl
   uint bits = firstbithigh((uint)g_n);                // log2(N)
   uint lo_idx = (g_stage == 0) ? BitReverse(lo, bits) : lo;
   uint hi_idx = (g_stage == 0) ? BitReverse(hi, bits) : hi;
   float2 p = g_src[uint2(lo_idx, id.y)];
   float2 q = g_src[uint2(hi_idx, id.y)];
+```
+
+最初の段だけ、入力の位置を、ビット反転します。ほかの段は、前の段の、出力を、そのまま、読みます。`p`、`q` が、組の 2 点の値です。
+
+```hlsl
   g_dst[id.xy] = p + ComplexMul(w, q);
 }
 // 縦方向は、同じ計算を、x と y を入れ替えて行う。

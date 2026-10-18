@@ -34,18 +34,30 @@ cbuffer GradingParams : register(b0) {
   float saturation;
   float lut_size;
 };
+```
 
+LUT を、書き込む、3D テクスチャと、調整パラメータです。リフト・ガンマ・ゲイン、コントラスト、彩度、色温度などを、定数バッファに、まとめます。
+
+```hlsl
 float3 LogToLinear(float3 log_c) {
   const float kMinLog = -10.0;
   const float kMaxLog = 6.5;
   return exp2(log_c * (kMaxLog - kMinLog) + kMinLog);
 }
+```
 
+LUT の、座標（0〜1）を、対数の値から、線形の光に、戻します。LUT は、対数空間で、並べると、暗部にも、十分な、精度を、割けます。範囲は、`2^−10` から `2^6.5` です。
+
+```hlsl
 [numthreads(8, 8, 8)]
 void GenerateLut(uint3 id : SV_DispatchThreadID) {
   float3 uvw = (float3(id) + 0.5) / lut_size;
   float3 color = LogToLinear(uvw);
+```
 
+1 画素が、LUT の、1 つの格子点を、受け持ちます。格子点の、中心（+0.5）を、座標にして、線形の色に、戻します。
+
+```hlsl
   color *= exposure;
   color = WhiteBalance(color, temperature, tint);
   color = LiftGammaGain(color, lift, gamma, gain);

@@ -250,28 +250,49 @@ void ErodeDroplet(HeightMap& map, std::mt19937& rng, const ErosionParams& p) {
   float speed = p.initial_speed;
   float water = p.initial_water;
   float sediment = 0.0f;
+```
 
+水滴を 1 粒、ランダムな位置に、落とします。状態は、位置 `(x, y)`、進む向き `dir`、速さ、水の量、運んでいる土砂 `sediment` です。端から 1 マスは、避けて落とすのは、あとで、勾配を、周りの 4 点から、求めるためです。
+
+```cpp
   for (int step = 0; step < p.max_lifetime; ++step) {
     int ix = static_cast<int>(x);
     int iy = static_cast<int>(y);
     glm::vec2 gradient = map.GradientAt(x, y);
     float old_height = map.HeightAt(x, y);
+```
 
+1 歩ごとの、前半です。今いる所の、勾配と、高さを、読みます。`GradientAt` は、周りの 4 点の高さを、双一次補間して、勾配を、返す関数です（[Height Query](../heightmap-mesh/height-query.md)）。
+
+```cpp
     dir_x = dir_x * p.inertia - gradient.x * (1.0f - p.inertia);
     dir_y = dir_y * p.inertia - gradient.y * (1.0f - p.inertia);
     float length = std::sqrt(dir_x * dir_x + dir_y * dir_y);
     if (length < 1e-6f) break;
     dir_x /= length;
     dir_y /= length;
+```
 
+進む向きを、決めます。前の向きに、慣性 `inertia` を、掛け、勾配の逆向き（下り坂）に、残りの割合を、掛けて、足します。慣性が大きいと、水滴は、真っ直ぐ進み、小さいと、斜面に、忠実になります。向きを、長さ 1 に、そろえるので、1 歩は、常に、約 1 マスです。勾配が、ほぼ 0 の、平らな所では、向きが、定まらないので、そこで、水滴を、終わらせます。
+
+```cpp
     x += dir_x;
     y += dir_y;
     if (x < 1 || x >= map.width - 2 || y < 1 || y >= map.height - 2) break;
+```
 
+1 マス、進みます。範囲の外に、出たら、終わりです。進んだ先の、高さを、読み、`delta`（新しい高さ − 古い高さ）を、求めます。負なら、下っている、正なら、登っています。
+
+```cpp
     float new_height = map.HeightAt(x, y);
     float delta = new_height - old_height;
 
     float capacity = std::max(-delta * speed * water * p.capacity_factor, p.min_capacity);
+```
+
+水が、運べる土砂の、上限 `capacity` を、求めます。傾きが、急で（`−delta` が大きい）、速く、水が多いほど、たくさん、運べます。`min_capacity` は、平らな所で、容量が 0 になって、何も、削れなくなるのを、避ける、下限です。
+
+```cpp
     if (sediment > capacity || delta > 0.0f) {
       float deposit = delta > 0.0f ? std::min(delta, sediment)
                                    : (sediment - capacity) * p.deposit_rate;
@@ -282,7 +303,11 @@ void ErodeDroplet(HeightMap& map, std::mt19937& rng, const ErosionParams& p) {
       sediment += erode;
       map.Erode(ix, iy, erode);
     }
+```
 
+削るか、積もらせるかを、決めます。登り坂（`delta > 0`）、または、運んでいる量が、容量を超えたときは、積もらせます。登り坂では、登った高さ（`delta`）を、上限に、運んでいる分を、置き、容量超過では、超えた分の一部を、置きます。そうでなければ、容量の、余り分の一部を、削り取ります。ただし、掘りすぎて、今の地面より、下まで、削らないよう、`−delta` で、頭打ちにします。
+
+```cpp
     speed = std::sqrt(std::max(speed * speed + delta * p.gravity, 0.0f));
     water *= 1.0f - p.evaporation;
   }
@@ -334,7 +359,11 @@ cbuffer ThermalCB : register(b0) {
   float rate;       // 1 回に動かす割合（0.5 が標準）
   int size;
 };
+```
 
+入力と出力を、別のテクスチャにして、読み書きが、同時に、起きないようにします（毎回、入れ替える）。`talus` は、崩れずに、保てる、隣との高さの差の、上限で、安息角の、タンジェントに、マスの大きさを、掛けたものです。
+
+```hlsl
 [numthreads(8, 8, 1)]
 void main(uint3 id : SV_DispatchThreadID) {
   int2 p = int2(id.xy);
@@ -342,7 +371,11 @@ void main(uint3 id : SV_DispatchThreadID) {
   float total_diff = 0.0;     // 自分から、低い隣へ流れる量の合計
   float received = 0.0;       // 高い隣から、自分へ流れてくる量の合計
   const int2 dirs[4] = {int2(1, 0), int2(-1, 0), int2(0, 1), int2(0, -1)};
+```
 
+1 画素が、1 マスぶんの、土を、受け持ちます。自分から出ていく量 `total_diff` と、隣から入ってくる量 `received` を、別々に、数えます。
+
+```hlsl
   [unroll] for (int i = 0; i < 4; ++i) {
     int2 q = clamp(p + dirs[i], 0, size - 1);
     float diff = h - g_src[q];
@@ -353,6 +386,11 @@ void main(uint3 id : SV_DispatchThreadID) {
       received += (diff2 - talus) * 0.25;
     }
   }
+```
+
+4 つの隣を、見ます。自分のほうが、`talus` を超えて高ければ、超えた分が、流れ出ます。隣のほうが、`talus` を超えて高ければ、その隣から、自分に、流れ込みます（隣の、4 方向のうち、自分への取り分を、`0.25` で、近似します）。
+
+```hlsl
   g_dst[p] = h - total_diff * rate * 0.25 + received * rate;
 }
 ```

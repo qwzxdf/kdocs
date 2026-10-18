@@ -95,17 +95,30 @@ std::vector<float2> PoissonDisk(float width, float height, float r, int k, uint3
   Grid<int> grid(int(width / cell) + 1, int(height / cell) + 1, -1);
   std::vector<float2> points, active;
   Rng rng(seed);
+```
 
+準備です。格子の 1 セルの大きさを、`r / √2` にすると、セルの対角線が `r` になるので、<strong>1 つのセルには、点が、高々 1 つしか、入りません</strong>。格子には、点の番号を、入れ、空は `−1` にします。これで、「近くに点があるか」を、周りの数セルを、見るだけで、判定できます。
+
+```cpp
   auto add = [&](float2 p) {
     grid.At(int(p.x / cell), int(p.y / cell)) = int(points.size());
     points.push_back(p);
     active.push_back(p);
   };
   add({rng.Uniform(0, width), rng.Uniform(0, height)});
+```
 
+点を、追加する関数と、最初の 1 点です。追加した点は、格子と、点の一覧と、「活動中」の一覧に、入れます。
+
+```cpp
   while (!active.empty()) {
     const int i = rng.Index(active.size());
     bool found = false;
+```
+
+活動中の点を、1 つ、ランダムに、選びます。この点の、周りに、新しい点を、置けるか、試していきます。
+
+```cpp
     for (int n = 0; n < k; ++n) {                     // k 回（30 回が標準）、候補を試す
       // 半径 r〜2r の環の中から、候補を選ぶ
       const float angle = rng.Uniform(0, 6.2831853f);
@@ -118,6 +131,11 @@ std::vector<float2> PoissonDisk(float width, float height, float r, int k, uint3
         break;
       }
     }
+```
+
+半径 `r` から `2r` の、環の中に、候補を、`k` 回（30 回が、標準）、作り、盤面の中で、周りの点と、`r` 以上、離れていれば、採用します。近くを調べるのは、周りの 5×5 セルで、十分です。
+
+```cpp
     if (!found) active.erase(active.begin() + i);      // 置けなくなった点は、外す
   }
   return points;

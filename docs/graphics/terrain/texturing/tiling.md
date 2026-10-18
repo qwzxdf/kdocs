@@ -101,15 +101,27 @@ float2 Hash2(float2 p) {
   q += dot(q, q.yzx + 33.33);
   return frac((q.xx + q.yz) * q.zy);
 }
+```
 
+セルの座標から、乱数を、2 つ作る、ハッシュです。同じセルは、いつでも、同じ値を、返し、隣のセルとは、無関係な値になります。
+
+```hlsl
 float3 SampleNoTiling(Texture2D tex, float2 uv) {
   float2 cell = floor(uv);
   float2 f = frac(uv);
+```
 
+UV を、整数部（セル）と、小数部（セルの中の位置）に、分けます。
+
+```hlsl
   // ミップの選択を、セルの境目で、乱さないために、微分は、最初に計算して使い回す。
   float2 dx = ddx(uv);
   float2 dy = ddy(uv);
+```
 
+テクスチャの、ミップの選択に、使う、UV の微分を、最初に、計算して、使い回します。セルごとに、UV を、ずらすと、微分が、セルの境目で、飛んで、ミップが、乱れ、境目に、線が出るためです。
+
+```hlsl
   float3 sum = 0;
   float wsum = 0;
   [unroll] for (int j = 0; j <= 1; ++j) {

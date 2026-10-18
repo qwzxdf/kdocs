@@ -88,7 +88,11 @@ cbuffer DecalCB : register(b1) {
   float4x4 inv_view_proj;      // クリップ空間 → ワールド
   float4x4 world_to_decal;     // ワールド → デカールのローカル（箱は -0.5〜0.5）
 };
+```
 
+シーンの深度と、デカールの、テクスチャを、読みます。デカールは、箱を、描いて、箱の中の、画素に、だけ、貼る方式です。行列は、クリップ空間から、ワールドへ、ワールドから、デカールの、ローカル（箱が、−0.5〜0.5）への、2 つです。
+
+```hlsl
 float4 main(float4 pos : SV_Position) : SV_Target {
   // ① 画素の、デプスから、ワールド座標を復元する
   float2 uv = pos.xy * inv_screen_size;
@@ -96,13 +100,25 @@ float4 main(float4 pos : SV_Position) : SV_Target {
   float4 ndc = float4(uv * float2(2, -2) + float2(-1, 1), depth, 1);
   float4 world = mul(ndc, inv_view_proj);
   world.xyz /= world.w;
+```
 
+①画素の位置から、画面の uv を、求め、深度を、読んで、NDC に、直します。逆行列で、ワールド座標に、戻し、`w` で、割ります。
+
+```hlsl
   // ② デカールのローカル座標へ
   float3 local = mul(float4(world.xyz, 1), world_to_decal).xyz;
+```
 
+②ワールド座標を、デカールの、ローカル座標に、変換します。デカールの箱の中は、各軸が、−0.5〜0.5 になります。
+
+```hlsl
   // ③ 箱の外なら、捨てる
   clip(0.5 - abs(local));
+```
 
+③箱の外の、画素は、`clip` で、捨てます。`0.5 − |local|` が、1 軸でも、負なら、箱の外です。
+
+```hlsl
   // ④ XZ を UV にして、テクスチャを引く
   float2 decal_uv = local.xz + 0.5;
   float4 c = g_decal.Sample(g_linear_clamp, decal_uv);

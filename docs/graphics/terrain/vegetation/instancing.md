@@ -27,17 +27,34 @@ struct GrassInstance {
   float color_variation;
   float2 padding;
 };
+```
 
+草 1 本ぶんの、データです。位置、回転、大きさ、色のばらつきだけを、持ちます。16 バイトの倍数に、そろえるために、末尾に、詰め物を入れます。
+
+```hlsl
 StructuredBuffer<GrassInstance> instances : register(t0);
+```
 
+全部の草の、データを、1 つの、構造化バッファに、入れて、頂点シェーダーから、読みます。頂点バッファに、草ごとの、データを、複製しないので、メモリが、少なく済みます。
+
+```hlsl
 VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
   GrassInstance instance = instances[instance_id];
+```
+
+`SV_InstanceID` で、今の草の、番号を、受け取り、その草の、データを、バッファから、読みます。
+
+```hlsl
   float s = sin(instance.rotation);
   float c = cos(instance.rotation);
   float3 local = input.position * instance.scale;
   float3 rotated = float3(local.x * c + local.z * s, local.y, -local.x * s + local.z * c);
   float3 world = rotated + instance.position;
+```
 
+1 枚の、草の形（共通のメッシュ）を、大きさで、拡大し、Y 軸の周りに、回転し、草の位置へ、移動します。1 つのメッシュを、インスタンスごとに、変形して、置いているだけです。
+
+```hlsl
   VSOutput output;
   output.position = mul(float4(world, 1), view_projection);
   output.color_variation = instance.color_variation;
@@ -270,22 +287,42 @@ struct GrassInstance {
   float scale; float height; float color_variation; float bend;
 };
 StructuredBuffer<GrassInstance> g_instances : register(t0);
+```
 
+草 1 本ぶんの、データです。位置、向き、大きさ、高さ、色のばらつき、しなり、を、持ちます。
+
+```hlsl
 cbuffer FrameCB : register(b0) { float4x4 view_proj; float3 camera_position; float time; };
+```
 
+フレームごとの、定数と、頂点シェーダーの、出力です。色は、頂点シェーダーで、決めて、渡します。
+
+```hlsl
 struct VSOut {
   float4 position : SV_Position;
   float3 color : COLOR;
 };
+```
 
+頂点シェーダーの、出力です。クリップ空間の、位置と、色だけを、持ちます。
+
+```hlsl
 VSOut main(uint vertex_id : SV_VertexID, uint instance_id : SV_InstanceID) {
   GrassInstance inst = g_instances[instance_id];
   float3 local = BladeVertex(vertex_id, 0.05 * inst.scale, inst.height, inst.bend);
+```
 
+頂点 ID から、草の葉の、どの頂点かを、決め、`BladeVertex` で、葉の形（幅、高さ、しなり）を、作ります。草ごとに、メッシュを、持たず、頂点 ID だけで、形を、作るので、頂点バッファが、要りません。
+
+```hlsl
   // Y 軸の回転
   float s = sin(inst.rotation), c = cos(inst.rotation);
   float3 rotated = float3(local.x * c + local.z * s, local.y, -local.x * s + local.z * c);
+```
 
+Y 軸の周りに、回転します。
+
+```hlsl
   VSOut o;
   o.position = mul(float4(inst.position + rotated, 1.0), view_proj);
   o.color = lerp(float3(0.1, 0.2, 0.05), float3(0.5, 0.75, 0.2), local.y / inst.height)

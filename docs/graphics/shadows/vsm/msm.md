@@ -43,7 +43,11 @@ tags:
 float ComputeMsmShadowIntensity(float4 moments, float depth, float depth_bias, float moment_bias) {
   // ① モーメントに、わずかな、バイアスを、混ぜて、数値的に、安定させる
   float4 b = lerp(moments, float4(0.5, 0.5, 0.5, 0.5), moment_bias);
+```
 
+最初に、4 つのモーメントを、0.5 側へ、わずかに、寄せます。値が、ちょうど、0 や 1 に、張り付くと、次の連立方程式が、特異（解けない）になるので、それを、避ける、安定化です。
+
+```hlsl
   // ② 3×3 の、連立方程式（コレスキー分解）を、解いて、2 つの、遮蔽する深度（z2、z3）を、推定する
   float3 z;
   z[0] = depth - depth_bias;
@@ -60,13 +64,22 @@ float ComputeMsmShadowIntensity(float4 moments, float depth, float depth_bias, f
   c[2] *= D22 / D33D22;
   c[1] -= L32 * c[2];
   c[0] -= dot(c.yz, b.xy);
+```
+
+2 つの、遮蔽する深度を、推定します。画素の深度 `z[0]` を、含めた、3 つの深度の、モーメントが、観測値と、一致するような、深度の組を、求める、連立方程式を、コレスキー分解で、解いています。式の、細部は、Hamburger の論文に、従った、数値計算で、ここでは、「モーメントから、2 つの深度を、逆算している」と、とらえれば、十分です。
+
+```hlsl
   float p = c[1] / c[2];
   float q = c[0] / c[2];
   float D = (p * p * 0.25) - q;
   float r = sqrt(D);
   z[1] = -p * 0.5 - r;
   z[2] = -p * 0.5 + r;
+```
 
+連立方程式の、解を、2 次方程式の、解の公式で、取り出し、2 つの深度 `z[1]`、`z[2]` を、得ます。これが、「この画素の上に、遮蔽物が、あるとすれば、どの深度か」の、推定です。
+
+```hlsl
   // ③ 得られた 2 つの深度（z[1]、z[2]）と、画素の深度 z[0] の、順序から、影の強さを、決める
   float4 switch_val = (z[2] < z[0]) ? float4(z[1], z[0], 1.0, 1.0)
                     : ((z[1] < z[0]) ? float4(z[0], z[1], 0.0, 1.0) : float4(0.0, 0.0, 0.0, 0.0));

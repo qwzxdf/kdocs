@@ -289,7 +289,11 @@ WBOIT の利点は、1 パスで軽いこと（2 枚の RT）、ソート不要�
 // WBOIT の、ブレンド ステート。2 つのレンダー ターゲットに、別のブレンドを使う。
 D3D11_BLEND_DESC blend = {};
 blend.IndependentBlendEnable = TRUE;
+```
 
+WBOIT は、2 枚のレンダー ターゲットに、別々の、ブレンドを、使います。ターゲットごとに、設定を、変えるので、`IndependentBlendEnable` を、有効にします。
+
+```cpp
 // ターゲット 0: 累積（加算）
 D3D11_RENDER_TARGET_BLEND_DESC& accum = blend.RenderTarget[0];
 accum.BlendEnable = TRUE;
@@ -298,7 +302,11 @@ accum.BlendOp = D3D11_BLEND_OP_ADD;
 accum.SrcBlendAlpha = D3D11_BLEND_ONE;  accum.DestBlendAlpha = D3D11_BLEND_ONE;
 accum.BlendOpAlpha = D3D11_BLEND_OP_ADD;
 accum.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+```
 
+ターゲット 0 は、累積（加算）です。色に、重みを、掛けた値を、足し込むだけなので、描画の順序に、依存しません。
+
+```cpp
 // ターゲット 1: 透過度（乗算）。出力した値 α が、(1 − α) として、掛けられる。
 D3D11_RENDER_TARGET_BLEND_DESC& reveal = blend.RenderTarget[1];
 reveal.BlendEnable = TRUE;
@@ -307,7 +315,11 @@ reveal.BlendOp = D3D11_BLEND_OP_ADD;
 reveal.SrcBlendAlpha = D3D11_BLEND_ZERO; reveal.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 reveal.BlendOpAlpha = D3D11_BLEND_OP_ADD;
 reveal.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED;
+```
 
+ターゲット 1 は、透過度の、積です。各フラグメントが、出力した `α` が、`(1 − α)` として、掛かり、最後に、残る、透過度が、貯まります。
+
+```cpp
 device->CreateBlendState(&blend, &wboit_blend);
 // ターゲット 0 は 0 で、ターゲット 1 は 1（reveal の初期値 = 透過度 1）で、クリアしておく。
 ```

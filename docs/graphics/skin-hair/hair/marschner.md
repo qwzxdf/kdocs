@@ -119,23 +119,39 @@ float3 HairMarschner(float3 t, float3 l, float3 v, float3 base_color, float roug
   float theta_o = asin(sin_theta_o);
   float theta_h = (theta_i + theta_o) * 0.5;
   float theta_d = (theta_i - theta_o) * 0.5;
+```
 
+光の方向 `l` と、視線 `v` を、髪の接線 `t` との、角度（縦の角度）に、直します。`sin θ = 接線との内積` で、Marschner モデルの、`θ_i`、`θ_o`、半角 `θ_h`、差角 `θ_d` を、求めます。
+
+```hlsl
   float3 l_perp = l - sin_theta_i * t;
   float3 v_perp = v - sin_theta_o * t;
   float cos_phi = dot(normalize(l_perp), normalize(v_perp));
   float cos_phi_half = sqrt(0.5 + 0.5 * cos_phi);
+```
 
+接線に、垂直な、面へ、投影して、方位角の、差 `φ` を、求めます。`cos φ` が、前方か後方かを、決める、大事な量です。
+
+```hlsl
   float beta = roughness * roughness;
   float alpha = shift;
 
   float m_r = Hair_G(beta * 0.5, theta_h - alpha);
   float m_tt = Hair_G(beta * 0.25, theta_h + alpha * 0.5);
   float m_trt = Hair_G(beta * 1.0, theta_h + alpha * 1.5);
+```
 
+縦方向の、広がり `beta` と、鱗（キューティクル）の傾きによる、ずれ `alpha` を、決め、3 つの経路（R、TT、TRT）の、縦方向の、分布 `M` を、ガウス関数で、求めます。経路ごとに、ずれと、幅が、違います。
+
+```hlsl
   float3 r = m_r * Hair_N_R(cos_phi_half) * float3(1, 1, 1);
   float3 tt = m_tt * Hair_N_TT(cos_phi) * base_color;
   float3 trt = m_trt * Hair_N_TRT(cos_phi) * base_color * base_color;
+```
 
+各経路の、方位角の、分布 `N` を、掛けます。R（表面の反射）は、白、TT（透過）は、髪の色、TRT（内部で反射）は、色の 2 乗です。経路を、通るたびに、吸収されるので、色が、濃くなります。最後に、`cos² θ_d` で、割って、BSDF を、完成させます。
+
+```hlsl
   float cos_theta_d = cos(theta_d);
   return (r + tt + trt) / (cos_theta_d * cos_theta_d);
 }
