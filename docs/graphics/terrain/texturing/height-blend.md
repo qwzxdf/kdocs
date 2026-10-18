@@ -60,6 +60,123 @@ final_weights /= (final_weights.r + final_weights.g + final_weights.b + final_we
 
 <!-- fig:height-blend-contrast:end -->
 
+## なぜ、線形ブレンドは不自然なのか
+
+重みで、色を線形に混ぜると、境目は、「2 枚の写真が、半透明で重なった」ように見えます。実際の地面では、境目は、そうなりません。
+
+| 現実の地面 | 線形ブレンド |
+| --- | --- |
+| 石の高い所は、石のまま。土は、石の隙間に溜まる | どこでも、石と土が、同じ割合で混ざる |
+| 境目が、凹凸に沿って、ギザギザになる | 境目が、ぼんやりと、なだらかに混ざる |
+| 草の根元に、土が見える | 草と土が、一面に、均等に混ざる |
+
+ここで欲しいのは、**「重みが 0.5 でも、石の出っ張りは石、窪みは土」と、高さで勝敗を決める**ことです。各テクスチャに、<strong>高さ情報（出っ張り・窪み）</strong>を持たせて、<strong>重みに、高さを足した値が最も大きい層だけが、見える</strong>ようにします。
+
+## 基本の式
+
+層 i の重みを `w_i`、高さを `h_i` とします。
+
+```text
+v_i = w_i + h_i                    重みと高さの合計（その層の勢い）
+m   = max(v_i) − depth             一番勢いのある層から、depth だけ引いた線
+b_i = max(v_i − m, 0)              その線より上に出ている分だけが、見える
+最終の重み = b_i / Σ b_j
+```
+
+| 値 | 意味 |
+| --- | --- |
+| `depth` | 境目の幅。0 に近いと、勝った層だけが残る（切り替え）。大きいと、線形ブレンドに近づく |
+| `max(...)` | 一番高い層を、基準にする |
+| `/ Σ b_j` | 重みの合計を、1 に戻す |
+
+`depth` が小さいほど、境目が鋭く、凹凸に沿った形になります。`0.05〜0.2` の間で、見た目に合わせます。
+
+## シェーダーでの書き方
+
+```hlsl
+// 4 層分の、高さを読む。高さは、アルベドのアルファ チャンネルに入れておくと、
+// 色と同時に 1 回で読める。
+float4 SampleHeights(float2 uv) {
+  return float4(
+      g_albedo_height.Sample(g_linear_wrap, float3(uv, 0)).a,
+      g_albedo_height.Sample(g_linear_wrap, float3(uv, 1)).a,
+      g_albedo_height.Sample(g_linear_wrap, float3(uv, 2)).a,
+      g_albedo_height.Sample(g_linear_wrap, float3(uv, 3)).a);
+}
+
+float4 HeightBlendWeights(float4 weights, float4 heights, float depth) {
+  float4 v = weights + heights;
+  float m = max(max(v.x, v.y), max(v.z, v.w)) - depth;
+  float4 b = max(v - m, 0.0);
+  return b / max(dot(b, 1.0), 1e-4);
+}
+
+float4 main(PSInput input) : SV_Target {
+  float4 w = LoadWeights(input.splat_uv);
+  float4 h = SampleHeights(input.tile_uv);
+  float4 fw = HeightBlendWeights(w, h, 0.15);
+
+  float3 color = 0;
+  [unroll] for (int i = 0; i < 4; ++i) {
+    color += g_albedo_height.Sample(g_linear_wrap, float3(input.tile_uv, i)).rgb * fw[i];
+  }
+  return float4(color, 1.0);
+}
+```
+
+最後のループで、`Sample` を、もう一度呼んでいます。コンパイラが、同じ読み込みを、まとめてくれることが多いですが、**高さの読み込みと、色の読み込みを、1 回にまとめた**ほうが確実です。
+
+## よく起きる問題と対策
+
+### ① 重みが 0 の層が、顔を出す
+
+`v_i = w_i + h_i` なので、**重みが 0 でも、高さが高い層は、`v_i` が大きくなります**。`depth` を大きくすると、重みが 0 の層が、現れてしまいます。
+
+| 対策 | 内容 |
+| --- | --- |
+| 高さに、重みを掛ける | `v_i = w_i + h_i * w_i`（`w_i = 0` なら、必ず 0） |
+| 重みを、高さの影響範囲に収める | `v_i = w_i * (1 + k * h_i)` のような形 |
+| 重みが 0 なら、除外する | `b_i *= step(0.001, w_i)` |
+
+```hlsl
+// 重みが 0 の層は、高さがどれだけ高くても、現れない形にする。
+float4 HeightBlendWeights2(float4 weights, float4 heights, float depth) {
+  float4 v = weights * (1.0 + heights);              // 重みが 0 なら 0
+  float m = max(max(v.x, v.y), max(v.z, v.w)) - depth;
+  float4 b = max(v - m, 0.0) * step(0.001, weights);
+  return b / max(dot(b, 1.0), 1e-4);
+}
+```
+
+### ② 境目の、画素が、ちらつく
+
+スプラット マップの重みは、バイリニアで、補間されます。高さブレンドは、**重みの小さな変化を、急な変化に変える**ので、境目が、ギザギザに、ちらつきます。
+
+- スプラット マップの解像度を上げる
+- `depth` を、少し大きくして、境目に、幅を持たせる
+- ノイズで、重みを揺らして、規則的なギザギザを、消す
+
+### ③ 高さを、どこから取るか
+
+| 方法 | 内容 |
+| --- | --- |
+| アルベドの A に入れる（BC7） | 色と同時に読める。**高さの精度は、8 ビット**。標準的 |
+| 法線マップの A に入れる | 同上。法線マップが、BC5 で A が使えない場合は、別のテクスチャが必要 |
+| 専用の高さマップ（`R8_UNORM`） | 精度は自由。読み込みが、1 回増える |
+| ORM テクスチャに入れる | Occlusion・Roughness・Metallic に加えて、高さを、1 枚にまとめる |
+
+高さの値は、0〜1 に正規化して、**平均が 0.5 になるよう**に、作ります。平均が偏っていると、層ごとに、勝ちやすさが違ってしまいます。
+
+## 実装のバリエーション
+
+| 方式 | 特徴 |
+| --- | --- |
+| 上の式（`weights + heights`） | 最も単純。多くの実装で、基本形になっている |
+| `weights * heights` を、べき乗する | 重みが 0 の層が、出ない。境目が、ややなめらか |
+| Mishkinis（2013）の方式 | 層ごとの高さに、コントラストを足して、ブレンドの鋭さを、素材ごとに調整できる |
+
+層ごとに、`depth` や、高さのコントラストを変えると、<strong>「砂は、石の隙間に入り込む」「草は、土の上に乗る」</strong>のような、素材ごとの性格を、出せます。
+
 ## よくあるミス
 
 ??? failure "テクスチャの境目が、ぼやけてのっぺり"
@@ -72,9 +189,9 @@ final_weights /= (final_weights.r + final_weights.g + final_weights.b + final_we
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Mishkinis, "Advanced Terrain Texture Splatting", Gamasutra, 2013（高さを使ったテクスチャのブレンド）
+- Andersson, "Terrain Rendering in Frostbite Using Procedural Shader Splatting", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games（Frostbite の地形の素材合成）
+- Unity Technologies, "HDRP: Layered Lit Shader" のドキュメント（高さブレンドの実装例）
 
 ## 関連ページ
 

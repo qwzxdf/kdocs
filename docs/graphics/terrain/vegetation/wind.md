@@ -85,6 +85,123 @@ float3 ApplyWind(float3 world_position, float height_t, float2 wind_direction, f
 
 **頂点カラーに揺れの強さ（幹 0・先端 1）を焼いておく**と**美術側で調整**できます。
 
+## 風を、3 つの層で考える（Crysis の方法）
+
+Sousa（2007）は、Crysis の植生の、揺れを、**3 つの層**に分けて、整理しました。
+
+| 層 | 動く部分 | 動きの特徴 | 周波数 |
+| --- | --- | --- | --- |
+| 主な曲がり（main bending） | 木全体（幹の曲がり） | 大きく、ゆっくり。風の向きに、傾く | 低い |
+| 枝の揺れ（branch bending） | 枝 | 中くらい。枝ごとに、位相が違う | 中くらい |
+| 葉のはためき（leaf flutter） | 葉の端 | 小さく、速く。細かく震える | 高い |
+
+3 つを足すと、**幹はゆっくり、枝は中くらい、葉は細かく**揺れる、自然な動きになります。**1 つの、サイン波だけでは、機械的**に見えます。
+
+## それぞれの層の、頂点への情報
+
+どの頂点が、どの層で動くかは、**頂点カラー**に、焼き込んでおきます（美術側で、調整できる）。
+
+| 頂点カラー | 内容 |
+| --- | --- |
+| R | 主な曲がりの、強さ（根元 0、先端 1。**2 乗**して、使う） |
+| G | 枝の、位相のずれ（枝ごとに、違う値を塗る） |
+| B | 葉の、はためきの、強さ（葉の端が 1、枝に近いところが 0） |
+| A | 枝の、揺れの、強さ |
+
+```hlsl
+float3 ApplyTreeWind(float3 world_pos, float3 vertex_color, float2 wind_dir, float wind_strength, float time) {
+  // ① 主な曲がり: 木全体が、風の向きに、ゆっくり傾く。根元から先端へ、2 乗で強くなる。
+  float main_phase = time * 0.7 + dot(world_pos.xz, wind_dir) * 0.05;
+  float main_bend = (sin(main_phase) * 0.5 + 0.5 + 0.3) * wind_strength;
+  float3 offset = float3(wind_dir.x, 0, wind_dir.y) * main_bend * vertex_color.r * vertex_color.r;
+
+  // ② 枝: 枝ごとの位相で、上下左右に揺れる。
+  float branch_phase = time * 2.0 + vertex_color.g * 6.2831;
+  offset += float3(sin(branch_phase), 0.3 * sin(branch_phase * 1.3), cos(branch_phase * 0.9))
+          * vertex_color.a * 0.1 * wind_strength;
+
+  // ③ 葉: 速く、細かく震える。
+  float leaf_phase = time * 12.0 + dot(world_pos, float3(1.7, 2.3, 3.1));
+  offset += float3(sin(leaf_phase), sin(leaf_phase * 1.4 + 1.0), sin(leaf_phase * 0.8 + 2.0))
+          * vertex_color.b * 0.02 * wind_strength;
+
+  return world_pos + offset;
+}
+```
+
+!!! warning "頂点をずらしたら、長さを保つ"
+    枝や幹を、単純に、平行移動すると、**枝が、伸びて**見えます。根元からの、**長さを、保つ**ように、補正すると、自然に、見えます。曲がる量が小さいときは、気にならない程度です。
+
+## 草の風
+
+草は、**1 本が、小さい**ので、層は 1 つで十分です。ただし、**位置ごとに、位相をずらす**ことが、肝心です。そうしないと、**すべての草が、同時に、同じ動き**になり、不自然です。
+
+```hlsl
+float3 ApplyGrassWind(float3 world_pos, float height_t, float2 wind_dir, float strength, float time) {
+  // 位置と時間から、位相を決める。風の向きに沿って、波が、渡っていく。
+  float phase = dot(world_pos.xz, wind_dir) * 0.4 + time * 2.0;
+  // 周波数の違う波を、足して、単調さを消す。
+  float sway = sin(phase) + 0.5 * sin(phase * 2.3 + 1.7);
+  // 根元は動かず、先端ほど大きく動く。
+  float amount = height_t * height_t * strength * sway;
+  return world_pos + float3(wind_dir.x, 0, wind_dir.y) * amount;
+}
+```
+
+## 風のテクスチャ：突風を、作る
+
+サイン波は、**規則的で、周期が見える**ので、風の、**ばらつき**（突風）を表すには、向きません。**風の強さを、ノイズのテクスチャに、描いて、それを、風の向きへ、スクロール**させます。
+
+```hlsl
+Texture2D<float> g_wind_noise : register(t2);    // タイル可能な、ノイズ（低周波）
+
+float WindStrengthAt(float3 world_pos, float2 wind_dir, float time) {
+  // ワールド座標で、ノイズを読む。時間とともに、風の向きへ、ずらす（流れる）。
+  float2 uv = world_pos.xz * 0.02 - wind_dir * time * 0.1;
+  float gust = g_wind_noise.SampleLevel(g_linear_wrap, uv, 0);
+  return lerp(0.2, 1.0, gust);                   // 強い所は、突風。弱い所は、そよ風
+}
+```
+
+| 要素 | 内容 |
+| --- | --- |
+| ノイズの周波数 | 低い（数十メートルの波長）。突風が、**大きなまとまり**で、草原を、渡る |
+| スクロールの速さ | 風速に、比例。風の向きに、動かす |
+| 大きさ | 風の強さに、掛ける。**ノイズの値が大きい所だけ、強く揺れる** |
+
+草原の上を、**波が渡っていくように見える**ので、風の動きが、目で見えます。
+
+## 風を、全体で共有する
+
+風の向きと、強さは、**シーンの全体で、1 組**です（すべての植生が、同じ風を受ける）。
+
+```cpp
+struct WindCB {
+  float2 direction;     // 風の向き（正規化済み）
+  float strength;       // 風の強さ
+  float time;           // 風用の時間（下の注意を参照）
+  float gust_scale;     // 突風のノイズの、周波数
+  float pad[3];
+};
+```
+
+!!! warning "時間（`time`）を、float で、増やし続けない"
+    ゲーム開始から、数時間たつと、`time` が、数万の大きさになり、**`sin(time * 12.0)` の、精度が落ちて**、動きが、カクカクします。時間は、**`fmod(time, 周期)`** で、**繰り返す範囲に、収めて**から、シェーダーへ渡します。サイン波の周期の、**公倍数**で、折り返すと、継ぎ目が、出ません。
+
+```cpp
+// 風用の時間: 数百秒で、折り返す。使うサイン波の周期が、この値で、割り切れるようにする。
+wind.time = std::fmod(game_time, 1000.0f * 3.14159265f);
+```
+
+## ゲームの状況に、合わせる
+
+| 要素 | 内容 |
+| --- | --- |
+| 天候 | 嵐で、風の強さを上げる。雨が降ると、草が、重くなる（揺れを小さく） |
+| 爆発・ヘリコプター | 一時的な、**局所的な風**。位置と半径を、渡して、その範囲の、植生を、強く押す（[Trampled Grass](trample.md) の仕組みを、使える） |
+| 屋内・洞窟 | 風を、止める。マスクで、強さを 0 に |
+| 遠景 | 遠くの木は、揺れを、**弱める**（細かい動きは、見えない。計算の節約にもなる） |
+
 ## よくあるミス
 
 ??? failure "すべての草が、同じ動きで揺れる"
@@ -97,9 +214,9 @@ float3 ApplyWind(float3 world_position, float height_t, float2 wind_direction, f
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Sousa, "Vegetation Procedural Animation and Shading in Crysis", GPU Gems 3, Chapter 16, 2007（幹・枝・葉の 3 層の揺れ、葉の透過）
+- Pelzer, "Rendering Countless Blades of Waving Grass", GPU Gems, Chapter 7, 2004（草の板ポリ、風、クロス ブレンド）
+- Wohllaib, "Procedural Grass in Ghost of Tsushima", Game Developers Conference 2021
 
 ## 関連ページ
 

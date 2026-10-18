@@ -57,9 +57,11 @@ LOD の設計で難しいのは、切り替えです。細かさが変わる境�
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps", Journal of Graphics, GPU, and Game Tools, Vol. 14, No. 4, 2009（CDLOD の原典。作者の公開サンプル `fstrugar/CDLOD` が GitHub にある）
+- Losasso, Hoppe, "Geometry Clipmaps: Terrain Rendering Using Nested Regular Grids", ACM Transactions on Graphics (SIGGRAPH 2004)
+- Asirvatham, Hoppe, "Terrain Rendering Using GPU-Based Geometry Clipmaps", GPU Gems 2, Chapter 2, 2005
+- Ulrich, "Rendering Massive Terrains Using Chunked Level of Detail Control", SIGGRAPH 2002 Course Notes（チャンク LOD、スカート、ジオモーフ）
+- Cantlay, "DirectX 11 Terrain Tessellation", NVIDIA ホワイトペーパー, 2011
 
 ## 関連ページ
 

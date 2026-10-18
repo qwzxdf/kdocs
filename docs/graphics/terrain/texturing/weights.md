@@ -95,6 +95,135 @@ float grass = (1.0 - rock) * (1.0 - snow);
 
 **ルールで基礎を作り、手描きの重みを足して調整する**のが**実用的**です。
 
+## スプラット マップのデータ
+
+スプラット（splat）は、「ばら撒く」という意味です。地形に使うテクスチャ（草・土・岩・雪）の<strong>混ぜ具合を、画素ごとに記録した画像</strong>が、スプラット マップです。
+
+| 形式 | 内容 |
+| --- | --- |
+| `R8G8B8A8_UNORM` | 1 枚で 4 層分。R が草、G が土、B が岩、A が雪、のように割り当てる |
+| 2 枚 | 8 層まで。多い地形では、4 層ごとに 1 枚を足す |
+| 重みの合計 | 4 つの重みの合計は、1 になるのが前提。画像として塗ると、ずれるので、シェーダーで正規化する |
+
+重みの 4 つ目は、「1 − (残りの 3 つ)」で求められます。3 つだけ記録して、残りは計算することで、`R8G8B8` 1 枚（A に別の情報）にもできます。ただし、**8 ビット同士の足し算は、誤差が積もる**ので、4 つ記録して、読んだあとに正規化するのが安全です。
+
+```hlsl
+float4 LoadWeights(float2 uv) {
+  float4 w = splat_map.Sample(linear_clamp, uv);
+  // 塗った結果、合計が 1 からずれることがある。1 に直す。
+  return w / max(dot(w, 1.0), 1e-4);
+}
+```
+
+### テクスチャ配列で、層をまとめる
+
+層ごとに別のテクスチャにすると、シェーダーのスロット数が足りなくなります。同じ大きさ・同じ形式のテクスチャは、**テクスチャ配列（`Texture2DArray`）** にまとめます。1 つのスロットに、最大で 2,048 枚まで入ります。
+
+```cpp
+// 4 層の、アルベド（色）を配列にする。
+D3D11_TEXTURE2D_DESC desc = {};
+desc.Width = 1024;
+desc.Height = 1024;
+desc.MipLevels = 0;                 // 全ミップ（必須。遠くのタイルのちらつきを防ぐ）
+desc.ArraySize = 4;                 // 層の数
+desc.Format = DXGI_FORMAT_BC7_UNORM_SRGB;   // 色: BC7（sRGB）。高さは、A に入れる
+desc.SampleDesc.Count = 1;
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+// 各スライスと各ミップに、初期データを渡す（DDS から読み込むのが普通）。
+```
+
+```hlsl
+Texture2DArray<float4> g_albedo_height : register(t1);   // RGB = 色, A = 高さ
+Texture2DArray<float4> g_normal        : register(t2);
+SamplerState g_linear_wrap : register(s1);
+```
+
+## 毎画素の、コストを下げる
+
+スプラットは、層が増えると、重くなります。4 層で、テクスチャ読み込みが、**層の数 × 種類の数**（色・法線・粗さ）になります。
+
+| 工夫 | 内容 |
+| --- | --- |
+| 重みが 0 の層は、読まない | `if (w.x > 0.01)` で、読み込みを飛ばす。ブロックごとに、同じ層だけが出るので、分岐が揃う（ダイナミック ブランチの効率がよい） |
+| 1 画素に使う層を、上位 N 個に絞る | スプラット マップに、「層の番号」と「重み」を、画素ごとに 2〜4 組だけ記録する。層が 32 個でも、1 画素の読み込みは、4 層分で済む |
+| 遠くは、層を減らす | 距離で、法線マップの層を、読まなくする（遠くでは見えない） |
+| タイルごとに、シェーダーを選ぶ | そのタイルに現れる層だけを、読むシェーダーを使う（Frostbite の方式、下記） |
+
+### 層の番号と重みを、別々の画像に記録する
+
+```text
+index map (R8G8B8A8_UINT, 点サンプリング) : 画素ごとに 4 つの層の番号
+weight map (R8G8B8A8_UNORM, 線形補間)     : 画素ごとに 4 つの重み
+```
+
+層の番号は、補間してはいけません（番号 2 と 5 の中間の 3 や 4 は、別の層です）。点サンプリングで読み、重みだけを、線形補間します。境目では、番号が変わるので、**隣の 4 画素の番号を、すべて調べて、重みを混ぜる**実装が必要です。ここまで来ると、仮想テクスチャ（[Virtual Texturing](virtual-texture.md)）の方が、素直になります。
+
+## 自動で重みを決める
+
+高さと傾きから、ルールで重みを計算できます。エディターで塗る前の、下地として使えます。
+
+```hlsl
+// 傾き: 法線の y が 1 に近いほど、平ら。
+float Slope(float3 normal) { return 1.0 - saturate(normal.y); }
+
+float4 ComputeWeights(float3 world_pos, float3 normal, float noise) {
+  float slope = Slope(normal);
+  // ノイズで、しきい値を揺らす。境目が、直線にならない。
+  float jitter = (noise - 0.5) * 0.1;
+
+  float rock = smoothstep(0.35, 0.55, slope + jitter);                   // 急な所は岩
+  float snow = smoothstep(snow_line, snow_line + 20.0, world_pos.y + jitter * 50.0)
+             * (1.0 - rock);                                              // 高い所は雪（岩を除く）
+  float sand = (1.0 - smoothstep(water_level, water_level + 2.0, world_pos.y))
+             * (1.0 - rock);                                              // 水際は砂
+  float grass = max(1.0 - rock - snow - sand, 0.0);                       // 残りは草
+
+  float4 w = float4(grass, sand, rock, snow);
+  return w / max(dot(w, 1.0), 1e-4);
+}
+```
+
+| 条件 | 変化の付け方 |
+| --- | --- |
+| 傾き | `smoothstep` で、2 つのしきい値の間を、なめらかに。しきい値が近いと、境目が鋭い |
+| 高さ | 雪線のように、高さで切り替える。ノイズで揺らして、等高線に見えないようにする |
+| 水からの距離 | 浜辺の砂。水位との差を使う |
+| 曲率（凸凹） | 尾根には岩、谷には土、のように、地形の凹凸（ラプラシアン）を使う |
+| 湿度・日当たり | 北向きの斜面に苔、など。別のマップを使う |
+
+!!! tip "ルールは、重みマップに焼いてしまうのが基本"
+    毎フレーム、ピクセル シェーダーで計算すると、ルールの数だけ重くなります。**ツールで一度計算して、スプラット マップに書き出し**、実行時は、マップを読むだけにします。ルールの結果に、手で塗った上書きを足せる、という利点もあります。
+
+```text
+最終の重み = ルールの重み × (1 − 手描きマスク) + 手描きの重み × 手描きマスク
+```
+
+## Frostbite の、手続き的なスプラット
+
+Andersson（2007）は、Frostbite の地形で、<strong>「どの層が必要かを、ブロックごとに決めて、そのブロックだけに、必要な層を読むシェーダーを使う」</strong>方式を報告しています。
+
+| 項目 | 内容 |
+| --- | --- |
+| 素材の定義 | 層ごとに、「どの高さ・傾き・ペイントのとき、この層が現れるか」というルールを持つ |
+| ブロック分け | 地形を、小さなタイルに分ける |
+| シェーダー | タイルに現れる層の組み合わせごとに、必要な層だけを、読んで混ぜるシェーダーを作る |
+| 効果 | 数十種類の素材があっても、**1 タイルでは、数層だけを読む**。重みが 0 の層に、時間を使わない |
+
+全ピクセルで、全層を読む方式（4 層、8 層まで）では、層が増えるほど遅くなりますが、**ブロック単位で、必要なものだけを読む**と、層の総数と、描画のコストが、切り離されます。素材のルールを、アーティストが作れるように、ツールの側に、組み合わせ用の仕組みが必要になります。
+
+## 昔の方法：レイヤーごとのパス
+
+古い GPU では、1 回のパスで読めるテクスチャの数が、4 枚ほどしかありませんでした。そこで、**層ごとに、地形を描き直して、フレーム バッファにアルファ ブレンドで重ねる**方法（Bloom、2000）が使われました。
+
+```text
+パス 1: 草を、不透明で描く
+パス 2: 土を、スプラット マップの G を、アルファにして、重ねる
+パス 3: 岩を、B をアルファにして、重ねる
+```
+
+層の数だけ、ジオメトリを描き直すので、頂点の処理が増えます。1 パスで、配列から読む方式の方が、いまは、はるかに効率的です。
+
 ## よくあるミス
 
 ??? failure "重みの合計が 1 でなく、地形が暗い・明るい"
@@ -107,9 +236,10 @@ float grass = (1.0 - rock) * (1.0 - snow);
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Andersson, "Terrain Rendering in Frostbite Using Procedural Shader Splatting", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games（Frostbite の地形の素材合成）
+- Bloom, "Terrain Texture Compositing by Blending in the Frame-Buffer", 2000（レイヤーごとに別パスで、フレーム バッファにブレンドする古典的な方法）
+- Mishkinis, "Advanced Terrain Texture Splatting", Gamasutra, 2013（高さを使ったテクスチャのブレンド）
+- Microsoft Learn, "Texture2DArray"（HLSL のテクスチャ配列）
 
 ## 関連ページ
 

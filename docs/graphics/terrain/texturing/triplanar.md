@@ -109,6 +109,123 @@ float3 Triplanar(Texture2D tex, float3 world_position, float3 normal, float scal
 | **法線マップも要注意** | **接線空間でなくワールド空間の法線に直す**（**投影ごとに軸を入れ替えて、法線を戻す**） |
 | **傾きで使い分け** | **平らな所は 1 方向（安い）、急な所だけ 3 方向** |
 
+## なぜ、上から貼ると、伸びるのか
+
+地形のテクスチャは、普通、**真上から（XZ 平面に）投影**して貼ります。UV は、ワールドの x と z を、そのまま使います。平らな場所では、これでよいのですが、**斜面が急になると、1 テクセルが、斜面の上で、縦に長く伸びます**。
+
+| 斜面の角度 | テクスチャの伸び（1 / cos θ） |
+| --- | --- |
+| 0°（水平） | 1.0 倍 |
+| 45° | 1.4 倍 |
+| 60° | 2.0 倍 |
+| 80° | 5.8 倍 |
+| 90°（垂直） | 無限大（1 本の線になる） |
+
+崖では、テクスチャが、縦の筋に、なってしまいます。
+
+## トライプラナー（3 方向の投影）
+
+X 軸・Y 軸・Z 軸の、**3 方向から、それぞれ投影した 3 枚を、法線の向きで混ぜる**のが、トライプラナー マッピングです。法線がどの軸に近いかで、重みを決めます。
+
+| 法線が近い軸 | 使う投影 | UV |
+| --- | --- | --- |
+| X（右・左を向いた面） | YZ 平面に投影 | `world.zy` |
+| Y（上・下を向いた面） | XZ 平面に投影 | `world.xz` |
+| Z（前・後を向いた面） | XY 平面に投影 | `world.xy` |
+
+```hlsl
+// 法線の絶対値を、べき乗して、合計 1 に正規化する。
+// sharpness が大きいほど、切り替えが、鋭い（混ざる幅が、せまい）。
+float3 TriplanarWeights(float3 n, float sharpness) {
+  float3 w = pow(abs(n), sharpness);
+  return w / max(w.x + w.y + w.z, 1e-4);
+}
+
+float3 TriplanarColor(Texture2D tex, float3 world_pos, float3 n, float scale) {
+  float3 w = TriplanarWeights(n, 4.0);
+  float3 cx = tex.Sample(g_linear_wrap, world_pos.zy * scale).rgb;
+  float3 cy = tex.Sample(g_linear_wrap, world_pos.xz * scale).rgb;
+  float3 cz = tex.Sample(g_linear_wrap, world_pos.xy * scale).rgb;
+  return cx * w.x + cy * w.y + cz * w.z;
+}
+```
+
+`sharpness` が小さいと、3 枚が広い範囲で混ざって、模様がぼやけます。大きいと、切り替えが鋭くなって、境目に、線が出ます。**4〜8 が、よく使われる範囲**です。
+
+## 法線マップを、正しく混ぜる
+
+色は、そのまま混ぜられますが、**法線マップは、そのままでは、混ぜられません**。法線マップの向きは、投影した面（接線空間）のものなので、ワールドの向きに、直してから混ぜる必要があります。
+
+次は、Golus が整理した、「whiteout ブレンド」を使った書き方です。ワールド法線（地形の滑らかな法線）に、法線マップの凹凸を、足し合わせます。
+
+```hlsl
+float3 TriplanarNormal(Texture2D normal_tex, float3 world_pos, float3 n, float scale) {
+  // 3 方向の、接線空間の法線を読む（-1〜1 に戻す）。
+  float3 tx = normal_tex.Sample(g_linear_wrap, world_pos.zy * scale).xyz * 2.0 - 1.0;
+  float3 ty = normal_tex.Sample(g_linear_wrap, world_pos.xz * scale).xyz * 2.0 - 1.0;
+  float3 tz = normal_tex.Sample(g_linear_wrap, world_pos.xy * scale).xyz * 2.0 - 1.0;
+
+  // whiteout ブレンド: ワールド法線の成分を、XY に足し、Z は掛ける。
+  tx = float3(tx.xy + n.zy, abs(tx.z) * n.x);
+  ty = float3(ty.xy + n.xz, abs(ty.z) * n.y);
+  tz = float3(tz.xy + n.xy, abs(tz.z) * n.z);
+
+  // 軸を入れ替えて、ワールドの向きに直し、重みで混ぜる。
+  float3 w = TriplanarWeights(n, 4.0);
+  return normalize(tx.zyx * w.x + ty.xzy * w.y + tz.xyz * w.z);
+}
+```
+
+| 法線の混ぜ方 | 内容 | 結果 |
+| --- | --- | --- |
+| 単純な平均 | 3 つの法線マップを、そのまま重みで平均 | 向きが、間違っているので、凹凸が逆になることがある |
+| UDN ブレンド | ワールド法線の XY に、法線マップの XY を足す | 軽い。凹凸が、やや弱くなる |
+| whiteout | 上のコード。XY を足し、Z を掛ける | 凹凸が、保たれる。実用的 |
+| Reoriented Normal Mapping（RNM） | 回転で合成する。もっとも正確 | 少し重い（Barré-Brisebois と Hill の比較を参照） |
+
+!!! warning "法線マップの、Y の向きを確認する"
+    DirectX 系の法線マップは、緑（Y）が、下向きを正と数える形式（D3D 形式）と、上向きを正と数える形式（OpenGL 形式）があります。取り違えると、**凹凸が、逆に見えます**。アセットの形式に、シェーダーを合わせます。
+
+## コスト
+
+| 項目 | 内容 |
+| --- | --- |
+| テクスチャの読み込み | 1 層につき、3 倍（色・法線・粗さなら、9 回） |
+| 帯域 | 同じテクスチャを 3 回読むので、キャッシュには乗りやすい |
+| ALU | 重みの計算と、法線の混ぜ合わせ |
+
+### 読み込みを、減らす方法
+
+| 方法 | 内容 |
+| --- | --- |
+| 傾きで使い分ける | 平らな所は、1 方向（安い）。急な所だけ、3 方向。ピクセルごとに、分岐する |
+| 層ごとに使い分ける | **岩の層だけ**、トライプラナーにする。草や土は、真上からの投影のまま |
+| 2 方向だけ読む（バイプラナー） | 重みが最も大きい 2 方向だけを読む。Quilez が提案した方法 |
+| 重みが小さい方向は、飛ばす | `if (w.x > 0.05)` で、読み込みを省く |
+
+```hlsl
+// 重みが、しきい値より小さい方向は、読み込まない。
+float3 TriplanarColorFast(Texture2D tex, float3 world_pos, float3 n, float scale) {
+  float3 w = TriplanarWeights(n, 4.0);
+  float3 c = 0;
+  if (w.x > 0.05) c += tex.Sample(g_linear_wrap, world_pos.zy * scale).rgb * w.x;
+  if (w.y > 0.05) c += tex.Sample(g_linear_wrap, world_pos.xz * scale).rgb * w.y;
+  if (w.z > 0.05) c += tex.Sample(g_linear_wrap, world_pos.xy * scale).rgb * w.z;
+  return c / max(dot(w * step(0.05, w), 1.0), 1e-4);
+}
+```
+
+分岐の中で `Sample` を呼ぶと、画素の微分が、不連続になって、ミップの選択が、乱れることがあります。分岐を使うなら、`SampleGrad` で、微分を、分岐の外で計算して渡します。
+
+## 向き（符号）に、注意する
+
+法線が、**負の向き**（`-X`、`-Y`、`-Z`）を向く面では、テクスチャが、**鏡に映したように**反転して見えます。UV を、そのまま使っているので、裏側から見たことになるためです。ほとんどの地形では、目立ちませんが、文字や、向きのある模様では、気になります。
+
+| 対策 | 内容 |
+| --- | --- |
+| 符号で、UV を反転する | `uv.x *= sign(n.x)` のように、負の向きでは、反転させる |
+| 気にしない | 岩・土のように、向きのない模様では、見た目の違いは、ほとんどない |
+
 ## よくあるミス
 
 ??? failure "崖のテクスチャが、縦に伸びている"
@@ -121,9 +238,10 @@ float3 Triplanar(Texture2D tex, float3 world_position, float3 normal, float scal
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Geiss, "Generating Complex Procedural Terrains Using the GPU", GPU Gems 3, Chapter 1, 2007（トライプラナー テクスチャリングを使った地形）
+- Golus, "Normal Mapping for a Triplanar Shader", 2017（トライプラナーでの法線マップの合成）
+- Barré-Brisebois, Hill, "Blending in Detail", 2012（法線マップを合成する方法の比較）
+- Quilez, "Biplanar Mapping", iquilezles.org, 2020（3 回ではなく 2 回の読み込みで済ませるトライプラナー）
 
 ## 関連ページ
 

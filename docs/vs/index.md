@@ -8,7 +8,8 @@ C++ でゲームを作る学生の多くは、<strong>Visual Studio（ビジュ�
 | --- | --- |
 | [インストールとプロジェクトの作成](setup.md) | 何を入れるか、新しいプロジェクトの作り方、ソリューションとプロジェクトの違い |
 | [C++23 を使えるようにする設定](settings.md) | 言語標準、警告、よく変える設定、プロパティ シート |
-| [文字コードを UTF-8 にしよう](utf8.md) | `/utf-8`、`.editorconfig`、`.gitattributes`、コンソールの文字化け |
+| [文字コードを UTF-8 にしよう](utf8.md) | `/utf-8`、`.gitattributes`、コンソールの文字化け |
+| [.editorconfig](editorconfig.md) | 改行・字下げ・文字コードを、ファイルに書いてそろえる。書き方、Visual Studio 独自の設定 |
 | [外部ライブラリの入れ方](libraries.md) | vcpkg、ヘッダを置く方法、`.lib` / `.dll` を使う方法 |
 | [デバッグのやり方](debugging.md) | ブレークポイント、ウォッチ、呼び出し履歴、例外、メモリのバグ探し |
 | [AddressSanitizer](asan.md) | メモリの範囲外アクセス・解放済みメモリの使用を、その場で検出 |

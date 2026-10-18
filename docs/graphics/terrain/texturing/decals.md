@@ -22,6 +22,126 @@ tags:
 | **焼け跡・血痕** | **デカール**を**投影** |
 | **整地** | **高さマップも同時に整える** |
 
+## 地形に貼る、2 つの方法
+
+地形に、道や足跡を重ねる方法は、大きく 2 つに分かれます。
+
+| 方法 | 内容 | 向くもの |
+| --- | --- | --- |
+| スプラット（地形の素材に塗る） | 重みのマップに、色を塗る。地形の素材の一部として、扱う | 道、小道、広い範囲の足跡の跡 |
+| デカール（投影して重ねる） | 地形とは別の、貼り付けるテクスチャを、地形の形に沿って、投影する | 焼け跡、血痕、爆発の跡、魔法陣 |
+
+スプラットは、**素材の重みを書き換える**ので、地形の材質（足音、ぬかるみ）まで、変えられます。デカールは、**地形のデータに触れず**、見た目だけを重ねます。後から消せるので、動的な跡に向きます。
+
+## 道をつくる（スプライン）
+
+道は、**制御点を結んだ曲線（スプライン）**で、定義します。曲線に沿って、3 つのことを行います。
+
+| 作業 | 内容 |
+| --- | --- |
+| ① スプラットに、塗る | 曲線からの距離で、重みを決める。中心は 1、縁へ向かって、0 に減らす |
+| ② 高さマップを、整える | 道の中央を、**地形の高さと、道の高さを混ぜて、平らにする**。道が、斜面を、横切るとき、地面が、凸凹だと、不自然になる |
+| ③ 草を、避ける | 道の上には、草や木を、置かない（配置のマスクにも、道を書く） |
+
+```cpp
+// 道（スプライン）から、距離に応じた重みを、スプラット マップに塗る。
+for (int y = 0; y < height; ++y) {
+  for (int x = 0; x < width; ++x) {
+    const float2 p = float2(x, y) * texel_size;
+    const float d = DistanceToSpline(spline, p);        // 曲線までの最短距離
+    const float w = 1.0f - SmoothStep(road_width * 0.4f, road_width * 0.5f, d);
+    splat[y][x].road = std::max(splat[y][x].road, w);   // 重みを足し合わせる
+  }
+}
+```
+
+高さの整地は、次の式で、混ぜます。
+
+```text
+新しい高さ = lerp(元の高さ, 道の高さ, 整地の重み)
+```
+
+整地の重みを、道の幅より、少し広く取ると、**道の両側に、緩やかな、土手**ができて、自然に見えます。
+
+## デカール：ボックスで、投影する
+
+デカールは、**箱（ボリューム）の中に入った、地形の表面だけに、テクスチャを貼る**方式が、標準です（Persson、2011「Volume Decals」）。
+
+```text
+ ┌─────────┐  ← デカールの箱。位置・向き・大きさを、持つ
+ │ ╲╱╲╱╲╱  │
+ │──地形───│  ← 箱の中に入っている、地形の画素だけに、貼られる
+ └─────────┘
+```
+
+### 手順
+
+1. 箱を描く（立方体のメッシュを、デカールの位置・向き・大きさに変換して描く）
+2. ピクセル シェーダーで、**その画素の、ワールド座標を、デプス バッファから復元する**
+3. ワールド座標を、**箱のローカル座標に変換**する
+4. ローカル座標が、箱の外（`[-0.5, 0.5]` の外）なら、捨てる。中なら、ローカルの XZ を、UV に使って、テクスチャを引く
+
+```hlsl
+Texture2D<float> g_depth : register(t0);          // シーンのデプス
+Texture2D<float4> g_decal : register(t1);         // デカールのテクスチャ
+cbuffer DecalCB : register(b1) {
+  float4x4 inv_view_proj;      // クリップ空間 → ワールド
+  float4x4 world_to_decal;     // ワールド → デカールのローカル（箱は -0.5〜0.5）
+};
+
+float4 main(float4 pos : SV_Position) : SV_Target {
+  // ① 画素の、デプスから、ワールド座標を復元する
+  float2 uv = pos.xy * inv_screen_size;
+  float depth = g_depth.Load(int3(pos.xy, 0));
+  float4 ndc = float4(uv * float2(2, -2) + float2(-1, 1), depth, 1);
+  float4 world = mul(ndc, inv_view_proj);
+  world.xyz /= world.w;
+
+  // ② デカールのローカル座標へ
+  float3 local = mul(float4(world.xyz, 1), world_to_decal).xyz;
+
+  // ③ 箱の外なら、捨てる
+  clip(0.5 - abs(local));
+
+  // ④ XZ を UV にして、テクスチャを引く
+  float2 decal_uv = local.xz + 0.5;
+  float4 c = g_decal.Sample(g_linear_clamp, decal_uv);
+  return c;   // アルファ ブレンドで、シーンに重ねる
+}
+```
+
+箱は、**裏面（背面）を描き、デプス テストを無効**にします（カメラが、箱の中に入っても、描画が消えないように）。ブレンドは、`SrcAlpha / InvSrcAlpha` の、アルファ ブレンドです。
+
+### 注意点
+
+| 項目 | 内容 |
+| --- | --- |
+| 斜面で、引き伸ばされる | 箱の「上から」の投影なので、**急斜面では、デカールが伸びる**。急な場所には、貼らない。法線で、フェードさせる |
+| 重ねる数 | デカール 1 枚につき、箱の面積ぶんの、画素処理が増える。数百枚以上は、重くなる |
+| 法線・粗さへの影響 | デカールが、色だけでなく、法線・粗さも変える場合は、G バッファに、書き込む（ディファード）か、シェーダーで、直接ライティングに足す |
+| 順序 | 重ねる順序が、見た目を、変える。優先度で、並べる |
+
+法線で、デカールの強さを、落とす例です。
+
+```hlsl
+// 地形の、傾きが急な場所で、デカールを薄くする。
+float3 n = DecodeNormal(g_gbuffer_normal.Load(int3(pos.xy, 0)));
+float facing = saturate(dot(n, decal_up_world));
+c.a *= smoothstep(0.3, 0.7, facing);
+```
+
+## 足跡など、動的な跡
+
+足跡や、タイヤの跡のように、**ゲーム中に増える跡**は、スプラット マップに、直接書き込みます。
+
+| 方法 | 内容 |
+| --- | --- |
+| 小さなブラシ | 足の位置に、足跡の形のブラシを、スプラット マップ（`RenderTarget`）へ描く |
+| 時間で薄くする | 毎フレーム、少しだけ、全体を暗くして、古い跡を消す（[Trampled Grass](../vegetation/trample.md) も同じ仕組み） |
+| 窓として持つ | カメラの周りの、**数十メートルだけ**を、跡のマップにする（円環バッファ、クリップマップと同じ発想） |
+
+跡のテクスチャは、`R8_UNORM` 1 枚で十分です（0 = なし、1 = 深い跡）。
+
 ## よくあるミス
 
 ??? failure "道が地形から浮いて見える"
@@ -34,9 +154,9 @@ tags:
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Persson, "Volume Decals", GPU Pro 2, 2011
+- Andersson, "Terrain Rendering in Frostbite Using Procedural Shader Splatting", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games（Frostbite の地形の素材合成）
+- Microsoft Learn, "HLSL: clip"（`clip` 関数）
 
 ## 関連ページ
 

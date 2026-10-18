@@ -84,6 +84,155 @@ float SampleHeight(const HeightMap& map, float world_x, float world_z) {
 
 <!-- fig:bilinear-height:end -->
 
+## 双線形補間は、描画のメッシュと、ずれる
+
+上の `SampleHeight` は、4 点から、**双線形補間**で、高さを求めます。ところが、描画される地形は、**格子のマスを、2 枚の三角形に分けた、折れ曲がった面**です。双線形補間の面は、**曲がった面（双曲放物面）**で、三角形の平面とは、違います。
+
+| 方式 | 面の形 | 描画との一致 |
+| --- | --- | --- |
+| 双線形補間 | 4 点を通る、曲面 | マスの中心で、ずれる |
+| 三角形で補間（重心座標） | 2 枚の平面 | **描画のメッシュと、完全に一致** |
+
+ずれは、わずかですが、**足が地面に、めり込んだり、浮いたり**します。特に、**急な斜面**や、**高さマップの解像度が、粗い**場合は、目立ちます。キャラクターの足や、物の接地には、**メッシュと同じ三角形で、補間**する必要があります。
+
+## 三角形に合わせた補間
+
+マスを、**どの対角線で、分けているか**で、計算が変わります（[Grid Mesh](grid-mesh.md)）。
+
+```text
+対角線 A（左上 − 右下）           対角線 B（右上 − 左下）
+a───b                            a───b
+│╲  │                            │  ╱│
+│ ╲ │                            │ ╱ │
+c───d                            c───d
+```
+
+```cpp
+// 三角形に合わせた高さの補間。(fx, fz) は、マスの中の位置（0〜1）。
+// h00 = 左上(a), h10 = 右上(b), h01 = 左下(c), h11 = 右下(d)
+float InterpolateTriangle(float h00, float h10, float h01, float h11,
+                          float fx, float fz, bool diagonal_a) {
+  if (diagonal_a) {
+    // 対角線 a−d。a, c, d の三角形（左下側）と、a, d, b の三角形（右上側）
+    if (fx <= fz) {
+      // 左下側: a, c, d
+      return h00 + (h11 - h01) * fx + (h01 - h00) * fz;
+    } else {
+      // 右上側: a, d, b
+      return h00 + (h10 - h00) * fx + (h11 - h10) * fz;
+    }
+  } else {
+    // 対角線 b−c。a, c, b の三角形（左上側）と、b, c, d の三角形（右下側）
+    if (fx + fz <= 1.0f) {
+      // 左上側: a, c, b
+      return h00 + (h10 - h00) * fx + (h01 - h00) * fz;
+    } else {
+      // 右下側: b, c, d
+      return h11 + (h01 - h11) * (1.0f - fx) + (h10 - h11) * (1.0f - fz);
+    }
+  }
+}
+
+float SampleHeightMatchingMesh(const HeightMap& map, float world_x, float world_z) {
+  const float u = (world_x - map.origin_x) / map.cell_size;
+  const float v = (world_z - map.origin_z) / map.cell_size;
+  const int x0 = std::clamp(int(std::floor(u)), 0, map.width - 2);
+  const int z0 = std::clamp(int(std::floor(v)), 0, map.height - 2);
+  const float fx = u - x0, fz = v - z0;
+  const bool diagonal_a = ((x0 + z0) & 1) == 0;       // 市松の貼り方と、同じ規則
+  return InterpolateTriangle(map.At(x0, z0), map.At(x0 + 1, z0),
+                             map.At(x0, z0 + 1), map.At(x0 + 1, z0 + 1), fx, fz, diagonal_a);
+}
+```
+
+!!! warning "対角線の規則は、メッシュと、まったく同じにする"
+    `diagonal_a` の判定が、描画のメッシュの貼り方と、1 つでも違うと、ずれが、残ります。規則を、**1 か所の関数にまとめて**、メッシュ作りと、高さの補間の、両方から、使います。
+
+## 法線も、同じ三角形から
+
+高さと同じ三角形から、**面の法線**も、求められます。足を、斜面に合わせて傾ける、キャラクターを、斜面に沿って、滑らせるときに使います。
+
+```cpp
+float3 NormalAt(const HeightMap& map, float world_x, float world_z) {
+  const float e = map.cell_size;
+  // 中央差分（なめらかな法線）。三角形の面の法線が欲しいなら、三角形の 3 点から、外積で求める。
+  const float hl = SampleHeightMatchingMesh(map, world_x - e, world_z);
+  const float hr = SampleHeightMatchingMesh(map, world_x + e, world_z);
+  const float hd = SampleHeightMatchingMesh(map, world_x, world_z - e);
+  const float hu = SampleHeightMatchingMesh(map, world_x, world_z + e);
+  return Normalize({hl - hr, 2.0f * e, hd - hu});
+}
+```
+
+## レイと地形の交差
+
+「画面をクリックした場所の、地面」「弾が、地面に当たる位置」を求めるには、**レイと、高さ場の交差**を調べます。
+
+### ① 一定の歩幅で、進む（レイマーチ）
+
+レイに沿って、少しずつ進み、**レイの高さが、地面の高さを下回った所**を、交点とします。
+
+```cpp
+bool RaycastTerrain(const HeightMap& map, float3 origin, float3 dir, float max_dist,
+                    float step, float3& hit) {
+  float t = 0.0f;
+  float prev_diff = origin.y - SampleHeightMatchingMesh(map, origin.x, origin.z);
+  while (t < max_dist) {
+    t += step;
+    const float3 p = origin + dir * t;
+    const float diff = p.y - SampleHeightMatchingMesh(map, p.x, p.z);
+    if (diff < 0.0f && prev_diff >= 0.0f) {
+      // 地面の下に入った。直前の位置との間で、二分探索して、交点を絞り込む。
+      float lo = t - step, hi = t;
+      for (int i = 0; i < 8; ++i) {
+        const float mid = 0.5f * (lo + hi);
+        const float3 q = origin + dir * mid;
+        if (q.y - SampleHeightMatchingMesh(map, q.x, q.z) < 0.0f) hi = mid; else lo = mid;
+      }
+      hit = origin + dir * hi;
+      return true;
+    }
+    prev_diff = diff;
+  }
+  return false;
+}
+```
+
+歩幅が大きいと、**細い尾根を、飛び越えて、取りこぼします**。小さいと、遅くなります。**歩幅は、格子の間隔の、半分以下**が、目安です。
+
+### ② マスを、1 つずつ進む（DDA）
+
+Amanatides と Woo（1987）の方法で、レイが通る、**マスだけを、1 つずつ**たどり、各マスで、レイと 2 枚の三角形の交差を調べます。取りこぼしがなく、長いレイでも、**調べるマスの数は、距離に比例**するだけです。
+
+| 方式 | 取りこぼし | 速さ | 実装 |
+| --- | --- | --- | --- |
+| 一定の歩幅 | 出ることがある | 歩幅が、小さいと遅い | 簡単 |
+| マスを 1 つずつ（DDA） | **ない** | 速い | やや複雑 |
+| 四分木の最大高さで、枝刈り | ない | **長いレイで、特に速い** | 複雑（最大高さのミップが、必要） |
+
+長距離（狙撃、視線チェック）では、**最大高さのミップ**（[Heightmap LOD (Mips)](../lod/height-mip.md)）で、「このブロックの上を、レイが、通過するか」を、先に判定して、**大きく飛ばす**と、速くなります。
+
+## 物理エンジンの高さ場
+
+物理エンジンも、地形の当たり判定に使える**高さ場（heightfield）の形状**を、持っています（PhysX、Jolt など）。
+
+| 項目 | 内容 |
+| --- | --- |
+| データ | 高さの配列（描画の高さマップと、同じ値を渡す） |
+| 三角形の分け方 | エンジンごとに、決まっている。**描画と合わせる**（合わせられなければ、わずかなずれを、許容する） |
+| 更新 | 地形を変形したら、高さ場の、**該当範囲を、更新**する |
+| 穴 | 洞窟の入口などの、穴は、**材質の ID に、穴を表す値**を持たせて、表現する（エンジンによる） |
+
+物理エンジンが、独自の補間を使う場合、**自分で、同じ補間を、実装して、見た目を、合わせる**のが、無難です。
+
+## 範囲外と、穴
+
+| 場合 | 扱い |
+| --- | --- |
+| 地形の外 | `clamp` で、端の高さを、そのまま使う。または、「地面がない」を返す |
+| 穴（洞窟の入口） | 穴の画素は、`NaN` や、特別な値で、表す。**高さの補間で、穴の境目が、混ざらない**ように、4 点のどれかが穴なら、その三角形は、穴として扱う |
+| チャンクの境界 | 隣のチャンクを、読み込んでいない間は、境界の画素を、**両側が、同じ値で持つ**（[Chunking](chunks.md)） |
+
 ## よくあるミス
 
 ??? failure "キャラクターが、地面にめり込む・浮く"
@@ -96,9 +245,10 @@ float SampleHeight(const HeightMap& map, float world_x, float world_z) {
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Amanatides, Woo, "A Fast Voxel Traversal Algorithm for Ray Tracing", Eurographics 1987（グリッドを 1 マスずつ進む DDA）
+- Ericson, "Real-Time Collision Detection", Morgan Kaufmann, 2004（レイと三角形、グリッドの走査）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（地形、ビュー フラスタム カリング、法線、補間の章）
+- Jolt Physics, "HeightFieldShape" ドキュメント（物理エンジンでの、高さ場の扱い）
 
 ## 関連ページ
 

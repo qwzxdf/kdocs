@@ -86,6 +86,91 @@ float RidgedFbm(float2 p, int octaves, float lacunarity, float gain) {
 
 <!-- fig:ridge-steps:end -->
 
+## 通常の fBm は、山の稜線が、丸い
+
+fBm は、ノイズの値（−1〜1）を、そのまま高さにするので、山頂は、**丸い丘**になります。現実の山脈には、**鋭い稜線（尾根）**があります。尾根を、作るには、ノイズの値を、**折り返す**加工をします。
+
+## 尾根ノイズ（ridged multifractal）の考え方
+
+ノイズの値は、0 の近くを、ゆっくり通り抜けます。**ノイズが 0 になる場所は、曲線（等値線）**を作ります。この曲線を、**山の尾根**にします。
+
+1. ノイズの**絶対値**を、取る（0 の位置で、V の字に、折り返される）
+2. 1 から引いて、**上下を、ひっくり返す**（0 の位置が、山頂の、尖った稜線になる）
+3. 値を、**2 乗**して、尾根を、さらに鋭くする
+
+```text
+signal = 1 − |noise|        尾根が、尖る
+signal = signal²            尾根が、さらに鋭く、谷が平らに
+```
+
+Musgrave が、この方式を、マルチフラクタルとして、整理しました（Ebert ら、2002）。
+
+## 実装
+
+```hlsl
+// リッジ マルチフラクタル（Musgrave）。
+float RidgedMulti(float2 p, int octaves, float lacunarity, float gain,
+                  float offset, float weight_gain, uint seed) {
+  float sum = 0.0;
+  float amplitude = 1.0;
+  float weight = 1.0;
+  for (int i = 0; i < octaves; ++i) {
+    float signal = GradientNoise(p, seed + i);
+    signal = offset - abs(signal);        // 折り返し（offset は 1.0 が標準）
+    signal *= signal;                      // 2 乗で、尾根を鋭く
+    signal *= weight;                      // 下のオクターブの結果で、重みを変える
+
+    sum += signal * amplitude;
+    // 尾根の上（signal が大きい所）にだけ、次のオクターブの細かい起伏を、乗せる。
+    weight = saturate(signal * weight_gain);
+
+    p *= lacunarity;
+    amplitude *= gain;
+  }
+  return sum;
+}
+```
+
+| パラメーター | 一般的な値 | 意味 |
+| --- | --- | --- |
+| `offset` | 1.0 | 折り返しの高さ。小さくすると、尾根が低く、谷が広くなる |
+| `weight_gain` | 2.0 | 次のオクターブへ、重みを渡す強さ |
+| `gain` | 0.5 | 振幅の減り方 |
+
+### 重み（weight）が、肝心
+
+`weight` は、**前のオクターブで、尾根に近かった場所だけ、次のオクターブを強く足す**ための係数です。
+
+| 場所 | 前の signal | weight | 次のオクターブ |
+| --- | --- | --- | --- |
+| 尾根の上 | 大きい | 大きい | 強く足される。尾根に、細かい起伏が付く |
+| 谷 | 小さい | 小さい | ほとんど足されない。谷が、平らに残る |
+
+結果として、**尾根は、ごつごつして、谷は、なだらか**になります。これが、リッジ ノイズと、fBm の、一番の違いです。山脈や、荒れた岩山で、よく使います。
+
+## fBm と、組み合わせて使う
+
+尾根ノイズだけでは、全体が、山脈になります。**平地・丘・山脈**を、混ぜる場合は、2 種類のノイズを、**マスク**で混ぜます。
+
+```hlsl
+// 低周波のノイズで「山の領域」を決め、その領域だけ、尾根ノイズを使う。
+float height_fbm = Fbm(p, 6, 2.0, 0.5, seed);                         // 丘・平地
+float height_ridge = RidgedMulti(p, 6, 2.0, 0.5, 1.0, 2.0, seed + 100);  // 山脈
+float mountain_mask = smoothstep(0.2, 0.6, Fbm(p * 0.1, 3, 2.0, 0.5, seed + 200) * 0.5 + 0.5);
+float height = lerp(height_fbm * 0.2, height_ridge, mountain_mask);
+```
+
+低周波のノイズ（`p * 0.1`）を、マスクにして、**地域ごとに、地形の性格を変える**のは、手続き的な地形の、基本の考え方です（[Converting Noise to Height](height-conversion.md)）。
+
+## 注意点
+
+| 項目 | 内容 |
+| --- | --- |
+| 値の範囲 | `offset − |n|` を 2 乗するので、値は、0〜1 程度。fBm（−1〜1）と、混ぜるときは、範囲を、そろえる |
+| 尾根が、直線的になる | 勾配ノイズの格子の向きが、出ることがある。座標を、少し回転させて、オクターブごとに、変える |
+| 谷が、平らすぎる | `weight_gain` を下げる、または、谷にだけ、別の fBm を、足す |
+| 傾きが急すぎる | 2 乗で、尾根が急になる。高さの変換（スケール）で、調整する |
+
 ## よくあるミス
 
 ??? failure "山が、丸くて、山脈らしくない"
@@ -98,9 +183,10 @@ float RidgedFbm(float2 p, int octaves, float lacunarity, float gain) {
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Ebert, Musgrave, Peachey, Perlin, Worley, "Texturing and Modeling: A Procedural Approach", 3rd Edition, Morgan Kaufmann, 2002（fBm、マルチフラクタル、リッジ ノイズ）
+- Musgrave, Kolb, Mace, "The Synthesis and Rendering of Eroded Fractal Terrains", SIGGRAPH 1989
+- Perlin, "Improving Noise", SIGGRAPH 2002（補間関数を 5 次式にし、勾配の選び方を直した改良版）
+- Quilez, "fBm" と "Domain Warping", iquilezles.org（ノイズの重ね合わせと、座標のゆがめ方の解説）
 
 ## 関連ページ
 

@@ -12,7 +12,7 @@ tags:
 !!! tip "ポイント"
     - 文字コードは、<strong>「ファイルを保存する人」「コンパイラ」「実行する画面」の 3 者</strong>がそろわないと化ける。1 か所でも違うと化ける
     - コンパイラには <strong>`/utf-8`</strong> を付ける（C/C++ → コマンド ライン → 追加のオプション）。これでソースの読み方と、文字列リテラルの中身が、どちらも UTF-8 になる
-    - 保存するときは <strong>UTF-8（BOM なし）</strong>。`.editorconfig` に `charset = utf-8` と書くと、Visual Studio が保存時にそろえてくれる
+    - 保存するときは <strong>UTF-8（BOM なし）</strong>。`.editorconfig` に `charset = utf-8` と書くと、Visual Studio が保存時にそろえてくれる（`.editorconfig` の詳しい書き方は [別のページ](editorconfig.md)）
     - 改行は LF にそろえておくと、Git で差分が荒れない。`.gitattributes` で決める
     - 正しく設定できたか、`static_assert(sizeof("あ") == 4)` で確かめられる
 
@@ -108,15 +108,11 @@ endif()
 
 `%(AdditionalOptions)` を末尾に付けるのは、**プロジェクト側にすでにあるオプションを、上書きせず、そのまま残す**ためです。
 
-## ② エディターの保存設定をそろえる（`.editorconfig`） {#editorconfig}
+## ② 保存するときの文字コードを決める（`.editorconfig`） {#editorconfig}
 
-コンパイラの側をそろえたら、次は<strong>保存するときの文字コード</strong>です。人が増えると、「誰かの環境だけ Shift_JIS で保存された」ことが起きます。そこで、設定をファイルに書いて、リポジトリに入れます。
+コンパイラの側をそろえたら、次は<strong>保存するときの文字コード</strong>です。人が増えると、「誰かの環境だけ Shift_JIS で保存された」ことが起きます。そこで、保存の決まりを、ファイルに書いて、リポジトリに入れます。
 
-### `.editorconfig` とは
-
-`.editorconfig` は、エディターが保存するときの決まりを書くファイルです。Visual Studio、VS Code、JetBrains の各種 IDE など、多くのエディターが読みます。<strong>書いた場所のフォルダーと、その下のすべてのフォルダーに効きます。</strong>
-
-ソリューション フォルダー（`.sln` と同じ場所）に、次の内容で作ります。Visual Studio では、ソリューション エクスプローラーでソリューションを右クリック → **追加 → 新しい項目 → エディターの構成ファイル（.editorconfig）** でも作れます。
+ソリューション フォルダー（`.sln` と同じ場所）に、`.editorconfig` というファイルを作って、次の内容を書きます。
 
 ```ini
 # MyGame/.editorconfig
@@ -126,32 +122,11 @@ root = true
 [*]
 # 文字コードは UTF-8（BOM なし）
 charset = utf-8
-# 改行は LF
-end_of_line = lf
-# ファイルの最後に、改行を 1 つ入れる
-insert_final_newline = true
-# 行末の余計な空白を消す
-trim_trailing_whitespace = true
-# 字下げは、スペース 2 個（Google C++ Style）
-indent_style = space
-indent_size = 2
-
-# Visual Studio のソリューションや、Windows のバッチは CRLF のままにする
-[*.{sln,slnx,bat,cmd}]
-end_of_line = crlf
-
-# Markdown は、行末の空白が意味を持つことがあるので、削らない
-[*.md]
-trim_trailing_whitespace = false
 ```
 
-| 設定 | 値 | 意味 |
-| --- | --- | --- |
-| `charset` | `utf-8` | 保存するとき、UTF-8（BOM なし）にする |
-| `charset` | `utf-8-bom` | UTF-8 だが、先頭に BOM を付ける |
-| `end_of_line` | `lf` / `crlf` | 保存するときの改行を決める |
-| `insert_final_newline` | `true` | ファイルの最後の行にも、改行を付ける |
-| `trim_trailing_whitespace` | `true` | 行末のスペースを消す |
+これだけで、このフォルダーの下のファイルは、Visual Studio で保存するとき、UTF-8（BOM なし）になります。ファイルを開いただけでは変わらず、<strong>保存し直したときに</strong>反映されます。
+
+`.editorconfig` には、改行、字下げ、行末の空白など、ほかにも設定できることが、たくさんあります。書き方、ファイルの種類ごとの書き分け、Visual Studio 独自の設定、効いているかの確かめ方は、[.editorconfig（エディターの設定をそろえる）](editorconfig.md) で詳しく説明しています。ここでは、文字コードの 1 行だけで、先へ進みます。
 
 ### BOM は付ける？ 付けない？
 
@@ -164,15 +139,6 @@ BOM は、UTF-8 のファイルの先頭に付く 3 バイト（`EF BB BF`）の
 | 対策 | `/utf-8` を必ず付ける | — |
 
 BOM に頼ると、**別の環境（Linux の CI、Clang、GCC）に持っていったとき**に、困ることがあります。`/utf-8` と BOM なしの組み合わせが、いちばん移しやすいです。
-
-### `.editorconfig` が効いているか
-
-- `.editorconfig` を置いたあと、**ファイルを開き直して、保存し直す**と反映されます。ファイルを開いただけでは、文字コードは変わりません
-- Visual Studio の下の枠（ステータス バー）に、改行の種類（LF / CRLF）や、インデントの種類が表示されます。`.editorconfig` が効いているファイルでは、そこをクリックすると、設定どおりにそろえる操作ができます
-- `.editorconfig` が効かないときは、フォルダーの階層を確認します。**ソースファイルより上のフォルダーに、置かれている**必要があります
-
-!!! note "Visual Studio の設定より、`.editorconfig` が優先される"
-    「ツール → オプション → テキスト エディター」にも、インデントなどの設定がありますが、`.editorconfig` があれば、そちらが優先されます。チームで設定をそろえるには、`.editorconfig` が確実です。
 
 ## 既存のファイルを UTF-8 にする {#convert}
 
@@ -305,7 +271,7 @@ C++20 から、`u8"あ"` の型は `const char8_t[]` になりました。`std::
 | 何を | どこに | 内容 |
 | --- | --- | --- |
 | コンパイラの設定 | `Directory.Build.props`、またはプロジェクトの追加のオプション | `/utf-8` |
-| エディターの設定 | `.editorconfig`（ソリューション フォルダー） | `charset = utf-8` ほか |
+| エディターの設定 | [`.editorconfig`](editorconfig.md)（ソリューション フォルダー） | `charset = utf-8`（ほかは、必要に応じて） |
 | Git の設定 | `.gitattributes`（リポジトリの一番上） | `* text=auto eol=lf` ほか |
 
 さらに、チームで進めるなら、次のページに進みます。
@@ -325,6 +291,7 @@ C++20 から、`u8"あ"` の型は `const char8_t[]` になりました。`std::
 ## 関連ページ
 
 - [C++23 を使えるようにする設定](settings.md)
+- [.editorconfig（エディターの設定をそろえる）](editorconfig.md)
 - [ソースファイルの文字コードと強制](../encoding/source-files.md)
 - [文字化け](../encoding/mojibake.md)
 - [コンソールとファイル入出力](../encoding/console-file-io.md)

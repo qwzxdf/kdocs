@@ -41,6 +41,176 @@ HullConstants ComputeConstants(InputPatch<ControlPoint, 4> patch) {
 
 **近年はコンピュート シェーダーで四分木を選び、メッシュ シェーダーで描く**構成も**増えています**。
 
+## DirectX 11 のテッセレーションの、3 つのステージ
+
+DirectX 11 は、頂点シェーダーとピクセル シェーダーの間に、3 つのステージを足しました。
+
+```text
+頂点シェーダー → ハル シェーダー → テッセレータ → ドメイン シェーダー → ピクセル シェーダー
+                 （プログラム可能） （固定機能）    （プログラム可能）
+```
+
+| ステージ | 役割 | 地形では |
+| --- | --- | --- |
+| ハル シェーダー | パッチの制御点を受け取り、**どれだけ細かく割るか（テッセレーション係数）**を決める | カメラの距離や、画面上の大きさから、係数を決める |
+| テッセレータ（固定機能） | 係数に従って、パッチの内側に、新しい点と三角形を作る（プログラムは書けない） | — |
+| ドメイン シェーダー | 新しい点の位置を、パッチの座標（0〜1）から計算する | 高さマップを読んで、頂点を持ち上げる |
+
+地形では、<strong>パッチ 1 枚が、地形の正方形ブロック</strong>になります。**制御点は 4 つ（四隅）**で、トポロジーは `D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST` です。
+
+```cpp
+// パッチの描画: 頂点の代わりに、4 つの制御点のパッチを渡す。
+context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST);
+context->IASetVertexBuffers(0, 1, patch_vb.GetAddressOf(), &stride, &offset);
+context->Draw(patch_count * 4, 0);   // パッチ 1 枚 = 4 点
+```
+
+## ハル シェーダー：係数を決める
+
+ハル シェーダーは、2 つの関数でできています。
+
+| 関数 | 呼ばれ方 | 役割 |
+| --- | --- | --- |
+| 制御点の関数 | 制御点ごとに 1 回 | 制御点を、そのまま（または加工して）出力する |
+| パッチ定数関数 | パッチごとに 1 回 | **テッセレーション係数**を決める（`SV_TessFactor`、`SV_InsideTessFactor`） |
+
+四角形のパッチでは、**辺の係数が 4 つ、内側の係数が 2 つ**です。
+
+```hlsl
+struct HullConstants {
+  float edge[4]   : SV_TessFactor;        // 辺ごとの分割数（左・下・右・上）
+  float inside[2] : SV_InsideTessFactor;  // 内側の分割数（横・縦）
+};
+
+// 辺の中点と、カメラの距離から、その辺の分割数を決める。
+float EdgeFactor(float3 p0, float3 p1) {
+  float3 mid = 0.5 * (p0 + p1);
+  float dist = distance(mid, camera_position);
+  // 距離が 2 倍になったら、係数を半分に（画面上の三角形の大きさを、一定にしたい）
+  return clamp(kFactorAtOneMeter / dist, 1.0, 64.0);
+}
+
+HullConstants ComputeConstants(InputPatch<ControlPoint, 4> patch) {
+  HullConstants c;
+  // 辺の係数は、辺の両端の点だけから決める。隣のパッチも、同じ両端から計算するので、
+  // 共有する辺では、必ず同じ値になる（隙間が出ない）。
+  c.edge[0] = EdgeFactor(patch[0].position, patch[2].position);  // 左
+  c.edge[1] = EdgeFactor(patch[0].position, patch[1].position);  // 下
+  c.edge[2] = EdgeFactor(patch[1].position, patch[3].position);  // 右
+  c.edge[3] = EdgeFactor(patch[2].position, patch[3].position);  // 上
+  // 内側は、4 辺の平均（または最大）にする
+  c.inside[0] = 0.5 * (c.edge[1] + c.edge[3]);
+  c.inside[1] = 0.5 * (c.edge[0] + c.edge[2]);
+  return c;
+}
+
+[domain("quad")]
+[partitioning("fractional_odd")]
+[outputtopology("triangle_cw")]
+[outputcontrolpoints(4)]
+[patchconstantfunc("ComputeConstants")]
+ControlPoint main(InputPatch<ControlPoint, 4> patch, uint i : SV_OutputControlPointID) {
+  return patch[i];
+}
+```
+
+!!! warning "辺の係数は、辺の両端だけから計算する"
+    パッチの中心の距離から、4 辺とも同じ係数にすると、隣のパッチとの境界で、**左のパッチの右辺と、右のパッチの左辺の係数が、食い違います**。すると、境界の頂点が合わず、隙間（クラック）が出ます。辺の係数は、**その辺の、2 つの端点だけ**から計算します。**同じ辺を、隣のパッチが、同じ順序の 2 点で計算する必要があります**（両端を、座標の大きさの順に並べるなどして、計算の順序をそろえます）。
+
+### 分割方式（`partitioning`）
+
+| 値 | 動き | 向く場面 |
+| --- | --- | --- |
+| `integer` | 係数を整数に丸める。係数が変わる瞬間に、頂点が、急に増える | 簡単。ポップが出る |
+| `fractional_odd` | 係数が連続的に変わると、新しい頂点が、**既存の頂点の位置から、滑らかに生えてくる** | 地形に向く。**ポップが出ない** |
+| `fractional_even` | 同上。偶数の分割から始まる | 偶数の分割が必要なとき |
+| `pow2` | 係数を 2 のべき乗に丸める | 地形の四分木の LOD に合わせる |
+
+`fractional_odd` が、地形では標準です。距離が動くと、頂点の位置が、連続的に動くので、CDLOD のモーフィングと、同じ効果を、固定機能がやってくれます。
+
+## ドメイン シェーダー：頂点を作る
+
+テッセレータが作った点の座標（`SV_DomainLocation`、パッチの中の 0〜1）を受け取って、ワールド座標と、高さを計算します。
+
+```hlsl
+Texture2D<float> g_height : register(t0);
+SamplerState g_linear_clamp : register(s0);
+
+[domain("quad")]
+DSOutput main(HullConstants constants, float2 uv : SV_DomainLocation,
+              const OutputPatch<ControlPoint, 4> patch) {
+  // パッチの四隅を、バイリニアに補間して、XZ を作る
+  float3 bottom = lerp(patch[0].position, patch[1].position, uv.x);
+  float3 top = lerp(patch[2].position, patch[3].position, uv.x);
+  float3 p = lerp(bottom, top, uv.y);
+
+  // 高さマップから高さを読む。ドメイン シェーダーは、画面の微分が使えないので、SampleLevel。
+  float2 tex_uv = (p.xz - heightmap_origin) / heightmap_size;
+  p.y = g_height.SampleLevel(g_linear_clamp, tex_uv, mip_level) * height_scale + height_offset;
+
+  DSOutput output;
+  output.position = mul(float4(p, 1.0), view_proj);
+  output.world_position = p;
+  output.tex_uv = tex_uv;
+  return output;
+}
+```
+
+## 係数の決め方：距離と、画面上の大きさ
+
+距離だけで係数を決めると、**画角（FOV）や画面の解像度が変わったとき**に、三角形の見た目の大きさが変わります。より正確には、**辺が画面上で何画素になるか**から、係数を決めます。
+
+```hlsl
+// 辺の、画面上の長さ（画素）を測って、1 つの三角形の辺が、目標の画素数になるように割る。
+float EdgeFactorScreen(float3 p0, float3 p1, float target_pixels) {
+  float4 c0 = mul(float4(p0, 1), view_proj);
+  float4 c1 = mul(float4(p1, 1), view_proj);
+  float2 s0 = c0.xy / c0.w * 0.5 * screen_size;   // 画素座標
+  float2 s1 = c1.xy / c1.w * 0.5 * screen_size;
+  return clamp(length(s0 - s1) / target_pixels, 1.0, 64.0);
+}
+```
+
+目標は、8 画素前後です。**小さすぎる三角形（1〜2 画素）は、GPU が苦手です**（2×2 のクアッドのため、ピクセル シェーダーが無駄に走る）。
+
+NVIDIA の資料（Cantlay、2011）は、この考え方を、地形で実装した、標準的な参考です。**パッチごとに、高さマップを事前に調べて、平らな場所は、係数を下げる**といった工夫も紹介されています。
+
+## カリング
+
+ハル シェーダーで、パッチが、画面の外にあると分かったら、**係数を 0 にする**と、そのパッチは、破棄されます。
+
+```hlsl
+// 視錐台の 6 枚の平面と、パッチの AABB（高さの最大・最小も使う）を比べる。
+bool Visible(float3 aabb_min, float3 aabb_max) {
+  for (int i = 0; i < 6; ++i) {
+    float3 p = float3(frustum_planes[i].x > 0 ? aabb_max.x : aabb_min.x,
+                      frustum_planes[i].y > 0 ? aabb_max.y : aabb_min.y,
+                      frustum_planes[i].z > 0 ? aabb_max.z : aabb_min.z);
+    if (dot(frustum_planes[i].xyz, p) + frustum_planes[i].w < 0) return false;
+  }
+  return true;
+}
+
+// ComputeConstants の最後で:
+if (!Visible(patch_min, patch_max)) {
+  c.edge[0] = c.edge[1] = c.edge[2] = c.edge[3] = 0;
+  c.inside[0] = c.inside[1] = 0;
+}
+```
+
+## テッセレーションの、長所と短所
+
+| 観点 | 内容 |
+| --- | --- |
+| 長所 | CPU に四分木が要らない。**パッチの配置は、固定の格子**でよい。LOD が連続的 |
+| 長所 | パッチの数が少なく、頂点バッファが小さい（1 パッチ = 4 点） |
+| 短所 | 固定機能のテッセレータが、**GPU によって、速度がまちまち** |
+| 短所 | **小さい三角形が多くなると、急に遅くなる** |
+| 短所 | 新しい形式（メッシュ シェーダー）が、同じことを、より柔軟にできる |
+| 短所 | DX11 以降の GPU が必要（モバイルや、古い環境では使えない） |
+
+最近は、テッセレーションの代わりに、**四分木でノードを選び、同じ格子を、インスタンスで描く**（CDLOD 型）が、より一般的です。ただし、**パッチ 1 枚から、高さマップで変位させる**形は、**ディスプレースメント マッピング**（岩や壁の凹凸）と、そのまま同じなので、地形以外でも使い道があります。
+
 ## よくあるミス
 
 ??? failure "パッチの境目に、隙間が見える"
@@ -53,9 +223,11 @@ HullConstants ComputeConstants(InputPatch<ControlPoint, 4> patch) {
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Cantlay, "DirectX 11 Terrain Tessellation", NVIDIA ホワイトペーパー, 2011
+- Microsoft Learn, "Tessellation Stages"（Direct3D 11 のハル・テッセレータ・ドメインの仕様）
+- Vlachos, Peters, Boyd, Mitchell, "Curved PN Triangles", Symposium on Interactive 3D Graphics 2001（テッセレーションで曲面にする考え方の源流）
+- Moreton, "Watertight Tessellation Using Forward Differencing", Graphics Hardware 2001（辺の細分を、辺の両端だけで決める、隙間の出ない方式）
+- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps", Journal of Graphics, GPU, and Game Tools, Vol. 14, No. 4, 2009（CDLOD の原典。作者の公開サンプル `fstrugar/CDLOD` が GitHub にある）
 
 ## 関連ページ
 

@@ -113,28 +113,7 @@ ColumnLimit: 100
 
 ## .editorconfig（文字コードや字下げをそろえる） {#editorconfig}
 
-**`.editorconfig`** は、エディターの設定をファイルで共有する仕組みです。チームの全員が同じ設定で書けます。
-
-```ini
-root = true
-
-[*]
-charset = utf-8
-end_of_line = crlf
-insert_final_newline = true
-indent_style = space
-indent_size = 2
-
-[*.{cpp,h,hpp}]
-indent_size = 2
-```
-
-| 項目 | 意味 |
-| --- | --- |
-| `charset = utf-8` | 保存するときの文字コードを UTF-8 にする（`/utf-8` とセットで使う） |
-| `end_of_line` | 改行の種類（Windows は `crlf`、Git で統一するなら `lf`） |
-| `indent_style = space` | 字下げにスペースを使う（タブを混ぜない） |
-| `indent_size = 2` | 字下げの幅（Google C++ Style は 2） |
+**`.editorconfig`** は、エディターの設定を、ファイルで共有する仕組みです。チームの全員が、同じ文字コード・改行・字下げで書けます。書き方、ファイルの種類ごとの書き分け、Visual Studio 独自の設定は、[.editorconfig（エディターの設定をそろえる）](editorconfig.md) で詳しく説明しています。文字コードだけを決めたいときは、[文字コードを UTF-8 にしよう](utf8.md#editorconfig) の、2 行で十分です。
 
 ## 便利な拡張機能
 

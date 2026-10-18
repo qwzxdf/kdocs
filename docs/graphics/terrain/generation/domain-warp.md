@@ -1279,6 +1279,91 @@ float WarpedFbm(float2 p) {
 | **層を重ねる** | **q → r → 最終**と**2 段**で**複雑に** |
 | **コスト** | **fBm を何度も呼ぶ**ので**重い**。**生成時（ベイク）に使い、実行時には焼いたテクスチャを読む** |
 
+## ドメイン ワーピングとは
+
+ノイズに、座標を渡す前に、**座標そのものを、別のノイズで、ずらす**手法です。ノイズ関数 `f(p)` の代わりに、`f(p + w(p))` を計算します。`w` は、ずらし量を返す、別のノイズ関数です。
+
+```text
+普通:        height = fbm(p)
+ワーピング:   height = fbm(p + k × fbm2(p))
+```
+
+「domain（定義域）」は、関数の入力のことです。**入力を、ゆがめる**ので、この名前が付いています。
+
+## なぜ、ゆがめるのか
+
+fBm や、勾配ノイズの地形は、**どの方向にも、同じ性質**（等方的）です。人工的で、**砂の山のよう**に見えることがあります。現実の地形は、風・水・断層で、**流れるように曲がった形**をしています。ドメイン ワーピングを行うと、**ノイズが、渦を巻いたり、折れ曲がったりして**、ずっと有機的な形になります。
+
+| 比較 | fBm | ワーピングした fBm |
+| --- | --- | --- |
+| 尾根・谷の形 | 同じ方向に、ばらばら | 曲がって、流れる |
+| 全体の印象 | 砂山、小さな丘の集まり | 大陸、浸食された山地 |
+| 細部 | 一様 | 場所によって、密度が変わる |
+
+## 実装
+
+```hlsl
+// ずらし量を作る関数。2 つのノイズで、x と y を別々にずらす。
+float2 Warp(float2 p, uint seed) {
+  return float2(Fbm(p + float2(0.0, 0.0), 4, 2.0, 0.5, seed),
+                Fbm(p + float2(5.2, 1.3), 4, 2.0, 0.5, seed + 1));   // 少し離れた場所から読む
+}
+
+float WarpedFbm(float2 p, float strength, uint seed) {
+  float2 q = p + strength * Warp(p, seed);
+  return Fbm(q, 6, 2.0, 0.5, seed + 2);
+}
+```
+
+`float2(5.2, 1.3)` のような、**ずらしたオフセット**は、x と y の、ずらし量が、同じにならないようにするためです。同じノイズを使うと、斜め方向にしか、ずれません。
+
+### 2 重のワーピング
+
+Quilez は、**ワーピングの結果を、もう一度、ワーピングの入力にする**方法を紹介しています。
+
+```hlsl
+float WarpedFbm2(float2 p, float strength, uint seed) {
+  float2 q = Warp(p, seed);                          // 1 回目
+  float2 r = Warp(p + strength * q, seed + 10);      // 1 回目の結果で、ずらして、2 回目
+  return Fbm(p + strength * r, 6, 2.0, 0.5, seed + 2);
+}
+```
+
+```text
+f(p + fbm(p + fbm(p)))
+```
+
+重ねるほど、渦や、折りたたまれた形が、複雑になります。そのかわり、**ノイズの計算が、回数分、増えます**（1 回で 3 つ、2 重で 5 つ分の fBm）。
+
+## パラメーター
+
+| パラメーター | 一般的な値 | 効果 |
+| --- | --- | --- |
+| `strength`（ずらし量） | 0.3〜2.0（周波数 1 に対して） | 小さいと、わずかなゆがみ。大きいと、渦、折りたたみ |
+| ワーピング用の fBm の周波数 | 本体より、低い（1/2〜1/4） | 低いと、大きな、ゆっくりした曲がり。高いと、細かいゆがみ |
+| ワーピング用の fBm の、オクターブ数 | 2〜4 | 少なくてもよい（形が、なめらかなので） |
+
+!!! tip "ずらし量を、場所で変える"
+    ずらし量を、**別の低周波ノイズで、変える**と、「あまりゆがんでいない平地」と「大きくゆがんだ山岳」が、同じ地形の中に共存します。`strength * mask(p)` の形です。
+
+## 注意点
+
+| 項目 | 内容 |
+| --- | --- |
+| 傾きが、不連続になる | ずらし量が大きいと、座標の写像が、折りたたまれて、**高さが、鋭く切れる**ことがある。ずらし量を、控えめにする |
+| コスト | fBm が、3〜5 個分に増える。オフラインで、焼き込むのが基本 |
+| 傾きの解析的な計算 | 座標のずらしで、微分も、連鎖律で変わる。侵食風の式と組み合わせるときは、ワーピングの微分も、計算する必要がある |
+| ワールド座標 | ずらしを加えた座標も、**ワールド座標**で計算する（タイルの継ぎ目をなくす）（[fBm](fbm.md)） |
+
+## 使いどころ
+
+| 場面 | 使い方 |
+| --- | --- |
+| 大陸・島の形 | 低周波に、強くワーピングして、海岸線を、複雑にする |
+| 山岳地帯 | 尾根ノイズの座標を、ワーピングして、尾根を曲げる（[Ridged Noise](ridge.md)） |
+| 砂漠 | 縞模様の砂丘を、少しだけ、ゆがめる |
+| 地層・岩の模様 | 色のノイズを、ワーピングして、流れるような模様にする |
+
 ## よくあるミス
 
 ??? failure "地形に、規則的な模様が見える"
@@ -1291,9 +1376,10 @@ float WarpedFbm(float2 p) {
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Quilez, "fBm" と "Domain Warping", iquilezles.org（ノイズの重ね合わせと、座標のゆがめ方の解説）
+- Ebert, Musgrave, Peachey, Perlin, Worley, "Texturing and Modeling: A Procedural Approach", 3rd Edition, Morgan Kaufmann, 2002（fBm、マルチフラクタル、リッジ ノイズ）
+- Perlin, "Improving Noise", SIGGRAPH 2002（補間関数を 5 次式にし、勾配の選び方を直した改良版）
+- Galin, Guérin, Peytavie, Cordonnier, Cani, Beneš, Gain, "A Review of Digital Terrain Modeling", Computer Graphics Forum (Eurographics 2019 STAR)
 
 ## 関連ページ
 

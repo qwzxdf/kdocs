@@ -42,6 +42,12 @@ tags:
 
 **高さマップだけでも大きい**ので、**ストリーミング**（近くだけ読み込む）や**圧縮**が必要になります。**テクスチャ（色・法線・素材）は、さらに桁違いに大きい**ので、**重ねて使い回す**（スプラット）か、**必要な部分だけ読む**（仮想テクスチャ）工夫が要ります。
 
+## 参考
+
+- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps", Journal of Graphics, GPU, and Game Tools, Vol. 14, No. 4, 2009
+- Ebert, Musgrave, Peachey, Perlin, Worley, "Texturing and Modeling: A Procedural Approach", 3rd Edition, Morgan Kaufmann, 2002
+- Sousa, "Vegetation Procedural Animation and Shading in Crysis", GPU Gems 3, Chapter 16, 2007（幹・枝・葉の 3 層の揺れ、葉の透過）
+
 ## 関連ページ
 
 - [描画](../index.md)

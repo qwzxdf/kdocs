@@ -63,7 +63,7 @@ tags:
 ## モーフィング
 <strong>LOD が切り替わる瞬間に、地形の形が急に変わると「ポップ」</strong>が見えます。**モーフィング**は、**切り替わる手前から、細かい側の頂点を粗い側の位置へ滑らかに寄せる**手法です。
 
-**粗い LOD では、頂点が 1 つおきに間引かれる**ので、**間引かれる側の頂点を両隣の頂点の中点へ寄せます**。
+**粗い LOD では、頂点が 1 つおきに間引かれる**ので、**間引かれる側の頂点を、粗い LOD に存在する頂点（偶数番）へ寄せます**。
 
 <div class="formula">位置 = lerp( 自分の高さ,　両隣の平均の高さ,　morph )　（morph：0 → 1）</div>
 
@@ -89,6 +89,92 @@ float height = SampleHeight(xz);
 | **効果** | **切り替え時に形が同じ**になり、**ポップが消える** |
 | **高さも補間** | **XZ を寄せたうえで高さを読み直す** |
 
+## なぜ、ポップが起きるのか
+
+LOD を切り替えると、頂点の数が変わり、形がわずかに変わります。細かいレベルでは、2 つの頂点の間に、**途中の頂点**があり、そこが山の頂上や谷の底に当たっていることがあります。粗いレベルに切り替わった瞬間、その頂点は無くなり、**頂上が、一瞬で低くなります**。これが、ポップです。
+
+モーフィング（ジオモーフィング）は、<strong>切り替える前に、途中の頂点を、少しずつ粗いレベルの形に近づけておく</strong>手法です。切り替わる時点で、細かい形と粗い形が、すでに一致しているので、切り替えは、見た目では起きません。原型は、Hoppe の 1998 年の論文です。
+
+## 頂点を寄せる 2 つの方法
+
+粗いレベルで消える頂点（奇数番の頂点）を、どう動かすかには、2 つの流儀があります。
+
+| 方式 | 動かすもの | 切り替え前の状態 | 特徴 |
+| --- | --- | --- | --- |
+| XZ を寄せる（CDLOD のサンプル） | 奇数番の頂点の XZ を、隣の偶数番の位置へ | 奇数番の頂点が、偶数番に重なって、三角形がつぶれる | 頂点シェーダーが単純。高さは、寄せた位置で読み直す |
+| 高さだけを補間する（チャンク LOD など） | XZ は動かさず、高さを、両隣の高さの平均へ | 奇数番の頂点が、粗い辺の上に乗る | 見た目が、滑らかに変わる。XZ が滑らない |
+
+どちらも、**最後に、粗いレベルの形と一致する**点は同じです。
+
+### XZ を寄せる方式の動き
+
+1 次元で、頂点が 5 個（0〜4）ある辺を考えます。粗いレベルでは、0・2・4 だけが残ります。
+
+| モーフ係数 | 頂点 1 の位置 | 頂点 3 の位置 |
+| --- | --- | --- |
+| 0 | 1 | 3 |
+| 0.5 | 0.5 | 2.5 |
+| 1 | 0（頂点 0 と重なる） | 2（頂点 2 と重なる） |
+
+頂点 1 は、頂点 0 の方へ、頂点 3 は、頂点 2 の方へ動きます。モーフ係数が 1 のとき、頂点 1 と 0 は同じ位置なので、その間の三角形は、面積が 0 になります。残った三角形が、粗いレベルのメッシュです。
+
+### 高さだけを補間する方式
+
+```hlsl
+// 奇数番の頂点の高さを、両隣の偶数番の高さの平均へ近づける。
+// grid_step は、1 マスの XZ の大きさ。
+float MorphHeight(float2 world_xz, float2 grid, float morph, float grid_step) {
+  float2 odd = step(0.25, frac(grid * (kGridSize * 0.5)));   // 奇数番なら 1
+  float2 dir = odd * grid_step;                               // 両隣へのずれ
+  float h = SampleHeight(world_xz);
+  // x 方向だけが奇数番の頂点: 左右の平均。z 方向も同様。
+  float h_coarse = 0.5 * (SampleHeight(world_xz - float2(dir.x, 0)) +
+                          SampleHeight(world_xz + float2(dir.x, 0)));
+  if (dir.x > 0 && dir.y > 0) {
+    // 両方が奇数番の頂点（マスの中心）: 対角の平均
+    h_coarse = 0.5 * (SampleHeight(world_xz - dir) + SampleHeight(world_xz + dir));
+  } else if (dir.y > 0) {
+    h_coarse = 0.5 * (SampleHeight(world_xz - float2(0, dir.y)) +
+                      SampleHeight(world_xz + float2(0, dir.y)));
+  }
+  return lerp(h, h_coarse, morph);
+}
+```
+
+XZ の位置が、変わりません。山の斜面の、模様が、滑って見える問題が出ません。そのかわり、高さを何度も読むので、頂点シェーダーのテクスチャ読み出しが、3 倍ほどに増えます。
+
+## モーフの範囲の決め方
+
+モーフ係数を、LOD の範囲のどこで動かすかで、見た目が変わります。
+
+| 範囲 | 効果 |
+| --- | --- |
+| 範囲の全体で動かす | 切り替えは、完璧になめらか。ただし、近づくほど、細かさが、早く失われる |
+| 範囲の後ろの 3 割 | 前の 7 割は、細かいまま。見た目が保たれる。多くの実装が、この形 |
+| 範囲の後ろの 1 割 | 範囲がせまいと、画面上で、モーフ中の動きが、目立つ |
+
+```cpp
+// level ごとに、モーフを始める距離と、終える距離を決める。
+// ranges[level] は、そのレベルを使う距離の上限。
+void ComputeMorphRanges(const float* ranges, int level_count, float morph_ratio,
+                        std::vector<float2>& out) {
+  constexpr float kStartRatio = 0.7f;  // 範囲の後ろの 3 割で動かす
+  for (int level = 0; level < level_count; ++level) {
+    float prev = level == 0 ? 0.0f : ranges[level - 1];
+    float end = ranges[level];
+    float start = prev + (end - prev) * kStartRatio;
+    out.push_back({start, end});
+  }
+}
+```
+
+!!! warning "モーフ中の頂点が、隣のレベルの範囲に入る"
+    モーフの終わり（`end`）は、そのレベルの範囲の上限と、**ぴったり一致させます**。一致していないと、粗いレベルの境界で、細かいレベルの頂点が、まだ完全には寄っておらず、継ぎ目に、隙間が出ます（[Cracks and Seams](cracks.md)）。
+
+## 動く地形との相性
+
+地形が、プレイ中に変形する（掘る、爆発で凹む）ゲームでは、モーフィングの結果が、フレームごとに変わります。**頂点シェーダーで、毎フレーム、高さを読み直す**CDLOD 方式なら、高さマップを書き換えるだけで、そのまま反映されます。モーフ用のデータを、事前に焼き込む方式（チャンク LOD など）は、変形のたびに、作り直しが必要になります。
+
 ## よくあるミス
 
 ??? failure "LOD の切り替わりで、地形がポップする"
@@ -101,9 +187,10 @@ float height = SampleHeight(xz);
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps", Journal of Graphics, GPU, and Game Tools, Vol. 14, No. 4, 2009（CDLOD の原典。作者の公開サンプル `fstrugar/CDLOD` が GitHub にある）
+- Hoppe, "Smooth View-Dependent Level-of-Detail Control and its Application to Terrain Rendering", IEEE Visualization 1998（ジオモーフの原型）
+- Ulrich, "Rendering Massive Terrains Using Chunked Level of Detail Control", SIGGRAPH 2002 Course Notes（チャンク LOD、スカート、ジオモーフ）
+- Losasso, Hoppe, "Geometry Clipmaps: Terrain Rendering Using Nested Regular Grids", ACM Transactions on Graphics (SIGGRAPH 2004)
 
 ## 関連ページ
 

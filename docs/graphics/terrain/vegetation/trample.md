@@ -58,6 +58,144 @@ world_position.y -= influence * push_strength * height_t;
 
 <!-- fig:trample-falloff:end -->
 
+## 位置を、直接、渡す方法の、限界
+
+上のコードは、**キャラクターの位置を、シェーダーに渡し、近くの草を、押す**方法です。1 体なら、うまく動きますが、**増えると、破綻**します。
+
+| 状況 | 問題 |
+| --- | --- |
+| 敵が 20 体 | 20 個の位置を、全部の草が、ループで調べる。重い |
+| 戦車、車 | 通った**跡**が、残らない（通り過ぎると、すぐ、元に戻る） |
+| 爆発 | 瞬間の、局所的な、押しつぶし。履歴が、必要 |
+
+そこで、**「踏まれた跡を、テクスチャに、描く」**方式に、します。草は、**その場所の、テクスチャの値を、読む**だけです。物の数に、関係なく、**草が 1 回読むだけ**です。
+
+## インタラクション マップ
+
+カメラの周りの、**数十メートル四方**を、覆う、**小さなテクスチャ**（256×256 など）を、用意します。
+
+| チャンネル | 内容 |
+| --- | --- |
+| R | 倒れる量（0 = 立っている、1 = 完全に、倒れている） |
+| G, B | 倒れる向き（x, z）。物から、遠ざかる向き |
+
+```text
+        ← 50 m →
+   ┌───────────────┐
+   │   ·  ·  ·     │  カメラの周りの、窓（256×256 画素）
+   │  ·  ●→→ ·     │  ● = キャラクター。通った所に、押した向きが、描かれる
+   │   ·  ·  ·     │
+   └───────────────┘
+```
+
+### 物を、マップに描く
+
+毎フレーム、**動く物の位置に、円（ブラシ）を、描き込み**ます。
+
+```hlsl
+// ブラシを描く（ピクセル シェーダー。物の位置を中心にした、四角形を描く）。
+float4 BrushPS(float2 uv : TEXCOORD0, float2 center_uv, float radius_uv, float2 push_dir) : SV_Target {
+  float d = distance(uv, center_uv) / radius_uv;
+  float strength = saturate(1.0 - d);                 // 中心が 1、縁が 0
+  strength *= strength;                                // 縁を、なだらかに
+  // R = 倒れる量, GB = 向き（物の中心から、外へ）
+  float2 away = normalize(uv - center_uv + 1e-5);
+  return float4(strength, away * strength, 0);
+}
+```
+
+ブレンド ステートは、**最大値（`D3D11_BLEND_OP_MAX`）**にします。複数の物が、重なっても、**強い方が、残ります**。
+
+```cpp
+D3D11_BLEND_DESC blend = {};
+blend.RenderTarget[0].BlendEnable = TRUE;
+blend.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+blend.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+blend.RenderTarget[0].BlendOp = D3D11_BLEND_OP_MAX;          // 強い方を残す
+blend.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+blend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+blend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_MAX;
+blend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+device->CreateBlendState(&blend, &max_blend);
+```
+
+## 時間とともに、戻す
+
+毎フレーム、マップ全体を、**少しずつ、薄めます**。そうすると、踏まれた草が、**ゆっくり、立ち上がります**。
+
+```hlsl
+// 全画面の描画: 前のフレームの結果を、少しだけ薄めて、コピーする。
+float4 DecayPS(float2 uv : TEXCOORD0) : SV_Target {
+  float4 prev = g_prev_map.SampleLevel(g_point_clamp, uv, 0);
+  float recover = decay_per_second * dt;       // 例: 0.5 / 秒 → 約 2 秒で、元に戻る
+  prev.r = max(prev.r - recover, 0.0);
+  prev.gb *= (prev.r > 0.0) ? 1.0 : 0.0;       // 立ち上がったら、向きも消す
+  return prev;
+}
+```
+
+| パラメーター | 目安 | 効果 |
+| --- | --- | --- |
+| 回復の速さ | 0.2〜1 / 秒 | 小さいと、**長く、跡が残る**（雪、泥、深い草） |
+| ブラシの大きさ | 物の、足元の半径 | 大きいほど、広く、倒れる |
+| ブラシの強さ | 0.5〜1 | 物の、重さ |
+
+## カメラについていく窓
+
+マップは、**カメラの周りだけ**を覆います。カメラが動くと、窓が動きます。窓が動くとき、**マップの内容も、ずらす**必要があります。
+
+### 毎フレーム、全体をコピーする方法
+
+**カメラが、1 画素分動いたら、マップ全体を、ずらして、コピー**します。単純ですが、毎回、全体を、書き込むので、無駄です。
+
+### 円環バッファ（トロイダル）
+
+**ずらす代わりに、読み書きの位置を、ずらします**。テクスチャの `WRAP`（繰り返し）のアドレッシングを使うと、**窓の端を、超えた座標が、反対側に戻る**ので、内容を、コピーせずに済みます（[Geometry Clipmaps](../lod/clipmap.md) と、同じ発想）。
+
+```hlsl
+// ワールド座標から、マップの UV を求める。WRAP で、窓の外へ出ても、反対側から、読まれる。
+float2 InteractionUV(float3 world_pos) {
+  return world_pos.xz / map_world_size;
+}
+// 窓の外（遠すぎる）の草は、読んでも、意味がない。範囲の外は、「踏まれていない」にする。
+float inside = step(distance(world_pos.xz, camera_position.xz), map_world_size * 0.5);
+```
+
+窓が、動いて、**新しく範囲に入った帯**だけは、**クリア**します（前の位置の、古い内容が、残っているため）。
+
+## 草の側で読む
+
+```hlsl
+float3 ApplyTrample(float3 world_pos, float height_t) {
+  float4 m = g_interaction.SampleLevel(g_linear_wrap, InteractionUV(world_pos), 0);
+  float bend = m.r;                              // 倒れる量
+  float2 dir = m.gb;                             // 倒れる向き
+
+  // 先端ほど、大きく動く（根元は、動かない）
+  float k = height_t * height_t;
+  world_pos.xz += dir * bend * k * 0.6;          // 向きへ、押される
+  world_pos.y -= bend * k * 0.5;                  // 倒れた分、低くなる
+  return world_pos;
+}
+```
+
+風（[Wind](wind.md)）と、足し合わせます。**踏まれた草には、風の揺れを、弱めます**（倒れた草は、風で、揺れにくい）。
+
+```hlsl
+float3 pos = ApplyGrassWind(world_pos, height_t, wind_dir, strength, time);
+pos = ApplyTrample(pos, height_t);
+```
+
+## 水や雪との、共有
+
+同じ仕組みは、**波紋のブラシ**（[Water Interaction](../../water/interaction/index.md)）、**雪の足跡**、**砂の跡**にも、使えます。**1 つの、インタラクション マップに、複数の用途を、まとめる**ことも、できます。
+
+| 用途 | 使うチャンネル |
+| --- | --- |
+| 草の倒れ | R, G, B |
+| 雪・砂の足跡の深さ | A |
+| 水の波紋 | 別のマップ（高さを、波動方程式で、更新する） |
+
 ## よくあるミス
 
 ??? failure "草が、倒れたまま戻らない"
@@ -70,9 +208,10 @@ world_position.y -= influence * push_strength * height_t;
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Wohllaib, "Procedural Grass in Ghost of Tsushima", Game Developers Conference 2021
+- Sousa, "Vegetation Procedural Animation and Shading in Crysis", GPU Gems 3, Chapter 16, 2007（幹・枝・葉の 3 層の揺れ、葉の透過）
+- Pelzer, "Rendering Countless Blades of Waving Grass", GPU Gems, Chapter 7, 2004（草の板ポリ、風、クロス ブレンド）
+- Microsoft Learn, "D3D11_BLEND_OP"（`D3D11_BLEND_OP_MAX`）
 
 ## 関連ページ
 

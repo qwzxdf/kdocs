@@ -384,6 +384,231 @@ void SelectNodes(const QuadNode& node, const Camera& camera, int level,
 
 <!-- fig:terrain-quadtree:end -->
 
+## 論文が解こうとした問題
+
+地形の LOD には、CDLOD より前から、いくつかの有名な方式がありました。論文は、それぞれの欠点を並べて、「GPU に仕事を任せる時代に合う、単純な方式」を提案しています。
+
+| 方式 | 考え方 | 困るところ |
+| --- | --- | --- |
+| ROAM（1997） | 三角形を 1 枚ずつ、分割・統合する | CPU の仕事が重い。三角形ごとの管理は、GPU に向かない |
+| Geomipmapping | 地形を正方形のブロックに分け、ブロックごとに間引く | 切り替えで、ポップが出る。隣と LOD が違うと、継ぎ目の専用インデックスが要る |
+| チャンク LOD（Ulrich 2002） | 事前に作った、LOD つきのメッシュのかたまりを切り替える | メッシュをディスクに持つ。切り替えで、ポップが出る |
+| クリップマップ（2004） | カメラの周りに、同じ頂点数の格子を重ねる | カメラ周りの層の更新が要る。遠くの視錐台カリングがしにくい |
+| CDLOD（2009） | 四分木で範囲を選び、頂点を距離に応じて、連続的に動かす | — |
+
+CDLOD の要点は、次の 5 つです。
+
+1. **四分木のノードを選ぶ基準は、「カメラまでの距離の範囲」**。レベルごとに範囲を決めて、その範囲に入るノードを、そのレベルで描く
+2. **すべてのノードは、同じ格子メッシュを、使い回す**。ノードごとに違うのは、位置・大きさ・レベルだけ（インスタンシング向き）
+3. **高さは、頂点シェーダーで、テクスチャから読む**。ノードごとの頂点データは、持たない
+4. **頂点を、距離に応じて、連続的に動かす（モーフィング）**。LOD の境目で、粗いレベルの形に、完全に一致させる
+5. **だから、継ぎ目の専用インデックスも、スカートも要らない**
+
+「選ぶのは、CPU の四分木。形を決めるのは、頂点シェーダー」という分担です。CPU は、数百個のノードを選ぶだけで、三角形は 1 枚も触りません。
+
+## LOD の範囲を決める
+
+レベル 0 が最も細かく、レベルが上がるほど粗くなります。カメラからの距離を、レベルごとに区切ります。
+
+| レベル | 範囲（カメラからの距離）の例 | ノードの 1 辺 |
+| --- | --- | --- |
+| 0 | 0〜50 m | 64 m |
+| 1 | 50〜100 m | 128 m |
+| 2 | 100〜200 m | 256 m |
+| 3 | 200〜400 m | 512 m |
+| 4 | 400〜800 m | 1,024 m |
+
+範囲を、<strong>前のレベルの 2 倍</strong>にすると、ノードの大きさ（1 辺が 2 倍）と、範囲の増え方が合います。そうすると、画面に映るノードの、見た目の大きさが、どのレベルでもほぼ同じになります。つまり、ノードごとの三角形数が、画面上で、ほぼ一定の密度になります。
+
+距離は、**カメラからノードの AABB（軸に沿った箱）までの 3 次元の距離**で測ります。ノードの中心ではなく、箱の最も近い点を使います。高さの情報（最小・最大）が、箱に入っているので、山の上にいるときも、正しく測れます。
+
+<strong>範囲の下限</strong>にも、条件があります。隣り合うノードのレベルが、**2 以上離れてはいけません**。1 つ違いなら、モーフィングで、境界を一致させられるからです。範囲を、ノードの大きさに比べて小さくしすぎると、この条件が破れます。論文のサンプルでは、範囲を、ノードの対角線の長さより十分に大きく取り、各レベルの範囲を、前の範囲の 2 倍前後にしています。
+
+## ノードを選ぶアルゴリズム
+
+根（地形全体）から再帰して、ノードを選びます。各ノードでは、次の 3 つを調べます。
+
+1. ノードの AABB が、そのレベルの範囲の球と、交わらなければ、このノードは描かない（遠すぎる）
+2. 視錐台と、交わらなければ、捨てる（画面の外）
+3. ひとつ細かいレベルの範囲と、交わらなければ、このレベルで描く。交わるなら、4 つの子に分けて、子を調べる
+
+```cpp
+struct SelectedNode {
+  const QuadNode* node;
+  int level;
+};
+
+// level は、現在のノードのレベル（根が最大、葉が 0）。
+void SelectNodes(const QuadNode& node, int level, const Camera& camera,
+                 std::vector<SelectedNode>& out) {
+  // ① このレベルの範囲の外なら、描かない（親が、粗いレベルで描いている）
+  if (!node.bounds.IntersectsSphere(camera.position, lod_ranges[level])) {
+    return;
+  }
+  // ② 画面の外なら捨てる
+  if (!camera.frustum.Intersects(node.bounds)) {
+    return;
+  }
+  // ③ 最も細かいレベル、または、ひとつ細かい範囲に入っていないなら、このノードで描く
+  if (level == 0 ||
+      !node.bounds.IntersectsSphere(camera.position, lod_ranges[level - 1])) {
+    out.push_back({&node, level});
+    return;
+  }
+  // ④ 範囲の内側にも入っている部分は、子に任せる。
+  //    ノードの一部だけが近いとき、4 つの子はそれぞれ、別のレベルになる。
+  for (const QuadNode& child : node.children) {
+    SelectNodes(child, level - 1, camera, out);
+  }
+}
+```
+
+④ で、子に任せるとき、**親のノードが描く範囲のうち、細かい子が受け持たない部分は、粗いまま親が受け持つ**必要があります。実装では、子のうち「描かれなかった子」の領域に、親と同じ大きさの、粗いノードを追加する形にします（論文は、このとき 4 つの子の領域を、それぞれ、子のレベルで描く形で説明しています）。
+
+## 格子メッシュ 1 枚を、使い回す
+
+どのノードも、同じ頂点数の格子を使います。例として、32×32 マス（33×33 頂点）にします。<strong>偶数にするのは、モーフィングのため</strong>です。奇数番の頂点が、粗いレベルでは存在しない頂点になるので、偶数でないと、きれいに対応しません。
+
+```cpp
+constexpr int kGridCells = 32;
+constexpr int kGridVerts = kGridCells + 1;
+
+struct GridVertex { float x, z; };  // 0〜1 の範囲
+
+// 頂点: 0〜1 を kGridCells 等分
+std::vector<GridVertex> vertices;
+for (int j = 0; j < kGridVerts; ++j) {
+  for (int i = 0; i < kGridVerts; ++i) {
+    vertices.push_back({float(i) / kGridCells, float(j) / kGridCells});
+  }
+}
+
+// インデックス: 偶数マスと奇数マスで、対角線の向きを変える。
+// こうすると、粗いレベルの三角形に、モーフィング後の形がぴったり一致する。
+std::vector<uint16_t> indices;
+for (int j = 0; j < kGridCells; ++j) {
+  for (int i = 0; i < kGridCells; ++i) {
+    uint16_t a = j * kGridVerts + i, b = a + 1;
+    uint16_t c = (j + 1) * kGridVerts + i, d = c + 1;
+    if (((i + j) & 1) == 0) {
+      indices.insert(indices.end(), {a, c, d, a, d, b});
+    } else {
+      indices.insert(indices.end(), {a, c, b, b, c, d});
+    }
+  }
+}
+```
+
+!!! note "対角線の向き"
+    粗いレベルの 1 マスは、細かいレベルの 2×2 マスです。モーフィングで、奇数番の頂点が偶数番に重なったとき、細かい 4 マスの三角形のうち、いくつかは、つぶれて消えます。残る三角形が、粗い 1 マスの、2 枚の三角形になるように、4 マスの対角線を、市松模様に切り替えます。
+
+## DirectX 11 で描く
+
+ノードごとに変わる値は、**インスタンス データ**として、頂点バッファに積みます。1 回の `DrawIndexedInstanced` で、選ばれたすべてのノードを描けます。
+
+```cpp
+// ノードごとのデータ。インスタンス バッファに、ノードの数だけ並べる。
+struct NodeInstance {
+  float origin_x, origin_z;   // ノードの左下のワールド XZ
+  float size;                 // ノードの 1 辺（メートル）
+  float level;                // LOD レベル
+  float morph_start, morph_end;  // モーフィングを始める距離、終える距離
+  float pad[2];
+};
+
+// 入力レイアウト: 0 番スロット = 格子の頂点、1 番スロット = インスタンス
+D3D11_INPUT_ELEMENT_DESC layout[] = {
+    {"POSITION", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
+    {"NODE", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+    {"MORPH", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1},
+};
+
+// 毎フレーム: 選ばれたノードを、インスタンス バッファに書く
+D3D11_MAPPED_SUBRESOURCE mapped;
+context->Map(instance_buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
+std::memcpy(mapped.pData, instances.data(), instances.size() * sizeof(NodeInstance));
+context->Unmap(instance_buffer.Get(), 0);
+
+UINT strides[2] = {sizeof(GridVertex), sizeof(NodeInstance)};
+UINT offsets[2] = {0, 0};
+ID3D11Buffer* buffers[2] = {grid_vb.Get(), instance_buffer.Get()};
+context->IASetVertexBuffers(0, 2, buffers, strides, offsets);
+context->IASetIndexBuffer(grid_ib.Get(), DXGI_FORMAT_R16_UINT, 0);
+context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+context->DrawIndexedInstanced(static_cast<UINT>(indices.size()),
+                              static_cast<UINT>(instances.size()), 0, 0, 0);
+```
+
+頂点シェーダーは、格子の位置（0〜1）を、ノードの位置・大きさで、ワールド座標へ変えます。そのあと、モーフィングして、高さを読みます。
+
+```hlsl
+cbuffer FrameCB : register(b0) {
+  float4x4 view_proj;
+  float3 camera_position;
+  float grid_size;               // 32
+  float2 heightmap_origin;       // 高さマップの左下（ワールド XZ）
+  float2 heightmap_size;         // 高さマップが覆うワールドの大きさ
+  float height_scale;
+  float height_offset;
+  float2 pad;
+};
+
+Texture2D<float> g_height : register(t0);   // R16_UNORM（線形補間ができる形式）
+SamplerState g_linear_clamp : register(s0);
+
+struct VSInput {
+  float2 grid : POSITION;       // 0〜1
+  float4 node : NODE;           // xy = 原点, z = 大きさ, w = レベル
+  float4 morph : MORPH;         // x = 開始距離, y = 終了距離
+};
+
+float SampleHeight(float2 world_xz) {
+  float2 uv = (world_xz - heightmap_origin) / heightmap_size;
+  return g_height.SampleLevel(g_linear_clamp, uv, 0) * height_scale + height_offset;
+}
+
+float4 main(VSInput input) : SV_Position {
+  // ① まず、モーフィングなしの XZ で、高さを読み、距離を測る
+  float2 xz = input.node.xy + input.grid * input.node.z;
+  float3 p = float3(xz.x, SampleHeight(xz), xz.y);
+  float dist = distance(p, camera_position);
+
+  // ② モーフ係数: 開始距離まで 0、終了距離で 1
+  float morph = saturate((dist - input.morph.x) / (input.morph.y - input.morph.x));
+
+  // ③ 奇数番の頂点を、ひとつ前の偶数番の位置へ寄せる
+  float2 frac_part = frac(input.grid * (grid_size * 0.5)) * (2.0 / grid_size);
+  float2 grid_morphed = input.grid - frac_part * morph;
+
+  // ④ 寄せた XZ で、高さを読み直す
+  xz = input.node.xy + grid_morphed * input.node.z;
+  p = float3(xz.x, SampleHeight(xz), xz.y);
+  return mul(float4(p, 1.0), view_proj);
+}
+```
+
+### 速度が出る理由
+
+| 項目 | 内容 |
+| --- | --- |
+| CPU の仕事 | 数百個のノードを選ぶだけ。頂点データには触らない |
+| ドローコール | 1 回（インスタンシング）。または、レベルごとに数回 |
+| 頂点データ | 格子 1 枚。全ノードで共有する |
+| LOD の切り替え | 頂点シェーダーが連続的に動かすので、ポップが出ない |
+| カリング | ノードごとに、視錐台カリングができる（クリップマップより細かく捨てられる） |
+
+## 論文と、実装でずれやすい点
+
+| 項目 | 論文の考え方 | 実装で気をつけること |
+| --- | --- | --- |
+| 距離 | カメラから、頂点（または AABB）までの 3 次元の距離 | XZ の 2 次元の距離だと、高い山で、LOD が合わない |
+| モーフの範囲 | 各レベルの範囲の後ろ側で、0 から 1 へ | 範囲いっぱいで動かすと、細かさが落ちる。後ろの 3 割程度にする実装が多い |
+| 高さの読み方 | 頂点シェーダーでの、テクスチャ読み | `R32_FLOAT` の線形補間は、環境で、使えないことがある。`R16_UNORM` が安全 |
+| 法線 | 高さマップから計算（またはテクスチャ） | 頂点で出さず、ピクセル シェーダーで、高さマップの差分から出すと、モーフ中も滑らか |
+| ノードの AABB | 高さの最小・最大を、四分木の各ノードに事前計算 | 高さを編集したら、AABB も更新する |
+
+法線を高さマップから計算する方法は、[Terrain Normals](../heightmap-mesh/normals.md) を見てください。
+
 ## よくあるミス
 
 ??? failure "LOD の範囲が狭すぎて、粗い所が目立つ"
@@ -396,9 +621,11 @@ void SelectNodes(const QuadNode& node, const Camera& camera, int level,
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps", Journal of Graphics, GPU, and Game Tools, Vol. 14, No. 4, 2009（CDLOD の原典。作者の公開サンプル `fstrugar/CDLOD` が GitHub にある）
+- Losasso, Hoppe, "Geometry Clipmaps: Terrain Rendering Using Nested Regular Grids", ACM Transactions on Graphics (SIGGRAPH 2004)
+- Ulrich, "Rendering Massive Terrains Using Chunked Level of Detail Control", SIGGRAPH 2002 Course Notes（チャンク LOD、スカート、ジオモーフ）
+- Duchaineau et al., "ROAM: Real-Time Optimally Adapting Meshes", IEEE Visualization 1997
+- Microsoft Learn, "ID3D11DeviceContext::DrawIndexedInstanced"（インスタンシングの描画呼び出し）
 
 ## 関連ページ
 

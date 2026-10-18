@@ -102,6 +102,188 @@ float Fbm(float2 p, int octaves, float lacunarity, float gain) {
 
 コードの要点です。`max_amplitude` で割って、値の範囲を揃えます（0〜1 など）。層ごとに位置をずらすと、各層で座標がずれて、格子の揃いが目立ちません。高さの調整として、fBm の結果にカーブ（べき乗など）を掛けて、平地と山の比率を調整します。
 
+## fBm とは、何を足しているのか
+
+fBm（fractional Brownian motion、分数ブラウン運動）は、もともとは、確率過程の名前です（Mandelbrot と Van Ness、1968）。地形の分野では、**「周波数が 2 倍になるたびに、振幅が、一定の割合で小さくなる、ノイズの重ね合わせ」**という意味で使います。
+
+自然の山は、大きな起伏の上に、小さな起伏があり、その上にまた小さな起伏がある、という**自己相似**の形をしています。ノイズを、1 つだけ使うと、同じ大きさの、なだらかな丘しか作れません。**大きさの違うノイズを重ねる**と、山らしい形になります。
+
+```text
+オクターブ 0:  大きな起伏    周波数 1,   振幅 1
+オクターブ 1:  中くらい       周波数 2,   振幅 0.5
+オクターブ 2:  細かい         周波数 4,   振幅 0.25
+オクターブ 3:  さらに細かい    周波数 8,   振幅 0.125
+合計 = 山
+```
+
+## 式とパラメーター
+
+```text
+fBm(p) = Σ  gain^i × noise(p × lacunarity^i)         （i = 0, 1, …, octaves − 1）
+```
+
+| パラメーター | 一般的な値 | 意味 |
+| --- | --- | --- |
+| `octaves`（オクターブ数） | 4〜8 | 重ねる回数。多いほど細かいが、重い |
+| `lacunarity`（空隙度） | 2.0 | 周波数が、毎回何倍になるか |
+| `gain`（持続度、persistence） | 0.5 | 振幅が、毎回何倍になるか |
+
+### gain と、地形の粗さ
+
+`gain` が大きいと、細かい起伏が強く残り、**ごつごつ**した地形になります。小さいと、**なだらか**になります。理論的には、**ハースト指数 H**（0〜1）と、次の関係があります。
+
+```text
+gain = lacunarity^(−H)        （lacunarity = 2 なら、gain = 2^(−H)）
+```
+
+| H | gain | 見た目 |
+| --- | --- | --- |
+| 1.0 | 0.5 | なだらかで、滑らか |
+| 0.5 | 0.707 | 標準的な山 |
+| 0.0 | 1.0 | 非常にごつごつ（ホワイト ノイズに近い） |
+
+`gain = 0.5`、`lacunarity = 2` は、H = 1 に当たり、なだらかな地形になります。ごつごつした山には、`gain = 0.6〜0.7` に上げます。
+
+### 振幅の合計と正規化
+
+オクターブごとの最大の振幅の合計は、`gain` の等比数列の和です。
+
+```text
+合計 = (1 − gain^octaves) / (1 − gain)
+```
+
+`gain = 0.5`、8 オクターブなら、約 1.99 です。**合計で割って、−1〜1（または 0〜1）に、収める**と、あとの計算（高さの変換）が、扱いやすくなります。
+
+## 勾配ノイズ（Perlin ノイズ）
+
+fBm の、土台になるノイズです。整数の格子点に、**ランダムな向きの勾配（ベクトル）**を置いて、その間を滑らかに補間します（Perlin、1985）。
+
+```hlsl
+// 整数のハッシュ（PCG）。sin を使うハッシュは、GPU によって結果が違うので、使わない。
+uint Pcg(uint v) {
+  uint state = v * 747796405u + 2891336453u;
+  uint word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
+  return (word >> 22u) ^ word;
+}
+
+float2 GradientAt(int2 p, uint seed) {
+  uint h = Pcg(p.x + Pcg(p.y + seed));
+  float angle = (h & 0xffffu) * (6.2831853 / 65536.0);
+  return float2(cos(angle), sin(angle));      // 長さ 1 の勾配
+}
+
+float GradientNoise(float2 p, uint seed) {
+  int2 i = (int2)floor(p);
+  float2 f = frac(p);
+  // 5 次式の補間（Perlin 2002）。3 次式（f*f*(3-2f)）より、格子の目立ちが、少ない。
+  float2 u = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+
+  float a = dot(GradientAt(i + int2(0, 0), seed), f - float2(0, 0));
+  float b = dot(GradientAt(i + int2(1, 0), seed), f - float2(1, 0));
+  float c = dot(GradientAt(i + int2(0, 1), seed), f - float2(0, 1));
+  float d = dot(GradientAt(i + int2(1, 1), seed), f - float2(1, 1));
+  return lerp(lerp(a, b, u.x), lerp(c, d, u.x), u.y) * 1.4142;   // おおよそ -1〜1
+}
+```
+
+| 種類 | 内容 | 特徴 |
+| --- | --- | --- |
+| 値ノイズ（value noise） | 格子点に、ランダムな**値**を置いて補間 | 安いが、格子の形が、目立つ |
+| 勾配ノイズ（Perlin） | 格子点に、ランダムな**向き**を置く | 自然。地形の標準 |
+| シンプレックス ノイズ | 三角形の格子を使う | 次元が上がっても速い。方向の偏りが少ない |
+
+## fBm の実装
+
+```hlsl
+float Fbm(float2 p, int octaves, float lacunarity, float gain, uint seed) {
+  float sum = 0.0;
+  float amplitude = 1.0;
+  float norm = 0.0;
+  for (int i = 0; i < octaves; ++i) {
+    sum += amplitude * GradientNoise(p, seed + i);   // オクターブごとに、種を変える
+    norm += amplitude;
+    p *= lacunarity;
+    amplitude *= gain;
+  }
+  return sum / norm;     // -1〜1 に収める
+}
+```
+
+!!! warning "同じノイズを、そのまま重ねない"
+    オクターブごとに、**座標をずらす**か、**種（seed）を変える**ことをします。同じ種で、周波数だけを 2 倍にすると、**格子点（座標 0）で、すべてのオクターブが、同時に 0 になり、原点の周りに、模様の偏りが出ます**。
+
+## 計算シェーダーで、高さマップを作る
+
+CPU で、数百万画素のノイズを計算すると、数秒かかります。**計算シェーダー（Compute Shader）**で行うと、数ミリ秒で終わります。
+
+```hlsl
+RWTexture2D<float> g_height : register(u0);   // R32_FLOAT、または R16_UNORM
+
+cbuffer GenCB : register(b0) {
+  float2 world_origin;     // このタイルの、左下のワールド座標
+  float texel_size;        // 1 テクセルの、メートル
+  float frequency;         // 基本の周波数（1 / メートル）
+  int octaves;
+  float lacunarity;
+  float gain;
+  uint seed;
+};
+
+[numthreads(8, 8, 1)]
+void main(uint3 id : SV_DispatchThreadID) {
+  // ワールド座標で、ノイズを計算する。
+  // 隣のタイルも、同じ式なので、境界が、自動的に、つながる。
+  float2 world = world_origin + float2(id.xy) * texel_size;
+  float h = Fbm(world * frequency, octaves, lacunarity, gain, seed);
+  g_height[id.xy] = h * 0.5 + 0.5;   // 0〜1 にして保存
+}
+```
+
+```cpp
+// C++ 側: 1024×1024 の高さマップを作る。
+context->CSSetShader(noise_cs.Get(), nullptr, 0);
+context->CSSetUnorderedAccessViews(0, 1, height_uav.GetAddressOf(), nullptr);
+context->CSSetConstantBuffers(0, 1, gen_cb.GetAddressOf());
+context->Dispatch(1024 / 8, 1024 / 8, 1);       // 8×8 スレッドのグループを、並べる
+```
+
+**座標を、ワールド座標で計算する**ことが、チャンク分割された地形で、継ぎ目を作らない、鍵です。タイル内の座標（0〜1）で計算すると、タイルごとに別のノイズになって、境界が合いません。
+
+## 解析的な微分で、侵食らしく見せる
+
+fBm のオクターブごとに、ノイズの**傾き（勾配）**も同時に計算できます。傾きが急な場所では、小さい起伏の振幅を、減らすと、**水で削られたように、斜面がなめらかで、谷底に細かい起伏が残る**地形になります（Quilez）。
+
+```hlsl
+// 勾配ノイズの値と、勾配（2 成分）を、同時に返す。
+float3 GradientNoiseD(float2 p, uint seed);   // x = 値, yz = 勾配
+
+float FbmEroded(float2 p, int octaves, float lacunarity, float gain, uint seed) {
+  float sum = 0.0;
+  float amplitude = 0.5;
+  float2 slope_sum = 0.0;
+  for (int i = 0; i < octaves; ++i) {
+    float3 n = GradientNoiseD(p, seed + i);
+    slope_sum += n.yz;
+    // 傾きが、これまでに、急になっているほど、このオクターブの寄与を、小さくする。
+    sum += amplitude * n.x / (1.0 + dot(slope_sum, slope_sum));
+    p *= lacunarity;
+    amplitude *= gain;
+  }
+  return sum;
+}
+```
+
+水の流れの、シミュレーションは不要で、**1 回のノイズ計算で、侵食に似た形**が得られます。本格的な侵食（[Erosion](erosion.md)）に比べると、谷が、つながっていない点は、見破られます。
+
+## 実装の注意点
+
+| 項目 | 内容 |
+| --- | --- |
+| 精度 | 浮動小数点は、座標が大きい（数十 km）と、精度が落ちる。ワールド原点から、離れた場所では、タイルの原点を引いてから、計算する |
+| オクターブ数 | 画素が、1 テクセル未満になる周波数は、意味がない。テクセルの大きさに合わせて、打ち切る |
+| 再現性 | ハッシュは、`sin` ではなく、整数演算（PCG）を使う。GPU が違っても、同じ地形になる |
+| 保存 | 高さは 16 ビット（`R16_UNORM`）で保存すると、メモリが、半分になる |
+
 ## よくあるミス
 
 ??? failure "地形が、のっぺりしている"
@@ -114,9 +296,13 @@ float Fbm(float2 p, int octaves, float lacunarity, float gain) {
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Perlin, "An Image Synthesizer", SIGGRAPH 1985（Perlin ノイズの原典）
+- Perlin, "Improving Noise", SIGGRAPH 2002（補間関数を 5 次式にし、勾配の選び方を直した改良版）
+- Ebert, Musgrave, Peachey, Perlin, Worley, "Texturing and Modeling: A Procedural Approach", 3rd Edition, Morgan Kaufmann, 2002（fBm、マルチフラクタル、リッジ ノイズ）
+- Mandelbrot, Van Ness, "Fractional Brownian Motions, Fractional Noises and Applications", SIAM Review, Vol. 10, No. 4, 1968（fBm の原典）
+- Quilez, "fBm" と "Domain Warping", iquilezles.org（ノイズの重ね合わせと、座標のゆがめ方の解説）
+- Quilez, "Value Noise Derivatives" / "Gradient Noise Derivatives", iquilezles.org（ノイズの解析的な微分を使った、侵食に見える地形）
+- Jarzynski, Olano, "Hash Functions for GPU Rendering", Journal of Computer Graphics Techniques, Vol. 9, No. 3, 2020
 
 ## 関連ページ
 

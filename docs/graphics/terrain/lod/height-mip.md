@@ -93,6 +93,140 @@ tags:
 
 <!-- fig:height-mip-bars:end -->
 
+## なぜ、ミップが要るのか
+
+遠くの地形を、粗い LOD で描くと、頂点が、数百メートルおきにしか、ありません。その頂点が、**細かい高さマップの、1 点だけ**を読むと、どうなるでしょうか。
+
+高さマップが、1 m ごとに値を持つなら、数百メートル間隔の頂点は、その中の 1 点を、たまたま拾います。カメラが少し動いて、頂点の位置が、1 m 動くと、拾う値が変わります。**山の頂上を拾ったり、谷を拾ったりして、地形が、ちらちら揺れます。** これは、テクスチャの縮小で出る、エイリアシングと、同じ現象です。
+
+ミップマップは、「大きい画像を、半分の大きさに平均して縮めたもの」を、積み重ねたものです（Williams、1983）。頂点の間隔に合ったミップを読めば、**その頂点が受け持つ範囲の、平均の高さ**が取れます。
+
+## どのミップを読むか
+
+頂点の間隔が、高さマップのテクセルの何個分かで、ミップが決まります。
+
+```text
+テクセル数 = 頂点の間隔(m) ÷ 高さマップの 1 テクセルの大きさ(m)
+ミップ = log2(テクセル数)
+```
+
+| LOD | 頂点の間隔 | 高さマップが 1 m / テクセルのとき | 読むミップ |
+| --- | --- | --- | --- |
+| 0 | 2 m | 2 テクセル | 1 |
+| 1 | 4 m | 4 テクセル | 2 |
+| 2 | 8 m | 8 テクセル | 3 |
+| 3 | 16 m | 16 テクセル | 4 |
+
+LOD が 1 つ上がるごとに、ミップも 1 つ上がります。これは、CDLOD の場合、「レベル = ミップ + 定数」で済みます。
+
+```hlsl
+// LOD レベルから、読むミップを決める。
+// level は、頂点を持つノードのレベル（0 が最も細かい）。
+// base_mip は、レベル 0 の頂点の間隔に、合うミップ。
+float HeightMip(float level, float base_mip) {
+  return base_mip + level;
+}
+
+float SampleHeightLod(float2 world_xz, float level) {
+  float2 uv = (world_xz - heightmap_origin) / heightmap_size;
+  return g_height.SampleLevel(g_linear_clamp, uv, HeightMip(level, 0.0)) * height_scale + height_offset;
+}
+```
+
+<strong>連続的な LOD（モーフィングつき）では、ミップも、連続的に変える</strong>と、切り替えのポップが、さらに目立たなくなります。トライリニア補間が、2 つのミップを自動で混ぜてくれるので、`SampleLevel` に、小数のミップ レベルを渡します。
+
+```hlsl
+// モーフ係数 morph（0〜1）を使って、ミップを、レベルの間で連続的に動かす。
+float mip = level + morph;
+float h = g_height.SampleLevel(g_linear_clamp, uv, mip);
+```
+
+## 平均だと、山が低くなる
+
+ミップは、平均で作るのが普通です。しかし、**地形の山は、平均すると、低くなります**。幅の細い尾根は、まわりの谷と、平均されて、削られます。
+
+| ミップ | 尾根の高さ（隣は谷 0 m） |
+| --- | --- |
+| 0（元の高さ） | 100 m |
+| 1（2×2 の平均） | 50 m |
+| 2（4×4 の平均） | 25 m |
+
+そうすると、遠くの山が、近くで見たときより、**低く見えます**。カメラが近づくと、山がせり上がって、地形が膨らむ現象が起きます。
+
+対策は、2 つあります。
+
+| 方法 | 内容 |
+| --- | --- |
+| 最大値のミップも作る | 縮めるとき、4 つのテクセルの**最大値**を、取る。遠くの山を、少し高く見積もる |
+| 平均と最大の間で混ぜる | `lerp(average, maximum, 0.5)` のように、中間を取る |
+
+```cpp
+// 高さマップのミップを、平均ではなく、最大値で作る例（CPU 側）。
+void BuildMaxMip(const std::vector<float>& src, int src_size, std::vector<float>& dst) {
+  const int dst_size = src_size / 2;
+  dst.resize(static_cast<size_t>(dst_size) * dst_size);
+  for (int y = 0; y < dst_size; ++y) {
+    for (int x = 0; x < dst_size; ++x) {
+      const float a = src[(2 * y) * src_size + 2 * x];
+      const float b = src[(2 * y) * src_size + 2 * x + 1];
+      const float c = src[(2 * y + 1) * src_size + 2 * x];
+      const float d = src[(2 * y + 1) * src_size + 2 * x + 1];
+      dst[y * dst_size + x] = std::max(std::max(a, b), std::max(c, d));
+    }
+  }
+}
+```
+
+最大値のミップは、**カリングにも使えます**。四分木のノードの AABB の「最大の高さ」は、そのノードが覆う範囲の、最大値のミップを、引けば求まります。
+
+## 最小・最大のミップを、AABB に使う
+
+CDLOD では、ノードごとの AABB が、必要です。高さの最小値と最大値を、**ミップ（最小と最大の 2 本）**として持てば、四分木の各ノードの値が、ミップのテクセルに、1 対 1 で対応します。
+
+| ノードのレベル | 対応するミップ | 内容 |
+| --- | --- | --- |
+| 葉 | ミップ k | 1 テクセル = 1 ノードの最小・最大 |
+| 1 つ上 | ミップ k+1 | 1 テクセル = 4 ノードの最小・最大 |
+
+```cpp
+// 四分木のノードの AABB を、最小・最大ミップから作る。
+Aabb NodeBounds(int level, int x, int z, const MinMaxMips& mips) {
+  const int mip = level + mips.base_mip;
+  const float min_y = mips.min[mip].At(x, z);
+  const float max_y = mips.max[mip].At(x, z);
+  const float size = node_size_at_level[level];
+  return {{x * size, min_y, z * size}, {(x + 1) * size, max_y, (z + 1) * size}};
+}
+```
+
+高さを編集したら、**その範囲のミップを作り直し**、影響する四分木のノードの AABB を、更新します。
+
+## DirectX 11 での、ミップの作り方
+
+高さマップをテクスチャとして作るとき、`MipLevels` を 0 にすると、すべてのミップの領域が確保されます。`GenerateMips` は、**平均**のミップを作ります（最大値のミップは、自分で作ります）。
+
+```cpp
+D3D11_TEXTURE2D_DESC desc = {};
+desc.Width = size;
+desc.Height = size;
+desc.MipLevels = 0;                     // 0 = 全ミップ
+desc.ArraySize = 1;
+desc.Format = DXGI_FORMAT_R16_UNORM;    // 高さは 16 ビット（線形補間ができる）
+desc.SampleDesc.Count = 1;
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;  // GenerateMips に必要
+desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+device->CreateTexture2D(&desc, nullptr, &height_texture);
+// 0 番のミップに、高さを書き込んだあと
+context->GenerateMips(height_srv.Get());
+```
+
+16 ビットの高さは、0〜65535 を、`height_scale` で、メートルに直します。8 ビットだと、山の高さが 256 段階しかなく、階段が見えます。
+
+!!! note "頂点シェーダーで、ミップを選ぶ"
+    頂点シェーダーでは、画面の微分（`ddx`、`ddy`）が使えないので、`Sample` ではミップが自動では選ばれません。**必ず `SampleLevel` で、ミップを自分で指定します。** 指定を忘れて、ミップ 0 だけを読むと、遠くの地形が、ちらつきます。
+
 ## よくあるミス
 
 ??? failure "遠くの山が、低く見える"
@@ -105,9 +239,10 @@ tags:
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Williams, "Pyramidal Parametrics", SIGGRAPH 1983（ミップマップの原典）
+- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps", Journal of Graphics, GPU, and Game Tools, Vol. 14, No. 4, 2009（CDLOD の原典。作者の公開サンプル `fstrugar/CDLOD` が GitHub にある）
+- Losasso, Hoppe, "Geometry Clipmaps: Terrain Rendering Using Nested Regular Grids", ACM Transactions on Graphics (SIGGRAPH 2004)
+- Microsoft Learn, "ID3D11DeviceContext::GenerateMips"
 
 ## 関連ページ
 

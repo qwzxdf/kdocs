@@ -309,6 +309,173 @@ void ErodeDroplet(HeightMap& map, std::mt19937& rng, const ErosionParams& p) {
 | **扇状地・堆積** | **谷の出口に土砂が平らに積もる** |
 | **地面の種類のヒント** | **堆積した所は土、削れた所は岩**（**スプラット マップに使える**） |
 
+## 侵食を、シミュレーションする理由
+
+ノイズだけで作った地形は、**水に削られた跡**がありません。現実の山は、雨が降って、水が流れ、土を削り、運び、積もらせた結果、**谷が枝分かれして、麓に扇状の地形**ができます。この形は、ノイズでは、作れません。**侵食を、シミュレーションして、地形に、適用する**と、一気に本物らしくなります。
+
+| 侵食 | 起きること | 地形への影響 |
+| --- | --- | --- |
+| 熱による侵食（thermal） | 急な斜面の土が、崩れて、麓に溜まる | 斜面が、一定の角度（安息角）以下になる |
+| 水による侵食（hydraulic） | 水が流れて、土を削り、運び、積もらせる | 谷、枝分かれした水系、扇状地 |
+
+Musgrave ら（1989）が、この 2 つを、地形生成に、取り入れました。
+
+## 熱による侵食（thermal）
+
+最も単純な侵食です。**隣の画素との、高さの差が、一定のしきい値（タロス角）を超えたら、差の一部を、低い方へ移す**だけです。
+
+```hlsl
+// 熱による侵食（1 回分）。隣の 4 つとの高さの差を見て、超えた分を、低い方へ移す。
+Texture2D<float> g_src : register(t0);
+RWTexture2D<float> g_dst : register(u0);
+
+cbuffer ThermalCB : register(b0) {
+  float talus;      // 隣との、高さの差の上限（= tan(安息角) × 1 マスの長さ）
+  float rate;       // 1 回に動かす割合（0.5 が標準）
+  int size;
+};
+
+[numthreads(8, 8, 1)]
+void main(uint3 id : SV_DispatchThreadID) {
+  int2 p = int2(id.xy);
+  float h = g_src[p];
+  float total_diff = 0.0;     // 自分から、低い隣へ流れる量の合計
+  float received = 0.0;       // 高い隣から、自分へ流れてくる量の合計
+  const int2 dirs[4] = {int2(1, 0), int2(-1, 0), int2(0, 1), int2(0, -1)};
+
+  [unroll] for (int i = 0; i < 4; ++i) {
+    int2 q = clamp(p + dirs[i], 0, size - 1);
+    float diff = h - g_src[q];
+    if (diff > talus) total_diff += (diff - talus);              // 自分が、高い → 流れ出る
+    float diff2 = g_src[q] - h;
+    if (diff2 > talus) {
+      // 隣 q から見て、自分は低い隣。q の流れ出る量のうち、自分への取り分は、diff2 の比
+      received += (diff2 - talus) * 0.25;
+    }
+  }
+  g_dst[p] = h - total_diff * rate * 0.25 + received * rate;
+}
+```
+
+上の実装は、簡略化したものです。**1 つの画素が、4 つの隣に、同時に、土を渡す**ので、「出る量」と「入る量」を、**対称に**書かないと、土の総量が、保存されません（総量が、増えたり、減ったりする）。実際には、**各画素が、自分から出る量を、計算し、隣の取り分も、同じ式で、計算する**形にします。
+
+| 項目 | 内容 |
+| --- | --- |
+| 繰り返し | 数十〜数百回、繰り返す。出力と入力を、**交互に入れ替える**（ピンポン） |
+| 効果 | 尖った山頂が、少し崩れ、麓に、緩やかな斜面ができる |
+| 限界 | 水系が、できない。谷は、できない |
+
+## 水による侵食：パイプ モデル（Mei ら 2007）
+
+水による侵食は、**水の流れを、シミュレーションする**必要があります。Mei らは、**「隣り合う画素が、パイプで、つながっている」**というモデルで、GPU 上で、高速に動く方式を示しました。
+
+### 各画素が持つもの
+
+| 量 | 記号 | 内容 |
+| --- | --- | --- |
+| 地形の高さ | b | 地面の高さ |
+| 水の深さ | d | 地面の上に、積もっている水 |
+| 浮遊している土の量 | s | 水に運ばれている土 |
+| 4 方向への、水の流量 | f（L、R、T、B） | 左・右・上・下の、隣へ流れる水 |
+| 水の速度 | v | 流量から、求める |
+
+水面の高さは、`b + d` です。
+
+### 1 ステップの流れ
+
+| 段階 | 内容 |
+| --- | --- |
+| ① 雨 | 水の深さ `d` に、雨の量を足す |
+| ② 流量の更新 | 隣との、**水面の高さの差**から、各方向の流量を更新する。差が大きいほど、勢いよく流れる |
+| ③ 水の深さの更新 | 4 方向の流量の、出入りから、`d` を更新する。速度 `v` も、ここで、求める |
+| ④ 侵食・堆積 | 速度と、傾きから、**水が運べる土の量（容量 C）**を計算する。`s < C` なら、地面を削って `s` に足す。`s > C` なら、`s` から、地面へ、土を戻す |
+| ⑤ 土の移流 | 浮遊している土 `s` を、水の速度 `v` で、運ぶ（半ラグランジュ法：速度の向きを遡って、読む） |
+| ⑥ 蒸発 | `d` を、少し減らす |
+
+### ② 流量の更新
+
+```hlsl
+// 流量（左・右・上・下）を、更新する。
+// 水面の高さ H = b + d。隣との差が、大きいほど、流量が増える。
+float4 UpdateFlux(float4 flux, float H, float4 H_neighbors, float d) {
+  const float g = 9.81;          // 重力
+  const float pipe_area = 1.0;   // パイプの断面積
+  const float pipe_len = 1.0;    // パイプの長さ（マスの大きさ）
+
+  // 4 方向の、水面の高さの差から、新しい流量を求める。負にはしない。
+  float4 new_flux = max(0.0, flux + dt * pipe_area * g * (H - H_neighbors) / pipe_len);
+
+  // 出ていく水の合計が、いまある水を超えないように、全体を、縮める。
+  float outflow = dt * (new_flux.x + new_flux.y + new_flux.z + new_flux.w);
+  float scale = min(1.0, d * cell_area / max(outflow, 1e-6));
+  return new_flux * scale;
+}
+```
+
+水が足りないのに、流量が大きいと、水の深さが負になるので、**出る量の合計を、縮める**処理が、必要です。
+
+### ④ 侵食と堆積
+
+水が、土を運べる量（容量）は、**水の速さと、地形の傾きが大きいほど、大きい**と考えます。
+
+```text
+C = Kc × sin(α) × |v|           α: 地面の傾き、v: 水の速さ、Kc: 容量の係数
+```
+
+| 状態 | 動き |
+| --- | --- |
+| `s < C`（運べる余裕がある） | 地面を削る：`b -= Ks × (C − s)`、`s += Ks × (C − s)` |
+| `s > C`（運びきれない） | 土を落とす：`b += Kd × (s − C)`、`s -= Kd × (s − C)` |
+
+`Ks`（溶解）と `Kd`（堆積）の係数が、**どのくらい、速く削る／積もらせるか**を、決めます。
+
+```hlsl
+float slope = max(sin_alpha, 0.05);              // 平らな場所でも、少しは、削れる下限
+float capacity = Kc * slope * length(velocity);
+if (sediment < capacity) {
+  float amount = Ks * (capacity - sediment);
+  height -= amount;
+  sediment += amount;
+} else {
+  float amount = Kd * (sediment - capacity);
+  height += amount;
+  sediment -= amount;
+}
+```
+
+## 水による侵食：粒子（水滴）モデル
+
+パイプ モデルとは、別の、**水滴を 1 粒ずつ、転がして、シミュレーションする**方式です（Beyer、2015 の整理が、よく読まれています）。
+
+| 手順 | 内容 |
+| --- | --- |
+| ① 生成 | ランダムな場所に、水滴を、1 つ置く |
+| ② 転がる | その場所の、**勾配**（下り坂の向き）へ、少し、進む |
+| ③ 土を運ぶ | 速度と、傾きから、運べる土の量を計算する。足りなければ、地面を削り、多ければ、落とす |
+| ④ 蒸発 | 少しずつ、水を減らす。水が、無くなったら、終わり |
+
+数十万〜数百万個の水滴を、順に転がすと、**谷が、現れます**。
+
+| 比較 | パイプ モデル（Mei） | 粒子モデル |
+| --- | --- | --- |
+| 実装 | 画素ごとに、独立で、GPU 向き | 水滴ごとの処理。CPU でも実装が、簡単 |
+| 水の連続性 | 本物の水の流れ。池、川が、できる | 水滴は、独立。池は、できにくい |
+| GPU での並列化 | 自然（画素ごと） | 水滴が、同じ場所を、同時に書き換える。アトミック命令が、必要 |
+| 結果 | 水系が、はっきり出る | 実装が簡単で、見た目も、十分によい |
+
+## 実際の使い方
+
+| ポイント | 内容 |
+| --- | --- |
+| 事前計算（オフライン） | 数百〜数千ステップが、必要。**ツールで、焼いて、結果の高さマップを、保存**するのが、普通 |
+| 入力の高さ | ノイズ（[fBm](fbm.md)、[Ridged Noise](ridge.md)）を、そのまま入れる。**侵食で、形が整う** |
+| 出力 | 侵食後の高さ。**堆積した土の量、水の流れの量（フロー マップ）**も、スプラットや、川の位置決めに使える |
+| タイルの境目 | 地形が分割されている場合、**隣のタイルの高さが、侵食の途中で、変わる**ので、タイルの境目に、数画素の余白を持って計算する |
+| 再現性 | 浮動小数点の、計算の順序が、実行環境で変わる。**同じ結果が要るときは、焼き込んで保存**する |
+
+!!! note "侵食の結果は、ほかの処理にも使える"
+    水が、集まった場所（フローの量が、多い場所）は、**川や、湿った土**にできます（[Rivers and Lakes](rivers.md)）。土が、堆積した場所は、**平らで、植生に向く**場所です（[Placement Generation](placement.md)）。
+
 ## よくあるミス
 
 ??? failure "侵食後も、地形が不自然に滑らか"
@@ -321,9 +488,12 @@ void ErodeDroplet(HeightMap& map, std::mt19937& rng, const ErosionParams& p) {
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Musgrave, Kolb, Mace, "The Synthesis and Rendering of Eroded Fractal Terrains", SIGGRAPH 1989
+- Mei, Decaudin, Hu, "Fast Hydraulic Erosion Simulation and Visualization on GPU", Pacific Graphics 2007
+- Št'ava, Beneš, Brisbin, Křivánek, "Interactive Terrain Modeling Using Hydraulic Erosion", Symposium on Computer Animation 2008
+- Olsen, "Realtime Procedural Terrain Generation", University of Southern Denmark, 2004（熱による侵食と水による侵食の、単純な実装）
+- Beyer, "Implementation of a Method for Hydraulic Erosion", Master's thesis, TU München, 2015（粒子（水滴）による侵食）
+- Galin, Guérin, Peytavie, Cordonnier, Cani, Beneš, Gain, "A Review of Digital Terrain Modeling", Computer Graphics Forum (Eurographics 2019 STAR)
 
 ## 関連ページ
 

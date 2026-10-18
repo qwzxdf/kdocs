@@ -35,6 +35,93 @@ tags:
 
 <!-- fig:aniso-footprint:end -->
 
+## なぜ、斜めから見ると、ぼやけるのか
+
+テクスチャの 1 画素（ピクセル）が、テクスチャの上では、**どんな形の領域に当たるか**を考えます。真上から見ると、画面の 1 画素は、テクスチャの小さな正方形に当たります。**斜めから見る地面では、画面の 1 画素が、テクスチャの上で、細長い楕円**に当たります。
+
+```text
+真上から               斜めから（遠い地面）
+┌──┐                  ┌──────────────┐
+│  │  正方形          └──────────────┘  → 横に細長い楕円
+└──┘
+```
+
+標準のミップマップ（等方性フィルタ）は、**正方形の領域**しか、平均できません。そこで、細長い領域の、長い方に合わせて、ミップを選ぶと、**短い方向が、必要以上に、ぼける**のです。
+
+| 選び方 | 結果 |
+| --- | --- |
+| 短い方に合わせる | 長い方向が、ちらつく（エイリアシング） |
+| 長い方に合わせる（標準のミップ） | 短い方向が、ぼける |
+
+## 異方性フィルタリングの考え方
+
+異方性（anisotropic）フィルタリングは、**楕円の足跡**を、直接扱います。基礎は、Heckbert（1989）の整理です。
+
+1. 画面の 1 画素が、テクスチャ上で作る楕円の、**長軸と短軸**を求める（画面の微分 `ddx`・`ddy` から）
+2. **短軸に合わせた、細かいミップ**を選ぶ
+3. 長軸の方向に、**複数のサンプルを並べて、平均する**
+
+サンプルの数は、`長軸 ÷ 短軸` の比で決まり、最大で `MaxAnisotropy` 個になります。
+
+| 比（長軸 ÷ 短軸） | 使うサンプル数 |
+| --- | --- |
+| 1（真上から） | 1 |
+| 4 | 4 |
+| 16 | 16（`MaxAnisotropy = 16` のとき） |
+| 32（ほぼ水平） | 16（上限） |
+
+実際のハードウェアは、楕円を、**複数のトライリニア サンプルの列**で、近似しています（Feline など、各社の実装は少しずつ違う）。サンプルの数が増えるので、**テクスチャの帯域と、時間が、増えます**。ただし、斜めの面だけが、増える形で、真上を向いた面では、増えません。
+
+## DirectX 11 での設定
+
+サンプラー ステートを作るときに、`Filter` を `D3D11_FILTER_ANISOTROPIC` にして、`MaxAnisotropy` を設定します。
+
+```cpp
+D3D11_SAMPLER_DESC desc = {};
+desc.Filter = D3D11_FILTER_ANISOTROPIC;     // 異方性フィルタリング
+desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; // 地形は、繰り返すのでラップ
+desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+desc.MaxAnisotropy = 16;                    // 1〜16。大きいほど、品質が高く、重い
+desc.MaxLOD = D3D11_FLOAT32_MAX;            // ミップを、すべて使う
+desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+
+Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
+device->CreateSamplerState(&desc, &sampler);
+context->PSSetSamplers(0, 1, sampler.GetAddressOf());
+```
+
+| 設定 | 内容 |
+| --- | --- |
+| `Filter` | `D3D11_FILTER_ANISOTROPIC`（縮小・拡大・ミップの、すべてが、異方性） |
+| `MaxAnisotropy` | 最大サンプル数。1 で、異方性なし。2、4、8、16 |
+| ミップが、あること | 異方性フィルタは、ミップマップを、使う。ミップのないテクスチャでは、効かない |
+
+## どのくらい効くか
+
+| 設定 | 見た目 | コスト（斜めの面） |
+| --- | --- | --- |
+| トライリニア（異方性なし） | 遠くの地面が、ぼやける | 1 倍 |
+| 2x | 少し改善 | 約 2 倍 |
+| 4x | 中程度の斜めまで、くっきり | 約 4 倍 |
+| 8x | 低い視点でも、ほぼ、くっきり | 約 8 倍 |
+| 16x | ほぼ水平の面まで、くっきり | 約 16 倍 |
+
+ただし、「斜めの面の、テクスチャ読み込みだけ」の倍率です。ゲーム全体のフレーム時間は、そこまで増えません（ほかの処理が、ほとんどのため）。**近年の GPU では、16x でも、コストは小さい**ことが多いです。
+
+## 地形では、ほぼ必須
+
+地形は、**視点が低く、地面が、ほぼ水平に見える**ことが多い対象です。遠くの地面は、画面の中で、ほぼ水平で、異方性の比が、非常に大きくなります。異方性フィルタリングがないと、**中景から遠景で、地面のテクスチャが、ぼけた絵の具のように見えます**。
+
+### 注意点
+
+| 項目 | 内容 |
+| --- | --- |
+| トライプラナーとの併用 | 3 方向の、それぞれに効く。コストは 3 倍になる（[Triplanar Mapping](triplanar.md)） |
+| 法線マップ | 異方性は、法線マップにも効く。ぼけると、スペキュラーが、不自然になる |
+| 頂点シェーダー | 頂点では、`SampleLevel` で、ミップを指定する（異方性は、画素の微分から決めるので、頂点では使えない） |
+| 設定の入れ替え | ユーザー設定で、1x〜16x を、切り替えられるように、しておく |
+
 ## よくあるミス
 
 ??? failure "遠くの地面が、ぼやけている"
@@ -47,9 +134,10 @@ tags:
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Heckbert, "Fundamentals of Texture Mapping and Image Warping", Master's thesis, UC Berkeley, 1989（楕円の足跡を使うフィルタリングの基礎）
+- McCormack, Perry, Farkas, Jouppi, "Feline: Fast Elliptical Lines for Anisotropic Texture Mapping", SIGGRAPH 1999
+- Microsoft Learn, "D3D11_SAMPLER_DESC"（`D3D11_FILTER_ANISOTROPIC` と `MaxAnisotropy`）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（テクスチャのフィルタリングの章）
 
 ## 関連ページ
 

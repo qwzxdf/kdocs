@@ -73,6 +73,133 @@ tags:
 
 <!-- fig:height-pow-curve:end -->
 
+## ノイズの値は、そのままでは、地形の高さにならない
+
+[fBm](fbm.md) や、[リッジ ノイズ](ridge.md) の出力は、**−1〜1（または 0〜1）の数字**です。これを、**メートル単位の高さ**にする作業が、「高さへの変換」です。単に、スケールを掛けるだけでも地形になりますが、**ひと工夫するだけで、見た目が、大きく変わります**。
+
+## 1. 線形のスケール
+
+```text
+height = noise × max_height + base_height
+```
+
+最も単純です。高さが、均等に分布するので、**山頂も、谷も、同じくらいの数**になります。自然の地形は、**平地（低い所）が広く、山は、少ししかない**ので、人工的に見えます。
+
+## 2. べき乗で、平地を広げる
+
+ノイズの値（0〜1）を、**べき乗**すると、低い値が、さらに低くなります。
+
+```hlsl
+float h = pow(saturate(noise01), 2.0);      // 2 乗: 低い所が、ぺたんと平らに
+```
+
+| 指数 | 見た目 |
+| --- | --- |
+| 1.0 | 線形。起伏が、均等 |
+| 2.0 | 平地が広がり、山が、鋭く残る |
+| 3.0 以上 | ほとんどが平地。山は、ごく一部 |
+| 0.5 以下 | 山の頂上が、平らになる（台地、メサ） |
+
+## 3. 高さの分布を、カーブで変える
+
+べき乗より、細かく、制御したいときは、**入力（ノイズ）と、出力（高さ）の対応を、カーブで描いて**、テーブルとして、引きます。
+
+```text
+出力
+  1.0 |                ●────●
+      |             ●
+  0.5 |        ●───●        ← 平らな高原
+      |    ●
+  0.0 |●──●                 ← 平らな海底・平野
+      +──────────────────── 入力
+      0                  1
+```
+
+```cpp
+// 制御点（入力, 出力）を並べて、区間ごとに、線形補間する。
+struct CurvePoint { float in; float out; };
+
+float EvaluateCurve(const std::vector<CurvePoint>& curve, float x) {
+  if (x <= curve.front().in) return curve.front().out;
+  for (size_t i = 1; i < curve.size(); ++i) {
+    if (x <= curve[i].in) {
+      const float t = (x - curve[i - 1].in) / (curve[i].in - curve[i - 1].in);
+      return curve[i - 1].out + t * (curve[i].out - curve[i - 1].out);
+    }
+  }
+  return curve.back().out;
+}
+```
+
+アーティストが、**グラフを、手で描いて**、地形の性格を、調整できます。GPU では、カーブを、**1 次元のテクスチャ**（256 画素）に焼いて、`SampleLevel` で引きます。
+
+```hlsl
+Texture1D<float> g_height_curve : register(t3);
+float h = g_height_curve.SampleLevel(g_linear_clamp, saturate(noise01), 0);
+```
+
+## 4. 階段状にする（テラス）
+
+高さを、**階段状**に切ると、**棚田や、段々の高原**ができます。
+
+```hlsl
+// 高さを、steps 段の階段にする。sharpness が大きいほど、段が、はっきりする。
+float Terrace(float h, float steps, float sharpness) {
+  float x = h * steps;
+  float f = frac(x);
+  // 段の中は、ほぼ平らに、段の境目で、急に上がる
+  float s = smoothstep(0.5 - 0.5 / sharpness, 0.5 + 0.5 / sharpness, f);
+  return (floor(x) + s) / steps;
+}
+```
+
+## 5. 複数のノイズを、領域ごとに混ぜる
+
+大陸規模の地形は、1 つのノイズでは、表現できません。**複数の、性格の違うノイズを、マスクで混ぜます**。
+
+| 層 | ノイズ | 内容 |
+| --- | --- | --- |
+| 大陸性（continentalness） | 低周波の fBm | 陸か海か（高さの下地） |
+| 地形の起伏（roughness） | 中周波の fBm | その場所が、平らか、起伏が大きいか |
+| 山脈 | リッジ ノイズ | 山のある場所だけ、足す |
+| 細部 | 高周波の fBm | 小さな凹凸 |
+
+```hlsl
+float continent = Fbm(p * 0.001, 4, 2.0, 0.5, seed) * 0.5 + 0.5;    // 0 = 海、1 = 陸
+float base = EvaluateBaseHeight(continent);                          // カーブで、海底〜陸の高さへ
+float mountain_mask = smoothstep(0.55, 0.75, continent);             // 内陸だけ、山
+float mountains = RidgedMulti(p * 0.003, 6, 2.0, 0.5, 1.0, 2.0, seed + 1) * mountain_mask;
+float detail = Fbm(p * 0.02, 4, 2.0, 0.5, seed + 2) * 0.05;
+float height = base + mountains * 800.0 + detail * 50.0;             // メートル
+```
+
+これで、「海岸線の近くは、平地。内陸に行くと、山脈」という、**地形の流れ**が作れます。
+
+## 6. 高さマップの形式と、単位
+
+| 項目 | 内容 |
+| --- | --- |
+| 保存形式 | `R16_UNORM`（0〜65535）。高さの範囲を、`height_scale`（メートル）で、決める |
+| 解像度（高さ方向） | 16 ビットなら、最大高さ 1,000 m で、約 1.5 cm の刻み。8 ビットは、4 m の刻みで、階段が、見える |
+| 海面 | 海面を、高さ 0 にするか、ある高さにするか、**先に決める**。後から、変えにくい |
+| 範囲 | 保存の前に、`saturate` で、0〜1 に収める。範囲を超えた値は、切れる |
+
+```cpp
+// 高さ（メートル）→ R16_UNORM に変換
+uint16_t EncodeHeight(float meters, float min_height, float max_height) {
+  const float t = (meters - min_height) / (max_height - min_height);
+  return static_cast<uint16_t>(std::clamp(t, 0.0f, 1.0f) * 65535.0f + 0.5f);
+}
+```
+
+## 注意点
+
+| 項目 | 内容 |
+| --- | --- |
+| 変換の順番 | **べき乗やカーブの後に、侵食**をかける（侵食は、傾きに依存する）。逆にすると、侵食が、変換で崩れる |
+| 傾き | 高さのスケールを、2 倍にすると、**傾きも 2 倍**になる。傾きの条件（岩、雪）は、スケールの後の、値で考える |
+| ワールドの大きさ | 水平方向のスケール（1 テクセル何メートルか）と、垂直方向のスケールを、合わせて決める。縦だけ伸ばすと、針の山になる |
+
 ## よくあるミス
 
 ??? failure "どこも似た起伏で、変化が無い"
@@ -85,9 +212,9 @@ tags:
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Ebert, Musgrave, Peachey, Perlin, Worley, "Texturing and Modeling: A Procedural Approach", 3rd Edition, Morgan Kaufmann, 2002（fBm、マルチフラクタル、リッジ ノイズ）
+- Galin, Guérin, Peytavie, Cordonnier, Cani, Beneš, Gain, "A Review of Digital Terrain Modeling", Computer Graphics Forum (Eurographics 2019 STAR)
+- Musgrave, Kolb, Mace, "The Synthesis and Rendering of Eroded Fractal Terrains", SIGGRAPH 1989
 
 ## 関連ページ
 

@@ -39,6 +39,136 @@ local.y *= lerp(1.0, 0.9, bend);
 | **根元の色を暗く** | **地面との馴染み・AO の代わり**。**先端を明るく** |
 | **地形の色に合わせる** | **草の根元の色を地形のテクスチャの色から取る**と、**境目が消える** |
 
+## 草 1 本を、どう作るか
+
+草は、**数が多い**（1 平方メートルに、数百本）ので、**1 本あたりの、三角形の数が、すべてを決めます**。1 本を、3 枚の三角形で作ると、100 万本で、300 万三角形です。
+
+| 方式 | 三角形 / 本 | 見た目 | 風の表現 |
+| --- | --- | --- | --- |
+| クロス板（十字に交差した 2 枚、絵を貼る） | 4 | 密集した草むらに見える。横から見ると、板 | 先端を、揺らせる |
+| 房（3〜5 本の葉を、扇形に） | 6〜10 | 近景でも、まずまず | 房全体が、揺れる |
+| 1 本ずつの葉（細い帯） | 3〜14 | 近景で、1 本ずつ、見える | **1 本ごとに、曲がる** |
+| ビルボード | 2 | 遠景用 | 動かない |
+
+## 葉 1 本の、メッシュ
+
+1 本の葉は、**根元から先端へ向かう、細い帯**です。帯を、数段に分けて、**根元は太く、先端は細く**します。
+
+```text
+先端   ▲        ← 頂点 1 つ（三角形）
+      ╱ ╲
+     ╱───╲      ← セグメント 3（幅 小）
+    │     │
+    │─────│     ← セグメント 2
+    │     │
+    │─────│     ← セグメント 1
+    │     │
+根元 └─────┘     ← セグメント 0（幅 大）
+```
+
+| セグメント数 | 頂点数 | 三角形 | 用途 |
+| --- | --- | --- | --- |
+| 1 | 3 | 1 | 遠景（三角形 1 枚の、葉） |
+| 3 | 7 | 5 | 中景 |
+| 5 | 11 | 9 | 近景 |
+| 7 | 15 | 13 | 最近景（曲がりが、なめらか） |
+
+距離に応じて、**セグメント数が、違うメッシュに、切り替えます**。遠景では、三角形 1 枚でも、画面上では、細い線にしか見えません。
+
+### 頂点の位置の、決め方
+
+頂点は、**根元から、先端への高さ `t`（0〜1）**と、**左右（−1、+1）**で決まります。
+
+```hlsl
+// 葉の頂点を、シェーダーの中で、組み立てる（頂点バッファを持たない方法）。
+// vertex_id から、段（level）と、左右（side）を取り出す。
+static const int kSegments = 5;
+
+float3 BladeVertex(uint vertex_id, float width, float height, float bend) {
+  uint level = vertex_id / 2;                 // 0 〜 kSegments
+  float side = (vertex_id & 1) ? 1.0 : -1.0;
+  float t = float(level) / kSegments;
+
+  // 幅: 根元で太く、先端で細く
+  float w = width * (1.0 - t * t);
+  // 曲がり: 先端ほど、前へ倒れる（二次曲線）
+  float forward = bend * t * t * height;
+  float up = height * (t - 0.5 * bend * bend * t * t * t);   // 曲がった分だけ、少し低くなる
+
+  return float3(side * w * 0.5, up, forward);
+}
+```
+
+**曲がりを、2 次以上の曲線**（`t²`）にすると、**根元は、まっすぐ立ち、先端だけが、しなる**、草らしい形になります。
+
+## 頂点シェーダーで、組み立てる
+
+草を、**頂点バッファのメッシュにしない**方法も、あります。**インスタンスごとの、パラメーター（位置、向き、高さ、曲がり）から、頂点シェーダーが、直接、頂点を計算**します。
+
+| 項目 | 内容 |
+| --- | --- |
+| 頂点バッファ | **不要**（`SV_VertexID` だけ使う）。インデックス バッファも、規則的なので、定数で組める |
+| インスタンス | 位置、向き、高さ、曲がり、色の、ばらつき |
+| 利点 | **LOD ごとに、頂点数が違う**メッシュを、頂点バッファの切り替えなしで、`DrawInstanced(頂点数, インスタンス数)` で描ける |
+
+```cpp
+// 頂点バッファなしで描く。頂点数は、段数から決まる。
+context->IASetInputLayout(nullptr);
+context->IASetVertexBuffers(0, 0, nullptr, nullptr, nullptr);
+context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);   // 帯は、ストリップで表現できる
+const UINT vertices_per_blade = (kSegments + 1) * 2 + 1;                   // 先端は、1 つ追加
+context->DrawInstanced(vertices_per_blade, instance_count, 0, 0);
+```
+
+三角形ストリップは、**帯**（左右の頂点を、交互に並べる）と、相性が良いです。
+
+## 向きと、カメラ
+
+葉は、**ただの帯**なので、**横から見ると、細い線**になります（帯の幅の方向と、視線が、垂直のとき、厚みがゼロ）。見えなくなる問題の対策を、示します。
+
+| 問題 | 対策 |
+| --- | --- |
+| 帯を、真横から見ると、消える | **カメラの向きに、少しだけ、帯を回す**（ビルボード的に、幅の向きを、視線に垂直に近づける）。ただし、全部を向けると、不自然 |
+| 帯の裏面が、描かれない | カリングを、無効にして、**両面**を描く。裏面の法線は、反転する |
+| 近づくと、帯が、細すぎる | 幅に、**最小値**を持たせる。遠くでは、幅を、**少し太く**する（細すぎると、エイリアシングで消える） |
+
+```hlsl
+// 視線に応じて、帯の幅を、少しだけ、広げる（真横から見ても、消えないように）。
+float3 view_dir = normalize(camera_position - world_pos);
+float side_on = 1.0 - abs(dot(view_dir, blade_normal));   // 真横から見るほど 1
+world_pos += blade_right * side * side_on * thicken_amount;
+```
+
+## 色
+
+草の色の、**ばらつき**と、**根元の暗さ**が、見た目の、半分を決めます。
+
+| 要素 | 内容 |
+| --- | --- |
+| 根元の色 | 暗く、地形のテクスチャの色に、合わせる。**境目が消える**（地形との、馴染み） |
+| 先端の色 | 明るい。**高さ `t` で、補間** |
+| 本ごとの、ばらつき | 位置から、決定的な乱数で、色相と明度を、少しずらす |
+| 地面の色を、拾う | 草の根元の位置で、**地形のカラー マップ**を読み、草の色に、混ぜる |
+
+```hlsl
+float3 root_color = terrain_albedo.SampleLevel(g_linear_clamp, terrain_uv, 0).rgb * 0.5;  // 地面の色を、暗くして
+float3 tip_color = lerp(root_color, float3(0.55, 0.75, 0.25), 0.8);                        // 先端は、明るい緑
+float3 color = lerp(root_color, tip_color, t) * (0.9 + 0.2 * instance_random);             // 1 本ずつの、ばらつき
+```
+
+## 近年の、実装例
+
+Wohllaib（2021）は、『Ghost of Tsushima』の草を、**1 本ずつの葉を、計算シェーダーで、曲線として、生成**し、描画する方法を、紹介しています。数百万本の草を、**GPU 上で、LOD ごとに、頂点数を変えて**、描いています。
+
+| 項目 | 内容 |
+| --- | --- |
+| 葉の形 | ベジェ曲線（曲がった線）に、沿って、帯を作る |
+| LOD | 距離に応じて、**頂点数を、減らす**。遠くは、少ない頂点で、細く |
+| 風 | 葉の曲線の、制御点を、風で動かす |
+| 地形との馴染み | 草の色を、地形の色から取り、根元で、境目を消す |
+
+詳細は、GDC の発表を参照してください。ここでは、**「1 本ずつの葉を、曲線として扱い、LOD で、頂点数を変える」**という、考え方を、押さえてください。
+
 ## よくあるミス
 
 ??? failure "草が、横から見ると、板に見える"
@@ -51,9 +181,10 @@ local.y *= lerp(1.0, 0.9, bend);
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Pelzer, "Rendering Countless Blades of Waving Grass", GPU Gems, Chapter 7, 2004（草の板ポリ、風、クロス ブレンド）
+- Wohllaib, "Procedural Grass in Ghost of Tsushima", Game Developers Conference 2021
+- Boulanger, Pattanaik, Bouatouch, "Rendering Grass in Real Time with Dynamic Lighting", IEEE Computer Graphics and Applications, Vol. 29, No. 1, 2009
+- Sousa, "Vegetation Procedural Animation and Shading in Crysis", GPU Gems 3, Chapter 16, 2007（幹・枝・葉の 3 層の揺れ、葉の透過）
 
 ## 関連ページ
 

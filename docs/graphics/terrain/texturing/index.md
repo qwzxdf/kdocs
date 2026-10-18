@@ -74,9 +74,11 @@ normal_ts = normalize(normal_ts);
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Andersson, "Terrain Rendering in Frostbite Using Procedural Shader Splatting", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games（Frostbite の地形の素材合成）
+- Mishkinis, "Advanced Terrain Texture Splatting", Gamasutra, 2013（高さを使ったテクスチャのブレンド）
+- Geiss, "Generating Complex Procedural Terrains Using the GPU", GPU Gems 3, Chapter 1, 2007（トライプラナー テクスチャリングを使った地形）
+- Heitz, Neyret, "High-Performance By-Example Noise using a Histogram-Preserving Blending Operator", High-Performance Graphics 2018
+- van Waveren, "id Tech 5 Challenges: From Texture Virtualization to Massive Parallelization", SIGGRAPH 2009, Beyond Programmable Shading
 
 ## 関連ページ
 

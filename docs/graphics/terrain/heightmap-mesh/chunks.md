@@ -281,6 +281,155 @@ struct TerrainChunk {
 
 <!-- fig:chunk-stream:end -->
 
+## チャンクの大きさを、どう決めるか
+
+チャンクは、**小さすぎても、大きすぎても、困ります**。
+
+| 大きさ | 利点 | 欠点 |
+| --- | --- | --- |
+| 小さい（17×17 頂点など） | カリングが細かい。見えない部分を、無駄に描かない | チャンクの数が、爆発する。ドローコールと、CPU のカリングの仕事が増える |
+| 大きい（513×513 頂点など） | チャンクの数が、少ない | 画面に、少しだけ入っている、巨大なチャンクを、丸ごと描く。LOD の細かさが、粗い |
+| 中くらい（65×65〜129×129） | 両方の、ちょうど中間 | — |
+
+目安は、**1 つのチャンクが、画面上で、数百〜数千三角形程度**になる大きさです。それより、小さいチャンクを、大量に、個別のドローコールにするのは、割に合いません。
+
+### 数の見積もり
+
+世界を 16 km × 16 km、チャンクを 64 m 四方にすると、
+
+```text
+チャンクの総数 = (16000 / 64)² = 250² = 62,500 個
+```
+
+カメラの周りの、視錐台に入るのは、数百〜1,000 個ほどです。**62,500 個を、毎フレーム、全部調べるのは、無駄**です。四分木などで、**大きい範囲を、まとめて捨てる**ようにします（[CDLOD](../lod/cdlod.md) の四分木）。
+
+## チャンクが持つもの
+
+```cpp
+struct TerrainChunk {
+  int grid_x, grid_z;            // チャンクの格子上の位置
+  float min_height, max_height;  // 高さの最小・最大（AABB のため）
+  BoundingBox bounds;            // ワールド座標の AABB
+  int lod_level;                 // いまの LOD
+  bool loaded;                   // 高さデータが、メモリに、あるか
+};
+
+BoundingBox ChunkBounds(const TerrainChunk& c, float chunk_size) {
+  const float x0 = c.grid_x * chunk_size, z0 = c.grid_z * chunk_size;
+  return {{x0, c.min_height, z0}, {x0 + chunk_size, c.max_height, z0 + chunk_size}};
+}
+```
+
+**高さの最小・最大は、チャンクごとに、事前に求めておく**必要があります。山の中のチャンクと、谷のチャンクでは、AABB の縦の長さが、まるで違います。最小と最大が、不正確だと、**カリングで、見えるはずの山が、消える**ことがあります。
+
+## 視錐台カリング
+
+```cpp
+// AABB と 6 枚の平面の、判定（p 頂点テスト）。
+bool Visible(const Frustum& f, const BoundingBox& box) {
+  for (const Plane& pl : f.planes) {
+    // 平面の法線の向きに、最も進んだ頂点（positive vertex）を選ぶ
+    const float3 p = {pl.n.x >= 0 ? box.max.x : box.min.x,
+                      pl.n.y >= 0 ? box.max.y : box.min.y,
+                      pl.n.z >= 0 ? box.max.z : box.min.z};
+    if (Dot(pl.n, p) + pl.d < 0) return false;   // 完全に外側
+  }
+  return true;
+}
+
+void CullChunks(const std::vector<TerrainChunk>& all, const Frustum& f,
+                std::vector<const TerrainChunk*>& visible) {
+  for (const TerrainChunk& c : all) {
+    if (c.loaded && Visible(f, c.bounds)) visible.push_back(&c);
+  }
+}
+```
+
+p 頂点テストは、AABB の 8 頂点を調べず、**平面ごとに、1 つの頂点だけ**で、判定できます。**視錐台の、少し外側に、はみ出た AABB が、「見える」と判定される**ことはありますが、描いても、画面に出ないだけで、問題はありません。
+
+## 描画：インスタンスで、まとめる
+
+見えるチャンクは、**同じ格子メッシュ**を、位置だけ変えて、描きます。
+
+| 方法 | ドローコール | 特徴 |
+| --- | --- | --- |
+| 1 チャンク = 1 ドローコール | チャンクの数 | 簡単。数百個なら、問題ない |
+| インスタンシング | 1 回（または、LOD ごと） | チャンクの位置などを、インスタンス バッファへ。CPU の仕事が、最小 |
+
+```cpp
+// 見えるチャンクの情報を、インスタンス バッファに詰めて、1 回で描く。
+struct ChunkInstance { float2 origin; float size; float level; float2 uv_origin; float2 uv_size; };
+
+std::vector<ChunkInstance> instances;
+for (const TerrainChunk* c : visible) {
+  instances.push_back({ChunkOrigin(*c), chunk_size, float(c->lod_level),
+                       ChunkUvOrigin(*c), ChunkUvSize(*c)});
+}
+UploadToInstanceBuffer(context, instance_buffer, instances);
+context->DrawIndexedInstanced(index_count, UINT(instances.size()), 0, 0, 0);
+```
+
+**LOD ごとに、頂点数の違う格子**を、使うなら、LOD ごとに、1 回ずつ描きます。
+
+## 高さデータの、持ち方
+
+チャンクごとに、高さを、どこへ置くか。2 つの方法があります。
+
+| 方法 | 内容 | 特徴 |
+| --- | --- | --- |
+| 全体で 1 枚の巨大なテクスチャ | 世界全体の高さマップを、1 枚に持つ | 単純。**巨大な地形では、メモリに収まらない** |
+| チャンクごとに、別のテクスチャ | チャンクごとに、小さな高さマップを持つ | ストリーミングが、簡単。ドローコールごとに、テクスチャを切り替える必要がある |
+| テクスチャ配列 | 同じ大きさの、チャンクの高さを、配列のスライスにする | **1 回のドローコールで、全チャンクを描ける**。スライスの番号を、インスタンスに持たせる |
+| アトラス（大きな 1 枚に、並べる） | カメラの周りの、チャンクだけを、窓として持つ | クリップマップと、似た発想（[Geometry Clipmaps](../lod/clipmap.md)） |
+
+**テクスチャ配列**は、インスタンシングと、相性が良く、よく使われる方法です。
+
+```hlsl
+Texture2DArray<float> g_height_array : register(t0);
+
+struct VSInput {
+  float2 grid : POSITION;
+  float4 chunk : CHUNK;         // xy = 原点, z = 大きさ, w = スライス番号
+};
+
+float height = g_height_array.SampleLevel(g_linear_clamp, float3(uv, input.chunk.w), 0);
+```
+
+## ストリーミング
+
+世界が、メモリより大きいとき、**プレイヤーの周りの、チャンクだけを、メモリに置く**必要があります。
+
+| 範囲 | 状態 |
+| --- | --- |
+| 描画範囲 | 高さデータが、メモリに、読み込み済み |
+| 先読み範囲（描画範囲の、少し外） | これから使うので、**非同期で、読み込み中** |
+| それ以外 | メモリから、解放 |
+
+```cpp
+// プレイヤーの周りの、チャンクの範囲を、計算して、読み込み・解放する。
+void UpdateStreaming(const float3& player, int load_radius, int unload_radius) {
+  const int px = int(player.x / chunk_size), pz = int(player.z / chunk_size);
+  for (TerrainChunk& c : chunks) {
+    const int d = std::max(std::abs(c.grid_x - px), std::abs(c.grid_z - pz));
+    if (d <= load_radius && !c.loaded && !c.loading) RequestLoadAsync(c);
+    if (d > unload_radius && c.loaded) Unload(c);        // load より大きい半径で解放（ヒステリシス）
+  }
+}
+```
+
+**読み込む半径より、少し大きい半径で、解放する**（ヒステリシス）と、境界の近くを、行き来したときに、**読み込みと解放が、毎フレーム繰り返されません**。
+
+## チャンクの継ぎ目
+
+| 継ぎ目の原因 | 対策 |
+| --- | --- |
+| 隣り合う、チャンクの境界の高さが、違う | 境界の画素を、**両側のチャンクで、同じ値**にする（共有する） |
+| 隣り合うチャンクの、LOD が違う | モーフィング、スカートなど（[Cracks and Seams](../lod/cracks.md)） |
+| 高さマップの、半画素のずれ | UV の範囲を、半画素分、内側へ寄せる |
+| 法線が、境界で、不連続 | 隣のチャンクの、高さを読んで、法線を計算する（または、法線マップを、共有する） |
+
+境界の画素は、**両方のチャンクに、同じ値を、重複して保存**します（`N×N` でなく、`(N+1)×(N+1)` 画素）。そうすると、隣のチャンクを、読み込まなくても、境界が合います。
+
 ## よくあるミス
 
 ??? failure "区画の境目に、隙間が見える"
@@ -293,9 +442,10 @@ struct TerrainChunk {
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Ulrich, "Rendering Massive Terrains Using Chunked Level of Detail Control", SIGGRAPH 2002 Course Notes
+- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps", Journal of Graphics, GPU, and Game Tools, Vol. 14, No. 4, 2009
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（地形、ビュー フラスタム カリング、法線、補間の章）
+- Gribb, Hartmann, "Fast Extraction of Viewing Frustum Planes from the World-View-Projection Matrix", 2001（視錐台の平面を、行列から取り出す）
 
 ## 関連ページ
 

@@ -136,6 +136,194 @@ VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
 
 <!-- fig:instancing-calls:end -->
 
+## なぜ、普通に描くと、遅いのか
+
+草を 1 本ずつ、`DrawIndexed` で描くと、**ドローコールが、数十万回**になります。ドローコール 1 回ごとに、CPU が、状態の設定と、ドライバーの処理を行うので、**1 回あたり数マイクロ秒**でも、積もると、フレームを、使い切ります。
+
+| 方式 | ドローコール | CPU の負荷 |
+| --- | --- | --- |
+| 1 本ずつ描く | 数十万 | 非常に高い |
+| 区画ごとに、まとめる | 数百 | 中程度（メッシュの結合が要る） |
+| インスタンシング | **1〜数回** | 低い |
+| GPU 駆動（間接描画） | **1 回**（インスタンス数も、GPU が決める） | 最小 |
+
+インスタンシングの、基本的な考え方は、Carucci（2005）が、整理しています。
+
+## インスタンスのデータ
+
+```cpp
+// 1 本の草のデータ（32 バイト）。位置・向き・大きさ・色。
+struct GrassInstance {
+  float3 position;      // 12 バイト
+  float rotation;       // 4: Y 軸の回転（ラジアン）
+  float scale;          // 4
+  float height;         // 4
+  float color_variation;// 4
+  float bend;           // 4
+};
+static_assert(sizeof(GrassInstance) == 32);
+```
+
+インスタンスは、**構造化バッファ（StructuredBuffer）**に、並べます。頂点シェーダーが、`SV_InstanceID` で、自分の番号を受け取って、バッファから読みます。
+
+```cpp
+D3D11_BUFFER_DESC desc = {};
+desc.ByteWidth = UINT(sizeof(GrassInstance) * max_instances);
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;   // 描画で読み、カリングで書く
+desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+desc.StructureByteStride = sizeof(GrassInstance);
+device->CreateBuffer(&desc, nullptr, &instance_buffer);
+
+D3D11_SHADER_RESOURCE_VIEW_DESC srv = {};
+srv.Format = DXGI_FORMAT_UNKNOWN;
+srv.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+srv.Buffer.NumElements = max_instances;
+device->CreateShaderResourceView(instance_buffer.Get(), &srv, &instance_srv);
+```
+
+## 間接描画（GPU 駆動）
+
+**カリングを GPU で行う**と、「何個、描くか」が、CPU には、分かりません（GPU が、計算してから、決まる）。CPU に読み戻すと、**GPU の処理を、待つことになり、遅くなります**。そこで、**描画の引数を、GPU が書き、そのまま、描画に使う**のが、間接描画です。
+
+### 全体の流れ
+
+```text
+① 全インスタンス（StructuredBuffer）
+        ↓  計算シェーダー（カリング）
+② 見えるインスタンスだけを、AppendStructuredBuffer に詰める
+        ↓  CopyStructureCount（個数を、引数バッファへコピー）
+③ 引数バッファ [IndexCount, InstanceCount, ...]
+        ↓  DrawIndexedInstancedIndirect
+④ 見えるものだけを描く
+```
+
+### 引数バッファ
+
+```cpp
+// DrawIndexedInstancedIndirect の引数（5 個の UINT）
+struct DrawArgs {
+  UINT index_count_per_instance;
+  UINT instance_count;            // ← GPU が書く
+  UINT start_index_location;
+  INT base_vertex_location;
+  UINT start_instance_location;
+};
+
+D3D11_BUFFER_DESC args_desc = {};
+args_desc.ByteWidth = sizeof(DrawArgs);
+args_desc.Usage = D3D11_USAGE_DEFAULT;
+args_desc.MiscFlags = D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;      // 間接描画の引数として使う
+DrawArgs init = {blade_index_count, 0, 0, 0, 0};
+D3D11_SUBRESOURCE_DATA data = {&init};
+device->CreateBuffer(&args_desc, &data, &args_buffer);
+```
+
+### 見えたものを、詰めるバッファ
+
+```cpp
+D3D11_BUFFER_DESC vis_desc = {};
+vis_desc.ByteWidth = UINT(sizeof(GrassInstance) * max_instances);
+vis_desc.Usage = D3D11_USAGE_DEFAULT;
+vis_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+vis_desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+vis_desc.StructureByteStride = sizeof(GrassInstance);
+device->CreateBuffer(&vis_desc, nullptr, &visible_buffer);
+
+D3D11_UNORDERED_ACCESS_VIEW_DESC uav = {};
+uav.Format = DXGI_FORMAT_UNKNOWN;
+uav.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
+uav.Buffer.NumElements = max_instances;
+uav.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_APPEND;                  // Append バッファ（カウンター付き）
+device->CreateUnorderedAccessView(visible_buffer.Get(), &uav, &visible_uav);
+```
+
+### 毎フレームの処理
+
+```cpp
+// ① カウンターを 0 に戻して、カリングを実行する
+const UINT zero = 0;
+context->CSSetShader(cull_cs.Get(), nullptr, 0);
+context->CSSetShaderResources(0, 1, instance_srv.GetAddressOf());
+context->CSSetUnorderedAccessViews(0, 1, visible_uav.GetAddressOf(), &zero);   // 初期カウント 0
+context->Dispatch((instance_count + 63) / 64, 1, 1);
+
+// UAV を外す（SRV として読むため）
+ID3D11UnorderedAccessView* null_uav = nullptr;
+context->CSSetUnorderedAccessViews(0, 1, &null_uav, nullptr);
+
+// ② カウンターの値（見えた個数）を、引数バッファの instance_count へコピーする
+context->CopyStructureCount(args_buffer.Get(), offsetof(DrawArgs, instance_count), visible_uav.Get());
+
+// ③ 見えたものを、間接描画する
+context->VSSetShaderResources(0, 1, visible_srv.GetAddressOf());
+context->DrawIndexedInstancedIndirect(args_buffer.Get(), 0);
+```
+
+この流れでは、**CPU は、見えた個数を、一度も読みません**。GPU が、自分で決めた個数を、そのまま描画に、使います。
+
+## 描画のシェーダー
+
+```hlsl
+struct GrassInstance {
+  float3 position; float rotation;
+  float scale; float height; float color_variation; float bend;
+};
+StructuredBuffer<GrassInstance> g_instances : register(t0);
+
+cbuffer FrameCB : register(b0) { float4x4 view_proj; float3 camera_position; float time; };
+
+struct VSOut {
+  float4 position : SV_Position;
+  float3 color : COLOR;
+};
+
+VSOut main(uint vertex_id : SV_VertexID, uint instance_id : SV_InstanceID) {
+  GrassInstance inst = g_instances[instance_id];
+  float3 local = BladeVertex(vertex_id, 0.05 * inst.scale, inst.height, inst.bend);
+
+  // Y 軸の回転
+  float s = sin(inst.rotation), c = cos(inst.rotation);
+  float3 rotated = float3(local.x * c + local.z * s, local.y, -local.x * s + local.z * c);
+
+  VSOut o;
+  o.position = mul(float4(inst.position + rotated, 1.0), view_proj);
+  o.color = lerp(float3(0.1, 0.2, 0.05), float3(0.5, 0.75, 0.2), local.y / inst.height)
+          * (0.9 + 0.2 * inst.color_variation);
+  return o;
+}
+```
+
+## 注意点
+
+| 項目 | 内容 |
+| --- | --- |
+| 順序 | Append バッファの、並びは、**スレッドの実行順**で決まる（毎フレーム、順序が変わる）。**順序に依存する処理**（半透明の、ソート）には、使えない |
+| ドローコールを減らしすぎない | 種類（草・花・低木）が、違うメッシュは、別のドローコール。1 種類につき 1 回 |
+| インスタンスの総数 | 数百万本を超えると、全部の、カリングが、重い。**区画ごとに、まとめて、粗いカリングを先に行う**（[Vegetation Culling](culling.md)） |
+| `SV_InstanceID` の限界 | インスタンスの数が、65,535 を超えても、問題ない（32 ビット）。ただし、1 回の `Dispatch` の、スレッド グループ数に、上限（65,535）がある。数が、多いなら、複数回に分ける |
+| デバッグ | 間接描画は、中身が見えにくい。**ステージング バッファに、コピーして、読み戻す**デバッグ用の経路を、用意しておく |
+
+## 間接描画を、使わない方法
+
+DirectX 11 が使えない環境（古い GPU）や、シンプルな実装では、**CPU でカリングして、見えるものだけを、インスタンス バッファに書く**方法も、あります。
+
+```cpp
+// CPU 側で、見えるインスタンスだけを集めて、毎フレーム、書き込む（草が、数万本までなら、十分）。
+visible.clear();
+for (const GrassInstance& g : all) if (IsVisible(g)) visible.push_back(g);
+D3D11_MAPPED_SUBRESOURCE m;
+context->Map(dynamic_buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &m);
+memcpy(m.pData, visible.data(), visible.size() * sizeof(GrassInstance));
+context->Unmap(dynamic_buffer.Get(), 0);
+context->DrawIndexedInstanced(index_count, UINT(visible.size()), 0, 0, 0);
+```
+
+| 方式 | 向く規模 | 長所 | 短所 |
+| --- | --- | --- | --- |
+| CPU でカリング | 数万本まで | 実装が簡単 | CPU の負荷が、本数に比例する。毎フレーム、転送する |
+| GPU でカリング ＋ 間接描画 | 数十万〜数百万本 | CPU の負荷が、ほぼゼロ | 実装が複雑。デバッグが難しい |
+
 ## よくあるミス
 
 ??? failure "草の描画命令が多すぎて、CPU が遅い"
@@ -148,9 +336,11 @@ VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Carucci, "Inside Geometry Instancing", GPU Gems 2, Chapter 3, 2005
+- Haar, Aaltonen, "GPU-Driven Rendering Pipelines", SIGGRAPH 2015, Advances in Real-Time Rendering in Games
+- Wihlidal, "Optimizing the Graphics Pipeline with Compute", Game Developers Conference 2016（フラスタム、背面、オクルージョンの、GPU カリング）
+- Microsoft Learn, "ID3D11DeviceContext::DrawIndexedInstancedIndirect"
+- Microsoft Learn, "ID3D11DeviceContext::CopyStructureCount"
 
 ## 関連ページ
 

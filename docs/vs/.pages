@@ -4,6 +4,7 @@ nav:
   - terms
   - settings.md
   - utf8.md
+  - editorconfig.md
   - libraries.md
   - debugging.md
   - asan.md

@@ -141,7 +141,7 @@ tags:
 <text x="100" y="190" text-anchor="middle" style="font-size:11px">N</text><text x="220" y="190" text-anchor="middle" style="font-size:11px">N+1</text><text x="340" y="190" text-anchor="middle" style="font-size:11px">N+2</text>
 <text x="420" y="90" style="font-size:13px">頂点番号 ＝ z × N ＋ x</text>
 <text x="420" y="116" style="font-size:13px">1 マス ＝ (i, i+1, i+N) と (i+1, i+N+1, i+N)</text>
-<text x="420" y="142" style="font-size:13px">時計回りが表（左手系）</text>
+<text x="420" y="142" style="font-size:13px">反時計回りが表（右手系）</text>
 </svg>
 
 **頂点は、(x, z) の位置だけ**持てば**十分**です（**高さは頂点シェーダーで読む**）。**メッシュは全タイルで共有**できます。
@@ -165,7 +165,7 @@ std::vector<uint32_t> BuildGridIndices(uint32_t n) {
 }
 ```
 
-格子メッシュのインデックスのコードの要点です。時計回りが表です（左手系・Y 上・+Z 前方で、上から見て時計回り。[座標系](../../../3d/index.md)）。対角線の向きは、一方向に揃えると斜めの縞が出ることがあるので、交互に切り替える（ジグザグ）と自然です。インデックス数は (N−1)² × 6 で、65×65 頂点で約 2.5 万です。
+格子メッシュのインデックスのコードの要点です。反時計回りが表です（右手系・Y 上で、上から見て反時計回り。[座標系](../../../3d/index.md)）。対角線の向きは、一方向に揃えると斜めの縞が出ることがあるので、交互に切り替える（ジグザグ）と自然です。インデックス数は (N−1)² × 6 で、65×65 頂点で約 2.5 万です。
 
 ### 頂点シェーダーで高さを読む
 
@@ -196,6 +196,177 @@ VSOutput VSMain(VSInput input) {
 
 高さを読む頂点シェーダーのコードの要点です。`SampleLevel` は、頂点シェーダーではミップ レベルを自分で指定するために使います（`Sample` は使えません）。ミップ レベルを距離で選び、遠くの頂点は粗いミップから読むとちらつきません。UV はワールド座標から求め、タイルの位置が違っても同じ高さマップを共有します。
 
+## 格子の作り方を、決める 4 つのこと
+
+| 決めること | 選び方 |
+| --- | --- |
+| ① 1 枚の格子の頂点数 | 65×65、129×129、257×257 など、`2^n + 1`。LOD で半分に間引けるので、偶数のマス数にする |
+| ② インデックスの幅 | 16 ビット（頂点が 65,536 個まで、つまり 256×256 頂点まで）か、32 ビット |
+| ③ 三角形の貼り方 | 全マスで同じ対角線か、市松（交互）か |
+| ④ 頂点の形式 | `float2`（x, z）か、`uint16×2`（格子の整数座標）か |
+
+### ① 頂点数と三角形の数
+
+N×N 頂点の格子は、`(N − 1)²` 個のマスで、`2 × (N − 1)²` 枚の三角形になります。
+
+| 頂点数 | マス数 | 三角形 | 16 ビット index |
+| --- | --- | --- | --- |
+| 33×33 | 32×32 | 2,048 | 使える |
+| 65×65 | 64×64 | 8,192 | 使える |
+| 129×129 | 128×128 | 32,768 | 使える |
+| 257×257 | 256×256 | 131,072 | 頂点が 66,049 個で、16 ビットでは足りない |
+
+16 ビットのインデックスは、**メモリの帯域が半分**で済み、頂点バッファも小さくできます。**1 枚の格子は、129×129 までに、とどめる**と、扱いやすいです。それ以上の広さは、同じ格子を、位置を変えて、何枚も描きます（[Chunking](chunks.md)）。
+
+### ② 頂点は、(x, z) だけでよい
+
+高さは、頂点シェーダーが、高さマップから読みます。頂点バッファには、**0〜1 の格子上の位置**（x, z）だけを持ちます。
+
+```cpp
+struct GridVertex { float x, z; };   // 0〜1
+
+std::vector<GridVertex> BuildGridVertices(uint32_t n) {
+  std::vector<GridVertex> v;
+  v.reserve(n * n);
+  for (uint32_t z = 0; z < n; ++z) {
+    for (uint32_t x = 0; x < n; ++x) {
+      v.push_back({float(x) / (n - 1), float(z) / (n - 1)});
+    }
+  }
+  return v;
+}
+```
+
+さらに小さくするなら、座標を `uint16` 2 つ（0〜n−1 の整数）にして、シェーダーで `/ (n - 1)` します。129×129 頂点なら、頂点バッファが、約 66 KB から 33 KB に、減ります。1 つの格子を、数百回、使い回すので、**頂点バッファ自体の大きさは、ほとんど問題になりません**。大切なのは、**インデックスと、頂点シェーダーの、軽さ**です。
+
+### ③ 三角形の貼り方
+
+1 つのマス（四角形）を、2 枚の三角形に分けるとき、**対角線の向きが 2 通り**あります。
+
+| 方式 | 見た目 | 使いどころ |
+| --- | --- | --- |
+| 全マス、同じ向き | 斜面の、同じ方向に、筋が出ることがある | 簡単 |
+| 市松（交互） | 筋が、目立ちにくい | **モーフィング（CDLOD）を使うなら、必須**（[CDLOD](../lod/cdlod.md)） |
+| 高さに応じて、向きを選ぶ | 谷や尾根の形に、沿って、貼る。見た目は最も自然 | 頂点ごとの判断が、要る。実行時に決めにくい |
+
+市松の貼り方では、**2×2 マスごとに、対角線が、交差する形**になります。粗い LOD に落とすと、粗い 1 マスの、2 枚の三角形に、きれいにまとまります。
+
+```cpp
+std::vector<uint16_t> BuildCheckerIndices(uint32_t n) {
+  std::vector<uint16_t> idx;
+  idx.reserve((n - 1) * (n - 1) * 6);
+  for (uint32_t z = 0; z + 1 < n; ++z) {
+    for (uint32_t x = 0; x + 1 < n; ++x) {
+      const uint16_t a = z * n + x;        // 左上
+      const uint16_t b = a + 1;            // 右上
+      const uint16_t c = a + n;            // 左下
+      const uint16_t d = c + 1;            // 右下
+      // 上から見て反時計回りが表。マスの位置で、対角線の向きを変える。
+      if (((x + z) & 1) == 0) {
+        idx.insert(idx.end(), {a, c, d, a, d, b});
+      } else {
+        idx.insert(idx.end(), {a, c, b, b, c, d});
+      }
+    }
+  }
+  return idx;
+}
+```
+
+### ④ 表裏の向き（ワインディング）
+
+地形は、**上から見たとき、反時計回りの三角形が表**です（右手系・Y 上）。Direct3D 11 の既定は、**時計回りが表**なので、ラスタライザー ステートで、反転します。
+
+```cpp
+D3D11_RASTERIZER_DESC rs = {};
+rs.FillMode = D3D11_FILL_SOLID;
+rs.CullMode = D3D11_CULL_BACK;
+rs.FrontCounterClockwise = TRUE;      // 反時計回りを表にする（このサイトの決まり）
+rs.DepthClipEnable = TRUE;
+device->CreateRasterizerState(&rs, &rasterizer_state);
+```
+
+向きが逆だと、地形が、**裏返しになって、地面の上の面が、消えます**（裏面カリング）。地形が、まるごと見えないときは、最初に、この設定を疑います。
+
+## 三角形ストリップと、リスト
+
+| 方式 | インデックス数（N×N 頂点） | 特徴 |
+| --- | --- | --- |
+| 三角形リスト | `6 × (N−1)²` | 簡単。LOD やモーフィングと、相性がよい |
+| 三角形ストリップ | 約 `2 × N × (N−1)` ＋ 切れ目 | インデックスは、約 1/3。行ごとに、リスタート値（`0xFFFF`）で、つなぐ |
+
+ストリップは、インデックスの数が減りますが、**現代の GPU の頂点キャッシュは、リストでも、十分に効く**ので、差は、小さくなりました。**市松の対角線は、ストリップでは、表現しにくい**ので、リストを使うのが、無難です。
+
+## 頂点キャッシュに合わせる
+
+GPU は、**直前に処理した頂点の結果を、数十個だけ、キャッシュ**しています。同じ頂点を、続けて使うほど、処理が減ります。
+
+格子を、**行ごとに、順番に**並べると、1 行ぶんの頂点数がキャッシュの大きさを超えて、**上の行の頂点が、キャッシュから出てしまいます**。
+
+| 並べ方 | 頂点の再利用 |
+| --- | --- |
+| 行ごとの順（上のコード） | 頂点が、ほぼ 2 回、使われる。キャッシュが小さいと、再計算が増える |
+| 小さなブロック（例：8×8）ごとの順 | ブロック内で、頂点を、使い回せる。キャッシュに、収まりやすい |
+| 最適化ツール（Forsyth のアルゴリズムなど）で並べ替え | インデックスを、キャッシュに最適な順に並べ替える。地形の格子のような、規則的なメッシュでは、効果は、限定的 |
+
+格子メッシュは、規則的なので、**元の並びでも、十分に効率が良い**ことが、多いです。数百万頂点を、描くのでなければ、頂点キャッシュの最適化は、後回しで、かまいません。
+
+## DirectX 11 で、格子を作る
+
+```cpp
+// 頂点バッファ（変更しないので IMMUTABLE）
+D3D11_BUFFER_DESC vb_desc = {};
+vb_desc.ByteWidth = UINT(vertices.size() * sizeof(GridVertex));
+vb_desc.Usage = D3D11_USAGE_IMMUTABLE;
+vb_desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+D3D11_SUBRESOURCE_DATA vb_data = {vertices.data()};
+device->CreateBuffer(&vb_desc, &vb_data, &grid_vb);
+
+// インデックス バッファ（16 ビット）
+D3D11_BUFFER_DESC ib_desc = {};
+ib_desc.ByteWidth = UINT(indices.size() * sizeof(uint16_t));
+ib_desc.Usage = D3D11_USAGE_IMMUTABLE;
+ib_desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+D3D11_SUBRESOURCE_DATA ib_data = {indices.data()};
+device->CreateBuffer(&ib_desc, &ib_data, &grid_ib);
+```
+
+```hlsl
+// 頂点シェーダー: 格子の位置を、ワールドに直し、高さマップから、高さを読む。
+Texture2D<float> g_height : register(t0);
+SamplerState g_linear_clamp : register(s0);
+
+cbuffer ChunkCB : register(b1) {
+  float2 chunk_origin;     // このチャンクの、左下のワールド XZ
+  float chunk_size;        // チャンクの 1 辺（メートル）
+  float height_scale;
+  float2 height_uv_origin; // 高さマップ上の、このチャンクの範囲
+  float2 height_uv_size;
+  float height_offset;
+};
+
+float4 main(float2 grid : POSITION) : SV_Position {
+  float2 xz = chunk_origin + grid * chunk_size;
+  float2 uv = height_uv_origin + grid * height_uv_size;
+  float y = g_height.SampleLevel(g_linear_clamp, uv, 0) * height_scale + height_offset;
+  return mul(float4(xz.x, y, xz.y, 1.0), view_proj);
+}
+```
+
+高さマップの端の画素の中心が、チャンクの端の頂点に、合うように、`height_uv_origin` と `height_uv_size` を、**半画素分、内側に**寄せます。そうしないと、隣のチャンクと、**高さが、半画素分ずれて、継ぎ目が出ます**。
+
+## 格子の解像度と、高さマップの解像度
+
+格子の頂点の間隔と、高さマップの画素の間隔を、**同じ**にするのが、標準です（頂点 1 つに、画素 1 つ）。
+
+| 関係 | 内容 |
+| --- | --- |
+| 頂点の方が粗い | 高さマップの、細かい凹凸が、メッシュに、反映されない（LOD の遠景では、これが、普通） |
+| 頂点の方が細かい | 高さマップを、補間して使う。余計な頂点が、増えるだけ |
+| 同じ | 1 頂点 = 1 画素。無駄がない |
+
+遠景で、頂点の方が粗くなる場合は、**ミップを選んで読む**ことで、ちらつきを防ぎます（[Heightmap LOD (Mips)](../lod/height-mip.md)）。
+
 ## よくあるミス
 
 ??? failure "地形がカクカクして見える"
@@ -208,9 +379,10 @@ VSOutput VSMain(VSInput input) {
 
 ## 参考
 
-- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps (CDLOD)"（JGT 2010）
-- Losasso & Hoppe, "Geometry Clipmaps"（SIGGRAPH 2004）
-- Musgrave et al., "The Synthesis and Rendering of Eroded Fractal Terrains"（SIGGRAPH 1989）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（地形、ビュー フラスタム カリング、法線、補間の章）
+- Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps", Journal of Graphics, GPU, and Game Tools, Vol. 14, No. 4, 2009
+- Forsyth, "Linear-Speed Vertex Cache Optimisation", 2006（頂点キャッシュに合わせた、インデックスの並べ替え）
+- Microsoft Learn, "D3D11_RASTERIZER_DESC"（`FrontCounterClockwise`）
 
 ## 関連ページ
 
