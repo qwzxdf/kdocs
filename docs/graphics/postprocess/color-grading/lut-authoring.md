@@ -140,108 +140,116 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 
 <!-- fig:lut-blend-zones:begin -->
 
-<svg class="fig illust motion" data-fig="lut-blend-zones" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="lut-blend-zones" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-lut-blend-zones" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">時間帯の LUT 遷移:隣り合う 2 つを、重みで混ぜる</text>
-<rect x="50" y="90" width="520" height="200" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
-<line x1="180.0" y1="90" x2="180.0" y2="290" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="50" y1="140.0" x2="570" y2="140.0" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="310.0" y1="90" x2="310.0" y2="290" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="50" y1="190.0" x2="570" y2="190.0" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="440.0" y1="90" x2="440.0" y2="290" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="50" y1="240.0" x2="570" y2="240.0" stroke="#e2e8f0" stroke-width="1"/>
-<text x="50" y="62" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">重み（縦）と時刻（横）</text>
-<path d="M50.0,290.0 L60.83,273.33 L71.67,256.67 L82.5,240.0 L93.33,223.33 L104.17,206.67 L115.0,190.0 L125.83,173.33 L136.67,156.67 L147.5,140.0 L158.33,123.33 L169.17,106.67 L180.0,90.0 L190.83,106.67 L201.67,123.33 L212.5,140.0 L223.33,156.67 L234.17,173.33 L245.0,190.0 L255.83,206.67 L266.67,223.33 L277.5,240.0 L288.33,256.67 L299.17,273.33 L310.0,290.0 L320.83,290.0 L331.67,290.0 L342.5,290.0 L353.33,290.0 L364.17,290.0 L375.0,290.0 L385.83,290.0 L396.67,290.0 L407.5,290.0 L418.33,290.0 L429.17,290.0 L440.0,290.0 L450.83,290.0 L461.67,290.0 L472.5,290.0 L483.33,290.0 L494.17,290.0 L505.0,290.0 L515.83,290.0 L526.67,290.0 L537.5,290.0 L548.33,290.0 L559.17,290.0 L570.0,290.0" fill="none" stroke="#f4b183" stroke-width="4" opacity="1"/>
-<text x="180.0" y="82" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#f4b183">朝</text>
-<path d="M50.0,290.0 L60.83,290.0 L71.67,290.0 L82.5,290.0 L93.33,290.0 L104.17,290.0 L115.0,290.0 L125.83,290.0 L136.67,290.0 L147.5,290.0 L158.33,290.0 L169.17,290.0 L180.0,290.0 L190.83,273.33 L201.67,256.67 L212.5,240.0 L223.33,223.33 L234.17,206.67 L245.0,190.0 L255.83,173.33 L266.67,156.67 L277.5,140.0 L288.33,123.33 L299.17,106.67 L310.0,90.0 L320.83,106.67 L331.67,123.33 L342.5,140.0 L353.33,156.67 L364.17,173.33 L375.0,190.0 L385.83,206.67 L396.67,223.33 L407.5,240.0 L418.33,256.67 L429.17,273.33 L440.0,290.0 L450.83,290.0 L461.67,290.0 L472.5,290.0 L483.33,290.0 L494.17,290.0 L505.0,290.0 L515.83,290.0 L526.67,290.0 L537.5,290.0 L548.33,290.0 L559.17,290.0 L570.0,290.0" fill="none" stroke="#7ec8f2" stroke-width="4" opacity="1"/>
-<text x="310.0" y="82" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#7ec8f2">昼</text>
-<path d="M50.0,290.0 L60.83,290.0 L71.67,290.0 L82.5,290.0 L93.33,290.0 L104.17,290.0 L115.0,290.0 L125.83,290.0 L136.67,290.0 L147.5,290.0 L158.33,290.0 L169.17,290.0 L180.0,290.0 L190.83,290.0 L201.67,290.0 L212.5,290.0 L223.33,290.0 L234.17,290.0 L245.0,290.0 L255.83,290.0 L266.67,290.0 L277.5,290.0 L288.33,290.0 L299.17,290.0 L310.0,290.0 L320.83,273.33 L331.67,256.67 L342.5,240.0 L353.33,223.33 L364.17,206.67 L375.0,190.0 L385.83,173.33 L396.67,156.67 L407.5,140.0 L418.33,123.33 L429.17,106.67 L440.0,90.0 L450.83,106.67 L461.67,123.33 L472.5,140.0 L483.33,156.67 L494.17,173.33 L505.0,190.0 L515.83,206.67 L526.67,223.33 L537.5,240.0 L548.33,256.67 L559.17,273.33 L570.0,290.0" fill="none" stroke="#ff7f50" stroke-width="4" opacity="1"/>
-<text x="440.0" y="82" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ff7f50">夕</text>
-<path d="M50.0,90.0 L60.83,106.67 L71.67,123.33 L82.5,140.0 L93.33,156.67 L104.17,173.33 L115.0,190.0 L125.83,206.67 L136.67,223.33 L147.5,240.0 L158.33,256.67 L169.17,273.33 L180.0,290.0 L190.83,290.0 L201.67,290.0 L212.5,290.0 L223.33,290.0 L234.17,290.0 L245.0,290.0 L255.83,290.0 L266.67,290.0 L277.5,290.0 L288.33,290.0 L299.17,290.0 L310.0,290.0 L320.83,290.0 L331.67,290.0 L342.5,290.0 L353.33,290.0 L364.17,290.0 L375.0,290.0 L385.83,290.0 L396.67,290.0 L407.5,290.0 L418.33,290.0 L429.17,290.0 L440.0,290.0 L450.83,273.33 L461.67,256.67 L472.5,240.0 L483.33,223.33 L494.17,206.67 L505.0,190.0 L515.83,173.33 L526.67,156.67 L537.5,140.0 L548.33,123.33 L559.17,106.67 L570.0,90.0" fill="none" stroke="#1d2b64" stroke-width="4" opacity="1"/>
-<text x="552.67" y="82" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1d2b64">夜</text>
-<text x="50.0" y="308" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">0 時</text>
-<text x="180.0" y="308" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">6 時</text>
-<text x="310.0" y="308" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">12 時</text>
-<text x="440.0" y="308" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">18 時</text>
-<text x="570.0" y="308" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">24 時</text>
-<line x1="50.0" y1="90" x2="50.0" y2="290" stroke="#1f2937" stroke-width="2.5"><animate attributeName="x1" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.0807;0.1021;0.1235;0.1449;0.1663;0.1877;0.2091;0.2305;0.2519;0.2733;0.2947;0.3160;0.3374;0.3588;0.3802;0.4016;0.4230;0.4444;0.4658;0.4872;0.5086;0.5300;0.5514;0.5728;0.5942;0.6156;0.6370;0.6584;0.6798;0.7012;0.7226;0.7440;0.7654;0.7868;0.8082;0.8296;1.0000" values="50;50;64.44;78.89;93.33;107.78;122.22;136.67;151.11;165.56;180;194.44;208.89;223.33;237.78;252.22;266.67;281.11;295.56;310;324.44;338.89;353.33;367.78;382.22;396.67;411.11;425.56;440;454.44;468.89;483.33;497.78;512.22;526.67;541.11;555.56;570;570"/><animate attributeName="x2" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.0807;0.1021;0.1235;0.1449;0.1663;0.1877;0.2091;0.2305;0.2519;0.2733;0.2947;0.3160;0.3374;0.3588;0.3802;0.4016;0.4230;0.4444;0.4658;0.4872;0.5086;0.5300;0.5514;0.5728;0.5942;0.6156;0.6370;0.6584;0.6798;0.7012;0.7226;0.7440;0.7654;0.7868;0.8082;0.8296;1.0000" values="50;50;64.44;78.89;93.33;107.78;122.22;136.67;151.11;165.56;180;194.44;208.89;223.33;237.78;252.22;266.67;281.11;295.56;310;324.44;338.89;353.33;367.78;382.22;396.67;411.11;425.56;440;454.44;468.89;483.33;497.78;512.22;526.67;541.11;555.56;570;570"/></line>
-<rect x="610" y="110" width="130" height="90" fill="#1d2b64" stroke="#94a3b8" stroke-width="2"><animate attributeName="fill" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.0807;0.1021;0.1235;0.1449;0.1663;0.1877;0.2091;0.2305;0.2519;0.2733;0.2947;0.3160;0.3374;0.3588;0.3802;0.4016;0.4230;0.4444;0.4658;0.4872;0.5086;0.5300;0.5514;0.5728;0.5942;0.6156;0.6370;0.6584;0.6798;0.7012;0.7226;0.7440;0.7654;0.7868;0.8082;0.8296;1.0000" values="#1d2b64;#1d2b64;#353a67;#4d496b;#65586e;#7d6772;#947575;#ac8479;#c4937c;#dca280;#f4b183;#e7b48f;#dab69c;#cdb9a8;#c0bbb4;#b2bec1;#a5c0cd;#98c3d9;#8bc5e6;#7ec8f2;#8cc0e0;#9bb8ce;#a9b0bc;#b7a8aa;#c69f98;#d49786;#e28f74;#f18762;#ff7f50;#e67652;#cd6c54;#b46357;#9b5a59;#81505b;#68475d;#4f3e60;#363462;#1d2b64;#1d2b64"/></rect>
-<text x="675" y="100" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">混ぜた色</text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">00 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.0804;0.0807;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">00 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0804;0.0807;0.1018;0.1021;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">01 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1018;0.1021;0.1232;0.1235;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">02 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1232;0.1235;0.1446;0.1449;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">02 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1446;0.1449;0.1660;0.1663;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">03 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1660;0.1663;0.1874;0.1877;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">04 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1874;0.1877;0.2088;0.2091;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">04 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2088;0.2091;0.2302;0.2305;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">05 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2302;0.2305;0.2516;0.2519;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">06 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2516;0.2519;0.2730;0.2733;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">06 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2730;0.2733;0.2944;0.2947;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">07 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2944;0.2947;0.3158;0.3160;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">08 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3158;0.3160;0.3372;0.3374;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">08 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3372;0.3374;0.3586;0.3588;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">09 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3586;0.3588;0.3800;0.3802;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">10 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3800;0.3802;0.4013;0.4016;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">10 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4013;0.4016;0.4227;0.4230;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">11 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4227;0.4230;0.4441;0.4444;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">12 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4441;0.4444;0.4655;0.4658;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">12 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4655;0.4658;0.4869;0.4872;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">13 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4869;0.4872;0.5083;0.5086;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">14 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5083;0.5086;0.5297;0.5300;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">14 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5297;0.5300;0.5511;0.5514;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">15 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5511;0.5514;0.5725;0.5728;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">16 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5725;0.5728;0.5939;0.5942;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">16 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5939;0.5942;0.6153;0.6156;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">17 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6153;0.6156;0.6367;0.6370;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">18 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6367;0.6370;0.6581;0.6584;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">18 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6581;0.6584;0.6795;0.6798;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">19 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6795;0.6798;0.7009;0.7012;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">20 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7009;0.7012;0.7223;0.7226;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">20 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7223;0.7226;0.7437;0.7440;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">21 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7437;0.7440;0.7651;0.7654;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">22 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7651;0.7654;0.7865;0.7868;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">22 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7865;0.7868;0.8079;0.8082;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">23 時<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.8079;0.8082;0.8293;0.8296;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">夜 100%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0590;0.0593;0.0804;0.0807;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 11% / 夜 89%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0804;0.0807;0.1018;0.1021;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 22% / 夜 78%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1018;0.1021;0.1232;0.1235;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 33% / 夜 67%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1232;0.1235;0.1446;0.1449;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 44% / 夜 56%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1446;0.1449;0.1660;0.1663;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 56% / 夜 44%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1660;0.1663;0.1874;0.1877;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 67% / 夜 33%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1874;0.1877;0.2088;0.2091;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 78% / 夜 22%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2088;0.2091;0.2302;0.2305;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 89% / 夜 11%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2302;0.2305;0.2516;0.2519;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 100%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2516;0.2519;0.2730;0.2733;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 89% / 昼 11%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2730;0.2733;0.2944;0.2947;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 78% / 昼 22%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2944;0.2947;0.3158;0.3160;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 67% / 昼 33%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3158;0.3160;0.3372;0.3374;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 56% / 昼 44%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3372;0.3374;0.3586;0.3588;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 44% / 昼 56%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3586;0.3588;0.3800;0.3802;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 33% / 昼 67%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3800;0.3802;0.4013;0.4016;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 22% / 昼 78%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4013;0.4016;0.4227;0.4230;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">朝 11% / 昼 89%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4227;0.4230;0.4441;0.4444;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">昼 100%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4441;0.4444;0.4655;0.4658;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">昼 89% / 夕 11%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4655;0.4658;0.4869;0.4872;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">昼 78% / 夕 22%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4869;0.4872;0.5083;0.5086;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">昼 67% / 夕 33%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5083;0.5086;0.5297;0.5300;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">昼 56% / 夕 44%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5297;0.5300;0.5511;0.5514;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">昼 44% / 夕 56%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5511;0.5514;0.5725;0.5728;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">昼 33% / 夕 67%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5725;0.5728;0.5939;0.5942;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">昼 22% / 夕 78%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5939;0.5942;0.6153;0.6156;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">昼 11% / 夕 89%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6153;0.6156;0.6367;0.6370;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">夕 100%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6367;0.6370;0.6581;0.6584;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">夕 89% / 夜 11%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6581;0.6584;0.6795;0.6798;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">夕 78% / 夜 22%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6795;0.6798;0.7009;0.7012;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">夕 67% / 夜 33%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7009;0.7012;0.7223;0.7226;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">夕 56% / 夜 44%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7223;0.7226;0.7437;0.7440;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">夕 44% / 夜 56%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7437;0.7440;0.7651;0.7654;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">夕 33% / 夜 67%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7651;0.7654;0.7865;0.7868;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">夕 22% / 夜 78%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7865;0.7868;0.8079;0.8082;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="610" y="270" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">夕 11% / 夜 89%<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.8079;0.8082;0.8293;0.8296;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="50" y="350" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">各時刻で、隣り合う 2 つの LUT の重みの合計が 1。太陽の高さなどから重みを決める。</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">場所ごとの色補正: 2 つの LUT を、プレイヤーの位置で、なめらかに混ぜる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">洞窟(青く暗い補正)から、野外(暖かく明るい補正)へ歩く。中間の灰色のパレットの見え方を、位置ごとに計算する</text>
+<rect x="30" y="96" width="900" height="90" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 通路(左 = 洞窟、右 = 野外)。黄色の帯 = 混ぜる区間</text>
+<rect x="298.0" y="114" width="340.0" height="60" fill="#fde68a" opacity="0.5"/>
+<rect x="60" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="77" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="94" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="111" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="128" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="145" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="162" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="179" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="196" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="213" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="230" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="247" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="264" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="281" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="298" y="150" width="16.5" height="18" fill="#334155"/>
+<rect x="315" y="150" width="16.5" height="18" fill="#364354"/>
+<rect x="332" y="150" width="16.5" height="18" fill="#3c4653"/>
+<rect x="349" y="150" width="16.5" height="18" fill="#434b51"/>
+<rect x="366" y="150" width="16.5" height="18" fill="#4d514f"/>
+<rect x="383" y="150" width="16.5" height="18" fill="#58584c"/>
+<rect x="400" y="150" width="16.5" height="18" fill="#656049"/>
+<rect x="417" y="150" width="16.5" height="18" fill="#726945"/>
+<rect x="434" y="150" width="16.5" height="18" fill="#817242"/>
+<rect x="451" y="150" width="16.5" height="18" fill="#907b3e"/>
+<rect x="468" y="150" width="16.5" height="18" fill="#9e853b"/>
+<rect x="485" y="150" width="16.5" height="18" fill="#ad8e37"/>
+<rect x="502" y="150" width="16.5" height="18" fill="#bc9734"/>
+<rect x="519" y="150" width="16.5" height="18" fill="#c9a030"/>
+<rect x="536" y="150" width="16.5" height="18" fill="#d6a82d"/>
+<rect x="553" y="150" width="16.5" height="18" fill="#e1af2a"/>
+<rect x="570" y="150" width="16.5" height="18" fill="#ebb528"/>
+<rect x="587" y="150" width="16.5" height="18" fill="#f2ba26"/>
+<rect x="604" y="150" width="16.5" height="18" fill="#f8bd25"/>
+<rect x="621" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="638" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="655" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="672" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="689" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="706" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="723" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="740" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="757" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="774" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="791" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="808" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="825" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="842" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<rect x="859" y="150" width="16.5" height="18" fill="#fbbf24"/>
+<circle cx="128" cy="130" r="9" fill="#1f2937"><animate attributeName="cx" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.1556;0.2178;0.3067;0.3689;0.4578;0.5200;0.6089;0.6711;1.0000" values="128;128;298;298;468;468;638;638;808;808"/></circle>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2176;0.2178;1.0000" values="1;1;0;0"/><rect x="60" y="216" width="108" height="90" fill="#99a8be" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="180" y="216" width="108" height="90" fill="#bd858b" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="300" y="216" width="108" height="90" fill="#79b797" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="420" y="216" width="108" height="90" fill="#79a0ec" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="60" y="330" text-anchor="start" style="font-size:16px;font-weight:700;fill:#7c3aed">位置 4: 洞窟の LUT の割合 1.00 / 野外の LUT の割合 0.00</text>
+<text x="60" y="358" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">灰色の見え方(R, G, B): 0.33, 0.40, 0.53</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2043;0.2044;0.3554;0.3556;1.0000" values="0;0;1;1;0;0"/><rect x="60" y="216" width="108" height="90" fill="#99a8be" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="180" y="216" width="108" height="90" fill="#bd858b" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="300" y="216" width="108" height="90" fill="#79b797" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="420" y="216" width="108" height="90" fill="#79a0ec" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="60" y="330" text-anchor="start" style="font-size:16px;font-weight:700;fill:#7c3aed">位置 14: 洞窟の LUT の割合 1.00 / 野外の LUT の割合 0.00</text>
+<text x="60" y="358" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">灰色の見え方(R, G, B): 0.33, 0.40, 0.53</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3554;0.3556;0.5065;0.5067;1.0000" values="0;0;1;1;0;0"/><rect x="60" y="216" width="108" height="90" fill="#b1b2b6" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="180" y="216" width="108" height="90" fill="#dc8d85" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="300" y="216" width="108" height="90" fill="#8dc290" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="420" y="216" width="108" height="90" fill="#8daae1" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="60" y="330" text-anchor="start" style="font-size:16px;font-weight:700;fill:#7c3aed">位置 24: 洞窟の LUT の割合 0.50 / 野外の LUT の割合 0.50</text>
+<text x="60" y="358" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">灰色の見え方(R, G, B): 0.45, 0.46, 0.47</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5065;0.5067;0.6576;0.6578;1.0000" values="0;0;1;1;0;0"/><rect x="60" y="216" width="108" height="90" fill="#c6bcad" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="180" y="216" width="108" height="90" fill="#f6957e" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="300" y="216" width="108" height="90" fill="#9dcc89" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="420" y="216" width="108" height="90" fill="#9db3d6" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="60" y="330" text-anchor="start" style="font-size:16px;font-weight:700;fill:#7c3aed">位置 34: 洞窟の LUT の割合 0.00 / 野外の LUT の割合 1.00</text>
+<text x="60" y="358" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">灰色の見え方(R, G, B): 0.57, 0.51, 0.42</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6576;0.6578;1.0000" values="0;0;1;1"/><rect x="60" y="216" width="108" height="90" fill="#c6bcad" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="180" y="216" width="108" height="90" fill="#f6957e" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="300" y="216" width="108" height="90" fill="#9dcc89" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="420" y="216" width="108" height="90" fill="#9db3d6" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="60" y="330" text-anchor="start" style="font-size:16px;font-weight:700;fill:#7c3aed">位置 44: 洞窟の LUT の割合 0.00 / 野外の LUT の割合 1.00</text>
+<text x="60" y="358" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">灰色の見え方(R, G, B): 0.57, 0.51, 0.42</text>
+</g>
+<text x="60" y="205" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">色見本(灰・赤・緑・青)</text>
+<text x="560" y="250" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">灰色の R − B(暖かさ):</text>
+<text x="560" y="290" text-anchor="start" style="font-size:30px;font-weight:700;fill:#e5484d" opacity="1">0</text>
+<text x="560" y="290" text-anchor="start" style="font-size:30px;font-weight:700;fill:#e5484d" opacity="0">-20<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2047;0.2049;1.0000" values="1;1;0;0"/></text>
+<text x="560" y="290" text-anchor="start" style="font-size:30px;font-weight:700;fill:#e5484d" opacity="0">-20<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2047;0.2049;0.3558;0.3560;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="560" y="290" text-anchor="start" style="font-size:30px;font-weight:700;fill:#e5484d" opacity="0">-3<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3558;0.3560;0.5069;0.5071;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="560" y="290" text-anchor="start" style="font-size:30px;font-weight:700;fill:#e5484d" opacity="0">15<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5069;0.5071;0.6580;0.6582;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="560" y="290" text-anchor="start" style="font-size:30px;font-weight:700;fill:#e5484d" opacity="0">15<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6580;0.6582;1.0000" values="0;0;1;1"/></text>
+<text x="630" y="290" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">(×0.01。マイナス = 青い、プラス = 暖かい)</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7998;0.8000;1.0000" values="0;0;1;1"/><rect x="40" y="400" width="880" height="90" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="56" y="424" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">1 歩ごとの色の変化は、最大 0.019(なめらか)。一気に切り替えると、一度に 0.25 変わる(ちらつき)</text>
+<text x="56" y="448" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">2 つの LUT を混ぜる重みを、位置から計算する(smoothstep)。LUT 自体を混ぜるか、結果を混ぜる</text>
+<text x="56" y="470" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">場所ごとに LUT を持つと、同じゲームでも、場面の雰囲気を作り分けられる</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">洞窟と野外で、別の色補正をしたい<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">歩きながら、2 つの LUT の重みを、少しずつ入れ替える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8220;0.8222;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">境目で、色が急に変わらない<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8220;0.8222;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:lut-blend-zones:end -->

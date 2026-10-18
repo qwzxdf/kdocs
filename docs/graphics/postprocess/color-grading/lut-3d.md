@@ -72,49 +72,59 @@ float3 ApplyLut(float3 color) {
 
 <!-- fig:lut-half-texel:begin -->
 
-<svg class="fig illust motion" data-fig="lut-half-texel" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="lut-half-texel" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-lut-half-texel" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">半テクセル補正:LUT の格子点は、テクセルの「中心」にある</text>
-<rect x="60.0" y="110" width="149.0" height="60" fill="#000000" stroke="#1f2937" stroke-width="1.5"/>
-<text x="135.0" y="190" text-anchor="middle" style="font-size:13px;font-weight:500;fill:#1f2937">格子点 0 = 0.00</text>
-<circle cx="135.0" cy="140.0" r="4" fill="#e5aa28"/>
-<rect x="210.0" y="110" width="149.0" height="60" fill="#6c6c6c" stroke="#1f2937" stroke-width="1.5"/>
-<text x="285.0" y="190" text-anchor="middle" style="font-size:13px;font-weight:500;fill:#1f2937">格子点 1 = 0.15</text>
-<circle cx="285.0" cy="140.0" r="4" fill="#e5aa28"/>
-<rect x="360.0" y="110" width="149.0" height="60" fill="#cdcdcd" stroke="#1f2937" stroke-width="1.5"/>
-<text x="435.0" y="190" text-anchor="middle" style="font-size:13px;font-weight:500;fill:#1f2937">格子点 2 = 0.62</text>
-<circle cx="435.0" cy="140.0" r="4" fill="#e5aa28"/>
-<rect x="510.0" y="110" width="149.0" height="60" fill="#ffffff" stroke="#1f2937" stroke-width="1.5"/>
-<text x="585.0" y="190" text-anchor="middle" style="font-size:13px;font-weight:500;fill:#1f2937">格子点 3 = 1.00</text>
-<circle cx="585.0" cy="140.0" r="4" fill="#e5aa28"/>
-<text x="60" y="98" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1D の LUT（4 個）。橙の点が各テクセルの中心</text>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.2664;0.2667;1.0000" values="0;0;1;1;0;0"/><line x1="60.0" y1="104" x2="60.0" y2="176" stroke="#e5484d" stroke-width="3"/>
-<line x1="135.0" y1="104" x2="135.0" y2="176" stroke="#2ea043" stroke-width="3"/>
-<text x="60" y="260" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">入力 v = 0/3 → 引くべきは 格子点 0（0.00）</text>
-<text x="60" y="296" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">補正なし u = v = 0.000 → 0.00（誤差 0.00）</text>
-<text x="60" y="326" text-anchor="start" style="font-size:16px;font-weight:700;fill:#2ea043">補正あり u = (v·(N−1) + 0.5) / N = 0.125 → 0.00（誤差 0.00）</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">LUT の半テクセル補正: テクスチャの座標 0 と 1 は、端のテクセルの「中心」ではない。補正しないと、表全体がずれる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">16 個の表(テクセル)を、GPU の補間で引く。入力 0 〜 1 を、そのまま座標にした場合と、補正した場合の誤差</text>
+<rect x="30" y="96" width="660" height="260" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 表の値(黒い点 = 各テクセルの中心)と、引いた値</text>
+<path d="M70.0,330.0 L77.5,327.98 L85.0,325.93 L92.5,323.84 L100.0,321.71 L107.5,319.55 L115.0,317.36 L122.5,315.13 L130.0,312.88 L137.5,310.6 L145.0,308.28 L152.5,305.94 L160.0,303.57 L167.5,301.17 L175.0,298.75 L182.5,296.31 L190.0,293.84 L197.5,291.35 L205.0,288.84 L212.5,286.3 L220.0,283.75 L227.5,281.18 L235.0,278.59 L242.5,275.98 L250.0,273.36 L257.5,270.72 L265.0,268.07 L272.5,265.41 L280.0,262.73 L287.5,260.04 L295.0,257.34 L302.5,254.64 L310.0,251.92 L317.5,249.2 L325.0,246.47 L332.5,243.73 L340.0,240.99 L347.5,238.25 L355.0,235.5 L362.5,232.75 L370.0,230.0 L377.5,227.25 L385.0,224.5 L392.5,221.75 L400.0,219.01 L407.5,216.27 L415.0,213.53 L422.5,210.8 L430.0,208.08 L437.5,205.36 L445.0,202.66 L452.5,199.96 L460.0,197.27 L467.5,194.59 L475.0,191.93 L482.5,189.28 L490.0,186.64 L497.5,184.02 L505.0,181.41 L512.5,178.82 L520.0,176.25 L527.5,173.7 L535.0,171.16 L542.5,168.65 L550.0,166.16 L557.5,163.69 L565.0,161.25 L572.5,158.83 L580.0,156.43 L587.5,154.06 L595.0,151.72 L602.5,149.4 L610.0,147.12 L617.5,144.87 L625.0,142.64 L632.5,140.45 L640.0,138.29 L647.5,136.16 L655.0,134.07 L662.5,132.02 L670.0,130.0" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="5 4"/>
+<circle cx="88.75" cy="330.0" r="4" fill="#1f2937"/>
+<circle cx="126.25" cy="318.82" r="4" fill="#1f2937"/>
+<circle cx="163.75" cy="306.72" r="4" fill="#1f2937"/>
+<circle cx="201.25" cy="293.84" r="4" fill="#1f2937"/>
+<circle cx="238.75" cy="280.32" r="4" fill="#1f2937"/>
+<circle cx="276.25" cy="266.3" r="4" fill="#1f2937"/>
+<circle cx="313.75" cy="251.92" r="4" fill="#1f2937"/>
+<circle cx="351.25" cy="237.33" r="4" fill="#1f2937"/>
+<circle cx="388.75" cy="222.67" r="4" fill="#1f2937"/>
+<circle cx="426.25" cy="208.08" r="4" fill="#1f2937"/>
+<circle cx="463.75" cy="193.7" r="4" fill="#1f2937"/>
+<circle cx="501.25" cy="179.68" r="4" fill="#1f2937"/>
+<circle cx="538.75" cy="166.16" r="4" fill="#1f2937"/>
+<circle cx="576.25" cy="153.28" r="4" fill="#1f2937"/>
+<circle cx="613.75" cy="141.18" r="4" fill="#1f2937"/>
+<circle cx="651.25" cy="130.0" r="4" fill="#1f2937"/>
+<path d="M70.0,330.0 L77.5,330.0 L85.0,330.0 L92.5,328.88 L100.0,326.65 L107.5,324.41 L115.0,322.18 L122.5,319.94 L130.0,317.61 L137.5,315.19 L145.0,312.77 L152.5,310.35 L160.0,307.93 L167.5,305.43 L175.0,302.86 L182.5,300.28 L190.0,297.7 L197.5,295.13 L205.0,292.49 L212.5,289.78 L220.0,287.08 L227.5,284.37 L235.0,281.67 L242.5,278.91 L250.0,276.11 L257.5,273.31 L265.0,270.5 L272.5,267.7 L280.0,264.86 L287.5,261.98 L295.0,259.11 L302.5,256.23 L310.0,253.36 L317.5,250.46 L325.0,247.54 L332.5,244.63 L340.0,241.71 L347.5,238.79 L355.0,235.86 L362.5,232.93 L370.0,230.0 L377.5,227.07 L385.0,224.14 L392.5,221.21 L400.0,218.29 L407.5,215.37 L415.0,212.46 L422.5,209.54 L430.0,206.64 L437.5,203.77 L445.0,200.89 L452.5,198.02 L460.0,195.14 L467.5,192.3 L475.0,189.5 L482.5,186.69 L490.0,183.89 L497.5,181.09 L505.0,178.33 L512.5,175.63 L520.0,172.92 L527.5,170.22 L535.0,167.51 L542.5,164.87 L550.0,162.3 L557.5,159.72 L565.0,157.14 L572.5,154.57 L580.0,152.07 L587.5,149.65 L595.0,147.23 L602.5,144.81 L610.0,142.39 L617.5,140.06 L625.0,137.82 L632.5,135.59 L640.0,133.35 L647.5,131.12 L655.0,130.0 L662.5,130.0 L670.0,130.0" fill="none" stroke="#e5484d" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="0;0;1;1"/></path>
+<path d="M70.0,330.0 L77.5,327.9 L85.0,325.81 L92.5,323.71 L100.0,321.62 L107.5,319.52 L115.0,317.31 L122.5,315.04 L130.0,312.77 L137.5,310.5 L145.0,308.24 L152.5,305.92 L160.0,303.5 L167.5,301.09 L175.0,298.67 L182.5,296.26 L190.0,293.84 L197.5,291.3 L205.0,288.77 L212.5,286.23 L220.0,283.7 L227.5,281.16 L235.0,278.56 L242.5,275.94 L250.0,273.31 L257.5,270.68 L265.0,268.05 L272.5,265.4 L280.0,262.7 L287.5,260.01 L295.0,257.31 L302.5,254.62 L310.0,251.92 L317.5,249.18 L325.0,246.45 L332.5,243.71 L340.0,240.98 L347.5,238.24 L355.0,235.5 L362.5,232.75 L370.0,230.0 L377.5,227.25 L385.0,224.5 L392.5,221.76 L400.0,219.02 L407.5,216.29 L415.0,213.55 L422.5,210.82 L430.0,208.08 L437.5,205.38 L445.0,202.69 L452.5,199.99 L460.0,197.3 L467.5,194.6 L475.0,191.95 L482.5,189.32 L490.0,186.69 L497.5,184.06 L505.0,181.44 L512.5,178.84 L520.0,176.3 L527.5,173.77 L535.0,171.23 L542.5,168.7 L550.0,166.16 L557.5,163.74 L565.0,161.33 L572.5,158.91 L580.0,156.5 L587.5,154.08 L595.0,151.76 L602.5,149.5 L610.0,147.23 L617.5,144.96 L625.0,142.69 L632.5,140.48 L640.0,138.38 L647.5,136.29 L655.0,134.19 L662.5,132.1 L670.0,130.0" fill="none" stroke="#2ea043" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3021;0.3023;1.0000" values="0;0;1;1"/></path>
+<circle cx="86" cy="120" r="6" fill="#64748b"/>
+<text x="96" y="124" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">本当のカーブ</text>
+<circle cx="180.39999999999998" cy="120" r="6" fill="#e5484d"/>
+<text x="190.39999999999998" y="124" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">そのまま 0〜1 を座標に</text>
+<circle cx="354.59999999999997" cy="120" r="6" fill="#2ea043"/>
+<text x="364.59999999999997" y="124" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">補正: u × (N−1)/N + 0.5/N</text>
+<rect x="710" y="96" width="220" height="260" fill="#ffffff" stroke="#e5484d" stroke-width="1.8" rx="6"/>
+<text x="710" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">最大の誤差</text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1161;0.1163;1.0000" values="0;0;1;1"/><text x="726" y="140" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d">そのまま</text>
+<text x="726" y="170" text-anchor="start" style="font-size:22px;font-weight:700;fill:#e5484d">0.0252</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2664;0.2667;0.4590;0.4593;1.0000" values="0;0;1;1;0;0"/><line x1="260.0" y1="104" x2="260.0" y2="176" stroke="#e5484d" stroke-width="3"/>
-<line x1="285.0" y1="104" x2="285.0" y2="176" stroke="#2ea043" stroke-width="3"/>
-<text x="60" y="260" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">入力 v = 1/3 → 引くべきは 格子点 1（0.15）</text>
-<text x="60" y="296" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">補正なし u = v = 0.333 → 0.12（誤差 0.03）</text>
-<text x="60" y="326" text-anchor="start" style="font-size:16px;font-weight:700;fill:#2ea043">補正あり u = (v·(N−1) + 0.5) / N = 0.375 → 0.15（誤差 0.00）</text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3487;0.3488;1.0000" values="0;0;1;1"/><text x="726" y="210" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043">補正あり</text>
+<text x="726" y="240" text-anchor="start" style="font-size:22px;font-weight:700;fill:#2ea043">0.0006</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4590;0.4593;0.6516;0.6519;1.0000" values="0;0;1;1;0;0"/><line x1="460.0" y1="104" x2="460.0" y2="176" stroke="#e5484d" stroke-width="3"/>
-<line x1="435.0" y1="104" x2="435.0" y2="176" stroke="#2ea043" stroke-width="3"/>
-<text x="60" y="260" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">入力 v = 2/3 → 引くべきは 格子点 2（0.62）</text>
-<text x="60" y="296" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">補正なし u = v = 0.667 → 0.68（誤差 0.06）</text>
-<text x="60" y="326" text-anchor="start" style="font-size:16px;font-weight:700;fill:#2ea043">補正あり u = (v·(N−1) + 0.5) / N = 0.625 → 0.62（誤差 0.00）</text>
+<rect x="30" y="376" width="900" height="100" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
+<text x="30" y="366" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">クランプと補間の仕組み</text>
+<text x="50" y="412" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">座標 0 は、最初のテクセルの「左端」。中心は 0.5/16 = 0.0312 の位置</text>
+<text x="50" y="440" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937">座標 0〜1 を、そのまま、テクセル 0〜15 の位置に使うと、表全体が、少し伸びて(縮んで)引かれる。中間の色が、本来の値と、ずれる</text>
+<text x="50" y="462" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">補正は、入力を、最初と最後のテクセルの中心の間に押し込む</text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.5347;0.5349;1.0000" values="0;0;1;1"/><rect x="560" y="486" width="370" height="40" rx="12" fill="#fef2f2" stroke="#e5484d" stroke-width="2.5"/>
+<text x="576" y="510" text-anchor="start" style="font-size:13px;font-weight:700;fill:#991b1b">補正しないと、中間の明るさが、わずかにずれる</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6516;0.6519;0.8441;0.8444;1.0000" values="0;0;1;1;0;0"/><line x1="660.0" y1="104" x2="660.0" y2="176" stroke="#e5484d" stroke-width="3"/>
-<line x1="585.0" y1="104" x2="585.0" y2="176" stroke="#2ea043" stroke-width="3"/>
-<text x="60" y="260" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">入力 v = 3/3 → 引くべきは 格子点 3（1.00）</text>
-<text x="60" y="296" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">補正なし u = v = 1.000 → 1.00（誤差 0.00）</text>
-<text x="60" y="326" text-anchor="start" style="font-size:16px;font-weight:700;fill:#2ea043">補正あり u = (v·(N−1) + 0.5) / N = 0.875 → 1.00（誤差 0.00）</text>
-</g>
-<text x="60" y="372" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">u = v のままだと、格子点の位置が半テクセルずれて、中間の値が混ざる。端の 0 と 1 以外で誤差が出る。</text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">LUT を引くとき、入力の 0〜1 を、そのまま座標にしてはいけない<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">そのまま引くと、中間で、ずれる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.3021;0.3023;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">半テクセルぶん、内側へ寄せると、ぴったり合う<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3021;0.3023;0.5347;0.5349;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">3D LUT でも、同じ補正をする(3 軸すべて)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.5347;0.5349;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:lut-half-texel:end -->

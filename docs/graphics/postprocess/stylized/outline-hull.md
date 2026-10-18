@@ -74,26 +74,56 @@ device->CreateRasterizerState(&desc, outline_rasterizer.GetAddressOf());
 
 <!-- fig:outline-hull-width:begin -->
 
-<svg class="fig illust motion" data-fig="outline-hull-width" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="outline-hull-width" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-outline-hull-width" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">反転ハル法:裏面を外へ膨らませ、輪郭線にする</text>
-<circle cx="190" cy="200" r="80" fill="#0b0b0b"><animate attributeName="r" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0593;0.1481;0.3333;0.4444;0.5556;0.6296;1.0000" values="80;80;80;94;94;84;84;84"/></circle>
-<circle cx="190" cy="200" r="80" fill="#f59e0b" stroke="none"/>
-<text x="190" y="80" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#64748b">膨らませる幅を変える</text>
-<text x="70" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">幅 0:輪郭線は見えない<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1479;0.1481;1.0000" values="1;1;0;0"/></text>
-<text x="70" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">幅を広げると、線が太くなる<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1479;0.1481;0.4441;0.4444;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="70" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">広すぎ<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4441;0.4444;0.5553;0.5556;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="70" y="340" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">適度な幅（細め）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5553;0.5556;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="570" y="80" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#64748b">遠ざかると…</text>
-<text x="440" y="98" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">ワールドの幅を固定</text>
-<circle cx="520" cy="150" r="47" fill="#0b0b0b"><animate attributeName="r" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6296;0.8519;1.0000" values="47;47;18.8;18.8"/></circle>
-<circle cx="520" cy="150" r="40" fill="#f59e0b"><animate attributeName="r" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6296;0.8519;1.0000" values="40;40;16;16"/></circle>
-<text x="440" y="238" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">距離で補正（画面で一定）</text>
-<circle cx="520" cy="290" r="47" fill="#0b0b0b"><animate attributeName="r" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6296;0.8519;1.0000" values="47;47;23;23"/></circle>
-<circle cx="520" cy="290" r="40" fill="#f59e0b"><animate attributeName="r" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6296;0.8519;1.0000" values="40;40;16;16"/></circle>
-<text x="440" y="372" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">上は遠くで線が細くなる。下は画面で一定<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6293;0.6296;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">裏面法線の輪郭線: 世界で一定の太さにすると、遠くで細く、近くで太くなる。距離で補正して、画面で一定にする</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">輪郭の太さ(世界座標 0.02 m)を、距離 2・5・10・20 m で、画面の画素に直す。補正の有無で比べる</text>
+<rect x="30" y="96" width="900" height="190" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 輪郭の画面での太さ(画素)</text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="0;0;1;1"/><text x="70" y="126" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">距離 2 m</text>
+<circle cx="140" cy="206" r="56" fill="#cbd5e1" stroke="#1f2937" stroke-width="10.0"/>
+<text x="70" y="280" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">太さ 10.0 画素</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2463;0.2465;1.0000" values="0;0;1;1"/><text x="290" y="126" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">距離 5 m</text>
+<circle cx="360" cy="206" r="30.0" fill="#cbd5e1" stroke="#1f2937" stroke-width="4.0"/>
+<text x="290" y="280" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">太さ 4.0 画素</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4231;0.4233;1.0000" values="0;0;1;1"/><text x="510" y="126" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">距離 10 m</text>
+<circle cx="580" cy="206" r="15.0" fill="#cbd5e1" stroke="#1f2937" stroke-width="2.0"/>
+<text x="510" y="280" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">太さ 2.0 画素</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.5998;0.6000;1.0000" values="0;0;1;1"/><text x="730" y="126" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">距離 20 m</text>
+<circle cx="800" cy="206" r="7.5" fill="#cbd5e1" stroke="#1f2937" stroke-width="1.0"/>
+<text x="730" y="280" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">太さ 1.0 画素</text>
+</g>
+<rect x="30" y="306" width="900" height="150" fill="#ffffff" stroke="#2ea043" stroke-width="1.8" rx="6"/>
+<text x="30" y="296" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043">② 補正して、画面で一定(4 画素)にする</text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.7905;0.7907;1.0000" values="0;0;1;1"/><circle cx="140" cy="382" r="40" fill="#cbd5e1" stroke="#1f2937" stroke-width="4.0"/>
+<text x="70" y="446" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">世界の太さ 0.008 m</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.8277;0.8279;1.0000" values="0;0;1;1"/><circle cx="360" cy="382" r="24.0" fill="#cbd5e1" stroke="#1f2937" stroke-width="4.0"/>
+<text x="290" y="446" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">世界の太さ 0.020 m</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.8649;0.8651;1.0000" values="0;0;1;1"/><circle cx="580" cy="382" r="12.0" fill="#cbd5e1" stroke="#1f2937" stroke-width="4.0"/>
+<text x="510" y="446" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">世界の太さ 0.040 m</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.9021;0.9023;1.0000" values="0;0;1;1"/><circle cx="800" cy="382" r="6.0" fill="#cbd5e1" stroke="#1f2937" stroke-width="4.0"/>
+<text x="730" y="446" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">世界の太さ 0.080 m</text>
+</g>
+<text x="40" y="480" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">距離 2 m と 20 m の、太さの比:</text>
+<text x="280" y="484" text-anchor="start" style="font-size:26px;font-weight:700;fill:#e5484d" opacity="1">0<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6138;0.6140;1.0000" values="1;1;0;0"/></text>
+<text x="280" y="484" text-anchor="start" style="font-size:26px;font-weight:700;fill:#e5484d" opacity="0">10<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6138;0.6140;0.9021;0.9023;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="280" y="484" text-anchor="start" style="font-size:26px;font-weight:700;fill:#e5484d" opacity="0">1<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.9021;0.9023;1.0000" values="0;0;1;1"/></text>
+<text x="320" y="484" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">倍(補正なし)→ 1 倍(補正あり)</text>
+<g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.9487;0.9488;1.0000" values="0;0;1;1"/><rect x="560" y="466" width="370" height="56" rx="12" fill="#f0fdf4" stroke="#2ea043" stroke-width="2.5"/>
+<text x="576" y="490" text-anchor="start" style="font-size:13px;font-weight:700;fill:#166534">補正: 太さ ∝ 距離(カメラから頂点までの距離を、掛ける)</text>
+<text x="576" y="512" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">遠景も近景も、同じ太さの線になる</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">裏返した殻を、法線方向へ、少し膨らませて、輪郭にする<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">世界で一定の太さだと、遠いほど画面で細くなる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.7905;0.7907;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">距離に比例して膨らませると、画面では一定の太さ<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.7905;0.7907;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:outline-hull-width:end -->
