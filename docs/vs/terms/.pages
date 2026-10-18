@@ -1,0 +1,8 @@
+title: 用語
+nav:
+  - solution.md
+  - project.md
+  - configuration.md
+  - platform.md
+  - build.md
+  - msvc.md

@@ -1,7 +1,9 @@
 nav:
   - index.md
   - setup.md
+  - terms
   - settings.md
+  - utf8.md
   - libraries.md
   - debugging.md
   - asan.md

@@ -82,7 +82,7 @@ warning C4996: 'strcpy': This function or variable may be unsafe. Consider using
 warning C4819: ファイルは、現在のコードページ (932) で表示できない文字を含んでいます。データの損失を防ぐために、ファイルを Unicode 形式で保存してください。
 ```
 
-- ソースファイルが **UTF-8** なのに、コンパイラが Shift_JIS として読んでいます。**`/utf-8`** を付けます（C/C++ → コマンド ライン → 追加のオプション、[設定](settings.md#utf8)）
+- ソースファイルが **UTF-8** なのに、コンパイラが Shift_JIS として読んでいます。**`/utf-8`** を付けます（C/C++ → コマンド ライン → 追加のオプション、[設定](utf8.md)）
 
 文字化けの原因の見つけ方は、[文字化けのトラブルシューティング](../encoding/mojibake.md) に、症状ごとにまとめています。
 

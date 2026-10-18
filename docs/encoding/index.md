@@ -47,7 +47,7 @@ l b r - ②_UTF-8_で読む
 
 ## 関連ページ
 
-- [Visual Studio：C++23 の設定（/utf-8）](../vs/settings.md#utf8)
+- [Visual Studio：文字コードを UTF-8 にしよう](../vs/utf8.md)
 - [Visual Studio：よくあるエラー（文字化け）](../vs/errors.md#mojibake)
 - [std::string](../stl/containers/string.md)
 - [std::string_view](../stl/utilities/string_view.md)
