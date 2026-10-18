@@ -250,6 +250,7 @@ int main() {
 
 ## 関連ページ
 
+- [イベントシステム＋（コンパイル時・低オーバーヘッド）](event-plus.md)
 - [std::function](../../stl/utilities/function.md)
 - [std::queue](../../stl/containers/queue.md)
 - [Game Programming Patterns: Observer](https://gameprogrammingpatterns.com/observer.html)

@@ -3,6 +3,7 @@ nav:
   - index.md
   - raii.md
   - event.md
+  - event-plus.md
   - state-machine.md
   - command.md
   - strategy.md
