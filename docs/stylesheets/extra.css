@@ -803,3 +803,8 @@
 .md-typeset table.pc-cost th { text-align: left; font-size: 0.7rem; opacity: 0.7; padding: 0.4rem 0.8rem; }
 .md-typeset table.pc-cost td { padding: 0.55rem 0.8rem; border-top: 1px solid var(--md-default-fg-color--lightest); }
 .md-typeset table.pc-cost td:first-child { color: var(--md-accent-fg-color); }
+
+/* 描画の地図: 折りたたみの中の一覧を、画面が広ければ複数列に */
+.md-typeset details.map ul { column-width: 15rem; column-gap: 1.2rem; margin-top: 0.4rem; }
+.md-typeset details.map li { break-inside: avoid; margin: 0.25rem 0; }
+.md-typeset details.map > summary { font-weight: 700; }
