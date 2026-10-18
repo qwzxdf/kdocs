@@ -1,12 +1,12 @@
 ---
 title: D3D11 Pass Recipes
 tags:
-  - 描画
+  - DirectX
 ---
 
 # D3D11 Pass Recipes
 
-このセクションの各ページには、HLSL のコードがあります。しかし、シェーダーだけでは、画面に何も出ません。<strong>テクスチャを作り、ビューを作り、パスの順に束ねて、描く（または、ディスパッチする）</strong>という、ホスト側（C++）の仕事が、必要です。このページは、各ページで、繰り返し使う、その定型を、1 か所にまとめます。以降のページは、ここにある部品を、組み合わせて、パスを作る前提で、書かれています。
+描画セクションの各ページには、HLSL のコードがあります。しかし、シェーダーだけでは、画面に何も出ません。<strong>テクスチャを作り、ビューを作り、パスの順に束ねて、描く（または、ディスパッチする）</strong>という、ホスト側（C++）の仕事が、必要です。このページは、各ページで、繰り返し使う、その定型を、1 か所にまとめます。以降のページは、ここにある部品を、組み合わせて、パスを作る前提で、書かれています。
 
 ## このページで扱うもの
 
@@ -62,7 +62,7 @@ device->CreateUnorderedAccessView(texture.Get(), nullptr, &uav);    // 書く: R
 | AO・影・マスク（1 チャンネル） | `R8_UNORM`、または `R16_FLOAT` | 1 チャンネルで、足りる。帯域が、小さい |
 | 速度（モーション ベクトル） | `R16G16_FLOAT` | 画面のずれを、負の値も含めて、持つ |
 | 深度 | `R32_TYPELESS`（DSV: `D32_FLOAT`、SRV: `R32_FLOAT`） | 次の節 |
-| 最終的な、画面 | `R8G8B8A8_UNORM_SRGB`（スワップ チェーン） | リニアから、sRGB への、変換を、ハードウェアに、任せる |
+| 最終的な、画面 | スワップ チェーンは `R8G8B8A8_UNORM`、RTV を `R8G8B8A8_UNORM_SRGB` で作る | フリップ モデルは、`_SRGB` を、直接指定できない（[Swap Chain](swap-chain.md)）。RTV を `_SRGB` にして、リニアから sRGB への、変換を、ハードウェアに、任せる |
 
 ## フルスクリーン三角形
 
@@ -271,7 +271,7 @@ raster.DepthClipEnable = TRUE;
 device->CreateRasterizerState(&raster, &shadow_raster);
 ```
 
-`FrontCounterClockwise = TRUE` は、このサイトの規約（三角形は、CCW が、表）に、合わせた、設定です。`DepthBias` の単位は、深度フォーマットに、依存するので、調整が、必要です（[Shadow Bias](shadows/bias/index.md)）。
+`FrontCounterClockwise = TRUE` は、このサイトの規約（三角形は、CCW が、表）に、合わせた、設定です。`DepthBias` の単位は、深度フォーマットに、依存するので、調整が、必要です（[Shadow Bias](../../graphics/shadows/bias/index.md)）。
 
 ## パスの、つなぎ方：全体の骨格
 
@@ -372,8 +372,8 @@ if (context->GetData(disjoint_query.Get(), &disjoint, sizeof(disjoint), 0) == S_
 
 ## 関連ページ
 
-- [Shadow Map Basics](shadows/shadow-map-basics/index.md)
-- [Typical Pipeline](ao/filtering/pipeline.md)
-- [Post-Processing](postprocess/index.md)
-- [フレームの流れ](../3d/render-flow/frame-passes.md)
+- [Shadow Map Basics](../../graphics/shadows/shadow-map-basics/index.md)
+- [Typical Pipeline](../../graphics/ao/filtering/pipeline.md)
+- [Post-Processing](../../graphics/postprocess/index.md)
+- [フレームの流れ](../../3d/render-flow/frame-passes.md)
 - [Microsoft Learn: Direct3D 11 Graphics](https://learn.microsoft.com/ja-jp/windows/win32/direct3d11/atoc-dx-graphics-direct3d-11)

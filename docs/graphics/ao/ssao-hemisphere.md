@@ -424,7 +424,7 @@ float Blur(float2 uv) {
 
 ## DirectX 11 で組む
 
-ここまでの HLSL を、1 回の描画パスとして、動かすための、ホスト側の、準備です（共通の部品は、[D3D11 Pass Recipes](../d3d11-recipes.md) を参照）。
+ここまでの HLSL を、1 回の描画パスとして、動かすための、ホスト側の、準備です（共通の部品は、[D3D11 Pass Recipes](../../directx/dx11/pass-recipes.md) を参照）。
 
 ### 入力と出力
 
@@ -500,7 +500,7 @@ DrawFullscreenTriangle();     // 水平
 // （もう 1 回、ao_blur → ao へ、垂直）
 ```
 
-深度の DSV を、束ねたままにすると、深度を、SRV で、読めません（[D3D11 Pass Recipes](../d3d11-recipes.md) の、束縛の衝突）。AO の、結果は、ライティングの、パスで、環境光に、掛けます（[Usage and Misconceptions of AO](theory/usage-misconceptions.md)）。
+深度の DSV を、束ねたままにすると、深度を、SRV で、読めません（[D3D11 Pass Recipes](../../directx/dx11/pass-recipes.md) の、束縛の衝突）。AO の、結果は、ライティングの、パスで、環境光に、掛けます（[Usage and Misconceptions of AO](theory/usage-misconceptions.md)）。
 
 ## パラメータ
 

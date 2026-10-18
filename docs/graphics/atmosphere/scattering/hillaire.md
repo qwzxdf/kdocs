@@ -291,7 +291,7 @@ Dispatch(skyview_cs, {transmittance_srv, multiscatter_srv}, {skyview_uav}, 192 /
 Dispatch(aerial_cs, {transmittance_srv, multiscatter_srv}, {aerial_uav}, 32 / 8, 32 / 8, 32);
 ```
 
-`Dispatch(...)` は、仮の関数で、「入力 SRV を、束ね、出力 UAV を、束ね、`Dispatch` を、呼び、終わったら、束縛を、外す」を、まとめたものです（[D3D11 Pass Recipes](../../d3d11-recipes.md)）。後のパスが、前の LUT を、読むので、各 `Dispatch` の、あとで、UAV を、`nullptr` で、外します。毎フレーム更新するのは、2 枚だけなので、大気の計算が、軽くなります。
+`Dispatch(...)` は、仮の関数で、「入力 SRV を、束ね、出力 UAV を、束ね、`Dispatch` を、呼び、終わったら、束縛を、外す」を、まとめたものです（[D3D11 Pass Recipes](../../../directx/dx11/pass-recipes.md)）。後のパスが、前の LUT を、読むので、各 `Dispatch` の、あとで、UAV を、`nullptr` で、外します。毎フレーム更新するのは、2 枚だけなので、大気の計算が、軽くなります。
 
 ## 宇宙から、地上まで
 

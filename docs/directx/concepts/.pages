@@ -1,0 +1,7 @@
+nav:
+  - index.md
+  - gpu-pipeline.md
+  - resources-views.md
+  - formats.md
+  - conventions.md
+  - synchronization.md

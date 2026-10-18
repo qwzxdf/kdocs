@@ -383,7 +383,7 @@ Dispatch(assemble_cs, {height_srv, dx_srv, dz_srv}, {displacement_uav}, groups, 
 context->GenerateMips(displacement_srv.Get());                  // 遠くの水面は、ミップで読む（ちらつきを、減らす）
 ```
 
-1 回の FFT が、段の数（`log2 N`）だけ、ディスパッチを、呼ぶので、`N = 256` なら、横 8 回、縦 8 回の、計 16 回です。1 回ごとに、UAV を、外して、次の、SRV として、読む、束縛の入れ替えが、必要です（[D3D11 Pass Recipes](../../d3d11-recipes.md)）。`GenerateMips` を、使うには、テクスチャに、`D3D11_BIND_RENDER_TARGET` と `D3D11_RESOURCE_MISC_GENERATE_MIPS` が、必要です。
+1 回の FFT が、段の数（`log2 N`）だけ、ディスパッチを、呼ぶので、`N = 256` なら、横 8 回、縦 8 回の、計 16 回です。1 回ごとに、UAV を、外して、次の、SRV として、読む、束縛の入れ替えが、必要です（[D3D11 Pass Recipes](../../../directx/dx11/pass-recipes.md)）。`GenerateMips` を、使うには、テクスチャに、`D3D11_BIND_RENDER_TARGET` と `D3D11_RESOURCE_MISC_GENERATE_MIPS` が、必要です。
 
 ## カスケード（繰り返しを隠す）
 

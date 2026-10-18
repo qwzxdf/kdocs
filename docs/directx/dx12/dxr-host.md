@@ -1,7 +1,7 @@
 ---
 title: DXR Host Setup
 tags:
-  - 描画
+  - DirectX
 ---
 
 # DXR Host Setup
@@ -148,7 +148,7 @@ dispatch.Depth = 1;
 command_list4->DispatchRays(&dispatch);
 ```
 
-`Width × Height` の、スレッドが、それぞれ、`RayGen` を、実行します。`DispatchRaysIndex()` が、そのスレッドの、画素の座標です（[Ray Generation](reflections/rt-reflections/ray-generation.md)）。
+`Width × Height` の、スレッドが、それぞれ、`RayGen` を、実行します。`DispatchRaysIndex()` が、そのスレッドの、画素の座標です（[Ray Generation](../../graphics/reflections/rt-reflections/ray-generation.md)）。
 
 ### インライン レイトレーシング（RayQuery）
 
@@ -192,9 +192,9 @@ void ShadowCS(uint3 id : SV_DispatchThreadID) {
 
 ## 関連ページ
 
-- [D3D11 Pass Recipes](d3d11-recipes.md)
-- [Ray-Traced AO (RTAO)](ao/world-space/rtao.md)
-- [Ray Generation](reflections/rt-reflections/ray-generation.md)
-- [Hit Shading and BVH](reflections/rt-reflections/hit-shading.md)
-- [Ray-Traced Shadows](shadows/ray-traced.md)
+- [D3D11 Pass Recipes](../dx11/pass-recipes.md)
+- [Ray-Traced AO (RTAO)](../../graphics/ao/world-space/rtao.md)
+- [Ray Generation](../../graphics/reflections/rt-reflections/ray-generation.md)
+- [Hit Shading and BVH](../../graphics/reflections/rt-reflections/hit-shading.md)
+- [Ray-Traced Shadows](../../graphics/shadows/ray-traced.md)
 - [Microsoft Learn: DirectX Raytracing (DXR) Functional Spec](https://microsoft.github.io/DirectX-Specs/d3d/Raytracing.html)

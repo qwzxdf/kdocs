@@ -1,0 +1,27 @@
+nav:
+  - index.md
+  - factory-device.md
+  - command-queue.md
+  - command-allocator.md
+  - command-list.md
+  - fence.md
+  - swap-chain.md
+  - descriptor-heap.md
+  - descriptor.md
+  - resource-barrier.md
+  - heaps-resources.md
+  - upload-buffer.md
+  - shaders-dxc.md
+  - root-signature.md
+  - pso.md
+  - vertex-index-view.md
+  - triangle.md
+  - constant-buffer.md
+  - texture-upload.md
+  - depth-buffer.md
+  - viewport-scissor.md
+  - frame-resources.md
+  - compute-shader.md
+  - query-timing.md
+  - debug-layer.md
+  - dxr-host.md

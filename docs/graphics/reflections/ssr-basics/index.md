@@ -146,7 +146,7 @@ context->PSSetSamplers(0, 2, samplers);
 DrawFullscreenTriangle();
 ```
 
-結果は、ライティングの、パスで、反射プローブと、信頼度で、混ぜて、間接鏡面光として、足します（[Combining with SSR](../probes/combine-ssr.md)）。深度を、DSV から、外し忘れると、`depth_srv` が、黒くなって、SSR が、何も、当たらなくなります（[D3D11 Pass Recipes](../../d3d11-recipes.md)）。
+結果は、ライティングの、パスで、反射プローブと、信頼度で、混ぜて、間接鏡面光として、足します（[Combining with SSR](../probes/combine-ssr.md)）。深度を、DSV から、外し忘れると、`depth_srv` が、黒くなって、SSR が、何も、当たらなくなります（[D3D11 Pass Recipes](../../../directx/dx11/pass-recipes.md)）。
 
 ## これだけ覚える
 

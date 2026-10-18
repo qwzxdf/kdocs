@@ -10,6 +10,7 @@ nav:
   - ゲームエンジン: engine
   - 設計: design
   - 最適化: optimize
+  - DirectX: directx
   - 描画: graphics
   - 描画最適化: rendering
   - 文字コード: encoding

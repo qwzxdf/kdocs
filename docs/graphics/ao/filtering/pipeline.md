@@ -60,7 +60,7 @@ SetViewport(width, height);
 Draw(upsample_ps, {ao_filtered_srv, half_depth_srv, depth_srv}, {ao_full_rtv});
 ```
 
-`Draw(...)` は、「入力の SRV を、束ね、出力の RTV を、束ね、フルスクリーン三角形を、描く」を、まとめた、仮の関数です。パスごとに、<strong>ビューポートを、出力の、大きさに、合わせる</strong>のを、忘れないでください（忘れると、画面の、左上の、一部にしか、描かれません）。`ao_history` は、ピンポンの、構造体です（[D3D11 Pass Recipes](../../d3d11-recipes.md)）。
+`Draw(...)` は、「入力の SRV を、束ね、出力の RTV を、束ね、フルスクリーン三角形を、描く」を、まとめた、仮の関数です。パスごとに、<strong>ビューポートを、出力の、大きさに、合わせる</strong>のを、忘れないでください（忘れると、画面の、左上の、一部にしか、描かれません）。`ao_history` は、ピンポンの、構造体です（[D3D11 Pass Recipes](../../../directx/dx11/pass-recipes.md)）。
 
 ## パラメータの目安
 

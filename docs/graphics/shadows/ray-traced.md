@@ -296,7 +296,7 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 | 影 | シャドウ マップ（[Shadow Map Basics](../shadows/shadow-map-basics/index.md)） |
 | 間接光 | ライトマップ・プローブ・SSGI・ボクセル GI（[Global Illumination (GI)](../gi/index.md)） |
 
-D3D12 側の、初期化（加速構造・ステート オブジェクト・シェーダー テーブル・`DispatchRays`）は、[DXR Host Setup](../dxr-host.md) に、まとめています。
+D3D12 側の、初期化（加速構造・ステート オブジェクト・シェーダー テーブル・`DispatchRays`）は、[DXR Host Setup](../../directx/dx12/dxr-host.md) に、まとめています。
 
 ## よくあるミス
 

@@ -340,7 +340,7 @@ SetBlurDirection(0.0f, 1.0f);
 DrawFullscreenTriangle();
 ```
 
-最後に、ぼかした拡散光に、アルベドを掛け、鏡面光を、足して、HDR のシーン色に、合成します。深度の、SRV と、DSV を、同時に、束ねられない（[D3D11 Pass Recipes](../../d3d11-recipes.md)）ので、深度は、読み取り専用の、DSV（`D3D11_DSV_READ_ONLY_DEPTH`）で、束ね、同じ深度を、SRV でも、読みます。
+最後に、ぼかした拡散光に、アルベドを掛け、鏡面光を、足して、HDR のシーン色に、合成します。深度の、SRV と、DSV を、同時に、束ねられない（[D3D11 Pass Recipes](../../../directx/dx11/pass-recipes.md)）ので、深度は、読み取り専用の、DSV（`D3D11_DSV_READ_ONLY_DEPTH`）で、束ね、同じ深度を、SRV でも、読みます。
 
 ## よくあるミス
 
