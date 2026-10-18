@@ -28,7 +28,7 @@ tags:
 <text x="60" y="70" text-anchor="start" style="font-size:18px;font-weight:700;fill:#1f2937" opacity="0">オクターブ 3:小さな起伏<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;0.5479;0.5481;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="60" y="70" text-anchor="start" style="font-size:18px;font-weight:700;fill:#1f2937" opacity="0">オクターブ 5:細かい凹凸まで。自然な地形に近い<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5479;0.5481;1.0000;1.0000" values="0;0;1;1;0"/></text>
 <text x="60" y="100" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">各オクターブで、周波数は 2 倍、振幅は 0.5 倍<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
-<text x="60" y="380" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">足すオクターブが多いほど細かいが、コストも増える。山脈にはリッジ ノイズ、うねりにはドメイン ワーピングを組み合わせる。</text>
+<text x="60" y="380" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">足すオクターブが多いほど細かいが、コストも増える。山脈にはリッジ ノイズ、うねりにはドメイン ワーピングを組み合わせる。</text>
 </svg>
 
 <!-- fig:fbm-octaves:end -->

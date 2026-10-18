@@ -65,7 +65,7 @@ tags:
 <text x="20" y="26" class="fig-title">露出 ＝ 広い明るさの中から、見せたい範囲を選んで、0〜1 に合わせる</text>
 <defs><linearGradient id="ex-g" x1="0" x2="1"><stop offset="0" stop-color="#0b1020"/><stop offset="1" stop-color="#fff7d1"/></linearGradient></defs>
 <rect x="40" y="60" width="700" height="34" fill="url(#ex-g)" stroke="#94a3b8"/>
-<g font-size="12"><text x="40" y="112">0.01（暗い部屋）</text><text x="250" y="112">1</text><text x="400" y="112">100</text><text x="540" y="112">10,000</text><text x="700" y="112">100,000（太陽）</text></g>
+<g font-size="12"><text x="40" y="112">0.01（暗い部屋）</text><text x="250" y="112">1</text><text x="400" y="112">100</text><text x="540" y="112">10,000</text><text x="700" y="112" text-anchor="start" style="font-size:10px">10 万（太陽）</text></g>
 <rect x="170" y="130" width="140" height="22" rx="4" fill="#2563eb" fill-opacity="0.35" stroke="#2563eb" stroke-width="2"/>
 <text x="240" y="170" text-anchor="middle" style="font-size:13px;fill:#2563eb">夜の屋内を撮る露出</text>
 <rect x="400" y="130" width="200" height="22" rx="4" fill="#e5484d" fill-opacity="0.3" stroke="#e5484d" stroke-width="2"/>
@@ -126,7 +126,7 @@ float3 ApplyExposure(float3 hdr_color, float ev100) {
 <line x1="540" y1="92" x2="540" y2="108" stroke="currentColor"/><text x="540" y="126">12</text><text x="540" y="146" style="font-size:11px">曇り</text>
 <line x1="680" y1="92" x2="680" y2="108" stroke="currentColor"/><text x="680" y="126">15</text><text x="680" y="146" style="font-size:11px">晴天の屋外</text>
 </g>
-<text x="40" y="60" style="font-size:13px">暗い ←　　　　　　　　　　　　　　　　　　　　　　　　　　　　　→ 明るい（EV100 が大きいほど、倍率は小さい＝暗く映す）</text>
+<text x="40" y="60" style="font-size:12px">暗い ←　　　　　　　　　　　　　　　　　　　　　　　　　　　　　→ 明るい（EV100 が大きいほど、倍率は小さい＝暗く映す）</text>
 </svg>
 
 ## 露出補正

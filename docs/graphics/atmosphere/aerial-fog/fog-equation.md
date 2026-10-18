@@ -45,7 +45,7 @@ tags:
 <text x="450" y="290" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">濃さ 2.2:遠くが、すぐ霞む<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4441;0.4444;0.6293;0.6296;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="450" y="290" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">濃さを下げると…<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6293;0.6296;0.8145;0.8148;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="450" y="290" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">濃さ 0.6:遠くまで見える<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.8145;0.8148;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="450" y="330" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">最終色 = 物の色 × 透過率 ＋ フォグの色 × (1 − 透過率)</text>
+<text x="450" y="330" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">最終色 = 物の色 × 透過率 ＋ フォグの色 × (1 − 透過率)</text>
 </svg>
 
 <!-- fig:fog-curves:end -->

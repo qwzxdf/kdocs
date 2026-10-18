@@ -39,8 +39,8 @@ tags:
 <text x="500" y="164" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">影が硬く、くっきり。ただし、数値が不安定になる<animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.5413;0.5417;0.7497;0.7500;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="500" y="164" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">ほどよい。実用では 20〜80 付近<animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.7497;0.7500;1.0000;1.0000" values="0;0;1;1;0"/></text>
 <text x="500" y="250" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2563eb">光が届く割合 = exp(−c × (d − z))</text>
-<text x="500" y="280" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">遮蔽物（深度 z）のすぐ後ろ（d − z ≒ 0）は 1、</text>
-<text x="500" y="302" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">離れるほど 0 に近づく。事前にぼかせる（線形のフィルタ）。</text>
+<text x="500" y="280" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">遮蔽物（深度 z）のすぐ後ろ（d − z ≒ 0）は 1、</text>
+<text x="500" y="302" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">離れるほど 0 に近づく。事前にぼかせる。</text>
 </svg>
 
 <!-- fig:esm-exp:end -->

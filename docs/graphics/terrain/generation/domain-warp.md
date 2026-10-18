@@ -45,7 +45,7 @@ tags:
 <text x="480" y="140" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">ゆがみの強さ 1:うねった、有機的な形<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4441;0.4444;0.6293;0.6296;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="480" y="140" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">強さを下げると、ゆがみが弱まる<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6293;0.6296;1.0000;1.0000" values="0;0;1;1;0"/></text>
 <text x="480" y="190" text-anchor="start" style="font-size:18px;font-weight:700;fill:#2563eb">f(p) → f(p + g(p))</text>
-<text x="480" y="220" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">ノイズ f の入力 p を、別のノイズ g でずらす。</text>
+<text x="480" y="220" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">ノイズ f の入力 p を、別のノイズ g でずらす。</text>
 <text x="480" y="244" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">規則的な模様が崩れ、川や雲のような形になる。</text>
 </svg>
 

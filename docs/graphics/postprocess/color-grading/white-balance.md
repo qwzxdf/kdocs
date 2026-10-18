@@ -57,7 +57,7 @@ tags:
 <text x="210" y="116">2700 K</text><text x="210" y="134" style="font-size:11px">白熱電球</text>
 <text x="390" y="116">5000 K</text><text x="390" y="134" style="font-size:11px">昼白色</text>
 <text x="540" y="116">6500 K</text><text x="540" y="134" style="font-size:11px">昼光（D65）</text>
-<text x="720" y="116">10000 K</text><text x="720" y="134" style="font-size:11px">青空の日陰</text></g>
+<text x="720" y="116">10000 K</text><text x="720" y="134" style="font-size:10px">青空の日陰</text></g>
 </svg>
 
 光源の色温度の目安です。ろうそくの炎は約 1900 K（橙）、白熱電球は約 2700 K（暖かい黄色）、朝夕の日光は約 3500〜4500 K、正午の日光は約 5500〜6500 K（ほぼ白）、曇りや日陰は約 7000〜10000 K（青白い）です。

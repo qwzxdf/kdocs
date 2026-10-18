@@ -76,8 +76,8 @@ tags:
 <linearGradient id="hp-hy" x1="0" x2="1"><stop offset="0" stop-color="#7a1d10"/><stop offset="0.5" stop-color="#e5543a"/><stop offset="0.85" stop-color="#ff9a6a"/><stop offset="1" stop-color="#ffe9d6"/></linearGradient>
 </defs>
 <g font-size="13">
-<text x="40" y="62" style="font-weight:700">チャンネルごと</text><rect x="40" y="70" width="500" height="26" fill="url(#hp-ch)"/><text x="560" y="88" style="font-size:12px">橙 → 黄 → 白（フィルム的、色相は変わる）</text>
-<text x="40" y="126" style="font-weight:700">輝度ベース</text><rect x="40" y="134" width="500" height="26" fill="url(#hp-lum)"/><text x="560" y="152" style="font-size:12px">赤のまま（色相は保つが、白に届かず飽和）</text>
+<text x="40" y="62" style="font-weight:700">チャンネルごと</text><rect x="40" y="70" width="500" height="26" fill="url(#hp-ch)"/><text x="560" y="88" style="font-size:10px">橙 → 黄 → 白（フィルム的、色相は変わる）</text>
+<text x="40" y="126" style="font-weight:700">輝度ベース</text><rect x="40" y="134" width="500" height="26" fill="url(#hp-lum)"/><text x="560" y="152" style="font-size:10px">赤のまま（色相は保つが、白に届かず飽和）</text>
 <text x="40" y="190" style="font-weight:700">ハイブリッド</text><rect x="40" y="198" width="500" height="18" fill="url(#hp-hy)"/><text x="560" y="212" style="font-size:12px">赤 → 淡い赤 → 白（自然）</text>
 </g>
 </svg>

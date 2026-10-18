@@ -26,7 +26,7 @@ tags:
 <text x="300" y="186" style="font-size:11px;fill:#2ea043">視線のサンプル点</text>
 <g stroke="#e5aa28" stroke-dasharray="4 3"><line x1="360" y1="140" x2="440" y2="40"/><line x1="420" y1="120" x2="500" y2="28"/></g>
 <circle cx="640" cy="50" r="14" fill="#e5aa28"/><text x="620" y="82" style="font-size:12px">太陽</text>
-<text x="460" y="236" style="font-size:12px">各サンプルから太陽へ 4〜6 回、密度を足して「厚み」を測る</text>
+<text x="460" y="236" style="font-size:11px">各サンプルから太陽へ 4〜6 回、密度を足して「厚み」を測る</text>
 </svg>
 
 ```hlsl
@@ -105,10 +105,10 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
 <circle cx="422.5" cy="145.78" r="6.669994495565467" fill="#8e97a3" stroke="#475569" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.5647;0.5650;1.0000" values="0;0;1;1"/></circle>
 <circle cx="437.5" cy="139.22" r="6.125475184839541" fill="#9fa6b1" stroke="#475569" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.5863;0.5867;1.0000" values="0;0;1;1"/></circle>
 <circle cx="452.5" cy="132.66" r="5.637084001985818" fill="#aeb4bd" stroke="#475569" stroke-width="1" opacity="0"><animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.6080;0.6083;1.0000" values="0;0;1;1"/></circle>
-<text x="610" y="82" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">光が通り抜ける割合（透過率）</text>
+<text x="610" y="82" text-anchor="start" style="font-size:11px;font-weight:700;fill:#64748b">光が通り抜ける割合（透過率）</text>
 <rect x="610" y="96" width="140" height="22" fill="#f1f5f9" stroke="#94a3b8"/>
 <rect x="610" y="96" width="140" height="22" fill="#2563eb"><animate attributeName="width" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.0667;0.0883;0.1100;0.1317;0.1533;0.1750;0.1967;0.2183;0.2400;0.2617;0.2833;0.3050;0.3267;0.3483;0.3700;0.3917;0.4133;0.4350;0.4567;0.4783;0.5000;0.5217;0.5433;0.5650;0.5867;0.6083;1.0000" values="140;140;140;140;140;140;140;140;140;140;140;140;140;139.98;139.74;138.2;131.7;114.86;88.71;63.2;44.68;31.84;22.31;15.49;11.06;8.31;6.52;6.52"/></rect>
-<text x="610" y="168" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">積み上がった光（雲の明るさ）</text>
+<text x="610" y="168" text-anchor="start" style="font-size:11px;font-weight:700;fill:#64748b">積み上がった光（雲の明るさ）</text>
 <rect x="610" y="182" width="140" height="22" fill="#f1f5f9" stroke="#94a3b8"/>
 <rect x="610" y="182" width="0" height="22" fill="#e5aa28"><animate attributeName="width" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.0667;0.0883;0.1100;0.1317;0.1533;0.1750;0.1967;0.2183;0.2400;0.2617;0.2833;0.3050;0.3267;0.3483;0.3700;0.3917;0.4133;0.4350;0.4567;0.4783;0.5000;0.5217;0.5433;0.5650;0.5867;0.6083;1.0000" values="0;0;0;0;0;0;0;0;0;0;0;0;0;0.02;0.16;1.13;5.19;15.71;32.06;48;59.57;67.6;73.56;77.82;80.59;82.31;83.42;83.42"/></rect>
 <text x="610" y="250" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb" opacity="0">透過率 T = 1.00<animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.0663;0.0667;0.0880;0.0883;1.0000" values="0;0;1;1;0;0"/></text>

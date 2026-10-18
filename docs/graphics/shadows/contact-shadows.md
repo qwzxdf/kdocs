@@ -25,7 +25,7 @@ tags:
 <rect x="220" y="196" width="140" height="8" fill="#111" opacity="0.85"/><rect x="220" y="196" width="22" height="8" fill="#e5484d" opacity="0.5"/>
 <text x="250" y="226" style="font-size:12px;fill:#e5484d;font-weight:700">接触部の影が欠ける</text>
 <text x="420" y="70" style="font-size:13px">原因：</text><text x="420" y="94" style="font-size:12px">・バイアスで深度を浮かせる → 近い所は影が出ない</text><text x="420" y="114" style="font-size:12px">・シャドウ マップの 1 テクセルが、物の大きさに比べて粗い</text>
-<text x="420" y="152" style="font-size:13px">解決：</text><text x="420" y="176" style="font-size:12px">画面の深度で、短い距離を調べる → 接触部だけ、細かく影を補う</text>
+<text x="420" y="152" style="font-size:13px">解決：</text><text x="420" y="176" style="font-size:11px">画面の深度で、短い距離を調べる → 接触部だけ、細かく影を補う</text>
 </svg>
 
 <!-- fig:contact-shadow-march:begin -->

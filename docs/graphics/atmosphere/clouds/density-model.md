@@ -31,7 +31,7 @@ tags:
 <text x="60" y="56" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">しきい値を下げていくと…<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2590;0.2593;0.5182;0.5185;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="60" y="56" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">しきい値が低い:雲が増える（曇り）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5182;0.5185;0.7034;0.7037;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="60" y="56" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">しきい値を戻すと、雲が減る<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7034;0.7037;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="60" y="340" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">白い部分 = しきい値を超えた密度 = 雲。しきい値 = 1 − カバレッジ。1 つの値で、天気（晴れ・曇り）を制御できる。</text>
+<text x="60" y="340" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">白い部分 = しきい値を超えた密度 = 雲。しきい値 = 1 − カバレッジ。1 つの値で、天気（晴れ・曇り）を制御できる。</text>
 </svg>
 
 <!-- fig:cloud-coverage:end -->
