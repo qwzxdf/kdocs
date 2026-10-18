@@ -48,7 +48,7 @@ tags:
 <text x="40" y="350" text-anchor="start" style="font-size:16px;font-weight:700;fill:#2563eb" opacity="0">画素 B(画面外へ出た・滑らか)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3446;0.3448;0.6204;0.6207;1.0000" values="0;0;1;1;0;0"/></text>
 <circle cx="100" cy="195" r="10" fill="#e5aa28" stroke="#ffffff" stroke-width="2" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6204;0.6207;0.8825;0.8828;1.0000" values="0;0;1;1;0;0"/><animate attributeName="cx" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6207;0.6828;0.7448;0.8069;1.0000" values="100;100;285;495;685;685"/><animate attributeName="cy" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6207;0.6828;0.7448;0.8069;1.0000" values="195;195;195;195;145;145"/></circle>
 <text x="40" y="350" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5aa28" opacity="0">画素 C(ざらざら・外れ)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6204;0.6207;0.8963;0.8966;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="390" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">SSR で当たれば最も安い。外れた画素だけ、レイトレかプローブへ。粗い面は、プローブで十分（ノイズが多く、レイトレの価値が低い）。</text>
+<text x="40" y="390" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">SSR で当たれば最も安い。外れた画素だけ、レイトレかプローブへ。粗い面は、プローブで十分（ノイズが多く、レイトレの価値が低い）。</text>
 </svg>
 
 <!-- fig:rt-hybrid-flow:end -->

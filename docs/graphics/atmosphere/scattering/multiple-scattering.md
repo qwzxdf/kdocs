@@ -31,46 +31,54 @@ Hillaire の近似は、大胆な仮定に基づいています。「2 次以降
 
 <!-- fig:multi-scatter-sum:begin -->
 
-<svg class="fig illust motion" data-fig="multi-scatter-sum" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="multi-scatter-sum" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-multi-scatter-sum" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">何度も散乱した光を足していく: 1 回だけの 5 分の 1 でも、積み重なる</text>
-<rect x="90" y="128.0" width="60" height="192.0" fill="#2563eb" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="0;0;1;1"/></rect>
-<text x="120" y="120.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b" opacity="0">1.00<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="0;0;1;1"/></text>
-<text x="120" y="340" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">1 回</text>
-<rect x="164" y="166.39999999999998" width="60" height="153.60000000000002" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1514;0.1517;1.0000" values="0;0;1;1"/></rect>
-<text x="194" y="158.39999999999998" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b" opacity="0">0.80<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1514;0.1517;1.0000" values="0;0;1;1"/></text>
-<text x="194" y="340" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">2 回</text>
-<rect x="238" y="197.11999999999998" width="60" height="122.88000000000002" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2342;0.2345;1.0000" values="0;0;1;1"/></rect>
-<text x="268" y="189.11999999999998" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b" opacity="0">0.64<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2342;0.2345;1.0000" values="0;0;1;1"/></text>
-<text x="268" y="340" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">3 回</text>
-<rect x="312" y="221.69599999999997" width="60" height="98.30400000000003" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3170;0.3172;1.0000" values="0;0;1;1"/></rect>
-<text x="342" y="213.69599999999997" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b" opacity="0">0.51<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3170;0.3172;1.0000" values="0;0;1;1"/></text>
-<text x="342" y="340" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">4 回</text>
-<rect x="386" y="241.35679999999996" width="60" height="78.64320000000002" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/></rect>
-<text x="416" y="233.35679999999996" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b" opacity="0">0.41<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/></text>
-<text x="416" y="340" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">5 回</text>
-<rect x="460" y="257.08543999999995" width="60" height="62.91456000000002" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4825;0.4828;1.0000" values="0;0;1;1"/></rect>
-<text x="490" y="249.08543999999995" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b" opacity="0">0.33<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4825;0.4828;1.0000" values="0;0;1;1"/></text>
-<text x="490" y="340" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">6 回</text>
-<rect x="534" y="269.66835199999997" width="60" height="50.33164800000002" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5652;0.5655;1.0000" values="0;0;1;1"/></rect>
-<text x="564" y="261.66835199999997" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b" opacity="0">0.26<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5652;0.5655;1.0000" values="0;0;1;1"/></text>
-<text x="564" y="340" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">7 回</text>
-<rect x="608" y="279.7346816" width="60" height="40.26531840000001" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6480;0.6483;1.0000" values="0;0;1;1"/></rect>
-<text x="638" y="271.7346816" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b" opacity="0">0.21<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6480;0.6483;1.0000" values="0;0;1;1"/></text>
-<text x="638" y="340" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">8 回</text>
-<line x1="80" y1="320" x2="682" y2="320" stroke="#94a3b8" stroke-width="2"/>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">アルベド(反射する割合) 0.8 の媒質。散乱 1 回目の光を 1 とする<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">1 回目まで足した合計: 1.00<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.1514;0.1517;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">2 回目まで足した合計: 1.80<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1514;0.1517;0.2342;0.2345;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">3 回目まで足した合計: 2.44<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2342;0.2345;0.3170;0.3172;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">4 回目まで足した合計: 2.95<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3170;0.3172;0.3997;0.4000;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">5 回目まで足した合計: 3.36<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;0.4825;0.4828;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">6 回目まで足した合計: 3.69<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4825;0.4828;0.5652;0.5655;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">7 回目まで足した合計: 3.95<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5652;0.5655;0.6480;0.6483;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">8 回目まで足した合計: 4.16<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6480;0.6483;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="390" y="405" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">無限に足すと 1/(1−0.8) = 5。1 回だけの計算では 8 割以上の光が足りない</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">多重散乱: 光は、何度も散る。アルベド(反射する割合)が高いほど、何回目まで足さないと、足りない</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 回目の散乱を 1 とする。散乱 k 回目の光は、アルベド^(k−1)。アルベド 0.5・0.8・0.95 で、合計がどう積み上がるかを計算する</text>
+<rect x="30" y="96" width="640" height="280" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 散乱を k 回足したときの合計</text>
+<text x="70.0" y="366" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">1</text>
+<text x="169.1304347826087" y="366" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">5</text>
+<text x="293.04347826086956" y="366" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">10</text>
+<text x="416.95652173913044" y="366" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">15</text>
+<text x="540.8695652173913" y="366" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">20</text>
+<path d="M70.0,339.55 L94.78,334.32 L119.57,331.7 L144.35,330.4 L169.13,329.74 L193.91,329.42 L218.7,329.25 L243.48,329.17 L268.26,329.13 L293.04,329.11 L317.83,329.1 L342.61,329.1 L367.39,329.09 L392.17,329.09 L416.96,329.09 L441.74,329.09 L466.52,329.09 L491.3,329.09 L516.09,329.09 L540.87,329.09 L565.65,329.09 L590.43,329.09 L615.22,329.09 L640.0,329.09" fill="none" stroke="#2ea043" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="0;0;1;1"/></path>
+<line x1="70" y1="329.09" x2="640" y2="329.09" stroke="#2ea043" stroke-width="1.5" stroke-dasharray="4 4" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0887;0.0889;1.0000" values="0;0;1;1"/></line>
+<text x="640" y="324.09" text-anchor="end" style="font-size:11px;font-weight:700;fill:#2ea043" opacity="0">上限 2.0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0887;0.0889;1.0000" values="0;0;1;1"/></text>
+<path d="M70.0,339.55 L94.78,331.18 L119.57,324.49 L144.35,319.14 L169.13,314.86 L193.91,311.43 L218.7,308.69 L243.48,306.5 L268.26,304.74 L293.04,303.34 L317.83,302.22 L342.61,301.32 L367.39,300.6 L392.17,300.03 L416.96,299.57 L441.74,299.2 L466.52,298.9 L491.3,298.67 L516.09,298.48 L540.87,298.33 L565.65,298.21 L590.43,298.11 L615.22,298.04 L640.0,297.97" fill="none" stroke="#e5aa28" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2798;0.2800;1.0000" values="0;0;1;1"/></path>
+<line x1="70" y1="297.73" x2="640" y2="297.73" stroke="#e5aa28" stroke-width="1.5" stroke-dasharray="4 4" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3020;0.3022;1.0000" values="0;0;1;1"/></line>
+<text x="640" y="292.73" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5aa28" opacity="0">上限 5.0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3020;0.3022;1.0000" values="0;0;1;1"/></text>
+<path d="M70.0,339.55 L94.78,329.61 L119.57,320.18 L144.35,311.21 L169.13,302.7 L193.91,294.61 L218.7,286.93 L243.48,279.62 L268.26,272.69 L293.04,266.1 L317.83,259.84 L342.61,253.89 L367.39,248.24 L392.17,242.88 L416.96,237.78 L441.74,232.94 L466.52,228.33 L491.3,223.96 L516.09,219.81 L540.87,215.87 L565.65,212.12 L590.43,208.56 L615.22,205.17 L640.0,201.96" fill="none" stroke="#e5484d" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4932;0.4933;1.0000" values="0;0;1;1"/></path>
+<line x1="70" y1="140.91" x2="640" y2="140.91" stroke="#e5484d" stroke-width="1.5" stroke-dasharray="4 4" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5154;0.5156;1.0000" values="0;0;1;1"/></line>
+<text x="640" y="135.91" text-anchor="end" style="font-size:11px;font-weight:700;fill:#e5484d" opacity="0">上限 20.0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5154;0.5156;1.0000" values="0;0;1;1"/></text>
+<rect x="690" y="96" width="240" height="280" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
+<text x="690" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">95% に届くまでの回数</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.1020;0.1022;1.0000" values="0;0;1;1"/><text x="706" y="140" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">アルベド 0.50</text>
+<text x="706" y="168" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2ea043">5 回</text>
+<text x="706" y="188" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">1 回だけでは 1/2.0 = 50%</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3154;0.3156;1.0000" values="0;0;1;1"/><text x="706" y="216" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">アルベド 0.80</text>
+<text x="706" y="244" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5aa28">14 回</text>
+<text x="706" y="264" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">1 回だけでは 1/5.0 = 20%</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5287;0.5289;1.0000" values="0;0;1;1"/><text x="706" y="292" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">アルベド 0.95</text>
+<text x="706" y="320" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d">59 回</text>
+<text x="706" y="340" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">1 回だけでは 1/20.0 = 5%</text>
+</g>
+<text x="40" y="410" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">95% に必要な回数:</text>
+<text x="240" y="414" text-anchor="start" style="font-size:28px;font-weight:700;fill:#7c3aed" opacity="1">0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.1020;0.1022;1.0000" values="1;1;0;0"/></text>
+<text x="240" y="414" text-anchor="start" style="font-size:28px;font-weight:700;fill:#7c3aed" opacity="0">5<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.1020;0.1022;0.3154;0.3156;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="240" y="414" text-anchor="start" style="font-size:28px;font-weight:700;fill:#7c3aed" opacity="0">14<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3154;0.3156;0.5287;0.5289;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="240" y="414" text-anchor="start" style="font-size:28px;font-weight:700;fill:#7c3aed" opacity="0">59<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5287;0.5289;1.0000" values="0;0;1;1"/></text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6932;0.6933;1.0000" values="0;0;1;1"/><rect x="40" y="440" width="880" height="70" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="56" y="464" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">雲(アルベド 0.95 以上)は、1 回の散乱では、全体の 5% しか光らない。20 回以上必要</text>
+<text x="56" y="487" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">毎回レイマーチで何十回も散らせるのは無理 → 少数の回数を、減衰を弱めて、足す近似(オクターブ)を使う</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光は、媒質の中で、何度も散る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">アルベドが高いほど、後の回数まで、光が残る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.7065;0.7067;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">雲や霧は、アルベドが高い。多重散乱を、近似で足す<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:multi-scatter-sum:end -->
