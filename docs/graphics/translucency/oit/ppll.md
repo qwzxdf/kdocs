@@ -97,6 +97,38 @@ float4 PSResolve(VsOutput input) : SV_Target {
 
 PPLL の利点は、正確なこと（ソート済みで合成）、層数に上限がないこと（ノード バッファの許す限り）、ライティング済みの色を保存するので後処理が簡単なことです。欠点は、メモリが大きいこと（4K で数百 MB になりうる）、画素ごとのソートが重いこと（層が多いと極端に遅い）、オーバーフロー時にフラグメントが欠けることです。
 
+<!-- fig:ppll-chain:begin -->
+
+<svg class="fig illust motion" data-fig="ppll-chain" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-ppll-chain" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">PPLL: 画素ごとに連結リストを作り、最後に深度で並べ替える</text>
+<rect x="60" y="170" width="90" height="60" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+<text x="105" y="206" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">head</text>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1032;0.1034;1.0000" values="0;0;1;1"/><rect x="560" y="170" width="90" height="60" fill="#2563eb" opacity="0.9"/>
+<text x="605" y="196" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">F1</text>
+<text x="605" y="216" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#ffffff">z = 0.7</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2549;0.2552;1.0000" values="0;0;1;1"/><rect x="400" y="170" width="90" height="60" fill="#2ea043" opacity="0.9"><animate attributeName="x" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5517;0.6552;1.0000" values="400;400;240;240"/></rect>
+<text x="445" y="196" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">F2<animate attributeName="x" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5517;0.6552;1.0000" values="445;445;285;285"/></text>
+<text x="445" y="216" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#ffffff">z = 0.3<animate attributeName="x" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5517;0.6552;1.0000" values="445;445;285;285"/></text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4066;0.4069;1.0000" values="0;0;1;1"/><rect x="240" y="170" width="90" height="60" fill="#e5aa28" opacity="0.9"><animate attributeName="x" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5517;0.6552;1.0000" values="240;240;400;400"/></rect>
+<text x="285" y="196" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">F3<animate attributeName="x" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5517;0.6552;1.0000" values="285;285;445;445"/></text>
+<text x="285" y="216" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#ffffff">z = 0.5<animate attributeName="x" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5517;0.6552;1.0000" values="285;285;445;445"/></text>
+</g>
+<text x="390" y="110" text-anchor="middle" style="font-size:13px;font-weight:500;fill:#64748b">到着順: F1 → F2 → F3（新しいものが、リストの先頭になる）</text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">最初、リストは空<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1032;0.1034;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">F1 が到着: head が F1 を指す<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.1032;0.1034;0.2549;0.2552;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">F2 が到着: head → F2 → F1<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2549;0.2552;0.4066;0.4069;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">F3 が到着: head → F3 → F2 → F1。深度はバラバラ<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4066;0.4069;0.5514;0.5517;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">深度の小さい順に並べ替え: F2(0.3) → F3(0.5) → F1(0.7)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5514;0.5517;0.7583;0.7586;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">奥から手前へ、順に混ぜる<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7583;0.7586;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:ppll-chain:end -->
+
 ## よくあるミス
 
 ??? failure "重なりが多い所で、リストがあふれる"
