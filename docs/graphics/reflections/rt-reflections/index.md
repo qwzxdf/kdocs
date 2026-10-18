@@ -94,6 +94,18 @@ tags:
 | レイの、最大距離を、短く | 遠くは、プローブに、任せる |
 | ヒット シェーディングを、簡略化 | 当たった面は、低品質なシェーディング（影なし、簡易ライティング） |
 
+## DirectX 11 では動かない部分
+
+<strong>DXR（DirectX Raytracing）は、DirectX 12 の機能です。DirectX 11 には、ありません。</strong>このページの `TraceRay`・`RayQuery` を使うコードは、D3D12 のレンダラーで動かします。D3D11 だけで、同じ効果を狙うときは、次のように、置き換えます。
+
+| やりたいこと | D3D11 での代用 |
+| --- | --- |
+| レイと三角形の、交差 | 距離場（SDF）・ボクセル、またはスクリーン空間のレイマーチ（[Linear Marching](../../reflections/ssr-basics/linear-march.md)） |
+| 影 | シャドウ マップ（[Shadow Map Basics](../../shadows/shadow-map-basics/index.md)） |
+| 間接光 | ライトマップ・プローブ・SSGI・ボクセル GI（[Global Illumination (GI)](../../gi/index.md)） |
+
+D3D12 側の、初期化（加速構造・ステート オブジェクト・シェーダー テーブル・`DispatchRays`）は、[DXR Host Setup](../../dxr-host.md) に、まとめています。
+
 ## これだけ覚える
 
 !!! abstract "まとめ"

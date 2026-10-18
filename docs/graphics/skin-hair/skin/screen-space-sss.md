@@ -268,6 +268,80 @@ SSS のぼけ幅は、<strong>物体の表面上の実際の長さ</strong>（mm
 
 品質を保ちながらコストを減らす方法があります。サンプル数を減らす（25 個を 11 個や 7 個に）。ぼかしを半解像度で行う（顔が小さいキャラクターなど）。画面上で小さいキャラクターは、SSS を省略するか、サンプル数を減らす（LOD）。これらを使い分けると、1080p で 0.5 ms 程度に収まります。
 
+## DirectX 11 で組む
+
+### 拡散光と鏡面光を、別々に、持つ
+
+画面空間 SSS は、<strong>拡散光だけ</strong>を、ぼかします。鏡面光（ハイライト）まで、ぼかすと、ハイライトが、にじんでしまうので、ライティングの、パスで、2 枚の、レンダー ターゲットに、分けて、出力します（MRT）。
+
+```cpp
+// ライティングの出力: 拡散（SSS の対象）と、鏡面（そのまま）を、別のターゲットへ。
+ID3D11RenderTargetView* targets[2] = {diffuse_rtv.Get(), specular_rtv.Get()};
+context->OMSetRenderTargets(2, targets, depth_dsv.Get());
+```
+
+```hlsl
+// ピクセル シェーダー: 2 つの SV_Target に、別々に出す。
+struct PSOut {
+  float4 diffuse : SV_Target0;     // 皮膚の、拡散（アルベドは、まだ掛けない）
+  float4 specular : SV_Target1;    // 鏡面
+};
+```
+
+アルベド（皮膚の色）は、ぼかしの、あとに、掛けます（[Skin Albedo](#アルベドの扱い) の考え）。ぼかす前に、掛けると、色が、にじみ、皮膚の、模様が、失われます。
+
+### ステンシルで、皮膚だけを、ぼかす
+
+```cpp
+// ジオメトリ パスで、皮膚のマテリアルの画素に、ステンシル値 1 を書く。
+D3D11_DEPTH_STENCIL_DESC ds = {};
+ds.DepthEnable = TRUE;
+ds.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+ds.DepthFunc = D3D11_COMPARISON_LESS;
+ds.StencilEnable = TRUE;
+ds.StencilReadMask = ds.StencilWriteMask = 0xFF;
+ds.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+ds.FrontFace.StencilPassOp = D3D11_STENCIL_OP_REPLACE;                // 描いた画素に、参照値を書く
+ds.FrontFace.StencilFailOp = ds.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+ds.BackFace = ds.FrontFace;
+device->CreateDepthStencilState(&ds, &skin_write_state);
+context->OMSetDepthStencilState(skin_write_state.Get(), 1);           // 参照値 1
+```
+
+```cpp
+// ぼかしのパス: ステンシルが 1 の画素だけ、ピクセル シェーダーを走らせる（それ以外は、スキップ）。
+D3D11_DEPTH_STENCIL_DESC test = {};
+test.DepthEnable = FALSE;
+test.StencilEnable = TRUE;
+test.StencilReadMask = 0xFF;
+test.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;
+test.FrontFace.StencilPassOp = test.FrontFace.StencilFailOp = test.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
+test.BackFace = test.FrontFace;
+device->CreateDepthStencilState(&test, &skin_test_state);
+context->OMSetDepthStencilState(skin_test_state.Get(), 1);
+```
+
+ステンシル テストは、ピクセル シェーダーの、前に、行われるので、皮膚でない画素は、重い、ぼかしを、計算せずに、飛ばせます。ステンシルを、使うには、深度バッファを、`D24_UNORM_S8_UINT`（または `D32_FLOAT_S8X24_UINT`）の、形式に、して、DSV を、ぼかしのパスにも、束ねます（深度は、SRV で、別に、読みたいので、ステンシル付きの、typeless 形式で、作ります）。
+
+### 水平と垂直の、2 パス
+
+```cpp
+// ① 水平: diffuse → blur_temp。ステンシルが 1 の画素だけ。深度で、輪郭を、またがない。
+context->OMSetRenderTargets(1, blur_temp_rtv.GetAddressOf(), depth_dsv.Get());
+context->PSSetShaderResources(0, 1, diffuse_srv.GetAddressOf());
+context->PSSetShaderResources(1, 1, depth_srv.GetAddressOf());
+SetBlurDirection(1.0f, 0.0f);                                       // 定数バッファで方向を渡す
+DrawFullscreenTriangle();
+
+// ② 垂直: blur_temp → sss_result。
+context->OMSetRenderTargets(1, sss_result_rtv.GetAddressOf(), depth_dsv.Get());
+context->PSSetShaderResources(0, 1, blur_temp_srv.GetAddressOf());
+SetBlurDirection(0.0f, 1.0f);
+DrawFullscreenTriangle();
+```
+
+最後に、ぼかした拡散光に、アルベドを掛け、鏡面光を、足して、HDR のシーン色に、合成します。深度の、SRV と、DSV を、同時に、束ねられない（[D3D11 Pass Recipes](../../d3d11-recipes.md)）ので、深度は、読み取り専用の、DSV（`D3D11_DSV_READ_ONLY_DEPTH`）で、束ね、同じ深度を、SRV でも、読みます。
+
 ## よくあるミス
 
 ??? failure "鏡面反射まで、一緒にぼけて、つやが消える"

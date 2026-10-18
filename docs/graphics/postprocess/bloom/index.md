@@ -1372,6 +1372,73 @@ tags:
 | Dual Filter | 縮小・拡大のときにぼかしを兼ねる | 最も安い・滑らか | カーネルの設計が要る |
 | <strong>しきい値なし（エネルギー保存）</strong> | 全画素をぼかして、わずかに足す | しきい値の「ぱっ」がない | 全体がやわらかくなる |
 
+## DirectX 11 で組む
+
+ブルームは、半分ずつ、縮めながら、下へ降りる、ダウンサンプルと、同じ段を、逆に、昇る、アップサンプルの、2 つのパスの列です。ホスト側は、<strong>ミップのような、縮小列</strong>を、用意して、段ごとに、描きます。
+
+### 縮小列を作る
+
+```cpp
+// 段ごとに、別のテクスチャにする（ミップマップではなく、別々の 6 枚）。1 段ごとに、縦横 1/2。
+struct BloomLevel {
+  Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv;
+  Microsoft::WRL::ComPtr<ID3D11RenderTargetView> rtv;
+  UINT width, height;
+};
+std::vector<BloomLevel> levels(6);
+UINT w = width / 2, h = height / 2;
+for (auto& level : levels) {
+  D3D11_TEXTURE2D_DESC desc = {};
+  desc.Width = level.width = std::max(w, 1u);
+  desc.Height = level.height = std::max(h, 1u);
+  desc.MipLevels = desc.ArraySize = 1;
+  desc.Format = DXGI_FORMAT_R11G11B10_FLOAT;                    // HDR で、帯域が小さい（アルファなし）
+  desc.SampleDesc.Count = 1;
+  desc.Usage = D3D11_USAGE_DEFAULT;
+  desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+  Microsoft::WRL::ComPtr<ID3D11Texture2D> t;
+  device->CreateTexture2D(&desc, nullptr, &t);
+  device->CreateShaderResourceView(t.Get(), nullptr, &level.srv);
+  device->CreateRenderTargetView(t.Get(), nullptr, &level.rtv);
+  w /= 2; h /= 2;
+}
+```
+
+`R11G11B10_FLOAT` は、32 ビットで、HDR の色を持てるので、ブルームの、中間バッファに、向いています。アルファが、無い（ブルームは、色だけ）ので、足ります。段ごとに、別テクスチャにするのは、アップサンプルで、各段を、あとから、読むためです。
+
+### 降りる
+
+```cpp
+// ダウンサンプル: シーン色 → levels[0] → levels[1] → …。各段で、ビューポートを、出力の大きさにする。
+ID3D11ShaderResourceView* input = scene_srv.Get();
+for (auto& level : levels) {
+  context->OMSetRenderTargets(1, level.rtv.GetAddressOf(), nullptr);
+  D3D11_VIEWPORT vp = {0, 0, float(level.width), float(level.height), 0, 1};
+  context->RSSetViewports(1, &vp);
+  context->PSSetShaderResources(0, 1, &input);
+  DrawFullscreenTriangle();                                     // 13 タップのダウンサンプル（Karis 平均は 最初の段だけ）
+  input = level.srv.Get();
+}
+```
+
+最初の段は、Karis 平均（明るすぎる、点が、ちらつくのを、防ぐ）を、使い、ほかの段は、通常の、重みで、縮めます（[Karis Average](karis-average.md)）。
+
+### 昇る
+
+```cpp
+// アップサンプル: 小さい段から、1 つ大きい段へ、加算ブレンドで、足し込む（置き換えない）。
+context->OMSetBlendState(additive_blend.Get(), nullptr, 0xFFFFFFFF);   // SrcBlend = ONE、DestBlend = ONE
+for (int i = int(levels.size()) - 2; i >= 0; --i) {
+  context->OMSetRenderTargets(1, levels[i].rtv.GetAddressOf(), nullptr);
+  SetViewport(levels[i].width, levels[i].height);
+  context->PSSetShaderResources(0, 1, levels[i + 1].srv.GetAddressOf());
+  DrawFullscreenTriangle();                                     // 3×3 のテント フィルタで、拡大
+}
+context->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
+```
+
+小さい段（広い、にじみ）を、1 つ大きい段へ、足し込み、それを、さらに、大きい段へ、足し込むと、段ごとの、にじみが、重なり合った、ブルームになります。最後に、`levels[0]` を、シーン色へ、強さを掛けて、足します（[Composite](composite.md)）。
+
 ## 関連ページ
 
 - [Post-Processing](../index.md)

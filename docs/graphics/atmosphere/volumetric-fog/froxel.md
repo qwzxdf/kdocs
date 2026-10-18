@@ -192,6 +192,48 @@ float ViewDepthToSlice(float view_depth) {
 
 <strong>画面の、解像度</strong>（1920×1080）の、<strong>1/12</strong>（160×90）が、標準的です。霧は、ゆるやかに変化するので、低解像度でも、十分です。時間方向の、平均（[Temporal Accumulation](temporal.md)）で、品質を、補います。
 
+## DirectX 11 で組む
+
+### froxel の 3D テクスチャ
+
+```cpp
+// froxel: 画面を 160×90 に、奥行きを 64 段に分けた、3D テクスチャ。散乱・消散係数を、書く。
+D3D11_TEXTURE3D_DESC desc = {};
+desc.Width = 160;
+desc.Height = 90;
+desc.Depth = 64;
+desc.MipLevels = 1;
+desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;                  // rgb: 散乱光、a: 消散係数
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
+device->CreateTexture3D(&desc, nullptr, &froxel_texture);
+device->CreateShaderResourceView(froxel_texture.Get(), nullptr, &froxel_srv);
+device->CreateUnorderedAccessView(froxel_texture.Get(), nullptr, &froxel_uav);
+```
+
+3D テクスチャの、大きさは、`160×90×64` で、約 90 万セルです。画面の 1/12 の、解像度で、十分な、なめらかさが、得られます。
+
+### ディスパッチ
+
+```cpp
+// 1 スレッド = 1 セル。8×8×1 のグループで、奥行き方向は、1 層ずつ。
+context->CSSetUnorderedAccessViews(0, 1, froxel_uav.GetAddressOf(), nullptr);
+context->Dispatch((160 + 7) / 8, (90 + 7) / 8, 64);           // グループ数 = (20, 12, 64)
+```
+
+深度方向を、`Dispatch` の、第 3 引数に、割り当てると、`SV_DispatchThreadID.z` が、そのまま、奥行きの、段の番号になります。
+
+### 3 つのステップを、つなぐ
+
+```cpp
+// ① 密度: 各セルの、霧の濃さ。② 注入: 各セルの、光を、計算。③ 積分: 奥へ、散乱光と、透過率を、足し込む。
+Dispatch(density_cs, {noise_srv}, {froxel_uav}, 20, 12, 64);
+Dispatch(inject_cs, {froxel_srv, shadow_srv}, {froxel_light_uav}, 20, 12, 64);     // 入力と出力は、別のテクスチャにする
+Dispatch(integrate_cs, {froxel_light_srv}, {froxel_integrated_uav}, 20, 12, 1);    // 奥行きは、シェーダーの中で、ループ
+```
+
+積分のパスだけ、奥行き方向の、ディスパッチが、1 です。奥行き方向は、前から後ろへ、累積する（前の層の結果に、依存する）ので、1 つのスレッドが、奥行きを、ループします。結果は、画面に、霧を、描くとき、画素の、深度から、froxel を、引いて、使います（[Integration](integration.md)）。
+
 ## よくあるミス
 
 ??? failure "奥行きの分割が粗く、層状の縞が見える"

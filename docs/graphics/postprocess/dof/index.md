@@ -358,6 +358,33 @@ tags:
 | スキャッター | 明るい点をスプライトとして広げる | <strong>最高（ボケの形が正確）</strong> | 重い | 映画風・ハイエンド |
 | レイトレ DOF | 光線をレンズ上でずらして撮る | 最高 | 非常に重い | オフライン・研究 |
 
+## DirectX 11 で組む
+
+```cpp
+// ① CoC（錯乱円の大きさ）: 深度から、符号付きの CoC を計算し、シーン色と、一緒に出す。
+//    出力: rgb = シーン色、a = CoC（手前は負、奥は正）。HDR のまま。
+D3D11_TEXTURE2D_DESC desc = {};
+desc.Width = width;
+desc.Height = height;
+desc.MipLevels = desc.ArraySize = 1;
+desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+desc.SampleDesc.Count = 1;
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+device->CreateTexture2D(&desc, nullptr, &coc_color_texture);
+```
+
+```cpp
+// ② 半解像度に縮小（CoC で重みを付けて）→ ③ 近景・遠景を、別々に、ぼかす（ギャザー）→ ④ フル解像度に合成。
+SetViewport(width / 2, height / 2);
+Draw(downsample_coc_ps, {coc_color_srv}, {half_rtv});
+Draw(gather_ps, {half_srv}, {far_blur_rtv, near_blur_rtv});            // 2 枚の MRT に、近景と遠景を、別々に出す
+SetViewport(width, height);
+Draw(composite_ps, {scene_srv, far_blur_srv, near_blur_srv, coc_color_srv}, {final_rtv});
+```
+
+ギャザーを、半解像度で行うと、コストが、約 1/4 に、なります。近景と、遠景を、別々の、ターゲットに、出すのは、近景のボケは、手前の物の、輪郭を、越えて、奥へ、にじむ（遠景は、越えない）という、性質の違いを、合成の時点で、扱うためです（[Near and Far Fields](near-far.md)）。
+
 ## 関連ページ
 
 - [Post-Processing](../index.md)

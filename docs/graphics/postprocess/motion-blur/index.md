@@ -333,6 +333,44 @@ tags:
 | ④ 高速化 | タイルの最大速度で無駄を省く | [Tile Max Velocity](tile-max.md) |
 | ⑤ 設計 | シャッター角・最大長・TAA との関係 | [Strength and TAA](strength-taa.md) |
 
+## DirectX 11 で組む
+
+### 速度バッファを、G バッファに、混ぜる
+
+```cpp
+// 速度は、G バッファの MRT の 1 枚として、ジオメトリのパスで、同時に書く。
+D3D11_TEXTURE2D_DESC desc = {};
+desc.Width = width;
+desc.Height = height;
+desc.MipLevels = desc.ArraySize = 1;
+desc.Format = DXGI_FORMAT_R16G16_FLOAT;                         // 画面上のずれ（UV 単位）。負の値も持てる
+desc.SampleDesc.Count = 1;
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+device->CreateTexture2D(&desc, nullptr, &velocity_texture);
+```
+
+動く物は、ジオメトリのパスで、速度を、書きます。動かない物（背景）は、カメラの動きだけで、決まるので、速度を、書く必要が、なく、パスの、最後に、深度から、計算して、補います（[Velocity Buffer](velocity-buffer.md)）。
+
+### 3 つのパス
+
+```cpp
+// ① タイル最大: 速度を、16×16 画素のタイルごとの、最大に、縮める（計算シェーダー）。
+const UINT tile = 16;
+Dispatch(tile_max_cs, {velocity_srv}, {tile_max_uav}, (width + tile - 1) / tile, (height + tile - 1) / tile, 1);
+
+// ② 近傍最大: 周りの 3×3 タイルの、最大を、取る（広がりを、隣へ伝える）。
+Dispatch(neighbor_max_cs, {tile_max_srv}, {neighbor_max_uav}, tile_groups_x, tile_groups_y, 1);
+
+// ③ ブラー: 近傍最大の方向へ、シーン色を、サンプル（フルスクリーン）。
+context->OMSetRenderTargets(1, motion_blur_rtv.GetAddressOf(), nullptr);
+ID3D11ShaderResourceView* srvs[] = {scene_srv.Get(), velocity_srv.Get(), depth_srv.Get(), neighbor_max_srv.Get()};
+context->PSSetShaderResources(0, 4, srvs);
+DrawFullscreenTriangle();
+```
+
+タイル最大は、「このタイルの近くで、最も速く動く物は、どちらへ、動いているか」を、教えます。ブラーのパスは、この方向を、基準に、サンプルするので、速い物の、輪郭の、外側まで、にじみます（[Tile Max](tile-max.md)）。
+
 ## 関連ページ
 
 - [Post-Processing](../index.md)

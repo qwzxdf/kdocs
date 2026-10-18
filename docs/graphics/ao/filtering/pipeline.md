@@ -32,6 +32,36 @@ tags:
 
 時間蓄積とブラーの順番は、実装によって異なります。「空間 → 時間」の構成では、ブラーしたものを履歴に混ぜるので、ノイズが入る前の安定した値が履歴に溜まります。逆に「時間 → 空間」の構成は、時間蓄積で十分に減ったノイズを、最後にブラーで仕上げます。履歴にブラーの結果を混ぜると、にじみが履歴に残ってゴーストが強くなることがあるため、後者を採る実装もあります。どちらが良いかはシーン次第なので、<strong>両方を切り替えて見比べる</strong>のが確実です。
 
+## 各パスを、DirectX 11 で、つなぐ
+
+AO、ぼかし、時間蓄積、アップサンプルを、つないだ、1 フレームの、ホスト側の、順序です。
+
+```cpp
+// 解像度は、AO を、半分で、計算し、フルへ戻す構成。
+const UINT half_w = width / 2, half_h = height / 2;
+
+// ① 深度・法線を、半分に縮める（最も近い、または、最も遠い、深度を選ぶ。平均しない）
+SetViewport(half_w, half_h);
+Draw(downsample_depth_ps, {depth_srv, normal_srv}, {half_depth_rtv, half_normal_rtv});
+
+// ② AO を、半解像度で、計算する
+Draw(ao_ps, {half_depth_srv, half_normal_srv, noise_srv}, {ao_raw_rtv});
+
+// ③ 時間蓄積: 前のフレームの AO と、混ぜる（ピンポン）
+Draw(temporal_ps, {ao_raw_srv, ao_history.Read(), velocity_srv, half_depth_srv}, {ao_history.Write()});
+ao_history.Swap();
+
+// ④ ぼかし（深度で、エッジを保つ）。水平 → 垂直
+Draw(blur_h_ps, {ao_history.Read(), half_depth_srv}, {ao_blur_rtv});
+Draw(blur_v_ps, {ao_blur_srv, half_depth_srv}, {ao_filtered_rtv});
+
+// ⑤ フル解像度へ、アップサンプル（フル解像度の深度で、重みを付ける）
+SetViewport(width, height);
+Draw(upsample_ps, {ao_filtered_srv, half_depth_srv, depth_srv}, {ao_full_rtv});
+```
+
+`Draw(...)` は、「入力の SRV を、束ね、出力の RTV を、束ね、フルスクリーン三角形を、描く」を、まとめた、仮の関数です。パスごとに、<strong>ビューポートを、出力の、大きさに、合わせる</strong>のを、忘れないでください（忘れると、画面の、左上の、一部にしか、描かれません）。`ao_history` は、ピンポンの、構造体です（[D3D11 Pass Recipes](../../d3d11-recipes.md)）。
+
 ## パラメータの目安
 
 初期値の目安は、次のとおりです。

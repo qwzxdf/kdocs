@@ -422,6 +422,86 @@ float Blur(float2 uv) {
 
 ただし、<strong>単純なぼかし</strong>は、物体の境界で<strong>暗さがにじむ</strong>ので、深度と法線を考慮したバイラテラル ブラーを使うと、品質が上がります（[フィルタ](filtering/index.md)）。
 
+## DirectX 11 で組む
+
+ここまでの HLSL を、1 回の描画パスとして、動かすための、ホスト側の、準備です（共通の部品は、[D3D11 Pass Recipes](../d3d11-recipes.md) を参照）。
+
+### 入力と出力
+
+```cpp
+// 出力: AO（1 チャンネル）。フル解像度でも、半分でもよい。
+D3D11_TEXTURE2D_DESC desc = {};
+desc.Width = width;
+desc.Height = height;
+desc.MipLevels = 1;
+desc.ArraySize = 1;
+desc.Format = DXGI_FORMAT_R8_UNORM;
+desc.SampleDesc.Count = 1;
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+device->CreateTexture2D(&desc, nullptr, &ao_texture);
+device->CreateRenderTargetView(ao_texture.Get(), nullptr, &ao_rtv);
+device->CreateShaderResourceView(ao_texture.Get(), nullptr, &ao_srv);
+```
+
+AO は、0〜1 の 1 チャンネルなので、`R8_UNORM` で足ります。ぼかしの、2 パスのために、同じ大きさの、もう 1 枚（`ao_blur_texture`）を、作ります。
+
+### ノイズ テクスチャとカーネル
+
+```cpp
+// ノイズ: 4×4 の、ランダムな回転（xy の方向）。繰り返して、画面に敷く（WRAP）。
+struct Noise { int8_t x, y, z, w; };
+Noise noise[16];
+for (auto& n : noise) {
+  float angle = RandomFloat() * 6.2831853f;
+  n = {int8_t(std::cos(angle) * 127), int8_t(std::sin(angle) * 127), 0, 0};
+}
+D3D11_TEXTURE2D_DESC nd = {};
+nd.Width = nd.Height = 4;
+nd.MipLevels = nd.ArraySize = 1;
+nd.Format = DXGI_FORMAT_R8G8B8A8_SNORM;                         // 符号つき。−1〜1 で読める
+nd.SampleDesc.Count = 1;
+nd.Usage = D3D11_USAGE_IMMUTABLE;
+nd.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+D3D11_SUBRESOURCE_DATA init = {noise, 4 * sizeof(Noise), 0};
+device->CreateTexture2D(&nd, &init, &noise_texture);
+device->CreateShaderResourceView(noise_texture.Get(), nullptr, &noise_srv);
+```
+
+ノイズは、4×4 の、小さなテクスチャを、画面いっぱいに、繰り返し（`WRAP` サンプラー）、画素ごとに、違う回転を、与えます。ぼかしで、この 4×4 の模様を、消します。サンプラーは、ノイズ用に、`POINT` と `WRAP`、深度用に、`POINT` と `CLAMP` の、2 つを、用意します。
+
+```cpp
+// カーネル: 半球のサンプル（64 個の float4）を、定数バッファに入れる。起動時に、1 度だけ作る。
+struct SsaoConstants {
+  DirectX::XMFLOAT4 kernel[64];                                 // xyz: 半球内のオフセット
+  DirectX::XMFLOAT4X4 projection;
+  DirectX::XMFLOAT2 noise_scale;                                // (画面幅 / 4, 画面高さ / 4): ノイズを、画面に敷く倍率
+  float radius;
+  float bias;
+};
+```
+
+`noise_scale` は、`uv` に掛けて、ノイズの座標にする倍率です。画面が、1920×1080 なら、(480, 270) で、ノイズが、480×270 回、繰り返されます。
+
+### パスの流れ
+
+```cpp
+// ① AO を描く（深度 SRV と、法線 SRV を、読む。DSV は、束ねない）。
+context->OMSetRenderTargets(1, ao_rtv.GetAddressOf(), nullptr);
+context->PSSetShaderResources(0, 1, depth_srv.GetAddressOf());      // t0: 深度
+context->PSSetShaderResources(1, 1, normal_srv.GetAddressOf());     // t1: 法線
+context->PSSetShaderResources(2, 1, noise_srv.GetAddressOf());      // t2: ノイズ
+DrawFullscreenTriangle();
+
+// ② ぼかし（水平 → 垂直）。入力と出力を、別のテクスチャにする。
+context->OMSetRenderTargets(1, ao_blur_rtv.GetAddressOf(), nullptr);
+context->PSSetShaderResources(0, 1, ao_srv.GetAddressOf());
+DrawFullscreenTriangle();     // 水平
+// （もう 1 回、ao_blur → ao へ、垂直）
+```
+
+深度の DSV を、束ねたままにすると、深度を、SRV で、読めません（[D3D11 Pass Recipes](../d3d11-recipes.md) の、束縛の衝突）。AO の、結果は、ライティングの、パスで、環境光に、掛けます（[Usage and Misconceptions of AO](theory/usage-misconceptions.md)）。
+
 ## パラメータ
 
 | パラメータ | 意味 | 目安 |

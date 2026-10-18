@@ -244,6 +244,55 @@ float3 ApplyAerialPerspective(float3 scene_color, float2 screen_uv, float distan
 
 <strong>合計で、毎フレーム、0.3 ms 未満</strong>と、<strong>非常に軽く</strong>、時間帯の、変化にも、リアルタイムに、追従できます。
 
+## DirectX 11 で組む
+
+4 つの LUT は、すべて、計算シェーダーで、書く、小さなテクスチャです。
+
+### LUT の、テクスチャ
+
+```cpp
+auto MakeLut = [&](UINT w, UINT h, UINT d, DXGI_FORMAT fmt, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv,
+                   Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView>& uav) {
+  Microsoft::WRL::ComPtr<ID3D11Resource> res;
+  if (d == 1) {
+    D3D11_TEXTURE2D_DESC desc = {w, h, 1, 1, fmt, {1, 0}, D3D11_USAGE_DEFAULT,
+                                 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS, 0, 0};
+    Microsoft::WRL::ComPtr<ID3D11Texture2D> t;
+    device->CreateTexture2D(&desc, nullptr, &t);
+    t.As(&res);
+  } else {
+    D3D11_TEXTURE3D_DESC desc = {w, h, d, 1, fmt, D3D11_USAGE_DEFAULT,
+                                 D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS, 0, 0};
+    Microsoft::WRL::ComPtr<ID3D11Texture3D> t;
+    device->CreateTexture3D(&desc, nullptr, &t);
+    t.As(&res);
+  }
+  device->CreateShaderResourceView(res.Get(), nullptr, &srv);
+  device->CreateUnorderedAccessView(res.Get(), nullptr, &uav);
+};
+MakeLut(256, 64, 1, DXGI_FORMAT_R16G16B16A16_FLOAT, transmittance_srv, transmittance_uav);      // 透過率
+MakeLut(32, 32, 1, DXGI_FORMAT_R16G16B16A16_FLOAT, multiscatter_srv, multiscatter_uav);         // 多重散乱
+MakeLut(192, 108, 1, DXGI_FORMAT_R11G11B10_FLOAT, skyview_srv, skyview_uav);                    // Sky-View
+MakeLut(32, 32, 32, DXGI_FORMAT_R16G16B16A16_FLOAT, aerial_srv, aerial_uav);                    // Aerial Perspective（3D）
+```
+
+4 つとも、サイズが、小さいので、毎フレーム、書き直しても、軽く済みます。Aerial Perspective だけが、3D テクスチャ（画面の 32×32 に、奥行き 32 段）です。
+
+### 更新の順序
+
+```cpp
+// 透過率と多重散乱は、大気のパラメータが変わったときだけ（普通は、起動時の 1 回）。
+if (atmosphere_changed) {
+  Dispatch(transmittance_cs, {}, {transmittance_uav}, 256 / 8, 64 / 8, 1);
+  Dispatch(multiscatter_cs, {transmittance_srv}, {multiscatter_uav}, 32, 32, 1);     // 1 グループ = 1 テクセル（内部で、並列に、積分）
+}
+// Sky-View と Aerial Perspective は、毎フレーム（太陽の向きや、カメラの高さが、変わるため）。
+Dispatch(skyview_cs, {transmittance_srv, multiscatter_srv}, {skyview_uav}, 192 / 8, 108 / 8, 1);
+Dispatch(aerial_cs, {transmittance_srv, multiscatter_srv}, {aerial_uav}, 32 / 8, 32 / 8, 32);
+```
+
+`Dispatch(...)` は、仮の関数で、「入力 SRV を、束ね、出力 UAV を、束ね、`Dispatch` を、呼び、終わったら、束縛を、外す」を、まとめたものです（[D3D11 Pass Recipes](../../d3d11-recipes.md)）。後のパスが、前の LUT を、読むので、各 `Dispatch` の、あとで、UAV を、`nullptr` で、外します。毎フレーム更新するのは、2 枚だけなので、大気の計算が、軽くなります。
+
 ## 宇宙から、地上まで
 
 この方式は、<strong>カメラが、地上でも、空の高いところでも、宇宙でも</strong>、<strong>同じ仕組みで</strong>、動きます。カメラの高度が、LUT の、入力になっているためです（Sky-View LUT の、地平線の計算が、高度から決まる）。宇宙から、惑星を見るとき（大気の、青い縁）には、Sky-View LUT は、使わず、画面全体を、直接、積分する、専用のパスを使います（[Ground and Space Views](ground-space.md)）。

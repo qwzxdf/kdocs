@@ -108,6 +108,46 @@ SSR は、<strong>画面の、情報だけ</strong>を、使うので、<strong>
 | カメラに、向かう反射が、弱い | 反射方向が、カメラの方向に、近い（鏡に、真正面から、向き合う）と、カメラの、背後の、景色が、必要（画面に、無い） | 信頼度を、下げて、プローブへ |
 | 細い物を、すり抜ける | ステップが、粗いと、細い物を、飛び越える | ステップを、細かく、Hi-Z（[Hi-Z SSR](../ssr-hiz.md)） |
 
+## DirectX 11 で組む
+
+### 必要な入力
+
+SSR は、次の 4 つを、必要とします。
+
+| 入力 | 作り方 |
+| --- | --- |
+| 深度 | `R32_TYPELESS` の深度（DSV と SRV）。SSR の前に、DSV を、外す |
+| 法線 | G バッファの、法線のターゲット |
+| 粗さ・金属度 | G バッファの、材質のターゲット |
+| 前フレームの、色 | 前のフレームの、最終色（HDR）を、ピンポンで、保存 |
+
+### パス
+
+```cpp
+// SSR の出力: 反射色と、信頼度（a）。HDR で、半分の解像度でも、よい。
+D3D11_TEXTURE2D_DESC desc = {};
+desc.Width = width / 2;                                          // 半分の解像度（コストが約 1/4）
+desc.Height = height / 2;
+desc.MipLevels = desc.ArraySize = 1;
+desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;                   // rgb: 反射色、a: 信頼度
+desc.SampleDesc.Count = 1;
+desc.Usage = D3D11_USAGE_DEFAULT;
+desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
+device->CreateTexture2D(&desc, nullptr, &ssr_texture);
+```
+
+```cpp
+// SSR を描く。深度・法線・材質・前フレームの色を、読む。サンプラーは、深度が POINT、色が LINEAR。
+context->OMSetRenderTargets(1, ssr_rtv.GetAddressOf(), nullptr);
+ID3D11ShaderResourceView* srvs[] = {depth_srv.Get(), normal_srv.Get(), material_srv.Get(), prev_color.Read()};
+context->PSSetShaderResources(0, 4, srvs);
+ID3D11SamplerState* samplers[] = {point_clamp.Get(), linear_clamp.Get()};
+context->PSSetSamplers(0, 2, samplers);
+DrawFullscreenTriangle();
+```
+
+結果は、ライティングの、パスで、反射プローブと、信頼度で、混ぜて、間接鏡面光として、足します（[Combining with SSR](../probes/combine-ssr.md)）。深度を、DSV から、外し忘れると、`depth_srv` が、黒くなって、SSR が、何も、当たらなくなります（[D3D11 Pass Recipes](../../d3d11-recipes.md)）。
+
 ## これだけ覚える
 
 !!! abstract "まとめ"

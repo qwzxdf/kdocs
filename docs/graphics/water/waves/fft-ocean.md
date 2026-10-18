@@ -337,6 +337,54 @@ float3 disp = g_displacement.SampleLevel(g_linear_wrap, p0 / g_patch_size, 0).xy
 float3 world = float3(p0.x + disp.x, disp.y, p0.y + disp.z);
 ```
 
+## DirectX 11 で組む
+
+### テクスチャ
+
+```cpp
+const UINT N = 256;                                              // 1 タイルの、格子の数（2 のべき乗）
+// 周波数空間の、複素数（実部・虚部）を、R32G32_FLOAT で持つ。UAV と SRV の両方で使う。
+auto MakeComplexTexture = [&](Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>& srv,
+                              Microsoft::WRL::ComPtr<ID3D11UnorderedAccessView>& uav) {
+  D3D11_TEXTURE2D_DESC desc = {N, N, 1, 1, DXGI_FORMAT_R32G32_FLOAT, {1, 0}, D3D11_USAGE_DEFAULT,
+                               D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS, 0, 0};
+  Microsoft::WRL::ComPtr<ID3D11Texture2D> t;
+  device->CreateTexture2D(&desc, nullptr, &t);
+  device->CreateShaderResourceView(t.Get(), nullptr, &srv);
+  device->CreateUnorderedAccessView(t.Get(), nullptr, &uav);
+};
+// 高さ・水平変位 X・水平変位 Z の、それぞれに、2 枚（FFT のピンポン用）が要る。
+```
+
+複素数は、`R32G32_FLOAT` の、2 チャンネル（x = 実部、y = 虚部）で、持ちます。FFT の、途中の、精度が、必要なので、16 ビットでなく、32 ビットの、浮動小数に、します。最終的な、水面の、テクスチャ（高さ、変位、法線、泡）は、`R16G16B16A16_FLOAT` で、足ります。
+
+### 毎フレームの、ディスパッチ
+
+```cpp
+const UINT groups = N / 8;
+// ① 時間発展: h0 から、時刻 t のスペクトルを作る（Evolve）。
+Dispatch(evolve_cs, {h0_srv}, {height_k_uav, dx_k_uav, dz_k_uav}, groups, groups, 1);
+
+// ② 逆 FFT: 横方向 log2(N) 段 → 縦方向 log2(N) 段。段ごとに、入力と出力を、入れ替える（ピンポン）。
+const int stages = 8;                                            // log2(256)
+for (int s = 0; s < stages; ++s) {
+  SetFftStage(s);                                                // 定数バッファに、段の番号
+  DispatchButterfly(horizontal_cs, ping, pong, groups, groups);
+  std::swap(ping, pong);
+}
+for (int s = 0; s < stages; ++s) {
+  SetFftStage(s);
+  DispatchButterfly(vertical_cs, ping, pong, groups, groups);
+  std::swap(ping, pong);
+}
+
+// ③ 結果を、水面用のテクスチャにまとめる（高さ・水平変位・法線・ヤコビアン）。
+Dispatch(assemble_cs, {height_srv, dx_srv, dz_srv}, {displacement_uav}, groups, groups, 1);
+context->GenerateMips(displacement_srv.Get());                  // 遠くの水面は、ミップで読む（ちらつきを、減らす）
+```
+
+1 回の FFT が、段の数（`log2 N`）だけ、ディスパッチを、呼ぶので、`N = 256` なら、横 8 回、縦 8 回の、計 16 回です。1 回ごとに、UAV を、外して、次の、SRV として、読む、束縛の入れ替えが、必要です（[D3D11 Pass Recipes](../../d3d11-recipes.md)）。`GenerateMips` を、使うには、テクスチャに、`D3D11_BIND_RENDER_TARGET` と `D3D11_RESOURCE_MISC_GENERATE_MIPS` が、必要です。
+
 ## カスケード（繰り返しを隠す）
 
 FFT の結果は、<strong>`patch_size` ごとに、同じ模様が、繰り返します</strong>（周期的）。1 枚だけだと、<strong>遠くで、繰り返しが、見えます</strong>。

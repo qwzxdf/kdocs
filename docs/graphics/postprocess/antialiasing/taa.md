@@ -297,6 +297,39 @@ float3 TAA(float2 uv) {
 
 <!-- fig:taa-history-clamp:end -->
 
+## DirectX 11 で組む
+
+### ジッターを、射影行列に入れる
+
+```cpp
+// 毎フレーム、サブピクセルのずれ（Halton 数列）を、射影行列に足す。
+float jitter_x = (Halton(frame_index % 8 + 1, 2) - 0.5f) * 2.0f / width;     // NDC で、±1 画素の範囲
+float jitter_y = (Halton(frame_index % 8 + 1, 3) - 0.5f) * 2.0f / height;
+DirectX::XMFLOAT4X4 projection = base_projection;
+projection._31 = -jitter_x;     // 右手系: w = −z_view なので、符号を反転すると、NDC で +jitter ずれる
+projection._32 = -jitter_y;
+```
+
+行ベクトルの規約（`v * M`）では、`_31`、`_32` が、`z` に掛かり、`w = −z` で割られるので、ジッターが、NDC の、一定のずれ（`−_31`）になります。カメラが、止まっていても、毎フレーム、少しずつ違う位置で、サンプルされるので、時間で、平均すると、サブピクセルの、情報が、集まります。速度の計算と、履歴の、再投影では、ジッターを、引いて、使います（[Velocity Buffer](../motion-blur/velocity-buffer.md)）。
+
+### 履歴テクスチャと、合成パス
+
+```cpp
+// 履歴: 2 枚のピンポン。HDR のまま持つ（トーン マッピングの前で、解決する）。
+PingPong history;       // R16G16B16A16_FLOAT（作り方は、D3D11 Pass Recipes）
+
+// 解決パス: 今のフレームの色 + 速度 + 深度 + 前の履歴 → 新しい履歴
+context->OMSetRenderTargets(1, history.Write().GetAddressOf(), nullptr);
+ID3D11ShaderResourceView* srvs[] = {scene_color_srv.Get(), history.Read(), velocity_srv.Get(), depth_srv.Get()};
+context->PSSetShaderResources(0, 4, srvs);
+context->PSSetSamplers(0, 1, linear_clamp.GetAddressOf());            // 履歴は、バイリニアで、読む
+context->PSSetSamplers(1, 1, point_clamp.GetAddressOf());             // 速度・深度は、ポイントで読む
+DrawFullscreenTriangle();
+history.Swap();
+```
+
+出力は、新しい履歴で、同時に、画面に出す、画像でもあります（ブルームや、トーン マッピングへ渡す）。解決の、結果を、履歴に書き、同じ内容を、次の、ポスト プロセスにも使う、構成です。最初のフレーム、画面サイズの変更、カメラの、カットのときは、履歴を、捨てて（今のフレームの色を、そのまま、履歴にする）、ゴーストを、防ぎます。
+
 ## なぜクランプするのか
 
 <strong>履歴は前のフレームの結果</strong>です。<strong>物が動いて、別の物が現れた画素の履歴は、「前に別の物が見えていた色」</strong>で<strong>間違っています</strong>。<strong>そのまま混ぜるとゴースト（残像）</strong>になります。現在の周囲の色の範囲（最小〜最大）に、履歴を押し込むと周囲の色と大きく違う履歴は、範囲内に引き戻され、ゴーストが抑えられます。
