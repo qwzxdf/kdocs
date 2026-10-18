@@ -54,71 +54,145 @@ void IntegrateCS(uint3 id : SV_DispatchThreadID) {
 
 <!-- fig:fog-integrate:begin -->
 
-<svg class="fig illust motion" data-fig="fog-integrate" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="fog-integrate" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-fog-integrate" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">スライスを手前から奥へ累積する: 光は足され、透過率は掛けられる</text>
-<rect x="90" y="100" width="46" height="60" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1"/>
-<rect x="90" y="160.0" width="46" height="0.0" fill="#e5aa28" fill-opacity="0.8"/>
-<text x="113.0" y="178" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">1</text>
-<rect x="140" y="100" width="46" height="60" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1"/>
-<rect x="140" y="154.0" width="46" height="6.0" fill="#e5aa28" fill-opacity="0.8"/>
-<text x="163.0" y="178" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">2</text>
-<rect x="190" y="100" width="46" height="60" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1"/>
-<rect x="190" y="130.0" width="46" height="30.0" fill="#e5aa28" fill-opacity="0.8"/>
-<text x="213.0" y="178" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">3</text>
-<rect x="240" y="100" width="46" height="60" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1"/>
-<rect x="240" y="106.0" width="46" height="54.0" fill="#e5aa28" fill-opacity="0.8"/>
-<text x="263.0" y="178" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">4</text>
-<rect x="290" y="100" width="46" height="60" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1"/>
-<rect x="290" y="142.0" width="46" height="18.0" fill="#e5aa28" fill-opacity="0.8"/>
-<text x="313.0" y="178" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">5</text>
-<rect x="340" y="100" width="46" height="60" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1"/>
-<rect x="340" y="154.0" width="46" height="6.0" fill="#e5aa28" fill-opacity="0.8"/>
-<text x="363.0" y="178" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">6</text>
-<rect x="390" y="100" width="46" height="60" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1"/>
-<rect x="390" y="160.0" width="46" height="0.0" fill="#e5aa28" fill-opacity="0.8"/>
-<text x="413.0" y="178" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">7</text>
-<rect x="440" y="100" width="46" height="60" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1"/>
-<rect x="440" y="124.0" width="46" height="36.0" fill="#e5aa28" fill-opacity="0.8"/>
-<text x="463.0" y="178" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">8</text>
-<rect x="490" y="100" width="46" height="60" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1"/>
-<rect x="490" y="112.0" width="46" height="48.0" fill="#e5aa28" fill-opacity="0.8"/>
-<text x="513.0" y="178" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">9</text>
-<rect x="540" y="100" width="46" height="60" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1"/>
-<rect x="540" y="148.0" width="46" height="12.0" fill="#e5aa28" fill-opacity="0.8"/>
-<text x="563.0" y="178" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">10</text>
-<rect x="590" y="100" width="46" height="60" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1"/>
-<rect x="590" y="154.0" width="46" height="6.0" fill="#e5aa28" fill-opacity="0.8"/>
-<text x="613.0" y="178" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">11</text>
-<rect x="640" y="100" width="46" height="60" fill="#e0f2fe" stroke="#94a3b8" stroke-width="1"/>
-<rect x="640" y="160.0" width="46" height="0.0" fill="#e5aa28" fill-opacity="0.8"/>
-<text x="663.0" y="178" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">12</text>
-<text x="90" y="92" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">各スライスの散乱光（橙の高さ）</text>
-<rect x="90" y="215" width="600" height="140" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
-<line x1="240.0" y1="215" x2="240.0" y2="355" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="90" y1="250.0" x2="690" y2="250.0" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="390.0" y1="215" x2="390.0" y2="355" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="90" y1="285.0" x2="690" y2="285.0" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="540.0" y1="215" x2="540.0" y2="355" stroke="#e2e8f0" stroke-width="1"/>
-<line x1="90" y1="320.0" x2="690" y2="320.0" stroke="#e2e8f0" stroke-width="1"/>
-<text x="90" y="207" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">累積した光（橙）／ 透過率（青）</text>
-<path d="M0,0" fill="none" stroke="#e5aa28" stroke-width="4"><animate attributeName="d" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1296;0.1852;0.2407;0.2963;0.3519;0.4074;0.4630;0.5185;0.5741;0.6296;0.6852;0.7407;1.0000" values="M90.0,355.0 L140.0,355.0 L190.0,355.0 L240.0,355.0 L290.0,355.0 L340.0,355.0 L390.0,355.0 L440.0,355.0 L490.0,355.0 L540.0,355.0 L590.0,355.0 L640.0,355.0 L690.0,355.0;M90.0,355.0 L140.0,355.0 L190.0,355.0 L240.0,355.0 L290.0,355.0 L340.0,355.0 L390.0,355.0 L440.0,355.0 L490.0,355.0 L540.0,355.0 L590.0,355.0 L640.0,355.0 L690.0,355.0;M90.0,355.0 L140.0,355.0 L190.0,346.03 L240.0,346.03 L290.0,346.03 L340.0,346.03 L390.0,346.03 L440.0,346.03 L490.0,346.03 L540.0,346.03 L590.0,346.03 L640.0,346.03 L690.0,346.03;M90.0,355.0 L140.0,355.0 L190.0,346.03 L240.0,310.13 L290.0,310.13 L340.0,310.13 L390.0,310.13 L440.0,310.13 L490.0,310.13 L540.0,310.13 L590.0,310.13 L640.0,310.13 L690.0,310.13;M90.0,355.0 L140.0,355.0 L190.0,346.03 L240.0,310.13 L290.0,264.46 L340.0,264.46 L390.0,264.46 L440.0,264.46 L490.0,264.46 L540.0,264.46 L590.0,264.46 L640.0,264.46 L690.0,264.46;M90.0,355.0 L140.0,355.0 L190.0,346.03 L240.0,310.13 L290.0,264.46 L340.0,253.51 L390.0,253.51 L440.0,253.51 L490.0,253.51 L540.0,253.51 L590.0,253.51 L640.0,253.51 L690.0,253.51;M90.0,355.0 L140.0,355.0 L190.0,346.03 L240.0,310.13 L290.0,264.46 L340.0,253.51 L390.0,250.52 L440.0,250.52 L490.0,250.52 L540.0,250.52 L590.0,250.52 L640.0,250.52 L690.0,250.52;M90.0,355.0 L140.0,355.0 L190.0,346.03 L240.0,310.13 L290.0,264.46 L340.0,253.51 L390.0,250.52 L440.0,250.52 L490.0,250.52 L540.0,250.52 L590.0,250.52 L640.0,250.52 L690.0,250.52;M90.0,355.0 L140.0,355.0 L190.0,346.03 L240.0,310.13 L290.0,264.46 L340.0,253.51 L390.0,250.52 L440.0,250.52 L490.0,237.55 L540.0,237.55 L590.0,237.55 L640.0,237.55 L690.0,237.55;M90.0,355.0 L140.0,355.0 L190.0,346.03 L240.0,310.13 L290.0,264.46 L340.0,253.51 L390.0,250.52 L440.0,250.52 L490.0,237.55 L540.0,225.03 L590.0,225.03 L640.0,225.03 L690.0,225.03;M90.0,355.0 L140.0,355.0 L190.0,346.03 L240.0,310.13 L290.0,264.46 L340.0,253.51 L390.0,250.52 L440.0,250.52 L490.0,237.55 L540.0,225.03 L590.0,222.66 L640.0,222.66 L690.0,222.66;M90.0,355.0 L140.0,355.0 L190.0,346.03 L240.0,310.13 L290.0,264.46 L340.0,253.51 L390.0,250.52 L440.0,250.52 L490.0,237.55 L540.0,225.03 L590.0,222.66 L640.0,221.67 L690.0,221.67;M90.0,355.0 L140.0,355.0 L190.0,346.03 L240.0,310.13 L290.0,264.46 L340.0,253.51 L390.0,250.52 L440.0,250.52 L490.0,237.55 L540.0,225.03 L590.0,222.66 L640.0,221.67 L690.0,221.67;M90.0,355.0 L140.0,355.0 L190.0,346.03 L240.0,310.13 L290.0,264.46 L340.0,253.51 L390.0,250.52 L440.0,250.52 L490.0,237.55 L540.0,225.03 L590.0,222.66 L640.0,221.67 L690.0,221.67"/></path>
-<path d="M0,0" fill="none" stroke="#2563eb" stroke-width="4"><animate attributeName="d" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1296;0.1852;0.2407;0.2963;0.3519;0.4074;0.4630;0.5185;0.5741;0.6296;0.6852;0.7407;1.0000" values="M90.0,215.0 L140.0,228.32 L190.0,228.32 L240.0,228.32 L290.0,228.32 L340.0,228.32 L390.0,228.32 L440.0,228.32 L490.0,228.32 L540.0,228.32 L590.0,228.32 L640.0,228.32 L690.0,228.32;M90.0,215.0 L140.0,228.32 L190.0,228.32 L240.0,228.32 L290.0,228.32 L340.0,228.32 L390.0,228.32 L440.0,228.32 L490.0,228.32 L540.0,228.32 L590.0,228.32 L640.0,228.32 L690.0,228.32;M90.0,215.0 L140.0,228.32 L190.0,245.97 L240.0,245.97 L290.0,245.97 L340.0,245.97 L390.0,245.97 L440.0,245.97 L490.0,245.97 L540.0,245.97 L590.0,245.97 L640.0,245.97 L690.0,245.97;M90.0,215.0 L140.0,228.32 L190.0,245.97 L240.0,274.23 L290.0,274.23 L340.0,274.23 L390.0,274.23 L440.0,274.23 L490.0,274.23 L540.0,274.23 L590.0,274.23 L640.0,274.23 L690.0,274.23;M90.0,215.0 L140.0,228.32 L190.0,245.97 L240.0,274.23 L290.0,300.86 L340.0,300.86 L390.0,300.86 L440.0,300.86 L490.0,300.86 L540.0,300.86 L590.0,300.86 L640.0,300.86 L690.0,300.86;M90.0,215.0 L140.0,228.32 L190.0,245.97 L240.0,274.23 L290.0,300.86 L340.0,312.83 L390.0,312.83 L440.0,312.83 L490.0,312.83 L540.0,312.83 L590.0,312.83 L640.0,312.83 L690.0,312.83;M90.0,215.0 L140.0,228.32 L190.0,245.97 L240.0,274.23 L290.0,300.86 L340.0,312.83 L390.0,318.71 L440.0,318.71 L490.0,318.71 L540.0,318.71 L590.0,318.71 L640.0,318.71 L690.0,318.71;M90.0,215.0 L140.0,228.32 L190.0,245.97 L240.0,274.23 L290.0,300.86 L340.0,312.83 L390.0,318.71 L440.0,322.16 L490.0,322.16 L540.0,322.16 L590.0,322.16 L640.0,322.16 L690.0,322.16;M90.0,215.0 L140.0,228.32 L190.0,245.97 L240.0,274.23 L290.0,300.86 L340.0,312.83 L390.0,318.71 L440.0,322.16 L490.0,330.67 L540.0,330.67 L590.0,330.67 L640.0,330.67 L690.0,330.67;M90.0,215.0 L140.0,228.32 L190.0,245.97 L240.0,274.23 L290.0,300.86 L340.0,312.83 L390.0,318.71 L440.0,322.16 L490.0,330.67 L540.0,337.86 L590.0,337.86 L640.0,337.86 L690.0,337.86;M90.0,215.0 L140.0,228.32 L190.0,245.97 L240.0,274.23 L290.0,300.86 L340.0,312.83 L390.0,318.71 L440.0,322.16 L490.0,330.67 L540.0,337.86 L590.0,340.96 L640.0,340.96 L690.0,340.96;M90.0,215.0 L140.0,228.32 L190.0,245.97 L240.0,274.23 L290.0,300.86 L340.0,312.83 L390.0,318.71 L440.0,322.16 L490.0,330.67 L540.0,337.86 L590.0,340.96 L640.0,342.92 L690.0,342.92;M90.0,215.0 L140.0,228.32 L190.0,245.97 L240.0,274.23 L290.0,300.86 L340.0,312.83 L390.0,318.71 L440.0,322.16 L490.0,330.67 L540.0,337.86 L590.0,340.96 L640.0,342.92 L690.0,344.07;M90.0,215.0 L140.0,228.32 L190.0,245.97 L240.0,274.23 L290.0,300.86 L340.0,312.83 L390.0,318.71 L440.0,322.16 L490.0,330.67 L540.0,337.86 L590.0,340.96 L640.0,342.92 L690.0,344.07"/></path>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">スライス 1 まで: 累積光 0.00、透過率 0.90<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.1293;0.1296;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">スライス 2 まで: 累積光 0.08、透過率 0.78<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1293;0.1296;0.1849;0.1852;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">スライス 3 まで: 累積光 0.42、透過率 0.58<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1849;0.1852;0.2404;0.2407;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">スライス 4 まで: 累積光 0.85、透過率 0.39<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2404;0.2407;0.2960;0.2963;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">スライス 5 まで: 累積光 0.95、透過率 0.30<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2960;0.2963;0.3516;0.3519;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">スライス 6 まで: 累積光 0.98、透過率 0.26<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3516;0.3519;0.4071;0.4074;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">スライス 7 まで: 累積光 0.98、透過率 0.23<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4071;0.4074;0.4627;0.4630;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">スライス 8 まで: 累積光 1.10、透過率 0.17<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4627;0.4630;0.5182;0.5185;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">スライス 9 まで: 累積光 1.22、透過率 0.12<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5182;0.5185;0.5738;0.5741;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">スライス 10 まで: 累積光 1.24、透過率 0.10<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5738;0.5741;0.6293;0.6296;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">スライス 11 まで: 累積光 1.25、透過率 0.09<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6293;0.6296;0.6849;0.6852;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">スライス 12 まで: 累積光 1.25、透過率 0.08<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6849;0.6852;0.7404;0.7407;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="422" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">光 += 透過率 × (S − S·e^(−σΔz)) / σ　　透過率 ×= e^(−σΔz)</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">霧の積分: 手前の層から順に、「光が減った分」と「霧が足した光」を積み重ねる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 本の視線を、奥行き 16 枚のスライス(froxel)に分けて、前から順に積算する。霧の塊が、途中にある</text>
+<rect x="30" y="96" width="900" height="150" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 各スライス(手前 → 奥)の、霧の濃さ</text>
+<rect x="60.0" y="219.67" width="48.0" height="8.33" fill="#93c5fd" opacity="0.9"/>
+<text x="84.0" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">0.6 m</text>
+<rect x="111.5" y="219.66" width="48.0" height="8.34" fill="#93c5fd" opacity="0.9"/>
+<text x="135.5" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">0.8 m</text>
+<rect x="163.0" y="219.63" width="48.0" height="8.37" fill="#93c5fd" opacity="0.9"/>
+<text x="187.0" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">1.1 m</text>
+<rect x="214.5" y="219.57" width="48.0" height="8.43" fill="#93c5fd" opacity="0.9"/>
+<text x="238.5" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">1.5 m</text>
+<rect x="266.0" y="219.46" width="48.0" height="8.54" fill="#93c5fd" opacity="0.9"/>
+<text x="290.0" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">2 m</text>
+<rect x="317.5" y="219.19" width="48.0" height="8.81" fill="#93c5fd" opacity="0.9"/>
+<text x="341.5" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">2.7 m</text>
+<rect x="369.0" y="218.48" width="48.0" height="9.52" fill="#93c5fd" opacity="0.9"/>
+<text x="393.0" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">3.6 m</text>
+<rect x="420.5" y="216.32" width="48.0" height="11.68" fill="#93c5fd" opacity="0.9"/>
+<text x="444.5" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">4.9 m</text>
+<rect x="472.0" y="208.98" width="48.0" height="19.02" fill="#93c5fd" opacity="0.9"/>
+<text x="496.0" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">6.7 m</text>
+<rect x="523.5" y="185.33" width="48.0" height="42.67" fill="#93c5fd" opacity="0.9"/>
+<text x="547.5" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">9 m</text>
+<rect x="575.0" y="138.0" width="48.0" height="90.0" fill="#93c5fd" opacity="0.9"/>
+<text x="599.0" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">12.2 m</text>
+<rect x="626.5" y="147.96" width="48.0" height="80.04" fill="#93c5fd" opacity="0.9"/>
+<text x="650.5" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">16.5 m</text>
+<rect x="678.0" y="214.21" width="48.0" height="13.79" fill="#93c5fd" opacity="0.9"/>
+<text x="702.0" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">22.4 m</text>
+<rect x="729.5" y="219.74" width="48.0" height="8.26" fill="#93c5fd" opacity="0.9"/>
+<text x="753.5" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">30.3 m</text>
+<rect x="781.0" y="219.74" width="48.0" height="8.26" fill="#93c5fd" opacity="0.9"/>
+<text x="805.0" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">41.1 m</text>
+<rect x="832.5" y="219.74" width="48.0" height="8.26" fill="#93c5fd" opacity="0.9"/>
+<text x="856.5" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">55.6 m</text>
+<text x="40" y="126" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">棒 = そのスライスの霧の濃さ(中央が、霧の塊)。スライスの厚みは、奥ほど厚い</text>
+<rect x="30" y="262" width="900" height="160" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
+<text x="30" y="252" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">② 積算の途中経過(前から順に)</text>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;1.0000" values="0;0;1;1"/><rect x="60.0" y="300.07" width="23.0" height="99.93" fill="#c4b5fd" opacity="0.95"/>
+<rect x="84.0" y="399.95" width="23.0" height="0.05" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1020;0.1021;1.0000" values="0;0;1;1"/><rect x="111.5" y="300.17" width="23.0" height="99.83" fill="#c4b5fd" opacity="0.95"/>
+<rect x="135.5" y="399.89" width="23.0" height="0.11" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1403;0.1404;1.0000" values="0;0;1;1"/><rect x="163.0" y="300.3" width="23.0" height="99.7" fill="#c4b5fd" opacity="0.95"/>
+<rect x="187.0" y="399.81" width="23.0" height="0.19" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1786;0.1787;1.0000" values="0;0;1;1"/><rect x="214.5" y="300.48" width="23.0" height="99.52" fill="#c4b5fd" opacity="0.95"/>
+<rect x="238.5" y="399.69" width="23.0" height="0.31" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.2169;0.2170;1.0000" values="0;0;1;1"/><rect x="266.0" y="300.72" width="23.0" height="99.28" fill="#c4b5fd" opacity="0.95"/>
+<rect x="290.0" y="399.52" width="23.0" height="0.48" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.2551;0.2553;1.0000" values="0;0;1;1"/><rect x="317.5" y="301.07" width="23.0" height="98.93" fill="#c4b5fd" opacity="0.95"/>
+<rect x="341.5" y="399.29" width="23.0" height="0.71" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.2934;0.2936;1.0000" values="0;0;1;1"/><rect x="369.0" y="301.56" width="23.0" height="98.44" fill="#c4b5fd" opacity="0.95"/>
+<rect x="393.0" y="398.94" width="23.0" height="1.06" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3317;0.3319;1.0000" values="0;0;1;1"/><rect x="420.5" y="302.38" width="23.0" height="97.62" fill="#c4b5fd" opacity="0.95"/>
+<rect x="444.5" y="398.33" width="23.0" height="1.67" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3700;0.3702;1.0000" values="0;0;1;1"/><rect x="472.0" y="304.17" width="23.0" height="95.83" fill="#c4b5fd" opacity="0.95"/>
+<rect x="496.0" y="396.89" width="23.0" height="3.11" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4083;0.4085;1.0000" values="0;0;1;1"/><rect x="523.5" y="309.4" width="23.0" height="90.6" fill="#c4b5fd" opacity="0.95"/>
+<rect x="547.5" y="392.21" width="23.0" height="7.79" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4466;0.4468;1.0000" values="0;0;1;1"/><rect x="575.0" y="322.81" width="23.0" height="77.19" fill="#c4b5fd" opacity="0.95"/>
+<rect x="599.0" y="379.01" width="23.0" height="20.99" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4849;0.4851;1.0000" values="0;0;1;1"/><rect x="626.5" y="336.36" width="23.0" height="63.64" fill="#c4b5fd" opacity="0.95"/>
+<rect x="650.5" y="365.87" width="23.0" height="34.13" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.5232;0.5234;1.0000" values="0;0;1;1"/><rect x="678.0" y="339.16" width="23.0" height="60.84" fill="#c4b5fd" opacity="0.95"/>
+<rect x="702.0" y="363.72" width="23.0" height="36.28" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.5615;0.5617;1.0000" values="0;0;1;1"/><rect x="729.5" y="341.34" width="23.0" height="58.66" fill="#c4b5fd" opacity="0.95"/>
+<rect x="753.5" y="362.38" width="23.0" height="37.62" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.5998;0.6000;1.0000" values="0;0;1;1"/><rect x="781.0" y="344.17" width="23.0" height="55.83" fill="#c4b5fd" opacity="0.95"/>
+<rect x="805.0" y="360.68" width="23.0" height="39.32" fill="#fcd34d" opacity="0.95"/>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6381;0.6383;1.0000" values="0;0;1;1"/><rect x="832.5" y="347.79" width="23.0" height="52.21" fill="#c4b5fd" opacity="0.95"/>
+<rect x="856.5" y="358.51" width="23.0" height="41.49" fill="#fcd34d" opacity="0.95"/>
+</g>
+<circle cx="52" cy="284" r="6" fill="#c4b5fd"/>
+<text x="62" y="288" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">残った光(透過率 T)</text>
+<circle cx="203.39999999999998" cy="284" r="6" fill="#fcd34d"/>
+<text x="213.39999999999998" y="288" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">集めた霧の光</text>
+<text x="560" y="290" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">透過率:</text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="1">0<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;1.0000" values="1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">100<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;0.1020;0.1021;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">100<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1020;0.1021;0.1403;0.1404;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">100<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1403;0.1404;0.1786;0.1787;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">100<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1786;0.1787;0.2169;0.2170;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">99<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.2169;0.2170;0.2551;0.2553;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">99<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.2551;0.2553;0.2934;0.2936;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">98<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.2934;0.2936;0.3317;0.3319;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">98<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3317;0.3319;0.3700;0.3702;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">96<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3700;0.3702;0.4083;0.4085;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">91<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4083;0.4085;0.4466;0.4468;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">77<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4466;0.4468;0.4849;0.4851;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">64<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4849;0.4851;0.5232;0.5234;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">61<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.5232;0.5234;0.5615;0.5617;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">59<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.5615;0.5617;0.5998;0.6000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">56<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.5998;0.6000;0.6381;0.6383;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="640" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#7c3aed" opacity="0">52<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6381;0.6383;1.0000" values="0;0;1;1"/></text>
+<text x="690" y="292" text-anchor="start" style="font-size:16px;font-weight:700;fill:#7c3aed">%</text>
+<text x="730" y="290" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">霧の光:</text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="1">0<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;1.0000" values="1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">0<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;0.1020;0.1021;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">0<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1020;0.1021;0.1403;0.1404;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">0<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1403;0.1404;0.1786;0.1787;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">0<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1786;0.1787;0.2169;0.2170;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">0<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.2169;0.2170;0.2551;0.2553;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">1<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.2551;0.2553;0.2934;0.2936;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">1<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.2934;0.2936;0.3317;0.3319;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">2<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3317;0.3319;0.3700;0.3702;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">3<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3700;0.3702;0.4083;0.4085;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">8<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4083;0.4085;0.4466;0.4468;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">21<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4466;0.4468;0.4849;0.4851;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">34<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4849;0.4851;0.5232;0.5234;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">36<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.5232;0.5234;0.5615;0.5617;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">38<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.5615;0.5617;0.5998;0.6000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">39<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.5998;0.6000;0.6381;0.6383;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="805" y="292" text-anchor="start" style="font-size:22px;font-weight:700;fill:#b45309" opacity="0">41<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6381;0.6383;1.0000" values="0;0;1;1"/></text>
+<g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.7020;0.7021;1.0000" values="0;0;1;1"/><rect x="30" y="440" width="900" height="76" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="46" y="464" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">最終: 透過率 52%、霧の光 0.41。厚みを考えた式で、足し算より正確(差 0.03)</text>
+<text x="46" y="488" text-anchor="start" style="font-size:14px;font-weight:700;fill:#166534">3D テクスチャ 160×90×64 = 921,600 個で積算。画素ごとに 64 回進める方法は 132,710,400 回(約 144 倍)</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">霧の中を進む光は、減る(吸収・散乱)ことと、足される(霧が光る)ことを同時に受ける<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">前のスライスから順に、T(残る光)を掛けて、霧の光を足す<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;0.7020;0.7021;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">積算は 1 回。以後、どの画素も、奥行きに応じて、結果を 1 回読むだけ<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.7020;0.7021;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:fog-integrate:end -->
