@@ -47,9 +47,11 @@ tags:
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Kajiya, "The Rendering Equation", SIGGRAPH 1986（レンダリング方程式の原典）
+- Ramamoorthi, Hanrahan, "An Efficient Representation for Irradiance Environment Maps", SIGGRAPH 2001（放射照度を 9 個の SH 係数で表す）
+- Pharr, Jakob, Humphreys, "Physically Based Rendering: From Theory to Implementation", 4th Edition, MIT Press, 2023（モンテカルロ積分、重点サンプリング）
+- Goral, Torrance, Greenberg, Battaile, "Modeling the Interaction of Light Between Diffuse Surfaces", SIGGRAPH 1984（ラジオシティの原典）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明、放射照度、SH の章）
 
 ## 関連ページ
 

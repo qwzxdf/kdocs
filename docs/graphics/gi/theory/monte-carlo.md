@@ -214,6 +214,137 @@ tags:
 
 <strong>サンプルの方向をどう選ぶか</strong>（重要度サンプリング・ブルー ノイズ）、<strong>ノイズをどう消すか</strong>（時間蓄積・空間フィルタ・ReSTIR）が、レイトレ GI の中心です。
 
+## モンテカルロ積分とは
+
+<strong>積分</strong>（半球の、全方向の、光の足し合わせ）を、<strong>ランダムな、サンプルの、平均</strong>で、近似する方法です。積分する領域が、半球（2 次元）、さらに、反射を重ねると、高次元になる、グローバル イルミネーションでは、他の方法（格子状の、数値積分）が、うまく動きません。モンテカルロは、次元が、いくら、上がっても、同じ形で、使えます。
+
+## 基本の、推定量
+
+```text
+∫ f(ω) dω  ≈  (1 / N) × Σ_k  f(ω_k) / pdf(ω_k)          ω_k は、確率密度 pdf で、選んだ、k 番目のランダムな方向
+```
+
+| 項 | 意味 |
+| --- | --- |
+| `N` | サンプル数 |
+| `ω_k` | ランダムに選んだ、k 番目の方向 |
+| `pdf(ω_k)` | その方向を、選ぶ、確率密度（偏りの、補正に、使う） |
+| `f(ω_k) / pdf(ω_k)` | 1 サンプルの、推定値。確率で、割る（よく選ばれる方向は、重みが、小さい） |
+
+<strong>確率で割る</strong>ことで、<strong>サンプルの、選び方に、偏りがあっても</strong>、平均すると、真の積分値に、近づく（偏りのない推定）ことが、保証されます。
+
+## 一様なサンプリングの、場合
+
+<strong>半球を、一様に</strong>（どの方向も、同じ確率で）サンプリングすると、`pdf = 1 / (2π)` です。
+
+```hlsl
+// 半球の、一様なサンプル（ローカル座標。z が、法線）。u1, u2 は、0〜1 の乱数。
+float3 UniformHemisphere(float u1, float u2) {
+  float z = u1;                                  // cosθ が、一様
+  float r = sqrt(max(0.0, 1.0 - z * z));
+  float phi = 2.0 * 3.14159265 * u2;
+  return float3(r * cos(phi), r * sin(phi), z);  // pdf = 1 / (2π)
+}
+```
+
+<strong>放射照度</strong>の、推定は、次のとおりです。
+
+```text
+E ≈ (1 / N) × Σ L_i(ω_k) × cosθ_k / (1 / 2π) = (2π / N) × Σ L_i(ω_k) × cosθ_k
+```
+
+## 重点サンプリング：サンプルを、無駄にしない
+
+<strong>放射照度の、積分</strong>には、<strong>余弦（`cosθ`）</strong>が、掛かっています。法線に、近い方向（`cosθ` が、大きい）は、寄与が、大きく、横に、近い方向（`cosθ` が、小さい）は、寄与が、小さい。一様に、サンプルすると、寄与の小さい方向に、サンプルを、無駄遣いします。寄与の、大きい方向を、多めに選ぶのが、重点サンプリングです。
+
+### 余弦重み付きの、サンプリング
+
+<strong>`pdf = cosθ / π`</strong>（余弦に、比例）で、サンプルします。<strong>拡散反射の、積分</strong>で、最も、自然な選び方です。
+
+```hlsl
+// 余弦重み付きの、半球サンプル（ローカル座標）。pdf = cosθ / π。
+float3 CosineHemisphere(float u1, float u2) {
+  float r = sqrt(u1);                            // 円盤上に、一様にサンプルして、半球へ持ち上げる（Malley の方法）
+  float phi = 2.0 * 3.14159265 * u2;
+  return float3(r * cos(phi), r * sin(phi), sqrt(max(0.0, 1.0 - u1)));
+}
+```
+
+<strong>円盤の上に、一様に、点を打ち</strong>、<strong>半球の、表面へ、持ち上げる</strong>と、自動的に、`cosθ` に、比例した、分布に、なります（Malley の方法）。
+
+### 拡散反射が、簡単になる
+
+<strong>余弦重み付き</strong>で、サンプルすると、<strong>拡散反射の、式が、ほぼ、消えます</strong>。
+
+```text
+L_o = ∫ (albedo / π) × L_i(ω) × cosθ dω
+    ≈ (1 / N) × Σ (albedo / π) × L_i(ω_k) × cosθ_k / (cosθ_k / π)
+    = albedo × (1 / N) × Σ L_i(ω_k)                     ← cosθ と π が、約分されて、消える
+```
+
+<strong>サンプルした方向の、`L_i` を、平均して、`albedo` を、掛ける</strong>だけです。
+
+```hlsl
+// 拡散の間接光を、N 本のレイで、推定する。
+float3 EstimateDiffuseIndirect(float3 position, float3 normal, float3 albedo, uint2 pixel, uint frame) {
+  float3 sum = 0.0;
+  const int kRays = 4;
+  for (int k = 0; k < kRays; ++k) {
+    float2 u = Random2(pixel, frame * kRays + k);                    // 乱数（ブルー ノイズなど）
+    float3 local_dir = CosineHemisphere(u.x, u.y);
+    float3 dir = LocalToWorld(local_dir, normal);                    // 法線の向きに、回す
+    sum += TraceRadiance(position, dir);                              // その方向から来る光（レイを飛ばす）
+  }
+  return albedo * sum / kRays;
+}
+```
+
+`LocalToWorld` は、<strong>ローカル座標</strong>（`z` が法線）を、<strong>ワールド座標</strong>に、回す、変換です。直交する、2 本の軸（接線）を、法線から、作ります。
+
+```hlsl
+// 法線 n から、直交基底（t, b, n）を作る（Duff ら 2017。分岐が、少なく、安定）。
+void BuildBasis(float3 n, out float3 t, out float3 b) {
+  float sign = (n.z >= 0.0) ? 1.0 : -1.0;
+  float a = -1.0 / (sign + n.z);
+  float c = n.x * n.y * a;
+  t = float3(1.0 + sign * n.x * n.x * a, sign * c, -sign * n.x);
+  b = float3(c, sign + n.y * n.y * a, -n.y);
+}
+float3 LocalToWorld(float3 v, float3 n) {
+  float3 t, b;
+  BuildBasis(n, t, b);
+  return t * v.x + b * v.y + n * v.z;
+}
+```
+
+<strong>直交基底の、作り方</strong>として、<strong>Duff らの方法</strong>は、場合分けが、少なく、法線が、どの向きでも、安定します。
+
+## ノイズと、サンプル数
+
+モンテカルロの<strong>誤差</strong>は、<strong>標準偏差</strong>で、`1 / √N` に、比例して、減ります。
+
+| サンプル数 N | 誤差（相対） |
+| --- | --- |
+| 1 | 1 |
+| 4 | 1/2 |
+| 16 | 1/4 |
+| 100 | 1/10 |
+| 10,000 | 1/100 |
+
+<strong>ノイズを、半分</strong>にするのに、<strong>サンプルを、4 倍</strong>にする必要が、あります。ノイズが、非常に、遅く減るので、リアルタイムでは、サンプルを、増やすのが、難しいです。
+
+## リアルタイムでは：少ないサンプル + デノイズ
+
+<strong>リアルタイム</strong>の、GI では、<strong>1 画素あたり、1〜数本</strong>の、レイしか、飛ばせません。ノイズだらけの、結果を、後処理で、なめらかにします。
+
+| 工夫 | 内容 |
+| --- | --- |
+| ブルー ノイズ | サンプルの、乱数に、ブルー ノイズ（偏りなく、散らばる）を、使う。ホワイト ノイズより、ノイズが、目立たない（[Dithered Transparency](../../translucency/alpha-test/dither.md)） |
+| 時間蓄積 | 前のフレームの結果と、混ぜる（数十フレームの、サンプルを、集める）（[Fighting Noise](../rt-gi/noise.md)） |
+| 空間フィルタ（デノイザー） | 隣の画素と、混ぜる（法線・深度が、近い画素だけ）（[Fighting Noise](../rt-gi/noise.md)） |
+| 低食い違い量列（Halton、Sobol、R2） | ランダムより、偏りなく、サンプル方向を、散らす。同じ本数でも、誤差が小さい |
+| 再利用（ReSTIR） | 隣の画素や、前のフレームの、サンプルを、再利用して、実質的な、サンプル数を、増やす（[ReSTIR GI](../rt-gi/restir.md)） |
+
 ## よくあるミス
 
 ??? failure "サンプルを増やしても、ノイズが減るのが遅い"
@@ -227,9 +358,11 @@ tags:
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Pharr, Jakob, Humphreys, "Physically Based Rendering: From Theory to Implementation", 4th Edition, MIT Press, 2023（モンテカルロ積分、重点サンプリング）
+- Veach, "Robust Monte Carlo Methods for Light Transport Simulation", Ph.D. thesis, Stanford University, 1997
+- Duff, Burgess, Christensen, Hery, Kensler, Liani, Villemin, "Building an Orthonormal Basis, Revisited", Journal of Computer Graphics Techniques, Vol. 6, No. 1, 2017
+- Kajiya, "The Rendering Equation", SIGGRAPH 1986（レンダリング方程式の原典）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明、放射照度、SH の章）
 
 ## 関連ページ
 

@@ -50,6 +50,59 @@ tags:
 
 ライト プローブは、<strong>ほぼすべての 3D ゲームに置く</strong>と考えて構いません。動く物体に自然な陰影を与える最も安い方法だからです。反射プローブは、<strong>つるつるした面が多いシーン</strong>（金属、濡れた床、窓ガラス）で必要になります。マットな素材ばかりのシーンなら、反射プローブは少数で済みます。どちらも、ライトマップと矛盾しない見た目になるよう、同じ光源・同じシーンから作ることが大切です。
 
+## 反射プローブと、GI プローブは、別物
+
+「プローブ」という、<strong>名前が、同じ</strong>ですが、<strong>GI プローブ</strong>（ライト プローブ、拡散の、間接光）と、反射プローブ（リフレクション プローブ、鏡面の、反射）は、目的も、保存する、データも、違います。
+
+| | GI プローブ（ライト プローブ） | 反射プローブ |
+| --- | --- | --- |
+| 目的 | 拡散の、間接光（環境光） | 鏡面の、反射（周りの、景色が、映る） |
+| 保存するもの | SH 係数（27 個の数） | キューブマップ（周りの、景色の、画像。128×128×6 など） |
+| データの、大きさ | 非常に、小さい（数百バイト） | 大きい（数百 KB〜数 MB、ミップつき） |
+| 方向の、細かさ | ごく、なめらか（L2） | 細かい（景色が、そのまま、見える） |
+| 数 | 数千個（格子状に、密に） | 数十個（部屋ごと、エリアごと） |
+| 補間 | 周りの、プローブを、補間 | 1 つ（最も近い、または、影響範囲が、重なる、2〜3 個を、ブレンド） |
+| 読み方 | 法線で、放射照度を、求める | 反射ベクトルで、キューブマップを、読む |
+| ページ | このセクション | [Reflection Probes](../../reflections/probes/index.md) |
+
+## 同じ「場所」に、2 種類を、置く
+
+<strong>部屋の中</strong>に、<strong>GI プローブ</strong>（格子状、数十個）と、反射プローブ（1〜2 個）を、同時に、置き、描画の、ときに、両方を、読みます。
+
+```hlsl
+// 拡散: GI プローブ（SH）から。鏡面: 反射プローブ（キューブマップ）から。両方を、足す。
+float3 diffuse = albedo / 3.14159265 * IrradianceFromSH9(InterpolatedSH(world_pos), N);
+float3 specular = SampleReflectionProbe(world_pos, R, roughness) * (f0 * brdf.x + brdf.y);
+float3 indirect = kd * diffuse + specular;
+```
+
+<strong>拡散と、鏡面の、間接光</strong>（[Diffuse and Specular](../theory/diffuse-specular.md)）を、<strong>別の、プローブ</strong>で、まかないます。どちらも、場所ごとの、光を、保存する、仕組みで、考え方は、似ています。
+
+## コスト
+
+| 項目 | GI プローブ | 反射プローブ |
+| --- | --- | --- |
+| メモリ（1 個） | 54 バイト（SH L2、16 ビット） | 約 400 KB（128×128×6、ミップつき、`R16G16B16A16`） |
+| メモリ（シーン全体） | 数千個で、数百 KB〜数 MB | 数十個で、数十 MB |
+| 描画時の、コスト | 補間（8 プローブ × SH 評価）。軽い | キューブマップの、読み込み 1〜2 回。軽い |
+| 更新の、コスト（動的） | SH を、再計算（軽い） | キューブマップを、再レンダリング（重い） |
+| ベイクの、時間 | 短い | 短い |
+
+<strong>GI プローブは、メモリが、小さい</strong>ので、<strong>非常に、密に</strong>、置けます。反射プローブは、1 つが、大きいので、数を、絞ります。
+
+## 使い分けの、目安
+
+| 状況 | 使うもの |
+| --- | --- |
+| 動く物の、拡散の、環境光 | GI プローブ |
+| 床や、水たまりの、反射、金属の、鏡面 | 反射プローブ |
+| 屋外の、環境光（空） | 空の SH（1 つ）、空の、キューブマップ（1 つ） |
+| 室内の、環境光 | GI プローブ（部屋ごとに、密に）+ 反射プローブ（部屋ごとに、1 つ） |
+
+## まとめて、扱う、仕組み
+
+<strong>エンジンによっては</strong>、<strong>1 つの、プローブが、SH とキューブマップの、両方</strong>を、持つ（ライト プローブ + 反射プローブを、同じ位置に、まとめる）作りに、なっています。配置の、手間が、減ります。ただし、必要な、密度が、違う（GI は、密、反射は、疎）ので、別々に、配置したほうが、効率的な、場合も、あります。
+
 ## よくあるミス
 
 ??? failure "GI のプローブで、鏡のような反射を出そうとする"
@@ -63,9 +116,10 @@ tags:
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Greger, Shirley, Hubbard, Greenberg, "The Irradiance Volume", IEEE Computer Graphics and Applications, Vol. 18, No. 2, 1998（放射照度ボリューム。プローブ GI の原点）
+- Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering 3.0", SIGGRAPH 2014
+- Mitchell, McTaggart, Green, "Shading in Valve's Source Engine", SIGGRAPH 2006, Advanced Real-Time Rendering in 3D Graphics and Games（アンビエント キューブ）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明、ライトマップ、プローブの章）
 
 ## 関連ページ
 

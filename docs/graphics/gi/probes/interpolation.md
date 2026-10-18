@@ -92,6 +92,122 @@ tags:
 
 <strong>物体ごと（1 点）</strong>でなく、<strong>画素ごと</strong>に<strong>プローブを引く</strong>（GPU で、3D テクスチャから）と、大きな物体・地形の場所による変化が反映されます。1 つの物体を 1 点で代表すると、大きな物体で不自然です。
 
+## 動く物の、位置で、プローブを、補間する
+
+<strong>動く物</strong>（キャラクター）は、<strong>プローブの、位置ちょうど</strong>には、いません。周りの、プローブを、補間して、その位置の、光を、推定します。補間の、やり方で、光の、なめらかさと、光漏れの、少なさが、変わります。
+
+## 方法 1：トライリニア補間（格子）
+
+<strong>格子配置</strong>の、プローブでは、<strong>物の位置を、含む、セルの、8 つの、頂点</strong>（プローブ）を、3 次元の、線形補間します。
+
+```hlsl
+// 格子配置のプローブの、トライリニア補間（手動）。ハードウェアの 3D テクスチャでも、同じ結果。
+void TrilinearProbes(float3 world_pos, out float3 sh[9]) {
+  float3 grid = (world_pos - g_probe_origin) / g_probe_spacing;           // 格子座標（プローブ単位）
+  int3 base = (int3)floor(grid);
+  float3 f = grid - base;                                                  // セル内の位置（0〜1）
+
+  for (int i = 0; i < 9; ++i) sh[i] = 0.0;
+  for (int dz = 0; dz <= 1; ++dz)
+    for (int dy = 0; dy <= 1; ++dy)
+      for (int dx = 0; dx <= 1; ++dx) {
+        float w = (dx ? f.x : 1.0 - f.x) * (dy ? f.y : 1.0 - f.y) * (dz ? f.z : 1.0 - f.z);   // 8 つの重み
+        float3 probe_sh[9];
+        LoadProbeSH(base + int3(dx, dy, dz), probe_sh);
+        for (int i = 0; i < 9; ++i) sh[i] += w * probe_sh[i];
+      }
+}
+```
+
+<strong>8 つの、頂点</strong>の、<strong>重み</strong>は、位置が、その頂点に、近いほど、大きく、8 つの、重みの、合計は、1 です。SH 係数は、線形なので、係数を、重みつきで、足すだけで、補間した、光が、得られます（[Spherical Harmonics (SH)](../theory/spherical-harmonics.md)）。ハードウェアの、3D テクスチャ（トライリニア）が、そのまま、同じ計算を、1 回の読み込みで、行います。
+
+## 光漏れの、問題
+
+<strong>単純な、トライリニア補間</strong>は、<strong>壁の、向こう側の、プローブ</strong>も、同じ重みで、混ぜます。壁の、両側で、光が、違う（室内と、屋外）と、光漏れ（室内の、物が、屋外の、光で、明るくなる）が、起きます。
+
+```text
+ 室内（暗い）  │壁│  屋外（明るい）
+    ●         │  │      ●          ← プローブ
+         ◎ 物   │  │
+ 物の位置で、トライリニア補間すると、壁の向こうの、明るいプローブが、混ざって、物が、明るくなる（光漏れ）
+```
+
+## 方法 2：可視性による、重み
+
+<strong>そのプローブから、物の位置が、見えるか</strong>（<strong>間に、壁が、あるか</strong>）を、判定して、見えないプローブの、重みを、小さくします（DDGI の、方法。Majercik ら、2019）。
+
+```hlsl
+// 各プローブに、可視性（見えるか）の重みを、掛ける。見えないプローブの重みは、0 に近づく。
+float w = trilinear_weight * VisibilityWeight(probe, world_pos, normal);
+```
+
+### 3 つの、重み
+
+DDGI の、補間は、<strong>3 つの、重み</strong>を、<strong>掛け合わせます</strong>。
+
+| 重み | 内容 |
+| --- | --- |
+| トライリニア | 距離が、近いほど、大きい |
+| 法線（面の向き） | 物の法線の、向いている側に、あるプローブを、重視（裏側の、プローブは、軽視） |
+| 可視性（チェビシェフ） | プローブから、物の位置が、見える確率（プローブが、持つ、距離の、分布から、求める） |
+
+```hlsl
+// DDGI 風の、補間の重み（概略）。
+float3 dir_to_probe = normalize(probe_pos - world_pos);
+float facing = max(0.0001, (dot(dir_to_probe, normal) + 1.0) * 0.5);        // 法線の側にあるほど、1。裏側は、0
+float weight = facing * facing + 0.2;                                         // 二乗で、強調。0.2 は、下限（全部 0 を、防ぐ）
+
+// 可視性: プローブが、各方向の「壁までの距離」の、平均と分散を、持つ（深度の、モーメント）。
+float2 moments = SampleProbeDistance(probe, -dir_to_probe);                   // (平均距離, 平均距離の2乗)
+float dist_to_probe = length(probe_pos - world_pos);
+float visibility = ChebyshevVisibility(moments, dist_to_probe);               // 物が、壁より、手前にある確率
+weight *= max(0.05, visibility * visibility * visibility);                    // 立方で、強調。下限を設ける
+
+weight *= trilinear_weight;                                                   // 距離の重み
+```
+
+<strong>法線の側にある、プローブ</strong>は、<strong>物の表面を、同じ側から、見ている</strong>ので、信頼できます。裏側のプローブ（壁の、向こう）は、重みを、下げます。可視性は、プローブが、周囲の、壁までの、距離を、持っており、物の位置が、壁の手前にあるかを、確率的に、判定します（シャドウ マップの、VSM と、同じ、チェビシェフの不等式。[VSM, ESM and MSM](../../shadows/vsm/index.md)）。
+
+## 方法 3：法線方向に、ずらして、サンプルする
+
+<strong>面の、法線の方向に、少し、ずらした位置</strong>で、<strong>プローブを、補間</strong>します。壁の、表面の、すぐ近くの、物が、壁の、向こうの、プローブに、影響されにくくなります。
+
+```hlsl
+float3 sample_pos = world_pos + normal * g_probe_normal_bias;               // 法線の向きに、ずらす（プローブの、間隔の、0.2〜0.5 倍）
+TrilinearProbes(sample_pos, sh);
+```
+
+<strong>法線オフセット</strong>（[Normal Offset](../../shadows/bias/normal-offset.md) と、同じ発想）で、<strong>壁の、こちら側の、プローブを、選びやすく</strong>なります。簡単で、効果的ですが、ずらしすぎると、光の位置が、ずれて、不自然に、なります。
+
+## 方法 4：最も近い、複数のプローブだけ
+
+<strong>格子でない</strong>配置（手動、適応的）では、<strong>物の周りの、最も近い、N 個</strong>（4〜8 個）の、プローブを、探し、距離の、逆数などで、重みづけして、補間します。
+
+```hlsl
+// 物の周りの、最も近い、4 個のプローブを、距離の逆数で、重みづけして補間する（格子でない配置）。
+float total_w = 0.0;
+for (int i = 0; i < 4; ++i) {
+  int idx = nearest_probes[i];                                               // 事前に、探しておいた、近いプローブ（空間分割で、高速に）
+  float d = length(g_probes[idx].position - world_pos);
+  float w = 1.0 / (d * d + 0.01);                                             // 近いほど、重い（逆二乗）
+  w *= VisibilityWeight(g_probes[idx], world_pos, normal);
+  for (int k = 0; k < 9; ++k) sh[k] += w * g_probes[idx].sh[k];
+  total_w += w;
+}
+for (int k = 0; k < 9; ++k) sh[k] /= total_w;                                // 重みの合計で割る（合計を 1 に）
+```
+
+<strong>最も近い、プローブを、探す</strong>のが、<strong>重く</strong>なりやすいので、空間分割（八分木、格子）で、高速化します。
+
+## 比較
+
+| 方法 | 光漏れ | コスト | 配置 |
+| --- | --- | --- | --- |
+| トライリニア（ハードウェア） | 多い | 最小（3D テクスチャの、読み込み） | 格子のみ |
+| 法線オフセット + トライリニア | やや、少ない | 最小 | 格子のみ |
+| 可視性 + 法線の重み（DDGI） | 少ない | 中（8 プローブ × 3 つの重み） | 格子 |
+| 近傍 N 個 + 重み | 重みによる | 中〜大 | 任意 |
+
 ## よくあるミス
 
 ??? failure "壁の向こうの明るさが、手前に漏れる"
@@ -105,9 +221,10 @@ tags:
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Majercik, Guertin, Nowrouzezahrai, McGuire, "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields", Journal of Computer Graphics Techniques, Vol. 8, No. 2, 2019
+- Greger, Shirley, Hubbard, Greenberg, "The Irradiance Volume", IEEE Computer Graphics and Applications, Vol. 18, No. 2, 1998（放射照度ボリューム。プローブ GI の原点）
+- Tatarchuk, "Irradiance Volumes for Games", Game Developers Conference 2005
+- Donnelly, Lauritzen, "Variance Shadow Maps", Symposium on Interactive 3D Graphics and Games 2006
 
 ## 関連ページ
 

@@ -96,6 +96,115 @@ tags:
 
 均一な格子は、広い空き地では無駄が多く、複雑な室内では足りません。そこで、シーンの複雑さに応じて密度を変える方式があります。Unreal Engine の Volumetric Lightmap は、シーンの幾何の複雑さに応じて、八分木（ブリック）の細かさを変えます。重要な部分（建物の近くなど）は細かいブリック、何もない空は大きなブリックになります。メモリを保ちながら、必要な場所に密度を集中できます。
 
+## プローブを、どこに、置くか
+
+プローブの、<strong>数と、位置</strong>が、<strong>GI の品質</strong>を、決めます。少ないと、光が、ぼやけ、多いと、メモリと、更新が、重くなります。光が、急に変わる所（壁の、すぐ両側、窓の、近く）に、密に、変化の、ゆるやかな所（広い、空き地）に、疎に、置くのが、基本です。
+
+## 配置の、方法
+
+| 方法 | 内容 | 長所 | 短所 |
+| --- | --- | --- | --- |
+| 均等な、格子 | 空間を、一定の、間隔（2 m など）で、格子状に | 簡単。補間も、単純（トライリニア） | 無駄が、多い（何もない、空間にも、置く）。壁の、中に、プローブが、埋まる |
+| 手動 | アーティストが、重要な、場所に、置く | 効率的（必要な、所だけ） | 手間。置き忘れ |
+| 自動（ジオメトリに、合わせる） | 床、壁、天井の、近くに、自動で、配置 | 無駄が、少ない | 実装が、複雑 |
+| 適応的（光の変化に、応じて） | 光が、急に変わる、場所に、自動で、細かく置く | 品質と、数の、バランスが、よい | 複雑。事前計算が、重い |
+
+## 格子配置
+
+<strong>最も、単純で、よく使われる</strong>方法です。<strong>空間を、立方体の、格子</strong>に、分け、格子の、頂点に、プローブを、置きます。
+
+```cpp
+// 立方体の範囲に、均等な間隔で、プローブを置く。
+struct ProbeGrid {
+  Vector3 origin;          // 格子の、最小の角（ワールド座標）
+  Vector3 spacing;         // 各軸の、プローブの、間隔（メートル）
+  int3 count;              // 各軸の、プローブの数
+};
+
+Vector3 ProbePosition(const ProbeGrid& g, int x, int y, int z) {
+  return g.origin + Vector3(x * g.spacing.x, y * g.spacing.y, z * g.spacing.z);
+}
+// 例: 64 m × 16 m × 64 m の、場面を、4 m 間隔で → 17 × 5 × 17 = 1,445 個のプローブ。
+```
+
+<strong>間隔</strong>は、<strong>光の変化の、細かさ</strong>に、合わせます。部屋の中（光が、場所で、変わる）は、1〜2 m、屋外の、広場は、4〜8 m が、目安です。
+
+### 格子の、問題
+
+| 問題 | 内容 |
+| --- | --- |
+| 壁の、中に、埋まる | 格子の、頂点が、壁・床の、中に、ある。中の、プローブは、真っ暗（光が、届かない）。補間で、周りの、明るいプローブに、暗さが、混ざる |
+| 壁の、向こうの光が、漏れる | 壁の、両側で、光が、まったく、違うのに、1 つの、格子の、セルに、含まれると、補間で、混ざる |
+| 無駄が、多い | 地面の、下、空中、何もない場所にも、プローブを、置く |
+
+## 埋まった、プローブへの、対処
+
+<strong>壁や、床の中</strong>に、<strong>埋まった</strong>、プローブは、使えないので、検出して、無効にする、または、押し出して、外に動かす。
+
+```cpp
+// プローブが、ジオメトリの内側にあるかを、調べる（複数方向に、レイを飛ばし、裏面に、当たる割合）。
+bool IsInsideGeometry(const Vector3& pos) {
+  int back_hits = 0;
+  for (const Vector3& dir : kSampleDirections) {                    // 球面上の、数十方向
+    RayHit hit;
+    if (Raycast(pos, dir, 100.0f, &hit) && hit.is_back_face) ++back_hits;   // 裏面に当たった = 物体の内側から、見ている
+  }
+  return back_hits > kSampleDirections.size() * 0.5f;               // 半分以上が、裏面 → 内側
+}
+
+// 内側のプローブは、最も近い、表面の外へ、押し出す（または、無効にする）。
+```
+
+<strong>プローブから、全方向に、レイを飛ばし</strong>、<strong>多くが、物体の、裏面</strong>（物の内側から、見た面）に、当たるなら、そのプローブは、物体の中に、あります。無効にするか、表面の外へ、押し出します。
+
+## 光漏れを、防ぐ
+
+<strong>壁の、両側</strong>で、<strong>光が、まったく違う</strong>とき（室内と、屋外）、プローブの、補間が、壁を、またぐと、光が、漏れます。
+
+| 対策 | 内容 |
+| --- | --- |
+| 壁の、両側に、プローブを、置く | 壁の、すぐ近くに、両側から、1 つずつ。補間で、混ざる、範囲が、狭い |
+| 可視性による、重み | 補間の、重みを、「そのプローブが、その物の位置を、見通せるか」で、調整（壁の、向こうの、プローブは、重みを 0 に）（[Interpolation Methods](interpolation.md)） |
+| ゾーン（部屋）で、分ける | 部屋ごとに、別の、プローブ セット。部屋の、境目では、ブレンド |
+| 補間に、法線を、使う | 物の向いている、側の、プローブを、重視 |
+
+## 密度の、調整
+
+<strong>光の変化が、大きい場所</strong>ほど、<strong>密に、置く</strong>と、品質が、上がります。
+
+| 場所 | 間隔の、目安 |
+| --- | --- |
+| 窓の、近く、光と影の、境目 | 0.5〜1 m |
+| 部屋の中 | 1〜2 m |
+| 屋外、建物の、周り | 2〜4 m |
+| 広場、空き地 | 4〜8 m |
+| 遠景 | 8 m 以上、または、置かない |
+
+### 階層構造（カスケード）
+
+<strong>カメラの、近く</strong>は、<strong>密に</strong>、遠くは、疎に、プローブを、入れ子（カスケード）に、並べる方法です（[Geometry Clipmaps](../../terrain/lod/clipmap.md) と、似た発想）。
+
+| カスケード | 範囲 | 間隔 |
+| --- | --- | --- |
+| 0 | 16 m | 0.5 m |
+| 1 | 64 m | 2 m |
+| 2 | 256 m | 8 m |
+
+<strong>どの階層でも、プローブの数は、同じ</strong>（たとえば、32×32×32）で、<strong>範囲が、2〜4 倍ずつ、広がり</strong>、間隔も、広がります。カメラの、動きに、合わせて、窓が、動く（円環バッファ）ので、カメラの周りが、常に、細かいです。
+
+## ベイクの、データ
+
+<strong>ベイクした、プローブ</strong>では、<strong>配置のデータ</strong>（位置、SH 係数）を、ファイルに、保存します。ステージの、データと、一緒に、読み込みます。
+
+```cpp
+struct ProbeData {
+  Vector3 position;
+  float3 sh[9];            // SH L2（RGB × 9）
+  float validity;          // 0 = 無効（壁の中）、1 = 有効
+};
+// 全プローブを、配列で、ファイルに保存する。起動時に、GPU のバッファに、読み込む。
+```
+
 ## よくあるミス
 
 ??? failure "プローブが壁の中にあって、暗い・おかしな色になる"
@@ -109,9 +218,11 @@ tags:
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Greger, Shirley, Hubbard, Greenberg, "The Irradiance Volume", IEEE Computer Graphics and Applications, Vol. 18, No. 2, 1998（放射照度ボリューム。プローブ GI の原点）
+- Tatarchuk, "Irradiance Volumes for Games", Game Developers Conference 2005
+- Iwanicki, "Lighting Technology of The Last of Us", SIGGRAPH 2013, Advances in Real-Time Rendering in Games（アンビエント ダイスなど）
+- Majercik, Guertin, Nowrouzezahrai, McGuire, "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields", Journal of Computer Graphics Techniques, Vol. 8, No. 2, 2019
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明、ライトマップ、プローブの章）
 
 ## 関連ページ
 

@@ -68,6 +68,131 @@ tags:
 
 <!-- fig:mc-noise-samples:end -->
 
+## レイを、1 本しか、飛ばせない
+
+<strong>リアルタイム</strong>の、<strong>レイトレーシング GI</strong> では、1 画素あたり、1 本（多くて、数本）の、レイしか、飛ばせません。1 本の、レイの、結果は、非常に、ノイズが、大きい（ある画素は、明るい壁に、当たり、隣は、暗い、影に、当たる）。ノイズを、取り除く（デノイズ）ことが、リアルタイム GI の、ほぼ、すべてと、言っても、過言ではありません。
+
+## デノイズの、基本方針
+
+<strong>同じ、場所の、複数の、サンプル</strong>を、<strong>集めて、平均</strong>することで、ノイズを、減らします。集める方法は、2 つあります。
+
+| 方法 | 内容 |
+| --- | --- |
+| 時間方向（時間蓄積） | 前のフレームの、同じ場所の、結果を、混ぜる。数十フレーム分の、サンプルが、集まる |
+| 空間方向（空間フィルタ） | 隣の、画素を、混ぜる（ぼかす）。法線・深度が、近い画素だけ（エッジを、保つ） |
+
+<strong>両方を、組み合わせた</strong>のが、<strong>SVGF</strong>（Schied ら、2017）に、代表される、時空間フィルタです。
+
+## ① 時間蓄積
+
+<strong>前のフレームの、結果</strong>を、<strong>再投影</strong>（カメラの、動きを、補正して、前の画面の、位置を、求める）して、今フレームと、混ぜます。
+
+```hlsl
+// 今フレームの、ノイジーな、結果と、前フレームの、蓄積済みの結果を、混ぜる（指数移動平均）。
+float2 prev_uv = Reproject(position_world, g_prev_view_proj);            // 前フレームの、画面上の位置
+float4 history = g_history.SampleLevel(g_linear_clamp, prev_uv, 0);       // rgb = 前の結果、a = 蓄積した、サンプル数
+
+// 履歴が、有効か（物が、動いて、別の面を、見ていないか）を、法線・深度で、確かめる。
+bool valid = all(prev_uv >= 0.0) && all(prev_uv <= 1.0)
+          && abs(history_depth - current_depth) < depth_threshold
+          && dot(history_normal, current_normal) > 0.9;
+float sample_count = valid ? min(history.a + 1.0, 32.0) : 1.0;             // 有効なら、増やす（上限 32）。無効なら、リセット
+float alpha = 1.0 / sample_count;                                           // サンプルが、多いほど、今フレームの、影響が、小さい
+float3 blended = lerp(history.rgb, current_gi, alpha);
+g_history_out[pixel] = float4(blended, sample_count);
+```
+
+<strong>蓄積した、サンプル数</strong>を、<strong>覚えて</strong>おき、混ぜる割合を、`1 / サンプル数`にすると、ちょうど、平均（全サンプルの、単純平均）に、なります。上限（32）を、設けて、古い履歴の、影響を、薄れさせ、光の変化に、追従します。
+
+### 履歴の、リジェクト（拒否）
+
+<strong>カメラ・物が、動く</strong>と、<strong>前のフレームの、同じ画素</strong>が、別の面に、なる、ことがあります。履歴を、そのまま、使うと、ゴースト（残像）が、出ます。
+
+| 判定 | 内容 |
+| --- | --- |
+| 画面の外 | 前のフレームの位置が、画面の外 → 履歴を、捨てる |
+| 深度の違い | 前と今の、深度が、大きく違う → 別の物（遮蔽が、解除された） → 捨てる |
+| 法線の違い | 法線が、大きく違う → 別の面 → 捨てる |
+| 物の ID（任意） | 動く物の、ID が、違う → 捨てる |
+
+<strong>履歴を、捨てた</strong>画素は、<strong>サンプル数が、1</strong> に、戻り、ノイズが、目立ちます（数フレームで、また、蓄積される）。空間フィルタが、その間の、ノイズを、隠します。
+
+## ② 空間フィルタ：エッジを、保つ、ぼかし
+
+<strong>隣の画素</strong>を、<strong>混ぜて</strong>、ノイズを、ぼかします。ただし、物の、エッジ（法線・深度が、違う画素）を、越えて、混ぜると、にじむので、エッジで、止める、バイラテラル フィルタ（[Bilateral Blur](../../ao/filtering/bilateral-blur.md)）を、使います。
+
+### À-Trous ウェーブレット フィルタ
+
+<strong>SVGF</strong> は、<strong>À-Trous</strong>（「穴あき」）ウェーブレット フィルタを、使います。同じ、小さな、5×5 のカーネルを、間隔を、広げながら（1、2、4、8、16 画素おき）、複数回、適用します。少ない読み込みで、広い範囲を、ぼかせます。
+
+```hlsl
+// À-Trous フィルタの 1 回（step: 画素の間隔。1, 2, 4, 8, 16 と、繰り返す）。
+float3 ATrous(uint2 pixel, int step_size, float3 center_color, float3 center_normal, float center_depth, float sigma_l) {
+  const float kKernel[3] = { 1.0, 2.0 / 3.0, 1.0 / 6.0 };               // 5 タップの、B スプライン カーネル
+  float3 sum = 0.0;
+  float weight_sum = 0.0;
+  for (int dy = -2; dy <= 2; ++dy)
+    for (int dx = -2; dx <= 2; ++dx) {
+      uint2 q = pixel + int2(dx, dy) * step_size;                         // 間隔を、空けて、読む
+      float3 color = g_color[q];
+      float3 normal = g_normal[q];
+      float depth = g_depth[q];
+
+      // 3 つのエッジ停止関数: 法線、深度、輝度（色）が、近いほど、重みが大きい。
+      float w_normal = pow(saturate(dot(center_normal, normal)), g_sigma_normal);
+      float w_depth = exp(-abs(center_depth - depth) / (g_sigma_depth * length(float2(dx, dy)) * step_size + 1e-4));
+      float w_lum = exp(-abs(Luminance(center_color) - Luminance(color)) / sigma_l);
+      float w = kKernel[abs(dx)] * kKernel[abs(dy)] * w_normal * w_depth * w_lum;
+      sum += color * w;
+      weight_sum += w;
+    }
+  return sum / max(weight_sum, 1e-4);
+}
+```
+
+<strong>5×5 の、25 タップ</strong>を、<strong>間隔を広げて</strong>、5 回（1、2、4、8、16）、適用すると、約 `(5 × 2⁴)` = 80 画素の幅を、ぼかせます（25 × 5 = 125 回の読み込みで）。普通の、大きなカーネル（81×81 = 6,561 回）より、はるかに、少ないです。3 つの、エッジ停止（法線、深度、輝度）が、エッジを、保ちます。
+
+### 分散で、フィルタの強さを、決める（SVGF の、核心）
+
+<strong>SVGF</strong> は、<strong>画素ごとの、分散</strong>（ノイズの、大きさ）を、推定し、ノイズが、大きい画素ほど、強く、ぼかします。
+
+```hlsl
+// 時間蓄積で、輝度の、平均と、2 乗の平均を、持つ → 分散 = E[x²] − E[x]²。
+float variance = max(0.0, moments.y - moments.x * moments.x);
+float sigma_l = g_sigma_luminance * sqrt(variance) + 1e-4;               // 分散が、大きい → 輝度の差を、許す（強く、ぼかす）
+```
+
+<strong>ノイズが、大きい</strong>（分散が、大きい）画素は、<strong>輝度の、差を、より、許して</strong>、強く、ぼかし、ノイズが、小さい画素は、弱くぼかして、細部を、保ちます。
+
+## ③ ノイズを、減らす、工夫（入力側）
+
+<strong>デノイザーに、渡す前</strong>に、<strong>入力の、ノイズを、減らす</strong>工夫も、効果的です。
+
+| 工夫 | 内容 |
+| --- | --- |
+| ブルー ノイズの、乱数 | サンプル方向を、ブルー ノイズで、選ぶ。ノイズの、粒が、均一で、フィルタが、効きやすい（[Monte Carlo Integration](../theory/monte-carlo.md)） |
+| 低食い違い量列 | Halton、Sobol、R2 など。偏りの、少ないサンプル |
+| 余弦重み・重点サンプリング | 寄与の、大きい方向を、多めに（[Monte Carlo Integration](../theory/monte-carlo.md)） |
+| 明るすぎる、サンプルを、切る（ファイアフライ対策） | 明るい光源に、偶然、当たったサンプルが、白い点（ファイアフライ）になる。上限で、クランプ |
+| 半分の解像度で、レイ | 画素の半分にだけ、レイを、飛ばし、アップサンプル |
+
+```hlsl
+// ファイアフライ対策: 1 サンプルの、明るさに、上限を、設ける。
+float lum = Luminance(radiance);
+radiance *= min(1.0, g_max_radiance / max(lum, 1e-4));                    // 上限を超えたら、比率で、下げる
+```
+
+## デノイズの、限界
+
+| 問題 | 内容 |
+| --- | --- |
+| ぼやけ | 強く、ぼかすと、細かい、陰影（接触の、影）が、失われる |
+| ゴースト・遅れ | 時間蓄積が、光の変化に、遅れる（ライトが、動いた、数フレーム後に、反映） |
+| 動く物の、ノイズ | 履歴を、捨てるので、動く物の、周りが、ノイズだらけになる |
+| ちらつき | デノイザーの、判断が、フレームごとに、揺れる |
+
+<strong>ノイズと、ぼやけ・遅れ</strong>は、<strong>トレード オフ</strong>です。ReSTIR（[ReSTIR GI](restir.md)）は、入力の、質を、上げることで、デノイザーの、負担を、減らします。
+
 ## よくあるミス
 
 ??? failure "動く光で、間接光が遅れて追いかけてくる"
@@ -80,9 +205,11 @@ tags:
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Schied, Kaplanyan, Wyman, Patney, Chaitanya, Burgess, Liu, Dachsbacher, Lefohn, Salvi, "Spatiotemporal Variance-Guided Filtering: Real-Time Reconstruction for Path-Traced Global Illumination", High-Performance Graphics 2017（SVGF）
+- Schied, Peters, Dachsbacher, "Gradient Estimation for Real-Time Adaptive Temporal Filtering", High-Performance Graphics 2018（A-SVGF）
+- Karis, "High Quality Temporal Supersampling", SIGGRAPH 2014, Advances in Real-Time Rendering in Games
+- Stachowiak, "Stochastic All The Things: Raytracing in Hybrid Real-Time Rendering", Digital Dragons 2018（SEED のハイブリッド レイトレーシング）
+- Dammertz, Sewtz, Hanika, Lensch, "Edge-Avoiding À-Trous Wavelet Transform for Fast Global Illumination Filtering", High Performance Graphics 2010（À-Trous フィルタ）
 
 ## 関連ページ
 

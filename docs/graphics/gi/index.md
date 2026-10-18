@@ -33,6 +33,14 @@ GI は、方式がとても多い分野です。ライトマップ、プロー�
 
 <strong>理論 → ライトマップ → プローブ</strong>が、<strong>基本</strong>です。その後、SSGI・ボクセル・DDGI・レイトレは必要なものから読んで構いません。
 
+## 参考
+
+- Kajiya, "The Rendering Equation", SIGGRAPH 1986（レンダリング方程式の原典）
+- Ramamoorthi, Hanrahan, "An Efficient Representation for Irradiance Environment Maps", SIGGRAPH 2001（放射照度を 9 個の SH 係数で表す）
+- Majercik, Guertin, Nowrouzezahrai, McGuire, "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields", Journal of Computer Graphics Techniques, Vol. 8, No. 2, 2019
+- Wright, Narkowicz, Kelly, "Lumen: Real-time Global Illumination in Unreal Engine 5", SIGGRAPH 2022, Advances in Real-Time Rendering in Games
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明、放射照度、SH の章）
+
 ## 関連ページ
 
 - [描画](../index.md)

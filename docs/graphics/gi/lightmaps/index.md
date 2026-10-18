@@ -40,6 +40,62 @@ float3 indirect_diffuse = albedo * irradiance;
 | [Specular and Dynamic Objects](dynamic-objects.md) | 鏡面は別・動く物体との併用 |
 | [Lightmaps and Dynamic Lights](dynamic-lights.md) | 静的と動的を組み合わせる |
 
+## ライトマップとは
+
+<strong>ライトマップ</strong>は、<strong>シーンの、静的な、面の、明るさ</strong>（直接光 + 間接光）を、あらかじめ、計算して、テクスチャに、焼き込んだものです。実行時は、テクスチャを、1 回読むだけで、間接光まで含めた、リアルな、ライティングが、ほぼ、無料で、得られます。
+
+```text
+ベイク（制作時）:  シーンの、静的な、面  →  光を、シミュレーション（光が、何度も、反射）  →  ライトマップ（面ごとの、明るさ）
+実行時:             面を描くとき、ライトマップを、読んで、明るさに、する（ライティングの、計算は、不要）
+```
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | 品質が、最高（時間を、かけて、何度も、反射を、計算できる。ソフトな影、カラー ブリーディング） |
+| 長所 | 実行時の、コストが、最小（テクスチャを、1 回読むだけ） |
+| 長所 | どんなハードウェアでも、動く（モバイルを、含む） |
+| 短所 | 静的な、光・物だけ（動く物、動くライトには、使えない） |
+| 短所 | ベイクに、時間が、かかる（数分〜数時間）。調整のたびに、ベイクし直し |
+| 短所 | メモリ（テクスチャが、大きい）。ディスク容量 |
+| 短所 | UV の、作成が、必要（[Lightmap UVs (UV2)](uv2.md)） |
+| 短所 | 間接光の、解像度が、テクスチャの、解像度で、決まる（細かい、影の、境目は、ぼやける） |
+
+## ライトマップが、焼き込むもの
+
+| 光 | ベイクするか |
+| --- | --- |
+| 直接光（太陽、ライト）（静的な、ライトのみ） | する（影を、含めて）。実行時の、シャドウ マップが、不要になる |
+| 間接光（反射した光） | する（ライトマップの、主な、目的） |
+| 環境光（空の光） | する（空が、固定なら） |
+| 動的な、ライト（動く、ライト） | しない（実行時に、別途、計算） |
+
+<strong>ライトを、「ベイク」と「動的」に、分ける</strong>のが、普通です（[Lightmaps and Dynamic Lights](dynamic-lights.md)）。
+
+## 仕組み
+
+| 段階 | 内容 | ページ |
+| --- | --- | --- |
+| ① UV を、作る | 各面が、ライトマップの、どこに、対応するか（重ならない、専用の UV） | [Lightmap UVs (UV2)](uv2.md) |
+| ② ベイク | 光を、シミュレーションして、ライトマップに、書き込む | [Baking Workflow](baking.md) |
+| ③ 実行時の、読み込み | 描画で、ライトマップを、読む | [Lightmaps and Dynamic Lights](dynamic-lights.md) |
+| ④ 動く物への、対応 | ライト プローブで、動く物を、照らす | [Specular and Dynamic Objects](dynamic-objects.md) |
+
+## 描画での、使い方（最小）
+
+```hlsl
+Texture2D<float3> g_lightmap : register(t7);
+
+float4 main(PSInput input) : SV_Target {
+  float3 albedo = g_albedo.Sample(g_linear_wrap, input.uv).rgb;
+  float3 baked_light = g_lightmap.Sample(g_linear_clamp, input.lightmap_uv);      // 専用の UV（UV2）で、読む
+  return float4(albedo * baked_light, 1.0);                                        // アルベド × 焼き込んだ、明るさ
+}
+```
+
+<strong>アルベド</strong>に、<strong>ライトマップの、明るさ</strong>を、掛けるだけです。ライティングの計算が、ほぼ、不要に、なります。アルベドは、元の UV、ライトマップは、専用の UV（UV2、[Lightmap UVs (UV2)](uv2.md)）で、読みます。
+
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -48,9 +104,10 @@ float3 indirect_diffuse = albedo * irradiance;
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Goral, Torrance, Greenberg, Battaile, "Modeling the Interaction of Light Between Diffuse Surfaces", SIGGRAPH 1984（ラジオシティ）
+- Cohen, Wallace, "Radiosity and Realistic Image Synthesis", Academic Press, 1993
+- Iwanicki, Sloan, "Precomputed Lighting in Call of Duty: Infinite Warfare", SIGGRAPH 2017, Advances in Real-Time Rendering in Games
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明、ライトマップ、プローブの章）
 
 ## 関連ページ
 

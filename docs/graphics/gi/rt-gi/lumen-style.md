@@ -44,6 +44,87 @@ Lumen の設計思想は、<strong>「正確さを段階ごとに捨てて、コ
 
 トレードオフは、簡略化したシーンを使うことで、細部の精度が落ちることです。薄い壁、小さな隙間、細かい模様の物体では、距離場の解像度が足りず、光漏れや暗すぎる箇所が出ます。ハードウェアのレイトレースを併用すれば、これらは大きく改善されます。
 
+## 1 つの手法では、足りない
+
+Unreal Engine 5 の <strong>Lumen</strong>（Wright ら、2022）は、<strong>1 つの、手法</strong>ではなく、複数の、手法を、組み合わせた、ハイブリッドです。それぞれの、手法の、長所を、生かし、短所を、補い合います。ハードウェア レイトレーシングが、無くても、動き、有ると、品質が、上がります。
+
+| 手法 | 得意 | 苦手 |
+| --- | --- | --- |
+| 画面空間の、トレース（SSGI、SSR） | 近距離で、最高精度（画面の、実際の、ジオメトリ）。安い | 画面の外・隠れた面が、無い |
+| 距離場（ソフトウェア、メッシュ SDF） | 世界全体。安い、遠くまで、レイを飛ばせる | 細かい、形状は、粗い（距離場の、解像度） |
+| ハードウェア レイトレーシング | 本物の、三角形に対して、正確 | 重い、GPU が、必要 |
+| サーフェス キャッシュ（面ごとの、ライティングの、キャッシュ） | 当たった面の、ライティングを、高速に、引ける（毎回、計算しない） | キャッシュの、更新が、必要 |
+
+## 全体の構造（概要）
+
+```text
+各画素から、レイを、飛ばす
+   ① まず、画面空間で、トレース（近距離。最も、正確）
+        ↓ 当たらなければ
+   ② 距離場（またはハードウェア RT）で、世界全体を、トレース（遠距離）
+        ↓ 当たった点の、ライティングは
+   ③ サーフェス キャッシュ（面ごとの、ライティングの、キャッシュ）から、引く（再計算しない）
+        ↓ それでも、ノイジーなので
+   ④ プローブ（スクリーン空間、ワールド空間）に、集めて、空間・時間で、フィルタ
+```
+
+### ① 近くは、画面空間
+
+<strong>画面に、映っている</strong>、<strong>近距離の、ジオメトリ</strong>に、当たる、レイは、画面空間の、レイマーチ（[SSGI](../ssgi.md)）で、高精度かつ、安く、トレースできます。深度バッファが、そのまま、ジオメトリです。
+
+### ② 遠くは、距離場
+
+<strong>画面空間で、当たらなかった</strong>レイ（<strong>画面の外・隠れた面</strong>）は、メッシュの、距離場（各メッシュを、距離場に、変換した、データ。[Distance Field AO](../../ao/world-space/dfao.md)）で、トレースします。距離場は、スフィア トレーシング（距離が、分かるので、大きく、進める）で、速く、世界全体を、辿れます。
+
+```hlsl
+// 距離場の、スフィア トレーシング: 各点での、最も近い面までの、距離だけ、安全に、進める。
+float3 p = origin;
+for (int i = 0; i < kMaxSteps; ++i) {
+  float d = SampleGlobalDistanceField(p);                                // 最も近い面までの距離（グローバル距離場）
+  if (d < kHitThreshold) break;                                          // 面に、十分、近づいた → 当たり
+  p += dir * d;                                                          // 距離だけ、安全に進む（面を、越えない）
+}
+```
+
+<strong>ソフトウェア</strong>で、<strong>動く</strong>ので、ハードウェア レイトレーシングが、無い、GPU でも、使えます（精度は、距離場の、解像度で、決まる）。
+
+### ③ サーフェス キャッシュ
+
+<strong>レイが、当たった、点の、ライティング</strong>を、<strong>毎回、計算する</strong>と、重い（直接光、影、間接光）。メッシュの、各面に、ライティングの、キャッシュ（サーフェス キャッシュ、カード）を、持ち、当たった、点の、ライティングは、キャッシュから、読むだけに、します。
+
+| 項目 | 内容 |
+| --- | --- |
+| カード | メッシュを、6 方向（上下左右前後）から、見た、小さな、平面の、画像（アルベド、法線、深度、ライティング）の、アトラス |
+| 更新 | 毎フレーム、一部（優先度の、高い、カード）だけ、ライティングを、再計算して、キャッシュを、更新 |
+| 使い方 | レイが、当たった点を、カードに、投影し、そこの、ライティングを、読む |
+
+### ④ 集めて、フィルタする
+
+<strong>画素ごとの、レイ</strong>は、<strong>ノイジー</strong>なので、プローブ（スクリーン空間に、並べた、プローブ）に、集め、時間・空間で、フィルタします（[Fighting Noise](noise.md)）。プローブに、集める、ことで、1 画素あたりの、コストを、減らし、プローブの、補間で、全画素の、間接光を、得ます。
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | 動的（光・物の、変化に、追従）。世界全体の、間接光 |
+| 長所 | ハードウェア RT が、無くても、動く（距離場） |
+| 長所 | GI と、反射（粗い鏡面）を、同じ、仕組みで、扱える |
+| 短所 | 実装が、非常に、複雑（距離場、サーフェス キャッシュ、プローブ、フィルタ）。自作は、大変 |
+| 短所 | 距離場の、解像度による、細かい形状の、欠落、光漏れ（薄い壁） |
+| 短所 | メモリ（距離場、カード アトラス、プローブ） |
+| 短所 | ハードウェア RT 版では、GPU の、世代に、依存 |
+
+## 自作する、場合の、現実的な、構成
+
+<strong>フル機能の、Lumen を、自作</strong>するのは、<strong>現実的ではありません</strong>。小規模には、必要な、機能を、絞った構成が、現実的です。
+
+| 目的 | 構成 |
+| --- | --- |
+| 動的な、環境光（まず、これ） | SSGI + ライト プローブ（ベイク、または、空の SH） |
+| 動的な、間接光を、広く（RT 対応の GPU） | DDGI（[DDGI](../ddgi.md)） |
+| ソフトウェアで、世界全体の、間接光 | ボクセル GI（[Voxel GI](../voxel-gi.md)）、距離場 |
+| 高品質（RT 対応の GPU） | ReSTIR GI（[ReSTIR GI](restir.md)）+ デノイザー |
+
 ## よくあるミス
 
 ??? failure "薄い壁や小さい物で、光漏れが起きる"
@@ -57,9 +138,10 @@ Lumen の設計思想は、<strong>「正確さを段階ごとに捨てて、コ
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Wright, Narkowicz, Kelly, "Lumen: Real-time Global Illumination in Unreal Engine 5", SIGGRAPH 2022, Advances in Real-Time Rendering in Games
+- Stachowiak, "Stochastic All The Things: Raytracing in Hybrid Real-Time Rendering", Digital Dragons 2018（SEED のハイブリッド レイトレーシング）
+- Schied, Kaplanyan, Wyman, Patney, Chaitanya, Burgess, Liu, Dachsbacher, Lefohn, Salvi, "Spatiotemporal Variance-Guided Filtering: Real-Time Reconstruction for Path-Traced Global Illumination", High-Performance Graphics 2017（SVGF）
+- Epic Games, "Lumen Technical Details", Unreal Engine 5 ドキュメント
 
 ## 関連ページ
 

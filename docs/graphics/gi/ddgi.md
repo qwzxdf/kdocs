@@ -187,6 +187,151 @@ float Visibility(float2 moments, float dist) {
 | コスト | 極小 | レイトレース ＋ 更新 |
 | 必要な HW | 不要 | DXR |
 
+## DDGI とは
+
+<strong>DDGI</strong>（Dynamic Diffuse Global Illumination、Majercik ら、2019）は、<strong>プローブ GI</strong>（[Probe GI](probes/index.md)）の、値を、毎フレーム、レイトレーシングで、更新する方式です。プローブを、空間に、置く考え方は、ライト プローブと、同じですが、ベイクではなく、実行時に、各プローブから、レイを、飛ばして、周りの光を、集め直します。動的な、ライト、動く物、扉の開閉が、すべて、反映されます。
+
+## 全体の流れ
+
+```text
+毎フレーム:
+  ① 各プローブから、N 本（例 128 本）のレイを、飛ばす（レイトレーシング）
+  ② レイが、当たった面の、色（ライティング済み）と、距離を、集める
+  ③ 集めた値を、プローブの、放射照度マップ（8×8 の、八面体マップ）に、混ぜ込む（前の値と、ブレンド）
+  ④ 物体の描画で、周りのプローブを、補間して、間接光を得る（[Interpolation Methods](probes/interpolation.md)）
+```
+
+## 八面体マップで、保存する
+
+DDGI は、各プローブの、<strong>放射照度</strong>を、<strong>SH ではなく</strong>、八面体マップ（球面を、1 枚の、正方形に、展開した、小さなテクスチャ）に、保存します。SH より、方向の、解像度が、高く、光の、変化を、より、細かく、持てます。
+
+| | SH L2 | 八面体マップ（8×8） |
+| --- | --- | --- |
+| 1 プローブの、データ | 9 係数 × RGB（27 個の数） | 64 画素 × RGB（192 個の数） |
+| 方向の、表現 | ごく、なめらか（低周波） | やや、細かい（8×8 の、方向） |
+| リンギング | 出る（負の値） | 出ない |
+| 補間 | 係数を、足す | テクスチャとして、ハードウェアの、補間（双線形） |
+
+### 八面体マッピング：球面 ↔ 正方形
+
+<strong>方向ベクトル</strong>（単位ベクトル）を、<strong>2D の、座標</strong>（0〜1）に、変換します。
+
+```hlsl
+// 単位ベクトル（方向）→ 八面体マップの uv（0〜1）。
+float2 OctEncode(float3 n) {
+  n /= (abs(n.x) + abs(n.y) + abs(n.z));                                // 八面体の、表面に、投影（L1 ノルムで、正規化）
+  float2 p = n.xy;
+  if (n.z < 0.0) {                                                      // 下半球は、折り返して、四隅に、広げる
+    p = (1.0 - abs(p.yx)) * (p.xy >= 0.0 ? 1.0 : -1.0);
+  }
+  return p * 0.5 + 0.5;
+}
+
+// 逆変換: uv → 方向。
+float3 OctDecode(float2 uv) {
+  float2 f = uv * 2.0 - 1.0;
+  float3 n = float3(f.x, f.y, 1.0 - abs(f.x) - abs(f.y));
+  if (n.z < 0.0) {
+    n.xy = (1.0 - abs(n.yx)) * (n.xy >= 0.0 ? 1.0 : -1.0);
+  }
+  return normalize(n);
+}
+```
+
+<strong>八面体</strong>（8 枚の、三角形で、できた、立体）の、表面に、方向を、<strong>投影</strong>し、上半分は、そのまま、下半分は、四隅へ、折り返して、正方形に、広げます。球面の、全方向が、歪みが、少なく、1 枚の、正方形に、収まります。
+
+## プローブから、レイを、飛ばす
+
+<strong>各プローブ</strong>が、<strong>球面上の、N 本</strong>（128〜256 本）の、レイを、飛ばし、当たった面の、ライティングを、集めます。
+
+```hlsl
+// DXR の、レイ生成シェーダー: 各プローブについて、N 本のレイを、飛ばす。
+[shader("raygeneration")]
+void ProbeRayGen() {
+  uint ray_index = DispatchRaysIndex().x;                               // このプローブの、何本目のレイか
+  uint probe_index = DispatchRaysIndex().y;
+  float3 probe_pos = g_probe_positions[probe_index];
+
+  // 球面上に、均等に、散らす（毎フレーム、全体を、ランダムに回転させて、方向の偏りを、時間で、平均する）。
+  float3 dir = mul(SphericalFibonacci(ray_index, kRaysPerProbe), g_random_rotation);
+
+  RayDesc ray = { probe_pos, 0.0, dir, 1e27 };
+  Payload payload = { float3(0, 0, 0), 0.0 };
+  TraceRay(g_scene, RAY_FLAG_NONE, 0xFF, 0, 1, 0, ray, payload);
+
+  g_ray_radiance[uint2(ray_index, probe_index)] = payload.radiance;      // 当たった面の、ライティング済みの色
+  g_ray_distance[uint2(ray_index, probe_index)] = payload.hit_distance;  // 当たった距離（可視性の、計算用）
+}
+```
+
+<strong>球面フィボナッチ</strong>で、<strong>方向を、均等に、散らし</strong>、フレームごとに、全体を、回転させます。フレームを、またいで、平均すると、球面全体が、均等に、カバーされます。ヒット シェーダー（当たった面での、ライティング）は、当たった面の、直接光 + 前のフレームの、プローブの、間接光を、計算します（多重反射が、フレームごとに、積み重なります）。
+
+## 結果を、プローブに、混ぜる
+
+<strong>今フレームの、レイの結果</strong>を、<strong>プローブの、八面体マップ</strong>に、書き込みます。前のフレームの値と、ブレンド（指数移動平均）して、ノイズを、減らします。
+
+```hlsl
+// 計算シェーダー: プローブの、八面体マップの、各画素について、その方向に近い、レイの結果を、重みつきで集める。
+[numthreads(8, 8, 1)]
+void UpdateProbeIrradianceCS(uint3 id : SV_DispatchThreadID, uint probe_index : SV_GroupID) {
+  float3 texel_dir = OctDecode((id.xy + 0.5) / 8.0);                     // この画素が、表す、方向
+  float3 sum = 0.0;
+  float weight_sum = 0.0;
+  for (uint r = 0; r < kRaysPerProbe; ++r) {
+    float3 ray_dir = RayDirection(r);
+    float w = max(0.0, dot(texel_dir, ray_dir));                         // 方向が、近いレイほど、重い（余弦重み）
+    sum += g_ray_radiance[uint2(r, probe_index)] * w;
+    weight_sum += w;
+  }
+  float3 result = sum / max(weight_sum, 1e-4);
+
+  // 前のフレームと、混ぜる（hysteresis）。値が、大きく変わったら、履歴を、弱める（光の変化に、追従）。
+  float3 history = g_probe_irradiance[uint3(id.xy, probe_index)].rgb;
+  float change = max3(abs(result - history)) / max(max3(history), 1e-3);
+  float alpha = lerp(0.97, 0.7, saturate(change * 4.0));                 // 変化が大きいほど、今フレームを、強く
+  g_probe_irradiance[uint3(id.xy, probe_index)] = float4(lerp(result, history, alpha), 1.0);
+}
+```
+
+<strong>八面体マップの、各画素</strong>は、<strong>1 つの、方向</strong>を、表します。その方向に、近い、レイ（余弦重み）の、結果を、集め、前のフレームと、混ぜます。混ぜる割合（`alpha` = 履歴の、強さ）を、値の、変化の大きさに、応じて、変える（Majercik ら）と、光が、急に変わる（扉が、開く）とき、素早く、追従し、静かな、ときは、なめらかです。
+
+## 可視性（光漏れ対策）
+
+<strong>プローブは、壁の、向こう</strong>の、光を、<strong>拾う</strong>ことが、あります。DDGI は、各プローブが、各方向の、「壁までの、距離」（の、平均と、2 乗の平均）を、別の、八面体マップに、保存し、補間のとき、物の位置が、壁の、手前にあるかを、チェビシェフの不等式で、判定して、光漏れを、抑えます（[Interpolation Methods](probes/interpolation.md)）。
+
+```hlsl
+// 距離マップ: 各方向の、壁までの、距離の、平均と、2 乗の平均（VSM と、同じ考え方）。
+float distance = g_ray_distance[uint2(r, probe_index)];
+float2 moments = float2(distance, distance * distance);                  // 1 サンプルあたりの、(距離, 距離²)
+// 放射照度と、同じ要領で、八面体マップに、混ぜる（余弦重みを、鋭くして、方向の、解像度を、保つ）。
+```
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | 完全に、動的（光、物、扉、壊れる壁）。ベイク不要 |
+| 長所 | 世界全体の、間接光（画面の外の、光も、使える。SSGI の、弱点が、ない） |
+| 長所 | 多重反射が、自然に、積み重なる（フレームごとに、前のフレームの、プローブを、使うので） |
+| 長所 | コストが、画面解像度に、依存しない（プローブの数と、レイの数で、決まる） |
+| 短所 | GPU レイトレーシング（DXR）が、必要 |
+| 短所 | 低周波（プローブ間隔の、解像度）。細かい、接触の影は、出ない（AO、コンタクト シャドウで、補う） |
+| 短所 | 光の変化に、遅れる（履歴との、ブレンド）。急な変化で、少し、遅れて見える |
+| 短所 | プローブの、配置（[Probe Placement](probes/placement.md)）が、品質を、左右する |
+| 短所 | 拡散のみ（鏡面は、別の手法） |
+
+## コスト
+
+| 項目 | 目安 |
+| --- | --- |
+| プローブ数 | 数千〜数万個 |
+| 1 プローブの、レイ数 | 128〜256 本 |
+| 1 フレームの、レイ総数 | プローブ数 × レイ数 = 数十万〜数百万本 |
+| 更新の、コスト | 約 0.5〜2 ms（GPU、世代による） |
+| メモリ | 放射照度マップ（8×8 × RGBA16）+ 距離マップ（16×16 × RG16）で、プローブ 1 つあたり 約 1.5 KB |
+
+<strong>カメラの、近くの、プローブだけ</strong>を、毎フレーム更新し、<strong>遠くは、数フレームに、1 回</strong>にする（更新の、間引き）と、コストを、抑えられます。後続の、研究（Majercik ら、2021、DDGI Resampling）は、少ないレイでも、品質を、保つための、リサンプリングを、提案しています。
+
 ## よくあるミス
 
 ??? failure "hysteresis が大きすぎて、ライトの変化に追従しない"
@@ -212,9 +357,10 @@ float Visibility(float2 moments, float dist) {
 
 ## 参考
 
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
-- Majercik et al., "Scaling Probe-Based Real-Time Dynamic Global Illumination for Production"（JCGT 2021）
-- NVIDIA, "RTXGI"（SDK ドキュメント）
+- Majercik, Guertin, Nowrouzezahrai, McGuire, "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields", Journal of Computer Graphics Techniques, Vol. 8, No. 2, 2019（DDGI）
+- Majercik, Müller, Keller, Cline, McGuire, "Dynamic Diffuse Global Illumination Resampling", SIGGRAPH 2021 Talks
+- Microsoft, "DirectX Raytracing (DXR) Functional Spec"
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明の章）
 
 ## 関連ページ
 

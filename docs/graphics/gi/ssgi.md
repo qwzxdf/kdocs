@@ -338,6 +338,108 @@ SSGI の弱点は、「画面外が見えない」の一点に集約されます
 
 SSGI の弱点は、「画面外が見えない」の一点に集約されます。そのため、より良い設計は、SSGI を単独で使わずに、<strong>見えなかった分を別の GI に任せる</strong>ことです。レイが画面外に出たり、深度バッファで当たらなかったりしたとき、その方向の光を、ライト プローブや DDGI のような世界空間の GI から読みます。つまり、<strong>SSGI は近距離の細部を担当し、遠くと画面外は世界空間の GI が担当する</strong>階層にします。Lumen が、画面空間トレースを最初の手段として使い、外れたら距離場、さらに外れたらワールド プローブ、と順に落ちていく設計は、まさにこの考え方です（[Lumen-Style Approaches](rt-gi/lumen-style.md)）。
 
+## 画面の情報だけで、間接光を、求める
+
+<strong>SSGI</strong>（Screen-Space Global Illumination）は、<strong>画面に映っている、情報</strong>（色、深度、法線）だけを、使って、間接光を、近似する方法です（Ritschel ら、2009）。シーンの、形状を、持たず、G バッファと、深度バッファだけで、ポスト プロセスとして、実行できるので、導入が、簡単です。
+
+## 基本の考え方
+
+<strong>各画素</strong>から、<strong>半球の、ランダムな、方向</strong>に、画面空間で、レイを、飛ばし（レイマーチ）、当たった、画素の、色を、その方向から、来る光として、集めます。
+
+```text
+画素 P から、法線の側の半球へ、ランダムな方向にレイを飛ばす（画面空間で、深度バッファを、辿る）
+        ↓ 当たった画素 Q の「ライティング済みの色」を、P に届く光として、足す
+```
+
+<strong>当たった画素 Q</strong> は、<strong>すでに、ライティングされた、画面の色</strong>（直接光 + 前フレームの、間接光）です。Q の色が、P を、照らすので、1 回の、バウンスの、間接光が、得られます。
+
+## 画面空間の、レイマーチ
+
+```hlsl
+// 画素 P から、方向 dir へ、画面空間で、レイを進めて、最初に交わった画素の色を返す（交わらなければ、false）。
+bool TraceScreenSpace(float3 origin_vs, float3 dir_vs, float2 pixel, out float3 hit_color) {
+  const int kSteps = 16;
+  float step_len = g_ssgi_max_distance / kSteps;
+  float jitter = InterleavedGradientNoise(pixel);                      // 開始を、ずらして、縞を消す
+  hit_color = 0;
+  for (int i = 0; i < kSteps; ++i) {
+    float3 p_vs = origin_vs + dir_vs * ((i + jitter) * step_len);      // ビュー空間での、レイ上の点
+    float4 clip = mul(float4(p_vs, 1.0), g_proj);
+    float2 uv = clip.xy / clip.w * float2(0.5, -0.5) + 0.5;
+    if (any(uv < 0.0) || any(uv > 1.0)) return false;                  // 画面の外 → 情報がない
+```
+
+<strong>ビュー空間で、レイを、進め</strong>、各点を、<strong>画面の、uv に、投影</strong>します。画面の外に、出たら、情報が、無いので、打ち切ります。
+
+```hlsl
+    float scene_depth = g_depth.SampleLevel(g_point_clamp, uv, 0);     // その画素の、深度（ビュー空間の、距離）
+    float ray_depth = -p_vs.z;                                          // レイ上の点の、深度（右手系は、前方が -Z）
+    float diff = ray_depth - scene_depth;
+    if (diff > 0.0 && diff < g_thickness) {                             // レイが、面の「裏」に入った（交差した）。厚み以内なら、当たりとする。
+      hit_color = g_lit_scene.SampleLevel(g_linear_clamp, uv, 0).rgb;   // 当たった画素の、ライティング済みの色
+      return true;
+    }
+  }
+  return false;
+}
+```
+
+<strong>レイ上の点の、深度</strong>が、<strong>その画素の、深度より、奥</strong>（`diff > 0`）になった、瞬間が、面との、交差です。厚み（`g_thickness`）の、範囲内なら、当たりと、みなします（薄い物の、裏を、通り抜けるのを、避けるため。[Thickness](../reflections/ssr-basics/thickness.md)）。当たった画素の、ライティング済みの色（`g_lit_scene`）を、間接光として、使います。
+
+## 間接光を、積算する
+
+```hlsl
+float3 SSGI(float2 pixel, float3 position_vs, float3 normal_vs, float3 albedo) {
+  float3 sum = 0.0;
+  const int kRays = 2;                                                  // 1 画素あたりの、レイ（少なく。デノイズで補う）
+  for (int k = 0; k < kRays; ++k) {
+    float2 u = Random2(pixel, g_frame_index * kRays + k);
+    float3 dir = LocalToWorld(CosineHemisphere(u.x, u.y), normal_vs);   // 余弦重みづけ（[Monte Carlo Integration]）
+    float3 hit_color;
+    if (TraceScreenSpace(position_vs + normal_vs * 0.02, dir, pixel, hit_color)) {
+      sum += hit_color;                                                  // 当たった → その色が、光
+    } else {
+      sum += g_sky_ambient;                                              // 当たらない → 空の環境光で、補う（画面の外は、不明）
+    }
+  }
+  return albedo * sum / kRays;                                           // 余弦重みづけなので、albedo × 平均
+}
+```
+
+<strong>余弦重みづけの、サンプリング</strong>（[Monte Carlo Integration](theory/monte-carlo.md)）で、<strong>拡散の、間接光</strong>は、当たった色の、平均 × アルベドに、なります。当たらなかった（画面の外、遠すぎる）場合は、空の、環境光など、フォールバックで、補います。
+
+## 時間方向の、蓄積と、フィルタ
+
+<strong>1 画素あたり、1〜2 本の、レイ</strong>では、<strong>ノイズだらけ</strong>です。時間蓄積と、空間フィルタで、なめらかに、します（[Fighting Noise](rt-gi/noise.md)）。前のフレームの、結果と、混ぜ、法線・深度が、近い、画素どうしで、ぼかします。
+
+## SSGI の、問題
+
+| 問題 | 内容 | 対策 |
+| --- | --- | --- |
+| 画面の外の、光が、使えない | 画面に、映っていない光源・壁は、間接光に、反映されない。カメラを、動かすと、明るさが、変わる（画面の端で、光が、出入りする） | フォールバック（ライト プローブ、空の環境光）。画面を、少し広く、描く |
+| 隠れた面が、使えない | 手前の物の、裏は、見えていないので、反射光が、出ない | 深度の厚みを、仮定。限界として、許容 |
+| 遠くの、光は、使えない | レイの、最大距離を、短く（数 m）。遠くからの、間接光は、無い | プローブ GI などと、併用 |
+| ノイズ | 少ない、レイ | 時間蓄積 + 空間フィルタ |
+| コスト | 画面解像度に、比例 | 半分の解像度で、計算して、アップサンプル |
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | 導入が、簡単（ポスト プロセス）。シーンの、形状・事前計算が、不要 |
+| 長所 | 完全に、動的（動く物、動くライトも、反映） |
+| 長所 | レイトレーシング ハードウェアが、不要 |
+| 短所 | 画面の外の、情報が、無い（カメラを、動かすと、ちらつく） |
+| 短所 | 単独では、不十分。他の手法（プローブ、ライトマップ）と、併用が、前提 |
+
+## 使いどころ
+
+| 場面 | 判断 |
+| --- | --- |
+| 補助（近距離の、間接光、色のにじみ） | 向く（プローブ GI の、細かい部分を、補う） |
+| GI の、主役 | 向かない（画面の外の、情報が、無い） |
+| ハードウェア RT が、ない環境の、動的な GI | 選択肢の、1 つ（他の手法と、併用） |
+
 ## よくあるミス
 
 ??? failure "画面端で、間接光が急に暗くなる"
@@ -363,9 +465,10 @@ SSGI の弱点は、「画面外が見えない」の一点に集約されます
 
 ## 参考
 
-- Ritschel, Grosch, Seidel, "Approximating Dynamic Global Illumination in Image Space"（I3D 2009）
-- Stachowiak, "Stochastic Screen-Space Reflections"（SIGGRAPH 2015、レイ再利用の手法）
-- Jimenez et al., "Practical Real-Time Strategies for Accurate Indirect Occlusion"（GTAO）
+- Ritschel, Grosch, Seidel, "Approximating Dynamic Global Illumination in Image Space", Symposium on Interactive 3D Graphics and Games 2009（スクリーン スペースの、間接光）
+- Stachowiak, "Stochastic All The Things: Raytracing in Hybrid Real-Time Rendering", Digital Dragons 2018（SEED のハイブリッド レイトレーシング）
+- Schied, Kaplanyan, Wyman, Patney, Chaitanya, Burgess, Liu, Dachsbacher, Lefohn, Salvi, "Spatiotemporal Variance-Guided Filtering: Real-Time Reconstruction for Path-Traced Global Illumination", High-Performance Graphics 2017（SVGF）
+- McGuire, Mara, "Efficient GPU Screen-Space Ray Tracing", Journal of Computer Graphics Techniques, Vol. 3, No. 4, 2014
 
 ## 関連ページ
 

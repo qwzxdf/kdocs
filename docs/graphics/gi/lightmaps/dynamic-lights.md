@@ -38,6 +38,80 @@ tags:
 
 実際の現場では、<strong>イテレーションの遅さ</strong>が最大の問題になります。ライトの位置を少し動かすたびに、数十分から数時間のベイクが必要では、アーティストの作業が止まります。最近のエンジンは、GPU ベイクや、低解像度のプレビュー ベイクで、この待ち時間を縮めています。
 
+## ライトマップ（静的）と、動的なライトを、組み合わせる
+
+<strong>ライトマップ</strong>は、<strong>静的な、光</strong>を、焼き込みます。ゲームには、動くライト（懐中電灯、爆発、点滅するライト）も、あります。静的な光は、ライトマップ、動的な光は、実行時に、計算し、足し合わせるのが、基本です。
+
+## ライトの、3 つの、モード
+
+エンジンでは、<strong>ライトごとに、モードを、選び</strong>ます。
+
+| モード | ライトマップに、焼く | 実行時に、計算 | 用途 |
+| --- | --- | --- | --- |
+| ベイク（静的） | 直接光 + 間接光 | しない | 動かない、ライト（部屋の、照明、街灯） |
+| 動的（リアルタイム） | しない | 直接光（影も、実行時） | 動くライト（懐中電灯、爆発）、プレイヤーが、触れるライト |
+| ミックス（混合） | 間接光のみ | 直接光（影も、実行時） | 太陽など、動かないが、影は、動く物と、連動したい |
+
+### ミックスの、詳細
+
+<strong>ミックス</strong>は、<strong>間接光だけ</strong>を、ベイクし、直接光は、実行時に、計算します。動く物が、影を、落とせる（実行時の、シャドウ マップ）、間接光は、焼き込み済みで、安い、両方の、いいとこ取りです。
+
+```text
+ベイク:   間接光のみ（ライトマップ）
+実行時:   直接光（影つき）+ ライトマップの間接光
+```
+
+| ミックスの、方式 | 内容 |
+| --- | --- |
+| 間接光のみ（Indirect） | 間接光を、ライトマップに。直接光 + 影は、実行時（動く物の影が、出る） |
+| 影マスク（Shadowmask） | 静的な、物の、影を、別の、テクスチャに、焼く。遠くの影は、安く、近くは、実行時 |
+| 減算（Subtractive） | 直接光 + 影を、ライトマップに、焼く。動く物の影は、実行時に、減算で、足す |
+
+## 描画の、組み合わせ
+
+```hlsl
+float4 main(PSInput input) : SV_Target {
+  float3 albedo = g_albedo.Sample(g_linear_wrap, input.uv).rgb;
+  float3 N = normalize(input.world_normal);
+
+  // ① ライトマップ（焼き込み済みの、間接光、または、直接光 + 間接光）。
+  float3 baked = g_lightmap.Sample(g_linear_clamp, input.lightmap_uv);
+
+  // ② 動的な、ライト（実行時に、計算）。
+  float3 dynamic_light = 0;
+  for (uint i = 0; i < g_dynamic_light_count; ++i) {
+    dynamic_light += ComputeLight(g_dynamic_lights[i], input.world_position, N);    // 距離減衰 + ランバート + 影（あれば）
+  }
+
+  // ③ 合算: アルベド × (焼き込み + 動的)。
+  return float4(albedo * (baked + dynamic_light), 1.0);
+}
+```
+
+<strong>焼き込み済みの光</strong>（ライトマップ）と、<strong>動的な光</strong>を、足し合わせ、アルベドを、掛けます。どちらも、「光の、量」なので、足し算で、合成できます。
+
+## 動的なライトの、問題
+
+| 問題 | 内容 | 対策 |
+| --- | --- | --- |
+| 動的な光の、間接光が、無い | 動くライトの、反射光（光が、壁で、反射して、周りを、照らす）は、ライトマップに、含まれない | プローブ GI の、動的更新（[Dynamic Updates](../probes/dynamic-update.md)）、DDGI、簡易な、アンビエントを、動くライトの、周りに、足す |
+| ライトマップと、動的な光の、二重になる | ライトを、ベイクにも、動的にも、設定すると、二重に、照らされる | ライトの、モードを、1 つにする |
+| 静的な、ライトの、オン・オフが、できない | ベイクした、光は、消せない（照明の、スイッチが、押せない） | スイッチする、ライトは、動的にする。または、ライトマップを、2 セット（オン用、オフ用）焼いて、切り替える |
+
+### 照明の、オン・オフ
+
+<strong>部屋の、照明を、消す</strong>ような、<strong>ゲームの、仕掛け</strong>には、動的な光を、使います。ライトマップの、光は、消せません。
+
+| 方法 | 内容 |
+| --- | --- |
+| 動的な、ライトにする | オン・オフ可能。間接光は、出ない（直接光だけ）。簡易な、アンビエントを、足すと、自然 |
+| ライトマップを、2 セット | オン用とオフ用を、焼き、切り替え（または、補間）。メモリが、2 倍 |
+| ライトマップに、ライトごとの、寄与を、焼く（ライトごとの、ライトマップ） | ライトごとに、別のライトマップを、焼き、実行時に、オン・オフに応じて、足し合わせる。メモリが、ライト数に、比例 |
+
+## 太陽（動かない、場合）
+
+<strong>太陽が、固定</strong>（時間が、止まっている）なら、<strong>太陽の光も、ライトマップに、焼けます</strong>。昼夜が、変わるなら、太陽は、動的です（[Day-Night Cycle](../../atmosphere/sky-models/day-night.md)）。ライトマップは、時間帯ごとに、複数セットを、焼き、補間する、または、プローブ GI の、動的更新を、使います。
+
 ## よくあるミス
 
 ??? failure "ベイク済みのライトが二重に効いて、明るすぎる"
@@ -51,9 +125,10 @@ tags:
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Iwanicki, "Lighting Technology of The Last of Us", SIGGRAPH 2013, Advances in Real-Time Rendering in Games（アンビエント ダイスなど）
+- Iwanicki, Sloan, "Precomputed Lighting in Call of Duty: Infinite Warfare", SIGGRAPH 2017, Advances in Real-Time Rendering in Games
+- Goral, Torrance, Greenberg, Battaile, "Modeling the Interaction of Light Between Diffuse Surfaces", SIGGRAPH 1984（ラジオシティ）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明、ライトマップ、プローブの章）
 
 ## 関連ページ
 

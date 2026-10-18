@@ -67,6 +67,105 @@ E は、法線 n だけの関数です（位置 p を固定すれば）。入っ
 
 放射照度マップよりもさらに小さく持つ方法が、[球面調和関数（SH）](spherical-harmonics.md)です。Ramamoorthi と Hanrahan（2001）は、拡散の放射照度が、わずか 9 個の SH 係数（3 バンド）で、<strong>平均誤差 1 % 程度</strong>まで表せることを示しました。余弦のカーネルが強い低域通過フィルタとして働くため、高周波の情報がほぼ残らないからです。9 個の係数を、RGB で 27 個の数値として持てば、法線から E を計算できます。ライトプローブは、この考え方で作られています（[Storing SH](../probes/sh-storage.md)）。
 
+## 放射照度を、式で書く
+
+<strong>放射照度</strong>（irradiance、`E`）は、<strong>ある点の、ある向きの面に、入ってくる光の、総量</strong>です。半球の全方向から来る光を、面の法線との、角度の余弦で、重みづけして、足し合わせます。
+
+```text
+E(n) = ∫ L_i(ω) × max(n · ω, 0) dω           半球 Ω（法線 n の側）の、全方向について積分
+```
+
+`L_i(ω)` は、<strong>方向 `ω` から、入ってくる光</strong>（放射輝度）、`n · ω` は、<strong>法線と、入射方向の、内積</strong>（斜めから来る光ほど、薄まる）です。`max(…, 0)` は、面の裏側から来る光（負の内積）を、0 にするためです。
+
+## 拡散反射の、出ていく光
+
+ランバート面（完全に、拡散する面）では、<strong>入ってきた光が、全方向へ、均等に、散ります</strong>。<strong>出ていく光</strong>は、放射照度から、1 行で、求まります。
+
+```text
+L_o = albedo / π × E(n)
+```
+
+`albedo`（反射率）は、<strong>入った光の、何割が、反射するか</strong>（0〜1）です。<strong>`π` で割る</strong>のは、半球の、全方向へ、均等に、散らすとき、エネルギーが、保存されるためです。確かめます。放射照度 `E` の、光が当たる面から、全方向に出る光の総量は、`L_o × π`（余弦で重みづけした、半球の積分が `π`）で、これが `albedo × E` に、等しくなる、という計算です。
+
+## 放射照度は、法線だけの関数
+
+<strong>点の位置を、固定</strong>すれば、<strong>放射照度は、法線 `n` だけの関数</strong>です。法線の向きごとに、1 つの値（RGB）を、持てば、足ります。これが、環境光を、小さな、データで、保存できる、根拠です。
+
+また、<strong>放射照度は、法線の向きに対して、なめらか</strong>に、変わります。<strong>入ってくる光</strong>（空の、青、壁の、赤）の、細かい模様は、余弦で重みづけして、半球を、積分する間に、ほぼ、平均されて、消えるためです。
+
+```text
+L_i の細かい模様（雲、窓の格子） ──→ 余弦重みで、半球を、平均 ──→ E(n) は、なめらかな、ゆるやかな分布
+```
+
+## 環境マップから、放射照度マップを作る
+
+<strong>周りの景色</strong>（環境マップ、キューブマップ）から、<strong>全方向の `L_i`</strong> が、得られます。各法線 `n` について、積分して、放射照度マップ（畳み込み済みの、キューブマップ）を、事前に作ります。
+
+### キューブマップの、1 テクセルの、立体角
+
+環境マップの、<strong>各テクセル</strong>が、<strong>球面上で、どれだけの、広さ</strong>（立体角）を、占めるかが、積分の、重みに、必要です。面の中心は、広く、角は、狭い（キューブマップを、球に、投影するため）。
+
+```hlsl
+// キューブマップの、1 テクセルの立体角。(u, v) は、面上の座標（-1〜1）、size は、1 辺のテクセル数。
+float TexelSolidAngle(float u, float v, float size) {
+  float texel = 2.0 / size;                                         // 1 テクセルの、面上での、大きさ
+  return texel * texel / pow(1.0 + u * u + v * v, 1.5);              // 面上の面積を、球面上の、立体角へ
+}
+```
+
+面の<strong>中心</strong>（`u = v = 0`）では、`texel²` で、<strong>最も広く</strong>、角（`u = v = 1`）では、`/ 3^1.5 ≈ /5.2`、狭くなります。6 面の、全テクセルの、立体角を、足すと、球全体の、立体角 `4π`に、なります（検算に、使えます）。
+
+### 計算シェーダーで、畳み込む
+
+```hlsl
+TextureCube<float3> g_env : register(t0);                           // 元の、環境マップ
+RWTexture2DArray<float3> g_irradiance : register(u0);               // 出力: 32×32×6 の、放射照度マップ
+
+[numthreads(8, 8, 1)]
+void ConvolveCS(uint3 id : SV_DispatchThreadID) {
+  // 出力のテクセルが、表す法線 n（キューブマップの、面と、座標から）。
+  float3 n = CubeFaceTexelToDirection(id.z, (id.xy + 0.5) / 32.0);
+```
+
+<strong>出力のテクセル</strong>は、<strong>1 つの、法線 `n`</strong> に、対応します。面の番号と、面上の座標から、方向を、求めます。
+
+```hlsl
+  float3 sum = 0.0;
+  const int kSrcSize = 64;                                          // 元の環境マップの、1 辺（小さくてよい。放射照度は、なめらか）
+  for (int face = 0; face < 6; ++face) {
+    for (int y = 0; y < kSrcSize; ++y) {
+      for (int x = 0; x < kSrcSize; ++x) {
+        float2 uv = (float2(x, y) + 0.5) / kSrcSize * 2.0 - 1.0;    // 面上の座標（-1〜1）
+        float3 dir = normalize(CubeFaceTexelToDirection(face, (float2(x, y) + 0.5) / kSrcSize));
+        float cos_term = max(dot(n, dir), 0.0);                      // 余弦重み（裏側は 0）
+        float solid_angle = TexelSolidAngle(uv.x, uv.y, kSrcSize);
+        sum += g_env.SampleLevel(g_linear_clamp, dir, 0) * cos_term * solid_angle;
+      }
+    }
+  }
+  g_irradiance[id] = sum;                                           // E(n)。albedo / π は、描画のときに掛ける
+}
+```
+
+<strong>元の環境マップの、全テクセル</strong>について、<strong>その方向の光 × 余弦 × 立体角</strong>を、足します。放射照度は、なめらかなので、元の環境マップは、64×64 程度の、小さな解像度で、十分です（計算量が、減ります）。出力も、32×32 で、十分です。出力に、`albedo / π` は、掛けません。物体ごとに、アルベドが違うので、描画のときに、掛けます。
+
+## 描画での、使い方
+
+```hlsl
+TextureCube<float3> g_irradiance_map : register(t6);
+
+float3 DiffuseIndirect(float3 normal, float3 albedo) {
+  float3 irradiance = g_irradiance_map.SampleLevel(g_linear_clamp, normal, 0);   // 法線で、1 回読む
+  return albedo / 3.14159265 * irradiance;                                        // 拡散の、間接光
+}
+```
+
+<strong>法線で、キューブマップを、1 回読んで</strong>、<strong>`albedo / π`</strong> を掛ける。これで、拡散の、環境光が、完成です（重い積分は、事前に、終わっている）。
+
+## SH で、さらに、小さく
+
+<strong>放射照度マップ</strong>（32×32×6 = 6,144 テクセル × RGB）は、<strong>十分、小さい</strong>ですが、さらに、小さく（27 個の数）できます。球面調和関数（[Spherical Harmonics (SH)](spherical-harmonics.md)）が、放射照度の、なめらかさを、利用した、圧縮です（Ramamoorthi と Hanrahan、2001）。数十個の、プローブ（[Probe GI](../probes/index.md)）を、空間に、置くとき、1 つが、27 個の数で、済むので、メモリが、大幅に、減ります。
+
 ## よくあるミス
 
 ??? failure "環境マップをそのまま拡散に使って、ざらざらする"
@@ -80,9 +179,10 @@ E は、法線 n だけの関数です（位置 p を固定すれば）。入っ
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Ramamoorthi, Hanrahan, "An Efficient Representation for Irradiance Environment Maps", SIGGRAPH 2001（放射照度を 9 個の SH 係数で表す）
+- Kajiya, "The Rendering Equation", SIGGRAPH 1986（レンダリング方程式の原典）
+- Green, "Spherical Harmonic Lighting: The Gritty Details", Game Developers Conference 2003
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明、放射照度、SH の章）
 
 ## 関連ページ
 

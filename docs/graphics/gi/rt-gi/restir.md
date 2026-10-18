@@ -205,6 +205,147 @@ ReSTIR の核心は、リザーバー同士を<strong>マージ</strong>でき�
 
 ReSTIR は、DI（直接光）から GI（間接光）、さらに <strong>ReSTIR PT</strong>（Lin ら 2022、パス全体の再利用）へと発展しています。NVIDIA の RTXDI（直接光）や RTXGI などに採用され、商用エンジンへの組み込みも進んでいます。実装は複雑で、パラメータが多く（候補数、空間再利用の半径と数、M の上限、バイアス補正の方式）、デバッグも難しい手法です。まずは、時間的な再利用だけを実装して、効果を確かめるところから始めるのがよいでしょう。
 
+## ReSTIR の、考え方
+
+<strong>ReSTIR</strong>（Reservoir-based Spatio-Temporal Importance Resampling、Bitterli ら、2020）は、<strong>少ない、サンプルから、良い、サンプルを、選び、再利用する</strong>方法です。ReSTIR GI（Ouyang ら、2021）は、これを、間接光に、適用しました。デノイズする前の、入力の、質を、上げるので、ノイズが、はるかに、少ない、GI が、得られます。
+
+## 重要な、2 つの、アイデア
+
+| アイデア | 内容 |
+| --- | --- |
+| リザーバー サンプリング | 多数の、候補から、重みに、比例した、確率で、1 つを、選ぶ。候補を、全部、覚えず、1 つだけ（リザーバー）を、持てばよい |
+| 空間・時間の、再利用 | 隣の画素や、前のフレームの、リザーバーの、サンプルを、自分の候補に、加える |
+
+<strong>隣の画素は、似た、光</strong>を、受けている（<strong>同じ、面、近い、位置</strong>）ことが、多いので、隣の画素が、見つけた、良いサンプル（明るい方向）は、自分にとっても、良いサンプルの、可能性が、高い。それを、使い回すことで、実質的な、サンプル数が、何十倍にも、増えます。
+
+## リザーバー（貯水池）
+
+<strong>リザーバー</strong>は、<strong>ストリームの、要素</strong>（候補）の中から、重みに比例して、1 つを、選ぶ、小さな、データ構造です。要素を、1 つずつ、見て、選んだ、1 つと、重みの、合計だけを、覚えます。
+
+```hlsl
+// リザーバー: 選ばれた 1 つのサンプルと、見てきた候補の重みの合計・個数。
+struct Reservoir {
+  float3 hit_position;      // 選ばれたサンプル: レイが、当たった位置
+  float3 hit_normal;        // 当たった面の、法線
+  float3 radiance;          // 当たった面から、来る光（ライティング済み）
+  float weight_sum;         // これまでに、見た、候補の重みの合計
+  float M;                  // これまでに、見た、候補の数
+  float W;                  // 選ばれたサンプルの、最終的な重み（バイアス補正用）
+};
+
+// 候補を、1 つ、リザーバーに、投入する。重みに比例した確率で、置き換える。
+bool UpdateReservoir(inout Reservoir r, float3 position, float3 normal, float3 radiance, float weight, float u) {
+  r.weight_sum += weight;
+  r.M += 1.0;
+  if (u * r.weight_sum < weight) {                       // 確率 weight / weight_sum で、新しい候補に、置き換える
+    r.hit_position = position;
+    r.hit_normal = normal;
+    r.radiance = radiance;
+    return true;
+  }
+  return false;
+}
+```
+
+<strong>重みが、大きい候補ほど、選ばれやすく</strong>、<strong>1 つだけ</strong>を、覚えれば、済みます（メモリが、一定）。重みは、その候補が、どれだけ、良いか（明るい、方向ほど、大きい）を、表します。
+
+## ReSTIR GI の、流れ
+
+```text
+① 初期サンプル: 各画素が、1 本のレイを飛ばし、当たった点を、リザーバーに入れる
+② 時間的な再利用: 前のフレームの、同じ場所の、リザーバーと、マージ（候補を、混ぜる）
+③ 空間的な再利用: 隣の画素（数個）の、リザーバーと、マージ
+④ シェーディング: 最終的に、選ばれたサンプルで、間接光を、計算
+```
+
+### ① 初期サンプル
+
+```hlsl
+// 各画素: 1 本のレイを飛ばして、当たった点を、リザーバーの、最初の候補にする。
+Reservoir r = (Reservoir)0;
+float3 dir = LocalToWorld(CosineHemisphere(u1, u2), normal);
+RayHit hit = TraceRay(position, dir);
+float3 radiance = ShadeHit(hit);                                         // 当たった点の、ライティング
+// 重み: 「目標となる、分布」（当たった点の、光の明るさ）/「実際に、サンプルした分布」（余弦重み）。
+float target_pdf = Luminance(radiance);                                  // 目標: 明るい光を、多く
+float source_pdf = CosinePdf(dir, normal);                               // 実際に、サンプルした、確率密度
+UpdateReservoir(r, hit.position, hit.normal, radiance, target_pdf / source_pdf, u3);
+```
+
+<strong>目標となる、分布</strong>（明るい光ほど、<strong>選びたい</strong>）と、実際に、サンプルした、分布（余弦重み）の、比が、重みです。明るい光を、見つけた候補は、重みが、大きく、リザーバーに、残りやすくなります。
+
+### ② 時間的な、再利用
+
+```hlsl
+// 前のフレームの、同じ場所の、リザーバーを、読んで、今のリザーバーに、マージする。
+Reservoir prev = g_prev_reservoirs[prev_pixel];
+prev.M = min(prev.M, 20.0 * r.M);                                        // 履歴の、影響に、上限（古すぎる、サンプルを、弱める）
+// 前の、サンプルの、重みを、今のピクセルの、目標分布で、評価し直す（今の、位置・法線から、見た、明るさ）。
+float prev_target = Luminance(prev.radiance) * max(0.0, dot(normal, normalize(prev.hit_position - position)));
+// マージ: 前のリザーバーを、1 つの、候補として、今のリザーバーに、投入する。
+UpdateReservoir(r, prev.hit_position, prev.hit_normal, prev.radiance, prev_target * prev.W * prev.M, u4);
+r.M += prev.M - 1.0;                                                      // 見てきた、候補数を、足す
+```
+
+<strong>前のフレームの、リザーバー</strong>が、<strong>数十フレーム分</strong>の、候補を、代表しています。今のリザーバーに、マージすることで、数十フレーム分の、サンプルを、使えます。今の位置・法線から、見直した、重み（`prev_target`）で、評価し直すことが、偏りを、避けるために、必要です。
+
+### ③ 空間的な、再利用
+
+```hlsl
+// 隣の画素（数個）の、リザーバーを、候補として、マージする。法線・深度が、近い画素だけ。
+for (int k = 0; k < kSpatialSamples; ++k) {
+  uint2 neighbor = pixel + RandomOffsetInDisk(k, radius);
+  if (!SimilarSurface(neighbor, pixel)) continue;                         // 別の面（法線・深度が、違う）は、使わない
+  Reservoir n = g_reservoirs[neighbor];
+  float n_target = Luminance(n.radiance) * max(0.0, dot(normal, normalize(n.hit_position - position)));
+  UpdateReservoir(r, n.hit_position, n.hit_normal, n.radiance, n_target * n.W * n.M, Random(k));
+  r.M += n.M - 1.0;
+}
+```
+
+<strong>隣の画素が、見つけた、良い、サンプル</strong>（明るい点）を、<strong>自分の候補に、加えます</strong>。1 回の、空間的な、再利用で、実質的なサンプル数が、数倍に、なります。数回、繰り返す（ping-pong）と、さらに、増える。
+
+### ④ シェーディング
+
+```hlsl
+// 最終的に、選ばれたサンプルの、方向の、光で、間接光を、計算する。
+float3 dir = normalize(r.hit_position - position);
+float cos_term = max(0.0, dot(normal, dir));
+float3 indirect = albedo / 3.14159265 * r.radiance * cos_term * r.W;     // r.W: バイアス補正の重み（1 / ターゲット × 重み合計 / M）
+```
+
+<strong>r.W</strong>（最終的な、重み）が、<strong>偏りの、補正</strong>です。`W = weight_sum / (M × target_pdf)` で、リザーバー サンプリングの、公式から、導かれます（Bitterli ら、2020）。
+
+## 偏り（バイアス）の、問題
+
+<strong>空間的な、再利用</strong>で、<strong>隣の画素</strong>の、サンプルを、使うと、その方向が、自分から、見えるか（間に、壁が、あるか）を、確認していないと、間違った、光を、使います（光漏れ）。正しくは、隣の、サンプルの、方向に、影レイを、飛ばして、見えるかを、確認します。
+
+| 方式 | 内容 | コスト |
+| --- | --- | --- |
+| 偏りあり（可視性を、確認しない） | 速い。光漏れ、暗くなる、バイアス | 小 |
+| 偏りなし（可視性を、確認） | 正しい。影レイが、追加で、必要 | 中 |
+
+実用では、<strong>偏りを、許容</strong>して、<strong>類似した面</strong>（法線・深度）だけ、再利用し、必要な場面だけ、影レイで、確認します。
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | デノイザーに、渡す前の、質が、高い。同じレイ数で、ノイズが、はるかに、少ない |
+| 長所 | 明るい光を、見つけやすい（重点サンプリング）。小さく、明るい光源（窓、ランプ）の、間接光が、安定 |
+| 長所 | 1 画素あたり、1 本のレイでも、高品質 |
+| 短所 | リザーバーの、メモリ（画素ごとに、リザーバーを、2 つ持つ、ping-pong） |
+| 短所 | 実装が、複雑。偏りの、管理が、難しい |
+| 短所 | 動く物・急な、光の変化で、時間的な、再利用が、乱れる（ゴースト） |
+| 短所 | GPU レイトレーシングが、必要 |
+
+## 他の、手法との、関係
+
+| 手法 | ReSTIR との、関係 |
+| --- | --- |
+| デノイザー（SVGF など） | ReSTIR の、後に、さらに、デノイズする（併用）。ReSTIR で、入力の質が、上がるので、デノイザーを、弱くできる |
+| DDGI | 別の、アプローチ（プローブに、蓄積）。ReSTIR は、画素ごと。併用する場合も（プローブで、遠くの光、ReSTIR で、近くの細部） |
+
 ## よくあるミス
 
 ??? failure "再利用が強すぎて、光が不自然ににじむ"
@@ -218,9 +359,11 @@ ReSTIR は、DI（直接光）から GI（間接光）、さらに <strong>ReSTI
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Bitterli, Wyman, Pharr, Shirley, Lefohn, Jarosz, "Spatiotemporal Reservoir Resampling for Real-Time Ray Tracing with Dynamic Direct Lighting", ACM Transactions on Graphics (SIGGRAPH 2020)（ReSTIR）
+- Ouyang, Liu, Kettunen, Pharr, Pantaleoni, "ReSTIR GI: Path Resampling for Real-Time Path Tracing", Computer Graphics Forum (High-Performance Graphics 2021)
+- Wyman, Kettunen, Lin, Bitterli, Pantaleoni, Ouyang, Pharr, "A Gentle Introduction to ReSTIR: Path Reuse in Real-Time", SIGGRAPH 2023 Courses
+- Talbot, Cline, Egbert, "Importance Resampling for Global Illumination", Eurographics Symposium on Rendering 2005（重要度リサンプリングの、源流）
+- Schied, Kaplanyan, Wyman, Patney, Chaitanya, Burgess, Liu, Dachsbacher, Lefohn, Salvi, "Spatiotemporal Variance-Guided Filtering: Real-Time Reconstruction for Path-Traced Global Illumination", High-Performance Graphics 2017（SVGF）
 
 ## 関連ページ
 

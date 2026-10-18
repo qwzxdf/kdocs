@@ -45,6 +45,61 @@ float3 PathTraceGI(float3 pos, float3 normal, uint2 pixel) {
 | [Radiance Cascades](radiance-cascades.md) | 距離ごとの解像度でまとめる |
 | [Choosing a Method](choosing.md) | 動的 GI の選択と長所短所 |
 
+## レイトレーシングで、間接光を求める
+
+<strong>ハードウェア レイトレーシング</strong>（DXR、[DirectX Raytracing](https://learn.microsoft.com/windows/win32/direct3d12/direct3d-12-raytracing)）が、<strong>GPU で、使える</strong>ようになり、間接光を、実際に、レイを、飛ばして、求めることが、リアルタイムで、可能になりました。シーンの、形状を、近似せず（ボクセル、距離場、画面空間）、本物の、三角形に対して、レイを、飛ばせます。
+
+## 基本の、考え方
+
+<strong>各画素</strong>から、<strong>半球の、ランダムな、方向</strong>に、レイを、飛ばし（モンテカルロ、[Monte Carlo Integration](../theory/monte-carlo.md)）、当たった面の、ライティングを、集めます。1 回の反射（1 バウンス）で、間接光を、直接、サンプルします。
+
+```hlsl
+// DXR: 各画素の、拡散の、間接光を、1 本のレイで、推定する（レイ生成シェーダー）。
+[shader("raygeneration")]
+void GIRayGen() {
+  uint2 pixel = DispatchRaysIndex().xy;
+  float3 position = g_gbuffer_position[pixel];
+  float3 normal = g_gbuffer_normal[pixel];
+  float3 albedo = g_gbuffer_albedo[pixel];
+
+  float2 u = Random2(pixel, g_frame_index);
+  float3 dir = LocalToWorld(CosineHemisphere(u.x, u.y), normal);         // 余弦重みづけ（拡散）
+
+  RayDesc ray = { position + normal * 1e-3, 0.0, dir, 1e27 };
+  Payload payload = { float3(0, 0, 0) };
+  TraceRay(g_scene, RAY_FLAG_NONE, 0xFF, 0, 1, 0, ray, payload);         // 本物の三角形に対して、レイを飛ばす
+
+  g_gi_raw[pixel] = float4(albedo * payload.radiance, 1.0);              // 余弦重みづけなので、albedo × 光（約分されている）
+}
+```
+
+<strong>ヒット シェーダー</strong>（当たった面）で、<strong>その面の、直接光</strong>（太陽、ライト + 影レイ）と、前のフレームの、間接光（多重反射）を、計算して、返します。
+
+## 問題：ノイズ
+
+<strong>1 画素あたり、1 本</strong>の、レイでは、<strong>ノイズだらけ</strong>です（[Monte Carlo Integration](../theory/monte-carlo.md)：誤差は、`1/√N`）。リアルタイムでは、レイを、増やせないので、デノイズ（[Fighting Noise](noise.md)）、再利用（[ReSTIR GI](restir.md)）、キャッシュ（プローブ。[DDGI](../ddgi.md)）で、補います。
+
+## 代表的な、アプローチ
+
+| アプローチ | 内容 | ページ |
+| --- | --- | --- |
+| 画素ごとに、レイ + デノイズ | 1 画素に、1 本のレイ + 時空間フィルタ | [Fighting Noise](noise.md) |
+| ReSTIR GI | 隣の画素・前フレームの、レイの結果を、再利用 | [ReSTIR GI](restir.md) |
+| キャッシュ（プローブ）に、レイ | プローブから、レイを、飛ばし、結果を、蓄積（[DDGI](../ddgi.md)） | [DDGI](../ddgi.md) |
+| Lumen 型（ハイブリッド） | 画面空間 + 距離場 + サーフェス キャッシュを、組み合わせる | [Lumen-Style Approaches](lumen-style.md) |
+| Radiance Cascades | カスケード状に、レイを、まとめて、再利用 | [Radiance Cascades](radiance-cascades.md) |
+
+## 選び方
+
+| 状況 | おすすめ |
+| --- | --- |
+| ハードウェア RT が、使える、高品質 | ReSTIR GI + デノイズ、DDGI |
+| ハードウェア RT が、無い | Lumen 型（ソフトウェア距離場）、ボクセル GI、SSGI + プローブ |
+| 2D ゲーム、画面空間 | Radiance Cascades |
+| 広い、オープン ワールド | Lumen 型、DDGI（カスケードの、プローブ） |
+
+詳しい、判断は、[Choosing a Method](choosing.md) を、見てください。
+
 ## これだけ覚える
 
 !!! abstract "まとめ"
@@ -53,9 +108,12 @@ float3 PathTraceGI(float3 pos, float3 normal, uint2 pixel) {
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Microsoft, "DirectX Raytracing (DXR) Functional Spec"
+- Schied, Kaplanyan, Wyman, Patney, Chaitanya, Burgess, Liu, Dachsbacher, Lefohn, Salvi, "Spatiotemporal Variance-Guided Filtering: Real-Time Reconstruction for Path-Traced Global Illumination", High-Performance Graphics 2017（SVGF）
+- Bitterli, Wyman, Pharr, Shirley, Lefohn, Jarosz, "Spatiotemporal Reservoir Resampling for Real-Time Ray Tracing with Dynamic Direct Lighting", ACM Transactions on Graphics (SIGGRAPH 2020)（ReSTIR）
+- Ouyang, Liu, Kettunen, Pharr, Pantaleoni, "ReSTIR GI: Path Resampling for Real-Time Path Tracing", Computer Graphics Forum (High-Performance Graphics 2021)
+- Wright, Narkowicz, Kelly, "Lumen: Real-time Global Illumination in Unreal Engine 5", SIGGRAPH 2022, Advances in Real-Time Rendering in Games
+- Majercik, Guertin, Nowrouzezahrai, McGuire, "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields", Journal of Computer Graphics Techniques, Vol. 8, No. 2, 2019（DDGI）
 
 ## 関連ページ
 

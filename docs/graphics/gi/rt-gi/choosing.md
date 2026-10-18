@@ -39,6 +39,76 @@ tags:
 
 方式の選択は、技術の新しさでなく、<strong>制約から逆算</strong>して決めます。まず、対象のハードウェアを決めます（PC のみか、コンソールか、モバイルか）。次に、動的な変化がどれだけ必要かを決めます。昼夜サイクルや破壊がなく、光が固定なら、ライトマップとプローブで十分で、最も軽くて高品質です。動的な光が必要でも、変化がゆっくりなら、DDGI のようなプローブの更新で足ります。ジオメトリが大きく変わる、あるいは画面外の光が重要なら、Lumen 的な方式やレイトレ GI が選択肢に入ります。最後に、開発の人手を考えます。ReSTIR やデノイザは、自前で作るには負担が大きく、既存のエンジンや SDK（Unreal、NRD、RTXGI）を使うほうが現実的です。
 
+## 手法を、選ぶ、基準
+
+<strong>リアルタイムの、レイトレーシング GI</strong> には、<strong>複数の手法</strong>が、あります。どれが、最良ということは、なく、ゲームの、条件で、選びます。
+
+| 基準 | 内容 |
+| --- | --- |
+| ハードウェア RT の、有無 | DXR 対応の GPUを、前提にできるか |
+| ターゲットの、性能 | PC（高性能）、コンソール、ハイエンドのみ、ミドル |
+| シーンの、規模 | 狭い室内、広いオープン ワールド |
+| 光の、変化 | 静的、昼夜が、変わる、動く、ライト |
+| 品質の、要求 | フォトリアル、スタイライズ |
+| 開発の、リソース | 自作、エンジンの、機能を、使う |
+
+## 手法の、比較
+
+| 手法 | RT 必要 | コスト | 品質 | ノイズ | 世界全体 | 実装の、難しさ |
+| --- | --- | --- | --- | --- | --- | --- |
+| ライトマップ + プローブ（ベイク） | 不要 | 最小 | 高（静的） | なし | ○（事前） | 低〜中 |
+| SSGI | 不要 | 小 | 中 | 中 | ×（画面のみ） | 低 |
+| ボクセル GI | 不要 | 中〜大 | 中 | 小 | ○（範囲内） | 中〜高 |
+| DDGI | 必要 | 中 | 中〜高（低周波） | 小 | ○ | 中 |
+| ReSTIR GI + デノイズ | 必要 | 大 | 高 | 小〜中 | ○ | 高 |
+| Lumen 型 | 任意（距離場でも可） | 中〜大 | 高 | 小 | ○ | 非常に高 |
+| Radiance Cascades | 不要 | 中 | 高（2D） | なし | ×（2D） | 中 |
+
+## 状況別の、おすすめ
+
+| 状況 | おすすめ | 理由 |
+| --- | --- | --- |
+| 静的な、場面（室内、一本道）、幅広い、ハード | ライトマップ + ライト プローブ | 最高品質で、最安。どの GPU でも、動く |
+| 昼夜が、変わる、オープン ワールド（RT なし） | プローブの、動的更新 + 空の、環境光、SSGI で、補う | RT 不要。軽い |
+| 昼夜、動く物（DXR 対応の、ハイエンド PC） | DDGI、または、ReSTIR GI | 完全に、動的。画面の外の、光も、使える |
+| 最高品質（DXR、ハイエンド） | ReSTIR GI + デノイザー、DDGI（遠く）+ ReSTIR（近く） | ノイズが、少なく、細部が、正確 |
+| 2D ゲーム | Radiance Cascades | ノイズなし、光源数に、依存しない |
+| 自作の、小規模エンジン（学習・インディー） | ライト プローブ（SH）+ SSGI、慣れたら、DDGI | 実装が、現実的 |
+
+## 組み合わせる
+
+<strong>1 つに、絞らず</strong>、<strong>組み合わせる</strong>のが、現実的です。
+
+| 組み合わせ | 役割分担 |
+| --- | --- |
+| DDGI + SSGI | DDGI が、世界全体の、低周波の、間接光、SSGI が、近距離の、細かい、陰影（接触の、光のにじみ） |
+| ライトマップ + DDGI | 静的な背景は、ライトマップ（最高品質）、動く物は、DDGI（動的）。DDGI の、レイが、ライトマップを、読む（ヒット シェーダーで、ライトマップを、引く） |
+| ReSTIR GI + DDGI | 近くは、ReSTIR（画素ごと、高品質）、遠くは、DDGI（プローブ、安い） |
+| GI + AO + コンタクト シャドウ | GI は、低周波。細かい、接触の暗さは、AO / コンタクト シャドウで、補う（[AO](../../ao/index.md)、[Contact Shadows](../../shadows/contact-shadows.md)） |
+
+## 判断の、順序
+
+```text
+1. 光は、動くか？
+     No  → ライトマップ + プローブ（ここで終わり。最も、安く、高品質）
+     Yes ↓
+2. ハードウェア RT を、前提にできるか？
+     No  → プローブの動的更新 + SSGI（+ ボクセル GI）
+     Yes ↓
+3. 品質を、最優先か、それとも、安さか？
+     最優先 → ReSTIR GI + デノイザー（+ DDGI）
+     安さ   → DDGI
+```
+
+## 注意点
+
+| 項目 | 内容 |
+| --- | --- |
+| フォールバック | RT 非対応の、環境に、対応するなら、フォールバック（ベイク + SSGI）を、用意 |
+| 品質設定 | レイ数、プローブ数、デノイズの、強さを、設定で、変えられるように |
+| デバッグ | 間接光だけを、表示する、デバッグ ビュー（直接光を、消す）を、用意。GI の、バグは、見つけにくい |
+| 測る | プロファイラ（[パフォーマンス プロファイラー](../../../vs/profiler.md)、PIX）で、実際の、コストを、測る。計算量の、見積もりが、当たらないことが、多い |
+
 ## よくあるミス
 
 ??? failure "最新の手法を選んで、対象機種で動かない"
@@ -51,9 +121,11 @@ tags:
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Wright, Narkowicz, Kelly, "Lumen: Real-time Global Illumination in Unreal Engine 5", SIGGRAPH 2022, Advances in Real-Time Rendering in Games
+- Majercik, Guertin, Nowrouzezahrai, McGuire, "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields", Journal of Computer Graphics Techniques, Vol. 8, No. 2, 2019（DDGI）
+- Bitterli, Wyman, Pharr, Shirley, Lefohn, Jarosz, "Spatiotemporal Reservoir Resampling for Real-Time Ray Tracing with Dynamic Direct Lighting", ACM Transactions on Graphics (SIGGRAPH 2020)（ReSTIR）
+- Ouyang, Liu, Kettunen, Pharr, Pantaleoni, "ReSTIR GI: Path Resampling for Real-Time Path Tracing", Computer Graphics Forum (High-Performance Graphics 2021)
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明の章）
 
 ## 関連ページ
 

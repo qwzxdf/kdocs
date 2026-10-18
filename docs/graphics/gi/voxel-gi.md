@@ -326,6 +326,159 @@ float4 ConeTrace(float3 origin, float3 dir, float aperture) {
 
 <strong>「ボクセル（またはそれに類する 3D 格子）に光を保存し、円錐/レイでたどる」</strong>という<strong>考え方</strong>は、<strong>多くの動的 GI に受け継がれています</strong>。
 
+## ボクセルで、シーンを、持つ
+
+<strong>ボクセル GI</strong>（VXGI、Voxel Cone Tracing、Crassin ら、2011）は、<strong>シーン全体を、3D の、格子（ボクセル）に、変換</strong>し、各ボクセルに、光と、形状の、情報を、持たせ、その、ボクセルを、辿って、間接光を、求めます。画面の外の、情報も、持てるので、SSGI の、弱点が、ありません。
+
+## 全体の流れ
+
+```text
+① シーンを、ボクセル化（各ボクセルに、アルベド、法線、不透明度を、書き込む）
+② ボクセルに、直接光を、注入（各ボクセルが、受けている、光 = 放射輝度）
+③ ミップマップを、作る（ボクセルを、粗い解像度にまとめた、階層）
+④ 各画素から、コーン（円錐）を、飛ばして、ミップを、辿り、間接光を、集める（コーン トレーシング）
+```
+
+## ① ボクセル化
+
+<strong>シーンの、三角形</strong>を、<strong>3D テクスチャの、ボクセル</strong>に、書き込みます。ジオメトリ シェーダー（または、保守的ラスタライズ）で、三角形を、最も、面積が大きく、見える、軸（X、Y、Z のどれか）に、投影して、ラスタライズし、ピクセル シェーダーで、ボクセルに、書き込みます。
+
+```hlsl
+// ボクセル化のピクセル シェーダー: 三角形が、通る、ボクセルに、色と法線を、書き込む。
+RWTexture3D<float4> g_voxel_albedo : register(u1);
+RWTexture3D<float4> g_voxel_normal : register(u2);
+
+void VoxelizePS(VoxelPSInput input) {
+  // ワールド位置 → ボクセル格子の座標（整数）。
+  int3 voxel = (int3)floor((input.world_position - g_voxel_origin) / g_voxel_size);
+  float4 albedo = g_albedo.Sample(g_linear_wrap, input.uv);
+  // 複数の三角形が、同じボクセルに、入る。ここでは、単純に、上書き（本来は、平均など）。
+  g_voxel_albedo[voxel] = float4(albedo.rgb, 1.0);                      // a = 不透明度（ボクセルが、占められている）
+  g_voxel_normal[voxel] = float4(input.world_normal * 0.5 + 0.5, 1.0);
+}
+```
+
+<strong>ボクセルの、大きさ</strong>は、<strong>10〜50 cm</strong>（解像度は、128³〜512³）。範囲が、広いと、ボクセルが、粗くなるので、カメラの周りに、追従する（カスケード、クリップマップ）、構造に、します。
+
+## ② 直接光の、注入
+
+<strong>ボクセル化した、シーン</strong>の、<strong>各ボクセル</strong>に、直接光（太陽、ライト）を、当てて、そのボクセルから、出ていく光（放射輝度）を、計算して、保存します。シャドウ マップを、引いて、影の中の、ボクセルは、暗くします。
+
+```hlsl
+// 計算シェーダー: 各ボクセルの、出射放射輝度を、直接光から、計算して、書き込む。
+[numthreads(8, 8, 8)]
+void InjectCS(uint3 id : SV_DispatchThreadID) {
+  float4 albedo = g_voxel_albedo[id];
+  if (albedo.a < 0.5) return;                                            // 空のボクセル
+  float3 pos = g_voxel_origin + (float3(id) + 0.5) * g_voxel_size;       // ボクセル中心の、ワールド位置
+  float3 N = g_voxel_normal[id].xyz * 2.0 - 1.0;
+  float shadow = SampleShadow(pos);
+  float3 radiance = albedo.rgb * g_sun_color * saturate(dot(N, -g_sun_dir)) * shadow;
+  g_voxel_radiance[id] = float4(radiance, albedo.a);                     // 出射放射輝度 + 不透明度
+}
+```
+
+<strong>多重反射</strong>は、<strong>前のフレームの、ボクセルの、間接光</strong>を、今フレームの、ボクセルに、足し込むことで、フレームを、またいで、積み重なります。
+
+## ③ ミップマップを、作る
+
+<strong>ボクセルの、3D テクスチャ</strong>に、<strong>ミップマップ</strong>を、作ります。ミップが、1 段進むと、ボクセルの、解像度が、半分（8 つの、ボクセルを、1 つに、平均）になり、広い範囲の、平均的な、光と、不透明度を、表します。
+
+```cpp
+// 3D テクスチャの、ミップを、生成する（ミップごとに、計算シェーダーで、8 ボクセルを、平均する）。
+// ミップ 0 = 128³、ミップ 1 = 64³、ミップ 2 = 32³ ...
+```
+
+<strong>コーンが、遠くへ、進む</strong>ほど、<strong>広い範囲を、まとめて、見る</strong>必要が、あり、粗い、ミップを、読むのが、効率的です（コーン トレーシングの、核心）。
+
+## ④ コーン トレーシング
+
+<strong>各画素</strong>から、<strong>円錐（コーン）</strong>を、複数、飛ばし、円錐の中の、光を、集めます。1 本の、細いレイでなく、広がる、コーンを、使うことで、少ない本数（6 本、法線の、周りに）でも、拡散の、間接光（半球の、全体）を、カバーできます。
+
+```text
+画素 P から、法線の周りの半球を、6 本のコーン（円錐）で、覆う
+
+      ╱│╲      各コーン: 進むほど、広がる。広がった大きさに合う、ミップを読んで、光を集める
+     ╱ │ ╲
+    ╱  │  ╲
+```
+
+### コーンの、進み方
+
+コーンは、<strong>進むにつれて、直径が、広がり</strong>ます。<strong>その直径</strong>に、合った、ミップを、読みます。
+
+```hlsl
+// コーン 1 本を、トレースして、集めた光と、遮蔽（不透明度）を返す。
+float4 TraceCone(float3 origin, float3 dir, float aperture, float max_distance) {
+  float4 accum = 0.0;                                                    // rgb = 光、a = 累積した、不透明度
+  float distance = g_voxel_size;                                         // 開始位置（自分の、ボクセルを、避けるため、少し進める）
+  while (distance < max_distance && accum.a < 0.95) {
+    float diameter = max(g_voxel_size, 2.0 * aperture * distance);       // この距離での、コーンの、直径
+    float mip = log2(diameter / g_voxel_size);                           // 直径に、合う、ミップ
+    float3 uvw = (origin + dir * distance - g_voxel_origin) / g_voxel_extent;
+    float4 sample = g_voxel_radiance.SampleLevel(g_linear_clamp, uvw, mip);   // ミップから、光と不透明度を読む（3D テクスチャの、補間）
+    // 手前から奥へ、前から後ろへの、合成（アルファ ブレンドと、同じ式）。
+    float a = (1.0 - accum.a) * sample.a;
+    accum.rgb += a * sample.rgb;
+    accum.a += a;
+    distance += diameter * 0.5;                                          // 直径の、半分ずつ進む
+  }
+  return accum;
+}
+```
+
+<strong>コーンの、直径</strong>は、`2 × aperture × distance`（<strong>開き角 × 距離</strong>）で、距離に、比例して、広がります。直径に、合う、ミップ（`log2(直径 / ボクセル)`）を、読むので、遠くは、粗い、ミップ（広い範囲の、平均）を、読み、コストが、抑えられます。手前から、奥へ、光と、不透明度を、合成し、不透明度が、ほぼ 1（ふさがれた）なら、打ち切ります。
+
+### 拡散の、間接光
+
+<strong>法線の、周りの、半球</strong>を、<strong>数本の、コーン</strong>（1 本の真上 + 5 本の斜め）で、カバーし、余弦重みで、足し合わせます。
+
+```hlsl
+float3 VoxelDiffuseGI(float3 position, float3 normal, float3 albedo) {
+  float3 t, b;
+  BuildBasis(normal, t, b);                                              // 法線から、直交基底（[Monte Carlo Integration]）
+  // 6 本のコーン: 法線方向 + 斜め 5 本（60° の傾き）。重みは、余弦に、比例（合計 1）。
+  const float3 kConeDirs[6] = { float3(0, 0, 1), float3(0, 0.866, 0.5), float3(0.823, 0.268, 0.5),
+                                float3(0.509, -0.700, 0.5), float3(-0.509, -0.700, 0.5), float3(-0.823, 0.268, 0.5) };
+  const float kConeWeights[6] = { 0.25, 0.15, 0.15, 0.15, 0.15, 0.15 };
+  float3 sum = 0.0;
+  for (int i = 0; i < 6; ++i) {
+    float3 dir = t * kConeDirs[i].x + b * kConeDirs[i].y + normal * kConeDirs[i].z;
+    sum += TraceCone(position + normal * g_voxel_size, dir, /*aperture*/ 0.577, 50.0).rgb * kConeWeights[i];
+  }
+  return albedo * sum;
+}
+```
+
+<strong>開き角</strong>（`aperture`）が、<strong>約 60° の、コーン</strong>（`tan(30°) ≈ 0.577`）を、6 本で、半球を、ほぼ、覆います。少ないコーンで、半球全体を、サンプルできるのが、コーン トレーシングの、効率の、良さです。
+
+## 鏡面反射
+
+<strong>細い、コーン</strong>（<strong>開き角を、粗さに、応じて、小さく</strong>）で、反射方向を、トレースすると、鏡面の、間接光も、得られます（粗い、鏡面）。つるつるの鏡面は、ボクセルの、解像度が、足りず、ぼやけます。
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | 動的（光・物の、変化に、追従）。GPU レイトレーシングが、不要 |
+| 長所 | 世界全体の、光（画面の外も）。ボクセルの、範囲内 |
+| 長所 | 拡散 + 粗い鏡面の、両方が、1 つの仕組みで、得られる |
+| 短所 | メモリが、大きい（ボクセルの 3D テクスチャ + ミップ。512³ で、数百 MB） |
+| 短所 | ボクセル化の、コスト（動く物は、毎フレーム、再ボクセル化） |
+| 短所 | 解像度が、粗い（10〜50 cm）。細かい、影、薄い壁は、表現できない。光漏れ（薄い壁を、コーンが、すり抜ける） |
+| 短所 | コーンの、トレースが、重い（画素あたり、数本のコーン × 数十ステップ） |
+| 短所 | 範囲が、有限。カメラの、周りだけ（クリップマップ）なので、遠くの、間接光は、無い |
+
+### 光漏れ
+
+<strong>ボクセルが、粗い</strong>と、<strong>薄い壁</strong>（ボクセル 1 つ分に、満たない）は、ボクセルの、不透明度が、低く（壁が、ボクセルの、一部しか、占めない）なり、コーンが、壁を、すり抜けて、向こうの光を、拾います。
+
+| 対策 | 内容 |
+| --- | --- |
+| ボクセルを、細かく | メモリ・コストが、増える |
+| 不透明度を、強調（薄い壁でも、ボクセルを、ほぼ不透明に） | ボクセル化で、占有を、保守的に |
+| 方向性のある、ボクセル（6 方向の、不透明度） | ボクセルごとに、方向別の、不透明度を、持つ。壁の、向きを、考慮 |
+
 ## よくあるミス
 
 ??? failure "ボクセル化で小さい三角形が、漏れて、穴が空く"
@@ -351,9 +504,10 @@ float4 ConeTrace(float3 origin, float3 dir, float aperture) {
 
 ## 参考
 
-- Crassin et al., "Interactive Indirect Illumination Using Voxel Cone Tracing"（Pacific Graphics 2011）
-- Crassin, "GigaVoxels"（博士論文、2011）
-- Godot, "SDFGI"（ドキュメント）
+- Crassin, Neyret, Sainz, Green, Eisemann, "Interactive Indirect Illumination Using Voxel Cone Tracing", Computer Graphics Forum (Pacific Graphics 2011)
+- Kaplanyan, Dachsbacher, "Cascaded Light Propagation Volumes for Real-Time Indirect Illumination", Symposium on Interactive 3D Graphics and Games 2010
+- Kaplanyan, "Light Propagation Volumes in CryEngine 3", SIGGRAPH 2009, Advances in Real-Time Rendering in 3D Graphics and Games
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明の章）
 
 ## 関連ページ
 

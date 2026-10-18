@@ -604,6 +604,93 @@ Radiance Cascades は、ランダムを使わず、規則的なサンプルな�
 
 原典は、Alexander Sannikov による公開資料と、Osborne らによる論文（2024 年）です。この手法は発展の途中なので、最新の情報は原典を確認してください。
 
+## Radiance Cascades とは
+
+<strong>Radiance Cascades</strong>（Sannikov、2023）は、<strong>間接光</strong>（グローバル イルミネーション）を、ほぼ、ノイズなしで、一定の、コストで、計算する、新しい、アプローチです。元々は、2D ゲームの、ライティング（Path of Exile 2 などの、画面空間）で、使われ、3D への、拡張も、研究されています。
+
+## 考え方：光の、見え方は、距離で、変わる
+
+<strong>点の周りの、光</strong>を、<strong>サンプル</strong>するとき、サンプルする、方向の、数と、距離には、関係があります。
+
+| 距離 | 必要な、方向の、数 | 必要な、位置の、細かさ |
+| --- | --- | --- |
+| 近い（数画素） | 少ない（角度が、粗くてよい。近くの、光は、少ない方向で、十分に、捉えられる） | 細かい（近くの、変化は、急） |
+| 遠い（数百画素） | 多い（遠くの、小さな光源を、見つけるには、細かい角度が、必要） | 粗い（遠くの、光は、位置の変化に、ゆるやか） |
+
+<strong>近くは、位置を、細かく、方向を、粗く</strong>、<strong>遠くは、位置を、粗く、方向を、細かく</strong>、サンプルすれば、効率が、良い、という、観察です。
+
+## カスケード
+
+<strong>距離の、範囲ごと</strong>に、<strong>別の、解像度</strong>（位置の、密度と、方向の、数）で、光を、集めます。カスケード（階層）と、呼びます。
+
+```text
+カスケード 0: 距離 0〜4 画素   位置: 全画素ごと   方向: 4 方向
+カスケード 1: 距離 4〜16 画素  位置: 2 画素おき   方向: 16 方向（4 倍）
+カスケード 2: 距離 16〜64 画素 位置: 4 画素おき   方向: 64 方向（4 倍）
+カスケード 3: 距離 64〜256 画素 位置: 8 画素おき  方向: 256 方向（4 倍）
+```
+
+<strong>次の、カスケードに、行く</strong>ごとに、<strong>位置の、密度が、1/4</strong>（縦横、半分）に、方向の数が、4 倍に、なります。どのカスケードも、サンプルの、総数が、ほぼ同じ（位置 × 方向）なので、コストが、一定です。
+
+## 各カスケードで、光を、集める
+
+<strong>各カスケードの、各プローブ</strong>は、<strong>自分の、担当する、距離の範囲</strong>（たとえば、16〜64 画素）だけ、各方向に、レイを、進め、そこに、ある、光と、遮蔽を、集めます。レイが、短い（担当する範囲だけ）ので、安く、同じ範囲を、どのレイも、見るため、ノイズが、出ません（ランダムでなく、決まった、方向）。
+
+```hlsl
+// カスケード n の、プローブ 1 つ: 担当する距離範囲（[start, end]）で、各方向に、短いレイを、進める。
+float4 CastRayInterval(float2 origin, float2 dir, float start, float end) {
+  float3 radiance = 0.0;
+  float transmittance = 1.0;                                             // 遮蔽（光が、通り抜けたか）
+  for (float t = start; t < end; t += 1.0) {
+    float2 p = origin + dir * t;
+    float4 scene = g_scene.SampleLevel(g_point_clamp, p / g_size, 0);    // rgb = その画素の、発光、a = 不透明度
+    radiance += transmittance * scene.rgb * scene.a;                      // 光源に当たったら、足す
+    transmittance *= (1.0 - scene.a);                                     // 遮蔽物に当たったら、光が、減る
+    if (transmittance < 0.01) break;
+  }
+  return float4(radiance, transmittance);                                 // 担当範囲の、光と、通り抜ける割合
+}
+```
+
+<strong>各レイ</strong>は、<strong>自分の担当範囲</strong>（`start` 〜 `end`）だけ、進み、光（発光）と、遮蔽を、集めます。担当範囲の、外は、他の、カスケードが、見ます。
+
+## カスケードを、マージする
+
+<strong>遠いカスケード（粗い）の、結果</strong>を、<strong>近いカスケード（細かい）</strong>に、足し込みます。近いカスケードの、各レイは、自分の、範囲の、先（遠く）を、次のカスケードに、問い合わせて、遠くの光を、引き継ぎます。
+
+```hlsl
+// カスケード n の、1 方向の結果 = 自分の範囲の結果 + 自分の範囲を、通り抜けた、割合 × 次のカスケードの、同じ方向の結果。
+float4 near = CastRayInterval(origin, dir, start, end);                   // このカスケードの範囲
+float4 far = SampleNextCascade(origin, dir);                              // 次の（遠い）カスケードの、同じ方向の、結果
+float3 total_radiance = near.rgb + near.a * far.rgb;                      // 近くを通り抜けた分だけ、遠くの光が、届く
+float total_transmittance = near.a * far.a;
+```
+
+<strong>近い範囲で、遮られたら</strong>（`near.a` が、小さい）、<strong>遠くの光は、届かない</strong>。通り抜けたら、遠くの光が、足されます。これを、カスケード 0 まで、繰り返すと、全距離の、光が、1 つに、まとまります。
+
+<strong>次の、カスケードの、結果の、読み出し</strong>では、<strong>4 つの近い、プローブ</strong>を、補間（双線形補間）して、方向も、補間します（4 倍の、方向の中から、対応する 4 方向を、平均）。
+
+## 長所と短所
+
+| | 内容 |
+| --- | --- |
+| 長所 | ノイズが、ほぼ、無い（ランダムでなく、決定的な、サンプル）。デノイズ不要 |
+| 長所 | コストが、一定（シーンの、複雑さ、光源の数に、依存しない） |
+| 長所 | 非常に、多くの、光源（数千）でも、同じコスト |
+| 長所 | ソフトな影、間接光が、まとめて得られる |
+| 短所 | 主に、2D（画面空間）向け。3D への、拡張は、研究段階（メモリ、コストが、増える） |
+| 短所 | 画面の外の情報が、無い（2D ゲームなら、画面が、世界全体） |
+| 短所 | カスケードの、継ぎ目で、アーティファクト（リンギング、ブロック状の、模様）が、出ることがある |
+| 短所 | シーンの、解像度に、依存（画素ごとの、不透明度・発光の、マップが、必要） |
+
+## 使いどころ
+
+| 場面 | 判断 |
+| --- | --- |
+| 2D ゲームの、ライティング（ピクセル アート、トップダウン） | 非常に、向く（動的な、ライトと、影を、ノイズなしで） |
+| 3D の、間接光（画面空間） | 研究段階。実験的に、試す価値 |
+| ハードウェア RT が、使えない、環境 | 選択肢（ただし、2D が、前提） |
+
 ## よくあるミス
 
 ??? failure "階層の境目に、段差が見える"
@@ -617,9 +704,9 @@ Radiance Cascades は、ランダムを使わず、規則的なサンプルな�
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Sannikov, "Radiance Cascades: A Novel Approach to Calculating Global Illumination", 2023（Radiance Cascades の、論文と、解説）
+- Osborne, Sannikov ほか, Path of Exile 2 の、ライティングに関する、開発者の発表資料（Radiance Cascades の、実用例）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明の章）
 
 ## 関連ページ
 

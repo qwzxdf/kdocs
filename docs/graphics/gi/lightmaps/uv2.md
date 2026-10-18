@@ -37,6 +37,104 @@ UV2 は、DCC ツールやエンジン（Unity の Generate Lightmap UVs、Unrea
 
 ライトマップの 1 テクセルが、ワールドで何 cm にあたるか（テクセル密度）が、影の細かさを決めます。大きな床や遠景なら 1 テクセル = 1 m 程度の粗さでも十分です。屋内の主要な面なら 10〜20 cm、影の細部が重要な重要オブジェクトなら数 cm まで上げます。細かくするほど、メモリとベイク時間が増えるので、見る距離と重要度で使い分けます。エンジンの多くは、オブジェクトごとに密度のスケールを設定でき、画面に近い物ほど高くします。
 
+## なぜ、専用の UV が、要るのか
+
+<strong>普通の、テクスチャ</strong>（アルベドなど）は、<strong>同じ絵を、複数の、面で、使い回し</strong>ます（タイル、ミラー、重なった UV）。ライトマップは、面ごとに、違う、明るさを、持つので、各面に、専用の、場所が、必要です。1 つの、メッシュの、全ての、面を、重ならないように、ライトマップ上に、並べた UV（UV2、第 2 UV）を、使います。
+
+| | 通常の UV（UV0） | ライトマップの UV（UV2） |
+| --- | --- | --- |
+| 面の重なり | あってよい（同じ絵を、複数の面で、使い回す） | あってはいけない（面ごとに、違う、明るさ） |
+| 0〜1 の範囲 | はみ出して、タイルしてよい | 0〜1 の中に、すべて、収める |
+| 向き・伸縮 | 自由（デザインで、決める） | 歪みを、少なく（光が、均一に、焼ける） |
+| 用途 | 色、模様 | 光 |
+
+## UV2 の、条件
+
+| 条件 | 理由 |
+| --- | --- |
+| 面が、重ならない | 重なった所は、同じ画素に、別の面の光を、書き込んで、衝突する |
+| 0〜1 の、範囲に、収まる | ライトマップは、1 枚の、画像。範囲の外は、無い |
+| 歪みが、少ない | 歪んだ UV（引き伸ばし）は、画素ごとの、面積が、不均一になり、ある所は、細かく、別の所は、粗い |
+| 面の間に、余白（パディング） | 隣の面の、光が、にじむ（バイリニア補間で、隣の画素を、読む）のを、防ぐ |
+| 面積に、比例した、大きさ | 広い面に、大きな、領域を、与える（画素密度が、一定） |
+
+## UV2 の、作り方
+
+### ① DCC ツールで、手動
+
+<strong>3D ツール</strong>（Blender、Maya、3ds Max）で、<strong>メッシュを、展開</strong>（UV アンラップ）し、第 2 UVとして、ライトマップ用の、配置を、作ります。手間ですが、制御が、効きます。
+
+### ② 自動生成
+
+<strong>自動で、UV を、作る</strong>、<strong>ライブラリ</strong>や、ツールが、あります。
+
+| ツール | 内容 |
+| --- | --- |
+| UVAtlas（DirectX） | Microsoft の、UV アトラス生成ライブラリ。DirectX Tool Kit 周りで、使える |
+| xatlas | オープンソースの、UV アトラス生成。C++ で、組み込みやすい |
+| エンジンの、自動 UV（Unity、Unreal） | インポート時に、自動で、UV2 を、生成 |
+
+<strong>自動生成の、考え方</strong>は、<strong>メッシュを、小さな、パッチ</strong>（チャート）に、分割し、各チャートを、平らに、展開（歪みを、最小に。最小二乗等角写像、Lévy ら、2002）、チャートを、1 枚の、画像に、詰める（パッキング）、という流れです。
+
+```cpp
+// xatlas で、ライトマップ UV を、自動生成する（概略）。
+xatlas::Atlas* atlas = xatlas::Create();
+xatlas::MeshDecl decl;
+decl.vertexPositionData = positions;  decl.vertexPositionStride = sizeof(float) * 3;
+decl.indexData = indices;  decl.indexCount = index_count;  decl.indexFormat = xatlas::IndexFormat::UInt32;
+xatlas::AddMesh(atlas, decl);
+
+xatlas::ChartOptions chart_options;                         // チャートの分割の、設定（歪みの、許容など）
+xatlas::PackOptions pack_options;
+pack_options.resolution = 1024;                              // ライトマップの、解像度
+pack_options.padding = 2;                                    // 面の間の、余白（画素）
+pack_options.texelsPerUnit = 8.0f;                           // 1 メートルあたりの、画素数（密度を、そろえる）
+xatlas::Generate(atlas, chart_options, pack_options);
+// atlas->meshes[0] から、新しい頂点（UV2 つき）と、インデックスを、取り出す。
+```
+
+`texelsPerUnit` は、<strong>画素密度</strong>（1 m あたりの、画素数）で、<strong>ライトマップの、細かさ</strong>を、決めます。8（12.5 cm ごとに、1 画素）が、一般的です。密度を、そろえると、どの面も、同じ、細かさで、光が、焼けます。
+
+## 頂点の、分割
+
+<strong>UV2 は、UV0 と、別の、展開</strong>なので、<strong>1 つの頂点が、UV0 と、UV2 で、別の位置</strong>を、持つ、必要があります。展開の、境目（チャートの、継ぎ目）では、同じ位置の、頂点が、別の UV2 を、持つため、頂点が、複製（分割）されます。頂点数が、増えます。
+
+```cpp
+struct Vertex {
+  float3 position;
+  float3 normal;
+  float2 uv0;            // 通常のテクスチャ（アルベドなど）
+  float2 uv2;            // ライトマップ
+};
+```
+
+## パディング（余白）の、重要性
+
+<strong>バイリニア補間</strong>で、ライトマップを、<strong>読む</strong>と、画素の、境目では、隣の画素の、色も、混ざります。隣の面の、画素が、隣り合っていると、別の面の光が、にじんで、継ぎ目に、線（ライト リーク）が、出ます。
+
+| 対策 | 内容 |
+| --- | --- |
+| 余白（2〜4 画素）を、空ける | 面の間に、何も、書かない領域を、作る |
+| 余白を、面の色で、塗りつぶす（ブリード） | 余白に、隣の面の、端の色を、延ばして、塗る。補間の、にじみが、自分の面の色に、近くなる |
+
+```text
+面 A のチャート       余白       面 B のチャート
+┌─────────────┐ ░░ ┌─────────────┐
+│    A         │ ░░ │    B         │      ░░ = 余白（A の端の色を、延ばして塗る = ブリード）
+└─────────────┘ ░░ └─────────────┘
+```
+
+## ライトマップの、解像度の、決め方
+
+| 場所 | 密度（画素 / m） |
+| --- | --- |
+| 近くで、見える、重要な面（床、壁） | 8〜16 |
+| 普通の面 | 4〜8 |
+| 遠くの面、見えない面 | 1〜2、または、焼かない |
+| 屋外の、地形 | 0.5〜2 |
+
+<strong>画素密度を、高く</strong>すると、<strong>影の境目が、鋭く</strong>なりますが、メモリが、増えます（密度を 2 倍で、メモリは 4 倍）。メッシュごとに、重要度に応じて、密度を、変えます。
+
 ## よくあるミス
 
 ??? failure "面の境目に、暗い線やにじみが出る"
@@ -50,9 +148,10 @@ UV2 は、DCC ツールやエンジン（Unity の Generate Lightmap UVs、Unrea
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Lévy, Petitjean, Ray, Maillot, "Least Squares Conformal Maps for Automatic Texture Atlas Generation", ACM Transactions on Graphics (SIGGRAPH 2002)
+- Young, "xatlas"（オープンソースの UV アトラス生成ライブラリ、GitHub: jpcy/xatlas）
+- Microsoft, "UVAtlas"（DirectX の UV アトラス生成ライブラリ、GitHub: microsoft/UVAtlas）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明、ライトマップ、プローブの章）
 
 ## 関連ページ
 

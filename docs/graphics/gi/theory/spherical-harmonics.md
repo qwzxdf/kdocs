@@ -134,6 +134,132 @@ SH は低次の打ち切りなので、鋭い変化は表せません。太陽�
 
 詳しい手順は Peter-Pike Sloan の "Stupid Spherical Harmonics (SH) Tricks"（GDC 2008）がよくまとまっています。
 
+## 球面上の関数を、少数の係数で表す
+
+<strong>ある点に、あらゆる方向から、入ってくる光</strong>は、<strong>球面上の、関数</strong>（方向 → 光の量）です。球面調和関数（spherical harmonics、SH）は、この関数を、少数の係数で、近似する方法です。1 次元の、フーリエ級数（サイン波の、足し合わせ）の、球面版と、考えてください。
+
+```text
+f(ω) ≈ Σ_{l=0}^{L} Σ_{m=−l}^{l}  c_lm × Y_lm(ω)         Y_lm: 基底関数（固定の、関数）、c_lm: 係数（光ごとに決める）
+```
+
+<strong>基底関数 `Y_lm`</strong> は、<strong>あらかじめ、決まった、固定の関数</strong>で、係数 `c_lm` だけが、光に、依存します。次数 `l` が、大きいほど、細かい、変化を、表せます。
+
+| 次数 L | 係数の数 `(L+1)²` | 表せるもの |
+| --- | --- | --- |
+| 0 | 1 | 平均（全方向が、同じ明るさ） |
+| 1 | 4 | おおまかな、向き（明るい側と、暗い側） |
+| 2 | 9 | 放射照度なら、ほぼ、十分（誤差 約 1%） |
+| 3 | 16 | より細かい（鏡面には、まだ、足りない） |
+
+## 基底関数（L2 まで）
+
+基底関数は、<strong>方向の、座標 `(x, y, z)`</strong>（単位ベクトル）の、<strong>多項式</strong>で、書けます。
+
+```hlsl
+// 実数の SH 基底（L2 まで、9 個）。n は、単位ベクトル。
+void SHBasis9(float3 n, out float y[9]) {
+  y[0] = 0.282095;                                   // L0
+  y[1] = 0.488603 * n.y;                             // L1, m = −1
+  y[2] = 0.488603 * n.z;                             // L1, m =  0
+  y[3] = 0.488603 * n.x;                             // L1, m = +1
+  y[4] = 1.092548 * n.x * n.y;                       // L2, m = −2
+  y[5] = 1.092548 * n.y * n.z;                       // L2, m = −1
+  y[6] = 0.315392 * (3.0 * n.z * n.z - 1.0);         // L2, m =  0
+  y[7] = 1.092548 * n.x * n.z;                       // L2, m = +1
+  y[8] = 0.546274 * (n.x * n.x - n.y * n.y);         // L2, m = +2
+}
+```
+
+<strong>L0</strong> は、<strong>定数</strong>（方向に、よらない）。L1 は、座標の、1 次式（`x`、`y`、`z`、向きを表す）。L2 は、座標の、2 次式（`xy`、`yz`、`3z² − 1`、`xz`、`x² − y²`）で、より、細かい向きの、変化を、表します。先頭の、定数（`0.282095` など）は、基底を、正規化（直交・長さ 1）するための、係数です。
+
+## 投影：光から、係数を求める
+
+<strong>係数 `c_lm`</strong> は、<strong>光の関数 `L(ω)` に、基底関数 `Y_lm(ω)` を掛けて、球全体で、積分</strong>したものです。
+
+```text
+c_lm = ∫ L(ω) × Y_lm(ω) dω  ≈  Σ_k L(ω_k) × Y_lm(ω_k) × dΩ_k          ω_k: サンプル方向、dΩ_k: そのサンプルの、立体角
+```
+
+```hlsl
+// 環境マップ（キューブマップ）から、SH の係数（RGB × 9）を求める。全テクセルを、足し合わせる。
+float3 sh[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+for (int face = 0; face < 6; ++face)
+  for (int y = 0; y < kSize; ++y)
+    for (int x = 0; x < kSize; ++x) {
+      float3 dir = normalize(CubeFaceTexelToDirection(face, (float2(x, y) + 0.5) / kSize));
+      float3 radiance = g_env.SampleLevel(g_point_clamp, dir, 0);
+      float d_omega = TexelSolidAngle(...);                          // 立体角（Irradiance のページ）
+      float basis[9];
+      SHBasis9(dir, basis);
+      for (int i = 0; i < 9; ++i) sh[i] += radiance * basis[i] * d_omega;
+    }
+```
+
+<strong>キューブマップの、全テクセル</strong>（方向 `ω_k`）について、<strong>光 × 基底関数 × 立体角</strong>を、足して、9 個の係数（RGB ごとに）を、得ます。放射照度マップ（32×32×6）を、27 個の数（9 × RGB）に、圧縮したことに、なります。
+
+## 放射照度を、SH から、求める
+
+<strong>放射照度</strong>（[Irradiance](irradiance.md)）は、<strong>光に、余弦を掛けて、積分</strong>したものです。SH の世界では、余弦の、重みを、各次数ごとの、定数倍として、表せます（Ramamoorthi と Hanrahan、2001）。
+
+```text
+E(n) = Σ_l  A_l × Σ_m  c_lm × Y_lm(n)           A_0 = π、A_1 = 2π/3、A_2 = π/4
+```
+
+<strong>次数が、上がる</strong>ほど、<strong>係数が、小さく</strong>なる（`π`、`2.09`、`0.79`）ので、高次の、成分が、放射照度に、与える寄与は、わずかです。L2（9 係数）で、ほぼ、十分な、理由です。
+
+```hlsl
+// SH（L2、9 係数）から、法線 n の、放射照度を求める。Ramamoorthi と Hanrahan の、展開した形。
+float3 IrradianceFromSH9(float3 sh[9], float3 n) {
+  const float c1 = 0.429043, c2 = 0.511664, c3 = 0.743125, c4 = 0.886227, c5 = 0.247708;
+  return c1 * sh[8] * (n.x * n.x - n.y * n.y)
+       + c3 * sh[6] * n.z * n.z
+       + c4 * sh[0] - c5 * sh[6]
+       + 2.0 * c1 * (sh[4] * n.x * n.y + sh[7] * n.x * n.z + sh[5] * n.y * n.z)
+       + 2.0 * c2 * (sh[3] * n.x + sh[1] * n.y + sh[2] * n.z);
+}
+```
+
+<strong>基底関数の、式と、余弦の、係数 `A_l`</strong> を、<strong>まとめて</strong>、展開した、形です。係数 `c1`〜`c5` は、論文の、定数（`A_l` と、基底関数の、定数を、掛け合わせた値）です。9 個の係数を、定数バッファに、持ち、法線から、この関数で、放射照度が、数十命令で、得られます。キューブマップの、テクスチャ読み込みより、軽く、メモリも、小さい。
+
+## SH の、便利な性質
+
+| 性質 | 内容 |
+| --- | --- |
+| 足し算 | 2 つの光の、SH 係数を、足すと、2 つの光の、合計の、SH 係数になる（線形） |
+| 補間 | 2 つのプローブの、SH 係数を、補間すると、中間の位置の、光の、近似になる（[Interpolation Methods](../probes/interpolation.md)） |
+| 回転 | SH 係数を、回転できる（向きを、変える）。同じ次数の、係数の、中だけで、線形変換 |
+| 少数の数 | L1 = 4、L2 = 9 個の、数だけ。メモリ・転送が、小さい |
+
+<strong>足し算ができる</strong>ので、<strong>複数の光源</strong>（太陽、空、ランプ）を、1 つの SH に、まとめられます。
+
+## SH の、限界
+
+| 限界 | 内容 |
+| --- | --- |
+| 鋭い光は、表せない | 次数が、低いと、細かい、方向の、変化（鋭いハイライト、はっきりした、影の境目）を、表せない。鏡面には、不向き（[Reflections](../../reflections/index.md)） |
+| リンギング | 強い光（太陽）を、低次の SH で、表すと、反対側に、負の値（光が、マイナス）が、出て、不自然に、暗くなる。ウィンドウ関数（高次を、弱める）で、抑える（Sloan、2008） |
+| 向きの、解像度 | L1 は、4 個の数で、ごくおおまかな向き。L2 で、やや、細かい |
+
+```hlsl
+// リンギング対策: SH に、窓関数（Hanning など）を掛けて、高次の成分を、弱める。
+float3 sh_windowed[9];
+sh_windowed[0] = sh[0];                                              // L0 は、そのまま
+for (int i = 1; i < 4; ++i) sh_windowed[i] = sh[i] * 0.8;            // L1 は、少し弱める（係数は、目安）
+for (int i = 4; i < 9; ++i) sh_windowed[i] = sh[i] * 0.5;            // L2 は、もっと弱める
+```
+
+<strong>窓関数</strong>は、<strong>高次の係数を、弱めて</strong>、負の値を、減らす代わりに、光の、方向の、細かさも、少し、失われます。係数の値は、見た目で、調整します（Sloan の、資料に、理論的な、窓の、導出が、あります）。
+
+## 他の、表現との、比較
+
+| 表現 | 数 | 方向の細かさ | 使いどころ |
+| --- | --- | --- | --- |
+| 単色（定数） | 1（RGB） | なし | 最低限の、環境光 |
+| アンビエント キューブ（6 方向の色） | 6（RGB） | 6 方向（法線の、符号つき軸） | 安い、Valve の、Source エンジンなど |
+| SH L1 | 4（RGB） | おおまか | 軽い、プローブ |
+| SH L2 | 9（RGB） | 放射照度なら、ほぼ、十分 | 標準的な、プローブ |
+| 放射照度マップ（キューブ） | 数千テクセル | 十分 | 1 つの、環境（空）の、ライティング |
+
 ## よくあるミス
 
 ??? failure "SH で鏡面の反射を出そうとして、ぼやける"
@@ -147,9 +273,11 @@ SH は低次の打ち切りなので、鋭い変化は表せません。太陽�
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Ramamoorthi, Hanrahan, "An Efficient Representation for Irradiance Environment Maps", SIGGRAPH 2001（放射照度を 9 個の SH 係数で表す）
+- Green, "Spherical Harmonic Lighting: The Gritty Details", Game Developers Conference 2003
+- Sloan, "Stupid Spherical Harmonics (SH) Tricks", Game Developers Conference 2008（SH の、実用上の、注意と工夫）
+- Sloan, Kautz, Snyder, "Precomputed Radiance Transfer for Real-Time Rendering in Dynamic, Low-Frequency Lighting Environments", ACM Transactions on Graphics (SIGGRAPH 2002)
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明、放射照度、SH の章）
 
 ## 関連ページ
 

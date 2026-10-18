@@ -77,6 +77,122 @@ SH で光を表すと、<strong>リンギング</strong>（本来は 0 以上の
 
 <!-- fig:sh-coeff-count:end -->
 
+## SH 係数を、どう、保存するか
+
+プローブ 1 つの、データは、<strong>SH L2 の、27 個の浮動小数点数</strong>（9 係数 × RGB）です。<strong>数千個の、プローブ</strong>を、GPU が、高速に、読める形で、保存する方法を、整理します。
+
+| 方法 | 内容 | 長所 | 短所 |
+| --- | --- | --- | --- |
+| 構造化バッファ | プローブごとに、`float3 sh[9]` の、構造体 | 簡単。任意の、配置（格子でなくてもよい） | 補間が、手動（ハードウェアの、補間が、使えない） |
+| 3D テクスチャ（複数枚） | 格子配置の、プローブを、3D テクスチャに。係数ごとに、別の、テクスチャ | ハードウェアの、トライリニア補間が、使える | 格子配置が、必須。テクスチャの、枚数が、増える（7 枚など） |
+| 2D テクスチャ アトラス | プローブを、2D の、タイルに、並べる | 3D テクスチャが、使えない環境でも、動く | 補間が、手動 |
+
+## 3D テクスチャで、持つ
+
+<strong>格子配置</strong>の、プローブは、<strong>3D テクスチャ</strong>に、そのまま、格納できます。テクセル 1 つが、プローブ 1 つです。トライリニア補間を、ハードウェアが、やってくれます（8 つの、プローブを、1 回の、読み込みで、補間）。
+
+### 係数の、パッキング
+
+SH L2 は、<strong>9 係数 × RGB = 27 個の数</strong>です。<strong>1 つのテクセル</strong>（`RGBA16_FLOAT`、4 つの値）に、収まらないので、複数の、テクスチャに、分けます。
+
+| テクスチャ | R | G | B | A |
+| --- | --- | --- | --- | --- |
+| 0 | L0.r | L0.g | L0.b | L1₋₁.r |
+| 1 | L1₋₁.g | L1₋₁.b | L1₀.r | L1₀.g |
+| 2 | L1₀.b | L1₁.r | L1₁.g | L1₁.b |
+| 3 | L2₋₂.r | L2₋₂.g | L2₋₂.b | L2₋₁.r |
+| 4 | L2₋₁.g | L2₋₁.b | L2₀.r | L2₀.g |
+| 5 | L2₀.b | L2₁.r | L2₁.g | L2₁.b |
+| 6 | L2₂.r | L2₂.g | L2₂.b | （未使用） |
+
+<strong>7 枚</strong>の、`RGBA16_FLOAT` の、3D テクスチャで、<strong>27 個の数</strong>を、収めます（28 個分の、領域で、1 つ、余ります）。
+
+```hlsl
+// 7 枚の 3D テクスチャから、補間した SH 係数（RGB × 9）を読む。uvw は、プローブ格子の中の、位置（0〜1）。
+Texture3D<float4> g_probe_sh[7] : register(t10);
+
+void LoadSH(float3 uvw, out float3 sh[9]) {
+  float4 t0 = g_probe_sh[0].SampleLevel(g_linear_clamp, uvw, 0);
+  float4 t1 = g_probe_sh[1].SampleLevel(g_linear_clamp, uvw, 0);
+  float4 t2 = g_probe_sh[2].SampleLevel(g_linear_clamp, uvw, 0);
+  float4 t3 = g_probe_sh[3].SampleLevel(g_linear_clamp, uvw, 0);
+  float4 t4 = g_probe_sh[4].SampleLevel(g_linear_clamp, uvw, 0);
+  float4 t5 = g_probe_sh[5].SampleLevel(g_linear_clamp, uvw, 0);
+  float4 t6 = g_probe_sh[6].SampleLevel(g_linear_clamp, uvw, 0);
+  sh[0] = t0.rgb;                      // L0
+  sh[1] = float3(t0.a, t1.r, t1.g);    // L1₋₁
+  sh[2] = float3(t1.b, t1.a, t2.r);    // L1₀
+  sh[3] = float3(t2.g, t2.b, t2.a);    // L1₁
+  sh[4] = t3.rgb;                      // L2₋₂
+  sh[5] = float3(t3.a, t4.r, t4.g);    // L2₋₁
+  sh[6] = float3(t4.b, t4.a, t5.r);    // L2₀
+  sh[7] = float3(t5.g, t5.b, t5.a);    // L2₁
+  sh[8] = t6.rgb;                      // L2₂
+}
+```
+
+<strong>7 回の、`SampleLevel`</strong>（<strong>ハードウェアの、トライリニア</strong>）で、9 係数 × RGB を、得ます。補間した係数を、`IrradianceFromSH9` に、渡して、放射照度を、求めます（[Spherical Harmonics (SH)](../theory/spherical-harmonics.md)）。
+
+## 係数を、減らす（圧縮）
+
+<strong>27 個</strong>は、<strong>多すぎる</strong>場合、減らします。
+
+### L1 にする（12 個）
+
+<strong>L2 の、5 係数</strong>（L2₋₂〜L2₂）を、<strong>省き</strong>、L0 + L1 の、4 係数（12 個）に、します。メモリが、半分以下、3 枚の、テクスチャで、済みます。方向の、表現が、粗くなりますが、放射照度の、おおまかな、向きは、保たれます。
+
+```hlsl
+// SH L1（4 係数）から、法線方向の放射照度（近似）を求める。
+float3 IrradianceFromSH4(float3 sh[4], float3 n) {
+  // L0 + L1: 余弦の畳み込み係数 A0 = π、A1 = 2π/3 を、基底関数の定数と、かけた、形。
+  return 0.886227 * sh[0] + 2.0 * 0.511664 * (sh[3] * n.x + sh[1] * n.y + sh[2] * n.z);
+}
+```
+
+L1 の、<strong>放射照度</strong>には、<strong>負の値</strong>（光が、マイナス）が、出やすい（リンギング）ので、`max(0, …)` で、切るか、ウィンドウ関数で、抑えます（[Spherical Harmonics (SH)](../theory/spherical-harmonics.md)）。
+
+### 色を、まとめる
+
+<strong>RGB ごとに、別の、SH</strong>ではなく、<strong>輝度だけ</strong>に、SH L2 を、使い、色は、L0 だけ（向きなし）の、RGB に、する方法です。1 + 9 = 10 個の数に、なります。色が、向きによって、変わる表現（赤い壁の、側だけ、赤い）が、失われます。
+
+### 量子化（精度を、落とす）
+
+<strong>32 ビットの、浮動小数点</strong>を、<strong>16 ビット</strong>（`R16G16B16A16_FLOAT`）、さらに、8 ビット（`R8G8B8A8_UNORM`、スケール調整つき）に、落とすと、メモリが、減ります。
+
+| 形式 | 1 係数 | 27 係数 | 品質 |
+| --- | --- | --- | --- |
+| `R32_FLOAT` | 4 バイト | 108 バイト | 最高 |
+| `R16_FLOAT` | 2 バイト | 54 バイト | 十分（標準） |
+| `R8_UNORM`（スケール付き） | 1 バイト | 27 バイト | 低（バンディング） |
+
+プローブが、<strong>1 万個</strong>でも、`R16_FLOAT` なら、<strong>540 KB</strong> です。ほとんどの、場合、16 ビット浮動小数点で、十分です。
+
+## 構造化バッファで、持つ
+
+<strong>格子でない</strong>（手動配置、適応的な、配置）の、プローブは、<strong>構造化バッファ</strong>に、持ちます。
+
+```hlsl
+struct ProbeSH {
+  float3 sh[9];            // 27 個の float（108 バイト）
+  float pad;               // 16 バイト境界に、そろえる
+};
+StructuredBuffer<ProbeSH> g_probes : register(t10);
+
+float3 irradiance = IrradianceFromSH9(g_probes[probe_index].sh, normal);
+```
+
+<strong>補間</strong>は、<strong>自分で、実装</strong>します（周りの、プローブを、探し、重みつきで、SH 係数を、足す）。ハードウェアの、補間が、使えないので、やや、重いですが、配置の、自由度は、高いです（[Interpolation Methods](interpolation.md)）。
+
+## SH の、更新
+
+<strong>動的に、更新する、プローブ</strong>（[Dynamic Updates](dynamic-update.md)）では、<strong>毎フレーム</strong>（または、数フレームに 1 回）、SH 係数を、再計算して、テクスチャに、書き込みます。
+
+```cpp
+// 計算シェーダーで、プローブの SH を、再計算して、UAV（3D テクスチャ）に書き込む。
+context->CSSetUnorderedAccessViews(0, 7, probe_uavs, nullptr);       // 7 枚の、3D テクスチャを、UAV として
+context->Dispatch(probe_count.x, probe_count.y, probe_count.z);
+```
+
 ## よくあるミス
 
 ??? failure "SH の次数が低く、方向による明暗の差が出ない"
@@ -90,9 +206,11 @@ SH で光を表すと、<strong>リンギング</strong>（本来は 0 以上の
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Ramamoorthi, Hanrahan, "An Efficient Representation for Irradiance Environment Maps", SIGGRAPH 2001
+- Sloan, "Stupid Spherical Harmonics (SH) Tricks", Game Developers Conference 2008
+- Iwanicki, "Lighting Technology of The Last of Us", SIGGRAPH 2013, Advances in Real-Time Rendering in Games（アンビエント ダイスなど）
+- Majercik, Guertin, Nowrouzezahrai, McGuire, "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields", Journal of Computer Graphics Techniques, Vol. 8, No. 2, 2019
+- Microsoft Learn, "D3D11_TEXTURE3D_DESC"
 
 ## 関連ページ
 

@@ -38,6 +38,106 @@ tags:
 
 これらの効果は、直接光に比べると小さな変化ですが、人間の目は、現実の光の回り込みにとても慣れているので、欠けていると違和感を覚えます。品質を上げるための優先順位としては、<strong>影の中が真っ黒でないこと</strong>が最初、次に<strong>場所による明るさの差</strong>、最後に色のにじみの順に効果が大きいことが多いです。
 
+## 間接光が、ないと、どうなるか
+
+<strong>直接光だけ</strong>で、シーンを、描くと、<strong>影の中は、真っ黒</strong>で、光が、当たる、面だけが、明るい、コントラストの、強すぎる絵に、なります。現実の世界は、光が、反射を、繰り返して、影の中も、ほのかに、明るいのです。間接光の、効果を、数値で、確かめます。
+
+## 効果 1：日陰が、明るくなる
+
+<strong>晴れた、日の、日陰</strong>の、明るさは、<strong>日向の、約 1/5〜1/10</strong>です。真っ暗ではありません。空全体が、光源（青い、空の光）で、日陰を、照らすためです。
+
+| 場所 | 照度（目安、lux） |
+| --- | --- |
+| 日向（晴れ） | 約 100,000 |
+| 日陰（空の光だけ） | 約 10,000〜20,000 |
+| 曇りの日 | 約 20,000 |
+| 室内（窓際） | 約 1,000 |
+
+<strong>日向と日陰の、比は、約 5〜10 倍</strong>です。<strong>GI の、環境光が、無い</strong>と、日陰は、完全な、0（無限大の、コントラスト）に、なります。
+
+```hlsl
+// 直接光だけ（日陰は真っ黒）。
+float3 color = albedo * g_sun_color * n_dot_l * shadow;
+
+// 間接光（空の光）を、足す。日陰でも、albedo × 環境光 で、ほのかに、明るい。
+float3 ambient = albedo * IrradianceFromSH9(g_sky_sh, N) / 3.14159265;
+float3 color2 = albedo * g_sun_color * n_dot_l * shadow + ambient;
+```
+
+<strong>1 行足す</strong>だけで、<strong>日陰が、真っ黒でなくなり</strong>、絵の、印象が、大きく、変わります。間接光の、最も、基本的な効果です。
+
+## 効果 2：カラー ブリーディング（色のにじみ）
+
+<strong>色の、ついた面</strong>（赤い壁）に、光が、当たると、<strong>反射した光も、その色</strong>に、染まります。その光が、隣の、白い面を、照らすと、白い面が、うっすら、赤くなります。これを、カラー ブリーディングと、呼びます。
+
+```text
+白い光 ──→ 赤い壁（albedo 0.8, 0.1, 0.1）──→ 反射光は、赤い（0.8, 0.1, 0.1 に、比例）
+                              ↓
+                       隣の、白い床が、赤く、染まる
+```
+
+<strong>1 回の、バウンスで、床に届く、光</strong>は、<strong>壁の `albedo` に、比例</strong>します。
+
+```hlsl
+// 赤い壁からの、1 バウンスの、光（簡易な、見積もり）。
+float3 bounced = wall_albedo * wall_direct_irradiance / 3.14159265;     // 壁が、反射する、放射輝度（拡散）
+float3 floor_indirect = floor_albedo * bounced * form_factor;           // 床に届く量。form_factor: 壁と床の、幾何学的な、関係（見える割合）
+```
+
+<strong>`form_factor`</strong>（形状係数）は、<strong>壁が、床から、どれだけ、広く見えるか</strong>（近く、大きいほど、大きい）を、表します（ラジオシティの、基本的な、量。Goral ら、1984）。壁が、近いほど、にじみが、強くなります。
+
+| 状況 | にじみの、強さ |
+| --- | --- |
+| 赤い壁の、すぐ近くの、白い物 | 強い |
+| 壁から、離れる | 弱い（`form_factor` が、小さい） |
+| 暗い、壁 | 弱い（反射が、少ない） |
+
+## 効果 3：接地感（物が、地面に、なじむ）
+
+<strong>間接光が、遮られた</strong>場所（<strong>物と地面の、接する所</strong>、角）は、暗くなります。AO（[AO](../../ao/index.md)）が、この暗さを、表します。物が、地面に、「乗っている」感じ（接地感）が、出ます。GI があると、AO が、自然に、含まれます（遮蔽された、光は、届かないので）。
+
+## 効果 4：室内の、明るさ
+
+<strong>窓から、差し込む光</strong>は、<strong>床や壁で、何度も、反射</strong>して、部屋全体を、ほのかに、照らします。直接光だけでは、日だまりだけが、明るく、他は、真っ暗です。
+
+### 何回反射するか：等比級数
+
+<strong>平均的な、アルベド `ρ`</strong>（反射率）の、<strong>閉じた、部屋</strong>で、光が、何度も反射するとき、全体の明るさは、初めの光の、何倍に、なるでしょうか。k 回目の反射で、光は、`ρ^k` 倍になるので、合計は、等比級数です。
+
+```text
+合計 = 1 + ρ + ρ² + ρ³ + … = 1 / (1 − ρ)
+```
+
+| 部屋の、平均アルベド ρ | 合計（倍率） | 見た目 |
+| --- | --- | --- |
+| 0.2（暗い、床・壁） | 1.25 倍 | 間接光は、わずか |
+| 0.5（中くらい） | 2 倍 | 間接光が、直接光と、同じくらい |
+| 0.8（白い、部屋） | 5 倍 | 間接光が、直接光の、4 倍。部屋が、非常に、明るい |
+
+<strong>白い、部屋</strong>ほど、<strong>間接光の、寄与が、大きく</strong>、GI の、有無で、見た目が、大きく、変わります。
+
+## 効果の、大きさの、目安
+
+| 場面 | 間接光が、全体の明るさに、占める割合 |
+| --- | --- |
+| 晴れた、屋外（日向） | 10〜20%（空の光 + 地面の反射） |
+| 晴れた、屋外（日陰） | ほぼ 100%（日陰は、間接光だけ） |
+| 室内（窓からの、光） | 50〜90%（直接光が、当たらない、部分は、100%） |
+| 洞窟（入口からの、光） | ほぼ 100% |
+
+<strong>屋外の、日向</strong>では、<strong>直接光が、支配的</strong>なので、GI の、効果は、小さく見えますが、日陰、室内、洞窟では、GI が、見た目の、すべてです。
+
+## GI を、近似する、簡易な方法
+
+<strong>GI の、効果を、手軽に、得る</strong>には、<strong>簡単な、近似</strong>が、あります。
+
+| 方法 | 内容 | 効果 |
+| --- | --- | --- |
+| 半球ライト | 上は、空の色、下は、地面の色（[Using the Sky for Lighting](../../atmosphere/sky-models/sky-lighting.md)） | 日陰の、明るさ（方向性は、わずか） |
+| AO | 隙間を、暗く（[AO](../../ao/index.md)） | 接地感 |
+| マルチ バウンスの、AO（GTAO） | AO を、アルベドに応じて、明るく戻す（[GTAO](../../ao/gtao.md)） | 白い面の、AO が、暗すぎない |
+| 環境光の、プローブ（SH） | 場所ごとに、環境光を、補間 | 場所による、明るさの違い（[Probe GI](../probes/index.md)） |
+
 ## よくあるミス
 
 ??? failure "GI なしで、影の中が真っ黒"
@@ -50,9 +150,10 @@ tags:
 
 ## 参考
 
-- Kajiya, "The Rendering Equation"（SIGGRAPH 1986）
-- Ramamoorthi & Hanrahan, "An Efficient Representation for Irradiance Environment Maps"（SIGGRAPH 2001）
-- Majercik et al., "Dynamic Diffuse Global Illumination with Ray-Traced Irradiance Fields"（JCGT 2019）
+- Kajiya, "The Rendering Equation", SIGGRAPH 1986（レンダリング方程式の原典）
+- Goral, Torrance, Greenberg, Battaile, "Modeling the Interaction of Light Between Diffuse Surfaces", SIGGRAPH 1984（ラジオシティの原典）
+- Ramamoorthi, Hanrahan, "An Efficient Representation for Irradiance Environment Maps", SIGGRAPH 2001（放射照度を 9 個の SH 係数で表す）
+- Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（大域照明、放射照度、SH の章）
 
 ## 関連ページ
 
