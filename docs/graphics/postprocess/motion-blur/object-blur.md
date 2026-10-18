@@ -26,117 +26,147 @@ tags:
 
 <!-- fig:object-blur-rotation:begin -->
 
-<svg class="fig illust motion" data-fig="object-blur-rotation" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="object-blur-rotation" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-object-blur-rotation" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">回転する物体:中心は動かず、外側ほど速い ＝ ブレも長い</text>
-<text x="200" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#64748b">速度ベクトル（画素ごと）</text>
-<circle cx="200" cy="210" r="120" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
-<text x="580" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#64748b">結果のブレ</text>
-<circle cx="580" cy="210" r="120" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
-<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="0;0;1;1"/><circle cx="230.0" cy="210.0" r="4" fill="#2ea043"/>
-<line x1="230.0" y1="210.0" x2="230.0" y2="226.5" stroke="#2ea043" stroke-width="3"/>
-<polygon points="230.0,226.5 225.0,217.5 235.0,217.5" fill="#2ea043"/>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">回転する物のブラー: 先端ほど速く動く。直線で流すと、回転が大きいとき、先端が外れる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">プロペラの羽根(半径 1〜5)。1 フレームで回る角度を 10° → 30° → 60° → 90° に変える。円弧と、直線の差を測る</text>
+<rect x="30" y="96" width="560" height="340" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 回る羽根の先端が通る道(青 = 円弧、赤 = 直線で流した場合)</text>
+<circle cx="300.0" cy="290.0" r="6" fill="#1f2937"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2798;0.2800;1.0000" values="1;1;0;0"/><path d="M334.0,290.0 L334.0,289.67 L333.99,289.34 L333.99,289.01 L333.97,288.68 L333.96,288.35 L333.94,288.02 L333.92,287.69 L333.9,287.37 L333.87,287.04 L333.84,286.71 L333.81,286.38 L333.77,286.05 L333.73,285.73 L333.69,285.4 L333.64,285.07 L333.59,284.75 L333.54,284.42 L333.48,284.1" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="334.0" y1="290.0" x2="333.48" y2="284.1" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M368.0,290.0 L368.0,289.34 L367.99,288.68 L367.97,288.02 L367.95,287.36 L367.92,286.7 L367.88,286.05 L367.84,285.39 L367.8,284.73 L367.74,284.07 L367.68,283.42 L367.61,282.76 L367.54,282.11 L367.46,281.45 L367.37,280.8 L367.28,280.14 L367.18,279.49 L367.08,278.84 L366.97,278.19" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="368.0" y1="290.0" x2="366.97" y2="278.19" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M402.0,290.0 L402.0,289.01 L401.98,288.02 L401.96,287.03 L401.92,286.04 L401.88,285.06 L401.83,284.07 L401.77,283.08 L401.69,282.1 L401.61,281.11 L401.52,280.13 L401.42,279.14 L401.31,278.16 L401.19,277.18 L401.06,276.2 L400.92,275.22 L400.77,274.24 L400.62,273.26 L400.45,272.29" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="402.0" y1="290.0" x2="400.45" y2="272.29" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M436.0,290.0 L435.99,288.68 L435.97,287.36 L435.94,286.04 L435.9,284.73 L435.84,283.41 L435.77,282.09 L435.69,280.78 L435.59,279.46 L435.48,278.15 L435.36,276.83 L435.23,275.52 L435.08,274.21 L434.92,272.9 L434.75,271.59 L434.56,270.29 L434.37,268.99 L434.16,267.68 L433.93,266.38" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="436.0" y1="290.0" x2="433.93" y2="266.38" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M470.0,290.0 L469.99,288.35 L469.97,286.7 L469.93,285.06 L469.87,283.41 L469.8,281.76 L469.71,280.12 L469.61,278.47 L469.49,276.83 L469.35,275.18 L469.2,273.54 L469.03,271.9 L468.85,270.26 L468.65,268.63 L468.44,266.99 L468.21,265.36 L467.96,263.73 L467.7,262.1 L467.42,260.48" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="470.0" y1="290.0" x2="467.42" y2="260.48" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<line x1="300.0" y1="290.0" x2="470.0" y2="290.0" stroke="#64748b" stroke-width="3"/>
+<text x="50" y="128" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed">1 フレームで 10° 回る</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="0;0;1;1"/><circle cx="185.0" cy="235.98" r="4" fill="#2ea043"/>
-<line x1="185.0" y1="235.98" x2="170.71" y2="227.73" stroke="#2ea043" stroke-width="3"/>
-<polygon points="170.71,227.73 181.0,227.9 176.0,236.56" fill="#2ea043"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2798;0.2800;0.4932;0.4933;1.0000" values="0;0;1;1;0;0"/><path d="M334.0,290.0 L333.99,289.01 L333.94,288.02 L333.87,287.04 L333.77,286.05 L333.64,285.07 L333.48,284.1 L333.3,283.12 L333.08,282.16 L332.84,281.2 L332.57,280.25 L332.27,279.31 L331.95,278.37 L331.6,277.45 L331.22,276.53 L330.81,275.63 L330.38,274.74 L329.93,273.86 L329.44,273.0" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="334.0" y1="290.0" x2="329.44" y2="273.0" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M368.0,290.0 L367.97,288.02 L367.88,286.05 L367.74,284.07 L367.54,282.11 L367.28,280.14 L366.97,278.19 L366.6,276.25 L366.17,274.32 L365.68,272.4 L365.14,270.5 L364.55,268.61 L363.9,266.74 L363.2,264.89 L362.44,263.07 L361.63,261.26 L360.77,259.48 L359.85,257.73 L358.89,256.0" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="368.0" y1="290.0" x2="358.89" y2="256.0" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M402.0,290.0 L401.96,287.03 L401.83,284.07 L401.61,281.11 L401.31,278.16 L400.92,275.22 L400.45,272.29 L399.89,269.37 L399.25,266.48 L398.52,263.6 L397.71,260.75 L396.82,257.92 L395.85,255.11 L394.79,252.34 L393.66,249.6 L392.44,246.89 L391.15,244.22 L389.78,241.59 L388.33,239.0" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="402.0" y1="290.0" x2="388.33" y2="239.0" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M436.0,290.0 L435.94,286.04 L435.77,282.09 L435.48,278.15 L435.08,274.21 L434.56,270.29 L433.93,266.38 L433.19,262.5 L432.33,258.64 L431.37,254.8 L430.29,250.99 L429.1,247.22 L427.8,243.49 L426.39,239.79 L424.88,236.13 L423.26,232.52 L421.53,228.96 L419.71,225.45 L417.78,222.0" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="436.0" y1="290.0" x2="417.78" y2="222.0" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M470.0,290.0 L469.93,285.06 L469.71,280.12 L469.35,275.18 L468.85,270.26 L468.21,265.36 L467.42,260.48 L466.49,255.62 L465.42,250.8 L464.21,246.0 L462.86,241.24 L461.37,236.53 L459.75,231.86 L457.99,227.23 L456.1,222.67 L454.07,218.15 L451.92,213.7 L449.63,209.32 L447.22,205.0" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="470.0" y1="290.0" x2="447.22" y2="205.0" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<line x1="300.0" y1="290.0" x2="470.0" y2="290.0" stroke="#64748b" stroke-width="3"/>
+<text x="50" y="128" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed">1 フレームで 30° 回る</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="0;0;1;1"/><circle cx="185.0" cy="184.02" r="4" fill="#2ea043"/>
-<line x1="185.0" y1="184.02" x2="199.29" y2="175.77" stroke="#2ea043" stroke-width="3"/>
-<polygon points="199.29,175.77 194.0,184.6 189.0,175.94" fill="#2ea043"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4932;0.4933;0.7065;0.7067;1.0000" values="0;0;1;1;0;0"/><path d="M334.0,290.0 L333.94,288.02 L333.77,286.05 L333.48,284.1 L333.08,282.16 L332.57,280.25 L331.95,278.37 L331.22,276.53 L330.38,274.74 L329.44,273.0 L328.41,271.32 L327.27,269.7 L326.05,268.15 L324.73,266.67 L323.33,265.27 L321.85,263.95 L320.3,262.73 L318.68,261.59 L317.0,260.56" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="334.0" y1="290.0" x2="317.0" y2="260.56" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M368.0,290.0 L367.88,286.05 L367.54,282.11 L366.97,278.19 L366.17,274.32 L365.14,270.5 L363.9,266.74 L362.44,263.07 L360.77,259.48 L358.89,256.0 L356.81,252.63 L354.54,249.39 L352.09,246.29 L349.46,243.34 L346.66,240.54 L343.71,237.91 L340.61,235.46 L337.37,233.19 L334.0,231.11" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="368.0" y1="290.0" x2="334.0" y2="231.11" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M402.0,290.0 L401.83,284.07 L401.31,278.16 L400.45,272.29 L399.25,266.48 L397.71,260.75 L395.85,255.11 L393.66,249.6 L391.15,244.22 L388.33,239.0 L385.22,233.95 L381.82,229.09 L378.14,224.44 L374.19,220.0 L370.0,215.81 L365.56,211.86 L360.91,208.18 L356.05,204.78 L351.0,201.67" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="402.0" y1="290.0" x2="351.0" y2="201.67" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M436.0,290.0 L435.77,282.09 L435.08,274.21 L433.93,266.38 L432.33,258.64 L430.29,250.99 L427.8,243.49 L424.88,236.13 L421.53,228.96 L417.78,222.0 L413.63,215.27 L409.09,208.79 L404.18,202.58 L398.92,196.67 L393.33,191.08 L387.42,185.82 L381.21,180.91 L374.73,176.37 L368.0,172.22" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="436.0" y1="290.0" x2="368.0" y2="172.22" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M470.0,290.0 L469.71,280.12 L468.85,270.26 L467.42,260.48 L465.42,250.8 L462.86,241.24 L459.75,231.86 L456.1,222.67 L451.92,213.7 L447.22,205.0 L442.03,196.58 L436.36,188.48 L430.23,180.73 L423.65,173.34 L416.66,166.35 L409.27,159.77 L401.52,153.64 L393.42,147.97 L385.0,142.78" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="470.0" y1="290.0" x2="385.0" y2="142.78" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<line x1="300.0" y1="290.0" x2="470.0" y2="290.0" stroke="#64748b" stroke-width="3"/>
+<text x="50" y="128" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed">1 フレームで 60° 回る</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1757;0.1760;1.0000" values="0;0;1;1"/><circle cx="265.78" cy="233.94" r="4" fill="#e5aa28"/>
-<line x1="265.78" y1="233.94" x2="252.61" y2="270.12" stroke="#e5aa28" stroke-width="3"/>
-<polygon points="252.61,270.12 250.99,259.95 260.39,263.37" fill="#e5aa28"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000" values="0;0;1;1"/><path d="M334.0,290.0 L333.87,287.04 L333.48,284.1 L332.84,281.2 L331.95,278.37 L330.81,275.63 L329.44,273.0 L327.85,270.5 L326.05,268.15 L324.04,265.96 L321.85,263.95 L319.5,262.15 L317.0,260.56 L314.37,259.19 L311.63,258.05 L308.8,257.16 L305.9,256.52 L302.96,256.13 L300.0,256.0" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="334.0" y1="290.0" x2="300.0" y2="256.0" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M368.0,290.0 L367.74,284.07 L366.97,278.19 L365.68,272.4 L363.9,266.74 L361.63,261.26 L358.89,256.0 L355.7,251.0 L352.09,246.29 L348.08,241.92 L343.71,237.91 L339.0,234.3 L334.0,231.11 L328.74,228.37 L323.26,226.1 L317.6,224.32 L311.81,223.03 L305.93,222.26 L300.0,222.0" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="368.0" y1="290.0" x2="300.0" y2="222.0" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M402.0,290.0 L401.61,281.11 L400.45,272.29 L398.52,263.6 L395.85,255.11 L392.44,246.89 L388.33,239.0 L383.55,231.5 L378.14,224.44 L372.12,217.88 L365.56,211.86 L358.5,206.45 L351.0,201.67 L343.11,197.56 L334.89,194.15 L326.4,191.48 L317.71,189.55 L308.89,188.39 L300.0,188.0" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="402.0" y1="290.0" x2="300.0" y2="188.0" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M436.0,290.0 L435.48,278.15 L433.93,266.38 L431.37,254.8 L427.8,243.49 L423.26,232.52 L417.78,222.0 L411.4,211.99 L404.18,202.58 L396.17,193.83 L387.42,185.82 L378.01,178.6 L368.0,172.22 L357.48,166.74 L346.51,162.2 L335.2,158.63 L323.62,156.07 L311.85,154.52 L300.0,154.0" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="436.0" y1="290.0" x2="300.0" y2="154.0" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<path d="M470.0,290.0 L469.35,275.18 L467.42,260.48 L464.21,246.0 L459.75,231.86 L454.07,218.15 L447.22,205.0 L439.26,192.49 L430.23,180.73 L420.21,169.79 L409.27,159.77 L397.51,150.74 L385.0,142.78 L371.85,135.93 L358.14,130.25 L344.0,125.79 L329.52,122.58 L314.82,120.65 L300.0,120.0" fill="none" stroke="#2563eb" stroke-width="2.5"/>
+<line x1="470.0" y1="290.0" x2="300.0" y2="120.0" stroke="#e5484d" stroke-width="2.5" stroke-dasharray="5 4"/>
+<line x1="300.0" y1="290.0" x2="470.0" y2="290.0" stroke="#64748b" stroke-width="3"/>
+<text x="50" y="128" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed">1 フレームで 90° 回る</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1757;0.1760;1.0000" values="0;0;1;1"/><circle cx="146.38" cy="255.0" r="4" fill="#e5aa28"/>
-<line x1="146.38" y1="255.0" x2="121.63" y2="225.5" stroke="#e5aa28" stroke-width="3"/>
-<polygon points="121.63,225.5 131.24,229.18 123.58,235.61" fill="#e5aa28"/>
+<rect x="620" y="96" width="310" height="340" fill="#ffffff" stroke="#e5484d" stroke-width="1.8" rx="6"/>
+<text x="620" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">② 円弧と直線のずれ(矢高)</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2798;0.2800;1.0000" values="1;1;0;0"/><text x="636" y="164" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 1</text>
+<rect x="706" y="150" width="2" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="712.4157476282908" y="164" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.00</text>
+<text x="636" y="214" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 2</text>
+<rect x="706" y="200" width="2" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="712.8314952565815" y="214" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.01</text>
+<text x="636" y="264" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 3</text>
+<rect x="706" y="250" width="2" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="713.2472428848723" y="264" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.01</text>
+<text x="636" y="314" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 4</text>
+<rect x="706" y="300" width="2" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="713.6629905131631" y="314" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.02</text>
+<text x="636" y="364" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 5</text>
+<rect x="706" y="350" width="2.08" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="714.0787381414539" y="364" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.02</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1757;0.1760;1.0000" values="0;0;1;1"/><circle cx="187.84" cy="141.06" r="4" fill="#e5aa28"/>
-<line x1="187.84" y1="141.06" x2="225.76" y2="134.38" stroke="#e5aa28" stroke-width="3"/>
-<polygon points="225.76,134.38 217.76,140.86 216.03,131.02" fill="#e5aa28"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2798;0.2800;0.4932;0.4933;1.0000" values="0;0;1;1;0;0"/><text x="636" y="164" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 1</text>
+<rect x="706" y="150" width="3.72" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="715.7227681923366" y="164" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.03</text>
+<text x="636" y="214" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 2</text>
+<rect x="706" y="200" width="7.45" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="719.4455363846732" y="214" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.07</text>
+<text x="636" y="264" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 3</text>
+<rect x="706" y="250" width="11.17" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="723.1683045770098" y="264" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.10</text>
+<text x="636" y="314" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 4</text>
+<rect x="706" y="300" width="14.89" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="726.8910727693466" y="314" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.14</text>
+<text x="636" y="364" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 5</text>
+<rect x="706" y="350" width="18.61" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="730.6138409616832" y="364" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.17</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2717;0.2720;1.0000" values="0;0;1;1"/><circle cx="284.26" cy="280.71" r="4" fill="#e5484d"/>
-<line x1="284.26" y1="280.71" x2="245.38" y2="327.05" stroke="#e5484d" stroke-width="3"/>
-<polygon points="245.38,327.05 247.33,316.94 254.99,323.37" fill="#e5484d"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4932;0.4933;0.7065;0.7067;1.0000" values="0;0;1;1;0;0"/><text x="636" y="164" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 1</text>
+<rect x="706" y="150" width="14.64" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="726.6373722692041" y="164" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.13</text>
+<text x="636" y="214" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 2</text>
+<rect x="706" y="200" width="29.27" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="741.2747445384082" y="214" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.27</text>
+<text x="636" y="264" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 3</text>
+<rect x="706" y="250" width="43.91" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="755.9121168076124" y="264" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.40</text>
+<text x="636" y="314" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 4</text>
+<rect x="706" y="300" width="58.55" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="770.5494890768165" y="314" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.54</text>
+<text x="636" y="364" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 5</text>
+<rect x="706" y="350" width="73.19" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="785.1868613460206" y="364" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.67</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2717;0.2720;1.0000" values="0;0;1;1"/><circle cx="96.63" cy="247.62" r="4" fill="#e5484d"/>
-<line x1="96.63" y1="247.62" x2="75.94" y2="190.77" stroke="#e5484d" stroke-width="3"/>
-<polygon points="75.94,190.77 83.72,197.52 74.32,200.94" fill="#e5484d"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000" values="0;0;1;1"/><text x="636" y="164" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 1</text>
+<rect x="706" y="150" width="32.0" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="744.0" y="164" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.29</text>
+<text x="636" y="214" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 2</text>
+<rect x="706" y="200" width="64.0" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="776.0" y="214" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.59</text>
+<text x="636" y="264" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 3</text>
+<rect x="706" y="250" width="96.0" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="808.0" y="264" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">0.88</text>
+<text x="636" y="314" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 4</text>
+<rect x="706" y="300" width="128.0" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="840.0" y="314" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">1.17</text>
+<text x="636" y="364" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">半径 5</text>
+<rect x="706" y="350" width="160.0" height="18" fill="#e5484d" opacity="0.85"/>
+<text x="872.0" y="364" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d">1.46</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2717;0.2720;1.0000" values="0;0;1;1"/><circle cx="219.1" cy="101.67" r="4" fill="#e5484d"/>
-<line x1="219.1" y1="101.67" x2="278.68" y2="112.18" stroke="#e5484d" stroke-width="3"/>
-<polygon points="278.68,112.18 268.95,115.54 270.69,105.69" fill="#e5484d"/>
+<text x="40" y="470" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">先端(半径 5)のずれ:</text>
+<text x="200" y="474" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="1">0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;1.0000" values="1;1;0;0"/></text>
+<text x="200" y="474" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">2<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;0.2932;0.2933;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="200" y="474" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">17<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2932;0.2933;0.5065;0.5067;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="200" y="474" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">67<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5065;0.5067;0.7198;0.7200;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="200" y="474" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">146<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7198;0.7200;1.0000" values="0;0;1;1"/></text>
+<text x="250" y="474" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">(×0.01)</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.9020;0.9022;1.0000" values="0;0;1;1"/><rect x="360" y="456" width="570" height="64" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="376" y="480" text-anchor="start" style="font-size:13px;font-weight:700;fill:#166534">回転が小さい(10°)なら、直線で近似して十分(ずれ 0.02)</text>
+<text x="376" y="502" text-anchor="start" style="font-size:13px;font-weight:700;fill:#991b1b">90° では、ずれ 1.46。サンプルを、回転で曲げて取る方法もある</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="0;0;1;1"/><line x1="580" y1="210" x2="698.83" y2="193.3" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="596.7" y2="328.83" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="461.17" y2="226.7" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="563.3" y2="91.17" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="699.43" y2="198.29" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="591.71" y2="329.43" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="460.57" y2="221.71" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="568.29" y2="90.57" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="699.81" y2="203.3" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="586.7" y2="329.81" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="460.19" y2="216.7" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="573.3" y2="90.19" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="699.99" y2="208.32" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="581.68" y2="329.99" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="460.01" y2="211.68" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="578.32" y2="90.01" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="699.95" y2="213.35" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="576.65" y2="329.95" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="460.05" y2="206.65" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="583.35" y2="90.05" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="699.71" y2="218.37" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="571.63" y2="329.71" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="460.29" y2="201.63" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="588.37" y2="90.29" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="699.25" y2="223.38" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="566.62" y2="329.25" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="460.75" y2="196.62" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="593.38" y2="90.75" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="698.59" y2="228.36" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="561.64" y2="328.59" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="461.41" y2="191.64" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="598.36" y2="91.41" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="697.71" y2="233.31" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="556.69" y2="327.71" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="462.29" y2="186.69" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="603.31" y2="92.29" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="696.64" y2="238.22" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="551.78" y2="326.64" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="463.36" y2="181.78" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="608.22" y2="93.36" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="695.35" y2="243.08" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="546.92" y2="325.35" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="464.65" y2="176.92" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="613.08" y2="94.65" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="693.87" y2="247.88" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="542.12" y2="323.87" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="466.13" y2="172.12" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="617.88" y2="96.13" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="692.18" y2="252.61" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="537.39" y2="322.18" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="467.82" y2="167.39" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="622.61" y2="97.82" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="690.3" y2="257.27" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="532.73" y2="320.3" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="469.7" y2="162.73" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-<line x1="580" y1="210" x2="627.27" y2="99.7" stroke="#1f2937" stroke-width="3" opacity="0.1"/>
-</g>
-<g opacity="1"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000" values="1;1;0;0"/><line x1="580" y1="210" x2="700.0" y2="210.0" stroke="#1f2937" stroke-width="4"/>
-<line x1="580" y1="210" x2="580.0" y2="330.0" stroke="#1f2937" stroke-width="4"/>
-<line x1="580" y1="210" x2="460.0" y2="210.0" stroke="#1f2937" stroke-width="4"/>
-<line x1="580" y1="210" x2="580.0" y2="90.0" stroke="#1f2937" stroke-width="4"/>
-</g>
-<circle cx="580" cy="210" r="14" fill="#1f2937"/>
-<text x="40" y="372" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">ホイールが回っている<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="1;1;0;0"/></text>
-<text x="40" y="372" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">速度 ＝ 角速度 × 中心からの距離。外側ほど矢印が長い<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.3997;0.4000;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="372" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">→ 中心はくっきり、外縁ほど長くブレる（物体の速度バッファで表現）<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3997;0.4000;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">回転する物の、先端は、中心より速く動く<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">角度が大きくなると、円弧が曲がり、直線との差が広がる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.9198;0.9200;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">速度バッファは直線の近似。大きな回転は、フレームを分けて描くなどで補う<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.9198;0.9200;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:object-blur-rotation:end -->

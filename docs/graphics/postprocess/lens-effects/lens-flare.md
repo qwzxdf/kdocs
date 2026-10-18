@@ -73,27 +73,108 @@ float3 LensFlareGhosts(float2 uv, int ghost_count, float dispersal, float distor
 
 <!-- fig:lens-flare-ghosts:begin -->
 
-<svg class="fig illust motion" data-fig="lens-flare-ghosts" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="lens-flare-ghosts" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-lens-flare-ghosts" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
-<clipPath id="lf-clip"><rect x="40" y="60" width="700" height="300" rx="6"/>
-</clipPath>
-<filter id="lf-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="5"/>
-</filter>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">画面空間のゴースト:光源の像が、画面の中心を通る線上に並ぶ</text>
-<rect x="40" y="60" width="700" height="300" fill="#0b1224" rx="6"/>
-<circle cx="390.0" cy="210.0" r="4" fill="#64748b"/>
-<text x="398.0" y="202.0" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">画面の中心</text>
-<line x1="130" y1="120" x2="650.0" y2="300.0" stroke="#334155" stroke-width="1.5" stroke-dasharray="4 4"><animate attributeName="x1" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="130;130;340;600;660;660"/><animate attributeName="y1" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="120;120;180;150;290;290"/><animate attributeName="x2" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="650;650;440;180;120;120"/><animate attributeName="y2" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="300;300;240;270;130;130"/></line>
-<circle cx="130" cy="120" r="14" fill="#fff7d6" filter="url(#lf-glow)"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="130;130;340;600;660;660"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="120;120;180;150;290;290"/></circle>
-<circle cx="130" cy="120" r="6" fill="#ffffff"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="130;130;340;600;660;660"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="120;120;180;150;290;290"/></circle>
-<circle cx="234.0" cy="156.0" r="24" fill="none" stroke="#7dd3fc" stroke-width="4" opacity="0.8" clip-path="url(#lf-clip)"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="234;234;360;516;552;552"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="156;156;192;174;258;258"/></circle>
-<circle cx="481.0" cy="241.5" r="40" fill="none" stroke="#fbbf24" stroke-width="4" opacity="0.8" clip-path="url(#lf-clip)"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="481;481;407.5;316.5;295.5;295.5"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="241.5;241.5;220.5;231;182;182"/></circle>
-<circle cx="572.0" cy="273.0" r="18" fill="none" stroke="#a78bfa" stroke-width="4" opacity="0.8" clip-path="url(#lf-clip)"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="572;572;425;243;201;201"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="273;273;231;252;154;154"/></circle>
-<circle cx="754.0" cy="336.0" r="32" fill="none" stroke="#86efac" stroke-width="4" opacity="0.8" clip-path="url(#lf-clip)"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="754;754;460;96;12;12"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="336;336;252;294;98;98"/></circle>
-<circle cx="910.0" cy="390.0" r="14" fill="none" stroke="#f472b6" stroke-width="4" opacity="0.8" clip-path="url(#lf-clip)"><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="910;910;490;-30;-150;-150"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2800;0.5200;0.8000;1.0000" values="390;390;270;330;50;50"/></circle>
-<text x="40" y="384" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">ゴースト位置 ＝ 中心 − (光源 − 中心) × 係数。係数がマイナスなら光源側、プラスなら反対側にできる。<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">レンズ フレア(ゴースト): 光源から画面の中心を通る直線の上に、レンズの反射の像が、並ぶ</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">画面(16:9)の中の光源の位置が動くと、ゴーストの位置は、中心から見た対称の位置に動く。ゴーストの倍率 = −1.2, −0.6, 0.4, 0.9</text>
+<rect x="30.0" y="100.0" width="640.0" height="360.0" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30.0" y="90.0" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">画面(中心から、光源・ゴーストの位置)</text>
+<circle cx="350.0" cy="280.0" r="4" fill="#1f2937"/>
+<line x1="30.0" y1="280.0" x2="670.0" y2="280.0" stroke="#e2e8f0" stroke-width="1.2"/>
+<line x1="350.0" y1="100.0" x2="350.0" y2="460.0" stroke="#e2e8f0" stroke-width="1.2"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2665;0.2667;1.0000" values="1;1;0;0"/><line x1="126.0" y1="199.0" x2="618.8" y2="377.2" stroke="#e5484d" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="618.8" cy="377.2" r="17.2" fill="#e5484d" fill-opacity="0.28" stroke="#e5484d" stroke-width="2"/>
+<line x1="126.0" y1="199.0" x2="484.4" y2="328.6" stroke="#e5aa28" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="484.4" cy="328.6" r="13.6" fill="#e5aa28" fill-opacity="0.28" stroke="#e5aa28" stroke-width="2"/>
+<line x1="126.0" y1="199.0" x2="260.4" y2="247.6" stroke="#2ea043" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="260.4" cy="247.6" r="12.4" fill="#2ea043" fill-opacity="0.28" stroke="#2ea043" stroke-width="2"/>
+<line x1="126.0" y1="199.0" x2="148.4" y2="207.1" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="148.4" cy="207.1" r="15.4" fill="#2563eb" fill-opacity="0.28" stroke="#2563eb" stroke-width="2"/>
+<circle cx="126.0" cy="199.0" r="11" fill="#e5aa28" stroke="#ffffff" stroke-width="2.5"/>
+<text x="140.0" y="187.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#92400e">光源</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2665;0.2667;0.4665;0.4667;1.0000" values="0;0;1;1;0;0"/><line x1="254.0" y1="244.0" x2="465.2" y2="323.2" stroke="#e5484d" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="465.2" cy="323.2" r="17.2" fill="#e5484d" fill-opacity="0.28" stroke="#e5484d" stroke-width="2"/>
+<line x1="254.0" y1="244.0" x2="407.6" y2="301.6" stroke="#e5aa28" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="407.6" cy="301.6" r="13.6" fill="#e5aa28" fill-opacity="0.28" stroke="#e5aa28" stroke-width="2"/>
+<line x1="254.0" y1="244.0" x2="311.6" y2="265.6" stroke="#2ea043" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="311.6" cy="265.6" r="12.4" fill="#2ea043" fill-opacity="0.28" stroke="#2ea043" stroke-width="2"/>
+<line x1="254.0" y1="244.0" x2="263.6" y2="247.6" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="263.6" cy="247.6" r="15.4" fill="#2563eb" fill-opacity="0.28" stroke="#2563eb" stroke-width="2"/>
+<circle cx="254.0" cy="244.0" r="11" fill="#e5aa28" stroke="#ffffff" stroke-width="2.5"/>
+<text x="268.0" y="232.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#92400e">光源</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4665;0.4667;0.6665;0.6667;1.0000" values="0;0;1;1;0;0"/><line x1="414.0" y1="325.0" x2="273.2" y2="226.0" stroke="#e5484d" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="273.2" cy="226.0" r="17.2" fill="#e5484d" fill-opacity="0.28" stroke="#e5484d" stroke-width="2"/>
+<line x1="414.0" y1="325.0" x2="311.6" y2="253.0" stroke="#e5aa28" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="311.6" cy="253.0" r="13.6" fill="#e5aa28" fill-opacity="0.28" stroke="#e5aa28" stroke-width="2"/>
+<line x1="414.0" y1="325.0" x2="375.6" y2="298.0" stroke="#2ea043" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="375.6" cy="298.0" r="12.4" fill="#2ea043" fill-opacity="0.28" stroke="#2ea043" stroke-width="2"/>
+<line x1="414.0" y1="325.0" x2="407.6" y2="320.5" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="407.6" cy="320.5" r="15.4" fill="#2563eb" fill-opacity="0.28" stroke="#2563eb" stroke-width="2"/>
+<circle cx="414.0" cy="325.0" r="11" fill="#e5aa28" stroke="#ffffff" stroke-width="2.5"/>
+<text x="428.0" y="313.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#92400e">光源</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6665;0.6667;1.0000" values="0;0;1;1"/><line x1="558.0" y1="352.0" x2="100.4" y2="193.6" stroke="#e5484d" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="100.4" cy="193.6" r="17.2" fill="#e5484d" fill-opacity="0.28" stroke="#e5484d" stroke-width="2"/>
+<line x1="558.0" y1="352.0" x2="225.2" y2="236.8" stroke="#e5aa28" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="225.2" cy="236.8" r="13.6" fill="#e5aa28" fill-opacity="0.28" stroke="#e5aa28" stroke-width="2"/>
+<line x1="558.0" y1="352.0" x2="433.2" y2="308.8" stroke="#2ea043" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="433.2" cy="308.8" r="12.4" fill="#2ea043" fill-opacity="0.28" stroke="#2ea043" stroke-width="2"/>
+<line x1="558.0" y1="352.0" x2="537.2" y2="344.8" stroke="#2563eb" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.7"/>
+<circle cx="537.2" cy="344.8" r="15.4" fill="#2563eb" fill-opacity="0.28" stroke="#2563eb" stroke-width="2"/>
+<circle cx="558.0" cy="352.0" r="11" fill="#e5aa28" stroke="#ffffff" stroke-width="2.5"/>
+<text x="572.0" y="340.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#92400e">光源</text>
+</g>
+<rect x="690" y="100" width="240" height="360" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
+<text x="690" y="90" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">ゴーストの位置</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2665;0.2667;1.0000" values="1;1;0;0"/><text x="706" y="136" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">光源 (-0.70, 0.45)</text>
+<text x="706" y="174" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">×-1.2 → (0.84, -0.54)</text>
+<text x="706" y="210" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">×-0.6 → (0.42, -0.27)</text>
+<text x="706" y="246" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">×+0.4 → (-0.28, 0.18)</text>
+<text x="706" y="282" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2563eb">×+0.9 → (-0.63, 0.41)</text>
+<text x="706" y="340" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">光源が中心から遠いほど、</text>
+<text x="706" y="358" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">ゴーストも、遠くに離れる</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2665;0.2667;0.4665;0.4667;1.0000" values="0;0;1;1;0;0"/><text x="706" y="136" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">光源 (-0.30, 0.20)</text>
+<text x="706" y="174" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">×-1.2 → (0.36, -0.24)</text>
+<text x="706" y="210" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">×-0.6 → (0.18, -0.12)</text>
+<text x="706" y="246" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">×+0.4 → (-0.12, 0.08)</text>
+<text x="706" y="282" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2563eb">×+0.9 → (-0.27, 0.18)</text>
+<text x="706" y="340" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">光源が中心から遠いほど、</text>
+<text x="706" y="358" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">ゴーストも、遠くに離れる</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4665;0.4667;0.6665;0.6667;1.0000" values="0;0;1;1;0;0"/><text x="706" y="136" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">光源 (0.20, -0.25)</text>
+<text x="706" y="174" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">×-1.2 → (-0.24, 0.30)</text>
+<text x="706" y="210" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">×-0.6 → (-0.12, 0.15)</text>
+<text x="706" y="246" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">×+0.4 → (0.08, -0.10)</text>
+<text x="706" y="282" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2563eb">×+0.9 → (0.18, -0.23)</text>
+<text x="706" y="340" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">光源が中心から遠いほど、</text>
+<text x="706" y="358" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">ゴーストも、遠くに離れる</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6665;0.6667;1.0000" values="0;0;1;1"/><text x="706" y="136" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">光源 (0.65, -0.40)</text>
+<text x="706" y="174" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">×-1.2 → (-0.78, 0.48)</text>
+<text x="706" y="210" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">×-0.6 → (-0.39, 0.24)</text>
+<text x="706" y="246" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">×+0.4 → (0.26, -0.16)</text>
+<text x="706" y="282" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2563eb">×+0.9 → (0.59, -0.36)</text>
+<text x="706" y="340" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">光源が中心から遠いほど、</text>
+<text x="706" y="358" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">ゴーストも、遠くに離れる</text>
+</g>
+<text x="40" y="480" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">画面に入っているゴースト:</text>
+<text x="240" y="484" text-anchor="start" style="font-size:24px;font-weight:700;fill:#7c3aed" opacity="1">0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;1.0000" values="1;1;0;0"/></text>
+<text x="240" y="484" text-anchor="start" style="font-size:24px;font-weight:700;fill:#7c3aed" opacity="0">4<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0798;0.0800;0.2798;0.2800;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="240" y="484" text-anchor="start" style="font-size:24px;font-weight:700;fill:#7c3aed" opacity="0">4<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2798;0.2800;0.4798;0.4800;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="240" y="484" text-anchor="start" style="font-size:24px;font-weight:700;fill:#7c3aed" opacity="0">4<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4798;0.4800;0.6798;0.6800;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="240" y="484" text-anchor="start" style="font-size:24px;font-weight:700;fill:#7c3aed" opacity="0">4<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6798;0.6800;1.0000" values="0;0;1;1"/></text>
+<text x="280" y="484" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">個(4 個中)</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8443;0.8444;1.0000" values="0;0;1;1"/><rect x="480" y="470" width="450" height="56" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="496" y="494" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1e3a8a">光源が画面の端にあるほど、ゴーストが広く散る。中心では、全部が重なる</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">レンズの中で光が反射して、光源の像が、何個か、ずれて写る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ゴーストは、光源の位置 × 倍率(負なら反対側)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8665;0.8667;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">簡単な式で、位置が決まる。画面の端は、フェードで消す<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8665;0.8667;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:lens-flare-ghosts:end -->
