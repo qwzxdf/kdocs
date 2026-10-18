@@ -27,6 +27,41 @@ tags:
 
 この S を **BSSRDF**（Bidirectional Scattering-Surface Reflectance Distribution Function、双方向散乱面反射率分布関数）と呼びます。式の意味は、「面上のあらゆる点 x_i に入った光が、x_o からどれだけ出てくるか」を、全部足し合わせる、ということです。BRDF は 4 次元の関数ですが、BSSRDF は 8 次元（入る点 2 + 出る点 2 + 入る向き 2 + 出る向き 2）で、そのまま扱うのは現実的ではありません。そこで、単純化が必要になります。
 
+<!-- fig:sss-spread:begin -->
+
+<svg class="fig illust motion" data-fig="sss-spread" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-sss-spread" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">光が入った点から、どこまでに何 % が出てくるか</text>
+<rect x="70" y="70" width="640" height="260" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="230.0" y1="70" x2="230.0" y2="330" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="70" y1="135.0" x2="710" y2="135.0" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="390.0" y1="70" x2="390.0" y2="330" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="70" y1="200.0" x2="710" y2="200.0" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="550.0" y1="70" x2="550.0" y2="330" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="70" y1="265.0" x2="710" y2="265.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="70" y="62" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">出てきた光の割合（累積）</text>
+<text x="710" y="368" text-anchor="end" style="font-size:12px;font-weight:500;fill:#64748b">入った点からの距離 (mm)</text>
+<text x="176.67" y="348" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">1</text>
+<text x="283.33" y="348" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">2</text>
+<text x="390.0" y="348" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">3</text>
+<text x="496.67" y="348" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">4</text>
+<text x="603.33" y="348" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">5</text>
+<path d="M70.0,330.0 L78.0,306.25 L86.0,271.55 L94.0,253.58 L102.0,242.73 L110.0,233.04 L118.0,224.11 L126.0,215.99 L134.0,208.56 L142.0,201.64 L150.0,195.12 L158.0,188.93 L166.0,183.05 L174.0,177.45 L182.0,172.11 L190.0,167.01 L198.0,162.13 L206.0,157.45 L214.0,152.94 L222.0,148.6 L230.0,144.42 L238.0,140.4 L246.0,136.53 L254.0,132.8 L262.0,129.23 L270.0,125.8 L278.0,122.52 L286.0,119.39 L294.0,116.4 L302.0,113.55 L310.0,110.84 L318.0,108.26 L326.0,105.83 L334.0,103.52 L342.0,101.34 L350.0,99.29 L358.0,97.35 L366.0,95.54 L374.0,93.84 L382.0,92.25 L390.0,90.76 L398.0,89.37 L406.0,88.08 L414.0,86.88 L422.0,85.76 L430.0,84.72 L438.0,83.76 L446.0,82.87 L454.0,82.05 L462.0,81.28 L470.0,80.57 L478.0,79.91 L486.0,79.3 L494.0,78.74 L502.0,78.22 L510.0,77.73 L518.0,77.27 L526.0,76.85 L534.0,76.46 L542.0,76.09 L550.0,75.75 L558.0,75.42 L566.0,75.12 L574.0,74.84 L582.0,74.57 L590.0,74.32 L598.0,74.08 L606.0,73.85 L614.0,73.64 L622.0,73.44 L630.0,73.25 L638.0,73.07 L646.0,72.9 L654.0,72.73 L662.0,72.58 L670.0,72.43 L678.0,72.29 L686.0,72.16 L694.0,72.03 L702.0,71.91 L710.0,71.8" fill="none" stroke="#e5484d" stroke-width="4" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4797;0.4800;1.0000" values="0;0;1;1"/></path>
+<text x="699.33" y="94" text-anchor="end" style="font-size:13px;font-weight:700;fill:#e5484d" opacity="0">赤<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4797;0.4800;1.0000" values="0;0;1;1"/></text>
+<path d="M70.0,330.0 L78.0,282.22 L86.0,210.93 L94.0,171.78 L102.0,147.75 L110.0,128.4 L118.0,113.25 L126.0,102.1 L134.0,94.05 L142.0,88.16 L150.0,83.71 L158.0,80.29 L166.0,77.66 L174.0,75.66 L182.0,74.18 L190.0,73.1 L198.0,72.33 L206.0,71.79 L214.0,71.42 L222.0,71.15 L230.0,70.97 L238.0,70.83 L246.0,70.73 L254.0,70.64 L262.0,70.57 L270.0,70.52 L278.0,70.47 L286.0,70.42 L294.0,70.38 L302.0,70.35 L310.0,70.31 L318.0,70.28 L326.0,70.26 L334.0,70.23 L342.0,70.21 L350.0,70.19 L358.0,70.17 L366.0,70.15 L374.0,70.14 L382.0,70.12 L390.0,70.11 L398.0,70.1 L406.0,70.09 L414.0,70.08 L422.0,70.07 L430.0,70.06 L438.0,70.05 L446.0,70.05 L454.0,70.04 L462.0,70.03 L470.0,70.03 L478.0,70.03 L486.0,70.02 L494.0,70.02 L502.0,70.02 L510.0,70.01 L518.0,70.01 L526.0,70.01 L534.0,70.01 L542.0,70.01 L550.0,70.01 L558.0,70.01 L566.0,70.0 L574.0,70.0 L582.0,70.0 L590.0,70.0 L598.0,70.0 L606.0,70.0 L614.0,70.0 L622.0,70.0 L630.0,70.0 L638.0,70.0 L646.0,70.0 L654.0,70.0 L662.0,70.0 L670.0,70.0 L678.0,70.0 L686.0,70.0 L694.0,70.0 L702.0,70.0 L710.0,70.0" fill="none" stroke="#2ea043" stroke-width="4" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2797;0.2800;1.0000" values="0;0;1;1"/></path>
+<text x="699.33" y="112" text-anchor="end" style="font-size:13px;font-weight:700;fill:#2ea043" opacity="0">緑<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2797;0.2800;1.0000" values="0;0;1;1"/></text>
+<path d="M70.0,330.0 L78.0,264.94 L86.0,171.77 L94.0,127.99 L102.0,107.13 L110.0,92.53 L118.0,82.56 L126.0,76.61 L134.0,73.49 L142.0,72.03 L150.0,71.38 L158.0,71.08 L166.0,70.91 L174.0,70.79 L182.0,70.69 L190.0,70.6 L198.0,70.51 L206.0,70.43 L214.0,70.36 L222.0,70.3 L230.0,70.25 L238.0,70.2 L246.0,70.16 L254.0,70.13 L262.0,70.1 L270.0,70.08 L278.0,70.06 L286.0,70.05 L294.0,70.04 L302.0,70.03 L310.0,70.02 L318.0,70.02 L326.0,70.01 L334.0,70.01 L342.0,70.01 L350.0,70.0 L358.0,70.0 L366.0,70.0 L374.0,70.0 L382.0,70.0 L390.0,70.0 L398.0,70.0 L406.0,70.0 L414.0,70.0 L422.0,70.0 L430.0,70.0 L438.0,70.0 L446.0,70.0 L454.0,70.0 L462.0,70.0 L470.0,70.0 L478.0,70.0 L486.0,70.0 L494.0,70.0 L502.0,70.0 L510.0,70.0 L518.0,70.0 L526.0,70.0 L534.0,70.0 L542.0,70.0 L550.0,70.0 L558.0,70.0 L566.0,70.0 L574.0,70.0 L582.0,70.0 L590.0,70.0 L598.0,70.0 L606.0,70.0 L614.0,70.0 L622.0,70.0 L630.0,70.0 L638.0,70.0 L646.0,70.0 L654.0,70.0 L662.0,70.0 L670.0,70.0 L678.0,70.0 L686.0,70.0 L694.0,70.0 L702.0,70.0 L710.0,70.0" fill="none" stroke="#2563eb" stroke-width="4" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="0;0;1;1"/></path>
+<text x="699.33" y="130" text-anchor="end" style="font-size:13px;font-weight:700;fill:#2563eb" opacity="0">青<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="0;0;1;1"/></text>
+<text x="390" y="372" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">光が当たった点から、肌の内側に広がる<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="372" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">青: 0.5 mm ほどで、ほぼ出きる（狭い）<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.2797;0.2800;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="372" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">緑: 1〜2 mm まで広がる<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2797;0.2800;0.4797;0.4800;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="372" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">赤: 数 mm まで届く。だから、影の縁が赤く染まる<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4797;0.4800;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:sss-spread:end -->
+
 ## 拡散近似
 
 肌のような**散乱が強い物質**では、光は内部で何十回も散乱するので、**どの方向から入った光も、内部ではほぼ等方（どの向きにも均等）に広がります**。この性質を利用すると、BSSRDF が劇的に単純になります。

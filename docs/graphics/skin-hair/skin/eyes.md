@@ -23,6 +23,33 @@ tags:
 
 この構造のうち、描画で重要なのは、**角膜が透明なドームで、光を屈折させる**ことです。真正面から見ると、虹彩は、角膜の奥に見えます。角膜が凸レンズのように働くので、見える虹彩は、実際より**大きく、わずかに手前に**見えます。
 
+<!-- fig:eye-refraction:begin -->
+
+<svg class="fig illust motion" data-fig="eye-refraction" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-eye-refraction" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">角膜で屈折するので、虹彩は、実際の位置からずれて見える</text>
+<rect x="120" y="110.0" width="420" height="40" fill="#bae6fd" fill-opacity="0.55"/>
+<line x1="120" y1="150.0" x2="540" y2="150.0" stroke="#0284c7" stroke-width="3"/>
+<line x1="120" y1="270.0" x2="540" y2="270.0" stroke="#7c3aed" stroke-width="4"/>
+<text x="126" y="104.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">空気</text>
+<text x="126" y="172.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#0284c7">角膜・前房（屈折率 1.376）</text>
+<text x="126" y="292.0" text-anchor="start" style="font-size:12px;font-weight:700;fill:#7c3aed">虹彩の面</text>
+<line x1="330.0" y1="150.0" x2="330.0" y2="270.0" stroke="#94a3b8" stroke-width="3" stroke-dasharray="6 4"><animate attributeName="x2" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1250;0.1630;0.2011;0.2391;0.2772;0.3152;0.3533;0.3913;0.4293;0.4674;0.5054;0.5435;0.5815;0.6196;0.6576;0.6957;1.0000" values="330;330;336.55;343.14;349.81;356.6;363.56;370.73;378.18;385.96;394.14;402.82;412.09;422.08;432.94;444.88;458.12;473.01;473.01"/></line>
+<line x1="330.0" y1="150.0" x2="330.0" y2="270.0" stroke="#e5484d" stroke-width="4"><animate attributeName="x2" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1250;0.1630;0.2011;0.2391;0.2772;0.3152;0.3533;0.3913;0.4293;0.4674;0.5054;0.5435;0.5815;0.6196;0.6576;0.6957;1.0000" values="330;330;334.76;339.52;344.31;349.11;353.95;358.83;363.75;368.73;373.76;378.85;383.99;389.2;394.46;399.75;405.08;410.42;410.42"/></line>
+<line x1="330.0" y1="60.0" x2="330.0" y2="150.0" stroke="#1f2937" stroke-width="3"><animate attributeName="x1" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1250;0.1630;0.2011;0.2391;0.2772;0.3152;0.3533;0.3913;0.4293;0.4674;0.5054;0.5435;0.5815;0.6196;0.6576;0.6957;1.0000" values="330;330;325.09;320.14;315.14;310.05;304.83;299.45;293.87;288.03;281.89;275.39;268.43;260.94;252.79;243.84;233.91;222.74;222.74"/></line>
+<circle cx="330.0" cy="270.0" r="7" fill="#94a3b8"><animate attributeName="cx" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1250;0.1630;0.2011;0.2391;0.2772;0.3152;0.3533;0.3913;0.4293;0.4674;0.5054;0.5435;0.5815;0.6196;0.6576;0.6957;1.0000" values="330;330;336.55;343.14;349.81;356.6;363.56;370.73;378.18;385.96;394.14;402.82;412.09;422.08;432.94;444.88;458.12;473.01;473.01"/></circle>
+<circle cx="330.0" cy="270.0" r="7" fill="#e5484d"><animate attributeName="cx" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0870;0.1250;0.1630;0.2011;0.2391;0.2772;0.3152;0.3533;0.3913;0.4293;0.4674;0.5054;0.5435;0.5815;0.6196;0.6576;0.6957;1.0000" values="330;330;334.76;339.52;344.31;349.11;353.95;358.83;363.75;368.73;373.76;378.85;383.99;389.2;394.46;399.75;405.08;410.42;410.42"/></circle>
+<text x="570" y="200" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">灰: 屈折なしで見えるはずの位置</text>
+<text x="570" y="222" text-anchor="start" style="font-size:12px;font-weight:500;fill:#e5484d">赤: 屈折した、実際に見える位置</text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">正面から見ると、ずれない<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">斜めから見るほど、虹彩の見える位置がずれる<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.6953;0.6957;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">パララックス マッピングで、この動きを近似できる<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6953;0.6957;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:eye-refraction:end -->
+
 ## 角膜の屈折と虹彩の見え方
 
 目を斜めから見ると、虹彩が**位置ずれ**して見えます。角膜の屈折により、視線が曲がるためです。この屈折を無視して、虹彩を球体の表面に貼ったテクスチャとして描くと、目が「絵」のように平坦に見えます。屈折を正しく扱うと、見る角度によって虹彩の見え方が変わり、**目の奥行き**が出ます。

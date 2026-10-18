@@ -25,6 +25,49 @@ tags:
 
 ゲームの画面では、髪の毛が非常に目立つため、これらの欠点が、品質を大きく損ないます。
 
+<!-- fig:hair-coverage:begin -->
+
+<svg class="fig illust motion" data-fig="hair-coverage" viewBox="0 0 780 430" role="img"><rect x="0" y="0" width="780" height="430" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-hair-coverage" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">細い髪は、画素の中心で判定すると途切れる。覆う割合で描くと、滑らか</text>
+<text x="130" y="98" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">中心で判定（ちらつく）</text>
+<text x="130" y="238" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">覆う割合をアルファに（滑らか）</text>
+<rect x="130" y="110" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="174" y="110" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="218" y="110" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="262" y="110" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1388;0.1391;0.1736;0.1739;1.0000" values="#ffffff;#ffffff;#2e2e2e;#2e2e2e;#ffffff;#ffffff"/></rect>
+<rect x="306" y="110" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2431;0.2435;0.2953;0.2957;1.0000" values="#ffffff;#ffffff;#2e2e2e;#2e2e2e;#ffffff;#ffffff"/></rect>
+<rect x="350" y="110" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3649;0.3652;0.3997;0.4000;1.0000" values="#ffffff;#ffffff;#2e2e2e;#2e2e2e;#ffffff;#ffffff"/></rect>
+<rect x="394" y="110" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4866;0.4870;0.5214;0.5217;1.0000" values="#ffffff;#ffffff;#2e2e2e;#2e2e2e;#ffffff;#ffffff"/></rect>
+<rect x="438" y="110" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5910;0.5913;0.6431;0.6435;1.0000" values="#ffffff;#ffffff;#2e2e2e;#2e2e2e;#ffffff;#ffffff"/></rect>
+<rect x="482" y="110" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.7127;0.7130;0.7475;0.7478;1.0000" values="#ffffff;#ffffff;#2e2e2e;#2e2e2e;#ffffff;#ffffff"/></rect>
+<rect x="526" y="110" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="570" y="110" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="614" y="110" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="130" y="250" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="174" y="250" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="218" y="250" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.1040;0.1043;0.1214;0.1217;1.0000" values="#ffffff;#ffffff;#989898;#989898;#f0f0f0;#f0f0f0;#ffffff;#ffffff"/></rect>
+<rect x="262" y="250" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.1040;0.1043;0.1214;0.1217;0.1910;0.1913;0.2083;0.2087;0.2257;0.2261;1.0000" values="#ffffff;#ffffff;#989898;#989898;#404040;#404040;#323232;#323232;#5e5e5e;#5e5e5e;#b6b6b6;#b6b6b6;#ffffff;#ffffff"/></rect>
+<rect x="306" y="250" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1910;0.1913;0.2083;0.2087;0.2257;0.2261;0.3127;0.3130;0.3301;0.3304;0.3475;0.3478;1.0000" values="#ffffff;#ffffff;#d3d3d3;#d3d3d3;#7b7b7b;#7b7b7b;#323232;#323232;#7b7b7b;#7b7b7b;#d3d3d3;#d3d3d3;#ffffff;#ffffff"/></rect>
+<rect x="350" y="250" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3127;0.3130;0.3301;0.3304;0.3475;0.3478;0.4170;0.4174;0.4344;0.4348;0.4518;0.4522;0.4692;0.4696;1.0000" values="#ffffff;#ffffff;#b6b6b6;#b6b6b6;#5e5e5e;#5e5e5e;#323232;#323232;#404040;#404040;#989898;#989898;#f0f0f0;#f0f0f0;#ffffff;#ffffff"/></rect>
+<rect x="394" y="250" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4170;0.4174;0.4344;0.4348;0.4518;0.4522;0.4692;0.4696;0.5388;0.5391;0.5562;0.5565;0.5736;0.5739;1.0000" values="#ffffff;#ffffff;#f0f0f0;#f0f0f0;#989898;#989898;#404040;#404040;#323232;#323232;#5e5e5e;#5e5e5e;#b6b6b6;#b6b6b6;#ffffff;#ffffff"/></rect>
+<rect x="438" y="250" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5388;0.5391;0.5562;0.5565;0.5736;0.5739;0.6605;0.6609;0.6779;0.6783;0.6953;0.6957;1.0000" values="#ffffff;#ffffff;#d3d3d3;#d3d3d3;#7b7b7b;#7b7b7b;#323232;#323232;#7b7b7b;#7b7b7b;#d3d3d3;#d3d3d3;#ffffff;#ffffff"/></rect>
+<rect x="482" y="250" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6605;0.6609;0.6779;0.6783;0.6953;0.6957;0.7649;0.7652;0.7823;0.7826;1.0000" values="#ffffff;#ffffff;#b6b6b6;#b6b6b6;#5e5e5e;#5e5e5e;#323232;#323232;#404040;#404040;#989898;#989898"/></rect>
+<rect x="526" y="250" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"><animate attributeName="fill" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.7649;0.7652;0.7823;0.7826;1.0000" values="#ffffff;#ffffff;#f0f0f0;#f0f0f0;#989898;#989898"/></rect>
+<rect x="570" y="250" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="614" y="250" width="44" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="130" y="102" width="3" height="56" fill="#e5484d"><animate attributeName="x" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.1043;0.1217;0.1391;0.1565;0.1739;0.1913;0.2087;0.2261;0.2435;0.2609;0.2783;0.2957;0.3130;0.3304;0.3478;0.3652;0.3826;0.4000;0.4174;0.4348;0.4522;0.4696;0.4870;0.5043;0.5217;0.5391;0.5565;0.5739;0.5913;0.6087;0.6261;0.6435;0.6609;0.6783;0.6957;0.7130;0.7304;0.7478;0.7652;0.7826;1.0000" values="130;130;260.5;267.1;273.7;280.3;286.9;293.5;300.1;306.7;313.3;319.9;326.5;333.1;339.7;346.3;352.9;359.5;366.1;372.7;379.3;385.9;392.5;399.1;405.7;412.3;418.9;425.5;432.1;438.7;445.3;451.9;458.5;465.1;471.7;478.3;484.9;491.5;498.1;504.7;511.3;517.9;524.5;524.5"/></rect>
+<rect x="130" y="242" width="3" height="56" fill="#e5484d"><animate attributeName="x" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.1043;0.1217;0.1391;0.1565;0.1739;0.1913;0.2087;0.2261;0.2435;0.2609;0.2783;0.2957;0.3130;0.3304;0.3478;0.3652;0.3826;0.4000;0.4174;0.4348;0.4522;0.4696;0.4870;0.5043;0.5217;0.5391;0.5565;0.5739;0.5913;0.6087;0.6261;0.6435;0.6609;0.6783;0.6957;0.7130;0.7304;0.7478;0.7652;0.7826;1.0000" values="130;130;260.5;267.1;273.7;280.3;286.9;293.5;300.1;306.7;313.3;319.9;326.5;333.1;339.7;346.3;352.9;359.5;366.1;372.7;379.3;385.9;392.5;399.1;405.7;412.3;418.9;425.5;432.1;438.7;445.3;451.9;458.5;465.1;471.7;478.3;484.9;491.5;498.1;504.7;511.3;517.9;524.5;524.5"/></rect>
+<text x="130" y="340" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">赤: 髪の毛（幅 0.35 画素）</text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">髪が画素の間をゆっくり動く<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">上: 中心を外すと消える（途切れ・点滅）／ 下: 常に薄く描かれる<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.8257;0.8261;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">幅を 1 画素に広げ、足りない分をアルファで薄める<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.8257;0.8261;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:hair-coverage:end -->
+
 ## カバレッジによる解決
 
 エイリアシングの根本的な解決は、画素の「中心を覆うか」を問うのでなく、**画素の面積のうち、何割を覆うか**（カバレッジ）を求め、それを**アルファ**にすることです。画素の 30 % を覆う髪は、30 % の濃さで描きます。画素の中心を外れていても、一部が画素にかかっていれば、薄く描かれるので、途切れや点滅がなくなります。

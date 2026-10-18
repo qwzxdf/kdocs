@@ -30,7 +30,7 @@ def Badges(rating):
     parts = []
     perf = rating.get("perf")
     if perf in PERF_LABEL:
-        parts.append('<span class="perf perf-%d" title="%s">⚡%s</span>' % (perf, PERF_TITLE[perf], PERF_LABEL[perf]))
+        parts.append('<span class="perf perf-%d" title="%s">⚡%s</span>' % (4 - perf, PERF_TITLE[perf], PERF_LABEL[perf]))
     qual = rating.get("quality")
     if qual in QUAL_TITLE:
         parts.append('<span class="qual qual-%d" title="%s">%s%s</span>' % (qual, QUAL_TITLE[qual], "★" * qual, "☆" * (3 - qual)))
