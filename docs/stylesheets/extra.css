@@ -631,57 +631,87 @@
 .md-typeset .gain-legend { margin: 0.5em 0 1em; }
 
 @media screen and (max-width: 44.9375em) {
+  /* 3 列以上: 表のまま、横にスクロールする */
   .md-typeset__table {
     display: block;
     width: 100%;
-    overflow: visible;
+    overflow-x: auto;
   }
-  .md-typeset table:not([class]) {
+  .md-typeset table:not([class])[data-tbl="wide"] {
+    min-width: 34rem;
+  }
+  /* 2 列: 左に用語、右に説明。枠も「内容」の文字も出さない */
+  .md-typeset table:not([class]):not([data-tbl="wide"]) {
     display: block;
     width: 100%;
     box-shadow: none;
   }
-  .md-typeset table:not([class]) thead {
+  .md-typeset table:not([class]):not([data-tbl="wide"]) thead {
     display: none;
   }
-  .md-typeset table:not([class]) tbody,
-  .md-typeset table:not([class]) tr {
+  .md-typeset table:not([class]):not([data-tbl="wide"]) tbody {
     display: block;
     width: 100%;
   }
-  .md-typeset table:not([class]) tr {
-    margin: 0 0 0.7rem;
-    border: 0.05rem solid var(--md-typeset-table-color, rgba(128, 128, 128, 0.3));
-    border-radius: 0.3rem;
-    overflow: hidden;
-  }
-  .md-typeset table:not([class]) td {
-    display: block;
+  .md-typeset table:not([class]):not([data-tbl="wide"]) tr {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.7rem;
     width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    padding: 0.35rem 0.7rem;
+    padding: 0.55rem 0;
     border: 0;
+    border-bottom: 0.05rem solid var(--md-typeset-table-color, rgba(128, 128, 128, 0.3));
   }
-  .md-typeset table:not([class]) td:first-child {
-    background: rgba(128, 128, 128, 0.12);
-    font-weight: 600;
+  .md-typeset table:not([class]):not([data-tbl="wide"]) td {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    box-sizing: border-box;
   }
-  .md-typeset table:not([class]) td[data-label="重要度"] {
+  .md-typeset table:not([class]):not([data-tbl="wide"]) td[data-label="重要度"] {
     display: none;
   }
-  .md-typeset table:not([class]) .rank-inline {
+  .md-typeset table:not([class]):not([data-tbl="wide"]) td:nth-child(2):not([data-label="重要度"]),
+  .md-typeset table:not([class]):not([data-tbl="wide"]) td:last-child {
+    flex: 1 1 0;
+  }
+  .md-typeset table:not([class]):not([data-tbl="wide"]) .rank-inline {
     display: inline-block;
     margin-left: 0.4em;
   }
-  .md-typeset table:not([class]) td[data-label]:not(:first-child)::before {
-    content: attr(data-label);
-    display: block;
-    margin-bottom: 0.1rem;
-    font-size: 0.62rem;
+  /* 意味の解説: 左のラベル */
+  .md-typeset table[data-tbl="term"] td:first-child {
+    flex: 0 0 5.6rem;
+    padding: 0.4rem 0.3rem;
+    border-radius: 0.5rem;
+    background: rgba(100, 110, 200, 0.22);
+    color: inherit;
     font-weight: 700;
-    letter-spacing: 0.03em;
-    opacity: 0.6;
+    font-size: 0.8rem;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+  .md-typeset table[data-tbl="term"] tr[data-long] {
+    display: block;
+  }
+  .md-typeset table[data-tbl="term"] tr[data-long] td:first-child {
+    display: inline-block;
+    margin-bottom: 0.3rem;
+    padding: 0.15rem 0.6rem;
+    text-align: left;
+  }
+  /* 役割の対応: 用語 → 説明 を 1 行で */
+  .md-typeset table[data-tbl="map"] td:first-child {
+    flex: 0 1 auto;
+    max-width: 45%;
+    font-weight: 700;
+    overflow-wrap: anywhere;
+  }
+  .md-typeset table[data-tbl="map"] td:first-child::after {
+    content: " →";
+    font-weight: 400;
+    opacity: 0.5;
   }
   .md-typeset table:not([class]) code {
     white-space: pre-wrap;

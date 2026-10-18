@@ -5,7 +5,18 @@
       if (heads.length === 0) {
         return;
       }
+      const visible = heads.filter((h) => h !== "重要度");
+      if (visible.length === 2) {
+        const mapHeads = ["項目", "要素", "場面", "場合", "状況", "目的", "やりたいこと", "対象", "部品", "段階", "種類", "フェーズ", "使う場面", "用途", "場所", "タイミング", "症状", "状態", "入力", "やること", "例"];
+        table.dataset.tbl = mapHeads.includes(visible[0]) ? "map" : "term";
+      } else if (visible.length >= 3) {
+        table.dataset.tbl = "wide";
+      }
       table.querySelectorAll("tbody tr").forEach((row) => {
+        const firstText = row.firstElementChild ? row.firstElementChild.textContent.trim() : "";
+        if (firstText.length > 9) {
+          row.dataset.long = "1";
+        }
         Array.from(row.children).forEach((cell, i) => {
           if (heads[i] && !cell.dataset.label) {
             cell.dataset.label = heads[i];
