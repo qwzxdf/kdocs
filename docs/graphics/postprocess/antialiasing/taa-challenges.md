@@ -30,75 +30,48 @@ tags:
 
 <!-- fig:taa-ghosting:begin -->
 
-<svg class="fig illust motion" data-fig="taa-ghosting" viewBox="0 0 780 360" role="img"><rect x="0" y="0" width="780" height="360" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="taa-ghosting" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-taa-ghosting" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ゴースト:動く物体の後ろに、古い履歴が尾を引く</text>
-<text x="40" y="94" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">履歴の拒否なし</text>
-<rect x="40" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="64" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="88" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="112" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="136" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="160" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="184" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="208" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="232" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="256" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="280" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="304" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="328" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="352" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="40" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.1348;0.4130;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="64" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1344;0.1348;0.1826;0.4609;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="88" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1823;0.1826;0.2304;0.5087;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="112" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2301;0.2304;0.2783;0.5565;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="136" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2779;0.2783;0.3261;0.6043;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="160" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3257;0.3261;0.3739;0.6522;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="184" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3736;0.3739;0.4217;0.7000;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="208" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4214;0.4217;0.4696;0.7478;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="232" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4692;0.4696;0.5174;0.7957;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="256" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5170;0.5174;0.5652;0.8435;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="280" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5649;0.5652;0.6130;0.8913;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="304" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6127;0.6130;0.6609;0.9391;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="328" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6605;0.6609;0.7087;0.9870;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="352" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.7083;0.7087;0.7565;1.0000" values="0;0;1;1;0"/></rect>
-<text x="420" y="94" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043">拒否あり（クランプ・速度）</text>
-<rect x="420" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="444" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="468" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="492" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="516" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="540" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="564" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="588" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="612" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="636" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="660" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="684" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="708" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="732" y="120" width="23" height="48" fill="#f1f5f9"/>
-<rect x="420" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.1344;0.1348;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="444" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1344;0.1348;0.1823;0.1826;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="468" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.1823;0.1826;0.2301;0.2304;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="492" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2301;0.2304;0.2779;0.2783;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="516" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2779;0.2783;0.3257;0.3261;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="540" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3257;0.3261;0.3736;0.3739;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="564" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3736;0.3739;0.4214;0.4217;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="588" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4214;0.4217;0.4692;0.4696;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="612" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4692;0.4696;0.5170;0.5174;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="636" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5170;0.5174;0.5649;0.5652;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="660" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5649;0.5652;0.6127;0.6130;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="684" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6127;0.6130;0.6605;0.6609;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="708" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.6605;0.6609;0.7083;0.7087;1.0000" values="0;0;1;1;0;0"/></rect>
-<rect x="732" y="120" width="23" height="48" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.7083;0.7087;0.7562;0.7565;1.0000" values="0;0;1;1;0;0"/></rect>
-<text x="40" y="230" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">物体が右へ動く(1 マス / フレーム)<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
-<text x="40" y="270" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d" opacity="0">左:通ったマスに、薄い影が残る（履歴を捨てない）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;1.0000" values="1;1;0;0"/></text>
-<text x="40" y="270" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d" opacity="0">→ 長い尾が見える（ゴースト）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="420" y="270" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">右:履歴が合わなければ捨てる<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;1.0000" values="1;1;0;0"/></text>
-<text x="420" y="270" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043" opacity="0">→ 尾が出ない<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.4344;0.4348;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="40" y="330" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">対策:近傍クランプ・速度による再投影・深度や法線での拒否。</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">TAA のゴースト: 混ぜる割合 α が小さいほど、滑らかだが、残像が長く残る</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">明るい物が消えた画素。履歴の色が、新しい色へ、何フレームで置き換わるか。α を 0.5 → 0.2 → 0.1 → 0.05 で比べる</text>
+<rect x="30" y="96" width="900" height="230" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 画素に残っている、消えた物の色(1 = 完全に残っている)</text>
+<path d="M70.0,130.0 L90.5,215.0 L111.0,257.5 L131.5,278.75 L152.0,289.38 L172.5,294.69 L193.0,297.34 L213.5,298.67 L234.0,299.34 L254.5,299.67 L275.0,299.83 L295.5,299.92 L316.0,299.96 L336.5,299.98 L357.0,299.99 L377.5,299.99 L398.0,300.0 L418.5,300.0 L439.0,300.0 L459.5,300.0 L480.0,300.0 L500.5,300.0 L521.0,300.0 L541.5,300.0 L562.0,300.0 L582.5,300.0 L603.0,300.0 L623.5,300.0 L644.0,300.0 L664.5,300.0 L685.0,300.0 L705.5,300.0 L726.0,300.0 L746.5,300.0 L767.0,300.0 L787.5,300.0 L808.0,300.0 L828.5,300.0 L849.0,300.0 L869.5,300.0 L890.0,300.0" fill="none" stroke="#e5484d" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="0;0;1;1"/></path>
+<text x="886.0" y="293.9999999998454" text-anchor="end" style="font-size:12px;font-weight:700;fill:#e5484d" opacity="0">α = 0.5<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="0;0;1;1"/></text>
+<path d="M70.0,130.0 L90.5,164.0 L111.0,191.2 L131.5,212.96 L152.0,230.37 L172.5,244.29 L193.0,255.44 L213.5,264.35 L234.0,271.48 L254.5,277.18 L275.0,281.75 L295.5,285.4 L316.0,288.32 L336.5,290.65 L357.0,292.52 L377.5,294.02 L398.0,295.21 L418.5,296.17 L439.0,296.94 L459.5,297.55 L480.0,298.04 L500.5,298.43 L521.0,298.75 L541.5,299.0 L562.0,299.2 L582.5,299.36 L603.0,299.49 L623.5,299.59 L644.0,299.67 L664.5,299.74 L685.0,299.79 L705.5,299.83 L726.0,299.87 L746.5,299.89 L767.0,299.91 L787.5,299.93 L808.0,299.94 L828.5,299.96 L849.0,299.96 L869.5,299.97 L890.0,299.98" fill="none" stroke="#e5aa28" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2265;0.2267;1.0000" values="0;0;1;1"/></path>
+<text x="886.0" y="293.97740312407166" text-anchor="end" style="font-size:12px;font-weight:700;fill:#e5aa28" opacity="0">α = 0.2<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2265;0.2267;1.0000" values="0;0;1;1"/></text>
+<path d="M70.0,130.0 L90.5,147.0 L111.0,162.3 L131.5,176.07 L152.0,188.46 L172.5,199.62 L193.0,209.66 L213.5,218.69 L234.0,226.82 L254.5,234.14 L275.0,240.72 L295.5,246.65 L316.0,251.99 L336.5,256.79 L357.0,261.11 L377.5,265.0 L398.0,268.5 L418.5,271.65 L439.0,274.48 L459.5,277.04 L480.0,279.33 L500.5,281.4 L521.0,283.26 L541.5,284.93 L562.0,286.44 L582.5,287.8 L603.0,289.02 L623.5,290.11 L644.0,291.1 L664.5,291.99 L685.0,292.79 L705.5,293.51 L726.0,294.16 L746.5,294.75 L767.0,295.27 L787.5,295.74 L808.0,296.17 L828.5,296.55 L849.0,296.9 L869.5,297.21 L890.0,297.49" fill="none" stroke="#2ea043" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3865;0.3867;1.0000" values="0;0;1;1"/></path>
+<text x="886.0" y="291.4872498999561" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2ea043" opacity="0">α = 0.1<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3865;0.3867;1.0000" values="0;0;1;1"/></text>
+<path d="M70.0,130.0 L90.5,138.5 L111.0,146.58 L131.5,154.25 L152.0,161.53 L172.5,168.46 L193.0,175.03 L213.5,181.28 L234.0,187.22 L254.5,192.86 L275.0,198.21 L295.5,203.3 L316.0,208.14 L336.5,212.73 L357.0,217.1 L377.5,221.24 L398.0,225.18 L418.5,228.92 L439.0,232.47 L459.5,235.85 L480.0,239.06 L500.5,242.1 L521.0,245.0 L541.5,247.75 L562.0,250.36 L582.5,252.84 L603.0,255.2 L623.5,257.44 L644.0,259.57 L664.5,261.59 L685.0,263.51 L705.5,265.34 L726.0,267.07 L746.5,268.72 L767.0,270.28 L787.5,271.77 L808.0,273.18 L828.5,274.52 L849.0,275.79 L869.5,277.0 L890.0,278.15" fill="none" stroke="#2563eb" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5465;0.5467;1.0000" values="0;0;1;1"/></path>
+<text x="886.0" y="272.15293338393246" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2563eb" opacity="0">α = 0.05<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5465;0.5467;1.0000" values="0;0;1;1"/></text>
+<line x1="70.0" y1="291.5" x2="890.0" y2="291.5" stroke="#64748b" stroke-width="1.5" stroke-dasharray="4 4"/>
+<text x="76.0" y="287.5" text-anchor="start" style="font-size:11px;font-weight:700;fill:#64748b">見えなくなる(5%)</text>
+<rect x="30" y="346" width="900" height="130" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
+<text x="30" y="336" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">② 何フレームで、見えなくなるか(60 fps なら、× 0.0167 秒)</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.1109;0.1111;1.0000" values="0;0;1;1"/><text x="50" y="394" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">α = 0.5</text>
+<rect x="140" y="380" width="70.0" height="16" fill="#e5484d" opacity="0.85"/>
+<text x="218.0" y="393" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">5 フレーム(0.08 秒)/ 半分まで 2 フレーム</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2709;0.2711;1.0000" values="0;0;1;1"/><text x="50" y="416" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">α = 0.2</text>
+<rect x="140" y="402" width="196.0" height="16" fill="#e5aa28" opacity="0.85"/>
+<text x="344.0" y="415" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">14 フレーム(0.23 秒)/ 半分まで 4 フレーム</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4309;0.4311;1.0000" values="0;0;1;1"/><text x="50" y="438" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">α = 0.1</text>
+<rect x="140" y="424" width="406.0" height="16" fill="#2ea043" opacity="0.85"/>
+<text x="554.0" y="437" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">29 フレーム(0.48 秒)/ 半分まで 7 フレーム</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5909;0.5911;1.0000" values="0;0;1;1"/><text x="50" y="460" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2563eb">α = 0.05</text>
+<rect x="140" y="446" width="560.0" height="16" fill="#2563eb" opacity="0.85"/>
+<text x="708.0" y="459" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">40 フレーム(0.67 秒)/ 半分まで 14 フレーム</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000" values="0;0;1;1"/><rect x="620" y="490" width="310" height="36" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="636" y="514" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1e3a8a">小さい α は滑らか、でも、残像が長い</text>
+</g>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">物が消えたあとも、履歴の色が、少しずつ薄れながら、残る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">α が小さいほど、薄れるのが遅い<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.7065;0.7067;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ゴーストを抑えるには、α を速度に応じて上げる、履歴を押し込める、などを併用する<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:taa-ghosting:end -->

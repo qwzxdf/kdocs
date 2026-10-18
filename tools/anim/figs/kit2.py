@@ -75,19 +75,20 @@ class Stage:
 class Grid:
     """ピクセル格子。Paint(i, j, t, color) で色の変化を貯め、Flush() でまとめて出す。"""
 
-    def __init__(self, stage, x, y, nx, ny, cell, base="#ffffff", parent=None, stroke=None):
+    def __init__(self, stage, x, y, nx, ny, cell, base="#ffffff", parent=None, stroke=None, cell_h=None):
         self.stage, self.x, self.y, self.nx, self.ny, self.cell = stage, x, y, nx, ny, cell
+        self.cell_h = cell_h or cell
         self.parent = parent or stage.root
         self.nodes = {}
         self.steps = {}
         self.base = base
         for j in range(ny):
             for i in range(nx):
-                node = self.parent.add("rect", x=R(x + i * cell), y=R(y + j * cell), width=R(cell + 0.3), height=R(cell + 0.3), fill=base)
+                node = self.parent.add("rect", x=R(x + i * cell), y=R(y + j * self.cell_h), width=R(cell + 0.3), height=R(self.cell_h + 0.3), fill=base)
                 self.nodes[(i, j)] = node
                 self.steps[(i, j)] = []
         if stroke:
-            self.parent.add("rect", x=x, y=y, width=nx * cell, height=ny * cell, fill="none", stroke=stroke, stroke_width=1.5)
+            self.parent.add("rect", x=x, y=y, width=nx * cell, height=ny * self.cell_h, fill="none", stroke=stroke, stroke_width=1.5)
 
     def Paint(self, i, j, t, color):
         self.steps[(i, j)].append((t, color))
@@ -99,7 +100,7 @@ class Grid:
                 self.nodes[key].Steps("fill", items)
 
     def Frame(self, i, j, color=RED, width=2.5):
-        return self.parent.add("rect", x=R(self.x + i * self.cell), y=R(self.y + j * self.cell), width=self.cell, height=self.cell, fill="none", stroke=color, stroke_width=width, opacity=0)
+        return self.parent.add("rect", x=R(self.x + i * self.cell), y=R(self.y + j * self.cell_h), width=self.cell, height=self.cell_h, fill="none", stroke=color, stroke_width=width, opacity=0)
 
     def Lines(self, color="#ffffff", opacity=0.3):
         g = self.parent.add("g", opacity=opacity)
