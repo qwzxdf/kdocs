@@ -58,75 +58,287 @@ float SphereTraceShadow(float3 origin, float3 light_dir) {
 
 <!-- fig:sdf-soft-shadow:begin -->
 
-<svg class="fig illust motion" data-fig="sdf-soft-shadow" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="sdf-soft-shadow" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-sdf-soft-shadow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">SDF のソフト シャドウ:球で安全な距離を測りながら、最小の隙間を覚える</text>
-<circle cx="330" cy="276" r="38" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
-<circle cx="90" cy="300" r="7" fill="#2563eb"/>
-<text x="80" y="324" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">影を調べたい点</text>
-<circle cx="680" cy="130" r="13" fill="#e5aa28"/>
-<text x="674" y="110" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5aa28">光</text>
-<line x1="90" y1="300" x2="680" y2="130" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4 4"/>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/><circle cx="97.69" cy="297.79" r="120" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="97.69" cy="297.79" r="4" fill="#2ea043"/>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">SDF の柔らかい影: 光に向かう途中で、物にどれだけ「かすったか」で、影の濃さを決める</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">円の物。床の各点から光へ、距離場を使って進む。min(k·距離 ÷ 進んだ長さ)が小さいほど、影が濃い</text>
+<rect x="30" y="96" width="900" height="330" fill="#ffffff" stroke="#e5aa28" stroke-width="1.8" rx="6"/>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5aa28">① 光・円の物・床</text>
+<line x1="60.0" y1="398.0" x2="900.0" y2="398.0" stroke="#94a3b8" stroke-width="3"/>
+<circle cx="480.0" cy="302.0" r="36.0" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2"/>
+<circle cx="210.0" cy="128.0" r="11" fill="#e5aa28"/>
+<text x="226.0" y="132.0" text-anchor="start" style="font-size:13px;font-weight:700;fill:#92400e">光(点)</text>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3287;0.3289;1.0000" values="1;1;0;0"/><circle cx="612.5" cy="395.74" r="126.31" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="612.5" cy="395.74" r="3" fill="#2563eb"/>
+<circle cx="507.34" cy="325.78" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="507.34" cy="325.78" r="3" fill="#2563eb"/>
+<circle cx="506.34" cy="325.12" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="506.34" cy="325.12" r="3" fill="#2563eb"/>
+<circle cx="505.34" cy="324.45" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="505.34" cy="324.45" r="3" fill="#2563eb"/>
+<circle cx="504.34" cy="323.79" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="504.34" cy="323.79" r="3" fill="#2563eb"/>
+<circle cx="503.34" cy="323.13" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="503.34" cy="323.13" r="3" fill="#2563eb"/>
+<circle cx="502.34" cy="322.46" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="502.34" cy="322.46" r="3" fill="#2563eb"/>
+<circle cx="501.34" cy="321.8" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="501.34" cy="321.8" r="3" fill="#2563eb"/>
+<circle cx="500.34" cy="321.13" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="500.34" cy="321.13" r="3" fill="#2563eb"/>
+<circle cx="499.34" cy="320.47" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="499.34" cy="320.47" r="3" fill="#2563eb"/>
+<circle cx="498.34" cy="319.8" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="498.34" cy="319.8" r="3" fill="#2563eb"/>
+<circle cx="497.34" cy="319.14" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="497.34" cy="319.14" r="3" fill="#2563eb"/>
+<circle cx="615.0" cy="397.4" r="6" fill="#1f2937"/>
+<text x="40" y="112" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed">k = 4</text>
+<rect x="60.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0711" values="#e5e7eb;#fde68a"/></rect>
+<rect x="75.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0738" values="#e5e7eb;#fde68a"/></rect>
+<rect x="90.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0764" values="#e5e7eb;#fde68a"/></rect>
+<rect x="105.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0791" values="#e5e7eb;#fde68a"/></rect>
+<rect x="120.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0818" values="#e5e7eb;#fde68a"/></rect>
+<rect x="135.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0844" values="#e5e7eb;#fde68a"/></rect>
+<rect x="150.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0871" values="#e5e7eb;#fde68a"/></rect>
+<rect x="165.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0898" values="#e5e7eb;#fde68a"/></rect>
+<rect x="180.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0924" values="#e5e7eb;#fde68a"/></rect>
+<rect x="195.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0951" values="#e5e7eb;#fde68a"/></rect>
+<rect x="210.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0978" values="#e5e7eb;#fde68a"/></rect>
+<rect x="225.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1004" values="#e5e7eb;#fde68a"/></rect>
+<rect x="240.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1031" values="#e5e7eb;#fde68a"/></rect>
+<rect x="255.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1058" values="#e5e7eb;#fde68a"/></rect>
+<rect x="270.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1084" values="#e5e7eb;#fde68a"/></rect>
+<rect x="285.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1111" values="#e5e7eb;#fde68a"/></rect>
+<rect x="300.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1138" values="#e5e7eb;#fde68a"/></rect>
+<rect x="315.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1164" values="#e5e7eb;#fde68a"/></rect>
+<rect x="330.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1191" values="#e5e7eb;#fde68a"/></rect>
+<rect x="345.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1218" values="#e5e7eb;#fde68a"/></rect>
+<rect x="360.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1244" values="#e5e7eb;#fde68a"/></rect>
+<rect x="375.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1271" values="#e5e7eb;#fde68a"/></rect>
+<rect x="390.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1298" values="#e5e7eb;#fde68a"/></rect>
+<rect x="405.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1324" values="#e5e7eb;#fde68a"/></rect>
+<rect x="420.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1351" values="#e5e7eb;#fde68a"/></rect>
+<rect x="435.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1378" values="#e5e7eb;#fde68a"/></rect>
+<rect x="450.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1404" values="#e5e7eb;#fde68a"/></rect>
+<rect x="465.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1431" values="#e5e7eb;#fde68a"/></rect>
+<rect x="480.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1458" values="#e5e7eb;#fde68a"/></rect>
+<rect x="495.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1484" values="#e5e7eb;#e9d685"/></rect>
+<rect x="510.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1511" values="#e5e7eb;#928f6e"/></rect>
+<rect x="525.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1538" values="#e5e7eb;#4f585c"/></rect>
+<rect x="540.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1564" values="#e5e7eb;#334155"/></rect>
+<rect x="555.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1591" values="#e5e7eb;#334155"/></rect>
+<rect x="570.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1618" values="#e5e7eb;#334155"/></rect>
+<rect x="585.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1644" values="#e5e7eb;#334155"/></rect>
+<rect x="600.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1671" values="#e5e7eb;#334155"/></rect>
+<rect x="615.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1698" values="#e5e7eb;#334155"/></rect>
+<rect x="630.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1724" values="#e5e7eb;#334155"/></rect>
+<rect x="645.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1751" values="#e5e7eb;#334155"/></rect>
+<rect x="660.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1778" values="#e5e7eb;#334155"/></rect>
+<rect x="675.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1804" values="#e5e7eb;#334155"/></rect>
+<rect x="690.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1831" values="#e5e7eb;#334155"/></rect>
+<rect x="705.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1858" values="#e5e7eb;#334155"/></rect>
+<rect x="720.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1884" values="#e5e7eb;#334155"/></rect>
+<rect x="735.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1911" values="#e5e7eb;#334155"/></rect>
+<rect x="750.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1938" values="#e5e7eb;#364356"/></rect>
+<rect x="765.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1964" values="#e5e7eb;#3e4a58"/></rect>
+<rect x="780.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1991" values="#e5e7eb;#46515a"/></rect>
+<rect x="795.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2018" values="#e5e7eb;#4d565c"/></rect>
+<rect x="810.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2044" values="#e5e7eb;#535b5d"/></rect>
+<rect x="825.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2071" values="#e5e7eb;#59605f"/></rect>
+<rect x="840.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2098" values="#e5e7eb;#5d6360"/></rect>
+<rect x="855.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2124" values="#e5e7eb;#606661"/></rect>
+<rect x="870.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2151" values="#e5e7eb;#646962"/></rect>
+<rect x="885.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2178" values="#e5e7eb;#666b62"/></rect>
+<rect x="60.0" y="440" width="840.0" height="15.0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="60" y="436" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">床の明るさ(黄 = 光が届く、暗い = 影)</text>
+<text x="60" y="480" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">k = 4: 影の縁のぼけ幅 6.0、1 点あたりの歩数 平均 5.0</text>
+<text x="60" y="504" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">k が小さい: 広くぼける(柔らかい影)</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1330;0.1333;1.0000" values="0;0;1;1"/><circle cx="285.38" cy="243.7" r="17.08" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="285.38" cy="243.7" r="4" fill="#2ea043"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3287;0.3289;0.6132;0.6133;1.0000" values="0;0;1;1;0;0"/><circle cx="612.5" cy="395.74" r="126.31" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="612.5" cy="395.74" r="3" fill="#2563eb"/>
+<circle cx="507.34" cy="325.78" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="507.34" cy="325.78" r="3" fill="#2563eb"/>
+<circle cx="506.34" cy="325.12" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="506.34" cy="325.12" r="3" fill="#2563eb"/>
+<circle cx="505.34" cy="324.45" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="505.34" cy="324.45" r="3" fill="#2563eb"/>
+<circle cx="504.34" cy="323.79" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="504.34" cy="323.79" r="3" fill="#2563eb"/>
+<circle cx="503.34" cy="323.13" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="503.34" cy="323.13" r="3" fill="#2563eb"/>
+<circle cx="502.34" cy="322.46" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="502.34" cy="322.46" r="3" fill="#2563eb"/>
+<circle cx="501.34" cy="321.8" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="501.34" cy="321.8" r="3" fill="#2563eb"/>
+<circle cx="500.34" cy="321.13" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="500.34" cy="321.13" r="3" fill="#2563eb"/>
+<circle cx="499.34" cy="320.47" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="499.34" cy="320.47" r="3" fill="#2563eb"/>
+<circle cx="498.34" cy="319.8" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="498.34" cy="319.8" r="3" fill="#2563eb"/>
+<circle cx="497.34" cy="319.14" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="497.34" cy="319.14" r="3" fill="#2563eb"/>
+<circle cx="615.0" cy="397.4" r="6" fill="#1f2937"/>
+<text x="40" y="112" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed">k = 12</text>
+<rect x="60.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3556" values="#e5e7eb;#fde68a"/></rect>
+<rect x="75.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3582" values="#e5e7eb;#fde68a"/></rect>
+<rect x="90.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3609" values="#e5e7eb;#fde68a"/></rect>
+<rect x="105.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3636" values="#e5e7eb;#fde68a"/></rect>
+<rect x="120.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3662" values="#e5e7eb;#fde68a"/></rect>
+<rect x="135.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3689" values="#e5e7eb;#fde68a"/></rect>
+<rect x="150.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3716" values="#e5e7eb;#fde68a"/></rect>
+<rect x="165.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3742" values="#e5e7eb;#fde68a"/></rect>
+<rect x="180.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3769" values="#e5e7eb;#fde68a"/></rect>
+<rect x="195.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3796" values="#e5e7eb;#fde68a"/></rect>
+<rect x="210.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3822" values="#e5e7eb;#fde68a"/></rect>
+<rect x="225.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3849" values="#e5e7eb;#fde68a"/></rect>
+<rect x="240.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3876" values="#e5e7eb;#fde68a"/></rect>
+<rect x="255.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3902" values="#e5e7eb;#fde68a"/></rect>
+<rect x="270.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3929" values="#e5e7eb;#fde68a"/></rect>
+<rect x="285.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3956" values="#e5e7eb;#fde68a"/></rect>
+<rect x="300.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3982" values="#e5e7eb;#fde68a"/></rect>
+<rect x="315.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4009" values="#e5e7eb;#fde68a"/></rect>
+<rect x="330.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4036" values="#e5e7eb;#fde68a"/></rect>
+<rect x="345.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4062" values="#e5e7eb;#fde68a"/></rect>
+<rect x="360.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4089" values="#e5e7eb;#fde68a"/></rect>
+<rect x="375.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4116" values="#e5e7eb;#fde68a"/></rect>
+<rect x="390.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4142" values="#e5e7eb;#fde68a"/></rect>
+<rect x="405.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4169" values="#e5e7eb;#fde68a"/></rect>
+<rect x="420.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4196" values="#e5e7eb;#fde68a"/></rect>
+<rect x="435.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4222" values="#e5e7eb;#fde68a"/></rect>
+<rect x="450.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4249" values="#e5e7eb;#fde68a"/></rect>
+<rect x="465.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4276" values="#e5e7eb;#fde68a"/></rect>
+<rect x="480.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4302" values="#e5e7eb;#fde68a"/></rect>
+<rect x="495.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4329" values="#e5e7eb;#fde68a"/></rect>
+<rect x="510.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4356" values="#e5e7eb;#fde68a"/></rect>
+<rect x="525.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4382" values="#e5e7eb;#88866b"/></rect>
+<rect x="540.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4409" values="#e5e7eb;#334155"/></rect>
+<rect x="555.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4436" values="#e5e7eb;#334155"/></rect>
+<rect x="570.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4462" values="#e5e7eb;#334155"/></rect>
+<rect x="585.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4489" values="#e5e7eb;#334155"/></rect>
+<rect x="600.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4516" values="#e5e7eb;#334155"/></rect>
+<rect x="615.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4542" values="#e5e7eb;#334155"/></rect>
+<rect x="630.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4569" values="#e5e7eb;#334155"/></rect>
+<rect x="645.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4596" values="#e5e7eb;#334155"/></rect>
+<rect x="660.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4622" values="#e5e7eb;#334155"/></rect>
+<rect x="675.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4649" values="#e5e7eb;#334155"/></rect>
+<rect x="690.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4676" values="#e5e7eb;#334155"/></rect>
+<rect x="705.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4702" values="#e5e7eb;#334155"/></rect>
+<rect x="720.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4729" values="#e5e7eb;#334155"/></rect>
+<rect x="735.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4756" values="#e5e7eb;#334155"/></rect>
+<rect x="750.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4782" values="#e5e7eb;#3b4757"/></rect>
+<rect x="765.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4809" values="#e5e7eb;#555d5e"/></rect>
+<rect x="780.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4836" values="#e5e7eb;#6d7064"/></rect>
+<rect x="795.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4862" values="#e5e7eb;#808069"/></rect>
+<rect x="810.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4889" values="#e5e7eb;#938f6e"/></rect>
+<rect x="825.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4916" values="#e5e7eb;#a59e73"/></rect>
+<rect x="840.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4942" values="#e5e7eb;#b1a876"/></rect>
+<rect x="855.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4969" values="#e5e7eb;#bbb079"/></rect>
+<rect x="870.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4996" values="#e5e7eb;#c5b87b"/></rect>
+<rect x="885.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.5022" values="#e5e7eb;#cdbf7d"/></rect>
+<rect x="60.0" y="440" width="840.0" height="15.0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="60" y="436" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">床の明るさ(黄 = 光が届く、暗い = 影)</text>
+<text x="60" y="480" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">k = 12: 影の縁のぼけ幅 5.0、1 点あたりの歩数 平均 5.0</text>
+<text x="60" y="504" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">k が中くらい: ほどよい</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1923;0.1926;1.0000" values="0;0;1;1"/><circle cx="301.79" cy="238.97" r="8.54" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="301.79" cy="238.97" r="4" fill="#2ea043"/>
+<g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6132;0.6133;1.0000" values="0;0;1;1"/><circle cx="612.5" cy="395.74" r="126.31" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="612.5" cy="395.74" r="3" fill="#2563eb"/>
+<circle cx="507.34" cy="325.78" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="507.34" cy="325.78" r="3" fill="#2563eb"/>
+<circle cx="506.34" cy="325.12" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="506.34" cy="325.12" r="3" fill="#2563eb"/>
+<circle cx="505.34" cy="324.45" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="505.34" cy="324.45" r="3" fill="#2563eb"/>
+<circle cx="504.34" cy="323.79" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="504.34" cy="323.79" r="3" fill="#2563eb"/>
+<circle cx="503.34" cy="323.13" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="503.34" cy="323.13" r="3" fill="#2563eb"/>
+<circle cx="502.34" cy="322.46" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="502.34" cy="322.46" r="3" fill="#2563eb"/>
+<circle cx="501.34" cy="321.8" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="501.34" cy="321.8" r="3" fill="#2563eb"/>
+<circle cx="500.34" cy="321.13" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="500.34" cy="321.13" r="3" fill="#2563eb"/>
+<circle cx="499.34" cy="320.47" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="499.34" cy="320.47" r="3" fill="#2563eb"/>
+<circle cx="498.34" cy="319.8" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="498.34" cy="319.8" r="3" fill="#2563eb"/>
+<circle cx="497.34" cy="319.14" r="0.6" fill="none" stroke="#60a5fa" stroke-width="1.2" opacity="0.8"/>
+<circle cx="497.34" cy="319.14" r="3" fill="#2563eb"/>
+<circle cx="615.0" cy="397.4" r="6" fill="#1f2937"/>
+<text x="40" y="112" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed">k = 64</text>
+<rect x="60.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6400" values="#e5e7eb;#fde68a"/></rect>
+<rect x="75.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6427" values="#e5e7eb;#fde68a"/></rect>
+<rect x="90.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6453" values="#e5e7eb;#fde68a"/></rect>
+<rect x="105.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6480" values="#e5e7eb;#fde68a"/></rect>
+<rect x="120.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6507" values="#e5e7eb;#fde68a"/></rect>
+<rect x="135.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6533" values="#e5e7eb;#fde68a"/></rect>
+<rect x="150.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6560" values="#e5e7eb;#fde68a"/></rect>
+<rect x="165.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6587" values="#e5e7eb;#fde68a"/></rect>
+<rect x="180.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6613" values="#e5e7eb;#fde68a"/></rect>
+<rect x="195.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6640" values="#e5e7eb;#fde68a"/></rect>
+<rect x="210.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6667" values="#e5e7eb;#fde68a"/></rect>
+<rect x="225.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6693" values="#e5e7eb;#fde68a"/></rect>
+<rect x="240.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6720" values="#e5e7eb;#fde68a"/></rect>
+<rect x="255.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6747" values="#e5e7eb;#fde68a"/></rect>
+<rect x="270.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6773" values="#e5e7eb;#fde68a"/></rect>
+<rect x="285.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6800" values="#e5e7eb;#fde68a"/></rect>
+<rect x="300.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6827" values="#e5e7eb;#fde68a"/></rect>
+<rect x="315.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6853" values="#e5e7eb;#fde68a"/></rect>
+<rect x="330.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6880" values="#e5e7eb;#fde68a"/></rect>
+<rect x="345.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6907" values="#e5e7eb;#fde68a"/></rect>
+<rect x="360.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6933" values="#e5e7eb;#fde68a"/></rect>
+<rect x="375.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6960" values="#e5e7eb;#fde68a"/></rect>
+<rect x="390.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6987" values="#e5e7eb;#fde68a"/></rect>
+<rect x="405.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7013" values="#e5e7eb;#fde68a"/></rect>
+<rect x="420.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7040" values="#e5e7eb;#fde68a"/></rect>
+<rect x="435.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7067" values="#e5e7eb;#fde68a"/></rect>
+<rect x="450.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7093" values="#e5e7eb;#fde68a"/></rect>
+<rect x="465.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7120" values="#e5e7eb;#fde68a"/></rect>
+<rect x="480.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7147" values="#e5e7eb;#fde68a"/></rect>
+<rect x="495.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7173" values="#e5e7eb;#fde68a"/></rect>
+<rect x="510.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7200" values="#e5e7eb;#fde68a"/></rect>
+<rect x="525.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7227" values="#e5e7eb;#fde68a"/></rect>
+<rect x="540.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7253" values="#e5e7eb;#334155"/></rect>
+<rect x="555.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7280" values="#e5e7eb;#334155"/></rect>
+<rect x="570.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7307" values="#e5e7eb;#334155"/></rect>
+<rect x="585.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7333" values="#e5e7eb;#334155"/></rect>
+<rect x="600.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7360" values="#e5e7eb;#334155"/></rect>
+<rect x="615.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7387" values="#e5e7eb;#334155"/></rect>
+<rect x="630.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7413" values="#e5e7eb;#334155"/></rect>
+<rect x="645.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7440" values="#e5e7eb;#334155"/></rect>
+<rect x="660.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7467" values="#e5e7eb;#334155"/></rect>
+<rect x="675.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7493" values="#e5e7eb;#334155"/></rect>
+<rect x="690.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7520" values="#e5e7eb;#334155"/></rect>
+<rect x="705.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7547" values="#e5e7eb;#334155"/></rect>
+<rect x="720.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7573" values="#e5e7eb;#334155"/></rect>
+<rect x="735.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7600" values="#e5e7eb;#334155"/></rect>
+<rect x="750.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7627" values="#e5e7eb;#5c6260"/></rect>
+<rect x="765.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7653" values="#e5e7eb;#e9d685"/></rect>
+<rect x="780.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7680" values="#e5e7eb;#fde68a"/></rect>
+<rect x="795.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7707" values="#e5e7eb;#fde68a"/></rect>
+<rect x="810.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7733" values="#e5e7eb;#fde68a"/></rect>
+<rect x="825.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7760" values="#e5e7eb;#fde68a"/></rect>
+<rect x="840.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7787" values="#e5e7eb;#fde68a"/></rect>
+<rect x="855.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7813" values="#e5e7eb;#fde68a"/></rect>
+<rect x="870.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7840" values="#e5e7eb;#fde68a"/></rect>
+<rect x="885.0" y="440.0" width="15.3" height="15.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7867" values="#e5e7eb;#fde68a"/></rect>
+<rect x="60.0" y="440" width="840.0" height="15.0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="60" y="436" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">床の明るさ(黄 = 光が届く、暗い = 影)</text>
+<text x="60" y="480" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">k = 64: 影の縁のぼけ幅 1.0、1 点あたりの歩数 平均 5.0</text>
+<text x="60" y="504" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">k が大きい: くっきり(ほぼ硬い影)</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2516;0.2519;1.0000" values="0;0;1;1"/><circle cx="310.01" cy="236.61" r="6.18" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="310.01" cy="236.61" r="4" fill="#2ea043"/>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3108;0.3111;1.0000" values="0;0;1;1"/><circle cx="315.94" cy="234.9" r="5.44" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="315.94" cy="234.9" r="4" fill="#2ea043"/>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3701;0.3704;1.0000" values="0;0;1;1"/><circle cx="321.71" cy="233.24" r="5.56" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="321.71" cy="233.24" r="4" fill="#2ea043"/>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4293;0.4296;1.0000" values="0;0;1;1"/><circle cx="327.47" cy="231.58" r="6.5" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="327.47" cy="231.58" r="4" fill="#2ea043"/>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4886;0.4889;1.0000" values="0;0;1;1"/><circle cx="333.71" cy="229.78" r="8.37" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="333.71" cy="229.78" r="4" fill="#2ea043"/>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5479;0.5481;1.0000" values="0;0;1;1"/><circle cx="341.76" cy="227.46" r="11.94" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="341.76" cy="227.46" r="4" fill="#2ea043"/>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6071;0.6074;1.0000" values="0;0;1;1"/><circle cx="353.23" cy="224.15" r="18.81" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="353.23" cy="224.15" r="4" fill="#2ea043"/>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6664;0.6667;1.0000" values="0;0;1;1"/><circle cx="371.31" cy="218.94" r="32.44" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="371.31" cy="218.94" r="4" fill="#2ea043"/>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7256;0.7259;1.0000" values="0;0;1;1"/><circle cx="402.48" cy="209.96" r="60.06" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="402.48" cy="209.96" r="4" fill="#2ea043"/>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7849;0.7852;1.0000" values="0;0;1;1"/><circle cx="460.19" cy="193.33" r="116.22" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="460.19" cy="193.33" r="4" fill="#2ea043"/>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.8441;0.8444;1.0000" values="0;0;1;1"/><circle cx="571.87" cy="161.16" r="120" fill="none" stroke="#2ea043" stroke-width="2" stroke-dasharray="4 3"/>
-<circle cx="571.87" cy="161.16" r="4" fill="#2ea043"/>
-</g>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 1:最も近い物までの距離 d = 195 → それだけ進む。隙間の比 k·d/t = 195.33（最小 1.00）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.1330;0.1333;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 2:最も近い物までの距離 d = 17 → それだけ進む。隙間の比 k·d/t = 0.67（最小 0.67）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1330;0.1333;0.1923;0.1926;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 3:最も近い物までの距離 d = 9 → それだけ進む。隙間の比 k·d/t = 0.31（最小 0.31）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1923;0.1926;0.2516;0.2519;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 4:最も近い物までの距離 d = 6 → それだけ進む。隙間の比 k·d/t = 0.22（最小 0.22）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2516;0.2519;0.3108;0.3111;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 5:最も近い物までの距離 d = 5 → それだけ進む。隙間の比 k·d/t = 0.19（最小 0.19）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3108;0.3111;0.3701;0.3704;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 6:最も近い物までの距離 d = 6 → それだけ進む。隙間の比 k·d/t = 0.18（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3701;0.3704;0.4293;0.4296;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 7:最も近い物までの距離 d = 6 → それだけ進む。隙間の比 k·d/t = 0.21（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4293;0.4296;0.4886;0.4889;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 8:最も近い物までの距離 d = 8 → それだけ進む。隙間の比 k·d/t = 0.26（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4886;0.4889;0.5479;0.5481;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 9:最も近い物までの距離 d = 12 → それだけ進む。隙間の比 k·d/t = 0.36（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5479;0.5481;0.6071;0.6074;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 10:最も近い物までの距離 d = 19 → それだけ進む。隙間の比 k·d/t = 0.55（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6071;0.6074;0.6664;0.6667;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 11:最も近い物までの距離 d = 32 → それだけ進む。隙間の比 k·d/t = 0.89（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6664;0.6667;0.7256;0.7259;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 12:最も近い物までの距離 d = 60 → それだけ進む。隙間の比 k·d/t = 1.48（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7256;0.7259;0.7849;0.7852;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 13:最も近い物までの距離 d = 116 → それだけ進む。隙間の比 k·d/t = 2.41（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.7849;0.7852;0.8441;0.8444;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">ステップ 14:最も近い物までの距離 d = 230 → それだけ進む。隙間の比 k·d/t = 3.67（最小 0.18）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.8441;0.8444;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="40" y="390" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d" opacity="0">→ 影の明るさ = 0.18（最も物体に近づいた所の比で決まる）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.9034;0.9037;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="40" y="410" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">物体のそばを通るほど、比が小さくなって濃い影。遠ければ 1（影なし）。</text>
+<text x="560" y="112" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">1 点あたりの歩数(平均):</text>
+<text x="740" y="116" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2563eb" opacity="1">0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0620;0.0622;1.0000" values="1;1;0;0"/></text>
+<text x="740" y="116" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2563eb" opacity="0">5<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0620;0.0622;0.3465;0.3467;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="740" y="116" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2563eb" opacity="0">5<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3465;0.3467;0.6309;0.6311;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="740" y="116" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2563eb" opacity="0">5<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6309;0.6311;1.0000" values="0;0;1;1"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">距離場(SDF)= 各点から、物までの一番近い距離<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0443;0.0444;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光に向かって進みながら、k × 距離 ÷ 進んだ長さ の最小値を記録する<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0443;0.0444;0.8976;0.8978;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">かすった度合いが、そのまま、影の濃さになる。k で、ぼけ具合を調整する<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8976;0.8978;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:sdf-soft-shadow:end -->
