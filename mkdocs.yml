@@ -75,6 +75,7 @@ extra_javascript:
   - javascripts/anim-graph.js
   - javascripts/search-tune.js
   - javascripts/table-labels.js
+  - javascripts/proscons.js
   - javascripts/motion-control.js
   - javascripts/glossary-filter.js
 

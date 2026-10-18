@@ -783,3 +783,23 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+/* 長所・短所 カード */
+.md-typeset .pc-box { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin: 1em 0; }
+.md-typeset .pc-col { border-radius: 8px; padding: 0.6rem 0.9rem 0.4rem; border: 1px solid var(--md-default-fg-color--lightest); border-top-width: 4px; background: var(--md-code-bg-color); }
+.md-typeset .pc-pro { border-top-color: #4caf7d; }
+.md-typeset .pc-con { border-top-color: #e5736b; }
+.md-typeset .pc-title { font-weight: 700; font-size: 0.8rem; letter-spacing: 0.05em; }
+.md-typeset .pc-pro .pc-title { color: #4caf7d; }
+.md-typeset .pc-con .pc-title { color: #e5736b; }
+.md-typeset .pc-col ul { margin: 0.3rem 0 0.2rem 0; padding-left: 1.1rem; }
+.md-typeset .pc-col li { margin: 0.35rem 0; font-size: 0.78rem; line-height: 1.6; }
+@media (max-width: 760px) { .md-typeset .pc-box { grid-template-columns: 1fr; } }
+
+/* コスト表: 左の項目を細く、値を読みやすく */
+.md-typeset table.pc-cost th:first-child, .md-typeset table.pc-cost td:first-child { white-space: nowrap; width: 1%; font-weight: 600; }
+.md-typeset table.pc-cost td:last-child { font-size: 0.78rem; line-height: 1.6; }
+.md-typeset table.pc-cost { display: table; width: 100%; border-collapse: collapse; }
+.md-typeset table.pc-cost th { text-align: left; font-size: 0.7rem; opacity: 0.7; padding: 0.4rem 0.8rem; }
+.md-typeset table.pc-cost td { padding: 0.55rem 0.8rem; border-top: 1px solid var(--md-default-fg-color--lightest); }
+.md-typeset table.pc-cost td:first-child { color: var(--md-accent-fg-color); }
