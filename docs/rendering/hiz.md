@@ -93,6 +93,73 @@ tags:
 
 **SSR・AO は半分解像度**で、**Hi-Z トレース**を行い、**深度を考慮して拡大**すれば、**さらに安くなります**（[縮小バッファの効果](low-res-effects.md)）。
 
+<!-- fig:hiz-pyramid:begin -->
+
+<svg class="fig illust motion" data-fig="hiz-pyramid" viewBox="0 0 780 460" role="img"><rect x="0" y="0" width="780" height="460" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-hiz-pyramid" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">Hi-Z: 4 マスの最も奥の深度を取って、半分の大きさに縮める</text>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="0;0;1;1"/><rect x="70" y="100.0" width="53" height="53" fill="#c3cbd5" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="96.5" y="132.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">0.20</text>
+<rect x="126" y="100.0" width="53" height="53" fill="#b4bcc8" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="152.5" y="132.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">0.30</text>
+<rect x="182" y="100.0" width="53" height="53" fill="#667284" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="208.5" y="132.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0.80</text>
+<rect x="238" y="100.0" width="53" height="53" fill="#566476" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="264.5" y="132.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0.90</text>
+<rect x="70" y="156.0" width="53" height="53" fill="#bbc3ce" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="96.5" y="188.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">0.25</text>
+<rect x="126" y="156.0" width="53" height="53" fill="#acb5c1" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="152.5" y="188.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">0.35</text>
+<rect x="182" y="156.0" width="53" height="53" fill="#768192" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="208.5" y="188.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0.70</text>
+<rect x="238" y="156.0" width="53" height="53" fill="#4f5c70" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="264.5" y="188.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0.95</text>
+<rect x="70" y="212.0" width="53" height="53" fill="#949eac" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="96.5" y="244.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">0.50</text>
+<rect x="126" y="212.0" width="53" height="53" fill="#a4adba" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="152.5" y="244.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">0.40</text>
+<rect x="182" y="212.0" width="53" height="53" fill="#85909f" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="208.5" y="244.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0.60</text>
+<rect x="238" y="212.0" width="53" height="53" fill="#7d8898" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="264.5" y="244.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0.65</text>
+<rect x="70" y="268.0" width="53" height="53" fill="#8d97a6" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="96.5" y="300.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0.55</text>
+<rect x="126" y="268.0" width="53" height="53" fill="#9ca6b3" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="152.5" y="300.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">0.45</text>
+<rect x="182" y="268.0" width="53" height="53" fill="#949eac" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="208.5" y="300.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">0.50</text>
+<rect x="238" y="268.0" width="53" height="53" fill="#6e7a8b" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="264.5" y="300.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0.75</text>
+<text x="70" y="85" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">元の深度（4×4）</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;1.0000" values="0;0;1;1"/><rect x="380" y="122.0" width="87" height="87" fill="#acb5c1" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="423.5" y="171.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">0.35</text>
+<rect x="470" y="122.0" width="87" height="87" fill="#4f5c70" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="513.5" y="171.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0.95</text>
+<rect x="380" y="212.0" width="87" height="87" fill="#8d97a6" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="423.5" y="261.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0.55</text>
+<rect x="470" y="212.0" width="87" height="87" fill="#6e7a8b" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="513.5" y="261.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0.75</text>
+<text x="380" y="85" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">2×2（各 4 マスの最大）</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.4240;0.4242;1.0000" values="0;0;1;1"/><rect x="600" y="152.0" width="117" height="117" fill="#4f5c70" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="658.5" y="216.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff">0.95</text>
+<text x="600" y="85" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">1×1（全体の最大）</text>
+</g>
+<text x="390" y="350" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">深度の値: 小さいほど手前、大きいほど奥<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="350" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">元の深度バッファ（一部）<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;0.2422;0.2424;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="350" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">4 マスずつ、最も大きい(奥の)値を残す<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;0.4240;0.4242;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="350" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">もう一度縮めると、画面全体で最も奥の値 0.95<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.4240;0.4242;0.6058;0.6061;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="350" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">物体の最も手前の深度が 0.97 → 0.95 より奥 → 完全に隠れている → 捨てる<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.6058;0.6061;0.8482;0.8485;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="350" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.8482;0.8485;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="390" y="385" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#e5484d" opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.6058;0.6061;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="385" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#e5484d" opacity="0">物体の最も手前が 0.50 なら、0.95 より手前 → 隠れていない可能性 → 描く<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.6058;0.6061;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:hiz-pyramid:end -->
+
 ## よくあるミス
 
 ??? failure "Hi-Z に、最小を取って（向きを間違えて）、カリングが不正確になる"

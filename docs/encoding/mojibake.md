@@ -166,6 +166,52 @@ int main() {
 | 他人のファイル（MOD、アセット）の取り込み | 文字コードを検証して、UTF-8 に変換してから使う |
 | ログに、化けた日本語が出た | ログの該当バイトを、16 進数で確認する |
 
+<!-- fig:mojibake-decode:begin -->
+
+<svg class="fig illust motion" data-fig="mojibake-decode" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-mojibake-decode" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">同じバイト列でも、読み方を間違えると別の文字になる</text>
+<text x="70" y="90" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">ファイルに入っているバイト列（UTF-8 で保存した「こんにちは」）</text>
+<rect x="70" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="89" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">E3</text>
+<rect x="112" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="131" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">81</text>
+<rect x="154" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="173" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">93</text>
+<rect x="196" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="215" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">E3</text>
+<rect x="238" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="257" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">82</text>
+<rect x="280" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="299" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">93</text>
+<rect x="322" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="341" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">E3</text>
+<rect x="364" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="383" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">81</text>
+<rect x="406" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="425" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">AB</text>
+<rect x="448" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="467" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">E3</text>
+<rect x="490" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="509" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">81</text>
+<rect x="532" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="551" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">A1</text>
+<rect x="574" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="593" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">E3</text>
+<rect x="616" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="635" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">81</text>
+<rect x="658" y="105" width="38" height="32" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="677" y="127" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">AF</text>
+<text x="70" y="205" text-anchor="start" style="font-size:22px;font-weight:700;fill:#2ea043" opacity="0">UTF-8 として読む → こんにちは<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2219;0.2222;1.0000" values="0;0;1;1"/></text>
+<text x="70" y="235" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">正しい。ソースも保存形式も UTF-8 なら、こう読まれる<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2219;0.2222;1.0000" values="0;0;1;1"/></text>
+<text x="70" y="300" text-anchor="start" style="font-size:22px;font-weight:700;fill:#e5484d" opacity="0">Shift_JIS (CP932) として読む → 縺薙ｓ縺ｫ縺｡縺ｯ<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5182;0.5185;1.0000" values="0;0;1;1"/></text>
+<text x="70" y="330" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">バイトは同じ。読む側の文字コードが違うだけで、文字化けになる(データは壊れていない)<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5182;0.5185;1.0000" values="0;0;1;1"/></text>
+</svg>
+
+<!-- fig:mojibake-decode:end -->
+
 ## よくあるミス
 
 ??? failure "化けた文字を、手で直して、原因を放置する"

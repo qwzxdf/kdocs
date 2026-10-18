@@ -156,6 +156,66 @@ std::vector<int> MakeTiles() {
 | コンストラクタでメンバへ | `explicit Enemy(std::string name) : name_(std::move(name)) {}` |
 | ダブルバッファ | `std::swap(front, back)`（中はムーブ） |
 
+<!-- fig:move-vs-copy:begin -->
+
+<svg class="fig illust motion" data-fig="move-vs-copy" viewBox="0 0 780 460" role="img"><rect x="0" y="0" width="780" height="460" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-move-vs-copy" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">コピーは中身を複製する。ムーブは中身を持ち主ごと引っ越す</text>
+<text x="40" y="80" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">コピー  B = A</text>
+<g><rect x="60" y="100" width="110" height="50" fill="#ffffff" stroke="#64748b" stroke-width="2.5"/>
+<text x="115" y="122" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">A</text>
+<text x="115" y="140" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">ptr / size</text>
+</g>
+<g><rect x="330" y="107" width="36" height="36" fill="#64748b" opacity="0.85"/>
+<text x="348" y="131" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">10</text>
+<rect x="370" y="107" width="36" height="36" fill="#64748b" opacity="0.85"/>
+<text x="388" y="131" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">20</text>
+<rect x="410" y="107" width="36" height="36" fill="#64748b" opacity="0.85"/>
+<text x="428" y="131" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">30</text>
+</g>
+<line x1="170" y1="125" x2="326" y2="125" stroke="#64748b" stroke-width="2" marker-end="url(#arr-move-vs-copy)"/>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;1.0000" values="0;0;1;1"/><rect x="60" y="175" width="110" height="50" fill="#ffffff" stroke="#e5484d" stroke-width="2.5"/>
+<text x="115" y="197" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">B</text>
+<text x="115" y="215" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">ptr / size</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;1.0000" values="0;0;1;1"/><rect x="330" y="182" width="36" height="36" fill="#e5484d" opacity="0.85"/>
+<text x="348" y="206" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">10</text>
+<rect x="370" y="182" width="36" height="36" fill="#e5484d" opacity="0.85"/>
+<text x="388" y="206" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">20</text>
+<rect x="410" y="182" width="36" height="36" fill="#e5484d" opacity="0.85"/>
+<text x="428" y="206" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">30</text>
+</g>
+<line x1="170" y1="200" x2="326" y2="200" stroke="#e5484d" stroke-width="2" marker-end="url(#arr-move-vs-copy)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;1.0000" values="0;0;1;1"/></line>
+<text x="520" y="205" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5484d" opacity="0">新しい領域を確保して、3 個を複製<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;1.0000" values="0;0;1;1"/></text>
+<text x="40" y="275" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043">ムーブ  D = std::move(C)</text>
+<g><rect x="60" y="295" width="110" height="50" fill="#ffffff" stroke="#64748b" stroke-width="2.5"/>
+<text x="115" y="317" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#64748b">C</text>
+<text x="115" y="335" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">ptr / size</text>
+</g>
+<g><rect x="330" y="302" width="36" height="36" fill="#2ea043" opacity="0.85"/>
+<text x="348" y="326" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">10</text>
+<rect x="370" y="302" width="36" height="36" fill="#2ea043" opacity="0.85"/>
+<text x="388" y="326" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">20</text>
+<rect x="410" y="302" width="36" height="36" fill="#2ea043" opacity="0.85"/>
+<text x="428" y="326" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">30</text>
+</g>
+<line x1="170" y1="320" x2="326" y2="320" stroke="#64748b" stroke-width="2" marker-end="url(#arr-move-vs-copy)" opacity="1"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5159;0.5161;1.0000" values="1;1;0;0"/></line>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5159;0.5161;1.0000" values="0;0;1;1"/><rect x="60" y="370" width="110" height="50" fill="#ffffff" stroke="#2ea043" stroke-width="2.5"/>
+<text x="115" y="392" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2ea043">D</text>
+<text x="115" y="410" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#64748b">ptr / size</text>
+</g>
+<line x1="170" y1="395" x2="330" y2="340" stroke="#2ea043" stroke-width="2" marker-end="url(#arr-move-vs-copy)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5159;0.5161;1.0000" values="0;0;1;1"/></line>
+<text x="520" y="330" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043" opacity="0">ポインタだけを付け替える(複製なし)<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5159;0.5161;1.0000" values="0;0;1;1"/></text>
+<text x="520" y="355" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">C は空になる(使わない)<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5159;0.5161;1.0000" values="0;0;1;1"/></text>
+<text x="390" y="440" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">同じ 3 個の配列を、2 通りで渡す<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="440" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">コピー: 領域の確保 + 要素の複製が必要。要素が多いほど遅い<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1933;0.1935;0.5159;0.5161;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="440" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">ムーブ: ポインタの付け替えだけ。要素数に関係なく一定<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5159;0.5161;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:move-vs-copy:end -->
+
 ## よくあるミス
 
 ??? failure "ムーブした変数を使う"

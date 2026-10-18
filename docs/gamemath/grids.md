@@ -245,6 +245,76 @@ Vector2 ScreenToIso(Vector2 s, float tile_w, float tile_h) {
 
 **境界で変換する**（読み込み時・描画時に、1 か所で）ことが混乱を避けるコツです。
 
+<!-- fig:grid-cell-lookup:begin -->
+
+<svg class="fig illust motion" data-fig="grid-cell-lookup" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-grid-cell-lookup" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">位置からマスの番号を求める: セルの大きさで割って、切り捨てる</text>
+<rect x="150" y="90" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="184.0" y="129.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(0,0)</text>
+<rect x="220" y="90" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="254.0" y="129.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(1,0)</text>
+<rect x="290" y="90" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="324.0" y="129.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(2,0)</text>
+<rect x="360" y="90" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="394.0" y="129.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(3,0)</text>
+<rect x="430" y="90" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="464.0" y="129.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(4,0)</text>
+<rect x="500" y="90" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="534.0" y="129.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(5,0)</text>
+<rect x="150" y="160" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="184.0" y="199.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(0,1)</text>
+<rect x="220" y="160" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="254.0" y="199.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(1,1)</text>
+<rect x="290" y="160" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="324.0" y="199.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(2,1)</text>
+<rect x="360" y="160" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="394.0" y="199.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(3,1)</text>
+<rect x="430" y="160" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="464.0" y="199.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(4,1)</text>
+<rect x="500" y="160" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="534.0" y="199.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(5,1)</text>
+<rect x="150" y="230" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="184.0" y="269.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(0,2)</text>
+<rect x="220" y="230" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="254.0" y="269.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(1,2)</text>
+<rect x="290" y="230" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="324.0" y="269.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(2,2)</text>
+<rect x="360" y="230" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="394.0" y="269.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(3,2)</text>
+<rect x="430" y="230" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="464.0" y="269.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(4,2)</text>
+<rect x="500" y="230" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="534.0" y="269.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(5,2)</text>
+<rect x="150" y="300" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="184.0" y="339.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(0,3)</text>
+<rect x="220" y="300" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="254.0" y="339.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(1,3)</text>
+<rect x="290" y="300" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="324.0" y="339.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(2,3)</text>
+<rect x="360" y="300" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="394.0" y="339.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(3,3)</text>
+<rect x="430" y="300" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="464.0" y="339.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(4,3)</text>
+<rect x="500" y="300" width="68" height="68" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+<text x="534.0" y="339.0" text-anchor="middle" style="font-size:11px;font-weight:500;fill:#94a3b8">(5,3)</text>
+<rect x="360" y="160" width="68" height="68" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.3308;0.3310;1.0000" values="0;0;1;1;0;0"/></rect>
+<circle cx="411.8" cy="180.3" r="8" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.3308;0.3310;1.0000" values="0;0;1;1;0;0"/></circle>
+<rect x="150" y="300" width="68" height="68" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3308;0.3310;0.5928;0.5931;1.0000" values="0;0;1;1;0;0"/></rect>
+<circle cx="206.0" cy="310.5" r="8" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3308;0.3310;0.5928;0.5931;1.0000" values="0;0;1;1;0;0"/></circle>
+<rect x="500" y="90" width="68" height="68" fill="#e5aa28" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5928;0.5931;1.0000" values="0;0;1;1"/></rect>
+<circle cx="569.3" cy="90.7" r="8" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5928;0.5931;1.0000" values="0;0;1;1"/></circle>
+<text x="150" y="78" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">原点 (0, 0) は左上。y は下向き。セル 1 つ = 10 × 10</text>
+<text x="390" y="415" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">ゲームの座標から、配列の番号を求める<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="415" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">(37.4, 12.9) ÷ 10 = (3.74, 1.29) → 切り捨て → マス (3, 1)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.3308;0.3310;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="415" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">(8.0, 31.5) ÷ 10 = (0.80, 3.15) → 切り捨て → マス (0, 3)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3308;0.3310;0.5928;0.5931;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="415" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">(59.9, 0.1) ÷ 10 = (5.99, 0.01) → 切り捨て → マス (5, 0)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5928;0.5931;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:grid-cell-lookup:end -->
+
 ## よくあるミス
 
 ??? failure "負の座標を `static_cast<int>` で切り捨てて、セルがずれる"

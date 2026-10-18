@@ -281,6 +281,105 @@ uint slot = wave_offset + WavePrefixCountBits(visible);
 
 **複数バケット**が**混ざる**場合は、**バケットごと**に**同様の処理**が**必要**で、**複雑**になります。**まず単純な `InterlockedAdd` で動かし**、**ボトルネックなら導入**します。
 
+<!-- fig:prefix-compact:begin -->
+
+<svg class="fig illust motion" data-fig="prefix-compact" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-prefix-compact" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">カリング結果の詰め直し: 見える物の番号を、隙間なく並べる</text>
+<text x="148" y="121" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">物体の番号</text>
+<text x="148" y="186" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2563eb">見える? (1 = 見える)</text>
+<text x="148" y="251" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2ea043">手前までの合計(出力位置)</text>
+<rect x="160" y="95" width="54" height="40" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="187.0" y="121" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">0</text>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="0;0;1;1"/><rect x="160" y="160" width="54" height="40" fill="#2563eb" stroke="#94a3b8" stroke-width="1.5" opacity="0.85"/>
+<text x="187.0" y="186" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">1</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;1.0000" values="0;0;1;1"/><rect x="160" y="225" width="54" height="40" fill="#dcfce7" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="187.0" y="251" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#2ea043">0</text>
+</g>
+<rect x="218" y="95" width="54" height="40" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="245.0" y="121" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">1</text>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="0;0;1;1"/><rect x="218" y="160" width="54" height="40" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" opacity="0.85"/>
+<text x="245.0" y="186" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;1.0000" values="0;0;1;1"/><rect x="218" y="225" width="54" height="40" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="245.0" y="251" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">1</text>
+</g>
+<rect x="276" y="95" width="54" height="40" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="303.0" y="121" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">2</text>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="0;0;1;1"/><rect x="276" y="160" width="54" height="40" fill="#2563eb" stroke="#94a3b8" stroke-width="1.5" opacity="0.85"/>
+<text x="303.0" y="186" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">1</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;1.0000" values="0;0;1;1"/><rect x="276" y="225" width="54" height="40" fill="#dcfce7" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="303.0" y="251" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#2ea043">1</text>
+</g>
+<rect x="334" y="95" width="54" height="40" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="361.0" y="121" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">3</text>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="0;0;1;1"/><rect x="334" y="160" width="54" height="40" fill="#2563eb" stroke="#94a3b8" stroke-width="1.5" opacity="0.85"/>
+<text x="361.0" y="186" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">1</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;1.0000" values="0;0;1;1"/><rect x="334" y="225" width="54" height="40" fill="#dcfce7" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="361.0" y="251" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#2ea043">2</text>
+</g>
+<rect x="392" y="95" width="54" height="40" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="419.0" y="121" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">4</text>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="0;0;1;1"/><rect x="392" y="160" width="54" height="40" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" opacity="0.85"/>
+<text x="419.0" y="186" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;1.0000" values="0;0;1;1"/><rect x="392" y="225" width="54" height="40" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="419.0" y="251" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">3</text>
+</g>
+<rect x="450" y="95" width="54" height="40" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="477.0" y="121" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">5</text>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="0;0;1;1"/><rect x="450" y="160" width="54" height="40" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" opacity="0.85"/>
+<text x="477.0" y="186" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;1.0000" values="0;0;1;1"/><rect x="450" y="225" width="54" height="40" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="477.0" y="251" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">3</text>
+</g>
+<rect x="508" y="95" width="54" height="40" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="535.0" y="121" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">6</text>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="0;0;1;1"/><rect x="508" y="160" width="54" height="40" fill="#2563eb" stroke="#94a3b8" stroke-width="1.5" opacity="0.85"/>
+<text x="535.0" y="186" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">1</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;1.0000" values="0;0;1;1"/><rect x="508" y="225" width="54" height="40" fill="#dcfce7" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="535.0" y="251" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#2ea043">3</text>
+</g>
+<rect x="566" y="95" width="54" height="40" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="593.0" y="121" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">7</text>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="0;0;1;1"/><rect x="566" y="160" width="54" height="40" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" opacity="0.85"/>
+<text x="593.0" y="186" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;1.0000" values="0;0;1;1"/><rect x="566" y="225" width="54" height="40" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="593.0" y="251" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#64748b">4</text>
+</g>
+<text x="148" y="316" text-anchor="end" style="font-size:12px;font-weight:700;fill:#e5aa28">出力（描く物の一覧）</text>
+<rect x="160" y="290" width="54" height="40" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.4543;0.4545;1.0000" values="0;0;1;1"/><rect x="160" y="290" width="54" height="40" fill="#e5aa28" opacity="0.85"/>
+<text x="187.0" y="316" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<rect x="218" y="290" width="54" height="40" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.5270;0.5273;1.0000" values="0;0;1;1"/><rect x="218" y="290" width="54" height="40" fill="#e5aa28" opacity="0.85"/>
+<text x="245.0" y="316" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">2</text>
+</g>
+<rect x="276" y="290" width="54" height="40" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.5998;0.6000;1.0000" values="0;0;1;1"/><rect x="276" y="290" width="54" height="40" fill="#e5aa28" opacity="0.85"/>
+<text x="303.0" y="316" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">3</text>
+</g>
+<rect x="334" y="290" width="54" height="40" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<g opacity="0"><animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.6725;0.6727;1.0000" values="0;0;1;1"/><rect x="334" y="290" width="54" height="40" fill="#e5aa28" opacity="0.85"/>
+<text x="361.0" y="316" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#ffffff">6</text>
+</g>
+<text x="390" y="385" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">GPU が 8 個の物体を同時に調べる<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="385" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">見える物は 1、隠れた物は 0<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.0604;0.0606;0.2422;0.2424;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="385" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">手前までの 1 の合計を計算する(プレフィックス サム)。これが出力位置<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.2422;0.2424;0.4543;0.4545;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="385" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">見える物だけが、自分の出力位置に番号を書き込む。描画命令の数は 4 つ<animate attributeName="opacity" dur="16.5s" repeatCount="indefinite" keyTimes="0.0000;0.4543;0.4545;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:prefix-compact:end -->
+
 ## よくあるミス
 
 ??? failure "近平面を OpenGL の式（c3 + c2）で作って、手前の物が消える／近くの物が残る"

@@ -93,6 +93,48 @@ MSAA は、1 フレームの中でサンプルを増やします。TAA は**複�
 
 エッジやハイライトのある場所は、細かいレートのまま残し、平坦な場所だけを粗くするのがコツです。
 
+<!-- fig:halton-jitter:begin -->
+
+<svg class="fig illust motion" data-fig="halton-jitter" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-halton-jitter" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">TAA のジッター: フレームごとに、1 画素の中の別の位置で描く(Halton 2,3)</text>
+<rect x="240" y="90" width="300" height="300" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+<line x1="390.0" y1="90" x2="390.0" y2="390" stroke="#e2e8f0" stroke-width="1"/>
+<line x1="240" y1="240.0" x2="540" y2="240.0" stroke="#e2e8f0" stroke-width="1"/>
+<text x="240" y="80" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">1 画素の内側（正方形）。点 = そのフレームのサンプル位置</text>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/><circle cx="390.0" cy="290.0" r="9" fill="#2563eb" opacity="0.9"/>
+<text x="390.0" y="294.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ffffff">1</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1627;0.1630;1.0000" values="0;0;1;1"/><circle cx="315.0" cy="190.0" r="9" fill="#2ea043" opacity="0.9"/>
+<text x="315.0" y="194.0" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ffffff">2</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.2516;0.2519;1.0000" values="0;0;1;1"/><circle cx="465.0" cy="356.66666666666663" r="9" fill="#e5aa28" opacity="0.9"/>
+<text x="465.0" y="360.66666666666663" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ffffff">3</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3404;0.3407;1.0000" values="0;0;1;1"/><circle cx="277.5" cy="256.6666666666667" r="9" fill="#e5484d" opacity="0.9"/>
+<text x="277.5" y="260.6666666666667" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ffffff">4</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4293;0.4296;1.0000" values="0;0;1;1"/><circle cx="427.5" cy="156.66666666666669" r="9" fill="#7c3aed" opacity="0.9"/>
+<text x="427.5" y="160.66666666666669" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ffffff">5</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5182;0.5185;1.0000" values="0;0;1;1"/><circle cx="352.5" cy="323.33333333333337" r="9" fill="#2563eb" opacity="0.9"/>
+<text x="352.5" y="327.33333333333337" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ffffff">6</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6071;0.6074;1.0000" values="0;0;1;1"/><circle cx="502.5" cy="223.33333333333331" r="9" fill="#2ea043" opacity="0.9"/>
+<text x="502.5" y="227.33333333333331" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ffffff">7</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6960;0.6963;1.0000" values="0;0;1;1"/><circle cx="258.75" cy="123.33333333333334" r="9" fill="#e5aa28" opacity="0.9"/>
+<text x="258.75" y="127.33333333333334" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#ffffff">8</text>
+</g>
+<text x="390" y="420" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">毎フレーム、カメラをほんの少し(1 画素以内)ずらす<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="420" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">1〜4 フレーム目: 離れた位置を順に使う<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.3701;0.3704;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="420" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">8 フレームで、画素の中をまんべんなく巡る。これを平均して高精細にする<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.3701;0.3704;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:halton-jitter:end -->
+
 ## よくあるミス
 
 ??? failure "動きベクトルを出さずに TAA を入れて、ゴーストが出る"

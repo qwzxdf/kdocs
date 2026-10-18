@@ -181,6 +181,36 @@ int main() {
 | ステート | `class State { virtual void Enter(); virtual void Update(); }` |
 | AI の行動 | `class Action { virtual bool Execute(); }` |
 
+<!-- fig:vtable-call:begin -->
+
+<svg class="fig illust motion" data-fig="vtable-call" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-vtable-call" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">仮想関数の呼び出し: オブジェクト → 表 → 関数 と 2 回たどる</text>
+<rect x="50" y="120" width="170" height="90" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"/>
+<text x="135" y="110" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2563eb">Slime のオブジェクト</text>
+<text x="135" y="150" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">vptr（表への矢印）</text>
+<text x="135" y="190" text-anchor="middle" style="font-size:13px;font-weight:500;fill:#64748b">hp = 30</text>
+<rect x="310" y="120" width="170" height="90" fill="#ffffff" stroke="#2ea043" stroke-width="2.5"/>
+<text x="395" y="110" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#2ea043">Slime の vtable（表）</text>
+<text x="395" y="150" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">Update → Slime::Update</text>
+<text x="395" y="190" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">Draw → Slime::Draw</text>
+<rect x="570" y="120" width="160" height="90" fill="#ffffff" stroke="#e5aa28" stroke-width="2.5"/>
+<text x="650" y="110" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5aa28">実際のコード</text>
+<text x="650" y="160" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">Slime::Update()</text>
+<line x1="222" y1="150" x2="306" y2="150" stroke="#e5484d" stroke-width="3" marker-end="url(#arr-vtable-call)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2578;0.2581;1.0000" values="0;0;1;1"/></line>
+<line x1="482" y1="150" x2="566" y2="150" stroke="#e5484d" stroke-width="3" marker-end="url(#arr-vtable-call)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.4514;0.4516;1.0000" values="0;0;1;1"/></line>
+<text x="50" y="260" text-anchor="start" style="font-size:14px;font-weight:700;fill:#64748b">enemy-&gt;Update()  ← 型は Enemy* でも、中身は Slime</text>
+<text x="390" y="330" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">Enemy* で Slime を指している<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="330" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">① オブジェクトの先頭の vptr を読む<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;0.2578;0.2581;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="330" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">② vtable の「Update」の欄を読む<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2578;0.2581;0.4514;0.4516;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="330" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">③ そこに書かれた関数 Slime::Update を呼ぶ(実行時に決まる)<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.4514;0.4516;0.7094;0.7097;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="330" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">普通の関数より、メモリを 2 回余計に読む。この差が、仮想関数のコスト<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.7094;0.7097;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:vtable-call:end -->
+
 ## よくあるミス
 
 ??? failure "基底クラスのデストラクタに virtual を付け忘れる"

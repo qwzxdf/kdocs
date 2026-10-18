@@ -194,6 +194,129 @@ Win32 では、`MB_ERR_INVALID_CHARS` を付けると失敗、付けないと置
 | コマンド ライン引数 | `wmain` / `GetCommandLineW` の UTF-16 → UTF-8 |
 | ネットワーク | 常に UTF-8（JSON など）。変換は不要 |
 
+<!-- fig:utf8-pack:begin -->
+
+<svg class="fig illust motion" data-fig="utf8-pack" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-utf8-pack" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">「あ」(U+3042) を UTF-8 の 3 バイトに詰める</text>
+<text x="100" y="90" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">コードポイント U+3042 を 2 進数に(16 ビット)</text>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="100" y="100" width="26" height="26" fill="#2563eb" opacity="0.85"/>
+<text x="113.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="128" y="100" width="26" height="26" fill="#2563eb" opacity="0.85"/>
+<text x="141.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="156" y="100" width="26" height="26" fill="#2563eb" opacity="0.85"/>
+<text x="169.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">1</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="184" y="100" width="26" height="26" fill="#2563eb" opacity="0.85"/>
+<text x="197.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">1</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="220" y="100" width="26" height="26" fill="#2ea043" opacity="0.85"/>
+<text x="233.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="248" y="100" width="26" height="26" fill="#2ea043" opacity="0.85"/>
+<text x="261.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="276" y="100" width="26" height="26" fill="#2ea043" opacity="0.85"/>
+<text x="289.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="304" y="100" width="26" height="26" fill="#2ea043" opacity="0.85"/>
+<text x="317.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="332" y="100" width="26" height="26" fill="#2ea043" opacity="0.85"/>
+<text x="345.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="360" y="100" width="26" height="26" fill="#2ea043" opacity="0.85"/>
+<text x="373.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">1</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="396" y="100" width="26" height="26" fill="#e5aa28" opacity="0.85"/>
+<text x="409.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="424" y="100" width="26" height="26" fill="#e5aa28" opacity="0.85"/>
+<text x="437.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="452" y="100" width="26" height="26" fill="#e5aa28" opacity="0.85"/>
+<text x="465.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="480" y="100" width="26" height="26" fill="#e5aa28" opacity="0.85"/>
+<text x="493.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="508" y="100" width="26" height="26" fill="#e5aa28" opacity="0.85"/>
+<text x="521.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">1</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="536" y="100" width="26" height="26" fill="#e5aa28" opacity="0.85"/>
+<text x="549.0" y="119" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#ffffff">0</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2578;0.2581;1.0000" values="0;0;1;1"/><rect x="100" y="230" width="23" height="26" fill="#64748b" opacity="0.85"/>
+<text x="111.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">1</text>
+<rect x="125" y="230" width="23" height="26" fill="#64748b" opacity="0.85"/>
+<text x="136.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">1</text>
+<rect x="150" y="230" width="23" height="26" fill="#64748b" opacity="0.85"/>
+<text x="161.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">1</text>
+<rect x="175" y="230" width="23" height="26" fill="#64748b" opacity="0.85"/>
+<text x="186.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="200" y="230" width="23" height="26" fill="#2563eb" opacity="0.85"/>
+<text x="211.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="225" y="230" width="23" height="26" fill="#2563eb" opacity="0.85"/>
+<text x="236.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="250" y="230" width="23" height="26" fill="#2563eb" opacity="0.85"/>
+<text x="261.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">1</text>
+<rect x="275" y="230" width="23" height="26" fill="#2563eb" opacity="0.85"/>
+<text x="286.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">1</text>
+<text x="200" y="285" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#2563eb">= E3</text>
+</g>
+<line x1="156.0" y1="132" x2="200" y2="224" stroke="#2563eb" stroke-width="2" marker-end="url(#arr-utf8-pack)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2578;0.2581;1.0000" values="0;0;1;1"/></line>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.4255;0.4258;1.0000" values="0;0;1;1"/><rect x="330" y="230" width="23" height="26" fill="#64748b" opacity="0.85"/>
+<text x="341.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">1</text>
+<rect x="355" y="230" width="23" height="26" fill="#64748b" opacity="0.85"/>
+<text x="366.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="380" y="230" width="23" height="26" fill="#2ea043" opacity="0.85"/>
+<text x="391.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="405" y="230" width="23" height="26" fill="#2ea043" opacity="0.85"/>
+<text x="416.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="430" y="230" width="23" height="26" fill="#2ea043" opacity="0.85"/>
+<text x="441.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="455" y="230" width="23" height="26" fill="#2ea043" opacity="0.85"/>
+<text x="466.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="480" y="230" width="23" height="26" fill="#2ea043" opacity="0.85"/>
+<text x="491.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="505" y="230" width="23" height="26" fill="#2ea043" opacity="0.85"/>
+<text x="516.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">1</text>
+<text x="430" y="285" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#2ea043">= 81</text>
+</g>
+<line x1="304.0" y1="132" x2="430" y2="224" stroke="#2ea043" stroke-width="2" marker-end="url(#arr-utf8-pack)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.4255;0.4258;1.0000" values="0;0;1;1"/></line>
+<g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5933;0.5935;1.0000" values="0;0;1;1"/><rect x="560" y="230" width="23" height="26" fill="#64748b" opacity="0.85"/>
+<text x="571.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">1</text>
+<rect x="585" y="230" width="23" height="26" fill="#64748b" opacity="0.85"/>
+<text x="596.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="610" y="230" width="23" height="26" fill="#e5aa28" opacity="0.85"/>
+<text x="621.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="635" y="230" width="23" height="26" fill="#e5aa28" opacity="0.85"/>
+<text x="646.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="660" y="230" width="23" height="26" fill="#e5aa28" opacity="0.85"/>
+<text x="671.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="685" y="230" width="23" height="26" fill="#e5aa28" opacity="0.85"/>
+<text x="696.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<rect x="710" y="230" width="23" height="26" fill="#e5aa28" opacity="0.85"/>
+<text x="721.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">1</text>
+<rect x="735" y="230" width="23" height="26" fill="#e5aa28" opacity="0.85"/>
+<text x="746.5" y="249" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#ffffff">0</text>
+<text x="660" y="285" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#e5aa28">= 82</text>
+</g>
+<line x1="480.0" y1="132" x2="660" y2="224" stroke="#e5aa28" stroke-width="2" marker-end="url(#arr-utf8-pack)" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5933;0.5935;1.0000" values="0;0;1;1"/></line>
+<text x="100" y="215" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">3 バイト形式の枠（灰色 = 目印のビット、色付き = 中身）</text>
+<text x="390" y="350" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">文字に番号(コードポイント)が付いている<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="350" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">16 ビットを 4 + 6 + 6 に分ける<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;0.2578;0.2581;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="350" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">先頭バイト: 目印 1110 + 上位 4 ビット = E3<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2578;0.2581;0.4255;0.4258;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="350" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">2 バイト目: 目印 10 + 次の 6 ビット = 81<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.4255;0.4258;0.5933;0.5935;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="350" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">3 バイト目: 目印 10 + 残りの 6 ビット = 82。「あ」 = E3 81 82<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5933;0.5935;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:utf8-pack:end -->
+
 ## よくあるミス
 
 ??? failure "戻り値を確認せずに使う"
