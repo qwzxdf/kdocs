@@ -16,59 +16,136 @@ tags:
 
 <!-- fig:depth-peeling-passes:begin -->
 
-<svg class="fig illust motion" data-fig="depth-peeling-passes" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
+<svg class="fig illust motion" data-fig="depth-peeling-passes" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
 <defs><marker id="arr-depth-peeling-passes" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">Depth Peeling:手前の層から、1 パスに 1 枚ずつ剥いでいく</text>
-<line x1="60" y1="60" x2="60" y2="340" stroke="#1f2937" stroke-width="2"/>
-<text x="60" y="52" text-anchor="start" style="font-size:11px;font-weight:700;fill:#64748b">視点（上から見下ろす）</text>
-<rect x="140" y="80" width="300" height="22" fill="#e5484d" fill-opacity="0.35" stroke="#e5484d" stroke-width="2"/>
-<text x="150" y="96" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">層 1</text>
-<rect x="140" y="150" width="300" height="22" fill="#2ea043" fill-opacity="0.35" stroke="#2ea043" stroke-width="2"/>
-<text x="150" y="166" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">層 2</text>
-<rect x="140" y="220" width="300" height="22" fill="#2563eb" fill-opacity="0.35" stroke="#2563eb" stroke-width="2"/>
-<text x="150" y="236" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">層 3</text>
-<rect x="140" y="290" width="300" height="22" fill="#e5aa28" fill-opacity="0.35" stroke="#e5aa28" stroke-width="2"/>
-<text x="150" y="306" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">層 4</text>
-<line x1="90" y1="60" x2="90" y2="340" stroke="#64748b" stroke-width="2" stroke-dasharray="4 4"/>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0825;0.0828;0.2756;0.2759;1.0000" values="0;0;1;1;0;0"/><circle cx="90" cy="91" r="8" fill="#e5484d" stroke="#ffffff" stroke-width="2"/>
-<line x1="60" y1="91" x2="140" y2="91" stroke="#e5484d" stroke-width="2.5"/>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">デプス ピーリング: 手前の層から 1 枚ずつ「皮をむく」ように取り出して、正しく混ぜる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 24 画素に、3 枚の半透明を重ねる。毎回の描画(パス)で、まだ取っていない一番手前の層を取る</text>
+<text x="60.0" y="96" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">半透明の 3 枚(深度: 小さいほど手前)</text>
+<rect x="126.0" y="102" width="396.0" height="18" fill="#f24c4c" fill-opacity="0.5"/>
+<text x="132.0" y="116" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">A 深度 5</text>
+<rect x="324.0" y="124" width="396.0" height="18" fill="#33bf4c" fill-opacity="0.6"/>
+<text x="330.0" y="138" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">B 深度 3</text>
+<rect x="60.0" y="146" width="726.0" height="18" fill="#4073ff" fill-opacity="0.5"/>
+<text x="66.0" y="160" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">C 深度 7</text>
+<text x="60.0" y="187" text-anchor="start" style="font-size:13px;font-weight:700;fill:#7c3aed">パス 1: 1 番目に手前の層を取る</text>
+<rect x="60.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0732" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="93.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0780" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="126.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0829" values="#e5e7eb;#f29f9f"/></rect>
+<rect x="159.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0878" values="#e5e7eb;#f29f9f"/></rect>
+<rect x="192.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0927" values="#e5e7eb;#f29f9f"/></rect>
+<rect x="225.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0976" values="#e5e7eb;#f29f9f"/></rect>
+<rect x="258.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1024" values="#e5e7eb;#f29f9f"/></rect>
+<rect x="291.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1073" values="#e5e7eb;#f29f9f"/></rect>
+<rect x="324.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1122" values="#e5e7eb;#80d48f"/></rect>
+<rect x="357.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1171" values="#e5e7eb;#80d48f"/></rect>
+<rect x="390.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1220" values="#e5e7eb;#80d48f"/></rect>
+<rect x="423.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1268" values="#e5e7eb;#80d48f"/></rect>
+<rect x="456.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1317" values="#e5e7eb;#80d48f"/></rect>
+<rect x="489.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1366" values="#e5e7eb;#80d48f"/></rect>
+<rect x="522.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1415" values="#e5e7eb;#80d48f"/></rect>
+<rect x="555.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1463" values="#e5e7eb;#80d48f"/></rect>
+<rect x="588.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1512" values="#e5e7eb;#80d48f"/></rect>
+<rect x="621.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1561" values="#e5e7eb;#80d48f"/></rect>
+<rect x="654.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1610" values="#e5e7eb;#80d48f"/></rect>
+<rect x="687.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1659" values="#e5e7eb;#80d48f"/></rect>
+<rect x="720.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1707" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="753.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1756" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="786.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="819.0" y="190.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="60.0" y="190" width="792.0" height="33.0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="60.0" y="249" text-anchor="start" style="font-size:13px;font-weight:700;fill:#7c3aed">パス 2: 2 番目に手前の層を取る</text>
+<rect x="60.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="93.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="126.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2780" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="159.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2829" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="192.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2878" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="225.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2927" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="258.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2976" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="291.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3024" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="324.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3073" values="#e5e7eb;#f29f9f"/></rect>
+<rect x="357.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3122" values="#e5e7eb;#f29f9f"/></rect>
+<rect x="390.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3171" values="#e5e7eb;#f29f9f"/></rect>
+<rect x="423.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3220" values="#e5e7eb;#f29f9f"/></rect>
+<rect x="456.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3268" values="#e5e7eb;#f29f9f"/></rect>
+<rect x="489.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3317" values="#e5e7eb;#f29f9f"/></rect>
+<rect x="522.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3366" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="555.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3415" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="588.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3463" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="621.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3512" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="654.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3561" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="687.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.3610" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="720.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="753.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="786.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="819.0" y="252.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="60.0" y="252" width="792.0" height="33.0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="60.0" y="311" text-anchor="start" style="font-size:13px;font-weight:700;fill:#7c3aed">パス 3: 3 番目に手前の層を取る</text>
+<rect x="60.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="93.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="126.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="159.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="192.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="225.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="258.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="291.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="324.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.5024" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="357.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.5073" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="390.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.5122" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="423.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.5171" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="456.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.5220" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="489.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.5268" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="522.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="555.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="588.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="621.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="654.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="687.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="720.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="753.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="786.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="819.0" y="314.0" width="33.3" height="33.3" fill="#e5e7eb"/>
+<rect x="60.0" y="314" width="792.0" height="33.0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<text x="60.0" y="392" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">描いた断片の数(各パスで全部描き直す):</text>
+<text x="390.0" y="394" text-anchor="start" style="font-size:22px;font-weight:700;fill:#e5484d" opacity="1">0<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;1.0000" values="1;1;0;0"/></text>
+<text x="390.0" y="394" text-anchor="start" style="font-size:22px;font-weight:700;fill:#e5484d" opacity="0">46<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;0.2681;0.2683;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390.0" y="394" text-anchor="start" style="font-size:22px;font-weight:700;fill:#e5484d" opacity="0">92<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.2681;0.2683;0.4632;0.4634;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390.0" y="394" text-anchor="start" style="font-size:22px;font-weight:700;fill:#e5484d" opacity="0">138<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.4632;0.4634;1.0000" values="0;0;1;1"/></text>
+<text x="60.0" y="422" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">奥のパスから手前へ混ぜた結果</text>
+<rect x="60.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6585" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="93.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6615" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="126.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6644" values="#e5e7eb;#c680a3"/></rect>
+<rect x="159.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6673" values="#e5e7eb;#c680a3"/></rect>
+<rect x="192.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6702" values="#e5e7eb;#c680a3"/></rect>
+<rect x="225.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6732" values="#e5e7eb;#c680a3"/></rect>
+<rect x="258.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6761" values="#e5e7eb;#c680a3"/></rect>
+<rect x="291.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6790" values="#e5e7eb;#c680a3"/></rect>
+<rect x="324.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6820" values="#e5e7eb;#6ea66f"/></rect>
+<rect x="357.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6849" values="#e5e7eb;#6ea66f"/></rect>
+<rect x="390.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6878" values="#e5e7eb;#6ea66f"/></rect>
+<rect x="423.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6907" values="#e5e7eb;#6ea66f"/></rect>
+<rect x="456.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6937" values="#e5e7eb;#6ea66f"/></rect>
+<rect x="489.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6966" values="#e5e7eb;#6ea66f"/></rect>
+<rect x="522.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6995" values="#e5e7eb;#5cba91"/></rect>
+<rect x="555.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7024" values="#e5e7eb;#5cba91"/></rect>
+<rect x="588.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7054" values="#e5e7eb;#5cba91"/></rect>
+<rect x="621.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7083" values="#e5e7eb;#5cba91"/></rect>
+<rect x="654.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7112" values="#e5e7eb;#5cba91"/></rect>
+<rect x="687.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7141" values="#e5e7eb;#5cba91"/></rect>
+<rect x="720.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7171" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="753.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7200" values="#e5e7eb;#99b2f9"/></rect>
+<rect x="786.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7229" values="#e5e7eb;#f2f2f2"/></rect>
+<rect x="819.0" y="428.0" width="33.3" height="33.3" fill="#e5e7eb"><animate attributeName="fill" dur="20.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.7259" values="#e5e7eb;#f2f2f2"/></rect>
+<rect x="60.0" y="428" width="792.0" height="33.0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
+<g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.7676;0.7678;1.0000" values="0;0;1;1"/><rect x="60" y="462" width="840" height="56" rx="12" fill="#f0fdf4" stroke="#2ea043" stroke-width="2.5"/>
+<text x="76" y="486" text-anchor="start" style="font-size:15px;font-weight:700;fill:#166534">結果は、奥から順に混ぜた正解と完全に一致(ずれ 0)</text>
+<text x="76" y="510" text-anchor="start" style="font-size:14px;font-weight:700;fill:#991b1b">代わりに、層の数 3 回、シーンを描き直す(断片 46 個 → 合計 138 個)</text>
 </g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2756;0.2759;0.4687;0.4690;1.0000" values="0;0;1;1;0;0"/><circle cx="90" cy="161" r="8" fill="#2ea043" stroke="#ffffff" stroke-width="2"/>
-<line x1="60" y1="161" x2="140" y2="161" stroke="#2ea043" stroke-width="2.5"/>
-<line x1="60" y1="104" x2="460" y2="104" stroke="#e5484d" stroke-width="2" stroke-dasharray="6 3"/>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4687;0.4690;0.6618;0.6621;1.0000" values="0;0;1;1;0;0"/><circle cx="90" cy="231" r="8" fill="#2563eb" stroke="#ffffff" stroke-width="2"/>
-<line x1="60" y1="231" x2="140" y2="231" stroke="#2563eb" stroke-width="2.5"/>
-<line x1="60" y1="174" x2="460" y2="174" stroke="#e5484d" stroke-width="2" stroke-dasharray="6 3"/>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6618;0.6621;0.8549;0.8552;1.0000" values="0;0;1;1;0;0"/><circle cx="90" cy="301" r="8" fill="#e5aa28" stroke="#ffffff" stroke-width="2"/>
-<line x1="60" y1="301" x2="140" y2="301" stroke="#e5aa28" stroke-width="2.5"/>
-<line x1="60" y1="244" x2="460" y2="244" stroke="#e5484d" stroke-width="2" stroke-dasharray="6 3"/>
-</g>
-<text x="40" y="380" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">パス 1:しきい値より奥で、最も手前の層（層 1）を取り出す<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0825;0.0828;0.2756;0.2759;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="380" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">パス 2:しきい値より奥で、最も手前の層（層 2）を取り出す<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2756;0.2759;0.4687;0.4690;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="380" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">パス 3:しきい値より奥で、最も手前の層（層 3）を取り出す<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4687;0.4690;0.6618;0.6621;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="380" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">パス 4:しきい値より奥で、最も手前の層（層 4）を取り出す<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6618;0.6621;0.8549;0.8552;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="520" y="80" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">各パスの結果（層ごとの画像）</text>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2370;0.2372;1.0000" values="0;0;1;1"/><rect x="520" y="96" width="120" height="44" fill="#e5484d" fill-opacity="0.5" stroke="#e5484d" stroke-width="2"/>
-<text x="580" y="123" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">層 1 の画像</text>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4301;0.4303;1.0000" values="0;0;1;1"/><rect x="520" y="152" width="120" height="44" fill="#2ea043" fill-opacity="0.5" stroke="#2ea043" stroke-width="2"/>
-<text x="580" y="179" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">層 2 の画像</text>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6232;0.6234;1.0000" values="0;0;1;1"/><rect x="520" y="208" width="120" height="44" fill="#2563eb" fill-opacity="0.5" stroke="#2563eb" stroke-width="2"/>
-<text x="580" y="235" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">層 3 の画像</text>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.8163;0.8166;1.0000" values="0;0;1;1"/><rect x="520" y="264" width="120" height="44" fill="#e5aa28" fill-opacity="0.5" stroke="#e5aa28" stroke-width="2"/>
-<text x="580" y="291" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">層 4 の画像</text>
-</g>
-<g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.8549;0.8552;1.0000" values="0;0;1;1"/><line x1="650" y1="190" x2="700" y2="190" stroke="#1f2937" stroke-width="2.5" marker-end="url(#arr-depth-peeling-passes)"/>
-<rect x="700" y="150" width="60" height="80" fill="#9ca3af" stroke="#1f2937" stroke-width="2"/>
-<text x="730" y="246" text-anchor="middle" style="font-size:11px;font-weight:700;fill:#1f2937">奥から合成</text>
-</g>
-<text x="40" y="404" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">層の数だけパスが必要（4 層なら 4 パス）。正確だが、重い。<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.8549;0.8552;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">画素ごとに、手前から何枚重なっているかは、描くまで分からない<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">毎回、前のパスで取った層より奥で、一番手前の層だけを残す<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;0.6583;0.6585;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">取れた層を、奥から手前へ混ぜる<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.6583;0.6585;0.7676;0.7678;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">正確だが、層の数だけ描き直す(高コスト)<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.7676;0.7678;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:depth-peeling-passes:end -->
