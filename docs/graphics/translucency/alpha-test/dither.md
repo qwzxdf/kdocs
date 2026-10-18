@@ -54,6 +54,72 @@ clip(alpha - threshold);
 
 規則的な模様は、そのままだと網目が見えます。TAA を使うなら、フレームごとにしきい値の表をずらし（ベイヤー行列の代わりにブルー ノイズや、フレーム番号で回転した行列を使い）、TAA に平均させると、網目が溶けて、滑らかな半透明に見えます（[Hashed Alpha](hashed-alpha.md) と同じ原理です）。
 
+<!-- fig:dither-alpha:begin -->
+
+<svg class="fig illust motion" data-fig="dither-alpha" viewBox="0 0 780 440" role="img"><rect x="0" y="0" width="780" height="440" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-dither-alpha" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ディザ透明: アルファを上げると、閾値の小さい画素から順に不透明になる</text>
+<rect x="150" y="90" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="150" y="90" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0864;0.0867;1.0000" values="0;0;1;1"/></rect>
+<text x="179.0" y="125.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.03</text>
+<rect x="212" y="90" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="212" y="90" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.4413;0.4415;1.0000" values="0;0;1;1"/></rect>
+<text x="241.0" y="125.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.53</text>
+<rect x="274" y="90" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="274" y="90" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1751;0.1754;1.0000" values="0;0;1;1"/></rect>
+<text x="303.0" y="125.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.16</text>
+<rect x="336" y="90" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="336" y="90" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5300;0.5302;1.0000" values="0;0;1;1"/></rect>
+<text x="365.0" y="125.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.66</text>
+<rect x="150" y="152" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="150" y="152" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.6187;0.6190;1.0000" values="0;0;1;1"/></rect>
+<text x="179.0" y="187.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.78</text>
+<rect x="212" y="152" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="212" y="152" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2639;0.2641;1.0000" values="0;0;1;1"/></rect>
+<text x="241.0" y="187.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.28</text>
+<rect x="274" y="152" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="274" y="152" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.7074;0.7077;1.0000" values="0;0;1;1"/></rect>
+<text x="303.0" y="187.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.91</text>
+<rect x="336" y="152" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="336" y="152" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.3526;0.3528;1.0000" values="0;0;1;1"/></rect>
+<text x="365.0" y="187.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.41</text>
+<rect x="150" y="214" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="150" y="214" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2195;0.2198;1.0000" values="0;0;1;1"/></rect>
+<text x="179.0" y="249.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.22</text>
+<rect x="212" y="214" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="212" y="214" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5743;0.5746;1.0000" values="0;0;1;1"/></rect>
+<text x="241.0" y="249.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.72</text>
+<rect x="274" y="214" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="274" y="214" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1308;0.1310;1.0000" values="0;0;1;1"/></rect>
+<text x="303.0" y="249.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.09</text>
+<rect x="336" y="214" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="336" y="214" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.4856;0.4859;1.0000" values="0;0;1;1"/></rect>
+<text x="365.0" y="249.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.59</text>
+<rect x="150" y="276" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="150" y="276" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.7518;0.7520;1.0000" values="0;0;1;1"/></rect>
+<text x="179.0" y="311.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.97</text>
+<rect x="212" y="276" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="212" y="276" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.3969;0.3972;1.0000" values="0;0;1;1"/></rect>
+<text x="241.0" y="311.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.47</text>
+<rect x="274" y="276" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="274" y="276" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.6630;0.6633;1.0000" values="0;0;1;1"/></rect>
+<text x="303.0" y="311.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.84</text>
+<rect x="336" y="276" width="58" height="58" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+<rect x="336" y="276" width="58" height="58" fill="#1f2937" opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.3082;0.3085;1.0000" values="0;0;1;1"/></rect>
+<text x="365.0" y="311.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">0.34</text>
+<text x="150" y="78" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">各画素の数字 = 閾値。アルファ &gt; 閾値 なら描く(黒)</text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">アルファ = 0.08 → 1 / 16 画素が不透明<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;0.1825;0.1828;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">アルファ = 0.25 → 4 / 16 画素が不透明<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.1825;0.1828;0.3008;0.3011;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">アルファ = 0.42 → 7 / 16 画素が不透明<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.3008;0.3011;0.4191;0.4194;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">アルファ = 0.58 → 9 / 16 画素が不透明<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.4191;0.4194;0.5374;0.5376;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">アルファ = 0.75 → 12 / 16 画素が不透明<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5374;0.5376;0.6557;0.6559;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">アルファ = 0.92 → 15 / 16 画素が不透明<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.6557;0.6559;0.7739;0.7742;1.0000" values="0;0;1;1;0;0"/></text>
+</svg>
+
+<!-- fig:dither-alpha:end -->
+
 ## よくあるミス
 
 ??? failure "ディザの点々が目立つ"

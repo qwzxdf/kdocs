@@ -46,6 +46,37 @@ SH で光を表すと、<strong>リンギング</strong>（本来は 0 以上の
 
 プローブが空間に格子状に並ぶなら、係数を**3D テクスチャ**に格納します。係数ごとに別々の 3D テクスチャ（あるいはチャンネル）にしておくと、ハードウェアの三線形補間で、プローブ間の補間を自動的に行えます。プローブが不規則に置かれる場合は、四面体分割（Unity の方式）や、八分木ベースのブリック（Unreal の Volumetric Lightmap）を使い、補間はシェーダーやコンピュート側で行います。
 
+<!-- fig:sh-coeff-count:begin -->
+
+<svg class="fig illust motion" data-fig="sh-coeff-count" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>
+<defs><marker id="arr-sh-coeff-count" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
+</marker>
+</defs>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">SH の次数が上がると、必要な係数が増える(RGB の 3 色ぶん)</text>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;1.0000" values="0;0;1;1"/><rect x="170" y="278" width="100" height="22" fill="#2ea043" opacity="0.85"/>
+<text x="220" y="250" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#2ea043">1 個</text>
+<text x="220" y="268" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">×3 色 = 3</text>
+<text x="220" y="320" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">L0（1 次）</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2953;0.2957;1.0000" values="0;0;1;1"/><rect x="320" y="212" width="100" height="88" fill="#2563eb" opacity="0.85"/>
+<text x="370" y="184" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#2563eb">4 個</text>
+<text x="370" y="202" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">×3 色 = 12</text>
+<text x="370" y="320" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">L1（2 次）</text>
+</g>
+<g opacity="0"><animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5040;0.5043;1.0000" values="0;0;1;1"/><rect x="470" y="102" width="100" height="198" fill="#e5484d" opacity="0.85"/>
+<text x="520" y="74" text-anchor="middle" style="font-size:16px;font-weight:700;fill:#e5484d">9 個</text>
+<text x="520" y="92" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">×3 色 = 27</text>
+<text x="520" y="320" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">L2（3 次）</text>
+</g>
+<line x1="120" y1="300" x2="660" y2="300" stroke="#94a3b8" stroke-width="2"/>
+<text x="390" y="365" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">次数ごとの係数の数 (次数 l で 2l+1 個)<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="365" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">L0: 1 個。向きによらない明るさ<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.2953;0.2957;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="365" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">L1: 4 個になる(累計)。大まかな明暗の向き<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2953;0.2957;0.5040;0.5043;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="365" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">L2: 9 個(累計)。×3 色で 27 個。ゲームで一般的な次数<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5040;0.5043;1.0000;1.0000" values="0;0;1;1;0"/></text>
+</svg>
+
+<!-- fig:sh-coeff-count:end -->
+
 ## よくあるミス
 
 ??? failure "SH の次数が低く、方向による明暗の差が出ない"
