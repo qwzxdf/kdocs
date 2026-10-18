@@ -17,6 +17,10 @@ tags:
 
 ## ライブラリごとの要求
 
+ライブラリが受け取る文字列は、大きく 3 つの流派に分かれます。**UTF-8 の `char*`**（ほとんどのクロスプラットフォームなライブラリ）、**UTF-16 の `wchar_t*`**（Windows 由来の API）、そして**ANSI（実行環境のコード ページ）**（古い C の関数）です。自分のゲームの文字列を UTF-8 に統一していれば、1 つ目はそのまま渡せ、2 つ目は境界で変換し、3 つ目は使わないように避けます。
+
+次の表は、よく使うライブラリがどの流派かをまとめたものです。表のあとに、特に事故が多い「パス」の扱いを説明します。
+
 ### UTF-8（char*）を要求するもの
 
 | ライブラリ | 文字列の扱い | 注意 |
@@ -58,6 +62,10 @@ tags:
 <strong>パスで困ったら、「ファイルを自分で（W 版で）読んで、メモリのデータをライブラリに渡す」</strong>のが、一番確実です。
 
 ## パスの方針
+
+文字コードの事故で最も多いのは、文字列の表示ではなく**ファイルパス**です。表示なら化けるだけですが、パスが壊れると「ファイルが開けない」という、動作そのものの失敗になります。しかも、開発者の PC（英数字のユーザー名）では動き、日本語のユーザー名の PC でだけ失敗する、という再現しにくい形で出ます。
+
+対策は単純で、**ライブラリにパスを渡さない**ことです。ファイルは自分で（`std::filesystem::path` か W 版 API で）読み込み、中身のバイト列だけをライブラリに渡します。下の表に、方針とその理由をまとめます。
 
 <svg class="fig flow" viewBox="0 0 578 280" role="img" aria-label="ライブラリには、メモリ上のデータを渡す"><defs><marker id="fl90924" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ライブラリには、メモリ上のデータを渡す</text><line x1="218.7" y1="125.0" x2="351.3" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl90924)"/><text x="285.0" y="100.0" text-anchor="middle" style="font-size:12px">自分で読む</text><line x1="218.7" y1="171.0" x2="351.3" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl90924)"/><text x="285.0" y="184.0" text-anchor="middle" style="font-size:12px">ファイル名は渡さない</text><rect x="28.0" y="128.0" width="221" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="138.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">パス （UTF-8 std::string）</text><rect x="313.0" y="44.0" width="237" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="431.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">std::filesystem::path で開く</text><rect x="316.5" y="212.0" width="230" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="431.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ライブラリへ メモリ上のデータ</text></svg>
 
@@ -144,6 +152,8 @@ u16.resize(written);            // 失敗すると 0 が返る
 導入のコストが大きいので、**必要になったとき**（文字数制限、並べ替え、検索の正規化）だけ入れます。
 
 ## ゲームでの使いどころ
+
+ここまでの内容を、ゲームを作る場面に当てはめると次のようになります。基本は「内部は UTF-8」「境界で変換」「パスはアセットなら ASCII」の 3 つで、場面ごとにどれが効くかを表にしました。
 
 | 場面 | 使うもの |
 | --- | --- |
