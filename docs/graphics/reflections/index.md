@@ -83,7 +83,7 @@ float3 reflect_dir = reflect(-view_dir, normal);
 | <strong>PBR の IBL（鏡面）</strong> | プローブの反射が、IBL の鏡面項（[PBR](../../3d/pbr.md)） |
 | スペキュラ遮蔽 | 隅で反射を弱める（[GTAO](../ao/gtao.md)） |
 | フレネル | 斜めから見るほど、反射が強い（反射の強さ） |
-| <strong>半透明（水・ガラス）</strong> | 反射と屈折の合成（[描画](../index.md)） |
+| <strong>半透明（水・ガラス）</strong> | 反射と屈折の合成（[シェーダー](../index.md)） |
 
 ## よくある誤解
 
@@ -106,8 +106,9 @@ float3 reflect_dir = reflect(-view_dir, normal);
 
 ## 関連ページ
 
-- [描画](../index.md)
+- [シェーダー](../index.md)
 - [PBR](../../3d/pbr.md)
 - [法線とライティング](../../3d/lighting-normals.md)
 - [Hi-Z とスクリーン空間トレース](../../rendering/hiz.md)
 - [Ambient Occlusion (AO)](../ao/index.md)
+- [描画最適化](../../rendering/index.md)

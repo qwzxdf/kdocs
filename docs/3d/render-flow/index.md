@@ -132,4 +132,4 @@ tags:
 - [モデルの基本](../model-basics.md)
 - [座標変換（MVP）](../transforms-mvp.md)
 - [描画のしくみ（最適化の入口）](../../rendering/pipeline.md)
-- [描画（応用）](../../graphics/index.md)
+- [シェーダー](../../graphics/index.md)

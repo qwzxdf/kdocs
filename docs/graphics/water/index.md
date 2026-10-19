@@ -49,7 +49,8 @@ tags:
 
 ## 関連ページ
 
-- [描画](../index.md)
+- [シェーダー](../index.md)
 - [Refraction](../translucency/refraction/index.md)
 - [Reflections](../reflections/index.md)
 - [Terrain](../terrain/index.md)
+- [描画最適化](../../rendering/index.md)

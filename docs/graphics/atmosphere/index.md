@@ -36,7 +36,8 @@ tags:
 
 ## 関連ページ
 
-- [描画](../index.md)
+- [シェーダー](../index.md)
 - [Global Illumination (GI)](../gi/index.md)
 - [Post-Processing](../postprocess/index.md)
 - [Water](../water/index.md)
+- [描画最適化](../../rendering/index.md)

@@ -64,8 +64,9 @@ l e g - コサイン重みを正しく
 
 ## 関連ページ
 
-- [描画](../index.md)
+- [シェーダー](../index.md)
 - [AO Theory](theory/index.md)
 - [法線とライティング](../../3d/lighting-normals.md)
 - [PBR（物理ベースレンダリング）](../../3d/pbr.md)
 - [縮小バッファの効果](../../rendering/low-res-effects.md)
+- [描画最適化](../../rendering/index.md)

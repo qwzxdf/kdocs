@@ -81,7 +81,13 @@ tags:
 | **GPU：高解像度の重い効果**（AO・反射） | **全ピクセルで重い計算** | **低解像度・Hi-Z・時間方向の再利用** | [低解像度](low-res-effects.md)・[Hi-Z](hiz.md) |
 | **GPU：シェーダーが重い** | **ALU・テクスチャ読み込み・分岐** | **簡略化・FP16・バリアント** | [シェーダーのコスト](shader-cost.md) |
 
+## 原理を知りたいとき
+
+ここは「重さを減らす」話です。<strong>手法そのものの原理（影・AO・反射・ポストプロセスなど、どう見せるか）</strong>は、[シェーダー](../graphics/index.md)に書いています。対応表は[原理と最適化の対応](../graphics/index.md#原理と最適化の対応)です。
+
 ## 関連ページ
+
+- [シェーダー](../graphics/index.md)
 
 - [計測（プロファイリング）](../optimize/measure.md)
 - [フレーム時間の設計](../optimize/frame-budget.md)

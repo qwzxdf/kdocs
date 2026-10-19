@@ -195,7 +195,7 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 
 | 場面 | 方式 |
 | --- | --- |
-| <strong>水面（湖・海・水たまり）</strong> | 平面反射 ＋ 波の歪み（[描画](../index.md)）。または SSR |
+| <strong>水面（湖・海・水たまり）</strong> | 平面反射 ＋ 波の歪み（[シェーダー](../index.md)）。または SSR |
 | <strong>鏡（部屋・車のミラー）</strong> | 平面反射（画像の質が重要） |
 | 磨かれた床 | 平面反射、または SSR・プローブで安く |
 | 広い範囲の濡れた路面 | SSR ＋ プローブ（平面反射は面が多く重い） |

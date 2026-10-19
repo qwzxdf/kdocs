@@ -48,8 +48,9 @@ tags:
 
 ## 関連ページ
 
-- [描画](../index.md)
+- [シェーダー](../index.md)
 - [PBR](../../3d/pbr.md)
 - [Shadows](../shadows/index.md)
 - [Character Shadows and Color](../shadows/special-cases/character-shadows.md)
 - [Cel Shading](../postprocess/stylized/cel-shading.md)
+- [描画最適化](../../rendering/index.md)

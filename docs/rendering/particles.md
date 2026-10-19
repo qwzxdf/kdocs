@@ -221,3 +221,4 @@ context->DrawInstancedIndirect(draw_args_buffer.Get(), 0);        // 4 頂点（
 - [オーバードローと Z プリパス](overdraw.md)
 - [低解像度のエフェクト](low-res-effects.md)
 - [メモリ帯域幅](bandwidth.md)
+- [Translucency](../graphics/translucency/index.md)

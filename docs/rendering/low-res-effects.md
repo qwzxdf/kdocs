@@ -182,3 +182,5 @@ float DownsampleDepth(int2 p) {
 - [Hi-Z とスクリーン空間トレース](hiz.md)
 - [オーバードロー](overdraw.md)
 - [その他の最適化](taa-upscaling.md)
+- [Ambient Occlusion (AO)](../graphics/ao/index.md)
+- [Bloom](../graphics/postprocess/bloom/index.md)

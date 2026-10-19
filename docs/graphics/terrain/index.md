@@ -50,7 +50,7 @@ tags:
 
 ## 関連ページ
 
-- [描画](../index.md)
+- [シェーダー](../index.md)
 - [Water](../water/index.md)
 - [Shadows](../shadows/index.md)
 - [描画最適化](../../rendering/index.md)

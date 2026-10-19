@@ -220,3 +220,4 @@ tags:
 - [縮小バッファの効果](low-res-effects.md)
 - [Visibility Buffer](visibility-buffer.md)
 - [深度とカリング](../3d/depth-culling.md)
+- [Translucency](../graphics/translucency/index.md)

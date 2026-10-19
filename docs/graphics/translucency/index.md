@@ -47,7 +47,8 @@ tags:
 
 ## 関連ページ
 
-- [描画](../index.md)
+- [シェーダー](../index.md)
 - [パーティクルと半透明](../../rendering/particles.md)
 - [オーバードロー](../../rendering/overdraw.md)
 - [Post-Processing](../postprocess/index.md)
+- [描画最適化](../../rendering/index.md)

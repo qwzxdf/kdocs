@@ -190,3 +190,5 @@ tags:
 - [GPU Driven Rendering](gpu-driven.md)
 - [縮小バッファの効果](low-res-effects.md)
 - [深度とカリング](../3d/depth-culling.md)
+- [Hi-Z SSR](../graphics/reflections/ssr-hiz.md)
+- [Ambient Occlusion (AO)](../graphics/ao/index.md)

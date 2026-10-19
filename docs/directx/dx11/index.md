@@ -55,4 +55,4 @@ D3D11 は <strong>ドライバーが、面倒を見てくれる API</strong>で�
 - [DirectX の概念](../concepts/index.md)
 - [DX11 と DX12 の対応表](../compare.md)
 - [描画の流れ（入門）](../../3d/render-flow/index.md)
-- [描画](../../graphics/index.md)
+- [シェーダー](../../graphics/index.md)

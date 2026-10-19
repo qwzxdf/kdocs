@@ -1,12 +1,12 @@
 ---
-title: 描画
+title: シェーダー
 tags:
-  - 描画
+  - シェーダー
 ---
 
-# 描画
+# シェーダー
 
-このセクションは、<strong>ゲームの画面を作る描画手法</strong>を、<strong>原理から</strong>説明します。「3D ゲーム」のセクションが座標・カメラ・基本のライティングといった土台を扱うのに対し、ここではその上に積む影・環境光遮蔽（AO）・反射・間接光・ポストプロセスなどを方式ごとに扱います。それぞれの手法が「何を近似しているのか」「どんな式なのか」「どこで破綻するのか」を、順に追います。速さの話（何が重く、どう減らすか）は、[描画最適化](../rendering/index.md)に分けて書いています。
+このセクションは、<strong>ゲームの画面を作る、シェーダーで書く描画手法</strong>を、<strong>原理から</strong>説明します。「3D ゲーム」のセクションが座標・カメラ・基本のライティングといった土台を扱うのに対し、ここではその上に積む影・環境光遮蔽（AO）・反射・間接光・ポストプロセスなどを方式ごとに扱います。それぞれの手法が「何を近似しているのか」「どんな式なのか」「どこで破綻するのか」を、順に追います。速さの話（何が重く、どう減らすか）は、[描画最適化](../rendering/index.md)に分けて書いています。
 
 ## セクションの地図
 
@@ -144,8 +144,22 @@ tags:
 | --- | --- |
 | コードを実際に動かしたい（DirectX 11 の、土台） | [D3D11 Pass Recipes](../directx/dx11/pass-recipes.md)（ビュー・フルスクリーン三角形・ディスパッチ・定数バッファ・束縛の衝突）→ 各セクションへ |
 | AO を実装したい | [AO Theory](ao/theory/index.md) → [Hemisphere SSAO](ao/ssao-hemisphere.md) → [AO Filtering](ao/filtering/index.md) → 品質を上げるなら [GTAO](ao/gtao.md) |
+| 重い・遅いときに直したい | [描画最適化](../rendering/index.md)の[手法の地図](../rendering/index.md#手法の地図) → 各分野の「コスト」のページ（下の表） |
 | 方式を選びたい | [AO Comparison](ao/comparison.md) |
 | アーティファクトを直したい | [AO Artifacts](ao/artifacts/index.md) |
+
+## 原理と最適化の対応
+
+同じ話題は、<strong>原理（どう見せるか）をこのセクション、コスト（どう軽くするか）を[描画最適化](../rendering/index.md)</strong>に分けて書いています。
+
+| 話題 | 原理（このセクション） | 軽くする（描画最適化） |
+| --- | --- | --- |
+| 影 | [Shadows](shadows/index.md) | [影のコスト](../rendering/shadows.md) |
+| ポストプロセス | [Post-Processing](postprocess/index.md) | [ポストプロセス](../rendering/postprocess.md)・[TAA・アップスケーラ・VRS](../rendering/taa-upscaling.md) |
+| AO・反射の高速化 | [Ambient Occlusion (AO)](ao/index.md)・[Reflections](reflections/index.md) | [Hi-Z とスクリーン空間トレース](../rendering/hiz.md)・[縮小バッファの効果](../rendering/low-res-effects.md) |
+| 半透明 | [Translucency](translucency/index.md) | [パーティクルと半透明](../rendering/particles.md)・[オーバードロー](../rendering/overdraw.md) |
+| 地形の LOD | [Terrain](terrain/index.md) | [LOD とインポスター](../rendering/lod.md) |
+| シェーダーの計算 | （各分野のコード） | [シェーダーのコスト](../rendering/shader-cost.md) |
 
 ## 関連ページ
 

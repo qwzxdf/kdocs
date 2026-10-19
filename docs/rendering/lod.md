@@ -235,3 +235,4 @@ LOD ごとに、三角形を、およそ半分から 1/4 に減らして、3〜4
 - [オーバードロー](overdraw.md)
 - [Mesh Shader と Meshlet](mesh-shaders.md)
 - [影のコスト](shadows.md)
+- [Terrain LOD](../graphics/terrain/lod/index.md)

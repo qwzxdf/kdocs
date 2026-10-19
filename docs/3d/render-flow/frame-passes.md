@@ -304,4 +304,4 @@ tags:
 - [画面に出す](present.md)
 - [描画のしくみ（最適化の入口）](../../rendering/pipeline.md)
 - [フォワードとディファード](../../rendering/forward-deferred.md)
-- [描画（応用）](../../graphics/index.md)
+- [シェーダー](../../graphics/index.md)

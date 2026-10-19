@@ -196,3 +196,5 @@ RenderShadow(dynamic_shadow_map, dynamic_casters);
 - [カリング](culling.md)
 - [LOD とインポスター](lod.md)
 - [メモリ帯域幅](bandwidth.md)
+- [Shadows](../graphics/shadows/index.md)
+- [Cascaded Shadow Maps (CSM)](../graphics/shadows/cascaded.md)

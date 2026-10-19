@@ -111,8 +111,9 @@ float3 color = direct + ambient;
 
 ## 関連ページ
 
-- [描画](../index.md)
+- [シェーダー](../index.md)
 - [Shadow Map Basics](shadow-map-basics/index.md)
 - [影のコスト](../../rendering/shadows.md)
 - [法線とライティング](../../3d/lighting-normals.md)
 - [Ambient Occlusion (AO)](../ao/index.md)
+- [描画最適化](../../rendering/index.md)

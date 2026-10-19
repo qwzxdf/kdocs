@@ -48,5 +48,5 @@ DirectX の用語（デバイス、ビュー、ステート、ディスクリプ
 
 - [DirectXMath](../gamemath/directxmath.md)
 - [描画の流れ（入門）](../3d/render-flow/index.md)
-- [描画](../graphics/index.md)
+- [シェーダー](../graphics/index.md)
 - [描画最適化](../rendering/index.md)
