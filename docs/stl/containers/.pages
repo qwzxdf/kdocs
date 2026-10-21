@@ -6,6 +6,9 @@ nav:
   - map.md
   - unordered_set.md
   - span.md
+  - to_string.md
+  - stoi.md
+  - stof.md
   - deque.md
   - priority_queue.md
   - queue.md
@@ -14,8 +17,25 @@ nav:
   - flat_map.md
   - mdspan.md
   - bitset.md
+  - initializer_list.md
+  - inplace_vector.md
+  - basic_string.md
+  - stod.md
+  - stoll.md
   - list.md
   - forward_list.md
   - multimap.md
   - flat_set.md
+  - multiset.md
+  - unordered_multimap.md
+  - unordered_multiset.md
+  - flat_multimap.md
+  - flat_multiset.md
+  - vector_bool.md
+  - valarray.md
+  - char_traits.md
+  - extents.md
+  - layout_right.md
+  - layout_left.md
+  - layout_stride.md
   - ...

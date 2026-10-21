@@ -64,7 +64,7 @@ tags:
     - ここだけは必ず覚えておく、という注意
 
 !!! info "このページを読む前に"
-    [参照](../../basics/reference.md)、[テンプレート](../../basics/template.md) が分かると読みやすいです。
+    [参照](basics/reference.md)、[テンプレート](basics/template.md) が分かると読みやすいです。
 
 ## 宣言
 

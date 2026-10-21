@@ -1,0 +1,19 @@
+title: 標準の例外
+nav:
+  - runtime_error.md
+  - out_of_range.md
+  - exception.md
+  - invalid_argument.md
+  - bad_alloc.md
+  - bad_optional_access.md
+  - bad_variant_access.md
+  - bad_function_call.md
+  - logic_error.md
+  - system_error.md
+  - exception_ptr.md
+  - length_error.md
+  - overflow_error.md
+  - bad_cast.md
+  - format_error.md
+  - terminate.md
+  - ...

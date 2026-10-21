@@ -1,10 +1,12 @@
 ---
-title: std::erase_if / std::erase
+title: std::erase_if
+summary: "条件に合う要素をまとめて消す。`erase-remove` を 1 行で書ける。"
+order: 21
 tags:
   - アルゴリズム
 ---
 
-# std::erase_if / std::erase
+# std::erase_if
 
 <div class="page-badges" markdown>
 <span class="rank rank-must">必須</span>

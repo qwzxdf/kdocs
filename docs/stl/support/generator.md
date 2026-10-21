@@ -1,5 +1,7 @@
 ---
 title: std::generator（コルーチン）
+summary: "コルーチンで、値を 1 つずつ作って返す（C++23）。"
+order: 88
 tags:
   - 型・言語サポート
 ---
@@ -27,8 +29,6 @@ tags:
 | 名前 | 重要度 | 何をする |
 | --- | --- | --- |
 | [`std::generator<T>`](#generator) | <span class="rank rank-rare">知ってるだけ</span> | 値を順に作り出すコルーチンの戻り値の型 |
-| [`co_yield`](#co_yield) | <span class="rank rank-rare">知ってるだけ</span> | 値を 1 つ出して一時停止する |
-| [`co_return`](#co_return) | <span class="rank rank-rare">知ってるだけ</span> | 途中で終わる |
 | [`std::ranges::elements_of`](#elements_of) | <span class="rank rank-rare">知ってるだけ</span> | 別の範囲の要素を全部出す |
 
 ## よくある使い方
@@ -76,48 +76,6 @@ class generator;
 
 - 関数の戻り値をこの型にして、中で `co_yield` を使うとコルーチンになります
 - 1 回しか回せません（入力範囲）
-
-### co_yield {#co_yield}
-
-```cpp
-co_yield 式;
-```
-
-- 値を 1 つ呼び出し側に渡して、関数を一時停止します。ローカル変数はそのまま保たれ、次に再開すると続きから動きます
-
-### co_return {#co_return}
-
-```cpp
-co_return;
-```
-
-- generator を終わらせます（範囲 for が終わる）
-
-```cpp
-#include <generator>
-#include <print>
-#include <string>
-
-// 迷路の道順を 1 歩ずつ出す（途中で終わる）
-std::generator<std::string> Path() {
-  co_yield "右";
-  co_yield "右";
-  co_yield "上";
-  co_return;  // ここで終わり
-  co_yield "ここには来ない";
-}
-
-int main() {
-  for (const std::string& step : Path()) {
-    std::print("{} ", step);
-  }
-  std::println("");
-}
-```
-
-```text title="実行結果"
-右 右 上 
-```
 
 ### std::ranges::elements_of {#elements_of}
 

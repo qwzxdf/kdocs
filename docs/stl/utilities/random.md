@@ -1,5 +1,8 @@
 ---
 title: <random>（乱数）
+group: 乱数（std::random）
+summary: "乱数を作る。シードと分布（一様・正規など）を組み合わせて使う。"
+order: 56
 tags:
   - ユーティリティ
   - 乱数
@@ -27,14 +30,14 @@ tags:
 
 | 型 | 重要度 | 何をする |
 | --- | --- | --- |
-| [`std::mt19937`](#mt19937) | <span class="rank rank-must">必須</span> | 乱数エンジン（32 ビット、メルセンヌ・ツイスター） |
-| [`std::uniform_int_distribution`](#uniform_int) | <span class="rank rank-must">必須</span> | 範囲内の整数を同じ確率で |
-| [`std::uniform_real_distribution`](#uniform_real) | <span class="rank rank-must">必須</span> | 範囲内の小数を同じ確率で |
-| [`std::random_device`](#random_device) | <span class="rank rank-often">よく使う</span> | 本物に近い乱数（種を作る用） |
-| [`std::bernoulli_distribution`](#bernoulli) | <span class="rank rank-often">よく使う</span> | 確率 p で true |
-| [`std::discrete_distribution`](#discrete) | <span class="rank rank-sometimes">たまに</span> | 重み付きで添字を選ぶ（ガチャ・ドロップ） |
-| [`std::normal_distribution`](#normal) | <span class="rank rank-sometimes">たまに</span> | 正規分布（平均付近が出やすい） |
-| [`std::mt19937_64`](#mt19937_64) | <span class="rank rank-rare">知ってるだけ</span> | 64 ビット版エンジン |
+| [`std::mt19937`](random/mt19937.md) | <span class="rank rank-must">必須</span> | 乱数エンジン（32 ビット、メルセンヌ・ツイスター） |
+| [`std::uniform_int_distribution`](random/uniform_int_distribution.md) | <span class="rank rank-must">必須</span> | 範囲内の整数を同じ確率で |
+| [`std::uniform_real_distribution`](random/uniform_real_distribution.md) | <span class="rank rank-must">必須</span> | 範囲内の小数を同じ確率で |
+| [`std::random_device`](random/random_device.md) | <span class="rank rank-often">よく使う</span> | 本物に近い乱数（種を作る用） |
+| [`std::bernoulli_distribution`](random/bernoulli_distribution.md) | <span class="rank rank-often">よく使う</span> | 確率 p で true |
+| [`std::discrete_distribution`](random/discrete_distribution.md) | <span class="rank rank-sometimes">たまに</span> | 重み付きで添字を選ぶ（ガチャ・ドロップ） |
+| [`std::normal_distribution`](random/normal_distribution.md) | <span class="rank rank-sometimes">たまに</span> | 正規分布（平均付近が出やすい） |
+| [`std::mt19937_64`](random/mt19937.md) | <span class="rank rank-rare">知ってるだけ</span> | 64 ビット版エンジン |
 
 ## 関数一覧
 
@@ -42,12 +45,12 @@ tags:
 
 | 関数 | 重要度 | 対象 | 何をする |
 | --- | --- | --- | --- |
-| [`dist(engine)`](#call) | <span class="rank rank-must">必須</span> | 分布 | 乱数を 1 つ作る |
-| [`engine.seed(s)`](#seed) | <span class="rank rank-sometimes">たまに</span> | エンジン | 種を設定し直す |
-| [`engine()`](#engine-call) | <span class="rank rank-sometimes">たまに</span> | エンジン | 生の整数を 1 つ作る |
-| [`dist.reset()`](#reset) | <span class="rank rank-rare">知ってるだけ</span> | 分布 | 内部状態をリセット |
-| [`dist.min()` / `dist.max()`](#minmax) | <span class="rank rank-rare">知ってるだけ</span> | 分布・エンジン | 出る値の範囲 |
-| [`engine.discard(n)`](#discard) | <span class="rank rank-rare">知ってるだけ</span> | エンジン | n 回ぶん読み飛ばす |
+| `dist(engine)` | <span class="rank rank-must">必須</span> | 分布 | 乱数を 1 つ作る |
+| [`engine.seed(s)`](random/mt19937.md) | <span class="rank rank-sometimes">たまに</span> | エンジン | 種を設定し直す |
+| `engine()` | <span class="rank rank-sometimes">たまに</span> | エンジン | 生の整数を 1 つ作る |
+| `dist.reset()` | <span class="rank rank-rare">知ってるだけ</span> | 分布 | 内部状態をリセット |
+| `dist.min()` / `dist.max()` | <span class="rank rank-rare">知ってるだけ</span> | 分布・エンジン | 出る値の範囲 |
+| [`engine.discard(n)`](random/mt19937.md) | <span class="rank rank-rare">知ってるだけ</span> | エンジン | n 回ぶん読み飛ばす |
 
 ## よくある使い方
 
@@ -106,276 +109,6 @@ int main() {
 
 ```text title="実行結果"
 ダメージ 8〜12？ true / 会心 false
-```
-
-## 型と関数の詳しい説明
-
-### std::mt19937 {#mt19937}
-
-```cpp
-using mt19937 = std::mersenne_twister_engine<std::uint_fast32_t, 32, 624, 397, 31, /* ... */>;
-```
-
-| コンストラクタ引数 | 意味 |
-| --- | --- |
-| 種（`unsigned`） | 乱数の出発点。同じ種なら同じ列が出る。省略すると `5489` |
-
-- 品質が良く速い、定番のエンジンです。大きさは約 5KB あるので、**関数のたびに作らない**
-
-```cpp
-#include <print>
-#include <random>
-
-int main() {
-  std::mt19937 a(1);
-  std::mt19937 b(1);
-  std::println("同じ種なら同じ値？ {}", a() == b());
-  std::mt19937 c;  // 種を省略すると 5489
-  std::println("{}", c());
-}
-```
-
-```text title="実行結果"
-同じ種なら同じ値？ true
-3499211612
-```
-
-### std::uniform_int_distribution {#uniform_int}
-
-```cpp
-template <class IntType = int>
-class uniform_int_distribution {
- public:
-  explicit uniform_int_distribution(IntType a, IntType b = std::numeric_limits<IntType>::max());
-};
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `a` | 整数 | 最小値（**含む**） |
-| `b` | 整数 | 最大値（**含む**） |
-
-- `a` 〜 `b` の整数が同じ確率で出ます。`a > b` は未定義動作
-
-### std::uniform_real_distribution {#uniform_real}
-
-```cpp
-template <class RealType = double>
-class uniform_real_distribution {
- public:
-  explicit uniform_real_distribution(RealType a, RealType b = 1.0);
-};
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `a` | 浮動小数点 | 最小値（含む） |
-| `b` | 浮動小数点 | 最大値（**含まない**） |
-
-```cpp
-#include <print>
-#include <random>
-
-int main() {
-  std::mt19937 rng(7);
-  std::uniform_real_distribution<float> angle(0.0f, 360.0f);
-  float a = angle(rng);
-  std::println("0 以上 360 未満？ {}", a >= 0.0f && a < 360.0f);
-}
-```
-
-```text title="実行結果"
-0 以上 360 未満？ true
-```
-
-### std::random_device {#random_device}
-
-```cpp
-class random_device {
- public:
-  result_type operator()();
-};
-```
-
-- OS が用意する、予測しにくい乱数です。遅いので、**エンジンの種を作るのにだけ**使います
-- `std::mt19937 rng(std::random_device{}());` が定番の書き方です
-
-### std::bernoulli_distribution {#bernoulli}
-
-```cpp
-class bernoulli_distribution {
- public:
-  explicit bernoulli_distribution(double p = 0.5);
-};
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `p` | `double` | true が出る確率（0.0〜1.0） |
-
-```cpp
-#include <print>
-#include <random>
-
-int main() {
-  std::mt19937 rng(3);
-  std::bernoulli_distribution always(1.0);
-  std::bernoulli_distribution never(0.0);
-  std::println("{} {}", always(rng), never(rng));
-}
-```
-
-```text title="実行結果"
-true false
-```
-
-!!! note "実際は"
-    「30% で会心」「5% でレアドロップ」のような判定は、`uniform_real(0,1) < 0.3f` と書くより、こちらのほうが意図がはっきりします。
-
-### std::discrete_distribution {#discrete}
-
-```cpp
-template <class IntType = int>
-class discrete_distribution {
- public:
-  discrete_distribution(std::initializer_list<double> weights);
-};
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `weights` | 重みのリスト | i 番目が出る確率は「i 番目の重み ÷ 重みの合計」 |
-
-- 戻り値: 選ばれた**添字**（0 始まり）
-
-```cpp
-#include <array>
-#include <print>
-#include <random>
-#include <string>
-
-int main() {
-  std::array<std::string, 3> rarity = {"ノーマル", "レア", "スーパーレア"};
-  std::discrete_distribution<int> gacha({70, 25, 5});  // 70%, 25%, 5%
-
-  std::mt19937 rng(2024);
-  std::array<int, 3> counts{};
-  for (int i = 0; i < 10000; ++i) {
-    ++counts[gacha(rng)];
-  }
-  std::println("ノーマルが一番多い？ {}", counts[0] > counts[1] && counts[1] > counts[2]);
-}
-```
-
-```text title="実行結果"
-ノーマルが一番多い？ true
-```
-
-### std::normal_distribution {#normal}
-
-```cpp
-template <class RealType = double>
-class normal_distribution {
- public:
-  explicit normal_distribution(RealType mean = 0.0, RealType stddev = 1.0);
-};
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `mean` | 浮動小数点 | 平均（一番出やすい値） |
-| `stddev` | 浮動小数点 | 標準偏差（ばらつきの大きさ） |
-
-- 平均の近くが出やすく、離れるほど出にくい乱数です。平均 ± 標準偏差の範囲に約 68% が入ります
-
-!!! note "実際は"
-    弾のばらつき、ステータスの個体差など、「だいたいこのくらい、たまに外れる」ものに使います。範囲の外の値も出るので、`std::clamp` で収めます。
-
-### std::mt19937_64 {#mt19937_64}
-
-- 64 ビットの整数を出す版です。64 ビットの乱数が直接欲しいとき以外は `mt19937` で十分です
-
-### dist(engine) {#call}
-
-```cpp
-template <class URBG>
-result_type operator()(URBG& g);
-```
-
-- 分布にエンジンを渡して呼ぶと、乱数が 1 つ返ります。エンジンの状態が進みます
-
-### engine.seed(s) {#seed}
-
-```cpp
-void seed(result_type value = default_seed);
-```
-
-- 種を設定し直します。同じ種を設定すると、また同じ列が最初から出ます（リプレイ用）
-
-```cpp
-#include <print>
-#include <random>
-
-int main() {
-  std::mt19937 rng(100);
-  auto first = rng();
-  rng.seed(100);  // 巻き戻す
-  std::println("{}", first == rng());
-}
-```
-
-```text title="実行結果"
-true
-```
-
-### engine() {#engine-call}
-
-```cpp
-result_type operator()();
-```
-
-- エンジンの生の整数（mt19937 なら 0〜2³²−1）を返します。普通は分布を通して使います
-
-### dist.reset() {#reset}
-
-```cpp
-void reset();
-```
-
-- 分布が内部に持っている状態（normal_distribution の予備の値など）を捨てます。種を設定し直したあとに呼ぶと、完全に同じ結果を再現できます
-
-### dist.min() / dist.max() {#minmax}
-
-- 分布（またはエンジン）が出しうる値の最小・最大を返します
-
-### engine.discard(n) {#discard}
-
-```cpp
-void discard(unsigned long long z);
-```
-
-- 乱数を `z` 回ぶん作って捨てます
-
-```cpp
-#include <print>
-#include <random>
-
-int main() {
-  std::uniform_int_distribution<int> d(1, 6);
-  std::println("{} {}", d.min(), d.max());
-
-  std::mt19937 a(5);
-  std::mt19937 b(5);
-  a();
-  a();
-  b.discard(2);
-  std::println("{}", a() == b());
-}
-```
-
-```text title="実行結果"
-1 6
-true
 ```
 
 ## フラグ・オプション（エンジンと分布の一覧）

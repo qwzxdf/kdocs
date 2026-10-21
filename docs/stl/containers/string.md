@@ -1,5 +1,7 @@
 ---
 title: std::string
+summary: "文字列を持つ型。連結・検索・切り出しができる。長さに応じて自動で伸びる。"
+order: 3
 tags:
   - コンテナ
   - 文字列
@@ -64,7 +66,7 @@ using wstring = basic_string<wchar_t>;
 | [`size`](#size) | <span class="rank rank-must">必須</span> | 長さ（**バイト数**） | O(1) |
 | [`operator==`](#eq) | <span class="rank rank-must">必須</span> | 等しいか | O(n) |
 | [`empty`](#empty) | <span class="rank rank-must">必須</span> | 空かどうか | O(1) |
-| [`std::to_string`](#to_string) | <span class="rank rank-often">よく使う</span> | 数値を文字列に | O(桁数) |
+| [`std::to_string`](to_string.md) | <span class="rank rank-often">よく使う</span> | 数値を文字列に | O(桁数) |
 | [`find`](#find) | <span class="rank rank-often">よく使う</span> | 部分文字列を前から探す | O(n·m) |
 | [`substr`](#substr) | <span class="rank rank-often">よく使う</span> | 一部を切り出して新しい文字列を作る | O(m) |
 | [`starts_with`](#starts_with) | <span class="rank rank-often">よく使う</span> | 先頭が一致するか <span class="ver ver-20">C++20</span> | O(m) |
@@ -72,8 +74,8 @@ using wstring = basic_string<wchar_t>;
 | [`contains`](#contains) | <span class="rank rank-often">よく使う</span> | 含んでいるか <span class="ver ver-23">C++23</span> | O(n·m) |
 | [`operator[]`](#operator) | <span class="rank rank-often">よく使う</span> | i バイト目の文字 | O(1) |
 | [`clear`](#clear) | <span class="rank rank-often">よく使う</span> | 空にする | O(n) |
-| [`std::stoi`](#stoi) | <span class="rank rank-often">よく使う</span> | 文字列を int に | O(n) |
-| [`std::stof`](#stof) | <span class="rank rank-often">よく使う</span> | 文字列を float に | O(n) |
+| [`std::stoi`](stoi.md) | <span class="rank rank-often">よく使う</span> | 文字列を int に | O(n) |
+| [`std::stof`](stof.md) | <span class="rank rank-often">よく使う</span> | 文字列を float に | O(n) |
 | [`rfind`](#rfind) | <span class="rank rank-often">よく使う</span> | 部分文字列を後ろから探す | O(n·m) |
 | [`c_str`](#c_str) | <span class="rank rank-sometimes">たまに</span> | C の文字列として渡す | O(1) |
 | [`push_back`](#push_back) | <span class="rank rank-sometimes">たまに</span> | 1 文字追加 | 償却 O(1) |
@@ -83,9 +85,9 @@ using wstring = basic_string<wchar_t>;
 | [`insert`](#insert) | <span class="rank rank-sometimes">たまに</span> | 途中に挿入 | O(n) |
 | [`erase`](#erase) | <span class="rank rank-sometimes">たまに</span> | 途中を削除 | O(n) |
 | [`reserve`](#reserve) | <span class="rank rank-sometimes">たまに</span> | 容量を先に確保 | O(n) |
-| [`std::getline`](#getline) | <span class="rank rank-sometimes">たまに</span> | 1 行読み込む | O(n) |
-| [`std::stod`](#stod) | <span class="rank rank-sometimes">たまに</span> | 文字列を double に | O(n) |
-| [`std::stoll`](#stoll) | <span class="rank rank-sometimes">たまに</span> | 文字列を long long に | O(n) |
+| [`std::getline`](../io/getline.md) | <span class="rank rank-sometimes">たまに</span> | 1 行読み込む | O(n) |
+| [`std::stod`](stod.md) | <span class="rank rank-sometimes">たまに</span> | 文字列を double に | O(n) |
+| [`std::stoll`](stoll.md) | <span class="rank rank-sometimes">たまに</span> | 文字列を long long に | O(n) |
 | [`data`](#data) | <span class="rank rank-sometimes">たまに</span> | 先頭のポインタ（書き換え可） | O(1) |
 | [`find_first_not_of`](#find_first_not_of) | <span class="rank rank-sometimes">たまに</span> | 指定した文字**以外**を前から探す | O(n·m) |
 | [`find_last_not_of`](#find_last_not_of) | <span class="rank rank-sometimes">たまに</span> | 指定した文字**以外**を後ろから探す | O(n·m) |
@@ -374,40 +376,6 @@ int main() {
 !!! note "実際は"
     `s == ""` や `s.size() == 0` より意図がはっきりします。
 
-### std::to_string {#to_string}
-
-```cpp
-std::string to_string(int value);
-std::string to_string(long long value);
-std::string to_string(unsigned value);
-std::string to_string(float value);
-std::string to_string(double value);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `value` | 数値 | 文字列にしたい値 |
-
-- 戻り値: 新しい文字列
-
-```cpp
-#include <print>
-#include <string>
-
-int main() {
-  std::println("{}", std::to_string(42));
-  std::println("{}", std::to_string(3.5f));
-}
-```
-
-```text title="実行結果"
-42
-3.500000
-```
-
-!!! note "実際は"
-    浮動小数点は小数点以下 6 桁固定になってしまいます。桁数を指定したいなら `std::format("{:.1f}", 3.5f)` を使います。
-
 ### find {#find}
 
 ```cpp
@@ -641,71 +609,6 @@ int main() {
 
 !!! note "実際は"
     使い回す文字列（ログのバッファなど）は、作り直さずに `clear` してから `+=` すると再確保が起きません。
-
-### std::stoi {#stoi}
-
-```cpp
-int stoi(const std::string& str, std::size_t* pos = nullptr, int base = 10);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `str` | `const std::string&` | 変換する文字列。先頭の空白は飛ばされる |
-| `pos` | `std::size_t*` | 変換に使った文字数を受け取る（要らなければ省略） |
-| `base` | `int` | 進数（2〜36）。`16` なら 16 進数、`0` なら `0x` などから自動判定 |
-
-- 戻り値: 変換した `int`
-- 例外: 数字で始まらなければ `std::invalid_argument`、int に入らなければ `std::out_of_range`
-
-```cpp
-#include <print>
-#include <string>
-
-int main() {
-  std::println("{}", std::stoi("1500"));
-  std::println("{}", std::stoi("ff", nullptr, 16));
-
-  std::size_t used = 0;
-  int value = std::stoi("42px", &used);
-  std::println("{} ({} 文字使った)", value, used);
-}
-```
-
-```text title="実行結果"
-1500
-255
-42 (2 文字使った)
-```
-
-!!! note "実際は"
-    例外を使わないなら `std::from_chars`（`<charconv>`）のほうが速く、失敗をエラーコードで返してくれます。
-
-### std::stof {#stof}
-
-```cpp
-float stof(const std::string& str, std::size_t* pos = nullptr);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `str` | `const std::string&` | 変換する文字列 |
-| `pos` | `std::size_t*` | 変換に使った文字数を受け取る |
-
-- 例外: `stoi` と同じ
-
-```cpp
-#include <print>
-#include <string>
-
-int main() {
-  float gravity = std::stof("9.8");
-  std::println("{}", gravity * 2.0f);
-}
-```
-
-```text title="実行結果"
-19.6
-```
 
 ### rfind {#rfind}
 
@@ -982,59 +885,6 @@ void reserve(size_type new_cap);
 ```
 
 - 長い文字列を少しずつ組み立てる前に呼ぶと、再確保が減ります（[vector の reserve](vector.md#reserve) と同じ）
-
-### std::getline {#getline}
-
-```cpp
-std::istream& getline(std::istream& input, std::string& str, char delim = '\n');
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `input` | `std::istream&` | 読み込み元（`std::cin`、ファイル、`std::istringstream`） |
-| `str` | `std::string&` | 読んだ行を入れる先 |
-| `delim` | `char` | 区切り文字（省略すると改行） |
-
-- 戻り値: `input`。読めなくなったら `false` として扱える
-
-```cpp
-#include <print>
-#include <sstream>
-#include <string>
-
-int main() {
-  std::istringstream file("line1\nline2\nline3");
-  std::string line;
-  while (std::getline(file, line)) {
-    std::println("読んだ: {}", line);
-  }
-}
-```
-
-```text title="実行結果"
-読んだ: line1
-読んだ: line2
-読んだ: line3
-```
-
-!!! note "実際は"
-    設定ファイルやステージデータを 1 行ずつ読むときの定番です。
-
-### std::stod {#stod}
-
-```cpp
-double stod(const std::string& str, std::size_t* pos = nullptr);
-```
-
-- `stof` の double 版です。
-
-### std::stoll {#stoll}
-
-```cpp
-long long stoll(const std::string& str, std::size_t* pos = nullptr, int base = 10);
-```
-
-- `stoi` の long long 版です。int に入らない大きな数（所持金、タイムスタンプ）に使います。`stol`、`stoul`、`stoull` もあります。
 
 ### data {#data}
 

@@ -105,8 +105,8 @@ int main() {
 | 1 つの数値・フラグを共有する | [`std::atomic`](../stl/concurrency/atomic.md) |
 | 複数のデータをまとめて守る | [`std::mutex` + `std::lock_guard`](../stl/concurrency/mutex.md) |
 | 「データが来るまで待つ」 | [`std::condition_variable`](../stl/concurrency/condition_variable.md) |
-| 同時に動く数を制限する・全員がそろうのを待つ | [セマフォ・ラッチ・バリア](../stl/concurrency/semaphore.md) |
-| スレッドに「止まって」と伝える | [`std::stop_token`](../stl/concurrency/thread.md#stop_token)（jthread と一緒に使う） |
+| 同時に動く数を制限する・全員がそろうのを待つ | [セマフォ・ラッチ・バリア](../stl/concurrency/latch.md) |
+| スレッドに「止まって」と伝える | [`std::stop_token`](../stl/concurrency/stop_token.md#stop_token)（jthread と一緒に使う） |
 
 ### 気をつけること
 

@@ -1,11 +1,13 @@
 ---
-title: std::shared_ptr / std::weak_ptr
+title: std::shared_ptr
+summary: "持ち主が複数いる、スマートポインタ。最後の持ち主が消えたときに解放される。"
+order: 49
 tags:
   - ユーティリティ
   - メモリ
 ---
 
-# std::shared_ptr / std::weak_ptr
+# std::shared_ptr
 
 <div class="page-badges" markdown>
 <span class="rank rank-often">よく使う</span>
@@ -14,12 +16,12 @@ tags:
 `#include <memory>`
 </div>
 
-`std::shared_ptr` は、**持ち主が何人もいてよいスマートポインタ**です。中で「今何人が持っているか」（参照カウント）を数えていて、最後の 1 人が手放したときに自動で `delete` します。`std::weak_ptr` は、shared_ptr が持っているものを**持ち主にならずに見る**ためのポインタで、相手がもう消えたかどうかを確かめられます。
+`std::shared_ptr` は、**持ち主が何人もいてよいスマートポインタ**です。中で「今何人が持っているか」（参照カウント）を数えていて、最後の 1 人が手放したときに自動で `delete` します。持ち主にならずに見るポインタは [`std::weak_ptr`](weak_ptr.md) です。
 
 !!! tip "ポイント"
     - <strong>まず [`unique_ptr`](unique_ptr.md) を検討する。</strong> 本当に「持ち主が複数」になる場面はゲームではそれほど多くない。
-    - 作るのは `std::make_shared<T>(...)`。
-    - 「相手が消えているかもしれない」参照には `weak_ptr` を使い、使う直前に `lock()` する。
+    - 作るのは [`std::make_shared<T>(...)`](make_shared.md)。
+    - 「相手が消えているかもしれない」参照には [`weak_ptr`](weak_ptr.md) を使い、使う直前に `lock()` する。
     - **お互いを shared_ptr で持ち合うと、永遠に消えなくなる**（循環参照）。片方を weak_ptr にする。
 
 !!! info "このページを読む前に"
@@ -31,27 +33,21 @@ tags:
 template <class T>
 class shared_ptr;
 
-template <class T>
-class weak_ptr;
 ```
 
 ## 関数一覧
 
 | 関数 | 重要度 | 何をする | 対象 |
 | --- | --- | --- | --- |
-| [`std::make_shared`](#make_shared) | <span class="rank rank-must">必須</span> | 作って shared_ptr にする | shared_ptr |
+| [`std::make_shared`](make_shared.md) | <span class="rank rank-must">必須</span> | 作って shared_ptr にする | shared_ptr |
+| [`weak_ptr`](weak_ptr.md) | <span class="rank rank-often">よく使う</span> | 持ち主にならずに見る | 別のページ |
 | [`operator->`](#arrow) | <span class="rank rank-must">必須</span> | 中身のメンバにアクセス | shared_ptr |
 | [`operator*`](#deref) | <span class="rank rank-must">必須</span> | 中身の参照 | shared_ptr |
 | [コピー](#copy) | <span class="rank rank-must">必須</span> | 持ち主を 1 人増やす | shared_ptr |
 | [`operator bool`](#bool) | <span class="rank rank-often">よく使う</span> | 空でないか | shared_ptr |
-| [`weak_ptr` を作る](#weak) | <span class="rank rank-often">よく使う</span> | 持ち主にならずに見る | weak_ptr |
-| [`lock`](#lock) | <span class="rank rank-often">よく使う</span> | まだ生きていれば shared_ptr を取り出す | weak_ptr |
-| [`expired`](#expired) | <span class="rank rank-sometimes">たまに</span> | もう消えたか | weak_ptr |
 | [`reset`](#reset) | <span class="rank rank-sometimes">たまに</span> | 手放す | 両方 |
 | [`use_count`](#use_count) | <span class="rank rank-sometimes">たまに</span> | 何人が持っているか（デバッグ用） | 両方 |
 | [`get`](#get) | <span class="rank rank-sometimes">たまに</span> | 生ポインタを取り出す | shared_ptr |
-| [`std::enable_shared_from_this`](#shared_from_this) | <span class="rank rank-rare">知ってるだけ</span> | 自分自身の shared_ptr を作る | shared_ptr |
-| [`std::dynamic_pointer_cast`](#pointer_cast) | <span class="rank rank-rare">知ってるだけ</span> | 派生クラスの shared_ptr にキャスト | shared_ptr |
 
 ## よくある使い方
 
@@ -122,24 +118,6 @@ int main() {
 
 ## 関数の詳しい説明
 
-### std::make_shared {#make_shared}
-
-```cpp
-template <class T, class... Args>
-std::shared_ptr<T> make_shared(Args&&... args);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `args` | 何個でも | `T` のコンストラクタ引数 |
-
-- オブジェクトと参照カウントを**1 回の確保**でまとめて作ります（`new` してから shared_ptr に渡すより速い）
-
-<div class="anim" data-label="auto p = std::make_shared<Enemy>()">
-_ # p は空
-+A:1 # 作って、参照数は 1
-</div>
-
 ### operator-> {#arrow}
 
 ```cpp
@@ -199,53 +177,6 @@ false
 true 6 2
 ```
 
-### weak_ptr を作る {#weak}
-
-```cpp
-weak_ptr(const shared_ptr<T>& r) noexcept;
-```
-
-- shared_ptr から作ります。参照カウントは増えません（相手が消えるのを邪魔しない）
-- weak_ptr から直接 `->` で中身は使えません。`lock()` で shared_ptr に戻してから使います
-
-### lock {#lock}
-
-```cpp
-std::shared_ptr<T> lock() const noexcept;
-```
-
-- 戻り値: 相手がまだ生きていれば、それを指す shared_ptr。消えていれば空の shared_ptr
-- 取り出した shared_ptr を持っている間は、相手が消えないことが保証されます
-
-### expired {#expired}
-
-```cpp
-bool expired() const noexcept;
-```
-
-- 相手がもう消えていれば `true`
-
-```cpp
-#include <memory>
-#include <print>
-
-int main() {
-  auto p = std::make_shared<int>(1);
-  std::weak_ptr<int> w = p;
-  std::println("{}", w.expired());
-  p.reset();
-  std::println("{}", w.expired());
-}
-```
-
-```text title="実行結果"
-false
-true
-```
-
-!!! note "実際は"
-    `expired()` で確認してから `lock()` すると、その間に消える可能性があります（マルチスレッドのとき）。使うなら最初から `if (auto p = w.lock())` で書きます。
-
 ### reset {#reset}
 
 ```cpp
@@ -280,76 +211,6 @@ T* get() const noexcept;
 ```
 
 - 生ポインタを取り出します。持ち主は変わりません
-
-### std::enable_shared_from_this {#shared_from_this}
-
-```cpp
-template <class T>
-class enable_shared_from_this {
- public:
-  std::shared_ptr<T> shared_from_this();
-  std::weak_ptr<T> weak_from_this() noexcept;
-};
-```
-
-- クラスがこれを継承すると、メンバ関数の中で「自分を指す shared_ptr」を作れます（`this` から shared_ptr を作ると二重管理になるため）
-- **shared_ptr で管理されているときだけ**使えます
-
-```cpp
-#include <memory>
-#include <print>
-#include <vector>
-
-class Unit : public std::enable_shared_from_this<Unit> {
- public:
-  void Register(std::vector<std::weak_ptr<Unit>>& list) {
-    list.push_back(weak_from_this());
-  }
-};
-
-int main() {
-  std::vector<std::weak_ptr<Unit>> registry;
-  auto unit = std::make_shared<Unit>();
-  unit->Register(registry);
-  std::println("登録 {} / 生きている？ {}", registry.size(), !registry[0].expired());
-}
-```
-
-```text title="実行結果"
-登録 1 / 生きている？ true
-```
-
-### std::dynamic_pointer_cast {#pointer_cast}
-
-```cpp
-template <class T, class U>
-std::shared_ptr<T> dynamic_pointer_cast(const std::shared_ptr<U>& r) noexcept;
-```
-
-- `dynamic_cast` の shared_ptr 版。キャストできなければ空の shared_ptr を返します。`static_pointer_cast` もあります
-
-```cpp
-#include <memory>
-#include <print>
-
-struct Base {
-  virtual ~Base() = default;
-};
-struct Boss : Base {
-  int phase = 2;
-};
-
-int main() {
-  std::shared_ptr<Base> obj = std::make_shared<Boss>();
-  if (auto boss = std::dynamic_pointer_cast<Boss>(obj)) {
-    std::println("ボス フェーズ {}", boss->phase);
-  }
-}
-```
-
-```text title="実行結果"
-ボス フェーズ 2
-```
 
 ## フラグ・オプション
 

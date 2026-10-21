@@ -1,5 +1,7 @@
 ---
 title: std::unordered_set
+summary: "重複なしの集合。「入っているか」を素早く調べる。順番は気にしない。"
+order: 6
 tags:
   - コンテナ
 ---

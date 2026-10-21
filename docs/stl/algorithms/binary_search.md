@@ -1,10 +1,12 @@
 ---
-title: std::ranges::lower_bound / binary_search
+title: std::ranges::binary_search
+summary: "整列済みの範囲に、値があるかを、二分探索で調べる。"
+order: 40
 tags:
   - アルゴリズム
 ---
 
-# std::ranges::lower_bound / binary_search
+# std::ranges::binary_search
 
 <div class="page-badges" markdown>
 <span class="rank rank-sometimes">たまに</span>
@@ -12,108 +14,17 @@ tags:
 `#include <algorithm>`
 </div>
 
-`lower_bound`、`upper_bound`、`binary_search`、`equal_range` は、**ソート済みの範囲を「二分探索」で探す**関数です。真ん中を見て、探している値より大きいか小さいかで半分に絞る、を繰り返すので、100 万個あっても 20 回ほどの比較で見つかります（O(log n)）。**ソートされていない範囲に使うと結果がでたらめになります**。
+`std::ranges::binary_search` は、**整列済みの範囲に、指定した値があるか**を `bool` で答えます。二分探索なので O(log n) で、`find` や `contains`（O(n)）より大きな範囲で速くなります。
 
 !!! tip "ポイント"
-    - <strong>ソート済みの vector を速く探したいときに使う。</strong> 位置が欲しいなら `lower_bound`、あるかだけなら `binary_search`。
-    - `lower_bound` は「以上の最初」、`upper_bound` は「より大きい最初」。
-    - 使う前に必ずソートしておく（同じ比較関数・同じプロジェクションで）。
-    - 何度も追加・削除するなら、`std::set` / `std::map` を使うほうが楽。
+    - 範囲は**整列済み**でなければならない。
+    - 答えは `bool` だけ。位置が欲しいなら [`lower_bound`](lower_bound.md)。
+    - 何度も調べるなら、整列済みの `vector` に `binary_search`、または `unordered_set` の `contains`。
 
 !!! info "このページを読む前に"
-    [`std::ranges::sort`](sort.md) と [計算量](../../basics/big-o.md) を先に読むと分かりやすいです。
-
-## 関数一覧
-
-| 関数 | 重要度 | 何をする | 計算量 |
-| --- | --- | --- | --- |
-| [`std::ranges::lower_bound`](#lower_bound) | <span class="rank rank-sometimes">たまに</span> | 値**以上**の最初の位置 | O(log n) |
-| [`std::ranges::binary_search`](#binary_search) | <span class="rank rank-sometimes">たまに</span> | 値があるか | O(log n) |
-| [`std::ranges::upper_bound`](#upper_bound) | <span class="rank rank-sometimes">たまに</span> | 値**より大きい**最初の位置 | O(log n) |
-| [`std::ranges::equal_range`](#equal_range) | <span class="rank rank-rare">知ってるだけ</span> | 値と等しい範囲 | O(log n) |
-
-<div class="mem">
-<div class="mem-step"><span class="mem-label">ソート済み</span><span class="mem-cells"><span>10</span><span>20</span><span class="move">30</span><span class="move">30</span><span class="new">40</span><span>50</span></span></div>
-<div class="mem-step"><span class="mem-label">値 30 のとき</span><span class="mem-note">lower_bound → 最初の 30 ／ upper_bound → 40 ／ equal_range → 2 つの 30</span></div>
-</div>
-
-## よくある使い方
-
-### ソート済みのリストに順番を保って挿入する
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <vector>
-
-int main() {
-  std::vector<int> ranking = {980, 870, 700, 650};  // 大きい順
-  int new_score = 800;
-
-  // 大きい順なので比較は std::greater
-  auto pos = std::ranges::lower_bound(ranking, new_score, std::greater{});
-  ranking.insert(pos, new_score);
-  std::println("{}", ranking);
-}
-```
-
-```text title="実行結果"
-[980, 870, 800, 700, 650]
-```
+    [二分探索](../../basics/big-o.md) の考え方が分かると読みやすいです。
 
 ## 関数の詳しい説明
-
-### std::ranges::lower_bound {#lower_bound}
-
-```cpp
-template <forward_range R, class T, class Proj = identity, class Comp = ranges::less>
-constexpr borrowed_iterator_t<R> lower_bound(R&& r, const T& value, Comp comp = {}, Proj proj = {});
-```
-
-| 引数 | 型 | 意味 | 省略すると |
-| --- | --- | --- | --- |
-| `r` | 範囲 | **ソート済み**の範囲 | 省略不可 |
-| `value` | `const T&` | 探す値 | 省略不可 |
-| `comp` | 比較関数 | ソートに使ったのと同じ比較 | `<` |
-| `proj` | プロジェクション | ソートに使ったのと同じ変換 | そのまま |
-
-- 戻り値: `value` **以上**（比較的に「前ではない」）の最初の要素。無ければ `end()`
-- 計算量: O(log n)（vector などランダムアクセスできる範囲の場合）
-
-<div class="anim" data-label="std::ranges::lower_bound(v, 5)">
-1 3 5 5 7 9 # 整列済み。5 以上で最初の要素を探す
-1 3 *5 5 7 9 # 真ん中を見る。5 以上なので左半分に絞る
-1 *3 5 5 7 9 # 3 は 5 より小さいので右に絞る
-1 3 *5 5 7 9 # 5 が見つかる。同じ値の最初の位置
-</div>
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <string>
-#include <vector>
-
-struct Item {
-  int id;
-  std::string name;
-};
-
-int main() {
-  // id でソート済み
-  std::vector<Item> items = {{100, "薬"}, {200, "剣"}, {300, "盾"}};
-  auto it = std::ranges::lower_bound(items, 200, {}, &Item::id);
-  if (it != items.end() && it->id == 200) {
-    std::println("見つかった: {}", it->name);
-  }
-}
-```
-
-```text title="実行結果"
-見つかった: 剣
-```
-
-!!! note "実際は"
-    `lower_bound` は「見つかった」とは限りません（値が無ければ、その値を入れるべき位置が返る）。見つかったか確かめるなら、`it != end()` と「値が等しいか」の両方を見ます。
 
 ### std::ranges::binary_search {#binary_search}
 
@@ -145,128 +56,44 @@ int main() {
 true false
 ```
 
-### std::ranges::upper_bound {#upper_bound}
-
-```cpp
-template <forward_range R, class T, class Proj = identity, class Comp = ranges::less>
-constexpr borrowed_iterator_t<R> upper_bound(R&& r, const T& value, Comp comp = {}, Proj proj = {});
-```
-
-- 戻り値: `value` **より大きい**最初の要素。無ければ `end()`
-
-<div class="anim" data-label="std::ranges::upper_bound(v, 5)">
-1 3 5 5 7 9 # 整列済み。5 より大きい最初の要素
-1 3 5 5 *7 9 # 7 が答え。同じ値の最後の次の位置
-</div>
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <vector>
-
-int main() {
-  // 経験値のしきい値（レベル 1, 2, 3, 4 の開始）
-  std::vector<int> thresholds = {0, 100, 300, 700};
-  int exp = 450;
-  auto it = std::ranges::upper_bound(thresholds, exp);
-  std::println("Lv.{}", it - thresholds.begin());
-}
-```
-
-```text title="実行結果"
-Lv.3
-```
-
-### std::ranges::equal_range {#equal_range}
-
-```cpp
-template <forward_range R, class T, class Proj = identity, class Comp = ranges::less>
-constexpr borrowed_subrange_t<R> equal_range(R&& r, const T& value, Comp comp = {}, Proj proj = {});
-```
-
-- 戻り値: `value` と等しい要素の範囲（`lower_bound` から `upper_bound` まで）
-
-<div class="anim" data-label="std::ranges::equal_range(v, 5)">
-1 3 5 5 7 9 # 整列済み
-1 3 *5 *5 7 9 # 5 と等しい範囲をまとめて返す
-</div>
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <vector>
-
-int main() {
-  std::vector<int> v = {1, 2, 2, 2, 5};
-  auto same = std::ranges::equal_range(v, 2);
-  std::println("2 は {} 個", same.size());
-}
-```
-
-```text title="実行結果"
-2 は 3 個
-```
 
 ## フラグ・オプション
 
 | 引数 | 重要度 | 渡すもの | 意味 |
 | --- | --- | --- | --- |
-| `comp` | <span class="rank rank-sometimes">たまに</span> | `std::greater{}` | 大きい順にソートされた範囲を探す |
-| `proj` | <span class="rank rank-sometimes">たまに</span> | `&Type::member` | メンバでソートされた範囲を探す |
-
-**ソートしたときと同じものを渡す**必要があります。
-
-## 古い書き方と今の書き方
-
-=== "古い書き方"
-
-    ```cpp
-    auto it = std::lower_bound(items.begin(), items.end(), 200,
-                               [](const Item& a, int id) { return a.id < id; });
-    ```
-
-=== "今の書き方（C++20）"
-
-    ```cpp
-    auto it = std::ranges::lower_bound(items, 200, {}, &Item::id);
-    ```
+| `comp` | <span class="rank rank-sometimes">たまに</span> | `std::greater{}` | 降順に並んでいる範囲を探す（**並べた順と同じ比較**を渡す） |
+| `proj` | <span class="rank rank-sometimes">たまに</span> | `&Type::member` | メンバで探す |
 
 ## ゲームでの使いどころ
 
-| 場面 | 例 |
+| 場面 | 書き方 |
 | --- | --- |
-| しきい値の表 | 経験値 → レベル、距離 → LOD |
-| マスターデータの検索 | ID でソートした vector から引く |
-| 順番を保って挿入 | ランキングに新記録を入れる |
-| アニメーションのキーフレーム | 時刻から前後のキーを探す |
+| 整列済みの ID の表に、IDがあるか | `binary_search(ids, id)` |
+| 禁止ワードの辞書に含まれているか | `binary_search(banned, word)` |
 
 ## パフォーマンス
 
-- vector なら O(log n) でとても速く、キャッシュ効率も良いです。`std::map` より速いことが多いです。
-- `std::list` などランダムアクセスできない範囲では、比較は O(log n) でも移動に O(n) かかります。
+O(log n) で探します。100 万件でも約 20 回の比較で済みます。ただし**範囲が整列済み**であることが前提で、整列されていないと結果は不定です。
 
 ## 未定義動作・例外
 
 | やったこと | 結果 |
 | --- | --- |
-| ソートされていない範囲で使う | 結果がでたらめ（未定義動作ではないが正しくない） |
-| ソートと違う比較関数を渡す | 同上 |
+| 整列されていない範囲に使う | 結果は不定（未定義動作ではないが、正しい答えは返らない） |
+| 整列したときと違う `comp` を渡す | 結果は不定 |
 
 ## よくあるミス
 
-??? failure "ソートし忘れる"
-    二分探索は「真ん中より左は全部小さい」ことを前提にしています。ソートしていないと、あるはずの値が見つかりません。
-
-??? failure "lower_bound の結果を「見つかった」と思い込む"
-    `lower_bound` は値が無くても `end()` 以外を返すことがあります。値が等しいかも確かめます。
+??? failure "整列していない範囲に使う"
+    整列していないと、あるのに `false` が返ります。先に `sort` するか、[`is_sorted`](is_sorted.md) で確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::find`](find.md) | ソート不要。O(n) |
-| [`std::map::lower_bound`](../containers/map.md#lower_bound) | map のメンバ版 |
-| [`std::flat_map`](../containers/flat_map.md) | ソート済み vector を map として使う |
+| [`std::ranges::lower_bound`](lower_bound.md) | 位置を返す |
+| [`std::ranges::contains`](contains.md) | 整列していなくてもよい（O(n)） |
+| `std::set::contains` | 木を使うコンテナ |
 
 ## コンパイラ対応
 
@@ -275,11 +102,11 @@ C++20 の機能です。主要なコンパイラすべてで使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ソート済みの範囲を O(log n) で探す
-    - [x] 以上 → `lower_bound`、より大きい → `upper_bound`
-    - [x] ソートと同じ比較・プロジェクションを渡す
+    - [x] 整列済みの範囲に値があるか、を `bool` で返す
+    - [x] 整列済みが前提
+    - [x] 位置が欲しいなら `lower_bound`
 
 ## 関連ページ
 
-- [cpprefjp: std::ranges::lower_bound](https://cpprefjp.github.io/reference/algorithm/ranges_lower_bound.html)
-- [cppreference: std::ranges::lower_bound](https://en.cppreference.com/w/cpp/algorithm/ranges/lower_bound)
+- [cpprefjp: std::ranges::binary_search](https://cpprefjp.github.io/reference/algorithm/ranges_binary_search.html)
+- [cppreference: std::ranges::binary_search](https://en.cppreference.com/w/cpp/algorithm/ranges/binary_search)

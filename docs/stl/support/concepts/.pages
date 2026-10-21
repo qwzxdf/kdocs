@@ -1,0 +1,14 @@
+title: コンセプト（concepts）
+nav:
+  - same_as.md
+  - integral.md
+  - floating_point.md
+  - derived_from.md
+  - invocable.md
+  - convertible_to.md
+  - predicate.md
+  - totally_ordered.md
+  - copyable.md
+  - movable.md
+  - default_initializable.md
+  - ...

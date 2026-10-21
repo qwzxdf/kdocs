@@ -1,5 +1,7 @@
 ---
 title: std::function
+summary: "関数・ラムダ式を変数に入れて持つ。コールバックの保存に。"
+order: 50
 tags:
   - ユーティリティ
 ---

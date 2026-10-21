@@ -1,16 +1,58 @@
 nav:
   - unique_ptr.md
   - optional.md
+  - print.md
   - format.md
-  - pair_tuple.md
+  - make_unique.md
+  - make_shared.md
+  - pair.md
   - shared_ptr.md
   - function.md
+  - get.md
+  - weak_ptr.md
   - move.md
   - expected.md
   - string_view.md
+  - visit.md
+  - get_if.md
+  - hash.md
+  - move_only_function.md
+  - format_to.md
+  - tuple.md
+  - formatter.md
+  - tie.md
+  - forward.md
+  - make_pair.md
+  - exchange.md
+  - swap.md
   - variant.md
   - chrono.md
   - random.md
+  - holds_alternative.md
+  - unexpected.md
+  - nullopt.md
+  - vformat.md
+  - allocate_shared.md
+  - enable_shared_from_this.md
+  - make_tuple.md
+  - apply.md
+  - dynamic_pointer_cast.md
+  - make_from_tuple.md
+  - move_if_noexcept.md
+  - tuple_cat.md
   - any.md
-  - hash.md
+  - forward_as_tuple.md
+  - ignore.md
+  - monostate.md
+  - tuple_size.md
+  - any_cast.md
+  - piecewise_construct.md
+  - make_any.md
+  - in_place.md
+  - bad_expected_access.md
+  - addressof.md
+  - declval.md
+  - integer_sequence.md
+  - out_ptr.md
+  - inout_ptr.md
   - ...

@@ -1,5 +1,7 @@
 ---
 title: std::unordered_map
+summary: "ハッシュ表。「キー → 値」をほぼ一定の時間で引ける。ID でデータを探すときに。"
+order: 4
 tags:
   - コンテナ
 ---
@@ -22,7 +24,7 @@ tags:
     - 回す順番はバラバラ。表示順が大事なら別に並べる。
 
 !!! info "このページを読む前に"
-    [テンプレート](../../basics/template.md)、[イテレータ](../../basics/iterator.md)、[計算量](../../basics/big-o.md) が分かると読みやすいです。`std::pair` も出てくるので [pair / tuple](../utilities/pair_tuple.md) もどうぞ。
+    [テンプレート](../../basics/template.md)、[イテレータ](../../basics/iterator.md)、[計算量](../../basics/big-o.md) が分かると読みやすいです。`std::pair` も出てくるので [pair / tuple](../utilities/pair.md) もどうぞ。
 
 ## 宣言
 

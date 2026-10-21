@@ -1,66 +1,27 @@
 ---
-title: std::source_location / std::stacktrace
+title: std::source_location
+summary: "今の場所（ファイル・行・関数）を取得する。"
+order: 1
 tags:
   - 型・言語サポート
-  - デバッグ
 ---
 
-# std::source_location / std::stacktrace
+# std::source_location
 
 <div class="page-badges" markdown>
 <span class="rank rank-sometimes">たまに</span>
 <span class="ver ver-20">C++20</span>
-<span class="ver ver-23">C++23</span>
-`#include <source_location>` / `#include <stacktrace>`
+`#include <source_location>`
 </div>
 
-`std::source_location` は、<strong>関数を呼んだ場所（ファイル名・行番号・関数名）</strong>を取得できる型です。ログやアサートの関数に引数として付けておくと、「どこから呼ばれたか」が自動で記録されます。`std::stacktrace`（C++23）は、**今いる場所までの関数の呼び出し履歴**を取得します。落ちる直前のログに出すと、原因を探す手がかりになります。
+`std::source_location` は、**コードのこの場所のファイル名・行番号・関数名を取得する**クラスです。ログに「どこから出たか」を自動で付けるときに使います。引数の既定値として `std::source_location::current()` を書くと、**呼び出した側の場所**が入ります。
 
 !!! tip "ポイント"
-    - ログ関数のデフォルト引数に `std::source_location loc = std::source_location::current()` を付けると、呼んだ場所が自動で入る。
-    - `__FILE__` / `__LINE__` のマクロを使わなくて済む。
-    - stacktrace はコンパイラ対応がまだ限られる（GCC はリンクオプションが必要）。
+    - 関数の引数の既定値に `current()` を書くと、呼び出し側の位置が取れる。
+    - `file_name()`、`line()`、`function_name()`、`column()` が使える。
+    - `__FILE__` / `__LINE__` マクロの置き換え。
 
-## 関数一覧
-
-| 名前 | 重要度 | 何をする |
-| --- | --- | --- |
-| [`std::source_location::current`](#current) | <span class="rank rank-sometimes">たまに</span> | 呼んだ場所を取得 <span class="ver ver-20">C++20</span> |
-| [`file_name`](#file_name) | <span class="rank rank-sometimes">たまに</span> | ファイル名 |
-| [`line`](#line) | <span class="rank rank-sometimes">たまに</span> | 行番号 |
-| [`function_name`](#function_name) | <span class="rank rank-sometimes">たまに</span> | 関数名 |
-| [`column`](#column) | <span class="rank rank-rare">知ってるだけ</span> | 列番号 |
-| [`std::stacktrace::current`](#stacktrace) | <span class="rank rank-rare">知ってるだけ</span> | 呼び出し履歴を取得 <span class="ver ver-23">C++23</span> |
-
-## よくある使い方
-
-```cpp
-#include <print>
-#include <source_location>
-#include <string_view>
-
-// 呼んだ場所が自動で loc に入る
-void Log(std::string_view message,
-         std::source_location loc = std::source_location::current()) {
-  std::println("[{}:{}] {}", loc.line(), loc.function_name(), message);
-}
-
-void LoadStage() { Log("ステージを読み込み中"); }
-
-int main() {
-  LoadStage();
-  Log("起動完了");
-}
-```
-
-```text title="実行結果"
-[11:void LoadStage()] ステージを読み込み中
-[15:int main()] 起動完了
-```
-
-（関数名の書き方はコンパイラによって違います。この例は GCC。ファイル名は長くなるので省いています。）
-
-## 詳しい説明
+## 関数の詳しい説明
 
 ### std::source_location::current {#current}
 
@@ -102,67 +63,53 @@ constexpr std::uint_least32_t column() const noexcept;
 
 - 列番号（その行の何文字目か）。実装によっては 0
 
-### std::stacktrace::current {#stacktrace}
-
-<span class="ver ver-23">C++23</span>
+## 実際に動かしてみる
 
 ```cpp
-static basic_stacktrace current(const allocator_type& alloc = allocator_type()) noexcept;
-```
-
-- 今までの関数の呼び出し履歴を取得します。`std::println("{}", std::stacktrace::current())` や `std::to_string(trace)` で表示できます
-- GCC では `-lstdc++exp`（GCC 13 / 14）や `-lstdc++`（GCC 15 以降）のリンクが必要、MSVC は VS 2022 17.4 以降で使えます
-
-```cpp
-// 実行には環境ごとのリンク設定が必要なので、ここでは書き方だけ
 #include <print>
-#include <stacktrace>
+#include <source_location>
+#include <string_view>
 
-void Crash() {
-  std::println("呼び出し履歴:\n{}", std::stacktrace::current());
+int main() {
+  auto loc = std::source_location::current();
+  std::println("{} {}", loc.line() > 0, std::string_view(loc.function_name()).contains("main"));
 }
 ```
 
-## フラグ・オプション
-
-フラグはありません。
-
-## 古い書き方と今の書き方
-
-=== "古い書き方"
-
-    ```cpp
-    #define LOG(msg) LogImpl(msg, __FILE__, __LINE__, __func__)
-    LOG("起動");
-    ```
-
-=== "今の書き方（C++20）"
-
-    ```cpp
-    void Log(std::string_view msg, std::source_location loc = std::source_location::current());
-    Log("起動");
-    ```
+```text title="実行結果"
+true true
+```
 
 ## ゲームでの使いどころ
 
-| 場面 | 例 |
+| 場面 | 書き方 |
 | --- | --- |
-| ログ | どの関数から出たログか自動で付ける |
-| 自作のアサート | 失敗した場所を表示する |
-| クラッシュレポート | stacktrace を保存してバグの原因を探す |
+| ログやアサートに、呼び出し位置を自動で付ける | `void Log(std::string_view msg, std::source_location loc = std::source_location::current());` |
 
 ## よくあるミス
 
 ??? failure "関数の中で current() を呼ぶ"
-    `Log` の中で `std::source_location::current()` を呼ぶと、Log 自身の場所になってしまいます。デフォルト引数に書きます。
+    呼び出し側ではなく、その関数の中の位置になります。引数の既定値に書きます。
+
+## 類似
+
+| 名前 | 違い |
+| --- | --- |
+| [`stacktrace`](stacktrace.md) | 呼び出し履歴全体 |
+| `__FILE__` / `__LINE__` | 古い方法 |
+
+## コンパイラ対応
+
+C++20 の機能です。主要なコンパイラで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ログ関数のデフォルト引数に `source_location::current()`
-    - [x] `__FILE__` / `__LINE__` マクロは不要に
+    - [x] ファイル・行・関数を取得する
+    - [x] 引数の既定値に `current()`
+    - [x] 呼び出し側の位置が取れる
 
 ## 関連ページ
 
-- [エラー処理の方針](../../design/foundations/error-handling.md)
+- [cpprefjp: std::source_location](https://cpprefjp.github.io/reference/source_location/source_location.html)
 - [cppreference: std::source_location](https://en.cppreference.com/w/cpp/utility/source_location)

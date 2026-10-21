@@ -1,8 +1,32 @@
 nav:
+  - jthread.md
+  - stop_token.md
   - thread.md
   - mutex.md
   - atomic.md
+  - lock_guard.md
+  - scoped_lock.md
+  - unique_lock.md
+  - async.md
   - future.md
+  - atomic_flag.md
+  - atomic_ref.md
+  - memory_order.md
+  - stop_source.md
+  - stop_callback.md
   - condition_variable.md
-  - semaphore.md
+  - shared_mutex.md
+  - shared_lock.md
+  - recursive_mutex.md
+  - call_once.md
+  - timed_mutex.md
+  - lock.md
+  - promise.md
+  - shared_future.md
+  - packaged_task.md
+  - latch.md
+  - counting_semaphore.md
+  - binary_semaphore.md
+  - barrier.md
+  - condition_variable_any.md
   - ...

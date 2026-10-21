@@ -1,5 +1,8 @@
 ---
 title: std::chrono
+group: 時間（std::chrono）
+summary: "時間の長さ・時刻を扱う。フレームの時間計測や待ち時間に。"
+order: 55
 tags:
   - ユーティリティ
   - 時間
@@ -26,23 +29,23 @@ tags:
 
 | 型 | 重要度 | 何を表す |
 | --- | --- | --- |
-| [`steady_clock`](#steady_clock) | <span class="rank rank-must">必須</span> | 巻き戻らない時計（計測用） |
-| [`duration`](#duration) | <span class="rank rank-must">必須</span> | 時間の長さ（`milliseconds` など） |
-| [`time_point`](#time_point) | <span class="rank rank-often">よく使う</span> | ある時点 |
-| [`system_clock`](#system_clock) | <span class="rank rank-sometimes">たまに</span> | 現実の時刻（カレンダー） |
-| [`high_resolution_clock`](#high_resolution_clock) | <span class="rank rank-rare">知ってるだけ</span> | 一番細かい時計（中身は上のどちらか） |
+| [`steady_clock`](chrono/steady_clock.md) | <span class="rank rank-must">必須</span> | 巻き戻らない時計（計測用） |
+| [`duration`](chrono/duration.md) | <span class="rank rank-must">必須</span> | 時間の長さ（`milliseconds` など） |
+| [`time_point`](chrono/time_point.md) | <span class="rank rank-often">よく使う</span> | ある時点 |
+| [`system_clock`](chrono/system_clock.md) | <span class="rank rank-sometimes">たまに</span> | 現実の時刻（カレンダー） |
+| [`high_resolution_clock`](chrono/high_resolution_clock.md) | <span class="rank rank-rare">知ってるだけ</span> | 一番細かい時計（中身は上のどちらか） |
 
 ## 関数一覧
 
 | 関数 | 重要度 | 何をする |
 | --- | --- | --- |
-| [`now`](#now) | <span class="rank rank-must">必須</span> | 今の時点を取得 |
-| [`count`](#count) | <span class="rank rank-must">必須</span> | duration を数値で取り出す |
-| [`duration_cast`](#duration_cast) | <span class="rank rank-often">よく使う</span> | 単位を変換する（切り捨て） |
-| [`time_since_epoch`](#time_since_epoch) | <span class="rank rank-sometimes">たまに</span> | 基準時刻からの経過 |
-| [`std::this_thread::sleep_for`](#sleep_for) | <span class="rank rank-sometimes">たまに</span> | 指定時間だけ待つ |
-| [`floor` / `ceil` / `round`](#round) | <span class="rank rank-rare">知ってるだけ</span> | 単位を変換する（丸め方を選ぶ） |
-| [`zero` / `min` / `max`](#zero) | <span class="rank rank-rare">知ってるだけ</span> | 0 / 最小 / 最大の duration |
+| [`now`](chrono/steady_clock.md) | <span class="rank rank-must">必須</span> | 今の時点を取得 |
+| [`count`](chrono/duration.md) | <span class="rank rank-must">必須</span> | duration を数値で取り出す |
+| [`duration_cast`](chrono/duration_cast.md) | <span class="rank rank-often">よく使う</span> | 単位を変換する（切り捨て） |
+| [`time_since_epoch`](chrono/time_point.md) | <span class="rank rank-sometimes">たまに</span> | 基準時刻からの経過 |
+| [`std::this_thread::sleep_for`](../concurrency/this_thread/sleep_for.md) | <span class="rank rank-sometimes">たまに</span> | 指定時間だけ待つ |
+| [`floor` / `ceil` / `round`](chrono/floor.md) | <span class="rank rank-rare">知ってるだけ</span> | 単位を変換する（丸め方を選ぶ） |
+| [`zero` / `min` / `max`](chrono/duration.md) | <span class="rank rank-rare">知ってるだけ</span> | 0 / 最小 / 最大の duration |
 
 ## よくある使い方
 
@@ -117,210 +120,6 @@ int main() {
 ```text title="実行結果"
 3500ms / 3500 ms
 ```
-
-## 型と関数の詳しい説明
-
-### steady_clock {#steady_clock}
-
-```cpp
-struct steady_clock {
-  using duration = /* 実装による（ナノ秒など） */;
-  using time_point = std::chrono::time_point<steady_clock>;
-  static constexpr bool is_steady = true;
-  static time_point now() noexcept;
-};
-```
-
-- **巻き戻らない**ことが保証された時計です。PC の時計を変更しても影響を受けません
-- 経過時間の計測は必ずこれを使います
-
-### duration {#duration}
-
-```cpp
-template <class Rep, class Period = std::ratio<1>>
-class duration;
-```
-
-| テンプレート引数 | 意味 | 例 |
-| --- | --- | --- |
-| `Rep` | 数値の型 | `long long`、`float` |
-| `Period` | 1 あたり何秒か | `std::milli`（1/1000 秒）、`std::ratio<60>`（60 秒） |
-
-- 時間の長さを表します。足し算・引き算・比較ができます
-- 違う単位どうしでも、細かいほうに合わせて計算されます
-
-### time_point {#time_point}
-
-```cpp
-template <class Clock, class Duration = typename Clock::duration>
-class time_point;
-```
-
-- ある時計での「ある時点」です。`time_point - time_point` で duration になります
-
-```cpp
-#include <chrono>
-#include <print>
-
-int main() {
-  using namespace std::chrono_literals;
-  auto now = std::chrono::steady_clock::now();
-  auto deadline = now + 3s;  // 3 秒後
-  std::println("期限は未来？ {}", deadline > now);
-}
-```
-
-```text title="実行結果"
-期限は未来？ true
-```
-
-### system_clock {#system_clock}
-
-```cpp
-struct system_clock {
-  static time_point now() noexcept;
-  static std::time_t to_time_t(const time_point& t) noexcept;
-};
-```
-
-- 現実の時刻を表す時計です。日付の表示、セーブデータの保存日時、ログのタイムスタンプに使います
-- PC の時計を変えると値が変わる（巻き戻ることもある）ので、**計測には使わない**
-
-```cpp
-#include <chrono>
-#include <print>
-
-int main() {
-  auto now = std::chrono::system_clock::now();
-  auto today = std::chrono::floor<std::chrono::days>(now);
-  std::chrono::year_month_day ymd{today};
-  std::println("2020 年より後？ {}", ymd.year() > std::chrono::year{2020});
-}
-```
-
-```text title="実行結果"
-2020 年より後？ true
-```
-
-`std::println("{:%Y-%m-%d %H:%M}", now)` のように書くと日付を整形して出せます（C++20）。
-
-### high_resolution_clock {#high_resolution_clock}
-
-- 一番細かい時計ですが、中身は実装によって `steady_clock` か `system_clock` の別名です。巻き戻らない保証が無いことがあるので、**`steady_clock` を使います**
-
-### now {#now}
-
-```cpp
-static time_point now() noexcept;
-```
-
-- 今の時点を返します。どの時計にもあります
-
-### count {#count}
-
-```cpp
-constexpr rep count() const;
-```
-
-- duration の数値を取り出します。**単位は duration の型による**（`milliseconds` なら ms の数）
-
-```cpp
-#include <chrono>
-#include <print>
-
-int main() {
-  std::chrono::milliseconds ms(2500);
-  std::chrono::duration<float> sec = ms;  // float の秒へ（精度が落ちない変換は自動）
-  std::println("{} ms = {} 秒", ms.count(), sec.count());
-}
-```
-
-```text title="実行結果"
-2500 ms = 2.5 秒
-```
-
-### duration_cast {#duration_cast}
-
-```cpp
-template <class ToDuration, class Rep, class Period>
-constexpr ToDuration duration_cast(const duration<Rep, Period>& d);
-```
-
-| テンプレート引数 | 意味 |
-| --- | --- |
-| `ToDuration` | 変換先の型（`std::chrono::seconds` など） |
-
-- 単位を変換します。細かい単位から粗い単位へは**切り捨て**になります（自動変換はされないので明示が必要）
-
-```cpp
-#include <chrono>
-#include <print>
-
-int main() {
-  std::chrono::milliseconds play_time(125'999);
-  auto sec = std::chrono::duration_cast<std::chrono::seconds>(play_time);
-  auto min = std::chrono::duration_cast<std::chrono::minutes>(play_time);
-  std::println("{} 秒 / {} 分", sec.count(), min.count());
-}
-```
-
-```text title="実行結果"
-125 秒 / 2 分
-```
-
-### time_since_epoch {#time_since_epoch}
-
-```cpp
-constexpr duration time_since_epoch() const;
-```
-
-- 時計の基準時刻（system_clock なら 1970 年 1 月 1 日）からの経過時間。乱数の種やタイムスタンプに使います
-
-### std::this_thread::sleep_for {#sleep_for}
-
-```cpp
-template <class Rep, class Period>
-void sleep_for(const std::chrono::duration<Rep, Period>& d);  // <thread>
-```
-
-- 指定した時間だけスレッドを止めます。**指定より長く止まることがある**ので、正確なフレーム制御には向きません
-
-### floor / ceil / round {#round}
-
-```cpp
-template <class ToDuration, class Rep, class Period>
-constexpr ToDuration floor(const duration<Rep, Period>& d);  // 切り捨て
-template <class ToDuration, class Rep, class Period>
-constexpr ToDuration ceil(const duration<Rep, Period>& d);   // 切り上げ
-template <class ToDuration, class Rep, class Period>
-constexpr ToDuration round(const duration<Rep, Period>& d);  // 四捨五入（偶数丸め）
-```
-
-```cpp
-#include <chrono>
-#include <print>
-
-int main() {
-  std::chrono::milliseconds t(1600);
-  using std::chrono::seconds;
-  std::println("{} {} {}", std::chrono::floor<seconds>(t), std::chrono::ceil<seconds>(t),
-               std::chrono::round<seconds>(t));
-}
-```
-
-```text title="実行結果"
-1s 2s 2s
-```
-
-### zero / min / max {#zero}
-
-```cpp
-static constexpr duration zero() noexcept;
-static constexpr duration min() noexcept;
-static constexpr duration max() noexcept;
-```
-
-- 0、表せる最小、表せる最大の duration。「まだ記録が無い」を `max()` で初期化する、などに使います
 
 ## フラグ・オプション（単位の一覧）
 

@@ -1,5 +1,7 @@
 ---
 title: std::ranges::stable_sort
+summary: "並べ替えるとき同じ値の要素の元の順番を、変えない。"
+order: 36
 tags:
   - アルゴリズム
 ---

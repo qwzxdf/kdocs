@@ -1,5 +1,7 @@
 ---
 title: std::condition_variable
+summary: "条件が満たされるまで、スレッドを眠らせて待たせる。"
+order: 80
 tags:
   - 並行処理
 ---
@@ -33,7 +35,6 @@ tags:
 | [`notify_all`](#notify_all) | <span class="rank rank-sometimes">たまに</span> | 待っているスレッドを全部起こす |
 | [`wait_for`](#wait_for) | <span class="rank rank-rare">知ってるだけ</span> | 時間制限つきで待つ |
 | [`wait_until`](#wait_until) | <span class="rank rank-rare">知ってるだけ</span> | 指定時刻まで待つ |
-| [`std::condition_variable_any`](#condition_variable_any) | <span class="rank rank-rare">知ってるだけ</span> | どんなロックでも使える版（stop_token 対応） |
 
 ## よくある使い方
 
@@ -183,14 +184,6 @@ bool wait_until(std::unique_lock<std::mutex>& lock,
 ```
 
 - 指定した時刻まで待ちます。使い方は `wait_for` と同じです
-
-### std::condition_variable_any {#condition_variable_any}
-
-```cpp
-class condition_variable_any;
-```
-
-- `std::unique_lock<std::mutex>` 以外のロックでも使える版。C++20 では `std::stop_token` を渡して「止める合図が来たら起きる」こともできます
 
 ## フラグ・オプション
 

@@ -1,0 +1,15 @@
+title: new / delete まわり
+nav:
+  - new.md
+  - delete.md
+  - new_array.md
+  - nothrow.md
+  - placement_new.md
+  - construct_at.md
+  - destroy_at.md
+  - operator_new.md
+  - uninitialized_copy.md
+  - launder.md
+  - align_val_t.md
+  - set_new_handler.md
+  - ...

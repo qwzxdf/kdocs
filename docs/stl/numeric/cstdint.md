@@ -1,5 +1,7 @@
 ---
 title: <cstdint>（大きさの決まった整数型）
+summary: "`std::int32_t` など大きさが決まった整数の型。"
+order: 71
 tags:
   - 数値
 ---

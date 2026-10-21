@@ -1,5 +1,7 @@
 ---
 title: std::ranges::sort
+summary: "要素を小さい順（または指定の順）に並べ替える。比較の関数も渡せる。"
+order: 20
 tags:
   - アルゴリズム
 ---

@@ -3041,7 +3041,7 @@
   link: stl/concurrency/atomic.md
 - terms: [ラッチ, Latch]
   text: 決まった回数の合図を待って、全員を進める同期の仕組み。
-  link: stl/concurrency/semaphore.md
+  link: stl/concurrency/counting_semaphore.md
 - terms: [パース, Parse]
   text: 文字列を、意味のある構造に読み解くこと。
   link: libs/fastgltf/quickstart.md

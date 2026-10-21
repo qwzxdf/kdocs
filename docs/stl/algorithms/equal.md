@@ -1,10 +1,12 @@
 ---
-title: std::ranges::equal / mismatch
+title: std::ranges::equal
+summary: "2 つの範囲の中身が、全部同じかを調べる。型が違う範囲どうしでも比べられる。"
+order: 41
 tags:
   - アルゴリズム
 ---
 
-# std::ranges::equal / mismatch
+# std::ranges::equal
 
 <div class="page-badges" markdown>
 <span class="rank rank-sometimes">たまに</span>
@@ -12,44 +14,12 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::equal` は、**2 つの範囲の中身が全部同じか**を調べるアルゴリズムです。`std::ranges::mismatch` は、**最初に違っているところ**を探します。`lexicographical_compare` は辞書順で大小を比べます。vector 同士なら `==` で比べられますが、vector と配列、list と vector のように**型の違う範囲どうし**でも比べられるのが利点です。
+`std::ranges::equal` は、**2 つの範囲の中身が全部同じか**を調べるアルゴリズムです。vector どうしなら `==` で比べられますが、vector と配列、list と vector のように**型の違う範囲どうし**でも比べられるのが利点です。
 
 !!! tip "ポイント"
     - 同じコンテナ同士なら `a == b` で十分。型が違う範囲どうしなら `std::ranges::equal(a, b)`。
-    - どこが違うか知りたいなら `std::ranges::mismatch`。
-    - 「入力したコマンドが正解の手順と同じか」などに使える。
-
-## 関数一覧
-
-| 関数 | 重要度 | 何をする | 計算量 |
-| --- | --- | --- | --- |
-| [`std::ranges::equal`](#equal) | <span class="rank rank-sometimes">たまに</span> | 全部同じか | O(n) |
-| [`std::ranges::mismatch`](#mismatch) | <span class="rank rank-sometimes">たまに</span> | 最初に違うところを探す | O(n) |
-| [`std::ranges::lexicographical_compare`](#lexicographical_compare) | <span class="rank rank-rare">知ってるだけ</span> | 辞書順で小さいか | O(n) |
-| [`std::ranges::is_permutation`](#is_permutation) | <span class="rank rank-rare">知ってるだけ</span> | 並び替えれば同じになるか | O(n²) |
-
-## よくある使い方
-
-```cpp
-#include <algorithm>
-#include <array>
-#include <print>
-#include <vector>
-
-enum class Key { kUp, kDown, kLeft, kRight, kA, kB };
-
-int main() {
-  // 隠しコマンド
-  constexpr std::array kSecret = {Key::kUp, Key::kUp, Key::kDown, Key::kDown, Key::kA};
-  std::vector<Key> input = {Key::kUp, Key::kUp, Key::kDown, Key::kDown, Key::kA};
-
-  std::println("成功？ {}", std::ranges::equal(input, kSecret));  // array と vector を比べる
-}
-```
-
-```text title="実行結果"
-成功？ true
-```
+    - **長さが違えば、中身を見ずに `false`** になる（ranges 版）。
+    - どこが違うか知りたいなら [`std::ranges::mismatch`](mismatch.md)。
 
 ## 関数の詳しい説明
 
@@ -76,103 +46,116 @@ constexpr bool equal(R1&& r1, R2&& r2, Pred pred = {}, Proj1 proj1 = {}, Proj2 p
 *1 *2 *3 | *1 *2 *3 # すべて同じなら true
 </div>
 
-### std::ranges::mismatch {#mismatch}
 
-```cpp
-template <input_range R1, input_range R2, class Pred = ranges::equal_to,
-          class Proj1 = identity, class Proj2 = identity>
-constexpr mismatch_result<borrowed_iterator_t<R1>, borrowed_iterator_t<R2>>
-mismatch(R1&& r1, R2&& r2, Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {});
-```
+## よくある使い方
 
-- 戻り値: `.in1` と `.in2`（最初に違った位置。全部同じなら短いほうの終わり）
-
-<div class="anim" data-label="std::ranges::mismatch(a, b)">
-1 2 3 | 1 9 3 # a と b
-*1 2 3 | *1 9 3 # 同じ
-1 *2 3 | 1 *9 3 # 違う。最初に違う位置の組を返す
-</div>
+### 隠しコマンドの判定
 
 ```cpp
 #include <algorithm>
+#include <array>
+#include <print>
+#include <vector>
+
+enum class Key { kUp, kDown, kLeft, kRight, kA, kB };
+
+int main() {
+  // 隠しコマンドの正解（配列）と、入力された履歴（vector）
+  constexpr std::array kSecret = {Key::kUp, Key::kUp, Key::kDown, Key::kDown, Key::kA};
+  std::vector<Key> input = {Key::kUp, Key::kUp, Key::kDown, Key::kDown, Key::kA};
+
+  // 型が違っても比べられる
+  std::println("成功？ {}", std::ranges::equal(input, kSecret));
+}
+```
+
+```text title="実行結果"
+成功？ true
+```
+
+### 比べ方を変える（大文字小文字を無視）
+
+```cpp
+#include <algorithm>
+#include <cctype>
 #include <print>
 #include <string>
 
 int main() {
-  std::string answer = "dragon";
-  std::string input = "drag0n";
-  auto [a, b] = std::ranges::mismatch(answer, input);
-  std::println("{} 文字目が違う（正解 {} / 入力 {}）", a - answer.begin() + 1, *a, *b);
+  std::string a = "Title";
+  std::string b = "TITLE";
+
+  // pred に「等しい」の定義を渡す
+  bool same = std::ranges::equal(a, b, [](char x, char y) {
+    return std::tolower(static_cast<unsigned char>(x)) == std::tolower(static_cast<unsigned char>(y));
+  });
+  std::println("{}", same);
 }
 ```
 
 ```text title="実行結果"
-5 文字目が違う（正解 o / 入力 0）
-```
-
-### std::ranges::lexicographical_compare {#lexicographical_compare}
-
-```cpp
-template <input_range R1, input_range R2, class Proj1 = identity, class Proj2 = identity,
-          class Comp = ranges::less>
-constexpr bool lexicographical_compare(R1&& r1, R2&& r2, Comp comp = {}, Proj1 proj1 = {},
-                                       Proj2 proj2 = {});
-```
-
-- 先頭から比べて、`r1` が辞書順で小さければ `true`（文字列の比較と同じルール）
-
-### std::ranges::is_permutation {#is_permutation}
-
-```cpp
-template <forward_range R1, forward_range R2, class Proj1 = identity, class Proj2 = identity,
-          class Pred = ranges::equal_to>
-constexpr bool is_permutation(R1&& r1, R2&& r2, Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {});
-```
-
-- 並び替えれば同じになるか（要素の種類と数が同じか）。パズルの「ピースが全部そろっているか」の判定に使えます
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <vector>
-
-int main() {
-  std::vector<int> v1 = {1, 2, 3};
-  std::vector<int> v2 = {1, 3, 0};
-  std::vector<int> pieces = {3, 1, 2};
-  std::println("{} {}", std::ranges::lexicographical_compare(v1, v2),
-               std::ranges::is_permutation(v1, pieces));
-}
-```
-
-```text title="実行結果"
-true true
+true
 ```
 
 ## フラグ・オプション
 
-`pred` / `proj` で比べ方を変えられます（大文字小文字を無視、メンバで比べる、など）。
+| 引数 | 重要度 | 渡すもの | 意味 |
+| --- | --- | --- | --- |
+| `pred` | <span class="rank rank-sometimes">たまに</span> | ラムダ式 | 「等しい」の判定を変える（既定は `==`） |
+| `proj1` / `proj2` | <span class="rank rank-rare">知ってるだけ</span> | `&Type::member` | 比べる前に、メンバを取り出す |
+
+## 古い書き方と今の書き方
+
+=== "古い書き方"
+
+    ```cpp
+    // b が短いと範囲外を読む
+    bool same = std::equal(a.begin(), a.end(), b.begin());
+    ```
+
+=== "今の書き方（C++20）"
+
+    ```cpp
+    // 長さも比べるので安全
+    bool same = std::ranges::equal(a, b);
+    ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 関数 |
+| 場面 | 書き方 |
 | --- | --- |
-| コマンド入力・パスワード | `equal` |
-| 答え合わせでどこが違うか表示 | `mismatch` |
-| パズルの完成判定 | `equal` / `is_permutation` |
+| コマンド入力・パスワードの照合 | `equal(input, secret)` |
+| パズルの完成判定 | `equal(board, goal)` |
+| セーブデータの比較（変更があるか） | `equal(current, saved)` |
 
 ## よくあるミス
 
 ??? failure "長さの違う範囲を古い std::equal で比べる"
     古い `std::equal(a.begin(), a.end(), b.begin())` は、b が短いと範囲外を読みます。ranges 版は長さも比べるので安全です。
 
+??? failure "浮動小数点数を equal で比べる"
+    `float` の `==` は誤差で一致しないことがあります。誤差を許したいなら、`pred` に「差が小さいか」を渡します。
+
+## 類似
+
+| 名前 | 違い |
+| --- | --- |
+| [`std::ranges::mismatch`](mismatch.md) | 最初に違う位置を返す |
+| [`std::ranges::lexicographical_compare`](lexicographical_compare.md) | 辞書順で大小を比べる |
+| `a == b`（コンテナ） | 同じ型のコンテナどうしなら、これで十分 |
+
+## コンパイラ対応
+
+C++20 の機能です。主要なコンパイラすべてで使えます。
+
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 型の違う範囲の比較は equal
-    - [x] 違う場所は mismatch
+    - [x] 型の違う範囲どうしの比較は `std::ranges::equal`
+    - [x] 長さが違えば `false`
+    - [x] 比べ方は `pred` で変えられる
 
 ## 関連ページ
 
-- [std::ranges::find](find.md)
+- [cpprefjp: std::ranges::equal](https://cpprefjp.github.io/reference/algorithm/ranges_equal.html)
 - [cppreference: std::ranges::equal](https://en.cppreference.com/w/cpp/algorithm/ranges/equal)

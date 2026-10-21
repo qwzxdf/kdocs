@@ -1,0 +1,767 @@
+{
+ "stl/algorithms/any_of.md": {
+  "default": "stl/algorithms/any_of.md",
+  "ids": {
+   "any_of": "stl/algorithms/any_of.md",
+   "all_of": "stl/algorithms/all_of.md",
+   "none_of": "stl/algorithms/none_of.md"
+  }
+ },
+ "stl/algorithms/equal.md": {
+  "default": "stl/algorithms/equal.md",
+  "ids": {
+   "equal": "stl/algorithms/equal.md",
+   "mismatch": "stl/algorithms/mismatch.md",
+   "lexicographical_compare": "stl/algorithms/lexicographical_compare.md",
+   "is_permutation": "stl/algorithms/is_permutation.md"
+  }
+ },
+ "stl/algorithms/min_max.md": {
+  "default": "stl/algorithms/max.md",
+  "ids": {
+   "max": "stl/algorithms/max.md",
+   "ranges-max": "stl/algorithms/max.md",
+   "min": "stl/algorithms/min.md",
+   "ranges-min": "stl/algorithms/min.md",
+   "minmax": "stl/algorithms/minmax.md",
+   "ranges-minmax": "stl/algorithms/minmax.md"
+  }
+ },
+ "stl/algorithms/min_element.md": {
+  "default": "stl/algorithms/min_element.md",
+  "ids": {
+   "min_element": "stl/algorithms/min_element.md",
+   "max_element": "stl/algorithms/max_element.md",
+   "minmax_element": "stl/algorithms/minmax_element.md"
+  }
+ },
+ "stl/algorithms/find.md": {
+  "default": "stl/algorithms/contains.md",
+  "ids": {
+   "contains": "stl/algorithms/contains.md",
+   "find_last": "stl/algorithms/find_last.md",
+   "find_last_if": "stl/algorithms/find_last.md"
+  }
+ },
+ "stl/algorithms/search.md": {
+  "default": "stl/algorithms/search.md",
+  "ids": {
+   "search": "stl/algorithms/search.md",
+   "adjacent_find": "stl/algorithms/adjacent_find.md",
+   "is_sorted": "stl/algorithms/is_sorted.md",
+   "is_sorted_until": "stl/algorithms/is_sorted.md",
+   "starts_with": "stl/algorithms/starts_with.md",
+   "ends_with": "stl/algorithms/ends_with.md",
+   "search_n": "stl/algorithms/search_n.md",
+   "find_first_of": "stl/algorithms/find_first_of.md"
+  }
+ },
+ "stl/algorithms/copy_fill.md": {
+  "default": "stl/algorithms/copy.md",
+  "ids": {
+   "copy": "stl/algorithms/copy.md",
+   "copy_if": "stl/algorithms/copy.md",
+   "copy_n": "stl/algorithms/copy.md",
+   "fill": "stl/algorithms/fill.md",
+   "fill_n": "stl/algorithms/fill.md",
+   "transform": "stl/algorithms/transform.md",
+   "iota": "stl/algorithms/iota.md",
+   "generate": "stl/algorithms/generate.md"
+  }
+ },
+ "stl/algorithms/binary_search.md": {
+  "default": "stl/algorithms/lower_bound.md",
+  "ids": {
+   "lower_bound": "stl/algorithms/lower_bound.md",
+   "upper_bound": "stl/algorithms/upper_bound.md",
+   "binary_search": "stl/algorithms/binary_search.md",
+   "equal_range": "stl/algorithms/equal_range.md"
+  }
+ },
+ "stl/algorithms/partial_sort.md": {
+  "default": "stl/algorithms/nth_element.md",
+  "ids": {
+   "partial_sort": "stl/algorithms/partial_sort.md",
+   "nth_element": "stl/algorithms/nth_element.md"
+  }
+ },
+ "stl/algorithms/reverse.md": {
+  "default": "stl/algorithms/reverse.md",
+  "ids": {
+   "reverse": "stl/algorithms/reverse.md",
+   "reverse_copy": "stl/algorithms/reverse.md",
+   "rotate": "stl/algorithms/rotate.md"
+  }
+ },
+ "stl/algorithms/shuffle.md": {
+  "default": "stl/algorithms/shuffle.md",
+  "ids": {
+   "shuffle": "stl/algorithms/shuffle.md",
+   "sample": "stl/algorithms/sample.md"
+  }
+ },
+ "stl/algorithms/accumulate.md": {
+  "default": "stl/algorithms/accumulate.md",
+  "ids": {
+   "accumulate": "stl/algorithms/accumulate.md",
+   "fold_left": "stl/algorithms/fold_left.md",
+   "fold_left_first": "stl/algorithms/fold_left.md",
+   "fold_right": "stl/algorithms/fold_right.md",
+   "reduce": "stl/algorithms/reduce.md"
+  }
+ },
+ "stl/algorithms/heap.md": {
+  "default": "stl/algorithms/make_heap.md",
+  "ids": {
+   "make_heap": "stl/algorithms/make_heap.md",
+   "push_heap": "stl/algorithms/push_heap.md",
+   "pop_heap": "stl/algorithms/pop_heap.md",
+   "sort_heap": "stl/algorithms/sort_heap.md",
+   "is_heap": "stl/algorithms/is_heap.md"
+  }
+ },
+ "stl/algorithms/set_operations.md": {
+  "default": "stl/algorithms/set_union.md",
+  "ids": {
+   "includes": "stl/algorithms/includes.md",
+   "set_intersection": "stl/algorithms/set_intersection.md",
+   "set_difference": "stl/algorithms/set_difference.md",
+   "set_union": "stl/algorithms/set_union.md",
+   "merge": "stl/algorithms/merge.md",
+   "set_symmetric_difference": "stl/algorithms/set_symmetric_difference.md"
+  }
+ },
+ "stl/algorithms/count_if.md": {
+  "default": "stl/algorithms/count.md",
+  "ids": {
+   "count_if": "stl/algorithms/count.md",
+   "count": "stl/algorithms/count.md"
+  }
+ },
+ "stl/algorithms/erase_if.md": {
+  "default": "stl/algorithms/erase_if.md",
+  "ids": {
+   "erase_if": "stl/algorithms/erase_if.md",
+   "erase": "stl/algorithms/erase_if.md"
+  }
+ },
+ "stl/algorithms/partition.md": {
+  "default": "stl/algorithms/partition.md",
+  "ids": {
+   "partition": "stl/algorithms/partition.md",
+   "stable_partition": "stl/algorithms/stable_partition.md",
+   "partition_point": "stl/algorithms/partition_point.md",
+   "is_partitioned": "stl/algorithms/is_partitioned.md",
+   "partition_copy": "stl/algorithms/partition_copy.md"
+  }
+ },
+ "stl/algorithms/unique.md": {
+  "default": "stl/algorithms/unique.md",
+  "ids": {
+   "unique": "stl/algorithms/unique.md",
+   "unique_copy": "stl/algorithms/unique_copy.md"
+  }
+ },
+ "stl/algorithms/replace.md": {
+  "default": "stl/algorithms/replace.md",
+  "ids": {
+   "replace": "stl/algorithms/replace.md",
+   "replace_if": "stl/algorithms/replace.md",
+   "remove_if": "stl/algorithms/remove.md",
+   "remove": "stl/algorithms/remove.md",
+   "replace_copy": "stl/algorithms/replace_copy.md",
+   "remove_copy_if": "stl/algorithms/remove_copy.md"
+  }
+ },
+ "stl/algorithms/views.md": {
+  "default": "stl/algorithms/views.md",
+  "ids": {
+   "filter": "stl/algorithms/views/filter.md",
+   "transform": "stl/algorithms/views/transform.md",
+   "iota": "stl/algorithms/views/iota.md",
+   "reverse": "stl/algorithms/views/reverse.md",
+   "enumerate": "stl/algorithms/views/enumerate.md",
+   "take": "stl/algorithms/views/take.md",
+   "drop": "stl/algorithms/views/drop.md",
+   "zip": "stl/algorithms/views/zip.md",
+   "keys": "stl/algorithms/views/keys.md",
+   "values": "stl/algorithms/views/values.md",
+   "split": "stl/algorithms/views/split.md",
+   "take_while": "stl/algorithms/views/take_while.md",
+   "drop_while": "stl/algorithms/views/drop_while.md",
+   "chunk": "stl/algorithms/views/chunk.md",
+   "slide": "stl/algorithms/views/slide.md",
+   "stride": "stl/algorithms/views/stride.md",
+   "join": "stl/algorithms/views/join.md",
+   "cartesian_product": "stl/algorithms/views/cartesian_product.md",
+   "adjacent": "stl/algorithms/views/adjacent.md",
+   "repeat": "stl/algorithms/views/repeat.md",
+   "elements": "stl/algorithms/views/elements.md"
+  }
+ },
+ "stl/containers/multimap.md": {
+  "default": "stl/containers/multimap.md",
+  "ids": {
+   "insert": "stl/containers/multimap.md",
+   "equal_range": "stl/containers/multimap.md",
+   "begin": "stl/containers/multimap.md",
+   "end": "stl/containers/multimap.md",
+   "count": "stl/containers/multimap.md",
+   "erase": "stl/containers/multimap.md",
+   "find": "stl/containers/multimap.md",
+   "contains": "stl/containers/multimap.md",
+   "size": "stl/containers/multimap.md",
+   "empty": "stl/containers/multimap.md",
+   "lower_bound": "stl/containers/multimap.md",
+   "upper_bound": "stl/containers/multimap.md",
+   "emplace": "stl/containers/multimap.md",
+   "clear": "stl/containers/multimap.md"
+  }
+ },
+ "stl/utilities/pair_tuple.md": {
+  "default": "stl/utilities/pair.md",
+  "ids": {
+   "structured-binding": "stl/utilities/tuple.md",
+   "first": "stl/utilities/pair.md",
+   "make": "stl/utilities/pair.md",
+   "get": "stl/utilities/get.md",
+   "compare": "stl/utilities/pair.md",
+   "tie": "stl/utilities/tie.md",
+   "make_pair": "stl/utilities/make_pair.md",
+   "make_tuple": "stl/utilities/make_tuple.md",
+   "tuple_size": "stl/utilities/tuple_size.md",
+   "apply": "stl/utilities/apply.md",
+   "swap": "stl/utilities/pair.md"
+  }
+ },
+ "stl/utilities/shared_ptr.md": {
+  "default": "stl/utilities/shared_ptr.md",
+  "ids": {
+   "make_shared": "stl/utilities/make_shared.md",
+   "weak": "stl/utilities/weak_ptr.md",
+   "lock": "stl/utilities/weak_ptr.md",
+   "expired": "stl/utilities/weak_ptr.md",
+   "shared_from_this": "stl/utilities/enable_shared_from_this.md",
+   "pointer_cast": "stl/utilities/dynamic_pointer_cast.md"
+  }
+ },
+ "stl/utilities/unique_ptr.md": {
+  "default": "stl/utilities/unique_ptr.md",
+  "ids": {
+   "make_unique": "stl/utilities/make_unique.md"
+  }
+ },
+ "stl/utilities/move.md": {
+  "default": "stl/utilities/move.md",
+  "ids": {
+   "forward": "stl/utilities/forward.md",
+   "exchange": "stl/utilities/exchange.md",
+   "swap": "stl/utilities/swap.md",
+   "move_if_noexcept": "stl/utilities/move_if_noexcept.md",
+   "move": "stl/utilities/move.md"
+  }
+ },
+ "stl/utilities/format.md": {
+  "default": "stl/utilities/format.md",
+  "ids": {
+   "println": "stl/utilities/print.md",
+   "print": "stl/utilities/print.md",
+   "format_to": "stl/utilities/format_to.md",
+   "format_to_n": "stl/utilities/format_to.md",
+   "formatted_size": "stl/utilities/format_to.md",
+   "formatter": "stl/utilities/formatter.md",
+   "vformat": "stl/utilities/vformat.md"
+  }
+ },
+ "stl/utilities/variant.md": {
+  "default": "stl/utilities/variant.md",
+  "ids": {
+   "visit": "stl/utilities/visit.md",
+   "holds_alternative": "stl/utilities/holds_alternative.md",
+   "get_if": "stl/utilities/get_if.md",
+   "monostate": "stl/utilities/monostate.md"
+  }
+ },
+ "stl/utilities/expected.md": {
+  "default": "stl/utilities/expected.md",
+  "ids": {
+   "unexpected": "stl/utilities/unexpected.md"
+  }
+ },
+ "stl/utilities/any.md": {
+  "default": "stl/utilities/any.md",
+  "ids": {
+   "any_cast": "stl/utilities/any_cast.md",
+   "make_any": "stl/utilities/make_any.md"
+  }
+ },
+ "stl/utilities/chrono.md": {
+  "default": "stl/utilities/chrono.md",
+  "ids": {
+   "steady_clock": "stl/utilities/chrono/steady_clock.md",
+   "now": "stl/utilities/chrono/steady_clock.md",
+   "duration": "stl/utilities/chrono/duration.md",
+   "count": "stl/utilities/chrono/duration.md",
+   "zero": "stl/utilities/chrono/duration.md",
+   "time_point": "stl/utilities/chrono/time_point.md",
+   "time_since_epoch": "stl/utilities/chrono/time_point.md",
+   "system_clock": "stl/utilities/chrono/system_clock.md",
+   "high_resolution_clock": "stl/utilities/chrono/high_resolution_clock.md",
+   "duration_cast": "stl/utilities/chrono/duration_cast.md",
+   "round": "stl/utilities/chrono/floor.md",
+   "sleep_for": "stl/concurrency/this_thread/sleep_for.md"
+  }
+ },
+ "stl/utilities/random.md": {
+  "default": "stl/utilities/random.md",
+  "ids": {
+   "mt19937": "stl/utilities/random/mt19937.md",
+   "mt19937_64": "stl/utilities/random/mt19937.md",
+   "seed": "stl/utilities/random/mt19937.md",
+   "discard": "stl/utilities/random/mt19937.md",
+   "uniform_int": "stl/utilities/random/uniform_int_distribution.md",
+   "uniform_real": "stl/utilities/random/uniform_real_distribution.md",
+   "random_device": "stl/utilities/random/random_device.md",
+   "bernoulli": "stl/utilities/random/bernoulli_distribution.md",
+   "discrete": "stl/utilities/random/discrete_distribution.md",
+   "normal": "stl/utilities/random/normal_distribution.md"
+  }
+ },
+ "stl/concurrency/mutex.md": {
+  "default": "stl/concurrency/mutex.md",
+  "ids": {
+   "mutex": "stl/concurrency/mutex.md",
+   "lock": "stl/concurrency/mutex.md",
+   "unlock": "stl/concurrency/mutex.md",
+   "try_lock": "stl/concurrency/mutex.md",
+   "lock_guard": "stl/concurrency/lock_guard.md",
+   "scoped_lock": "stl/concurrency/scoped_lock.md",
+   "unique_lock": "stl/concurrency/unique_lock.md",
+   "shared_mutex": "stl/concurrency/shared_mutex.md",
+   "shared_lock": "stl/concurrency/shared_lock.md",
+   "recursive_mutex": "stl/concurrency/recursive_mutex.md",
+   "call_once": "stl/concurrency/call_once.md"
+  }
+ },
+ "stl/concurrency/thread.md": {
+  "default": "stl/concurrency/thread.md",
+  "ids": {
+   "thread": "stl/concurrency/thread.md",
+   "joinable": "stl/concurrency/thread.md",
+   "detach": "stl/concurrency/thread.md",
+   "hardware_concurrency": "stl/concurrency/thread.md",
+   "jthread": "stl/concurrency/jthread.md",
+   "join": "stl/concurrency/jthread.md",
+   "stop_token": "stl/concurrency/stop_token.md",
+   "request_stop": "stl/concurrency/stop_token.md",
+   "sleep_for": "stl/concurrency/this_thread/sleep_for.md",
+   "yield": "stl/concurrency/this_thread/yield.md",
+   "get_id": "stl/concurrency/this_thread/get_id.md"
+  }
+ },
+ "stl/concurrency/future.md": {
+  "default": "stl/concurrency/future.md",
+  "ids": {
+   "async": "stl/concurrency/async.md",
+   "get": "stl/concurrency/future.md",
+   "wait_for": "stl/concurrency/future.md",
+   "valid": "stl/concurrency/future.md",
+   "wait": "stl/concurrency/future.md",
+   "promise": "stl/concurrency/promise.md",
+   "shared_future": "stl/concurrency/shared_future.md",
+   "packaged_task": "stl/concurrency/packaged_task.md"
+  }
+ },
+ "stl/concurrency/semaphore.md": {
+  "default": "stl/concurrency/latch.md",
+  "ids": {
+   "latch": "stl/concurrency/latch.md",
+   "count_down": "stl/concurrency/latch.md",
+   "latch-wait": "stl/concurrency/latch.md",
+   "latch-arrive_and_wait": "stl/concurrency/latch.md",
+   "counting_semaphore": "stl/concurrency/counting_semaphore.md",
+   "acquire": "stl/concurrency/counting_semaphore.md",
+   "release": "stl/concurrency/counting_semaphore.md",
+   "try_acquire": "stl/concurrency/counting_semaphore.md",
+   "binary_semaphore": "stl/concurrency/binary_semaphore.md",
+   "barrier": "stl/concurrency/barrier.md",
+   "barrier-arrive_and_wait": "stl/concurrency/barrier.md",
+   "arrive_and_drop": "stl/concurrency/barrier.md"
+  }
+ },
+ "stl/concurrency/atomic.md": {
+  "default": "stl/concurrency/atomic.md",
+  "ids": {
+   "atomic_flag": "stl/concurrency/atomic_flag.md"
+  }
+ },
+ "stl/concurrency/condition_variable.md": {
+  "default": "stl/concurrency/condition_variable.md",
+  "ids": {
+   "condition_variable_any": "stl/concurrency/condition_variable_any.md"
+  }
+ },
+ "stl/io/iostream.md": {
+  "default": "stl/io/cout.md",
+  "ids": {
+   "cout": "stl/io/cout.md",
+   "shift-out": "stl/io/cout.md",
+   "cin": "stl/io/cin.md",
+   "shift-in": "stl/io/cin.md",
+   "tie": "stl/io/cin.md",
+   "ignore": "stl/io/cin.md",
+   "sync_with_stdio": "stl/io/cin.md",
+   "cerr": "stl/io/cerr.md",
+   "clog": "stl/io/cerr.md",
+   "getline": "stl/io/getline.md",
+   "endl": "stl/io/endl.md",
+   "flush": "stl/io/flush.md",
+   "setw": "stl/io/setw.md",
+   "setprecision": "stl/io/setprecision.md",
+   "setfill": "stl/io/setfill.md"
+  }
+ },
+ "stl/io/fstream.md": {
+  "default": "stl/io/ifstream.md",
+  "ids": {
+   "open": "stl/io/ifstream.md",
+   "bool": "stl/io/ifstream.md",
+   "not": "stl/io/ifstream.md",
+   "shift-out": "stl/io/ofstream.md",
+   "getline": "stl/io/getline.md",
+   "shift-in": "stl/io/ifstream.md",
+   "write": "stl/io/ofstream.md",
+   "read": "stl/io/ifstream.md",
+   "is_open": "stl/io/ifstream.md",
+   "close": "stl/io/ifstream.md",
+   "gcount": "stl/io/ifstream.md",
+   "eof": "stl/io/ifstream.md",
+   "seekg": "stl/io/ifstream.md",
+   "tellg": "stl/io/ifstream.md",
+   "rdbuf": "stl/io/ifstream.md",
+   "flush": "stl/io/ofstream.md",
+   "seekp": "stl/io/ofstream.md",
+   "tellp": "stl/io/ofstream.md",
+   "clear": "stl/io/ifstream.md",
+   "open-member": "stl/io/ifstream.md"
+  }
+ },
+ "stl/io/sstream.md": {
+  "default": "stl/io/stringstream.md",
+  "ids": {
+   "constructor": "stl/io/stringstream.md",
+   "str": "stl/io/stringstream.md",
+   "shift-in": "stl/io/stringstream.md",
+   "shift-out": "stl/io/stringstream.md",
+   "getline": "stl/io/getline.md",
+   "view": "stl/io/stringstream.md",
+   "clear": "stl/io/stringstream.md"
+  }
+ },
+ "stl/io/charconv.md": {
+  "default": "stl/io/from_chars.md",
+  "ids": {
+   "from_chars": "stl/io/from_chars.md",
+   "to_chars": "stl/io/to_chars.md"
+  }
+ },
+ "stl/io/regex.md": {
+  "default": "stl/io/regex.md",
+  "ids": {
+   "regex": "stl/io/regex.md",
+   "regex_search": "stl/io/regex_search.md",
+   "regex_match": "stl/io/regex_match.md",
+   "regex_replace": "stl/io/regex_replace.md",
+   "smatch": "stl/io/smatch.md",
+   "sregex_iterator": "stl/io/sregex_iterator.md"
+  }
+ },
+ "stl/io/filesystem.md": {
+  "default": "stl/io/filesystem.md",
+  "ids": {
+   "path": "stl/io/filesystem/path.md",
+   "exists": "stl/io/filesystem/exists.md",
+   "create_directories": "stl/io/filesystem/create_directories.md",
+   "create_directory": "stl/io/filesystem/create_directory.md",
+   "directory_iterator": "stl/io/filesystem/directory_iterator.md",
+   "recursive_directory_iterator": "stl/io/filesystem/recursive_directory_iterator.md",
+   "directory_entry": "stl/io/filesystem/directory_entry.md",
+   "remove": "stl/io/filesystem/remove.md",
+   "remove_all": "stl/io/filesystem/remove_all.md",
+   "rename": "stl/io/filesystem/rename.md",
+   "is_regular_file": "stl/io/filesystem/is_regular_file.md",
+   "is_directory": "stl/io/filesystem/is_directory.md",
+   "file_size": "stl/io/filesystem/file_size.md",
+   "copy_file": "stl/io/filesystem/copy_file.md",
+   "copy": "stl/io/filesystem/copy.md",
+   "current_path": "stl/io/filesystem/current_path.md",
+   "last_write_time": "stl/io/filesystem/last_write_time.md",
+   "absolute": "stl/io/filesystem/absolute.md",
+   "relative": "stl/io/filesystem/relative.md",
+   "temp_directory_path": "stl/io/filesystem/temp_directory_path.md",
+   "canonical": "stl/io/filesystem/canonical.md",
+   "equivalent": "stl/io/filesystem/equivalent.md",
+   "space": "stl/io/filesystem/space.md",
+   "resize_file": "stl/io/filesystem/resize_file.md",
+   "status": "stl/io/filesystem/status.md",
+   "permissions": "stl/io/filesystem/permissions.md",
+   "filesystem_error": "stl/io/filesystem/filesystem_error.md"
+  }
+ },
+ "stl/memory/cstring.md": {
+  "default": "stl/memory/cstring.md",
+  "ids": {
+   "memcpy": "stl/memory/cstring/memcpy.md",
+   "memset": "stl/memory/cstring/memset.md",
+   "memmove": "stl/memory/cstring/memmove.md",
+   "memcmp": "stl/memory/cstring/memcmp.md",
+   "strlen": "stl/memory/cstring/strlen.md",
+   "strcmp": "stl/memory/cstring/strcmp.md",
+   "strncmp": "stl/memory/cstring/strncmp.md",
+   "memchr": "stl/memory/cstring/memchr.md",
+   "strchr": "stl/memory/cstring/strchr.md",
+   "strstr": "stl/memory/cstring/strstr.md",
+   "strcpy": "stl/memory/cstring/strcpy.md",
+   "strncpy": "stl/memory/cstring/strncpy.md",
+   "strcat": "stl/memory/cstring/strcat.md",
+   "snprintf": "stl/memory/cstring/snprintf.md"
+  }
+ },
+ "stl/memory/c-memory.md": {
+  "default": "stl/memory/malloc.md",
+  "ids": {
+   "malloc": "stl/memory/malloc.md",
+   "free": "stl/memory/free.md",
+   "calloc": "stl/memory/calloc.md",
+   "realloc": "stl/memory/realloc.md",
+   "aligned_alloc": "stl/memory/aligned_alloc.md",
+   "aligned_malloc_msvc": "stl/memory/aligned_alloc.md"
+  }
+ },
+ "stl/memory/pmr.md": {
+  "default": "stl/memory/pmr.md",
+  "ids": {
+   "monotonic_buffer_resource": "stl/memory/pmr/monotonic_buffer_resource.md",
+   "release": "stl/memory/pmr/monotonic_buffer_resource.md",
+   "polymorphic_allocator": "stl/memory/pmr/polymorphic_allocator.md",
+   "unsynchronized_pool_resource": "stl/memory/pmr/unsynchronized_pool_resource.md",
+   "synchronized_pool_resource": "stl/memory/pmr/synchronized_pool_resource.md",
+   "new_delete_resource": "stl/memory/pmr/new_delete_resource.md",
+   "null_memory_resource": "stl/memory/pmr/null_memory_resource.md",
+   "memory_resource": "stl/memory/pmr/memory_resource.md",
+   "get_default_resource": "stl/memory/pmr/default_resource.md",
+   "set_default_resource": "stl/memory/pmr/default_resource.md",
+   "pmr_containers": "stl/memory/pmr/pmr_containers.md"
+  }
+ },
+ "stl/memory/new_delete.md": {
+  "default": "stl/memory/new_delete.md",
+  "ids": {
+   "new": "stl/memory/new_delete/new.md",
+   "delete": "stl/memory/new_delete/delete.md",
+   "new_array": "stl/memory/new_delete/new_array.md",
+   "nothrow": "stl/memory/new_delete/nothrow.md",
+   "placement_new": "stl/memory/new_delete/placement_new.md",
+   "construct_at": "stl/memory/new_delete/construct_at.md",
+   "destroy_at": "stl/memory/new_delete/destroy_at.md",
+   "operator_new": "stl/memory/new_delete/operator_new.md",
+   "uninitialized": "stl/memory/new_delete/uninitialized_copy.md",
+   "launder": "stl/memory/new_delete/launder.md",
+   "align_val_t": "stl/memory/new_delete/align_val_t.md"
+  }
+ },
+ "stl/numeric/cmath.md": {
+  "default": "stl/numeric/cmath.md",
+  "ids": {
+   "sqrt": "stl/numeric/cmath/sqrt.md",
+   "abs": "stl/numeric/cmath/abs.md",
+   "sin": "stl/numeric/cmath/sin.md",
+   "cos": "stl/numeric/cmath/cos.md",
+   "tan": "stl/numeric/cmath/tan.md",
+   "asin": "stl/numeric/cmath/asin.md",
+   "acos": "stl/numeric/cmath/acos.md",
+   "atan2": "stl/numeric/cmath/atan2.md",
+   "floor": "stl/numeric/cmath/floor.md",
+   "round": "stl/numeric/cmath/round.md",
+   "ceil": "stl/numeric/cmath/ceil.md",
+   "trunc": "stl/numeric/cmath/trunc.md",
+   "lerp": "stl/numeric/cmath/lerp.md",
+   "pow": "stl/numeric/cmath/pow.md",
+   "hypot": "stl/numeric/cmath/hypot.md",
+   "fmod": "stl/numeric/cmath/fmod.md",
+   "exp": "stl/numeric/cmath/exp.md",
+   "log": "stl/numeric/cmath/log.md",
+   "log2": "stl/numeric/cmath/log2.md",
+   "log10": "stl/numeric/cmath/log10.md",
+   "cbrt": "stl/numeric/cmath/cbrt.md",
+   "fma": "stl/numeric/cmath/fma.md",
+   "isnan": "stl/numeric/cmath/isnan.md",
+   "isinf": "stl/numeric/cmath/isinf.md",
+   "copysign": "stl/numeric/cmath/copysign.md"
+  }
+ },
+ "stl/numeric/bit.md": {
+  "default": "stl/numeric/bit.md",
+  "ids": {
+   "popcount": "stl/numeric/bit/popcount.md",
+   "has_single_bit": "stl/numeric/bit/has_single_bit.md",
+   "bit_ceil": "stl/numeric/bit/bit_ceil.md",
+   "bit_floor": "stl/numeric/bit/bit_floor.md",
+   "bit_width": "stl/numeric/bit/bit_width.md",
+   "bit_cast": "stl/numeric/bit/bit_cast.md",
+   "countl_zero": "stl/numeric/bit/countl_zero.md",
+   "countr_zero": "stl/numeric/bit/countr_zero.md",
+   "countl_one": "stl/numeric/bit/countl_one.md",
+   "countr_one": "stl/numeric/bit/countr_one.md",
+   "rotl": "stl/numeric/bit/rotl.md",
+   "rotr": "stl/numeric/bit/rotr.md",
+   "byteswap": "stl/numeric/bit/byteswap.md",
+   "endian": "stl/numeric/bit/endian.md"
+  }
+ },
+ "stl/numeric/numeric.md": {
+  "default": "stl/numeric/numeric.md",
+  "ids": {
+   "gcd": "stl/numeric/gcd.md",
+   "lcm": "stl/numeric/lcm.md",
+   "midpoint": "stl/numeric/midpoint.md",
+   "partial_sum": "stl/algorithms/partial_sum.md",
+   "inclusive_scan": "stl/algorithms/inclusive_scan.md",
+   "exclusive_scan": "stl/algorithms/exclusive_scan.md",
+   "adjacent_difference": "stl/algorithms/adjacent_difference.md",
+   "inner_product": "stl/algorithms/inner_product.md",
+   "transform_reduce": "stl/algorithms/transform_reduce.md"
+  }
+ },
+ "stl/support/functional.md": {
+  "default": "stl/support/functional.md",
+  "ids": {
+   "less": "stl/support/functional/less.md",
+   "greater": "stl/support/functional/greater.md",
+   "equal_to": "stl/support/functional/equal_to.md",
+   "plus": "stl/support/functional/plus.md",
+   "multiplies": "stl/support/functional/multiplies.md",
+   "identity": "stl/support/functional/identity.md",
+   "ref": "stl/support/functional/ref.md",
+   "cref": "stl/support/functional/ref.md",
+   "invoke": "stl/support/functional/invoke.md",
+   "bind_front": "stl/support/functional/bind_front.md",
+   "bind_back": "stl/support/functional/bind_back.md",
+   "not_fn": "stl/support/functional/not_fn.md",
+   "bind": "stl/support/functional/bind.md",
+   "mem_fn": "stl/support/functional/mem_fn.md",
+   "hash": "stl/utilities/hash.md"
+  }
+ },
+ "stl/support/iterator.md": {
+  "default": "stl/support/iterator.md",
+  "ids": {
+   "next": "stl/support/iterator/next.md",
+   "prev": "stl/support/iterator/prev.md",
+   "advance": "stl/support/iterator/advance.md",
+   "distance": "stl/support/iterator/distance.md",
+   "size": "stl/support/iterator/size.md",
+   "ssize": "stl/support/iterator/ssize.md",
+   "empty": "stl/support/iterator/empty.md",
+   "data": "stl/support/iterator/data.md",
+   "begin": "stl/support/iterator/begin.md",
+   "end": "stl/support/iterator/begin.md",
+   "back_inserter": "stl/support/iterator/back_inserter.md",
+   "front_inserter": "stl/support/iterator/front_inserter.md",
+   "inserter": "stl/support/iterator/inserter.md",
+   "make_move_iterator": "stl/support/iterator/move_iterator.md",
+   "reverse_iterator": "stl/support/iterator/reverse_iterator.md",
+   "istream_iterator": "stl/support/iterator/istream_iterator.md"
+  }
+ },
+ "stl/support/type_traits.md": {
+  "default": "stl/support/type_traits.md",
+  "ids": {
+   "is_same": "stl/support/type_traits/is_same.md",
+   "is_integral": "stl/support/type_traits/is_integral.md",
+   "is_floating_point": "stl/support/type_traits/is_floating_point.md",
+   "is_arithmetic": "stl/support/type_traits/is_arithmetic.md",
+   "is_trivially_copyable": "stl/support/type_traits/is_trivially_copyable.md",
+   "is_enum": "stl/support/type_traits/is_enum.md",
+   "is_pointer": "stl/support/type_traits/is_pointer.md",
+   "is_base_of": "stl/support/type_traits/is_base_of.md",
+   "is_const": "stl/support/type_traits/is_const.md",
+   "is_default_constructible": "stl/support/type_traits/is_default_constructible.md",
+   "is_copy_constructible": "stl/support/type_traits/is_copy_constructible.md",
+   "is_nothrow_move_constructible": "stl/support/type_traits/is_nothrow_move_constructible.md",
+   "is_aggregate": "stl/support/type_traits/is_aggregate.md",
+   "remove_cvref": "stl/support/type_traits/remove_cvref.md",
+   "underlying_type": "stl/support/type_traits/underlying_type.md",
+   "decay": "stl/support/type_traits/decay.md",
+   "conditional": "stl/support/type_traits/conditional.md",
+   "common_type": "stl/support/type_traits/common_type.md",
+   "make_unsigned": "stl/support/type_traits/make_unsigned.md",
+   "invoke_result": "stl/support/type_traits/invoke_result.md"
+  }
+ },
+ "stl/support/utility-misc.md": {
+  "default": "stl/support/utility-misc.md",
+  "ids": {
+   "to_underlying": "stl/support/to_underlying.md",
+   "cmp_less": "stl/support/cmp_less.md",
+   "cmp_equal": "stl/support/cmp_equal.md",
+   "in_range": "stl/support/in_range.md",
+   "byte": "stl/support/byte.md",
+   "to_integer": "stl/support/to_integer.md",
+   "unreachable": "stl/support/unreachable.md",
+   "as_const": "stl/support/as_const.md",
+   "initializer_list": "stl/containers/initializer_list.md"
+  }
+ },
+ "stl/support/exceptions.md": {
+  "default": "stl/support/exceptions.md",
+  "ids": {
+   "exception": "stl/support/exceptions/exception.md",
+   "runtime_error": "stl/support/exceptions/runtime_error.md",
+   "out_of_range": "stl/support/exceptions/out_of_range.md",
+   "invalid_argument": "stl/support/exceptions/invalid_argument.md",
+   "logic_error": "stl/support/exceptions/logic_error.md",
+   "bad_alloc": "stl/support/exceptions/bad_alloc.md",
+   "system_error": "stl/support/exceptions/system_error.md",
+   "exception_ptr": "stl/support/exceptions/exception_ptr.md"
+  }
+ },
+ "stl/support/source_location.md": {
+  "default": "stl/support/source_location.md",
+  "ids": {
+   "current": "stl/support/source_location.md",
+   "file_name": "stl/support/source_location.md",
+   "line": "stl/support/source_location.md",
+   "function_name": "stl/support/source_location.md",
+   "column": "stl/support/source_location.md",
+   "stacktrace": "stl/support/stacktrace.md"
+  }
+ },
+ "stl/support/generator.md": {
+  "default": "stl/support/generator.md",
+  "ids": {
+   "co_yield": "stl/support/coroutine/co_yield.md",
+   "co_return": "stl/support/coroutine/co_return.md",
+   "generator": "stl/support/generator.md",
+   "elements_of": "stl/support/generator.md"
+  }
+ },
+ "stl/memory/allocator.md": {
+  "default": "stl/memory/allocator.md",
+  "ids": {
+   "allocator_traits": "stl/memory/allocator_traits.md",
+   "allocate_shared": "stl/utilities/allocate_shared.md"
+  }
+ },
+ "stl/containers/string.md": {
+  "default": "stl/containers/string.md",
+  "ids": {
+   "to_string": "stl/containers/to_string.md",
+   "stoi": "stl/containers/stoi.md",
+   "stof": "stl/containers/stof.md",
+   "stod": "stl/containers/stod.md",
+   "stoll": "stl/containers/stoll.md",
+   "getline": "stl/io/getline.md"
+  }
+ }
+}

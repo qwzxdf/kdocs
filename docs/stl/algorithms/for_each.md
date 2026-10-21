@@ -1,5 +1,7 @@
 ---
 title: std::ranges::for_each
+summary: "全要素に関数を呼ぶ。普段は範囲 for のほうが読みやすい。"
+order: 38
 tags:
   - アルゴリズム
 ---

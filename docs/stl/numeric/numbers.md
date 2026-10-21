@@ -1,5 +1,7 @@
 ---
 title: <numbers>（数学定数）
+summary: "π などの数学の定数。"
+order: 73
 tags:
   - 数値
 ---

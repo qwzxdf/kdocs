@@ -1,5 +1,7 @@
 ---
 title: std::array
+summary: "個数が最初から決まっている配列。サイズ固定でヒープを使わない。"
+order: 2
 tags:
   - コンテナ
 ---

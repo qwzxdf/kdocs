@@ -1,5 +1,7 @@
 ---
 title: std::expected
+summary: "「成功した値」か「エラー」の、どちらかを返す。例外を使わないエラー処理に。"
+order: 52
 tags:
   - ユーティリティ
   - エラー処理
@@ -44,7 +46,6 @@ class unexpected;
 
 | 関数 | 重要度 | 何をする |
 | --- | --- | --- |
-| [`std::unexpected`](#unexpected) | <span class="rank rank-must">必須</span> | 失敗を返すときに包む |
 | [`operator bool`](#bool) | <span class="rank rank-must">必須</span> | 成功したか |
 | [`operator*`](#deref) | <span class="rank rank-must">必須</span> | 成功の値（チェックなし） |
 | [`error`](#error) | <span class="rank rank-must">必須</span> | 失敗のエラー |
@@ -125,24 +126,6 @@ int main() {
 ```
 
 ## 関数の詳しい説明
-
-### std::unexpected {#unexpected}
-
-```cpp
-template <class E>
-class unexpected {
- public:
-  constexpr explicit unexpected(E&& e);
-  constexpr const E& error() const& noexcept;
-};
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `e` | エラーの値 | 失敗の理由 |
-
-- `return std::unexpected(エラー);` と書くと、expected が「失敗」の状態で作られます
-- 包まずに `return エラー;` と書くと、成功の値として扱われてしまうことがある（型によってはコンパイルエラー）
 
 ### operator bool {#bool}
 

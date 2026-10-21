@@ -1,5 +1,7 @@
 ---
 title: 文字列・メモリ操作（cstring）
+summary: "`memcpy`、`memset`、`strlen` などバイト列のコピーや比較。"
+order: 63
 tags:
   - メモリ
   - C由来
@@ -24,26 +26,26 @@ tags:
     - 型の変換のためなら、`memcpy` ではなく **`std::bit_cast`** を使う。
 
 !!! info "このページを読む前に"
-    [ポインタ](../../basics/pointer.md) と [未定義動作](../../basics/ub.md)、[malloc / free](c-memory.md) を先に読むと分かりやすいです。文字列の C++ 版は [std::string](../containers/string.md) です。
+    [ポインタ](../../basics/pointer.md) と [未定義動作](../../basics/ub.md)、[malloc / free](malloc.md) を先に読むと分かりやすいです。文字列の C++ 版は [std::string](../containers/string.md) です。
 
 ## 関数一覧
 
 | 関数 | 重要度 | 何をする |
 | --- | --- | --- |
-| [`memcpy`](#memcpy) | <span class="rank rank-often">よく使う</span> | メモリをコピーする |
-| [`memset`](#memset) | <span class="rank rank-often">よく使う</span> | メモリを同じバイトで埋める |
-| [`memmove`](#memmove) | <span class="rank rank-sometimes">たまに</span> | 重なっていてもよいコピー |
-| [`memcmp`](#memcmp) | <span class="rank rank-sometimes">たまに</span> | メモリを比べる |
-| [`strlen`](#strlen) | <span class="rank rank-often">よく使う</span> | C 文字列の長さ |
-| [`strcmp`](#strcmp) | <span class="rank rank-sometimes">たまに</span> | C 文字列を比べる |
-| [`strncmp`](#strncmp) | <span class="rank rank-sometimes">たまに</span> | 先頭の n 文字だけ比べる |
-| [`memchr`](#memchr) | <span class="rank rank-rare">知ってるだけ</span> | メモリの中から 1 バイトを探す |
-| [`strchr`](#strchr) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列から 1 文字を探す |
-| [`strstr`](#strstr) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列から文字列を探す |
-| [`strcpy`](#strcpy) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列をコピー（**危ない**） |
-| [`strncpy`](#strncpy) | <span class="rank rank-rare">知ってるだけ</span> | n 文字までコピー（**終端に注意**） |
-| [`strcat`](#strcat) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列をつなげる（**危ない**） |
-| [`snprintf`](#snprintf) | <span class="rank rank-sometimes">たまに</span> | 大きさを指定して書式付きで書き込む |
+| [`memcpy`](cstring/memcpy.md) | <span class="rank rank-often">よく使う</span> | メモリをコピーする |
+| [`memset`](cstring/memset.md) | <span class="rank rank-often">よく使う</span> | メモリを同じバイトで埋める |
+| [`memmove`](cstring/memmove.md) | <span class="rank rank-sometimes">たまに</span> | 重なっていてもよいコピー |
+| [`memcmp`](cstring/memcmp.md) | <span class="rank rank-sometimes">たまに</span> | メモリを比べる |
+| [`strlen`](cstring/strlen.md) | <span class="rank rank-often">よく使う</span> | C 文字列の長さ |
+| [`strcmp`](cstring/strcmp.md) | <span class="rank rank-sometimes">たまに</span> | C 文字列を比べる |
+| [`strncmp`](cstring/strncmp.md) | <span class="rank rank-sometimes">たまに</span> | 先頭の n 文字だけ比べる |
+| [`memchr`](cstring/memchr.md) | <span class="rank rank-rare">知ってるだけ</span> | メモリの中から 1 バイトを探す |
+| [`strchr`](cstring/strchr.md) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列から 1 文字を探す |
+| [`strstr`](cstring/strstr.md) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列から文字列を探す |
+| [`strcpy`](cstring/strcpy.md) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列をコピー（**危ない**） |
+| [`strncpy`](cstring/strncpy.md) | <span class="rank rank-rare">知ってるだけ</span> | n 文字までコピー（**終端に注意**） |
+| [`strcat`](cstring/strcat.md) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列をつなげる（**危ない**） |
+| [`snprintf`](cstring/snprintf.md) | <span class="rank rank-sometimes">たまに</span> | 大きさを指定して書式付きで書き込む |
 
 ## 置き換え早見表
 
@@ -95,237 +97,6 @@ zero.count=0
 ```
 
 (この結果は、リトルエンディアンの CPU の場合です。PC・スマホ・ゲーム機は、ほぼすべてそうです。)
-
-## 関数の詳しい説明
-
-### memcpy {#memcpy}
-
-```cpp
-void* memcpy(void* dest, const void* src, std::size_t count);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `dest` | `void*` | コピー先 |
-| `src` | `const void*` | コピー元 |
-| `count` | `std::size_t` | コピーする**バイト数** |
-
-- 戻り値: `dest`
-- 計算量: O(count)。とても速い（CPU の命令でまとめてコピーされる）
-- **`dest` と `src` が重なっていると未定義動作**です。重なる可能性があるなら `memmove` を使います
-- **`dest` / `src` が `nullptr` は `count` が 0 でも未定義動作**です
-- コピーする型は **trivially copyable**（コンストラクタ・デストラクタ・コピーの処理が単純なもの）に限ります。`std::string`、`std::vector`、`std::unique_ptr`、仮想関数を持つクラスは**壊れます**
-
-<div class="anim" data-label="memcpy(dst, src, 3 * sizeof(int))">
-1 2 3 4 | _ _ _ _ # src と dst
-1 2 3 4 | +1 _ _ _ # 先頭から順にコピーされる
-1 2 3 4 | +1 +2 +3 _ # 指定したバイト数だけ。それ以降は変わらない
-</div>
-
-### memset {#memset}
-
-```cpp
-void* memset(void* dest, int ch, std::size_t count);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `dest` | `void*` | 埋める先頭 |
-| `ch` | `int` | 埋めるバイトの値（`unsigned char` に変換される） |
-| `count` | `std::size_t` | 埋める**バイト数** |
-
-- 戻り値: `dest`
-- **1 バイトずつ**同じ値で埋めます。`memset(a, 1, sizeof(a))` で `int` の配列を埋めると、各要素は `1` ではなく `0x01010101` になります。**0 で埋めるとき以外は、基本使いません**（`std::fill` を使う）
-- 浮動小数点やポインタを 0 で埋めると、環境によっては 0.0 や `nullptr` にならないことがあります（実際のゲーム機・PC ではなります）
-- クラスのオブジェクトに使うと、中身（ポインタや仮想関数テーブル）を壊します。**`std::string` や仮想関数を持つクラスに `memset` してはいけません**
-
-### memmove {#memmove}
-
-```cpp
-void* memmove(void* dest, const void* src, std::size_t count);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `dest` | `void*` | コピー先 |
-| `src` | `const void*` | コピー元 |
-| `count` | `std::size_t` | コピーする**バイト数** |
-
-- 戻り値: `dest`
-- `memcpy` と違い、**`src` と `dest` が重なっていても正しくコピーされます**（元のデータを壊さない順番で動かす）
-- 配列の中で、要素をずらすときに使います（`std::vector::insert` の中身がこれです）
-
-<div class="anim" data-label="memmove(a + 1, a, 3 * sizeof(int))  ※重なっている">
-1 2 3 4 _ # 配列 a
-1 2 3 3 4 # 後ろから順に動かす（元のデータを壊さない）
-1 1 2 3 4 # 全部 1 つ後ろへ移った
-</div>
-
-### memcmp {#memcmp}
-
-```cpp
-int memcmp(const void* lhs, const void* rhs, std::size_t count);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `lhs`, `rhs` | `const void*` | 比べる 2 つの領域 |
-| `count` | `std::size_t` | 比べる**バイト数** |
-
-- 戻り値: 等しければ 0。最初に違うバイトが `lhs` の方が小さければ負、大きければ正（**値の大きさは決まっていない**。符号だけ見る）
-- バイトを 1 つずつ比べるだけです。**数値としての大小の比較にはなりません**（リトルエンディアンの `int` では、バイトの順番が逆になるため）
-- 構造体の比較に使うのは危険です。**パディング**（隙間のバイト）に不定な値が入っていると、メンバが同じでも「違う」と判定されます。`float` も、`0.0` と `-0.0`、`NaN` で結果が変わります。`operator==`（`= default` でよい）を使います
-
-### strlen {#strlen}
-
-```cpp
-std::size_t strlen(const char* str);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `str` | `const char*` | `'\0'` で終わる文字列 |
-
-- 戻り値: 終端の `'\0'` を**数えない**文字数（バイト数）
-- 計算量: O(n)。文字列を最後まで数えるので、ループの条件の中で毎回呼ぶと遅くなります
-- 終端の `'\0'` がない配列に使うと、範囲外を読み続けます（未定義動作）
-- UTF-8 の日本語は 1 文字が 3 バイトなので、`strlen("あ")` は 3 です。**文字数ではなくバイト数**です
-
-### strcmp {#strcmp}
-
-```cpp
-int strcmp(const char* lhs, const char* rhs);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `lhs`, `rhs` | `const char*` | 比べる 2 つの C 文字列 |
-
-- 戻り値: 等しければ 0、`lhs` が辞書順で前なら負、後ろなら正
-- <strong>`==` で比べてはいけません。</strong> `const char*` の `==` は、**文字列の中身ではなく、アドレスを比べる**からです。`std::string_view(a) == b` と書けば、中身で比べられます
-
-### strncmp {#strncmp}
-
-```cpp
-int strncmp(const char* lhs, const char* rhs, std::size_t count);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `lhs`, `rhs` | `const char*` | 比べる C 文字列 |
-| `count` | `std::size_t` | 先頭から最大でこの文字数だけ比べる |
-
-- 戻り値: `strcmp` と同じ
-- 「先頭が `"enemy_"` で始まるか」の判定に使えます（`std::string_view::starts_with` のほうが簡単です）
-
-### memchr {#memchr}
-
-```cpp
-const void* memchr(const void* ptr, int ch, std::size_t count);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `ptr` | `const void*` | 探す領域の先頭 |
-| `ch` | `int` | 探すバイトの値 |
-| `count` | `std::size_t` | 探す範囲のバイト数 |
-
-- 戻り値: 最初に見つかった場所のポインタ。なければ `nullptr`
-- バイナリデータの中から、区切りのバイトを探すときに使います
-
-### strchr {#strchr}
-
-```cpp
-const char* strchr(const char* str, int ch);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `str` | `const char*` | 探す C 文字列 |
-| `ch` | `int` | 探す文字 |
-
-- 戻り値: 最初に見つかった位置のポインタ。なければ `nullptr`。`ch` に `'\0'` を渡すと、終端の位置が返る
-- `std::string_view::find` のほうが安全です。
-
-### strstr {#strstr}
-
-```cpp
-const char* strstr(const char* str, const char* substr);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `str` | `const char*` | 探される C 文字列 |
-| `substr` | `const char*` | 探す C 文字列 |
-
-- 戻り値: 最初に見つかった位置のポインタ。なければ `nullptr`
-- `std::string_view::find` / `contains` を使うほうが、長さを保てて安全です。
-
-### strcpy {#strcpy}
-
-```cpp
-char* strcpy(char* dest, const char* src);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `dest` | `char*` | コピー先（`src` の長さ + 1 以上の大きさが必要） |
-| `src` | `const char*` | コピー元の C 文字列 |
-
-- 戻り値: `dest`
-- <strong>コピー先の大きさを一切チェックしません。</strong> `src` が長いと、`dest` の後ろを壊します（バッファオーバーフロー）。セキュリティの穴の原因として有名です。**使ってはいけません**（MSVC は警告 C4996 を出します）
-- `std::string` に入れるか、`snprintf` で大きさを指定します。
-
-### strncpy {#strncpy}
-
-```cpp
-char* strncpy(char* dest, const char* src, std::size_t count);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `dest` | `char*` | コピー先 |
-| `src` | `const char*` | コピー元 |
-| `count` | `std::size_t` | コピーする最大の文字数 |
-
-- 戻り値: `dest`
-- 安全そうに見えますが、**`src` が `count` 以上の長さのとき、終端の `'\0'` を書いてくれません**。そのまま `strlen` や `printf` に渡すと範囲外を読みます。短いときは、残りを `'\0'` で埋めるので、無駄に遅い場合もあります
-- 使うなら、最後に自分で `dest[count - 1] = '\0';` と書きます。基本は `std::string` を使います
-
-### strcat {#strcat}
-
-```cpp
-char* strcat(char* dest, const char* src);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `dest` | `char*` | つなげる先（すでに C 文字列が入っている。十分な大きさが必要） |
-| `src` | `const char*` | 後ろにつなげる C 文字列 |
-
-- 戻り値: `dest`
-- `strcpy` と同じで、**大きさのチェックがありません**。つなげるたびに先頭から終端を探すので、繰り返すと O(n²) です。`std::string` の `+=` を使います
-
-### snprintf {#snprintf}
-
-```cpp
-int snprintf(char* buffer, std::size_t bufsz, const char* format, ...);  // <cstdio>
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `buffer` | `char*` | 書き込み先 |
-| `bufsz` | `std::size_t` | `buffer` の大きさ（終端の `'\0'` を含む） |
-| `format` | `const char*` | `printf` 形式の書式 |
-
-- 戻り値: **書き込めていれば書かれたはずの文字数**（`bufsz` 以上なら、切り捨てられている）
-- 必ず終端の `'\0'` を書いてくれる、**大きさを守る安全な書式付き出力**です（`sprintf` は大きさを見ないので使いません）
-- C++ では、[`std::format_to_n`](../utilities/format.md#format_to_n) が型安全な代わりです。
-
-```cpp
-char label[16];
-std::snprintf(label, sizeof(label), "HP %d/%d", 30, 100);  // 長すぎても、15 文字で切れて安全
-```
 
 ## 型の読み替えには std::bit_cast
 
@@ -401,7 +172,7 @@ int main() {
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::copy` / `std::fill`](../algorithms/copy_fill.md) | 型を見てくれる。単純な型なら `memcpy` と同じ速さ |
+| [`std::copy` / `std::fill`](../algorithms/copy.md) | 型を見てくれる。単純な型なら `memcpy` と同じ速さ |
 | [`std::string`](../containers/string.md) / [`std::string_view`](../utilities/string_view.md) | 長さを覚えている。C 文字列の関数はいらない |
 | [`std::bit_cast`](../numeric/bit.md) | 型の読み替えを安全に行う |
 | [`std::span`](../containers/span.md) | ポインタ + 長さをまとめて渡す。範囲を意識できる |
@@ -418,7 +189,7 @@ int main() {
 
 ## 関連ページ
 
-- [malloc / free（C 由来のメモリ確保）](c-memory.md)
+- [malloc / free（C 由来のメモリ確保）](malloc.md)
 - [std::string](../containers/string.md)
 - [std::string_view](../utilities/string_view.md)
 - [<bit>（std::bit_cast）](../numeric/bit.md)

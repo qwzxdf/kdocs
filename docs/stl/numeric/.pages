@@ -3,6 +3,20 @@ nav:
   - cstdint.md
   - limits.md
   - numbers.md
+  - gcd.md
   - numeric.md
   - bit.md
+  - lcm.md
+  - midpoint.md
+  - add_sat.md
+  - sub_sat.md
+  - mul_sat.md
+  - div_sat.md
+  - saturate_cast.md
+  - climits.md
+  - cfloat.md
+  - stdfloat.md
+  - complex.md
+  - ratio.md
+  - fesetround.md
   - ...

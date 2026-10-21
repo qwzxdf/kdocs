@@ -1,39 +1,37 @@
 ---
-title: std::format / std::print
+title: std::format
+summary: "`{}` を使って、文字列を整形する（`printf` の安全版）。書式の書き方を一通りまとめている。"
+order: 47
 tags:
   - ユーティリティ
   - 文字列
 ---
 
-# std::format / std::print
+# std::format
 
 <div class="page-badges" markdown>
 <span class="rank rank-must">必須</span>
 <span class="ver ver-20">C++20</span>
-<span class="ver ver-23">C++23</span>
-`#include <format>` / `#include <print>`
+`#include <format>`
 </div>
 
-`std::format` は、**`{}` の場所に値を埋め込んで文字列を作る**関数です。`std::print` / `std::println` は、同じ書き方でそのまま画面（標準出力）に出します。`printf` のように型ごとの `%d` / `%f` を覚える必要がなく、型の間違いはコンパイル時にエラーになります。桁数・幅・寄せ方・16 進数なども `{:...}` の中で指定できます。
+`std::format` は、**`{}` の場所に値を埋め込んで文字列を作る**関数です。同じ書き方でそのまま画面に出すのは [`std::println`](print.md) です。。`printf` のように型ごとの `%d` / `%f` を覚える必要がなく、型の間違いはコンパイル時にエラーになります。桁数・幅・寄せ方・16 進数なども `{:...}` の中で指定できます。
 
 !!! tip "ポイント"
-    - <strong>表示は `std::println("HP {}/{}", hp, max_hp);`、文字列が欲しいときは `std::format(...)`。</strong>
+    - <strong>表示は [`std::println`](print.md)、文字列が欲しいときは `std::format(...)`。</strong>
     - 小数の桁は `{:.1f}`、幅をそろえるなら `{:>5}`、0 埋めは `{:03}`、16 進数は `{:x}`。
     - vector や map もそのまま `{}` で出せる（C++23）。
-    - 書式の文字列は**コンパイル時に決まっている必要がある**（変数にするなら `std::vformat`）。
+    - 書式の文字列は**コンパイル時に決まっている必要がある**（変数にするなら [`std::vformat`](vformat.md)）。自作の型は [`std::formatter`](formatter.md)。
 
 ## 関数一覧
 
 | 関数 | 重要度 | 何をする | ヘッダ |
 | --- | --- | --- | --- |
-| [`std::println`](#println) | <span class="rank rank-must">必須</span> | 書式に従って出力し、改行する <span class="ver ver-23">C++23</span> | `<print>` |
+| [`std::println`](print.md) | <span class="rank rank-must">必須</span> | 書式に従って出力し、改行する <span class="ver ver-23">C++23</span> | `<print>` |
+| [`std::format_to`](format_to.md) | <span class="rank rank-sometimes">たまに</span> | 既にある場所に書き込む | `<format>` |
+| [`std::formatter`](formatter.md) | <span class="rank rank-sometimes">たまに</span> | 自作の型を `{}` で出せるようにする | `<format>` |
+| [`std::vformat`](vformat.md) | <span class="rank rank-rare">知ってるだけ</span> | 書式を実行時に決める | `<format>` |
 | [`std::format`](#format) | <span class="rank rank-must">必須</span> | 書式に従って文字列を作る <span class="ver ver-20">C++20</span> | `<format>` |
-| [`std::print`](#print) | <span class="rank rank-often">よく使う</span> | 書式に従って出力する（改行なし） <span class="ver ver-23">C++23</span> | `<print>` |
-| [`std::format_to`](#format_to) | <span class="rank rank-sometimes">たまに</span> | 既にある場所に書き込む（確保を減らす） | `<format>` |
-| [`std::formatter`](#formatter) | <span class="rank rank-sometimes">たまに</span> | 自作の型を `{}` で出せるようにする | `<format>` |
-| [`std::format_to_n`](#format_to_n) | <span class="rank rank-rare">知ってるだけ</span> | 最大 n 文字だけ書き込む | `<format>` |
-| [`std::formatted_size`](#formatted_size) | <span class="rank rank-rare">知ってるだけ</span> | 何文字になるかだけ計算する | `<format>` |
-| [`std::vformat`](#vformat) | <span class="rank rank-rare">知ってるだけ</span> | 書式を実行時に決める | `<format>` |
 
 ## よくある使い方
 
@@ -108,37 +106,6 @@ int main() {
 
 ## 関数の詳しい説明
 
-### std::println <span class="ver ver-23">C++23</span> {#println data-toc-label="std::println"}
-
-```cpp
-template <class... Args>
-void println(std::format_string<Args...> fmt, Args&&... args);
-template <class... Args>
-void println(std::FILE* stream, std::format_string<Args...> fmt, Args&&... args);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `stream` | `std::FILE*` | 出力先。省略すると `stdout`。`stderr` も指定できる |
-| `fmt` | 書式文字列 | `{}` を含む文字列。**コンパイル時の定数** |
-| `args` | 何個でも | `{}` に順番に埋め込む値 |
-
-- 出力して最後に改行します。UTF-8 の日本語も正しく出ます（Windows のコンソールでも）
-
-```cpp
-#include <cstdio>
-#include <print>
-
-int main() {
-  std::println("通常の出力");
-  std::println(stderr, "エラー出力: {}", 404);  // stderr は実行結果欄には出ないことがある
-}
-```
-
-```text title="実行結果"
-通常の出力
-```
-
 ### std::format <span class="ver ver-20">C++20</span> {#format data-toc-label="std::format"}
 
 ```cpp
@@ -167,177 +134,6 @@ int main() {
 
 ```text title="実行結果"
 stage07.json
-```
-
-### std::print <span class="ver ver-23">C++23</span> {#print data-toc-label="std::print"}
-
-```cpp
-template <class... Args>
-void print(std::format_string<Args...> fmt, Args&&... args);
-```
-
-- `println` の改行なし版です
-
-```cpp
-#include <print>
-
-int main() {
-  for (int i = 0; i < 3; ++i) {
-    std::print("{} ", i);
-  }
-  std::print("\n");
-}
-```
-
-```text title="実行結果"
-0 1 2 
-```
-
-### std::format_to {#format_to}
-
-```cpp
-template <class OutputIt, class... Args>
-OutputIt format_to(OutputIt out, std::format_string<Args...> fmt, Args&&... args);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `out` | 出力イテレータ | 書き込み先（`std::back_inserter(str)` など） |
-
-- 戻り値: 書き終わった次の位置
-- 既にある文字列やバッファに書き足すので、毎回新しい文字列を作らずに済みます
-
-```cpp
-#include <format>
-#include <iterator>
-#include <print>
-#include <string>
-
-int main() {
-  std::string log;
-  log.reserve(64);
-  for (int frame = 1; frame <= 3; ++frame) {
-    std::format_to(std::back_inserter(log), "[{}]", frame);
-  }
-  std::println("{}", log);
-}
-```
-
-```text title="実行結果"
-[1][2][3]
-```
-
-### std::formatter（自作の型を出す） {#formatter}
-
-```cpp
-template <class T, class CharT = char>
-struct formatter;
-```
-
-- `std::formatter<自作の型>` を特殊化すると、自作の型も `{}` で出せるようになります
-- 一番簡単なのは、既にある formatter（`std::string_view` など）を継承して `format` だけ書く方法です
-
-```cpp
-#include <format>
-#include <print>
-
-struct Vec2 {
-  float x;
-  float y;
-};
-
-template <>
-struct std::formatter<Vec2> : std::formatter<std::string_view> {
-  auto format(const Vec2& v, std::format_context& ctx) const {
-    return std::format_to(ctx.out(), "({:.1f}, {:.1f})", v.x, v.y);
-  }
-};
-
-int main() {
-  Vec2 pos = {1.25f, -3.0f};
-  std::println("位置 {}", pos);
-}
-```
-
-```text title="実行結果"
-位置 (1.2, -3.0)
-```
-
-!!! note "実際は"
-    `Vec2`、`Color`、`Rect` などの自作型に formatter を書いておくと、デバッグ表示がとても楽になります。
-
-### std::format_to_n {#format_to_n}
-
-```cpp
-template <class OutputIt, class... Args>
-std::format_to_n_result<OutputIt> format_to_n(OutputIt out, std::iter_difference_t<OutputIt> n,
-                                              std::format_string<Args...> fmt, Args&&... args);
-```
-
-- 最大 `n` 文字だけ書き込みます。固定長の char 配列に書くときに、はみ出しを防げます
-- 戻り値の `.size` は「本来なら何文字になったか」
-
-```cpp
-#include <format>
-#include <print>
-
-int main() {
-  char buf[8] = {};
-  auto result = std::format_to_n(buf, sizeof(buf) - 1, "Score:{}", 123456);
-  std::println("[{}] 本来は {} 文字", buf, result.size);
-}
-```
-
-```text title="実行結果"
-[Score:1] 本来は 12 文字
-```
-
-### std::formatted_size {#formatted_size}
-
-```cpp
-template <class... Args>
-std::size_t formatted_size(std::format_string<Args...> fmt, Args&&... args);
-```
-
-- 実際に文字列は作らず、何文字になるかだけを返します
-
-```cpp
-#include <format>
-#include <print>
-
-int main() {
-  std::println("{}", std::formatted_size("HP {}/{}", 45, 120));
-}
-```
-
-```text title="実行結果"
-9
-```
-
-### std::vformat {#vformat}
-
-```cpp
-std::string vformat(std::string_view fmt, std::format_args args);
-```
-
-- 書式文字列を**実行時に**決めたいときに使います（翻訳ファイルから読み込んだ文字列など）
-- 引数は `std::make_format_args(...)` で包みます。書式が間違っていると `std::format_error` 例外
-
-```cpp
-#include <format>
-#include <print>
-#include <string>
-
-int main() {
-  std::string fmt = "{} を {} 個手に入れた";  // 翻訳ファイルから読んだとする
-  std::string item = "ポーション";
-  int count = 3;
-  std::println("{}", std::vformat(fmt, std::make_format_args(item, count)));
-}
-```
-
-```text title="実行結果"
-ポーション を 3 個手に入れた
 ```
 
 ## フラグ・オプション（書式指定）
@@ -646,7 +442,7 @@ int main() {
 | --- | --- | --- |
 | `printf` | 型チェックが無い。速い | C の環境、古いコード |
 | `std::cout` / `<<` | 書式指定が面倒 | ストリームが必要なとき |
-| [`std::to_string`](../containers/string.md#to_string) | 数値 → 文字列だけ。書式を指定できない | 数値を 1 つ変換するだけ |
+| [`std::to_string`](../containers/to_string.md#to_string) | 数値 → 文字列だけ。書式を指定できない | 数値を 1 つ変換するだけ |
 
 ## コンパイラ対応
 

@@ -1,10 +1,12 @@
 ---
-title: std::ranges::min_element / max_element
+title: std::ranges::min_element
+summary: "範囲の中で、最小の要素の「位置（イテレータ）」を返す。"
+order: 27
 tags:
   - アルゴリズム
 ---
 
-# std::ranges::min_element / max_element
+# std::ranges::min_element
 
 <div class="page-badges" markdown>
 <span class="rank rank-often">よく使う</span>
@@ -12,53 +14,13 @@ tags:
 `#include <algorithm>`
 </div>
 
-`min_element` と `max_element` は、**範囲の中で最小・最大の要素の「位置」（イテレータ）を返す**関数です。[`std::ranges::min` / `max`](min_max.md) が「値のコピー」を返すのに対し、こちらは位置を返すので、見つけた要素を書き換えたり、何番目かを調べたりできます。
+`min_element` は、**範囲の中で最小の要素の「位置」（イテレータ）を返す**関数です。[`std::ranges::min`](min.md) が値のコピーを返すのに対し、こちらは位置を返すので、見つけた要素を書き換えたり、何番目かを調べたりできます。
 
 !!! tip "ポイント"
-    - <strong>一番近い敵、一番 HP の低い仲間など、「見つけて何かする」ときに使う。</strong> 値だけ欲しいなら `std::ranges::min` / `max`。
+    - 「一番近い敵」「一番 HP の低い仲間」のように、<strong>見つけて何かする</strong>ときに使う。
     - メンバで比べるならプロジェクション: `std::ranges::min_element(enemies, {}, &Enemy::distance)`。
     - 空の範囲だと `end()` が返る。**必ず `end()` と比べてから使う**。
-    - 同じ値が複数あると、`min_element` も `max_element` も**最初の**ものを返す。
-
-## 関数一覧
-
-| 関数 | 重要度 | 何をする | 計算量 |
-| --- | --- | --- | --- |
-| [`std::ranges::min_element`](#min_element) | <span class="rank rank-often">よく使う</span> | 最小の要素の位置 | O(n) |
-| [`std::ranges::max_element`](#max_element) | <span class="rank rank-often">よく使う</span> | 最大の要素の位置 | O(n) |
-| [`std::ranges::minmax_element`](#minmax_element) | <span class="rank rank-rare">知ってるだけ</span> | 両方の位置を一度に | O(n) |
-
-## よくある使い方
-
-### 一番近い敵をターゲットにする
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <string>
-#include <vector>
-
-struct Enemy {
-  std::string name;
-  float distance;
-  int hp;
-};
-
-int main() {
-  std::vector<Enemy> enemies = {
-      {"スライム", 8.0f, 10}, {"ゴブリン", 2.5f, 30}, {"コウモリ", 5.0f, 5}};
-
-  auto nearest = std::ranges::min_element(enemies, {}, &Enemy::distance);
-  if (nearest != enemies.end()) {
-    nearest->hp -= 20;  // 見つけた敵を直接書き換える
-    std::println("{} に攻撃。残り HP {}", nearest->name, nearest->hp);
-  }
-}
-```
-
-```text title="実行結果"
-ゴブリン に攻撃。残り HP 10
-```
+    - 同じ値が複数あると、**最初の**ものを返す。
 
 ## 関数の詳しい説明
 
@@ -102,21 +64,10 @@ int main() {
 ベストタイム 47 は 2 回目
 ```
 
-### std::ranges::max_element {#max_element}
 
-```cpp
-template <forward_range R, class Proj = identity, class Comp = ranges::less>
-constexpr borrowed_iterator_t<R> max_element(R&& r, Comp comp = {}, Proj proj = {});
-```
+## よくある使い方
 
-- 戻り値: 最大の要素のイテレータ。同じ値が複数なら**最初の**もの。空なら `end()`
-
-<div class="anim" data-label="std::ranges::max_element(v)">
-4 2 7 1 5 # v
-*4 2 7 1 5 # 最大の候補は 4
-4 2 *7 1 5 # 7 が大きいので候補が変わる
-4 2 *7 1 5 # 最後まで見て、7 の位置を返す
-</div>
+### 一番近い敵をターゲットにする
 
 ```cpp
 #include <algorithm>
@@ -124,45 +75,26 @@ constexpr borrowed_iterator_t<R> max_element(R&& r, Comp comp = {}, Proj proj = 
 #include <string>
 #include <vector>
 
-struct Member {
+struct Enemy {
   std::string name;
-  int aggro;
+  float distance;
+  int hp;
 };
 
 int main() {
-  std::vector<Member> party = {{"戦士", 80}, {"魔法使い", 95}, {"僧侶", 40}};
-  auto target = std::ranges::max_element(party, {}, &Member::aggro);
-  std::println("敵は {} を狙う", target->name);
+  std::vector<Enemy> enemies = {
+      {"スライム", 8.0f, 10}, {"ゴブリン", 2.5f, 30}, {"コウモリ", 5.0f, 5}};
+
+  auto nearest = std::ranges::min_element(enemies, {}, &Enemy::distance);
+  if (nearest != enemies.end()) {
+    nearest->hp -= 20;  // 見つけた敵を直接書き換える
+    std::println("{} に攻撃。残り HP {}", nearest->name, nearest->hp);
+  }
 }
 ```
 
 ```text title="実行結果"
-敵は 魔法使い を狙う
-```
-
-### std::ranges::minmax_element {#minmax_element}
-
-```cpp
-template <forward_range R, class Proj = identity, class Comp = ranges::less>
-constexpr minmax_element_result<borrowed_iterator_t<R>> minmax_element(R&& r, Comp comp = {}, Proj proj = {});
-```
-
-- 戻り値: `.min` と `.max` を持つ構造体（どちらもイテレータ）。最大は同じ値なら**最後の**もの
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <vector>
-
-int main() {
-  std::vector<int> v = {3, 9, 1, 9};
-  auto [lo, hi] = std::ranges::minmax_element(v);
-  std::println("最小 {}番目 / 最大 {}番目", lo - v.begin(), hi - v.begin());
-}
-```
-
-```text title="実行結果"
-最小 2番目 / 最大 3番目
+ゴブリン に攻撃。残り HP 10
 ```
 
 ## フラグ・オプション
@@ -175,17 +107,16 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 関数 |
+| 場面 | 書き方 |
 | --- | --- |
 | 一番近い敵 | `min_element(enemies, {}, 距離)` |
 | 回復対象（HP が一番低い仲間） | `min_element(party, {}, &Member::hp)` |
-| ヘイトが一番高い相手 | `max_element(party, {}, &Member::aggro)` |
-| AI の最善手 | `max_element(actions, {}, &Action::score)` |
+| 最短ルートの候補選び | `min_element(routes, {}, &Route::cost)` |
 
 ## パフォーマンス
 
 - 全要素を 1 回なめる O(n) です。
-- 距離で比べるときは、`std::sqrt` を使わずに**距離の 2 乗**で比べると速くなります（大小関係は同じ）。
+- 距離で比べるときは、`std::sqrt` を使わずに**距離の 2 乗**で比べると速くなります（大小関係は同じです）。
 
 ## 未定義動作・例外
 
@@ -202,9 +133,10 @@ int main() {
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::min` / `max`](min_max.md) | 値のコピーを返す（位置は分からない） |
-| [`std::ranges::sort`](sort.md) | 全部並べる（最小・最大だけならこちらが速い） |
-| [`std::ranges::nth_element`](partial_sort.md) | N 番目に小さいものを探す |
+| [`std::ranges::min`](min.md) | 値のコピーを返す（位置は分からない） |
+| [`std::ranges::max_element`](max_element.md) | 最大の位置を返す |
+| [`std::ranges::sort`](sort.md) | 全部並べる（最小・最大だけなら `min_element` が速い） |
+| [`std::ranges::nth_element`](nth_element.md) | N 番目に小さいものを探す |
 
 ## コンパイラ対応
 
@@ -213,9 +145,9 @@ C++20 の機能です。主要なコンパイラすべてで使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 最小・最大の「位置」が欲しいなら `min_element` / `max_element`
+    - [x] 最小の「位置」が欲しいなら `min_element`
     - [x] メンバで比べるなら `{}, &T::member`
-    - [x] 空なら end()。必ず確認する
+    - [x] 空なら `end()`。必ず確認する
 
 ## 関連ページ
 

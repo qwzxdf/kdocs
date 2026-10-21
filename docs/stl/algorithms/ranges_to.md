@@ -1,5 +1,7 @@
 ---
 title: std::ranges::to
+summary: "範囲（`views` の結果など）を `vector` などのコンテナに作り直す。"
+order: 29
 tags:
   - アルゴリズム
   - ranges
@@ -252,7 +254,7 @@ ABC
 | --- | --- |
 | `std::vector(std::from_range, r)` | コンストラクタで作る（型は自分で書く） |
 | `v.append_range(r)` | 既にある vector の末尾に追加する |
-| [`std::ranges::copy`](copy_fill.md) | 既にある場所へコピーする |
+| [`std::ranges::copy`](copy.md) | 既にある場所へコピーする |
 
 ## コンパイラ対応
 

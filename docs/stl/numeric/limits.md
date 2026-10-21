@@ -1,5 +1,7 @@
 ---
 title: std::numeric_limits
+summary: "型の最大値・最小値・誤差の大きさを、調べる。"
+order: 72
 tags:
   - 数値
 ---

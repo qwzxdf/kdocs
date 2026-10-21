@@ -1,5 +1,7 @@
 ---
 title: std::flat_set
+summary: "`vector` で作った `set`。検索と巡回が速い。挿入・削除は遅い。"
+order: 19
 tags:
   - コンテナ
 ---

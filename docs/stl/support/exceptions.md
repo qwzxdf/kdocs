@@ -1,5 +1,7 @@
 ---
 title: 標準の例外（<stdexcept>）
+summary: "標準の例外の種類（`runtime_error`、`out_of_range` など）と使い分け。"
+order: 86
 tags:
   - 型・言語サポート
   - エラー処理
@@ -44,14 +46,14 @@ C++ の標準ライブラリは、失敗したときに**例外**を投げるこ
 
 | 型 | 重要度 | 投げられる場面 |
 | --- | --- | --- |
-| [`std::exception`](#exception) | <span class="rank rank-sometimes">たまに</span> | すべての親。catch でまとめて受け取る |
-| [`std::runtime_error`](#runtime_error) | <span class="rank rank-sometimes">たまに</span> | 自分で投げるときの定番 |
-| [`std::out_of_range`](#out_of_range) | <span class="rank rank-sometimes">たまに</span> | `at()`、`substr`、`stoi` の範囲外 |
-| [`std::invalid_argument`](#invalid_argument) | <span class="rank rank-sometimes">たまに</span> | `stoi` などに変換できない文字列 |
-| [`std::logic_error`](#logic_error) | <span class="rank rank-rare">知ってるだけ</span> | プログラムのミスを表す親 |
-| [`std::bad_alloc`](#bad_alloc) | <span class="rank rank-rare">知ってるだけ</span> | メモリ確保の失敗 |
-| [`std::system_error`](#system_error) | <span class="rank rank-rare">知ってるだけ</span> | OS のエラー（エラーコード付き） |
-| [`std::exception_ptr`](#exception_ptr) | <span class="rank rank-rare">知ってるだけ</span> | 例外を保存して、別の場所で投げ直す |
+| [`std::exception`](exceptions/exception.md) | <span class="rank rank-sometimes">たまに</span> | すべての親。catch でまとめて受け取る |
+| [`std::runtime_error`](exceptions/runtime_error.md) | <span class="rank rank-sometimes">たまに</span> | 自分で投げるときの定番 |
+| [`std::out_of_range`](exceptions/out_of_range.md) | <span class="rank rank-sometimes">たまに</span> | `at()`、`substr`、`stoi` の範囲外 |
+| [`std::invalid_argument`](exceptions/invalid_argument.md) | <span class="rank rank-sometimes">たまに</span> | `stoi` などに変換できない文字列 |
+| [`std::logic_error`](exceptions/logic_error.md) | <span class="rank rank-rare">知ってるだけ</span> | プログラムのミスを表す親 |
+| [`std::bad_alloc`](exceptions/bad_alloc.md) | <span class="rank rank-rare">知ってるだけ</span> | メモリ確保の失敗 |
+| [`std::system_error`](exceptions/system_error.md) | <span class="rank rank-rare">知ってるだけ</span> | OS のエラー（エラーコード付き） |
+| [`std::exception_ptr`](exceptions/exception_ptr.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を保存して、別の場所で投げ直す |
 
 ## よくある使い方
 
@@ -82,137 +84,6 @@ int main() {
 ```text title="実行結果"
 範囲外
 数字ではない
-```
-
-## 詳しい説明
-
-### std::exception {#exception}
-
-```cpp
-class exception {
- public:
-  virtual const char* what() const noexcept;
-};
-```
-
-- すべての標準例外の親。`what()` で説明の文字列が取れます
-
-### std::runtime_error {#runtime_error}
-
-```cpp
-class runtime_error : public exception {
- public:
-  explicit runtime_error(const std::string& what_arg);
-};
-```
-
-- 実行してみないと分からない失敗（ファイルが壊れていた、など）。自分で投げるときに一番よく使います
-
-```cpp
-#include <print>
-#include <stdexcept>
-#include <string>
-
-int LoadLevel(const std::string& name) {
-  if (name.empty()) {
-    throw std::runtime_error("ステージ名が空です");
-  }
-  return 1;
-}
-
-int main() {
-  try {
-    LoadLevel("");
-  } catch (const std::exception& e) {
-    std::println("失敗: {}", e.what());
-  }
-}
-```
-
-```text title="実行結果"
-失敗: ステージ名が空です
-```
-
-### std::out_of_range {#out_of_range}
-
-```cpp
-class out_of_range : public logic_error;
-```
-
-- 範囲外を表します。`vector::at`、`string::at`、`string::substr`、`map::at`、`stoi`（int に入らない）が投げます
-
-### std::invalid_argument {#invalid_argument}
-
-```cpp
-class invalid_argument : public logic_error;
-```
-
-- 引数がおかしいことを表します。`std::stoi` などに数字で始まらない文字列を渡すと投げられます
-
-### std::logic_error {#logic_error}
-
-```cpp
-class logic_error : public exception;
-```
-
-- プログラムのミス（事前に確認すれば防げた失敗）を表す型の親です
-
-### std::bad_alloc {#bad_alloc}
-
-```cpp
-class bad_alloc : public exception;
-```
-
-- `new` や vector の確保でメモリが足りなかったときに投げられます
-
-### std::system_error {#system_error}
-
-```cpp
-class system_error : public runtime_error {
- public:
-  const std::error_code& code() const noexcept;
-};
-```
-
-- OS が返したエラーコード付きの例外。filesystem の失敗（`filesystem_error`）はこれの子です
-
-### std::exception_ptr {#exception_ptr}
-
-```cpp
-std::exception_ptr std::current_exception() noexcept;
-[[noreturn]] void std::rethrow_exception(std::exception_ptr p);
-```
-
-- 今処理中の例外を保存して、あとで（別のスレッドで）投げ直せます。`std::async` の例外が `get()` で投げ直される仕組みもこれです
-
-```cpp
-#include <exception>
-#include <print>
-#include <stdexcept>
-#include <thread>
-
-int main() {
-  std::exception_ptr error;
-  std::jthread([&error] {
-    try {
-      throw std::runtime_error("スレッドの中で失敗");
-    } catch (...) {
-      error = std::current_exception();  // 保存しておく
-    }
-  }).join();
-
-  try {
-    if (error) {
-      std::rethrow_exception(error);  // メインスレッドで投げ直す
-    }
-  } catch (const std::exception& e) {
-    std::println("{}", e.what());
-  }
-}
-```
-
-```text title="実行結果"
-スレッドの中で失敗
 ```
 
 ## フラグ・オプション

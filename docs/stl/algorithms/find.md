@@ -1,10 +1,12 @@
 ---
-title: std::ranges::find / find_if
+title: std::ranges::find
+summary: "条件に合う最初の要素を探す。見つからなければ `end()` が返る。"
+order: 22
 tags:
   - アルゴリズム
 ---
 
-# std::ranges::find / find_if
+# std::ranges::find
 
 <div class="page-badges" markdown>
 <span class="rank rank-must">必須</span>
@@ -12,11 +14,11 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::find` は、**範囲の中から値を先頭から順に探す**関数です。`find_if` は「条件に合う最初の要素」を探します。見つかればその位置（イテレータ）を、見つからなければ範囲の終わり（`end()`）を返します。C++23 からは「あるかどうか」だけを調べる `std::ranges::contains` も使えます。
+`std::ranges::find` は、**範囲の中から値を先頭から順に探す**関数です。`find_if` は「条件に合う最初の要素」を探します。見つかればその位置（イテレータ）を、見つからなければ範囲の終わり（`end()`）を返します。「あるかどうか」だけを知りたいなら、C++23 の [`std::ranges::contains`](contains.md) が使えます。
 
 !!! tip "ポイント"
     - <strong>条件で探すなら `find_if`、値で探すなら `find`。</strong> 結果は必ず `end()` と比べる。
-    - あるかどうかだけなら C++23 の `std::ranges::contains` が一番短い。
+    - あるかどうかだけなら C++23 の [`std::ranges::contains`](contains.md) が一番短い。最後の要素を探すなら [`find_last`](find_last.md)。
     - 構造体のメンバで探すならプロジェクション: `std::ranges::find(enemies, 42, &Enemy::id)`。
     - 先頭から順に見るので O(n)。何度も探すなら `unordered_map` などを検討する。
 
@@ -29,10 +31,7 @@ tags:
 | --- | --- | --- | --- |
 | [`std::ranges::find_if`](#find_if) | <span class="rank rank-must">必須</span> | 条件に合う最初の要素を探す | O(n) |
 | [`std::ranges::find`](#find) | <span class="rank rank-must">必須</span> | 値と等しい最初の要素を探す | O(n) |
-| [`std::ranges::contains`](#contains) | <span class="rank rank-often">よく使う</span> | 値が含まれているか <span class="ver ver-23">C++23</span> | O(n) |
 | [`std::ranges::find_if_not`](#find_if_not) | <span class="rank rank-sometimes">たまに</span> | 条件に合わない最初の要素を探す | O(n) |
-| [`std::ranges::find_last`](#find_last) | <span class="rank rank-rare">知ってるだけ</span> | 値と等しい最後の要素を探す <span class="ver ver-23">C++23</span> | O(n) |
-| [`std::ranges::find_last_if`](#find_last_if) | <span class="rank rank-rare">知ってるだけ</span> | 条件に合う最後の要素を探す <span class="ver ver-23">C++23</span> | O(n) |
 
 ## よくある使い方
 
@@ -185,41 +184,6 @@ int main() {
 いる？ true
 ```
 
-### std::ranges::contains <span class="ver ver-23">C++23</span> {#contains data-toc-label="std::ranges::contains"}
-
-```cpp
-template <input_range R, class T, class Proj = identity>
-constexpr bool contains(R&& r, const T& value, Proj proj = {});
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `r` | 範囲 | 探す範囲 |
-| `value` | `const T&` | 探す値 |
-| `proj` | プロジェクション | 比べる前の変換 |
-
-- 戻り値: 含まれていれば `true`
-- 計算量: O(n)
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <vector>
-
-int main() {
-  std::vector<int> unlocked = {1, 2, 5};
-  std::println("{} {}", std::ranges::contains(unlocked, 5),
-               std::ranges::contains(unlocked, 3));
-}
-```
-
-```text title="実行結果"
-true false
-```
-
-!!! note "実際は"
-    `find(...) != end()` と書いていたものが 1 行で済みます。位置が要らないならこちらを使います。
-
 ### std::ranges::find_if_not {#find_if_not}
 
 ```cpp
@@ -251,48 +215,6 @@ int main() {
 ```text title="実行結果"
 2 番目がまだ読み込まれていない
 ```
-
-### std::ranges::find_last <span class="ver ver-23">C++23</span> {#find_last data-toc-label="std::ranges::find_last"}
-
-```cpp
-template <forward_range R, class T, class Proj = identity>
-constexpr borrowed_subrange_t<R> find_last(R&& r, const T& value, Proj proj = {});
-```
-
-- 戻り値: **最後に**見つかった要素から終わりまでの範囲（`subrange`）。`.begin()` がその位置。見つからなければ空の範囲
-
-<div class="anim" data-label="std::ranges::find_last(v, 2)">
-2 1 2 3 # 値が 2 の最後の要素
-2 1 *2 3 # 後ろ側のものが見つかる
-</div>
-
-### std::ranges::find_last_if <span class="ver ver-23">C++23</span> {#find_last_if data-toc-label="std::ranges::find_last_if"}
-
-```cpp
-template <forward_range R, class Proj = identity, class Pred>
-constexpr borrowed_subrange_t<R> find_last_if(R&& r, Pred pred, Proj proj = {});
-```
-
-- 条件に合う**最後の**要素を探します
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <vector>
-
-int main() {
-  std::vector<int> checkpoints = {0, 1, 0, 1, 0};
-  auto last = std::ranges::find_last(checkpoints, 1);
-  std::println("最後の 1 は {} 番目", last.begin() - checkpoints.begin());
-}
-```
-
-```text title="実行結果"
-最後の 1 は 3 番目
-```
-
-!!! note "実際は"
-    戻り値がイテレータではなく範囲なので少し扱いにくいです。`.begin()` を取れば位置になります。
 
 ## フラグ・オプション
 
@@ -358,7 +280,7 @@ int main() {
 | 名前 | 違い |
 | --- | --- |
 | [`std::ranges::any_of`](any_of.md) | 条件に合うものがあるかを bool で返す |
-| [`std::ranges::count_if`](count_if.md) | 条件に合う数を数える |
+| [`std::ranges::count_if`](count.md) | 条件に合う数を数える |
 | [`std::ranges::lower_bound`](binary_search.md) | ソート済み範囲を二分探索 |
 | `std::views::filter` | 条件に合うものを全部取り出す |
 | `m.find(key)`（map などのメンバ） | キーで O(log n) / O(1) で探す |
@@ -368,8 +290,6 @@ int main() {
 | 機能 | MSVC | GCC | Clang (libc++) |
 | --- | --- | --- | --- |
 | `std::ranges::find` / `find_if` <span class="ver ver-20">C++20</span> | ○ | ○ | ○ |
-| `std::ranges::contains` <span class="ver ver-23">C++23</span> | VS 2022 17.4〜 | 13〜 | 18〜 |
-| `std::ranges::find_last` <span class="ver ver-23">C++23</span> | VS 2022 17.4〜 | 13〜 | 19〜 |
 
 ## これだけ覚える
 

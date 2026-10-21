@@ -183,7 +183,7 @@ enemies.push_back(std::move(enemy));                  // 持ち主を移す
 | --- | --- |
 | `new T` / `delete` | `std::make_unique<T>()` |
 | `new T[n]` / `delete[]` | `std::vector<T>(n)` |
-| `malloc` / `free` | `std::vector`、`unique_ptr<T, decltype(&std::free)>`（[C 由来のメモリ](../../stl/memory/c-memory.md)） |
+| `malloc` / `free` | `std::vector`、`unique_ptr<T, decltype(&std::free)>`（[C 由来のメモリ](../../stl/memory/malloc.md)） |
 | `fopen` / `fclose` | `std::ifstream`、または `unique_ptr<FILE, FileCloser>` |
 | `mutex.lock()` / `unlock()` | `std::lock_guard<std::mutex> lock(m);` |
 | `glGenBuffers` / `glDeleteBuffers` | 自作の `GpuBuffer` |

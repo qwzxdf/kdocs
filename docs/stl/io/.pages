@@ -1,8 +1,41 @@
 nav:
+  - ifstream.md
+  - ofstream.md
+  - getline.md
   - filesystem.md
+  - ios_base.md
+  - cout.md
+  - stringstream.md
+  - istringstream.md
+  - ostringstream.md
+  - from_chars.md
+  - to_chars.md
+  - ostream.md
+  - istream.md
+  - assert.md
   - fstream.md
-  - sstream.md
-  - charconv.md
-  - iostream.md
   - regex.md
+  - cin.md
+  - cerr.md
+  - endl.md
+  - flush.md
+  - setw.md
+  - setprecision.md
+  - setfill.md
+  - hex.md
+  - fixed.md
+  - boolalpha.md
+  - regex_search.md
+  - regex_match.md
+  - regex_replace.md
+  - smatch.md
+  - sregex_iterator.md
+  - streambuf.md
+  - osyncstream.md
+  - spanstream.md
+  - locale.md
+  - cerrno.md
+  - csignal.md
+  - cstdarg.md
+  - csetjmp.md
   - ...

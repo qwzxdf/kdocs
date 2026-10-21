@@ -1,0 +1,7 @@
+title: ranges の基本部品
+nav:
+  - range.md
+  - begin.md
+  - size.md
+  - dangling.md
+  - ...

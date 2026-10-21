@@ -1,0 +1,17 @@
+title: 関数オブジェクトと呼び出し（functional）
+nav:
+  - less.md
+  - greater.md
+  - ref.md
+  - bind_front.md
+  - equal_to.md
+  - plus.md
+  - multiplies.md
+  - identity.md
+  - invoke.md
+  - bind_back.md
+  - not_fn.md
+  - bind.md
+  - mem_fn.md
+  - reference_wrapper.md
+  - ...

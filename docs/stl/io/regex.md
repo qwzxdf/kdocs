@@ -1,5 +1,7 @@
 ---
 title: std::regex
+summary: "正規表現による文字列の検索・置換。便利だが遅い。"
+order: 69
 tags:
   - 文字列
 ---
@@ -26,11 +28,11 @@ tags:
 | 関数・型 | 重要度 | 何をする |
 | --- | --- | --- |
 | [`std::regex`](#regex) | <span class="rank rank-sometimes">たまに</span> | パターンを表す型 |
-| [`std::regex_search`](#regex_search) | <span class="rank rank-sometimes">たまに</span> | 文字列の**どこかに**パターンがあるか |
-| [`std::regex_match`](#regex_match) | <span class="rank rank-sometimes">たまに</span> | 文字列**全体が**パターンに一致するか |
-| [`std::regex_replace`](#regex_replace) | <span class="rank rank-sometimes">たまに</span> | 一致した部分を置き換える |
-| [`std::smatch`](#smatch) | <span class="rank rank-sometimes">たまに</span> | 一致した部分（グループ）の結果 |
-| [`std::sregex_iterator`](#sregex_iterator) | <span class="rank rank-rare">知ってるだけ</span> | 一致するものを全部たどる |
+| [`std::regex_search`](regex_search.md) | <span class="rank rank-sometimes">たまに</span> | 文字列の**どこかに**パターンがあるか |
+| [`std::regex_match`](regex_match.md) | <span class="rank rank-sometimes">たまに</span> | 文字列**全体が**パターンに一致するか |
+| [`std::regex_replace`](regex_replace.md) | <span class="rank rank-sometimes">たまに</span> | 一致した部分を置き換える |
+| [`std::smatch`](smatch.md) | <span class="rank rank-sometimes">たまに</span> | 一致した部分（グループ）の結果 |
+| [`std::sregex_iterator`](sregex_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 一致するものを全部たどる |
 
 ## よくある使い方
 
@@ -77,104 +79,6 @@ explicit basic_regex(const std::string& pattern, flag_type flags = ECMAScript);
 
 - パターンが間違っていると `std::regex_error` 例外
 - 作るのが重いので、`static const` やメンバ変数にして使い回します
-
-### std::regex_search {#regex_search}
-
-```cpp
-bool regex_search(const std::string& s, const std::regex& re);
-bool regex_search(const std::string& s, std::smatch& m, const std::regex& re);
-```
-
-- 文字列の中に一致する部分があれば `true`。`m` を渡すと最初に一致した部分が入ります
-
-### std::regex_match {#regex_match}
-
-```cpp
-bool regex_match(const std::string& s, const std::regex& re);
-bool regex_match(const std::string& s, std::smatch& m, const std::regex& re);
-```
-
-- 文字列**全体**が一致したときだけ `true`
-
-```cpp
-#include <print>
-#include <regex>
-
-int main() {
-  const std::regex kDigits(R"(\d+)");
-  std::println("{} {}", std::regex_match("123", kDigits), std::regex_match("a123", kDigits));
-  std::println("{}", std::regex_search("a123", kDigits));
-}
-```
-
-```text title="実行結果"
-true false
-true
-```
-
-### std::regex_replace {#regex_replace}
-
-```cpp
-std::string regex_replace(const std::string& s, const std::regex& re, const std::string& fmt);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `s` | 文字列 | 元の文字列 |
-| `re` | `std::regex` | 探すパターン |
-| `fmt` | 文字列 | 置き換える文字列。`$1` でグループ 1、`$&` で一致した全体 |
-
-```cpp
-#include <print>
-#include <regex>
-#include <string>
-
-int main() {
-  std::string date = "2026-10-17";
-  std::println("{}", std::regex_replace(date, std::regex(R"((\d+)-(\d+)-(\d+))"), "$3/$2/$1"));
-}
-```
-
-```text title="実行結果"
-17/10/2026
-```
-
-### std::smatch {#smatch}
-
-```cpp
-using smatch = std::match_results<std::string::const_iterator>;
-```
-
-- `m[0]` が一致した全体、`m[1]` 以降が `()` で囲んだグループ。`.str()` で文字列、`.position(i)` で位置
-- **元の文字列が消えると使えない**（中で元の文字列を指している）
-
-### std::sregex_iterator {#sregex_iterator}
-
-```cpp
-using sregex_iterator = std::regex_iterator<std::string::const_iterator>;
-```
-
-- 一致する部分を前から順に全部たどります
-
-```cpp
-#include <print>
-#include <regex>
-#include <string>
-
-int main() {
-  std::string text = "HP:120 MP:30 SP:5";
-  const std::regex kNumber(R"(\d+)");
-  for (auto it = std::sregex_iterator(text.begin(), text.end(), kNumber);
-       it != std::sregex_iterator(); ++it) {
-    std::print("{} ", it->str());
-  }
-  std::println("");
-}
-```
-
-```text title="実行結果"
-120 30 5 
-```
 
 ## フラグ・オプション
 

@@ -1,5 +1,7 @@
 ---
 title: std::clamp
+summary: "値を下限と上限の範囲内に収める（はみ出したら端の値にする）。"
+order: 26
 tags:
   - アルゴリズム
 ---
@@ -152,7 +154,7 @@ constexpr const T& clamp(const T& v, const T& lo, const T& hi, Comp comp = {}, P
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::min` / `std::max`](min_max.md) | 片側だけ制限する |
+| [`std::min` / `std::max`](max.md) | 片側だけ制限する |
 
 ## コンパイラ対応
 

@@ -1,5 +1,7 @@
 ---
 title: std::string_view
+summary: "文字列をコピーせずに「借りて」見る。引数で文字列を受け取るときの定番。"
+order: 53
 tags:
   - ユーティリティ
   - 文字列

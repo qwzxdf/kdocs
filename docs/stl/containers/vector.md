@@ -1,5 +1,7 @@
 ---
 title: std::vector
+summary: "あとから増減できる配列。要素が隣り合って並ぶので速い。迷ったらこれ。"
+order: 1
 tags:
   - コンテナ
 ---

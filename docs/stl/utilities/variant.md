@@ -1,5 +1,7 @@
 ---
 title: std::variant
+summary: "「複数の型のうちどれか 1 つ」を持つ。状態や種類ごとのデータを型安全に持てる。"
+order: 54
 tags:
   - ユーティリティ
 ---
@@ -42,13 +44,9 @@ struct monostate {};  // 「何も入っていない」を表す空の型
 | 関数 | 重要度 | 何をする |
 | --- | --- | --- |
 | [代入](#assign) | <span class="rank rank-must">必須</span> | 候補のどれかの型の値を入れる |
-| [`std::visit`](#visit) | <span class="rank rank-must">必須</span> | 今の中身に応じて関数を呼ぶ |
-| [`std::holds_alternative`](#holds_alternative) | <span class="rank rank-often">よく使う</span> | 今その型が入っているか |
-| [`std::get_if`](#get_if) | <span class="rank rank-often">よく使う</span> | その型ならポインタ、違えば nullptr |
 | [`std::get`](#get) | <span class="rank rank-sometimes">たまに</span> | その型として取り出す（違えば例外） |
 | [`index`](#index) | <span class="rank rank-sometimes">たまに</span> | 今何番目の型が入っているか |
 | [`emplace`](#emplace) | <span class="rank rank-sometimes">たまに</span> | その場で値を作る |
-| [`std::monostate`](#monostate) | <span class="rank rank-rare">知ってるだけ</span> | 「空」を表す候補 |
 | [`valueless_by_exception`](#valueless) | <span class="rank rank-rare">知ってるだけ</span> | 例外で壊れた状態か |
 | [`std::variant_size`](#variant_size) | <span class="rank rank-rare">知ってるだけ</span> | 候補の数 |
 
@@ -141,79 +139,6 @@ x5 # 今の値を破棄する
 +1.5 # double に切り替わる
 </div>
 
-### std::visit {#visit}
-
-```cpp
-template <class Visitor, class... Variants>
-constexpr decltype(auto) visit(Visitor&& vis, Variants&&... vars);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `vis` | 関数オブジェクト | **すべての候補の型**を受け取れる関数（ラムダの `auto` 引数か、overloaded） |
-| `vars` | variant | 対象の variant（複数渡すと全組み合わせ） |
-
-- 戻り値: `vis` の戻り値（すべての型で同じ型を返す必要がある）
-
-```cpp
-#include <print>
-#include <string>
-#include <variant>
-
-int main() {
-  std::variant<int, std::string> v = 42;
-  // auto 引数のラムダなら全部の型を受け取れる
-  std::visit([](const auto& x) { std::println("中身: {}", x); }, v);
-  v = "text";
-  std::visit([](const auto& x) { std::println("中身: {}", x); }, v);
-}
-```
-
-```text title="実行結果"
-中身: 42
-中身: text
-```
-
-### std::holds_alternative {#holds_alternative}
-
-```cpp
-template <class T, class... Types>
-constexpr bool holds_alternative(const std::variant<Types...>& v) noexcept;
-```
-
-- 今 `T` が入っていれば `true`
-
-### std::get_if {#get_if}
-
-```cpp
-template <class T, class... Types>
-constexpr std::add_pointer_t<T> get_if(std::variant<Types...>* pv) noexcept;
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `pv` | variant の**ポインタ** | `&v` を渡す |
-
-- 今 `T` が入っていればそのポインタ、違えば `nullptr`。例外を使わずに安全に取り出せます
-
-```cpp
-#include <print>
-#include <variant>
-
-int main() {
-  std::variant<int, float> v = 1.5f;
-  if (auto* f = std::get_if<float>(&v)) {
-    std::println("float {}", *f);
-  }
-  std::println("int？ {}", std::get_if<int>(&v) != nullptr);
-}
-```
-
-```text title="実行結果"
-float 1.5
-int？ false
-```
-
 ### std::get {#get}
 
 ```cpp
@@ -297,28 +222,6 @@ int main() {
 
 ```text title="実行結果"
 zzz
-```
-
-### std::monostate {#monostate}
-
-```cpp
-struct monostate {};
-```
-
-- 候補の最初に置くと「まだ何も入っていない」状態を表せます。最初の型にデフォルトコンストラクタが無いときにも使います
-
-```cpp
-#include <print>
-#include <variant>
-
-int main() {
-  std::variant<std::monostate, int> v;
-  std::println("空？ {}", std::holds_alternative<std::monostate>(v));
-}
-```
-
-```text title="実行結果"
-空？ true
 ```
 
 ### valueless_by_exception {#valueless}

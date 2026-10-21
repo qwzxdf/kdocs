@@ -1,5 +1,7 @@
 ---
 title: std::ranges::unique
+summary: "隣り合う重複を 1 つにまとめる（並べ替えておくと全体の重複を除ける）。"
+order: 39
 tags:
   - アルゴリズム
 ---
@@ -12,43 +14,15 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::unique` は、**連続して並んでいる同じ値を 1 つにまとめる**関数です。「連続して」なので、`{1, 1, 2, 1}` は `{1, 2, 1}` になります。全体の重複を消したいなら、**先にソートしてから** `unique` します。また、`unique` は「残すものを前に詰める」だけで要素数は変えないので、後ろに残ったものは自分で `erase` します。
+`std::ranges::unique` は、**隣り合っている同じ値を 1 つにまとめて、前に詰める**アルゴリズムです。離れた同じ値は残るので、全体の重複を取り除くには、先に [`sort`](sort.md) して同じ値を隣り合わせにします。[`remove`](remove.md) と同じく、コンテナの大きさは変わらないので、`erase` で後ろを消します。
 
 !!! tip "ポイント"
-    - 重複を消す定番は「`sort` → `unique` → `erase`」の 3 点セット。
-    - 順番を気にしないなら、`std::set` / `std::unordered_set` に入れるだけでもいい。
-    - `unique` 単体では要素数が減らない。戻り値の範囲を `erase` する。
+    - 全体の重複を消す手順は **`sort` → `unique` → `erase`**。
+    - `unique` だけでは、離れた同じ値は消えない。
+    - 戻り値の範囲（後ろのゴミ）を `erase` で消す。
 
-## 関数一覧
-
-| 関数 | 重要度 | 何をする | 計算量 |
-| --- | --- | --- | --- |
-| [`std::ranges::unique`](#unique) | <span class="rank rank-sometimes">たまに</span> | 連続する重複を前に詰めてまとめる | O(n) |
-| [`std::ranges::unique_copy`](#unique_copy) | <span class="rank rank-rare">知ってるだけ</span> | 重複をまとめたものを別の場所にコピー | O(n) |
-
-## よくある使い方
-
-### 重複を全部消す
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <vector>
-
-int main() {
-  std::vector<int> ids = {5, 3, 5, 1, 3, 3};
-
-  std::ranges::sort(ids);                     // [1, 3, 3, 3, 5, 5]
-  auto removed = std::ranges::unique(ids);    // 後ろに余りが残る
-  ids.erase(removed.begin(), removed.end());  // 余りを消す
-
-  std::println("{}", ids);
-}
-```
-
-```text title="実行結果"
-[1, 3, 5]
-```
+!!! info "このページを読む前に"
+    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
@@ -107,62 +81,28 @@ int main() {
 接続
 ```
 
-### std::ranges::unique_copy {#unique_copy}
-
-```cpp
-template <input_range R, weakly_incrementable O, class Proj = identity, class Comp = ranges::equal_to>
-constexpr unique_copy_result<borrowed_iterator_t<R>, O> unique_copy(R&& r, O result, Comp comp = {}, Proj proj = {});
-```
-
-- 元はそのままで、連続する重複をまとめたものを `result` に書き込みます
-
-```cpp
-#include <algorithm>
-#include <iterator>
-#include <print>
-#include <string>
-
-int main() {
-  std::string input = "aaabbbcc";
-  std::string compressed;
-  std::ranges::unique_copy(input, std::back_inserter(compressed));
-  std::println("{}", compressed);
-}
-```
-
-```text title="実行結果"
-abc
-```
-
-## フラグ・オプション
-
-| 引数 | 重要度 | 渡すもの | 意味 |
-| --- | --- | --- | --- |
-| `proj` | <span class="rank rank-sometimes">たまに</span> | `&Type::member` | メンバが同じなら重複とみなす |
-| `comp` | <span class="rank rank-rare">知ってるだけ</span> | ラムダ式 | 「近い値なら同じ」など自由な判定 |
-
 ## ゲームでの使いどころ
 
-| 場面 | 例 |
+| 場面 | 書き方 |
 | --- | --- |
-| 重複した ID を除く | 当たった敵のリスト、読み込むアセットのリスト |
-| 連続するログをまとめる | 同じエラーが続いたら 1 回だけ表示 |
+| 取得したアイテム ID から重複を消す | `sort` → `unique` → `erase` |
+| 入力履歴の連続した同じキーを 1 つにまとめる | `unique(inputs)` |
 
 ## よくあるミス
 
-??? failure "ソートせずに使って重複が残る"
-    `{1, 2, 1}` に `unique` しても何も変わりません。全体の重複を消すなら先に `sort` します。
+??? failure "並べ替えずに使って、重複が残る"
+    `{1, 2, 1}` に `unique` を使っても何も消えません。先に `sort` します。
 
 ??? failure "erase を忘れる"
-    `unique` だけでは `size()` は変わらず、後ろに不定な値が残ります。
+    `unique` は後ろに不定の要素を残します。戻り値から `erase` で消します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::set`](../containers/set.md) | 入れるだけで重複が消えて並ぶ |
-| [`std::unordered_set`](../containers/unordered_set.md) | 入れるだけで重複が消える（順番なし） |
-| [`std::erase_if`](erase_if.md) | 条件で消す |
+| [`std::ranges::unique_copy`](unique_copy.md) | 結果を別の場所へ作る |
+| `std::set` / `std::unordered_set` | そもそも重複を持たないコンテナ |
+| [`std::ranges::adjacent_find`](adjacent_find.md) | 隣り合う重複を見つける |
 
 ## コンパイラ対応
 
@@ -171,8 +111,9 @@ C++20 の機能です。主要なコンパイラすべてで使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 重複を消すのは「sort → unique → erase」
-    - [x] unique は「連続する」重複だけ。要素数は減らない
+    - [x] 隣り合う重複をまとめる
+    - [x] 全体の重複は `sort` → `unique` → `erase`
+    - [x] erase を忘れない
 
 ## 関連ページ
 

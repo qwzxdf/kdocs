@@ -1,5 +1,7 @@
 ---
 title: std::priority_queue
+summary: "一番優先度の高いものを、先に取り出せるキュー。A* の探索やイベント管理に。"
+order: 9
 tags:
   - コンテナ
 ---

@@ -1,0 +1,23 @@
+title: 型の性質（type_traits）
+nav:
+  - is_same.md
+  - is_integral.md
+  - is_floating_point.md
+  - remove_cvref.md
+  - is_arithmetic.md
+  - is_trivially_copyable.md
+  - is_base_of.md
+  - is_nothrow_move_constructible.md
+  - underlying_type.md
+  - conditional.md
+  - is_enum.md
+  - is_pointer.md
+  - is_const.md
+  - is_default_constructible.md
+  - is_copy_constructible.md
+  - is_aggregate.md
+  - decay.md
+  - common_type.md
+  - make_unsigned.md
+  - invoke_result.md
+  - ...

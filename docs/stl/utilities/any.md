@@ -1,5 +1,7 @@
 ---
 title: std::any
+summary: "どんな型でも入る箱。型を実行時に確かめて取り出す。使う場面は少ない。"
+order: 57
 tags:
   - ユーティリティ
 ---
@@ -31,12 +33,10 @@ class any;
 | 関数 | 重要度 | 何をする |
 | --- | --- | --- |
 | [代入](#assign) | <span class="rank rank-often">よく使う</span> | 何でも入れる |
-| [`std::any_cast`](#any_cast) | <span class="rank rank-often">よく使う</span> | 型を指定して取り出す |
 | [`has_value`](#has_value) | <span class="rank rank-sometimes">たまに</span> | 何か入っているか |
 | [`type`](#type) | <span class="rank rank-sometimes">たまに</span> | 入っている型の情報 |
 | [`reset`](#reset) | <span class="rank rank-rare">知ってるだけ</span> | 空にする |
 | [`emplace`](#emplace) | <span class="rank rank-rare">知ってるだけ</span> | その場で作って入れる |
-| [`std::make_any`](#make_any) | <span class="rank rank-rare">知ってるだけ</span> | 作って any にする |
 
 ## よくある使い方
 
@@ -76,42 +76,6 @@ any& operator=(T&& value);
 ```
 
 - どんな型（コピーできるもの）でも入れられます。前の値は消えます
-
-### std::any_cast {#any_cast}
-
-```cpp
-template <class T>
-T any_cast(const any& operand);          // 失敗すると例外
-template <class T>
-const T* any_cast(const any* operand) noexcept;  // 失敗すると nullptr
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `operand` | `any` / `any*` | 取り出す元。ポインタを渡すとポインタ版になる |
-
-- 型が**ぴったり**合わないと失敗します（`int` を入れて `long` で取り出すのも失敗）
-- 参照版は失敗すると `std::bad_any_cast` 例外
-
-```cpp
-#include <any>
-#include <print>
-
-int main() {
-  std::any a = 10;
-  std::println("{}", std::any_cast<int>(a));
-  try {
-    std::any_cast<long>(a);
-  } catch (const std::bad_any_cast&) {
-    std::println("long では取り出せない");
-  }
-}
-```
-
-```text title="実行結果"
-10
-long では取り出せない
-```
 
 ### has_value {#has_value}
 
@@ -175,34 +139,6 @@ std::decay_t<T>& emplace(Args&&... args);
 x5 # 今の値を破棄する
 +2.5 # float をその場で作る
 </div>
-
-### std::make_any {#make_any}
-
-```cpp
-template <class T, class... Args>
-std::any make_any(Args&&... args);
-```
-
-- `T` を作って入れた any を返します
-
-```cpp
-#include <any>
-#include <print>
-#include <string>
-
-int main() {
-  std::any a = std::make_any<std::string>(3, 'a');
-  a.emplace<int>(7);
-  std::println("{}", std::any_cast<int>(a));
-  a.reset();
-  std::println("{}", a.has_value());
-}
-```
-
-```text title="実行結果"
-7
-false
-```
 
 ## フラグ・オプション
 

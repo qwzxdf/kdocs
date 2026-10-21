@@ -1,5 +1,7 @@
 ---
 title: std::atomic
+summary: "複数スレッドから、安全に読み書きできる数値・フラグ。"
+order: 78
 tags:
   - 並行処理
 ---
@@ -45,8 +47,9 @@ tags:
 | [`wait`](#wait) | <span class="rank rank-rare">知ってるだけ</span> | 値が変わるまで待つ <span class="ver ver-20">C++20</span> |
 | [`notify_one`](#notify_one) | <span class="rank rank-rare">知ってるだけ</span> | 待っているスレッドを 1 つ起こす <span class="ver ver-20">C++20</span> |
 | [`notify_all`](#notify_all) | <span class="rank rank-rare">知ってるだけ</span> | 待っているスレッドを全部起こす <span class="ver ver-20">C++20</span> |
+| [`std::atomic_flag`](atomic_flag.md) | <span class="rank rank-rare">知ってるだけ</span> | 一番単純なフラグ |
+| [`std::atomic_ref`](atomic_ref.md) | <span class="rank rank-rare">知ってるだけ</span> | 普通の変数をその場でアトミックに操作する |
 | [`is_lock_free`](#is_lock_free) | <span class="rank rank-rare">知ってるだけ</span> | 内部で mutex を使っていないか |
-| [`std::atomic_flag`](#atomic_flag) | <span class="rank rank-rare">知ってるだけ</span> | 一番単純なフラグ |
 
 ## よくある使い方
 
@@ -367,36 +370,9 @@ bool is_lock_free() const noexcept;
 
 - 内部で mutex を使わずに実現できているか。int や bool、ポインタなら普通は `true`。大きな構造体を atomic にすると `false`（遅い）になります
 
-### std::atomic_flag {#atomic_flag}
-
-```cpp
-class atomic_flag {
- public:
-  bool test_and_set() noexcept;
-  void clear() noexcept;
-  bool test() const noexcept;  // C++20
-};
-```
-
-- 一番単純な bool の atomic。スピンロックを自作するときに使います
-
-```cpp
-#include <atomic>
-#include <print>
-
-int main() {
-  std::atomic<int> x;
-  std::atomic_flag f;
-  bool was_set = f.test_and_set();
-  std::println("{} {} {}", x.is_lock_free(), was_set, f.test());
-}
-```
-
-```text title="実行結果"
-true false true
-```
-
 ## フラグ・オプション（メモリオーダー）
+
+詳しくは [`std::memory_order`](memory_order.md) のページにあります。
 
 各操作には「メモリオーダー」を指定できます。**分からなければ指定しない**（デフォルトの `seq_cst` が一番安全）でかまいません。
 

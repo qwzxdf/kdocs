@@ -1,10 +1,12 @@
 ---
-title: std::ranges::partial_sort / nth_element
+title: std::ranges::partial_sort
+summary: "全部は並べず、先頭の N 件だけを整列させる。"
+order: 36
 tags:
   - アルゴリズム
 ---
 
-# std::ranges::partial_sort / nth_element
+# std::ranges::partial_sort
 
 <div class="page-badges" markdown>
 <span class="rank rank-rare">知ってるだけ</span>
@@ -12,24 +14,40 @@ tags:
 `#include <algorithm>`
 </div>
 
-`partial_sort` は、**先頭の N 個だけを正しい順に並べる**関数です（残りの順番はバラバラ）。`nth_element` は、**N 番目の位置にだけ「全部並べたときに来るはずの値」を置き、その前には小さいもの、後ろには大きいものを集める**関数です。どちらも全部を並べる `sort` より速く終わります。
+`std::ranges::partial_sort` は、**範囲の先頭 N 件だけを小さい順に整列させる**アルゴリズムです。ランキングの上位 10 件だけが欲しいときに、全体を [`sort`](sort.md) するより速く済みます。残りの要素の順番は不定です。
 
 !!! tip "ポイント"
-    - 「上位 10 件だけ欲しい」なら `partial_sort`。
-    - 「中央値」「N 番目に大きい値」だけ欲しいなら `nth_element`。
-    - 要素が少ないなら `sort` で全部並べても差はほぼ無い。要素が多いときの最適化に使う。
+    - 「上位 N 件が欲しい」ときに使う。全体を並べるより速い（O(n log N)）。
+    - 第 2 引数は「**整列させたい範囲の終わり**」。`v.begin() + 3` なら上位 3 件。
+    - 元を変えたくないなら、整列結果を別の場所に作る `partial_sort_copy`。
 
-## 関数一覧
+!!! info "このページを読む前に"
+    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
-| 関数 | 重要度 | 何をする | 計算量 |
+## 関数の詳しい説明
+
+### std::ranges::partial_sort {#partial_sort}
+
+```cpp
+template <random_access_range R, class Comp = ranges::less, class Proj = identity>
+constexpr borrowed_iterator_t<R> partial_sort(R&& r, iterator_t<R> middle,
+                                              Comp comp = {}, Proj proj = {});
+```
+
+| 引数 | 型 | 意味 | 省略すると |
 | --- | --- | --- | --- |
-| [`std::ranges::partial_sort`](#partial_sort) | <span class="rank rank-rare">知ってるだけ</span> | 先頭 N 個だけ並べる | O(n log N) |
-| [`std::ranges::nth_element`](#nth_element) | <span class="rank rank-rare">知ってるだけ</span> | N 番目だけ正しい値にする | 平均 O(n) |
-| [`std::ranges::partial_sort_copy`](#partial_sort_copy) | <span class="rank rank-rare">知ってるだけ</span> | 上位 N 個を並べて別の場所にコピー | O(n log N) |
+| `r` | 範囲 | 対象の範囲 |  |
+| `middle` | イテレータ | 整列させる範囲の終わり。`[begin, middle)` が整列される |  |
+| `comp` | 関数 | 並べる順（既定は小さい順） | `<` |
+| `proj` | プロジェクション | 比べる前の変換 | そのまま |
 
-## よくある使い方
+- 戻り値: 範囲の終わり（`end()` 相当）
+- 計算量: O(n log N)（N は `middle - begin`）
 
-### 上位 3 件だけ表示する
+<div class="anim" data-label="std::ranges::partial_sort(v, v.begin() + 2)">
+5 1 4 2 3 # 小さい順に 2 件だけ整列
+*1 *2 5 4 3 # 先頭 2 件は整列済み。残りは不定
+</div>
 
 ```cpp
 #include <algorithm>
@@ -38,86 +56,17 @@ tags:
 #include <vector>
 
 int main() {
-  std::vector<int> scores = {40, 95, 70, 88, 15, 60, 99};
+  std::vector<int> scores = {40, 90, 10, 70, 100, 30, 60};
+
+  // 点数が高い順に、上位 3 件だけを先頭に並べる
   std::ranges::partial_sort(scores, scores.begin() + 3, std::greater{});
-  std::println("トップ 3: {} {} {}", scores[0], scores[1], scores[2]);
+  std::println("上位 3 件: {} {} {}", scores[0], scores[1], scores[2]);
 }
 ```
 
 ```text title="実行結果"
-トップ 3: 99 95 88
+上位 3 件: 100 90 70
 ```
-
-## 関数の詳しい説明
-
-### std::ranges::partial_sort {#partial_sort}
-
-```cpp
-template <random_access_range R, class Comp = ranges::less, class Proj = identity>
-constexpr borrowed_iterator_t<R> partial_sort(R&& r, iterator_t<R> middle, Comp comp = {}, Proj proj = {});
-```
-
-| 引数 | 型 | 意味 | 省略すると |
-| --- | --- | --- | --- |
-| `r` | 範囲 | 対象 | 省略不可 |
-| `middle` | イテレータ | ここまで（の手前まで）を並べる。`begin() + N` | 省略不可 |
-| `comp` | 比較関数 | 並べる順 | 小さい順 |
-| `proj` | プロジェクション | 比べる前の変換 | そのまま |
-
-- `[begin, middle)` が正しい順に並び、`[middle, end)` の順番はバラバラ
-- 計算量: O(n log N)（N は並べる個数）
-
-<div class="anim" data-label="std::partial_sort(b, b + 3, e)">
-7 2 9 1 5 8 # v
->1 >2 >5 9 7 8 # 小さい順に先頭 3 個だけ整列する
-1 2 5 9 7 8 # 残りは順番が決まらない
-</div>
-
-### std::ranges::nth_element {#nth_element}
-
-```cpp
-template <random_access_range R, class Comp = ranges::less, class Proj = identity>
-constexpr borrowed_iterator_t<R> nth_element(R&& r, iterator_t<R> nth, Comp comp = {}, Proj proj = {});
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `r` | 範囲 | 対象 |
-| `nth` | イテレータ | この位置にだけ正しい値を置く |
-| `comp` / `proj` | | sort と同じ |
-
-- `*nth` は全部並べたときと同じ値になる。`nth` より前はそれ以下、後ろはそれ以上（それぞれの中の順番はバラバラ）
-- 計算量: 平均 O(n)
-
-<div class="mem">
-<div class="mem-step"><span class="mem-label">前</span><span class="mem-cells"><span>7</span><span>2</span><span>9</span><span>4</span><span>5</span></span></div>
-<div class="mem-step"><span class="mem-label">nth = 2 番目</span><span class="mem-cells"><span>2</span><span>4</span><span class="move">5</span><span>9</span><span>7</span></span><span class="mem-note">5 だけが正しい位置。左は 5 以下、右は 5 以上（順番はバラバラ）</span></div>
-</div>
-
-<div class="anim" data-label="std::nth_element(b, b + 2, e)">
-7 2 9 1 5 8 # v
-2 1 *5 7 9 8 # 5 が 3 番目の位置に来る
-</div>
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <vector>
-
-int main() {
-  std::vector<int> ping = {30, 250, 45, 60, 38};
-  auto mid = ping.begin() + ping.size() / 2;
-  std::ranges::nth_element(ping, mid);
-  std::println("中央値 {} ms", *mid);
-}
-```
-
-```text title="実行結果"
-中央値 45 ms
-```
-
-!!! note "実際は"
-    平均値は 1 つの極端な値（250 ms）に引っ張られますが、中央値は引っ張られにくいので、通信遅延やフレーム時間の評価に向いています。
 
 ### std::ranges::partial_sort_copy {#partial_sort_copy}
 
@@ -149,30 +98,28 @@ int main() {
 [95, 88] / 元はそのまま [40, 95, 70, 88, 15]
 ```
 
-## フラグ・オプション
-
-`comp` / `proj` は [`std::ranges::sort` のフラグ・オプション](sort.md#フラグオプション) と同じです。
-
 ## ゲームでの使いどころ
 
-| 場面 | 関数 |
+| 場面 | 書き方 |
 | --- | --- |
-| ランキングの上位だけ表示 | `partial_sort` |
-| 近い敵 N 体だけ処理 | `partial_sort` / `nth_element` |
-| フレーム時間の中央値・90 パーセンタイル | `nth_element` |
+| ランキングの上位 10 件 | `partial_sort(scores, scores.begin() + 10, std::greater{})` |
+| 近い敵の上位 3 体だけ並べる | `partial_sort(enemies, enemies.begin() + 3, {}, 距離)` |
 
 ## よくあるミス
 
-??? failure "partial_sort の後半も並んでいると思う"
-    `middle` より後ろの順番はバラバラです。
+??? failure "残りの要素の順番を当てにする"
+    `middle` から後ろの要素は、並んでいません（不定）。全体を整列したいなら `sort` です。
+
+??? failure "N が範囲の大半なのに使う"
+    N が大きいと `sort` のほうが速いことがあります。N が全体の 1 割以下のときに効果が出ます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::sort`](sort.md) | 全部並べる |
-| [`std::ranges::min_element`](min_element.md) | 1 個だけでいいならこちら |
-| [`std::priority_queue`](../containers/priority_queue.md) | 追加しながら上位を保つ |
+| [`std::ranges::nth_element`](nth_element.md) | N 番目の要素だけを正しい位置にする（前半は未整列） |
+| [`std::ranges::sort`](sort.md) | 全部を並べる |
+| [`std::priority_queue`](../containers/priority_queue.md) | 上位 N 件を常に保つ |
 
 ## コンパイラ対応
 
@@ -181,10 +128,11 @@ C++20 の機能です。主要なコンパイラすべてで使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 上位 N 件 → `partial_sort`
-    - [x] N 番目・中央値 → `nth_element`
+    - [x] 先頭 N 件だけを整列させる
+    - [x] 残りは不定
+    - [x] 全体の 1 割以下のとき効果が出る
 
 ## 関連ページ
 
 - [cpprefjp: std::ranges::partial_sort](https://cpprefjp.github.io/reference/algorithm/ranges_partial_sort.html)
-- [cppreference: std::ranges::nth_element](https://en.cppreference.com/w/cpp/algorithm/ranges/nth_element)
+- [cppreference: std::ranges::partial_sort](https://en.cppreference.com/w/cpp/algorithm/ranges/partial_sort)

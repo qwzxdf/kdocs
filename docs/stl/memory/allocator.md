@@ -1,5 +1,7 @@
 ---
 title: std::allocator
+summary: "コンテナのメモリの取り先。自作のアロケータで確保の方法を変えられる。"
+order: 60
 tags:
   - メモリ
 ---
@@ -23,7 +25,7 @@ tags:
     - **アロケータが違うと型が違う**。`std::vector<int>` と `std::vector<int, MyAlloc<int>>` は別の型で、代入や関数の引数に渡せない。
 
 !!! info "このページを読む前に"
-    [`new` と `delete`](new_delete.md)、[テンプレート](../../basics/template.md)、[所有権](../../basics/ownership.md) を先に読むと分かりやすいです。C 由来の `malloc` は [malloc / free](c-memory.md) を見てください。
+    [`new` と `delete`](new_delete.md)、[テンプレート](../../basics/template.md)、[所有権](../../basics/ownership.md) を先に読むと分かりやすいです。C 由来の `malloc` は [malloc / free](malloc.md) を見てください。
 
 ## 宣言
 
@@ -64,13 +66,11 @@ struct allocator {
 | --- | --- | --- |
 | [`allocate`](#allocate) | <span class="rank rank-sometimes">たまに</span> | 生のメモリを確保する |
 | [`deallocate`](#deallocate) | <span class="rank rank-sometimes">たまに</span> | メモリを返す |
-| [`allocator_traits`](#allocator_traits) | <span class="rank rank-sometimes">たまに</span> | アロケータの機能に統一的にアクセスする |
 | [`construct`](#construct) | <span class="rank rank-rare">知ってるだけ</span> | 確保した場所にオブジェクトを作る |
 | [`destroy`](#destroy) | <span class="rank rank-rare">知ってるだけ</span> | オブジェクトを破棄する（メモリは返さない） |
 | [`allocate_at_least`](#allocate_at_least) <span class="ver ver-23">C++23</span> | <span class="rank rank-rare">知ってるだけ</span> | 要求以上のメモリが取れたときは、その大きさも返す |
 | [`max_size`](#max_size) | <span class="rank rank-rare">知ってるだけ</span> | 確保できる最大の要素数 |
 | [`select_on_container_copy_construction`](#select_on_container_copy_construction) | <span class="rank rank-rare">知ってるだけ</span> | コンテナをコピーするときに使うアロケータを決める |
-| [`std::allocate_shared`](#allocate_shared) | <span class="rank rank-rare">知ってるだけ</span> | アロケータを指定して shared_ptr を作る |
 
 ## よくある使い方
 
@@ -167,38 +167,6 @@ void deallocate(T* p, std::size_t n);
 - `p` と `n` は `allocate` のときと**完全に一致**していなければなりません（`n` を変えると未定義動作）。コンテナは自分の容量（`capacity`）を覚えているので、それを渡してくれます
 - ここでは**要素のデストラクタは呼ばれません**。先に `destroy` を呼ぶのはコンテナの役目です
 
-### allocator_traits {#allocator_traits}
-
-```cpp
-template <class Alloc>
-struct allocator_traits {
-  using pointer = /* ... */;
-  static pointer allocate(Alloc& a, size_type n);
-  static void deallocate(Alloc& a, pointer p, size_type n);
-  template <class T, class... Args>
-  static void construct(Alloc& a, T* p, Args&&... args);
-  template <class T>
-  static void destroy(Alloc& a, T* p);
-};
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `Alloc` | 型引数 | アロケータの型 |
-| `a` | `Alloc` | アロケータの値 |
-
-- アロケータが持っていない機能（`construct` など）を、**標準のやり方で補ってくれる**クラスです。コンテナは、アロケータを直接ではなく必ずこれ経由で呼びます
-- 自作アロケータは最小限だけ書けば済みます。足りない部分は traits が埋めます
-
-| traits が補ってくれるもの | 自作で省略したときの動き |
-| --- | --- |
-| `construct` / `destroy` | placement new と、デストラクタ呼び出し |
-| `rebind_alloc<U>` | `Alloc<T>` なら `Alloc<U>` を作る |
-| `max_size` | その型で表せる最大値 |
-| `propagate_on_container_copy_assignment` など | `false_type`（代入してもアロケータはコピーしない） |
-| `is_always_equal` | 状態を持たない空のアロケータなら `true_type` |
-| `select_on_container_copy_construction` | 渡されたアロケータをそのままコピー |
-
 ### construct {#construct}
 
 ```cpp
@@ -212,7 +180,7 @@ void construct(T* p, Args&&... args);  // allocator_traits 経由で呼ぶ
 | `args` | `Args&&...` | コンストラクタに渡す引数 |
 
 - 戻り値: なし
-- 標準の動きは `::new (p) T(std::forward<Args>(args)...)`（[配置 new](new_delete.md#placement_new)）です
+- 標準の動きは `::new (p) T(std::forward<Args>(args)...)`（[配置 new](new_delete/placement_new.md#placement_new)）です
 - 自作アロケータで `construct` を書くのは、構築のときにアロケータ自身を要素に渡したい特殊な場合（[`std::pmr`](pmr.md) が内部でやっていること）だけです
 
 ### destroy {#destroy}
@@ -260,20 +228,6 @@ Alloc select_on_container_copy_construction() const;
 
 - 戻り値: コピーされたコンテナが使うアロケータ
 - 書かなければ、元のアロケータのコピーが使われます。「コピー先は新しいアロケータ（デフォルトのもの）にしたい」ときだけ自作します
-
-### std::allocate_shared {#allocate_shared data-toc-label="std::allocate_shared"}
-
-```cpp
-template <class T, class Alloc, class... Args>
-std::shared_ptr<T> allocate_shared(const Alloc& a, Args&&... args);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `a` | `Alloc&` | 使うアロケータ |
-| `args` | `Args&&...` | `T` のコンストラクタに渡す引数 |
-
-- `std::make_shared` の、アロケータを指定できる版です。オブジェクトと制御ブロック（参照カウントなど）を**まとめて 1 回で**確保します
 
 ## アロケータの「状態」と operator==
 
@@ -382,7 +336,7 @@ int main() {
 !!! warning "アリーナの注意"
     - `deallocate` が何もしないので、`reserve` なしで `push_back` を繰り返して再確保が起きると、**古い領域もアリーナに残り続けます**。アリーナを使うコンテナは、先に `reserve` するのが基本です。
     - `Reset()` したあとは、そのアリーナを使っていたコンテナを**使ってはいけません**（中身はもう無効です）。先にコンテナを破棄します。
-    - 自作せずに、標準の [`std::pmr::monotonic_buffer_resource`](pmr.md#monotonic_buffer_resource) を使うのがおすすめです。
+    - 自作せずに、標準の [`std::pmr::monotonic_buffer_resource`](pmr/monotonic_buffer_resource.md#monotonic_buffer_resource) を使うのがおすすめです。
 
 ## 速さの特徴
 
@@ -427,7 +381,7 @@ int main() {
 | --- | --- |
 | [`std::pmr`](pmr.md) | 型を変えずに、メモリの取り先を実行時に切り替えられる。まずはこちらを使う |
 | [`new` / `delete`](new_delete.md) | オブジェクト 1 つの確保と作成を同時にやる。アロケータは確保だけ |
-| [`malloc` / `free`](c-memory.md) | C 言語の確保関数。コンストラクタは呼ばれない |
+| [`malloc` / `free`](malloc.md) | C 言語の確保関数。コンストラクタは呼ばれない |
 
 ## コンパイラ対応
 
@@ -449,7 +403,7 @@ int main() {
 
 - [std::pmr（メモリリソース）](pmr.md)
 - [new と delete・配置 new](new_delete.md)
-- [malloc / free（C 由来のメモリ確保）](c-memory.md)
+- [malloc / free（C 由来のメモリ確保）](malloc.md)
 - [std::vector](../containers/vector.md)
 - [オブジェクトプール](../../design/patterns/object-pool.md)
 - [cppreference: std::allocator](https://en.cppreference.com/w/cpp/memory/allocator)

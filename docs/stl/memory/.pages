@@ -1,7 +1,17 @@
 nav:
+  - new_delete.md
+  - malloc.md
+  - free.md
   - allocator.md
   - pmr.md
-  - new_delete.md
-  - c-memory.md
   - cstring.md
+  - allocator_traits.md
+  - align.md
+  - calloc.md
+  - to_address.md
+  - realloc.md
+  - owner_less.md
+  - aligned_alloc.md
+  - default_delete.md
+  - hardware_destructive_interference_size.md
   - ...

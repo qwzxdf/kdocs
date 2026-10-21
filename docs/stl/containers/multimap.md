@@ -1,19 +1,21 @@
 ---
-title: std::multimap / std::multiset
+title: std::multimap
+summary: "同じキーを、複数持てる `map`。同じキーに複数の値をまとめたいときに。"
+order: 18
 tags:
   - コンテナ
 ---
 
-# std::multimap / std::multiset
+# std::multimap
 
 <div class="page-badges" markdown>
 <span class="rank rank-rare">知ってるだけ</span>
 <span class="perf perf-3">○ 普通</span>
 <span class="ver ver-11">C++98〜</span>
-`#include <map>` / `#include <set>`
+`#include <map>`
 </div>
 
-`std::multimap` と `std::multiset` は、**同じキーを何個でも持てる map / set** です。普通の [`std::map`](map.md) は同じキーを入れると上書きされますが、multimap は全部残します。キーの順に並ぶのは map と同じです。順番なし版の `std::unordered_multimap` / `std::unordered_multiset` もあります。
+`std::multimap` は、**同じキーを何個でも持てる map** です。普通の [`std::map`](map.md) は同じキーを入れると上書きされませんが、multimap は全部残します。キーの順に並ぶのは map と同じです。キーだけを持つ版は [`std::multiset`](multiset.md)、順番なし版は [`std::unordered_multimap`](unordered_multimap.md) です。
 
 !!! tip "ポイント"
     - <strong>ほとんど使わない。</strong> 同じキーに複数の値を持たせたいなら、`std::map<Key, std::vector<T>>` のほうが扱いやすいことが多い。
@@ -21,7 +23,7 @@ tags:
     - `[]` は**無い**（どの要素か決められないため）。
 
 !!! info "このページを読む前に"
-    [`std::map`](map.md) と [`std::set`](set.md) を先に読んでください。
+    [`std::map`](map.md) を先に読んでください。
 
 ## 宣言
 
@@ -30,14 +32,11 @@ template <class Key, class T, class Compare = std::less<Key>,
           class Allocator = std::allocator<std::pair<const Key, T>>>
 class multimap;
 
-template <class Key, class Compare = std::less<Key>,
-          class Allocator = std::allocator<Key>>
-class multiset;
 ```
 
 ## 関数一覧
 
-map / set と違う点を中心に載せています。
+`map` と違う点を中心に載せています。
 
 | 関数 | 重要度 | 何をする | 計算量 |
 | --- | --- | --- | --- |
@@ -297,8 +296,6 @@ void clear() noexcept;
 
 - 全削除します
 
-`std::multiset` も同じ関数を持ちます（値が無く、キーだけの点が違います）。
-
 <div class="anim" data-label="m.clear()">
 1 2 2 3 # キー
 x1 x2 x2 x3 # すべて破棄
@@ -330,14 +327,15 @@ _ _ _ _ # 空
 
 | 名前 | 違い | こっちを使うとき |
 | --- | --- | --- |
-| [`std::map`](map.md) / [`std::set`](set.md) | キーの重複なし | ほとんどの場合 |
+| [`std::map`](map.md) | キーの重複なし | ほとんどの場合 |
+| [`std::multiset`](multiset.md) | 値を持たず、キーだけ（重複あり） | 値が要らないとき |
 | `std::map<Key, std::vector<T>>` | 同じキーの値を vector にまとめる | 同じキーの値をまとめて扱いたい |
-| `std::unordered_multimap` | 順番なし | 順番が要らない |
+| [`std::unordered_multimap`](unordered_multimap.md) | 順番なし（ハッシュ表） | 順番が要らない |
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 同じキーを何個でも持てる map / set
+    - [x] 同じキーを何個でも持てる map
     - [x] 取り出すのは `equal_range`、`[]` は無い
     - [x] `erase(key)` は同じキーを全部消す
 

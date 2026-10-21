@@ -1,0 +1,12 @@
+title: C の標準関数（cstdlib）
+nav:
+  - div.md
+  - atoi.md
+  - strtol.md
+  - rand.md
+  - exit.md
+  - abort.md
+  - getenv.md
+  - qsort.md
+  - bsearch.md
+  - ...

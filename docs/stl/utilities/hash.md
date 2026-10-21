@@ -1,5 +1,7 @@
 ---
 title: std::hash
+summary: "値から、ハッシュ値を作る。自作の型を `unordered_map` のキーにするときに。"
+order: 58
 tags:
   - ユーティリティ
   - ハッシュ

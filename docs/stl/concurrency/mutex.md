@@ -1,10 +1,12 @@
 ---
-title: std::mutex / std::lock_guard
+title: std::mutex
+summary: "共有のデータを同時に触れないよう、鍵で守る。"
+order: 77
 tags:
   - 並行処理
 ---
 
-# std::mutex / std::lock_guard
+# std::mutex
 
 <div class="page-badges" markdown>
 <span class="rank rank-sometimes">たまに</span>
@@ -30,13 +32,12 @@ tags:
 | 型 | 重要度 | 何をする |
 | --- | --- | --- |
 | [`std::mutex`](#mutex) | <span class="rank rank-sometimes">たまに</span> | 鍵そのもの |
-| [`std::lock_guard`](#lock_guard) | <span class="rank rank-sometimes">たまに</span> | スコープの間だけ鍵をかける |
-| [`std::scoped_lock`](#scoped_lock) | <span class="rank rank-sometimes">たまに</span> | 複数の鍵をまとめてかける <span class="ver ver-17">C++17</span> |
-| [`std::unique_lock`](#unique_lock) | <span class="rank rank-sometimes">たまに</span> | 途中で開け閉めできる鍵（条件変数で使う） |
-| [`std::shared_mutex`](#shared_mutex) | <span class="rank rank-rare">知ってるだけ</span> | 読む人は何人でも、書く人は 1 人だけ <span class="ver ver-17">C++17</span> |
-| [`std::shared_lock`](#shared_lock) | <span class="rank rank-rare">知ってるだけ</span> | 読むための鍵 <span class="ver ver-14">C++14</span> |
-| [`std::recursive_mutex`](#recursive_mutex) | <span class="rank rank-rare">知ってるだけ</span> | 同じスレッドなら何度でもかけられる鍵 |
-| [`std::call_once`](#call_once) | <span class="rank rank-rare">知ってるだけ</span> | 1 回だけ実行する |
+| [`std::lock_guard`](lock_guard.md) | <span class="rank rank-sometimes">たまに</span> | スコープの間だけ鍵をかける |
+| [`std::scoped_lock`](scoped_lock.md) | <span class="rank rank-sometimes">たまに</span> | 複数の鍵をまとめてかける <span class="ver ver-17">C++17</span> |
+| [`std::unique_lock`](unique_lock.md) | <span class="rank rank-sometimes">たまに</span> | 途中で開け閉めできる鍵 |
+| [`std::shared_mutex`](shared_mutex.md) | <span class="rank rank-rare">知ってるだけ</span> | 読む人は何人でも、書く人は 1 人だけ |
+| [`std::recursive_mutex`](recursive_mutex.md) | <span class="rank rank-rare">知ってるだけ</span> | 同じスレッドなら何度でも |
+| [`std::call_once`](call_once.md) | <span class="rank rank-rare">知ってるだけ</span> | 1 回だけ実行する |
 
 ## 関数一覧
 
@@ -106,166 +107,6 @@ class mutex;
 ```
 
 - 鍵そのもの。コピーもムーブもできません
-
-### std::lock_guard {#lock_guard}
-
-```cpp
-template <class Mutex>
-class lock_guard {
- public:
-  explicit lock_guard(Mutex& m);  // ここで lock
-  ~lock_guard();                  // ここで unlock
-};
-```
-
-- 作ったときに鍵をかけ、スコープを抜けるときに自動で開けます。途中で return や例外があっても必ず開きます
-
-### std::scoped_lock {#scoped_lock}
-
-<span class="ver ver-17">C++17</span>
-
-```cpp
-template <class... Mutexes>
-class scoped_lock {
- public:
-  explicit scoped_lock(Mutexes&... m);
-};
-```
-
-- 複数の mutex を、デッドロックしない順番でまとめてロックします。1 つでも使えるので、lock_guard の代わりに全部これでも構いません
-
-```cpp
-#include <mutex>
-#include <print>
-
-struct Account {
-  int gold = 100;
-  std::mutex mutex;
-};
-
-void Transfer(Account& from, Account& to, int amount) {
-  std::scoped_lock lock(from.mutex, to.mutex);  // 2 つを同時に（順番を気にしなくていい）
-  from.gold -= amount;
-  to.gold += amount;
-}
-
-int main() {
-  Account a;
-  Account b;
-  Transfer(a, b, 30);
-  Transfer(b, a, 10);
-  std::println("{} {}", a.gold, b.gold);
-}
-```
-
-```text title="実行結果"
-80 120
-```
-
-### std::unique_lock {#unique_lock}
-
-```cpp
-template <class Mutex>
-class unique_lock;
-```
-
-- lock_guard と同じですが、途中で `unlock()` / `lock()` したり、ムーブしたりできます。[`std::condition_variable`](condition_variable.md) で待つときに必要です
-
-### std::shared_mutex {#shared_mutex}
-
-<span class="ver ver-17">C++17</span>
-
-```cpp
-class shared_mutex;
-```
-
-- 「読むだけ」の人は同時に何人でも入れて、「書く」人は 1 人だけ入れる鍵。読む回数がとても多いデータ（設定、マスターデータ）に使います
-
-### std::shared_lock {#shared_lock}
-
-<span class="ver ver-14">C++14</span>
-
-```cpp
-template <class Mutex>
-class shared_lock;
-```
-
-- shared_mutex を「読むため」にロックします。書くときは `std::unique_lock` か `std::lock_guard` を使います
-
-```cpp
-#include <map>
-#include <mutex>
-#include <print>
-#include <shared_mutex>
-#include <string>
-
-class Config {
- public:
-  int Get(const std::string& key) const {
-    std::shared_lock lock(mutex_);  // 読む人は同時に入れる
-    auto it = values_.find(key);
-    return it != values_.end() ? it->second : 0;
-  }
-  void Set(const std::string& key, int value) {
-    std::unique_lock lock(mutex_);  // 書く人は 1 人だけ
-    values_[key] = value;
-  }
-
- private:
-  mutable std::shared_mutex mutex_;
-  std::map<std::string, int> values_;
-};
-
-int main() {
-  Config config;
-  config.Set("volume", 80);
-  std::println("{}", config.Get("volume"));
-}
-```
-
-```text title="実行結果"
-80
-```
-
-### std::recursive_mutex {#recursive_mutex}
-
-```cpp
-class recursive_mutex;
-```
-
-- 同じスレッドなら何度ロックしてもいい mutex（ロックした回数だけ unlock が必要）。必要になるのは設計がこじれているときが多いので、使わずに済むようにします
-
-### std::call_once {#call_once}
-
-```cpp
-template <class Callable, class... Args>
-void call_once(std::once_flag& flag, Callable&& f, Args&&... args);
-```
-
-- 何個のスレッドから呼ばれても、`f` を 1 回だけ実行します（初期化に使う）
-
-```cpp
-#include <mutex>
-#include <print>
-#include <thread>
-#include <vector>
-
-int main() {
-  std::once_flag init_flag;
-  int init_count = 0;
-  {
-    std::vector<std::jthread> threads;
-    for (int i = 0; i < 4; ++i) {
-      threads.emplace_back([&] { std::call_once(init_flag, [&] { ++init_count; }); });
-    }
-  }
-  std::println("初期化 {} 回", init_count);
-}
-```
-
-```text title="実行結果"
-初期化 1 回
-```
 
 ### lock {#lock}
 

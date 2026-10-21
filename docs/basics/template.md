@@ -303,7 +303,7 @@ int main() {
 整数 小数 不明
 ```
 
-標準ライブラリでは `std::hash<T>` や `std::formatter<T>` を自作の型向けに特殊化して使います（[unordered_map](../stl/containers/unordered_map.md#4-自作の型をキーにする)、[format](../stl/utilities/format.md#formatter)）。
+標準ライブラリでは `std::hash<T>` や `std::formatter<T>` を自作の型向けに特殊化して使います（[unordered_map](../stl/containers/unordered_map.md#4-自作の型をキーにする)、[format](../stl/utilities/formatter.md#formatter)）。
 
 ### 可変長テンプレート（引数をいくつでも）
 

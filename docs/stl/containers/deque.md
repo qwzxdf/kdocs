@@ -1,5 +1,7 @@
 ---
 title: std::deque
+summary: "先頭にも末尾にも素早く追加できる配列。ブロックに分かれて並ぶ。"
+order: 8
 tags:
   - コンテナ
 ---

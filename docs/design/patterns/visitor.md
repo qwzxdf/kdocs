@@ -141,7 +141,7 @@ std::visit(Overloaded{
 小数 3.5
 ```
 
-詳しくは [`std::variant`](../../stl/utilities/variant.md#visit) を見てください。
+詳しくは [`std::variant`](../../stl/utilities/visit.md#visit) を見てください。
 
 ## 良い例 2：古典的なビジター（virtual、二重ディスパッチ）
 

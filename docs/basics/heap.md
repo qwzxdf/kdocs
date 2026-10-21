@@ -26,7 +26,7 @@ tags:
 | 呼び方 | 意味 | 詳しいページ |
 | --- | --- | --- |
 | <strong>ヒープ（メモリ領域）</strong> | **`new` / `malloc` で確保する自由なメモリ**。**このページ** | — |
-| <strong>ヒープ（データ構造）</strong> | <strong>「一番大きい要素が先頭に来る」ように並べた配列</strong>。`priority_queue` の中身 | [make_heap / push_heap / pop_heap](../stl/algorithms/heap.md) |
+| <strong>ヒープ（データ構造）</strong> | <strong>「一番大きい要素が先頭に来る」ように並べた配列</strong>。`priority_queue` の中身 | [make_heap / push_heap / pop_heap](../stl/algorithms/make_heap.md) |
 | <strong>GPU のヒープ（D3D12）</strong> | **GPU メモリを確保する単位**（デフォルト ヒープ・アップロード ヒープ）／<strong>記述子を並べるヒープ（ディスクリプタ ヒープ）</strong> | [シーン データ（D3D12）](../rendering/gpu-driven-dx12/scene-data.md) |
 
 **以下はメモリ領域としてのヒープ**の説明です。
@@ -203,4 +203,4 @@ enemies.reserve(256);
 - [キャッシュとメモリ](cache.md)
 - [フレーム アロケータ（最適化）](../optimize/frame-allocation.md)
 - [アロケータ（最適化）](../optimize/allocation.md)
-- [make_heap / push_heap / pop_heap](../stl/algorithms/heap.md)
+- [make_heap / push_heap / pop_heap](../stl/algorithms/make_heap.md)

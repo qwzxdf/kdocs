@@ -1,5 +1,7 @@
 ---
 title: std::forward_list
+summary: "片方向だけにつながるリスト。`list` より軽いが使う場面はほとんどない。"
+order: 17
 tags:
   - コンテナ
 ---

@@ -1,10 +1,12 @@
 ---
-title: std::ranges::reverse / rotate
+title: std::ranges::reverse
+summary: "範囲の並びを逆順にする（コピーして逆順にする版もある）。"
+order: 34
 tags:
   - アルゴリズム
 ---
 
-# std::ranges::reverse / rotate
+# std::ranges::reverse
 
 <div class="page-badges" markdown>
 <span class="rank rank-sometimes">たまに</span>
@@ -12,39 +14,15 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::reverse` は、**範囲の要素を逆の順番に並べ替える**関数です。`std::ranges::rotate` は、**指定した要素が先頭に来るように全体をぐるっと回します**。どちらも元の範囲そのものを書き換えます（新しい範囲は作りません）。
+`std::ranges::reverse` は、**範囲の要素の並びを逆順にする**アルゴリズムです。その場で並びを入れ替えます。元を残したまま、逆順のコピーを別の場所に作る `reverse_copy` もあります。
 
 !!! tip "ポイント"
-    - 元の順番を本当に入れ替えたいなら `reverse`。**見るだけなら `std::views::reverse`** のほうが軽い。
-    - `rotate` は「順番待ちの先頭を最後に回す」ような処理に使える。
+    - 元の並びを残したいなら、`reverse_copy`、または [`views::reverse`](views/reverse.md)（コピーせずに逆順で「見る」）。
+    - 昇順に並べたものを降順にしたいなら、`sort` に `std::greater{}` を渡すほうが一度で済む。
+    - 計算量は O(n)（要素の入れ替えが n/2 回）。
 
-## 関数一覧
-
-| 関数 | 重要度 | 何をする | 計算量 |
-| --- | --- | --- | --- |
-| [`std::ranges::reverse`](#reverse) | <span class="rank rank-sometimes">たまに</span> | 逆順に並べ替える | O(n) |
-| [`std::ranges::rotate`](#rotate) | <span class="rank rank-rare">知ってるだけ</span> | 指定した要素が先頭に来るように回す | O(n) |
-| [`std::ranges::reverse_copy`](#reverse_copy) | <span class="rank rank-rare">知ってるだけ</span> | 逆順にしたコピーを別の場所に作る | O(n) |
-
-## よくある使い方
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <vector>
-
-int main() {
-  std::vector<int> path = {1, 2, 3, 4};  // ゴールからスタートへたどった経路
-  std::ranges::reverse(path);            // スタート → ゴールの順にする
-  std::println("{}", path);
-}
-```
-
-```text title="実行結果"
-[4, 3, 2, 1]
-```
-
-A* などの経路探索は、ゴールから親をたどって経路を作るので、最後に `reverse` するのが定番です。
+!!! info "このページを読む前に"
+    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
@@ -86,44 +64,6 @@ int main() {
 回文？ true
 ```
 
-### std::ranges::rotate {#rotate}
-
-```cpp
-template <forward_range R>
-constexpr borrowed_subrange_t<R> rotate(R&& r, iterator_t<R> middle);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `r` | 範囲 | 回す範囲 |
-| `middle` | イテレータ | **この要素が先頭に来る**ように回す |
-
-- 戻り値: 元の先頭の要素が移った位置から終わりまでの範囲
-
-<div class="anim" data-label="std::rotate(b, b + 2, e)">
-1 2 3 4 5 # v
-1 2 3 4 5 # 2 番目の要素（3）を先頭にしたい
->3 >4 >5 >1 >2 # 前後を入れ替えるように回転する
-</div>
-
-```cpp
-#include <algorithm>
-#include <print>
-#include <string>
-#include <vector>
-
-int main() {
-  std::vector<std::string> turn = {"勇者", "魔法使い", "僧侶"};
-  // 先頭の人の番が終わったら最後に回す
-  std::ranges::rotate(turn, turn.begin() + 1);
-  std::println("{}", turn);
-}
-```
-
-```text title="実行結果"
-["魔法使い", "僧侶", "勇者"]
-```
-
 ### std::ranges::reverse_copy {#reverse_copy}
 
 ```cpp
@@ -151,28 +91,34 @@ int main() {
 [1, 2, 3] [3, 2, 1]
 ```
 
+
 ## フラグ・オプション
 
-フラグはありません。
+| 関数 | 重要度 | 意味 |
+| --- | --- | --- |
+| `reverse` | <span class="rank rank-sometimes">たまに</span> | その場で逆順にする |
+| `reverse_copy` | <span class="rank rank-rare">知ってるだけ</span> | 逆順にしたコピーを別の場所へ書く |
 
 ## ゲームでの使いどころ
 
-| 場面 | 関数 |
+| 場面 | 書き方 |
 | --- | --- |
-| 経路探索の結果をスタートからの順にする | `reverse` |
-| ターン順を回す | `rotate` |
-| リプレイを逆再生する | `views::reverse`（見るだけ） |
+| 履歴（新しい順）を表示用に古い順へ並べ直す | `reverse(history)` |
+| 文字列を逆順にする | `reverse(text)` |
+| 描画順を前後ひっくり返す | `reverse(draw_list)` |
 
 ## よくあるミス
 
-??? failure "見るだけなのに reverse して元が壊れる"
-    逆順に表示したいだけなら `for (auto& x : v | std::views::reverse)` を使います。`reverse` は元の並びを変えてしまいます。
+??? failure "逆順に「見る」だけでいいのに、並びを書き換える"
+    表示のためだけなら、`std::views::reverse` で元の `vector` を変えずに逆順で走査できます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::views::reverse`](views.md#reverse) | 元を変えずに逆順で見る |
+| [`std::views::reverse`](views/reverse.md) | コピーも書き換えもせず、逆順で「見る」 |
+| [`std::ranges::rotate`](rotate.md) | 先頭の要素を末尾へ回す |
+| [`std::ranges::sort`](sort.md) | 大きい順に並べ替える |
 
 ## コンパイラ対応
 
@@ -181,7 +127,8 @@ C++20 の機能です。主要なコンパイラすべてで使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `reverse` は元を逆順に書き換える
+    - [x] 並びを逆順にする
+    - [x] コピーする版は `reverse_copy`
     - [x] 見るだけなら `views::reverse`
 
 ## 関連ページ

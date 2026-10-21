@@ -1,10 +1,12 @@
 ---
-title: std::thread / std::jthread
+title: std::thread
+summary: "別のスレッドで、処理を動かす。"
+order: 76
 tags:
   - 並行処理
 ---
 
-# std::thread / std::jthread
+# std::thread
 
 <div class="page-badges" markdown>
 <span class="rank rank-sometimes">たまに</span>
@@ -30,17 +32,13 @@ tags:
 
 | 名前 | 重要度 | 何をする |
 | --- | --- | --- |
-| [`std::jthread`](#jthread) | <span class="rank rank-sometimes">たまに</span> | 自動で join するスレッド <span class="ver ver-20">C++20</span> |
-| [`join`](#join) | <span class="rank rank-sometimes">たまに</span> | スレッドが終わるまで待つ |
-| [`std::stop_token`](#stop_token) | <span class="rank rank-sometimes">たまに</span> | 「止まって」の合図を受け取る <span class="ver ver-20">C++20</span> |
-| [`request_stop`](#request_stop) | <span class="rank rank-sometimes">たまに</span> | 「止まって」と伝える <span class="ver ver-20">C++20</span> |
-| [`std::this_thread::sleep_for`](#sleep_for) | <span class="rank rank-sometimes">たまに</span> | 今のスレッドを指定時間止める |
+| [`std::jthread`](jthread.md) | <span class="rank rank-sometimes">たまに</span> | 自動で join するスレッド <span class="ver ver-20">C++20</span> |
+| [`std::stop_token`](stop_token.md) | <span class="rank rank-sometimes">たまに</span> | 「止まって」の合図 <span class="ver ver-20">C++20</span> |
+| [`std::this_thread::sleep_for`](this_thread/sleep_for.md) | <span class="rank rank-sometimes">たまに</span> | 今のスレッドを指定時間止める |
 | [`std::thread`](#thread) | <span class="rank rank-rare">知ってるだけ</span> | 昔からあるスレッド（join を忘れると落ちる） |
 | [`joinable`](#joinable) | <span class="rank rank-rare">知ってるだけ</span> | join できる状態か |
 | [`detach`](#detach) | <span class="rank rank-rare">知ってるだけ</span> | 待たずに切り離す（使わない） |
 | [`std::thread::hardware_concurrency`](#hardware_concurrency) | <span class="rank rank-rare">知ってるだけ</span> | 同時に動かせるスレッド数の目安 |
-| [`std::this_thread::get_id`](#get_id) | <span class="rank rank-rare">知ってるだけ</span> | 今のスレッドの ID |
-| [`std::this_thread::yield`](#yield) | <span class="rank rank-rare">知ってるだけ</span> | 他のスレッドに順番を譲る |
 
 ## よくある使い方
 
@@ -100,63 +98,6 @@ int main() {
 
 ## 関数の詳しい説明
 
-### std::jthread {#jthread}
-
-<span class="ver ver-20">C++20</span>
-
-```cpp
-template <class F, class... Args>
-explicit jthread(F&& f, Args&&... args);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `f` | 呼び出せるもの | スレッドで動かす関数・ラムダ。最初の引数を `std::stop_token` にすると合図を受け取れる |
-| `args` | 何個でも | `f` に渡す引数（**コピーされる**） |
-
-- 作った瞬間に別のスレッドで動き始めます
-- デストラクタで `request_stop()` してから `join()` します
-
-### join {#join}
-
-```cpp
-void join();
-```
-
-- スレッドが終わるまで、呼んだスレッドを止めて待ちます。1 回しか呼べません
-
-### std::stop_token {#stop_token}
-
-<span class="ver ver-20">C++20</span>
-
-```cpp
-class stop_token {
- public:
-  bool stop_requested() const noexcept;
-};
-```
-
-- `stop_requested()` が `true` になったら、スレッドの処理を終わらせます。jthread の関数の最初の引数にすると自動で渡されます
-
-### request_stop {#request_stop}
-
-<span class="ver ver-20">C++20</span>
-
-```cpp
-bool request_stop() noexcept;
-```
-
-- 「止まって」と伝えます。スレッドが止まるかどうかは、stop_token を見ているかどうか次第です
-
-### std::this_thread::sleep_for {#sleep_for}
-
-```cpp
-template <class Rep, class Period>
-void sleep_for(const std::chrono::duration<Rep, Period>& d);
-```
-
-- 今のスレッドを指定時間止めます。指定より長く止まることがあります
-
 ### std::thread {#thread}
 
 ```cpp
@@ -207,42 +148,6 @@ static unsigned int hardware_concurrency() noexcept;
 ```
 
 - 同時に動かせるスレッド数の目安（CPU の論理コア数）。分からなければ 0
-
-### std::this_thread::get_id {#get_id}
-
-```cpp
-std::thread::id get_id() noexcept;
-```
-
-- 今のスレッドの ID。「メインスレッドから呼ばれているか」のチェックに使えます
-
-### std::this_thread::yield {#yield}
-
-```cpp
-void yield() noexcept;
-```
-
-- 他のスレッドに順番を譲ります。待ちのループで CPU を使い切らないようにするのに使いますが、普通は条件変数などで待ちます
-
-```cpp
-#include <print>
-#include <thread>
-
-int main() {
-  auto main_id = std::this_thread::get_id();
-  std::jthread t([main_id] {
-    std::this_thread::yield();
-    std::println("メインスレッド？ {}", std::this_thread::get_id() == main_id);
-  });
-  t.join();
-  std::println("コア数は 1 以上？ {}", std::thread::hardware_concurrency() >= 1);
-}
-```
-
-```text title="実行結果"
-メインスレッド？ false
-コア数は 1 以上？ true
-```
 
 ## フラグ・オプション
 

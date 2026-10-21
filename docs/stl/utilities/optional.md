@@ -1,5 +1,7 @@
 ---
 title: std::optional
+summary: "値が「あるかもしれない・ないかもしれない」を表す。見つからないことを `nullptr` なしで示せる。"
+order: 46
 tags:
   - ユーティリティ
 ---

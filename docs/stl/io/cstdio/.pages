@@ -1,0 +1,8 @@
+title: C の入出力（cstdio）
+nav:
+  - printf.md
+  - fopen.md
+  - fread.md
+  - fwrite.md
+  - fgets.md
+  - ...

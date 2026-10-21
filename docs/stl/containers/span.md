@@ -1,5 +1,7 @@
 ---
 title: std::span
+summary: "配列の一部を「借りて」見る窓。コピーせず `vector` でも配列でも同じ関数で受けられる。"
+order: 7
 tags:
   - コンテナ
 ---

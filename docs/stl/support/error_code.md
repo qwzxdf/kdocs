@@ -1,0 +1,89 @@
+---
+title: std::error_code
+summary: "OS やライブラリのエラーを、値と分類で表す（例外を使わない失敗の通知）。"
+order: 30
+group: エラーコード（<system_error>）
+tags:
+  - 型・言語サポート
+---
+
+# std::error_code
+
+<div class="page-badges" markdown>
+<span class="rank rank-sometimes">たまに</span>
+<span class="ver ver-11">C++11</span>
+`#include <system_error>`
+</div>
+
+`std::error_code` は、**エラーを「値」と「分類（カテゴリ）」で表す**クラスです。例外を投げずに失敗を伝えるため、`filesystem` などの関数が引数で受け取ります。`if (ec)` で「エラーがあるか」を調べ、`ec.message()` で説明文を取れます。
+
+!!! tip "ポイント"
+    - `if (ec)` で、エラーがあるか調べる。
+    - `ec == std::errc::no_such_file_or_directory` のように、環境に依存しない名前で比べる。
+    - 例外を使う版と使わない版の両方を用意するのが標準ライブラリの流儀。
+
+## 関数の詳しい説明
+
+### std::error_code {#error_code}
+
+```cpp
+class error_code {
+ public:
+  int value() const noexcept;
+  const error_category& category() const noexcept;
+  std::string message() const;
+  explicit operator bool() const noexcept;
+};
+```
+
+- 戻り値: （クラス）。`value`、`category`、`message`、`bool` への変換
+- 計算量: O(1)
+
+```cpp
+#include <print>
+#include <system_error>
+
+int main() {
+  std::error_code ec = std::make_error_code(std::errc::no_such_file_or_directory);
+  std::println("{} {}", static_cast<bool>(ec), ec == std::errc::no_such_file_or_directory);
+}
+```
+
+```text title="実行結果"
+true true
+```
+
+## ゲームでの使いどころ
+
+| 場面 | 書き方 |
+| --- | --- |
+| ファイル操作の失敗を、例外なしで受け取る | `std::filesystem::exists(path, ec)` |
+
+## よくあるミス
+
+??? failure "value() の数値を直接比べる"
+    OS ごとに数値が違います。`std::errc` と比べます。
+
+## 類似
+
+| 名前 | 違い |
+| --- | --- |
+| [`errc`](errc.md) | 環境に依存しない名前 |
+| [`error_condition`](error_condition.md) | 比べるための条件 |
+| [`std::expected`](../utilities/expected.md) | 値とエラーを一緒に返す |
+
+## コンパイラ対応
+
+C++11 以前から使えます。
+
+## これだけ覚える
+
+!!! abstract "まとめ"
+    - [x] 値と分類でエラーを表す
+    - [x] `if (ec)` で調べる
+    - [x] 比べるのは `std::errc`
+
+## 関連ページ
+
+- [cpprefjp: std::error_code](https://cpprefjp.github.io/reference/system_error/error_code.html)
+- [cppreference: std::error_code](https://en.cppreference.com/w/cpp/error/error_code)

@@ -1,9 +1,34 @@
 nav:
+  - spaceship.md
+  - to_underlying.md
+  - source_location.md
+  - cmp_less.md
+  - stacktrace.md
+  - strong_ordering.md
+  - in_range.md
+  - partial_ordering.md
+  - byte.md
+  - size_t.md
+  - error_code.md
   - iterator.md
   - functional.md
   - type_traits.md
   - utility-misc.md
   - exceptions.md
-  - source_location.md
+  - cmp_equal.md
+  - weak_ordering.md
+  - to_integer.md
+  - unreachable.md
+  - as_const.md
+  - typeid.md
+  - type_info.md
+  - type_index.md
+  - nullptr_t.md
+  - ptrdiff_t.md
+  - max_align_t.md
+  - offsetof.md
+  - error_condition.md
+  - errc.md
+  - version.md
   - generator.md
   - ...

@@ -1,0 +1,7 @@
+title: 時刻（ctime）
+nav:
+  - time.md
+  - clock.md
+  - strftime.md
+  - gmtime.md
+  - ...

@@ -1,5 +1,7 @@
 ---
 title: std::unique_ptr
+summary: "持ち主が 1 つだけの、スマートポインタ。スコープを出ると自動で解放される。"
+order: 45
 tags:
   - ユーティリティ
   - メモリ
@@ -55,7 +57,6 @@ class unique_ptr<T[], Deleter>;  // 配列版
 
 | 関数 | 重要度 | 何をする | 計算量 |
 | --- | --- | --- | --- |
-| [`std::make_unique`](#make_unique) | <span class="rank rank-must">必須</span> | 作って unique_ptr にする <span class="ver ver-14">C++14</span> | O(1) |
 | [`operator->`](#arrow) | <span class="rank rank-must">必須</span> | メンバにアクセス | O(1) |
 | [`operator*`](#deref) | <span class="rank rank-must">必須</span> | 中身の参照 | O(1) |
 | [`operator bool`](#bool) | <span class="rank rank-must">必須</span> | 空でないか | O(1) |
@@ -185,51 +186,6 @@ sword は空？ true
 ```
 
 ## 関数の詳しい説明
-
-### std::make_unique <span class="ver ver-14">C++14</span> {#make_unique data-toc-label="std::make_unique"}
-
-```cpp
-template <class T, class... Args>
-std::unique_ptr<T> make_unique(Args&&... args);
-
-template <class T>
-std::unique_ptr<T> make_unique(std::size_t size);  // T が配列 U[] のとき
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `args` | 何個でも | `T` のコンストラクタにそのまま渡す引数 |
-| `size` | `std::size_t` | 配列版の要素数 |
-
-- 戻り値: 新しく作ったオブジェクトを持つ unique_ptr
-- 例外: メモリ不足なら `std::bad_alloc`
-
-<div class="anim" data-label="auto p = std::make_unique<Enemy>()">
-_ # p は空
-+A # Enemy を作り、p が所有する
-</div>
-
-```cpp
-#include <memory>
-#include <print>
-
-struct Vec2 {
-  float x;
-  float y;
-};
-
-int main() {
-  auto pos = std::make_unique<Vec2>(1.0f, 2.0f);
-  std::println("({}, {})", pos->x, pos->y);
-}
-```
-
-```text title="実行結果"
-(1, 2)
-```
-
-!!! note "実際は"
-    `new` を書く場面は、ほぼすべて `make_unique` に置き換えられます。
 
 ### operator-> {#arrow}
 

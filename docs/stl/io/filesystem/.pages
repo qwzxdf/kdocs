@@ -1,0 +1,33 @@
+title: ファイル操作（std::filesystem）
+nav:
+  - path.md
+  - exists.md
+  - create_directories.md
+  - directory_iterator.md
+  - recursive_directory_iterator.md
+  - directory_entry.md
+  - create_directory.md
+  - remove.md
+  - remove_all.md
+  - rename.md
+  - is_regular_file.md
+  - is_directory.md
+  - file_size.md
+  - copy_file.md
+  - copy.md
+  - current_path.md
+  - last_write_time.md
+  - absolute.md
+  - filesystem_error.md
+  - relative.md
+  - temp_directory_path.md
+  - canonical.md
+  - equivalent.md
+  - space.md
+  - resize_file.md
+  - status.md
+  - permissions.md
+  - is_empty.md
+  - weakly_canonical.md
+  - create_symlink.md
+  - ...

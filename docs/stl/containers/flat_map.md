@@ -1,5 +1,7 @@
 ---
 title: std::flat_map
+summary: "`vector` で作った `map`。検索は速く回すのも速いが挿入・削除は遅い。"
+order: 13
 tags:
   - コンテナ
 ---

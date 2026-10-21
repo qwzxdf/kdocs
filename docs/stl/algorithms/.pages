@@ -2,26 +2,91 @@ nav:
   - sort.md
   - erase_if.md
   - find.md
+  - max.md
+  - min.md
+  - views.md
+  - contains.md
   - any_of.md
-  - count_if.md
-  - min_max.md
+  - all_of.md
+  - count.md
   - clamp.md
   - min_element.md
-  - views.md
+  - max_element.md
   - ranges_to.md
+  - transform.md
+  - remove.md
   - accumulate.md
+  - fold_left.md
+  - none_of.md
+  - minmax.md
+  - search.md
   - shuffle.md
   - reverse.md
-  - binary_search.md
-  - unique.md
-  - copy_fill.md
+  - rotate.md
   - stable_sort.md
-  - partial_sort.md
   - for_each.md
-  - replace.md
-  - partition.md
+  - lower_bound.md
+  - unique.md
+  - binary_search.md
+  - copy.md
   - equal.md
-  - search.md
-  - set_operations.md
-  - heap.md
+  - mismatch.md
+  - replace.md
+  - fill.md
+  - iota.md
+  - partition.md
+  - generate.md
+  - partition_copy.md
+  - adjacent_find.md
+  - is_sorted.md
+  - find_last.md
+  - fold_right.md
+  - reduce.md
+  - transform_reduce.md
+  - inner_product.md
+  - partial_sum.md
+  - adjacent_difference.md
+  - inclusive_scan.md
+  - minmax_element.md
+  - exclusive_scan.md
+  - sample.md
+  - partial_sort.md
+  - nth_element.md
+  - upper_bound.md
+  - unique_copy.md
+  - equal_range.md
+  - lexicographical_compare.md
+  - is_permutation.md
+  - replace_copy.md
+  - remove_copy.md
+  - stable_partition.md
+  - copy_backward.md
+  - partition_point.md
+  - is_partitioned.md
+  - move.md
+  - move_backward.md
+  - swap_ranges.md
+  - search_n.md
+  - starts_with.md
+  - ends_with.md
+  - find_first_of.md
+  - find_end.md
+  - next_permutation.md
+  - prev_permutation.md
+  - shift_left.md
+  - make_heap.md
+  - shift_right.md
+  - iter_swap.md
+  - push_heap.md
+  - pop_heap.md
+  - sort_heap.md
+  - is_heap.md
+  - set_union.md
+  - set_intersection.md
+  - set_difference.md
+  - set_symmetric_difference.md
+  - includes.md
+  - merge.md
+  - inplace_merge.md
+  - execution.md
   - ...

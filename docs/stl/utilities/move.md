@@ -1,10 +1,12 @@
 ---
-title: std::move / std::forward
+title: std::move
+summary: "コピーせず中身を「移す」ための道具（`move`・`forward`）。"
+order: 51
 tags:
   - ユーティリティ
 ---
 
-# std::move / std::forward
+# std::move
 
 <div class="page-badges" markdown>
 <span class="rank rank-often">よく使う</span>
@@ -12,13 +14,13 @@ tags:
 `#include <utility>`
 </div>
 
-`std::move` は、<strong>「この変数の中身はもう使わないので、持っていっていい」と伝えるための関数</strong>です。それ自体は何もコピーも移動もしませんが、これを付けた値を代入や関数に渡すと、コピーの代わりに**ムーブ**（中身の付け替え）が選ばれるようになります。`std::forward` は、テンプレートで受け取った引数を「受け取ったときの形のまま」次の関数へ渡すためのものです。
+`std::move` は、<strong>「この変数の中身はもう使わないので、持っていっていい」と伝えるための関数</strong>です。それ自体は何もコピーも移動もしませんが、これを付けた値を代入や関数に渡すと、コピーの代わりに**ムーブ**（中身の付け替え）が選ばれるようになります。関連する [`std::forward`](forward.md)、[`std::exchange`](exchange.md)、[`std::swap`](swap.md) は、それぞれ別のページにあります。
 
 !!! tip "ポイント"
     - <strong>もう使わない大きな値（string、vector、unique_ptr）を渡すときに `std::move` を付ける。</strong>
     - `std::move` したあとの変数は「空っぽ（中身は未規定）」として扱い、代入し直すまで使わない。
     - `return local;` には付けない（付けると逆に遅くなることがある）。
-    - `std::forward` はテンプレートで「転送」するときだけ。普段のコードでは使わない。
+    - 「転送」するときは [`std::forward`](forward.md)。普段のコードでは使わない。
 
 !!! info "このページを読む前に"
     [ムーブ](../../basics/move.md) の考え方を先に読むと分かりやすいです。
@@ -28,10 +30,6 @@ tags:
 | 関数 | 重要度 | 何をする |
 | --- | --- | --- |
 | [`std::move`](#move) | <span class="rank rank-often">よく使う</span> | ムーブしていい値（右辺値）として扱わせる |
-| [`std::forward`](#forward) | <span class="rank rank-sometimes">たまに</span> | 受け取った形（左辺値 / 右辺値）のまま転送する |
-| [`std::exchange`](#exchange) | <span class="rank rank-sometimes">たまに</span> | 新しい値を入れて、古い値を返す |
-| [`std::swap`](#swap) | <span class="rank rank-sometimes">たまに</span> | 2 つの値を交換する |
-| [`std::move_if_noexcept`](#move_if_noexcept) | <span class="rank rank-rare">知ってるだけ</span> | ムーブが例外を投げないときだけムーブする |
 
 ## よくある使い方
 
@@ -134,138 +132,6 @@ int main() {
 new data
 ```
 
-### std::forward {#forward}
-
-```cpp
-template <class T>
-constexpr T&& forward(std::remove_reference_t<T>& t) noexcept;
-```
-
-| テンプレート引数 | 意味 |
-| --- | --- |
-| `T` | 受け取ったときのテンプレート引数（`Args` など）をそのまま書く |
-
-- 「左辺値で渡されたら左辺値のまま、右辺値で渡されたら右辺値のまま」次へ渡します（完全転送）
-- `template <class... Args> void F(Args&&... args)` の中で使います
-
-```cpp
-#include <memory>
-#include <print>
-#include <string>
-#include <utility>
-#include <vector>
-
-struct Enemy {
-  Enemy(std::string n, int h) : name(std::move(n)), hp(h) {}
-  std::string name;
-  int hp;
-};
-
-class EnemyPool {
- public:
-  // 引数をそのまま Enemy のコンストラクタへ転送する
-  template <class... Args>
-  Enemy& Spawn(Args&&... args) {
-    return enemies_.emplace_back(std::forward<Args>(args)...);
-  }
-
- private:
-  std::vector<Enemy> enemies_;
-};
-
-int main() {
-  EnemyPool pool;
-  std::string name = "スライム";
-  pool.Spawn(name, 10);          // name は左辺値 → コピーされる（name は残る）
-  pool.Spawn(std::string("ゴブリン"), 30);  // 右辺値 → ムーブされる
-  std::println("{}", name);
-}
-```
-
-```text title="実行結果"
-スライム
-```
-
-!!! note "実際は"
-    自分でラッパー関数（`emplace` のようなもの）を作るとき以外は使いません。
-
-### std::exchange <span class="ver ver-14">C++14</span> {#exchange data-toc-label="std::exchange"}
-
-```cpp
-template <class T, class U = T>
-constexpr T exchange(T& obj, U&& new_value);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `obj` | `T&` | 書き換える変数 |
-| `new_value` | 値 | 新しく入れる値 |
-
-- 戻り値: `obj` の**古い値**
-
-<div class="anim" data-label="std::exchange(a, 9)">
-5 # a = 5
-*5 # 古い値（5）を返す
-+9 # a に新しい値 9 を入れる
-</div>
-
-```cpp
-#include <print>
-#include <utility>
-
-int main() {
-  int pending_damage = 25;
-  int applied = std::exchange(pending_damage, 0);  // 取り出して 0 にリセット
-  std::println("{} {}", applied, pending_damage);
-}
-```
-
-```text title="実行結果"
-25 0
-```
-
-!!! note "実際は"
-    「溜まっていたものを取り出してリセット」「前の状態を覚えつつ新しい状態にする」を 1 行で書けます。ムーブコンストラクタの実装でもよく使います。
-
-### std::swap {#swap}
-
-```cpp
-template <class T>
-constexpr void swap(T& a, T& b) noexcept(/* 条件 */);
-```
-
-- `a` と `b` の中身を交換します。vector や string ならポインタの付け替えだけなので速いです
-
-<div class="anim" data-label="std::swap(a, b)">
-A | B # a と b
->B | >A # 中身を入れ替える
-</div>
-
-```cpp
-#include <print>
-#include <utility>
-
-int main() {
-  int front = 1;
-  int back = 2;
-  std::swap(front, back);
-  std::println("{} {}", front, back);
-}
-```
-
-```text title="実行結果"
-2 1
-```
-
-### std::move_if_noexcept {#move_if_noexcept}
-
-```cpp
-template <class T>
-constexpr auto move_if_noexcept(T& x) noexcept;
-```
-
-- ムーブコンストラクタが `noexcept` ならムーブ、そうでなければコピーとして扱わせます。vector の再確保の中で使われている仕組みで、自分で書くことはまずありません
-
 ## フラグ・オプション
 
 フラグはありません。
@@ -328,7 +194,7 @@ C++11 からある機能です。
     - [x] もう使わない大きな値は `std::move` して渡す
     - [x] ムーブ後の変数は使わない
     - [x] `return x;` に move は付けない
-    - [x] `std::forward` はテンプレートの転送専用
+    - [x] 転送は [`std::forward`](forward.md)（テンプレート専用）
 
 ## 関連ページ
 
