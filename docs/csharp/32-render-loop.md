@@ -6,22 +6,18 @@ tags:
 
 # 第 32 章 描画ループとスレッド
 
-第 31 章では WPF の `CompositionTarget.Rendering` で、`Tick` を呼びました。動きますが<strong>エディタとして使うには問題</strong>があります。この章ではその問題を整理し<strong>専用の描画スレッド</strong>でエンジンを動かす形に作り替えます。同時に「エンジンの関数をどのスレッドから呼んでよいか」という連携で最も事故が起きやすい約束事を決めます。
+第 31 章では、WPF の `CompositionTarget.Rendering` から `Tick` を呼びました。動きはしますが、エディタとして使うには問題があります。この章では、その問題を整理して、専用の描画スレッドでエンジンを動かす形に作り替えます。あわせて、「エンジンの関数を、どのスレッドから呼んでよいのか」という、連携でいちばん事故の起きやすい約束事を決めます。
 
-## この章の考え方
+## UI スレッドで描くと困ること
 
-### UI スレッドで描くと何が困るか
+WPF の画面を操作できるスレッドは、UI スレッド 1 本だけです。ボタンのクリックも、メニューも、ツリーの展開も、全部がこの 1 本で処理されます。そこで `Tick`（描画）も動かすと、次のような問題が起きます。
 
-WPF の画面を操作できるのは、<strong>UI スレッド</strong>1 本だけです。ボタンのクリック、メニュー、ツリーの展開、すべてが UI スレッドで処理されます。ここで `Tick`（描画）も実行すると、次の問題が起きます。
+- 描画が重いと、UI が固まります。1 フレームの描画に 30 ミリ秒かかれば、その間、ボタンもメニューも反応しません。
+- 逆に、UI が重いと、描画が止まります。ツリーに 1 万個の項目を追加している間、ビューポートが止まります。
+- `Present` が垂直同期（VSync）を待つ間、UI スレッドも止まります。
+- `CompositionTarget.Rendering` が呼ばれる頻度は、保証されていません。
 
-| 問題 | 内容 |
-| --- | --- |
-| 描画が重いと UI が固まる | 1 フレームの描画に 30 ms かかればその間、ボタンもメニューも反応しない |
-| UI が重いと描画が止まる | ツリーに 1 万個の項目を追加する間、ビューポートが止まる |
-| `Present` の待ち | 垂直同期（VSync）を待つ間、UI スレッドが止まる |
-| 更新頻度が不安定 | `CompositionTarget.Rendering` の呼ばれる頻度は保証されない |
-
-そこで、<strong>描画専用のスレッド</strong>を作ります。UI スレッドと描画スレッドは別々に回るので、お互いを止めません。
+そこで、描画専用のスレッドを作ります。UI スレッドと描画スレッドは別々に回るので、お互いを止めません。
 
 ```text
 UI スレッド（WPF）            描画スレッド
@@ -31,38 +27,30 @@ UI スレッド（WPF）            描画スレッド
         └─ 命令を積む ──▶ [キュー] ─▶ }
 ```
 
-### 守るべき原則：エンジンを触るスレッドは 1 本
+### エンジンを触るスレッドは、1 本だけにする
 
-エンジン（`Engine`）は<strong>複数のスレッドから同時に呼ぶことを想定していません</strong>。シーンのデータを更新している最中に別のスレッドが描画すると、壊れます。
+エンジン（`Engine`）は、複数のスレッドから同時に呼ぶことを想定していません。シーンを更新している最中に別のスレッドが描画すると、壊れます。そこで、次のルールを決めます。
 
-| 原則 | 内容 |
-| --- | --- |
-| <strong>エンジンを触るのは描画スレッドだけ</strong> | `Create`、`Tick`、`Resize`、シーンの編集、`Destroy`。すべて同じスレッドから |
-| UI スレッドは直接触らない | 命令を<strong>キューに積む</strong>（非同期）。結果が欲しいときは描画スレッドに頼んで、待つ（同期） |
-| 結果はコピーして UI に渡す | エンジン内部のポインターを UI スレッドに渡さない |
+- エンジンを触るのは、描画スレッドだけです。作成、`Tick`、`Resize`、シーンの編集、破棄。全部を同じスレッドから呼びます。
+- UI スレッドは、エンジンを直接触りません。命令をキューに積みます（非同期）。結果が欲しいときは、描画スレッドに頼んで待ちます（同期）。
+- 結果はコピーして UI に渡します。エンジンの内部のポインターを UI スレッドに渡しません。
 
-この原則があればエンジン側に<strong>ロックを書く必要がありません</strong>。ロックの代わりに<strong>スレッドを 1 本に決める</strong>方針です。
+この方針なら、エンジン側にロックを書く必要がありません。ロックの代わりに、スレッドを 1 本に決めてしまうのです。
 
-## この章のゴール
+## .NET のスレッドの道具
 
-- `IRenderLoop` サービスを作り描画スレッドで `Tick` を回す。
-- UI スレッドから描画スレッドへ命令を送れる（非同期・同期）。
-- 画面の更新と描画を別のスレッドで動かし、お互いを止めない。
-- FPS を計測してステータス バーに表示する。
+C++ の `std::thread` に当たるものを、先に整理しておきます。
 
-## 手順 1：.NET のスレッドの基礎
-
-C++ の `std::thread` に当たるものを先に整理します。
-
-| C# | C++ | 説明 |
+| C# | C++ で近いもの | 役目 |
 | --- | --- | --- |
 | `Thread` | `std::thread` | スレッド。`Start()` で開始、`Join()` で終了を待つ |
-| `ManualResetEventSlim` | `std::condition_variable` + フラグ | 「合図が来るまで待つ」仕組み。`Set()` で合図、`Wait()` で待つ |
-| `ConcurrentQueue<T>` | ロック付き `std::queue` | 複数のスレッドから安全に出し入れできる待ち行列 |
-| `CancellationTokenSource` | `std::stop_source` | 「止めて」という合図を渡す仕組み。`Cancel()` で通知、`Token` を渡す |
-| `lock (obj) { … }` | `std::lock_guard` | 同じ `obj` を持つ区画は、同時に 1 本しか入れない |
-| `Interlocked` | `std::atomic` | 不可分な加算、交換 |
-| `volatile` | （近いのは `std::atomic` の relaxed） | 最新の値を読むことを保証。複雑な用途には使わない |
+| `ManualResetEventSlim` | `std::condition_variable` とフラグ | 合図が来るまで待つ。`Set()` で合図、`Wait()` で待つ |
+| `ConcurrentQueue<T>` | ロック付きの `std::queue` | 複数のスレッドから安全に出し入れできる待ち行列 |
+| `CancellationTokenSource` | `std::stop_source` | 「止めて」という合図を渡す |
+| `lock (obj) { ... }` | `std::lock_guard` | 同じ `obj` を持つ区画は、同時に 1 本しか入れない |
+| `Interlocked` | `std::atomic` | 不可分な加算や交換 |
+
+スレッドの作り方は、こうです。
 
 ```csharp
 var thread = new Thread(() =>
@@ -77,17 +65,13 @@ thread.Start();
 thread.Join();
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `new Thread(() => {…})` | ラムダ式を渡して、スレッドを作る |
-| `IsBackground` | `true` のスレッドは<strong>メイン スレッドが終われば強制終了</strong>される。`false`（既定）だとそのスレッドが終わるまでプロセスが残る |
-| `Environment.CurrentManagedThreadId` | 今のスレッドの番号。どのスレッドで動いているか確認できる |
+`IsBackground = true` のスレッドは、メイン スレッドが終わると強制的に終了させられます。`false`（既定）だと、そのスレッドが終わるまでプロセスが残ります。`Environment.CurrentManagedThreadId` は今のスレッドの番号で、どのスレッドで動いているかを確かめるのに便利です。
 
-## 手順 2：IRenderLoop を作る
+## IRenderLoop を作る
 
-`Services\IRenderLoop.cs`:
+エンジンを動かす専用スレッドの窓口を、インターフェースで定義します。
 
-```csharp
+```csharp title="Services/IRenderLoop.cs"
 namespace Editor.Services;
 
 // エンジンを動かす専用スレッド。エンジンへの命令は、すべてここを通す。
@@ -110,11 +94,9 @@ public interface IRenderLoop : IDisposable
 }
 ```
 
-実装 `Services\RenderLoop.cs`:
+実装は 3 つに分けて見ます。まず、状態とキューです。
 
-### 状態とキュー
-
-```csharp
+```csharp title="Services/RenderLoop.cs"
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
@@ -141,15 +123,9 @@ public sealed class RenderLoop : IRenderLoop
     public double FramesPerSecond => Volatile.Read(ref _fps);
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `ConcurrentQueue<Action>` | スレッドをまたいで、安全に使える待ち行列。`Enqueue`（追加）、`TryDequeue`（取り出し） |
-| `ManualResetEventSlim` | 待っているスレッドを起こす合図。`Set()` で起こし `Reset()` で戻し `Wait(ms)` で待つ |
-| `volatile bool _running` | 別のスレッドからの変更が、すぐ見えるようにする指定。単純なフラグ向き |
-| `Volatile.Read(ref _fps)` | 別のスレッドが書いた `double` を安全に読む |
-| `new(false)` | 対象型 new（第 12 章）。引数の `false` は「最初は合図なし」 |
+`ConcurrentQueue<Action>` は、複数のスレッドから安全に出し入れできる待ち行列で、`Enqueue` で追加し、`TryDequeue` で取り出します。`volatile bool _running` は、別のスレッドが変えた値が、すぐ見えるようにする指定で、単純なフラグに向いています。`Volatile.Read(ref _fps)` は、別のスレッドが書いた `double` を安全に読むための関数です。
 
-### 開始と停止
+次は、開始と停止です。
 
 ```csharp
     public void Start(nint windowHandle, uint width, uint height)
@@ -177,12 +153,9 @@ public sealed class RenderLoop : IRenderLoop
     public void Dispose() => Stop();
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Thread.Join()` | そのスレッドが終わるまで、<strong>呼び出し側が待つ</strong>。終了後にエンジンが破棄済みであることを保証できる |
-| `IsBackground = false` | 描画スレッドが終わる前にプロセスが閉じないようにする（GPU の後片付けのため） |
+`Join()` は、そのスレッドが終わるまで呼び出し側が待つ関数です。これで、`Stop()` から戻った時点で、エンジンが破棄済みだと保証できます。`IsBackground = false` にしているのは、GPU の後片付けが終わる前にプロセスが閉じないようにするためです。
 
-### スレッドの本体
+そして、スレッドの本体です。
 
 ```csharp
     private void Run(nint windowHandle, uint width, uint height)
@@ -243,16 +216,9 @@ public sealed class RenderLoop : IRenderLoop
     }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Stopwatch.StartNew()` | 作ってすぐに計測を始める |
-| `while (_commands.TryDequeue(out var command))` | キューが空になるまで、取り出して実行する。`TryDequeue` は取れたら `true` |
-| `Math.Min(…, 0.1)` | `delta` の上限を 0.1 秒にする。デバッガーで止めた後などに `delta` が巨大になるのを防ぐ |
-| `Volatile.Write` | 別のスレッドが読む値を安全に書く |
-| `while (…TryDequeue(out _)) { }` | 残りを捨てる。`out _` は結果を使わない |
-| 1 つのスレッドで完結 | <strong>作成・Tick・命令・破棄が、すべて描画スレッド</strong>。エンジンへのスレッド規約が守られる |
+1 周ごとに、溜まっている命令をすべて実行し、経過時間を測って `Tick` を呼びます。`delta` の上限を 0.1 秒にしているのは、デバッガーで止めたあとなどに、巨大な値が渡されるのを防ぐためです。作成から破棄まで、エンジンを触る処理が全部この 1 本のスレッドの中に収まっているのが、ポイントです。
 
-### 命令を積む（非同期と同期）
+最後に、命令を積む側です。
 
 ```csharp
     public void Post(Action<IEngineService> command)
@@ -287,22 +253,16 @@ public sealed class RenderLoop : IRenderLoop
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Post` | 非同期。積んだらすぐ戻る。結果は返らない。編集の命令に使う |
-| `Invoke<T>` | 同期。積んで完了を待ち結果を返す。名前の取得のような<strong>結果が必要な</strong>呼び出しに使う |
-| `default!` | 型の既定値（`null` や 0）。`!` は「`null` でないと私が保証する」という警告の抑制 |
-| クロージャ | ラムダ式が、外の変数（`result`、`error`）を<strong>捕まえて</strong>、書き換える。C++ の `[&]` と同じ |
-| `finally { done.Set(); }` | 成功しても失敗しても、必ず合図する。`finally` を忘れると永久に待つ（デッドロック） |
-| `ManagedThreadId` | スレッドの番号。自分が描画スレッドかどうかを調べる |
-| `new InvalidOperationException("…", error)` | 元の例外を<strong>内側の例外</strong>（`InnerException`）として保存する |
+`Post` は積んだらすぐ戻る非同期版で、編集のように結果が要らない命令に使います。`Invoke` は、積んで完了を待ち、結果を返す同期版です。名前の取得のように、結果が必要な呼び出しに使います。
 
-!!! warning "Invoke のデッドロック"
-    描画スレッドが UI スレッドの結果を待ちながら、UI スレッドが `Invoke` で描画スレッドを待つと<strong>お互いに待って止まります</strong>（デッドロック）。ルールは 1 つです。<strong>描画スレッドは UI スレッドを待たない</strong>。描画スレッドから UI に知らせるときは、`Dispatcher.BeginInvoke`（待たない）かイベント（第 18 章）を使います。
+`Invoke` の中のラムダ式は、外の変数（`result`、`error`）を捕まえて書き換えています（C++ の `[&]` と同じです）。`finally { done.Set(); }` が大事で、これを忘れると、例外が起きたときに永遠に待ちます。`default!` は、型の既定値を入れつつ、「`null` ではない」とコンパイラーに伝える書き方です。
 
-## 手順 3：ViewportViewModel を作り替える
+!!! warning "Invoke でデッドロックしないために"
+    描画スレッドが UI スレッドの結果を待っている最中に、UI スレッドが `Invoke` で描画スレッドを待つと、お互いに待ち合って止まります。ルールは 1 つです。描画スレッドは、UI スレッドを待たない。描画スレッドから UI に知らせるときは、`Dispatcher.BeginInvoke`（待たない）か、イベント（第 18 章）を使います。
 
-`ViewportViewModel` を `IRenderLoop` を使う形にします。`IEngineService` を直接触るのは `RenderLoop` だけです。
+## ViewportViewModel を作り替える
+
+`ViewportViewModel` を、`IRenderLoop` を使う形にします。`IEngineService` を直接触るのは、`RenderLoop` だけになります。
 
 ```csharp
 public class ViewportViewModel : BindableBase
@@ -331,24 +291,17 @@ public class ViewportViewModel : BindableBase
 }
 ```
 
-`CompositionTarget.Rendering`、`Stopwatch`、`_previous` は不要になったので削除します。
-
-`App.xaml.cs` の `RegisterTypes` で登録します。
+`CompositionTarget.Rendering`、`Stopwatch`、`_previous` は要らなくなるので、削除します。`App.xaml.cs` の `RegisterTypes` に、登録を足します。
 
 ```csharp
 containerRegistry.RegisterSingleton<IRenderLoop, RenderLoop>();
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| ラムダ式で命令を渡す | `engine => engine.Resize(width, height)` は、<strong>描画スレッドで実行される関数</strong>を渡している。`Post` はすぐに戻る |
-| `width`、`height` をラムダが捕まえる | UI スレッドの値のコピーが、描画スレッドに渡る。`uint` は値型でコピーされるので安全 |
+`engine => engine.Resize(width, height)` は、描画スレッドで実行される関数を渡しています。`width` と `height` はラムダが捕まえますが、`uint` は値型でコピーされるので、UI スレッドの値のコピーが描画スレッドに渡る形になり、安全です。
 
-## 手順 4：描画スレッドを止めずに UI の更新を受ける
+## FPS をステータス バーに出す
 
-ステータス バーに FPS を表示したい。描画スレッドから UI を直接更新できないので、<strong>UI スレッドのタイマーで、値を読みに行きます</strong>（ポーリング）。
-
-`MainWindowViewModel` に追加します。
+描画スレッドから UI を直接更新することはできません。ここでは、UI スレッドのタイマーで値を読みに行く（ポーリングする）形にします。
 
 ```csharp
 using System.Windows.Threading;
@@ -364,34 +317,22 @@ public MainWindowViewModel(IRenderLoop loop /*, ほか */)
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `DispatcherTimer` | UI スレッドで、一定間隔で `Tick` イベントを起こすタイマー。UI を触ってよい |
-| `TimeSpan.FromMilliseconds(500)` | 500 ミリ秒の時間の長さ |
-| `{value:F1}` | 補間文字列の書式。小数 1 桁 |
-| 方式の選択 | <strong>描画スレッドから UI へ送る</strong>（`Dispatcher.BeginInvoke`）と<strong>UI が読みに行く</strong>（ポーリング）の二つ。更新の頻度が高い値はポーリングのほうが、UI の負荷を制御しやすい |
+`DispatcherTimer` は、UI スレッドで一定間隔ごとに `Tick` を起こすタイマーです。UI を触ってよいスレッドで動きます。更新が頻繁な値は、描画スレッドから UI へ送る（`Dispatcher.BeginInvoke`）より、UI が読みに行くほうが、UI の負荷を調整しやすくなります。
 
-## 手順 5：VSync と遅延
+## VSync と遅延
 
-`Present(1, 0)` は<strong>画面の更新（VSync）を待つ</strong>関数です。描画スレッドが 60 Hz のモニターで 1 フレーム 16.7 ms ごとに待つので、<strong>描画スレッドが自然に 60 fps で回ります</strong>。UI スレッドは別なので待たされません。
+`Present(1, 0)` は、画面の更新（VSync）を待つ関数です。60 Hz のモニターなら、描画スレッドは 1 フレーム約 16.7 ミリ秒ごとに待つので、描画スレッドが自然に 60 fps で回ります。UI スレッドは別なので、待たされません。消費電力が低く、ティアリング（画面のずれ）も起きないので、エディタにはこれで十分です。
 
-| 設定 | 動作 |
-| --- | --- |
-| `Present(1, 0)` | VSync を待つ。消費電力が低くティアリング（画面のずれ）なし |
-| `Present(0, DXGI_PRESENT_ALLOW_TEARING)` | VSync を待たない。最速。ティアリングあり。可変リフレッシュ レート（G-Sync など）向き |
+`Present(0, DXGI_PRESENT_ALLOW_TEARING)` なら VSync を待たず最速になりますが、ティアリングが出ます。可変リフレッシュ レート（G-Sync など）向けです。さらに遅延を減らしたいときは、待機可能スワップ チェーン（`DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT`）という手段もありますが、この教材では触れません。
 
-エディタでは `Present(1, 0)` で十分です。CPU の使用率が下がります。
+## 約束が守られているかを、エンジン側でも確かめる
 
-遅延をさらに減らしたい場合は<strong>待機可能スワップ チェーン</strong>（`DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT`）を使い、`GetFrameLatencyWaitableObject` で待つ方法があります。`SetMaximumFrameLatency(1)` と組み合わせます。この教材では触れません。
-
-## 手順 6：エンジン側にもスレッド検査を入れる
-
-「エンジンを触るのは 1 本」という約束は、<strong>守られているか確かめる</strong>手段が欲しくなります。`Engine` の Debug ビルドにスレッド ID の検査を入れておきます。
+「エンジンを触るのは 1 本」という約束は、守られているかを確かめる手段がないと、いつか破られます。`Engine` の Debug ビルドに、スレッド ID の検査を入れておきます。
 
 ```cpp
 // Engine.cpp の Impl
 struct Engine::Impl {
-  // …
+  // ...
   std::thread::id owner = std::this_thread::get_id();    // 作ったスレッド
 };
 
@@ -404,46 +345,35 @@ struct Engine::Impl {
 #endif
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `std::thread::id` / `std::this_thread::get_id()` | スレッドの識別子 |
-| `__debugbreak()` | デバッガーをその場で止める（MSVC）。呼び出し元のスレッドが分かる |
-| `do { … } while (0)` | 複数の文を 1 つの文として扱えるマクロの定番の書き方 |
+`Tick` や `Resize` の先頭でこれを呼びます。UI スレッドから間違って呼ぶと、その場でデバッガーが止まり、コール スタックから原因が分かります。`__debugbreak()` は MSVC のデバッガーを止める命令で、`do { ... } while (0)` は複数の文を 1 つの文として扱えるマクロの定番の書き方です。
 
-`Create` したスレッドを覚えておき `Tick`、`Resize` などの先頭で検査します。UI スレッドから誤って呼ぶと<strong>その場で止まり</strong>、コール スタックから原因が分かります。
+## 動かして確かめる
 
-## 動作確認
+- 起動すると、第 31 章と同じようにビューポートの色が変わる。
+- ステータス バーに「60.0 FPS」のような表示が出る（モニターのリフレッシュ レートに近い値）。
+- 描画中でも、メニューや仕切りが滑らかに動く。UI スレッドを止めても（`Thread.Sleep(2000)` を呼ぶテスト用ボタンなど）、ビューポートは動き続ける。
+- 閉じると、描画スレッドが止まってエンジンが破棄され、プロセスが終了する。
+- UI スレッドから `Tick` を呼んでみると、Debug でブレークする。
 
-| 見る所 | 期待する結果 |
-| --- | --- |
-| 起動 | 第 31 章と同じく、ビューポートの色が変わる |
-| ステータス バー | 「60.0 FPS」などが出る（モニターのリフレッシュ レートに近い値） |
-| UI の応答 | 描画中でもメニューや仕切りが、滑らかに動く |
-| 重い UI 処理 | UI スレッドを止めても（例：`Thread.Sleep(2000)` を呼ぶボタン）、ビューポートは動き続ける |
-| 閉じる | 描画スレッドが止まりエンジンが破棄されプロセスが終了する |
-| スレッド検査 | UI スレッドから `Tick` を呼ぶと Debug でブレークする |
+??? failure "終了するときに固まる"
+    `Stop()` が描画スレッドの終了を待っている最中に、描画スレッドが UI スレッドの結果を待っている可能性があります。描画スレッドから UI を待たないようにします。あるいは、`Invoke` の中で例外が起きたのに `done.Set()` が呼ばれていません（`finally` が必要です）。
 
-## よくあるミス
+??? failure "リサイズ中に、絵が引き伸ばされる"
+    正常です。DXGI のフリップ モデルは、`ResizeBuffers` が終わるまで古いバッファーを引き伸ばして出します。気になるなら、リサイズの命令を複数積まずに、最新の大きさだけを保持します（デバウンス）。
 
-??? failure "終了するとき固まる"
-    `Stop()` が描画スレッドの終了を待っている最中に描画スレッドが UI スレッドの結果を待っている。描画スレッドから UI を待たない。または、`Invoke` の中で例外が起きて `done.Set()` が呼ばれなかった（`finally` が必要）。
-
-??? failure "リサイズ中に絵が引き伸ばされる"
-    正常です。DXGI のフリップ モデルは `ResizeBuffers` が完了するまで、古いバッファーを引き伸ばす。気になるときはリサイズの命令を `Post` で複数積まず最新の大きさだけを保持する（デバウンス）。
-
-??? failure "`Invoke` で、UI が固まる"
-    描画スレッドが `Present` の VSync を待つ間、命令を処理できない。`Invoke` は 1 フレーム分（約 16 ms）待つ。大量の `Invoke` を続けて呼ばず `Post` にするか 1 回の命令にまとめる。
+??? failure "`Invoke` で UI が固まる"
+    描画スレッドが `Present` の VSync を待っている間は、命令を処理できません。`Invoke` は 1 フレーム分（約 16 ミリ秒）待たされます。大量の `Invoke` を続けず、`Post` にするか、1 回の命令にまとめます。
 
 ??? failure "例外が出ても、描画スレッドが黙って止まる"
-    スレッドの中の例外は<strong>呼び出し元に伝わらず</strong>、プロセスを落とすか無視される。`Run` の中で `try/catch` して必ずログに書く。
+    スレッドの中の例外は、呼び出し元に伝わりません。`Run` の中で `try/catch` して、必ずログに書きます。
 
 ## この章のまとめ
 
-- エンジンを触るスレッドは<strong>描画スレッド 1 本</strong>。UI スレッドは命令を積む。
-- `Post`（非同期）と `Invoke`（同期）で、命令を送る。描画スレッドは UI を待たない。
-- 破棄は描画スレッドの中で行い `Stop()` が `Join` で待つ。
-- `Present(1, 0)` が描画スレッドの速度を決める。
+- エンジンを触るスレッドは、描画スレッド 1 本にする。UI スレッドは命令を積む。
+- 命令は `Post`（非同期）と `Invoke`（同期）で送る。描画スレッドは UI を待たない。
+- 破棄も描画スレッドの中で行い、`Stop()` が `Join` で待つ。
+- `Present(1, 0)` が、描画スレッドの速さを決める。
 
-## 次の章へ
+次の章では、ビューポートのマウスとキーボードを受け取って、カメラを動かします。入力も、描画スレッドに送る形にします。
 
-次の章（[第 33 章 入力とエディタ カメラ](33-input-camera.md)）では、ビューポートのマウスとキーボードを受け取りカメラを動かします。入力も描画スレッドに送る形にします。
+[第 33 章 入力とエディタ カメラ](33-input-camera.md) へ進みます。

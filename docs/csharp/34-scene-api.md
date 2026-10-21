@@ -6,20 +6,18 @@ tags:
 
 # 第 34 章 シーンのデータと API
 
-この章から第 5 部（エディタの機能）です。ビューポートに<strong>物（オブジェクト）を置ける</strong>ようにします。エンジンにシーンを足し、C# から作成・削除・移動できる API を作り、C# 側にも<strong>シーンのデータ</strong>（ドキュメント）を持たせます。シーン ツリー（第 35 章）、プロパティ（第 36 章）、Undo/Redo（第 38 章）、保存（第 39 章）の、すべての土台になる章です。
+この章から第 5 部、エディタの機能です。ビューポートに物（オブジェクト）を置けるようにします。エンジンにシーンを足して、C# から作成・削除・移動できる API を作り、C# 側にも、シーンのデータ（ドキュメント）を持たせます。シーン ツリー、プロパティ、Undo/Redo、保存と、このあとの機能は全部、この章の作りの上に乗ります。
 
-## この章の考え方
+## データの持ち主を決める
 
-### 「データの持ち主」を決める
+エディタもエンジンも、「シーン」を知っています。では、どちらが正しいデータを持つのでしょうか。ここを最初に決めておかないと、あとで必ず矛盾が出ます。
 
-エディタとエンジンの両方が「シーン」を知っています。<strong>どちらが正しいデータを持つのか</strong>を、最初に決めておかないと、あとで必ず矛盾します。
+選択肢は 2 つあります。
 
-| 案 | 内容 | 長所 | 短所 |
-| --- | --- | --- | --- |
-| <strong>A: エンジンが持つ</strong> | C# は、必要になるたび、エンジンに問い合わせる | データが 1 か所 | 問い合わせるたびに境界を越える。Undo、保存、ツリー表示のたびに、大量の呼び出し。C# の型で扱いにくい |
-| <strong>B: エディタが持つ</strong>（採用） | C# が「編集用のデータ」を持ち、変更を<strong>命令として</strong>エンジンに送る | Undo/Redo、保存、ツリー表示が、C# の中で完結。境界の呼び出しは「変更したとき」だけ | データが 2 か所にある（エンジンは、複製） |
+- エンジンが持つ。C# は必要になるたびにエンジンに問い合わせます。データが 1 か所にまとまる利点はありますが、問い合わせるたびに境界を越えます。ツリーの表示、Undo、保存のたびに大量の呼び出しが発生しますし、C# の型としても扱いにくくなります。
+- エディタが持つ。C# が編集用のデータを持ち、変更を命令としてエンジンに送ります。Undo/Redo、保存、ツリー表示が C# の中で完結しますし、境界を越えるのは変更したときだけです。代わりに、データが 2 か所に存在します。
 
-この教材では <strong>B</strong> を採用します。エディタのシーン（<strong>ドキュメント</strong>）が<strong>正</strong>で、エンジンのシーンは、<strong>表示と実行のための写し</strong>です。実際の商用エディタも、この構造が一般的です。
+この教材は、後者を選びます。エディタのシーン（ドキュメント）が正で、エンジンのシーンは、表示と実行のための写しです。商用のエディタも、だいたいこの構造です。
 
 ```text
 ┌──────── Editor（C#）────────┐         ┌──── Engine（C++）────┐
@@ -30,33 +28,20 @@ tags:
 └───────────────────────────┘         └───────────────────┘
 ```
 
-この構造から、2 つのルールが決まります。
+この構造から、ルールが 2 つ決まります。
 
-1. <strong>変更は必ず、ドキュメントを通す</strong>。ドキュメントが変わったら、それに対応する命令を、エンジンに送る。
-2. <strong>エンジンは、状態を勝手に変えない</strong>（編集モードのとき）。変わる場合（ピッキング、Play モード）は、結果を C# に返し、C# が反映する。
+1. 変更は、必ずドキュメントを通す。ドキュメントが変わったら、対応する命令をエンジンに送る。
+2. 編集モードのあいだ、エンジンは状態を勝手に変えない。変わる場合（ピッキング、Play モード）は、結果を C# に返して、C# が反映する。
 
-### ID
+### ID は C# が決める
 
-物を区別する番号（ID）は、<strong>C# が決めて、エンジンに渡します</strong>。エンジンが決めて返す方式だと、Undo で「削除した物を復活」させるとき、元と同じ ID に戻せません。
+物を区別する番号（ID）は、C# が決めてエンジンに渡します。エンジンが決めて返す方式だと、Undo で削除した物を復活させるときに、元と同じ ID に戻せないからです。ID は `uint`（32 ビット）で、0 は「なし」を表します（「親がない」を `0` で表せるように）。一度使った ID は、シーンの中で重複させません。
 
-| 規則 | 理由 |
-| --- | --- |
-| ID は `uint`（32 ビット、0 は「なし」） | `0` を「親なし」に使える |
-| C# が採番する | Undo/Redo や保存で、同じ ID を再利用できる |
-| 一度使った ID は、シーン内で重複させない | 衝突を防ぐ |
+## エンジン側の Scene
 
-## この章のゴール
+まず、物とシーンのクラスです。
 
-- エンジンに `Scene` を作り、物をワイヤーフレームの箱として描く。
-- C の API で、物の作成・削除・親子づけ・名前・変換（位置、回転、拡大）・色を、設定できる。
-- C# に `SceneObject` と `SceneDocument` を作り、変更をエンジンに送る。
-- ビューポートに、箱が表示される。
-
-## 手順 1：エンジン側の Scene
-
-`Engine\src\Scene.h`:
-
-```cpp
+```cpp title="Engine/src/Scene.h"
 #pragma once
 
 #include <SimpleMath.h>
@@ -106,17 +91,9 @@ class Scene {
 }  // namespace mini
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| `ObjectId` | 物の番号。`0` は「親なし」の意味 |
-| 回転の持ち方 | オイラー角（ラジアン）。エディタでは扱いやすい。複雑な回転（補間など）が要る段階で、クォータニオンに置き換える |
-| `LocalMatrix` | 親から見た変換。拡大 → 回転 → 移動の順 |
-| `WorldMatrix` | ワールド空間の変換。<strong>親のワールド行列を掛ける</strong> |
-| `unordered_map` | ID で引ける表。`std::unordered_map<K, V>` |
+回転はオイラー角（ラジアン）で持ちます。エディタでは扱いやすいからです。補間のような複雑な回転が必要になった段階で、クォータニオンに置き換えます。`LocalMatrix` は親から見た変換で、拡大 → 回転 → 移動の順に組み立てます。`WorldMatrix` はワールド空間での変換で、親のワールド行列を掛けて求めます。
 
-`Engine\src\Scene.cpp`:
-
-```cpp
+```cpp title="Engine/src/Scene.cpp"
 #include "Scene.h"
 
 #include <algorithm>
@@ -204,19 +181,15 @@ Matrix Scene::WorldMatrix(const SceneObject& o) const {
 }  // namespace mini
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| `objects_.contains(id)` | C++20 の `contains`。要素があるか |
-| `emplace` | 要素を、その場で作って入れる |
-| `Destroy` の集め方 | 破棄する物の ID を、幅優先で集めてから消す。走査中に `erase` すると、イテレーターが無効になる |
-| `IsDescendant` | <strong>輪を防ぐ</strong>。「A の親を、A の子孫にする」と、親をたどって終わらなくなる |
-| 掛け順 | 行ベクトルでは、`v * S * R * T * ParentS * ParentR * ParentT`…の順に適用される。つまり、<strong>行列は左から右へ</strong>「自分 → 親 → さらに親」の順で掛ける |
+注目したい点が 3 つあります。
 
-## 手順 2：ワイヤーフレームの箱を描く
+- `Destroy` は、壊す物の ID を先に全部集めてから消しています。`unordered_map` を走査しながら `erase` すると、イテレーターが無効になるからです。
+- `SetParent` の `IsDescendant` は、輪を防ぐ検査です。「A の親を、A の子孫にする」と、親をたどっても終わらなくなってしまいます。
+- `WorldMatrix` の掛け順は、行ベクトルの約束で、`自分 → 親 → さらに親` の順に左から右へ掛けます。`v * S * R * T * 親のS * 親のR * 親のT ...` と適用されるイメージです。
 
-物を、<strong>単位立方体の枠線</strong>として描きます。物ごとに変換して、12 本の辺（24 頂点）を追加します。
+## ワイヤーフレームの箱を描く
 
-`Engine.cpp` の `Tick` に追加します。
+物を、単位立方体の枠線として描きます。物ごとに変換して、12 本の辺（24 頂点）を追加します。`Engine.cpp` に追加するコードです。
 
 ```cpp
 namespace {
@@ -240,7 +213,7 @@ void AddWireBox(std::vector<LineVertex>& lines, const Matrix& world, const Vecto
 }  // namespace
 ```
 
-角の番号 `i` の bit0 が X、bit1 が Y、bit2 が Z を表します。<strong>隣り合う角</strong>（1 ビットだけ違う角）を結べば、立方体の 12 本の辺になります。`kBitEdges` は、その 12 組です。
+角の番号 `i` の bit0 が X、bit1 が Y、bit2 が Z を表します。隣り合う角（1 ビットだけ違う角）を結べば、立方体の 12 本の辺になり、`kBitEdges` はその 12 組です。
 
 `Tick` の線の組み立てに、物の描画を足します。
 
@@ -252,14 +225,9 @@ for (const auto& [id, object] : s.scene.Objects()) {
 }
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| `(i & 1) ? 0.5f : -0.5f` | 角の番号 `i` のビットで、各軸の ±0.5 を決める。8 つの角が作れる |
-| `Vector3::Transform(local, world)` | SimpleMath の関数。ベクトルを、行列で変換する（行ベクトルの `local * world`） |
-| 選択中は黄色 | 第 35 章以降で、選択に使う |
-| `s.selection` | 選択中の ID の集合（`std::unordered_set<ObjectId>`）。次の手順で、API から設定する |
+選択中の物は黄色にします。`s.selection` は、選択中の ID の集合（`std::unordered_set<ObjectId>`）で、次の節の API から設定します。
 
-## 手順 3：C の API を足す
+## C の API を足す
 
 `EngineApi.h` に追加します。
 
@@ -329,27 +297,18 @@ MeResult me_scene_set_selection(MeEngine* engine, const uint32_t* ids, uint32_t 
 }
 ```
 
-`Engine` には、`Scene& GetScene()` と `SetSelection(std::span<const ObjectId>)` を足します。
+`Engine` には、`Scene& GetScene()` と、`SetSelection(std::span<const ObjectId>)` を足します。
 
-| 部分 | 説明 |
-| --- | --- |
-| `const char* name_utf8` | UTF-8 の文字列。変数名に `_utf8` を付けて、文字コードを明示する（[文字コード](../encoding/index.md)） |
-| `const uint32_t* ids, uint32_t count` | <strong>配列の渡し方</strong>。先頭のポインターと個数のペア。C++ の `std::span` に当たる |
-| `std::span<const uint32_t>(ids, count)` | 配列とその長さを 1 つにまとめた<strong>非所有</strong>の参照（C++20）。コピーしない |
-| `NOT_FOUND` | 存在しない ID。呼び出し側のバグか、同期のずれを示す |
+文字列は `const char* name_utf8` で受けます。変数名に `_utf8` を付けて、文字コードを明示するのは、あとで読んだ人が迷わないようにするためです（[文字コード](../encoding/index.md)）。配列は、先頭のポインターと個数のペアで受け取ります。C++20 の `std::span<const uint32_t>(ids, count)` は、配列とその長さを 1 つにまとめた非所有の参照で、コピーは発生しません。`ME_ERROR_NOT_FOUND` は、存在しない ID を指したときのエラーで、呼び出し側のバグか、同期のずれを示します。
 
-!!! warning "Engine::GetScene は公開しない"
-    `Scene` を `Engine` の公開ヘッダー（`Engine.h`）に出すと、`SimpleMath.h` を利用者全員が読むことになります。実際は、`Engine.h` には `CreateObject(...)` のような<strong>メソッド</strong>を置き、`Scene` の実体は `Impl` の中に隠します。この教材では、記述を短くするために、`GetScene()` の形で示しています。
+!!! warning "GetScene() は、本当は公開しない"
+    `Scene` を `Engine` の公開ヘッダー（`Engine.h`）に出すと、`SimpleMath.h` を利用者全員が読むことになります。実際には、`Engine.h` には `CreateObject(...)` のようなメソッドだけを置いて、`Scene` の実体は `Impl` の中に隠します。この教材では、コードを短くするために `GetScene()` の形で書いています。
 
-## 手順 4：C# 側のモデル
+## C# 側のモデル
 
-### SceneObject
+エディタが持つ「物」のデータを作ります。`BindableBase` を継承して、値が変わったときに画面へ通知できるようにします。
 
-エディタが持つ「物」のデータです。`BindableBase` を継承して、値が変わったときに画面へ通知します。
-
-`Models\SceneObject.cs`:
-
-```csharp
+```csharp title="Models/SceneObject.cs"
 using System.Collections.ObjectModel;
 using System.Numerics;
 using Prism.Mvvm;
@@ -409,22 +368,13 @@ public class SceneObject : BindableBase
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `System.Numerics.Vector3` | .NET 標準の 3 次元ベクトル。`float` が 3 つ並んだ<strong>構造体</strong>（12 バイト）。C++ の `Vector3` と<strong>同じ並び</strong>なので、エンジンにそのまま渡せる |
-| `Vector3.Zero` / `Vector3.One` | 定数。SimpleMath と同じ名前 |
-| `new(0.8f, 0.8f, 0.8f, 1f)` | 対象型 new。`Vector4` が推論される |
-| `SetProperty` と構造体 | `Vector3` は値型。`Position = new Vector3(1, 2, 3)` と<strong>丸ごと入れ替える</strong>と通知される。`Position.X = 5` は<strong>できない</strong>（コピーを書き換えるだけ）。個別の成分の編集は、第 36 章で扱う |
-| `{ get; internal set; }` | 外からは読み取りのみ、同じプロジェクト内からは設定できる |
-| ID を `get` のみ | 一度決めたら変えない |
+`System.Numerics.Vector3` は、.NET 標準の 3 次元ベクトルです。`float` が 3 つ並んだ構造体（12 バイト）で、C++ の `Vector3` と同じ並びなので、エンジンにそのまま渡せます。`Vector3.Zero` や `Vector3.One` といった定数の名前も SimpleMath と同じです。
 
-### SceneDocument
+構造体なので、`Position.X = 5` のような書き方はできません（コピーを書き換えるだけになります）。`Position = new Vector3(1, 2, 3)` のように、丸ごと入れ替えると通知されます。成分ごとの編集は、第 36 章で扱います。ID は `get` だけにして、一度決めたら変えません。
 
-物の集まりと、木構造の変更を管理します。
+次に、物の集まりと木構造の変更を管理する `SceneDocument` です。
 
-`Models\SceneDocument.cs`:
-
-```csharp
+```csharp title="Models/SceneDocument.cs"
 using System.Collections.ObjectModel;
 
 namespace Editor.Models;
@@ -498,24 +448,17 @@ public class SceneDocument
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Dictionary<uint, SceneObject>` | ID から物を引く表 |
-| `uint? id = null` | 省略できる、`null` 許容の引数 |
-| `id ?? AllocateId()` | `id` が `null` のとき、新しい ID を採番する |
-| `_nextId++` | 現在の値を返してから、1 増やす（後置インクリメント） |
-| `(parent?.Children ?? Roots)` | 親がいればその `Children`、いなければ `Roots`。<strong>親の有無で、入れ物を切り替える</strong>書き方 |
-| `.ToList()` | 反復中に集合を変更するのを避けるため、コピーを作ってから回す |
-| `record SceneChange(…)` | 変更の内容を運ぶ、値の入れ物 |
-| `event Action<SceneChange>? Changed` | 変更があったとき、購読者に通知する。<strong>エンジンへの同期</strong>と、<strong>ツリーの更新</strong>が、これを購読する |
-| `for (var p = newParent; p != null; p = p.Parent)` | 輪を防ぐ検査。`newParent` から親をたどり、`obj` に出会ったら不可 |
-| `Math.Max(_nextId, actualId + 1)` | 指定した ID が大きいとき、次の採番がそれを越えるように調整 |
+読みどころを拾います。
 
-## 手順 5：エンジンへの同期
+- `Create` の `uint? id = null` は、省略できる引数です。省略されたら `AllocateId()` で新しい ID を振り、指定されたら、その番号で作ります（Undo で復活させるときのため）。
+- `(parent?.Children ?? Roots)` は、親がいればその `Children` を、いなければ `Roots` を使う書き方です。親の有無で入れ物を切り替えるのに、よく使います。
+- `Destroy` で `obj.Children.ToList()` とコピーしているのは、反復中にコレクションが変わるのを避けるためです。
+- `Reparent` の `for` 文は、輪を防ぐ検査です。新しい親から親をたどって、`obj` に出会ったら不可にします。
+- `Changed` は、変更があったときに購読者へ知らせるイベントで、エンジンへの同期とツリーの更新が、これを購読します。
 
-ドキュメントの変更を、エンジンへの命令に変えるクラスです。
+## エンジンへの同期
 
-### P/Invoke の宣言
+ドキュメントの変更を、エンジンへの命令に変えるクラスを作ります。まず、P/Invoke の宣言です。
 
 ```csharp
 [StructLayout(LayoutKind.Sequential)]
@@ -555,9 +498,9 @@ internal static partial MeResult me_scene_set_transform(EngineHandle engine, uin
 internal static partial MeResult me_scene_set_color(EngineHandle engine, uint id, float r, float g, float b, float a);
 ```
 
-`MeTransform` が `Vector3` を 3 つ並べているのは、`System.Numerics.Vector3` が `float` を 3 つ（12 バイト、パディングなし）持つ<strong>blittable</strong> な構造体だからです。C の `float position[3]; float rotation[3]; float scale[3];`（36 バイト）と、メモリ上で同じ並びになります。
+`MeTransform` が `Vector3` を 3 つ並べているのは、`System.Numerics.Vector3` が `float` を 3 つ（12 バイト、隙間なし）持つ、そのまま渡せる構造体だからです。C の `float position[3]; float rotation[3]; float scale[3];`（36 バイト）と、メモリ上で同じ並びになります。
 
-### IEngineService にシーン操作を足す
+`IEngineService` に、シーンの操作を足します。
 
 ```csharp
 // IEngineService に追加
@@ -570,13 +513,11 @@ void SceneSetTransform(uint id, Vector3 position, Vector3 rotationRadians, Vecto
 void SceneSetColor(uint id, Vector4 color);
 ```
 
-`PInvokeEngineService` には、それぞれ `NativeMethods.ThrowIfFailed(NativeMethods.me_scene_xxx(Handle, …))` の 1 行を書きます。
+`PInvokeEngineService` には、それぞれ `NativeMethods.ThrowIfFailed(NativeMethods.me_scene_xxx(Handle, ...))` の 1 行を書きます。
 
-### SceneEngineSync
+そして、ドキュメントの変更を拾ってエンジンに送るクラスです。
 
-`Services\SceneEngineSync.cs`:
-
-```csharp
+```csharp title="Services/SceneEngineSync.cs"
 using Editor.Models;
 
 namespace Editor.Services;
@@ -634,13 +575,9 @@ public sealed class SceneEngineSync
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `* (MathF.PI / 180f)` | `Vector3` と `float` の掛け算（要素ごと）。`MathF` は `float` 版の数学関数 |
-| 値をコピーしてから `Post` | ラムダは<strong>変数を捕まえる</strong>ので、`o.Position` のまま渡すと、実行時（描画スレッド）に<strong>最新の値</strong>を読んでしまい、UI スレッドと競合する。送る時点の値を、ローカル変数にコピーしておく |
-| 1 つの `Post` に複数の命令 | `Created` で、作成・変換・色を<strong>まとめて</strong>実行する。途中で他の命令が割り込まない |
+ここで大事なのは、`Post` に渡す前に、値をローカル変数にコピーしていることです。ラムダ式は変数を捕まえるので、`o.Position` のままにしておくと、描画スレッドが実行するとき（あとで）の最新の値を読んでしまい、UI スレッドと競合します。送る時点の値を、手元にコピーしておきます。また、`Created` では、作成、変換、色を 1 つの `Post` にまとめています。途中で他の命令が割り込まないようにするためです。
 
-`App.xaml.cs` で登録します。`SceneEngineSync` は、`SceneDocument` を購読するだけで、誰も参照しないので、<strong>起動時に1度、解決しておく</strong>必要があります。
+`SceneEngineSync` は、`SceneDocument` を購読するだけで、誰からも参照されません。そのまま放っておくと作られないので、起動時に一度解決して、コンストラクターで購読させます。
 
 ```csharp
 containerRegistry.RegisterSingleton<SceneDocument>();
@@ -650,7 +587,7 @@ containerRegistry.RegisterSingleton<SceneEngineSync>();
 Container.Resolve<SceneEngineSync>();    // 作っておく（コンストラクターで購読する）
 ```
 
-## 手順 6：試す
+## 試してみる
 
 `MainWindowViewModel` に、仮のボタンを足します。
 
@@ -666,44 +603,38 @@ AddBoxCommand = new DelegateCommand(() =>
 });
 ```
 
-押すたびに、ビューポートの原点の周りに、箱が 1 つ増えます。
+押すたびに、ビューポートの原点の周りに、箱が 1 つずつ増えます。
 
-注意：`obj.Position = …` は<strong>ドキュメントの値を変えるだけで、通知は出ません</strong>（`SceneObject` の `PropertyChanged` は画面用）。エンジンへの同期は、`NotifyChanged` で明示します。<strong>プロパティが変わるたびに、自動で `SceneChangeKind.TransformChanged` を出す</strong>仕組みは、第 36 章（プロパティ）と第 38 章（Undo/Redo）で整えます。
+注意してほしいのは、`obj.Position = ...` が変えるのはドキュメントの値だけで、エンジンへの通知は出ないことです（`SceneObject` の `PropertyChanged` は画面用の通知です）。エンジンへの同期は、`NotifyChanged` で明示しています。プロパティが変わるたびに自動で通知する仕組みは、第 36 章と第 38 章で整えます。
 
-## 動作確認
+確かめたいのは次の点です。
 
-| 見る所 | 期待する結果 |
-| --- | --- |
-| 起動 | グリッドと軸が出る |
-| 「箱を追加」ボタン | 箱の枠線が、ランダムな位置に増える |
-| カメラを動かす | 箱が、正しい位置で、立体的に見える |
-| ログ | エラーが出ない |
-| 親子 | `Create(name, parent)` で作ると、親の動きに追従する（第 35 章で確認） |
-
-## よくあるミス
+- 起動するとグリッドと軸が出る。
+- ボタンを押すと、箱の枠線がランダムな位置に増える。
+- カメラを動かすと、箱が正しい位置で立体的に見える。
 
 ??? failure "箱が出ない"
-    `SceneEngineSync` を、一度も解決していない（`Container.Resolve` を呼んでいない）ため、購読されていない。または、`Created` の命令で `SceneCreate` が失敗している（ログを見る）。
+    `SceneEngineSync` を一度も解決していないため、購読されていません。または、`Created` の命令で `SceneCreate` が失敗しています（ログを見ます）。
 
-??? failure "箱が潰れている／傾いている"
-    `Vector3 scale` の初期値が `Zero` になっている。`Vector3.One` にする。回転の順序が、ヨー・ピッチ・ロールの引数順を取り違えている（`CreateFromYawPitchRoll(yaw, pitch, roll)`）。
+??? failure "箱が潰れている、傾いている"
+    `scale` の初期値が `Zero` になっています。`Vector3.One` にします。回転の順序で、ヨー・ピッチ・ロールの引数を取り違えているかもしれません（`CreateFromYawPitchRoll(yaw, pitch, roll)`）。
 
 ??? failure "親を動かしても、子が動かない"
-    `WorldMatrix` が親を掛けていない、または掛け順が逆。行ベクトルでは、`子のローカル * 親のローカル`。
+    `WorldMatrix` が親を掛けていないか、掛け順が逆です。行ベクトルでは、`子のローカル * 親のローカル` です。
 
-??? failure "削除した物のあと、エンジンで落ちる"
-    `Destroy` の後に、その ID に対する `SetTransform` が届く。順序の入れ替わりを防ぐため、`Post` は<strong>積んだ順に実行</strong>される（`ConcurrentQueue` が順序を保つ）ことを確認する。同じ ID を、削除後に使っていないか確認する。
+??? failure "削除した物のあとで、エンジンが落ちる"
+    `Destroy` のあとに、その ID に対する `SetTransform` が届いている可能性があります。`Post` は、積んだ順に実行される（`ConcurrentQueue` が順序を保つ）ので、同じ ID を削除後に使っていないかを確かめます。
 
 ??? failure "ID の重複で例外になる"
-    Undo で、同じ ID で再作成するとき、元の物が残っている。`Destroy` を先に呼ぶ。
+    Undo で同じ ID で再作成するときに、元の物が残っています。`Destroy` を先に呼びます。
 
 ## この章のまとめ
 
-- <strong>データの持ち主はエディタ</strong>。エンジンは、命令を受けて写しを作る。
-- ID は C# が採番し、Undo/Redo や保存で再利用できるようにする。
+- データの持ち主はエディタ。エンジンは、命令を受けて写しを作る。
+- ID は C# が採番して、Undo や保存で再利用できるようにする。
 - エンジンへの送信は、`SceneDocument.Changed` を購読する `SceneEngineSync` が担う。
 - 送るデータは、`Post` の前にコピーしておく。
 
-## 次の章へ
+次の章では、ドキュメントを `TreeView` に表示して、選択、名前の変更、親子づけ、追加・削除ができるようにします。
 
-次の章（[第 35 章 シーン ツリー](35-scene-tree.md)）では、`SceneDocument` を `TreeView` に表示し、物の選択、名前の変更、親子づけ（ドラッグ アンド ドロップ）、追加・削除のコマンドを作ります。
+[第 35 章 シーン ツリー](35-scene-tree.md) へ進みます。

@@ -6,26 +6,20 @@ tags:
 
 # 第 43 章 Play モード
 
-この章ではエディタに<strong>編集モード</strong>と <strong>Play モード</strong>を作ります。Play ボタンでゲームが動き出し、Stop ボタンで<strong>動かす前のシーンに戻ります</strong>。Unity や Unreal Engine と同じ操作です。第 34 章で決めた「<strong>データの持ち主はエディタ、エンジンは写し</strong>」という設計が、ここで報われます。
+この章で、エディタに編集モードと Play モードを作ります。Play ボタンでゲームが動き出し、Stop ボタンで、動かす前のシーンに戻ります。Unity や Unreal Engine と同じ操作です。第 34 章で決めた「データの持ち主はエディタ、エンジンは写し」という設計が、ここで報われます。
 
-## この章の考え方
+## Play でシーンはどうなるのか
 
-### Play でシーンはどうなるのか
-
-ゲームを動かすと物の位置や色が変わります（例：`SpinnerGame` が物を回す）。Stop したとき<strong>動かす前の状態に戻っていなければ</strong>、エディタとして使えません。ゲームを遊んだせいで置いた物の向きが変わってしまうからです。
+ゲームを動かすと、物の位置や色が変わります（たとえば `SpinnerGame` が物を回します）。Stop したときに、動かす前の状態に戻っていなければ、エディタとして使えません。ゲームを遊んだせいで、置いた物の向きが変わってしまうからです。
 
 戻す方法は 2 つあります。
 
 | 方式 | 内容 | 問題 |
 | --- | --- | --- |
-| Play 前に状態を<strong>保存</strong>し、Stop で<strong>復元</strong>する | シーン全体をコピーする | コピーを取る処理が必要。Play 中の変更を間違ってドキュメントに混ぜない注意が必要 |
-| <strong>ドキュメントは触らずエンジンのコピーだけが動く</strong>（採用） | Play 中に動くのは、エンジンの写しだけ。Stop で写しを<strong>ドキュメントから作り直す</strong> | 追加のコピー処理が要らない |
+| Play 前に状態を保存し、Stop で復元する | シーン全体をコピーする | コピーを取る処理が要る。Play 中の変更を、間違ってドキュメントに混ぜない注意が要る |
+| ドキュメントは触らず、エンジンのコピーだけが動く（採用） | Play 中に動くのはエンジンの写しだけ。Stop で、写しをドキュメントから作り直す | 追加のコピー処理が要らない |
 
-この教材の構造では<strong>ドキュメント（`SceneDocument`）はエンジンの外にあり Play 中は一切変わりません</strong>。ゲームが動かすのはエンジンの `Scene`（写し）だけです。だから、Stop のときは
-
-> エンジンのシーンを空にして、ドキュメントの内容から<strong>作り直す</strong>
-
-だけで元に戻ります。
+この教材の構造では、ドキュメント（`SceneDocument`）はエンジンの外にあって、Play 中は一切変わりません。ゲームが動かすのは、エンジンの `Scene`（写し）だけです。だから、Stop のときは、エンジンのシーンを空にして、ドキュメントの内容から作り直すだけで、元に戻ります。
 
 ```text
 編集モード                Play                    Stop
@@ -33,11 +27,11 @@ Document ──同期──▶ Engine    Document（変わらない）     Docum
   [Cube]            [Cube]     [Cube]        [Cube が回る]   [Cube]            [Cube]（元の向き）
 ```
 
-### Play 中の編集
+### Play 中の編集は禁止する
 
-Play 中にツリーやプロパティを編集できると、どうなるでしょう。ドキュメントが変わり Stop で作り直すと<strong>Play 中の編集が反映されます</strong>。しかし、Play 中は「エンジンの写し」が動いているので、編集とゲームの動きが<strong>混ざって</strong>混乱します。
+Play 中にツリーやプロパティを編集できたら、どうなるでしょう。ドキュメントが変わり、Stop で作り直すと、Play 中の編集が反映されます。しかし、Play 中に動いているのは「エンジンの写し」なので、編集とゲームの動きが混ざって、混乱します。
 
-そこで、この教材では<strong>Play 中は編集を禁止</strong>します。
+そこで、この教材では、Play 中は編集を禁止します。
 
 | 操作 | Play 中 |
 | --- | --- |
@@ -45,22 +39,22 @@ Play 中にツリーやプロパティを編集できると、どうなるでし
 | プロパティの編集 | 禁止 |
 | ギズモで動かす | 禁止 |
 | Undo/Redo | 禁止 |
-| 新規、開く保存 | 新規と開くは禁止。保存は可能（ドキュメントは変わらないので） |
+| 新規、開く、保存 | 新規と開くは禁止。保存は可能（ドキュメントは変わらないので） |
 | 選択（ツリー、クリック） | 可能（見るだけ） |
 | カメラの操作 | 可能 |
 
-Unity は Play 中の編集を許して、Stop で捨てます。これは使い勝手が良い反面、「Play 中に直したのに消えた」という事故が起きます。この教材は安全な側に倒しています。
+Unity は、Play 中の編集を許して、Stop で捨てます。使い勝手は良い反面、「Play 中に直したのに消えた」という事故が起きます。この教材は、安全な側に倒しています。
 
-## この章のゴール
+この章のゴールは次のとおりです。
 
 - ツール バーに Play、Pause、Step、Stop が並ぶ。
-- Play でゲームが動く。Stop で<strong>シーンが元に戻る</strong>。
-- Play 中は編集が無効になり画面の枠がオレンジ色になる。
-- ゲームが例外を出して止まったときもエディタが編集モードに戻る。
+- Play でゲームが動く。Stop でシーンが元に戻る。
+- Play 中は編集が無効になり、画面の枠がオレンジ色になる。
+- ゲームが例外を出して止まったときも、エディタが編集モードに戻る。
 
-## 手順 1：エンジンの Play 状態
+## エンジンの Play 状態
 
-### C の API
+C の API は 3 つです。
 
 ```c
 /* 0: 編集, 1: Play, 2: 一時停止 */
@@ -69,11 +63,7 @@ ME_API MeResult me_play_get_state(const MeEngine* engine, int32_t* out_state);
 ME_API MeResult me_play_step(MeEngine* engine);                  /* 一時停止中に、1 フレームだけ進める */
 ```
 
-### エンジン側
-
-第 41 章の `SetPlaying(bool)` は、この章の `SetPlayState(PlayState)` に置き換えます（一時停止を表せないため）。Player の `SetPlaying(true)` も、`SetPlayState(PlayState::Playing)` に直してください。
-
-`Engine` の `Impl` に状態を持たせます。
+エンジン側では、第 41 章の `SetPlaying(bool)` を、この章の `SetPlayState(PlayState)` に置き換えます。一時停止が `bool` では表せないからです。Player の `SetPlaying(true)` も、`SetPlayState(PlayState::Playing)` に直してください。
 
 ```cpp
 enum class PlayState : std::int32_t { Edit = 0, Playing = 1, Paused = 2 };
@@ -114,16 +104,13 @@ void Engine::Tick(float delta_seconds) {
 }
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| `enum class PlayState : std::int32_t` | 土台の型を `int32_t` に固定する。C の `int32_t` と対応させる（第 27 章と同じ作法） |
-| 状態の遷移 | 「編集 → Play」で `OnPlay`、「Play → 編集」で `OnStop`。「Play ⇄ 一時停止」では呼ばない（ゲームには、中断としか見えない） |
-| `step_requested` | 一時停止中でも 1 回だけ `OnUpdate` を呼ぶ。1 フレームずつ動きを確かめるデバッグ機能 |
-| 例外で編集に戻す | ゲームが失敗したら、`Playing` のまま例外が続くのを避ける。<strong>エディタはこれをポーリングで検出する</strong>（手順 4） |
+`enum class PlayState : std::int32_t` は、土台の型を `int32_t` に固定して、C の `int32_t` と対応させます（第 27 章と同じ作法）。ゲームの `OnPlay` と `OnStop` を呼ぶのは、編集と Play の境目を越えるときだけです。「Play ⇄ 一時停止」では呼びません。ゲームから見ると、中断に過ぎないからです。
 
-## 手順 2：エンジンのシーンをドキュメントから作り直す
+`step_requested` は、一時停止中でも `OnUpdate` を 1 回だけ呼ぶための印です。1 フレームずつ動きを確かめる、デバッグ向けの機能で、時間は固定の 1/60 秒で進めます。ゲームが例外を出したら、`Playing` のまま例外が続かないよう、状態を編集に戻します。エディタは、これをポーリングで見つけます（あとの節）。
 
-Stop でエンジンの `Scene` をドキュメントの内容にそろえます。`SceneEngineSync` に `Resync` を足します。
+## エンジンのシーンをドキュメントから作り直す
+
+Stop のとき、エンジンの `Scene` を、ドキュメントの内容にそろえます。`SceneEngineSync` に `Resync` を足します。
 
 ```csharp
 public sealed class SceneEngineSync
@@ -160,19 +147,15 @@ public sealed class SceneEngineSync
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| タプルのリスト `List<(uint Id, …)>` | 名前付きの要素を持つ<strong>タプル</strong>をまとめて持つ。小さなデータ型をいちいち定義しない |
-| ローカル関数 `Walk` | 木を再帰的にたどる。<strong>親が先に追加される</strong>（深さ優先の行きがけ順）ので `SceneCreate` で、親が先に存在する |
-| `SceneClear` | エンジンのシーンを全部消す（第 34 章で作った API） |
-| 1 つの `Post` | 全体を 1 回で実行する。途中で描画が走っても `Tick` は命令の<strong>後</strong>に行われる（描画スレッドは、命令を処理してから描く） |
-| 選択の再送 | `Resync` の最後に現在の選択を `SceneSetSelection` で送り直す |
+`List<(uint Id, …)>` の中身は、名前付きの要素を持つ「タプル」です。小さなデータ型をいちいち定義せずに済みます。ローカル関数 `Walk` は木を再帰的にたどり、親が先に追加される（深さ優先の行きがけ順）ので、`SceneCreate` を呼ぶ時点で、親が必ず存在します。
 
-## 手順 3：Play モードのサービス
+全体を 1 つの `Post` にしているのは、途中で別の命令が割り込まないようにするためです。描画スレッドは命令を処理し終えてから描くので、作りかけのシーンが画面に出ることもありません。最後に、現在の選択を `SceneSetSelection` で送り直します（`Resync` は選択も消すからです）。
 
-`Services\IPlayModeService.cs`:
+## Play モードのサービス
 
-```csharp
+エディタ側の、状態の持ち主です。
+
+```csharp title="Services/IPlayModeService.cs"
 namespace Editor.Services;
 
 public enum PlayState { Edit = 0, Playing = 1, Paused = 2 }
@@ -192,9 +175,7 @@ public interface IPlayModeService
 }
 ```
 
-`Services\PlayModeService.cs`:
-
-```csharp
+```csharp title="Services/PlayModeService.cs"
 using System.Windows.Threading;
 
 namespace Editor.Services;
@@ -284,24 +265,19 @@ public sealed class PlayModeService : IPlayModeService
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| 状態の持ち主 | 状態はエディタ（`State`）とエンジン（`play_state`）の<strong>両方</strong>にある。普段はエディタが決めてエンジンに送る。エンジンが自分で変えたとき（ゲームの例外）は、エディタが<strong>ポーリングで気づく</strong> |
-| `ContinueWith(task => …, TaskScheduler.FromCurrentSynchronizationContext())` | 非同期の処理が終わったら、<strong>UI スレッドで</strong>続きを実行する。`async/await` を使えない文脈で同じことをする古い書き方 |
-| `task.IsCompletedSuccessfully` | 例外なく完了したか |
-| `Stop` の順序 | 先にエンジンに「編集に戻れ」（ゲームの `OnStop`）、続けて `Resync`。どちらも `Post` なので<strong>積んだ順に</strong>実行される |
-| `_ =` | 戻り値の `Task` を待たずに放置する。例外は `ContinueWith` の中で見ているので問題ない |
+Play の状態は、エディタ（`State`）とエンジン（`play_state`）の両方にあります。普段はエディタが決めてエンジンに送りますが、ゲームの例外のように、エンジンが自分で状態を変えることもあります。エディタはそれを知る手段がないので、200 ミリ秒ごとにエンジンへ状態を聞く、ポーリングで気づきます。
 
-`App.xaml.cs` で `IPlayModeService` を `RegisterSingleton` します。`IGameService` も同様です。
+`ContinueWith(task => …, TaskScheduler.FromCurrentSynchronizationContext())` は、非同期の処理が終わったあと、UI スレッドで続きを実行する、古い書き方です。`async/await` を使えない文脈で、同じことをします。`_ =` で `Task` を放置していますが、例外は `ContinueWith` の中で見ているので問題ありません。
 
-## 手順 4：編集を禁止する
+`Stop` の順序にも意味があります。先にエンジンへ「編集に戻れ」（ゲームの `OnStop`）、続けて `Resync` を送ります。どちらも `Post` なので、積んだ順に実行されます。`IPlayModeService` と `IGameService` は、`App.xaml.cs` で `RegisterSingleton` します。
 
-画面の側だけでなく<strong>ロジックの側でも</strong>編集を止めます（画面の無効化は、ショートカットなどですり抜けられるため）。
+## 編集を禁止する
 
-### 窓口で止める
+画面の側だけでなく、ロジックの側でも編集を止めます。画面の無効化は、ショートカットなどですり抜けられるからです。
+
+窓口（`UndoableSceneEditor`）で止めます。
 
 ```csharp
-// UndoableSceneEditor
 private bool CanEdit()
 {
     if (_play.IsEditing) return true;
@@ -316,9 +292,9 @@ public void SetPosition(SceneObject obj, Vector3 value)
 }
 ```
 
-`CreateObject`、`DestroyObjects`、`Reparent`、そのほかのメソッドの先頭にも同じ検査を入れます。
+`CreateObject`、`DestroyObjects`、`Reparent` などの先頭にも、同じ検査を入れます。
 
-### 履歴とファイル
+履歴とファイルの操作は、コマンドの `CanExecute` で止めます。
 
 ```csharp
 // MainWindowViewModel
@@ -329,9 +305,7 @@ OpenCommand = DelegateCommand.FromAsync(async () => await files.OpenAsync(), () 
 // _play.StateChanged で、これらの RaiseCanExecuteChanged を呼ぶ
 ```
 
-### 画面を無効にする
-
-各パネル（ツリー、プロパティ）の外側に `IsEnabled` をバインドします。
+画面の側は、パネルの外側に `IsEnabled` をバインドします。
 
 ```csharp
 // SceneTreeViewModel、PropertyViewModel
@@ -344,9 +318,9 @@ public bool IsEditingEnabled => _play.IsEditing;
 <StackPanel IsEnabled="{Binding IsEditingEnabled}">
 ```
 
-`IsEnabled` は<strong>子の部品にも伝わる</strong>ので、外側の入れ物に 1 つ付ければ足ります。ただし、`PropertyView` は第 36 章で `IsEnabled="{Binding HasTarget}"` を付けているので、<strong>両方の条件を満たす</strong>ために別の入れ物（`Border`）に分けて、それぞれに付けます。
+`IsEnabled` は子の部品にも伝わるので、外側の入れ物に 1 つ付ければ足ります。ただし `PropertyView` は、第 36 章で `IsEnabled="{Binding HasTarget}"` をすでに付けています。両方の条件を満たすために、別の入れ物（`Border`）に分けて、それぞれに付けます。
 
-### ビューポートの操作
+ビューポートの操作は、Play 中にカメラだけを許します。
 
 ```csharp
 // ViewportViewModel.OnInput の冒頭
@@ -357,11 +331,9 @@ if (!_play.IsEditing)
 }
 ```
 
-## 手順 5：ツール バーと見た目
+## ツール バーと見た目
 
-### ツール バー
-
-`MainWindow.xaml` のメニューの下にツール バーを足します。
+`MainWindow.xaml` のメニューの下に、ツール バーを足します。
 
 ```xml
 <ToolBar DockPanel.Dock="Top">
@@ -389,9 +361,7 @@ TogglePlayCommand = new DelegateCommand(() => { if (_play.State == PlayState.Edi
 </Window.InputBindings>
 ```
 
-### Play 中はオレンジの枠
-
-Play 中であることを<strong>色で一目で分かる</strong>ようにします。`MainWindow.xaml` の本体を枠（`Border`）で囲み状態に応じて色を変えます。
+Play 中であることを、色でも一目で分かるようにします。本体を `Border` で囲み、状態に応じて枠の色を変えます。
 
 ```xml
 <Border BorderThickness="3">
@@ -412,55 +382,49 @@ Play 中であることを<strong>色で一目で分かる</strong>ようにし�
 </Border>
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `DataTrigger` と列挙型 | バインドした値が `PlayState.Playing` のとき文字列 `"Playing"` と比べられる。XAML では列挙型の値を名前の文字列で比較できる |
-| スタイルの既定値と上書き | `Setter` が既定（透明）。トリガーが当たったとき上書きする |
-| 色で状態を伝える | 動作中の判別を文字の変化だけに頼らない |
+`Setter` が既定値（透明）で、`DataTrigger` が当たったときだけ上書きする形です（第 11 章）。XAML では、バインドした列挙型の値を、名前の文字列（`"Playing"`）で比較できます。
 
-## 動作確認
+## 動かして確かめる
 
 | 操作 | 期待する結果 |
 | --- | --- |
 | ゲームを読み込んでいない状態 | Play ボタンがグレー。`Ctrl+P` を押すとログに警告 |
-| `Spin_A` という物を作って Play（`Ctrl+P`） | 枠がオレンジになり箱が回る。ツリーとプロパティがグレー |
+| `Spin_A` という物を作って Play（`Ctrl+P`） | 枠がオレンジになり、箱が回る。ツリーとプロパティがグレー |
 | Play 中にツリーを操作 | 反応しない（グレーアウト） |
 | Play 中に箱をクリック | 選択はできる。ギズモは出ない |
 | カメラの右ドラッグ | 動かせる |
 | Pause | 回転が止まる。枠が青になる。Step で少しずつ進む |
-| Stop（`Ctrl+P`） | 箱が<strong>動かす前の向き</strong>に戻る。枠が消える。編集できる |
+| Stop（`Ctrl+P`） | 箱が動かす前の向きに戻る。枠が消える。編集できる |
 | Play 中に `kSpeed` を書き換えてビルド | 回転の速さが変わる。向きが飛ばない（ホット リロード） |
 | ゲームの `OnUpdate` で例外を投げる | ログに警告が出て、自動で編集モードに戻る |
 | Play 中に保存 | 保存できる。ドキュメントは動かす前の状態のまま |
 | Play 中にウィンドウを閉じる | 正常に終了する |
 
-## よくあるミス
-
 ??? failure "Stop しても、物の向きが戻らない"
-    `Resync` を呼んでいない。または、`Resync` がエンジンのシーンを `Clear` した<strong>後</strong>に作り直す命令を積み忘れている。`SceneClear` の後に `SceneCreate` が続く 1 つの `Post` になっているか確認する。
+    `Resync` を呼んでいないか、`SceneClear` のあとに作り直す命令を積み忘れています。`SceneClear` のあとに `SceneCreate` が続く 1 つの `Post` になっているか確認します。
 
 ??? failure "Play 中にギズモで動かせてしまう"
-    画面の側だけで止めている。`ISceneEditor` の窓口で `CanEdit()` を検査する。ロジックの側で止めるのが確実。
+    画面の側だけで止めています。`ISceneEditor` の窓口で `CanEdit()` を検査します。ロジックの側で止めるのが確実です。
 
-??? failure "Stop した後、選択の黄色い枠が消える"
-    `Resync` はエンジンのシーンを空にするので、選択も消える。`Resync` の最後に選択を再送する。
+??? failure "Stop したあと、選択の黄色い枠が消える"
+    `Resync` はエンジンのシーンを空にするので、選択も消えます。`Resync` の最後に選択を再送します。
 
 ??? failure "Play 中にホット リロードで物が回らなくなる"
-    第 42 章の順序を確認する。新しいゲームに `OnPlay` を呼びその後で `LoadState` する。
+    第 42 章の順序を確認します。新しいゲームに `OnPlay` を呼び、そのあとで `LoadState` します。
 
 ??? failure "ゲームが例外で止まったのに、エディタが Play 表示のまま"
-    ポーリング（`CheckEngineState`）が動いていない。`_watch.Start()` を呼んでいるか確認する。
+    ポーリング（`CheckEngineState`）が動いていません。`_watch.Start()` を呼んでいるか確認します。
 
 ??? failure "Stop したのに、ゲームが動き続ける"
-    `PlaySetState(0)` の命令が積まれていない。または、`OnStop` の中でゲームが集めた物の一覧を空にしていないため、次の Play で古い ID を触っている。
+    `PlaySetState(0)` の命令が積まれていません。または、`OnStop` の中でゲームが集めた物の一覧を空にしていないため、次の Play で古い ID を触っています。
 
 ## この章のまとめ
 
-- <strong>ドキュメントはエンジンの外にあり Play 中は変わらない</strong>。Stop はエンジンのシーンを<strong>ドキュメントから作り直す</strong>だけで、元に戻る。
-- Play 中の編集は<strong>窓口（ロジック）と画面の両方</strong>で禁止する。
-- エンジンが自分で状態を変える場合（ゲームの例外）は、エディタが<strong>ポーリング</strong>で気づく。
-- 状態は<strong>色</strong>（枠）でも見せる。
+- ドキュメントはエンジンの外にあって、Play 中は変わらない。Stop は、エンジンのシーンをドキュメントから作り直すだけで、元に戻る。
+- Play 中の編集は、窓口（ロジック）と画面の両方で禁止する。
+- エンジンが自分で状態を変える場合（ゲームの例外）は、エディタがポーリングで気づく。
+- 状態は色（枠）でも見せる。
 
-## 次の章へ
+次の章では、エディタ全体のエラー処理の方針を整えます。
 
-次の章（[第 44 章 ログとエラー処理](44-logging-errors.md)）では、エディタ全体の<strong>エラー処理の方針</strong>を整えます。未処理の例外の捕捉、ログのファイル出力、ログ パネルの改良、そしてネイティブのクラッシュへの備えを扱います。
+[第 44 章 ログとエラー処理](44-logging-errors.md) へ進みます。

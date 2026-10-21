@@ -6,47 +6,37 @@ tags:
 
 # 第 38 章 Undo/Redo
 
-この章では、これまでの編集（作成、削除、親子づけ、名前、位置、回転、拡大、色）を、すべて<strong>元に戻せる／やり直せる</strong>ようにします。エディタでは、Undo/Redo は「あると便利な機能」ではなく、<strong>あって当たり前の土台</strong>です。後から足すと、全部の編集コードを書き直すことになるので、第 36 章で `ISceneEditor` という窓口を用意しておきました。ここで、その真価が出ます。
+この章で、これまでの編集（作成、削除、親子づけ、名前、位置、回転、拡大、色）を、すべて元に戻せて、やり直せるようにします。エディタにとって Undo は「あると便利な機能」ではなく、あって当たり前の土台です。あとから足そうとすると、すべての編集コードを書き直すことになります。第 36 章で `ISceneEditor` という窓口を作っておいたのは、この章のためでした。
 
-## この章の考え方
-
-### Undo の 2 つの作り方
+## Undo の作り方は 2 通り
 
 | 方式 | 内容 | 長所 | 短所 |
 | --- | --- | --- | --- |
-| <strong>スナップショット</strong> | 編集のたびに、シーン全体のコピーを保存する。Undo は、そのコピーに戻す | 実装が簡単。漏れがない | シーンが大きいと、メモリと時間が膨大。部分的な変更でも全体をコピー |
-| <strong>コマンド</strong>（採用） | 編集を、「やること」と「戻すこと」のペアとして記録する | 小さい。必要な分だけ記録。変更の履歴（名前）が分かる | 編集ごとに、コマンドを書く必要がある。「戻すこと」の書き忘れが、バグになる |
+| スナップショット | 編集のたびに、シーン全体のコピーを保存する。Undo はそのコピーに戻す | 実装が簡単で、漏れがない | シーンが大きいと、メモリも時間も膨大。小さな変更でも全体をコピーする |
+| コマンド（採用） | 編集を「やること」と「戻すこと」のペアとして記録する | 小さい。必要な分だけ記録できる。操作の名前も残せる | 編集の種類ごとにコマンドを書く。「戻すこと」の書き忘れがバグになる |
 
-<strong>コマンド パターン</strong>を使います。1 つの編集 ＝ 1 つのコマンド（オブジェクト）で、`Do()`（実行）と `Undo()`（元に戻す）を持ちます。
+コマンド パターンを使います。1 つの編集が 1 つのコマンド（オブジェクト）で、`Do()`（実行）と `Undo()`（元に戻す）を持ちます。
 
 ```text
 履歴： [ 位置を変更 ] [ 色を変更 ] [ 物を追加 ] ← 今ここ
-         ↑ Undo すると、「物を追加」の Undo() が呼ばれ、1 つ前に戻る
-         Redo すると、Undo したコマンドの Do() が、もう一度呼ばれる
+         Undo すると、「物を追加」の Undo() が呼ばれて 1 つ前に戻る
+         Redo すると、戻したコマンドの Do() がもう一度呼ばれる
 ```
 
-### Undo の 4 つの難しさ
+作り始める前に、難しいところを 4 つ知っておきます。
 
 | 難しさ | 例 | 対処 |
 | --- | --- | --- |
-| 連続した操作 | ギズモのドラッグは、1 秒間に 60 回の位置の更新。Undo が 60 回必要になる | <strong>まとめる</strong>（トランザクション、マージ） |
-| 削除の復元 | 削除した物を戻すとき、子、色、並び順、ID を、すべて元通りにする | 削除の前に、<strong>スナップショット</strong>を取る |
-| 参照が壊れる | 削除して復元すると、別のオブジェクトになる。古いコマンドが、古いオブジェクトを指したままになる | コマンドは、オブジェクトでなく <strong>ID</strong> を持つ |
-| 履歴の分岐 | Undo してから、別の編集をすると、Redo できる履歴が消える | 新しい編集で、Redo の履歴を<strong>捨てる</strong> |
+| 連続した操作 | ギズモのドラッグは、1 秒に 60 回の位置更新。そのまま積むと、Undo が 60 回必要になる | まとめる（トランザクションと合体） |
+| 削除の復元 | 削除した物を戻すとき、子、色、並び順、ID を元通りにしたい | 削除の前にスナップショットを取る |
+| 参照が壊れる | 削除して復元すると、別のオブジェクトになる。古いコマンドが古いオブジェクトを指したままになる | コマンドはオブジェクトでなく ID を持つ |
+| 履歴の分岐 | Undo してから別の編集をすると、Redo の履歴は使えなくなる | 新しい編集で Redo の履歴を捨てる |
 
-## この章のゴール
+## コマンドと履歴
 
-- すべての編集が、`Ctrl + Z` で戻り、`Ctrl + Y` でやり直せる。
-- ギズモのドラッグや、スライダーの操作が、<strong>1 回の Undo</strong> で戻る。
-- 削除した物（と子）を、同じ ID、名前、値で復元できる。
-- メニューに、`元に戻す: 位置を変更` のように、操作の名前が出る。
-- 未保存かどうか（ダーティ フラグ）を、履歴から判定できる。
+まず、コマンドのインターフェースです。
 
-## 手順 1：コマンドと履歴
-
-`Services\Undo\IUndoCommand.cs`:
-
-```csharp
+```csharp title="Services/Undo/IUndoCommand.cs"
 namespace Editor.Services.Undo;
 
 // 1 つの編集。Do で実行し、Undo で元に戻す。
@@ -62,9 +52,11 @@ public interface IUndoCommand
 }
 ```
 
-`Services\Undo\CompositeCommand.cs`（複数をまとめる）:
+`TryMerge` は、スライダーを動かし続けたときのような連続した編集を、1 つにまとめるための口です。同じ物の同じプロパティへの編集なら、新しい値だけを自分に取り込んで、`true` を返します。
 
-```csharp
+複数のコマンドを 1 つの Undo の単位にまとめる入れ物も作ります。
+
+```csharp title="Services/Undo/CompositeCommand.cs"
 namespace Editor.Services.Undo;
 
 // 複数のコマンドを、1 つの Undo の単位にまとめる。
@@ -77,7 +69,7 @@ public sealed class CompositeCommand : IUndoCommand
     public string Name { get; }
     public bool IsEmpty => _commands.Count == 0;
 
-    // 追加と同時に実行する。直前のコマンドと合体できれば、合体する（ドラッグの連続した更新が 1 つになる）。
+    // 追加と同時に実行する。直前のコマンドと合体できれば合体する（ドラッグの連続した更新が 1 つになる）。
     public void AddAndDo(IUndoCommand command)
     {
         command.Do();
@@ -99,16 +91,13 @@ public sealed class CompositeCommand : IUndoCommand
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `_commands[^1]` | 末尾の要素。`^1` は、「末尾から数えて 1 番目」を表す<strong>インデックス演算子</strong> |
-| `public CompositeCommand(string name) => Name = name;` | 式形式のコンストラクター |
-| 逆順で Undo | 「A してから B した」を戻すなら、<strong>B を戻してから A を戻す</strong>（スタックの順序） |
-| `TryMerge` | 合体できるとき、`next` の「新しい値」を自分に移す。`next` を履歴には積まない |
+C# の記法が 2 つ出てきました。`_commands[^1]` は「末尾から数えて 1 番目」、つまり最後の要素です（`^` はインデックスを末尾から数える演算子）。`public CompositeCommand(string name) => Name = name;` は、本体が 1 文のコンストラクターを `=>` で書いたものです。
 
-`Services\Undo\IHistoryService.cs`:
+Undo を逆順にするのは大事なところです。「A をしてから B をした」を戻すなら、B を戻してから A を戻します。順番を守らないと、B が A の結果に依存していたときに壊れます。
 
-```csharp
+履歴を管理するサービスのインターフェースは次のとおりです。
+
+```csharp title="Services/Undo/IHistoryService.cs"
 namespace Editor.Services.Undo;
 
 public interface IHistoryService
@@ -134,11 +123,9 @@ public interface IHistoryService
 }
 ```
 
-### 履歴の実装
+実装は少し長いので、2 つに分けて見ます。まずフィールドとプロパティです。
 
-`Services\Undo\HistoryService.cs`:
-
-```csharp
+```csharp title="Services/Undo/HistoryService.cs"
 using System.Diagnostics;
 
 namespace Editor.Services.Undo;
@@ -165,12 +152,11 @@ public sealed class HistoryService : IHistoryService
     public bool IsDirty => _savePointBroken || (_done.Count > 0 ? _done[^1] : null) != _savePoint;
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Stack<T>` | 後入れ先出しの入れ物（C++ の `std::stack`）。`Push`、`Pop`、`Peek`（先頭を見る） |
-| `Stopwatch.Frequency` | 1 秒あたりのティック数。時間を整数で比べるときの単位 |
-| `static readonly` | 一度だけ計算して、変えない値 |
-| `IsDirty` | 保存点（保存したときの先頭のコマンド）と、今の先頭が違えば、「未保存の変更がある」 |
+履歴を 2 つの入れ物に分けています。実行済みの `_done` と、Undo して取っておいた `_undone` です。`Stack<T>` は後入れ先出しの入れ物（C++ の `std::stack`）で、`Push`、`Pop`、`Peek`（取り出さずに先頭を見る）があります。Undo は `_done` の末尾から `_undone` へ移し、Redo はその逆です。
+
+未保存かどうか（`IsDirty`）は、保存した時点の先頭のコマンド（保存点）と、今の先頭が同じかで判定します。同じなら、保存してから何も変わっていません。Undo で保存時点まで戻れば、また「未保存なし」に戻れます。ただし、合体で保存点の中身が変わったり、古い履歴を捨てて保存点が消えたりしたら、もう戻れないので、`_savePointBroken` を立てます。
+
+続いて、操作の部分です。
 
 ```csharp
     public void Execute(IUndoCommand command)
@@ -268,18 +254,15 @@ public sealed class HistoryService : IHistoryService
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Stopwatch.GetTimestamp()` | 高精度のタイムスタンプ（ティック） |
-| 時間による合体 | 0.7 秒以内の、<strong>同じ対象・同じプロパティ</strong>の編集は、1 つにまとめる（スライダーを動かし続ける間など）。条件は、`TryMerge` が判定する |
-| `ReferenceEquals(a, b)` | 参照が同じか（`==` が演算子オーバーロードされていても、確実に同一かどうかを調べる） |
-| トランザクション | 開始から確定までの全コマンドを、1 つの `CompositeCommand` にまとめ、確定時に履歴へ積む |
-| `?? throw …` | `null` なら例外を投げる式（第 27 章） |
-| 上限 `MaxHistory` | 無限に溜めない。古いものから捨てる |
+`Execute` が中心です。トランザクション中なら、まとめる入れ物に渡すだけです。そうでなければ、コマンドを実行してから、直前のコマンドと合体できるかを調べます。合体の条件は、0.7 秒以内で、かつ `TryMerge` が `true` を返すこと（同じ物の同じプロパティ）です。スライダーを動かし続けている間の編集が、1 つのコマンドにまとまります。
 
-## 手順 2：ドキュメントを、復元しやすくする
+新しい編集をしたら、`_undone.Clear()` で Redo の履歴を捨てます。Undo してから別の編集をしたあとに、古い Redo を許すと、履歴の整合性が取れなくなるからです。
 
-Undo で物を復元するには、<strong>元の場所（兄弟の中の順番）に戻す</strong>必要があります。`SceneDocument` の `Create` と `Reparent` に、`index` を足します。
+`Undo` と `Redo` のあとで `_lastExecuteTicks = 0` にしているのは、Undo の直後の編集が、Undo 前のコマンドに合体してしまうのを防ぐためです。`ReferenceEquals(a, b)` は、`==` の再定義に影響されない、同一オブジェクトかどうかの比較です。上限の `MaxHistory` で、古い履歴から捨てます。
+
+## ドキュメントを、復元しやすくする
+
+Undo で物を復元するには、元の場所（兄弟の中の順番）に戻す必要があります。`SceneDocument` の `Create` と `Reparent` に、挿入位置の `index` を足します。
 
 ```csharp
 public SceneObject Create(string name, SceneObject? parent = null, uint? id = null, int index = -1)
@@ -306,13 +289,13 @@ public void Reparent(SceneObject obj, SceneObject? newParent, int index = -1)
 public int IndexOf(SceneObject obj) => (obj.Parent?.Children ?? Roots).IndexOf(obj);
 ```
 
+`index` が省略（`-1`）なら末尾に追加し、指定されたらその位置に挿入します。
+
 ### スナップショット
 
-削除する物の「全部の情報」を、木ごと保存します。
+削除する物の全部の情報を、子を含めて保存します。
 
-`Services\Undo\Snapshots.cs`:
-
-```csharp
+```csharp title="Services/Undo/Snapshots.cs"
 using System.Numerics;
 using Editor.Models;
 
@@ -346,23 +329,18 @@ public sealed record ObjectSnapshot(
 public sealed record RemovedObject(ObjectSnapshot Snapshot, uint ParentId, int Index);
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `record ObjectSnapshot(…)` | 値を運ぶだけの入れ物。コンストラクターとプロパティが、自動で作られる。<strong>作った後は変わらない</strong>ので、履歴に安全に保存できる |
-| `o.Children.Select(Take).ToList()` | 子を再帰的に `Take` する。メソッド名をそのまま渡せる（メソッド グループ） |
-| `Take` と `Restore` | 保存と復元の対。<strong>項目を足したら、両方に足す</strong> |
-| `Restore` の中の `NotifyChanged` | 復元したとき、エンジンにも変換・色を送る（`Created` は、既定の値で作るので） |
+`record` は、値を運ぶだけの入れ物を短く書ける型です。コンストラクターとプロパティが自動で作られ、作ったあとは変わりません。履歴に安全に保存できます。`o.Children.Select(Take).ToList()` は、子を再帰的に `Take` します（メソッド名をそのまま渡せます）。
 
-## 手順 3：具体的なコマンド
+`Take`（保存）と `Restore`（復元）は対です。物に項目を足したら、両方に足すのを忘れないでください。`Restore` の中で `NotifyChanged` を呼んでいるのは、`Create` が既定の値でエンジンに作るので、復元した変換と色を、エンジンにも送り直すためです。
+
+## 具体的なコマンド
 
 ### 値の変更
 
-`Services\Undo\SetValueCommand.cs`:
-
-```csharp
+```csharp title="Services/Undo/SetValueCommand.cs"
 namespace Editor.Services.Undo;
 
-// 物の 1 つのプロパティを変える。物は、ID で覚える（復元で別のオブジェクトになっても、辿れる）。
+// 物の 1 つのプロパティを変える。物は、ID で覚える（復元で別のオブジェクトになっても辿れる）。
 public sealed class SetValueCommand<T> : IUndoCommand
 {
     private readonly uint _id;
@@ -398,18 +376,13 @@ public sealed class SetValueCommand<T> : IUndoCommand
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `SetValueCommand<T>` | ジェネリックなクラス。`Vector3` にも `Vector4` にも `string` にも使える |
-| `Action<uint, T> apply` | 「ID の物に、値を設定する」関数。<strong>どう設定するか</strong>は、外から渡す |
-| `next is SetValueCommand<T> other && …` | 型の判定と取り出し。同じ ID・同じプロパティなら合体 |
-| 古い値を保つ | 合体しても `_oldValue` は最初のまま。Undo すると、<strong>ドラッグ前の値</strong>に戻る |
+`SetValueCommand<T>` はジェネリックなクラスで、`Vector3` にも `Vector4` にも `string` にも使い回せます。「どう設定するか」は `Action<uint, T> apply` として外から渡します。だから、このクラスは Undo の仕組みだけを担当して、シーンの中身を知りません。
+
+合体のとき、`_oldValue` は最初のままで、`_newValue` だけを更新します。これで、ドラッグを何百回の更新に分けても、Undo すると、ドラッグを始める前の値に戻ります。
 
 ### 作成、削除、親子づけ
 
-`Services\Undo\StructureCommands.cs`:
-
-```csharp
+```csharp title="Services/Undo/StructureCommands.cs"
 using Editor.Models;
 
 namespace Editor.Services.Undo;
@@ -454,7 +427,7 @@ public sealed class DestroyObjectsCommand : IUndoCommand
     private readonly SceneDocument _document;
     private readonly List<RemovedObject> _removed = new();
 
-    // 選択された物のうち、「親も選ばれている物」は除く（親が消えれば、子も消えるので）
+    // 選択された物のうち、「親も選ばれている物」は除く（親が消えれば子も消えるので）
     public DestroyObjectsCommand(SceneDocument document, IEnumerable<SceneObject> targets)
     {
         _document = document;
@@ -526,15 +499,15 @@ public sealed class ReparentCommand : IUndoCommand
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| 作成コマンドが ID を覚える | 最初の作成で決まった ID を、`Do`（Redo）でも使う。Redo で別の ID になると、後ろの履歴が壊れる |
-| `ToHashSet()` | 集合（`HashSet<T>`）に変える。`Contains` が速い |
-| 親が選ばれている物を除く | 親と子の両方を削除対象にすると、子が二重に復元される |
-| 逆順で復元 | 削除したときの並びの位置（`Index`）を使うので、後ろから戻す |
-| 「<strong>ID</strong>で探す」 | コマンドは、`SceneObject` の参照を持たず、`_document.Find(_id)` で毎回探す。削除と復元で別のオブジェクトになっても、同じ ID なら見つかる |
+3 つのコマンドに共通する大事な約束が 2 つあります。
 
-## 手順 4：ISceneEditor を拡張して、Undo 対応版を作る
+1つ目は、コマンドは `SceneObject` の参照を持たず、ID を覚えて、実行のたびに `_document.Find(_id)` で探すことです。削除して復元すると別のオブジェクトになりますが、同じ ID で復元するので、ID なら見つかります。
+
+2つ目は、作成コマンドが、最初に決めた ID を覚えて、Redo でも同じ ID を使うことです。Redo のたびに採番し直すと、あとの履歴（その物を指しているコマンド）が壊れます。
+
+削除では、親と子が両方選ばれているとき、親だけを記録します。両方を記録すると、親を復元したときに子も戻り、さらに子自身も戻って、二重になるからです。復元を逆順にするのは、削除時の兄弟の中の位置（`Index`）を使うためで、後ろから戻すと位置がずれません。`ToHashSet()` は、集合に変えて `Contains` を速くします。
+
+## 窓口を、Undo 対応版に差し替える
 
 `ISceneEditor` に、構造の操作を足します。
 
@@ -544,25 +517,37 @@ void DestroyObjects(IReadOnlyList<SceneObject> objects);
 void Reparent(SceneObject obj, SceneObject? newParent);
 ```
 
-第 36 章の `SceneEditor` は、「<strong>値を直接変える</strong>」実装でした。これを、そのまま「内側の実装」として残し、<strong>履歴を記録する外側の実装</strong>を、新しく作ります。
-
-`Services\UndoableSceneEditor.cs`:
+第 36 章の `SceneEditor` は、値を直接変える実装でした。これを内側の実装として残し、履歴を記録する外側の実装を新しく作ります。内側は値の設定だけなので、小さなインターフェースに分けます。
 
 ```csharp
+// 値を直接設定する（Undo なし）。内側の実装が、これを実装する。
+public interface IRawSceneEditor
+{
+    void SetName(SceneObject obj, string name);
+    void SetPosition(SceneObject obj, Vector3 value);
+    void SetRotationDegrees(SceneObject obj, Vector3 value);
+    void SetScale(SceneObject obj, Vector3 value);
+    void SetColor(SceneObject obj, Vector4 value);
+}
+```
+
+`SceneEditor` は `IRawSceneEditor` を実装する形に変えます（中身は第 36 章のまま）。外側が次のクラスです。
+
+```csharp title="Services/UndoableSceneEditor.cs"
 using System.Numerics;
 using Editor.Models;
 using Editor.Services.Undo;
 
 namespace Editor.Services;
 
-// 編集を、Undo 可能なコマンドにして、履歴に積む。実際の変更は、内側の SceneEditor が行う。
+// 編集を、Undo 可能なコマンドにして履歴に積む。実際の変更は、内側の IRawSceneEditor が行う。
 public sealed class UndoableSceneEditor : ISceneEditor
 {
     private readonly SceneDocument _document;
-    private readonly SceneEditor _inner;
+    private readonly IRawSceneEditor _inner;
     private readonly IHistoryService _history;
 
-    public UndoableSceneEditor(SceneDocument document, SceneEditor inner, IHistoryService history)
+    public UndoableSceneEditor(SceneDocument document, IRawSceneEditor inner, IHistoryService history)
     {
         _document = document;
         _inner = inner;
@@ -626,21 +611,9 @@ public sealed class UndoableSceneEditor : ISceneEditor
 }
 ```
 
-`SceneEditor`（内側の実装）にも、同じ 3 つのメソッドを足します。ただし、内側が実際に行うのは、プロパティの設定だけなので、`CreateObject` などは、`NotSupportedException` にするか、`ISceneEditor` を分けて、内側は値の設定だけを持つようにします。ここでは、<strong>値の設定用の小さなインターフェース</strong>に分けます。
+どのメソッドも「古い値と新しい値を持つコマンドを作って、履歴に渡す」だけです。コマンドの中で値を実際に変えるのは、内側の `_inner` で、窓口の `UndoableSceneEditor` ではありません。もし窓口を呼ぶと、Undo の中でさらに履歴が積まれて、壊れます。
 
-```csharp
-// 値を直接設定する（Undo なし）。内側の実装が、これを実装する。
-public interface IRawSceneEditor
-{
-    void SetName(SceneObject obj, string name);
-    void SetPosition(SceneObject obj, Vector3 value);
-    void SetRotationDegrees(SceneObject obj, Vector3 value);
-    void SetScale(SceneObject obj, Vector3 value);
-    void SetColor(SceneObject obj, Vector4 value);
-}
-```
-
-`SceneEditor : IRawSceneEditor`（第 36 章の中身はそのまま）にし、`UndoableSceneEditor` は `IRawSceneEditor _inner` を受け取ります。登録は、次のとおりです。
+登録は次のとおりです。
 
 ```csharp
 containerRegistry.RegisterSingleton<IHistoryService, HistoryService>();
@@ -648,13 +621,11 @@ containerRegistry.RegisterSingleton<IRawSceneEditor, SceneEditor>();
 containerRegistry.RegisterSingleton<ISceneEditor, UndoableSceneEditor>();
 ```
 
-<strong>`PropertyViewModel` は、1 行も変えずに、Undo に対応しました。</strong> `ISceneEditor` の窓口を通していたからです。
+ここで見てほしいのは、`PropertyViewModel` を 1 行も変えずに、Undo に対応できたことです。`ISceneEditor` という窓口の後ろだけを差し替えたからです。
 
-## 手順 5：呼び出し側を窓口に切り替える
+## 呼び出し側を窓口に切り替える
 
-### シーン ツリー
-
-`SceneTreeViewModel` の `_document.Create` / `Destroy` / `Reparent` を、`ISceneEditor` の呼び出しに変えます。
+シーン ツリーの `SceneTreeViewModel` は、まだ `_document.Create` などを直接呼んでいます。これを窓口の呼び出しに変えます。
 
 ```csharp
 private void AddEmpty()
@@ -676,9 +647,7 @@ private void Delete() => _editor.DestroyObjects(_selection.Selection.ToList());
 public void Reparent(SceneObject dragged, SceneObject? newParent) => _editor.Reparent(dragged, newParent);
 ```
 
-### ギズモのドラッグ
-
-ドラッグの開始から終わりまでを<strong>トランザクション</strong>にします。
+ギズモのドラッグは、開始から終了までをトランザクションにします。
 
 ```csharp
 // GizmoController
@@ -697,11 +666,11 @@ public void EndDrag()
 }
 ```
 
-トランザクション中は、`Execute` が `CompositeCommand.AddAndDo` を通ります。連続した `SetValueCommand<Vector3>`（同じ ID・同じプロパティ）は、<strong>合体</strong>されて 1 つになります。ドラッグ中の位置の移動は、結局 1 つの `SetValueCommand` に収まります。
+トランザクション中の `Execute` は `CompositeCommand.AddAndDo` を通り、同じ ID、同じプロパティの連続した `SetValueCommand<Vector3>` は合体して、1 つになります。ドラッグ中の何百回もの更新は、1 つのコマンドに収まります。
 
-## 手順 6：メニューとキー
+## メニューとキー
 
-`MainWindowViewModel`:
+`MainWindowViewModel` に、Undo と Redo のコマンドを足します。メニューの表示に、操作の名前が出るようにします。
 
 ```csharp
 public MainWindowViewModel(IHistoryService history /* ほか */)
@@ -725,9 +694,7 @@ public string UndoHeader => _history.UndoName is { } n ? $"元に戻す: {n}(_U)
 public string RedoHeader => _history.RedoName is { } n ? $"やり直し: {n}(_R)" : "やり直し(_R)";
 ```
 
-`MainWindow.xaml`:
-
-```xml
+```xml title="MainWindow.xaml"
 <Window.InputBindings>
     <KeyBinding Key="Z" Modifiers="Control" Command="{Binding UndoCommand}" />
     <KeyBinding Key="Y" Modifiers="Control" Command="{Binding RedoCommand}" />
@@ -738,23 +705,18 @@ public string RedoHeader => _history.RedoName is { } n ? $"やり直し: {n}(_R)
 <MenuItem Header="{Binding RedoHeader}" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y" />
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Window.InputBindings` | ウィンドウ全体で効くキー操作 |
-| `Modifiers="Control+Shift"` | 修飾キーの組み合わせ |
-| `InputGestureText` | メニューに出す、ショートカットの表示（飾りだけで、機能はしない。機能は `KeyBinding`） |
-| `TextBox` の中の `Ctrl+Z` | `TextBox` は自分の文字入力の Undo を持っていて、優先される。入力欄にフォーカスがあるときは、その入力の中だけで元に戻る。これは、<strong>期待される動作</strong>（確定前の入力の取り消し） |
+`Window.InputBindings` は、ウィンドウ全体で効くキー操作です。`Modifiers="Control+Shift"` のように修飾キーを組み合わせられます。`InputGestureText` はメニューに出すショートカットの表示だけで、機能は付きません。機能は `KeyBinding` の側です。
 
-## 手順 7：ダーティ フラグ
+`TextBox` にフォーカスがあるときの `Ctrl+Z` は、`TextBox` 自身が持つ文字入力の Undo が優先されます。確定前の入力を取り消すだけなので、期待どおりの動きです。
 
-`IHistoryService.IsDirty` を使って、ウィンドウのタイトルに `*` を付けます（保存は、第 39 章）。
+最後に、ダーティ フラグ（未保存の印）を、ウィンドウのタイトルに出します。保存の本体は次の章です。
 
 ```csharp
 public string Title => _history.IsDirty ? "MiniEngine Editor *" : "MiniEngine Editor";
 // _history.Changed で RaisePropertyChanged(nameof(Title)) を呼ぶ
 ```
 
-## 動作確認
+## 動かして確かめる
 
 | 操作 | 期待する結果 |
 | --- | --- |
@@ -762,38 +724,35 @@ public string Title => _history.IsDirty ? "MiniEngine Editor *" : "MiniEngine Ed
 | 位置を変更 → `Ctrl+Z` | 元の位置に戻る。メニューに「元に戻す: 位置を変更」が出る |
 | ギズモで長くドラッグ → `Ctrl+Z` | 1 回の Undo で、ドラッグ前の位置に戻る |
 | 色のスライダーを動かす → `Ctrl+Z` | 1 回で、動かす前の色に戻る |
-| 親を持つ物を削除 → `Ctrl+Z` | 子も含めて、元通りに復活。並び順も同じ |
+| 親を持つ物を削除 → `Ctrl+Z` | 子も含めて元通りに復活。並び順も同じ |
 | Undo → 別の編集 | Redo ができなくなる（メニューが灰色） |
-| 削除 → 復元 → その前の編集を Undo | クラッシュしない（ID で探すので） |
 | 保存の後で編集 | タイトルに `*` が付く。Undo で保存時点に戻ると消える |
 
-## よくあるミス
-
 ??? failure "Undo すると例外が出る（オブジェクトが見つからない）"
-    コマンドが `SceneObject` の参照を持っている。ID を覚えて、実行時に `document.Find(id)` で探す。
+    コマンドが `SceneObject` の参照を持っています。ID を覚えて、実行時に `document.Find(id)` で探します。
 
 ??? failure "ドラッグが 1 回の Undo にならない"
-    トランザクションを使っていない。または、`TryMerge` の条件（同じ ID、同じプロパティ）が合っていない。
+    トランザクションを使っていないか、`TryMerge` の条件（同じ ID、同じプロパティ）が合っていません。
 
-??? failure "Undo で復活した物の子が、消えている"
-    スナップショットの `Children` を再帰的に `Restore` していない。または、`DestroyObjectsCommand` が、子を選択に含めて、二重に扱っている。
+??? failure "Undo で復活した物の子が消えている"
+    スナップショットの `Children` を再帰的に `Restore` していないか、`DestroyObjectsCommand` が子を二重に扱っています。
 
-??? failure "Redo すると、ID が変わる"
-    `CreateObjectCommand` が、`Do` のたびに新しい ID を採番している。最初の ID を覚えて、使い回す。
+??? failure "Redo すると ID が変わる"
+    `CreateObjectCommand` が `Do` のたびに新しい ID を採番しています。最初の ID を覚えて使い回します。
 
-??? failure "Undo のあとにスライダーを動かすと、直前のコマンドと合体してしまう"
-    時間による合体の判定が、Undo の後もそのまま。`Undo` と `Redo` で `_lastExecuteTicks = 0` にして、合体の対象にしない。
+??? failure "Undo のあとにスライダーを動かすと、直前のコマンドと合体する"
+    `Undo` と `Redo` で `_lastExecuteTicks = 0` にして、合体の対象から外します。
 
-??? failure "Undo/Redo の途中で、また編集コマンドが積まれて、履歴が壊れる"
-    Undo 中の `Do/Undo` の中で、`ISceneEditor` ではなく<strong>内側の `IRawSceneEditor`</strong> を呼んでいるか確認する。窓口（`UndoableSceneEditor`）を呼ぶと、履歴に二重に積まれる。
+??? failure "Undo の途中で、また編集コマンドが積まれて履歴が壊れる"
+    コマンドの中で、窓口の `ISceneEditor` ではなく、内側の `IRawSceneEditor` を呼んでいるか確認します。
 
 ## この章のまとめ
 
-- 編集を、`Do()` と `Undo()` を持つ<strong>コマンド</strong>にする。
-- 連続した操作は、<strong>トランザクション</strong>と<strong>合体（`TryMerge`）</strong>で 1 つにまとめる。
-- コマンドは、オブジェクトの参照ではなく <strong>ID</strong> を覚える。削除は、<strong>スナップショット</strong>で復元する。
-- `ISceneEditor` という窓口を作っておいたので、<strong>呼び出し側を変えずに</strong> Undo に対応できた。
+- 編集を、`Do()` と `Undo()` を持つコマンドにする。
+- 連続した操作は、トランザクションと合体（`TryMerge`）で 1 つにまとめる。
+- コマンドは、オブジェクトの参照ではなく ID を覚える。削除はスナップショットで復元する。
+- `ISceneEditor` という窓口を作っておいたので、呼び出し側を変えずに Undo に対応できた。
 
-## 次の章へ
+次の章では、シーンを JSON のファイルに保存して、読み込み直せるようにします。
 
-次の章（[第 39 章 保存と読み込み](39-save-load.md)）では、シーンを JSON のファイルに保存し、読み込み直せるようにします。`System.Text.Json`、ファイル ダイアログ、非同期の入出力、ダーティ時の確認ダイアログを扱います。
+[第 39 章 保存と読み込み](39-save-load.md) へ進みます。

@@ -6,13 +6,11 @@ tags:
 
 # 第 37 章 ピッキングとギズモ
 
-この章で、ビューポートの<strong>物をクリックして選べる</strong>ようにし、選んだ物に出る<strong>矢印（ギズモ）をドラッグして動かせる</strong>ようにします。3D エディタの操作感を決める、大事な章です。数学（レイ、逆行列、2 本の直線の最近点）が多く出てきますが、1 つずつ説明します。
+この章で、ビューポートの物をクリックして選べるようにして、選んだ物に出る矢印（ギズモ）をドラッグして動かせるようにします。3D エディタの操作感を決める章です。数学（レイ、逆行列、2 本の直線の最近点）が多く出てきますが、ひとつずつ説明します。
 
-## この章の考え方
+## 画面の 1 点は、3D では 1 本の線
 
-### 2D の画面から、3D の世界を指す
-
-画面上の 1 点（ピクセル）は、3D の世界では<strong>1 本の半直線（レイ）</strong>に対応します。カメラの目から出て、そのピクセルを通り、奥へ伸びる線です。
+画面の上の 1 点（ピクセル）は、3D の世界では、カメラの目から出て、そのピクセルを通って奥へ伸びる半直線（レイ）に当たります。
 
 ```text
  カメラ ●───────────────────────────────▶  レイ（クリックした点を通る線）
@@ -21,39 +19,26 @@ tags:
           ▕ 画面
 ```
 
-この線が、どの物と最初に交わるかを調べるのが、<strong>ピッキング</strong>です。やることは 3 つです。
-
-1. クリックしたピクセルから、<strong>レイを作る</strong>（逆行列で、画面 → 世界に戻す）。
-2. レイと各物（箱）の<strong>交差を調べる</strong>。
-3. 一番近い物を返す。
+この線が、どの物と最初に交わるかを調べるのがピッキングです。やることは 3 つです。クリックしたピクセルからレイを作ること（逆行列で、画面から世界へ戻す）、レイと各物の交差を調べること、いちばん近い物を返すことです。
 
 ### 誰が何を担当するか
 
-第 34 章で「データの持ち主はエディタ、エンジンは写し」と決めました。ここでの役割分担は次のとおりです。
+第 34 章で、データの持ち主はエディタ、エンジンは写し、と決めました。ここでの役割分担も、その延長で決めます。
 
 | 仕事 | 担当 | 理由 |
 | --- | --- | --- |
-| 物との交差判定（ピッキング） | <strong>エンジン</strong> | 物の形（メッシュ、当たり判定）を知っているのは、エンジン |
-| カメラの行列を教える | <strong>エンジン</strong> | カメラ（回転・ズーム）は、エンジンが持つ |
-| ギズモを<strong>描く</strong> | <strong>エンジン</strong> | 描画はエンジンの仕事 |
-| ギズモの<strong>ドラッグ操作</strong>（どの矢印か、どれだけ動かすか） | <strong>エディタ</strong> | 結果は「物を動かす編集」で、Undo/Redo の対象になる。編集は、エディタの責任 |
+| 物との交差判定（ピッキング） | エンジン | 物の形（メッシュ、当たり判定）を知っているのはエンジン |
+| カメラの行列を教える | エンジン | カメラはエンジンが持っている |
+| ギズモを描く | エンジン | 描画はエンジンの仕事 |
+| ギズモのドラッグ操作（どの矢印か、どれだけ動かすか） | エディタ | 結果は「物を動かす編集」で、Undo/Redo の対象になる。編集はエディタの責任 |
 
-エンジンは、「<strong>カメラの情報</strong>」と「<strong>ピッキングの結果</strong>」を返し、エディタは、それを使って<strong>編集</strong>します。
+エンジンは、カメラの情報とピッキングの結果を返し、エディタはそれを使って編集する、という分担です。
 
-## この章のゴール
+## レイと箱の交差（エンジン側）
 
-- クリックで物を選べる。`Ctrl + クリック`で追加選択。何もない所をクリックで選択解除。
-- 選んだ物の位置に、X（赤）・Y（緑）・Z（青）の矢印が出る。画面上の大きさは一定。
-- 矢印をドラッグすると、その軸方向に物が動く。
-- 矢印のドラッグ中は、カメラが動かず、物だけが動く。
+まず、画面の点からレイを作ります。
 
-## 手順 1：レイと箱の交差（エンジン）
-
-### 画面の点から、レイを作る
-
-`Engine\src\Picking.h`:
-
-```cpp
+```cpp title="Engine/src/Picking.h"
 #pragma once
 
 #include <SimpleMath.h>
@@ -74,9 +59,7 @@ bool IntersectBox(const Ray& ray, const DirectX::SimpleMath::Matrix& world, floa
 }  // namespace mini
 ```
 
-`Engine\src\Picking.cpp`:
-
-```cpp
+```cpp title="Engine/src/Picking.cpp"
 #include "Picking.h"
 
 #include <algorithm>
@@ -107,18 +90,9 @@ Ray MakeRay(float x, float y, float width, float height, const Matrix& view_proj
 }
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| 正規化デバイス座標（NDC） | 画面の左端が −1、右端が +1、下端が −1、上端が +1 の座標。投影行列の出力が、この範囲になる |
-| `1.0f - 2.0f * y / height` | ピクセルは<strong>上が 0</strong>、NDC は<strong>上が +1</strong>なので、反転する |
-| `view_proj.Invert()` | 逆行列。`view * projection` で「世界 → 画面」に変えたので、逆行列で「画面 → 世界」に戻せる |
-| `Vector3::Transform(v, m)` | 点を行列で変換し、<strong>最後に w で割る</strong>（遠近の除算）。逆の変換でも、必要 |
-| 2 点を結ぶ | 手前の面と奥の面の、<strong>同じピクセルに対応する 2 点</strong>を結べば、レイの方向が分かる |
-| `Normalize()` | 長さを 1 にする |
+ピクセル座標は、上が 0 ですが、正規化デバイス座標（NDC、左端が −1、右端が +1、下端が −1、上端が +1）は上が +1 なので、Y を反転しています。`view * projection` は「世界から画面」への変換でしたから、その逆行列が「画面から世界」へ戻す変換です。手前の面（`z = 0`）と奥の面（`z = 1`、Direct3D の深度は 0〜1）の、同じピクセルに対応する 2 点を世界へ戻し、結べば、レイの方向が分かります。`Vector3::Transform` は、点を変換して最後に `w` で割ってくれます（遠近の除算）。
 
-### 箱との交差（スラブ法）
-
-箱の判定は、<strong>物のローカル空間</strong>に直すと簡単になります。箱の変換（回転・拡大・移動）の逆を、レイに掛ければ、「軸に平行な、単位立方体」と「レイ」の判定になるからです。
+次に、レイと箱の交差です。箱の判定は、物のローカル空間に直すと簡単になります。箱の変換（回転、拡大、移動）の逆をレイに掛ければ、「軸に平行な単位立方体」と「レイ」の判定に変わるからです。
 
 ```cpp
 bool IntersectBox(const Ray& ray, const Matrix& world, float* out_t) {
@@ -153,15 +127,11 @@ bool IntersectBox(const Ray& ray, const Matrix& world, float* out_t) {
 }  // namespace mini
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| `TransformNormal` | 方向のベクトル用の変換。平行移動（行列の最下行）を<strong>無視</strong>する |
-| 方向を正規化しない | ローカル空間では長さが変わる（拡大のため）。ただし、<strong>レイ上の位置 `origin + t * direction` は、ワールドとローカルで同じ `t`</strong> なので、そのまま `t` をワールドの距離として使える（`direction` の長さがワールドの長さとして保たれているため） |
-| スラブ | 2 枚の平行な平面にはさまれた領域。箱は、X、Y、Z の 3 つのスラブの共通部分 |
-| `t_min`/`t_max` | レイが箱に<strong>入る</strong>距離と<strong>出る</strong>距離。`t_min > t_max` なら、入る前に出ている＝当たらない |
-| 平行のとき | `d[axis] ≈ 0` なら除算できない。レイがスラブの内側にあれば常に OK、外側なら絶対に当たらない |
+これは「スラブ法」といって、箱を、X、Y、Z それぞれの「2 枚の平行な平面にはさまれた領域（スラブ）」の共通部分と見なします。軸ごとに、レイがそのスラブに入る距離 `t1` と出る距離 `t2` を求めて、3 軸ぶんの重なりを取ります。入る距離（`t_min`）が出る距離（`t_max`）を超えたら、入る前に出てしまっているので、当たりません。軸に平行なレイでは割り算ができないので、スラブの内側にあれば OK、外側なら絶対に当たらない、と別に判定します。
 
-## 手順 2：ピッキングとカメラ情報の API
+`TransformNormal` は、方向ベクトル用の変換で、平行移動（行列の最下行）を無視します。方向を正規化し直さないのは、意図的です。ローカル空間では長さが変わりますが、`origin + t * direction` の `t` は、ワールドでもローカルでも同じ値になるので、そのままワールドの距離として使えます。
+
+## ピッキングとカメラ情報の API
 
 `EngineApi.h` に追加します。
 
@@ -184,7 +154,7 @@ ME_API MeResult me_gizmo_set(MeEngine* engine, int32_t visible, const float posi
                              int32_t active_axis);
 ```
 
-`me_scene_pick` の実装の中身（エンジン側）:
+`me_scene_pick` の中身（エンジン側）は、すべての物に対してレイとの交差を調べ、いちばん近いものを返します。
 
 ```cpp
 ObjectId Engine::Pick(float x, float y) {
@@ -206,7 +176,7 @@ ObjectId Engine::Pick(float x, float y) {
 }
 ```
 
-C# の宣言（`NativeMethods`）:
+C# の宣言は次のとおりです。
 
 ```csharp
 [StructLayout(LayoutKind.Sequential)]
@@ -231,11 +201,7 @@ internal static partial MeResult me_camera_get_info(EngineHandle engine, out MeC
 internal static unsafe partial MeResult me_gizmo_set(EngineHandle engine, int visible, float* position, float sizePixels, int activeAxis);
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `System.Numerics.Matrix4x4` | 4×4 の行列。`float` が 16 個（`M11`〜`M44`）、行優先で並ぶ構造体（64 バイト）。<strong>C++ の SimpleMath の `Matrix` と同じ並び</strong>で、行ベクトルの約束も同じ |
-| `Matrix4x4.CreateLookAt` など | 右手系の作成関数が、そろっている |
-| `out MeCameraInfo info` | 出力引数として構造体を受け取る。構造体全体は、C 側が書き込む |
+`System.Numerics.Matrix4x4` は、`float` が 16 個（`M11` から `M44`）、行優先で並ぶ構造体（64 バイト）です。C++ の SimpleMath の `Matrix` と同じ並びで、行ベクトルの約束も同じなので、そのまま受け取れます。
 
 `IEngineService` に、`Pick`、`GetCameraInfo`、`SetGizmo` を足します（P/Invoke の呼び出しを 1 行ずつ包むだけです）。
 
@@ -247,11 +213,9 @@ CameraInfo GetCameraInfo();
 void SetGizmo(bool visible, Vector3 position, float sizePixels, int activeAxis);
 ```
 
-## 手順 3：クリックで選ぶ
+## クリックで選ぶ
 
-クリックとドラッグを区別します。<strong>押した位置と離した位置が近ければクリック</strong>です。
-
-`ViewportViewModel` を、第 32 章の `IRenderLoop` に加えて、`ISelectionService` と `SceneDocument` を受け取る形にします。
+クリックとドラッグは、押した位置と離した位置が近ければクリック、と区別します。`ViewportViewModel` が、`ISelectionService` と `SceneDocument` も受け取る形にします。
 
 ```csharp
 private Vector2 _downPosition;
@@ -290,25 +254,22 @@ private void PickAt(float x, float y, bool additive)
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Vector2.Distance(a, b)` | 2 点間の距離 |
-| `_loop.Invoke(engine => engine.Pick(x, y))` | 描画スレッドに頼んで、結果を<strong>待って</strong>受け取る（第 32 章）。クリック 1 回に 1 回だけなので、待ってよい |
-| 左ボタンのカメラ操作 | 右・中ボタンだけがカメラを動かす（第 33 章）。左ボタンの `MouseMove` も、エンジンには送らない |
-| `ctrl` | `Ctrl` キーが押されているか。`ViewportHost` で `GetKeyState(VK_CONTROL)` から取って、イベントの引数に足す |
+カメラを動かすのは右と中ボタンだけ（第 33 章）なので、左ボタンの入力はエンジンに送りません。クリックのピッキングは、結果が欲しいので `Invoke`（同期）で聞きますが、1 クリックに 1 回だけなので、待っても問題ありません。
 
-第 33 章でビューに書いた `Host.InputReceived += …` の行も、`ctrl` を渡す形に直します（`ViewportInputEventArgs` に `Ctrl` プロパティを足し、`ViewModel?.OnInput(e.Type, e.Button, e.X, e.Y, e.Delta, e.Ctrl)` と呼びます）。
+`ctrl` は、`Ctrl` キーが押されているかです。`ViewportHost` の `Raise` の中で、`GetKeyState` から取って、イベントの引数に足します。
 
 ```csharp
 // ViewportHost の Raise の中で
 bool ctrl = (Win32.GetKeyState(0x11) & 0x8000) != 0;   // VK_CONTROL
 ```
 
-## 手順 4：ギズモを描く（エンジン）
+第 33 章でビューに書いた `Host.InputReceived += ...` の行も、`ctrl` を渡す形に直します（`ViewportInputEventArgs` に `Ctrl` プロパティを足して、`ViewModel?.OnInput(e.Type, e.Button, e.X, e.Y, e.Delta, e.Ctrl)` と呼びます）。
 
-選択した物の位置に、3 本の矢印を描きます。大きさは、<strong>画面上で一定</strong>（例えば 90 ピクセル）にします。カメラが遠ざかっても、小さくなりません。
+## ギズモを描く（エンジン側）
 
-### 画面上の大きさを、世界の長さにする
+選んだ物の位置に、3 本の矢印を描きます。大きさは、画面上で一定（たとえば 90 ピクセル）にします。カメラを遠ざけても、小さくならないようにするためです。
+
+そのために、「画面の 1 ピクセルが、その位置では世界でどれだけの長さか」を求めます。
 
 ```cpp
 // position の位置で、画面上の 1 ピクセルが、世界でどれだけの長さか
@@ -318,13 +279,9 @@ float WorldPerPixel(const Vector3& position, const Vector3& camera_position, flo
 }
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| 距離 `d` での画面の高さ | 視野角 `fov` のとき、距離 `d` にある面の高さは `2 * d * tan(fov / 2)` |
-| 1 ピクセル | その高さを、ビューポートの高さ（ピクセル）で割った値 |
-| ギズモの長さ | `size_pixels * WorldPerPixel(…)`。遠いほど世界の長さは大きくなり、画面上では一定 |
+視野角 `fov` のとき、距離 `d` にある面の高さは `2 * d * tan(fov / 2)` です。その高さをビューポートの高さ（ピクセル）で割れば、1 ピクセルの長さが出ます。ギズモの長さは `size_pixels * WorldPerPixel(...)` とすれば、遠いほど世界の長さが大きくなり、画面上では一定になります。
 
-### 矢印を線にする
+矢印は、線で作ります。
 
 ```cpp
 void AddGizmo(std::vector<LineVertex>& lines, const Vector3& origin, float length, int active_axis) {
@@ -350,27 +307,19 @@ void AddGizmo(std::vector<LineVertex>& lines, const Vector3& origin, float lengt
 }
 ```
 
-`Tick` の線の組み立てに、ギズモを追加します（`visible` のときだけ）。ギズモの長さは、`size_pixels * WorldPerPixel(position, camera.Position(), fov, height)` です。
+`Tick` の線の組み立てに、ギズモを追加します（表示するときだけ）。ギズモの長さは、`size_pixels * WorldPerPixel(position, camera.Position(), fov, height)` です。
 
-### 注意：奥行きの扱い
+第 33 章の線描画は、深度テストをしていないので、あとから描いた線が上に出ます。ギズモを最後に追加すれば、常に手前に見えます。ギズモとしては、むしろ望ましい動きです。
 
-第 33 章の線描画は、深度テストを<strong>していない</strong>ので、後から描いた線が上に出ます。ギズモを<strong>最後に</strong>追加すれば、常に手前に見えます（これは、ギズモとしては望ましい動作です）。
+## ギズモのドラッグ（エディタ側）
 
-## 手順 5：ギズモのドラッグ（エディタ）
+ギズモの操作は、エディタが行います。必要なものは、マウスのレイ（カメラの行列から作る）、軸（原点と方向）、レイと軸の最近点の 3 つです。
 
-ギズモの操作は、<strong>エディタが行います</strong>。必要なのは、
+### カメラ情報からレイを作る
 
-- マウスのレイ（カメラの行列から作る）
-- 軸（原点と方向）
-- レイと軸の<strong>最近点</strong>
+エンジン側の `MakeRay` を、そのまま C# に書き直します。ギズモの操作のたびにエンジンへ聞き直すと遅延が出るので、カメラ情報を一度だけ取って、手元で計算します。
 
-です。
-
-### カメラ情報からレイを作る（C#）
-
-`Services\GizmoController.cs`:
-
-```csharp
+```csharp title="Services/GizmoController.cs"
 using System.Numerics;
 using Editor.Models;
 
@@ -411,11 +360,7 @@ public sealed class GizmoController
         int axis = _dragAxis;
         _loop.Post(e => e.SetGizmo(visible, position, SizePixels, axis));
     }
-```
 
-### マウスのレイ
-
-```csharp
     private static Ray MakeRay(CameraInfo cam, float px, float py)
     {
         // ピクセル → 正規化デバイス座標。上が +Y なので、Y を反転する。
@@ -436,11 +381,9 @@ public sealed class GizmoController
     }
 ```
 
-エンジン側の `MakeRay`（C++）を、そのまま C# に書き直した形です。<strong>同じ計算を C# でも持つ</strong>ことになりますが、ギズモの操作ごとにエンジンへ聞き直すと遅延が出るので、カメラ情報を一度取って、手元で計算します。
-
 ### 軸との最近点
 
-2 本の直線（マウスのレイ `O + s*R` と、軸 `P + t*D`）の最近点を求めます。
+ドラッグ中、マウスのレイと軸の位置関係から、「軸の上のどこをつまんでいるか」を求めます。2 本の直線（マウスのレイ `O + s*R` と、軸 `P + t*D`）の最近点を求める問題です。
 
 ```csharp
     // レイと軸（直線）の最近点。軸上の位置 t と、2 直線の距離を返す。
@@ -467,12 +410,7 @@ public sealed class GizmoController
     }
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| 最近点の式 | 2 直線の最短距離を与える点の組を、連立方程式で解いたもの。導出は、`(O + sR - P - tD)` が `R` と `D` の両方に垂直、という条件から |
-| `denom ≈ 0` | 2 直線が平行。解が一意に決まらない。レイが軸とほぼ平行（カメラが軸の真正面）のとき、起きる |
-| `AxisT` | 軸上の最近点の位置。<strong>ドラッグ量を、この差分で決める</strong> |
-| `Distance` | 2 直線の最短距離。マウスが軸にどれだけ近いかを表す |
+この式は、「`(O + sR - P - tD)` が `R` と `D` の両方に垂直」という条件を、連立方程式として解いたものです。`AxisT` が軸上の最近点の位置で、`Distance` が 2 直線の最短距離（マウスが軸にどれだけ近いか）です。2 直線がほぼ平行（カメラが軸の真正面）のときは、解が決まらないので、別扱いにしています。
 
 ### 当たり判定とドラッグ
 
@@ -545,18 +483,11 @@ public sealed class GizmoController
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `readonly record struct Ray(Vector3 Origin, Vector3 Direction)` | 値の入れ物（構造体のレコード）。レイを表す |
-| `var (t, distance) = …` | タプルの<strong>分解</strong>。戻り値の 2 つを、別々の変数に受ける |
-| `Vector3 Unproject(float z)` | ローカル関数 |
-| `inverseView.Translation` | `Matrix4x4` の `Translation`（`M41`〜`M43`）。ビュー行列の<strong>逆</strong>の移動成分が、ワールドでのカメラ位置 |
-| `cam.Projection.M22` | 透視投影行列の `M22` は `1 / tan(fov_y / 2)`。ここから視野角を逆算する |
-| `_dragAxis switch { 0 => …, _ => … }` | switch 式（第 5 章） |
-| 「開始時からの差分」 | 現在の最近点の位置 `t` から、<strong>開始時の `t`</strong> を引いた分だけ動かす。マウスを押した瞬間に、物が飛ばない |
-| `Invoke` は 1 度だけ | ドラッグの間は、<strong>カメラが動かない</strong>（左ボタンのドラッグでは、カメラは動かさない）ので、最初に取ったカメラ情報で足りる |
+押した瞬間に、各軸について最近点を調べて、矢印の長さの範囲内で、マウスに近い（`tolerance` 以内の）軸があれば、その軸のドラッグを始めます。ドラッグ中は、現在の最近点の位置 `t` から、ドラッグ開始時の `t` を引いた分だけ物を動かします。これで、マウスを押した瞬間に物が飛ぶことがありません。
 
-## 手順 6：ビューポートの入力を振り分ける
+カメラ情報は、押した瞬間に一度だけ取ります。左ボタンのドラッグ中は、カメラが動かないので、それで足ります。`WorldPerPixel` のほうは、`inverseView.Translation`（ビュー行列の逆の移動成分、つまりワールドでのカメラ位置）と、`Projection.M22`（`1 / tan(fov / 2)`）から、エンジンと同じ式を再現しています。エンジンと C# で、同じ式が 2 か所にあるのは割り切りです。式がずれると、見た目の矢印と当たり判定がずれるので、変えるときは両方を変えます。
+
+## ビューポートの入力を振り分ける
 
 `ViewportViewModel.OnInput` の最初に、ギズモの処理を挟みます。
 
@@ -575,53 +506,47 @@ public void OnInput(Controls.InputType type, int button, float x, float y, float
             else if (type == Controls.InputType.ButtonUp) _gizmo.EndDrag();
             return;
         }
-        // …（第 3 節の、クリック判定）
+        // ...（前の節の、クリック判定）
     }
-    // …（右・中ボタン、ホイールは、エンジンのカメラ操作へ）
+    // ...（右・中ボタン、ホイールは、エンジンのカメラ操作へ）
 }
 ```
 
-`GizmoController` は `RegisterSingleton` し、`ViewportViewModel` のコンストラクターで受け取ります。
+`GizmoController` は `RegisterSingleton` して、`ViewportViewModel` のコンストラクターで受け取ります。
 
-## 動作確認
+## 動かして確かめる
 
-| 操作 | 期待する結果 |
-| --- | --- |
-| 箱をクリック | その箱が選ばれ、ツリーでも選択表示になる。黄色の枠、矢印が出る |
-| 何もない所をクリック | 選択が解除される。矢印が消える |
-| `Ctrl + クリック` | 選択に追加される |
-| 赤い矢印をドラッグ | 箱が X 方向に動く。プロパティ パネルの位置 X が、リアルタイムに変わる |
-| カメラを遠ざける | 矢印の長さは、画面上で一定 |
-| 矢印の上でクリック | 矢印が黄色になり、ドラッグ中だけ強調 |
-| 右ドラッグ中 | 矢印の操作は始まらない（カメラの操作が優先） |
-
-## よくあるミス
+- 箱をクリックすると、その箱が選ばれて、ツリーでも選択表示になる。黄色の枠と矢印が出る。
+- 何もない所をクリックすると、選択が解除されて、矢印が消える。`Ctrl + クリック` で、選択に追加される。
+- 赤い矢印をドラッグすると、箱が X 方向に動く。プロパティ パネルの位置 X が、リアルタイムに変わる。
+- カメラを遠ざけても、矢印の長さは画面上で一定。
+- 右ドラッグ中は、矢印の操作は始まらない。
 
 ??? failure "クリックしても選ばれない"
-    ピッキングが `0` を返している。`MakeRay` の `ndc_y` の反転忘れ、`view_proj` の掛け順の逆、ビューポートの幅・高さが `Resize` で更新されていない、を確認する。
+    ピッキングが `0` を返しています。`MakeRay` の `ndc_y` の反転忘れ、`view_proj` の掛け順が逆、`Resize` でビューポートの幅や高さが更新されていない、の 3 つを確かめます。
 
 ??? failure "選ぶ位置が、少しずれる"
-    クリック座標は、ビューポートの<strong>クライアント座標</strong>（ピクセル）で、DPI が 100% 以外のときは、`GetClientRect` と同じ物理ピクセルで計算する。`lParam` からの値が、すでに物理ピクセル（子ウィンドウのクライアント座標）である。
+    クリック座標は、ビューポートのクライアント座標（物理ピクセル）です。DPI が 100% 以外のとき、`GetClientRect` と同じ物理ピクセルで計算しているかを確認します。
 
 ??? failure "ギズモが、画面上で大きさが変わる"
-    エンジンの `WorldPerPixel` と、C# の `WorldPerPixel` の式が違う。または、エンジンで `fov` を固定の値で使っている。
+    エンジンの `WorldPerPixel` と、C# の `WorldPerPixel` の式が違っています。または、エンジンで `fov` を固定の値で使っています。
 
 ??? failure "矢印をドラッグすると、物が飛ぶ"
-    開始時の `t` を引いていない。または、最近点の計算で `denom` がほぼ 0（軸の真正面から見ている）。カメラを少し回して試す。
+    開始時の `t` を引いていません。または、最近点の計算で `denom` がほぼ 0 になっています（軸の真正面から見ている）。カメラを少し回して試します。
 
 ??? failure "矢印のドラッグ中に、カメラが回ってしまう"
-    `IsDragging` のときに、入力をエンジンに送っている。ドラッグ中は `return` して、カメラに送らない。
+    `IsDragging` のときに、入力をエンジンに送っています。ドラッグ中は `return` して、カメラに送らないようにします。
 
 ??? failure "物を動かすと、ギズモが遅れてついてくる"
-    ギズモの位置の更新（`UpdateGizmo`）を呼んでいない。`SetPosition` の後に毎回呼ぶ。
+    `UpdateGizmo` を呼んでいません。`SetPosition` のあとに、毎回呼びます。
 
 ## この章のまとめ
 
-- 画面の点は、逆行列で<strong>レイ</strong>に戻せる。ピッキングは、レイと物の交差判定。
-- 箱との交差は、レイをローカル空間に戻して、<strong>スラブ法</strong>。
-- ギズモの大きさは、<strong>距離と視野角から、ピクセル数を世界の長さに換算</strong>して一定にする。
-- ギズモの操作は、<strong>エディタ</strong>が行い、結果は `ISceneEditor` を通して編集として確定する。
+- 画面の点は、逆行列でレイに戻せる。ピッキングは、レイと物の交差判定。
+- 箱との交差は、レイをローカル空間に戻して、スラブ法で調べる。
+- ギズモの大きさは、距離と視野角から、ピクセル数を世界の長さに換算して、一定にする。
+- ギズモの操作はエディタが行い、結果は `ISceneEditor` を通して、編集として確定する。
 
-## 次の章へ
+次の章では、ここまでの編集をすべて、元に戻せるようにします。
 
-次の章（[第 38 章 Undo/Redo](38-undo-redo.md)）では、ここまでの編集をすべて<strong>元に戻せる</strong>ようにします。コマンド パターンと、ドラッグのような連続操作を 1 つにまとめる方法を学びます。
+[第 38 章 Undo/Redo](38-undo-redo.md) へ進みます。

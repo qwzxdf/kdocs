@@ -6,30 +6,19 @@ tags:
 
 # 第 33 章 入力とエディタ カメラ
 
-ここまでのビューポートは、<strong>色が変わるだけ</strong>でした。この章で、ビューポートに<strong>地面のグリッドと座標軸</strong>を描き、マウスで<strong>カメラを動かせる</strong>ようにします。3D エディタらしい画面に、ぐっと近づく章です。
+ここまでのビューポートは、色が変わるだけでした。この章では、地面のグリッドと座標軸を描いて、マウスでカメラを動かせるようにします。3D エディタらしい画面に、ぐっと近づきます。
 
-この章には、3 つの作業があります。
+作業は 3 つあります。エンジンに線を描く仕組み（デバッグ描画）を足すこと、エディタ用のカメラを足すこと、そして WPF の子ウィンドウで受けたマウスとキーをエンジンに送ることです。
 
-1. エンジンに、<strong>線を描く仕組み</strong>（デバッグ描画）を足す。
-2. エンジンに、<strong>エディタ用のカメラ</strong>を足す。
-3. WPF の子ウィンドウで受けたマウスとキーを、<strong>エンジンに送る</strong>（C# → C++ の入力）。
+## 入力の意味づけは、エンジンが持つ
 
-## この章の考え方
+マウスを動かしたとき、カメラを動かす計算は、C# とエンジンのどちらがやるべきでしょうか。C# で計算して行列をエンジンに渡す案もありますが、それだと Player（C++ だけ）にも同じカメラが必要になり、二重に書くことになります。
 
-### 誰が入力を処理するのか
+そこで、エンジンが計算する方式にします。C# は生の入力（マウスの動き、ボタン、ホイール）をそのまま送るだけで、カメラの計算はエンジンの中で行います。こうすれば、エディタ以外でも同じ入力処理が使えます。C# の仕事は、WPF（Win32）の入力を、エンジンが分かる形に変換して送ることだけです。
 
-マウスを動かしたとき、カメラを動かす計算は、<strong>どちらが行う</strong>べきでしょうか。
+### 座標系の約束
 
-| 案 | 内容 | 問題 |
-| --- | --- | --- |
-| C# が計算 | C# でカメラの位置を計算し、行列をエンジンに渡す | Player（C++ のみ）にも同じカメラが要るので、二重に書く |
-| <strong>エンジンが計算</strong> | C# は、<strong>生の入力（マウスの動き、ボタン）をそのまま送る</strong>だけ。カメラの計算は、エンジン内 | <strong>採用</strong>。エディタ以外でも、同じ入力処理が使える |
-
-C# の役目は、<strong>WPF（Win32）の入力を、エンジンが分かる形に変換して送る</strong>ことだけです。入力の意味づけは、エンジンが持ちます。
-
-### この教材の座標系
-
-3D の約束を、先に確認します（このサイトの 3D の約束と同じです）。
+3D に入る前に、この教材の約束を確認しておきます。
 
 | 項目 | 約束 |
 | --- | --- |
@@ -40,22 +29,15 @@ C# の役目は、<strong>WPF（Win32）の入力を、エンジンが分かる�
 | 角度 | ラジアン |
 | 数学ライブラリ | SimpleMath（DirectX Tool Kit） |
 
-## この章のゴール
+## SimpleMath を使えるようにする
 
-- ビューポートに、グリッドと XYZ 軸（X: 赤、Y: 緑、Z: 青）が描かれる。
-- 右ドラッグで回転、中ドラッグで平行移動、ホイールで拡大縮小。
-- C# のマウス入力が、描画スレッド経由でエンジンに届く。
+`Engine` の数学ライブラリには、DirectX Tool Kit の SimpleMath を使います。vcpkg で入れる方法が手軽です（[導入手順](../libs/index.md)、[Visual Studio の外部ライブラリ](../vs/index.md) も参照してください）。
 
-## 手順 1：SimpleMath を使えるようにする
+1. `vcpkg install directxtk12:x64-windows`（SimpleMath は DirectXTK12 に含まれています）。
+2. `vcpkg integrate install` で、Visual Studio に連携します。
+3. `Engine` のコードから `#include <SimpleMath.h>` と書きます。
 
-`Engine` の数学ライブラリに、DirectX Tool Kit の SimpleMath を使います。vcpkg で入れる方法を使います（[導入手順](../libs/index.md) と [Visual Studio の外部ライブラリ](../vs/index.md) も参照）。
-
-1. `vcpkg install directxtk12:x64-windows`（SimpleMath は DirectXTK12 に含まれる）。
-2. `vcpkg integrate install` で、Visual Studio に連携する。
-3. `Engine` のコードから `#include <SimpleMath.h>` と書く。
-
-!!! note "手短に済ませる場合"
-    SimpleMath は `SimpleMath.h` / `SimpleMath.inl` / `SimpleMath.cpp` の 3 ファイルだけで動きます。DirectX Tool Kit のリポジトリから、これらを `Engine\third_party\simplemath\` に置く方法でも、使えます。
+vcpkg を使いたくなければ、SimpleMath は `SimpleMath.h`、`SimpleMath.inl`、`SimpleMath.cpp` の 3 ファイルだけで動くので、DirectX Tool Kit のリポジトリからこれらを `Engine\third_party\simplemath\` に置く方法でも使えます。
 
 ```cpp
 #include <SimpleMath.h>
@@ -63,13 +45,11 @@ using DirectX::SimpleMath::Vector3;
 using DirectX::SimpleMath::Matrix;
 ```
 
-## 手順 2：線を描くシェーダー
+## 線を描くシェーダー
 
-線を描く最小のシェーダーです。頂点は「位置」と「色」だけ、変換は 1 つの行列（ビュー × 射影）だけです。
+線を描く最小のシェーダーです。頂点は位置と色だけ、変換は 1 つの行列（ビュー × 射影）だけです。
 
-`Engine\src\Shaders.h`:
-
-```cpp
+```cpp title="Engine/src/Shaders.h"
 #pragma once
 
 namespace mini {
@@ -105,20 +85,15 @@ float4 PSMain(VSOutput input) : SV_TARGET {
 }  // namespace mini
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| `R"( … )"` | C++ の<strong>生文字列リテラル</strong>。エスケープなしで、複数行の文字列を書ける。HLSL をソースに埋め込むのに便利 |
-| `row_major float4x4` | HLSL は、既定で<strong>列優先</strong>（`column_major`）で行列を読む。DirectXMath（SimpleMath）の行列は<strong>行優先</strong>なので、`row_major` と明示して、そのまま渡せるようにする |
-| `mul(float4(position, 1.0), g_view_proj)` | <strong>行ベクトル × 行列</strong>。座標系の約束（`v * M`）と一致する |
-| `SV_POSITION` | 頂点シェーダーの出力で、クリップ空間の位置を表す |
-| `SV_TARGET` | ピクセル シェーダーの出力先（レンダー ターゲット 0） |
-| `register(b0)` | 定数バッファーのスロット 0。ルート定数として受け取る |
+`R"( ... )"` は C++ の生文字列リテラルで、エスケープなしで複数行の文字列を書けます。HLSL をソースに埋め込むのに便利です。
 
-## 手順 3：LineRenderer（線を描くクラス）
+HLSL は、既定では行列を列優先（`column_major`）で読みます。ところが DirectXMath（SimpleMath）の行列は行優先なので、`row_major` と明示して、そのまま渡せるようにしています。`mul(float4(position, 1.0), g_view_proj)` は「行ベクトル × 行列」で、この教材の約束（`v * M`）と一致します。
 
-`Engine\src\LineRenderer.h`:
+## LineRenderer：線を描くクラス
 
-```cpp
+まずヘッダーです。
+
+```cpp title="Engine/src/LineRenderer.h"
 #pragma once
 
 #include <d3d12.h>
@@ -161,11 +136,9 @@ class LineRenderer {
 }  // namespace mini
 ```
 
-`Engine\src\LineRenderer.cpp`:
+コンストラクターは、ルート シグネチャ、シェーダー、パイプライン、頂点バッファーの順に作ります。
 
-### ルート シグネチャとパイプライン
-
-```cpp
+```cpp title="Engine/src/LineRenderer.cpp"
 #include "LineRenderer.h"
 
 #include <d3dcompiler.h>
@@ -229,19 +202,9 @@ LineRenderer::LineRenderer(ID3D12Device* device, DXGI_FORMAT render_target_forma
   ThrowIfFailed(device->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&pipeline_state_)), "パイプライン ステートの作成");
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| `InitAsConstants(16, 0, 0, …)` | ルート定数。<strong>16 個の 32 ビット値</strong>を、シェーダー レジスタ `b0`、スペース 0 に直接渡す。4×4 行列がちょうど入る。定数バッファーを作らずに済む |
-| `D3D12SerializeRootSignature` | ルート シグネチャを、GPU が読める形（バイト列）に変換 |
-| `D3DCompile` | HLSL を、実行時にコンパイルする。`"vs_5_0"` はシェーダー モデル 5.0 の頂点シェーダー。失敗時のメッセージは `compile_error` に入る |
-| `D3D12_INPUT_ELEMENT_DESC` | 頂点のレイアウト。`POSITION` は 12 バイト（float3）、`COLOR` はその後ろの 12 バイト目から 16 バイト（float4） |
-| `FrontCounterClockwise = TRUE` | この教材の約束（CCW が表）を明示する |
-| `PrimitiveTopologyType = LINE` | 線を描くパイプライン |
-| `RTVFormats[0]` | 描画先のフォーマット。第 3 章のレンダー ターゲット ビューと<strong>同じ</strong>にする |
+ルート シグネチャは、`InitAsConstants(16, 0, 0, ...)` で、16 個の 32 ビット値（ちょうど 4×4 行列 1 つ分）を、シェーダー レジスタ `b0` に直接渡す形にしています。この方法なら、定数バッファーを作らずに済みます。`D3DCompile` は、HLSL を実行時にコンパイルする関数で、`"vs_5_0"` はシェーダー モデル 5.0 の頂点シェーダーを意味します。失敗したときのメッセージは `compile_error` に入るので、例外にして外に出しています。
 
-DirectX 12 のパイプラインの各項目は、[DX12 Guide の PSO](../directx/dx12/pso.md) と [Root Signature](../directx/dx12/root-signature.md) で説明しています。
-
-### 頂点バッファー（アップロード ヒープ）
+頂点のレイアウトは、`POSITION` が 12 バイト（`float3`）、`COLOR` がその後ろの 12 バイト目から 16 バイト（`float4`）です。パイプラインでは、`FrontCounterClockwise = TRUE` で「CCW が表」の約束を明示し、`RTVFormats[0]` は、第 3 章のレンダー ターゲットと同じフォーマットにします。DX12 のパイプラインの各項目は、[PSO](../directx/dx12/pso.md) と [Root Signature](../directx/dx12/root-signature.md) のページで説明しています。
 
 ```cpp
   // ④ フレームごとの頂点バッファー（CPU から書ける領域を、常時マップしておく）
@@ -259,14 +222,9 @@ DirectX 12 のパイプラインの各項目は、[DX12 Guide の PSO](../direct
 }
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| `D3D12_HEAP_TYPE_UPLOAD` | CPU が書き、GPU が読むための領域 |
-| `GENERIC_READ` | アップロード ヒープのリソースの初期状態（変更できない） |
-| `Map` | CPU から書けるアドレスを得る。アップロード ヒープは<strong>マップしたまま使い続けてよい</strong> |
-| フレームごとに 3 つ | GPU が前のフレームを読んでいる最中に、CPU が同じバッファーを書き換えないため（第 3 章のスロット） |
+頂点バッファーは `D3D12_HEAP_TYPE_UPLOAD`（CPU が書いて GPU が読む領域）に作り、`Map` で CPU から書けるアドレスを得ます。アップロード ヒープは、マップしたまま使い続けてよい決まりです。フレームごとに 3 つ作るのは、GPU が前のフレームを読んでいる最中に、CPU が同じバッファーを書き換えないようにするためです（第 3 章のスロットと同じ考え方です）。
 
-### 描く
+描く関数はこうです。
 
 ```cpp
 void LineRenderer::Draw(ID3D12GraphicsCommandList* list, UINT slot, const DirectX::SimpleMath::Matrix& view_proj,
@@ -291,20 +249,13 @@ void LineRenderer::Draw(ID3D12GraphicsCommandList* list, UINT slot, const Direct
 }  // namespace mini
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| `memcpy(mapped_[slot], …)` | 頂点を、マップ済みのバッファーにコピー。GPU が読むのは、このフレームのコマンドが実行されるとき |
-| `SetGraphicsRoot32BitConstants(0, 16, &view_proj, 0)` | 行列の 16 個の `float` を、ルート パラメーター 0 に書く。`Matrix`（SimpleMath）は、メモリ上で 16 個の `float` が並んだ<strong>行優先</strong>の並び |
-| `LINELIST` | 頂点 2 つで 1 本の線 |
-| `DrawInstanced(count, 1, 0, 0)` | 頂点数 `count`、インスタンス 1 つ |
+頂点を、マップ済みのバッファーに `memcpy` でコピーします。GPU が実際に読むのは、このフレームのコマンドが実行されるときです。`SetGraphicsRoot32BitConstants` で、`Matrix`（メモリ上で 16 個の `float` が行優先に並んだもの）をそのままルート定数に書きます。`LINELIST` は、頂点 2 つで 1 本の線を表すトポロジーです。
 
-## 手順 4：カメラ
+## エディタ カメラ
 
-エディタの定番、<strong>オービット カメラ</strong>（注視点の周りを回る）を作ります。
+エディタの定番のオービット カメラ（注視点の周りを回るカメラ）を作ります。
 
-`Engine\src\EditorCamera.h`:
-
-```cpp
+```cpp title="Engine/src/EditorCamera.h"
 #pragma once
 
 #include <SimpleMath.h>
@@ -337,9 +288,7 @@ class EditorCamera {
 }  // namespace mini
 ```
 
-`Engine\src\EditorCamera.cpp`:
-
-```cpp
+```cpp title="Engine/src/EditorCamera.cpp"
 #include "EditorCamera.h"
 
 #include <algorithm>
@@ -394,21 +343,13 @@ void EditorCamera::Focus(const Vector3& target, float radius) {
 }  // namespace mini
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| 球面座標 | `yaw`（横）、`pitch`（縦）、`distance`（距離）から、カメラの位置を求める。注視点を中心に、球の上を動く |
-| `Matrix::CreateLookAt(eye, target, up)` | SimpleMath の<strong>右手系</strong>のビュー行列。前は −Z になる |
-| `Matrix::CreatePerspectiveFieldOfView(fov, aspect, near, far)` | 右手系の透視投影。`fov` は<strong>縦</strong>の視野角（ラジアン） |
-| `view._11, _21, _31` | ビュー行列の<strong>第 1 列</strong>が、カメラの右方向（ワールド空間）。行ベクトルの規約では、行列の列が基底の向きを表す |
-| `Pan` の `scale` | 注視点の距離にある 1 ピクセルの大きさ。距離が遠いほど、同じマウスの動きで、大きく動く |
-| `std::pow(0.9f, notches)` | ホイール 1 目盛りで、距離が 0.9 倍になる。ズームイン（`notches` > 0）で近づく |
-| `std::clamp` | 距離を範囲内に収める |
+カメラの位置は、球面座標（`yaw` が横、`pitch` が縦、`distance` が距離）から求めます。注視点を中心にした球の上を、カメラが動く形です。`Matrix::CreateLookAt` と `CreatePerspectiveFieldOfView` は、SimpleMath の右手系の関数で、前が −Z になります。視野角は縦の角度です。
 
-## 手順 5：入力イベントを C の API に足す
+`Pan` の中の `view._11, _21, _31` は、ビュー行列の第 1 列で、カメラの右方向（ワールド空間）を表しています。行ベクトルの規約では、行列の列が基底の向きになるためです。移動量の `scale` は、注視点付近で 1 ピクセルが何メートルに当たるかです。遠いほど、同じマウスの動きで大きく動きます（今はビューポートの高さを 720 と仮定した近似です）。`Zoom` は、ホイール 1 目盛りで距離を 0.9 倍にします。
 
-### C の構造体と関数
+## 入力イベントを C の API に足す
 
-`EngineApi.h` に追加します。
+まず C の構造体と関数です。`EngineApi.h` に追加します。
 
 ```c
 /* 入力イベント（28 バイト） */
@@ -435,7 +376,7 @@ enum {
 ME_API MeResult me_engine_send_input(MeEngine* engine, const MeInputEvent* event);
 ```
 
-実装は、これまでと同じ形です（`Guard`、引数の検査）。
+実装は、これまでと同じ形です（`Guard` と引数の検査）。
 
 ```cpp
 MeResult me_engine_send_input(MeEngine* engine, const MeInputEvent* event) {
@@ -458,9 +399,7 @@ MeResult me_engine_send_input(MeEngine* engine, const MeInputEvent* event) {
 }
 ```
 
-### エンジン側の入力処理
-
-`Engine.h` の公開ヘッダーに、入力の型と関数を足します。
+エンジン側の公開ヘッダー `Engine.h` には、入力の型と関数を足します。
 
 ```cpp
 enum class InputType : std::int32_t { MouseMove, ButtonDown, ButtonUp, Wheel, KeyDown, KeyUp, FocusLost };
@@ -477,11 +416,11 @@ struct InputEvent {
 void OnInput(const InputEvent& event);
 ```
 
-`Engine.cpp` の `Impl` に、カメラと入力の状態を持たせます。
+`Engine.cpp` の `Impl` にカメラと入力の状態を持たせて、`OnInput` で処理します。
 
 ```cpp
 struct Engine::Impl {
-  // …
+  // ...
   EditorCamera camera;
   bool button_down[3] = {};
   float last_x = 0, last_y = 0;
@@ -519,9 +458,9 @@ void Engine::OnInput(const InputEvent& e) {
 }
 ```
 
-## 手順 6：Tick で描く
+## Tick で描く
 
-`Renderer::Render` が、線の頂点とカメラの行列を受け取るように変更します。バック バッファーを塗る前後に、`OMSetRenderTargets` の後で、ビューポートとシザー矩形を設定し、線を描きます。
+`Renderer::Render` が、線の頂点とカメラの行列を受け取るように変えます。
 
 ```cpp
 // Renderer.h に追加
@@ -539,7 +478,7 @@ list_->RSSetScissorRects(1, &scissor);
 line_renderer_->Draw(list_.Get(), frame_slot_, view_proj, lines);
 ```
 
-`Engine::Tick` で、グリッドと軸を組み立てます。
+`Engine::Tick` では、グリッドと軸を組み立てて、カメラの行列と一緒に渡します。
 
 ```cpp
 void Engine::Tick(float delta_seconds) {
@@ -575,17 +514,11 @@ void Engine::Tick(float delta_seconds) {
 }
 ```
 
-| 部分 | 説明 |
-| --- | --- |
-| `view * projection` | 行ベクトルの約束で、<strong>ビュー → 射影</strong>の順に掛ける。頂点は `v * view * projection` で変換される |
-| 色 | 軸は X: 赤、Y: 緑、Z: 青（RGB = XYZ の覚え方） |
-| `clear` を暗い色に | 色が変わる塗りつぶしは、ここで役目を終える |
+行ベクトルの約束では、ビュー、射影の順に左から右へ掛けるので、頂点は `v * view * projection` で変換されます。軸の色は、X が赤、Y が緑、Z が青です（RGB と XYZ が対応していると覚えると楽です）。背景は暗い色にして、色が変わる塗りつぶしは、ここで役目を終えます。
 
-## 手順 7：C# で入力を受けて送る
+## C# で入力を受けて送る
 
-### Win32 のメッセージ
-
-`ViewportHost` の `WndProc` をオーバーライドすると、子ウィンドウに届いたメッセージを受け取れます。
+Win32 のメッセージを受けるために、宣言を足します。
 
 ```csharp
 // Win32.cs に追加
@@ -615,7 +548,7 @@ public static partial short GetKeyState(int virtualKey);
 public struct POINT { public int X, Y; }
 ```
 
-### ViewportHost で受ける
+`ViewportHost` で `WndProc` をオーバーライドすると、子ウィンドウに届いたメッセージを受け取れます。
 
 ```csharp
 // 入力が来たことを知らせるイベント
@@ -672,17 +605,15 @@ private void Raise(InputType type, int button, nint lParam, float delta)
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `WndProc(…)` のオーバーライド | `HwndHost` が、子ウィンドウに届いたメッセージを渡してくる。`handled = true` にすると、それ以上、処理を進めない |
-| `lParam` の下位／上位 16 ビット | マウス座標の詰め方。`(short)` のキャストで、<strong>符号つき</strong>にする（ウィンドウの左・上の外にドラッグすると負になる） |
-| `SetCapture` / `ReleaseCapture` | ボタンを押している間、マウスが<strong>ウィンドウの外</strong>に出ても、メッセージを受け取り続ける。ドラッグ操作に必須 |
-| `SetFocus` | キーボードの入力先にする。これをしないと、キー入力が届かない |
-| `WM_MOUSEWHEEL` の `wParam` | 上位 16 ビットが回転量。`WHEEL_DELTA = 120` が 1 目盛り |
-| `WM_KILLFOCUS` | フォーカスを失ったときのメッセージ。押しっぱなしのボタンの状態を、リセットさせる |
-| `(long)wParam >> 16` | `nint` を `long` に広げてからシフトする。`>>` は符号つきシフト |
+細かい点を拾っておきます。
 
-`ViewportInputEventArgs` と `InputType` を、ホストの近くに定義します。
+- マウス座標は、`lParam` の下位 16 ビットが X、上位 16 ビットが Y です。`(short)` にキャストして符号つきにしているのは、ウィンドウの左や上の外までドラッグすると、座標が負になるからです。
+- `SetCapture` は、ボタンを押している間、マウスがウィンドウの外に出てもメッセージを受け取り続ける指定です。ドラッグ操作には必須です。
+- `SetFocus` は、キーボードの入力先にするために呼びます。
+- `WM_MOUSEWHEEL` の `wParam` は、上位 16 ビットが回転量で、120 が 1 目盛りです。
+- `WM_KILLFOCUS` はフォーカスを失ったときのメッセージです。押しっぱなしのボタンの状態をリセットするために、エンジンへ `FocusLost` を送ります。
+
+イベントの引数と種類の定義を、ホストの近くに置きます。
 
 ```csharp
 public enum InputType { MouseMove = 0, ButtonDown = 1, ButtonUp = 2, Wheel = 3, KeyDown = 4, KeyUp = 5, FocusLost = 6 }
@@ -702,9 +633,7 @@ public sealed class ViewportInputEventArgs : EventArgs
 }
 ```
 
-### P/Invoke と窓口
-
-`NativeMethods` に構造体と関数を足します。
+`NativeMethods` に、構造体と関数を足します。
 
 ```csharp
 [StructLayout(LayoutKind.Sequential)]
@@ -724,7 +653,7 @@ internal struct MeInputEvent
 internal static partial MeResult me_engine_send_input(EngineHandle engine, in MeInputEvent inputEvent);
 ```
 
-`IEngineService` に `SendInput(...)` を足し、`PInvokeEngineService` で実装します。
+`IEngineService` に `SendInput(...)` を足して、`PInvokeEngineService` で実装します。
 
 ```csharp
 // IEngineService
@@ -738,15 +667,13 @@ public void SendInput(int type, int button, float x, float y, float delta, int k
 }
 ```
 
-### ビュー、ビューモデルをつなぐ
-
-`ViewportView.xaml.cs` に、1 行足します。
+最後に、ビューとビューモデルをつなぎます。`ViewportView.xaml.cs` に 1 行足します。
 
 ```csharp
 Host.InputReceived += (_, e) => ViewModel?.OnInput(e.Type, e.Button, e.X, e.Y, e.Delta);
 ```
 
-`ViewportViewModel` に、命令の転送を足します。
+`ViewportViewModel` には、命令の転送を足します。
 
 ```csharp
 public void OnInput(Controls.InputType type, int button, float x, float y, float delta)
@@ -756,46 +683,40 @@ public void OnInput(Controls.InputType type, int button, float x, float y, float
 }
 ```
 
-マウスの動きは、1 秒に数百回届くことがあります。`Post` は、命令を積むだけなので軽いですが、<strong>描画スレッドが 1 フレームに複数の移動を一度に処理する</strong>ため、問題ありません。
+マウスの動きは、1 秒に数百回届くことがありますが、`Post` は命令を積むだけなので軽く、描画スレッドが 1 フレームに複数の移動をまとめて処理するので、問題ありません。
 
-## 動作確認
+## 動かして確かめる
 
-| 操作 | 期待する結果 |
-| --- | --- |
-| 起動 | 暗い背景に、灰色のグリッド、赤・緑・青の軸が見える |
-| 右ボタンを押してドラッグ | カメラが、原点の周りを回る。上下にドラッグして、真上・真下を越えない |
-| 中ボタンを押してドラッグ | 画面が平行移動する |
-| ホイール | 近づく、遠ざかる |
-| ボタンを押したまま枠の外に出る | ドラッグが続く（`SetCapture`） |
-| ほかのパネルをクリック | 押しっぱなしの状態が解除される |
-
-## よくあるミス
+- 起動すると、暗い背景に灰色のグリッドと、赤・緑・青の軸が見える。
+- 右ボタンを押してドラッグすると、カメラが原点の周りを回る。上下にドラッグしても、真上・真下を越えない。
+- 中ボタンのドラッグで平行移動、ホイールで近づく・遠ざかる。
+- ボタンを押したまま枠の外に出ても、ドラッグが続く。ほかのパネルをクリックすると、押しっぱなしの状態が解除される。
 
 ??? failure "線が何も出ない"
-    頂点数が 0、またはシェーダーのコンパイルに失敗している（ログを確認）。`view_proj` が `Identity` のままで、すべての線がクリップされている。`CreateLookAt` と `CreatePerspectiveFieldOfView` の引数を確認する。
+    頂点数が 0 か、シェーダーのコンパイルに失敗しています（ログを確認します）。または `view_proj` が `Identity` のままで、すべての線がクリップされています。`CreateLookAt` と `CreatePerspectiveFieldOfView` の引数を見直します。
 
-??? failure "絵が上下反転している／左右反転している"
-    行列の転置の間違い。`row_major` を付けていない（列優先で読まれて、転置になる）。または、左手系用の関数（`CreateLookAtLH`）を使った。
+??? failure "絵が上下や左右に反転している"
+    行列の転置の間違いです。`row_major` を付けていないと、列優先として読まれて転置になります。あるいは、左手系用の関数（`CreateLookAtLH` など）を使っています。
 
-??? failure "マウス ホイールで反応しない"
-    `HwndHost` はフォーカスがないと、ホイールを受け取らないことがある。`WM_MOUSEWHEEL` は、フォーカスのあるウィンドウに送られる。クリックしたときに `SetFocus` を呼んでいるか確認する。
+??? failure "マウス ホイールが反応しない"
+    `HwndHost` はフォーカスがないと、ホイールを受け取らないことがあります。クリックしたときに `SetFocus` を呼んでいるかを確認します。
 
-??? failure "右ドラッグで、メニューが出てしまう"
-    `WM_CONTEXTMENU` が親に伝わって、コンテキスト メニューが開いている。WPF 側の `ContextMenu` を設定しない。
+??? failure "右ドラッグで、コンテキスト メニューが出てしまう"
+    `WM_CONTEXTMENU` が親に伝わっています。WPF 側の `ContextMenu` を、ビューポートの親に設定しないようにします。
 
 ??? failure "カメラが勝手に動き続ける"
-    `ButtonUp` が届いていない（ウィンドウの外でボタンを離した）。`SetCapture` を呼んでいるか、`FocusLost` で状態をリセットしているか確認する。
+    `ButtonUp` が届いていません（ウィンドウの外でボタンを離した、など）。`SetCapture` を呼んでいるか、`FocusLost` で状態をリセットしているかを確かめます。
 
 ??? failure "`Pan` の速さが合わない"
-    `Pan` の `scale` は、ビューポートの高さ 720 を仮定した近似。正確には、現在の高さを渡して計算する（改善は第 37 章で扱う）。
+    `Pan` の `scale` は、ビューポートの高さを 720 と仮定した近似です。正確には現在の高さを渡して計算します（第 37 章で改善します）。
 
 ## この章のまとめ
 
-- 入力の<strong>意味づけ</strong>はエンジンが持ち、C# は<strong>生の入力を送る</strong>だけ。
-- 線の描画は、ルート定数 + 動的な頂点バッファー + 単純な HLSL。
+- 入力の意味づけはエンジンが持ち、C# は生の入力を送るだけにする。
+- 線の描画は、ルート定数、動的な頂点バッファー、単純な HLSL でできる。
 - カメラは、行ベクトルの規約で `view * projection`。
 - マウスのドラッグには `SetCapture` が必須。
 
-## 次の章へ
+次の章から第 5 部です。シーンに物を置けるようにして、C# から作成、削除、変更できる API を作ります。
 
-次の章から第 5 部です。次の章（[第 34 章 シーンの API を作る](34-scene-api.md)）では、シーンに物（オブジェクト）を置けるようにして、C# から作成、削除、変更できる API を作ります。
+[第 34 章 シーンのデータと API](34-scene-api.md) へ進みます。

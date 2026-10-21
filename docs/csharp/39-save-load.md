@@ -6,38 +6,22 @@ tags:
 
 # 第 39 章 保存と読み込み
 
-この章では、シーンを<strong>ファイルに保存</strong>し、<strong>読み込み直せる</strong>ようにします。JSON の読み書き（`System.Text.Json`）、ファイルを開く／保存のダイアログ、非同期の入出力（`async`/`await`）、未保存のときの確認、ウィンドウを閉じるときの確認を扱います。ファイル形式の設計（バージョン、壊れたファイルへの備え）も、ここで考えます。
+この章で、シーンをファイルに保存して、読み込み直せるようにします。JSON の読み書き（`System.Text.Json`）、ファイルを開く／保存するダイアログ、非同期の入出力（`async`/`await`）、未保存のときの確認、ウィンドウを閉じるときの確認を扱います。ファイル形式の設計（バージョン、壊れたファイルへの備え）もここで考えます。
 
-## この章の考え方
+## 保存するのは「エディタのドキュメント」
 
-### 保存するのは「エディタのドキュメント」
-
-第 34 章で、<strong>データの持ち主はエディタ</strong>（`SceneDocument`）と決めました。保存するのも、このドキュメントです。エンジンのシーンは、写しにすぎないので、保存しません。読み込みは、ドキュメントを作り直すと、<strong>エンジンへの同期が自動で走ります</strong>（`SceneEngineSync`）。
+第 34 章で、データの持ち主はエディタ（`SceneDocument`）と決めました。保存するのも、このドキュメントです。エンジンのシーンはただの写しなので、保存しません。読み込みのときは、ドキュメントを作り直すだけで、`SceneEngineSync` が自動でエンジンへ同期してくれます。
 
 ```text
 保存： SceneDocument ─▶ DTO（保存用のデータ）─▶ JSON 文字列 ─▶ ファイル
 読込： ファイル ─▶ JSON 文字列 ─▶ DTO ─▶ 検証 ─▶ SceneDocument（作り直し）─▶ （自動）エンジンへ
 ```
 
-### なぜ DTO を挟むのか
+途中に DTO（Data Transfer Object、保存専用のデータ型）を挟むのには、理由があります。`SceneObject` をそのまま JSON にすることもできますが、`SceneObject` には画面の状態（`IsSelected`、`IsExpanded`、`IsEditing`）や、親への参照（`Parent`、循環していて JSON にできません）が含まれています。それに、`SceneObject` に項目を足したときに、ファイルの形式が勝手に変わってしまうのも困ります。保存形式は DTO が決める、と切り分けておきます。
 
-`SceneObject` を、そのまま JSON にすることもできます。しかし、
+## ファイル形式
 
-- `SceneObject` には、<strong>画面の状態</strong>（`IsSelected`、`IsExpanded`、`IsEditing`）や、<strong>親への参照</strong>（`Parent`）が含まれる。これらは保存したくないし、参照が循環していて JSON にできない。
-- 保存形式を、`SceneObject` の内部の変更から<strong>切り離したい</strong>。`SceneObject` に項目を足しても、ファイル形式が勝手に変わらないようにする。
-
-そこで、<strong>保存専用のデータ型（DTO、Data Transfer Object）</strong>を作ります。保存形式は、DTO が決めます。
-
-## この章のゴール
-
-- 新規、開く、保存、名前を付けて保存ができる。
-- 保存したファイルを開くと、同じシーンが復元される。
-- 未保存のまま「新規」「開く」「閉じる」をしようとすると、確認が出る。
-- 壊れたファイルを開いても、アプリが落ちず、今の作業が失われない。
-
-## 手順 1：ファイル形式
-
-保存するファイルは、このような JSON にします。
+保存するファイルは、次のような JSON にします。
 
 ```json
 {
@@ -59,19 +43,19 @@ tags:
 }
 ```
 
+設計の理由を並べます。
+
 | 設計 | 理由 |
 | --- | --- |
 | `version` を持つ | 将来、形式を変えたとき、古いファイルを読み分けられる |
-| 木構造のまま入れ子 | 親子関係が、構造として表れ、`parent` の ID が不要。読み込みで、親が先に作られる |
-| ベクトルは配列 `[x, y, z]` | 短く、読みやすい。`{"x":…}` より小さい |
-| ID を保存する | Undo や参照のため、ID を保つ。読み込み後の採番は、最大の ID の次から |
+| 木構造のまま入れ子にする | 親子関係が構造として表れ、`parent` の ID が要らない。読み込みで、親が先に作られる |
+| ベクトルは配列 `[x, y, z]` | 短く読みやすい。`{"x":…}` より小さい |
+| ID を保存する | Undo や参照のために ID を保つ。読み込み後の採番は、最大の ID の次から |
 | 人が読める（インデント付き） | Git の差分で見られる。手で直せる |
 
-## 手順 2：DTO とシリアライザー
+## DTO とシリアライザー
 
-`Services\Serialization\SceneFileFormat.cs`:
-
-```csharp
+```csharp title="Services/Serialization/SceneFileFormat.cs"
 using System.Text.Json.Serialization;
 
 namespace Editor.Services.Serialization;
@@ -99,19 +83,11 @@ public sealed class ObjectDto
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `System.Text.Json` | .NET 標準の JSON ライブラリ（NuGet 不要）。C++ の nlohmann/json に当たる |
-| `[JsonPropertyName("version")]` | C# のプロパティ名（`Version`）と、JSON のキー名（`version`）を、<strong>別にする</strong>属性 |
-| `{ get; set; }` の DTO | シリアライザーが読み書きするので、`set` が要る。保存用の型は、このように素朴にする |
-| 配列の初期化 `= { 0, 0, 0 }` | プロパティの初期値として、配列初期化子を直接書ける |
-| `= new()` | `List<T>` の初期化。ファイルにキーが無くても、`null` にならない |
+`System.Text.Json` は .NET 標準の JSON ライブラリで、NuGet は要りません（C++ の nlohmann/json に当たります）。`[JsonPropertyName("version")]` は、C# のプロパティ名（`Version`）と JSON のキー名（`version`）を別にするための属性です。シリアライザーが読み書きするので、プロパティには `set` が要ります。保存用の型は、このように素朴に作ります。`= new()` や `= { 0, 0, 0 }` で初期値を入れておけば、ファイルにキーがなくても `null` になりません。
 
-### 変換と読み書き
+次が、変換と読み書きです。まず保存の側です。
 
-`Services\Serialization\SceneSerializer.cs`:
-
-```csharp
+```csharp title="Services/Serialization/SceneSerializer.cs"
 using System.Numerics;
 using System.Text.Json;
 using Editor.Models;
@@ -153,15 +129,9 @@ public static class SceneSerializer
     }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `JsonSerializerOptions` | 読み書きの設定。作成にはコストがかかるので、`static readonly` で<strong>1 つを使い回す</strong> |
-| `WriteIndented` | 改行とインデントを付けて書く |
-| `JsonSerializer.Serialize(obj, options)` | オブジェクトを JSON 文字列にする |
-| `new[] { a, b, c }` | 型を推論した配列の作成（この場合は `float[]`） |
-| `ReadCommentHandling`、`AllowTrailingCommas` | 厳密な JSON より、少しゆるく読む設定。手で編集するファイルに向く |
+`JsonSerializerOptions` は作るのにコストがかかるので、`static readonly` で 1 つを使い回します。`WriteIndented` で改行とインデントを付け、`ReadCommentHandling` と `AllowTrailingCommas` で、手で編集したファイルを少しゆるく読めるようにしています。
 
-### 読み込みと検証
+読み込みの側は、検証が大事です。
 
 ```csharp
     // ── 読み込み：JSON 文字列 → DTO（検証つき）──
@@ -228,20 +198,13 @@ public sealed class SceneFileException : Exception
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `JsonSerializer.Deserialize<T>(json, options)` | JSON 文字列から、型 `T` のオブジェクトを作る。形式が不正だと `JsonException` |
-| 結果が `T?` | JSON が `null` のとき、`null` を返す |
-| 検証 | <strong>外部から来たデータは、必ず疑う</strong>。ファイルは壊れる、手で編集される、古い版で書かれる。配列の長さを確かめずに `[2]` を読むと、例外で落ちる |
-| `HashSet<uint>.Add` | 追加できたら `true`。すでにあれば `false`。重複の検出に使える |
-| 専用の例外 | `SceneFileException` で、「ファイルの問題」を、他の例外と区別して、利用者に見せられるようにする |
-| 先に `Parse`、検証が通ってから `Apply` | <strong>検証に失敗したとき、ドキュメントを壊さない</strong>ために、2 段階にする |
+外から来るデータは、必ず疑います。ファイルは壊れますし、手で編集されますし、古い版で書かれています。配列の長さを確かめずに `Position[2]` を読めば、例外で落ちます。そこで `Parse`（JSON の解析と検証）と `Apply`（ドキュメントへの反映）を 2 段階に分けています。検証が全部通ってから反映するので、壊れたファイルを開いても、今のドキュメントは壊れません。
 
-## 手順 3：ファイルの読み書き（非同期）
+`HashSet<uint>.Add` は、追加できたら `true`、すでにあれば `false` を返すので、ID の重複の検出に使えます。ファイルの問題には専用の `SceneFileException` を用意して、他の例外と区別し、利用者に見せるメッセージを持たせました。
 
-`Services\ISceneFileService.cs`:
+## ファイルの読み書き（非同期）
 
-```csharp
+```csharp title="Services/ISceneFileService.cs"
 namespace Editor.Services;
 
 public interface ISceneFileService
@@ -261,9 +224,9 @@ public interface ISceneFileService
 }
 ```
 
-### 実装：保存
+実装は、保存と開くに分けて見ます。まず保存です。
 
-```csharp
+```csharp title="Services/SceneFileService.cs"
 using System.IO;
 using Editor.Models;
 using Editor.Services.Serialization;
@@ -334,19 +297,13 @@ public sealed class SceneFileService : ISceneFileService
     }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Task<bool>` | 非同期の関数が返す型。`await` で、結果の `bool` を取り出す（第 5 章） |
-| `async` / `await` | ファイルの書き込みを待つ間、UI スレッドを止めない。`File.WriteAllTextAsync` が非同期版 |
-| `new UTF8Encoding(false)` | <strong>BOM なし</strong>の UTF-8。`false` は、BOM（先頭の目印）を付けない指定。JSON は BOM なしが標準（[文字コード](../encoding/index.md)） |
-| 一時ファイル → `File.Move` | 書き込み中のクラッシュや電源断で、保存先が<strong>半分だけ書かれた壊れたファイル</strong>になるのを防ぐ定番の方法。`overwrite: true` で上書き |
-| `catch (Exception e) when (…)` | <strong>例外フィルター</strong>。条件に合うときだけ `catch` する。`e is IOException or UnauthorizedAccessException` は、型のパターンの `or` |
-| `IOException` | ファイルの読み書きの失敗（ディスクが満杯、ファイルが他で使用中、など） |
-| `UnauthorizedAccessException` | 書き込み権限がない |
-| `Path.GetFileName` | パスからファイル名だけを取り出す |
-| `_history.MarkSaved()` | 履歴に、「ここが保存点」と教える（第 38 章）。これでダーティ フラグが消える |
+保存先のファイルへ直接書かず、一時ファイル（`.tmp`）に書いてから `File.Move` で置き換えています。書き込み中にクラッシュしたり電源が落ちたりしても、保存先が半分だけ書かれた壊れたファイルになりません。壊れるのは一時ファイルだけで、元のファイルは無事です。定番の方法なので覚えておいてください。
 
-### 実装：開く
+`new UTF8Encoding(false)` は BOM（先頭の目印）なしの UTF-8 です。JSON は BOM なしが標準です（[文字コード](../encoding/index.md)）。`File.WriteAllTextAsync` は非同期版なので、書き込みを待つ間も UI が止まりません。
+
+`catch (Exception e) when (...)` は例外フィルターで、条件に合うときだけ `catch` します。`IOException`（ディスクが満杯、他で使用中など）と `UnauthorizedAccessException`（書き込み権限がない）だけを受け止め、想定外の例外は握りつぶさずに外へ出します。成功したら `_history.MarkSaved()` で、履歴に「ここが保存点」と教えます（第 38 章）。
+
+続いて、開く側です。
 
 ```csharp
     public async Task<bool> OpenAsync()
@@ -401,18 +358,15 @@ public sealed class SceneFileService : ISceneFileService
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Task.Run(() => …)` | 処理を<strong>スレッド プール</strong>の別のスレッドで実行し、`await` で結果を待つ。UI を止めずに、重い解析ができる |
-| 2 段階の読み込み | 別のスレッドで、読み込みと検証（`Parse`）を行い、<strong>成功してから</strong>、UI スレッドでドキュメントを作り直す（`Apply`）。ドキュメントを触るのは、UI スレッドだけにする |
-| `_document.Clear()` | 既存を空にする。`Destroyed` が全物に対して発行され、<strong>エンジンのシーンも空になる</strong> |
-| `_history.Clear()` | 読み込んだ後は、Undo の履歴を捨てる（別のシーンの履歴を、引き継がない） |
-| `await` の後の実行スレッド | WPF では、`await` の後は<strong>元のスレッド（UI スレッド）</strong>に戻る。だから、`await Task.Run(…)` の後ろで、ドキュメントを触ってよい |
-| `switch (…) { case … }` | `AskSave` の結果で分岐 |
+開く処理の流れは、「未保存なら確認」→「ファイルを選ぶ」→「別のスレッドで読んで検証する」→「UI スレッドでドキュメントを作り直す」です。`Task.Run(() => ...)` は、処理をスレッド プールの別のスレッドで実行して、`await` で結果を待ちます。大きなファイルでも UI が固まりません。
+
+ここで大事なのが、どのスレッドで何を触るかです。ドキュメントを触るのは UI スレッドだけにします。WPF では `await` のあと、実行は元のスレッド（UI スレッド）に戻ります。だから、`await Task.Run(...)` の次の行で、ドキュメントを触ってよいのです。`Parse` を別スレッドで済ませてから、`Apply` をこちらで行う 2 段階の形が、ここで活きます。
+
+`_document.Clear()` は、既存の物をすべて空にします。全部の物について `Destroyed` が発行されるので、エンジンのシーンも空になります。読み込んだあとは `_history.Clear()` で履歴を捨てます。別のシーンの Undo 履歴を引き継ぐと、混乱するからです。
 
 ### メッセージ ボックスのサービス
 
-確認のメッセージ ボックスも、ビューモデルから直接呼ばず、サービスにします。
+確認のメッセージ ボックスも、ビューモデルから直接呼ばず、サービスの後ろに隠します（第 18 章）。ビューモデルが `MessageBox` を直接呼ぶと、テストできなくなるからです。
 
 ```csharp
 namespace Editor.Services;
@@ -446,14 +400,11 @@ public sealed class MessageService : IMessageService
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `MessageBox.Show` | 標準のメッセージ ボックス。ボタンの種類（`YesNoCancel`）、アイコンを指定できる |
-| サービスにする理由 | ビューモデルが `MessageBox` を直接呼ぶと、テストできない。ダイアログ類は、サービスの後ろに隠す（第 18 章） |
+`MessageBox.Show` は標準のメッセージ ボックスで、ボタンの種類（`YesNoCancel`）とアイコンを指定できます。
 
-## 手順 4：メニューとキー、タイトル
+## メニュー、キー、タイトル
 
-`MainWindowViewModel`:
+`MainWindowViewModel` に、ファイル操作のコマンドを足します。
 
 ```csharp
 public MainWindowViewModel(ISceneFileService files, IHistoryService history /* ほか */)
@@ -479,18 +430,13 @@ public string Title => $"{(_history.IsDirty ? "*" : "")}{_files.DisplayName} - M
 </Window.InputBindings>
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `DelegateCommand.FromAsync(Func<Task>)` | 非同期の処理を持つコマンドを作る。`async void` に頼らず、例外の扱いが安全。実行中は、`CanExecute` が自動で `false` になり、<strong>二重実行を防ぐ</strong> |
-| `$"{(cond ? "*" : "")}…"` | 補間文字列の中に、式を書く。条件式は `( )` で囲む |
+`DelegateCommand.FromAsync` は、非同期の処理を持つコマンドを作ります。`async void` に頼らないので例外の扱いが安全で、実行中は `CanExecute` が自動で `false` になり、二重に実行されません。`Title` の補間文字列の中の式は、`( )` で囲んで条件式を書いています。
 
-## 手順 5：ウィンドウを閉じるときの確認
+## ウィンドウを閉じるときの確認
 
-`Window.Closing` は、キャンセルできるイベントです。ビューモデルの非同期の確認は、イベントの中では待てないので、<strong>一度キャンセルして、確認が済んだら閉じ直す</strong>方式にします。
+`Window.Closing` は、閉じるのをキャンセルできるイベントです。ただ、このイベントの中では、非同期の確認（ダイアログ）を待てません。そこで、いったん閉じるのを止めて、確認が済んだら閉じ直す、という方式にします。
 
-`MainWindow.xaml.cs`:
-
-```csharp
+```csharp title="MainWindow.xaml.cs"
 private bool _closeConfirmed;
 
 protected override async void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -514,15 +460,11 @@ protected override async void OnClosing(System.ComponentModel.CancelEventArgs e)
 public Task<bool> ConfirmCloseAsync() => _files.ConfirmDiscardAsync();
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `OnClosing` | ウィンドウが閉じられる直前に呼ばれる。`e.Cancel = true` で、閉じるのを止められる |
-| `async void` | イベント ハンドラーに限り許される書き方。戻り値のない非同期メソッド。例外が呼び出し元に伝わらないので、通常の関数には使わない |
-| 「いったん止めて、後で閉じ直す」 | `OnClosing` は同期的に答えを要求する。非同期の確認（ダイアログ）を挟むには、先に止めておくしかない |
+`async void` は、イベント ハンドラーにだけ許される書き方です。戻り値がなく、例外が呼び出し元に伝わらないので、普通の関数には使いません。
 
-## 手順 6：設定の保存（最近開いたファイル）
+## 設定の保存（最近開いたファイル）
 
-アプリの設定（最近開いたファイルなど）を、`%APPDATA%` に保存します。
+アプリの設定（最近開いたファイルなど）は、`%APPDATA%` に保存します。
 
 ```csharp
 using System.Text.Json;
@@ -558,54 +500,47 @@ public static class AppSettingsStore
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Environment.GetFolderPath(SpecialFolder.ApplicationData)` | `C:\Users\<名前>\AppData\Roaming`。ユーザーごとの設定の置き場所 |
-| `Directory.CreateDirectory` | フォルダーを作る（あれば何もしない） |
-| `!`（null 許容の抑制） | `GetDirectoryName` は `null` を返しうるが、ここでは返らないと分かっているので、警告を消す |
-| 壊れた設定ファイル | 設定は「無くても動く」情報。壊れていたら、<strong>既定で始める</strong>（利用者の作業を止めない） |
+`SpecialFolder.ApplicationData` は `C:\Users\<名前>\AppData\Roaming` で、ユーザーごとの設定の置き場所です。`Directory.CreateDirectory` は、フォルダーがあれば何もしません。`GetDirectoryName(...)!` の `!` は、「`null` は返らないと分かっている」という警告の抑制です。設定は「なくても動く」情報なので、壊れていたら既定で始めて、利用者の作業を止めません。シーンのファイルと違って、設定は握りつぶしてよい失敗です。
 
-## 動作確認
+## 動かして確かめる
 
 | 操作 | 期待する結果 |
 | --- | --- |
-| 物をいくつか作って `Ctrl+S` | ファイル ダイアログが出る。保存すると、タイトル バーの `*` が消え、ファイル名が出る |
-| 保存したファイルをエディタ（メモ帳）で開く | 読める JSON になっている |
+| 物をいくつか作って `Ctrl+S` | ファイル ダイアログが出る。保存すると、タイトル バーの `*` が消えて、ファイル名が出る |
+| 保存したファイルをメモ帳で開く | 読める JSON になっている |
 | 編集して `Ctrl+S` | 上書き保存（ダイアログなし） |
-| `Ctrl+N`（未保存の変更あり） | 「保存しますか？」が出る。キャンセルで、何も起きない |
+| `Ctrl+N`（未保存の変更あり） | 「保存しますか？」が出る。キャンセルで何も起きない |
 | `Ctrl+O` で開く | シーンが復元される。親子、色、位置も同じ。Undo の履歴は空 |
-| ファイルを壊して（`{`だけにして）開く | エラー メッセージが出て、今のシーンはそのまま |
+| ファイルを壊して（`{` だけにして）開く | エラー メッセージが出て、今のシーンはそのまま |
 | ID を重複させたファイルを開く | 「ID が重複しています」のエラー。シーンは壊れない |
 | 未保存でウィンドウを閉じる | 確認が出る。「キャンセル」で閉じない |
 
-## よくあるミス
+??? failure "保存したファイルの日本語が化ける"
+    BOM 付き UTF-8 や ANSI で書いています。`new UTF8Encoding(false)` を指定します。
 
-??? failure "保存したファイルが読めない（日本語が化ける）"
-    BOM 付き UTF-8 や、ANSI で書いている。`new UTF8Encoding(false)` を指定する。`File.WriteAllText` の既定は BOM なし UTF-8 だが、明示するのが安全。
+??? failure "読み込んだあと、エンジンに物が出ない"
+    `Apply` で `Create` したときの `Changed` が、`SceneEngineSync` に届く必要があります。`SceneEngineSync` が解決（作成）されているかを確認します。
 
-??? failure "読み込んだ後、エンジンに物が出ない"
-    `Apply` で `Create` したときの `Changed` が、`SceneEngineSync` に届いている必要がある。`SceneEngineSync` が解決されているか確認する。
+??? failure "読み込み後に新規作成した物の ID が、既存と衝突する"
+    `SceneDocument.Create(…, id)` が、`_nextId` を最大 ID の次に更新していません（第 34 章）。
 
-??? failure "読み込み後に、新規作成した物の ID が、既存と衝突する"
-    `SceneDocument.Create(…, id)` が、`_nextId` を最大 ID の次に更新している（第 34 章）。更新が漏れていると、衝突する。
+??? failure "「保存しますか？」が、保存直後にも出る"
+    `MarkSaved` を呼んでいないか、保存のあとの合体で保存点の中身が変わっています。
 
-??? failure "「保存しますか？」が、保存直後でも出る"
-    `MarkSaved` を呼んでいない。または、保存の後に、合体で保存点の中身が変わっている。
-
-??? failure "`await` の後で、`InvalidOperationException`（別のスレッドが所有）"
-    `ConfigureAwait(false)` を付けて、UI スレッドに戻っていない。UI を触る処理の前では、付けない。
+??? failure "`await` の後で `InvalidOperationException`（別のスレッドが所有）"
+    `ConfigureAwait(false)` を付けて、UI スレッドに戻っていません。UI を触る処理の前では付けません。
 
 ??? failure "保存の途中で落ちて、ファイルが空になった"
-    一時ファイルを経由せず、直接上書きしている。書き込み中のクラッシュで、元のデータが失われる。
+    一時ファイルを経由せず、直接上書きしています。
 
 ## この章のまとめ
 
-- 保存は <strong>DTO</strong> を通して、保存形式と内部表現を分ける。
-- ファイルは<strong>外部入力</strong>。必ず検証し、失敗したとき今のシーンを壊さない（読み込みは 2 段階）。
-- 書き込みは、<strong>一時ファイル → 置き換え</strong>で、壊れた保存ファイルを避ける。
+- 保存は DTO を通して、保存形式と内部表現を分ける。
+- ファイルは外部入力。必ず検証して、失敗したとき今のシーンを壊さない（読み込みは 2 段階）。
+- 書き込みは、一時ファイルから置き換えて、壊れた保存ファイルを避ける。
 - `async`/`await` と `Task.Run` で、UI を止めずに入出力する。
 - 閉じる前の確認は、「止めて、確認して、閉じ直す」。
 
-## 次の章へ
+次の章では、プロジェクトのフォルダーのファイルを一覧にして、ビューポートへドラッグ アンド ドロップできるようにします。
 
-次の章（[第 40 章 アセット ブラウザ](40-asset-browser.md)）では、プロジェクトのフォルダーのファイルを一覧にして、ビューポートへドラッグ アンド ドロップできるようにします。フォルダーの変更の監視（`FileSystemWatcher`）、サムネイルの非同期生成、仮想化を扱います。
+[第 40 章 アセット ブラウザ](40-asset-browser.md) へ進みます。

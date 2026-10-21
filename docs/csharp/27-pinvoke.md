@@ -6,11 +6,11 @@ tags:
 
 # 第 27 章 P/Invoke で C# から呼ぶ
 
-この章では、第 26 章で作った `EngineApi.dll` の C の関数を、C# から呼びます。P/Invoke の宣言の書き方、構造体や文字列の受け渡し、ハンドルの安全な管理（`SafeHandle`）、C++ から C# を呼ぶコールバックを、一つずつ学びます。章の終わりには、ビューモデルが使える `IEngineService` ができます。
+第 26 章で作った `EngineApi.dll` の C の関数を、C# から呼びます。宣言の書き方、構造体や文字列の受け渡し、ハンドルを安全に持つ `SafeHandle`、C++ から C# を呼ぶコールバックと、順番に進めます。この章の終わりには、ビューモデルが使える `IEngineService` ができあがります。
 
-## この章の考え方
+## P/Invoke は、宣言をもう一度書く仕組み
 
-P/Invoke は、「<strong>C# の側に、C の関数の宣言をもう一度書く</strong>」仕組みです。
+P/Invoke は、「C の関数の宣言を、C# の側にもう一度書く」という仕組みです。
 
 ```c
 /* C の宣言（EngineApi.h） */
@@ -23,27 +23,11 @@ ME_API int32_t me_get_api_version(void);
 internal static partial int me_get_api_version();
 ```
 
-C# のコンパイラーは、C の宣言を読めません。そのため、<strong>C# 側の宣言が、C 側と食い違っていても、ビルドは通ります</strong>。食い違いは、実行時に、<strong>クラッシュや、値の化け</strong>として現れます。これが P/Invoke の最大の注意点です。宣言を書くときは、C のヘッダーと、一行ずつ見比べます。
+C# のコンパイラーは、C のヘッダーを読めません。だから、C# 側の宣言が C 側と食い違っていても、ビルドは通ります。食い違いは、実行時にクラッシュや値の化けとして現れます。これが P/Invoke でいちばん気をつけるところなので、宣言を書くときは、C のヘッダーと一行ずつ見比べるようにしてください。
 
-呼び出しの瞬間に、CLR は次の仕事をします。
+呼び出す瞬間、CLR は裏でいくつか仕事をしています。引数を C の形に変換し（マーシャリング）、GC が C# のメモリを動かさないように必要なものを固定し、実行をマネージドからネイティブに切り替え、戻り値を C# の形に戻します。整数や `float`、ポインターのような、そのまま渡せる型だけなら変換が要らず、1 回の呼び出しは数十ナノ秒で済みます。1 フレームに何十回呼んでも、問題にはなりません。
 
-1. 引数を、C の形に<strong>変換</strong>する（マーシャリング）。
-2. GC が、C# のメモリを動かさないよう、必要な物を<strong>固定</strong>（ピン留め）する。
-3. 実行を、マネージドからネイティブに<strong>切り替える</strong>。
-4. 戻り値を、C# の形に変換して返す。
-
-blittable な型（整数、`float`、ポインター）だけなら、1 の変換が要らず、呼び出しの負担は、<strong>数十ナノ秒</strong>です。1 フレームに数十回呼んでも、問題になりません。
-
-## この章のゴール
-
-- `[LibraryImport]` で、C の関数を宣言できる。
-- 構造体、出力引数、文字列を、正しく受け渡せる。
-- エラー コードを、C# の例外に変換できる。
-- `SafeHandle` で、エンジンのハンドルを、安全に管理できる。
-- C++ からのログのコールバックを、受け取れる。
-- `IEngineService` を作り、DI で配れる。
-
-## 手順 1：プロジェクトの設定
+## 準備：unsafe を許可する
 
 `Editor.csproj` に、`AllowUnsafeBlocks` を足します。
 
@@ -53,18 +37,15 @@ blittable な型（整数、`float`、ポインター）だけなら、1 の変�
 </PropertyGroup>
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `unsafe` | C# で、ポインターを直接使うための区画。コンパイラーが、型の安全の保証を、一部あきらめる |
-| `AllowUnsafeBlocks` | `unsafe` を許可するプロジェクト設定。`[LibraryImport]` が生成するコードが、`unsafe` を使うので必要 |
+`unsafe` は、C# でポインターを直接使うための区画で、コンパイラーが型の安全の保証を一部あきらめます。`[LibraryImport]` が生成するコードが `unsafe` を使うので、この設定が必要になります。
 
-`EngineApi.dll` と `Engine.dll` は、第 1 章の設定で、`Editor.exe` と同じフォルダーに出力されます。この章で、<strong>DLL を `Editor.exe` の隣に置く</strong>という前提を使います。
+また、`EngineApi.dll` と `Engine.dll` は、第 1 章の設定で `Editor.exe` と同じフォルダーに出力されます。この章では、DLL が `Editor.exe` の隣にあることを前提にしています。
 
-## 手順 2：最初の関数を呼ぶ
+## 最初の関数を呼ぶ
 
-`Editor` に、`Interop` フォルダーを作り、`NativeMethods.cs` を書きます。
+`Editor` に `Interop` フォルダーを作って、`NativeMethods.cs` を書きます。
 
-```csharp
+```csharp title="Interop/NativeMethods.cs"
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -82,28 +63,24 @@ internal static partial class NativeMethods
 }
 ```
 
-使うときは、普通の関数のように呼びます。
+使うときは、普通の関数のように呼べます。
 
 ```csharp
 int version = NativeMethods.me_get_api_version();
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `[LibraryImport(Dll)]` | 「この関数の実体は、`Dll`（`EngineApi.dll`）にある」という<strong>属性</strong>。.NET 7 以降の、推奨される方式 |
-| `partial` メソッド | <strong>本体を書かない宣言</strong>。コンパイル時に、ジェネレーター（コード自動生成の仕組み）が、本体（マーシャリングの処理と、ネイティブ呼び出し）を生成して埋める。クラスにも `partial` が要る |
-| `internal static partial class` | 外には見せない（`internal`）、インスタンスを作らない（`static`）、複数に分けて書ける（`partial`） |
-| 関数名 | 既定で、C# のメソッド名と同じ名前の関数を DLL から探す。`me_get_api_version` の名前を、C の名前と一致させる。別名にするなら `EntryPoint = "…"` |
-| `[UnmanagedCallConv]` | 呼び出し規約の指定。`CallConvCdecl` で `__cdecl`。x64 では 1 種類なので省略しても動くが、<strong>明示する習慣</strong>にする |
-| `private const string Dll` | DLL 名を 1 か所にまとめる定数 |
-| `int` ⇔ `int32_t` | C の `int32_t` は、C# の `int`（32 ビット）。大きさで対応させる |
+`[LibraryImport(Dll)]` は、「この関数の実体は、`Dll`（`EngineApi.dll`）の中にあります」という属性です。関数に本体がなく `partial` だけが付いているのは、本体をコンパイラーが自動で生成して埋めてくれるからです。生成されるのは、引数の変換とネイティブ呼び出しのコードで、クラスにも `partial` を付ける必要があります。
 
-!!! note "DllImport との違い"
-    古くからある `[DllImport]` も同じことができます。違いは、`[DllImport]` は呼び出しの変換コードを<strong>実行時に</strong>生成し、`[LibraryImport]` は<strong>コンパイル時に</strong>生成する点です。後者のほうが、速く起動し、生成された変換コードを読んで確かめられます。AOT コンパイルにも対応します。この教材は `[LibraryImport]` を使います。`[DllImport]` が使えるのは、古い環境、または `bool` の既定のマーシャリングに頼る古いコードなどです。
+関数の名前は、初期状態では C# のメソッド名と同じ名前の関数を DLL から探します。C の名前と一致させてください。違う名前にしたいときは、`EntryPoint = "..."` で指定できます。`[UnmanagedCallConv]` は呼び出し規約の指定です。x64 では 1 種類しかないので省略しても動きますが、書く習慣にしておきます。
+
+型は大きさで対応させます。C の `int32_t` は、C# の `int` です。
+
+!!! note "古い DllImport との違い"
+    昔からある `[DllImport]` でも、同じことができます。違いは、`[DllImport]` が変換のコードを実行時に作るのに対して、`[LibraryImport]` はコンパイル時に作る点です。後者のほうが起動が速く、生成されたコードを読んで確かめることもできます。この教材は `[LibraryImport]` を使います。
 
 ### 動かして確かめる
 
-`App.xaml.cs` の `OnInitialized`（Prism が全部の準備を終えた後に呼ぶ）に、仮のコードを足して確かめます。
+`App.xaml.cs` の `OnInitialized`（Prism が準備を終えたあとに呼ばれる）に、仮のコードを足します。
 
 ```csharp
 protected override void OnInitialized()
@@ -114,15 +91,15 @@ protected override void OnInitialized()
 }
 ```
 
-デバッグ実行して、出力ウィンドウに `EngineApi version = 1` が出れば成功です。`DllNotFoundException` が出たら、`bin\x64\Debug\` に `EngineApi.dll` と `Engine.dll` が並んでいるか確認します（くわしくは第 29 章）。
+デバッグ実行して、出力ウィンドウに `EngineApi version = 1` が出れば成功です。`DllNotFoundException` が出たら、`bin\x64\Debug\` に `EngineApi.dll` と `Engine.dll` が両方あるかを確かめてください。それでも直らないときは、第 29 章に原因の探し方があります。
 
-## 手順 3：エラー コードと例外
+## エラー コードを例外に変える
 
-`me_get_api_version` 以外の関数は、`MeResult` を返します。C# では、<strong>エラー コードを例外に変換</strong>して使います。
+`me_get_api_version` 以外の関数は、`MeResult` を返します。C# らしく使うために、エラー コードを例外に変換する仕組みを作ります。
 
-### 結果コードの列挙型
+まず、結果コードの列挙型です。
 
-```csharp
+```csharp title="Interop/MeResult.cs"
 namespace Editor.Interop;
 
 // EngineApi.h の ME_* と同じ値にする
@@ -137,14 +114,11 @@ internal enum MeResult : int
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `enum MeResult : int` | 土台の型を `int`（32 ビット）に指定した列挙型。C の `int32_t` の `MeResult` と同じ大きさ。<strong>土台の型を明示する</strong>習慣をつける |
-| 値の対応 | C の `ME_OK = 0` と C# の `Ok = 0`、…を<strong>同じ数字</strong>にする。順番を変えるときは、両方を変える |
+`: int` と土台の型を書いているのは、C の `int32_t` と大きさをそろえるためです。数字も C 側と同じにします。順番を変えるときは、両方を変えます。
 
-### 例外クラス
+次に、エンジンの失敗を表す例外クラスです。
 
-```csharp
+```csharp title="Interop/EngineException.cs"
 namespace Editor.Interop;
 
 public class EngineException : Exception
@@ -159,15 +133,9 @@ public class EngineException : Exception
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Exception` を継承 | 自作の例外型。`catch (EngineException e)` で、エンジンの失敗だけを捕まえられる |
-| `: base(message)` | 基底クラスのコンストラクターを呼ぶ。C++ の `: Base(message)` と同じ |
-| `internal MeResult Result { get; }` | 例外にエラー コードを持たせる。`get` だけで、コンストラクターで設定する |
+`Exception` を継承した自作の例外です。こうしておくと、`catch (EngineException e)` で、エンジンの失敗だけを捕まえられます。
 
-### 失敗を例外に変える関数
-
-`NativeMethods` に、`me_get_last_error` の宣言と、変換用の関数を足します。
+最後に、`NativeMethods` に `me_get_last_error` の宣言と、失敗を例外にする関数を足します。
 
 ```csharp
 [LibraryImport(Dll)]
@@ -184,24 +152,19 @@ internal static void ThrowIfFailed(MeResult result)
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `nint` | ポインターと同じ大きさの整数。`IntPtr` の新しい名前。C の `const char*` や `void*` を、そのまま受ける型 |
-| `Marshal.PtrToStringUTF8(nint)` | ネイティブの UTF-8 の文字列（`char*`）を、C# の `string`（UTF-16）に<strong>コピーして変換</strong>する。`Marshal` は `System.Runtime.InteropServices` の、変換用の静的クラス |
-| 戻り値を `string` で受けない理由 | `const char*` を `string` で受けると、CLR が<strong>解放しようとする</strong>ことがある。`me_get_last_error` が返すのは、C++ が持っている文字列なので、`nint` で受けて自分で変換する。所有者を、取り違えない |
-| `?? "(理由なし)"` | 第 5 章の `??`。`null` のときの代わりの値 |
+ここで `me_get_last_error` の戻り値を `string` ではなく `nint` で受けているのには、理由があります。`const char*` を `string` で受けると、CLR がそのポインターを解放しようとすることがあります。ところが、このポインターは C++ 側が持っている文字列を指しているので、C# が解放してはいけません。持ち主を取り違えないために、いったん `nint`（ポインターと同じ大きさの整数）で受けて、`Marshal.PtrToStringUTF8` でコピーして `string` に変換しています。
 
-## 手順 4：構造体と出力引数
+## 構造体と出力引数
 
-`me_engine_create` は、構造体を<strong>入力</strong>で受け取り、ハンドルを<strong>出力引数</strong>で返します。
+`me_engine_create` は、構造体を入力で受け取り、ハンドルを出力引数で返します。
 
 ```c
 ME_API MeResult me_engine_create(const MeEngineDesc* desc, MeEngine** out_engine);
 ```
 
-### 構造体の宣言
+構造体は、C の定義と同じ並びで宣言します。
 
-```csharp
+```csharp title="Interop/MeEngineDesc.cs"
 using System.Runtime.InteropServices;
 
 namespace Editor.Interop;
@@ -216,18 +179,12 @@ internal struct MeEngineDesc
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `struct` | 値型（第 5 章）。メモリ上に、フィールドが並ぶ。C の `struct` と同じ使い方ができる |
-| `[StructLayout(LayoutKind.Sequential)]` | フィールドを、<strong>宣言した順に</strong>並べる指定。C の構造体と並びを合わせるために付ける。構造体には、既定でも `Sequential` だが、<strong>明示する</strong>習慣 |
-| `nint Window` | C の `void* window` に対応 |
-| `uint Width` | C の `uint32_t width` に対応（`uint` は 32 ビット符号なし） |
-| パディング | C は、フィールドの大きさに合わせて<strong>隙間</strong>（パディング）を入れる。`nint`（8 バイト）の後に `uint` が 2 つなので、全体は 16 バイト。C# の `Sequential` も、同じ規則で隙間を入れるので、同じ並びで宣言すれば合う |
+`[StructLayout(LayoutKind.Sequential)]` は、フィールドを宣言した順に並べる指定です。構造体には初期状態でも付いていますが、C の構造体と並びを合わせたいことを示すために、明示しておきます。C の構造体は、フィールドの大きさに合わせてパディング（隙間）を入れますが、C# の `Sequential` も同じ規則で隙間を入れるので、同じ並びで宣言すれば大きさも合います。この構造体は、8 バイトの `nint` に 4 バイトの `uint` が 2 つで、16 バイトです。
 
-!!! warning "構造体のずれを検出する"
-    C 側と C# 側のどちらかのフィールドを足したり、順番を変えたりすると、<strong>ビルドが通ったまま、値が化けます</strong>。対策として、C 側に `static_assert(sizeof(MeEngineDesc) == 16)` を書き、C# 側に `Debug.Assert(Marshal.SizeOf<MeEngineDesc>() == 16)` を書いて、<strong>大きさ</strong>だけでも、両側で固定しておきます。
+!!! warning "構造体のずれは、ビルドで見つからない"
+    C 側と C# 側のどちらかでフィールドを足したり順番を変えたりすると、ビルドは通ったまま値が化けます。せめて大きさだけでも両側で固定しておきましょう。C 側に `static_assert(sizeof(MeEngineDesc) == 16)`、C# 側に `Debug.Assert(Marshal.SizeOf<MeEngineDesc>() == 16)` を書いておくと、ずれた瞬間に気づけます。
 
-### 関数の宣言（入力の構造体、出力のポインター）
+関数の宣言は、こうなります。
 
 ```csharp
 [LibraryImport(Dll)]
@@ -235,14 +192,7 @@ internal struct MeEngineDesc
 internal static partial MeResult me_engine_create(in MeEngineDesc desc, out nint engine);
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `in MeEngineDesc desc` | <strong>読み取り専用の参照渡し</strong>。C の `const MeEngineDesc*` に対応。呼ぶ側は、`in` を書かなくてもよい |
-| `out nint engine` | <strong>出力専用の参照渡し</strong>。C の `MeEngine**` に対応。呼ばれた側が必ず値を書く。呼ぶ側は `out var engine` や `out nint engine` と書く |
-| `ref` | 入出力兼用の参照渡し。`in` と `out` の両方 |
-| 戻り値の `MeResult` | 土台が `int` の列挙型は、`int` として渡される。blittable |
-
-呼ぶ側は次のようになります。
+`in` は「読み取り専用の参照渡し」で、C の `const MeEngineDesc*` に当たります。`out` は「呼ばれた側が必ず値を書く参照渡し」で、C の `MeEngine**` に当たります。入出力の両方に使う `ref` もあります。呼ぶ側は次のように書きます。
 
 ```csharp
 var desc = new MeEngineDesc { Window = hwnd, Width = 1280, Height = 720 };
@@ -250,11 +200,11 @@ MeResult result = NativeMethods.me_engine_create(in desc, out nint engine);
 NativeMethods.ThrowIfFailed(result);
 ```
 
-## 手順 5：ハンドルを SafeHandle で包む
+## ハンドルを SafeHandle で包む
 
-`out nint engine` で受け取った `nint` は、<strong>ただの整数</strong>です。これを `Editor` のあちこちに渡すと、<strong>解放し忘れ</strong>、<strong>二重に解放</strong>、<strong>解放後に使う</strong>といった間違いが起きます。C++ の `unique_ptr` に当たる役目を、C# では <strong>`SafeHandle`</strong> が担います。
+`out nint engine` で受け取ったハンドルは、ただの整数です。これを `Editor` のあちこちに持ち回ると、解放し忘れ、二重に解放、解放したあとで使う、といった間違いが起きます。C++ の `unique_ptr` の役目を、C# では `SafeHandle` が担います。
 
-```csharp
+```csharp title="Interop/EngineHandle.cs"
 using System.Runtime.InteropServices;
 
 namespace Editor.Interop;
@@ -276,6 +226,8 @@ internal sealed class EngineHandle : SafeHandle
     }
 }
 ```
+
+`SafeHandle` は、`Dispose()` か GC による破棄のときに、`ReleaseHandle()` がちょうど 1 回だけ呼ばれることを保証してくれます。`handle` は、持っているポインターの値です。`ownsHandle: true` は、「このオブジェクトが解放の責任を持つ」という意味です。
 
 関数の宣言を、`nint` から `EngineHandle` に変えます。
 
@@ -301,28 +253,17 @@ internal static partial MeResult me_engine_tick(EngineHandle engine, float delta
 internal static partial MeResult me_engine_get_frame_count(EngineHandle engine, out ulong count);
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `SafeHandle` | ネイティブのハンドルを持つ<strong>抽象基底クラス</strong>。`Dispose()` か、GC による破棄のときに、`ReleaseHandle()` が<strong>ちょうど 1 回</strong>呼ばれることを保証する |
-| `handle` | `SafeHandle` が持つ、実際のポインター（`nint`）。`protected` なメンバー |
-| `IsInvalid` | ハンドルが無効かどうか。`nint.Zero` なら無効 |
-| `ReleaseHandle()` | 解放の処理。ここで `me_engine_destroy(handle)` を呼ぶ。成功したら `true` |
-| `base(nint.Zero, ownsHandle: true)` | 基底クラスの初期化。`ownsHandle: true` で、このオブジェクトが、解放の責任を持つ |
-| `sealed` | これ以上継承できない（`SafeHandle` の派生は `sealed` にする習慣） |
-| 引数に `EngineHandle` を取る | P/Invoke の呼び出し中、<strong>ハンドルの解放を、遅らせる</strong>（参照を数える）。呼び出しの途中で別スレッドが `Dispose` しても、クラッシュしない |
-| `out EngineHandle engine` | 呼び出しの戻り時に、マーシャリングが、`EngineHandle` のオブジェクトを<strong>自動で作って</strong>、ハンドルの値を入れる（そのために、引数なしのコンストラクターが要る） |
-| `out ulong count` | C の `uint64_t*` に対応 |
-| `me_engine_destroy` だけ `nint` | `ReleaseHandle` の中から呼ぶので、`EngineHandle` ではなく、生の値を渡す |
+`out EngineHandle engine` と書くと、呼び出しから戻るときに、マーシャリングが `EngineHandle` のオブジェクトを自動で作って、ハンドルの値を入れてくれます。そのために、引数なしのコンストラクターが必要でした。`me_engine_destroy` だけ `nint` なのは、`ReleaseHandle` の中から呼ぶ関数で、`EngineHandle` が使えないからです。
 
-`SafeHandle` を使うと、`using` や `Dispose()` でエンジンを解放できます。<strong>解放し忘れても、GC がいつか `ReleaseHandle()` を呼ぶ</strong>ので、完全なリークにはなりません（ただし、エンジンの破棄は、GPU を使う処理なので、`Dispose` で<strong>明示的に</strong>行うのが正しい使い方です）。
+`SafeHandle` を引数に取る関数は、呼び出している間、ハンドルの解放を遅らせてくれるという利点もあります。呼び出しの最中に別のスレッドが `Dispose` しても、クラッシュしません。
 
-## 手順 6：IEngineService を作る
+解放し忘れても、GC がいつか `ReleaseHandle()` を呼んでくれるので、完全なリークにはなりません。ただし、エンジンの破棄は GPU を使う処理なので、`Dispose` で明示的に行うのが正しい使い方です。
 
-ビューモデルが、`NativeMethods` や `EngineHandle` を直接触らないよう、<strong>窓口のインターフェース</strong>を作ります。第 28 章の C++/CLI 版も、同じインターフェースを実装します。
+## IEngineService を作る
 
-`Services\IEngineService.cs`:
+ビューモデルが `NativeMethods` や `EngineHandle` を直接触らなくて済むように、窓口のインターフェースを作ります。次の章の C++/CLI 版も、同じインターフェースを実装します。
 
-```csharp
+```csharp title="Services/IEngineService.cs"
 namespace Editor.Services;
 
 // エンジンへの窓口。ビューモデルは、これだけを知る。
@@ -339,9 +280,7 @@ public interface IEngineService : IDisposable
 }
 ```
 
-`Services\PInvokeEngineService.cs`:
-
-```csharp
+```csharp title="Services/PInvokeEngineService.cs"
 using Editor.Interop;
 
 namespace Editor.Services;
@@ -392,15 +331,9 @@ public sealed class PInvokeEngineService : IEngineService
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `interface IEngineService : IDisposable` | インターフェースを、さらに別のインターフェースから派生させる。`Dispose()` を持つことを、約束させる |
-| `IDisposable` | `Dispose()` を持つインターフェース。`using` で自動的に呼べる（第 5 章） |
-| `_handle is { IsInvalid: false }` | <strong>プロパティ パターン</strong>。`_handle` が `null` でなく、`IsInvalid` が `false` のとき真 |
-| `is { … } h ? h : throw …` | パターンに合えば、その値を `h` に取り出して使い、合わなければ例外を投げる。`throw` は<strong>式</strong>としても書ける |
-| `InvalidOperationException` | 「今の状態では、呼べない」ときに投げる標準の例外 |
-| `out var handle` | 出力引数を受ける変数を、その場で宣言する。型は推論される |
-| `Handle` を経由する理由 | 毎回 `null` の確認を書かずに済む。確認し忘れて `NullReferenceException` になるのを防ぐ |
+目新しい書き方が 2 つ出てきました。`_handle is { IsInvalid: false }` は「`_handle` が `null` ではなく、かつ `IsInvalid` が `false` なら真」というパターンです。最後の `Handle` プロパティの `is { ... } h ? h : throw ...` は、パターンに合えばその値を `h` に取り出し、合わなければ例外を投げます。`throw` は式としても書けるので、こうして 1 行で書けます。
+
+毎回 `Handle` を通す理由は、`null` の確認を書き忘れて `NullReferenceException` になるのを防ぐためです。初期化前に呼ばれたときは、「初期化されていません」と分かりやすい例外になります。
 
 `App.xaml.cs` の `RegisterTypes` で、登録します。
 
@@ -408,24 +341,24 @@ public sealed class PInvokeEngineService : IEngineService
 containerRegistry.RegisterSingleton<IEngineService, PInvokeEngineService>();
 ```
 
-## 手順 7：ログのコールバック
+## ログのコールバックを受け取る
 
-C++ から C# を呼ぶ方向の連携です。エンジンの `LogInfo` が呼ばれたら、エディタの「ログ」タブに出します。
+ここまでは C# から C++ を呼ぶ向きでした。逆向きの連携も作ります。エンジンの `LogInfo` が呼ばれたら、エディタのログ タブに出したいのです。
 
-C の宣言は、次のとおりです。
+C 側の宣言はこうでした。
 
 ```c
 typedef void (*MeLogCallback)(MeLogLevel level, const char* message, void* user_data);
 ME_API void me_set_log_callback(MeLogCallback callback, void* user_data);
 ```
 
-C# から、<strong>関数ポインター</strong>を渡す必要があります。2 つの方法があります。
+C# から、関数ポインターを渡す必要があります。方法は 2 つあって、おすすめは `[UnmanagedCallersOnly]` を使うほうです。
 
-### 方法 A：UnmanagedCallersOnly（推奨）
+### 方法 A：UnmanagedCallersOnly（おすすめ）
 
-C# の `static` なメソッドに `[UnmanagedCallersOnly]` を付けると、<strong>C から直接呼べる関数</strong>になり、そのアドレスを取れます。
+C# の `static` なメソッドに `[UnmanagedCallersOnly]` を付けると、C から直接呼べる関数になり、そのアドレスを取れます。
 
-```csharp
+```csharp title="Interop/NativeLog.cs"
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -475,23 +408,20 @@ internal static unsafe partial void me_set_log_callback(
     delegate* unmanaged[Cdecl]<int, byte*, nint, void> callback, nint userData);
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `[UnmanagedCallersOnly]` | 「このメソッドは、ネイティブコードから呼ばれる」という属性。C# のコードからは直接呼べない。`static` のみ |
-| `byte* message` | `unsafe` のポインター。C の `const char*` と同じ。`unsafe` なクラスやメソッドの中でだけ書ける |
-| `delegate* unmanaged[Cdecl]<引数…, 戻り値>` | <strong>関数ポインターの型</strong>。C の `void (*)(int, const char*, void*)` に、そのまま対応する。最後の型が戻り値 |
-| `&OnLog` | メソッドのアドレスを取る（`unsafe`）。`[UnmanagedCallersOnly]` のメソッドだけに許される |
-| `(nint)message` | ポインターを整数に変換 |
-| `catch { }` | <strong>例外を握りつぶして、C++ に戻す</strong>。C++ のスタックへ、例外が通るとクラッシュするため |
-| `static Action<…>? s_sink` | ログの出力先。`static` なので、C から呼ばれる `static` メソッドからも見える。慣習として、`static` フィールドは `s_` で始める |
-| `null` を渡す | `delegate*` 型に `null` を渡すと、C の `NULL` になり、登録が解除される |
+見慣れない書き方が多いので、ひとつずつ見ます。
 
-!!! tip "この方式が推奨の理由"
-    関数のアドレスが、<strong>固定</strong>です。GC が動かしたり、回収したりしないので、`GCHandle` もデリゲートの延命も要りません。呼び出しの負担も小さいです。
+- `delegate* unmanaged[Cdecl]<int, byte*, nint, void>` が関数ポインターの型です。最後の型が戻り値で、C の `void (*)(int, const char*, void*)` にそのまま対応します。
+- `byte* message` は `unsafe` なポインターで、C の `const char*` に当たります。
+- `&OnLog` はメソッドのアドレスを取る式で、`[UnmanagedCallersOnly]` が付いたメソッドにだけ使えます。
+- `catch { }` が空なのは意図的です。C++ のスタックの中に C# の例外が通り抜けると、クラッシュするからです。例外はここで握りつぶします。
+- `static` フィールドの名前を `s_` で始めるのは、C# の慣習です。
+- `null` を渡すと C の `NULL` になり、登録が解除されます。
+
+この方法が優れているのは、関数のアドレスが固定されていることです。GC に動かされたり回収されたりしないので、次の方法のような延命の工夫が要りません。
 
 ### 方法 B：デリゲート
 
-`[UnmanagedCallersOnly]` が使えない環境（`unsafe` を使いたくない）では、<strong>デリゲート</strong>を渡す方法があります。
+`unsafe` を使いたくないなら、デリゲートを渡す方法もあります。
 
 ```csharp
 [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -502,7 +432,7 @@ internal static partial void me_set_log_callback(LogCallbackDelegate? callback, 
 ```
 
 ```csharp
-private static LogCallbackDelegate? s_callback;   // 必ず static フィールドで保持する
+private static LogCallbackDelegate? s_callback;   // 必ず static フィールドで持っておく
 
 public static void Install(Action<int, string> sink)
 {
@@ -511,15 +441,11 @@ public static void Install(Action<int, string> sink)
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `[UnmanagedFunctionPointer]` | デリゲート型を、C の関数ポインターとして使うための属性 |
-| `delegate void X(…)` | デリゲート型の宣言（第 5 章） |
-| 保持が必須 | C++ に渡したデリゲートを、C# 側が<strong>どこにも参照を持たないと、GC に回収される</strong>。その後に C++ が呼ぶと、<strong>クラッシュ</strong>する。`static` フィールドか、`GCHandle` で、解除するまで保持する |
+こちらには落とし穴があります。C++ に渡したデリゲートを C# 側のどこにも保持していないと、GC に回収されてしまい、あとで C++ が呼んだときにクラッシュします。`static` フィールドに入れて、登録を解除するまで持ち続けてください。
 
 ### ログをエディタのログに流す
 
-`App.xaml.cs` で、サービスができた後に、結びつけます。
+サービスがそろったあとの `App.xaml.cs` で、結び付けます。
 
 ```csharp
 protected override void OnInitialized()
@@ -549,17 +475,11 @@ protected override void OnExit(ExitEventArgs e)
 }
 ```
 
-`LogService` は、第 18 章で、<strong>別のスレッドから呼ばれても安全</strong>にしてあります。エンジンが、別のスレッドからログを出しても、`Dispatcher` を介して UI スレッドで追加されます。
+`OnExit` で登録を解除しているのは、アプリが終わったあとに C++ がコールバックを呼ばないようにするためです。`LogService` は、別のスレッドから呼ばれても安全に作ってあるので（第 18 章）、エンジンが別のスレッドからログを出しても、UI スレッドに回して追加されます。
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `OnInitialized` | Prism が、モジュールの初期化まで終えた後に呼ぶ。サービスがそろっている |
-| `OnExit` | アプリが終了するときに呼ばれる。ここで、<strong>コールバックを解除</strong>する（終了後に C++ が呼ばないように） |
-| `switch` 文 | `case 0:` … `break;`。C++ と同じ形 |
+## 文字列を渡す関数の書き方
 
-## 手順 8：文字列を渡す関数の書き方
-
-このあと、アセットのパスのように、C# の文字列を C++ に渡す場面が出てきます。ここで書き方を整理します。
+この先、アセットのパスのように、C# の文字列を C++ に渡す場面が出てきます。ここで書き方をまとめておきます。
 
 ```c
 ME_API MeResult me_asset_load(MeEngine* engine, const char* path_utf8);
@@ -571,14 +491,9 @@ ME_API MeResult me_asset_load(MeEngine* engine, const char* path_utf8);
 internal static partial MeResult me_asset_load(EngineHandle engine, string path);
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `StringMarshalling = StringMarshalling.Utf8` | `string` 引数を、<strong>UTF-8 の `char*` に変換して</strong>渡す指定。呼び出しの間だけ有効な一時的なバッファーが作られ、戻れば解放される |
-| `StringMarshalling.Utf16` | UTF-16（`wchar_t*`）で渡す。Windows API を呼ぶときに使う |
-| `StringMarshalling.Custom` | 変換を自分で書く |
-| 規則 | C++ は、受け取った `const char*` を、<strong>呼び出しの外に保持しない</strong>（保持したいなら、コピーする） |
+`StringMarshalling.Utf8` を指定すると、`string` を UTF-8 の `char*` に変換して渡してくれます。変換用の一時的なバッファーは、呼び出しの間だけ有効で、戻れば解放されます。だから C++ 側は、受け取った `const char*` を、呼び出しの外に持ち出してはいけません（保存したいなら、コピーを取ります）。Windows API を呼ぶときは `Utf16` を使います。
 
-C# から C++ へ、<strong>文字列を受け取る</strong>（C++ が書き込む）ときは、<strong>バッファーを渡す</strong>形にします。
+逆に、C++ が文字列を書き込んで返したいときは、C# がバッファーを用意して渡します。
 
 ```c
 /* buffer に UTF-8 で書く。buffer_size は終端 NUL を含む大きさ。必要な大きさを out_required に返す。 */
@@ -603,17 +518,11 @@ public string GetName(uint id)
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `stackalloc` | スタックに配列を確保する。関数を抜けると自動で消える。GC の対象外。C++ の `alloca` / 固定長の配列に近い |
-| `out _` | 出力引数を、<strong>捨てる</strong>（受け取らない） |
-| `byte*` | `unsafe` のポインター。C の `char*` に対応 |
+`stackalloc` は、スタック上に配列を確保します。関数を抜けると自動で消えるので、GC の対象になりません。`out _` は、出力引数を受け取らずに捨てる書き方です。この例は、第 34 章のシーンの API で、実際に使います。
 
-この例は、第 34 章のシーンの API で、実際に使います。
+## 失敗する経路も動かしてみる
 
-## 手順 9：動作確認用の画面
-
-ここまでの内容を、簡単に確かめます。`MainWindowViewModel` に、`IEngineService` を受け取らせ、<strong>エンジンの作成に失敗するケース</strong>を試します。
+最後に、エラーの経路が通っているかを確かめます。`MainWindowViewModel` に `IEngineService` を受け取らせ、わざと失敗する呼び出しを書きます。
 
 ```csharp
 public DelegateCommand TestErrorCommand { get; }
@@ -635,56 +544,47 @@ public MainWindowViewModel(IEngineService engine, ILogService log)
 }
 ```
 
-ボタンを押すと、ログに次のように出ます。
+ボタンを押すと、ログにこう出ます。
 
 ```text
 InvalidArgument: window が null、または大きさが 0
 ```
 
-C++ 側で `SetLastError` した文字列が、C# の例外のメッセージになりました。エラーの経路が、通っていることが確認できます。
+C++ 側で `SetLastError` した文字列が、そのまま C# の例外のメッセージになりました。エラー コードを返して、理由を別の関数で取る、という経路が通っています。
 
-## 動作確認
+確かめたいのは次の点です。
 
-| 見る所 | 期待する結果 |
-| --- | --- |
-| 起動 | ログに `EngineApi version 1` が出る |
-| テスト ボタン | `InvalidArgument: window が null…` がログに出る。クラッシュしない |
-| エンジンのログ | （第 31 章以降）エンジンの `LogInfo` が、ログ タブに出る |
-| 終了 | 例外なく終了する |
+- 起動すると、ログに `EngineApi version 1` が出る。
+- テスト ボタンを押すと、上のメッセージがログに出る。アプリはクラッシュしない。
+- 終了するときに、例外が出ない。
 
-## よくあるミス
-
-??? failure "`DllNotFoundException`／`Unable to load DLL 'EngineApi.dll'`"
-    DLL が `Editor.exe` の隣に無い、または、依存する `Engine.dll` が無い、ビット数が違う。第 29 章の手順で原因を探す。
+??? failure "`DllNotFoundException`（`Unable to load DLL 'EngineApi.dll'`）"
+    DLL が `Editor.exe` の隣にない、依存する `Engine.dll` がない、あるいはビット数が違います。調べ方は第 29 章にあります。
 
 ??? failure "`EntryPointNotFoundException`"
-    DLL に、その名前の関数が無い。C# 側の名前のタイプミス、`extern "C"` の付け忘れ、`dumpbin /exports` に出ていない。
+    DLL の中に、その名前の関数がありません。C# 側の名前のタイプミス、`extern "C"` の付け忘れ、または `dumpbin /exports` に出ていないことが原因です。
 
-??? failure "値が化ける／ランダムなクラッシュ"
-    構造体のフィールドの型や順番が、C 側と違う。`bool` を使っている。`long` を使っている（C# の `long` は 64 ビット）。宣言を、C のヘッダーと見比べる。
+??? failure "値が化ける、ランダムにクラッシュする"
+    構造体のフィールドの型や順番が C 側と違うか、`bool` を使っているか、`long` を使っています（C# の `long` は 64 ビット）。宣言を C のヘッダーと見比べてください。
 
 ??? failure "ログのコールバックで、突然クラッシュする"
-    デリゲートを `static` に保持していない（GC に回収された）。または、コールバックの中で例外が漏れている。方法 A（`UnmanagedCallersOnly`）にすると、前者は起きない。
+    デリゲートを `static` に持っていなくて GC に回収されたか、コールバックの中から例外が漏れています。方法 A にすると、前者は起きません。
 
 ??? failure "`CS0227: unsafe コードは AllowUnsafeBlocks が必要です`"
-    `.csproj` に `<AllowUnsafeBlocks>true</AllowUnsafeBlocks>` を足していない。
+    `.csproj` に `<AllowUnsafeBlocks>true</AllowUnsafeBlocks>` を足していません。
 
-??? failure "終了時にクラッシュする"
-    終了の途中で、C++ が、すでに解放された C# のコールバックを呼んでいる。`OnExit` で `NativeLog.Uninstall()` を呼ぶ。
+??? failure "終了するときにクラッシュする"
+    終了の途中で、C++ が、すでに片付けられた C# のコールバックを呼んでいます。`OnExit` で `NativeLog.Uninstall()` を呼びます。
 
 ## この章のまとめ
 
-| 項目 | 結論 |
-| --- | --- |
-| 関数の宣言 | `[LibraryImport]` の `partial` メソッド。C のヘッダーと一行ずつ見比べる |
-| 型 | blittable な型だけを使う。`bool`、`long`（Windows の C++ の `long`）は避ける |
-| 構造体 | `[StructLayout(Sequential)]` で並びを合わせる。大きさを両側で検査する |
-| 出力 | `out` / `in` / `ref` で、ポインターを表す |
-| 文字列 | `StringMarshalling.Utf8`。受け取るときは、バッファーを渡す |
-| ハンドル | `SafeHandle` で包み、`Dispose` で解放する |
-| エラー | エラー コード → `EngineException` に変換 |
-| コールバック | `[UnmanagedCallersOnly]` と `delegate* unmanaged`。例外を漏らさない |
+- 宣言は `[LibraryImport]` の `partial` メソッドで書く。C のヘッダーと一行ずつ見比べる。
+- 渡せる型は、そのまま渡せる型だけ。`bool` と C++ の `long` は避ける。
+- 構造体は `[StructLayout(Sequential)]` で並びを合わせ、大きさを両側で確かめておく。
+- 出力は `out` / `in` / `ref`、文字列は `StringMarshalling.Utf8`。
+- ハンドルは `SafeHandle` で包んで、`Dispose` で解放する。
+- エラー コードは例外に変換する。コールバックは `[UnmanagedCallersOnly]` で、例外を外に漏らさない。
 
-## 次の章へ
+次の章では、同じ `IEngineService` を C++/CLI で実装して、P/Invoke との手間の違いを比べます。
 
-次の章（[第 28 章 C++/CLI で橋を作る](28-cpp-cli.md)）では、同じ `IEngineService` を、<strong>C++/CLI</strong> で実装します。P/Invoke との違いを、手間と書き味で比べます。
+[第 28 章 C++/CLI で橋を作る](28-cpp-cli.md) へ進みます。

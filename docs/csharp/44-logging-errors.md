@@ -6,52 +6,48 @@ tags:
 
 # 第 44 章 ログとエラー処理
 
-エディタが大きくなると<strong>失敗の種類が増えます</strong>。ファイルが壊れていたゲームの DLL が読み込めない、GPU が応答しない C# の例外、C++ の例外、ネイティブのクラッシュ…。この章ではそれらを<strong>どこで、どう受け止めどう記録しどう利用者に知らせるか</strong>の方針を整え実装します。
+エディタが大きくなると、失敗の種類が増えます。ファイルが壊れている、ゲームの DLL が読み込めない、GPU が応答しない、C# の例外、C++ の例外、ネイティブのクラッシュ…。この章では、それらをどこで受け止めて、どう記録して、どう利用者に知らせるか、という方針を整えて、実装します。
 
-## この章の考え方
+## 失敗を 4 つに分ける
 
-### 失敗を 4 つに分ける
-
-失敗の扱いは<strong>誰の責任か</strong>で変わります。
+失敗の扱いは、誰の責任かで変わります。
 
 | 種類 | 例 | 対応 |
 | --- | --- | --- |
-| <strong>① 想定内の失敗</strong>（利用者の操作・環境） | ファイルが無い壊れている、ディスクが満杯、権限がない | <strong>捕まえて</strong>、分かりやすいメッセージを出す。作業は続ける |
-| <strong>② 想定内の失敗</strong>（外部のコード） | ゲーム DLL の版違い、ビルド失敗 | 捕まえてログに出す。古い状態を保つ（第 42 章） |
-| <strong>③ プログラムのバグ</strong> | `NullReferenceException`、範囲外、不正な状態 | <strong>記録して</strong>、できれば作業を保存し続けるか終了する。握りつぶさない |
-| <strong>④ 致命的な失敗</strong> | ネイティブのアクセス違反、GPU のデバイス消失 | <strong>記録して</strong>終了。クラッシュ レポートを残す |
+| ① 想定内の失敗（利用者の操作・環境） | ファイルが無い、壊れている、ディスクが満杯、権限がない | 捕まえて、分かりやすいメッセージを出す。作業は続ける |
+| ② 想定内の失敗（外部のコード） | ゲーム DLL の版違い、ビルド失敗 | 捕まえてログに出す。古い状態を保つ（第 42 章） |
+| ③ プログラムのバグ | `NullReferenceException`、範囲外、不正な状態 | 記録して、続けるか終了する。握りつぶさない |
+| ④ 致命的な失敗 | ネイティブのアクセス違反、GPU のデバイス消失 | 記録して終了。クラッシュ レポートを残す |
 
-①②は<strong>例外を捕まえて処理する</strong>。③④は<strong>捕まえきれない・捕まえても直せない</strong>ので、<strong>記録を残す</strong>ことが最重要です。
+①②は、例外を捕まえて処理します。③④は、捕まえきれないか、捕まえても直せないので、記録を残すことが最も大切です。
 
-### 原則
+そのための原則を 4 つ決めておきます。
 
 | 原則 | 内容 |
 | --- | --- |
-| <strong>握りつぶさない</strong> | `catch { }` で何もしない例外処理は、バグを隠す。想定内の型に絞り必ずログを残す |
-| <strong>近い所で捕まえない</strong> | 例外は、「何をすべきか決められる場所」まで投げ上げる。低い層（ファイル読み込み）は投げ高い層（コマンド）が、利用者に知らせる |
-| <strong>ログは再現のための記録</strong> | 「何が起きたか」だけでなく、「その時、何をしていたか」（直前の操作）が分かるように |
-| <strong>利用者のメッセージと開発者のログを分ける</strong> | 利用者には「ファイルを開けませんでした」、ログには例外の全文とスタック トレース |
+| 握りつぶさない | `catch { }` で何もしない例外処理は、バグを隠す。想定内の型に絞って、必ずログを残す |
+| 近い所で捕まえない | 例外は「何をすべきか決められる場所」まで投げ上げる。低い層（ファイル読み込み）は投げ、高い層（コマンド）が利用者に知らせる |
+| ログは再現のための記録 | 「何が起きたか」だけでなく、「その時、何をしていたか」（直前の操作）が分かるようにする |
+| 利用者のメッセージと開発者のログを分ける | 利用者には「ファイルを開けませんでした」、ログには例外の全文とスタック トレースを書く |
 
-## この章のゴール
+この章のゴールは次のとおりです。
 
-- すべての未処理の例外を拾って、ログに残し利用者に知らせる。
-- ログをファイルに書く（日付ごと古いものは自動で消す）。
-- ログ パネルを重大度のフィルター、コピー、クリアつきに改良する。
-- ネイティブのクラッシュのときミニダンプを残す。
+- すべての未処理の例外を拾って、ログに残して、利用者に知らせる。
+- ログをファイルに書く（日付ごとに分け、古いものは自動で消す）。
+- ログ パネルを、重大度のフィルター、コピー、クリア付きに改良する。
+- ネイティブのクラッシュのとき、ミニダンプを残す。
 
-## 手順 1：未処理の例外を拾う
+## 未処理の例外を拾う
 
-.NET には未処理の例外を拾う場所が、<strong>3 つ</strong>あります。それぞれ拾える対象が違います。
+.NET には、未処理の例外を拾う場所が 3 つあります。拾える対象がそれぞれ違います。
 
 | 場所 | 拾える例外 | 続行できるか |
 | --- | --- | --- |
-| `Application.DispatcherUnhandledException` | <strong>UI スレッド</strong>で起きた未処理の例外 | `e.Handled = true` で続行できる |
-| `AppDomain.CurrentDomain.UnhandledException` | <strong>どのスレッドでも</strong>、最終的に未処理の例外 | 続行不可（プロセスは終了する） |
+| `Application.DispatcherUnhandledException` | UI スレッドで起きた未処理の例外 | `e.Handled = true` で続行できる |
+| `AppDomain.CurrentDomain.UnhandledException` | どのスレッドでも、最終的に未処理の例外 | 続行不可（プロセスは終了する） |
 | `TaskScheduler.UnobservedTaskException` | 誰も `await` しなかった `Task` の例外 | 続行できる（観察済みにする） |
 
-`App.xaml.cs`:
-
-```csharp
+```csharp title="App.xaml.cs"
 protected override void OnStartup(StartupEventArgs e)
 {
     // 例外の捕捉は、できるだけ最初に設定する
@@ -85,26 +81,19 @@ private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEv
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `DispatcherUnhandledException` | WPF の UI スレッドの例外を拾う。`DispatcherUnhandledExceptionEventArgs.Exception` に例外が入る |
-| `e.Handled = true` | 例外を処理済みにして、アプリを続ける。<strong>状態が壊れている可能性</strong>があるので、利用者に選ばせる |
-| `AppDomain.CurrentDomain.UnhandledException` | どのスレッドでも最後に拾う網。ここに来たらプロセスは終了する。<strong>記録できる最後の機会</strong> |
-| `e.ExceptionObject as Exception` | 引数は `object`。`Exception` 以外が投げられることもある（C++/CLI など） |
-| `UnobservedTaskException` | `Task` の例外を誰も見ないまま `Task` が GC されたときに呼ばれる。`async void` 以外の `_ = SomeAsync();` の失敗を拾える |
-| `e.SetObserved()` | 観察済みにする。これを呼ばなくても.NET Core 以降は、プロセスは終了しない |
+①の `e.Handled = true` は、例外を処理済みにして、アプリを続けます。ただし、状態が壊れている可能性があるので、続けるかどうかは利用者に選ばせています。
 
-`_ = LoadThumbnailAsync(entry);` のように `Task` を待たずに放置する書き方は、例外が<strong>黙って消える</strong>危険があります。`UnobservedTaskException` はその安全網です。ただし、タイミングが GC に依存するので、<strong>根本的には `await` するか内部で `try/catch` する</strong>ほうが正しい作りです。
+②は、どのスレッドの例外でも最後に拾う網です。ここに来たらプロセスは終了するので、記録できる最後の機会になります。引数が `object` なのは、`Exception` 以外が投げられることもあるからです（C++/CLI など）。
 
-## 手順 2：ログをファイルに書く
+③は、`Task` の例外を誰も見ないまま、その `Task` が GC されたときに呼ばれます。`_ = SomeAsync();` のように放置した `Task` の失敗を拾えます。`e.SetObserved()` で観察済みにしますが、呼ばなくても .NET Core 以降は、プロセスは終了しません。
 
-画面のログ パネルはアプリを閉じると消えます。クラッシュの調査には<strong>ファイルのログ</strong>が欠かせません。
+`_ = LoadThumbnailAsync(entry);`（第 40 章）のように `Task` を待たずに放置する書き方は、例外が黙って消える危険があります。`UnobservedTaskException` はその安全網ですが、タイミングが GC に依存します。根本的には、`await` するか、内部で `try/catch` するほうが正しい作りです。
 
-### ファイル ログ
+## ログをファイルに書く
 
-`Services\FileLogWriter.cs`:
+画面のログ パネルは、アプリを閉じると消えます。クラッシュの調査には、ファイルのログが欠かせません。
 
-```csharp
+```csharp title="Services/FileLogWriter.cs"
 using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
@@ -181,17 +170,11 @@ public sealed class FileLogWriter : IDisposable
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `BlockingCollection<T>` | スレッド間の待ち行列。`GetConsumingEnumerable()` は要素が来るまで<strong>待ち</strong>、`CompleteAdding()` で終わる。<strong>生産者・消費者</strong>の定番の部品 |
-| `boundedCapacity` | 上限。`TryAdd` は満杯のとき `false` を返す。ログのためにプログラムを止めない |
-| 専用スレッド | ディスクへの書き込みは遅い。呼び出し側（UI スレッド、描画スレッド）を<strong>待たせない</strong>ように別のスレッドで書く |
-| `AutoFlush = true` | 1 行書くたびにディスクに出す。クラッシュ直前のログが失われない |
-| `FileShare.Read` | 書き込み中のログを他のプログラム（メモ帳など）が<strong>読める</strong>ようにする |
-| `{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}` | 補間文字列の中の書式指定 |
-| 古いログの削除 | 起動時に 14 日より古いものを消す |
+ディスクへの書き込みは遅いので、呼び出し側（UI スレッド、描画スレッド）を待たせないように、専用のスレッドで書きます。スレッド間の受け渡しに使っている `BlockingCollection<T>` は、待ち行列です。`GetConsumingEnumerable()` は、要素が来るまで待ち、`CompleteAdding()` で終わります。「入れる側」と「取り出す側」を別のスレッドにする、定番の部品です。`boundedCapacity`（上限）を付けて、`TryAdd` が満杯のときは捨てることで、ログのためにプログラムを止めないようにしています。
 
-### ILogService に結びつける
+`AutoFlush = true` は、1 行書くたびにディスクへ出す設定です。クラッシュ直前のログが失われません。`FileShare.Read` は、書き込み中のログを、他のプログラム（メモ帳など）が読めるようにします。`{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}` は、補間文字列の中の書式指定です。起動時に、14 日より古いログを消します。
+
+`LogService`（第 18 章）は、これに書くように変えます。
 
 ```csharp
 public sealed class LogService : ILogService
@@ -210,7 +193,7 @@ public sealed class LogService : ILogService
 }
 ```
 
-エンジンからのログは `source` を `"Engine"` にします（第 27 章の `NativeLog.Install` で渡すコールバックの中で、`log.InfoFrom("Engine", message)` のようにソースを指定できる関数を足す）。ゲームは `"Game"`。
+エンジンからのログは `source` を `"Engine"`、ゲームからは `"Game"` にします（第 26 章でエンジンのログを受け取るコールバックの中で、`log.InfoFrom("Engine", message)` のように、ソースを指定できる関数を足します）。
 
 ### クラッシュ レポート
 
@@ -243,16 +226,13 @@ public static class CrashReporter
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Exception.ToString()` | 型名、メッセージ、<strong>スタック トレース</strong>、<strong>内側の例外</strong>までまとめて文字列にする。ログには `Message` だけでなくこれを書く |
-| `StringBuilder` | 文字列を効率よく組み立てるクラス |
-| `{DateTime.Now:O}` | ISO 8601 形式（`2026-10-21T12:34:56.789+09:00`） |
-| 空の `catch` | ここだけは例外。<strong>クラッシュ レポートの処理自体が失敗</strong>したときにさらに例外を投げても、意味がない |
+`Exception.ToString()` は、型名、メッセージ、スタック トレース、内側の例外までまとめて文字列にします。ログには、`Message` だけでなく、これを書きます。`StringBuilder` は文字列を効率よく組み立てるクラスで、`{DateTime.Now:O}` は ISO 8601 形式（`2026-10-21T12:34:56.789+09:00`）です。
 
-## 手順 3：ログ パネルを改良する
+空の `catch` が出てきますが、ここだけは例外です。クラッシュ レポートを書く処理自体が失敗したときに、さらに例外を投げても、意味がないからです。
 
-ログ パネル（第 18 章）に重大度のフィルター、コピー、クリア、自動スクロールを足します。
+## ログ パネルを改良する
+
+ログ パネル（第 18 章）に、重大度のフィルター、コピー、クリア、自動スクロールを足します。
 
 ```csharp
 public class LogViewModel : BindableBase
@@ -293,14 +273,9 @@ public class LogViewModel : BindableBase
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `e.Level >= _minimumLevel` | 列挙型の比較。`Info(0) < Warning(1) < Error(2)` なので `>=` で「以上」になる |
-| `Enum.GetValues<T>()` | 列挙型のすべての値を取る。`ComboBox` の選択肢に使う |
-| `Clipboard.SetText` | クリップボードにコピー |
-| ログの上限 | `Entries` が無限に増えないよう<strong>上限（例：5000）を超えたら、古いものを消す</strong>（`LogService.Add` に足す） |
+絞り込みの仕組みは、第 40 章の検索と同じ `ICollectionView` です。`e.Level >= _minimumLevel` は列挙型の比較で、`Info(0) < Warning(1) < Error(2)` なので、`>=` で「この重大度以上」になります。`Enum.GetValues<T>()` は、列挙型のすべての値を取るので、`ComboBox` の選択肢に使えます。`Entries` が無限に増えないよう、上限（たとえば 5000）を超えたら古いものを消す処理も、`LogService.Add` に足してください。
 
-ログの行の色を重大度で変えます。
+ログの行の色は、重大度で変えます。
 
 ```xml
 <ListBox.ItemContainerStyle>
@@ -317,7 +292,7 @@ public class LogViewModel : BindableBase
 </ListBox.ItemContainerStyle>
 ```
 
-自動スクロール（新しい行が来たら、一番下まで送る）は `CollectionChanged` イベントで `ScrollIntoView` を呼びます。ビューのコードビハインドで書きます。
+自動スクロール（新しい行が来たら一番下まで送る）は、`CollectionChanged` イベントで `ScrollIntoView` を呼びます。ビューのコードビハインドで書きます。
 
 ```csharp
 // LogView.xaml.cs
@@ -330,13 +305,11 @@ public class LogViewModel : BindableBase
 };
 ```
 
-## 手順 4：ネイティブのクラッシュに備える
+## ネイティブのクラッシュに備える
 
-C++ のアクセス違反（`nullptr` の参照など）は、<strong>C# の `try/catch` では捕まりません</strong>。.NET Core 以降、`AccessViolationException` は捕まえられない例外に分類されプロセスが終了します。調査のために<strong>クラッシュした瞬間のダンプ</strong>を残します。
+C++ のアクセス違反（`nullptr` の参照など）は、C# の `try/catch` では捕まりません。.NET Core 以降、`AccessViolationException` は捕まえられない例外として扱われ、プロセスが終了します。調査のために、クラッシュした瞬間のダンプを残します。
 
-### エンジン側にダンプを書く仕組み
-
-`EngineApi` に次の関数を足します。
+`EngineApi` に、次の関数を足します。
 
 ```c
 /* クラッシュしたとき、dump_dir に .dmp を書く。起動の最初に 1 度だけ呼ぶ。 */
@@ -378,15 +351,11 @@ MeResult me_install_crash_handler(const char* dump_dir_utf8) {
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `SetUnhandledExceptionFilter` | どこからも処理されなかった、構造化例外（SEH、アクセス違反など）を最後に受ける関数を登録する Win32 API |
-| `MiniDumpWriteDump` | プロセスのメモリ、スレッド、スタックを `.dmp` ファイルに書く（`dbghelp.dll`） |
-| `MiniDumpWithDataSegs` など | ダンプに含める情報の指定。大きくなりすぎない範囲で有用な物を選ぶ |
-| `EXCEPTION_EXECUTE_HANDLER` | 例外を処理したことにして、プロセスを終了する |
-| 限界 | クラッシュ ハンドラーの中は、<strong>プロセスが壊れかけている</strong>。ヒープを確保する処理（`std::wstring` の連結など）が危険な場合がある。本格的な製品は<strong>別プロセスのクラッシュ ハンドラー</strong>（Crashpad、Breakpad、Sentry など）を使う |
+`SetUnhandledExceptionFilter` は、どこからも処理されなかった構造化例外（SEH、アクセス違反など）を、最後に受ける関数を登録する Win32 API です。`MiniDumpWriteDump`（`dbghelp.dll`）が、プロセスのメモリ、スレッド、スタックを `.dmp` ファイルに書きます。`MiniDumpWithDataSegs` などは、ダンプに含める情報の指定で、大きくなりすぎない範囲で、役に立つものを選んでいます。`EXCEPTION_EXECUTE_HANDLER` を返すと、例外を処理したことにして、プロセスが終了します。
 
-C# 側の起動で呼びます。
+限界も知っておいてください。クラッシュ ハンドラーの中は、プロセスが壊れかけています。ヒープを確保する処理（`std::wstring` の連結など）が危険な場合があります。本格的な製品では、別プロセスのクラッシュ ハンドラー（Crashpad、Breakpad、Sentry など）を使います。
+
+C# 側は、起動時に呼びます。
 
 ```csharp
 [LibraryImport(Dll, StringMarshalling = StringMarshalling.Utf8)]
@@ -398,65 +367,61 @@ NativeMethods.me_install_crash_handler(Path.Combine(
     Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "MiniEngine", "crashes"));
 ```
 
-### ダンプを読む
+残ったダンプは、Visual Studio にドラッグして開くと、クラッシュした位置と、そのときの変数が見られます。
 
-`.dmp` を Visual Studio にドラッグして開くとクラッシュした位置と、その時の変数が見られます。
-
-1. `.dmp` を開く → 「<strong>混合でデバッグ</strong>」（C# と C++ の両方）を押す。
-2. シンボル（`.pdb`）が必要。<strong>ビルドごとに `.pdb` を保存</strong>しておく。
+1. `.dmp` を開いて、「混合でデバッグ」（C# と C++ の両方）を押す。
+2. シンボル（`.pdb`）が必要なので、ビルドごとに `.pdb` を保存しておく。
 3. コール スタックの一番上が、クラッシュした位置。
 
-## 手順 5：利用者に知らせる方法
+## 利用者への知らせ方
 
-エラーの種類で知らせる<strong>強さ</strong>を変えます。
+エラーの種類で、知らせる強さを変えます。
 
 | 場面 | 方法 |
 | --- | --- |
-| 操作の失敗（保存できない） | <strong>メッセージ ボックス</strong>（操作を止めて、確認を求める） |
-| 軽い警告（Play できない） | <strong>ステータス バー</strong>＋ログ。邪魔をしない |
+| 操作の失敗（保存できない） | メッセージ ボックス（操作を止めて、確認を求める） |
+| 軽い警告（Play できない） | ステータス バーとログ。邪魔をしない |
 | 情報（保存した） | ステータス バーだけ |
 | バグ・致命的 | クラッシュ ダイアログ（ログのフォルダーを開くボタン） |
 
-ステータス バーに一時的なメッセージを出す仕組みは `IEventAggregator` で、`StatusMessageEvent` を発行し `MainWindowViewModel` が購読して 5 秒後に消す形にできます（第 18 章）。
+ステータス バーに一時的なメッセージを出す仕組みは、`IEventAggregator` で `StatusMessageEvent` を発行し、`MainWindowViewModel` が購読して 5 秒後に消す形にできます（第 18 章）。
 
-## 動作確認
+## 動かして確かめる
 
 | 操作 | 期待する結果 |
 | --- | --- |
-| 例外を投げるボタン（テスト用） | ダイアログが出て、「はい」で続行、「いいえ」で終了。クラッシュ レポートが `crashes\` に残る |
+| 例外を投げるボタン（テスト用） | ダイアログが出る。「はい」で続行、「いいえ」で終了。クラッシュ レポートが `crashes\` に残る |
 | 起動して操作 | `%LOCALAPPDATA%\MiniEngine\logs\editor-YYYYMMDD.log` に行が増える |
 | 古いログ | 15 日以上前のファイルが、起動時に消える |
 | ログ パネルのフィルターを Warning に | Info の行が消える |
 | 行を右クリック → コピー | クリップボードに入る |
 | ネイティブにわざと null を参照させる | プロセスが終了し、`crashes\*.dmp` が残る |
 
-## よくあるミス
-
 ??? failure "ログがファイルに書かれない"
-    `FileLogWriter` を DI のシングルトンとして登録していない。または、ログの書き込みスレッドが例外で止まっている。
+    `FileLogWriter` を DI のシングルトンとして登録していないか、ログの書き込みスレッドが例外で止まっています。
 
 ??? failure "終了時にログの最後が欠ける"
-    アプリの終了時に `FileLogWriter.Dispose()` が呼ばれていない。`OnExit` で呼んで `Join` する。
+    アプリの終了時に `FileLogWriter.Dispose()` が呼ばれていません。`OnExit` で呼んで `Join` します。
 
 ??? failure "`DispatcherUnhandledException` が呼ばれない"
-    別のスレッドの例外。UI スレッド以外の例外は `AppDomain.UnhandledException` に来る。`Task` の中の例外は `await` していない限り `UnobservedTaskException`。
+    別のスレッドの例外です。UI スレッド以外の例外は `AppDomain.UnhandledException` に来ます。`Task` の中の例外は、`await` していない限り `UnobservedTaskException` に来ます。
 
-??? failure "未処理の例外で続行を選ぶとさらに壊れる"
-    例外が状態の更新の途中で起きた。<strong>続行を許すのは利用者の選択</strong>にしておき既定は終了にするほうが安全。保存していない作業を守るため、<strong>自動バックアップ</strong>を足すのも手。
+??? failure "未処理の例外で続行を選ぶと、さらに壊れる"
+    例外が状態の更新の途中で起きました。続行を許すのは利用者の選択にして、既定は終了にするほうが安全です。保存していない作業を守るために、自動バックアップを足すのも手です。
 
-??? failure "ダンプが空／小さすぎる"
-    `MiniDumpWithFullMemory` を使えば大きいが詳しい。`MiniDumpNormal` は小さいが変数が読めない。用途で選ぶ。
+??? failure "ダンプが空、または小さすぎる"
+    `MiniDumpWithFullMemory` を使えば大きいが詳しく、`MiniDumpNormal` は小さいが変数が読めません。用途で選びます。
 
 ??? failure "ダイアログの中で、例外が重なって無限に出る"
-    例外ハンドラーの中で、さらに例外が起きている。ハンドラーの中の処理は最小限にして、`try/catch` で包む。
+    例外ハンドラーの中で、さらに例外が起きています。ハンドラーの中の処理は最小限にして、`try/catch` で包みます。
 
 ## この章のまとめ
 
-- 失敗を <strong>4 種類</strong>に分け想定内は捕まえて処理、バグと致命的は<strong>記録を残す</strong>。
-- 未処理の例外を拾う場所は <strong>3 つ</strong>（UI スレッド、AppDomain、Task）。
-- ログは<strong>ファイルにも</strong>書く。書き込みは専用スレッドで呼び出し側を待たせない。
-- ネイティブのクラッシュは `try/catch` で捕まらない。<strong>ミニダンプ</strong>を残す。
+- 失敗を 4 種類に分け、想定内は捕まえて処理し、バグと致命的な失敗は記録を残す。
+- 未処理の例外を拾う場所は 3 つ（UI スレッド、AppDomain、Task）。
+- ログはファイルにも書く。書き込みは専用スレッドで、呼び出し側を待たせない。
+- ネイティブのクラッシュは `try/catch` で捕まらない。ミニダンプを残す。
 
-## 次の章へ
+次の章では、これまで散らばって出てきたスレッドの約束とメモリの扱いを整理します。
 
-次の章（[第 45 章 スレッド、メモリ、IDisposable](45-threads-memory.md)）ではこれまでに散らばって出てきた<strong>スレッドの約束</strong>と<strong>メモリの扱い</strong>（リーク、破棄、イベントの購読）を整理し長時間動かしても安定するエディタにします。
+[第 45 章 スレッド、メモリ、IDisposable](45-threads-memory.md) へ進みます。
