@@ -6,48 +6,40 @@ tags:
 
 # 第 6 章 WPF プロジェクトと XAML
 
-この章では第 1 章で作った `Editor` プロジェクトの<strong>中身を読み</strong>、XAML という言語で<strong>エディタの画面の骨組み</strong>（メニュー、左・中・右のパネル、下のパネル、ステータス バー）を作ります。この章の画面にはまだエンジンもデータも出てきません。<strong>「画面の枠」を XAML で組む感覚</strong>をつかむ章です。
+この章では、第 1 章で作った `Editor` プロジェクトを開いて、WPF のプロジェクトに何が入っているかを読み、XAML という言語でエディタの画面の枠（メニュー、左・中・右のパネル、下のパネル、ステータス バー）を組みます。まだエンジンもデータも出てきません。XAML を書く感覚をつかむための章です。
 
-## この章の考え方
+## WPF の画面は 2 つのファイルでできている
 
-WPF では画面を<strong>2 種類のファイル</strong>で作ります。
+WPF では、1 つの画面を 2 つのファイルで書きます。
 
-| ファイル | 書く言語 | 役割 |
+| ファイル | 書く言語 | 役目 |
 | --- | --- | --- |
-| `〜.xaml` | XAML（XML の仲間） | 画面の<strong>構造と見た目</strong>。どんな部品をどこに並べるか |
-| `〜.xaml.cs` | C# | 画面の<strong>振る舞い</strong>（コードビハインド）。ボタンが押されたときの処理など |
+| `MainWindow.xaml` | XAML（XML の仲間） | 画面の見た目。どんな部品をどこに置くか |
+| `MainWindow.xaml.cs` | C# | 画面の動き。ボタンが押されたときの処理など（コードビハインドと呼びます） |
 
-この 2 つは <strong>1 つのクラスを 2 つのファイルに分けて書いている</strong>だけです。XAML に書いたタグはビルドのときに C# のコードに変換されます。XAML の `<Button />` は C# で言う `new Button()` です。画面の部品を C# のコードで 1 つずつ `new` して並べる代わりに見た目に近い形（XML）で書ける、というのが XAML の価値です。
+この 2 つは、実は 1 つのクラスを 2 つのファイルに分けて書いているだけです。XAML に書いたタグは、ビルドのときに C# のコードに変換されます。`<Button />` と書くのは、C# で `new Button()` と書くのと同じ意味です。
 
-この教材では最終的にコードビハインドをほとんど使わずビューモデル（第 7 章）に処理を書きます。それでもまず XAML とコードビハインドの関係を理解しておくことが、土台になります。
+画面の部品を C# で 1 つずつ `new` して並べていくと、コードを読んでも画面の形が思い浮かびません。XAML なら、書いた順番と入れ子がそのまま画面の構造になるので、見た目を想像しながら書けます。これが XAML の価値です。
 
-## この章のゴール
+この教材では、最終的にコードビハインドをほとんど使わず、処理はビューモデルに書きます（第 12 章）。それでも、まずこの 2 つのファイルの関係を理解しておくことが土台になります。
 
-- WPF プロジェクトが作る各ファイルの役割を説明できる。
-- XAML の<strong>要素、属性、名前空間、添付プロパティ</strong>を読める。
-- `Grid`、`DockPanel`、`StackPanel`、`GridSplitter` で画面を分割できる。
-- エディタの画面の骨組みを XAML で作れる。
+## プロジェクトの中身を読む
 
-## 手順 1：WPF プロジェクトの中身を読む
-
-`Editor` プロジェクトを展開すると、次のファイルがあります。
+`Editor` を展開すると、こんなファイルが並んでいます。
 
 ```text
 Editor\
   Editor.csproj         プロジェクトの設定
-  App.xaml              アプリ全体の設定（リソース、起動時の動作）
-  App.xaml.cs           App のコードビハインド
-  MainWindow.xaml       最初に開く画面
-  MainWindow.xaml.cs    MainWindow のコードビハインド
-  AssemblyInfo.cs       テーマ関連の属性
-  Dependencies\         参照しているライブラリ（.NET 本体など）
+  App.xaml / .xaml.cs   アプリ全体の設定（起動時の動作、共通のリソース）
+  MainWindow.xaml / .cs 最初に開く画面
+  AssemblyInfo.cs       テーマ関連の設定（あまり触らない）
 ```
 
 ### Editor.csproj
 
-プロジェクトをダブルクリック（またはプロジェクトを右クリック →「プロジェクト ファイルの編集」）すると、設定ファイルが開きます。
+プロジェクトをダブルクリックすると、設定ファイルがそのまま開きます。
 
-```xml
+```xml title="Editor.csproj"
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -59,18 +51,13 @@ Editor\
 </Project>
 ```
 
-| 項目 | 意味 |
-| --- | --- |
-| `Sdk="Microsoft.NET.Sdk"` | この `.csproj` が.NET の標準的なビルド手順を使うこと。ソース ファイルはフォルダー内の `.cs` が<strong>自動で含まれる</strong>（C++ のように、ファイルを 1 つずつ列挙しなくてよい） |
-| `OutputType` = `WinExe` | 画面を持つ EXE を作る（黒いコンソールが出ない）。コンソール アプリは `Exe`、ライブラリは `Library` |
-| `TargetFramework` = `net8.0-windows` | .NET 8 で、Windows 専用の機能（WPF など）を使う |
-| `Nullable` = `enable` | null 許容参照型を有効にする（第 5 章） |
-| `ImplicitUsings` = `enable` | よく使う `using` を自動で入れる |
-| `UseWPF` = `true` | WPF のライブラリを使う |
+C++ の `.vcxproj` に比べると、驚くほど短いはずです。`.cs` ファイルは、フォルダーに置くだけで自動的にビルド対象になるので、ファイルを 1 つずつ列挙する必要がありません。
 
-### App.xaml と App.xaml.cs
+`OutputType` の `WinExe` は「画面を持つ EXE（黒いコンソールが出ない）」、`UseWPF` は「WPF のライブラリを使う」、`Nullable` は第 5 章で触れた null の見張り、`ImplicitUsings` は「よく使う `using` を自動で入れる」という設定です。
 
-```xml
+### App.xaml
+
+```xml title="App.xaml"
 <Application x:Class="Editor.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -81,30 +68,18 @@ Editor\
 </Application>
 ```
 
-```csharp
-namespace Editor;
+初めて見ると、`xmlns` がずらずら並んでいて身構えるかもしれません。ひとつずつ読んでいきましょう。
 
-public partial class App : Application
-{
-}
-```
+- `<Application>` は `Application` クラスのオブジェクトを作る、という意味です。要素の名前がそのままクラス名になります。
+- `x:Class="Editor.App"` は「この XAML は `Editor.App` というクラスの一部です」という宣言です。C# 側の `partial class App` と合体して 1 つのクラスになります。`partial` は、1 つのクラスを複数のファイルに分けて書ける印です。
+- `xmlns="..."` は、`Button` や `Grid` のような WPF の部品を、タグ名だけで書けるようにする宣言です。
+- `xmlns:x="..."` は、XAML そのものの機能（`x:Class`、`x:Name`、`x:Key` など）を使うための宣言です。`x:` と付いているものは、WPF の部品ではなく XAML の機能だと覚えておくと整理しやすくなります。
+- `xmlns:local="clr-namespace:Editor"` は、自分のプロジェクトの名前空間を `local:` という名前で使えるようにする宣言です。自作の部品を XAML に書くときに使います。
+- `StartupUri` は、起動時に開く画面です。第 16 章で Prism を入れると、これは使わなくなります。
 
-ここに XAML の読み方の基本が全部あります。
+### MainWindow.xaml と、その相棒
 
-| 部分 | 意味 |
-| --- | --- |
-| `<Application … >` | `Application` というクラスの<strong>オブジェクトを作る</strong>。要素の名前はクラス名 |
-| `x:Class="Editor.App"` | この XAML は `Editor.App` というクラスの一部。<strong>C# 側の `partial class App` と合体</strong>して 1 つのクラスになる |
-| `partial class` | 1 つのクラスを複数のファイルに分けて書く仕組み。XAML から自動生成されるコードと自分で書くコードを分けるために使う |
-| `xmlns="…presentation"` | 既定の名前空間。`Button` や `Grid` などの WPF の部品が、タグ名だけで書ける |
-| `xmlns:x="…xaml"` | `x:` で始まる XAML 自体の機能（`x:Class`、`x:Name`、`x:Key` など） |
-| `xmlns:local="clr-namespace:Editor"` | 自分のプロジェクトの名前空間（`Editor`）を `local:` で参照できるようにする。C# の `using` に近い |
-| `StartupUri="MainWindow.xaml"` | 起動時に開く画面。Prism を入れるとこの指定は使わない（第 8 章） |
-| `<Application.Resources>` | アプリ全体で共有する<strong>リソース</strong>（色、スタイル、テンプレート）を置く場所 |
-
-### MainWindow.xaml
-
-```xml
+```xml title="MainWindow.xaml"
 <Window x:Class="Editor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -114,7 +89,7 @@ public partial class App : Application
 </Window>
 ```
 
-```csharp
+```csharp title="MainWindow.xaml.cs"
 namespace Editor;
 
 public partial class MainWindow : Window
@@ -126,37 +101,43 @@ public partial class MainWindow : Window
 }
 ```
 
-| 部分 | 意味 |
-| --- | --- |
-| `<Window>` | ウィンドウ。属性（`Title`、`Height`、`Width`）は `Window` の<strong>プロパティ</strong>を設定している。C# なら `window.Title = "MainWindow";` |
-| `<Grid>` | `Window` の中身（`Content`）。`Window` は子を<strong>1 つだけ</strong>持てるので、複数の部品を置くときは `Grid` などの入れ物を 1 つ置きその中に並べる |
-| `InitializeComponent()` | <strong>XAML で書いた内容から、部品を作って組み立てる</strong>関数。XAML から自動生成されコンストラクターの最初で呼ぶ |
-| `: Window` | `MainWindow` は `Window` を継承する |
+`<Window>` の属性（`Title`、`Height`、`Width`）は、`Window` クラスのプロパティをそのまま設定しています。`Window` は中に置ける物が 1 つだけなので、複数の部品を置きたいときは、`Grid` のような入れ物を 1 つ置いて、その中に並べるのが決まりです。
 
-## 手順 2：XAML の文法
+C# 側の `InitializeComponent()` が肝心で、XAML に書いた内容から実際の部品を作って組み立てる関数です。中身はビルドのときに自動で生成されるので、自分で書く必要はありません。ただし、コンストラクターの最初で呼ぶのを忘れないでください。
 
-### 要素とプロパティ
+## XAML の読み方
+
+XAML は XML なので、ルールは少ししかありません。
+
+### 要素と属性
 
 ```xml
 <Button Content="押す" Width="80" Height="24" />
 ```
 
-これは C# で書くと次と同じです。
+これは C# で書くとこうなります。
 
 ```csharp
 var button = new Button { Content = "押す", Width = 80, Height = 24 };
 ```
 
-| XAML | C# |
-| --- | --- |
-| 要素 `<Button>` | `new Button()` |
-| 属性 `Width="80"` | `button.Width = 80;`（文字列 `"80"` が、プロパティの型に自動変換される） |
-| 子要素 `<Grid><Button/></Grid>` | `grid.Children.Add(button);` または `Content` への代入 |
-| 要素の閉じ `/>` | 子がない場合の短い書き方 |
+要素が `new`、属性がプロパティの設定です。属性の値は文字列で書きますが、プロパティの型に合わせて自動で変換されます（`"80"` が数値の 80 になる）。
+
+### 入れ子は「中身を入れる」
+
+```xml
+<Grid>
+    <Button Content="OK" />
+</Grid>
+```
+
+要素の中に要素を書くと、外側の要素の「中身」になります。`Grid` なら子として並び、`Button` や `Window` なら `Content` という 1 つのプロパティに入ります。
+
+中身が文字だけなら、`Content` を書かずに `<Button>押す</Button>` と書けます。多くの部品は「入れ子で書いたものを、どのプロパティに入れるか」があらかじめ決まっていて、その名前を省略できるからです。
 
 ### プロパティ要素構文
 
-属性では書きにくい複雑な値は <strong>`要素名.プロパティ名`</strong> という子要素で書きます。
+属性では書けない複雑な値は、`部品名.プロパティ名` という子要素で書きます。
 
 ```xml
 <Button>
@@ -169,7 +150,7 @@ var button = new Button { Content = "押す", Width = 80, Height = 24 };
 </Button>
 ```
 
-`Button.Content` が `Button` の `Content` プロパティを「子要素の形で」設定しています。多くの部品は <strong>既定の子要素のプロパティ</strong>（`ContentProperty`）が決まっていて、`<Button>押す</Button>` のようにプロパティ名を省略して書けます。
+ボタンの中に、文字だけでなく別の部品を入れたいときに使います。WPF のボタンは、中に何でも入れられます。
 
 ### 添付プロパティ
 
@@ -179,46 +160,46 @@ var button = new Button { Content = "押す", Width = 80, Height = 24 };
 </Grid>
 ```
 
-`Grid.Row` は `Button` のプロパティではなく、<strong>`Grid` が定義して子に付けるプロパティ</strong>です。これを<strong>添付プロパティ</strong>と呼びます。「この部品は親の `Grid` の 1 行目・2 列目に置いてください」という親への指示を、子の側に書く仕組みです。C++ には直接対応するものがありません。
+`Grid.Row` は、`Button` のプロパティではありません。親の `Grid` が持っているプロパティで、「この子は何行目に置いてください」という親への指示を、子の側に書いておく仕組みです。添付プロパティと呼びます。C++ には近い仕組みがないので、最初は不思議に感じると思います。「子が親に出す注文書」くらいに考えておけば十分です。作り方は第 10 章で扱います。
 
-### x:Name（名前を付ける）
+### 名前を付ける（x:Name）
 
 ```xml
 <TextBlock x:Name="StatusText" Text="準備完了" />
 ```
 
-`x:Name` を付けるとコードビハインドから `StatusText.Text = "…";` のようにこの部品を C# の変数として使えます。ただし、この教材ではできるだけ使いません（データ バインディングで代わりにする。第 7 章）。
+`x:Name` を付けると、コードビハインドから `StatusText.Text = "..."` のように、C# の変数として触れます。この教材ではできるだけ使わず、バインディング（第 12 章）で済ませます。
 
-### 特別な値の書き方（マークアップ拡張）
+### 波かっこの値（マークアップ拡張）
 
 ```xml
 <TextBlock Text="{Binding Name}" />
 <Button Background="{StaticResource AccentBrush}" />
 ```
 
-`{ … }` で囲んだ値は <strong>マークアップ拡張</strong>と呼ばれ「文字列ではなく、特別な処理をした結果の値」を表します。主なものは次のとおりです。
+`{ ... }` で囲まれた値は、「文字列ではなく、何か処理をした結果を入れる」という意味です。これをマークアップ拡張と呼びます。よく見るのは次のものです。
 
-| マークアップ拡張 | 意味 |
+| 書き方 | 意味 |
 | --- | --- |
-| `{Binding パス}` | データ バインディング。データのプロパティを画面に結びつける（第 7 章） |
-| `{StaticResource キー}` | リソースを起動時に一度だけ引いて使う |
-| `{DynamicResource キー}` | リソースが変わったら、追従する（テーマ切り替えで使う） |
-| `{x:Static 型.メンバー}` | `static` なメンバーを参照する |
+| `{Binding パス}` | データを結び付ける（第 12 章） |
+| `{StaticResource キー}` | リソースを探して使う |
+| `{DynamicResource キー}` | リソースを探して使い、あとで変わったら追従する |
+| `{x:Static 型.メンバー}` | `static` なメンバーを使う |
 | `{x:Null}` | `null` |
 
-## 手順 3：レイアウトの部品
+## 部品の並べ方（レイアウト）
 
-WPF のレイアウトは <strong>パネル</strong>（子を並べる入れ物）で決まります。ピクセル座標で置くのではなく、<strong>「縦に並べる」「右端に寄せる」「余った分を埋める」</strong>のように指示します。ウィンドウの大きさが変わっても、きれいに並び続けるためです。
+WPF では、ピクセル座標で部品を置きません。代わりに「縦に並べる」「右端に寄せる」「余った分を埋める」といった指示を出し、ウィンドウの大きさに合わせて自動で並べ直してもらいます。この「並べてくれる入れ物」をパネルと呼びます。
 
 | パネル | 並べ方 | 使いどころ |
 | --- | --- | --- |
-| `Grid` | 行と列の表に置く | 画面全体の分割。<strong>最もよく使う</strong> |
-| `StackPanel` | 縦、または横に一列に並べる | ボタンの列、入力欄の列 |
-| `DockPanel` | 上下左右に張り付け最後の子が残りを埋める | メニュー バー、ツール バー、ステータス バーと本体 |
-| `WrapPanel` | 横に並べあふれたら折り返す | タグの一覧、サムネイル |
-| `Canvas` | 座標（`Canvas.Left`、`Canvas.Top`）で置く | 図形、ノード エディタなど。通常は使わない |
+| `Grid` | 行と列の表に置く | 画面全体の分割。いちばんよく使う |
+| `StackPanel` | 縦か横に一列に並べる | ボタンの列、入力欄の列 |
+| `DockPanel` | 上下左右に張り付けて、最後の子が残りを埋める | メニュー、ツール バー、ステータス バーと本体 |
+| `WrapPanel` | 横に並べて、あふれたら折り返す | タイル表示 |
+| `Canvas` | 座標で置く | 図形やノード エディタ。普段は使わない |
 | `Border` | 1 つの子を枠で囲む | 枠線、背景、余白 |
-| `ScrollViewer` | 子が大きいときにスクロールさせる | 長いプロパティの一覧 |
+| `ScrollViewer` | 中身が大きいときにスクロールさせる | 縦に長いパネル |
 
 ### Grid の行と列
 
@@ -226,8 +207,8 @@ WPF のレイアウトは <strong>パネル</strong>（子を並べる入れ物�
 <Grid>
     <Grid.ColumnDefinitions>
         <ColumnDefinition Width="200" />   <!-- 固定 200 -->
-        <ColumnDefinition Width="*" />     <!-- 余りを分け合う -->
-        <ColumnDefinition Width="Auto" />  <!-- 中身の大きさ -->
+        <ColumnDefinition Width="*" />     <!-- 余りを全部もらう -->
+        <ColumnDefinition Width="Auto" />  <!-- 中身に必要な分だけ -->
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
         <RowDefinition Height="Auto" />
@@ -239,39 +220,37 @@ WPF のレイアウトは <strong>パネル</strong>（子を並べる入れ物�
 </Grid>
 ```
 
-| 幅・高さの指定 | 意味 |
-| --- | --- |
-| `100`（数字） | 固定のピクセル（正確には、デバイス非依存単位。96 分の 1 インチ） |
-| `Auto` | 中身に必要な大きさ |
-| `*`（スター） | 余った領域を比率で分ける。`*` と `2*` なら 1 : 2 |
+幅や高さの指定は 3 通りです。数字は固定のサイズ、`Auto` は中身の大きさ、`*` は余った分の取り分です。`*` が 2 つあれば半分ずつ、`*` と `2*` なら 1 対 2 に分け合います。
 
-### マージン、余白、配置
+数字の単位はピクセルではなく、「デバイス非依存単位」といって 96 分の 1 インチです。画面の拡大率が 150% の環境でも、見た目の大きさが変わらないようにするための単位です。
+
+### 余白と配置
 
 | プロパティ | 意味 |
 | --- | --- |
-| `Margin="4"` / `Margin="4,2"` / `Margin="1,2,3,4"` | 部品の<strong>外側</strong>の余白。1 つの値は上下左右、2 つは左右・上下、4 つは左・上・右・下の順 |
-| `Padding` | 部品の<strong>内側</strong>の余白 |
-| `HorizontalAlignment` | 横方向の配置。`Left`、`Center`、`Right`、`Stretch`（既定。広げる） |
-| `VerticalAlignment` | 縦方向の配置 |
-| `Width` / `Height` | 固定の大きさ（普通は、指定しない） |
-| `MinWidth` / `MaxWidth` | 最小・最大の大きさ |
+| `Margin="4"` | 部品の外側の余白。`"4,2"` なら左右 4 と上下 2、`"1,2,3,4"` なら左・上・右・下の順 |
+| `Padding` | 部品の内側の余白 |
+| `HorizontalAlignment` | 横の配置。`Left` / `Center` / `Right` / `Stretch`（広げる。既定値） |
+| `VerticalAlignment` | 縦の配置 |
+| `MinWidth` / `MaxWidth` | 最小・最大の幅 |
 
-## 手順 4：エディタの骨組みを作る
+`Width` と `Height` を直接指定するのは最小限にしましょう。固定サイズにすると、ウィンドウを広げても部品が広がらなくなります。レイアウトの仕組みの詳しい話は第 9 章にあります。
 
-`MainWindow.xaml` を次のように書き換えます。
+## エディタの枠を作る
 
-### 全体の分割
+ここまでの知識で、エディタの画面の枠を作ってみます。
 
-エディタの画面は上から<strong>メニュー、本体、ステータス バー</strong>に分かれます。これには `DockPanel` を使います。
+### 上・中・下に分ける
 
-```xml
+画面は、上からメニュー、本体、ステータス バーの 3 つに分かれています。上と下を端に張り付けて、残りを本体にするので `DockPanel` が向いています。
+
+```xml title="MainWindow.xaml"
 <Window x:Class="Editor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MiniEngine Editor" Height="720" Width="1280"
         Background="#FF1E1E1E">
     <DockPanel>
-        <!-- 上：メニュー -->
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="ファイル(_F)">
                 <MenuItem Header="新規シーン(_N)" />
@@ -287,29 +266,22 @@ WPF のレイアウトは <strong>パネル</strong>（子を並べる入れ物�
             <MenuItem Header="表示(_V)" />
         </Menu>
 
-        <!-- 下：ステータス バー -->
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem Content="準備完了" />
         </StatusBar>
 
-        <!-- 残り：本体（次の手順で書く） -->
-        <Grid />
+        <Grid />   <!-- 残りの全部。次で中身を書く -->
     </DockPanel>
 </Window>
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `DockPanel.Dock="Top"` | 添付プロパティ。この子を `DockPanel` の上端に張り付ける。`Bottom`、`Left`、`Right` もある。<strong>`Dock` を指定しない最後の子</strong>が、残りを全部埋める |
-| `Menu` / `MenuItem` | メニュー バーとその項目。`Header` が表示文字。入れ子にするとサブメニューになる |
-| `_F` | 文字の前の `_` は <strong>アクセスキー</strong>。`Alt + F` でその項目を開ける。`_` は表示では下線になる |
-| `Separator` | メニューの区切り線 |
-| `StatusBar` / `StatusBarItem` | 画面下端の状態表示 |
-| `Background="#FF1E1E1E"` | 色の指定。`#AARRGGBB`（アルファ、赤、緑、青）の 16 進。ここでは暗い灰色 |
+`DockPanel.Dock="Top"` が、さっきの添付プロパティです。「私は上に張り付いてください」と親の `DockPanel` に伝えています。Dock を指定していない最後の子（ここでは `Grid`）が、残りの領域を埋めます。
+
+メニューの `Header` に入っている `_F` は、アクセスキーの印です。`Alt + F` で「ファイル」が開き、画面では `F` に下線が付きます。色の `#FF1E1E1E` は `#AARRGGBB` の順（アルファ、赤、緑、青）で、これは暗い灰色です。
 
 ### 本体を左・中・右に分ける
 
-`<Grid />` の部分を次のように書き換えます。
+上の `<Grid />` を、次のように書き換えます。
 
 ```xml
 <Grid>
@@ -321,14 +293,12 @@ WPF のレイアウトは <strong>パネル</strong>（子を並べる入れ物�
         <ColumnDefinition Width="300" MinWidth="160" />
     </Grid.ColumnDefinitions>
 
-    <!-- 左：シーン ツリー -->
     <Border Grid.Column="0" Background="#FF252526">
         <TextBlock Text="シーン ツリー" Foreground="White" Margin="8" />
     </Border>
 
     <GridSplitter Grid.Column="1" Width="4" HorizontalAlignment="Stretch" Background="#FF3F3F46" />
 
-    <!-- 中央：ビューポートと下のパネル -->
     <Grid Grid.Column="2">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" MinHeight="120" />
@@ -343,45 +313,32 @@ WPF のレイアウトは <strong>パネル</strong>（子を並べる入れ物�
         <GridSplitter Grid.Row="1" Height="4" HorizontalAlignment="Stretch" Background="#FF3F3F46" />
 
         <TabControl Grid.Row="2">
-            <TabItem Header="アセット">
-                <TextBlock Text="アセット ブラウザ" Margin="8" />
-            </TabItem>
-            <TabItem Header="ログ">
-                <TextBlock Text="ログ" Margin="8" />
-            </TabItem>
+            <TabItem Header="アセット"><TextBlock Text="アセット ブラウザ" Margin="8" /></TabItem>
+            <TabItem Header="ログ"><TextBlock Text="ログ" Margin="8" /></TabItem>
         </TabControl>
     </Grid>
 
     <GridSplitter Grid.Column="3" Width="4" HorizontalAlignment="Stretch" Background="#FF3F3F46" />
 
-    <!-- 右：プロパティ -->
     <Border Grid.Column="4" Background="#FF252526">
         <TextBlock Text="プロパティ" Foreground="White" Margin="8" />
     </Border>
 </Grid>
 ```
 
-実行（`F5`）すると 3 つに分かれた暗い画面が出ます。仕切り（`GridSplitter`）をドラッグすると、幅が変わります。
+実行すると、暗い 3 分割の画面が出て、仕切りをドラッグすると幅が変わります。
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `GridSplitter` | `Grid` の行や列をドラッグで変えられるようにする仕切り。<strong>自分自身が 1 つの行（または列）を占める</strong>ように置く。縦の仕切りは `Width` を横の仕切りは `Height` を指定し、`HorizontalAlignment="Stretch"` にする |
-| `TextBlock` | 文字を表示するだけの部品（編集はできない）。`Text` が表示文字 |
-| `Foreground` | 文字の色。`Background` は背景色 |
-| `TabControl` / `TabItem` | タブの入れ物と 1 枚のタブ。`Header` がタブの見出し中身は子要素 |
-| `Border` | 1 つの子を囲む。`Background`、`BorderBrush`（枠の色）、`BorderThickness`（枠の太さ）を持つ |
-| `MinWidth` / `MinHeight` | 仕切りで縮めたときの下限 |
+`GridSplitter` は、ドラッグで行や列の大きさを変えられる仕切りです。自分自身が 1 つの列（または行）を専有するように置くのがコツで、ここでは `Auto` の列を 1 本ずつ割り当てました。縦の仕切りには `Width`、横の仕切りには `Height` を指定します。
 
-## 手順 5：リソースとスタイル
+`TextBlock` は文字を表示するだけの部品、`TabControl` / `TabItem` はタブです。`Border` は枠を付けたり背景を塗ったりできる、一番シンプルな入れ物です。
 
-同じ色や見た目を何度も書くのは大変です。<strong>リソース</strong>として 1 か所に定義し、名前で呼び出します。
+## リソースとスタイルの触り
 
-`App.xaml` の `<Application.Resources>` の中に書きます。
+同じ色を何か所にも書くと、あとで直すのが大変です。1 か所に名前を付けて定義し、使うところで名前を呼びます。`App.xaml` の `<Application.Resources>` に書くと、アプリ全体で使えます。
 
-```xml
+```xml title="App.xaml"
 <Application.Resources>
     <SolidColorBrush x:Key="PanelBrush" Color="#FF252526" />
-    <SolidColorBrush x:Key="SplitterBrush" Color="#FF3F3F46" />
 
     <Style TargetType="TextBlock">
         <Setter Property="Foreground" Value="#FFDDDDDD" />
@@ -389,26 +346,21 @@ WPF のレイアウトは <strong>パネル</strong>（子を並べる入れ物�
 </Application.Resources>
 ```
 
-そして `MainWindow.xaml` の側で `{StaticResource PanelBrush}` と書きます。
+使う側はこうです。
 
 ```xml
-<Border Grid.Column="0" Background="{StaticResource PanelBrush}">
+<Border Background="{StaticResource PanelBrush}">
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `SolidColorBrush` | 単色の塗り。`Background` などのプロパティは色ではなく<strong>ブラシ</strong>を受け取る |
-| `x:Key` | リソースの名前。引くときに使う |
-| `Style` | 見た目の設定のまとまり。`TargetType` を指定するとその型の<strong>すべての部品に</strong>、自動で適用される |
-| `Setter` | スタイルの 1 項目。`Property`（プロパティ名）と `Value`（値） |
-| リソースの探し方 | 部品 → 親 → … → ウィンドウ → `App.xaml` の順に探す。近い所の定義が勝つ |
+`x:Key` が付いたものは「名前で呼んだときだけ使われる」リソース、`Style` のように `x:Key` を付けずに `TargetType` だけを指定したものは「その型の部品すべてに自動で効く」スタイルになります。上の例だと、画面中の `TextBlock` の文字色がすべて薄い灰色になります。
 
-!!! note "ダーク テーマにするには"
-    WPF の標準の部品（`Button`、`TextBox` など）の見た目は白い背景に決まっています。エディタ全体を暗くするには各部品の<strong>テンプレート</strong>を作り直す必要があり大変です。この教材では最小限の色だけを付け本格的なテーマは、ライブラリ（`MaterialDesignInXamlToolkit` など）に任せる方法があることを知っておくにとどめます。
+リソースは、近い所から順に探されます。部品自身、親、さらに親、ウィンドウ、`App.xaml` の順です。近くに同じ名前があれば、そちらが勝ちます。
 
-## 手順 6：コードビハインドで反応させる
+スタイルとテンプレートは奥が深いので、第 11 章でまとめて扱います。
 
-XAML の部品は `Click` などの<strong>イベント</strong>に C# のメソッドを結びつけられます。
+## イベントを受け取る
+
+ボタンやメニューを押したときの処理は、`Click` などのイベントにメソッドを結び付けて書けます。
 
 ```xml
 <MenuItem Header="終了(_X)" Click="OnExit" />
@@ -417,52 +369,49 @@ XAML の部品は `Click` などの<strong>イベント</strong>に C# のメソ
 ```csharp
 private void OnExit(object sender, RoutedEventArgs e)
 {
-    Close();    // ウィンドウを閉じる
+    Close();
 }
 ```
 
-| 新しく出てきたもの | 説明 |
-| --- | --- |
-| `Click="OnExit"` | `Click` イベントに `OnExit` メソッドを登録する。メソッドはコードビハインドに書く |
-| `object sender` | イベントを起こした部品（ここでは `MenuItem`） |
-| `RoutedEventArgs e` | イベントの詳細。<strong>ルーテッド イベント</strong>の情報を持つ |
-| ルーテッド イベント | WPF のイベントは、子から親へ<strong>伝わっていく</strong>（バブリング）。例えば、ボタンの `Click` はボタンを含む親でも受け取れる |
-| `Close()` | ウィンドウを閉じる。`Window` のメソッド |
+`sender` はイベントを起こした部品、`e` はイベントの詳細です。WPF のイベントは「ルーテッド イベント」といって、子から親へと伝わっていく性質があります（第 10 章で説明します）。
 
-ただし、この方式は画面とロジックが同じクラスに混ざります。エディタが大きくなると管理できません。<strong>次の章ではロジックをビューモデルに分けデータ バインディングと `ICommand` で結びつける方法</strong>を学びます。
+この書き方は手軽ですが、画面とロジックが同じクラスに混ざります。エディタのように大きくなるアプリでは、すぐ管理できなくなります。次の章では、処理をビューモデルに移して、データバインディングとコマンドで結び付ける方法を学びます。
 
-## 動作確認
+## Visual Studio に助けてもらう
 
-| 見る所 | 期待する結果 |
-| --- | --- |
-| 起動 | 暗い画面にメニュー、3 つのパネル、下のタブ、ステータス バーが出る |
-| 仕切りのドラッグ | 左右・上下の仕切りを動かすと幅や高さが変わる。`MinWidth` より狭くならない |
-| ウィンドウを広げる・縮める | 中央の領域だけが伸び縮みする（`*` の列） |
-| `Alt + F` | 「ファイル」メニューが開く |
-| 「終了」 | ウィンドウが閉じる |
+XAML は、書いて実行して確かめるのが遅くなりがちです。Visual Studio には、実行中の画面に XAML の変更をその場で反映する「XAML ホット リロード」や、実行中の画面の部品の木を見られる「ライブ ビジュアル ツリー」があります。使い方は第 7 章にまとめました。
 
-## よくあるミス
+## 動かしてみる
 
-??? failure "XAML のデザイナーに「ビルドが必要」と出る／部品が見えない"
-    一度、ビルドする。それでも出ないときは XAML のタグの閉じ忘れ属性名のタイプミス（エラー一覧の `MC3000` など）を確認する。
+`F5` で実行して、次のあたりを確かめてください。
 
-??? failure "`GridSplitter` が動かない／見えない"
-    `GridSplitter` が行や列を専用に占めていない。`Grid.Column` を仕切り用の列に指定しているか `Width`（または `Height`）が 0 でないかを確認する。
+- 暗い画面に、メニュー、3 つのパネル、下のタブ、ステータス バーが出ている。
+- 仕切りをドラッグすると幅や高さが変わり、`MinWidth` より狭くならない。
+- ウィンドウを広げると、中央の `*` の列だけが伸びる。
+- `Alt + F` で「ファイル」メニューが開く。
 
-??? failure "`Window` に子を 2 つ書いて、エラーになる"
-    `Window` の子は 1 つだけ。`Grid` や `DockPanel` などのパネルで包む。
+??? failure "デザイナーに「ビルドが必要です」と出る、部品が見えない"
+    一度ビルドしてください。それでも直らなければ、XAML のタグの閉じ忘れや属性名のタイプミスを、エラー一覧で探します。
 
-??? failure "XAML の変更が、実行中の画面に反映されない"
-    停止してもう一度ビルドして実行する。「ライブ ビジュアル ツリー」の機能を使うと実行中の画面を調べられる。
+??? failure "`GridSplitter` が動かない"
+    仕切り専用の行（または列）を割り当てていない可能性が高いです。`Grid.Column` が仕切り用の列になっているか、`Width`（横に動かすなら）か `Height`（縦に動かすなら）が 0 でないかを確かめます。
 
-??? failure "色が思った色にならない"
-    `#RRGGBB` ではなく `#AARRGGBB`（先頭がアルファ）の形式になっているか確認する。アルファが `00` だと透明になる。
+??? failure "`Window` の中に部品を 2 つ書いたらエラーになる"
+    `Window` の中身は 1 つだけです。`Grid` や `DockPanel` で包んでください。
 
-## この章で作ったもの
+??? failure "色が思った色にならない、見えない"
+    `#RRGGBB` ではなく `#AARRGGBB` です。先頭がアルファ値なので、`00` から始めると透明になります。
 
-- メニュー、左・中・右のパネル、下のタブ、ステータス バーの画面の骨組み。
-- `App.xaml` のリソース（ブラシとスタイル）。
+## 関連する章
 
-## 次の章へ
+この先の章で、XAML を掘り下げていきます。
 
-次の章（[第 7 章 データ バインディングと MVVM](07-binding-mvvm.md)）では、画面の部品とデータを<strong>つなぐ</strong>仕組みを学びます。ボタンを押したときの処理をコードビハインドから、ビューモデルに移します。
+- [第 8 章 コントロールとコンテンツ モデル](08-controls.md)
+- [第 10 章 依存関係プロパティ、添付プロパティ、ルーテッド イベント](10-dependency-properties.md)
+- [第 11 章 スタイル、リソース、テンプレート、トリガー](11-style-template.md)
+- [第 9 章 レイアウトの仕組み](09-layout.md)
+- [第 7 章 Visual Studio で XAML を書くコツ](07-vs-tips.md)
+
+次の章では、実行中の画面を調べたり、XAML をその場で直したりする Visual Studio の機能を、先に紹介します。
+
+[第 7 章 Visual Studio で XAML を書くコツ](07-vs-tips.md) へ進みます。

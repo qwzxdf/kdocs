@@ -45,7 +45,7 @@ tags:
 | --- | --- | --- | --- |
 | <strong>Engine</strong> | C++ | DLL | エンジンの中核。DirectX 12 の描画、シーン、アセット、入力。<strong>どのプロジェクトにも依存しない</strong> |
 | <strong>EngineApi</strong> | C++ | DLL | Engine を、<strong>C の関数</strong>として公開する入口。C# の Editor はこれだけを見る |
-| <strong>Game</strong> | C++ | DLL | ゲームのコード（コンポーネント、ゲーム ルール）。エンジンの機能で書く。<strong>実行中に差し替え</strong>できる（第 28 章） |
+| <strong>Game</strong> | C++ | DLL | ゲームのコード（コンポーネント、ゲーム ルール）。エンジンの機能で書く。<strong>実行中に差し替え</strong>できる（第 42 章） |
 | <strong>Player</strong> | C++ | EXE | ゲームを動かす実行側。ウィンドウを作り Engine と Game を読み込んで、ループを回す |
 | <strong>Editor</strong> | C# | EXE | WPF + Prism のエディタ。EngineApi.dll を P/Invoke で呼ぶ |
 
@@ -60,7 +60,7 @@ Editor ──▶ EngineApi ──▶ Engine ◀── Game
 | 規則 | 理由 |
 | --- | --- |
 | <strong>Engine は他のプロジェクトを知らない</strong> | 中核が、エディタやゲームの都合で変わらないようにする。再利用できる |
-| <strong>Editor は EngineApi の C 関数だけを呼ぶ</strong> | C++ の型（クラス、`std::string`、例外）は言語の境界を越えられない（第 11 章） |
+| <strong>Editor は EngineApi の C 関数だけを呼ぶ</strong> | C++ の型（クラス、`std::string`、例外）は言語の境界を越えられない（第 25 章） |
 | <strong>Game は Engine の公開ヘッダーだけを使う</strong> | ゲームのコードが、Engine の内部に依存しない。DLL として差し替えられる |
 | <strong>Player と Editor は、互いに依存しない</strong> | どちらも Engine を使う別々の「入口」。同じゲームを別の形で動かす |
 
@@ -70,8 +70,8 @@ Editor ──▶ EngineApi ──▶ Engine ◀── Game
 
 | 境界 | どこ | 越えるもの | 気をつけること |
 | --- | --- | --- | --- |
-| ① C# ↔ C++ | Editor ↔ EngineApi | C の関数、構造体、ポインター、文字列 | 型の大きさ文字列の文字コード、メモリの所有者、呼び出し規約（第 11〜13 章） |
-| ② 実行側 ↔ ゲーム | Player/Editor ↔ Game | C++ のクラス（仮想関数） | 同じコンパイラ、同じランタイムで作ること。再読み込みの扱い（第 27〜28 章） |
+| ① C# ↔ C++ | Editor ↔ EngineApi | C の関数、構造体、ポインター、文字列 | 型の大きさ文字列の文字コード、メモリの所有者、呼び出し規約（第 25〜27 章） |
+| ② 実行側 ↔ ゲーム | Player/Editor ↔ Game | C++ のクラス（仮想関数） | 同じコンパイラ、同じランタイムで作ること。再読み込みの扱い（第 41〜42 章） |
 | ③ Engine ↔ その利用者 | Engine ↔ Game/Player/EngineApi | C++ の公開ヘッダー | DLL の境界を越える、C++ の型（`std::string` など）の扱い（第 2 章） |
 
 ## 手順 1：空のソリューションを作る
@@ -116,7 +116,7 @@ Editor ──▶ EngineApi ──▶ Engine ◀── Game
 
 ## 手順 4：構成を x64 だけにそろえる
 
-DirectX 12 のエンジンは <strong>64 ビット（x64）だけ</strong>を対象にします。C++ の DLL と C# の EXE のビット数が違うと読み込めません（第 15 章）。
+DirectX 12 のエンジンは <strong>64 ビット（x64）だけ</strong>を対象にします。C++ の DLL と C# の EXE のビット数が違うと読み込めません（第 29 章）。
 
 1. メニューの <strong>「ビルド → 構成マネージャー」</strong>を開く。
 2. <strong>「アクティブ ソリューション プラットフォーム」</strong>のドロップダウンから、<strong>「新規作成」</strong>を選び `x64` を作る（「設定のコピー元」は、`Win32` か `Any CPU`）。

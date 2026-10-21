@@ -86,7 +86,7 @@ inline void ThrowIfFailed(HRESULT hr, const char* what) {
 | --- | --- |
 | `HRESULT` | Windows API の結果コード（32 ビット整数）。成功は 0 以上、失敗は負。`FAILED(hr)` で判定 |
 | `std::runtime_error` | 「実行時に起きたエラー」を表す標準の例外クラス。メッセージを持てる |
-| 例外 | `throw` で投げると、呼び出し元をさかのぼって `catch` まで飛ぶ。<strong>DLL の境界を越えさせてはいけない</strong>（C# は、C++ の例外を受け取れない。第 13 章） |
+| 例外 | `throw` で投げると、呼び出し元をさかのぼって `catch` まで飛ぶ。<strong>DLL の境界を越えさせてはいけない</strong>（C# は、C++ の例外を受け取れない。第 27 章） |
 
 ## 手順 3：Renderer のヘッダー
 

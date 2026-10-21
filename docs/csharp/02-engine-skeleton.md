@@ -113,7 +113,7 @@ namespace mini {
 
 enum class LogLevel : std::int32_t { Info, Warning, Error };
 
-// ログの出力先。C 言語の関数ポインターにして、C# からも渡せる形にしておく（第 13 章）。
+// ログの出力先。C 言語の関数ポインターにして、C# からも渡せる形にしておく（第 27 章）。
 // user: 登録した側が、好きに使える、ポインター（コールバックに、そのまま、返ってくる）。
 using LogCallback = void (*)(LogLevel level, const char* message, void* user);
 
@@ -366,7 +366,7 @@ dumpbin /exports MiniEngine\bin\x64\Debug\Engine.dll
 | 新しく出てきたもの | 説明 |
 | --- | --- |
 | `dumpbin` | MSVC に付属する、実行ファイルの調査ツール。`/exports` でエクスポートの一覧を出す |
-| 名前の飾り（マングリング） | `?Create@Engine@mini@@...` のように C++ の関数名は、<strong>引数の型や名前空間を含む長い名前</strong>に変えられる（同名のオーバーロードを、区別するため）。これが <strong>C# から直接、呼べない</strong>理由で第 11 章の話題の核心 |
+| 名前の飾り（マングリング） | `?Create@Engine@mini@@...` のように C++ の関数名は、<strong>引数の型や名前空間を含む長い名前</strong>に変えられる（同名のオーバーロードを、区別するため）。これが <strong>C# から直接、呼べない</strong>理由で第 25 章の話題の核心 |
 
 ## よくあるミス
 
