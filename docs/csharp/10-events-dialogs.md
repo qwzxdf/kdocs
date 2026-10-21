@@ -271,6 +271,9 @@ public class SelectionService : BindableBase, ISelectionService
 
 状態の保持と変化の通知を <strong>1 つのサービスにまとめる</strong>のが、よく使う形です。
 
+!!! note "この選択サービスは、第 21 章で作り直します"
+    ここでは、仕組みを学ぶために、ID（`int?`）で選択を持つ簡易版を書きました。第 21 章では、物そのもの（`SceneObject`）を持ち、複数選択に対応した形に置き換えます。
+
 | 新しく出てきたもの | 説明 |
 | --- | --- |
 | `SetProperty` の戻り値 | 値が変わったとき `true`。変わっていなければ `false` を返すので、`if` で通知の要否を決められる |

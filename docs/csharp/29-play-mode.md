@@ -71,6 +71,8 @@ ME_API MeResult me_play_step(MeEngine* engine);                  /* 一時停止
 
 ### エンジン側
 
+第 27 章の `SetPlaying(bool)` は、この章の `SetPlayState(PlayState)` に置き換えます（一時停止を表せないため）。Player の `SetPlaying(true)` も、`SetPlayState(PlayState::Playing)` に直してください。
+
 `Engine` の `Impl` に状態を持たせます。
 
 ```cpp

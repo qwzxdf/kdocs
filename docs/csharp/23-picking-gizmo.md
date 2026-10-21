@@ -297,6 +297,8 @@ private void PickAt(float x, float y, bool additive)
 | 左ボタンのカメラ操作 | 右・中ボタンだけがカメラを動かす（第 19 章）。左ボタンの `MouseMove` も、エンジンには送らない |
 | `ctrl` | `Ctrl` キーが押されているか。`ViewportHost` で `GetKeyState(VK_CONTROL)` から取って、イベントの引数に足す |
 
+第 19 章でビューに書いた `Host.InputReceived += …` の行も、`ctrl` を渡す形に直します（`ViewportInputEventArgs` に `Ctrl` プロパティを足し、`ViewModel?.OnInput(e.Type, e.Button, e.X, e.Y, e.Delta, e.Ctrl)` と呼びます）。
+
 ```csharp
 // ViewportHost の Raise の中で
 bool ctrl = (Win32.GetKeyState(0x11) & 0x8000) != 0;   // VK_CONTROL
