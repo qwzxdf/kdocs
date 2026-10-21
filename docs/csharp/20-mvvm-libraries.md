@@ -111,7 +111,7 @@ public class PlayerViewModel
 | 通知付きプロパティ | `SetProperty(ref _x, value)` | `[ObservableProperty]` または `SetProperty(ref _x, value)` |
 | 基底クラス | `BindableBase` | `ObservableObject` |
 | コマンド | `DelegateCommand` | `RelayCommand`（`[RelayCommand]`） |
-| 非同期コマンド | `DelegateCommand.FromAsync` | `AsyncRelayCommand` |
+| 非同期コマンド | なし（第 15 章の `AsyncCommand` のように自作する） | `AsyncRelayCommand` |
 | 条件が変わったら再判定 | `.ObservesProperty(() => X)` | `[NotifyCanExecuteChangedFor(...)]` |
 | 値が変わったときの処理 | `SetProperty(ref _x, value, OnChanged)` | `partial void OnXxxChanged(T value)` |
 | メッセージの送受信 | `IEventAggregator` | `WeakReferenceMessenger`（`ObservableRecipient`） |

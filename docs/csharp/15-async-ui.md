@@ -47,10 +47,67 @@ Result = result;                                              // 戻ってきた
 
 ## ボタンから非同期処理を呼ぶ
 
-`DelegateCommand` には、非同期の処理を渡せる `FromAsync` があります。
+Prism の `DelegateCommand` は、同期のメソッドしか受け取れません。`new DelegateCommand(async () => await LoadAsync())` と書くことはできますが、中身は `async void` と同じになります。`async void` の関数で起きた例外は、呼び出し元で捕まえられず、アプリが落ちることがあります。実行中に二重で押される問題も、自分で防がなければなりません。
+
+そこで、非同期の処理を渡せるコマンドを、自分で 1 つ作っておきます。第 12 章で作った `RelayCommand` の仲間です。
+
+```csharp title="Mvvm/AsyncCommand.cs"
+using System.Windows.Input;
+
+namespace Editor.Mvvm;
+
+// 非同期の処理を実行するコマンド。実行中は押せなくなり、二重に実行されない。
+public sealed class AsyncCommand : ICommand
+{
+    private readonly Func<Task> _execute;
+    private readonly Func<bool>? _canExecute;
+    private readonly Action<Exception>? _onError;
+    private bool _isRunning;
+
+    public AsyncCommand(Func<Task> execute, Func<bool>? canExecute = null, Action<Exception>? onError = null)
+    {
+        _execute = execute;
+        _canExecute = canExecute;
+        _onError = onError;
+    }
+
+    public event EventHandler? CanExecuteChanged;
+
+    public bool CanExecute(object? parameter) => !_isRunning && (_canExecute?.Invoke() ?? true);
+
+    // ICommand の Execute は戻り値が void なので、ここだけは async void になる。
+    // 例外は自分で捕まえて、外へ漏らさない。
+    public async void Execute(object? parameter)
+    {
+        if (!CanExecute(parameter)) return;
+
+        _isRunning = true;
+        RaiseCanExecuteChanged();
+        try
+        {
+            await _execute();
+        }
+        catch (Exception e) when (_onError is not null)
+        {
+            _onError(e);
+        }
+        finally
+        {
+            _isRunning = false;
+            RaiseCanExecuteChanged();
+        }
+    }
+
+    public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+}
+```
+
+`ICommand.Execute` が `void` を返す決まりなので、`async void` をなくすことはできません。そこで、`async void` を 1 か所に閉じ込めて、例外の処理と二重実行の防止をそこで済ませます。`onError` を渡さなかったときは、例外がそのまま UI スレッドの未処理例外になります（第 44 章でまとめて受け取ります）。
+
+使う側は、次のように書きます。
 
 ```csharp
-LoadCommand = DelegateCommand.FromAsync(LoadAsync);
+LoadCommand = new AsyncCommand(LoadAsync, onError: e => _log.Error($"読み込みに失敗: {e.Message}"));
 ```
 
 ```csharp
@@ -61,10 +118,6 @@ private async Task LoadAsync()
     {
         Items = await _service.LoadAsync();
     }
-    catch (Exception e)
-    {
-        _log.Error($"読み込みに失敗: {e.Message}");
-    }
     finally
     {
         IsBusy = false;
@@ -72,7 +125,7 @@ private async Task LoadAsync()
 }
 ```
 
-`async void` は、イベント ハンドラー以外では使わないでください。`async void` の関数で起きた例外は、呼び出し元で捕まえられず、アプリが落ちることがあります。`Task` を返す形にして、呼び出し側で `await` します。`FromAsync` は、それを正しくやってくれる便利な口です。実行中は、`CanExecute` が自動で `false` になるので、二重実行も防げます。
+実行中は `CanExecute` が `false` になるので、ボタンが自動で押せなくなります。`canExecute` を渡せば、「実行中でなく、かつ編集中のとき」のような条件も足せます。条件が変わったら、`RaiseCanExecuteChanged()` を呼びます。
 
 CommunityToolkit.Mvvm なら `AsyncRelayCommand` が同じ役目を果たします（第 20 章）。
 
@@ -151,7 +204,7 @@ BindingOperations.EnableCollectionSynchronization(Entries, _lock);
 lock (_lock) { Entries.Add(entry); }
 ```
 
-2 のほうは、UI スレッドで作ったコレクションを呼ぶ前に設定する必要があります。迷ったら 1 のほうが単純です。
+2 のほうの `EnableCollectionSynchronization` は、UI スレッドで呼びます。別のスレッドから `Add` を始める前に、設定を済ませておいてください。迷ったら 1 のほうが単純です。
 
 ## 固まる原因の定番
 
@@ -173,7 +226,7 @@ lock (_lock) { Entries.Add(entry); }
 
 - 重い処理は UI スレッドの外へ。待つ処理は `async` / `await`、計算は `Task.Run`。
 - `await` の後は UI スレッドに戻るので、画面を触ってよい。`Task.Run` の中では触らない。
-- `async void` はイベント ハンドラー以外では使わない。コマンドは `DelegateCommand.FromAsync`。
+- `async void` はイベント ハンドラー以外では使わない。コマンドは、自作の `AsyncCommand`（または `AsyncRelayCommand`）。
 - 経過は `Progress<T>`、中断は `CancellationToken`。
 - 別のスレッドから UI を更新するときは、`Dispatcher.BeginInvoke`。`.Result` / `.Wait()` で待たない。
 

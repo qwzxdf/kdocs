@@ -139,6 +139,59 @@ public class StepperBox : Control
 
 `Themes\Generic.xaml` の置き場所は、**`Themes` フォルダーの直下**で、名前も `Generic.xaml` と決まっています。`AssemblyInfo.cs` に `[assembly: ThemeInfo(ResourceDictionaryLocation.None, ResourceDictionaryLocation.SourceAssembly)]` があることも確認してください（WPF のプロジェクト テンプレートで最初から入っています）。
 
+## 部品の上に重ねて描く（Adorner）
+
+部品の上に、選択枠や、ドラッグ中の目印を重ねたいことがあります。`Adorner`（装飾）は、そのための仕組みです。レイアウトに影響せず、部品の上の「装飾レイヤー」に描かれるので、元の部品の大きさや並びを変えずに、枠や記号を足せます。
+
+自分で作るときは、`Adorner` を継承して、`OnRender` で描きます。
+
+```csharp title="Controls/SelectionAdorner.cs"
+using System.Windows.Documents;
+using System.Windows.Media;
+
+namespace Editor.Controls;
+
+// 部品の周りに、点線の枠を重ねる
+public sealed class SelectionAdorner : Adorner
+{
+    private static readonly Pen s_pen = CreatePen();
+
+    public SelectionAdorner(UIElement adornedElement) : base(adornedElement)
+    {
+        IsHitTestVisible = false;     // マウスの操作を、下の部品に通す
+    }
+
+    protected override void OnRender(DrawingContext drawingContext)
+    {
+        // AdornedElement は、装飾される側の部品
+        var rect = new Rect(AdornedElement.RenderSize);
+        drawingContext.DrawRectangle(null, s_pen, rect);
+    }
+
+    private static Pen CreatePen()
+    {
+        var pen = new Pen(Brushes.DeepSkyBlue, 1) { DashStyle = DashStyles.Dash };
+        pen.Freeze();
+        return pen;
+    }
+}
+```
+
+付けるときは、部品がいる `AdornerLayer` を取って、`Add` します。
+
+```csharp
+var layer = AdornerLayer.GetAdornerLayer(targetElement);
+var adorner = new SelectionAdorner(targetElement);
+layer?.Add(adorner);
+
+// 外すとき
+layer?.Remove(adorner);
+```
+
+`GetAdornerLayer` は、部品がウィンドウに表示されたあとでないと、`null` を返すことがあります。`Loaded` のあとに呼んでください。
+
+`Adorner` は、`Window` の中の部品に対してだけ働きます。`HwndHost` で埋め込んだ 3D ビューポートの上には、重ねられません（第 31 章。WPF とは別のウィンドウだからです）。ビューポートの上の選択枠やギズモは、WPF の `Adorner` ではなく、エンジン側で描きます（第 37 章）。`Adorner` は、シーン ツリーやアセット ブラウザのような、WPF の部品の上で使います。
+
 ## 作らないほうがいい場合
 
 自作の部品を作る前に、次の可能性を考えてみてください。
@@ -154,6 +207,7 @@ public class StepperBox : Control
 - アプリの中で使い回すだけなら `UserControl`。外から指定する値は、依存関係プロパティで公開する。
 - `UserControl` の中のバインディングは、`ElementName` などで自分自身を指す。`DataContext` を書き換えない。
 - 見た目を差し替えたい部品は、`Control` を継承したカスタム コントロール。機能は C#、見た目は `Generic.xaml`。
+- 部品の上に枠や目印を重ねたいときは `Adorner`。ただし `HwndHost` の上には重ねられない。
 - 作る前に、スタイルやテンプレートで済まないかを考える。
 
 次の章では、イベントをコマンドに結んで、コードビハインドを減らす方法を見ます。

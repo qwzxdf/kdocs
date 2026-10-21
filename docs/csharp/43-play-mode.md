@@ -300,8 +300,8 @@ public void SetPosition(SceneObject obj, Vector3 value)
 // MainWindowViewModel
 UndoCommand = new DelegateCommand(_history.Undo, () => _history.CanUndo && _play.IsEditing);
 RedoCommand = new DelegateCommand(_history.Redo, () => _history.CanRedo && _play.IsEditing);
-NewCommand = DelegateCommand.FromAsync(async () => await files.NewAsync(), () => _play.IsEditing);
-OpenCommand = DelegateCommand.FromAsync(async () => await files.OpenAsync(), () => _play.IsEditing);
+NewCommand = new AsyncCommand(files.NewAsync, () => _play.IsEditing);
+OpenCommand = new AsyncCommand(files.OpenAsync, () => _play.IsEditing);
 // _play.StateChanged で、これらの RaiseCanExecuteChanged を呼ぶ
 ```
 

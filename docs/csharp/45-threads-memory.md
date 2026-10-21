@@ -89,6 +89,34 @@ ISelectionService（アプリの間ずっと生きる）
 | 寿命をそろえる | 発行側と購読側が同じ寿命なら、問題ない | サービスどうしなど |
 | `IEventAggregator` | Prism のイベントは、既定で購読者を弱い参照で持つ（`keepSubscriberReferenceAlive: false`） | モジュール間の通知 |
 
+### 弱いイベントの書き方（WeakEventManager）
+
+解除のタイミングが分かりにくいときは、WPF が用意している `WeakEventManager` を使います。通常の `+=` では、発行側が購読者への強い参照を持ちます。`WeakEventManager` は、間に仲介役を挟んで、発行側から購読者への参照を弱い参照にします。
+
+```csharp
+// 通常の購読（発行側が購読者を強く参照する）
+source.Changed += OnChanged;
+
+// 弱い購読（購読者が不要になれば、GC が回収できる）
+WeakEventManager<SceneDocument, EventArgs>.AddHandler(source, nameof(SceneDocument.Changed), OnChanged);
+
+// 解除したいときは RemoveHandler。ただし、忘れても致命的ではない
+WeakEventManager<SceneDocument, EventArgs>.RemoveHandler(source, nameof(SceneDocument.Changed), OnChanged);
+```
+
+型引数は、発行側の型とイベント引数の型です。イベント名は、文字列で渡します。イベントの型が `EventHandler<TEventArgs>` か、`EventArgs` から派生した引数を持つ `EventHandler` のときに使えます。
+
+`INotifyPropertyChanged` の `PropertyChanged` には、専用の `PropertyChangedEventManager` があります。
+
+```csharp
+PropertyChangedEventManager.AddHandler(source, OnSourcePropertyChanged, nameof(Source.Name));
+```
+
+弱いイベントには、次の注意点があります。
+
+- ラムダ式は渡さないでください。ラムダは、どこからも参照されないため、すぐに GC に回収されて、通知が届かなくなります。`OnChanged` のような名前付きのメソッドを渡します。
+- 解除が不要になるのは、「メモリが残る」問題だけです。購読者が回収されるまでは、通知が届き続けます。購読者が `Dispose` された後に反応してほしくないなら、やはり明示的に解除してください。
+
 購読が多いビューモデルでは、解除を忘れがちです。購読解除の処理を溜めておいて、`Dispose` で一括解除する、小さな仕組みを作ります。
 
 ```csharp

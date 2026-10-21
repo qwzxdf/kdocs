@@ -6,23 +6,23 @@ tags:
 
 # 第 3 章 Engine に DirectX 12 を載せる
 
-この章では `Engine::Tick` の中で <strong>DirectX 12 を使いウィンドウを 1 色で、塗りつぶす</strong>ところまで作ります。DirectX 12 の部品（デバイス、キュー、フェンス、スワップ チェーン）のくわしい説明は、[DirectX 12 Guide](../directx/dx12/index.md) にあります。この章では <strong>それらを Engine の中に組み込む形</strong>と <strong>WPF から使うことを、見据えた設計</strong>（ウィンドウのリサイズ、例外を境界の外に出さない）に絞ります。
+この章では、`Engine::Tick` の中で DirectX 12 を使って、ウィンドウを 1 色で塗りつぶすところまで作ります。DirectX 12 の部品（デバイス、キュー、フェンス、スワップ チェーン）の詳しい説明は、[DirectX 12 Guide](../directx/dx12/index.md) にあります。この章で説明するのは、それらを Engine の中に組み込む形と、WPF から使うことを見据えた設計（ウィンドウのリサイズ、例外を境界の外に出さない）だけです。
 
 ## この章の考え方
 
-DirectX 12 は、DirectX 11 までと違って、<strong>GPU に仕事を頼む手順を、プログラマーが細かく書く</strong>仕組みです。そのため、画面を 1 色で塗るだけでも、デバイス、コマンド キュー、スワップ チェーン、フェンスなど、たくさんの部品が要ります。初めて見ると、量の多さに驚くかもしれません。
+DirectX 12 は、GPU に仕事を頼む手順をプログラマーが細かく書く仕組みです。そのため、画面を 1 色で塗るだけでも、デバイス、コマンド キュー、スワップ チェーン、フェンスなど、たくさんの部品が要ります。初めて見ると、量の多さに驚くかもしれません。
 
-ここで、全体の流れを、ことばで先に説明しておきます。
+まず、全体の流れを言葉で説明しておきます。
 
-1. <strong>GPU を選び、窓口（デバイス）を作る。</strong>
-2. <strong>仕事の受付（コマンド キュー）を作る。</strong>GPU への仕事は、ここに並べて頼む。
-3. <strong>画面に出す絵を入れる板（バック バッファ）の束（スワップ チェーン）を作る。</strong>裏で描いて、表と入れ替える。
-4. <strong>毎フレーム、「何をするか」の指示書（コマンド リスト）を書き、キューに出す。</strong>
-5. <strong>GPU が終わったかどうかを、目印（フェンス）で確かめる。</strong>終わる前に、指示書や板を触ってはいけない。
+1. GPU を選び、窓口（デバイス）を作る。
+2. 仕事の受付（コマンド キュー）を作る。GPU への仕事は、ここに並べて頼む。
+3. 画面に出す絵を入れる板（バック バッファ）の束、つまりスワップ チェーンを作る。裏の板に描いて、表の板と入れ替える。
+4. 毎フレーム、「何をするか」の指示書（コマンド リスト）を書いて、キューに出す。
+5. GPU が終わったかどうかを、目印（フェンス）で確かめる。終わる前に、指示書や板を触ってはいけない。
 
-この章のコードは、この 5 つを、そのまま書いたものです。各部品の詳しい意味は、DirectX 12 Guide の各ページにあります。この教材では、<strong>「WPF の中に埋め込んでも壊れない」ために必要な点</strong>（リサイズ、後片付け、例外の扱い）に、絞って説明します。
+この章のコードは、この 5 つをそのまま書いたものです。各部品の詳しい意味は、DirectX 12 Guide の各ページにあります。この教材では、「WPF の中に埋め込んでも壊れない」ために必要な点（リサイズ、後片付け、例外の扱い）に絞って説明します。
 
-DirectX 12 を、初めて触る人は、[DirectX 12 Guide](../directx/dx12/index.md) の最初の数ページを、先に読んでおくと、この章がずっと読みやすくなります。
+DirectX 12 を初めて触る人は、先に [DirectX 12 Guide](../directx/dx12/index.md) の最初の数ページを読んでおくと、この章がずっと読みやすくなります。
 
 ## この章のゴール
 
@@ -30,7 +30,7 @@ DirectX 12 を、初めて触る人は、[DirectX 12 Guide](../directx/dx12/inde
 - `Engine::Create` がウィンドウ（`HWND`）にスワップ チェーンを作る。
 - `Engine::Tick` が毎フレーム、色が変わる塗りつぶしを描く。
 - `Engine::Resize` でウィンドウの大きさの変化に追従する。
-- <strong>エラーを例外にして境界で、捕まえる</strong>（例外を DLL の外に出さない）。
+- エラーを例外にして、境界で捕まえる（例外を DLL の外に出さない）。
 
 ## 追加するもの
 
@@ -45,9 +45,9 @@ Engine\
 
 ## 手順 1：d3dx12.h を用意する
 
-`d3dx12.h`（`CD3DX12_…` というヘルパー群）は Windows SDK に入っていません。<strong>Microsoft の DirectX-Headers リポジトリ</strong>から、入手します。
+`d3dx12.h`（`CD3DX12_…` というヘルパー群）は Windows SDK に入っていません。Microsoft の DirectX-Headers リポジトリから入手します。
 
-1. <https://github.com/microsoft/DirectX-Headers> の `include/directx/` にある <strong>`d3dx12.h` と `d3dx12_*.h`</strong> をすべて、取得する（新しい版では複数のファイルに分かれている）。
+1. <https://github.com/microsoft/DirectX-Headers> の `include/directx/` にある `d3dx12.h` と `d3dx12_*.h` をすべて取得する（新しい版では、複数のファイルに分かれています）。
 2. `Engine\third_party\d3dx12\` に置く。
 3. Engine プロジェクトの「追加のインクルード ディレクトリ」に `$(ProjectDir)third_party\d3dx12` を足す。
 
@@ -58,7 +58,7 @@ Engine\
 
 ## 手順 2：エラー確認のヘルパー
 
-DX12 の関数は失敗すると、`HRESULT`（負の値）を返します。毎回、`if (FAILED(hr))` を書くのは大変なので <strong>失敗したら例外を投げる</strong>、関数を作ります。
+DX12 の関数は、失敗すると `HRESULT`（負の値）を返します。毎回 `if (FAILED(hr))` を書くのは大変なので、失敗したら例外を投げる関数を作ります。
 
 `src\Dx12Util.h`:
 
@@ -72,7 +72,7 @@ DX12 の関数は失敗すると、`HRESULT`（負の値）を返します。毎
 
 namespace mini {
 
-// HRESULT が失敗なら、例外を投げる。DX12 の呼び出しを、これで包む。
+// HRESULT が失敗なら例外を投げる。DX12 の呼び出しを、これで包む。
 inline void ThrowIfFailed(HRESULT hr, const char* what) {
   if (FAILED(hr)) {
     throw std::runtime_error(std::format("{} に失敗しました（HRESULT 0x{:08X}）", what, static_cast<unsigned>(hr)));
@@ -86,7 +86,7 @@ inline void ThrowIfFailed(HRESULT hr, const char* what) {
 | --- | --- |
 | `HRESULT` | Windows API の結果コード（32 ビット整数）。成功は 0 以上、失敗は負。`FAILED(hr)` で判定 |
 | `std::runtime_error` | 「実行時に起きたエラー」を表す標準の例外クラス。メッセージを持てる |
-| 例外 | `throw` で投げると、呼び出し元をさかのぼって `catch` まで飛ぶ。<strong>DLL の境界を越えさせてはいけない</strong>（C# は、C++ の例外を受け取れない。第 27 章） |
+| 例外 | `throw` で投げると、呼び出し元をさかのぼって `catch` まで飛ぶ。DLL の境界を越えさせてはいけない（C# は、C++ の例外を受け取れない。第 27 章） |
 
 ## 手順 3：Renderer のヘッダー
 
@@ -104,7 +104,7 @@ inline void ThrowIfFailed(HRESULT hr, const char* what) {
 
 namespace mini {
 
-// DirectX 12 の描画。Engine の中だけで使う（公開ヘッダーには、出さない）。
+// DirectX 12 の描画。Engine の中だけで使う（公開ヘッダーには出さない）。
 class Renderer {
  public:
   static constexpr UINT kFrameCount = 3;            // バック バッファの数 = 同時に進める、フレームの数
@@ -238,7 +238,7 @@ void Renderer::CreateRenderTargets() {
 }
 
 void Renderer::Render(const float clear_color[4]) {
-  // ① このスロットを、前に使った仕事が、終わるまで待つ（終わっていれば、すぐ進む）。
+  // ① このスロットを前に使った仕事が終わるまで待つ（終わっていれば、すぐ進む）。
   WaitForSlot(frame_slot_);
 
   // ② 記録の準備。
@@ -246,7 +246,7 @@ void Renderer::Render(const float clear_color[4]) {
   ThrowIfFailed(allocator->Reset(), "アロケーターのリセット");
   ThrowIfFailed(list_->Reset(allocator.Get(), nullptr), "コマンド リストのリセット");
 
-  // ③ 描くバック バッファを決めて、PRESENT → RENDER_TARGET に切り替え、塗りつぶし、戻す。
+  // ③ 描くバック バッファを決めて、PRESENT → RENDER_TARGET に切り替え、塗りつぶして、戻す。
   const UINT index = swap_chain_->GetCurrentBackBufferIndex();
   auto* back_buffer = back_buffers_[index].Get();
   CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(rtv_heap_->GetCPUDescriptorHandleForHeapStart(), static_cast<INT>(index), rtv_size_);
@@ -299,7 +299,7 @@ void Renderer::WaitForGpu() {
 }  // namespace mini
 ```
 
-この中の各部品は DX12 Guide の各ページで、説明しています。
+この中の各部品は、DX12 Guide の各ページで説明しています。
 
 | 部分 | 参照するページ |
 | --- | --- |
@@ -311,16 +311,16 @@ void Renderer::WaitForGpu() {
 | バリア | [Resource Barrier](../directx/dx12/resource-barrier.md) |
 | フレームのスロット | [Frame Resources](../directx/dx12/frame-resources.md) |
 
-この Renderer の WPF との関係で、特に大事な点は 2 つです。
+WPF と組み合わせるうえで、この Renderer の特に大事な点は 2 つです。
 
 | 点 | 理由 |
 | --- | --- |
-| `Resize` が <strong>`WaitForGpu` → バック バッファの解放 → `ResizeBuffers` → RTV の作り直し</strong>の順 | WPF の中の、子ウィンドウはユーザーがウィンドウを広げ縮めするたびに大きさが変わる。参照が残っていると `ResizeBuffers` が失敗する |
-| デストラクターで `WaitForGpu` | エディタが、閉じるとき（またはエンジンを作り直すとき）に GPU が、使っている物を解放してクラッシュしないように |
+| `Resize` が `WaitForGpu` → バック バッファの解放 → `ResizeBuffers` → RTV の作り直しの順 | WPF の中の子ウィンドウは、ユーザーがウィンドウを広げたり縮めたりするたびに大きさが変わる。バック バッファへの参照が残っていると、`ResizeBuffers` が失敗する |
+| デストラクターで `WaitForGpu` | エディタを閉じるとき（またはエンジンを作り直すとき）に、GPU が使っている物を解放してクラッシュするのを防ぐ |
 
 ## 手順 5：Engine に Renderer を持たせる
 
-`src\Engine.cpp` を次のように書き換えます。<strong>例外をここで捕まえて `nullptr` を返す</strong>のが、要点です。
+`src\Engine.cpp` を次のように書き換えます。ここでは、例外を捕まえて `nullptr` を返すのが要点です。
 
 ```cpp
 #include "Engine/Engine.h"
@@ -404,25 +404,25 @@ std::uint64_t Engine::FrameCount() const {
 | `std::make_unique` | `std::unique_ptr` を作る。`new` の素の呼び出しより安全 |
 | `try` / `catch (const std::exception& e)` | 例外を捕まえる。`e.what()` でメッセージを読む |
 | `std::sin` | 正弦。`t` が進むと色がなめらかに変わる |
-| 例外を境界で止める | `Create` / `Resize` / `Tick` は、<strong>外から呼ばれる入口</strong>。ここから例外が出ると呼び出し元（C# を含む）が、不定の動作になる。必ず中で捕まえる |
+| 例外を境界で止める | `Create` / `Resize` / `Tick` は、外から呼ばれる入口。ここから例外が出ると、呼び出し元（C# を含む）の動作が不定になる。必ず中で捕まえる |
 
 ## 動作確認
 
-この時点で Engine をビルドして、エラーがないことを確認します（`Ctrl + Shift + B`、または「ビルド → Engine のビルド」）。<strong>画面に出るのは次の章</strong>（Player）からです。
+この時点で Engine をビルドして、エラーがないことを確認します（`Ctrl + Shift + B`、または「ビルド → Engine のビルド」）。画面に出るのは次の章（Player）からです。
 
 ## よくあるミス
 
-??? failure "`d3dx12.h` が、見つからない（`C1083`）"
-    インクルード ディレクトリに `third_party\\d3dx12` を足していない。または、`d3dx12.h` だけを置いて `d3dx12_*.h` を置いていない。
+??? failure "`d3dx12.h` が見つからない（`C1083`）"
+    インクルード ディレクトリに `third_party\\d3dx12` を足していないか、`d3dx12.h` だけを置いて `d3dx12_*.h` を置いていません。
 
 ??? failure "`LNK2019`（`D3D12CreateDevice` が未解決）"
-    `d3d12.lib` がリンクされていない。`#pragma comment(lib, "d3d12.lib")` を書いた `.cpp` がビルドに含まれているか確認する。
+    `d3d12.lib` がリンクされていません。`#pragma comment(lib, "d3d12.lib")` を書いた `.cpp` が、ビルドに含まれているかを確認してください。
 
 ??? failure "`C4189`、`C4100` などの警告がエラーになる（`/WX`）"
-    未使用の変数や引数を消すまたは名前をコメントにする（`float /*delta_seconds*/`）。
+    未使用の変数や引数を消すか、名前をコメントにしてください（`float /*delta_seconds*/`）。
 
 ??? failure "`Present` が `DXGI_ERROR_INVALID_CALL`"
-    スワップ チェーンの作成時に渡したのが、デバイスだった（D3D12 はコマンド キューを渡す）。または、フォーマットに `_SRGB` を指定した（フリップ モデルは、不可）。
+    スワップ チェーンを作るときに、デバイスを渡していませんか（D3D12 では、コマンド キューを渡します）。また、フォーマットに `_SRGB` を指定していませんか（フリップ モデルでは指定できません）。
 
 ## この章で作ったもの
 
@@ -435,4 +435,4 @@ Engine::Destroy(e)    → GPU の完了を待って解放
 
 ## 次の章へ
 
-次の章（[第 4 章 Player：エンジンを動かす実行側](04-player.md)）では、`Player` プロジェクトに Win32 のウィンドウを作り `Engine` を動かします。<strong>色が変わるウィンドウが画面に出る</strong>ことを確認します。
+次の章（[第 4 章 Player：エンジンを動かす実行側](04-player.md)）では、`Player` プロジェクトに Win32 のウィンドウを作って、`Engine` を動かします。色が変わるウィンドウが画面に出ることを確認します。

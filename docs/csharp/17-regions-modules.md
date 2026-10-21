@@ -305,7 +305,7 @@ var parameters = new NavigationParameters { { "ObjectId", 42 } };
 _regionManager.RequestNavigate(RegionNames.Property, "PropertyView", parameters);
 ```
 
-ここで知っておきたいのは、ナビゲーションで切り替えたビューは、デフォルトではリージョンに残り続けるという点です。同じ画面に何度も行き来すると、前の状態が残ったままの画面が出てくることがあります。残すかどうかを制御する方法（`KeepAlive`）や、未保存の編集があるときに移動を止める方法（`IConfirmNavigationRequest`）は、第 19 章 で説明します。
+ここで知っておきたいのは、ナビゲーションで切り替えたビューは、デフォルトではリージョンに残り続けるという点です。同じ画面に何度も行き来すると、前の状態が残ったままの画面が出てくることがあります。残すかどうかを制御する方法（`KeepAlive`）や、未保存の編集があるときに移動を止める方法（`IConfirmNavigationRequest`）は、第 19 章で説明します。
 
 ## 動作確認
 

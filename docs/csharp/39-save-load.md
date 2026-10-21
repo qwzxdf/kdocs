@@ -409,10 +409,10 @@ public sealed class MessageService : IMessageService
 ```csharp
 public MainWindowViewModel(ISceneFileService files, IHistoryService history /* ほか */)
 {
-    NewCommand = DelegateCommand.FromAsync(async () => await files.NewAsync());
-    OpenCommand = DelegateCommand.FromAsync(async () => await files.OpenAsync());
-    SaveCommand = DelegateCommand.FromAsync(async () => await files.SaveAsync());
-    SaveAsCommand = DelegateCommand.FromAsync(async () => await files.SaveAsAsync());
+    NewCommand = new AsyncCommand(files.NewAsync);
+    OpenCommand = new AsyncCommand(files.OpenAsync);
+    SaveCommand = new AsyncCommand(files.SaveAsync);
+    SaveAsCommand = new AsyncCommand(files.SaveAsAsync);
 
     files.FileChanged += () => RaisePropertyChanged(nameof(Title));
     history.Changed += () => RaisePropertyChanged(nameof(Title));
@@ -430,7 +430,7 @@ public string Title => $"{(_history.IsDirty ? "*" : "")}{_files.DisplayName} - M
 </Window.InputBindings>
 ```
 
-`DelegateCommand.FromAsync` は、非同期の処理を持つコマンドを作ります。`async void` に頼らないので例外の扱いが安全で、実行中は `CanExecute` が自動で `false` になり、二重に実行されません。`Title` の補間文字列の中の式は、`( )` で囲んで条件式を書いています。
+`AsyncCommand` は、第 15 章で作った非同期のコマンドです（プロパティの型は `ICommand` にしておけば、`DelegateCommand` と混ぜて持てます）。`NewAsync` は `Task<bool>` を返しますが、結果の `bool` を使わないので、`Task` を受け取る `AsyncCommand` にそのまま渡せます。実行中は `CanExecute` が自動で `false` になり、二重に実行されません。`Title` の補間文字列の中の式は、`( )` で囲んで条件式を書いています。
 
 ## ウィンドウを閉じるときの確認
 

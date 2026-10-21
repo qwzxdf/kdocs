@@ -570,7 +570,7 @@ C++ 側で `SetLastError` した文字列が、そのまま C# の例外のメ�
 ??? failure "ログのコールバックで、突然クラッシュする"
     デリゲートを `static` に持っていなくて GC に回収されたか、コールバックの中から例外が漏れています。方法 A にすると、前者は起きません。
 
-??? failure "`CS0227: unsafe コードは AllowUnsafeBlocks が必要です`"
+??? failure "`CS0227`（unsafe コードは `/unsafe` を付けてコンパイルしたときだけ使える）"
     `.csproj` に `<AllowUnsafeBlocks>true</AllowUnsafeBlocks>` を足していません。
 
 ??? failure "終了するときにクラッシュする"

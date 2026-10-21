@@ -335,7 +335,7 @@ public class SceneTreeViewModel : BindableBase
 
 `HierarchicalDataTemplate` は、`DataTemplate` に「子の集まりをどこから取るか」（`ItemsSource="{Binding Children}"`）を加えたものです。子も同じテンプレートで、再帰的に表示されます。`DataType="{x:Type models:SceneObject}"` と書くと、「この型のデータには、自動でこのテンプレートを使う」という意味になり、`ItemTemplate` を書かなくても、型で選ばれます。
 
-名前の部分は、通常は `TextBlock` で表示して、`F2` で `IsEditing` が `true` になったら、`TextBlock` を隠して `TextBox` を出す、という切り替えをしています。切り替えには `DataTrigger`（データの値に応じて見た目を変えるトリガー、補章でなく第 11 章）を使いました。
+名前の部分は、通常は `TextBlock` で表示して、`F2` で `IsEditing` が `true` になったら、`TextBlock` を隠して `TextBox` を出す、という切り替えをしています。切り替えには `DataTrigger`（データの値に応じて見た目を変えるトリガー。第 11 章）を使いました。
 
 ### 選択と展開をバインドする
 

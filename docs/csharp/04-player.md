@@ -6,11 +6,11 @@ tags:
 
 # 第 4 章 Player：エンジンを動かす実行側
 
-この章では `Player` プロジェクトに <strong>Win32 のウィンドウ</strong>を作り `Engine` を動かします。エディタ（C#）を作る前に <strong>エンジンだけで、動く物を 1 つ作っておく</strong>ことが目的です。後でエディタ側がうまく動かないときに「エンジンが悪いのか連携が悪いのか」を、切り分けられます。
+この章では、`Player` プロジェクトに Win32 のウィンドウを作って、`Engine` を動かします。エディタ（C#）を作る前に、エンジンだけで動く物を 1 つ作っておくのが目的です。そうしておけば、後でエディタ側がうまく動かないときに、「エンジンが悪いのか、連携が悪いのか」を切り分けられます。
 
 ## この章の考え方
 
-ゲームの画面は、<strong>ウィンドウ</strong>の中に出ます。ウィンドウは、OS（Windows）が管理していて、プログラムは「ウィンドウを 1 つ作って」と OS に頼みます。そのあと、OS は、ウィンドウに起きたこと（大きさが変わった、閉じられた、キーが押された）を、<strong>メッセージ</strong>として、プログラムに知らせてきます。
+ゲームの画面は、ウィンドウの中に出ます。ウィンドウは OS（Windows）が管理していて、プログラムは「ウィンドウを 1 つ作って」と OS に頼みます。そのあと OS は、ウィンドウに起きたこと（大きさが変わった、閉じられた、キーが押された）を、メッセージとしてプログラムに知らせてきます。
 
 ゲームのプログラムは、この仕組みの上で、次のループを回します。
 
@@ -18,16 +18,16 @@ tags:
 2. なければ、ゲームを 1 フレーム進める（更新して、描く）。
 3. 1 に戻る。
 
-通常のアプリ（メモ帳のような）は、メッセージが来るまで待ちますが、ゲームは<strong>待たずに、毎フレーム描く</strong>ところが違います。この章の `PeekMessage` が、その「待たずに見る」関数です。
+通常のアプリ（メモ帳のようなもの）は、メッセージが来るまで待ちます。ゲームは、待たずに毎フレーム描くところが違います。この章の `PeekMessage` が、その「待たずに見る」関数です。
 
-また、この章の Player は、<strong>エンジンの一番単純な使い手</strong>です。後で作るエディタは、同じ `Engine` を、C# から（WPF の中の子ウィンドウに）使います。使い手が変わっても、`Engine` のコードは<strong>変えない</strong>ことが、この設計の目的です。
+この章の Player は、エンジンのいちばん単純な使い手です。後で作るエディタも、同じ `Engine` を、C# から（WPF の中の子ウィンドウに描く形で）使います。使い手が変わっても `Engine` のコードを変えずに済むようにするのが、この設計のねらいです。
 
 ## この章のゴール
 
-- Player がウィンドウを開き `Engine::Create` で、エンジンを作る。
+- Player がウィンドウを開いて、`Engine::Create` でエンジンを作る。
 - メッセージ ループの中で `Engine::Tick` を毎フレーム呼ぶ。
 - ウィンドウの大きさを変えると、`Engine::Resize` が呼ばれる。
-- <strong>色がなめらかに変わるウィンドウ</strong>が、画面に出る。
+- 色がなめらかに変わるウィンドウが画面に出る。
 
 ## Player の役割
 
@@ -37,7 +37,7 @@ tags:
 | ループを回す | 「入力 → 更新・描画 → 繰り返し」のループは、Player の `main` にある |
 | 時間を測る | 前のフレームからの経過秒（delta）を測って、`Tick` に渡す |
 
-<strong>Engine がウィンドウを作らない</strong>ことが、重要です。エディタでは WPF が作る子ウィンドウの `HWND` を同じ `Engine::Create` に渡します。Player はその<strong>最も単純な利用者</strong>です。
+Engine がウィンドウを作らない点が重要です。エディタでは、WPF が作る子ウィンドウの `HWND` を、同じ `Engine::Create` に渡します。Player は、その最も単純な利用者です。
 
 ## 手順 1：プロジェクトの設定
 
@@ -46,11 +46,11 @@ tags:
 | 場所 | 項目 | 値 |
 | --- | --- | --- |
 | 全般 | C++ 言語標準 | ISO C++23 プレビュー（`/std:c++latest`） |
-| リンカー → システム | サブシステム | <strong>Windows (/SUBSYSTEM:WINDOWS)</strong> |
+| リンカー → システム | サブシステム | Windows (/SUBSYSTEM:WINDOWS) |
 | C/C++ → 全般 | 追加のインクルード ディレクトリ | 第 2 章で、設定済み（Engine の `include`） |
 | ビルド依存 | プロジェクト参照 | Engine（第 2 章で設定済み） |
 
-`/SUBSYSTEM:WINDOWS` にすると黒いコンソールが出ません。その代わり入口の関数が `main` ではなく <strong>`wWinMain`</strong> になります。
+`/SUBSYSTEM:WINDOWS` にすると黒いコンソールが出ません。その代わり入口の関数が `main` ではなく `wWinMain` になります。
 
 ## 手順 2：ソースを書く
 
@@ -89,8 +89,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lpara
 
 | 新しく出てきたもの | 説明 |
 | --- | --- |
-| `HWND` | ウィンドウの<strong>ハンドル</strong>（識別番号のような物）。ウィンドウに関する関数はすべて、これを受け取る |
-| ウィンドウ プロシージャ | ウィンドウに届く<strong>メッセージ</strong>（大きさが変わった、閉じられたキーが押された…）を受け取る関数。OS が呼ぶ |
+| `HWND` | ウィンドウのハンドル（識別番号のような物）。ウィンドウに関する関数はすべて、これを受け取る |
+| ウィンドウ プロシージャ | ウィンドウに届くメッセージ（大きさが変わった、閉じられたキーが押された…）を受け取る関数。OS が呼ぶ |
 | `LRESULT CALLBACK` | 戻り値の型と呼び出し規約。`CALLBACK` は `__stdcall`。必ずこの形で書く |
 | `WM_SIZE` | 大きさが変わったときのメッセージ。`lparam` の下位 16 ビットが幅、上位 16 ビットが高さ |
 | `LOWORD` / `HIWORD` | 32 ビット値の下位 / 上位 16 ビットを取り出すマクロ |
@@ -133,7 +133,7 @@ HWND CreateMainWindow(HINSTANCE instance, int width, int height) {
 | `CreateWindowExW` | ウィンドウを作る。戻り値が `HWND` |
 
 !!! note "A と W"
-    Windows API には、`〜A`（ANSI）と `〜W`（UTF-16）の 2 種類があります。<strong>常に W を使います</strong>（[文字コード](../encoding/index.md)）。
+    Windows API には、`〜A`（ANSI）と `〜W`（UTF-16）の 2 種類があります。常に W を使います（[文字コード](../encoding/index.md)）。
 
 ### 入口：wWinMain
 
@@ -144,7 +144,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
   HWND hwnd = CreateMainWindow(instance, kWidth, kHeight);
   if (!hwnd) return 1;
 
-  // エンジンの作成。クライアント領域の大きさを、取り直して渡す。
+  // エンジンの作成。クライアント領域の大きさを取り直して渡す。
   RECT client;
   GetClientRect(hwnd, &client);
   mini::EngineDesc desc;
@@ -159,7 +159,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 
   ShowWindow(hwnd, show);
 
-  // メッセージ ループ：メッセージがあれば処理し、無ければ 1 フレーム進める。
+  // メッセージ ループ：メッセージがあれば処理して、無ければ 1 フレーム進める。
   auto previous = std::chrono::steady_clock::now();
   MSG msg = {};
   while (msg.message != WM_QUIT) {
@@ -184,7 +184,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 | --- | --- |
 | `wWinMain` | `/SUBSYSTEM:WINDOWS` の Unicode 版の入口。`instance` はこのプログラムの識別、`show` は最初の表示方法 |
 | `GetClientRect` | 描ける領域（枠を除く）の大きさを取る |
-| `PeekMessageW` | メッセージが<strong>あれば取り出し、無くても待たず</strong>に戻る（`GetMessage` は来るまで待つので、ゲーム ループには向かない） |
+| `PeekMessageW` | メッセージがあれば取り出し、無くても待たずに戻る（`GetMessage` は来るまで待つので、ゲーム ループには向かない） |
 | `PM_REMOVE` | 取り出したらキューから消す |
 | `TranslateMessage` / `DispatchMessageW` | キー入力の変換とウィンドウ プロシージャへの配送 |
 | `WM_QUIT` | `PostQuitMessage` が積む終了メッセージ。これが来たらループを抜ける |
@@ -194,9 +194,9 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 ## 手順 3：動かす
 
 1. ソリューション エクスプローラーで、Player を右クリック →「スタートアップ プロジェクトに設定」。
-2. 構成を <strong>Debug / x64</strong> にして `F5`。
+2. 構成を Debug / x64 にして `F5`。
 
-<strong>色がなめらかに変わる 1280×720 のウィンドウ</strong>が出れば成功です。ウィンドウの縁をドラッグして、大きさを変えても色が出続ければ `Resize` も動いています。
+色がなめらかに変わる 1280×720 のウィンドウが出れば成功です。ウィンドウの縁をドラッグして大きさを変えても色が出続ければ、`Resize` も動いています。
 
 ## 動作確認のチェック
 
@@ -204,37 +204,35 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 | --- | --- |
 | ウィンドウの色 | 赤・緑・青のなめらかな変化 |
 | 大きさを変える | 変えている間も色が出る。クラッシュしない |
-| 最小化 → 戻す | 戻したあと描画が再開する |
+| 最小化 → 戻す | 戻したあとに描画が再開する |
 | 閉じる | プロセスが正常に終了する |
 | 出力ウィンドウ | 「Engine を作成しました（1280x720）」「Engine を破棄します（N フレーム）」 |
 
 ## よくあるミス
 
 ??? failure "`LNK2019`：`WinMain` が見つからない／`main` が見つからない"
-    サブシステムと入口の関数が合っていない。`/SUBSYSTEM:WINDOWS` なら `wWinMain`、`/SUBSYSTEM:CONSOLE` なら `main`。
+    サブシステムと入口の関数が合っていません。`/SUBSYSTEM:WINDOWS` なら `wWinMain`、`/SUBSYSTEM:CONSOLE` なら `main` にします。
 
 ??? failure "起動した瞬間に `Engine.dll` が見つからないと言われる"
-    出力先がそろっていない。第 1 章の `Directory.Build.props` ですべてのプロジェクトが、同じ `bin\x64\Debug\` に出力されているか確認する。
+    出力先がそろっていません。第 1 章の `Directory.Build.props` によって、すべてのプロジェクトが同じ `bin\x64\Debug\` に出力されているかを確認してください。
 
 ??? failure "`Engine::Create` が `nullptr` になる"
-    出力ウィンドウ（デバッグ出力）に理由が出ている。多くは GPU が DX12 に非対応、またはデバッグ レイヤー用の「Graphics Tools」が、入っていない（Windows の「オプション機能」から追加）。
+    出力ウィンドウ（デバッグ出力）に理由が出ています。多くは、GPU が DX12 に対応していないか、デバッグ レイヤー用の「グラフィックス ツール」が入っていないことが原因です（Windows の「オプション機能」から追加します）。
 
-??? failure "ウィンドウが、真っ黒のまま"
-    `Tick` が呼ばれていない（ループの `continue` を忘れて、メッセージ処理で止まっている）。または、`Present` の前のバリアが逆になっている。
+??? failure "ウィンドウが真っ黒のまま"
+    `Tick` が呼ばれていません（ループの `continue` を忘れて、メッセージ処理で止まっています）。または、`Present` の前のバリアの向きが逆になっています。
 
-??? failure "大きさを変えると、クラッシュする"
-    `Resize` でバック バッファへの参照が残っている。第 3 章の `Renderer::Resize` が `Reset` をすべて呼んでいるか確認する。
+??? failure "大きさを変えるとクラッシュする"
+    `Resize` のときに、バック バッファへの参照が残っています。第 3 章の `Renderer::Resize` が、`Reset` をすべて呼んでいるかを確認してください。
 
 ## この章で作ったもの
 
-- `Engine`（C++ DLL）：DX12 で、ウィンドウを塗る。
-- `Player`（C++ EXE）：ウィンドウを作り `Engine` を動かす。
+- `Engine`（C++ DLL）：DX12 でウィンドウを塗る。
+- `Player`（C++ EXE）：ウィンドウを作って、`Engine` を動かす。
 
-ここまでが <strong>エンジン側の土台</strong>です。ここから先は同じ `Engine` を <strong>C# のエディタから動かす</strong>ことになります。
+ここまでが、エンジン側の土台です。ここから先は、同じ `Engine` を C# のエディタから動かしていきます。
 
 ## 次の章へ
 
-第 2 部では C# と WPF を学びます。まず、C++ を知っている人向けに C# の基本を対応表つきで説明します。
+次からは、C# と WPF を学びます。まず、C++ を知っている人向けに、C# の基本を対応表つきで説明します。
 
-!!! note "続く章"
-    第 5 章以降は順に追加されます。

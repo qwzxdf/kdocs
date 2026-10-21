@@ -197,9 +197,124 @@ WPF の `Button` の見た目は、実は `Button` の `Template` プロパテ�
 | 「保存ボタン + ステータス表示」のように、複数の部品をひとまとめにしたい | `UserControl` |
 | リストの 1 行の見せ方を変えたい | `DataTemplate` |
 
+## 暗い配色を自分で作る
+
+エディタは、暗い配色にしたくなります。ライブラリを入れる前に、自分で作れる範囲を知っておきましょう。考え方は、色の置き場所を 1 か所に集めることです。
+
+まず、色に「用途の名前」を付けて、`ResourceDictionary` に書きます。「灰色」ではなく「パネルの背景」のように、役目で名前を付けるのがコツです。
+
+```xml title="Themes/Dark.xaml"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="Window.Background" Color="#FF1E1E1E" />
+    <SolidColorBrush x:Key="Panel.Background"  Color="#FF252526" />
+    <SolidColorBrush x:Key="Panel.Border"      Color="#FF3F3F46" />
+    <SolidColorBrush x:Key="Text.Primary"      Color="#FFDDDDDD" />
+    <SolidColorBrush x:Key="Text.Secondary"    Color="#FF9A9A9A" />
+    <SolidColorBrush x:Key="Accent"            Color="#FF3794FF" />
+</ResourceDictionary>
+```
+
+同じキーで、明るい配色の `Themes/Light.xaml` も作ります。キーがそろっていれば、中身の色だけを入れ替えられます。
+
+`App.xaml` で、片方を読み込みます。
+
+```xml title="App.xaml"
+<Application.Resources>
+    <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary Source="Themes/Dark.xaml" />
+        </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+</Application.Resources>
+```
+
+画面側では、色を直接書かずに、名前で呼びます。入れ替えに追従させるので、`StaticResource` ではなく `DynamicResource` です。
+
+```xml
+<Border Background="{DynamicResource Panel.Background}"
+        BorderBrush="{DynamicResource Panel.Border}" BorderThickness="1">
+    <TextBlock Text="プロパティ" Foreground="{DynamicResource Text.Primary}" />
+</Border>
+```
+
+実行中に切り替えるときは、読み込み済みの辞書を差し替えます。
+
+```csharp
+public static void ApplyTheme(string name)   // "Dark" または "Light"
+{
+    var dictionaries = Application.Current.Resources.MergedDictionaries;
+    dictionaries.Clear();
+    dictionaries.Add(new ResourceDictionary { Source = new Uri($"Themes/{name}.xaml", UriKind.Relative) });
+}
+```
+
+`DynamicResource` を使っている部品は、辞書が変わると、自動で新しい色を取り直します。
+
+ここまでで色は一括で変えられますが、これで WPF の標準の部品がすべて暗くなるわけではありません。`TextBlock` や自作のパネルは名前付きの色で塗れます。ところが、`Button`、`ComboBox`、`TabControl` のような標準の部品は、`ControlTemplate` の中に色が書き込まれていて、リソースの色を変えても見た目が変わりません。`SystemColors`（`SystemColors.ControlBrushKey` など）を上書きすると、`ListBox` の選択色や `Menu` のように反応する部品もありますが、全部ではありません。
+
+選択肢は 3 つあります。
+
+| 方法 | 手間 | 向いている場合 |
+| --- | --- | --- |
+| 次の節のテーマ ライブラリを使う | 小さい | ほぼ全部の標準部品が、最初から暗くなる |
+| 使う部品だけ `ControlTemplate` を書き直す | 大きい | 使う部品が少なく、見た目を完全に決めたい |
+| .NET 9 以降で、標準の Fluent テーマ（`ThemeMode`）を使う | 小さい | この教材は .NET 8 なので対象外。試験的な機能で、対応する部品も限られる |
+
+この教材のエディタは、第 6 章で書いた枠のように、色を名前付きのリソースで管理しておき、標準の部品の見た目はテーマ ライブラリに任せる形を、おすすめします。
+
+## アイコンを Path で描く（Geometry と Freezable）
+
+ツール バーの再生ボタンや、ツリーの矢印のようなアイコンは、画像ファイルではなく、`Path` で描くと便利です。拡大しても粗くならず、`Fill` を `DynamicResource` にすれば、テーマの色に追従します。
+
+図形は、`Geometry`（形の定義）として、リソースに置きます。
+
+```xml
+<Geometry x:Key="Icon.Play">M 4,2 L 14,8 L 4,14 Z</Geometry>
+<Geometry x:Key="Icon.Stop">M 3,3 L 13,3 L 13,13 L 3,13 Z</Geometry>
+```
+
+```xml
+<Button ToolTip="再生">
+    <Path Data="{StaticResource Icon.Play}" Fill="{DynamicResource Accent}"
+          Width="16" Height="16" Stretch="Uniform" />
+</Button>
+```
+
+`Data` に書いている文字列は、パス ミニ言語といって、ペンの動かし方を命令で書きます。
+
+| 命令 | 意味 |
+| --- | --- |
+| `M x,y` | ペンをその座標へ移動する（線は引かない） |
+| `L x,y` | 現在の位置から、その座標まで線を引く |
+| `H x` / `V y` | 横線、縦線 |
+| `C x1,y1 x2,y2 x,y` | 3 次ベジェ曲線 |
+| `A rx,ry 回転 大弧 向き x,y` | 円弧 |
+| `Z` | 図形を閉じる |
+
+小文字にすると、座標が現在位置からの相対値になります。アイコンのパスは、自分で書くより、SVG の `d` 属性の値を借りて作ることが多いです（この書き方は、SVG のパスとほぼ同じです）。
+
+ここで出てきた `Geometry` や `SolidColorBrush` は、`Freezable` というクラスの仲間です。`Freezable` は「凍結（`Freeze()`）」できるオブジェクトで、凍結すると、変更できなくなる代わりに、変更の通知を管理する手間がなくなり、軽くなって、スレッドをまたいで使えるようにもなります。
+
+```csharp
+var brush = new SolidColorBrush(Colors.Red);
+brush.Freeze();                       // これ以降、brush.Color = ... は例外になる
+```
+
+XAML のリソースに置いたブラシは、変更しない前提なら、凍結しておくのがおすすめです。大量の部品が同じブラシを使うエディタでは、描画が少し軽くなります。
+
+```xml
+<SolidColorBrush x:Key="Panel.Background" Color="#FF252526"
+                 xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+                 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                 mc:Ignorable="po" po:Freeze="True" />
+```
+
+ただし、凍結したブラシは、あとから `Color` を変えられません。`Accent` を実行中に書き換えるような使い方をするものは、凍結しないでください（辞書ごと差し替えるテーマの切り替えなら、問題ありません）。
+
 ## 見た目をまるごと変えるテーマ ライブラリ
 
-WPF の標準の部品は、白を基調にした古い見た目です。ダーク テーマにしたい、今風にしたい、という場合は、全部の部品の `ControlTemplate` を書き直すことになり、現実的ではありません。そのために、テーマを提供するライブラリが公開されています。
+WPF の標準の部品は、白を基調にした古い見た目です。標準の部品までダーク テーマにしたい、今風にしたい、という場合に、全部の `ControlTemplate` を書き直すのは現実的ではありません。そこで、テーマを提供するライブラリが公開されています。
 
 - WPF-UI、ModernWpf：Windows 11 風の見た目。
 - MaterialDesignInXamlToolkit：Material Design 風。
@@ -221,7 +336,9 @@ NuGet で入れて、`App.xaml` の `MergedDictionaries` に読み込みます�
 - プロパティ値の束は `Style`、状況での変化は `Trigger`、部品の作り替えは `ControlTemplate`。
 - リソースは近い所から探される。画面をまたぐものは `ResourceDictionary` に切り出して `MergedDictionaries`。
 - スタイルのトリガーが効かないときは、標準テンプレート内のトリガーが原因。「コピーして編集」でテンプレートを取り出す。
-- 見た目を大きく変えたいなら、テーマ ライブラリを使う。
+- 色は用途の名前を付けて `ResourceDictionary` に集め、`DynamicResource` で使うと、実行中にテーマを切り替えられる。
+- アイコンは `Path` と `Geometry` で描く。変えないブラシは `Freeze()` する。
+- 標準の部品まで見た目を大きく変えたいなら、テーマ ライブラリを使う。
 
 次の章では、画面の部品とデータを結び付けるデータバインディングと、画面とロジックを分ける MVVM を学びます。
 

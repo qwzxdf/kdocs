@@ -145,11 +145,150 @@ bool visible = p.Left < SystemParameters.VirtualScreenWidth && p.Top < SystemPar
 
 ユーザーごとの設定は `%APPDATA%`（`Environment.SpecialFolder.ApplicationData`）、ログやキャッシュは `%LOCALAPPDATA%`（`LocalApplicationData`）に置くのが慣習です。
 
+## キーボードとフォーカス
+
+エディタは、マウスだけでなく、キーボードでも操作されます。プロパティ パネルで、X に数字を打ち込んで `Tab` で Y へ進み、また打ち込む、という流れが途切れないようにしておきます。
+
+### Tab で動く順番
+
+`Tab` を押したときの移動先は、基本的に、XAML に書いた順（論理ツリーの順）です。順番を変えたいときは、`TabIndex` を使います。小さい値から順に移ります。
+
+```xml
+<StackPanel KeyboardNavigation.TabNavigation="Cycle">
+    <TextBox x:Name="PositionX" TabIndex="0" />
+    <TextBox x:Name="PositionY" TabIndex="1" />
+    <TextBox x:Name="PositionZ" TabIndex="2" />
+    <TextBlock Text="単位: m" IsTabStop="False" />
+</StackPanel>
+```
+
+| プロパティ | 意味 |
+| --- | --- |
+| `TabIndex` | `Tab` で移る順番。小さい順 |
+| `IsTabStop` | `false` にすると、`Tab` で止まらない。ラベルや装飾の部品に使う |
+| `KeyboardNavigation.TabNavigation` | `Tab` の動き方。`Cycle`（最後まで行ったら最初へ戻る）、`Continue`（外側へ続ける）、`Once`（このグループでは 1 回だけ止まる）、`None` |
+| `KeyboardNavigation.DirectionalNavigation` | 矢印キーでの移動 |
+| `Focusable` | `false` にすると、そもそもフォーカスを受け取らない |
+
+`TabIndex` は、同じ親の中でだけ比べられます。親が違う部品どうしの順番は、親の `TabIndex` で決まります。
+
+### フォーカスを移す
+
+画面が開いたときに入力欄へカーソルを置く、のようにフォーカスを移したいときは、`Focus()` を呼ぶか、XAML で `FocusManager.FocusedElement` を指定します。
+
+```xml
+<Window FocusManager.FocusedElement="{Binding ElementName=NameBox}">
+    <TextBox x:Name="NameBox" />
+</Window>
+```
+
+コードビハインドで `Focus()` を呼ぶときは、画面が出来上がったあとで呼ばないと効かないことがあります。`Loaded` イベントの中で呼んでください。
+
+```csharp
+Loaded += (_, _) => NameBox.Focus();
+```
+
+### アクセス キー
+
+ラベルに `_` を付けると、`Alt` と組み合わせたキーで、そのラベルの部品へ移れます。メニューの `ファイル(_F)` と同じ仕組みです。入力欄の横のラベルには、`Label` を使います。
+
+```xml
+<Label Content="名前(_N)" Target="{Binding ElementName=NameBox}" />
+<TextBox x:Name="NameBox" />
+```
+
+`Alt + N` で、`NameBox` にフォーカスが移ります。`Target` で「ラベルが指す部品」を結ぶのが大事です。
+
+### ショートカットと入力欄がぶつかる
+
+`Delete` や `F2` のようなキーを `InputBindings` に登録すると、入力欄で文字を消そうとしただけで、「オブジェクトを削除」が動くことがあります。`TextBox` は `Delete` や `Backspace` を処理済みにするので、多くは問題になりませんが、`Ctrl + Z` のように、入力欄にも別の意味を持つキーは、衝突しやすいです。
+
+衝突を避けるには、次のいずれかにします。
+
+- コマンドの `CanExecute` で、フォーカスが入力欄にあるときは `false` を返す。
+- 登録する場所を、リストやツリーといった「文字を打たない部品」の `InputBindings` に限る（第 22 章）。
+
+## ポップアップ、ツールチップ
+
+画面の上に、一時的に何かを浮かべる部品は 3 つあります。
+
+| 部品 | 使いどころ |
+| --- | --- |
+| `ToolTip` | マウスを載せたときの説明。`ToolTip="保存 (Ctrl+S)"` と書くだけ |
+| `ContextMenu` | 右クリックのメニュー |
+| `Popup` | 自由な中身を浮かべる。`IsOpen` で開閉する |
+
+`ToolTip` は、短い説明なら文字列、中身を作り込みたいなら要素を入れます。表示されるまでの時間は、`ToolTipService` で調整します。
+
+```xml
+<Button Content="保存" ToolTipService.InitialShowDelay="300">
+    <Button.ToolTip>
+        <StackPanel>
+            <TextBlock FontWeight="Bold" Text="保存" />
+            <TextBlock Text="現在のシーンをファイルに書き出します。(Ctrl+S)" />
+        </StackPanel>
+    </Button.ToolTip>
+</Button>
+```
+
+`Popup` は、`IsOpen` をバインドして開閉します。
+
+```xml
+<ToggleButton x:Name="FilterButton" Content="絞り込み" />
+<Popup IsOpen="{Binding IsChecked, ElementName=FilterButton}"
+       PlacementTarget="{Binding ElementName=FilterButton}"
+       Placement="Bottom" StaysOpen="False">
+    <Border Background="{DynamicResource Panel.Background}" Padding="8">
+        <TextBox Width="160" />
+    </Border>
+</Popup>
+```
+
+`Placement` は、`PlacementTarget` から見てどこに出すか、`StaysOpen="False"` は、外をクリックしたら閉じる、という指定です。`Popup` は、別のウィンドウとして描かれるので、ほかの部品の後ろに隠れず、親の `Clip` にも切られません。そのかわり、親の `DataContext` やリソースを、自動では引き継がない場合があります。見た目が崩れたときは、`Popup` の中身に `DynamicResource` で色を指定しているか、確かめてください。
+
+## 二重に起動させない
+
+エディタは、同じものを 2 つ起動されると困ることがあります（同じプロジェクト ファイルを 2 つが同時に書く、など）。Windows の `Mutex`（名前付きの排他オブジェクト）で、起動済みかどうかを確かめます。
+
+```csharp
+public partial class App : PrismApplication
+{
+    private Mutex? _mutex;
+    private bool _ownsMutex;
+
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        // 名前は、他のアプリと重ならない一意な文字列にする
+        _mutex = new Mutex(initiallyOwned: true, "MiniEngine.Editor.SingleInstance", out _ownsMutex);
+        if (!_ownsMutex)
+        {
+            MessageBox.Show("MiniEngine Editor は、すでに起動しています。");
+            Shutdown();
+            return;
+        }
+        base.OnStartup(e);
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        if (_ownsMutex) _mutex?.ReleaseMutex();   // 持っていないものを解放すると例外になる
+        _mutex?.Dispose();
+        base.OnExit(e);
+    }
+}
+```
+
+`out` で受けた値（`_ownsMutex`）が `false` なら、同じ名前の `Mutex` が、すでにほかのプロセスに作られています。この場合は、`base.OnStartup` を呼ばないで終わります。`PrismApplication` の起動処理（コンテナーの作成など）を、無駄に走らせないためです。
+
+すでに起動している側のウィンドウを前に出したいときは、`Process.GetProcessesByName` で相手を探して `SetForegroundWindow` を呼ぶ方法がありますが、ここでは扱いません。
+
 ## この章のまとめ
 
 - `App` には、起動・終了・未処理の例外のフックがある。終了のタイミングは `ShutdownMode` で変えられる。
 - ウィンドウの開閉は、ビューモデルから直接 `new` せず、サービスやダイアログ サービスを通す。
 - ウィンドウの位置は `RestoreBounds` で保存し、復元時に画面内かを確かめる。
+- キーボードの移動は `TabIndex` と `IsTabStop`、フォーカスは `Focus()` を `Loaded` のあとで呼ぶ。入力欄とショートカットの衝突に注意する。
+- 一時的に浮かべる物は、`ToolTip`、`ContextMenu`、`Popup`。二重起動は、名前付きの `Mutex` で防ぐ。
 - 標準の `ApplicationCommands` は、`TextBox` のコピー貼り付けなどに便利。ビューモデルのコマンドとは別の仕組み。
 
 次の章では、控えめなアニメーションの付け方を扱い、WPF の学習をしめくくります。

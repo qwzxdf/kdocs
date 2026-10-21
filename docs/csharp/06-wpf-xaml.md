@@ -406,11 +406,11 @@ XAML は、書いて実行して確かめるのが遅くなりがちです。Vis
 
 この先の章で、XAML を掘り下げていきます。
 
+- [第 7 章 Visual Studio で XAML を書くコツ](07-vs-tips.md)
 - [第 8 章 コントロールとコンテンツ モデル](08-controls.md)
+- [第 9 章 レイアウトの仕組み](09-layout.md)
 - [第 10 章 依存関係プロパティ、添付プロパティ、ルーテッド イベント](10-dependency-properties.md)
 - [第 11 章 スタイル、リソース、テンプレート、トリガー](11-style-template.md)
-- [第 9 章 レイアウトの仕組み](09-layout.md)
-- [第 7 章 Visual Studio で XAML を書くコツ](07-vs-tips.md)
 
 次の章では、実行中の画面を調べたり、XAML をその場で直したりする Visual Studio の機能を、先に紹介します。
 
