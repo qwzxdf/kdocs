@@ -38,7 +38,7 @@ explicit ofstream(const std::filesystem::path& p, std::ios::openmode mode = std:
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `p` | パス（文字列や `fs::path`） | 開くファイル |
-| `mode` | `std::ios::openmode` | 開き方（[フラグ](#フラグオプション)） |
+| `mode` | `std::ios::openmode` | 開き方（[フラグ](#flags)） |
 
 - ofstream は、ファイルが無ければ作り、あれば**中身を消して**開きます（`app` を付けると追記）
 - 開けなくても例外は出ません。必ず確かめます
@@ -203,6 +203,40 @@ void open(const std::filesystem::path& p, std::ios::openmode mode = /* in / out 
 ```
 
 - コンストラクタで開かなかったとき、あとから開きます
+
+## フラグ・オプション {#flags}
+
+`std::ios::openmode` は、ファイルの開き方を決めるビットマスクです。`|` で組み合わせます。`ifstream` の既定は `in` です。
+
+### std::ios::in
+
+読み込みで開きます。ファイルが無いと開けません。
+
+### std::ios::out
+
+書き込みで開きます。`ifstream` に付けると読み書きになりますが、普通は `fstream` を使います。
+
+### std::ios::binary
+
+バイナリ モードです。付けないテキスト モードでは、Windows が `
+` と `
+` を相互に変換します。画像やセーブ データなど、バイト列をそのまま読むときは必ず付けます。
+
+### std::ios::ate
+
+開いた直後に、読み書き位置をファイルの終わりへ動かします（at end）。ファイルの大きさを `tellg()` で調べるときに使います。
+
+### std::ios::app
+
+書くたびに、必ず終わりへ追記します。`ifstream` で読むときは使いません。
+
+### std::ios::trunc
+
+開いたときに、中身を消します。
+
+### std::ios::noreplace <span class="ver ver-23">C++23</span>
+
+`out` と一緒に使うと、ファイルがすでにあるときに開くのを失敗させます。上書き事故を避けたいときの指定です。
 
 ## ゲームでの使いどころ
 

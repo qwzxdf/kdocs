@@ -38,7 +38,7 @@ directory_iterator(const path& p, directory_options options);
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `p` | `const path&` | 中身を見たいフォルダ |
-| `options` | `directory_options` | 権限の無いフォルダを飛ばす、など（[フラグ](#フラグオプション)） |
+| `options` | `directory_options` | 権限の無いフォルダを飛ばす、など（[フラグ](#flags)） |
 
 - 範囲 for で回すと、`directory_entry` が 1 つずつ出てきます
 - **順番は決まっていない**（名前順にしたいなら集めてから sort）
@@ -73,6 +73,22 @@ int main() {
 ```text title="実行結果"
 ["a.txt", "b.txt"]
 ```
+
+## フラグ・オプション {#flags}
+
+`std::filesystem::directory_options` は、フォルダの中身を列挙するときの動きを決めます。
+
+### directory_options::none
+
+既定です。権限のないフォルダを開こうとするとエラーになります。
+
+### directory_options::skip_permission_denied
+
+権限のないフォルダは、エラーにせず飛ばします。ユーザーのドキュメントなど、中身が分からないフォルダを調べるときに付けます。
+
+### directory_options::follow_directory_symlink
+
+シンボリック リンクのフォルダも、中へ入ります。`recursive_directory_iterator` で効きます。リンクが輪になっていると、同じ場所を何度も巡るので注意します。
 
 ## ゲームでの使いどころ
 

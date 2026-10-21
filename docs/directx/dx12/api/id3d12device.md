@@ -51,6 +51,7 @@ D3D12 では GPU に置く物はほとんどすべて、`ID3D12Device` のメソ
 | [`CreateRootSignature`](#createrootsignature) | ルート シグネチャ | [Root Signature](../root-signature.md) |
 | [`CreateGraphicsPipelineState`](#creategraphicspipelinestate) | 描画の PSO | [PSO](../pso.md) |
 | [`CreateComputePipelineState`](#createcomputepipelinestate) | 計算の PSO | [PSO](../pso.md) |
+| [`CreateQueryHeap`](#createqueryheap) | GPU の時刻や統計の記録先 | [GPU Queries and Timing (D3D12)](../query-timing.md) |
 | [`CreateHeap`](#createheap) | ヒープだけ（リソースは別に置く） | [Heaps and Resources](../heaps-resources.md) |
 | [`CreatePlacedResource`](#createplacedresource) | ヒープの中の指定位置にリソースを置く | [Heaps and Resources](../heaps-resources.md) |
 | [`GetCopyableFootprints`](#getcopyablefootprints) | テクスチャのコピーに必要な配置の計算 | [Texture Upload](../texture-upload.md) |
@@ -406,6 +407,27 @@ HRESULT ID3D12Device::CreateComputePipelineState(
 ```
 
 計算のパイプライン（PSO）を作ります。`pDesc` に必要なのはルート シグネチャとコンピュート シェーダーだけです。描画の PSO よりずっと簡単です。引数の意味と失敗の原因は `CreateGraphicsPipelineState` と同じです。
+
+### CreateQueryHeap {#createqueryheap}
+
+```cpp
+HRESULT ID3D12Device::CreateQueryHeap(
+    const D3D12_QUERY_HEAP_DESC* pDesc,
+    REFIID riid,
+    void** ppvHeap);
+```
+
+GPU の時刻や統計（タイムスタンプ、オクルージョン、パイプライン統計）を記録するクエリ ヒープを作ります。
+
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `pDesc` | `const D3D12_QUERY_HEAP_DESC*` | 種類（`Type`）、記録できる数（`Count`）、`NodeMask` |
+| `riid` | `REFIID` | 取り出すインターフェースの ID。`ID3D12QueryHeap` |
+| `ppvHeap` | `void**` | 結果を受け取るポインタのアドレス |
+
+`Type` が何を記録するかを決めます。時刻を測るなら `D3D12_QUERY_HEAP_TYPE_TIMESTAMP` です。COPY のキューの時刻だけは別の種類 `COPY_QUEUE_TIMESTAMP` で、DIRECT と COMPUTE のキューの時刻とは混ぜられません。`Count` は、そのヒープに記録できる数です。1 フレームに記録する数に、結果を読むまで待つフレーム数を掛けた分を確保します。`NodeMask` は GPU が 1 つなら 0 です。
+
+`riid` と `ppvHeap` は `IID_PPV_ARGS(&query_heap)` でまとめて渡します。戻り値は成功なら `S_OK` で、`pDesc` の内容が不正だと失敗します。使い方（`EndQuery`、`ResolveQueryData`）は [ID3D12QueryHeap](id3d12queryheap.md) と [GPU Queries and Timing (D3D12)](../query-timing.md) にあります。
 
 ## 調べる・診断する
 

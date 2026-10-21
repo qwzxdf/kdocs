@@ -7,5 +7,23 @@ nav:
   - id3d12fence.md
   - id3d12resource.md
   - id3d12descriptorheap.md
+  - id3d12heap.md
+  - id3d12pipelinestate.md
+  - id3d12rootsignature.md
+  - id3d12queryheap.md
+  - id3d12pipelinelibrary.md
+  - id3d12object.md
+  - idxgifactory.md
+  - idxgiadapter.md
+  - idxgiswapchain.md
   - id3dblob.md
+  - d3d12serializerootsignature.md
+  - resource-structs.md
+  - view-structs.md
+  - pipeline-structs.md
+  - root-signature-structs.md
+  - copy-barrier-structs.md
+  - enum-heap-resource.md
+  - enum-resource-state.md
+  - enum-queue-command.md
   - ...

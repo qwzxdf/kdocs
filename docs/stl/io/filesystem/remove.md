@@ -34,7 +34,7 @@ bool remove(const path& p, std::error_code& ec) noexcept;
 ```
 
 - ファイルか**空の**フォルダを消します。戻り値は消したら `true`、無かったら `false`
-- 中身のあるフォルダは消せない（例外）。[`remove_all`](#remove_all) を使う
+- 中身のあるフォルダは消せない（例外）。[`remove_all`](remove_all.md) を使う
 
 ## 実際に動かしてみる
 

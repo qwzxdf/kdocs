@@ -38,7 +38,7 @@ explicit ofstream(const std::filesystem::path& p, std::ios::openmode mode = std:
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `p` | パス（文字列や `fs::path`） | 開くファイル |
-| `mode` | `std::ios::openmode` | 開き方（[フラグ](#フラグオプション)） |
+| `mode` | `std::ios::openmode` | 開き方（[フラグ](#flags)） |
 
 - ofstream は、ファイルが無ければ作り、あれば**中身を消して**開きます（`app` を付けると追記）
 - 開けなくても例外は出ません。必ず確かめます
@@ -58,11 +58,10 @@ explicit operator bool() const;
 ostream& operator<<(int value);  // 数値・文字列・文字などの型ごとにある
 ```
 
-- 値を文字にして書きます。つなげて書けます。数値の書き方は [iostream の書式フラグ](cout.md#フラグオプション書式フラグとマニピュレータ) で変えられます
+- 値を文字にして書きます。つなげて書けます。数値の書き方は [iostream の書式フラグ](cout.md#shift-out) で変えられます
 
 !!! note "実際は"
-    数値と文字列を混ぜて書くなら、`out << std::format("HP {}/{}
-", hp, max_hp);` のほうが読みやすいです。C++23 では `std::println(out, ...)` で ofstream にも直接書けます（`<ostream>`）。
+    数値と文字列を混ぜて書くなら、`out << std::format("HP {}/{}\n", hp, max_hp);` のほうが読みやすいです。C++23 では `std::println(out, ...)` で ofstream にも直接書けます（`<ostream>`）。
 
 ### write {#write}
 
@@ -150,6 +149,36 @@ void clear(iostate state = goodbit);
 ```
 
 - エラー状態（`failbit` や `eofbit`）を消します。最後まで読んだあとに `seekg` で戻って読み直すときに必要です
+
+## フラグ・オプション {#flags}
+
+`std::ios::openmode` は、ファイルの開き方を決めるビットマスクです。`|` で組み合わせます。`ofstream` の既定は `out` で、`out` 単独は中身を消して開きます（`trunc` が付いたのと同じ）。
+
+### std::ios::out
+
+書き込みで開きます。ファイルが無ければ作ります。`app` や `in` が付かない `out` は、すでにある中身を消します。
+
+### std::ios::app
+
+書くたびに、必ず終わりへ追記します。ログ ファイルはこれです。`out | app` と書くのが普通です。
+
+### std::ios::trunc
+
+開いたときに中身を消します。`out` だけのときの動作を明示したいときに付けます。
+
+### std::ios::ate
+
+開いた直後に、書き込み位置をファイルの終わりへ動かします。`app` と違って、`seekp` で途中へ戻せます。中身を消さずに書き足したいときは、`out | ate` ではなく `out | in | ate` にします（`out` だけだと中身が消えます）。
+
+### std::ios::binary
+
+バイナリ モードです。付けないテキスト モードでは、Windows が `
+` を `
+` に変換して書きます。セーブ データなどのバイト列は必ず付けます。
+
+### std::ios::noreplace <span class="ver ver-23">C++23</span>
+
+ファイルがすでにあるときは、開くのを失敗させます。上書き事故を避けたいときの指定です。
 
 ## ゲームでの使いどころ
 

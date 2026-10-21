@@ -42,7 +42,7 @@ struct from_chars_result {
 | `first`, `last` | `const char*` | 読む範囲 |
 | `value` | 数値の参照 | 結果が入る（失敗したら変わらない） |
 | `base` | `int` | 進数（2〜36）。整数版のみ |
-| `fmt` | `std::chars_format` | 浮動小数点の書き方（[フラグ](#フラグオプション)） |
+| `fmt` | `std::chars_format` | 浮動小数点の書き方（[フラグ](#flags)） |
 
 - 先頭の空白や `+` は**受け付けません**（`"+5"` や `" 5"` は失敗）
 - エラーの種類: `std::errc::invalid_argument`（数字で始まらない）、`std::errc::result_out_of_range`（型に入らない）
@@ -65,6 +65,26 @@ int main() {
 ```text title="実行結果"
 255 3.25 / ok? true true
 ```
+
+## フラグ・オプション {#flags}
+
+`std::chars_format` は、浮動小数点を文字列から読むときに、どの書き方を受け付けるかを決める列挙型です。整数を読む `from_chars` には関係しません。
+
+### std::chars_format::general
+
+`fixed` と `scientific` の両方を受け付けます。`"3.14"` も `"1e3"` も読めます。`fmt` を省略したときの既定がこれです。
+
+### std::chars_format::fixed
+
+`"3.14"` のような小数点の書き方だけを受け付けます。`"1e3"` は、`1` の部分だけを読んで、`e3` が残ります。
+
+### std::chars_format::scientific
+
+`"1e3"` のような指数の部分が**必須**です。`"3.14"` のように指数がないと、読み取りに失敗します（`errc::invalid_argument`）。
+
+### std::chars_format::hex
+
+16 進数として読みます。`"0x"` の接頭辞は付けません。`"ff"` や `"1.8p3"` のように、指数は `p` で書きます。
 
 ## ゲームでの使いどころ
 

@@ -37,7 +37,7 @@ bool copy_file(const path& from, const path& to, copy_options options);
 | --- | --- | --- |
 | `from` | `const path&` | コピー元 |
 | `to` | `const path&` | コピー先 |
-| `options` | `copy_options` | すでにあるときどうするか（[フラグ](#フラグオプション)） |
+| `options` | `copy_options` | すでにあるときどうするか（[フラグ](#flags)） |
 
 - 何も指定しないと、`to` がすでにあるとき**例外**になります
 
@@ -57,6 +57,26 @@ int main() {
 ```text title="実行結果"
 4
 ```
+
+## フラグ・オプション {#flags}
+
+`std::filesystem::copy_options` は、コピー先にすでに同名のものがあるときの動きを決めます。`copy_file` が見るのは、次の 3 つだけです。残りは [`copy`](copy.md) で使います。
+
+### copy_options::none
+
+既定です。コピー先がすでにあると、エラーにします。`ec` を渡さない版では `filesystem_error` を投げます。
+
+### copy_options::skip_existing
+
+コピー先がすでにあるときは、何もしないで戻ります。戻り値は `false` です。
+
+### copy_options::overwrite_existing
+
+コピー先がすでにあるときは、上書きします。セーブ データのバックアップのように、新しい内容で置き換えたいときに使います。
+
+### copy_options::update_existing
+
+コピー先がすでにあるときは、コピー元のほうが新しい場合だけ上書きします。更新日時で見分けます。
 
 ## ゲームでの使いどころ
 
