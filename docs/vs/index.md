@@ -15,6 +15,8 @@ C++ でゲームを作る学生の多くは <strong>Visual Studio（ビジュア
 | [AddressSanitizer](asan.md) | メモリの範囲外アクセス・解放済みメモリの使用を、その場で検出 |
 | [パフォーマンス プロファイラー](profiler.md) | 遅い場所を測る。ホット パス、PIX・Tracy |
 | [プリプロセッサマクロ](preprocessor.md) | `NOMINMAX`、`IMGUI_API`、`_DEBUG` などビルド設定でのマクロ |
+| [インクルード ディレクトリとマクロ](include-dirs.md) | 追加のインクルード ディレクトリ、`$(SolutionDir)` などのパス用マクロ |
+| [プロジェクトの種類とエントリーポイント](project-types.md) | コンソールと Windows アプリ、`main` と `WinMain`、サブシステム、DLL |
 | [便利な機能とショートカット](tips.md) | よく使うキー、整形、IntelliSense、設定ファイル |
 | [よくあるエラー](errors.md) | `LNK2019`、`C1083`、文字化け DLL が見つからない、など |
 | [CMake で使う](cmake.md) | 「フォルダーを開く」で CMake のプロジェクトを開く |

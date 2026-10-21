@@ -10,6 +10,8 @@ nav:
   - asan.md
   - profiler.md
   - preprocessor.md
+  - include-dirs.md
+  - project-types.md
   - tips.md
   - errors.md
   - cmake.md
