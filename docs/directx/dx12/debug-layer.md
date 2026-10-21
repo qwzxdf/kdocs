@@ -10,15 +10,20 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-D3D12 はリソースの状態、同期、ディスクリプタ、ルート シグネチャと <strong>間違える所が、非常に多い</strong>のでデバッグ レイヤーが、必須です。API の使い方の誤りを出力ウィンドウにメッセージで出しさらに <strong>GPU ベース検証</strong>は、GPU の実行中にバリアの間違いやディスクリプタの不正を検出します。GPU がハングしたときの原因を探る <strong>DRED</strong> もあります。
+D3D12 はアプリが自分で管理することが多く、間違える場所がたくさんあります。リソースの状態、同期、ディスクリプタ、ルート シグネチャ。間違えてもすぐにはエラーにならず画面が乱れたりときどきクラッシュしたりするだけのことが多く、原因を探すのがとても大変です。
+
+そこで、**デバッグ レイヤー**を使います。API の使い方の誤りを出力ウィンドウにメッセージで教えてくれます。さらに、**GPU ベース検証**は GPU の実行中にバリアの間違いやディスクリプタの不正を見つけます。GPU が止まってしまったときの原因を探る**DRED** もあります。
 
 !!! tip "ポイント"
-    - `ID3D12Debug::EnableDebugLayer()` を <strong>デバイスを作る前</strong>に呼ぶ。
-    - <strong>GPU ベース検証</strong>（`SetEnableGPUBasedValidation`）は遅いが、バリアのミスを正確に見つける。
-    - `ID3D12InfoQueue` でエラーの時にブレーク（止める）できる。
-    - オブジェクトに `SetName` で、名前を付ける。メッセージが読みやすくなる。
-    - GPU ハング（`DEVICE_REMOVED`）の原因は、<strong>DRED</strong>（Device Removed Extended Data）で、調べる。
+    - `ID3D12Debug::EnableDebugLayer()` をデバイスを作る前に呼ぶ。
+    - GPU ベース検証（`SetEnableGPUBasedValidation`）は遅いが、バリアのミスを正確に見つける。
+    - `ID3D12InfoQueue` でエラーが起きたときにデバッガーを止められる。
+    - オブジェクトに `SetName` で名前を付ける。メッセージが読みやすくなる。
+    - GPU のハング（`DEVICE_REMOVED`）の原因は、DRED（Device Removed Extended Data）で調べる。
     - 製品（Release）では外す。
+
+!!! info "このページを読む前に"
+    デバイスを作る順番は [Device and Factory](factory-device.md) で説明しています。メッセージによく出てくる「状態」と「バリア」は [Resource Barrier](resource-barrier.md) が基本です。`EnableDebugLayer` と `D3D12GetDebugInterface` の引数は [Device and Factory](factory-device.md#enabledebuglayer) にあります。
 
 ## 有効にする
 
@@ -26,12 +31,12 @@ D3D12 はリソースの状態、同期、ディスクリプタ、ルート シ�
 #if defined(_DEBUG)
 ComPtr<ID3D12Debug> debug;
 if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)))) {
-  debug->EnableDebugLayer();                                    // デバイスを作る「前」に
+  debug->EnableDebugLayer();  // デバイスを作る「前」に
 }
 #endif
 ```
 
-デバイスを作った後で有効にすると既存のデバイスが削除されます。必ず先に呼びます（[Device and Factory](factory-device.md)）。
+デバイスを作ったあとで有効にすると、すでにあるデバイスが削除されます。必ず先に呼びます。
 
 ## GPU ベース検証
 
@@ -39,17 +44,14 @@ if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)))) {
 #if defined(_DEBUG)
 ComPtr<ID3D12Debug1> debug1;
 if (SUCCEEDED(debug.As(&debug1))) {
-  debug1->SetEnableGPUBasedValidation(TRUE);                   // 遅い。バリア、ディスクリプタの誤りを、GPU 実行中に、検出
+  debug1->SetEnableGPUBasedValidation(TRUE);  // 遅い。バリアやディスクリプタの誤りを、GPU の実行中に検出する
 }
 #endif
 ```
 
-通常の、デバッグ レイヤーは <strong>CPU 側</strong>（API の呼び出し）の誤りを検出します。GPU ベース検証はシェーダーに <strong>計測コードを挿入</strong>して実行中のリソースの <strong>状態違反</strong>（バリア忘れ）、<strong>ディスクリプタの不正</strong>、未初期化のリソースを検出します。ゲームが数倍、遅くなるのでバグを探すときだけ有効にします。
+ふつうのデバッグ レイヤーは CPU 側（API の呼び出し）の誤りを見つけます。GPU ベース検証はシェーダーに計測用のコードを差し込んで、実行中のリソースの状態違反（バリアの付け忘れ）、ディスクリプタの不正、初期化していないリソースの使用を見つけます。ゲームが数倍遅くなるのでバグを探すときだけ有効にします。
 
-| 検証 | 検出するもの | コスト |
-| --- | --- | --- |
-| デバッグ レイヤー | API の使い方の誤り（パラメータ、状態の組み合わせ） | 小〜中 |
-| GPU ベース検証 | バリア忘れディスクリプタの不正、範囲外アクセス | 大（数倍遅い） |
+デバッグ レイヤーはパラメーターや状態の組み合わせの誤りを見つけます。コストは小さいか中くらいです。GPU ベース検証はバリアの付け忘れディスクリプタの不正、範囲外のアクセスまで見つけますが、コストは大きく数倍遅くなります。
 
 ## メッセージの見え方
 
@@ -60,9 +62,9 @@ with the state (0x0: D3D12_RESOURCE_STATE_PRESENT) specified by the previous cal
 [ RESOURCE_MANIPULATION ERROR #527: RESOURCE_BARRIER_BEFORE_AFTER_MISMATCH]
 ```
 
-この例は「バリアの `StateBefore` が実際の状態と違う」という典型的なエラーです。メッセージにリソースの名前（`SetName` で、付けた物）が出るのでどのリソースかすぐ分かります。
+この例は「バリアの前の状態（`StateBefore`）が、実際の状態と違う」という典型的なエラーです。メッセージにはリソースの名前が出ます。`SetName` で名前を付けておくとどのリソースかがすぐ分かります。
 
-## InfoQueue：エラーで止める
+## InfoQueue でエラーのときに止める
 
 ```cpp
 #include <d3d12sdklayers.h>
@@ -70,10 +72,10 @@ with the state (0x0: D3D12_RESOURCE_STATE_PRESENT) specified by the previous cal
 ComPtr<ID3D12InfoQueue> info_queue;
 if (SUCCEEDED(device.As(&info_queue))) {
   info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, TRUE);
-  info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);        // エラーで、デバッガーが、止まる
+  info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, TRUE);  // エラーでデバッガーが止まる
   info_queue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, FALSE);
 
-  // 既知の、無害な、メッセージを、非表示にする。
+  // 既知の無害なメッセージを非表示にする。
   D3D12_MESSAGE_ID hide[] = {D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE};
   D3D12_INFO_QUEUE_FILTER filter = {};
   filter.DenyList.NumIDs = ARRAYSIZE(hide);
@@ -82,7 +84,7 @@ if (SUCCEEDED(device.As(&info_queue))) {
 }
 ```
 
-`SetBreakOnSeverity` でエラーが起きた <strong>まさにその呼び出し</strong>でデバッガーが止まりコール スタックが原因の行を、指します。ただし、バリアや同期の誤りは <strong>実行時</strong>（`ExecuteCommandLists`）に報告されることが多く記録した場所ではなく投げた場所で止まります。
+`SetBreakOnSeverity` を使うとエラーが起きたその呼び出しで、デバッガーが止まります。コール スタックが原因の行を指します。ただし、バリアや同期の誤りは記録した場所ではなく、実行する `ExecuteCommandLists` の時点で報告されることが多く、止まるのはリストを渡した場所になります。
 
 ## オブジェクトに名前を付ける
 
@@ -93,76 +95,69 @@ vertex_buffer->SetName(L"Triangle Vertex Buffer");
 constant_buffer->SetName(L"Per-Object Constants");
 ```
 
-名前があるとメッセージと PIX の画面で、どのオブジェクトか分かります。「リソース 0x000001... の状態が、違う」より「`GBuffer Albedo` の状態が違う」の方が、はるかに探しやすい。
+名前があるとメッセージと PIX の画面で、どのオブジェクトかが分かります。「リソース 0x000001... の状態が違う」というより「`GBuffer Albedo` の状態が違う」のほうが、はるかに探しやすくなります（[Device and Factory](factory-device.md#setname)）。
 
-## DRED：GPU ハングの原因を調べる
+## DRED で GPU ハングの原因を調べる
 
-GPU がハングする（無限ループ、不正なアクセス）と `DXGI_ERROR_DEVICE_REMOVED` が返ります。<strong>DRED</strong>（Device Removed Extended Data）を、有効にすると「GPU が最後に実行していた命令」が分かります。
+GPU が止まる（無限ループや不正なメモリのアクセス）と `DXGI_ERROR_DEVICE_REMOVED` が返ります。ただ、「どの命令で止まったか」は分かりません。**DRED**（Device Removed Extended Data）を有効にすると、GPU が最後に実行していた命令が分かります。
 
 ```cpp
 ComPtr<ID3D12DeviceRemovedExtendedDataSettings> dred_settings;
 if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&dred_settings)))) {
-  dred_settings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);   // 実行した命令の、パンくずリスト
-  dred_settings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);         // ページ フォルトの、位置
+  dred_settings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);  // 実行した命令のパンくずリスト
+  dred_settings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);        // ページ フォルトの位置
 }
 ```
 
 ```cpp
-// DEVICE_REMOVED を検出したら、DRED の情報を、取る。
+// DEVICE_REMOVED を検出したら、DRED の情報を取る。
 if (hr == DXGI_ERROR_DEVICE_REMOVED) {
   ComPtr<ID3D12DeviceRemovedExtendedData> dred;
   if (SUCCEEDED(device.As(&dred))) {
     D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT breadcrumbs;
-    dred->GetAutoBreadcrumbsOutput(&breadcrumbs);              // どのコマンド リストの、どの命令まで、実行したか
+    dred->GetAutoBreadcrumbsOutput(&breadcrumbs);  // どのコマンド リストの、どの命令まで実行したか
     D3D12_DRED_PAGE_FAULT_OUTPUT page_fault;
-    dred->GetPageFaultAllocationOutput(&page_fault);           // 不正アクセスした、アドレスと、近くのリソース
+    dred->GetPageFaultAllocationOutput(&page_fault);  // 不正にアクセスしたアドレスと、近くのリソース
   }
 }
 ```
 
-「パンくずリスト」は各コマンド リストの命令の実行状況（完了、実行中、未実行）を示します。ハングした命令を特定できます。DRED は設定を <strong>デバイスを作る前</strong>に有効にします。
+パンくずリストは各コマンド リストの命令が完了、実行中、未実行のどれかを示します。止まった命令を特定できます。DRED の設定はデバイスを作る前に有効にします。
 
-## GPU ハングの検出
+## GPU ハングを検出する
 
 ```cpp
 HRESULT hr = swap_chain->Present(1, 0);
 if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
   HRESULT reason = device->GetDeviceRemovedReason();
-  // DXGI_ERROR_DEVICE_HUNG: GPU が、応答しない（重すぎる処理、無限ループ）
-  // DXGI_ERROR_DEVICE_REMOVED: GPU の、取り外し・ドライバー更新
-  // DXGI_ERROR_DRIVER_INTERNAL_ERROR: ドライバーの、内部エラー
+  // DXGI_ERROR_DEVICE_HUNG は、GPU が応答しない（重すぎる処理、無限ループ）。
+  // DXGI_ERROR_DEVICE_REMOVED は、GPU の取り外しか、ドライバーの更新。
+  // DXGI_ERROR_DRIVER_INTERNAL_ERROR は、ドライバーの内部エラー。
   LogError("Device removed: 0x%08X", reason);
 }
 ```
 
-GPU が 2 秒以上、応答しないと Windows の TDR（Timeout Detection and Recovery）が、ドライバーをリセットしデバイスが、失われます。1 回の `Dispatch`・`Draw` を重くしすぎないようにします。
+GPU が 2 秒以上応答しないと Windows の TDR（Timeout Detection and Recovery）が、ドライバーをリセットしてデバイスが失われます。1 回の `Dispatch` や `Draw` を重くしすぎないようにします（[ID3D12Device::GetDeviceRemovedReason](api/id3d12device.md#getdeviceremovedreason)）。
 
 ## 終了時のリーク検出
 
 ```cpp
-// 終了時（デバイスを解放する直前）に、生きている、オブジェクトを、一覧にする。
+// 終了時（デバイスを解放する直前）に、生きているオブジェクトを一覧にする。
 ComPtr<IDXGIDebug1> dxgi_debug;
 if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgi_debug)))) {
   dxgi_debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
 }
 ```
 
-`ComPtr` をグローバルや `static` に持つとデバイスの解放より後に解放され報告に出ます。
+`ComPtr` をグローバルや `static` に持つとデバイスより後に解放されて、報告に出ます。
 
 ## グラフィックス デバッガー
 
-デバッグ レイヤーで分からない、<strong>見た目の問題</strong>は PIX で、1 フレームを撮って各ドロー コールの入出力を見ます。
-
-| ツール | 特徴 |
-| --- | --- |
-| PIX on Windows | D3D12 の標準。バリア・ヒープ・ディスクリプタの可視化。GPU キャプチャ |
-| RenderDoc | 軽量で無料。D3D12 にも対応 |
-| NVIDIA Nsight Graphics | NVIDIA 固有の、詳細 |
-| AMD Radeon GPU Profiler | AMD 固有の詳細 |
+デバッグ レイヤーで分からない見た目の問題は、PIX で 1 フレームを撮って、各ドロー コールの入力と出力を見ます。PIX on Windows は D3D12 の標準のツールでバリア、ヒープ、ディスクリプタの可視化や GPU キャプチャができます。RenderDoc は軽くて無料で、D3D12 にも対応しています。NVIDIA Nsight Graphics と AMD Radeon GPU Profiler は、それぞれの GPU に固有の詳細を見られます。
 
 ```cpp
-// コマンド リストに、マーカーを、付ける（PIX・RenderDoc で、パスの名前が、見える）。
-#include <pix3.h>                                              // WinPixEventRuntime（PIX のヘッダー）
+// コマンド リストにマーカーを付ける（PIX と RenderDoc で、パスの名前が見える）。
+#include <pix3.h>  // WinPixEventRuntime（PIX のヘッダー）
 PIXBeginEvent(command_list.Get(), PIX_COLOR(0, 255, 0), L"G-Buffer Pass");
 DrawGBuffer();
 PIXEndEvent(command_list.Get());
@@ -171,32 +166,32 @@ PIXEndEvent(command_list.Get());
 ## よくあるミス
 
 ??? failure "デバッグ レイヤーを有効にしたのにメッセージが出ない"
-    `EnableDebugLayer` をデバイスを作った後に呼んでいる。デバイスの作成前に呼ぶ。
+    `EnableDebugLayer` をデバイスを作ったあとに呼んでいます。デバイスの作成前に呼びます。
 
 ??? failure "バリアのミスを見逃す（見た目は動く）"
-    GPU ベース検証を使っていない。デバッグ レイヤーだけでは実行時の状態違反を全部は検出できない。バグの調査では GPU ベース検証を有効に。
+    GPU ベース検証を使っていません。デバッグ レイヤーだけでは実行時の状態違反をすべては見つけられません。バグの調査では GPU ベース検証を有効にします。
 
-??? failure "GPU ハングの原因が、分からない"
-    DRED を有効にしていない。パンくずリストで最後に実行した命令を特定する。
+??? failure "GPU ハングの原因が分からない"
+    DRED を有効にしていません。パンくずリストで最後に実行した命令を特定します。
 
-??? failure "メッセージが、多すぎて読めない"
-    警告の一部をフィルタで絞る。`SetBreakOnSeverity` をエラーだけにして 1 つずつ直す。
+??? failure "メッセージが多すぎて読めない"
+    警告の一部をフィルターで絞ります。`SetBreakOnSeverity` をエラーだけにして 1 つずつ直します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] D3D12 は間違えやすい。デバッグ レイヤーは必須。デバイス作成の「前」に有効に
-    - [x] GPU ベース検証で、バリアとディスクリプタの誤りを見つける（遅いので調査時だけ）
-    - [x] `ID3D12InfoQueue` でエラー時にブレーク
-    - [x] `SetName` で全オブジェクトに名前を付ける
-    - [x] GPU ハングは、DRED（パンくずリスト）で原因を調べる
-    - [x] 見た目の問題は PIX・RenderDoc
+    - [x] D3D12 は間違えやすい。デバッグ レイヤーは必須でデバイスを作る前に有効にする
+    - [x] GPU ベース検証で、バリアとディスクリプタの誤りを見つける（遅いので調査のときだけ）
+    - [x] `ID3D12InfoQueue` でエラーのときにデバッガーを止める
+    - [x] `SetName` ですべてのオブジェクトに名前を付ける
+    - [x] GPU のハングは、DRED のパンくずリストで原因を調べる
+    - [x] 見た目の問題は PIX か RenderDoc で見る
 
 ## 関連ページ
 
 - [DirectX 12 Guide](index.md)
 - [Device and Factory](factory-device.md)
+- [ID3D12Device](api/id3d12device.md)
 - [Resource Barrier](resource-barrier.md)
 - [GPU Queries and Timing](query-timing.md)
-- [Debug Layer](../dx11/debug-layer.md)
 - [Microsoft Learn: D3D12 デバッグ レイヤー](https://learn.microsoft.com/ja-jp/windows/win32/direct3d12/understanding-the-d3d12-debug-layer)

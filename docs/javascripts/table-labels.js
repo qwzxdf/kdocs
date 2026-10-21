@@ -31,6 +31,13 @@
           first.appendChild(badge);
         }
       });
+      // 1 行でも長いラベルがあれば、全行を同じ並べ方（ラベルの下に説明）にそろえる。
+      // 混ざっていると、短い行だけ幅の広い枠になって、そろわない。
+      if (table.dataset.tbl === "term" && table.querySelector("tbody tr[data-long]")) {
+        table.querySelectorAll("tbody tr").forEach((row) => {
+          row.dataset.long = "1";
+        });
+      }
     });
   }
 

@@ -10,155 +10,157 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>フェンス</strong>（`ID3D12Fence`）は <strong>CPU と GPU（または、GPU 同士）の同期</strong>の道具です。中身は <strong>1 つの 64 ビットの整数</strong>で「GPU がここまで、終わった」という <strong>目印</strong>を書き込み CPU がその値を読むまたは、その値になるまで待ちます。D3D12 では GPU が非同期に動くので「いつリソースを再利用してよいか」を知る唯一の、方法です。
+`ExecuteCommandLists` で仕事を渡すと GPU はそれを非同期に実行します。CPU から見るといつ終わるのかが分かりません。ところが、そのリストが使っているアロケーターやバッファは、GPU が終わるまで再利用も解放もできません。「GPU がここまで終わった」と知る方法が必要です。
+
+その方法が<strong>フェンス</strong>（`ID3D12Fence`）です。中身は 64 ビットの整数が 1 つあるだけです。GPU が仕事を終えるたびにこの数字を進めます。CPU はその数字を読むか特定の数字になるまで待ちます。
 
 !!! tip "ポイント"
-    - フェンス ＝ 増えていく整数。GPU が `Signal` で値を書く。CPU が `GetCompletedValue` で読む。
-    - 使い方: <strong>`Signal(fence, N)` をキューに積む → GPU が、そこまで実行したら値が N に → CPU は、値が N になるまで待つ</strong>。
-    - CPU が待つにはイベント（`HANDLE`）に `SetEventOnCompletion` で結びつけ `WaitForSingleObject`。
-    - 値は <strong>単調に増やす</strong>。フレームごとに `+1`。
-    - フレーム イン フライト、終了時の全完了待ちアップロードの完了確認に必須。
+    - フェンスは増えていく整数。GPU が `Signal` で書き CPU が `GetCompletedValue` で読む。
+    - 使い方は `Signal(fence, N)` をキューに積み GPU がそこまで実行すると値が N になり、CPU がそれを確認する。
+    - CPU が待つには `SetEventOnCompletion` でイベントを結び `WaitForSingleObject` で待つ。
+    - 値は増やすだけで、減らさない。1 フレームごとに 1 増やすのが定番。
+    - フレームの同時進行、終了時の全完了待ちアップロードの完了確認に必ず使う。
+
+!!! info "このページを読む前に"
+    `Signal` を積む窓口は [Command Queue](command-queue.md)、フェンスで守る相手は [Command Allocator](command-allocator.md) です。Win32 のイベント（`HANDLE`）が出てきますが、このページの範囲で使い方を説明します。メソッドの引数と戻り値は [ID3D12Fence](api/id3d12fence.md) にあります。
 
 ## 作る
 
 ```cpp
 ComPtr<ID3D12Fence> fence;
-UINT64 fence_value = 0;                                      // 次に、Signal する値
-HANDLE fence_event = CreateEventW(nullptr, FALSE, FALSE, nullptr);   // CPU が、待つための、イベント
+UINT64 fence_value = 0;                                             // 次に Signal する値
+HANDLE fence_event = CreateEventW(nullptr, FALSE, FALSE, nullptr);  // CPU が待つためのイベント
 
-device->CreateFence(0,                                       // 初期値
+device->CreateFence(0,  // 初期値
                     D3D12_FENCE_FLAG_NONE,
                     IID_PPV_ARGS(&fence));
 ```
 
-イベントは Win32 の `CreateEventW` で、作ります。フェンスが目的の値に達したとき GPU（ドライバー）がこのイベントをシグナル状態にします。
+イベントは Win32 の `CreateEventW` で作ります。フェンスが目的の値に届いたときドライバーがこのイベントをシグナル状態にします。CPU はそのイベントを `WaitForSingleObject` で待ちます。
 
-## Signal と待ち
+## 目印を積んで待つ
+
+<svg class="fig flow" viewBox="0 0 720 276" role="img" aria-label="フェンスの値で、GPU の完了を知る"><defs><marker id="fe" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">Signal で目印を積み、値が届いたら完了</text><text x="12" y="76" text-anchor="start" style="font-size:12px;font-weight:700">CPU</text><text x="12" y="146" text-anchor="start" style="font-size:12px;font-weight:700">GPU</text><text x="12" y="206" text-anchor="start" style="font-size:12px;font-weight:700">フェンス</text><rect x="70" y="56" width="150" height="36" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="145.0" y="74.0" text-anchor="middle" dominant-baseline="central" style="font-size:11px;font-weight:600">ExecuteCommandLists</text><rect x="230" y="56" width="120" height="36" rx="9" fill="rgba(229,170,40,0.28)" stroke="#e5aa28" stroke-width="2"/><text x="290.0" y="74.0" text-anchor="middle" dominant-baseline="central" style="font-size:11px;font-weight:600">Signal(fence, 5)</text><rect x="360" y="56" width="230" height="36" rx="9" fill="rgba(148,163,184,0.18)" stroke="#94a3b8" stroke-width="2"/><text x="475.0" y="74.0" text-anchor="middle" dominant-baseline="central" style="font-size:11px;font-weight:600">別の仕事を進める（待たない）</text><rect x="70" y="126" width="280" height="36" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="210.0" y="144.0" text-anchor="middle" dominant-baseline="central" style="font-size:11px;font-weight:600">リストを実行している…</text><rect x="350" y="126" width="90" height="36" rx="9" fill="rgba(229,170,40,0.28)" stroke="#e5aa28" stroke-width="2"/><text x="395.0" y="144.0" text-anchor="middle" dominant-baseline="central" style="font-size:11px;font-weight:600">5 を書く</text><line x1="290" y1="92" x2="290" y2="126" stroke="currentColor" stroke-width="2" marker-end="url(#fe)"/><rect x="70" y="188" width="60" height="34" rx="9" fill="rgba(148,163,184,0.18)" stroke="#94a3b8" stroke-width="2"/><text x="100.0" y="205.0" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:600">4</text><rect x="440" y="188" width="70" height="34" rx="9" fill="rgba(229,170,40,0.28)" stroke="#e5aa28" stroke-width="2"/><text x="475.0" y="205.0" text-anchor="middle" dominant-baseline="central" style="font-size:13px;font-weight:600">5</text><line x1="395" y1="162" x2="460" y2="188" stroke="currentColor" stroke-width="2" marker-end="url(#fe)"/><rect x="600" y="56" width="110" height="36" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="655.0" y="74.0" text-anchor="middle" dominant-baseline="central" style="font-size:11px;font-weight:600">値が 5 か確認</text><line x1="480" y1="188" x2="650" y2="92" stroke="currentColor" stroke-width="2" marker-end="url(#fe)"/><text x="360" y="258" text-anchor="middle" style="font-size:12px;font-weight:400">CPU は、フェンスの値が 5 になったら「この仕事は終わった」と分かる。</text></svg>
+
+上の図の流れをそのままコードにしたのが、次の関数です。GPU がここまでの仕事を終えるのを CPU が待ちます。
 
 ```cpp
-// GPU の、現在の仕事が、終わるまで、CPU が、待つ（最も、単純な形）。
 void WaitForGpu() {
-  const UINT64 value = ++fence_value;                        // 次の目印の値
-  command_queue->Signal(fence.Get(), value);                 // キューに「ここまで終わったら、value を書く」を、積む
-  if (fence->GetCompletedValue() < value) {                  // GPU が、まだ、そこまで、来ていなければ
-    fence->SetEventOnCompletion(value, fence_event);         // value に達したら、イベントを、シグナルする
-    WaitForSingleObject(fence_event, INFINITE);              // CPU は、ここで、眠る
+  const UINT64 value = ++fence_value;         // 次の目印の値
+  command_queue->Signal(fence.Get(), value);  // 「ここまで終わったら value を書く」をキューに積む
+  if (fence->GetCompletedValue() < value) {   // GPU がまだそこまで来ていなければ
+    fence->SetEventOnCompletion(value, fence_event);  // value に届いたらイベントを鳴らす
+    WaitForSingleObject(fence_event, INFINITE);       // CPU はここで眠る
   }
 }
 ```
 
-| 関数 | 呼ぶ側 | 内容 |
-| --- | --- | --- |
-| `ID3D12CommandQueue::Signal(fence, value)` | CPU（積むだけ） | GPU が、そこまで実行したらフェンスに `value` を書く |
-| `ID3D12Fence::GetCompletedValue()` | CPU | 今、フェンスに書かれている値を返す（待たない） |
-| `ID3D12Fence::SetEventOnCompletion(value, event)` | CPU | フェンスが `value` 以上になったら、イベントをシグナルする |
-| `WaitForSingleObject(event, timeout)` | CPU | イベントが、シグナルするまで待つ（Win32） |
-| `ID3D12CommandQueue::Wait(fence, value)` | CPU（積むだけ） | <strong>キューを</strong>、フェンスが `value` になるまで止める（GPU の待ち） |
-| `ID3D12Fence::Signal(value)` | CPU | CPU が直接、フェンスに値を書く（まれ） |
+`command_queue->Signal` はキューの中に「ここまでの仕事が終わったら、この数字を書く」という命令を積みます。積むだけで CPU は待ちません。GPU がその位置まで来ると、フェンスの数字が `value` になります。
 
-流れを図にすると次のとおりです。
+`GetCompletedValue` は今の数字をすぐ返します。すでに届いていれば待つ必要がありません。先に確認しておくと無駄な待ちを避けられます。
 
-```text
-CPU:  ExecuteCommandLists(list)        ← 仕事を、キューに、投げる
-      Signal(fence, 5)                  ← 「ここまで終わったら、5 を書いて」を、キューに、積む
-      （CPU は、先へ進める）
-GPU:  list を実行 …… 終わった → フェンスに 5 を、書く
-CPU:  GetCompletedValue() == 5 ?        ← 5 になっていれば、list の使った、リソースは、再利用できる
-```
+`SetEventOnCompletion` は「数字が `value` 以上になったら、このイベントを鳴らしてください」という予約です。この関数自体は待たずに戻ります。実際に待つのはそのあとの `WaitForSingleObject` です。
 
-## フレーム イン フライト
+`ID3D12Fence::Signal` のように CPU から直接フェンスの数字を書く方法もありますが、まれにしか使いません。GPU の完了を知るときはキューの `Signal` を使います。
 
-CPU が次のフレームを記録している間、GPU は前のフレームを実行しています。<strong>フレームごとにフェンスの値を覚えておき</strong>、そのフレームのリソース（アロケーター、定数バッファ）を再利用する前にその値に達したかを確認します。
+## フレームを同時に進める
+
+CPU が次のフレームを記録している間、GPU は前のフレームを実行しています。1 フレームごとに全完了を待つと CPU と GPU が交互にしか動けず並列性が失われます。そこで、フレームごとに「ここまで終われば再利用してよい」という値を覚えておき再利用の直前に、その値だけを確認します。
 
 ```cpp
-UINT64 frame_fence_values[kFrameCount] = {};                 // 各フレームの、「ここまで終われば、再利用できる」値
+UINT64 frame_fence_values[kFrameCount] = {};  // 各フレームの「ここまで終われば再利用できる」値
 
 void BeginFrame(UINT frame_index) {
-  // このフレーム用の、リソースを、前に、使った、フレームの、GPU 完了を、待つ。
+  // このフレーム用のリソースを前に使ったフレームが、GPU で終わるのを待つ。
   const UINT64 needed = frame_fence_values[frame_index];
   if (fence->GetCompletedValue() < needed) {
     fence->SetEventOnCompletion(needed, fence_event);
     WaitForSingleObject(fence_event, INFINITE);
   }
-  allocators[frame_index]->Reset();                          // 安全に、Reset できる
+  allocators[frame_index]->Reset();  // これで安全に Reset できる
 }
 
 void EndFrame(UINT frame_index) {
-  command_queue->Signal(fence.Get(), ++fence_value);         // このフレームの、完了の、目印
+  command_queue->Signal(fence.Get(), ++fence_value);  // このフレームの完了の目印
   frame_fence_values[frame_index] = fence_value;
 }
 ```
 
-フレーム イン フライトが 2 なら CPU は GPU より最大 2 フレーム、先に進めます（[Frame Resources](frame-resources.md)）。
+同時に進めるフレームが 2 つなら CPU は GPU より最大 2 フレーム先に進めます。考え方の詳細は [Frame Resources](frame-resources.md) にあります。
 
-## 複数のキューの同期
+## 複数のキューの順番をそろえる
 
-別のキュー（COMPUTE と DIRECT）の順序を <strong>GPU の中で</strong>、そろえるには `Signal` と `Wait` を使います。CPU は止まりません。
+COMPUTE と DIRECT のように別のキューの順番をそろえたいときは、`Signal` と `Wait` を使います。`ID3D12CommandQueue::Wait` は CPU を止めず**GPU のキューだけを止めます**。
 
 ```cpp
-// COMPUTE キューの仕事が、終わるまで、DIRECT キューを、待たせる。
+// COMPUTE の仕事が終わるまで、DIRECT のキューを待たせる。
 compute_queue->ExecuteCommandLists(1, compute_lists);
-compute_queue->Signal(compute_fence.Get(), ++compute_value);          // COMPUTE が、ここまで終わったら、値を書く
+compute_queue->Signal(compute_fence.Get(), ++compute_value);  // COMPUTE がここまで終わったら値を書く
 
-direct_queue->Wait(compute_fence.Get(), compute_value);               // DIRECT は、その値になるまで、止まる（GPU の待ち）
-direct_queue->ExecuteCommandLists(1, direct_lists);                   // 計算結果を、使う描画
+direct_queue->Wait(compute_fence.Get(), compute_value);  // DIRECT は、その値になるまで止まる（GPU の待ち）
+direct_queue->ExecuteCommandLists(1, direct_lists);      // 計算の結果を使う描画
 ```
 
-`ID3D12CommandQueue::Wait` は CPU を止めず <strong>GPU のキューを</strong>、止めます。非同期コンピュートの結果を描画で、使うときの定番です（[Command Queue](command-queue.md)）。
+非同期コンピュートの結果を描画で使うときの定番の形です（[Command Queue](command-queue.md)）。
 
-## 終了時の後始末
+## 終了するときの後始末
+
+アプリを終了するときは GPU が使っているリソースを解放しないために全完了を待ちます。
 
 ```cpp
 void Shutdown() {
-  WaitForGpu();                                              // GPU が、全部終わるのを、待つ
+  WaitForGpu();  // GPU がすべて終わるのを待つ
   CloseHandle(fence_event);
-  // この後で、リソース、コマンド キュー、デバイスを、解放する
+  // このあとで、リソース、コマンド キュー、デバイスを解放する
 }
 ```
 
-GPU がまだ実行中のリソースを解放するとクラッシュします。終了前に必ずフェンスで待ちます。
+GPU がまだ実行中のリソースを解放すると、クラッシュします。
 
 ## タイムアウトと GPU のハング
 
+`INFINITE` で待つと GPU がハングしたときに CPU が永久に止まります。製品ではタイムアウトを付けて、原因を記録します。
+
 ```cpp
-DWORD result = WaitForSingleObject(fence_event, 5000);       // 5 秒で、タイムアウト
+DWORD result = WaitForSingleObject(fence_event, 5000);  // 5 秒でタイムアウト
 if (result == WAIT_TIMEOUT) {
-  // GPU が、返ってこない（ハング）。デバイスの、状態を、確認する。
+  // GPU が返ってこない（ハング）。デバイスの状態を確認する。
   HRESULT reason = device->GetDeviceRemovedReason();
 }
 ```
 
-`INFINITE` で待つと GPU がハングしたとき永久に止まります。製品ではタイムアウトを設定して `GetDeviceRemovedReason` で原因を記録します（[Debug Layer](debug-layer.md)）。
+`GetDeviceRemovedReason` の見方は [ID3D12Device](api/id3d12device.md#getdeviceremovedreason) にあります。
 
 ## よくあるミス
 
 ??? failure "画面が乱れる、またはクラッシュする（再現が不安定）"
-    フェンスで完了を待たずにアロケーターを `Reset` したまたは、GPU が使用中のリソースを書き換えた。
+    フェンスで完了を待たずにアロケーターを `Reset` したか GPU が使用中のリソースを書き換えています。
 
 ??? failure "フレームレートが異様に低い"
-    毎フレーム、`WaitForGpu`（全完了待ち）をしている。CPU と GPU が直列になり並列性が失われる。フレーム イン フライト（2〜3）で、1 フレームずつ遅れて待つ。
+    毎フレーム `WaitForGpu` で全完了を待っています。CPU と GPU が直列になります。フレームを 2〜3 つ同時に進めて、1 フレームずつ遅れて待ちます。
 
 ??? failure "終了時にクラッシュする"
-    終了前に GPU の完了を待っていない。
+    終了前に GPU の完了を待っていません。
 
 ??? failure "`WaitForSingleObject` で永久に止まる"
-    `Signal` をキューに積んでいないまたは `SetEventOnCompletion` の値が、`Signal` した値と違う。GPU がハングしている（タイムアウトを設定する）。
+    `Signal` をキューに積んでいないか `SetEventOnCompletion` の値が `Signal` した値と違います。GPU がハングしている場合もあるので、タイムアウトを付けます。
 
-??? failure "フェンスの値が、巻き戻る・同じ値で 2 回待つ"
-    値は単調に増やす。使い回す変数を複数の場所で更新して順序が、崩れている。
+??? failure "フェンスの値が巻き戻る同じ値で 2 回待つ"
+    値は増やすだけです。1 つの変数を複数の場所で更新して、順番が崩れていないか確認します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] フェンス ＝ 増える整数。GPU が `Signal` で書き CPU が、読む・待つ
-    - [x] 待つ: `SetEventOnCompletion(value, event)` + `WaitForSingleObject`
-    - [x] 毎フレーム、全完了待ちはしない。フェンスの値をフレームごとに覚える
-    - [x] キュー同士は `Signal` + `Wait`（GPU の待ち）
-    - [x] 終了前に全完了を待つ。タイムアウトを設定する
+    - [x] フェンスは増える整数。GPU が `Signal` で書き CPU が読むか待つ
+    - [x] 待つときは `SetEventOnCompletion` と `WaitForSingleObject`
+    - [x] 毎フレーム全完了を待たずフレームごとに値を覚える
+    - [x] キューどうしは `Signal` と `Wait`（GPU の待ち）
+    - [x] 終了前に全完了を待つ。タイムアウトを付ける
 
 ## 関連ページ
 
 - [DirectX 12 Guide](index.md)
+- [ID3D12Fence](api/id3d12fence.md)
 - [Command Queue](command-queue.md)
 - [Command Allocator](command-allocator.md)
 - [Frame Resources](frame-resources.md)

@@ -1,5 +1,7 @@
 nav:
   - index.md
+  - util.md
+  - window.md
   - factory-device.md
   - command-queue.md
   - command-allocator.md

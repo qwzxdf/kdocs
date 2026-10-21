@@ -10,90 +10,39 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-ここまでのページで作った部品（デバイス、キュー、アロケーター、リスト、フェンス、スワップ チェーン、ディスクリプタ ヒープ、ルート シグネチャ、PSO、頂点バッファ）を <strong>つないで三角形を描きます</strong>。D3D12 の「Hello World」で、コード量は多いですが 1 つずつの部品は、これまでのページで説明した物です。
+ここまでのページでデバイス、キュー、アロケーター、リスト、フェンス、スワップ チェーン、ディスクリプタ ヒープ、ルート シグネチャ、PSO、頂点バッファと部品を 1 つずつ見てきました。このページではそれをすべてつないで、ウィンドウに三角形を出します。D3D12 の「Hello World」です。
+
+コードは長くなりますが新しい概念は出てきません。1 つずつの部品はこれまでのページで説明したものです。迷ったら各節の末尾にあるリンクから、そのページへ戻ってください。
 
 !!! tip "ポイント"
-    - 準備（1 回）: デバイス → キュー → スワップ チェーン → RTV → ルート シグネチャ → PSO → 頂点バッファ（アップロード）→ フェンス。
-    - 毎フレーム: アロケーター・リストの `Reset` → バリア（`PRESENT` → `RENDER_TARGET`）→ 描画 → バリア（戻す）→ `Close` → `ExecuteCommandLists` → `Present` → フェンスで待つ。
-    - ビューポートと <strong>シザー矩形</strong>は必ず設定する（シザーは常に有効）。
-    - ここでは簡単のため、毎フレーム、GPU の完了を待つ。実用では[Frame Resources](frame-resources.md) で、並列にする。
-    - 見えないときはバリア・ビューポート/シザー・PSO のフォーマット・面の向きを疑う。
+    - 準備は 1 回だけ。デバイス、キュー、スワップ チェーン、RTV、ルート シグネチャ、PSO、頂点バッファ、フェンスを作る。
+    - 毎フレームはアロケーターとリストを `Reset`、バリア、描画、バリア、`Close`、`ExecuteCommandLists`、`Present`、フェンスで待つ。
+    - ビューポートとシザー矩形は、必ず設定する。シザー矩形は常に有効。
+    - ここでは簡単にするため、毎フレーム GPU の完了を待つ。実用では [Frame Resources](frame-resources.md) のように並列にする。
+    - 見えないときはバリア、ビューポートとシザー、PSO の形式、面の向きを疑う。
 
-## 流れ
+!!! info "このページを読む前に"
+    次のページを読んでから進むとコードのどの部分が何をしているか分かります。[Device and Factory](factory-device.md)、[Command Queue](command-queue.md)、[Command List](command-list.md)、[Fence](fence.md)、[Swap Chain](swap-chain.md)、[Root Signature](root-signature.md)、[PSO](pso.md)、[Upload Buffer](upload-buffer.md) です。構造体を短く書く関数は [Helper Functions](util.md) の `dx12_util.h` を使います。
 
-| 段階 | 内容 | ページ |
-| --- | --- | --- |
-| 準備 ① | デバイス、コマンド キュー | [Device and Factory](factory-device.md)、[Command Queue](command-queue.md) |
-| 準備 ② | スワップ チェーン、RTV | [Swap Chain](swap-chain.md)、[Descriptor Heap](descriptor-heap.md) |
-| 準備 ③ | コマンド アロケーター、リスト、フェンス | [Command Allocator](command-allocator.md)、[Command List](command-list.md)、[Fence](fence.md) |
-| 準備 ④ | ルート シグネチャ、PSO | [Root Signature](root-signature.md)、[PSO](pso.md) |
-| 準備 ⑤ | 頂点バッファ（アップロード） | [Upload Buffer](upload-buffer.md)、[Vertex and Index Buffer Views](vertex-index-view.md) |
-| 毎フレーム | 記録 → 実行 → `Present` → 待つ | 下 |
+## 全体の流れ
 
-## 毎フレームの記録
+準備は次の順に進めます。
 
-```cpp
-void RenderFrame() {
-  const UINT index = swap_chain_->GetCurrentBackBufferIndex();
+1. デバイスとコマンド キューを作る（[Device and Factory](factory-device.md)、[Command Queue](command-queue.md)）。
+2. スワップ チェーンと RTV を作る（[Swap Chain](swap-chain.md)、[Descriptor Heap](descriptor-heap.md)）。
+3. アロケーター、リスト、フェンスを作る（[Command Allocator](command-allocator.md)、[Command List](command-list.md)、[Fence](fence.md)）。
+4. ルート シグネチャと PSO を作る（[Root Signature](root-signature.md)、[PSO](pso.md)）。
+5. 頂点バッファを作りアップロードする（[Upload Buffer](upload-buffer.md)、[Vertex and Index Buffer Views](vertex-index-view.md)）。
 
-  // ① アロケーターとリストを、Reset（前のフレームの GPU 完了は、待ち済み）
-  allocator_->Reset();
-  command_list_->Reset(allocator_.Get(), pipeline_state_.Get());
-```
+準備が終わったら毎フレーム「記録、実行、`Present`、待つ」を繰り返します。
 
-`Reset` で PSO を渡すと最初から、その PSO が設定された状態で記録を始められます。
+## 準備のコード
+
+まず、クラスの形を決めます。デバイスから頂点バッファまで、必要な物をメンバーとして持ちます。
 
 ```cpp
-  // ② ルート シグネチャ、ビューポート、シザー矩形を、設定する（Reset で、全部、初期化されている）
-  command_list_->SetGraphicsRootSignature(root_signature_.Get());
-  command_list_->RSSetViewports(1, &viewport_);
-  command_list_->RSSetScissorRects(1, &scissor_);
-```
+#include <cstring>
 
-<strong>シザー矩形</strong>を設定し忘れると、描画範囲が 0 になり何も描かれません（D3D12 は、シザーが常に有効）。
-
-```cpp
-  // ③ バック バッファを、PRESENT → RENDER_TARGET に、切り替える
-  auto to_render = CD3DX12_RESOURCE_BARRIER::Transition(back_buffers_[index].Get(), D3D12_RESOURCE_STATE_PRESENT,
-                                                        D3D12_RESOURCE_STATE_RENDER_TARGET);
-  command_list_->ResourceBarrier(1, &to_render);
-
-  // ④ 描き込み先を設定して、クリア
-  CD3DX12_CPU_DESCRIPTOR_HANDLE rtv(rtv_heap_->GetCPUDescriptorHandleForHeapStart(), index, rtv_size_);
-  command_list_->OMSetRenderTargets(1, &rtv, FALSE, nullptr);
-  const float clear_color[4] = {0.1f, 0.15f, 0.3f, 1.0f};
-  command_list_->ClearRenderTargetView(rtv, clear_color, 0, nullptr);
-```
-
-バック バッファの状態を `RENDER_TARGET` にしてから描き込み先に設定しクリアします（[Resource Barrier](resource-barrier.md)）。
-
-```cpp
-  // ⑤ 三角形を描く
-  command_list_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-  command_list_->IASetVertexBuffers(0, 1, &vertex_buffer_view_);
-  command_list_->DrawInstanced(3, 1, 0, 0);
-
-  // ⑥ RENDER_TARGET → PRESENT に戻す
-  auto to_present = CD3DX12_RESOURCE_BARRIER::Transition(back_buffers_[index].Get(),
-                                                         D3D12_RESOURCE_STATE_RENDER_TARGET,
-                                                         D3D12_RESOURCE_STATE_PRESENT);
-  command_list_->ResourceBarrier(1, &to_present);
-
-  // ⑦ 記録を終えて、キューに投げ、画面に出す
-  command_list_->Close();
-  ID3D12CommandList* lists[] = {command_list_.Get()};
-  command_queue_->ExecuteCommandLists(1, lists);
-  swap_chain_->Present(1, 0);
-
-  WaitForGpu();                                              // 簡単のため、毎フレーム待つ（frame-resources.md で、改善）
-}
-```
-
-## 動く完全なプログラム
-
-部品を 1 つにまとめた完成形です。`triangle.hlsl` は[Shaders and Compilation](../dx11/shaders.md) と同じシェーダーでここでは `D3DCompileFromFile`（SM 5.0）で、コンパイルします（`dxc` を使うなら[Shaders and DXC](shaders-dxc.md)）。
-
-```cpp
 #include <d3d12.h>
 #include <d3dcompiler.h>
 #include <dxgi1_6.h>
@@ -101,12 +50,14 @@ void RenderFrame() {
 #include <wrl/client.h>
 
 #include <DirectXMath.h>
-#include <d3dx12.h>
+
+#include "dx12_util.h"
 
 using Microsoft::WRL::ComPtr;
 
 constexpr UINT kFrameCount = 2;
-constexpr UINT kWidth = 1280, kHeight = 720;
+constexpr UINT kWidth = 1280;
+constexpr UINT kHeight = 720;
 
 struct Vertex {
   DirectX::XMFLOAT3 position;
@@ -143,13 +94,15 @@ class Renderer {
 };
 ```
 
+`Init` の最初はデバッグ レイヤー、ファクトリー、アダプター、デバイスです。この順番の理由は[Device and Factory](factory-device.md) にあります。
+
 ```cpp
 void Renderer::Init(HWND hwnd) {
   UINT factory_flags = 0;
 #if defined(_DEBUG)
   ComPtr<ID3D12Debug> debug;
   if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)))) {
-    debug->EnableDebugLayer();
+    debug->EnableDebugLayer();  // デバイスを作る前に呼ぶ
     factory_flags |= DXGI_CREATE_FACTORY_DEBUG;
   }
 #endif
@@ -158,7 +111,11 @@ void Renderer::Init(HWND hwnd) {
   ComPtr<IDXGIAdapter1> adapter;
   factory->EnumAdapterByGpuPreference(0, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter));
   D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&device_));
+```
 
+次に、コマンド キューとスワップ チェーンを作ります。スワップ チェーンにはデバイスではなく、キューを渡します（[Swap Chain](swap-chain.md)）。
+
+```cpp
   D3D12_COMMAND_QUEUE_DESC queue_desc = {};
   queue_desc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
   device_->CreateCommandQueue(&queue_desc, IID_PPV_ARGS(&command_queue_));
@@ -175,38 +132,57 @@ void Renderer::Init(HWND hwnd) {
   factory->CreateSwapChainForHwnd(command_queue_.Get(), hwnd, &sc, nullptr, nullptr, &swap_chain1);
   factory->MakeWindowAssociation(hwnd, DXGI_MWA_NO_ALT_ENTER);
   swap_chain1.As(&swap_chain_);
+```
 
+バック バッファごとに RTV を作ります。ヒープの先頭から `i` 番目のハンドルは、`OffsetHandle` で求めます。RTV の形式を `_SRGB` にして、リニアの色を書いたとき sRGB へ自動変換されるようにしています。
+
+```cpp
   D3D12_DESCRIPTOR_HEAP_DESC heap_desc = {};
   heap_desc.NumDescriptors = kFrameCount;
   heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
   device_->CreateDescriptorHeap(&heap_desc, IID_PPV_ARGS(&rtv_heap_));
   rtv_size_ = device_->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-  CD3DX12_CPU_DESCRIPTOR_HANDLE handle(rtv_heap_->GetCPUDescriptorHandleForHeapStart());
+
+  D3D12_CPU_DESCRIPTOR_HANDLE rtv_start = rtv_heap_->GetCPUDescriptorHandleForHeapStart();
   for (UINT i = 0; i < kFrameCount; ++i) {
     swap_chain_->GetBuffer(i, IID_PPV_ARGS(&back_buffers_[i]));
     D3D12_RENDER_TARGET_VIEW_DESC rtv = {};
     rtv.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
     rtv.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-    device_->CreateRenderTargetView(back_buffers_[i].Get(), &rtv, handle);
-    handle.Offset(1, rtv_size_);
+    device_->CreateRenderTargetView(back_buffers_[i].Get(), &rtv, OffsetHandle(rtv_start, i, rtv_size_));
   }
+```
 
+アロケーター、フェンス、フェンス用のイベントもこのタイミングで作ります。
+
+```cpp
   device_->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&allocator_));
   device_->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
   fence_event_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 ```
 
+ルート シグネチャはこのサンプルではパラメーターなしです。頂点バッファから位置と色を読むだけなので、入力レイアウトを使うというフラグだけを付けます（[Root Signature](root-signature.md)）。
+
 ```cpp
-  // ルート シグネチャ: パラメータなし（頂点入力だけ）。
-  CD3DX12_ROOT_SIGNATURE_DESC rs_desc;
-  rs_desc.Init(0, nullptr, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
-  ComPtr<ID3DBlob> serialized, errors;
+  D3D12_ROOT_SIGNATURE_DESC rs_desc = {};
+  rs_desc.NumParameters = 0;
+  rs_desc.pParameters = nullptr;
+  rs_desc.NumStaticSamplers = 0;
+  rs_desc.pStaticSamplers = nullptr;
+  rs_desc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+  ComPtr<ID3DBlob> serialized;
+  ComPtr<ID3DBlob> errors;
   D3D12SerializeRootSignature(&rs_desc, D3D_ROOT_SIGNATURE_VERSION_1, &serialized, &errors);
   device_->CreateRootSignature(0, serialized->GetBufferPointer(), serialized->GetBufferSize(),
                                IID_PPV_ARGS(&root_signature_));
+```
 
-  // シェーダー（SM 5.0 で、コンパイル）。
-  ComPtr<ID3DBlob> vs, ps;
+シェーダーはここでは `D3DCompileFromFile`（シェーダー モデル 5.0）でコンパイルします。`dxc` を使うときは [Shaders and DXC](shaders-dxc.md) を見てください。続けて入力レイアウトを使って PSO を作ります。面の向きを `FrontCounterClockwise = TRUE` にしていることに注意します。
+
+```cpp
+  ComPtr<ID3DBlob> vs;
+  ComPtr<ID3DBlob> ps;
   D3DCompileFromFile(L"triangle.hlsl", nullptr, nullptr, "VSMain", "vs_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &vs, &errors);
   D3DCompileFromFile(L"triangle.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", D3DCOMPILE_ENABLE_STRICTNESS, 0, &ps, &errors);
 
@@ -224,52 +200,58 @@ void Renderer::Init(HWND hwnd) {
   pso.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
   pso.SampleDesc.Count = 1;
   pso.SampleMask = UINT_MAX;
-  pso.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-  pso.RasterizerState.FrontCounterClockwise = TRUE;
-  pso.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-  pso.DepthStencilState.DepthEnable = FALSE;
+  pso.RasterizerState = MakeDefaultRasterizerDesc();
+  pso.RasterizerState.FrontCounterClockwise = TRUE;  // 反時計回りが表
+  pso.BlendState = MakeDefaultBlendDesc();
+  pso.DepthStencilState.DepthEnable = FALSE;  // 深度は使わない
   device_->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&pipeline_state_));
 ```
 
-```cpp
-  // コマンド リスト（アップロードのコピーを、記録する）。
-  device_->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, allocator_.Get(), nullptr, IID_PPV_ARGS(&command_list_));
+最後に、頂点バッファを作ってアップロードします。DEFAULT に作ったバッファへ UPLOAD のバッファ経由でデータを送り、状態を切り替えて完了を待ちます（[Upload Buffer](upload-buffer.md)）。
 
-  // 頂点バッファ: DEFAULT に作り、UPLOAD 経由で、データを送る。
+```cpp
+  device_->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, allocator_.Get(), nullptr,
+                             IID_PPV_ARGS(&command_list_));
+
   const Vertex vertices[] = {
       {{0.0f, 0.5f, 0.0f}, {1, 0, 0, 1}},
       {{-0.5f, -0.5f, 0.0f}, {0, 1, 0, 1}},
       {{0.5f, -0.5f, 0.0f}, {0, 0, 1, 1}},
   };
   const UINT size = sizeof(vertices);
-  auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(size);
-  auto default_heap = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-  auto upload_heap = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-  device_->CreateCommittedResource(&default_heap, D3D12_HEAP_FLAG_NONE, &buffer_desc, D3D12_RESOURCE_STATE_COPY_DEST,
-                                   nullptr, IID_PPV_ARGS(&vertex_buffer_));
-  device_->CreateCommittedResource(&upload_heap, D3D12_HEAP_FLAG_NONE, &buffer_desc, D3D12_RESOURCE_STATE_GENERIC_READ,
-                                   nullptr, IID_PPV_ARGS(&upload_buffer_));
+  D3D12_RESOURCE_DESC buffer_desc = MakeBufferDesc(size);
+  D3D12_HEAP_PROPERTIES default_heap = MakeHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+  D3D12_HEAP_PROPERTIES upload_heap = MakeHeapProperties(D3D12_HEAP_TYPE_UPLOAD);
+  device_->CreateCommittedResource(&default_heap, D3D12_HEAP_FLAG_NONE, &buffer_desc,
+                                   D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&vertex_buffer_));
+  device_->CreateCommittedResource(&upload_heap, D3D12_HEAP_FLAG_NONE, &buffer_desc,
+                                   D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&upload_buffer_));
+
   uint8_t* mapped = nullptr;
-  CD3DX12_RANGE no_read(0, 0);
+  D3D12_RANGE no_read = {0, 0};
   upload_buffer_->Map(0, &no_read, reinterpret_cast<void**>(&mapped));
   std::memcpy(mapped, vertices, size);
   upload_buffer_->Unmap(0, nullptr);
 
   command_list_->CopyBufferRegion(vertex_buffer_.Get(), 0, upload_buffer_.Get(), 0, size);
-  auto barrier = CD3DX12_RESOURCE_BARRIER::Transition(vertex_buffer_.Get(), D3D12_RESOURCE_STATE_COPY_DEST,
-                                                      D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+  D3D12_RESOURCE_BARRIER barrier = MakeTransitionBarrier(
+      vertex_buffer_.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
   command_list_->ResourceBarrier(1, &barrier);
   command_list_->Close();
   ID3D12CommandList* lists[] = {command_list_.Get()};
   command_queue_->ExecuteCommandLists(1, lists);
-  WaitForGpu();                                              // コピーの完了を、待つ（その後、upload_buffer_ を、解放できる）
+  WaitForGpu();  // コピーの完了を待つ。これでアップロード用のバッファを解放できる
   upload_buffer_.Reset();
 
   vertex_buffer_view_.BufferLocation = vertex_buffer_->GetGPUVirtualAddress();
   vertex_buffer_view_.SizeInBytes = size;
   vertex_buffer_view_.StrideInBytes = sizeof(Vertex);
 }
+```
 
+`WaitForGpu` と `Shutdown` は[Fence](fence.md) で説明した形のままです。
+
+```cpp
 void Renderer::WaitForGpu() {
   const UINT64 value = ++fence_value_;
   command_queue_->Signal(fence_.Get(), value);
@@ -285,47 +267,105 @@ void Renderer::Shutdown() {
 }
 ```
 
-`RenderFrame` は上の「毎フレームの記録」の通りです。ウィンドウの作成とメッセージ ループは、[Win32 Window and Message Loop](../dx11/window.md) と同じで `Renderer::Init(hwnd)` を呼び、ループで `RenderFrame()` を呼びます。リンクするライブラリは `d3d12.lib`、`dxgi.lib`、`d3dcompiler.lib` です。
+## 毎フレームの記録
 
-## 何も見えないときのチェックリスト
+準備が終わったら毎フレームの描画です。まず、アロケーターとリストを `Reset` します。前のフレームの GPU の完了はフレームの最後で待ってあります。
 
-| 順 | 確認 | 原因の例 |
-| --- | --- | --- |
-| 1 | クリアの色は出ているか | 出ない → スワップ チェーン・RTV・バリア・`Present` |
-| 2 | シザー矩形を設定したか | 設定忘れで、描画範囲が 0 |
-| 3 | ビューポートを設定したか | 大きさ 0 |
-| 4 | PSO の `RTVFormats` は RTV と一致か | `_SRGB` の有無の食い違い |
-| 5 | `FrontCounterClockwise` | 反時計回りの三角形が、裏面として捨てられている |
-| 6 | 頂点バッファの状態遷移と完了待ち | `COPY_DEST` のまままたは、コピーが終わる前に描いた |
-| 7 | デバッグ レイヤーのメッセージ | 原因がほぼ必ず出ている（[Debug Layer](debug-layer.md)） |
-| 8 | PIX で 1 フレームを撮る | 各命令の結果を目で、見る |
+```cpp
+void Renderer::RenderFrame() {
+  const UINT index = swap_chain_->GetCurrentBackBufferIndex();
+
+  allocator_->Reset();
+  command_list_->Reset(allocator_.Get(), pipeline_state_.Get());  // 最初から、この PSO で始まる
+```
+
+次に、ルート シグネチャ、ビューポート、シザー矩形を設定します。`Reset` で全部が初期化されているので、毎フレーム必要です。**シザー矩形を設定し忘れると、描く範囲が 0 になり何も描かれません。**
+
+```cpp
+  command_list_->SetGraphicsRootSignature(root_signature_.Get());
+  command_list_->RSSetViewports(1, &viewport_);
+  command_list_->RSSetScissorRects(1, &scissor_);
+```
+
+バック バッファを描き込み先に切り替えて設定し、クリアします（[Resource Barrier](resource-barrier.md)）。
+
+```cpp
+  D3D12_RESOURCE_BARRIER to_render = MakeTransitionBarrier(
+      back_buffers_[index].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
+  command_list_->ResourceBarrier(1, &to_render);
+
+  D3D12_CPU_DESCRIPTOR_HANDLE rtv = OffsetHandle(rtv_heap_->GetCPUDescriptorHandleForHeapStart(), index, rtv_size_);
+  command_list_->OMSetRenderTargets(1, &rtv, FALSE, nullptr);
+  const float clear_color[4] = {0.1f, 0.15f, 0.3f, 1.0f};
+  command_list_->ClearRenderTargetView(rtv, clear_color, 0, nullptr);
+```
+
+三角形を描きます。トポロジー、頂点バッファ、`DrawInstanced` の順です。
+
+```cpp
+  command_list_->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+  command_list_->IASetVertexBuffers(0, 1, &vertex_buffer_view_);
+  command_list_->DrawInstanced(3, 1, 0, 0);
+```
+
+描き終えたら状態を `PRESENT` へ戻して、リストを閉じキューに渡して画面に出します。そのあと簡単のため毎フレーム GPU の完了を待ちます。
+
+```cpp
+  D3D12_RESOURCE_BARRIER to_present = MakeTransitionBarrier(
+      back_buffers_[index].Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT);
+  command_list_->ResourceBarrier(1, &to_present);
+
+  command_list_->Close();
+  ID3D12CommandList* lists[] = {command_list_.Get()};
+  command_queue_->ExecuteCommandLists(1, lists);
+  swap_chain_->Present(1, 0);
+
+  WaitForGpu();  // 毎フレーム待つ。Frame Resources で並列にする
+}
+```
+
+ウィンドウの作成とメッセージ ループは、[Win32 Window and Message Loop](window.md) にまとめています。`Renderer::Init(hwnd)` を呼びループの中で `RenderFrame()` を呼びます。リンクするライブラリは `d3d12.lib`、`dxgi.lib`、`d3dcompiler.lib` です。
+
+## 何も見えないときの確認の順番
+
+画面に何も出ないときは次の順に確認します。
+
+1. クリアの色は出ていますか。出ていなければスワップ チェーン、RTV、バリア、`Present` のどこかが原因です。
+2. シザー矩形を設定しましたか。設定し忘れると描く範囲が 0 になります。
+3. ビューポートを設定しましたか。大きさが 0 だと何も描かれません。
+4. PSO の `RTVFormats` は RTV の形式と一致していますか。`_SRGB` の有無の食い違いがよくある原因です。
+5. `FrontCounterClockwise` はどうなっていますか。反時計回りの三角形が裏面として捨てられていることがあります。
+6. 頂点バッファの状態の切り替えと完了待ちをしましたか。`COPY_DEST` のままだったりコピーが終わる前に描いたりしていないか確認します。
+7. デバッグ レイヤーのメッセージを見ましたか。原因はほぼ必ず出ています（[Debug Layer](debug-layer.md)）。
+8. PIX で 1 フレームを撮ると、各命令の結果を目で見られます。
 
 ## よくあるミス
 
 ??? failure "クリアの色は出るが、三角形が出ない"
-    シザー矩形が未設定。または、PSO の面の向きが時計回りが、表のまま。
+    シザー矩形が未設定か PSO の面の向きが、時計回りが表のままです。
 
-??? failure "最初のフレームだけ描けるまたは、2 フレーム目にエラー"
-    アロケーターを GPU の完了を待たずに `Reset` した。毎フレーム、`WaitForGpu` する（この例）。または、フレーム ごとのフェンスで管理する。
+??? failure "最初のフレームだけ描けて、2 フレーム目にエラーになる"
+    GPU の完了を待たずにアロケーターを `Reset` しています。この例のように毎フレーム `WaitForGpu` するかフレームごとのフェンスで管理します。
 
-??? failure "デバッグ レイヤーが、「リソースの状態が違う」と言う"
-    バリアの前の状態（`StateBefore`）が実際と違う。バック バッファの遷移を確認する。
+??? failure "デバッグ レイヤーが「リソースの状態が違う」と言う"
+    バリアの前の状態（`StateBefore`）が、実際と違います。バック バッファの遷移を確認します。
 
-??? failure "終了時にクラッシュ"
-    終了前に GPU の完了を待っていない。`Shutdown` で `WaitForGpu`。
+??? failure "終了時にクラッシュする"
+    終了前に GPU の完了を待っていません。`Shutdown` で `WaitForGpu` を呼びます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 準備（1 回）: デバイス・キュー・スワップ チェーン・RTV・ルート シグネチャ・PSO・頂点バッファ・フェンス
-    - [x] 毎フレーム: `Reset` → ルート シグネチャ・ビューポート・シザー → バリア → 描画 → バリア → `Close` → `Execute` → `Present` → 待つ
+    - [x] 準備は 1 回。デバイス、キュー、スワップ チェーン、RTV、ルート シグネチャ、PSO、頂点バッファ、フェンス
+    - [x] 毎フレームは `Reset`、ルート シグネチャとビューポートとシザー、バリア、描画、バリア、`Close`、`Execute`、`Present`、待つ
     - [x] シザー矩形は必須。設定し忘れると何も出ない
-    - [x] PSO のフォーマットは描く先と一致させる
-    - [x] ここでは毎フレーム待つ。実用はフレーム イン フライトで並列に
+    - [x] PSO の形式は、描く先と一致させる
+    - [x] ここでは毎フレーム待つ。実用ではフレームを並列に進める
 
 ## 関連ページ
 
 - [DirectX 12 Guide](index.md)
+- [Helper Functions](util.md)
 - [Constant Buffer](constant-buffer.md)
 - [Frame Resources](frame-resources.md)
 - [Debug Layer](debug-layer.md)

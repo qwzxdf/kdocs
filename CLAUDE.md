@@ -102,6 +102,7 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
 - **DirectX**（`docs/directx/`）: `dx11/` と `dx12/` は**互いに前提にしない、独立した系列**（DX12 のページに「DX11 では…」の比較を書かない。比較は `compare.md` の 1 ページだけ）。API に依存しない考え方だけを `concepts/` に置く。座標系は右手系・Y-up・前は −Z、行ベクトル、CCW が表（`FrontCounterClockwise = TRUE` を明記）。描画の「DirectX 11 で組む」節は `dx11/` のページへリンクする
     - **出てくる API の名前・用語は、1 つずつ専用の節かページを持つ。** インターフェース（`ID3D12Device` など）は専用ページにして、メソッドを 1 つずつ `###` 見出しにする。そのページの front matter に `api:` で、そのページが解説する名前を並べる（コードの中の名前から、そこへ飛べる）。用語は `autolinks.yml` にも登録する
     - 各ページは濃く（引数の表、フラグ、落とし穴、動くコード、図、よくあるミス）。見本は `dx12/factory-device.md`
+    - **DX12 のコードでは `d3dx12.h` と `CD3DX12_*` を使わない。** 構造体は素の `D3D12_*` を書く。頻出の組み立て（ヒープ設定、バッファとテクスチャの記述、バリア、ハンドルの加算、既定の PSO 設定）は、`dx12/util.md` の `dx12_util.h` の関数（`MakeHeapProperties`、`MakeBufferDesc`、`MakeTransitionBarrier`、`OffsetHandle` など）を使う。`UpdateSubresources` は使わず、`GetCopyableFootprints` と `CopyTextureRegion` で書く
     - 今後、`dx11/` と `dx12/` にはそれぞれ、手順を順に進める**ガイド**（ウィンドウを出す → デバイス → 三角形 …）を足す。今のページは概念・API の解説として残す
 - **「シェーダー」（原理: `docs/graphics/`）と「描画最適化」（コスト: `docs/rendering/`）は、同じ話題を役割で分ける。** 影・ポストプロセス・半透明・LOD などは、原理を前者、軽くする話を後者に書き、お互いの「関連ページ」にリンクする。対応表は `docs/graphics/index.md` の「原理と最適化の対応」
 - **C# 連携**（`docs/csharp/`）: 章立て。人間らしい文体（動機 → 例 → つまずき）で書く。足りない話題は本編の章として足す

@@ -6,41 +6,54 @@ tags:
 
 # DXR Host Setup
 
-レイトレーシングのページ（RTAO、反射、DDGI、影）には `TraceRay` や `RayQuery` を使う HLSL が、出てきます。これを動かすには <strong>DirectX 12 の DXR</strong>（DirectX Raytracing）の、ホスト側の準備が必要です。DirectX 11 にはレイトレーシングの API がありません。このページは準備の全体像と最小のコードを示します。
+<div class="page-badges" markdown>
+<span class="rank rank-sometimes">たまに</span>
+</div>
 
-!!! note "DirectX 11 との関係"
-    このサイトの描画のコードは基本的に DirectX 11 です。レイトレーシングの部分だけ DirectX 12 が、必要になります。DirectX 11 のレンダラーに DXR を足すことはできないので、<strong>レイトレーシングを使うならレンダラー全体を D3D12 にする</strong>か D3D11 向けの代用（距離場・ボクセル・スクリーン空間）を、使います。
+影、反射、AO、GI のようなレイトレーシングの解説（RTAO、DDGI など）には `TraceRay` や `RayQuery` を使う HLSL が出てきます。このシェーダーを動かすには D3D12 の機能である **DXR**（DirectX Raytracing）の、ホスト側の準備が必要です。
+
+シェーダーを書くだけでは光線は飛びません。GPU に光線を当てる相手の形を教えるために**加速構造**というデータを作ります。シェーダーどうしのつながりを教える**ステート オブジェクト**とどのシェーダーを呼ぶかを決める**シェーダー テーブル**も要ります。このページはその全体像と最小のコードを示します。
+
+!!! tip "ポイント"
+    - 準備の順番は BLAS（メッシュごと）、TLAS（インスタンス、毎フレーム）、ステート オブジェクト、シェーダー テーブル、`DispatchRays`。
+    - 当たったかどうかだけが欲しい影や AO は `RayQuery` で、計算シェーダーから直接飛ばせる。
+    - ペイロード（`TraceRay` に渡す構造体）は小さく、再帰は浅くする。
+    - GPU が対応していないときは、SSR やシャドウ マップなどの代用に切り替える。
+
+!!! info "このページを読む前に"
+    GPU の機能の確認は [Device and Factory](factory-device.md#checkfeaturesupport)、バッファの作り方は [Heaps and Resources](heaps-resources.md)、UAV バリアは [Resource Barrier](resource-barrier.md)、コンピュート シェーダーの基本は [Compute Shader](compute-shader.md) で説明しています。DXR のシェーダー側は [Ray Generation](../../graphics/reflections/rt-reflections/ray-generation.md) にあります。
 
 ## 全体の流れ
 
-| 順 | 内容 |
-| --- | --- |
-| ① | GPU が DXR に対応しているかを調べる |
-| ② | メッシュごとに BLAS（下位の加速構造）を作る |
-| ③ | インスタンスを並べて、TLAS（上位の加速構造）を作る（毎フレーム） |
-| ④ | レイトレーシングのパイプライン（ステート オブジェクト）を作る |
-| ⑤ | シェーダー テーブルを作る |
-| ⑥ | `DispatchRays` を呼ぶ（または `RayQuery` で、計算シェーダーからインライン） |
+準備は 6 つの段階です。
 
-## ① 対応の確認
+1. GPU が DXR に対応しているかを調べる。
+2. メッシュごとに BLAS（下位の加速構造）を作る。
+3. インスタンスを並べて TLAS（上位の加速構造）を作る。毎フレーム更新する。
+4. レイトレーシングのパイプライン（ステート オブジェクト）を作る。
+5. シェーダー テーブルを作る。
+6. `DispatchRays` を呼ぶ。または、`RayQuery` で計算シェーダーからインラインで飛ばす。
+
+## 対応しているかを調べる
 
 ```cpp
-// D3D12 の、機能の確認: RaytracingTier が、1.0 以上か（1.1 なら、RayQuery も、使える）。
+// RaytracingTier が 1.0 以上か。1.1 なら RayQuery も使える。
 D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5 = {};
 device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5));
 bool dxr_supported = options5.RaytracingTier >= D3D12_RAYTRACING_TIER_1_0;
-bool inline_supported = options5.RaytracingTier >= D3D12_RAYTRACING_TIER_1_1;     // RayQuery
+bool inline_supported = options5.RaytracingTier >= D3D12_RAYTRACING_TIER_1_1;  // RayQuery
 ```
 
-`RaytracingTier` が `NOT_SUPPORTED` の GPU ではレイトレーシングの経路を使わず代用の方式（SSR、シャドウ マップ、プローブ）に切り替えます。
+`RaytracingTier` が `NOT_SUPPORTED` の GPU ではレイトレーシングの経路を使わず代用の方式（SSR、シャドウ マップ、プローブ）へ切り替えます。
 
-## ② BLAS：メッシュ 1 つぶんの加速構造
+## BLAS でメッシュ 1 つぶんの加速構造を作る
+
+まず、三角形メッシュを説明する構造体を作ります。頂点バッファとインデックス バッファは、すでに GPU 上にある前提です。
 
 ```cpp
-// 三角形メッシュを、BLAS にする。頂点バッファと、インデックス バッファは、すでに、GPU 上にある前提。
 D3D12_RAYTRACING_GEOMETRY_DESC geometry = {};
 geometry.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-geometry.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;                         // 不透明: any hit シェーダーを、呼ばない（速い）
+geometry.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;  // 不透明。any hit シェーダーを呼ばないので速い
 geometry.Triangles.VertexBuffer.StartAddress = vertex_buffer->GetGPUVirtualAddress();
 geometry.Triangles.VertexBuffer.StrideInBytes = sizeof(Vertex);
 geometry.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -50,10 +63,11 @@ geometry.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
 geometry.Triangles.IndexCount = index_count;
 ```
 
-メッシュの頂点の位置（`R32G32B32_FLOAT`）とインデックスを指します。不透明なメッシュに `FLAG_OPAQUE` を付けると、`any hit` シェーダー（アルファ テストなど）が、呼ばれず速くなります。
+頂点の位置（`R32G32B32_FLOAT`）とインデックスを指します。不透明なメッシュには `FLAG_OPAQUE` を付けます。アルファ テストのための any hit シェーダーが呼ばれなくなり速くなります。
+
+次に、必要なメモリの大きさを問い合わせて、作業用のバッファと結果のバッファを確保してから、ビルドします。
 
 ```cpp
-// 必要なメモリの大きさを、問い合わせて、作業用バッファと、結果バッファを、確保してから、ビルドする。
 D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs = {};
 inputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
 inputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
@@ -63,80 +77,90 @@ inputs.pGeometryDescs = &geometry;
 
 D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuild = {};
 device5->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuild);
-// prebuild.ScratchDataSizeInBytes（作業用）と ResultDataMaxSizeInBytes（結果）の、UAV バッファを、作る。
+// prebuild.ScratchDataSizeInBytes（作業用）と ResultDataMaxSizeInBytes（結果）の UAV バッファを作る。
 
 D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC build = {};
 build.Inputs = inputs;
 build.ScratchAccelerationStructureData = scratch->GetGPUVirtualAddress();
 build.DestAccelerationStructureData = blas->GetGPUVirtualAddress();
 command_list4->BuildRaytracingAccelerationStructure(&build, 0, nullptr);
-// ビルドの完了を待つ: UAV バリアを、入れる（TLAS が、BLAS を、使う前）。
+// ビルドの完了を待つために UAV バリアを入れる（TLAS が BLAS を使う前）。
 ```
 
-静的なメッシュは 1 回だけビルドします。`PREFER_FAST_TRACE` はビルドが遅くなる代わりにトレースが速い設定です。スキニングするメッシュは `ALLOW_UPDATE` を付けて、毎フレーム、更新（refit）します。
+静的なメッシュは 1 回だけビルドします。`PREFER_FAST_TRACE` はビルドが遅くなる代わりに飛ばすときが速くなる設定です。スキニングするメッシュは `ALLOW_UPDATE` を付けて、毎フレーム更新（refit）します。
 
-## ③ TLAS：インスタンスを並べる
+## TLAS でインスタンスを並べる
+
+BLAS はメッシュの形です。それをシーンのどこにどの向きで置くかを決めるのが、TLAS のインスタンスです。毎フレーム作ります。
 
 ```cpp
-// インスタンス（位置・向き・大きさを持った、BLAS の配置）の配列を、毎フレーム作り、TLAS をビルドする。
 D3D12_RAYTRACING_INSTANCE_DESC instance = {};
-std::memcpy(instance.Transform, object_to_world_3x4, sizeof(instance.Transform));    // 3×4 行列（行優先）
-instance.InstanceID = object_index;                                                   // ヒット シェーダーで、InstanceID() で取れる
-instance.InstanceMask = 0xFF;                                                         // TraceRay の、マスクと、AND される
-instance.InstanceContributionToHitGroupIndex = material_index;                        // シェーダー テーブルの、どの行を使うか
+std::memcpy(instance.Transform, object_to_world_3x4, sizeof(instance.Transform));  // 3x4 行列（行優先）
+instance.InstanceID = object_index;           // ヒット シェーダーで InstanceID() として取れる
+instance.InstanceMask = 0xFF;                 // TraceRay のマスクと AND される
+instance.InstanceContributionToHitGroupIndex = material_index;  // シェーダー テーブルのどの行を使うか
 instance.AccelerationStructure = blas->GetGPUVirtualAddress();
-// 全インスタンスを、アップロード バッファに、並べて、TLAS のビルドを呼ぶ（Type = TOP_LEVEL）。
+// 全インスタンスをアップロード バッファへ並べて、TLAS のビルドを呼ぶ（Type は TOP_LEVEL）。
 ```
 
-同じ BLAS を何度も別の位置に置けるので同じ岩・木をメモリを増やさずに並べられます。`InstanceMask` は「このレイはこのインスタンスを無視する」（例: 影のレイは光源を無視）を実現するビットマスクです。
+同じ BLAS を何度も別の位置に置けます。同じ岩や木をメモリを増やさずに並べられます。`InstanceMask` は「このレイはこのインスタンスを無視する」を実現するビットマスクです（例：影のレイは光源を無視する）。
 
-## ④⑤ ステート オブジェクトとシェーダー テーブル
+## ステート オブジェクトとシェーダー テーブル
+
+レイトレーシングのパイプラインはシェーダー（DXIL のライブラリ）、ヒット グループ、設定をまとめて 1 つのオブジェクトにします。`D3D12_STATE_SUBOBJECT` を並べてそれぞれ作った構造体を指します。
 
 ```cpp
-// レイトレーシング パイプライン: シェーダー（DXIL ライブラリ）と、ヒット グループ、設定を、まとめて、1 つのオブジェクトにする。
-CD3DX12_STATE_OBJECT_DESC desc(D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE);
+// 1. DXIL のライブラリ。RayGen、ClosestHit、Miss を含む。
+D3D12_DXIL_LIBRARY_DESC lib_desc = {};
+lib_desc.DXILLibrary = {dxil_blob->GetBufferPointer(), dxil_blob->GetBufferSize()};
 
-auto* lib = desc.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
-D3D12_SHADER_BYTECODE bytecode = {dxil_blob->GetBufferPointer(), dxil_blob->GetBufferSize()};
-lib->SetDXILLibrary(&bytecode);                                          // RayGen、ClosestHit、Miss を含む
+// 2. ヒット グループ。三角形に当たったとき、どのシェーダーを呼ぶか。
+D3D12_HIT_GROUP_DESC hit_desc = {};
+hit_desc.HitGroupExport = L"HitGroup";
+hit_desc.Type = D3D12_HIT_GROUP_TYPE_TRIANGLES;
+hit_desc.ClosestHitShaderImport = L"ReflectionClosestHit";
 
-auto* hit_group = desc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
-hit_group->SetClosestHitShaderImport(L"ReflectionClosestHit");
-hit_group->SetHitGroupExport(L"HitGroup");
-hit_group->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
+// 3. ペイロードと属性の大きさ。4. 再帰の最大の深さ。5. 全シェーダーで共通のルート シグネチャ。
+D3D12_RAYTRACING_SHADER_CONFIG shader_config = {sizeof(float) * 4 /* ペイロード */, sizeof(float) * 2 /* 重心座標 */};
+D3D12_RAYTRACING_PIPELINE_CONFIG pipeline_config = {2};
+D3D12_GLOBAL_ROOT_SIGNATURE global_root = {global_root_signature.Get()};
 
-auto* shader_config = desc.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
-shader_config->Config(sizeof(float) * 4 /* ペイロード */, sizeof(float) * 2 /* 重心座標 */);
+D3D12_STATE_SUBOBJECT subobjects[5] = {};
+subobjects[0] = {D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY, &lib_desc};
+subobjects[1] = {D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP, &hit_desc};
+subobjects[2] = {D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG, &shader_config};
+subobjects[3] = {D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG, &pipeline_config};
+subobjects[4] = {D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE, &global_root};
 
-auto* pipeline_config = desc.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
-pipeline_config->Config(2);                                              // 再帰の最大の深さ
-
-auto* global_root = desc.CreateSubobject<CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT>();
-global_root->SetRootSignature(global_root_signature.Get());              // 全シェーダーで共通のリソース
-device5->CreateStateObject(desc, IID_PPV_ARGS(&rt_state_object));
+D3D12_STATE_OBJECT_DESC desc = {};
+desc.Type = D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE;
+desc.NumSubobjects = ARRAYSIZE(subobjects);
+desc.pSubobjects = subobjects;
+device5->CreateStateObject(&desc, IID_PPV_ARGS(&rt_state_object));
 ```
 
-ペイロード（`TraceRay` に渡す構造体）の大きさと最大の再帰の深さをここで、決めます。ペイロードを小さくするほど速くなります。ここまでで「どんなシェーダーがありどうつながるか」を GPU に伝えました。
+ペイロードの大きさと再帰の最大の深さをここで決めます。ペイロードが小さいほど速くなります。ここまでで「どんなシェーダーがありどうつながるか」を GPU に伝えました。
+
+次に、シェーダー テーブルを作ります。RayGen、Miss、HitGroup の「シェーダー識別子」を並べたバッファです。
 
 ```cpp
-// シェーダー テーブル: RayGen・Miss・HitGroup の、「シェーダー識別子」を、並べたバッファ。
 Microsoft::WRL::ComPtr<ID3D12StateObjectProperties> props;
 rt_state_object.As(&props);
 void* raygen_id = props->GetShaderIdentifier(L"ReflectionRayGen");
 void* miss_id = props->GetShaderIdentifier(L"Miss");
 void* hit_id = props->GetShaderIdentifier(L"HitGroup");
-// 各識別子（D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES = 32）を、64 バイト境界（テーブルの、レコードの、アラインメント）に、並べて、アップロードする。
+// 各識別子（D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES = 32 バイト）を、
+// 64 バイトの境界（テーブルのレコードのアラインメント）に並べて、アップロードする。
 ```
 
-識別子を並べたテーブルを `DispatchRays` に渡すと GPU はレイが何かに当たったとき、テーブルのどの行のヒット グループを呼ぶかを `InstanceContributionToHitGroupIndex` から決めます。マテリアルごとに別のヒット シェーダーを使いたいときは行を増やします。
+識別子を並べたテーブルを `DispatchRays` に渡すと GPU は光線が何かに当たったとき、テーブルのどの行のヒット グループを呼ぶかを `InstanceContributionToHitGroupIndex` から決めます。マテリアルごとに別のヒット シェーダーを使いたいときは、行を増やします。
 
-## ⑥ レイを飛ばす
+## 光線を飛ばす
 
 ```cpp
-// DispatchRays: 画面の幅×高さの、スレッドで、RayGen シェーダーを、起動する。
 command_list4->SetPipelineState1(rt_state_object.Get());
 command_list4->SetComputeRootSignature(global_root_signature.Get());
-// ... TLAS の SRV、出力 UAV、定数バッファを、ルート シグネチャに、束ねる ...
+// ... TLAS の SRV、出力の UAV、定数バッファを、ルート シグネチャへ結ぶ ...
 
 D3D12_DISPATCH_RAYS_DESC dispatch = {};
 dispatch.RayGenerationShaderRecord = {table_address + 0, 64};
@@ -148,15 +172,14 @@ dispatch.Depth = 1;
 command_list4->DispatchRays(&dispatch);
 ```
 
-`Width × Height` のスレッドがそれぞれ `RayGen` を実行します。`DispatchRaysIndex()` がそのスレッドの画素の座標です（[Ray Generation](../../graphics/reflections/rt-reflections/ray-generation.md)）。
+`Width × Height` のスレッドがそれぞれ `RayGen` を実行します。`DispatchRaysIndex()` がそのスレッドの画素の座標です。
 
 ### インライン レイトレーシング（RayQuery）
 
-ステート オブジェクトやシェーダー テーブルを使わず計算シェーダー（またはピクセル シェーダー）の中から直接、レイを飛ばせます（DXR 1.1）。
+ステート オブジェクトやシェーダー テーブルを使わずにコンピュート シェーダー（またはピクセル シェーダー）の中から、直接光線を飛ばせます（DXR 1.1）。
 
 ```hlsl
-// TLAS を、SRV として束ね、シェーダーの中から、レイを飛ばす。
-RaytracingAccelerationStructure g_scene : register(t0);
+RaytracingAccelerationStructure g_scene : register(t0);  // TLAS を SRV として結ぶ
 
 [numthreads(8, 8, 1)]
 void ShadowCS(uint3 id : SV_DispatchThreadID) {
@@ -164,35 +187,37 @@ void ShadowCS(uint3 id : SV_DispatchThreadID) {
   RayQuery<RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH | RAY_FLAG_CULL_NON_OPAQUE> q;
   q.TraceRayInline(g_scene, RAY_FLAG_NONE, 0xFF, ray);
   q.Proceed();
-  g_shadow[id.xy] = (q.CommittedStatus() == COMMITTED_NOTHING) ? 1.0 : 0.0;       // 何にも当たらなければ、光が当たる
+  g_shadow[id.xy] = (q.CommittedStatus() == COMMITTED_NOTHING) ? 1.0 : 0.0;  // 何にも当たらなければ光が当たる
 }
 ```
 
-影・AO のように「当たったかどうか」だけが必要な場合は `RayQuery` が、簡単です。マテリアルごとにシェーダーを切り替える必要がある（反射、GI）場合はステート オブジェクトとシェーダー テーブルが向いています。
+影や AO のように「当たったかどうか」だけが必要なときは、`RayQuery` が簡単です。マテリアルごとにシェーダーを切り替えたい反射や GI では、ステート オブジェクトとシェーダー テーブルが向いています。
 
 ## よくあるミス
 
-??? failure "レイが、どこにも当たらない（全部、外れ）"
-    BLAS のビルドの完了を待たずに TLAS をビルドした（UAV バリアが、足りない）。TLAS のインスタンスの変換行列が、転置している（`Transform` は 3×4 の行優先）。`InstanceMask` と `TraceRay` のマスクが重ならない。
+??? failure "光線がどこにも当たらない（全部外れる）"
+    BLAS のビルドの完了を待たずに TLAS をビルドしています（UAV バリアが足りません）。インスタンスの変換行列が転置している場合もあります（`Transform` は 3×4 の行優先です）。`InstanceMask` と `TraceRay` のマスクが重なっていない場合も当たりません。
 
-??? failure "ヒット シェーダーが、呼ばれないまたは違うマテリアルになる"
-    `InstanceContributionToHitGroupIndex` とシェーダー テーブルの並びが、合っていない。`TraceRay` の `RayContributionToHitGroupIndex`・`MultiplierForGeometryContributionToHitGroupIndex` の組み合わせで行が、決まる。
+??? failure "ヒット シェーダーが呼ばれない、または違うマテリアルになる"
+    `InstanceContributionToHitGroupIndex` とシェーダー テーブルの並びが合っていません。`TraceRay` の `RayContributionToHitGroupIndex` と `MultiplierForGeometryContributionToHitGroupIndex` の組み合わせで、行が決まります。
 
-??? failure "毎フレーム、TLAS を作り直して重い"
-    静的なメッシュの BLAS を毎フレーム、作っている。BLAS は 1 回だけ。動く物はインスタンスの行列を更新して TLAS だけを再構築する。
+??? failure "毎フレーム BLAS を作り直して重い"
+    静的なメッシュの BLAS を毎フレーム作っています。BLAS は 1 回だけです。動く物はインスタンスの行列を更新して、TLAS だけを再構築します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] DXR は DirectX 12 の機能。DirectX 11 にはない
-    - [x] BLAS（メッシュごと 1 回）→ TLAS（インスタンス、毎フレーム）→ ステート オブジェクト → シェーダー テーブル → `DispatchRays`
-    - [x] 当たったかだけ知りたい（影・AO）なら `RayQuery` で、計算シェーダーから直接
-    - [x] ペイロードは小さく。再帰は浅く
-    - [x] 対応していない GPU には、SSR・シャドウ マップなどの代用に切り替える
+    - [x] DXR は D3D12 の機能。使う前に `CheckFeatureSupport` で対応を確認する
+    - [x] BLAS（メッシュごとに 1 回）、TLAS（インスタンス、毎フレーム）、ステート オブジェクト、シェーダー テーブル、`DispatchRays` の順に進む
+    - [x] 当たったかだけが欲しい影や AO は `RayQuery` で、計算シェーダーから直接飛ばす
+    - [x] ペイロードは小さく、再帰は浅くする
+    - [x] 対応していない GPU には、SSR やシャドウ マップなどの代用へ切り替える
 
 ## 関連ページ
 
-- [D3D11 Pass Recipes](../dx11/pass-recipes.md)
+- [DirectX 12 Guide](index.md)
+- [Device and Factory](factory-device.md)
+- [Compute Shader](compute-shader.md)
 - [Ray-Traced AO (RTAO)](../../graphics/ao/world-space/rtao.md)
 - [Ray Generation](../../graphics/reflections/rt-reflections/ray-generation.md)
 - [Hit Shading and BVH](../../graphics/reflections/rt-reflections/hit-shading.md)

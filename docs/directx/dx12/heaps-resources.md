@@ -10,179 +10,172 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-D3D12 ではリソース（バッファ、テクスチャ）を作るとき <strong>GPU メモリのどこに置くか</strong>（ヒープの種類）を自分で、選びます。CPU から書き込みたい物は <strong>アップロード ヒープ</strong>、GPU が速く読み書きする物は <strong>デフォルト ヒープ</strong>、GPU の結果を CPU が読む物は、<strong>リードバック ヒープ</strong>、というふうに使い分けます。この選択が D3D12 のメモリ管理の基本です。
+GPU には CPU のメモリとは別に専用のメモリ（VRAM）があります。VRAM は GPU からはとても速い代わりに CPU からは直接触れません。CPU から見える普通のメモリは書きやすい代わりに GPU からは少し遅くなります。D3D12 ではバッファやテクスチャ（リソース）を作るとき「どちらのメモリに置くか」を自分で決めます。
+
+置き場所の選択肢はヒープの種類として決まっています。CPU が書いて GPU が読むものは UPLOAD、GPU だけが使うものは DEFAULT、GPU が書いて CPU が読むものは READBACK です。この使い分けが D3D12 のメモリ管理の基本です。
 
 !!! tip "ポイント"
-    - リソース ＝ GPU メモリ上のバッファ・テクスチャ。作るときに <strong>ヒープの種類</strong>を指定する。
-    - ヒープは 3 種類: <strong>DEFAULT</strong>（GPU 専用。最速）、<strong>UPLOAD</strong>（CPU 書き込み → GPU 読み取り）、<strong>READBACK</strong>（GPU 書き込み → CPU 読み取り）。
-    - 簡単な作り方は `CreateCommittedResource`（リソースごとに専用のヒープを作る）。
-    - 描画に使うメッシュ・テクスチャは、<strong>アップロード ヒープに書き DEFAULT ヒープへコピー</strong>する（[Upload Buffer](upload-buffer.md)）。
-    - 作成時にリソースの<strong>初期状態</strong>を指定する（[Resource Barrier](resource-barrier.md)）。
+    - リソースを作るときにヒープの種類（置き場所）を指定する。
+    - ヒープは 3 種類。DEFAULT は GPU 専用で最速、UPLOAD は CPU が書いて GPU が読む READBACK は GPU が書いて CPU が読む。
+    - 簡単な作り方は `CreateCommittedResource`。リソースごとに専用のヒープを作る。
+    - 描画に使うメッシュとテクスチャは、UPLOAD に書いてから DEFAULT へコピーする（[Upload Buffer](upload-buffer.md)）。
+    - 作るときにリソースの初期状態も指定する（[Resource Barrier](resource-barrier.md)）。
+
+!!! info "このページを読む前に"
+    リソースの状態は [Resource Barrier](resource-barrier.md)、アップロードの流れは [Upload Buffer](upload-buffer.md) で説明しています。作るメソッドの引数と戻り値は [ID3D12Device](api/id3d12device.md#createcommittedresource)、作ったあとのメソッドは [ID3D12Resource](api/id3d12resource.md) にあります。構造体を短く書く関数は [Helper Functions](util.md) です。
 
 ## 3 種類のヒープ
 
-| `D3D12_HEAP_TYPE_*` | 置き場所 | CPU | GPU | 使いどころ |
-| --- | --- | --- | --- | --- |
-| `DEFAULT` | GPU 専用メモリ（VRAM） | アクセス不可 | 読み書き（最速） | メッシュ、テクスチャ、レンダー ターゲット、深度、UAV |
-| `UPLOAD` | CPU から見えるメモリ | 書き込み（`Map`） | 読み取り（やや遅い） | 毎フレームの、定数バッファ、アップロード用の一時バッファ |
-| `READBACK` | CPU から見えるメモリ | 読み取り | 書き込み（コピー先） | GPU の結果の、読み出し（スクリーンショット、ピッキング） |
-| `CUSTOM` | 細かく指定 | — | — | 上級（統合 GPU の最適化） |
+DEFAULT は GPU 専用のメモリ（VRAM）です。CPU からは見えません。GPU からは最速で読み書きできるので、メッシュ、テクスチャ、レンダー ターゲット、深度バッファ、UAV など描画に使うほとんどのものはここに置きます。
 
-<strong>CPU が DEFAULT ヒープに直接、書けません</strong>。メッシュやテクスチャを DEFAULT に置くには UPLOAD ヒープの、一時バッファに書いて GPU のコピー命令で DEFAULT へ送ります。
+UPLOAD は CPU から見えるメモリです。CPU が `Map` で書き込み GPU は読み取りだけできます。GPU からの読み取りは DEFAULT より遅くなります。毎フレーム書き換える定数バッファや DEFAULT へ送るための一時バッファに使います。
 
-## CreateCommittedResource：最も簡単な作り方
+READBACK は同じく CPU から見えるメモリで、GPU が書いた結果を CPU が読みます。スクリーンショットやピッキングの結果を読み出すときに使います。ほかに `CUSTOM` という細かく指定する種類もありますが、統合 GPU の最適化などの上級の使い方なので、ここでは扱いません。
+
+**CPU は DEFAULT のヒープに直接書けません。** メッシュやテクスチャを DEFAULT へ置くには、いったん UPLOAD のバッファに書いて、GPU のコピー命令で DEFAULT へ送ります。
+
+## CreateCommittedResource でリソースを作る
+
+一番簡単な作り方が `CreateCommittedResource` です。
 
 ```cpp
-// 頂点バッファ用の、DEFAULT ヒープの、リソース（GPU 専用）。
+// 頂点バッファ用の DEFAULT のリソース（GPU 専用）。
 const UINT64 buffer_size = sizeof(vertices);
-auto heap_properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-auto resource_desc = CD3DX12_RESOURCE_DESC::Buffer(buffer_size);
+D3D12_HEAP_PROPERTIES heap_properties = MakeHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+D3D12_RESOURCE_DESC resource_desc = MakeBufferDesc(buffer_size);
 
 ComPtr<ID3D12Resource> vertex_buffer;
 device->CreateCommittedResource(&heap_properties,
                                 D3D12_HEAP_FLAG_NONE,
                                 &resource_desc,
-                                D3D12_RESOURCE_STATE_COPY_DEST,       // 初期状態: これからコピーで、書き込む
-                                nullptr,                               // クリア値（レンダー ターゲット・深度のとき）
+                                D3D12_RESOURCE_STATE_COPY_DEST,  // 初期状態。これからコピーで書き込む
+                                nullptr,                         // クリア値（レンダー ターゲットと深度のとき）
                                 IID_PPV_ARGS(&vertex_buffer));
 ```
 
-| 引数 | 内容 |
-| --- | --- |
-| `pHeapProperties` | ヒープの種類（`DEFAULT`、`UPLOAD`、`READBACK`） |
-| `HeapFlags` | 通常 `NONE`。`ALLOW_ONLY_BUFFERS` など |
-| `pDesc` | リソースの記述（バッファかテクスチャか大きさフォーマット、フラグ） |
-| `InitialResourceState` | 作成直後の状態（[Resource Barrier](resource-barrier.md)） |
-| `pOptimizedClearValue` | レンダー ターゲット・深度のクリア値（最適化のヒント。指定しておくとクリアが速い） |
+引数は置き場所（`pHeapProperties`）、ヒープの性質（`HeapFlags`）、リソースの中身（`pDesc`）、初期状態、クリア値、受け取る先の順です。1 つずつの意味は [ID3D12Device::CreateCommittedResource](api/id3d12device.md#createcommittedresource) で詳しく説明しています。
 
-`CreateCommittedResource` はリソースごとに <strong>専用のヒープを割り当て</strong>ます。簡単ですがリソースが数千個になると、割り当てが重く断片化します。大量のリソースは 1 つの大きなヒープに並べる <strong>配置リソース</strong>（`CreatePlacedResource`）やアロケーター ライブラリ（D3D12 Memory Allocator）を、使います。
+この関数はリソースごとに専用のヒープを割り当てます。簡単な代わりにリソースが数千個になると、割り当てが重くなりメモリも断片化します。大量のリソースを作るときは 1 つの大きなヒープに並べる配置リソース（`CreatePlacedResource`）か、アロケーターのライブラリ（D3D12 Memory Allocator など）を使います。
 
 ## リソースの記述
 
 ### バッファ
 
+バッファは大きさだけを決めます。UAV として使うならフラグを付けます。
+
 ```cpp
-auto desc = CD3DX12_RESOURCE_DESC::Buffer(size_in_bytes);                     // 大きさだけ
-auto uav_desc = CD3DX12_RESOURCE_DESC::Buffer(size_in_bytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);   // UAV 可
+D3D12_RESOURCE_DESC desc = MakeBufferDesc(size_in_bytes);  // 大きさだけ
+D3D12_RESOURCE_DESC uav_desc = MakeBufferDesc(size_in_bytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);  // UAV 可
 ```
 
 ### テクスチャ
 
+テクスチャは形式、幅、高さミップの数、配列の長さを決めます。
+
 ```cpp
-auto desc = CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_R8G8B8A8_UNORM,
-                                         width, height,
-                                         1,                    // 配列の長さ
-                                         1,                    // ミップの数（0 で全段）
-                                         1, 0,                 // サンプル数、品質
-                                         D3D12_RESOURCE_FLAG_NONE);
+D3D12_RESOURCE_DESC desc = MakeTexture2DDesc(DXGI_FORMAT_R8G8B8A8_UNORM, width, height,
+                                             1,   // ミップの数（0 で全段）
+                                             1);  // 配列の長さ
 ```
 
-| フラグ（`D3D12_RESOURCE_FLAG_*`） | 内容 |
-| --- | --- |
-| `ALLOW_RENDER_TARGET` | RTV を作れる（レンダー ターゲット） |
-| `ALLOW_DEPTH_STENCIL` | DSV を作れる（深度） |
-| `ALLOW_UNORDERED_ACCESS` | UAV を作れる |
-| `DENY_SHADER_RESOURCE` | SRV を作れない（深度だけのバッファの最適化） |
-| `ALLOW_SIMULTANEOUS_ACCESS` | 複数のキューが同時にアクセス |
+作るときに使う予定のビューのフラグを付けておきます。付けなかった種類のビューはあとから作れません（[Descriptor](descriptor.md)）。`ALLOW_RENDER_TARGET` は RTV を `ALLOW_DEPTH_STENCIL` は DSV を `ALLOW_UNORDERED_ACCESS` は UAV を作れるようにします。
 
-<strong>使う予定のビューの種類のフラグを作成時に付けます</strong>。付けなかった種類のディスクリプタは作れません（[Descriptor](descriptor.md)）。
+`DENY_SHADER_RESOURCE` は SRV を作れなくするフラグで、深度だけに使うバッファの最適化になります。`ALLOW_SIMULTANEOUS_ACCESS` は複数のキューから同時にアクセスするときに付けます。
 
-## クリア値の最適化
+## クリア値を伝えておく
 
-レンダー ターゲット・深度は作成時に <strong>最適化されたクリア値</strong>を渡せます。この値と同じ値でクリアすると高速なパスが、使えます。違う値でクリアしても動きますが、デバッグ レイヤーが警告を出します。
+レンダー ターゲットと深度バッファは、作るときに最適化のためのクリア値を渡せます。同じ値でクリアすると GPU の高速なクリアが使えます。違う値でクリアしても動きますが、デバッグ レイヤーが警告を出します。
 
 ```cpp
 D3D12_CLEAR_VALUE depth_clear = {};
 depth_clear.Format = DXGI_FORMAT_D32_FLOAT;
-depth_clear.DepthStencil.Depth = 1.0f;                                         // reverse-Z なら 0.0f
+depth_clear.DepthStencil.Depth = 1.0f;  // リバース Z なら 0.0f
 depth_clear.DepthStencil.Stencil = 0;
 
 device->CreateCommittedResource(&default_heap, D3D12_HEAP_FLAG_NONE, &depth_desc,
                                 D3D12_RESOURCE_STATE_DEPTH_WRITE, &depth_clear, IID_PPV_ARGS(&depth_buffer));
 ```
 
-## Map：CPU から読み書きする
+## Map で CPU から読み書きする
 
-アップロード・リードバック ヒープのリソースは `Map` で CPU から見える、ポインターを得ます。
+UPLOAD と READBACK のリソースは、`Map` を呼ぶと CPU から触れるポインターが得られます。
 
 ```cpp
-// アップロード ヒープの、リソースを、Map して、書き込む。
+// UPLOAD のリソースを Map して、書き込む。
 uint8_t* mapped = nullptr;
-CD3DX12_RANGE read_range(0, 0);                               // CPU は、読まない（書き込みだけ）
+D3D12_RANGE read_range = {0, 0};  // CPU は読まない（書き込むだけ）
 upload_buffer->Map(0, &read_range, reinterpret_cast<void**>(&mapped));
 std::memcpy(mapped, data, size);
 upload_buffer->Unmap(0, nullptr);
 ```
 
-<strong>アップロード ヒープは `Map` したまま使い続けて</strong>よい（毎フレーム、`Map`/`Unmap` しなくてよい）。永続的に `Map` したポインターに書き込めば GPU がそのまま読みます。ただし、GPU が読んでいる間は書き換えない（フレームごとに別の領域に書く。[Frame Resources](frame-resources.md)）。
+UPLOAD のヒープは `Map` したまま使い続けて構いません。毎フレーム `Map` と `Unmap` を繰り返す必要はなく、永続的にマップしたポインターへ書き込めば、GPU がそのまま読みます。ただし、GPU が読んでいる間は同じ場所を書き換えません。フレームごとに別の領域へ書きます（[Frame Resources](frame-resources.md)）。
 
-| ヒープ | `Map` |
-| --- | --- |
-| `UPLOAD` | 書き込み用。`read_range` は `(0, 0)`（読まないと宣言） |
-| `READBACK` | 読み取り用。読む範囲を `read_range` で指定 |
-| `DEFAULT` | `Map` できない |
+UPLOAD は書き込み用なので、`read_range` は `{0, 0}`（読まない）にします。READBACK は読み取り用なので、読む範囲を `read_range` で指定します。DEFAULT は `Map` できません。
 
-## ヒープ内の配置（Placed Resource）
+## ヒープの中に置く（配置リソース）
 
-大量のリソースを効率よく作るには <strong>大きなヒープを 1 つ作り</strong>、その中にリソースを並べます。
+大量のリソースを効率よく作るには大きなヒープを 1 つ作って、その中にリソースを並べます。
 
 ```cpp
 // 64 MB のヒープを 1 つ作る。
 D3D12_HEAP_DESC heap_desc = {};
 heap_desc.SizeInBytes = 64 * 1024 * 1024;
-heap_desc.Properties = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-heap_desc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;             // 64 KB
+heap_desc.Properties = MakeHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
+heap_desc.Alignment = D3D12_DEFAULT_RESOURCE_PLACEMENT_ALIGNMENT;  // 64 KB
 heap_desc.Flags = D3D12_HEAP_FLAG_ALLOW_ONLY_RT_DS_TEXTURES;
 ComPtr<ID3D12Heap> heap;
 device->CreateHeap(&heap_desc, IID_PPV_ARGS(&heap));
 
-// ヒープの、指定位置に、リソースを置く。
+// ヒープの指定位置に、リソースを置く。
 device->CreatePlacedResource(heap.Get(), offset, &desc, initial_state, nullptr, IID_PPV_ARGS(&resource));
 ```
 
-配置リソースは <strong>メモリの節約</strong>（使わない、一時バッファを同じ位置に重ねるエイリアシング）や <strong>作成の高速化</strong>に使います。細かい管理が必要なので最初は `CreateCommittedResource` で、十分です。
+配置リソースはメモリの節約（使わない時間が重ならない一時バッファを同じ位置に重ねる）と、作成の高速化に役立ちます。ただし、管理が細かくなるので最初は `CreateCommittedResource` で十分です（[ID3D12Device::CreatePlacedResource](api/id3d12device.md#createplacedresource)）。
 
-## メモリの予算
+## メモリの予算を確認する
 
 ```cpp
-// GPU メモリの、使用量と、予算を、取る（DXGI）。
+// GPU メモリの使用量と、OS が許す予算を取る（DXGI）。
 DXGI_QUERY_VIDEO_MEMORY_INFO info;
 adapter3->QueryVideoMemoryInfo(0, DXGI_MEMORY_SEGMENT_GROUP_LOCAL, &info);
-// info.Budget: OS が、このアプリに、許す量、info.CurrentUsage: 今の、使用量
+// info.Budget は OS がこのアプリに許す量、info.CurrentUsage は今の使用量。
 ```
 
-D3D12 は <strong>メモリが足りなくなっても自動で、退避しません</strong>。予算を見てテクスチャの解像度を下げるなどの対処は、アプリが行います。
+D3D12 はメモリが足りなくなっても、自動では退避してくれません。予算を見てテクスチャの解像度を下げるなどの対処は、アプリが行います。
 
 ## よくあるミス
 
-??? failure "DEFAULT ヒープのリソースを `Map` して失敗する"
-    DEFAULT ヒープは CPU から見えない。UPLOAD ヒープに書いて、コピーする。
+??? failure "DEFAULT のリソースを `Map` して失敗する"
+    DEFAULT は CPU から見えません。UPLOAD に書いてコピーします。
 
-??? failure "リソースのビューが作れない（`CreateRenderTargetView` など）"
-    作成時に `ALLOW_RENDER_TARGET`・`ALLOW_UNORDERED_ACCESS` などのフラグを付けていない。
+??? failure "ビュー（`CreateRenderTargetView` など）が作れない"
+    作るときに `ALLOW_RENDER_TARGET` や `ALLOW_UNORDERED_ACCESS` のフラグを付けていません。
 
-??? failure "UPLOAD ヒープのリソースに初期状態 `COPY_DEST` を指定して、失敗する"
-    UPLOAD ヒープは `GENERIC_READ` が固定。
+??? failure "UPLOAD のリソースに初期状態 `COPY_DEST` を指定して失敗する"
+    UPLOAD のヒープは `GENERIC_READ` で固定です。
 
 ??? failure "クリア値が違うという警告が大量に出る"
-    作成時の最適化クリア値と `ClearRenderTargetView` の値が違う。そろえる。
+    作るときの最適化クリア値と `ClearRenderTargetView` の値が違います。そろえます。
 
-??? failure "リソースの作成が、遅い（数千個）"
-    `CreateCommittedResource` を大量に呼んでいる。大きなヒープに配置する（`CreatePlacedResource`）、またはアロケーター ライブラリを使う。
+??? failure "リソースの作成が遅い（数千個作る）"
+    `CreateCommittedResource` を大量に呼んでいます。大きなヒープに配置するかアロケーターのライブラリを使います。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ヒープの種類を自分で選ぶ: DEFAULT（GPU 専用）、UPLOAD（CPU 書き込み）、READBACK（CPU 読み取り）
-    - [x] CPU は DEFAULT に書けない。UPLOAD に書いて GPU の命令で、コピーする
+    - [x] ヒープの種類を自分で選ぶ。DEFAULT は GPU 専用、UPLOAD は CPU 書き込み READBACK は CPU 読み取り
+    - [x] CPU は DEFAULT に書けない。UPLOAD に書いて GPU の命令でコピーする
     - [x] `CreateCommittedResource` が最も簡単。初期状態を指定する
-    - [x] 使うビューのフラグ（`ALLOW_*`）を作成時に付ける
-    - [x] UPLOAD は、`Map` したまま使える。GPU が読む間は書き換えない
-    - [x] 大量なら配置リソース（`CreatePlacedResource`）
+    - [x] 使うビューのフラグ（`ALLOW_*`）を作るときに付ける
+    - [x] UPLOAD は `Map` したまま使える。GPU が読む間は書き換えない
+    - [x] 大量なら配置リソース（`CreatePlacedResource`）を使う
 
 ## 関連ページ
 
 - [DirectX 12 Guide](index.md)
+- [ID3D12Device](api/id3d12device.md)
+- [ID3D12Resource](api/id3d12resource.md)
 - [Upload Buffer](upload-buffer.md)
 - [Resource Barrier](resource-barrier.md)
 - [Descriptor](descriptor.md)

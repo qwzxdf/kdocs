@@ -10,14 +10,19 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>ビューポート</strong>はクリップ空間（−1〜1）を、レンダー ターゲットのどの範囲（ピクセル）に、描くかを決める設定です。<strong>シザー矩形</strong>はその範囲の中でさらに、描く範囲を四角形で <strong>切り抜きます</strong>。D3D12 ではこの 2 つを、<strong>コマンド リストごとに必ず、設定</strong>する必要があり特にシザー矩形は <strong>常に、有効</strong>で設定し忘れると何も描かれません。
+頂点シェーダーが出力する座標は画面のピクセルではなく、クリップ空間（x と y が −1 から 1）という正規化された座標です。これをレンダー ターゲットのどの範囲（ピクセル）に当てはめて描くかを決めるのが、<strong>ビューポート</strong>です。さらに、その範囲の中で四角形の外側を切り捨てる設定が、<strong>シザー矩形</strong>です。
+
+D3D12 ではこの 2 つをコマンド リストごとに必ず設定します。特にシザー矩形は**常に有効**で、設定し忘れると何も描かれません。D3D12 を始めたばかりの人が、よくはまる所です。
 
 !!! tip "ポイント"
-    - ビューポートとシザー矩形は、<strong>`Reset` のたびに設定し直す</strong>（コマンド リストの状態が、初期化されるため）。
-    - シザー矩形は常に有効。未設定だと描画範囲が 0 で何も、出ない。
-    - 通常はどちらもレンダー ターゲット全体（0, 0, 幅, 高さ）。
-    - 縮小したレンダー ターゲット（ブルームなど）に、描くときは同じ大きさに変える。
-    - ビューポートは `float`、シザー矩形は整数（`D3D12_RECT`: left, top, right, bottom）。
+    - ビューポートとシザー矩形は、`Reset` のたびに設定し直す。コマンド リストの状態は `Reset` で初期化される。
+    - シザー矩形は常に有効。未設定だと描画範囲が 0 になり何も出ない。
+    - ふつうはどちらもレンダー ターゲット全体（0、0、幅、高さ）にする。
+    - 縮小したレンダー ターゲット（ブルームなど）に描くときは、同じ大きさに変える。
+    - ビューポートは `float`、シザー矩形は整数（`D3D12_RECT`。left、top、right、bottom）。
+
+!!! info "このページを読む前に"
+    この 2 つはコマンド リストに記録する命令です。先に [Command List](command-list.md) を読むと「`Reset` で設定が消える」理由が分かります。メソッドの引数は [ID3D12GraphicsCommandList](api/id3d12graphicscommandlist.md#rssetviewports) にあります。
 
 ## 設定する
 
@@ -30,120 +35,103 @@ viewport.Height = static_cast<float>(height);
 viewport.MinDepth = 0.0f;
 viewport.MaxDepth = 1.0f;
 
-D3D12_RECT scissor = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};   // left, top, right, bottom
+D3D12_RECT scissor = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};  // left, top, right, bottom
 
 command_list->RSSetViewports(1, &viewport);
 command_list->RSSetScissorRects(1, &scissor);
 ```
 
-| 構造体 | メンバー | 内容 |
-| --- | --- | --- |
-| `D3D12_VIEWPORT` | `TopLeftX`・`TopLeftY` | 描く範囲の、左上（ピクセル）。`float` |
-| | `Width`・`Height` | 描く範囲の、大きさ（ピクセル）。`float` |
-| | `MinDepth`・`MaxDepth` | 深度の範囲（通常 0 と 1） |
-| `D3D12_RECT` | `left`・`top`・`right`・`bottom` | 切り抜く範囲（ピクセル）。<strong>右・下は含まない</strong> |
+`D3D12_VIEWPORT` は描く範囲の左上（`TopLeftX`、`TopLeftY`）と大きさ（`Width`、`Height`）をピクセル単位の `float` で持ちます。`MinDepth` と `MaxDepth` は深度の範囲でふつうは 0 と 1 です。
 
-`D3D12_RECT` は `right`・`bottom` が <strong>範囲の外側</strong>（幅 ＝ `right − left`）です。レンダー ターゲット全体は `{0, 0, width, height}` です。
+`D3D12_RECT` は `left`、`top`、`right`、`bottom` を整数で持ちます。**`right` と `bottom` は範囲の外側**で、幅は `right − left` になります。レンダー ターゲット全体は `{0, 0, width, height}` です。`width - 1` と書くと右端と下端が 1 画素ずつ欠けます。
 
 ## ビューポートの変換
 
-クリップ空間の座標（x、y が−1〜1）はビューポートで、ピクセル座標に変わります。
+クリップ空間の座標はビューポートでピクセルの座標に変わります。
 
 ```text
 ピクセル x = (クリップ x + 1) / 2 × Width + TopLeftX
-ピクセル y = (1 − クリップ y) / 2 × Height + TopLeftY      ← y は、上下が、反転（クリップは y 上向き、ピクセルは y 下向き）
+ピクセル y = (1 − クリップ y) / 2 × Height + TopLeftY    ← 上下が反転する（クリップは y が上向き、ピクセルは y が下向き）
 ```
 
-深度はクリップ空間の z（0〜1）が、`MinDepth`〜`MaxDepth` に写されます（スカイボックスを `MinDepth = MaxDepth = 1.0` で描くと深度が常に、最も遠くになる）。
+深度はクリップ空間の z（0 から 1）が、`MinDepth` から `MaxDepth` の範囲へ写されます。スカイボックスを `MinDepth = MaxDepth = 1.0` で描くと深度がいつも最も遠くになるので、ほかの物の後ろに描けます。
 
-## シザー矩形：常に有効
+## シザー矩形は常に有効
 
-D3D12 ではシザー矩形が <strong>常に、有効</strong>です。
+D3D12 のシザー矩形はいつも有効です。設定していないと描画範囲は 0 になり何も描かれません。ビューポートより小さい矩形を設定すると、その範囲だけに描かれます。ビューポートと同じ矩形なら全体が描かれます。
 
-| 状況 | 結果 |
-| --- | --- |
-| 設定していない | 描画範囲が、0（何も描かれない） |
-| ビューポートより小さい | その範囲だけに、描かれる（切り抜き） |
-| ビューポートと同じ | 全体が、描かれる |
-
-「切り抜きを使わない」場合も、<strong>ビューポートと同じ範囲を設定</strong>します。
+切り抜きを使いたくないときも**ビューポートと同じ範囲を設定**します。
 
 ## 縮小したレンダー ターゲットに描く
 
-縮小テクスチャ（ブルームの各段、半解像度の AO）に描くときは、ビューポートもシザー矩形もその、大きさに合わせます。
+ブルームの各段や半解像度の AO のように縮小したテクスチャに描くときは、ビューポートとシザー矩形もその大きさに合わせます。
 
 ```cpp
-// 半分の大きさのレンダー ターゲットに、描く。
+// 半分の大きさのレンダー ターゲットに描く。
 D3D12_VIEWPORT half_viewport = {0.0f, 0.0f, float(width / 2), float(height / 2), 0.0f, 1.0f};
 D3D12_RECT half_scissor = {0, 0, LONG(width / 2), LONG(height / 2)};
 command_list->RSSetViewports(1, &half_viewport);
 command_list->RSSetScissorRects(1, &half_scissor);
 command_list->OMSetRenderTargets(1, &half_rtv, FALSE, nullptr);
-command_list->DrawInstanced(3, 1, 0, 0);                        // フルスクリーン三角形
+command_list->DrawInstanced(3, 1, 0, 0);  // フルスクリーン三角形
 ```
 
-ビューポートが元の大きさのままだと小さな、テクスチャの左上に画面の一部しか、描かれません。
+ビューポートが元の大きさのままだと小さなテクスチャの左上に画面の一部しか描かれません。
 
 ## 複数のビューポート
 
-`RSSetViewports` は最大 16 個のビューポートを、設定できます（ジオメトリ シェーダーが `SV_ViewportArrayIndex` で、選ぶ）。キューブマップの 6 面を 1 回で、描くなどに使えますがまれです。
+`RSSetViewports` は最大 16 個のビューポートを一度に設定できます。ジオメトリ シェーダーが `SV_ViewportArrayIndex` で選びます。キューブ マップの 6 面を 1 回で描く、などに使いますがまれです。シザー矩形もビューポートと同じ数が必要です。
 
 ```cpp
 D3D12_VIEWPORT viewports[2] = {left_half, right_half};
-D3D12_RECT scissors[2] = {left_rect, right_rect};              // ビューポートと、同じ数のシザー矩形が、要る
+D3D12_RECT scissors[2] = {left_rect, right_rect};  // ビューポートと同じ数が要る
 command_list->RSSetViewports(2, viewports);
 command_list->RSSetScissorRects(2, scissors);
 ```
 
 ## 切り抜きの使いみち
 
-シザー矩形はビューポート全体でなく、一部だけを描く用途に使えます。
+シザー矩形はビューポートの全体ではなく、一部だけを描くのに使えます。UI のスクロール領域でははみ出した内容を切り抜きます。ライトの影響範囲ではライトのバウンディング ボックスを画面へ投影して、その範囲だけをライティングします。画面の一部だけを再描画する部分更新にも使えます。
 
-| 用途 | 内容 |
-| --- | --- |
-| UI のスクロール領域 | はみ出した内容を、切り抜く |
-| ライトの影響範囲 | ライトの、バウンディング ボックスを画面に、投影してその範囲だけライティング |
-| 部分更新 | 画面の一部だけ、再描画 |
+## 画面の大きさが変わったとき
 
-## リサイズ時
-
-画面の大きさが変わったらビューポートと、シザー矩形も新しい大きさに更新します。
+ウィンドウの大きさが変わったら、ビューポートとシザー矩形も新しい大きさへ更新します。
 
 ```cpp
 void OnResize(UINT width, UINT height) {
   viewport_ = {0.0f, 0.0f, float(width), float(height), 0.0f, 1.0f};
   scissor_ = {0, 0, LONG(width), LONG(height)};
-  // バック バッファ、深度、G バッファの作り直し（swap-chain.md）
+  // バック バッファ、深度、G バッファを作り直す（Swap Chain のページ）
 }
 ```
 
 ## よくあるミス
 
-??? failure "何も、描かれない（クリアの色のまま）"
-    シザー矩形を設定していない。D3D12 はシザーが常に有効で、未設定だと範囲が 0。ビューポートも設定したか確認する。
+??? failure "何も描かれない（クリアの色のまま）"
+    シザー矩形を設定していません。D3D12 はシザーが常に有効で、未設定だと範囲が 0 になります。ビューポートも設定したか確認します。
 
-??? failure "`Reset` の後に、描いたら何も出ない"
-    `Reset` でビューポート・シザー矩形が、初期化されている。毎フレーム、設定し直す。
+??? failure "`Reset` のあとに描いたら、何も出ない"
+    `Reset` でビューポートとシザー矩形が初期化されています。毎フレーム設定し直します。
 
-??? failure "縮小した、レンダー ターゲットの左上にしか、描かれない"
-    ビューポートが元の大きさのまま。レンダー ターゲットを切り替えるたびに、合わせる。
+??? failure "縮小したレンダー ターゲットの左上にしか描かれない"
+    ビューポートが元の大きさのままです。レンダー ターゲットを切り替えるたびに合わせます。
 
-??? failure "画面の、右端・下端が 1 画素、欠ける"
-    シザー矩形の `right`・`bottom` が `width − 1`、`height − 1`。`D3D12_RECT` は右・下を含まないので `width`、`height` を指定する。
+??? failure "画面の右端と下端が、1 画素欠ける"
+    シザー矩形の `right` と `bottom` を `width − 1`、`height − 1` にしています。`D3D12_RECT` は右と下を含まないので `width` と `height` を指定します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ビューポート ＝ クリップ空間を、画面のどこに描くか。シザー矩形 ＝ その中の切り抜き
-    - [x] D3D12 は、シザー矩形が常に有効。未設定だと何も出ない
-    - [x] `Reset` のたびに両方、設定し直す
-    - [x] 通常はレンダー ターゲット全体。縮小時は同じ大きさに
-    - [x] `D3D12_RECT` の `right`・`bottom` は範囲の外側
+    - [x] ビューポートはクリップ空間を画面のどこに描くか。シザー矩形はその中の切り抜き
+    - [x] D3D12 では、シザー矩形が常に有効。未設定だと何も出ない
+    - [x] `Reset` のたびに両方を設定し直す
+    - [x] ふつうはレンダー ターゲット全体。縮小したときは同じ大きさにする
+    - [x] `D3D12_RECT` の `right` と `bottom` は、範囲の外側
 
 ## 関連ページ
 
 - [DirectX 12 Guide](index.md)
+- [ID3D12GraphicsCommandList](api/id3d12graphicscommandlist.md)
 - [Drawing a Triangle](triangle.md)
 - [Command List](command-list.md)
-- [Viewport](../dx11/viewport.md)
 - [Microsoft Learn: RSSetViewports](https://learn.microsoft.com/ja-jp/windows/win32/api/d3d12/nf-d3d12-id3d12graphicscommandlist-rssetviewports)

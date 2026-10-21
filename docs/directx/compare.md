@@ -47,7 +47,7 @@ DirectX 11 と DirectX 12 は、<strong>同じ GPU を同じパイプライン�
 | ビューの保管 | ビュー オブジェクト（`ComPtr`） | [ディスクリプタ ヒープ](dx12/descriptor-heap.md) |
 | 頂点バッファの束縛 | [`IASetVertexBuffers`](dx11/vertex-buffer.md)（バッファを渡す） | [`IASetVertexBuffers`](dx12/vertex-index-view.md)（<strong>ビュー構造体</strong>を、渡す） |
 | 定数バッファ | [`VSSetConstantBuffers`。16 バイト境界](dx11/constant-buffer.md) | [ルート CBV。256 バイト境界。フレームごとの領域](dx12/constant-buffer.md) |
-| テクスチャのアップロード | [`UpdateSubresource`、`GenerateMips`](dx11/texture2d.md) | [`UpdateSubresources`。ミップは自分で](dx12/texture-upload.md) |
+| テクスチャのアップロード | [`UpdateSubresource`、`GenerateMips`](dx11/texture2d.md) | [`CopyTextureRegion`。ミップは自分で](dx12/texture-upload.md) |
 | 深度バッファ | [DSV。typeless で SRV も](dx11/depth-stencil.md) | [DSV ヒープ。typeless で SRV も](dx12/depth-buffer.md) |
 
 ## パイプラインの設定

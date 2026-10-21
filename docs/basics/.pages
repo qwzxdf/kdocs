@@ -14,6 +14,7 @@ nav:
   - ranges.md
   - big-o.md
   - ub.md
+  - predefined-macros.md
   - container-chart.md
   - bit-operations.md
   - cache.md

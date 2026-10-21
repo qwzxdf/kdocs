@@ -6,74 +6,75 @@ tags:
 
 # DirectX 12 Guide
 
-<strong>DirectX 12（Direct3D 12、D3D12）</strong>は <strong>GPU をほぼ直接、操作する</strong>、低レベルな API です。メモリの管理、命令の並べ替え読み書きの衝突の整理といった仕事を <strong>アプリが自分で</strong>行います。そのぶんコードは大きく難しくなりますが、<strong>CPU の負荷が小さく</strong>、マルチスレッドで命令を作れレイトレーシング（DXR）、メッシュ シェーダー、バインドレス、GPU ドリブンのような新しい機能が、使えます。このセクションはウィンドウから三角形、テクスチャ、計算シェーダー、DXR まで 1 つずつ動かしながら、説明します。ほかの DirectX を知らなくても、読めます（[DirectX 11 Guide](../dx11/index.md) とは、別の系列です）。
+ゲームを作っていると「描く命令を出した順に GPU が実行している」と考えがちです。ところが実際の GPU は CPU とは別の速さで動いていて、命令を出した瞬間に絵が描かれるわけではありません。DirectX 11 まではこの違いをドライバーが隠してくれていました。メモリの置き場所を決めるのも命令の順番を整えるのもドライバーの仕事でした。
+
+DirectX 12（Direct3D 12、D3D12）はその仕事をアプリに返した API です。コードは増えて難しくなりますが、そのぶんドライバーが裏で何をしているか分からない、という状態がなくなります。命令を複数のスレッドで作れるので、CPU の負荷も下げられます。レイトレーシング（DXR）、メッシュ シェーダー、バインドレスのような新しい機能もこの API でだけ使えます。
+
+このセクションはウィンドウに三角形を出すところから始めて、テクスチャ、計算シェーダー、DXR まで 1 つずつ動かしながら説明します。DirectX 11 を知らなくても読めます（[DirectX 11 Guide](../dx11/index.md) は、別の系列です）。
+
+!!! info "このセクションを読む前に"
+    C++ のポインターと参照（[ポインタ](../../basics/pointer.md)、[参照と const 参照](../../basics/reference.md)）、スマート ポインター（[所有権](../../basics/ownership.md)）が分かれば読めます。Win32 のウィンドウの作り方は[Win32 Window and Message Loop](window.md) にまとめています。
 
 ## この API の考え方
 
-D3D12 は <strong>「命令の記録」と「実行」を分けた</strong>、API です。
+D3D12 の中心にあるのは、「命令を記録すること」と「実行すること」を分けて考える見方です。CPU は `Draw` などの命令をコマンド リストという入れ物に書き込むだけです。書き終えたリストをコマンド キューに渡して初めて、GPU が実行を始めます。CPU は渡したあとすぐ次の仕事に進めます。
 
 ```text
-CPU:  コマンド リスト に、命令を、記録する（Draw、Dispatch、バリア…）
+CPU:  コマンド リストに、命令を記録する（Draw、Dispatch、バリア…）
         ↓ Close
-      コマンド キュー に、コマンド リストを、投げる（ExecuteCommandLists）
+      コマンド キューに、リストを渡す（ExecuteCommandLists）
         ↓
-GPU:  キューの、命令を、順に、実行する
+GPU:  キューの命令を、順に実行する
         ↓
-CPU:  フェンス で、GPU の完了を、確認する（Signal / 待つ）
+CPU:  フェンスで、GPU が終わったかを確認する
 ```
 
-| 登場する物 | 役割 |
-| --- | --- |
-| [Device](factory-device.md) | GPU に物を作らせる |
-| [Command Queue](command-queue.md) | GPU に仕事を渡す窓口（キュー） |
-| [Command Allocator](command-allocator.md)・[Command List](command-list.md) | 命令を、記録するメモリと記録の窓口 |
-| [Fence](fence.md) | CPU と GPU の同期（「ここまで終わった」の、目印） |
-| [Descriptor Heap](descriptor-heap.md)・[Descriptor](descriptor.md) | リソースの、「見方」を並べた表 |
-| [Resource Barrier](resource-barrier.md) | リソースの使い方の切り替え（読む → 書く）の、明示 |
-| [Root Signature](root-signature.md)・[PSO](pso.md) | シェーダーの引数の型と、パイプライン全体の設定 |
+この流れに次の物が登場します。それぞれ専用のページがあります。
+
+- GPU に物を作らせる窓口が、[Device](factory-device.md) です。
+- 仕事を渡す窓口が [Command Queue](command-queue.md)、命令を書き込む窓口が [Command List](command-list.md)、その置き場が [Command Allocator](command-allocator.md) です。
+- CPU が GPU の終了を知る仕組みが、[Fence](fence.md) です。
+- リソースの「見方」を並べた表が [Descriptor Heap](descriptor-heap.md) と [Descriptor](descriptor.md) で、リソースの使い方の切り替えを GPU に伝えるのが [Resource Barrier](resource-barrier.md) です。
+- シェーダーの引数の型が [Root Signature](root-signature.md)、パイプライン全体の設定が [PSO](pso.md) です。
+
+この仕事の多さが D3D12 が難しいと言われる理由です。ただ、1 つずつ役割が分かればやっていることは単純です。
 
 ## 読む順番
 
 | 段階 | ページ |
 | --- | --- |
-| ① 土台 | [Device and Factory](factory-device.md) → [Command Queue](command-queue.md) → [Command Allocator](command-allocator.md) → [Command List](command-list.md) → [Fence](fence.md) → [Swap Chain](swap-chain.md) |
+| ① 土台 | [Helper Functions](util.md) → [Win32 Window and Message Loop](window.md) → [Device and Factory](factory-device.md) → [Command Queue](command-queue.md) → [Command Allocator](command-allocator.md) → [Command List](command-list.md) → [Fence](fence.md) → [Swap Chain](swap-chain.md) |
 | ② リソース | [Descriptor Heap](descriptor-heap.md) → [Descriptor](descriptor.md) → [Resource Barrier](resource-barrier.md) → [Heaps and Resources](heaps-resources.md) → [Upload Buffer](upload-buffer.md) |
 | ③ パイプライン | [Shaders and DXC](shaders-dxc.md) → [Root Signature](root-signature.md) → [PSO](pso.md) → [Vertex and Index Buffer Views](vertex-index-view.md) → [Drawing a Triangle](triangle.md) |
 | ④ 動かす・貼る・立体に | [Constant Buffer](constant-buffer.md) → [Texture Upload](texture-upload.md) → [Depth Buffer](depth-buffer.md) → [Viewport and Scissor](viewport-scissor.md) |
 | ⑤ 実用 | [Frame Resources](frame-resources.md) → [Compute Shader](compute-shader.md) → [GPU Queries and Timing](query-timing.md) → [Debug Layer](debug-layer.md) → [DXR Host Setup](dxr-host.md) |
 
+関数やインターフェースを 1 つずつ引きたいときは、[API リファレンス](api/index.md) があります。コードの中の名前からその解説へ飛べます。
+
 ## このセクションの前提
 
-| 項目 | 内容 |
-| --- | --- |
-| 言語 | C++23。Google C++ Style |
-| ヘルパー | `d3dx12.h`（`CD3DX12_*`）。`Microsoft::WRL::ComPtr` |
-| シェーダー | HLSL。SM 6.0 以上（`dxc`）。SM 5.1 の `fxc` でも動く |
-| 座標系 | 右手系・Y が上・前は −Z。行ベクトル。三角形は反時計回りが表 |
-| 必要な環境 | Windows 10 以降、D3D12 対応の GPU（機能レベル 11.0 以上） |
-| ウィンドウ | [Win32 Window and Message Loop](../dx11/window.md) と同じ。このセクションでは省く |
+- 言語は C++23 で Google C++ Style です。`Microsoft::WRL::ComPtr` を使います。
+- **`d3dx12.h` は使いません。** 構造体は素の `D3D12_*` を書き毎回同じになる組み立てだけを[Helper Functions](util.md) の小さな関数にまとめています。
+- シェーダーは HLSL で、シェーダー モデル 6.0 以上（コンパイラーは `dxc`）です。
+- 座標系は右手系で Y が上、前は −Z です。行ベクトルを使い三角形は反時計回りが表です。
+- Windows 10 以降と D3D12 に対応した GPU（機能レベル 11.0 以上）が必要です。
 
 ## アプリが自分で行う仕事
 
-D3D12 では次の仕事をアプリが自分で、行います。
+D3D12 でアプリが受け持つ仕事を一覧にします。
 
 | 仕事 | 内容 | ページ |
 | --- | --- | --- |
-| 命令の記録と投入 | コマンド リストに記録してキューに投げる | [Command List](command-list.md) |
-| GPU の完了待ち | フェンスで、同期する | [Fence](fence.md) |
+| 命令の記録と投入 | コマンド リストに記録して、キューに渡す | [Command List](command-list.md) |
+| GPU の完了待ち | フェンスで同期する | [Fence](fence.md) |
 | リソースの状態管理 | バリアで状態を切り替える | [Resource Barrier](resource-barrier.md) |
-| ビューの管理 | ディスクリプタ ヒープに自分で、並べる | [Descriptor Heap](descriptor-heap.md) |
-| パイプラインの一括設定 | PSO にまとめて事前に作る | [PSO](pso.md) |
+| ビューの管理 | ディスクリプタ ヒープに自分で並べる | [Descriptor Heap](descriptor-heap.md) |
+| パイプラインの一括設定 | PSO にまとめて、事前に作る | [PSO](pso.md) |
 | メモリの置き場所 | ヒープの種類を選んで、アップロードする | [Heaps and Resources](heaps-resources.md) |
-
-この仕事の多さが D3D12 が「難しい」と言われる理由ですが <strong>1 つずつ役割を、理解すれば</strong>、やっていることは単純です。
-
-## 用語について
-
-このセクションに出てくる API の名前や用語は、1 つずつ専用のページを持っています。文章の中の最初の 1 回はそのページへのリンクになります。
 
 ## 関連ページ
 
+- [API リファレンス](api/index.md)
 - [DirectX 11 Guide](../dx11/index.md)
 - [DirectX の概念](../concepts/index.md)
 - [DX11 と DX12 の対応表](../compare.md)

@@ -19,6 +19,7 @@ STL やゲームエンジンのページを読むために必要な、C++ の基
 | [ranges とビュー](ranges.md) | <span class="rank rank-often">よく使う</span> | 範囲をまとめて扱い、`filter`・`transform` で、コピーせず加工して見る |
 | [計算量](big-o.md) | <span class="rank rank-often">よく使う</span> | データが増えたとき、処理の重さが、どう増えるか（O(1)・O(n)・O(n²)） |
 | [未定義動作](ub.md) | <span class="rank rank-often">よく使う</span> | 何が起きても、おかしくない操作。範囲外アクセス・符号付き整数のオーバーフローなど |
+| [定義済みマクロ](predefined-macros.md) | <span class="rank rank-often">よく使う</span> | `__FILE__`・`__LINE__`・`__func__` など、場所やビルドの情報を取るマクロ。`#` と `##`、機能テスト マクロ |
 | [ビット演算](bit-operations.md) | <span class="rank rank-often">よく使う</span> | 整数を、ビットとして扱う。フラグ・マスク・シフト・`<bit>`。優先順位と、シフトの罠 |
 | [キャッシュ効率](cache.md) | <span class="rank rank-sometimes">たまに</span> | メモリの階層と、データの並べ方で、速さが変わる理由 |
 | [並行処理の基本](concurrency.md) | <span class="rank rank-sometimes">たまに</span> | 複数の処理を、同時に進めるときの、守り方（排他・原子操作） |

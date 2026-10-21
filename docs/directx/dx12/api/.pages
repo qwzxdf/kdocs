@@ -1,3 +1,10 @@
 nav:
   - index.md
   - id3d12device.md
+  - id3d12graphicscommandlist.md
+  - id3d12commandqueue.md
+  - id3d12commandallocator.md
+  - id3d12fence.md
+  - id3d12resource.md
+  - id3d12descriptorheap.md
+  - id3dblob.md

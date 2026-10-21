@@ -10,85 +10,88 @@ tags:
 <span class="rank rank-often">よく使う</span>
 </div>
 
-GPU の処理時間を測るには <strong>GPU 自身に時刻を記録させる</strong>、必要があります。CPU の時計では命令を記録する、時間しか測れません。D3D12 では <strong>クエリ ヒープ</strong>（`ID3D12QueryHeap`）にタイムスタンプを書き込み <strong>`ResolveQueryData`</strong> で結果を、READBACK のバッファにコピーして CPU で読みます。
+ゲームが重いときまず知りたいのは、「どの処理がどれだけ時間を使っているか」です。ところが、CPU の時計で `DrawInstanced` の前後を測っても、意味がありません。D3D12 の描画命令は記録されるだけで、GPU が実際に実行するのは、あとだからです。測れるのは命令を記録する時間だけです。
+
+GPU の処理時間は GPU 自身に時刻を記録させて測ります。クエリ ヒープ（`ID3D12QueryHeap`）へタイムスタンプを書き込み `ResolveQueryData` で結果を READBACK のバッファへコピーして、CPU が読みます。
 
 !!! tip "ポイント"
-    - タイムスタンプ クエリ ＝ ある瞬間の GPU の時刻（チック数）。2 つ（開始・終了）の差と周波数で、ミリ秒に換算。
-    - 流れ: <strong>クエリ ヒープを作る → `EndQuery`（記録）→ `ResolveQueryData`（READBACK バッファへ）→ フェンスで完了を、確認 → CPU が `Map` して、読む</strong>。
-    - 周波数は <strong>キューごと</strong>（`GetTimestampFrequency`）。
-    - 結果は数フレーム、遅れて読む（完了を待たない）。
-    - 本格的な解析は PIX、Nsight、Radeon GPU Profiler。
+    - タイムスタンプ クエリは、ある瞬間の GPU の時刻（チックの数）。2 つの差と周波数からミリ秒に換算する。
+    - 流れはクエリ ヒープを作り `EndQuery` で記録し、`ResolveQueryData` で READBACK のバッファへコピーし、フェンスで完了を確認して CPU が `Map` して読む。
+    - 周波数はキューごとに違う（`GetTimestampFrequency`）。
+    - 結果は数フレーム遅れて読む。完了を待たない。
+    - 本格的な解析は PIX、Nsight、Radeon GPU Profiler を使う。
+
+!!! info "このページを読む前に"
+    結果を読み出す READBACK のバッファは [Heaps and Resources](heaps-resources.md) と [Upload Buffer](upload-buffer.md)、フレームごとに領域を分ける考え方は [Frame Resources](frame-resources.md) で説明しています。クエリの命令は [ID3D12GraphicsCommandList](api/id3d12graphicscommandlist.md#endquery)、周波数は [ID3D12CommandQueue](api/id3d12commandqueue.md#gettimestampfrequency) にあります。
 
 ## クエリ ヒープを作る
 
 ```cpp
-constexpr UINT kMaxTimestamps = 64;                            // 1 フレームで、記録する、タイムスタンプの数
+constexpr UINT kMaxTimestamps = 64;  // 1 フレームで記録するタイムスタンプの数
 
 D3D12_QUERY_HEAP_DESC heap_desc = {};
-heap_desc.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;              // タイムスタンプ用
+heap_desc.Type = D3D12_QUERY_HEAP_TYPE_TIMESTAMP;  // タイムスタンプ用
 heap_desc.Count = kMaxTimestamps;
 ComPtr<ID3D12QueryHeap> query_heap;
 device->CreateQueryHeap(&heap_desc, IID_PPV_ARGS(&query_heap));
 
-// 結果を、読むための、READBACK バッファ（タイムスタンプは、各 8 バイト）。
-auto readback_heap = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_READBACK);
-auto buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(kMaxTimestamps * sizeof(UINT64));
+// 結果を読むための READBACK のバッファ（タイムスタンプは、1 つが 8 バイト）。
+D3D12_HEAP_PROPERTIES readback_heap = MakeHeapProperties(D3D12_HEAP_TYPE_READBACK);
+D3D12_RESOURCE_DESC buffer_desc = MakeBufferDesc(kMaxTimestamps * sizeof(UINT64));
 device->CreateCommittedResource(&readback_heap, D3D12_HEAP_FLAG_NONE, &buffer_desc, D3D12_RESOURCE_STATE_COPY_DEST,
                                 nullptr, IID_PPV_ARGS(&readback_buffer));
 ```
 
-| `D3D12_QUERY_HEAP_TYPE_*` | 内容 |
-| --- | --- |
-| `TIMESTAMP` | 時刻（DIRECT・COMPUTE キュー） |
-| `OCCLUSION` | 通ったピクセル数 |
-| `PIPELINE_STATISTICS` | 頂点・ピクセル シェーダーの呼び出し数など |
-| `COPY_QUEUE_TIMESTAMP` | COPY キューの時刻 |
+クエリ ヒープの種類は `Type` で選びます。`TIMESTAMP` は DIRECT と COMPUTE のキューの時刻を測ります。`OCCLUSION` は通ったピクセルの数、`PIPELINE_STATISTICS` は頂点シェーダーやピクセル シェーダーの呼び出し数などです。COPY のキューの時刻は `COPY_QUEUE_TIMESTAMP` で測ります。
 
 ## 時刻を記録する
 
+測りたい処理の前後にタイムスタンプを記録します。
+
 ```cpp
-// 測りたい処理の、前後に、タイムスタンプを、記録する。
-command_list->EndQuery(query_heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0);     // インデックス 0: 開始
+command_list->EndQuery(query_heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0);  // 番号 0: 開始
 RunPass();
-command_list->EndQuery(query_heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);     // インデックス 1: 終了
+command_list->EndQuery(query_heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 1);  // 番号 1: 終了
 ```
 
-D3D12 では `BeginQuery` は不要で、タイムスタンプは `EndQuery` だけで記録します。複数のパスを測るならインデックスを増やします（パス A: 0・1、パス B: 2・3 …）。
+タイムスタンプは時点を測るので、`BeginQuery` は要りません。`EndQuery` だけで時刻が記録されます。複数のパスを測るなら番号を増やします（パス A は 0 と 1、パス B は 2 と 3 のように）。
 
 ## 結果を READBACK へ
 
+フレームの最後に記録したすべてのクエリを READBACK のバッファへコピーします。
+
 ```cpp
-// フレームの、最後に、記録した、全クエリを、READBACK バッファへ、コピーする。
 command_list->ResolveQueryData(query_heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP,
-                               0, used_count,                  // 開始インデックス、個数
+                               0, used_count,                  // 開始の番号と個数
                                readback_buffer.Get(), 0);      // コピー先とオフセット
 ```
 
-`ResolveQueryData` は GPU の命令で <strong>コマンド リストに記録</strong>されます。実際の、コピーは GPU があとで行います。
+`ResolveQueryData` は GPU の命令でコマンド リストに記録されます。実際のコピーは GPU があとで行います。
 
 ## 結果を読む
 
+数フレームあとそのフレームの GPU 完了をフェンスで確認してから読みます。
+
 ```cpp
-// 数フレーム後（このフレームの GPU 完了を、フェンスで、確認した後）に、読む。
 UINT64 frequency;
-command_queue->GetTimestampFrequency(&frequency);              // 1 秒あたりの、チック数
+command_queue->GetTimestampFrequency(&frequency);  // 1 秒あたりのチック数
 
 UINT64* timestamps = nullptr;
-CD3DX12_RANGE read_range(0, used_count * sizeof(UINT64));
+D3D12_RANGE read_range = {0, used_count * sizeof(UINT64)};
 readback_buffer->Map(0, &read_range, reinterpret_cast<void**>(&timestamps));
 const double milliseconds = double(timestamps[1] - timestamps[0]) / double(frequency) * 1000.0;
-CD3DX12_RANGE no_write(0, 0);
+D3D12_RANGE no_write = {0, 0};
 readback_buffer->Unmap(0, &no_write);
 ```
 
-周波数は <strong>キューごと</strong>に違います（`GetTimestampFrequency` は、そのキューの値）。COMPUTE キューで測ったなら COMPUTE キューの周波数を使います。
+2 つのタイムスタンプの差が、チックの数です。周波数で割ると秒になり 1000 を掛けるとミリ秒です。周波数はキューごとに違います。COMPUTE のキューで測ったなら COMPUTE のキューで `GetTimestampFrequency` を呼びます。
 
-## フレームごとに別の領域
+## フレームごとに別の領域を使う
 
-CPU が結果を読んでいる間に GPU が次のフレームの結果を同じ場所に書くと壊れます。<strong>フレームごとに別の READBACK 領域</strong>を持ちフレーム イン フライトと同じ数だけ、用意します（[Frame Resources](frame-resources.md)）。
+CPU が結果を読んでいる間に GPU が次のフレームの結果を同じ場所へ書くと、値が壊れます。READBACK の領域はフレームを同時に進める数だけ持って、フレームごとに分けます（[Frame Resources](frame-resources.md)）。
 
 ```cpp
-// READBACK バッファを、フレーム数ぶん持つ。このフレームの結果は、kFrameCount フレーム後に、読む。
+// READBACK のバッファを、フレームの数だけ分ける。このフレームの結果は、kFrameCount フレームあとに読む。
 const UINT slot = frame_number % kFrameCount;
 command_list->ResolveQueryData(query_heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0, used_count,
                                readback_buffer.Get(), slot * kMaxTimestamps * sizeof(UINT64));
@@ -96,55 +99,52 @@ command_list->ResolveQueryData(query_heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0, 
 
 ## オクルージョン クエリ
 
+描画した物が 1 ピクセルでも画面に出たかを調べるのが、オクルージョン クエリです。物の境界ボックスを描いて通ったかどうかを見ます。
+
 ```cpp
 D3D12_QUERY_HEAP_DESC heap_desc = {D3D12_QUERY_HEAP_TYPE_OCCLUSION, 256};
-// 描画: BeginQuery / EndQuery で囲む。
-command_list->BeginQuery(occlusion_heap.Get(), D3D12_QUERY_TYPE_BINARY_OCCLUSION, index);   // 通ったか否か（0 か 1）
+// 描画を BeginQuery と EndQuery で囲む。
+command_list->BeginQuery(occlusion_heap.Get(), D3D12_QUERY_TYPE_BINARY_OCCLUSION, index);  // 通ったか（0 か 1）
 DrawBoundingBox();
 command_list->EndQuery(occlusion_heap.Get(), D3D12_QUERY_TYPE_BINARY_OCCLUSION, index);
 ```
 
-`BINARY_OCCLUSION` は「1 ピクセルでも通ったか」だけを返し `OCCLUSION` は、ピクセル数を返します。結果は遅れて読み「前のフレームで、隠れていた物は描かない」運用にします（[Culling](../../rendering/culling.md)）。
+`BINARY_OCCLUSION` は「1 ピクセルでも通ったか」だけを返します。`OCCLUSION` は通ったピクセル数を返します。結果は遅れて読むので「前のフレームで隠れていた物は、描かない」という使い方をします（[Culling](../../rendering/culling.md)）。
 
-## 本格的な計測
+## 本格的に計測する
 
-| ツール | 特徴 |
-| --- | --- |
-| PIX on Windows | 無料。D3D12 の標準。GPU カウンター、タイミング、シェーダーのデバッグ |
-| NVIDIA Nsight Graphics | NVIDIA の GPU カウンター、シェーダー プロファイル |
-| AMD Radeon GPU Profiler | AMD の詳細な、プロファイル |
-| RenderDoc | フレームのキャプチャ。D3D12 にも対応 |
+PIX on Windows は無料で、D3D12 の標準のツールです。GPU のカウンター、タイミング、シェーダーのデバッグができます。NVIDIA Nsight Graphics は、NVIDIA の GPU のカウンターとシェーダーのプロファイルを見られます。AMD Radeon GPU Profiler は、AMD の詳細なプロファイルを取れます。RenderDoc はフレームのキャプチャで、D3D12 にも対応しています。
 
-コードのタイムスタンプ クエリをデバッグ表示に出しておくとどのパスが重いかすぐ、確認できます。
+コードの中のタイムスタンプ クエリをデバッグ表示に出しておくとどのパスが重いかをすぐ確認できます。
 
 ## よくあるミス
 
-??? failure "測った時間が異常に短い（CPU の時間）"
-    CPU の時計で `DrawInstanced` の前後を測っている。GPU が実行するのは後。GPU タイムスタンプで測る。
+??? failure "測った時間が、異常に短い（CPU の時間になっている）"
+    CPU の時計で `DrawInstanced` の前後を測っています。GPU が実行するのはあとです。GPU のタイムスタンプで測ります。
 
-??? failure "時間が負、巨大な値になる"
-    キューごとに周波数が、違うのに別のキューの周波数を使っている。`GetTimestampFrequency` を測ったキューで呼ぶ。
+??? failure "時間が負になる巨大な値になる"
+    キューごとに周波数が違うのに、別のキューの周波数を使っています。測ったキューで `GetTimestampFrequency` を呼びます。
 
-??? failure "結果が、全部 0"
-    フェンスで GPU の完了を待たず READBACK を読んでいる。`ResolveQueryData` を記録していない。
+??? failure "結果がすべて 0 になる"
+    フェンスで GPU の完了を待たずに READBACK を読んでいます。または、`ResolveQueryData` を記録していません。
 
-??? failure "READBACK バッファの状態エラー"
-    READBACK ヒープのバッファは `COPY_DEST` の初期状態（固定）。遷移しない。
+??? failure "READBACK のバッファの状態でエラーになる"
+    READBACK のヒープのバッファは、`COPY_DEST` の初期状態で固定です。遷移しません。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] GPU の時間は、GPU に測らせる。クエリ ヒープ（`TIMESTAMP`）+ READBACK バッファ
-    - [x] `EndQuery` で時刻を記録。`ResolveQueryData` で READBACK へコピー
+    - [x] GPU の時間は、GPU に測らせる。クエリ ヒープ（`TIMESTAMP`）と READBACK のバッファを使う
+    - [x] `EndQuery` で時刻を記録し、`ResolveQueryData` で READBACK へコピーする
     - [x] 周波数はキューごと（`GetTimestampFrequency`）
-    - [x] フレームごとに別の領域。数フレーム遅れて読む
-    - [x] 本格的には PIX・Nsight・Radeon GPU Profiler
+    - [x] フレームごとに別の領域を使い数フレーム遅れて読む
+    - [x] 本格的には PIX、Nsight、Radeon GPU Profiler を使う
 
 ## 関連ページ
 
 - [DirectX 12 Guide](index.md)
+- [ID3D12CommandQueue](api/id3d12commandqueue.md)
 - [Frame Resources](frame-resources.md)
 - [Debug Layer](debug-layer.md)
 - [Tools](../../rendering/tools.md)
-- [GPU Queries and Timing](../dx11/query-timing.md)
 - [Microsoft Learn: クエリ](https://learn.microsoft.com/ja-jp/windows/win32/direct3d12/queries)
