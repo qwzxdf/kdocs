@@ -66,12 +66,40 @@ MiniEngine.sln
 
 | 部 | 章 | 内容 |
 | --- | --- | --- |
-| 1 エンジンを作る | [第 1 章 全体像とソリューションの設計](01-overview.md) | 5 つのプロジェクトの役割、依存の規則、ソリューションの作成、出力先の共通化 |
-| | [第 2 章 Engine プロジェクト：DLL の骨組み](02-engine-skeleton.md) | DLL とエクスポート、公開ヘッダー、ログ、エンジンの入口 |
-| | [第 3 章 Engine に DirectX 12 を載せる](03-engine-dx12.md) | デバイス、スワップ チェーン、フレーム、色で画面を塗る |
-| | [第 4 章 Player：エンジンを動かす実行側](04-player.md) | ウィンドウを作り、Engine を呼ぶ。最初の動作確認 |
-
-以降の章（C# 入門、WPF、Prism、連携、ビューポート、エディタ機能、ホット リロード、Play モード）はこの目次に順に追加されます。
+| 0 準備 | [第 0 章 はじめる前に：道具と言葉の準備](00-prepare.md) | 道具の準備と言葉の整理 |
+| 1 エンジンを作る | [第 1 章 全体像とソリューションの設計](01-overview.md) | 5 つのプロジェクトの役割、依存の規則、ソリューションの作成 |
+|  | [第 2 章 Engine プロジェクト：DLL の骨組み](02-engine-skeleton.md) | DLL とエクスポート、公開ヘッダー、ログ |
+|  | [第 3 章 Engine に DirectX 12 を載せる](03-engine-dx12.md) | デバイス、スワップ チェーン、フレーム |
+|  | [第 4 章 Player：エンジンを動かす実行側](04-player.md) | Win32 のウィンドウとメッセージ ループ |
+| 2 C#・WPF・Prism を学ぶ | [第 5 章 C++ を知っている人のための C# 入門](05-csharp-basics.md) | 型、クラス、プロパティ、null、コレクション、デリゲート |
+|  | [第 6 章 WPF プロジェクトと XAML](06-wpf-xaml.md) | XAML、レイアウト、リソース |
+|  | [第 7 章 データ バインディングと MVVM](07-binding-mvvm.md) | データ バインディング、MVVM、ICommand |
+|  | [第 8 章 Prism の導入と起動の流れ](08-prism-bootstrap.md) | Prism、DI コンテナー、ViewModelLocator |
+|  | [第 9 章 リージョン、モジュール、ナビゲーション](09-regions-modules.md) | リージョン、モジュール、ナビゲーション |
+|  | [第 10 章 イベント集約、ダイアログ、サービス](10-events-dialogs.md) | IEventAggregator、ダイアログ、サービス |
+| 3 C# から C++ を呼ぶ | [第 11 章 C# から C++ を呼ぶ：連携方式の比較](11-interop-overview.md) | P/Invoke、C++/CLI、COM、IPC の比較と境界のルール |
+|  | [第 12 章 EngineApi：C の入口を作る](12-engine-api.md) | C の API（ハンドル、エラー コード） |
+|  | [第 13 章 P/Invoke で C# から呼ぶ](13-pinvoke.md) | LibraryImport、構造体、SafeHandle、コールバック |
+|  | [第 14 章 C++/CLI で橋を作る](14-cpp-cli.md) | C++/CLI の橋と比較 |
+|  | [第 15 章 DLL の読み込み x64、デバッグ](15-dll-loading.md) | 読み込みの仕組みとエラーの切り分け混在デバッグ |
+| 4 3D ビューポート | [第 16 章 3D ビューポートを埋め込む方法の比較](16-viewport-options.md) | HwndHost、D3DImage、WriteableBitmap などの比較 |
+|  | [第 17 章 HwndHost でビューポートを実装する](17-hwndhost.md) | 子ウィンドウの埋め込みと DX12 |
+|  | [第 18 章 描画ループとスレッド](18-render-loop.md) | 描画スレッドとコマンド キュー |
+|  | [第 19 章 入力とエディタ カメラ](19-input-camera.md) | 入力、カメラ、線の描画 |
+| 5 エディタの機能 | [第 20 章 シーンのデータと API](20-scene-api.md) | ドキュメントとエンジンの分離、同期 |
+|  | [第 21 章 シーン ツリー](21-scene-tree.md) | TreeView、選択、ドラッグ アンド ドロップ |
+|  | [第 22 章 プロパティ パネル](22-property-panel.md) | 型ごとの DataTemplate、入力の検証 |
+|  | [第 23 章 ピッキングとギズモ](23-picking-gizmo.md) | レイ、ピッキング、ギズモ |
+|  | [第 24 章 Undo/Redo](24-undo-redo.md) | コマンド パターン、トランザクション |
+|  | [第 25 章 保存と読み込み](25-save-load.md) | JSON、検証、非同期 |
+|  | [第 26 章 アセット ブラウザ](26-asset-browser.md) | FileSystemWatcher、サムネイル、ドロップ |
+| 6 ゲーム DLL と仕上げ | [第 27 章 Game DLL のインターフェース](27-game-interface.md) | 純粋仮想インターフェースと DLL の境界 |
+|  | [第 28 章 ホット リロード](28-hot-reload.md) | シャドウ コピー、状態の引き継ぎ |
+|  | [第 29 章 Play モード](29-play-mode.md) | 編集と Play の切り替え、元に戻す |
+|  | [第 30 章 ログとエラー処理](30-logging-errors.md) | 例外の捕捉、ログ、ダンプ |
+|  | [第 31 章 スレッド、メモリ、IDisposable](31-threads-memory.md) | スレッドの約束、リーク、IDisposable |
+|  | [第 32 章 ビルド、テスト、配布](32-build-deploy.md) | Release、配布、CI、テスト |
+|  | [第 33 章 まとめとこれから](33-next-steps.md) | 設計の振り返りとこれから |
 
 ## この教材の進め方
 

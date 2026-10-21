@@ -8,6 +8,14 @@ tags:
 
 この章では `Engine` プロジェクトに最初のコードを書きます。DirectX 12 は次の章まで、待ちます。ここでは、<strong>DLL からクラスや関数を公開する方法</strong>と <strong>公開してよい形</strong>を決めます。この章で決める形が後の章の EngineApi、Game、Player のすべてに効いてきます。
 
+## この章の考え方
+
+DLL は、<strong>「他のプログラムに貸し出す部品」</strong>です。貸し出すには、「何を貸すか」を決める必要があります。それが<strong>公開ヘッダー</strong>です。利用者（Player、Game、EngineApi）は、公開ヘッダーに書かれた宣言だけを見て、DLL の中身（実装）は見ません。
+
+ここで大事なのは、<strong>公開ヘッダーを小さく保つ</strong>ことです。DirectX のヘッダーや、内部で使うクラスを公開ヘッダーに出してしまうと、利用者もそれを読み込むことになり、ビルドが遅くなり、内部を変えるたびに利用者が壊れます。そのため、この章では、実装の詳細を隠す <strong>Pimpl（ピンプル）</strong>という書き方を使います。クラスの中身を `Impl` という構造体に包んで、ヘッダーには「ポインターを 1 つ持つ」ことだけを書きます。
+
+また、DLL の境界を越えて、`std::string` や `std::vector` を渡すのは、危険です。DLL ごとに、メモリを確保する側と解放する側がずれて、クラッシュすることがあるからです。この章では、<strong>境界を越えるのは、単純な型（整数、浮動小数、ポインター、`const char*`）だけ</strong>にする、という方針で書きます。
+
 ## この章のゴール
 
 - Engine を <strong>公開ヘッダー</strong>（`include/`）と <strong>非公開のソース</strong>（`src/`）に分ける。
@@ -95,6 +103,7 @@ Engine プロジェクトのプロパティ（構成: すべての構成、プ�
 ```cpp
 #pragma once
 
+#include <cstdint>
 #include <format>
 #include <utility>
 
@@ -102,7 +111,7 @@ Engine プロジェクトのプロパティ（構成: すべての構成、プ�
 
 namespace mini {
 
-enum class LogLevel { Info, Warning, Error };
+enum class LogLevel : std::int32_t { Info, Warning, Error };
 
 // ログの出力先。C 言語の関数ポインターにして、C# からも渡せる形にしておく（第 13 章）。
 // user: 登録した側が、好きに使える、ポインター（コールバックに、そのまま、返ってくる）。
