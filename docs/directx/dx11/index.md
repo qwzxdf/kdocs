@@ -43,7 +43,7 @@ D3D11 は <strong>ドライバーが、面倒を見てくれる API</strong>で�
 | 機能レベル | 11.0 以上 |
 
 !!! note "DirectX 11 でできないこと"
-    レイトレーシング（DXR）、メッシュ シェーダー、ビンドレスのような新しい機能は DirectX 12 の機能です（[DirectX 12 Guide](../dx12/index.md)）。
+    レイトレーシング（DXR）、メッシュ シェーダー、バインドレスのような新しい機能は DirectX 12 の機能です（[DirectX 12 Guide](../dx12/index.md)）。
 
 ## 用語について
 

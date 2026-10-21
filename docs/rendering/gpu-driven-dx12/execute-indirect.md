@@ -313,6 +313,6 @@ void Renderer::RecordReadbackCounts(ID3D12GraphicsCommandList* list) {
 
 - [GPU Driven（D3D12 詳細）](index.md)
 - [カリング](culling.md)
-- [ビンドレス](bindless.md)
+- [バインドレス](bindless.md)
 - [Hi-Z と 2 パス](hiz-two-pass.md)
 - [非同期コンピュート](../async-compute.md)

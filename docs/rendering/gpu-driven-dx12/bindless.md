@@ -1,12 +1,12 @@
 ---
-title: ビンドレス（記述子の直接参照）
+title: バインドレス（記述子の直接参照）
 tags:
   - 描画最適化
 ---
 
-# ビンドレス（記述子の直接参照）
+# バインドレス（記述子の直接参照）
 
-**GPU Driven では、描画ごとに CPU が「このテクスチャを使え」と設定することができません**（**CPU は何が描かれるか知らない**）。そこで**全テクスチャの記述子を 1 つのヒープに並べ**、**シェーダーが「番号」で直接引く**方式を使います。これが**ビンドレス**（Bindless）です。**D3D12 では、SM 6.6 の `ResourceDescriptorHeap`** が**最も簡単**です。このページでは、**マテリアル構造体・記述子の割り当て・シェーダーでの引き方・`NonUniformResourceIndex` の落とし穴**を説明します。
+**GPU Driven では、描画ごとに CPU が「このテクスチャを使え」と設定することができません**（**CPU は何が描かれるか知らない**）。そこで**全テクスチャの記述子を 1 つのヒープに並べ**、**シェーダーが「番号」で直接引く**方式を使います。これが**バインドレス**（Bindless）です。**D3D12 では、SM 6.6 の `ResourceDescriptorHeap`** が**最も簡単**です。このページでは、**マテリアル構造体・記述子の割り当て・シェーダーでの引き方・`NonUniformResourceIndex` の落とし穴**を説明します。
 
 !!! tip "ポイント"
     - <strong>全テクスチャの SRV を、1 つのシェーダー可視ヒープに並べ</strong>、<strong>シェーダーは「ヒープ内の番号」</strong>で引く。
@@ -23,7 +23,7 @@ tags:
 | 方式 | テクスチャの指定 | GPU Driven との相性 |
 | --- | --- | --- |
 | <strong>従来（バインド型）</strong> | **ドローごとに、CPU がテクスチャをバインド** | **✕**（CPU が何を描くか知らない） |
-| **ビンドレス** | **シェーダーが番号でヒープを直接引く** | **○**（番号はバッファに入れておける） |
+| **バインドレス** | **シェーダーが番号でヒープを直接引く** | **○**（番号はバッファに入れておける） |
 
 **1 回の `ExecuteIndirect` で、数万の物体を異なるテクスチャで描く**には、**この方式が必須**です。
 
@@ -218,7 +218,7 @@ float4 sample = textures[NonUniformResourceIndex(material.albedo_index)].Sample(
 
 ## NonUniformResourceIndex
 
-**ビンドレスの最大の落とし穴**です。**同じ命令（ウェーブ）内の全レーンが同じ番号**でなら**問題**ありませんが、**レーンごとに番号が違う**場合、**`NonUniformResourceIndex` を付けない**と、**未定義の動作**になります（**1 番目のレーンの番号が、全レーンに使われる**など）。
+**バインドレスの最大の落とし穴**です。**同じ命令（ウェーブ）内の全レーンが同じ番号**でなら**問題**ありませんが、**レーンごとに番号が違う**場合、**`NonUniformResourceIndex` を付けない**と、**未定義の動作**になります（**1 番目のレーンの番号が、全レーンに使われる**など）。
 
 | 状況 | 番号は一様か |
 | --- | --- |
@@ -252,7 +252,7 @@ Texture2D<float4> tex = ResourceDescriptorHeap[NonUniformResourceIndex(material.
 <defs><marker id="arr-bindless-index" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ビンドレス: マテリアルが「テクスチャの番号」を持ち、シェーダーが番号で引く</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">バインドレス: マテリアルが「テクスチャの番号」を持ち、シェーダーが番号で引く</text>
 <rect x="60" y="100" width="120" height="56" fill="#ffffff" stroke="#7c3aed" stroke-width="3"/>
 <text x="120" y="134" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937">物体: 岩</text>
 <g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="0;0;1;1"/><rect x="300" y="100" width="150" height="56" fill="#ffffff" stroke="#7c3aed" stroke-width="3"/>
@@ -303,7 +303,7 @@ Texture2D<float4> tex = ResourceDescriptorHeap[NonUniformResourceIndex(material.
     **遅延解放**（**フェンス完了後**に返却）。
 
 ??? failure "SetDescriptorHeaps を呼ばず、またはフレーム中に別のヒープに切り替えて、記述子が無効になる"
-    **ビンドレス ヒープをフレーム全体で 1 つ**にし、**最初にバインド**する。
+    **バインドレス ヒープをフレーム全体で 1 つ**にし、**最初にバインド**する。
 
 ??? failure "SRV の種類（Texture2D と TextureCube など）が、シェーダーの型と合わない"
     **ヒープの番号が指す SRV の種類**と、**シェーダーで宣言する型**を**一致**させる。
@@ -311,7 +311,7 @@ Texture2D<float4> tex = ResourceDescriptorHeap[NonUniformResourceIndex(material.
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ビンドレス ＝ <strong>全テクスチャの記述子を 1 つのヒープに並べ</strong>、<strong>シェーダーが番号で引く</strong>
+    - [x] バインドレス ＝ <strong>全テクスチャの記述子を 1 つのヒープに並べ</strong>、<strong>シェーダーが番号で引く</strong>
     - [x] <strong>マテリアル構造体にテクスチャ番号</strong>を入れる。<strong>インスタンス → マテリアル → テクスチャ</strong>
     - [x] <strong>SM 6.6</strong>：<strong>`ResourceDescriptorHeap[i]`</strong> と<strong>ルート シグネチャの専用フラグ</strong>
     - [x] <strong>非一様な番号</strong>には<strong>`NonUniformResourceIndex`</strong>。<strong>迷ったら付ける</strong>

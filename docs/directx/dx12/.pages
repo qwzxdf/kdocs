@@ -25,3 +25,4 @@ nav:
   - query-timing.md
   - debug-layer.md
   - dxr-host.md
+  - api

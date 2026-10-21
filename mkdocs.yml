@@ -56,6 +56,7 @@ theme:
 hooks:
   - hooks/autolink.py
   - hooks/inlinecode.py
+  - hooks/codelink.py
   - hooks/glossary.py
   - hooks/pageicons.py
 
@@ -82,6 +83,7 @@ extra_javascript:
 extra_css:
   - stylesheets/extra.css
   - stylesheets/anim.css
+  - stylesheets/code.css
 
 markdown_extensions:
   - abbr

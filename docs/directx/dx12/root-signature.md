@@ -158,8 +158,8 @@ CD3DX12_STATIC_SAMPLER_DESC samplers[2] = {
 | --- | --- |
 | `ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT` | 頂点バッファの入力レイアウトを使う（頂点入力を使うなら必須） |
 | `DENY_VERTEX_SHADER_ROOT_ACCESS` など | その段から、アクセスさせない（最適化） |
-| `CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED` | ビンドレス（SM 6.6 の `ResourceDescriptorHeap`）を使う |
-| `SAMPLER_HEAP_DIRECTLY_INDEXED` | サンプラーのビンドレス |
+| `CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED` | バインドレス（SM 6.6 の `ResourceDescriptorHeap`）を使う |
+| `SAMPLER_HEAP_DIRECTLY_INDEXED` | サンプラーのバインドレス |
 
 ## パラメータの順序
 

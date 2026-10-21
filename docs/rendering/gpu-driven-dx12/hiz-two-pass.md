@@ -69,7 +69,7 @@ void Renderer::CreateHiZ(uint32_t width, uint32_t height) {
 | **ミップ数** | `1 + floor(log2(max(幅, 高さ)))` |
 | **ミップごとの UAV/SRV** | <strong>構築 CS は、ミップ i を読み（SRV）、ミップ i+1 に書く（UAV）</strong>。**1 枚のテクスチャの別々のミップを別々のビューで扱う** |
 | **全ミップの SRV** | **判定 CS が、`SampleLevel` で、任意のミップを引く**ためのビュー |
-| **`AllocateRange` / `Allocate`** | **ビンドレス ヒープの連続した番号を確保する**（先のクラスに追加。**連番確保のメソッド**） |
+| **`AllocateRange` / `Allocate`** | **バインドレス ヒープの連続した番号を確保する**（先のクラスに追加。**連番確保のメソッド**） |
 | **初期状態** | **`NON_PIXEL_SHADER_RESOURCE`**（**構築時に、UAV に遷移**して使う） |
 
 ### 深度バッファの SRV

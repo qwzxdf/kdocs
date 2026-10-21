@@ -6,20 +6,20 @@ tags:
 
 # ステートマシン
 
-**ステートマシン**（状態機械）は、**オブジェクトの「今の状態」と「どの条件でどの状態に移るか」をはっきり決めて管理する仕組み**です。プレイヤーなら「立ち・歩き・ジャンプ・攻撃」、敵の AI なら「待機・巡回・追跡・攻撃」のように、状態ごとにできることや動きが変わります。`bool is_jumping; bool is_attacking;` のようにフラグを増やしていくと、「ジャンプ中なのに攻撃中」のようなありえない組み合わせが生まれますが、状態を 1 つの変数で持てば必ず 1 つの状態にしかなりません。
+プレイヤーの「ジャンプ中」を表すのに、最初は `bool is_jumping;` を 1 つ置くと思います。そこへ攻撃が入って `is_attacking` が増え、やられ判定で `is_damaged` が増え、気づくと `if (is_jumping && !is_attacking && !is_damaged)` のような条件がコードじゅうに散らばります。しかも、フラグが 3 つあれば組み合わせは 8 通りあって、「ジャンプ中なのに攻撃中でやられ中」のような、ゲーム上ありえない状態もコードの上では作れてしまいます。
 
-!!! tip "ポイント"
-    - <strong>状態が少ないうちは `enum class` + `switch` で十分。</strong>
-    - 状態ごとのデータや処理が増えたら、状態をクラスにする（State パターン）か、[`std::variant`](../../stl/utilities/variant.md) で持つ。
-    - 状態に入るとき・出るときの処理（Enter / Exit）を用意すると、アニメーションやエフェクトの開始・終了を書きやすい。
-    - 状態の移り方（遷移）を図に描いてから作ると、抜け漏れが減る。
+そこで、「今どの状態か」を変数 1 つで持ち、「どの条件でどの状態へ移るか」を最初に決めておきます。これが**ステートマシン**（状態機械）です。変数が 1 つなので、ありえない組み合わせは最初から作れません。プレイヤーなら立ち・歩き・ジャンプ・攻撃、敵の AI なら待機・巡回・追跡・攻撃、というように、ゲームには状態ごとに動きが変わるものがたくさんあるので、よく使います。
+
+作り方は、状態の数と中身の重さで 3 つに分かれます。状態が少ないうちは `enum class` と `switch` で十分で、迷ったらこれです。状態ごとに持ちたいデータが違ってきたら [`std::variant`](../../stl/utilities/variant.md)、状態ごとの処理が大きくなったら、状態をクラスにします（State パターン）。
 
 !!! info "このページを読む前に"
-    [継承と仮想関数](../../basics/virtual.md) と [`std::variant`](../../stl/utilities/variant.md) を使います。
+    後半の State パターンは [継承と仮想関数](../../basics/virtual.md)、variant の方式は [`std::variant`](../../stl/utilities/variant.md) を使います。分からなければ、先にそちらを読んでください。
 
 ## 基本
 
 ### enum class + switch
+
+まずは、立ち・走り・ジャンプの 3 状態を `switch` で書きます。
 
 ```cpp
 #include <print>
@@ -97,7 +97,11 @@ int main() {
 → 立ち
 ```
 
+`ChangeState` を 1 か所に集めているのがコツです。状態が変わる瞬間に必ずここを通るので、入るときの処理（Enter）をここに書けます。ジャンプの残りフレームを決めているのがその例で、アニメーションやエフェクトの開始もここに置きます。
+
 ### 遷移の表
+
+コードを書く前に、「今の状態」「条件」「次の状態」を表にしておくと楽です。上のコードなら、次の 4 行です。
 
 | 今の状態 | 条件 | 次の状態 |
 | --- | --- | --- |
@@ -106,7 +110,7 @@ int main() {
 | 走り | 移動入力なし | 立ち |
 | ジャンプ | 着地 | 立ち |
 
-作る前にこういう表や図を書いておくと、「走りながら攻撃したら？」のような抜けに気づけます。
+表にすると、「走りながら攻撃したら？」「ジャンプ中にやられたら？」のような抜けが、コードを書く前に見つかります。図にするのも同じ効果があります。
 
 <svg class="fig flow" viewBox="0 0 418 256" role="img" aria-label="ステートマシン：今の状態と、遷移"><defs><marker id="fl79738" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ステートマシン：今の状態と、遷移</text><line x1="107.0" y1="124.0" x2="165.0" y2="124.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl79738)"/><text x="136.0" y="118.0" text-anchor="middle" style="font-size:12px">移動入力</text><line x1="247.0" y1="124.0" x2="305.0" y2="124.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl79738)"/><text x="276.0" y="118.0" text-anchor="middle" style="font-size:12px">ジャンプ</text><path d="M349.0,102.0 Q207.5,50.0 66.0,102.0" fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#fl79738)"/><text x="207.5" y="64.0" text-anchor="middle" style="font-size:12px">着地</text><line x1="104.3" y1="147.0" x2="167.7" y2="185.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl79738)"/><text x="136.0" y="160.0" text-anchor="middle" style="font-size:12px">攻撃</text><line x1="167.7" y1="185.0" x2="104.3" y2="147.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl79738)"/><rect x="28.0" y="104.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="124.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">待機</text><rect x="168.0" y="104.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="206.0" y="124.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">走る</text><rect x="308.0" y="104.0" width="82" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="349.0" y="124.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ジャンプ</text><rect x="168.0" y="188.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="206.0" y="208.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">攻撃</text></svg>
 
@@ -114,7 +118,7 @@ int main() {
 
 ### 状態をクラスにする（State パターン）
 
-状態ごとの処理やデータが増えたら、状態を 1 つずつクラスにします。
+敵 AI のように、状態ごとの処理が長くなってくると、`switch` の中が肥大化します。そうなったら、状態を 1 つずつクラスにして、処理をそれぞれの中に閉じ込めます。`Update` が「次の状態」を返す作りにしてあります（そのままなら `nullptr`）。
 
 ```cpp
 #include <memory>
@@ -185,7 +189,7 @@ int main() {
 
 ### variant で持つ
 
-状態ごとに違うデータ（ジャンプなら残り時間、攻撃ならコンボ数）を持たせたいときは、`std::variant` が便利です。ヒープも使いません。
+ジャンプなら残り時間、攻撃ならコンボ数、というように、状態ごとに持ちたいデータが違うことがあります。`enum` だと全状態ぶんのメンバを 1 つの構造体に並べることになり、使わない値が残ってしまいます。`std::variant` なら、今の状態に必要なデータだけを持てて、ヒープも使いません。
 
 ```cpp
 #include <print>
@@ -241,25 +245,15 @@ int main() {
 最後は Idle？ true
 ```
 
-### 方式の比較
+### どれを選ぶか
 
-| 方式 | 向いているとき |
-| --- | --- |
-| `enum class` + `switch` | 状態が少ない（〜5 個程度）。一番読みやすい |
-| `std::variant` + `visit` | 状態ごとにデータが違う。対応漏れをコンパイラが見つけてくれる |
-| State パターン（クラス） | 状態ごとの処理が大きい。状態をあとから追加しやすくしたい |
-| 階層型ステートマシン | 「地上（立ち・歩き・走り）」「空中（ジャンプ・落下）」のように状態をグループ化したい |
-| ビヘイビアツリー | 複雑な AI。状態マシンだと遷移が増えすぎるとき |
+迷ったら `enum class` + `switch` から始めます。状態が 5 個くらいまでなら、これが一番読みやすいです。`std::variant` + `visit` は、状態ごとにデータが違うときに向いていて、状態を足し忘れるとコンパイラが教えてくれます。State パターンは、状態ごとの処理が大きいときや、状態をあとから足したいときに選びます。
+
+状態が増えすぎたときの手もあります。「地上（立ち・歩き・走り）」「空中（ジャンプ・落下）」のように、状態をグループにまとめるのが階層型ステートマシンです。それでも遷移が増えすぎる複雑な AI は、ステートマシンをやめて、ビヘイビアツリーにします。
 
 ## ゲームでの例
 
-| 対象 | 状態 |
-| --- | --- |
-| プレイヤー | 立ち、歩き、ジャンプ、攻撃、被ダメージ、死亡 |
-| 敵 AI | 待機、巡回、追跡、攻撃、逃走 |
-| ゲーム全体 | タイトル、プレイ中、ポーズ、ゲームオーバー（[シーン管理](../../engine/scene.md)） |
-| UI | 閉じている、開く途中、開いている、閉じる途中 |
-| ドア | 閉、開く途中、開、閉まる途中 |
+プレイヤーの立ち・歩き・ジャンプ・攻撃・被ダメージ・死亡や、敵 AI の待機・巡回・追跡・攻撃・逃走は、すぐ思いつくと思います。ほかにも、ゲーム全体のタイトル・プレイ中・ポーズ・ゲームオーバー（[シーン管理](../../engine/scene.md)）、メニューの閉じている・開く途中・開いている・閉じる途中、ドアの開閉など、「途中」を含む動きは、たいていステートマシンで書けます。「開く途中」を状態にしておくと、開き終わる前にもう一度押されたときの動きも決められます。
 
 <!-- fig:state-transition-walk:begin -->
 
@@ -317,13 +311,6 @@ int main() {
 
 ??? failure "状態を変えた同じフレームで、古い状態の処理が続く"
     状態を変えたあとは `return` するか、遷移をフレームの最後にまとめて行います。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 状態は 1 つの変数で持つ（フラグを増やさない）
-    - [x] 少なければ enum + switch、データが違えば variant、大きければクラス
-    - [x] 遷移は表や図に書いてから作る
 
 ## 関連ページ
 

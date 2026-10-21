@@ -10,7 +10,7 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-D3D12 のシェーダーは HLSL で書き <strong>DXC</strong>（DirectX Shader Compiler）で、<strong>DXIL</strong>（バイトコード）にコンパイルします。DXC はシェーダー モデル 6.0 以上（SM 6.x）に対応した新しいコンパイラーで、<strong>ウェーブ命令、64 ビット整数、ビンドレス（SM 6.6）、レイトレーシング（DXR）、メッシュ シェーダー</strong>は DXC が、必要です。古い `fxc`（SM 5.1 まで）でも基本的なシェーダーは動きます。
+D3D12 のシェーダーは HLSL で書き <strong>DXC</strong>（DirectX Shader Compiler）で、<strong>DXIL</strong>（バイトコード）にコンパイルします。DXC はシェーダー モデル 6.0 以上（SM 6.x）に対応した新しいコンパイラーで、<strong>ウェーブ命令、64 ビット整数、バインドレス（SM 6.6）、レイトレーシング（DXR）、メッシュ シェーダー</strong>は DXC が、必要です。古い `fxc`（SM 5.1 まで）でも基本的なシェーダーは動きます。
 
 !!! tip "ポイント"
     - HLSL を <strong>`dxc`</strong> で、DXIL にコンパイルして `.cso`（または `.dxil`）に保存し、実行時に読み込む。
@@ -30,7 +30,7 @@ D3D12 のシェーダーは HLSL で書き <strong>DXC</strong>（DirectX Shader
 | 6.2 | `dxc` | 16 ビットの浮動小数点、整数 |
 | 6.3 | `dxc` | DXR（レイトレーシング） |
 | 6.5 | `dxc` | メッシュ・増幅シェーダー、DXR 1.1（`RayQuery`） |
-| 6.6 | `dxc` | ビンドレス（`ResourceDescriptorHeap`）、64 ビット アトミック |
+| 6.6 | `dxc` | バインドレス（`ResourceDescriptorHeap`）、64 ビット アトミック |
 | 6.7・6.8 | `dxc` | 拡張（ウェーブ行列、ワーク グラフ など） |
 
 SM 6 の機能は <strong>GPU・ドライバーが、対応していないと使えません</strong>。`CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL)` で確認します（[Device and Factory](factory-device.md)）。
@@ -126,7 +126,7 @@ cbuffer PerObject : register(b0, space0) {
 };
 ```
 
-`register(t0, space0)` の `space` はリソースの論理的なグループです。ビンドレスや配列で使い分けます（[Root Signature](root-signature.md)）。
+`register(t0, space0)` の `space` はリソースの論理的なグループです。バインドレスや配列で使い分けます（[Root Signature](root-signature.md)）。
 
 ### ルート シグネチャを HLSL に埋め込む
 

@@ -172,7 +172,7 @@ device->CopyDescriptorsSimple(1,                              // 個数
                               D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 ```
 
-これで「テクスチャごとのディスクリプタは、一度だけ書き描画のたびにコピーするだけ」にでき `Create…View` の呼び出しを減らせます。ビンドレス（`ResourceDescriptorHeap`）ではヒープ全体を 1 つの配列としてシェーダーから直接、インデックスで引きます（[Bindless](../../rendering/gpu-driven-dx12/bindless.md)）。
+これで「テクスチャごとのディスクリプタは、一度だけ書き描画のたびにコピーするだけ」にでき `Create…View` の呼び出しを減らせます。バインドレス（`ResourceDescriptorHeap`）ではヒープ全体を 1 つの配列としてシェーダーから直接、インデックスで引きます（[Bindless](../../rendering/gpu-driven-dx12/bindless.md)）。
 
 ## よくあるミス
 

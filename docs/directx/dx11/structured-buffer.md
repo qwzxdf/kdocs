@@ -107,7 +107,7 @@ g_raw.InterlockedAdd(byte_offset, 1);                       // アトミック�
 uint4 four = g_raw.Load4(byte_offset);                      // 16 バイトを、まとめて
 ```
 
-ヒストグラム（[Auto Exposure](../../graphics/postprocess/tonemapping/auto-exposure.md)）、描画の引数バッファ（間接描画）、ビンドレスなデータの詰め合わせに使います。
+ヒストグラム（[Auto Exposure](../../graphics/postprocess/tonemapping/auto-exposure.md)）、描画の引数バッファ（間接描画）、バインドレスなデータの詰め合わせに使います。
 
 ## カウンターと追加・消費（Append / Consume）
 

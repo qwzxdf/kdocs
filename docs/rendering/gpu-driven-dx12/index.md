@@ -14,12 +14,12 @@ tags:
 | --- | --- |
 | **API** | **Direct3D 12**（Windows 10 以降）。<strong>dxc（DirectX Shader Compiler）</strong>で HLSL をコンパイル |
 | **ヘルパー** | **`d3dx12.h`**（`CD3DX12_*`）、**`Microsoft::WRL::ComPtr`** |
-| **シェーダー モデル** | 基本は **6.0 以上**。**ビンドレス（ResourceDescriptorHeap）は 6.6**、**メッシュ シェーダーは 6.5** |
+| **シェーダー モデル** | 基本は **6.0 以上**。**バインドレス（ResourceDescriptorHeap）は 6.6**、**メッシュ シェーダーは 6.5** |
 | **座標系** | このサイトの標準（**左手系・Y 上・+Z 前方・行ベクトル**） |
 | **コーディング規約** | Google C++ Style（メンバーは末尾 `_`、関数は大文字始まり） |
 
 !!! note "D3D11 の章との関係"
-    このサイトの描画の解説は、**主に D3D11** を前提にしています。**GPU Driven は、D3D12 の機能**（`ExecuteIndirect`・明示的バリア・ビンドレス）が**本領を発揮する**ので**このパートだけ D3D12** で書きます。
+    このサイトの描画の解説は、**主に D3D11** を前提にしています。**GPU Driven は、D3D12 の機能**（`ExecuteIndirect`・明示的バリア・バインドレス）が**本領を発揮する**ので**このパートだけ D3D12** で書きます。
 
 ## 全体の流れ
 
@@ -131,7 +131,7 @@ struct IndirectCommand {
 ## 読む順序
 
 1. [シーン データ](scene-data.md)：**バッファと記述子の作り方**
-2. [ビンドレス](bindless.md)：**テクスチャを番号で引く**
+2. [バインドレス](bindless.md)：**テクスチャを番号で引く**
 3. [カリング](culling.md)：**コンピュート シェーダーで、コマンドを書く**
 4. [ExecuteIndirect](execute-indirect.md)：**コマンド シグネチャと、描画ループ**
 5. [Hi-Z と 2 パス](hiz-two-pass.md)：**オクルージョン カリング**

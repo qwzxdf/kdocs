@@ -189,9 +189,9 @@ class DescriptorHeap {
 | --- | --- |
 | **`GetDescriptorHandleIncrementSize`** | **記述子 1 個のバイト数**（GPU 依存）。**ハンドルを進める**のに使う |
 | **シェーダー可視ヒープ** | **`SetDescriptorHeaps` でバインドできるのは、種類ごとに 1 つ**（CBV/SRV/UAV と、サンプラー） |
-| **`Allocate`** | **単純な連番**。**解放して再利用する**場合は、**フリー リスト**が要る（[ビンドレス](bindless.md)） |
+| **`Allocate`** | **単純な連番**。**解放して再利用する**場合は、**フリー リスト**が要る（[バインドレス](bindless.md)） |
 
-**CBV/SRV/UAV**の**ヒープは、アプリ全体で 1 つの大きなもの**にして、**全リソースの記述子をそこに置く**のが、**GPU Driven・ビンドレスの基本**です。
+**CBV/SRV/UAV**の**ヒープは、アプリ全体で 1 つの大きなもの**にして、**全リソースの記述子をそこに置く**のが、**GPU Driven・バインドレスの基本**です。
 
 ## フレームごとの更新：アップロード リング
 
@@ -351,6 +351,6 @@ ComPtr<ID3D12RootSignature> Renderer::CreateCullRootSignature() {
 ## 関連ページ
 
 - [GPU Driven（D3D12 詳細）](index.md)
-- [ビンドレス](bindless.md)
+- [バインドレス](bindless.md)
 - [カリング](culling.md)
 - [同期とデバッグ](sync-debug.md)

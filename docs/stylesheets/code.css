@@ -1,0 +1,118 @@
+/* コード ブロックの配色: Visual Studio（Dark+ / Light+）と Viasfora に合わせる。
+   識別子の分類は hooks/codelink.py が付ける tk-* クラス。括弧は rb0〜rb2（rainbow）。 */
+
+:root,
+[data-md-color-scheme="default"] {
+  --vs-keyword: #0000ff;
+  --vs-control: #8f08c4;
+  --vs-type: #2b91af;
+  --vs-function: #74531f;
+  --vs-macro: #6f008a;
+  --vs-enum: #2f4f4f;
+  --vs-variable: #1f377f;
+  --vs-namespace: #1e1e1e;
+  --vs-string: #a31515;
+  --vs-number: #000000;
+  --vs-comment: #008000;
+  --vs-preproc: #808080;
+  --vs-operator: #000000;
+  --vs-punct: #000000;
+  --vs-rb0: #c99a00;
+  --vs-rb1: #b03bb0;
+  --vs-rb2: #0b6fd6;
+}
+
+[data-md-color-scheme="slate"] {
+  --vs-keyword: #569cd6;
+  --vs-control: #d8a0df;
+  --vs-type: #4ec9b0;
+  --vs-function: #dcdcaa;
+  --vs-macro: #bd63c5;
+  --vs-enum: #b8d7a3;
+  --vs-variable: #9cdcfe;
+  --vs-namespace: #c8c8c8;
+  --vs-string: #d69d85;
+  --vs-number: #b5cea8;
+  --vs-comment: #57a64a;
+  --vs-preproc: #9b9b9b;
+  --vs-operator: #b4b4b4;
+  --vs-punct: #dcdcdc;
+  --vs-rb0: #ffd700;
+  --vs-rb1: #da70d6;
+  --vs-rb2: #179fff;
+}
+
+.md-typeset .highlight {
+  --md-code-hl-keyword-color: var(--vs-keyword);
+  --md-code-hl-string-color: var(--vs-string);
+  --md-code-hl-number-color: var(--vs-number);
+  --md-code-hl-comment-color: var(--vs-comment);
+  --md-code-hl-function-color: var(--vs-function);
+  --md-code-hl-constant-color: var(--vs-enum);
+  --md-code-hl-variable-color: var(--vs-variable);
+  --md-code-hl-operator-color: var(--vs-operator);
+  --md-code-hl-punctuation-color: var(--vs-punct);
+  --md-code-hl-special-color: var(--vs-preproc);
+  --md-code-hl-name-color: var(--vs-variable);
+  --md-code-hl-generic-color: var(--vs-type);
+}
+
+.md-typeset .highlight .k,
+.md-typeset .highlight .kd,
+.md-typeset .highlight .kn,
+.md-typeset .highlight .kr,
+.md-typeset .highlight .kt,
+.md-typeset .highlight .kp { color: var(--vs-keyword); }
+.md-typeset .highlight .kc { color: var(--vs-control); }
+.md-typeset .highlight .cp,
+.md-typeset .highlight .cpf { color: var(--vs-preproc); }
+.md-typeset .highlight .cpf { color: var(--vs-string); }
+.md-typeset .highlight .s,
+.md-typeset .highlight .s1,
+.md-typeset .highlight .s2,
+.md-typeset .highlight .sa,
+.md-typeset .highlight .sc { color: var(--vs-string); }
+.md-typeset .highlight .mi,
+.md-typeset .highlight .mf,
+.md-typeset .highlight .mh,
+.md-typeset .highlight .mo { color: var(--vs-number); }
+.md-typeset .highlight .c,
+.md-typeset .highlight .c1,
+.md-typeset .highlight .cm { color: var(--vs-comment); }
+.md-typeset .highlight .o { color: var(--vs-operator); }
+.md-typeset .highlight .p { color: var(--vs-punct); }
+
+.md-typeset .highlight .nc { color: var(--vs-type); }
+.md-typeset .highlight .nf { color: var(--vs-function); }
+.md-typeset .highlight .no { color: var(--vs-enum); }
+.md-typeset .highlight .nv { color: var(--vs-variable); }
+.md-typeset .highlight .nn { color: var(--vs-namespace); }
+.md-typeset code.inline-cpp .nc { color: var(--vs-type); }
+.md-typeset code.inline-cpp .nv { color: var(--vs-variable); }
+.md-typeset code.inline-cpp .nn { color: var(--vs-namespace); }
+.md-typeset code.inline-cpp .m { color: var(--vs-number); }
+.md-typeset code.inline-cpp .s { color: var(--vs-string); }
+
+.md-typeset .highlight .tk-ty { color: var(--vs-type); }
+.md-typeset .highlight .tk-fn { color: var(--vs-function); }
+.md-typeset .highlight .tk-mc { color: var(--vs-macro); }
+.md-typeset .highlight .tk-en { color: var(--vs-enum); }
+.md-typeset .highlight .tk-v { color: var(--vs-variable); }
+.md-typeset .highlight .tk-ns { color: var(--vs-namespace); }
+
+.md-typeset .highlight .rb0 { color: var(--vs-rb0); }
+.md-typeset .highlight .rb1 { color: var(--vs-rb1); }
+.md-typeset .highlight .rb2 { color: var(--vs-rb2); }
+
+/* コードの中のリンク: 色は変えず、点線の下線だけで「飛べる」と分かるようにする */
+.md-typeset .highlight a.code-link {
+  color: inherit;
+  text-decoration: underline dotted;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+.md-typeset .highlight a.code-link:hover {
+  text-decoration-style: solid;
+  filter: brightness(1.25);
+}
