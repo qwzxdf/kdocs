@@ -22,6 +22,7 @@ C++ の入門書や、cppreference のようなリファレンスは、「何が
 - [ゲーム数学](gamemath/index.md)
 - [3D ゲーム](3d/index.md)
 - [ゲームエンジン](engine/index.md)
+- [C# 連携](csharp/index.md)
 - [設計](design/index.md)
 - [最適化](optimize/index.md)
 - [DirectX](directx/index.md)

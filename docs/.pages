@@ -7,6 +7,7 @@ nav:
   - ゲーム数学: gamemath
   - 3Dゲーム: 3d
   - ゲームエンジン: engine
+  - C#連携: csharp
   - 設計: design
   - 最適化: optimize
   - DirectX: directx
