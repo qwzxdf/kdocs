@@ -304,7 +304,7 @@
      "name": "storage.modifier.khlsl"
     },
     {
-     "match": "\\b(?:compile_fragment|static_assert|packoffset|Technique|protected|technique|operator|register|template|typename|compile|private|public|sizeof|using|Pass|pass|this)\\b",
+     "match": "\\b(?:compile_fragment|reinterpret_cast|static_assert|dynamic_cast|static_cast|const_cast|packoffset|Technique|protected|technique|explicit|operator|register|template|typename|compile|mutable|private|virtual|delete|friend|public|signed|sizeof|catch|short|throw|union|using|Pass|auto|char|long|pass|this|asm|new|try)\\b",
      "name": "keyword.other.khlsl"
     }
    ]

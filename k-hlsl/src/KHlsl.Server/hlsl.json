@@ -4989,6 +4989,106 @@
    "n": "Pass",
    "d": "",
    "k": "decl"
+  },
+  {
+   "n": "friend",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "throw",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "try",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "catch",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "auto",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "asm",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "const_cast",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "delete",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "dynamic_cast",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "explicit",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "long",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "mutable",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "new",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "reinterpret_cast",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "short",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "signed",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "static_cast",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "union",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "virtual",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "char",
+   "d": "",
+   "k": "decl"
   }
  ],
  "special": [

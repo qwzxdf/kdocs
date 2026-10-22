@@ -351,7 +351,9 @@ KEYWORDS_STORAGE = ("const static extern uniform volatile shared groupshared inl
                     "triangle line point lineadj triangleadj").split()
 KEYWORDS_DECL = ("struct class interface cbuffer tbuffer namespace typedef enum template typename using "
                  "operator this private public protected register packoffset static_assert sizeof "
-                 "compile compile_fragment technique pass Technique Pass").split()
+                 "compile compile_fragment technique pass Technique Pass "
+                 "friend throw try catch auto asm const_cast delete dynamic_cast explicit long mutable new "
+                 "reinterpret_cast short signed static_cast union virtual char").split()  # friend 以降は HLSL の予約語(VS の C++ と色をそろえる)
 KEYWORD_DOCS = {
     "groupshared": "スレッド グループ内で共有するメモリ。GroupMemoryBarrierWithGroupSync で同期する。",
     "nointerpolation": "補間しない(プロビング頂点の値をそのまま渡す)。整数の入出力に必須。",

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Include="..\..\..\src\KHlsl.Vsix\KHlslLexer.cs" />
+    <EmbeddedResource Include="..\..\..\src\KHlsl.Server\hlsl.json" LogicalName="hlsl.json" />
+    <Reference Include="Viasfora.Languages">
+      <HintPath>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\Extensions\jjowibgu.nmm\Viasfora.Languages.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Viasfora.Core">
+      <HintPath>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\Extensions\jjowibgu.nmm\Viasfora.Core.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

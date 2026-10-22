@@ -9,8 +9,9 @@ namespace KHlsl.Vsix
 {
     internal enum Tk
     {
-        Comment, String, Number, Preprocessor, Keyword, Control, Type, Function, Semantic, Attribute, Constant, Macro,
-        Flow, Visibility, Escape, Format,
+        Comment, String, StringDelim, Number, Preprocessor, Keyword, Control, Visibility, Type, Function, MemberFunc,
+        Semantic, Attribute, Enumerator, Macro, Operator, Namespace, Global, Local, Param, Member, Label, Identifier,
+        Escape, Format,
         Rainbow1, Rainbow2, Rainbow3, Rainbow4, Rainbow5, Rainbow6, Rainbow7, Rainbow8, Rainbow9, RainbowError
     }
 
@@ -100,6 +101,8 @@ namespace KHlsl.Vsix
         private static readonly Regex RxDefines = new Regex(@"^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)", RegexOptions.Compiled | RegexOptions.Multiline);
         private static readonly HashSet<string> TypeIntroducers = new HashSet<string> { "struct", "class", "interface", "enum", "namespace", "cbuffer", "tbuffer" };
 
+        internal static bool IsVecMat(string w) { return RxVecMat.IsMatch(w); }
+
         private static bool IsIdStart(char c) { return char.IsLetter(c) || c == '_'; }
         private static bool IsId(char c) { return char.IsLetterOrDigit(c) || c == '_'; }
 
@@ -117,7 +120,7 @@ namespace KHlsl.Vsix
 
             int n = text.Length, i = 0;
             bool lineStart = true;
-            char prevCh = '\0';       // 直前の記号(空白・識別子を除く)ではなく、直前の「意味のある」文字
+            char prevCh = '\0', prev2Ch = '\0';       // 直前の記号(空白・識別子を除く)ではなく、直前の「意味のある」文字
             string prevWord = null;
             int prevEnd = 0;
 
@@ -161,11 +164,30 @@ namespace KHlsl.Vsix
                         {
                             char close = text[p] == '"' ? '"' : '>';
                             int e = p + 1;
-                            while (e < n && text[e] != close && text[e] != '\n') e++;
-                            if (e < n && text[e] == close) e++;
-                            add(p, e - p, Tk.String);
+                            while (e < n && text[e] != close && text[e] != '\n' && text[e] != '\r') e++;
+                            bool closed = e < n && text[e] == close;
+                            if (closed) e++;
+                            if (text[p] == '"') AddString(toks, text, p, e);
+                            else
+                            {
+                                // <file> は、VS の C++ と同じく、< > を区切り文字、中を文字列にする
+                                add(p, 1, Tk.StringDelim);
+                                int inner = (closed ? e - 1 : e) - (p + 1);
+                                if (inner > 0) add(p + 1, inner, Tk.String);
+                                if (closed) add(e - 1, 1, Tk.StringDelim);
+                            }
                             i = e;
                         }
+                    }
+                    else if (word == "pragma")
+                    {
+                        // #pragma once の once なども、プリプロセッサのキーワードの色にする
+                        int p = i;
+                        while (p < n && (text[p] == ' ' || text[p] == '\t')) p++;
+                        int e = p;
+                        while (e < n && IsId(text[e])) e++;
+                        if (e > p) add(p, e - p, Tk.Preprocessor);
+                        i = e;
                     }
                     else if (word == "define" || word == "undef")
                     {
@@ -177,7 +199,7 @@ namespace KHlsl.Vsix
                         i = e;
                     }
                     lineStart = false;
-                    prevCh = '\0'; prevWord = null;
+                    prev2Ch = prevCh; prevCh = '\0'; prevWord = null;
                     continue;
                 }
                 lineStart = false;
@@ -185,14 +207,15 @@ namespace KHlsl.Vsix
                 if (c == '"' || c == '\'')
                 {
                     int e = i + 1;
-                    while (e < n && text[e] != c && text[e] != '\n')
+                    while (e < n && text[e] != c && text[e] != '\n' && text[e] != '\r')
                     {
-                        if (text[e] == '\\' && e + 1 < n) e++;
+                        // 行末の \ は、次の行へ続かない(Viasfora は 1 行ずつ処理する)
+                        if (text[e] == '\\' && e + 1 < n && text[e + 1] != '\n' && text[e + 1] != '\r') e++;
                         e++;
                     }
                     if (e < n && text[e] == c) e++;
                     AddString(toks, text, i, e);
-                    i = e; prevCh = c; prevWord = null; continue;
+                    i = e; prev2Ch = prevCh; prevCh = c; prevWord = null; continue;
                 }
 
                 if (char.IsDigit(c) || (c == '.' && i + 1 < n && char.IsDigit(text[i + 1])))
@@ -216,7 +239,7 @@ namespace KHlsl.Vsix
                     }
                     while (e < n && (text[e] == 'f' || text[e] == 'F' || text[e] == 'h' || text[e] == 'H' || text[e] == 'u' || text[e] == 'U' || text[e] == 'l' || text[e] == 'L')) e++;
                     add(i, e - i, Tk.Number);
-                    i = e; prevCh = '0'; prevWord = null; continue;
+                    i = e; prev2Ch = prevCh; prevCh = '0'; prevWord = null; continue;
                 }
 
                 if (IsIdStart(c))
@@ -236,16 +259,40 @@ namespace KHlsl.Vsix
                     char nextCh = p < n ? text[p] : '\0';
                     bool call = nextCh == '(' || (nextCh == '<' && lx.Intrinsics.Contains(w));
 
-                    Tk? kind = Classify(q, w, prevCh, prevWord, nextCh, call, lx, userTypes, userMacros);
-                    if (kind.HasValue) add(i, e - i, kind.Value);
-                    prevCh = 'a'; prevWord = q; prevEnd = e;
+                    int tokStart = i;
+                    string classifyAs = q;
+                    if (q.Contains("::") && !q.StartsWith("dx::", StringComparison.Ordinal) && !q.StartsWith("vk::", StringComparison.Ordinal))
+                    {
+                        // ns::name は、ns を名前空間、:: を演算子、最後の名前を普通に分類する(VS の C++ と同じ)
+                        int segStart = i;
+                        int idx;
+                        string rest = q;
+                        while ((idx = rest.IndexOf("::", StringComparison.Ordinal)) >= 0)
+                        {
+                            add(segStart, idx, Tk.Namespace);
+                            add(segStart + idx, 1, Tk.Operator);
+                            add(segStart + idx + 1, 1, Tk.Operator);
+                            segStart += idx + 2;
+                            rest = rest.Substring(idx + 2);
+                        }
+                        tokStart = segStart;
+                        classifyAs = w;
+                    }
+
+                    Tk? kind = Classify(classifyAs, w, q == classifyAs ? prevCh : 'a', prev2Ch, prevWord, nextCh, call, lx, userTypes, userMacros);
+                    // どれにも当たらない識別子は、VS の C++ と同じく identifier にする(あとの意味解析で付け替える)
+                    add(tokStart, e - tokStart, kind ?? Tk.Identifier);
+                    prev2Ch = prevCh; prevCh = 'a'; prevWord = q; prevEnd = e;
                     i = e; continue;
                 }
 
-                prevCh = c; prevWord = null;
+                // 演算子・区切り(VS の C++ では、. :: -> ? : ; , もすべて operator)。括弧は、レインボー括弧が担当する
+                if ("+-*/%&|^~!<>=?:;,.@".IndexOf(c) >= 0) add(i, 1, Tk.Operator);
+                prev2Ch = prevCh; prevCh = c; prevWord = null;
                 i++;
             }
             AddRainbowBraces(toks, text);
+            KHlslSemantic.Run(text, toks, lx, userTypes);
             return toks;
         }
 
@@ -254,28 +301,40 @@ namespace KHlsl.Vsix
 
         /// <summary>
         /// レインボー括弧。Viasfora の既定(Unified)と同じく、( ) [ ] { } を 1 つのスタックで数える。
-        /// 最も外側が 1 色目。コメントと文字列の中は数えない。閉じ括弧が対応しないときは RainbowError。
+        /// 括弧の拾い方は Viasfora の CBraceScanner と同じ(コメント・文字列・文字リテラルの中は数えない)。
+        /// 閉じ括弧が、直前の開き括弧と対応しないとき、またはスタックが空のときは RainbowError にして、スタックは変えない。
         /// </summary>
         private static void AddRainbowBraces(List<Tok> toks, string text)
         {
             var added = new List<Tok>();
             var stack = new Stack<char>();
-            int ti = 0;
             int n = text.Length;
-            for (int i = 0; i < n; i++)
+            int i = 0;
+            bool inComment = false;
+            Func<int, char> at = k => k < n ? text[k] : '\0';
+            while (i < n)
             {
-                // この位置が、コメント・文字列などのトークンの中なら飛ばす
-                while (ti < toks.Count && toks[ti].Start + toks[ti].Length <= i) ti++;
-                if (ti < toks.Count && toks[ti].Start <= i)
+                if (inComment)
                 {
-                    var k = toks[ti].Kind;
-                    if (k == Tk.Comment || k == Tk.String || k == Tk.Escape || k == Tk.Format)
-                    {
-                        i = toks[ti].Start + toks[ti].Length - 1;
-                        continue;
-                    }
+                    int e = text.IndexOf("*/", i, StringComparison.Ordinal);
+                    if (e < 0) break;
+                    i = e + 2;
+                    inComment = false;
+                    continue;
                 }
                 char c = text[i];
+                if (c == '/' && at(i + 1) == '*') { inComment = true; i += 2; continue; }
+                if (c == '/' && at(i + 1) == '/')
+                {
+                    int e = text.IndexOf('\n', i);
+                    i = e < 0 ? n : e;
+                    continue;
+                }
+                if (c == '"') { i = SkipLiteral(text, i + 1, '"'); continue; }
+                if (c == 'u' && at(i + 1) == '8' && at(i + 2) == '\'') { i = SkipLiteral(text, i + 3, '\''); continue; }
+                if (c == 'u' && at(i + 1) == '8' && at(i + 2) == '"') { i = SkipLiteral(text, i + 3, '"'); continue; }
+                if (Uri.IsHexDigit(c) && at(i + 1) == '\'') { i += 2; continue; }
+                if (c == '\'') { i = SkipLiteral(text, i + 1, '\''); continue; }
                 if (c == '(' || c == '[' || c == '{')
                 {
                     int depth = stack.Count;
@@ -288,18 +347,37 @@ namespace KHlsl.Vsix
                     if (stack.Count > 0 && stack.Peek() == open)
                     {
                         stack.Pop();
-                        int depth = stack.Count;
-                        added.Add(new Tok { Start = i, Length = 1, Kind = (Tk)((int)Tk.Rainbow1 + depth % RainbowDepth) });
+                        added.Add(new Tok { Start = i, Length = 1, Kind = (Tk)((int)Tk.Rainbow1 + stack.Count % RainbowDepth) });
                     }
                     else
                     {
                         added.Add(new Tok { Start = i, Length = 1, Kind = Tk.RainbowError });
                     }
                 }
+                i++;
             }
             if (added.Count == 0) return;
             toks.AddRange(added);
-            toks.Sort((a, b) => a.Start.CompareTo(b.Start));
+            toks.Sort((x, y) => x.Start.CompareTo(y.Start));
+        }
+
+        /// <summary>文字列・文字リテラルの終わりまで読み飛ばす。Viasfora と同じく、行末で終わる。</summary>
+        private static int SkipLiteral(string text, int start, char quote)
+        {
+            int n = text.Length;
+            int j = start;
+            while (j < n && text[j] != '\n' && text[j] != '\r')
+            {
+                if (text[j] == '\\')
+                {
+                    if (j + 1 >= n || text[j + 1] == '\n' || text[j + 1] == '\r') return j + 1;
+                    j += 2;
+                    continue;
+                }
+                if (text[j] == quote) return j + 1;
+                j++;
+            }
+            return j;
         }
 
 
@@ -312,8 +390,14 @@ namespace KHlsl.Vsix
         {
             int plain = start;
             int i = start + 1;
-            int stop = end > start + 1 && text[end - 1] == text[start] ? end - 1 : end;
+            // CStringScanner は、先頭の 1 文字(引用符)を飛ばし、最後の 1 文字を範囲から外す
+            int stop = end > start + 1 ? end - 1 : end;
             Action<int, int, Tk> add = (s2, len, k) => { if (len > 0) toks.Add(new Tok { Start = s2, Length = len, Kind = k }); };
+            // VS の C++ と同じく、引用符は区切り文字、中身は文字列の色にする
+            add(start, 1, Tk.StringDelim);
+            plain = start + 1;
+            bool closedLiteral = end > start + 1 && text[end - 1] == text[start];
+            int contentEnd = closedLiteral ? end - 1 : end;
             while (i < stop)
             {
                 char ch = text[i];
@@ -322,7 +406,8 @@ namespace KHlsl.Vsix
                     add(plain, i - plain, Tk.String);
                     int p = i + 1;
                     char kind = p < stop ? text[p] : '\0';
-                    if (p < stop) p++;
+                    // Viasfora は、次の 1 文字が範囲(最後の 1 文字を除く)の外でも、エスケープの長さに含める
+                    p++;
                     if (kind == 'x' || kind == 'X' || kind == 'u' || kind == 'U')
                     {
                         int max = kind == 'u' ? 4 : kind == 'U' ? 8 : int.MaxValue;
@@ -345,21 +430,27 @@ namespace KHlsl.Vsix
                         plain = i = p;
                         continue;
                     }
+                    // 書式指定子にならなかったとき、Viasfora は % の次の 1 文字も読み飛ばす
+                    i = Math.Min(stop, p + 1);
+                    continue;
                 }
                 i++;
             }
-            add(plain, end - plain, Tk.String);
+            add(plain, contentEnd - plain, Tk.String);
+            if (closedLiteral) add(end - 1, 1, Tk.StringDelim);
         }
 
-        // Viasfora の C++ の既定の語彙
-        private static readonly HashSet<string> FlowWords = new HashSet<string>
+        // VS の C++ で cppControlKeyword になる語
+        private static readonly HashSet<string> ControlWords = new HashSet<string>
         {
-            "if", "else", "while", "do", "for", "each", "switch", "break", "continue", "return", "goto", "throw"
+            "if", "else", "for", "while", "do", "switch", "case", "default", "break", "continue", "return", "goto",
+            "discard", "throw", "try", "catch"
         };
 
+        // Viasfora の C++ の既定の可視性キーワード(keyword の分類のものだけに効く)
         private static readonly HashSet<string> VisibilityWords = new HashSet<string> { "public", "private", "protected", "internal", "friend" };
 
-        private static Tk? Classify(string q, string w, char prevCh, string prevWord, char nextCh, bool call,
+        private static Tk? Classify(string q, string w, char prevCh, char prev2Ch, string prevWord, char nextCh, bool call,
             Lexicon lx, HashSet<string> userTypes, HashSet<string> userMacros)
         {
             if (q == "defined") return Tk.Preprocessor;
@@ -368,7 +459,7 @@ namespace KHlsl.Vsix
                 if (q == "dx::HitObject") return Tk.Type;
                 return Tk.Function;
             }
-            if (prevCh == '[' && (lx.Attributes.Contains(w) || q.StartsWith("vk::", StringComparison.Ordinal)))
+            if (prevCh == '[' && (lx.Attributes.Contains(w) || q.StartsWith("vk::", StringComparison.Ordinal) || prev2Ch == '['))
                 return Tk.Attribute;
             if (prevCh == ':')
             {
@@ -378,17 +469,22 @@ namespace KHlsl.Vsix
                 if (lx.Semantics.Contains(sem) || lx.Semantics.Contains(w) || w.StartsWith("SV_", StringComparison.OrdinalIgnoreCase))
                     return Tk.Semantic;
             }
+            // VS の C++ は、制御キーワード(goto throw try catch も含む)を、keyword とは別の分類にする
+            if (ControlWords.Contains(w)) return Tk.Control;
             bool isKeyword = lx.Control.Contains(w) || lx.Keywords.Contains(w);
-            if (isKeyword && FlowWords.Contains(w)) return Tk.Flow;
+            // Viasfora の可視性キーワードは、keyword の分類のものだけが対象
             if (isKeyword && VisibilityWords.Contains(w)) return Tk.Visibility;
             if (isKeyword) return Tk.Keyword;
             if (lx.ScalarTypes.Contains(w) || RxVecMat.IsMatch(w)) return Tk.Keyword;
+            if (prevWord == "namespace") return Tk.Namespace;
+            if (prevWord == "goto") return Tk.Label;
             if (prevWord != null && TypeIntroducers.Contains(prevWord)) return Tk.Type;
-            if (lx.ResourceTypes.Contains(w) || lx.Special.Contains(w)) return Tk.Type;
+            if (lx.ResourceTypes.Contains(w)) return Tk.Type;
+            if (lx.Special.Contains(w)) return Tk.Global;
             if (userTypes.Contains(w)) return Tk.Type;
-            if (lx.Constants.Contains(w)) return Tk.Constant;
+            if (lx.Constants.Contains(w)) return Tk.Enumerator;
             if (lx.Macros.Contains(w) || userMacros.Contains(w)) return Tk.Macro;
-            if (call && prevCh == '.' && lx.Methods.Contains(w)) return Tk.Function;
+            if (call && prevCh == '.') return Tk.MemberFunc;
             if (call) return Tk.Function;
             return null;
         }

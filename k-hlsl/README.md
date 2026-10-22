@@ -13,6 +13,7 @@ Visual Studio 2022 / 2026 用の HLSL 拡張です。Shader Model 6.9 までの�
     - 可視性キーワード（`public` `private` `protected`）は DimGray
     - 文字列のエスケープ（`\n` `\x41` `A` など）は Magenta、書式指定子（`%d` `%5` など）は MediumSlateBlue
     - Tab や空白で字下げした `#if` `#  endif` なども、ディレクティブとして色が付く
+    - 括弧・エスケープ・書式指定子の検出と、色・書式の定義は、Viasfora 自身の DLL と突き合わせて一致を確認している（[tests/compare](tests/compare/README.md)）
 - 補完。組み込み関数、リソースのメソッド（`tex.Sample` など）、構造体のメンバー、スウィズル、セマンティクス（`:` の後）、属性（`[` の後）、`#` ディレクティブ、`#include` のファイル名、`dx::`
 - ホバー（日本語の説明、シグネチャ、必要な Shader Model）
 - シグネチャ ヘルプ（組み込み関数、メソッド、自分で書いた関数）

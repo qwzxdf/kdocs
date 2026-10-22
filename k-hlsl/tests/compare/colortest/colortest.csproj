@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+    <NoWarn>$(NoWarn);NU1701;MSB3277;VSTHRD010</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.9.37000" />
+    <Reference Include="Viasfora.Core">
+      <HintPath>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\Extensions\jjowibgu.nmm\Viasfora.Core.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Viasfora.Rainbow">
+      <HintPath>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\Extensions\jjowibgu.nmm\Viasfora.Rainbow.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="KHlsl.Vsix">
+      <HintPath>..\..\..\src\KHlsl.Vsix\bin\Release\net472\KHlsl.Vsix.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

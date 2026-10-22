@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <Compile Include="..\..\..\src\KHlsl.Vsix\KHlslLexer.cs" />
+    <Compile Include="..\..\..\src\KHlsl.Vsix\KHlslSemantic.cs" />
+    <EmbeddedResource Include="..\..\..\src\KHlsl.Server\hlsl.json" LogicalName="hlsl.json" />
+  </ItemGroup>
+</Project>
