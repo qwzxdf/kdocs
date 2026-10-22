@@ -1,0 +1,147 @@
+"""STL の新しいページ（1 名前 = 1 ページ）を、短い定義から作る部品。
+
+P(...) で 1 ページ。hub= に「まとめページ」の相対パス（docs/stl から）を渡すと、
+「このページを読む前に」のリンクと、まとめページの表への追記を自動で行う。
+本文中の `(@/basics/x.md)` は、docs からのパスとして相対パスに直す。
+"""
+import os
+import re
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from split import STL, fn, page, tail, write  # noqa: E402
+
+RJ = "https://cpprefjp.github.io/reference/"
+CR = "https://en.cppreference.com/w/cpp/"
+RANK = {"must": "必須", "often": "よく使う", "sometimes": "たまに", "rare": "知ってるだけ"}
+BAR = chr(124)
+BS = chr(92)
+GROUPS = {
+    "support/functional/": "関数オブジェクトと呼び出し（<functional>）",
+    "memory/new_delete/": "new / delete まわり",
+    "support/exceptions/": "標準の例外",
+    "support/iterator/": "イテレータの道具（<iterator>）",
+    "support/type_traits/": "型の性質（<type_traits>）",
+    "support/concepts/": "コンセプト（<concepts>）",
+    "utilities/chrono/": "時間（std::chrono）",
+    "numeric/cmath/": "数学関数（<cmath>）",
+}
+HUB_ROWS = {}  # hub 相対パス -> [(rel, 表示名, rank, 説明, ver)]
+
+
+def _rel_link(from_rel, to_rel):
+    return os.path.relpath(STL / to_rel, (STL / from_rel).parent).replace(BS, "/")
+
+
+def esc(text):
+    """表のセルに入れる文字列の、縦棒をエスケープする。"""
+    return text.replace(BAR, BS + BAR)
+
+
+def P(rel, name, summary, rank, include, intro, tips, game, miss, sim, memo, *,
+      secs=None, sig=None, args=None, ret="", cx="", code=None, out=None, notes="",
+      ver=None, hub=None, hubname=None, group="", rj=None, cr=None, compiler=None,
+      order=900, perf=None, info=None, title=None, ids=None, heading=None, extra="", hubrow=True):
+    """secs: [fn(...) の文字列] を渡すと、sig/args/ret/cx の代わりに使う。
+    ver: ('20','C++20')。miss: (見出し, 本文) か None。sim: [(名前, 違い)]。game: [(場面, 書き方)]。"""
+    title = title or name
+    if not group:
+        group = next((g for k, g in GROUPS.items() if rel.startswith(k)), "")
+    stem = Path(rel).stem
+    if secs is None:
+        secs = [fn(heading or name, sig, args, ret, cx, None, notes=notes, ids=ids or stem)]
+    body = "## 関数の詳しい説明\n\n" + "\n".join(secs)
+    if code:
+        body += "\n\n## 実際に動かしてみる\n\n```cpp\n" + code.strip("\n") + "\n```\n"
+        if out:
+            body += '\n```text title="実行結果"\n' + out.strip("\n") + "\n```\n"
+    if extra:
+        body += "\n" + extra.strip("\n") + "\n"
+    if compiler is None:
+        compiler = f"{ver[1]} から使えます。" if ver else "C++11 以前から使えます。"
+    links = []
+    if rj:
+        links.append((f"cpprefjp: {title}", RJ + rj))
+    if cr:
+        links.append((f"cppreference: {title}", CR + cr))
+    if not links:
+        links.append((f"cppreference: {title}", "https://en.cppreference.com/w/cpp"))
+    tl = tail(game, [miss] if miss else [], sim, memo, links, compiler=compiler)
+    if info is None and hub:
+        hname = hubname or Path(hub).stem
+        info = f"[{hname}]({_rel_link(rel, hub)}) の概要を先に読むと分かりやすいです。"
+    text = page(rel, title, summary, order, rank, ver, include, intro, tips, body, tl, perf=perf, info=info or "", group=group)
+    docs = STL.parent
+    here = (STL / rel).parent
+    text = re.sub(r"\(@/([^)#]*)", lambda m: "(" + os.path.relpath(docs / m.group(1), here).replace(BS, "/"), text)
+    write(rel, text)
+    if hub and hubrow:
+        HUB_ROWS.setdefault(hub, []).append((rel, title, rank, summary, ver))
+
+
+def flush_hubs():
+    """P() で作ったページを、まとめページの最初の表の最後の行の後ろに足す（すでに載っていれば足さない）。"""
+    for hub, rows in HUB_ROWS.items():
+        p = STL / hub
+        text = p.read_text(encoding="utf-8")
+        lines = text.split("\n")
+        start = next((i for i, l in enumerate(lines) if l.startswith(BAR) and ("重要度" in l or "何をする" in l)), None)
+        if start is None:
+            print("HUB table not found:", hub)
+            continue
+        end = start + 1
+        while end + 1 < len(lines) and lines[end + 1].startswith(BAR):
+            end += 1
+        cols = lines[start].count(BAR) - 1
+        add = []
+        for rel, title, rank, summary, ver in rows:
+            link = _rel_link(hub, rel)
+            if f"]({link})" in text:
+                continue
+            first = f"[`{title}`]({link})"
+            rk = f'<span class="rank rank-{rank}">{RANK[rank]}</span>'
+            vs = f' <span class="ver ver-{ver[0]}">{ver[1]}</span>' if ver else ""
+            summ = esc(summary) + vs
+            if cols == 2:
+                add.append(f"{BAR} {first} {BAR} {summ} {BAR}")
+            else:
+                add.append(f"{BAR} {first} {BAR} {rk} {BAR} {summ} {BAR}" + f" {BAR}" * (cols - 3))
+        lines[end + 1:end + 1] = add
+        p.write_text("\n".join(lines), encoding="utf-8", newline="")
+        print("hub", hub, "+", len(add))
+    HUB_ROWS.clear()
+
+
+def add_secs(rel, secs_text, after=None):
+    """既存ページの「関数の詳しい説明」の最後（## 実際に動かしてみる などの手前）に、節を足す。"""
+    p = STL / rel
+    t = p.read_text(encoding="utf-8")
+    first = re.search(r"\{#([\w-]+)", secs_text)
+    if first and re.search(r"\{#" + re.escape(first.group(1)) + r"[ }]", t):
+        return
+    m = re.search(r"(?m)^## (実際に動かしてみる|ゲームでの使いどころ|パフォーマンス|よくあるミス|類似|コンパイラ対応)", t)
+    pos = m.start() if m else len(t)
+    t = t[:pos].rstrip("\n") + "\n\n" + secs_text.strip("\n") + "\n\n" + t[pos:]
+    p.write_text(t, encoding="utf-8", newline="")
+    print("add_secs", rel)
+
+
+def add_list(hub, heading, items):
+    """まとめページに表のない場合に、「## heading」の節（リンクの表）を、「ゲームでの使いどころ」の手前に足す。
+    items: [(相対パス, 表示名, 一言)]。すでにリンクがあるものは足さない。"""
+    p = STL / hub
+    t = p.read_text(encoding="utf-8")
+    rows = []
+    for rel, name, one in items:
+        link = _rel_link(hub, rel)
+        if f"]({link})" in t:
+            continue
+        rows.append(f"{BAR} [`{name}`]({link}) {BAR} {one} {BAR}")
+    if not rows:
+        return
+    block = f"## {heading}\n\n{BAR} 名前 {BAR} 何をする {BAR}\n{BAR} --- {BAR} --- {BAR}\n" + "\n".join(rows) + "\n\n"
+    m = re.search(r"(?m)^## (ゲームでの使いどころ|よくあるミス)", t)
+    pos = m.start() if m else len(t)
+    p.write_text(t[:pos] + block + t[pos:], encoding="utf-8", newline="")
+    print("add_list", hub, len(rows))

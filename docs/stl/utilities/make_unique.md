@@ -68,6 +68,24 @@ int main() {
 !!! note "実際は"
     `new` を書く場面は、ほぼすべて `make_unique` に置き換えられます。
 
+### std::make_unique_for_overwrite <span class="ver ver-20">C++20</span> {#make_unique_for_overwrite data-toc-label="std::make_unique_for_overwrite"}
+
+```cpp
+template <class T>
+unique_ptr<T> make_unique_for_overwrite();
+template <class T>
+unique_ptr<T> make_unique_for_overwrite(size_t n);  // T[] 用
+```
+
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `n` | size_t | 配列の要素数（`T[]` のとき） |
+
+- 戻り値: `unique_ptr<T>`
+- 計算量: 確保 1 回 + 初期化（なし）
+
+`make_unique<int[]>(n)` は全要素を 0 で値初期化します。`make_unique_for_overwrite` は**初期化せず**確保だけします（`int` なら中身は不定）。あとで全部上書きすると分かっている大きな配列で、0 埋めの時間を省けます。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

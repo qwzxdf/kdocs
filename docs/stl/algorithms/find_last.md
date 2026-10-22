@@ -77,6 +77,23 @@ int main() {
 | `find_last_if` | <span class="rank rank-rare">知ってるだけ</span> | 条件に合う最後の要素 |
 | `find_last_if_not` | <span class="rank rank-rare">知ってるだけ</span> | 条件に合わない最後の要素 |
 
+### std::ranges::find_last_if_not <span class="ver ver-23">C++23</span> {#find_last_if_not data-toc-label="std::ranges::find_last_if_not"}
+
+```cpp
+template <ranges::forward_range R, class Pred>
+constexpr ranges::borrowed_subrange_t<R> ranges::find_last_if_not(R&& r, Pred pred);
+```
+
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `r` | 範囲 | 探す範囲 |
+| `pred` | 述語 | `false` を返す要素を探す |
+
+- 戻り値: 条件に合わない最後の要素から末尾までの `subrange`。見つからなければ空の `subrange`
+- 計算量: 線形
+
+`find_last_if` の逆で、**条件に合わない**最後の要素を探します。「最後に壊れていないものの次」のような探し方に使います。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

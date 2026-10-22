@@ -47,6 +47,24 @@ template <class In, class Out> Out uninitialized_move(In first, In last, Out des
 - 未初期化の領域に、**配置 new でまとめて作る**関数です。`std::copy` は、すでにオブジェクトがある場所への**代入**ですが、こちらは**新しく作ります**。
 - 途中で例外が出たら、そこまで作ったものを自動で破棄してくれます（例外安全）。`vector` の再確保が、これを使っています
 
+### std::uninitialized_copy_n {#uninitialized_copy_n}
+
+```cpp
+template <class InputIt, class Size, class NoThrowForwardIt>
+NoThrowForwardIt uninitialized_copy_n(InputIt first, Size n, NoThrowForwardIt d_first);
+```
+
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `first` | イテレータ | コピー元の先頭 |
+| `n` | 整数 | コピーする個数 |
+| `d_first` | イテレータ | 未初期化のコピー先の先頭 |
+
+- 戻り値: 最後に作った位置の次のイテレータ
+- 計算量: 線形
+
+`uninitialized_copy` の個数指定版です。コピー元を「先頭と個数」で持っているときに使います。
+
 ## 実際に動かしてみる
 
 ```cpp

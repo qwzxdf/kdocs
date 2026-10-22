@@ -34,6 +34,66 @@ tags:
 | [`time_point`](chrono/time_point.md) | <span class="rank rank-often">よく使う</span> | ある時点 |
 | [`system_clock`](chrono/system_clock.md) | <span class="rank rank-sometimes">たまに</span> | 現実の時刻（カレンダー） |
 | [`high_resolution_clock`](chrono/high_resolution_clock.md) | <span class="rank rank-rare">知ってるだけ</span> | 一番細かい時計（中身は上のどちらか） |
+| [`std::chrono::utc_clock`](chrono/utc_clock.md) | <span class="rank rank-rare">知ってるだけ</span> | うるう秒を数に入れた、協定世界時（UTC）の時計。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::tai_clock`](chrono/tai_clock.md) | <span class="rank rank-rare">知ってるだけ</span> | うるう秒を含まず、連続して進む国際原子時（TAI）の時計。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::gps_clock`](chrono/gps_clock.md) | <span class="rank rank-rare">知ってるだけ</span> | GPS の時刻に合わせた時計。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::clock_cast`](chrono/clock_cast.md) | <span class="rank rank-rare">知ってるだけ</span> | 時計どうしの時点を、別の時計の時点に変換する。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::nanoseconds`](chrono/nanoseconds.md) | <span class="rank rank-rare">知ってるだけ</span> | ナノ秒（10 億分の 1 秒）を数える duration の別名。 |
+| [`std::chrono::microseconds`](chrono/microseconds.md) | <span class="rank rank-rare">知ってるだけ</span> | マイクロ秒（100 万分の 1 秒）を数える duration の別名。 |
+| [`std::chrono::milliseconds`](chrono/milliseconds.md) | <span class="rank rank-sometimes">たまに</span> | ミリ秒（1000 分の 1 秒）を数える duration の別名。 |
+| [`std::chrono::seconds`](chrono/seconds.md) | <span class="rank rank-sometimes">たまに</span> | 秒を数える duration の別名。 |
+| [`std::chrono::minutes`](chrono/minutes.md) | <span class="rank rank-rare">知ってるだけ</span> | 分を数える duration の別名。 |
+| [`std::chrono::hours`](chrono/hours.md) | <span class="rank rank-rare">知ってるだけ</span> | 時間を数える duration の別名。 |
+| [`std::chrono::days`](chrono/days.md) | <span class="rank rank-rare">知ってるだけ</span> | 日を数える duration の別名。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::weeks`](chrono/weeks.md) | <span class="rank rank-rare">知ってるだけ</span> | 週を数える duration の別名。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::months`](chrono/months.md) | <span class="rank rank-rare">知ってるだけ</span> | 月（平均の長さ）を数える duration の別名。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::years`](chrono/years.md) | <span class="rank rank-rare">知ってるだけ</span> | 年（平均の長さ）を数える duration の別名。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::time_point_cast`](chrono/time_point_cast.md) | <span class="rank rank-rare">知ってるだけ</span> | time_point の単位を、別の単位に変換する（切り捨て）。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::treat_as_floating_point`](chrono/treat_as_floating_point.md) | <span class="rank rank-rare">知ってるだけ</span> | duration の中身（rep）を、小数として扱うかの特性。 <span class="ver ver-11">C++11</span> |
+| [`std::chrono::duration_values`](chrono/duration_values.md) | <span class="rank rank-rare">知ってるだけ</span> | duration の rep について、0・最小・最大を返す。 <span class="ver ver-11">C++11</span> |
+| [`std::chrono::day`](chrono/day.md) | <span class="rank rank-rare">知ってるだけ</span> | 月の中の日（1〜31）を表す型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::month`](chrono/month.md) | <span class="rank rank-rare">知ってるだけ</span> | 月（1〜12）を表す型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::year`](chrono/year.md) | <span class="rank rank-rare">知ってるだけ</span> | 年を表す型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::weekday`](chrono/weekday.md) | <span class="rank rank-rare">知ってるだけ</span> | 曜日を表す型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::weekday_indexed`](chrono/weekday_indexed.md) | <span class="rank rank-rare">知ってるだけ</span> | 「第 n の曜日」を表す型（第 2 月曜日など）。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::weekday_last`](chrono/weekday_last.md) | <span class="rank rank-rare">知ってるだけ</span> | 「最後の曜日」を表す型（最終金曜日など）。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::month_day`](chrono/month_day.md) | <span class="rank rank-rare">知ってるだけ</span> | 月と日の組（誕生日のような、年を問わない日付）。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::month_day_last`](chrono/month_day_last.md) | <span class="rank rank-rare">知ってるだけ</span> | 「その月の最終日」を表す型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::month_weekday`](chrono/month_weekday.md) | <span class="rank rank-rare">知ってるだけ</span> | 「その月の第 n 曜日」を表す型（年を問わない）。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::month_weekday_last`](chrono/month_weekday_last.md) | <span class="rank rank-rare">知ってるだけ</span> | 「その月の最後の曜日」を表す型（年を問わない）。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::year_month`](chrono/year_month.md) | <span class="rank rank-rare">知ってるだけ</span> | 年と月の組。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::year_month_day_last`](chrono/year_month_day_last.md) | <span class="rank rank-rare">知ってるだけ</span> | 「その年のその月の最終日」を表す型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::year_month_weekday`](chrono/year_month_weekday.md) | <span class="rank rank-rare">知ってるだけ</span> | 「その年のその月の第 n 曜日」を表す型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::year_month_weekday_last`](chrono/year_month_weekday_last.md) | <span class="rank rank-rare">知ってるだけ</span> | 「その年のその月の最後の曜日」を表す型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::last_spec`](chrono/last_spec.md) | <span class="rank rank-rare">知ってるだけ</span> | 「最後」を表す定数 `std::chrono::last` の型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::is_am`](chrono/is_am.md) | <span class="rank rank-rare">知ってるだけ</span> | 24 時間制の時刻が午前かを調べる。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::is_pm`](chrono/is_pm.md) | <span class="rank rank-rare">知ってるだけ</span> | 24 時間制の時刻が午後かを調べる。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::make12`](chrono/make12.md) | <span class="rank rank-rare">知ってるだけ</span> | 24 時間制の時を、12 時間制の時（1〜12）に直す。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::make24`](chrono/make24.md) | <span class="rank rank-rare">知ってるだけ</span> | 12 時間制の時を、24 時間制の時（0〜23）に直す。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::sys_time`](chrono/sys_time.md) | <span class="rank rank-rare">知ってるだけ</span> | system_clock の時点を表す別名（単位を選べる）。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::sys_seconds`](chrono/sys_seconds.md) | <span class="rank rank-rare">知ってるだけ</span> | system_clock の時点を、秒の単位で表す別名。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::sys_days`](chrono/sys_days.md) | <span class="rank rank-rare">知ってるだけ</span> | system_clock の時点を、日の単位で表す別名（カレンダーの日付）。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::local_time`](chrono/local_time.md) | <span class="rank rank-rare">知ってるだけ</span> | タイムゾーンのない、地域の時刻を表す別名。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::local_seconds`](chrono/local_seconds.md) | <span class="rank rank-rare">知ってるだけ</span> | ローカル時刻を、秒の単位で表す別名。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::local_days`](chrono/local_days.md) | <span class="rank rank-rare">知ってるだけ</span> | ローカル時刻を、日の単位で表す別名（地域のカレンダーの日付）。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::utc_time`](chrono/utc_time.md) | <span class="rank rank-rare">知ってるだけ</span> | utc_clock の時点を表す別名（単位を選べる）。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::file_time`](chrono/file_time.md) | <span class="rank rank-rare">知ってるだけ</span> | file_clock の時点を表す別名（単位を選べる）。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::time_zone`](chrono/time_zone.md) | <span class="rank rank-rare">知ってるだけ</span> | 1 つのタイムゾーン（例: Asia/Tokyo）を表す型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::locate_zone`](chrono/locate_zone.md) | <span class="rank rank-rare">知ってるだけ</span> | 名前から time_zone を取得する。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::current_zone`](chrono/current_zone.md) | <span class="rank rank-rare">知ってるだけ</span> | 今の環境のタイムゾーンを取得する。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::tzdb`](chrono/tzdb.md) | <span class="rank rank-rare">知ってるだけ</span> | タイムゾーンのデータベース（IANA）を表す型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::tzdb_list`](chrono/tzdb_list.md) | <span class="rank rank-rare">知ってるだけ</span> | tzdb の更新履歴（世代ごとの一覧）を管理する型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::get_tzdb`](chrono/get_tzdb.md) | <span class="rank rank-rare">知ってるだけ</span> | 現在のタイムゾーンデータベースを取得する。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::time_zone_link`](chrono/time_zone_link.md) | <span class="rank rank-rare">知ってるだけ</span> | 別名のタイムゾーン（古い名前から新しい名前への対応）を表す型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::sys_info`](chrono/sys_info.md) | <span class="rank rank-rare">知ってるだけ</span> | ある UTC の時点での、時差・夏時間・略称の情報。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::local_info`](chrono/local_info.md) | <span class="rank rank-rare">知ってるだけ</span> | あるローカル時刻の時差情報（曖昧・存在しない場合も表す）。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::nonexistent_local_time`](chrono/nonexistent_local_time.md) | <span class="rank rank-rare">知ってるだけ</span> | 夏時間の切り替えで存在しないローカル時刻を変換したときの例外。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::ambiguous_local_time`](chrono/ambiguous_local_time.md) | <span class="rank rank-rare">知ってるだけ</span> | 夏時間の終わりで 2 回ある（曖昧な）ローカル時刻を変換したときの例外。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::leap_second`](chrono/leap_second.md) | <span class="rank rank-rare">知ってるだけ</span> | うるう秒の挿入日と値を表す型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::get_leap_second_info`](chrono/get_leap_second_info.md) | <span class="rank rank-rare">知ってるだけ</span> | ある UTC の時点が、うるう秒の中か、それまでに何秒入ったかを調べる。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::parse`](chrono/parse.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列を書式に従って読み込み、chrono の型にするための入力マニピュレータ。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::from_stream`](chrono/from_stream.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリームから書式に従って chrono の型を読み込む。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::to_stream`](chrono/to_stream.md) | <span class="rank rank-rare">知ってるだけ</span> | 書式に従って chrono の型をストリームに書き出す。 <span class="ver ver-20">C++20</span> |
 
 ## 関数一覧
 

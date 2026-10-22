@@ -62,6 +62,18 @@ int main() {
 5
 ```
 
+## 複素数の関数
+
+| 名前 | 何をする |
+| --- | --- |
+| [`std::arg`](complex/arg.md) | 複素数の偏角（実軸からの角度）をラジアンで返す。 |
+| [`std::conj`](complex/conj.md) | 共役複素数（虚部の符号を反転したもの）を返す。 |
+| [`std::imag`](complex/imag.md) | 複素数の虚部を取り出す。 |
+| [`std::norm`](complex/norm.md) | 複素数の大きさの 2 乗を返す。 |
+| [`std::polar`](complex/polar.md) | 大きさと角度から複素数を作る。 |
+| [`std::proj`](complex/proj.md) | 複素数をリーマン球面への射影に直す（無限大の扱いをそろえる）。 |
+| [`std::real`](complex/real.md) | 複素数の実部を取り出す。 |
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

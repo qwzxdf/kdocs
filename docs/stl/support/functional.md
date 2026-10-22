@@ -42,6 +42,31 @@ tags:
 | [`std::not_fn`](functional/not_fn.md) | <span class="rank rank-rare">知ってるだけ</span> | 条件の結果を反転した関数を作る <span class="ver ver-17">C++17</span> |
 | [`std::bind`](functional/bind.md) | <span class="rank rank-rare">知ってるだけ</span> | 古い引数の固定（使わない） |
 | [`std::mem_fn`](functional/mem_fn.md) | <span class="rank rank-rare">知ってるだけ</span> | メンバ関数を普通の関数のように呼べるようにする |
+| [`std::minus`](functional/minus.md) | <span class="rank rank-rare">知ってるだけ</span> | `a - b` を表す関数オブジェクト。 |
+| [`std::divides`](functional/divides.md) | <span class="rank rank-rare">知ってるだけ</span> | `a / b` を表す関数オブジェクト。 |
+| [`std::modulus`](functional/modulus.md) | <span class="rank rank-rare">知ってるだけ</span> | `a % b`（余り）を表す関数オブジェクト。 |
+| [`std::negate`](functional/negate.md) | <span class="rank rank-rare">知ってるだけ</span> | `-a`（符号の反転）を表す関数オブジェクト。 |
+| [`std::not_equal_to`](functional/not_equal_to.md) | <span class="rank rank-rare">知ってるだけ</span> | `a != b` を表す関数オブジェクト。 |
+| [`std::greater_equal`](functional/greater_equal.md) | <span class="rank rank-rare">知ってるだけ</span> | `a >= b` を表す関数オブジェクト。 |
+| [`std::less_equal`](functional/less_equal.md) | <span class="rank rank-rare">知ってるだけ</span> | `a <= b` を表す関数オブジェクト。 |
+| [`std::logical_and`](functional/logical_and.md) | <span class="rank rank-rare">知ってるだけ</span> | `a && b` を表す関数オブジェクト。 |
+| [`std::logical_or`](functional/logical_or.md) | <span class="rank rank-rare">知ってるだけ</span> | `a || b` を表す関数オブジェクト。 |
+| [`std::logical_not`](functional/logical_not.md) | <span class="rank rank-rare">知ってるだけ</span> | `!a` を表す関数オブジェクト。 |
+| [`std::bit_and`](functional/bit_and.md) | <span class="rank rank-rare">知ってるだけ</span> | `a & b`（ビットごとの AND）を表す関数オブジェクト。 |
+| [`std::bit_or`](functional/bit_or.md) | <span class="rank rank-rare">知ってるだけ</span> | `a \| b`（ビットごとの OR）を表す関数オブジェクト。 |
+| [`std::bit_xor`](functional/bit_xor.md) | <span class="rank rank-rare">知ってるだけ</span> | `a ^ b`（ビットごとの XOR）を表す関数オブジェクト。 |
+| [`std::bit_not`](functional/bit_not.md) | <span class="rank rank-rare">知ってるだけ</span> | `~a`（ビット反転）を表す関数オブジェクト。 |
+| [`std::invoke_r`](functional/invoke_r.md) | <span class="rank rank-rare">知ってるだけ</span> | 呼び出しの結果を、指定した戻り値の型に変換して返す。 <span class="ver ver-23">C++23</span> |
+| [`std::unwrap_reference`](functional/unwrap_reference.md) | <span class="rank rank-rare">知ってるだけ</span> | reference_wrapper を、ふつうの参照の型に戻す型変換。 <span class="ver ver-20">C++20</span> |
+| [`std::unwrap_ref_decay`](functional/unwrap_ref_decay.md) | <span class="rank rank-rare">知ってるだけ</span> | decay してから、reference_wrapper を参照に戻す型変換。 <span class="ver ver-20">C++20</span> |
+| [`std::placeholders`](functional/placeholders.md) | <span class="rank rank-rare">知ってるだけ</span> | bind の引数の位置を表す _1, _2, … の名前空間。 |
+| [`std::is_bind_expression`](functional/is_bind_expression.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が bind の式かどうかを調べる型特性。 <span class="ver ver-17">C++17</span> |
+| [`std::is_placeholder`](functional/is_placeholder.md) | <span class="rank rank-rare">知ってるだけ</span> | 型がプレースホルダー（_1 など）か、何番かを調べる型特性。 <span class="ver ver-17">C++17</span> |
+| [`std::copyable_function`](functional/copyable_function.md) | <span class="rank rank-rare">知ってるだけ</span> | コピーできる、const や noexcept も指定できる関数のラッパー。 <span class="ver ver-26">C++26</span> |
+| [`std::function_ref`](functional/function_ref.md) | <span class="rank rank-rare">知ってるだけ</span> | 呼び出せるものを借りて参照するだけの、軽い関数ラッパー。 <span class="ver ver-26">C++26</span> |
+| [`std::default_searcher`](functional/default_searcher.md) | <span class="rank rank-rare">知ってるだけ</span> | `std::search` に渡せる、素朴な部分列検索のオブジェクト。 <span class="ver ver-17">C++17</span> |
+| [`std::boyer_moore_searcher`](functional/boyer_moore_searcher.md) | <span class="rank rank-rare">知ってるだけ</span> | 長い列の中から部分列を速く探す検索のオブジェクト（ボイヤー・ムーア法）。 <span class="ver ver-17">C++17</span> |
+| [`std::boyer_moore_horspool_searcher`](functional/boyer_moore_horspool_searcher.md) | <span class="rank rank-rare">知ってるだけ</span> | ボイヤー・ムーア・ホースプール法で部分列を探す検索のオブジェクト。 <span class="ver ver-17">C++17</span> |
 
 ## よくある使い方
 

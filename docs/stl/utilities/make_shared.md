@@ -41,6 +41,24 @@ _ # p は空
 +A:1 # 作って、参照数は 1
 </div>
 
+### std::make_shared_for_overwrite <span class="ver ver-20">C++20</span> {#make_shared_for_overwrite data-toc-label="std::make_shared_for_overwrite"}
+
+```cpp
+template <class T>
+shared_ptr<T> make_shared_for_overwrite();
+template <class T>
+shared_ptr<T> make_shared_for_overwrite(size_t n);  // T[] 用
+```
+
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `n` | size_t | 配列の要素数（`T[]` のとき） |
+
+- 戻り値: `shared_ptr<T>`
+- 計算量: 確保 1 回 + 初期化（なし）
+
+`make_shared<int[]>(n)` は全要素を 0 で値初期化します。`make_shared_for_overwrite` は**初期化せず**確保だけします。あとで全部上書きする大きな配列で、0 埋めを省くために使います。
+
 ## 実際に動かしてみる
 
 ```cpp
