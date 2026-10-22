@@ -9,7 +9,9 @@ namespace KHlsl.Vsix
 {
     internal enum Tk
     {
-        Comment, String, Number, Preprocessor, Keyword, Control, Type, Function, Semantic, Attribute, Constant, Macro
+        Comment, String, Number, Preprocessor, Keyword, Control, Type, Function, Semantic, Attribute, Constant, Macro,
+        Flow, Visibility, Escape, Format,
+        Rainbow1, Rainbow2, Rainbow3, Rainbow4, Rainbow5, Rainbow6, Rainbow7, Rainbow8, Rainbow9, RainbowError
     }
 
     internal struct Tok
@@ -189,7 +191,7 @@ namespace KHlsl.Vsix
                         e++;
                     }
                     if (e < n && text[e] == c) e++;
-                    add(i, e - i, Tk.String);
+                    AddString(toks, text, i, e);
                     i = e; prevCh = c; prevWord = null; continue;
                 }
 
@@ -243,12 +245,124 @@ namespace KHlsl.Vsix
                 prevCh = c; prevWord = null;
                 i++;
             }
+            AddRainbowBraces(toks, text);
             return toks;
         }
+
+        /// <summary>Viasfora の既定の深さ(RainbowDepth)。この数の色を循環させる。</summary>
+        public const int RainbowDepth = 4;
+
+        /// <summary>
+        /// レインボー括弧。Viasfora の既定(Unified)と同じく、( ) [ ] { } を 1 つのスタックで数える。
+        /// 最も外側が 1 色目。コメントと文字列の中は数えない。閉じ括弧が対応しないときは RainbowError。
+        /// </summary>
+        private static void AddRainbowBraces(List<Tok> toks, string text)
+        {
+            var added = new List<Tok>();
+            var stack = new Stack<char>();
+            int ti = 0;
+            int n = text.Length;
+            for (int i = 0; i < n; i++)
+            {
+                // この位置が、コメント・文字列などのトークンの中なら飛ばす
+                while (ti < toks.Count && toks[ti].Start + toks[ti].Length <= i) ti++;
+                if (ti < toks.Count && toks[ti].Start <= i)
+                {
+                    var k = toks[ti].Kind;
+                    if (k == Tk.Comment || k == Tk.String || k == Tk.Escape || k == Tk.Format)
+                    {
+                        i = toks[ti].Start + toks[ti].Length - 1;
+                        continue;
+                    }
+                }
+                char c = text[i];
+                if (c == '(' || c == '[' || c == '{')
+                {
+                    int depth = stack.Count;
+                    added.Add(new Tok { Start = i, Length = 1, Kind = (Tk)((int)Tk.Rainbow1 + depth % RainbowDepth) });
+                    stack.Push(c);
+                }
+                else if (c == ')' || c == ']' || c == '}')
+                {
+                    char open = c == ')' ? '(' : c == ']' ? '[' : '{';
+                    if (stack.Count > 0 && stack.Peek() == open)
+                    {
+                        stack.Pop();
+                        int depth = stack.Count;
+                        added.Add(new Tok { Start = i, Length = 1, Kind = (Tk)((int)Tk.Rainbow1 + depth % RainbowDepth) });
+                    }
+                    else
+                    {
+                        added.Add(new Tok { Start = i, Length = 1, Kind = Tk.RainbowError });
+                    }
+                }
+            }
+            if (added.Count == 0) return;
+            toks.AddRange(added);
+            toks.Sort((a, b) => a.Start.CompareTo(b.Start));
+        }
+
+
+        /// <summary>
+        /// 文字列を、通常の部分・エスケープ・書式指定子に分ける(Viasfora の CStringScanner と同じ規則)。
+        /// エスケープは バックスラッシュの次の 1 文字と、x X u(4 桁まで) U(8 桁まで) に続く 16 進数字。
+        /// 書式指定子は % に続く英数字(% だけは対象外、%% は読み飛ばす)。
+        /// </summary>
+        private static void AddString(List<Tok> toks, string text, int start, int end)
+        {
+            int plain = start;
+            int i = start + 1;
+            int stop = end > start + 1 && text[end - 1] == text[start] ? end - 1 : end;
+            Action<int, int, Tk> add = (s2, len, k) => { if (len > 0) toks.Add(new Tok { Start = s2, Length = len, Kind = k }); };
+            while (i < stop)
+            {
+                char ch = text[i];
+                if (ch == '\\')
+                {
+                    add(plain, i - plain, Tk.String);
+                    int p = i + 1;
+                    char kind = p < stop ? text[p] : '\0';
+                    if (p < stop) p++;
+                    if (kind == 'x' || kind == 'X' || kind == 'u' || kind == 'U')
+                    {
+                        int max = kind == 'u' ? 4 : kind == 'U' ? 8 : int.MaxValue;
+                        int count = 0;
+                        while (p < stop && Uri.IsHexDigit(text[p]) && count < max) { p++; count++; }
+                    }
+                    add(i, p - i, Tk.Escape);
+                    plain = i = p;
+                    continue;
+                }
+                if (ch == '%')
+                {
+                    if (i + 1 < stop && text[i + 1] == '%') { i += 2; continue; }
+                    int p = i + 1;
+                    while (p < stop && text[p] != '\\' && ((text[p] >= 'A' && text[p] <= 'Z') || (text[p] >= 'a' && text[p] <= 'z') || (text[p] >= '0' && text[p] <= '9'))) p++;
+                    if (p - i >= 2)
+                    {
+                        add(plain, i - plain, Tk.String);
+                        add(i, p - i, Tk.Format);
+                        plain = i = p;
+                        continue;
+                    }
+                }
+                i++;
+            }
+            add(plain, end - plain, Tk.String);
+        }
+
+        // Viasfora の C++ の既定の語彙
+        private static readonly HashSet<string> FlowWords = new HashSet<string>
+        {
+            "if", "else", "while", "do", "for", "each", "switch", "break", "continue", "return", "goto", "throw"
+        };
+
+        private static readonly HashSet<string> VisibilityWords = new HashSet<string> { "public", "private", "protected", "internal", "friend" };
 
         private static Tk? Classify(string q, string w, char prevCh, string prevWord, char nextCh, bool call,
             Lexicon lx, HashSet<string> userTypes, HashSet<string> userMacros)
         {
+            if (q == "defined") return Tk.Preprocessor;
             if (q.StartsWith("dx::", StringComparison.Ordinal))
             {
                 if (q == "dx::HitObject") return Tk.Type;
@@ -264,8 +378,10 @@ namespace KHlsl.Vsix
                 if (lx.Semantics.Contains(sem) || lx.Semantics.Contains(w) || w.StartsWith("SV_", StringComparison.OrdinalIgnoreCase))
                     return Tk.Semantic;
             }
-            if (lx.Control.Contains(w)) return Tk.Control;
-            if (lx.Keywords.Contains(w)) return Tk.Keyword;
+            bool isKeyword = lx.Control.Contains(w) || lx.Keywords.Contains(w);
+            if (isKeyword && FlowWords.Contains(w)) return Tk.Flow;
+            if (isKeyword && VisibilityWords.Contains(w)) return Tk.Visibility;
+            if (isKeyword) return Tk.Keyword;
             if (lx.ScalarTypes.Contains(w) || RxVecMat.IsMatch(w)) return Tk.Keyword;
             if (prevWord != null && TypeIntroducers.Contains(prevWord)) return Tk.Type;
             if (lx.ResourceTypes.Contains(w) || lx.Special.Contains(w)) return Tk.Type;

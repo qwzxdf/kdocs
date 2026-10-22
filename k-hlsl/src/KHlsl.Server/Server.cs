@@ -236,7 +236,7 @@ namespace KHlsl.Server
                     ["documentSymbolProvider"] = true,
                     ["definitionProvider"] = true
                 },
-                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.0.2" }
+                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.0.3" }
             };
         }
 
