@@ -65,7 +65,7 @@ tags:
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v145</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -100,7 +100,7 @@ tags:
 | ① `ProjectConfiguration` | 構成とプラットフォームの組を、すべて宣言する |
 | ② `Globals` | プロジェクトの ID、名前空間、使う Windows SDK のバージョン |
 | ③ `ConfigurationType` | 成果物の種類（`Application`、`StaticLibrary`、`DynamicLibrary`、`Utility`、`Makefile`） |
-| ③ `PlatformToolset` | 使うコンパイラ一式の版。`v143` が Visual Studio 2022、`v145` が 2026（[MSVC](msvc.md#toolset)） |
+| ③ `PlatformToolset` | 使うコンパイラ一式の版。Visual Studio 2026 の既定は `v145`（[MSVC](msvc.md#toolset)） |
 | ④ `ItemDefinitionGroup` | ファイルの種類ごとの、設定。`ClCompile` がコンパイラ、`Link` がリンカー |
 | ⑤ `ClCompile` / `ClInclude` | プロジェクトに入っているファイル。`ClCompile` は、コンパイルされる |
 | `Condition=...` | 「この構成のときだけ」という条件。構成ごとに値を変えるのに使う |

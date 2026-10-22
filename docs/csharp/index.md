@@ -24,7 +24,7 @@ C# が初めてでも読めるように、新しい C#・WPF・Prism の言葉�
 | C++ | 中級（クラス、テンプレート、スマート ポインター、DLL の存在を知っている）。DirectX 12 の説明は[DirectX 12 Guide](../directx/dx12/index.md) へのリンクで、補う |
 | C# | 経験なし。第 5 章で C++ と比べながら、必要な範囲を学ぶ |
 | WPF・Prism | 経験なし。第 6 章から順に説明する |
-| 環境 | Windows 10/11、Visual Studio 2022（「.NET デスクトップ開発」と「C++ によるデスクトップ開発」のワークロード、Windows SDK）、DirectX 12 対応の GPU |
+| 環境 | Windows 10/11、Visual Studio 2026（「.NET デスクトップ開発」と「C++ によるデスクトップ開発」のワークロード、Windows SDK）、DirectX 12 対応の GPU |
 | .NET | .NET 8（LTS） |
 | Prism | Prism 9（DryIoc 版）。版で API が変わる所は囲みで示す |
 

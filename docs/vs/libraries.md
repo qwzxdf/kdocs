@@ -109,7 +109,7 @@ vcpkg install nlohmann-json:x64-windows
 }
 ```
 
-2. プロジェクトのプロパティ → **vcpkg** → **Use Vcpkg Manifest** を **はい** にする（`vcpkg integrate install` 済みなら、自動で有効なことが多い）
+2. プロジェクトのプロパティに「**vcpkg**」のページがあれば、**Use Vcpkg Manifest** を **はい** にする（`vcpkg integrate install` 済みなら、自動で有効なことが多い）。プロパティの一覧に「vcpkg」が出ない環境もあります（この画面の `C/C++`・`リンカー` などの並びに、無ければ、そのままビルドして、出力に vcpkg の経過が出るかで確かめます）
 3. ビルドすると、`vcpkg.json` に書いたライブラリが**自動でダウンロード・ビルド**される（最初は時間がかかる）
 
 | 設定（プロパティ → vcpkg） | 意味 |
@@ -174,6 +174,18 @@ third_party/
 | ① ヘッダの場所 | C/C++ → 全般 → **追加のインクルード ディレクトリ** | `$(SolutionDir)third_party\mylib\include` |
 | ② `.lib` の場所 | リンカー → 全般 → **追加のライブラリ ディレクトリ** | `$(SolutionDir)third_party\mylib\lib\x64\$(Configuration)` |
 | ③ `.lib` の名前 | リンカー → 入力 → **追加の依存ファイル** | `mylib.lib` |
+
+① は、C/C++ → 全般 のページです。ヘッダの探し方は [インクルード ディレクトリとマクロ](include-dirs.md#additional) に画面つきで書いています。
+
+![① C/C++ → 全般 → 追加のインクルード ディレクトリ](img/props-cpp-general.jpg)
+
+② は、リンカー → 全般 のページの「追加のライブラリ ディレクトリ」です。
+
+![② リンカー → 全般 → 追加のライブラリ ディレクトリ](img/props-linker-general.jpg)
+
+③ は、リンカー → 入力 のページです。先頭の「追加の依存ファイル」に、`.lib` の名前を足します。最初から入っている `$(CoreLibraryDependencies);%(AdditionalDependencies)` は、消さずに、`;` で区切って後ろに足します。
+
+![③ リンカー → 入力 → 追加の依存ファイル](img/props-linker-input.jpg)
 
 - ② の `$(Configuration)` を使うと、**Debug のときは Debug の `.lib`、Release のときは Release の `.lib`** が自動で選ばれます
 - Debug と Release で `.lib` の名前が違う場合（`mylibd.lib` など）は、構成を**個別に**選んで、③ をそれぞれ設定します

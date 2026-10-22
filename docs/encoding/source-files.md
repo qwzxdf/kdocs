@@ -159,7 +159,7 @@ trim_trailing_whitespace = false
 
 ## 4. clang-format（整形ツール）
 
-**clang-format** は、ソースを**決まった書き方に整形**するツールです（Visual Studio 2019 16.4 以降は、`.clang-format` ファイルを読んで、Ctrl + K, Ctrl + D などで整形できます）。**文字コードを強制・変換する機能は、ありません**。clang-format は、**ソースが UTF-8 であることを前提**に動きます。
+**clang-format** は、ソースを**決まった書き方に整形**するツールです（Visual Studio は、`.clang-format` ファイルを読んで、Ctrl + K, Ctrl + D などで整形できます）。**文字コードを強制・変換する機能は、ありません**。clang-format は、**ソースが UTF-8 であることを前提**に動きます。
 
 ### clang-format でできること・できないこと
 

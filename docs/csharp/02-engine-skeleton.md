@@ -346,7 +346,7 @@ std::uint64_t Engine::FrameCount() const {
 
 ## 公開した物を確かめる
 
-Engine をビルドして、本当にエクスポートされたかを確かめます。「x64 Native Tools Command Prompt for VS 2022」を開いて、次を実行します。
+Engine をビルドして、本当にエクスポートされたかを確かめます。スタート メニューの「Visual Studio 2026 → Visual Studio Tools → VC」にある「x64 Native Tools Command Prompt for VS」を開いて、次を実行します。
 
 ```text
 dumpbin /exports MiniEngine\bin\x64\Debug\Engine.dll

@@ -14,7 +14,7 @@ Visual Studio での入れ方の基本は [外部ライブラリの入れ方](..
 === "ファイルを置く"
 
     1. [GitHub の tinygltf](https://github.com/syoyo/tinygltf) から、**`tiny_gltf.h`**、**`json.hpp`**（nlohmann/json）、**`stb_image.h`**、**`stb_image_write.h`** を取得し `third_party/tinygltf/` に置く
-    2. プロジェクトのプロパティを開き構成を **すべての構成**、プラットフォームを **x64** にする
+    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）構成を **すべての構成**、プラットフォームを **x64** にする
     3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\tinygltf` を追加する
     4. **1 つの `.cpp` だけ**（たとえば `gltf_loader.cpp`）で、次のように書く
 

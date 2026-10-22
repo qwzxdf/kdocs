@@ -6,11 +6,11 @@ tags:
 
 # AddressSanitizer
 
-C++ では**配列の範囲外アクセス**や**解放したメモリを使う**ミスが起きても、**その場では何も起きず**、**あとでまったく別の場所で壊れる**ことがあります。原因が見つけにくい**メモリのバグ**です。<strong>AddressSanitizer（アドレス サニタイザー、ASan）</strong>は**実行中にメモリアクセスを監視**し、**不正があった瞬間に止めて、詳しく教えてくれる**ツールです。Visual Studio 2019（16.9）以降の MSVC で、使えます。このページは**有効にする方法**、**見つけられるバグ**、**エラー出力の読み方**、**注意点**をまとめます。
+C++ では**配列の範囲外アクセス**や**解放したメモリを使う**ミスが起きても、**その場では何も起きず**、**あとでまったく別の場所で壊れる**ことがあります。原因が見つけにくい**メモリのバグ**です。<strong>AddressSanitizer（アドレス サニタイザー、ASan）</strong>は**実行中にメモリアクセスを監視**し、**不正があった瞬間に止めて、詳しく教えてくれる**ツールです。Visual Studio 2026 の MSVC で、使えます。このページは**有効にする方法**、**見つけられるバグ**、**エラー出力の読み方**、**注意点**をまとめます。
 
 !!! tip "ポイント"
     - ASan は <strong>範囲外アクセス・解放済みメモリの使用（use-after-free）・二重解放</strong>などを、<strong>その場で止めて報告</strong>する。
-    - 有効化：<strong>プロジェクトのプロパティ → C/C++ → 全般 → 「アドレス サニタイザーを有効にする」→ はい（/fsanitize=address）</strong>。
+    - 有効化：<strong>プロジェクトのプロパティ → C/C++ → 全般 → 「Address Sanitizer を有効にする」→ はい（/fsanitize=address）</strong>。
     - <strong>インストーラーで「C++ AddressSanitizer」のコンポーネント</strong>が必要。
     - 速さは<strong>約 2 倍遅く、メモリは増える</strong>。<strong>開発・テスト中だけ</strong>使う（製品には入れない）。
     - <strong>`/RTC1`・`/ZI`（編集して続行）・増分リンクとは併用できない</strong>。設定を調整する。
@@ -45,14 +45,18 @@ p[5] = 100;
 
 ### 1. コンポーネントを入れる
 
-**Visual Studio Installer** → **変更** → **個別のコンポーネント**（または、**C++ によるデスクトップ開発**のオプション）で、<strong>「C++ AddressSanitizer」</strong>にチェックを入れて、インストールします。
+**Visual Studio Installer** → **変更** → **個別のコンポーネント**（または、**C++ によるデスクトップ開発**のオプション）で、<strong>「MSVC AddressSanitizer」</strong>にチェックを入れて、インストールします（「C++ によるデスクトップ開発」では、既定で入っています）。
 
 ### 2. プロパティで有効にする
 
-1. **プロジェクトを右クリック → プロパティ**
+1. プロジェクトを選んで、メニューの<strong>プロジェクト → プロパティ</strong>を開く
 2. 構成を **Debug**、プラットフォームを **x64** にする
-3. **C/C++ → 全般 → アドレス サニタイザーを有効にする** → <strong>はい (/fsanitize=address)</strong>
+3. **C/C++ → 全般 → Address Sanitizer を有効にする** → <strong>はい (/fsanitize=address)</strong>
 4. ビルドして**デバッグ実行**（F5）する
+
+「Address Sanitizer を有効にする」は、C/C++ → 全般 のページを少し下へスクロールした所にあります。その下の「Fuzzer サポートを有効にする（試験段階）」は、別の機能です。
+
+![C/C++ → 全般 の下のほう。Address Sanitizer を有効にする、が「いいえ」になっている](img/props-cpp-general-asan.jpg)
 
 **ソリューション全体**（ライブラリを含む）で**有効にする**と**ライブラリの中のバグも**見つかります。
 
@@ -319,7 +323,7 @@ CMake に **`SANITIZE` オプション**を作って、**切り替えられる**
 
 !!! abstract "まとめ"
     - [x] <strong>AddressSanitizer</strong> は、<strong>範囲外アクセス・use-after-free・二重解放</strong>を <strong>その場で止めて報告</strong>する
-    - [x] 有効化は<strong>C/C++ → 全般 → アドレス サニタイザーを有効にする（/fsanitize=address）</strong>。<strong>インストーラーでコンポーネント</strong>が必要
+    - [x] 有効化は<strong>C/C++ → 全般 → Address Sanitizer を有効にする（/fsanitize=address）</strong>。<strong>インストーラーでコンポーネント</strong>が必要
     - [x] <strong>`/RTC1`・`/ZI`・増分リンク</strong>は、<strong>外す</strong>
     - [x] 報告は <strong>「種類」→「アクセスした場所」→「確保・解放した場所」</strong>の順に読む
     - [x] <strong>約 2 倍遅い</strong>。<strong>開発・テスト・CI だけ</strong>。<strong>メモリリーク・スレッドの競合・未初期化は、見つからない</strong>
