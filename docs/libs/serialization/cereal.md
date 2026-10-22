@@ -36,7 +36,7 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
 === "ファイルを置く"
 
     1. [GitHub](https://github.com/USCiLab/cereal) の **`include/cereal` フォルダーごと**を `third_party/cereal/include/cereal/` に置く
-    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を **すべての構成**、プラットフォームを **x64** にする
     3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\cereal\include` を追加する
     4. `#include <cereal/archives/binary.hpp>` と書いてビルドする
 

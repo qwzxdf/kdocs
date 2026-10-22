@@ -86,7 +86,7 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
 === "ファイルを置く"
 
     1. [リリースページ](https://github.com/biojppm/rapidyaml/releases) の **単一ヘッダ版**（`rapidyaml-x.y.z.hpp`）を `third_party/rapidyaml/` に置き、**1 つの `.cpp` だけ**で、include の前に `#define RYML_SINGLE_HDR_DEFINE_NOW` を書く
-    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を **すべての構成**、プラットフォームを **x64** にする
     3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party
 
 === "vcpkg"

@@ -36,7 +36,7 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
 === "ファイルを置く"
 
     1. [リリースページ](https://github.com/simdjson/simdjson/releases) の **`simdjson.h` と `simdjson.cpp`**（`singleheader` フォルダー）を `third_party/simdjson/` に置き、**2 つともプロジェクトに追加**（追加 → 既存の項目）する
-    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を **すべての構成**、プラットフォームを **x64** にする
     3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\simdjson` を追加する
     4. `#include <simdjson.h>` と書いてビルドする
 

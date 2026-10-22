@@ -243,7 +243,7 @@ cpp_indent_access_specifiers = false
 
 ### 設定から `.editorconfig` を作る
 
-Visual Studio には、いま使っているエディターの設定から、`.editorconfig` を<strong>書き出す</strong>機能があります。メニューの「ツール → オプション → テキスト エディター → C/C++ → コード スタイル」のあたりにあります（バージョンによって、場所と名前が違います）。自分の好みに合わせた初期の `.editorconfig` が欲しいときの、出発点になります。
+Visual Studio には、いま使っているエディターの設定から、`.editorconfig` を<strong>書き出す</strong>機能があります。メニューの「ツール → オプション」を開いて、検索欄に「コード スタイル」と入れると、見つかります（Visual Studio 2026 の設定画面は、検索で探すのが早いです）。自分の好みに合わせた初期の `.editorconfig` が欲しいときの、出発点になります。
 
 ## 効いているか確かめる {#check}
 
@@ -268,7 +268,9 @@ editorconfig Game/player.cpp
 | 設定が無視される | 行の途中に、コメントがないか。`キー = 値` の書き方の間違い（`=` の前後は、スペースがあってもよい） |
 | 上のフォルダーの設定が効かない | 下のフォルダーの `.editorconfig` に、`root = true` が書かれていないか |
 | 開いただけでは変わらない | 仕様です。<strong>保存したとき</strong>に文字コードなどが、そろう |
-| 設定をまったく無視する | Visual Studio の、「ツール → オプション → テキスト エディター → 全般」にある、<strong>プロジェクトのコーディング規約に従う</strong>（Follow project coding conventions）が、<strong>オフ</strong>になっている |
+| 設定をまったく無視する | Visual Studio の、「ツール → オプション → テキスト エディター → 全般」にある、<strong>プロジェクトのコーディング規約に従う</strong>が、<strong>オフ</strong>になっている（下の画面） |
+
+![オプション → テキスト エディター → 全般。「プロジェクトのコーディング規約に従う」は、`.editorconfig` を読むかどうかを決める。「シグネチャなしの UTF-8 エンコードを自動検出」もここにある](img/options-text-editor.jpg)
 
 ## 既存のファイルをそろえる {#apply-existing}
 

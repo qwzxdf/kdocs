@@ -36,7 +36,7 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
 === "ファイルを置く"
 
     1. [GitHub](https://github.com/eyalz800/zpp_bits) から **`zpp_bits.h`**（1 ファイル）をダウンロードして、`third_party/zpp_bits/` に置く
-    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を **すべての構成**、プラットフォームを **x64** にする
     3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\zpp_bits` を追加する
     4. `#include <zpp_bits.h>` と書いてビルドする
 
@@ -57,7 +57,7 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
 
 ### そのほかの方法（CMake など）
 
-ヘッダ 1 ファイル（`zpp_bits.h`）だけです。C++20 が必要です（GCC 11 以降、Clang 12 以降、Visual Studio 2022 以降）。
+ヘッダ 1 ファイル（`zpp_bits.h`）だけです。C++20 が必要です（GCC 11 以降、Clang 12 以降、Visual Studio 2026）。
 
 === "ヘッダを直接置く"
 

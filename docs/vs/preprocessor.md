@@ -19,7 +19,7 @@ C++ のビルドではコンパイルの前に**プリプロセッサ**が `#inc
 
 ### プロパティで定義する
 
-1. ソリューション エクスプローラーで**プロジェクトを右クリック → プロパティ**
+1. ソリューション エクスプローラーでプロジェクトを選んで、メニューの<strong>プロジェクト → プロパティ</strong>を開く
 2. 上部の**構成**を「**すべての構成**」（または Debug / Release）、**プラットフォーム**を「**x64**」にする
 3. **C/C++ → プリプロセッサ → プリプロセッサの定義** を開く
 4. **`;` 区切り**で追加する（`NOMINMAX;WIN32_LEAN_AND_MEAN`）。末尾の `%(PreprocessorDefinitions)` は**残す**（既定の定義が消える）
@@ -27,6 +27,8 @@ C++ のビルドではコンパイルの前に**プリプロセッサ**が `#inc
 ```text
 NOMINMAX;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)
 ```
+
+![C/C++ → プリプロセッサ のページ。先頭がプリプロセッサの定義。既定で `_UNICODE;UNICODE` が入っている](img/props-preprocessor.jpg)
 
 | 設定 | 説明 |
 | --- | --- |
@@ -308,7 +310,7 @@ Visual Studio の DLL プロジェクトには `プロジェクト名_EXPORTS` �
 
 | マクロ | 意味 |
 | --- | --- |
-| **`_MSC_VER`** | MSVC のバージョン（Visual Studio 2022 は `1930` 台） |
+| **`_MSC_VER`** | MSVC のバージョン（Visual Studio 2026 は `1950` 台） |
 | **`_MSVC_LANG`** | MSVC の C++ の標準（`202302L` など）。**`__cplusplus` は `/Zc:__cplusplus` がないと古い値のまま** |
 | **`_M_X64` / `_M_ARM64`** | CPU の種類（64 ビット x86 / ARM） |
 | **`_WIN32` / `_WIN64`** | Windows。**64 ビットでも `_WIN32` は定義される** |

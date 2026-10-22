@@ -36,7 +36,7 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
 === "ファイルを置く"
 
     1. [GitHub](https://github.com/alibaba/yalantinglibs) の **`include` フォルダー**（`ylt/struct_pack.hpp` など）を `third_party/yalantinglibs/include/` に置く
-    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を **すべての構成**、プラットフォームを **x64** にする
     3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\yalantinglibs\include` を追加する
     4. `#include <ylt/struct_pack.hpp>` と書いてビルドする
 

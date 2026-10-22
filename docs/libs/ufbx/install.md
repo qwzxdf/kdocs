@@ -13,7 +13,7 @@ ufbx は**`ufbx.c` と `ufbx.h` の 2 ファイルだけ**です。**ファイ�
 
     1. [GitHub の ufbx](https://github.com/ufbx/ufbx) から、**`ufbx.c`** と **`ufbx.h`** を取得し、`third_party/ufbx/` に置く
     2. **ソリューション エクスプローラーで、`ufbx.c` をプロジェクトに追加**（追加 → 既存の項目）
-    3. プロジェクトのプロパティを開き構成を **すべての構成**、プラットフォームを **x64** にする
+    3. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）構成を **すべての構成**、プラットフォームを **x64** にする
     4. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\ufbx` を追加する
     5. `#include "ufbx.h"` と書いてビルドする
 

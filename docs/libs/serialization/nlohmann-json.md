@@ -36,7 +36,7 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
 === "ファイルを置く"
 
     1. [リリースページ](https://github.com/nlohmann/json/releases) から **`json.hpp`**（1 ファイル）をダウンロードして、`third_party/nlohmann/json.hpp` に置く
-    2. プロジェクトのプロパティを開き、構成を **すべての構成**、プラットフォームを **x64** にする
+    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を **すべての構成**、プラットフォームを **x64** にする
     3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party` を追加する
     4. `#include <nlohmann/json.hpp>` と書いてビルドする
 

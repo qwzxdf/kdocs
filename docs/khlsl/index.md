@@ -19,7 +19,7 @@ K-HLSL は、判定を<strong>本物の DXC に任せる</strong>ことで、こ
 
 <p><a class="md-button md-button--primary" href="K-HLSL-1.0.5.vsix" download>K-HLSL 1.0.5 をダウンロード（.vsix、約 360 KB）</a></p>
 
-Visual Studio 2022 と 2026（Community・Professional・Enterprise）で動きます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも、同じ手順で上書きできます。アンインストールは、Visual Studio の「拡張機能の管理」から行います。
+Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも、同じ手順で上書きできます。アンインストールは、Visual Studio の「拡張機能の管理」から行います。
 
 診断には `dxc.exe` が要ります。Windows SDK に入っている物か、[DirectXShaderCompiler](https://github.com/microsoft/DirectXShaderCompiler/releases) の配布物を使ってください。Shader Model 6.9 を使うには、DXC 1.9 以降が必要です。見つかった DXC が古いときは、`lib_6_9` から `lib_6_8`、`lib_6_7` と、使えるプロファイルまで自動で下げて試します。
 

@@ -176,7 +176,7 @@ main.cpp(12,5): error C2039: 'Foo': 'Enemy' のメンバーではありません
 
 | ツールセット | 説明 |
 | --- | --- |
-| <strong>MSVC（v143 など）</strong> | **既定**。`cl.exe` |
+| <strong>MSVC（v145 など）</strong> | **既定**。`cl.exe` |
 | <strong>LLVM（clang-cl）</strong> | **Clang を、MSVC 互換のコマンドで使う**。**プロジェクトのプロパティ → 全般 → プラットフォーム ツールセット**で、切り替える |
 | **CMake + Ninja** | **コンパイラを、自由に選べる**（[CMake](../vs/cmake.md)、[Ninja](../vs/ninja.md)） |
 

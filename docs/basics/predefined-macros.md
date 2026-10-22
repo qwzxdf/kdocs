@@ -247,7 +247,7 @@ __cpp_lib_format = 202304   （Clang。Windows、MSVC の標準ライブラリ�
 
 | 調べたいこと | マクロ | 補足 |
 | --- | --- | --- |
-| MSVC | `_MSC_VER` | VS 2022 は 1930 台から 1940 台。Clang の clang-cl も定義する |
+| MSVC | `_MSC_VER` | VS 2026 は 1950 台。Clang の clang-cl も定義する |
 | Clang | `__clang__` | `__clang_major__` でメジャー バージョン |
 | GCC | `__GNUC__` | Clang も（Linux では）定義することがある |
 | Windows | `_WIN32` | 64 ビットでも定義される |

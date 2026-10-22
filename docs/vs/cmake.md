@@ -25,12 +25,30 @@ tags:
 
 ## Visual Studio で CMake のプロジェクトを開く
 
-1. メニュー「ファイル → 開く → **フォルダー**」で、`CMakeLists.txt` のあるフォルダーを選ぶ
+1. メニュー「ファイル → 開く → **フォルダー**」（Ctrl + Shift + Alt + O）で、`CMakeLists.txt` のあるフォルダーを選ぶ
 2. 下に出る「CMake の生成」の出力で、エラーが出ていないことを確認する
 3. 上の **スタートアップ アイテムの選択**（再生ボタンの横）で、実行する `.exe` を選ぶ
 4. **F5** で実行する
 
-Visual Studio のインストーラーで、<strong>「C++ CMake ツール」</strong> のコンポーネントが必要です（[インストール](setup.md)）。
+![ファイル → 開く。フォルダー、CMake プロジェクトなどが並ぶ](img/file-open-menu.jpg)
+
+フォルダーを開くと、`CMakeLists.txt` が見つかって、CMake の生成が自動で始まります。下の「出力」の出力元が「CMake」になり、生成の経過が出ます。右の「ソリューション エクスプローラー - フォルダー ビュー」には、フォルダーの中身がそのまま並びます。生成の結果は、`out/build/<プリセット名>` に置かれます。
+
+![CMake のフォルダーを開いたところ。上のツールバーに「x64 Debug」と「CMakeGame.exe」、下の出力に CMake の生成の結果が出ている](img/cmake-folder.jpg)
+
+ツールバーの「x64 Debug」は、`CMakePresets.json` に書いたプリセットです。押すと、`x64 Debug`、`x64 Release` と「構成を管理します...」が出ます。Debug と Release は、ここで切り替えます。
+
+![プリセットのドロップダウン](img/cmake-preset-dropdown.jpg)
+
+ビルドは、メニューの「ビルド」にある「すべてビルド」（Ctrl + Shift + B）です。`.sln` のときの「ソリューションのビルド」に当たります。
+
+![フォルダー ビューのときの、ビルド メニュー](img/cmake-build-menu.jpg)
+
+成功すると、出力に「すべてビルド が成功しました。」と出ます。下の画面の「[4/4] Linking CXX executable」は Ninja の進行で、最後が `CMakeGame.exe` のリンクです。
+
+![ビルドの出力](img/cmake-build-output.jpg)
+
+Visual Studio のインストーラーで、<strong>「Windows 用 C++ CMake ツール」</strong> のコンポーネントが必要です（「C++ によるデスクトップ開発」には、既定で入っています。[インストール](setup.md)）。
 
 ## 最小の CMakeLists.txt
 
@@ -140,10 +158,10 @@ target_link_libraries(MyGame PRIVATE nlohmann_json::nlohmann_json)
 「やっぱり `.sln` で開きたい」ときは、CMake に Visual Studio のプロジェクトを作らせます。
 
 ```powershell
-cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+cmake -S . -B build -G "Visual Studio 18 2026" -A x64
 ```
 
-`build/MyGame.sln` ができるので、それを Visual Studio で開きます。
+`build/MyGame.slnx`（Visual Studio 2026 のジェネレーターは `.slnx` を作ります）ができるので、それを Visual Studio で開きます。
 
 ## 関連ページ
 
