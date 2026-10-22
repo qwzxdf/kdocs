@@ -1,0 +1,55 @@
+<Project>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>KHlsl.Vsix</AssemblyName>
+    <RootNamespace>KHlsl.Vsix</RootNamespace>
+    <GeneratePkgDefFile>false</GeneratePkgDefFile>
+    <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
+    <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
+    <IncludeDebugSymbolsInLocalVSIXDeployment>false</IncludeDebugSymbolsInLocalVSIXDeployment>
+    <CopyBuildOutputToOutputDirectory>true</CopyBuildOutputToOutputDirectory>
+    <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
+    <DeployExtension>false</DeployExtension>
+    <VSSDKTargetPlatformRegRootSuffix>Exp</VSSDKTargetPlatformRegRootSuffix>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <NoWarn>$(NoWarn);VSTHRD010;VSTHRD100;VSTHRD200;NU1701;CS0649</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.9.37000" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client" Version="17.9.46" ExcludeAssets="runtime" />
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.9.3171" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.ComponentModel.Composition" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="source.extension.vsixmanifest" SubType="Designer" />
+    <Content Include="KHlsl.pkgdef" IncludeInVSIX="true" />
+    <Content Include="Grammars\KHlsl.json" IncludeInVSIX="true" />
+    <Content Include="Grammars\KHlsl.language-configuration.json" IncludeInVSIX="true" />
+    <Content Include="..\..\LICENSE.txt" Link="LICENSE.txt" IncludeInVSIX="true" />
+    <Content Include="..\..\media\icon.png" Link="Resources\icon.png" IncludeInVSIX="true" />
+    <Content Include="..\..\media\preview.png" Link="Resources\preview.png" IncludeInVSIX="true" />
+  </ItemGroup>
+
+  <!-- 言語サーバー(build.ps1 が先にビルドする) -->
+  <ItemGroup>
+    <Content Include="..\KHlsl.Server\bin\$(Configuration)\net472\KHlslServer.exe" Link="Server\KHlslServer.exe" IncludeInVSIX="true" />
+    <Content Include="..\KHlsl.Server\bin\$(Configuration)\net472\KHlslServer.exe.config" Link="Server\KHlslServer.exe.config" IncludeInVSIX="true" />
+    <Content Include="..\KHlsl.Server\bin\$(Configuration)\net472\Newtonsoft.Json.dll" Link="Server\Newtonsoft.Json.dll" IncludeInVSIX="true" />
+  </ItemGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+  <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" />
+
+  <!-- SDK 形式のプロジェクトでは PrepareForRun が .vsix を作らないので、Build のあとで呼ぶ -->
+  <Target Name="KHlslPackVsix" AfterTargets="Build" DependsOnTargets="CreateVsixContainer" />
+
+</Project>

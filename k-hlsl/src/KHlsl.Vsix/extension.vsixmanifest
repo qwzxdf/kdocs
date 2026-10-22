@@ -1,0 +1,32 @@
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
+  <Metadata>
+    <Identity Id="KHlsl.7f3c2a10-5d4b-4e8a-9a1e-2b6f0c9d4e51" Version="1.0.0" Language="en-US" Publisher="qwzxdf" />
+    <DisplayName>K-HLSL</DisplayName>
+    <Description xml:space="preserve">HLSL language support up to Shader Model 6.9: syntax highlighting, completion, hover, signature help, go to definition, outline, and diagnostics from the real DXC compiler. Handles ResourceDescriptorHeap, work graphs, mesh shaders and DXR 1.2 (SER).</Description>
+    <License>LICENSE.txt</License>
+    <Icon>Resources\icon.png</Icon>
+    <PreviewImage>Resources\preview.png</PreviewImage>
+    <Tags>HLSL, shader, DirectX, DXC, SM6, DXR, mesh shader, work graphs</Tags>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0,19.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[17.0,19.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+    <InstallationTarget Id="Microsoft.VisualStudio.Enterprise" Version="[17.0,19.0)">
+      <ProductArchitecture>amd64</ProductArchitecture>
+    </InstallationTarget>
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" Version="[4.7.2,)" />
+  </Dependencies>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[17.0,19.0)" DisplayName="Visual Studio core editor" />
+  </Prerequisites>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.MefComponent" Path="KHlsl.Vsix.dll" />
+    <Asset Type="Microsoft.VisualStudio.VsPackage" Path="KHlsl.pkgdef" />
+  </Assets>
+</PackageManifest>
