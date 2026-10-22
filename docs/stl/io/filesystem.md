@@ -152,36 +152,15 @@ int main() {
 
 ### copy_options
 
-| 値 | 重要度 | 意味 |
-| --- | --- | --- |
-| `none` | <span class="rank rank-often">よく使う</span> | 何もしない（すでにあるとエラー） |
-| `overwrite_existing` | <span class="rank rank-often">よく使う</span> | すでにあれば上書き |
-| `recursive` | <span class="rank rank-sometimes">たまに</span> | フォルダの中身も全部コピー |
-| `skip_existing` | <span class="rank rank-sometimes">たまに</span> | すでにあれば何もしない |
-| `update_existing` | <span class="rank rank-sometimes">たまに</span> | コピー元のほうが新しければ上書き |
-| `directories_only` | <span class="rank rank-rare">知ってるだけ</span> | フォルダの構造だけコピー |
-| `copy_symlinks` / `skip_symlinks` | <span class="rank rank-rare">知ってるだけ</span> | シンボリックリンクの扱い |
-| `create_symlinks` / `create_hard_links` | <span class="rank rank-rare">知ってるだけ</span> | コピーの代わりにリンクを作る |
-
-`|` で組み合わせられます（`recursive | overwrite_existing`）。
+[`copy_options`](filesystem/copy_options.md)（`copy` の動作の指定）を参照してください。
 
 ### directory_options
 
-| 値 | 重要度 | 意味 |
-| --- | --- | --- |
-| `none` | <span class="rank rank-often">よく使う</span> | デフォルト |
-| `skip_permission_denied` | <span class="rank rank-sometimes">たまに</span> | 権限の無いフォルダを飛ばす（エラーにしない） |
-| `follow_directory_symlink` | <span class="rank rank-rare">知ってるだけ</span> | リンク先のフォルダにも入る |
+[`directory_options`](filesystem/directory_options.md)（フォルダの走査の動作の指定）を参照してください。
 
-### file_type（`status(p).type()` の値）
+### file_type
 
-| 値 | 意味 |
-| --- | --- |
-| `regular` | 普通のファイル |
-| `directory` | フォルダ |
-| `not_found` | 存在しない |
-| `symlink` | シンボリックリンク |
-| `block` / `character` / `fifo` / `socket` / `unknown` | 特殊なファイル（ゲームでは見ない） |
+[`file_type`](filesystem/file_type.md)（`status(p).type()` の値）を参照してください。
 
 ## 古い書き方と今の書き方
 

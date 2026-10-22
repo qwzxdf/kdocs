@@ -27,6 +27,10 @@ GROUPS = {
     "utilities/chrono/": "時間（std::chrono）",
     "numeric/cmath/": "数学関数（<cmath>）",
 }
+import json
+
+_MF = Path(__file__).resolve().parent / "moves.json"
+_MOVES = json.loads(_MF.read_text(encoding="utf-8")) if _MF.exists() else {}
 HUB_ROWS = {}  # hub 相対パス -> [(rel, 表示名, rank, 説明, ver)]
 
 
@@ -118,6 +122,9 @@ def add_secs(rel, secs_text, after=None):
     p = STL / rel
     t = p.read_text(encoding="utf-8")
     first = re.search(r"\{#([\w-]+)", secs_text)
+    moved = _MOVES.get("stl/" + rel, {}).get("ids", {}) if _MOVES else {}
+    if first and first.group(1) in moved:
+        return
     if first and re.search(r"\{#" + re.escape(first.group(1)) + r"[ }]", t):
         return
     m = re.search(r"(?m)^## (実際に動かしてみる|ゲームでの使いどころ|パフォーマンス|よくあるミス|類似|コンパイラ対応)", t)

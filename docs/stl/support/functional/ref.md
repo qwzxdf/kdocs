@@ -54,15 +54,6 @@ int main() {
 [7, 7, 7]
 ```
 
-### std::cref {#cref}
-
-```cpp
-template <class T>
-std::reference_wrapper<const T> cref(const T& t) noexcept;
-```
-
-- `std::ref` の const 版。読むだけの参照を渡します
-
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

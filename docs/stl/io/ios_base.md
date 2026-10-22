@@ -99,51 +99,6 @@ using fmtflags = /* ビットマスク型 */;
 
 `flags()` で取れる、書式の状態をまとめた型です。`ios::showpos | ios::uppercase` のように `|` でつなぎます。個別に設定するなら、マニピュレータ（`std::showpos` など）が読みやすいです。
 
-### std::streamsize {#streamsize}
-
-```cpp
-using streamsize = /* 実装定義 */;
-```
-
-- 戻り値: ストリームで読み書きする文字数を表す符号つき整数型
-- 計算量: 定数
-
-ストリームで読み書きする文字数を表す符号つき整数型です。`read(buf, n)` の `n` や、`gcount()` の戻り値などに出てきます。
-
-### std::streamoff {#streamoff}
-
-```cpp
-using streamoff = /* 実装定義 */;
-```
-
-- 戻り値: ストリーム上の位置の差（オフセット）を表す符号つき整数型
-- 計算量: 定数
-
-ストリーム上の位置の差（オフセット）を表す符号つき整数型です。`read(buf, n)` の `n` や、`gcount()` の戻り値などに出てきます。
-
-### std::streampos {#streampos}
-
-```cpp
-using streampos = /* 実装定義 */;
-```
-
-- 戻り値: ストリーム上の位置を表す型（`fpos<mbstate_t>` の別名）
-- 計算量: 定数
-
-ストリーム上の位置を表す型（`fpos<mbstate_t>` の別名）です。`read(buf, n)` の `n` や、`gcount()` の戻り値などに出てきます。
-
-### std::fpos {#fpos}
-
-```cpp
-template <class StateT>
-class fpos;
-```
-
-- 戻り値: ストリームの位置を表すクラス（状態つき）
-- 計算量: 定数
-
-マルチバイト文字のように、位置に状態が必要なストリームのための位置の型です。`tellg()` の戻り値（`streampos`）が、これにあたります。整数のように足し引きできますが、`tellg()` で得た値以外の演算は、移植性がありません。
-
 ### std::ios_base::badbit {#badbit}
 
 ```cpp

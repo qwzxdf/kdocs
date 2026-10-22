@@ -60,54 +60,6 @@ int main() {
 [1][2][3]
 ```
 
-### std::format_to_n {#format_to_n}
-
-```cpp
-template <class OutputIt, class... Args>
-std::format_to_n_result<OutputIt> format_to_n(OutputIt out, std::iter_difference_t<OutputIt> n,
-                                              std::format_string<Args...> fmt, Args&&... args);
-```
-
-- 最大 `n` 文字だけ書き込みます。固定長の char 配列に書くときに、はみ出しを防げます
-- 戻り値の `.size` は「本来なら何文字になったか」
-
-```cpp
-#include <format>
-#include <print>
-
-int main() {
-  char buf[8] = {};
-  auto result = std::format_to_n(buf, sizeof(buf) - 1, "Score:{}", 123456);
-  std::println("[{}] 本来は {} 文字", buf, result.size);
-}
-```
-
-```text title="実行結果"
-[Score:1] 本来は 12 文字
-```
-
-### std::formatted_size {#formatted_size}
-
-```cpp
-template <class... Args>
-std::size_t formatted_size(std::format_string<Args...> fmt, Args&&... args);
-```
-
-- 実際に文字列は作らず、何文字になるかだけを返します
-
-```cpp
-#include <format>
-#include <print>
-
-int main() {
-  std::println("{}", std::formatted_size("HP {}/{}", 45, 120));
-}
-```
-
-```text title="実行結果"
-9
-```
-
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

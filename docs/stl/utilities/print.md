@@ -27,37 +27,6 @@ tags:
 
 ## 関数の詳しい説明
 
-### std::println <span class="ver ver-23">C++23</span> {#println data-toc-label="std::println"}
-
-```cpp
-template <class... Args>
-void println(std::format_string<Args...> fmt, Args&&... args);
-template <class... Args>
-void println(std::FILE* stream, std::format_string<Args...> fmt, Args&&... args);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `stream` | `std::FILE*` | 出力先。省略すると `stdout`。`stderr` も指定できる |
-| `fmt` | 書式文字列 | `{}` を含む文字列。**コンパイル時の定数** |
-| `args` | 何個でも | `{}` に順番に埋め込む値 |
-
-- 出力して最後に改行します。UTF-8 の日本語も正しく出ます（Windows のコンソールでも）
-
-```cpp
-#include <cstdio>
-#include <print>
-
-int main() {
-  std::println("通常の出力");
-  std::println(stderr, "エラー出力: {}", 404);  // stderr は実行結果欄には出ないことがある
-}
-```
-
-```text title="実行結果"
-通常の出力
-```
-
 ### std::print <span class="ver ver-23">C++23</span> {#print data-toc-label="std::print"}
 
 ```cpp

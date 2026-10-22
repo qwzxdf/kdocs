@@ -1,12 +1,12 @@
 ---
-title: setjmp / longjmp
+title: <csetjmp>（setjmp と longjmp）
 summary: "離れた場所へ一気に戻る（C 由来・C++ では危険）。"
 order: 100
 tags:
   - 入出力・文字列
 ---
 
-# setjmp / longjmp
+# &lt;csetjmp&gt;（setjmp と longjmp）
 
 <div class="page-badges" markdown>
 <span class="rank rank-rare">知ってるだけ</span>
@@ -23,7 +23,7 @@ tags:
 
 ## 関数の詳しい説明
 
-### setjmp / longjmp {#csetjmp}
+### &lt;csetjmp&gt;（setjmp と longjmp） {#csetjmp}
 
 ```cpp
 int setjmp(jmp_buf env);

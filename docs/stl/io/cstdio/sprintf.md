@@ -73,7 +73,7 @@ int main() {
 
 | 名前 | 違い |
 | --- | --- |
-| [`snprintf`](snprintf.md) | 大きさを指定する |
+| [`snprintf`](../../memory/cstring/snprintf.md) | 大きさを指定する |
 | [`std::format`](../../utilities/format.md) | 型安全な書き方 |
 
 ## コンパイラ対応

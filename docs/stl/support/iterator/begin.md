@@ -37,15 +37,6 @@ constexpr T* begin(T (&array)[N]) noexcept;
 
 - C の配列でもコンテナでも先頭を返します。テンプレートで「何でも受け取る」関数を書くときに使います
 
-### std::end {#end}
-
-```cpp
-template <class C>
-constexpr auto end(C& c) -> decltype(c.end());
-```
-
-- 同じく終わりを返します
-
 ## 実際に動かしてみる
 
 ```cpp

@@ -50,19 +50,6 @@ int main() {
 ロード開始
 ```
 
-### std::syncbuf <span class="ver ver-20">C++20</span> {#syncbuf data-toc-label="std::syncbuf"}
-
-```cpp
-template <class CharT, class Traits = char_traits<CharT>, class Allocator = allocator<CharT>>
-class basic_syncbuf;
-using syncbuf = basic_syncbuf<char>;
-```
-
-- 戻り値: 出力を一時的に溜めて、`emit()` でまとめて書き出すストリームバッファ
-- 計算量: 操作による
-
-`osyncstream` の内部で使われる、バッファの型です。`emit()` を呼ぶまで、書き込みを溜めておきます。複数のスレッドが同じ出力先に書いても、`emit()` の単位で行が混ざらないようにします。直接使うことは少なく、`osyncstream` を使います。
-
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

@@ -279,7 +279,8 @@
    "visit": "stl/utilities/visit.md",
    "holds_alternative": "stl/utilities/holds_alternative.md",
    "get_if": "stl/utilities/get_if.md",
-   "monostate": "stl/utilities/monostate.md"
+   "monostate": "stl/utilities/monostate.md",
+   "variant_size": "stl/utilities/variant_size.md"
   }
  },
  "stl/utilities/expected.md": {
@@ -505,7 +506,10 @@
    "resize_file": "stl/io/filesystem/resize_file.md",
    "status": "stl/io/filesystem/status.md",
    "permissions": "stl/io/filesystem/permissions.md",
-   "filesystem_error": "stl/io/filesystem/filesystem_error.md"
+   "filesystem_error": "stl/io/filesystem/filesystem_error.md",
+   "copy_options": "stl/io/filesystem/copy_options.md",
+   "directory_options": "stl/io/filesystem/directory_options.md",
+   "file_type": "stl/io/filesystem/file_type.md"
   }
  },
  "stl/memory/cstring.md": {
@@ -743,7 +747,7 @@
    "co_yield": "stl/support/coroutine/co_yield.md",
    "co_return": "stl/support/coroutine/co_return.md",
    "generator": "stl/support/generator.md",
-   "elements_of": "stl/support/generator.md"
+   "elements_of": "stl/support/elements_of.md"
   }
  },
  "stl/memory/allocator.md": {
@@ -762,6 +766,115 @@
    "stod": "stl/containers/stod.md",
    "stoll": "stl/containers/stoll.md",
    "getline": "stl/io/getline.md"
+  }
+ },
+ "stl/io/cerr.md": {
+  "default": "stl/io/cerr.md",
+  "ids": {
+   "clog": "stl/io/clog.md",
+   "wcerr": "stl/io/wcerr.md",
+   "wclog": "stl/io/wclog.md"
+  }
+ },
+ "stl/io/cin.md": {
+  "default": "stl/io/cin.md",
+  "ids": {
+   "wcin": "stl/io/wcin.md"
+  }
+ },
+ "stl/io/cout.md": {
+  "default": "stl/io/cout.md",
+  "ids": {
+   "wcout": "stl/io/wcout.md"
+  }
+ },
+ "stl/utilities/format_to.md": {
+  "default": "stl/utilities/format_to.md",
+  "ids": {
+   "format_to_n": "stl/utilities/format_to_n.md",
+   "formatted_size": "stl/utilities/formatted_size.md"
+  }
+ },
+ "stl/utilities/print.md": {
+  "default": "stl/utilities/print.md",
+  "ids": {
+   "println": "stl/utilities/println.md"
+  }
+ },
+ "stl/support/iterator/begin.md": {
+  "default": "stl/support/iterator/begin.md",
+  "ids": {
+   "end": "stl/support/iterator/end.md"
+  }
+ },
+ "stl/support/functional/ref.md": {
+  "default": "stl/support/functional/ref.md",
+  "ids": {
+   "cref": "stl/support/functional/cref.md"
+  }
+ },
+ "stl/containers/span.md": {
+  "default": "stl/containers/span.md",
+  "ids": {
+   "as_bytes": "stl/containers/as_bytes.md",
+   "as_writable_bytes": "stl/containers/as_writable_bytes.md"
+  }
+ },
+ "stl/io/osyncstream.md": {
+  "default": "stl/io/osyncstream.md",
+  "ids": {
+   "syncbuf": "stl/io/syncbuf.md"
+  }
+ },
+ "stl/numeric/limits.md": {
+  "default": "stl/numeric/limits.md",
+  "ids": {
+   "float_round_style": "stl/numeric/float_round_style.md",
+   "float_denorm_style": "stl/numeric/float_denorm_style.md"
+  }
+ },
+ "stl/numeric/stdfloat.md": {
+  "default": "stl/numeric/stdfloat.md",
+  "ids": {
+   "float32_t": "stl/numeric/float32_t.md",
+   "float64_t": "stl/numeric/float64_t.md",
+   "float128_t": "stl/numeric/float128_t.md"
+  }
+ },
+ "stl/numeric/cstdint.md": {
+  "default": "stl/numeric/cstdint.md",
+  "ids": {
+   "int32_t": "stl/numeric/cstdint/int32_t.md",
+   "uint32_t": "stl/numeric/cstdint/uint32_t.md",
+   "uint8_t": "stl/numeric/cstdint/uint8_t.md",
+   "int64_t": "stl/numeric/cstdint/int64_t.md",
+   "uint64_t": "stl/numeric/cstdint/uint64_t.md",
+   "int16_t": "stl/numeric/cstdint/int16_t.md",
+   "uint16_t": "stl/numeric/cstdint/uint16_t.md",
+   "int8_t": "stl/numeric/cstdint/int8_t.md",
+   "intptr_t": "stl/numeric/cstdint/intptr_t.md",
+   "uintptr_t": "stl/numeric/cstdint/uintptr_t.md",
+   "int_fast32_t": "stl/numeric/cstdint/int_fast32_t.md",
+   "int_least32_t": "stl/numeric/cstdint/int_least32_t.md",
+   "int_fast8_t": "stl/numeric/cstdint/int_fast8_t.md",
+   "int_least8_t": "stl/numeric/cstdint/int_least8_t.md",
+   "intmax_t": "stl/numeric/cstdint/intmax_t.md",
+   "uintmax_t": "stl/numeric/cstdint/uintmax_t.md"
+  }
+ },
+ "stl/io/csetjmp.md": {
+  "default": "stl/io/csetjmp.md",
+  "ids": {
+   "csetjmp": "stl/io/setjmp.md"
+  }
+ },
+ "stl/io/ios_base.md": {
+  "default": "stl/io/ios_base.md",
+  "ids": {
+   "streamsize": "stl/io/streamsize.md",
+   "streamoff": "stl/io/streamoff.md",
+   "streampos": "stl/io/streampos.md",
+   "fpos": "stl/io/fpos.md"
   }
  }
 }

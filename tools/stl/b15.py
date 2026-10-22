@@ -17,7 +17,7 @@ F("fprintf", "書式を指定して、ファイルに出力する。", "`printf`
   "ログファイルに書式つきで書く", ("書式と型が合わない", "`%d` に `double` を渡すなど、型が合わないと未定義動作です。新しいコードでは型安全な `std::print` を使います。"), [("[`printf`](printf.md)", "標準出力へ"), ("[`sprintf`](sprintf.md)", "バッファへ")], inc=("cstdio",))
 F("sprintf", "書式を指定して、文字配列に書き込む。", "文字列を組み立てたいとき、`sprintf` で配列に書式つきで書き込めます。ただし、配列の大きさを確かめないので、あふれる危険があります。`snprintf` を使うほうが安全です。", "int sprintf(char* buffer, const char* format, ...);",
   [("buffer", "char*", "書き込み先（十分な大きさが必要）"), ("format", "const char*", "書式文字列"), ("...", "可変引数", "書式に対応する値")], "書き込んだ文字数（終端を除く）", 'char buf[16];\nstd::sprintf(buf, "%03d", 7);\nstd::println("{}", buf);', "007",
-  "（古い C のコードの保守）", ("バッファがあふれる", "長さの確認がありません。`snprintf` か `std::format` を使います。"), [("[`snprintf`](snprintf.md)", "大きさを指定する"), ("[`std::format`](../../utilities/format.md)", "型安全な書き方")])
+  "（古い C のコードの保守）", ("バッファがあふれる", "長さの確認がありません。`snprintf` か `std::format` を使います。"), [("[`snprintf`](../../memory/cstring/snprintf.md)", "大きさを指定する"), ("[`std::format`](../../utilities/format.md)", "型安全な書き方")])
 F("vprintf", "可変引数のリスト（va_list）を使って、標準出力に出力する。", "`printf` を包んだ自作のログ関数を書くとき、受け取った `...` をそのまま `printf` には渡せません。`va_list` にして `vprintf` に渡します。", "int vprintf(const char* format, std::va_list vlist);",
   [("format", "const char*", "書式文字列"), ("vlist", "va_list", "`va_start` で作った引数のリスト")], "書き込んだ文字数。失敗したら負の値", 'Log("%d-%s\\n", 1, "a");', "1-a",
   "自作のログ関数", ("`va_end` を忘れる", "`va_start` したら、必ず `va_end` で閉じます。"), [("[`printf`](printf.md)", "直接書く"), ("[`va_start`](../va_start.md)", "可変引数")], inc=("cstdarg", "cstdio"),
@@ -154,7 +154,7 @@ W("wprintf", "書式を指定して、ワイド文字で標準出力に出す。
 W("fwprintf", "書式を指定して、ワイド文字でファイルに出力する。", "`fprintf` の `wchar_t` 版です。出力先の `FILE*` を指定できます。", "int fwprintf(std::FILE* stream, const wchar_t* format, ...);",
   [("stream", "FILE*", "出力先"), ("format", "const wchar_t*", "書式文字列"), ("...", "可変引数", "書式に対応する値")], "書き込んだ文字数。失敗したら負の値", 'std::fwprintf(stdout, L"%d\\n", 42);', "42", "ワイド文字列をファイルに書く", ("`fprintf` と混ぜる", "ストリームの向きが食い違います。"), [("[`fprintf`](../cstdio/fprintf.md)", "char 版")], inc=("cwchar", "cstdio"))
 W("swprintf", "書式を指定して、ワイド文字の配列に書き込む。", "`snprintf` の `wchar_t` 版です。大きさを指定するので、あふれにくくなっています。", "int swprintf(wchar_t* buffer, std::size_t bufsz, const wchar_t* format, ...);",
-  [("buffer", "wchar_t*", "書き込み先"), ("bufsz", "size_t", "書き込める最大の文字数（終端を含む）"), ("format", "const wchar_t*", "書式文字列")], "書き込んだ文字数。入りきらなければ負の値", 'wchar_t buf[16];\nint n = std::swprintf(buf, 16, L"%d", 42);\nstd::println("{}", n);', "2", "Windows API 用のワイド文字列を組み立てる", ("入りきらなくても成功と思う", "あふれたときは、負の値が返ります。"), [("[`snprintf`](../cstdio/snprintf.md)", "char 版")])
+  [("buffer", "wchar_t*", "書き込み先"), ("bufsz", "size_t", "書き込める最大の文字数（終端を含む）"), ("format", "const wchar_t*", "書式文字列")], "書き込んだ文字数。入りきらなければ負の値", 'wchar_t buf[16];\nint n = std::swprintf(buf, 16, L"%d", 42);\nstd::println("{}", n);', "2", "Windows API 用のワイド文字列を組み立てる", ("入りきらなくても成功と思う", "あふれたときは、負の値が返ります。"), [("[`snprintf`](../../memory/cstring/snprintf.md)", "char 版")])
 W("wscanf", "ワイド文字で、標準入力から書式を指定して読み込む。", "`scanf` の `wchar_t` 版です。", "int wscanf(const wchar_t* format, ...);",
   [("format", "const wchar_t*", "書式文字列"), ("...", "ポインタ", "読み込んだ値を入れる場所")], "読み込めた個数。入力が終わったら `WEOF`", 'int n = 0;\nstd::wscanf(L"%d", &n);\nstd::println("{}", n);', None, "ワイド文字の入力", ("`&` を忘れる", "変数のアドレスを渡さないと、未定義動作です。"), [("[`scanf`](../cstdio/scanf.md)", "char 版")])
 W("fgetwc", "ファイルからワイド文字を 1 文字読む。", "`fgetc` の `wchar_t` 版です。終端やエラーのときは `WEOF` が返ります。", "std::wint_t fgetwc(std::FILE* stream);",

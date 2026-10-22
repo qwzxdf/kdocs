@@ -1,5 +1,5 @@
 ---
-title: new[] と delete[]
+title: new[]
 summary: "配列をヒープに作り、解放する式。"
 order: 3
 group: new / delete まわり
@@ -7,7 +7,7 @@ tags:
   - メモリ
 ---
 
-# new[] と delete[]
+# new[]
 
 <div class="page-badges" markdown>
 <span class="rank rank-rare">知ってるだけ</span>
@@ -27,7 +27,7 @@ tags:
 
 ## 関数の詳しい説明
 
-### new[] / delete[] {#new_array data-toc-label="new[] と delete[]"}
+### new[] {#new_array data-toc-label="new[]"}
 
 ```cpp
 T* p = new T[n];       // n 個。各要素はデフォルトコンストラクタ

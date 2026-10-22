@@ -1,5 +1,5 @@
 ---
-title: operator new / operator delete
+title: operator new
 summary: "メモリの確保・解放だけを行う関数（new 式の内部で使われる）。"
 order: 8
 group: new / delete まわり
@@ -7,7 +7,7 @@ tags:
   - メモリ
 ---
 
-# operator new / operator delete
+# operator new
 
 <div class="page-badges" markdown>
 <span class="rank rank-rare">知ってるだけ</span>
@@ -27,7 +27,7 @@ tags:
 
 ## 関数の詳しい説明
 
-### operator new / operator delete {#operator_new data-toc-label="operator new と operator delete"}
+### operator new {#operator_new data-toc-label="operator new"}
 
 ```cpp
 void* operator new(std::size_t size);

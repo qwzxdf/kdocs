@@ -40,7 +40,7 @@ int snprintf(char* buffer, std::size_t bufsz, const char* format, ...);  // <cst
 
 - 戻り値: **書き込めていれば書かれたはずの文字数**（`bufsz` 以上なら、切り捨てられている）
 - 必ず終端の `'\0'` を書いてくれる、**大きさを守る安全な書式付き出力**です（`sprintf` は大きさを見ないので使いません）
-- C++ では、[`std::format_to_n`](../../utilities/format_to.md#format_to_n) が型安全な代わりです。
+- C++ では、[`std::format_to_n`](../../utilities/format_to_n.md#format_to_n) が型安全な代わりです。
 
 ```cpp
 char label[16];

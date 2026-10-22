@@ -457,42 +457,6 @@ int main() {
 1200 バイト
 ```
 
-### std::as_bytes {#as_bytes}
-
-```cpp
-template <class T, std::size_t N>
-std::span<const std::byte> as_bytes(std::span<T, N> s) noexcept;
-```
-
-- どんな型の span も、**読み取り専用のバイト列**として見られるようにします
-
-```cpp
-#include <print>
-#include <span>
-
-int main() {
-  int values[] = {1, 2};
-  auto bytes = std::as_bytes(std::span(values));
-  std::println("{} バイト", bytes.size());
-}
-```
-
-```text title="実行結果"
-8 バイト
-```
-
-!!! note "実際は"
-    ファイルに書き出す、ネットワークに送る、GPU に渡すなど、「型は気にせずバイト列として扱いたい」関数の引数を `std::span<const std::byte>` にしておくと便利です。
-
-### std::as_writable_bytes {#as_writable_bytes}
-
-```cpp
-template <class T, std::size_t N>
-std::span<std::byte> as_writable_bytes(std::span<T, N> s) noexcept;
-```
-
-- 書き込み可能なバイト列として見ます。ファイルからの読み込み先に使えます
-
 ### rbegin {#rbegin}
 
 ```cpp

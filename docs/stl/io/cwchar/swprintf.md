@@ -73,7 +73,7 @@ int main() {
 
 | 名前 | 違い |
 | --- | --- |
-| [`snprintf`](../cstdio/snprintf.md) | char 版 |
+| [`snprintf`](../../memory/cstring/snprintf.md) | char 版 |
 
 ## コンパイラ対応
 

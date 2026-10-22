@@ -232,15 +232,6 @@ constexpr bool valueless_by_exception() const noexcept;
 
 - 型を切り替える途中で例外が起きて、どの値も入っていない壊れた状態なら `true`。普通は起きません
 
-### std::variant_size {#variant_size}
-
-```cpp
-template <class T>
-struct variant_size;  // std::variant_size_v<T>
-```
-
-- 候補の数をコンパイル時に取得します
-
 ## フラグ・オプション
 
 フラグはありません。

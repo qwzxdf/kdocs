@@ -134,7 +134,7 @@ def table_for(items, with_perf, first_col):
                 cols.append(f'<span class="perf perf-{it["perf"]}">{PERF_LABEL[it["perf"]]}</span>')
             else:
                 cols.append("—")
-        summ = it["summary"]
+        summ = it["summary"].replace("|", "\\|")
         if it["ver"] and it["ver"][0] in ("17", "20", "23", "26"):
             summ += f' <span class="ver ver-{it["ver"][0]}">{it["ver"][1]}</span>'
         cols.append(summ)

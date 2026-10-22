@@ -77,46 +77,6 @@ class generator;
 - 関数の戻り値をこの型にして、中で `co_yield` を使うとコルーチンになります
 - 1 回しか回せません（入力範囲）
 
-### std::ranges::elements_of {#elements_of}
-
-```cpp
-co_yield std::ranges::elements_of(range);
-```
-
-- 別の範囲（vector や別の generator）の要素を、1 つずつ全部出します。再帰的な木の探索を書くのに便利です
-
-```cpp
-#include <generator>
-#include <print>
-#include <ranges>
-#include <vector>
-
-struct Node {
-  int value;
-  std::vector<Node> children;
-};
-
-// 木を深さ優先でたどる
-std::generator<int> Walk(const Node& node) {
-  co_yield node.value;
-  for (const Node& child : node.children) {
-    co_yield std::ranges::elements_of(Walk(child));  // 子の結果を全部出す
-  }
-}
-
-int main() {
-  Node root{1, {{2, {{4, {}}}}, {3, {}}}};
-  for (int v : Walk(root)) {
-    std::print("{} ", v);
-  }
-  std::println("");
-}
-```
-
-```text title="実行結果"
-1 2 4 3 
-```
-
 ## フラグ・オプション
 
 フラグはありません。

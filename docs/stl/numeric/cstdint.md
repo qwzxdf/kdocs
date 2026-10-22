@@ -28,20 +28,20 @@ tags:
 
 | 型 | 重要度 | ビット数 | 範囲 | 使う場面 |
 | --- | --- | --- | --- | --- |
-| [`std::int32_t`](#int32_t) | <span class="rank rank-often">よく使う</span> | 32 | 約 -21 億〜21 億 | セーブデータの数値 |
-| [`std::uint32_t`](#uint32_t) | <span class="rank rank-often">よく使う</span> | 32 | 0〜約 43 億 | ID、フラグ、色（RGBA） |
-| [`std::uint8_t`](#uint8_t) | <span class="rank rank-often">よく使う</span> | 8 | 0〜255 | 色の各成分、バイト列 |
-| [`std::int64_t`](#int64_t) | <span class="rank rank-often">よく使う</span> | 64 | 約 ±922 京 | 所持金、タイムスタンプ |
-| [`std::uint64_t`](#uint64_t) | <span class="rank rank-sometimes">たまに</span> | 64 | 0〜約 1845 京 | ハッシュ値、ハンドル |
-| [`std::int16_t`](#int16_t) | <span class="rank rank-sometimes">たまに</span> | 16 | -32768〜32767 | 音声データ（16bit PCM） |
-| [`std::uint16_t`](#uint16_t) | <span class="rank rank-sometimes">たまに</span> | 16 | 0〜65535 | 小さなファイル形式、タイルの番号 |
-| [`std::int8_t`](#int8_t) | <span class="rank rank-rare">知ってるだけ</span> | 8 | -128〜127 | |
+| [`std::int32_t`](cstdint/int32_t.md) | <span class="rank rank-often">よく使う</span> | 32 | 約 -21 億〜21 億 | セーブデータの数値 |
+| [`std::uint32_t`](cstdint/uint32_t.md) | <span class="rank rank-often">よく使う</span> | 32 | 0〜約 43 億 | ID、フラグ、色（RGBA） |
+| [`std::uint8_t`](cstdint/uint8_t.md) | <span class="rank rank-often">よく使う</span> | 8 | 0〜255 | 色の各成分、バイト列 |
+| [`std::int64_t`](cstdint/int64_t.md) | <span class="rank rank-often">よく使う</span> | 64 | 約 ±922 京 | 所持金、タイムスタンプ |
+| [`std::uint64_t`](cstdint/uint64_t.md) | <span class="rank rank-sometimes">たまに</span> | 64 | 0〜約 1845 京 | ハッシュ値、ハンドル |
+| [`std::int16_t`](cstdint/int16_t.md) | <span class="rank rank-sometimes">たまに</span> | 16 | -32768〜32767 | 音声データ（16bit PCM） |
+| [`std::uint16_t`](cstdint/uint16_t.md) | <span class="rank rank-sometimes">たまに</span> | 16 | 0〜65535 | 小さなファイル形式、タイルの番号 |
+| [`std::int8_t`](cstdint/int8_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 8 | -128〜127 | |
 | [`std::size_t`](#size_t) | <span class="rank rank-must">必須</span> | 環境による（64bit なら 64） | 0〜 | 大きさ・個数・添字（`<cstddef>`） |
 | [`std::ptrdiff_t`](#ptrdiff_t) | <span class="rank rank-sometimes">たまに</span> | 環境による | 符号付き | ポインタ・イテレータの差 |
-| [`std::intptr_t`](#intptr_t) | <span class="rank rank-rare">知ってるだけ</span> | ポインタと同じ | 符号付き | ポインタを整数として扱う |
-| [`std::uintptr_t`](#uintptr_t) | <span class="rank rank-rare">知ってるだけ</span> | ポインタと同じ | 符号なし | ポインタを整数として扱う |
-| [`std::int_fast32_t`](#int_fast32_t) | <span class="rank rank-rare">知ってるだけ</span> | 32 以上で一番速い | | |
-| [`std::int_least32_t`](#int_least32_t) | <span class="rank rank-rare">知ってるだけ</span> | 32 以上で一番小さい | | |
+| [`std::intptr_t`](cstdint/intptr_t.md) | <span class="rank rank-rare">知ってるだけ</span> | ポインタと同じ | 符号付き | ポインタを整数として扱う |
+| [`std::uintptr_t`](cstdint/uintptr_t.md) | <span class="rank rank-rare">知ってるだけ</span> | ポインタと同じ | 符号なし | ポインタを整数として扱う |
+| [`std::int_fast32_t`](cstdint/int_fast32_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 32 以上で一番速い | | |
+| [`std::int_least32_t`](cstdint/int_least32_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 32 以上で一番小さい | | |
 
 ## よくある使い方
 
@@ -76,55 +76,6 @@ int main() {
 
 ## 型の詳しい説明
 
-### std::int32_t {#int32_t}
-
-- ちょうど 32 ビットの符号付き整数。ファイルに書くとき、`int` の代わりに使うと環境が変わっても読めます
-
-### std::uint32_t {#uint32_t}
-
-- ちょうど 32 ビットの符号なし整数。ビットフラグや ID、RGBA の色に使います
-
-### std::uint8_t {#uint8_t}
-
-- ちょうど 8 ビットの符号なし整数（0〜255）。中身は `unsigned char` なので、`std::cout << x` では**文字**として出ます（`std::println` なら数値）
-
-```cpp
-#include <cstdint>
-#include <iostream>
-#include <print>
-
-int main() {
-  std::uint8_t level = 65;
-  std::cout << level << ' ' << static_cast<int>(level) << '\n';  // 1 つ目は 'A'
-  std::println("{}", level);  // println は数値で出す
-}
-```
-
-```text title="実行結果"
-A 65
-65
-```
-
-### std::int64_t {#int64_t}
-
-- ちょうど 64 ビットの符号付き整数。21 億を超える数（所持金、ミリ秒のタイムスタンプ）に使います
-
-### std::uint64_t {#uint64_t}
-
-- 64 ビットの符号なし整数。ハッシュ値や、世代付きの[ハンドル](../../engine/handle.md)を 1 つの数に詰めるのに使います
-
-### std::int16_t {#int16_t}
-
-- ちょうど 16 ビットの符号付き整数。音声のサンプル（16bit PCM）に使います
-
-### std::uint16_t {#uint16_t}
-
-- ちょうど 16 ビットの符号なし整数。タイルの番号など、65535 までで足りてメモリを節約したいデータに使います
-
-### std::int8_t {#int8_t}
-
-- 8 ビットの符号付き整数（-128〜127）。uint8_t と同じく、cout では文字として出ます
-
 ### std::size_t {#size_t}
 
 ```cpp
@@ -137,36 +88,38 @@ A 65
 
 - ポインタやイテレータの差の型（符号付き）。`std::ssize(v)` もこの型を返します
 
-### std::intptr_t {#intptr_t}
+## 全部の型
 
-- ポインタをそのまま入れられる大きさの符号付き整数
-
-### std::uintptr_t {#uintptr_t}
-
-- ポインタをそのまま入れられる大きさの符号なし整数。ポインタのアドレスをハッシュにしたり、アライメント（4 の倍数か）を調べたりするときに使います
-
-### std::int_fast32_t {#int_fast32_t}
-
-- 少なくとも 32 ビットあり、その環境で一番速い整数型。`int_fast8_t`、`int_fast16_t`、`int_fast64_t`（と符号なし版）もあります。ゲームではほとんど使いません
-
-### std::int_least32_t {#int_least32_t}
-
-- 少なくとも 32 ビットあり、一番小さい整数型。`int_least8_t` などもあります。ほとんど使いません
-
-```cpp
-#include <cstddef>
-#include <cstdint>
-#include <print>
-
-int main() {
-  std::println("{} {} {} {}", sizeof(std::int16_t), sizeof(std::int64_t), sizeof(std::size_t),
-               sizeof(std::uintptr_t) == sizeof(void*));
-}
-```
-
-```text title="実行結果（64 ビット環境）"
-2 8 8 true
-```
+| 型 | 符号 | 種類 |
+| --- | --- | --- |
+| [`std::int8_t`](cstdint/int8_t.md) | 符号付き | ちょうど |
+| [`std::uint8_t`](cstdint/uint8_t.md) | 符号なし | ちょうど |
+| [`std::int_fast8_t`](cstdint/int_fast8_t.md) | 符号付き | 最も速い |
+| [`std::uint_fast8_t`](cstdint/uint_fast8_t.md) | 符号なし | 最も速い |
+| [`std::int_least8_t`](cstdint/int_least8_t.md) | 符号付き | 最も小さい |
+| [`std::uint_least8_t`](cstdint/uint_least8_t.md) | 符号なし | 最も小さい |
+| [`std::int16_t`](cstdint/int16_t.md) | 符号付き | ちょうど |
+| [`std::uint16_t`](cstdint/uint16_t.md) | 符号なし | ちょうど |
+| [`std::int_fast16_t`](cstdint/int_fast16_t.md) | 符号付き | 最も速い |
+| [`std::uint_fast16_t`](cstdint/uint_fast16_t.md) | 符号なし | 最も速い |
+| [`std::int_least16_t`](cstdint/int_least16_t.md) | 符号付き | 最も小さい |
+| [`std::uint_least16_t`](cstdint/uint_least16_t.md) | 符号なし | 最も小さい |
+| [`std::int32_t`](cstdint/int32_t.md) | 符号付き | ちょうど |
+| [`std::uint32_t`](cstdint/uint32_t.md) | 符号なし | ちょうど |
+| [`std::int_fast32_t`](cstdint/int_fast32_t.md) | 符号付き | 最も速い |
+| [`std::uint_fast32_t`](cstdint/uint_fast32_t.md) | 符号なし | 最も速い |
+| [`std::int_least32_t`](cstdint/int_least32_t.md) | 符号付き | 最も小さい |
+| [`std::uint_least32_t`](cstdint/uint_least32_t.md) | 符号なし | 最も小さい |
+| [`std::int64_t`](cstdint/int64_t.md) | 符号付き | ちょうど |
+| [`std::uint64_t`](cstdint/uint64_t.md) | 符号なし | ちょうど |
+| [`std::int_fast64_t`](cstdint/int_fast64_t.md) | 符号付き | 最も速い |
+| [`std::uint_fast64_t`](cstdint/uint_fast64_t.md) | 符号なし | 最も速い |
+| [`std::int_least64_t`](cstdint/int_least64_t.md) | 符号付き | 最も小さい |
+| [`std::uint_least64_t`](cstdint/uint_least64_t.md) | 符号なし | 最も小さい |
+| [`std::intmax_t`](cstdint/intmax_t.md) | 符号付き | 最大 |
+| [`std::uintmax_t`](cstdint/uintmax_t.md) | 符号なし | 最大 |
+| [`std::intptr_t`](cstdint/intptr_t.md) | 符号付き | ポインタ用 |
+| [`std::uintptr_t`](cstdint/uintptr_t.md) | 符号なし | ポインタ用 |
 
 ## フラグ・オプション
 
@@ -174,102 +127,6 @@ int main() {
 | --- | --- |
 | `INT32_MAX`、`UINT8_MAX` など | 各型の最大値・最小値（C の書き方。C++ では [`std::numeric_limits`](limits.md) も使える） |
 | `INT64_C(123)` など | その型のリテラルを作るマクロ |
-
-### std::int_fast8_t {#int_fast8_t}
-
-```cpp
-using int_fast8_t = /* int など */;
-```
-
-- 戻り値: 8 ビット以上で、最も速く扱える符号つき整数型の別名
-- 計算量: コンパイル時
-
-8 ビット以上で、最も速く扱える符号つき整数型です。速さを優先する計算に使います。
-
-```cpp
-#include <cstdint>
-#include <print>
-
-int main() {
-  std::println("{}", sizeof(std::int_fast8_t) >= 1);
-}
-```
-
-```text title="実行結果"
-true
-```
-
-### std::int_least8_t {#int_least8_t}
-
-```cpp
-using int_least8_t = /* signed char など */;
-```
-
-- 戻り値: 8 ビット以上で、最も小さい符号つき整数型の別名
-- 計算量: コンパイル時
-
-8 ビット以上で、最も小さい符号つき整数型です。メモリの大きさを優先するときに使います。
-
-```cpp
-#include <cstdint>
-#include <print>
-
-int main() {
-  std::println("{}", sizeof(std::int_least8_t) >= 1);
-}
-```
-
-```text title="実行結果"
-true
-```
-
-### std::intmax_t {#intmax_t}
-
-```cpp
-using intmax_t = /* long long など */;
-```
-
-- 戻り値: 最も大きい符号つき整数型の別名
-- 計算量: コンパイル時
-
-最も大きい符号つき整数型です。ビット幅を気にせず、最大の範囲を確保したいときに使います。
-
-```cpp
-#include <cstdint>
-#include <print>
-
-int main() {
-  std::println("{}", sizeof(std::intmax_t) >= 1);
-}
-```
-
-```text title="実行結果"
-true
-```
-
-### std::uintmax_t {#uintmax_t}
-
-```cpp
-using uintmax_t = /* unsigned long long など */;
-```
-
-- 戻り値: 最も大きい符号なし整数型の別名
-- 計算量: コンパイル時
-
-最も大きい符号なし整数型です。ビット幅を気にせず、最大の範囲を確保したいときに使います。
-
-```cpp
-#include <cstdint>
-#include <print>
-
-int main() {
-  std::println("{}", sizeof(std::uintmax_t) >= 1);
-}
-```
-
-```text title="実行結果"
-true
-```
 
 ### SIZE_MAX {#SIZE_MAX}
 
