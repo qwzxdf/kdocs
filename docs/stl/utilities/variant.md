@@ -258,6 +258,39 @@ constexpr bool valueless_by_exception() const noexcept;
     using Value = std::variant<int, float>;
     ```
 
+### swap {#swap}
+
+```cpp
+void swap(variant& other);
+```
+
+- 計算量: 中身による
+
+中身を入れ替えます。型が違えば、それぞれが相手の型に変わります。
+
+### operator= {#op_assign}
+
+```cpp
+variant& operator=(const variant& rhs);
+variant& operator=(variant&& rhs);
+template <class T> variant& operator=(T&& t);
+```
+
+- 計算量: 中身による
+
+別の `variant` または値を代入します。値を代入するときは、`T` に最も合う選択肢が選ばれます。
+
+### operator== {#op_eq}
+
+```cpp
+template <class... Types>
+bool operator==(const variant<Types...>& a, const variant<Types...>& b);
+```
+
+- 計算量: 中身による
+
+同じ選択肢で、値が等しければ `true`。選択肢が違えば `false`。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

@@ -14,7 +14,7 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::remove` は、**範囲から、ある値と等しい要素を取り除いて、残りを前に詰める**アルゴリズムです。条件で取り除く `remove_if` もあります。ただし**コンテナの大きさは変わりません**。詰めた後ろの要素は不定になり、戻り値の「新しい終わり」から `erase` で本当に消します（remove-erase のイディオム）。
+`vector` から条件に合う要素を取り除くとき、`std::remove` を呼んだだけでは、`vector` の大きさが変わりません。要素が前に詰められるだけで、後ろにはゴミが残ります。この動きを知らないと、「消したはずなのに残っている」というバグになります。`remove` と `erase` を組み合わせる書き方（remove-erase イディオム）が必要でした。C++20 以降は、`std::erase_if` で 1 行にできます。
 
 !!! tip "ポイント"
     - `v.erase(std::ranges::remove(v, x).begin(), v.end())` が定番の形（remove-erase のイディオム）。
@@ -22,7 +22,7 @@ tags:
     - remove のあとの、詰めた後ろの要素は**不定**。読んではいけない。
 
 !!! info "このページを読む前に"
-    [ラムダ式](../../basics/lambda.md)、[イテレータ](../../basics/iterator.md) が分かると読みやすいです。
+    取り除くだけなら、このページの `remove` より [`erase_if`](erase_if.md) のほうが簡単です。`remove` は、仕組みを知る必要があるときと、`erase` を呼べない範囲（配列など）で使います。
 
 ## 関数の詳しい説明
 
@@ -84,26 +84,28 @@ constexpr borrowed_subrange_t<R> remove(R&& r, const T& value, Proj proj = {});
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 死んだ敵を `vector` から消す | `std::erase_if(enemies, 死んでいる)`（内部でこの処理） |
-| 配列から特定のアイテムを取り除く | `remove` + `erase` |
+新しいコードでは、`std::erase_if` を使います。`remove` を直接使うのは、`vector` ではなく C の配列や `std::array`、あるいは `erase` を呼べない範囲に対してです。大きさを変えられない範囲では、前に詰めたあとの「新しい終わり」を返してもらい、その手前だけを使います。
+
+古いコードを読むときには、`v.erase(std::remove_if(v.begin(), v.end(), pred), v.end())` という形に出会います。これが remove-erase イディオムで、`erase_if` と同じ意味です。意味が分かれば、読み替えられます。
 
 ## よくあるミス
 
-??? failure "remove しただけで、要素が減ったと思う"
-    `remove` は詰めるだけで、`size()` は変わりません。`erase` まで呼ぶか、`std::erase_if` を使います。
+??? failure "`remove` だけ呼んで消えたと思う"
+    `std::ranges::remove(v, x)` だけでは、`v.size()` は変わりません。戻り値の `subrange` の `begin()` から `v.end()` までを `erase` で消して、はじめて本当に消えます。`erase_if` を使えば、この手間はありません。
 
-??? failure "戻り値を無視する"
-    戻り値（新しい終わり）を無視すると、ゴミの要素が残ったままです。
+??? failure "詰めたあとの後ろの要素を読む"
+    `remove` のあと、新しい終わりより後ろの要素は不定です（ムーブされたあとの抜け殻）。読んではいけません。
+
+??? failure "`list` や `map` で `remove` を使う"
+    `list` には専用のメンバー関数 `remove`、`map` には `erase_if` があります。汎用の `remove` は要素を移動するので、`map` のようなキーが const の入れ物には使えません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::erase_if`](erase_if.md) | remove と erase を 1 行で |
-| [`std::ranges::replace`](replace.md) | 値を書き換える |
-| [`std::ranges::unique`](unique.md) | 隣り合う重複を詰める |
+| [`erase_if`](erase_if.md) | remove-erase を 1 行にした関数。新しいコードはこれ |
+| [`unique`](unique.md) | 連続した重複を取り除く。同じく `erase` と組み合わせて使う |
+| [`partition`](partition.md) | 条件で 2 つのグループに分ける。要素を捨てたくないとき |
 
 ## コンパイラ対応
 
@@ -112,9 +114,9 @@ C++20 の機能です。主要なコンパイラすべてで使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 条件に合う要素を前に詰める
-    - [x] 大きさは変わらない
-    - [x] C++20 以降は `std::erase_if`
+    - [x] `remove` は前に詰めるだけで、大きさは変わらない。
+    - [x] 本当に消すには `erase`。新しいコードは `erase_if`。
+    - [x] 新しい終わりより後ろは読まない。
 
 ## 関連ページ
 

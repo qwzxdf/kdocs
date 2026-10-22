@@ -50,6 +50,26 @@ int main() {
 （GCC では false、MSVC では true）
 ```
 
+### now {#now}
+
+```cpp
+static time_point high_resolution_clock::now() noexcept;
+```
+
+- 計算量: 定数
+
+今の時点を返します。利用できる最も細かい時計です。
+
+### is_steady {#is_steady}
+
+```cpp
+static constexpr bool is_steady;
+```
+
+- 計算量: コンパイル時
+
+巻き戻らず、一定の速さで進む時計なら `true`。実装によって違います。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

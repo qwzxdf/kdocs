@@ -59,6 +59,58 @@ true false
 !!! note "実際は"
     「30% で会心」「5% でレアドロップ」のような判定は、`uniform_real(0,1) < 0.3f` と書くより、こちらのほうが意図がはっきりします。
 
+### operator() {#op_call}
+
+```cpp
+template <class Generator>
+result_type operator()(Generator& g);
+```
+
+- 計算量: 定数（アルゴリズムによる）
+
+乱数エンジン `g` から乱数を取って、この分布に従う値を 1 つ返します。
+
+### reset {#reset}
+
+```cpp
+void reset();
+```
+
+- 計算量: 定数
+
+分布の内部状態を初期化します。直前の呼び出しで持ち越している値（正規分布の「余り」の値）を捨てます。
+
+### param {#param}
+
+```cpp
+param_type param() const;
+void param(const param_type& p);
+```
+
+- 計算量: 定数
+
+分布のパラメータ一式を取り出す、または設定します。
+
+### min {#min}
+
+```cpp
+result_type min() const;
+```
+
+- 計算量: 定数
+
+この分布が返しうる最小値。
+
+### max {#max}
+
+```cpp
+result_type max() const;
+```
+
+- 計算量: 定数
+
+この分布が返しうる最大値。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

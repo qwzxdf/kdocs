@@ -59,6 +59,56 @@ int main() {
 合図の後: true
 ```
 
+### request_stop {#request_stop}
+
+```cpp
+bool request_stop() noexcept;
+```
+
+- 計算量: 定数
+
+停止を要求します。最初に要求した呼び出しなら `true`。同じ状態を共有する `stop_token` から、`stop_requested()` が真になります。
+
+### stop_requested {#stop_requested}
+
+```cpp
+[[nodiscard]] bool stop_requested() const noexcept;
+```
+
+- 計算量: 定数
+
+停止が要求されていれば `true`。
+
+### stop_possible {#stop_possible}
+
+```cpp
+[[nodiscard]] bool stop_possible() const noexcept;
+```
+
+- 計算量: 定数
+
+停止を要求できる状態を持っていれば `true`（`nostopstate` で作ったものは `false`）。
+
+### get_token {#get_token}
+
+```cpp
+[[nodiscard]] stop_token get_token() const noexcept;
+```
+
+- 計算量: 定数
+
+停止の要求を確認するための `stop_token` を返します。
+
+### swap {#swap}
+
+```cpp
+void swap(stop_source& other) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの `stop_source` を入れ替えます。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

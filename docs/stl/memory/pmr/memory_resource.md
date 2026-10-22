@@ -90,6 +90,36 @@ int main() {
 確保 1 回
 ```
 
+### allocate {#allocate}
+
+```cpp
+void* allocate(std::size_t bytes, std::size_t alignment = alignof(std::max_align_t));
+```
+
+- 計算量: リソースによる
+
+`bytes` バイトのメモリを確保します。内部で、派生クラスの `do_allocate` を呼びます。失敗すると例外を投げます。
+
+### deallocate {#deallocate}
+
+```cpp
+void deallocate(void* p, std::size_t bytes, std::size_t alignment = alignof(std::max_align_t));
+```
+
+- 計算量: リソースによる
+
+`allocate` で確保したメモリを返します。内部で、派生クラスの `do_deallocate` を呼びます。
+
+### is_equal {#is_equal}
+
+```cpp
+bool is_equal(const memory_resource& other) const noexcept;
+```
+
+- 計算量: 定数
+
+2 つのリソースが、互いのメモリを解放できる（同じ）ものなら `true`。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

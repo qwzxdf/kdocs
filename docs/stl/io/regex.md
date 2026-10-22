@@ -119,6 +119,77 @@ true
 a_b2c3
 ```
 
+### assign {#assign}
+
+```cpp
+basic_regex& assign(const std::string& s, flag_type f = ECMAScript);
+```
+
+- 計算量: O(パターンの長さ)
+
+新しいパターンを設定します（コンパイルし直します）。
+
+### flags {#flags}
+
+```cpp
+flag_type flags() const;
+```
+
+- 計算量: 定数
+
+構文のオプション（`icase` など）。
+
+### mark_count {#mark_count}
+
+```cpp
+unsigned mark_count() const;
+```
+
+- 計算量: 定数
+
+パターンの中のグループ（括弧）の数。
+
+### imbue {#imbue}
+
+```cpp
+locale_type imbue(locale_type loc);
+```
+
+- 計算量: 定数
+
+正規表現が使うロケールを設定します。パターンは破棄されます。
+
+### getloc {#getloc}
+
+```cpp
+locale_type getloc() const;
+```
+
+- 計算量: 定数
+
+正規表現が使うロケール。
+
+### swap {#swap}
+
+```cpp
+void swap(basic_regex& other) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの正規表現を入れ替えます。
+
+### operator= {#op_assign}
+
+```cpp
+basic_regex& operator=(const basic_regex& rhs);
+basic_regex& operator=(const std::string& s);
+```
+
+- 計算量: O(パターンの長さ)
+
+別の正規表現、または文字列のパターンを代入します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

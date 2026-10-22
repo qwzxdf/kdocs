@@ -59,6 +59,46 @@ int main() {
 1970-01-02 00:00:00
 ```
 
+### now {#now}
+
+```cpp
+static time_point system_clock::now() noexcept;
+```
+
+- 計算量: 定数
+
+今の時点を返します。現実の日時の時計なので、時刻合わせで巻き戻ることがあります。
+
+### is_steady {#is_steady}
+
+```cpp
+static constexpr bool is_steady;
+```
+
+- 計算量: コンパイル時
+
+巻き戻らず、一定の速さで進む時計なら `true`。`system_clock` は `false` です。
+
+### to_time_t {#to_time_t}
+
+```cpp
+static std::time_t system_clock::to_time_t(const time_point& t) noexcept;
+```
+
+- 計算量: 定数
+
+`time_point` を C の `time_t`（秒単位）に変換します。`std::ctime`・`localtime` など、C の関数に渡すときに使います。
+
+### from_time_t {#from_time_t}
+
+```cpp
+static time_point system_clock::from_time_t(std::time_t t) noexcept;
+```
+
+- 計算量: 定数
+
+C の `time_t` を `time_point` に変換します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

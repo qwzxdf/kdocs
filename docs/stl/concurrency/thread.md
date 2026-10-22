@@ -174,6 +174,56 @@ static unsigned int hardware_concurrency() noexcept;
     });  // 消えるときに自動で止めて待つ
     ```
 
+### native_handle {#native_handle}
+
+```cpp
+native_handle_type native_handle();
+```
+
+- 計算量: 定数
+
+OS 固有のハンドル（`pthread_t` や `HANDLE`）を返します。標準にない機能（優先度の設定など）を使うときの出口です。
+
+### swap {#swap}
+
+```cpp
+void swap(thread& other) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの `thread` オブジェクトが管理するスレッドを入れ替えます。
+
+### operator= {#op_assign}
+
+```cpp
+thread& operator=(thread&& other) noexcept;
+```
+
+- 計算量: 定数
+
+ムーブ代入。コピーはできません。自分が実行中のスレッドを持っている（`joinable()` が真）状態で代入すると、`std::terminate` になります。
+
+### get_id {#thread_get_id}
+
+```cpp
+std::thread::id get_id() const noexcept;
+```
+
+- 計算量: 定数
+
+スレッドの ID。実行中でなければ（`joinable()` が偽なら）、どのスレッドも指さない既定の ID を返します。ログに出して、どのスレッドか確かめるのに使えます。
+
+### join {#thread_join}
+
+```cpp
+void join();
+```
+
+- 計算量: スレッドの終了まで待つ
+
+スレッドが終わるまで待ちます。`join` も `detach` もしないままスレッドオブジェクトを破棄すると、`std::terminate` が呼ばれます。2 回呼ぶとエラーです。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

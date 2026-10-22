@@ -294,6 +294,177 @@ int main() {
 [5, 2, 1]
 ```
 
+### assign {#assign}
+
+```cpp
+void assign(size_type n, const T& value);
+template <class InputIt>
+void assign(InputIt first, InputIt last);
+void assign(std::initializer_list<T> il);
+```
+
+- 計算量: O(要素数)
+
+中身を全部捨てて、新しい要素で置き換えます。
+
+### assign_range <span class="ver ver-23">C++23</span> {#assign_range data-toc-label="assign_range"}
+
+```cpp
+template <ranges::input_range R>
+void assign_range(R&& rg);
+```
+
+- 計算量: O(要素数)
+
+範囲の要素で、中身を置き換えます。
+
+### cbefore_begin {#cbefore_begin}
+
+```cpp
+const_iterator cbefore_begin() const noexcept;
+```
+
+- 計算量: 定数
+
+先頭の手前を指す const イテレータ。`insert_after` の基点になります。
+
+### insert_range_after <span class="ver ver-23">C++23</span> {#insert_range_after data-toc-label="insert_range_after"}
+
+```cpp
+template <ranges::input_range R>
+iterator insert_range_after(const_iterator pos, R&& rg);
+```
+
+- 計算量: O(挿入数)
+
+範囲の要素を、`pos` の次に挿入します。
+
+### prepend_range <span class="ver ver-23">C++23</span> {#prepend_range data-toc-label="prepend_range"}
+
+```cpp
+template <ranges::input_range R>
+void prepend_range(R&& rg);
+```
+
+- 計算量: O(追加数)
+
+範囲の要素を、先頭に追加します。
+
+### resize {#resize}
+
+```cpp
+void resize(size_type n);
+void resize(size_type n, const T& value);
+```
+
+- 計算量: O(差)
+
+要素数を `n` にします。増えるぶんは、既定値（または `value`）で埋め、減るぶんは末尾から削除します。
+
+### unique {#unique}
+
+```cpp
+size_type unique();
+template <class BinaryPred>
+size_type unique(BinaryPred pred);
+```
+
+- 計算量: O(要素数)
+
+隣り合う同じ要素を 1 つにまとめます（整列済みのリストで重複を消す）。
+
+### merge <span class="ver ver-17">C++17</span> {#merge data-toc-label="merge"}
+
+```cpp
+template <class C2>
+void merge(forward_list<..., C2>& source);
+```
+
+- 計算量: O(移動する要素数 × log n)
+
+別のコンテナの要素を、ノードごとこちらへ移します。キーが重複するものは、移動元に残ります。
+
+### operator= {#op_assign}
+
+```cpp
+forward_list& operator=(const forward_list& other);
+forward_list& operator=(forward_list&& other) noexcept;
+```
+
+- 計算量: コピーは O(要素数)、ムーブは定数
+
+コピー代入とムーブ代入。ムーブ代入は、中身の所有権を移すだけで、要素をコピーしません。
+
+### operator== {#op_eq}
+
+```cpp
+bool operator==(const forward_list& a, const forward_list& b);
+```
+
+- 計算量: O(要素数)
+
+要素の数が同じで、各要素が順に等しければ `true`。
+
+### operator<=> <span class="ver ver-20">C++20</span> {#op_cmp data-toc-label="operator<=>"}
+
+```cpp
+auto operator<=>(const forward_list& a, const forward_list& b);
+```
+
+- 計算量: O(要素数)
+
+要素を先頭から順に比べる、辞書順の三方比較。`<`・`>`・`<=`・`>=` も使えるようになります。
+
+### cbegin {#cbegin}
+
+```cpp
+const_iterator cbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+先頭の要素を指す const イテレータ。要素を書き換えられないので、読むだけの走査で使います。
+
+### cend {#cend}
+
+```cpp
+const_iterator cend() const noexcept;
+```
+
+- 計算量: 定数
+
+終端（最後の要素の次）を指す const イテレータ。
+
+### max_size {#max_size}
+
+```cpp
+size_type max_size() const noexcept;
+```
+
+- 計算量: 定数
+
+理論上、入れられる最大の要素数。実装の上限で、実際にそれだけ確保できるとは限りません。
+
+### get_allocator {#get_allocator}
+
+```cpp
+allocator_type get_allocator() const noexcept;
+```
+
+- 計算量: 定数
+
+使っているアロケータのコピー。
+
+### swap {#swap}
+
+```cpp
+void swap(forward_list& other) noexcept;
+```
+
+- 計算量: 定数
+
+中身を `other` と入れ替えます。要素のコピーやムーブはせず、内部のポインタを入れ替えるだけなので速いです。
+
 ## ゲームでの使いどころ
 
 ありません。[`std::vector`](vector.md) を使います。

@@ -123,6 +123,284 @@ iterator find(const Key& key);
 - 戻り値: 同じキーのうちどれか 1 つ。無ければ `end()`
 - 計算量: 平均 O(1)
 
+### emplace {#emplace}
+
+```cpp
+template <class... Args>
+iterator emplace(Args&&... args);
+```
+
+- 計算量: O(log n)（順序つき）、平均 O(1)（unordered）
+
+引数から、その場で要素を作って挿入します。コピーやムーブを避けられます。
+
+### emplace_hint {#emplace_hint}
+
+```cpp
+template <class... Args>
+iterator emplace_hint(const_iterator hint, Args&&... args);
+```
+
+- 計算量: ヒントが正しければ償却定数
+
+挿入される位置のヒント（直前の位置）を渡して、その場で要素を作ります。ヒントが合っていれば、償却定数で挿入できます。
+
+### swap {#swap}
+
+```cpp
+void swap(unordered_multimap& other) noexcept;
+```
+
+- 計算量: 定数
+
+中身を `other` と入れ替えます。要素のコピーやムーブはせず、内部のポインタを入れ替えるだけなので速いです。
+
+### extract <span class="ver ver-17">C++17</span> {#extract data-toc-label="extract"}
+
+```cpp
+node_type extract(const_iterator pos);
+node_type extract(const key_type& key);
+```
+
+- 計算量: O(log n)（順序つき）、平均 O(1)（unordered）
+
+要素をコピーやムーブなしで、ノードごと取り出します。取り出したノードは、キーを書き換えたり、別のコンテナに `insert` したりできます。
+
+### merge <span class="ver ver-17">C++17</span> {#merge data-toc-label="merge"}
+
+```cpp
+template <class C2>
+void merge(unordered_multimap<..., C2>& source);
+```
+
+- 計算量: O(移動する要素数 × log n)
+
+別のコンテナの要素を、ノードごとこちらへ移します。キーが重複するものは、移動元に残ります。
+
+### contains <span class="ver ver-20">C++20</span> {#contains data-toc-label="contains"}
+
+```cpp
+bool contains(const key_type& key) const;
+```
+
+- 計算量: O(log n)、平均 O(1)（unordered）
+
+指定したキーの要素があれば `true`。`find(...) != end()` を短く書けます。
+
+### begin {#begin}
+
+```cpp
+iterator begin() noexcept;
+const_iterator begin() const noexcept;
+```
+
+- 計算量: 定数
+
+先頭の要素を指すイテレータ。空なら `end()` と同じ。
+
+### cbegin {#cbegin}
+
+```cpp
+const_iterator cbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+先頭の要素を指す const イテレータ。要素を書き換えられないので、読むだけの走査で使います。
+
+### end {#end}
+
+```cpp
+iterator end() noexcept;
+const_iterator end() const noexcept;
+```
+
+- 計算量: 定数
+
+終端（最後の要素の次）を指すイテレータ。この位置は読めません。
+
+### cend {#cend}
+
+```cpp
+const_iterator cend() const noexcept;
+```
+
+- 計算量: 定数
+
+終端（最後の要素の次）を指す const イテレータ。
+
+### empty {#empty}
+
+```cpp
+[[nodiscard]] bool empty() const noexcept;
+```
+
+- 計算量: 定数
+
+要素が 1 つもなければ `true`。`size() == 0` より意図が伝わります。
+
+### size {#size}
+
+```cpp
+size_type size() const noexcept;
+```
+
+- 計算量: 定数
+
+要素の数。
+
+### max_size {#max_size}
+
+```cpp
+size_type max_size() const noexcept;
+```
+
+- 計算量: 定数
+
+理論上、入れられる最大の要素数。実装の上限で、実際にそれだけ確保できるとは限りません。
+
+### clear {#clear}
+
+```cpp
+void clear() noexcept;
+```
+
+- 計算量: O(要素数)
+
+全ての要素を削除します。メモリは返さないことがあります。
+
+### bucket_count {#bucket_count}
+
+```cpp
+size_type bucket_count() const noexcept;
+```
+
+- 計算量: 定数
+
+バケット（要素を振り分ける箱）の数。
+
+### max_bucket_count {#max_bucket_count}
+
+```cpp
+size_type max_bucket_count() const noexcept;
+```
+
+- 計算量: 定数
+
+バケットの数の上限。
+
+### bucket_size {#bucket_size}
+
+```cpp
+size_type bucket_size(size_type n) const;
+```
+
+- 計算量: O(要素数)
+
+n 番目のバケットに入っている要素の数。偏りの確認に使います。
+
+### bucket {#bucket}
+
+```cpp
+size_type bucket(const key_type& key) const;
+```
+
+- 計算量: 定数
+
+キーが入るバケットの番号。
+
+### load_factor {#load_factor}
+
+```cpp
+float load_factor() const noexcept;
+```
+
+- 計算量: 定数
+
+平均の負荷（要素数 ÷ バケット数）。1 に近づくと、衝突が増えて遅くなります。
+
+### max_load_factor {#max_load_factor}
+
+```cpp
+float max_load_factor() const noexcept;
+void max_load_factor(float ml);
+```
+
+- 計算量: 定数
+
+負荷の上限。これを超えると、自動でバケットを増やします（リハッシュ）。
+
+### rehash {#rehash}
+
+```cpp
+void rehash(size_type count);
+```
+
+- 計算量: 平均 O(要素数)
+
+バケットの数を `count` 以上にして、全ての要素を再配置します。
+
+### reserve {#reserve}
+
+```cpp
+void reserve(size_type count);
+```
+
+- 計算量: 平均 O(要素数)
+
+`count` 個の要素が入っても、リハッシュが起きないようにバケットを用意します。
+
+### hash_function {#hash_function}
+
+```cpp
+hasher hash_function() const;
+```
+
+- 計算量: 定数
+
+キーのハッシュ値を作る関数オブジェクトのコピー。
+
+### key_eq {#key_eq}
+
+```cpp
+key_equal key_eq() const;
+```
+
+- 計算量: 定数
+
+キーの等しさを判定する関数オブジェクトのコピー。
+
+### get_allocator {#get_allocator}
+
+```cpp
+allocator_type get_allocator() const noexcept;
+```
+
+- 計算量: 定数
+
+使っているアロケータのコピー。
+
+### operator= {#op_assign}
+
+```cpp
+unordered_multimap& operator=(const unordered_multimap& other);
+unordered_multimap& operator=(unordered_multimap&& other) noexcept;
+```
+
+- 計算量: コピーは O(要素数)、ムーブは定数
+
+コピー代入とムーブ代入。ムーブ代入は、中身の所有権を移すだけで、要素をコピーしません。
+
+### operator== {#op_eq}
+
+```cpp
+bool operator==(const unordered_multimap& a, const unordered_multimap& b);
+```
+
+- 計算量: O(要素数)
+
+要素の数が同じで、各要素が順に等しければ `true`。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

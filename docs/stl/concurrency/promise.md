@@ -41,6 +41,67 @@ class promise {
 
 - 「結果を書く側」を自分で持ちます。async で表せない形（スレッドの途中で結果を渡す、など）で使います
 
+### get_future {#get_future}
+
+```cpp
+std::future<T> get_future();
+```
+
+- 計算量: 定数
+
+この `promise` と結びついた `future` を返します。**1 回だけ**呼べます。2 回呼ぶと `future_error` です。
+
+### set_value {#set_value}
+
+```cpp
+void set_value(const T& value);
+void set_value(T&& value);
+```
+
+- 計算量: 定数
+
+結果の値を設定します。待っている `future::get()` が、これで戻ります。2 回設定すると `future_error` です。
+
+### set_exception {#set_exception}
+
+```cpp
+void set_exception(std::exception_ptr p);
+```
+
+- 計算量: 定数
+
+値の代わりに、例外を設定します。`future::get()` がこの例外を投げ直します。
+
+### set_value_at_thread_exit {#set_value_at_thread_exit}
+
+```cpp
+void set_value_at_thread_exit(const T& value);
+```
+
+- 計算量: 定数
+
+値を設定しますが、結果が見えるようになるのは、スレッドが完全に終わってからです（`thread_local` の後始末のあと）。
+
+### set_exception_at_thread_exit {#set_exception_at_thread_exit}
+
+```cpp
+void set_exception_at_thread_exit(std::exception_ptr p);
+```
+
+- 計算量: 定数
+
+例外を設定しますが、結果が見えるようになるのは、スレッドが完全に終わってからです。
+
+### swap {#swap}
+
+```cpp
+void swap(promise& other) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの `promise` を入れ替えます。
+
 ## 実際に動かしてみる
 
 ```cpp

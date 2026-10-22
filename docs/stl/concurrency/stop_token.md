@@ -49,6 +49,36 @@ bool request_stop() noexcept;
 
 - 「止まって」と伝えます。スレッドが止まるかどうかは、stop_token を見ているかどうか次第です
 
+### stop_requested {#stop_requested}
+
+```cpp
+[[nodiscard]] bool stop_requested() const noexcept;
+```
+
+- 計算量: 定数
+
+停止が要求されていれば `true`。ワーカースレッドのループ条件で確かめます。
+
+### stop_possible {#stop_possible}
+
+```cpp
+[[nodiscard]] bool stop_possible() const noexcept;
+```
+
+- 計算量: 定数
+
+停止が要求されうる状態なら `true`。
+
+### swap {#swap}
+
+```cpp
+void swap(stop_token& other) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの `stop_token` を入れ替えます。
+
 ## 実際に動かしてみる
 
 ```cpp

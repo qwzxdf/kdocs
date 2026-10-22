@@ -16,7 +16,7 @@ tags:
 `#include <memory>`
 </div>
 
-`std::unique_ptr` は、**`new` で作ったオブジェクトを持ち、自分が消えるときに自動で `delete` してくれるポインタ**です（スマートポインタ）。持ち主は常に 1 人だけで、コピーはできず、ムーブで「持ち主を移す」ことだけができます。`delete` の書き忘れ（メモリリーク）や二重 `delete` が起きなくなります。
+`new` で作ったオブジェクトは、どこかで `delete` しないとメモリリークになります。逆に二重に `delete` すると、プログラムが壊れます。持ち主が複雑になるほど、このミスは増えます。`std::unique_ptr` は、`new` で作ったオブジェクトを持ち、自分が消えるときに自動で `delete` してくれるポインターです。持ち主は常に 1 人で、コピーはできません。移すときは `std::move` でムーブします。
 
 !!! tip "ポイント"
     - <strong>`new` / `delete` を自分で書かず、`std::make_unique<T>(...)` で作る。</strong>
@@ -461,15 +461,24 @@ int main() {
     std::vector<std::unique_ptr<GameObject>> objects;
     ```
 
+### operator= {#op_assign}
+
+```cpp
+unique_ptr& operator=(unique_ptr&& r) noexcept;
+unique_ptr& operator=(std::nullptr_t) noexcept;
+```
+
+- 計算量: 定数 + 解放
+
+所有権をムーブで受け取ります（コピーはできません）。それまで持っていたものは解放されます。`nullptr` を代入すると、解放して空になります。
+
 ## ゲームでの使いどころ
 
-| 場面 | 例 |
-| --- | --- |
-| ゲームオブジェクトの管理 | `std::vector<std::unique_ptr<GameObject>>` |
-| シーン | `std::unique_ptr<Scene> current_scene_;`（切り替えると前のシーンが自動で消える） |
-| 大きなリソース | テクスチャ・サウンドの持ち主 |
-| 実装の隠蔽（Pimpl） | `std::unique_ptr<Impl> impl_;` |
-| C ライブラリのハンドル | Deleter 付きで自動解放 |
+ゲームオブジェクトの持ち主として使います。`std::vector<std::unique_ptr<GameObject>>` に、`Player`、`Enemy` などの派生クラスを入れて管理します。リストから外せば、オブジェクトも自動で消えます。
+
+シーンの切り替えにも向いています。`std::unique_ptr<Scene> current_scene_;` を新しいシーンに置き換えると、前のシーンが自動で破棄されます。大きなリソース（テクスチャやサウンド）の持ち主を、1 か所に決めておく使い方も一般的です。
+
+ヘッダーに実装を見せたくないときの Pimpl というイディオムでは、`std::unique_ptr<Impl> impl_;` を使います。C のライブラリのハンドルは、デリーターを付けた `unique_ptr` にすると、スコープを抜けるときに自動で解放されます。
 
 ## パフォーマンス
 

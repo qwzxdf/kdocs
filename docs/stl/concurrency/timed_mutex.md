@@ -61,6 +61,57 @@ int main() {
 取れた
 ```
 
+### try_lock_until {#try_lock_until}
+
+```cpp
+template <class Clock, class Duration>
+bool try_lock_until(const std::chrono::time_point<Clock, Duration>& abs_time);
+```
+
+- 計算量: 最大で指定時刻まで
+
+指定した時刻まで待って、ロックを試みます。取れたら `true`。
+
+### unlock {#unlock}
+
+```cpp
+void unlock();
+```
+
+- 計算量: 定数
+
+ロックを解除します。
+
+### native_handle {#native_handle}
+
+```cpp
+native_handle_type native_handle();
+```
+
+- 計算量: 定数
+
+OS 固有のハンドル（`pthread_t` や `HANDLE`）を返します。標準にない機能（優先度の設定など）を使うときの出口です。
+
+### lock {#lock}
+
+```cpp
+void lock();
+```
+
+- 計算量: 待つ時間による
+
+ロックします。ほかのスレッドが持っているときは、解除されるまで待ちます。
+
+### try_lock {#try_lock}
+
+```cpp
+bool try_lock();
+```
+
+- 計算量: 定数
+
+待たずに、ロックを試みます。取れたら `true`。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

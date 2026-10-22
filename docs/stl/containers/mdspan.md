@@ -270,6 +270,86 @@ constexpr const mapping_type& mapping() const noexcept;
 <div class="mem-step"><span class="mem-label">layout_left（2×3）</span><span class="mem-cells"><span>0,0</span><span class="move">1,0</span><span>0,1</span><span class="move">1,1</span><span>0,2</span><span class="move">1,2</span></span><span class="mem-note">列ごとに並ぶ</span></div>
 </div>
 
+### accessor {#accessor}
+
+```cpp
+const accessor_type& accessor() const noexcept;
+```
+
+- 計算量: 定数
+
+要素へのアクセス方法（アクセサ）への参照。
+
+### is_unique {#is_unique}
+
+```cpp
+constexpr bool is_unique() const;
+```
+
+- 計算量: 定数
+
+異なる添字が、異なる要素を指すなら `true`。重なりがないことを示します。
+
+### is_exhaustive {#is_exhaustive}
+
+```cpp
+constexpr bool is_exhaustive() const;
+```
+
+- 計算量: 定数
+
+すき間なく、全部の要素が連続して並ぶなら `true`。
+
+### is_strided {#is_strided}
+
+```cpp
+constexpr bool is_strided() const;
+```
+
+- 計算量: 定数
+
+各次元に一定のストライド（飛び幅）があれば `true`。
+
+### swap {#swap}
+
+```cpp
+friend constexpr void swap(mdspan& x, mdspan& y) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの `mdspan` を入れ替えます。
+
+### operator= {#op_assign}
+
+```cpp
+mdspan& operator=(const mdspan&) = default;
+```
+
+- 計算量: 定数
+
+コピー代入。`mdspan` は軽い view なので、コピーはポインタなどのコピーです。
+
+### rank_dynamic {#rank_dynamic}
+
+```cpp
+static constexpr rank_type rank_dynamic() noexcept;
+```
+
+- 計算量: 定数
+
+動的な（実行時に決まる）次元の数。
+
+### static_extent {#static_extent}
+
+```cpp
+static constexpr size_t static_extent(rank_type r) noexcept;
+```
+
+- 計算量: 定数
+
+r 番目の次元の、コンパイル時の大きさ（動的なら `dynamic_extent`）。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

@@ -148,6 +148,39 @@ int main() {
 剣: 300
 ```
 
+### operator= {#op_assign}
+
+```cpp
+pair& operator=(const pair& other);
+pair& operator=(pair&& other) noexcept(...);
+```
+
+- 計算量: 要素による
+
+`first` と `second` をそれぞれ代入します。
+
+### operator== {#op_eq}
+
+```cpp
+template <class T1, class T2>
+bool operator==(const pair<T1, T2>& a, const pair<T1, T2>& b);
+```
+
+- 計算量: 要素による
+
+`first` と `second` が両方等しければ `true`。
+
+### operator<=> <span class="ver ver-20">C++20</span> {#op_cmp data-toc-label="operator<=>"}
+
+```cpp
+template <class T1, class T2>
+auto operator<=>(const pair<T1, T2>& a, const pair<T1, T2>& b);
+```
+
+- 計算量: 要素による
+
+まず `first` を比べ、等しければ `second` を比べる辞書順の三方比較。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

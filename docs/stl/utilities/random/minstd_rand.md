@@ -59,6 +59,67 @@ int main() {
 16807
 ```
 
+### operator() {#op_call}
+
+```cpp
+result_type operator()();
+```
+
+- 計算量: 定数
+
+次の乱数を返します。呼ぶたびに内部の状態が進みます。
+
+### seed {#seed}
+
+```cpp
+void seed(result_type value = default_seed);
+template <class SeedSeq> void seed(SeedSeq& seq);
+```
+
+- 計算量: O(状態の大きさ)
+
+内部の状態を、シードで初期化し直します。同じシードなら、同じ乱数の並びになります。
+
+### discard {#discard}
+
+```cpp
+void discard(unsigned long long z);
+```
+
+- 計算量: O(z)
+
+乱数を `z` 個ぶん、捨てて進めます。並びの途中から使いたいとき（セーブした位置から再開するなど）に使います。
+
+### min {#min}
+
+```cpp
+static constexpr result_type min();
+```
+
+- 計算量: 定数
+
+`operator()` が返しうる最小値。
+
+### max {#max}
+
+```cpp
+static constexpr result_type max();
+```
+
+- 計算量: 定数
+
+`operator()` が返しうる最大値。
+
+### operator== {#op_eq}
+
+```cpp
+friend bool operator==(const minstd_rand& a, const minstd_rand& b);
+```
+
+- 計算量: O(状態の大きさ)
+
+2 つのエンジンの内部状態が同じなら `true`（同じ並びを出す）。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

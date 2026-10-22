@@ -104,6 +104,49 @@ int main() {
 3
 ```
 
+### swap {#swap}
+
+```cpp
+void swap(tuple& other);
+```
+
+- 計算量: 要素数に比例
+
+2 つのタプルの要素を、1 つずつ入れ替えます。
+
+### operator= {#op_assign}
+
+```cpp
+tuple& operator=(const tuple& other);
+tuple& operator=(tuple&& other);
+```
+
+- 計算量: 要素数に比例
+
+要素ごとに代入します。`pair` や、型が変換できるタプルからも代入できます。
+
+### operator== {#op_eq}
+
+```cpp
+template <class... T, class... U>
+bool operator==(const tuple<T...>& lhs, const tuple<U...>& rhs);
+```
+
+- 計算量: 要素数に比例
+
+全ての要素が順に等しければ `true`。
+
+### operator<=> <span class="ver ver-20">C++20</span> {#op_cmp data-toc-label="operator<=>"}
+
+```cpp
+template <class... T, class... U>
+auto operator<=>(const tuple<T...>& lhs, const tuple<U...>& rhs);
+```
+
+- 計算量: 要素数に比例
+
+要素を先頭から順に比べる、辞書順の三方比較。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

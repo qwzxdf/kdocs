@@ -269,7 +269,6 @@ SV_CullPrimitive | メッシュ シェーダーで、そのプリミティブを
 SV_StartVertexLocation | DrawInstanced の StartVertexLocation(SM 6.8)。
 SV_StartInstanceLocation | DrawInstanced の StartInstanceLocation(SM 6.8)。
 SV_DispatchGrid | ワーク グラフの、ブロードキャスト ノードのディスパッチ グリッド(SM 6.8)。
-SV_RayPayload | (予約)。
 POSITION | 頂点位置(旧来のセマンティクス)。
 POSITIONT | 変換済みの頂点位置(旧)。
 NORMAL | 法線。
@@ -416,7 +415,6 @@ sampler | SAMPLER_FEEDBACK_MIN_MIP | サンプラー フィードバックの種
 sampler | SAMPLER_FEEDBACK_MIP_REGION_USED | サンプラー フィードバックの種類: 使った mip 領域。
 lang | true | 真。
 lang | false | 偽。
-lang | NULL | (HLSL にはない。DXC では未定義)。
 """
 
 # ---- プリプロセッサ ----------------------------------------------------

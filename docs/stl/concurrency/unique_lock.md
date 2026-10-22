@@ -36,6 +36,108 @@ class unique_lock;
 
 - lock_guard と同じですが、途中で `unlock()` / `lock()` したり、ムーブしたりできます。[`std::condition_variable`](condition_variable.md) で待つときに必要です
 
+### try_lock {#try_lock}
+
+```cpp
+bool try_lock();
+```
+
+- 計算量: 定数
+
+待たずに、ミューテックスのロックを試みます。取れたら `true`。
+
+### try_lock_for {#try_lock_for}
+
+```cpp
+template <class Rep, class Period>
+bool try_lock_for(const std::chrono::duration<Rep, Period>& rel_time);
+```
+
+- 計算量: 最大で指定時間
+
+指定した時間まで待って、ロックを試みます。
+
+### try_lock_until {#try_lock_until}
+
+```cpp
+template <class Clock, class Duration>
+bool try_lock_until(const std::chrono::time_point<Clock, Duration>& abs_time);
+```
+
+- 計算量: 最大で指定時刻まで
+
+指定した時刻まで待って、ロックを試みます。
+
+### unlock {#unlock}
+
+```cpp
+void unlock();
+```
+
+- 計算量: 定数
+
+ロックを解除します。スコープの途中で、早めに解除したいときに使います。
+
+### swap {#swap}
+
+```cpp
+void swap(unique_lock& other) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの `unique_lock` を入れ替えます。
+
+### release {#release}
+
+```cpp
+mutex_type* release() noexcept;
+```
+
+- 計算量: 定数
+
+ミューテックスとの関連を切り離し、そのポインタを返します。解除はしないので、以降は自分で `unlock` します。
+
+### mutex {#mutex}
+
+```cpp
+mutex_type* mutex() const noexcept;
+```
+
+- 計算量: 定数
+
+管理しているミューテックスへのポインタ。
+
+### owns_lock {#owns_lock}
+
+```cpp
+bool owns_lock() const noexcept;
+```
+
+- 計算量: 定数
+
+ロックを持っていれば `true`。`defer_lock` や `try_to_lock` で作ったときに確かめます。
+
+### explicit operator bool {#op_bool}
+
+```cpp
+explicit operator bool() const noexcept;
+```
+
+- 計算量: 定数
+
+`owns_lock()` と同じです。
+
+### lock {#lock}
+
+```cpp
+void lock();
+```
+
+- 計算量: 待つ時間による
+
+管理しているミューテックスをロックします。すでにロックを持っているときに呼ぶと、`std::system_error` です。`defer_lock` で作ったときに、あとからロックするのに使います。
+
 ## 実際に動かしてみる
 
 ```cpp

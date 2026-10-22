@@ -48,6 +48,121 @@ class polymorphic_allocator {
 - 自作のクラスで「渡されたリソースを使ってメンバのコンテナを作りたい」ときは、コンストラクタに `std::pmr::memory_resource*` を受け取り、メンバのコンテナに渡します。
 - **代入のとき、アロケータは移りません**（`propagate_on_*` が `false`）。`a = b` の後も、`a` は元のリソースを使い続けます。コピーされるのは要素だけです
 
+### allocate {#allocate}
+
+```cpp
+T* allocate(std::size_t n);
+```
+
+- 計算量: リソースによる
+
+`T` を `n` 個ぶんのメモリを、内部のメモリリソースから確保します。
+
+### deallocate {#deallocate}
+
+```cpp
+void deallocate(T* p, std::size_t n);
+```
+
+- 計算量: リソースによる
+
+`allocate` で確保したメモリを返します。
+
+### allocate_bytes {#allocate_bytes}
+
+```cpp
+void* allocate_bytes(std::size_t nbytes, std::size_t alignment = alignof(std::max_align_t));
+```
+
+- 計算量: リソースによる
+
+バイト数と境界を指定して、生のメモリを確保します。
+
+### deallocate_bytes {#deallocate_bytes}
+
+```cpp
+void deallocate_bytes(void* p, std::size_t nbytes, std::size_t alignment = alignof(std::max_align_t));
+```
+
+- 計算量: リソースによる
+
+`allocate_bytes` で確保したメモリを返します。
+
+### allocate_object {#allocate_object}
+
+```cpp
+template <class U>
+U* allocate_object(std::size_t n = 1);
+```
+
+- 計算量: リソースによる
+
+型 `U` を `n` 個ぶんのメモリを確保します（オブジェクトは作りません）。
+
+### deallocate_object {#deallocate_object}
+
+```cpp
+template <class U>
+void deallocate_object(U* p, std::size_t n = 1);
+```
+
+- 計算量: リソースによる
+
+`allocate_object` で確保したメモリを返します。
+
+### new_object {#new_object}
+
+```cpp
+template <class U, class... Args>
+U* new_object(Args&&... args);
+```
+
+- 計算量: リソースによる + 構築
+
+メモリを確保して、そこにオブジェクトを作ります。`new` のメモリリソース版です。
+
+### delete_object {#delete_object}
+
+```cpp
+template <class U>
+void delete_object(U* p);
+```
+
+- 計算量: リソースによる + 破棄
+
+オブジェクトを破棄して、メモリを返します。`new_object` と対にします。
+
+### construct {#construct}
+
+```cpp
+template <class U, class... Args>
+void construct(U* p, Args&&... args);
+```
+
+- 計算量: 構築による
+
+`p` の場所に、オブジェクトを作ります。内部のメモリリソースを、要素にも引き継ぎます（uses-allocator 構築）。
+
+### resource {#resource}
+
+```cpp
+std::pmr::memory_resource* resource() const;
+```
+
+- 計算量: 定数
+
+このアロケータが使っているメモリリソース。
+
+### select_on_container_copy_construction {#select_on_container_copy_construction}
+
+```cpp
+polymorphic_allocator select_on_container_copy_construction() const;
+```
+
+- 計算量: 定数
+
+コンテナをコピーするとき、コピー先が使うアロケータを返します。pmr では、既定のメモリリソースを使うアロケータです（元のリソースは引き継がれません）。
+
 ## 実際に動かしてみる
 
 ```cpp

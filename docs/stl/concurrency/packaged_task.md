@@ -60,6 +60,66 @@ int main() {
 42
 ```
 
+### operator() {#op_call}
+
+```cpp
+void operator()(Args... args);
+```
+
+- 計算量: 関数による
+
+関数を呼んで、結果を `future` に設定します。例外が出たら、それが `future` に設定されます。
+
+### get_future {#get_future}
+
+```cpp
+std::future<R> get_future();
+```
+
+- 計算量: 定数
+
+結果を受け取る `future` を返します。**1 回だけ**呼べます。
+
+### valid {#valid}
+
+```cpp
+bool valid() const noexcept;
+```
+
+- 計算量: 定数
+
+関数を持っていれば `true`。
+
+### make_ready_at_thread_exit {#make_ready_at_thread_exit}
+
+```cpp
+void make_ready_at_thread_exit(Args... args);
+```
+
+- 計算量: 関数による
+
+関数を呼びますが、結果が見えるようになるのは、スレッドが完全に終わってからです。
+
+### reset {#reset}
+
+```cpp
+void reset();
+```
+
+- 計算量: 定数
+
+状態を捨てて、同じ関数で新しい状態を作ります。もう一度 `operator()` を呼べるようになります。
+
+### swap {#swap}
+
+```cpp
+void swap(packaged_task& other) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの `packaged_task` を入れ替えます。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

@@ -232,6 +232,69 @@ T* get() const noexcept;
     std::weak_ptr<Enemy> target;
     ```
 
+### operator[] <span class="ver ver-17">C++17</span> {#op_index data-toc-label="operator[]"}
+
+```cpp
+element_type& operator[](std::ptrdiff_t idx) const;
+```
+
+- 計算量: 定数
+
+配列用の `shared_ptr<T[]>` の、`idx` 番目の要素への参照。
+
+### swap {#swap}
+
+```cpp
+void swap(shared_ptr& r) noexcept;
+```
+
+- 計算量: 定数
+
+管理しているオブジェクトと参照カウントを、入れ替えます。
+
+### owner_before {#owner_before}
+
+```cpp
+template <class Y>
+bool owner_before(const shared_ptr<Y>& other) const noexcept;
+```
+
+- 計算量: 定数
+
+管理しているオブジェクトの「持ち主」（制御ブロック）の順序で比べます。`weak_ptr` をキーにした `map` で使います。
+
+### owner_hash <span class="ver ver-26">C++26</span> {#owner_hash data-toc-label="owner_hash"}
+
+```cpp
+std::size_t owner_hash() const noexcept;
+```
+
+- 計算量: 定数
+
+持ち主（制御ブロック）に対するハッシュ値。
+
+### owner_equal <span class="ver ver-26">C++26</span> {#owner_equal data-toc-label="owner_equal"}
+
+```cpp
+template <class Y>
+bool owner_equal(const shared_ptr<Y>& other) const noexcept;
+```
+
+- 計算量: 定数
+
+同じ持ち主（制御ブロック）かどうか。
+
+### operator= {#op_assign}
+
+```cpp
+shared_ptr& operator=(const shared_ptr& r) noexcept;
+shared_ptr& operator=(shared_ptr&& r) noexcept;
+```
+
+- 計算量: 定数
+
+コピー代入で参照カウントが 1 増え、それまで持っていたものの参照カウントが 1 減ります。ムーブ代入では、所有権を移すだけです。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

@@ -52,6 +52,106 @@ void join();
 
 - スレッドが終わるまで、呼んだスレッドを止めて待ちます。1 回しか呼べません
 
+### detach {#detach}
+
+```cpp
+void detach();
+```
+
+- 計算量: 定数
+
+スレッドを切り離して、独立に動かします。`join` も `request_stop` もできなくなるので、`jthread` では普通は使いません。
+
+### joinable {#joinable}
+
+```cpp
+[[nodiscard]] bool joinable() const noexcept;
+```
+
+- 計算量: 定数
+
+スレッドが実行中（まだ `join` されていない）なら `true`。
+
+### get_id {#get_id}
+
+```cpp
+id get_id() const noexcept;
+```
+
+- 計算量: 定数
+
+スレッドの ID。
+
+### native_handle {#native_handle}
+
+```cpp
+native_handle_type native_handle();
+```
+
+- 計算量: 定数
+
+OS 固有のハンドル（`pthread_t` や `HANDLE`）を返します。標準にない機能（優先度の設定など）を使うときの出口です。
+
+### hardware_concurrency {#hardware_concurrency}
+
+```cpp
+static unsigned hardware_concurrency() noexcept;
+```
+
+- 計算量: 定数
+
+同時に動かせるスレッド数の目安（CPU のコア数など）。分からなければ 0 を返します。
+
+### swap {#swap}
+
+```cpp
+void swap(jthread& other) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの `jthread` を入れ替えます。
+
+### request_stop {#request_stop}
+
+```cpp
+bool request_stop() noexcept;
+```
+
+- 計算量: 定数
+
+スレッドに、停止を要求します。スレッド関数が受け取った `stop_token` で確かめて、自分で終了します。デストラクタでも、自動で呼ばれます。
+
+### get_stop_source {#get_stop_source}
+
+```cpp
+stop_source get_stop_source() noexcept;
+```
+
+- 計算量: 定数
+
+このスレッドの停止要求を管理する `stop_source` を返します。
+
+### get_stop_token {#get_stop_token}
+
+```cpp
+stop_token get_stop_token() const noexcept;
+```
+
+- 計算量: 定数
+
+このスレッドの停止要求を確認する `stop_token` を返します。
+
+### operator= {#op_assign}
+
+```cpp
+jthread& operator=(jthread&& other) noexcept;
+```
+
+- 計算量: スレッドの終了まで待つ
+
+ムーブ代入。自分が実行中なら、先に停止を要求して、`join` します。
+
 ## 実際に動かしてみる
 
 ```cpp

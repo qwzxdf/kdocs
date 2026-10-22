@@ -56,6 +56,66 @@ int main() {
 true false true
 ```
 
+### test_and_set {#test_and_set}
+
+```cpp
+bool test_and_set(std::memory_order order = std::memory_order_seq_cst) noexcept;
+```
+
+- 計算量: 定数
+
+旗を立てて、立てる前の状態を返します。スピンロックの基本部品です。
+
+### clear {#clear}
+
+```cpp
+void clear(std::memory_order order = std::memory_order_seq_cst) noexcept;
+```
+
+- 計算量: 定数
+
+旗を下ろします。
+
+### test <span class="ver ver-20">C++20</span> {#test data-toc-label="test"}
+
+```cpp
+bool test(std::memory_order order = std::memory_order_seq_cst) const noexcept;
+```
+
+- 計算量: 定数
+
+旗が立っているかを調べます（旗は変えません）。
+
+### wait <span class="ver ver-20">C++20</span> {#wait data-toc-label="wait"}
+
+```cpp
+void wait(bool old, std::memory_order order = std::memory_order_seq_cst) const noexcept;
+```
+
+- 計算量: 待つ時間による
+
+旗が `old` と等しい間、待ちます。
+
+### notify_one <span class="ver ver-20">C++20</span> {#notify_one data-toc-label="notify_one"}
+
+```cpp
+void notify_one() noexcept;
+```
+
+- 計算量: 定数
+
+`wait` で待っているスレッドを 1 つ起こします。
+
+### notify_all <span class="ver ver-20">C++20</span> {#notify_all data-toc-label="notify_all"}
+
+```cpp
+void notify_all() noexcept;
+```
+
+- 計算量: 定数
+
+`wait` で待っているスレッドを全部起こします。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

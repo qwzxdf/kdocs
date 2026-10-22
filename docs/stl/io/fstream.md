@@ -66,6 +66,16 @@ int main() {
 hello
 ```
 
+### swap {#swap}
+
+```cpp
+void swap(fstream& other);
+```
+
+- 計算量: 定数
+
+中身（ファイルとストリームの状態）を入れ替えます。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

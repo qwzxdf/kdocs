@@ -1,0 +1,439 @@
+{
+ "name": "K-HLSL",
+ "scopeName": "source.khlsl",
+ "fileTypes": [
+  "hlsl",
+  "hlsli",
+  "fx",
+  "fxh",
+  "vsh",
+  "psh",
+  "gsh",
+  "hsh",
+  "dsh",
+  "csh",
+  "msh",
+  "ash",
+  "usf",
+  "ush",
+  "compute",
+  "cginc"
+ ],
+ "patterns": [
+  {
+   "include": "#all"
+  }
+ ],
+ "repository": {
+  "all": {
+   "patterns": [
+    {
+     "include": "#comments"
+    },
+    {
+     "include": "#preprocessor"
+    },
+    {
+     "include": "#strings"
+    },
+    {
+     "include": "#attributes"
+    },
+    {
+     "include": "#semantics"
+    },
+    {
+     "include": "#numbers"
+    },
+    {
+     "include": "#declarations"
+    },
+    {
+     "include": "#keywords"
+    },
+    {
+     "include": "#types"
+    },
+    {
+     "include": "#constants"
+    },
+    {
+     "include": "#special"
+    },
+    {
+     "include": "#methods"
+    },
+    {
+     "include": "#functions"
+    },
+    {
+     "include": "#namespaces"
+    },
+    {
+     "include": "#operators"
+    }
+   ]
+  },
+  "comments": {
+   "patterns": [
+    {
+     "name": "comment.block.documentation.khlsl",
+     "begin": "/\\*\\*(?!/)",
+     "end": "\\*/"
+    },
+    {
+     "name": "comment.block.khlsl",
+     "begin": "/\\*",
+     "end": "\\*/"
+    },
+    {
+     "name": "comment.line.double-slash.khlsl",
+     "match": "//.*$"
+    }
+   ]
+  },
+  "preprocessor": {
+   "patterns": [
+    {
+     "match": "^\\s*(#)\\s*(include)\\s+(<[^>\\n]*>|\"[^\"\\n]*\")",
+     "captures": {
+      "1": {
+       "name": "keyword.control.directive.khlsl"
+      },
+      "2": {
+       "name": "keyword.control.directive.include.khlsl"
+      },
+      "3": {
+       "name": "string.quoted.other.lt-gt.include.khlsl"
+      }
+     }
+    },
+    {
+     "match": "^\\s*(#)\\s*(define|undef)\\s+([A-Za-z_]\\w*)",
+     "captures": {
+      "1": {
+       "name": "keyword.control.directive.khlsl"
+      },
+      "2": {
+       "name": "keyword.control.directive.define.khlsl"
+      },
+      "3": {
+       "name": "entity.name.function.preprocessor.khlsl"
+      }
+     }
+    },
+    {
+     "match": "^\\s*(#)\\s*(pragma)\\b(?:\\s+(\\w+))?",
+     "captures": {
+      "1": {
+       "name": "keyword.control.directive.khlsl"
+      },
+      "2": {
+       "name": "keyword.control.directive.pragma.khlsl"
+      },
+      "3": {
+       "name": "entity.other.attribute-name.pragma.khlsl"
+      }
+     }
+    },
+    {
+     "match": "^\\s*(#)\\s*(ifdef|ifndef|if|elif|else|endif|error|warning|line)\\b",
+     "captures": {
+      "1": {
+       "name": "keyword.control.directive.khlsl"
+      },
+      "2": {
+       "name": "keyword.control.directive.conditional.khlsl"
+      }
+     }
+    },
+    {
+     "match": "\\bdefined\\b",
+     "name": "keyword.control.directive.defined.khlsl"
+    },
+    {
+     "match": "\\b(?:__SHADER_STAGE_AMPLIFICATION|__SHADER_STAGE_GEOMETRY|__SHADER_STAGE_COMPUTE|__SHADER_STAGE_LIBRARY|__DXC_VERSION_COMMITS|__DXC_VERSION_RELEASE|__SHADER_STAGE_DOMAIN|__SHADER_STAGE_VERTEX|__SHADER_TARGET_MAJOR|__SHADER_TARGET_MINOR|__SHADER_TARGET_STAGE|__SHADER_STAGE_PIXEL|__DXC_VERSION_MAJOR|__DXC_VERSION_MINOR|__SHADER_STAGE_HULL|__SHADER_STAGE_MESH|__HLSL_VERSION|__spirv__|__DATE__|__FILE__|__LINE__|__TIME__)\\b",
+     "name": "support.constant.predefined-macro.khlsl"
+    }
+   ]
+  },
+  "strings": {
+   "patterns": [
+    {
+     "name": "string.quoted.double.khlsl",
+     "begin": "\"",
+     "end": "\"",
+     "patterns": [
+      {
+       "match": "\\\\.",
+       "name": "constant.character.escape.khlsl"
+      }
+     ]
+    },
+    {
+     "name": "string.quoted.single.khlsl",
+     "begin": "'",
+     "end": "'",
+     "patterns": [
+      {
+       "match": "\\\\.",
+       "name": "constant.character.escape.khlsl"
+      }
+     ]
+    }
+   ]
+  },
+  "numbers": {
+   "patterns": [
+    {
+     "match": "\\b0[xX][0-9a-fA-F]+[uUlL]{0,3}\\b",
+     "name": "constant.numeric.hex.khlsl"
+    },
+    {
+     "match": "\\b0[bB][01]+[uUlL]{0,3}\\b",
+     "name": "constant.numeric.binary.khlsl"
+    },
+    {
+     "match": "(?<![\\w.])(?:\\d+\\.\\d*|\\.\\d+|\\d+)(?:[eE][+-]?\\d+)?(?:[fFhHlL]|[uU][lL]{0,2})?(?![\\w.])",
+     "name": "constant.numeric.decimal.khlsl"
+    }
+   ]
+  },
+  "attributes": {
+   "patterns": [
+    {
+     "match": "(\\[\\[)\\s*(vk::\\w+)",
+     "captures": {
+      "1": {
+       "name": "punctuation.definition.attribute.khlsl"
+      },
+      "2": {
+       "name": "entity.other.attribute-name.khlsl"
+      }
+     }
+    },
+    {
+     "match": "(?<=\\[)\\s*(NodeLocalRootArgumentsTableIndex|NodeTrackRWInputSharing|NodeMaxRecursionDepth|MaxRecordsSharedWith|UnboundedSparseNodes|NodeMaxDispatchGrid|allow_uav_condition|outputcontrolpoints|NodeIsProgramEntry|earlydepthstencil|patchconstantfunc|AllowSparseNodes|NodeDispatchGrid|NodeShareInputOf|maxvertexcount|outputtopology|NodeArraySize|RootSignature|maxtessfactor|experimental|partitioning|MaxRecords|NodeLaunch|clipplanes|numthreads|raypayload|forcecase|WaveSize|instance|noinline|fastopt|flatten|NodeID|Shader|branch|domain|export|shader|unroll|call|loop)\\b",
+     "captures": {
+      "1": {
+       "name": "entity.other.attribute-name.khlsl"
+      }
+     }
+    }
+   ]
+  },
+  "semantics": {
+   "patterns": [
+    {
+     "match": "(?i)(:)\\s*(SV_(?:RenderTargetArrayIndex|StartInstanceLocation|OutputControlPointID|StartVertexLocation|ViewportArrayIndex|DepthGreaterEqual|DispatchThreadID|InsideTessFactor|DepthLessEqual|DomainLocation|CullPrimitive|GroupThreadID|InnerCoverage|Barycentrics|ClipDistance|CullDistance|DispatchGrid|GSInstanceID|IsFrontFace|PrimitiveID|SampleIndex|ShadingRate|GroupIndex|InstanceID|StencilRef|TessFactor|Coverage|Position|VertexID|GroupID|Target|ViewID|Depth)\\d*)\\b",
+     "captures": {
+      "1": {
+       "name": "punctuation.separator.colon.khlsl"
+      },
+      "2": {
+       "name": "support.constant.semantic.khlsl"
+      }
+     }
+    },
+    {
+     "match": "(?i)(:)\\s*(BLENDINDICES|BLENDWEIGHT|TESSFACTOR|POSITIONT|BINORMAL|POSITION|TEXCOORD|TANGENT|NORMAL|COLOR|DEPTH|PSIZE|VFACE|VPOS|FOG)\\d*\\b(?=\\s*(?:[,;)=:{]|$))",
+     "captures": {
+      "1": {
+       "name": "punctuation.separator.colon.khlsl"
+      },
+      "2": {
+       "name": "support.constant.semantic.khlsl"
+      }
+     }
+    },
+    {
+     "match": "(:)\\s*(register|packoffset)\\b",
+     "captures": {
+      "1": {
+       "name": "punctuation.separator.colon.khlsl"
+      },
+      "2": {
+       "name": "storage.modifier.khlsl"
+      }
+     }
+    },
+    {
+     "match": "(:)\\s*(read|write)\\s*(?=\\()",
+     "captures": {
+      "1": {
+       "name": "punctuation.separator.colon.khlsl"
+      },
+      "2": {
+       "name": "storage.modifier.paq.khlsl"
+      }
+     }
+    },
+    {
+     "match": "\\b(anyhit|closesthit|miss|caller)\\b(?=\\s*[,)])",
+     "name": "support.constant.payload-stage.khlsl"
+    }
+   ]
+  },
+  "declarations": {
+   "patterns": [
+    {
+     "match": "\\b(struct|class|interface|enum(?:\\s+class)?|cbuffer|tbuffer|namespace|technique\\d*|pass)\\s+([A-Za-z_]\\w*)",
+     "captures": {
+      "1": {
+       "name": "storage.type.struct.khlsl"
+      },
+      "2": {
+       "name": "entity.name.type.khlsl"
+      }
+     }
+    },
+    {
+     "match": "\\btypedef\\b",
+     "name": "storage.type.typedef.khlsl"
+    }
+   ]
+  },
+  "keywords": {
+   "patterns": [
+    {
+     "match": "\\b(?:continue|default|discard|return|switch|break|while|case|else|goto|for|do|if)\\b",
+     "name": "keyword.control.khlsl"
+    },
+    {
+     "match": "\\b(?:globallycoherent|nointerpolation|reordercoherent|noperspective|column_major|perprimitive|groupshared|triangleadj|primitives|pervertex|row_major|centroid|triangle|unsigned|vertices|volatile|indices|lineadj|payload|precise|uniform|export|extern|inline|linear|sample|shared|static|const|inout|point|snorm|unorm|line|out|in)\\b",
+     "name": "storage.modifier.khlsl"
+    },
+    {
+     "match": "\\b(?:compile_fragment|static_assert|packoffset|Technique|protected|technique|operator|register|template|typename|compile|private|public|sizeof|using|Pass|pass|this)\\b",
+     "name": "keyword.other.khlsl"
+    }
+   ]
+  },
+  "types": {
+   "patterns": [
+    {
+     "match": "\\b(?:min10float|min16float|float16_t|float32_t|float64_t|min16uint|min12int|min16int|uint16_t|uint32_t|uint64_t|int16_t|int32_t|int64_t|double|dword|float|bool|half|uint|int)(?:[1-4](?:x[1-4])?)?\\b",
+     "name": "storage.type.primitive.khlsl"
+    },
+    {
+     "match": "\\b(?:vector|matrix|void|string|sampler(?:1D|2D|3D|CUBE|_state)?|texture|Texture)\\b",
+     "name": "storage.type.primitive.khlsl"
+    },
+    {
+     "match": "\\b(?:BuiltInTriangleIntersectionAttributes|RasterizerOrderedByteAddressBuffer|RasterizerOrderedStructuredBuffer|RasterizerOrderedTexture1DArray|RasterizerOrderedTexture2DArray|RaytracingAccelerationStructure|RasterizerOrderedTexture1D|RasterizerOrderedTexture2D|RasterizerOrderedTexture3D|RWDispatchNodeInputRecord|ConsumeStructuredBuffer|DispatchNodeInputRecord|RWGroupNodeInputRecords|RWThreadNodeInputRecord|RasterizerOrderedBuffer|ThreadNodeOutputRecords|AppendStructuredBuffer|FeedbackTexture2DArray|GroupNodeOutputRecords|SamplerComparisonState|GroupNodeInputRecords|ThreadNodeInputRecord|EmptyNodeOutputArray|RWByteAddressBuffer|RWStructuredBuffer|ByteAddressBuffer|FeedbackTexture2D|NodeOutputRecord|RWTexture1DArray|RWTexture2DArray|StructuredBuffer|Texture2DMSArray|TextureCubeArray|EmptyNodeOutput|NodeOutputArray|ConstantBuffer|EmptyNodeInput|Texture1DArray|Texture2DArray|TriangleStream|TextureBuffer|SamplerState|OutputPatch|PointStream|RWTexture1D|RWTexture2D|RWTexture3D|Texture2DMS|TextureCube|InputPatch|LineStream|NodeOutput|Texture1D|Texture2D|Texture3D|RWBuffer|RayQuery|RayDesc|Buffer)\\b",
+     "name": "support.type.resource.khlsl"
+    },
+    {
+     "match": "\\bdx::HitObject\\b",
+     "name": "support.type.resource.khlsl"
+    }
+   ]
+  },
+  "constants": {
+   "patterns": [
+    {
+     "match": "\\b(?:true|false)\\b",
+     "name": "constant.language.khlsl"
+    },
+    {
+     "match": "\\b(?:RAYTRACING_PIPELINE_FLAG_SKIP_PROCEDURAL_PRIMITIVES|RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH|RAYTRACING_PIPELINE_FLAG_SKIP_TRIANGLES|RAY_FLAG_CULL_FRONT_FACING_TRIANGLES|RAY_FLAG_CULL_BACK_FACING_TRIANGLES|RAY_FLAG_SKIP_PROCEDURAL_PRIMITIVES|COMMITTED_PROCEDURAL_PRIMITIVE_HIT|RAY_FLAG_SKIP_CLOSEST_HIT_SHADER|SAMPLER_FEEDBACK_MIP_REGION_USED|CANDIDATE_PROCEDURAL_PRIMITIVE|CANDIDATE_NON_OPAQUE_TRIANGLE|RAYTRACING_PIPELINE_FLAG_NONE|HIT_KIND_TRIANGLE_FRONT_FACE|HIT_KIND_TRIANGLE_BACK_FACE|RAY_FLAG_FORCE_OMM_2_STATE|RAY_FLAG_FORCE_NON_OPAQUE|RAY_FLAG_CULL_NON_OPAQUE|SAMPLER_FEEDBACK_MIN_MIP|RAY_FLAG_SKIP_TRIANGLES|COMMITTED_TRIANGLE_HIT|RAY_FLAG_FORCE_OPAQUE|RAY_FLAG_CULL_OPAQUE|GROUP_SHARED_MEMORY|NODE_OUTPUT_MEMORY|COMMITTED_NOTHING|NODE_INPUT_MEMORY|COMMITTED_STATUS|CANDIDATE_TYPE|RAY_FLAG_NONE|REORDER_SCOPE|DEVICE_SCOPE|GROUP_SCOPE|ALL_MEMORY|GROUP_SYNC|UAV_MEMORY)\\b",
+     "name": "support.constant.enum.khlsl"
+    }
+   ]
+  },
+  "special": {
+   "patterns": [
+    {
+     "match": "\\b(?:ResourceDescriptorHeap|SamplerDescriptorHeap)\\b",
+     "name": "support.variable.descriptor-heap.khlsl"
+    },
+    {
+     "match": "\\bthis\\b",
+     "name": "variable.language.this.khlsl"
+    }
+   ]
+  },
+  "methods": {
+   "patterns": [
+    {
+     "match": "(dx::)(HitObject)(::)(\\w+)",
+     "captures": {
+      "1": {
+       "name": "entity.name.namespace.khlsl"
+      },
+      "2": {
+       "name": "support.type.resource.khlsl"
+      },
+      "3": {
+       "name": "punctuation.accessor.khlsl"
+      },
+      "4": {
+       "name": "support.function.method.khlsl"
+      }
+     }
+    },
+    {
+     "match": "(\\.)\\s*(CandidateInstanceContributionToHitGroupIndex|CommittedInstanceContributionToHitGroupIndex|InterlockedCompareExchangeFloatBitwise|CandidateProceduralPrimitiveNonOpaque|InterlockedCompareStoreFloatBitwise|CalculateLevelOfDetailUnclamped|CandidateTriangleBarycentrics|CommittedTriangleBarycentrics|CommitProceduralPrimitiveHit|InterlockedCompareExchange64|CandidateObjectRayDirection|CommittedObjectRayDirection|CandidateTriangleFrontFace|CommitNonOpaqueTriangleHit|CommittedTriangleFrontFace|GetThreadNodeOutputRecords|InterlockedCompareExchange|LoadLocalRootTableConstant|ThreadIncrementOutputCount|CandidateObjectToWorld3x4|CandidateObjectToWorld4x3|CandidateWorldToObject3x4|CandidateWorldToObject4x3|CommittedObjectToWorld3x4|CommittedObjectToWorld4x3|CommittedWorldToObject3x4|CommittedWorldToObject4x3|FinishedCrossGroupSharing|GetGroupNodeOutputRecords|GroupIncrementOutputCount|InterlockedCompareStore64|WriteSamplerFeedbackLevel|CandidateObjectRayOrigin|CommittedObjectRayOrigin|WriteSamplerFeedbackBias|WriteSamplerFeedbackGrad|CandidatePrimitiveIndex|CommittedPrimitiveIndex|InterlockedCompareStore|CalculateLevelOfDetail|CandidateGeometryIndex|CandidateInstanceIndex|CommittedGeometryIndex|CommittedInstanceIndex|CandidateTriangleRayT|GetObjectRayDirection|InterlockedExchange64|GetWorldRayDirection|WriteSamplerFeedback|CandidateInstanceID|CommittedInstanceID|GetObjectToWorld3x4|GetShaderTableIndex|GetWorldToObject3x4|InterlockedExchange|SetShaderTableIndex|GetObjectRayOrigin|SampleCmpLevelZero|GetPrimitiveIndex|GetSamplePosition|GetWorldRayOrigin|WorldRayDirection|DecrementCounter|GetGeometryIndex|GetInstanceIndex|IncrementCounter|InterlockedAdd64|InterlockedAnd64|InterlockedMax64|InterlockedMin64|InterlockedXor64|CommittedStatus|InterlockedOr64|GatherCmpAlpha|GatherCmpGreen|GetRayTCurrent|InterlockedAdd|InterlockedAnd|InterlockedMax|InterlockedMin|InterlockedXor|OutputComplete|SampleCmpLevel|TraceRayInline|WorldRayOrigin|CandidateType|CommittedRayT|GatherCmpBlue|GetAttributes|GetDimensions|GetInstanceID|InterlockedOr|SampleCmpBias|SampleCmpGrad|FromRayQuery|GatherCmpRed|RestartStrip|GatherAlpha|GatherGreen|GetRayFlags|SampleLevel|GatherBlue|GetHitKind|GetRayTMin|SampleBias|SampleGrad|GatherCmp|GatherRaw|GatherRed|SampleCmp|MakeMiss|RayFlags|TraceRay|Consume|IsValid|MakeNop|Proceed|RayTMin|Append|Gather|Invoke|IsMiss|Length|Sample|Store2|Store3|Store4|sample|Abort|Count|IsHit|IsNop|Load2|Load3|Load4|Store|Load|mips|Get)\\b(?=\\s*(?:<[^>]*>\\s*)?\\()",
+     "captures": {
+      "1": {
+       "name": "punctuation.accessor.khlsl"
+      },
+      "2": {
+       "name": "support.function.method.khlsl"
+      }
+     }
+    },
+    {
+     "match": "(\\.)\\s*(mips|sample)\\b(?=\\s*\\[)",
+     "captures": {
+      "1": {
+       "name": "punctuation.accessor.khlsl"
+      },
+      "2": {
+       "name": "support.variable.property.khlsl"
+      }
+     }
+    }
+   ]
+  },
+  "functions": {
+   "patterns": [
+    {
+     "match": "\\bdx::MaybeReorderThread\\b",
+     "name": "support.function.intrinsic.khlsl"
+    },
+    {
+     "match": "\\b(?:DeviceMemoryBarrierWithGroupSync|GroupMemoryBarrierWithGroupSync|AllMemoryBarrierWithGroupSync|GetRenderTargetSamplePosition|EvaluateAttributeAtCentroid|GetRemainingRecursionLevels|Process2DQuadTessFactorsAvg|Process2DQuadTessFactorsMax|Process2DQuadTessFactorsMin|GetRenderTargetSampleCount|InterlockedCompareExchange|EvaluateAttributeAtSample|ProcessIsolineTessFactors|ProcessQuadTessFactorsAvg|ProcessQuadTessFactorsMax|ProcessQuadTessFactorsMin|EvaluateAttributeSnapped|ProcessTriTessFactorsAvg|ProcessTriTessFactorsMax|ProcessTriTessFactorsMin|WaveMultiPrefixCountBits|InterlockedCompareStore|DispatchRaysDimensions|QuadReadAcrossDiagonal|WaveMultiPrefixProduct|AcceptHitAndEndSearch|WaveMultiPrefixBitAnd|WaveMultiPrefixBitXor|GetAttributeAtVertex|WaveMultiPrefixBitOr|DeviceMemoryBarrier|InterlockedExchange|SetMeshOutputCounts|WaveActiveCountBits|WavePrefixCountBits|GroupMemoryBarrier|ObjectRayDirection|WaveActiveAllEqual|WaveMultiPrefixSum|DispatchRaysIndex|WaveActiveAllTrue|WaveActiveAnyTrue|WaveActiveProduct|WavePrefixProduct|WaveReadLaneFirst|WorldRayDirection|AllMemoryBarrier|D3DCOLORtoUBYTE4|ObjectToWorld3x4|ObjectToWorld4x3|WaveActiveBallot|WaveActiveBitAnd|WaveActiveBitXor|WaveGetLaneCount|WaveGetLaneIndex|WorldToObject3x4|WorldToObject4x3|dot4add_i8packed|dot4add_u8packed|ObjectRayOrigin|QuadReadAcrossX|QuadReadAcrossY|WaveActiveBitOr|WaveIsFirstLane|InterlockedAdd|InterlockedAnd|InterlockedMax|InterlockedMin|InterlockedXor|PrimitiveIndex|QuadReadLaneAt|WaveReadLaneAt|WorldRayOrigin|GeometryIndex|InstanceIndex|InterlockedOr|ObjectToWorld|WaveActiveMax|WaveActiveMin|WaveActiveSum|WavePrefixSum|WorldToObject|pack_clamp_s8|pack_clamp_u8|DispatchMesh|IsHelperLane|firstbithigh|unpack_s8s16|unpack_s8s32|unpack_u8u16|unpack_u8u32|RayTCurrent|determinant|faceforward|firstbitlow|reversebits|texCUBEbias|texCUBEgrad|texCUBEproj|CallShader|InstanceID|ddx_coarse|ddy_coarse|smoothstep|texCUBElod|IgnoreHit|ReportHit|WaveMatch|asfloat16|countbits|normalize|tex1Dbias|tex1Dgrad|tex1Dproj|tex2Dbias|tex2Dgrad|tex2Dproj|tex3Dbias|tex3Dgrad|tex3Dproj|transpose|RayFlags|TraceRay|asdouble|asuint16|ddx_fine|ddy_fine|distance|f16tof32|f32tof16|isfinite|isnormal|saturate|tex1Dlod|tex2Dlod|tex3Dlod|Barrier|HitKind|QuadAll|QuadAny|RayTMin|asfloat|asint16|degrees|dot2add|pack_s8|pack_u8|radians|reflect|refract|texCUBE|asuint|errorf|fwidth|length|printf|select|sincos|abort|asint|atan2|clamp|cross|floor|frexp|isinf|isnan|ldexp|log10|msad4|noise|round|rsqrt|tex1D|tex2D|tex3D|trunc|acos|asin|atan|ceil|clip|cosh|exp2|fmod|frac|lerp|log2|modf|sign|sinh|sqrt|step|tanh|abs|all|any|cos|ddx|ddy|dot|dst|exp|fma|lit|log|mad|max|min|mul|pow|rcp|sin|tan)\\b(?=\\s*(?:<[^>]*>\\s*)?\\()",
+     "name": "support.function.intrinsic.khlsl"
+    },
+    {
+     "match": "\\b[A-Za-z_]\\w*(?=\\s*\\()",
+     "name": "entity.name.function.khlsl"
+    }
+   ]
+  },
+  "namespaces": {
+   "patterns": [
+    {
+     "match": "\\b([A-Za-z_]\\w*)\\s*(::)",
+     "captures": {
+      "1": {
+       "name": "entity.name.namespace.khlsl"
+      },
+      "2": {
+       "name": "punctuation.accessor.khlsl"
+      }
+     }
+    }
+   ]
+  },
+  "operators": {
+   "patterns": [
+    {
+     "match": "\\+\\+|--|&&|\\|\\||<<=?|>>=?|[-+*/%&|^<>=!]=|[-+*/%&|^~!<>?]",
+     "name": "keyword.operator.khlsl"
+    }
+   ]
+  }
+ }
+}

@@ -15,7 +15,7 @@ tags:
 `#include <array>`
 </div>
 
-`std::array` は、**要素数がコンパイル時に決まっている固定長の配列**です。中身は C の配列（`int a[4]`）とまったく同じで、速さもメモリも変わりません。そのうえで `size()` が使える、コピーや比較ができる、関数から返せる、といった「普通の値」としての便利さが足されています。
+装備スロットが 10 個、上下左右の 4 方向、RGB の 3 色。ゲームには、個数が最初から決まっている集まりがたくさんあります。C の配列 `int a[4]` で持つと、関数に渡したときに大きさが消えたり、コピーや比較ができなかったりして、扱いにくい点があります。`std::array` は、中身は C の配列とまったく同じで、速さもメモリも変わらないまま、`size()` が使え、コピーや比較ができる「普通の値」にしたものです。
 
 !!! tip "ポイント"
     - <strong>個数が決まっているなら C の配列ではなくこれを使う。</strong> 4 方向、装備スロット、キー設定など。
@@ -693,18 +693,33 @@ constexpr const_iterator cend() const noexcept;
     void Print(std::span<const int> values);
     ```
 
+### crbegin {#crbegin}
+
+```cpp
+const_reverse_iterator crbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+逆順の先頭（最後の要素）を指す const イテレータ。
+
+### crend {#crend}
+
+```cpp
+const_reverse_iterator crend() const noexcept;
+```
+
+- 計算量: 定数
+
+逆順の終端（先頭の手前）を指す const イテレータ。
+
 ## ゲームでの使いどころ
 
-| 場面 | 例 |
-| --- | --- |
-| 方向・隣接マス | `std::array<Offset, 4>` / `std::array<Offset, 8>` |
-| 装備・アイテムスロット | `std::array<ItemId, 10>` |
-| キー設定 | `std::array<KeyCode, kActionCount>` |
-| 座標・色・行列 | `std::array<float, 3>`、`std::array<float, 16>` |
-| 小さい固定の盤面 | `std::array<std::array<int, 8>, 8>`（オセロなど） |
+個数が決まっている小さな集まりに使います。上下左右の隣接マスのずれを `std::array<Offset, 4>` で持つと、4 方向を `for` で回せます。斜めを含めるなら 8 方向の `array` です。装備やアイテムのスロットのように、最大数が仕様で決まっているものにも向いています。
 
-!!! note "2 次元は array の array でも OK"
-    vector の vector は行ごとにメモリがバラバラになりますが、array の array は**全部が 1 本に連続して並ぶ**ので速いです。サイズが固定なら素直にこれで書けます。
+キー設定は、`std::array<KeyCode, kActionCount>` として、アクションの番号で添え字を引くと、ハッシュ表より簡単で速くなります。座標や色の成分を `std::array<float, 3>` で持つ使い方もあります。
+
+オセロのような小さい盤面は、`std::array<std::array<int, 8>, 8>` です。`vector` の `vector` は行ごとにメモリがバラバラになりますが、`array` の `array` は全体が 1 つの連続した領域になり、キャッシュにも優しくなります。要素数が実行時に決まるなら `vector` を使います。
 
 ## パフォーマンス
 

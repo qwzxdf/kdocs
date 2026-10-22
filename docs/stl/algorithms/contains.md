@@ -14,7 +14,7 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::contains` は、**範囲の中に、ある値が含まれているかどうかを `bool` で答える**関数です。`find` の結果を `end()` と比べる書き方を、1 つの関数にしたものです。`contains_subrange` を使うと、「連続した並び」が含まれているかも調べられます。
+インベントリにそのアイテムがあるか、有効なキーの一覧にこのキーが含まれているか。「あるかどうか」だけを知りたい場面は多いのに、`find` の結果を `end()` と比べる書き方は、意図が一目では伝わりません。C++23 の `std::ranges::contains` は、「範囲に値が含まれているか」を `bool` で答える関数です。`find` を使った判定と、まったく同じ動きをします。
 
 !!! tip "ポイント"
     - あるかどうかだけなら `contains`。位置も欲しいなら [`find`](find.md)。
@@ -22,7 +22,7 @@ tags:
     - 先頭から順に見るので O(n)。何度も調べるなら `unordered_set` を検討する。
 
 !!! info "このページを読む前に"
-    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
+    [`ranges` とビュー](../../basics/ranges.md)と[ラムダ式](../../basics/lambda.md)が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
@@ -105,24 +105,30 @@ false
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| アイテムを持っているか | `contains(inventory, item_id)` |
-| 解放済みのステージか | `contains(unlocked, stage_id)` |
-| 禁止ワードが含まれているか | `contains(banned, word)` |
+所持品の判定が、代表的な使い方です。`std::ranges::contains(inventory, item_id)` で、そのアイテムを持っているかを調べます。構造体のメンバで調べるなら、プロジェクションを使って `contains(enemies, 42, &Enemy::id)` と書きます。
+
+許可リストや禁止リストの判定にも使えます。ただし `contains` は先頭から順に調べるので、要素が数百個以上あって何度も呼ぶなら、`unordered_set` に入れて、`set.contains(x)` で調べるほうが速くなります。
+
+連続した並びが含まれているかは、`contains_subrange` で調べます。コマンド入力（↓→パンチ）の判定のような、入力履歴の中に特定の並びがあるかの確認に使えます。
 
 ## よくあるミス
 
-??? failure "頻繁に調べるのに vector を使う"
-    要素が多く、何度も `contains` を呼ぶなら、`std::unordered_set` の `contains`（C++20）のほうがずっと速いです。
+??? failure "位置が必要なのに `contains` を使う"
+    `contains` は `bool` しか返しません。見つけた要素を取り出したり、書き換えたりしたいなら、`find` で位置を取ります。
+
+??? failure "C++20 以前のコンパイラで使う"
+    `contains` は C++23 の機能です。C++20 なら `std::ranges::find(r, x) != std::ranges::end(r)` と書きます。
+
+??? failure "大きな配列で何度も呼ぶ"
+    O(n) の探索を毎フレーム、要素数千個で何十回も呼ぶと、無視できない時間になります。`unordered_set` に変えるか、結果をキャッシュします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::find`](find.md) | 位置を返す |
-| [`std::ranges::any_of`](any_of.md) | 条件に合うものがあるか |
-| `std::set::contains` / `unordered_set::contains` | コンテナのメンバ関数。ハッシュや木を使うので速い |
+| [`find`](find.md) | 位置を返す。要素を使うならこちら |
+| [`any_of`](any_of.md) | 条件で調べる。値の一致ではなく、条件式で判断したいとき |
+| [`unordered_set`](../containers/unordered_set.md) | 何度も調べるなら、集合のほうが速い |
 
 ## コンパイラ対応
 
@@ -131,9 +137,9 @@ C++23 の機能です。GCC 13 / Clang 19 / MSVC 19.34（VS 2022 17.4）以降�
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] あるかどうかだけなら `contains`
-    - [x] 位置が欲しいなら `find`
-    - [x] C++23
+    - [x] あるかどうかだけなら `contains`、位置が欲しいなら `find`。
+    - [x] C++23 の機能。C++20 以前は `find` と `end()` の比較で書く。
+    - [x] 何度も呼ぶなら `unordered_set`。
 
 ## 関連ページ
 

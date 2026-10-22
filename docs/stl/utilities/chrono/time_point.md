@@ -70,6 +70,77 @@ constexpr duration time_since_epoch() const;
 - 戻り値: 基準時刻（エポック）からの経過時間
 - 計算量: O(1)
 
+### min {#min}
+
+```cpp
+static constexpr time_point min() noexcept;
+```
+
+- 計算量: 定数
+
+表せる最も早い時点。
+
+### max {#max}
+
+```cpp
+static constexpr time_point max() noexcept;
+```
+
+- 計算量: 定数
+
+表せる最も遅い時点。
+
+### operator+ {#op_plus}
+
+```cpp
+constexpr time_point operator+(const time_point& tp, const duration& d);
+```
+
+- 計算量: 定数
+
+時点に `duration` を足して、あとの時点を作ります。
+
+### operator- {#operator}
+
+```cpp
+constexpr time_point operator-(const time_point& tp, const duration& d);
+constexpr auto operator-(const time_point& lhs, const time_point& rhs);
+```
+
+- 計算量: 定数
+
+時点から `duration` を引く、または 2 つの時点の差（`duration`）を求めます。経過時間の計算に使います。
+
+### operator+= {#op_plus_assign}
+
+```cpp
+constexpr time_point& operator+=(const duration& d);
+```
+
+- 計算量: 定数
+
+自分の時点を、`d` だけ進めます。
+
+### operator== {#op_eq}
+
+```cpp
+constexpr bool operator==(const time_point& lhs, const time_point& rhs);
+```
+
+- 計算量: 定数
+
+同じ時点なら `true`。
+
+### operator<=> <span class="ver ver-20">C++20</span> {#op_cmp data-toc-label="operator<=>"}
+
+```cpp
+constexpr auto operator<=>(const time_point& lhs, const time_point& rhs);
+```
+
+- 計算量: 定数
+
+時点の先後を比べる三方比較。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

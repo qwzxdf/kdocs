@@ -15,7 +15,7 @@ tags:
 `#include <fstream>`
 </div>
 
-`std::ifstream` は、**ファイルを読む**ための型です。`std::cin` と同じ `>>` や `std::getline` で読めます。バイナリは `read` で読みます。スコープを抜けると、自動でファイルを閉じます。書くほうは [`std::ofstream`](ofstream.md) です。
+設定ファイルを読み込む、セーブデータを復元する、アセットのバイナリを読む。ゲームを作ると、ファイルを読む場面はすぐに出てきます。`std::ifstream` は、ファイルを開いて、`std::cin` と同じ `>>` や `getline` で読めるようにする型です。スコープを抜けると自動で閉じるので、閉じ忘れの心配がありません。
 
 !!! tip "ポイント"
     - `std::ifstream in(path);` で開く。**開けたかを必ず `if (!in)` で確かめる**（失敗しても例外は出ない）。
@@ -219,7 +219,8 @@ void open(const std::filesystem::path& p, std::ios::openmode mode = /* in / out 
 ### std::ios::binary
 
 バイナリ モードです。付けないテキスト モードでは、Windows が `
-` と `
+` と `
+
 ` を相互に変換します。画像やセーブ データなど、バイト列をそのまま読むときは必ず付けます。
 
 ### std::ios::ate
@@ -238,12 +239,115 @@ void open(const std::filesystem::path& p, std::ios::openmode mode = /* in / out 
 
 `out` と一緒に使うと、ファイルがすでにあるときに開くのを失敗させます。上書き事故を避けたいときの指定です。
 
+### ignore {#ignore}
+
+```cpp
+istream& ignore(streamsize count = 1, int_type delim = EOF);
+```
+
+- 計算量: O(count)
+
+最大 `count` 文字を読み飛ばします。`delim` に当たったら、それも読んで止まります。入力のあとに残った改行を捨てるのに使います。
+
+### peek {#peek}
+
+```cpp
+int_type peek();
+```
+
+- 計算量: 定数
+
+次の 1 文字を、読み進めずにのぞきます。終端なら `EOF`。
+
+### unget {#unget}
+
+```cpp
+istream& unget();
+```
+
+- 計算量: 定数
+
+直前に読んだ 1 文字を戻して、もう一度読めるようにします。
+
+### putback {#putback}
+
+```cpp
+istream& putback(char_type ch);
+```
+
+- 計算量: 定数
+
+指定した文字を、読み直せるように戻します。
+
+### fail {#fail}
+
+```cpp
+bool fail() const;
+```
+
+- 計算量: 定数
+
+読み込みに失敗した（`failbit` か `badbit`）なら `true`。形式が合わない入力のときも真になります。
+
+### bad {#bad}
+
+```cpp
+bool bad() const;
+```
+
+- 計算量: 定数
+
+回復できない深刻なエラー（`badbit`）があれば `true`。
+
+### good {#good}
+
+```cpp
+bool good() const;
+```
+
+- 計算量: 定数
+
+エラーがなく、終端でもなければ `true`。
+
+### readsome {#readsome}
+
+```cpp
+streamsize readsome(char_type* s, streamsize n);
+```
+
+- 計算量: O(n)
+
+バッファに**すでにある**文字だけを、待たずに読みます。
+
+### sync {#sync}
+
+```cpp
+int sync();
+```
+
+- 計算量: 実装による
+
+入力バッファを同期します。
+
+### get {#get}
+
+```cpp
+int get();
+istream& get(char& ch);
+istream& get(char* s, streamsize n, char delim = '\n');
+```
+
+- 計算量: O(読んだ文字数)
+
+空白や改行も含めて、1 文字（または複数文字）を読みます。`>>` が空白を読み飛ばすのと違い、そのまま読みます。
+
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 設定ファイル・セーブデータの読み込み | `std::ifstream in("save.dat"); std::getline(in, line)` |
-| バイナリのアセットを読む | `in.read(buffer, size)` |
+設定ファイルとセーブデータの読み込みが基本です。テキストなら `std::getline(in, line)` で 1 行ずつ、バイナリなら `in.read(buffer, size)` で決まった大きさを読みます。
+
+バイナリのアセット（メッシュや独自形式のデータ）を読むときは、`std::ios::binary` を付けて開きます。Windows でテキストモードのまま読むと、改行の変換でデータが壊れます。
+
+読み込みに失敗した場合のふるまいは、ゲームごとに決めておきます。設定ファイルがなければ初期値を使う、セーブデータが壊れていれば最初からにする、など、ファイルを開いた直後に `if (!in)` で確かめて分岐します。
 
 ## よくあるミス
 

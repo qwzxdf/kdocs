@@ -15,7 +15,7 @@ tags:
 `#include <fstream>`
 </div>
 
-`std::ofstream` は、**ファイルに書く**ための型です。`std::cout` と同じ `<<` で書けます。バイナリは `write` で書きます。開くと中身は消えます（`std::ios::app` を付けると追記）。読むほうは [`std::ifstream`](ifstream.md) です。
+セーブデータを書き出す、ログをファイルに残す、設定を保存する。ファイルへの書き込みは、ゲームの寿命の中で何度も出てきます。`std::ofstream` は、ファイルを開いて `std::cout` と同じ `<<` で書き出せるようにする型です。スコープを抜けると、残っていたデータを書き出して自動で閉じてくれます。
 
 !!! tip "ポイント"
     - `std::ofstream out(path);` で開く（既存の中身は消える）。
@@ -173,19 +173,71 @@ void clear(iostate state = goodbit);
 ### std::ios::binary
 
 バイナリ モードです。付けないテキスト モードでは、Windows が `
-` を `
+` を `
+
 ` に変換して書きます。セーブ データなどのバイト列は必ず付けます。
 
 ### std::ios::noreplace <span class="ver ver-23">C++23</span>
 
 ファイルがすでにあるときは、開くのを失敗させます。上書き事故を避けたいときの指定です。
 
+### put {#put}
+
+```cpp
+ostream& put(char_type ch);
+```
+
+- 計算量: 定数
+
+1 文字を、書式なしで書き込みます。
+
+### eof {#eof}
+
+```cpp
+bool eof() const;
+```
+
+- 計算量: 定数
+
+終端に達していれば `true`。
+
+### fail {#fail}
+
+```cpp
+bool fail() const;
+```
+
+- 計算量: 定数
+
+書き込みに失敗した（`failbit` か `badbit`）なら `true`。
+
+### bad {#bad}
+
+```cpp
+bool bad() const;
+```
+
+- 計算量: 定数
+
+回復できない深刻なエラー（`badbit`）があれば `true`。ディスクがいっぱいのときなどです。
+
+### good {#good}
+
+```cpp
+bool good() const;
+```
+
+- 計算量: 定数
+
+エラーがなければ `true`。
+
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| セーブデータの書き出し | `std::ofstream out("save.dat", std::ios::binary);` |
-| ログファイルへの追記 | `std::ofstream log("log.txt", std::ios::app);` |
+セーブデータの書き出しでは、バイナリなら `std::ios::binary`、テキストなら既定で開きます。書き込み中にゲームが落ちると、セーブデータが壊れるので、一時ファイルに書いてから名前を変更する方法がよく使われます。
+
+ログの追記には `std::ios::app` を付けます。付けないと、開くたびに前の内容が消えます。クラッシュの直前のログを残したいときは、`flush` を呼んで、メモリにたまった内容を確実にファイルへ書き出します。
+
+保存先のフォルダは、開く前に作っておきます。`create_directories` で、途中のフォルダも含めて作れます。
 
 ## よくあるミス
 

@@ -90,6 +90,36 @@ int main() {
 そろった回数: 4
 ```
 
+### max {#max}
+
+```cpp
+static constexpr ptrdiff_t max() noexcept;
+```
+
+- 計算量: 定数
+
+カウンタの最大値。
+
+### arrive {#arrive}
+
+```cpp
+[[nodiscard]] arrival_token arrive(std::ptrdiff_t update = 1);
+```
+
+- 計算量: 定数
+
+フェーズの到着を知らせます（待ちません）。戻り値のトークンを `wait` に渡すと、フェーズの完了まで待てます。
+
+### wait {#wait}
+
+```cpp
+void wait(arrival_token&& arrival) const;
+```
+
+- 計算量: 待つ時間による
+
+`arrive` で得たトークンのフェーズが完了するまで、待ちます。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

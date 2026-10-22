@@ -476,6 +476,169 @@ size_type bucket_count() const noexcept;
     }
     ```
 
+### emplace_hint {#emplace_hint}
+
+```cpp
+template <class... Args>
+iterator emplace_hint(const_iterator hint, Args&&... args);
+```
+
+- 計算量: ヒントが正しければ償却定数
+
+挿入される位置のヒント（直前の位置）を渡して、その場で要素を作ります。ヒントが合っていれば、償却定数で挿入できます。
+
+### equal_range {#equal_range}
+
+```cpp
+std::pair<iterator, iterator> equal_range(const key_type& key);
+```
+
+- 計算量: O(log n)、平均 O(個数)（unordered）
+
+指定したキーに等しい要素の範囲（`[first, last)`）を返します。
+
+### cbegin {#cbegin}
+
+```cpp
+const_iterator cbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+先頭の要素を指す const イテレータ。要素を書き換えられないので、読むだけの走査で使います。
+
+### cend {#cend}
+
+```cpp
+const_iterator cend() const noexcept;
+```
+
+- 計算量: 定数
+
+終端（最後の要素の次）を指す const イテレータ。
+
+### max_size {#max_size}
+
+```cpp
+size_type max_size() const noexcept;
+```
+
+- 計算量: 定数
+
+理論上、入れられる最大の要素数。実装の上限で、実際にそれだけ確保できるとは限りません。
+
+### max_bucket_count {#max_bucket_count}
+
+```cpp
+size_type max_bucket_count() const noexcept;
+```
+
+- 計算量: 定数
+
+バケットの数の上限。
+
+### bucket_size {#bucket_size}
+
+```cpp
+size_type bucket_size(size_type n) const;
+```
+
+- 計算量: O(要素数)
+
+n 番目のバケットに入っている要素の数。偏りの確認に使います。
+
+### load_factor {#load_factor}
+
+```cpp
+float load_factor() const noexcept;
+```
+
+- 計算量: 定数
+
+平均の負荷（要素数 ÷ バケット数）。1 に近づくと、衝突が増えて遅くなります。
+
+### max_load_factor {#max_load_factor}
+
+```cpp
+float max_load_factor() const noexcept;
+void max_load_factor(float ml);
+```
+
+- 計算量: 定数
+
+負荷の上限。これを超えると、自動でバケットを増やします（リハッシュ）。
+
+### rehash {#rehash}
+
+```cpp
+void rehash(size_type count);
+```
+
+- 計算量: 平均 O(要素数)
+
+バケットの数を `count` 以上にして、全ての要素を再配置します。
+
+### hash_function {#hash_function}
+
+```cpp
+hasher hash_function() const;
+```
+
+- 計算量: 定数
+
+キーのハッシュ値を作る関数オブジェクトのコピー。
+
+### key_eq {#key_eq}
+
+```cpp
+key_equal key_eq() const;
+```
+
+- 計算量: 定数
+
+キーの等しさを判定する関数オブジェクトのコピー。
+
+### get_allocator {#get_allocator}
+
+```cpp
+allocator_type get_allocator() const noexcept;
+```
+
+- 計算量: 定数
+
+使っているアロケータのコピー。
+
+### operator= {#op_assign}
+
+```cpp
+unordered_set& operator=(const unordered_set& other);
+unordered_set& operator=(unordered_set&& other) noexcept;
+```
+
+- 計算量: コピーは O(要素数)、ムーブは定数
+
+コピー代入とムーブ代入。ムーブ代入は、中身の所有権を移すだけで、要素をコピーしません。
+
+### operator== {#op_eq}
+
+```cpp
+bool operator==(const unordered_set& a, const unordered_set& b);
+```
+
+- 計算量: O(要素数)
+
+要素の数が同じで、各要素が順に等しければ `true`。
+
+### bucket {#bucket}
+
+```cpp
+size_type bucket(const key_type& key) const;
+```
+
+- 計算量: 定数
+
+キーが入るバケットの番号。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

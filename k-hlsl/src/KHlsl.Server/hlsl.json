@@ -1,0 +1,5006 @@
+{
+ "intrinsics": [
+  {
+   "n": "abs",
+   "s": [
+    "T abs(T x)"
+   ],
+   "d": "絶対値。",
+   "m": "1.0"
+  },
+  {
+   "n": "acos",
+   "s": [
+    "F acos(F x)"
+   ],
+   "d": "逆余弦(ラジアン)。x は [-1, 1]。",
+   "m": "1.0"
+  },
+  {
+   "n": "all",
+   "s": [
+    "bool all(T x)"
+   ],
+   "d": "すべての成分が 0 でなければ true。",
+   "m": "1.0"
+  },
+  {
+   "n": "any",
+   "s": [
+    "bool any(T x)"
+   ],
+   "d": "0 でない成分が 1 つでもあれば true。",
+   "m": "1.0"
+  },
+  {
+   "n": "asdouble",
+   "s": [
+    "double asdouble(uint lowbits, uint highbits)",
+    "double2 asdouble(uint2 lowbits, uint2 highbits)"
+   ],
+   "d": "2 つの uint のビット列を double として読み替える。",
+   "m": "5.0"
+  },
+  {
+   "n": "asfloat",
+   "s": [
+    "F asfloat(T x)"
+   ],
+   "d": "ビット列を float として読み替える(int / uint / float)。",
+   "m": "4.0"
+  },
+  {
+   "n": "asfloat16",
+   "s": [
+    "float16_t asfloat16(T x)"
+   ],
+   "d": "ビット列を float16_t として読み替える。",
+   "m": "6.2"
+  },
+  {
+   "n": "asin",
+   "s": [
+    "F asin(F x)"
+   ],
+   "d": "逆正弦(ラジアン)。",
+   "m": "1.0"
+  },
+  {
+   "n": "asint",
+   "s": [
+    "I asint(T x)"
+   ],
+   "d": "ビット列を int として読み替える。",
+   "m": "4.0"
+  },
+  {
+   "n": "asint16",
+   "s": [
+    "int16_t asint16(T x)"
+   ],
+   "d": "ビット列を int16_t として読み替える。",
+   "m": "6.2"
+  },
+  {
+   "n": "asuint",
+   "s": [
+    "U asuint(T x)",
+    "void asuint(double value, out uint lowbits, out uint highbits)"
+   ],
+   "d": "ビット列を uint として読み替える。double は 2 つの uint に分ける。",
+   "m": "4.0"
+  },
+  {
+   "n": "asuint16",
+   "s": [
+    "uint16_t asuint16(T x)"
+   ],
+   "d": "ビット列を uint16_t として読み替える。",
+   "m": "6.2"
+  },
+  {
+   "n": "atan",
+   "s": [
+    "F atan(F x)"
+   ],
+   "d": "逆正接(ラジアン)。",
+   "m": "1.0"
+  },
+  {
+   "n": "atan2",
+   "s": [
+    "F atan2(F y, F x)"
+   ],
+   "d": "y / x の逆正接。象限を区別して [-π, π] を返す。",
+   "m": "1.0"
+  },
+  {
+   "n": "ceil",
+   "s": [
+    "F ceil(F x)"
+   ],
+   "d": "切り上げ。",
+   "m": "1.0"
+  },
+  {
+   "n": "clamp",
+   "s": [
+    "T clamp(T x, T min, T max)"
+   ],
+   "d": "x を [min, max] に収める。",
+   "m": "1.0"
+  },
+  {
+   "n": "clip",
+   "s": [
+    "void clip(F x)"
+   ],
+   "d": "x のどれかの成分が 0 未満なら、そのピクセルを破棄する。ピクセル シェーダー専用。",
+   "m": "1.0"
+  },
+  {
+   "n": "cos",
+   "s": [
+    "F cos(F x)"
+   ],
+   "d": "余弦(ラジアン)。",
+   "m": "1.0"
+  },
+  {
+   "n": "cosh",
+   "s": [
+    "F cosh(F x)"
+   ],
+   "d": "双曲線余弦。",
+   "m": "1.0"
+  },
+  {
+   "n": "countbits",
+   "s": [
+    "uint countbits(U x)"
+   ],
+   "d": "立っているビットの数。",
+   "m": "5.0"
+  },
+  {
+   "n": "cross",
+   "s": [
+    "float3 cross(float3 x, float3 y)"
+   ],
+   "d": "外積。",
+   "m": "1.0"
+  },
+  {
+   "n": "D3DCOLORtoUBYTE4",
+   "s": [
+    "int4 D3DCOLORtoUBYTE4(float4 x)"
+   ],
+   "d": "float4 の色を 0〜255 の int4 に変換する(成分の並びを入れ替える)。",
+   "m": "1.0"
+  },
+  {
+   "n": "ddx",
+   "s": [
+    "F ddx(F x)"
+   ],
+   "d": "画面 X 方向の偏微分。",
+   "m": "2.0"
+  },
+  {
+   "n": "ddx_coarse",
+   "s": [
+    "F ddx_coarse(F x)"
+   ],
+   "d": "粗い(2x2 クアッドで共通の)X 偏微分。",
+   "m": "5.0"
+  },
+  {
+   "n": "ddx_fine",
+   "s": [
+    "F ddx_fine(F x)"
+   ],
+   "d": "細かい(ピクセルごとの)X 偏微分。",
+   "m": "5.0"
+  },
+  {
+   "n": "ddy",
+   "s": [
+    "F ddy(F x)"
+   ],
+   "d": "画面 Y 方向の偏微分。",
+   "m": "2.0"
+  },
+  {
+   "n": "ddy_coarse",
+   "s": [
+    "F ddy_coarse(F x)"
+   ],
+   "d": "粗い Y 偏微分。",
+   "m": "5.0"
+  },
+  {
+   "n": "ddy_fine",
+   "s": [
+    "F ddy_fine(F x)"
+   ],
+   "d": "細かい Y 偏微分。",
+   "m": "5.0"
+  },
+  {
+   "n": "degrees",
+   "s": [
+    "F degrees(F x)"
+   ],
+   "d": "ラジアンを度に変換する。",
+   "m": "1.0"
+  },
+  {
+   "n": "determinant",
+   "s": [
+    "float determinant(floatNxN m)"
+   ],
+   "d": "行列式。",
+   "m": "1.0"
+  },
+  {
+   "n": "distance",
+   "s": [
+    "float distance(F x, F y)"
+   ],
+   "d": "2 点間の距離。",
+   "m": "1.0"
+  },
+  {
+   "n": "dot",
+   "s": [
+    "float dot(F x, F y)",
+    "int dot(I x, I y)"
+   ],
+   "d": "内積。",
+   "m": "1.0"
+  },
+  {
+   "n": "dst",
+   "s": [
+    "float4 dst(float4 src0, float4 src1)"
+   ],
+   "d": "距離ベクトルを計算する(ライティング用の古い関数)。",
+   "m": "5.0"
+  },
+  {
+   "n": "exp",
+   "s": [
+    "F exp(F x)"
+   ],
+   "d": "e の x 乗。",
+   "m": "1.0"
+  },
+  {
+   "n": "exp2",
+   "s": [
+    "F exp2(F x)"
+   ],
+   "d": "2 の x 乗。",
+   "m": "1.0"
+  },
+  {
+   "n": "f16tof32",
+   "s": [
+    "float f16tof32(uint x)"
+   ],
+   "d": "下位 16 ビットの half を float に変換する。",
+   "m": "5.0"
+  },
+  {
+   "n": "f32tof16",
+   "s": [
+    "uint f32tof16(float x)"
+   ],
+   "d": "float を half のビット列(下位 16 ビット)に変換する。",
+   "m": "5.0"
+  },
+  {
+   "n": "faceforward",
+   "s": [
+    "F faceforward(F n, F i, F ng)"
+   ],
+   "d": "dot(i, ng) < 0 なら n、そうでなければ -n を返す。",
+   "m": "1.0"
+  },
+  {
+   "n": "firstbithigh",
+   "s": [
+    "int firstbithigh(I x)"
+   ],
+   "d": "最上位の立っているビットの位置(0 から数える)。無ければ -1。",
+   "m": "5.0"
+  },
+  {
+   "n": "firstbitlow",
+   "s": [
+    "int firstbitlow(I x)"
+   ],
+   "d": "最下位の立っているビットの位置。無ければ -1。",
+   "m": "5.0"
+  },
+  {
+   "n": "floor",
+   "s": [
+    "F floor(F x)"
+   ],
+   "d": "切り捨て。",
+   "m": "1.0"
+  },
+  {
+   "n": "fma",
+   "s": [
+    "double fma(double a, double b, double c)"
+   ],
+   "d": "a * b + c を 1 回の丸めで計算する(double 用)。",
+   "m": "5.0"
+  },
+  {
+   "n": "fmod",
+   "s": [
+    "F fmod(F x, F y)"
+   ],
+   "d": "浮動小数点の剰余。符号は x に従う。",
+   "m": "1.0"
+  },
+  {
+   "n": "frac",
+   "s": [
+    "F frac(F x)"
+   ],
+   "d": "小数部分。",
+   "m": "1.0"
+  },
+  {
+   "n": "frexp",
+   "s": [
+    "F frexp(F x, out F exp)"
+   ],
+   "d": "x を仮数と指数に分ける。",
+   "m": "1.0"
+  },
+  {
+   "n": "fwidth",
+   "s": [
+    "F fwidth(F x)"
+   ],
+   "d": "abs(ddx(x)) + abs(ddy(x))。",
+   "m": "2.0"
+  },
+  {
+   "n": "isfinite",
+   "s": [
+    "bool isfinite(F x)"
+   ],
+   "d": "有限(NaN でも ∞ でもない)なら true。",
+   "m": "1.0"
+  },
+  {
+   "n": "isinf",
+   "s": [
+    "bool isinf(F x)"
+   ],
+   "d": "±∞ なら true。",
+   "m": "1.0"
+  },
+  {
+   "n": "isnan",
+   "s": [
+    "bool isnan(F x)"
+   ],
+   "d": "NaN なら true。",
+   "m": "1.0"
+  },
+  {
+   "n": "isnormal",
+   "s": [
+    "bool isnormal(F x)"
+   ],
+   "d": "正規化数(0・非正規化数・∞・NaN 以外)なら true。",
+   "m": "6.0"
+  },
+  {
+   "n": "ldexp",
+   "s": [
+    "F ldexp(F x, F exp)"
+   ],
+   "d": "x * 2^exp。",
+   "m": "1.0"
+  },
+  {
+   "n": "length",
+   "s": [
+    "float length(F x)"
+   ],
+   "d": "ベクターの長さ。",
+   "m": "1.0"
+  },
+  {
+   "n": "lerp",
+   "s": [
+    "F lerp(F x, F y, F s)"
+   ],
+   "d": "x + s * (y - x)。線形補間。",
+   "m": "1.0"
+  },
+  {
+   "n": "lit",
+   "s": [
+    "float4 lit(float ndotl, float ndoth, float m)"
+   ],
+   "d": "ライティング係数(ambient, diffuse, specular, 1)を計算する。",
+   "m": "1.0"
+  },
+  {
+   "n": "log",
+   "s": [
+    "F log(F x)"
+   ],
+   "d": "自然対数。",
+   "m": "1.0"
+  },
+  {
+   "n": "log10",
+   "s": [
+    "F log10(F x)"
+   ],
+   "d": "常用対数。",
+   "m": "1.0"
+  },
+  {
+   "n": "log2",
+   "s": [
+    "F log2(F x)"
+   ],
+   "d": "2 を底とする対数。",
+   "m": "1.0"
+  },
+  {
+   "n": "mad",
+   "s": [
+    "T mad(T a, T b, T c)"
+   ],
+   "d": "a * b + c。",
+   "m": "5.0"
+  },
+  {
+   "n": "max",
+   "s": [
+    "T max(T x, T y)"
+   ],
+   "d": "大きいほう。",
+   "m": "1.0"
+  },
+  {
+   "n": "min",
+   "s": [
+    "T min(T x, T y)"
+   ],
+   "d": "小さいほう。",
+   "m": "1.0"
+  },
+  {
+   "n": "modf",
+   "s": [
+    "F modf(F x, out F ip)"
+   ],
+   "d": "整数部と小数部に分ける。戻り値が小数部、ip が整数部。",
+   "m": "1.0"
+  },
+  {
+   "n": "msad4",
+   "s": [
+    "uint4 msad4(uint reference, uint2 source, uint4 accum)"
+   ],
+   "d": "マスク付き絶対差の和(4 回分)。",
+   "m": "5.0"
+  },
+  {
+   "n": "mul",
+   "s": [
+    "T mul(T a, T b)"
+   ],
+   "d": "行列とベクターの積、行列同士の積、スカラーの積。HLSL は行ベクトルで v * M と書く。",
+   "m": "1.0"
+  },
+  {
+   "n": "noise",
+   "s": [
+    "float noise(F x)"
+   ],
+   "d": "疑似ノイズ。現在は使えない。",
+   "m": "1.0"
+  },
+  {
+   "n": "normalize",
+   "s": [
+    "F normalize(F x)"
+   ],
+   "d": "長さ 1 に正規化する。",
+   "m": "1.0"
+  },
+  {
+   "n": "pow",
+   "s": [
+    "F pow(F x, F y)"
+   ],
+   "d": "x の y 乗。x が負だと NaN。",
+   "m": "1.0"
+  },
+  {
+   "n": "printf",
+   "s": [
+    "void printf(string format, ...)"
+   ],
+   "d": "デバッグ出力(PIX / DXC のデバッグ層)。",
+   "m": "6.0"
+  },
+  {
+   "n": "radians",
+   "s": [
+    "F radians(F x)"
+   ],
+   "d": "度をラジアンに変換する。",
+   "m": "1.0"
+  },
+  {
+   "n": "rcp",
+   "s": [
+    "F rcp(F x)"
+   ],
+   "d": "逆数 1 / x。",
+   "m": "5.0"
+  },
+  {
+   "n": "reflect",
+   "s": [
+    "F reflect(F i, F n)"
+   ],
+   "d": "入射ベクトル i を法線 n で反射する。",
+   "m": "1.0"
+  },
+  {
+   "n": "refract",
+   "s": [
+    "F refract(F i, F n, float eta)"
+   ],
+   "d": "屈折ベクトル。eta は屈折率の比。",
+   "m": "1.0"
+  },
+  {
+   "n": "reversebits",
+   "s": [
+    "U reversebits(U x)"
+   ],
+   "d": "ビットの並びを反転する。",
+   "m": "5.0"
+  },
+  {
+   "n": "round",
+   "s": [
+    "F round(F x)"
+   ],
+   "d": "四捨五入(偶数丸め)。",
+   "m": "1.0"
+  },
+  {
+   "n": "rsqrt",
+   "s": [
+    "F rsqrt(F x)"
+   ],
+   "d": "1 / sqrt(x)。",
+   "m": "1.0"
+  },
+  {
+   "n": "saturate",
+   "s": [
+    "F saturate(F x)"
+   ],
+   "d": "[0, 1] に収める。",
+   "m": "1.0"
+  },
+  {
+   "n": "select",
+   "s": [
+    "T select(bool cond, T a, T b)"
+   ],
+   "d": "成分ごとの三項演算子。cond が true なら a、false なら b。HLSL 2021 以降。",
+   "m": "6.0"
+  },
+  {
+   "n": "sign",
+   "s": [
+    "I sign(F x)"
+   ],
+   "d": "符号(-1, 0, 1)。",
+   "m": "1.0"
+  },
+  {
+   "n": "sin",
+   "s": [
+    "F sin(F x)"
+   ],
+   "d": "正弦(ラジアン)。",
+   "m": "1.0"
+  },
+  {
+   "n": "sincos",
+   "s": [
+    "void sincos(F x, out F s, out F c)"
+   ],
+   "d": "sin と cos を一度に計算する。",
+   "m": "1.0"
+  },
+  {
+   "n": "sinh",
+   "s": [
+    "F sinh(F x)"
+   ],
+   "d": "双曲線正弦。",
+   "m": "1.0"
+  },
+  {
+   "n": "smoothstep",
+   "s": [
+    "F smoothstep(F min, F max, F x)"
+   ],
+   "d": "エルミート補間(3x² - 2x³)。範囲外は 0 / 1。",
+   "m": "1.0"
+  },
+  {
+   "n": "sqrt",
+   "s": [
+    "F sqrt(F x)"
+   ],
+   "d": "平方根。",
+   "m": "1.0"
+  },
+  {
+   "n": "step",
+   "s": [
+    "F step(F y, F x)"
+   ],
+   "d": "x >= y なら 1、そうでなければ 0。",
+   "m": "1.0"
+  },
+  {
+   "n": "tan",
+   "s": [
+    "F tan(F x)"
+   ],
+   "d": "正接(ラジアン)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tanh",
+   "s": [
+    "F tanh(F x)"
+   ],
+   "d": "双曲線正接。",
+   "m": "1.0"
+  },
+  {
+   "n": "transpose",
+   "s": [
+    "T transpose(T m)"
+   ],
+   "d": "転置行列。",
+   "m": "1.0"
+  },
+  {
+   "n": "trunc",
+   "s": [
+    "F trunc(F x)"
+   ],
+   "d": "0 方向への切り捨て。",
+   "m": "1.0"
+  },
+  {
+   "n": "abort",
+   "s": [
+    "void abort()"
+   ],
+   "d": "シェーダーを中断する(デバッグ用)。",
+   "m": "1.0"
+  },
+  {
+   "n": "errorf",
+   "s": [
+    "void errorf(string format, ...)"
+   ],
+   "d": "エラー メッセージを出力する(デバッグ用)。",
+   "m": "1.0"
+  },
+  {
+   "n": "dot2add",
+   "s": [
+    "float dot2add(half2 a, half2 b, float c)"
+   ],
+   "d": "half2 の内積に float を足す。",
+   "m": "6.4"
+  },
+  {
+   "n": "dot4add_u8packed",
+   "s": [
+    "uint dot4add_u8packed(uint a, uint b, uint c)"
+   ],
+   "d": "8 ビット × 4 の符号なしパック同士の内積に c を足す。",
+   "m": "6.4"
+  },
+  {
+   "n": "dot4add_i8packed",
+   "s": [
+    "int dot4add_i8packed(uint a, uint b, int c)"
+   ],
+   "d": "8 ビット × 4 の符号付きパック同士の内積に c を足す。",
+   "m": "6.4"
+  },
+  {
+   "n": "pack_u8",
+   "s": [
+    "uint8_t4_packed pack_u8(uint4 unpackedValue)",
+    "uint8_t4_packed pack_u8(int16_t4 unpackedValue)"
+   ],
+   "d": "4 つの値を下位 8 ビットずつ切り出して 1 つの uint にパックする。",
+   "m": "6.6"
+  },
+  {
+   "n": "pack_s8",
+   "s": [
+    "int8_t4_packed pack_s8(int4 unpackedValue)",
+    "int8_t4_packed pack_s8(int16_t4 unpackedValue)"
+   ],
+   "d": "4 つの値を符号付き 8 ビットでパックする。",
+   "m": "6.6"
+  },
+  {
+   "n": "pack_clamp_u8",
+   "s": [
+    "uint8_t4_packed pack_clamp_u8(int4 unpackedValue)",
+    "uint8_t4_packed pack_clamp_u8(int16_t4 unpackedValue)"
+   ],
+   "d": "0〜255 に収めてからパックする。",
+   "m": "6.6"
+  },
+  {
+   "n": "pack_clamp_s8",
+   "s": [
+    "int8_t4_packed pack_clamp_s8(int4 unpackedValue)",
+    "int8_t4_packed pack_clamp_s8(int16_t4 unpackedValue)"
+   ],
+   "d": "-128〜127 に収めてからパックする。",
+   "m": "6.6"
+  },
+  {
+   "n": "unpack_u8u16",
+   "s": [
+    "uint16_t4 unpack_u8u16(uint8_t4_packed packedValue)"
+   ],
+   "d": "パックされた 8 ビット × 4 を uint16_t4 に展開する。",
+   "m": "6.6"
+  },
+  {
+   "n": "unpack_u8u32",
+   "s": [
+    "uint4 unpack_u8u32(uint8_t4_packed packedValue)"
+   ],
+   "d": "パックされた 8 ビット × 4 を uint4 に展開する。",
+   "m": "6.6"
+  },
+  {
+   "n": "unpack_s8s16",
+   "s": [
+    "int16_t4 unpack_s8s16(int8_t4_packed packedValue)"
+   ],
+   "d": "符号付きでパックされた値を int16_t4 に展開する。",
+   "m": "6.6"
+  },
+  {
+   "n": "unpack_s8s32",
+   "s": [
+    "int4 unpack_s8s32(int8_t4_packed packedValue)"
+   ],
+   "d": "符号付きでパックされた値を int4 に展開する。",
+   "m": "6.6"
+  },
+  {
+   "n": "InterlockedAdd",
+   "s": [
+    "void InterlockedAdd(R dest, T value)",
+    "void InterlockedAdd(R dest, T value, out T original_value)"
+   ],
+   "d": "dest に value を足す(原子的)。",
+   "m": "5.0"
+  },
+  {
+   "n": "InterlockedAnd",
+   "s": [
+    "void InterlockedAnd(R dest, T value)",
+    "void InterlockedAnd(R dest, T value, out T original_value)"
+   ],
+   "d": "dest と value の論理積を取る(原子的)。",
+   "m": "5.0"
+  },
+  {
+   "n": "InterlockedCompareExchange",
+   "s": [
+    "void InterlockedCompareExchange(R dest, T compare_value, T value, out T original_value)"
+   ],
+   "d": "dest が compare_value と等しければ value を書く。元の値を返す。",
+   "m": "5.0"
+  },
+  {
+   "n": "InterlockedCompareStore",
+   "s": [
+    "void InterlockedCompareStore(R dest, T compare_value, T value)"
+   ],
+   "d": "dest が compare_value と等しければ value を書く。",
+   "m": "5.0"
+  },
+  {
+   "n": "InterlockedExchange",
+   "s": [
+    "void InterlockedExchange(R dest, T value, out T original_value)"
+   ],
+   "d": "dest と value を入れ替える。",
+   "m": "5.0"
+  },
+  {
+   "n": "InterlockedMax",
+   "s": [
+    "void InterlockedMax(R dest, T value)",
+    "void InterlockedMax(R dest, T value, out T original_value)"
+   ],
+   "d": "dest と value の大きいほうを書く。64 ビットは SM 6.6。",
+   "m": "5.0"
+  },
+  {
+   "n": "InterlockedMin",
+   "s": [
+    "void InterlockedMin(R dest, T value)",
+    "void InterlockedMin(R dest, T value, out T original_value)"
+   ],
+   "d": "dest と value の小さいほうを書く。64 ビットは SM 6.6。",
+   "m": "5.0"
+  },
+  {
+   "n": "InterlockedOr",
+   "s": [
+    "void InterlockedOr(R dest, T value)",
+    "void InterlockedOr(R dest, T value, out T original_value)"
+   ],
+   "d": "dest と value の論理和を取る。",
+   "m": "5.0"
+  },
+  {
+   "n": "InterlockedXor",
+   "s": [
+    "void InterlockedXor(R dest, T value)",
+    "void InterlockedXor(R dest, T value, out T original_value)"
+   ],
+   "d": "dest と value の排他的論理和を取る。",
+   "m": "5.0"
+  },
+  {
+   "n": "AllMemoryBarrier",
+   "s": [
+    "void AllMemoryBarrier()"
+   ],
+   "d": "すべてのメモリ アクセスが完了するまで待つ。",
+   "m": "5.0"
+  },
+  {
+   "n": "AllMemoryBarrierWithGroupSync",
+   "s": [
+    "void AllMemoryBarrierWithGroupSync()"
+   ],
+   "d": "AllMemoryBarrier に加えて、スレッド グループ内の全スレッドの到達も待つ。",
+   "m": "5.0"
+  },
+  {
+   "n": "DeviceMemoryBarrier",
+   "s": [
+    "void DeviceMemoryBarrier()"
+   ],
+   "d": "UAV とバッファ(デバイス メモリ)のアクセスが完了するまで待つ。",
+   "m": "5.0"
+  },
+  {
+   "n": "DeviceMemoryBarrierWithGroupSync",
+   "s": [
+    "void DeviceMemoryBarrierWithGroupSync()"
+   ],
+   "d": "DeviceMemoryBarrier に加えて、グループ全体の同期も取る。",
+   "m": "5.0"
+  },
+  {
+   "n": "GroupMemoryBarrier",
+   "s": [
+    "void GroupMemoryBarrier()"
+   ],
+   "d": "groupshared のアクセスが完了するまで待つ。",
+   "m": "5.0"
+  },
+  {
+   "n": "GroupMemoryBarrierWithGroupSync",
+   "s": [
+    "void GroupMemoryBarrierWithGroupSync()"
+   ],
+   "d": "GroupMemoryBarrier に加えて、グループ全体の同期も取る。",
+   "m": "5.0"
+  },
+  {
+   "n": "Barrier",
+   "s": [
+    "void Barrier(uint MemoryTypeFlags, uint SemanticFlags)",
+    "void Barrier(object target, uint SemanticFlags)"
+   ],
+   "d": "SM 6.8 の汎用バリア。メモリの種類と、スコープ・同期の指定を組み合わせる。",
+   "m": "6.8"
+  },
+  {
+   "n": "EvaluateAttributeAtCentroid",
+   "s": [
+    "T EvaluateAttributeAtCentroid(T attrib)"
+   ],
+   "d": "補間された属性を、ピクセルの重心で評価し直す。",
+   "m": "5.0"
+  },
+  {
+   "n": "EvaluateAttributeAtSample",
+   "s": [
+    "T EvaluateAttributeAtSample(T attrib, uint sampleIndex)"
+   ],
+   "d": "補間された属性を、指定サンプルの位置で評価し直す。",
+   "m": "5.0"
+  },
+  {
+   "n": "EvaluateAttributeSnapped",
+   "s": [
+    "T EvaluateAttributeSnapped(T attrib, int2 offset)"
+   ],
+   "d": "補間された属性を、ピクセル中心から 1/16 ピクセル単位のオフセットで評価し直す。",
+   "m": "5.0"
+  },
+  {
+   "n": "GetAttributeAtVertex",
+   "s": [
+    "T GetAttributeAtVertex(nointerpolation T attrib, uint vertexID)"
+   ],
+   "d": "補間前の頂点属性を直接取り出す(0, 1, 2)。SV_Barycentrics と組み合わせる。",
+   "m": "6.1"
+  },
+  {
+   "n": "GetRenderTargetSampleCount",
+   "s": [
+    "uint GetRenderTargetSampleCount()"
+   ],
+   "d": "レンダー ターゲットのサンプル数。",
+   "m": "4.1"
+  },
+  {
+   "n": "GetRenderTargetSamplePosition",
+   "s": [
+    "float2 GetRenderTargetSamplePosition(int index)"
+   ],
+   "d": "サンプルのピクセル内の位置。",
+   "m": "4.1"
+  },
+  {
+   "n": "IsHelperLane",
+   "s": [
+    "bool IsHelperLane()"
+   ],
+   "d": "現在のレーンがヘルパー レーン(微分用の捨てレーン)なら true。",
+   "m": "6.6"
+  },
+  {
+   "n": "Process2DQuadTessFactorsAvg",
+   "s": [
+    "void Process2DQuadTessFactorsAvg(float4 RawEdgeFactors, float2 InsideScale, out float4 RoundedEdgeTessFactors, out float2 RoundedInsideTessFactors, out float2 UnroundedInsideTessFactors)"
+   ],
+   "d": "クアッドのテッセレーション係数を平均で丸める。",
+   "m": "5.0"
+  },
+  {
+   "n": "Process2DQuadTessFactorsMax",
+   "s": [
+    "void Process2DQuadTessFactorsMax(float4 RawEdgeFactors, float2 InsideScale, out float4 RoundedEdgeTessFactors, out float2 RoundedInsideTessFactors, out float2 UnroundedInsideTessFactors)"
+   ],
+   "d": "クアッドのテッセレーション係数を最大値で丸める。",
+   "m": "5.0"
+  },
+  {
+   "n": "Process2DQuadTessFactorsMin",
+   "s": [
+    "void Process2DQuadTessFactorsMin(float4 RawEdgeFactors, float2 InsideScale, out float4 RoundedEdgeTessFactors, out float2 RoundedInsideTessFactors, out float2 UnroundedInsideTessFactors)"
+   ],
+   "d": "クアッドのテッセレーション係数を最小値で丸める。",
+   "m": "5.0"
+  },
+  {
+   "n": "ProcessIsolineTessFactors",
+   "s": [
+    "void ProcessIsolineTessFactors(float RawDetailFactor, float RawDensityFactor, out float RoundedDetailFactor, out float RoundedDensityFactor)"
+   ],
+   "d": "アイソラインのテッセレーション係数を丸める。",
+   "m": "5.0"
+  },
+  {
+   "n": "ProcessQuadTessFactorsAvg",
+   "s": [
+    "void ProcessQuadTessFactorsAvg(float4 RawEdgeFactors, float InsideScale, out float4 RoundedEdgeTessFactors, out float2 RoundedInsideTessFactors, out float2 UnroundedInsideTessFactors)"
+   ],
+   "d": "クアッドのテッセレーション係数を平均で処理する。",
+   "m": "5.0"
+  },
+  {
+   "n": "ProcessQuadTessFactorsMax",
+   "s": [
+    "void ProcessQuadTessFactorsMax(float4 RawEdgeFactors, float InsideScale, out float4 RoundedEdgeTessFactors, out float2 RoundedInsideTessFactors, out float2 UnroundedInsideTessFactors)"
+   ],
+   "d": "クアッドのテッセレーション係数を最大値で処理する。",
+   "m": "5.0"
+  },
+  {
+   "n": "ProcessQuadTessFactorsMin",
+   "s": [
+    "void ProcessQuadTessFactorsMin(float4 RawEdgeFactors, float InsideScale, out float4 RoundedEdgeTessFactors, out float2 RoundedInsideTessFactors, out float2 UnroundedInsideTessFactors)"
+   ],
+   "d": "クアッドのテッセレーション係数を最小値で処理する。",
+   "m": "5.0"
+  },
+  {
+   "n": "ProcessTriTessFactorsAvg",
+   "s": [
+    "void ProcessTriTessFactorsAvg(float3 RawEdgeFactors, float InsideScale, out float3 RoundedEdgeTessFactors, out float RoundedInsideTessFactor, out float UnroundedInsideTessFactor)"
+   ],
+   "d": "三角形のテッセレーション係数を平均で処理する。",
+   "m": "5.0"
+  },
+  {
+   "n": "ProcessTriTessFactorsMax",
+   "s": [
+    "void ProcessTriTessFactorsMax(float3 RawEdgeFactors, float InsideScale, out float3 RoundedEdgeTessFactors, out float RoundedInsideTessFactor, out float UnroundedInsideTessFactor)"
+   ],
+   "d": "三角形のテッセレーション係数を最大値で処理する。",
+   "m": "5.0"
+  },
+  {
+   "n": "ProcessTriTessFactorsMin",
+   "s": [
+    "void ProcessTriTessFactorsMin(float3 RawEdgeFactors, float InsideScale, out float3 RoundedEdgeTessFactors, out float RoundedInsideTessFactor, out float UnroundedInsideTessFactor)"
+   ],
+   "d": "三角形のテッセレーション係数を最小値で処理する。",
+   "m": "5.0"
+  },
+  {
+   "n": "tex1D",
+   "s": [
+    "float4 tex1D(sampler1D s, float t)"
+   ],
+   "d": "1D テクスチャをサンプリングする(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex1Dbias",
+   "s": [
+    "float4 tex1Dbias(sampler1D s, float4 t)"
+   ],
+   "d": "mip バイアス付きの 1D サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex1Dgrad",
+   "s": [
+    "float4 tex1Dgrad(sampler1D s, float t, float ddx, float ddy)"
+   ],
+   "d": "勾配指定の 1D サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex1Dlod",
+   "s": [
+    "float4 tex1Dlod(sampler1D s, float4 t)"
+   ],
+   "d": "mip レベル指定の 1D サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex1Dproj",
+   "s": [
+    "float4 tex1Dproj(sampler1D s, float4 t)"
+   ],
+   "d": "射影つきの 1D サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex2D",
+   "s": [
+    "float4 tex2D(sampler2D s, float2 t)"
+   ],
+   "d": "2D テクスチャをサンプリングする(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex2Dbias",
+   "s": [
+    "float4 tex2Dbias(sampler2D s, float4 t)"
+   ],
+   "d": "mip バイアス付きの 2D サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex2Dgrad",
+   "s": [
+    "float4 tex2Dgrad(sampler2D s, float2 t, float2 ddx, float2 ddy)"
+   ],
+   "d": "勾配指定の 2D サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex2Dlod",
+   "s": [
+    "float4 tex2Dlod(sampler2D s, float4 t)"
+   ],
+   "d": "mip レベル指定の 2D サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex2Dproj",
+   "s": [
+    "float4 tex2Dproj(sampler2D s, float4 t)"
+   ],
+   "d": "射影つきの 2D サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex3D",
+   "s": [
+    "float4 tex3D(sampler3D s, float3 t)"
+   ],
+   "d": "3D テクスチャをサンプリングする(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex3Dbias",
+   "s": [
+    "float4 tex3Dbias(sampler3D s, float4 t)"
+   ],
+   "d": "mip バイアス付きの 3D サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex3Dgrad",
+   "s": [
+    "float4 tex3Dgrad(sampler3D s, float3 t, float3 ddx, float3 ddy)"
+   ],
+   "d": "勾配指定の 3D サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex3Dlod",
+   "s": [
+    "float4 tex3Dlod(sampler3D s, float4 t)"
+   ],
+   "d": "mip レベル指定の 3D サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "tex3Dproj",
+   "s": [
+    "float4 tex3Dproj(sampler3D s, float4 t)"
+   ],
+   "d": "射影つきの 3D サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "texCUBE",
+   "s": [
+    "float4 texCUBE(samplerCUBE s, float3 t)"
+   ],
+   "d": "キューブ テクスチャをサンプリングする(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "texCUBEbias",
+   "s": [
+    "float4 texCUBEbias(samplerCUBE s, float4 t)"
+   ],
+   "d": "mip バイアス付きのキューブ サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "texCUBEgrad",
+   "s": [
+    "float4 texCUBEgrad(samplerCUBE s, float3 t, float3 ddx, float3 ddy)"
+   ],
+   "d": "勾配指定のキューブ サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "texCUBElod",
+   "s": [
+    "float4 texCUBElod(samplerCUBE s, float4 t)"
+   ],
+   "d": "mip レベル指定のキューブ サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "texCUBEproj",
+   "s": [
+    "float4 texCUBEproj(samplerCUBE s, float4 t)"
+   ],
+   "d": "射影つきのキューブ サンプリング(旧 API)。",
+   "m": "1.0"
+  },
+  {
+   "n": "WaveIsFirstLane",
+   "s": [
+    "bool WaveIsFirstLane()"
+   ],
+   "d": "現在のレーンが、ウェーブ内のアクティブな最初のレーンなら true。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveGetLaneIndex",
+   "s": [
+    "uint WaveGetLaneIndex()"
+   ],
+   "d": "ウェーブ内でのレーン番号(0 始まり)。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveGetLaneCount",
+   "s": [
+    "uint WaveGetLaneCount()"
+   ],
+   "d": "ウェーブのレーン数(通常 32 か 64)。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveActiveAnyTrue",
+   "s": [
+    "bool WaveActiveAnyTrue(bool expr)"
+   ],
+   "d": "アクティブなレーンのどれかで expr が true なら true。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveActiveAllTrue",
+   "s": [
+    "bool WaveActiveAllTrue(bool expr)"
+   ],
+   "d": "アクティブなレーンのすべてで expr が true なら true。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveActiveBallot",
+   "s": [
+    "uint4 WaveActiveBallot(bool expr)"
+   ],
+   "d": "expr が true のレーンをビット マスクにして返す(uint4 の 128 ビット)。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveReadLaneAt",
+   "s": [
+    "T WaveReadLaneAt(T expr, uint laneIndex)"
+   ],
+   "d": "指定レーンの expr の値を読む。laneIndex は全レーンで同じ値にする。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveReadLaneFirst",
+   "s": [
+    "T WaveReadLaneFirst(T expr)"
+   ],
+   "d": "アクティブな最初のレーンの値を全レーンに配る。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveActiveAllEqual",
+   "s": [
+    "bool WaveActiveAllEqual(T expr)"
+   ],
+   "d": "アクティブな全レーンで値が等しければ true。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveActiveBitAnd",
+   "s": [
+    "U WaveActiveBitAnd(U expr)"
+   ],
+   "d": "アクティブな全レーンの論理積。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveActiveBitOr",
+   "s": [
+    "U WaveActiveBitOr(U expr)"
+   ],
+   "d": "アクティブな全レーンの論理和。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveActiveBitXor",
+   "s": [
+    "U WaveActiveBitXor(U expr)"
+   ],
+   "d": "アクティブな全レーンの排他的論理和。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveActiveCountBits",
+   "s": [
+    "uint WaveActiveCountBits(bool bBit)"
+   ],
+   "d": "bBit が true のレーンの数。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveActiveMax",
+   "s": [
+    "T WaveActiveMax(T expr)"
+   ],
+   "d": "アクティブな全レーンの最大値。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveActiveMin",
+   "s": [
+    "T WaveActiveMin(T expr)"
+   ],
+   "d": "アクティブな全レーンの最小値。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveActiveProduct",
+   "s": [
+    "T WaveActiveProduct(T expr)"
+   ],
+   "d": "アクティブな全レーンの積。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveActiveSum",
+   "s": [
+    "T WaveActiveSum(T expr)"
+   ],
+   "d": "アクティブな全レーンの和。",
+   "m": "6.0"
+  },
+  {
+   "n": "WavePrefixCountBits",
+   "s": [
+    "uint WavePrefixCountBits(bool bBit)"
+   ],
+   "d": "自分より前のレーンで bBit が true の数。",
+   "m": "6.0"
+  },
+  {
+   "n": "WavePrefixProduct",
+   "s": [
+    "T WavePrefixProduct(T expr)"
+   ],
+   "d": "自分より前のレーンの積(排他的)。",
+   "m": "6.0"
+  },
+  {
+   "n": "WavePrefixSum",
+   "s": [
+    "T WavePrefixSum(T expr)"
+   ],
+   "d": "自分より前のレーンの和(排他的)。",
+   "m": "6.0"
+  },
+  {
+   "n": "QuadReadLaneAt",
+   "s": [
+    "T QuadReadLaneAt(T expr, uint quadLaneIndex)"
+   ],
+   "d": "クアッド(2x2)内の指定レーンの値を読む。",
+   "m": "6.0"
+  },
+  {
+   "n": "QuadReadAcrossX",
+   "s": [
+    "T QuadReadAcrossX(T expr)"
+   ],
+   "d": "クアッド内で X 方向に隣のレーンの値を読む。",
+   "m": "6.0"
+  },
+  {
+   "n": "QuadReadAcrossY",
+   "s": [
+    "T QuadReadAcrossY(T expr)"
+   ],
+   "d": "クアッド内で Y 方向に隣のレーンの値を読む。",
+   "m": "6.0"
+  },
+  {
+   "n": "QuadReadAcrossDiagonal",
+   "s": [
+    "T QuadReadAcrossDiagonal(T expr)"
+   ],
+   "d": "クアッド内で対角のレーンの値を読む。",
+   "m": "6.0"
+  },
+  {
+   "n": "WaveMatch",
+   "s": [
+    "uint4 WaveMatch(T expr)"
+   ],
+   "d": "expr が自分と同じ値のレーンをビット マスクで返す。",
+   "m": "6.5"
+  },
+  {
+   "n": "WaveMultiPrefixBitAnd",
+   "s": [
+    "U WaveMultiPrefixBitAnd(U expr, uint4 mask)"
+   ],
+   "d": "mask で指定したグループ内の、自分より前のレーンの論理積。",
+   "m": "6.5"
+  },
+  {
+   "n": "WaveMultiPrefixBitOr",
+   "s": [
+    "U WaveMultiPrefixBitOr(U expr, uint4 mask)"
+   ],
+   "d": "mask で指定したグループ内の、自分より前のレーンの論理和。",
+   "m": "6.5"
+  },
+  {
+   "n": "WaveMultiPrefixBitXor",
+   "s": [
+    "U WaveMultiPrefixBitXor(U expr, uint4 mask)"
+   ],
+   "d": "mask で指定したグループ内の、自分より前のレーンの排他的論理和。",
+   "m": "6.5"
+  },
+  {
+   "n": "WaveMultiPrefixCountBits",
+   "s": [
+    "uint WaveMultiPrefixCountBits(bool value, uint4 mask)"
+   ],
+   "d": "mask のグループ内で、自分より前に value が true のレーンの数。",
+   "m": "6.5"
+  },
+  {
+   "n": "WaveMultiPrefixProduct",
+   "s": [
+    "T WaveMultiPrefixProduct(T value, uint4 mask)"
+   ],
+   "d": "mask のグループ内で、自分より前のレーンの積。",
+   "m": "6.5"
+  },
+  {
+   "n": "WaveMultiPrefixSum",
+   "s": [
+    "T WaveMultiPrefixSum(T value, uint4 mask)"
+   ],
+   "d": "mask のグループ内で、自分より前のレーンの和。",
+   "m": "6.5"
+  },
+  {
+   "n": "QuadAny",
+   "s": [
+    "bool QuadAny(bool expr)"
+   ],
+   "d": "クアッド内のどれかのレーンで expr が true なら true。",
+   "m": "6.7"
+  },
+  {
+   "n": "QuadAll",
+   "s": [
+    "bool QuadAll(bool expr)"
+   ],
+   "d": "クアッド内のすべてのレーンで expr が true なら true。",
+   "m": "6.7"
+  },
+  {
+   "n": "SetMeshOutputCounts",
+   "s": [
+    "void SetMeshOutputCounts(uint numVertices, uint numPrimitives)"
+   ],
+   "d": "このグループが出力する頂点数とプリミティブ数を宣言する。出力を書く前に 1 回だけ、全スレッドで呼ぶ。",
+   "m": "6.5"
+  },
+  {
+   "n": "DispatchMesh",
+   "s": [
+    "void DispatchMesh(uint ThreadGroupCountX, uint ThreadGroupCountY, uint ThreadGroupCountZ, groupshared payload_type payload)"
+   ],
+   "d": "増幅シェーダーから、メッシュ シェーダーのグループを起動する。呼んだあとの処理は実行されない。",
+   "m": "6.5"
+  },
+  {
+   "n": "TraceRay",
+   "s": [
+    "void TraceRay(RaytracingAccelerationStructure AccelerationStructure, uint RayFlags, uint InstanceInclusionMask, uint RayContributionToHitGroupIndex, uint MultiplierForGeometryContributionToHitGroupIndex, uint MissShaderIndex, RayDesc Ray, inout payload_t Payload)"
+   ],
+   "d": "レイを飛ばして、最も近い交差を探す。",
+   "m": "6.3"
+  },
+  {
+   "n": "CallShader",
+   "s": [
+    "void CallShader(uint ShaderIndex, inout callable_params_t Parameter)"
+   ],
+   "d": "Callable シェーダーを呼ぶ。",
+   "m": "6.3"
+  },
+  {
+   "n": "ReportHit",
+   "s": [
+    "bool ReportHit(float THit, uint HitKind, attr_t Attributes)"
+   ],
+   "d": "交差シェーダーから、交点を報告する。",
+   "m": "6.3"
+  },
+  {
+   "n": "IgnoreHit",
+   "s": [
+    "void IgnoreHit()"
+   ],
+   "d": "Any-hit シェーダーで、この交点を無視する。以降の処理は実行されない。",
+   "m": "6.3"
+  },
+  {
+   "n": "AcceptHitAndEndSearch",
+   "s": [
+    "void AcceptHitAndEndSearch()"
+   ],
+   "d": "Any-hit シェーダーで、この交点を採用して探索を終える。以降の処理は実行されない。",
+   "m": "6.3"
+  },
+  {
+   "n": "DispatchRaysIndex",
+   "s": [
+    "uint3 DispatchRaysIndex()"
+   ],
+   "d": "DispatchRays の中での、現在のスレッドの 3 次元位置。",
+   "m": "6.3"
+  },
+  {
+   "n": "DispatchRaysDimensions",
+   "s": [
+    "uint3 DispatchRaysDimensions()"
+   ],
+   "d": "DispatchRays の幅・高さ・深さ。",
+   "m": "6.3"
+  },
+  {
+   "n": "WorldRayOrigin",
+   "s": [
+    "float3 WorldRayOrigin()"
+   ],
+   "d": "ワールド空間でのレイの始点。",
+   "m": "6.3"
+  },
+  {
+   "n": "WorldRayDirection",
+   "s": [
+    "float3 WorldRayDirection()"
+   ],
+   "d": "ワールド空間でのレイの方向(正規化されていない)。",
+   "m": "6.3"
+  },
+  {
+   "n": "RayTMin",
+   "s": [
+    "float RayTMin()"
+   ],
+   "d": "レイの最小 T。",
+   "m": "6.3"
+  },
+  {
+   "n": "RayTCurrent",
+   "s": [
+    "float RayTCurrent()"
+   ],
+   "d": "現在の最も近い交点までの T。ミスのときは TMax。",
+   "m": "6.3"
+  },
+  {
+   "n": "RayFlags",
+   "s": [
+    "uint RayFlags()"
+   ],
+   "d": "TraceRay に渡された RayFlags。",
+   "m": "6.3"
+  },
+  {
+   "n": "InstanceIndex",
+   "s": [
+    "uint InstanceIndex()"
+   ],
+   "d": "TLAS 内でのインスタンスの通し番号。",
+   "m": "6.3"
+  },
+  {
+   "n": "InstanceID",
+   "s": [
+    "uint InstanceID()"
+   ],
+   "d": "インスタンスに設定された InstanceID(ユーザー値)。",
+   "m": "6.3"
+  },
+  {
+   "n": "GeometryIndex",
+   "s": [
+    "uint GeometryIndex()"
+   ],
+   "d": "BLAS 内のジオメトリ番号。",
+   "m": "6.5"
+  },
+  {
+   "n": "PrimitiveIndex",
+   "s": [
+    "uint PrimitiveIndex()"
+   ],
+   "d": "ジオメトリ内の三角形(プリミティブ)の番号。",
+   "m": "6.3"
+  },
+  {
+   "n": "ObjectRayOrigin",
+   "s": [
+    "float3 ObjectRayOrigin()"
+   ],
+   "d": "オブジェクト空間でのレイの始点。",
+   "m": "6.3"
+  },
+  {
+   "n": "ObjectRayDirection",
+   "s": [
+    "float3 ObjectRayDirection()"
+   ],
+   "d": "オブジェクト空間でのレイの方向。",
+   "m": "6.3"
+  },
+  {
+   "n": "ObjectToWorld3x4",
+   "s": [
+    "float3x4 ObjectToWorld3x4()"
+   ],
+   "d": "オブジェクト → ワールドの変換行列(3 行 4 列)。",
+   "m": "6.3"
+  },
+  {
+   "n": "ObjectToWorld4x3",
+   "s": [
+    "float4x3 ObjectToWorld4x3()"
+   ],
+   "d": "オブジェクト → ワールドの変換行列(4 行 3 列。mul(v, M) 向け)。",
+   "m": "6.3"
+  },
+  {
+   "n": "WorldToObject3x4",
+   "s": [
+    "float3x4 WorldToObject3x4()"
+   ],
+   "d": "ワールド → オブジェクトの変換行列(3 行 4 列)。",
+   "m": "6.3"
+  },
+  {
+   "n": "WorldToObject4x3",
+   "s": [
+    "float4x3 WorldToObject4x3()"
+   ],
+   "d": "ワールド → オブジェクトの変換行列(4 行 3 列)。",
+   "m": "6.3"
+  },
+  {
+   "n": "ObjectToWorld",
+   "s": [
+    "float3x4 ObjectToWorld()"
+   ],
+   "d": "ObjectToWorld3x4 の古い名前。",
+   "m": "6.3"
+  },
+  {
+   "n": "WorldToObject",
+   "s": [
+    "float3x4 WorldToObject()"
+   ],
+   "d": "WorldToObject3x4 の古い名前。",
+   "m": "6.3"
+  },
+  {
+   "n": "HitKind",
+   "s": [
+    "uint HitKind()"
+   ],
+   "d": "交点の種類(表面 / 裏面など)。",
+   "m": "6.3"
+  },
+  {
+   "n": "GetRemainingRecursionLevels",
+   "s": [
+    "uint GetRemainingRecursionLevels()"
+   ],
+   "d": "残りの再帰回数。ワーク グラフではノードの再帰レベル。",
+   "m": "6.8"
+  },
+  {
+   "n": "dx::MaybeReorderThread",
+   "s": [
+    "void MaybeReorderThread(dx::HitObject hit)",
+    "void MaybeReorderThread(uint CoherenceHint, uint NumCoherenceHintBitsFromLSB)",
+    "void MaybeReorderThread(dx::HitObject hit, uint CoherenceHint, uint NumCoherenceHintBitsFromLSB)"
+   ],
+   "d": "Shader Execution Reordering。レイの結果が似たスレッドを、近くのウェーブに寄せ集める。",
+   "m": "6.9"
+  }
+ ],
+ "methods": {
+  "tex": [
+   {
+    "n": "Sample",
+    "s": [
+     "T Sample(SamplerState s, float location [, int offset [, float clamp [, out uint status]]])"
+    ],
+    "d": "サンプラーでテクスチャを読む。暗黙の微分から mip レベルを決める。",
+    "m": "4.0"
+   },
+   {
+    "n": "SampleBias",
+    "s": [
+     "T SampleBias(SamplerState s, float location, float bias [, int offset [, float clamp [, out uint status]]])"
+    ],
+    "d": "mip レベルにバイアスを足してサンプリングする。",
+    "m": "4.0"
+   },
+   {
+    "n": "SampleCmp",
+    "s": [
+     "float SampleCmp(SamplerComparisonState s, float location, float compareValue [, int offset [, float clamp [, out uint status]]])"
+    ],
+    "d": "比較サンプリング(シャドウ マップ用)。",
+    "m": "4.1"
+   },
+   {
+    "n": "SampleCmpBias",
+    "s": [
+     "float SampleCmpBias(SamplerComparisonState s, float location, float compareValue, float bias [, int offset [, float clamp [, out uint status]]])"
+    ],
+    "d": "バイアス付きの比較サンプリング。",
+    "m": "6.8"
+   },
+   {
+    "n": "SampleCmpGrad",
+    "s": [
+     "float SampleCmpGrad(SamplerComparisonState s, float location, float compareValue, float ddx, float ddy [, int offset [, float clamp [, out uint status]]])"
+    ],
+    "d": "勾配を指定した比較サンプリング。",
+    "m": "6.8"
+   },
+   {
+    "n": "SampleCmpLevel",
+    "s": [
+     "float SampleCmpLevel(SamplerComparisonState s, float location, float compareValue, float lod [, int offset [, out uint status]])"
+    ],
+    "d": "mip レベルを指定した比較サンプリング。",
+    "m": "6.7"
+   },
+   {
+    "n": "SampleCmpLevelZero",
+    "s": [
+     "float SampleCmpLevelZero(SamplerComparisonState s, float location, float compareValue [, int offset [, out uint status]])"
+    ],
+    "d": "mip レベル 0 での比較サンプリング。",
+    "m": "4.1"
+   },
+   {
+    "n": "SampleGrad",
+    "s": [
+     "T SampleGrad(SamplerState s, float location, float ddx, float ddy [, int offset [, float clamp [, out uint status]]])"
+    ],
+    "d": "勾配を指定してサンプリングする。",
+    "m": "4.0"
+   },
+   {
+    "n": "SampleLevel",
+    "s": [
+     "T SampleLevel(SamplerState s, float location, float lod [, int offset [, out uint status]])"
+    ],
+    "d": "mip レベルを指定してサンプリングする。微分が要らないので、どのシェーダー ステージでも使える。",
+    "m": "4.0"
+   },
+   {
+    "n": "Load",
+    "s": [
+     "T Load(int location [, int offset [, out uint status]])"
+    ],
+    "d": "サンプラーを使わずに、テクセルを整数座標で読む。最後の成分が mip レベル。",
+    "m": "4.0"
+   },
+   {
+    "n": "GetDimensions",
+    "s": [
+     "void GetDimensions([uint mipLevel,] out uint width [, out uint height [, out uint depth]], out uint numberOfLevels)"
+    ],
+    "d": "テクスチャの大きさと mip 数を取る。",
+    "m": "4.0"
+   },
+   {
+    "n": "CalculateLevelOfDetail",
+    "s": [
+     "float CalculateLevelOfDetail(SamplerState s, float location)"
+    ],
+    "d": "mip レベルを計算する(クランプ後)。ピクセル シェーダー、SM 6.6 以降は CS / MS / AS も。",
+    "m": "4.1"
+   },
+   {
+    "n": "CalculateLevelOfDetailUnclamped",
+    "s": [
+     "float CalculateLevelOfDetailUnclamped(SamplerState s, float location)"
+    ],
+    "d": "mip レベルを計算する(クランプ前)。",
+    "m": "4.1"
+   }
+  ],
+  "texlod": [
+   {
+    "n": "mips",
+    "s": [
+     "mips[mipLevel][pos]"
+    ],
+    "d": "mip レベルを指定して、配列の添字のようにテクセルを読む。",
+    "m": "4.0"
+   }
+  ],
+  "gather": [
+   {
+    "n": "Gather",
+    "s": [
+     "T Gather(SamplerState s, float location [, int offset])"
+    ],
+    "d": "4 テクセルの赤成分を集める。",
+    "m": "4.1"
+   },
+   {
+    "n": "GatherRed",
+    "s": [
+     "T GatherRed(SamplerState s, float location [, int offset [, out uint status]])"
+    ],
+    "d": "4 テクセルの赤成分を集める。",
+    "m": "5.0"
+   },
+   {
+    "n": "GatherGreen",
+    "s": [
+     "T GatherGreen(SamplerState s, float location [, int offset [, out uint status]])"
+    ],
+    "d": "4 テクセルの緑成分を集める。",
+    "m": "5.0"
+   },
+   {
+    "n": "GatherBlue",
+    "s": [
+     "T GatherBlue(SamplerState s, float location [, int offset [, out uint status]])"
+    ],
+    "d": "4 テクセルの青成分を集める。",
+    "m": "5.0"
+   },
+   {
+    "n": "GatherAlpha",
+    "s": [
+     "T GatherAlpha(SamplerState s, float location [, int offset [, out uint status]])"
+    ],
+    "d": "4 テクセルのアルファ成分を集める。",
+    "m": "5.0"
+   },
+   {
+    "n": "GatherCmp",
+    "s": [
+     "float4 GatherCmp(SamplerComparisonState s, float location, float compareValue [, int offset])"
+    ],
+    "d": "4 テクセルを比較して、結果(0 / 1)を集める。",
+    "m": "4.1"
+   },
+   {
+    "n": "GatherCmpRed",
+    "s": [
+     "float4 GatherCmpRed(SamplerComparisonState s, float location, float compareValue [, int offset [, out uint status]])"
+    ],
+    "d": "赤成分を 4 テクセル比較して集める。",
+    "m": "5.0"
+   },
+   {
+    "n": "GatherCmpGreen",
+    "s": [
+     "float4 GatherCmpGreen(SamplerComparisonState s, float location, float compareValue [, int offset [, out uint status]])"
+    ],
+    "d": "緑成分を 4 テクセル比較して集める。",
+    "m": "5.0"
+   },
+   {
+    "n": "GatherCmpBlue",
+    "s": [
+     "float4 GatherCmpBlue(SamplerComparisonState s, float location, float compareValue [, int offset [, out uint status]])"
+    ],
+    "d": "青成分を 4 テクセル比較して集める。",
+    "m": "5.0"
+   },
+   {
+    "n": "GatherCmpAlpha",
+    "s": [
+     "float4 GatherCmpAlpha(SamplerComparisonState s, float location, float compareValue [, int offset [, out uint status]])"
+    ],
+    "d": "アルファ成分を 4 テクセル比較して集める。",
+    "m": "5.0"
+   },
+   {
+    "n": "GatherRaw",
+    "s": [
+     "uint4 GatherRaw(SamplerState s, float location [, int offset])"
+    ],
+    "d": "4 テクセルの生のビット(整数)を集める。",
+    "m": "6.7"
+   }
+  ],
+  "ms": [
+   {
+    "n": "Load",
+    "s": [
+     "T Load(int2 location, int sampleIndex [, int2 offset [, out uint status]])"
+    ],
+    "d": "マルチサンプル テクスチャの、指定サンプルを読む。",
+    "m": "4.0"
+   },
+   {
+    "n": "GetSamplePosition",
+    "s": [
+     "float2 GetSamplePosition(int sampleIndex)"
+    ],
+    "d": "サンプルのピクセル内の位置。",
+    "m": "4.0"
+   },
+   {
+    "n": "GetDimensions",
+    "s": [
+     "void GetDimensions(out uint width, out uint height [, out uint elements], out uint numberOfSamples)"
+    ],
+    "d": "大きさとサンプル数を取る。",
+    "m": "4.0"
+   },
+   {
+    "n": "sample",
+    "s": [
+     "sample[sampleIndex][pos]"
+    ],
+    "d": "サンプルを指定して、配列の添字のようにテクセルを読む。",
+    "m": "4.0"
+   }
+  ],
+  "rwtex": [
+   {
+    "n": "Load",
+    "s": [
+     "T Load(int location [, out uint status])"
+    ],
+    "d": "UAV のテクセルを読む。",
+    "m": "5.0"
+   },
+   {
+    "n": "GetDimensions",
+    "s": [
+     "void GetDimensions(out uint width [, out uint height [, out uint depth]])"
+    ],
+    "d": "大きさを取る。",
+    "m": "5.0"
+   }
+  ],
+  "buf": [
+   {
+    "n": "Load",
+    "s": [
+     "T Load(int location [, out uint status])"
+    ],
+    "d": "要素を読む。",
+    "m": "4.0"
+   },
+   {
+    "n": "GetDimensions",
+    "s": [
+     "void GetDimensions(out uint numStructs)"
+    ],
+    "d": "要素数を取る。",
+    "m": "4.0"
+   }
+  ],
+  "sbuf": [
+   {
+    "n": "Load",
+    "s": [
+     "T Load(int location [, out uint status])"
+    ],
+    "d": "要素を読む。",
+    "m": "4.0"
+   },
+   {
+    "n": "GetDimensions",
+    "s": [
+     "void GetDimensions(out uint numStructs, out uint stride)"
+    ],
+    "d": "要素数とストライドを取る。",
+    "m": "4.0"
+   }
+  ],
+  "sbufrw": [
+   {
+    "n": "IncrementCounter",
+    "s": [
+     "uint IncrementCounter()"
+    ],
+    "d": "隠しカウンターを 1 増やして、増やす前の値を返す。",
+    "m": "5.0"
+   },
+   {
+    "n": "DecrementCounter",
+    "s": [
+     "uint DecrementCounter()"
+    ],
+    "d": "隠しカウンターを 1 減らして、減らした後の値を返す。",
+    "m": "5.0"
+   }
+  ],
+  "append": [
+   {
+    "n": "Append",
+    "s": [
+     "void Append(T value)"
+    ],
+    "d": "末尾に 1 要素を追加する。",
+    "m": "5.0"
+   },
+   {
+    "n": "GetDimensions",
+    "s": [
+     "void GetDimensions(out uint numStructs, out uint stride)"
+    ],
+    "d": "要素数とストライドを取る。",
+    "m": "5.0"
+   }
+  ],
+  "consume": [
+   {
+    "n": "Consume",
+    "s": [
+     "T Consume()"
+    ],
+    "d": "末尾から 1 要素を取り出す。",
+    "m": "5.0"
+   },
+   {
+    "n": "GetDimensions",
+    "s": [
+     "void GetDimensions(out uint numStructs, out uint stride)"
+    ],
+    "d": "要素数とストライドを取る。",
+    "m": "5.0"
+   }
+  ],
+  "bab": [
+   {
+    "n": "Load",
+    "s": [
+     "uint Load(uint byteOffset [, out uint status])",
+     "T Load<T>(uint byteOffset)"
+    ],
+    "d": "バイト オフセットから 1 つの uint を読む。",
+    "m": "5.0"
+   },
+   {
+    "n": "Load2",
+    "s": [
+     "uint2 Load2(uint byteOffset [, out uint status])"
+    ],
+    "d": "2 つの uint を読む。",
+    "m": "5.0"
+   },
+   {
+    "n": "Load3",
+    "s": [
+     "uint3 Load3(uint byteOffset [, out uint status])"
+    ],
+    "d": "3 つの uint を読む。",
+    "m": "5.0"
+   },
+   {
+    "n": "Load4",
+    "s": [
+     "uint4 Load4(uint byteOffset [, out uint status])"
+    ],
+    "d": "4 つの uint を読む。",
+    "m": "5.0"
+   },
+   {
+    "n": "GetDimensions",
+    "s": [
+     "void GetDimensions(out uint dim)"
+    ],
+    "d": "バッファのバイト数を取る。",
+    "m": "5.0"
+   }
+  ],
+  "babrw": [
+   {
+    "n": "Store",
+    "s": [
+     "void Store(uint byteOffset, uint value)",
+     "void Store<T>(uint byteOffset, T value)"
+    ],
+    "d": "1 つの uint を書く。",
+    "m": "5.0"
+   },
+   {
+    "n": "Store2",
+    "s": [
+     "void Store2(uint byteOffset, uint2 value)"
+    ],
+    "d": "2 つの uint を書く。",
+    "m": "5.0"
+   },
+   {
+    "n": "Store3",
+    "s": [
+     "void Store3(uint byteOffset, uint3 value)"
+    ],
+    "d": "3 つの uint を書く。",
+    "m": "5.0"
+   },
+   {
+    "n": "Store4",
+    "s": [
+     "void Store4(uint byteOffset, uint4 value)"
+    ],
+    "d": "4 つの uint を書く。",
+    "m": "5.0"
+   },
+   {
+    "n": "InterlockedAdd",
+    "s": [
+     "void InterlockedAdd(uint byteOffset, uint value [, out uint original])"
+    ],
+    "d": "原子的に加算する。",
+    "m": "5.0"
+   },
+   {
+    "n": "InterlockedAdd64",
+    "s": [
+     "void InterlockedAdd64(uint byteOffset, uint64_t value [, out uint64_t original])"
+    ],
+    "d": "64 ビットの原子的な加算。",
+    "m": "6.6"
+   },
+   {
+    "n": "InterlockedAnd",
+    "s": [
+     "void InterlockedAnd(uint byteOffset, uint value [, out uint original])"
+    ],
+    "d": "原子的に論理積を取る。",
+    "m": "5.0"
+   },
+   {
+    "n": "InterlockedAnd64",
+    "s": [
+     "void InterlockedAnd64(uint byteOffset, uint64_t value [, out uint64_t original])"
+    ],
+    "d": "64 ビットの原子的な論理積。",
+    "m": "6.6"
+   },
+   {
+    "n": "InterlockedCompareExchange",
+    "s": [
+     "void InterlockedCompareExchange(uint byteOffset, uint compare, uint value, out uint original)"
+    ],
+    "d": "比較して等しければ交換する。",
+    "m": "5.0"
+   },
+   {
+    "n": "InterlockedCompareExchange64",
+    "s": [
+     "void InterlockedCompareExchange64(uint byteOffset, uint64_t compare, uint64_t value, out uint64_t original)"
+    ],
+    "d": "64 ビットの比較交換。",
+    "m": "6.6"
+   },
+   {
+    "n": "InterlockedCompareStore",
+    "s": [
+     "void InterlockedCompareStore(uint byteOffset, uint compare, uint value)"
+    ],
+    "d": "比較して等しければ書く。",
+    "m": "5.0"
+   },
+   {
+    "n": "InterlockedCompareStore64",
+    "s": [
+     "void InterlockedCompareStore64(uint byteOffset, uint64_t compare, uint64_t value)"
+    ],
+    "d": "64 ビットの比較書き込み。",
+    "m": "6.6"
+   },
+   {
+    "n": "InterlockedExchange",
+    "s": [
+     "void InterlockedExchange(uint byteOffset, uint value, out uint original)"
+    ],
+    "d": "原子的に入れ替える。",
+    "m": "5.0"
+   },
+   {
+    "n": "InterlockedExchange64",
+    "s": [
+     "void InterlockedExchange64(uint byteOffset, uint64_t value, out uint64_t original)"
+    ],
+    "d": "64 ビットの原子的な入れ替え。",
+    "m": "6.6"
+   },
+   {
+    "n": "InterlockedMax",
+    "s": [
+     "void InterlockedMax(uint byteOffset, uint value [, out uint original])"
+    ],
+    "d": "原子的に最大値を書く。",
+    "m": "5.0"
+   },
+   {
+    "n": "InterlockedMax64",
+    "s": [
+     "void InterlockedMax64(uint byteOffset, uint64_t value [, out uint64_t original])"
+    ],
+    "d": "64 ビットの原子的な最大値。",
+    "m": "6.6"
+   },
+   {
+    "n": "InterlockedMin",
+    "s": [
+     "void InterlockedMin(uint byteOffset, uint value [, out uint original])"
+    ],
+    "d": "原子的に最小値を書く。",
+    "m": "5.0"
+   },
+   {
+    "n": "InterlockedMin64",
+    "s": [
+     "void InterlockedMin64(uint byteOffset, uint64_t value [, out uint64_t original])"
+    ],
+    "d": "64 ビットの原子的な最小値。",
+    "m": "6.6"
+   },
+   {
+    "n": "InterlockedOr",
+    "s": [
+     "void InterlockedOr(uint byteOffset, uint value [, out uint original])"
+    ],
+    "d": "原子的に論理和を取る。",
+    "m": "5.0"
+   },
+   {
+    "n": "InterlockedOr64",
+    "s": [
+     "void InterlockedOr64(uint byteOffset, uint64_t value [, out uint64_t original])"
+    ],
+    "d": "64 ビットの原子的な論理和。",
+    "m": "6.6"
+   },
+   {
+    "n": "InterlockedXor",
+    "s": [
+     "void InterlockedXor(uint byteOffset, uint value [, out uint original])"
+    ],
+    "d": "原子的に排他的論理和を取る。",
+    "m": "5.0"
+   },
+   {
+    "n": "InterlockedXor64",
+    "s": [
+     "void InterlockedXor64(uint byteOffset, uint64_t value [, out uint64_t original])"
+    ],
+    "d": "64 ビットの原子的な排他的論理和。",
+    "m": "6.6"
+   },
+   {
+    "n": "InterlockedCompareExchangeFloatBitwise",
+    "s": [
+     "void InterlockedCompareExchangeFloatBitwise(uint byteOffset, float compare, float value, out float original)"
+    ],
+    "d": "float をビット比較して交換する。",
+    "m": "6.6"
+   },
+   {
+    "n": "InterlockedCompareStoreFloatBitwise",
+    "s": [
+     "void InterlockedCompareStoreFloatBitwise(uint byteOffset, float compare, float value)"
+    ],
+    "d": "float をビット比較して書く。",
+    "m": "6.6"
+   }
+  ],
+  "stream": [
+   {
+    "n": "Append",
+    "s": [
+     "void Append(T vertex)"
+    ],
+    "d": "頂点を出力ストリームに追加する。",
+    "m": "4.0"
+   },
+   {
+    "n": "RestartStrip",
+    "s": [
+     "void RestartStrip()"
+    ],
+    "d": "現在のストリップを終えて、次のストリップを始める。",
+    "m": "4.0"
+   }
+  ],
+  "patch": [
+   {
+    "n": "Length",
+    "s": [
+     "uint Length"
+    ],
+    "d": "パッチの制御点の数。",
+    "m": "5.0"
+   }
+  ],
+  "feedback": [
+   {
+    "n": "WriteSamplerFeedback",
+    "s": [
+     "void WriteSamplerFeedback(Texture2D tex, SamplerState s, float2 location [, float clamp])"
+    ],
+    "d": "サンプラー フィードバックを書く。",
+    "m": "6.5"
+   },
+   {
+    "n": "WriteSamplerFeedbackBias",
+    "s": [
+     "void WriteSamplerFeedbackBias(Texture2D tex, SamplerState s, float2 location, float bias [, float clamp])"
+    ],
+    "d": "バイアス付きで書く。",
+    "m": "6.5"
+   },
+   {
+    "n": "WriteSamplerFeedbackGrad",
+    "s": [
+     "void WriteSamplerFeedbackGrad(Texture2D tex, SamplerState s, float2 location, float2 ddx, float2 ddy [, float clamp])"
+    ],
+    "d": "勾配を指定して書く。",
+    "m": "6.5"
+   },
+   {
+    "n": "WriteSamplerFeedbackLevel",
+    "s": [
+     "void WriteSamplerFeedbackLevel(Texture2D tex, SamplerState s, float2 location, float lod)"
+    ],
+    "d": "mip レベルを指定して書く。",
+    "m": "6.5"
+   }
+  ],
+  "rayquery": [
+   {
+    "n": "TraceRayInline",
+    "s": [
+     "void TraceRayInline(RaytracingAccelerationStructure accel, uint rayFlags, uint instanceInclusionMask, RayDesc ray)"
+    ],
+    "d": "インライン レイトレーシングを始める。",
+    "m": "6.5"
+   },
+   {
+    "n": "Proceed",
+    "s": [
+     "bool Proceed()"
+    ],
+    "d": "次の候補へ進む。まだ続くなら true。",
+    "m": "6.5"
+   },
+   {
+    "n": "Abort",
+    "s": [
+     "void Abort()"
+    ],
+    "d": "クエリを打ち切る。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommitNonOpaqueTriangleHit",
+    "s": [
+     "void CommitNonOpaqueTriangleHit()"
+    ],
+    "d": "不透明でない三角形の候補を確定する。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommitProceduralPrimitiveHit",
+    "s": [
+     "void CommitProceduralPrimitiveHit(float t)"
+    ],
+    "d": "プロシージャル プリミティブの候補を確定する。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedStatus",
+    "s": [
+     "COMMITTED_STATUS CommittedStatus()"
+    ],
+    "d": "確定した交点の種類。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateType",
+    "s": [
+     "CANDIDATE_TYPE CandidateType()"
+    ],
+    "d": "現在の候補の種類。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateTriangleBarycentrics",
+    "s": [
+     "float2 CandidateTriangleBarycentrics()"
+    ],
+    "d": "候補三角形の重心座標。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateTriangleFrontFace",
+    "s": [
+     "bool CandidateTriangleFrontFace()"
+    ],
+    "d": "候補三角形が表向きなら true。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateTriangleRayT",
+    "s": [
+     "float CandidateTriangleRayT()"
+    ],
+    "d": "候補三角形への T。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateProceduralPrimitiveNonOpaque",
+    "s": [
+     "bool CandidateProceduralPrimitiveNonOpaque()"
+    ],
+    "d": "候補プロシージャル プリミティブが不透明でなければ true。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateInstanceIndex",
+    "s": [
+     "uint CandidateInstanceIndex()"
+    ],
+    "d": "候補のインスタンス番号。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateInstanceID",
+    "s": [
+     "uint CandidateInstanceID()"
+    ],
+    "d": "候補の InstanceID。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateInstanceContributionToHitGroupIndex",
+    "s": [
+     "uint CandidateInstanceContributionToHitGroupIndex()"
+    ],
+    "d": "候補のヒット グループ オフセット。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateGeometryIndex",
+    "s": [
+     "uint CandidateGeometryIndex()"
+    ],
+    "d": "候補のジオメトリ番号。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidatePrimitiveIndex",
+    "s": [
+     "uint CandidatePrimitiveIndex()"
+    ],
+    "d": "候補のプリミティブ番号。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateObjectRayOrigin",
+    "s": [
+     "float3 CandidateObjectRayOrigin()"
+    ],
+    "d": "候補のオブジェクト空間でのレイ始点。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateObjectRayDirection",
+    "s": [
+     "float3 CandidateObjectRayDirection()"
+    ],
+    "d": "候補のオブジェクト空間でのレイ方向。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateObjectToWorld3x4",
+    "s": [
+     "float3x4 CandidateObjectToWorld3x4()"
+    ],
+    "d": "候補のオブジェクト → ワールド行列。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateObjectToWorld4x3",
+    "s": [
+     "float4x3 CandidateObjectToWorld4x3()"
+    ],
+    "d": "候補のオブジェクト → ワールド行列(4x3)。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateWorldToObject3x4",
+    "s": [
+     "float3x4 CandidateWorldToObject3x4()"
+    ],
+    "d": "候補のワールド → オブジェクト行列。",
+    "m": "6.5"
+   },
+   {
+    "n": "CandidateWorldToObject4x3",
+    "s": [
+     "float4x3 CandidateWorldToObject4x3()"
+    ],
+    "d": "候補のワールド → オブジェクト行列(4x3)。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedRayT",
+    "s": [
+     "float CommittedRayT()"
+    ],
+    "d": "確定した交点への T。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedTriangleBarycentrics",
+    "s": [
+     "float2 CommittedTriangleBarycentrics()"
+    ],
+    "d": "確定した三角形の重心座標。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedTriangleFrontFace",
+    "s": [
+     "bool CommittedTriangleFrontFace()"
+    ],
+    "d": "確定した三角形が表向きなら true。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedInstanceIndex",
+    "s": [
+     "uint CommittedInstanceIndex()"
+    ],
+    "d": "確定したインスタンス番号。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedInstanceID",
+    "s": [
+     "uint CommittedInstanceID()"
+    ],
+    "d": "確定した InstanceID。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedInstanceContributionToHitGroupIndex",
+    "s": [
+     "uint CommittedInstanceContributionToHitGroupIndex()"
+    ],
+    "d": "確定したヒット グループ オフセット。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedGeometryIndex",
+    "s": [
+     "uint CommittedGeometryIndex()"
+    ],
+    "d": "確定したジオメトリ番号。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedPrimitiveIndex",
+    "s": [
+     "uint CommittedPrimitiveIndex()"
+    ],
+    "d": "確定したプリミティブ番号。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedObjectRayOrigin",
+    "s": [
+     "float3 CommittedObjectRayOrigin()"
+    ],
+    "d": "確定した交点でのオブジェクト空間のレイ始点。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedObjectRayDirection",
+    "s": [
+     "float3 CommittedObjectRayDirection()"
+    ],
+    "d": "確定した交点でのオブジェクト空間のレイ方向。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedObjectToWorld3x4",
+    "s": [
+     "float3x4 CommittedObjectToWorld3x4()"
+    ],
+    "d": "確定した オブジェクト → ワールド行列。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedObjectToWorld4x3",
+    "s": [
+     "float4x3 CommittedObjectToWorld4x3()"
+    ],
+    "d": "確定した オブジェクト → ワールド行列(4x3)。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedWorldToObject3x4",
+    "s": [
+     "float3x4 CommittedWorldToObject3x4()"
+    ],
+    "d": "確定した ワールド → オブジェクト行列。",
+    "m": "6.5"
+   },
+   {
+    "n": "CommittedWorldToObject4x3",
+    "s": [
+     "float4x3 CommittedWorldToObject4x3()"
+    ],
+    "d": "確定した ワールド → オブジェクト行列(4x3)。",
+    "m": "6.5"
+   },
+   {
+    "n": "RayFlags",
+    "s": [
+     "uint RayFlags()"
+    ],
+    "d": "TraceRayInline に渡した RayFlags。",
+    "m": "6.5"
+   },
+   {
+    "n": "WorldRayOrigin",
+    "s": [
+     "float3 WorldRayOrigin()"
+    ],
+    "d": "ワールド空間のレイ始点。",
+    "m": "6.5"
+   },
+   {
+    "n": "WorldRayDirection",
+    "s": [
+     "float3 WorldRayDirection()"
+    ],
+    "d": "ワールド空間のレイ方向。",
+    "m": "6.5"
+   },
+   {
+    "n": "RayTMin",
+    "s": [
+     "float RayTMin()"
+    ],
+    "d": "レイの最小 T。",
+    "m": "6.5"
+   }
+  ],
+  "nodeout": [
+   {
+    "n": "GetThreadNodeOutputRecords",
+    "s": [
+     "ThreadNodeOutputRecords<T> GetThreadNodeOutputRecords(uint numRecords)"
+    ],
+    "d": "スレッドごとに出力レコードを確保する。",
+    "m": "6.8"
+   },
+   {
+    "n": "GetGroupNodeOutputRecords",
+    "s": [
+     "GroupNodeOutputRecords<T> GetGroupNodeOutputRecords(uint numRecords)"
+    ],
+    "d": "グループで共有する出力レコードを確保する。",
+    "m": "6.8"
+   },
+   {
+    "n": "IsValid",
+    "s": [
+     "bool IsValid()"
+    ],
+    "d": "この出力先が接続されていれば true。",
+    "m": "6.8"
+   },
+   {
+    "n": "OutputComplete",
+    "s": [
+     "void OutputComplete()"
+    ],
+    "d": "出力をすべて終えたことを伝える。",
+    "m": "6.8"
+   },
+   {
+    "n": "ThreadIncrementOutputCount",
+    "s": [
+     "void ThreadIncrementOutputCount(uint count)"
+    ],
+    "d": "スレッド単位で、出力数を増やす(Empty 出力用)。",
+    "m": "6.8"
+   },
+   {
+    "n": "GroupIncrementOutputCount",
+    "s": [
+     "void GroupIncrementOutputCount(uint count)"
+    ],
+    "d": "グループ単位で、出力数を増やす(Empty 出力用)。",
+    "m": "6.8"
+   }
+  ],
+  "emptynodeout": [
+   {
+    "n": "IsValid",
+    "s": [
+     "bool IsValid()"
+    ],
+    "d": "この出力先が接続されていれば true。",
+    "m": "6.8"
+   },
+   {
+    "n": "ThreadIncrementOutputCount",
+    "s": [
+     "void ThreadIncrementOutputCount(uint count)"
+    ],
+    "d": "スレッド単位で、出力数を増やす。",
+    "m": "6.8"
+   },
+   {
+    "n": "GroupIncrementOutputCount",
+    "s": [
+     "void GroupIncrementOutputCount(uint count)"
+    ],
+    "d": "グループ単位で、出力数を増やす。",
+    "m": "6.8"
+   }
+  ],
+  "noderec": [
+   {
+    "n": "Get",
+    "s": [
+     "T Get()"
+    ],
+    "d": "レコードの中身を取る(参照)。",
+    "m": "6.8"
+   },
+   {
+    "n": "FinishedCrossGroupSharing",
+    "s": [
+     "bool FinishedCrossGroupSharing()"
+    ],
+    "d": "グループをまたぐ共有の最後のグループなら true。RWDispatchNodeInputRecord 用。",
+    "m": "6.8"
+   }
+  ],
+  "noderecs": [
+   {
+    "n": "Get",
+    "s": [
+     "T Get(uint index)"
+    ],
+    "d": "index 番目のレコードを取る。",
+    "m": "6.8"
+   },
+   {
+    "n": "Count",
+    "s": [
+     "uint Count()"
+    ],
+    "d": "レコードの数。",
+    "m": "6.8"
+   }
+  ],
+  "emptynodein": [
+   {
+    "n": "Count",
+    "s": [
+     "uint Count()"
+    ],
+    "d": "空レコードの数。",
+    "m": "6.8"
+   }
+  ],
+  "hitobject": [
+   {
+    "n": "TraceRay",
+    "s": [
+     "static dx::HitObject TraceRay(RaytracingAccelerationStructure accel, uint rayFlags, uint instanceInclusionMask, uint rayContributionToHitGroupIndex, uint multiplierForGeometryContributionToHitGroupIndex, uint missShaderIndex, RayDesc ray, inout payload_t payload)"
+    ],
+    "d": "レイを飛ばして、結果を HitObject として受け取る(シェーダーは呼ばない)。",
+    "m": "6.9"
+   },
+   {
+    "n": "FromRayQuery",
+    "s": [
+     "static dx::HitObject FromRayQuery(RayQuery<flags> query [, uint hitKind, attr_t attributes])"
+    ],
+    "d": "RayQuery の結果から HitObject を作る。",
+    "m": "6.9"
+   },
+   {
+    "n": "MakeMiss",
+    "s": [
+     "static dx::HitObject MakeMiss(uint rayFlags, uint missShaderIndex, RayDesc ray)"
+    ],
+    "d": "ミスの HitObject を作る。",
+    "m": "6.9"
+   },
+   {
+    "n": "MakeNop",
+    "s": [
+     "static dx::HitObject MakeNop()"
+    ],
+    "d": "何も起こさない HitObject を作る。",
+    "m": "6.9"
+   },
+   {
+    "n": "Invoke",
+    "s": [
+     "static void Invoke(dx::HitObject hit, inout payload_t payload)"
+    ],
+    "d": "HitObject に対応するシェーダー(closest hit / miss)を実行する。",
+    "m": "6.9"
+   },
+   {
+    "n": "IsHit",
+    "s": [
+     "bool IsHit()"
+    ],
+    "d": "ヒットなら true。",
+    "m": "6.9"
+   },
+   {
+    "n": "IsMiss",
+    "s": [
+     "bool IsMiss()"
+    ],
+    "d": "ミスなら true。",
+    "m": "6.9"
+   },
+   {
+    "n": "IsNop",
+    "s": [
+     "bool IsNop()"
+    ],
+    "d": "NOP なら true。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetShaderTableIndex",
+    "s": [
+     "uint GetShaderTableIndex()"
+    ],
+    "d": "シェーダー テーブルの番号を取る。",
+    "m": "6.9"
+   },
+   {
+    "n": "SetShaderTableIndex",
+    "s": [
+     "void SetShaderTableIndex(uint recordIndex)"
+    ],
+    "d": "シェーダー テーブルの番号を上書きする。",
+    "m": "6.9"
+   },
+   {
+    "n": "LoadLocalRootTableConstant",
+    "s": [
+     "uint LoadLocalRootTableConstant(uint offset)"
+    ],
+    "d": "ローカル ルート テーブルの定数を読む。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetRayFlags",
+    "s": [
+     "uint GetRayFlags()"
+    ],
+    "d": "RayFlags を取る。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetRayTMin",
+    "s": [
+     "float GetRayTMin()"
+    ],
+    "d": "レイの TMin を取る。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetRayTCurrent",
+    "s": [
+     "float GetRayTCurrent()"
+    ],
+    "d": "ヒット位置までの T を取る。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetWorldRayOrigin",
+    "s": [
+     "float3 GetWorldRayOrigin()"
+    ],
+    "d": "ワールド空間のレイ始点。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetWorldRayDirection",
+    "s": [
+     "float3 GetWorldRayDirection()"
+    ],
+    "d": "ワールド空間のレイ方向。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetObjectRayOrigin",
+    "s": [
+     "float3 GetObjectRayOrigin()"
+    ],
+    "d": "オブジェクト空間のレイ始点。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetObjectRayDirection",
+    "s": [
+     "float3 GetObjectRayDirection()"
+    ],
+    "d": "オブジェクト空間のレイ方向。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetObjectToWorld3x4",
+    "s": [
+     "float3x4 GetObjectToWorld3x4()"
+    ],
+    "d": "オブジェクト → ワールド行列。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetWorldToObject3x4",
+    "s": [
+     "float3x4 GetWorldToObject3x4()"
+    ],
+    "d": "ワールド → オブジェクト行列。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetInstanceIndex",
+    "s": [
+     "uint GetInstanceIndex()"
+    ],
+    "d": "インスタンス番号。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetInstanceID",
+    "s": [
+     "uint GetInstanceID()"
+    ],
+    "d": "InstanceID。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetGeometryIndex",
+    "s": [
+     "uint GetGeometryIndex()"
+    ],
+    "d": "ジオメトリ番号。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetPrimitiveIndex",
+    "s": [
+     "uint GetPrimitiveIndex()"
+    ],
+    "d": "プリミティブ番号。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetHitKind",
+    "s": [
+     "uint GetHitKind()"
+    ],
+    "d": "ヒットの種類。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetAttributes",
+    "s": [
+     "void GetAttributes(out attr_t attributes)"
+    ],
+    "d": "ヒット属性を取り出す。",
+    "m": "6.9"
+   }
+  ]
+ },
+ "types": [
+  {
+   "n": "Texture1D",
+   "d": "1D テクスチャ(読み取り専用)。",
+   "m": "4.0",
+   "g": [
+    "tex",
+    "texlod"
+   ]
+  },
+  {
+   "n": "Texture1DArray",
+   "d": "1D テクスチャ配列。",
+   "m": "4.0",
+   "g": [
+    "tex",
+    "texlod"
+   ]
+  },
+  {
+   "n": "Texture2D",
+   "d": "2D テクスチャ(読み取り専用)。",
+   "m": "4.0",
+   "g": [
+    "tex",
+    "texlod",
+    "gather"
+   ]
+  },
+  {
+   "n": "Texture2DArray",
+   "d": "2D テクスチャ配列。",
+   "m": "4.0",
+   "g": [
+    "tex",
+    "texlod",
+    "gather"
+   ]
+  },
+  {
+   "n": "Texture2DMS",
+   "d": "マルチサンプル 2D テクスチャ。",
+   "m": "4.0",
+   "g": [
+    "ms"
+   ]
+  },
+  {
+   "n": "Texture2DMSArray",
+   "d": "マルチサンプル 2D テクスチャ配列。",
+   "m": "4.0",
+   "g": [
+    "ms"
+   ]
+  },
+  {
+   "n": "Texture3D",
+   "d": "3D テクスチャ。",
+   "m": "4.0",
+   "g": [
+    "tex",
+    "texlod"
+   ]
+  },
+  {
+   "n": "TextureCube",
+   "d": "キューブ テクスチャ。",
+   "m": "4.0",
+   "g": [
+    "tex",
+    "texlod",
+    "gather"
+   ]
+  },
+  {
+   "n": "TextureCubeArray",
+   "d": "キューブ テクスチャ配列。",
+   "m": "4.0",
+   "g": [
+    "tex",
+    "texlod",
+    "gather"
+   ]
+  },
+  {
+   "n": "RWTexture1D",
+   "d": "読み書きできる 1D テクスチャ(UAV)。",
+   "m": "5.0",
+   "g": [
+    "rwtex"
+   ]
+  },
+  {
+   "n": "RWTexture1DArray",
+   "d": "読み書きできる 1D テクスチャ配列。",
+   "m": "5.0",
+   "g": [
+    "rwtex"
+   ]
+  },
+  {
+   "n": "RWTexture2D",
+   "d": "読み書きできる 2D テクスチャ(UAV)。",
+   "m": "5.0",
+   "g": [
+    "rwtex"
+   ]
+  },
+  {
+   "n": "RWTexture2DArray",
+   "d": "読み書きできる 2D テクスチャ配列。",
+   "m": "5.0",
+   "g": [
+    "rwtex"
+   ]
+  },
+  {
+   "n": "RWTexture3D",
+   "d": "読み書きできる 3D テクスチャ。",
+   "m": "5.0",
+   "g": [
+    "rwtex"
+   ]
+  },
+  {
+   "n": "RasterizerOrderedTexture1D",
+   "d": "ラスタライザ順序付きの 1D テクスチャ(ROV)。",
+   "m": "5.1",
+   "g": [
+    "rwtex"
+   ]
+  },
+  {
+   "n": "RasterizerOrderedTexture1DArray",
+   "d": "ラスタライザ順序付きの 1D テクスチャ配列。",
+   "m": "5.1",
+   "g": [
+    "rwtex"
+   ]
+  },
+  {
+   "n": "RasterizerOrderedTexture2D",
+   "d": "ラスタライザ順序付きの 2D テクスチャ(ROV)。",
+   "m": "5.1",
+   "g": [
+    "rwtex"
+   ]
+  },
+  {
+   "n": "RasterizerOrderedTexture2DArray",
+   "d": "ラスタライザ順序付きの 2D テクスチャ配列。",
+   "m": "5.1",
+   "g": [
+    "rwtex"
+   ]
+  },
+  {
+   "n": "RasterizerOrderedTexture3D",
+   "d": "ラスタライザ順序付きの 3D テクスチャ。",
+   "m": "5.1",
+   "g": [
+    "rwtex"
+   ]
+  },
+  {
+   "n": "FeedbackTexture2D",
+   "d": "サンプラー フィードバック用の 2D テクスチャ。",
+   "m": "6.5",
+   "g": [
+    "feedback"
+   ]
+  },
+  {
+   "n": "FeedbackTexture2DArray",
+   "d": "サンプラー フィードバック用の 2D テクスチャ配列。",
+   "m": "6.5",
+   "g": [
+    "feedback"
+   ]
+  },
+  {
+   "n": "Buffer",
+   "d": "型つきバッファ(読み取り専用)。",
+   "m": "4.0",
+   "g": [
+    "buf"
+   ]
+  },
+  {
+   "n": "RWBuffer",
+   "d": "型つきバッファ(UAV)。",
+   "m": "5.0",
+   "g": [
+    "buf"
+   ]
+  },
+  {
+   "n": "RasterizerOrderedBuffer",
+   "d": "ラスタライザ順序付きの型つきバッファ。",
+   "m": "5.1",
+   "g": [
+    "buf"
+   ]
+  },
+  {
+   "n": "StructuredBuffer",
+   "d": "構造体の配列バッファ(読み取り専用)。",
+   "m": "4.0",
+   "g": [
+    "sbuf"
+   ]
+  },
+  {
+   "n": "RWStructuredBuffer",
+   "d": "構造体の配列バッファ(UAV)。カウンターつき。",
+   "m": "5.0",
+   "g": [
+    "sbuf",
+    "sbufrw"
+   ]
+  },
+  {
+   "n": "RasterizerOrderedStructuredBuffer",
+   "d": "ラスタライザ順序付きの構造体バッファ。",
+   "m": "5.1",
+   "g": [
+    "sbuf"
+   ]
+  },
+  {
+   "n": "AppendStructuredBuffer",
+   "d": "追記専用の構造体バッファ。",
+   "m": "5.0",
+   "g": [
+    "append"
+   ]
+  },
+  {
+   "n": "ConsumeStructuredBuffer",
+   "d": "取り出し専用の構造体バッファ。",
+   "m": "5.0",
+   "g": [
+    "consume"
+   ]
+  },
+  {
+   "n": "ByteAddressBuffer",
+   "d": "バイト アドレスで読むバッファ(読み取り専用)。",
+   "m": "5.0",
+   "g": [
+    "bab"
+   ]
+  },
+  {
+   "n": "RWByteAddressBuffer",
+   "d": "バイト アドレスで読み書きするバッファ(UAV)。",
+   "m": "5.0",
+   "g": [
+    "bab",
+    "babrw"
+   ]
+  },
+  {
+   "n": "RasterizerOrderedByteAddressBuffer",
+   "d": "ラスタライザ順序付きのバイト アドレス バッファ。",
+   "m": "5.1",
+   "g": [
+    "bab",
+    "babrw"
+   ]
+  },
+  {
+   "n": "ConstantBuffer",
+   "d": "型つきの定数バッファ。",
+   "m": "5.1 |",
+   "g": []
+  },
+  {
+   "n": "TextureBuffer",
+   "d": "tbuffer を型つきで書く形式。",
+   "m": "4.0 |",
+   "g": []
+  },
+  {
+   "n": "SamplerState",
+   "d": "サンプラー。",
+   "m": "4.0 |",
+   "g": []
+  },
+  {
+   "n": "SamplerComparisonState",
+   "d": "比較サンプラー(SampleCmp 用)。",
+   "m": "4.0 |",
+   "g": []
+  },
+  {
+   "n": "RaytracingAccelerationStructure",
+   "d": "レイトレーシングの加速構造(TLAS)。",
+   "m": "6.3 |",
+   "g": []
+  },
+  {
+   "n": "RayQuery",
+   "d": "インライン レイトレーシング(DXR 1.1)のレイ クエリ。",
+   "m": "6.5",
+   "g": [
+    "rayquery"
+   ]
+  },
+  {
+   "n": "InputPatch",
+   "d": "ハル シェーダーの入力パッチ。",
+   "m": "5.0",
+   "g": [
+    "patch"
+   ]
+  },
+  {
+   "n": "OutputPatch",
+   "d": "ドメイン シェーダーの入力パッチ。",
+   "m": "5.0",
+   "g": [
+    "patch"
+   ]
+  },
+  {
+   "n": "PointStream",
+   "d": "ジオメトリ シェーダーのポイント出力ストリーム。",
+   "m": "4.0",
+   "g": [
+    "stream"
+   ]
+  },
+  {
+   "n": "LineStream",
+   "d": "ジオメトリ シェーダーの線出力ストリーム。",
+   "m": "4.0",
+   "g": [
+    "stream"
+   ]
+  },
+  {
+   "n": "TriangleStream",
+   "d": "ジオメトリ シェーダーの三角形出力ストリーム。",
+   "m": "4.0",
+   "g": [
+    "stream"
+   ]
+  },
+  {
+   "n": "NodeOutput",
+   "d": "ワーク グラフのノード出力。",
+   "m": "6.8",
+   "g": [
+    "nodeout"
+   ]
+  },
+  {
+   "n": "NodeOutputArray",
+   "d": "ワーク グラフのノード出力配列。",
+   "m": "6.8",
+   "g": [
+    "nodeout"
+   ]
+  },
+  {
+   "n": "EmptyNodeOutput",
+   "d": "レコードを持たないノード出力。",
+   "m": "6.8",
+   "g": [
+    "emptynodeout"
+   ]
+  },
+  {
+   "n": "EmptyNodeOutputArray",
+   "d": "レコードを持たないノード出力の配列。",
+   "m": "6.8",
+   "g": [
+    "emptynodeout"
+   ]
+  },
+  {
+   "n": "DispatchNodeInputRecord",
+   "d": "ブロードキャスト ノードの入力レコード(読み取り専用)。",
+   "m": "6.8",
+   "g": [
+    "noderec"
+   ]
+  },
+  {
+   "n": "RWDispatchNodeInputRecord",
+   "d": "ブロードキャスト ノードの入力レコード(読み書き)。",
+   "m": "6.8",
+   "g": [
+    "noderec"
+   ]
+  },
+  {
+   "n": "GroupNodeInputRecords",
+   "d": "コアレッシング ノードの入力レコード群(読み取り専用)。",
+   "m": "6.8",
+   "g": [
+    "noderecs"
+   ]
+  },
+  {
+   "n": "RWGroupNodeInputRecords",
+   "d": "コアレッシング ノードの入力レコード群(読み書き)。",
+   "m": "6.8",
+   "g": [
+    "noderecs"
+   ]
+  },
+  {
+   "n": "ThreadNodeInputRecord",
+   "d": "スレッド ノードの入力レコード(読み取り専用)。",
+   "m": "6.8",
+   "g": [
+    "noderec"
+   ]
+  },
+  {
+   "n": "RWThreadNodeInputRecord",
+   "d": "スレッド ノードの入力レコード(読み書き)。",
+   "m": "6.8",
+   "g": [
+    "noderec"
+   ]
+  },
+  {
+   "n": "EmptyNodeInput",
+   "d": "レコードを持たない入力。",
+   "m": "6.8",
+   "g": [
+    "emptynodein"
+   ]
+  },
+  {
+   "n": "NodeOutputRecord",
+   "d": "ノードの出力レコード(GetThreadNodeOutputRecords など)。",
+   "m": "6.8",
+   "g": [
+    "noderecs"
+   ]
+  },
+  {
+   "n": "ThreadNodeOutputRecords",
+   "d": "スレッド単位の出力レコード群。",
+   "m": "6.8",
+   "g": [
+    "noderecs"
+   ]
+  },
+  {
+   "n": "GroupNodeOutputRecords",
+   "d": "グループ単位の出力レコード群。",
+   "m": "6.8",
+   "g": [
+    "noderecs"
+   ]
+  },
+  {
+   "n": "dx::HitObject",
+   "d": "レイの探索結果を持つ型。TraceRay と Invoke を分けて呼べる。SM 6.9 の Shader Execution Reordering。",
+   "m": "6.9",
+   "g": [
+    "hitobject"
+   ]
+  },
+  {
+   "n": "RayDesc",
+   "d": "レイを表す構造体(Origin, TMin, Direction, TMax)。",
+   "m": "6.3",
+   "g": []
+  },
+  {
+   "n": "BuiltInTriangleIntersectionAttributes",
+   "d": "三角形の交差属性(barycentrics)。",
+   "m": "6.3",
+   "g": []
+  },
+  {
+   "n": "bool",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "int",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "uint",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "dword",
+   "d": "uint の別名。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "half",
+   "d": "16 ビット(min16float)か 32 ビットの浮動小数点。-enable-16bit-types を付けると本当の 16 ビット。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "float",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "double",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "min16float",
+   "d": "最低 16 ビットの浮動小数点(実際の精度は実装次第)。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "min10float",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "min16int",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "min12int",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "min16uint",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "int16_t",
+   "d": "16 ビット符号付き整数(-enable-16bit-types)。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "uint16_t",
+   "d": "16 ビット符号なし整数(-enable-16bit-types)。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "float16_t",
+   "d": "16 ビット浮動小数点(-enable-16bit-types)。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "int32_t",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "uint32_t",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "float32_t",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "int64_t",
+   "d": "64 ビット符号付き整数(SM 6.0 以降。アトミックは SM 6.6)。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "uint64_t",
+   "d": "64 ビット符号なし整数。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "float64_t",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "int8_t4_packed",
+   "d": "符号付き 8 ビット × 4 を 1 つの uint に詰めた型(SM 6.6)。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "uint8_t4_packed",
+   "d": "8 ビット × 4 を 1 つの uint に詰めた型(SM 6.6)。pack_u8 / unpack_u8u32 で操作する。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "string",
+   "d": "printf などの書式文字列用。変数には持てない。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "void",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "vector",
+   "d": "vector<T, N>。HLSL 2021 のテンプレート形式。SM 6.9 では N が最大 1024 まで(ロング ベクター)。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "matrix",
+   "d": "matrix<T, R, C>。HLSL 2021 のテンプレート形式。",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "sampler",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "sampler1D",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "sampler2D",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "sampler3D",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "samplerCUBE",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "sampler_state",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "texture",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  },
+  {
+   "n": "Texture",
+   "d": "",
+   "m": "1.0",
+   "g": [],
+   "scalar": true
+  }
+ ],
+ "semantics": [
+  {
+   "n": "SV_Position",
+   "d": "頂点シェーダーの出力ではクリップ空間の位置、ピクセル シェーダーの入力ではスクリーン座標(ピクセル中心は .5)。"
+  },
+  {
+   "n": "SV_Target",
+   "d": "ピクセル シェーダーの出力先レンダー ターゲット。SV_Target0〜7。"
+  },
+  {
+   "n": "SV_Depth",
+   "d": "ピクセル シェーダーが書き換える深度。"
+  },
+  {
+   "n": "SV_DepthGreaterEqual",
+   "d": "深度を、元の値以上にだけ書き換える(Early-Z を保てる)。"
+  },
+  {
+   "n": "SV_DepthLessEqual",
+   "d": "深度を、元の値以下にだけ書き換える(Early-Z を保てる)。"
+  },
+  {
+   "n": "SV_Coverage",
+   "d": "MSAA のカバレッジ マスク。出力にも入力にも使える。"
+  },
+  {
+   "n": "SV_InnerCoverage",
+   "d": "保守的ラスタライズでの、内側カバレッジ。"
+  },
+  {
+   "n": "SV_SampleIndex",
+   "d": "現在のサンプルの番号。これを入力にすると、サンプル単位で実行される。"
+  },
+  {
+   "n": "SV_IsFrontFace",
+   "d": "表向きの三角形なら true。"
+  },
+  {
+   "n": "SV_VertexID",
+   "d": "頂点番号(インデックスの値)。"
+  },
+  {
+   "n": "SV_InstanceID",
+   "d": "インスタンス番号。"
+  },
+  {
+   "n": "SV_PrimitiveID",
+   "d": "プリミティブの通し番号。"
+  },
+  {
+   "n": "SV_GSInstanceID",
+   "d": "ジオメトリ シェーダーのインスタンス番号。"
+  },
+  {
+   "n": "SV_DispatchThreadID",
+   "d": "Dispatch 全体での、スレッドの 3 次元位置。"
+  },
+  {
+   "n": "SV_GroupID",
+   "d": "スレッド グループの 3 次元位置。"
+  },
+  {
+   "n": "SV_GroupThreadID",
+   "d": "グループ内でのスレッドの 3 次元位置。"
+  },
+  {
+   "n": "SV_GroupIndex",
+   "d": "グループ内でのスレッドの 1 次元番号。"
+  },
+  {
+   "n": "SV_DomainLocation",
+   "d": "テッセレーションされた点の位置(ドメイン シェーダー)。"
+  },
+  {
+   "n": "SV_InsideTessFactor",
+   "d": "テッセレーションの内側係数。"
+  },
+  {
+   "n": "SV_TessFactor",
+   "d": "テッセレーションの辺の係数。"
+  },
+  {
+   "n": "SV_OutputControlPointID",
+   "d": "ハル シェーダーの、出力制御点の番号。"
+  },
+  {
+   "n": "SV_ClipDistance",
+   "d": "クリップ距離。負の側が切り取られる。SV_ClipDistance0 など。"
+  },
+  {
+   "n": "SV_CullDistance",
+   "d": "カリング距離。全頂点で負なら描かれない。"
+  },
+  {
+   "n": "SV_RenderTargetArrayIndex",
+   "d": "描画先のスライス番号(レンダー ターゲット配列)。"
+  },
+  {
+   "n": "SV_ViewportArrayIndex",
+   "d": "使うビューポートの番号。"
+  },
+  {
+   "n": "SV_StencilRef",
+   "d": "ピクセル シェーダーが書き換えるステンシル参照値。"
+  },
+  {
+   "n": "SV_ShadingRate",
+   "d": "可変レート シェーディング(VRS)のレート。"
+  },
+  {
+   "n": "SV_ViewID",
+   "d": "マルチビュー レンダリングのビュー番号。"
+  },
+  {
+   "n": "SV_Barycentrics",
+   "d": "重心座標(SM 6.1)。GetAttributeAtVertex と組み合わせる。"
+  },
+  {
+   "n": "SV_CullPrimitive",
+   "d": "メッシュ シェーダーで、そのプリミティブを捨てるかどうか。"
+  },
+  {
+   "n": "SV_StartVertexLocation",
+   "d": "DrawInstanced の StartVertexLocation(SM 6.8)。"
+  },
+  {
+   "n": "SV_StartInstanceLocation",
+   "d": "DrawInstanced の StartInstanceLocation(SM 6.8)。"
+  },
+  {
+   "n": "SV_DispatchGrid",
+   "d": "ワーク グラフの、ブロードキャスト ノードのディスパッチ グリッド(SM 6.8)。"
+  },
+  {
+   "n": "POSITION",
+   "d": "頂点位置(旧来のセマンティクス)。"
+  },
+  {
+   "n": "POSITIONT",
+   "d": "変換済みの頂点位置(旧)。"
+  },
+  {
+   "n": "NORMAL",
+   "d": "法線。"
+  },
+  {
+   "n": "TANGENT",
+   "d": "接線。"
+  },
+  {
+   "n": "BINORMAL",
+   "d": "従法線。"
+  },
+  {
+   "n": "TEXCOORD",
+   "d": "テクスチャ座標。TEXCOORD0, TEXCOORD1 …。"
+  },
+  {
+   "n": "COLOR",
+   "d": "頂点色。"
+  },
+  {
+   "n": "BLENDINDICES",
+   "d": "スキニングの骨番号。"
+  },
+  {
+   "n": "BLENDWEIGHT",
+   "d": "スキニングの重み。"
+  },
+  {
+   "n": "PSIZE",
+   "d": "ポイント サイズ。"
+  },
+  {
+   "n": "FOG",
+   "d": "フォグ係数。"
+  },
+  {
+   "n": "TESSFACTOR",
+   "d": "テッセレーション係数(旧)。"
+  },
+  {
+   "n": "DEPTH",
+   "d": "深度(旧)。"
+  },
+  {
+   "n": "VPOS",
+   "d": "スクリーン位置(SM 3)。"
+  },
+  {
+   "n": "VFACE",
+   "d": "面の向き(SM 3)。"
+  }
+ ],
+ "attributes": [
+  {
+   "n": "numthreads",
+   "syntax": "numthreads(x, y, z)",
+   "d": "スレッド グループの大きさ(コンピュート / メッシュ / 増幅 / ノード)。",
+   "m": "5.0"
+  },
+  {
+   "n": "domain",
+   "syntax": "domain(\"tri\" | \"quad\" | \"isoline\")",
+   "d": "テッセレーションのドメイン。",
+   "m": "5.0"
+  },
+  {
+   "n": "partitioning",
+   "syntax": "partitioning(\"integer\" | \"fractional_even\" | \"fractional_odd\" | \"pow2\")",
+   "d": "テッセレーションの分割方式。",
+   "m": "5.0"
+  },
+  {
+   "n": "outputtopology",
+   "syntax": "outputtopology(\"point\" | \"line\" | \"triangle\" | \"triangle_cw\" | \"triangle_ccw\")",
+   "d": "テッセレーション / メッシュ シェーダーの出力トポロジー。",
+   "m": "5.0"
+  },
+  {
+   "n": "outputcontrolpoints",
+   "syntax": "outputcontrolpoints(n)",
+   "d": "ハル シェーダーの出力制御点の数。",
+   "m": "5.0"
+  },
+  {
+   "n": "patchconstantfunc",
+   "syntax": "patchconstantfunc(\"name\")",
+   "d": "パッチ定数関数の名前。",
+   "m": "5.0"
+  },
+  {
+   "n": "maxtessfactor",
+   "syntax": "maxtessfactor(n)",
+   "d": "テッセレーション係数の最大値(ヒント)。",
+   "m": "5.0"
+  },
+  {
+   "n": "instance",
+   "syntax": "instance(n)",
+   "d": "ジオメトリ シェーダーのインスタンス数。",
+   "m": "5.0"
+  },
+  {
+   "n": "maxvertexcount",
+   "syntax": "maxvertexcount(n)",
+   "d": "ジオメトリ シェーダーが出力する頂点の最大数。",
+   "m": "4.0"
+  },
+  {
+   "n": "earlydepthstencil",
+   "syntax": "earlydepthstencil",
+   "d": "ピクセル シェーダーの前に、深度 / ステンシル テストを強制する。",
+   "m": "5.0"
+  },
+  {
+   "n": "RootSignature",
+   "syntax": "RootSignature(\"...\")",
+   "d": "ルート シグネチャを文字列で書く。",
+   "m": "5.1"
+  },
+  {
+   "n": "unroll",
+   "syntax": "unroll or unroll(n)",
+   "d": "ループを展開する。",
+   "m": "1.0"
+  },
+  {
+   "n": "loop",
+   "syntax": "loop",
+   "d": "ループを展開しない(本物のループにする)。",
+   "m": "1.0"
+  },
+  {
+   "n": "fastopt",
+   "syntax": "fastopt",
+   "d": "ループの最適化を促す。",
+   "m": "1.0"
+  },
+  {
+   "n": "allow_uav_condition",
+   "syntax": "allow_uav_condition",
+   "d": "UAV に依存するループを許す。",
+   "m": "5.0"
+  },
+  {
+   "n": "branch",
+   "syntax": "branch",
+   "d": "if を分岐命令にする。",
+   "m": "1.0"
+  },
+  {
+   "n": "flatten",
+   "syntax": "flatten",
+   "d": "if を、両方の側を実行して選ぶ形にする。",
+   "m": "1.0"
+  },
+  {
+   "n": "forcecase",
+   "syntax": "forcecase",
+   "d": "switch を強制的に case 命令にする。",
+   "m": "1.0"
+  },
+  {
+   "n": "call",
+   "syntax": "call",
+   "d": "switch をサブルーチン呼び出しにする。",
+   "m": "1.0"
+  },
+  {
+   "n": "WaveSize",
+   "syntax": "WaveSize(n) / WaveSize(min, max [, preferred])",
+   "d": "ウェーブのサイズを指定する(SM 6.6)。範囲指定は SM 6.8。",
+   "m": "6.6"
+  },
+  {
+   "n": "shader",
+   "syntax": "shader(\"compute\" | \"vertex\" | \"pixel\" | \"geometry\" | \"hull\" | \"domain\" | \"mesh\" | \"amplification\" | \"node\" | \"raygeneration\" | \"closesthit\" | \"anyhit\" | \"miss\" | \"intersection\" | \"callable\")",
+   "d": "ライブラリ内のエントリ ポイントのステージを指定する。",
+   "m": "6.3"
+  },
+  {
+   "n": "experimental",
+   "syntax": "experimental(\"...\")",
+   "d": "試験的な機能の指定。",
+   "m": "6.0"
+  },
+  {
+   "n": "clipplanes",
+   "syntax": "clipplanes(plane0, plane1, ...)",
+   "d": "ユーザー クリップ平面(旧)。",
+   "m": "4.0"
+  },
+  {
+   "n": "noinline",
+   "syntax": "noinline",
+   "d": "インライン展開しない。",
+   "m": "6.0"
+  },
+  {
+   "n": "export",
+   "syntax": "export",
+   "d": "ライブラリから公開する関数(キーワード)。",
+   "m": "6.1"
+  },
+  {
+   "n": "raypayload",
+   "syntax": "raypayload",
+   "d": "レイ ペイロードの構造体(SM 6.7 のアクセス修飾子つき)。",
+   "m": "6.7"
+  },
+  {
+   "n": "Shader",
+   "syntax": "Shader(\"node\")",
+   "d": "ワーク グラフのノード シェーダー。",
+   "m": "6.8"
+  },
+  {
+   "n": "NodeLaunch",
+   "syntax": "NodeLaunch(\"broadcasting\" | \"coalescing\" | \"thread\")",
+   "d": "ノードの起動方式。",
+   "m": "6.8"
+  },
+  {
+   "n": "NodeIsProgramEntry",
+   "syntax": "NodeIsProgramEntry",
+   "d": "このノードをワーク グラフの入口にする。",
+   "m": "6.8"
+  },
+  {
+   "n": "NodeID",
+   "syntax": "NodeID(\"name\" [, arrayIndex])",
+   "d": "ノードの名前と配列番号。",
+   "m": "6.8"
+  },
+  {
+   "n": "NodeLocalRootArgumentsTableIndex",
+   "syntax": "NodeLocalRootArgumentsTableIndex(n)",
+   "d": "ローカル ルート引数テーブルの番号。",
+   "m": "6.8"
+  },
+  {
+   "n": "NodeShareInputOf",
+   "syntax": "NodeShareInputOf(\"name\" [, arrayIndex])",
+   "d": "別のノードと入力を共有する。",
+   "m": "6.8"
+  },
+  {
+   "n": "NodeDispatchGrid",
+   "syntax": "NodeDispatchGrid(x, y, z)",
+   "d": "ブロードキャスト ノードの固定ディスパッチ グリッド。",
+   "m": "6.8"
+  },
+  {
+   "n": "NodeMaxDispatchGrid",
+   "syntax": "NodeMaxDispatchGrid(x, y, z)",
+   "d": "ブロードキャスト ノードのディスパッチ グリッドの上限。SV_DispatchGrid と組み合わせる。",
+   "m": "6.8"
+  },
+  {
+   "n": "NodeMaxRecursionDepth",
+   "syntax": "NodeMaxRecursionDepth(n)",
+   "d": "再帰の最大深さ。",
+   "m": "6.8"
+  },
+  {
+   "n": "NodeTrackRWInputSharing",
+   "syntax": "NodeTrackRWInputSharing",
+   "d": "RW 入力の共有状況を追跡する。",
+   "m": "6.8"
+  },
+  {
+   "n": "MaxRecords",
+   "syntax": "MaxRecords(n)",
+   "d": "出力 / 入力で扱うレコードの最大数。",
+   "m": "6.8"
+  },
+  {
+   "n": "MaxRecordsSharedWith",
+   "syntax": "MaxRecordsSharedWith(param)",
+   "d": "別の出力と、レコード数の上限を共有する。",
+   "m": "6.8"
+  },
+  {
+   "n": "AllowSparseNodes",
+   "syntax": "AllowSparseNodes",
+   "d": "出力先の配列に、欠番を許す。",
+   "m": "6.8"
+  },
+  {
+   "n": "NodeArraySize",
+   "syntax": "NodeArraySize(n)",
+   "d": "出力配列の大きさ。",
+   "m": "6.8"
+  },
+  {
+   "n": "UnboundedSparseNodes",
+   "syntax": "UnboundedSparseNodes",
+   "d": "出力配列の大きさを決めない。",
+   "m": "6.8"
+  },
+  {
+   "n": "vk::binding",
+   "syntax": "vk::binding(binding [, set])",
+   "d": "SPIR-V: バインディングとセット番号。",
+   "m": "0"
+  },
+  {
+   "n": "vk::location",
+   "syntax": "vk::location(n)",
+   "d": "SPIR-V: 入出力のロケーション。",
+   "m": "0"
+  },
+  {
+   "n": "vk::push_constant",
+   "syntax": "vk::push_constant",
+   "d": "SPIR-V: プッシュ定数。",
+   "m": "0"
+  },
+  {
+   "n": "vk::constant_id",
+   "syntax": "vk::constant_id(id)",
+   "d": "SPIR-V: 特殊化定数の ID。",
+   "m": "0"
+  },
+  {
+   "n": "vk::builtin",
+   "syntax": "vk::builtin(\"...\")",
+   "d": "SPIR-V: ビルトイン変数の指定。",
+   "m": "0"
+  },
+  {
+   "n": "vk::input_attachment_index",
+   "syntax": "vk::input_attachment_index(n)",
+   "d": "SPIR-V: 入力アタッチメントの番号。",
+   "m": "0"
+  },
+  {
+   "n": "vk::offset",
+   "syntax": "vk::offset(n)",
+   "d": "SPIR-V: メンバーのオフセット。",
+   "m": "0"
+  },
+  {
+   "n": "vk::index",
+   "syntax": "vk::index(n)",
+   "d": "SPIR-V: デュアル ソース ブレンドの出力インデックス。",
+   "m": "0"
+  },
+  {
+   "n": "vk::image_format",
+   "syntax": "vk::image_format(\"...\")",
+   "d": "SPIR-V: 画像のフォーマット。",
+   "m": "0"
+  },
+  {
+   "n": "vk::counter_binding",
+   "syntax": "vk::counter_binding(n)",
+   "d": "SPIR-V: カウンター バッファのバインディング。",
+   "m": "0"
+  }
+ ],
+ "constants": [
+  {
+   "g": "ray",
+   "n": "RAY_FLAG_NONE",
+   "d": "フラグなし。"
+  },
+  {
+   "g": "ray",
+   "n": "RAY_FLAG_FORCE_OPAQUE",
+   "d": "すべてを不透明として扱う(any-hit を呼ばない)。"
+  },
+  {
+   "g": "ray",
+   "n": "RAY_FLAG_FORCE_NON_OPAQUE",
+   "d": "すべてを不透明でないものとして扱う(any-hit を必ず呼ぶ)。"
+  },
+  {
+   "g": "ray",
+   "n": "RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH",
+   "d": "最初のヒットで探索を終える(影の判定向き)。"
+  },
+  {
+   "g": "ray",
+   "n": "RAY_FLAG_SKIP_CLOSEST_HIT_SHADER",
+   "d": "closest-hit シェーダーを呼ばない。"
+  },
+  {
+   "g": "ray",
+   "n": "RAY_FLAG_CULL_BACK_FACING_TRIANGLES",
+   "d": "裏向きの三角形を無視する。"
+  },
+  {
+   "g": "ray",
+   "n": "RAY_FLAG_CULL_FRONT_FACING_TRIANGLES",
+   "d": "表向きの三角形を無視する。"
+  },
+  {
+   "g": "ray",
+   "n": "RAY_FLAG_CULL_OPAQUE",
+   "d": "不透明なものを無視する。"
+  },
+  {
+   "g": "ray",
+   "n": "RAY_FLAG_CULL_NON_OPAQUE",
+   "d": "不透明でないものを無視する。"
+  },
+  {
+   "g": "ray",
+   "n": "RAY_FLAG_SKIP_TRIANGLES",
+   "d": "三角形を無視する。"
+  },
+  {
+   "g": "ray",
+   "n": "RAY_FLAG_SKIP_PROCEDURAL_PRIMITIVES",
+   "d": "プロシージャル プリミティブを無視する。"
+  },
+  {
+   "g": "ray",
+   "n": "RAY_FLAG_FORCE_OMM_2_STATE",
+   "d": "Opacity Micromap を 2 状態として扱う(SM 6.9)。"
+  },
+  {
+   "g": "hit",
+   "n": "HIT_KIND_TRIANGLE_FRONT_FACE",
+   "d": "三角形の表側に当たった。"
+  },
+  {
+   "g": "hit",
+   "n": "HIT_KIND_TRIANGLE_BACK_FACE",
+   "d": "三角形の裏側に当たった。"
+  },
+  {
+   "g": "rq",
+   "n": "COMMITTED_NOTHING",
+   "d": "確定した交点がない。"
+  },
+  {
+   "g": "rq",
+   "n": "COMMITTED_TRIANGLE_HIT",
+   "d": "確定した交点は三角形。"
+  },
+  {
+   "g": "rq",
+   "n": "COMMITTED_PROCEDURAL_PRIMITIVE_HIT",
+   "d": "確定した交点はプロシージャル プリミティブ。"
+  },
+  {
+   "g": "rq",
+   "n": "CANDIDATE_NON_OPAQUE_TRIANGLE",
+   "d": "候補は不透明でない三角形。"
+  },
+  {
+   "g": "rq",
+   "n": "CANDIDATE_PROCEDURAL_PRIMITIVE",
+   "d": "候補はプロシージャル プリミティブ。"
+  },
+  {
+   "g": "rq",
+   "n": "COMMITTED_STATUS",
+   "d": "CommittedStatus() の戻り値の型。"
+  },
+  {
+   "g": "rq",
+   "n": "CANDIDATE_TYPE",
+   "d": "CandidateType() の戻り値の型。"
+  },
+  {
+   "g": "pipe",
+   "n": "RAYTRACING_PIPELINE_FLAG_NONE",
+   "d": "フラグなし。"
+  },
+  {
+   "g": "pipe",
+   "n": "RAYTRACING_PIPELINE_FLAG_SKIP_TRIANGLES",
+   "d": "パイプライン全体で三角形を無視する。"
+  },
+  {
+   "g": "pipe",
+   "n": "RAYTRACING_PIPELINE_FLAG_SKIP_PROCEDURAL_PRIMITIVES",
+   "d": "パイプライン全体でプロシージャル プリミティブを無視する。"
+  },
+  {
+   "g": "bar",
+   "n": "UAV_MEMORY",
+   "d": "Barrier: UAV のメモリ。"
+  },
+  {
+   "g": "bar",
+   "n": "GROUP_SHARED_MEMORY",
+   "d": "Barrier: groupshared メモリ。"
+  },
+  {
+   "g": "bar",
+   "n": "NODE_INPUT_MEMORY",
+   "d": "Barrier: ノードの入力メモリ。"
+  },
+  {
+   "g": "bar",
+   "n": "NODE_OUTPUT_MEMORY",
+   "d": "Barrier: ノードの出力メモリ。"
+  },
+  {
+   "g": "bar",
+   "n": "ALL_MEMORY",
+   "d": "Barrier: すべてのメモリ。"
+  },
+  {
+   "g": "bar",
+   "n": "GROUP_SYNC",
+   "d": "Barrier: グループ内で同期する。"
+  },
+  {
+   "g": "bar",
+   "n": "GROUP_SCOPE",
+   "d": "Barrier: グループの範囲で可視にする。"
+  },
+  {
+   "g": "bar",
+   "n": "DEVICE_SCOPE",
+   "d": "Barrier: デバイス全体で可視にする。"
+  },
+  {
+   "g": "bar",
+   "n": "REORDER_SCOPE",
+   "d": "Barrier: 並べ替えの範囲で可視にする。"
+  },
+  {
+   "g": "sampler",
+   "n": "SAMPLER_FEEDBACK_MIN_MIP",
+   "d": "サンプラー フィードバックの種類: 最小 mip。"
+  },
+  {
+   "g": "sampler",
+   "n": "SAMPLER_FEEDBACK_MIP_REGION_USED",
+   "d": "サンプラー フィードバックの種類: 使った mip 領域。"
+  },
+  {
+   "g": "lang",
+   "n": "true",
+   "d": "真。"
+  },
+  {
+   "g": "lang",
+   "n": "false",
+   "d": "偽。"
+  }
+ ],
+ "directives": [
+  {
+   "n": "define",
+   "syntax": "#define NAME value",
+   "d": "マクロを定義する。"
+  },
+  {
+   "n": "undef",
+   "syntax": "#undef NAME",
+   "d": "マクロの定義を消す。"
+  },
+  {
+   "n": "include",
+   "syntax": "#include \"file\" / #include <file>",
+   "d": "ファイルを取り込む。"
+  },
+  {
+   "n": "if",
+   "syntax": "#if expr",
+   "d": "条件付きコンパイル。"
+  },
+  {
+   "n": "ifdef",
+   "syntax": "#ifdef NAME",
+   "d": "マクロが定義されていれば有効。"
+  },
+  {
+   "n": "ifndef",
+   "syntax": "#ifndef NAME",
+   "d": "マクロが定義されていなければ有効。"
+  },
+  {
+   "n": "elif",
+   "syntax": "#elif expr",
+   "d": "前の条件が偽のときの条件。"
+  },
+  {
+   "n": "else",
+   "syntax": "#else",
+   "d": "前の条件が偽のとき有効。"
+  },
+  {
+   "n": "endif",
+   "syntax": "#endif",
+   "d": "条件付きコンパイルの終わり。"
+  },
+  {
+   "n": "pragma",
+   "syntax": "#pragma ...",
+   "d": "コンパイラへの指示。once / pack_matrix(row_major) / warning など。"
+  },
+  {
+   "n": "error",
+   "syntax": "#error message",
+   "d": "コンパイルをエラーで止める。"
+  },
+  {
+   "n": "warning",
+   "syntax": "#warning message",
+   "d": "警告を出す。"
+  },
+  {
+   "n": "line",
+   "syntax": "#line number",
+   "d": "行番号を書き換える。"
+  }
+ ],
+ "macros": [
+  {
+   "n": "__HLSL_VERSION",
+   "d": "HLSL の言語バージョン(2016 / 2017 / 2018 / 2021 / 202x)。"
+  },
+  {
+   "n": "__SHADER_TARGET_MAJOR",
+   "d": "ターゲット シェーダー モデルのメジャー番号。"
+  },
+  {
+   "n": "__SHADER_TARGET_MINOR",
+   "d": "ターゲット シェーダー モデルのマイナー番号。"
+  },
+  {
+   "n": "__SHADER_TARGET_STAGE",
+   "d": "ターゲットのステージ(__SHADER_STAGE_VERTEX などと比べる)。"
+  },
+  {
+   "n": "__SHADER_STAGE_VERTEX",
+   "d": "ステージ番号: 頂点。"
+  },
+  {
+   "n": "__SHADER_STAGE_PIXEL",
+   "d": "ステージ番号: ピクセル。"
+  },
+  {
+   "n": "__SHADER_STAGE_GEOMETRY",
+   "d": "ステージ番号: ジオメトリ。"
+  },
+  {
+   "n": "__SHADER_STAGE_HULL",
+   "d": "ステージ番号: ハル。"
+  },
+  {
+   "n": "__SHADER_STAGE_DOMAIN",
+   "d": "ステージ番号: ドメイン。"
+  },
+  {
+   "n": "__SHADER_STAGE_COMPUTE",
+   "d": "ステージ番号: コンピュート。"
+  },
+  {
+   "n": "__SHADER_STAGE_AMPLIFICATION",
+   "d": "ステージ番号: 増幅。"
+  },
+  {
+   "n": "__SHADER_STAGE_MESH",
+   "d": "ステージ番号: メッシュ。"
+  },
+  {
+   "n": "__SHADER_STAGE_LIBRARY",
+   "d": "ステージ番号: ライブラリ。"
+  },
+  {
+   "n": "__DXC_VERSION_MAJOR",
+   "d": "DXC のメジャー バージョン。"
+  },
+  {
+   "n": "__DXC_VERSION_MINOR",
+   "d": "DXC のマイナー バージョン。"
+  },
+  {
+   "n": "__DXC_VERSION_RELEASE",
+   "d": "DXC のリリース番号。"
+  },
+  {
+   "n": "__DXC_VERSION_COMMITS",
+   "d": "DXC のコミット数。"
+  },
+  {
+   "n": "__spirv__",
+   "d": "SPIR-V 出力のとき定義される。"
+  },
+  {
+   "n": "__FILE__",
+   "d": "現在のファイル名。"
+  },
+  {
+   "n": "__LINE__",
+   "d": "現在の行番号。"
+  },
+  {
+   "n": "__DATE__",
+   "d": "コンパイル日。"
+  },
+  {
+   "n": "__TIME__",
+   "d": "コンパイル時刻。"
+  }
+ ],
+ "keywords": [
+  {
+   "n": "break",
+   "d": "",
+   "k": "control"
+  },
+  {
+   "n": "case",
+   "d": "",
+   "k": "control"
+  },
+  {
+   "n": "continue",
+   "d": "",
+   "k": "control"
+  },
+  {
+   "n": "default",
+   "d": "",
+   "k": "control"
+  },
+  {
+   "n": "discard",
+   "d": "ピクセルを破棄する(ピクセル シェーダー)。",
+   "k": "control"
+  },
+  {
+   "n": "do",
+   "d": "",
+   "k": "control"
+  },
+  {
+   "n": "else",
+   "d": "",
+   "k": "control"
+  },
+  {
+   "n": "for",
+   "d": "",
+   "k": "control"
+  },
+  {
+   "n": "if",
+   "d": "",
+   "k": "control"
+  },
+  {
+   "n": "return",
+   "d": "",
+   "k": "control"
+  },
+  {
+   "n": "switch",
+   "d": "",
+   "k": "control"
+  },
+  {
+   "n": "while",
+   "d": "",
+   "k": "control"
+  },
+  {
+   "n": "goto",
+   "d": "",
+   "k": "control"
+  },
+  {
+   "n": "const",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "static",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "extern",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "uniform",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "volatile",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "shared",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "groupshared",
+   "d": "スレッド グループ内で共有するメモリ。GroupMemoryBarrierWithGroupSync で同期する。",
+   "k": "storage"
+  },
+  {
+   "n": "inline",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "in",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "out",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "inout",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "nointerpolation",
+   "d": "補間しない(プロビング頂点の値をそのまま渡す)。整数の入出力に必須。",
+   "k": "storage"
+  },
+  {
+   "n": "linear",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "centroid",
+   "d": "重心で補間する(MSAA で、プリミティブの外を見ないようにする)。",
+   "k": "storage"
+  },
+  {
+   "n": "noperspective",
+   "d": "透視補正をしない線形補間。",
+   "k": "storage"
+  },
+  {
+   "n": "sample",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "precise",
+   "d": "式の再結合を禁止して、結果を厳密にそろえる。",
+   "k": "storage"
+  },
+  {
+   "n": "row_major",
+   "d": "行列を行優先でメモリに置く。",
+   "k": "storage"
+  },
+  {
+   "n": "column_major",
+   "d": "行列を列優先でメモリに置く(既定)。",
+   "k": "storage"
+  },
+  {
+   "n": "globallycoherent",
+   "d": "UAV へのアクセスを、グループをまたいで一貫させる。",
+   "k": "storage"
+  },
+  {
+   "n": "reordercoherent",
+   "d": "UAV へのアクセスを、SER(スレッドの並べ替え)をまたいで一貫させる。",
+   "k": "storage"
+  },
+  {
+   "n": "snorm",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "unorm",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "unsigned",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "export",
+   "d": "ライブラリから外へ公開する関数。",
+   "k": "storage"
+  },
+  {
+   "n": "perprimitive",
+   "d": "メッシュ シェーダーのプリミティブ単位の出力。",
+   "k": "storage"
+  },
+  {
+   "n": "pervertex",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "indices",
+   "d": "メッシュ シェーダーのインデックス出力配列の修飾子。",
+   "k": "storage"
+  },
+  {
+   "n": "vertices",
+   "d": "メッシュ シェーダーの頂点出力配列の修飾子。",
+   "k": "storage"
+  },
+  {
+   "n": "primitives",
+   "d": "メッシュ シェーダーのプリミティブ出力配列の修飾子。",
+   "k": "storage"
+  },
+  {
+   "n": "payload",
+   "d": "増幅シェーダーからメッシュ シェーダーに渡すペイロード。",
+   "k": "storage"
+  },
+  {
+   "n": "triangle",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "line",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "point",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "lineadj",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "triangleadj",
+   "d": "",
+   "k": "storage"
+  },
+  {
+   "n": "struct",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "class",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "interface",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "cbuffer",
+   "d": "定数バッファを宣言する。register(bN, spaceM) で場所を指定する。",
+   "k": "decl"
+  },
+  {
+   "n": "tbuffer",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "namespace",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "typedef",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "enum",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "template",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "typename",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "using",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "operator",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "this",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "private",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "public",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "protected",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "register",
+   "d": "レジスタ(t / s / u / b)と space を指定する。例: register(t0, space1)。",
+   "k": "decl"
+  },
+  {
+   "n": "packoffset",
+   "d": "定数バッファの中での位置を指定する。例: packoffset(c0.y)。",
+   "k": "decl"
+  },
+  {
+   "n": "static_assert",
+   "d": "コンパイル時のアサート(DXC)。",
+   "k": "decl"
+  },
+  {
+   "n": "sizeof",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "compile",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "compile_fragment",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "technique",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "pass",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "Technique",
+   "d": "",
+   "k": "decl"
+  },
+  {
+   "n": "Pass",
+   "d": "",
+   "k": "decl"
+  }
+ ],
+ "special": [
+  {
+   "n": "ResourceDescriptorHeap",
+   "d": "SM 6.6 以降。リソース ディスクリプタ ヒープ全体を、配列のように添字で引く。例: Texture2D t = ResourceDescriptorHeap[index];。ルート シグネチャに CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED が必要。",
+   "m": "6.6"
+  },
+  {
+   "n": "SamplerDescriptorHeap",
+   "d": "SM 6.6 以降。サンプラー ヒープ全体を添字で引く。例: SamplerState s = SamplerDescriptorHeap[index];。ルート シグネチャに SAMPLER_HEAP_DIRECTLY_INDEXED が必要。",
+   "m": "6.6"
+  }
+ ]
+}

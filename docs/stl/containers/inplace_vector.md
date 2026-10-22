@@ -100,6 +100,49 @@ static constexpr size_type max_size() noexcept;
 - 戻り値: `std::vector` と同じ使い方
 - 計算量: vector と同じ
 
+### unchecked_push_back {#unchecked_push_back}
+
+```cpp
+constexpr reference unchecked_push_back(const T& value);
+```
+
+- 計算量: 定数
+
+容量の確認なしで、末尾に追加します。容量を超えると**未定義動作**です。確実に空きがあるとき（直前に `size() < capacity()` を確かめたなど）だけ使います。
+
+### unchecked_emplace_back {#unchecked_emplace_back}
+
+```cpp
+template <class... Args>
+constexpr reference unchecked_emplace_back(Args&&... args);
+```
+
+- 計算量: 定数
+
+容量の確認なしで、末尾に要素をその場で作ります。容量を超えると未定義動作です。
+
+### try_emplace_back {#try_emplace_back}
+
+```cpp
+template <class... Args>
+constexpr pointer try_emplace_back(Args&&... args);
+```
+
+- 計算量: 定数
+
+空きがあれば末尾に要素を作って、そのポインタを返します。満杯なら例外を投げず、`nullptr` を返します。
+
+### try_append_range {#try_append_range}
+
+```cpp
+template <ranges::input_range R>
+constexpr ranges::borrowed_iterator_t<R> try_append_range(R&& rg);
+```
+
+- 計算量: O(追加数)
+
+範囲の要素を、入るところまで末尾に追加します。入りきらない要素の手前で止まり、そのイテレータを返します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

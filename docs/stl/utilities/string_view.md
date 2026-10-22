@@ -408,6 +408,168 @@ constexpr size_type copy(CharT* dest, size_type count, size_type pos = 0) const;
     void Print(std::string_view s);
     ```
 
+### swap {#swap}
+
+```cpp
+void swap(string_view& other) noexcept;
+```
+
+- 計算量: 定数
+
+中身を `other` と入れ替えます。要素のコピーやムーブはせず、内部のポインタを入れ替えるだけなので速いです。
+
+### compare {#compare}
+
+```cpp
+int compare(basic_string_view sv) const noexcept;
+```
+
+- 計算量: O(長さ)
+
+辞書順で比べて、小さければ負、等しければ 0、大きければ正を返します。
+
+### find_last_of {#find_last_of}
+
+```cpp
+size_type find_last_of(basic_string_view chars, size_type pos = npos) const noexcept;
+```
+
+- 計算量: O(長さ × chars の長さ)
+
+`chars` のどれかの文字が、最後に現れる位置を探します。なければ `npos`。
+
+### find_last_not_of {#find_last_not_of}
+
+```cpp
+size_type find_last_not_of(basic_string_view chars, size_type pos = npos) const noexcept;
+```
+
+- 計算量: O(長さ × chars の長さ)
+
+`chars` に含まれない文字が、最後に現れる位置を探します。末尾の空白を取り除く位置を探すときに便利です。
+
+### length {#length}
+
+```cpp
+size_type length() const noexcept;
+```
+
+- 計算量: 定数
+
+文字数（`size()` と同じ）。
+
+### max_size {#max_size}
+
+```cpp
+size_type max_size() const noexcept;
+```
+
+- 計算量: 定数
+
+理論上、入れられる最大の要素数。実装の上限で、実際にそれだけ確保できるとは限りません。
+
+### begin {#begin}
+
+```cpp
+iterator begin() noexcept;
+const_iterator begin() const noexcept;
+```
+
+- 計算量: 定数
+
+先頭の要素を指すイテレータ。空なら `end()` と同じ。
+
+### cbegin {#cbegin}
+
+```cpp
+const_iterator cbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+先頭の要素を指す const イテレータ。要素を書き換えられないので、読むだけの走査で使います。
+
+### cend {#cend}
+
+```cpp
+const_iterator cend() const noexcept;
+```
+
+- 計算量: 定数
+
+終端（最後の要素の次）を指す const イテレータ。
+
+### rbegin {#rbegin}
+
+```cpp
+reverse_iterator rbegin() noexcept;
+```
+
+- 計算量: 定数
+
+逆順の先頭（最後の要素）を指すイテレータ。後ろから前へ走査するときに使います。
+
+### crbegin {#crbegin}
+
+```cpp
+const_reverse_iterator crbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+逆順の先頭（最後の要素）を指す const イテレータ。
+
+### rend {#rend}
+
+```cpp
+reverse_iterator rend() noexcept;
+```
+
+- 計算量: 定数
+
+逆順の終端（先頭の手前）を指すイテレータ。
+
+### crend {#crend}
+
+```cpp
+const_reverse_iterator crend() const noexcept;
+```
+
+- 計算量: 定数
+
+逆順の終端（先頭の手前）を指す const イテレータ。
+
+### operator<=> <span class="ver ver-20">C++20</span> {#op_cmp data-toc-label="operator<=>"}
+
+```cpp
+auto operator<=>(const string_view& a, const string_view& b);
+```
+
+- 計算量: O(要素数)
+
+要素を先頭から順に比べる、辞書順の三方比較。`<`・`>`・`<=`・`>=` も使えるようになります。
+
+### end {#end}
+
+```cpp
+iterator end() noexcept;
+const_iterator end() const noexcept;
+```
+
+- 計算量: 定数
+
+終端（最後の要素の次）を指すイテレータ。この位置は読めません。
+
+### at {#at}
+
+```cpp
+const_reference at(size_type pos) const;
+```
+
+- 計算量: 定数
+
+`pos` 番目の文字を、範囲チェックつきで返します。範囲外なら `std::out_of_range` を投げます。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

@@ -53,6 +53,107 @@ int main() {
 true true
 ```
 
+### value {#value}
+
+```cpp
+int value() const noexcept;
+```
+
+- 計算量: 定数
+
+エラーの番号。意味は、`category()` が決めます。
+
+### category {#category}
+
+```cpp
+const error_category& category() const noexcept;
+```
+
+- 計算量: 定数
+
+エラーの種類（`generic_category`・`system_category` など）。
+
+### message {#message}
+
+```cpp
+std::string message() const;
+```
+
+- 計算量: 定数
+
+エラーの説明の文字列（`category().message(value())`）。ログに出すのに使います。
+
+### clear {#clear}
+
+```cpp
+void clear() noexcept;
+```
+
+- 計算量: 定数
+
+エラーなし（値 0、システムのカテゴリ）に戻します。
+
+### assign {#assign}
+
+```cpp
+void assign(int val, const error_category& cat) noexcept;
+```
+
+- 計算量: 定数
+
+エラーの番号とカテゴリを設定します。
+
+### explicit operator bool {#op_bool}
+
+```cpp
+explicit operator bool() const noexcept;
+```
+
+- 計算量: 定数
+
+エラーがあれば（`value() != 0`）`true`。`if (ec) { ... }` と書けます。
+
+### default_error_condition {#default_error_condition}
+
+```cpp
+error_condition default_error_condition() const noexcept;
+```
+
+- 計算量: 定数
+
+OS に依存しない形の `error_condition` に変換します。`==` で `errc` と比べられるのは、これのおかげです。
+
+### operator= {#op_assign}
+
+```cpp
+error_code& operator=(ErrorCodeEnum e) noexcept;
+```
+
+- 計算量: 定数
+
+`errc` などの列挙値から代入します。
+
+### operator== {#op_eq}
+
+```cpp
+bool operator==(const error_code& lhs, const error_code& rhs) noexcept;
+bool operator==(const error_code& code, const error_condition& cond) noexcept;
+```
+
+- 計算量: 定数
+
+`error_code` どうし、または `error_condition` と比べます。`ec == std::errc::no_such_file_or_directory` のように使います。
+
+### operator<=> <span class="ver ver-20">C++20</span> {#op_cmp data-toc-label="operator<=>"}
+
+```cpp
+std::strong_ordering operator<=>(const error_code& lhs, const error_code& rhs) noexcept;
+```
+
+- 計算量: 定数
+
+カテゴリ、番号の順で比べる三方比較。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

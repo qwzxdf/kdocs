@@ -76,6 +76,89 @@ T max() const;
 - 戻り値: 合計、最小値、最大値
 - 計算量: O(n)
 
+### apply {#apply}
+
+```cpp
+valarray apply(T func(T)) const;
+```
+
+- 計算量: O(要素数)
+
+全要素に関数を適用した、新しい `valarray` を返します。
+
+### shift {#shift}
+
+```cpp
+valarray shift(int count) const;
+```
+
+- 計算量: O(要素数)
+
+要素を `count` だけずらします。あいた場所は 0 で埋めます（正で左、負で右）。
+
+### cshift {#cshift}
+
+```cpp
+valarray cshift(int count) const;
+```
+
+- 計算量: O(要素数)
+
+要素を `count` だけ循環させてずらします（あふれた要素が反対側に回る）。
+
+### resize {#resize}
+
+```cpp
+void resize(size_t n, T c = T());
+```
+
+- 計算量: O(n)
+
+要素数を `n` にします。中身は `c` で埋められます（元の値は失われます）。
+
+### swap {#swap}
+
+```cpp
+void swap(valarray& v) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの `valarray` を入れ替えます。
+
+### size {#size}
+
+```cpp
+size_t size() const;
+```
+
+- 計算量: 定数
+
+要素の数。
+
+### operator[] {#op_index}
+
+```cpp
+T& operator[](size_t n);
+slice_array<T> operator[](slice s);
+mask_array<T> operator[](const valarray<bool>& m);
+```
+
+- 計算量: 定数
+
+n 番目の要素を返します。`slice`・マスク・添字の配列を渡すと、その部分への参照が返ります。
+
+### operator= {#op_assign}
+
+```cpp
+valarray& operator=(const valarray& v);
+valarray& operator=(const T& v);
+```
+
+- 計算量: O(要素数)
+
+別の `valarray` を代入します。スカラーを代入すると、全要素がその値になります。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

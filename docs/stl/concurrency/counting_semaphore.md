@@ -105,6 +105,38 @@ int main() {
 空き無しで try_acquire: false
 ```
 
+### try_acquire_for {#try_acquire_for}
+
+```cpp
+template <class Rep, class Period>
+bool try_acquire_for(const std::chrono::duration<Rep, Period>& rel_time);
+```
+
+- 計算量: 最大で指定時間
+
+指定した時間まで待って、取得を試みます。取れたら `true`。
+
+### try_acquire_until {#try_acquire_until}
+
+```cpp
+template <class Clock, class Duration>
+bool try_acquire_until(const std::chrono::time_point<Clock, Duration>& abs_time);
+```
+
+- 計算量: 最大で指定時刻まで
+
+指定した時刻まで待って、取得を試みます。取れたら `true`。
+
+### max {#max}
+
+```cpp
+static constexpr ptrdiff_t max() noexcept;
+```
+
+- 計算量: 定数
+
+カウンタの最大値。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

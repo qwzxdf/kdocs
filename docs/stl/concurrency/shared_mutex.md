@@ -37,6 +37,76 @@ class shared_mutex;
 
 - 「読むだけ」の人は同時に何人でも入れて、「書く」人は 1 人だけ入れる鍵。読む回数がとても多いデータ（設定、マスターデータ）に使います
 
+### lock {#lock}
+
+```cpp
+void lock();
+```
+
+- 計算量: 待つ時間による
+
+書き込み用に、独占的にロックします。ほかのスレッドは、読み取りも書き込みもできません。
+
+### try_lock {#try_lock}
+
+```cpp
+bool try_lock();
+```
+
+- 計算量: 定数
+
+待たずに、独占ロックを試みます。取れたら `true`。
+
+### unlock {#unlock}
+
+```cpp
+void unlock();
+```
+
+- 計算量: 定数
+
+独占ロックを解除します。
+
+### lock_shared {#lock_shared}
+
+```cpp
+void lock_shared();
+```
+
+- 計算量: 待つ時間による
+
+読み取り用に、共有ロックします。複数のスレッドが同時に取れますが、独占ロックとは両立しません。
+
+### try_lock_shared {#try_lock_shared}
+
+```cpp
+bool try_lock_shared();
+```
+
+- 計算量: 定数
+
+待たずに、共有ロックを試みます。取れたら `true`。
+
+### unlock_shared {#unlock_shared}
+
+```cpp
+void unlock_shared();
+```
+
+- 計算量: 定数
+
+共有ロックを解除します。
+
+### native_handle {#native_handle}
+
+```cpp
+native_handle_type native_handle();
+```
+
+- 計算量: 定数
+
+OS 固有のハンドル（`pthread_t` や `HANDLE`）を返します。標準にない機能（優先度の設定など）を使うときの出口です。
+
 ## 実際に動かしてみる
 
 ```cpp

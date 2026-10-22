@@ -63,6 +63,116 @@ int main() {
 6
 ```
 
+### load {#load}
+
+```cpp
+T load(std::memory_order order = std::memory_order_seq_cst) const noexcept;
+```
+
+- 計算量: 定数
+
+参照している変数の値を、アトミックに読みます。
+
+### store {#store}
+
+```cpp
+void store(T desired, std::memory_order order = std::memory_order_seq_cst) const noexcept;
+```
+
+- 計算量: 定数
+
+参照している変数に、アトミックに値を書きます。
+
+### exchange {#exchange}
+
+```cpp
+T exchange(T desired, std::memory_order order = std::memory_order_seq_cst) const noexcept;
+```
+
+- 計算量: 定数
+
+値を書き換えて、書き換える前の値を返します。
+
+### compare_exchange_weak {#compare_exchange_weak}
+
+```cpp
+bool compare_exchange_weak(T& expected, T desired) const noexcept;
+```
+
+- 計算量: 定数
+
+現在の値が `expected` と等しければ `desired` に書き換えます。見かけ上の失敗が起きることがあり、ループで使います。
+
+### compare_exchange_strong {#compare_exchange_strong}
+
+```cpp
+bool compare_exchange_strong(T& expected, T desired) const noexcept;
+```
+
+- 計算量: 定数
+
+現在の値が `expected` と等しければ `desired` に書き換えます。見かけ上の失敗は起きません。
+
+### fetch_add {#fetch_add}
+
+```cpp
+T fetch_add(T arg, std::memory_order order = std::memory_order_seq_cst) const noexcept;
+```
+
+- 計算量: 定数
+
+加算して、加算前の値を返します。
+
+### fetch_sub {#fetch_sub}
+
+```cpp
+T fetch_sub(T arg, std::memory_order order = std::memory_order_seq_cst) const noexcept;
+```
+
+- 計算量: 定数
+
+減算して、減算前の値を返します。
+
+### is_lock_free {#is_lock_free}
+
+```cpp
+bool is_lock_free() const noexcept;
+```
+
+- 計算量: 定数
+
+ロックなしで動くなら `true`。
+
+### wait {#wait}
+
+```cpp
+void wait(T old, std::memory_order order = std::memory_order_seq_cst) const noexcept;
+```
+
+- 計算量: 待つ時間による
+
+値が `old` と等しい間、待ちます。
+
+### notify_one {#notify_one}
+
+```cpp
+void notify_one() const noexcept;
+```
+
+- 計算量: 定数
+
+`wait` で待っているスレッドを 1 つ起こします。
+
+### notify_all {#notify_all}
+
+```cpp
+void notify_all() const noexcept;
+```
+
+- 計算量: 定数
+
+`wait` で待っているスレッドを全部起こします。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

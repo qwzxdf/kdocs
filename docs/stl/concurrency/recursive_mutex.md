@@ -35,6 +35,46 @@ class recursive_mutex;
 
 - 同じスレッドなら何度ロックしてもいい mutex（ロックした回数だけ unlock が必要）。必要になるのは設計がこじれているときが多いので、使わずに済むようにします
 
+### lock {#lock}
+
+```cpp
+void lock();
+```
+
+- 計算量: 待つ時間による
+
+ロックします。すでに自分が持っていれば、回数を増やして成功します。
+
+### try_lock {#try_lock}
+
+```cpp
+bool try_lock() noexcept;
+```
+
+- 計算量: 定数
+
+待たずに、ロックを試みます。
+
+### unlock {#unlock}
+
+```cpp
+void unlock();
+```
+
+- 計算量: 定数
+
+ロックの回数を 1 減らします。0 になったら、本当に解除します。
+
+### native_handle {#native_handle}
+
+```cpp
+native_handle_type native_handle();
+```
+
+- 計算量: 定数
+
+OS 固有のハンドル（`pthread_t` や `HANDLE`）を返します。標準にない機能（優先度の設定など）を使うときの出口です。
+
 ## 実際に動かしてみる
 
 ```cpp

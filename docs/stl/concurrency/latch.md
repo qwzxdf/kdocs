@@ -90,6 +90,16 @@ int main() {
 全部読み込んだ: 4
 ```
 
+### try_wait {#try_wait}
+
+```cpp
+bool try_wait() const noexcept;
+```
+
+- 計算量: 定数
+
+待たずに、カウンタが 0 になっているか調べます。0 なら `true`。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

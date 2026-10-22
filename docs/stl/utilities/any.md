@@ -144,6 +144,28 @@ x5 # 今の値を破棄する
 
 フラグはありません。
 
+### swap {#swap}
+
+```cpp
+void swap(any& other) noexcept;
+```
+
+- 計算量: 定数
+
+中身を入れ替えます。
+
+### operator= {#op_assign}
+
+```cpp
+any& operator=(const any& rhs);
+any& operator=(any&& rhs) noexcept;
+template <class T> any& operator=(T&& value);
+```
+
+- 計算量: 中身による
+
+別の `any` または値を代入します。中の型は、代入した値の型に変わります。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

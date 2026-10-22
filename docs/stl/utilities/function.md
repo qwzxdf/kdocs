@@ -278,6 +278,29 @@ T* target() noexcept;
     void SetCallback(std::function<void()> cb);  // ラムダで状態ごと渡せる
     ```
 
+### target_type {#target_type}
+
+```cpp
+const std::type_info& target_type() const noexcept;
+```
+
+- 計算量: 定数
+
+中に入っている呼び出し可能なものの型情報（`typeid`）。空なら `typeid(void)`。
+
+### operator= {#op_assign}
+
+```cpp
+function& operator=(function&& other);
+function& operator=(const function& other);
+template <class F> function& operator=(F&& f);
+function& operator=(std::nullptr_t) noexcept;
+```
+
+- 計算量: 中身による
+
+ほかの `function`・関数・ラムダなどを代入します。`nullptr` を代入すると空になります。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

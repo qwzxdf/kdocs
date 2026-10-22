@@ -49,6 +49,78 @@ int main() {
 C
 ```
 
+### name {#name}
+
+```cpp
+std::string name() const;
+```
+
+- 計算量: 定数
+
+ロケールの名前（`"C"`・`"ja_JP.UTF-8"` など）。名前のないロケールは `"*"`。
+
+### classic {#classic}
+
+```cpp
+static const locale& classic();
+```
+
+- 計算量: 定数
+
+クラシックロケール（`"C"` ロケール）への参照。言語に依存しない、標準の振る舞いです。
+
+### global {#global}
+
+```cpp
+static locale global(const locale& loc);
+```
+
+- 計算量: 定数
+
+プログラム全体の既定のロケールを設定し、それまでのロケールを返します。これ以降に作るストリームは、このロケールを使います。
+
+### combine {#combine}
+
+```cpp
+template <class Facet>
+locale combine(const locale& other) const;
+```
+
+- 計算量: 定数
+
+ほかのロケールから、`Facet`（部品）だけを取り込んだ、新しいロケールを作ります。
+
+### operator() {#op_call}
+
+```cpp
+template <class CharT, class Traits, class Alloc>
+bool operator()(const std::basic_string<CharT, Traits, Alloc>& s1, const std::basic_string<CharT, Traits, Alloc>& s2) const;
+```
+
+- 計算量: O(長さ)
+
+ロケールの照合順（`collate`）で、2 つの文字列を比べます。`std::sort(v.begin(), v.end(), std::locale("ja_JP"))` のように、比較関数として渡せます。
+
+### operator== {#op_eq}
+
+```cpp
+bool operator==(const locale& other) const;
+```
+
+- 計算量: 定数
+
+同じロケールなら `true`。
+
+### operator!= {#operator}
+
+```cpp
+bool operator!=(const locale& other) const;
+```
+
+- 計算量: 定数
+
+違うロケールなら `true`（C++20 では `==` から自動で導かれる）。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

@@ -528,6 +528,56 @@ bool operator==(const bitset& rhs) const noexcept;
 
 1 ビットの操作は O(1)、全体の操作は O(N/64)（64 ビットずつまとめて処理）です。
 
+### operator&= {#op_and_assign}
+
+```cpp
+bitset& operator&=(const bitset& rhs) noexcept;
+```
+
+- 計算量: O(ビット数 / ワード長)
+
+ビットごとの AND を、自分に代入します。
+
+### operator|= {#op_or_assign}
+
+```cpp
+bitset& operator|=(const bitset& rhs) noexcept;
+```
+
+- 計算量: O(ビット数 / ワード長)
+
+ビットごとの OR を、自分に代入します。
+
+### operator^= {#op_xor_assign}
+
+```cpp
+bitset& operator^=(const bitset& rhs) noexcept;
+```
+
+- 計算量: O(ビット数 / ワード長)
+
+ビットごとの XOR を、自分に代入します。
+
+### operator<<= {#op_shl_assign}
+
+```cpp
+bitset& operator<<=(size_t pos) noexcept;
+```
+
+- 計算量: O(ビット数 / ワード長)
+
+`pos` ビット左へずらして、自分に代入します。あふれたビットは捨てられます。
+
+### operator>>= {#op_shr_assign}
+
+```cpp
+bitset& operator>>=(size_t pos) noexcept;
+```
+
+- 計算量: O(ビット数 / ワード長)
+
+`pos` ビット右へずらして、自分に代入します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

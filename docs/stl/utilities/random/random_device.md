@@ -60,6 +60,46 @@ int main() {
 true
 ```
 
+### operator() {#op_call}
+
+```cpp
+result_type operator()();
+```
+
+- 計算量: OS に依存
+
+非決定的な乱数（ハードウェアや OS のエントロピー源）を 1 つ返します。シード用に使います。実装によっては遅い、あるいは決定的になる環境もあります。
+
+### entropy {#entropy}
+
+```cpp
+double entropy() const noexcept;
+```
+
+- 計算量: 定数
+
+乱数源のエントロピーの見積もり（ビット数）。決定的な実装では 0 を返します。当てにならないことが多いです。
+
+### min {#min}
+
+```cpp
+static constexpr result_type min();
+```
+
+- 計算量: 定数
+
+`operator()` が返しうる最小値。
+
+### max {#max}
+
+```cpp
+static constexpr result_type max();
+```
+
+- 計算量: 定数
+
+`operator()` が返しうる最大値。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

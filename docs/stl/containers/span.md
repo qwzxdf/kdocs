@@ -511,6 +511,46 @@ constexpr reference at(size_type idx) const;  // C++26
     Draw(v);
     ```
 
+### cend {#cend}
+
+```cpp
+const_iterator cend() const noexcept;
+```
+
+- 計算量: 定数
+
+終端（最後の要素の次）を指す const イテレータ。
+
+### cbegin {#cbegin}
+
+```cpp
+const_iterator cbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+先頭の要素を指す const イテレータ。要素を書き換えられないので、読むだけの走査で使います。
+
+### crbegin {#crbegin}
+
+```cpp
+const_reverse_iterator crbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+逆順の先頭（最後の要素）を指す const イテレータ。
+
+### crend {#crend}
+
+```cpp
+const_reverse_iterator crend() const noexcept;
+```
+
+- 計算量: 定数
+
+逆順の終端（先頭の手前）を指す const イテレータ。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

@@ -35,6 +35,146 @@ using smatch = std::match_results<std::string::const_iterator>;
 - `m[0]` が一致した全体、`m[1]` 以降が `()` で囲んだグループ。`.str()` で文字列、`.position(i)` で位置
 - **元の文字列が消えると使えない**（中で元の文字列を指している）
 
+### size {#size}
+
+```cpp
+size_type size() const noexcept;
+```
+
+- 計算量: 定数
+
+グループの数（全体の一致 `m[0]` を含む）。一致がなければ 0。
+
+### empty {#empty}
+
+```cpp
+bool empty() const noexcept;
+```
+
+- 計算量: 定数
+
+一致の結果がなければ `true`。
+
+### length {#length}
+
+```cpp
+difference_type length(size_type n = 0) const;
+```
+
+- 計算量: 定数
+
+n 番目のグループの長さ。
+
+### position {#position}
+
+```cpp
+difference_type position(size_type n = 0) const;
+```
+
+- 計算量: 定数
+
+n 番目のグループが、元の文字列の何文字目から始まるか。
+
+### str {#str}
+
+```cpp
+string_type str(size_type n = 0) const;
+```
+
+- 計算量: O(長さ)
+
+n 番目のグループを `std::string` で返します。
+
+### operator[] {#op_index}
+
+```cpp
+const_reference operator[](size_type n) const;
+```
+
+- 計算量: 定数
+
+n 番目のグループ（`sub_match`）。`m[0]` は一致した全体、`m[1]` 以降が括弧のグループです。
+
+### prefix {#prefix}
+
+```cpp
+const_reference prefix() const;
+```
+
+- 計算量: 定数
+
+一致した部分の**前**の文字列。
+
+### suffix {#suffix}
+
+```cpp
+const_reference suffix() const;
+```
+
+- 計算量: 定数
+
+一致した部分の**後ろ**の文字列。
+
+### begin {#begin}
+
+```cpp
+const_iterator begin() const noexcept;
+```
+
+- 計算量: 定数
+
+グループ（`sub_match`）の先頭。
+
+### end {#end}
+
+```cpp
+const_iterator end() const noexcept;
+```
+
+- 計算量: 定数
+
+グループ（`sub_match`）の終端。
+
+### format {#format}
+
+```cpp
+string_type format(const string_type& fmt) const;
+```
+
+- 計算量: O(長さ)
+
+`$1` や `$&` を含む書式文字列に、一致の結果を埋め込んだ文字列を返します。
+
+### ready {#ready}
+
+```cpp
+bool ready() const noexcept;
+```
+
+- 計算量: 定数
+
+一致の結果が設定済みなら `true`。
+
+### swap {#swap}
+
+```cpp
+void swap(match_results& other) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの結果を入れ替えます。
+
+### max_size {#max_size}
+
+```cpp
+size_type max_size() const noexcept;
+```
+
+- 計算量: 定数
+
+保持できるグループの最大数。
+
 ## 実際に動かしてみる
 
 ```cpp

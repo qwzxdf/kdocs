@@ -73,6 +73,108 @@ int main() {
 80
 ```
 
+### try_lock {#try_lock}
+
+```cpp
+bool try_lock();
+```
+
+- 計算量: 定数
+
+待たずに、共有ロックを試みます。取れたら `true`。
+
+### try_lock_for {#try_lock_for}
+
+```cpp
+template <class Rep, class Period>
+bool try_lock_for(const std::chrono::duration<Rep, Period>& rel_time);
+```
+
+- 計算量: 最大で指定時間
+
+指定した時間まで待って、共有ロックを試みます。
+
+### try_lock_until {#try_lock_until}
+
+```cpp
+template <class Clock, class Duration>
+bool try_lock_until(const std::chrono::time_point<Clock, Duration>& abs_time);
+```
+
+- 計算量: 最大で指定時刻まで
+
+指定した時刻まで待って、共有ロックを試みます。
+
+### unlock {#unlock}
+
+```cpp
+void unlock();
+```
+
+- 計算量: 定数
+
+共有ロックを解除します。
+
+### swap {#swap}
+
+```cpp
+void swap(shared_lock& other) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの `shared_lock` を入れ替えます。
+
+### release {#release}
+
+```cpp
+mutex_type* release() noexcept;
+```
+
+- 計算量: 定数
+
+ミューテックスとの関連を切り離し、そのポインタを返します。
+
+### mutex {#mutex}
+
+```cpp
+mutex_type* mutex() const noexcept;
+```
+
+- 計算量: 定数
+
+管理しているミューテックスへのポインタ。
+
+### owns_lock {#owns_lock}
+
+```cpp
+bool owns_lock() const noexcept;
+```
+
+- 計算量: 定数
+
+共有ロックを持っていれば `true`。
+
+### explicit operator bool {#op_bool}
+
+```cpp
+explicit operator bool() const noexcept;
+```
+
+- 計算量: 定数
+
+`owns_lock()` と同じです。
+
+### lock {#lock}
+
+```cpp
+void lock();
+```
+
+- 計算量: 待つ時間による
+
+管理しているミューテックスを、共有ロックします。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

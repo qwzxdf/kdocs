@@ -385,6 +385,16 @@ bool is_lock_free() const noexcept;
 | `memory_order_acq_rel` | <span class="rank rank-rare">知ってるだけ</span> | acquire と release の両方（読んで書く操作用） |
 | `memory_order_consume` | <span class="rank rank-rare">知ってるだけ</span> | 使わない（C++26 で非推奨） |
 
+### is_always_lock_free {#is_always_lock_free}
+
+```cpp
+static constexpr bool is_always_lock_free;
+```
+
+- 計算量: コンパイル時
+
+この型の `atomic` が、常にロックなしで動くなら `true`（コンパイル時の定数）。`is_lock_free()` は実行時に調べますが、こちらは型で決まります。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

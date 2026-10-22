@@ -125,6 +125,26 @@ int main() {
 失敗？ false / 中身 abc
 ```
 
+### rdbuf {#rdbuf}
+
+```cpp
+std::stringbuf* rdbuf() const;
+```
+
+- 計算量: 定数
+
+中のバッファ（`stringbuf`）へのポインタ。
+
+### swap {#swap}
+
+```cpp
+void swap(stringstream& other);
+```
+
+- 計算量: 定数
+
+中身（バッファとストリームの状態）を入れ替えます。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

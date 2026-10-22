@@ -15,14 +15,15 @@ tags:
 `#include <filesystem>`
 </div>
 
-`std::filesystem::create_directories` は、**途中のフォルダもまとめて作る**関数です。`saves/slot1/` のように深い場所へ保存する前に呼びます。すでにあれば何もしません。
+`saves/slot1/` に保存したいのに、`saves` というフォルダがまだないと、ファイルを開くのに失敗します。フォルダを 1 階層ずつ作るコードを書くのは面倒です。`std::filesystem::create_directories` は、途中のフォルダも含めて、指定のパスまでを一度に作ってくれます。すでにあれば何もしません。
 
 !!! tip "ポイント"
-    - すでにあってもエラーにならない（`false` を返すだけ）。
-    - 1 階層だけなら [`create_directory`](create_directory.md)。
+    - 途中のフォルダも含めて作る。`mkdir -p` と同じ。
+    - すでにある場合は、エラーにならず `false` を返す。
+    - 1 階層だけ作るなら `create_directory`。親が無いと失敗する。
 
 !!! info "このページを読む前に"
-    [`std::filesystem`](../filesystem.md) の概要を先に読むと分かりやすいです。
+    [`std::filesystem::path`](path.md) の書き方と、[`exists`](exists.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -32,6 +33,12 @@ tags:
 bool create_directories(const path& p);
 bool create_directories(const path& p, std::error_code& ec);
 ```
+
+`p` は作りたいフォルダのパスです。`logs/2026/10` なら、`logs`、`logs/2026`、`logs/2026/10` の 3 つを、無ければ作ります。
+
+戻り値は、新しく 1 つでもフォルダを作ったかです。`p` がすでにあったときは `false` です。`false` はエラーを意味しません。
+
+`ec` を渡す版は、作成に失敗しても例外を投げずに `ec` へ結果を入れます。渡さない版は、権限がない、同じ名前のファイルがある、などの失敗で `filesystem_error` を投げます。
 
 - `p` までのフォルダを、途中のものも含めて全部作ります
 - 戻り値: 新しく作ったら `true`、すでにあったら `false`（エラーではない）
@@ -54,20 +61,30 @@ false
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| セーブ用のフォルダを用意する | `fs::create_directories("saves/slot1")` |
+ログやセーブデータの保存先を作るのに使います。ゲームの起動時に、`fs::create_directories(save_dir)` を呼んでおけば、以降は保存先があるものとして書けます。
+
+ユーザーごとのデータ置き場にも使います。Windows なら `%APPDATA%/ゲーム名/saves` のような深い場所です。毎回「あるか調べてから作る」と書く必要がなく、`create_directories` を呼ぶだけで済むのが利点です。
+
+スクリーンショットの保存先を日付ごとのフォルダに分けるときにも、`screenshots/2026-10-22` を作るのに使えます。
 
 ## よくあるミス
 
-??? failure "ofstream でフォルダが作られると思う"
-    `ofstream` はフォルダを作りません。先にこの関数で用意します。
+??? failure "`create_directory` で複数階層を作ろうとする"
+    `create_directory("a/b/c")` は、`a/b` が無いと失敗します。複数階層なら `create_directories` です。
+
+??? failure "`false` をエラーと考える"
+    `false` は、「新しく作ったものがなかった」という意味で、すでにあるときも返ります。失敗したかは、例外または `ec` で判断します。
+
+??? failure "ファイルの名前までを含めたパスを渡す"
+    `create_directories("saves/slot1/data.bin")` は、`data.bin` という名前のフォルダを作ってしまいます。ファイルの場所のフォルダを作るなら、`path.parent_path()` を渡します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`create_directory`](create_directory.md) | 1 階層だけ |
+| [`create_directory`](create_directory.md) | 1 階層だけ作る。親フォルダがなければ失敗する |
+| [`exists`](exists.md) | あるか調べる。`create_directories` は内部で似た確認をするので、普通は不要 |
+| [`remove_all`](remove_all.md) | フォルダの中身ごと消す |
 
 ## コンパイラ対応
 
@@ -76,9 +93,9 @@ C++17 の機能です。GCC 9 / Clang 9 / MSVC 19.14 以降で使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 途中のフォルダもまとめて作る
-    - [x] すでにあってもエラーでない
-    - [x] ofstream の前に呼ぶ
+    - [x] 途中のフォルダも含めて、パスまでを作る。
+    - [x] すでにあっても失敗ではない（`false` が返るだけ）。
+    - [x] ファイルのパスを渡さない。`parent_path()` を渡す。
 
 ## 関連ページ
 

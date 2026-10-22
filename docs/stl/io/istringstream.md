@@ -62,6 +62,47 @@ int main() {
 12 sword 3.5
 ```
 
+### str {#str}
+
+```cpp
+std::string str() const;
+void str(const std::string& s);
+```
+
+- 計算量: O(長さ)
+
+中の文字列のコピーを返します。引数つきの版は、中の文字列を置き換え、読み書きの位置を先頭に戻します。
+
+### rdbuf {#rdbuf}
+
+```cpp
+std::stringbuf* rdbuf() const;
+```
+
+- 計算量: 定数
+
+中のバッファ（`stringbuf`）へのポインタ。
+
+### swap {#swap}
+
+```cpp
+void swap(istringstream& other);
+```
+
+- 計算量: 定数
+
+中身（バッファとストリームの状態）を入れ替えます。
+
+### view <span class="ver ver-20">C++20</span> {#view data-toc-label="view"}
+
+```cpp
+std::string_view view() const noexcept;
+```
+
+- 計算量: 定数
+
+中の文字列を、コピーせずに `string_view` で見ます。ストリームに書き込むと無効になります。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

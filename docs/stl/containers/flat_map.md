@@ -437,6 +437,149 @@ size_type erase_if(std::flat_map<K, T, C, KC, MC>& c, Pred pred);
 | 全要素を回す | O(n)（とても速い） | O(n) |
 | 途中に追加・削除 | <strong>O(n)</strong> | O(log n) |
 
+### emplace {#emplace}
+
+```cpp
+template <class... Args>
+iterator emplace(Args&&... args);
+```
+
+- 計算量: O(log n)（順序つき）、平均 O(1)（unordered）
+
+引数から、その場で要素を作って挿入します。コピーやムーブを避けられます。
+
+### emplace_hint {#emplace_hint}
+
+```cpp
+template <class... Args>
+iterator emplace_hint(const_iterator hint, Args&&... args);
+```
+
+- 計算量: ヒントが正しければ償却定数
+
+挿入される位置のヒント（直前の位置）を渡して、その場で要素を作ります。ヒントが合っていれば、償却定数で挿入できます。
+
+### insert_or_assign {#insert_or_assign}
+
+```cpp
+template <class M>
+pair<iterator, bool> insert_or_assign(const key_type& k, M&& obj);
+```
+
+- 計算量: O(n)
+
+キーがなければ挿入し、あれば値を上書きします。`operator[]` と違い、値の型に既定構築が要りません。挿入は、ソート済みの配列の途中への挿入なので、後ろの要素が動きます。
+
+### count {#count}
+
+```cpp
+size_type count(const key_type& key) const;
+```
+
+- 計算量: O(log n + 個数)、平均 O(個数)（unordered）
+
+指定したキーの要素の数を返します。重複を許すコンテナで意味があります。
+
+### equal_range {#equal_range}
+
+```cpp
+std::pair<iterator, iterator> equal_range(const key_type& key);
+```
+
+- 計算量: O(log n)、平均 O(個数)（unordered）
+
+指定したキーに等しい要素の範囲（`[first, last)`）を返します。
+
+### key_comp {#key_comp}
+
+```cpp
+key_compare key_comp() const;
+```
+
+- 計算量: 定数
+
+キーの比較に使っている関数オブジェクトのコピー。
+
+### value_comp {#value_comp}
+
+```cpp
+value_compare value_comp() const;
+```
+
+- 計算量: 定数
+
+要素（キーと値のペア）の比較に使っている関数オブジェクトのコピー。
+
+### swap {#swap}
+
+```cpp
+void swap(flat_map& other) noexcept;
+```
+
+- 計算量: 定数
+
+中身を `other` と入れ替えます。要素のコピーやムーブはせず、内部のポインタを入れ替えるだけなので速いです。
+
+### rbegin {#rbegin}
+
+```cpp
+reverse_iterator rbegin() noexcept;
+```
+
+- 計算量: 定数
+
+逆順の先頭（最後の要素）を指すイテレータ。後ろから前へ走査するときに使います。
+
+### rend {#rend}
+
+```cpp
+reverse_iterator rend() noexcept;
+```
+
+- 計算量: 定数
+
+逆順の終端（先頭の手前）を指すイテレータ。
+
+### cbegin {#cbegin}
+
+```cpp
+const_iterator cbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+先頭の要素を指す const イテレータ。要素を書き換えられないので、読むだけの走査で使います。
+
+### cend {#cend}
+
+```cpp
+const_iterator cend() const noexcept;
+```
+
+- 計算量: 定数
+
+終端（最後の要素の次）を指す const イテレータ。
+
+### max_size {#max_size}
+
+```cpp
+size_type max_size() const noexcept;
+```
+
+- 計算量: 定数
+
+理論上、入れられる最大の要素数。実装の上限で、実際にそれだけ確保できるとは限りません。
+
+### operator== {#op_eq}
+
+```cpp
+bool operator==(const flat_map& a, const flat_map& b);
+```
+
+- 計算量: O(要素数)
+
+要素の数が同じで、各要素が順に等しければ `true`。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

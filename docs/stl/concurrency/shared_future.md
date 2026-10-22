@@ -36,6 +36,58 @@ class shared_future;
 
 - コピーでき、複数の場所から `get()` できる future。`future.share()` で作ります
 
+### get {#get}
+
+```cpp
+const T& get() const;
+```
+
+- 計算量: 結果が出るまで待つ
+
+結果への参照を返します。結果が出るまで待ち、**何回呼んでも**同じ結果を返します（`future::get` は 1 回だけ）。
+
+### valid {#valid}
+
+```cpp
+bool valid() const noexcept;
+```
+
+- 計算量: 定数
+
+結果を受け取れる状態なら `true`。
+
+### wait {#wait}
+
+```cpp
+void wait() const;
+```
+
+- 計算量: 結果が出るまで待つ
+
+結果が出るまで待ちます。
+
+### wait_for {#wait_for}
+
+```cpp
+template <class Rep, class Period>
+future_status wait_for(const std::chrono::duration<Rep, Period>& rel_time) const;
+```
+
+- 計算量: 最大で指定時間
+
+指定した時間まで、結果が出るのを待ちます。
+
+### wait_until {#wait_until}
+
+```cpp
+template <class Clock, class Duration>
+future_status wait_until(const std::chrono::time_point<Clock, Duration>& abs_time) const;
+```
+
+- 計算量: 最大で指定時刻まで
+
+指定した時刻まで、結果が出るのを待ちます。
+
 ## 実際に動かしてみる
 
 ```cpp

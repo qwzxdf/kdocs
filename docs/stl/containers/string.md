@@ -16,7 +16,7 @@ tags:
 `#include <string>`
 </div>
 
-`std::string` は、**長さが自由に変わる文字列**です。中身は「`char` の vector」のようなもので、足したり、一部を切り出したり、検索したりできます。C の `char` 配列と違って、長さの管理やメモリの確保を自分でする必要がありません。
+プレイヤーの名前、メッセージ、ファイルのパス。ゲームは文字列だらけです。C の `char name[32]` で持つと、長さの上限を超えて書き込んでしまう事故が起きますし、連結や比較のたびに関数を呼ぶ必要があります。`std::string` は、長さが自由に変わる文字列です。足したり、一部を切り出したり、検索したりが演算子と関数で書け、メモリの管理もお任せできます。
 
 !!! tip "ポイント"
     - <strong>文字列はとりあえずこれ。</strong> `char*` や `char[]` は使わない。
@@ -1213,6 +1213,174 @@ size_type copy(CharT* dest, size_type count, size_type pos = 0) const;
     if (path.contains(".png")) {
     }
     ```
+
+### assign_range <span class="ver ver-23">C++23</span> {#assign_range data-toc-label="assign_range"}
+
+```cpp
+template <ranges::input_range R>
+void assign_range(R&& rg);
+```
+
+- 計算量: O(要素数)
+
+範囲の要素で、中身を置き換えます。
+
+### insert_range <span class="ver ver-23">C++23</span> {#insert_range data-toc-label="insert_range"}
+
+```cpp
+template <ranges::input_range R>
+iterator insert_range(const_iterator pos, R&& rg);
+```
+
+- 計算量: O(挿入数 + 移動する要素数)
+
+範囲の要素を、`pos` の位置に挿入します。
+
+### append_range <span class="ver ver-23">C++23</span> {#append_range data-toc-label="append_range"}
+
+```cpp
+template <ranges::input_range R>
+void append_range(R&& rg);
+```
+
+- 計算量: O(追加数)
+
+範囲の要素を、末尾に追加します。`insert(end(), ...)` より意図が伝わります。
+
+### replace_with_range <span class="ver ver-23">C++23</span> {#replace_with_range data-toc-label="replace_with_range"}
+
+```cpp
+template <ranges::input_range R>
+basic_string& replace_with_range(const_iterator i1, const_iterator i2, R&& rg);
+```
+
+- 計算量: O(長さ)
+
+指定した範囲を、別の範囲の要素で置き換えます。
+
+### resize_and_overwrite <span class="ver ver-23">C++23</span> {#resize_and_overwrite data-toc-label="resize_and_overwrite"}
+
+```cpp
+template <class Operation>
+void resize_and_overwrite(size_type n, Operation op);
+```
+
+- 計算量: O(n)
+
+文字数を `n` にしてから、`op(buf, n)` に先頭のポインタを渡して書き込ませます。初期化の無駄を省けます。C の API が書き込む領域を用意するのに向きます。
+
+### begin {#begin}
+
+```cpp
+iterator begin() noexcept;
+const_iterator begin() const noexcept;
+```
+
+- 計算量: 定数
+
+先頭の要素を指すイテレータ。空なら `end()` と同じ。
+
+### cbegin {#cbegin}
+
+```cpp
+const_iterator cbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+先頭の要素を指す const イテレータ。要素を書き換えられないので、読むだけの走査で使います。
+
+### cend {#cend}
+
+```cpp
+const_iterator cend() const noexcept;
+```
+
+- 計算量: 定数
+
+終端（最後の要素の次）を指す const イテレータ。
+
+### rbegin {#rbegin}
+
+```cpp
+reverse_iterator rbegin() noexcept;
+```
+
+- 計算量: 定数
+
+逆順の先頭（最後の要素）を指すイテレータ。後ろから前へ走査するときに使います。
+
+### crbegin {#crbegin}
+
+```cpp
+const_reverse_iterator crbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+逆順の先頭（最後の要素）を指す const イテレータ。
+
+### rend {#rend}
+
+```cpp
+reverse_iterator rend() noexcept;
+```
+
+- 計算量: 定数
+
+逆順の終端（先頭の手前）を指すイテレータ。
+
+### crend {#crend}
+
+```cpp
+const_reverse_iterator crend() const noexcept;
+```
+
+- 計算量: 定数
+
+逆順の終端（先頭の手前）を指す const イテレータ。
+
+### max_size {#max_size}
+
+```cpp
+size_type max_size() const noexcept;
+```
+
+- 計算量: 定数
+
+理論上、入れられる最大の要素数。実装の上限で、実際にそれだけ確保できるとは限りません。
+
+### get_allocator {#get_allocator}
+
+```cpp
+allocator_type get_allocator() const noexcept;
+```
+
+- 計算量: 定数
+
+使っているアロケータのコピー。
+
+### operator= {#op_assign}
+
+```cpp
+string& operator=(const string& other);
+string& operator=(string&& other) noexcept;
+```
+
+- 計算量: コピーは O(要素数)、ムーブは定数
+
+コピー代入とムーブ代入。ムーブ代入は、中身の所有権を移すだけで、要素をコピーしません。
+
+### end {#end}
+
+```cpp
+iterator end() noexcept;
+const_iterator end() const noexcept;
+```
+
+- 計算量: 定数
+
+終端（最後の要素の次）を指すイテレータ。この位置は読めません。
 
 ## ゲームでの使いどころ
 

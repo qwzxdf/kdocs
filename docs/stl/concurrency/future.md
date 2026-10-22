@@ -106,6 +106,27 @@ int main() {
 valid true / 値 7 / valid false
 ```
 
+### wait_until {#wait_until}
+
+```cpp
+template <class Clock, class Duration>
+future_status wait_until(const std::chrono::time_point<Clock, Duration>& abs_time) const;
+```
+
+- 計算量: 最大で指定時刻まで
+
+指定した時刻まで、結果が出るのを待ちます。結果が出たか、時間切れかを `future_status` で返します。
+
+### share {#share}
+
+```cpp
+std::shared_future<T> share() noexcept;
+```
+
+- 計算量: 定数
+
+`future` を `shared_future` に変換します。変換後の元の `future` は無効（`valid()` が偽）になります。結果を複数のスレッドで読みたいときに使います。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

@@ -15,7 +15,7 @@ tags:
 `#include <vector>`
 </div>
 
-`std::vector` は、**あとから要素を増やしたり減らしたりできる配列**です。中身はメモリ上にすき間なく並んでいるので、C の配列と同じ速さで読み書きできます。入りきらなくなったら自動で大きい場所に引っ越してくれるので、最初に個数を決めなくても使えます。
+敵や弾の数は、ゲームの最中に増えたり減ったりします。`Enemy enemies[100];` と最初に大きさを決めてしまうと、足りなくなったときに困りますし、余らせると無駄です。`std::vector` は、あとから要素を増やしたり減らしたりできる配列です。中身はメモリ上にすき間なく並んでいるので、C の配列と同じ速さで読み書きでき、入りきらなくなったら自動で大きい場所へ引っ越してくれます。
 
 !!! tip "ポイント"
     - <strong>迷ったらこれを使う。</strong> ゲームで使うコンテナの大半は vector で足ります。
@@ -1565,6 +1565,57 @@ b = [30, 50, 80]
     // C++20
     std::ranges::sort(scores);
     ```
+
+### operator= {#op_assign}
+
+```cpp
+vector& operator=(const vector& other);
+vector& operator=(vector&& other) noexcept;
+```
+
+- 計算量: コピーは O(要素数)、ムーブは定数
+
+コピー代入とムーブ代入。ムーブ代入は、中身の所有権を移すだけで、要素をコピーしません。
+
+### operator== {#op_eq}
+
+```cpp
+bool operator==(const vector& a, const vector& b);
+```
+
+- 計算量: O(要素数)
+
+要素の数が同じで、各要素が順に等しければ `true`。
+
+### operator<=> <span class="ver ver-20">C++20</span> {#op_cmp data-toc-label="operator<=>"}
+
+```cpp
+auto operator<=>(const vector& a, const vector& b);
+```
+
+- 計算量: O(要素数)
+
+要素を先頭から順に比べる、辞書順の三方比較。`<`・`>`・`<=`・`>=` も使えるようになります。
+
+### crbegin {#crbegin}
+
+```cpp
+const_reverse_iterator crbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+逆順の先頭（最後の要素）を指す const イテレータ。
+
+### crend {#crend}
+
+```cpp
+const_reverse_iterator crend() const noexcept;
+```
+
+- 計算量: 定数
+
+逆順の終端（先頭の手前）を指す const イテレータ。
 
 ## ゲームでの使いどころ
 

@@ -251,6 +251,26 @@ void swap(stack& other) noexcept;
 
 すべての操作が O(1) です。
 
+### operator== {#op_eq}
+
+```cpp
+bool operator==(const stack& a, const stack& b);
+```
+
+- 計算量: O(要素数)
+
+要素の数が同じで、各要素が順に等しければ `true`。
+
+### operator<=> <span class="ver ver-20">C++20</span> {#op_cmp data-toc-label="operator<=>"}
+
+```cpp
+auto operator<=>(const stack& a, const stack& b);
+```
+
+- 計算量: O(要素数)
+
+要素を先頭から順に比べる、辞書順の三方比較。`<`・`>`・`<=`・`>=` も使えるようになります。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

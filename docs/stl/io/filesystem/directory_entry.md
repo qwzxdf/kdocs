@@ -42,6 +42,167 @@ class directory_entry;
 
 - フォルダを回したときに取れる情報をまとめて持っているので、`fs::file_size(entry.path())` より `entry.file_size()` のほうが速いことがあります
 
+### assign {#assign}
+
+```cpp
+void assign(const path& p);
+```
+
+- 計算量: 定数
+
+別のパスを割り当てて、キャッシュをクリアします。
+
+### replace_filename {#replace_filename}
+
+```cpp
+void replace_filename(const path& p);
+```
+
+- 計算量: 定数
+
+ファイル名を置き換えて、キャッシュをクリアします。
+
+### refresh {#refresh}
+
+```cpp
+void refresh();
+```
+
+- 計算量: OS に依存
+
+キャッシュしている状態（サイズ・更新時刻など）を、いま調べ直します。走査のあとでファイルが変わった可能性があるときに使います。
+
+### path {#path}
+
+```cpp
+const path& path() const noexcept;
+operator const path&() const noexcept;
+```
+
+- 計算量: 定数
+
+エントリのパスを返します。`directory_iterator` で回したときに、ファイルの名前を取り出すのに使います。
+
+### exists {#exists}
+
+```cpp
+bool exists() const;
+```
+
+- 計算量: キャッシュがあれば定数
+
+存在するか。走査中に取得した情報のキャッシュを使うので、`fs::exists(p)` より速いことがあります。
+
+### is_regular_file {#is_regular_file}
+
+```cpp
+bool is_regular_file() const;
+```
+
+- 計算量: キャッシュがあれば定数
+
+通常のファイルか。
+
+### is_directory {#is_directory}
+
+```cpp
+bool is_directory() const;
+```
+
+- 計算量: キャッシュがあれば定数
+
+フォルダか。再帰的に走査するときの判定に使います。
+
+### is_symlink {#is_symlink}
+
+```cpp
+bool is_symlink() const;
+```
+
+- 計算量: キャッシュがあれば定数
+
+シンボリックリンクか。
+
+### is_other {#is_other}
+
+```cpp
+bool is_other() const;
+```
+
+- 計算量: キャッシュがあれば定数
+
+通常ファイル・フォルダ・リンクのどれでもない特殊なファイルか。
+
+### file_size {#file_size}
+
+```cpp
+std::uintmax_t file_size() const;
+```
+
+- 計算量: キャッシュがあれば定数
+
+ファイルの大きさ（バイト）。走査中のキャッシュを使うことがあります。
+
+### hard_link_count {#hard_link_count}
+
+```cpp
+std::uintmax_t hard_link_count() const;
+```
+
+- 計算量: OS に依存
+
+ハードリンクの数。
+
+### last_write_time {#last_write_time}
+
+```cpp
+file_time_type last_write_time() const;
+```
+
+- 計算量: キャッシュがあれば定数
+
+最後に書き込まれた時刻。
+
+### status {#status}
+
+```cpp
+file_status status() const;
+```
+
+- 計算量: キャッシュがあれば定数
+
+ファイルの種類と権限（リンクをたどる）。
+
+### symlink_status {#symlink_status}
+
+```cpp
+file_status symlink_status() const;
+```
+
+- 計算量: キャッシュがあれば定数
+
+ファイルの種類と権限（リンクをたどらない）。
+
+### operator== {#op_eq}
+
+```cpp
+bool operator==(const directory_entry& rhs) const noexcept;
+```
+
+- 計算量: O(長さ)
+
+パスが等しければ `true`。
+
+### operator<=> <span class="ver ver-20">C++20</span> {#op_cmp data-toc-label="operator<=>"}
+
+```cpp
+auto operator<=>(const directory_entry& rhs) const noexcept;
+```
+
+- 計算量: O(長さ)
+
+パスで比べる三方比較。
+
 ## 実際に動かしてみる
 
 ```cpp

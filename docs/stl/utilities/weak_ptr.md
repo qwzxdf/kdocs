@@ -81,6 +81,79 @@ true
 !!! note "実際は"
     `expired()` で確認してから `lock()` すると、その間に消える可能性があります（マルチスレッドのとき）。使うなら最初から `if (auto p = w.lock())` で書きます。
 
+### use_count {#use_count}
+
+```cpp
+long use_count() const noexcept;
+```
+
+- 計算量: 定数
+
+管理しているオブジェクトを共有している `shared_ptr` の数。期限切れなら 0。
+
+### reset {#reset}
+
+```cpp
+void reset() noexcept;
+```
+
+- 計算量: 定数
+
+何も指さない状態にします。
+
+### swap {#swap}
+
+```cpp
+void swap(weak_ptr& r) noexcept;
+```
+
+- 計算量: 定数
+
+2 つの `weak_ptr` を入れ替えます。
+
+### owner_before {#owner_before}
+
+```cpp
+template <class Y>
+bool owner_before(const weak_ptr<Y>& other) const noexcept;
+```
+
+- 計算量: 定数
+
+持ち主（制御ブロック）の順序で比べます。`weak_ptr` をキーにした `map` で使います。
+
+### owner_hash <span class="ver ver-26">C++26</span> {#owner_hash data-toc-label="owner_hash"}
+
+```cpp
+std::size_t owner_hash() const noexcept;
+```
+
+- 計算量: 定数
+
+持ち主（制御ブロック）に対するハッシュ値。
+
+### owner_equal <span class="ver ver-26">C++26</span> {#owner_equal data-toc-label="owner_equal"}
+
+```cpp
+template <class Y>
+bool owner_equal(const weak_ptr<Y>& other) const noexcept;
+```
+
+- 計算量: 定数
+
+同じ持ち主かどうか。
+
+### operator= {#op_assign}
+
+```cpp
+weak_ptr& operator=(const weak_ptr& r) noexcept;
+weak_ptr& operator=(const shared_ptr<T>& r) noexcept;
+```
+
+- 計算量: 定数
+
+`weak_ptr` または `shared_ptr` から代入します。参照カウントは増えません（弱い参照）。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

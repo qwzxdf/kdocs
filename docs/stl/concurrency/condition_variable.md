@@ -194,6 +194,16 @@ bool wait_until(std::unique_lock<std::mutex>& lock,
 | `std::cv_status::no_timeout` | 通知で起きた（または偽の起床） |
 | `std::cv_status::timeout` | 時間切れ |
 
+### native_handle {#native_handle}
+
+```cpp
+native_handle_type native_handle();
+```
+
+- 計算量: 定数
+
+OS 固有のハンドル（`pthread_t` や `HANDLE`）を返します。標準にない機能（優先度の設定など）を使うときの出口です。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

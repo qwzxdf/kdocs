@@ -185,6 +185,16 @@ if (lock.owns_lock()) {
 }
 ```
 
+### native_handle {#native_handle}
+
+```cpp
+native_handle_type native_handle();
+```
+
+- 計算量: 定数
+
+OS 固有のハンドル（`pthread_t` や `HANDLE`）を返します。標準にない機能（優先度の設定など）を使うときの出口です。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

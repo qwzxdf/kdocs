@@ -363,6 +363,50 @@ int main() {
     std::expected<int, LoadError> LoadHighScore(const std::string& file);
     ```
 
+### emplace {#emplace}
+
+```cpp
+template <class... Args>
+T& emplace(Args&&... args) noexcept;
+```
+
+- 計算量: 定数 + 構築
+
+今の中身を捨てて、引数から値をその場で作り直します（成功の状態になります）。
+
+### swap {#swap}
+
+```cpp
+void swap(expected& other);
+```
+
+- 計算量: 中身による
+
+中身を入れ替えます。
+
+### operator= {#op_assign}
+
+```cpp
+expected& operator=(const expected& rhs);
+expected& operator=(expected&& rhs);
+template <class U = T> expected& operator=(U&& v);
+```
+
+- 計算量: 中身による
+
+別の `expected` または値を代入します。
+
+### operator== {#op_eq}
+
+```cpp
+template <class T2, class E2>
+bool operator==(const expected& x, const expected<T2, E2>& y);
+```
+
+- 計算量: 中身による
+
+どちらも成功なら値を、どちらも失敗ならエラーを比べます。成功と失敗の比較は `false`。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

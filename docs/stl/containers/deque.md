@@ -499,6 +499,163 @@ void swap(deque& other) noexcept;
 
 特に変わっていません。vector の先頭に `insert(v.begin(), x)` していた古いコードは、deque の `push_front` に置き換えられます。
 
+### assign {#assign}
+
+```cpp
+void assign(size_type n, const T& value);
+template <class InputIt>
+void assign(InputIt first, InputIt last);
+void assign(std::initializer_list<T> il);
+```
+
+- 計算量: O(要素数)
+
+中身を全部捨てて、新しい要素で置き換えます。
+
+### assign_range <span class="ver ver-23">C++23</span> {#assign_range data-toc-label="assign_range"}
+
+```cpp
+template <ranges::input_range R>
+void assign_range(R&& rg);
+```
+
+- 計算量: O(要素数)
+
+範囲の要素で、中身を置き換えます。
+
+### insert_range <span class="ver ver-23">C++23</span> {#insert_range data-toc-label="insert_range"}
+
+```cpp
+template <ranges::input_range R>
+iterator insert_range(const_iterator pos, R&& rg);
+```
+
+- 計算量: O(挿入数 + 移動する要素数)
+
+範囲の要素を、`pos` の位置に挿入します。
+
+### operator= {#op_assign}
+
+```cpp
+deque& operator=(const deque& other);
+deque& operator=(deque&& other) noexcept;
+```
+
+- 計算量: コピーは O(要素数)、ムーブは定数
+
+コピー代入とムーブ代入。ムーブ代入は、中身の所有権を移すだけで、要素をコピーしません。
+
+### operator== {#op_eq}
+
+```cpp
+bool operator==(const deque& a, const deque& b);
+```
+
+- 計算量: O(要素数)
+
+要素の数が同じで、各要素が順に等しければ `true`。
+
+### operator<=> <span class="ver ver-20">C++20</span> {#op_cmp data-toc-label="operator<=>"}
+
+```cpp
+auto operator<=>(const deque& a, const deque& b);
+```
+
+- 計算量: O(要素数)
+
+要素を先頭から順に比べる、辞書順の三方比較。`<`・`>`・`<=`・`>=` も使えるようになります。
+
+### cbegin {#cbegin}
+
+```cpp
+const_iterator cbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+先頭の要素を指す const イテレータ。要素を書き換えられないので、読むだけの走査で使います。
+
+### cend {#cend}
+
+```cpp
+const_iterator cend() const noexcept;
+```
+
+- 計算量: 定数
+
+終端（最後の要素の次）を指す const イテレータ。
+
+### rbegin {#rbegin}
+
+```cpp
+reverse_iterator rbegin() noexcept;
+```
+
+- 計算量: 定数
+
+逆順の先頭（最後の要素）を指すイテレータ。後ろから前へ走査するときに使います。
+
+### crbegin {#crbegin}
+
+```cpp
+const_reverse_iterator crbegin() const noexcept;
+```
+
+- 計算量: 定数
+
+逆順の先頭（最後の要素）を指す const イテレータ。
+
+### rend {#rend}
+
+```cpp
+reverse_iterator rend() noexcept;
+```
+
+- 計算量: 定数
+
+逆順の終端（先頭の手前）を指すイテレータ。
+
+### crend {#crend}
+
+```cpp
+const_reverse_iterator crend() const noexcept;
+```
+
+- 計算量: 定数
+
+逆順の終端（先頭の手前）を指す const イテレータ。
+
+### max_size {#max_size}
+
+```cpp
+size_type max_size() const noexcept;
+```
+
+- 計算量: 定数
+
+理論上、入れられる最大の要素数。実装の上限で、実際にそれだけ確保できるとは限りません。
+
+### get_allocator {#get_allocator}
+
+```cpp
+allocator_type get_allocator() const noexcept;
+```
+
+- 計算量: 定数
+
+使っているアロケータのコピー。
+
+### emplace {#emplace}
+
+```cpp
+template <class... Args>
+iterator emplace(Args&&... args);
+```
+
+- 計算量: O(log n)（順序つき）、平均 O(1)（unordered）
+
+引数から、その場で要素を作って挿入します。コピーやムーブを避けられます。
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

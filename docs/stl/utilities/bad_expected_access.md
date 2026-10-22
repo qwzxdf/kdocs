@@ -54,6 +54,27 @@ int main() {
 エラーコード 5
 ```
 
+### error {#error}
+
+```cpp
+E& error() & noexcept;
+const E& error() const& noexcept;
+```
+
+- 計算量: 定数
+
+`expected` が持っていたエラーの値への参照。`value()` が失敗したときに、原因を取り出せます。
+
+### what {#what}
+
+```cpp
+const char* what() const noexcept override;
+```
+
+- 計算量: 定数
+
+エラーを表す文字列（実装定義）。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |
