@@ -4,10 +4,12 @@ using Microsoft.VisualStudio.Utilities;
 
 namespace KHlsl.Vsix
 {
-    /// <summary>"khlsl" コンテンツ タイプと、拡張子の対応。</summary>
+    /// <summary>"hlsl" コンテンツ タイプと、拡張子の対応。</summary>
     internal static class KHlslContentType
     {
-        public const string Name = "khlsl";
+        // 他の HLSL 拡張や VS 標準も "hlsl" を使うので、同じ名前にそろえる。
+        // 名前が違うと、同じ拡張子の割り当てが競合して、言語クライアントが起動しない。
+        public const string Name = "hlsl";
 
         [Export]
         [Name(Name)]

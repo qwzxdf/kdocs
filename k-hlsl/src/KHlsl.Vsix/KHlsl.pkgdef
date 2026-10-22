@@ -5,4 +5,4 @@
 "source.khlsl"="$PackageFolder$\Grammars\KHlsl.language-configuration.json"
 
 [$RootKey$\TextMate\LanguageConfiguration\ContentTypeMapping]
-"khlsl"="$PackageFolder$\Grammars\KHlsl.language-configuration.json"
+"hlsl"="$PackageFolder$\Grammars\KHlsl.language-configuration.json"
