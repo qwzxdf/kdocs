@@ -61,6 +61,20 @@ int main() {
 合計 60
 ```
 
+### std::ranges::basic_istream_view <span class="ver ver-20">C++20</span> {#basic_istream_view data-toc-label="std::ranges::basic_istream_view"}
+
+```cpp
+template <movable Val, class CharT, class Traits>
+class basic_istream_view;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+入力ストリームから `>>` で読み取り続ける view。`views::istream<T>(in)` が作ります。
+
+ふつうは `views::istream_view` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::basic_istream_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

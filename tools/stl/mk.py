@@ -145,3 +145,30 @@ def add_list(hub, heading, items):
     pos = m.start() if m else len(t)
     p.write_text(t[:pos] + block + t[pos:], encoding="utf-8", newline="")
     print("add_list", hub, len(rows))
+
+
+AUTO_INC = [
+    (r"std::vector", "vector"), (r"std::list", "list"), (r"std::deque", "deque"), (r"std::forward_list", "forward_list"),
+    (r"std::string_view", "string_view"), (r"std::string", "string"), (r"std::(ptrdiff_t|size_t)", "cstddef"),
+    (r"std::(is_\w+_v|remove_reference_t|is_same)", "type_traits"), (r"std::map", "map"), (r"std::numeric_limits", "limits"),
+    (r"std::(i|o)stringstream", "sstream"), (r"std::ranges::(copy|find|sort)", "algorithm"),
+    (r"std::(back_inserter|move_iterator|counted_iterator|istreambuf_iterator|ostreambuf_iterator|default_sentinel|move_sentinel|front_insert_iterator|insert_iterator|back_insert_iterator)", "iterator"),
+    (r"std::tuple", "tuple"), (r"std::array", "array"), (r"std::views::|std::ranges::", "ranges"), (r"std::println|std::print", "print"),
+]
+
+
+def Q(rel, name, summary, rank, include, intro, tips, sig, args, ret, body, out, *, use, miss, sim=(), cx="定数", ver=None, hub=None, info=None, rj=None, cr=None,
+      memo=None, pre="", **kw):
+    """C ライブラリなど、型どおりの関数 1 つのページを短く書くための近道。
+    body: main の中身（インデントなし、各行を \n でつなぐ）。pre: main の前に置くコード（関数や構造体）。
+    use: ゲームでの使いどころ（1 つ）。miss: (見出し, 本文)。sim: [(名前, 違い)]。"""
+    incs = include if isinstance(include, (list, tuple)) else [include]
+    heads = set(list(incs) + list(kw.pop("extra_inc", [])))
+    for pat, h in AUTO_INC:
+        if re.search(pat, body + pre):
+            heads.add(h)
+    heads = sorted(heads)
+    code = "".join(f"#include <{h}>\n" for h in heads) + ("\n" + pre.strip("\n") + "\n" if pre else "") + "\nint main() {\n" + "\n".join(("  " + l) if l else "" for l in body.split("\n")) + "\n}"
+    code = code.replace("#include <print>\n", "#include <print>\n") if "print" in heads else code
+    P(rel, name, summary, rank, incs[0], intro, tips, [("使いどころ", use)], miss, list(sim), memo or [summary.rstrip("。"), tips[0].rstrip("。"), "戻り値と失敗時の動きを確かめて使う"],
+      sig=sig, args=args, ret=ret, cx=cx, code=code, out=out, ver=ver, hub=hub, info=info, rj=rj, cr=cr, **kw)

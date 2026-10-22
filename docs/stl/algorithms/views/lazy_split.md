@@ -61,6 +61,20 @@ b
 c
 ```
 
+### std::ranges::lazy_split_view <span class="ver ver-20">C++20</span> {#lazy_split_view data-toc-label="std::ranges::lazy_split_view"}
+
+```cpp
+template <input_range V, forward_range Pattern>
+class lazy_split_view;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+区切りで分割する view（入力範囲でも使える遅延版）。`views::lazy_split(sep)` が作ります。
+
+ふつうは `views::lazy_split` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::lazy_split_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

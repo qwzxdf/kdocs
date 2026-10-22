@@ -62,6 +62,20 @@ int main() {
 (2, 20)
 ```
 
+### std::ranges::cartesian_product_view <span class="ver ver-23">C++23</span> {#cartesian_product_view data-toc-label="std::ranges::cartesian_product_view"}
+
+```cpp
+template <input_range First, forward_range... Vs>
+class cartesian_product_view;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+複数の範囲の直積（全部の組み合わせ）を見せる view。`views::cartesian_product` が作ります。
+
+ふつうは `views::cartesian_product` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::cartesian_product_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

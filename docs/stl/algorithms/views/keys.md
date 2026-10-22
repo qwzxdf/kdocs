@@ -56,6 +56,20 @@ int main() {
 ["gold", "potion"]
 ```
 
+### std::ranges::keys_view <span class="ver ver-20">C++20</span> {#keys_view data-toc-label="std::ranges::keys_view"}
+
+```cpp
+template <class V>
+using keys_view = elements_view<V, 0>;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+ペアの 1 つ目（map のキー）を取り出す view。`views::keys` が作ります。
+
+ふつうは `views::keys` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::keys_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

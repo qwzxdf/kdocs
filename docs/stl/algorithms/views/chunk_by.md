@@ -61,6 +61,20 @@ int main() {
 [[1, 2], [4, 5], [7, 8]]
 ```
 
+### std::ranges::chunk_by_view <span class="ver ver-23">C++23</span> {#chunk_by_view data-toc-label="std::ranges::chunk_by_view"}
+
+```cpp
+template <forward_range V, indirect_binary_predicate<iterator_t<V>, iterator_t<V>> Pred>
+class chunk_by_view;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+隣り合う要素の関係が続く間を塊にする view。`views::chunk_by(pred)` が作ります。
+
+ふつうは `views::chunk_by` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::chunk_by_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

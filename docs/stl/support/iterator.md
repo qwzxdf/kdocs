@@ -45,6 +45,33 @@ tags:
 | [`std::make_move_iterator`](iterator/move_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 読むたびにムーブするイテレータ |
 | [`std::reverse_iterator`](iterator/reverse_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 逆向きに進むイテレータ |
 | [`std::istream_iterator`](iterator/istream_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリームから値を読むイテレータ |
+| [`std::iterator_traits`](iterator/iterator_traits.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータの性質（要素の型、種類など）を取り出す。 |
+| [`std::input_iterator_tag`](iterator/input_iterator_tag.md) | <span class="rank rank-rare">知ってるだけ</span> | 入力イテレータ（1 回だけ読み進められる）を表すタグの型。 |
+| [`std::output_iterator_tag`](iterator/output_iterator_tag.md) | <span class="rank rank-rare">知ってるだけ</span> | 出力イテレータ（書き込みながら進められる）を表すタグの型。 |
+| [`std::forward_iterator_tag`](iterator/forward_iterator_tag.md) | <span class="rank rank-rare">知ってるだけ</span> | 前方イテレータ（何度でも読み返せる（一方向））を表すタグの型。 |
+| [`std::bidirectional_iterator_tag`](iterator/bidirectional_iterator_tag.md) | <span class="rank rank-rare">知ってるだけ</span> | 双方向イテレータ（前後どちらにも進める）を表すタグの型。 |
+| [`std::random_access_iterator_tag`](iterator/random_access_iterator_tag.md) | <span class="rank rank-rare">知ってるだけ</span> | ランダムアクセスイテレータ（添字で好きな位置へ飛べる）を表すタグの型。 |
+| [`std::contiguous_iterator_tag`](iterator/contiguous_iterator_tag.md) | <span class="rank rank-rare">知ってるだけ</span> | 連続イテレータ（メモリ上で連続した要素を指す）を表すタグの型。 <span class="ver ver-20">C++20</span> |
+| [`std::crbegin`](iterator/crbegin.md) | <span class="rank rank-rare">知ってるだけ</span> | const の逆順イテレータで、末尾の要素を指す。 <span class="ver ver-14">C++14</span> |
+| [`std::crend`](iterator/crend.md) | <span class="rank rank-rare">知ってるだけ</span> | const の逆順イテレータで、先頭の手前を指す。 <span class="ver ver-14">C++14</span> |
+| [`std::make_reverse_iterator`](iterator/make_reverse_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータから reverse_iterator を作る。 |
+| [`std::move_sentinel`](iterator/move_sentinel.md) | <span class="rank rank-rare">知ってるだけ</span> | move_iterator と組み合わせる、ムーブ用の終端。 <span class="ver ver-20">C++20</span> |
+| [`std::back_insert_iterator`](iterator/back_insert_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 代入するたびに、コンテナの末尾へ push_back するイテレータ。 |
+| [`std::front_insert_iterator`](iterator/front_insert_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 代入するたびに、コンテナの先頭へ push_front するイテレータ。 |
+| [`std::insert_iterator`](iterator/insert_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 代入するたびに、コンテナの指定位置へ insert するイテレータ。 |
+| [`std::istreambuf_iterator`](iterator/istreambuf_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリームバッファから、1 文字ずつ生で読むイテレータ。 |
+| [`std::ostreambuf_iterator`](iterator/ostreambuf_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリームバッファへ、1 文字ずつ生で書くイテレータ。 |
+| [`std::counted_iterator`](iterator/counted_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 残りの個数を数えながら進むイテレータ。 <span class="ver ver-20">C++20</span> |
+| [`std::default_sentinel`](iterator/default_sentinel.md) | <span class="rank rank-rare">知ってるだけ</span> | counted_iterator などの終端を表す目印の定数。 <span class="ver ver-20">C++20</span> |
+| [`std::unreachable_sentinel`](iterator/unreachable_sentinel.md) | <span class="rank rank-rare">知ってるだけ</span> | 「終わりには絶対に届かない」と約束する終端。 <span class="ver ver-20">C++20</span> |
+| [`std::common_iterator`](iterator/common_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータと sentinel（終端）を、1 つの型にまとめる。 <span class="ver ver-20">C++20</span> |
+| [`std::basic_const_iterator`](iterator/basic_const_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 要素を const として見せるイテレータのアダプタ。 <span class="ver ver-23">C++23</span> |
+| [`std::make_const_iterator`](iterator/make_const_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータを、要素が const として見えるイテレータに変換する。 <span class="ver ver-23">C++23</span> |
+| [`std::projected`](iterator/projected.md) | <span class="rank rank-rare">知ってるだけ</span> | プロジェクション（変換）を通した値を、アルゴリズムに見せるための型。 <span class="ver ver-20">C++20</span> |
+| [`std::iter_value_t`](iterator/iter_value_t.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータが指す値の型を取り出す型の別名。 <span class="ver ver-20">C++20</span> |
+| [`std::iter_reference_t`](iterator/iter_reference_t.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータの `*it` の型（参照）を取り出す型の別名。 <span class="ver ver-20">C++20</span> |
+| [`std::iter_difference_t`](iterator/iter_difference_t.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータの差の型を取り出す型の別名。 <span class="ver ver-20">C++20</span> |
+| [`std::iter_move`](iterator/iter_move.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータが指す要素を、右辺値として取り出す。 <span class="ver ver-20">C++20</span> |
 
 ## よくある使い方
 

@@ -52,6 +52,60 @@ tags:
 | [`std::log10`](cmath/log10.md) | <span class="rank rank-rare">知ってるだけ</span> | 10 を底とする対数 |
 | [`std::cbrt`](cmath/cbrt.md) | <span class="rank rank-rare">知ってるだけ</span> | 立方根 |
 | [`std::fma`](cmath/fma.md) | <span class="rank rank-rare">知ってるだけ</span> | `a * b + c` を誤差少なく |
+| [`std::fabs`](cmath/fabs.md) | <span class="rank rank-sometimes">たまに</span> | 浮動小数点の絶対値を返す。 |
+| [`std::remquo`](cmath/remquo.md) | <span class="rank rank-rare">知ってるだけ</span> | 割り算の余りと、商の下位ビットをいっしょに返す。 <span class="ver ver-11">C++11</span> |
+| [`std::fdim`](cmath/fdim.md) | <span class="rank rank-rare">知ってるだけ</span> | x − y が正ならその値、そうでなければ 0 を返す。 <span class="ver ver-11">C++11</span> |
+| [`std::nan`](cmath/nan.md) | <span class="rank rank-rare">知ってるだけ</span> | 指定した文字列に対応する NaN（非数）を返す。 <span class="ver ver-11">C++11</span> |
+| [`std::asinh`](cmath/asinh.md) | <span class="rank rank-rare">知ってるだけ</span> | 双曲線逆正弦（sinh の逆関数）を返す。 <span class="ver ver-11">C++11</span> |
+| [`std::acosh`](cmath/acosh.md) | <span class="rank rank-rare">知ってるだけ</span> | 双曲線逆余弦（cosh の逆関数）を返す。 <span class="ver ver-11">C++11</span> |
+| [`std::atanh`](cmath/atanh.md) | <span class="rank rank-rare">知ってるだけ</span> | 双曲線逆正接（tanh の逆関数）を返す。 <span class="ver ver-11">C++11</span> |
+| [`std::erf`](cmath/erf.md) | <span class="rank rank-rare">知ってるだけ</span> | 誤差関数（正規分布の積分に関係する関数）を返す。 <span class="ver ver-11">C++11</span> |
+| [`std::erfc`](cmath/erfc.md) | <span class="rank rank-rare">知ってるだけ</span> | 相補誤差関数（1 − erf）を返す。 <span class="ver ver-11">C++11</span> |
+| [`std::tgamma`](cmath/tgamma.md) | <span class="rank rank-rare">知ってるだけ</span> | ガンマ関数（階乗の一般化）を返す。 <span class="ver ver-11">C++11</span> |
+| [`std::lgamma`](cmath/lgamma.md) | <span class="rank rank-rare">知ってるだけ</span> | ガンマ関数の自然対数を返す。 <span class="ver ver-11">C++11</span> |
+| [`std::llround`](cmath/llround.md) | <span class="rank rank-rare">知ってるだけ</span> | 四捨五入して long long にする。 <span class="ver ver-11">C++11</span> |
+| [`std::rint`](cmath/rint.md) | <span class="rank rank-rare">知ってるだけ</span> | 現在の丸めモードで整数に丸める（結果は小数）。 <span class="ver ver-11">C++11</span> |
+| [`std::lrint`](cmath/lrint.md) | <span class="rank rank-rare">知ってるだけ</span> | 現在の丸めモードで整数に丸める（long で返す）。 <span class="ver ver-11">C++11</span> |
+| [`std::llrint`](cmath/llrint.md) | <span class="rank rank-rare">知ってるだけ</span> | 現在の丸めモードで整数に丸める（long long で返す）。 <span class="ver ver-11">C++11</span> |
+| [`std::scalbn`](cmath/scalbn.md) | <span class="rank rank-rare">知ってるだけ</span> | x × 2ⁿ を、乗算を使わずに計算する。 <span class="ver ver-11">C++11</span> |
+| [`std::scalbln`](cmath/scalbln.md) | <span class="rank rank-rare">知ってるだけ</span> | x × 2ⁿ を計算する（指数が long）。 <span class="ver ver-11">C++11</span> |
+| [`std::ilogb`](cmath/ilogb.md) | <span class="rank rank-rare">知ってるだけ</span> | x の指数部（2 を底とした対数の整数部分）を int で返す。 <span class="ver ver-11">C++11</span> |
+| [`std::logb`](cmath/logb.md) | <span class="rank rank-rare">知ってるだけ</span> | x の指数部を、浮動小数点で返す。 <span class="ver ver-11">C++11</span> |
+| [`std::nextafter`](cmath/nextafter.md) | <span class="rank rank-rare">知ってるだけ</span> | x の次に表せる浮動小数点数を返す（y の方向へ）。 <span class="ver ver-11">C++11</span> |
+| [`std::nexttoward`](cmath/nexttoward.md) | <span class="rank rank-rare">知ってるだけ</span> | x の次に表せる値を返す（向かう先が long double）。 <span class="ver ver-11">C++11</span> |
+| [`std::fpclassify`](cmath/fpclassify.md) | <span class="rank rank-rare">知ってるだけ</span> | 浮動小数点数の種類（0・正規数・NaN など）を判定する。 <span class="ver ver-11">C++11</span> |
+| [`std::isnormal`](cmath/isnormal.md) | <span class="rank rank-rare">知ってるだけ</span> | 正規数（0・無限大・NaN・非正規数以外）かを判定する。 <span class="ver ver-11">C++11</span> |
+| [`std::isgreater`](cmath/isgreater.md) | <span class="rank rank-rare">知ってるだけ</span> | 浮動小数点を比べる（x が y より大きいか）。NaN でも例外を出さない。 <span class="ver ver-11">C++11</span> |
+| [`std::isgreaterequal`](cmath/isgreaterequal.md) | <span class="rank rank-rare">知ってるだけ</span> | 浮動小数点を比べる（x が y 以上か）。NaN でも例外を出さない。 <span class="ver ver-11">C++11</span> |
+| [`std::isless`](cmath/isless.md) | <span class="rank rank-rare">知ってるだけ</span> | 浮動小数点を比べる（x が y より小さいか）。NaN でも例外を出さない。 <span class="ver ver-11">C++11</span> |
+| [`std::islessequal`](cmath/islessequal.md) | <span class="rank rank-rare">知ってるだけ</span> | 浮動小数点を比べる（x が y 以下か）。NaN でも例外を出さない。 <span class="ver ver-11">C++11</span> |
+| [`std::islessgreater`](cmath/islessgreater.md) | <span class="rank rank-rare">知ってるだけ</span> | 浮動小数点を比べる（x が y より小さいか大きいか（等しくも非順序でもない））。NaN でも例外を出さない。 <span class="ver ver-11">C++11</span> |
+| [`std::isunordered`](cmath/isunordered.md) | <span class="rank rank-rare">知ってるだけ</span> | 浮動小数点を比べる（どちらかが NaN で、大小を比べられないか）。NaN でも例外を出さない。 <span class="ver ver-11">C++11</span> |
+| [`std::assoc_laguerre`](cmath/assoc_laguerre.md) | <span class="rank rank-rare">知ってるだけ</span> | ラゲール陪多項式を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::assoc_legendre`](cmath/assoc_legendre.md) | <span class="rank rank-rare">知ってるだけ</span> | ルジャンドル陪関数を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::beta`](cmath/beta.md) | <span class="rank rank-rare">知ってるだけ</span> | ベータ関数を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::comp_ellint_1`](cmath/comp_ellint_1.md) | <span class="rank rank-rare">知ってるだけ</span> | 第 1 種完全楕円積分を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::comp_ellint_2`](cmath/comp_ellint_2.md) | <span class="rank rank-rare">知ってるだけ</span> | 第 2 種完全楕円積分を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::comp_ellint_3`](cmath/comp_ellint_3.md) | <span class="rank rank-rare">知ってるだけ</span> | 第 3 種完全楕円積分を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::cyl_bessel_i`](cmath/cyl_bessel_i.md) | <span class="rank rank-rare">知ってるだけ</span> | 第 1 種変形ベッセル関数を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::cyl_bessel_j`](cmath/cyl_bessel_j.md) | <span class="rank rank-rare">知ってるだけ</span> | 第 1 種ベッセル関数を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::cyl_bessel_k`](cmath/cyl_bessel_k.md) | <span class="rank rank-rare">知ってるだけ</span> | 第 2 種変形ベッセル関数を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::cyl_neumann`](cmath/cyl_neumann.md) | <span class="rank rank-rare">知ってるだけ</span> | ノイマン関数（第 2 種ベッセル関数）を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::ellint_1`](cmath/ellint_1.md) | <span class="rank rank-rare">知ってるだけ</span> | 第 1 種不完全楕円積分を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::ellint_2`](cmath/ellint_2.md) | <span class="rank rank-rare">知ってるだけ</span> | 第 2 種不完全楕円積分を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::ellint_3`](cmath/ellint_3.md) | <span class="rank rank-rare">知ってるだけ</span> | 第 3 種不完全楕円積分を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::expint`](cmath/expint.md) | <span class="rank rank-rare">知ってるだけ</span> | 指数積分 Ei(x) を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::hermite`](cmath/hermite.md) | <span class="rank rank-rare">知ってるだけ</span> | エルミート多項式を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::laguerre`](cmath/laguerre.md) | <span class="rank rank-rare">知ってるだけ</span> | ラゲール多項式を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::legendre`](cmath/legendre.md) | <span class="rank rank-rare">知ってるだけ</span> | ルジャンドル多項式を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::riemann_zeta`](cmath/riemann_zeta.md) | <span class="rank rank-rare">知ってるだけ</span> | リーマンのゼータ関数を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::sph_bessel`](cmath/sph_bessel.md) | <span class="rank rank-rare">知ってるだけ</span> | 球ベッセル関数（第 1 種）を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::sph_legendre`](cmath/sph_legendre.md) | <span class="rank rank-rare">知ってるだけ</span> | 球面調和関数の θ 部分を求める。 <span class="ver ver-17">C++17</span> |
+| [`std::sph_neumann`](cmath/sph_neumann.md) | <span class="rank rank-rare">知ってるだけ</span> | 球ノイマン関数を求める。 <span class="ver ver-17">C++17</span> |
+| [`HUGE_VAL`](cmath/huge_val.md) | <span class="rank rank-rare">知ってるだけ</span> | double の無限大を表すマクロ。 |
+| [`INFINITY`](cmath/infinity.md) | <span class="rank rank-rare">知ってるだけ</span> | float の無限大を表すマクロ。 |
+| [`math_errhandling`](cmath/math_errhandling.md) | <span class="rank rank-rare">知ってるだけ</span> | 数学関数のエラーの知らせ方を表すマクロ。 |
+| [`NAN`](cmath/nan_macro.md) | <span class="rank rank-rare">知ってるだけ</span> | float の NaN（非数）を表すマクロ。 |
 
 ## よくある使い方
 

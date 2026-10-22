@@ -60,6 +60,20 @@ int main() {
 [15, 20, 25]
 ```
 
+### std::ranges::adjacent_transform_view <span class="ver ver-23">C++23</span> {#adjacent_transform_view data-toc-label="std::ranges::adjacent_transform_view"}
+
+```cpp
+template <forward_range V, copy_constructible F, size_t N>
+class adjacent_transform_view;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+隣り合う N 個の要素を関数で 1 つの値にする view。`views::adjacent_transform<N>` が作ります。
+
+ふつうは `views::adjacent_transform` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::adjacent_transform_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

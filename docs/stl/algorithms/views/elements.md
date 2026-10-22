@@ -62,6 +62,20 @@ int main() {
 520
 ```
 
+### std::ranges::elements_view <span class="ver ver-20">C++20</span> {#elements_view data-toc-label="std::ranges::elements_view"}
+
+```cpp
+template <input_range V, size_t N>
+class elements_view;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+タプルの N 番目の要素だけを取り出す view。`views::elements<N>` が作ります。
+
+ふつうは `views::elements` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::elements_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

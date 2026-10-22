@@ -59,6 +59,20 @@ int main() {
 [2, 4, 6]
 ```
 
+### std::ranges::filter_view <span class="ver ver-20">C++20</span> {#filter_view data-toc-label="std::ranges::filter_view"}
+
+```cpp
+template <input_range V, indirect_unary_predicate<iterator_t<V>> Pred>
+class filter_view;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+条件に合う要素だけを通す view。`views::filter(pred)` が作ります。
+
+ふつうは `views::filter` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::filter_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

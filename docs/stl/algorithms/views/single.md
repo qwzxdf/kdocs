@@ -57,6 +57,20 @@ int main() {
 1
 ```
 
+### std::ranges::single_view <span class="ver ver-20">C++20</span> {#single_view data-toc-label="std::ranges::single_view"}
+
+```cpp
+template <move_constructible T>
+class single_view;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+要素が 1 個だけの view。`views::single(x)` が作ります。
+
+ふつうは `views::single` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::single_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

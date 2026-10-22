@@ -64,6 +64,20 @@ int main() {
 12
 ```
 
+### std::ranges::slide_view <span class="ver ver-23">C++23</span> {#slide_view data-toc-label="std::ranges::slide_view"}
+
+```cpp
+template <forward_range V>
+class slide_view;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+長さ n の窓を 1 つずつずらして見せる view。`views::slide(n)` が作ります。
+
+ふつうは `views::slide` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::slide_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

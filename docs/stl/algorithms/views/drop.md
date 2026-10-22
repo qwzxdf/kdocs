@@ -63,6 +63,20 @@ int main() {
 [3, 4]
 ```
 
+### std::ranges::drop_view <span class="ver ver-20">C++20</span> {#drop_view data-toc-label="std::ranges::drop_view"}
+
+```cpp
+template <view V>
+class drop_view;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+先頭の n 個を飛ばして見せる view。`views::drop(n)` が作ります。
+
+ふつうは `views::drop` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::drop_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

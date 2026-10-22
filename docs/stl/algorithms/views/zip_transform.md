@@ -60,6 +60,20 @@ int main() {
 [11, 22, 33]
 ```
 
+### std::ranges::zip_transform_view <span class="ver ver-23">C++23</span> {#zip_transform_view data-toc-label="std::ranges::zip_transform_view"}
+
+```cpp
+template <copy_constructible F, input_range... Vs>
+class zip_transform_view;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+複数の範囲をいっしょに歩き、関数で 1 つの値にする view。`views::zip_transform` が作ります。
+
+ふつうは `views::zip_transform` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::zip_transform_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

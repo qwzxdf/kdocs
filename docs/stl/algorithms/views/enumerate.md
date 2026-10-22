@@ -58,6 +58,20 @@ int main() {
 3位 Carol
 ```
 
+### std::ranges::enumerate_view <span class="ver ver-23">C++23</span> {#enumerate_view data-toc-label="std::ranges::enumerate_view"}
+
+```cpp
+template <view V>
+class enumerate_view;
+```
+
+- 戻り値: `begin()` / `end()` をもつ view の型
+- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+
+要素に 0 から始まる番号をつけて見せる view。`views::enumerate` が作ります。
+
+ふつうは `views::enumerate` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::enumerate_view v(r, ...)` と直接作るときにだけ登場します。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

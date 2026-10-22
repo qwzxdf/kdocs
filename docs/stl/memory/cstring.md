@@ -46,6 +46,15 @@ tags:
 | [`strncpy`](cstring/strncpy.md) | <span class="rank rank-rare">知ってるだけ</span> | n 文字までコピー（**終端に注意**） |
 | [`strcat`](cstring/strcat.md) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列をつなげる（**危ない**） |
 | [`snprintf`](cstring/snprintf.md) | <span class="rank rank-sometimes">たまに</span> | 大きさを指定して書式付きで書き込む |
+| [`std::strncat`](cstring/strncat.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列の末尾に、最大 n 文字を連結する。 |
+| [`std::strrchr`](cstring/strrchr.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列の中から、指定した文字が最後に現れる位置を探す。 |
+| [`std::strspn`](cstring/strspn.md) | <span class="rank rank-rare">知ってるだけ</span> | 先頭から、指定した文字だけが続く長さを返す。 |
+| [`std::strcspn`](cstring/strcspn.md) | <span class="rank rank-rare">知ってるだけ</span> | 先頭から、指定した文字を含まない部分の長さを返す。 |
+| [`std::strpbrk`](cstring/strpbrk.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列の中から、指定した文字のどれかが最初に現れる位置を探す。 |
+| [`std::strtok`](cstring/strtok.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列を、区切り文字で分割して 1 つずつ取り出す。 |
+| [`std::strcoll`](cstring/strcoll.md) | <span class="rank rank-rare">知ってるだけ</span> | ロケールの規則で、2 つの文字列を比べる。 |
+| [`std::strxfrm`](cstring/strxfrm.md) | <span class="rank rank-rare">知ってるだけ</span> | ロケールの規則での比較用に、文字列を変換する。 |
+| [`std::strerror`](cstring/strerror.md) | <span class="rank rank-rare">知ってるだけ</span> | エラー番号（errno）を、説明の文字列にする。 |
 
 ## 置き換え早見表
 
