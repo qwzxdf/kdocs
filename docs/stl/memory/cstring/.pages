@@ -14,4 +14,13 @@ nav:
   - strcpy.md
   - strncpy.md
   - strcat.md
+  - strcoll.md
+  - strcspn.md
+  - strerror.md
+  - strncat.md
+  - strpbrk.md
+  - strrchr.md
+  - strspn.md
+  - strtok.md
+  - strxfrm.md
   - ...

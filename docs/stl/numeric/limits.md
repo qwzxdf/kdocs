@@ -244,6 +244,64 @@ true
     float b = std::numeric_limits<float>::max();  // テンプレートの中でも型に合わせて使える
     ```
 
+### std::float_round_style {#float_round_style}
+
+```cpp
+enum float_round_style {
+  round_indeterminate = -1,
+  round_toward_zero = 0,
+  round_to_nearest = 1,
+  round_toward_infinity = 2,
+  round_toward_neg_infinity = 3
+};
+```
+
+- 戻り値: 浮動小数点の丸め方を表す列挙型
+- 計算量: コンパイル時
+
+`numeric_limits<T>::round_style` の型です。多くの環境では `round_to_nearest`（最も近い値へ丸める）です。
+
+```cpp
+#include <limits>
+#include <print>
+
+int main() {
+  std::println("{}", std::numeric_limits<float>::round_style == std::round_to_nearest);
+}
+```
+
+```text title="実行結果"
+true
+```
+
+### std::float_denorm_style {#float_denorm_style}
+
+```cpp
+enum float_denorm_style {
+  denorm_indeterminate = -1,
+  denorm_absent = 0,
+  denorm_present = 1
+};
+```
+
+- 戻り値: 非正規数（0 に非常に近い小さな値）を持つかを表す列挙型
+- 計算量: コンパイル時
+
+`numeric_limits<T>::has_denorm` の型です（C++23 で `has_denorm` は非推奨）。多くの環境で `denorm_present` です。
+
+```cpp
+#include <limits>
+#include <print>
+
+int main() {
+  std::println("{}", std::numeric_limits<double>::denorm_min() > 0);
+}
+```
+
+```text title="実行結果"
+true
+```
+
 ## ゲームでの使いどころ
 
 | 場面 | 例 |

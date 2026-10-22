@@ -22,6 +22,7 @@ nav:
   - isfinite.md
   - tanh.md
   - lround.md
+  - fabs.md
   - trunc.md
   - log2.md
   - log10.md
@@ -42,4 +43,57 @@ nav:
   - modf.md
   - ldexp.md
   - frexp.md
+  - huge_val.md
+  - infinity.md
+  - nan_macro.md
+  - math_errhandling.md
+  - acosh.md
+  - asinh.md
+  - assoc_laguerre.md
+  - assoc_legendre.md
+  - atanh.md
+  - beta.md
+  - comp_ellint_1.md
+  - comp_ellint_2.md
+  - comp_ellint_3.md
+  - cyl_bessel_i.md
+  - cyl_bessel_j.md
+  - cyl_bessel_k.md
+  - cyl_neumann.md
+  - ellint_1.md
+  - ellint_2.md
+  - ellint_3.md
+  - erf.md
+  - erfc.md
+  - expint.md
+  - fdim.md
+  - fpclassify.md
+  - hermite.md
+  - ilogb.md
+  - isgreater.md
+  - isgreaterequal.md
+  - isless.md
+  - islessequal.md
+  - islessgreater.md
+  - isnormal.md
+  - isunordered.md
+  - laguerre.md
+  - legendre.md
+  - lgamma.md
+  - llrint.md
+  - llround.md
+  - logb.md
+  - lrint.md
+  - nan.md
+  - nextafter.md
+  - nexttoward.md
+  - remquo.md
+  - riemann_zeta.md
+  - rint.md
+  - scalbln.md
+  - scalbn.md
+  - sph_bessel.md
+  - sph_legendre.md
+  - sph_neumann.md
+  - tgamma.md
   - ...

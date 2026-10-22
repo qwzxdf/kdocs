@@ -10,6 +10,7 @@ nav:
   - is_nothrow_move_constructible.md
   - underlying_type.md
   - conditional.md
+  - enable_if.md
   - is_enum.md
   - is_pointer.md
   - is_const.md
@@ -20,4 +21,86 @@ nav:
   - common_type.md
   - make_unsigned.md
   - invoke_result.md
+  - add_const.md
+  - add_cv.md
+  - add_lvalue_reference.md
+  - add_pointer.md
+  - add_rvalue_reference.md
+  - add_volatile.md
+  - aligned_storage.md
+  - aligned_union.md
+  - alignment_of.md
+  - bool_constant.md
+  - common_reference.md
+  - conjunction.md
+  - disjunction.md
+  - false_type.md
+  - has_unique_object_representations.md
+  - has_virtual_destructor.md
+  - integral_constant.md
+  - is_abstract.md
+  - is_array.md
+  - is_assignable.md
+  - is_bounded_array.md
+  - is_class.md
+  - is_compound.md
+  - is_constant_evaluated.md
+  - is_constructible.md
+  - is_convertible.md
+  - is_copy_assignable.md
+  - is_corresponding_member.md
+  - is_destructible.md
+  - is_final.md
+  - is_function.md
+  - is_fundamental.md
+  - is_implicit_lifetime.md
+  - is_invocable.md
+  - is_invocable_r.md
+  - is_layout_compatible.md
+  - is_lvalue_reference.md
+  - is_member_function_pointer.md
+  - is_member_object_pointer.md
+  - is_member_pointer.md
+  - is_move_assignable.md
+  - is_move_constructible.md
+  - is_nothrow_constructible.md
+  - is_nothrow_convertible.md
+  - is_nothrow_destructible.md
+  - is_nothrow_invocable.md
+  - is_nothrow_swappable.md
+  - is_null_pointer.md
+  - is_object.md
+  - is_pod.md
+  - is_pointer_interconvertible_base_of.md
+  - is_polymorphic.md
+  - is_reference.md
+  - is_rvalue_reference.md
+  - is_scalar.md
+  - is_scoped_enum.md
+  - is_standard_layout.md
+  - is_swappable.md
+  - is_swappable_with.md
+  - is_trivial.md
+  - is_trivially_constructible.md
+  - is_trivially_destructible.md
+  - is_unbounded_array.md
+  - is_union.md
+  - is_unsigned.md
+  - is_void.md
+  - is_volatile.md
+  - is_within_lifetime.md
+  - make_signed.md
+  - negation.md
+  - reference_constructs_from_temporary.md
+  - reference_converts_from_temporary.md
+  - remove_all_extents.md
+  - remove_const.md
+  - remove_cv.md
+  - remove_extent.md
+  - remove_pointer.md
+  - remove_reference.md
+  - remove_volatile.md
+  - true_type.md
+  - type_identity.md
+  - void_t.md
   - ...

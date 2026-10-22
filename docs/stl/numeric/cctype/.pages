@@ -5,4 +5,13 @@ nav:
   - isspace.md
   - toupper.md
   - tolower.md
+  - isalnum.md
+  - isblank.md
+  - iscntrl.md
+  - isgraph.md
+  - islower.md
+  - isprint.md
+  - ispunct.md
+  - isupper.md
+  - isxdigit.md
   - ...

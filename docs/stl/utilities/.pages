@@ -31,6 +31,7 @@ nav:
   - holds_alternative.md
   - unexpected.md
   - nullopt.md
+  - make_optional.md
   - vformat.md
   - allocate_shared.md
   - enable_shared_from_this.md
@@ -55,4 +56,23 @@ nav:
   - integer_sequence.md
   - out_ptr.md
   - inout_ptr.md
+  - bad_any_cast.md
+  - basic_string_view.md
+  - const_pointer_cast.md
+  - forward_like.md
+  - in_place_index.md
+  - in_place_type.md
+  - index_sequence.md
+  - index_sequence_for.md
+  - make_index_sequence.md
+  - make_integer_sequence.md
+  - reinterpret_pointer_cast.md
+  - static_pointer_cast.md
+  - u16string_view.md
+  - u32string_view.md
+  - u8string_view.md
+  - unexpect.md
+  - variant_alternative.md
+  - variant_npos.md
+  - wstring_view.md
   - ...

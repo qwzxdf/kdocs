@@ -51,6 +51,72 @@ int main() {
 取り込んだ内容: hello
 ```
 
+### std::streambuf::sgetc {#sgetc}
+
+```cpp
+int_type sgetc();
+```
+
+- 戻り値: 次の 1 文字を、読み進めずに返す
+- 計算量: 定数
+
+入力バッファから、次の文字をのぞきます。消費はしません。
+
+### std::streambuf::sputc {#sputc}
+
+```cpp
+int_type sputc(char_type ch);
+```
+
+- 戻り値: 1 文字を書き込む
+- 計算量: 定数
+
+出力バッファに 1 文字を書きます。失敗すると `EOF` を返します。
+
+### std::streambuf::in_avail {#in_avail}
+
+```cpp
+streamsize in_avail();
+```
+
+- 戻り値: 待たずに読める文字の数
+- 計算量: 定数
+
+入力バッファに、**すでに**入っている文字の数を返します。ブロックせずに読める量を知りたいときに使います。
+
+### std::streambuf::pubsync {#pubsync}
+
+```cpp
+int pubsync();
+```
+
+- 戻り値: 成功なら 0、失敗なら -1
+- 計算量: 定数
+
+バッファの内容を、ソースや出力先と同期します。`flush()` の中でも呼ばれます。
+
+### std::streambuf::pubseekoff {#pubseekoff}
+
+```cpp
+pos_type pubseekoff(off_type off, ios_base::seekdir way, ios_base::openmode which = ios_base::in | ios_base::out);
+```
+
+- 戻り値: 新しい位置（失敗したら `-1`）
+- 計算量: 定数
+
+位置を相対的に移動します。`seekg`・`seekp` は、これを呼んでいます。
+
+### std::streambuf::pubsetbuf {#pubsetbuf}
+
+```cpp
+streambuf* pubsetbuf(char_type* s, streamsize n);
+```
+
+- 戻り値: バッファを設定できたら自身（できなければ `nullptr`）
+- 計算量: 定数
+
+ストリームバッファが使う、メモリ領域を指定します。実装によっては無視されます。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

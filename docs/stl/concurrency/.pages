@@ -29,4 +29,7 @@ nav:
   - binary_semaphore.md
   - barrier.md
   - condition_variable_any.md
+  - atomic_thread_fence.md
+  - atomic_signal_fence.md
+  - kill_dependency.md
   - ...

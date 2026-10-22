@@ -6,10 +6,70 @@ nav:
   - duration_cast.md
   - literals.md
   - system_clock.md
+  - milliseconds.md
+  - seconds.md
   - high_resolution_clock.md
   - floor.md
   - year_month_day.md
   - hh_mm_ss.md
   - zoned_time.md
   - file_clock.md
+  - ambiguous_local_time.md
+  - clock_cast.md
+  - current_zone.md
+  - day.md
+  - days.md
+  - duration_values.md
+  - file_time.md
+  - from_stream.md
+  - get_leap_second_info.md
+  - get_tzdb.md
+  - gps_clock.md
+  - hours.md
+  - is_am.md
+  - is_pm.md
+  - last_spec.md
+  - leap_second.md
+  - local_days.md
+  - local_info.md
+  - local_seconds.md
+  - local_time.md
+  - locate_zone.md
+  - make12.md
+  - make24.md
+  - microseconds.md
+  - minutes.md
+  - month.md
+  - month_day.md
+  - month_day_last.md
+  - month_weekday.md
+  - month_weekday_last.md
+  - months.md
+  - nanoseconds.md
+  - nonexistent_local_time.md
+  - parse.md
+  - sys_days.md
+  - sys_info.md
+  - sys_seconds.md
+  - sys_time.md
+  - tai_clock.md
+  - time_point_cast.md
+  - time_zone.md
+  - time_zone_link.md
+  - to_stream.md
+  - treat_as_floating_point.md
+  - tzdb.md
+  - tzdb_list.md
+  - utc_clock.md
+  - utc_time.md
+  - weekday.md
+  - weekday_indexed.md
+  - weekday_last.md
+  - weeks.md
+  - year.md
+  - year_month.md
+  - year_month_day_last.md
+  - year_month_weekday.md
+  - year_month_weekday_last.md
+  - years.md
   - ...

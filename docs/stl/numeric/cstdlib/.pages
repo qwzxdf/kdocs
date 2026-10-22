@@ -9,4 +9,30 @@ nav:
   - getenv.md
   - qsort.md
   - bsearch.md
+  - exit_failure.md
+  - exit_success.md
+  - rand_max.md
+  - at_quick_exit.md
+  - atexit.md
+  - atof.md
+  - atol.md
+  - atoll.md
+  - labs.md
+  - ldiv.md
+  - llabs.md
+  - lldiv.md
+  - mblen.md
+  - mbstowcs.md
+  - mbtowc.md
+  - quick_exit.md
+  - srand.md
+  - strtod.md
+  - strtof.md
+  - strtold.md
+  - strtoll.md
+  - strtoul.md
+  - strtoull.md
+  - system.md
+  - wcstombs.md
+  - wctomb.md
   - ...

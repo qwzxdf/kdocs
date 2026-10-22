@@ -23,19 +23,37 @@ nav:
   - setprecision.md
   - setfill.md
   - hex.md
+  - dec.md
   - fixed.md
   - boolalpha.md
+  - oct.md
+  - showbase.md
+  - showpos.md
+  - uppercase.md
+  - scientific.md
+  - hexfloat.md
   - regex_search.md
+  - left.md
   - regex_match.md
   - regex_replace.md
+  - skipws.md
   - smatch.md
+  - ws.md
   - sregex_iterator.md
+  - unitbuf.md
+  - quoted.md
+  - put_time.md
   - streambuf.md
+  - get_money.md
   - osyncstream.md
+  - put_money.md
   - spanstream.md
   - locale.md
   - cerrno.md
   - csignal.md
   - cstdarg.md
+  - cuchar.md
+  - cwchar.md
   - csetjmp.md
+  - codecvt.md
   - ...

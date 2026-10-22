@@ -19,4 +19,15 @@ nav:
   - complex.md
   - ratio.md
   - fesetround.md
+  - linalg.md
+  - feclearexcept.md
+  - fegetenv.md
+  - fegetexceptflag.md
+  - fegetround.md
+  - feholdexcept.md
+  - feraiseexcept.md
+  - fesetenv.md
+  - fesetexceptflag.md
+  - fetestexcept.md
+  - feupdateenv.md
   - ...

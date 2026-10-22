@@ -89,4 +89,11 @@ nav:
   - merge.md
   - inplace_merge.md
   - execution.md
+  - lexicographical_compare_three_way.md
+  - fold_left_first_with_iter.md
+  - fold_left_with_iter.md
+  - fold_right_last.md
+  - replace_copy_if.md
+  - transform_exclusive_scan.md
+  - transform_inclusive_scan.md
   - ...

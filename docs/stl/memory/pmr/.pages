@@ -9,4 +9,5 @@ nav:
   - null_memory_resource.md
   - memory_resource.md
   - default_resource.md
+  - pool_options.md
   - ...

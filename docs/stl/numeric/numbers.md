@@ -174,6 +174,181 @@ int main() {
     float x = std::numbers::pi_v<float>;
     ```
 
+### std::numbers::log2e <span class="ver ver-20">C++20</span> {#log2e data-toc-label="std::numbers::log2e"}
+
+```cpp
+template <class T> inline constexpr T log2e_v = /* log₂(e)（自然対数の底 e の、2 を底とした対数） */;
+inline constexpr double log2e = log2e_v<double>;
+```
+
+- 戻り値: log₂(e)（自然対数の底 e の、2 を底とした対数）（約 1.442695）
+- 計算量: コンパイル時
+
+log₂(e)（自然対数の底 e の、2 を底とした対数）の定数です。`float` 用は `std::numbers::log2e_v<float>` です。
+
+```cpp
+#include <numbers>
+#include <print>
+
+int main() {
+  std::println("{:.6f}", std::numbers::log2e);
+}
+```
+
+```text title="実行結果"
+1.442695
+```
+
+### std::numbers::log10e <span class="ver ver-20">C++20</span> {#log10e data-toc-label="std::numbers::log10e"}
+
+```cpp
+template <class T> inline constexpr T log10e_v = /* log₁₀(e)（e の常用対数） */;
+inline constexpr double log10e = log10e_v<double>;
+```
+
+- 戻り値: log₁₀(e)（e の常用対数）（約 0.434294）
+- 計算量: コンパイル時
+
+log₁₀(e)（e の常用対数）の定数です。`float` 用は `std::numbers::log10e_v<float>` です。
+
+```cpp
+#include <numbers>
+#include <print>
+
+int main() {
+  std::println("{:.6f}", std::numbers::log10e);
+}
+```
+
+```text title="実行結果"
+0.434294
+```
+
+### std::numbers::inv_sqrtpi <span class="ver ver-20">C++20</span> {#inv_sqrtpi data-toc-label="std::numbers::inv_sqrtpi"}
+
+```cpp
+template <class T> inline constexpr T inv_sqrtpi_v = /* 1/√π */;
+inline constexpr double inv_sqrtpi = inv_sqrtpi_v<double>;
+```
+
+- 戻り値: 1/√π（約 0.564189）
+- 計算量: コンパイル時
+
+1/√πの定数です。`float` 用は `std::numbers::inv_sqrtpi_v<float>` です。
+
+```cpp
+#include <numbers>
+#include <print>
+
+int main() {
+  std::println("{:.6f}", std::numbers::inv_sqrtpi);
+}
+```
+
+```text title="実行結果"
+0.564190
+```
+
+### std::numbers::ln2 <span class="ver ver-20">C++20</span> {#ln2 data-toc-label="std::numbers::ln2"}
+
+```cpp
+template <class T> inline constexpr T ln2_v = /* ln(2)（2 の自然対数） */;
+inline constexpr double ln2 = ln2_v<double>;
+```
+
+- 戻り値: ln(2)（2 の自然対数）（約 0.693147）
+- 計算量: コンパイル時
+
+ln(2)（2 の自然対数）の定数です。`float` 用は `std::numbers::ln2_v<float>` です。
+
+```cpp
+#include <numbers>
+#include <print>
+
+int main() {
+  std::println("{:.6f}", std::numbers::ln2);
+}
+```
+
+```text title="実行結果"
+0.693147
+```
+
+### std::numbers::ln10 <span class="ver ver-20">C++20</span> {#ln10 data-toc-label="std::numbers::ln10"}
+
+```cpp
+template <class T> inline constexpr T ln10_v = /* ln(10)（10 の自然対数） */;
+inline constexpr double ln10 = ln10_v<double>;
+```
+
+- 戻り値: ln(10)（10 の自然対数）（約 2.302585）
+- 計算量: コンパイル時
+
+ln(10)（10 の自然対数）の定数です。`float` 用は `std::numbers::ln10_v<float>` です。
+
+```cpp
+#include <numbers>
+#include <print>
+
+int main() {
+  std::println("{:.6f}", std::numbers::ln10);
+}
+```
+
+```text title="実行結果"
+2.302585
+```
+
+### std::numbers::inv_sqrt3 <span class="ver ver-20">C++20</span> {#inv_sqrt3 data-toc-label="std::numbers::inv_sqrt3"}
+
+```cpp
+template <class T> inline constexpr T inv_sqrt3_v = /* 1/√3 */;
+inline constexpr double inv_sqrt3 = inv_sqrt3_v<double>;
+```
+
+- 戻り値: 1/√3（約 0.577350）
+- 計算量: コンパイル時
+
+1/√3の定数です。`float` 用は `std::numbers::inv_sqrt3_v<float>` です。
+
+```cpp
+#include <numbers>
+#include <print>
+
+int main() {
+  std::println("{:.6f}", std::numbers::inv_sqrt3);
+}
+```
+
+```text title="実行結果"
+0.577350
+```
+
+### std::numbers::egamma <span class="ver ver-20">C++20</span> {#egamma data-toc-label="std::numbers::egamma"}
+
+```cpp
+template <class T> inline constexpr T egamma_v = /* オイラー・マスケローニ定数 γ */;
+inline constexpr double egamma = egamma_v<double>;
+```
+
+- 戻り値: オイラー・マスケローニ定数 γ（約 0.577215）
+- 計算量: コンパイル時
+
+オイラー・マスケローニ定数 γの定数です。`float` 用は `std::numbers::egamma_v<float>` です。
+
+```cpp
+#include <numbers>
+#include <print>
+
+int main() {
+  std::println("{:.6f}", std::numbers::egamma);
+}
+```
+
+```text title="実行結果"
+0.577216
+```
+
 ## よくあるミス
 
 ??? failure "float の計算に double の pi を使う"

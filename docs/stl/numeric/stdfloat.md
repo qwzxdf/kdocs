@@ -49,6 +49,84 @@ int main() {
 2 2（対応した環境の場合）
 ```
 
+### std::float32_t <span class="ver ver-23">C++23</span> {#float32_t data-toc-label="std::float32_t"}
+
+```cpp
+using float32_t = /* 実装定義の 32 ビット浮動小数点型 */;
+```
+
+- 戻り値: 32 ビット（IEEE 754 binary32）の浮動小数点型
+- 計算量: コンパイル時
+
+32 ビット（IEEE 754 binary32）の浮動小数点型です。実装が対応していない環境では定義されないので、`#ifdef __STDCPP_FLOAT32_T__` で確かめます。
+
+```cpp
+#include <print>
+#include <stdfloat>
+
+int main() {
+#ifdef __STDCPP_FLOAT32_T__
+  std::println("{}", sizeof(std::float32_t));
+#endif
+}
+```
+
+```text title="実行結果"
+4
+```
+
+### std::float64_t <span class="ver ver-23">C++23</span> {#float64_t data-toc-label="std::float64_t"}
+
+```cpp
+using float64_t = /* 実装定義の 64 ビット浮動小数点型 */;
+```
+
+- 戻り値: 64 ビット（IEEE 754 binary64）の浮動小数点型
+- 計算量: コンパイル時
+
+64 ビット（IEEE 754 binary64）の浮動小数点型です。実装が対応していない環境では定義されないので、`#ifdef __STDCPP_FLOAT64_T__` で確かめます。
+
+```cpp
+#include <print>
+#include <stdfloat>
+
+int main() {
+#ifdef __STDCPP_FLOAT64_T__
+  std::println("{}", sizeof(std::float64_t));
+#endif
+}
+```
+
+```text title="実行結果"
+8
+```
+
+### std::float128_t <span class="ver ver-23">C++23</span> {#float128_t data-toc-label="std::float128_t"}
+
+```cpp
+using float128_t = /* 実装定義の 128 ビット浮動小数点型 */;
+```
+
+- 戻り値: 128 ビット（IEEE 754 binary128）の浮動小数点型
+- 計算量: コンパイル時
+
+128 ビット（IEEE 754 binary128）の浮動小数点型です。実装が対応していない環境では定義されないので、`#ifdef __STDCPP_FLOAT128_T__` で確かめます。
+
+```cpp
+#include <print>
+#include <stdfloat>
+
+int main() {
+#ifdef __STDCPP_FLOAT128_T__
+  std::println("{}", sizeof(std::float128_t));
+#endif
+}
+```
+
+```text title="実行結果"
+16
+```
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

@@ -153,6 +153,8 @@ AUTO_INC = [
     (r"std::(is_\w+_v|remove_reference_t|is_same)", "type_traits"), (r"std::map", "map"), (r"std::numeric_limits", "limits"),
     (r"std::(i|o)stringstream", "sstream"), (r"std::ranges::(copy|find|sort)", "algorithm"),
     (r"std::(back_inserter|move_iterator|counted_iterator|istreambuf_iterator|ostreambuf_iterator|default_sentinel|move_sentinel|front_insert_iterator|insert_iterator|back_insert_iterator)", "iterator"),
+    (r"std::(cout|cin|cerr|clog)", "iostream"), (r"std::(setw|setfill|setprecision|setbase|setiosflags|resetiosflags|quoted|get_money|put_money|get_time|put_time)", "iomanip"),
+    (r"std::osyncstream", "syncstream"), (r"std::(ifstream|ofstream|fstream)", "fstream"), (r"std::(tm|time_t)", "ctime"), (r"std::(ostream|istream)", "ostream"),
     (r"std::tuple", "tuple"), (r"std::array", "array"), (r"std::views::|std::ranges::", "ranges"), (r"std::println|std::print", "print"),
 ]
 

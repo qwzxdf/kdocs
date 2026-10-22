@@ -31,4 +31,35 @@ nav:
   - errc.md
   - version.md
   - generator.md
+  - text_encoding.md
+  - cmp_greater.md
+  - cmp_greater_equal.md
+  - cmp_less_equal.md
+  - cmp_not_equal.md
+  - common_comparison_category.md
+  - compare_partial_order_fallback.md
+  - compare_strong_order_fallback.md
+  - compare_three_way.md
+  - compare_three_way_result.md
+  - compare_weak_order_fallback.md
+  - error_category.md
+  - generic_category.md
+  - io_errc.md
+  - iostream_category.md
+  - is_eq.md
+  - is_error_code_enum.md
+  - is_error_condition_enum.md
+  - is_gt.md
+  - is_gteq.md
+  - is_lt.md
+  - is_lteq.md
+  - is_neq.md
+  - make_error_code.md
+  - make_error_condition.md
+  - partial_order.md
+  - strong_order.md
+  - system_category.md
+  - three_way_comparable.md
+  - three_way_comparable_with.md
+  - weak_order.md
   - ...

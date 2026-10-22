@@ -14,4 +14,29 @@ nav:
   - bind.md
   - mem_fn.md
   - reference_wrapper.md
+  - bit_and.md
+  - bit_not.md
+  - bit_or.md
+  - bit_xor.md
+  - boyer_moore_horspool_searcher.md
+  - boyer_moore_searcher.md
+  - copyable_function.md
+  - default_searcher.md
+  - divides.md
+  - function_ref.md
+  - greater_equal.md
+  - invoke_r.md
+  - is_bind_expression.md
+  - is_placeholder.md
+  - less_equal.md
+  - logical_and.md
+  - logical_not.md
+  - logical_or.md
+  - minus.md
+  - modulus.md
+  - negate.md
+  - not_equal_to.md
+  - placeholders.md
+  - unwrap_ref_decay.md
+  - unwrap_reference.md
   - ...

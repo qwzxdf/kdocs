@@ -4,4 +4,29 @@ nav:
   - begin.md
   - size.md
   - dangling.md
+  - elements_of.md
+  - from_range.md
+  - bidirectional_range.md
+  - borrowed_iterator_t.md
+  - borrowed_range.md
+  - common_range.md
+  - contiguous_range.md
+  - enable_borrowed_range.md
+  - enable_view.md
+  - forward_range.md
+  - input_range.md
+  - iterator_t.md
+  - output_range.md
+  - random_access_range.md
+  - range_adaptor_closure.md
+  - range_difference_t.md
+  - range_reference_t.md
+  - range_size_t.md
+  - range_value_t.md
+  - sentinel_t.md
+  - sized_range.md
+  - view_interface.md
+  - viewable_range.md
+  - all_t.md
+  - to_input.md
   - ...

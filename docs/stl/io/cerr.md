@@ -40,6 +40,28 @@ extern std::ostream clog;
 
 - ログ用の出力。cerr と同じ出力先ですが、バッファにためます
 
+### std::wcerr {#wcerr}
+
+```cpp
+extern std::wostream wcerr;
+```
+
+- 戻り値: `wostream`（`wchar_t` の標準エラー出力）
+- 計算量: 操作による
+
+`wcerr` は、`cerr` の `wchar_t` 版です。`wchar_t` の文字列（`L"..."`）を扱うときに使います。1 つのプログラムで `cerr` と `wcerr` を混ぜて使うと、文字化けや動作不良の原因になることがあります。
+
+### std::wclog {#wclog}
+
+```cpp
+extern std::wostream wclog;
+```
+
+- 戻り値: `wostream`（`wchar_t` のログ出力（バッファあり））
+- 計算量: 操作による
+
+`wclog` は、`clog` の `wchar_t` 版です。`wchar_t` の文字列（`L"..."`）を扱うときに使います。1 つのプログラムで `clog` と `wclog` を混ぜて使うと、文字化けや動作不良の原因になることがあります。
+
 ## 実際に動かしてみる
 
 （標準エラー出力に出ます。コンソールでは通常の出力と同じように見えます）

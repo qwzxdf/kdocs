@@ -4,4 +4,15 @@ nav:
   - clock.md
   - strftime.md
   - gmtime.md
+  - clocks_per_sec.md
+  - asctime.md
+  - clock_t.md
+  - ctime.md
+  - difftime.md
+  - localtime.md
+  - mktime.md
+  - time_t.md
+  - timespec.md
+  - timespec_get.md
+  - tm.md
   - ...

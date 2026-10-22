@@ -88,6 +88,136 @@ fail=true
 fail=false
 ```
 
+### std::ios_base::fmtflags {#fmtflags}
+
+```cpp
+using fmtflags = /* ビットマスク型 */;
+```
+
+- 戻り値: 書式フラグ（`showbase`・`hex`・`fixed` など）を表すビットマスク型
+- 計算量: 定数
+
+`flags()` で取れる、書式の状態をまとめた型です。`ios::showpos | ios::uppercase` のように `|` でつなぎます。個別に設定するなら、マニピュレータ（`std::showpos` など）が読みやすいです。
+
+### std::streamsize {#streamsize}
+
+```cpp
+using streamsize = /* 実装定義 */;
+```
+
+- 戻り値: ストリームで読み書きする文字数を表す符号つき整数型
+- 計算量: 定数
+
+ストリームで読み書きする文字数を表す符号つき整数型です。`read(buf, n)` の `n` や、`gcount()` の戻り値などに出てきます。
+
+### std::streamoff {#streamoff}
+
+```cpp
+using streamoff = /* 実装定義 */;
+```
+
+- 戻り値: ストリーム上の位置の差（オフセット）を表す符号つき整数型
+- 計算量: 定数
+
+ストリーム上の位置の差（オフセット）を表す符号つき整数型です。`read(buf, n)` の `n` や、`gcount()` の戻り値などに出てきます。
+
+### std::streampos {#streampos}
+
+```cpp
+using streampos = /* 実装定義 */;
+```
+
+- 戻り値: ストリーム上の位置を表す型（`fpos<mbstate_t>` の別名）
+- 計算量: 定数
+
+ストリーム上の位置を表す型（`fpos<mbstate_t>` の別名）です。`read(buf, n)` の `n` や、`gcount()` の戻り値などに出てきます。
+
+### std::fpos {#fpos}
+
+```cpp
+template <class StateT>
+class fpos;
+```
+
+- 戻り値: ストリームの位置を表すクラス（状態つき）
+- 計算量: 定数
+
+マルチバイト文字のように、位置に状態が必要なストリームのための位置の型です。`tellg()` の戻り値（`streampos`）が、これにあたります。整数のように足し引きできますが、`tellg()` で得た値以外の演算は、移植性がありません。
+
+### std::ios_base::badbit {#badbit}
+
+```cpp
+static constexpr iostate badbit = /* 実装定義 */;
+```
+
+- 戻り値: 状態フラグ：ストリームが壊れた（回復できないエラー）
+- 計算量: 定数
+
+`rdstate()` で調べる状態フラグのひとつで、ストリームが壊れた（回復できないエラー）ことを表します。`good()`・`eof()`・`fail()`・`bad()` で調べるほうが読みやすいです。
+
+### std::ios_base::eofbit {#eofbit}
+
+```cpp
+static constexpr iostate eofbit = /* 実装定義 */;
+```
+
+- 戻り値: 状態フラグ：入力が終端に達した
+- 計算量: 定数
+
+`rdstate()` で調べる状態フラグのひとつで、入力が終端に達したことを表します。`good()`・`eof()`・`fail()`・`bad()` で調べるほうが読みやすいです。
+
+### std::ios_base::failbit {#failbit}
+
+```cpp
+static constexpr iostate failbit = /* 実装定義 */;
+```
+
+- 戻り値: 状態フラグ：操作に失敗した（形式が合わないなど。回復できる）
+- 計算量: 定数
+
+`rdstate()` で調べる状態フラグのひとつで、操作に失敗した（形式が合わないなど。回復できる）ことを表します。`good()`・`eof()`・`fail()`・`bad()` で調べるほうが読みやすいです。
+
+### std::ios_base::goodbit {#goodbit}
+
+```cpp
+static constexpr iostate goodbit = /* 実装定義 */;
+```
+
+- 戻り値: 状態フラグ：エラーがない状態（値は 0）
+- 計算量: 定数
+
+`rdstate()` で調べる状態フラグのひとつで、エラーがない状態（値は 0）ことを表します。`good()`・`eof()`・`fail()`・`bad()` で調べるほうが読みやすいです。
+
+### std::ios_base::iword {#iword}
+
+```cpp
+long& iword(int idx);
+```
+
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `idx` | int | `xalloc()` で取った添字 |
+
+- 戻り値: 格納場所への参照
+- 計算量: 定数
+
+ストリームに、任意の整数を 1 つ持たせる（`xalloc` で取った添字で）。自作のマニピュレータが、ストリームごとの設定を覚えておくために使います。
+
+### std::ios_base::pword {#pword}
+
+```cpp
+void*& pword(int idx);
+```
+
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `idx` | int | `xalloc()` で取った添字 |
+
+- 戻り値: 格納場所への参照
+- 計算量: 定数
+
+ストリームに、任意のポインタを 1 つ持たせる（`xalloc` で取った添字で）。自作のマニピュレータが、ストリームごとの設定を覚えておくために使います。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

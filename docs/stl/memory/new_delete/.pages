@@ -12,4 +12,12 @@ nav:
   - launder.md
   - align_val_t.md
   - set_new_handler.md
+  - bad_array_new_length.md
+  - destroy.md
+  - destroy_n.md
+  - get_new_handler.md
+  - uninitialized_default_construct.md
+  - uninitialized_fill.md
+  - uninitialized_move.md
+  - uninitialized_value_construct.md
   - ...

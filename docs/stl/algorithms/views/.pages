@@ -37,4 +37,6 @@ nav:
   - adjacent_transform.md
   - cartesian_product.md
   - istream_view.md
+  - cache_latest.md
+  - concat.md
   - ...

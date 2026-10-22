@@ -38,4 +38,14 @@ nav:
   - layout_right.md
   - layout_left.md
   - layout_stride.md
+  - hive.md
+  - stol.md
+  - stold.md
+  - stoul.md
+  - stoull.md
+  - to_wstring.md
+  - u16string.md
+  - u32string.md
+  - u8string.md
+  - wstring.md
   - ...

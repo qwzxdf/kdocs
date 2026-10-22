@@ -175,6 +175,222 @@ int main() {
 | `INT32_MAX`、`UINT8_MAX` など | 各型の最大値・最小値（C の書き方。C++ では [`std::numeric_limits`](limits.md) も使える） |
 | `INT64_C(123)` など | その型のリテラルを作るマクロ |
 
+### std::int_fast8_t {#int_fast8_t}
+
+```cpp
+using int_fast8_t = /* int など */;
+```
+
+- 戻り値: 8 ビット以上で、最も速く扱える符号つき整数型の別名
+- 計算量: コンパイル時
+
+8 ビット以上で、最も速く扱える符号つき整数型です。速さを優先する計算に使います。
+
+```cpp
+#include <cstdint>
+#include <print>
+
+int main() {
+  std::println("{}", sizeof(std::int_fast8_t) >= 1);
+}
+```
+
+```text title="実行結果"
+true
+```
+
+### std::int_least8_t {#int_least8_t}
+
+```cpp
+using int_least8_t = /* signed char など */;
+```
+
+- 戻り値: 8 ビット以上で、最も小さい符号つき整数型の別名
+- 計算量: コンパイル時
+
+8 ビット以上で、最も小さい符号つき整数型です。メモリの大きさを優先するときに使います。
+
+```cpp
+#include <cstdint>
+#include <print>
+
+int main() {
+  std::println("{}", sizeof(std::int_least8_t) >= 1);
+}
+```
+
+```text title="実行結果"
+true
+```
+
+### std::intmax_t {#intmax_t}
+
+```cpp
+using intmax_t = /* long long など */;
+```
+
+- 戻り値: 最も大きい符号つき整数型の別名
+- 計算量: コンパイル時
+
+最も大きい符号つき整数型です。ビット幅を気にせず、最大の範囲を確保したいときに使います。
+
+```cpp
+#include <cstdint>
+#include <print>
+
+int main() {
+  std::println("{}", sizeof(std::intmax_t) >= 1);
+}
+```
+
+```text title="実行結果"
+true
+```
+
+### std::uintmax_t {#uintmax_t}
+
+```cpp
+using uintmax_t = /* unsigned long long など */;
+```
+
+- 戻り値: 最も大きい符号なし整数型の別名
+- 計算量: コンパイル時
+
+最も大きい符号なし整数型です。ビット幅を気にせず、最大の範囲を確保したいときに使います。
+
+```cpp
+#include <cstdint>
+#include <print>
+
+int main() {
+  std::println("{}", sizeof(std::uintmax_t) >= 1);
+}
+```
+
+```text title="実行結果"
+true
+```
+
+### SIZE_MAX {#SIZE_MAX}
+
+```cpp
+#define SIZE_MAX /* size_t の最大値 */
+```
+
+- 戻り値: `size_t` の最大値（定数）
+- 計算量: コンパイル時
+
+`size_t` で表せる最大値のマクロです。「見つからない」を表す値（`std::string::npos` など）として使われます。
+
+```cpp
+#include <cstdint>
+#include <print>
+
+int main() {
+  std::println("{}", SIZE_MAX == static_cast<std::size_t>(-1));
+}
+```
+
+```text title="実行結果"
+true
+```
+
+### INT32_MAX {#INT32_MAX}
+
+```cpp
+#define INT32_MAX 2147483647
+```
+
+- 戻り値: 固定幅の整数型の最大値（定数）
+- 計算量: コンパイル時
+
+幅が決まった整数型の最大値です（2147483647）。
+
+```cpp
+#include <cstdint>
+#include <print>
+
+int main() {
+  std::println("{}", INT32_MAX);
+}
+```
+
+```text title="実行結果"
+2147483647
+```
+
+### INT64_MAX {#INT64_MAX}
+
+```cpp
+#define INT64_MAX 9223372036854775807
+```
+
+- 戻り値: 固定幅の整数型の最大値（定数）
+- 計算量: コンパイル時
+
+幅が決まった整数型の最大値です（9223372036854775807）。
+
+```cpp
+#include <cstdint>
+#include <print>
+
+int main() {
+  std::println("{}", INT64_MAX);
+}
+```
+
+```text title="実行結果"
+9223372036854775807
+```
+
+### UINT32_MAX {#UINT32_MAX}
+
+```cpp
+#define UINT32_MAX 4294967295
+```
+
+- 戻り値: 固定幅の整数型の最大値（定数）
+- 計算量: コンパイル時
+
+幅が決まった整数型の最大値です（4294967295）。
+
+```cpp
+#include <cstdint>
+#include <print>
+
+int main() {
+  std::println("{}", UINT32_MAX);
+}
+```
+
+```text title="実行結果"
+4294967295
+```
+
+### UINT64_MAX {#UINT64_MAX}
+
+```cpp
+#define UINT64_MAX 18446744073709551615
+```
+
+- 戻り値: 固定幅の整数型の最大値（定数）
+- 計算量: コンパイル時
+
+幅が決まった整数型の最大値です（18446744073709551615）。
+
+```cpp
+#include <cstdint>
+#include <print>
+
+int main() {
+  std::println("{}", UINT64_MAX);
+}
+```
+
+```text title="実行結果"
+18446744073709551615
+```
+
 ## ゲームでの使いどころ
 
 | 場面 | 型 |

@@ -11,4 +11,50 @@ nav:
   - copyable.md
   - movable.md
   - default_initializable.md
+  - assignable_from.md
+  - bidirectional_iterator.md
+  - common_reference_with.md
+  - common_with.md
+  - constructible_from.md
+  - contiguous_iterator.md
+  - copy_constructible.md
+  - destructible.md
+  - equality_comparable.md
+  - equality_comparable_with.md
+  - equivalence_relation.md
+  - forward_iterator.md
+  - incrementable.md
+  - indirect_binary_predicate.md
+  - indirect_equivalence_relation.md
+  - indirect_strict_weak_order.md
+  - indirect_unary_predicate.md
+  - indirectly_comparable.md
+  - indirectly_copyable.md
+  - indirectly_movable.md
+  - indirectly_readable.md
+  - indirectly_regular_unary_invocable.md
+  - indirectly_swappable.md
+  - indirectly_unary_invocable.md
+  - indirectly_writable.md
+  - input_iterator.md
+  - input_or_output_iterator.md
+  - mergeable.md
+  - move_constructible.md
+  - output_iterator.md
+  - permutable.md
+  - random_access_iterator.md
+  - regular.md
+  - regular_invocable.md
+  - relation.md
+  - semiregular.md
+  - sentinel_for.md
+  - signed_integral.md
+  - sized_sentinel_for.md
+  - sortable.md
+  - strict_weak_order.md
+  - swappable.md
+  - swappable_with.md
+  - totally_ordered_with.md
+  - unsigned_integral.md
+  - weakly_incrementable.md
   - ...

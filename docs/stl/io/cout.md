@@ -62,6 +62,17 @@ int main() {
 (1.5, -2)
 ```
 
+### std::wcout {#wcout}
+
+```cpp
+extern std::wostream wcout;
+```
+
+- 戻り値: `wostream`（`wchar_t` の標準出力）
+- 計算量: 操作による
+
+`wcout` は、`cout` の `wchar_t` 版です。`wchar_t` の文字列（`L"..."`）を扱うときに使います。1 つのプログラムで `cout` と `wcout` を混ぜて使うと、文字化けや動作不良の原因になることがあります。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

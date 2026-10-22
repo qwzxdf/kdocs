@@ -82,6 +82,17 @@ static bool sync_with_stdio(bool sync = true);
 
 - `false` にすると、C の `printf` / `scanf` との同期をやめて、cin / cout が速くなります。その後は C の関数と混ぜて使ってはいけません
 
+### std::wcin {#wcin}
+
+```cpp
+extern std::wistream wcin;
+```
+
+- 戻り値: `wistream`（`wchar_t` の標準入力）
+- 計算量: 操作による
+
+`wcin` は、`cin` の `wchar_t` 版です。`wchar_t` の文字列（`L"..."`）を扱うときに使います。1 つのプログラムで `cin` と `wcin` を混ぜて使うと、文字化けや動作不良の原因になることがあります。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

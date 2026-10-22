@@ -1,0 +1,94 @@
+---
+title: std::sscanf
+summary: "文字列から、書式を指定して読み込む。"
+order: 900
+tags:
+  - 入出力・文字列
+---
+
+# std::sscanf
+
+<div class="page-badges" markdown>
+<span class="rank rank-rare">知ってるだけ</span>
+`#include <cstdio>`
+</div>
+
+文字列を解析して、数値などを取り出したいとき、`sscanf` が使えます。1 行を `fgets` で読んでから、`sscanf` で分解する、という使い方が定番です。
+
+!!! tip "ポイント"
+    - C 由来の入出力関数。
+    - 戻り値で失敗を調べる。
+    - 新しいコードでは `std::print` や `std::ifstream` / `std::ofstream` が安全。
+
+!!! info "このページを読む前に"
+    [`std::printf`](printf.md) と [`std::fopen`](fopen.md) を先に読んでください。
+
+## 関数の詳しい説明
+
+### std::sscanf {#sscanf}
+
+```cpp
+int sscanf(const char* buffer, const char* format, ...);
+```
+
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `buffer` | const char* | 読み込み元の文字列 |
+| `format` | const char* | 書式文字列 |
+| `...` | ポインタ | 読み込んだ値を入れる場所 |
+
+- 戻り値: 読み込めた個数。入力が終わったら `EOF`
+- 計算量: 入出力の量に比例
+
+
+## 実際に動かしてみる
+
+```cpp
+#include <cstdio>
+#include <print>
+
+int main() {
+  int a = 0;
+  int b = 0;
+  std::sscanf("42 7", "%d %d", &a, &b);
+  std::println("{} {}", a, b);
+}
+```
+
+```text title="実行結果"
+42 7
+```
+
+## ゲームでの使いどころ
+
+| 場面 | 書き方 |
+| --- | --- |
+| 使いどころ | コマンド文字列の解析 |
+
+## よくあるミス
+
+??? failure "戻り値を確かめない"
+    戻り値が期待した個数でなければ、解析に失敗しています。新しいコードでは `std::from_chars` が安全です。
+
+## 類似
+
+| 名前 | 違い |
+| --- | --- |
+| [`from_chars`](../from_chars.md) | 新しい書き方 |
+| [`fgets`](fgets.md) | 1 行を読む |
+
+## コンパイラ対応
+
+C++11 以前から使えます。
+
+## これだけ覚える
+
+!!! abstract "まとめ"
+    - [x] 文字列から、書式を指定して読み込む
+    - [x] C 由来の入出力関数
+    - [x] 戻り値と失敗時の動きを確かめて使う
+
+## 関連ページ
+
+- [cpprefjp: std::sscanf](https://cpprefjp.github.io/reference/cstdio/sscanf.html)
+- [cppreference: std::sscanf](https://en.cppreference.com/w/cpp/io/c/sscanf)

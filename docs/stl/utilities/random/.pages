@@ -28,4 +28,14 @@ nav:
   - piecewise_constant_distribution.md
   - piecewise_linear_distribution.md
   - generate_canonical.md
+  - discard_block_engine.md
+  - independent_bits_engine.md
+  - linear_congruential_engine.md
+  - mersenne_twister_engine.md
+  - minstd_rand0.md
+  - mt19937_64.md
+  - ranlux24_base.md
+  - ranlux48_base.md
+  - shuffle_order_engine.md
+  - subtract_with_carry_engine.md
   - ...

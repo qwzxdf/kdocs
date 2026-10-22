@@ -16,4 +16,19 @@ nav:
   - bad_cast.md
   - format_error.md
   - terminate.md
+  - bad_exception.md
+  - bad_typeid.md
+  - bad_weak_ptr.md
+  - current_exception.md
+  - domain_error.md
+  - get_terminate.md
+  - make_exception_ptr.md
+  - nested_exception.md
+  - range_error.md
+  - rethrow_exception.md
+  - rethrow_if_nested.md
+  - set_terminate.md
+  - throw_with_nested.md
+  - uncaught_exceptions.md
+  - underflow_error.md
   - ...
