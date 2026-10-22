@@ -2,6 +2,7 @@ nav:
   - ホーム: index.md
   - このサイトの読み方: how-to-read.md
   - Visual Studio: vs
+  - K-HLSL: khlsl
   - STL: stl
   - 基礎: basics
   - ゲーム数学: gamemath
