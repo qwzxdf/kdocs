@@ -2,7 +2,6 @@ nav:
   - ホーム: index.md
   - このサイトの読み方: how-to-read.md
   - Visual Studio: vs
-  - K-HLSL: khlsl
   - STL: stl
   - 基礎: basics
   - ゲーム数学: gamemath
@@ -16,5 +15,6 @@ nav:
   - 描画最適化: rendering
   - 文字コード: encoding
   - 外部ライブラリ: libs
+  - K-HLSL: khlsl
   - 用語集: glossary.md
   - ...

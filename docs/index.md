@@ -17,7 +17,6 @@ C++ の入門書や、cppreference のようなリファレンスは、「何が
 
 - [このサイトの読み方](how-to-read.md)
 - [Visual Studio](vs/index.md)
-- [K-HLSL](khlsl/index.md)（HLSL の新しい構文に対応した、Visual Studio 用の拡張。ダウンロードもここ）
 - [STL](stl/index.md)
 - [基礎](basics/index.md)
 - [ゲーム数学](gamemath/index.md)
@@ -31,3 +30,4 @@ C++ の入門書や、cppreference のようなリファレンスは、「何が
 - [描画最適化](rendering/index.md)
 - [文字コード](encoding/index.md)
 - [外部ライブラリ](libs/index.md)
+- [K-HLSL](khlsl/index.md)（HLSL の新しい構文に対応した、Visual Studio 用の拡張。ダウンロードもここ）
