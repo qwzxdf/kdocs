@@ -39,6 +39,7 @@ namespace KHlsl.Server
             _in = input;
             _out = output;
             _db = Db.Load();
+            FileLog("server started pid=" + System.Diagnostics.Process.GetCurrentProcess().Id);
         }
 
         public int Run()
@@ -49,7 +50,8 @@ namespace KHlsl.Server
                 try { msg = Read(); }
                 catch (Exception) { return 1; }
                 if (msg == null) return _shutdown ? 0 : 1;
-                try { Dispatch(msg); }
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                try { Dispatch(msg); FileLog("   done " + (string)msg["method"] + " " + sw.ElapsedMilliseconds + "ms"); }
                 catch (Exception ex)
                 {
                     var id = msg["id"];
@@ -118,8 +120,23 @@ namespace KHlsl.Server
             Send(new JObject { ["jsonrpc"] = "2.0", ["method"] = method, ["params"] = p });
         }
 
+        private static readonly string LogPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "K-HLSL", "server.log");
+
+        private static void FileLog(string text)
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(LogPath));
+                if (File.Exists(LogPath) && new FileInfo(LogPath).Length > 512 * 1024) File.Delete(LogPath);
+                File.AppendAllText(LogPath, DateTime.Now.ToString("HH:mm:ss.fff") + " " + text + Environment.NewLine, Encoding.UTF8);
+            }
+            catch (Exception) { }
+        }
+
         private void Log(string text)
         {
+            FileLog(text);
             try { Notify("window/logMessage", new JObject { ["type"] = 4, ["message"] = "[K-HLSL] " + text }); }
             catch (Exception) { }
         }
@@ -130,10 +147,11 @@ namespace KHlsl.Server
             string method = (string)msg["method"];
             JToken id = msg["id"];
             JToken p = msg["params"];
+            FileLog("<- " + method + (id != null ? " #" + id : "") + (p is JArray ? " [array params]" : "") + (p is JObject && p["position"] != null ? " @" + p["position"]["line"] + ":" + p["position"]["character"] : ""));
             switch (method)
             {
                 case "initialize": Respond(id, Initialize()); break;
-                case "initialized": break;
+                case "initialized": System.Threading.Tasks.Task.Run(() => Warmup()); break;
                 case "shutdown": _shutdown = true; Respond(id, null); break;
                 case "exit": break;
                 case "textDocument/didOpen":
@@ -177,6 +195,34 @@ namespace KHlsl.Server
             }
         }
 
+        /// <summary>初回のリクエストが JIT で遅くならないよう、起動直後に一通り呼んでおく。</summary>
+        private void Warmup()
+        {
+            try
+            {
+                string uri = "file:///khlsl-warmup/warmup.hlsl";
+                string text = string.Join(Environment.NewLine, new[]
+                {
+                    "struct S { float3 p; };",
+                    "Texture2D<float4> t : register(t0);",
+                    "float4 f(float3 a) { return lerp(a.x, 1, 0.5); }",
+                    "void main() { float4 c = t.Sample(s, 0); c.xyz; }",
+                    ""
+                });
+                var td = new JObject { ["uri"] = uri };
+                lock (_docs) _docs[uri] = text;
+                Completion(new JObject { ["textDocument"] = td, ["position"] = new JObject { ["line"] = 3, ["character"] = 20 } });
+                Completion(new JObject { ["textDocument"] = td, ["position"] = new JObject { ["line"] = 3, ["character"] = 30 } });
+                Hover(new JObject { ["textDocument"] = td, ["position"] = new JObject { ["line"] = 2, ["character"] = 30 } });
+                SignatureHelp(new JObject { ["textDocument"] = td, ["position"] = new JObject { ["line"] = 2, ["character"] = 38 } });
+                DocumentSymbols(new JObject { ["textDocument"] = td });
+                Definition(new JObject { ["textDocument"] = td, ["position"] = new JObject { ["line"] = 2, ["character"] = 7 } });
+                lock (_docs) _docs.Remove(uri);
+                FileLog("warmup done");
+            }
+            catch (Exception ex) { FileLog("warmup failed: " + ex.Message); }
+        }
+
         private JToken Initialize()
         {
             return new JObject
@@ -190,7 +236,7 @@ namespace KHlsl.Server
                     ["documentSymbolProvider"] = true,
                     ["definitionProvider"] = true
                 },
-                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.0.1" }
+                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.0.2" }
             };
         }
 

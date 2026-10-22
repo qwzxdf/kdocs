@@ -6,7 +6,7 @@ Visual Studio 2022 / 2026 用の HLSL 拡張です。Shader Model 6.9 までの�
 
 ## 機能
 
-- 構文の色付け（TextMate 文法）。SM 6.9 までのキーワード、型、組み込み関数、セマンティクス、属性
+- 構文の色付け。関数・数値・セマンティクス・属性・定数・マクロは K-HLSL の色、キーワードと型はテーマの色
 - 補完。組み込み関数、リソースのメソッド（`tex.Sample` など）、構造体のメンバー、スウィズル、セマンティクス（`:` の後）、属性（`[` の後）、`#` ディレクティブ、`#include` のファイル名、`dx::`
 - ホバー（日本語の説明、シグネチャ、必要な Shader Model）
 - シグネチャ ヘルプ（組み込み関数、メソッド、自分で書いた関数）
@@ -17,7 +17,9 @@ Visual Studio 2022 / 2026 用の HLSL 拡張です。Shader Model 6.9 までの�
 
 ## インストール
 
-`bin\K-HLSL.vsix` をダブルクリックします。インストールのあと、古い HLSL 拡張（HLSL Tools for Visual Studio など）は無効にしてください。同じファイルに 2 つの拡張が診断を出すと、古いほうの誤検出が残ります。
+`bin\K-HLSL.vsix` をダブルクリックして、Visual Studio を再起動します。
+
+HLSL のファイル（`.hlsl` `.hlsli` `.fx` `.fxh` `.vsh` `.psh` `.gsh` `.hsh` `.dsh` `.csh` `.msh` `.ash` `.usf` `.ush` `.compute`）を開くと、K-HLSL は、そのバッファのコンテンツ タイプを `khlsl` に切り替えます。古い HLSL 拡張（HLSL Tools for Visual Studio など）は `hlsl` コンテンツ タイプに従来型の補完を登録していて、同じバッファでは LSP の補完が使えないからです。切り替えたファイルでは、古い拡張の補完・エラー表示・色付けは働かないので、同時に入れていても、古い拡張の誤検出は出ません。
 
 ## DXC
 
@@ -56,6 +58,19 @@ SM 6.9 を使うには、DXC 1.9 以降が必要です。見つかった DXC が
 // khlsl: -T ps_6_6 -E PSMain -D USE_FOG=1
 ```
 
+## 色を変える
+
+ツール → オプション → 環境 → フォントおよび色 の「表示項目」に、`K-HLSL 関数` `K-HLSL 数値` `K-HLSL セマンティクス` `K-HLSL 属性` `K-HLSL 定数・列挙値` `K-HLSL マクロ` があります。キーワード・型・コメント・文字列は、テーマの色（`キーワード` `クラス名` など）に従います。
+
+## うまく動かないとき
+
+ログは `%LOCALAPPDATA%\K-HLSL\` に出ます。
+
+- `server.log`: 言語サーバーが VS から受け取った要求（`initialize`、`didOpen`、`hover`、`completion`）と、かかった時間。ファイルを開いても `didOpen` が出なければ、言語クライアントが起動していません。
+- `vsix.log`: コンテンツ タイプの切り替え（`switched to khlsl`）。
+
+補完が出ないときは、ツール → オプション → テキスト エディター → すべての言語 → 全般 の「自動メンバー一覧」がオンか確認してください。Ctrl+J（編集 → IntelliSense → メンバーの一覧）でも出せます。
+
 ## ビルド
 
 Visual Studio の「Visual Studio extension development」ワークロードと Python が必要です。
@@ -64,9 +79,16 @@ Visual Studio の「Visual Studio extension development」ワークロードと 
 ./build.ps1
 ```
 
-`data/` の表（`d_intrinsics.py`、`d_lang.py`）から、言語サーバーのデータ（`hlsl.json`）と文法（`KHlsl.json`）を作ります。関数やセマンティクスを足すときは、この表を直して `build.ps1` を実行します。
+`data/` の表（`d_intrinsics.py`、`d_lang.py`）から、言語サーバーのデータ（`hlsl.json`）を作ります。関数やセマンティクスを足すときは、この表を直して `build.ps1` を実行します。
 
 `tests/lsp_smoke.py` は、ビルドした言語サーバーを起動して、ホバー・補完・シグネチャ ヘルプ・アウトライン・診断を一通り呼びます（先に `build.ps1` を実行してください）。
+
+実験用インスタンスで試すには、次のとおり展開します。
+
+```powershell
+& "$env:ProgramFiles\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\MSBuild.exe" src\KHlsl.Vsix\KHlsl.Vsix.csproj /p:Configuration=Release /p:DeployExtension=true
+devenv /rootSuffix Exp tests\sample.hlsl
+```
 
 ## 構成
 
@@ -74,5 +96,5 @@ Visual Studio の「Visual Studio extension development」ワークロードと 
 | --- | --- |
 | `data/` | 組み込み関数・型・セマンティクスなどの表と、生成スクリプト |
 | `src/KHlsl.Server/` | 言語サーバー（C#、.NET Framework 4.7.2、stdio の LSP） |
-| `src/KHlsl.Vsix/` | VSIX。コンテンツ タイプ、言語クライアント、TextMate 文法の登録 |
+| `src/KHlsl.Vsix/` | VSIX。コンテンツ タイプ、言語クライアント、色付け（classifier）、切り替えを行うパッケージ |
 | `tests/` | スモーク テスト |

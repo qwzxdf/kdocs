@@ -7,7 +7,8 @@
     <LangVersion>latest</LangVersion>
     <AssemblyName>KHlsl.Vsix</AssemblyName>
     <RootNamespace>KHlsl.Vsix</RootNamespace>
-    <GeneratePkgDefFile>false</GeneratePkgDefFile>
+    <GeneratePkgDefFile>true</GeneratePkgDefFile>
+    <UseCodebase>true</UseCodebase>
     <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
     <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
     <IncludeDebugSymbolsInLocalVSIXDeployment>false</IncludeDebugSymbolsInLocalVSIXDeployment>
@@ -22,17 +23,21 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.9.37000" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client" Version="17.9.46" ExcludeAssets="runtime" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.9.3171" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="WindowsBase" />
+    <EmbeddedResource Include="..\KHlsl.Server\hlsl.json" LogicalName="hlsl.json" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="source.extension.vsixmanifest" SubType="Designer" />
     <Content Include="KHlsl.pkgdef" IncludeInVSIX="true" />
-    <Content Include="Grammars\KHlsl.json" IncludeInVSIX="true" />
     <Content Include="Grammars\KHlsl.language-configuration.json" IncludeInVSIX="true" />
     <Content Include="..\..\LICENSE.txt" Link="LICENSE.txt" IncludeInVSIX="true" />
     <Content Include="..\..\media\icon.png" Link="Resources\icon.png" IncludeInVSIX="true" />

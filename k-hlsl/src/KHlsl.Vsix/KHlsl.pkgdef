@@ -1,8 +1,2 @@
-[$RootKey$\TextMate\Repositories]
-"KHlsl"="$PackageFolder$\Grammars"
-
-[$RootKey$\TextMate\LanguageConfiguration\GrammarMapping]
-"source.khlsl"="$PackageFolder$\Grammars\KHlsl.language-configuration.json"
-
 [$RootKey$\TextMate\LanguageConfiguration\ContentTypeMapping]
-"hlsl"="$PackageFolder$\Grammars\KHlsl.language-configuration.json"
+"khlsl"="$PackageFolder$\Grammars\KHlsl.language-configuration.json"
