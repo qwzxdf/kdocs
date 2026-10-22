@@ -118,6 +118,19 @@ InterlockedMax | void InterlockedMax(R dest, T value);;void InterlockedMax(R des
 InterlockedMin | void InterlockedMin(R dest, T value);;void InterlockedMin(R dest, T value, out T original_value) | dest と value の小さいほうを書く。64 ビットは SM 6.6。 | 5.0
 InterlockedOr | void InterlockedOr(R dest, T value);;void InterlockedOr(R dest, T value, out T original_value) | dest と value の論理和を取る。 | 5.0
 InterlockedXor | void InterlockedXor(R dest, T value);;void InterlockedXor(R dest, T value, out T original_value) | dest と value の排他的論理和を取る。 | 5.0
+# ---- DXC の定義表(gen_intrin_main.txt)との突き合わせで、足した物 ----
+NonUniformResourceIndex | uint NonUniformResourceIndex(uint index) | ウェーブ内のレーンごとに値が違うインデックスで、リソースを引くことを、コンパイラーに伝える(バインドレスで必須)。 | 5.1
+CheckAccessFullyMapped | bool CheckAccessFullyMapped(uint status) | タイルド リソースの読み取りの status を見て、すべてがマップ済みのメモリに当たったなら true。 | 5.0
+and | T and(T x, T y) | 成分ごとの論理積(HLSL 2021 の関数形)。 | 6.0
+or | T or(T x, T y) | 成分ごとの論理和(HLSL 2021 の関数形)。 | 6.0
+InterlockedCompareStoreFloatBitwise | void InterlockedCompareStoreFloatBitwise(R dest, float compare_value, float value) | float をビットで比較して、等しければ value を書く(原子的)。 | 6.6
+InterlockedCompareExchangeFloatBitwise | void InterlockedCompareExchangeFloatBitwise(R dest, float compare_value, float value, out float original_value) | float をビットで比較して、等しければ value を書き、元の値を返す(原子的)。 | 6.6
+GetGroupWaveIndex | uint GetGroupWaveIndex() | スレッド グループの中での、このウェーブの番号。 | 6.10
+GetGroupWaveCount | uint GetGroupWaveCount() | スレッド グループの中の、ウェーブの数。 | 6.10
+DebugBreak | void DebugBreak() | デバッガーで、ここで止める。 | 6.10
+ClusterID | uint ClusterID() | ヒットしたクラスターの ID(クラスター ジオメトリ)。 | 6.10
+TriangleObjectPositions | float3x3 TriangleObjectPositions() | ヒットした三角形の 3 頂点の、オブジェクト空間での位置(行ごとに 1 頂点)。 | 6.10
+
 # ---- バリア ----
 AllMemoryBarrier | void AllMemoryBarrier() | すべてのメモリ アクセスが完了するまで待つ。 | 5.0
 AllMemoryBarrierWithGroupSync | void AllMemoryBarrierWithGroupSync() | AllMemoryBarrier に加えて、スレッド グループ内の全スレッドの到達も待つ。 | 5.0
@@ -127,7 +140,7 @@ GroupMemoryBarrier | void GroupMemoryBarrier() | groupshared のアクセスが�
 GroupMemoryBarrierWithGroupSync | void GroupMemoryBarrierWithGroupSync() | GroupMemoryBarrier に加えて、グループ全体の同期も取る。 | 5.0
 Barrier | void Barrier(uint MemoryTypeFlags, uint SemanticFlags);;void Barrier(object target, uint SemanticFlags) | SM 6.8 の汎用バリア。メモリの種類と、スコープ・同期の指定を組み合わせる。 | 6.8
 # ---- ピクセル シェーダー ----
-EvaluateAttributeAtCentroid | T EvaluateAttributeAtCentroid(T attrib) | 補間された属性を、ピクセルの重心で評価し直す。 | 5.0
+EvaluateAttributeCentroid | T EvaluateAttributeCentroid(T attrib) | 補間された属性を、ピクセルの重心で評価し直す。 | 5.0
 EvaluateAttributeAtSample | T EvaluateAttributeAtSample(T attrib, uint sampleIndex) | 補間された属性を、指定サンプルの位置で評価し直す。 | 5.0
 EvaluateAttributeSnapped | T EvaluateAttributeSnapped(T attrib, int2 offset) | 補間された属性を、ピクセル中心から 1/16 ピクセル単位のオフセットで評価し直す。 | 5.0
 GetAttributeAtVertex | T GetAttributeAtVertex(nointerpolation T attrib, uint vertexID) | 補間前の頂点属性を直接取り出す(0, 1, 2)。SV_Barycentrics と組み合わせる。 | 6.1
@@ -236,5 +249,6 @@ GetRemainingRecursionLevels | uint GetRemainingRecursionLevels() | 残りの再�
 # 特殊な名前空間つき(dx::)。名前は "dx::XXX" で持つ
 RAW_DX = r"""
 dx::MaybeReorderThread | void MaybeReorderThread(dx::HitObject hit);;void MaybeReorderThread(uint CoherenceHint, uint NumCoherenceHintBitsFromLSB);;void MaybeReorderThread(dx::HitObject hit, uint CoherenceHint, uint NumCoherenceHintBitsFromLSB) | Shader Execution Reordering。レイの結果が似たスレッドを、近くのウェーブに寄せ集める。 | 6.9
+dx::IsDebuggingEnabled | bool IsDebuggingEnabled() | デバッグが有効なら true。 | 6.10
 dx::HitObject | dx::HitObject | レイの探索結果(ヒット / ミス / NOP)を持つ型。TraceRay と Invoke を分けて呼ぶために使う。 | 6.9
 """

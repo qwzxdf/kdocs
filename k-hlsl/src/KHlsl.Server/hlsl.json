@@ -886,6 +886,94 @@
    "m": "5.0"
   },
   {
+   "n": "NonUniformResourceIndex",
+   "s": [
+    "uint NonUniformResourceIndex(uint index)"
+   ],
+   "d": "ウェーブ内のレーンごとに値が違うインデックスで、リソースを引くことを、コンパイラーに伝える(バインドレスで必須)。",
+   "m": "5.1"
+  },
+  {
+   "n": "CheckAccessFullyMapped",
+   "s": [
+    "bool CheckAccessFullyMapped(uint status)"
+   ],
+   "d": "タイルド リソースの読み取りの status を見て、すべてがマップ済みのメモリに当たったなら true。",
+   "m": "5.0"
+  },
+  {
+   "n": "and",
+   "s": [
+    "T and(T x, T y)"
+   ],
+   "d": "成分ごとの論理積(HLSL 2021 の関数形)。",
+   "m": "6.0"
+  },
+  {
+   "n": "or",
+   "s": [
+    "T or(T x, T y)"
+   ],
+   "d": "成分ごとの論理和(HLSL 2021 の関数形)。",
+   "m": "6.0"
+  },
+  {
+   "n": "InterlockedCompareStoreFloatBitwise",
+   "s": [
+    "void InterlockedCompareStoreFloatBitwise(R dest, float compare_value, float value)"
+   ],
+   "d": "float をビットで比較して、等しければ value を書く(原子的)。",
+   "m": "6.6"
+  },
+  {
+   "n": "InterlockedCompareExchangeFloatBitwise",
+   "s": [
+    "void InterlockedCompareExchangeFloatBitwise(R dest, float compare_value, float value, out float original_value)"
+   ],
+   "d": "float をビットで比較して、等しければ value を書き、元の値を返す(原子的)。",
+   "m": "6.6"
+  },
+  {
+   "n": "GetGroupWaveIndex",
+   "s": [
+    "uint GetGroupWaveIndex()"
+   ],
+   "d": "スレッド グループの中での、このウェーブの番号。",
+   "m": "6.10"
+  },
+  {
+   "n": "GetGroupWaveCount",
+   "s": [
+    "uint GetGroupWaveCount()"
+   ],
+   "d": "スレッド グループの中の、ウェーブの数。",
+   "m": "6.10"
+  },
+  {
+   "n": "DebugBreak",
+   "s": [
+    "void DebugBreak()"
+   ],
+   "d": "デバッガーで、ここで止める。",
+   "m": "6.10"
+  },
+  {
+   "n": "ClusterID",
+   "s": [
+    "uint ClusterID()"
+   ],
+   "d": "ヒットしたクラスターの ID(クラスター ジオメトリ)。",
+   "m": "6.10"
+  },
+  {
+   "n": "TriangleObjectPositions",
+   "s": [
+    "float3x3 TriangleObjectPositions()"
+   ],
+   "d": "ヒットした三角形の 3 頂点の、オブジェクト空間での位置(行ごとに 1 頂点)。",
+   "m": "6.10"
+  },
+  {
    "n": "AllMemoryBarrier",
    "s": [
     "void AllMemoryBarrier()"
@@ -943,9 +1031,9 @@
    "m": "6.8"
   },
   {
-   "n": "EvaluateAttributeAtCentroid",
+   "n": "EvaluateAttributeCentroid",
    "s": [
-    "T EvaluateAttributeAtCentroid(T attrib)"
+    "T EvaluateAttributeCentroid(T attrib)"
    ],
    "d": "補間された属性を、ピクセルの重心で評価し直す。",
    "m": "5.0"
@@ -1735,6 +1823,14 @@
    ],
    "d": "Shader Execution Reordering。レイの結果が似たスレッドを、近くのウェーブに寄せ集める。",
    "m": "6.9"
+  },
+  {
+   "n": "dx::IsDebuggingEnabled",
+   "s": [
+    "bool IsDebuggingEnabled()"
+   ],
+   "d": "デバッグが有効なら true。",
+   "m": "6.10"
   }
  ],
  "methods": {
@@ -2308,6 +2404,14 @@
     "m": "6.6"
    },
    {
+    "n": "InterlockedExchangeFloat",
+    "s": [
+     "void InterlockedExchangeFloat(uint byteOffset, float value, out float original)"
+    ],
+    "d": "float を、原子的に入れ替える。",
+    "m": "6.6"
+   },
+   {
     "n": "InterlockedCompareExchangeFloatBitwise",
     "s": [
      "void InterlockedCompareExchangeFloatBitwise(uint byteOffset, float compare, float value, out float original)"
@@ -2676,6 +2780,38 @@
     "m": "6.5"
    },
    {
+    "n": "CandidateClusterID",
+    "s": [
+     "uint CandidateClusterID()"
+    ],
+    "d": "候補のクラスター ID。",
+    "m": "6.10"
+   },
+   {
+    "n": "CommittedClusterID",
+    "s": [
+     "uint CommittedClusterID()"
+    ],
+    "d": "確定したクラスター ID。",
+    "m": "6.10"
+   },
+   {
+    "n": "CandidateTriangleObjectPositions",
+    "s": [
+     "float3x3 CandidateTriangleObjectPositions()"
+    ],
+    "d": "候補の三角形の、オブジェクト空間での 3 頂点の位置。",
+    "m": "6.10"
+   },
+   {
+    "n": "CommittedTriangleObjectPositions",
+    "s": [
+     "float3x3 CommittedTriangleObjectPositions()"
+    ],
+    "d": "確定した三角形の、オブジェクト空間での 3 頂点の位置。",
+    "m": "6.10"
+   },
+   {
     "n": "RayFlags",
     "s": [
      "uint RayFlags()"
@@ -2990,6 +3126,38 @@
     ],
     "d": "ワールド → オブジェクト行列。",
     "m": "6.9"
+   },
+   {
+    "n": "GetObjectToWorld4x3",
+    "s": [
+     "float4x3 GetObjectToWorld4x3()"
+    ],
+    "d": "オブジェクト → ワールド行列(4x3)。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetWorldToObject4x3",
+    "s": [
+     "float4x3 GetWorldToObject4x3()"
+    ],
+    "d": "ワールド → オブジェクト行列(4x3)。",
+    "m": "6.9"
+   },
+   {
+    "n": "GetClusterID",
+    "s": [
+     "uint GetClusterID()"
+    ],
+    "d": "クラスター ID。",
+    "m": "6.10"
+   },
+   {
+    "n": "TriangleObjectPositions",
+    "s": [
+     "float3x3 TriangleObjectPositions()"
+    ],
+    "d": "三角形の、オブジェクト空間での 3 頂点の位置。",
+    "m": "6.10"
    },
    {
     "n": "GetInstanceIndex",
@@ -3476,14 +3644,6 @@
    "m": "6.8",
    "g": [
     "emptynodein"
-   ]
-  },
-  {
-   "n": "NodeOutputRecord",
-   "d": "ノードの出力レコード(GetThreadNodeOutputRecords など)。",
-   "m": "6.8",
-   "g": [
-    "noderecs"
    ]
   },
   {

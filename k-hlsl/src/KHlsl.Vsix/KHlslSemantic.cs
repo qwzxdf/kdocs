@@ -19,21 +19,26 @@ namespace KHlsl.Vsix
             public char Kind;           // N 名前空間 / S 構造体・クラス / E 列挙型 / B cbuffer / F 関数 / P その他
             public string Name;
             public int ParenOpen = -1, ParenClose = -1;   // 関数のヘッダーの引数リスト
+            public int Index;
+            public Block Parent;
         }
 
         private static readonly Regex RxNamespace = new Regex(@"\bnamespace\s+([A-Za-z_]\w*)");
-        private static readonly Regex RxStruct = new Regex(@"\b(struct|class|interface)\s+([A-Za-z_]\w*)");
-        private static readonly Regex RxEnum = new Regex(@"\benum\b(?:\s+class)?\s*([A-Za-z_]\w*)?");
+        private static readonly Regex RxStruct = new Regex(@"\b(struct|class|interface)\s+(?:\[[^\]]*\]\s*)*([A-Za-z_]\w*)");
+        private static readonly Regex RxEnum = new Regex(@"\benum\b(?:\s+class)?\s*(?:\[[^\]]*\]\s*)*([A-Za-z_]\w*)?");
         private static readonly Regex RxCbuffer = new Regex(@"\b(cbuffer|tbuffer)\s+([A-Za-z_]\w*)");
         private static readonly Regex RxFuncTail = new Regex(@"\)\s*(?:const\s*)?(?::\s*\w+\s*)?$");
         private static readonly Regex RxFirstWord = new Regex(@"^\s*(?:\[[^\]]*\]\s*)*([A-Za-z_]\w*)");
         private static readonly Regex RxDecl = new Regex(
-            @"(?<![\w.>])(?<t>(?:[A-Za-z_]\w*::)*[A-Za-z_]\w*)(?<g>\s*<[^;(){}]*>)?(?:\s*[&*])?\s+(?<n>[A-Za-z_]\w*)\s*(?=[=;,)\[:])");
+            @"(?<![\w.>])(?<t>(?:[A-Za-z_]\w*::)*[A-Za-z_]\w*)(?<g>\s*<[^;(){}]*>)?(?:\s*[&*])?\s+(?<n>[A-Za-z_]\w*)\s*(?=[=;,)\[:])", RegexOptions.Compiled);
         private static readonly Regex RxMemberFunc = new Regex(
-            @"(?<![\w.>])(?<t>(?:[A-Za-z_]\w*::)*[A-Za-z_]\w*)(?<g>\s*<[^;(){}]*>)?(?:\s*[&*])?\s+(?<n>[A-Za-z_]\w*)\s*\(");
-        private static readonly Regex RxMoreNames = new Regex(@"\G\s*,\s*(?<n>[A-Za-z_]\w*)\s*(?:\[[^\]]*\]\s*)*(?:=[^,;()]*)?");
+            @"(?<![\w.>])(?<t>(?:[A-Za-z_]\w*::)*[A-Za-z_]\w*)(?<g>\s*<[^;(){}]*>)?(?:\s*[&*])?\s+(?<n>[A-Za-z_]\w*)\s*\(", RegexOptions.Compiled);
+        private static readonly Regex RxMoreNames = new Regex(@"\G\s*,\s*(?<n>[A-Za-z_]\w*)\s*(?:\[[^\]]*\]\s*)*(?:=[^,;()]*)?", RegexOptions.Compiled);
         private static readonly Regex RxIdent = new Regex(@"[A-Za-z_]\w*");
-        private static readonly Regex RxLabel = new Regex(@"(?:^|[;{}])[ \t\r\n]*(?<l>[A-Za-z_]\w*)[ \t]*:(?!:)", RegexOptions.Multiline);
+        private static readonly Regex RxLabel = new Regex(@"(?:^|[;{}])[ \t\r\n]*(?<l>[A-Za-z_]\w*)[ \t]*:(?!:)", RegexOptions.Multiline | RegexOptions.Compiled);
+
+        // 組み込みの構造体のフィールド(RayDesc、BuiltInTriangleIntersectionAttributes)
+        private static readonly HashSet<string> BuiltinMembers = new HashSet<string> { "Origin", "Direction", "TMin", "TMax", "barycentrics" };
 
         private static readonly HashSet<string> NotNames = new HashSet<string>
         {
@@ -50,10 +55,14 @@ namespace KHlsl.Vsix
             var blocks = new List<Block>();
             var stack = new Stack<Block>();
             var parenAt = new int[n + 1];
+            var ctxAt = new int[n + 1];        // その位置を含む、いちばん内側のブロックの番号(なければ -1)
+            var parenOwner = new int[n + 1];   // その位置が、どの関数の引数リストの中か(なければ -1)
+            for (int k = 0; k <= n; k++) parenOwner[k] = -1;
             int paren = 0, stmtStart = 0;
             for (int i = 0; i < n; i++)
             {
                 parenAt[i] = paren;
+                ctxAt[i] = stack.Count > 0 ? stack.Peek().Index : -1;
                 char c = m[i];
                 if (c == '(') paren++;
                 else if (c == ')') { if (paren > 0) paren--; }
@@ -65,6 +74,10 @@ namespace KHlsl.Vsix
                         var b = Header(m, stmtStart, i);
                         b.Open = i;
                         b.Close = n;
+                        b.Index = blocks.Count;
+                        b.Parent = stack.Count > 0 ? stack.Peek() : null;
+                        if (b.Kind == 'F' && b.ParenOpen >= 0)
+                            for (int k = b.ParenOpen + 1; k < b.ParenClose && k <= n; k++) parenOwner[k] = b.Index;
                         stack.Push(b);
                         blocks.Add(b);
                         stmtStart = i + 1;
@@ -77,27 +90,16 @@ namespace KHlsl.Vsix
                 }
             }
             parenAt[n] = paren;
+            ctxAt[n] = -1;
 
-            Func<int, Block> innermost = p =>
-            {
-                Block best = null;
-                foreach (var b in blocks)
-                    if (b.Open < p && p < b.Close && (best == null || b.Open > best.Open)) best = b;
-                return best;
-            };
+            Func<int, Block> innermost = p => p >= 0 && p <= n && ctxAt[p] >= 0 ? blocks[ctxAt[p]] : null;
             Func<int, char, Block> enclosing = (p, kind) =>
             {
-                Block best = null;
-                foreach (var b in blocks)
-                    if (b.Kind == kind && b.Open < p && p < b.Close && (best == null || b.Open > best.Open)) best = b;
-                return best;
+                var b = innermost(p);
+                while (b != null && b.Kind != kind) b = b.Parent;
+                return b;
             };
-            Func<int, Block> paramsOf = p =>
-            {
-                foreach (var b in blocks)
-                    if (b.Kind == 'F' && b.ParenOpen >= 0 && b.ParenOpen < p && p < b.ParenClose) return b;
-                return null;
-            };
+            Func<int, Block> paramsOf = p => p >= 0 && p <= n && parenOwner[p] >= 0 ? blocks[parenOwner[p]] : null;
 
             Func<string, bool> isTypeWord = t =>
             {
@@ -218,9 +220,6 @@ namespace KHlsl.Vsix
 
             // ---- 3. 識別子を分類する ----
             // 字句の段階で分類できなかった識別子(Identifier)だけを、付け替える対象にする
-            var tokenStarts = new HashSet<int>(toks.Where(t => t.Kind != Tk.Identifier).Select(t => t.Start));
-            var identIndex = new Dictionary<int, int>();
-            for (int i = 0; i < toks.Count; i++) if (toks[i].Kind == Tk.Identifier) identIndex[toks[i].Start] = i;
             var added = new List<Tok>();
             Func<int, char> prevChar = p =>
             {
@@ -235,12 +234,12 @@ namespace KHlsl.Vsix
                 return k < n ? m[k] : '\0';
             };
 
-            foreach (Match id in RxIdent.Matches(m))
+            for (int ti = 0; ti < toks.Count; ti++)
             {
-                int p = id.Index;
-                if (p > 0 && (char.IsLetterOrDigit(m[p - 1]) || m[p - 1] == '_')) continue;
-                if (tokenStarts.Contains(p)) continue;
-                string w = id.Value;
+                if (toks[ti].Kind != Tk.Identifier) continue;
+                int p = toks[ti].Start;
+                if (m[p] == ' ') continue;     // ディレクティブの行の中は、対象にしない
+                string w = text.Substring(p, toks[ti].Length);
                 char prev = prevChar(p);
                 Tk? kind = null;
 
@@ -248,7 +247,7 @@ namespace KHlsl.Vsix
                 if (declOnlyParams.Contains(p)) kind = Tk.Param;
                 else if (prev == '.' || arrow)
                 {
-                    if (allMembers.Contains(w)) kind = Tk.Member;
+                    if (allMembers.Contains(w) || BuiltinMembers.Contains(w)) kind = Tk.Member;
                 }
                 else
                 {
@@ -272,9 +271,9 @@ namespace KHlsl.Vsix
                     }
                 }
                 if (!kind.HasValue) continue;
-                int idx;
-                if (identIndex.TryGetValue(p, out idx)) { var t = toks[idx]; t.Kind = kind.Value; toks[idx] = t; }
-                else added.Add(new Tok { Start = p, Length = w.Length, Kind = kind.Value });
+                var tk = toks[ti];
+                tk.Kind = kind.Value;
+                toks[ti] = tk;
             }
 
             // 字句の段階で関数にした物のうち、メンバー関数(定義・呼び出し)を付け替える

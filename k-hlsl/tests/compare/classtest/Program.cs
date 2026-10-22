@@ -29,7 +29,26 @@ internal static class Program
     private static int Main(string[] args)
     {
         string text = File.ReadAllText(args[0], Encoding.UTF8);
+        if (args.Length == 1)
+        {
+            // 時間だけを測る: classtest.exe <ソース>
+            KHlslLexer.Lex(text, Lexicon.Instance);
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            for (int k = 0; k < 20; k++) KHlslLexer.Lex(text, Lexicon.Instance);
+            Console.WriteLine("{0} 行、{1} 文字: 1 回あたり {2:F1} ミリ秒", text.Split('\n').Length, text.Length, sw.Elapsed.TotalMilliseconds / 20);
+            return 0;
+        }
         var toks = KHlslLexer.Lex(text, Lexicon.Instance);
+        if (args[1] == "--idents")
+        {
+            // 分類されずに残った識別子(Identifier)を、種類ごとに数える。API の名前が残っていれば、データの不足
+            var rest = toks.Where(t => t.Kind == Tk.Identifier).Select(t => text.Substring(t.Start, t.Length))
+                .GroupBy(x => x).OrderByDescending(g => g.Count()).Select(g => g.Key + "(" + g.Count() + ")");
+            Console.WriteLine("分類されなかった識別子: " + string.Join(", ", rest));
+            var byKind = toks.GroupBy(t => t.Kind).OrderBy(g => g.Key).Select(g => g.Key + "=" + g.Count());
+            Console.WriteLine("種類ごとの数: " + string.Join(", ", byKind));
+            return 0;
+        }
         var mine = new Dictionary<int, string>();
         foreach (var t in toks)
         {

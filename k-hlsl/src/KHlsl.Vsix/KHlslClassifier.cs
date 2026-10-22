@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Media;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
+using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
 
 namespace KHlsl.Vsix
@@ -116,26 +117,72 @@ namespace KHlsl.Vsix
     internal sealed class KHlslClassifierProvider : IClassifierProvider
     {
         [Import] internal IClassificationTypeRegistryService Registry { get; set; }
+        [Import] internal ITextBufferFactoryService BufferFactory { get; set; }
+        [Import] internal IContentTypeRegistryService ContentTypes { get; set; }
+        [Import] internal IClassifierAggregatorService Aggregator { get; set; }
+
+        private static object _cppKeepAlive;
 
         public IClassifier GetClassifier(ITextBuffer buffer)
         {
+            WarmUpCpp();
             return buffer.Properties.GetOrCreateSingletonProperty(() => new KHlslClassifier(buffer, Registry));
+        }
+
+        /// <summary>
+        /// 色は、VS の C++ の分類(cppFunction;Semantic など)を借りている。それらは、C++ のエディターが
+        /// 動き出すまで登録されないので、C++ のファイルを開いていないセッションでも、動き出すように促す。
+        /// </summary>
+        private void WarmUpCpp()
+        {
+            if (_cppKeepAlive != null) return;
+            _cppKeepAlive = new object();
+            try
+            {
+                var ct = ContentTypes.GetContentType("C/C++");
+                if (ct == null) return;
+                var buf = BufferFactory.CreateTextBuffer("int main() { return 0; }" + Environment.NewLine, ct);
+                var c = Aggregator.GetClassifier(buf);
+                c.GetClassificationSpans(new SnapshotSpan(buf.CurrentSnapshot, 0, buf.CurrentSnapshot.Length));
+                _cppKeepAlive = new object[] { buf, c };
+                KHlslPackage.Log("C++ warm-up done");
+            }
+            catch (Exception ex) { KHlslPackage.Log("C++ warm-up failed: " + ex.Message); }
         }
     }
 
     internal sealed class KHlslClassifier : IClassifier
     {
+        // 登録を待つ、C++ の意味的な分類
+        private static readonly string[] SemanticNames =
+        {
+            "cppType", "cppFunction", "cppMemberFunction", "cppEnumerator", "cppMacro", "cppNamespace",
+            "cppGlobalVariable", "cppLocalVariable", "cppParameter", "cppMemberField", "cppLabel"
+        };
+
         private readonly ITextBuffer _buffer;
-        private readonly Dictionary<Tk, IClassificationType> _types = new Dictionary<Tk, IClassificationType>();
+        private readonly IClassificationTypeRegistryService _registry;
+        private Dictionary<Tk, IClassificationType> _types = new Dictionary<Tk, IClassificationType>();
         private readonly object _gate = new object();
         private ITextSnapshot _snapshot;
         private List<Tok> _tokens = new List<Tok>();
+        private int _missing = int.MaxValue;
+        private int _lastCheck = Environment.TickCount;
 
         public event EventHandler<ClassificationChangedEventArgs> ClassificationChanged;
 
         public KHlslClassifier(ITextBuffer buffer, IClassificationTypeRegistryService registry)
         {
             _buffer = buffer;
+            _registry = registry;
+            Resolve();
+            buffer.Changed += OnChanged;
+        }
+
+        /// <summary>分類名から、分類の型を引く。C++ 側が未登録の物は、近い型で代用して、あとで引き直す。</summary>
+        private void Resolve()
+        {
+            var registry = _registry;
             Func<string, IClassificationType> get = name => registry.GetClassificationType(name);
             IClassificationType identifier = get("identifier");
             IClassificationType str = get("string");
@@ -156,42 +203,67 @@ namespace KHlsl.Vsix
                 return s != null ? combine(new[] { s, identifier }) : (get(name) ?? identifier);
             };
 
-            _types[Tk.Comment] = get("comment");
-            _types[Tk.String] = str;
-            _types[Tk.StringDelim] = combine(new[] { get("cppStringDelimiterCharacter"), str });
-            _types[Tk.Number] = get("number");
-            _types[Tk.Preprocessor] = get("preprocessor keyword") ?? keyword;
-            _types[Tk.Keyword] = keyword;
-            _types[Tk.Control] = get("cppControlKeyword") ?? keyword;
-            _types[Tk.Visibility] = combine(new[] { keyword, get(KHlslClassNames.Visibility) });
-            _types[Tk.Type] = semantic("cppType");
-            _types[Tk.Function] = semantic("cppFunction");
-            _types[Tk.MemberFunc] = semantic("cppMemberFunction");
-            _types[Tk.Semantic] = semantic("cppEnumerator");
-            _types[Tk.Attribute] = get("cppAttributeIdentifier") ?? semantic("cppType");
-            _types[Tk.Enumerator] = semantic("cppEnumerator");
-            _types[Tk.Macro] = semantic("cppMacro");
-            _types[Tk.Operator] = op;
-            _types[Tk.Namespace] = semantic("cppNamespace");
-            _types[Tk.Global] = semantic("cppGlobalVariable");
-            _types[Tk.Local] = semantic("cppLocalVariable");
-            _types[Tk.Param] = semantic("cppParameter");
-            _types[Tk.Member] = semantic("cppMemberField");
-            _types[Tk.Label] = semantic("cppLabel");
-            _types[Tk.Identifier] = identifier;
-            _types[Tk.Escape] = combine(new[] { get("cppStringEscapeCharacter"), str, get(KHlslClassNames.Escape) });
-            _types[Tk.Format] = combine(new[] { str, get(KHlslClassNames.Format) });
+            var t = new Dictionary<Tk, IClassificationType>();
+            t[Tk.Comment] = get("comment");
+            t[Tk.String] = str;
+            t[Tk.StringDelim] = combine(new[] { get("cppStringDelimiterCharacter"), str });
+            t[Tk.Number] = get("number");
+            t[Tk.Preprocessor] = get("preprocessor keyword") ?? keyword;
+            t[Tk.Keyword] = keyword;
+            t[Tk.Control] = get("cppControlKeyword") ?? keyword;
+            t[Tk.Visibility] = combine(new[] { keyword, get(KHlslClassNames.Visibility) });
+            t[Tk.Type] = semantic("cppType");
+            t[Tk.Function] = semantic("cppFunction");
+            t[Tk.MemberFunc] = semantic("cppMemberFunction");
+            t[Tk.Semantic] = semantic("cppEnumerator");
+            t[Tk.Attribute] = get("cppAttributeIdentifier") ?? semantic("cppType");
+            t[Tk.Enumerator] = semantic("cppEnumerator");
+            t[Tk.Macro] = semantic("cppMacro");
+            t[Tk.Operator] = op;
+            t[Tk.Namespace] = semantic("cppNamespace");
+            t[Tk.Global] = semantic("cppGlobalVariable");
+            t[Tk.Local] = semantic("cppLocalVariable");
+            t[Tk.Param] = semantic("cppParameter");
+            t[Tk.Member] = semantic("cppMemberField");
+            t[Tk.Label] = semantic("cppLabel");
+            t[Tk.Identifier] = identifier;
+            t[Tk.Escape] = combine(new[] { get("cppStringEscapeCharacter"), str, get(KHlslClassNames.Escape) });
+            t[Tk.Format] = combine(new[] { str, get(KHlslClassNames.Format) });
             for (int n = 1; n <= 9; n++)
-                _types[(Tk)((int)Tk.Rainbow1 + n - 1)] = combine(new[] { op, get(KHlslClassNames.Rainbow(n)) });
-            _types[Tk.RainbowError] = combine(new[] { op, get(KHlslClassNames.RainbowError) });
-            buffer.Changed += OnChanged;
+                t[(Tk)((int)Tk.Rainbow1 + n - 1)] = combine(new[] { op, get(KHlslClassNames.Rainbow(n)) });
+            t[Tk.RainbowError] = combine(new[] { op, get(KHlslClassNames.RainbowError) });
+
+            _missing = SemanticNames.Count(nm => get(nm + ";Semantic") == null);
+            _types = t;
+        }
+
+        private void RaiseAll()
+        {
+            var snap = _buffer.CurrentSnapshot;
+            var h = ClassificationChanged;
+            if (h != null) h(this, new ClassificationChangedEventArgs(new SnapshotSpan(snap, 0, snap.Length)));
         }
 
         private void OnChanged(object sender, TextContentChangedEventArgs e)
         {
-            var snap = e.After;
-            var h = ClassificationChanged;
-            if (h != null) h(this, new ClassificationChangedEventArgs(new SnapshotSpan(snap, 0, snap.Length)));
+            RaiseAll();
+        }
+
+        /// <summary>C++ の分類が、あとから登録されたら、引き直して、色を付け直す。</summary>
+        private void RecheckTypes()
+        {
+            if (_missing == 0) return;
+            int now = Environment.TickCount;
+            if (now - _lastCheck < 1500) return;
+            _lastCheck = now;
+            int before = _missing;
+            Resolve();
+            if (_missing < before)
+            {
+                KHlslPackage.Log("C++ の分類が登録されたので、色を付け直す(未登録 " + before + " → " + _missing + ")");
+                var d = System.Windows.Application.Current != null ? System.Windows.Application.Current.Dispatcher : null;
+                if (d != null) d.BeginInvoke(new Action(RaiseAll), System.Windows.Threading.DispatcherPriority.ApplicationIdle);
+            }
         }
 
         private List<Tok> TokensFor(ITextSnapshot snap)
@@ -209,6 +281,8 @@ namespace KHlsl.Vsix
 
         public IList<ClassificationSpan> GetClassificationSpans(SnapshotSpan span)
         {
+            RecheckTypes();
+            var types = _types;
             var result = new List<ClassificationSpan>();
             var toks = TokensFor(span.Snapshot);
             int lo = 0, hi = toks.Count;
@@ -220,7 +294,7 @@ namespace KHlsl.Vsix
             for (int i = lo; i < toks.Count && toks[i].Start < span.End; i++)
             {
                 IClassificationType t;
-                if (!_types.TryGetValue(toks[i].Kind, out t) || t == null) continue;
+                if (!types.TryGetValue(toks[i].Kind, out t) || t == null) continue;
                 int s = Math.Max(toks[i].Start, span.Start);
                 int e = Math.Min(toks[i].Start + toks[i].Length, span.End);
                 if (e > s) result.Add(new ClassificationSpan(new SnapshotSpan(span.Snapshot, s, e - s), t));

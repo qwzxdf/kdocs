@@ -58,7 +58,6 @@ RWGroupNodeInputRecords | コアレッシング ノードの入力レコード�
 ThreadNodeInputRecord | スレッド ノードの入力レコード(読み取り専用)。 | 6.8 | noderec
 RWThreadNodeInputRecord | スレッド ノードの入力レコード(読み書き)。 | 6.8 | noderec
 EmptyNodeInput | レコードを持たない入力。 | 6.8 | emptynodein
-NodeOutputRecord | ノードの出力レコード(GetThreadNodeOutputRecords など)。 | 6.8 | noderecs
 ThreadNodeOutputRecords | スレッド単位の出力レコード群。 | 6.8 | noderecs
 GroupNodeOutputRecords | グループ単位の出力レコード群。 | 6.8 | noderecs
 """
@@ -136,6 +135,7 @@ babrw | InterlockedOr | void InterlockedOr(uint byteOffset, uint value [, out ui
 babrw | InterlockedOr64 | void InterlockedOr64(uint byteOffset, uint64_t value [, out uint64_t original]) | 64 ビットの原子的な論理和。 | 6.6
 babrw | InterlockedXor | void InterlockedXor(uint byteOffset, uint value [, out uint original]) | 原子的に排他的論理和を取る。 | 5.0
 babrw | InterlockedXor64 | void InterlockedXor64(uint byteOffset, uint64_t value [, out uint64_t original]) | 64 ビットの原子的な排他的論理和。 | 6.6
+babrw | InterlockedExchangeFloat | void InterlockedExchangeFloat(uint byteOffset, float value, out float original) | float を、原子的に入れ替える。 | 6.6
 babrw | InterlockedCompareExchangeFloatBitwise | void InterlockedCompareExchangeFloatBitwise(uint byteOffset, float compare, float value, out float original) | float をビット比較して交換する。 | 6.6
 babrw | InterlockedCompareStoreFloatBitwise | void InterlockedCompareStoreFloatBitwise(uint byteOffset, float compare, float value) | float をビット比較して書く。 | 6.6
 stream | Append | void Append(T vertex) | 頂点を出力ストリームに追加する。 | 4.0
@@ -181,6 +181,10 @@ rayquery | CommittedObjectToWorld3x4 | float3x4 CommittedObjectToWorld3x4() | �
 rayquery | CommittedObjectToWorld4x3 | float4x3 CommittedObjectToWorld4x3() | 確定した オブジェクト → ワールド行列(4x3)。 | 6.5
 rayquery | CommittedWorldToObject3x4 | float3x4 CommittedWorldToObject3x4() | 確定した ワールド → オブジェクト行列。 | 6.5
 rayquery | CommittedWorldToObject4x3 | float4x3 CommittedWorldToObject4x3() | 確定した ワールド → オブジェクト行列(4x3)。 | 6.5
+rayquery | CandidateClusterID | uint CandidateClusterID() | 候補のクラスター ID。 | 6.10
+rayquery | CommittedClusterID | uint CommittedClusterID() | 確定したクラスター ID。 | 6.10
+rayquery | CandidateTriangleObjectPositions | float3x3 CandidateTriangleObjectPositions() | 候補の三角形の、オブジェクト空間での 3 頂点の位置。 | 6.10
+rayquery | CommittedTriangleObjectPositions | float3x3 CommittedTriangleObjectPositions() | 確定した三角形の、オブジェクト空間での 3 頂点の位置。 | 6.10
 rayquery | RayFlags | uint RayFlags() | TraceRayInline に渡した RayFlags。 | 6.5
 rayquery | WorldRayOrigin | float3 WorldRayOrigin() | ワールド空間のレイ始点。 | 6.5
 rayquery | WorldRayDirection | float3 WorldRayDirection() | ワールド空間のレイ方向。 | 6.5
@@ -226,6 +230,10 @@ dx::HitObject::GetObjectRayOrigin | float3 GetObjectRayOrigin() | オブジェ�
 dx::HitObject::GetObjectRayDirection | float3 GetObjectRayDirection() | オブジェクト空間のレイ方向。 | 6.9
 dx::HitObject::GetObjectToWorld3x4 | float3x4 GetObjectToWorld3x4() | オブジェクト → ワールド行列。 | 6.9
 dx::HitObject::GetWorldToObject3x4 | float3x4 GetWorldToObject3x4() | ワールド → オブジェクト行列。 | 6.9
+dx::HitObject::GetObjectToWorld4x3 | float4x3 GetObjectToWorld4x3() | オブジェクト → ワールド行列(4x3)。 | 6.9
+dx::HitObject::GetWorldToObject4x3 | float4x3 GetWorldToObject4x3() | ワールド → オブジェクト行列(4x3)。 | 6.9
+dx::HitObject::GetClusterID | uint GetClusterID() | クラスター ID。 | 6.10
+dx::HitObject::TriangleObjectPositions | float3x3 TriangleObjectPositions() | 三角形の、オブジェクト空間での 3 頂点の位置。 | 6.10
 dx::HitObject::GetInstanceIndex | uint GetInstanceIndex() | インスタンス番号。 | 6.9
 dx::HitObject::GetInstanceID | uint GetInstanceID() | InstanceID。 | 6.9
 dx::HitObject::GetGeometryIndex | uint GetGeometryIndex() | ジオメトリ番号。 | 6.9

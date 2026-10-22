@@ -7,6 +7,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <Compile Include="..\..\..\src\KHlsl.Vsix\KHlslLexer.cs" />
+    <Compile Include="..\..\..\src\KHlsl.Vsix\KHlslSemantic.cs" />
     <EmbeddedResource Include="..\..\..\src\KHlsl.Server\hlsl.json" LogicalName="hlsl.json" />
     <Reference Include="Viasfora.Languages">
       <HintPath>C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\Extensions\jjowibgu.nmm\Viasfora.Languages.dll</HintPath>

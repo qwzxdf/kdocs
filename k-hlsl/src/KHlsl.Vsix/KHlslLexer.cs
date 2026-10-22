@@ -96,7 +96,7 @@ namespace KHlsl.Vsix
             @"^(?:bool|int|uint|dword|half|float|double|min16float|min10float|min16int|min12int|min16uint|int16_t|uint16_t|float16_t|int32_t|uint32_t|float32_t|int64_t|uint64_t|float64_t)(?:[1-4](?:x[1-4])?)?$",
             RegexOptions.Compiled);
         private static readonly Regex RxUserTypes = new Regex(
-            @"\b(?:struct|class|interface|enum(?:\s+class)?)\s+([A-Za-z_]\w*)|\btypedef\b[^;{}]*?\b([A-Za-z_]\w*)\s*;",
+            @"\b(?:struct|class|interface|enum(?:\s+class)?)\s+(?:\[[^\]]*\]\s*)*([A-Za-z_]\w*)|\btypedef\b[^;{}]*?\b([A-Za-z_]\w*)\s*;",
             RegexOptions.Compiled);
         private static readonly Regex RxDefines = new Regex(@"^[ \t]*#[ \t]*define[ \t]+([A-Za-z_]\w*)", RegexOptions.Compiled | RegexOptions.Multiline);
         private static readonly HashSet<string> TypeIntroducers = new HashSet<string> { "struct", "class", "interface", "enum", "namespace", "cbuffer", "tbuffer" };
@@ -440,6 +440,9 @@ namespace KHlsl.Vsix
             if (closedLiteral) add(end - 1, 1, Tk.StringDelim);
         }
 
+        // ペイロードのアクセス修飾子(DXR 1.2)で使うステージ名
+        private static readonly HashSet<string> PayloadStages = new HashSet<string> { "anyhit", "closesthit", "miss", "caller" };
+
         // VS の C++ で cppControlKeyword になる語
         private static readonly HashSet<string> ControlWords = new HashSet<string>
         {
@@ -461,6 +464,8 @@ namespace KHlsl.Vsix
             }
             if (prevCh == '[' && (lx.Attributes.Contains(w) || q.StartsWith("vk::", StringComparison.Ordinal) || prev2Ch == '['))
                 return Tk.Attribute;
+            if ((prevCh == '(' || prevCh == ',') && (nextCh == ',' || nextCh == ')') && PayloadStages.Contains(w))
+                return Tk.Enumerator;
             if (prevCh == ':')
             {
                 if (w == "register" || w == "packoffset") return Tk.Keyword;

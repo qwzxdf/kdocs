@@ -23,7 +23,6 @@ internal static class Program
 
         var pairs = new List<Tuple<Assembly, string, string, string>>
         {
-            Tuple.Create(core, "Winterdom.Viasfora.EditorFormats.FlowControlFormat", "KHlsl.Vsix.FlowFormat", "制御フロー キーワード"),
             Tuple.Create(core, "Winterdom.Viasfora.EditorFormats.VisibilityKeywordFormat", "KHlsl.Vsix.VisibilityFormat", "可視性 キーワード"),
             Tuple.Create(core, "Winterdom.Viasfora.EditorFormats.StringEscapeSequenceFormat", "KHlsl.Vsix.EscapeFormat", "文字列のエスケープ"),
             Tuple.Create(core, "Winterdom.Viasfora.EditorFormats.FormatSpecifierFormat", "KHlsl.Vsix.FormatSpecifierFormat", "書式指定子"),
