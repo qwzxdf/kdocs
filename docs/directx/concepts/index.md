@@ -15,6 +15,7 @@ DirectX 11 と DirectX 12 は、書き方が大きく違いますが <strong>同
 | [GPU Pipeline Overview](gpu-pipeline.md) | GPU が、頂点からピクセルの色を作るまでの流れ。各段の役割 |
 | [Resources and Views](resources-views.md) | リソース（バッファ・テクスチャ）と、ビュー（見方）の分離 |
 | [Formats and Typeless](formats.md) | 画素の形式（`DXGI_FORMAT`）、sRGB とリニア、typeless |
+| [Constant Buffer Packing](cbuffer-packing.md) | `cbuffer` の詰め方（16 バイトのレジスタ）。C++ の構造体との、ずれの原因と直し方 |
 | [Coordinate Conventions](conventions.md) | このサイトの座標系、行列の規約、クリップ空間、uv の向き |
 | [Why Synchronization](synchronization.md) | CPU と GPU が、非同期に動く理由と読み書きの衝突 |
 

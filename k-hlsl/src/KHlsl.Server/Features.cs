@@ -440,6 +440,9 @@ namespace KHlsl.Server
             if (word == null || IsInCommentOrString(c.Text, c.Offset) && c.Masked[Math.Max(0, Math.Min(c.Masked.Length - 1, c.Offset))] == ' ') return null;
             var syms = Collect(c.Uri, c.Text);
             string md = Describe(word, s, e, c, syms);
+            string layout = null;
+            try { layout = LayoutHover(c, word); } catch (Exception ex) { FileLog("layout hover failed: " + ex.Message); }
+            if (layout != null) md = md == null ? layout : md + "\n\n---\n\n" + layout;
             if (md == null) return null;
             int l1, c1, l2, c2;
             Analyzer.PositionOf(c.Text, s, out l1, out c1);

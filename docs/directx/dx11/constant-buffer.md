@@ -90,7 +90,7 @@ static_assert(sizeof(PerObject) % 16 == 0, "定数バッファは、16 バイト
 | `float a; float4 b;` | a が 0〜3、b は行をまたぐので 16〜 | C++ は、b がオフセット 4 → ずれる |
 | `float3 a; float3 b;` | a が 0〜11、b は 12〜 に置こうとして、またぐので 16〜 | C++ は b がオフセット 12 → ずれる |
 
-C++ 側で同じ配置にするには 明示的にパディングを入れるか `alignas(16)` を使います。
+C++ 側で同じ配置にするには 明示的にパディングを入れるか `alignas(16)` を使います。行列・配列・構造体・`double` を含む詳しい規則は、[Constant Buffer Packing](../concepts/cbuffer-packing.md) にあります。
 
 ```cpp
 struct Lighting {
@@ -104,7 +104,7 @@ struct Lighting {
 static_assert(sizeof(Lighting) == 48, "HLSL の cbuffer と同じ大きさ");
 ```
 
-配列も 各要素が 16 バイトの倍数に切り上げられます。`float values[4]` は HLSL では 4 つの `float4`（64 バイト）として、並びます。`float4 values[4]` で渡して `.x` で使うほうが意図が、明確です。
+配列は、要素ごとに 16 バイトの行を使います。`float values[4]` は HLSL では要素が 4 つの行に分かれ、全体で 52 バイト（最後の要素だけ 4 バイト）になります。`float4 values[4]` で渡して `.x` で使うほうが意図が、明確です。
 
 ## 作る
 
@@ -213,6 +213,7 @@ SM 5.1 以降は `ConstantBuffer<T>` で構造体として、書けます（D3D1
 
 - [DirectX 11 Guide](index.md)
 - [Map, Unmap and UpdateSubresource](map-update.md)
+- [Constant Buffer Packing](../concepts/cbuffer-packing.md)
 - [Shaders and Compilation](shaders.md)
 - [DirectXMath](../../gamemath/directxmath.md)
 - [Microsoft Learn: パッキング規則](https://learn.microsoft.com/ja-jp/windows/win32/direct3dhlsl/dx-graphics-hlsl-packing-rules)

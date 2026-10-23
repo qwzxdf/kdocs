@@ -22,6 +22,12 @@ Visual Studio 2022 / 2026 用の HLSL 拡張です。Shader Model 6.9 までの�
 - シグネチャ ヘルプ（組み込み関数、メソッド、自分で書いた関数）
 - 定義へ移動（`#include` のファイルも）と、アウトライン
 - DXC による診断（保存時と、入力が止まった 0.7 秒後）
+- 定数バッファのレイアウト（`cbuffer` / `ConstantBuffer<T>` / `struct`）。16 バイトのレジスタの詰め方を計算して、次の 3 つで見せる
+    - ホバー: オフセット・サイズ・レジスタの表。メンバーの宣言行では、そのメンバーのオフセット
+    - CodeLens: `cbuffer` の上に、大きさ・レジスタ数・隙間・並べ替えで減らせる量
+    - ツール ウィンドウ（拡張機能 → K-HLSL → 定数バッファのレイアウトを表示）: レジスタ × 4 バイトの升目、並べ替えの提案（HLSL）、同じ配置の C++ の struct（`_pad` と `static_assert` つき）
+    - 計算は `src/KHlsl.Server/CBufferLayout.cs`。`tests/CBufferTest` が、DXC（`-Od -Fc`）の出力と突き合わせる（固定ケース＋ランダム）。生成した C++ も、MSVC でコンパイルして確かめた
+    - `-enable-16bit-types`・`-Zpr`・`#pragma pack_matrix`・`packoffset`・`typedef`・継承・`vector<T,N>` / `matrix<T,R,C>` に対応。16 ビット型を有効にしない `min16float` と配列の組み合わせは、DXC と合わない場合がある
 
 対応している新しい機能: `ResourceDescriptorHeap` / `SamplerDescriptorHeap`（SM 6.6）、パック 8 ビット演算、64 ビット アトミック、`WaveSize`、クアッド / ウェーブの全関数、メッシュ / 増幅シェーダー、DXR 1.1 の `RayQuery`、ワーク グラフ（SM 6.8）、`SampleCmpBias` / `SampleCmpGrad`、SM 6.9 の `dx::HitObject` と `dx::MaybeReorderThread`（Shader Execution Reordering）。
 

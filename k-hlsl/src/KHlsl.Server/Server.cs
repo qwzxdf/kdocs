@@ -189,6 +189,8 @@ namespace KHlsl.Server
                 case "textDocument/signatureHelp": Respond(id, SignatureHelp(p)); break;
                 case "textDocument/documentSymbol": Respond(id, DocumentSymbols(p)); break;
                 case "textDocument/definition": Respond(id, Definition(p)); break;
+                case "textDocument/codeLens": Respond(id, CodeLens(p)); break;
+                case "khlsl/cbuffers": Respond(id, CBuffersRequest(p)); break;
                 default:
                     if (id != null) Respond(id, null);
                     break;
@@ -234,9 +236,10 @@ namespace KHlsl.Server
                     ["hoverProvider"] = true,
                     ["signatureHelpProvider"] = new JObject { ["triggerCharacters"] = new JArray("(", ","), ["retriggerCharacters"] = new JArray(",") },
                     ["documentSymbolProvider"] = true,
-                    ["definitionProvider"] = true
+                    ["definitionProvider"] = true,
+                    ["codeLensProvider"] = new JObject { ["resolveProvider"] = false }
                 },
-                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.0.9" }
+                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.1.0" }
             };
         }
 
@@ -326,7 +329,11 @@ namespace KHlsl.Server
         {
             string t;
             if (_docs.TryGetValue(uri, out t)) return t;
-            try { return File.ReadAllText(PathOf(uri)); } catch (Exception) { return ""; }
+            // URI の書き方(ドライブ文字の大小、%20 など)が違っても、同じファイルなら、開いている本文を使う
+            string path = PathOf(uri);
+            foreach (var kv in _docs)
+                if (string.Equals(PathOf(kv.Key), path, StringComparison.OrdinalIgnoreCase)) return kv.Value;
+            try { return File.ReadAllText(path); } catch (Exception) { return ""; }
         }
 
         private static bool IsIdent(char c) { return char.IsLetterOrDigit(c) || c == '_'; }

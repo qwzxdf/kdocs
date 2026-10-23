@@ -21,8 +21,9 @@ namespace KHlsl.Vsix
     /// LSP の補完が使われない。"khlsl" へ切り離すと、K-HLSL の機能だけが働く。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-HLSL", "HLSL language support (SM 6.9)", "1.0.9")]
+    [InstalledProductRegistration("K-HLSL", "HLSL language support (SM 6.9)", "1.1.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
+    [ProvideToolWindow(typeof(CBufferToolWindow), Style = VsDockStyle.Tabbed, Window = "34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3")]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.EmptySolution_string, PackageAutoLoadFlags.BackgroundLoad)]
@@ -37,6 +38,7 @@ namespace KHlsl.Vsix
         private const int CmdColorList = 0x0101;
         private const int CmdOpenDocs = 0x0102;
         private const int CmdOpenLogs = 0x0103;
+        private const int CmdCBuffer = 0x0104;
         private const string DocsUrl = "https://qwzxdf.github.io/kdocs/khlsl/";
         // ツール → オプション → 環境 → フォントおよび色
         private const string FontsAndColorsPage = "{1EDA5DD4-927A-43a7-810E-7FD247D0DA1D}";
@@ -69,9 +71,42 @@ namespace KHlsl.Vsix
                 AddCommand(commands, CmdEditColors, (s, e) => EditColors());
                 AddCommand(commands, CmdColorList, (s, e) => ShowColorList());
                 AddCommand(commands, CmdOpenDocs, (s, e) => OpenShell(DocsUrl));
+                AddCommand(commands, CmdCBuffer, (s, e) => ShowCBufferWindow());
                 AddCommand(commands, CmdOpenLogs, (s, e) => OpenShell(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "K-HLSL")));
             }
+            var dte = await GetServiceAsync(typeof(EnvDTE.DTE)) as EnvDTE80.DTE2;
+            if (dte != null)
+            {
+                // 保存したときと、別のファイルへ移ったときに、開いていれば定数バッファの表示を読み直す
+                _documentEvents = dte.Events.DocumentEvents;
+                _documentEvents.DocumentSaved += d => RefreshCBufferWindow();
+                _windowEvents = dte.Events.WindowEvents;
+                _windowEvents.WindowActivated += (got, lost) => RefreshCBufferWindow();
+            }
             Log("package initialized");
+        }
+
+        private EnvDTE.DocumentEvents _documentEvents;
+        private EnvDTE.WindowEvents _windowEvents;
+
+        private void ShowCBufferWindow()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var window = FindToolWindow(typeof(CBufferToolWindow), 0, true) as CBufferToolWindow;
+            if (window == null || window.Frame == null) return;
+            ((Microsoft.VisualStudio.Shell.Interop.IVsWindowFrame)window.Frame).Show();
+            window.View.Reload(true);
+        }
+
+        private void RefreshCBufferWindow()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                var window = FindToolWindow(typeof(CBufferToolWindow), 0, false) as CBufferToolWindow;
+                if (window != null && window.View.IsVisible) window.View.Reload(false);
+            }
+            catch (Exception ex) { Log("refresh failed: " + ex.Message); }
         }
 
         private static void AddCommand(OleMenuCommandService service, int id, EventHandler handler)
