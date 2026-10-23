@@ -106,8 +106,8 @@ namespace KHlsl.Vsix
             var r = b["reorder"] as JObject;
             if (r != null) summary += "・並べ替えで " + (int)r["saved"] + " バイト減";
             var panel = new StackPanel();
-            panel.Children.Add(new TextBlock { Text = summary, FontSize = 11, FontWeight = FontWeights.SemiBold, Foreground = null, Margin = new Thickness(0, 0, 0, 4), TextWrapping = TextWrapping.Wrap, MaxWidth = 420 });
-            var grid = CBufferGrid.Build(b, 18, 22, 9, EnvironmentColors.ToolTipTextBrushKey, null);
+            panel.Children.Add(new TextBlock { Text = summary, FontSize = 10, FontWeight = FontWeights.SemiBold, Foreground = null, Margin = new Thickness(0, 0, 0, 4), TextWrapping = TextWrapping.Wrap, MaxWidth = 420 });
+            var grid = CBufferGrid.Build(b, 13, 17, 8, EnvironmentColors.ToolTipTextBrushKey, null);
             panel.Children.Add(grid);
             var problems = (JArray)b["problems"];
             if (problems.Count > 0)

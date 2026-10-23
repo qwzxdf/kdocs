@@ -239,7 +239,7 @@ namespace KHlsl.Server
                     ["definitionProvider"] = true,
                     ["codeLensProvider"] = new JObject { ["resolveProvider"] = false }
                 },
-                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.1.1" }
+                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.1.2" }
             };
         }
 
