@@ -94,6 +94,9 @@ graphics/ao/sao.md: {perf: 3, quality: 3, diff: 3}
 graphics/ao/hbao.md: {perf: 3, quality: 3, diff: 3}
 graphics/ao/hbao-plus.md: {perf: 3, quality: 4, diff: 4}
 graphics/ao/gtao.md: {perf: 3, quality: 4, diff: 4}
+graphics/ao/xegtao.md: {perf: 3, quality: 5, diff: 4}
+graphics/ao/assao-cacao.md: {perf: 2, quality: 3, diff: 3}
+graphics/ao/mssao.md: {perf: 2, quality: 3, diff: 3}
 graphics/ao/world-space/index.md: {perf: 4, quality: 4, diff: 3}
 graphics/ao/world-space/rtao.md: {perf: 5, quality: 5, diff: 4}
 graphics/ao/world-space/dfao.md: {perf: 3, quality: 4, diff: 4}
@@ -351,3 +354,13 @@ graphics/skin-hair/hair/transparency.md: {perf: 3, quality: 3, diff: 4}
 graphics/skin-hair/hair/shadows.md: {perf: 3, quality: 4, diff: 4}
 graphics/skin-hair/hair/anti-aliasing.md: {perf: 3, quality: 4, diff: 3}
 graphics/ao/theory/integral-intuition.md: {diff: 1}
+
+# --- アップスケーリング ---
+graphics/postprocess/upscaling/index.md: {diff: 3}
+graphics/postprocess/upscaling/fsr.md: {perf: 2, quality: 3, diff: 3}
+graphics/postprocess/upscaling/dlss.md: {perf: 2, quality: 5, diff: 3}
+graphics/postprocess/upscaling/xess.md: {perf: 2, quality: 4, diff: 3}
+
+# --- GI の追加 ---
+graphics/gi/restir.md: {perf: 4, quality: 5, diff: 5}
+graphics/gi/lumen.md: {perf: 4, quality: 4, diff: 5}

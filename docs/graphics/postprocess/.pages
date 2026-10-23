@@ -5,6 +5,7 @@ nav:
   - Depth of Field (DOF): dof
   - Motion Blur: motion-blur
   - Anti-Aliasing: antialiasing
+  - Upscaling: upscaling
   - Color Grading: color-grading
   - Lens Effects: lens-effects
   - Outlines and Toon: stylized

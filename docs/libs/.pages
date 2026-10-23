@@ -4,6 +4,8 @@ nav:
   - Dear ImGui: imgui
   - Jolt Physics: jolt
   - Recast & Detour: recast
+  - sol2.md
+  - pybind11.md
   - 3Dモデルの読み込みの選び方: model-loading.md
   - tinygltf: tinygltf
   - fastgltf: fastgltf

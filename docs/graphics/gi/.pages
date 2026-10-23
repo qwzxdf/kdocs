@@ -7,4 +7,6 @@ nav:
   - voxel-gi.md
   - ddgi.md
   - Ray-Traced GI: rt-gi
+  - restir.md
+  - lumen.md
   - comparison.md

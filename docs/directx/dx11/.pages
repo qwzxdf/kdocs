@@ -1,5 +1,6 @@
 nav:
   - index.md
+  - guide.md
   - window.md
   - device.md
   - dxgi.md

@@ -11,6 +11,7 @@ nav:
   - team.md
   - github-actions.md
   - libraries.md
+  - package-managers.md
   - debugging.md
   - asan.md
   - clang-tidy.md
@@ -24,6 +25,7 @@ nav:
   - project-types.md
   - tips.md
   - errors.md
+  - error-messages.md
   - cmake.md
   - ninja.md
   - ...

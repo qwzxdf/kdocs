@@ -14,6 +14,10 @@
 | [ハンドルと世代 ID](handle.md) | <span class="rank rank-often">よく使う</span> | 消えるかもしれない相手を、番号 ＋ 世代で、安全に指す |
 | [ECS](../design/patterns/ecs.md) | <span class="rank rank-often">よく使う</span> | データと処理を分けて、大量のオブジェクトを、速く回す |
 | [オブジェクトプール](../design/patterns/object-pool.md) | <span class="rank rank-sometimes">たまに</span> | 作っては消すもの（弾・敵）を、あらかじめ用意して、使い回す |
+| [入力](input.md) | <span class="rank rank-often">よく使う</span> | キーボード・マウス・ゲームパッドを、毎フレーム決まった形で取る |
+| [サウンド](audio.md) | <span class="rank rank-often">よく使う</span> | 効果音と BGM の鳴らし方、ライブラリの選び方 |
+| [ゲーム AI](ai/index.md) | <span class="rank rank-sometimes">たまに</span> | ビヘイビア ツリーと経路探索（A*） |
+| [ネットワーク](network.md) | <span class="rank rank-sometimes">たまに</span> | UDP、同期、遅れを隠す工夫 |
 
 ## 読む順番のおすすめ
 

@@ -17,6 +17,7 @@ tags:
 | [Depth of Field (DOF)](dof/index.md) | 錯乱円・ギャザー・スキャッター・前景と背景・ボケの形 |
 | [Motion Blur](motion-blur/index.md) | 速度バッファ・カメラ・オブジェクト・ぼかしの実装・タイル最大速度・強さと TAA |
 | [Anti-Aliasing](antialiasing/index.md) | MSAA・FXAA・SMAA・TAA・TAA の課題・比較 |
+| [Upscaling](upscaling/index.md) | 低解像度で描いて拡大する。FSR・DLSS・XeSS |
 | [Color Grading](color-grading/index.md) | 基本の調整・リフト/ガンマ/ゲイン・ホワイト バランス・3D LUT・LUT の作り方 |
 | [Lens Effects](lens-effects/index.md) | 色収差・ビネット・フィルム グレイン・レンズ フレア |
 | [Outlines and Toon](stylized/index.md) | 背面法・画面空間エッジ・セル シェーディング・ポスタライズとハーフトーン |
