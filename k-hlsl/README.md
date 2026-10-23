@@ -8,7 +8,9 @@ Visual Studio 2022 / 2026 用の HLSL 拡張です。Shader Model 6.9 までの�
 
 - 色付け。VS の C++ と同じ分類名（`cppFunction` `cppLocalVariable` `cppControlKeyword` など）を使うので、テーマの C++ の色が、そのまま HLSL に使われる。Viasfora を入れていると、C++ で効いている物も同じ色になる
     - 関数・メンバー関数・型・マクロ・名前空間・グローバル変数・ローカル変数・引数・メンバー変数・列挙子・ラベル・演算子・数値・文字列（引用符を含む）・`#` ディレクティブ。変数は、スコープを見て、引数・ローカル・メンバー・グローバルに分ける
-    - 制御キーワード（`if` `else` `for` `while` `do` `switch` `case` `default` `break` `continue` `return` `goto` `discard` `throw` `try` `catch`）は `cppControlKeyword`。VS の C++ もそうで、Viasfora の制御フローの色（OrangeRed）は、C++ では効かない（分類名が `Keyword` と一致する語だけが対象のため）ので、HLSL でも付けない
+    - 制御キーワード（`if` `else` `for` `while` `do` `switch` `case` `default` `break` `continue` `return` `goto` `discard` `throw` `try` `catch`）は、`K-HLSL 制御キーワード`（既定は VS の C++ と同じ紫）。`#include` `#define` などは `K-HLSL プリプロセッサ キーワード`（同じく灰色）。C++ の分類名に頼らず、専用の表示項目に既定色を持たせている
+    - 組み込み関数（`mul` `saturate` やリソースの `Sample` など）は `K-HLSL 組み込み関数`（橙）、独自の関数は C++ の関数の色（黄）
+    - `#include` した先で定義された構造体は、このファイルから見えないので、「型 名前」の形から推測して、型・変数・メンバーに色を付ける
     - Tab や空白で字下げした `#if` `#  endif` も、ディレクティブとして色が付く
 - Viasfora の色付け（C++ で実際に効いている物）
     - レインボー括弧: `( ) [ ] { }` を 1 つのスタックで数えて、深さ 4 の色（橙・ピンク・黄緑・紫）を循環させる。対応しない閉じ括弧は背景が薄い赤になる。コメントと文字列の中は数えない
@@ -70,7 +72,7 @@ SM 6.9 を使うには、DXC 1.9 以降が必要です。見つかった DXC が
 
 色は、テーマが C++ に付けている色です。ツール → オプション → 環境 → フォントおよび色 で、`C++ 関数` `C++ ローカル変数` `C++ 制御キーワード` などを変えると、C++ と HLSL の両方に効きます。
 
-K-HLSL 専用の表示項目は、Viasfora の既定色を持つ物だけです。`K-HLSL 可視性キーワード` `K-HLSL 文字列のエスケープ` `K-HLSL 書式指定子` `K-HLSL Rainbow 括弧 1`〜`9` `K-HLSL Rainbow 括弧(対応なし)`。レインボー括弧は、Viasfora の既定と同じく 4 色（`Rainbow 括弧 1`〜`4`）を使います。Viasfora のレインボー行（インデントの縦線）と、キャレット位置の括弧ペアの強調は、作っていません。
+K-HLSL 専用の表示項目は、Viasfora の既定色を持つ物と、`K-HLSL 制御キーワード` `K-HLSL プリプロセッサ キーワード` `K-HLSL 組み込み関数` です。`K-HLSL 可視性キーワード` `K-HLSL 文字列のエスケープ` `K-HLSL 書式指定子` `K-HLSL Rainbow 括弧 1`〜`9` `K-HLSL Rainbow 括弧(対応なし)`。レインボー括弧は、Viasfora の既定と同じく 4 色（`Rainbow 括弧 1`〜`4`）を使います。Viasfora のレインボー行（インデントの縦線）と、キャレット位置の括弧ペアの強調は、作っていません。
 
 `#if 0` や、定義されていないマクロの `#ifdef` で無効になる範囲を、薄く表示する機能（C++ の「非アクティブ コード」）は、まだありません。
 

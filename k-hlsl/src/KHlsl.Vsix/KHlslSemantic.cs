@@ -121,10 +121,18 @@ namespace KHlsl.Vsix
             var declOnlyParams = new HashSet<int>();
             var enumerators = new HashSet<string>();
             var labels = new HashSet<string>();
+            // #include した先で定義された型は、このファイルからは見えない。「型らしい語 + 名前」の形から、型の名前を推測する
+            var inferredTypes = new HashSet<string>();
+            var nameType = new Dictionary<string, string>();
 
             foreach (Match d in RxDecl.Matches(m))
             {
-                if (!isTypeWord(d.Groups["t"].Value)) continue;
+                string typeWord = d.Groups["t"].Value;
+                if (!isTypeWord(typeWord))
+                {
+                    if (!LooksLikeDecl(m, d.Groups["t"].Index, typeWord, lx)) continue;
+                    inferredTypes.Add(typeWord.Contains("::") ? typeWord.Substring(typeWord.LastIndexOf("::", StringComparison.Ordinal) + 2) : typeWord);
+                }
                 var names = new List<Group> { d.Groups["n"] };
                 int p0 = d.Groups["n"].Index;
                 if (parenAt[p0] == 0)
@@ -142,6 +150,7 @@ namespace KHlsl.Vsix
                     string name = g.Value;
                     int p = g.Index;
                     if (NotNames.Contains(name) || lx.Control.Contains(name) || lx.Keywords.Contains(name)) continue;
+                    nameType[name] = typeWord;
                     var fp = paramsOf(p);
                     if (fp != null)
                     {
@@ -244,10 +253,12 @@ namespace KHlsl.Vsix
                 Tk? kind = null;
 
                 bool arrow = prev == '>' && PrevTwo(m, p) == "->";
-                if (declOnlyParams.Contains(p)) kind = Tk.Param;
+                if (prev != '.' && !arrow && inferredTypes.Contains(w)) kind = Tk.Type;
+                else if (declOnlyParams.Contains(p)) kind = Tk.Param;
                 else if (prev == '.' || arrow)
                 {
                     if (allMembers.Contains(w) || BuiltinMembers.Contains(w)) kind = Tk.Member;
+                    else if (IsFirstMemberOfStruct(m, p, nameType, userTypes, inferredTypes)) kind = Tk.Member;
                 }
                 else
                 {
@@ -279,10 +290,17 @@ namespace KHlsl.Vsix
             // 字句の段階で関数にした物のうち、メンバー関数(定義・呼び出し)を付け替える
             for (int i = 0; i < toks.Count; i++)
             {
-                if (toks[i].Kind != Tk.Function) continue;
                 var t = toks[i];
                 string name = text.Substring(t.Start, t.Length);
-                bool member = prevChar(t.Start) == '.';
+                bool dot = prevChar(t.Start) == '.';
+                if (t.Kind == Tk.Intrinsic)
+                {
+                    // 独自のメンバー関数と同じ名前の呼び出しは、組み込みではなく、メンバー関数にする
+                    if (dot && memberFuncs.Contains(name)) { t.Kind = Tk.MemberFunc; toks[i] = t; }
+                    continue;
+                }
+                if (t.Kind != Tk.Function) continue;
+                bool member = dot;
                 if (!member && memberFuncs.Contains(name) && enclosing(t.Start, 'S') != null) member = true;
                 if (member) { t.Kind = Tk.MemberFunc; toks[i] = t; }
             }
@@ -325,6 +343,60 @@ namespace KHlsl.Vsix
                 }
             }
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// 「型 名前」の形の宣言らしいか。型が、このファイルで分からない名前でも、文の頭(; { } ( , ] の直後や、
+        /// const static などの修飾子の直後)にあれば、宣言と見なす。
+        /// </summary>
+        private static bool LooksLikeDecl(string m, int typeStart, string typeWord, Lexicon lx)
+        {
+            string last = typeWord.Contains("::") ? typeWord.Substring(typeWord.LastIndexOf("::", StringComparison.Ordinal) + 2) : typeWord;
+            if (NotNames.Contains(last) || lx.Control.Contains(last) || lx.Keywords.Contains(last) || lx.Intrinsics.Contains(last)
+                || lx.Constants.Contains(last) || lx.Semantics.Contains(last)) return false;
+            int k = typeStart - 1;
+            while (k >= 0 && char.IsWhiteSpace(m[k])) k--;
+            if (k < 0) return true;
+            char c = m[k];
+            if (c == ';' || c == '{' || c == '}' || c == '(' || c == ',' || c == ']') return true;
+            if (!(char.IsLetterOrDigit(c) || c == '_')) return false;
+            int e = k;
+            while (k >= 0 && (char.IsLetterOrDigit(m[k]) || m[k] == '_')) k--;
+            string word = m.Substring(k + 1, e - k);
+            return lx.Keywords.Contains(word) && word != "return";
+        }
+
+        /// <summary>obj.member の member か(obj は、構造体型の変数)。obj は ] の前でもよい(arr[i].member)。</summary>
+        private static bool IsFirstMemberOfStruct(string m, int p, Dictionary<string, string> nameType,
+            HashSet<string> userTypes, HashSet<string> inferredTypes)
+        {
+            int k = p - 1;
+            while (k >= 0 && char.IsWhiteSpace(m[k])) k--;
+            if (k >= 1 && m[k] == '>' && m[k - 1] == '-') k -= 2; else if (k >= 0 && m[k] == '.') k--; else return false;
+            while (k >= 0 && char.IsWhiteSpace(m[k])) k--;
+            while (k >= 0 && m[k] == ']')
+            {
+                int depth = 0;
+                while (k >= 0)
+                {
+                    if (m[k] == ']') depth++;
+                    else if (m[k] == '[') { depth--; if (depth == 0) break; }
+                    k--;
+                }
+                k--;
+                while (k >= 0 && char.IsWhiteSpace(m[k])) k--;
+            }
+            if (k < 0 || !(char.IsLetterOrDigit(m[k]) || m[k] == '_')) return false;
+            int e = k;
+            while (k >= 0 && (char.IsLetterOrDigit(m[k]) || m[k] == '_')) k--;
+            string root = m.Substring(k + 1, e - k);
+            int b = k;
+            while (b >= 0 && char.IsWhiteSpace(m[b])) b--;
+            if (b >= 0 && (m[b] == '.' || (m[b] == '>' && b >= 1 && m[b - 1] == '-'))) return false;   // 2 つ目以降のメンバーは対象外
+            string type;
+            if (!nameType.TryGetValue(root, out type)) return false;
+            string last = type.Contains("::") ? type.Substring(type.LastIndexOf("::", StringComparison.Ordinal) + 2) : type;
+            return userTypes.Contains(last) || inferredTypes.Contains(last);
         }
 
         private static string PrevTwo(string m, int p)

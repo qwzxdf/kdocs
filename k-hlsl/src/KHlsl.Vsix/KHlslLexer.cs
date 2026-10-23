@@ -10,7 +10,7 @@ namespace KHlsl.Vsix
     internal enum Tk
     {
         Comment, String, StringDelim, Number, Preprocessor, Keyword, Control, Visibility, Type, Function, MemberFunc,
-        Semantic, Attribute, Enumerator, Macro, Operator, Namespace, Global, Local, Param, Member, Label, Identifier,
+        Semantic, Attribute, Enumerator, Macro, Operator, Namespace, Global, Local, Param, Member, Label, Identifier, Intrinsic,
         Escape, Format,
         Rainbow1, Rainbow2, Rainbow3, Rainbow4, Rainbow5, Rainbow6, Rainbow7, Rainbow8, Rainbow9, RainbowError
     }
@@ -460,7 +460,7 @@ namespace KHlsl.Vsix
             if (q.StartsWith("dx::", StringComparison.Ordinal))
             {
                 if (q == "dx::HitObject") return Tk.Type;
-                return Tk.Function;
+                return Tk.Intrinsic;
             }
             if (prevCh == '[' && (lx.Attributes.Contains(w) || q.StartsWith("vk::", StringComparison.Ordinal) || prev2Ch == '['))
                 return Tk.Attribute;
@@ -489,8 +489,9 @@ namespace KHlsl.Vsix
             if (userTypes.Contains(w)) return Tk.Type;
             if (lx.Constants.Contains(w)) return Tk.Enumerator;
             if (lx.Macros.Contains(w) || userMacros.Contains(w)) return Tk.Macro;
-            if (call && prevCh == '.') return Tk.MemberFunc;
-            if (call) return Tk.Function;
+            // 組み込み関数(mul、saturate など)と、リソースのメソッド(Sample など)は、独自の関数と色を分ける
+            if (call && prevCh == '.') return lx.Methods.Contains(w) ? Tk.Intrinsic : Tk.MemberFunc;
+            if (call) return lx.Intrinsics.Contains(w) ? Tk.Intrinsic : Tk.Function;
             return null;
         }
     }
