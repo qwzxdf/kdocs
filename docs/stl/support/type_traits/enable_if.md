@@ -14,91 +14,98 @@ tags:
 `#include <type_traits>`
 </div>
 
-同じ名前の関数を、整数用と小数用で書き分けたいとき、テンプレートの条件で「この型のときだけ有効」と決めたくなります。`enable_if<条件, T>` は、条件が真のときだけ `::type` を持ち、偽だと型がなくなるため、その関数が候補から外れます（SFINAE）。C++20 では `requires` やコンセプトが読みやすいです。
+テンプレート関数を、特定の型にだけ使えるようにしたい。たとえば、整数にだけ使える関数を作り、小数には別の関数を使わせたい。`std::enable_if` は、<strong>条件が真のときだけ型が存在する</strong>ようにして、条件に合わない場合に関数を候補から外します（SFINAE）。
 
 !!! tip "ポイント"
-    - `enable_if_t<条件, T>`: 条件が真なら `T`、偽ならコンパイルエラー（候補から外れる）。
-    - 関数テンプレートの追加の引数に、`std::enable_if_t<条件, int> = 0` と書くのが定番。
-    - C++20 以降は `requires` を優先する。
+    - `std::enable_if_t<B, T>`: `B` が真なら `T`、偽なら型が存在しない
+    - 偽のとき、その関数テンプレートは、オーバーロードの候補から外れる
+    - C++20 以降は `requires` や `concept` のほうが読みやすい
+    - 戻り値の型や、テンプレート引数の既定値に書く
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::enable_if {#enable_if}
+### std::enable_if_t {#enable_if}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <bool B, class T = void>
-struct enable_if {};  // B が false のとき ::type はない
-template <class T>
-struct enable_if<true, T> { using type = T; };
 template <bool B, class T = void>
 using enable_if_t = typename enable_if<B, T>::type;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `B` | bool | 条件 |
-| `T` | 型 | 条件が真のときの型（既定は `void`） |
+| `B` | `bool` | 条件（コンパイル時の定数） |
+| `T` | 型 | 条件が真のときの型。既定は `void` |
 
-- 戻り値: 条件が真なら `T`
-- 計算量: コンパイル時のみ
+`enable_if_t<B, T>` は、`B` が真なら `T`、偽なら定義がなく、その式は不適格になります。関数テンプレートの宣言の中で不適格になると、エラーにならず、その関数が候補から静かに外れます。これが SFINAE（置換の失敗はエラーではない）です。
 
+```cpp
+template <class T>
+std::enable_if_t<std::is_integral_v<T>, T> Half(T v) { return v / 2; }
+```
+
+C++20 の `concept` を使うと、同じことを `template <std::integral T> T Half(T v)` と短く書けます。新しいコードでは、そちらを使います。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
-#include <string>
 #include <type_traits>
 
-template <class T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
-std::string Describe(T) {
-  return "integer";
-}
-template <class T, std::enable_if_t<std::is_floating_point_v<T>, int> = 0>
-std::string Describe(T) {
-  return "float";
+// 整数にだけ使える
+template <class T>
+std::enable_if_t<std::is_integral_v<T>, T> Half(T v) {
+  return v / 2;
 }
 
 int main() {
-  std::println("{} {}", Describe(1), Describe(1.0f));
+  std::println("Half(10) = {}", Half(10));
+  // Half(10.0);   // 整数ではないので候補から外れ、コンパイルエラー
 }
 ```
 
 ```text title="実行結果"
-integer float
+Half(10) = 5
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 型ごとに関数を書き分ける |
+古い C++ のコードで、型による制約をかけるために使われています。新しいコードでは `concept` を使います。
+
+```cpp
+template <std::integral T>
+T Half(T v) { return v / 2; }   // enable_if より読みやすい
+```
 
 ## よくあるミス
 
-??? failure "両方の条件が重なる"
-    条件が重なると、候補が複数になり、曖昧でコンパイルエラーになります。条件は排他的にします。
+??? failure "複数のオーバーロードで条件が重なり、曖昧になる"
+    条件が排他的になるよう書きます。
+
+??? failure "エラーメッセージが読みにくい"
+    `concept` に置き換えます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`conditional`](conditional.md) | 条件で型を選ぶ |
-| [`concepts`](../concepts/same_as.md) | C++20 の書き方 |
+| [`void_t`](void_t.md) | 型が有効かを検出する |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 条件が真のときだけ、型を存在させる（SFINAE のための道具）
-    - [x] `enable_if_t<条件, T>`: 条件が真なら `T`、偽ならコンパイルエラー（候補から外れる）
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `enable_if_t<B, T>` は条件が偽のとき型が存在しない
+    - [x] 関数が候補から外れる（SFINAE）
+    - [x] 新しいコードは `concept` / `requires`
 
 ## 関連ページ
 

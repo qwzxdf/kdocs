@@ -15,27 +15,35 @@ tags:
 `#include <type_traits>`
 </div>
 
-`integral_constant<bool, B>` の別名です。型特性の戻りの型として、`true_type` / `false_type` と共に使います。
+`std::integral_constant<bool, 条件>` と書くのは、長くて読みにくいです。`std::bool_constant<条件>` は、その<strong>短縮形</strong>です。条件式をそのまま渡せます。
 
 !!! tip "ポイント"
-    - `::value` で値が取れる。
-    - 型特性が継承する土台。
-    - `constexpr` 変数としても使える。
+    - `std::bool_constant<(2 > 1)>::value` は `true`
+    - `std::integral_constant<bool, B>` の別名
+    - 条件式の `>` は括弧で囲む
+    - C++17 で追加
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::bool_constant {#bool_constant}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
-using bool_constant = integral_constant<bool, true>;
+template <bool B>
+using bool_constant = integral_constant<bool, B>;
 ```
 
-- 戻り値: `value`（定数）
-- 計算量: コンパイル時のみ
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `B` | `bool` | 真偽値の定数式 |
 
+`bool_constant<B>` は、`integral_constant<bool, B>` を短く書くための別名です。自作のトレイトを、条件式から直接作れます。
+
+条件式に `>` を含むときは、テンプレート引数の閉じ括弧と区別するために、括弧で囲む必要があります。
 
 ## 実際に動かしてみる
 
@@ -43,42 +51,47 @@ using bool_constant = integral_constant<bool, true>;
 #include <print>
 #include <type_traits>
 
+// 型の大きさが 8 バイト以上か
+template <class T>
+struct IsLarge : std::bool_constant<(sizeof(T) >= 8)> {};
+
 int main() {
-  std::println("{}", std::bool_constant<true>::value);
+  std::println("IsLarge<int>    = {}", IsLarge<int>::value);
+  std::println("IsLarge<double> = {}", IsLarge<double>::value);
 }
 ```
 
 ```text title="実行結果"
-true
+IsLarge<int>    = false
+IsLarge<double> = true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作の型特性の土台にする |
+条件式から、自作のトレイトを短く書きます（上のコード）。
 
 ## よくあるミス
 
-??? failure "実行時の値を渡す"
-    テンプレート引数は、コンパイル時の定数です。
+??? failure "条件式の `>` を括弧で囲まず、コンパイルエラーになる"
+    `bool_constant<(a > b)>` のように括弧で囲みます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_same`](is_same.md) | 型が同じか |
+| [`integral_constant`](integral_constant.md) | 元の型 |
+| [`true_type`](true_type.md) | 真を表す型 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++17 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `bool` のコンパイル時の定数を、型として表す
-    - [x] `::value` で値が取れる
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `bool_constant<B>` は `integral_constant<bool, B>` の短縮形
+    - [x] 条件式の `>` は括弧で囲む
+    - [x] 自作のトレイトを条件式から書ける
 
 ## 関連ページ
 

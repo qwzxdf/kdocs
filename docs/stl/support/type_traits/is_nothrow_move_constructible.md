@@ -14,72 +14,96 @@ tags:
 `#include <type_traits>`
 </div>
 
-`std::is_nothrow_move_constructible_v<T>` は、**型 T のムーブコンストラクターが例外を投げない（`noexcept`）か**を調べます。`vector` が再確保するときに、ムーブにするかコピーにするかの判断に使われます。自作のクラスのムーブに `noexcept` を付け忘れないための確認にも使えます。
+`std::vector` は、要素を新しい領域に移すとき、ムーブ構築が `noexcept` ならムーブし、そうでなければ安全のためコピーします。`std::is_nothrow_move_constructible` は、<strong>ムーブ構築が例外を投げないか</strong>を調べます。
 
 !!! tip "ポイント"
-    - `noexcept` でないと、`vector` の再確保でコピーになり、遅くなる。
-    - `static_assert` で守る。
+    - `std::is_nothrow_move_constructible_v<T>` は、`T` のムーブ構築が例外を投げないか
+    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `std::is_nothrow_move_constructible<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
+    - 実行時のコストはない（コンパイル時に決まる）
 
 !!! info "このページを読む前に"
-    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。[テンプレート](../../../basics/template.md) の基本が前提です。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::is_nothrow_move_constructible_v {#is_nothrow_move_constructible}
 
-- ムーブコンストラクタが `noexcept` か。false だと vector の再確保でコピーされてしまうので、自作のクラスの確認に使えます（[ムーブ](../../../basics/move.md#noexcept-を付ける理由)）
+```cpp
+template <class T>
+inline constexpr bool is_nothrow_move_constructible_v = is_nothrow_move_constructible<T>::value;
+```
+
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型 | 調べたい型 |
+
+ムーブコンストラクターが `noexcept` なら `true` です。`noexcept` を付け忘れると、`vector` の拡張が遅いコピーになります。ゲームの型では、ムーブコンストラクターに必ず `noexcept` を付けます。
+
+型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
+#include <string>
 #include <type_traits>
 
-struct Safe {
-  Safe() = default;
-  Safe(Safe&&) noexcept = default;
+struct Player {
+  int hp;
+  float x;
 };
-struct Throwy {
-  Throwy() = default;
-  Throwy(Throwy&&) {}   // noexcept が無い
+struct MayThrow {
+  MayThrow() = default;
+  MayThrow(MayThrow&&) noexcept(false) {}
 };
 
 int main() {
-  std::println("{} {}", std::is_nothrow_move_constructible_v<Safe>, std::is_nothrow_move_constructible_v<Throwy>);
+  std::println("Player                     -> {}", std::is_nothrow_move_constructible_v<Player>);
+  std::println("std::string                -> {}", std::is_nothrow_move_constructible_v<std::string>);
+  std::println("MayThrow                   -> {}", std::is_nothrow_move_constructible_v<MayThrow>);
 }
 ```
 
 ```text title="実行結果"
-true false
+Player                     -> true
+std::string                -> true
+MayThrow                   -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 自作のクラスのムーブが noexcept かを守る | `static_assert(std::is_nothrow_move_constructible_v<Enemy>)` |
+自作の型のムーブコンストラクターが `noexcept` であることを保証します。
+
+```cpp
+static_assert(std::is_nothrow_move_constructible_v<Enemy>, "Enemy のムーブに noexcept を付けてください");
+```
 
 ## よくあるミス
 
-??? failure "ムーブコンストラクターに noexcept を付けない"
-    `vector` の拡張でコピーになり、遅くなります。
+??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "実行時の値に使おうとする"
+    調べるのは型です。値の判定には通常の比較を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::move_if_noexcept`](../../utilities/move_if_noexcept.md) | 内部で使っている |
+| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
+| [`is_same`](is_same.md) | 2 つの型が同じか |
 
 ## コンパイラ対応
 
-C++11 から使えます。`_v` と `_t` の簡略形は C++14 / C++17 です。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ムーブが noexcept か
-    - [x] 付けないと vector でコピーになる
-    - [x] static_assert で守る
+    - [x] `std::is_nothrow_move_constructible_v<T>` は、`T` のムーブ構築が例外を投げないか
+    - [x] `static_assert` と `if constexpr` に使える
+    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
 
 ## 関連ページ
 

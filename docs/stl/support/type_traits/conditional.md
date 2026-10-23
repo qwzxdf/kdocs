@@ -14,26 +14,37 @@ tags:
 `#include <type_traits>`
 </div>
 
-`std::conditional_t<B, T, F>` は、**条件 B が `true` なら型 T、`false` なら型 F を選ぶ**型です。テンプレートの中で、型を条件で切り替えるときに使います。
+条件によって、型を切り替えたい。たとえば、サイズが小さければ値渡し、大きければ参照渡しにしたい。`std::conditional` は、<strong>条件が真なら 1 つ目の型、偽なら 2 つ目の型</strong>を返します。型に対する三項演算子のようなものです。
 
 !!! tip "ポイント"
-    - `conditional_t<(sizeof(T) > 4), double, float>` のように、条件を型に反映する。
-    - 実行時の条件ではなく、**コンパイル時の定数**で決まる。
-    - `if constexpr` で足りることも多い。
+    - `std::conditional_t<B, X, Y>`: `B` が真なら `X`、偽なら `Y`
+    - 条件 `B` は、コンパイル時の `bool` の定数
+    - 結果は型。値ではない
+    - `if constexpr` と併用して、型と処理の両方を切り替える
 
 !!! info "このページを読む前に"
-    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。[テンプレート](../../../basics/template.md) の基本が前提です。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::conditional_t {#conditional}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 template <bool B, class T, class F>
-using conditional_t = /* B ? T : F */;
+using conditional_t = typename conditional<B, T, F>::type;
 ```
 
-- コンパイル時の条件で型を選びます
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `B` | `bool` | 条件（コンパイル時の定数） |
+| `T` | 型 | `B` が真のときの型 |
+| `F` | 型 | `B` が偽のときの型 |
+
+`conditional_t<B, T, F>` は `B` が `true` なら `T`、`false` なら `F` です。どちらの型も、使われないほうも含めて、有効な型でなければなりません。
+
+用途は、パラメーターの渡し方の切り替えです。小さな型（`int`、`float`）は値渡し、大きな型は `const&` で渡すのが速いので、`conditional_t<(sizeof(T) <= 16), T, const T&>` のように書けます。
 
 ## 実際に動かしてみる
 
@@ -41,43 +52,58 @@ using conditional_t = /* B ? T : F */;
 #include <print>
 #include <type_traits>
 
+// 小さい型は値、大きい型は const 参照で受ける型
+template <class T>
+using Param = std::conditional_t<(sizeof(T) <= 16), T, const T&>;
+
+struct Big {
+  char data[100];
+};
+
 int main() {
-  std::println("{} {}", std::is_same_v<std::conditional_t<true, int, double>, int>, std::is_same_v<std::conditional_t<false, int, double>, double>);
+  std::println("int は値渡し     : {}", std::is_same_v<Param<int>, int>);
+  std::println("Big は参照渡し   : {}", std::is_same_v<Param<Big>, const Big&>);
+  std::println("true なら int    : {}", std::is_same_v<std::conditional_t<true, int, float>, int>);
 }
 ```
 
 ```text title="実行結果"
-true true
+int は値渡し     : true
+Big は参照渡し   : true
+true なら int    : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 大きさによって保存用の型を切り替える | `std::conditional_t<(N > 255), std::uint16_t, std::uint8_t>` |
+引数の渡し方を、型の大きさで自動的に切り替えます（上のコード）。
+
+また、コンテナのインデックスの型を、要素数に応じて `uint8_t` か `uint16_t` に切り替える、といった使い方もあります。
 
 ## よくあるミス
 
-??? failure "実行時の値を条件にする"
-    コンパイル時の定数だけです。
+??? failure "条件に実行時の値を使う"
+    条件はコンパイル時の定数でなければなりません。
+
+??? failure "使われないほうの型が不正で、コンパイルエラーになる"
+    両方の型が有効である必要があります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_same`](is_same.md) | 条件に使う |
-| `if constexpr` | 処理を切り替える |
+| [`enable_if`](enable_if.md) | 条件が偽のとき、型を存在させない |
+| [`is_same`](is_same.md) | 2 つの型が同じか |
 
 ## コンパイラ対応
 
-C++11 から使えます。`_v` と `_t` の簡略形は C++14 / C++17 です。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 条件で型を選ぶ
+    - [x] `conditional_t<B, X, Y>` は条件で型を選ぶ
     - [x] 条件はコンパイル時の定数
-    - [x] 処理の切り替えは if constexpr
+    - [x] 型の大きさで引数の渡し方を切り替えられる
 
 ## 関連ページ
 

@@ -15,78 +15,84 @@ tags:
 `#include <type_traits>`
 </div>
 
-`unsigned int` から `int` を作ります。符号を気にせず、同じサイズの符号付き整数を得たいときに使います。
+整数型を、同じ大きさの符号つきの型に変えたい。`std::make_signed` は、<strong>同じ大きさの符号つき整数型</strong>を返します。
 
 !!! tip "ポイント"
-    - `::type` の代わりに `std::make_signed_t<T>` と書ける。
-    - コンパイル時に型を作り換える。
-    - 値ではなく型を扱う。
+    - `std::make_signed_t<unsigned int>` は `int`
+    - 同じ大きさの符号つき型を返す
+    - `size_t` から符号つきの差の型を作れる
+    - `bool` と整数以外は渡せない
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::make_signed {#make_signed}
+### std::make_signed_t {#make_signed}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <class T>
-struct make_signed { using type = /* 符号なしの整数型を、同じ大きさの符号付きにする */; };
 template <class T>
 using make_signed_t = typename make_signed<T>::type;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 元の型 |
+| `T` | 型 | 変換元の型 |
 
-- 戻り値: 変換後の型（`::type`）
-- 計算量: コンパイル時のみ
+`T` が `unsigned int` なら `int`、`unsigned long long` なら `long long` を返します。`const` や `volatile` は保たれます。`bool` と整数以外は渡せません。
 
+`std::size_t` を符号つきにしたいときに便利です。コンテナの添字の差を、負になりうる型で受けるときに使います。
+
+戻り値は型です。実行時には何も起きず、コンパイル時に型が決まります。`std::make_signed<T>::type` と書いても同じ型ですが、C++14 以降の `std::make_signed_t<T>` のほうが短く書けます。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <cstddef>
 #include <print>
 #include <type_traits>
 
 int main() {
-  using R = std::make_signed_t<unsigned>;
-  std::println("{}", std::is_same_v<R, int>);
+  std::println("std::make_signed_t<unsigned int> は int : {}", std::is_same_v<std::make_signed_t<unsigned int>, int>);
+  std::println("std::make_signed_t<unsigned char> は signed char : {}", std::is_same_v<std::make_signed_t<unsigned char>, signed char>);
+  std::println("std::make_signed_t<std::size_t> は std::ptrdiff_t : {}", std::is_same_v<std::make_signed_t<std::size_t>, std::ptrdiff_t>);
 }
 ```
 
 ```text title="実行結果"
-true
+std::make_signed_t<unsigned int> は int : true
+std::make_signed_t<unsigned char> は signed char : true
+std::make_signed_t<std::size_t> は std::ptrdiff_t : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの中で、型から余計な修飾を取り除く・付け足す |
+型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
 
 ## よくあるミス
 
-??? failure "`::type` を付け忘れる"
-    `std::make_signed<T>` は型を持つ構造体です。型そのものが欲しいときは `_t` を使います。
+??? failure "変換後の型を実行時の値と混同する"
+    これは型を返します。値を作るには、その型で変数を宣言します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`make_unsigned`](make_unsigned.md) | 逆の変換 |
+| [`make_unsigned`](make_unsigned.md) | 符号なしにする |
+| [`is_signed`](is_signed.md) | 符号つきか調べる |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 符号なしの整数型を、同じ大きさの符号付きにする
-    - [x] `::type` の代わりに `std::make_signed_t<T>` と書ける
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::make_signed_t<unsigned int>` は `int`
+    - [x] 同じ大きさの符号つき型を返す
+    - [x] `size_t` から符号つきの差の型を作れる
 
 ## 関連ページ
 

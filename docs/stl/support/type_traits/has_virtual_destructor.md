@@ -15,34 +15,35 @@ tags:
 `#include <type_traits>`
 </div>
 
-基底クラスのポインタ経由で `delete` するとき、デストラクタが `virtual` でないと、派生クラスの後始末が走りません。それを判定します。
+基底クラスのポインターで派生クラスを `delete` するには、基底クラスのデストラクターが仮想でなければなりません。`std::has_virtual_destructor` は、<strong>型が仮想デストラクターを持つか</strong>を調べます。
 
 !!! tip "ポイント"
-    - `::value`（または `_v` 版）が `bool` の定数。
-    - コンパイル時に決まるので、`if constexpr` や `static_assert` に使える。
-    - 型だけを見る（値は見ない）。
+    - `std::has_virtual_destructor_v<T>` は、`T` が仮想デストラクターを持つか
+    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `std::has_virtual_destructor<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
+    - 実行時のコストはない（コンパイル時に決まる）
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::has_virtual_destructor {#has_virtual_destructor}
+### std::has_virtual_destructor_v {#has_virtual_destructor}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <class T>
-struct has_virtual_destructor;
 template <class T>
 inline constexpr bool has_virtual_destructor_v = has_virtual_destructor<T>::value;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 調べる型 |
+| `T` | 型 | 調べたい型 |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+基底クラスのデストラクターが `virtual` なら `true` です。継承で受け継いだ場合も `true` です。仮想デストラクターを持たない基底クラスから派生して、ポインターで破棄すると、未定義動作になります。
 
+型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
 
 ## 実際に動かしてみる
 
@@ -50,51 +51,63 @@ inline constexpr bool has_virtual_destructor_v = has_virtual_destructor<T>::valu
 #include <print>
 #include <type_traits>
 
-struct A {
-  int x;
+struct Animal {
+  virtual ~Animal() = default;
 };
-struct VB {
-  virtual ~VB() = default;
+struct Player {
+  int hp;
+  float x;
 };
 
 int main() {
-  std::println("{}", std::has_virtual_destructor_v<VB>);
-  std::println("{}", std::has_virtual_destructor_v<A>);
+  std::println("Animal                             -> {}", std::has_virtual_destructor_v<Animal>);
+  std::println("Player                             -> {}", std::has_virtual_destructor_v<Player>);
+  std::println("int                                -> {}", std::has_virtual_destructor_v<int>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+Animal                             -> true
+Player                             -> false
+int                                -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの中で、型の性質に応じて処理を切り替える |
+基底クラスのテンプレートで、破棄の安全性を保証します。
+
+```cpp
+template <class Base>
+class Handle {
+  static_assert(std::has_virtual_destructor_v<Base>, "基底クラスには仮想デストラクターが必要です");
+};
+```
 
 ## よくあるミス
 
-??? failure "値と型を取り違える"
-    `has_virtual_destructor` は型を調べます。変数を渡すときは `decltype(x)` にします。
+??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "実行時の値に使おうとする"
+    調べるのは型です。値の判定には通常の比較を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_same`](is_same.md) | 同じ型か |
+| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
+| [`is_same`](is_same.md) | 2 つの型が同じか |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 型が仮想デストラクタを持つかを調べる
-    - [x] `::value`（または `_v` 版）が `bool` の定数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::has_virtual_destructor_v<T>` は、`T` が仮想デストラクターを持つか
+    - [x] `static_assert` と `if constexpr` に使える
+    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
 
 ## 関連ページ
 

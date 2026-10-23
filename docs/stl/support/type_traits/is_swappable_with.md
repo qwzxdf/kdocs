@@ -15,81 +15,97 @@ tags:
 `#include <type_traits>`
 </div>
 
-異なる型の値を入れ替えられるかを判定します。参照の型を渡します。
+型の違う 2 つの値を入れ替えられるかを調べたい。`std::is_swappable_with<T, U>` は、<strong>2 つの型の値を入れ替えられるか</strong>を調べます。
 
 !!! tip "ポイント"
-    - `::value`（または `_v` 版）が `bool` の定数。
-    - コンパイル時に決まるので、`if constexpr` や `static_assert` に使える。
-    - 型だけを見る（値は見ない）。
+    - `std::is_swappable_with_v<T, U>` は、`T` と `U` の値を `swap` できるか
+    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `std::is_swappable_with<T, U>::value` と書いても同じ（`_v` は C++17 の短縮形）
+    - 実行時のコストはない（コンパイル時に決まる）
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::is_swappable_with {#is_swappable_with}
+### std::is_swappable_with_v {#is_swappable_with}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
-template <class T, class U>
-struct is_swappable_with;
 template <class T, class U>
 inline constexpr bool is_swappable_with_v = is_swappable_with<T, U>::value;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 調べる型 |
-| `U` | 型 | 調べる型 |
+| `T` | 型 | 1 つ目の型（`T&` で渡す） |
+| `U` | 型 | 2 つ目の型（`U&` で渡す） |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+`swap(declval<T>(), declval<U>())` と `swap(declval<U>(), declval<T>())` の両方が書けるなら `true` です。`T` と `U` は、通常 `T&` のように参照で渡します。
 
+型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
+#include <string>
 #include <type_traits>
-#include <utility>
 
 int main() {
-  std::println("{}", std::is_swappable_with_v<int&, int&>);
-  std::println("{}", std::is_swappable_with_v<int&, long&>);
+  std::println("int&, int&                         -> {}", std::is_swappable_with_v<int&, int&>);
+  std::println("int&, float&                       -> {}", std::is_swappable_with_v<int&, float&>);
+  std::println("std::string&, std::string&         -> {}", std::is_swappable_with_v<std::string&, std::string&>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+int&, int&                         -> true
+int&, float&                       -> false
+std::string&, std::string&         -> true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの中で、型の性質に応じて処理を切り替える |
+型によって処理を切り替えるテンプレートで使います。
+
+```cpp
+template <class T>
+void Process(const T& value) {
+  if constexpr (std::is_swappable_with_v<T>) {
+    // T が条件に当てはまる型のときの処理
+  } else {
+    // それ以外の型の処理
+  }
+}
+```
 
 ## よくあるミス
 
-??? failure "値と型を取り違える"
-    `is_swappable_with` は型を調べます。変数を渡すときは `decltype(x)` にします。
+??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "実行時の値に使おうとする"
+    調べるのは型です。値の判定には通常の比較を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_same`](is_same.md) | 同じ型か |
+| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
+| [`is_same`](is_same.md) | 2 つの型が同じか |
 
 ## コンパイラ対応
 
-C++17 から使えます。
+C++17 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 2 つの型の値を、たがいに `swap` できるかを調べる
-    - [x] `::value`（または `_v` 版）が `bool` の定数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::is_swappable_with_v<T, U>` は、`T` と `U` の値を `swap` できるか
+    - [x] `static_assert` と `if constexpr` に使える
+    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
 
 ## 関連ページ
 

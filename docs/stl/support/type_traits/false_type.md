@@ -15,27 +15,30 @@ tags:
 `#include <type_traits>`
 </div>
 
-`bool_constant<false>` の別名です。型特性の既定の結果として、`struct IsFoo : std::false_type {}` のように継承します。
+型の性質が当てはまらないとき、トレイトは「偽」を表す型を返します。`std::false_type` は、その型で、`std::integral_constant<bool, false>` の別名です。自作のトレイトでは、既定（当てはまらない場合）の継承元として使います。
 
 !!! tip "ポイント"
-    - `::value` で値が取れる。
-    - 型特性が継承する土台。
-    - `constexpr` 変数としても使える。
+    - `std::false_type::value` は `false`
+    - `std::integral_constant<bool, false>` の別名
+    - `is_integral<float>` などは `false_type` を継承する
+    - 自作のトレイトの既定の継承元にする
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::false_type {#false_type}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 using false_type = integral_constant<bool, false>;
 ```
 
-- 戻り値: `value`（定数）
-- 計算量: コンパイル時のみ
+`std::false_type` は、`value` が `false` の型です。自作のトレイトで、「既定は偽、特定の型のときだけ真」を書くとき、主テンプレートが `std::false_type` を継承し、特殊化で `std::true_type` を継承します。
 
+`static_assert(std::false_type::value)` は常に失敗しますが、テンプレートの中では、依存した型に基づく `false` を書かないと、使われなくても失敗します（`static_assert(always_false<T>)`）。そのとき、この型が役立ちます。
 
 ## 実際に動かしてみる
 
@@ -43,42 +46,55 @@ using false_type = integral_constant<bool, false>;
 #include <print>
 #include <type_traits>
 
+template <class T> struct Always : std::false_type {};   // 型に依存した false
+
 int main() {
-  std::println("{}", std::false_type::value);
+  std::println("false_type::value = {}", std::false_type::value);
+  std::println("Always<int>::value = {}", Always<int>::value);
+  std::println("is_integral<float> は false_type: {}",
+               std::is_base_of_v<std::false_type, std::is_integral<float>>);
 }
 ```
 
 ```text title="実行結果"
-false
+false_type::value = false
+Always<int>::value = false
+is_integral<float> は false_type: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作の型特性の土台にする |
+使ってはいけない型に対して、コンパイルエラーを出す仕組みに使います。
+
+```cpp
+template <class T>
+void Unsupported() {
+  static_assert(Always<T>::value, "この型は未対応です");   // 呼ばれたときだけ失敗する
+}
+```
 
 ## よくあるミス
 
-??? failure "実行時の値を渡す"
-    テンプレート引数は、コンパイル時の定数です。
+??? failure "`static_assert(false)` を直接書いて、常に失敗する"
+    型に依存した `false`（`Always<T>::value`）を書きます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_same`](is_same.md) | 型が同じか |
+| [`true_type`](true_type.md) | 真を表す型 |
+| [`integral_constant`](integral_constant.md) | 定数を包む型 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `false` を表すコンパイル時の定数の型
-    - [x] `::value` で値が取れる
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::false_type` は「偽」を表す型
+    - [x] 自作のトレイトの既定の継承元にする
+    - [x] 型に依存した `false` で、遅延する `static_assert` が書ける
 
 ## 関連ページ
 
