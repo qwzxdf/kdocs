@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+
+  <Commands package="guidKHlslPackage">
+
+    <Menus>
+      <!-- 拡張機能 メニューの下の「K-HLSL」サブメニュー -->
+      <Menu guid="guidKHlslCmdSet" id="KHlslMenu" priority="0x0100" type="Menu">
+        <Parent guid="guidKHlslCmdSet" id="KHlslMenuGroup" />
+        <Strings>
+          <ButtonText>K-HLSL</ButtonText>
+        </Strings>
+      </Menu>
+    </Menus>
+
+    <Groups>
+      <Group guid="guidKHlslCmdSet" id="KHlslMenuGroup" priority="0x0600">
+        <Parent guid="guidVsMainMenu" id="IDM_EXTENSIONS_MENU" />
+      </Group>
+      <Group guid="guidKHlslCmdSet" id="KHlslColorsGroup" priority="0x0100">
+        <Parent guid="guidKHlslCmdSet" id="KHlslMenu" />
+      </Group>
+      <Group guid="guidKHlslCmdSet" id="KHlslHelpGroup" priority="0x0200">
+        <Parent guid="guidKHlslCmdSet" id="KHlslMenu" />
+      </Group>
+    </Groups>
+
+    <Buttons>
+      <Button guid="guidKHlslCmdSet" id="CmdEditColors" priority="0x0100" type="Button">
+        <Parent guid="guidKHlslCmdSet" id="KHlslColorsGroup" />
+        <Strings>
+          <ButtonText>色を編集...（オプション）</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidKHlslCmdSet" id="CmdColorList" priority="0x0200" type="Button">
+        <Parent guid="guidKHlslCmdSet" id="KHlslColorsGroup" />
+        <Strings>
+          <ButtonText>色の項目の一覧を表示</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidKHlslCmdSet" id="CmdOpenDocs" priority="0x0100" type="Button">
+        <Parent guid="guidKHlslCmdSet" id="KHlslHelpGroup" />
+        <Strings>
+          <ButtonText>K-HLSL のページを開く</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidKHlslCmdSet" id="CmdOpenLogs" priority="0x0200" type="Button">
+        <Parent guid="guidKHlslCmdSet" id="KHlslHelpGroup" />
+        <Strings>
+          <ButtonText>ログのフォルダーを開く</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <Symbols>
+    <!-- 拡張機能 メニュー(vsshlids.h の IDM_VS_MENU_EXTENSIONS)。ビルド ツールの vsshlids.h に無いので、値を書く -->
+    <GuidSymbol name="guidVsMainMenu" value="{D309F791-903F-11D0-9EFC-00A0C911004F}">
+      <IDSymbol name="IDM_EXTENSIONS_MENU" value="0x0091" />
+    </GuidSymbol>
+
+    <GuidSymbol name="guidKHlslPackage" value="{5b0c2f4e-6a1d-4c7b-9f33-8d1e7a2b4c90}" />
+
+    <GuidSymbol name="guidKHlslCmdSet" value="{c7a9d3e1-4b52-4f08-8a6e-3d2f19b0e7c4}">
+      <IDSymbol name="KHlslMenuGroup" value="0x1000" />
+      <IDSymbol name="KHlslMenu" value="0x1001" />
+      <IDSymbol name="KHlslColorsGroup" value="0x1010" />
+      <IDSymbol name="KHlslHelpGroup" value="0x1011" />
+      <IDSymbol name="CmdEditColors" value="0x0100" />
+      <IDSymbol name="CmdColorList" value="0x0101" />
+      <IDSymbol name="CmdOpenDocs" value="0x0102" />
+      <IDSymbol name="CmdOpenLogs" value="0x0103" />
+    </GuidSymbol>
+  </Symbols>
+
+</CommandTable>
