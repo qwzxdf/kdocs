@@ -6,10 +6,19 @@ nav:
   - utf8.md
   - editorconfig.md
   - git.md
+  - git-gui.md
+  - git-lfs.md
+  - team.md
+  - github-actions.md
   - libraries.md
   - debugging.md
   - asan.md
+  - clang-tidy.md
+  - unit-test.md
   - profiler.md
+  - tracy.md
+  - renderdoc-pix.md
+  - gpu-debug.md
   - preprocessor.md
   - include-dirs.md
   - project-types.md

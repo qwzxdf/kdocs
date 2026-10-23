@@ -16,6 +16,8 @@ C++ の入門書や、cppreference のようなリファレンスは、「何が
 ## 目次
 
 - [このサイトの読み方](how-to-read.md)
+- [学習ロードマップ](roadmap.md)
+- [よくある質問](faq.md)
 - [Visual Studio](vs/index.md)
 - [STL](stl/index.md)
 - [基礎](basics/index.md)
