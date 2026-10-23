@@ -9,13 +9,15 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
+using Newtonsoft.Json.Linq;
+using StreamJsonRpc;
 
 namespace KHlsl.Vsix
 {
     /// <summary>K-HLSL の言語サーバー(KHlslServer.exe)を起動して、VS とつなぐ。</summary>
     [ContentType(KHlslContentType.Name)]
     [Export(typeof(ILanguageClient))]
-    public sealed class KHlslLanguageClient : ILanguageClient
+    public sealed class KHlslLanguageClient : ILanguageClient, ILanguageClientCustomMessage2
     {
         public string Name => "K-HLSL";
         public IEnumerable<string> ConfigurationSections => null;
@@ -25,6 +27,27 @@ namespace KHlsl.Vsix
 
         public event AsyncEventHandler<EventArgs> StartAsync;
         public event AsyncEventHandler<EventArgs> StopAsync { add { } remove { } }
+
+        // 独自のリクエスト(khlsl/cbuffers)を送るための接続
+        private static volatile JsonRpc _rpc;
+
+        public object MiddleLayer => null;
+        public object CustomMessageTarget => null;
+
+        public Task AttachForCustomMessageAsync(JsonRpc rpc)
+        {
+            _rpc = rpc;
+            return Task.CompletedTask;
+        }
+
+        /// <summary>言語サーバーに、定数バッファのレイアウトを問い合わせる。サーバーがまだ動いていなければ null。</summary>
+        internal static async Task<JToken> RequestCBuffersAsync(string path, bool includeStructs)
+        {
+            var rpc = _rpc;
+            if (rpc == null) return null;
+            string uri = new Uri(path).AbsoluteUri;
+            return await rpc.InvokeWithParameterObjectAsync<JToken>("khlsl/cbuffers", new { uri, includeStructs }).ConfigureAwait(false);
+        }
 
         public async Task<Connection> ActivateAsync(CancellationToken token)
         {

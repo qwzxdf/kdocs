@@ -3,5 +3,6 @@ nav:
   - gpu-pipeline.md
   - resources-views.md
   - formats.md
+  - cbuffer-packing.md
   - conventions.md
   - synchronization.md

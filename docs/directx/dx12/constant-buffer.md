@@ -45,7 +45,7 @@ VSOutput VSMain(VSInput input) {
 
 `row_major` は行列の並べ方の指定です。このサイトは行ベクトル（`v * M`）なので、C++ の `XMFLOAT4X4` と同じ行が連続した並びにそろえます。付けないと HLSL は列が連続した並びとして読み行列が転置されます。
 
-もう 1 つの決まりが**16 バイトの境界**です。`cbuffer` の中の変数は 16 バイト（`float4` 1 つ分）の区切りをまたげません。たとえば、`float3` の次に `float` を置くと同じ 16 バイトの中に収まります。ところが、`float3` の次に `float2` を置くと `float2` は 12 バイトの位置から 8 バイトぶんの場所が足りず、次の 16 バイトへ送られます。C++ の構造体とシェーダーの `cbuffer` で位置がずれたときは、この規則を疑います。
+もう 1 つの決まりが**16 バイトの境界**です。`cbuffer` の中の変数は 16 バイト（`float4` 1 つ分）の区切りをまたげません。たとえば、`float3` の次に `float` を置くと同じ 16 バイトの中に収まります。ところが、`float3` の次に `float2` を置くと `float2` は 12 バイトの位置から 8 バイトぶんの場所が足りず、次の 16 バイトへ送られます。C++ の構造体とシェーダーの `cbuffer` で位置がずれたときは、この規則を疑います。行列・配列・構造体を含む詳しい規則は、[Constant Buffer Packing](../concepts/cbuffer-packing.md) にあります。
 
 ## C++ の構造体と 256 バイトの境界
 
@@ -172,4 +172,5 @@ command_list->SetGraphicsRoot32BitConstants(1, 4, values, 0);
 - [Root Signature](root-signature.md)
 - [Frame Resources](frame-resources.md)
 - [Upload Buffer](upload-buffer.md)
+- [Constant Buffer Packing](../concepts/cbuffer-packing.md)
 - [Microsoft Learn: 定数バッファ ビュー](https://learn.microsoft.com/ja-jp/windows/win32/direct3d12/using-constant-buffers-in-direct3d-12)

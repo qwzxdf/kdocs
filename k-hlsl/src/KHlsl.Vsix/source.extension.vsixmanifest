@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="KHlsl.7f3c2a10-5d4b-4e8a-9a1e-2b6f0c9d4e51" Version="1.0.9" Language="en-US" Publisher="qwzxdf" />
+    <Identity Id="KHlsl.7f3c2a10-5d4b-4e8a-9a1e-2b6f0c9d4e51" Version="1.1.0" Language="en-US" Publisher="qwzxdf" />
     <DisplayName>K-HLSL</DisplayName>
     <Description xml:space="preserve">HLSL language support up to Shader Model 6.9: syntax highlighting, completion, hover, signature help, go to definition, outline, and diagnostics from the real DXC compiler. Handles ResourceDescriptorHeap, work graphs, mesh shaders and DXR 1.2 (SER).</Description>
     <License>LICENSE.txt</License>

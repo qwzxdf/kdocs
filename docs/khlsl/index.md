@@ -17,7 +17,7 @@ K-HLSL は、判定を<strong>本物の DXC に任せる</strong>ことで、こ
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-HLSL-1.0.9.vsix" download>K-HLSL 1.0.9 をダウンロード（.vsix、約 360 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-HLSL-1.1.0.vsix" download>K-HLSL 1.1.0 をダウンロード（.vsix、約 390 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも、同じ手順で上書きできます。アンインストールは、Visual Studio の「拡張機能の管理」から行います。
 
@@ -34,6 +34,20 @@ Visual Studio 2026（Community・Professional・Enterprise）で動きます。2
 ![色付けの確認用のシェーダー](khlsl-colors.jpg)
 
 組み込み関数と型のデータは、DXC の定義表（`gen_intrin_main.txt`）と突き合わせて作っています。レイトレーシング系は、`TraceRay` や `RayQuery` の全メソッド、フラグと定数、SM 6.9 の `dx::HitObject` と `dx::MaybeReorderThread`（Shader Execution Reordering）まで入っています。バインドレスの `ResourceDescriptorHeap` と `NonUniformResourceIndex`、ワーク グラフの属性とレコード型、メッシュ シェーダーの `SetMeshOutputCounts` も同じです。
+
+## 定数バッファのレイアウトを見る
+
+C++ の構造体と `cbuffer` の並びがずれると、値が別の変数に入って、絵が崩れます。原因はたいてい 16 バイトのレジスタの詰め方にあり、頭の中で数えるのは面倒です。K-HLSL は、`cbuffer`・`ConstantBuffer<T>`・`struct` の配置を、HLSL の詰め方のきまり（[Constant Buffer Packing](../directx/concepts/cbuffer-packing.md)）どおりに計算して、3 つの形で見せます。計算は、DXC の逆アセンブリに出るオフセットと突き合わせて、行列・配列・構造体・`double`・`half` を含む数百のケースで一致を確かめています。
+
+ホバーは、`cbuffer` の名前、`ConstantBuffer<T>` の変数名、`struct` の名前にカーソルを置くと、全メンバーのオフセット・サイズ・レジスタの表が出ます。メンバーの宣言行にカーソルを置くと、そのメンバーのオフセットが出ます。
+
+CodeLens は、`cbuffer` の宣言の上に、`272 バイト（17 レジスタ）・隙間 60 バイト` のような 1 行を出します。並べ替えで小さくできるときは、`並べ替えで 16 バイト減らせる` と続きます。表示するかどうかは、使っている Visual Studio が言語サーバーの CodeLens に対応しているかによります。
+
+ツール ウィンドウは、メニューバーの「拡張機能」→「K-HLSL」→「定数バッファのレイアウトを表示」で開きます。開いている HLSL ファイルの `cbuffer` を一覧にして、選んだ 1 つを、16 バイトのレジスタ × 4 バイトの升目で描きます。メンバーごとに色が付き、使われていない隙間は斜線の灰色です。升目をダブルクリックすると、宣言の行へ飛びます。下のタブには、並べ替えると小さくなる順番の HLSL と、同じ配置になる C++ の構造体（隙間の `_pad` と `static_assert` つき）が出ます。保存したときと、別のファイルへ移ったときに、自動で読み直します。
+
+計算に使う設定は、DXC の引数と同じものを読みます。`.khlsl.json` の `args` や、ファイル先頭の `// khlsl:` コメントに書いた `-enable-16bit-types`（`half` が 2 バイトになる）と `-Zpr`、ファイル内の `#pragma pack_matrix` です。`#include` したファイルの `struct` も解決します。
+
+できないこともあります。`min16float` などの最小精度の型を、16 ビット型を有効にせずに配列と組み合わせた場合は、DXC と一致しないことがあります。配列の要素数は、数字のほか、`#define` や `const int` で決めた定数と、その四則演算を解決します。解決できない式は、1 として数えて、注意を表示します。
 
 ## 古い HLSL 拡張と一緒に入れてよいか
 
@@ -90,6 +104,7 @@ Visual Studio を起動した直後に自動で開かれるファイルは、切
 
 | 版 | 内容 |
 | --- | --- |
+| 1.1.0 | 定数バッファのレイアウト表示を追加した（ホバー、CodeLens、ツール ウィンドウ。並べ替えの提案と、C++ の struct の生成つき） |
 | 1.0.9 | 組み込み関数（`normalize` `SampleLevel` など）が橙にならず青のままだった問題を直した。メニューバーの「拡張機能」に「K-HLSL」を追加した（色の編集、色の項目の一覧、このページ、ログのフォルダー） |
 | 1.0.8 | `(a * b)` のような掛け算を、型と変数の宣言と取り違えて、変数名が型の色になる問題を直した |
 | 1.0.7 | `#include` `#define` を灰色、`if` `for` `return` などを紫にした（VS の C++ と同じ既定色の、専用の表示項目）。`#include` した先で定義された構造体を、型・変数・引数・メンバーとして色付けする。組み込み関数とリソースのメソッドを橙にした |

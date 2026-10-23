@@ -20,6 +20,9 @@
       <Group guid="guidKHlslCmdSet" id="KHlslMenuGroup" priority="0x0600">
         <Parent guid="guidVsMainMenu" id="IDM_EXTENSIONS_MENU" />
       </Group>
+      <Group guid="guidKHlslCmdSet" id="KHlslToolsGroup" priority="0x0050">
+        <Parent guid="guidKHlslCmdSet" id="KHlslMenu" />
+      </Group>
       <Group guid="guidKHlslCmdSet" id="KHlslColorsGroup" priority="0x0100">
         <Parent guid="guidKHlslCmdSet" id="KHlslMenu" />
       </Group>
@@ -29,6 +32,12 @@
     </Groups>
 
     <Buttons>
+      <Button guid="guidKHlslCmdSet" id="CmdCBuffer" priority="0x0100" type="Button">
+        <Parent guid="guidKHlslCmdSet" id="KHlslToolsGroup" />
+        <Strings>
+          <ButtonText>定数バッファのレイアウトを表示</ButtonText>
+        </Strings>
+      </Button>
       <Button guid="guidKHlslCmdSet" id="CmdEditColors" priority="0x0100" type="Button">
         <Parent guid="guidKHlslCmdSet" id="KHlslColorsGroup" />
         <Strings>
@@ -69,6 +78,8 @@
       <IDSymbol name="KHlslMenu" value="0x1001" />
       <IDSymbol name="KHlslColorsGroup" value="0x1010" />
       <IDSymbol name="KHlslHelpGroup" value="0x1011" />
+      <IDSymbol name="KHlslToolsGroup" value="0x1012" />
+      <IDSymbol name="CmdCBuffer" value="0x0104" />
       <IDSymbol name="CmdEditColors" value="0x0100" />
       <IDSymbol name="CmdColorList" value="0x0101" />
       <IDSymbol name="CmdOpenDocs" value="0x0102" />
