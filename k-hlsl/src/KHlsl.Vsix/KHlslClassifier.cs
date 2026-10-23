@@ -17,6 +17,9 @@ namespace KHlsl.Vsix
     internal static class KHlslClassNames
     {
         public const string Visibility = "khlsl.visibility";
+        public const string Intrinsic = "khlsl.intrinsic";
+        public const string Preprocessor = "khlsl.preprocessor";
+        public const string Control = "khlsl.control";
         public const string Escape = "khlsl.escape";
         public const string Format = "khlsl.format";
         public const string RainbowError = "khlsl.rainbow.error";
@@ -27,6 +30,9 @@ namespace KHlsl.Vsix
     internal static class KHlslClassDefinitions
     {
         [Export] [Name(KHlslClassNames.Visibility)] internal static ClassificationTypeDefinition Visibility;
+        [Export] [Name(KHlslClassNames.Intrinsic)] internal static ClassificationTypeDefinition Intrinsic;
+        [Export] [Name(KHlslClassNames.Preprocessor)] internal static ClassificationTypeDefinition Preprocessor;
+        [Export] [Name(KHlslClassNames.Control)] internal static ClassificationTypeDefinition Control;
         [Export] [Name(KHlslClassNames.Escape)] internal static ClassificationTypeDefinition Escape;
         [Export] [Name(KHlslClassNames.Format)] internal static ClassificationTypeDefinition Format;
         [Export] [Name("khlsl.rainbow.1")] internal static ClassificationTypeDefinition Rainbow1;
@@ -54,6 +60,42 @@ namespace KHlsl.Vsix
     [Export(typeof(EditorFormatDefinition))] [ClassificationType(ClassificationTypeNames = KHlslClassNames.Visibility)]
     [Name("khlsl.visibility.format")] [UserVisible(true)] [Order(After = Priority.High)]
     internal sealed class VisibilityFormat : KHlslFormat { public VisibilityFormat() : base("K-HLSL 可視性キーワード", "#696969") { } }
+
+    /// <summary>VS の C++ の既定色(ダーク / ライト)。エディターの背景の明るさで、どちらかを選ぶ。</summary>
+    internal static class ThemeColors
+    {
+        public static Color Pick(string dark, string light)
+        {
+            bool isDark = true;
+            try
+            {
+                var bg = Microsoft.VisualStudio.PlatformUI.VSColorTheme.GetThemedColor(Microsoft.VisualStudio.PlatformUI.EnvironmentColors.ToolWindowBackgroundColorKey);
+                isDark = (bg.R * 299 + bg.G * 587 + bg.B * 114) / 1000 < 128;
+            }
+            catch (Exception) { }
+            return (Color)ColorConverter.ConvertFromString(isDark ? dark : light);
+        }
+    }
+
+    // #include・#define など。VS の C++ と同じ灰色
+    [Export(typeof(EditorFormatDefinition))] [ClassificationType(ClassificationTypeNames = KHlslClassNames.Preprocessor)]
+    [Name("khlsl.preprocessor.format")] [UserVisible(true)] [Order(After = Priority.High)]
+    internal sealed class PreprocessorFormat : ClassificationFormatDefinition
+    {
+        public PreprocessorFormat() { DisplayName = "K-HLSL プリプロセッサ キーワード"; ForegroundColor = ThemeColors.Pick("#9B9B9B", "#808080"); }
+    }
+
+    // if・for・return など。VS の C++ の制御キーワードと同じ紫
+    [Export(typeof(EditorFormatDefinition))] [ClassificationType(ClassificationTypeNames = KHlslClassNames.Control)]
+    [Name("khlsl.control.format")] [UserVisible(true)] [Order(After = Priority.High)]
+    internal sealed class ControlFormat : ClassificationFormatDefinition
+    {
+        public ControlFormat() { DisplayName = "K-HLSL 制御キーワード"; ForegroundColor = ThemeColors.Pick("#D8A0DF", "#8F08C4"); }
+    }
+
+    [Export(typeof(EditorFormatDefinition))] [ClassificationType(ClassificationTypeNames = KHlslClassNames.Intrinsic)]
+    [Name("khlsl.intrinsic.format")] [UserVisible(true)] [Order(After = Priority.High)]
+    internal sealed class IntrinsicFormat : KHlslFormat { public IntrinsicFormat() : base("K-HLSL 組み込み関数", "#E8892B") { } }
 
     [Export(typeof(EditorFormatDefinition))] [ClassificationType(ClassificationTypeNames = KHlslClassNames.Escape)]
     [Name("khlsl.escape.format")] [UserVisible(true)] [Order(After = Priority.High)]
@@ -208,13 +250,14 @@ namespace KHlsl.Vsix
             t[Tk.String] = str;
             t[Tk.StringDelim] = combine(new[] { get("cppStringDelimiterCharacter"), str });
             t[Tk.Number] = get("number");
-            t[Tk.Preprocessor] = get("preprocessor keyword") ?? keyword;
+            t[Tk.Preprocessor] = combine(new[] { get("preprocessor keyword") ?? keyword, get(KHlslClassNames.Preprocessor) });
             t[Tk.Keyword] = keyword;
-            t[Tk.Control] = get("cppControlKeyword") ?? keyword;
+            t[Tk.Control] = combine(new[] { keyword, get(KHlslClassNames.Control) });
             t[Tk.Visibility] = combine(new[] { keyword, get(KHlslClassNames.Visibility) });
             t[Tk.Type] = semantic("cppType");
             t[Tk.Function] = semantic("cppFunction");
             t[Tk.MemberFunc] = semantic("cppMemberFunction");
+            t[Tk.Intrinsic] = combine(new[] { get(KHlslClassNames.Intrinsic), identifier });
             t[Tk.Semantic] = semantic("cppEnumerator");
             t[Tk.Attribute] = get("cppAttributeIdentifier") ?? semantic("cppType");
             t[Tk.Enumerator] = semantic("cppEnumerator");
