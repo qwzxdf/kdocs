@@ -15,19 +15,22 @@ tags:
 `#include <exception>`
 </div>
 
-`current_exception()` や `make_exception_ptr()` で保存した例外を、別の場所で投げ直します。`std::async` や `future::get` が、別スレッドの例外を呼び出し元に渡す仕組みも、この関数と同じ考え方です。
+保存しておいた例外を、あとで投げ直したい。`std::rethrow_exception(ptr)` は、<strong>`exception_ptr` が指す例外を、改めて投げます</strong>。別スレッドで起きた例外を、メイン スレッドで処理するときの最後の一歩です。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - `exception_ptr` が指す例外を投げ直す
+    - 元の型のまま投げられる
+    - 空の `exception_ptr` を渡すと未定義動作
+    - 戻らない（`[[noreturn]]`）
 
 !!! info "このページを読む前に"
-    [例外](../../../basics/index.md) の基本と、[`std::exception`](exception.md) を先に読んでください。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::rethrow_exception {#rethrow_exception}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
 [[noreturn]] void rethrow_exception(std::exception_ptr p);
@@ -35,11 +38,11 @@ tags:
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `p` | exception_ptr | 投げ直す例外（空でないこと） |
+| `p` | `exception_ptr` | 投げ直す例外。空でないこと |
 
-- 戻り値: 戻らない（例外を投げる）
-- 計算量: 定数
+`exception_ptr` が指す例外オブジェクトを、そのまま投げます。型は、元の例外の型です。そのため、`catch (const std::runtime_error&)` で、元の型として受け取れます。
 
+空の `exception_ptr` を渡すと、動作は未定義です。`if (ptr)` で確かめてから呼びます。この関数は戻らず、必ず例外を投げます（`[[noreturn]]`）。
 
 ## 実際に動かしてみる
 
@@ -49,47 +52,49 @@ tags:
 #include <stdexcept>
 
 int main() {
-  std::exception_ptr p = std::make_exception_ptr(std::runtime_error("boom"));
+  std::exception_ptr p = std::make_exception_ptr(std::runtime_error("失敗"));
   try {
     std::rethrow_exception(p);
   } catch (const std::runtime_error& e) {
-    std::println("{}", e.what());
+    std::println("元の型で捕まえた: {}", e.what());
   }
 }
 ```
 
 ```text title="実行結果"
-boom
+元の型で捕まえた: 失敗
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ワーカースレッドの例外をメインスレッドで投げ直す |
+保存した例外を、処理しやすい場所で投げ直します。
+
+```cpp
+if (error) std::rethrow_exception(error);
+```
 
 ## よくあるミス
 
-??? failure "空のポインタを渡す"
-    空の `exception_ptr` を渡すと未定義動作です。
+??? failure "空の `exception_ptr` を渡す"
+    `if (ptr)` で確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`current_exception`](current_exception.md) | 保存する |
-| [`make_exception_ptr`](make_exception_ptr.md) | 例外から作る |
+| [`exception_ptr`](exception_ptr.md) | 例外を保持する型 |
+| [`current_exception`](current_exception.md) | 今の例外を取る |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`<exception>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 保存した exception_ptr の例外を、もう一度投げる
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `rethrow_exception(p)` は `p` が指す例外を投げ直す
+    - [x] 空の `exception_ptr` は未定義動作
+    - [x] 戻らない
 
 ## 関連ページ
 

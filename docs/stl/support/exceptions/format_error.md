@@ -15,75 +15,95 @@ tags:
 `#include <format>`
 </div>
 
-`std::format_error` は、**`std::vformat` などで、実行時に与えた書式の文字列が不正だった**ときに投げられる例外です。コンパイル時に決まる書式（`std::format("{}", x)`）は、コンパイル時にエラーになるので、この例外は出ません。
+書式文字列に間違いがあると、`std::format` は、コンパイル時に検出できる場合はコンパイルエラーにします。ですが、実行時に決まる書式文字列（`std::vformat`）では、実行時にしか分かりません。`std::format_error` は、<strong>書式文字列が不正なときに投げられる例外</strong>です。
 
 !!! tip "ポイント"
-    - 実行時の書式（`vformat`）で出る。
-    - `"{"` のように閉じていない書式、引数の数の不一致などが原因。
+    - 不正な書式文字列を渡すと `vformat` が投げる
+    - `std::format` にリテラルを渡すなら、コンパイル時に検出される
+    - 書式をユーザー入力から読むときに備える
+    - `std::runtime_error` の派生
 
 !!! info "このページを読む前に"
-    [標準の例外](../exceptions.md) の概要と合わせて読むと分かりやすいです。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::format_error {#format_error}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-class format_error : public std::exception {
+class format_error : public runtime_error {
  public:
-  const char* what() const noexcept override;
+  explicit format_error(const std::string& what_arg);
+  explicit format_error(const char* what_arg);
 };
 ```
 
-- 戻り値: （例外クラス）。`what()` でメッセージ
-- 計算量: O(1)
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `what_arg` | 文字列 | `what()` で返すメッセージ |
+
+`std::vformat` など、実行時に書式文字列を受け取る関数で、`{}` の対応が合わない、型に合わない指定（文字列に `:d` など）がある、といった場合に投げられます。
+
+`std::format` の書式文字列は、リテラルならコンパイル時に検査されるので、この例外は出ません。ユーザー入力や設定ファイルから書式を読む場合だけ、注意が必要です。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <format>
 #include <print>
+#include <string>
 
 int main() {
+  const std::string text = "abc";
   try {
-    std::string s = std::vformat("{", std::make_format_args());  // 閉じていない
-    (void)s;
+    // 文字列に整数用の :d を指定した、不正な書式
+    std::string s = std::vformat("{:d}", std::make_format_args(text));
   } catch (const std::format_error&) {
-    std::println("書式が不正");
+    std::println("format_error を捕まえた");
   }
 }
 ```
 
 ```text title="実行結果"
-書式が不正
+format_error を捕まえた
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 翻訳テキストの書式が壊れていたときに、落ちずにログを出す | `catch (const std::format_error&)` |
+設定ファイルのメッセージ書式のように、実行時に決まる書式を使うときに備えます。
+
+```cpp
+try {
+  return std::vformat(user_format, std::make_format_args(name));
+} catch (const std::format_error&) {
+  return "(書式が不正)";
+}
+```
 
 ## よくあるミス
 
-??? failure "ユーザー入力を書式にする"
-    意図しない展開や例外が起きます。入力は引数に渡し、書式にはしません。
+??? failure "リテラルの書式に、備えを入れて冗長になる"
+    リテラルはコンパイル時に検査されます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::vformat`](../../utilities/vformat.md) | 実行時の書式 |
-| [`std::format`](../../utilities/format.md) | コンパイル時に検査される |
+| [`format`](../../utilities/format.md) | 書式つき文字列を作る |
+| [`runtime_error`](runtime_error.md) | 基底クラス |
 
 ## コンパイラ対応
 
-C++20 の機能です。
+C++20 から使えます。`<format>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 書式が不正なときの例外
-    - [x] 実行時の書式で起きる
-    - [x] ユーザー入力は書式にしない
+    - [x] `format_error` は不正な書式文字列を表す例外
+    - [x] リテラルならコンパイル時に検出される
+    - [x] 実行時に決まる書式で備える
 
 ## 関連ページ
 

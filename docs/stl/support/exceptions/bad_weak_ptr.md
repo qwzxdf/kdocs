@@ -14,30 +14,29 @@ tags:
 `#include <memory>`
 </div>
 
-`weak_ptr` は、指している先がすでに解放されているかもしれません。`std::shared_ptr<T> s(w);` のように、`weak_ptr` から `shared_ptr` をコンストラクタで作ろうとして、先が解放済みだと `bad_weak_ptr` が投げられます。
+標準ライブラリの機能は、前提が満たされないとき、例外を投げて失敗を伝えます。`std::bad_weak_ptr` は、<strong>期限切れの `weak_ptr` から `shared_ptr` を作ったことを表す例外</strong>。
 
 !!! tip "ポイント"
-    - `weak_ptr::lock()` は例外を投げず、空の `shared_ptr` を返す。
-    - コンストラクタで作ろうとしたときだけ例外になる。
-    - `std::exception` から派生。
+    - 期限切れの `weak_ptr` を `shared_ptr` のコンストラクターに渡すと投げられる
+    - `lock()` なら空の `shared_ptr` が返る（例外にならない）
+    - `<memory>` で宣言される
+    - `lock()` を使えば、起こらない
 
 !!! info "このページを読む前に"
-    [`std::shared_ptr`](../../utilities/shared_ptr.md) を先に読んでください。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::bad_weak_ptr {#bad_weak_ptr}
 
 ```cpp
-class bad_weak_ptr : public exception {
+class bad_weak_ptr : public std::exception {
  public:
   const char* what() const noexcept override;
 };
 ```
 
-- 戻り値: `what()` はエラーを表す文字列
-- 計算量: なし
-
+指す先がすでに破棄された `std::weak_ptr` から、`std::shared_ptr` のコンストラクターで作ろうとすると、投げられます。`weak_ptr::lock()` なら、例外を投げず、空の `shared_ptr` を返します。
 
 ## 実際に動かしてみる
 
@@ -46,47 +45,56 @@ class bad_weak_ptr : public exception {
 #include <print>
 
 int main() {
-  std::weak_ptr<int> w;
+  std::weak_ptr<int> weak;                 // 何も指していない
   try {
-    std::shared_ptr<int> s(w);
+    std::shared_ptr<int> strong(weak);
   } catch (const std::bad_weak_ptr&) {
-    std::println("期限切れ");
+    std::println("bad_weak_ptr を捕まえた");
   }
+  std::println("lock なら安全: {}", weak.lock() == nullptr);
 }
 ```
 
 ```text title="実行結果"
-期限切れ
+bad_weak_ptr を捕まえた
+lock なら安全: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 期限切れの確認 | `if (auto s = w.lock()) { ... }`（例外を使わない） |
+キャラクターが消えたかもしれない参照を、安全に使います。
+
+```cpp
+if (auto target = weak_target.lock()) {
+  Attack(*target);   // まだ生きている
+}
+```
 
 ## よくあるミス
 
-??? failure "コンストラクタで直接作る"
-    `shared_ptr<T> s(w);` は期限切れで例外です。普通は `lock()` を使います。
+??? failure "捕まえずに放置して、プログラムが終了する"
+    例外を投げうる機能を使うときは、`try` / `catch` で受けるか、事前に条件を確かめます。
+
+??? failure "`catch (std::exception)` と値で捕まえる"
+    `const` 参照で捕まえます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`weak_ptr`](../../utilities/weak_ptr.md) | 弱い参照 |
-| [`shared_ptr`](../../utilities/shared_ptr.md) | 共有所有 |
+| [`exception`](exception.md) | すべての標準例外の基底 |
+| [`weak_ptr`](../../utilities/weak_ptr.md) | 所有しない弱い参照 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++11 から使えます。`<memory>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 期限切れの weak_ptr から shared_ptr を作ると投げる
-    - [x] lock() は投げない
-    - [x] <memory>
+    - [x] 期限切れの `weak_ptr` を `shared_ptr` のコンストラクターに渡すと投げられる
+    - [x] `what()` でメッセージを取れる（内容は実装で違う）
+    - [x] `const` 参照で捕まえる
 
 ## 関連ページ
 

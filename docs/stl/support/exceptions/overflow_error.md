@@ -15,74 +15,96 @@ tags:
 `#include <stdexcept>`
 </div>
 
-`std::overflow_error` は、**計算の結果が大きすぎて、型で表せなくなった**ことを表す例外です。標準ライブラリが自動で投げることは少なく、自分で桁あふれを検出したときに投げて使います。`underflow_error`（小さすぎる）の対です。
+実行してみないと分からない計算の失敗は、`std::runtime_error` の仲間の例外で表します。`std::overflow_error` は、<strong>計算が上限を超えたことを表す例外</strong>です。
 
 !!! tip "ポイント"
-    - `runtime_error` の派生クラス。
-    - 整数の桁あふれは、通常は未定義動作で、検出されない。自分で検査して投げる。
+    - `throw std::overflow_error("メッセージ")` で投げる
+    - `what()` でメッセージを取り出せる
+    - `std::runtime_error` と `std::exception` の派生クラス
+    - `catch (const std::overflow_error&)` で、この種類だけを捕まえられる
 
 !!! info "このページを読む前に"
-    [標準の例外](../exceptions.md) の概要と合わせて読むと分かりやすいです。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::overflow_error {#overflow_error}
 
 ```cpp
-class overflow_error : public std::exception {
+class overflow_error : public runtime_error {
  public:
-  const char* what() const noexcept override;
+  explicit overflow_error(const std::string& what_arg);
+  explicit overflow_error(const char* what_arg);
 };
 ```
 
-- 戻り値: （例外クラス）。`what()` でメッセージ
-- 計算量: O(1)
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `what_arg` | 文字列 | `what()` で返すメッセージ |
+
+`std::bitset::to_ulong` で、値が `unsigned long` に収まらないとき に投げます。呼び出し側は、`catch (const std::overflow_error&)` で、この種類だけを捕まえられます。
+
+`std::runtime_error` の仲間は、プログラムの誤りというより、実行時の状況（データの値、環境）によって起こる失敗を表します。`std::logic_error` の仲間との違いです。
+
+## 実際に動かしてみる
 
 ```cpp
+#include <bitset>
 #include <print>
 #include <stdexcept>
 
 int main() {
+  std::bitset<70> bits;
+  bits.set();                           // 70 ビット全部を 1 にする
   try {
-    throw std::overflow_error("加算が桁あふれ");
-  } catch (const std::overflow_error& e) {
-    std::println("{}", e.what());
+    bits.to_ullong();                   // 64 ビットに収まらない
+  } catch (const std::overflow_error&) {
+    std::println("overflow_error を捕まえた");
   }
 }
 ```
 
 ```text title="実行結果"
-加算が桁あふれ
+overflow_error を捕まえた
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 所持金の加算が上限を超えたとき | `throw std::overflow_error("gold overflow");` |
+数値を扱う自作のライブラリで、計算の失敗を知らせます。
+
+```cpp
+int Checked(long long v) {
+  if (v > INT_MAX) throw std::overflow_error("int に収まらない");
+  return static_cast<int>(v);
+}
+```
 
 ## よくあるミス
 
-??? failure "標準が自動で投げると思う"
-    整数の桁あふれは検出されません。`std::add_sat` などで防ぎます。
+??? failure "値で捕まえて、派生クラスの情報が切り取られる"
+    `const` 参照で捕まえます。
+
+??? failure "エラーを握りつぶす"
+    何もしない `catch (...)` は避けます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`runtime_error`](runtime_error.md) | 親 |
-| [`std::add_sat`](../../numeric/add_sat.md) | 桁あふれさせない足し算 |
+| [`runtime_error`](runtime_error.md) | 基底クラス |
+| [`logic_error`](logic_error.md) | プログラムの誤り |
+| [`exception`](exception.md) | すべての標準例外の基底 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。`<stdexcept>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 結果が大きすぎる
-    - [x] 自分で検査して投げる
-    - [x] 整数は自動検出されない
+    - [x] `std::overflow_error` は計算が上限を超えたことを表す例外
+    - [x] `std::runtime_error` の派生
+    - [x] `const` 参照で捕まえる
 
 ## 関連ページ
 

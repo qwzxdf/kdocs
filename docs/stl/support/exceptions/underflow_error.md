@@ -14,15 +14,16 @@ tags:
 `#include <stdexcept>`
 </div>
 
-浮動小数点で、0 に近すぎて表せない結果（アンダーフロー）になったことを表します。標準のライブラリが自動で投げることは少なく、自分のコードで使います。
+実行してみないと分からない計算の失敗は、`std::runtime_error` の仲間の例外で表します。`std::underflow_error` は、<strong>計算が下限を下回ったことを表す例外</strong>です。
 
 !!! tip "ポイント"
-    - `runtime_error` から派生。
-    - `throw` するときに説明の文字列を渡す。
-    - `what()` で説明を取り出す。
+    - `throw std::underflow_error("メッセージ")` で投げる
+    - `what()` でメッセージを取り出せる
+    - `std::runtime_error` と `std::exception` の派生クラス
+    - `catch (const std::underflow_error&)` で、この種類だけを捕まえられる
 
 !!! info "このページを読む前に"
-    [例外](../../../basics/index.md) の基本と、[`std::exception`](exception.md) を先に読んでください。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -38,11 +39,11 @@ class underflow_error : public runtime_error {
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `what_arg` | 文字列 | エラーの説明（`what()` で取り出せる） |
+| `what_arg` | 文字列 | `what()` で返すメッセージ |
 
-- 戻り値: `what()` が説明を返す
-- 計算量: 定数
+数値計算のライブラリが、結果が小さすぎて表せないと判断したとき。標準ライブラリ自身が投げることはほとんどありません に投げます。呼び出し側は、`catch (const std::underflow_error&)` で、この種類だけを捕まえられます。
 
+`std::runtime_error` の仲間は、プログラムの誤りというより、実行時の状況（データの値、環境）によって起こる失敗を表します。`std::logic_error` の仲間との違いです。
 
 ## 実際に動かしてみる
 
@@ -52,44 +53,54 @@ class underflow_error : public runtime_error {
 
 int main() {
   try {
-    throw std::underflow_error("bad input");
-  } catch (const std::runtime_error& e) {
-    std::println("{}", e.what());
+    throw std::underflow_error("結果が小さすぎる");
+  } catch (const std::underflow_error& e) {
+    std::println("エラー: {}", e.what());
   }
 }
 ```
 
 ```text title="実行結果"
-bad input
+エラー: 結果が小さすぎる
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作の関数で、引数や結果の異常を知らせる |
+数値を扱う自作のライブラリで、計算の失敗を知らせます。
+
+```cpp
+int Checked(long long v) {
+  if (v > INT_MAX) throw std::overflow_error("int に収まらない");
+  return static_cast<int>(v);
+}
+```
 
 ## よくあるミス
 
-??? failure "ゲームの通常のフローに使う"
-    例外は遅いので、頻繁に起きるエラーには使いません。戻り値や `expected` を使います。
+??? failure "値で捕まえて、派生クラスの情報が切り取られる"
+    `const` 参照で捕まえます。
+
+??? failure "エラーを握りつぶす"
+    何もしない `catch (...)` は避けます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`runtime_error`](runtime_error.md) | 親のクラス |
+| [`runtime_error`](runtime_error.md) | 基底クラス |
+| [`logic_error`](logic_error.md) | プログラムの誤り |
+| [`exception`](exception.md) | すべての標準例外の基底 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。`<stdexcept>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 計算の結果が小さすぎて表せないことを表す例外
-    - [x] `runtime_error` から派生
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::underflow_error` は計算が下限を下回ったことを表す例外
+    - [x] `std::runtime_error` の派生
+    - [x] `const` 参照で捕まえる
 
 ## 関連ページ
 

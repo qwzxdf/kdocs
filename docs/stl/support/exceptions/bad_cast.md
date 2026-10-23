@@ -15,14 +15,16 @@ tags:
 `#include <typeinfo>`
 </div>
 
-`std::bad_cast` は、**参照に対する `dynamic_cast` が失敗した**ときに投げられる例外です。ポインターへの `dynamic_cast` は失敗すると `nullptr` を返しますが、参照にはヌルがないので、例外になります。
+標準ライブラリの機能は、前提が満たされないとき、例外を投げて失敗を伝えます。`std::bad_cast` は、<strong>`dynamic_cast` で参照への変換に失敗したことを表す例外</strong>。
 
 !!! tip "ポイント"
-    - ポインターは `nullptr`、参照は `bad_cast` 例外。
-    - 例外を避けたいなら、ポインターにキャストして `nullptr` を確認する。
+    - 参照への `dynamic_cast` が失敗したときに投げられる
+    - ポインターへの `dynamic_cast` は `nullptr` を返す（例外にならない）
+    - `<typeinfo>` で宣言される
+    - `dynamic_cast` を多用するなら、設計を見直す
 
 !!! info "このページを読む前に"
-    [標準の例外](../exceptions.md) の概要と合わせて読むと分かりやすいです。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -35,8 +37,11 @@ class bad_cast : public std::exception {
 };
 ```
 
-- 戻り値: （例外クラス）。`what()` でメッセージ
-- 計算量: O(1)
+`dynamic_cast<T&>(obj)` で、`obj` の実際の型が `T` でないとき、投げられます。ポインターへの `dynamic_cast` は、失敗しても例外を投げず、`nullptr` を返します。参照にはヌルがないので、例外で失敗を伝えます。
+
+ゲームで多くの `dynamic_cast` が必要になる場合は、設計を見直すサインです。仮想関数で振る舞いを分けるか、型の ID を持つ設計（コンポーネント）に変えます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
@@ -46,51 +51,58 @@ struct Base {
   virtual ~Base() = default;
 };
 struct Derived : Base {};
-struct Other : Base {};
 
 int main() {
-  Derived d;
-  Base& b = d;
+  Base base;
   try {
-    Other& o = dynamic_cast<Other&>(b);
-    (void)o;
+    Derived& d = dynamic_cast<Derived&>(base);   // 実際は Base なので失敗
+    (void)d;
   } catch (const std::bad_cast&) {
-    std::println("キャスト失敗");
+    std::println("bad_cast を捕まえた");
   }
 }
 ```
 
 ```text title="実行結果"
-キャスト失敗
+bad_cast を捕まえた
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| エンティティの型を確かめて変換する | `dynamic_cast<Boss*>(entity)` を使い、`nullptr` を確認する |
+実際の型が分からない参照を、派生クラスとして扱う場面で、失敗を検出します。
+
+```cpp
+try {
+  auto& enemy = dynamic_cast<Enemy&>(entity);
+} catch (const std::bad_cast&) { /* Enemy ではなかった */ }
+```
+
+ポインターを使えば、例外なしで同じ判定ができます（`if (auto* e = dynamic_cast<Enemy*>(&entity))`）。
 
 ## よくあるミス
 
-??? failure "ポインターのつもりで例外を期待する"
-    ポインターのキャストは例外を投げません。
+??? failure "捕まえずに放置して、プログラムが終了する"
+    例外を投げうる機能を使うときは、`try` / `catch` で受けるか、事前に条件を確かめます。
+
+??? failure "`catch (std::exception)` と値で捕まえる"
+    `const` 参照で捕まえます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`typeid`](../typeid.md) | 型を調べる |
+| [`exception`](exception.md) | すべての標準例外の基底 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。`<typeinfo>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 参照の dynamic_cast 失敗
-    - [x] ポインターは nullptr
-    - [x] ポインターのほうが扱いやすい
+    - [x] 参照への `dynamic_cast` が失敗したときに投げられる
+    - [x] `what()` でメッセージを取れる（内容は実装で違う）
+    - [x] `const` 参照で捕まえる
 
 ## 関連ページ
 

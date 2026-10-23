@@ -15,76 +15,95 @@ tags:
 `#include <compare>`
 </div>
 
-`std::strong_ordering` は、**三方比較（`<=>`）の結果の型のうち、最も強いもの**で、`less`（小さい）、`equal`（等しい）、`greater`（大きい）の 3 つの値を持ちます。`equal` のものは**区別がつかない**（どちらを使っても同じ）ことを表します。整数や文字列の比較結果がこの型です。
+2 つの値を比べた結果は、「小さい」「等しい」「大きい」のどれかです。C++20 の三方比較演算子 `<=>` は、その結果を 1 つの値で返します。`std::strong_ordering` は、<strong>その結果を表す型</strong>で、`less`、`equal`、`greater` の 3 値 を持ちます。
 
 !!! tip "ポイント"
-    - `(a <=> b) < 0` のように 0 と比べて判定する。
-    - `std::is_lt(r)`、`is_eq(r)`、`is_gt(r)` で読みやすく書ける。
-    - 小数は NaN があるので `partial_ordering`。
+    - `std::strong_ordering::less`、`equal`、`greater` の 3 つの値
+    - 等しい値は、完全に区別できない（置き換えられる）
+    - 整数、文字列、`std::string` などの `<=>` の結果
+    - `weak_ordering` と `partial_ordering` に暗黙に変換できる
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::strong_ordering {#strong_ordering}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-struct strong_ordering {
-  static const strong_ordering less, equal, greater;
+class strong_ordering {
+ public:
+  static const strong_ordering less;
+  static const strong_ordering equal;
+  static const strong_ordering greater;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `r` | `strong_ordering` | 比較結果 |
+値が等しい（`equal`）とき、それらを区別できません。どちらを使っても結果が変わらない、置き換え可能な関係です。整数や文字列がこれにあたります。
 
-- 戻り値: `less` / `equal` / `greater`
-- 計算量: O(1)
+自作のクラスで `auto operator<=>(const T&) const = default;` と書くと、メンバー変数の型の `<=>` に応じて、`strong_ordering` などの型が決まります。
+
+型の強さは、`strong_ordering` > `weak_ordering` > `partial_ordering` の順です。強い型から弱い型へは暗黙に変換できます。比較した結果は、`0` との比較演算子（`r < 0`、`r == 0`）で判定でき、`std::is_lt(r)` のような名前つきの関数でも判定できます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <compare>
 #include <print>
 
 int main() {
-  std::strong_ordering r = (3 <=> 5);
-  std::println("{} {} {}", r < 0, std::is_lt(r), (2 <=> 2) == 0);
+  auto r = 1 <=> 2;
+  std::println("1 <=> 2 は less    : {}", r == std::strong_ordering::less);
+  std::println("2 <=> 2 は equal   : {}", (2 <=> 2) == std::strong_ordering::equal);
+  std::println("3 <=> 2 は greater : {}", (3 <=> 2) == std::strong_ordering::greater);
 }
 ```
 
 ```text title="実行結果"
-true true true
+1 <=> 2 は less    : true
+2 <=> 2 は equal   : true
+3 <=> 2 は greater : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 自作の比較関数の戻り値 | `std::strong_ordering Compare(const Item& a, const Item& b)` |
+自作のクラスに比較演算子をまとめて定義します。
+
+```cpp
+struct Version {
+  int major, minor;
+  auto operator<=>(const Version&) const = default;   // すべての比較演算子が自動で揃う
+};
+```
 
 ## よくあるミス
 
-??? failure "0 以外のリテラルと比べる"
-    `r < 1` のように 0 以外と比べるのはエラーです。`< 0`、`== 0`、`> 0` の形だけが使えます。
+??? failure "`unordered` を考えず、NaN の比較で誤る"
+    `partial_ordering` では、`unordered` のとき `<` も `>` も `==` も偽です。
+
+??? failure "弱い型から強い型へ代入する"
+    強い型から弱い型への変換だけが許されます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`weak_ordering`](weak_ordering.md) | 等しくても区別できるかもしれない |
-| [`partial_ordering`](partial_ordering.md) | 比べられない場合がある |
+| [`is_lt`](is_lt.md) | 結果を `bool` で判定する |
+| [`three_way_comparable`](three_way_comparable.md) | `<=>` が使えるか |
+| [`compare_three_way`](compare_three_way.md) | `<=>` の関数オブジェクト |
 
 ## コンパイラ対応
 
-C++20 の機能です。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.x 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 3 値の比較結果
-    - [x] 0 と比べて判定
-    - [x] 整数・文字列の結果
+    - [x] `strong_ordering` は`<=>` の結果を表す型
+    - [x] 強い型から弱い型へ暗黙に変換できる
+    - [x] `0` との比較か `is_lt` などで判定する
 
 ## 関連ページ
 

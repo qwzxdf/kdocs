@@ -15,19 +15,22 @@ tags:
 `#include <exception>`
 </div>
 
-`throw` せずに、例外オブジェクトを `exception_ptr` に包みたいことがあります（`promise::set_exception` に渡すときなど）。`make_exception_ptr(e)` が、`throw` と `catch` を省いて作ってくれます。
+例外を「投げずに」、`exception_ptr` として用意したい。たとえば、非同期処理の結果として、失敗を表す値を返したい。`std::make_exception_ptr(e)` は、<strong>例外オブジェクトから `exception_ptr` を作ります</strong>。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - 例外オブジェクトから `exception_ptr` を作る
+    - `throw` と `catch` を経由しない
+    - `promise::set_exception` に渡す
+    - 渡した `e` のコピーが保持される
 
 !!! info "このページを読む前に"
-    [例外](../../../basics/index.md) の基本と、[`std::exception`](exception.md) を先に読んでください。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::make_exception_ptr {#make_exception_ptr}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
 template <class E>
@@ -36,11 +39,11 @@ std::exception_ptr make_exception_ptr(E e) noexcept;
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `e` | 例外 | 包む例外オブジェクト |
+| `e` | 例外オブジェクト | 保持させる例外 |
 
-- 戻り値: 包んだ `exception_ptr`
-- 計算量: 定数
+`throw` と `catch` を経由せずに、`exception_ptr` を直接作れます。内部では、例外オブジェクトを `e` のコピーで作ります。
 
+`std::promise::set_exception` に渡して、`future` の側に失敗を伝える、といった使い方があります。
 
 ## 実際に動かしてみる
 
@@ -50,7 +53,8 @@ std::exception_ptr make_exception_ptr(E e) noexcept;
 #include <stdexcept>
 
 int main() {
-  std::exception_ptr p = std::make_exception_ptr(std::runtime_error("boom"));
+  std::exception_ptr p = std::make_exception_ptr(std::runtime_error("先に失敗"));
+  std::println("空でない: {}", static_cast<bool>(p));
   try {
     std::rethrow_exception(p);
   } catch (const std::exception& e) {
@@ -60,37 +64,40 @@ int main() {
 ```
 
 ```text title="実行結果"
-boom
+空でない: true
+先に失敗
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | `promise` にエラーを入れる |
+非同期処理で、失敗を `promise` に設定します。
+
+```cpp
+promise.set_exception(std::make_exception_ptr(std::runtime_error("ロード失敗")));
+```
 
 ## よくあるミス
 
-??? failure "例外の型が切り落とされる"
-    値渡しで受けるので、派生クラスを渡すなら、そのままの型で渡します。基底型の変数に入れると切り落とされます。
+??? failure "投げるつもりで呼んで、何も起きない"
+    作るだけで投げません。投げるには `rethrow_exception`。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
+| [`exception_ptr`](exception_ptr.md) | 例外を保持する型 |
 | [`rethrow_exception`](rethrow_exception.md) | 投げ直す |
-| [`current_exception`](current_exception.md) | 処理中の例外を取る |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`<exception>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 例外オブジェクトから、exception_ptr を作る
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `make_exception_ptr(e)` は例外から `exception_ptr` を作る
+    - [x] 投げずに作れる
+    - [x] `promise::set_exception` に渡せる
 
 ## 関連ページ
 

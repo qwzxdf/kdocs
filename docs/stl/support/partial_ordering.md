@@ -15,78 +15,95 @@ tags:
 `#include <compare>`
 </div>
 
-`std::partial_ordering` は、**「大小が決められない（`unordered`）」場合がある比較結果**です。小数の比較がこの型で、NaN とは大小を比べられません。値は `less`、`equivalent`、`greater`、`unordered` の 4 つです。小数のメンバを含むクラスの `<=>` は、この型になります。
+2 つの値を比べた結果は、「小さい」「等しい」「大きい」のどれかです。C++20 の三方比較演算子 `<=>` は、その結果を 1 つの値で返します。`std::partial_ordering` は、<strong>その結果を表す型</strong>で、`less`、`equivalent`、`greater`、`unordered` の 4 値 を持ちます。
 
 !!! tip "ポイント"
-    - `unordered` のとき、`<`、`>`、`==` はすべて `false`。
-    - 小数を含むクラスの `<=> = default` は、自動で `partial_ordering` になる。
-    - `sort` に使うときは、NaN を含まないことが前提。
+    - `std::partial_ordering` の 4 つの値: `less`、`equivalent`、`greater`、`unordered`
+    - `unordered` は、NaN のように比べられない場合
+    - `float` / `double` の `<=>` の結果
+    - `unordered` では、`<`・`>`・`==` がすべて偽になる
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::partial_ordering {#partial_ordering}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-struct partial_ordering {
-  static const partial_ordering less, equivalent, greater, unordered;
+class partial_ordering {
+ public:
+  static const partial_ordering less;
+  static const partial_ordering equivalent;
+  static const partial_ordering greater;
+  static const partial_ordering unordered;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `r` | `partial_ordering` | 比較結果 |
+浮動小数点数に NaN が含まれると、どちらが大きいとも小さいとも言えません。それを表すのが `unordered` です。`unordered` のとき、`r < 0`、`r > 0`、`r == 0` はすべて `false` になります。
 
-- 戻り値: `less` / `equivalent` / `greater` / `unordered`
-- 計算量: O(1)
+3 つの順序型のうち、最も弱い（制約が少ない）型です。
+
+型の強さは、`strong_ordering` > `weak_ordering` > `partial_ordering` の順です。強い型から弱い型へは暗黙に変換できます。比較した結果は、`0` との比較演算子（`r < 0`、`r == 0`）で判定でき、`std::is_lt(r)` のような名前つきの関数でも判定できます。
+
+## 実際に動かしてみる
 
 ```cpp
-#include <cmath>
 #include <compare>
+#include <limits>
 #include <print>
 
 int main() {
-  double nan = std::nan("");
-  std::partial_ordering r = (nan <=> 1.0);
-  std::println("{} {}", r == std::partial_ordering::unordered, r < 0);
+  const double nan = std::numeric_limits<double>::quiet_NaN();
+  std::println("1.0 <=> 2.0 は less     : {}", (1.0 <=> 2.0) == std::partial_ordering::less);
+  std::println("1.0 <=> NaN は unordered: {}", (1.0 <=> nan) == std::partial_ordering::unordered);
 }
 ```
 
 ```text title="実行結果"
-true false
+1.0 <=> 2.0 は less     : true
+1.0 <=> NaN は unordered: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 座標・速度を含む構造体の比較 | `float` のメンバがあると `partial_ordering` |
+自作のクラスに比較演算子をまとめて定義します。
+
+```cpp
+struct Version {
+  int major, minor;
+  auto operator<=>(const Version&) const = default;   // すべての比較演算子が自動で揃う
+};
+```
 
 ## よくあるミス
 
-??? failure "NaN を含むデータを sort する"
-    大小が決められないので、`sort` の結果が不定になります。NaN を取り除いてから並べ替えます。
+??? failure "`unordered` を考えず、NaN の比較で誤る"
+    `partial_ordering` では、`unordered` のとき `<` も `>` も `==` も偽です。
+
+??? failure "弱い型から強い型へ代入する"
+    強い型から弱い型への変換だけが許されます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`strong_ordering`](strong_ordering.md) | 常に比べられる |
-| [`isnan`](../numeric/cmath/isnan.md) | NaN を調べる |
+| [`is_lt`](is_lt.md) | 結果を `bool` で判定する |
+| [`three_way_comparable`](three_way_comparable.md) | `<=>` が使えるか |
+| [`compare_three_way`](compare_three_way.md) | `<=>` の関数オブジェクト |
 
 ## コンパイラ対応
 
-C++20 の機能です。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.x 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 比べられない場合がある
-    - [x] 小数の比較結果
-    - [x] unordered は全部 false
+    - [x] `partial_ordering` は`<=>` の結果を表す型
+    - [x] 強い型から弱い型へ暗黙に変換できる
+    - [x] `0` との比較か `is_lt` などで判定する
 
 ## 関連ページ
 
