@@ -17,7 +17,7 @@ K-HLSL は、判定を<strong>本物の DXC に任せる</strong>ことで、こ
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-HLSL-1.1.0.vsix" download>K-HLSL 1.1.0 をダウンロード（.vsix、約 390 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-HLSL-1.1.1.vsix" download>K-HLSL 1.1.1 をダウンロード（.vsix、約 390 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも、同じ手順で上書きできます。アンインストールは、Visual Studio の「拡張機能の管理」から行います。
 
@@ -104,6 +104,7 @@ Visual Studio を起動した直後に自動で開かれるファイルは、切
 
 | 版 | 内容 |
 | --- | --- |
+| 1.1.1 | 自分で決めたセマンティクス（`JOINTS` `WEIGHTS` など）にも色を付けた。定数バッファのホバーに、小さい字のレジスタの図を出すようにした |
 | 1.1.0 | 定数バッファのレイアウト表示を追加した（ホバー、CodeLens、ツール ウィンドウ。並べ替えの提案と、C++ の struct の生成つき） |
 | 1.0.9 | 組み込み関数（`normalize` `SampleLevel` など）が橙にならず青のままだった問題を直した。メニューバーの「拡張機能」に「K-HLSL」を追加した（色の編集、色の項目の一覧、このページ、ログのフォルダー） |
 | 1.0.8 | `(a * b)` のような掛け算を、型と変数の宣言と取り違えて、変数名が型の色になる問題を直した |
