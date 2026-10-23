@@ -15,34 +15,37 @@ tags:
 `#include <concepts>`
 </div>
 
-`<` のように、`sort` が使える比較関数が満たすべき条件です。「A<A は偽」「推移的」「等価も推移的」が成り立つことを要求します。構文上は `relation` と同じです。
+並べ替えや検索のアルゴリズムは、2 つの値を比べる関数を受け取ります。`std::strict_weak_order` は、<strong>厳密な弱順序を表す述語</strong>であることを要求するコンセプトです。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::strict_weak_order<...>` は `bool` の定数式。
-    - 満たさない型を渡すと、コンパイルエラーの原因が読みやすくなる。
+    - `std::strict_weak_order<R, T, U>`: `R` が `T` と `U` を比べる述語か
+    - `std::less<>` や `std::equal_to<>` のような、比較の関数オブジェクトが満たす
+    - 構文上の条件は `relation` と同じ。意味上の約束は検査されない
+    - 標準のアルゴリズムの引数の制約として使われる
 
 !!! info "このページを読む前に"
-    [コンセプト](../../../basics/template.md) の考え方と、[`std::same_as`](same_as.md) を先に読んでください。
+    [テンプレートの基本](../../../basics/template.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::strict_weak_order {#strict_weak_order}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class R, class T, class U>
-concept strict_weak_order = /* relation<R, T, U>（意味の上で厳密な弱順序） */;
+concept strict_weak_order = relation<R, T, U>;   // 意味上の要求を加えたもの
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `R` | 型 | 調べる型 |
-| `T` | 型 | 調べる型 |
-| `U` | 型 | 調べる型 |
+| `R` | 型 | 比べる述語の型 |
+| `T` | 型 | 1 つ目の値の型 |
+| `U` | 型 | 2 つ目の値の型 |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+`relation` の条件に加えて、「厳密な弱順序」という意味上の約束を要求します。ソートの比較関数 `std::less<>` が代表です。約束（反射的でない、推移的、など）は、コンパイラには検査されません。
 
+カスタムの比較関数（ラムダ）を渡すときも、この条件に合うかが、呼び出しの場所で検査されます。
 
 ## 実際に動かしてみる
 
@@ -51,42 +54,53 @@ concept strict_weak_order = /* relation<R, T, U>（意味の上で厳密な弱�
 #include <functional>
 #include <print>
 
+struct Player {
+  int hp;
+};
+
 int main() {
-  std::println("{}", std::strict_weak_order<std::less<>, int, int>);
+  std::println("std::less<>, int, int      -> {}", std::strict_weak_order<std::less<>, int, int>);
+  std::println("std::less<>, int, Player   -> {}", std::strict_weak_order<std::less<>, int, Player>);
 }
 ```
 
 ```text title="実行結果"
-true
+std::less<>, int, int      -> true
+std::less<>, int, Player   -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの引数に条件をつけて、使える型を制限する |
+自作のアルゴリズムで、比較の関数を受け取る引数を制限します。
+
+```cpp
+template <class It, class Cmp>
+  requires std::strict_weak_order<Cmp, std::iter_value_t<It>, std::iter_value_t<It>>
+void MySort(It first, It last, Cmp cmp);
+```
 
 ## よくあるミス
 
-??? failure "`<=` を渡す"
-    `<=` は「A<=A が真」になり、厳密な弱順序ではありません。`sort` で未定義動作になります。
+??? failure "意味上の約束を破る比較関数を渡す"
+    コンパイラは検査しません。`<=` のような、順序が壊れる関数を渡さないようにします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`relation`](relation.md) | 構文だけの条件 |
+| [`predicate`](predicate.md) | 1 つの引数の述語 |
+| [`invocable`](invocable.md) | 呼べるか |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 の機能です。GCC 10 以降、Clang 10 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 厳密な弱順序（`sort` に使える比較）となる二項関係を要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::strict_weak_order` は厳密な弱順序を表す述語
+    - [x] `std::less<>` / `std::equal_to<>` が満たす
+    - [x] 意味上の約束はコンパイラに検査されない
 
 ## 関連ページ
 

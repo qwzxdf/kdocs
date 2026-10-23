@@ -15,18 +15,22 @@ tags:
 `#include <concepts>`
 </div>
 
-`std::floating_point<T>` は、**T が小数型（`float`、`double`、`long double`）であること**を要求するコンセプトです。数学関数のテンプレートで、整数を弾くのに使います。
+小数だけを受け取るテンプレートを書きたい。`std::floating_point` は、<strong>型が浮動小数点型か</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
-    - `template <std::floating_point T>` と書く。
-    - 整数も受け取りたいなら `std::integral` と組み合わせる。
+    - `std::floating_point<T>` は、`T` が浮動小数点型か
+    - `template <std::floating_point T>` のように、テンプレートの引数に直接書ける
+    - 値は `bool` の定数なので、`static_assert` や `if constexpr` にも使える
+    - 条件を満たさないと、分かりやすいエラーメッセージで弾かれる
 
 !!! info "このページを読む前に"
-    [テンプレートとコンセプト](../../../basics/template.md) の基本が前提です。
+    [テンプレートの基本](../../../basics/template.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::floating_point {#floating_point}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 template <class T>
@@ -35,57 +39,65 @@ concept floating_point = /* 条件 */;
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | テンプレート引数 | 調べる型 |
+| `T` | 型 | 調べる型 |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時
+`float`、`double`、`long double` が条件を満たします。整数型や、ポインタは満たしません。
+
+コンセプトは、テンプレートの引数に条件を付ける C++20 の機能です。条件を満たさない型を渡すと、テンプレートの深い所でエラーが出るのではなく、呼び出しの場所で「この型は条件を満たしていない」と報告されます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <concepts>
 #include <print>
 
-template <std::floating_point T>
-T Half(T v) {
-  return v / 2;
-}
-
 int main() {
-  std::println("{}", Half(7.0));
+  std::println("float                              -> {}", std::floating_point<float>);
+  std::println("double                             -> {}", std::floating_point<double>);
+  std::println("int                                -> {}", std::floating_point<int>);
 }
 ```
 
 ```text title="実行結果"
-3.5
+float                              -> true
+double                             -> true
+int                                -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 小数専用の数学関数 | `template <std::floating_point T> T Lerp(T a, T b, T t)` |
+線形補間のように、小数だけで意味のある関数に使います。
+
+```cpp
+template <std::floating_point T>
+T Lerp(T a, T b, T t) { return a + (b - a) * t; }
+```
 
 ## よくあるミス
 
-??? failure "整数を渡して意図しない切り捨て"
-    このコンセプトで整数を弾けば、`Half(7)` がコンパイルエラーになります。
+??? failure "参照や `const` が付いた型で、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "C++17 以前で使おうとする"
+    コンセプトは C++20 の機能です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
+| [`same_as`](same_as.md) | 2 つの型が同じ |
 | [`integral`](integral.md) | 整数型 |
-| [`is_floating_point`](../type_traits/is_floating_point.md) | 変数テンプレート版 |
 
 ## コンパイラ対応
 
-C++20 の機能です。
+C++20 の機能です。GCC 10 以降、Clang 10 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 小数型を要求
-    - [x] 整数を弾く
-    - [x] 数学関数のテンプレートに
+    - [x] `std::floating_point<T>` は、`T` が浮動小数点型か
+    - [x] テンプレートの引数に直接書ける
+    - [x] `static_assert` と `if constexpr` にも使える
 
 ## 関連ページ
 

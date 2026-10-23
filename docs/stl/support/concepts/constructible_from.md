@@ -15,33 +15,36 @@ tags:
 `#include <concepts>`
 </div>
 
-`T(args...)` と書ける型を要求します。ジェネリックなコンテナの `emplace` などの制約に使います。
+ファクトリー関数で、特定の引数で構築できる型だけを受け付けたい。`std::constructible_from<T, Args...>` は、<strong>T を Args... から構築できるか</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::constructible_from<...>` は `bool` の定数式。
-    - 満たさない型を渡すと、コンパイルエラーの原因が読みやすくなる。
+    - `std::constructible_from<T, Args...>` は、`T` が `Args...` から構築できるか
+    - `template <std::constructible_from T>` のように、テンプレートの引数に直接書ける
+    - 値は `bool` の定数なので、`static_assert` や `if constexpr` にも使える
+    - 条件を満たさないと、分かりやすいエラーメッセージで弾かれる
 
 !!! info "このページを読む前に"
-    [コンセプト](../../../basics/template.md) の考え方と、[`std::same_as`](same_as.md) を先に読んでください。
+    [テンプレートの基本](../../../basics/template.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::constructible_from {#constructible_from}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class T, class Args...>
-concept constructible_from = /* destructible<T> かつ is_constructible_v<T, Args...> */;
+template <class T, class... Args>
+concept constructible_from = /* 条件 */;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 調べる型 |
-| `Args...` | 型 | 調べる型 |
+| `T` | 型 | 構築する型 |
+| `Args...` | 型の並び | 構築に渡す引数の型 |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+`T(args...)` と書けて、デストラクターも使える型なら満たします。`std::is_constructible` に、`destructible` の条件を足したものです。
 
+コンセプトは、テンプレートの引数に条件を付ける C++20 の機能です。条件を満たさない型を渡すと、テンプレートの深い所でエラーが出るのではなく、呼び出しの場所で「この型は条件を満たしていない」と報告されます。
 
 ## 実際に動かしてみる
 
@@ -51,44 +54,53 @@ concept constructible_from = /* destructible<T> かつ is_constructible_v<T, Arg
 #include <string>
 
 int main() {
-  std::println("{}", std::constructible_from<std::string, const char*>);
-  std::println("{}", std::constructible_from<std::string, int>);
+  std::println("std::string, const char*           -> {}", std::constructible_from<std::string, const char*>);
+  std::println("std::string, int*                  -> {}", std::constructible_from<std::string, int*>);
+  std::println("int, int                           -> {}", std::constructible_from<int, int>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+std::string, const char*           -> true
+std::string, int*                  -> false
+int, int                           -> true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの引数に条件をつけて、使える型を制限する |
+`make` 系の関数の引数を制限します。
+
+```cpp
+template <class T, class... Args>
+  requires std::constructible_from<T, Args...>
+T Create(Args&&... args) { return T(std::forward<Args>(args)...); }
+```
 
 ## よくあるミス
 
-??? failure "暗黙変換と混同する"
-    コンストラクタが `explicit` でも `constructible_from` は満たします。暗黙変換は `convertible_to` です。
+??? failure "参照や `const` が付いた型で、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "C++17 以前で使おうとする"
+    コンセプトは C++20 の機能です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`convertible_to`](convertible_to.md) | 暗黙の変換 |
-| [`default_initializable`](default_initializable.md) | 引数なしで作れる |
+| [`is_constructible`](../type_traits/is_constructible.md) | 型特性版 |
+| [`default_initializable`](default_initializable.md) | 既定構築できるか |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 の機能です。GCC 10 以降、Clang 10 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 指定した引数から構築できる型であることを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::constructible_from<T, Args...>` は、`T` が `Args...` から構築できるか
+    - [x] テンプレートの引数に直接書ける
+    - [x] `static_assert` と `if constexpr` にも使える
 
 ## 関連ページ
 

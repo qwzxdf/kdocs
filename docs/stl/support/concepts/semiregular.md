@@ -15,79 +15,99 @@ tags:
 `#include <concepts>`
 </div>
 
-「普通の値のように扱える」ための条件の前半です。コピーできて、引数なしでも作れる型を要求します。
+`std::vector` の要素など、標準ライブラリが要求する基本的な性質を持つ型を受け付けたい。`std::semiregular` は、<strong>T がコピーでき、既定の初期化もできるか</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::semiregular<...>` は `bool` の定数式。
-    - 満たさない型を渡すと、コンパイルエラーの原因が読みやすくなる。
+    - `std::semiregular<T>` は、`T` がコピーでき、既定の初期化もできるか
+    - `template <std::semiregular T>` のように、テンプレートの引数に直接書ける
+    - 値は `bool` の定数なので、`static_assert` や `if constexpr` にも使える
+    - 条件を満たさないと、分かりやすいエラーメッセージで弾かれる
 
 !!! info "このページを読む前に"
-    [コンセプト](../../../basics/template.md) の考え方と、[`std::same_as`](same_as.md) を先に読んでください。
+    [テンプレートの基本](../../../basics/template.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::semiregular {#semiregular}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class T>
-concept semiregular = /* copyable<T> かつ default_initializable<T> */;
+concept semiregular = /* 条件 */;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `T` | 型 | 調べる型 |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+`copyable` と `default_initializable` の両方を満たす型が満たします。比較演算子は要求しません（比較も要求するのは `regular`）。
 
+コンセプトは、テンプレートの引数に条件を付ける C++20 の機能です。条件を満たさない型を渡すと、テンプレートの深い所でエラーが出るのではなく、呼び出しの場所で「この型は条件を満たしていない」と報告されます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <concepts>
-#include <memory>
 #include <print>
 
+struct Player {
+  int hp;
+  float x;
+};
+struct NoDefault {
+  explicit NoDefault(int) {}
+};
+
 int main() {
-  std::println("{}", std::semiregular<int>);
-  std::println("{}", std::semiregular<std::unique_ptr<int>>);
+  std::println("Player                             -> {}", std::semiregular<Player>);
+  std::println("int                                -> {}", std::semiregular<int>);
+  std::println("NoDefault                          -> {}", std::semiregular<NoDefault>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+Player                             -> true
+int                                -> true
+NoDefault                          -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの引数に条件をつけて、使える型を制限する |
+テンプレートの引数を制限します。
+
+```cpp
+template <std::semiregular T>
+void Process(T value) {
+  // T は semiregular を満たす型だけ
+}
+```
 
 ## よくあるミス
 
-??? failure "既定構築できない型"
-    引数なしで作れない型は満たしません。
+??? failure "参照や `const` が付いた型で、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "C++17 以前で使おうとする"
+    コンセプトは C++20 の機能です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`regular`](regular.md) | さらに比較できる |
-| [`copyable`](copyable.md) | 既定構築は不要 |
+| [`same_as`](same_as.md) | 2 つの型が同じ |
+| [`integral`](integral.md) | 整数型 |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 の機能です。GCC 10 以降、Clang 10 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] コピーでき、既定構築できる型であることを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::semiregular<T>` は、`T` がコピーでき、既定の初期化もできるか
+    - [x] テンプレートの引数に直接書ける
+    - [x] `static_assert` と `if constexpr` にも使える
 
 ## 関連ページ
 

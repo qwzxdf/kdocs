@@ -15,18 +15,22 @@ tags:
 `#include <concepts>`
 </div>
 
-`std::copyable<T>` は、**T がコピーでき、代入でき、ムーブもできる型であること**を要求するコンセプトです。`std::function` に入れられる型、`std::vector` の要素として自由に扱える型の条件です。
+値として自由にコピーできる型を受け付けたい。`std::copyable` は、<strong>T がコピー構築・コピー代入できて、ムーブもできるか</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
-    - `unique_ptr` はコピーできないので `false`。
-    - `std::movable` より条件が厳しい。
+    - `std::copyable<T>` は、`T` がコピーでき、ムーブでき、入れ替えられるか
+    - `template <std::copyable T>` のように、テンプレートの引数に直接書ける
+    - 値は `bool` の定数なので、`static_assert` や `if constexpr` にも使える
+    - 条件を満たさないと、分かりやすいエラーメッセージで弾かれる
 
 !!! info "このページを読む前に"
-    [テンプレートとコンセプト](../../../basics/template.md) の基本が前提です。
+    [テンプレートの基本](../../../basics/template.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::copyable {#copyable}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 template <class T>
@@ -35,52 +39,74 @@ concept copyable = /* 条件 */;
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | テンプレート引数 | 調べる型 |
+| `T` | 型 | 調べる型 |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時
+`movable` の条件に加えて、コピー構築とコピー代入ができる型が満たします。`std::unique_ptr` はコピーできないので満たしません。
+
+コンセプトは、テンプレートの引数に条件を付ける C++20 の機能です。条件を満たさない型を渡すと、テンプレートの深い所でエラーが出るのではなく、呼び出しの場所で「この型は条件を満たしていない」と報告されます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <concepts>
 #include <memory>
 #include <print>
+#include <string>
+
+struct Player {
+  int hp;
+  float x;
+};
 
 int main() {
-  std::println("{} {}", std::copyable<int>, std::copyable<std::unique_ptr<int>>);
+  std::println("Player                             -> {}", std::copyable<Player>);
+  std::println("std::string                        -> {}", std::copyable<std::string>);
+  std::println("std::unique_ptr<int>               -> {}", std::copyable<std::unique_ptr<int>>);
 }
 ```
 
 ```text title="実行結果"
-true false
+Player                             -> true
+std::string                        -> true
+std::unique_ptr<int>               -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| コピー可能な型だけをキューに入れるテンプレート | `template <std::copyable T>` |
+テンプレートの引数を制限します。
+
+```cpp
+template <std::copyable T>
+void Process(T value) {
+  // T は copyable を満たす型だけ
+}
+```
 
 ## よくあるミス
 
-??? failure "const メンバを持つ型"
-    代入できないので `false` になります。
+??? failure "参照や `const` が付いた型で、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "C++17 以前で使おうとする"
+    コンセプトは C++20 の機能です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`movable`](movable.md) | ムーブだけでよい |
+| [`same_as`](same_as.md) | 2 つの型が同じ |
+| [`integral`](integral.md) | 整数型 |
 
 ## コンパイラ対応
 
-C++20 の機能です。
+C++20 の機能です。GCC 10 以降、Clang 10 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] コピーできる型
-    - [x] `unique_ptr` は false
-    - [x] movable より厳しい
+    - [x] `std::copyable<T>` は、`T` がコピーでき、ムーブでき、入れ替えられるか
+    - [x] テンプレートの引数に直接書ける
+    - [x] `static_assert` と `if constexpr` にも使える
 
 ## 関連ページ
 
