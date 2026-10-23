@@ -15,7 +15,7 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::views::values` は、**`map` のような「(キー, 値) の組」の範囲から、値だけが見える範囲**を作るビューです。`elements<1>` の別名です。値の合計や最大を調べるときに便利です。
+`map` の値だけを集計したい。`for (auto& [k, v] : m)` と回して、`k` を使わないのは、読みにくく、未使用の警告も出ます。`std::views::values` は、`map` のような「(キー, 値) の組」の範囲から、値だけが見える範囲を作るビューです。`elements<1>` の別名です。値の合計や最大を調べるときに便利です。
 
 !!! tip "ポイント"
     - 値の合計: `std::ranges::fold_left(m | values, 0, std::plus{})`。
@@ -79,15 +79,19 @@ using values_view = elements_view<V, 1>;
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 所持金（値）の合計を求める | `fold_left(wallet | values, 0, plus)` |
-| 全アイテムの値段を一括で変更する | `for (auto& p : prices | values) p *= 2;` |
+`map` の値の集計に使います。ステータスの `map<string, int>` から、合計を `ranges::fold_left(m | views::values, 0, std::plus{})` で求められます。
+
+値を書き換えることもできます。`for (int& v : m | views::values) v *= 2;` と書くと、全部の値が 2 倍になります。キーは `const` なので書き換えられません。
+
+キーだけなら `keys` です。キーと値の両方が要るなら、`map` を直接回すほうが自然です。
 
 ## よくあるミス
 
 ??? failure "キーまで書き換えようとする"
     `map` のキーは `const` なので、書き換えられません。値だけが書き換え可能です。
+
+??? failure "キーと値の両方が必要なのに使う"
+    `values` は値しか返しません。キーも必要なら、`for (auto& [k, v] : m)` と直接回します。
 
 ## 類似
 

@@ -15,7 +15,7 @@ tags:
 `#include <filesystem>`
 </div>
 
-`std::filesystem::directory_iterator` は、**フォルダの直下にあるファイルやフォルダを順に回す**イテレータです。サブフォルダの中までは入りません（それは [`recursive_directory_iterator`](recursive_directory_iterator.md)）。順番は決まっていません。
+フォルダに入っているファイルを、全部調べたい。ファイルの一覧を取る関数は OS ごとに違い、Windows の `FindFirstFile` や Linux の `readdir` を使い分けるのは面倒です。`std::filesystem::directory_iterator` は、フォルダの直下にあるファイルやフォルダを順に回す標準のイテレーターで、OS の違いを吸収してくれます。サブフォルダの中までは入りません。
 
 !!! tip "ポイント"
     - 範囲 for で回せる: `for (const auto& entry : fs::directory_iterator(dir))`。
@@ -23,7 +23,7 @@ tags:
     - 要素は [`directory_entry`](directory_entry.md)。
 
 !!! info "このページを読む前に"
-    [`std::filesystem`](../filesystem.md) の概要を先に読むと分かりやすいです。
+    [`std::filesystem::path`](path.md) の書き方と、[`directory_entry`](directory_entry.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -43,6 +43,14 @@ directory_iterator(const path& p, directory_options options);
 - 範囲 for で回すと、`directory_entry` が 1 つずつ出てきます
 - **順番は決まっていない**（名前順にしたいなら集めてから sort）
 - `.` と `..` は出てこない
+
+## しくみ
+
+`directory_iterator(dir)` を作ると、`dir` の直下にある項目を指します。範囲 for で回すと、各項目が [`directory_entry`](directory_entry.md) として得られます。`.` と `..` は含まれません。
+
+順番は決まっていません。OS やファイルシステムによって、作成順だったり、名前順だったり、バラバラだったりします。順番が必要なら、いったん `vector` に集めて `sort` します。
+
+`directory_options` を第 2 引数に渡すと、動きを変えられます。`skip_permission_denied` は、権限のないフォルダを無視して、例外を出さずに進みます。`follow_directory_symlink` は、シンボリックリンクの先まで入ります。
 
 ## 実際に動かしてみる
 
@@ -92,21 +100,40 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| アセットフォルダのファイル一覧 | `for (auto& e : fs::directory_iterator("assets"))` |
+ゲームの起動時に、アセットフォルダやセーブデータのフォルダを調べるのに使います。
+
+```cpp
+std::vector<fs::path> saves;
+for (const auto& entry : fs::directory_iterator("saves")) {
+  if (entry.path().extension() == ".sav") {
+    saves.push_back(entry.path());
+  }
+}
+std::ranges::sort(saves);  // 順番は不定なので、並べる
+```
+
+セーブデータ選択の画面で、スロットを一覧にするときに使います。MOD やプラグインのフォルダを調べて、読み込むファイルを見つける用途にも使えます。
+
+サブフォルダの中まで調べたいときは、`recursive_directory_iterator` に替えます。
 
 ## よくあるミス
 
-??? failure "順番に依存する"
-    OS しだいです。一覧は `vector` に集めて並べ替えます。
+??? failure "順番が決まっていると思う"
+    OS やファイルシステムによって、順番が変わります。画面に一覧を出すなら、必ず `sort` します。
+
+??? failure "フォルダが存在しないのに回して、例外で落ちる"
+    存在しないフォルダを渡すと、`filesystem_error` を投げます。先に `exists` と `is_directory` で確かめるか、`std::error_code` を渡す版を使います。
+
+??? failure "回している最中にフォルダの中身を変更する"
+    ファイルの追加や削除を、回している最中に行うと、イテレーターの挙動が不定になります。いったん結果を集めてから、あとで操作します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`recursive_directory_iterator`](recursive_directory_iterator.md) | サブフォルダの中まで |
-| [`directory_entry`](directory_entry.md) | 要素の型 |
+| [`recursive_directory_iterator`](recursive_directory_iterator.md) | サブフォルダの中まで回す |
+| [`directory_entry`](directory_entry.md) | 回して得られる 1 つの項目 |
+| [`exists`](exists.md) | 回す前に、フォルダがあるかを確かめる |
 
 ## コンパイラ対応
 
@@ -115,9 +142,9 @@ C++17 の機能です。GCC 9 / Clang 9 / MSVC 19.14 以降で使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] フォルダ直下を回す
-    - [x] 順番は不定
-    - [x] サブフォルダの中は recursive 版
+    - [x] フォルダの直下を順に回す。サブフォルダの中には入らない。
+    - [x] 順番は不定。必要なら集めて `sort`。
+    - [x] 存在しないフォルダは例外になる。先に確かめる。
 
 ## 関連ページ
 

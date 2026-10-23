@@ -14,14 +14,14 @@ tags:
 `#include <nlohmann/json.hpp>`
 </div>
 
-**nlohmann/json** は、C++ で JSON を扱うライブラリの中で**一番有名で、一番書きやすい**ライブラリです。`json j; j["hp"] = 100;` のように、まるで Python や JavaScript の辞書のように JSON を読み書きできます。ヘッダ 1 つで使えて、`std::vector` や `std::map` などの STL の型をそのまま JSON にでき、自作の構造体もマクロ 1 行で JSON と相互変換できます。速さは JSON ライブラリの中では遅い方ですが、ゲームの設定ファイル・セーブデータ・ステージデータ程度なら全く問題になりません。「C++ で JSON を使うなら、まずこれ」という定番です。
+**nlohmann/json** は、C++ で JSON を扱うライブラリの中で一番有名で、一番書きやすいライブラリです。`json j; j["hp"] = 100;` のように、まるで Python や JavaScript の辞書のように JSON を読み書きできます。ヘッダ 1 つで使えて、`std::vector` や `std::map` などの STL の型をそのまま JSON にでき、自作の構造体もマクロ 1 行で JSON と相互変換できます。速さは JSON ライブラリの中では遅い方ですが、ゲームの設定ファイル・セーブデータ・ステージデータ程度なら全く問題になりません。「C++ で JSON を使うなら、まずこれ」という定番です。
 
 !!! tip "ポイント"
     - <strong>JSON はまずこれ。</strong> 読み書き両方でき、STL の型と自作の構造体をほぼ自動で変換できる。
     - 自作の構造体は **`NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_WITH_DEFAULT`** マクロ 1 行で対応させる（キーが無くても落ちない）。
-    - 読み込みは **`json::parse`**、書き出しは **`dump(2)`**（2 は字下げの幅）。
-    - 値を取るときは、無いかもしれないキーには **`value("key", デフォルト)`**、必ずあるキーには **`at("key")`**。`[]` で読むのは危ない。
-    - エラーは**例外**で来る。ファイルを読む処理は `try` / `catch (const json::exception&)` で囲む。
+    - 読み込みは `json::parse`、書き出しは `dump(2)`（2 は字下げの幅）。
+    - 値を取るときは、無いかもしれないキーには `value("key", デフォルト)`、必ずあるキーには `at("key")`。`[]` で読むのは危ない。
+    - エラーは例外で来る。ファイルを読む処理は `try` / `catch (const json::exception&)` で囲む。
     - 大量の JSON を速く読みたいときだけ [simdjson](simdjson.md) を検討する。
 
 !!! info "このページを読む前に"
@@ -36,8 +36,8 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
 === "ファイルを置く"
 
     1. [リリースページ](https://github.com/nlohmann/json/releases) から **`json.hpp`**（1 ファイル）をダウンロードして、`third_party/nlohmann/json.hpp` に置く
-    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を **すべての構成**、プラットフォームを **x64** にする
-    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party` を追加する
+    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を すべての構成、プラットフォームを x64 にする
+    3. C/C++ → 全般 → 追加のインクルード ディレクトリ に、`$(SolutionDir)third_party` を追加する
     4. `#include <nlohmann/json.hpp>` と書いてビルドする
 
 === "vcpkg"
@@ -232,7 +232,7 @@ nlohmann/json は、次の型を**何も書かずに**変換できます。
 
 ### オブジェクトのキーの順番 {#key_order}
 
-`nlohmann::json` のオブジェクトは内部が `std::map` なので、**キーは自動でアルファベット順（辞書順）に並び替えられます**。書いた順番を保ちたいときは、代わりに **`nlohmann::ordered_json`** を使います。
+`nlohmann::json` のオブジェクトは内部が `std::map` なので、キーは自動でアルファベット順（辞書順）に並び替えられます。書いた順番を保ちたいときは、代わりに `nlohmann::ordered_json` を使います。
 
 ```cpp
 #include <print>
@@ -274,9 +274,9 @@ int main() {
 | `NLOHMANN_DEFINE_TYPE_INTRUSIVE` | クラスの中 | 例外（out_of_range） | 使える |
 | `NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE_ONLY_SERIALIZE` | 構造体の外 | （書き出しだけ） | 使えない |
 
-ゲームでは**後からメンバを足すことが多い**ので、`_WITH_DEFAULT` 付きを使うのがおすすめです。古いセーブファイルに新しいキーが無くても、そのメンバは構造体のデフォルト値のまま読み込めます（[バージョン管理](#versioning)）。
+ゲームでは後からメンバを足すことが多いので、`_WITH_DEFAULT` 付きを使うのがおすすめです。古いセーブファイルに新しいキーが無くても、そのメンバは構造体のデフォルト値のまま読み込めます（[バージョン管理](#versioning)）。
 
-`_WITH_DEFAULT` を使うには、構造体が**デフォルトコンストラクタを持ち**、メンバにデフォルト値（`int level = 1;` など）を書いておく必要があります。
+`_WITH_DEFAULT` を使うには、構造体がデフォルトコンストラクタを持ち、メンバにデフォルト値（`int level = 1;` など）を書いておく必要があります。
 
 ```cpp
 class Enemy {
@@ -297,7 +297,7 @@ class Enemy {
 
 ### 自分で to_json / from_json を書く
 
-キーの名前を変えたい、計算した値を保存したい、古い形式にも対応したい、というときは、**同じ名前空間**に `to_json` と `from_json` という名前の関数を書きます。nlohmann/json がこの名前の関数を自動で探して使います（ADL という仕組み）。
+キーの名前を変えたい、計算した値を保存したい、古い形式にも対応したい、というときは、同じ名前空間に `to_json` と `from_json` という名前の関数を書きます。nlohmann/json がこの名前の関数を自動で探して使います（ADL という仕組み）。
 
 ```cpp
 #include <print>
@@ -355,11 +355,11 @@ slime (3.5, -2)
 ```
 
 !!! warning "関数名は小文字のスネークケース固定"
-    Google C++ Style では関数名は `ToJson` のように書きますが、この 2 つの関数は**ライブラリが名前で探す**ので、必ず `to_json` / `from_json` と書きます。また、変換したい型と**同じ名前空間**に書かないと見つけてもらえません。
+    Google C++ Style では関数名は `ToJson` のように書きますが、この 2 つの関数はライブラリが名前で探すので、必ず `to_json` / `from_json` と書きます。また、変換したい型と同じ名前空間に書かないと見つけてもらえません。
 
 ### enum を文字列で保存する
 
-enum をそのまま保存すると数値（`0`、`1`…）になります。enum の順番を入れ替えたり途中に追加したりすると、古いデータの意味が変わってしまうので、**文字列で保存する**のがおすすめです。
+enum をそのまま保存すると数値（`0`、`1`…）になります。enum の順番を入れ替えたり途中に追加したりすると、古いデータの意味が変わってしまうので、文字列で保存するのがおすすめです。
 
 ```cpp
 #include <print>
@@ -391,7 +391,7 @@ int main() {
 true
 ```
 
-表に無い文字列を読むと、例外にはならず**表の最初の値**になります。最初の行に「なし」や「不明」を置いておくと安全です。
+表に無い文字列を読むと、例外にはならず表の最初の値になります。最初の行に「なし」や「不明」を置いておくと安全です。
 
 ## エラー処理
 
@@ -431,7 +431,7 @@ id=302 [json.exception.type_error.302] type must be number, but is string
 
 ### 例外を使わずに読む
 
-プロジェクトで例外を使わない方針のときは、`parse` の第 3 引数に `false` を渡します。失敗すると例外の代わりに **discarded**（捨てられた）という特別な値が返るので、`is_discarded()` で調べます。
+プロジェクトで例外を使わない方針のときは、`parse` の第 3 引数に `false` を渡します。失敗すると例外の代わりに discarded（捨てられた）という特別な値が返るので、`is_discarded()` で調べます。
 
 ```cpp
 json j = json::parse(text, nullptr, false);
@@ -475,8 +475,8 @@ void from_json(const json& j, SaveData& s) {
 
 nlohmann/json は**書きやすさを最優先**にしたライブラリなので、速さは JSON ライブラリの中で遅い方です。
 
-- `json` の値 1 つ 1 つが、オブジェクトなら `std::map`、文字列なら `std::string` を**ヒープに確保**します。小さい値がたくさんある JSON では、メモリ確保が多くなります。
-- 読み込みの速さは、[simdjson](simdjson.md) と比べると**十倍以上遅い**ことも珍しくありません。
+- `json` の値 1 つ 1 つが、オブジェクトなら `std::map`、文字列なら `std::string` をヒープに確保します。小さい値がたくさんある JSON では、メモリ確保が多くなります。
+- 読み込みの速さは、[simdjson](simdjson.md) と比べると十倍以上遅いことも珍しくありません。
 - メモリも、元の JSON テキストより数倍大きくなることがあります。
 
 とはいえ、数 MB までの JSON なら一瞬で読めます。ゲームで問題になるのは、次のような場合だけです。
@@ -513,8 +513,8 @@ static basic_json parse(IteratorType first, IteratorType last, /* 同じ引数 *
 | `ignore_trailing_commas` | `bool` | `true` にすると `[1, 2,]` のような最後のカンマを許す（3.12〜） |
 
 - **戻り値:** 読み込んだ `json`
-- **計算量:** 入力の長さに比例 O(n)
-- **例外:** 文法エラーで `json::parse_error`
+- 計算量: 入力の長さに比例 O(n)
+- 例外: 文法エラーで `json::parse_error`
 
 ```cpp
 #include <print>
@@ -558,8 +558,8 @@ string_t dump(const int indent = -1,
 | `ensure_ascii` | `const bool` | `true` にすると日本語などを `あ` のようにエスケープして ASCII だけにする |
 | `error_handler` | `error_handler_t` | 不正な UTF-8 があったときの動き（[フラグ](#flags)） |
 
-- **戻り値:** JSON の文字列（`std::string`）
-- **計算量:** 中身の大きさに比例 O(n)
+- 戻り値: JSON の文字列（`std::string`）
+- 計算量: 中身の大きさに比例 O(n)
 
 ```cpp
 #include <print>
@@ -603,8 +603,8 @@ ValueType get() const;
 | --- | --- | --- |
 | `ValueType`（テンプレート引数） | 型引数 | 変換したい C++ の型 |
 
-- **戻り値:** 変換した値（コピー）
-- **例外:** 型が合わないと `json::type_error`（302 など）
+- 戻り値: 変換した値（コピー）
+- 例外: 型が合わないと `json::type_error`（302 など）
 
 ```cpp
 json j = json::parse(R"({"hp": 100, "name": "Alice", "pos": [1.5, 2.0]})");
@@ -613,8 +613,8 @@ auto name = j["name"].get<std::string>();
 auto pos = j["pos"].get<std::vector<float>>();
 ```
 
-- 数値どうしは**勝手に変換されます**。`3.7` を `get<int>()` すると `3` になり、エラーにはなりません。
-- `int x = j["hp"];` のように**暗黙の変換**でも取れますが、型が分かりにくくなり、思わぬオーバーロードが選ばれることがあるので、`get<T>()` と書くのがおすすめです（`JSON_USE_IMPLICIT_CONVERSIONS=0` で禁止できます）。
+- 数値どうしは勝手に変換されます。`3.7` を `get<int>()` すると `3` になり、エラーにはなりません。
+- `int x = j["hp"];` のように暗黙の変換でも取れますが、型が分かりにくくなり、思わぬオーバーロードが選ばれることがあるので、`get<T>()` と書くのがおすすめです（`JSON_USE_IMPLICIT_CONVERSIONS=0` で禁止できます）。
 
 ### value {#value}
 
@@ -633,8 +633,8 @@ ValueType value(const json_pointer& ptr, const ValueType& default_value) const;
 | `ptr` | `json::json_pointer` | `"/a/b"` のような JSON Pointer（深い場所を一度に探す） |
 | `default_value` | `ValueType` | キーが無いときに返す値。この型が戻り値の型になる |
 
-- **戻り値:** キーがあればその値（`default_value` の型に変換）、無ければ `default_value`
-- **例外:** キーはあるが型が違うと `json::type_error`。オブジェクトでない値に使うと `json::type_error`（306）
+- 戻り値: キーがあればその値（`default_value` の型に変換）、無ければ `default_value`
+- 例外: キーはあるが型が違うと `json::type_error`。オブジェクトでない値に使うと `json::type_error`（306）
 
 ```cpp
 #include <print>
@@ -656,7 +656,7 @@ int main() {
 80 true ja
 ```
 
-- <strong>設定ファイルの読み込みはほぼ全部 `value` で書けます。</strong> 項目が増えても古い設定ファイルで落ちません。
+- 設定ファイルの読み込みはほぼ全部 `value` で書けます。 項目が増えても古い設定ファイルで落ちません。
 - `value("language", "ja")` のように文字列リテラルを渡すと、戻り値は `std::string` になります。
 - 「キーは無くてもいいが、あるなら型は正しくないとダメ」という動きなので、`"volume": "大"` のような間違いは例外になります。
 
@@ -676,11 +676,11 @@ reference at(const json_pointer& ptr);
 | `idx` | `size_type` | 配列の番号（0 から） |
 | `ptr` | `json::json_pointer` | JSON Pointer |
 
-- **戻り値:** 要素への参照
-- **計算量:** キーは O(log n)、番号は O(1)
-- **例外:** 無ければ `json::out_of_range`（403 / 401）、種類が違えば `json::type_error`
+- 戻り値: 要素への参照
+- 計算量: キーは O(log n)、番号は O(1)
+- 例外: 無ければ `json::out_of_range`（403 / 401）、種類が違えば `json::type_error`
 
-**必ずあるはずのキー**は `at` で取ります。無かったときに例外で分かるので、データの間違いにすぐ気づけます。
+必ずあるはずのキーは `at` で取ります。無かったときに例外で分かるので、データの間違いにすぐ気づけます。
 
 ### operator[] {#operator_brackets}
 
@@ -696,10 +696,10 @@ const_reference operator[](size_type idx) const;
 | `key` | `const std::string&` | オブジェクトのキー |
 | `idx` | `size_type` | 配列の番号 |
 
-- **戻り値:** 要素への参照
-- **書くときは `[]`、読むときは `at` / `value`** と覚えます。
+- 戻り値: 要素への参照
+- 書くときは `[]`、読むときは `at` / `value` と覚えます。
 
-`[]` は `std::map` の `[]` と同じで、**キーが無ければ null の要素を作ってしまいます**。
+`[]` は `std::map` の `[]` と同じで、キーが無ければ null の要素を作ってしまいます。
 
 ```cpp
 json j;
@@ -709,7 +709,7 @@ j["items"][2] = 10;             // 配列も自動で広がる: [null, null, 10]
 int hp = j["hp"];               // 読むとき: "hp": null が作られ、null を int にして例外
 ```
 
-さらに、**`const json` に存在しないキーで `[]` を使うと未定義動作**です（デバッグビルドでは assert で止まります）。関数の引数で `const json&` を受け取ったときは、特に `[]` で読まないようにします。
+さらに、`const json` に存在しないキーで `[]` を使うと未定義動作です（デバッグビルドでは assert で止まります）。関数の引数で `const json&` を受け取ったときは、特に `[]` で読まないようにします。
 
 ### contains {#contains}
 
@@ -723,8 +723,8 @@ bool contains(const json_pointer& ptr) const;
 | `key` | `const std::string&` | 調べるキー |
 | `ptr` | `json::json_pointer` | JSON Pointer（深い場所があるか） |
 
-- **戻り値:** キーがあれば `true`。オブジェクトでない値に使うと常に `false`
-- **計算量:** O(log n)
+- 戻り値: キーがあれば `true`。オブジェクトでない値に使うと常に `false`
+- 計算量: O(log n)
 
 ```cpp
 if (j.contains("boss") && j["boss"].is_object()) {
@@ -743,8 +743,8 @@ ValueType& get_to(ValueType& v) const;
 | --- | --- | --- |
 | `v` | `ValueType&` | 値を入れる先の変数 |
 
-- **戻り値:** `v` への参照
-- **例外:** `get` と同じ
+- 戻り値: `v` への参照
+- 例外: `get` と同じ
 
 `from_json` の中で、メンバに直接入れるときに使います。型を書かなくてよいので、メンバの型を変えたときに直す場所が減ります。
 
@@ -761,7 +761,7 @@ void from_json(const json& j, Player& p) {
 bool is_object() const noexcept;
 ```
 
-- **戻り値:** オブジェクト（`{...}`）なら `true`
+- 戻り値: オブジェクト（`{...}`）なら `true`
 - 外から来たデータ（MOD、ユーザーが書いた設定）を読むときは、`get` の前に種類を確認すると、例外を使わずに安全に読めます。
 
 ```cpp
@@ -777,7 +777,7 @@ if (!j.is_object()) {
 bool is_array() const noexcept;
 ```
 
-- **戻り値:** 配列（`[...]`）なら `true`
+- 戻り値: 配列（`[...]`）なら `true`
 - 「1 つでも配列でも書ける」設定（`"drops": "potion"` と `"drops": ["potion", "gel"]`）を両方受け付けるときに使います。
 
 ### is_string {#is_string}
@@ -786,7 +786,7 @@ bool is_array() const noexcept;
 bool is_string() const noexcept;
 ```
 
-- **戻り値:** 文字列なら `true`
+- 戻り値: 文字列なら `true`
 
 ### is_number {#is_number}
 
@@ -794,7 +794,7 @@ bool is_string() const noexcept;
 bool is_number() const noexcept;
 ```
 
-- **戻り値:** 数値なら `true`（整数・小数どちらでも）
+- 戻り値: 数値なら `true`（整数・小数どちらでも）
 - `get<int>()` も `get<float>()` も、数値ならどちらでも読めます（勝手に変換されます）。
 
 ### is_number_integer {#is_number_integer}
@@ -803,7 +803,7 @@ bool is_number() const noexcept;
 bool is_number_integer() const noexcept;
 ```
 
-- **戻り値:** 整数なら `true`（符号あり・なしどちらでも）
+- 戻り値: 整数なら `true`（符号あり・なしどちらでも）
 - `3` は `true`、`3.0` は `false` です。「整数で書かないとダメ」なデータの確認に使います。
 - `is_number_unsigned()` は、0 以上の整数で `true` です。
 
@@ -813,7 +813,7 @@ bool is_number_integer() const noexcept;
 bool is_number_float() const noexcept;
 ```
 
-- **戻り値:** 小数なら `true`
+- 戻り値: 小数なら `true`
 - `3.0` や `1e5` のように、小数点か指数があると `true` です。
 
 ### is_boolean {#is_boolean}
@@ -822,7 +822,7 @@ bool is_number_float() const noexcept;
 bool is_boolean() const noexcept;
 ```
 
-- **戻り値:** true / false なら `true`
+- 戻り値: true / false なら `true`
 - `"true"`（文字列）や `1` は `false` です。
 
 ### is_null {#is_null}
@@ -831,7 +831,7 @@ bool is_boolean() const noexcept;
 bool is_null() const noexcept;
 ```
 
-- **戻り値:** null なら `true`
+- 戻り値: null なら `true`
 - 空の `json`（`json j;`）や、`[]` で作られただけの要素も null です。
 
 ### is_discarded {#is_discarded}
@@ -840,7 +840,7 @@ bool is_null() const noexcept;
 bool is_discarded() const noexcept;
 ```
 
-- **戻り値:** parse に失敗した値なら `true`（allow_exceptions=false のとき）
+- 戻り値: parse に失敗した値なら `true`（allow_exceptions=false のとき）
 - `json::parse(text, nullptr, false)` が失敗したときだけ `true` になります（[例外を使わずに読む](#例外を使わずに読む)）。
 
 ### items {#items}
@@ -850,7 +850,7 @@ iteration_proxy<iterator> items() noexcept;
 iteration_proxy<const_iterator> items() const noexcept;
 ```
 
-- **戻り値:** 範囲 for で回せるもの。各要素で `key()` と `value()` が使える
+- 戻り値: 範囲 for で回せるもの。各要素で `key()` と `value()` が使える
 
 ```cpp
 #include <print>
@@ -872,7 +872,7 @@ ether: 120G
 potion: 50G
 ```
 
-- 普通の範囲 for（`for (auto& v : j)`）だと、オブジェクトの**値だけ**が回ります。キーも欲しいときは `items()` を使います。
+- 普通の範囲 for（`for (auto& v : j)`）だと、オブジェクトの値だけが回ります。キーも欲しいときは `items()` を使います。
 - 配列に使うと、キーは `"0"`、`"1"` という文字列になります。
 
 ### push_back {#push_back}
@@ -888,7 +888,7 @@ void push_back(initializer_list_t init);
 | --- | --- | --- |
 | `val` | `const json&` | 追加する値 |
 
-- **計算量:** 償却 O(1)（配列のとき）
+- 計算量: 償却 O(1)（配列のとき）
 - null の値に使うと、自動で配列になります。
 - `+=` 演算子でも同じことができます（`j["log"] += "start";`）。
 
@@ -903,7 +903,7 @@ reference emplace_back(Args&&... args);
 | --- | --- | --- |
 | `args` | `Args&&...` | 要素の `json` を作るための引数 |
 
-- **戻り値:** 追加した要素への参照（3.7〜）
+- 戻り値: 追加した要素への参照（3.7〜）
 - 戻り値の参照にそのまま書き込めるので、「配列に空のオブジェクトを足して中身を埋める」ときに便利です。
 
 ```cpp
@@ -918,7 +918,7 @@ enemy["x"] = 10;
 size_type size() const noexcept;
 ```
 
-- **戻り値:** 配列・オブジェクトなら要素の数、`null` なら 0、それ以外（数値・文字列など）は **1**
+- 戻り値: 配列・オブジェクトなら要素の数、`null` なら 0、それ以外（数値・文字列など）は 1
 - 文字列の長さではないことに注意（`json("abc").size()` は 1）。文字列の長さは `get<std::string>().size()` で取ります。
 
 ### empty {#empty}
@@ -927,7 +927,7 @@ size_type size() const noexcept;
 bool empty() const noexcept;
 ```
 
-- **戻り値:** 要素が無ければ `true`。`null` は `true`、数値・文字列は常に `false`
+- 戻り値: 要素が無ければ `true`。`null` は `true`、数値・文字列は常に `false`
 
 ### erase {#erase}
 
@@ -944,8 +944,8 @@ IteratorType erase(IteratorType first, IteratorType last);
 | `idx` | `const size_type` | 消す番号（配列） |
 | `pos` / `first`, `last` | `IteratorType` | 消す位置・範囲 |
 
-- **戻り値:** キー版は消した数（0 か 1）
-- **例外:** 種類が違うと `json::type_error`、配列の範囲外は `json::out_of_range`
+- 戻り値: キー版は消した数（0 か 1）
+- 例外: 種類が違うと `json::type_error`、配列の範囲外は `json::out_of_range`
 - 保存する前にデバッグ用のキーを消す、といった使い方をします。
 
 ### find {#find}
@@ -959,7 +959,7 @@ const_iterator find(const typename object_t::key_type& key) const;
 | --- | --- | --- |
 | `key` | `const std::string&` | 探すキー |
 
-- **戻り値:** 見つかればその要素のイテレータ、無ければ `end()`
+- 戻り値: 見つかればその要素のイテレータ、無ければ `end()`
 - `contains` + `at` で 2 回探すのを、1 回にできます。
 
 ```cpp
@@ -978,7 +978,7 @@ static basic_json array(initializer_list_t init = {});
 | --- | --- | --- |
 | `init` | `initializer_list_t` | 最初に入れる要素 |
 
-`json j = {1, 2};` のような書き方は、中身によって配列になったりオブジェクトになったりして分かりにくいことがあります（[よくあるミス](#mistakes)）。**確実に配列にしたいとき**に使います。`json::array()` で空の配列 `[]` が作れます。
+`json j = {1, 2};` のような書き方は、中身によって配列になったりオブジェクトになったりして分かりにくいことがあります（[よくあるミス](#mistakes)）。確実に配列にしたいときに使います。`json::array()` で空の配列 `[]` が作れます。
 
 ### json::object {#json_object}
 
@@ -1006,7 +1006,7 @@ static bool accept(InputType&& i, const bool ignore_comments = false,
 | `ignore_comments` | `const bool` | コメントを許すか |
 | `ignore_trailing_commas` | `bool` | 最後のカンマを許すか（3.12〜） |
 
-- **戻り値:** 正しい JSON なら `true`。値は作らないので `parse` より軽い
+- 戻り値: 正しい JSON なら `true`。値は作らないので `parse` より軽い
 
 ### type_name {#type_name}
 
@@ -1014,7 +1014,7 @@ static bool accept(InputType&& i, const bool ignore_comments = false,
 const char* type_name() const noexcept;
 ```
 
-- **戻り値:** `"null"`、`"object"`、`"array"`、`"string"`、`"boolean"`、`"number"` など
+- 戻り値: `"null"`、`"object"`、`"array"`、`"string"`、`"boolean"`、`"number"` など
 - エラーメッセージを作るときに使います。
 
 ```cpp
@@ -1050,7 +1050,7 @@ static std::vector<std::uint8_t> to_cbor(const basic_json& j);
 | --- | --- | --- |
 | `j` | `const json&` | 変換する JSON |
 
-- **戻り値:** CBOR（JSON と同じ構造を持つバイナリ形式）のバイト列
+- 戻り値: CBOR（JSON と同じ構造を持つバイナリ形式）のバイト列
 - 同じ仲間に `to_msgpack`、`to_bson`、`to_ubjson`、`to_bjdata` があります。
 - テキストの JSON より小さく、数値を文字に変換しないので読むのも少し速くなります。読み書きのコード（`to_json` / `from_json`）はそのまま使えるのが利点です。
 
@@ -1074,7 +1074,7 @@ static basic_json from_cbor(InputType&& i, const bool strict = true,
 static std::vector<std::uint8_t> to_msgpack(const basic_json& j);
 ```
 
-- **戻り値:** MessagePack 形式のバイト列。読むのは `json::from_msgpack`
+- 戻り値: MessagePack 形式のバイト列。読むのは `json::from_msgpack`
 - MessagePack は他の言語（C#、Python、JavaScript）にもライブラリが多いので、サーバーとの通信に使いやすい形式です。
 
 ### merge_patch {#merge_patch}
@@ -1163,7 +1163,7 @@ Windows で Shift_JIS（CP932）の文字列をそのまま入れると、UTF-8 
     `j["speed"] = 0.1f;` を `dump` すると `0.10000000149011612` になります。`float` を `double` に広げてから、`double` として正確に書き出すためです。読み戻せば同じ `0.1f` になるので壊れてはいませんが、見た目が気になるなら最初から `double` で持つか、整数（ミリ単位など）で保存します。
 
 ??? failure "マクロを名前空間の外に書く"
-    `NON_INTRUSIVE` 系のマクロや `to_json` / `from_json` は、**型と同じ名前空間**に書く必要があります。`namespace game { struct Player ... }` に対してグローバルにマクロを書くと、「変換方法が見つからない」という長いコンパイルエラーになります。
+    `NON_INTRUSIVE` 系のマクロや `to_json` / `from_json` は、型と同じ名前空間に書く必要があります。`namespace game { struct Player ... }` に対してグローバルにマクロを書くと、「変換方法が見つからない」という長いコンパイルエラーになります。
 
 ??? failure "Shift_JIS の文字列を dump して例外"
     MSVC でソースが UTF-8 でないと、日本語の文字列リテラルが Shift_JIS になり、`dump` で `type_error.316` になります。ソースを UTF-8 で保存し、`/utf-8` を付けます。

@@ -15,7 +15,7 @@ tags:
 `#include <filesystem>`
 </div>
 
-`std::filesystem::create_directory` は、**フォルダを 1 つだけ作る**関数です。親のフォルダがなければ失敗します。深い階層をまとめて作るなら [`create_directories`](create_directories.md) です。
+保存用のフォルダを 1 つ作りたい。`std::filesystem::create_directory` は、フォルダを 1 つだけ作る関数です。親のフォルダがなければ失敗します。すでにあれば何もせず、`false` を返します。深い階層をまとめて作るなら、`create_directories` を使います。
 
 !!! tip "ポイント"
     - 親がないと失敗する。
@@ -55,14 +55,19 @@ false
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ログ用のフォルダを作る | `fs::create_directory("logs")` |
+親のフォルダが必ずあると分かっているときに、1 階層だけ作ります。たとえば、保存先の `saves` がすでにあって、その中に `slot1` を作る場合です。
+
+実際には、親があるかどうか分からないことが多いので、`create_directories` のほうが使いやすく、迷ったらそちらを選びます。
+
+戻り値の `false` は、すでにあったことを示し、エラーではありません。失敗は例外か、`error_code` で受け取ります。
 
 ## よくあるミス
 
 ??? failure "深い階層を作ろうとして失敗"
     親が無いと失敗します。`create_directories` を使います。
+
+??? failure "親がなくて失敗する"
+    `create_directory("a/b/c")` は、`a/b` が無いと失敗します。深い階層は `create_directories` で作ります。
 
 ## 類似
 

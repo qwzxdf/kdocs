@@ -49,6 +49,116 @@ int main() {
 true
 ```
 
+### EDOM {#EDOM}
+
+```cpp
+#define EDOM /* 実装定義の整数 */
+```
+
+- 戻り値: `errno` の値：数学関数の引数が、定義域の外
+- 計算量: なし
+
+`errno` が `EDOM` のとき、数学関数の引数が、定義域の外ことを表します。`std::errc` の対応する値（`std::errc::argument_out_of_domain`）と比べるほうが、移植性があります。
+
+### ERANGE {#ERANGE}
+
+```cpp
+#define ERANGE /* 実装定義の整数 */
+```
+
+- 戻り値: `errno` の値：結果が、表せる範囲の外
+- 計算量: なし
+
+`errno` が `ERANGE` のとき、結果が、表せる範囲の外ことを表します。`std::errc` の対応する値（`std::errc::result_out_of_range`）と比べるほうが、移植性があります。
+
+### EILSEQ {#EILSEQ}
+
+```cpp
+#define EILSEQ /* 実装定義の整数 */
+```
+
+- 戻り値: `errno` の値：不正なマルチバイト列
+- 計算量: なし
+
+`errno` が `EILSEQ` のとき、不正なマルチバイト列ことを表します。`std::errc` の対応する値（`std::errc::illegal_byte_sequence`）と比べるほうが、移植性があります。
+
+### ENOENT {#ENOENT}
+
+```cpp
+#define ENOENT /* 実装定義の整数 */
+```
+
+- 戻り値: `errno` の値：ファイルやフォルダがない
+- 計算量: なし
+
+`errno` が `ENOENT` のとき、ファイルやフォルダがないことを表します。`std::errc` の対応する値（`std::errc::no_such_file_or_directory`）と比べるほうが、移植性があります。
+
+### EACCES {#EACCES}
+
+```cpp
+#define EACCES /* 実装定義の整数 */
+```
+
+- 戻り値: `errno` の値：アクセス権がない
+- 計算量: なし
+
+`errno` が `EACCES` のとき、アクセス権がないことを表します。`std::errc` の対応する値（`std::errc::permission_denied`）と比べるほうが、移植性があります。
+
+### EEXIST {#EEXIST}
+
+```cpp
+#define EEXIST /* 実装定義の整数 */
+```
+
+- 戻り値: `errno` の値：すでに存在する
+- 計算量: なし
+
+`errno` が `EEXIST` のとき、すでに存在することを表します。`std::errc` の対応する値（`std::errc::file_exists`）と比べるほうが、移植性があります。
+
+### EINVAL {#EINVAL}
+
+```cpp
+#define EINVAL /* 実装定義の整数 */
+```
+
+- 戻り値: `errno` の値：引数が不正
+- 計算量: なし
+
+`errno` が `EINVAL` のとき、引数が不正ことを表します。`std::errc` の対応する値（`std::errc::invalid_argument`）と比べるほうが、移植性があります。
+
+### ENOMEM {#ENOMEM}
+
+```cpp
+#define ENOMEM /* 実装定義の整数 */
+```
+
+- 戻り値: `errno` の値：メモリ不足
+- 計算量: なし
+
+`errno` が `ENOMEM` のとき、メモリ不足ことを表します。`std::errc` の対応する値（`std::errc::not_enough_memory`）と比べるほうが、移植性があります。
+
+### ENOSPC {#ENOSPC}
+
+```cpp
+#define ENOSPC /* 実装定義の整数 */
+```
+
+- 戻り値: `errno` の値：デバイスに空きがない
+- 計算量: なし
+
+`errno` が `ENOSPC` のとき、デバイスに空きがないことを表します。`std::errc` の対応する値（`std::errc::no_space_on_device`）と比べるほうが、移植性があります。
+
+### EINTR {#EINTR}
+
+```cpp
+#define EINTR /* 実装定義の整数 */
+```
+
+- 戻り値: `errno` の値：システムコールがシグナルで中断された
+- 計算量: なし
+
+`errno` が `EINTR` のとき、システムコールがシグナルで中断されたことを表します。`std::errc` の対応する値（`std::errc::interrupted`）と比べるほうが、移植性があります。
+
 ## ゲームでの使いどころ
 
 | 場面 | 書き方 |

@@ -6,7 +6,7 @@ tags:
 
 # Froxels
 
-<strong>froxel はカメラの視錐台（frustum）を分けた、3D のボクセルです</strong>。<strong>画面に近い所は細かく遠い所は粗くなる</strong>ので、見た目に効率が良いです。このページでは froxel の構造を説明します。
+<strong>froxel はカメラの視錐台（frustum）を分けた、3D のボクセルです</strong>。画面に近い所は細かく遠い所は粗くなるので、見た目に効率が良いです。このページでは froxel の構造を説明します。
 
 !!! tip "ポイント"
     - froxel ＝ frustum ＋ voxel。
@@ -51,7 +51,7 @@ tags:
 <!-- fig:froxel-slices:end -->
 
 ## froxel
-<strong>froxel</strong>（frustum voxel）は、<strong>カメラの視錐台を画面の格子（X, Y）と奥行き（Z）で分割した 3D 格子</strong>です。
+<strong>froxel</strong>（frustum voxel）は、カメラの視錐台を画面の格子（X, Y）と奥行き（Z）で分割した 3D 格子です。
 
 <svg class="fig illust" viewBox="0 0 780 280" role="img" aria-label="froxel">
 <text x="20" y="24" class="fig-title">froxel：視錐台を、画面に沿った 3D の格子に切る</text>
@@ -101,7 +101,7 @@ float DepthToSlice(float depth, float near_z, float far_z, float slice_count) {
 
 ## froxel のグリッドを作る
 
-<strong>froxel</strong> は <strong>カメラの視錐台</strong>を、細かく分割した 3D グリッドです（frustum + voxel）。カメラから見た画面の横・縦と、奥行きでセルを並べます。ボクセル（立方体のグリッド）と違いセルの形が、遠いほど大きい（視錐台は遠くで、広がるため）。
+<strong>froxel</strong> は カメラの視錐台を、細かく分割した 3D グリッドです（frustum + voxel）。カメラから見た画面の横・縦と、奥行きでセルを並べます。ボクセル（立方体のグリッド）と違いセルの形が、遠いほど大きい（視錐台は遠くで、広がるため）。
 
 ```text
   カメラ ●
@@ -113,7 +113,7 @@ float DepthToSlice(float depth, float near_z, float far_z, float slice_count) {
 
 ## 3D テクスチャで持つ
 
-<strong>3D テクスチャ</strong>に <strong>各セルの値</strong>を、書き込みます。
+<strong>3D テクスチャ</strong>に 各セルの値を、書き込みます。
 
 ```cpp
 // 160×90×64 の、3D テクスチャを、2 枚（散乱と、積分結果）作る。計算シェーダーが、書き込む。
@@ -128,11 +128,11 @@ desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;   // 
 device->CreateTexture3D(&desc, nullptr, &froxel_tex);
 ```
 
-`R16G16B16A16_FLOAT` は <strong>HDR の色</strong>（明るい光）を、<strong>収める</strong>ためです。`BIND_UNORDERED_ACCESS` は計算シェーダーが書き込むために、必要です。3D テクスチャの 1 つの値が、1 つの froxelです。
+`R16G16B16A16_FLOAT` は HDR の色（明るい光）を、収めるためです。`BIND_UNORDERED_ACCESS` は計算シェーダーが書き込むために、必要です。3D テクスチャの 1 つの値が、1 つの froxelです。
 
 ## セル ↔ ワールド座標
 
-<strong>セルの番号</strong>から <strong>ワールド位置</strong>を、求める変換がすべての段階（密度、ライト、積分、適用）で必要です。
+<strong>セルの番号</strong>から ワールド位置を、求める変換がすべての段階（密度、ライト、積分、適用）で必要です。
 
 ```hlsl
 // froxel の番号 (x, y, z) から、ワールド位置を求める。z は、スライス番号（小数も可）。
@@ -146,11 +146,11 @@ float3 FroxelToWorld(float3 froxel_id) {
 }
 ```
 
-<strong>画面上の位置</strong>（`x`、`y`）と <strong>奥行き</strong>（`z`）からビュー空間の位置を作り、逆ビュー行列でワールドへ戻します。奥行きの割り当て（`SliceToViewDepth`）が次の節です。
+画面上の位置（`x`、`y`）と 奥行き（`z`）からビュー空間の位置を作り、逆ビュー行列でワールドへ戻します。奥行きの割り当て（`SliceToViewDepth`）が次の節です。
 
 ## 奥行きの割り当て
 
-<strong>奥行き方向</strong>は <strong>均等に</strong>分割しません。近くは細かく遠くは粗くします。近くの霧の変化は画面上で大きく遠くは、小さいためです。
+<strong>奥行き方向</strong>は 均等に分割しません。近くは細かく遠くは粗くします。近くの霧の変化は画面上で大きく遠くは、小さいためです。
 
 ```hlsl
 // 奥行きの割り当て: 指数的に（近くを、細かく）。near から far まで、64 スライス。
@@ -163,7 +163,7 @@ float ViewDepthToSlice(float view_depth) {
 }
 ```
 
-<strong>対数</strong>（`log`）の割り当てで <strong>スライスの、厚さ</strong>が距離に比例します（近くは薄く遠くは、厚い）。画面上で各スライスがほぼ同じ、見た目の厚さになります。
+対数（`log`）の割り当てで スライスの、厚さが距離に比例します（近くは薄く遠くは、厚い）。画面上で各スライスがほぼ同じ、見た目の厚さになります。
 
 | 割り当て | 内容 |
 | --- | --- |
@@ -173,14 +173,14 @@ float ViewDepthToSlice(float view_depth) {
 
 ## 近・遠の範囲
 
-<strong>froxel</strong> は <strong>カメラの、近くから一定の距離</strong>（数十〜数百メートル）までを、覆います。それより遠くの霧は別の方法（高さフォグ、空気遠近法）で補います。
+<strong>froxel</strong> は カメラの、近くから一定の距離（数十〜数百メートル）までを、覆います。それより遠くの霧は別の方法（高さフォグ、空気遠近法）で補います。
 
 | 範囲 | 方式 |
 | --- | --- |
 | 〜 64 m 〜 200 m（froxel の、範囲） | ボリューム フォグ |
 | それより遠く | 空気遠近法（[Physically Based Aerial Perspective](../aerial-fog/physical.md)）、高さフォグ |
 
-<strong>境目</strong>では <strong>froxel の、最後のスライスの値</strong>を遠景の霧へ、フェードしてつなぎます。
+境目では froxel の、最後のスライスの値を遠景の霧へ、フェードしてつなぎます。
 
 ## 解像度の選び方
 
@@ -190,7 +190,7 @@ float ViewDepthToSlice(float view_depth) {
 | 160×90×64 | 約 92 万 | 標準 | 中 |
 | 320×180×128 | 約 740 万 | 高（細かい光の筋） | 重い |
 
-<strong>画面の解像度</strong>（1920×1080）の、<strong>1/12</strong>（160×90）が、標準的です。霧はゆるやかに変化するので低解像度でも、十分です。時間方向の平均（[Temporal Accumulation](temporal.md)）で品質を、補います。
+<strong>画面の解像度</strong>（1920×1080）の、1/12（160×90）が、標準的です。霧はゆるやかに変化するので低解像度でも、十分です。時間方向の平均（[Temporal Accumulation](temporal.md)）で品質を、補います。
 
 ## DirectX 11 で組む
 
@@ -237,7 +237,7 @@ Dispatch(integrate_cs, {froxel_light_srv}, {froxel_integrated_uav}, 20, 12, 1); 
 ## よくあるミス
 
 ??? failure "奥行きの分割が粗く、層状の縞が見える"
-    <strong>スライス数を増やす</strong>・<strong>ジッタ</strong>を入れる。
+    <strong>スライス数を増やす</strong>・ジッタを入れる。
 
 ## これだけ覚える
 

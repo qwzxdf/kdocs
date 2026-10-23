@@ -6,7 +6,7 @@ tags:
 
 # Combining with SSR
 
-<strong>プローブは安くて安定、SSR は細かく正確ですが画面外が映らない</strong>ので、<strong>両者を組み合わせる</strong>のが現在の標準です。SSR が当たった所は SSR、外れた所はプローブ、という順で重ねます。このページでは使い分けと長所・短所を説明します。
+<strong>プローブは安くて安定、SSR は細かく正確ですが画面外が映らない</strong>ので、両者を組み合わせるのが現在の標準です。SSR が当たった所は SSR、外れた所はプローブ、という順で重ねます。このページでは使い分けと長所・短所を説明します。
 
 !!! tip "ポイント"
     - SSR の結果を優先し、信頼度が低い所はプローブで埋める。
@@ -15,9 +15,9 @@ tags:
     - プローブは安い・安定・画面外も映る。ただし、視差のずれ・更新が課題。
 
 ## SSR と組み合わせる
-<strong>プローブは遠くの粗い反射</strong>、<strong>SSR は近くの細かい映り込み</strong>が得意です。組み合わせるのが一般的です（[SSR Fallback and Compositing](../ssr-fallback.md)）。
+<strong>プローブは遠くの粗い反射</strong>、SSR は近くの細かい映り込みが得意です。組み合わせるのが一般的です（[SSR Fallback and Compositing](../ssr-fallback.md)）。
 
-それぞれが得意な範囲ははっきり分かれています。遠景や粗い反射は<strong>プローブ</strong>、近くの細かい反射（足元や接地部）は <strong>SSR</strong>、平面（水面や鏡）は<strong>平面反射</strong>が向いています。
+それぞれが得意な範囲ははっきり分かれています。遠景や粗い反射はプローブ、近くの細かい反射（足元や接地部）は SSR、平面（水面や鏡）は平面反射が向いています。
 
 ## 長所と短所
 | 長所 | 短所 |
@@ -30,15 +30,15 @@ tags:
 
 ### 組み合わせの設計
 
-SSR とプローブの合成は <strong>信頼度</strong>で行います。SSR が当たりを見つけて画面の端でも厚みも問題ないなら、信頼度は高く SSR の色を使います。信頼度が下がるにつれてプローブの色を混ぜていきます。プローブは常に計算しておき `result = lerp(probe, ssr, confidence)` で合成します。こうすると SSR が外れた画素でも、最低限の反射（プローブ）が常にあるので、画面が黒く抜けることがありません。プローブは SSR の失敗を隠す<strong>安全網</strong>の役目を担っています（[SSR Fallback and Compositing](../ssr-fallback.md)）。
+SSR とプローブの合成は <strong>信頼度</strong>で行います。SSR が当たりを見つけて画面の端でも厚みも問題ないなら、信頼度は高く SSR の色を使います。信頼度が下がるにつれてプローブの色を混ぜていきます。プローブは常に計算しておき `result = lerp(probe, ssr, confidence)` で合成します。こうすると SSR が外れた画素でも、最低限の反射（プローブ）が常にあるので、画面が黒く抜けることがありません。プローブは SSR の失敗を隠す安全網の役目を担っています（[SSR Fallback and Compositing](../ssr-fallback.md)）。
 
 ### 組み合わせの設計
 
-SSR とプローブの合成は <strong>信頼度</strong>で行います。SSR が当たりを見つけて画面の端でも厚みも問題ないなら、信頼度は高く SSR の色を使います。信頼度が下がるにつれてプローブの色を混ぜていきます。プローブは常に計算しておき `result = lerp(probe, ssr, confidence)` で合成します。こうすると SSR が外れた画素でも、最低限の反射（プローブ）が常にあるので、画面が黒く抜けることがありません。プローブは SSR の失敗を隠す<strong>安全網</strong>の役目を担っています（[SSR Fallback and Compositing](../ssr-fallback.md)）。
+SSR とプローブの合成は 信頼度で行います。SSR が当たりを見つけて画面の端でも厚みも問題ないなら、信頼度は高く SSR の色を使います。信頼度が下がるにつれてプローブの色を混ぜていきます。プローブは常に計算しておき `result = lerp(probe, ssr, confidence)` で合成します。こうすると SSR が外れた画素でも、最低限の反射（プローブ）が常にあるので、画面が黒く抜けることがありません。プローブは SSR の失敗を隠す安全網の役目を担っています（[SSR Fallback and Compositing](../ssr-fallback.md)）。
 
 ## なぜ組み合わせるのか
 
-<strong>反射プローブ</strong>と <strong>SSR</strong>（画面空間の、反射）は得意・不得意が正反対です。組み合わせると互いの弱点を補えます。
+<strong>反射プローブ</strong>と SSR（画面空間の、反射）は得意・不得意が正反対です。組み合わせると互いの弱点を補えます。
 
 | | 反射プローブ | SSR |
 | --- | --- | --- |
@@ -51,7 +51,7 @@ SSR とプローブの合成は <strong>信頼度</strong>で行います。SSR 
 
 ## 基本の合成
 
-<strong>SSR が成功した画素</strong>（<strong>レイが、画面内の何かに当たった</strong>）は、SSR の結果を使い失敗した、画素（画面の外、見つからない）は反射プローブで、補います。
+<strong>SSR が成功した画素</strong>（レイが、画面内の何かに当たった）は、SSR の結果を使い失敗した、画素（画面の外、見つからない）は反射プローブで、補います。
 
 ```hlsl
 // SSR の結果（rgb = 色、a = 信頼度 0〜1）と、反射プローブで、合成する。
@@ -61,11 +61,11 @@ float3 probe = SampleProbes(world_pos, R, roughness, ...);                  // �
 float3 reflection = lerp(probe, ssr.rgb, ssr.a);                            // SSR が、有効なら SSR、無効ならプローブ
 ```
 
-<strong>`ssr.a`</strong>（<strong>信頼度</strong>）が 1 なら、SSR だけ 0 ならプローブだけです。途中の値でなめらかにつなぎます。
+`ssr.a`（信頼度）が 1 なら、SSR だけ 0 ならプローブだけです。途中の値でなめらかにつなぎます。
 
 ### 信頼度の決め方
 
-<strong>SSR の信頼度</strong>を <strong>いくつかの、要素</strong>から計算します（[Color Lookup and Fading](../ssr-basics/color-fade.md)）。
+SSR の信頼度を いくつかの、要素から計算します（[Color Lookup and Fading](../ssr-basics/color-fade.md)）。
 
 ```hlsl
 // SSR の、信頼度: 画面の端、レイの長さ、反射方向、粗さ、で、徐々に、下げる。
@@ -76,7 +76,7 @@ confidence *= saturate(dot(R, -V) * 4.0 + 1.0);                                 
 confidence *= 1.0 - saturate((roughness - 0.6) / 0.4);                                                    // 粗いほど、弱く（プローブに、任せる）
 ```
 
-<strong>画面の端</strong>、<strong>遠い</strong>、カメラに向かう粗いという SSR の苦手な条件で、信頼度を下げプローブに切り替えます。
+画面の端、遠い、カメラに向かう粗いという SSR の苦手な条件で、信頼度を下げプローブに切り替えます。
 
 ## 順序と重み付け
 
@@ -94,11 +94,11 @@ float3 result = ssr.rgb * ssr.a                                              // 
               + sky * (1.0 - ssr.a) * (1.0 - probe_weight);                  // ③ 空
 ```
 
-<strong>SSR が有効な部分</strong>は <strong>SSR</strong>、それ以外は局所プローブ、さらにプローブの範囲外は空（[Probe Operation](blending.md)）、と段階的にフォールバックします。
+SSR が有効な部分は SSR、それ以外は局所プローブ、さらにプローブの範囲外は空（[Probe Operation](blending.md)）、と段階的にフォールバックします。
 
 ## 色のつながり
 
-<strong>SSR とプローブ</strong>は <strong>別の方法で、作られた</strong>ので同じ物を映しても色や、明るさがわずかに違うことがあります。境目（信頼度が変わる所）で反射の色が、ずれて見える場合があります。
+<strong>SSR とプローブ</strong>は 別の方法で、作られたので同じ物を映しても色や、明るさがわずかに違うことがあります。境目（信頼度が変わる所）で反射の色が、ずれて見える場合があります。
 
 | 問題 | 対策 |
 | --- | --- |
@@ -115,7 +115,7 @@ float3 result = ssr.rgb * ssr.a                                              // 
 | 3 | 反射プローブと SSR を、合成（ライティングの一部として） |
 | 4 | 半透明、ポスト プロセス |
 
-<strong>SSR は前フレームの色</strong>を、使うことが多く（<strong>今フレームの、ライティングはまだ終わっていない</strong>ため）、1 フレームの遅れがあります（[SSR Fallback and Compositing](../ssr-fallback.md)）。
+<strong>SSR は前フレームの色</strong>を、使うことが多く（今フレームの、ライティングはまだ終わっていないため）、1 フレームの遅れがあります（[SSR Fallback and Compositing](../ssr-fallback.md)）。
 
 ## よくあるミス
 

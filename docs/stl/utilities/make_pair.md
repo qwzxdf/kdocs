@@ -14,12 +14,15 @@ tags:
 `#include <utility>`
 </div>
 
-`std::make_pair` は、**値から型を推論して `std::pair` を作る**関数です。C++17 以降は、クラステンプレートの型推論（CTAD）が使えるので、`std::pair(a, b)` や `{a, b}` と書けば足ります。古いコードや、他人のコードを読むときのために知っておく関数です。
+2 つの値を `pair` にするとき、`std::pair<int, std::string>(1, "a")` と型を全部書くのは長すぎます。`std::make_pair(1, std::string("a"))` なら、型を推論して `pair` を作ってくれます。C++17 以降は、クラステンプレートの型推論（CTAD）が使えるので、`std::pair(a, b)` や `{a, b}` と書けば足ります。古いコードを読むために知っておく関数です。
 
 !!! tip "ポイント"
     - C++17 以降は `std::pair(a, b)` / `{a, b}` で足りる。
     - 参照を保持したいときは `std::make_pair(std::ref(x), 2)` のように `std::ref` を使う。
     - 文字列リテラルは `const char*` として保存される（`std::string` にしたいなら明示する）。
+
+!!! info "このページを読む前に"
+    [`std::pair`](pair.md) を先に読んでください。`make_pair` は、その作り方の補助です。
 
 ## 関数の詳しい説明
 
@@ -55,14 +58,19 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| map に要素を追加する（古い書き方） | `m.insert(std::make_pair(key, value));` |
+新しいコードでは、`std::pair p(1, 2.0);` か、戻り値の型が決まっている関数で `return {a, b};` と書きます。`make_pair` は不要です。
+
+古いコードには頻繁に出てきます。`map.insert(std::make_pair(key, value))` は、現在は `map.emplace(key, value)` か `map.insert({key, value})` に置き換えられます。
+
+参照を保持したい場合は、`std::make_pair(std::ref(x), 2)` と `std::ref` を使います。
 
 ## よくあるミス
 
 ??? failure "文字列リテラルが std::string にならない"
     `std::make_pair("a", 1)` の 1 つ目は `const char*` です。`std::string` が欲しいなら、`std::pair<std::string, int>{"a", 1}` と書きます。
+
+??? failure "文字列リテラルが `const char*` として保存される"
+    `make_pair("a", 1)` の `first` は `const char*` です。`std::string` にしたいなら、`make_pair(std::string("a"), 1)` と明示します。
 
 ## 類似
 

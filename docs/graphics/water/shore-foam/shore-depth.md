@@ -6,7 +6,7 @@ tags:
 
 # Shore Foam: Depth Difference
 
-<strong>岸辺は水面とシーンの深度の差が小さい所</strong>です。<strong>この差から泡のマスクを作る</strong>と、岸や物の境界に自然に泡が出ます。このページでは深度差を使った泡を説明します。
+<strong>岸辺は水面とシーンの深度の差が小さい所</strong>です。この差から泡のマスクを作ると、岸や物の境界に自然に泡が出ます。このページでは深度差を使った泡を説明します。
 
 !!! tip "ポイント"
     - 深度差 ＝ シーンの深度 − 水面の深度。
@@ -32,7 +32,7 @@ tags:
 <!-- fig:shore-foam-depth:end -->
 
 ## 岸辺の泡：深度差
-<strong>水面と底の深度の差が小さい所は、水が浅い所</strong>＝<strong>岸辺や水中の物の周り</strong>です。浅いほど泡が強くなるマスクを作ります。
+<strong>水面と底の深度の差が小さい所は、水が浅い所</strong>＝岸辺や水中の物の周りです。浅いほど泡が強くなるマスクを作ります。
 
 ```hlsl
 float scene_depth = LinearizeDepth(depth_texture.Sample(point_clamp, screen_uv).r);
@@ -47,7 +47,7 @@ shore_mask = pow(shore_mask, foam_sharpness);
 
 ### 波打ち際の動き
 
-<strong>岸辺の泡は波が寄せては引くように動く</strong>と<strong>自然</strong>です。水深に時間で揺れる値を足すと波打ち際が動きます。
+岸辺の泡は波が寄せては引くように動くと自然です。水深に時間で揺れる値を足すと波打ち際が動きます。
 
 ```hlsl
 float wave = sin(time * 1.5 + input.world_position.x * 0.3) * 0.5 + 0.5;
@@ -55,15 +55,15 @@ float animated_depth = water_depth + wave * 0.3;
 float shore_mask = 1.0 - saturate(animated_depth / foam_distance);
 ```
 
-<strong>波が寄せる位相と引く位相で泡の線が前後します</strong>。<strong>位置（`world_position.x`）で位相をずらす</strong>と波が一斉に動かず、ばらけます。
+波が寄せる位相と引く位相で泡の線が前後します。位置（`world_position.x`）で位相をずらすと波が一斉に動かず、ばらけます。
 
 ## 岸の泡の位置
 
-波が岸に打ち寄せるとき <strong>水が、浅くなるにつれて波が砕け岸に沿って、泡の帯</strong>ができます。泡の位置は <strong>水深</strong>で決まります。水深が浅いほど泡が多く出ます。
+波が岸に打ち寄せるとき <strong>水が、浅くなるにつれて波が砕け岸に沿って、泡の帯</strong>ができます。泡の位置は 水深で決まります。水深が浅いほど泡が多く出ます。
 
 ## 水深を求める
 
-水深は <strong>水面の深度</strong>と <strong>水の後ろの、地形（不透明な物）の深度</strong>の差から、求めます（[Color by Water Depth](../shading/depth-color.md)）。
+水深は <strong>水面の深度</strong>と 水の後ろの、地形（不透明な物）の深度の差から、求めます（[Color by Water Depth](../shading/depth-color.md)）。
 
 ```hlsl
 float scene_depth = LinearizeDepth(g_scene_depth.Sample(g_point_clamp, screen_uv).r);
@@ -88,7 +88,7 @@ shore_foam = shore_foam * shore_foam;           // 岸に近いほど、急に�
 
 ### 縁にノイズを足す
 
-泡の帯が <strong>なめらかな直線</strong>だと、不自然です。<strong>ノイズ</strong>で境界をゆらします。
+泡の帯が なめらかな直線だと、不自然です。ノイズで境界をゆらします。
 
 ```hlsl
 float noise = g_noise.Sample(g_linear_wrap, world_uv * 2.0 + time * 0.05).r;
@@ -97,7 +97,7 @@ float shore_foam = saturate(1.0 - depth_diff / (foam_width * (0.5 + noise)));
 
 ## 波が押し寄せて引く
 
-岸の泡は <strong>静止した帯</strong>ではなく、<strong>波が来て引くたびに岸に沿って、前後に動き</strong>ます。水深に時間とともに動くしきい値を使うと、この動きを再現できます。
+岸の泡は <strong>静止した帯</strong>ではなく、波が来て引くたびに岸に沿って、前後に動きます。水深に時間とともに動くしきい値を使うと、この動きを再現できます。
 
 ```hlsl
 // 波の周期で、泡の帯が、岸へ寄せて、引く。
@@ -106,11 +106,11 @@ float threshold = foam_width * wave;                                            
 float shore_foam = saturate(1.0 - depth_diff / max(threshold, 0.01));
 ```
 
-`depth_diff × wave_frequency` を位相に入れると <strong>波の位相が、水深によってずれる</strong>ので <strong>岸に向かって、進む帯</strong>のように見えます。波が岸へ進む向きは `−depth_diff` の符号で、決まります。符号を逆にすると沖へ引いて行く動きになります。
+`depth_diff × wave_frequency` を位相に入れると 波の位相が、水深によってずれるので 岸に向かって、進む帯のように見えます。波が岸へ進む向きは `−depth_diff` の符号で、決まります。符号を逆にすると沖へ引いて行く動きになります。
 
 ## 水と陸の境目をなめらかにする
 
-水面と地形が交差する線は <strong>ぱっきり、線が見えます</strong>。<strong>深度の差が小さい所のアルファ</strong>を下げて水面を岸で透明に、フェードさせます（ソフト パーティクルと、同じ考え方、[Soft Particles](../../translucency/blending-sorting/soft-particles.md)）。
+水面と地形が交差する線は <strong>ぱっきり、線が見えます</strong>。深度の差が小さい所のアルファを下げて水面を岸で透明に、フェードさせます（ソフト パーティクルと、同じ考え方、[Soft Particles](../../translucency/blending-sorting/soft-particles.md)）。
 
 ```hlsl
 // 水面の、岸の近くを、透明にして、交差の線を、消す。
@@ -124,11 +124,11 @@ float alpha = edge_alpha;
 | 水面のアルファ | 岸で、透明に。交差の線が見えない |
 | 泡 | 岸の近くで濃い。水面が透けても泡が境目を隠す |
 
-<strong>泡の帯が境目を隠す</strong>のでこの 2 つは、<strong>セット</strong>で使います。
+泡の帯が境目を隠すのでこの 2 つは、セットで使います。
 
 ## 波の勢いと泡の強さ
 
-波が<strong>強い</strong>日は <strong>泡が広く濃く</strong>出ます。泡の強さを波の振幅（風の強さ）で、変えます。
+波が<strong>強い</strong>日は 泡が広く濃く出ます。泡の強さを波の振幅（風の強さ）で、変えます。
 
 ```hlsl
 float shore_foam_strength = lerp(0.4, 1.0, saturate(wind_strength));
@@ -137,7 +137,7 @@ float foam_width = base_width * lerp(0.7, 1.5, saturate(wind_strength));
 
 ## 地形の傾き
 
-<strong>傾きが緩やか</strong>な浜辺では水深が、<strong>ゆっくり</strong>浅くなるので泡の帯が、広くなります。崖の下では水深が急に深くなり帯が、細くなります。水深マップを使うのでこの違いは、自動で出ます。
+<strong>傾きが緩やか</strong>な浜辺では水深が、ゆっくり浅くなるので泡の帯が、広くなります。崖の下では水深が急に深くなり帯が、細くなります。水深マップを使うのでこの違いは、自動で出ます。
 
 ## 注意点
 

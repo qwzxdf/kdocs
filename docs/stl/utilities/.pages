@@ -5,6 +5,7 @@ nav:
   - format.md
   - make_unique.md
   - make_shared.md
+  - println.md
   - pair.md
   - shared_ptr.md
   - function.md
@@ -57,16 +58,31 @@ nav:
   - out_ptr.md
   - inout_ptr.md
   - bad_any_cast.md
+  - basic_format_arg.md
+  - basic_format_args.md
+  - basic_format_string.md
   - basic_string_view.md
   - const_pointer_cast.md
+  - format_context.md
+  - format_kind.md
+  - format_parse_context.md
+  - format_string.md
+  - format_to_n.md
+  - formattable.md
+  - formatted_size.md
   - forward_like.md
   - in_place_index.md
   - in_place_type.md
   - index_sequence.md
   - index_sequence_for.md
+  - make_format_args.md
   - make_index_sequence.md
   - make_integer_sequence.md
+  - make_wformat_args.md
+  - range_format.md
+  - range_formatter.md
   - reinterpret_pointer_cast.md
+  - runtime_format.md
   - static_pointer_cast.md
   - u16string_view.md
   - u32string_view.md
@@ -74,5 +90,11 @@ nav:
   - unexpect.md
   - variant_alternative.md
   - variant_npos.md
+  - variant_size.md
+  - vformat_to.md
+  - visit_format_arg.md
+  - vprint_nonunicode.md
+  - vprint_unicode.md
+  - wformat_string.md
   - wstring_view.md
   - ...

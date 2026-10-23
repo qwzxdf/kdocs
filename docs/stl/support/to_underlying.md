@@ -15,7 +15,7 @@ tags:
 `#include <utility>`
 </div>
 
-`std::to_underlying(e)` は、**列挙型（`enum class`）の値を、内部の整数型に変換する**関数です。`static_cast<int>(e)` と書くより、型の指定が要らず、`enum` の元の型が変わっても追従します。配列の添字や、ビットフラグの計算に使います。
+列挙型を `enum class` にすると、名前が衝突せず、整数との暗黙の変換もないので、安全です。その反面、配列の添え字に使いたいときや、ビットフラグを計算したいときに、`static_cast<int>(e)` と書く必要があります。`static_cast<int>` は、`enum` の元の型が `uint8_t` に変わったときに、気づかずに型が合わなくなります。C++23 の `std::to_underlying` は、`enum` の元の型に自動でそろえて、整数に変換してくれる関数です。
 
 !!! tip "ポイント"
     - `enum class` は暗黙に整数へ変換されない。そのとき使う。
@@ -23,7 +23,7 @@ tags:
     - C++23 の機能。
 
 !!! info "このページを読む前に"
-    [小さな便利機能](utility-misc.md) の概要と合わせて読むと分かりやすいです。
+    `enum class` の基本が分かると読みやすいです。通常の `enum` と違って、整数との暗黙の変換がありません。
 
 ## 関数の詳しい説明
 
@@ -58,15 +58,22 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 列挙型を配列の添字にする | `table[std::to_underlying(type)]` |
-| ビットフラグの計算 | `std::to_underlying(a) | std::to_underlying(b)` |
+配列の添え字に、`enum class` を使うときに便利です。`std::array<Texture, kTextureCount> textures; textures[std::to_underlying(TextureId::kPlayer)]` と書けます。
+
+ビットフラグでは、`enum class Flag : uint8_t { kA = 1, kB = 2 }` の値をビット演算に使いたいときに、`std::to_underlying(Flag::kA) | std::to_underlying(Flag::kB)` と書きます。演算子オーバーロードを用意して隠す書き方もよく使われます。
+
+シリアライズでは、`enum` を整数として保存する場面で使います。保存先の型を `enum` の元の型にそろえると、バイト数がぶれません。
 
 ## よくあるミス
 
-??? failure "古い環境で使えない"
-    C++23 の機能です。`static_cast<std::underlying_type_t<E>>(e)` と書きます。
+??? failure "通常の `enum` に使って意味がない"
+    通常の `enum` は暗黙に整数へ変換されるので、`to_underlying` は不要です。`enum class` のときに使います。
+
+??? failure "`static_cast<int>` のまま、型が合わなくなる"
+    `enum class E : uint8_t` の値を `static_cast<int>` で変換すると、元の型より大きい `int` になって、保存時のバイト数がずれることがあります。`to_underlying` は元の型のままです。
+
+??? failure "C++20 で使えなくてコンパイルエラーになる"
+    `to_underlying` は C++23 の機能です。C++20 では `static_cast<std::underlying_type_t<E>>(e)` と書きます。
 
 ## 類似
 
@@ -82,9 +89,9 @@ C++17〜C++23 の機能です。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] enum を元の整数型にする
-    - [x] `static_cast` より安全
-    - [x] C++23
+    - [x] `enum class` を、元の整数型に変換する。
+    - [x] `static_cast<int>` と違い、元の型に自動でそろう。
+    - [x] C++23 の機能。C++20 では `underlying_type_t` と `static_cast` で書く。
 
 ## 関連ページ
 

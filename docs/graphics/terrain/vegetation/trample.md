@@ -6,7 +6,7 @@ tags:
 
 # Trampled Grass
 
-<strong>キャラクターが通ると草が倒れる</strong>と、<strong>インタラクティブ</strong>になります。キャラクターの位置をテクスチャに書き込み、草が読むことで実現します。このページでは踏まれる草を説明します。
+<strong>キャラクターが通ると草が倒れる</strong>と、インタラクティブになります。キャラクターの位置をテクスチャに書き込み、草が読むことで実現します。このページでは踏まれる草を説明します。
 
 !!! tip "ポイント"
     - キャラクターの位置を、インタラクション マップに描く。
@@ -15,7 +15,7 @@ tags:
     - 範囲はカメラの周りに限る。
 
 ## 踏まれる草
-<strong>キャラクターが歩くと草が倒れる</strong>表現です。<strong>キャラクターの位置をシェーダーに渡し、近い草を押しのけます</strong>。
+<strong>キャラクターが歩くと草が倒れる</strong>表現です。キャラクターの位置をシェーダーに渡し、近い草を押しのけます。
 
 ```hlsl
 float3 away = world_position - character_position;
@@ -24,7 +24,7 @@ world_position.xz += normalize(away.xz) * influence * push_strength * height_t;
 world_position.y -= influence * push_strength * height_t;
 ```
 
-<strong>複数の物を扱うなら物の位置を高さマップ風のテクスチャに描き、それを草が読む</strong>（[波紋のブラシ](../../water/interaction/index.md)と同じ）のが<strong>スケールします</strong>。
+複数の物を扱うなら物の位置を高さマップ風のテクスチャに描き、それを草が読む（[波紋のブラシ](../../water/interaction/index.md)と同じ）のがスケールします。
 
 <!-- fig:trample-falloff:begin -->
 
@@ -60,7 +60,7 @@ world_position.y -= influence * push_strength * height_t;
 
 ## 位置を直接、渡す方法の限界
 
-上のコードは <strong>キャラクターの位置を、シェーダーに渡し近くの草を押す</strong>方法です。1 体ならうまく動きますが <strong>増えると、破綻</strong>します。
+上のコードは <strong>キャラクターの位置を、シェーダーに渡し近くの草を押す</strong>方法です。1 体ならうまく動きますが 増えると、破綻します。
 
 | 状況 | 問題 |
 | --- | --- |
@@ -68,11 +68,11 @@ world_position.y -= influence * push_strength * height_t;
 | 戦車、車 | 通った跡が残らない（通り過ぎるとすぐ、元に戻る） |
 | 爆発 | 瞬間の局所的な、押しつぶし。履歴が必要 |
 
-そこで、<strong>「踏まれた跡をテクスチャに、描く」</strong>方式にします。草は <strong>その場所のテクスチャの値を、読む</strong>だけです。物の数に関係なく草が 1 回読むだけです。
+そこで、「踏まれた跡をテクスチャに、描く」方式にします。草は その場所のテクスチャの値を、読むだけです。物の数に関係なく草が 1 回読むだけです。
 
 ## インタラクション マップ
 
-カメラの周りの <strong>数十メートル四方</strong>を覆う、<strong>小さなテクスチャ</strong>（256×256 など）を、用意します。
+カメラの周りの <strong>数十メートル四方</strong>を覆う、小さなテクスチャ（256×256 など）を、用意します。
 
 | チャンネル | 内容 |
 | --- | --- |
@@ -90,7 +90,7 @@ world_position.y -= influence * push_strength * height_t;
 
 ### 物をマップに描く
 
-毎フレーム、<strong>動く物の位置に円（ブラシ）を、描き込み</strong>ます。
+毎フレーム、動く物の位置に円（ブラシ）を、描き込みます。
 
 ```hlsl
 // ブラシを描く（ピクセル シェーダー。物の位置を中心にした、四角形を描く）。
@@ -104,7 +104,7 @@ float4 BrushPS(float2 uv : TEXCOORD0, float2 center_uv, float radius_uv, float2 
 }
 ```
 
-ブレンド ステートは <strong>最大値（`D3D11_BLEND_OP_MAX`）</strong>にします。複数の物が重なっても <strong>強い方が、残ります</strong>。
+ブレンド ステートは 最大値（`D3D11_BLEND_OP_MAX`）にします。複数の物が重なっても 強い方が、残ります。
 
 ```cpp
 D3D11_BLEND_DESC blend = {};
@@ -121,7 +121,7 @@ device->CreateBlendState(&blend, &max_blend);
 
 ## 時間とともに戻す
 
-毎フレーム、マップ全体を <strong>少しずつ薄めます</strong>。そうすると、踏まれた草が <strong>ゆっくり立ち上がります</strong>。
+毎フレーム、マップ全体を <strong>少しずつ薄めます</strong>。そうすると、踏まれた草が ゆっくり立ち上がります。
 
 ```hlsl
 // 全画面の描画: 前のフレームの結果を、少しだけ薄めて、コピーする。
@@ -142,15 +142,15 @@ float4 DecayPS(float2 uv : TEXCOORD0) : SV_Target {
 
 ## カメラについていく窓
 
-マップは <strong>カメラの周りだけ</strong>を覆います。カメラが動くと窓が動きます。窓が動くとき <strong>マップの内容も、ずらす</strong>必要があります。
+マップは <strong>カメラの周りだけ</strong>を覆います。カメラが動くと窓が動きます。窓が動くとき マップの内容も、ずらす必要があります。
 
 ### 毎フレーム、全体をコピーする方法
 
-<strong>カメラが 1 画素分動いたら、マップ全体をずらしてコピー</strong>します。単純ですが毎回、全体を書き込むので無駄です。
+カメラが 1 画素分動いたら、マップ全体をずらしてコピーします。単純ですが毎回、全体を書き込むので無駄です。
 
 ### 円環バッファ（トロイダル）
 
-<strong>ずらす代わりに読み書きの位置を、ずらします</strong>。テクスチャの `WRAP`（繰り返し）のアドレッシングを使うと、<strong>窓の端を超えた座標が反対側に戻る</strong>ので内容を、コピーせずに済みます（[Geometry Clipmaps](../lod/clipmap.md) と、同じ発想）。
+ずらす代わりに読み書きの位置を、ずらします。テクスチャの `WRAP`（繰り返し）のアドレッシングを使うと、窓の端を超えた座標が反対側に戻るので内容を、コピーせずに済みます（[Geometry Clipmaps](../lod/clipmap.md) と、同じ発想）。
 
 ```hlsl
 // ワールド座標から、マップの UV を求める。WRAP で、窓の外へ出ても、反対側から、読まれる。
@@ -161,7 +161,7 @@ float2 InteractionUV(float3 world_pos) {
 float inside = step(distance(world_pos.xz, camera_position.xz), map_world_size * 0.5);
 ```
 
-窓が動いて <strong>新しく範囲に入った帯</strong>だけは、<strong>クリア</strong>します（前の位置の、古い内容が残っているため）。
+窓が動いて 新しく範囲に入った帯だけは、クリアします（前の位置の、古い内容が残っているため）。
 
 ## 草の側で読む
 
@@ -188,7 +188,7 @@ pos = ApplyTrample(pos, height_t);
 
 ## 水や雪との共有
 
-同じ仕組みは <strong>波紋のブラシ</strong>（[Water Interaction](../../water/interaction/index.md)）、<strong>雪の足跡</strong>、砂の跡にも使えます。1 つのインタラクション マップに、複数の用途をまとめることもできます。
+同じ仕組みは <strong>波紋のブラシ</strong>（[Water Interaction](../../water/interaction/index.md)）、雪の足跡、砂の跡にも使えます。1 つのインタラクション マップに、複数の用途をまとめることもできます。
 
 | 用途 | 使うチャンネル |
 | --- | --- |

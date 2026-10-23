@@ -6,7 +6,7 @@ tags:
 
 # Thin and Thick Glass
 
-<strong>窓ガラスのような「薄いガラス」は、屈折でほとんどずれません</strong>が、<strong>ガラスの塊のような「厚いガラス」は、大きくずれます</strong>。両者でモデルを使い分けると無駄なく、自然に見えます。このページでは使い分けの基準を説明します。
+<strong>窓ガラスのような「薄いガラス」は、屈折でほとんどずれません</strong>が、ガラスの塊のような「厚いガラス」は、大きくずれます。両者でモデルを使い分けると無駄なく、自然に見えます。このページでは使い分けの基準を説明します。
 
 !!! tip "ポイント"
     - 薄いガラス：ほぼ透明 ＋ 反射。屈折はほぼ無視。
@@ -17,22 +17,22 @@ tags:
 ## 薄いガラスと厚いガラス
 | 種類 | 例 | 屈折 | 表現 |
 | --- | --- | --- | --- |
-| <strong>薄いガラス（板）</strong> | 窓・ガラス戸 | ほぼ無視（入口と出口で相殺） | <strong>透過 ＋ 反射（フレネル）</strong> のみ |
+| <strong>薄いガラス（板）</strong> | 窓・ガラス戸 | ほぼ無視（入口と出口で相殺） | 透過 ＋ 反射（フレネル） のみ |
 | 厚いガラス・水 | 瓶・水槽・宝石 | 目立つ | 屈折 ＋ 厚みの色 ＋ 反射 |
 | 曇りガラス | すりガラス | ぼやける | 背景を、ミップや大きなブラーで読む（粗さに応じて） |
 
-<strong>窓ガラス</strong>は <strong>屈折を省いて、単純な半透明</strong>にすれば十分です。
+窓ガラスは 屈折を省いて、単純な半透明にすれば十分です。
 
 ### 曇りガラス（粗い屈折）
 
-<strong>粗い面ほど背景がぼやけて見える</strong>ので、<strong>背景コピーのミップ（ブラー済み）</strong>を、<strong>粗さに応じて</strong>読みます。
+粗い面ほど背景がぼやけて見えるので、背景コピーのミップ（ブラー済み）を、粗さに応じて読みます。
 
 ```hlsl
 float mip = roughness * kMaxMip;
 float3 background = scene_color_mips.SampleLevel(linear_clamp, refract_uv, mip).rgb;
 ```
 
-<strong>背景のコピーにミップ チェーンを作って</strong>おく（[ブルームのダウンサンプル](../../postprocess/bloom/index.md)と同様）。
+背景のコピーにミップ チェーンを作っておく（[ブルームのダウンサンプル](../../postprocess/bloom/index.md)と同様）。
 
 ### なぜ薄いガラスの屈折は無視できるのか
 
@@ -51,7 +51,7 @@ float3 background = scene_color_mips.SampleLevel(linear_clamp, refract_uv, mip).
 
 ## 薄いガラス：1 回で十分
 
-薄い平行なガラス板では <strong>入射の屈折</strong>と、<strong>出射の屈折</strong>がちょうど打ち消し合い光は、元の向きのまま少しずれて出てきます。ずれは厚みと入射角で決まり薄ければ、ごくわずかです。
+薄い平行なガラス板では <strong>入射の屈折</strong>と、出射の屈折がちょうど打ち消し合い光は、元の向きのまま少しずれて出てきます。ずれは厚みと入射角で決まり薄ければ、ごくわずかです。
 
 ```text
  空気 | ガラス | 空気
@@ -60,11 +60,11 @@ float3 background = scene_color_mips.SampleLevel(linear_clamp, refract_uv, mip).
             ╲    ╲___   ずれ（横ずれ）は、厚みに比例
 ```
 
-このため <strong>窓ガラス</strong>は <strong>画面空間の屈折</strong>（[Screen-Space Refraction](screen-space.md)）で、十分です。ずらし量をごく小さくするかほぼゼロに、します。フレネル反射と表面の汚れ厚みによる、わずかな色が見た目の主役です。
+このため 窓ガラスは 画面空間の屈折（[Screen-Space Refraction](screen-space.md)）で、十分です。ずらし量をごく小さくするかほぼゼロに、します。フレネル反射と表面の汚れ厚みによる、わずかな色が見た目の主役です。
 
 ## 厚いガラス：屈折が 2 回
 
-球や瓶のような <strong>厚い</strong>ガラスでは光が、<strong>入口で 1 回曲がり</strong>、内部を通って出口でもう 1 回曲がります。
+球や瓶のような <strong>厚い</strong>ガラスでは光が、入口で 1 回曲がり、内部を通って出口でもう 1 回曲がります。
 
 ```text
  空気 | ガラス球                 | 空気
@@ -72,7 +72,7 @@ float3 background = scene_color_mips.SampleLevel(linear_clamp, refract_uv, mip).
        ╲╲ ←入口で屈折  ╲╲ ←出口で屈折
 ```
 
-<strong>入口の屈折ベクトル</strong>と <strong>物体の内部を通った、出口の位置・法線</strong>が必要です。
+入口の屈折ベクトルと 物体の内部を通った、出口の位置・法線が必要です。
 
 ### 近似の方法
 
@@ -82,7 +82,7 @@ float3 background = scene_color_mips.SampleLevel(linear_clamp, refract_uv, mip).
 | 解析的な形 | 球、箱に対してレイと形の交差を数式で、解く | 完全（形が単純なら） |
 | レイトレーシング | 実際に光線を、追跡する | 完全。重い |
 
-Wyman（2005）の <strong>画像空間の、近似</strong>は次のとおりです。
+Wyman（2005）の 画像空間の、近似は次のとおりです。
 
 1. 物体の背面を描いて深度（視点からの、距離）と法線をテクスチャに保存する
 2. 前面の画素で入口の屈折ベクトル `T₁` を `refract(V, N_front, 1/n)` で求める
@@ -115,11 +115,11 @@ float2 uv = ProjectToScreenUV(sample_pos);
 float3 refracted = g_scene_copy.Sample(g_linear_clamp, uv).rgb;
 ```
 
-`refract` がゼロ ベクトルを返したときは、<strong>全反射</strong>です。<strong>反射の向き</strong>で代用します（内部反射の、1 回分の近似）。
+`refract` がゼロ ベクトルを返したときは、全反射です。反射の向きで代用します（内部反射の、1 回分の近似）。
 
 ## 凹んだ形、複雑な形
 
-背面を 1 層だけ使う近似は <strong>凸な形</strong>（視線が、入口と出口で 1 回ずつ通る）を、前提にしています。<strong>凹んだ形</strong>（コップ、ドーナツ、複雑な彫像）では視線が複数回、通るのでうまくいきません。
+背面を 1 層だけ使う近似は <strong>凸な形</strong>（視線が、入口と出口で 1 回ずつ通る）を、前提にしています。凹んだ形（コップ、ドーナツ、複雑な彫像）では視線が複数回、通るのでうまくいきません。
 
 | 形 | 対応 |
 | --- | --- |
@@ -130,7 +130,7 @@ float3 refracted = g_scene_copy.Sample(g_linear_clamp, uv).rgb;
 
 ## 厚みと薄さの中間
 
-ほとんどのゲームのガラス（コップ、瓶、窓）は <strong>薄い壁</strong>の <strong>空洞</strong>です。
+ほとんどのゲームのガラス（コップ、瓶、窓）は <strong>薄い壁</strong>の 空洞です。
 
 | 物 | 扱い |
 | --- | --- |

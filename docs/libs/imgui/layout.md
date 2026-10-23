@@ -7,15 +7,15 @@ tags:
 
 # ImGui のレイアウトとウィンドウ
 
-ImGui は <strong>部品を呼んだ順に上から下へ並べます</strong>（自動レイアウト）。<strong>ウィンドウの位置・大きさ</strong>、<strong>部品を横に並べる方法</strong>、<strong>表・列・子ウィンドウ</strong>、<strong>メニューバー</strong>など <strong>レイアウトの道具</strong>をまとめます。<strong>何も指定しなくても動きますが、少し指定すると見やすい画面</strong>になります。
+ImGui は <strong>部品を呼んだ順に上から下へ並べます</strong>（自動レイアウト）。ウィンドウの位置・大きさ、部品を横に並べる方法、表・列・子ウィンドウ、メニューバーなど レイアウトの道具をまとめます。何も指定しなくても動きますが、少し指定すると見やすい画面になります。
 
 !!! tip "ポイント"
     - <strong>ウィンドウは `Begin("名前") … End()`</strong>。<strong>名前がウィンドウの ID</strong>。
-    - <strong>位置・大きさは `SetNextWindowPos` / `SetNextWindowSize`</strong>（<strong>`Begin` の直前</strong>に）。<strong>`ImGuiCond_FirstUseEver` で最初だけ</strong>。
-    - <strong>部品は縦に並ぶ</strong>。<strong>横に並べるのは `SameLine()`</strong>。
-    - <strong>表は `BeginTable`</strong>（`Columns` は古い）。<strong>区切りは `Separator`、余白は `Spacing`</strong>。
-    - <strong>ウィンドウの中にスクロールする領域</strong>を作るのは<strong>`BeginChild`</strong>。
-    - <strong>固定のオーバーレイ（FPS 表示など）</strong>は、<strong>フラグでタイトルバーなしにして、位置を固定</strong>。
+    - 位置・大きさは `SetNextWindowPos` / `SetNextWindowSize`（`Begin` の直前に）。`ImGuiCond_FirstUseEver` で最初だけ。
+    - 部品は縦に並ぶ。横に並べるのは `SameLine()`。
+    - 表は `BeginTable`（`Columns` は古い）。区切りは `Separator`、余白は `Spacing`。
+    - ウィンドウの中にスクロールする領域を作るのは`BeginChild`。
+    - 固定のオーバーレイ（FPS 表示など）は、フラグでタイトルバーなしにして、位置を固定。
 
 ## ウィンドウ
 
@@ -32,49 +32,49 @@ ImGui::End();
 
 | 点 | 説明 |
 | --- | --- |
-| <strong>`Begin("名前", &open, flags)`</strong> | ウィンドウを始める。<strong>第 2 引数に `bool*`<strong> を渡すと </strong>閉じるボタン（×）</strong>が付く |
-| <strong>`End()`</strong> | <strong>`Begin` の戻り値に関係なく</strong>、必ず呼ぶ |
-| <strong>戻り値</strong> | <strong>ウィンドウが、折りたたまれていなければ `true`</strong>。`false` なら <strong>中身の処理を飛ばして</strong>、軽くできる |
-| <strong>ウィンドウの名前</strong> | <strong>同じ名前は、同じウィンドウ</strong>。<strong>位置・大きさは `imgui.ini` に名前で保存</strong>される |
+| <strong>`Begin("名前", &open, flags)`</strong> | ウィンドウを始める。第 2 引数に `bool*`<strong> を渡すと 閉じるボタン（×）</strong>が付く |
+| `End()` | `Begin` の戻り値に関係なく、必ず呼ぶ |
+| 戻り値 | ウィンドウが、折りたたまれていなければ `true`。`false` なら 中身の処理を飛ばして、軽くできる |
+| ウィンドウの名前 | 同じ名前は、同じウィンドウ。位置・大きさは `imgui.ini` に名前で保存される |
 
 ### 位置と大きさ
 
 | 関数 | 説明 |
 | --- | --- |
-| <strong>`SetNextWindowPos(pos, cond, pivot)`</strong> | <strong>次の `Begin` のウィンドウの位置</strong>。`pivot` で基準点（右下 `(1,1)` など） |
-| <strong>`SetNextWindowSize(size, cond)`</strong> | <strong>次のウィンドウの大きさ</strong> |
-| `SetNextWindowSizeConstraints(min, max)` | <strong>大きさの最小・最大</strong> |
-| `SetNextWindowBgAlpha(alpha)` | <strong>背景の透明度</strong> |
+| `SetNextWindowPos(pos, cond, pivot)` | 次の `Begin` のウィンドウの位置。`pivot` で基準点（右下 `(1,1)` など） |
+| `SetNextWindowSize(size, cond)` | 次のウィンドウの大きさ |
+| `SetNextWindowSizeConstraints(min, max)` | 大きさの最小・最大 |
+| `SetNextWindowBgAlpha(alpha)` | 背景の透明度 |
 | `SetNextWindowCollapsed(bool, cond)` | 折りたたみ |
 
-<strong>これらは `Begin` の直前</strong>に呼びます（「次のウィンドウ用」の設定）。
+これらは `Begin` の直前に呼びます（「次のウィンドウ用」の設定）。
 
 ### 条件（ImGuiCond）
 
 | 値 | 意味 |
 | --- | --- |
-| <strong>`ImGuiCond_Always`</strong> | <strong>毎フレーム</strong>、強制する（ユーザーが動かしても戻る） |
-| <strong>`ImGuiCond_Once`</strong> | <strong>アプリの起動ごとに最初の 1 回</strong> |
-| <strong>`ImGuiCond_FirstUseEver`</strong> | <strong>`imgui.ini` に記録がなければ、最初の 1 回</strong>（<strong>ユーザーが動かした位置は、保持される</strong>） |
-| `ImGuiCond_Appearing` | <strong>ウィンドウが表示されるたび</strong> |
+| `ImGuiCond_Always` | 毎フレーム、強制する（ユーザーが動かしても戻る） |
+| `ImGuiCond_Once` | アプリの起動ごとに最初の 1 回 |
+| `ImGuiCond_FirstUseEver` | `imgui.ini` に記録がなければ、最初の 1 回（ユーザーが動かした位置は、保持される） |
+| `ImGuiCond_Appearing` | ウィンドウが表示されるたび |
 
-<strong>普通は `FirstUseEver`</strong>を使います（<strong>初期位置だけを決めて、あとはユーザーに任せる</strong>）。
+普通は `FirstUseEver`を使います（初期位置だけを決めて、あとはユーザーに任せる）。
 
 ### ウィンドウのフラグ
 
 | フラグ | 意味 |
 | --- | --- |
-| `ImGuiWindowFlags_NoTitleBar` | <strong>タイトルバーなし</strong> |
+| `ImGuiWindowFlags_NoTitleBar` | タイトルバーなし |
 | `ImGuiWindowFlags_NoResize` | 大きさを変えられない |
-| `ImGuiWindowFlags_NoMove` | <strong>動かせない</strong> |
+| `ImGuiWindowFlags_NoMove` | 動かせない |
 | `ImGuiWindowFlags_NoCollapse` | 折りたためない |
-| <strong>`ImGuiWindowFlags_AlwaysAutoResize`</strong> | <strong>中身に合わせて、自動でサイズを変える</strong> |
-| `ImGuiWindowFlags_NoSavedSettings` | <strong>`imgui.ini` に保存しない</strong> |
+| `ImGuiWindowFlags_AlwaysAutoResize` | 中身に合わせて、自動でサイズを変える |
+| `ImGuiWindowFlags_NoSavedSettings` | `imgui.ini` に保存しない |
 | `ImGuiWindowFlags_NoBackground` | 背景を描かない |
-| `ImGuiWindowFlags_MenuBar` | <strong>メニューバー</strong>を持つ |
+| `ImGuiWindowFlags_MenuBar` | メニューバーを持つ |
 | `ImGuiWindowFlags_HorizontalScrollbar` | 横スクロールバー |
-| `ImGuiWindowFlags_NoInputs` | <strong>入力を受け付けない</strong>（マウスを通す） |
-| `ImGuiWindowFlags_NoFocusOnAppearing` / `NoNav` | <strong>フォーカスを奪わない</strong> |
+| `ImGuiWindowFlags_NoInputs` | 入力を受け付けない（マウスを通す） |
+| `ImGuiWindowFlags_NoFocusOnAppearing` / `NoNav` | フォーカスを奪わない |
 
 ### 固定のオーバーレイ（FPS 表示など）
 
@@ -94,19 +94,19 @@ if (ImGui::Begin("オーバーレイ", nullptr, flags)) {
 ImGui::End();
 ```
 
-<strong>右上に半透明の FPS 表示</strong>を出す例です。<strong>`pivot (1, 0)`</strong>で <strong>ウィンドウの右上を指定位置に合わせます</strong>。
+右上に半透明の FPS 表示を出す例です。`pivot (1, 0)`で ウィンドウの右上を指定位置に合わせます。
 
 ## 部品を並べる
 
 | 関数 | 動き |
 | --- | --- |
-| <strong>`SameLine(offset, spacing)`</strong> | <strong>次の部品を同じ行（右）</strong>に置く |
-| `NewLine()` | <strong>改行</strong>（空の 1 行） |
-| <strong>`Separator()`</strong> | <strong>横線</strong> |
-| <strong>`Spacing()`</strong> | <strong>少しの縦の余白</strong> |
-| `Dummy(ImVec2)` | <strong>見えない場所</strong>を確保（余白） |
-| <strong>`Indent(w)` / `Unindent(w)`</strong> | <strong>字下げ</strong> |
-| <strong>`BeginGroup()` / `EndGroup()`</strong> | <strong>複数の部品を 1 つの塊</strong>として扱う（`SameLine` やホバー判定の単位） |
+| <strong>`SameLine(offset, spacing)`</strong> | 次の部品を同じ行（右）に置く |
+| `NewLine()` | 改行（空の 1 行） |
+| `Separator()` | 横線 |
+| `Spacing()` | 少しの縦の余白 |
+| `Dummy(ImVec2)` | 見えない場所を確保（余白） |
+| `Indent(w)` / `Unindent(w)` | 字下げ |
+| `BeginGroup()` / `EndGroup()` | 複数の部品を 1 つの塊として扱う（`SameLine` やホバー判定の単位） |
 
 ```cpp
 ImGui::Button("保存");
@@ -128,9 +128,9 @@ ImGui::EndGroup();
 
 | 関数 | 説明 |
 | --- | --- |
-| <strong>`SetNextItemWidth(w)`</strong> | <strong>次の 1 つの部品</strong>の幅 |
-| <strong>`PushItemWidth(w)` / `PopItemWidth()`</strong> | <strong>ここから先の部品</strong>の幅 |
-| `w < 0` | <strong>右端から `-w` 手前まで</strong>（`-FLT_MIN` で、右端まで） |
+| `SetNextItemWidth(w)` | 次の 1 つの部品の幅 |
+| `PushItemWidth(w)` / `PopItemWidth()` | ここから先の部品の幅 |
+| `w < 0` | 右端から `-w` 手前まで（`-FLT_MIN` で、右端まで） |
 | `CalcItemWidth()` | 現在の幅 |
 
 ```cpp
@@ -142,14 +142,14 @@ ImGui::InputText("##name", &name);
 
 | 関数 | 返すもの |
 | --- | --- |
-| <strong>`GetContentRegionAvail()`</strong> | <strong>今の位置から、ウィンドウの端までの残りの領域</strong> |
-| `GetWindowSize()` / `GetWindowPos()` | <strong>ウィンドウの大きさ・位置</strong> |
-| `GetCursorScreenPos()` | <strong>次の部品の描画位置</strong>（画面座標） |
-| `GetTextLineHeightWithSpacing()` | <strong>1 行の高さ</strong> |
+| `GetContentRegionAvail()` | 今の位置から、ウィンドウの端までの残りの領域 |
+| `GetWindowSize()` / `GetWindowPos()` | ウィンドウの大きさ・位置 |
+| `GetCursorScreenPos()` | 次の部品の描画位置（画面座標） |
+| `GetTextLineHeightWithSpacing()` | 1 行の高さ |
 
 ## 表（Table）と列
 
-<strong>表形式</strong>でそろえて並べるなら <strong>`BeginTable`</strong>です（[ウィジェット一覧](widgets.md#table)）。<strong>古い `Columns`</strong> は <strong>機能が少なく</strong>、<strong>`BeginTable`</strong> を使います。
+<strong>表形式</strong>でそろえて並べるなら `BeginTable`です（[ウィジェット一覧](widgets.md#table)）。古い `Columns` は 機能が少なく、`BeginTable` を使います。
 
 ```cpp
 if (ImGui::BeginTable("props", 2, ImGuiTableFlags_SizingStretchProp)) {
@@ -163,7 +163,7 @@ if (ImGui::BeginTable("props", 2, ImGuiTableFlags_SizingStretchProp)) {
 }
 ```
 
-<strong>「ラベル」と「値」をきれいにそろえる</strong>（インスペクター）ときに <strong>2 列の表</strong>が便利です。
+「ラベル」と「値」をきれいにそろえる（インスペクター）ときに 2 列の表が便利です。
 
 ## 子ウィンドウとスクロール
 
@@ -181,14 +181,14 @@ ImGui::EndChild();
 
 | 点 | 説明 |
 | --- | --- |
-| <strong>`BeginChild(id, size, flags)`</strong> | <strong>子ウィンドウ</strong>。<strong>`size` の `0`</strong> は <strong>残りの領域いっぱい</strong> |
-| <strong>`EndChild()`</strong> | <strong>`BeginChild` の戻り値に関係なく、必ず呼ぶ</strong> |
-| <strong>`ImGuiChildFlags_Borders`</strong>（旧 `border = true`） | <strong>枠線</strong>を付ける |
-| <strong>`SetScrollHereY(1.0f)`</strong> | <strong>一番下までスクロール</strong>（ログの自動スクロール） |
+| `BeginChild(id, size, flags)` | 子ウィンドウ。`size` の `0` は 残りの領域いっぱい |
+| `EndChild()` | `BeginChild` の戻り値に関係なく、必ず呼ぶ |
+| `ImGuiChildFlags_Borders`（旧 `border = true`） | 枠線を付ける |
+| `SetScrollHereY(1.0f)` | 一番下までスクロール（ログの自動スクロール） |
 | `GetScrollY()` / `GetScrollMaxY()` | スクロール位置の取得 |
 
 !!! note "バージョンで、引数が変わる"
-    `BeginChild` の `bool border` 引数は <strong>新しい版（1.90 以降）で `ImGuiChildFlags`</strong> に変わっています。<strong>使っているバージョンのヘッダ</strong>で、確認してください。
+    `BeginChild` の `bool border` 引数は 新しい版（1.90 以降）で `ImGuiChildFlags` に変わっています。使っているバージョンのヘッダで、確認してください。
 
 ## タブ
 
@@ -208,7 +208,7 @@ if (ImGui::BeginTabBar("tabs")) {
 
 ## メインメニューバーとステータスバー
 
-<strong>画面の上端のメニューバー</strong>は <strong>`BeginMainMenuBar`</strong>（[ウィジェット一覧](widgets.md#menu)）です。<strong>下端のステータスバー</strong>は <strong>メイン ビューポートに沿った、固定のウィンドウ</strong>で作ります。
+<strong>画面の上端のメニューバー</strong>は `BeginMainMenuBar`（[ウィジェット一覧](widgets.md#menu)）です。下端のステータスバーは メイン ビューポートに沿った、固定のウィンドウで作ります。
 
 ```cpp
 ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -222,61 +222,61 @@ if (ImGui::Begin("##statusbar", nullptr, flags)) {
 ImGui::End();
 ```
 
-<strong>`WorkPos` / `WorkSize`</strong> は <strong>メニューバーなどを除いた、使える領域</strong>です。
+`WorkPos` / `WorkSize` は メニューバーなどを除いた、使える領域です。
 
 ## ID（ウィンドウと部品）
 
-<strong>ID は `ID スタック`</strong>で管理されます（<strong>ウィンドウ名 → `PushID` の値 → ラベル</strong>）。
+<strong>ID は `ID スタック`</strong>で管理されます（ウィンドウ名 → `PushID` の値 → ラベル）。
 
 | 書き方 | 意味 |
 | --- | --- |
 | `"ラベル"` | 表示と ID が同じ |
-| `"ラベル##固定"` | <strong>表示は「ラベル」、ID は「ラベル##固定」</strong> |
-| `"##固定"` | <strong>表示なし</strong>、ID だけ |
-| <strong>`"表示名###ID"`</strong> | <strong>ID は `###` 以降だけ</strong>（<strong>表示名が動的に変わっても、ウィンドウの位置が保たれる</strong>） |
-| `PushID(i)` / `PopID()` | <strong>ループの中の同じラベルを区別</strong> |
+| `"ラベル##固定"` | 表示は「ラベル」、ID は「ラベル##固定」 |
+| `"##固定"` | 表示なし、ID だけ |
+| `"表示名###ID"` | ID は `###` 以降だけ（表示名が動的に変わっても、ウィンドウの位置が保たれる） |
+| `PushID(i)` / `PopID()` | ループの中の同じラベルを区別 |
 
-<strong>ウィンドウのタイトルに動的な値（FPS など）</strong>を入れたい場合は、<strong>`"FPS: 60###fps"`</strong> のように <strong>`###` で ID を固定</strong>します。<strong>固定しないとタイトルが変わるたびに別のウィンドウ</strong>になって、位置が戻ります。
+ウィンドウのタイトルに動的な値（FPS など）を入れたい場合は、`"FPS: 60###fps"` のように `###` で ID を固定します。固定しないとタイトルが変わるたびに別のウィンドウになって、位置が戻ります。
 
 ## DPI とスケール
 
-<strong>高 DPI のディスプレイ</strong>では <strong>ImGui の文字や部品が、小さく見えます</strong>。
+<strong>高 DPI のディスプレイ</strong>では ImGui の文字や部品が、小さく見えます。
 
 | 対策 | 説明 |
 | --- | --- |
-| <strong>`io.FontGlobalScale`</strong> | <strong>全体の拡大率</strong>（フォントのぼやけに注意） |
-| <strong>フォントの大きさを DPI に合わせる</strong> | `AddFontFromFileTTF(path, 16.0f * dpi_scale)`（[フォント](fonts.md)） |
-| <strong>`style.ScaleAllSizes(scale)`</strong> | <strong>余白・角丸などすべての大きさ</strong>を拡大（[スタイル](style.md#dpi)） |
+| `io.FontGlobalScale` | 全体の拡大率（フォントのぼやけに注意） |
+| フォントの大きさを DPI に合わせる | `AddFontFromFileTTF(path, 16.0f * dpi_scale)`（[フォント](fonts.md)） |
+| `style.ScaleAllSizes(scale)` | 余白・角丸などすべての大きさを拡大（[スタイル](style.md#dpi)） |
 
 ## よくあるミス
 
 ??? failure "`SetNextWindowPos` を `Begin` の後に呼ぶ"
-    <strong>効きません</strong>。<strong>`Begin` の直前</strong>に呼びます。
+    <strong>効きません</strong>。`Begin` の直前に呼びます。
 
 ??? failure "`SetNextWindowPos(..., ImGuiCond_Always)` で、ユーザーが動かせない"
-    <strong>毎フレーム、戻されます</strong>。<strong>`FirstUseEver`</strong> にします。
+    毎フレーム、戻されます。`FirstUseEver` にします。
 
 ??? failure "`BeginChild` が `false` のとき `EndChild` を呼ばない"
-    <strong>`BeginChild` は戻り値に関係なく</strong>、`EndChild` が必要です。
+    `BeginChild` は戻り値に関係なく、`EndChild` が必要です。
 
 ??? failure "タイトルに動的な値を入れて、ウィンドウの位置が毎回リセットされる"
-    <strong>`###` で ID を固定</strong>します。
+    `###` で ID を固定します。
 
 ??? failure "`SameLine` の位置が、ずれる"
-    <strong>`SameLine(0, 5)`</strong> のように <strong>位置と間隔</strong>を指定します。<strong>幅の違う部品</strong>は `SetNextItemWidth` でそろえます。
+    `SameLine(0, 5)` のように 位置と間隔を指定します。幅の違う部品は `SetNextItemWidth` でそろえます。
 
 ??? failure "`Columns` を使って、機能が足りない"
-    <strong>`BeginTable`</strong> に置き換えます。
+    `BeginTable` に置き換えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] <strong>`Begin` / `End`</strong> でウィンドウ。<strong>位置・大きさは `Begin` の直前に `SetNextWindow...`（`FirstUseEver`）</strong>
-    - [x] <strong>縦に並ぶ</strong>。<strong>横は `SameLine`</strong>、<strong>まとまりは `BeginGroup`</strong>、<strong>幅は `SetNextItemWidth`</strong>
-    - [x] 表は<strong>`BeginTable`</strong>、スクロール領域は<strong>`BeginChild`</strong>
-    - [x] <strong>オーバーレイは、フラグ（`NoDecoration` など）と位置の固定</strong>
-    - [x] <strong>ID：`##`（見えない ID）、`###`（ID 固定）、`PushID`（ループ）</strong>
-    - [x] <strong>高 DPI は、フォントとスタイルを拡大</strong>
+    - [x] <strong>`Begin` / `End`</strong> でウィンドウ。位置・大きさは `Begin` の直前に `SetNextWindow...`（`FirstUseEver`）
+    - [x] 縦に並ぶ。横は `SameLine`、まとまりは `BeginGroup`、幅は `SetNextItemWidth`
+    - [x] 表は`BeginTable`、スクロール領域は`BeginChild`
+    - [x] オーバーレイは、フラグ（`NoDecoration` など）と位置の固定
+    - [x] ID：`##`（見えない ID）、`###`（ID 固定）、`PushID`（ループ）
+    - [x] 高 DPI は、フォントとスタイルを拡大
 
 ## 関連ページ
 

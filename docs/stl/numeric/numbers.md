@@ -14,12 +14,15 @@ tags:
 `#include <numbers>`
 </div>
 
-`<numbers>` は、**円周率 π やネイピア数 e などの数学の定数**を、正確な値で用意してくれるヘッダです。C++20 より前は `#define PI 3.14159f` のように自分で書いたり、`M_PI`（環境によっては使えない）を使ったりしていましたが、今は `std::numbers::pi` を使えば、どの環境でも同じ正確な値が手に入ります。
+円を描く、角度をラジアンに変換する、自然対数を使う。数学の計算では、π や e といった定数が必要です。以前は、`#define PI 3.14159f` と自分で書いたり、環境によって使えない `M_PI` に頼ったりしていました。C++20 の `<numbers>` は、π、e、√2 などの数学定数を、正確な値で用意しています。どの環境でも、同じ値が手に入ります。
 
 !!! tip "ポイント"
     - π は **`std::numbers::pi`<strong>（double）、float なら </strong>`std::numbers::pi_v<float>`**。
     - 度 → ラジアンは `deg * std::numbers::pi_v<float> / 180.0f`。
     - 自分で `#define PI` を書かない。
+
+!!! info "このページを読む前に"
+    三角関数で使う角度の単位（度とラジアン）が分かると読みやすいです。度は `度 × π / 180` でラジアンになります。
 
 ## 定数一覧
 
@@ -349,16 +352,31 @@ int main() {
 0.577216
 ```
 
+## ゲームでの使いどころ
+
+角度の変換が、いちばん多い使い方です。度からラジアンへは `deg * std::numbers::pi_v<float> / 180.0f`、ラジアンから度へは `rad * 180.0f / std::numbers::pi_v<float>` と書きます。何度も使うので、`kDegToRad` のような定数や小さな関数にしておくと便利です。
+
+円周上の点を求める、回転の角度を決める、ふわふわの周期を決める、といった場面では、`2 * pi` が登場します。ゲームでは `float` で計算することが多いので、`pi_v<float>` を使います。`std::numbers::pi` は `double` です。
+
+e は、減衰や成長の計算（`exp(-k * t)`）で、直接は書かず、`exp` 関数を通して使います。
+
 ## よくあるミス
 
-??? failure "float の計算に double の pi を使う"
-    `std::numbers::pi` は double なので、`float a = deg * std::numbers::pi / 180;` は double で計算されます。float なら `pi_v<float>` を使います。
+??? failure "`float` の計算に `double` の `pi` を混ぜる"
+    `std::numbers::pi` は `double` です。`float` の変数と掛けると、計算が `double` になり、代入のたびに精度が落ちる警告が出ます。`float` の計算には `pi_v<float>` を使います。
+
+??? failure "度のまま三角関数に渡す"
+    `std::sin(90.0f)` は、90 度ではなく 90 ラジアンです。`pi` を使って、ラジアンに変換してから渡します。
+
+??? failure "`M_PI` を使ってコンパイルエラーになる"
+    `M_PI` は標準ではなく、Visual Studio では `#define _USE_MATH_DEFINES` が必要です。`std::numbers::pi` は標準で、どの環境でも同じように使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] π は `std::numbers::pi` / `pi_v<float>`
-    - [x] `#define PI` は書かない
+    - [x] π は `std::numbers::pi`（double）、`float` なら `pi_v<float>`。
+    - [x] 度からラジアンは `度 × π / 180`。
+    - [x] 自分で `#define PI` を書かない。
 
 ## 関連ページ
 

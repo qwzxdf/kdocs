@@ -15,7 +15,7 @@ tags:
 `#include <span>`
 </div>
 
-`std::span` は、**どこかにある連続した配列を「借りて見る」ための窓**です。自分では中身を持たず、「先頭のポインタ」と「個数」の 2 つだけを持っています。`std::vector` でも `std::array` でも C の配列でも、同じ `std::span` で受け取れるのが一番の利点です。
+配列を受け取る関数を作るとき、`const std::vector<int>&` で受けると `vector` しか渡せず、C の配列や `std::array` の一部分を渡すときに困ります。`std::span` は、どこかにある連続した配列を「借りて見る」ための窓です。自分では中身を持たず、先頭のポインターと個数だけを持っています。`std::vector` でも `std::array` でも C の配列でも、同じ `span` で受け取れます。
 
 !!! tip "ポイント"
     - <strong>関数の引数で配列を受け取るときに使う。</strong> `const std::vector<T>&` の代わりに `std::span<const T>`。
@@ -553,12 +553,11 @@ const_reverse_iterator crend() const noexcept;
 
 ## ゲームでの使いどころ
 
-| 場面 | 例 |
-| --- | --- |
-| 描画・物理の関数の引数 | `void DrawSprites(std::span<const Sprite> sprites)` |
-| GPU へのアップロード | `void Upload(std::span<const std::byte> data)` |
-| 配列の一部だけ処理 | パーティクルの前半だけ更新する |
-| 自作コンテナから中身を見せる | `std::span<const Enemy> Enemies() const` |
+関数の引数で配列を受け取るときの標準的な型です。頂点データやパーティクルの配列を処理する関数を `void Update(std::span<Particle> particles)` と書けば、`vector` でも `array` でも渡せます。読むだけなら `std::span<const Particle>` にします。
+
+配列の一部分を渡す用途にも向いています。`subspan(offset, count)` で、全体のうち一部の範囲だけを切り出して、別の関数に渡せます。コピーは起きません。
+
+バイナリデータの読み書きでは、`std::as_bytes` と組み合わせて、構造体の配列をバイト列として扱えます。ただし `span` は借りているだけなので、元の配列が消えたり、再確保されたりすると壊れます。メンバー変数として長く保存せず、関数の中で使い切ります。
 
 ## パフォーマンス
 

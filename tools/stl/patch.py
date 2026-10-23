@@ -139,10 +139,28 @@ def fix_pipes(text):
     return "\n".join(out)
 
 
+def _fail_blocks(items):
+    blocks = []
+    for t, c in items:
+        body = "\n".join(f"    {l}" if l else "" for l in c.strip("\n").split("\n"))
+        blocks.append(f'??? failure "{t}"\n' + body)
+    return "\n\n".join(blocks)
+
+
 def apply(rel, intro=None, tips=None, info=None, notes=None, sections=None, game=None, mistakes=None,
-          similar=None, memo=None, compiler=None):
+          similar=None, memo=None, compiler=None, info0=None, more=None):
     path = STL / rel
     text = path.read_text(encoding="utf-8")
+    if info0 is not None and info is None and '!!! info' not in text:
+        info = info0
+    if more is not None and mistakes is None and text.count("??? failure") < 2:
+        need = 2 - text.count("??? failure")
+        extra = _fail_blocks(more[:need])
+        sec_m = re.search(r"(?ms)^## よくあるミス\n\n(.*?)(?=^## )", text)
+        if sec_m:
+            text = text[:sec_m.end(1)].rstrip("\n") + "\n\n" + extra + "\n\n" + text[sec_m.end():]
+        else:
+            mistakes = list(more)
     front, body = _split_front(text)
     head, secs = _sections(body)
     if intro is not None or tips is not None or info is not None:

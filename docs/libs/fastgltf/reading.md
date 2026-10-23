@@ -7,15 +7,15 @@ tags:
 
 # fastgltf のデータの取り出し方
 
-fastgltf は**アクセサー（accessor）からのデータの取り出し**を、**ヘルパー関数**で簡単にしてくれます。**型の変換・`byteStride`・正規化**をライブラリが処理します。このページは**頂点・インデックス・ノード・マテリアル・アニメーション**を、**SimpleMath の型**で取り出す方法をまとめます。**番号で配列を引く**考え方は[glTF の構造](../tinygltf/structure.md)と同じです。
+fastgltf は**アクセサー（accessor）からのデータの取り出し**を、ヘルパー関数で簡単にしてくれます。型の変換・`byteStride`・正規化をライブラリが処理します。このページは頂点・インデックス・ノード・マテリアル・アニメーションを、SimpleMath の型で取り出す方法をまとめます。番号で配列を引く考え方は[glTF の構造](../tinygltf/structure.md)と同じです。
 
 !!! tip "ポイント"
     - <strong>メッシュの描画単位は `Primitive`</strong>。<strong>`findAttribute("POSITION")` で頂点属性の accessor の番号</strong>を得る。
-    - <strong>`fastgltf::iterateAccessor<T>(asset, accessor, 関数)`</strong> で <strong>1 要素ずつ</strong>、<strong>`copyFromAccessor<T>(asset, accessor, 出力先)`</strong> で <strong>まとめてコピー</strong>。
-    - <strong>型は `fastgltf::math::fvec3` など</strong>。<strong>SimpleMath の `Vector3` には、成分を写す</strong>（または要素の特性を定義）。
-    - <strong>ノードの変換は `getTransformMatrix`</strong>（TRS または行列を 4×4 に）。
-    - <strong>`std::optional` の参照は `.has_value()` を確認</strong>してから使う。
-    - <strong>画像は自分でデコード</strong>（`stb_image`）。
+    - `fastgltf::iterateAccessor<T>(asset, accessor, 関数)` で 1 要素ずつ、`copyFromAccessor<T>(asset, accessor, 出力先)` で まとめてコピー。
+    - 型は `fastgltf::math::fvec3` など。SimpleMath の `Vector3` には、成分を写す（または要素の特性を定義）。
+    - ノードの変換は `getTransformMatrix`（TRS または行列を 4×4 に）。
+    - `std::optional` の参照は `.has_value()` を確認してから使う。
+    - 画像は自分でデコード（`stb_image`）。
 
 ## 頂点を取り出す
 
@@ -68,23 +68,23 @@ bool ReadPrimitive(const fastgltf::Asset& asset, const fastgltf::Primitive& prim
 
 | 関数・型 | 意味 |
 | --- | --- |
-| **`primitive.findAttribute("POSITION")`** | **属性名 → accessor の番号**（`attributes` の中を探す）。**見つからなければ `end()`** |
-| **`it->accessorIndex`** | **accessor の番号**（`std::size_t`） |
-| **`asset.accessors[番号]`** | **accessor** |
-| **`iterateAccessorWithIndex<T>(asset, accessor, 関数)`** | **各要素を `T` 型に変換**して、**関数に渡す**（**要素の番号つき**） |
-| **`iterateAccessor<T>`** | **番号なし**版 |
-| **`copyFromAccessor<T>(asset, accessor, dst)`** | **全要素を `dst` にまとめてコピー**（**インデックスなど、そのまま使う型**） |
-| **`fastgltf::math::fvec3` など** | **fastgltf の小さなベクトル型**（`.x()`・`.y()`・`.z()`） |
-| **`primitive.indicesAccessor`** | **インデックスの accessor の番号**（`std::optional`） |
+| **`primitive.findAttribute("POSITION")`** | 属性名 → accessor の番号（`attributes` の中を探す）。見つからなければ `end()` |
+| `it->accessorIndex` | accessor の番号（`std::size_t`） |
+| `asset.accessors[番号]` | accessor |
+| `iterateAccessorWithIndex<T>(asset, accessor, 関数)` | 各要素を `T` 型に変換して、関数に渡す（要素の番号つき） |
+| `iterateAccessor<T>` | 番号なし版 |
+| `copyFromAccessor<T>(asset, accessor, dst)` | 全要素を `dst` にまとめてコピー（インデックスなど、そのまま使う型） |
+| `fastgltf::math::fvec3` など | fastgltf の小さなベクトル型（`.x()`・`.y()`・`.z()`） |
+| `primitive.indicesAccessor` | インデックスの accessor の番号（`std::optional`） |
 
-<strong>ライブラリが `byteStride`・`componentType`（`unsigned short` → `uint32_t`）・正規化（`normalized`）</strong>を**自動で**処理します（tinygltf では、自分で書いた部分）。
+ライブラリが `byteStride`・`componentType`（`unsigned short` → `uint32_t`）・正規化（`normalized`）を自動で処理します（tinygltf では、自分で書いた部分）。
 
 !!! note "バージョン差に注意"
-    **ベクトル型は古い版では `glm`**（`glm::vec3`）、**新しい版では独自の `fastgltf::math`** です。**SimpleMath の型を直接渡す**には、**`fastgltf::ElementTraits<Vector3>` を特殊化**する方法もあります（要素の成分数・型をライブラリに教える）。<strong>ドキュメントの「Accessor tools」</strong>を確認します。
+    ベクトル型は古い版では `glm`（`glm::vec3`）、新しい版では独自の `fastgltf::math` です。SimpleMath の型を直接渡すには、`fastgltf::ElementTraits<Vector3>` を特殊化する方法もあります（要素の成分数・型をライブラリに教える）。ドキュメントの「Accessor tools」を確認します。
 
 ## インデックスがないとき
 
-**`indicesAccessor` が `std::nullopt`**（インデックスなし）の場合は、**頂点を順に 3 つずつ三角形**にします。
+**`indicesAccessor` が `std::nullopt`**（インデックスなし）の場合は、頂点を順に 3 つずつ三角形にします。
 
 ```cpp
 if (!primitive.indicesAccessor.has_value()) {
@@ -124,14 +124,14 @@ void LoadScene(const fastgltf::Asset& asset, std::vector<DrawItem>& out) {
 
 | 点 | 説明 |
 | --- | --- |
-| **`node.transform`** | **TRS か行列**の `std::variant`。**`getLocalTransformMatrix(node)`**（バージョンで名前が違う：`getTransformMatrix` など）で、**4×4 行列に統一** |
-| **行列の並び** | **glTF は列優先**。**SimpleMath の行優先（行ベクトル規約）にそのまま `memcpy` できる**（[tinygltf の取り出し方](../tinygltf/reading.md)と同じ理由）。左手系へは**ルートに X 反転の行列**を掛ける（[glTF の基本と規約](../tinygltf/gltf-basics.md#to-left-handed)） |
-| **`node.meshIndex`** | **`std::optional<size_t>`**。**`has_value()` を確認** |
-| **`node.children`** | **子ノードの番号**（`size_t` の配列） |
-| **`world = local * parent_world`** | **行ベクトル規約<strong>での </strong>子 × 親** |
-| **`asset.defaultScene.value_or(0)`** | **既定のシーン、なければ 0 番** |
+| **`node.transform`** | TRS か行列の `std::variant`。`getLocalTransformMatrix(node)`（バージョンで名前が違う：`getTransformMatrix` など）で、4×4 行列に統一 |
+| 行列の並び | glTF は列優先。SimpleMath の行優先（行ベクトル規約）にそのまま `memcpy` できる（[tinygltf の取り出し方](../tinygltf/reading.md)と同じ理由）。左手系へはルートに X 反転の行列を掛ける（[glTF の基本と規約](../tinygltf/gltf-basics.md#to-left-handed)） |
+| `node.meshIndex` | `std::optional<size_t>`。`has_value()` を確認 |
+| `node.children` | 子ノードの番号（`size_t` の配列） |
+| **`world = local * parent_world` | 行ベクトル規約での 子 × 親** |
+| `asset.defaultScene.value_or(0)` | 既定のシーン、なければ 0 番 |
 
-**`Options::DecomposeNodeMatrices`** を指定すると**ノードの行列を TRS に分解**して持ちます（**アニメーションで、TRS が必要**なとき）。
+`Options::DecomposeNodeMatrices` を指定するとノードの行列を TRS に分解して持ちます（アニメーションで、TRS が必要なとき）。
 
 ## マテリアル・テクスチャ
 
@@ -153,16 +153,16 @@ if (pbr.baseColorTexture.has_value()) {
 
 | 点 | 説明 |
 | --- | --- |
-| **`primitive.materialIndex`** | **`std::optional<size_t>`**（マテリアルなしもある） |
-| **`material.pbrData`** | **メタリック・ラフネス**のデータ |
-| **`baseColorTexture`** | **`std::optional`**。**`->textureIndex`**（`textures` の番号） |
-| **`texture.imageIndex`** | **`images` の番号**（**`std::optional`**） |
-| **`texture.samplerIndex`** | **`samplers` の番号** |
-| **`material.normalTexture`・`occlusionTexture`・`emissiveTexture`** | **同様**（**`std::optional`**） |
+| **`primitive.materialIndex`** | `std::optional<size_t>`（マテリアルなしもある） |
+| `material.pbrData` | メタリック・ラフネスのデータ |
+| `baseColorTexture` | `std::optional`。`->textureIndex`（`textures` の番号） |
+| `texture.imageIndex` | `images` の番号（`std::optional`） |
+| `texture.samplerIndex` | `samplers` の番号 |
+| `material.normalTexture`・`occlusionTexture`・`emissiveTexture` | 同様（`std::optional`） |
 
 ### 画像の実体
 
-**`image.data`** は**`std::variant`**で**場所**か**メモリ**を持ちます。
+`image.data` は`std::variant`で場所かメモリを持ちます。
 
 ```cpp
 std::visit(fastgltf::visitor{
@@ -184,11 +184,11 @@ std::visit(fastgltf::visitor{
 
 | 種類 | 意味 |
 | --- | --- |
-| **`URI`** | **外部ファイル**（`.png` など）の場所 |
-| **`Array`** | **メモリ上のバイト列**（`LoadExternalImages` や base64 の埋め込み） |
-| **`BufferView`** | **`.glb` の中に埋め込まれた画像** |
+| `URI` | 外部ファイル（`.png` など）の場所 |
+| `Array` | メモリ上のバイト列（`LoadExternalImages` や base64 の埋め込み） |
+| `BufferView` | `.glb` の中に埋め込まれた画像 |
 
-**デコードは `stb_image`**（`stbi_load_from_memory`）などで、**自分で**行います（[ImGui のテクスチャ](../imgui/textures.md)）。**色の空間（sRGB かリニアか）は、tinygltf と同じ**です（[PBR](../../3d/pbr.md)）。
+デコードは `stb_image`（`stbi_load_from_memory`）などで、自分で行います（[ImGui のテクスチャ](../imgui/textures.md)）。色の空間（sRGB かリニアか）は、tinygltf と同じです（[PBR](../../3d/pbr.md)）。
 
 ## アニメーション
 
@@ -214,13 +214,13 @@ for (const fastgltf::AnimationChannel& channel : animation.channels) {
 
 | 項目 | 意味 |
 | --- | --- |
-| **`channel.samplerIndex`** | **そのアニメーションの `samplers` の番号** |
-| **`channel.nodeIndex`** | **動かすノードの番号**（`std::optional`） |
-| **`channel.path`** | **`Translation` / `Rotation` / `Scale` / `Weights`** |
-| **`sampler.inputAccessor` / `outputAccessor`** | **時刻・値の accessor の番号** |
-| **`sampler.interpolation`** | **`Linear` / `Step` / `CubicSpline`** |
+| **`channel.samplerIndex`** | そのアニメーションの `samplers` の番号 |
+| `channel.nodeIndex` | 動かすノードの番号（`std::optional`） |
+| `channel.path` | `Translation` / `Rotation` / `Scale` / `Weights` |
+| `sampler.inputAccessor` / `outputAccessor` | 時刻・値の accessor の番号 |
+| `sampler.interpolation` | `Linear` / `Step` / `CubicSpline` |
 
-**クォータニオンは `(x, y, z, w)`** で、**SimpleMath と同じ並び**です。ノードの値は変換せずルートの X 反転の行列でまとめて反転します（[glTF の基本と規約](../tinygltf/gltf-basics.md#to-left-handed)）。補間は **`Slerp`**（[回転](../../gamemath/rotation.md)）。
+クォータニオンは `(x, y, z, w)` で、SimpleMath と同じ並びです。ノードの値は変換せずルートの X 反転の行列でまとめて反転します（[glTF の基本と規約](../tinygltf/gltf-basics.md#to-left-handed)）。補間は `Slerp`（[回転](../../gamemath/rotation.md)）。
 
 ## スキン
 
@@ -239,11 +239,11 @@ fastgltf::copyFromAccessor<fastgltf::math::fmat4x4>(
 
 | やること | 説明 |
 | --- | --- |
-| **プリミティブごとに `MeshData`** | **1 プリミティブ ＝ 1 回の描画** |
-| **テクスチャは番号の表で重複を避ける** | **同じ `textures[i]`** を、一度だけ作る |
-| **`Asset` は変換後に捨てる** | **メモリを節約** |
-| **非同期ロード** | **`Parser` と `Asset` は、別スレッドで読み込める**（**スレッドごとに `Parser`**） |
-| **ゲーム用の形式にビルド時に変換** | **開発中は glTF、製品は独自のバイナリ**（[ベイク](../../optimize/baking.md)） |
+| **プリミティブごとに `MeshData`** | 1 プリミティブ ＝ 1 回の描画 |
+| テクスチャは番号の表で重複を避ける | 同じ `textures[i]` を、一度だけ作る |
+| `Asset` は変換後に捨てる | メモリを節約 |
+| 非同期ロード | `Parser` と `Asset` は、別スレッドで読み込める（スレッドごとに `Parser`） |
+| ゲーム用の形式にビルド時に変換 | 開発中は glTF、製品は独自のバイナリ（[ベイク](../../optimize/baking.md)） |
 
 ## よくあるミス
 
@@ -251,16 +251,16 @@ fastgltf::copyFromAccessor<fastgltf::math::fmat4x4>(
     **値がないと例外**（`bad_optional_access`）です。
 
 ??? failure "accessor の型と `iterateAccessor<T>` の `T` が合わずコンパイルエラー"
-    **要素の型**（`VEC3` なら**3 成分の型**）を指定します。**SimpleMath の型はそのままでは使えません**（`fastgltf::math` の型で受けて、写す）。
+    要素の型（`VEC3` なら3 成分の型）を指定します。SimpleMath の型はそのままでは使えません（`fastgltf::math` の型で受けて、写す）。
 
 ??? failure "インデックスなしのメッシュを `indicesAccessor.value()` で読んで落ちる"
-    **インデックスは省略可能**です。
+    インデックスは省略可能です。
 
 ??? failure "画像が `URI` のままで、デコードを忘れる"
-    **`LoadExternalImages`**、または**自分で読み込んでデコード**します。
+    `LoadExternalImages`、または自分で読み込んでデコードします。
 
 ??? failure "`getTransformMatrix` の名前が、バージョンで違いコンパイルできない"
-    **使っている版のヘッダ**（`fastgltf/tools.hpp`・`math.hpp`）を確認します。
+    使っている版のヘッダ（`fastgltf/tools.hpp`・`math.hpp`）を確認します。
 
 ## 関連ページ
 

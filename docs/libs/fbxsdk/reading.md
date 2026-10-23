@@ -7,16 +7,16 @@ tags:
 
 # FBX SDK のデータの取り出し方
 
-FBX SDK で読み込んだ**シーン**から、**メッシュ・法線・UV・マテリアル・スキン・アニメーション**を取り出す方法をまとめます。**FBX SDK は、API が細かく、独特**（<strong>「コントロール ポイント」と「ポリゴン頂点」の区別</strong>など）で、**慣れが必要**です。**三角形化済み**（[基本](quickstart.md)）の前提で説明します。
+FBX SDK で読み込んだ**シーン**から、メッシュ・法線・UV・マテリアル・スキン・アニメーションを取り出す方法をまとめます。FBX SDK は、API が細かく、独特（「コントロール ポイント」と「ポリゴン頂点」の区別など）で、慣れが必要です。三角形化済み（[基本](quickstart.md)）の前提で説明します。
 
 !!! tip "ポイント"
-    - <strong>メッシュの頂点は「コントロール ポイント」</strong>（<strong>位置が異なる点</strong>）。<strong>面の角（「ポリゴン頂点」）が、コントロール ポイントの番号を指す</strong>。
-    - <strong>`GetPolygonVertex(poly, i)`</strong> で、<strong>面の i 番目の角がどのコントロール ポイントか</strong>。
-    - <strong>法線・UV は、「ポリゴン頂点ごと」「コントロール ポイントごと」などのマッピング方式</strong>で持つ。<strong>`GetPolygonVertexNormal` / `GetPolygonVertexUV` が、面倒を吸収</strong>。
-    - <strong>ノードのワールド変換は `EvaluateGlobalTransform()`</strong>（<strong>`FbxAMatrix`</strong>）。
-    - <strong>スキンは `FbxSkin` ＞ `FbxCluster`</strong>（<strong>ボーンごとの影響する頂点と重み</strong>）。
-    - <strong>アニメーションは、時刻を指定して、姿勢を評価</strong>（<strong>`FbxTime`</strong>）。
-    - <strong>`manager->Destroy()` の前にゲーム用にコピー</strong>。
+    - <strong>メッシュの頂点は「コントロール ポイント」</strong>（<strong>位置が異なる点</strong>）。面の角（「ポリゴン頂点」）が、コントロール ポイントの番号を指す。
+    - `GetPolygonVertex(poly, i)` で、面の i 番目の角がどのコントロール ポイントか。
+    - 法線・UV は、「ポリゴン頂点ごと」「コントロール ポイントごと」などのマッピング方式で持つ。`GetPolygonVertexNormal` / `GetPolygonVertexUV` が、面倒を吸収。
+    - ノードのワールド変換は `EvaluateGlobalTransform()`（`FbxAMatrix`）。
+    - スキンは `FbxSkin` ＞ `FbxCluster`（ボーンごとの影響する頂点と重み）。
+    - アニメーションは、時刻を指定して、姿勢を評価（`FbxTime`）。
+    - `manager->Destroy()` の前にゲーム用にコピー。
 
 ## メッシュ
 
@@ -62,18 +62,18 @@ void ReadMesh(FbxMesh* mesh, std::vector<Vertex>& vertices, std::vector<uint32_t
 
 | 関数 | 意味 |
 | --- | --- |
-| **`mesh->GetControlPoints()`** | **コントロール ポイント（位置）の配列**（`FbxVector4`：**`double` の 4 つ**） |
-| **`GetPolygonCount()`** | **面の数** |
-| **`GetPolygonSize(p)`** | **面 p の角の数**（三角形化済みなら、3） |
-| **`GetPolygonVertex(p, i)`** | **面 p の i 番目の角が、指すコントロール ポイントの番号** |
-| **`GetPolygonVertexNormal(p, i, normal)`** | **面 p の i 番目の角の、法線**（**マッピング方式を吸収**） |
-| **`GetPolygonVertexUV(p, i, uv_set, uv, unmapped)`** | **UV**（**UV セットの名前**を指定） |
-| **`1.0f - uv[1]`** | **UV の V を反転**（**FBX は左下原点**、DirectX は左上） |
+| **`mesh->GetControlPoints()`** | コントロール ポイント（位置）の配列（`FbxVector4`：`double` の 4 つ） |
+| `GetPolygonCount()` | 面の数 |
+| `GetPolygonSize(p)` | 面 p の角の数（三角形化済みなら、3） |
+| `GetPolygonVertex(p, i)` | 面 p の i 番目の角が、指すコントロール ポイントの番号 |
+| `GetPolygonVertexNormal(p, i, normal)` | 面 p の i 番目の角の、法線（マッピング方式を吸収） |
+| `GetPolygonVertexUV(p, i, uv_set, uv, unmapped)` | UV（UV セットの名前を指定） |
+| `1.0f - uv[1]` | UV の V を反転（FBX は左下原点、DirectX は左上） |
 
-**`FbxVector4` は、`double`**です。**`float` に変換**して使います。<strong>4 つ目の成分（`w`）</strong>は、**位置では 1**。
+`FbxVector4` は、`double`です。`float` に変換して使います。4 つ目の成分（`w`）は、位置では 1。
 
 !!! note "コントロール ポイントと、ポリゴン頂点"
-    **同じ位置のコントロール ポイント**が、**複数の面で共有**されます。**面の角ごとに法線・UV が違う**ことがあります（**角の立った箱**）。<strong>角ごとに頂点を作る（重複させる）</strong>のが、**GPU 向けの簡単な変換**です。**後で重複をまとめる**（[メッシュの最適化](../../optimize/data-layout.md)）。
+    同じ位置のコントロール ポイントが、複数の面で共有されます。面の角ごとに法線・UV が違うことがあります（角の立った箱）。角ごとに頂点を作る（重複させる）のが、GPU 向けの簡単な変換です。後で重複をまとめる（[メッシュの最適化](../../optimize/data-layout.md)）。
 
 ## ノードの変換
 
@@ -90,11 +90,11 @@ for (int row = 0; row < 4; ++row) {
 
 | 関数 | 意味 |
 | --- | --- |
-| **`node->EvaluateGlobalTransform(time)`** | **ワールド変換**（`FbxAMatrix`）。<strong>時刻（既定は 0）</strong> |
-| **`EvaluateLocalTransform(time)`** | **親からのローカル変換** |
-| **`FbxAMatrix::Get(row, col)`** | **要素**（**`double`**） |
-| **行列の規約** | <strong>FBX の `FbxAMatrix` は、行ベクトル規約（平行移動が 4 行目）</strong>。**SimpleMath と同じ並び**で、**そのまま写せる**ことが多い（**座標系の変換を先に済ませる**） |
-| **`GetGeometricTranslation`・`Rotation`・`Scaling`** | **ノードのジオメトリだけの変換**（**ピボットのオフセット**）。**必要なら、掛ける** |
+| **`node->EvaluateGlobalTransform(time)`** | ワールド変換（`FbxAMatrix`）。時刻（既定は 0） |
+| `EvaluateLocalTransform(time)` | 親からのローカル変換 |
+| `FbxAMatrix::Get(row, col)` | 要素（`double`） |
+| 行列の規約 | FBX の `FbxAMatrix` は、行ベクトル規約（平行移動が 4 行目）。SimpleMath と同じ並びで、そのまま写せることが多い（座標系の変換を先に済ませる） |
+| `GetGeometricTranslation`・`Rotation`・`Scaling` | ノードのジオメトリだけの変換（ピボットのオフセット）。必要なら、掛ける |
 
 ## マテリアル
 
@@ -118,13 +118,13 @@ for (int i = 0; i < material_count; ++i) {
 
 | 関数 | 意味 |
 | --- | --- |
-| **`node->GetMaterialCount()` / `GetMaterial(i)`** | **ノードのマテリアル** |
-| **`FindProperty(FbxSurfaceMaterial::sDiffuse)`** | **拡散色のプロパティ**（`sNormalMap`・`sSpecular`・`sEmissive` なども） |
-| **`Get<FbxDouble3>()`** | <strong>色（RGB）</strong> |
-| **`GetSrcObject<FbxFileTexture>`** | **プロパティにつながるテクスチャ** |
-| **`GetFileName()`** | **テクスチャのファイル名**（**絶対パスのことが多い**。**ファイル名だけ取り出して、自分のフォルダーで探す**） |
+| **`node->GetMaterialCount()` / `GetMaterial(i)`** | ノードのマテリアル |
+| `FindProperty(FbxSurfaceMaterial::sDiffuse)` | 拡散色のプロパティ（`sNormalMap`・`sSpecular`・`sEmissive` なども） |
+| `Get<FbxDouble3>()` | 色（RGB） |
+| `GetSrcObject<FbxFileTexture>` | プロパティにつながるテクスチャ |
+| `GetFileName()` | テクスチャのファイル名（絶対パスのことが多い。ファイル名だけ取り出して、自分のフォルダーで探す） |
 
-**FBX のマテリアルは、Phong / Lambert が、中心**で、**PBR（メタリック・ラフネス）は、ツール依存**です。**PBR が必要なら、glTF の方が自然**です（[3D モデルの読み込みライブラリの選び方](../model-loading.md)）。
+FBX のマテリアルは、Phong / Lambert が、中心で、PBR（メタリック・ラフネス）は、ツール依存です。PBR が必要なら、glTF の方が自然です（[3D モデルの読み込みライブラリの選び方](../model-loading.md)）。
 
 ## スキン（ボーン）
 
@@ -150,13 +150,13 @@ for (int s = 0; s < skin_count; ++s) {
 
 | 関数 | 意味 |
 | --- | --- |
-| **`GetDeformer(i, eSkin)`** | **スキン** |
-| **`FbxCluster`** | **1 本のボーンの影響の情報** |
-| **`cluster->GetLink()`** | **ボーンのノード** |
-| **`GetControlPointIndices()` / `GetControlPointWeights()`** | **このボーンが影響する、コントロール ポイントと、重み** |
-| **`GetTransformLinkMatrix`** | **バインド時のボーンの変換**（**逆行列が逆バインド行列**） |
+| **`GetDeformer(i, eSkin)`** | スキン |
+| `FbxCluster` | 1 本のボーンの影響の情報 |
+| `cluster->GetLink()` | ボーンのノード |
+| `GetControlPointIndices()` / `GetControlPointWeights()` | このボーンが影響する、コントロール ポイントと、重み |
+| `GetTransformLinkMatrix` | バインド時のボーンの変換（逆行列が逆バインド行列） |
 
-**頂点（コントロール ポイント）ごとにボーンと重みを集め直す**（**頂点側から見た形**）と、**GPU スキニング**に使えます（[スキニング](../../3d/skinning-animation.md)）。**1 つの頂点に、4 つを超える重み**は、**上位 4 つに絞って、正規化**します。
+頂点（コントロール ポイント）ごとにボーンと重みを集め直す（頂点側から見た形）と、GPU スキニングに使えます（[スキニング](../../3d/skinning-animation.md)）。1 つの頂点に、4 つを超える重みは、上位 4 つに絞って、正規化します。
 
 ## アニメーション
 
@@ -175,37 +175,37 @@ for (double t = start; t <= stop; t += 1.0 / 30.0) {
 
 | 関数 | 意味 |
 | --- | --- |
-| **`scene->GetCurrentAnimationStack()`** | <strong>今のアニメーション（テイク）</strong> |
-| **`GetLocalTimeSpan()`** | **開始・終了の時刻** |
-| **`FbxTime`** | **時刻**（**`SetSecondDouble` で、秒から作る**） |
-| **`node->EvaluateLocalTransform(time)`** | **その時刻のローカル変換** |
+| **`scene->GetCurrentAnimationStack()`** | 今のアニメーション（テイク） |
+| `GetLocalTimeSpan()` | 開始・終了の時刻 |
+| `FbxTime` | 時刻（`SetSecondDouble` で、秒から作る） |
+| `node->EvaluateLocalTransform(time)` | その時刻のローカル変換 |
 
-**一定のレート（30 FPS など）で、全ノードの姿勢をサンプリング**して、**ゲーム用の配列に焼く**のが、定番です（[ベイク](../../optimize/baking.md)）。**FBX SDK のまま、実行時に評価する**と**重い**ので**ツールで変換**します。
+一定のレート（30 FPS など）で、全ノードの姿勢をサンプリングして、ゲーム用の配列に焼くのが、定番です（[ベイク](../../optimize/baking.md)）。FBX SDK のまま、実行時に評価すると重いのでツールで変換します。
 
 ## ゲーム用にコピーして、解放する
 
 | やること | 説明 |
 | --- | --- |
-| **ゲーム用の構造体にコピー** | **頂点・インデックス・ボーン・アニメ** |
-| **`manager->Destroy()`** | **コピー後に解放** |
-| **ビルド時に変換するツールにする** | **FBX SDK を使うのは、ツールだけ**。**ゲームの実行ファイルには、リンクしない**（**配布・ライセンス・サイズの面で楽**） |
+| **ゲーム用の構造体にコピー** | 頂点・インデックス・ボーン・アニメ |
+| `manager->Destroy()` | コピー後に解放 |
+| ビルド時に変換するツールにする | FBX SDK を使うのは、ツールだけ。ゲームの実行ファイルには、リンクしない（配布・ライセンス・サイズの面で楽） |
 
 ## よくあるミス
 
 ??? failure "コントロール ポイントの番号と、頂点の番号を混同する"
-    **`GetPolygonVertex(p, i)`** が返すのは**コントロール ポイント**の番号です。**法線・UV は角（ポリゴン頂点）ごと**に別の関数で。
+    **`GetPolygonVertex(p, i)`** が返すのはコントロール ポイントの番号です。法線・UV は角（ポリゴン頂点）ごとに別の関数で。
 
 ??? failure "`FbxVector4` の `w` を、位置に含めて、間違える"
-    **`[0]`〜`[2]`** だけ使います。
+    `[0]`〜`[2]` だけ使います。
 
 ??? failure "UV が、上下逆になる"
-    **V を反転**します。
+    V を反転します。
 
 ??? failure "テクスチャのパスが、制作者の PC の絶対パスで、見つからない"
-    **ファイル名だけ取り出して**、**ゲームのフォルダー**で探します。
+    ファイル名だけ取り出して、ゲームのフォルダーで探します。
 
 ??? failure "実行時に、FBX SDK でアニメーションを評価して、重い"
-    **ツールで事前に焼きます**。
+    ツールで事前に焼きます。
 
 ## 関連ページ
 

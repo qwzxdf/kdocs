@@ -6,14 +6,14 @@ tags:
 
 # Preserving Hue
 
-<strong>トーンマップ曲線を、R・G・B に別々に掛けるか、輝度にだけ掛けるか</strong>で<strong>明るい色の見え方</strong>が大きく変わります。別々に掛けると彩度の高い明るい色の比率が崩れ、色相がずれます。輝度にだけ掛けると色相は保てますが派手な色が飽和しすぎます。このページでは、2 つの方式の違い・ハイブリッド・彩度の扱い・どう選ぶかを説明します。
+<strong>トーンマップ曲線を、R・G・B に別々に掛けるか、輝度にだけ掛けるか</strong>で明るい色の見え方が大きく変わります。別々に掛けると彩度の高い明るい色の比率が崩れ、色相がずれます。輝度にだけ掛けると色相は保てますが派手な色が飽和しすぎます。このページでは、2 つの方式の違い・ハイブリッド・彩度の扱い・どう選ぶかを説明します。
 
 !!! tip "ポイント"
-    - <strong>チャンネルごと</strong>：<strong>R・G・B に別々に曲線</strong>。<strong>フィルムの特性に近く、明部は白へ向かう</strong>。<strong>色相はずれる</strong>。
-    - <strong>輝度ベース</strong>：<strong>輝度にだけ曲線を掛け、色の比率を保つ</strong>。<strong>色相は保つが鮮やかな明部が飽和しすぎる</strong>。
-    - <strong>ハイブリッド</strong>：<strong>両者を混ぜる</strong>。<strong>ACES・AgX は内部で彩度・色相を調整</strong>している。
-    - <strong>彩度</strong>：<strong>輝度が大きいほど、彩度を落とす</strong>のが<strong>自然な白への向かい方</strong>。
-    - <strong>選び方</strong>：<strong>色の忠実さ → 輝度ベース寄り、映画的な絵 → チャンネルごと寄り</strong>。
+    - <strong>チャンネルごと</strong>：<strong>R・G・B に別々に曲線</strong>。フィルムの特性に近く、明部は白へ向かう。色相はずれる。
+    - 輝度ベース：輝度にだけ曲線を掛け、色の比率を保つ。色相は保つが鮮やかな明部が飽和しすぎる。
+    - ハイブリッド：両者を混ぜる。ACES・AgX は内部で彩度・色相を調整している。
+    - 彩度：輝度が大きいほど、彩度を落とすのが自然な白への向かい方。
+    - 選び方：色の忠実さ → 輝度ベース寄り、映画的な絵 → チャンネルごと寄り。
 
 <!-- fig:hue-preserve:begin -->
 
@@ -105,15 +105,15 @@ tags:
 
 ## 違いを見る
 
-<strong>赤 (4.0, 0.5, 0.2) という、明るい赤橙</strong>を<strong>Reinhard</strong> に通すと、次のようになります。
+<strong>赤 (4.0, 0.5, 0.2) という、明るい赤橙</strong>をReinhard に通すと、次のようになります。
 
 | 方式 | 計算 | 結果（R, G, B） |
 | --- | --- | --- |
-| 入力 | — | <strong>(4.0, 0.5, 0.2)</strong> |
-| チャンネルごと | 各成分に `x/(1+x)` | <strong>(0.80, 0.33, 0.17)</strong> |
-| 輝度ベース | 輝度 L ≒ 1.2 → L/(1+L) ≒ 0.55、色に比を掛ける | <strong>(1.0 を超える → 飽和)</strong> |
+| 入力 | — | (4.0, 0.5, 0.2) |
+| チャンネルごと | 各成分に `x/(1+x)` | (0.80, 0.33, 0.17) |
+| 輝度ベース | 輝度 L ≒ 1.2 → L/(1+L) ≒ 0.55、色に比を掛ける | (1.0 を超える → 飽和) |
 
-<strong>チャンネルごと</strong>だと、<strong>R の比率が下がって、G・B の比率が相対的に上がる</strong>ため、赤が少し黄色（橙）寄りに見えます。これがフィルムのような、明部の色の変化です。
+チャンネルごとだと、R の比率が下がって、G・B の比率が相対的に上がるため、赤が少し黄色（橙）寄りに見えます。これがフィルムのような、明部の色の変化です。
 
 <svg class="fig illust" viewBox="0 0 780 220" role="img" aria-label="色相の変化の比較">
 <text x="20" y="26" class="fig-title">赤橙の光を、だんだん明るくしていくと</text>
@@ -159,11 +159,11 @@ float3 TonemapByLuminance(float3 color) {
 
 輝度ベースの長所は、色相が完全に保たれることと、意図した色のままになることです。短所は、彩度の高い明るい色が 1 を超えて飽和すること（最後に切ると色が濃すぎる）と、白に向かわないので眩しさが出にくいことです。
 
-<strong>1 を超える値の処理</strong>が<strong>課題</strong>です。飽和した成分を他の成分に分配（ガマット マッピング）したり、白へ混ぜたりして対処します。
+<strong>1 を超える値の処理</strong>が課題です。飽和した成分を他の成分に分配（ガマット マッピング）したり、白へ混ぜたりして対処します。
 
 ## ハイブリッド
 
-<strong>両者を混ぜる</strong>のが<strong>定番</strong>です。
+<strong>両者を混ぜる</strong>のが定番です。
 
 ```hlsl
 float3 TonemapHybrid(float3 color, float blend) {
@@ -179,7 +179,7 @@ float3 TonemapHybrid(float3 color, float blend) {
 
 ## 彩度を落として白へ向かわせる
 
-<strong>実際の光は非常に明るいと目やセンサーの飽和で白っぽく</strong>見えます。<strong>輝度が大きいほど彩度を落とす</strong>と、自然に白へ向かいます。
+<strong>実際の光は非常に明るいと目やセンサーの飽和で白っぽく</strong>見えます。輝度が大きいほど彩度を落とすと、自然に白へ向かいます。
 
 ```hlsl
 float3 DesaturateHighlights(float3 color, float threshold, float strength) {
@@ -191,7 +191,7 @@ float3 DesaturateHighlights(float3 color, float threshold, float strength) {
 
 彩度を落とす方式のコードの要点です。`threshold` は、この輝度から彩度を落とし始める閾値です。`strength` は、どれだけ白へ向かうかを表します（0〜1）。トーンマップの前に、HDR のうちに行います。
 
-<strong>AgX・Tony McMapface は、こうした彩度の処理を曲線の設計に組み込んで</strong>います。
+AgX・Tony McMapface は、こうした彩度の処理を曲線の設計に組み込んでいます。
 
 ## 選び方
 
@@ -205,22 +205,22 @@ float3 DesaturateHighlights(float3 color, float threshold, float strength) {
 ## よくあるミス
 
 ??? failure "輝度ベースで、1 を超えた値をそのまま出力して、色が破綻する"
-    <strong>最後に `saturate`</strong>、または<strong>ガマット マッピング</strong>（超えた分を他の成分へ分配）。
+    <strong>最後に `saturate`</strong>、またはガマット マッピング（超えた分を他の成分へ分配）。
 
 ??? failure "輝度の係数を、BT.601（0.299, 0.587, 0.114）にしてしまう"
-    <strong>sRGB（Rec.709）の原色なら、`(0.2126, 0.7152, 0.0722)`</strong>。
+    sRGB（Rec.709）の原色なら、`(0.2126, 0.7152, 0.0722)`。
 
 ??? failure "彩度を落とす処理を、トーンマップの後で行って、効きが弱い"
-    <strong>HDR のうち（トーンマップの前）に</strong>行う。
+    HDR のうち（トーンマップの前）に行う。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] <strong>チャンネルごと</strong> ＝ <strong>フィルム的。色相がずれる</strong>
-    - [x] <strong>輝度ベース</strong> ＝ <strong>色相を保つが、鮮やかな明部が飽和</strong>
-    - [x] <strong>ハイブリッド</strong>（<strong>blend 0.3〜0.6</strong>）が<strong>実用的</strong>
-    - [x] <strong>輝度が大きいほど彩度を落とす</strong>と<strong>自然に白へ</strong>
-    - [x] <strong>輝度の係数は Rec.709</strong>（0.2126, 0.7152, 0.0722）
+    - [x] <strong>チャンネルごと</strong> ＝ フィルム的。色相がずれる
+    - [x] 輝度ベース ＝ 色相を保つが、鮮やかな明部が飽和
+    - [x] ハイブリッド（blend 0.3〜0.6）が実用的
+    - [x] 輝度が大きいほど彩度を落とすと自然に白へ
+    - [x] 輝度の係数は Rec.709（0.2126, 0.7152, 0.0722）
 
 ## 参考
 

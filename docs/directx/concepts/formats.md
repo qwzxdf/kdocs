@@ -10,13 +10,13 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-テクスチャや頂点バッファの各画素・各要素が、<strong>何バイトでどう解釈されるか</strong>を決めるのが <strong>フォーマット</strong>（`DXGI_FORMAT_…`）です。`R8G8B8A8_UNORM` は「赤・緑・青・アルファが、各 8 ビット、0〜1 に正規化」という意味です。フォーマットの選び方で <strong>見た目（色の正しさ）、精度、メモリ、速度</strong>が決まります。
+テクスチャや頂点バッファの各画素・各要素が、<strong>何バイトでどう解釈されるか</strong>を決めるのが フォーマット（`DXGI_FORMAT_…`）です。`R8G8B8A8_UNORM` は「赤・緑・青・アルファが、各 8 ビット、0〜1 に正規化」という意味です。フォーマットの選び方で 見た目（色の正しさ）、精度、メモリ、速度が決まります。
 
 !!! tip "ポイント"
     - 名前の読み方: `R8G8B8A8_UNORM` ＝ チャンネル（R、G、B、A）と各ビット数、その後ろが <strong>型</strong>（`UNORM`、`FLOAT`、`UINT`、`SNORM`、`SRGB`）。
     - <strong>色（アルベド）は `_SRGB`、データ（法線、粗さ）は `_UNORM`（リニア）</strong>。間違えると色が暗い・くすむ。
     - HDR は `R16G16B16A16_FLOAT`（1 を超える明るさを持てる）。
-    - 深度を書いて読むなら <strong>`R32_TYPELESS`</strong>（型をビューで決める）。
+    - 深度を書いて読むなら `R32_TYPELESS`（型をビューで決める）。
     - 圧縮（BC1〜BC7）で、メモリを 1/4〜1/8 に。
 
 ## 名前の読み方
@@ -47,13 +47,13 @@ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB
 
 ## sRGB とリニア
 
-人間の目は暗い所の違いに敏感で画像は、<strong>sRGB</strong>（ガンマ約 2.2 の曲線）で保存されます。ところが、ライティングの計算は <strong>リニア</strong>（光の強さに比例）で行うのが正しいです。
+人間の目は暗い所の違いに敏感で画像は、<strong>sRGB</strong>（ガンマ約 2.2 の曲線）で保存されます。ところが、ライティングの計算は リニア（光の強さに比例）で行うのが正しいです。
 
 ```text
 保存されている、色（sRGB） → リニアに、変換 → ライティングの、計算（リニア）→ sRGB に、変換 → 画面
 ```
 
-`_SRGB` フォーマットを使うと <strong>ハードウェアが、自動で</strong>、この変換を行います。
+`_SRGB` フォーマットを使うと ハードウェアが、自動で、この変換を行います。
 
 | 場面 | フォーマット | 変換 |
 | --- | --- | --- |
@@ -62,7 +62,7 @@ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB
 | 画面（バック バッファ）に書く | RTV を `_SRGB` で作る | 書くとき、リニア → sRGB（自動） |
 | HDR の中間バッファ | `R16G16B16A16_FLOAT` | 変換しない（リニアのまま） |
 
-<strong>色を `_UNORM` で読むと</strong>、sRGB の値をそのままリニアとして計算し <strong>暗く、くすんで</strong>見えます。<strong>法線を `_SRGB` で読むと</strong>、値が歪みます。
+色を `_UNORM` で読むと、sRGB の値をそのままリニアとして計算し 暗く、くすんで見えます。法線を `_SRGB` で読むと、値が歪みます。
 
 ## HDR と精度
 
@@ -88,7 +88,7 @@ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB
 
 ## typeless：型をあとで決める
 
-<strong>typeless</strong>（`R32_TYPELESS`、`R8G8B8A8_TYPELESS`）は <strong>ビット幅だけ</strong>を決め <strong>型は、ビューを作るときに決める</strong>、フォーマットです。同じメモリを別の型で見たいときに使います。
+<strong>typeless</strong>（`R32_TYPELESS`、`R8G8B8A8_TYPELESS`）は ビット幅だけを決め 型は、ビューを作るときに決める、フォーマットです。同じメモリを別の型で見たいときに使います。
 
 | 例 | リソース | ビューごとの型 |
 | --- | --- | --- |
@@ -96,7 +96,7 @@ DXGI_FORMAT_R8G8B8A8_UNORM_SRGB
 | 色を sRGB とリニアの両方で | `R8G8B8A8_TYPELESS` | SRV: `_UNORM_SRGB`、UAV: `_UNORM`（UAV は `_SRGB` 不可） |
 | ステンシルつきの深度 | `R24G8_TYPELESS` | DSV: `D24_UNORM_S8_UINT`、SRV（深度）: `R24_UNORM_X8_TYPELESS`、SRV（ステンシル）: `X24_TYPELESS_G8_UINT` |
 
-深度は書くとき（DSV）は深度の型、読むとき（SRV）は普通の浮動小数点の型、と <strong>型が違う</strong>ので typeless が、必要です。
+深度は書くとき（DSV）は深度の型、読むとき（SRV）は普通の浮動小数点の型、と 型が違うので typeless が、必要です。
 
 ## 圧縮
 

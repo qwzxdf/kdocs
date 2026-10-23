@@ -6,15 +6,15 @@ tags:
 
 # Comparison and Choosing
 
-<strong>AA の方式は、どれも「何をどれだけ、どんなコストで消せるか」が違います</strong>。<strong>1 つで全部を解決する方式はなく</strong>、ゲームの描画方式・ターゲット機・見た目の好みで選び、組み合わせます。このページでは、方式の総合比較・消せるエイリアシングの種類・コストと副作用・描画方式との相性・目的別の選び方・組み合わせの例を説明します。
+<strong>AA の方式は、どれも「何をどれだけ、どんなコストで消せるか」が違います</strong>。1 つで全部を解決する方式はなく、ゲームの描画方式・ターゲット機・見た目の好みで選び、組み合わせます。このページでは、方式の総合比較・消せるエイリアシングの種類・コストと副作用・描画方式との相性・目的別の選び方・組み合わせの例を説明します。
 
 !!! tip "ポイント"
-    - <strong>ジオメトリの縁</strong>は<strong>MSAA・SMAA・TAA</strong>が<strong>効く</strong>。<strong>FXAA は粗い</strong>。
-    - <strong>シェーダー内のエイリアシング・時間のちらつき</strong>は<strong>TAA 系だけ</strong>が<strong>本格的に消せる</strong>。
-    - <strong>ディファード</strong>は<strong>MSAA が重い</strong>ので<strong>後処理・TAA</strong>。<strong>フォワード・VR・モバイル</strong>は<strong>MSAA が現役</strong>。
-    - <strong>現代の主流</strong>は<strong>TAA ＋ アップスケール（DLSS・FSR・TSR）</strong>。
-    - <strong>低スペック・簡易</strong>は<strong>FXAA・SMAA</strong>。
-    - <strong>組み合わせ</strong>：<strong>MSAA ＋ 後処理</strong>、<strong>TAA ＋ シャープ化</strong>。
+    - <strong>ジオメトリの縁</strong>は<strong>MSAA・SMAA・TAA</strong>が効く。FXAA は粗い。
+    - シェーダー内のエイリアシング・時間のちらつきはTAA 系だけが本格的に消せる。
+    - ディファードはMSAA が重いので後処理・TAA。フォワード・VR・モバイルはMSAA が現役。
+    - 現代の主流はTAA ＋ アップスケール（DLSS・FSR・TSR）。
+    - 低スペック・簡易はFXAA・SMAA。
+    - 組み合わせ：MSAA ＋ 後処理、TAA ＋ シャープ化。
 
 ## 総合比較
 
@@ -26,7 +26,7 @@ tags:
 | SMAA 1x | ○ | △ | × | 小 | わずかにぼける | 最終画像のみ |
 | SMAA T2x | ○ | ○ | ○ | 小〜中 | わずかにぼける・ゴースト | 速度バッファ |
 | TAA | ◎ | ◎ | ◎ | 小〜中 | ゴースト・ぼけ | 速度バッファ・ジッター |
-| TAAU・DLSS・FSR | ◎ | ◎ | ◎ | <strong>小〜中（解像度を下げるので総コストは減る）</strong> | ゴースト・調整が必要 | 速度・深度・ジッター |
+| TAAU・DLSS・FSR | ◎ | ◎ | ◎ | 小〜中（解像度を下げるので総コストは減る） | ゴースト・調整が必要 | 速度・深度・ジッター |
 
 ## 消せるエイリアシングの種類
 
@@ -1311,7 +1311,7 @@ tags:
 | ディファード | TAA・SMAA・FXAA | G バッファの MSAA は重い |
 | ビジビリティ バッファ | <strong>TAA・MSAA（比較的軽い）</strong> | ID だけ MSAA |
 | VR | MSAA ＋ 軽い後処理 | TAA のぼけ・遅延が苦手（左右の目でずれる） |
-| <strong>モバイル（タイルベース）</strong> | MSAA | タイル内で解決、ほぼ無料 |
+| モバイル（タイルベース） | MSAA | タイル内で解決、ほぼ無料 |
 
 ## 目的別の選び方
 
@@ -1323,7 +1323,7 @@ tags:
 | 解像度を下げて、軽くしたい | TAAU・DLSS・FSR |
 | VR・フォワード | MSAA ＋ 軽い後処理 |
 | モバイル | MSAA 4x |
-| <strong>最高品質（オフライン・スクリーンショット）</strong> | SSAA ＋ TAA |
+| 最高品質（オフライン・スクリーンショット） | SSAA ＋ TAA |
 
 ## 組み合わせの例
 
@@ -1361,22 +1361,22 @@ tags:
     <strong>TAA・SMAA に切り替える</strong>。
 
 ??? failure "TAA だけに頼って、VR で酔う・ぼける"
-    <strong>VR は MSAA を基本</strong>にする。
+    VR は MSAA を基本にする。
 
 ??? failure "FXAA だけで、動くちらつきが残る"
-    <strong>時間方向の AA（TAA）が必要</strong>。
+    時間方向の AA（TAA）が必要。
 
 ??? failure "静止画でだけ AA を評価して、動いたときに失敗"
-    <strong>動画で確認する</strong>。
+    動画で確認する。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] <strong>縁のジャギー</strong>は多くの方式が効く。<strong>シェーダー内・ちらつきは TAA 系のみ</strong>
-    - [x] <strong>ディファードは MSAA が重い</strong>。<strong>VR・モバイルは MSAA が現役</strong>
-    - [x] <strong>現代の主流は TAA ＋ アップスケール</strong>
-    - [x] <strong>簡易は FXAA・SMAA</strong>
-    - [x] <strong>組み合わせて</strong>使い、<strong>動画で評価</strong>する
+    - [x] <strong>縁のジャギー</strong>は多くの方式が効く。シェーダー内・ちらつきは TAA 系のみ
+    - [x] ディファードは MSAA が重い。VR・モバイルは MSAA が現役
+    - [x] 現代の主流は TAA ＋ アップスケール
+    - [x] 簡易は FXAA・SMAA
+    - [x] 組み合わせて使い、動画で評価する
 
 ## 参考
 

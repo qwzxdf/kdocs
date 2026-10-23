@@ -6,15 +6,15 @@ tags:
 
 # Lens Flare
 
-<strong>太陽やライトのような、とても明るい光源がレンズに入る</strong>と、<strong>レンズの内部で光が何度も反射し、画面に「ゴースト（光の円）」「ハロー（輪）」「光芒（スターバースト）」</strong>が<strong>現れます</strong>。これがレンズ フレアで、SF・映画・夕暮れの太陽の演出に欠かせません。表現の好みの問題であれば高品質というわけではありません。このページでは、フレアの種類・画面空間でのゴースト生成・ハロー・光芒（スターバースト）・色と減衰・コストとオクルージョンを説明します。
+<strong>太陽やライトのような、とても明るい光源がレンズに入る</strong>と、レンズの内部で光が何度も反射し、画面に「ゴースト（光の円）」「ハロー（輪）」「光芒（スターバースト）」が現れます。これがレンズ フレアで、SF・映画・夕暮れの太陽の演出に欠かせません。表現の好みの問題であれば高品質というわけではありません。このページでは、フレアの種類・画面空間でのゴースト生成・ハロー・光芒（スターバースト）・色と減衰・コストとオクルージョンを説明します。
 
 !!! tip "ポイント"
     - レンズ フレア ＝ <strong>レンズ内の反射で、強い光源から出る、ゴースト・ハロー・光芒</strong>。
-    - <strong>ゴースト</strong> ＝ <strong>光源を、画面中心を挟んで反対側に、複数の円として並べる</strong>。
-    - <strong>画面空間の方法</strong>：<strong>ブルームの明るい部分を取り出し、反転・ずらしてサンプル</strong>する（<strong>光源の位置を知らなくてよい</strong>）。
-    - <strong>ハロー</strong> ＝ <strong>画面中心を軸にした、大きな輪</strong>。<strong>光芒</strong> ＝ <strong>絞りの羽根による筋</strong>。
-    - <strong>画面端のゴーストは弱める</strong>。<strong>色収差を付ける</strong>と<strong>虹色でリアル</strong>。
-    - <strong>光源が隠れたら消える</strong>よう、<strong>オクルージョン</strong>を考慮する。
+    - <strong>ゴースト</strong> ＝ 光源を、画面中心を挟んで反対側に、複数の円として並べる。
+    - 画面空間の方法：ブルームの明るい部分を取り出し、反転・ずらしてサンプルする（光源の位置を知らなくてよい）。
+    - ハロー ＝ 画面中心を軸にした、大きな輪。光芒 ＝ 絞りの羽根による筋。
+    - 画面端のゴーストは弱める。色収差を付けると虹色でリアル。
+    - 光源が隠れたら消えるよう、オクルージョンを考慮する。
 
 ## 要素
 
@@ -45,7 +45,7 @@ tags:
 
 ## 画面空間のゴースト
 
-<strong>ブルームで明るい部分を取り出した画像</strong>から、<strong>反転した位置を複数回サンプルして、ゴーストを作る</strong>方法です（光源の位置を別に知る必要がありません）。
+<strong>ブルームで明るい部分を取り出した画像</strong>から、反転した位置を複数回サンプルして、ゴーストを作る方法です（光源の位置を別に知る必要がありません）。
 
 ```hlsl
 float3 LensFlareGhosts(float2 uv, int ghost_count, float dispersal, float distortion) {
@@ -181,7 +181,7 @@ float3 LensFlareGhosts(float2 uv, int ghost_count, float dispersal, float distor
 
 ## ハロー
 
-<strong>画面中心を中心にした、大きな輪</strong>を<strong>足し</strong>ます。反転位置から、中心方向へ一定の長さだけ進んだ位置をサンプルします。
+<strong>画面中心を中心にした、大きな輪</strong>を足します。反転位置から、中心方向へ一定の長さだけ進んだ位置をサンプルします。
 
 ```hlsl
 float3 LensFlareHalo(float2 uv, float halo_width) {
@@ -198,7 +198,7 @@ float3 LensFlareHalo(float2 uv, float halo_width) {
 
 ## 色と色収差
 
-<strong>ゴーストやハローに色（虹色）</strong>を<strong>付ける</strong>と<strong>リアルになります</strong>。
+<strong>ゴーストやハローに色（虹色）</strong>を付けるとリアルになります。
 
 ゴーストやハローに色（虹色）を付けると、リアルになります。方法は 3 つです。ゴーストごとに色を変える（1 つ目は青、2 つ目は橙など）。色収差を付けて、R・G・B を少しずつずらしてサンプルする（[Chromatic Aberration](chromatic-aberration.md)）。画面中心からの距離で色を引く、グラデーションの 1D テクスチャを使う方法です。
 
@@ -209,7 +209,7 @@ result += bright * weight * flare_color;
 
 ## 光芒（スターバースト）
 
-<strong>絞りの羽根の数に応じた、星形の筋</strong>です。<strong>テクスチャを光源の位置に貼る</strong>のが簡単です。
+<strong>絞りの羽根の数に応じた、星形の筋</strong>です。テクスチャを光源の位置に貼るのが簡単です。
 
 光芒は、絞りの羽根の数に応じた星形の筋で、テクスチャを光源の位置に貼る方法が簡単です。スターバースト テクスチャは、星形のテクスチャを画面中心からの角度で回して、ブルームに乗算します。ダート テクスチャは、レンズの汚れや傷のテクスチャを画面全体に重ね、ブルームの強さに乗算します（[Compositing and Intensity](../bloom/composite.md)）。光源の位置を投影して、スプライトを描く方法もあります。
 
@@ -224,7 +224,7 @@ float3 Starburst(float2 uv, float2 light_uv, Texture2D starburst_texture, float 
 
 ## 光源が隠れたとき
 
-<strong>太陽が建物に隠れたのに、フレアが残る</strong>と<strong>不自然</strong>です。<strong>光源の可視性（オクルージョン）</strong>を考慮します。
+<strong>太陽が建物に隠れたのに、フレアが残る</strong>と不自然です。光源の可視性（オクルージョン）を考慮します。
 
 | 方式 | 内容 |
 | --- | --- |
@@ -260,22 +260,22 @@ float3 Starburst(float2 uv, float2 light_uv, Texture2D starburst_texture, float 
     <strong>端の重みを弱める</strong>（`weight = pow(1 − 距離, 10)`）。
 
 ??? failure "光源が隠れても、フレアが残る"
-    <strong>可視性を考慮</strong>する。<strong>画面空間なら、自動で消える</strong>。
+    可視性を考慮する。画面空間なら、自動で消える。
 
 ??? failure "画面全体がフレアで真っ白になる"
-    <strong>強さ・閾値を下げる</strong>。<strong>明るい光源だけがフレアを出す</strong>。
+    強さ・閾値を下げる。明るい光源だけがフレアを出す。
 
 ??? failure "ゴーストがぎざぎざに見える"
-    <strong>半解像度のぼかし</strong>を足す、<strong>バイリニアで滑らかに</strong>。
+    半解像度のぼかしを足す、バイリニアで滑らかに。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] レンズ フレア ＝ <strong>強い光源から出る、ゴースト・ハロー・光芒</strong>
-    - [x] <strong>画面空間</strong>：<strong>ブルームの明るい部分を、反転・ずらしてサンプル</strong>
-    - [x] <strong>ゴーストは、画面中心を挟んで反対側</strong>。<strong>端は弱める</strong>。<strong>色収差で虹色</strong>
-    - [x] <strong>光芒・ダート</strong>は<strong>テクスチャ</strong>で
-    - [x] <strong>隠れた光源は消える</strong>ように。<strong>控えめに</strong>
+    - [x] 画面空間：ブルームの明るい部分を、反転・ずらしてサンプル
+    - [x] ゴーストは、画面中心を挟んで反対側。端は弱める。色収差で虹色
+    - [x] 光芒・ダートはテクスチャで
+    - [x] 隠れた光源は消えるように。控えめに
 
 ## 参考
 

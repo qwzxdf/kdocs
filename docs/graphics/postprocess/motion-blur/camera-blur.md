@@ -6,15 +6,15 @@ tags:
 
 # Camera Motion Blur
 
-<strong>カメラが動いたり回ったりすると、静止している背景全体が、流れるように見えます</strong>。<strong>カメラ モーション ブラー</strong>は、この背景の流れを表現するブラーで、コストが安く、スピード感への効果が大きいため、最初に実装すべき部分です。必要なのは画素ごとの深度と前フレームのカメラ行列だけで、動く物体の速度バッファを作らなくても実現できます。このページでは、深度から速度を再構成する方法・並進と回転の違い・注意点（動く物体・遠景）・より良いやり方を説明します。
+<strong>カメラが動いたり回ったりすると、静止している背景全体が、流れるように見えます</strong>。カメラ モーション ブラーは、この背景の流れを表現するブラーで、コストが安く、スピード感への効果が大きいため、最初に実装すべき部分です。必要なのは画素ごとの深度と前フレームのカメラ行列だけで、動く物体の速度バッファを作らなくても実現できます。このページでは、深度から速度を再構成する方法・並進と回転の違い・注意点（動く物体・遠景）・より良いやり方を説明します。
 
 !!! tip "ポイント"
     - カメラ ブラー ＝ <strong>カメラの動きによる、静止した物の見かけの動き</strong>を<strong>ぼかしにする</strong>。
-    - <strong>深度（ワールド位置を再構成）</strong>＋<strong>前フレームのカメラ行列</strong>で、<strong>各画素の速度が分かる</strong>。
-    - <strong>回転</strong>は<strong>画面全体が同じ向きに流れる</strong>。<strong>並進</strong>は<strong>近い物ほど速く流れる（視差）</strong>。
-    - <strong>動く物体には、カメラ速度は不正確</strong>（<strong>物体ブラー</strong>で上書き）。
-    - <strong>遠景（深度が最奥）</strong>は<strong>回転の影響だけ</strong>。
-    - <strong>ゲーム内のカット切り替え</strong>では<strong>速度を 0 に</strong>する。
+    - 深度（ワールド位置を再構成）＋前フレームのカメラ行列で、各画素の速度が分かる。
+    - 回転は画面全体が同じ向きに流れる。並進は近い物ほど速く流れる（視差）。
+    - 動く物体には、カメラ速度は不正確（物体ブラーで上書き）。
+    - 遠景（深度が最奥）は回転の影響だけ。
+    - ゲーム内のカット切り替えでは速度を 0 にする。
 
 <!-- fig:camera-blur:begin -->
 
@@ -114,7 +114,7 @@ tags:
 
 ## 深度から速度を作る
 
-<strong>画素の深度から、その点のワールド位置を再構成し</strong>、<strong>前フレームのカメラでその点がどこに見えていたか</strong>を計算します。
+<strong>画素の深度から、その点のワールド位置を再構成し</strong>、前フレームのカメラでその点がどこに見えていたかを計算します。
 
 ```hlsl
 float2 CameraVelocity(float2 uv, float depth) {
@@ -133,7 +133,7 @@ float2 CameraVelocity(float2 uv, float depth) {
 | --- | --- |
 | `inverse_view_projection` | 今フレームの逆行列。深度 → ワールド位置 |
 | `previous_view_projection` | 前フレームのカメラ。ワールド位置 → 前の画面位置 |
-| `uv − previous_uv` | 今 − 前（<strong>[Velocity Buffer](velocity-buffer.md)と同じ定義</strong>） |
+| `uv − previous_uv` | 今 − 前（[Velocity Buffer](velocity-buffer.md)と同じ定義） |
 | ジッター | 両方の行列から、ジッターを除く |
 
 ## 特徴と注意
@@ -148,7 +148,7 @@ float2 CameraVelocity(float2 uv, float depth) {
 
 ## 速度の合成
 
-<strong>最終的な速度</strong>は、<strong>動く物体は速度バッファ、それ以外はカメラ速度</strong>を使います。
+<strong>最終的な速度</strong>は、動く物体は速度バッファ、それ以外はカメラ速度を使います。
 
 ```hlsl
 float2 FinalVelocity(float2 uv, float depth) {
@@ -158,7 +158,7 @@ float2 FinalVelocity(float2 uv, float depth) {
 }
 ```
 
-<strong>ステンシル・専用ビットで、「速度を書いた画素」を区別</strong>する<strong>と</strong>、<strong>「速度ぴったり 0 の動く物体」と「書かれていない画素」を、取り違えません</strong>。
+ステンシル・専用ビットで、「速度を書いた画素」を区別すると、「速度ぴったり 0 の動く物体」と「書かれていない画素」を、取り違えません。
 
 ## より良いやり方
 
@@ -174,25 +174,25 @@ float2 FinalVelocity(float2 uv, float depth) {
 ## よくあるミス
 
 ??? failure "カメラに固定された武器まで、ブラーがかかる"
-    <strong>ビューモデルは、カメラと同じ動きなので、速度 0</strong>。<strong>マスクして除外</strong>。
+    <strong>ビューモデルは、カメラと同じ動きなので、速度 0</strong>。マスクして除外。
 
 ??? failure "カメラが瞬間移動したフレームで、画面全体が大きくぶれる"
-    <strong>カットや瞬間移動では、前フレームの行列を今の行列にして、速度を 0</strong>。
+    カットや瞬間移動では、前フレームの行列を今の行列にして、速度を 0。
 
 ??? failure "ブラーが強すぎて、酔う"
-    <strong>最大長・強さを抑える</strong>。<strong>オプションで切れる</strong>ようにする。
+    最大長・強さを抑える。オプションで切れるようにする。
 
 ??? failure "静止した物の速度が、ジッターでふるえる"
-    <strong>行列からジッターを除いて</strong>速度を計算。
+    行列からジッターを除いて速度を計算。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] カメラ ブラー ＝ <strong>カメラの動きによる、静止物の見かけの動き</strong>を<strong>ぼかす</strong>
-    - [x] <strong>深度 ＋ 前フレームのカメラ行列</strong>で<strong>速度を再構成</strong>
-    - [x] <strong>回転は一様、並進は近い物ほど速い</strong>
-    - [x] <strong>動く物体は、物体の速度で上書き</strong>
-    - [x] <strong>カットで速度 0</strong>、<strong>最大長で制限</strong>
+    - [x] カメラ ブラー ＝ <strong>カメラの動きによる、静止物の見かけの動き</strong>をぼかす
+    - [x] 深度 ＋ 前フレームのカメラ行列で速度を再構成
+    - [x] 回転は一様、並進は近い物ほど速い
+    - [x] 動く物体は、物体の速度で上書き
+    - [x] カットで速度 0、最大長で制限
 
 ## 参考
 

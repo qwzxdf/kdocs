@@ -15,14 +15,14 @@ tags:
 `#include <filesystem>`
 </div>
 
-`std::filesystem::directory_entry` は、**フォルダを回したときの 1 つの項目**です。パスのほか、ファイルかフォルダか、サイズなどを（キャッシュして）持っています。`entry.path()` でパスが取れます。
+フォルダの中のファイルを順に調べながら、それぞれがファイルかフォルダか、サイズはどれくらいか、といった情報も知りたい。パスだけを受け取って、毎回 `file_size(path)` や `is_directory(path)` を呼ぶと、そのたびにファイルシステムへ問い合わせることになります。`std::filesystem::directory_entry` は、フォルダを回したときの 1 つの項目で、パスのほかに、種類やサイズなどをキャッシュして持っています。
 
 !!! tip "ポイント"
     - `path()` でパス、`is_regular_file()` `is_directory()` で種類、`file_size()` でサイズ。
     - 情報はキャッシュされるので、別途 `fs::file_size` を呼ぶより速いことがある。
 
 !!! info "このページを読む前に"
-    [`std::filesystem`](../filesystem.md) の概要を先に読むと分かりやすいです。
+    [`directory_iterator`](directory_iterator.md) を先に読んでください。`directory_entry` は、そのイテレーターが返す要素です。
 
 ## 関数の詳しい説明
 
@@ -203,6 +203,14 @@ auto operator<=>(const directory_entry& rhs) const noexcept;
 
 パスで比べる三方比較。
 
+## しくみ
+
+`directory_iterator` で回すと、各項目が `directory_entry` として返ります。OS によっては、フォルダの一覧を取る時点で、ファイルの種類や、サイズなどの一部の情報も一緒に取れるので、それをキャッシュして持っています。
+
+`is_regular_file()`、`is_directory()`、`file_size()` などは、このキャッシュを使って答えます。別途 `fs::file_size(path)` を呼ぶより、システムへの問い合わせが減ります。ただし、キャッシュは取得した時点の情報なので、その後ファイルが変わっても反映されません。最新にするには `refresh()` を呼びます。
+
+`directory_entry` は、パスに暗黙に変換できます。`fs::path p = entry;` と書けるので、`path` を受け取る関数にそのまま渡せます。
+
 ## 実際に動かしてみる
 
 ```cpp
@@ -227,20 +235,38 @@ a.txt true
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 一覧の各ファイルの種類とサイズ | `entry.is_regular_file()` |
+アセットフォルダの内容を調べるときに使います。
+
+```cpp
+for (const auto& entry : fs::directory_iterator("assets")) {
+  if (entry.is_regular_file() && entry.path().extension() == ".png") {
+    // 画像ファイルとして読み込む
+  }
+}
+```
+
+ファイルの更新時刻を調べて、ホットリロード（ファイルが変わったら読み直す）に使うこともあります。`entry.last_write_time()` で更新時刻を取り、前回の値と比べます。
+
+サイズが大きいファイルを先に調べたり、容量の合計を出したりするときも、`file_size()` を使います。
 
 ## よくあるミス
 
-??? failure "キャッシュが古い"
-    回している間にファイルが変わっても、キャッシュは更新されません。`refresh()` で更新できます。
+??? failure "キャッシュが古くて、最新の情報と違う"
+    `entry` が持つ情報は、取得した時点のものです。ファイルが書き換えられても、自動では更新されません。最新の値が必要なら `refresh()` を呼びます。
+
+??? failure "ファイルとフォルダを区別せずに開こうとする"
+    フォルダを `ifstream` で開こうとして失敗します。`entry.is_regular_file()` で、ファイルだけを対象にします。
+
+??? failure "例外で落ちる"
+    権限のないファイルの情報を取ろうとすると、例外が投げられます。`std::error_code` を渡す版を使うと、例外なしで結果を受け取れます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`directory_iterator`](directory_iterator.md) | 回す側 |
+| [`directory_iterator`](directory_iterator.md) | フォルダの直下を回す。この項目を返す |
+| [`recursive_directory_iterator`](recursive_directory_iterator.md) | サブフォルダも含めて回す |
+| [`path`](path.md) | パスだけを持つ。`entry.path()` で取り出せる |
 
 ## コンパイラ対応
 
@@ -249,9 +275,9 @@ C++17 の機能です。GCC 9 / Clang 9 / MSVC 19.14 以降で使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] フォルダ内の 1 項目
-    - [x] `path()` でパス
-    - [x] 情報はキャッシュされる
+    - [x] フォルダを回して得られる 1 つの項目。パスと情報を持つ。
+    - [x] 種類やサイズはキャッシュされる。最新にするには `refresh()`。
+    - [x] `path` にそのまま変換できる。
 
 ## 関連ページ
 

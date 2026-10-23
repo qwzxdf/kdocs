@@ -1,0 +1,25 @@
+title: cwchar
+nav:
+  - weof.md
+  - btowc.md
+  - fgetwc.md
+  - fgetws.md
+  - fputwc.md
+  - fputws.md
+  - fwprintf.md
+  - mbrlen.md
+  - mbrtowc.md
+  - mbsrtowcs.md
+  - mbstate_t.md
+  - swprintf.md
+  - wcrtomb.md
+  - wcscmp.md
+  - wcscpy.md
+  - wcsrtombs.md
+  - wcstol.md
+  - wctob.md
+  - wint_t.md
+  - wmemcpy.md
+  - wprintf.md
+  - wscanf.md
+  - ...

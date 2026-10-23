@@ -14,7 +14,7 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::copy` は、**範囲の要素を別の場所へコピーする**アルゴリズムです。条件に合うものだけをコピーする `copy_if`、先頭から n 個だけコピーする `copy_n` も、同じ仲間です。ループで 1 つずつ書く代わりに使います。
+配列の中身を別の配列に写したい、条件に合うものだけを別のコンテナに集めたい。`for` で 1 つずつ書くと数行になります。`std::ranges::copy` は、範囲の要素を別の場所へコピーするアルゴリズムです。条件に合うものだけをコピーする `copy_if`、先頭から n 個だけコピーする `copy_n` も、同じ仲間です。
 
 !!! tip "ポイント"
     - コピー先には**十分な大きさ**が要る。足りないなら `std::back_inserter(dst)` を渡して、末尾に足していく。
@@ -150,11 +150,11 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 配列から別の配列へ受け渡す | `copy(src, dst.begin())` |
-| 条件に合う敵だけ別の vector に集める | `copy_if(enemies, back_inserter(alive), 生きている)` |
-| バッファの先頭 n 個だけ送る | `copy_n(buf.begin(), n, out)` |
+条件に合う要素を別のコンテナに集める用途が多いです。`std::ranges::copy_if(enemies, std::back_inserter(alive), IsAlive)` なら、生きている敵だけが `alive` に集まります。
+
+バッファに頂点データをまとめて書き込む処理でも使います。`copy(src, dst.begin())` と書けば、型が単純なら、内部で `memmove` 相当に最適化されます。
+
+コピー先の大きさが足りないと、範囲外へ書き込みます。`back_inserter` を使うか、先に `resize` します。コピー元とコピー先が重なる場合は、`copy` ではなく `move` や `copy_backward` を使います。
 
 ## 未定義動作・例外
 
@@ -171,6 +171,9 @@ int main() {
     std::ranges::copy(src, dst.begin());           // NG: dst は空なので範囲外に書き込む
     std::ranges::copy(src, std::back_inserter(dst)); // OK: 末尾に足していく
     ```
+
+??? failure "コピー先の大きさが足りない"
+    `copy(src, dst.begin())` で `dst` が小さいと、範囲外に書き込みます。`std::back_inserter(dst)` を渡すか、事前に `resize` します。
 
 ## 類似
 

@@ -14,14 +14,14 @@ tags:
 `#include <simdjson.h>`
 </div>
 
-**simdjson** は、**JSON を世界最速クラスの速さで読む**ためのライブラリです。CPU の **SIMD 命令**（1 回の命令で 16〜64 バイトをまとめて処理する命令）を使って、1 秒間に数 GB の JSON を読めます。[nlohmann/json](nlohmann-json.md) と比べて十倍以上速いことも珍しくありません。その代わり、**読み込み専用**（JSON を作って書き出すのは基本的に別のライブラリ）で、「前から順番に読む」「読んだ文字列はパーサーが次の JSON を読むまでしか使えない」などの**独特なルール**があります。巨大なステージデータ・マスターデータ・リプレイのログなど、「大量の JSON を、とにかく速く読みたい」ときの選択肢です。
+**simdjson** は、JSON を世界最速クラスの速さで読むためのライブラリです。CPU の SIMD 命令（1 回の命令で 16〜64 バイトをまとめて処理する命令）を使って、1 秒間に数 GB の JSON を読めます。[nlohmann/json](nlohmann-json.md) と比べて十倍以上速いことも珍しくありません。その代わり、読み込み専用（JSON を作って書き出すのは基本的に別のライブラリ）で、「前から順番に読む」「読んだ文字列はパーサーが次の JSON を読むまでしか使えない」などの独特なルールがあります。巨大なステージデータ・マスターデータ・リプレイのログなど、「大量の JSON を、とにかく速く読みたい」ときの選択肢です。
 
 !!! tip "ポイント"
     - <strong>読み込みだけ速くしたいときに使う。</strong> 書き出しは [nlohmann/json](nlohmann-json.md) などで行う。
     - 基本は **On-Demand API**（`simdjson::ondemand::parser`）。必要なところだけ、読むときに解析する。
-    - 入力は **`simdjson::padded_string`** に入れる（後ろに余白が必要）。ファイルは `padded_string::load` で読む。
-    - 取り出した <strong>`std::string_view` は、同じパーサーで次を読むまでしか使えない。</strong> 残したいなら `std::string` にコピーする。
-    - 値は **JSON に書かれた順番に読む** のが一番速く、安全。1 つの値は 1 回しか読めない。
+    - 入力は `simdjson::padded_string` に入れる（後ろに余白が必要）。ファイルは `padded_string::load` で読む。
+    - 取り出した `std::string_view` は、同じパーサーで次を読むまでしか使えない。 残したいなら `std::string` にコピーする。
+    - 値は JSON に書かれた順番に読む のが一番速く、安全。1 つの値は 1 回しか読めない。
     - エラー処理は「例外」と「エラーコード（`.get(x)`）」の 2 通りから選べる。
 
 !!! info "このページを読む前に"
@@ -35,9 +35,9 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
 
 === "ファイルを置く"
 
-    1. [リリースページ](https://github.com/simdjson/simdjson/releases) の **`simdjson.h` と `simdjson.cpp`**（`singleheader` フォルダー）を `third_party/simdjson/` に置き、**2 つともプロジェクトに追加**（追加 → 既存の項目）する
-    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を **すべての構成**、プラットフォームを **x64** にする
-    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\simdjson` を追加する
+    1. [リリースページ](https://github.com/simdjson/simdjson/releases) の **`simdjson.h` と `simdjson.cpp`**（`singleheader` フォルダー）を `third_party/simdjson/` に置き、2 つともプロジェクトに追加（追加 → 既存の項目）する
+    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を すべての構成、プラットフォームを x64 にする
+    3. C/C++ → 全般 → 追加のインクルード ディレクトリ に、`$(SolutionDir)third_party\simdjson` を追加する
     4. `#include <simdjson.h>` と書いてビルドする
 
 === "vcpkg"
@@ -53,7 +53,7 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
     3. プロジェクトには何も設定せずに、`#include <simdjson.h>` と書けば使える
 
 !!! note "C++ の設定"
-    C++17 以上が必要です。速さを測るときは必ず **Release** で測ります（Debug では何倍も遅くなります）。
+    C++17 以上が必要です。速さを測るときは必ず Release で測ります（Debug では何倍も遅くなります）。
 
 ### そのほかの方法（CMake など）
 
@@ -88,7 +88,7 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
     リポジトリの `singleheader/` フォルダにある `simdjson.h` と `simdjson.cpp` をプロジェクトにコピーし、`simdjson.cpp` をビルド対象に加えます。
 
 !!! note "最適化を有効にしてビルドする"
-    simdjson はデバッグビルド（`-O0`、Visual Studio の Debug）だと何倍も遅くなります。速さを測るときは必ずリリースビルドで測ります。また、どの SIMD 命令（AVX2、AVX-512、ARM の NEON など）を使うかは**実行時に CPU を見て自動で選ぶ**ので、特別なコンパイラオプションは要りません。
+    simdjson はデバッグビルド（`-O0`、Visual Studio の Debug）だと何倍も遅くなります。速さを測るときは必ずリリースビルドで測ります。また、どの SIMD 命令（AVX2、AVX-512、ARM の NEON など）を使うかは実行時に CPU を見て自動で選ぶので、特別なコンパイラオプションは要りません。
 
 ## 2 つの API
 
@@ -96,8 +96,8 @@ simdjson には 2 種類の読み方があります。
 
 | API | 仕組み | 向いている場面 |
 | --- | --- | --- |
-| **On-Demand**（`simdjson::ondemand`） | 全体の構造だけ先に調べ、値は**読むときに**解析する | ほとんどの場合。こちらが基本で、速い |
-| **DOM**（`simdjson::dom`） | 最初に全部解析して、木の形にしておく | 同じ値を何度も、好きな順番で読みたいとき |
+| **On-Demand**（`simdjson::ondemand`） | 全体の構造だけ先に調べ、値は読むときに解析する | ほとんどの場合。こちらが基本で、速い |
+| DOM（`simdjson::dom`） | 最初に全部解析して、木の形にしておく | 同じ値を何度も、好きな順番で読みたいとき |
 
 このページでは主に On-Demand を説明し、DOM は [dom::parser](#dom_parser) で紹介します。
 
@@ -229,7 +229,7 @@ simdjson が速い理由は、**必要なところだけを、前から 1 回だ
 
 ### ルール 1：string_view は次の iterate まで {#rule1}
 
-`get_string()` で取った `std::string_view` は、**パーサーの中のバッファ**を指しています。同じパーサーで次の JSON を `iterate` すると、中身が上書きされて使えなくなります（[ダングリング](../../basics/ub.md)）。
+`get_string()` で取った `std::string_view` は、パーサーの中のバッファを指しています。同じパーサーで次の JSON を `iterate` すると、中身が上書きされて使えなくなります（[ダングリング](../../basics/ub.md)）。
 
 ```cpp
 std::string_view name = parser.iterate(json1)["name"];
@@ -237,7 +237,7 @@ auto doc2 = parser.iterate(json2);  // ここで name の指す中身が上書�
 std::println("{}", name);           // 未定義動作
 ```
 
-構造体に保存するときは、**その場で `std::string` にコピー**します。
+構造体に保存するときは、その場で `std::string` にコピーします。
 
 ### ルール 2：値は 1 回しか読めない
 
@@ -251,15 +251,15 @@ std::int64_t b = v.get_int64();  // だめ：もう読んだ値
 
 ### ルール 3：前から順番に読む
 
-ドキュメントは**前から後ろへ**進みながら読みます。
+ドキュメントは前から後ろへ進みながら読みます。
 
-- 同じオブジェクトの中のキーは、`operator[]` なら順番が違っても探せます（必要なら最初に戻って探す）。ただし**書かれた順番に読むのが一番速い**です。
-- 一度中に入って出てきた配列・オブジェクトに、**後から戻ることはできません**。戻りたいときは `doc.rewind()` で最初からやり直します。
+- 同じオブジェクトの中のキーは、`operator[]` なら順番が違っても探せます（必要なら最初に戻って探す）。ただし書かれた順番に読むのが一番速いです。
+- 一度中に入って出てきた配列・オブジェクトに、後から戻ることはできません。戻りたいときは `doc.rewind()` で最初からやり直します。
 - 子のオブジェクトを読んでいる途中で、親の別のキーを読むと `OUT_OF_ORDER_ITERATION` などのエラーになります。
 
 ### ルール 4：パーサーは 1 度に 1 つのドキュメント
 
-1 つの `parser` で同時に 2 つの JSON を読むことはできません。2 つ同時に読みたいときは、パーサーを 2 つ作ります。逆に、順番に読むなら**同じパーサーを使い回す**と、内部のメモリを再確保しないので速くなります。
+1 つの `parser` で同時に 2 つの JSON を読むことはできません。2 つ同時に読みたいときは、パーサーを 2 つ作ります。逆に、順番に読むなら同じパーサーを使い回すと、内部のメモリを再確保しないので速くなります。
 
 ### ルール 5：パーサーはスレッドで共有しない
 
@@ -267,12 +267,12 @@ std::int64_t b = v.get_int64();  // だめ：もう読んだ値
 
 ## 余白（padding）とは
 
-SIMD 命令は 32 バイトや 64 バイトをまとめて読むので、JSON の最後のあたりを読むときに、**文字列の終わりより少し先のメモリまで**読んでしまいます。そこが確保されていないとクラッシュするので、simdjson は入力の後ろに **`SIMDJSON_PADDING`（64 バイト）の余白**があることを要求します。
+SIMD 命令は 32 バイトや 64 バイトをまとめて読むので、JSON の最後のあたりを読むときに、**文字列の終わりより少し先のメモリまで**読んでしまいます。そこが確保されていないとクラッシュするので、simdjson は入力の後ろに `SIMDJSON_PADDING`（64 バイト）の余白があることを要求します。
 
 | 範囲 | 内容 |
 | --- | --- |
 | JSON の本体 | `{ "name": ... }` |
-| 余白 64 バイト | 中身は何でもよい。**ここまで読んでも安全**なようにする |
+| 余白 64 バイト | 中身は何でもよい。ここまで読んでも安全なようにする |
 
 `padded_string` は、この余白を自動で確保してくれる文字列です。`std::string` を `iterate` に渡すこともできますが、容量（`capacity`）が足りないと中でコピーや再確保が起きるので、最初から `padded_string` を使うのがおすすめです。
 
@@ -342,7 +342,7 @@ sp: キーがありません
 | `IO_ERROR` | ファイルが読めない（`padded_string::load`） |
 
 !!! warning "読まなかった部分は細かくチェックされない"
-    On-Demand は、括弧の対応などの**大きな構造**は最初に全部チェックしますが、**読まなかった値の中身**（数値の書き方など）はチェックしません。「読み込めたから JSON 全体が正しい」とは限らないことに注意します。全部を検証したいときは [DOM API](#dom_parser) を使います。
+    On-Demand は、括弧の対応などの**大きな構造**は最初に全部チェックしますが、読まなかった値の中身（数値の書き方など）はチェックしません。「読み込めたから JSON 全体が正しい」とは限らないことに注意します。全部を検証したいときは [DOM API](#dom_parser) を使います。
 
 ## 自作の型に読む
 
@@ -368,7 +368,7 @@ simdjson::error_code ReadEnemy(simdjson::ondemand::object obj, Enemy& out) {
 
 simdjson は**読むためのライブラリ**です。JSON を書き出したいときは、次のようにします。
 
-- 書き出しは [nlohmann/json](nlohmann-json.md) で行い、**大きいファイルの読み込みだけ** simdjson にする（一番多いパターン）
+- 書き出しは [nlohmann/json](nlohmann-json.md) で行い、大きいファイルの読み込みだけ simdjson にする（一番多いパターン）
 - 単純な形なら `std::format` で自分で書く（文字列のエスケープに注意）
 - 最近のバージョンには文字列を組み立てる builder の機能もあるが、使い方が変わりやすい
 
@@ -419,9 +419,9 @@ simdjson_result<document> iterate(const char* json, size_t len,
 | `len` | `size_t` | JSON の長さ |
 | `capacity` | `size_t` | 確保されているメモリの大きさ（`len + SIMDJSON_PADDING` 以上必要） |
 
-- **戻り値:** `simdjson_result<document>`。`document` を受け取る変数に入れると、失敗時は例外になる
-- **計算量:** 最初に全体の構造を調べるので O(n)。ただしとても速い
-- **注意:** `parser` が左辺値でないと呼べません（`&` 修飾）。`ondemand::parser().iterate(...)` のように一時オブジェクトで呼ぶことはできません。また、**入力の文字列は document を使い終わるまで消してはいけません**。
+- 戻り値: `simdjson_result<document>`。`document` を受け取る変数に入れると、失敗時は例外になる
+- 計算量: 最初に全体の構造を調べるので O(n)。ただしとても速い
+- 注意: `parser` が左辺値でないと呼べません（`&` 修飾）。`ondemand::parser().iterate(...)` のように一時オブジェクトで呼ぶことはできません。また、入力の文字列は document を使い終わるまで消してはいけません。
 
 ### padded_string::load {#padded_string_load}
 
@@ -433,7 +433,7 @@ static simdjson_result<padded_string> load(std::string_view path) noexcept;
 | --- | --- | --- |
 | `path` | `std::string_view` | 読むファイルのパス |
 
-- **戻り値:** ファイルの中身を余白付きで持つ `padded_string`。読めないと `IO_ERROR`
+- 戻り値: ファイルの中身を余白付きで持つ `padded_string`。読めないと `IO_ERROR`
 
 ```cpp
 simdjson::padded_string json;
@@ -480,8 +480,8 @@ simdjson_result<value> operator[](std::string_view key) & noexcept;
 | --- | --- | --- |
 | `key` | `std::string_view` | 探すキー |
 
-- **戻り値:** キーの値。無ければ `NO_SUCH_FIELD` のエラー
-- **計算量:** 書かれた順番に読めば O(1)、逆順だと最初に戻って探すので O(キーの数)
+- 戻り値: キーの値。無ければ `NO_SUCH_FIELD` のエラー
+- 計算量: 書かれた順番に読めば O(1)、逆順だと最初に戻って探すので O(キーの数)
 - 順番を気にせず探せるので、普段はこれを使います。キーの順番が決まっているなら [find_field](#find_field) の方が少し速くなります。
 - 配列の番号で取る `operator[](size_t)` はありません。配列は範囲 for で回すか、[at_pointer](#at_pointer) を使います。
 
@@ -491,8 +491,8 @@ simdjson_result<value> operator[](std::string_view key) & noexcept;
 simdjson_result<int64_t> get_int64() noexcept;
 ```
 
-- **戻り値:** 64 ビットの符号付き整数
-- **エラー:** 小数（`1.5`）、文字列、範囲外の数は `INCORRECT_TYPE` または `NUMBER_OUT_OF_RANGE`
+- 戻り値: 64 ビットの符号付き整数
+- エラー: 小数（`1.5`）、文字列、範囲外の数は `INCORRECT_TYPE` または `NUMBER_OUT_OF_RANGE`
 - `int` に入れたいときは、受け取ってから範囲を確認して `static_cast<int>` します。
 - 受け取る変数を `std::int64_t` にして `std::int64_t hp = obj["hp"];` と書くと、自動でこの関数が呼ばれます。
 
@@ -502,7 +502,7 @@ simdjson_result<int64_t> get_int64() noexcept;
 simdjson_result<double> get_double() noexcept;
 ```
 
-- **戻り値:** `double`。`3` のような整数で書かれた数も読める
+- 戻り値: `double`。`3` のような整数で書かれた数も読める
 - `float` が欲しいときは `static_cast<float>(obj["x"].get_double())` のように変換します（`get_float` はありません）。
 
 ### get_string {#get_string}
@@ -515,8 +515,8 @@ simdjson_result<std::string_view> get_string(bool allow_replacement = false) noe
 | --- | --- | --- |
 | `allow_replacement` | `bool` | `true` にすると、不正なサロゲートペア（`\uD800` など）を `U+FFFD` に置き換えて読む |
 
-- **戻り値:** エスケープ（`\n`、`あ` など）を戻した文字列の `string_view`
-- **注意:** 指している先はパーサーのバッファです。**同じパーサーで次を読むと使えなくなります**（[ルール 1](#rule1)）。
+- 戻り値: エスケープ（`\n`、`あ` など）を戻した文字列の `string_view`
+- 注意: 指している先はパーサーのバッファです。同じパーサーで次を読むと使えなくなります（[ルール 1](#rule1)）。
 - `std::string` に直接入れる `get_string(std::string& out)` もあります（コピーされるので安全）。
 
 ### get_bool {#get_bool}
@@ -525,7 +525,7 @@ simdjson_result<std::string_view> get_string(bool allow_replacement = false) noe
 simdjson_result<bool> get_bool() noexcept;
 ```
 
-- **戻り値:** `true` か `false`。`0` / `1` や `"true"`（文字列）は `INCORRECT_TYPE`
+- 戻り値: `true` か `false`。`0` / `1` や `"true"`（文字列）は `INCORRECT_TYPE`
 
 ### get_array {#get_array}
 
@@ -533,9 +533,9 @@ simdjson_result<bool> get_bool() noexcept;
 simdjson_result<array> get_array() & noexcept;
 ```
 
-- **戻り値:** 配列。範囲 for で要素を回す
+- 戻り値: 配列。範囲 for で要素を回す
 - 範囲 for に `doc["items"]` を直接書くと、自動でこれが呼ばれます。
-- 配列は**前から 1 回だけ**回せます。2 回回したいときは、1 回目で `std::vector` にコピーしておきます。
+- 配列は前から 1 回だけ回せます。2 回回したいときは、1 回目で `std::vector` にコピーしておきます。
 
 ### get_object {#get_object}
 
@@ -543,7 +543,7 @@ simdjson_result<array> get_array() & noexcept;
 simdjson_result<object> get_object() & noexcept;
 ```
 
-- **戻り値:** オブジェクト。`operator[]` でキーを探すか、範囲 for で全部のキーを回す
+- 戻り値: オブジェクト。`operator[]` でキーを探すか、範囲 for で全部のキーを回す
 
 ```cpp
 // キーと値を全部回す（キーの名前が決まっていないとき）
@@ -571,8 +571,8 @@ error_code get(T& out) noexcept;
 | `T` | 型引数 | 取りたい型（`int64_t`、`uint64_t`、`double`、`bool`、`std::string_view`、`ondemand::object`、`ondemand::array` など） |
 | `out` | `T&` | 値を入れる変数。型から `T` が決まる |
 
-- **戻り値:** `get<T>()` は値（またはエラー）、`get(out)` は**エラーコード**
-- **エラーコード方式の基本の書き方**は `if (auto error = obj["hp"].get(hp)) { ... }` です。
+- 戻り値: `get<T>()` は値（またはエラー）、`get(out)` はエラーコード
+- エラーコード方式の基本の書き方は `if (auto error = obj["hp"].get(hp)) { ... }` です。
 - `simdjson_result` に対しても `.get(out)` が使えるので、`doc["hp"].get_int64().get(hp)` のように「取る → エラーを受け取る」をつなげて書けます。
 
 ### error_message {#error_message}
@@ -585,7 +585,7 @@ const char* simdjson::error_message(error_code error) noexcept;
 | --- | --- | --- |
 | `error` | `error_code` | エラーコード |
 
-- **戻り値:** 英語の説明の文字列。ログに出すときに使う
+- 戻り値: 英語の説明の文字列。ログに出すときに使う
 - `std::println("{}", error)` のように直接出すことはできないので、これで文字列にします。
 
 ### find_field {#find_field}
@@ -598,7 +598,7 @@ simdjson_result<value> find_field(std::string_view key) & noexcept;
 | --- | --- | --- |
 | `key` | `std::string_view` | 探すキー |
 
-- **戻り値:** キーの値。**今の位置から後ろだけ**を探す
+- 戻り値: キーの値。今の位置から後ろだけを探す
 - `operator[]` と違って、最初に戻って探しません。キーが JSON に書かれた順番で読むと決まっているなら、少しだけ速くなります。順番が違うと見つからない（`NO_SUCH_FIELD`）ので、自分で JSON を出力していて形が決まっているときに使います。
 
 ### get_uint64 {#get_uint64}
@@ -607,7 +607,7 @@ simdjson_result<value> find_field(std::string_view key) & noexcept;
 simdjson_result<uint64_t> get_uint64() noexcept;
 ```
 
-- **戻り値:** 64 ビットの符号なし整数。負の数は `INCORRECT_TYPE`
+- 戻り値: 64 ビットの符号なし整数。負の数は `INCORRECT_TYPE`
 - ID やハッシュ値など、`int64_t` の最大値を超える数があり得るときに使います。
 
 ### is_null {#is_null}
@@ -616,7 +616,7 @@ simdjson_result<uint64_t> get_uint64() noexcept;
 simdjson_result<bool> is_null() noexcept;
 ```
 
-- **戻り値:** 値が `null` なら `true`。`null` でなければ値は消費されないので、続けて別の型で読める
+- 戻り値: 値が `null` なら `true`。`null` でなければ値は消費されないので、続けて別の型で読める
 
 ### type {#type}
 
@@ -624,7 +624,7 @@ simdjson_result<bool> is_null() noexcept;
 simdjson_result<json_type> type() noexcept;
 ```
 
-- **戻り値:** `json_type::array`、`object`、`number`、`string`、`boolean`、`null` のどれか
+- 戻り値: `json_type::array`、`object`、`number`、`string`、`boolean`、`null` のどれか
 - 値を消費しないので、種類を見てから読み方を変えられます。数値をさらに細かく調べるときは `get_number_type()` を使います。
 
 ```cpp
@@ -646,8 +646,8 @@ switch (value.type()) {
 simdjson_result<size_t> count_elements() & noexcept;  // array
 ```
 
-- **戻り値:** 配列の要素の数
-- **計算量:** O(n)。数えるために配列を一度最後まで見る
+- 戻り値: 配列の要素の数
+- 計算量: O(n)。数えるために配列を一度最後まで見る
 - 回す前に `std::vector::reserve` したいときに使います。数えた後、配列はまた最初から回せます。
 
 ### count_fields {#count_fields}
@@ -656,7 +656,7 @@ simdjson_result<size_t> count_elements() & noexcept;  // array
 simdjson_result<size_t> count_fields() & noexcept;  // object
 ```
 
-- **戻り値:** オブジェクトのキーの数。計算量は O(n)
+- 戻り値: オブジェクトのキーの数。計算量は O(n)
 
 ### at_pointer {#at_pointer}
 
@@ -668,7 +668,7 @@ simdjson_result<value> at_pointer(std::string_view json_pointer) noexcept;
 | --- | --- | --- |
 | `json_pointer` | `std::string_view` | `"/stages/0/name"` のような `/` 区切りのパス。配列は番号 |
 
-- **戻り値:** その場所の値。無ければ `NO_SUCH_FIELD` か `INDEX_OUT_OF_BOUNDS`
+- 戻り値: その場所の値。無ければ `NO_SUCH_FIELD` か `INDEX_OUT_OF_BOUNDS`
 - ドキュメントに使うと、毎回最初から探し直します。深い場所の値を 1 つだけ欲しいときに便利です。
 
 ```cpp
@@ -681,7 +681,7 @@ std::string_view boss = doc.at_pointer("/stages/2/boss/name");
 simdjson_result<std::string_view> raw_json() noexcept;
 ```
 
-- **戻り値:** 値の元の JSON テキスト（`{"a": 1}` などそのまま）
+- 戻り値: 値の元の JSON テキスト（`{"a": 1}` などそのまま）
 - ある部分だけを simdjson で読まずに、別のライブラリ（nlohmann/json）に渡したいときに使います。
 
 ### rewind {#rewind}
@@ -700,7 +700,7 @@ void rewind() noexcept;  // document のメンバ
 const implementation* simdjson::get_active_implementation() noexcept;
 ```
 
-- **戻り値:** 今使われている実装。`->name()` で `"haswell"`（AVX2）、`"icelake"`（AVX-512）、`"arm64"`、`"fallback"`（SIMD なし）などが分かる
+- 戻り値: 今使われている実装。`->name()` で `"haswell"`（AVX2）、`"icelake"`（AVX-512）、`"arm64"`、`"fallback"`（SIMD なし）などが分かる
 - 「思ったより遅い」ときに、SIMD が使われているかを確認できます。
 
 ```cpp
@@ -722,9 +722,9 @@ class simdjson::dom::parser {
 | `s` | `std::string_view` | 読む JSON |
 | `path` | `std::string_view` | 読むファイルのパス |
 
-- **戻り値:** 全部解析済みの値（`dom::element`）。好きな順番で、何度でも読める
+- 戻り値: 全部解析済みの値（`dom::element`）。好きな順番で、何度でも読める
 - On-Demand より使いやすい代わりに、全部を解析するので少し遅く、メモリも使います。
-- `dom::element` は `element["key"]`、`element.at(0)`、`element.get_int64()` などで読みます。On-Demand と違い、**配列を番号で取れる**のが便利です。
+- `dom::element` は `element["key"]`、`element.at(0)`、`element.get_int64()` などで読みます。On-Demand と違い、配列を番号で取れるのが便利です。
 - 返った値は、その `parser` が次を解析するまで有効です（On-Demand と同じ注意）。
 
 ## フラグ・オプション
@@ -788,7 +788,7 @@ class simdjson::dom::parser {
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 大量の JSON を速く**読む**ときに使う。書き出しは別のライブラリ
+    - [x] 大量の JSON を速く読むときに使う。書き出しは別のライブラリ
     - [x] `padded_string::load` → `parser.iterate` → `doc["key"]`
     - [x] パーサーは使い回す。スレッドごとに 1 つ
     - [x] `string_view` は次の iterate まで。保存するなら `std::string` にコピー

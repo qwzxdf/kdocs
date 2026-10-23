@@ -35,6 +35,7 @@ nav:
   - minstd_rand0.md
   - mt19937_64.md
   - ranlux24_base.md
+  - ranlux48.md
   - ranlux48_base.md
   - shuffle_order_engine.md
   - subtract_with_carry_engine.md

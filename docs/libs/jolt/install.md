@@ -9,14 +9,14 @@ tags:
 
 Visual Studio での Jolt の入れ方です。Jolt は**ソースからビルドする**ライブラリで、`.lib` を作ります。
 
-Visual Studio での入れ方を先に説明します。Jolt は**ソースからビルドする**ライブラリで、`.lib` を作ります。次の 2 つの方法があります。
+Visual Studio での入れ方を先に説明します。Jolt はソースからビルドするライブラリで、`.lib` を作ります。次の 2 つの方法があります。
 
 ## 方法 1：Jolt のソースから Visual Studio のプロジェクトを作ってビルドする
 
 1. [GitHub の JoltPhysics](https://github.com/jrouwe/JoltPhysics) を取得する（`git clone`。タグ（`v5.x.x`）を指定してバージョンを固定する）
 2. `Build` フォルダーにある**`cmake_vs2026_cl.bat`**（Visual Studio 2026・MSVC 用）を実行する
 3. `Build/VS2026_CL` に、Visual Studio のソリューション（`Jolt.slnx`。CMake の版によっては `Jolt.sln`）ができる。Visual Studio で開く
-4. 構成を **Debug** と **Release** の両方でビルドして、`Jolt.lib` を作る
+4. 構成を Debug と Release の両方でビルドして、`Jolt.lib` を作る
 5. 自分のプロジェクトで次の 3 つを設定する（[手動の設定](../../vs/libraries.md#lib_dll)）
 
 | 設定 | 値 |
@@ -26,7 +26,7 @@ Visual Studio での入れ方を先に説明します。Jolt は**ソースか�
 | 追加の依存ファイル | `Jolt.lib` |
 
 !!! warning "ビルド設定を一致させる（重要）"
-    Jolt はビルドのときの**プリプロセッサの定義**によって、**クラスの中身（メンバ）が変わります**。ライブラリを作ったときと**自分のプロジェクトで `#include` するとき**で、次の定義が**食い違うと実行時に原因のわからないクラッシュ**が起きます。
+    Jolt はビルドのときのプリプロセッサの定義によって、クラスの中身（メンバ）が変わります。ライブラリを作ったときと自分のプロジェクトで `#include` するときで、次の定義が食い違うと実行時に原因のわからないクラッシュが起きます。
 
     | 定義 | 意味 |
     | --- | --- |
@@ -37,7 +37,7 @@ Visual Studio での入れ方を先に説明します。Jolt は**ソースか�
     | `JPH_ENABLE_ASSERTS` | アサートを有効にする |
     | `JPH_CROSS_PLATFORM_DETERMINISTIC` | プラットフォームをまたいで同じ結果を出す（少し遅い） |
 
-    CMake で作ったライブラリを使うなら `Jolt` のターゲットが**必要な定義を自動で付ける**ので、そちらを使うのが安全です（[CMake で使う](../../vs/cmake.md)）。
+    CMake で作ったライブラリを使うなら `Jolt` のターゲットが必要な定義を自動で付けるので、そちらを使うのが安全です（[CMake で使う](../../vs/cmake.md)）。
 
 ## 方法 2：CMake の FetchContent
 
@@ -60,7 +60,7 @@ vcpkg install joltphysics:x64-windows
 ```
 
 - vcpkg がダウンロード、ビルド、パスの設定まで**まとめてやってくれます**（初回は数分かかります）
-- ビルド設定（Debug / Release、定義）は**vcpkg の既定**で作られます
+- ビルド設定（Debug / Release、定義）はvcpkg の既定で作られます
 - マニフェスト モード（`vcpkg.json`）なら次のように書きます
 
 ```json
@@ -70,7 +70,7 @@ vcpkg install joltphysics:x64-windows
 ```
 
 - プロジェクトでは `#include <Jolt/Jolt.h>` と書くだけで使えます。リンクも自動で通ります（`vcpkg integrate install` が済んでいれば。[外部ライブラリの入れ方](../../vs/libraries.md#vcpkg)）
-- 注意: vcpkg の既定は <strong>`/MD`（DLL 版のランタイム）</strong> です。プロジェクトの設定も合わせます（[ランタイム ライブラリ](../../vs/errors.md#runtime_library)）
+- 注意: vcpkg の既定は `/MD`（DLL 版のランタイム） です。プロジェクトの設定も合わせます（[ランタイム ライブラリ](../../vs/errors.md#runtime_library)）
 
 ## 動作確認：Jolt を初期化してみる
 
@@ -100,7 +100,7 @@ int main() {
 }
 ```
 
-この 3 つ（アロケーターの登録、ファクトリー、型の登録）は <strong>Jolt を何かに使う前に必ず 1 回</strong>行う決まりの手順です。メッセージが出てクラッシュしなければ導入は、成功です（[世界の初期化と更新](system.md)）。
+この 3 つ（アロケーターの登録、ファクトリー、型の登録）は Jolt を何かに使う前に必ず 1 回行う決まりの手順です。メッセージが出てクラッシュしなければ導入は、成功です（[世界の初期化と更新](system.md)）。
 
 ## よくあるエラー
 

@@ -6,7 +6,7 @@ tags:
 
 # Cloud Raymarching
 
-<strong>視線に沿って少しずつ進み各点で密度と光を計算して、足し合わせる</strong>のが<strong>レイマーチ</strong>です。ステップ数が品質とコストを決めるので、工夫が必要です。このページではレイマーチを説明します。
+<strong>視線に沿って少しずつ進み各点で密度と光を計算して、足し合わせる</strong>のがレイマーチです。ステップ数が品質とコストを決めるので、工夫が必要です。このページではレイマーチを説明します。
 
 !!! tip "ポイント"
     - 視線に沿って進み、密度を足す。
@@ -768,7 +768,7 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
 
 ## レイマーチで雲を描く
 
-<strong>雲</strong>は <strong>空間に密度が分布する、ボリューム</strong>です。画面の各画素から視線を雲の殻（[Cloud Layers](layers.md)）の中へ、少しずつ進み各点で密度と光を調べて色を、積算します。レイマーチです。
+<strong>雲</strong>は 空間に密度が分布する、ボリュームです。画面の各画素から視線を雲の殻（[Cloud Layers](layers.md)）の中へ、少しずつ進み各点で密度と光を調べて色を、積算します。レイマーチです。
 
 ## 全体の骨格
 
@@ -780,7 +780,7 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
   if (range.y <= range.x) return float4(0, 0, 0, 1);                    // 交わらない → 雲なし（透過率 1）
 ```
 
-まず、<strong>視線が雲の殻と交わる区間</strong>（入口と出口）を、求めます（[Cloud Layers](layers.md)）。<strong>交わらなければ</strong>、雲はありません（色 0、透過率 1）。
+まず、<strong>視線が雲の殻と交わる区間</strong>（入口と出口）を、求めます（[Cloud Layers](layers.md)）。交わらなければ、雲はありません（色 0、透過率 1）。
 
 ```hlsl
   const int kSteps = 64;
@@ -789,7 +789,7 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
   float t = range.x + step_len * InterleavedGradientNoise(uv * g_screen_size);   // 開始位置を、ノイズで、ずらす（ジッター）
 ```
 
-<strong>区間を 64 に分け</strong>、<strong>開始位置をノイズでずらします</strong>（ジッター）。画素ごとに違う位置から始まるので、縞（バンディング）が細かいノイズに変わり、TAA でなめらかにならされます（[Cloud Temporal Reprojection](temporal.md)）。
+区間を 64 に分け、開始位置をノイズでずらします（ジッター）。画素ごとに違う位置から始まるので、縞（バンディング）が細かいノイズに変わり、TAA でなめらかにならされます（[Cloud Temporal Reprojection](temporal.md)）。
 
 ```hlsl
   float3 scattered = 0.0;                                               // 積算した、散乱光
@@ -800,7 +800,7 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
     if (density > 0.001) {
 ```
 
-各ステップで <strong>その点の密度</strong>を、求めます。<strong>密度がほぼ 0</strong>（雲の外）の点は何も、しません（空の部分はスキップ）。
+各ステップで その点の密度を、求めます。密度がほぼ 0（雲の外）の点は何も、しません（空の部分はスキップ）。
 
 ```hlsl
       float3 light = CloudLighting(p, ray_dir, density);                // その点で、視線の方向へ、散る光（[Cloud Lighting]）
@@ -812,7 +812,7 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
       transmittance *= step_transmittance;
 ```
 
-<strong>散乱光</strong>を <strong>積算</strong>します。区間の中でも光は減るので解析的な、積分（`(1 − exp(−σΔs)) / σ`）を使うとステップが、粗くても安定します（[Single-Scattering Integral](../scattering/single-scattering.md)）。透過率は区間ごとに掛けて更新します。
+散乱光を 積算します。区間の中でも光は減るので解析的な、積分（`(1 − exp(−σΔs)) / σ`）を使うとステップが、粗くても安定します（[Single-Scattering Integral](../scattering/single-scattering.md)）。透過率は区間ごとに掛けて更新します。
 
 ```hlsl
       if (transmittance < 0.01) break;                                  // ほぼ、不透明になったら、打ち切る（以降は、見えない）
@@ -823,7 +823,7 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
 }
 ```
 
-<strong>透過率がほぼ 0</strong>（雲が濃く、<strong>向こうが見えない</strong>）ならそれ以上進んでも結果が、変わらないので打ち切ります（早期終了）。最後に、散乱光と透過率を返し空の色（背景）を、透過率で重ねます。
+透過率がほぼ 0（雲が濃く、向こうが見えない）ならそれ以上進んでも結果が、変わらないので打ち切ります（早期終了）。最後に、散乱光と透過率を返し空の色（背景）を、透過率で重ねます。
 
 ```hlsl
 // 呼び出し側: 空の色（背景）に、雲を重ねる。
@@ -833,11 +833,11 @@ float3 final_color = sky_color * cloud.a + cloud.rgb;                   // 背�
 
 ## ステップの工夫（速くする）
 
-64 ステップを <strong>全画素</strong>で回すと、重いです。<strong>無駄</strong>を減らす工夫です。
+64 ステップを <strong>全画素</strong>で回すと、重いです。無駄を減らす工夫です。
 
 ### ① 空の部分は大きく進む
 
-<strong>雲がない空間</strong>（密度 0）では、<strong>細かく進む必要がありません</strong>。粗いサンプル（安い）で密度を調べ雲に、入ったら細かいサンプル（重い）に、切り替えます。
+雲がない空間（密度 0）では、細かく進む必要がありません。粗いサンプル（安い）で密度を調べ雲に、入ったら細かいサンプル（重い）に、切り替えます。
 
 ```hlsl
 // 2 段階: 最初は、粗い歩幅で、安い密度（基本の形だけ）を、調べる。雲に入ったら、細かい歩幅で、細部まで。
@@ -855,11 +855,11 @@ for (int i = 0; i < kSteps; ++i) {
 }
 ```
 
-<strong>空の部分</strong>は <strong>基本の形だけの、安い密度</strong>で大きな歩幅で進み雲に、当たったら 1 歩戻って細かく、進みます。雲が少ない画素では大幅に速くなります。
+空の部分は 基本の形だけの、安い密度で大きな歩幅で進み雲に、当たったら 1 歩戻って細かく、進みます。雲が少ない画素では大幅に速くなります。
 
 ### ② 遠くほど歩幅を広げる
 
-<strong>遠くの雲の細部</strong>は <strong>画面上で、小さく</strong>、見えません。距離に応じて歩幅を広げます。
+遠くの雲の細部は 画面上で、小さく、見えません。距離に応じて歩幅を広げます。
 
 ```hlsl
 float step_len = lerp(g_min_step, g_max_step, saturate((t - range.x) / g_step_growth_distance));
@@ -867,7 +867,7 @@ float step_len = lerp(g_min_step, g_max_step, saturate((t - range.x) / g_step_gr
 
 ### ③ 低解像度で描く
 
-<strong>雲はふわふわ</strong>で <strong>細かいエッジが、少ない</strong>ので画面の 1/4 の解像度（縦横、半分）で描いてアップサンプルしても、目立ちません（[Cloud Temporal Reprojection](temporal.md)）。
+雲はふわふわで 細かいエッジが、少ないので画面の 1/4 の解像度（縦横、半分）で描いてアップサンプルしても、目立ちません（[Cloud Temporal Reprojection](temporal.md)）。
 
 | 工夫 | 効果（目安） |
 | --- | --- |
@@ -879,12 +879,12 @@ float step_len = lerp(g_min_step, g_max_step, saturate((t - range.x) / g_step_gr
 
 ## 視線の起点
 
-<strong>カメラが雲の殻の中</strong>（飛行機）や、<strong>上</strong>（宇宙）にある場合、入口の位置が変わります（[Cloud Layers](layers.md)）。どの場合でも入口から出口までの区間を、マーチする 1 つのコードで書けます。
+<strong>カメラが雲の殻の中</strong>（飛行機）や、上（宇宙）にある場合、入口の位置が変わります（[Cloud Layers](layers.md)）。どの場合でも入口から出口までの区間を、マーチする 1 つのコードで書けます。
 
 ## よくあるミス
 
 ??? failure "雲に縞模様（バンディング）が出る"
-    <strong>ジッタ</strong>を入れて <strong>時間蓄積</strong>で消す。
+    <strong>ジッタ</strong>を入れて 時間蓄積で消す。
 
 ## これだけ覚える
 

@@ -14,14 +14,14 @@ tags:
 `#include <cista/serialization.h>`
 </div>
 
-**cista**（チスタ）は、<strong>読み込みで一切コピーしない（ゼロコピー）</strong> バイナリシリアライザです。普通のシリアライザは、ファイルのバイト列を読んで、`std::string` や `std::vector` を**作り直し**ます（メモリを確保して中身をコピーする）。cista は、保存するときに「**メモリ上の形そのまま**」をバイト列にしておくので、読み込みは**バイト列の先頭をその型のポインタとして見るだけ**です。100 MB のデータでも、**メモリマップ**（ファイルをメモリのように見せる OS の機能）と組み合わせれば、ほぼ一瞬で使い始められます。その代わり、`std::string` や `std::vector` は使えず、**cista 専用のコンテナ**（`cista::offset::string`、`cista::offset::vector` など）でデータを作る必要があります。巨大なワールドデータ、ナビメッシュ、ゲームのアセットのまとめファイルなど、「大きくて、読むだけのデータを、とにかく速く読みたい」ときの最終手段です。
+**cista**（チスタ）は、読み込みで一切コピーしない（ゼロコピー） バイナリシリアライザです。普通のシリアライザは、ファイルのバイト列を読んで、`std::string` や `std::vector` を作り直します（メモリを確保して中身をコピーする）。cista は、保存するときに「メモリ上の形そのまま」をバイト列にしておくので、読み込みはバイト列の先頭をその型のポインタとして見るだけです。100 MB のデータでも、メモリマップ（ファイルをメモリのように見せる OS の機能）と組み合わせれば、ほぼ一瞬で使い始められます。その代わり、`std::string` や `std::vector` は使えず、cista 専用のコンテナ（`cista::offset::string`、`cista::offset::vector` など）でデータを作る必要があります。巨大なワールドデータ、ナビメッシュ、ゲームのアセットのまとめファイルなど、「大きくて、読むだけのデータを、とにかく速く読みたい」ときの最終手段です。
 
 !!! tip "ポイント"
     - <strong>巨大で、ロード後は読むだけのデータに使う。</strong> 読み込みは「ポインタとして見るだけ」なので、データが大きいほど他との差が出る。
     - データは **`cista::offset::string` / `cista::offset::vector` など専用の型**で作る。`std::string` は使えない。
-    - 保存は **`cista::serialize<モード>(obj)`**、読み込みは **`cista::deserialize<T, モード>(buffer)`**（`T*` が返る）。
-    - 返ったポインタは**バッファの中を指している**。バッファを消すと使えない。
-    - モードには **`WITH_VERSION`<strong>（型のチェック）と </strong>`WITH_INTEGRITY`<strong>（チェックサム）を付けるのが基本。信用できないデータには </strong>`DEEP_CHECK`**。
+    - 保存は `cista::serialize<モード>(obj)`、読み込みは `cista::deserialize<T, モード>(buffer)`（`T*` が返る）。
+    - 返ったポインタはバッファの中を指している。バッファを消すと使えない。
+    - モードには `WITH_VERSION`<strong>（型のチェック）と </strong>`WITH_INTEGRITY`<strong>（チェックサム）を付けるのが基本。信用できないデータには </strong>`DEEP_CHECK`。
     - 普通のセーブデータなら、[cereal](cereal.md) や [zpp_bits](zpp-bits.md) の方が扱いやすい。
 
 !!! info "このページを読む前に"
@@ -53,7 +53,7 @@ l buf view hit 見るだけ
 </div>
 
 
-cista の `cista::offset::vector` は、中身の場所を<strong>ポインタではなく「自分からの距離（オフセット）」</strong> で覚えています。保存するときに、中身を全部 1 つのバイト列の中に並べ、距離を書いておきます。読み込むときは、バイト列がメモリのどこに置かれても、距離で中身を見つけられるので、**何も作り直さずに**そのまま使えます。
+cista の `cista::offset::vector` は、中身の場所を<strong>ポインタではなく「自分からの距離（オフセット）」</strong> で覚えています。保存するときに、中身を全部 1 つのバイト列の中に並べ、距離を書いておきます。読み込むときは、バイト列がメモリのどこに置かれても、距離で中身を見つけられるので、何も作り直さずにそのまま使えます。
 
 <svg class="fig flow" viewBox="0 0 514 280" role="img" aria-label="cista：中身は、自分からの距離（オフセット）で覚える"><defs><marker id="fl17801" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">cista：中身は、自分からの距離（オフセット）で覚える</text><line x1="107.0" y1="138.0" x2="332.0" y2="83.1" stroke="currentColor" stroke-width="2" marker-end="url(#fl17801)"/><text x="219.5" y="104.6" text-anchor="middle" style="font-size:12px">name +28バイト先</text><line x1="107.0" y1="158.0" x2="336.5" y2="214.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl17801)"/><text x="221.8" y="180.0" text-anchor="middle" style="font-size:12px">items +33バイト先 3個</text><rect x="28.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Player</text><rect x="335.0" y="44.0" width="151" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="410.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">"Alice" （5文字）</text><rect x="339.5" y="212.0" width="142" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="410.5" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">101 | 205 | 330</text><rect x="168.0" y="128.0" width="103" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="219.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">level = 12</text></svg>
 
@@ -68,8 +68,8 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
 === "ファイルを置く"
 
     1. [リリースページ](https://github.com/felixguendling/cista/releases) の **`cista.h`**（全部を 1 ファイルにまとめたもの）を `third_party/cista/` に置く（その場合は `#include "cista.h"` と書く）
-    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を **すべての構成**、プラットフォームを **x64** にする
-    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\cista` を追加する
+    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を すべての構成、プラットフォームを x64 にする
+    3. C/C++ → 全般 → 追加のインクルード ディレクトリ に、`$(SolutionDir)third_party\cista` を追加する
     4. `#include <cista/serialization.h>` と書いてビルドする
 
 === "vcpkg"
@@ -122,10 +122,10 @@ cista には、データの持ち方が 2 種類あります。名前空間で�
 
 | モード | 名前空間 | 中身の場所の覚え方 | 読み込み | メモリマップ（読み込み専用） |
 | --- | --- | --- | --- | --- |
-| **offset** | `cista::offset` | 自分からの距離 | 本当に何もしない | **使える** |
+| **offset** | `cista::offset` | 自分からの距離 | 本当に何もしない | 使える |
 | raw | `cista::raw` | 普通のポインタ | 保存時の距離をポインタに直す（バッファを書き換える） | 使えない |
 
-- **offset** は、アクセスのたびに「自分の場所 + 距離」の足し算が入りますが、ほとんど気にならない差です。メモリマップと組み合わせられるので、**基本は offset を使います**。
+- offset は、アクセスのたびに「自分の場所 + 距離」の足し算が入りますが、ほとんど気にならない差です。メモリマップと組み合わせられるので、基本は offset を使います。
 - raw は、読み込んだ後のアクセスがほんの少し速くなります。普通のポインタなので、デバッガで中身を見やすいという利点もあります。
 
 このページでは `namespace data = cista::offset;` と書いて、offset モードを使います。
@@ -201,7 +201,7 @@ Alice Lv.12 アイテム 3 個
 
 ### メモリマップで巨大なデータを一瞬で読む
 
-cista が本当に力を発揮するのは、**メモリマップ**と組み合わせたときです。メモリマップを使うと、ファイルを読み込まずに「メモリにあるかのように」見せられます。実際にファイルから読まれるのは**アクセスしたページ（4 KB ずつ）だけ**なので、1 GB のデータでも、使い始めるまでの時間はほぼゼロです。
+cista が本当に力を発揮するのは、メモリマップと組み合わせたときです。メモリマップを使うと、ファイルを読み込まずに「メモリにあるかのように」見せられます。実際にファイルから読まれるのはアクセスしたページ（4 KB ずつ）だけなので、1 GB のデータでも、使い始めるまでの時間はほぼゼロです。
 
 ```cpp
 #include <cista/mmap.h>
@@ -243,7 +243,7 @@ class NavMeshAsset {
 };
 ```
 
-`NavMeshAsset` のように、**バッファ（mmap）とポインタを 1 つのクラスで一緒に持つ**と、「バッファが先に消える」というミスを防げます。メンバは宣言した順に作られ、逆の順に消えるので、バッファを先に宣言します。
+`NavMeshAsset` のように、バッファ（mmap）とポインタを 1 つのクラスで一緒に持つと、「バッファが先に消える」というミスを防げます。メンバは宣言した順に作られ、逆の順に消えるので、バッファを先に宣言します。
 
 ## cista のコンテナ
 
@@ -269,11 +269,11 @@ cista のデータには、`std::` のコンテナの代わりに、次の型を
     - 仮想関数を持つクラス（vtable のポインタがあるため）。
     - 普通のポインタ `T*`（offset モードでは `data::ptr<T>` を使う）。
 
-ゲーム本体で `std::` の型を使っているなら、**保存用の構造体を別に作って変換する**のが現実的です。
+ゲーム本体で `std::` の型を使っているなら、保存用の構造体を別に作って変換するのが現実的です。
 
 ## データの形のチェックと安全性
 
-cista は、読み込みのときに**何も作り直さない**ので、壊れたデータや形の違うデータを読むと、そのままでたらめなメモリを指すことになります。それを防ぐために、**モード**でチェックを付けます。
+cista は、読み込みのときに**何も作り直さない**ので、壊れたデータや形の違うデータを読むと、そのままでたらめなメモリを指すことになります。それを防ぐために、モードでチェックを付けます。
 
 | モード | チェックすること | 重さ |
 | --- | --- | --- |
@@ -286,16 +286,16 @@ cista は、読み込みのときに**何も作り直さない**ので、壊れ�
 - プレイヤーのパソコンに保存されるデータ（壊れる・書き換えられるかもしれない） → `WITH_VERSION | WITH_INTEGRITY | DEEP_CHECK`
 - ネットワークから来るデータ → `DEEP_CHECK` は必須
 
-チェックに失敗すると、**例外**（`std::exception` の子）が投げられます。
+チェックに失敗すると、例外（`std::exception` の子）が投げられます。
 
 !!! danger "信用できないデータを DEEP_CHECK なしで読まない"
     cista のデータの中の「距離」は、そのまま「どこのメモリを読むか」になります。悪意のあるデータで距離が書き換えられていると、関係のないメモリを読んだり書いたりできてしまいます（セキュリティの穴になります）。
 
 ## バージョン管理
 
-cista には、データの形を変えたときに古いデータを読む仕組みは**ありません**。`WITH_VERSION` は「形が違う」ことを**検出**するだけです。
+cista には、データの形を変えたときに古いデータを読む仕組みは**ありません**。`WITH_VERSION` は「形が違う」ことを検出するだけです。
 
-cista を使うデータは、普通「ツールで作って、ゲームと一緒に配るデータ」なので、**形を変えたら、ツールでデータを作り直す**のが基本の運用です。
+cista を使うデータは、普通「ツールで作って、ゲームと一緒に配るデータ」なので、形を変えたら、ツールでデータを作り直すのが基本の運用です。
 
 <svg class="fig flow" viewBox="0 0 900 112" role="img" aria-label="ビルド時に変換して、ゲームでは一瞬で読む"><defs><marker id="fl42607" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ビルド時に変換して、ゲームでは一瞬で読む</text><line x1="233.0" y1="64.0" x2="291.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl42607)"/><line x1="485.0" y1="64.0" x2="543.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl42607)"/><text x="514.0" y="58.0" text-anchor="middle" style="font-size:12px">形が変わったら作り直す</text><line x1="691.0" y1="64.0" x2="749.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl42607)"/><text x="720.0" y="58.0" text-anchor="middle" style="font-size:12px">ゲームと一緒に配る</text><rect x="28.0" y="44.0" width="202" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="129.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">元データ （JSON / YAML）</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="294.0" y="44.0" width="188" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="388.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">変換ツール （ビルド時）</text><circle cx="296.0" cy="46.0" r="10" fill="#2ea043"/><text x="296.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="546.0" y="44.0" width="142" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="617.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">cista のバイナリ</text><circle cx="548.0" cy="46.0" r="10" fill="#e5a828"/><text x="548.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="752.0" y="44.0" width="120" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="812.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲームで mmap</text><circle cx="754.0" cy="46.0" r="10" fill="#e5484d"/><text x="754.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
@@ -348,14 +348,14 @@ T* deserialize(std::uint8_t* from, std::uint8_t* to);
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `T` | 型引数 | 読む型 |
-| `Mode` | `mode` | 保存したときと**同じ**モード |
+| `Mode` | `mode` | 保存したときと同じモード |
 | `c` | `cista::byte_buf` など | バイト列（`cista::byte_buf`、`cista::mmap` など） |
 | `from`, `to` | `const uint8_t*` | バイト列の先頭と終わり |
 
-- **戻り値:** バッファの中を指す `T*`。**コピーではない**
-- **例外:** モードのチェックに失敗すると例外
+- 戻り値: バッファの中を指す `T*`。コピーではない
+- 例外: モードのチェックに失敗すると例外
 - 返ったポインタは `delete` しません。バッファより長く使ってはいけません。
-- バッファは、型に合った**アラインメント**（並びの区切り）で置かれている必要があります。`std::vector` や mmap の先頭なら大丈夫ですが、別のデータの途中に埋め込むときは注意します。
+- バッファは、型に合ったアラインメント（並びの区切り）で置かれている必要があります。`std::vector` や mmap の先頭なら大丈夫ですが、別のデータの途中に埋め込むときは注意します。
 
 ### offset::string {#offset_string}
 
@@ -395,7 +395,7 @@ struct vector {
 ```
 
 - `std::vector` とほぼ同じように使えます。範囲 for やアルゴリズムも使えます。
-- 読み込んだデータの中の vector は、**バッファの中を指しているだけ**です。読み込んだ後は、読むだけにするのが安全です。
+- 読み込んだデータの中の vector は、バッファの中を指しているだけです。読み込んだ後は、読むだけにするのが安全です。
 
 ### mode {#mode}
 
@@ -413,7 +413,7 @@ enum class mode {
 ```
 
 - `|` で組み合わせます（`cista::mode::WITH_VERSION | cista::mode::WITH_INTEGRITY`）。
-- 保存と読み込みで**同じモード**を使います。違うと読めないか、壊れます。
+- 保存と読み込みで同じモードを使います。違うと読めないか、壊れます。
 - 各フラグの意味は [フラグ・オプション](#flags) にまとめています。
 
 ### offset::hash_map {#offset_hash_map}
@@ -425,7 +425,7 @@ using hash_map = /* Swiss Table 方式のハッシュマップ */;
 
 - `std::unordered_map` と同じように `find`、`operator[]`、`emplace`、範囲 for が使えます。
 - キーに `data::string` を使うと、`std::string_view` で探せます（文字列を作らずに探せる）。
-- 読み込んだデータでも、**ハッシュ表を作り直さずにそのまま検索できる**のが cista の大きな利点です。
+- 読み込んだデータでも、ハッシュ表を作り直さずにそのまま検索できるのが cista の大きな利点です。
 
 ### mmap {#mmap}
 
@@ -491,7 +491,7 @@ template <typename T>
 using ptr = offset_ptr<T>;
 ```
 
-- データの中の**別の要素を指す**、所有しないポインタです。保存するときに、指している先も同じデータの中にある必要があります。
+- データの中の別の要素を指す、所有しないポインタです。保存するときに、指している先も同じデータの中にある必要があります。
 - 「ノードが別のノードを指す」グラフのようなデータを、ID ではなくポインタのまま保存できます。指している先がデータの中に無いと、保存のときに例外になります。
 
 ### offset::array {#offset_array}
@@ -549,7 +549,7 @@ template <typename T>
 hash_t type_hash();
 ```
 
-- **戻り値:** 型の形（メンバの型と順番）から計算したハッシュ値
+- 戻り値: 型の形（メンバの型と順番）から計算したハッシュ値
 - `WITH_VERSION` で保存されるのはこの値です。ツールとゲームで型の形がそろっているかを、ログに出して確かめるときに使えます。
 
 ## フラグ・オプション {#flags}

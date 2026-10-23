@@ -6,7 +6,7 @@ tags:
 
 # Height Fog
 
-<strong>霧は低い所にたまります</strong>。<strong>フォグの密度を高さで指数的に減らす</strong>と、谷にたまる霧が表現できます。このページでは高さフォグを説明します。
+<strong>霧は低い所にたまります</strong>。フォグの密度を高さで指数的に減らすと、谷にたまる霧が表現できます。このページでは高さフォグを説明します。
 
 !!! tip "ポイント"
     - 密度 ＝ 基準密度 × exp(−高さ × 係数)。
@@ -218,11 +218,11 @@ tags:
 <!-- fig:height-fog-ray:end -->
 
 ## 高さフォグ
-<strong>谷や低地に霧が溜まる</strong>表現です。<strong>霧の密度が高さに対して指数的に減る</strong>と仮定します。
+<strong>谷や低地に霧が溜まる</strong>表現です。霧の密度が高さに対して指数的に減ると仮定します。
 
 <div class="formula">density(h) = density₀ · exp( −falloff · h )</div>
 
-<strong>視線に沿った光学的厚さは密度を積分した値</strong>です。<strong>指数関数の積分は解析的に求まる</strong>のでステップを刻まず 1 回で計算できます。
+視線に沿った光学的厚さは密度を積分した値です。指数関数の積分は解析的に求まるのでステップを刻まず 1 回で計算できます。
 
 ```hlsl
 float HeightFogOpticalDepth(float3 camera_pos, float3 world_pos) {
@@ -252,7 +252,7 @@ float transmittance = exp(-HeightFogOpticalDepth(camera_position, world_position
 | `fog_base_height` | 霧が最も濃い高さ（谷底・海面） |
 | `falloff` | 大きいほど霧が薄い層に集中 |
 
-<strong>雲海・谷の霧・朝霧</strong>の表現に<strong>効果的</strong>です。
+雲海・谷の霧・朝霧の表現に効果的です。
 
 ### 積分の導出
 
@@ -266,21 +266,21 @@ float transmittance = exp(-HeightFogOpticalDepth(camera_position, world_position
 
 `falloff` は霧の層の厚みを決めます。たとえば 0.1 なら高さ 10 m ごとに密度が約 1/e（37 %）に下がります。層の厚みを 20〜50 m にしたければ、falloff を 0.02〜0.05 程度にします。`fog_base_height` を水面の高さに合わせれば、海岸の霞が自然に出ます。複数の層を重ねたり時間で `fog_base_height` を動かしたりすると、朝霧が晴れていく演出も作れます。
 
-高さフォグの弱点は <strong>霧が空間に一様に広がる</strong>ことです。特定の谷だけに霧を溜めたい場合や、光線が差し込む様子（ライト シャフト）を出したい場合には、3D ボリュームを使う[ボリューメトリック フォグ](../volumetric-fog/index.md)が必要になります。
+高さフォグの弱点は 霧が空間に一様に広がることです。特定の谷だけに霧を溜めたい場合や、光線が差し込む様子（ライト シャフト）を出したい場合には、3D ボリュームを使う[ボリューメトリック フォグ](../volumetric-fog/index.md)が必要になります。
 
 ## 高さで濃さが変わる霧
 
-<strong>谷にたまった朝霧</strong>、<strong>地面に近いほど濃い霧</strong>のように、霧の濃さは高さで変わります。高さフォグは霧の密度を高さの関数として、扱います。
+<strong>谷にたまった朝霧</strong>、地面に近いほど濃い霧のように、霧の濃さは高さで変わります。高さフォグは霧の密度を高さの関数として、扱います。
 
 ```text
 密度 ρ(h) = ρ₀ × exp( −k × h )          h: 霧の層の、基準からの、高さ。k: 減り方の速さ
 ```
 
-<strong>地面で最も濃く</strong>、<strong>高くなるほど指数関数的に薄く</strong>なります。大気そのものの密度（レイリー、ミー）と同じ形です。
+地面で最も濃く、高くなるほど指数関数的に薄くなります。大気そのものの密度（レイリー、ミー）と同じ形です。
 
 ## 光学的な厚さを解析的に求める
 
-視線に沿って <strong>密度を積分した値</strong>（<strong>光学的な、厚さ</strong>）が透過率を決めます。密度が指数関数なら積分も解析的に、求められます。
+視線に沿って <strong>密度を積分した値</strong>（光学的な、厚さ）が透過率を決めます。密度が指数関数なら積分も解析的に、求められます。
 
 ```text
 視線: 始点の高さ h₀、終点の高さ h₁、その間の、距離 d。高さは、直線的に変わる。
@@ -289,7 +289,7 @@ float transmittance = exp(-HeightFogOpticalDepth(camera_position, world_position
 τ = ρ₀ × d × exp(−k h₀)                                              （h₁ = h₀ のとき。視線が、水平）
 ```
 
-<strong>透過率</strong>は `exp(−τ)` です。<strong>積分をループで数値計算せず</strong>、式 1 つで求まります。
+透過率は `exp(−τ)` です。積分をループで数値計算せず、式 1 つで求まります。
 
 ## 実装
 
@@ -302,7 +302,7 @@ float HeightFogTransmittance(float3 camera, float3 world_pos) {
   float dh = ray.y;                                         // 視線に沿った、高さの変化
 ```
 
-<strong>カメラの高さ</strong>と <strong>視線の上下方向の、変化</strong>（`dh`）を求めます。霧の基準の高さ（`g_fog_base_height`）より上か下かを `h0` が、表します。
+<strong>カメラの高さ</strong>と 視線の上下方向の、変化（`dh`）を求めます。霧の基準の高さ（`g_fog_base_height`）より上か下かを `h0` が、表します。
 
 ```hlsl
   float k = g_fog_falloff;                                  // 減り方の速さ（1/m）
@@ -310,7 +310,7 @@ float HeightFogTransmittance(float3 camera, float3 world_pos) {
   float fog_at_camera = g_fog_density * exp(-k * h0);       // カメラの位置での、密度
 ```
 
-<strong>カメラの位置での密度</strong>（`fog_at_camera`）が、<strong>積分の出発点</strong>です。
+カメラの位置での密度（`fog_at_camera`）が、積分の出発点です。
 
 ```hlsl
   // 積分の核: (1 − exp(−k·dh)) / (k·dh)。dh が、ほぼ 0 のとき（水平）は、1 に近づく。
@@ -320,7 +320,7 @@ float HeightFogTransmittance(float3 camera, float3 world_pos) {
 }
 ```
 
-`(1 − exp(−x)) / x` が <strong>積分の解析解</strong>で <strong>`x → 0`</strong>（水平な視線）で、1 に近づきます。ゼロ割を避けるために `abs(x)` が小さいときは、極限の値（1）を使います。これを距離に掛ければ光学的な厚さが、求まります。
+`(1 − exp(−x)) / x` が 積分の解析解で `x → 0`（水平な視線）で、1 に近づきます。ゼロ割を避けるために `abs(x)` が小さいときは、極限の値（1）を使います。これを距離に掛ければ光学的な厚さが、求まります。
 
 ```hlsl
 float3 ApplyHeightFog(float3 scene_color, float3 camera, float3 world_pos) {
@@ -329,7 +329,7 @@ float3 ApplyHeightFog(float3 scene_color, float3 camera, float3 world_pos) {
 }
 ```
 
-最後に、<strong>通常の霧と同じ式</strong>で <strong>物の色と、霧の色</strong>を混ぜます。
+最後に、通常の霧と同じ式で 物の色と、霧の色を混ぜます。
 
 ## 見た目の特徴
 
@@ -340,11 +340,11 @@ float3 ApplyHeightFog(float3 scene_color, float3 camera, float3 world_pos) {
 | 視線が上向き | 高さが、上がるので霧が薄く（空は霧が、少ない） |
 | 視線が下向き（地面） | 濃い層を、通るので霧が濃い |
 
-<strong>山の上から谷を見下ろす</strong>と、<strong>谷底に霧がたまっている</strong>様子が自然に、出ます。
+<strong>山の上から谷を見下ろす</strong>と、谷底に霧がたまっている様子が自然に、出ます。
 
 ## 他の霧との組み合わせ
 
-<strong>高さフォグ</strong>と <strong>距離フォグ</strong>（[Fog Equations](fog-equation.md)）を、足し合わせることができます（光学的な厚さを、合計）。
+<strong>高さフォグ</strong>と 距離フォグ（[Fog Equations](fog-equation.md)）を、足し合わせることができます（光学的な厚さを、合計）。
 
 ```hlsl
 // 一様な、霧（遠景の、霞）と、高さフォグ（谷の、霧）を、光学的な厚さの、足し算で、組み合わせる。
@@ -353,7 +353,7 @@ float tau_height = ...;                                    // 上の式で求め
 float transmittance = exp(-(tau_uniform + tau_height));
 ```
 
-<strong>透過率の掛け算</strong>（`exp(−a) × exp(−b) = exp(−(a + b))`）なので、<strong>足し算</strong>で合成できます。
+透過率の掛け算（`exp(−a) × exp(−b) = exp(−(a + b))`）なので、足し算で合成できます。
 
 ## 注意点
 

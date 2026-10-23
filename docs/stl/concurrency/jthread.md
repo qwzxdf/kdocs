@@ -15,7 +15,7 @@ tags:
 `#include <thread>`
 </div>
 
-`std::jthread` は、**`std::thread` の改良版**です。デストラクターで自動的に `join` するので、`join` の呼び忘れによるクラッシュがありません。さらに、**「止まって」の合図（`stop_token`）**を受け取って、安全に終わらせる仕組みを持っています。新しく書くコードでは、`std::thread` ではなくこちらを使います。
+`std::thread` は、`join` か `detach` を呼ばずにデストラクターに達すると、プログラムが落ちます。例外や早期 `return` があると、`join` を書き忘れがちです。`std::jthread` は、`std::thread` の改良版で、デストラクターで自動的に `join` します。さらに、「止まって」という合図（`stop_token`）を受け取って、安全に終わらせる仕組みを持っています。
 
 !!! tip "ポイント"
     - **`std::thread` の代わりに `std::jthread` を使う。** デストラクターで自動 join。
@@ -173,10 +173,17 @@ done
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ロード用・AI 用のバックグラウンドスレッド | `std::jthread worker([](std::stop_token st) { while (!st.stop_requested()) {...} });` |
-| ゲームの終了時に、すべてのスレッドを安全に止める | デストラクターで自動 |
+`std::thread` の代わりに、いつも `std::jthread` を使います。ワーカースレッドの関数の第 1 引数に `std::stop_token` を受ける形にすると、`request_stop()` で終了を伝えられます。ゲームの終了時に、裏のスレッド（ロード、サウンド、ネットワーク）を安全に止められます。
+
+```cpp
+std::jthread worker([](std::stop_token st) {
+  while (!st.stop_requested()) {
+    // 裏の処理
+  }
+});
+```
+
+デストラクターは、`request_stop()` を呼んでから `join` します。ループが `stop_requested()` を確かめていれば、スコープを抜けるだけで止まります。
 
 ## よくあるミス
 

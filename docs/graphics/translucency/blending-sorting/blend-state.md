@@ -6,7 +6,7 @@ tags:
 
 # Blend State
 
-<strong>半透明の描画は GPU の「ブレンド ステート」の設定で決まります</strong>。<strong>DirectX 11 では、ソース係数・デスティネーション係数・演算を指定</strong>します。このページでは代表的な設定（通常・加算・乗算）とコードを説明します。
+<strong>半透明の描画は GPU の「ブレンド ステート」の設定で決まります</strong>。DirectX 11 では、ソース係数・デスティネーション係数・演算を指定します。このページでは代表的な設定（通常・加算・乗算）とコードを説明します。
 
 !!! tip "ポイント"
     - 通常：SrcAlpha / InvSrcAlpha。
@@ -42,7 +42,7 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 | `DepthWriteMask` | `ZERO` | 深度を書かない（半透明が、後の半透明を隠さない） |
 | `DepthFunc` | `LESS` | 深度テストは行う（不透明の後ろにある物は描かない） |
 
-<strong>深度書き込みを ON のままにする</strong>と、<strong>手前の半透明が奥の半透明の描画を妨げ</strong>ます（奥が、描かれなくなる）。
+<strong>深度書き込みを ON のままにする</strong>と、手前の半透明が奥の半透明の描画を妨げます（奥が、描かれなくなる）。
 
 <!-- fig:blend-modes:begin -->
 
@@ -84,17 +84,17 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 
 | 種類 | `SrcBlend` / `DestBlend` | 式 | 用途 |
 | --- | --- | --- | --- |
-| <strong>通常（アルファ）</strong> | `SRC_ALPHA` / `INV_SRC_ALPHA` | `C_s·α + C_d·(1−α)` | ガラス・水・UI |
+| 通常（アルファ） | `SRC_ALPHA` / `INV_SRC_ALPHA` | `C_s·α + C_d·(1−α)` | ガラス・水・UI |
 | 加算 | `SRC_ALPHA` / `ONE` | `C_s·α + C_d` | 炎・光・魔法・爆発 |
-| <strong>加算（アルファなし）</strong> | `ONE` / `ONE` | `C_s + C_d` | 明るい光の粒 |
+| 加算（アルファなし） | `ONE` / `ONE` | `C_s + C_d` | 明るい光の粒 |
 | 乗算 | `ZERO` / `SRC_COLOR` | `C_d · C_s` | 影・色付きガラス・暗くする |
 | 乗算済みアルファ | `ONE` / `INV_SRC_ALPHA` | `C_s + C_d·(1−α)` | 通常の、安定した方式 |
 
-<strong>加算と乗算は順序に依存しない</strong>（足し算・掛け算は、交換できる）ので <strong>ソートが不要</strong>です。炎・光の粒・影はこの性質を利用してソートなしで描けることが多いです。
+加算と乗算は順序に依存しない（足し算・掛け算は、交換できる）ので ソートが不要です。炎・光の粒・影はこの性質を利用してソートなしで描けることが多いです。
 
 ## ブレンドの式
 
-半透明の描画は <strong>これから描く色（ソース）</strong>と、<strong>すでに画面にある色（デスティネーション）</strong>を式で、混ぜます。DirectX 11 のブレンド ステートは、この式の部品を指定します。
+半透明の描画は <strong>これから描く色（ソース）</strong>と、すでに画面にある色（デスティネーション）を式で、混ぜます。DirectX 11 のブレンド ステートは、この式の部品を指定します。
 
 ```text
 結果 = ソース × SrcBlend  [演算 BlendOp]  デスティネーション × DestBlend
@@ -134,7 +134,7 @@ rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 結果 = ソース × α  +  デスティネーション × 1
 ```
 
-火、光、魔法の輝きなど <strong>明るさを足していく</strong>表現です。<strong>順序に依存しない</strong>（足し算は順序を、入れ替えても同じ）のでソートが不要です。
+火、光、魔法の輝きなど 明るさを足していく表現です。順序に依存しない（足し算は順序を、入れ替えても同じ）のでソートが不要です。
 
 ```cpp
 rt.SrcBlend = D3D11_BLEND_SRC_ALPHA;
@@ -142,7 +142,7 @@ rt.DestBlend = D3D11_BLEND_ONE;                    // 画面の色を、その�
 rt.BlendOp = D3D11_BLEND_OP_ADD;
 ```
 
-加算ブレンドは <strong>重なるほど明るく</strong>なり、<strong>白に近づきます</strong>。HDR で明るさの上限が無い場合は、ブルームで光る表現につながります（[Bloom](../../postprocess/bloom/index.md)）。
+加算ブレンドは 重なるほど明るくなり、白に近づきます。HDR で明るさの上限が無い場合は、ブルームで光る表現につながります（[Bloom](../../postprocess/bloom/index.md)）。
 
 ### ③ 乗算ブレンド
 
@@ -150,14 +150,14 @@ rt.BlendOp = D3D11_BLEND_OP_ADD;
 結果 = ソース × デスティネーション
 ```
 
-<strong>色付きガラス</strong>、<strong>影</strong>、汚れのように背景の色を暗くする表現です。
+色付きガラス、影、汚れのように背景の色を暗くする表現です。
 
 ```cpp
 rt.SrcBlend = D3D11_BLEND_ZERO;
 rt.DestBlend = D3D11_BLEND_SRC_COLOR;              // 画面の色 × ソースの色
 ```
 
-乗算も <strong>順序に依存しません</strong>（掛け算は、順序を入れ替えても同じ）。
+乗算も 順序に依存しません（掛け算は、順序を入れ替えても同じ）。
 
 ### ④ 乗算済みアルファ
 
@@ -165,7 +165,7 @@ rt.DestBlend = D3D11_BLEND_SRC_COLOR;              // 画面の色 × ソース�
 結果 = ソース（すでに α が掛かっている）  +  デスティネーション × (1 − α)
 ```
 
-アルファ ブレンドの <strong>ソースに、あらかじめアルファを掛けておく</strong>形です（[Premultiplied Alpha](premultiplied.md)）。
+アルファ ブレンドの ソースに、あらかじめアルファを掛けておく形です（[Premultiplied Alpha](premultiplied.md)）。
 
 ```cpp
 rt.SrcBlend = D3D11_BLEND_ONE;                     // ソースには、掛けない（掛け済み）
@@ -209,11 +209,11 @@ device->CreateDepthStencilState(&ds, &transparent_depth_state);
 ③ ポストプロセス
 ```
 
-半透明の中の順序は <strong>ソート</strong>で決めます（[Sorting](sorting.md)）。
+半透明の中の順序は ソートで決めます（[Sorting](sorting.md)）。
 
 ## 複数のレンダー ターゲットと、ブレンド
 
-レンダー ターゲットごとに <strong>別のブレンド</strong>を、指定できます（`IndependentBlendEnable = TRUE`）。OIT の実装（[WBOIT](../oit/wboit.md)）で、<strong>2 つのターゲット</strong>に別々の、ブレンドを使います。
+レンダー ターゲットごとに <strong>別のブレンド</strong>を、指定できます（`IndependentBlendEnable = TRUE`）。OIT の実装（[WBOIT](../oit/wboit.md)）で、2 つのターゲットに別々の、ブレンドを使います。
 
 ```cpp
 blend.IndependentBlendEnable = TRUE;

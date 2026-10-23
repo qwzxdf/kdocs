@@ -13,28 +13,28 @@ tags:
 `#include "ImSequencer.h"`
 </div>
 
-**ImSequencer**（イムシーケンサー）は、[ImGuizmo](imguizmo.md) と同じ作者のリポジトリに入っている、**タイムライン（シーケンサー）を出す ImGui の部品**です。動画編集ソフトや、Unity の Timeline のような、**横軸が時間（フレーム）で、縦に項目が並び、それぞれの項目が「いつからいつまで」を帯で表す画面**を作れます。アニメーションのクリップ、エフェクトの発生タイミング、カットシーンのイベントなどを、**マウスで編集**できます。使い方は、**自分のデータを `SequencerInterface` という決まった窓口（インターフェース）でライブラリに見せる**形です。
+**ImSequencer**（イムシーケンサー）は、[ImGuizmo](imguizmo.md) と同じ作者のリポジトリに入っている、タイムライン（シーケンサー）を出す ImGui の部品です。動画編集ソフトや、Unity の Timeline のような、横軸が時間（フレーム）で、縦に項目が並び、それぞれの項目が「いつからいつまで」を帯で表す画面を作れます。アニメーションのクリップ、エフェクトの発生タイミング、カットシーンのイベントなどを、マウスで編集できます。使い方は、自分のデータを `SequencerInterface` という決まった窓口（インターフェース）でライブラリに見せる形です。
 
 !!! tip "ポイント"
     - 自分の **データ（項目の一覧）を持つクラス**を作り、**`ImSequencer::SequencerInterface` を継承**して、決まった関数を実装する。
-    - 毎フレーム、**`ImSequencer::Sequencer(...)`<strong> を呼ぶ。現在のフレーム・開閉・選択・表示の先頭フレームは、</strong>自分の変数**を渡して、ライブラリに更新してもらう。
-    - 項目の「開始・終了フレーム」は、**ポインタ（`int**`）を渡す**ので、ライブラリがマウス操作で書き換える。
-    - **オプションのフラグ**で、追加・削除・フレームの移動・コピペのどれを許すかを決める。
-    - 項目の中の絵（カーブなど）は、**`CustomDraw`** で自由に描ける。
+    - 毎フレーム、`ImSequencer::Sequencer(...)`<strong> を呼ぶ。現在のフレーム・開閉・選択・表示の先頭フレームは、</strong>自分の変数を渡して、ライブラリに更新してもらう。
+    - 項目の「開始・終了フレーム」は、ポインタ（`int`）を渡す**ので、ライブラリがマウス操作で書き換える。
+    - オプションのフラグで、追加・削除・フレームの移動・コピペのどれを許すかを決める。
+    - 項目の中の絵（カーブなど）は、`CustomDraw` で自由に描ける。
 
 ## 導入（Visual Studio）
 
 ImSequencer は、ImGuizmo のリポジトリに含まれています。[Dear ImGui の導入](install.md) を済ませてから、**ソースを 2 つ追加**します。
 
 1. [ImGuizmo（GitHub）](https://github.com/CedricGuillemet/ImGuizmo) を取得して、`third_party/ImGuizmo/` に置く
-2. ソリューション エクスプローラーで、プロジェクトに**追加**する
+2. ソリューション エクスプローラーで、プロジェクトに追加する
 
 | ファイル | 内容 |
 | --- | --- |
 | `ImSequencer.h` / `ImSequencer.cpp` | タイムライン本体 |
-| `ImCurveEdit.h` / `ImCurveEdit.cpp` | **カーブ エディタ**（項目の中に、カーブを描いて編集したいときだけ） |
+| `ImCurveEdit.h` / `ImCurveEdit.cpp` | カーブ エディタ（項目の中に、カーブを描いて編集したいときだけ） |
 
-3. **追加のインクルード ディレクトリ** に `$(SolutionDir)third_party\ImGuizmo` を追加する
+3. 追加のインクルード ディレクトリ に `$(SolutionDir)third_party\ImGuizmo` を追加する
 4. `imgui_internal.h` を使うので、ImGui のインクルード パスも通っていること
 
 !!! note "vcpkg"
@@ -61,9 +61,9 @@ n r3 爆発 3 2 hit
 
 
 - 項目の**帯の端をドラッグ**すると、開始・終了フレームが変わる
-- **帯の中をドラッグ**すると、帯ごと前後に動く
-- 上の目盛りを**クリック**すると、現在のフレームが動く
-- マウス ホイールで、時間軸が**スクロール**する
+- 帯の中をドラッグすると、帯ごと前後に動く
+- 上の目盛りをクリックすると、現在のフレームが動く
+- マウス ホイールで、時間軸がスクロールする
 
 ## 基本の使い方
 
@@ -172,13 +172,13 @@ bool Sequencer(SequencerInterface* sequencer, int* currentFrame, bool* expanded,
 | --- | --- | --- |
 | `sequencer` | `SequencerInterface*` | 自分のデータを見せる `SequencerInterface` |
 | `currentFrame` | `int*` | **現在のフレーム**の変数へのポインタ。マウスで動かすと書き換わる |
-| `expanded` | `bool*` | タイムライン全体が**開いているか**の変数へのポインタ（折りたたみ用） |
-| `selectedEntry` | `int*` | **選択中の項目の番号**へのポインタ（選択がなければ `-1`） |
-| `firstFrame` | `int*` | **画面左端のフレーム**へのポインタ（スクロール位置） |
+| `expanded` | `bool*` | タイムライン全体が開いているかの変数へのポインタ（折りたたみ用） |
+| `selectedEntry` | `int*` | 選択中の項目の番号へのポインタ（選択がなければ `-1`） |
+| `firstFrame` | `int*` | 画面左端のフレームへのポインタ（スクロール位置） |
 | `sequenceOptions` | `int` | 許可する操作のフラグ（[オプション](#options)） |
 
-- 戻り値: **今のフレームに、ユーザーが何かを操作した**とき `true`
-- `currentFrame`、`expanded`、`selectedEntry`、`firstFrame` は、<strong>自分で持っている変数（`static` やメンバ）</strong>を渡します。毎フレーム新しく作ると、状態が保持されません
+- 戻り値: 今のフレームに、ユーザーが何かを操作したとき `true`
+- `currentFrame`、`expanded`、`selectedEntry`、`firstFrame` は、自分で持っている変数（`static` やメンバ）を渡します。毎フレーム新しく作ると、状態が保持されません
 - `ImGui::Begin` と `End` の間で呼びます
 
 ### SequencerInterface {#interface}
@@ -219,22 +219,22 @@ struct SequencerInterface {
 | --- | --- |
 | `GetFrameMin()` / `GetFrameMax()` | タイムライン全体の、最小・最大のフレーム |
 | `GetItemCount()` | 項目の数 |
-| `Get(index, &start, &end, &type, &color)` | `index` 番目の項目の、**開始・終了フレームへのポインタ**、種類、帯の色（`0xAABBGGRR`）を設定する |
+| `Get(index, &start, &end, &type, &color)` | `index` 番目の項目の、開始・終了フレームへのポインタ、種類、帯の色（`0xAABBGGRR`）を設定する |
 | `GetItemTypeCount()` / `GetItemTypeName(type)` | 「追加」で選べる種類の数と、その名前 |
 | `GetItemLabel(index)` | 左の一覧に出す、項目の名前 |
 | `Add(type)` | 「追加」で、種類 `type` の項目を作る |
 | `Del(index)` | 項目を削除する |
 | `Duplicate(index)` | 項目を複製する |
 | `Copy()` / `Paste()` | コピー・貼り付け（`SEQUENCER_COPYPASTE` が有効なとき） |
-| `BeginEdit(index)` / `EndEdit()` | 帯をドラッグし始めたとき・終わったときに呼ばれる。**アンドゥ用**に、操作の前後の状態を保存するのに使う |
-| `GetCustomHeight(index)` | その項目を**開いたとき**の追加の高さ（ピクセル）。0 なら開かない |
+| `BeginEdit(index)` / `EndEdit()` | 帯をドラッグし始めたとき・終わったときに呼ばれる。アンドゥ用に、操作の前後の状態を保存するのに使う |
+| `GetCustomHeight(index)` | その項目を開いたときの追加の高さ（ピクセル）。0 なら開かない |
 | `DoubleClick(index)` | 項目をダブルクリックしたとき（項目を開く、など） |
-| `CustomDraw(...)` | 開いた項目の中身を、**自分で描く**（カーブ、波形など） |
+| `CustomDraw(...)` | 開いた項目の中身を、自分で描く（カーブ、波形など） |
 | `CustomDrawCompact(...)` | 閉じているときの帯の上に、小さな絵を描く（キーフレームの印など） |
 | `GetCollapseFmt()` | タイムラインを折りたたんだときの表示の書式 |
 
 !!! warning "Get の `color` の並び"
-    色は `0xAABBGGRR`（**赤と青が逆**の ABGR）です。`0xFF0000FF` は赤になります。
+    色は `0xAABBGGRR`（赤と青が逆の ABGR）です。`0xFF0000FF` は赤になります。
 
 ### オプションのフラグ {#options}
 
@@ -253,10 +253,10 @@ enum SEQUENCER_OPTIONS {
 | フラグ | 許可すること |
 | --- | --- |
 | `SEQUENCER_EDIT_NONE` | 何も編集できない（表示だけ） |
-| `SEQUENCER_EDIT_STARTEND` | 帯の**端と中をドラッグ**して、開始・終了フレームを変える |
-| `SEQUENCER_CHANGE_FRAME` | 上の目盛りをクリック・ドラッグして、**現在のフレームを動かす** |
-| `SEQUENCER_ADD` | 「**＋**」ボタンで、項目を追加できる |
-| `SEQUENCER_DEL` | 「**−**」ボタンで、項目を削除できる（選択中の項目） |
+| `SEQUENCER_EDIT_STARTEND` | 帯の端と中をドラッグして、開始・終了フレームを変える |
+| `SEQUENCER_CHANGE_FRAME` | 上の目盛りをクリック・ドラッグして、現在のフレームを動かす |
+| `SEQUENCER_ADD` | 「＋」ボタンで、項目を追加できる |
+| `SEQUENCER_DEL` | 「−」ボタンで、項目を削除できる（選択中の項目） |
 | `SEQUENCER_COPYPASTE` | 「Copy」「Paste」のボタンを出す |
 | `SEQUENCER_EDIT_ALL` | `EDIT_STARTEND` と `CHANGE_FRAME` |
 
@@ -271,13 +271,13 @@ void Get(int index, int** start, int** end, int* type, unsigned int* color);
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `index` | `int` | 項目の番号 |
-| `start` | `int**` | **開始フレームの変数のアドレス**を入れる （`nullptr` のときは入れなくてよい） |
-| `end` | `int**` | **終了フレームの変数のアドレス**を入れる |
+| `start` | `int` | 開始フレームの変数のアドレス**を入れる （`nullptr` のときは入れなくてよい） |
+| `end` | `int` | 終了フレームの変数のアドレス**を入れる |
 | `type` | `int*` | 項目の種類の番号を入れる |
 | `color` | `unsigned int*` | 帯の色を入れる |
 
 - 戻り値: なし（引数に値を入れる）
-- **`start` / `end` はポインタのポインタ**です。`*start = &clip.start;` のように、**自分のデータの変数のアドレス**を渡します。ライブラリがそのアドレスを通して、直接書き換えます
+- `start` / `end` はポインタのポインタです。`*start = &clip.start;` のように、自分のデータの変数のアドレスを渡します。ライブラリがそのアドレスを通して、直接書き換えます
 - 引数が `nullptr` の場合があるので、`if (start) { ... }` と確認して書きます
 
 ### BeginEdit と EndEdit（アンドゥ） {#undo data-toc-label="BeginEdit / EndEdit"}
@@ -287,8 +287,8 @@ virtual void BeginEdit(int index) {}
 virtual void EndEdit() {}
 ```
 
-- 帯の**ドラッグを始めたとき**に `BeginEdit(index)`、**離したとき**に `EndEdit()` が呼ばれます
-- ここで**操作前と操作後の値を保存**して、アンドゥ（元に戻す）の履歴に積みます（[コマンドパターン](../../design/patterns/command.md)）。ドラッグの途中の値を全部積むと、アンドゥが使いにくくなります
+- 帯のドラッグを始めたときに `BeginEdit(index)`、離したときに `EndEdit()` が呼ばれます
+- ここで操作前と操作後の値を保存して、アンドゥ（元に戻す）の履歴に積みます（[コマンドパターン](../../design/patterns/command.md)）。ドラッグの途中の値を全部積むと、アンドゥが使いにくくなります
 
 ```cpp
 void BeginEdit(int index) override {
@@ -316,13 +316,13 @@ virtual void CustomDraw(int index, ImDrawList* draw_list, const ImRect& rc,
 | --- | --- | --- |
 | `index` | `int` | 項目の番号 |
 | `draw_list` | `ImDrawList*` | 描画先 |
-| `rc` | `const ImRect&` | **項目の描画領域**（時間軸の部分） |
+| `rc` | `const ImRect&` | 項目の描画領域（時間軸の部分） |
 | `legendRect` | `const ImRect&` | 左の凡例の領域 |
 | `clippingRect` | `const ImRect&` | 時間軸側の切り取り範囲（これより外には描かない） |
 | `legendClippingRect` | `const ImRect&` | 凡例側の切り取り範囲 |
 
 - 戻り値: なし
-- `GetCustomHeight` が 0 でない項目を**開いたとき**に、その中身を自分で描くために呼ばれます。**カーブ エディタ**（`ImCurveEdit`）を埋め込んで、イージングやパラメータの変化を編集する使い方が定番です
+- `GetCustomHeight` が 0 でない項目を開いたときに、その中身を自分で描くために呼ばれます。カーブ エディタ（`ImCurveEdit`）を埋め込んで、イージングやパラメータの変化を編集する使い方が定番です
 - `draw_list->PushClipRect(clippingRect.Min, clippingRect.Max, true);` で、描く範囲を制限してから描きます
 
 ### ImCurveEdit（カーブの編集） {#curveedit data-toc-label="ImCurveEdit"}
@@ -343,7 +343,7 @@ int Edit(Delegate& delegate, const ImVec2& size, unsigned int id,
 }
 ```
 
-- **カーブを描いて、マウスで点を動かして編集する**部品です。`Delegate` を実装して、自分のカーブのデータ（点の配列）を見せます。`CustomDraw` の中で `ImCurveEdit::Edit(...)` を呼ぶと、項目の中にカーブ エディタが出ます
+- カーブを描いて、マウスで点を動かして編集する部品です。`Delegate` を実装して、自分のカーブのデータ（点の配列）を見せます。`CustomDraw` の中で `ImCurveEdit::Edit(...)` を呼ぶと、項目の中にカーブ エディタが出ます
 - 細かい使い方は、ImGuizmo のリポジトリの `example/main.cpp` の `RampEdit` が参考になります
 
 ## タイムラインとゲームをつなぐ
@@ -365,9 +365,9 @@ void ApplyTimeline(const MySequence& sequence, int current_frame) {
 
 | 使い方 | 説明 |
 | --- | --- |
-| **再生 / 停止ボタン** | 自分で `ImGui::Button` を置いて、再生中は毎フレーム `current_frame` を進める |
-| **スクラブ**（頭出し） | 縦線をドラッグすると、`current_frame` が変わる。変わるたびに、その時点の状態を表示する |
-| **保存と読み込み** | `clips_` を [JSON](../serialization/nlohmann-json.md) などで保存する |
+| 再生 / 停止ボタン | 自分で `ImGui::Button` を置いて、再生中は毎フレーム `current_frame` を進める |
+| スクラブ（頭出し） | 縦線をドラッグすると、`current_frame` が変わる。変わるたびに、その時点の状態を表示する |
+| 保存と読み込み | `clips_` を [JSON](../serialization/nlohmann-json.md) などで保存する |
 
 ## ゲームでの使いどころ
 
@@ -381,7 +381,7 @@ void ApplyTimeline(const MySequence& sequence, int current_frame) {
 ## よくあるミス
 
 ??? failure "`Get` で `start` / `end` に値のコピーを渡す"
-    `*start = &local_variable;` のように、**一時的な変数のアドレス**を渡すと、関数を抜けたあとに無効になります。`std::vector<Clip>` の中の要素など、**ずっと残るデータ**のアドレスを渡します。vector が再確保されると、アドレスが無効になるので、タイムラインを描いている最中に項目を追加・削除しません（`Add` / `Del` の中では、描画の後に反映する、などの工夫をします）。
+    `*start = &local_variable;` のように、**一時的な変数のアドレス**を渡すと、関数を抜けたあとに無効になります。`std::vector<Clip>` の中の要素など、ずっと残るデータのアドレスを渡します。vector が再確保されると、アドレスが無効になるので、タイムラインを描いている最中に項目を追加・削除しません（`Add` / `Del` の中では、描画の後に反映する、などの工夫をします）。
 
 ??? failure "状態の変数を、毎フレーム作り直す"
     `int current_frame = 0;` を関数の中に書くと、毎フレーム 0 に戻って、縦線が動かせません。`static` やメンバ変数で持ちます。
@@ -393,7 +393,7 @@ void ApplyTimeline(const MySequence& sequence, int current_frame) {
     色は `0xAABBGGRR`（ABGR）です。RGBA の感覚で書くと、赤と青が入れ替わります。
 
 ??? failure "Add / Del の最中に、項目の配列が壊れる"
-    ライブラリは、項目の並びを使っている最中に `Add` / `Del` を呼ぶことがあります。**描画が終わったあとにまとめて反映**するか、`index` の範囲を毎回確認します。
+    ライブラリは、項目の並びを使っている最中に `Add` / `Del` を呼ぶことがあります。描画が終わったあとにまとめて反映するか、`index` の範囲を毎回確認します。
 
 ## 類似
 

@@ -6,19 +6,19 @@ tags:
 
 # Cel Shading
 
-<strong>セル シェーディング（トゥーン シェーディング）</strong>は、<strong>陰影を滑らかなグラデーションではなく、数段階（2〜3 段）に区切る</strong>表現です。<strong>手描きアニメの「セル画」</strong>のように、<strong>「明るい面」「影の面」がくっきり分かれる</strong>ので、<strong>アニメ調の絵</strong>になります。ライティングの結果（明るさ）を、段階に変換する関数が核で、ランプ テクスチャで自由に調整できます。写実的な高品質とは別の方向の表現で、画風に合うかどうかが基準です。このページでは、基本の段階化・ランプ テクスチャ・なめらかな境・スペキュラとリム ライト・影の色・影を受けるときの扱いを説明します。
+<strong>セル シェーディング（トゥーン シェーディング）</strong>は、陰影を滑らかなグラデーションではなく、数段階（2〜3 段）に区切る表現です。手描きアニメの「セル画」のように、「明るい面」「影の面」がくっきり分かれるので、アニメ調の絵になります。ライティングの結果（明るさ）を、段階に変換する関数が核で、ランプ テクスチャで自由に調整できます。写実的な高品質とは別の方向の表現で、画風に合うかどうかが基準です。このページでは、基本の段階化・ランプ テクスチャ・なめらかな境・スペキュラとリム ライト・影の色・影を受けるときの扱いを説明します。
 
 !!! tip "ポイント"
     - セル シェーディング ＝ <strong>ライティングの明るさを、数段階に区切る</strong>。
-    - 基本 ＝ <strong>`N·L`（拡散）を、しきい値で段階化</strong>。<strong>`step` や `smoothstep`</strong>。
-    - <strong>ランプ テクスチャ</strong>：<strong>`N·L` を座標に色を引く 1D テクスチャ</strong>。<strong>アーティストが段階を自由に調整</strong>できる。
-    - <strong>境を少しぼかす（`smoothstep`）</strong>と<strong>ちらつき・ジャギーが減る</strong>。
-    - <strong>影の色</strong>を<strong>暗い灰色でなく、色相を変えた暗い色</strong>に。
-    - <strong>スペキュラ</strong>は<strong>しきい値で、くっきりした白いハイライト</strong>。<strong>リム ライト</strong>で<strong>輪郭を明るく</strong>。
+    - 基本 ＝ <strong>`N·L`（拡散）を、しきい値で段階化</strong>。`step` や `smoothstep`。
+    - ランプ テクスチャ：`N·L` を座標に色を引く 1D テクスチャ。アーティストが段階を自由に調整できる。
+    - 境を少しぼかす（`smoothstep`）とちらつき・ジャギーが減る。
+    - 影の色を暗い灰色でなく、色相を変えた暗い色に。
+    - スペキュラはしきい値で、くっきりした白いハイライト。リム ライトで輪郭を明るく。
 
 ## 基本：N·L を段階化
 
-<strong>普通のライティング</strong>は、<strong>`N·L`（法線と光の向きの内積）で、明るさが滑らかに変わります</strong>。セルではこれをしきい値で数段階に変換します。
+<strong>普通のライティング</strong>は、`N·L`（法線と光の向きの内積）で、明るさが滑らかに変わります。セルではこれをしきい値で数段階に変換します。
 
 <svg class="fig illust" viewBox="0 0 780 230" role="img" aria-label="セル シェーディング">
 <text x="20" y="26" class="fig-title">滑らかな明るさを、段階に区切る</text>
@@ -51,7 +51,7 @@ float3 CelShade(float3 albedo, float3 normal, float3 light_dir, float3 light_col
 
 ## なめらかな境
 
-<strong>`step` は境がジャギーで、動くとちらつきます</strong>。<strong>境を少しだけぼかす（`smoothstep`）</strong>と<strong>きれい</strong>です。
+<strong>`step` は境がジャギーで、動くとちらつきます</strong>。境を少しだけぼかす（`smoothstep`）ときれいです。
 
 ```hlsl
 float Toon(float n_dot_l, float threshold, float softness) {
@@ -63,7 +63,7 @@ float Toon(float n_dot_l, float threshold, float softness) {
 
 ## ランプ テクスチャ
 
-<strong>`N·L`（0〜1 に直したもの）を座標に色を引く 1D テクスチャ</strong>です。<strong>アーティストが段階の数・境の位置・色の変化を自由に描けます</strong>。
+<strong>`N·L`（0〜1 に直したもの）を座標に色を引く 1D テクスチャ</strong>です。アーティストが段階の数・境の位置・色の変化を自由に描けます。
 
 ```hlsl
 Texture2D ramp_texture : register(t3);
@@ -312,14 +312,14 @@ float3 CelShadeRamp(float3 albedo, float3 normal, float3 light_dir) {
 
 ## 影の色
 
-<strong>影を単純に「暗くする」と、絵が重く、汚く見えます</strong>。<strong>影は色相を少し変え、彩度を保った、暗い色</strong>にするとアニメ的です。
+<strong>影を単純に「暗くする」と、絵が重く、汚く見えます</strong>。影は色相を少し変え、彩度を保った、暗い色にするとアニメ的です。
 
 | 影の付け方 | 見た目 |
 | --- | --- |
-| <strong>単純に暗く（× 0.5）</strong> | 灰色っぽく、汚い |
-| <strong>色相をずらす（青・紫寄り）</strong> | アニメ調の澄んだ影 |
+| 単純に暗く（× 0.5） | 灰色っぽく、汚い |
+| 色相をずらす（青・紫寄り） | アニメ調の澄んだ影 |
 | 肌：赤みを保つ | 健康的な肌 |
-| アルベドごとの影色 | <strong>材質ごとに別の影の色（テクスチャ・パラメータ）</strong> |
+| アルベドごとの影色 | 材質ごとに別の影の色（テクスチャ・パラメータ） |
 
 ```hlsl
 float3 shadow_tint = lerp(float3(1, 1, 1), float3(0.6, 0.55, 0.85), shadow_strength);
@@ -347,7 +347,7 @@ float RimLight(float3 normal, float3 view_dir, float power, float threshold) {
 
 ## 影を受ける
 
-<strong>シャドウ マップの影</strong>（[Shadows](../../shadows/index.md)）を<strong>セルの陰影に取り込む</strong>には影の判定値（0〜1）を、`N·L` と掛け合わせます。
+<strong>シャドウ マップの影</strong>（[Shadows](../../shadows/index.md)）をセルの陰影に取り込むには影の判定値（0〜1）を、`N·L` と掛け合わせます。
 
 ```hlsl
 float shadow = SampleShadow(world_position);
@@ -356,7 +356,7 @@ float toon_input = n_dot_l * shadow;
 float lit = smoothstep(0.0, 0.02, toon_input);
 ```
 
-<strong>シャドウ マップの境が、PCF などで柔らかいと、セルの境がぎざぎざになる</strong>ので、<strong>境の硬さを合わせる</strong>（影も段階化する）のがよいです。
+シャドウ マップの境が、PCF などで柔らかいと、セルの境がぎざぎざになるので、境の硬さを合わせる（影も段階化する）のがよいです。
 
 ## より良いやり方
 
@@ -367,7 +367,7 @@ float lit = smoothstep(0.0, 0.02, toon_input);
 | `smoothstep` で境を滑らかに | ジャギー・ちらつきを防ぐ |
 | 輪郭線と併用 | <strong>アウトライン（[Inverted Hull Outlines](outline-hull.md)・[Screen-Space Edge Detection](outline-edge.md)）</strong> |
 | ライトの扱いをメイン ライトのみに | 複数ライトを段階化すると複雑 |
-| 顔の影を別に調整 | <strong>顔の陰影は法線を補正（顔の影が汚くならない）</strong> |
+| 顔の影を別に調整 | 顔の陰影は法線を補正（顔の影が汚くならない） |
 | キャラごとのランプ・影色 | 材質ごとのパラメータ |
 
 ## よくあるミス
@@ -376,22 +376,22 @@ float lit = smoothstep(0.0, 0.02, toon_input);
     <strong>`smoothstep` で、狭い範囲をぼかす</strong>。
 
 ??? failure "影が灰色っぽく、絵が汚い"
-    <strong>影色に色相を持たせる</strong>。
+    影色に色相を持たせる。
 
 ??? failure "複数のライトを、全部段階化して、ごちゃごちゃする"
-    <strong>メイン ライトだけセル化</strong>し、<strong>他は弱い環境光</strong>に。
+    メイン ライトだけセル化し、他は弱い環境光に。
 
 ??? failure "顔に、鼻や顎の汚い影が出る"
-    <strong>顔の法線を平らにする</strong>（<strong>法線の補正</strong>）。
+    顔の法線を平らにする（法線の補正）。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] セル シェーディング ＝ <strong>ライティングの明るさを、数段階に区切る</strong>
-    - [x] <strong>`N·L` をしきい値で段階化</strong>。<strong>`smoothstep` で境を滑らかに</strong>
-    - [x] <strong>ランプ テクスチャ</strong>で<strong>画風を自由に調整</strong>
-    - [x] <strong>影は、色相を変えた暗い色</strong>に
-    - [x] <strong>スペキュラ・リム ライトは、くっきり</strong>。<strong>輪郭線と併用</strong>
+    - [x] `N·L` をしきい値で段階化。`smoothstep` で境を滑らかに
+    - [x] ランプ テクスチャで画風を自由に調整
+    - [x] 影は、色相を変えた暗い色に
+    - [x] スペキュラ・リム ライトは、くっきり。輪郭線と併用
 
 ## 参考
 

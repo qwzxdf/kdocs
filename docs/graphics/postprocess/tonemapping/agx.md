@@ -6,19 +6,19 @@ tags:
 
 # AgX and Others
 
-<strong>フィルミックや ACES は、明るく鮮やかな色が白や別の色へ偏る</strong>欠点があります。<strong>近年はこの「色相の破綻」を抑える、新しいトーンマップ</strong>が増えました。このページでは、AgX・Tony McMapface・Khronos PBR Neutral の考え方・特徴・使い分けを説明します。
+<strong>フィルミックや ACES は、明るく鮮やかな色が白や別の色へ偏る</strong>欠点があります。近年はこの「色相の破綻」を抑える、新しいトーンマップが増えました。このページでは、AgX・Tony McMapface・Khronos PBR Neutral の考え方・特徴・使い分けを説明します。
 
 !!! tip "ポイント"
     - 新しい方式の狙い ＝ <strong>明るい彩度の高い色でも、色相が変わらず、自然に白へ向かう</strong>。
-    - <strong>AgX</strong>：<strong>中立寄りのフィルミック</strong>。<strong>広い色域を扱い、Blender の標準</strong>。<strong>パラメータが少なく、使いやすい</strong>。
-    - <strong>Tony McMapface</strong>：<strong>3D LUT ベース</strong>。<strong>ブルームとの相性が良い</strong>。
-    - <strong>Khronos PBR Neutral</strong>：<strong>商品の色をできるだけ忠実に</strong>（<strong>E コマース向け</strong>）。
-    - <strong>選ぶ基準</strong>：<strong>色の再現（忠実）か、映画的な絵（フィルム）か</strong>。
-    - <strong>どれも露出の後・ガンマの前</strong>。
+    - <strong>AgX</strong>：中立寄りのフィルミック。広い色域を扱い、Blender の標準。パラメータが少なく、使いやすい。
+    - Tony McMapface：3D LUT ベース。ブルームとの相性が良い。
+    - Khronos PBR Neutral：商品の色をできるだけ忠実に（E コマース向け）。
+    - 選ぶ基準：色の再現（忠実）か、映画的な絵（フィルム）か。
+    - どれも露出の後・ガンマの前。
 
 ## 何が改善されたか
 
-<strong>ACES や Hable では</strong>、<strong>R・G・B に別々に曲線を掛ける</strong>ため、明るい色の比率が崩れます（青い光が紫に赤が黄色に）。新しい方式は色空間を工夫したり、LUT で調整したりして、これを緩和します。
+<strong>ACES や Hable では</strong>、R・G・B に別々に曲線を掛けるため、明るい色の比率が崩れます（青い光が紫に赤が黄色に）。新しい方式は色空間を工夫したり、LUT で調整したりして、これを緩和します。
 
 <svg class="fig illust" viewBox="0 0 780 230" role="img" aria-label="色の偏りの比較">
 <text x="20" y="26" class="fig-title">同じ青い強い光を、トーンマップすると</text>
@@ -38,7 +38,7 @@ tags:
 
 ## AgX
 
-<strong>AgX</strong> は、<strong>Troy Sobotka</strong> が設計した、フィルム風でありつつ色相が安定するトーンマップです。Blender 4.0 から標準になりました。
+<strong>AgX</strong> は、Troy Sobotka が設計した、フィルム風でありつつ色相が安定するトーンマップです。Blender 4.0 から標準になりました。
 
 | 特徴 | 内容 |
 | --- | --- |
@@ -47,7 +47,7 @@ tags:
 | 色相を保ちつつ、白へ滑らかに | ハイライトの色飛びが穏やか |
 | ルック（見た目）を選べる | Punchy（強め）・Golden など、後段でルックを調整 |
 
-<strong>実装の流れ</strong>（概略）です。
+実装の流れ（概略）です。
 
 ```hlsl
 float3 AgXTonemap(float3 color) {
@@ -70,17 +70,17 @@ float3 AgXTonemap(float3 color) {
 | ルック | 彩度・コントラストの好みの調整 |
 | 出力行列とガンマ | sRGB へ戻す |
 
-<strong>行列と多項式の係数は、公開されている実装</strong>（Blender の OCIO 設定・各種 HLSL 移植）を<strong>そのまま使う</strong>のが確実です。自分で一から作る必要はありません。
+行列と多項式の係数は、公開されている実装（Blender の OCIO 設定・各種 HLSL 移植）をそのまま使うのが確実です。自分で一から作る必要はありません。
 
 ## Tony McMapface
 
-<strong>Tomasz Stachowiak</strong> による、<strong>3D LUT ベース</strong>のトーンマップです。あらかじめ作った 48×48×48 の LUT を、表引きするだけで使えます。
+<strong>Tomasz Stachowiak</strong> による、3D LUT ベースのトーンマップです。あらかじめ作った 48×48×48 の LUT を、表引きするだけで使えます。
 
 | 特徴 | 内容 |
 | --- | --- |
 | 計算が軽い | LUT の 1 回の参照だけ（シェーダーが単純） |
 | 色相が破綻しにくい | ブルームの白い光や鮮やかなエフェクトが自然 |
-| ブルームとの相性 | ブルームのにじみが<strong>色付きの光として</strong>自然に出る |
+| ブルームとの相性 | ブルームのにじみが色付きの光として自然に出る |
 | LUT を差し替えられる | 自分の画作りの LUT に置き換えれば、別のルックにもなる |
 
 ```hlsl
@@ -97,11 +97,11 @@ float3 TonyMcMapface(float3 color) {
 
 ## Khronos PBR Neutral
 
-<strong>Khronos が、E コマース（商品の 3D 表示）向けに作った</strong>、<strong>「色を変えない」</strong>トーンマップです。
+<strong>Khronos が、E コマース（商品の 3D 表示）向けに作った</strong>、「色を変えない」トーンマップです。
 
 Khronos PBR Neutral の特徴です。暗部から中間は曲線を掛けず、ほぼ素通しなので、商品の色が正確です。明部だけ、ある閾値（約 0.8）を超えた部分を滑らかに圧縮します。圧縮するときに、白へ向かう量を調整して色相を保ちます。
 
-<strong>映画的な絵ではなく、「見たままの色」が大切な場面</strong>（<strong>商品・建築・カスタマイズ画面</strong>）に向きます。ゲームでも色の正確さが大事な UI の 3D 表示に使えます。
+映画的な絵ではなく、「見たままの色」が大切な場面（商品・建築・カスタマイズ画面）に向きます。ゲームでも色の正確さが大事な UI の 3D 表示に使えます。
 
 ## 使い分け
 
@@ -124,25 +124,25 @@ Khronos PBR Neutral の特徴です。暗部から中間は曲線を掛けず、
 ## よくあるミス
 
 ??? failure "AgX の行列や係数を、自分で書き写して、一部間違える"
-    <strong>公開されている実装をそのまま使う</strong>。<strong>テスト画像（グレースケールと彩度のグラデーション）で、確認</strong>する。
+    <strong>公開されている実装をそのまま使う</strong>。テスト画像（グレースケールと彩度のグラデーション）で、確認する。
 
 ??? failure "Tony McMapface の LUT の端で、色がずれる"
-    <strong>半テクセルのずらし</strong>を入れ、<strong>`linear_clamp`</strong> を使う。
+    半テクセルのずらしを入れ、`linear_clamp` を使う。
 
 ??? failure "PBR Neutral を、映画的な絵に使って、地味になる"
-    <strong>用途に合った曲線</strong>を選ぶ。<strong>映画的なら、ACES・AgX</strong>。
+    用途に合った曲線を選ぶ。映画的なら、ACES・AgX。
 
 ??? failure "曲線を切り替えたら、全体の明るさが変わって、露出がずれる"
-    <strong>各曲線の中間灰の出力が違う</strong>。<strong>切り替えたら、露出補正で合わせる</strong>。
+    各曲線の中間灰の出力が違う。切り替えたら、露出補正で合わせる。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 新しい方式の狙い ＝ <strong>明るい彩度の高い色でも、色相が破綻しない</strong>
-    - [x] <strong>AgX</strong> ＝ <strong>中立寄りのフィルミック</strong>。<strong>公開実装をそのまま使う</strong>
-    - [x] <strong>Tony McMapface</strong> ＝ <strong>3D LUT</strong>。<strong>軽く、ブルームと好相性</strong>
-    - [x] <strong>PBR Neutral</strong> ＝ <strong>色の忠実さ重視</strong>（商品向け）
-    - [x] <strong>曲線を替えたら、露出も見直す</strong>
+    - [x] AgX ＝ 中立寄りのフィルミック。公開実装をそのまま使う
+    - [x] Tony McMapface ＝ 3D LUT。軽く、ブルームと好相性
+    - [x] PBR Neutral ＝ 色の忠実さ重視（商品向け）
+    - [x] 曲線を替えたら、露出も見直す
 
 ## 参考
 

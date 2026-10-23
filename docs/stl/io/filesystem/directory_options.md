@@ -15,7 +15,7 @@ tags:
 `#include <filesystem>`
 </div>
 
-フォルダの中身を `directory_iterator` で順に調べるとき、権限のないフォルダに入るとエラーになります。`skip_permission_denied` を指定すると、そのようなフォルダを飛ばして走査を続けられます。
+フォルダの中身を `directory_iterator` で順に調べているとき、権限のないフォルダに入ると、エラーで止まります。システムのフォルダを調べたいときなど、読めない場所を飛ばして続けたい場面があります。`std::filesystem::directory_options` は、フォルダの走査の動作を指定する型で、`skip_permission_denied` を指定すると、権限のないフォルダを飛ばして続けられます。
 
 !!! tip "ポイント"
     - `none`: 既定。
@@ -66,14 +66,19 @@ true
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ゲームのデータフォルダを走査する | `fs::recursive_directory_iterator(dir, fs::directory_options::skip_permission_denied)` |
+ユーザーのフォルダを調べるツールで、読めないフォルダがあっても止まらないようにします。`fs::recursive_directory_iterator(dir, fs::directory_options::skip_permission_denied)` と指定します。
+
+シンボリックリンクの先まで入りたいときは、`follow_directory_symlink` を使います。ただし、リンクが循環していると、無限に回ります。
+
+ゲームのアセットフォルダでは、権限の問題はほとんど起きません。ツールやエディターの側で、ユーザーが選んだ任意のフォルダを調べるときに出番があります。
 
 ## よくあるミス
 
 ??? failure "`follow_directory_symlink` で無限ループ"
     リンクが循環していると、走査が終わりません。
+
+??? failure "権限のないフォルダで例外が出る"
+    指定しないと、権限のないフォルダに入った時点で例外が投げられ、走査が止まります。`skip_permission_denied` を付けます。
 
 ## 類似
 

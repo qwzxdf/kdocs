@@ -6,15 +6,15 @@ tags:
 
 # White Balance
 
-<strong>同じ白い紙でも晴天の下では青白く、白熱灯の下では黄色く見えます</strong>。<strong>人間の目はこれを自動で補正して、「白い紙は白い」と感じます</strong>（色の恒常性）。カメラはこの補正を「ホワイト バランス」で行い、ゲームでも画面全体の色温度を調整して、「暖かい夕暮れ」や「冷たい夜」を作るために使います。このページでは、色温度（ケルビン）と色合い・光源の色を打ち消す考え方・簡易実装（LMS 空間）・ゲームでの使い方・注意点を説明します。
+<strong>同じ白い紙でも晴天の下では青白く、白熱灯の下では黄色く見えます</strong>。人間の目はこれを自動で補正して、「白い紙は白い」と感じます（色の恒常性）。カメラはこの補正を「ホワイト バランス」で行い、ゲームでも画面全体の色温度を調整して、「暖かい夕暮れ」や「冷たい夜」を作るために使います。このページでは、色温度（ケルビン）と色合い・光源の色を打ち消す考え方・簡易実装（LMS 空間）・ゲームでの使い方・注意点を説明します。
 
 !!! tip "ポイント"
     - ホワイト バランス ＝ <strong>光源の色を打ち消して、白を白く見せる</strong>。<strong>全体の色味を暖色〜寒色にずらす</strong>。
-    - <strong>色温度（K）</strong>：<strong>低い（約 2000 K）は橙、高い（約 10000 K）は青</strong>。<strong>6500 K 前後が日中の昼光（D65）</strong>。
-    - <strong>色合い（Tint）</strong>：<strong>緑〜マゼンタの軸</strong>。
-    - <strong>実装</strong>：<strong>LMS（錐体）空間で白点の比率で割る</strong>のが<strong>標準的</strong>。
-    - <strong>ゲームでは「補正」ではなく、「演出」に使う</strong>こと<strong>が多い</strong>。
-    - <strong>トーンマップの前（リニア）で行う</strong>と<strong>自然</strong>。
+    - 色温度（K）：低い（約 2000 K）は橙、高い（約 10000 K）は青。6500 K 前後が日中の昼光（D65）。
+    - 色合い（Tint）：緑〜マゼンタの軸。
+    - 実装：LMS（錐体）空間で白点の比率で割るのが標準的。
+    - ゲームでは「補正」ではなく、「演出」に使うことが多い。
+    - トーンマップの前（リニア）で行うと自然。
 
 <!-- fig:white-balance:begin -->
 
@@ -85,7 +85,7 @@ tags:
 
 ## 色温度と見た目
 
-<strong>物体を熱すると温度に応じた色で光ります</strong>（<strong>黒体放射</strong>）。<strong>この温度（ケルビン）が「色温度」</strong>で、光源の色を表すのに使われます。
+<strong>物体を熱すると温度に応じた色で光ります</strong>（黒体放射）。この温度（ケルビン）が「色温度」で、光源の色を表すのに使われます。
 
 <svg class="fig illust" viewBox="0 0 780 190" role="img" aria-label="色温度">
 <text x="20" y="26" class="fig-title">色温度：低いほど橙（暖色）、高いほど青（寒色）</text>
@@ -108,15 +108,15 @@ tags:
 
 ## 白を白に戻す考え方
 
-<strong>光源が橙（低い色温度）のとき、白い物は橙に映ります</strong>。<strong>その橙を打ち消す（青を足す・橙を減らす）</strong>と、<strong>白が白に戻ります</strong>。これがホワイト バランスの補正です。
+<strong>光源が橙（低い色温度）のとき、白い物は橙に映ります</strong>。その橙を打ち消す（青を足す・橙を減らす）と、白が白に戻ります。これがホワイト バランスの補正です。
 
 操作ごとの結果です。光源の色温度を指定すると、その光源の色が白になるように補正されます（画面全体は逆の色へ寄ります）。ホワイト バランスの温度を上げると、画面が暖かく（橙に）なります（青い光源を想定して補正しすぎるため）。下げると、画面が青く（寒色に）なります。
 
-<strong>ゲームでは、「補正」というより、画面の色味を作る「演出」</strong>として<strong>使います</strong>。<strong>温度を上げて暖かく・下げて冷たく</strong>調整します。
+ゲームでは、「補正」というより、画面の色味を作る「演出」として使います。温度を上げて暖かく・下げて冷たく調整します。
 
 ## 実装（LMS 空間）
 
-<strong>人間の錐体（L・M・S）の反応</strong>を<strong>表す LMS 空間</strong>で、光源の白点を基準の白に合わせるのが標準的です。
+<strong>人間の錐体（L・M・S）の反応</strong>を表す LMS 空間で、光源の白点を基準の白に合わせるのが標準的です。
 
 ```hlsl
 float3 WhiteBalance(float3 color, float temperature, float tint) {
@@ -135,12 +135,12 @@ float3 WhiteBalance(float3 color, float temperature, float tint) {
 
 | 点 | 説明 |
 | --- | --- |
-| `temperature`・`tint` | −1〜+1 のつまみ（<strong>色温度（暖〜寒）と、色合い（緑〜マゼンタ）</strong>） |
+| `temperature`・`tint` | −1〜+1 のつまみ（色温度（暖〜寒）と、色合い（緑〜マゼンタ）） |
 | `x, y` | 色度座標。D65 の白（0.31271, 0.32902）を基準にずらす |
-| `white_lms / lms` | <strong>光源の LMS で割る比率（ゲイン）</strong> |
+| `white_lms / lms` | 光源の LMS で割る比率（ゲイン） |
 | `kRgbToLms` など | 色空間変換の 3×3 行列（公開されている値） |
 
-<strong>もっと簡単な近似</strong>は、<strong>RGB にゲインを掛けるだけ</strong>です。
+もっと簡単な近似は、RGB にゲインを掛けるだけです。
 
 ```hlsl
 float3 SimpleWhiteBalance(float3 color, float temperature) {
@@ -155,7 +155,7 @@ float3 SimpleWhiteBalance(float3 color, float temperature) {
 
 ## 色合い（Tint）
 
-<strong>色温度が「橙〜青」の軸</strong>だとすると<strong>色合いは「緑〜マゼンタ」の軸</strong>です。蛍光灯の緑かぶりを打ち消したり、ファンタジーな色味を作るのに使います。
+<strong>色温度が「橙〜青」の軸</strong>だとすると色合いは「緑〜マゼンタ」の軸です。蛍光灯の緑かぶりを打ち消したり、ファンタジーな色味を作るのに使います。
 
 2 つのつまみの軸です。温度（Temperature）は橙と青の軸です。色合い（Tint）は緑とマゼンタの軸です。
 
@@ -168,7 +168,7 @@ float3 SimpleWhiteBalance(float3 color, float temperature) {
 | 状態の演出 | 体力が低い：色が冷える・彩度が下がる |
 | 光源との整合 | 画面の主光源の色とホワイト バランスで調和させる |
 
-<strong>時間帯の変化</strong>に<strong>合わせて、色温度を補間</strong>すると自然な移り変わりになります（[空と大気](../../atmosphere/sky-models/index.md)）。
+<strong>時間帯の変化</strong>に合わせて、色温度を補間すると自然な移り変わりになります（[空と大気](../../atmosphere/sky-models/index.md)）。
 
 ## より良いやり方
 
@@ -183,25 +183,25 @@ float3 SimpleWhiteBalance(float3 color, float temperature) {
 ## よくあるミス
 
 ??? failure "ホワイト バランスと、ライトの色の両方を動かして、色かぶりが強すぎる"
-    <strong>ライトの色と全体のホワイト バランスの役割を分ける</strong>（<strong>光源は物理的に全体の色味は演出</strong>）。
+    <strong>ライトの色と全体のホワイト バランスの役割を分ける</strong>（光源は物理的に全体の色味は演出）。
 
 ??? failure "RGB ゲインで調整したら、全体の明るさも変わった"
-    <strong>LMS で輝度を保つ</strong>、または<strong>簡易版の後に輝度を補正</strong>する。
+    LMS で輝度を保つ、または簡易版の後に輝度を補正する。
 
 ??? failure "ガンマ空間でホワイト バランスして、色が不自然"
-    <strong>リニア空間</strong>で行う。
+    リニア空間で行う。
 
 ??? failure "場所の切り替えで、色温度が急に変わる"
-    <strong>ボリュームで補間</strong>する。
+    ボリュームで補間する。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] ホワイト バランス ＝ <strong>光源の色を打ち消して、全体の色味をずらす</strong>
-    - [x] <strong>色温度（K）</strong>：<strong>低い ＝ 橙、高い ＝ 青</strong>。<strong>色合い</strong>は<strong>緑〜マゼンタ</strong>
-    - [x] <strong>LMS 空間で、白点の比で割る</strong>のが<strong>本格的</strong>。<strong>RGB ゲインは簡易</strong>
-    - [x] <strong>ゲームでは「演出」</strong>に使う（<strong>時間帯・場所・状態</strong>）
-    - [x] <strong>リニア・トーンマップの前</strong>で行う
+    - [x] 色温度（K）：低い ＝ 橙、高い ＝ 青。色合いは緑〜マゼンタ
+    - [x] LMS 空間で、白点の比で割るのが本格的。RGB ゲインは簡易
+    - [x] ゲームでは「演出」に使う（時間帯・場所・状態）
+    - [x] リニア・トーンマップの前で行う
 
 ## 参考
 

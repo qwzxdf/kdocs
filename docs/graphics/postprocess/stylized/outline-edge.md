@@ -6,25 +6,25 @@ tags:
 
 # Screen-Space Edge Detection
 
-<strong>背面法はモデルの外側の輪郭しか出ません</strong>。<strong>モデルの内側の折り目（鼻・袖・服のしわの境）や、物体どうしの境の線も出したい</strong>場合は、画面の画像（深度・法線・ID）から、「値が大きく変わる場所」を検出して線にする、画面空間のエッジ検出を使います。どんな形状でも後処理で線を引けるので柔軟ですが、線の太さの制御や細部のちらつきに注意が必要です。このページでは、深度・法線・ID による検出・Sobel フィルタ・線の太さ・ちらつきの抑制・色の付け方を説明します。
+<strong>背面法はモデルの外側の輪郭しか出ません</strong>。モデルの内側の折り目（鼻・袖・服のしわの境）や、物体どうしの境の線も出したい場合は、画面の画像（深度・法線・ID）から、「値が大きく変わる場所」を検出して線にする、画面空間のエッジ検出を使います。どんな形状でも後処理で線を引けるので柔軟ですが、線の太さの制御や細部のちらつきに注意が必要です。このページでは、深度・法線・ID による検出・Sobel フィルタ・線の太さ・ちらつきの抑制・色の付け方を説明します。
 
 !!! tip "ポイント"
     - エッジ検出 ＝ <strong>隣り合う画素の、深度・法線・ID の差が大きい所を線にする</strong>。
-    - <strong>深度</strong>：<strong>物体の輪郭・前後関係の境</strong>。<strong>法線</strong>：<strong>折り目・面の向きが変わる所</strong>。<strong>ID</strong>：<strong>物体・材質の境</strong>。
-    - 3 つを<strong>組み合わせる</strong>と<strong>内側の線も外側の線も出る</strong>。
-    - <strong>Sobel フィルタ</strong>が<strong>標準</strong>。<strong>勾配の大きさで線の強さ</strong>を決める。
-    - <strong>線の太さ</strong>は<strong>サンプル間隔</strong>で調整する。<strong>距離で補正</strong>。
-    - <strong>斜めの面で深度の差が出て、不要な線</strong>が出る → <strong>深度勾配で補正</strong>。
+    - <strong>深度</strong>：物体の輪郭・前後関係の境。法線：折り目・面の向きが変わる所。ID：物体・材質の境。
+    - 3 つを組み合わせると内側の線も外側の線も出る。
+    - Sobel フィルタが標準。勾配の大きさで線の強さを決める。
+    - 線の太さはサンプル間隔で調整する。距離で補正。
+    - 斜めの面で深度の差が出て、不要な線が出る → 深度勾配で補正。
 
 ## 3 つの検出
 
-<strong>検出に使う画像</strong>は、<strong>不透明パスの出力</strong>（深度バッファ・法線バッファ・ID バッファ）です。
+<strong>検出に使う画像</strong>は、不透明パスの出力（深度バッファ・法線バッファ・ID バッファ）です。
 
 | 入力 | 検出される線 | 弱点 |
 | --- | --- | --- |
 | 深度 | 物体の外側の輪郭・手前と奥の境 | 同じ深度の折り目は出ない・斜めの面で誤検出 |
-| 法線 | <strong>折り目・面の向きの境（内側の線）</strong> | 滑らかな面の境は出ない・法線マップの細かい凹凸で、ノイズ |
-| <strong>ID（材質・物体）</strong> | 材質・物体どうしの境 | ID バッファが別途必要 |
+| 法線 | 折り目・面の向きの境（内側の線） | 滑らかな面の境は出ない・法線マップの細かい凹凸で、ノイズ |
+| ID（材質・物体） | 材質・物体どうしの境 | ID バッファが別途必要 |
 
 <svg class="fig illust" viewBox="0 0 780 230" role="img" aria-label="エッジ検出の入力">
 <text x="20" y="26" class="fig-title">深度・法線・ID から、それぞれ違う線が取れる</text>
@@ -37,7 +37,7 @@ tags:
 
 ## Sobel フィルタ
 
-<strong>画像の勾配（変化の大きさ）</strong>を<strong>測る標準的な方法</strong>が<strong>Sobel フィルタ</strong>です。周囲 3×3 の画素に、重みを掛けて、縦・横の勾配を求めます。
+<strong>画像の勾配（変化の大きさ）</strong>を測る標準的な方法がSobel フィルタです。周囲 3×3 の画素に、重みを掛けて、縦・横の勾配を求めます。
 
 ```hlsl
 float Sobel(Texture2D<float> source, float2 uv, float2 texel) {
@@ -964,7 +964,7 @@ float Sobel(Texture2D<float> source, float2 uv, float2 texel) {
 
 ## 深度によるエッジ
 
-<strong>線形化した深度</strong>に<strong>Sobel を適用</strong>し、差が一定以上の所を線にします。
+<strong>線形化した深度</strong>にSobel を適用し、差が一定以上の所を線にします。
 
 ```hlsl
 float DepthEdge(float2 uv) {
@@ -979,7 +979,7 @@ float DepthEdge(float2 uv) {
 
 ### 斜めの面の誤検出の対策
 
-<strong>斜めの面では隣の画素との深度の差が、自然に生じます</strong>（<strong>エッジではない</strong>）。法線と視線の角度から、その差の予想値を求め、予想を超える差だけをエッジとします。
+斜めの面では隣の画素との深度の差が、自然に生じます（エッジではない）。法線と視線の角度から、その差の予想値を求め、予想を超える差だけをエッジとします。
 
 ```hlsl
 float DepthEdgeCorrected(float2 uv, float3 normal, float3 view_dir) {
@@ -993,7 +993,7 @@ float DepthEdgeCorrected(float2 uv, float3 normal, float3 view_dir) {
 
 ## 法線によるエッジ
 
-<strong>隣り合う法線の差（内積）が小さい所</strong>が<strong>折り目</strong>です。
+<strong>隣り合う法線の差（内積）が小さい所</strong>が折り目です。
 
 ```hlsl
 float NormalEdge(float2 uv) {
@@ -1009,7 +1009,7 @@ float NormalEdge(float2 uv) {
 
 ## ID によるエッジ
 
-<strong>物体 ID・材質 ID を画素ごとに別のバッファへ書き</strong>、<strong>隣と ID が違えば線</strong>とします。
+<strong>物体 ID・材質 ID を画素ごとに別のバッファへ書き</strong>、隣と ID が違えば線とします。
 
 ID の使い道です。物体どうしの境として、キャラクターと背景の境やキャラ同士の境を出せます。材質の境として、髪と肌、服と肌を分けられます。選択した物体の強調として、選択された ID だけ輪郭を出すこともできます（ハイライト）。
 
@@ -1031,16 +1031,16 @@ float IdEdge(float2 uv) {
 | 複数の間隔を混ぜる | 細い線 ＋ 太い線で強弱 |
 | ぼかしで太く | 検出後に軽くぼかして太くする |
 
-<strong>注意</strong>：<strong>間隔を広げると離れた 2 点の差を見るので、細かい形状の線が出にくく</strong>なります。
+注意：間隔を広げると離れた 2 点の差を見るので、細かい形状の線が出にくくなります。
 
 ## ちらつきと安定
 
-<strong>画面空間のエッジは、カメラが動くと検出される画素が変わり、線がちらつく</strong>ことが<strong>あります</strong>。
+<strong>画面空間のエッジは、カメラが動くと検出される画素が変わり、線がちらつく</strong>ことがあります。
 
 | 対策 | 内容 |
 | --- | --- |
 | TAA で平均 | TAA の後に線を引くのではなく、線を引いてから TAA で滑らかに |
-| <strong>しきい値にソフトな境（`smoothstep`）</strong> | 線の強さが連続的に変わる |
+| しきい値にソフトな境（`smoothstep`） | 線の強さが連続的に変わる |
 | アンチエイリアス済みの深度・法線から検出 | ジャギーが少ない |
 | 線をジオメトリ側（背面法）で出す部分を併用 | 外側の輪郭は背面法で安定 |
 
@@ -1067,25 +1067,25 @@ float IdEdge(float2 uv) {
 ## よくあるミス
 
 ??? failure "地面（斜めの面）に、縞のような線が出る"
-    <strong>深度の勾配補正</strong>を入れる。
+    深度の勾配補正を入れる。
 
 ??? failure "法線マップのせいで、細かい線がうるさい"
-    <strong>法線マップを含まない、ジオメトリの法線</strong>を別に書く。
+    法線マップを含まない、ジオメトリの法線を別に書く。
 
 ??? failure "遠くで線が太く、近くで細い"
-    <strong>距離でサンプル間隔を補正</strong>する。
+    距離でサンプル間隔を補正する。
 
 ??? failure "動くと線がちらつく"
-    <strong>`smoothstep` で滑らかに</strong>、<strong>TAA を併用</strong>。
+    `smoothstep` で滑らかに、TAA を併用。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 画面空間エッジ ＝ <strong>隣の画素との、深度・法線・ID の差が大きい所を線にする</strong>
-    - [x] <strong>深度は外側の輪郭、法線は内側の折り目、ID は物体・材質の境</strong>
-    - [x] <strong>Sobel フィルタ</strong>で<strong>勾配の大きさ</strong>を測る
-    - [x] <strong>斜めの面の誤検出</strong>は<strong>深度勾配の補正</strong>で防ぐ
-    - [x] <strong>背面法と併用</strong>。<strong>TAA でちらつきを抑える</strong>
+    - [x] 画面空間エッジ ＝ 隣の画素との、深度・法線・ID の差が大きい所を線にする
+    - [x] 深度は外側の輪郭、法線は内側の折り目、ID は物体・材質の境
+    - [x] Sobel フィルタで勾配の大きさを測る
+    - [x] 斜めの面の誤検出は深度勾配の補正で防ぐ
+    - [x] 背面法と併用。TAA でちらつきを抑える
 
 ## 参考
 

@@ -6,19 +6,19 @@ tags:
 
 # Dual Filter
 
-<strong>Dual Filter（Kawase の Dual Filtering）</strong>は、<strong>縮小とぼかしを同時に行い、拡大とぼかしも同時に行う</strong>方式です。<strong>ガウスぼかしを別パスで行う必要がなくなり</strong>、ブルームのコストを大きく下げられます。モバイルのように帯域が厳しい環境でも定番です。このページでは、考え方・ダウンサンプル用とアップサンプル用のカーネル・実装・実質のぼかしの広がり・ガウスとの比較・注意点を説明します。
+<strong>Dual Filter（Kawase の Dual Filtering）</strong>は、縮小とぼかしを同時に行い、拡大とぼかしも同時に行う方式です。ガウスぼかしを別パスで行う必要がなくなり、ブルームのコストを大きく下げられます。モバイルのように帯域が厳しい環境でも定番です。このページでは、考え方・ダウンサンプル用とアップサンプル用のカーネル・実装・実質のぼかしの広がり・ガウスとの比較・注意点を説明します。
 
 !!! tip "ポイント"
     - Dual Filter ＝ <strong>縮小のときに周りも平均し（ぼかし）、拡大のときも周りを足す（ぼかし）</strong>。<strong>ぼかしだけの専用パスが要らない</strong>。
-    - <strong>ダウンサンプル</strong>は<strong>5 タップ</strong>（中心 + 4 つの斜め）、<strong>アップサンプル</strong>は<strong>8 タップ</strong>（辺と斜め）。
-    - 各タップは<strong>バイリニア</strong>で読むので、<strong>実質より多くの画素</strong>が混ざる。
-    - <strong>広さは段数に比例して指数的に増える</strong>。
-    - <strong>ガウスよりやや四角い形</strong>になるが、<strong>多段にすると見分けにくい</strong>。
-    - <strong>オフセット（広がり）</strong>を<strong>パラメータ</strong>にして、<strong>ぼかしの強さを調整</strong>できる。
+    - ダウンサンプルは5 タップ（中心 + 4 つの斜め）、アップサンプルは8 タップ（辺と斜め）。
+    - 各タップはバイリニアで読むので、実質より多くの画素が混ざる。
+    - 広さは段数に比例して指数的に増える。
+    - ガウスよりやや四角い形になるが、多段にすると見分けにくい。
+    - オフセット（広がり）をパラメータにして、ぼかしの強さを調整できる。
 
 ## 考え方
 
-<strong>従来</strong>は、「縮小」と「ぼかし」を<strong>別々のパス</strong>で行いました。Dual Filter は、縮小するときの「サンプルの取り方」自体をぼかしの形にします。
+<strong>従来</strong>は、「縮小」と「ぼかし」を別々のパスで行いました。Dual Filter は、縮小するときの「サンプルの取り方」自体をぼかしの形にします。
 
 <svg class="fig illust" viewBox="0 0 780 250" role="img" aria-label="Dual Filter のカーネル">
 <text x="20" y="26" class="fig-title">Dual Filter のカーネル（ダウン：5 タップ、アップ：8 タップ）</text>
@@ -42,7 +42,7 @@ tags:
 
 ## ダウンサンプル（5 タップ）
 
-<strong>中心（重み 4）と、斜めの 4 点（重み 1）</strong>を<strong>バイリニアで読み、合計を 8 で割ります</strong>。
+<strong>中心（重み 4）と、斜めの 4 点（重み 1）</strong>をバイリニアで読み、合計を 8 で割ります。
 
 ```hlsl
 float3 DualDown(Texture2D src, SamplerState linear_clamp, float2 uv, float2 half_pixel, float offset) {
@@ -59,7 +59,7 @@ float3 DualDown(Texture2D src, SamplerState linear_clamp, float2 uv, float2 half
 
 ## アップサンプル（8 タップ）
 
-<strong>辺の 4 点（重み 1）と、斜めの 4 点（重み 2）</strong>を<strong>バイリニアで読み、合計を 12 で割ります</strong>。
+<strong>辺の 4 点（重み 1）と、斜めの 4 点（重み 2）</strong>をバイリニアで読み、合計を 12 で割ります。
 
 ```hlsl
 float3 DualUp(Texture2D src, SamplerState linear_clamp, float2 uv, float2 half_pixel, float offset) {
@@ -76,7 +76,7 @@ float3 DualUp(Texture2D src, SamplerState linear_clamp, float2 uv, float2 half_p
 }
 ```
 
-<strong>拡大側の `half_pixel`</strong> は、<strong>ソース（小さい画像）の半画素</strong>です。
+拡大側の `half_pixel` は、ソース（小さい画像）の半画素です。
 
 ## 全体の手順
 
@@ -84,7 +84,7 @@ Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各�
 
 この方法は、Marius Bjørge（ARM）の SIGGRAPH 2015 の発表 "Bandwidth-Efficient Rendering" で紹介されました。モバイル GPU はメモリ帯域が貴重なので、縮小とぼかしを 1 回のパスで済ませる Dual Filter が考案されました。
 
-<strong>全部で各段 1 パス × 2（ダウン・アップ）</strong>。<strong>ガウスのように横・縦の 2 パスを各段で行う必要がありません</strong>。
+<strong>全部で各段 1 パス × 2（ダウン・アップ）</strong>。ガウスのように横・縦の 2 パスを各段で行う必要がありません。
 
 <!-- fig:dual-filter-passes:begin -->
 
@@ -307,11 +307,11 @@ Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各�
 
 ## 実質の広がり
 
-<strong>バイリニアで読むので、1 タップが 2×2 画素を混ぜます</strong>。<strong>ダウンサンプルは、ソースの 約 6×6 画素</strong>を混ぜていることになります。これを数段重ねると十分に広く滑らかです。
+<strong>バイリニアで読むので、1 タップが 2×2 画素を混ぜます</strong>。ダウンサンプルは、ソースの 約 6×6 画素を混ぜていることになります。これを数段重ねると十分に広く滑らかです。
 
 段数と、実質のぼかしの半径の関係です。3 段で約 12〜16 画素、5 段で約 50〜64 画素、7 段で約 200〜250 画素になります。段が深くなるにつれて、半径が約 2 倍ずつ広がります。
 
-<strong>`offset` を大きくする</strong>と、<strong>段数を増やさずに広がりを増やせます</strong>。ただし大きすぎるとサンプルがまばらになり、格子状の模様が出ます。
+`offset` を大きくすると、段数を増やさずに広がりを増やせます。ただし大きすぎるとサンプルがまばらになり、格子状の模様が出ます。
 
 ## ガウスとの比較
 
@@ -321,7 +321,7 @@ Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各�
 | タップ数 | 多い | 少ない（5 / 8） |
 | 形 | 滑らかな円形 | やや四角い（多段でほぼ円） |
 | 帯域 | 大きい | 小さい |
-| 向く場面 | <strong>品質重視（PC・コンソール）</strong> | <strong>帯域重視（モバイル・VR）</strong> |
+| 向く場面 | 品質重視（PC・コンソール） | 帯域重視（モバイル・VR） |
 
 ## より良いやり方
 
@@ -336,25 +336,25 @@ Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各�
 ## よくあるミス
 
 ??? failure "`half_pixel` の基準が、ダウン（ソース側）とアップ（小さい画像側）で混同される"
-    <strong>どちらも「読む側のテクスチャ」の半画素</strong>。<strong>読むテクスチャごとに計算</strong>する。
+    <strong>どちらも「読む側のテクスチャ」の半画素</strong>。読むテクスチャごとに計算する。
 
 ??? failure "`offset` を大きくしすぎて、格子状の模様が出る"
-    <strong>段数を増やして広げる</strong>。<strong>`offset` は 1〜2 程度</strong>。
+    段数を増やして広げる。`offset` は 1〜2 程度。
 
 ??? failure "最上段で足す強さが強すぎて、全体がぼんやりする"
-    <strong>強さを下げる</strong>（[Compositing and Intensity](composite.md)）。
+    強さを下げる（[Compositing and Intensity](composite.md)）。
 
 ??? failure "四角いにじみが目立つ"
-    <strong>段数が少ない</strong>。<strong>4 段以上、またはガウスと併用</strong>。
+    段数が少ない。4 段以上、またはガウスと併用。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] Dual Filter ＝ <strong>縮小・拡大のサンプルの取り方自体をぼかしにする</strong>
-    - [x] <strong>ダウン 5 タップ、アップ 8 タップ</strong>。<strong>バイリニアで読む</strong>
-    - [x] <strong>パス数が少なく、帯域が小さい</strong>（<strong>モバイル向き</strong>）
-    - [x] <strong>`offset`</strong> で<strong>広がりを調整</strong>。<strong>大きすぎると格子模様</strong>
-    - [x] <strong>やや四角い形</strong>だが、<strong>多段でほぼ円</strong>
+    - [x] ダウン 5 タップ、アップ 8 タップ。バイリニアで読む
+    - [x] パス数が少なく、帯域が小さい（モバイル向き）
+    - [x] `offset` で広がりを調整。大きすぎると格子模様
+    - [x] やや四角い形だが、多段でほぼ円
 
 ## 参考
 

@@ -6,7 +6,7 @@ tags:
 
 # Day-Night Cycle
 
-<strong>時間が進むと太陽が動き空の色・光の色・影の向きが変わります</strong>。<strong>これらを 1 つの「時刻」から連動させる</strong>と、管理が楽です。このページでは昼夜のサイクルを説明します。
+<strong>時間が進むと太陽が動き空の色・光の色・影の向きが変わります</strong>。これらを 1 つの「時刻」から連動させると、管理が楽です。このページでは昼夜のサイクルを説明します。
 
 !!! tip "ポイント"
     - 時刻 → 太陽の位置 → 空・光・影、が連動。
@@ -63,7 +63,7 @@ tags:
 <!-- fig:day-night:end -->
 
 ## 昼夜のサイクル
-<strong>時刻から太陽の方向を決める</strong>と、<strong>すべてが連動します</strong>。
+<strong>時刻から太陽の方向を決める</strong>と、すべてが連動します。
 
 ```cpp
 float time_of_day = std::fmod(game_hours, 24.0f) / 24.0f;
@@ -94,7 +94,7 @@ sun_direction.Normalize();
 
 ## 太陽の高さと光の色
 
-<strong>太陽が低い</strong>ほど <strong>光が大気を長く通り</strong>、青から先に散って失われます。赤い光が残るので朝夕の太陽は赤い。
+<strong>太陽が低い</strong>ほど 光が大気を長く通り、青から先に散って失われます。赤い光が残るので朝夕の太陽は赤い。
 
 ```hlsl
 // 太陽の、高さ（天頂角の cos = sun_dir.y）から、地表での、太陽の光の色を求める（大気の透過率を、掛ける）。
@@ -104,11 +104,11 @@ float3 SunColorAtGround(float3 sun_dir) {
 }
 ```
 
-<strong>透過率</strong>は <strong>RGB ごと</strong>に、違います（青がよく散る）。太陽の高さに応じて自動的に昼は白、夕方は橙、日没は赤になります。色を手で設定する必要はありません。
+透過率は RGB ごとに、違います（青がよく散る）。太陽の高さに応じて自動的に昼は白、夕方は橙、日没は赤になります。色を手で設定する必要はありません。
 
 ## 光の強さ
 
-<strong>太陽の光の強さ</strong>は <strong>高さとともに急に、変わります</strong>。
+<strong>太陽の光の強さ</strong>は 高さとともに急に、変わります。
 
 | 太陽の高さ | 地表の照度（目安、lux） |
 | --- | --- |
@@ -121,11 +121,11 @@ float3 SunColorAtGround(float3 sun_dir) {
 | 夜（満月） | 約 0.1〜0.3 |
 | 夜（月なし） | 約 0.001 |
 
-<strong>対数的</strong>に <strong>桁が変わる</strong>ので、HDR と露出の自動調整（[Auto Exposure](../../postprocess/tonemapping/auto-exposure.md)）がほぼ、必須です。固定の露出では昼が白飛びするか夜が、真っ暗になります。
+対数的に 桁が変わるので、HDR と露出の自動調整（[Auto Exposure](../../postprocess/tonemapping/auto-exposure.md)）がほぼ、必須です。固定の露出では昼が白飛びするか夜が、真っ暗になります。
 
 ## 薄明（トワイライト）
 
-<strong>太陽が地平線の下に沈んだ後</strong>も <strong>空は、しばらく明るい</strong>です。大気の高い部分（太陽の光がまだ、当たっている）が光を散乱して地上へ、届けるためです。
+<strong>太陽が地平線の下に沈んだ後</strong>も 空は、しばらく明るいです。大気の高い部分（太陽の光がまだ、当たっている）が光を散乱して地上へ、届けるためです。
 
 | 太陽の高さ | 名前 | 見え方 |
 | --- | --- | --- |
@@ -133,11 +133,11 @@ float3 SunColorAtGround(float3 sun_dir) {
 | −6° 〜 −12° | 航海薄明 | 明るい星が、見える。地平線がぼんやり見える |
 | −12° 〜 −18° | 天文薄明 | ほぼ夜。かすかな明るさ |
 
-大気散乱の <strong>物理計算</strong>（[Hillaire 2020: Four LUTs](../scattering/hillaire.md)）は、<strong>多重散乱</strong>とオゾンの吸収を、含めると薄明も自然に再現します（1 回散乱だけでは、足りない。[Multiple Scattering](../scattering/multiple-scattering.md)）。
+大気散乱の 物理計算（[Hillaire 2020: Four LUTs](../scattering/hillaire.md)）は、多重散乱とオゾンの吸収を、含めると薄明も自然に再現します（1 回散乱だけでは、足りない。[Multiple Scattering](../scattering/multiple-scattering.md)）。
 
 ## 1 日の時間を進める
 
-ゲームでは <strong>1 日を数十分</strong>に、縮めます。<strong>時刻</strong>を一定の速さで進めます。
+ゲームでは <strong>1 日を数十分</strong>に、縮めます。時刻を一定の速さで進めます。
 
 ```cpp
 // ゲーム内の時刻（時）を、進める。1 日を day_length_minutes 分に、縮める。
@@ -175,7 +175,7 @@ float AdvanceTime(float hour, float dt_seconds, float day_length_minutes) {
 ## よくあるミス
 
 ??? failure "日没で、影が長くならない・向きが変わらない"
-    <strong>太陽の向きを時刻から計算</strong>して、<strong>影</strong>に使う。
+    <strong>太陽の向きを時刻から計算</strong>して、影に使う。
 
 ## これだけ覚える
 

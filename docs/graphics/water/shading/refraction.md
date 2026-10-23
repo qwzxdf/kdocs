@@ -6,7 +6,7 @@ tags:
 
 # Water Refraction Distortion
 
-<strong>水の中の景色は水面で曲がって見えます</strong>。<strong>法線に応じて既に描いた画面をずらして読む</strong>ことで、安く表現できます。このページでは水の屈折の歪みと、水面より手前の物の扱いを説明します。
+<strong>水の中の景色は水面で曲がって見えます</strong>。法線に応じて既に描いた画面をずらして読むことで、安く表現できます。このページでは水の屈折の歪みと、水面より手前の物の扱いを説明します。
 
 !!! tip "ポイント"
     - 画面のコピーを法線でずらして読む。
@@ -15,7 +15,7 @@ tags:
     - 水深が浅いほど歪みを弱める。
 
 ## 屈折の歪み
-<strong>水面の法線は波で傾く</strong>ので、<strong>水中の物は歪んで見えます</strong>。法線の XZ 成分で背景を読む UV をずらします。
+<strong>水面の法線は波で傾く</strong>ので、水中の物は歪んで見えます。法線の XZ 成分で背景を読む UV をずらします。
 
 ```hlsl
 float2 distortion = wave_normal.xz * distortion_strength;
@@ -38,13 +38,13 @@ float3 scene_color = scene_copy.Sample(linear_clamp, refract_uv).rgb;
 
 ## なぜ水の中の物はずれて見えるのか
 
-光が空気から水へ入るとき <strong>境界で、曲がります</strong>（屈折）。<strong>スネルの法則</strong>で曲がる角度が決まります。
+光が空気から水へ入るとき <strong>境界で、曲がります</strong>（屈折）。スネルの法則で曲がる角度が決まります。
 
 ```text
 n₁ sinθ₁ = n₂ sinθ₂            n₁ = 1.0（空気）、n₂ = 1.33（水）
 ```
 
-水の中の物体から来た光は水面で、曲がって目に届きます。<strong>目は光が曲がらずまっすぐ来た、と思い込む</strong>ので <strong>水の中の物は、実際より浅い所に見えます</strong>。ストローが水面で折れて見えるのも、同じ理由です。
+水の中の物体から来た光は水面で、曲がって目に届きます。目は光が曲がらずまっすぐ来た、と思い込むので 水の中の物は、実際より浅い所に見えます。ストローが水面で折れて見えるのも、同じ理由です。
 
 ## 正確な屈折ベクトル
 
@@ -55,7 +55,7 @@ n₁ sinθ₁ = n₂ sinθ₂            n₁ = 1.0（空気）、n₂ = 1.33（
 float3 refracted_dir = refract(-view_dir, wave_normal, 1.0 / 1.33);
 ```
 
-この向きに光が水の中を進みます。<strong>屈折した向きに水の中を一定の距離だけ進んだ点</strong>が目に、見えている点です。
+この向きに光が水の中を進みます。屈折した向きに水の中を一定の距離だけ進んだ点が目に、見えている点です。
 
 ```hlsl
 // 水面の点 P から、屈折した向きに、水の深さぶん進んだ点（水中の、見える位置）。
@@ -65,11 +65,11 @@ float4 clip = mul(float4(refracted_pos, 1), view_proj);
 float2 refract_uv = clip.xy / clip.w * float2(0.5, -0.5) + 0.5;
 ```
 
-これが <strong>屈折の幾何学的に正しい</strong>方法です。<strong>水深</strong>（底までの距離）が必要なので、深度バッファを読みます（[Color by Water Depth](depth-color.md)）。
+これが 屈折の幾何学的に正しい方法です。水深（底までの距離）が必要なので、深度バッファを読みます（[Color by Water Depth](depth-color.md)）。
 
 ## 画面のコピーを歪ませる（簡易な方法）
 
-幾何学的な方法は <strong>水深と屈折ベクトル</strong>が必要で計算が、増えます。<strong>多くのゲームではもっと簡単な方法</strong>を、使います（Sousa、2005）。
+幾何学的な方法は <strong>水深と屈折ベクトル</strong>が必要で計算が、増えます。多くのゲームではもっと簡単な方法を、使います（Sousa、2005）。
 
 1. 水面を描く前に画面（シーンの色）を、テクスチャにコピーする
 2. 水面のピクセルで波の法線に応じて、UV をずらしてそのコピーを読む
@@ -87,7 +87,7 @@ float2 refract_uv = screen_uv + distortion;
 float3 scene_color = g_scene_copy.Sample(g_linear_clamp, refract_uv).rgb;
 ```
 
-波の法線が <strong>傾いている方向に、ずれて</strong>見えるので <strong>水面がゆらゆらして、水中の物が揺らいで見えます</strong>。
+波の法線が 傾いている方向に、ずれて見えるので 水面がゆらゆらして、水中の物が揺らいで見えます。
 
 ### パラメーター
 
@@ -99,7 +99,7 @@ float3 scene_color = g_scene_copy.Sample(g_linear_clamp, refract_uv).rgb;
 
 ## 手前の物をずらさない
 
-歪ませた UV でシーンの色を、読むとき <strong>水より手前にある物</strong>（水面から、突き出た杭、船、プレイヤーの足）を <strong>読んでしまう</strong>ことがあります。杭の色が水面ににじみ出して見えます。
+歪ませた UV でシーンの色を、読むとき <strong>水より手前にある物</strong>（水面から、突き出た杭、船、プレイヤーの足）を 読んでしまうことがあります。杭の色が水面ににじみ出して見えます。
 
 ```hlsl
 // ずらした先の深度が、水面より手前なら（水の外にある物）、ずらさない。
@@ -116,22 +116,22 @@ float3 scene_color = g_scene_copy.Sample(g_linear_clamp, refract_uv).rgb;
 | ずらした先が水の中（底） | そのまま、歪ませた色を使う |
 | ずらした先が水より手前の物 | 歪ませず、元の位置の色を使う |
 
-これでも <strong>水面の境界でわずかに、にじみ</strong>ます。さらに、<strong>水の外にある物のマスク</strong>を、別のテクスチャで持つ方法もありますが、簡易な方法ではこの深度のチェックだけで、十分なことが多いです。
+これでも 水面の境界でわずかに、にじみます。さらに、水の外にある物のマスクを、別のテクスチャで持つ方法もありますが、簡易な方法ではこの深度のチェックだけで、十分なことが多いです。
 
 ## 水深から歪みを決める
 
-<strong>浅い場所</strong>では光が水の中を、通る距離が短く <strong>屈折の影響が、小さい</strong>です。水深に比例して歪みを強めます。
+<strong>浅い場所</strong>では光が水の中を、通る距離が短く 屈折の影響が、小さいです。水深に比例して歪みを強めます。
 
 ```hlsl
 float depth_factor = saturate(water_depth / 2.0);       // 2 m で、最大
 float2 distortion = wave_normal.xz * distortion_strength * depth_factor;
 ```
 
-岸に近づくほど歪みが小さくなり、<strong>水際で屈折が自然に消えます</strong>。
+岸に近づくほど歪みが小さくなり、水際で屈折が自然に消えます。
 
 ## 色収差（分散）
 
-水の屈折率は <strong>波長で少し違います</strong>（赤で 1.331、青で 1.337）。これを再現すると <strong>RGB を、わずかに別々にずらして</strong>、読みます。
+水の屈折率は <strong>波長で少し違います</strong>（赤で 1.331、青で 1.337）。これを再現すると RGB を、わずかに別々にずらして、読みます。
 
 ```hlsl
 float3 scene_color;
@@ -140,11 +140,11 @@ scene_color.g = g_scene_copy.Sample(g_linear_clamp, screen_uv + distortion * 1.0
 scene_color.b = g_scene_copy.Sample(g_linear_clamp, screen_uv + distortion * 1.05).b;
 ```
 
-水は屈折率の差が小さく効果は、ごくわずかです。入れると <strong>水面の縁がわずかに、虹色</strong>に見えます。ガラス（[Dispersion](../../translucency/refraction/dispersion.md)）では効果が、目立ちます。
+水は屈折率の差が小さく効果は、ごくわずかです。入れると 水面の縁がわずかに、虹色に見えます。ガラス（[Dispersion](../../translucency/refraction/dispersion.md)）では効果が、目立ちます。
 
 ## 画面の端
 
-歪ませた UV が <strong>画面の外</strong>を指すことがあります。画面の外の色は無いので <strong>サンプラーの、クランプ</strong>（`CLAMP`）で端の色を繰り返し、読みます。画面の端で色が伸びて見えることがあります。
+歪ませた UV が <strong>画面の外</strong>を指すことがあります。画面の外の色は無いので サンプラーの、クランプ（`CLAMP`）で端の色を繰り返し、読みます。画面の端で色が伸びて見えることがあります。
 
 | 対策 | 内容 |
 | --- | --- |

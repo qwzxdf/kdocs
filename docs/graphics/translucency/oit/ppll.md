@@ -6,7 +6,7 @@ tags:
 
 # Per-Pixel Linked List (PPLL)
 
-<strong>PPLL は画素ごとに重なった半透明の断片をリストに記録し、最後に深度で並べ替えてブレンドする手法</strong>です。<strong>正確ですがメモリと並べ替えのコストが大きい</strong>です。このページでは PPLL の仕組みと実装を説明します。
+<strong>PPLL は画素ごとに重なった半透明の断片をリストに記録し、最後に深度で並べ替えてブレンドする手法</strong>です。正確ですがメモリと並べ替えのコストが大きいです。このページでは PPLL の仕組みと実装を説明します。
 
 !!! tip "ポイント"
     - 描画時：断片（色・深度）を、画素ごとのリストへ追加。
@@ -15,7 +15,7 @@ tags:
     - 重なりが多いとメモリと時間が膨らむ。
 
 ## Per-Pixel Linked List（PPLL）
-<strong>画素ごとに重なったフラグメントを「連結リスト」で全部保存</strong>し、<strong>最後に画素ごとに深度順に並べて合成</strong>します。DirectX 11 の UAV とアトミック操作で実現できます（Yang らの手法）。
+<strong>画素ごとに重なったフラグメントを「連結リスト」で全部保存</strong>し、最後に画素ごとに深度順に並べて合成します。DirectX 11 の UAV とアトミック操作で実現できます（Yang らの手法）。
 
 ### データ構造
 
@@ -77,7 +77,7 @@ void PSCollect(VsOutput input) {
 
 ### 合成パス
 
-<strong>画素ごとにリストをたどって配列に取り出し、深度でソートして奥から合成</strong>します。
+画素ごとにリストをたどって配列に取り出し、深度でソートして奥から合成します。
 
 ```hlsl
 float4 PSResolve(VsOutput input) : SV_Target {
@@ -155,7 +155,7 @@ PPLL の利点は正確なこと（ソート済みで合成）、層数に上限
 
 ## 考え方：全部、リストに溜める
 
-<strong>PPLL（Per-Pixel Linked List、画素ごとの連結リスト）</strong>は <strong>画面の各画素に重なる、すべてのフラグメントをリストとして、溜めて</strong>、最後に画素ごとにソートしてブレンドする方法です（Yang ら、2010）。デプス ピーリングのような複数パスが不要で、1 パスですべての層を集められます。
+<strong>PPLL（Per-Pixel Linked List、画素ごとの連結リスト）</strong>は 画面の各画素に重なる、すべてのフラグメントをリストとして、溜めて、最後に画素ごとにソートしてブレンドする方法です（Yang ら、2010）。デプス ピーリングのような複数パスが不要で、1 パスですべての層を集められます。
 
 ```text
 画素 (x, y):  head ──→ [赤, 深度 0.3] ──→ [青, 深度 0.7] ──→ [緑, 深度 0.5] ──→ 終わり
@@ -186,7 +186,7 @@ RWByteAddressBuffer g_counter : register(u3);                    // 割り当て
 
 ## 構築パス：フラグメントを溜める
 
-半透明のピクセル シェーダーで、<strong>フラグメントを書き込み</strong>ます。<strong>レンダー ターゲットには描きません</strong>（`discard` するか、書き込みマスクを無効に）。
+半透明のピクセル シェーダーで、<strong>フラグメントを書き込み</strong>ます。レンダー ターゲットには描きません（`discard` するか、書き込みマスクを無効に）。
 
 ```hlsl
 // 構築パス（半透明のオブジェクトを描くとき）。
@@ -233,7 +233,7 @@ void BuildPS(PSInput input) {
 
 ## 解決パス：ソートしてブレンド
 
-<strong>全画面のピクセル シェーダー</strong>で、<strong>画素ごとにリストを取り出し、ソートしてブレンド</strong>します。
+<strong>全画面のピクセル シェーダー</strong>で、画素ごとにリストを取り出し、ソートしてブレンドします。
 
 ```hlsl
 float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
@@ -302,7 +302,7 @@ float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
 
 ## DirectX 11 での、リソース
 
-PPLL には <strong>`RWByteAddressBuffer`</strong> と <strong>`RWStructuredBuffer`</strong>（UAV）を、ピクセル シェーダーから書き込む必要があります。DirectX 11 ではピクセル シェーダーでの、UAV の使用ができます（`OMSetRenderTargetsAndUnorderedAccessViews`）。
+PPLL には <strong>`RWByteAddressBuffer`</strong> と `RWStructuredBuffer`（UAV）を、ピクセル シェーダーから書き込む必要があります。DirectX 11 ではピクセル シェーダーでの、UAV の使用ができます（`OMSetRenderTargetsAndUnorderedAccessViews`）。
 
 ```cpp
 // レンダー ターゲット 0 個（描かない）+ UAV 3 つ（ヘッド、フラグメント、カウンター）を、ピクセル シェーダーへ設定する。
@@ -319,7 +319,7 @@ context->ClearUnorderedAccessViewUint(head_uav.Get(), clear_head);
 ## よくあるミス
 
 ??? failure "重なりが多い所で、リストがあふれる"
-    <strong>リストの長さに上限</strong>を設け、<strong>超えた分は破棄</strong>する。
+    <strong>リストの長さに上限</strong>を設け、超えた分は破棄する。
 
 ## これだけ覚える
 

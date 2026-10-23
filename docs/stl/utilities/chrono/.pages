@@ -14,7 +14,10 @@ nav:
   - hh_mm_ss.md
   - zoned_time.md
   - file_clock.md
+  - abs.md
   - ambiguous_local_time.md
+  - ceil.md
+  - choose.md
   - clock_cast.md
   - current_zone.md
   - day.md
@@ -25,14 +28,18 @@ nav:
   - get_leap_second_info.md
   - get_tzdb.md
   - gps_clock.md
+  - gps_seconds.md
+  - gps_time.md
   - hours.md
   - is_am.md
+  - is_clock.md
   - is_pm.md
   - last_spec.md
   - leap_second.md
   - local_days.md
   - local_info.md
   - local_seconds.md
+  - local_t.md
   - local_time.md
   - locate_zone.md
   - make12.md
@@ -48,11 +55,16 @@ nav:
   - nanoseconds.md
   - nonexistent_local_time.md
   - parse.md
+  - reload_tzdb.md
+  - remote_version.md
+  - round.md
   - sys_days.md
   - sys_info.md
   - sys_seconds.md
   - sys_time.md
   - tai_clock.md
+  - tai_seconds.md
+  - tai_time.md
   - time_point_cast.md
   - time_zone.md
   - time_zone_link.md
@@ -61,6 +73,7 @@ nav:
   - tzdb.md
   - tzdb_list.md
   - utc_clock.md
+  - utc_seconds.md
   - utc_time.md
   - weekday.md
   - weekday_indexed.md
@@ -72,4 +85,5 @@ nav:
   - year_month_weekday.md
   - year_month_weekday_last.md
   - years.md
+  - zoned_traits.md
   - ...

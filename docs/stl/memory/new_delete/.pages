@@ -12,6 +12,8 @@ nav:
   - launder.md
   - align_val_t.md
   - set_new_handler.md
+  - delete_array.md
+  - operator_delete.md
   - bad_array_new_length.md
   - destroy.md
   - destroy_n.md

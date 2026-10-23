@@ -14,12 +14,15 @@ tags:
 `#include <ios>`
 </div>
 
-`std::ios_base` は、**すべての入出力ストリームの土台**となるクラスです。ファイルの開き方（`openmode`）、位置の基準（`seekdir`）、書式のフラグ（`fmtflags`）、状態（`iostate`）の定数を持っています。`std::ios::in` や `std::ios::binary` と書くのは、この中の定数です。
+ファイルを開くときの `std::ios::binary` や `std::ios::app`、ストリームの状態を調べる `eof()` や `fail()`。これらの定数は、どこで定義されているのでしょうか。`std::ios_base` は、すべての入出力ストリームの土台になるクラスです。ファイルの開き方（`openmode`）、位置の基準（`seekdir`）、書式のフラグ（`fmtflags`）、状態（`iostate`）の定数を持っています。`std::ios` は、このクラスの派生です。
 
 !!! tip "ポイント"
     - ファイルを開くときのフラグ: `std::ios::in` `out` `binary` `app` `trunc` `ate`。
     - 状態の確認: `good()` `eof()` `fail()` `bad()`。`if (stream)` は `!fail()` と同じ。
     - 位置の基準: `std::ios::beg` `cur` `end`。
+
+!!! info "このページを読む前に"
+    [`std::ifstream`](ifstream.md) や [`std::cout`](cout.md) など、ストリームの基本を先に読んでください。
 
 ## 開き方（openmode）
 
@@ -173,17 +176,125 @@ void*& pword(int idx);
 
 ストリームに、任意のポインタを 1 つ持たせる（`xalloc` で取った添字で）。自作のマニピュレータが、ストリームごとの設定を覚えておくために使います。
 
+### flags {#flags}
+
+```cpp
+fmtflags flags() const;
+fmtflags flags(fmtflags fl);
+```
+
+- 計算量: 定数
+
+いまの書式フラグを返します。引数つきの版は、フラグを**全部置き換え**て、それまでのフラグを返します。
+
+### setf {#setf}
+
+```cpp
+fmtflags setf(fmtflags fl);
+fmtflags setf(fmtflags fl, fmtflags mask);
+```
+
+- 計算量: 定数
+
+書式フラグを**追加**します。2 引数の版は、`mask` の範囲（`basefield` など）を先にクリアしてから設定するので、`hex` の切り替えに使えます。
+
+### unsetf {#unsetf}
+
+```cpp
+void unsetf(fmtflags mask);
+```
+
+- 計算量: 定数
+
+指定した書式フラグを解除します。
+
+### precision {#precision}
+
+```cpp
+streamsize precision() const;
+streamsize precision(streamsize new_precision);
+```
+
+- 計算量: 定数
+
+小数の出力の桁数（既定は 6）を返す、または設定します。`setprecision` マニピュレータと同じ働きです。
+
+### width {#width}
+
+```cpp
+streamsize width() const;
+streamsize width(streamsize new_width);
+```
+
+- 計算量: 定数
+
+次の 1 回の出力の最小の幅を返す、または設定します。出力のたびにリセットされます。`setw` と同じ働きです。
+
+### xalloc {#xalloc}
+
+```cpp
+static int xalloc();
+```
+
+- 計算量: 定数
+
+`iword`・`pword` で使う、新しい添字を確保して返します。自作のマニピュレータが、ストリームごとの設定を覚えるのに使います。
+
+### register_callback {#register_callback}
+
+```cpp
+void register_callback(event_callback fn, int index);
+```
+
+- 計算量: 定数
+
+`imbue`・`copyfmt`・ストリームの破棄のときに呼ばれる関数を登録します。`iword`/`pword` の後始末に使います。
+
+### sync_with_stdio {#sync_with_stdio}
+
+```cpp
+static bool sync_with_stdio(bool sync = true);
+```
+
+- 計算量: 定数
+
+C++ のストリームと C の入出力（`printf` など）を同期するかを設定します。`false` にすると、入出力が速くなります（競技プログラミングの定番）が、`printf` と混ぜられなくなります。
+
+### imbue {#imbue}
+
+```cpp
+std::locale imbue(const std::locale& loc);
+```
+
+- 計算量: 定数
+
+ストリームのロケールを設定します。数値の区切りや、日付の書式が変わります。
+
+### getloc {#getloc}
+
+```cpp
+std::locale getloc() const;
+```
+
+- 計算量: 定数
+
+ストリームのロケールを返します。
+
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| バイナリで書き出す | `std::ofstream out(path, std::ios::binary);` |
-| 読み込みの失敗を調べる | `if (in.fail()) ...` |
+ファイルを開くときのフラグとして、最もよく目にします。`std::ifstream in(path, std::ios::binary);` のように指定します。複数は `|` で組み合わせます。
+
+読み込みの失敗の調べ方は、`if (stream)` が `!fail()` と同じで、`eof()` は終わりに達したことを、`bad()` は重大な失敗を示します。
+
+書式のフラグ（`setf`、`unsetf`）は、`setw` などのマニピュレーターの下の仕組みです。新しいコードでは、`std::format` で書式を指定するので、直接触ることは少なくなります。
 
 ## よくあるミス
 
 ??? failure "eof で終わりを判断する"
     `eof()` は「読もうとして終わりだった」ときに初めて真になります。読む前に `while (!in.eof())` と書くと、最後に余分に回ります。
+
+??? failure "`binary` を付けずにバイナリを読み、改行が変換される"
+    Windows のテキストモードは、`\r\n` を `\n` に変換します。バイナリを読むときに `std::ios::binary` を付けないと、データが壊れます。
 
 ## 類似
 

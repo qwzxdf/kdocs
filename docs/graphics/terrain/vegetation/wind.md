@@ -6,7 +6,7 @@ tags:
 
 # Wind
 
-<strong>風で草や木をなびかせると世界が生きて見えます</strong>。<strong>頂点シェーダーで頂点を動かす</strong>のが基本です。このページでは風の表現を説明します。
+<strong>風で草や木をなびかせると世界が生きて見えます</strong>。頂点シェーダーで頂点を動かすのが基本です。このページでは風の表現を説明します。
 
 !!! tip "ポイント"
     - 頂点をサイン波とノイズで揺らす。
@@ -53,7 +53,7 @@ tags:
 <!-- fig:grass-wind:end -->
 
 ## 風
-<strong>風で揺れる草・木は画面に動きと生気</strong>を<strong>与えます</strong>。頂点シェーダーで頂点をずらすのが基本です。
+<strong>風で揺れる草・木は画面に動きと生気</strong>を与えます。頂点シェーダーで頂点をずらすのが基本です。
 
 <svg class="fig illust motion" data-fig="grass-wind" viewBox="0 0 780 200" role="img" aria-label="風で揺れる草">
 <text x="20" y="24" class="fig-title">風：根元は動かず、先端ほど大きく揺れる</text>
@@ -83,7 +83,7 @@ float3 ApplyWind(float3 world_position, float height_t, float2 wind_direction, f
 | 風のテクスチャ | 風の強さ・向きをスクロールするノイズのテクスチャで与える（突風が移動する） |
 | 木の揺れ | 幹はゆっくり大きく、枝は中くらい葉は細かく速くの3 層 |
 
-<strong>頂点カラーに揺れの強さ（幹 0・先端 1）を焼いておく</strong>と<strong>美術側で調整</strong>できます。
+頂点カラーに揺れの強さ（幹 0・先端 1）を焼いておくと美術側で調整できます。
 
 ## 風を 3 つの層で考える（Crysis の方法）
 
@@ -95,7 +95,7 @@ Sousa（2007）は Crysis の植生の揺れを、<strong>3 つの層</strong>�
 | 枝の揺れ（branch bending） | 枝 | 中くらい。枝ごとに位相が違う | 中くらい |
 | 葉のはためき（leaf flutter） | 葉の端 | 小さく速く。細かく震える | 高い |
 
-3 つを足すと <strong>幹はゆっくり、枝は中くらい葉は細かく</strong>揺れる、自然な動きになります。<strong>1 つのサイン波だけでは機械的</strong>に見えます。
+3 つを足すと 幹はゆっくり、枝は中くらい葉は細かく揺れる、自然な動きになります。1 つのサイン波だけでは機械的に見えます。
 
 ## それぞれの層の頂点への情報
 
@@ -130,11 +130,11 @@ float3 ApplyTreeWind(float3 world_pos, float3 vertex_color, float2 wind_dir, flo
 ```
 
 !!! warning "頂点をずらしたら、長さを保つ"
-    枝や幹を単純に平行移動すると <strong>枝が、伸びて</strong>見えます。根元からの <strong>長さを保つ</strong>ように、補正すると自然に見えます。曲がる量が小さいときは気にならない程度です。
+    枝や幹を単純に平行移動すると 枝が、伸びて見えます。根元からの 長さを保つように、補正すると自然に見えます。曲がる量が小さいときは気にならない程度です。
 
 ## 草の風
 
-草は <strong>1 本が小さい</strong>ので層は 1 つで十分です。ただし、<strong>位置ごとに位相をずらす</strong>ことが、肝心です。そうしないとすべての草が同時に、同じ動きになり不自然です。
+草は <strong>1 本が小さい</strong>ので層は 1 つで十分です。ただし、位置ごとに位相をずらすことが、肝心です。そうしないとすべての草が同時に、同じ動きになり不自然です。
 
 ```hlsl
 float3 ApplyGrassWind(float3 world_pos, float height_t, float2 wind_dir, float strength, float time) {
@@ -150,7 +150,7 @@ float3 ApplyGrassWind(float3 world_pos, float height_t, float2 wind_dir, float s
 
 ## 風のテクスチャ：突風を作る
 
-サイン波は <strong>規則的で周期が見える</strong>ので風の、<strong>ばらつき</strong>（突風）を表すには、向きません。風の強さをノイズのテクスチャに描いてそれを、風の向きへスクロールさせます。
+サイン波は <strong>規則的で周期が見える</strong>ので風の、ばらつき（突風）を表すには、向きません。風の強さをノイズのテクスチャに描いてそれを、風の向きへスクロールさせます。
 
 ```hlsl
 Texture2D<float> g_wind_noise : register(t2);    // タイル可能な、ノイズ（低周波）
@@ -169,7 +169,7 @@ float WindStrengthAt(float3 world_pos, float2 wind_dir, float time) {
 | スクロールの速さ | 風速に比例。風の向きに動かす |
 | 大きさ | 風の強さに掛ける。ノイズの値が大きい所だけ強く揺れる |
 
-草原の上を <strong>波が渡っていくように見える</strong>ので、風の動きが目で見えます。
+草原の上を 波が渡っていくように見えるので、風の動きが目で見えます。
 
 ## 風を全体で共有する
 
@@ -186,7 +186,7 @@ struct WindCB {
 ```
 
 !!! warning "時間（`time`）を、float で増やし続けない"
-    ゲーム開始から数時間たつと `time` が、数万の大きさになり <strong>`sin(time * 12.0)` の精度が落ちて</strong>、動きがカクカクします。時間は <strong>`fmod(time, 周期)`</strong> で繰り返す範囲に、収めてからシェーダーへ渡します。サイン波の周期の公倍数で折り返すと、継ぎ目が出ません。
+    ゲーム開始から数時間たつと `time` が、数万の大きさになり `sin(time * 12.0)` の精度が落ちて、動きがカクカクします。時間は `fmod(time, 周期)` で繰り返す範囲に、収めてからシェーダーへ渡します。サイン波の周期の公倍数で折り返すと、継ぎ目が出ません。
 
 ```cpp
 // 風用の時間: 数百秒で、折り返す。使うサイン波の周期が、この値で、割り切れるようにする。

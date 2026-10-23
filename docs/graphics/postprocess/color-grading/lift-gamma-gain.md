@@ -6,15 +6,15 @@ tags:
 
 # Lift, Gamma, Gain
 
-<strong>リフト・ガンマ・ゲイン（LGG）</strong>は、<strong>映画のカラー グレーディングで定番の 3 つのつまみ</strong>で、<strong>暗部（リフト）・中間（ガンマ）・明部（ゲイン）を、別々に調整</strong>します。<strong>「暗い所は青く、明るい所は暖かく」</strong>のように明るさの領域ごとに色味を変える表現が簡単にできます。このページでは、3 つの役割・式・ASC CDL（スロープ・オフセット・パワー）との関係・色（RGB）ごとの調整・シャドウ/ミッド/ハイライトのカラー バランスを説明します。
+<strong>リフト・ガンマ・ゲイン（LGG）</strong>は、映画のカラー グレーディングで定番の 3 つのつまみで、暗部（リフト）・中間（ガンマ）・明部（ゲイン）を、別々に調整します。「暗い所は青く、明るい所は暖かく」のように明るさの領域ごとに色味を変える表現が簡単にできます。このページでは、3 つの役割・式・ASC CDL（スロープ・オフセット・パワー）との関係・色（RGB）ごとの調整・シャドウ/ミッド/ハイライトのカラー バランスを説明します。
 
 !!! tip "ポイント"
-    - <strong>ゲイン</strong> ＝ <strong>掛け算</strong>。<strong>明部</strong>に<strong>強く効く</strong>（<strong>傾き</strong>）。
-    - <strong>リフト</strong> ＝ <strong>足し算</strong>。<strong>暗部</strong>に<strong>強く効く</strong>（<strong>黒の持ち上げ</strong>）。
-    - <strong>ガンマ</strong> ＝ <strong>べき乗</strong>。<strong>中間調</strong>の<strong>明るさ</strong>を変える。
-    - <strong>RGB 別々に</strong>調整できる → <strong>領域ごとの色味づけ</strong>（<strong>ティール＆オレンジ</strong>など）。
-    - <strong>ASC CDL</strong> は<strong>業界標準の形式</strong>（<strong>スロープ・オフセット・パワー・彩度</strong>）。
-    - <strong>ゲーム</strong>では<strong>リニアでなく、ガンマ・対数空間</strong>で<strong>行う</strong>と<strong>感覚が合う</strong>。
+    - <strong>ゲイン</strong> ＝ <strong>掛け算</strong>。明部に強く効く（傾き）。
+    - リフト ＝ 足し算。暗部に強く効く（黒の持ち上げ）。
+    - ガンマ ＝ べき乗。中間調の明るさを変える。
+    - RGB 別々に調整できる → 領域ごとの色味づけ（ティール＆オレンジなど）。
+    - ASC CDL は業界標準の形式（スロープ・オフセット・パワー・彩度）。
+    - ゲームではリニアでなく、ガンマ・対数空間で行うと感覚が合う。
 
 ## 3 つのつまみ
 
@@ -46,8 +46,8 @@ tags:
 | つまみ | 操作 | 影響が大きい範囲 |
 | --- | --- | --- |
 | <strong>ゲイン（Gain）</strong> | 掛ける | 明部（黒（0）は動かない） |
-| <strong>リフト（Lift）</strong> | 足す | 暗部（白（1）は、ほぼ動かない） |
-| <strong>ガンマ（Gamma）</strong> | べき乗 | 中間調（0 と 1 は動かない） |
+| リフト（Lift） | 足す | 暗部（白（1）は、ほぼ動かない） |
+| ガンマ（Gamma） | べき乗 | 中間調（0 と 1 は動かない） |
 
 ## 式
 
@@ -63,22 +63,22 @@ float3 LiftGammaGain(float3 color, float3 lift, float3 gamma, float3 gain) {
 
 ### リフトの別の定義
 
-<strong>多くのツールでは、「リフトが白点を動かさない」よう</strong>に<strong>次の形</strong>にします。
+<strong>多くのツールでは、「リフトが白点を動かさない」よう</strong>に次の形にします。
 
 <div class="formula">c' = gain · ( c + lift · (1 − c) )</div>
 
-<strong>黒（c = 0）は `lift` だけ持ち上がり、白（c = 1）は変わりません</strong>。<strong>黒を沈めたり持ち上げたりする</strong>のが自然になります。
+黒（c = 0）は `lift` だけ持ち上がり、白（c = 1）は変わりません。黒を沈めたり持ち上げたりするのが自然になります。
 
 ## ASC CDL（スロープ・オフセット・パワー）
 
-<strong>ASC CDL</strong>（American Society of Cinematographers Color Decision List）は、<strong>映像業界で標準の色調整の交換形式</strong>です。LGG に近い 3 つのつまみ＋彩度で構成されます。
+<strong>ASC CDL</strong>（American Society of Cinematographers Color Decision List）は、映像業界で標準の色調整の交換形式です。LGG に近い 3 つのつまみ＋彩度で構成されます。
 
 | ASC CDL | 対応 | 式 |
 | --- | --- | --- |
-| <strong>スロープ（Slope）</strong> | ゲイン | 掛ける |
-| <strong>オフセット（Offset）</strong> | <strong>リフト（に近い）</strong> | 足す |
-| <strong>パワー（Power）</strong> | <strong>ガンマ（の逆数）</strong> | べき乗 |
-| <strong>彩度（Saturation）</strong> | 彩度 | 輝度との補間 |
+| スロープ（Slope） | ゲイン | 掛ける |
+| オフセット（Offset） | リフト（に近い） | 足す |
+| パワー（Power） | ガンマ（の逆数） | べき乗 |
+| 彩度（Saturation） | 彩度 | 輝度との補間 |
 
 
 CDL は、撮影現場とポストプロダクションの間で、色調整を数値で受け渡すための標準で、数値が少なく（3×3 + 彩度 1 の 10 個）、ツールを問わず同じ結果になるのが利点です。
@@ -95,11 +95,11 @@ float3 ApplyCDL(float3 color, float3 slope, float3 offset, float3 power, float s
 }
 ```
 
-<strong>Resolve・Nuke などのツールと、数値をやり取りできる</strong>ので、<strong>外部で作ったルックをゲームに持ち込めます</strong>。
+Resolve・Nuke などのツールと、数値をやり取りできるので、外部で作ったルックをゲームに持ち込めます。
 
 ## 領域ごとのカラー バランス
 
-<strong>「暗部は青、中間はそのまま、明部は橙」</strong>のように<strong>明るさの領域に別々の色味を乗せる</strong>調整です。<strong>ティール＆オレンジ</strong>など、映画的なルックの定番です。
+<strong>「暗部は青、中間はそのまま、明部は橙」</strong>のように明るさの領域に別々の色味を乗せる調整です。ティール＆オレンジなど、映画的なルックの定番です。
 
 ```hlsl
 float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highlights) {
@@ -205,22 +205,22 @@ float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highli
     <strong>リフトの式を、`c + lift · (1 − c)` に</strong>（白を動かさない）。
 
 ??? failure "ガンマの向き（`gamma` か `1 / gamma`）を間違えて、逆に動く"
-    <strong>`pow(c, 1 / gamma)` で、`gamma > 1` が明るく</strong>。<strong>ツールの定義を確認</strong>。
+    `pow(c, 1 / gamma)` で、`gamma > 1` が明るく。ツールの定義を確認。
 
 ??? failure "領域ごとのカラー バランスが強すぎて、肌が不自然"
-    <strong>小さな値（± 0.05）</strong>、<strong>肌のハイライトを避ける</strong>。
+    小さな値（± 0.05）、肌のハイライトを避ける。
 
 ??? failure "リニア空間で LGG を掛けて、効き方がおかしい"
-    <strong>ガンマ・対数空間で行う</strong>、またはツールと同じ空間にそろえる。
+    ガンマ・対数空間で行う、またはツールと同じ空間にそろえる。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] <strong>ゲイン（掛ける・明部）・リフト（足す・暗部）・ガンマ（べき乗・中間）</strong>
-    - [x] <strong>RGB 別々に</strong>で<strong>領域ごとの色味づけ</strong>
-    - [x] <strong>ASC CDL（スロープ・オフセット・パワー）</strong>は<strong>業界標準</strong>
-    - [x] <strong>カラー バランス（シャドウ/ミッド/ハイライト）</strong>は<strong>輝度で重み</strong>
-    - [x] <strong>LUT に焼く</strong>。<strong>ガンマ・対数空間で調整</strong>
+    - [x] RGB 別々にで領域ごとの色味づけ
+    - [x] ASC CDL（スロープ・オフセット・パワー）は業界標準
+    - [x] カラー バランス（シャドウ/ミッド/ハイライト）は輝度で重み
+    - [x] LUT に焼く。ガンマ・対数空間で調整
 
 ## 参考
 

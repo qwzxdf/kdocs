@@ -1,0 +1,22 @@
+title: locale
+nav:
+  - codecvt.md
+  - codecvt_utf8.md
+  - collate.md
+  - ctype.md
+  - facet.md
+  - has_facet.md
+  - lconv.md
+  - localeconv.md
+  - messages.md
+  - money_get.md
+  - money_put.md
+  - moneypunct.md
+  - num_get.md
+  - num_put.md
+  - numpunct.md
+  - setlocale.md
+  - time_get.md
+  - time_put.md
+  - use_facet.md
+  - ...

@@ -10,13 +10,13 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-3D の描画では <strong>座標系の約束事</strong>が、いくつもあり 1 つでも食い違うと物が裏返る鏡像になる上下が、逆になる見えないといったバグになります。このページはこのサイトの規約と <strong>DirectX の既定の規約</strong>との差をまとめます。
+3D の描画では <strong>座標系の約束事</strong>が、いくつもあり 1 つでも食い違うと物が裏返る鏡像になる上下が、逆になる見えないといったバグになります。このページはこのサイトの規約と DirectX の既定の規約との差をまとめます。
 
 !!! tip "ポイント"
-    - このサイトの規約: <strong>右手系・Y が上・前は −Z</strong>。<strong>行ベクトル</strong>（`v * M`、掛け順は左から右）。<strong>三角形は反時計回り（CCW）が表</strong>。角度はラジアン。
-    - DirectX のクリップ空間は <strong>x・y が −1〜1、z が 0〜1</strong>（OpenGL は z が −1〜1）。
-    - ピクセル座標と uv は、<strong>左上が原点、y が下向き</strong>。クリップ空間は y が上向き。
-    - DirectX の既定は、<strong>時計回りが表</strong>。反時計回りにするには `FrontCounterClockwise = TRUE`。
+    - このサイトの規約: <strong>右手系・Y が上・前は −Z</strong>。<strong>行ベクトル</strong>（`v * M`、掛け順は左から右）。三角形は反時計回り（CCW）が表。角度はラジアン。
+    - DirectX のクリップ空間は x・y が −1〜1、z が 0〜1（OpenGL は z が −1〜1）。
+    - ピクセル座標と uv は、左上が原点、y が下向き。クリップ空間は y が上向き。
+    - DirectX の既定は、時計回りが表。反時計回りにするには `FrontCounterClockwise = TRUE`。
     - 行列はメモリ上、行優先（DirectXMath）。HLSL の既定は列優先なので `row_major` を付ける。
 
 ## このサイトの規約
@@ -43,15 +43,15 @@ DirectX は右手系も左手系も扱えます（DirectXMath には、`XMMatrix
 
 ## クリップ空間とビューポート
 
-頂点シェーダーが出力する <strong>クリップ空間</strong>の座標は、ラスタライザーで `w` で割られ <strong>正規化デバイス座標</strong>（NDC）になります。
+頂点シェーダーが出力する <strong>クリップ空間</strong>の座標は、ラスタライザーで `w` で割られ 正規化デバイス座標（NDC）になります。
 
 | 軸 | DirectX の NDC |
 | --- | --- |
 | x | −1（左）〜 1（右） |
 | y | −1（下）〜 1（上） |
-| z | <strong>0（近い）〜 1（遠い）</strong> |
+| z | 0（近い）〜 1（遠い） |
 
-OpenGL は z が −1〜1 ですが、DirectX は <strong>0〜1</strong> です。射影行列は DirectX 用（`XMMatrixPerspectiveFovRH`）を使います。
+OpenGL は z が −1〜1 ですが、DirectX は 0〜1 です。射影行列は DirectX 用（`XMMatrixPerspectiveFovRH`）を使います。
 
 ```text
 クリップ空間（y 上向き）            ピクセル座標（y 下向き）
@@ -60,7 +60,7 @@ OpenGL は z が −1〜1 ですが、DirectX は <strong>0〜1</strong> です�
   (-1,-1)  ─────  (1,-1)             (0, height) ────── (width, height)
 ```
 
-ビューポート変換で <strong>y が上下に反転</strong>します（クリップ空間は、上が +1、ピクセル座標は上が 0）。
+ビューポート変換で y が上下に反転します（クリップ空間は、上が +1、ピクセル座標は上が 0）。
 
 ## uv 座標
 
@@ -85,7 +85,7 @@ OpenGL（左下が (0, 0)）で作った素材を使うときは v を `1 − v`
 | DirectX の既定 | 時計回り（CW） | — |
 | このサイトの規約 | 反時計回り（CCW） | ラスタライザー ステートで、`FrontCounterClockwise = TRUE`（D3D11）、PSO の `RasterizerState.FrontCounterClockwise = TRUE`（D3D12） |
 
-規約と既定が食い違うので <strong>ラスタライザー ステートを設定</strong>し忘れると三角形が裏面として、捨てられ何も見えません。
+規約と既定が食い違うので ラスタライザー ステートを設定し忘れると三角形が裏面として、捨てられ何も見えません。
 
 ## 行列の規約
 

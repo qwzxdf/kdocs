@@ -9,6 +9,8 @@ nav:
   - unique_lock.md
   - async.md
   - future.md
+  - launch.md
+  - once_flag.md
   - atomic_flag.md
   - atomic_ref.md
   - memory_order.md
@@ -29,7 +31,40 @@ nav:
   - binary_semaphore.md
   - barrier.md
   - condition_variable_any.md
-  - atomic_thread_fence.md
+  - adopt_lock.md
+  - atomic_fetch_add.md
+  - atomic_fetch_sub.md
+  - atomic_flag_clear.md
+  - atomic_flag_test_and_set.md
+  - atomic_init.md
+  - atomic_is_lock_free.md
+  - atomic_load_explicit.md
+  - atomic_notify_all.md
+  - atomic_notify_one.md
   - atomic_signal_fence.md
+  - atomic_store_explicit.md
+  - atomic_thread_fence.md
+  - atomic_wait.md
+  - cv_status.md
+  - defer_lock.md
+  - future_errc.md
+  - future_error.md
+  - future_status.md
+  - hazard_pointer.md
+  - hazard_pointer_obj_base.md
   - kill_dependency.md
+  - make_hazard_pointer.md
+  - never_stop_token.md
+  - nostopstate.md
+  - notify_all_at_thread_exit.md
+  - rcu_barrier.md
+  - rcu_default_domain.md
+  - rcu_domain.md
+  - rcu_obj_base.md
+  - rcu_retire.md
+  - rcu_synchronize.md
+  - recursive_timed_mutex.md
+  - shared_timed_mutex.md
+  - try_lock.md
+  - try_to_lock.md
   - ...

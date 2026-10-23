@@ -15,7 +15,7 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::ranges::subrange` は、**2 つのイテレータ（先頭と終わり）をまとめて 1 つの範囲にした型**です。`find_end` や `equal_range` のようなアルゴリズムの戻り値として登場します。自分で作れば、「`vector` の途中から途中まで」を範囲として渡せます。
+`vector` の途中から途中までを、範囲として関数に渡したい。2 つのイテレーターを別々に渡す関数を作ると、呼ぶ側の引数が増えて煩わしくなります。`std::ranges::subrange` は、先頭と終わりの 2 つのイテレーターをまとめて、1 つの範囲にした型です。`find_end` や `equal_range` のようなアルゴリズムの戻り値としても登場します。
 
 !!! tip "ポイント"
     - アルゴリズムが返す「見つかった部分」は、たいてい `subrange`。
@@ -67,10 +67,11 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 配列の一部だけをアルゴリズムに渡す | `std::ranges::sort(std::ranges::subrange(v.begin(), v.begin() + n))` |
-| `find` の結果（見つかった範囲）を後続の処理へ渡す | `auto r = std::ranges::search(...)` の `r` |
+アルゴリズムの戻り値を受けるときに出会います。`std::ranges::equal_range(v, x)` は、等しい要素の範囲を `subrange` で返します。そのまま範囲 `for` で回せます。
+
+自分で作ると、`vector` の一部を別のビューにつなげられます。`std::ranges::subrange(v.begin() + 2, v.end() - 1)` と書けば、中央部分だけを `filter` や `transform` に渡せます。
+
+連続したメモリ限定の `std::span` と違い、`list` のようなイテレーターにも使えます。
 
 ## よくあるミス
 

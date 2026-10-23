@@ -6,7 +6,7 @@ tags:
 
 # Specular (Sun Glint)
 
-<strong>水面に映る太陽のきらめきが、水らしさを決める大きな要素</strong>です。<strong>法線の細かい凹凸できらきらと散らばる反射</strong>になります。このページではスペキュラの計算と、きらめきの出し方を説明します。
+<strong>水面に映る太陽のきらめきが、水らしさを決める大きな要素</strong>です。法線の細かい凹凸できらきらと散らばる反射になります。このページではスペキュラの計算と、きらめきの出し方を説明します。
 
 !!! tip "ポイント"
     - GGX などで太陽の反射を計算する。
@@ -15,7 +15,7 @@ tags:
     - 遠くはちらつくので、粗さを上げる。
 
 ## スペキュラ（太陽の反射）
-<strong>太陽が水面に映ると細かい波ごとに小さな反射が散らばって見えます</strong>（<strong>グリント</strong>）。法線マップの細かい法線で Blinn–Phong・GGX のスペキュラを計算します。
+<strong>太陽が水面に映ると細かい波ごとに小さな反射が散らばって見えます</strong>（グリント）。法線マップの細かい法線で Blinn–Phong・GGX のスペキュラを計算します。
 
 ```hlsl
 float3 half_vector = normalize(light_dir + view_dir);
@@ -62,7 +62,7 @@ float specular = pow(n_dot_h, shininess) * sun_intensity;
 
 ## 太陽の反射は細かい波の集まり
 
-水面に太陽が映ると <strong>1 つの、丸い光ではなく波ごとに散らばった、細かい光の帯</strong>になります（<strong>グリッター、sun glitter</strong>）。波の表面は細かい無数の小さな傾きを持っています。太陽の方向を反射する向きに傾いた波の面だけが、光ります。
+水面に太陽が映ると <strong>1 つの、丸い光ではなく波ごとに散らばった、細かい光の帯</strong>になります（グリッター、sun glitter）。波の表面は細かい無数の小さな傾きを持っています。太陽の方向を反射する向きに傾いた波の面だけが、光ります。
 
 ```text
 太陽 ↘      ↙ 目
@@ -71,7 +71,7 @@ float specular = pow(n_dot_h, shininess) * sun_intensity;
 
 ## 風速と傾きの分布（Cox と Munk）
 
-波の面の傾きの分布は <strong>風速</strong>で決まります。Cox と Munk（1954）は、<strong>海面の写真から太陽の光の分布を調べ</strong>、傾きの 2 乗平均が風速にほぼ比例することを示しました。
+波の面の傾きの分布は <strong>風速</strong>で決まります。Cox と Munk（1954）は、海面の写真から太陽の光の分布を調べ、傾きの 2 乗平均が風速にほぼ比例することを示しました。
 
 ```text
 波の傾きの 2 乗平均 m² ≈ 0.003 + 0.00512 × U         U: 風速（m/s）
@@ -84,11 +84,11 @@ float specular = pow(n_dot_h, shininess) * sun_intensity;
 | 10 | 0.054 | 0.23（約 13°） | 光の帯が太く、散らばる |
 | 15 | 0.080 | 0.28（約 16°） | 広い範囲が、ぎらつく |
 
-<strong>風が強いほど波が荒れて光る範囲は、広くなり 1 点の明るさは下がります</strong>。
+風が強いほど波が荒れて光る範囲は、広くなり 1 点の明るさは下がります。
 
 ## 粗さへの対応
 
-GGX や Beckmann などの、<strong>微小面分布</strong>（法線の分布）の粗さを、波の傾きの分布に合わせます。Beckmann 分布のパラメーター `m` は、<strong>傾きの 2 乗平均の平方根</strong>そのものです。
+GGX や Beckmann などの、<strong>微小面分布</strong>（法線の分布）の粗さを、波の傾きの分布に合わせます。Beckmann 分布のパラメーター `m` は、傾きの 2 乗平均の平方根そのものです。
 
 ```text
 m² = 傾きの 2 乗平均 = 0.003 + 0.00512 × U         ← Beckmann の m
@@ -133,28 +133,28 @@ float3 WaterSunSpecular(float3 N, float3 V, float3 L, float3 sun_radiance, float
 }
 ```
 
-<strong>フレネル項</strong>は `H` と `V` の内積で、計算します（反射を起こす微小面の向きで、角度を測る）。水の場合、`F₀ = 0.02` です。
+フレネル項は `H` と `V` の内積で、計算します（反射を起こす微小面の向きで、角度を測る）。水の場合、`F₀ = 0.02` です。
 
 ## 見た目を決める 3 つの要素
 
 ### ① 強さ（HDR）
 
-太陽の反射は <strong>空よりはるかに、明るい</strong>です（太陽は空の数万倍）。<strong>HDR で出力</strong>してブルームを、かけるとまぶしく光る様子が出ます。LDR のままクランプすると白く、ただ飽和するだけです（[Post-Processing](../../postprocess/index.md)）。
+太陽の反射は <strong>空よりはるかに、明るい</strong>です（太陽は空の数万倍）。HDR で出力してブルームを、かけるとまぶしく光る様子が出ます。LDR のままクランプすると白く、ただ飽和するだけです（[Post-Processing](../../postprocess/index.md)）。
 
 | 太陽の輝度（放射輝度）の目安 | 値 |
 | --- | --- |
 | 青空 | 数千 cd/m² |
 | 太陽（直視） | 10⁹ cd/m²（約 10 億） |
 
-実際の値を、そのまま使うのではなく <strong>露出と、ブルームを見た目で調整</strong>します（[Exposure](../../postprocess/tonemapping/exposure.md)）。
+実際の値を、そのまま使うのではなく 露出と、ブルームを見た目で調整します（[Exposure](../../postprocess/tonemapping/exposure.md)）。
 
 ### ② 法線の細かさ
 
-<strong>細かい法線</strong>（さざ波）を使うほど光が、<strong>細かく散らばって</strong>、きらきら光ります。大きな波の法線だけだと 1 つの、大きな光になります（[Computing Normals](../waves/normals.md)）。
+細かい法線（さざ波）を使うほど光が、細かく散らばって、きらきら光ります。大きな波の法線だけだと 1 つの、大きな光になります（[Computing Normals](../waves/normals.md)）。
 
 ### ③ 遠くのちらつき
 
-<strong>遠くの水面</strong>では 1 画素に、<strong>多数の波が入り</strong>、法線が画素ごとにばらついて光が、ちらつきます。対策は 2 つです。
+遠くの水面では 1 画素に、多数の波が入り、法線が画素ごとにばらついて光が、ちらつきます。対策は 2 つです。
 
 | 対策 | 内容 |
 | --- | --- |

@@ -6,7 +6,7 @@ tags:
 
 # Step 1: Density
 
-<strong>最初の段階で各 froxel の霧の濃さ（密度）を決めます</strong>。<strong>一様な霧・高さフォグ・ノイズの雲のような濃淡</strong>を組み合わせます。このページでは密度の決め方を説明します。
+<strong>最初の段階で各 froxel の霧の濃さ（密度）を決めます</strong>。一様な霧・高さフォグ・ノイズの雲のような濃淡を組み合わせます。このページでは密度の決め方を説明します。
 
 !!! tip "ポイント"
     - 基本の密度 ＋ 高さによる減衰。
@@ -15,7 +15,7 @@ tags:
     - 密度は散乱係数と吸収係数に分ける。
 
 ## ① 密度
-<strong>霧の濃さを各 froxel に書きます</strong>。<strong>複数の要素を足し合わせます</strong>。
+<strong>霧の濃さを各 froxel に書きます</strong>。複数の要素を足し合わせます。
 
 | 要素 | 内容 |
 | --- | --- |
@@ -35,7 +35,7 @@ density = max(density, 0.0);
 
 ### 密度から散乱と消散へ
 
-密度はそのまま光の計算に使うのではなく、物理的な係数に変換します。媒質を光が通るときに光を弱める要因は 2 つあります。<strong>散乱</strong>は光が別の方向に飛ばされることで、霧が白く見える理由です。<strong>吸収</strong>は光が熱などに変わって消えることで、煙が暗く見える理由です。この 2 つを合わせた「光が弱まる量」を<strong>消散</strong>（extinction）と呼びます。
+密度はそのまま光の計算に使うのではなく、物理的な係数に変換します。媒質を光が通るときに光を弱める要因は 2 つあります。散乱は光が別の方向に飛ばされることで、霧が白く見える理由です。吸収は光が熱などに変わって消えることで、煙が暗く見える理由です。この 2 つを合わせた「光が弱まる量」を消散（extinction）と呼びます。
 
 <div class="formula">消散係数 σ_t = 散乱係数 σ_s + 吸収係数 σ_a</div>
 
@@ -49,11 +49,11 @@ density = max(density, 0.0);
 
 ## ステップ 1：各セルの霧の濃さ
 
-<strong>ボリューム フォグ</strong>の最初の段階は、<strong>froxel の各セルの霧の密度</strong>（消散係数、`σ_t`）を決めることです。密度が高いセルほど光をよく散らし、遮ります。
+<strong>ボリューム フォグ</strong>の最初の段階は、froxel の各セルの霧の密度（消散係数、`σ_t`）を決めることです。密度が高いセルほど光をよく散らし、遮ります。
 
 ## 密度の材料
 
-<strong>複数の材料を足し合わせて</strong>、<strong>最終的な密度</strong>を作ります。
+<strong>複数の材料を足し合わせて</strong>、最終的な密度を作ります。
 
 | 材料 | 内容 | 例 |
 | --- | --- | --- |
@@ -73,7 +73,7 @@ void DensityCS(uint3 id : SV_DispatchThreadID) {
   float3 world = FroxelToWorld(float3(id) + JitterOffset());              // セルの、ワールド位置（ジッター付き。下記）
 ```
 
-まず、<strong>セルの中心</strong>のワールド位置を、求めます（[Froxels](froxel.md)）。`JitterOffset()` は <strong>フレームごとのわずかな、ずらし</strong>で時間方向の平均で縞を、消すために使います（[Temporal Accumulation](temporal.md)）。
+まず、<strong>セルの中心</strong>のワールド位置を、求めます（[Froxels](froxel.md)）。`JitterOffset()` は フレームごとのわずかな、ずらしで時間方向の平均で縞を、消すために使います（[Temporal Accumulation](temporal.md)）。
 
 ```hlsl
   // ① 一様な密度 + 高さによる密度。
@@ -81,7 +81,7 @@ void DensityCS(uint3 id : SV_DispatchThreadID) {
   float density = g_uniform_density + g_height_density * exp(-g_height_falloff * max(h, 0.0));
 ```
 
-<strong>基本の霧</strong>です。<strong>一様な部分</strong>と高さで指数的に、薄くなる部分を足します。
+基本の霧です。一様な部分と高さで指数的に、薄くなる部分を足します。
 
 ```hlsl
   // ② ノイズで、むらを与える。3D ノイズを、風で、流す。
@@ -90,7 +90,7 @@ void DensityCS(uint3 id : SV_DispatchThreadID) {
   density *= lerp(1.0, noise * 2.0, g_noise_strength);                            // ノイズで、濃さを、変える
 ```
 
-<strong>3D ノイズ</strong>（<strong>Perlin</strong>、Worley）で霧の濃さにむらを与え風で流すと霧が、動いて見えます。ノイズの値（平均 0.5）に 2 を掛けて平均を、1 にそろえ全体の濃さを変えず、むらだけを足します。
+3D ノイズ（Perlin、Worley）で霧の濃さにむらを与え風で流すと霧が、動いて見えます。ノイズの値（平均 0.5）に 2 を掛けて平均を、1 にそろえ全体の濃さを変えず、むらだけを足します。
 
 ```hlsl
   // ③ 局所的な、霧のボリューム（箱）を、足す。各ボリュームの、中だけ、密度を、足す。
@@ -104,7 +104,7 @@ void DensityCS(uint3 id : SV_DispatchThreadID) {
   }
 ```
 
-<strong>局所的な霧</strong>（沼、洞窟）は <strong>箱（または球）</strong>の形の、ボリュームとして置きます。セルが箱の中にあれば密度を足し縁は、なめらかに薄くします。ボリュームをアーティストがレベルに、置く（霧のボリューム アクター）ことで、場所ごとの霧を作れます。
+局所的な霧（沼、洞窟）は 箱（または球）の形の、ボリュームとして置きます。セルが箱の中にあれば密度を足し縁は、なめらかに薄くします。ボリュームをアーティストがレベルに、置く（霧のボリューム アクター）ことで、場所ごとの霧を作れます。
 
 ```hlsl
   // 散乱係数と、吸収（アルベド）。霧は、ほぼ散乱だけ（アルベドが、高い）。消散 = 散乱 + 吸収。
@@ -114,7 +114,7 @@ void DensityCS(uint3 id : SV_DispatchThreadID) {
 }
 ```
 
-最後に、<strong>散乱係数</strong>（`σ_s`、光を曲げる）と <strong>消散係数</strong>（`σ_t`、光を失う）を書き込みます。アルベド（散乱 / 消散）は、霧の色に相当し 1 に近いと白い霧、小さいと暗い煤けた霧になります。
+最後に、散乱係数（`σ_s`、光を曲げる）と 消散係数（`σ_t`、光を失う）を書き込みます。アルベド（散乱 / 消散）は、霧の色に相当し 1 に近いと白い霧、小さいと暗い煤けた霧になります。
 
 ## 単位とスケール
 
@@ -123,11 +123,11 @@ void DensityCS(uint3 id : SV_DispatchThreadID) {
 | 消散係数（1/m） | 1 m 進むと光が、失われる割合 | 薄い霞 0.0005、霧 0.01、濃霧 0.05 |
 | 視界の距離 | 約 `3 / 消散係数` | 0.01 → 約 300 m |
 
-<strong>ゲームの空間のスケール</strong>に、合わせて <strong>消散係数</strong>を決めます。視界が 300 m の霧は 0.01 程度です（[Fog Equations](../aerial-fog/fog-equation.md)）。
+<strong>ゲームの空間のスケール</strong>に、合わせて 消散係数を決めます。視界が 300 m の霧は 0.01 程度です（[Fog Equations](../aerial-fog/fog-equation.md)）。
 
 ## 事前に決めるデータ
 
-<strong>局所的な霧のボリューム</strong>は、<strong>CPU 側</strong>でリストにして、定数バッファ（または構造化バッファ）で、渡します。カメラの近くにあるボリュームだけを絞って渡すと、ループが短くなります。
+<strong>局所的な霧のボリューム</strong>は、CPU 側でリストにして、定数バッファ（または構造化バッファ）で、渡します。カメラの近くにあるボリュームだけを絞って渡すと、ループが短くなります。
 
 ```cpp
 struct FogVolume {
@@ -142,7 +142,7 @@ struct FogVolume {
 ## よくあるミス
 
 ??? failure "霧が一様で単調"
-    <strong>ノイズ</strong>で<strong>濃淡</strong>を付ける。
+    <strong>ノイズ</strong>で濃淡を付ける。
 
 ## これだけ覚える
 

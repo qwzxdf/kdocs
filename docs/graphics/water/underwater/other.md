@@ -6,7 +6,7 @@ tags:
 
 # Other Underwater Elements
 
-<strong>水中の雰囲気は霧や光だけでなく、粒子・色補正・音でも作れます</strong>。このページでは <strong>水中の他の要素</strong>を説明します。
+<strong>水中の雰囲気は霧や光だけでなく、粒子・色補正・音でも作れます</strong>。このページでは 水中の他の要素を説明します。
 
 !!! tip "ポイント"
     - 浮遊する粒子（マリン スノー）で、深さの感じを出す。
@@ -26,11 +26,11 @@ tags:
 
 ## 水中らしさを作る小さな要素
 
-霧とコースティクス、光の筋に加えて <strong>小さな要素</strong>を足すと、<strong>水中の雰囲気</strong>が大きく変わります。
+霧とコースティクス、光の筋に加えて <strong>小さな要素</strong>を足すと、水中の雰囲気が大きく変わります。
 
 ## 浮遊粒子（マリン スノー）
 
-水中には <strong>細かい粒子</strong>（プランクトンの死骸、泥、微生物）が <strong>ゆっくり</strong>漂っています。カメラの周りに小さな白い点を、ゆっくり動かすだけで水中にいる感じが、出ます。
+水中には <strong>細かい粒子</strong>（プランクトンの死骸、泥、微生物）が ゆっくり漂っています。カメラの周りに小さな白い点を、ゆっくり動かすだけで水中にいる感じが、出ます。
 
 | 項目 | 内容 |
 | --- | --- |
@@ -47,7 +47,7 @@ float3 pos = initial_position + velocity * time;
 pos = camera_position + fmod(pos - camera_position + box_size * 0.5, box_size) - box_size * 0.5;
 ```
 
-<strong>カメラの周りの箱の中だけ</strong>に、粒子を置き <strong>箱の外に出た粒子は、反対側から再登場</strong>させると数百個で、無限に広がる粒子の海に見えます。
+カメラの周りの箱の中だけに、粒子を置き 箱の外に出た粒子は、反対側から再登場させると数百個で、無限に広がる粒子の海に見えます。
 
 ## 泡（気泡）
 
@@ -58,7 +58,7 @@ pos = camera_position + fmod(pos - camera_position + box_size * 0.5, box_size) -
 | スクリュー、物の動き | 船のスクリューの後ろに、泡の帯 |
 | 火山、熱水 | 地面から泡が立ち上る |
 
-泡は <strong>パーティクル</strong>で表現します。<strong>上に向かって上昇しゆらゆら揺れ</strong>、水面で消えるようにします。
+泡は <strong>パーティクル</strong>で表現します。上に向かって上昇しゆらゆら揺れ、水面で消えるようにします。
 
 | パラメーター | 目安 |
 | --- | --- |
@@ -69,7 +69,7 @@ pos = camera_position + fmod(pos - camera_position + box_size * 0.5, box_size) -
 
 ## 水の動き（ゆらぎ）
 
-水中では <strong>水の流れ</strong>で <strong>海藻が、ゆらゆら揺れ</strong>、物がわずかに漂います。
+水中では <strong>水の流れ</strong>で 海藻が、ゆらゆら揺れ、物がわずかに漂います。
 
 | 要素 | 方法 |
 | --- | --- |
@@ -77,7 +77,7 @@ pos = camera_position + fmod(pos - camera_position + box_size * 0.5, box_size) -
 | 魚の群れ | ボイド（群れの、アルゴリズム）で動かす。GPU で数千匹 |
 | 浮かぶごみ | 水の流れに沿って、ゆっくり動かす |
 
-水中の動きは <strong>空気中よりはるかに、ゆっくり</strong>で <strong>周期も長い</strong>。同じ式でも速さの係数を小さくします。
+水中の動きは 空気中よりはるかに、ゆっくりで 周期も長い。同じ式でも速さの係数を小さくします。
 
 ## 画面の歪み（水中のレンズ効果）
 
@@ -91,7 +91,7 @@ float2 wobble = float2(
 float3 color = g_scene.Sample(g_linear_clamp, uv + wobble).rgb;
 ```
 
-歪みは <strong>ごくわずか</strong>にします。強すぎると <strong>酔います</strong>。
+歪みは ごくわずかにします。強すぎると 酔います。
 
 ## 色補正
 
@@ -105,11 +105,11 @@ float3 color = g_scene.Sample(g_linear_clamp, uv + wobble).rgb;
 | 周辺減光 | 強める（暗い、閉じた視界の印象） |
 | 被写界深度 | 遠くをぼかす（水の濁りで遠くが、ぼやける） |
 
-水に入った瞬間にカラー グレーディングの、<strong>LUT を切り替える</strong>（または、補間する）と <strong>水の中に入った</strong>ことが、はっきり伝わります。
+水に入った瞬間にカラー グレーディングの、LUT を切り替える（または、補間する）と 水の中に入ったことが、はっきり伝わります。
 
 ## 音
 
-見た目だけでなく <strong>音</strong>も水中の、<strong>雰囲気</strong>を大きく変えます。
+見た目だけでなく <strong>音</strong>も水中の、雰囲気を大きく変えます。
 
 | 要素 | 変更 |
 | --- | --- |
@@ -118,7 +118,7 @@ float3 color = g_scene.Sample(g_linear_clamp, uv + wobble).rgb;
 | 環境音 | 水のごぼごぼ、という低音。泡の音 |
 | 水面の上の音 | 小さく、こもって聞こえる（逆に水面の上から、水中の音はほぼ聞こえない） |
 
-水に入る <strong>境目</strong>で <strong>フィルタを、なめらかに切り替える</strong>と水中に入った感じが、出ます。
+水に入る 境目で フィルタを、なめらかに切り替えると水中に入った感じが、出ます。
 
 ## 水に入った瞬間と出る瞬間
 
@@ -127,12 +127,12 @@ float3 color = g_scene.Sample(g_linear_clamp, uv + wobble).rgb;
 | 水に入る | 水しぶき泡、画面の水滴、音のフィルタ、霧と色補正の切り替え（数フレームで、補間） |
 | 水から出る | 画面を水が、流れ落ちる（レンズの水滴）、音が元に戻る霧と色補正が元に戻る |
 
-<strong>瞬間的に切り替える</strong>と不自然です。<strong>水面をまたぐ間</strong>（0.2〜0.5 秒）で、補間します（[The Underside of the Surface and Crossing It](surface-back.md)）。
+<strong>瞬間的に切り替える</strong>と不自然です。水面をまたぐ間（0.2〜0.5 秒）で、補間します（[The Underside of the Surface and Crossing It](surface-back.md)）。
 
 ## よくあるミス
 
 ??? failure "水中なのに、地上と同じ雰囲気"
-    <strong>粒子・色補正・音</strong>も<strong>切り替える</strong>。
+    <strong>粒子・色補正・音</strong>も切り替える。
 
 ## これだけ覚える
 

@@ -6,19 +6,19 @@ tags:
 
 # ACES
 
-<strong>ACES</strong>（Academy Color Encoding System）は、<strong>映画業界が色管理のために作った標準</strong>です。<strong>その中のトーンマップ（RRT と ODT）</strong>をゲームが借りて、締まった黒・鮮やかな色・滑らかなハイライトという<strong>「映画らしい」絵</strong>を作ります。本物の ACES は複雑なので、ゲームでは近似式を使うのが一般的です。このページでは、ACES とは何か・近似式（Narkowicz）・Stephen Hill のフィット・色が偏る理由・使うときの注意を説明します。
+<strong>ACES</strong>（Academy Color Encoding System）は、映画業界が色管理のために作った標準です。その中のトーンマップ（RRT と ODT）をゲームが借りて、締まった黒・鮮やかな色・滑らかなハイライトという「映画らしい」絵を作ります。本物の ACES は複雑なので、ゲームでは近似式を使うのが一般的です。このページでは、ACES とは何か・近似式（Narkowicz）・Stephen Hill のフィット・色が偏る理由・使うときの注意を説明します。
 
 !!! tip "ポイント"
     - ACES ＝ <strong>映画の色管理の標準</strong>。<strong>ゲームではそのトーンマップの形を借りる</strong>。
-    - 本物は<strong>色空間の変換を伴う多段処理</strong>。<strong>ゲームは近似式（1 行）で代用</strong>する。
-    - 特徴は<strong>強いコントラスト・沈んだ黒・鮮やかな色</strong>。
-    - <strong>欠点</strong>：<strong>明るく彩度の高い色が白や黄へ偏る</strong>（<strong>青い光が紫に赤が橙に</strong>）。
-    - <strong>近似式は本物と同じではない</strong>。<strong>「ACES っぽい」曲線</strong>だと理解して使う。
-    - <strong>より良いやり方</strong>：<strong>Hill のフィット（色空間変換つき）</strong>、または<strong>[AgX](agx.md)</strong>。
+    - 本物は色空間の変換を伴う多段処理。ゲームは近似式（1 行）で代用する。
+    - 特徴は強いコントラスト・沈んだ黒・鮮やかな色。
+    - 欠点：明るく彩度の高い色が白や黄へ偏る（青い光が紫に赤が橙に）。
+    - 近似式は本物と同じではない。「ACES っぽい」曲線だと理解して使う。
+    - より良いやり方：Hill のフィット（色空間変換つき）、または[AgX](agx.md)。
 
 ## ACES とは
 
-<strong>ACES</strong> は<strong>撮影機材やデジタル素材の色を、共通の広い色空間（AP0・AP1）にそろえ</strong>、最後に出力デバイスに合わせて変換する仕組み全体の名前です。
+<strong>ACES</strong> は撮影機材やデジタル素材の色を、共通の広い色空間（AP0・AP1）にそろえ、最後に出力デバイスに合わせて変換する仕組み全体の名前です。
 
 <svg class="fig illust" viewBox="0 0 780 150" role="img" aria-label="ACES の流れ">
 <text x="20" y="26" class="fig-title">ACES の流れ（本物）：広い色空間で扱い、最後に出力へ</text>
@@ -32,11 +32,11 @@ tags:
 <g stroke="currentColor" stroke-width="2"><line x1="152" y1="86" x2="198" y2="86" marker-end="url(#ac-arrow)"/><line x1="332" y1="86" x2="378" y2="86" marker-end="url(#ac-arrow)"/><line x1="532" y1="86" x2="578" y2="86" marker-end="url(#ac-arrow)"/></g>
 </svg>
 
-<strong>ゲームがほしいのは、この中の「RRT + ODT」が作る曲線の形</strong>です。<strong>入力の色空間変換（IDT）は、リニアな sRGB のレンダリング結果をそのまま使う</strong>ので、省略します。
+ゲームがほしいのは、この中の「RRT + ODT」が作る曲線の形です。入力の色空間変換（IDT）は、リニアな sRGB のレンダリング結果をそのまま使うので、省略します。
 
 ## 近似式：Narkowicz
 
-<strong>Krzysztof Narkowicz</strong> が提案した、<strong>有理関数 1 つ</strong>の近似です。軽くて、ゲームの定番です。
+<strong>Krzysztof Narkowicz</strong> が提案した、有理関数 1 つの近似です。軽くて、ゲームの定番です。
 
 <div class="formula">c = (x · (2.51·x + 0.03)) / (x · (2.43·x + 0.59) + 0.14)</div>
 
@@ -55,7 +55,7 @@ Narkowicz 版のコードの要点です。入力に露出を掛けておく必�
 
 ## 色空間つきのフィット：Stephen Hill
 
-<strong>もっと本物に近い</strong>のが、<strong>Stephen Hill のフィット</strong>です。ACES の「色空間の行列変換」も含みます。
+<strong>もっと本物に近い</strong>のが、Stephen Hill のフィットです。ACES の「色空間の行列変換」も含みます。
 
 ```hlsl
 static const float3x3 kACESInputMat = {
@@ -98,11 +98,11 @@ float3 ACESFitted(float3 color) {
 
 ## 色が偏る理由
 
-<strong>ACES は、「ハイライトの色が白へ向かう」</strong>ように作られた<strong>フィルム的な曲線</strong>です。<strong>そのため</strong>、次の現象が起きます。
+<strong>ACES は、「ハイライトの色が白へ向かう」</strong>ように作られたフィルム的な曲線です。そのため、次の現象が起きます。
 
 ACES は、ハイライトの色が白へ向かうように作られた、フィルム的な曲線です。そのため、いくつかの現象が起きます。青い強い光が紫がかるのは、青の成分だけ先に飽和し、赤が残るためです。赤やオレンジの強い光が黄色へ変わるのは、赤が先に飽和し、緑が目立つためです。彩度の高い明部が白に近づくのは、フィルムのハイライトの特徴で、意図した表現にもなります。
 
-<strong>ゲームではネオンやエフェクトの鮮やかな色が、意図とずれる</strong>ことがあります。<strong>その場合は、AgX や色補正で対処</strong>します。
+ゲームではネオンやエフェクトの鮮やかな色が、意図とずれることがあります。その場合は、AgX や色補正で対処します。
 
 ## より良いやり方
 
@@ -153,25 +153,25 @@ ACES は、ハイライトの色が白へ向かうように作られた、フィ
 ## よくあるミス
 
 ??? failure "「ACES を使っている」と言いつつ、近似式だけで色空間変換がない"
-    <strong>近似式は「ACES っぽい曲線」</strong>。<strong>本物の色再現が必要なら、Hill のフィットや OpenColorIO</strong>。
+    <strong>近似式は「ACES っぽい曲線」</strong>。本物の色再現が必要なら、Hill のフィットや OpenColorIO。
 
 ??? failure "行列の掛ける順（転置）を間違えて、色が変になる"
-    <strong>Hill のコードは列ベクトル規約</strong>。<strong>行ベクトル規約の環境では、行列を転置</strong>して掛ける。
+    Hill のコードは列ベクトル規約。行ベクトル規約の環境では、行列を転置して掛ける。
 
 ??? failure "ACES の後に、さらに露出やコントラストを足して、二重になる"
-    <strong>ACES はすでにコントラストが強い</strong>。<strong>グレーディングは、控えめに</strong>。
+    ACES はすでにコントラストが強い。グレーディングは、控えめに。
 
 ??? failure "ブルームやエフェクトが、紫・黄に偏って見える"
-    <strong>ACES の色の偏り</strong>。<strong>エフェクトの色を調整する</strong>、またはAgX を検討。
+    ACES の色の偏り。エフェクトの色を調整する、またはAgX を検討。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ACES ＝ <strong>映画の色管理の標準</strong>。<strong>ゲームはトーンマップの形を借りる</strong>
-    - [x] <strong>近似式（Narkowicz）は 1 行</strong>で<strong>軽い</strong>。<strong>Hill のフィットは色空間つき</strong>
-    - [x] 特徴は<strong>強いコントラストと鮮やかな色</strong>。<strong>欠点は明部の色の偏り</strong>
-    - [x] <strong>行列の向き（転置）</strong>に注意
-    - [x] <strong>色の安定を重視</strong>するなら <strong>AgX</strong>
+    - [x] ACES ＝ <strong>映画の色管理の標準</strong>。ゲームはトーンマップの形を借りる
+    - [x] 近似式（Narkowicz）は 1 行で軽い。Hill のフィットは色空間つき
+    - [x] 特徴は強いコントラストと鮮やかな色。欠点は明部の色の偏り
+    - [x] 行列の向き（転置）に注意
+    - [x] 色の安定を重視するなら AgX
 
 ## 参考
 

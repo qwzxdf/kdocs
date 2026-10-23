@@ -6,15 +6,15 @@ tags:
 
 # Basic Adjustments
 
-<strong>カラー グレーディングの土台</strong>は、<strong>露出・コントラスト・彩度・色相</strong>という4 つの基本操作です。<strong>それぞれが「画素の色を変える関数」</strong>で、組み合わせれば、ほとんどのルックを作れます。このページでは、各操作の式と効き方・どの空間で行うか（リニアか、ガンマか）・ピボットの選び方・彩度の注意点・調整の順序を説明します。
+<strong>カラー グレーディングの土台</strong>は、露出・コントラスト・彩度・色相という4 つの基本操作です。それぞれが「画素の色を変える関数」で、組み合わせれば、ほとんどのルックを作れます。このページでは、各操作の式と効き方・どの空間で行うか（リニアか、ガンマか）・ピボットの選び方・彩度の注意点・調整の順序を説明します。
 
 !!! tip "ポイント"
-    - <strong>露出</strong>：<strong>全体に倍率</strong>（<strong>2^EV</strong>）。
-    - <strong>コントラスト</strong>：<strong>ピボット（中間灰）を中心に広げる・縮める</strong>。
-    - <strong>彩度</strong>：<strong>輝度（モノクロ）と元の色を補間</strong>。<strong>0 でモノクロ、1 で元、1 超で鮮やか</strong>。
-    - <strong>色相</strong>：<strong>色相環上で回す</strong>。
-    - <strong>計算する空間</strong>：<strong>リニアで行うか、見た目に近いガンマ（または対数）で行うか</strong>で<strong>効き方が変わる</strong>。
-    - <strong>順序で結果が変わる</strong>（<strong>非可換</strong>）。<strong>一定の順序を決める</strong>。
+    - <strong>露出</strong>：<strong>全体に倍率</strong>（2^EV）。
+    - コントラスト：ピボット（中間灰）を中心に広げる・縮める。
+    - 彩度：輝度（モノクロ）と元の色を補間。0 でモノクロ、1 で元、1 超で鮮やか。
+    - 色相：色相環上で回す。
+    - 計算する空間：リニアで行うか、見た目に近いガンマ（または対数）で行うかで効き方が変わる。
+    - 順序で結果が変わる（非可換）。一定の順序を決める。
 
 <!-- fig:basic-adjustments:begin -->
 
@@ -100,7 +100,7 @@ tags:
 | --- | --- | --- |
 | 露出 | 全体の明るさ | 色 × 2^EV |
 | コントラスト | 明暗の差 | <strong>(色 − ピボット) × 係数 + ピボット</strong> |
-| 彩度 | 鮮やかさ | <strong>lerp(輝度, 色, 彩度)</strong> |
+| 彩度 | 鮮やかさ | lerp(輝度, 色, 彩度) |
 | 色相 | 色の種類 | 色相環で回転 |
 
 ## コントラスト
@@ -129,7 +129,7 @@ float3 ApplyContrast(float3 color, float contrast, float pivot) {
 <text x="440" y="142" style="font-size:12px;fill:#64748b">灰色の点線：変化なし</text>
 </svg>
 
-<strong>線形のコントラスト</strong>は、<strong>0〜1 の外にはみ出す</strong>ことがあるので、<strong>S 字（シグモイド）</strong>やクランプで抑えることがあります。
+線形のコントラストは、0〜1 の外にはみ出すことがあるので、S 字（シグモイド）やクランプで抑えることがあります。
 
 ## 彩度
 
@@ -142,7 +142,7 @@ float3 ApplySaturation(float3 color, float saturation) {
 
 彩度の値による見た目です。0 ならモノクロ、1 ならそのまま、1 より大きければ鮮やかになります（1.2〜1.5 がよく使われます）。
 
-<strong>注意</strong>：<strong>彩度を上げすぎるとすでに鮮やかな色が範囲外（> 1）に出たり、色が不自然</strong>になります。<strong>「鮮やかな色ほど効きにくい」振る舞い（バイブランス）</strong>にすると自然です。
+<strong>注意</strong>：彩度を上げすぎるとすでに鮮やかな色が範囲外（> 1）に出たり、色が不自然になります。「鮮やかな色ほど効きにくい」振る舞い（バイブランス）にすると自然です。
 
 ```hlsl
 float3 ApplyVibrance(float3 color, float vibrance) {
@@ -155,11 +155,11 @@ float3 ApplyVibrance(float3 color, float vibrance) {
 }
 ```
 
-鮮やかさの調整には、2 つの方式があります。<strong>彩度（Saturation）</strong>は、全体を同じ割合で変えます。<strong>バイブランス（Vibrance）</strong>は、もともと地味な色をより強く鮮やかにします。肌の色などを不自然にしないための方式です。
+鮮やかさの調整には、2 つの方式があります。彩度（Saturation）は、全体を同じ割合で変えます。バイブランス（Vibrance）は、もともと地味な色をより強く鮮やかにします。肌の色などを不自然にしないための方式です。
 
 ## 色相
 
-<strong>色相環（色の輪）の上で色を回転</strong>させます。<strong>RGB を直接回すより、色相・彩度・明度（HSV）や YCoCg に変換して回す</strong>のが一般的です。
+<strong>色相環（色の輪）の上で色を回転</strong>させます。RGB を直接回すより、色相・彩度・明度（HSV）や YCoCg に変換して回すのが一般的です。
 
 ```hlsl
 float3 RotateHue(float3 color, float angle_radians) {
@@ -174,17 +174,17 @@ float3 RotateHue(float3 color, float angle_radians) {
 }
 ```
 
-<strong>色相の回転</strong>は<strong>ゲームでは特殊効果（毒・凍結・サイケデリック）や、全体の色味の調整</strong>に使われます。
+色相の回転はゲームでは特殊効果（毒・凍結・サイケデリック）や、全体の色味の調整に使われます。
 
 ## 計算する空間
 
-計算する空間によって、調整の効き方が変わります。<strong>リニア</strong>（光の量）は、物理的に正しい空間ですが、コントラストの効きが暗部に弱く、明部に強くなります。<strong>ガンマ（sRGB）</strong>は、見た目に近く、画像編集ソフトの感覚と合います。<strong>対数（Log）</strong>は、広いダイナミック レンジを均等に扱え、映画のグレーディングで標準です。
+計算する空間によって、調整の効き方が変わります。<strong>リニア</strong>（光の量）は、物理的に正しい空間ですが、コントラストの効きが暗部に弱く、明部に強くなります。ガンマ（sRGB）は、見た目に近く、画像編集ソフトの感覚と合います。対数（Log）は、広いダイナミック レンジを均等に扱え、映画のグレーディングで標準です。
 
-<strong>アーティストが写真編集ソフトの感覚で調整できる</strong>ように、<strong>ガンマ空間か、対数空間で調整</strong>するのが一般的です（[3D LUT](lut-3d.md)）。
+アーティストが写真編集ソフトの感覚で調整できるように、ガンマ空間か、対数空間で調整するのが一般的です（[3D LUT](lut-3d.md)）。
 
 ## 調整の順序
 
-<strong>これらの調整は、順序を入れ替えると結果が変わります</strong>（<strong>非可換</strong>）。ゲーム（エンジン）で順序を決めて固定します。
+<strong>これらの調整は、順序を入れ替えると結果が変わります</strong>（非可換）。ゲーム（エンジン）で順序を決めて固定します。
 
 | 順序の例 | 内容 |
 | --- | --- |
@@ -208,25 +208,25 @@ float3 RotateHue(float3 color, float angle_radians) {
 ## よくあるミス
 
 ??? failure "コントラストを強くしたら、暗部が真っ黒、明部が真っ白"
-    <strong>S 字（シグモイド）</strong>にする、<strong>ピボットを正しく</strong>、<strong>適度に</strong>。
+    <strong>S 字（シグモイド）</strong>にする、ピボットを正しく、適度に。
 
 ??? failure "彩度を上げたら、色が派手すぎて不自然"
-    <strong>バイブランス</strong>にする、<strong>上げ幅を抑える</strong>。
+    バイブランスにする、上げ幅を抑える。
 
 ??? failure "リニア空間でコントラストを掛けて、見た目が思ったのと違う"
-    <strong>ピボットを 0.18</strong>にする、または<strong>ガンマ・対数空間で調整</strong>。
+    ピボットを 0.18にする、またはガンマ・対数空間で調整。
 
 ??? failure "調整の順序を変えて、ルックが変わった"
-    <strong>順序を固定</strong>する。
+    順序を固定する。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 基本は<strong>露出・コントラスト・彩度・色相</strong>
-    - [x] <strong>コントラスト</strong> ＝ <strong>ピボットを中心に傾きを変える</strong>。<strong>彩度</strong> ＝ <strong>輝度と元の色の補間</strong>
-    - [x] <strong>バイブランス</strong>で<strong>鮮やかな色を、増やしすぎない</strong>
-    - [x] <strong>リニア・ガンマ・対数</strong>で<strong>効き方が違う</strong>。<strong>ピボットを合わせる</strong>
-    - [x] <strong>順序を固定</strong>。<strong>LUT に焼く</strong>
+    - [x] コントラスト ＝ ピボットを中心に傾きを変える。彩度 ＝ 輝度と元の色の補間
+    - [x] バイブランスで鮮やかな色を、増やしすぎない
+    - [x] リニア・ガンマ・対数で効き方が違う。ピボットを合わせる
+    - [x] 順序を固定。LUT に焼く
 
 ## 参考
 

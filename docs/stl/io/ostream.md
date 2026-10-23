@@ -14,12 +14,15 @@ tags:
 `#include <ostream>`
 </div>
 
-`std::ostream` は、**出力ストリームの共通の親クラス**です。`std::cout`、`std::ofstream`、`std::ostringstream` はすべて `ostream` の仲間です。関数の引数を `std::ostream&` にしておくと、画面にもファイルにも文字列にも、同じ関数で出力できます。`operator<<` を自作するときの、第 1 引数の型でもあります。
+状態を表示する関数を作るとき、画面に出すのか、ファイルに出すのか、文字列に出すのかで、関数を何通りも作るのは無駄です。`std::ostream` は、出力ストリームの共通の親クラスで、`std::cout`、`std::ofstream`、`std::ostringstream` はすべてこの仲間です。関数の引数を `std::ostream&` にしておけば、画面、ファイル、文字列のどこにも同じ関数で出せます。
 
 !!! tip "ポイント"
     - 出力する関数は `void Dump(std::ostream& os)` と書く。画面もファイルも渡せる。
     - `operator<<(std::ostream&, const T&)` を自作すると、自作の型を `<<` で出せる。
     - ストリームは**参照で**受け取る（コピーできない）。
+
+!!! info "このページを読む前に"
+    [`std::ifstream`](ifstream.md) や [`std::cout`](cout.md) など、ストリームの基本を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -82,16 +85,73 @@ ostream& put(char_type ch);
 
 1 文字を、書式なしで出力します。`<<` と違い、`setw` などの影響を受けません。
 
+### operator<< {#op_shl}
+
+```cpp
+ostream& operator<<(int value);
+ostream& operator<<(const std::string& str);
+```
+
+- 計算量: O(出力の長さ)
+
+書式つきで出力します。`<<` を続けて書けます（戻り値がストリーム自身のため）。
+
+### write {#write}
+
+```cpp
+ostream& write(const char* s, streamsize n);
+```
+
+- 計算量: O(n)
+
+`n` バイトを、書式なしで書き込みます（バイナリ用）。
+
+### flush {#flush}
+
+```cpp
+ostream& flush();
+```
+
+- 計算量: 出力の量に比例
+
+バッファの中身を、出力先に書き出します。
+
+### tellp {#tellp}
+
+```cpp
+pos_type tellp();
+```
+
+- 計算量: 定数
+
+出力側の現在位置を返します。
+
+### seekp {#seekp}
+
+```cpp
+ostream& seekp(pos_type pos);
+ostream& seekp(off_type off, ios_base::seekdir dir);
+```
+
+- 計算量: 定数
+
+出力側の位置を動かします。書き込み位置を戻して、書き直したいときに使います。
+
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ログ関数を、画面にもファイルにも出せるようにする | `void Log(std::ostream& os, ...)` |
+デバッグ出力の関数に使います。`void Dump(std::ostream& os)` と書けば、画面にもログファイルにも、同じ関数で出せます。
+
+自作の型を `<<` で出せるようにするには、`std::ostream& operator<<(std::ostream& os, const Vec3& v)` を定義します。`std::println("{}", v)` で使うなら、`formatter` を用意します。
+
+ストリームはコピーできないので、参照で受け取ります。戻り値にストリーム自身を返すと、`os << a << b` のようにつなげられます。
 
 ## よくあるミス
 
 ??? failure "ストリームを値で受け取る"
     コピーできないのでコンパイルエラーです。参照で受け取ります。
+
+??? failure "ストリームをコピーしようとする"
+    ストリームはコピーできません。引数は `std::ostream&` と参照で受けます。
 
 ## 類似
 

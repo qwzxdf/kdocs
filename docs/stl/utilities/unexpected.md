@@ -14,7 +14,7 @@ tags:
 `#include <expected>`
 </div>
 
-`std::unexpected` は、**`std::expected` に「成功した値」ではなく「失敗した理由（エラー）」を入れるときの包み**です。`return std::unexpected(ErrorCode::kNotFound);` のように書いて、失敗を返します。成功値と同じ型のエラーを返すときの、取り違えを防ぎます。
+`std::expected<int, int>` のように、成功した値とエラーの型が同じだと、`return 3;` が成功の 3 なのか、エラーの 3 なのかが分かりません。`std::unexpected` は、`std::expected` に「成功した値」ではなく「失敗した理由（エラー）」を入れるときの包みです。`return std::unexpected(ErrorCode::kNotFound);` と書いて、失敗を返します。
 
 !!! tip "ポイント"
     - 失敗を返すときは `return std::unexpected(エラー);`。成功は、値をそのまま `return`。
@@ -63,14 +63,19 @@ false 読み込み失敗
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ファイルの読み込みが失敗したことを返す | `return std::unexpected(LoadError::kNotFound);` |
+ファイル読み込みなどの失敗を返す関数で使います。`std::expected<Data, LoadError> Load(path)` の中で、`return std::unexpected(LoadError::kNotFound);` と書きます。成功のときは、値をそのまま `return` します。
+
+成功の型とエラーの型が同じ `expected<int, int>` でも、包むので取り違えません。
+
+`unexpected` 自身は、`expected` の外ではほとんど使いません。値を返すときに包むための、小さな部品です。
 
 ## よくあるミス
 
 ??? failure "成功値とエラーが同じ型で取り違える"
     `std::expected<int, int>` で `return 5;` は成功の 5、`return std::unexpected(5);` は失敗の 5 です。包みが区別を付けます。
+
+??? failure "エラーを包まずに返す"
+    `return LoadError::kNotFound;` と書くと、成功の値と取り違えられるか、変換できずコンパイルエラーです。`unexpected` で包みます。
 
 ## 類似
 

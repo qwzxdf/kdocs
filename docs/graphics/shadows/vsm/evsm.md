@@ -6,7 +6,7 @@ tags:
 
 # EVSM
 
-<strong>EVSM（指数 VSM）</strong>は、<strong>VSM と ESM を組み合わせ、深度を指数で変換してから VSM の統計（平均と二乗平均）を取る</strong>方式です。光漏れが少なくフィルタも使えるので、VSM 系で実用的な選択肢の1 つです。保存するデータが多く（4 チャンネル）、メモリと帯域は重いです。このページでは EVSM の考え方・保存する値・実装のポイントを説明します。
+<strong>EVSM（指数 VSM）</strong>は、VSM と ESM を組み合わせ、深度を指数で変換してから VSM の統計（平均と二乗平均）を取る方式です。光漏れが少なくフィルタも使えるので、VSM 系で実用的な選択肢の1 つです。保存するデータが多く（4 チャンネル）、メモリと帯域は重いです。このページでは EVSM の考え方・保存する値・実装のポイントを説明します。
 
 !!! tip "ポイント"
     - EVSM ＝ 深度を `exp(c·d)` と `−exp(−c·d)` に変換し、それぞれ VSM の統計を取る。
@@ -47,7 +47,7 @@ tags:
 <!-- fig:evsm-warp:end -->
 
 ## EVSM（指数 VSM）
-<strong>EVSM</strong>（Exponential Variance Shadow Maps）は、<strong>深度を exp でワープしてから、VSM</strong>を行います。正のワープ `exp(c z)` と負のワープ `−exp(−c z)` を、それぞれ VSMにして小さい方（保守的な方）を採用します。
+<strong>EVSM</strong>（Exponential Variance Shadow Maps）は、深度を exp でワープしてから、VSMを行います。正のワープ `exp(c z)` と負のワープ `−exp(−c z)` を、それぞれ VSMにして小さい方（保守的な方）を採用します。
 
 | 項目 | 内容 |
 | --- | --- |
@@ -57,7 +57,7 @@ tags:
 
 ## 考え方：VSM と ESM の、いいとこ取り
 
-<strong>EVSM</strong>（Exponential Variance Shadow Maps）は、<strong>VSM の分散</strong>（チェビシェフの不等式）と、ESM の指数を組み合わせた手法です。深度 `z` を指数に変換してから、その平均と 2 乗の平均（分散）を保存し、チェビシェフの不等式で判定します。
+<strong>EVSM</strong>（Exponential Variance Shadow Maps）は、VSM の分散（チェビシェフの不等式）と、ESM の指数を組み合わせた手法です。深度 `z` を指数に変換してから、その平均と 2 乗の平均（分散）を保存し、チェビシェフの不等式で判定します。
 
 ```text
 VSM:   z、z² を、保存
@@ -65,7 +65,7 @@ ESM:   exp(c × z) を、保存
 EVSM:  warp(z) = exp(c × z)   →   warp(z) と warp(z)² を、保存し、チェビシェフで判定
 ```
 
-<strong>指数変換</strong>で深度の差を <strong>増幅</strong>するため、光漏れ（VSM の最大の弱点）が、大きく減ります。
+指数変換で深度の差を 増幅するため、光漏れ（VSM の最大の弱点）が、大きく減ります。
 
 ## 2 つの指数（正と負）
 
@@ -118,7 +118,7 @@ float EvsmShadow(float4 moments, float depth) {
 | 16 ビット浮動小数点（`R16G16B16A16_FLOAT`） | `c ≈ 5`（`e⁵ ≈ 148`、16 ビットの上限は 65504） |
 | 32 ビット浮動小数点（`R32G32B32A32_FLOAT`） | `c ≈ 40`（`e⁴⁰ ≈ 2×10¹⁷`、2 乗しても収まる）|
 
-<strong>16 ビット</strong>では `c` を小さくせざるを得ず、<strong>光漏れの削減効果が減ります</strong>。32 ビット（メモリが 2 倍）が、標準です。
+16 ビットでは `c` を小さくせざるを得ず、光漏れの削減効果が減ります。32 ビット（メモリが 2 倍）が、標準です。
 
 ## 長所と短所
 

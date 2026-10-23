@@ -13,10 +13,10 @@ Visual Studio での入れ方の基本は [外部ライブラリの入れ方](..
 
 === "ファイルを置く"
 
-    1. [GitHub の tinygltf](https://github.com/syoyo/tinygltf) から、**`tiny_gltf.h`**、**`json.hpp`**（nlohmann/json）、**`stb_image.h`**、**`stb_image_write.h`** を取得し `third_party/tinygltf/` に置く
-    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）構成を **すべての構成**、プラットフォームを **x64** にする
-    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party\tinygltf` を追加する
-    4. **1 つの `.cpp` だけ**（たとえば `gltf_loader.cpp`）で、次のように書く
+    1. [GitHub の tinygltf](https://github.com/syoyo/tinygltf) から、**`tiny_gltf.h`**、`json.hpp`（nlohmann/json）、`stb_image.h`、`stb_image_write.h` を取得し `third_party/tinygltf/` に置く
+    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）構成を すべての構成、プラットフォームを x64 にする
+    3. C/C++ → 全般 → 追加のインクルード ディレクトリ に、`$(SolutionDir)third_party\tinygltf` を追加する
+    4. 1 つの `.cpp` だけ（たとえば `gltf_loader.cpp`）で、次のように書く
 
         ```cpp
         #define TINYGLTF_IMPLEMENTATION
@@ -37,13 +37,13 @@ Visual Studio での入れ方の基本は [外部ライブラリの入れ方](..
         ```
 
         （マニフェスト モードなら `vcpkg.json` の `dependencies` に `"tinygltf"` を足す）
-    3. **1 つの `.cpp` だけ**で、`TINYGLTF_IMPLEMENTATION` を書いてから `#include <tiny_gltf.h>` する（上と同じ）
+    3. 1 つの `.cpp` だけで、`TINYGLTF_IMPLEMENTATION` を書いてから `#include <tiny_gltf.h>` する（上と同じ）
 
 !!! warning "TINYGLTF_IMPLEMENTATION は、1 つの .cpp だけ"
-    `#define TINYGLTF_IMPLEMENTATION` を**複数の `.cpp`** に書くと**関数の二重定義**（`LNK2005`）になります。**1 つの専用の `.cpp`** に閉じ込めます（[ビルド時間の最適化](../../optimize/build-time.md)）。
+    `#define TINYGLTF_IMPLEMENTATION` を複数の `.cpp` に書くと関数の二重定義（`LNK2005`）になります。1 つの専用の `.cpp` に閉じ込めます（[ビルド時間の最適化](../../optimize/build-time.md)）。
 
 !!! warning "Windows では、NOMINMAX を定義する"
-    `<windows.h>` の `min` / `max` マクロと衝突します。プロジェクトで **`NOMINMAX`** を定義します（[プリプロセッサマクロ](../../vs/preprocessor.md)）。
+    `<windows.h>` の `min` / `max` マクロと衝突します。プロジェクトで `NOMINMAX` を定義します（[プリプロセッサマクロ](../../vs/preprocessor.md)）。
 
 ## 動作確認：glTF を 1 つ読んでみる
 
@@ -76,7 +76,7 @@ int main() {
 }
 ```
 
-数が出れば導入は成功です。`LoadBinaryFromFile` は成功で `true` を返し失敗の理由は `err` に入ります。<strong>必ず `err` と `warn` を表示</strong>します（ファイルが見つからない、拡張子が違うなどがここに出ます）。
+数が出れば導入は成功です。`LoadBinaryFromFile` は成功で `true` を返し失敗の理由は `err` に入ります。必ず `err` と `warn` を表示します（ファイルが見つからない、拡張子が違うなどがここに出ます）。
 
 ## よくあるエラー
 

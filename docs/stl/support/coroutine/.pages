@@ -6,4 +6,6 @@ nav:
   - co_await.md
   - co_yield.md
   - co_return.md
+  - coroutine_traits.md
+  - noop_coroutine.md
   - ...

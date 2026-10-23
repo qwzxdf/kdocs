@@ -22,6 +22,7 @@ nav:
   - basic_string.md
   - stod.md
   - stoll.md
+  - to_array.md
   - list.md
   - forward_list.md
   - multimap.md
@@ -38,11 +39,24 @@ nav:
   - layout_right.md
   - layout_left.md
   - layout_stride.md
+  - aligned_accessor.md
+  - as_bytes.md
+  - as_writable_bytes.md
+  - default_accessor.md
+  - dextents.md
+  - dynamic_extent.md
+  - full_extent.md
+  - gslice.md
   - hive.md
+  - indirect_array.md
+  - mask_array.md
+  - slice.md
   - stol.md
   - stold.md
   - stoul.md
   - stoull.md
+  - strided_slice.md
+  - submdspan.md
   - to_wstring.md
   - u16string.md
   - u32string.md

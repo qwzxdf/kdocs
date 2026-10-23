@@ -6,14 +6,14 @@ tags:
 
 # プロジェクトの種類とエントリーポイント
 
-Visual Studio で新しいプロジェクトを作るとき、「**コンソール アプリ**」と「**Windows デスクトップ アプリケーション**」のように、似た名前のテンプレートが並びます。この違いは、<strong>プログラムがどの関数から始まるか（エントリーポイント）</strong>と、<strong>コンソール画面を持つか</strong>です。ゲームでは、ウィンドウを作るので「Windows アプリ」が基本ですが、Debug のときだけコンソールを出したい場面もよくあります。このページでは、プロジェクトの種類とサブシステム、`main` と `WinMain` の違いを説明します。
+Visual Studio で新しいプロジェクトを作るとき、「**コンソール アプリ**」と「Windows デスクトップ アプリケーション」のように、似た名前のテンプレートが並びます。この違いは、プログラムがどの関数から始まるか（エントリーポイント）と、コンソール画面を持つかです。ゲームでは、ウィンドウを作るので「Windows アプリ」が基本ですが、Debug のときだけコンソールを出したい場面もよくあります。このページでは、プロジェクトの種類とサブシステム、`main` と `WinMain` の違いを説明します。
 
 !!! tip "ポイント"
-    - コンソール アプリは <strong>`main`</strong> から、Windows アプリは <strong>`WinMain`（`wWinMain`）</strong>から始まる。決めているのは、<strong>リンカーの「サブシステム」設定</strong>
-    - サブシステムが **CONSOLE** なら黒いコンソール画面付き、**WINDOWS** ならコンソール画面なし
-    - 食い違うと <strong>`LNK2019: 未解決の外部シンボル WinMain`</strong>（または `main`）になる。テンプレートを間違えたら、サブシステムを直すのが早い
-    - 成果物の種類は <strong>exe / lib / dll</strong>。DLL のエントリーポイントは `DllMain`
-    - ゲームは、**Windows サブシステム**で作り、デバッグ用には `AllocConsole` でコンソールを足す、という形が多い
+    - コンソール アプリは <strong>`main`</strong> から、Windows アプリは <strong>`WinMain`（`wWinMain`）</strong>から始まる。決めているのは、リンカーの「サブシステム」設定
+    - サブシステムが CONSOLE なら黒いコンソール画面付き、WINDOWS ならコンソール画面なし
+    - 食い違うと `LNK2019: 未解決の外部シンボル WinMain`（または `main`）になる。テンプレートを間違えたら、サブシステムを直すのが早い
+    - 成果物の種類は exe / lib / dll。DLL のエントリーポイントは `DllMain`
+    - ゲームは、Windows サブシステムで作り、デバッグ用には `AllocConsole` でコンソールを足す、という形が多い
 
 ## このページを読む前に
 
@@ -38,9 +38,9 @@ Visual Studio で新しいプロジェクトを作るとき、「**コンソー�
 
 プログラムを実行すると、OS は `.exe` の中の<strong>最初に動く場所（エントリーポイント）</strong>を呼びます。ただし、これは自分で書く `main` ではありません。
 
-1. OS が、ランタイム（C ランタイム）の<strong>スタートアップ関数</strong>を呼ぶ
+1. OS が、ランタイム（C ランタイム）のスタートアップ関数を呼ぶ
 2. スタートアップ関数が、グローバル変数の初期化などを済ませる
-3. そのあとで、<strong>自分の `main` や `WinMain`</strong> を呼ぶ
+3. そのあとで、自分の `main` や `WinMain` を呼ぶ
 
 スタートアップ関数の名前は、サブシステムと、`main` の種類で決まります。
 
@@ -51,7 +51,7 @@ Visual Studio で新しいプロジェクトを作るとき、「**コンソー�
 | `int WINAPI WinMain(...)` | `WinMainCRTStartup` | char |
 | `int WINAPI wWinMain(...)` | `wWinMainCRTStartup` | wchar_t |
 
-自分で書くのは、左の列にある関数です。スタートアップ関数は、**サブシステムの設定に合わせて、リンカーが自動で選びます**。
+自分で書くのは、左の列にある関数です。スタートアップ関数は、サブシステムの設定に合わせて、リンカーが自動で選びます。
 
 ### コンソール アプリ（main）
 
@@ -98,7 +98,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
 
 1. プロジェクトを選んで、メニューの<strong>プロジェクト → プロパティ</strong>を開く
 2. 構成を「すべての構成」、プラットフォームを「x64」にする
-3. **リンカー → システム → サブシステム** を選ぶ
+3. リンカー → システム → サブシステム を選ぶ
 
 ![リンカー → システム のページ。先頭の「サブシステム」が空のとき、プロジェクトの種類で決まる](img/props-linker-system.jpg)
 
@@ -107,7 +107,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
 | コンソール | `/SUBSYSTEM:CONSOLE` | コンソールあり | `main` / `wmain` |
 | Windows | `/SUBSYSTEM:WINDOWS` | コンソールなし | `WinMain` / `wWinMain` |
 
-エントリーポイントを、名前で直接指定することもできます。**リンカー → 詳細設定 → エントリ ポイント** に、スタートアップ関数の名前（`mainCRTStartup` など）を書きます（`/ENTRY`）。
+エントリーポイントを、名前で直接指定することもできます。リンカー → 詳細設定 → エントリ ポイント に、スタートアップ関数の名前（`mainCRTStartup` など）を書きます（`/ENTRY`）。
 
 ### 組み合わせを変える {#combos}
 
@@ -204,14 +204,14 @@ extern "C" __declspec(dllexport) void InitializeGame() {
     コンソールがないので、出力の行き先がありません。Debug だけ `AllocConsole` で足すか、`OutputDebugStringA` で、「出力」ウィンドウに出します。
 
 ??? failure "プロジェクトの種類を間違えて作り直した"
-    作り直さなくても、プロパティで直せます。**全般 → 構成の種類**（exe / lib / dll）と、**リンカー → システム → サブシステム**を変えて、エントリーポイントの関数を書きます。
+    作り直さなくても、プロパティで直せます。**全般 → 構成の種類**（exe / lib / dll）と、リンカー → システム → サブシステムを変えて、エントリーポイントの関数を書きます。
 
 ## これだけ覚える
 
-- <strong>`main` はコンソール、`WinMain`（`wWinMain`）は Windows アプリ</strong>。決めているのはリンカーの<strong>サブシステム</strong>
-- ゲームは **Windows サブシステム**で作り、Debug のときだけコンソールを足す
+- <strong>`main` はコンソール、`WinMain`（`wWinMain`）は Windows アプリ</strong>。決めているのはリンカーのサブシステム
+- ゲームは Windows サブシステムで作り、Debug のときだけコンソールを足す
 - `LNK2019` で `WinMain` や `main` が見つからないときは、サブシステムと関数が合っていない
-- exe / lib / dll の違いは、プロパティの<strong>構成の種類</strong>で変えられる
+- exe / lib / dll の違いは、プロパティの構成の種類で変えられる
 
 ## 関連ページ
 

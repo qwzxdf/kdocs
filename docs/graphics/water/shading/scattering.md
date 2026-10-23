@@ -6,7 +6,7 @@ tags:
 
 # Scattering Color (SSS-Like)
 
-<strong>波頭などの薄い部分では光が水の中で散乱して、明るい緑〜水色に透けて見えます</strong>。<strong>これを SSS 風の近似で表せます</strong>。このページでは散乱の色の足し方を説明します。
+<strong>波頭などの薄い部分では光が水の中で散乱して、明るい緑〜水色に透けて見えます</strong>。これを SSS 風の近似で表せます。このページでは散乱の色の足し方を説明します。
 
 !!! tip "ポイント"
     - 波頭（高い所）が、明るく透ける。
@@ -15,7 +15,7 @@ tags:
     - 入れすぎると水が発光して見える。
 
 ## 散乱の色（SSS 風）
-<strong>波頭に光が透けて明るい青緑に光って見える</strong>ことがあります（<strong>太陽を背にして波を見たとき</strong>）。波の高い所ほど水が薄く光が通り抜けるためです。
+<strong>波頭に光が透けて明るい青緑に光って見える</strong>ことがあります（太陽を背にして波を見たとき）。波の高い所ほど水が薄く光が通り抜けるためです。
 
 ```hlsl
 float wave_height_factor = saturate(height_offset / max_wave_height);
@@ -33,7 +33,7 @@ float3 scatter = scatter_color * wave_height_factor * sun_behind * sun_intensity
 
 ## 水の色はどこから来るのか
 
-水を通して見える色は <strong>底から来る光が、減ったもの</strong>と <strong>水自体から返ってくる光</strong>の、足し算でした（[Color by Water Depth](depth-color.md)）。後者は水の中で光が散乱して目に届く光です。この光が水の色を作っています。
+水を通して見える色は <strong>底から来る光が、減ったもの</strong>と 水自体から返ってくる光の、足し算でした（[Color by Water Depth](depth-color.md)）。後者は水の中で光が散乱して目に届く光です。この光が水の色を作っています。
 
 | 現象 | 内容 |
 | --- | --- |
@@ -41,7 +41,7 @@ float3 scatter = scatter_color * wave_height_factor * sun_behind * sun_intensity
 | 散乱 | 光が水の中で向きを変える。係数 `b`（1/m） |
 | 後方散乱 | 散乱のうち、来た方向へ戻る成分。係数 `b_b`。目に届く光の源 |
 
-海が <strong>青く見える</strong>のは赤が吸収され、<strong>青い光が後方散乱で返ってくる</strong>ためです。
+海が 青く見えるのは赤が吸収され、青い光が後方散乱で返ってくるためです。
 
 ## 水の色を計算する
 
@@ -51,7 +51,7 @@ Gordon ら（1975）は、<strong>深い水の水面から出てくる光の割�
 R ≈ f × b_b / (a + b_b)         f ≈ 0.33
 ```
 
-`R` は <strong>入ってきた光の何割が、水面から戻ってくるか</strong>を表します（<strong>体積反射率</strong>）。
+`R` は 入ってきた光の何割が、水面から戻ってくるかを表します（体積反射率）。
 
 | 水 | `a`（RGB） | `b_b` | `R`（RGB） |
 | --- | --- | --- | --- |
@@ -59,7 +59,7 @@ R ≈ f × b_b / (a + b_b)         f ≈ 0.33
 | 濁った緑の湖 | (0.8, 0.3, 0.3) | 0.02 | (0.008, 0.021, 0.021) |
 | プール（白いタイル） | 底の色が、見える。ここでは、深い水の色の話 | — | — |
 
-`b_b` が `a` に比べて小さいので、<strong>R は小さい値</strong>です。<strong>海は暗い</strong>のが普通です。値が青の成分が最も大きい（`a` が、青で最小）ことが海が青く見える理由です。
+`b_b` が `a` に比べて小さいので、R は小さい値です。海は暗いのが普通です。値が青の成分が最も大きい（`a` が、青で最小）ことが海が青く見える理由です。
 
 ```hlsl
 // 深い水の色（体積反射率）。吸収 a（RGB）と、後方散乱 bb（スカラー）から計算する。
@@ -69,7 +69,7 @@ float3 DeepWaterColor(float3 absorption, float backscatter, float3 incident_ligh
 }
 ```
 
-`incident_light` は <strong>水面に降り注ぐ光</strong>（空の光と、太陽光）です。昼と夜、晴れと曇りで <strong>水の色</strong>も変わります。
+`incident_light` は 水面に降り注ぐ光（空の光と、太陽光）です。昼と夜、晴れと曇りで 水の色も変わります。
 
 ```hlsl
 // 水面に降り注ぐ光 = 空の光 + 太陽光。
@@ -79,9 +79,9 @@ float3 water_color = DeepWaterColor(absorption, 0.005, irradiance / 3.14159265);
 
 ## 波頭が透けて光る
 
-太陽を背にして波を見ると <strong>波頭が、明るい青緑に光って見える</strong>ことがあります。波頭では <strong>水の層が薄く</strong>、背後から来た太陽光が水を通り抜けて、目に届くためです。
+太陽を背にして波を見ると <strong>波頭が、明るい青緑に光って見える</strong>ことがあります。波頭では 水の層が薄く、背後から来た太陽光が水を通り抜けて、目に届くためです。
 
-<strong>簡単な近似</strong>は次のとおりです。
+簡単な近似は次のとおりです。
 
 ```hlsl
 // 波頭の透過光（SSS 風）。
@@ -96,14 +96,14 @@ float3 sss = scatter_color * height_factor * sun_behind * sun_intensity;
 | `sun_behind` | 視線と太陽の向きが、逆向き（太陽が水面の向こう側）のときだけ、光る |
 | `scatter_color` | 青緑の明るい色（水が、薄い所を通る光の色） |
 
-波の<strong>頂点の高さ</strong>を使うので、<strong>波が大きい（荒れた）日ほど、強く</strong>出ます。
+波の頂点の高さを使うので、波が大きい（荒れた）日ほど、強く出ます。
 
 !!! warning "入れすぎると水が、発光する"
-    この項は <strong>足し算</strong>です。強くしすぎると <strong>水面全体がぼんやり光って</strong>見えます。波頭の一部だけがほんのり光るくらいに、抑えます。
+    この項は 足し算です。強くしすぎると 水面全体がぼんやり光って見えます。波頭の一部だけがほんのり光るくらいに、抑えます。
 
 ## 浅瀬の散乱
 
-浅い場所の水の色は <strong>水の散乱の色</strong>と、<strong>底の色</strong>の混ざったものです。底の色が白い砂だと散乱した光が明るく水が、鮮やかな水色になります。
+浅い場所の水の色は <strong>水の散乱の色</strong>と、底の色の混ざったものです。底の色が白い砂だと散乱した光が明るく水が、鮮やかな水色になります。
 
 | 底の色 | 浅い水の見え方 |
 | --- | --- |
@@ -111,7 +111,7 @@ float3 sss = scatter_color * height_factor * sun_behind * sun_intensity;
 | 暗い岩・泥 | 暗い濃い色（北の海、沼） |
 | 緑の藻 | 緑がかった色 |
 
-<strong>底のテクスチャの色</strong>を <strong>屈折で読み</strong>、水の色と混ぜることでこの違いが、自然に出ます（[Color by Water Depth](depth-color.md)）。
+底のテクスチャの色を 屈折で読み、水の色と混ぜることでこの違いが、自然に出ます（[Color by Water Depth](depth-color.md)）。
 
 ## よくあるミス
 

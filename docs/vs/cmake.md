@@ -6,13 +6,13 @@ tags:
 
 # CMake で使う
 
-<strong>CMake（シーメイク）</strong> は、「どのファイルを、どの設定でビルドするか」を `CMakeLists.txt` という**テキストファイル**に書いて、**Visual Studio のプロジェクトを自動で作ってくれる**ツールです。Visual Studio は、`.sln` / `.vcxproj` を使わずに、**CMake のプロジェクトを「フォルダーを開く」で直接開く**こともできます。ライブラリが CMake で配布されている（Jolt Physics など）ときや、将来 Linux / Mac でも動かしたいときに使います。
+<strong>CMake（シーメイク）</strong> は、「どのファイルを、どの設定でビルドするか」を `CMakeLists.txt` というテキストファイルに書いて、Visual Studio のプロジェクトを自動で作ってくれるツールです。Visual Studio は、`.sln` / `.vcxproj` を使わずに、CMake のプロジェクトを「フォルダーを開く」で直接開くこともできます。ライブラリが CMake で配布されている（Jolt Physics など）ときや、将来 Linux / Mac でも動かしたいときに使います。
 
 !!! tip "ポイント"
     - <strong>学生のうちは、Visual Studio のプロジェクト（`.sln`）で十分。</strong> CMake は、必要になったときに覚えればよい。
     - CMake のプロジェクトは、Visual Studio の「**フォルダーを開く**」で開く。`CMakeLists.txt` が見つかると、自動で設定される。
     - 外部ライブラリは、`FetchContent`（ダウンロードして一緒にビルド）か、vcpkg で入れる。
-    - **ビルドの設定は `CMakePresets.json`** に書くと、チームで共有できる。
+    - ビルドの設定は `CMakePresets.json` に書くと、チームで共有できる。
 
 ## 使う場面
 
@@ -27,8 +27,8 @@ tags:
 
 1. メニュー「ファイル → 開く → **フォルダー**」（Ctrl + Shift + Alt + O）で、`CMakeLists.txt` のあるフォルダーを選ぶ
 2. 下に出る「CMake の生成」の出力で、エラーが出ていないことを確認する
-3. 上の **スタートアップ アイテムの選択**（再生ボタンの横）で、実行する `.exe` を選ぶ
-4. **F5** で実行する
+3. 上の スタートアップ アイテムの選択（再生ボタンの横）で、実行する `.exe` を選ぶ
+4. F5 で実行する
 
 ![ファイル → 開く。フォルダー、CMake プロジェクトなどが並ぶ](img/file-open-menu.jpg)
 
@@ -48,7 +48,7 @@ tags:
 
 ![ビルドの出力](img/cmake-build-output.jpg)
 
-Visual Studio のインストーラーで、<strong>「Windows 用 C++ CMake ツール」</strong> のコンポーネントが必要です（「C++ によるデスクトップ開発」には、既定で入っています。[インストール](setup.md)）。
+Visual Studio のインストーラーで、「Windows 用 C++ CMake ツール」 のコンポーネントが必要です（「C++ によるデスクトップ開発」には、既定で入っています。[インストール](setup.md)）。
 
 ## 最小の CMakeLists.txt
 

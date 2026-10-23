@@ -14,7 +14,7 @@ tags:
 `#include <format>`
 </div>
 
-`std::format_to` は、`std::format` と同じ書式で、**結果を新しい `std::string` ではなく、すでにある場所（バッファや出力イテレータ）に書き込む**関数です。メモリの確保を減らしたいときに使います。最大の文字数を決める `format_to_n`、文字数だけを調べる `formatted_size` も同じ仲間です。
+毎フレーム文字列を作ると、`std::format` は新しい `std::string` を作るので、メモリの確保が毎回起きます。作った文字列を、すでにあるバッファに書き込めれば、確保を減らせます。`std::format_to` は、`std::format` と同じ書式で、結果を新しい文字列ではなく、すでにある場所（バッファや出力イテレーター）に書き込む関数です。最大の文字数を決める `format_to_n` や、文字数だけを先に知る `formatted_size` も仲間です。
 
 !!! tip "ポイント"
     - `std::format_to(std::back_inserter(str), "{}", x)` で、既存の `string` に追記する。
@@ -62,15 +62,19 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 毎フレーム使うバッファに、HUD の文字列を書き込む | `std::format_to(buf, "HP {}/{}", hp, max_hp)` |
-| 固定長のログバッファ | `std::format_to_n(buf, sizeof(buf) - 1, ...)` |
+毎フレームの文字列の組み立てで、確保を減らすのに使います。`std::string buf;` を使い回し、`buf.clear(); std::format_to(std::back_inserter(buf), "FPS: {}", fps);` と書けば、バッファの容量が再利用されます。
+
+決まった大きさの配列に書き込むなら、`format_to_n` を使います。あふれた分は捨てられ、安全です。固定長の `char buf[64]` に、HUD の文字列を作る、といった用途です。
+
+先に必要な文字数を知りたいときは、`formatted_size` で数えられます。
 
 ## よくあるミス
 
 ??? failure "format_to でバッファがあふれる"
     `format_to` は大きさを確認しません。固定長の配列には `format_to_n` を使い、終端の `\0` も自分で付けます。
+
+??? failure "固定長の配列に `format_to` で書いて、あふれる"
+    `format_to` は書き込み先の大きさを検査しません。固定長の配列には `format_to_n` を使い、大きさを渡します。
 
 ## 類似
 

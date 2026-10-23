@@ -20,6 +20,7 @@ nav:
   - ratio.md
   - fesetround.md
   - linalg.md
+  - bfloat16_t.md
   - feclearexcept.md
   - fegetenv.md
   - fegetexceptflag.md
@@ -30,4 +31,10 @@ nav:
   - fesetexceptflag.md
   - fetestexcept.md
   - feupdateenv.md
+  - float128_t.md
+  - float16_t.md
+  - float32_t.md
+  - float64_t.md
+  - float_denorm_style.md
+  - float_round_style.md
   - ...

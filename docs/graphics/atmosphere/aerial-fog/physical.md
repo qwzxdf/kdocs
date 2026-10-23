@@ -6,7 +6,7 @@ tags:
 
 # Physically Based Aerial Perspective
 
-<strong>大気散乱の LUT（空気遠近法 LUT）を使うと、距離ごとの散乱と透過率を物理的に正しく求められます</strong>。<strong>空と完全に一致する</strong>のが利点です。このページでは物理に基づく空気遠近法を説明します。
+<strong>大気散乱の LUT（空気遠近法 LUT）を使うと、距離ごとの散乱と透過率を物理的に正しく求められます</strong>。空と完全に一致するのが利点です。このページでは物理に基づく空気遠近法を説明します。
 
 !!! tip "ポイント"
     - カメラからの距離ごとの、散乱と透過率を LUT に。
@@ -15,7 +15,7 @@ tags:
     - Hillaire 2020 の空気遠近法 LUT。
 
 ## 物理に基づく空気遠近法
-<strong>大気散乱</strong>（[Atmospheric Scattering](../scattering/index.md)）の<strong>LUT</strong> を使うと、距離フォグを物理的に決められます。<strong>Hillaire 2020 の「空気遠近法 LUT」</strong> は、カメラ前方の froxel ごとの「散乱光」と「透過率」を保持します。
+<strong>大気散乱</strong>（[Atmospheric Scattering](../scattering/index.md)）のLUT を使うと、距離フォグを物理的に決められます。Hillaire 2020 の「空気遠近法 LUT」 は、カメラ前方の froxel ごとの「散乱光」と「透過率」を保持します。
 
 ```hlsl
 float4 aerial = aerial_perspective_lut.SampleLevel(linear_clamp, float3(uv, depth_slice), 0);
@@ -100,7 +100,7 @@ float3 final_color = scene_color * transmittance + inscattered;
 
 Hillaire の方式（EGSR 2020、"A Scalable and Production Ready Sky and Atmosphere Rendering Technique"）では、カメラの前方に画面に合わせた 3D テクスチャ（froxel 格子）を用意します。解像度は 32×32×32 程度の小さなものです。x と y が画面上の位置、z がカメラからの距離（深度スライス）に対応します。
 
-毎フレーム、この 3D テクスチャの各セルで、「カメラからそのセルまでの視線」に沿って、単散乱をレイマーチで積分します。各セルにはそこまでの<strong>散乱光（RGB）</strong>と<strong>透過率</strong>（アルファに、RGB の平均値）を保存します。多重散乱は別に用意した小さな LUT（Multi-Scattering LUT）から近似して足します（[Multiple Scattering](../scattering/multiple-scattering.md)）。
+毎フレーム、この 3D テクスチャの各セルで、「カメラからそのセルまでの視線」に沿って、単散乱をレイマーチで積分します。各セルにはそこまでの散乱光（RGB）と透過率（アルファに、RGB の平均値）を保存します。多重散乱は別に用意した小さな LUT（Multi-Scattering LUT）から近似して足します（[Multiple Scattering](../scattering/multiple-scattering.md)）。
 
 実行時は画面のピクセルの深度から、対応するスライスを求めその位置で LUT を 1 回引くだけです。フォグの計算はピクセルあたりテクスチャ 1 回の読み込みで済みます。LUT が小さいので生成のコストも小さく（0.1 ms 前後）、品質と速さを両立できます。
 
@@ -108,11 +108,11 @@ LUT の距離方向は線形でなく、近くを細かく取る非線形な配�
 
 ## 物理ベースの空気遠近法
 
-<strong>簡易な霧</strong>（[Fog Equations](fog-equation.md)）は、<strong>霧の色と濃さを手で</strong>決めます。物理ベースの空気遠近法は大気の散乱（[Atmosphere Model](../scattering/atmosphere-model.md)）から、霧の色と濃さを計算します。時間帯（朝、昼、夕）やカメラの高度で自動的に、霧の色が変わります。
+<strong>簡易な霧</strong>（[Fog Equations](fog-equation.md)）は、霧の色と濃さを手で決めます。物理ベースの空気遠近法は大気の散乱（[Atmosphere Model](../scattering/atmosphere-model.md)）から、霧の色と濃さを計算します。時間帯（朝、昼、夕）やカメラの高度で自動的に、霧の色が変わります。
 
 ## 何が物理的か
 
-<strong>遠くの物が霞む</strong>のは <strong>物から、カメラまでの空気</strong>が 2 つのことを、行うためです。
+<strong>遠くの物が霞む</strong>のは 物から、カメラまでの空気が 2 つのことを、行うためです。
 
 | 効果 | 内容 |
 | --- | --- |
@@ -123,11 +123,11 @@ LUT の距離方向は線形でなく、近くを細かく取る非線形な配�
 カメラに届く色 = 物の色 × 透過率  +  内向き散乱（視線に沿って、足された、散乱光）
 ```
 
-<strong>1 つ目</strong>は <strong>霧の式</strong>と同じ（物を暗くし色を、変える）。2 つ目が霧の色（霧の色に近づく、部分）に相当し物理ベースでは計算で、求まります。
+1 つ目は 霧の式と同じ（物を暗くし色を、変える）。2 つ目が霧の色（霧の色に近づく、部分）に相当し物理ベースでは計算で、求まります。
 
 ## Aerial Perspective LUT
 
-Hillaire（2020）の方式は、<strong>カメラの前方の空間</strong>を <strong>3D テクスチャ</strong>（32×32×32）に分割し、各セルにカメラからそのセルまでの、内向き散乱と透過率を保存します（[Hillaire 2020: Four LUTs](../scattering/hillaire.md)）。
+Hillaire（2020）の方式は、<strong>カメラの前方の空間</strong>を 3D テクスチャ（32×32×32）に分割し、各セルにカメラからそのセルまでの、内向き散乱と透過率を保存します（[Hillaire 2020: Four LUTs](../scattering/hillaire.md)）。
 
 ```hlsl
 // 物体の、色に、空気遠近法を、適用する（ピクセル シェーダーの、最後）。
@@ -137,7 +137,7 @@ float3 ApplyAerialPerspective(float3 scene_color, float2 screen_uv, float distan
   float4 ap = g_aerial_perspective_lut.SampleLevel(g_linear_clamp, float3(screen_uv, slice), 0);
 ```
 
-画面上の位置 `screen_uv` と距離から、LUT の <strong>セル</strong>を引きます。<strong>1 回のテクスチャ読み込み</strong>です。
+画面上の位置 `screen_uv` と距離から、LUT の セルを引きます。1 回のテクスチャ読み込みです。
 
 ```hlsl
   float3 inscatter = ap.rgb;                           // この距離までに、空気が、足した光
@@ -146,11 +146,11 @@ float3 ApplyAerialPerspective(float3 scene_color, float2 screen_uv, float distan
 }
 ```
 
-<strong>物体の色に透過率を掛け</strong>、<strong>内向き散乱を足す</strong>。霧の式と同じ形ですが LUT の値は、物理計算の結果です。
+物体の色に透過率を掛け、内向き散乱を足す。霧の式と同じ形ですが LUT の値は、物理計算の結果です。
 
 ## 距離の割り当て
 
-LUT の奥行き方向の <strong>分割</strong>は、<strong>近くを細かく</strong>、遠くを粗くします。近くの霞は変化が急で遠くはゆるやかなためです。
+LUT の奥行き方向の <strong>分割</strong>は、近くを細かく、遠くを粗くします。近くの霞は変化が急で遠くはゆるやかなためです。
 
 ```hlsl
 // 距離（m）→ スライス（0〜1）。距離の、平方根に比例させて、近くを、細かくする。
@@ -164,7 +164,7 @@ float SliceToDistance(float slice) {
 }
 ```
 
-<strong>平方根</strong>で <strong>近くにスライスを、集める</strong>のが簡単で効果的な割り当てです。
+平方根で 近くにスライスを、集めるのが簡単で効果的な割り当てです。
 
 ## 簡易な霧との違い
 
@@ -177,18 +177,18 @@ float SliceToDistance(float slice) {
 | 空との整合 | 手で合わせる（ずれやすい） | 自動（同じ、大気の計算） |
 | コスト | 最小 | 小（LUT の更新 + 1 回の読み込み） |
 
-<strong>空と霧の色が自動で合う</strong>ことが、<strong>最大の利点</strong>です（[Matching Fog Color to the Sky](color-match.md)）。
+<strong>空と霧の色が自動で合う</strong>ことが、最大の利点です（[Matching Fog Color to the Sky](color-match.md)）。
 
 ## 太陽の方向による変化
 
-物理ベースの霧は <strong>太陽に向かって見ると、明るく</strong>、<strong>太陽と反対を見ると暗い</strong>です。ミー散乱が前方に強く散るためです（[Phase Functions](../scattering/phase-function.md)）。
+物理ベースの霧は <strong>太陽に向かって見ると、明るく</strong>、太陽と反対を見ると暗いです。ミー散乱が前方に強く散るためです（[Phase Functions](../scattering/phase-function.md)）。
 
 ```text
 太陽の方向を見る:   視線と太陽が、同じ向き  → 前方散乱が、強い → 霞が、明るく、白い
 太陽の反対を見る:   視線と太陽が、逆向き   → 後方散乱は、弱い → 霞が、暗く、青い
 ```
 
-この <strong>方向による違い</strong>が <strong>景色に、立体感</strong>を与えます。簡易な霧では全方向で同じ色になり、平板です。
+この 方向による違いが 景色に、立体感を与えます。簡易な霧では全方向で同じ色になり、平板です。
 
 ## コスト
 
@@ -197,12 +197,12 @@ float SliceToDistance(float slice) {
 | Aerial Perspective LUT の、更新 | 0.1〜0.2 ms |
 | 物体ごとの適用 | テクスチャ 1 回（物体の、ピクセル シェーダーに数命令を、足すだけ） |
 
-<strong>物体の数に関係なく</strong>、<strong>LUT を 1 回、更新</strong>し各物体は引くだけなので非常に、効率的です。
+<strong>物体の数に関係なく</strong>、LUT を 1 回、更新し各物体は引くだけなので非常に、効率的です。
 
 ## よくあるミス
 
 ??? failure "空とフォグの色が合わない"
-    <strong>空と同じ LUT</strong> を<strong>フォグにも使う</strong>。
+    <strong>空と同じ LUT</strong> をフォグにも使う。
 
 ## これだけ覚える
 

@@ -15,7 +15,7 @@ tags:
 `#include <random>`
 </div>
 
-`std::bernoulli_distribution` は、**確率 `p` で `true`、`1 - p` で `false` を出す分布**です。「30% で会心」「5% でレアドロップ」のような判定に使います。`uniform_real(0, 1) < 0.3f` と書くより、意図がはっきりします。
+「30% の確率で会心の一撃」「5% でレアドロップ」。ゲームでは、確率で成功か失敗かを決める判定が、あちこちに出てきます。`uniform_real_distribution` で 0 から 1 の値を作って `< 0.3f` と比べる書き方もありますが、何をしているのかが、少し読み取りにくくなります。`std::bernoulli_distribution` は、確率 `p` で `true`、`1 - p` で `false` を出す分布です。意図がそのまま名前に出ます。
 
 !!! tip "ポイント"
     - `bernoulli_distribution crit(0.3);` は 30% で `true`。
@@ -23,7 +23,7 @@ tags:
     - 複数回の試行の合計は [`binomial_distribution`](binomial_distribution.md)。
 
 !!! info "このページを読む前に"
-    [`<random>`](../random.md) の概要を先に読むと分かりやすいです。
+    [`std::mt19937`](mt19937.md) の乱数エンジンの使い方を先に読んでください。分布は、エンジンの出力を目的の形に変える部品です。
 
 ## 関数の詳しい説明
 
@@ -111,24 +111,40 @@ result_type max() const;
 
 この分布が返しうる最大値。
 
+## しくみ
+
+`bernoulli_distribution(p)` の `p` は、`true` が出る確率で、0.0 から 1.0 の範囲で指定します。範囲外は未定義です。`p` を省略すると 0.5 です。
+
+使い方は、他の分布と同じです。`std::bernoulli_distribution crit(0.3); bool hit = crit(rng);` と書きます。分布オブジェクトは軽く、使う場所で作っても構いません。
+
+何回か試した合計を知りたいときは、`binomial_distribution` を使います。「10 回挑戦して何回成功するか」を一度に決められます。
+
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 会心の判定 | `crit(rng)` |
-| レアドロップの判定 | `bernoulli_distribution rare(0.05);` |
+会心やクリティカルの判定が代表的です。`std::bernoulli_distribution crit(0.3);` と作り、攻撃のたびに `crit(rng)` で判定します。
+
+レアドロップの判定にも使います。ただし、確率が低いドロップを何回も引かないと出ない、という体験を避けたいゲームでは、「天井」を設けて、一定回数で必ず出るようにします。この場合の確率は、毎回変わるので、`p` を引くたびに作り直します。
+
+敵の行動のランダム化（待機するか攻撃するか）や、パーティクルを出すかどうかの判定にも使えます。
 
 ## よくあるミス
 
-??? failure "p を百分率で渡す"
-    30% は `0.3` です。`30` を渡すと範囲外で未定義動作です。
+??? failure "確率を百分率で渡す"
+    `bernoulli_distribution(30)` は、`p` が 30 で範囲外の未定義動作です。確率は 0.0 から 1.0 で渡します。30% は `0.3` です。
+
+??? failure "毎回エンジンを作り直す"
+    判定のたびに `mt19937` を作ると、遅く、乱数の質も落ちます。エンジンは 1 つ作って使い回します。
+
+??? failure "`p` が 0 や 1 のときの扱いを忘れる"
+    `p = 0.0` なら常に `false`、`p = 1.0` なら常に `true` です。これらは正しい指定ですが、確率の設定値を外部から読み込むときに、範囲外の値が混ざっていないかを確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`uniform_real_distribution`](uniform_real_distribution.md) | 0〜1 の小数との比較でも書ける |
-| [`discrete_distribution`](discrete_distribution.md) | 3 つ以上の選択肢 |
+| [`uniform_real_distribution`](uniform_real_distribution.md) | 0〜1 の値を作って比べる書き方。意図は読み取りにくい |
+| [`binomial_distribution`](binomial_distribution.md) | 複数回の試行の合計 |
+| [`discrete_distribution`](discrete_distribution.md) | 3 つ以上の選択肢を重みで選ぶ |
 
 ## コンパイラ対応
 
@@ -137,9 +153,9 @@ C++11 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 確率 p で true
-    - [x] p は 0〜1
-    - [x] 会心・ドロップの判定
+    - [x] 確率 `p` で `true` を返す。`p` は 0.0〜1.0。
+    - [x] 会心やドロップの判定に使う。
+    - [x] エンジンは使い回す。
 
 ## 関連ページ
 

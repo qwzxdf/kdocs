@@ -7,7 +7,7 @@ tags:
 
 # fastgltf の導入（Visual Studio）
 
-fastgltf は**ヘッダ ＋ ビルドが必要なライブラリ**（`.cpp` を含む）です。**simdjson**にも依存します。**Visual Studio で入れるなら vcpkg が簡単**です（導入の基本は [外部ライブラリの入れ方](../../vs/libraries.md)）。
+fastgltf は**ヘッダ ＋ ビルドが必要なライブラリ**（`.cpp` を含む）です。simdjsonにも依存します。Visual Studio で入れるなら vcpkg が簡単です（導入の基本は [外部ライブラリの入れ方](../../vs/libraries.md)）。
 
 === "vcpkg"
 
@@ -33,35 +33,35 @@ fastgltf は**ヘッダ ＋ ビルドが必要なライブラリ**（`.cpp` を�
     target_link_libraries(my_game PRIVATE fastgltf::fastgltf)
     ```
 
-    **タグは最新を確認**して指定します。**simdjson は fastgltf が、取得してくれます**。
+    タグは最新を確認して指定します。simdjson は fastgltf が、取得してくれます。
 
 === "ソースを入れる"
 
     1. [GitHub の fastgltf](https://github.com/spnda/fastgltf) を取得し、`third_party/fastgltf/` に置く
-    2. **`src/` の `.cpp`**（`fastgltf.cpp`・`base64_decode.cpp` など）と**simdjson**（`simdjson.cpp`）を、プロジェクトに追加
+    2. `src/` の `.cpp`（`fastgltf.cpp`・`base64_decode.cpp` など）とsimdjson（`simdjson.cpp`）を、プロジェクトに追加
     3. 追加のインクルード ディレクトリに `include` を追加
 
-    **依存が多い**ので、**vcpkg か CMake が、おすすめ**です（手間が減ります）。
+    依存が多いので、vcpkg か CMake が、おすすめです（手間が減ります）。
 
 ## C++ の設定
 
 | 設定 | 説明 |
 | --- | --- |
-| **C++17 以上** | **このサイトの設定の C++23 で問題なし** |
-| **`NOMINMAX`** | Windows では定義する（[プリプロセッサマクロ](../../vs/preprocessor.md)） |
-| **ランタイム** | **vcpkg は `/MD`**。自分のプロジェクトとそろえる（[ランタイム ライブラリ](../../vs/errors.md#runtime_library)） |
+| **C++17 以上** | このサイトの設定の C++23 で問題なし |
+| `NOMINMAX` | Windows では定義する（[プリプロセッサマクロ](../../vs/preprocessor.md)） |
+| ランタイム | vcpkg は `/MD`。自分のプロジェクトとそろえる（[ランタイム ライブラリ](../../vs/errors.md#runtime_library)） |
 
 ## 画像のデコード
 
-**fastgltf は画像（PNG・JPG）をデコードしません**。**ファイルの場所・バイト列を返す**だけです。**`stb_image`**（[ImGui のテクスチャ](../imgui/textures.md)で紹介）などで、**自分で展開**します。
+**fastgltf は画像（PNG・JPG）をデコードしません**。ファイルの場所・バイト列を返すだけです。`stb_image`（[ImGui のテクスチャ](../imgui/textures.md)で紹介）などで、自分で展開します。
 
 ## よくあるミス
 
 ??? failure "`fastgltf/core.hpp` が見つからない（古い版のヘッダ名で書いている）"
-    **バージョンでヘッダの構成が変わります**（`fastgltf/parser.hpp` → `fastgltf/core.hpp`）。**使っている版のサンプル**を確認します。
+    **バージョンでヘッダの構成が変わります**（`fastgltf/parser.hpp` → `fastgltf/core.hpp`）。使っている版のサンプルを確認します。
 
 ??? failure "simdjson のリンクエラー"
-    **simdjson が、リンクされていません**。**vcpkg や CMake なら自動**です。
+    simdjson が、リンクされていません。vcpkg や CMake なら自動です。
 
 ## 動作確認のチェックリスト
 

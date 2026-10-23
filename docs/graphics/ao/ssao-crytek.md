@@ -6,20 +6,20 @@ tags:
 
 # Crytek SSAO
 
-<strong>SSAO</strong>（Screen-Space Ambient Occlusion）は、2007 年に Crytek が『Crysis』のエンジン（CryEngine 2）で実用化した、<strong>画面の深度バッファだけで AO を近似する</strong>方式です。それまでの AO は、モデルに焼き込むか、事前計算するものでした。毎フレーム、ポストプロセスとして、動くシーンにも使える AOを、初めて現実的なコストで出したのが、この方式です。以降のスクリーン空間 AO は、すべてこの発想の延長にあります。
+<strong>SSAO</strong>（Screen-Space Ambient Occlusion）は、2007 年に Crytek が『Crysis』のエンジン（CryEngine 2）で実用化した、画面の深度バッファだけで AO を近似する方式です。それまでの AO は、モデルに焼き込むか、事前計算するものでした。毎フレーム、ポストプロセスとして、動くシーンにも使える AOを、初めて現実的なコストで出したのが、この方式です。以降のスクリーン空間 AO は、すべてこの発想の延長にあります。
 
-このページでは、<strong>原型である Crytek 方式</strong>を、仕組みから順に説明します。深度バッファから位置を復元する方法、サンプルの取り方、そして<strong>この方式の弱点</strong>（平らな面が灰色になる）まで扱います。
+このページでは、原型である Crytek 方式を、仕組みから順に説明します。深度バッファから位置を復元する方法、サンプルの取り方、そしてこの方式の弱点（平らな面が灰色になる）まで扱います。
 
 !!! tip "ポイント"
     - 入力は<strong>深度バッファだけ</strong>（法線は不要）。<strong>ポストプロセス</strong>で全画面に 1 パス。
-    - 各画素で<strong>周囲の球の中にランダムなサンプル点</strong>を置く。<strong>サンプル点を画面に投影</strong>して、<strong>その画素の深度と比べ</strong>、<strong>面の奥にあれば「遮られている」</strong>と数える。
-    - AO ＝ <strong>遮られていないサンプルの割合</strong>。
-    - <strong>球</strong>を使うので<strong>平らな面でも約半分が「遮られる」</strong>。<strong>面全体が灰色</strong>になるのが弱点（次の[Hemisphere SSAO](ssao-hemisphere.md) で解決）。
-    - サンプル数が少ない（16 程度）ので<strong>画素ごとにサンプルをランダムに回転</strong>し、<strong>ぼかしで消す</strong>。
+    - 各画素で周囲の球の中にランダムなサンプル点を置く。サンプル点を画面に投影して、その画素の深度と比べ、面の奥にあれば「遮られている」と数える。
+    - AO ＝ 遮られていないサンプルの割合。
+    - 球を使うので平らな面でも約半分が「遮られる」。面全体が灰色になるのが弱点（次の[Hemisphere SSAO](ssao-hemisphere.md) で解決）。
+    - サンプル数が少ない（16 程度）ので画素ごとにサンプルをランダムに回転し、ぼかしで消す。
 
 ## 発想
 
-[理論](theory/index.md)のとおり、AO は「<strong>点 p の周りの遮られていない方向の割合</strong>」でした。本来は<strong>シーンにレイを飛ばして</strong>調べます。Crytek 方式は、<strong>レイを飛ばす代わりに、「p の近くの点が物体の内側にあるか」</strong>を調べます。
+[理論](theory/index.md)のとおり、AO は「<strong>点 p の周りの遮られていない方向の割合</strong>」でした。本来はシーンにレイを飛ばして調べます。Crytek 方式は、レイを飛ばす代わりに、「p の近くの点が物体の内側にあるか」を調べます。
 
 <svg class="fig illust" viewBox="0 0 774 300" role="img" aria-label="Crytek SSAO のサンプル">
 <text x="20" y="24" class="fig-title">p の周りの球の中のサンプル点が、面の「奥」にあれば、遮られているとみなす</text>
@@ -37,15 +37,15 @@ tags:
 </svg>
 
 !!! info "ここで使われる「積分」を、やさしく言うと"
-    Crytek SSAO の積分は、<strong>くじ引き</strong>です。
+    Crytek SSAO の積分は、くじ引きです。
 
-    - 半球の全方向を、細かく調べる代わりに、<strong>球の中に、ランダムな点を 16 個ほど撒く</strong>。
+    - 半球の全方向を、細かく調べる代わりに、球の中に、ランダムな点を 16 個ほど撒く。
     - 各点が、物の裏側に入っていれば（遮られていれば）1、そうでなければ 0 と数える。
-    - 遮られた点の<strong>割合</strong>が、AO。
+    - 遮られた点の割合が、AO。
 
-    点の数が少ないので、ざらざらしたノイズが出ます。これを、ぼかしで、ならします。この「ランダムに選んで、平均する」考え方を、<strong>モンテカルロ法</strong>と呼びます。
+    点の数が少ないので、ざらざらしたノイズが出ます。これを、ぼかしで、ならします。この「ランダムに選んで、平均する」考え方を、モンテカルロ法と呼びます。
 
-    <strong>数式を使わない、くわしい説明</strong>は [Integrals and Elevation Angles in Plain Words](theory/integral-intuition.md) です。
+    数式を使わない、くわしい説明は [Integrals and Elevation Angles in Plain Words](theory/integral-intuition.md) です。
 
 ## 手順
 
@@ -57,13 +57,13 @@ tags:
 
 ## ① 深度から位置を復元する
 
-深度バッファの値（0〜1）から、<strong>カメラからの距離（ビュー空間の z）</strong>を求め、そこから <strong>x・y</strong> を逆算します。<strong>プロジェクション行列の式を、逆に解く</strong>だけです（[投影](../../3d/projection.md)）。
+深度バッファの値（0〜1）から、<strong>カメラからの距離（ビュー空間の z）</strong>を求め、そこから x・y を逆算します。プロジェクション行列の式を、逆に解くだけです（[投影](../../3d/projection.md)）。
 
 左手系・標準の Z（near → 0、far → 1）の場合、深度値 d から、ビュー空間の奥行き z は、次のとおりです。
 
 <div class="formula">z = (near · far) / (far − d · (far − near))</div>
 
-x・y は、<strong>NDC 座標と視野角</strong>から、次のように求めます。
+x・y は、NDC 座標と視野角から、次のように求めます。
 
 <div class="formula">x = ndc_x · z · tan(fovY/2) · aspect　、　y = ndc_y · z · tan(fovY/2)</div>
 
@@ -84,11 +84,11 @@ float3 ViewPosition(float2 uv, float z) {
 | `uv.y` の反転 | テクスチャの V は下向き、NDC の y は上向き |
 
 !!! note "reverse-Z のとき"
-    深度が 1 → 0 に反転している場合（[投影](../../3d/projection.md)）、`LinearizeDepth` の式が変わります。<strong>自分の射影行列に合わせた式</strong>を使います。
+    深度が 1 → 0 に反転している場合（[投影](../../3d/projection.md)）、`LinearizeDepth` の式が変わります。自分の射影行列に合わせた式を使います。
 
 ## ②③ サンプルの作り方
 
-<strong>球の中</strong>に N 個（16 前後）のベクトルを用意します。<strong>原点の近くに多く</strong>置くと、近い遮蔽ほど強く効くので、見た目が良くなります。
+<strong>球の中</strong>に N 個（16 前後）のベクトルを用意します。原点の近くに多く置くと、近い遮蔽ほど強く効くので、見た目が良くなります。
 
 ```cpp
 std::vector<Vector3> MakeSphereKernel(int n, std::mt19937& rng) {
@@ -113,14 +113,14 @@ std::vector<Vector3> MakeSphereKernel(int n, std::mt19937& rng) {
 | 原点に近いサンプルを多く | `scale = lerp(0.1, 1.0, t²)` で、近いサンプルを増やす |
 | サンプル数 | 8〜16。少ないほど速いがノイズが増える |
 
-サンプル ベクトルを<strong>画素ごとにランダムに回転</strong>します。<strong>4×4 画素のランダム ベクトルのテクスチャ</strong>（`float3`、0〜1 を −1〜1 にして使う）を、画面全体に繰り返し貼ります。
+サンプル ベクトルを画素ごとにランダムに回転します。4×4 画素のランダム ベクトルのテクスチャ（`float3`、0〜1 を −1〜1 にして使う）を、画面全体に繰り返し貼ります。
 
 ```hlsl
 float3 random_vec = noise_tex.Sample(wrap_sampler, uv * screen_size / 4.0).xyz * 2.0 - 1.0;
 float3 ray = reflect(kernel[i].xyz, random_vec);
 ```
 
-`reflect` で<strong>ランダム ベクトルを軸にサンプルを鏡映</strong>します。これで画素ごとにサンプルの向きが変わります。
+`reflect` でランダム ベクトルを軸にサンプルを鏡映します。これで画素ごとにサンプルの向きが変わります。
 
 ## ④〜⑦ 判定とコード
 
@@ -248,7 +248,7 @@ float SSAO(float2 uv) {
 
 ### 1. 平らな面が灰色になる
 
-<strong>球</strong>を使うので<strong>平らな面の上の点</strong>でもサンプルの約半分が面の下に入り、「遮られた」と数えられます。何も遮るものが無いのに、AO が 0.5 程度になり、全体が灰色に見えます。
+<strong>球</strong>を使うので平らな面の上の点でもサンプルの約半分が面の下に入り、「遮られた」と数えられます。何も遮るものが無いのに、AO が 0.5 程度になり、全体が灰色に見えます。
 
 | 対処 | 説明 |
 | --- | --- |
@@ -257,15 +257,15 @@ float SSAO(float2 uv) {
 
 ### 2. 法線が無いので、角の向きを区別できない
 
-法線が無いため、<strong>凸の角（外側）</strong>と<strong>凹の角（内側）</strong>を区別できません。<strong>凸の縁にも暗い輪郭（ハロー）</strong>が出やすくなります。
+法線が無いため、凸の角（外側）と凹の角（内側）を区別できません。凸の縁にも暗い輪郭（ハロー）が出やすくなります。
 
 ### 3. ハロー
 
-<strong>手前の物体の縁</strong>に<strong>背景が暗く</strong>なる輪が出ます。深度の差が大きい境界で、背景側の点が手前の物に遮られていると判定されるためです。`range_check` で弱められますが、完全には消えません（[アーティファクト](artifacts/index.md)）。
+手前の物体の縁に背景が暗くなる輪が出ます。深度の差が大きい境界で、背景側の点が手前の物に遮られていると判定されるためです。`range_check` で弱められますが、完全には消えません（[アーティファクト](artifacts/index.md)）。
 
 ### 4. ノイズとバンディング
 
-サンプル数が少ないので、<strong>ノイズ</strong>か<strong>縞模様</strong>が出ます。4×4 のランダム回転 ＋ 4×4 のぼかしで消すのが定番ですが、ぼかしが物体の境界をにじませるので、深度を考慮したバイラテラル ブラーが必要です（[フィルタ](filtering/index.md)）。
+サンプル数が少ないので、ノイズか縞模様が出ます。4×4 のランダム回転 ＋ 4×4 のぼかしで消すのが定番ですが、ぼかしが物体の境界をにじませるので、深度を考慮したバイラテラル ブラーが必要です（[フィルタ](filtering/index.md)）。
 
 ## 歴史的な位置づけ
 
@@ -294,10 +294,10 @@ float SSAO(float2 uv) {
 
 !!! abstract "まとめ"
     - [x] Crytek SSAO ＝ <strong>深度バッファだけで、球のサンプルを画面に投影し、面の奥にあれば遮られた、と数える</strong>
-    - [x] <strong>深度から位置を復元</strong>（ビュー空間）。<strong>ポイント サンプリング</strong>で深度を読む
-    - [x] <strong>範囲チェック</strong>と<strong>バイアス</strong>で、誤判定を減らす
-    - [x] <strong>球のため、平らな面が灰色</strong>になるのが最大の弱点 → 半球にする
-    - [x] <strong>ランダム回転＋ぼかし</strong>が前提
+    - [x] 深度から位置を復元（ビュー空間）。ポイント サンプリングで深度を読む
+    - [x] 範囲チェックとバイアスで、誤判定を減らす
+    - [x] 球のため、平らな面が灰色になるのが最大の弱点 → 半球にする
+    - [x] ランダム回転＋ぼかしが前提
 
 ## 参考
 

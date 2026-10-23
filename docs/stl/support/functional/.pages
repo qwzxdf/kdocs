@@ -21,6 +21,7 @@ nav:
   - boyer_moore_horspool_searcher.md
   - boyer_moore_searcher.md
   - copyable_function.md
+  - cref.md
   - default_searcher.md
   - divides.md
   - function_ref.md

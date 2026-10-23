@@ -6,7 +6,7 @@ tags:
 
 # Specular and Dynamic Objects
 
-<strong>ライトマップは拡散の間接光だけ</strong>で、<strong>鏡面の反射は含みません</strong>。また、動く物体にはライトマップが無いので、プローブで間接光を補います。このページでは鏡面の扱いと動く物体との併用を説明します。
+<strong>ライトマップは拡散の間接光だけ</strong>で、鏡面の反射は含みません。また、動く物体にはライトマップが無いので、プローブで間接光を補います。このページでは鏡面の扱いと動く物体との併用を説明します。
 
 !!! tip "ポイント"
     - 鏡面は別：反射プローブ・SSRで扱う。
@@ -28,7 +28,7 @@ tags:
 
 ## 動く物はライトマップで、照らせない
 
-<strong>ライトマップ</strong>は <strong>面に焼き込む</strong>ので、動かない面にしか使えません。動く物（キャラクター、車、扉、壊れる物）はライトマップを持たず、別の方法で周りの光を受ける必要が、あります。
+<strong>ライトマップ</strong>は 面に焼き込むので、動かない面にしか使えません。動く物（キャラクター、車、扉、壊れる物）はライトマップを持たず、別の方法で周りの光を受ける必要が、あります。
 
 | 物の種類 | ライティング |
 | --- | --- |
@@ -37,7 +37,7 @@ tags:
 
 ## ライト プローブで動く物を照らす
 
-<strong>ライトマップと同時にベイク</strong>した、<strong>ライト プローブ</strong>（[Probe GI](../probes/index.md)）が、シーンのあちこちに環境光を保存しています。動く物の位置で周りのプローブを、補間して環境光を得ます（[Interpolation Methods](../probes/interpolation.md)）。
+<strong>ライトマップと同時にベイク</strong>した、ライト プローブ（[Probe GI](../probes/index.md)）が、シーンのあちこちに環境光を保存しています。動く物の位置で周りのプローブを、補間して環境光を得ます（[Interpolation Methods](../probes/interpolation.md)）。
 
 ```hlsl
 // 動的な物の、シェーダー: ライトマップの代わりに、ライト プローブから、環境光を得る。
@@ -49,11 +49,11 @@ float3 direct = ComputeDirectLights(input.world_position, N);               // �
 return float4(direct + indirect, 1.0);
 ```
 
-<strong>ライトマップと同じ光をベイクした、プローブ</strong>なので <strong>静的な背景と、動く物の光がなじみます</strong>（キャラクターが、日向から日陰へ歩くと自然に暗くなる）。
+ライトマップと同じ光をベイクした、プローブなので 静的な背景と、動く物の光がなじみます（キャラクターが、日向から日陰へ歩くと自然に暗くなる）。
 
 ## 動く物が背景に与える影響
 
-<strong>動く物</strong>は <strong>周りの光を受ける</strong>だけでなく周りに影を落とし光を、反射します。ライトマップはこれを反映できません。
+<strong>動く物</strong>は 周りの光を受けるだけでなく周りに影を落とし光を、反射します。ライトマップはこれを反映できません。
 
 | 影響 | 扱い |
 | --- | --- |
@@ -63,18 +63,18 @@ return float4(direct + indirect, 1.0);
 
 ## 鏡面反射
 
-<strong>ライトマップ</strong>は <strong>拡散</strong>の光しか、焼けません（[Diffuse and Specular](../theory/diffuse-specular.md)）。鏡面（つるつるの面の反射）は、別の方法が必要です。
+<strong>ライトマップ</strong>は 拡散の光しか、焼けません（[Diffuse and Specular](../theory/diffuse-specular.md)）。鏡面（つるつるの面の反射）は、別の方法が必要です。
 
 | 物 | 鏡面 |
 | --- | --- |
 | 静的なつるつるの面（床、窓） | 反射プローブ（[Reflection Probes](../../reflections/probes/index.md)）、SSR、平面反射 |
 | 動的な金属の物（車、武器） | 反射プローブ（最も近い、1〜2 個をブレンド） |
 
-<strong>ライトマップの拡散</strong>に <strong>反射プローブの、鏡面</strong>を足す構成が標準です（[Reflection Probes](../../reflections/probes/index.md)）。
+ライトマップの拡散に 反射プローブの、鏡面を足す構成が標準です（[Reflection Probes](../../reflections/probes/index.md)）。
 
 ## 静的と動的の見た目の差を、小さくする
 
-<strong>ライトマップ</strong>（<strong>高品質、焼き込み</strong>）とプローブ（低周波、補間）の品質の差が目立ちます。キャラクターが静的な壁の前に立つと、キャラクターの陰影がのっぺり壁は、細かい影、と浮いて見えます。
+<strong>ライトマップ</strong>（高品質、焼き込み）とプローブ（低周波、補間）の品質の差が目立ちます。キャラクターが静的な壁の前に立つと、キャラクターの陰影がのっぺり壁は、細かい影、と浮いて見えます。
 
 | 対策 | 内容 |
 | --- | --- |
@@ -86,7 +86,7 @@ return float4(direct + indirect, 1.0);
 ## よくあるミス
 
 ??? failure "動く物体だけ、背景と明るさが合わない"
-    <strong>ライトプローブ</strong>を置いて、<strong>間接光を揃える</strong>。
+    <strong>ライトプローブ</strong>を置いて、間接光を揃える。
 
 ## これだけ覚える
 

@@ -6,15 +6,15 @@ tags:
 
 # コピーとムーブ
 
-C++ は**オブジェクトを渡すたびにコピーが起きる**言語です。`std::string` や `std::vector` のような大きなオブジェクトをコピーすると、**メモリの確保と中身の複製**が行われます。小さなコピーを 1 回するだけなら無視できますが、**毎フレーム何千回も**起きると、確保と複製で全体の速さに響きます。このページは**無駄なコピーを見つけて、なくす**方法をまとめます。道具は**参照**（`const&`）、**ムーブ**、**ビュー**（`string_view`、`span`）、<strong>コピーの省略（RVO）</strong>です（基礎は [参照](../basics/reference.md)、[ムーブ](../basics/move.md)）。
+C++ は**オブジェクトを渡すたびにコピーが起きる**言語です。`std::string` や `std::vector` のような大きなオブジェクトをコピーすると、メモリの確保と中身の複製が行われます。小さなコピーを 1 回するだけなら無視できますが、毎フレーム何千回も起きると、確保と複製で全体の速さに響きます。このページは無駄なコピーを見つけて、なくす方法をまとめます。道具は参照（`const&`）、ムーブ、ビュー（`string_view`、`span`）、コピーの省略（RVO）です（基礎は [参照](../basics/reference.md)、[ムーブ](../basics/move.md)）。
 
 !!! tip "ポイント"
     - <strong>読むだけの大きなものは `const T&`</strong> で渡す。小さい型（`int`、`float`）は値渡し。
-    - 文字列は<strong>`std::string_view`</strong>、配列は<strong>`std::span`</strong> で渡すとコピーも確保もない。
-    - 受け取って持つなら<strong>値渡し + `std::move`</strong>。コンテナに入れるなら `emplace_back`。
-    - 戻り値は<strong>値で返す</strong>。ムーブや RVO でコピーは起きない。`std::move` を `return` に付けない。
-    - <strong>範囲 for は `const auto&`</strong>。`auto` だと 1 つずつコピーする。
-    - 「コピーされている」ことに気づくのが難しいので、<strong>コピーを禁止して見つける</strong>方法も使う。
+    - 文字列は<strong>`std::string_view`</strong>、配列は`std::span` で渡すとコピーも確保もない。
+    - 受け取って持つなら値渡し + `std::move`。コンテナに入れるなら `emplace_back`。
+    - 戻り値は値で返す。ムーブや RVO でコピーは起きない。`std::move` を `return` に付けない。
+    - 範囲 for は `const auto&`。`auto` だと 1 つずつコピーする。
+    - 「コピーされている」ことに気づくのが難しいので、コピーを禁止して見つける方法も使う。
 
 ## コピーがどれだけ重いか
 
@@ -22,10 +22,10 @@ C++ は**オブジェクトを渡すたびにコピーが起きる**言語です
 | --- | --- | --- |
 | `int`、`float`、`Vec3` | 数バイトを複製 | ほぼ無料 |
 | `std::string`（長い） | **メモリを確保**して、文字を複製 | 重い |
-| `std::vector<T>` | **メモリを確保**して、**全要素をコピー** | とても重い（要素数に比例） |
+| `std::vector<T>` | メモリを確保して、全要素をコピー | とても重い（要素数に比例） |
 | `std::shared_ptr` | 参照カウントを増やす（アトミック操作） | 軽いが、無料ではない |
 | `std::function`（大きなキャプチャ） | 確保して複製 | 重い |
-| `std::map` / `unordered_map` | **ノードを 1 つずつ確保して複製** | 非常に重い |
+| `std::map` / `unordered_map` | ノードを 1 つずつ確保して複製 | 非常に重い |
 
 ## 1. 引数の渡し方
 
@@ -53,7 +53,7 @@ float Average(std::span<const float> values);
 
 ## 2. ムーブ
 
-**ムーブ**は「中身のメモリの持ち主を**移す**」操作です。`std::vector` をムーブすると要素をコピーせず**ポインタを付け替えるだけ**なので、一瞬です。
+**ムーブ**は「中身のメモリの持ち主を移す」操作です。`std::vector` をムーブすると要素をコピーせずポインタを付け替えるだけなので、一瞬です。
 
 ```cpp
 std::vector<int> a = MakeBigList();     // 100 万個
@@ -68,7 +68,7 @@ std::vector<int> c = std::move(a);       // ムーブ：ポインタを移すだ
 | コンテナに入れる | `v.push_back(std::move(x));`、または `v.emplace_back(引数...)` |
 | 受け取って持つ | `Enemy(std::string name) : name_(std::move(name)) {}` |
 | 持ち主を移す | `owner = std::move(other);` |
-| 関数から返す | **`return x;`**（`std::move` を付けない。下の注意） |
+| 関数から返す | `return x;`（`std::move` を付けない。下の注意） |
 
 ### emplace_back
 
@@ -84,11 +84,11 @@ v.emplace_back("slime", 10);
 
 | 注意 | 説明 |
 | --- | --- |
-| **`return std::move(x);` は書かない** | ローカル変数を返すときは、コンパイラが自動で最適化（RVO・自動ムーブ）する。`std::move` を付けると**かえって最適化を妨げる**ことがある |
-| **`const` のオブジェクトはムーブできない** | `const std::string s; std::move(s)` は、コピーになる |
-| **ムーブしたあとの変数は使わない** | 「有効だが中身は不定」な状態。再代入か破棄だけ |
-| **ムーブが遅い型もある** | 大きな配列を持つ `std::array<T, N>` は、要素をムーブする（O(N)） |
-| **ムーブコンストラクタは `noexcept` にする** | `noexcept` でないと `vector` の再確保のとき、ムーブせずにコピーされる |
+| `return std::move(x);` は書かない | ローカル変数を返すときは、コンパイラが自動で最適化（RVO・自動ムーブ）する。`std::move` を付けるとかえって最適化を妨げることがある |
+| `const` のオブジェクトはムーブできない | `const std::string s; std::move(s)` は、コピーになる |
+| ムーブしたあとの変数は使わない | 「有効だが中身は不定」な状態。再代入か破棄だけ |
+| ムーブが遅い型もある | 大きな配列を持つ `std::array<T, N>` は、要素をムーブする（O(N)） |
+| ムーブコンストラクタは `noexcept` にする | `noexcept` でないと `vector` の再確保のとき、ムーブせずにコピーされる |
 
 ## 3. 戻り値
 
@@ -102,11 +102,11 @@ std::vector<Hit> FindHits() {
 auto hits = FindHits();  // ここに直接作られる、またはムーブされる
 ```
 
-**値で返してよい**（コピーされません）。「大きいから引数で受け取って書き込もう」（`void FindHits(std::vector<Hit>& out)`）は、古い書き方です。ただし、**毎フレーム呼ぶ関数**で、**メモリを使い回したい**場合はあえて引数で受け取る（`out.clear()` して容量を再利用する）ほうが、速いこともあります（[メモリ確保](allocation.md)）。
+**値で返してよい**（コピーされません）。「大きいから引数で受け取って書き込もう」（`void FindHits(std::vector<Hit>& out)`）は、古い書き方です。ただし、毎フレーム呼ぶ関数で、メモリを使い回したい場合はあえて引数で受け取る（`out.clear()` して容量を再利用する）ほうが、速いこともあります（[メモリ確保](allocation.md)）。
 
 | 返し方 | コピー | 使いどころ |
 | --- | --- | --- |
-| `T`（値で返す） | **なし**（RVO・ムーブ） | 基本はこれ |
+| `T`（値で返す） | なし（RVO・ムーブ） | 基本はこれ |
 | `const T&`（参照で返す） | なし | メンバ変数を読み取り専用で見せる。持ち主より長く使わない |
 | `T&`（出力引数） | なし | 毎フレーム呼ぶ。容量を使い回したいとき |
 
@@ -145,10 +145,10 @@ for (const auto& enemy : enemies) { // 読むだけなら const auto&
 
 | 方法 | 説明 |
 | --- | --- |
-| **コピーを禁止する**（`= delete`） | 大きなクラスのコピーコンストラクタを `= delete` にすると、コピーしている場所がコンパイル エラーで分かる。必要なら明示的な `Clone()` を作る |
-| **プロファイラーで `memcpy` や `operator new` の上位を探す** | コピーの呼び出し元をたどる（[計測](measure.md)） |
-| **警告を有効にする** | MSVC の `/W4`、Clang-Tidy の `performance-unnecessary-copy-initialization`、`performance-for-range-copy` |
-| **コピーのカウンター** | コピーコンストラクタにカウンターを仕込んで、回数を数える |
+| コピーを禁止する（`= delete`） | 大きなクラスのコピーコンストラクタを `= delete` にすると、コピーしている場所がコンパイル エラーで分かる。必要なら明示的な `Clone()` を作る |
+| プロファイラーで `memcpy` や `operator new` の上位を探す | コピーの呼び出し元をたどる（[計測](measure.md)） |
+| 警告を有効にする | MSVC の `/W4`、Clang-Tidy の `performance-unnecessary-copy-initialization`、`performance-for-range-copy` |
+| コピーのカウンター | コピーコンストラクタにカウンターを仕込んで、回数を数える |
 
 ```cpp
 class Mesh {
@@ -195,10 +195,10 @@ class Mesh {
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 読むだけの大きなものは<strong>`const&`</strong>、文字列は<strong>`string_view`</strong>、配列は<strong>`span`</strong>
-    - [x] 受け取って持つなら<strong>値渡し + `std::move`</strong>。コンテナへは `emplace_back`
-    - [x] 戻り値は<strong>値で返す</strong>。`return std::move(x)` は書かない
-    - [x] 範囲 for は<strong>`const auto&` / `auto&`</strong>（`auto` はコピー）
+    - [x] 読むだけの大きなものは<strong>`const&`</strong>、文字列は`string_view`、配列は`span`
+    - [x] 受け取って持つなら値渡し + `std::move`。コンテナへは `emplace_back`
+    - [x] 戻り値は値で返す。`return std::move(x)` は書かない
+    - [x] 範囲 for は`const auto&` / `auto&`（`auto` はコピー）
     - [x] 大きなクラスはコピーを `= delete` にして、無駄なコピーをエラーで見つける
 
 ## 関連ページ

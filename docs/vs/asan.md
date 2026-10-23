@@ -6,31 +6,31 @@ tags:
 
 # AddressSanitizer
 
-C++ では**配列の範囲外アクセス**や**解放したメモリを使う**ミスが起きても、**その場では何も起きず**、**あとでまったく別の場所で壊れる**ことがあります。原因が見つけにくい**メモリのバグ**です。<strong>AddressSanitizer（アドレス サニタイザー、ASan）</strong>は**実行中にメモリアクセスを監視**し、**不正があった瞬間に止めて、詳しく教えてくれる**ツールです。Visual Studio 2026 の MSVC で、使えます。このページは**有効にする方法**、**見つけられるバグ**、**エラー出力の読み方**、**注意点**をまとめます。
+C++ では**配列の範囲外アクセス**や解放したメモリを使うミスが起きても、その場では何も起きず、あとでまったく別の場所で壊れることがあります。原因が見つけにくいメモリのバグです。AddressSanitizer（アドレス サニタイザー、ASan）は実行中にメモリアクセスを監視し、不正があった瞬間に止めて、詳しく教えてくれるツールです。Visual Studio 2026 の MSVC で、使えます。このページは有効にする方法、見つけられるバグ、エラー出力の読み方、注意点をまとめます。
 
 !!! tip "ポイント"
     - ASan は <strong>範囲外アクセス・解放済みメモリの使用（use-after-free）・二重解放</strong>などを、<strong>その場で止めて報告</strong>する。
-    - 有効化：<strong>プロジェクトのプロパティ → C/C++ → 全般 → 「Address Sanitizer を有効にする」→ はい（/fsanitize=address）</strong>。
-    - <strong>インストーラーで「C++ AddressSanitizer」のコンポーネント</strong>が必要。
-    - 速さは<strong>約 2 倍遅く、メモリは増える</strong>。<strong>開発・テスト中だけ</strong>使う（製品には入れない）。
-    - <strong>`/RTC1`・`/ZI`（編集して続行）・増分リンクとは併用できない</strong>。設定を調整する。
-    - <strong>エラーの先頭の行（種類）と「どこで確保したか」</strong>を読む。
+    - 有効化：プロジェクトのプロパティ → C/C++ → 全般 → 「Address Sanitizer を有効にする」→ はい（/fsanitize=address）。
+    - インストーラーで「C++ AddressSanitizer」のコンポーネントが必要。
+    - 速さは約 2 倍遅く、メモリは増える。開発・テスト中だけ使う（製品には入れない）。
+    - `/RTC1`・`/ZI`（編集して続行）・増分リンクとは併用できない。設定を調整する。
+    - エラーの先頭の行（種類）と「どこで確保したか」を読む。
 
 ## 何を見つけるのか
 
 | バグ | 例 | ASan の報告名 |
 | --- | --- | --- |
 | **ヒープの範囲外アクセス** | `new int[3]` の 5 番目を読む | `heap-buffer-overflow` |
-| **スタックの範囲外アクセス** | `int a[3];` の 5 番目を書く | `stack-buffer-overflow` |
-| **グローバル変数の範囲外** | 静的な配列の外 | `global-buffer-overflow` |
-| **解放済みメモリの使用** | `delete p;` の後で、`*p` | `heap-use-after-free` |
-| **二重解放** | `delete p;` を 2 回 | `attempting double-free` |
-| **不正な解放** | `new[]` を `delete` で | `alloc-dealloc-mismatch` |
-| **スコープ外のスタック使用** | 関数を出た後のローカル変数へのポインタ | `stack-use-after-scope` / `stack-use-after-return` |
-| **`memcpy` などの範囲外** | `memcpy(dst, src, 100)`（dst が 10 バイト） | `*-buffer-overflow` |
+| スタックの範囲外アクセス | `int a[3];` の 5 番目を書く | `stack-buffer-overflow` |
+| グローバル変数の範囲外 | 静的な配列の外 | `global-buffer-overflow` |
+| 解放済みメモリの使用 | `delete p;` の後で、`*p` | `heap-use-after-free` |
+| 二重解放 | `delete p;` を 2 回 | `attempting double-free` |
+| 不正な解放 | `new[]` を `delete` で | `alloc-dealloc-mismatch` |
+| スコープ外のスタック使用 | 関数を出た後のローカル変数へのポインタ | `stack-use-after-scope` / `stack-use-after-return` |
+| `memcpy` などの範囲外 | `memcpy(dst, src, 100)`（dst が 10 バイト） | `*-buffer-overflow` |
 
 !!! note "メモリリークは見つからない（MSVC）"
-    Linux の **LeakSanitizer** のような**リークの検出**は、MSVC の ASan では**サポートされません**。**リーク**の調査は[デバッグのやり方](debugging.md)の CRT のリーク検出やプロファイラーの**メモリ使用量**で行います。
+    Linux の LeakSanitizer のようなリークの検出は、MSVC の ASan ではサポートされません。リークの調査は[デバッグのやり方](debugging.md)の CRT のリーク検出やプロファイラーのメモリ使用量で行います。
 
 ### 普通のデバッグで見つけにくい理由
 
@@ -39,38 +39,38 @@ int* p = new int[3];
 p[5] = 100;
 ```
 
-**この書き込みは多くの場合、クラッシュしません**。**ヒープの別の場所をこっそり壊す**だけで、**あとで無関係な場所**がクラッシュします。**ASan はこの `p[5]` の瞬間**に止めます。
+この書き込みは多くの場合、クラッシュしません。ヒープの別の場所をこっそり壊すだけで、あとで無関係な場所がクラッシュします。ASan はこの `p[5]` の瞬間に止めます。
 
 ## 有効にする
 
 ### 1. コンポーネントを入れる
 
-**Visual Studio Installer** → **変更** → **個別のコンポーネント**（または、**C++ によるデスクトップ開発**のオプション）で、<strong>「MSVC AddressSanitizer」</strong>にチェックを入れて、インストールします（「C++ によるデスクトップ開発」では、既定で入っています）。
+**Visual Studio Installer** → 変更 → 個別のコンポーネント（または、C++ によるデスクトップ開発のオプション）で、「MSVC AddressSanitizer」にチェックを入れて、インストールします（「C++ によるデスクトップ開発」では、既定で入っています）。
 
 ### 2. プロパティで有効にする
 
-1. プロジェクトを選んで、メニューの<strong>プロジェクト → プロパティ</strong>を開く
-2. 構成を **Debug**、プラットフォームを **x64** にする
-3. **C/C++ → 全般 → Address Sanitizer を有効にする** → <strong>はい (/fsanitize=address)</strong>
-4. ビルドして**デバッグ実行**（F5）する
+1. プロジェクトを選んで、メニューのプロジェクト → プロパティを開く
+2. 構成を Debug、プラットフォームを x64 にする
+3. C/C++ → 全般 → Address Sanitizer を有効にする → はい (/fsanitize=address)
+4. ビルドしてデバッグ実行（F5）する
 
 「Address Sanitizer を有効にする」は、C/C++ → 全般 のページを少し下へスクロールした所にあります。その下の「Fuzzer サポートを有効にする（試験段階）」は、別の機能です。
 
 ![C/C++ → 全般 の下のほう。Address Sanitizer を有効にする、が「いいえ」になっている](img/props-cpp-general-asan.jpg)
 
-**ソリューション全体**（ライブラリを含む）で**有効にする**と**ライブラリの中のバグも**見つかります。
+ソリューション全体（ライブラリを含む）で有効にするとライブラリの中のバグも見つかります。
 
 ### 3. 競合する設定を直す
 
-ASan は次の設定と**併用できません**。**エラー**や**警告**が出たら、直します。
+ASan は次の設定と併用できません。エラーや警告が出たら、直します。
 
 | 競合する設定 | 直し方 |
 | --- | --- |
-| **`/RTC1`**（ランタイム エラー チェック） | **C/C++ → コード生成 → 基本ランタイム チェック → 既定**（なし） |
-| **`/ZI`**（編集して続行） | **C/C++ → 全般 → デバッグ情報の形式 → `/Zi`**（プログラム データベース） |
-| <strong>増分リンク（`/INCREMENTAL`）</strong> | **リンカー → 全般 → 増分リンクを有効にする → いいえ** |
-| **`/clr`** | ASan は**マネージドコード**とは使えない |
-| **`/MTd` と `/MDd` の混在** | ランタイム ライブラリを**そろえる** |
+| `/RTC1`（ランタイム エラー チェック） | C/C++ → コード生成 → 基本ランタイム チェック → 既定（なし） |
+| `/ZI`（編集して続行） | C/C++ → 全般 → デバッグ情報の形式 → `/Zi`（プログラム データベース） |
+| 増分リンク（`/INCREMENTAL`） | リンカー → 全般 → 増分リンクを有効にする → いいえ |
+| `/clr` | ASan はマネージドコードとは使えない |
+| `/MTd` と `/MDd` の混在 | ランタイム ライブラリをそろえる |
 
 ### CMake の場合
 
@@ -81,7 +81,7 @@ if(MSVC)
 endif()
 ```
 
-**Debug 構成の `/RTC1` を外す**必要があります。
+Debug 構成の `/RTC1` を外す必要があります。
 
 ```cmake
 string(REPLACE "/RTC1" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
@@ -97,19 +97,19 @@ cl /fsanitize=address /Zi /std:c++latest main.cpp
 
 ### Visual Studio から
 
-<strong>F5（デバッグ実行）</strong>で不正アクセスがあると、**デバッガーがその行で止まり**ます。**出力ウィンドウ**に詳しい報告が出ます。
+<strong>F5（デバッグ実行）</strong>で不正アクセスがあると、デバッガーがその行で止まります。出力ウィンドウに詳しい報告が出ます。
 
 ### 単体で実行するとき
 
-**Visual Studio の外**（コマンドプロンプトなど）で `.exe` を実行するときは、**ASan のランタイム DLL**（`clang_rt.asan_dynamic-x86_64.dll`）が、**見つかる**必要があります。
+Visual Studio の外（コマンドプロンプトなど）で `.exe` を実行するときは、ASan のランタイム DLL（`clang_rt.asan_dynamic-x86_64.dll`）が、見つかる必要があります。
 
 | 方法 | 説明 |
 | --- | --- |
-| **Developer コマンド プロンプトから実行** | 環境変数（`PATH`）が設定されていて、見つかる |
-| **DLL を実行ファイルの横にコピー** | VS の `VC\Tools\MSVC\<バージョン>\bin\Hostx64\x64\` にある |
-| **PATH に追加** | 同じフォルダーを `PATH` に |
+| Developer コマンド プロンプトから実行 | 環境変数（`PATH`）が設定されていて、見つかる |
+| DLL を実行ファイルの横にコピー | VS の `VC\Tools\MSVC\<バージョン>\bin\Hostx64\x64\` にある |
+| PATH に追加 | 同じフォルダーを `PATH` に |
 
-**DLL が見つからない**と起動時に**エラー**（`clang_rt.asan_dynamic-x86_64.dll が見つかりません`）が出ます。
+DLL が見つからないと起動時にエラー（`clang_rt.asan_dynamic-x86_64.dll が見つかりません`）が出ます。
 
 ## エラー出力の読み方
 
@@ -136,14 +136,14 @@ allocated by thread T0 here:
 
 | 部分 | 意味 |
 | --- | --- |
-| **`ERROR: AddressSanitizer: heap-buffer-overflow`** | **バグの種類**（ヒープの範囲外） |
-| **`WRITE of size 4`** | **書き込み**（または `READ`）。**4 バイト**のアクセス |
-| **`#0 ... main.cpp:3`** | **不正アクセスをした場所**（呼び出し履歴の最初） |
-| **`located 8 bytes after 12-byte region`** | **確保した領域（12 バイト）の 8 バイト後ろ**にアクセスした |
-| **`allocated by thread T0 here:`** | **そのメモリを確保した場所**（`main.cpp:2`） |
-| **`freed by thread T0 here:`**（use-after-free のとき） | **解放した場所**。**誰が解放したか** |
+| **`ERROR: AddressSanitizer: heap-buffer-overflow`** | バグの種類（ヒープの範囲外） |
+| `WRITE of size 4` | 書き込み（または `READ`）。4 バイトのアクセス |
+| `#0 ... main.cpp:3` | 不正アクセスをした場所（呼び出し履歴の最初） |
+| `located 8 bytes after 12-byte region` | 確保した領域（12 バイト）の 8 バイト後ろにアクセスした |
+| `allocated by thread T0 here:` | そのメモリを確保した場所（`main.cpp:2`） |
+| `freed by thread T0 here:`（use-after-free のとき） | 解放した場所。誰が解放したか |
 
-**読む順番**：(1) **種類**、(2) <strong>アクセスの場所（#0）</strong>、(3) **確保・解放の場所**。**use-after-free** では、**解放した場所と使った場所**の 2 つを見比べます。
+読む順番：(1) 種類、(2) アクセスの場所（#0）、(3) 確保・解放の場所。use-after-free では、解放した場所と使った場所の 2 つを見比べます。
 
 ### use-after-free の例
 
@@ -187,10 +187,10 @@ Address 0x... is located in stack of thread T0 at offset 52 in frame
 
 | オプション | 効果 |
 | --- | --- |
-| **`halt_on_error=0`** | **最初のエラーで止まらず続行**（`-fsanitize-recover=address` でビルドが必要。MSVC では制約あり） |
-| **`detect_stack_use_after_return=1`** | **関数を出た後のローカル変数の使用**も検出（**有効にすると、メモリを多く使う**） |
-| **`detect_container_overflow=0`** | `std::vector` などの**コンテナの余白へのアクセス**の検出を、止める |
-| **`symbolize=1`** | 関数名の解決 |
+| `halt_on_error=0` | 最初のエラーで止まらず続行（`-fsanitize-recover=address` でビルドが必要。MSVC では制約あり） |
+| `detect_stack_use_after_return=1` | 関数を出た後のローカル変数の使用も検出（有効にすると、メモリを多く使う） |
+| `detect_container_overflow=0` | `std::vector` などのコンテナの余白へのアクセスの検出を、止める |
+| `symbolize=1` | 関数名の解決 |
 
 ```text
 set ASAN_OPTIONS=detect_stack_use_after_return=1
@@ -198,7 +198,7 @@ set ASAN_OPTIONS=detect_stack_use_after_return=1
 
 ### STL のコンテナの検出
 
-MSVC の `std::vector` と `std::string` は**ASan に対応した注釈**（annotation）を持っています。**`capacity` の範囲内でも `size` の外**（使っていない余白）への**アクセス**を、**検出**できます（`container-overflow`）。
+MSVC の `std::vector` と `std::string` はASan に対応した注釈（annotation）を持っています。`capacity` の範囲内でも `size` の外（使っていない余白）へのアクセスを、検出できます（`container-overflow`）。
 
 ```cpp
 std::vector<int> v;
@@ -207,47 +207,47 @@ v.push_back(1);
 int x = v[3];
 ```
 
-**普通は気づかない**バグが、見つかります。
+普通は気づかないバグが、見つかります。
 
 !!! warning "ASan あり・なしのバイナリを混ぜない"
-    **ASan を有効にしてビルドしたライブラリ**と**無効のもの**を、**混ぜてリンク**すると <strong>`LNK2038`（不一致）</strong>や**誤検出**が出ることがあります。**全体をそろえる**か `_DISABLE_VECTOR_ANNOTATION` / `_DISABLE_STRING_ANNOTATION`（プリプロセッサマクロ）で、**注釈を無効**にします（[プリプロセッサマクロ](preprocessor.md)）。
+    ASan を有効にしてビルドしたライブラリと無効のものを、混ぜてリンクすると `LNK2038`（不一致）や誤検出が出ることがあります。全体をそろえるか `_DISABLE_VECTOR_ANNOTATION` / `_DISABLE_STRING_ANNOTATION`（プリプロセッサマクロ）で、注釈を無効にします（[プリプロセッサマクロ](preprocessor.md)）。
 
 ## 注意点
 
 | 注意 | 説明 |
 | --- | --- |
-| **速さが遅くなる** | **約 2 倍**。メモリも**2〜3 倍**。**開発・テスト用** |
-| **製品には入れない** | 速度・サイズ・**DLL の依存**。Release の製品ビルドは ASan なし |
-| **カスタム アロケーター** | **自作のメモリプール**の中の不正は、ASan に**見えない**。**ASan の注釈 API**（`ASAN_POISON_MEMORY_REGION`）で、**未使用部分を毒化**できる |
-| **確保した領域の外にまだ別の領域がある** | ASan は、<strong>確保の周囲に危険地帯（レッドゾーン）</strong>を置いて検出する。**大きく飛び越えた**アクセスは**ほかの領域**に当たって、見逃すことがある |
-| **未初期化メモリの読み込み** | ASan は、見つけない（**MemorySanitizer** の領域。MSVC は対応しない） |
-| <strong>スレッドの競合（データ競合）</strong> | ASan は、見つけない（**ThreadSanitizer** の領域） |
-| **整数のオーバーフロー・未定義動作** | ASan は、見つけない（**UBSan**。MSVC は未対応） |
-| **ビルドが遅くなる・ファイルが増える** | `.pdb` の大きさ実行ファイルのサイズが増える |
+| **速さが遅くなる** | 約 2 倍。メモリも2〜3 倍。開発・テスト用 |
+| 製品には入れない | 速度・サイズ・DLL の依存。Release の製品ビルドは ASan なし |
+| カスタム アロケーター | 自作のメモリプールの中の不正は、ASan に見えない。ASan の注釈 API（`ASAN_POISON_MEMORY_REGION`）で、未使用部分を毒化できる |
+| 確保した領域の外にまだ別の領域がある | ASan は、確保の周囲に危険地帯（レッドゾーン）を置いて検出する。大きく飛び越えたアクセスはほかの領域に当たって、見逃すことがある |
+| 未初期化メモリの読み込み | ASan は、見つけない（MemorySanitizer の領域。MSVC は対応しない） |
+| スレッドの競合（データ競合） | ASan は、見つけない（ThreadSanitizer の領域） |
+| 整数のオーバーフロー・未定義動作 | ASan は、見つけない（UBSan。MSVC は未対応） |
+| ビルドが遅くなる・ファイルが増える | `.pdb` の大きさ実行ファイルのサイズが増える |
 
 ## 普通のデバッグと組み合わせる
 
 | 症状 | 使う道具 |
 | --- | --- |
-| <strong>原因不明のクラッシュ（ヒープ・スタックの破壊）</strong> | **ASan** |
-| <strong>リーク（使い終わったメモリが、残る）</strong> | CRT のリーク検出（`_CRTDBG_MAP_ALLOC`）、**プロファイラーのメモリ使用量** |
-| **スレッドの競合** | デバッガーの**並列ウォッチ**、設計の見直し（[並行処理の設計](../design/practice/concurrency-design.md)） |
-| **未初期化の変数** | **警告レベル /W4**、**`/sdl`**（セキュリティ チェック）、**`= {}` で初期化** |
-| **ロジックの間違い** | **デバッガー**（ブレークポイント、ウォッチ） |
+| <strong>原因不明のクラッシュ（ヒープ・スタックの破壊）</strong> | ASan |
+| リーク（使い終わったメモリが、残る） | CRT のリーク検出（`_CRTDBG_MAP_ALLOC`）、プロファイラーのメモリ使用量 |
+| スレッドの競合 | デバッガーの並列ウォッチ、設計の見直し（[並行処理の設計](../design/practice/concurrency-design.md)） |
+| 未初期化の変数 | 警告レベル /W4、`/sdl`（セキュリティ チェック）、`= {}` で初期化 |
+| ロジックの間違い | デバッガー（ブレークポイント、ウォッチ） |
 
-**ASan でメモリのバグが見つからないとき**は、別のバグかもしれません。**ASan はメモリのアクセスだけ**を見ます。
+ASan でメモリのバグが見つからないときは、別のバグかもしれません。ASan はメモリのアクセスだけを見ます。
 
 ## CI での利用
 
-**ASan つきのビルドを定期的に（または、CI で毎回）実行**すると、**メモリのバグを早く**見つけられます。
+**ASan つきのビルドを定期的に（または、CI で毎回）実行**すると、メモリのバグを早く見つけられます。
 
 | 方法 | 説明 |
 | --- | --- |
-| **テストを ASan つきで実行** | **単体テスト**を ASan 付きでビルド・実行 |
-| **夜間ビルド** | 重いテスト（ゲームの自動プレイ）を ASan 付きで |
-| **ファジング** | ランダムな入力で、ASan つきで実行（**libFuzzer**） |
+| テストを ASan つきで実行 | 単体テストを ASan 付きでビルド・実行 |
+| 夜間ビルド | 重いテスト（ゲームの自動プレイ）を ASan 付きで |
+| ファジング | ランダムな入力で、ASan つきで実行（libFuzzer） |
 
-CMake に **`SANITIZE` オプション**を作って、**切り替えられる**ようにしておくと使いやすくなります（[ビルドと CMake の構成](../design/practice/build-cmake.md)）。
+CMake に `SANITIZE` オプションを作って、切り替えられるようにしておくと使いやすくなります（[ビルドと CMake の構成](../design/practice/build-cmake.md)）。
 
 <!-- fig:asan-redzone:begin -->
 
@@ -299,34 +299,34 @@ CMake に **`SANITIZE` オプション**を作って、**切り替えられる**
 ## よくあるミス
 
 ??? failure "「C++ AddressSanitizer」をインストールしていなくて、ビルドエラーになる"
-    **Visual Studio Installer** で、<strong>「C++ AddressSanitizer」</strong>の**コンポーネント**を追加します。
+    **Visual Studio Installer** で、「C++ AddressSanitizer」のコンポーネントを追加します。
 
 ??? failure "`/RTC1` と併用してエラー（D8016）になる"
-    **基本ランタイム チェック**を <strong>既定（なし）</strong>にします。
+    基本ランタイム チェックを 既定（なし）にします。
 
 ??? failure "「編集して続行（/ZI）」と競合する"
-    **デバッグ情報の形式**を**`/Zi`** に変えます。
+    デバッグ情報の形式を`/Zi` に変えます。
 
 ??? failure "単体で実行すると、`clang_rt.asan_dynamic-x86_64.dll` が見つからない"
-    **DLL を実行ファイルの横にコピー**するか**Developer コマンド プロンプト**から実行します。
+    DLL を実行ファイルの横にコピーするかDeveloper コマンド プロンプトから実行します。
 
 ??? failure "ASan 付きとなしのライブラリを混ぜて、`LNK2038` や誤検出が出る"
-    **全体を同じ設定**でビルドします。または、**コンテナの注釈**を無効にします。
+    全体を同じ設定でビルドします。または、コンテナの注釈を無効にします。
 
 ??? failure "製品ビルドに ASan を入れたまま配布した"
-    **遅く・大きく**なり**DLL の依存**も増えます。**開発・テストだけ**にします。
+    遅く・大きくなりDLL の依存も増えます。開発・テストだけにします。
 
 ??? failure "自作のメモリプールの中の不正が、見つからない"
-    ASan は**プールの内側**を知りません。**注釈の API**で**未使用の領域を毒化**します。
+    ASan はプールの内側を知りません。注釈の APIで未使用の領域を毒化します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] <strong>AddressSanitizer</strong> は、<strong>範囲外アクセス・use-after-free・二重解放</strong>を <strong>その場で止めて報告</strong>する
-    - [x] 有効化は<strong>C/C++ → 全般 → Address Sanitizer を有効にする（/fsanitize=address）</strong>。<strong>インストーラーでコンポーネント</strong>が必要
-    - [x] <strong>`/RTC1`・`/ZI`・増分リンク</strong>は、<strong>外す</strong>
-    - [x] 報告は <strong>「種類」→「アクセスした場所」→「確保・解放した場所」</strong>の順に読む
-    - [x] <strong>約 2 倍遅い</strong>。<strong>開発・テスト・CI だけ</strong>。<strong>メモリリーク・スレッドの競合・未初期化は、見つからない</strong>
+    - [x] AddressSanitizer は、範囲外アクセス・use-after-free・二重解放を その場で止めて報告する
+    - [x] 有効化はC/C++ → 全般 → Address Sanitizer を有効にする（/fsanitize=address）。インストーラーでコンポーネントが必要
+    - [x] `/RTC1`・`/ZI`・増分リンクは、外す
+    - [x] 報告は 「種類」→「アクセスした場所」→「確保・解放した場所」の順に読む
+    - [x] 約 2 倍遅い。開発・テスト・CI だけ。メモリリーク・スレッドの競合・未初期化は、見つからない
 
 ## 関連ページ
 

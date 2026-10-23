@@ -6,24 +6,24 @@ tags:
 
 # SSGI
 
-<strong>SSGI</strong>（Screen-Space Global Illumination、画面空間 GI）は <strong>[SSAO](../ao/ssao-hemisphere.md) と同じ発想</strong>を、<strong>「暗さ」だけでなく「光（色）」にまで広げた</strong>ものです。<strong>画素の周りの半球にレイを飛ばし</strong>（深度バッファ上で）、<strong>当たった画素の「色（その画素の出射光）」</strong>を、間接光として集めます。事前計算が不要で動く物・動くライトも自動的に反映されます。ただし、画面に映っているものしか見えないという画面空間の限界があります。
+<strong>SSGI</strong>（Screen-Space Global Illumination、画面空間 GI）は [SSAO](../ao/ssao-hemisphere.md) と同じ発想を、「暗さ」だけでなく「光（色）」にまで広げたものです。画素の周りの半球にレイを飛ばし（深度バッファ上で）、当たった画素の「色（その画素の出射光）」を、間接光として集めます。事前計算が不要で動く物・動くライトも自動的に反映されます。ただし、画面に映っているものしか見えないという画面空間の限界があります。
 
 !!! tip "ポイント"
-    - <strong>画素から半球方向にレイ</strong>を飛ばし（<strong>深度バッファ上</strong>）、<strong>当たった点の色</strong>を<strong>間接光</strong>として<strong>平均</strong>。
-    - <strong>SSAO は「遮られた量」</strong>、<strong>SSGI は「当たった先の色」</strong>。
-    - <strong>前フレームの最終画像（ライティング済み）</strong>を<strong>光源として使う</strong>と<strong>多バウンス</strong>が<strong>ほぼ無料</strong>で得られる。
-    - <strong>少ないレイ ＋ ノイズ ＋ デノイズ（時間・空間）</strong>が<strong>必須</strong>。
-    - 限界：<strong>画面外・裏側・隠れた面</strong>は<strong>見えない</strong>。<strong>画面端でゲインが変わる</strong>。
-    - <strong>他の GI（プローブ等）の補助</strong>として、<strong>近距離の細かい間接光</strong>を足す使い方が多い。
+    - <strong>画素から半球方向にレイ</strong>を飛ばし（<strong>深度バッファ上</strong>）、当たった点の色を間接光として平均。
+    - SSAO は「遮られた量」、SSGI は「当たった先の色」。
+    - 前フレームの最終画像（ライティング済み）を光源として使うと多バウンスがほぼ無料で得られる。
+    - 少ないレイ ＋ ノイズ ＋ デノイズ（時間・空間）が必須。
+    - 限界：画面外・裏側・隠れた面は見えない。画面端でゲインが変わる。
+    - 他の GI（プローブ等）の補助として、近距離の細かい間接光を足す使い方が多い。
 
 ## 原理
 
-<strong>SSAO</strong>は<strong>半球に飛ばしたレイが「遮られたか」</strong>だけを見ました。<strong>SSGI</strong>は<strong>レイが当たった画素の「光（色）」</strong>を読みます。
+<strong>SSAO</strong>は半球に飛ばしたレイが「遮られたか」だけを見ました。SSGIはレイが当たった画素の「光（色）」を読みます。
 
 | 項目 | SSAO | SSGI |
 | --- | --- | --- |
-| レイの結果 | <strong>遮られた（0/1）</strong> | <strong>当たった点の色（RGB）</strong> |
-| 出力 | <strong>暗さ（スカラー）</strong> | <strong>間接光（RGB）</strong> |
+| レイの結果 | 遮られた（0/1） | 当たった点の色（RGB） |
+| 出力 | 暗さ（スカラー） | 間接光（RGB） |
 | 色の効果 | なし | カラー ブリーディング |
 
 <!-- fig:ssgi-bounce:begin -->
@@ -269,13 +269,13 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 
 ## 多バウンスの得かた
 
-<strong>前フレームの最終画像に前フレームの SSGI の結果が含まれている</strong>ので、<strong>フレームを重ねるごとに</strong>、バウンスが増えるように見えます。
+<strong>前フレームの最終画像に前フレームの SSGI の結果が含まれている</strong>ので、フレームを重ねるごとに、バウンスが増えるように見えます。
 
 バウンス数は何を読むかで決まります。現在のフレームの直接光だけを読めば、1 バウンスです。前フレームの最終画像（間接光を含む）を読めば、フレームごとに 1 バウンスずつ蓄積するので、多バウンスが無料で得られます。注意すべきはゲインが 1 を超えると発散する（明るくなり続ける）ことです。必ず 1 未満の減衰を掛けます。
 
 ## ノイズとデノイズ
 
-<strong>画素あたり 1〜数本</strong>のレイでは、<strong>ノイズ</strong>が非常に目立ちます。
+<strong>画素あたり 1〜数本</strong>のレイでは、ノイズが非常に目立ちます。
 
 | 手法 | 内容 |
 | --- | --- |
@@ -290,7 +290,7 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 
 ノイズが大きいので時間蓄積と空間フィルタの組み合わせは、ほぼ必須です。
 
-<strong>ノイズが大きい</strong>ので<strong>時間蓄積と空間フィルタ</strong>の組み合わせが、ほぼ必須です。
+ノイズが大きいので時間蓄積と空間フィルタの組み合わせが、ほぼ必須です。
 
 ## 画面空間の限界
 
@@ -307,7 +307,7 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 
 そのため、SSGI 単体では安定した GI になりません。プローブやライトマップなどのベースの GI に、近距離の細かい間接光とカラー ブリーディングを足す使い方が、一般的です。
 
-<strong>そのため SSGI 単体で安定した GI にはなりません</strong>。<strong>プローブやライトマップなどの、ベースの GI</strong>に近距離の細かい間接光・カラー ブリーディングを足す使い方が、一般的です。
+<strong>そのため SSGI 単体で安定した GI にはなりません</strong>。プローブやライトマップなどの、ベースの GIに近距離の細かい間接光・カラー ブリーディングを足す使い方が、一般的です。
 
 ## コストと工夫
 
@@ -332,26 +332,26 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 
 ### より良いやり方
 
-SSGI の弱点は「画面外が見えない」の一点に集約されます。そのため、より良い設計は SSGI を単独で使わずに、<strong>見えなかった分を別の GI に任せる</strong>ことです。レイが画面外に出たり深度バッファで当たらなかったりしたとき、その方向の光をライト プローブや DDGI のような世界空間の GI から読みます。つまり、<strong>SSGI は近距離の細部を担当し、遠くと画面外は世界空間の GI が担当する</strong>階層にします。Lumen が画面空間トレースを最初の手段として使い、外れたら距離場、さらに外れたらワールド プローブ、と順に落ちていく設計はまさにこの考え方です（[Lumen-Style Approaches](rt-gi/lumen-style.md)）。
+SSGI の弱点は「画面外が見えない」の一点に集約されます。そのため、より良い設計は SSGI を単独で使わずに、<strong>見えなかった分を別の GI に任せる</strong>ことです。レイが画面外に出たり深度バッファで当たらなかったりしたとき、その方向の光をライト プローブや DDGI のような世界空間の GI から読みます。つまり、SSGI は近距離の細部を担当し、遠くと画面外は世界空間の GI が担当する階層にします。Lumen が画面空間トレースを最初の手段として使い、外れたら距離場、さらに外れたらワールド プローブ、と順に落ちていく設計はまさにこの考え方です（[Lumen-Style Approaches](rt-gi/lumen-style.md)）。
 
 ### より良いやり方
 
-SSGI の弱点は「画面外が見えない」の一点に集約されます。そのため、より良い設計は SSGI を単独で使わずに、<strong>見えなかった分を別の GI に任せる</strong>ことです。レイが画面外に出たり深度バッファで当たらなかったりしたとき、その方向の光をライト プローブや DDGI のような世界空間の GI から読みます。つまり、<strong>SSGI は近距離の細部を担当し、遠くと画面外は世界空間の GI が担当する</strong>階層にします。Lumen が画面空間トレースを最初の手段として使い、外れたら距離場、さらに外れたらワールド プローブ、と順に落ちていく設計はまさにこの考え方です（[Lumen-Style Approaches](rt-gi/lumen-style.md)）。
+SSGI の弱点は「画面外が見えない」の一点に集約されます。そのため、より良い設計は SSGI を単独で使わずに、見えなかった分を別の GI に任せることです。レイが画面外に出たり深度バッファで当たらなかったりしたとき、その方向の光をライト プローブや DDGI のような世界空間の GI から読みます。つまり、SSGI は近距離の細部を担当し、遠くと画面外は世界空間の GI が担当する階層にします。Lumen が画面空間トレースを最初の手段として使い、外れたら距離場、さらに外れたらワールド プローブ、と順に落ちていく設計はまさにこの考え方です（[Lumen-Style Approaches](rt-gi/lumen-style.md)）。
 
 ## 画面の情報だけで間接光を求める
 
-<strong>SSGI</strong>（Screen-Space Global Illumination）は、<strong>画面に映っている情報</strong>（色、深度、法線）だけを使って間接光を近似する方法です（Ritschel ら、2009）。シーンの形状を持たず G バッファと、深度バッファだけでポスト プロセスとして、実行できるので導入が簡単です。
+<strong>SSGI</strong>（Screen-Space Global Illumination）は、画面に映っている情報（色、深度、法線）だけを使って間接光を近似する方法です（Ritschel ら、2009）。シーンの形状を持たず G バッファと、深度バッファだけでポスト プロセスとして、実行できるので導入が簡単です。
 
 ## 基本の考え方
 
-<strong>各画素</strong>から <strong>半球のランダムな、方向</strong>に画面空間でレイを飛ばし（レイマーチ）、当たった画素の色をその方向から、来る光として集めます。
+<strong>各画素</strong>から 半球のランダムな、方向に画面空間でレイを飛ばし（レイマーチ）、当たった画素の色をその方向から、来る光として集めます。
 
 ```text
 画素 P から、法線の側の半球へ、ランダムな方向にレイを飛ばす（画面空間で、深度バッファを、辿る）
         ↓ 当たった画素 Q の「ライティング済みの色」を、P に届く光として、足す
 ```
 
-<strong>当たった画素 Q</strong> は <strong>すでに、ライティングされた画面の色</strong>（直接光 + 前フレームの、間接光）です。Q の色が P を照らすので 1 回の、バウンスの間接光が得られます。
+当たった画素 Q は すでに、ライティングされた画面の色（直接光 + 前フレームの、間接光）です。Q の色が P を照らすので 1 回の、バウンスの間接光が得られます。
 
 ## 画面空間のレイマーチ
 
@@ -369,7 +369,7 @@ bool TraceScreenSpace(float3 origin_vs, float3 dir_vs, float2 pixel, out float3 
     if (any(uv < 0.0) || any(uv > 1.0)) return false;                  // 画面の外 → 情報がない
 ```
 
-<strong>ビュー空間でレイを進め</strong>、各点を <strong>画面の uv に投影</strong>します。画面の外に出たら情報が無いので、打ち切ります。
+<strong>ビュー空間でレイを進め</strong>、各点を 画面の uv に投影します。画面の外に出たら情報が無いので、打ち切ります。
 
 ```hlsl
     float scene_depth = g_depth.SampleLevel(g_point_clamp, uv, 0);     // その画素の、深度（ビュー空間の、距離）
@@ -384,7 +384,7 @@ bool TraceScreenSpace(float3 origin_vs, float3 dir_vs, float2 pixel, out float3 
 }
 ```
 
-<strong>レイ上の点の深度</strong>が <strong>その画素の、深度より奥</strong>（`diff > 0`）になった瞬間が面との、交差です。厚み（`g_thickness`）の範囲内なら当たりと、みなします（薄い物の裏を通り抜けるのを、避けるため。[Thickness](../reflections/ssr-basics/thickness.md)）。当たった画素のライティング済みの色（`g_lit_scene`）を、間接光として使います。
+レイ上の点の深度が その画素の、深度より奥（`diff > 0`）になった瞬間が面との、交差です。厚み（`g_thickness`）の範囲内なら当たりと、みなします（薄い物の裏を通り抜けるのを、避けるため。[Thickness](../reflections/ssr-basics/thickness.md)）。当たった画素のライティング済みの色（`g_lit_scene`）を、間接光として使います。
 
 ## 間接光を積算する
 
@@ -406,11 +406,11 @@ float3 SSGI(float2 pixel, float3 position_vs, float3 normal_vs, float3 albedo) {
 }
 ```
 
-<strong>余弦重みづけのサンプリング</strong>（[Monte Carlo Integration](theory/monte-carlo.md)）で、<strong>拡散の間接光</strong>は当たった色の、平均 × アルベドになります。当たらなかった（画面の外、遠すぎる）場合は空の環境光など、フォールバックで補います。
+<strong>余弦重みづけのサンプリング</strong>（[Monte Carlo Integration](theory/monte-carlo.md)）で、拡散の間接光は当たった色の、平均 × アルベドになります。当たらなかった（画面の外、遠すぎる）場合は空の環境光など、フォールバックで補います。
 
 ## 時間方向の蓄積とフィルタ
 
-<strong>1 画素あたり 1〜2 本の、レイ</strong>では <strong>ノイズだらけ</strong>です。時間蓄積と空間フィルタでなめらかに、します（[Fighting Noise](rt-gi/noise.md)）。前のフレームの結果と混ぜ法線・深度が近い、画素どうしでぼかします。
+1 画素あたり 1〜2 本の、レイでは ノイズだらけです。時間蓄積と空間フィルタでなめらかに、します（[Fighting Noise](rt-gi/noise.md)）。前のフレームの結果と混ぜ法線・深度が近い、画素どうしでぼかします。
 
 ## SSGI の問題
 
@@ -443,25 +443,25 @@ float3 SSGI(float2 pixel, float3 position_vs, float3 normal_vs, float3 albedo) {
 ## よくあるミス
 
 ??? failure "画面端で、間接光が急に暗くなる"
-    <strong>画面端付近をフェード</strong>させる・<strong>ベースの GI にフォールバック</strong>します。
+    画面端付近をフェードさせる・ベースの GI にフォールバックします。
 
 ??? failure "前フレームの色を、再投影せずに読んで動くとずれる"
-    <strong>動きのベクトル</strong>で<strong>再投影</strong>します。
+    動きのベクトルで再投影します。
 
 ??? failure "前フレーム色を、減衰なしで読み続けて発散して明るくなる"
-    <strong>減衰</strong>（1 未満）を掛けます。
+    減衰（1 未満）を掛けます。
 
 ??? failure "ノイズが残って、チラつく"
-    <strong>時間蓄積 ＋ 空間フィルタ</strong>を強め、<strong>ブルー ノイズ</strong>を使います。
+    時間蓄積 ＋ 空間フィルタを強め、ブルー ノイズを使います。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] SSGI ＝ <strong>SSAO の拡張</strong>。<strong>半球レイが当たった画素の「色」</strong>を、<strong>間接光</strong>として集める
-    - [x] <strong>前フレームの最終画像</strong>を光源にすると、<strong>多バウンスがほぼ無料</strong>
-    - [x] <strong>少ないレイ ＋ 時間・空間デノイズ</strong>が<strong>必須</strong>
-    - [x] <strong>画面外・裏側は見えない</strong>。<strong>視点依存</strong>。<strong>単独は不安定</strong>
-    - [x] <strong>ベースの GI ＋ SSGI（近距離の補助）</strong>が実用的
+    - [x] SSGI ＝ SSAO の拡張。半球レイが当たった画素の「色」を、間接光として集める
+    - [x] 前フレームの最終画像を光源にすると、多バウンスがほぼ無料
+    - [x] 少ないレイ ＋ 時間・空間デノイズが必須
+    - [x] 画面外・裏側は見えない。視点依存。単独は不安定
+    - [x] ベースの GI ＋ SSGI（近距離の補助）が実用的
 
 ## 参考
 

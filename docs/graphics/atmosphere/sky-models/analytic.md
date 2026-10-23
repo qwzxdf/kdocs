@@ -6,7 +6,7 @@ tags:
 
 # Analytic Sky Models
 
-<strong>Preetham や Hosek-Wilkie などは、太陽の位置と大気の濁りから空の色を式で求めるモデル</strong>です。<strong>グラデーションより物理的で、積分も要りません</strong>。このページでは解析的な空のモデルを説明します。
+<strong>Preetham や Hosek-Wilkie などは、太陽の位置と大気の濁りから空の色を式で求めるモデル</strong>です。グラデーションより物理的で、積分も要りません。このページでは解析的な空のモデルを説明します。
 
 !!! tip "ポイント"
     - 太陽の高さと濁り（タービディティ）で、空の色が決まる。
@@ -15,17 +15,17 @@ tags:
     - 宇宙からの視点には、向かない。
 
 ## 解析的な空のモデル
-<strong>Preetham（1999）・Hosek-Wilkie（2012）</strong>は、<strong>空の輝度分布を少数のパラメータの数式で近似</strong>します。<strong>パラメータは太陽の高さ（天頂角）と、大気の濁り（turbidity）</strong>です。<strong>実測・シミュレーションにフィットさせた式</strong>なので、手作業のグラデーションより自然で、時刻による移り変わりも連続します。
+<strong>Preetham（1999）・Hosek-Wilkie（2012）</strong>は、空の輝度分布を少数のパラメータの数式で近似します。パラメータは太陽の高さ（天頂角）と、大気の濁り（turbidity）です。実測・シミュレーションにフィットさせた式なので、手作業のグラデーションより自然で、時刻による移り変わりも連続します。
 
 ### Preetham（Perez の式）
 
-<strong>Perez の式</strong>で<strong>視線ごとの輝度（Y）と色度（x, y）</strong>を<strong>求めます</strong>。
+Perez の式で視線ごとの輝度（Y）と色度（x, y）を求めます。
 
 <div class="formula">F(θ, γ) = (1 + A·e^(B / cos θ)) · (1 + C·e^(D·γ) + E·cos²γ)</div>
 
 記号の意味です。θ は視線の天頂角（真上から何度か）、γ は視線と太陽のなす角です。A〜E は係数で turbidity（大気の濁り）から線形式で決まります。
 
-<strong>最終的な空の輝度は天頂の輝度に比をかけて出します</strong>。
+最終的な空の輝度は天頂の輝度に比をかけて出します。
 
 <div class="formula">Y = Y_zenith · F(θ, γ) / F(0, θ_sun)</div>
 
@@ -40,13 +40,13 @@ float Perez(float cos_theta, float gamma, float cos_gamma, PerezCoefficients coe
 
 ### Hosek-Wilkie
 
-<strong>Hosek-Wilkie</strong> は <strong>Preetham の改良版</strong>で、特に太陽が低いとき地面の反射率（アルベド）を考慮したときに精度が高いです。<strong>係数テーブル（9 つのパラメータ × 3 色 × turbidity × albedo × 高さ）</strong>を公開データとして持ち、式の形は Preetham に似ています。
+Hosek-Wilkie は Preetham の改良版で、特に太陽が低いとき地面の反射率（アルベド）を考慮したときに精度が高いです。係数テーブル（9 つのパラメータ × 3 色 × turbidity × albedo × 高さ）を公開データとして持ち、式の形は Preetham に似ています。
 
 | 項目 | Preetham | Hosek-Wilkie |
 | --- | --- | --- |
 | 精度 | 太陽が低いと不正確 | より正確 |
 | パラメータ | turbidity | turbidity ＋ 地面のアルベド |
-| データ | <strong>数式の係数のみ（少ない）</strong> | <strong>係数テーブルが必要（大きい）</strong> |
+| データ | 数式の係数のみ（少ない） | 係数テーブルが必要（大きい） |
 | 用途 | 軽量・手軽 | 品質重視 |
 
 
@@ -54,11 +54,11 @@ float Perez(float cos_theta, float gamma, float cos_gamma, PerezCoefficients coe
 
 原典は Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、非常に軽い代わりに地上の視点から見た空にしか使えず、宇宙から見た地球や遠景のかすみ（空気遠近法）は扱えません。
 
-<strong>どちらも空の見た目だけ</strong>で<strong>大気の中を通る光（遠景の霞・光の筋）</strong>は<strong>別に計算</strong>する必要があります。そこは[Atmospheric Scattering](../scattering/index.md)の担当です。
+どちらも空の見た目だけで大気の中を通る光（遠景の霞・光の筋）は別に計算する必要があります。そこは[Atmospheric Scattering](../scattering/index.md)の担当です。
 
 ## 解析的な空のモデル
 
-<strong>解析的なモデル</strong>は <strong>観測や、シミュレーション</strong>の結果に数式を、当てはめたものです。太陽の高さと大気の濁り（turbidity）を、入れると空の各方向の色が式 1 つで、返ります。積分も LUT も不要です。
+<strong>解析的なモデル</strong>は 観測や、シミュレーションの結果に数式を、当てはめたものです。太陽の高さと大気の濁り（turbidity）を、入れると空の各方向の色が式 1 つで、返ります。積分も LUT も不要です。
 
 | モデル | 特徴 |
 | --- | --- |
@@ -68,7 +68,7 @@ float Perez(float cos_theta, float gamma, float cos_gamma, PerezCoefficients coe
 
 ## Perez の式
 
-空の <strong>ある方向の輝度</strong>を <strong>天頂の輝度に対する、割合</strong>として表します。
+空の <strong>ある方向の輝度</strong>を 天頂の輝度に対する、割合として表します。
 
 ```text
 F(θ, γ) = (1 + A × exp(B / cosθ)) × (1 + C × exp(D × γ) + E × cos²γ)
@@ -90,11 +90,11 @@ float PerezFunction(float cos_theta, float gamma, float cos_gamma, float A, floa
 }
 ```
 
-`cos_theta` が <strong>0 に近い</strong>（地平線）と `B / cosθ` が、<strong>大きな値</strong>になり `exp` が暴走するので、下限（`max(…, 0.01)`）を設けます。
+`cos_theta` が 0 に近い（地平線）と `B / cosθ` が、大きな値になり `exp` が暴走するので、下限（`max(…, 0.01)`）を設けます。
 
 ## Preetham の使い方
 
-Preetham は <strong>空の色</strong>を、<strong>CIE xyY 色空間</strong>で、Perez の式を 3 回（Y、x、y それぞれ）、計算して得ます。各係数は濁り `T` の 1 次式で、決まります。
+Preetham は <strong>空の色</strong>を、CIE xyY 色空間で、Perez の式を 3 回（Y、x、y それぞれ）、計算して得ます。各係数は濁り `T` の 1 次式で、決まります。
 
 ```text
 係数 A_Y = 0.1787 × T − 1.4630,  B_Y = −0.3554 × T + 0.4275,  C_Y = −0.0227 × T + 5.3251,
@@ -102,7 +102,7 @@ Preetham は <strong>空の色</strong>を、<strong>CIE xyY 色空間</strong>�
 （x、y チャンネルにも、別の係数。論文の表を参照）
 ```
 
-<strong>天頂の色</strong>（輝度 Y、色 x、y）も <strong>太陽の天頂角と濁り</strong>から式で、決まります。最終的な色は天頂の値 × `F(θ, γ) / F(0, θ_s)` です。
+天頂の色（輝度 Y、色 x、y）も 太陽の天頂角と濁りから式で、決まります。最終的な色は天頂の値 × `F(θ, γ) / F(0, θ_s)` です。
 
 ```hlsl
 // Preetham の概略（輝度 Y のみ。色 x, y も、同様に、別の係数で計算する）。
@@ -126,7 +126,7 @@ float PreethamLuminance(float3 view_dir, float3 sun_dir, float turbidity) {
 }
 ```
 
-<strong>濁り（turbidity）</strong>は、<strong>2（非常に澄んだ）〜 10（霞んだ）</strong>の範囲を、使います。大きいほど空が白っぽく霞んで見えます。
+濁り（turbidity）は、2（非常に澄んだ）〜 10（霞んだ）の範囲を、使います。大きいほど空が白っぽく霞んで見えます。
 
 ## 長所と短所
 
@@ -152,7 +152,7 @@ float PreethamLuminance(float3 view_dir, float3 sun_dir, float turbidity) {
 ## よくあるミス
 
 ??? failure "日没近くで、空の色が不自然"
-    <strong>Hosek-Wilkie</strong> などの<strong>精度の高いモデル</strong>を使う。
+    <strong>Hosek-Wilkie</strong> などの精度の高いモデルを使う。
 
 ## これだけ覚える
 

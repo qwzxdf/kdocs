@@ -6,15 +6,15 @@ tags:
 
 # SMAA
 
-<strong>SMAA（Subpixel Morphological Anti-Aliasing）</strong>は、<strong>FXAA と同じ「画像だけを見る後処理 AA」</strong>ですが<strong>縁の形（パターン）を分類して、縁がどれだけ画素を覆っているかを「計算」</strong>する<strong>ので、FXAA より、文字や模様をぼかさず、縁がきれい</strong>です。<strong>3 つのパス（縁検出 → 重みの計算 → ブレンド）</strong>で<strong>構成</strong>され、FXAA より少し重いですが、画質のバランスが良いので広く使われます。このページでは、<strong>3 パスの流れ・縁の検出・縁パターンと重みの計算（ルックアップ テクスチャ）・ブレンド・時間方向の拡張（SMAA T2x）</strong>を説明します。
+<strong>SMAA（Subpixel Morphological Anti-Aliasing）</strong>は、FXAA と同じ「画像だけを見る後処理 AA」ですが縁の形（パターン）を分類して、縁がどれだけ画素を覆っているかを「計算」するので、FXAA より、文字や模様をぼかさず、縁がきれいです。3 つのパス（縁検出 → 重みの計算 → ブレンド）で構成され、FXAA より少し重いですが、画質のバランスが良いので広く使われます。このページでは、3 パスの流れ・縁の検出・縁パターンと重みの計算（ルックアップ テクスチャ）・ブレンド・時間方向の拡張（SMAA T2x）を説明します。
 
 !!! tip "ポイント"
     - SMAA ＝ <strong>縁を検出 → 縁の形を分類して、画素の覆われ具合（重み）を計算 → 重みで隣の画素と混ぜる</strong>。
-    - <strong>3 パス</strong>：<strong>① 縁検出</strong>・<strong>② ブレンドの重み</strong>・<strong>③ 近傍ブレンド</strong>。
-    - <strong>FXAA より、文字や細部をぼかさない</strong>。<strong>縁の形に応じて、正確に混ぜる</strong>。
-    - <strong>事前計算した 2 枚のテクスチャ（Area・Search）</strong>を<strong>使う</strong>。
-    - <strong>縁検出は輝度（または色・深度）の差</strong>で行う。
-    - <strong>SMAA T2x</strong> は<strong>ジッターと時間蓄積を足した版</strong>（<strong>TAA の簡易版</strong>）。
+    - <strong>3 パス</strong>：① 縁検出・② ブレンドの重み・③ 近傍ブレンド。
+    - FXAA より、文字や細部をぼかさない。縁の形に応じて、正確に混ぜる。
+    - 事前計算した 2 枚のテクスチャ（Area・Search）を使う。
+    - 縁検出は輝度（または色・深度）の差で行う。
+    - SMAA T2x はジッターと時間蓄積を足した版（TAA の簡易版）。
 
 ## 3 つのパス
 
@@ -32,12 +32,12 @@ tags:
 | パス | 入力 | 出力 |
 | --- | --- | --- |
 | ① 縁検出 | 色（輝度）または深度 | <strong>縁テクスチャ（`R8G8`）：各画素の「左の縁」「上の縁」</strong> |
-| ② ブレンドの重み | 縁テクスチャ・Area・Search | <strong>重みテクスチャ（`R8G8B8A8`）</strong> |
+| ② ブレンドの重み | 縁テクスチャ・Area・Search | 重みテクスチャ（`R8G8B8A8`） |
 | ③ 近傍ブレンド | 元の画像・重みテクスチャ | 最終画像 |
 
 ## ① 縁の検出
 
-<strong>画素とその左・上の画素の輝度を比べ、差がしきい値以上なら縁</strong>です（<strong>さらに「局所コントラストの適応」</strong>で、<strong>近くにより強い縁があれば、弱い縁を無視</strong>します）。
+<strong>画素とその左・上の画素の輝度を比べ、差がしきい値以上なら縁</strong>です（さらに「局所コントラストの適応」で、近くにより強い縁があれば、弱い縁を無視します）。
 
 ```hlsl
 float2 EdgeDetection(float2 uv) {
@@ -53,23 +53,23 @@ float2 EdgeDetection(float2 uv) {
 | 点 | 説明 |
 | --- | --- |
 | 左と上 | 各画素が自分の「左の境」「上の境」の縁を担当（重複を避ける） |
-| <strong>`kThreshold`（0.05〜0.1）</strong> | 縁とみなす輝度差 |
-| 局所コントラスト適応 | <strong>「近くにもっと強い縁がある」とき、弱い縁を捨てる</strong>（テクスチャの細部を縁と誤認しない） |
+| `kThreshold`（0.05〜0.1） | 縁とみなす輝度差 |
+| 局所コントラスト適応 | 「近くにもっと強い縁がある」とき、弱い縁を捨てる（テクスチャの細部を縁と誤認しない） |
 | 深度・色での検出 | 輝度のほか、深度や色（RGB の差）でも検出できる |
 
 ## ② ブレンドの重み
 
-<strong>縁を縁に沿って両方向へたどり、縁の端の形（L 字・Z 字・U 字など）</strong>を<strong>判定</strong>します。<strong>その形と画素の位置から、「この画素のうち、反対側に属する面積の割合（＝ブレンドの重み）」</strong>を<strong>計算</strong>します。
+<strong>縁を縁に沿って両方向へたどり、縁の端の形（L 字・Z 字・U 字など）</strong>を判定します。その形と画素の位置から、「この画素のうち、反対側に属する面積の割合（＝ブレンドの重み）」を計算します。
 
 縁の端の形は、3 種類に分類します。直線は、まっすぐな縁で端が両方開いています。L 字は、縁の端が直角に曲がっています。Z 字や U 字は、縁の端がジグザグやコの字になっています。
 
-<strong>面積の計算は事前に計算した 2 枚のテクスチャ</strong>で<strong>表引き</strong>します。
+面積の計算は事前に計算した 2 枚のテクスチャで表引きします。
 
 面積の計算は、事前に計算した 2 枚のテクスチャで表引きします。Area テクスチャは、縁の形と画素の位置から、覆われる面積（重み）を引きます。Search テクスチャは、縁をたどるときの探索の歩数を効率よく決めます。
 
 原典は、Jimenez らの "SMAA: Enhanced Subpixel Morphological Antialiasing"（Eurographics 2012）です。
 
-これらは<strong>公開されているデータ</strong>をそのまま使います（<strong>自分で作る必要はありません</strong>）。
+これらは公開されているデータをそのまま使います（自分で作る必要はありません）。
 
 <!-- fig:smaa-edge-weights:begin -->
 
@@ -729,7 +729,7 @@ float2 EdgeDetection(float2 uv) {
 
 ## ③ 近傍ブレンド
 
-<strong>重みテクスチャの値に従い、元の画像の隣の画素の色を混ぜます</strong>。<strong>重みが 0 なら、元のまま</strong>です。
+<strong>重みテクスチャの値に従い、元の画像の隣の画素の色を混ぜます</strong>。重みが 0 なら、元のままです。
 
 ```hlsl
 float4 NeighborhoodBlending(float2 uv) {
@@ -750,7 +750,7 @@ float4 NeighborhoodBlending(float2 uv) {
 }
 ```
 
-<strong>重みが 0 の画素（大半）は、そのまま返す</strong>ので<strong>縁でない領域は、まったくぼけません</strong>。
+重みが 0 の画素（大半）は、そのまま返すので縁でない領域は、まったくぼけません。
 
 ## FXAA との違い
 
@@ -764,7 +764,7 @@ float4 NeighborhoodBlending(float2 uv) {
 
 ## SMAA T2x（時間方向）
 
-<strong>SMAA に、TAA のようなジッターと時間蓄積</strong>を<strong>足した</strong>のがSMAA T2xです。1 フレームごとに半画素ずらして描き、前のフレームと混ぜることで、時間的なちらつきも抑えます（[TAA](taa.md)）。SMAA 1x（空間のみ）で足りない場合の軽量な代替です。
+<strong>SMAA に、TAA のようなジッターと時間蓄積</strong>を足したのがSMAA T2xです。1 フレームごとに半画素ずらして描き、前のフレームと混ぜることで、時間的なちらつきも抑えます（[TAA](taa.md)）。SMAA 1x（空間のみ）で足りない場合の軽量な代替です。
 
 ## より良いやり方
 
@@ -782,22 +782,22 @@ float4 NeighborhoodBlending(float2 uv) {
     <strong>公開されているテクスチャ・データをそのまま使う</strong>。
 
 ??? failure "縁テクスチャを、sRGB 形式で作って、値がずれる"
-    <strong>UNORM（リニア）</strong>で作る。
+    UNORM（リニア）で作る。
 
 ??? failure "HDR のまま SMAA を掛けて、縁の検出が不安定"
-    <strong>LDR（トーンマップ後）で行う</strong>。
+    LDR（トーンマップ後）で行う。
 
 ??? failure "テクスチャの細部が、縁と誤検出されて、ぼやける"
-    <strong>しきい値を上げる</strong>、<strong>局所コントラスト適応を有効に</strong>、深度で検出する。
+    しきい値を上げる、局所コントラスト適応を有効に、深度で検出する。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] SMAA ＝ <strong>縁検出 → 縁の形を分類して、面積から重みを計算 → ブレンド</strong>。<strong>3 パス</strong>
-    - [x] <strong>FXAA より、文字・細部をぼかさず、縁がきれい</strong>
-    - [x] <strong>Area・Search テクスチャ</strong>は<strong>公開データを使う</strong>
-    - [x] <strong>LDR・UI の前</strong>に掛ける
-    - [x] <strong>時間的なちらつきには、SMAA T2x か TAA</strong>
+    - [x] SMAA ＝ <strong>縁検出 → 縁の形を分類して、面積から重みを計算 → ブレンド</strong>。3 パス
+    - [x] FXAA より、文字・細部をぼかさず、縁がきれい
+    - [x] Area・Search テクスチャは公開データを使う
+    - [x] LDR・UI の前に掛ける
+    - [x] 時間的なちらつきには、SMAA T2x か TAA
 
 ## 参考
 
