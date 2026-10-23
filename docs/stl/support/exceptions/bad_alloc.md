@@ -14,24 +14,33 @@ tags:
 `#include <new>`
 </div>
 
-`std::bad_alloc` は、**`new` などでメモリが確保できなかった**ときに投げられる例外です。メモリ不足の状態なので、受け取っても、できることは限られます（後片付けして終了、など）。
+標準ライブラリの機能は、前提が満たされないとき、例外を投げて失敗を伝えます。`std::bad_alloc` は、<strong>メモリの確保に失敗したことを表す例外</strong>。
 
 !!! tip "ポイント"
-    - `new (std::nothrow)` なら、投げずに `nullptr`。
-    - メモリ不足でログも出せないことがある。
+    - メモリの確保に失敗したときに `new` が投げる
+    - `new (std::nothrow) T` なら例外を投げず `nullptr` を返す
+    - 捕まえて続行できる場面は少ない
+    - `std::vector` の拡張などでも投げられる
 
 !!! info "このページを読む前に"
-    [標準の例外](../exceptions.md) の概要と合わせて読むと分かりやすいです。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::bad_alloc {#bad_alloc}
 
 ```cpp
-class bad_alloc : public exception;
+class bad_alloc : public std::exception {
+ public:
+  const char* what() const noexcept override;
+};
 ```
 
-- `new` や vector の確保でメモリが足りなかったときに投げられます
+メモリの確保（`new`、`std::vector` の拡張など）に失敗すると投げられます。確保したい量が大きすぎる、空きがないときです。
+
+ゲームでは、この例外を捕まえて続行することは、まれです。確保に失敗した状態では、ほとんど何もできないためです。ログを出して終了する（またはシーンを破棄してメモリを空ける）のが一般的です。
+
+`new (std::nothrow)` を使うと、例外を投げず、`nullptr` を返します。組み込み機器やコンソールで、例外を無効にした環境では、こちらを使います。
 
 ## 実際に動かしてみる
 
@@ -41,44 +50,55 @@ class bad_alloc : public exception;
 
 int main() {
   try {
-    throw std::bad_alloc();   // 実際は new が失敗したときに投げられる
+    void* p = ::operator new(static_cast<std::size_t>(-1) / 2);   // 巨大すぎる確保
+    ::operator delete(p);
   } catch (const std::bad_alloc&) {
-    std::println("メモリ確保失敗");
+    std::println("bad_alloc を捕まえた");
   }
 }
 ```
 
 ```text title="実行結果"
-メモリ確保失敗
+bad_alloc を捕まえた
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 巨大なアセットの読み込みで失敗した | `catch (const std::bad_alloc&)` で、読み込みを諦める |
+メモリ不足でも落ちずに、保存してから終了するといった処理に使います。
+
+```cpp
+try {
+  LoadLevel(path);
+} catch (const std::bad_alloc&) {
+  ShowError("メモリが足りません");
+  UnloadAssets();
+}
+```
 
 ## よくあるミス
 
-??? failure "受け取って処理を続ける"
-    状態が不安定なことがあります。安全に終了する設計にします。
+??? failure "捕まえずに放置して、プログラムが終了する"
+    例外を投げうる機能を使うときは、`try` / `catch` で受けるか、事前に条件を確かめます。
+
+??? failure "`catch (std::exception)` と値で捕まえる"
+    `const` 参照で捕まえます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`nothrow`](../../memory/new_delete/nothrow.md) | 例外ではなく nullptr |
+| [`exception`](exception.md) | すべての標準例外の基底 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++98 から使えます。`<new>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] メモリ確保失敗の例外
-    - [x] 受け取っても出来ることは少ない
-    - [x] nothrow で例外なしにできる
+    - [x] メモリの確保に失敗したときに `new` が投げる
+    - [x] `what()` でメッセージを取れる（内容は実装で違う）
+    - [x] `const` 参照で捕まえる
 
 ## 関連ページ
 

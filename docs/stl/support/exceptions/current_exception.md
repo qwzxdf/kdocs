@@ -15,27 +15,30 @@ tags:
 `#include <exception>`
 </div>
 
-例外をそのまま別のスレッドに渡したい、あとで投げ直したい、というときに、`catch` の中で `current_exception()` を呼んで `exception_ptr` に保存します。`catch` の外で呼ぶと、空の `exception_ptr` が返ります。
+`catch (...)` で捕まえた例外は、型が分かりません。そのまま保存して、あとで投げ直したい。`std::current_exception()` は、<strong>いま処理中の例外を `exception_ptr` として取り出し</strong>ます。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - `catch` の中で呼ぶと、処理中の例外を `exception_ptr` で返す
+    - 例外の処理中でないときは、空の `exception_ptr`
+    - `catch (...)` で捕まえた例外を保存するのに使う
+    - 投げ直すのは `rethrow_exception`
 
 !!! info "このページを読む前に"
-    [例外](../../../basics/index.md) の基本と、[`std::exception`](exception.md) を先に読んでください。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::current_exception {#current_exception}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 std::exception_ptr current_exception() noexcept;
 ```
 
-- 戻り値: 処理中の例外の `exception_ptr`（なければ空）
-- 計算量: 定数
+`catch` ブロックの中で呼ぶと、処理中の例外を指す `std::exception_ptr` を返します。例外を処理していない状況で呼ぶと、空の `exception_ptr` を返します。
 
+型が分からない `catch (...)` でも、これを使えば、例外を失わずに保存できます。
 
 ## 実際に動かしてみる
 
@@ -45,49 +48,51 @@ std::exception_ptr current_exception() noexcept;
 #include <stdexcept>
 
 int main() {
+  std::println("処理中でないとき: 空 = {}", !std::current_exception());
   try {
     throw std::runtime_error("boom");
   } catch (...) {
     std::exception_ptr p = std::current_exception();
-    std::println("{}", p != nullptr);
+    std::println("catch の中: 空でない = {}", static_cast<bool>(p));
   }
-  std::println("{}", std::current_exception() != nullptr);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+処理中でないとき: 空 = true
+catch の中: 空でない = true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 別スレッドの例外をメインスレッドに渡す |
+`catch (...)` で捕まえた例外を保存します。
+
+```cpp
+try { Work(); } catch (...) { error = std::current_exception(); }
+```
 
 ## よくあるミス
 
-??? failure "`catch` の外で呼ぶ"
-    処理中の例外がないと、空のポインタが返ります。
+??? failure "`catch` の外で呼んで、空が返る"
+    `catch` の中で呼びます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`exception_ptr`](exception_ptr.md) | 例外を持ち歩く型 |
+| [`exception_ptr`](exception_ptr.md) | 例外を保持する型 |
 | [`rethrow_exception`](rethrow_exception.md) | 投げ直す |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`<exception>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] いま処理中の例外を、exception_ptr として取り出す
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `current_exception()` は処理中の例外を `exception_ptr` で返す
+    - [x] 処理中でなければ空
+    - [x] `catch (...)` の中で使う
 
 ## 関連ページ
 

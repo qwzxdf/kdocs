@@ -15,15 +15,16 @@ tags:
 `#include <utility>`
 </div>
 
-`std::cmp_less(a, b)` は、**符号つきと符号なしの整数どうしでも、数学的に正しく `a < b` を判定する**関数です。普通の `<` は、符号つきを符号なしに変換して比べるので、`-1 < 1u` が `false` になる事故が起きます。仲間に `cmp_equal`、`cmp_greater` などがあります。
+`-1 < 1u` を実行すると、`false` になります。符号つきの `-1` が、符号なしに変換されて 4294967295 になるためです。コンテナのサイズ（`size_t`、符号なし）と、符号つきの変数を比べるときに、この事故がよく起きます。`std::cmp_less` は、<strong>符号つきと符号なしの整数を、数学的に正しく「より小さい」で比べます</strong>。
 
 !!! tip "ポイント"
-    - `-1 < 1u` は `false`（-1 が巨大な値になる）。`std::cmp_less(-1, 1u)` は `true`。
-    - `size()`（符号なし）と `int` の比較に便利。
-    - C++20 の機能。
+    - `std::cmp_less(-1, 1u)` は、符号を考慮して整数を比べる
+    - `-1 < 1u` のような変換による誤りが起きない
+    - 整数型（`bool` や `char` は不可）が対象
+    - `<utility>` で宣言される
 
 !!! info "このページを読む前に"
-    [小さな便利機能](utility-misc.md) の概要と合わせて読むと分かりやすいです。
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -36,57 +37,70 @@ template <class T, class U>
 constexpr bool cmp_less(T t, U u) noexcept;
 ```
 
-- 符号付きと符号なしの整数を、**数学的に正しく**比べます。普通の `<` では、`-1 < 3u` が false になります（-1 が巨大な符号なし数に変換されるため）
-- ほかに `cmp_greater`、`cmp_less_equal`、`cmp_greater_equal`、`cmp_not_equal` があります
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `t` | 整数型 | 1 つ目の値 |
+| `u` | 整数型 | 2 つ目の値 |
+
+符号つきと符号なしを、暗黙の変換なしに比べます。負の値と符号なしの値を比べるときは、負の数のほうが必ず小さい、という数学的に当然の結果が得られます。
+
+演算子 `<` との違いは、型が混在するときの変換です。演算子では、符号つきが符号なしに変換されて、負の数が巨大な正の数になります。`cmp_less` はこれを避けます。
+
+`bool`、`char`、`char8_t`、`char16_t`、`char32_t`、`wchar_t` は引数にできません（コンパイルエラー）。整数型（`int`、`long`、`unsigned` など）だけが対象です。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <utility>
-#include <vector>
 
 int main() {
-  int index = -1;
-  std::vector<int> v = {1, 2, 3};
-  std::println("< の結果: {}", index < static_cast<long long>(v.size()));
-  std::println("普通の比較だと -1 < 3u は {}", -1 < 3u);  // 警告も出る
-  std::println("cmp_less(-1, 3u) は {}", std::cmp_less(index, v.size()));
+  std::println("演算子 -1 < 1u : {}", -1 < 1u);
+  std::println("cmp_less : {}", std::cmp_less(-1, 1u));
 }
 ```
 
 ```text title="実行結果"
-< の結果: true
-普通の比較だと -1 < 3u は false
-cmp_less(-1, 3u) は true
+演算子 -1 < 1u : false
+cmp_less : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| `int i` と `v.size()` を比べる | `std::cmp_less(i, v.size())` |
+`size()` が返す符号なしの値と、符号つきのインデックスを比べるときに使います。
+
+```cpp
+int index = -1;
+if (std::cmp_less(index, items.size())) { /* 符号を考慮した比較 */ }
+```
+
+コンパイラの「符号の異なる整数の比較」の警告 (`-Wsign-compare`) も、この関数で解消できます。
 
 ## よくあるミス
 
-??? failure "符号の混ざった比較で警告を無視する"
-    `-Wsign-compare` の警告は、本当にバグです。`cmp_less` を使います。
+??? failure "`bool` や `char` を渡してコンパイルエラーになる"
+    整数型に直してから渡します。
+
+??? failure "浮動小数点数を渡す"
+    整数専用です。浮動小数点数は通常の演算子で比べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`cmp_equal`](cmp_equal.md) | 等しいか |
-| [`in_range`](in_range.md) | 範囲に収まるか |
+| [`in_range`](in_range.md) | 値が型の範囲に収まるか |
+| [`cmp_equal`](cmp_equal.md) | 安全な == 比較 |
 
 ## コンパイラ対応
 
-C++17〜C++23 の機能です。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.x 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 符号の混ざった整数を正しく比べる
-    - [x] `-1 < 1u` の事故を防ぐ
-    - [x] C++20
+    - [x] `cmp_less` は符号を考慮して整数を比べる
+    - [x] 演算子では、符号つきが符号なしに変換されて誤る
+    - [x] 整数型だけが対象
 
 ## 関連ページ
 

@@ -15,14 +15,16 @@ tags:
 `#include <functional>`
 </div>
 
-`std::bad_function_call` は、**何も入っていない（空の）`std::function` を呼び出した**ときに投げられる例外です。コールバックが未設定のときに起こります。呼ぶ前に `if (f)` で確認すれば避けられます。
+標準ライブラリの機能は、前提が満たされないとき、例外を投げて失敗を伝えます。`std::bad_function_call` は、<strong>空の `std::function` を呼び出したことを表す例外</strong>。
 
 !!! tip "ポイント"
-    - `if (callback) callback();` で確認してから呼ぶ。
-    - ゲームで例外を切っているなら、空の呼び出しは未定義動作になることがある。
+    - 空の `std::function` を呼ぶと投げられる
+    - `if (f)` で、空かどうかを確かめられる
+    - `<functional>` で宣言される
+    - コールバックの設定忘れで起きる
 
 !!! info "このページを読む前に"
-    [標準の例外](../exceptions.md) の概要と合わせて読むと分かりやすいです。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -35,54 +37,65 @@ class bad_function_call : public std::exception {
 };
 ```
 
-- 戻り値: （例外クラス）。`what()` でメッセージ
-- 計算量: O(1)
+何も代入されていない `std::function` を呼び出すと、投げられます。コールバックを後から設定する仕組みで、設定前に呼ぶ間違いが典型です。
+
+呼び出す前に `if (f)` で空でないことを確かめれば、避けられます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <functional>
 #include <print>
 
 int main() {
-  std::function<void()> callback;  // 空
+  std::function<void()> callback;      // 空
   try {
     callback();
   } catch (const std::bad_function_call&) {
-    std::println("コールバックが未設定");
+    std::println("bad_function_call を捕まえた");
   }
+  std::println("空かどうかは if で分かる: {}", !callback);
 }
 ```
 
 ```text title="実行結果"
-コールバックが未設定
+bad_function_call を捕まえた
+空かどうかは if で分かる: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 未登録のイベントコールバックを呼んでしまった | `if (on_click) on_click();` |
+コールバックを呼ぶ前に、空でないか確かめます。
+
+```cpp
+if (on_hit) on_hit(damage);   // 例外を避ける
+```
 
 ## よくあるミス
 
-??? failure "確認せずに呼ぶ"
-    呼ぶ前に必ず確認します。
+??? failure "捕まえずに放置して、プログラムが終了する"
+    例外を投げうる機能を使うときは、`try` / `catch` で受けるか、事前に条件を確かめます。
+
+??? failure "`catch (std::exception)` と値で捕まえる"
+    `const` 参照で捕まえます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::function`](../../utilities/function.md) | 本体 |
+| [`exception`](exception.md) | すべての標準例外の基底 |
+| [`function`](../../utilities/function.md) | 呼び出し可能なものを保持する |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++11 から使えます。`<functional>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 空の function を呼ぶと投げる
-    - [x] 呼ぶ前に `if (f)`
-    - [x] 未設定のコールバックで起きる
+    - [x] 空の `std::function` を呼ぶと投げられる
+    - [x] `what()` でメッセージを取れる（内容は実装で違う）
+    - [x] `const` 参照で捕まえる
 
 ## 関連ページ
 

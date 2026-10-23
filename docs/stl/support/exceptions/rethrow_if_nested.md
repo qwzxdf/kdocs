@@ -15,19 +15,22 @@ tags:
 `#include <exception>`
 </div>
 
-`throw_with_nested` で包まれた例外には、元の例外が入っています。`rethrow_if_nested(e)` は、`e` が包まれた例外をもっていれば、それを投げ直し、もっていなければ何もしません。再帰で原因の鎖をたどるときに使います。
+入れ子になった例外の、内側の例外を取り出したい。`std::rethrow_if_nested(e)` は、<strong>`e` が内側の例外を持っていれば、それを投げ直します</strong>。持っていなければ何もしません。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - `e` が内側の例外を持てば、それを投げる
+    - 持たなければ何もしない
+    - 再帰的に呼んで、原因の連鎖をたどる
+    - `throw_with_nested` で作った例外に使う
 
 !!! info "このページを読む前に"
-    [例外](../../../basics/index.md) の基本と、[`std::exception`](exception.md) を先に読んでください。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::rethrow_if_nested {#rethrow_if_nested}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
 template <class E>
@@ -36,11 +39,11 @@ void rethrow_if_nested(const E& e);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `e` | 例外 | 調べる例外 |
+| `e` | 例外オブジェクト | 内側を調べる例外 |
 
-- 戻り値: なし（包まれた例外があれば投げ直す）
-- 計算量: 定数
+`e` が `nested_exception` を継承していて、内側の例外が空でなければ、その内側の例外を投げます。そうでなければ、何も起きずに戻ります。
 
+`catch` を再帰的に書いて、外側から内側へ、すべての原因をたどる処理に使います（上のコードの `Print` 関数）。
 
 ## 実際に動かしてみる
 
@@ -49,56 +52,63 @@ void rethrow_if_nested(const E& e);
 #include <print>
 #include <stdexcept>
 
+void Load() {
+  try {
+    throw std::runtime_error("ファイルがない");
+  } catch (...) {
+    std::throw_with_nested(std::runtime_error("読み込みに失敗"));   // 元の例外を内側に入れて投げる
+  }
+}
+
+void Print(const std::exception& e) {
+  std::println("{}", e.what());
+  try {
+    std::rethrow_if_nested(e);                // 内側があれば投げ直す
+  } catch (const std::exception& inner) {
+    Print(inner);
+  }
+}
+
 int main() {
   try {
-    try {
-      throw std::runtime_error("inner");
-    } catch (...) {
-      std::throw_with_nested(std::logic_error("outer"));
-    }
+    Load();
   } catch (const std::exception& e) {
-    std::println("{}", e.what());
-    try {
-      std::rethrow_if_nested(e);
-    } catch (const std::exception& inner) {
-      std::println("{}", inner.what());
-    }
+    Print(e);
   }
 }
 ```
 
 ```text title="実行結果"
-outer
-inner
+読み込みに失敗
+ファイルがない
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 例外の原因の鎖をログに全部出す |
+ログ出力で、原因の連鎖を、外側から内側へ出力します。（上のコードの `Print` 関数）
 
 ## よくあるミス
 
-??? failure "包まれていない例外を気にして `try` を省く"
-    包まれていなければ何も起きません。`catch` の中で使うので、`try` で囲む必要があります。
+??? failure "投げ直された例外を捕まえず、終了する"
+    `try` / `catch` で受けます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`throw_with_nested`](throw_with_nested.md) | 包んで投げる |
+| [`nested_exception`](nested_exception.md) | 内側を持つ基底 |
+| [`throw_with_nested`](throw_with_nested.md) | 入れ子にして投げる |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`<exception>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 包まれた例外があれば、それを取り出して投げ直す
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `rethrow_if_nested(e)` は内側の例外があれば投げ直す
+    - [x] なければ何もしない
+    - [x] 再帰で原因をたどる
 
 ## 関連ページ
 

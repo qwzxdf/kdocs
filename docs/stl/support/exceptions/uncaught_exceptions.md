@@ -15,27 +15,32 @@ tags:
 `#include <exception>`
 </div>
 
-デストラクタの中で、「例外のせいで呼ばれたのか、普通に抜けたのか」を知りたいことがあります（スコープガードが、失敗したときだけ後始末をする場合など）。`uncaught_exceptions()` が、いま巻き戻している最中の例外の数を返します。
+デストラクターの中で、「いま例外が飛んでいる最中か」を知りたいことがあります。正常に破棄されたときだけコミットし、例外で巻き戻されているときはロールバックしたい、といった処理です。`std::uncaught_exceptions()` は、<strong>いま処理中（まだ捕まっていない）の例外の数</strong>を返します。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - 処理中の例外の数を返す
+    - デストラクターで「例外による巻き戻し中か」が分かる
+    - 正常終了なら 0、例外中なら 1 以上
+    - 古い `uncaught_exception()` の代わり
 
 !!! info "このページを読む前に"
-    [例外](../../../basics/index.md) の基本と、[`std::exception`](exception.md) を先に読んでください。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::uncaught_exceptions {#uncaught_exceptions}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
 int uncaught_exceptions() noexcept;
 ```
 
-- 戻り値: 処理中の例外の数
-- 計算量: 定数
+例外が投げられて、`catch` に着くまでの間（スタックの巻き戻し中）は、1 以上を返します。通常の実行中は 0 です。
 
+デストラクターの先頭で呼んで、作成時の値と比べると、「このオブジェクトの寿命の間に、新しい例外が投げられたか」が分かります。これにより、スコープ ガード（正常終了ならコミット、例外ならロールバック）が書けます。
+
+古い `std::uncaught_exception()`（bool を返す）は、C++17 で非推奨になり、C++20 で削除されました。
 
 ## 実際に動かしてみる
 
@@ -44,53 +49,60 @@ int uncaught_exceptions() noexcept;
 #include <print>
 
 struct Guard {
-  ~Guard() { std::println("{}", std::uncaught_exceptions()); }
+  ~Guard() { std::println("破棄時の例外の数: {}", std::uncaught_exceptions()); }
 };
 
 int main() {
-  {
-    Guard g;
-  }
+  { Guard g; }                       // 正常に破棄される
   try {
     Guard g;
-    throw 1;
-  } catch (...) {
-  }
+    throw 1;                         // 例外で巻き戻される
+  } catch (int) {}
 }
 ```
 
 ```text title="実行結果"
-0
-1
+破棄時の例外の数: 0
+破棄時の例外の数: 1
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | スコープガードで、成功と失敗を区別する |
+スコープ ガードで、正常終了と例外を見分けます。
+
+```cpp
+class Transaction {
+  int exceptions_ = std::uncaught_exceptions();
+ public:
+  ~Transaction() {
+    if (std::uncaught_exceptions() == exceptions_) Commit();   // 例外なし
+    else Rollback();
+  }
+};
+```
 
 ## よくあるミス
 
-??? failure "`uncaught_exception()`（単数）を使う"
-    古い `uncaught_exception()` は C++17 で削除されました。数を返す版を使います。
+??? failure "デストラクターから例外を投げる"
+    デストラクターは `noexcept` のままにします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`exception_ptr`](exception_ptr.md) | 例外を持ち歩く |
+| [`current_exception`](current_exception.md) | 処理中の例外を取る |
+| [`terminate`](terminate.md) | 異常終了 |
 
 ## コンパイラ対応
 
-C++17 から使えます。
+C++17 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] いま処理中（スタックを巻き戻している最中）の例外の数を返す
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `uncaught_exceptions()` は処理中の例外の数
+    - [x] スコープ ガードで、正常と例外を見分けられる
+    - [x] 古い `uncaught_exception()` の後継
 
 ## 関連ページ
 

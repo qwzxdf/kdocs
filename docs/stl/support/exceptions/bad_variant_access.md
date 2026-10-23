@@ -15,14 +15,16 @@ tags:
 `#include <variant>`
 </div>
 
-`std::bad_variant_access` は、**`std::variant` が今持っていない型を、`std::get<T>` で取り出そうとした**ときに投げられる例外です。例外を避けるなら、[`std::get_if`](../../utilities/get_if.md) か [`std::visit`](../../utilities/visit.md) を使います。
+標準ライブラリの機能は、前提が満たされないとき、例外を投げて失敗を伝えます。`std::bad_variant_access` は、<strong>保持していない型を `std::variant` から取り出したことを表す例外</strong>。
 
 !!! tip "ポイント"
-    - `std::get<T>(v)` は違う型だと例外。`get_if` はポインターで安全に確認できる。
-    - 値を持たない特別な状態（`valueless_by_exception`）でも `visit` が投げる。
+    - 違う型を `get` すると投げられる
+    - `std::get_if` なら `nullptr` を返す
+    - `std::holds_alternative` で型を確かめられる
+    - `<variant>` で宣言される
 
 !!! info "このページを読む前に"
-    [標準の例外](../exceptions.md) の概要と合わせて読むと分かりやすいです。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -35,55 +37,66 @@ class bad_variant_access : public std::exception {
 };
 ```
 
-- 戻り値: （例外クラス）。`what()` でメッセージ
-- 計算量: O(1)
+`std::variant` に、別の型の値が入っているとき、`std::get<T>(v)` で違う型を取り出そうとすると、投げられます。`std::get_if` は、例外を投げず、`nullptr` を返します。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <variant>
 
 int main() {
-  std::variant<int, float> v = 1;
+  std::variant<int, float> v = 10;     // int を保持
   try {
-    std::get<float>(v);
+    float f = std::get<float>(v);      // float ではない
+    (void)f;
   } catch (const std::bad_variant_access&) {
-    std::println("違う型が入っている");
+    std::println("bad_variant_access を捕まえた");
   }
+  std::println("get_if なら安全: {}", std::get_if<float>(&v) == nullptr);
 }
 ```
 
 ```text title="実行結果"
-違う型が入っている
+bad_variant_access を捕まえた
+get_if なら安全: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 状態の取り違えを、デバッグで検出する | `std::get<Moving>(state)` |
+型を確かめてから取り出します。
+
+```cpp
+if (const int* p = std::get_if<int>(&v)) { /* int を保持していた */ }
+```
+
+すべての型を網羅する処理は、`std::visit` を使うほうが安全です。
 
 ## よくあるミス
 
-??? failure "例外を使わない方針なのに get を使う"
-    `get_if` を使います。
+??? failure "捕まえずに放置して、プログラムが終了する"
+    例外を投げうる機能を使うときは、`try` / `catch` で受けるか、事前に条件を確かめます。
+
+??? failure "`catch (std::exception)` と値で捕まえる"
+    `const` 参照で捕まえます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::variant`](../../utilities/variant.md) | 本体 |
-| [`std::get_if`](../../utilities/get_if.md) | 例外を投げない取り出し |
+| [`exception`](exception.md) | すべての標準例外の基底 |
+| [`variant`](../../utilities/variant.md) | 複数の型のうち 1 つを持つ型 |
 
 ## コンパイラ対応
 
-C++17 の機能です。
+C++17 から使えます。`<variant>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 違う型を get すると投げる
-    - [x] `get_if` は投げない
-    - [x] visit は全型を処理
+    - [x] 違う型を `get` すると投げられる
+    - [x] `what()` でメッセージを取れる（内容は実装で違う）
+    - [x] `const` 参照で捕まえる
 
 ## 関連ページ
 

@@ -15,75 +15,86 @@ tags:
 `#include <compare>`
 </div>
 
-`<=>` は型によって結果の強さが違います。`strong_order(a, b)` は、`strong_ordering` を必ず返す比較で、型が `<=>` を持たなくても、浮動小数点なら全順序のルールに従って比べます。
+`<=>` が使えない型や、使えても意味が足りない型（浮動小数点数の NaN や符号つきゼロ）を、指定した強さの順序で比べたい。`std::strong_order` は、<strong>2 つの値を全順序で比較する</strong>関数オブジェクトです。
 
 !!! tip "ポイント"
-    - `<compare>` の部品。
-    - C++20 の三方比較（`<=>`）と組み合わせて使う。
-    - ふつうは `=default` の `<=>` で足りる。
+    - `std::strong_order(a, b)` は `std::strong_ordering` を返す
+    - 浮動小数点数の NaN や `-0.0` の扱いが、順序の強さで違う
+    - `<=>` があればそれを、なければ代わりの手段を探す
+    - `<compare>` で宣言される
 
 !!! info "このページを読む前に"
-    [`<=>`（宇宙船演算子）](spaceship.md) を先に読んでください。
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::strong_order {#strong_order}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-inline constexpr /* カスタマイズポイント */ strong_order;
+inline constexpr /* カスタマイズ ポイント オブジェクト */ strong_order;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `a, b` | 型 | 比べる 2 つの値 |
+| `a` | 値 | 1 つ目の値 |
+| `b` | 値 | 2 つ目の値 |
 
-- 戻り値: `std::strong_ordering`
-- 計算量: 定数
+`std::strong_order` は、2 つの値を比べて `std::strong_ordering` の値を返します。浮動小数点数に対しては、型ごとに決まった規則で、NaN や符号つきゼロも比べられます。
 
+`strong_order` は、すべての値（NaN を含む）に全順序を与えます。`-0.0` と `0.0` も区別します。`weak_order` は `-0.0` と `0.0` を同値とし、NaN は一番大きい値として扱います。`partial_order` は、NaN を含む比較を `unordered` とします。
+
+用途は、浮動小数点数を含む値の並べ替えです。NaN が混ざっていても、順序が壊れない並べ替えには `strong_order` や `weak_order` を使います。
 
 ## 実際に動かしてみる
 
 ```cpp
-#include <cmath>
 #include <compare>
+#include <limits>
 #include <print>
 
 int main() {
-  std::println("{}", std::is_lt(std::strong_order(1, 2)));
+  [[maybe_unused]] const double nan = std::numeric_limits<double>::quiet_NaN();
+  std::println("strong_order(-0.0, 0.0) は less : {}", std::strong_order(-0.0, 0.0) == std::strong_ordering::less);
 }
 ```
 
 ```text title="実行結果"
-true
+strong_order(-0.0, 0.0) は less : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 浮動小数点も含めて、一貫した順序で整列する |
+浮動小数点数の配列を、NaN が混ざっても壊れずに並べ替えるときに使います。
+
+```cpp
+std::ranges::sort(values, [](double a, double b) { return std::is_lt(std::weak_order(a, b)); });
+```
 
 ## よくあるミス
 
-??? failure "浮動小数点で `<` と混ぜる"
-    `strong_order` は NaN を含めた順序を決めます。`<` の結果とは違うことがあります。
+??? failure "`<` で NaN を含む配列を並べ替えて、順序が壊れる"
+    `weak_order` か `strong_order` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`strong_ordering`](strong_ordering.md) | 結果の型 |
+| [`strong_order`](strong_order.md) | 全順序 |
+| [`weak_order`](weak_order.md) | 弱順序 |
+| [`partial_order`](partial_order.md) | 半順序 |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.x 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 強い順序（等しいものは区別できない）で比べる
-    - [x] `<compare>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `strong_order(a, b)` は全順序で比較する
+    - [x] 浮動小数点数の NaN や `-0.0` を扱える
+    - [x] 並べ替えを壊さないために使う
 
 ## 関連ページ
 

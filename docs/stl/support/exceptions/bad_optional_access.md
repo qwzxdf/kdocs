@@ -15,14 +15,16 @@ tags:
 `#include <optional>`
 </div>
 
-`std::bad_optional_access` は、**中身が空の `std::optional` に対して `value()` を呼んだ**ときに投げられる例外です。`*opt`（`operator*`）は例外を投げず、空だと未定義動作なので、値があると確かめてから使うか、`value_or` を使うのが安全です。
+標準ライブラリの機能は、前提が満たされないとき、例外を投げて失敗を伝えます。`std::bad_optional_access` は、<strong>値を持たない `std::optional` から値を取り出したことを表す例外</strong>。
 
 !!! tip "ポイント"
-    - `value()` は空だと例外、`*opt` は未定義動作、`value_or(既定値)` は安全。
-    - ゲームで例外を切っているなら、`has_value()` で先に確認する。
+    - 値のない `optional` の `value()` が投げる
+    - `*opt` は例外ではなく未定義動作になる
+    - `has_value()` か `value_or(既定値)` で避けられる
+    - `<optional>` で宣言される
 
 !!! info "このページを読む前に"
-    [標準の例外](../exceptions.md) の概要と合わせて読むと分かりやすいです。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -35,54 +37,64 @@ class bad_optional_access : public std::exception {
 };
 ```
 
-- 戻り値: （例外クラス）。`what()` でメッセージ
-- 計算量: O(1)
+値が入っていない `std::optional` に対して、`value()` を呼ぶと投げられます。`*opt` や `opt->` は、例外を投げず、未定義動作になるので、事前に `has_value()` で確かめます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <optional>
 #include <print>
 
 int main() {
-  std::optional<int> hp;
+  std::optional<int> hp;               // 値なし
   try {
-    hp.value();
+    int v = hp.value();
+    (void)v;
   } catch (const std::bad_optional_access&) {
-    std::println("値が入っていない");
+    std::println("bad_optional_access を捕まえた");
   }
+  std::println("value_or なら安全: {}", hp.value_or(100));
 }
 ```
 
 ```text title="実行結果"
-値が入っていない
+bad_optional_access を捕まえた
+value_or なら安全: 100
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 検索結果が見つからなかったことを検出する | `value_or(0)` か `has_value()` |
+値が入っていないかもしれない `optional` を、既定値つきで取り出します。
+
+```cpp
+const int hp = saved_hp.value_or(100);   // 例外を使わずに済む
+```
 
 ## よくあるミス
 
-??? failure "例外を投げると思って *opt する"
-    `*opt` は空だと未定義動作です。
+??? failure "捕まえずに放置して、プログラムが終了する"
+    例外を投げうる機能を使うときは、`try` / `catch` で受けるか、事前に条件を確かめます。
+
+??? failure "`catch (std::exception)` と値で捕まえる"
+    `const` 参照で捕まえます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::optional`](../../utilities/optional.md) | 本体 |
+| [`exception`](exception.md) | すべての標準例外の基底 |
+| [`optional`](../../utilities/optional.md) | 値があるかもしれない型 |
 
 ## コンパイラ対応
 
-C++17 の機能です。
+C++17 から使えます。`<optional>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 空の optional の value() が投げる
-    - [x] `*opt` は投げない（未定義）
-    - [x] value_or が安全
+    - [x] 値のない `optional` の `value()` が投げる
+    - [x] `what()` でメッセージを取れる（内容は実装で違う）
+    - [x] `const` 参照で捕まえる
 
 ## 関連ページ
 

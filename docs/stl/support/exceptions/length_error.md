@@ -15,28 +15,40 @@ tags:
 `#include <stdexcept>`
 </div>
 
-`std::length_error` は、**コンテナなどが許される最大の長さ（`max_size()`）を超える大きさを求められた**ときに投げられる例外です。`vector::reserve` に巨大な値を渡したときなどに起きます。入力の大きさをそのまま確保に使うコードの検査に役立ちます。
+関数に不正な値を渡されたとき、呼び出し側に何が悪かったかを伝える方法が必要です。`std::length_error` は、<strong>長さの制限を超えることを表す例外</strong>です。`std::logic_error` から派生した例外クラスの 1 つで、エラーの種類を型で区別できます。
 
 !!! tip "ポイント"
-    - `logic_error` の派生クラス。
-    - 大きすぎる値は、確保の前に自分で上限を確認する。
+    - `throw std::length_error("メッセージ")` で投げる
+    - `what()` でメッセージを取り出せる
+    - `std::logic_error` と `std::exception` の派生クラス
+    - `catch (const std::length_error&)` で、この種類だけを捕まえられる
 
 !!! info "このページを読む前に"
-    [標準の例外](../exceptions.md) の概要と合わせて読むと分かりやすいです。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::length_error {#length_error}
 
 ```cpp
-class length_error : public std::exception {
+class length_error : public logic_error {
  public:
-  const char* what() const noexcept override;
+  explicit length_error(const std::string& what_arg);
+  explicit length_error(const char* what_arg);
 };
 ```
 
-- 戻り値: （例外クラス）。`what()` でメッセージ
-- 計算量: O(1)
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `what_arg` | 文字列 | `what()` で返すメッセージ |
+
+`max_size()` を超えるサイズを要求されたとき に投げます。呼び出し側は、`catch (const std::length_error&)` で、この種類のエラーだけを捕まえて、対処できます。
+
+`what()` が返すメッセージは、コンストラクターに渡した文字列です。標準ライブラリの関数が投げる場合のメッセージは、実装で違います。
+
+`std::length_error` は `std::logic_error` の仲間で、プログラムの誤りとして、呼び出し前の検査で防げるはずのエラーを表します。実行時の環境（ファイルがない、ネットワーク切断）による失敗は、`std::runtime_error` 系で表します。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
@@ -46,45 +58,56 @@ class length_error : public std::exception {
 int main() {
   std::vector<int> v;
   try {
-    v.reserve(v.max_size() + 1);
+    v.reserve(v.max_size() + 1);        // 許される最大の長さを超える
   } catch (const std::length_error&) {
-    std::println("大きすぎる");
+    std::println("length_error を捕まえた");
   }
 }
 ```
 
 ```text title="実行結果"
-大きすぎる
+length_error を捕まえた
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 読み込んだデータの大きさが異常でないか | 確保する前に上限を確認する |
+自作の関数で、引数の検査に使います。
+
+```cpp
+void Spawn(int count) {
+  if (count < 0) throw std::length_error("count は 0 以上");
+  // …
+}
+```
+
+ゲームでは、例外を使わない設計（戻り値でエラーを返す）も多いです。例外を使うのは、ファイルの読み込みなど、まれな失敗に限るのが一般的です。
 
 ## よくあるミス
 
-??? failure "bad_alloc と取り違える"
-    `length_error` は「大きさが上限を超えた」、`bad_alloc` は「メモリが足りなかった」です。
+??? failure "値で捕まえて、派生クラスの情報が切り取られる"
+    `catch (const std::length_error&)` のように、`const` 参照で捕まえます。
+
+??? failure "エラーを握りつぶす"
+    `catch (...) {}` で何もしないと、原因が分からなくなります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`bad_alloc`](bad_alloc.md) | メモリ不足 |
-| [`logic_error`](logic_error.md) | 親 |
+| [`logic_error`](logic_error.md) | 基底クラス |
+| [`runtime_error`](runtime_error.md) | 実行時の誤り |
+| [`exception`](exception.md) | すべての標準例外の基底 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。`<stdexcept>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 最大の長さを超えた
-    - [x] reserve などが投げる
-    - [x] メモリ不足とは別
+    - [x] `std::length_error` は長さの制限を超えることを表す例外
+    - [x] `std::logic_error` の派生で、`what()` でメッセージを取れる
+    - [x] `const` 参照で捕まえる
 
 ## 関連ページ
 

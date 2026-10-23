@@ -14,84 +14,96 @@ tags:
 `#include <exception>`
 </div>
 
-`std::exception_ptr` は、**例外を（ポインターのように）保存しておいて、あとで別の場所や別のスレッドで投げ直せる**型です。ワーカースレッドで起きた例外を、メインスレッドへ運ぶときに使います。`std::future` が内部でやっていることです。
+例外は、投げられたスレッドの中で捕まえるのが普通です。ですが、別のスレッドで起きた例外を、メイン スレッドに運んで投げ直したい場面があります。`std::exception_ptr` は、<strong>例外を保持して、持ち運べる型</strong>です。
 
 !!! tip "ポイント"
-    - `std::current_exception()` で、`catch` の中で今の例外を保存する。
-    - `std::rethrow_exception(p)` で投げ直す。
-    - `std::async` / `future::get()` は、これを自動でやってくれる。
+    - 例外を保持して持ち運べる型
+    - `current_exception()` で作り、`rethrow_exception()` で投げ直す
+    - 別スレッドの例外を運ぶのに使われる
+    - 空かどうかは `if (ptr)` で確かめる
 
 !!! info "このページを読む前に"
-    [標準の例外](../exceptions.md) の概要と合わせて読むと分かりやすいです。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::exception_ptr {#exception_ptr}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-std::exception_ptr std::current_exception() noexcept;
-[[noreturn]] void std::rethrow_exception(std::exception_ptr p);
+using exception_ptr = /* 実装定義 */;
 ```
 
-- 今処理中の例外を保存して、あとで（別のスレッドで）投げ直せます。`std::async` の例外が `get()` で投げ直される仕組みもこれです
+`std::current_exception()` で、`catch` の中の例外を `exception_ptr` に保存し、あとで `std::rethrow_exception()` で投げ直せます。
+
+`std::future` や `std::promise` が、別スレッドの例外を呼び出し側に運ぶ仕組みも、内部でこれを使っています。
+
+`exception_ptr` はコピーでき、コピーしても同じ例外オブジェクトを共有します。空の `exception_ptr` は、`nullptr` と比べて判定できます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <exception>
 #include <print>
 #include <stdexcept>
-#include <thread>
 
 int main() {
-  std::exception_ptr error;
-  std::jthread([&error] {
-    try {
-      throw std::runtime_error("スレッドの中で失敗");
-    } catch (...) {
-      error = std::current_exception();  // 保存しておく
-    }
-  }).join();
+  std::exception_ptr saved;
+  try {
+    throw std::runtime_error("読み込み失敗");
+  } catch (...) {
+    saved = std::current_exception();      // 例外を保存する
+  }
 
   try {
-    if (error) {
-      std::rethrow_exception(error);  // メインスレッドで投げ直す
-    }
-  } catch (const std::exception& e) {
-    std::println("{}", e.what());
+    std::rethrow_exception(saved);         // あとで投げ直す
+  } catch (const std::runtime_error& e) {
+    std::println("再び捕まえた: {}", e.what());
   }
 }
 ```
 
 ```text title="実行結果"
-スレッドの中で失敗
+再び捕まえた: 読み込み失敗
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ワーカースレッドの例外を、メインスレッドへ運ぶ | `std::current_exception()` → `std::rethrow_exception()` |
+ワーカー スレッドの失敗を、メイン スレッドに運びます。
+
+```cpp
+std::exception_ptr error;
+std::thread worker([&] {
+  try { LoadAssets(); } catch (...) { error = std::current_exception(); }
+});
+worker.join();
+if (error) std::rethrow_exception(error);   // メイン スレッドで投げ直す
+```
 
 ## よくあるミス
 
-??? failure "catch の外で current_exception を呼ぶ"
-    空の `exception_ptr` が返ります。
+??? failure "保存した例外を、スレッドをまたいで同時に触る"
+    `exception_ptr` 自体のコピーは安全ですが、指す先の例外オブジェクトを書き換えないようにします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::future`](../../concurrency/future.md) | 自動で運んでくれる |
+| [`current_exception`](current_exception.md) | 今の例外を取る |
+| [`rethrow_exception`](rethrow_exception.md) | 投げ直す |
+| [`make_exception_ptr`](make_exception_ptr.md) | 例外から作る |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`<exception>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 例外を保存して投げ直す
-    - [x] スレッドをまたいで運べる
-    - [x] `future` が内部で使う
+    - [x] `exception_ptr` は例外を保持して持ち運ぶ型
+    - [x] `current_exception` で作り、`rethrow_exception` で投げ直す
+    - [x] 別スレッドの例外を運ぶのに使う
 
 ## 関連ページ
 

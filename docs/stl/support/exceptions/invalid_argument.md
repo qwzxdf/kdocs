@@ -14,73 +14,101 @@ tags:
 `#include <stdexcept>`
 </div>
 
-`std::invalid_argument` は、**関数に渡された引数の値が不正だった**ことを表す例外です。`std::stoi("abc")` が、数字として読めない文字列に対して投げます。自作の関数でも、引数の検査に使えます。
+関数に不正な値を渡されたとき、呼び出し側に何が悪かったかを伝える方法が必要です。`std::invalid_argument` は、<strong>引数が不正であることを表す例外</strong>です。`std::logic_error` から派生した例外クラスの 1 つで、エラーの種類を型で区別できます。
 
 !!! tip "ポイント"
-    - `std::stoi` / `std::stof` は、変換できないと投げる。
-    - `logic_error` の派生クラス。
+    - `throw std::invalid_argument("メッセージ")` で投げる
+    - `what()` でメッセージを取り出せる
+    - `std::logic_error` と `std::exception` の派生クラス
+    - `catch (const std::invalid_argument&)` で、この種類だけを捕まえられる
 
 !!! info "このページを読む前に"
-    [標準の例外](../exceptions.md) の概要と合わせて読むと分かりやすいです。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::invalid_argument {#invalid_argument}
 
 ```cpp
-class invalid_argument : public logic_error;
+class invalid_argument : public logic_error {
+ public:
+  explicit invalid_argument(const std::string& what_arg);
+  explicit invalid_argument(const char* what_arg);
+};
 ```
 
-- 引数がおかしいことを表します。`std::stoi` などに数字で始まらない文字列を渡すと投げられます
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `what_arg` | 文字列 | `what()` で返すメッセージ |
+
+範囲外の音量や、空の名前など、関数に渡された値が受け付けられないとき に投げます。呼び出し側は、`catch (const std::invalid_argument&)` で、この種類のエラーだけを捕まえて、対処できます。
+
+`what()` が返すメッセージは、コンストラクターに渡した文字列です。標準ライブラリの関数が投げる場合のメッセージは、実装で違います。
+
+`std::invalid_argument` は `std::logic_error` の仲間で、プログラムの誤りとして、呼び出し前の検査で防げるはずのエラーを表します。実行時の環境（ファイルがない、ネットワーク切断）による失敗は、`std::runtime_error` 系で表します。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <stdexcept>
-#include <string>
+
+void SetVolume(int v) {
+  if (v < 0 || v > 100) throw std::invalid_argument("volume は 0〜100");
+}
 
 int main() {
   try {
-    std::stoi("abc");   // 数字として読めない
-  } catch (const std::invalid_argument&) {
-    std::println("不正な引数");
+    SetVolume(150);
+  } catch (const std::invalid_argument& e) {
+    std::println("エラー: {}", e.what());
   }
 }
 ```
 
 ```text title="実行結果"
-不正な引数
+エラー: volume は 0〜100
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 設定値が不正なときに投げる | `throw std::invalid_argument("hp must be positive");` |
+自作の関数で、引数の検査に使います。
+
+```cpp
+void Spawn(int count) {
+  if (count < 0) throw std::invalid_argument("count は 0 以上");
+  // …
+}
+```
+
+ゲームでは、例外を使わない設計（戻り値でエラーを返す）も多いです。例外を使うのは、ファイルの読み込みなど、まれな失敗に限るのが一般的です。
 
 ## よくあるミス
 
-??? failure "例外を握りつぶす"
-    `catch (...) {}` で黙殺すると、原因が分からなくなります。
+??? failure "値で捕まえて、派生クラスの情報が切り取られる"
+    `catch (const std::invalid_argument&)` のように、`const` 参照で捕まえます。
+
+??? failure "エラーを握りつぶす"
+    `catch (...) {}` で何もしないと、原因が分からなくなります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`out_of_range`](out_of_range.md) | 範囲外 |
-| [`std::from_chars`](../../io/from_chars.md) | 例外なしの変換 |
+| [`logic_error`](logic_error.md) | 基底クラス |
+| [`runtime_error`](runtime_error.md) | 実行時の誤り |
+| [`exception`](exception.md) | すべての標準例外の基底 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++98 から使えます。`<stdexcept>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 引数が不正
-    - [x] `stoi` が投げる
-    - [x] logic_error の仲間
+    - [x] `std::invalid_argument` は引数が不正であることを表す例外
+    - [x] `std::logic_error` の派生で、`what()` でメッセージを取れる
+    - [x] `const` 参照で捕まえる
 
 ## 関連ページ
 

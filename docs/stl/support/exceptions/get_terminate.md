@@ -15,71 +15,79 @@ tags:
 `#include <exception>`
 </div>
 
-`set_terminate` で設定したハンドラを、あとで読み出します。ハンドラを一時的に差し替えて、あとで元に戻したいときなどに使います。
+`std::set_terminate` で登録した関数を、あとから確認したい。`std::get_terminate()` は、<strong>現在登録されている終了ハンドラーを返します</strong>。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - 現在登録されている終了ハンドラーを返す
+    - 何も登録していなければ既定のハンドラー
+    - `set_terminate` の戻り値でも、直前の値を取れる
+    - 戻り値は null にならない
 
 !!! info "このページを読む前に"
-    [例外](../../../basics/index.md) の基本と、[`std::exception`](exception.md) を先に読んでください。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::get_terminate {#get_terminate}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 std::terminate_handler get_terminate() noexcept;
 ```
 
-- 戻り値: 現在のハンドラ（既定ではライブラリが決めた関数）
-- 計算量: 定数
+登録されている `std::terminate_handler` を返します。何も登録していなければ、実装が持つ既定のハンドラー（通常は `std::abort` を呼ぶ）を返します。
 
+用途は、一時的に登録を変えたあとに、元に戻すためです。ただし、`set_terminate` の戻り値でも同じことができるので、`get_terminate` を使う場面は限られます。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <cstdlib>
 #include <exception>
 #include <print>
 
+[[noreturn]] void Handler() { std::abort(); }
+
 int main() {
-  std::terminate_handler h = std::get_terminate();
-  std::println("{}", h != nullptr);
+  std::println("既定のハンドラーは null でない: {}", std::get_terminate() != nullptr);
+  const auto previous = std::set_terminate(Handler);
+  std::println("登録したものが返る: {}", std::get_terminate() == Handler);
+  std::set_terminate(previous);
 }
 ```
 
 ```text title="実行結果"
-true
+既定のハンドラーは null でない: true
+登録したものが返る: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ハンドラを一時的に差し替えて元に戻す |
+登録状態の確認や、デバッグで使います。
 
 ## よくあるミス
 
-??? failure "ヌルだと思う"
-    既定でも、ライブラリが用意した関数が返ります。
+??? failure "登録がないときに `nullptr` が返ると思う"
+    既定のハンドラーが返ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`set_terminate`](set_terminate.md) | ハンドラを設定する |
+| [`set_terminate`](set_terminate.md) | 登録する |
+| [`terminate`](terminate.md) | 異常終了する |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`<exception>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 現在設定されている terminate ハンドラを取得する
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `get_terminate()` は現在の終了ハンドラーを返す
+    - [x] 登録がなければ既定のハンドラー
+    - [x] 元に戻すには `set_terminate` の戻り値でもよい
 
 ## 関連ページ
 

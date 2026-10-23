@@ -15,32 +15,38 @@ tags:
 `#include <utility>`
 </div>
 
-`int` と `unsigned` を `>=` で比べると、符号付きの側が符号なしに変換されて、`0u >= -1` がfalse。数学的に正しい比較にしたいときに、`cmp_greater_equal` を使います。
+`-1 < 1u` を実行すると、`false` になります。符号つきの `-1` が、符号なしに変換されて 4294967295 になるためです。コンテナのサイズ（`size_t`、符号なし）と、符号つきの変数を比べるときに、この事故がよく起きます。`std::cmp_greater_equal` は、<strong>符号つきと符号なしの整数を、数学的に正しく「以上」で比べます</strong>。
 
 !!! tip "ポイント"
-    - 整数型どうしだけで使える（`bool` や `char` は不可）。
-    - 符号付きと符号なしを混ぜても、数学的に正しい結果になる。
-    - 同系列: `cmp_equal`・`cmp_less` ほか。
+    - `std::cmp_greater_equal(1u, -1)` は、符号を考慮して整数を比べる
+    - `1u >= -1` のような変換による誤りが起きない
+    - 整数型（`bool` や `char` は不可）が対象
+    - `<utility>` で宣言される
 
 !!! info "このページを読む前に"
-    [小さな便利機能](utility-misc.md) の概要を先に読むと分かりやすいです。
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::cmp_greater_equal {#cmp_greater_equal}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class T, class U>
-constexpr bool cmp_greater_equal(T a, U b) noexcept;
+constexpr bool cmp_greater_equal(T t, U u) noexcept;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `a, b` | 整数型 | 比べる 2 つの値 |
+| `t` | 整数型 | 1 つ目の値 |
+| `u` | 整数型 | 2 つ目の値 |
 
-- 戻り値: `a >= b` を数学的に評価した結果
-- 計算量: 定数
+符号つきと符号なしを、暗黙の変換なしに比べます。負の値と符号なしの値を比べるときは、負の数のほうが必ず小さい、という数学的に当然の結果が得られます。
 
+演算子 `>=` との違いは、型が混在するときの変換です。演算子では、符号つきが符号なしに変換されて、負の数が巨大な正の数になります。`cmp_greater_equal` はこれを避けます。
+
+`bool`、`char`、`char8_t`、`char16_t`、`char32_t`、`wchar_t` は引数にできません（コンパイルエラー）。整数型（`int`、`long`、`unsigned` など）だけが対象です。
 
 ## 実際に動かしてみる
 
@@ -49,43 +55,52 @@ constexpr bool cmp_greater_equal(T a, U b) noexcept;
 #include <utility>
 
 int main() {
-  std::println("{}", std::cmp_greater_equal(0u, -1));
+  std::println("演算子 1u >= -1 : {}", 1u >= -1);
+  std::println("cmp_greater_equal : {}", std::cmp_greater_equal(1u, -1));
 }
 ```
 
 ```text title="実行結果"
-true
+演算子 1u >= -1 : false
+cmp_greater_equal : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| `vector::size()` と `int` の比較 | `std::cmp_greater_equal(i, v.size())` |
+`size()` が返す符号なしの値と、符号つきのインデックスを比べるときに使います。
+
+```cpp
+int index = -1;
+if (std::cmp_greater_equal(index, items.size())) { /* 符号を考慮した比較 */ }
+```
+
+コンパイラの「符号の異なる整数の比較」の警告 (`-Wsign-compare`) も、この関数で解消できます。
 
 ## よくあるミス
 
-??? failure "浮動小数点や char に使う"
-    整数型（`bool`・`char` 型を除く）だけが対象です。それ以外はコンパイルエラーになります。
+??? failure "`bool` や `char` を渡してコンパイルエラーになる"
+    整数型に直してから渡します。
+
+??? failure "浮動小数点数を渡す"
+    整数専用です。浮動小数点数は通常の演算子で比べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`cmp_equal`](cmp_equal.md) | `==` |
-| [`cmp_less`](cmp_less.md) | `<` |
-| [`in_range`](in_range.md) | 値が型の範囲に入るか |
+| [`in_range`](in_range.md) | 値が型の範囲に収まるか |
+| [`cmp_less`](cmp_less.md) | 安全な < 比較 |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.x 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 符号を考慮した整数の比較
-    - [x] int と unsigned を混ぜても安全
-    - [x] 整数型だけ
+    - [x] `cmp_greater_equal` は符号を考慮して整数を比べる
+    - [x] 演算子では、符号つきが符号なしに変換されて誤る
+    - [x] 整数型だけが対象
 
 ## 関連ページ
 

@@ -14,30 +14,31 @@ tags:
 `#include <typeinfo>`
 </div>
 
-`typeid(*p)` で、仮想関数を持つクラスの実際の型を調べるとき、`p` が `nullptr` だと、`bad_typeid` が投げられます。ふつうの `nullptr` の参照は未定義動作ですが、この場合に限って例外になる、と決められています。
+標準ライブラリの機能は、前提が満たされないとき、例外を投げて失敗を伝えます。`std::bad_typeid` は、<strong>ヌルポインターを `typeid` したことを表す例外</strong>。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - 多態的な型の `typeid(*p)` で `p` が `nullptr` のときに投げられる
+    - `<typeinfo>` で宣言される
+    - ヌルでない確認があれば、起こらない
+    - ゲームでの出番はほとんどない
 
 !!! info "このページを読む前に"
-    [例外](../../../basics/index.md) の基本と、[`std::exception`](exception.md) を先に読んでください。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::bad_typeid {#bad_typeid}
 
 ```cpp
-class bad_typeid : public exception {
+class bad_typeid : public std::exception {
  public:
   const char* what() const noexcept override;
 };
 ```
 
-- 戻り値: `what()` はエラーを表す文字列
-- 計算量: 定数
+多態的な型（仮想関数を持つクラス）のポインターを `typeid(*p)` と参照するとき、`p` が `nullptr` だと投げられます。
 
+`typeid` の引数にヌルのポインターを渡す間違いに、例外で気づける、という意味です。ゲームでは、ほとんど出会いません。
 
 ## 実際に動かしてみる
 
@@ -52,45 +53,46 @@ struct Base {
 int main() {
   Base* p = nullptr;
   try {
-    std::println("{}", typeid(*p).name() != nullptr);
+    const auto& t = typeid(*p);       // ヌルを参照して typeid
+    (void)t;
   } catch (const std::bad_typeid&) {
-    std::println("bad_typeid");
+    std::println("bad_typeid を捕まえた");
   }
 }
 ```
 
 ```text title="実行結果"
-bad_typeid
+bad_typeid を捕まえた
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 実行時の型を調べる処理の安全確認 |
+ヌルの確認を忘れたバグの検出に使えますが、実際には、ヌルの確認を先に書くほうが確実です。
 
 ## よくあるミス
 
-??? failure "非多態型で期待する"
-    仮想関数を持たない型では、`typeid` は静的な型を返し、例外になりません。
+??? failure "捕まえずに放置して、プログラムが終了する"
+    例外を投げうる機能を使うときは、`try` / `catch` で受けるか、事前に条件を確かめます。
+
+??? failure "`catch (std::exception)` と値で捕まえる"
+    `const` 参照で捕まえます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`typeid`](../typeid.md) | 実行時の型 |
-| [`bad_cast`](bad_cast.md) | `dynamic_cast` の失敗 |
+| [`exception`](exception.md) | すべての標準例外の基底 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。`<typeinfo>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ヌルの多態型ポインタに typeid を使ったときの例外
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] 多態的な型の `typeid(*p)` で `p` が `nullptr` のときに投げられる
+    - [x] `what()` でメッセージを取れる（内容は実装で違う）
+    - [x] `const` 参照で捕まえる
 
 ## 関連ページ
 
