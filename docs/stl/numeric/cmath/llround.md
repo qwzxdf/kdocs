@@ -15,31 +15,36 @@ tags:
 `#include <cmath>`
 </div>
 
-`round` は小数で結果を返しますが、整数がほしいときは `llround` が便利です。`lround` の `long long` 版で、大きな値でも安全です。
+`std::lround` と同じ働きで、結果の型が `long long`（64 ビット）です。四捨五入した値が 32 ビットを超えうるときに使います。
 
 !!! tip "ポイント"
-    - `float` / `double` / `long double` の版がある。
-    - 引数が整数なら `double` として計算される。
-    - エラーは `errno` か浮動小数点例外で知らされる。
+    - `std::llround(2.5)` は 3、`std::llround(-2.5)` は −3
+    - 0.5 は 0 から遠い側へ（普通の四捨五入）
+    - `lround` との違いは、戻り値が `long long`
+    - 結果が `long long` に収まらないと不定
 
 !!! info "このページを読む前に"
-    [<cmath>](../cmath.md) の概要を先に読むと分かりやすいです。
+    [`<cmath>`](../cmath.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::llround {#llround}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
+long long llround(float x);
 long long llround(double x);
+long long llround(long double x);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `x` | 浮動小数点 | 引数 |
+| `x` | 浮動小数点数 | 丸めたい値 |
 
-- 戻り値: 四捨五入した `long long`
-- 計算量: 定数
+戻り値は、`x` に最も近い整数を `long long` で返した値です。小数部がちょうど 0.5 のときは、絶対値の大きい側に丸めます。丸めモードには依存しません。
 
+`llrint` は丸めモードに従い、既定では偶数丸めなので、2.5 が 2 になります。見た目の四捨五入が欲しいときは `llround` です。
 
 ## 実際に動かしてみる
 
@@ -48,42 +53,44 @@ long long llround(double x);
 #include <print>
 
 int main() {
-  std::println("{} {}", std::llround(2.5), std::llround(-2.5));
+  std::println("llround(2.5)  = {}", std::llround(2.5));
+  std::println("llround(-2.5) = {}", std::llround(-2.5));
+  std::println("llround(1e12) = {}", std::llround(1.0e12));
 }
 ```
 
 ```text title="実行結果"
-3 -3
+llround(2.5)  = 3
+llround(-2.5) = -3
+llround(1e12) = 1000000000000
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ダメージ計算の最後の整数化 |
+大きな値の四捨五入で使います。
 
 ## よくあるミス
 
-??? failure "0.5 を偶数に丸めると思う"
-    `llround` は 0.5 を**絶対値の大きいほう**へ丸めます（2.5 → 3）。偶数丸めは `llrint` です。
+??? failure "`llrint` と取り違えて 2.5 が 2 になる"
+    四捨五入は `llround` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`lround`](lround.md) | long 版 |
-| [`round`](round.md) | 小数で返す |
+| [`lround`](lround.md) | `long` を返す |
+| [`llrint`](llrint.md) | 丸めモードに従う |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 四捨五入して long long にする
-    - [x] `float` / `double` / `long double` の版がある
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `llround(x)` は四捨五入して `long long` で返す
+    - [x] 0.5 は遠い側へ
+    - [x] 丸めモードに依存しない
 
 ## 関連ページ
 

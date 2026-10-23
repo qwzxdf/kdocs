@@ -15,32 +15,37 @@ tags:
 `#include <cmath>`
 </div>
 
-`scalbn` の、指数部分が `long` の版です。
+`std::scalbn` の、指数 `n` が `long` の版です。`int` に収まらない指数を渡す必要がある場面（めったにありません）のために用意されています。
 
 !!! tip "ポイント"
-    - `float` / `double` / `long double` の版がある。
-    - 引数が整数なら `double` として計算される。
-    - エラーは `errno` か浮動小数点例外で知らされる。
+    - `std::scalbln(1.0, 10L)` は 1024
+    - `scalbn` との違いは、指数の型が `long`
+    - 基数が 2 の環境では `ldexp` と同じ
+    - 通常は `scalbn` で足りる
 
 !!! info "このページを読む前に"
-    [<cmath>](../cmath.md) の概要を先に読むと分かりやすいです。
+    [`<cmath>`](../cmath.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::scalbln {#scalbln}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
+float scalbln(float x, long n);
 double scalbln(double x, long n);
+long double scalbln(long double x, long n);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `x` | 浮動小数点 | 元の値 |
-| `n` | long | 2 の指数 |
+| `x` | 浮動小数点数 | 元の値 |
+| `n` | `long` | 指数 |
 
-- 戻り値: `x × 2ⁿ`
-- 計算量: 定数
+戻り値は `x × FLT_RADIX^n` です。`scalbn` と同じですが、指数の引数が `long` です。
 
+`double` の指数部は 11 ビット程度なので、`int` で十分に足ります。`long` を受け取る必要が生じるのは、`long double` に 128 ビットの型を使うような特殊な環境だけです。結果が範囲を超えると、無限大や 0 になります。
 
 ## 実際に動かしてみる
 
@@ -49,41 +54,40 @@ double scalbln(double x, long n);
 #include <print>
 
 int main() {
-  std::println("{}", std::scalbln(1.5, 3));
+  std::println("scalbln(1.0, 10) = {}", std::scalbln(1.0, 10L));
 }
 ```
 
 ```text title="実行結果"
-12
+scalbln(1.0, 10) = 1024
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 2 のべき乗倍のスケール |
+`scalbn` で足ります。この関数を使う理由は、ほとんどありません。
 
 ## よくあるミス
 
-??? failure "`int` 版との違いを気にしない"
-    `n` が `int` の範囲に収まるなら `scalbn` で十分です。
+??? failure "`scalbn` で足りるのに使う"
+    `int` に収まる指数なら `scalbn` で足ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`scalbn`](scalbn.md) | 指数が int |
+| [`scalbn`](scalbn.md) | 指数が `int` |
+| [`ldexp`](ldexp.md) | 2 進数の環境向けの名前 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] x × 2ⁿ を計算する（指数が long）
-    - [x] `float` / `double` / `long double` の版がある
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `scalbln(x, n)` は `x × 2ⁿ`（`n` は `long`）
+    - [x] 通常は `scalbn` で足りる
+    - [x] 誤差はない
 
 ## 関連ページ
 

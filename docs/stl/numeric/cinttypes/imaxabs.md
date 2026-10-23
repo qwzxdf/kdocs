@@ -14,15 +14,16 @@ tags:
 `#include <cinttypes>`
 </div>
 
-最も大きい符号つき整数型（`intmax_t`）の絶対値を求める関数です。`std::abs` で足りるので、ほとんど使いません。
+整数の絶対値を取る `std::abs` には、型ごとに専用の関数もあります。`std::imaxabs` は、`std::intmax_t`の絶対値を返します。C++ では `std::abs` が型に応じて自動で選ばれるので、直接使う機会は多くありません。
 
 !!! tip "ポイント"
-    - `<cinttypes>` の関数。
-    - `intmax_t` / `uintmax_t` を扱う。
-    - 新しいコードでは `std::from_chars` が安全。
+    - `std::imaxabs(-5)` は 5
+    - 最小値の絶対値は表せない（未定義動作）
+    - C++ では `std::abs` を使えば型に応じて選ばれる
+    - C 言語のコードとの互換のために残っている
 
 !!! info "このページを読む前に"
-    [`<cstdint>`](../cstdint.md) を先に読んでください。
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -34,11 +35,13 @@ std::intmax_t imaxabs(std::intmax_t n);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `n` | intmax_t | 絶対値を求める値 |
+| `n` | `std::intmax_t` | 絶対値を取りたい値 |
 
-- 戻り値: `|n|`
-- 計算量: 定数
+戻り値は `n` の絶対値で、型は std::intmax_t です。`n` が負なら符号を反転し、0 以上ならそのまま返します。
 
+型の最小値（`long` の最小値など）は、符号を反転すると範囲を超えるので、結果は未定義動作です。2 の補数表現では、負の側が正より 1 つ多い範囲を持つからです。
+
+C++ の `<cstdlib>` には、`std::abs` の整数型のオーバーロードが用意されているため、`imaxabs` を直接書くより `std::abs(n)` を使うほうが、型の変更に強くなります。
 
 ## 実際に動かしてみる
 
@@ -47,41 +50,46 @@ std::intmax_t imaxabs(std::intmax_t n);
 #include <print>
 
 int main() {
-  std::println("{}", std::imaxabs(-5));
+  std::println("imaxabs(-5) = {}", std::imaxabs(-5));
+  std::println("imaxabs(7) = {}", std::imaxabs(7));
 }
 ```
 
 ```text title="実行結果"
-5
+imaxabs(-5) = 5
+imaxabs(7) = 7
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 最大幅の整数の扱い |
+2 つの整数の差の大きさを求めるときに使います。通常は `std::abs` と書きます。
+
+```cpp
+const auto distance = std::abs(a - b);   // 型に応じて選ばれる
+```
 
 ## よくあるミス
 
-??? failure "範囲外を確かめない"
-    `INTMAX_MIN` の絶対値は表せず、未定義動作です。
+??? failure "最小値に使って未定義動作になる"
+    範囲の端の値を渡さないようにします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`cstdint`](../cstdint.md) | 固定幅の整数型 |
+| [`abs`](../cmath/abs.md) | 型に応じて選ばれる |
+| [`fabs`](../cmath/fabs.md) | 浮動小数点数の絶対値 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`<cinttypes>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `intmax_t` の絶対値を返す
-    - [x] `<cinttypes>` の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `imaxabs` は`std::intmax_t`の絶対値
+    - [x] 最小値は未定義動作
+    - [x] C++ では `std::abs` を使う
 
 ## 関連ページ
 

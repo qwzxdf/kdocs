@@ -15,76 +15,81 @@ tags:
 `#include <cmath>`
 </div>
 
-`nextafter` の、向かう先 `y` が `long double` の版です。`float` や `double` の隣を、高い精度の `y` に向かって探せます。
+`std::nextafter` と同じく、隣の表現できる値を返しますが、第 2 引数（向かう方向）が常に `long double` の版です。`float` や `double` の値を、より精度の高い値の方向へ進めたいときに使えます。
 
 !!! tip "ポイント"
-    - `float` / `double` / `long double` の版がある。
-    - 引数が整数なら `double` として計算される。
-    - エラーは `errno` か浮動小数点例外で知らされる。
+    - `std::nexttoward(1.0f, 2.0L)` は `1.0f` の次に大きい `float` の値
+    - 第 2 引数は `long double`
+    - 戻り値の型は第 1 引数の型
+    - 通常は `nextafter` で足りる
 
 !!! info "このページを読む前に"
-    [<cmath>](../cmath.md) の概要を先に読むと分かりやすいです。
+    [`<cmath>`](../cmath.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::nexttoward {#nexttoward}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-float nexttoward(float x, long double y);
+float nexttoward(float from, long double to);
+double nexttoward(double from, long double to);
+long double nexttoward(long double from, long double to);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `x` | 浮動小数点 | 出発点 |
-| `y` | long double | 向かう先 |
+| `from` | 浮動小数点数 | 出発点 |
+| `to` | `long double` | 向かう方向 |
 
-- 戻り値: x の隣の値（y の方向）
-- 計算量: 定数
+戻り値は、`from` から `to` の方向に向かって、`from` の型で表せる隣の値です。`nextafter` との違いは、第 2 引数の型です。`to` が `long double` なので、`double` でちょうど表せない値の方向にも進めます。
 
+`from == to` のときは `to` を `from` の型に変換した値を返します。
+
+`nextafter` で足りることがほとんどです。精度の高い目標値の方向に進める、特殊な数値計算でしか必要になりません。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <cmath>
-#include <limits>
 #include <print>
 
 int main() {
-  std::println("{}", std::nexttoward(1.0f, 2.0L) - 1.0f == std::numeric_limits<float>::epsilon());
+  const float next = std::nexttoward(1.0f, 2.0L);
+  std::println("1.0f より大きい: {}", next > 1.0f);
 }
 ```
 
 ```text title="実行結果"
-true
+1.0f より大きい: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | float の隣の値を調べる |
+`nextafter` で足ります。この関数を使う場面は、ほとんどありません。
 
 ## よくあるミス
 
-??? failure "`float` に `double` を入れて精度が違う"
-    戻りの型は x の型です。`y` だけが `long double` です。
+??? failure "`nextafter` の違いが分からず、迷う"
+    第 2 引数の型だけが違います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`nextafter`](nextafter.md) | y が同じ型 |
+| [`nextafter`](nextafter.md) | 第 2 引数が同じ型 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] x の次に表せる値を返す（向かう先が long double）
-    - [x] `float` / `double` / `long double` の版がある
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `nexttoward(from, to)` は `from` の隣の値（`to` は `long double`）
+    - [x] 戻り値の型は `from` の型
+    - [x] 通常は `nextafter` で足りる
 
 ## 関連ページ
 

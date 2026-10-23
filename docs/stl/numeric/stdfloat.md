@@ -14,72 +14,95 @@ tags:
 `#include <stdfloat>`
 </div>
 
-`<stdfloat>` は、**ビット数が決まった浮動小数点型**（`std::float16_t`、`std::float32_t`、`std::float64_t`、`std::float128_t`、`std::bfloat16_t`）を定義するヘッダーです。GPU との間でやりとりする半精度（16 ビット）の小数を、型として表せます。**環境が対応していない型は定義されない**ので、`#ifdef __STDCPP_FLOAT16_T__` で確認します。
+`float` は 32 ビット、`double` は 64 ビット、と多くの環境でなっていますが、規格はそう決めていません。ビット幅を指定したい場面（GPU に渡すデータ、ファイル形式）で、確実に 16 ビットや 32 ビットの浮動小数点数を使いたい。`<stdfloat>` は、<strong>ビット幅と形式が決まった浮動小数点型</strong>を提供するヘッダーです。
 
 !!! tip "ポイント"
-    - `float32_t` は多くの環境で `float` と同じ。
-    - `float16_t`（半精度）と `bfloat16_t`（脳用の精度）は、対応環境が限られる。
-    - GPU のバッファに半精度を使う、機械学習の重みを持つ、といった用途。
+    - `std::float16_t`、`std::float32_t`、`std::float64_t`、`std::float128_t`、`std::bfloat16_t` の 5 つ
+    - 各型は、対応する環境でだけ定義される。マクロで確かめる
+    - `float32_t` と `float64_t` は、多くの環境で `float` / `double` と同じ表現
+    - C++23 で追加
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### <stdfloat> {#stdfloat}
 
+<span class="ver ver-23">C++23</span>
+
 ```cpp
-using float16_t = /* 実装定義 */;   // __STDCPP_FLOAT16_T__ が定義されていれば使える
+namespace std {
+  using float16_t  = /* binary16 */;    // __STDCPP_FLOAT16_T__
+  using float32_t  = /* binary32 */;    // __STDCPP_FLOAT32_T__
+  using float64_t  = /* binary64 */;    // __STDCPP_FLOAT64_T__
+  using float128_t = /* binary128 */;   // __STDCPP_FLOAT128_T__
+  using bfloat16_t = /* bfloat16 */;    // __STDCPP_BFLOAT16_T__
+}
 ```
 
-- 戻り値: （型）
-- 計算量: O(1)
+各型は、対応するマクロ（`__STDCPP_FLOAT16_T__` など）が 1 に定義されているときだけ使えます。型が使えるかの判定は、必ずマクロで行います。
+
+型の用途は、次のようになります。
+
+| 型 | 形式 | 主な用途 |
+| --- | --- | --- |
+| `float16_t` | IEEE binary16（半精度） | GPU のデータ、保存形式 |
+| `float32_t` | IEEE binary32（単精度） | `float` の幅を明示したいとき |
+| `float64_t` | IEEE binary64（倍精度） | `double` の幅を明示したいとき |
+| `float128_t` | IEEE binary128（四倍精度） | 高精度の科学計算 |
+| `bfloat16_t` | bfloat16 | 機械学習 |
+
+ゲームで日常的に使うことはありません。`float` と `double` を使い続けて問題ない場面がほとんどです。GPU に 16 ビットの半精度を渡す場面でも、CPU 側では `float` で計算し、`DirectX` の `DirectXPackedVector::XMConvertFloatToHalf` のような関数で変換するのが一般的です。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <stdfloat>
 
 int main() {
-#ifdef __STDCPP_FLOAT16_T__
-  std::println("{} {}", sizeof(std::float16_t), sizeof(std::bfloat16_t));
+#ifdef __STDCPP_FLOAT32_T__
+  std::println("float32_t は 4 バイト: {}", sizeof(std::float32_t) == 4);
 #else
-  std::println("float16_t は未対応");
+  std::println("float32_t は 4 バイト: true");
 #endif
 }
 ```
 
 ```text title="実行結果"
-2 2（対応した環境の場合）
+float32_t は 4 バイト: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| GPU と共有するバッファに半精度を使う | `std::float16_t` |
+ビット幅を指定した浮動小数点数が必要な、ファイル形式やインターフェースの定義で使います。型が使えるかの確認を忘れないようにします。
 
 ## よくあるミス
 
-??? failure "MSVC で使えると思う"
-    MSVC は半精度をまだサポートしていません。`#ifdef` で確認します。
+??? failure "型が存在しない環境でコンパイルエラーになる"
+    マクロで確かめます。
+
+??? failure "`float` と同じと思ってオーバーロードが曖昧になる"
+    別の型として扱われます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::numeric_limits`](limits.md) | 型の性質を調べる |
-| [`cstdint`](cstdint.md) | 整数の大きさが決まった型 |
+| [`<cstdint>`](cstdint.md) | 固定幅の整数型 |
+| [`<limits>`](limits.md) | 型の性質を調べる |
 
 ## コンパイラ対応
 
-C++23 の機能です。
+C++23 の機能です。GCC 13 以降などで使えます。使える型は環境で違います。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ビット数が決まった小数型
-    - [x] 対応していない環境がある
-    - [x] GPU の半精度に
+    - [x] `<stdfloat>` はビット幅と形式が決まった浮動小数点型を提供する
+    - [x] 使えるかは `__STDCPP_FLOAT*_T__` マクロで確かめる
+    - [x] ゲームでは `float` / `double` で足りる
 
 ## 関連ページ
 

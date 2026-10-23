@@ -13,29 +13,36 @@ tags:
 `#include <limits>`
 </div>
 
-浮動小数点の演算が、結果を丸めるときの方向を表す列挙型です。`std::numeric_limits<T>::round_style` の型で、多くの環境は `round_to_nearest`（最も近い値へ）です。
+浮動小数点数の演算結果は、表せない部分を丸めます。どの向きに丸めるかを表す列挙型が `std::float_round_style` です。`std::numeric_limits<T>::round_style` が返す型として登場します。
 
 !!! tip "ポイント"
-    - `numeric_limits` のメンバが返す型。
-    - 値: round_indeterminate / round_toward_zero / round_to_nearest / round_toward_infinity / round_toward_neg_infinity。
-    - ふつうは `numeric_limits` 経由で比べる。
+    - `round_to_nearest`（最も近い値へ）、`round_toward_zero`（0 方向）、`round_toward_infinity`、`round_toward_neg_infinity`、`round_indeterminate` の 5 値
+    - `numeric_limits<T>::round_style` の型
+    - 現代の PC では `float` / `double` ともに `round_to_nearest`
+    - 実際の丸めモードは `fegetround` で調べる
 
 !!! info "このページを読む前に"
-    [`std::numeric_limits`](limits.md) を先に読んでください。
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::float_round_style {#float_round_style}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 enum float_round_style {
-  /* round_indeterminate / round_toward_zero / round_to_nearest / round_toward_infinity / round_toward_neg_infinity */
+  round_indeterminate = -1,
+  round_toward_zero = 0,
+  round_to_nearest = 1,
+  round_toward_infinity = 2,
+  round_toward_neg_infinity = 3
 };
 ```
 
-- 戻り値: なし（列挙型）
-- 計算量: なし
+`std::numeric_limits<T>::round_style` が、型 `T` の演算の標準的な丸め方向を表します。IEEE 754 に従う環境の `float` / `double` は `round_to_nearest` です。整数型は `round_toward_zero` です。
 
+注意点は、この値が「型の標準の丸め方」を表すだけで、プログラムの実行中に `fesetround` で丸めモードを変えても、`round_style` は変わらないことです。実行時の丸めモードは `std::fegetround()` で調べます。
 
 ## 実際に動かしてみる
 
@@ -44,42 +51,44 @@ enum float_round_style {
 #include <print>
 
 int main() {
-  std::println("{}", std::numeric_limits<float>::round_style == std::round_to_nearest);
+  std::println("float は最も近い値へ丸める: {}",
+               std::numeric_limits<float>::round_style == std::round_to_nearest);
+  std::println("int は 0 方向へ丸める: {}",
+               std::numeric_limits<int>::round_style == std::round_toward_zero);
 }
 ```
 
 ```text title="実行結果"
-true
+float は最も近い値へ丸める: true
+int は 0 方向へ丸める: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 環境の浮動小数点の性質を調べる | `std::numeric_limits<float>::round_style` |
+型の性質を調べて、テンプレートの分岐に使う、ライブラリ作者向けの情報です。ゲームのコードで直接使う場面はほとんどありません。
 
 ## よくあるミス
 
-??? failure "実行時に変わると思う"
-    この値は型の性質で、`fesetround` で変えた丸めは反映されません。
+??? failure "`round_style` を実行時の丸めモードと思う"
+    実行時の丸めモードは `fegetround` で調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::numeric_limits`](limits.md) | 型の性質 |
-| [`fesetround`](fesetround.md) | 実行時の丸めモード |
+| [`float_denorm_style`](float_denorm_style.md) | 非正規化数を表す列挙型 |
+| [`fegetround`](fegetround.md) | 実行時の丸めモード |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 丸めの方向を表す列挙型
-    - [x] numeric_limits のメンバが返す
-    - [x] ふつうは意識しない
+    - [x] `float_round_style` は丸め方向を表す列挙型
+    - [x] `numeric_limits::round_style` の型
+    - [x] 実行時の丸めモードは `fegetround`
 
 ## 関連ページ
 

@@ -13,15 +13,16 @@ tags:
 `#include <cstdlib>`
 </div>
 
-`atof` と違い、読み終えた位置を返し、範囲外のときは `errno` に `ERANGE` を設定します。
+小数の文字列を数値にするとき、`std::strtod` は `double` を返します。`float`で受けたい場合に、型違いの `std::strtof` を使います。読み終えた位置を教えてくれる点は同じです。
 
 !!! tip "ポイント"
-    - C 由来の関数。
-    - 失敗の知らせ方は関数ごとに違う。
-    - 新しいコードでは `std::from_chars` や `std::string` が安全。
+    - 戻り値は `float`
+    - 読み終えた位置が `str_end` に入る
+    - 指数表記、`inf`、`nan` も読める
+    - 範囲を超えると `HUGE_VAL` 系の値と `ERANGE`
 
 !!! info "このページを読む前に"
-    [`std::atoi`](atoi.md) を先に読んでください。
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -33,12 +34,16 @@ float strtof(const char* str, char** str_end);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `str` | const char* | 変換する文字列 |
-| `str_end` | char** | 読み終えた位置を受け取る（不要なら `nullptr`） |
+| `str` | `const char*` | 変換する文字列 |
+| `str_end` | `char**` | 読み終えた位置の書き込み先。不要なら `nullptr` |
 
-- 戻り値: 変換した `float`
-- 計算量: 定数
+戻り値は変換した値で、型は float です。先頭の空白を飛ばし、符号、数字、小数点、指数（`e` または `E`）を読みます。
 
+`str_end` に、読めなかった最初の文字の位置が入ります。何も読めなければ `*str_end == str` で、0 を返します。
+
+`float` で受けたいときに使います。`double` を `float` に代入すると精度が落ちる点は同じですが、`strtof` は最初から `float` の精度で丸めるため、2 度丸めによる誤差が出ません。
+
+小数点はロケールに依存します。新しいコードでは `std::from_chars` が、ロケール非依存で速く、精度も正確です。
 
 ## 実際に動かしてみる
 
@@ -47,42 +52,51 @@ float strtof(const char* str, char** str_end);
 #include <print>
 
 int main() {
-  std::println("{}", std::strtof("1.5", nullptr));
+  char* end = nullptr;
+  const float a = std::strtof("3.5xyz", &end);
+  std::println("値 = {}, 残り = {}", a, end);
+  std::println("1e2 = {}", std::strtof("1e2", nullptr));
 }
 ```
 
 ```text title="実行結果"
-1.5
+値 = 3.5, 残り = xyz
+1e2 = 100
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 設定ファイルの数値の読み取り |
+設定ファイルから小数を読む処理で、失敗を検出したいときに使います。
+
+```cpp
+char* end = nullptr;
+const float v = std::strtof(text.c_str(), &end);
+if (end == text.c_str()) { /* 数値として読めなかった */ }
+```
 
 ## よくあるミス
 
-??? failure "読み終えた位置を確かめない"
-    不正な文字列では 0 が返り、位置が進みません。
+??? failure "ロケールの小数点で読み込みが壊れる"
+    ロケールを変えない、または `from_chars` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`atof`](atof.md) | 簡易版 |
-| [`strtod`](strtod.md) | double 版 |
+| [`strtod`](strtod.md) | `double` を返す |
+| [`atof`](atof.md) | 失敗が分からない簡易版 |
+| [`from_chars`](../../io/from_chars.md) | ロケール非依存 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます（C 言語由来）。`<cstdlib>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 文字列を float に変換する（読み終えた位置が分かる）
-    - [x] C 由来の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `strtof` は文字列を float に変換する
+    - [x] `str_end` で読み終えた位置が分かる
+    - [x] ロケールの影響を受ける。新しいコードは `from_chars`
 
 ## 関連ページ
 

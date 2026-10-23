@@ -13,15 +13,16 @@ tags:
 `#include <cstdlib>`
 </div>
 
-ロケールのマルチバイト文字を、ワイド文字（`wchar_t`）1 文字に変換します。内部の状態を使うので、スレッドセーフではありません。
+マルチバイト文字列（UTF-8 など）の先頭の 1 文字を、ワイド文字（`wchar_t`）に変換するのが `std::mbtowc` です。Windows の API に渡す前の変換などで使われました。
 
 !!! tip "ポイント"
-    - C 由来の関数。
-    - 失敗の知らせ方は関数ごとに違う。
-    - 新しいコードでは `std::from_chars` や `std::string` が安全。
+    - `std::mbtowc(&wc, s, n)` は先頭の 1 文字を `wchar_t` に変換する
+    - 戻り値は、読んだバイト数。null 文字は 0、不正なら −1
+    - ロケールに依存し、内部状態を持つ
+    - 文字列全体なら `mbstowcs`
 
 !!! info "このページを読む前に"
-    [`std::atoi`](atoi.md) を先に読んでください。
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -33,13 +34,15 @@ int mbtowc(wchar_t* pwc, const char* s, std::size_t n);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `pwc` | wchar_t* | 変換結果の書き込み先 |
-| `s` | const char* | 変換元のバイト列 |
-| `n` | size_t | 調べる最大のバイト数 |
+| `pwc` | `wchar_t*` | 変換結果の書き込み先。`nullptr` ならバイト数だけ調べる |
+| `s` | `const char*` | 変換する文字列 |
+| `n` | `size_t` | 調べてよい最大のバイト数 |
 
-- 戻り値: 使ったバイト数。不正なら -1
-- 計算量: 定数
+`s` の先頭の 1 文字を変換して `*pwc` に書き込み、その文字が占めていたバイト数を返します。null 文字なら 0、不正なら −1 です。
 
+`mblen` と同様に、ロケールに依存し、内部に状態を持つため、スレッドセーフではありません。スレッドセーフな `mbrtowc` を使うのが、現在の推奨です。
+
+Windows の `wchar_t` は UTF-16 で 16 ビットなので、サロゲートペアになる文字は 1 つの `wchar_t` に入りきりません。Windows では、`MultiByteToWideChar` で UTF-8 から UTF-16 に変換するほうが確実です。
 
 ## 実際に動かしてみる
 
@@ -48,43 +51,48 @@ int mbtowc(wchar_t* pwc, const char* s, std::size_t n);
 #include <print>
 
 int main() {
-  wchar_t w = 0;
-  int n = std::mbtowc(&w, "A", 1);
-  std::println("{} {}", n, static_cast<int>(w));
+  wchar_t wc = 0;
+  const int bytes = std::mbtowc(&wc, "a", 1);
+  std::println("読んだバイト数 = {}", bytes);
+  std::println("変換結果は L'a': {}", wc == L'a');
 }
 ```
 
 ```text title="実行結果"
-1 65
+読んだバイト数 = 1
+変換結果は L'a': true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 文字コードの変換（ただし新しいコードは UTF-8 に統一する） |
+昔の C のコードで見かけます。現在は、Windows なら `MultiByteToWideChar`、標準ならスレッドセーフな `mbrtowc` を使います。
 
 ## よくあるミス
 
-??? failure "ロケールを設定せずに使う"
-    既定は `"C"` ロケールで、ASCII しか変換できません。`std::setlocale` で設定します。
+??? failure "複数のスレッドから呼ぶ"
+    `mbrtowc` を使います。
+
+??? failure "Windows で UTF-8 を変換する"
+    `MultiByteToWideChar` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [文字コード](../../../encoding/index.md) | 変換の考え方 |
+| [`mblen`](mblen.md) | バイト数だけ調べる |
+| [`mbstowcs`](mbstowcs.md) | 文字列全体を変換 |
+| [`wctomb`](wctomb.md) | 逆の変換 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます（C 言語由来）。`<cstdlib>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] マルチバイト文字 1 文字を wchar_t に変換する
-    - [x] C 由来の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `mbtowc` は 1 文字を `wchar_t` に変換する
+    - [x] ロケール依存でスレッドセーフでない
+    - [x] Windows の UTF-8 は `MultiByteToWideChar`
 
 ## 関連ページ
 

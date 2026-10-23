@@ -15,27 +15,28 @@ tags:
 `#include <cwctype>`
 </div>
 
-`towctrans` に渡す、「どの変換か」を表す型です。`wctrans("toupper")` で作ります。
+`std::wctrans` が返す、文字の変換を表す値の型が `std::wctrans_t` です。`towctrans` に渡して使います。
 
 !!! tip "ポイント"
-    - `<cwctype>` の部品。
-    - ロケールに依存する。
-    - ふつうは `iswalpha` などの固定の関数を使う。
+    - `wctrans` の戻り値の型
+    - 中身は環境依存の整数型（値の意味は触らない）
+    - 0 は「無効な変換」
+    - `towctrans` に渡して使う
 
 !!! info "このページを読む前に"
-    [`std::iswalpha`](iswalpha.md) を先に読んでください。
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::wctrans_t {#wctrans_t}
 
 ```cpp
-using wctrans_t = /* 実装定義 */;
+using wctrans_t = /* 環境依存の整数型 */;
 ```
 
-- 戻り値: なし（型）
-- 計算量: 定数
+`std::wctrans_t` は、文字の変換（小文字化、大文字化）を識別する値を保持する型で、実体は環境の整数型です。値の中身に意味はなく、`std::wctrans` が返した値を、そのまま `std::towctrans` に渡します。
 
+0 と比べて、有効かを確かめる以外の使い方はありません。
 
 ## 実際に動かしてみる
 
@@ -44,42 +45,45 @@ using wctrans_t = /* 実装定義 */;
 #include <print>
 
 int main() {
-  std::wctrans_t t = std::wctrans("toupper");
-  std::println("{}", t != 0);
+  std::wctrans_t t = std::wctrans("tolower");
+  std::println("有効な変換: {}", t != 0);
 }
 ```
 
 ```text title="実行結果"
-true
+有効な変換: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 実行時に分類・変換を選ぶ |
+`wctrans` の戻り値を保持する変数の型として登場します。
+
+```cpp
+std::wctrans_t to_lower = std::wctrans("tolower");
+```
 
 ## よくあるミス
 
-??? failure "名前を間違える"
-    名前が不正だと 0 が返ります。0 を確かめてから使います。
+??? failure "値を計算に使おうとする"
+    0 かどうかを確かめるだけにします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`iswalpha`](iswalpha.md) | 固定の分類の関数 |
+| [`wctrans`](wctrans.md) | 変換を得る関数 |
+| [`wctype_t`](wctype_t.md) | 分類を表す型 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++98 から使えます（C 言語由来）。`<cwctype>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ワイド文字の変換の種類を表す型
-    - [x] `<cwctype>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `wctrans_t` は文字の変換を表す型
+    - [x] `wctrans` の戻り値を保持して `towctrans` に渡す
+    - [x] 0 は無効
 
 ## 関連ページ
 

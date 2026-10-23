@@ -15,32 +15,39 @@ tags:
 `#include <cmath>`
 </div>
 
-2 のべき乗倍は、指数部だけを書き換えれば済むので、乗算より正確で速く計算できます。`ldexp` と同じ働きですが、基数が `FLT_RADIX` の環境でも正しく動きます。
+`std::ldexp(x, n)` と同じく、`x × 2ⁿ` を指数部をずらして求めます。`ldexp` は 2 進数の環境を前提にした名前ですが、`std::scalbn` は、浮動小数点の基数（`FLT_RADIX`）を使う、より一般的な形です。ほとんどの環境で基数は 2 なので、結果は `ldexp` と同じです。
 
 !!! tip "ポイント"
-    - `float` / `double` / `long double` の版がある。
-    - 引数が整数なら `double` として計算される。
-    - エラーは `errno` か浮動小数点例外で知らされる。
+    - `std::scalbn(1.5, 3)` は 12（1.5 × 2³）
+    - 基数が 2 の環境では `ldexp` と同じ
+    - `n` が `long` の版は `scalbln`
+    - 指数部をずらすだけなので、誤差が出ない
 
 !!! info "このページを読む前に"
-    [<cmath>](../cmath.md) の概要を先に読むと分かりやすいです。
+    [`<cmath>`](../cmath.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::scalbn {#scalbn}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
+float scalbn(float x, int n);
 double scalbn(double x, int n);
+long double scalbn(long double x, int n);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `x` | 浮動小数点 | 元の値 |
-| `n` | int | 2 の指数 |
+| `x` | 浮動小数点数 | 元の値 |
+| `n` | `int` | 指数 |
 
-- 戻り値: `x × 2ⁿ`
-- 計算量: 定数
+戻り値は `x × FLT_RADIX^n` です。ほぼ全ての環境で `FLT_RADIX` は 2 なので、`x × 2ⁿ` と読めます。指数部を直接書き換えるため、乗算より速く、丸め誤差も生じません（範囲内の場合）。
 
+結果が大きすぎれば無限大、小さすぎれば 0 や非正規化数になります。
+
+`n` の型は `int` です。`long` の範囲が要るときは `scalbln` を使います。
 
 ## 実際に動かしてみる
 
@@ -49,42 +56,43 @@ double scalbn(double x, int n);
 #include <print>
 
 int main() {
-  std::println("{}", std::scalbn(1.5, 3));
+  std::println("scalbn(1.5, 3)  = {}", std::scalbn(1.5, 3));
+  std::println("scalbn(1.0, -2) = {}", std::scalbn(1.0, -2));
 }
 ```
 
 ```text title="実行結果"
-12
+scalbn(1.5, 3)  = 12
+scalbn(1.0, -2) = 0.25
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 2 のべき乗倍のスケール |
+固定小数点の値を実数に直すなど、2 の累乗のスケールを掛けるときに使います。多くの場合、`ldexp` が読みやすい名前です。
 
 ## よくあるミス
 
-??? failure "`pow(2, n)` で乗算する"
-    桁あふれしやすく、誤差も出ます。`scalbn` を使います。
+??? failure "`n` に浮動小数点数を渡して切り捨てられる"
+    `n` は整数です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`ldexp`](ldexp.md) | 同じ働き |
-| [`scalbln`](scalbln.md) | 指数が long |
+| [`ldexp`](ldexp.md) | 2 進数の環境向けの名前 |
+| [`scalbln`](scalbln.md) | `n` が `long` |
+| [`frexp`](frexp.md) | 仮数と指数に分ける |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] x × 2ⁿ を、乗算を使わずに計算する
-    - [x] `float` / `double` / `long double` の版がある
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `scalbn(x, n)` は `x × 2ⁿ`
+    - [x] 基数 2 の環境では `ldexp` と同じ
+    - [x] 指数部をずらすだけで誤差がない
 
 ## 関連ページ
 

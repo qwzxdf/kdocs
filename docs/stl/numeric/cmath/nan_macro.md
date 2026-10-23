@@ -14,27 +14,32 @@ tags:
 `#include <cmath>`
 </div>
 
-「値がない」ことを `float` の NaN で表すためのマクロです。比較は常に偽になるので、判定は `std::isnan` を使います。
+値が未設定であることを、浮動小数点数で表したい。0 だと本当の 0 と区別できません。`NAN` は、<strong>「数ではない」値（NaN）</strong>を表す `float` の定数マクロです。
 
 !!! tip "ポイント"
-    - マクロ（式）。
-    - `std::` を付けずに書く。
-    - 比較は専用関数（`isnan` など）で。
+    - `NAN` は `float` の quiet NaN
+    - `NAN != NAN` が真（NaN は自分自身とも等しくない）
+    - 判定は `std::isnan`。`== NAN` では検出できない
+    - `double` の NaN が欲しいなら `std::numeric_limits<double>::quiet_NaN()`
 
 !!! info "このページを読む前に"
-    [<cmath>](../cmath.md) の概要を先に読むと分かりやすいです。
+    [`<cmath>`](../cmath.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### NAN {#nan_macro}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-#define NAN /* 実装定義 */
+#define NAN /* float の定数式 */
 ```
 
-- 戻り値: マクロの値
-- 計算量: なし
+`NAN` は、`float` の静かな NaN（quiet NaN）を表す定数式です。計算に使っても例外は発生せず、結果も NaN になります。
 
+「値がまだ決まっていない」ことを表す目印としても使えます。ただし、NaN は比較がすべて偽になるので、`if (x == NAN)` では検出できません。必ず `std::isnan(x)` で調べます。
+
+NaN が意図せず混ざると、計算が壊れて原因をたどりにくくなります。目印として使う場合は、使う範囲を限り、他の計算に渡さないようにします。
 
 ## 実際に動かしてみる
 
@@ -43,42 +48,53 @@ tags:
 #include <print>
 
 int main() {
-  std::println("{}", std::isnan(NAN));
+  const float x = NAN;
+  std::println("isnan(NAN)  = {}", std::isnan(x));
+  std::println("NAN == NAN  = {}", x == x);        // 常に偽
 }
 ```
 
 ```text title="実行結果"
-true
+isnan(NAN)  = true
+NAN == NAN  = false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 異常値の目印や、エラー処理の分岐に使う |
+「測定できなかった」ことを、値の中で表します。
+
+```cpp
+float measured = NAN;                 // 未測定
+if (TryMeasure(&measured)) { /* measured は有効 */ }
+else if (std::isnan(measured)) { /* 未測定のまま */ }
+```
 
 ## よくあるミス
 
-??? failure "値を `==` で比べる"
-    NaN は `==` で比べられません。`std::isnan`・`std::isinf` を使います。
+??? failure "`== NAN` で判定して、常に偽になる"
+    `std::isnan` を使います。
+
+??? failure "NaN が計算に混ざる"
+    目印の NaN は、計算に渡す前に取り除きます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`isnan`](isnan.md) | NaN の判定 |
-| [`isinf`](isinf.md) | 無限大の判定 |
+| [`nan`](nan.md) | 関数版 |
+| [`isnan`](isnan.md) | NaN か |
+| [`INFINITY`](infinity.md) | 無限大を表すマクロ |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] float の NaN（非数）を表すマクロ
-    - [x] マクロ（式）
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `NAN` は `float` の NaN を表す
+    - [x] `== NAN` では検出できない。`isnan` を使う
+    - [x] 計算に混ざらないよう注意
 
 ## 関連ページ
 
