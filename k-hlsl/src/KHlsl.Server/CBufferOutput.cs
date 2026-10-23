@@ -52,7 +52,7 @@ namespace KHlsl.Server
         public static string MemberMarkdown(LBlock b, LMember m)
         {
             var sb = new StringBuilder();
-            sb.Append("```hlsl\n").Append(TypeLabel(m)).Append(" ").Append(m.Name).Append("\n```\n");
+            sb.Append("`").Append(TypeLabel(m)).Append(" ").Append(m.Name).Append("`\n\n");
             sb.Append("`").Append(Title(b)).Append("` の **オフセット ").Append(m.Offset).Append("**・サイズ ").Append(m.Size).Append(" バイト・レジスタ ").Append(Register(m.Offset));
             if (m.ArrayCount > 0) sb.Append("・要素の間隔 ").Append(m.Stride).Append(" バイト");
             sb.Append("\n\n").Append(Summary(b));

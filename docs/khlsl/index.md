@@ -17,7 +17,7 @@ K-HLSL は、判定を<strong>本物の DXC に任せる</strong>ことで、こ
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-HLSL-1.1.1.vsix" download>K-HLSL 1.1.1 をダウンロード（.vsix、約 390 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-HLSL-1.1.2.vsix" download>K-HLSL 1.1.2 をダウンロード（.vsix、約 390 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも、同じ手順で上書きできます。アンインストールは、Visual Studio の「拡張機能の管理」から行います。
 

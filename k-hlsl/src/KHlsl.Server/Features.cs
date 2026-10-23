@@ -35,7 +35,8 @@ namespace KHlsl.Server
         private static string DocText(string sig, string doc, string sm)
         {
             var sb = new StringBuilder();
-            if (!string.IsNullOrEmpty(sig)) sb.Append("```hlsl\n").Append(sig).Append("\n```\n");
+            // コード ブロック(```)は、VS のホバーで「コードのコピー」ボタンと大きな字になるので、行ごとのインライン コードにする
+            if (!string.IsNullOrEmpty(sig)) sb.Append(string.Join("  \n", sig.Split('\n').Select(l => "`" + l.TrimEnd('\r') + "`"))).Append("\n\n");
             if (!string.IsNullOrEmpty(doc)) sb.Append(doc);
             if (!string.IsNullOrEmpty(sm) && sm != "0" && sm != "1.0") sb.Append("\n\n*Shader Model ").Append(sm).Append(" 以降*");
             return sb.ToString();
