@@ -14,6 +14,11 @@ tags:
     - GPU 駆動なら、カリングも GPU で行える。
     - 描画命令の数が減る。
 
+!!! info "このページを読む前に"
+    - [Vegetation](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## インスタンシング
 <strong>同じメッシュを位置・向き・大きさだけ変えて、大量に描く</strong>のがインスタンシングです。
 
@@ -159,7 +164,7 @@ VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
 
 | 方式 | ドローコール | CPU の負荷 |
 | --- | --- | --- |
-| 1 本ずつ描く | 数十万 | 非常に高い |
+| 1 本ずつ描く | 数十万 | 高い |
 | 区画ごとにまとめる | 数百 | 中程度（メッシュの結合が要る） |
 | インスタンシング | 1〜数回 | 低い |
 | GPU 駆動（間接描画） | 1 回（インスタンス数も、GPU が決める） | 最小 |

@@ -98,7 +98,7 @@ for (const auto& entry : fs::recursive_directory_iterator("assets")) {
     ファイルの追加や削除を、回している最中に行うと、挙動が不定になります。いったん集めてから操作します。
 
 ??? failure "巨大なフォルダを毎回たどって遅くなる"
-    `.git` や `node_modules` のような大きなフォルダに入ると、非常に時間がかかります。`disable_recursion_pending()` で飛ばすか、対象のフォルダを絞ります。
+    `.git` や `node_modules` のような大きなフォルダに入ると、時間がかかります。`disable_recursion_pending()` で飛ばすか、対象のフォルダを絞ります。
 
 ## 類似
 

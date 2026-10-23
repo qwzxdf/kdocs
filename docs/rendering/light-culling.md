@@ -17,6 +17,11 @@ tags:
     - Tiled / Clustered Deferred：ライティングをコンピュートで、1 パスで（G-Buffer を、1 回だけ読む）。
     - Tiled / Clustered Forward（Forward+）：Forward でタイル／クラスターのライト リストを使う（MSAA・半透明が使える）。
 
+!!! info "このページを読む前に"
+    - [描画最適化](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## なぜ、絞るのか
 
 **100 個のライトがあるシーン**であるピクセルに実際に届くライトは、数個です。全 100 個を計算するのは無駄です。
@@ -160,7 +165,7 @@ tags:
 | Tiled Deferred | PC・コンソールの不透明中心。帯域に余裕がある |
 | Tiled Forward（Forward+） | MSAA が欲しい・材質を自由にしたい |
 | Clustered Forward | 半透明・ボリューム効果をライトに反応させたい。VR |
-| Clustered Deferred | 大規模・ライトが非常に多い |
+| Clustered Deferred | 大規模・ライトが多い |
 
 現在の多くのゲームは、Clustered（または Tiled）を、Forward か Deferred と組み合わせています。ハイブリッド（不透明は Deferred、半透明は Clustered Forward）も、一般的です。
 
@@ -461,7 +466,7 @@ tags:
     - [x] 目的：<strong>「ピクセル × 全ライト」を、「ピクセル × 近くのライト」に</strong>。G-Buffer を、1 回だけ読む（帯域）
     - [x] Tiled ＝ 画面を、タイルに分け、タイルごとのライト リスト（min/max 深度で絞る）。弱点は深度の不連続
     - [x] Clustered ＝ 奥行き（対数スライス）も分け、3 次元のセルごと。不連続・半透明に強い
-    - [x] Forward 系（Forward+）はMSAA・半透明・材質の自由、Deferred 系はライトが、非常に多いとき
+    - [x] Forward 系（Forward+）はMSAA・半透明・材質の自由、Deferred 系はライトが、多いとき
     - [x] ライト リスト ＝ グリッド ＋ インデックス リスト ＋ ライト バッファ。コンピュート シェーダーで作る
 
 ## 関連ページ

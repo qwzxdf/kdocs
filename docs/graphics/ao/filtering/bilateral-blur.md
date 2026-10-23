@@ -14,6 +14,11 @@ tags:
     - 横 → 縦の 2 パスに分離する（厳密には分離できないが、実用上は十分）。
     - 重みはガウス ×（深度の差の重み）×（法線の差の重み）。
 
+!!! info "このページを読む前に"
+    - [AO Filtering](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 空間フィルタ：バイラテラル ブラー
 <!-- fig:bilateral-blur:begin -->
 

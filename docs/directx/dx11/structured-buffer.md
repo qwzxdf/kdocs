@@ -19,6 +19,12 @@ tags:
     - 読む用に SRV、書く用に UAV を作る（[Shader Resource View (SRV)](shader-resource-view.md)、[Unordered Access View (UAV)](uav.md)）。
     - 定数バッファと違い 16 バイト境界の制約は緩い（構造体は、そのまま並ぶ）。サイズの上限も大きい。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## 構造化バッファ
 
 ```cpp

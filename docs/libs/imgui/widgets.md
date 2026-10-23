@@ -17,6 +17,10 @@ ImGui の<strong>部品（ウィジェット）</strong>は、関数を 1 回呼
     - 数値の調整は、`Drag`（ドラッグで増減）が便利。範囲があるなら `Slider`。
     - `std::string` を `InputText` に渡すには、`imgui_stdlib.h`。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](install.md)（ImGui の入れ方）
+
 ## 基本の考え方
 
 ```cpp

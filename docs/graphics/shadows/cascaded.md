@@ -16,6 +16,11 @@ tags:
     - 描画時、画素の深度から、カスケードを選ぶ。境目はブレンドする。
     - 影を落とす物は、視錐台の外（光に近い側）にもある。範囲を光の方向に広げる。
 
+!!! info "このページを読む前に"
+    - [Shadows](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 遠近エイリアシングの解消
 
 <svg class="fig illust" viewBox="0 0 780 300" role="img" aria-label="カスケード">

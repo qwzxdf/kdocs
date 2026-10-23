@@ -20,6 +20,12 @@ D3D11 は描画が間違っていても、<strong>エラーを出さずに黙っ
     - 終了時の `ReportLiveDeviceObjects` で解放し忘れを、見つける。
     - 製品（Release）では、外す（遅い）。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## 有効にする
 
 ```cpp

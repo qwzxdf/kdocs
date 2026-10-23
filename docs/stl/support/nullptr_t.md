@@ -22,6 +22,10 @@ tags:
     - `nullptr_t` の引数を取ると、`nullptr` だけを受け付ける。
     - どのポインター型にも変換できる。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+
 ## 関数の詳しい説明
 
 ### std::nullptr_t {#nullptr_t}

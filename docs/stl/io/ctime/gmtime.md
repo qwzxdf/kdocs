@@ -22,6 +22,9 @@ tags:
     - 戻り値のポインターは次の呼び出しで上書きされる。
     - スレッドセーフな `gmtime_r`（POSIX）/ `gmtime_s`（MSVC）もある。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::gmtime {#gmtime}

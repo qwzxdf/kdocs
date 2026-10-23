@@ -372,7 +372,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::random_device`](utilities/random/random_device.md) | <span class="rank rank-often">よく使う</span> | — | OS が用意する、予測しにくい乱数。エンジンの種を作るのに使う。 |
     | [`std::seed_seq`](utilities/random/seed_seq.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 複数の値から、エンジンの種を作る。 |
     | [`std::minstd_rand`](utilities/random/minstd_rand.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 軽い乱数エンジン（状態が 4 バイト）。品質は mt19937 より低い。 |
-    | [`std::ranlux24`](utilities/random/ranlux24.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 品質が非常に高いが、遅い乱数エンジン（24 ビット / 48 ビット版）。 |
+    | [`std::ranlux24`](utilities/random/ranlux24.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 品質が高いが、遅い乱数エンジン（24 ビット / 48 ビット版）。 |
     | [`std::knuth_b`](utilities/random/knuth_b.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 内部で並べ替えを使う乱数エンジン。 |
     | [`std::default_random_engine`](utilities/random/default_random_engine.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 実装が選ぶ既定の乱数エンジン。環境によって中身が違うので、再現性が必要なら使わない。 |
 

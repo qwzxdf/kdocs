@@ -14,6 +14,10 @@ tags:
     - 外部ライブラリは、`FetchContent`（ダウンロードして一緒にビルド）か、vcpkg で入れる。
     - ビルドの設定は `CMakePresets.json` に書くと、チームで共有できる。
 
+!!! info "このページを読む前に"
+    - [vs/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [インストールとプロジェクトの作成](setup.md)（Visual Studio の準備）
+
 ## 使う場面
 
 | 場面 | おすすめ |

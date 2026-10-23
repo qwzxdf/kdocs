@@ -16,6 +16,11 @@ tags:
     - 定数バッファは描画全体で共通の値（行列・光の向きなど）。
     - CPU と GPU は並行して動く。CPU が命令を積み、GPU が少し遅れて実行する。
 
+!!! info "このページを読む前に"
+    - [描画の流れ（入門）](index.md)（このセクション全体の地図と、読む順番）
+    - [行列](../../gamemath/matrices.md)（行列の基礎）
+    - [座標系](../../gamemath/coordinate-systems.md)（このサイトの座標系の約束）
+
 ## CPU と GPU の分担
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="CPU と GPU の分担">

@@ -16,6 +16,11 @@ tags:
     - 背景はピント内の物を貫通しないように、重みを制御。
     - 半解像度でも前景と背景は分けて保存する。
 
+!!! info "このページを読む前に"
+    - [Depth of Field (DOF)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 前景と背景の違い
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="前景と背景のボケ">

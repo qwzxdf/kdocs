@@ -16,6 +16,10 @@ tags:
     - 測る時間は、遅い場面だけ。同じ場面を何度も測って、比べる。
     - GPU が遅いなら、Visual Studio のツールより、PIX・RenderDoc が向く。
 
+!!! info "このページを読む前に"
+    - [vs/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [インストールとプロジェクトの作成](setup.md)（Visual Studio の準備）
+
 ## 測る前の準備
 
 ### 構成は Release

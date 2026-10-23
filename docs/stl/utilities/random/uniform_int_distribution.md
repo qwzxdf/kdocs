@@ -44,7 +44,7 @@ class uniform_int_distribution {
 
 `a` は下限、`b` は上限で、どちらも出る可能性があります。`uniform_int_distribution<int> dice(1, 6)` なら、1、2、3、4、5、6 が同じ確率で出ます。
 
-`vector` の要素をランダムに選ぶときは、`uniform_int_distribution<size_t> pick(0, v.size() - 1)` と書きます。`v.size()` を上限に渡すと、範囲外の添え字が出ます。`v` が空だと、`v.size() - 1` が非常に大きな値になるので、空でないことを先に確かめます。
+`vector` の要素をランダムに選ぶときは、`uniform_int_distribution<size_t> pick(0, v.size() - 1)` と書きます。`v.size()` を上限に渡すと、範囲外の添え字が出ます。`v` が空だと、`v.size() - 1` が大きな値になるので、空でないことを先に確かめます。
 
 `a > b` は未定義動作です。型に `char` や `bool` は使えません。`int`、`long`、`unsigned` などを指定します。
 
@@ -140,7 +140,7 @@ result_type max() const;
     `rand()` の最大値が `n` の倍数でないと、小さい値が少し出やすくなります。品質も低いので、標準の分布を使います。
 
 ??? failure "符号付きと符号なしを混ぜて範囲を作る"
-    `uniform_int_distribution<int> pick(0, v.size() - 1)` は、`size_t` から `int` への変換で警告が出ます。`v.size()` が非常に大きい場合は、桁あふれもします。型は `size_t` で指定します。
+    `uniform_int_distribution<int> pick(0, v.size() - 1)` は、`size_t` から `int` への変換で警告が出ます。`v.size()` が大きい場合は、桁あふれもします。型は `size_t` で指定します。
 
 ## 類似
 

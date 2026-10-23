@@ -14,6 +14,11 @@ tags:
     - 箱の形が実際と違うと、ずれが残る。
     - 床の反射は補正しても、不自然になりやすい（平面反射を併用）。
 
+!!! info "このページを読む前に"
+    - [Reflection Probes](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 視差の問題と補正
 ### 視差の問題
 

@@ -18,6 +18,10 @@ ufbx で読み込んだ**シーン**から、メッシュ（頂点・インデ�
     - スキンは `ufbx_skin_deformer`。アニメーションは `ufbx_evaluate_transform` で、時刻の姿勢。
     - `ufbx_free_scene` の前に、ゲーム用にコピーする。
 
+!!! info "このページを読む前に"
+    - [ufbx（FBX の読み込み）](index.md)（このセクション全体の地図と、読む順番）
+    - [3D モデルの読み込みライブラリの選び方](../model-loading.md)（3D モデルの読み込みの選び方）
+
 ## メッシュ
 
 ### 構造

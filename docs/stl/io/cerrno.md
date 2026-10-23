@@ -21,6 +21,9 @@ tags:
     - 成功しても `errno` が書き換わらないことがある。失敗が分かるときだけ見る。
     - 説明文は `std::strerror(errno)`。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### errno {#cerrno}

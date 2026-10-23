@@ -21,6 +21,9 @@ tags:
     - 埋める文字は [`setfill`](setfill.md)。
     - 新しいコードは `std::println("{:>6}", x)`。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::setw {#setw}

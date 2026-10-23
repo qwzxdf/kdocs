@@ -15,6 +15,11 @@ tags:
     - 空気遠近法 LUT：カメラからの距離ごとの散乱。
     - 動的に更新できる（時刻・天候）。
 
+!!! info "このページを読む前に"
+    - [Atmospheric Scattering](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## Hillaire 2020：4 つの LUT
 <strong>Hillaire（2020, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"）</strong>は、軽い LUT を毎フレーム更新する方式です。大気の組成（霧の濃さ・時間帯）を動的に変えられるのが強みで、Unreal Engine の SkyAtmosphereなどに使われています。
 
@@ -179,7 +184,7 @@ float3 SampleSkyView(float3 view_dir) {
 }
 ```
 
-画面全体の空がテクスチャ 1 回の読み込みになるので、非常に安いです。
+画面全体の空がテクスチャ 1 回の読み込みになるので、安いです。
 
 ## 4：Aerial Perspective LUT
 
@@ -242,7 +247,7 @@ float3 ApplyAerialPerspective(float3 scene_color, float2 screen_uv, float distan
 | Sky-View | 毎フレーム 0.05〜0.1 ms |
 | Aerial Perspective | 毎フレーム 0.1〜0.2 ms |
 
-<strong>合計で毎フレーム、0.3 ms 未満</strong>と 非常に軽く、時間帯の変化にもリアルタイムに、追従できます。
+<strong>合計で毎フレーム、0.3 ms 未満</strong>と 軽く、時間帯の変化にもリアルタイムに、追従できます。
 
 ## DirectX 11 で組む
 

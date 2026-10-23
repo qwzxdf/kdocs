@@ -14,6 +14,11 @@ tags:
     - 境界の継ぎ目に注意。
     - 区画の大きさは 64〜256 頂点が目安。
 
+!!! info "このページを読む前に"
+    - [Heightmaps and Meshes](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## チャンクに分割する
 <strong>広大な地形を 1 枚のメッシュで描く</strong>と、画面外も全部描いてしまいます。チャンク（タイル）に分けて見える所だけ描きます。
 

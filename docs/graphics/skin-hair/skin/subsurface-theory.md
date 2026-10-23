@@ -15,6 +15,11 @@ tags:
     - 双極子モデル（Jensen 2001）が、実用の出発点。吸収係数と散乱係数から R(r) を計算できる。
     - リアルタイムでは R(r) をガウスの和で近似して、ぼかしで実装する。
 
+!!! info "このページを読む前に"
+    - [Skin Overview](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## BRDF から BSSRDF へ
 
 まず、ふつうの反射の式を思い出します。ある点 x に入る光 L_i(ω_i) が、BRDF f_r で反射されて、視線方向 ω_o に出ていきます。

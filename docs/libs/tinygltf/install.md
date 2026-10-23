@@ -9,6 +9,11 @@ tags:
 
 Visual Studio での tinygltf の入れ方です。
 
+!!! info "このページを読む前に"
+    - [tinygltf（glTF の読み込み）](index.md)（このセクション全体の地図と、読む順番）
+    - [3D モデルの読み込みライブラリの選び方](../model-loading.md)（3D モデルの読み込みの選び方）
+
+
 Visual Studio での入れ方の基本は [外部ライブラリの入れ方](../../vs/libraries.md) にまとめています。
 
 === "ファイルを置く"

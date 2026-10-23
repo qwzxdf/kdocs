@@ -19,6 +19,9 @@ tags:
     - DirectX の既定は、時計回りが表。反時計回りにするには `FrontCounterClockwise = TRUE`。
     - 行列はメモリ上、行優先（DirectXMath）。HLSL の既定は列優先なので `row_major` を付ける。
 
+!!! info "このページを読む前に"
+    - [DirectX Concepts](index.md)（このセクション全体の地図と、読む順番）
+
 ## このサイトの規約
 
 | 項目 | 規約 |

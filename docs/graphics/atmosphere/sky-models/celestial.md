@@ -14,12 +14,17 @@ tags:
     - 星 ＝ キューブマップ、または点の集まり。
     - 昼は星が見えない（空の明るさに負ける）。
 
+!!! info "このページを読む前に"
+    - [Sky Models](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 太陽・月・星
 <strong>空の主役</strong>は太陽です。
 
 ### 太陽の円盤
 
-太陽は視線と太陽の方向の角度が小さい所だけ、非常に明るい円盤です。実際の太陽の見た目の大きさは、約 0.53°（半径 約 0.265°）です。
+太陽は視線と太陽の方向の角度が小さい所だけ、明るい円盤です。実際の太陽の見た目の大きさは、約 0.53°（半径 約 0.265°）です。
 
 ```hlsl
 float SunDisk(float3 view_dir, float3 sun_dir) {
@@ -145,7 +150,7 @@ float SunDisk(float3 view_dir, float3 sun_dir) {
 float3 sun_color = g_sun_luminance * SunDisk(view_dir, sun_dir);
 ```
 
-`kSunCosAngle` の `0.99998` は 太陽の視半径（約 0.265°）の、cos です。`smoothstep` で縁をわずかにぼかしてギザギザを、防ぎます。太陽の明るさは非常に高い（空の、数万倍）ので HDR で描きブルームで、光らせます（[Post-Processing](../../postprocess/index.md)）。
+`kSunCosAngle` の `0.99998` は 太陽の視半径（約 0.265°）の、cos です。`smoothstep` で縁をわずかにぼかしてギザギザを、防ぎます。太陽の明るさは高い（空の、数万倍）ので HDR で描きブルームで、光らせます（[Post-Processing](../../postprocess/index.md)）。
 
 ### 大気を通した太陽の色
 

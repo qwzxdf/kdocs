@@ -16,6 +16,11 @@ tags:
     - 明→暗は遅く、暗→明は速く（目は暗順応が遅い）。
     - 最小・最大の EV を制限し、露出補正で画作りを残す。
 
+!!! info "このページを読む前に"
+    - [Tone Mapping and Exposure](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 全体の流れ
 
 <svg class="fig illust" viewBox="0 0 780 170" role="img" aria-label="自動露出の流れ">
@@ -34,7 +39,7 @@ tags:
 
 ### 対数平均
 
-<strong>単純な平均は太陽のような非常に明るい点に引きずられて、シーン全体が暗くなります</strong>。対数をとってから平均する（幾何平均）と、外れ値の影響が小さくなります。
+<strong>単純な平均は太陽のような明るい点に引きずられて、シーン全体が暗くなります</strong>。対数をとってから平均する（幾何平均）と、外れ値の影響が小さくなります。
 
 <div class="formula">L_avg = exp( (1/N) · Σ log(L + ε) )</div>
 

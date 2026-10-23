@@ -14,6 +14,11 @@ tags:
     - 重点サンプリング ＝ 寄与の大きい方向を、多めに選ぶ。
     - リアルタイムでは、少ないサンプル ＋ デノイズが基本。
 
+!!! info "このページを読む前に"
+    - [GI Theory](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:monte-carlo-converge:begin -->
 
 <svg class="fig illust motion" data-fig="monte-carlo-converge" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
@@ -331,7 +336,7 @@ float3 LocalToWorld(float3 v, float3 n) {
 | 100 | 1/10 |
 | 10,000 | 1/100 |
 
-ノイズを半分にするのに サンプルを、4 倍にする必要があります。ノイズが非常に遅く減るのでリアルタイムでは、サンプルを増やすのが難しいです。
+ノイズを半分にするのに サンプルを、4 倍にする必要があります。ノイズが遅く減るのでリアルタイムでは、サンプルを増やすのが難しいです。
 
 ## リアルタイムでは：少ないサンプル + デノイズ
 

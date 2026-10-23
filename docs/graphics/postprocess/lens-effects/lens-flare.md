@@ -16,6 +16,11 @@ tags:
     - 画面端のゴーストは弱める。色収差を付けると虹色でリアル。
     - 光源が隠れたら消えるよう、オクルージョンを考慮する。
 
+!!! info "このページを読む前に"
+    - [Lens Effects](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 要素
 
 <svg class="fig illust" viewBox="0 0 780 250" role="img" aria-label="レンズ フレアの要素">

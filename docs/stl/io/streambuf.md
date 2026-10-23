@@ -21,6 +21,9 @@ tags:
     - ストリームの中身を丸ごと別のストリームへ流すには `out << in.rdbuf()`。
     - 自作の入出力先は、`streambuf` を継承して作る。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::streambuf {#streambuf}

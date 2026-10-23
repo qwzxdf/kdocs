@@ -21,6 +21,10 @@ tags:
     - <strong>作ってから変更しない「集合」に使う。</strong> 使い方は set と同じ。
     - 実は「vector に入れて sort して unique」したものとほぼ同じ。そちらで代用しても十分。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [イテレータ](../../basics/iterator.md)（イテレーターの基礎）
+
 ## 宣言
 
 ```cpp

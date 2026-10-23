@@ -9,6 +9,9 @@ tags:
 !!! tip "ポイント"
     <strong>迷ったら `std::vector`。</strong> ほかのコンテナは「vector だと困る理由」があるときだけ使います。
 
+!!! info "このページを読む前に"
+    - [basics/index.md](index.md)（このセクション全体の地図と、読む順番）
+
 ```mermaid
 flowchart TD
     A[データをまとめて持ちたい] --> B{要素数はコンパイル時に決まる？}

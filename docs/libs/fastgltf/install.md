@@ -9,6 +9,11 @@ tags:
 
 fastgltf は**ヘッダ ＋ ビルドが必要なライブラリ**（`.cpp` を含む）です。simdjsonにも依存します。Visual Studio で入れるなら vcpkg が簡単です（導入の基本は [外部ライブラリの入れ方](../../vs/libraries.md)）。
 
+!!! info "このページを読む前に"
+    - [fastgltf（高速な glTF 読み込み）](index.md)（このセクション全体の地図と、読む順番）
+    - [3D モデルの読み込みライブラリの選び方](../model-loading.md)（3D モデルの読み込みの選び方）
+
+
 === "vcpkg"
 
     1. 初回だけ Developer PowerShell で `vcpkg integrate install` を実行する（[準備](../../vs/libraries.md#vcpkg)）

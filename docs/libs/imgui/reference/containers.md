@@ -15,6 +15,10 @@ tags:
     - `TreeNode` が true を返したら、最後に `TreePop`。
     - ポップアップ系は、`OpenPopup` で開き、`BeginPopup` で中身を書く（2 段階）。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](../index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](../install.md)（ImGui の入れ方）
+
 ## ツリー・折りたたみ
 
 | 関数 | 出るもの | 戻り値 | 閉じ方 |
@@ -101,7 +105,7 @@ if (ImGui::BeginTable("Enemies", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_Ro
 }
 ```
 
-行が非常に多いときは、`ImGuiListClipper`で、見える行だけを描きます（下記）。
+行が多いときは、`ImGuiListClipper`で、見える行だけを描きます（下記）。
 
 ## 大量の行を速く描く（ListClipper）
 

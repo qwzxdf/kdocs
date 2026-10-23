@@ -14,6 +14,11 @@ tags:
     - 適用：シーンの色 × 透過率 ＋ 散乱光。
     - シーンの深度から、froxel の位置を引く。
 
+!!! info "このページを読む前に"
+    - [Volumetric Fog](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## ③ 積分
 <strong>視線に沿って手前から奥へ光と透過率を累積します</strong>。奥行き方向（Z）にループし、各 froxel の寄与を足します。
 

@@ -17,6 +17,11 @@ tags:
     - ブレンド ＝ 新しい色と既存の色を、式で混ぜる。半透明・加算など。
     - 描く順番が重要：不透明は手前から（高速）、半透明は奥から。
 
+!!! info "このページを読む前に"
+    - [描画の流れ（入門）](index.md)（このセクション全体の地図と、読む順番）
+    - [行列](../../gamemath/matrices.md)（行列の基礎）
+    - [座標系](../../gamemath/coordinate-systems.md)（このサイトの座標系の約束）
+
 ## 全体の位置
 
 <svg class="fig illust" viewBox="0 0 780 180" role="img" aria-label="出力マージャーの流れ"><defs><marker id="rfa" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs>

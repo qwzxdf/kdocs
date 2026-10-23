@@ -16,6 +16,11 @@ tags:
     - 後処理はぼかし（ランダム パターンと同じ周期のボックス ぼかしが定番）。
     - コサイン重み付きにするなら、サンプルを法線に寄せる（分布を工夫する）。
 
+!!! info "このページを読む前に"
+    - [Ambient Occlusion (AO)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## Crytek 方式からの変更点
 
 | 項目 | Crytek 方式 | 半球 SSAO |

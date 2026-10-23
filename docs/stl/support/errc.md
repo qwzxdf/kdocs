@@ -22,6 +22,10 @@ tags:
     - `std::make_error_code(std::errc::xxx)` でエラーコードを作れる。
     - POSIX のエラー番号（ENOENT など）に対応している。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+
 ## 関数の詳しい説明
 
 ### std::errc {#errc}

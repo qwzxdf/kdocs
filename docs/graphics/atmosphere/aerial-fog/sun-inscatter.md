@@ -14,6 +14,11 @@ tags:
     - 反対側は空の青。
     - ミー散乱の前方散乱に対応。
 
+!!! info "このページを読む前に"
+    - [Aerial Perspective and Fog](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 太陽方向のにじみ
 <strong>太陽の方向を見ると霧が明るく・暖色に光ります</strong>（前方散乱）。フォグの色を視線と太陽の角度で変えます。
 
@@ -89,7 +94,7 @@ float3 ApplyFogWithSun(float3 scene_color, float3 view_dir, float distance) {
 | ボリューム フォグ（froxel） | シャドウ マップを引いて、影の中は暗い（[Volumetric Fog](../volumetric-fog/index.md)） |
 | ゴッド レイ（放射状ブラー、レイマーチ） | 影の有無で筋を、作る（[God Rays](../god-rays/index.md)） |
 
-簡単な霧に太陽を足す方法は 影を、無視する代わりに非常に軽いので遠景の霞に、向いています。近景の影つきの霧はボリュームで、作ります。
+簡単な霧に太陽を足す方法は 影を、無視する代わりに軽いので遠景の霞に、向いています。近景の影つきの霧はボリュームで、作ります。
 
 ## 物理ベースでは自動
 

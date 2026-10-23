@@ -16,6 +16,10 @@ tags:
     - 失敗を検出する。不正な入力は エラーにするか `U+FFFD`（�）に置き換えるかを決める。
     - Shift_JIS などの古いファイルを読むときだけ、CP932 から UTF-8 に変換して、以降は UTF-8 で扱う。
 
+!!! info "このページを読む前に"
+    - [encoding/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [文字コードの基礎](unicode-basics.md)（文字コードの基礎）
+
 ## 変換の全体像
 
 <svg class="fig flow" viewBox="0 0 560 280" role="img" aria-label="変換が必要なのは、境界だけ"><defs><marker id="fl23855" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">変換が必要なのは、境界だけ</text><line x1="243.5" y1="56.0" x2="329.0" y2="56.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl23855)"/><text x="286.2" y="76.0" text-anchor="middle" style="font-size:12px">Windows API との境界</text><line x1="329.0" y1="56.0" x2="243.5" y2="56.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl23855)"/><text x="286.2" y="42.0" text-anchor="middle" style="font-size:12px">戻す</text><line x1="148.0" y1="209.0" x2="148.0" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl23855)"/><text x="148.0" y="142.0" text-anchor="middle" style="font-size:12px">古いファイルを読むときだけ</text><rect x="55.5" y="44.0" width="185" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="148.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">std::string （UTF-8）</text><rect x="332.0" y="44.0" width="200" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="432.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">std::wstring （UTF-16）</text><rect x="28.0" y="212.0" width="240" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="148.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Shift JIS （CP932）のバイト列</text></svg>
@@ -143,7 +147,7 @@ int size = ::WideCharToMultiByte(932, 0, wide.data(), static_cast<int>(wide.size
 | ライブラリ | 特徴 | 例 |
 | --- | --- | --- |
 | **utfcpp**（`utf8cpp`） | ヘッダだけ。軽い。UTF-8 / 16 / 32 の変換と文字の走査 | `utf8::utf8to16(s)`、`utf8::utf16to8(w)`、`utf8::is_valid(s)` |
-| simdutf | 非常に速い（SIMD）。変換と検証 | `simdutf::validate_utf8(p, n)`、`convert_utf8_to_utf16le(...)` |
+| simdutf | 速い（SIMD）。変換と検証 | `simdutf::validate_utf8(p, n)`、`convert_utf8_to_utf16le(...)` |
 | ICU | 本格的。変換、正規化、照合、書記素の分割、全部できる。大きい | `icu::UnicodeString::fromUTF8(s)` |
 | Boost.Locale | ICU や OS の機能を使った、変換とロケール | `boost::locale::conv::utf_to_utf<wchar_t>(s)` |
 | {fmt}（`std::format` の元） | UTF-8 の書式化。`fmt::to_string` | 変換は持たない |

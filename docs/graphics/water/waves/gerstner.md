@@ -14,6 +14,11 @@ tags:
     - Q が大きすぎると、波頭が交差してメッシュが破綻する。
     - サイン波より少し重いが、見た目が大きく向上する。
 
+!!! info "このページを読む前に"
+    - [Water Waves](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## Gerstner 波
 <strong>Gerstner 波</strong>は 水面の「粒子」を、円を描くように動かすモデルです。上下に動くだけでなく水平方向にも動くので波頂に向かって粒子が集まり、波頂が尖り谷が広がります。
 

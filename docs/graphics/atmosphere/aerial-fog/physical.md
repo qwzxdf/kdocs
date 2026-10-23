@@ -14,6 +14,11 @@ tags:
     - 時刻・天候が変わっても、自動で追従。
     - Hillaire 2020 の空気遠近法 LUT。
 
+!!! info "このページを読む前に"
+    - [Aerial Perspective and Fog](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 物理に基づく空気遠近法
 <strong>大気散乱</strong>（[Atmospheric Scattering](../scattering/index.md)）のLUT を使うと、距離フォグを物理的に決められます。Hillaire 2020 の「空気遠近法 LUT」 は、カメラ前方の froxel ごとの「散乱光」と「透過率」を保持します。
 
@@ -197,7 +202,7 @@ float SliceToDistance(float slice) {
 | Aerial Perspective LUT の、更新 | 0.1〜0.2 ms |
 | 物体ごとの適用 | テクスチャ 1 回（物体の、ピクセル シェーダーに数命令を、足すだけ） |
 
-<strong>物体の数に関係なく</strong>、LUT を 1 回、更新し各物体は引くだけなので非常に、効率的です。
+<strong>物体の数に関係なく</strong>、LUT を 1 回、更新し各物体は引くだけなので、効率的です。
 
 ## よくあるミス
 

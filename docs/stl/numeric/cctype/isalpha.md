@@ -21,6 +21,9 @@ tags:
     - 日本語（UTF-8 のバイト）は判定できない。
     - 引数の `char` が負だと未定義動作。`static_cast<unsigned char>(c)` を通す。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::isalpha {#isalpha}

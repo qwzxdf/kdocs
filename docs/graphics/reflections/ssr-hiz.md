@@ -16,6 +16,11 @@ tags:
     - ステップ数が距離に依存せず数十回に収まる。
     - 終盤に厚み（thickness）の検証が必要。
 
+!!! info "このページを読む前に"
+    - [Reflections](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## なぜ速くなるか
 
 線形マーチは<strong>空いている空間でも 1 ピクセルずつ</strong>進みます。レイの周りに何も遮る物がないと分かれば、一気に進めるはずです。

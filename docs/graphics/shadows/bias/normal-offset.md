@@ -14,6 +14,11 @@ tags:
     - 傾いた面ほど大きくずらす（`1 − N·L`）。
     - ピーター パンニングが出にくいが、影の位置が少しずれる。
 
+!!! info "このページを読む前に"
+    - [Shadow Bias](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:normal-offset:begin -->
 
 <svg class="fig illust motion" data-fig="normal-offset" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>

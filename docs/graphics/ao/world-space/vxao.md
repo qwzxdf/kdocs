@@ -14,6 +14,11 @@ tags:
     - ボクセルの解像度で、細部と範囲が決まる。
     - ボクセル GI と仕組みを共有できる（[Voxel GI](../../gi/voxel-gi.md)）。
 
+!!! info "このページを読む前に"
+    - [Ray-Traced, Distance-Field and Voxel AO](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## ボクセル AO（VXAO）
 
 シーンをボクセル（3D の小さな箱）の格子に変換し、各ボクセルに<strong>占有度</strong>（どれだけ埋まっているか）を保存します。さらに、ミップマップを作ります。粗いミップのボクセルは広い範囲の平均の占有度を持ちます。AO は点から円錐に沿って、ミップを上げながら占有度を積み上げることで求めます。

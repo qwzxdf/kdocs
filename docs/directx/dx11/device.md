@@ -19,6 +19,12 @@ D3D11 のすべての出発点は <strong>デバイス</strong>（`ID3D11Device`
     - コンテキストの命令は <strong>1 つのスレッドから</strong>出す（即時コンテキスト）。
     - 全部の COM オブジェクトは `ComPtr` で持つ。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## ID3D11Device
 
 デバイスは GPU 1 つ（のドライバー）を表すオブジェクトです。GPU 上のあらゆる物はデバイスが、作ります。

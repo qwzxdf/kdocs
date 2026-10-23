@@ -23,6 +23,10 @@ tags:
     - 描く場所は `SetRect` と `SetDrawlist` で指定する。シーン ビューのウィンドウの中に出すのが定番。
     - 操作の種類（移動・回転・拡大）と、空間（ローカル・ワールド）は、`OPERATION` と `MODE` で切り替える。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](install.md)（ImGui の入れ方）
+
 ## 導入（Visual Studio）
 
 ImGuizmo は、**ソースを数ファイル、プロジェクトに追加する**だけで使えます。先に [Dear ImGui の導入](install.md) を済ませておきます。

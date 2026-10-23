@@ -16,6 +16,11 @@ tags:
     - Hi-Z のミップごとの UAV/SRVとバリアの管理が、D3D12 の実装の山。
     - 深度は標準 Z（遠いほど 1）で解説。Reversed-Zならmin/max と比較の向きが逆。
 
+!!! info "このページを読む前に"
+    - [GPU Driven Rendering](../gpu-driven.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](../bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## Hi-Z テクスチャ
 
 **深度バッファ**から、ミップ チェーン付きの `R32_FLOAT` テクスチャを作ります。

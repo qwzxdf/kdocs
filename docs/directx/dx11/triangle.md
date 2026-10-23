@@ -19,6 +19,12 @@ tags:
     - 三角形が見えないときは「裏面」「ビューポート」「束縛の忘れ」を疑う。
     - ステートを作らないと既定（深度テスト有り裏面カリング有りブレンド無し）で描かれる。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## パイプラインのつなぎ方
 
 ```text

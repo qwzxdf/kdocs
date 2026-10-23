@@ -21,6 +21,10 @@ tags:
     - `std::owner_less<>`（型の省略）が使いやすい。
     - 同じ持ち主を指す `weak_ptr` は、重複せず 1 つになる。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [所有権（誰が消すのか）](../../basics/ownership.md)（所有権の考え方）
+
 ## 関数の詳しい説明
 
 ### std::owner_less {#owner_less}

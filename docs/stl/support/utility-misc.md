@@ -23,6 +23,10 @@ tags:
     - 「この値は int に入る？」は **`std::in_range<int>(x)`**。
     - バイト列は `unsigned char` ではなく **`std::byte`**。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+
 ## 関数一覧
 
 | 名前 | 重要度 | 何をする | ヘッダ |

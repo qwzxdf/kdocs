@@ -16,6 +16,11 @@ tags:
     - メモリと帯域が サンプル数 倍。ディファードの G バッファは特に重い。
     - VR・モバイル（タイルベース）では今も現役。
 
+!!! info "このページを読む前に"
+    - [Anti-Aliasing](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:msaa-samples:begin -->
 
 <svg class="fig illust motion" data-fig="msaa-samples" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
@@ -375,7 +380,7 @@ tags:
 
 ## SSAA との違い
 
-<strong>SSAA（スーパー サンプリング）</strong>は、画面全体を縦横 2 倍（面積 4 倍）で描いて縮小する方式です。最も高品質ですがピクセル シェーダーも 4 倍回るので、非常に重いです。
+<strong>SSAA（スーパー サンプリング）</strong>は、画面全体を縦横 2 倍（面積 4 倍）で描いて縮小する方式です。最も高品質ですがピクセル シェーダーも 4 倍回るので、重いです。
 
 SSAA 4x と MSAA 4x を比べます。SSAA 4x は、ピクセル シェーダーが 4 倍、メモリも 4 倍で、縁もシェーダー内も滑らかになります。MSAA 4x は、ピクセル シェーダーは 1 倍で済み、メモリ（カラーと深度）は 4 倍ですが、縁は滑らかになるものの、シェーダー内のエイリアシングには効きません。
 

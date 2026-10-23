@@ -17,6 +17,10 @@ ImGui には、**画像を表示する部品**（`Image`・`ImageButton`）が�
     - ゲームの画面をレンダー ターゲットに描いて、SRV を `Image` で出すと、エディタのシーン ビューができる。
     - テクスチャは、ImGui が使い終わるまで、解放しない（`Render` が終わるまで、生きている必要）。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](install.md)（ImGui の入れ方）
+
 ## ImTextureID
 
 **`ImTextureID`** は、テクスチャを識別する、ImGui 用の「ID」です。中身はバックエンドによって違います。

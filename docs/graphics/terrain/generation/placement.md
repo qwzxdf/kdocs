@@ -14,6 +14,11 @@ tags:
     - シード値で決定的にする。
     - 手動の配置と併用する。
 
+!!! info "このページを読む前に"
+    - [Terrain Generation](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 配置の生成
 <strong>地形の上に何を置くかも手続き的に決められます</strong>。
 

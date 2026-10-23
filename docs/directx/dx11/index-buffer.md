@@ -19,6 +19,12 @@ tags:
     - 三角形の頂点の並びが、反時計回り（CCW）が表。
     - 同じ頂点を共有すると、GPU の頂点キャッシュが効き、頂点シェーダーの呼び出しが減る。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## なぜインデックスを使うのか
 
 四角形を描くとき比べます。

@@ -14,6 +14,11 @@ tags:
     - 正確だが重い。
     - 現在は PPLL や WBOIT に置き換わっている。
 
+!!! info "このページを読む前に"
+    - [Order-Independent Transparency (OIT)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:depth-peeling-passes:begin -->
 
 <svg class="fig illust motion" data-fig="depth-peeling-passes" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
@@ -245,7 +250,7 @@ for (int layer = 0; layer < kMaxLayers; ++layer) {
 | --- | --- | --- |
 | 窓ガラス | 1〜2 | 2 |
 | 葉の群れ | 5〜20 | 多い（重い） |
-| 髪の毛 | 10〜50 | 非常に、多い |
+| 髪の毛 | 10〜50 | 、多い |
 
 すべての層を取り出すには、パスの数 × 半透明の描画コストが、かかります。実用では手前の数層（3〜4 層）だけを正確に残りは近似、という使い方になります。
 
@@ -274,7 +279,7 @@ Bavoil と Myers（2008）の、<strong>デュアル デプス ピーリング</
 | 場面 | 判断 |
 | --- | --- |
 | 小さな重要な半透明（ガラスの、造形物） | 使える |
-| 重なりが非常に多い（髪、葉、煙） | 重すぎる。他の方式（[WBOIT](wboit.md)、[PPLL](ppll.md)） |
+| 重なりが多い（髪、葉、煙） | 重すぎる。他の方式（[WBOIT](wboit.md)、[PPLL](ppll.md)） |
 | オフラインの正解画像の作成 | 最適（比較用の、リファレンス） |
 
 ## よくあるミス

@@ -14,6 +14,11 @@ tags:
     - 粗さを波の大きさに合わせる。
     - 遠くはちらつくので、粗さを上げる。
 
+!!! info "このページを読む前に"
+    - [Water Shading](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## スペキュラ（太陽の反射）
 <strong>太陽が水面に映ると細かい波ごとに小さな反射が散らばって見えます</strong>（グリント）。法線マップの細かい法線で Blinn–Phong・GGX のスペキュラを計算します。
 
@@ -27,7 +32,7 @@ float specular = pow(n_dot_h, shininess) * sun_intensity;
 | --- | --- |
 | 高い `shininess` | 水面は滑らかなので鋭いハイライト（例：256 以上） |
 | GGX を使う | PBR の規約と揃える（[PBR](../../../3d/pbr.md)）。粗さ（roughness）を小さく |
-| HDR で出す | 太陽の反射は非常に明るい。ブルームで光る（[Post-Processing](../../postprocess/index.md)） |
+| HDR で出す | 太陽の反射は明るい。ブルームで光る（[Post-Processing](../../postprocess/index.md)） |
 | ちらつき対策 | 細かい法線は距離でぼかす（粗さを距離で上げる）。さもないと遠くがチカチカする |
 
 <!-- fig:ggx-lobe:begin -->

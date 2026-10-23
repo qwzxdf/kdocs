@@ -16,6 +16,11 @@ tags:
     - 画面外も反映。ノイズが少ない（円錐が空間をまとめて積分）。
     - 欠点：ボクセルの解像度が粗い（光漏れ）。メモリ・更新コストが重い。
 
+!!! info "このページを読む前に"
+    - [Global Illumination (GI)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 原理
 
 ### ① ボクセル化

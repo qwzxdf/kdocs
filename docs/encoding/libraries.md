@@ -15,6 +15,10 @@ tags:
     - 迷ったら ライブラリのドキュメントで「UTF-8」「wide」「Unicode」を検索。
     - 文字の切り取り・数え方・並べ替えが必要なら utfcpp / ICU。検証だけなら simdutf。
 
+!!! info "このページを読む前に"
+    - [encoding/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [文字コードの基礎](unicode-basics.md)（文字コードの基礎）
+
 ## ライブラリごとの要求
 
 ライブラリが受け取る文字列は大きく 3 つの流派に分かれます。**UTF-8 の `char*`**（ほとんどのクロスプラットフォームなライブラリ）、**UTF-16 の `wchar_t*`（Windows 由来の API）、そしてANSI（実行環境のコード ページ）**（古い C の関数）です。自分のゲームの文字列を UTF-8 に統一していれば、1 つ目はそのまま渡せ 2 つ目は境界で変換し、3 つ目は使わないように避けます。
@@ -85,7 +89,7 @@ tags:
 | ライブラリ | 向いていること | 大きさ | 導入 |
 | --- | --- | --- | --- |
 | utfcpp（`utf8cpp`） | UTF-8 の検証・変換・文字の走査。軽くて簡単 | ヘッダだけ | `vcpkg install utfcpp` |
-| simdutf | 非常に速い検証・変換（SIMD）。大量のデータ | ライブラリ | `vcpkg install simdutf` |
+| simdutf | 速い検証・変換（SIMD）。大量のデータ | ライブラリ | `vcpkg install simdutf` |
 | ICU | 何でもできる。正規化、照合（五十音順）、書記素の分割、大文字小文字（日本語対応）、変換、日付・数値の書式 | 大きい（数十 MB） | `vcpkg install icu` |
 | Boost.Locale | ICU を使った、C++ らしい API | 大きい | `vcpkg install boost-locale` |
 | utf8proc | 正規化（NFC / NFD）、文字の分類。小さい | 小さい | `vcpkg install utf8proc` |

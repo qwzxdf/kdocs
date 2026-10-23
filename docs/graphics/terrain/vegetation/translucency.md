@@ -14,6 +14,11 @@ tags:
     - 遠くで細る問題は、アルファの補正で対処。
     - A2C やハッシュドで、縁をなめらかに。
 
+!!! info "このページを読む前に"
+    - [Vegetation](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 半透明の問題
 <strong>草と葉はアルファ テスト（切り抜き）で描きます</strong>。半透明ブレンドはソートが要るので不向きです。
 

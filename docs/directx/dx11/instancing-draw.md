@@ -19,6 +19,12 @@ tags:
     - インスタンスの数が、GPU で決まるなら `DrawIndexedInstancedIndirect`（間接描画）。
     - ドロー コールを減らす最も基本の手段（[Draw Calls](../../rendering/draw-calls.md)）。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## 方法 1：PER_INSTANCE_DATA（頂点バッファの 2 本目）
 
 メッシュの頂点バッファ（スロット 0）に加えて、<strong>インスタンスごとのデータ</strong>を入れたバッファ（スロット 1）を用意します。

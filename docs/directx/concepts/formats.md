@@ -19,6 +19,10 @@ tags:
     - 深度を書いて読むなら `R32_TYPELESS`（型をビューで決める）。
     - 圧縮（BC1〜BC7）で、メモリを 1/4〜1/8 に。
 
+!!! info "このページを読む前に"
+    - [DirectX Concepts](index.md)（このセクション全体の地図と、読む順番）
+    - [Coordinate Conventions](conventions.md)（このセクションの約束（座標系・行列））
+
 ## 名前の読み方
 
 ```text

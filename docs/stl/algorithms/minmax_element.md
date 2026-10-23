@@ -21,6 +21,10 @@ tags:
     - 最小は**最初の**もの、最大は**最後の**ものを返す（`max_element` とは違う）。
     - 空の範囲なら、どちらも `end()`。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [イテレータ](../../basics/iterator.md)（イテレーターの基礎）
+
 ## 関数の詳しい説明
 
 ### std::ranges::minmax_element {#minmax_element}

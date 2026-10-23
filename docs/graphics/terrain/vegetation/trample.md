@@ -14,6 +14,11 @@ tags:
     - 時間とともにゆっくり戻る。
     - 範囲はカメラの周りに限る。
 
+!!! info "このページを読む前に"
+    - [Vegetation](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 踏まれる草
 <strong>キャラクターが歩くと草が倒れる</strong>表現です。キャラクターの位置をシェーダーに渡し、近い草を押しのけます。
 

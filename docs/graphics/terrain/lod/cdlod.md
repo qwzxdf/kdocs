@@ -14,6 +14,11 @@ tags:
     - 各区画は同じ格子メッシュを再利用。
     - 距離で LOD の範囲を決める。
 
+!!! info "このページを読む前に"
+    - [Terrain LOD](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 四分木（CDLOD）
 <strong>CDLOD</strong>（Continuous Distance-Dependent LOD）は、地形を四分木で管理します。根（地形全体）から始めカメラに近いノードを、4 つの子に分割していきます。
 

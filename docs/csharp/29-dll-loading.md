@@ -181,6 +181,10 @@ private static partial bool SetDllDirectory(string path);
 !!! tip "配布するなら、探す場所を限る"
     探索場所にユーザーが書き込めるフォルダーが含まれていると、偽物の DLL を置かれる危険があります。製品として配るときは、`[DefaultDllImportSearchPaths(DllImportSearchPath.AssemblyDirectory)]` で、アプリのフォルダーだけに限定します。
 
+!!! info "このページを読む前に"
+    - [第 28 章 C++/CLI で橋を作る](28-cpp-cli.md)（前の章。ここまでの内容が前提になる）
+    - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
+
 ## クラッシュしたときの調べ方
 
 C++ 側の想定外の終了は、クラッシュ ダンプ（その瞬間のメモリの記録）を取ると調べられます。いちばん簡単なのは、Visual Studio で再現させて、例外で止まった場所のコール スタックを読む方法です。再現しにくいときは、Windows のエラー報告（WER）でダンプを保存する設定にするか、Sysinternals の `procdump -ma -e -w Editor.exe` で、例外が起きた時点のダンプを保存します。

@@ -16,6 +16,11 @@ tags:
     - 速い物体の輪郭の外側にも、尾が伸びるように周りの速度を考慮（[Tile Max Velocity](tile-max.md)）。
     - 対象を絞る（重要な物体・プレイヤー周辺）とコストが下がる。
 
+!!! info "このページを読む前に"
+    - [Motion Blur](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 物体の速度
 
 <strong>物体の各頂点について、前フレームの位置と今の位置を計算</strong>し、その差をピクセル シェーダーで速度として出力します（[Velocity Buffer](velocity-buffer.md)）。

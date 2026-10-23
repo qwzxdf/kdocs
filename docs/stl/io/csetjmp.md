@@ -21,6 +21,9 @@ tags:
     - 例外のほうが安全。
     - C のライブラリが `longjmp` でエラーを返す設計のとき、境界を越えないようにする。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### &lt;csetjmp&gt;（setjmp と longjmp） {#csetjmp}

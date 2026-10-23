@@ -21,6 +21,10 @@ tags:
     - `make_index_sequence<N>` で、0 から N-1 の並びを作る。
     - 可変引数テンプレートの「引数パック」を展開する技法とセットで使う。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::integer_sequence {#integer_sequence}

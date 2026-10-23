@@ -17,6 +17,10 @@ tags:
     - ImGui の`ImDrawList`で、3D の線を画面上に描く方法が手軽（3D → 画面の座標変換が必要）。
     - 製品版では無効（`JPH_DEBUG_RENDERER` を定義しない）。
 
+!!! info "このページを読む前に"
+    - [Jolt Physics](index.md)（このセクション全体の地図と、読む順番）
+    - [物理演算の全体像](overview.md)（Jolt の全体像）
+
 ## 何が見えるか
 
 | 描画するもの | 内容 | 使いどころ |

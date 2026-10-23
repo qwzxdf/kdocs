@@ -14,6 +14,11 @@ tags:
     - ハードウェア レイトレ不要。
     - 弱点：距離場の解像度・動く物体・メモリ。
 
+!!! info "このページを読む前に"
+    - [Ray-Traced, Distance-Field and Voxel AO](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 距離場 AO（DFAO）
 <strong>符号付き距離場（SDF）</strong>は 空間の各点から、最も近い表面までの距離を 3D テクスチャに格納したものです。距離がわかるので円錐に沿って歩くと遮蔽の割合をサンプルを数えずに求められます。
 

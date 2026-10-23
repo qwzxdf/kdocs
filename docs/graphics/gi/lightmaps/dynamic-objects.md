@@ -14,6 +14,11 @@ tags:
     - 周囲のプローブ（SH）から、間接光を受け取る。
     - 静的な背景と動く物体の明るさが、揃うように調整する。
 
+!!! info "このページを読む前に"
+    - [Lightmaps](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 鏡面は別
 
 ライトマップが保存するのは拡散の間接光だけです。鏡面反射（周りの景色の映り込み）は含みません。鏡面は視線に依存するので 1 つの値としてテクスチャに焼いておくことができないからです（[Diffuse and Specular](../theory/diffuse-specular.md)）。鏡面反射は[反射プローブ](../../reflections/probes/index.md)や SSR が担当します。ライトマップだけを使うとつるつるした面が周りを映さず、違和感が出ます。

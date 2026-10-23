@@ -14,6 +14,9 @@ Visual Studio 2026 で C++ を始めるときの、インストールから「He
     - プラットフォームは x64。構成は開発中は Debug。
     - ファイルはソリューション フォルダーの中にまとめて置く（`src/`、`third_party/` など）。
 
+!!! info "このページを読む前に"
+    - [vs/index.md](index.md)（このセクション全体の地図と、読む順番）
+
 ## インストール
 
 1. [Visual Studio の公式サイト](https://visualstudio.microsoft.com/ja/) から **Visual Studio Community**（学生・個人は無料）をダウンロードする

@@ -19,6 +19,12 @@ GPU のメモリ（バッファ、テクスチャ）に <strong>CPU から、デ
     - GPU の結果を CPU で読むなら `STAGING` に `CopyResource` して `Map(READ)`。
     - `WRITE_DISCARD` は前の内容を捨てる。一部だけを更新したいなら `WRITE_NO_OVERWRITE`。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## Usage（用途）の 4 種類
 
 | `Usage` | GPU | CPU | 使いどころ |

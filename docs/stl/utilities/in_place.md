@@ -21,6 +21,10 @@ tags:
     - `std::variant<int, float> v(std::in_place_type<float>, 1.5f);` のように、型を指定できる。
     - `optional::emplace` と同じ目的。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::in_place {#in_place}

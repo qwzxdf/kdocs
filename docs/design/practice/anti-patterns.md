@@ -16,6 +16,10 @@ tags:
     - 直すときは、[リファクタリング](refactoring-smells.md)の小さな手順で。
     - 名前より、なぜ困るのかを理解する。
 
+!!! info "このページを読む前に"
+    - [design/index.md](../index.md)（このセクション全体の地図と、読む順番）
+    - [設計の基本原則](../foundations/principles.md)（設計の基本原則）
+
 ## 設計のアンチパターン
 
 ### 神クラス（God Class / Manager だらけ）

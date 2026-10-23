@@ -16,6 +16,11 @@ tags:
     - メッシュの SDF を、事前に作る（静的）。動く物・変形に弱い。
     - メモリ・SDF の解像度が品質を決める。細い物が消えることがある。
 
+!!! info "このページを読む前に"
+    - [Shadows](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 符号付き距離場（SDF）とは
 
 <strong>SDF</strong>（Signed Distance Field）は、空間の各点に、「最も近い表面までの距離」を入れたものです。表面の外側は正、内側は負です。

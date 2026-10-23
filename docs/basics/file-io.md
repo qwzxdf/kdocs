@@ -21,6 +21,9 @@ tags:
     - パスは `std::filesystem::path` で組み立てる（`dir / "save.dat"`）。
     - 本格的なセーブデータは [シリアライズ](../engine/serialization/index.md) の仕組み（JSON ライブラリなど）を使う。
 
+!!! info "このページを読む前に"
+    - [basics/index.md](index.md)（このセクション全体の地図と、読む順番）
+
 ## 基本
 
 ### テキストを書いて読む

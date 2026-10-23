@@ -19,6 +19,10 @@ CPU と GPU は <strong>別々のプロセッサー</strong>で それぞれ非�
     - D3D12: フェンス（CPU ↔ GPU）と リソース バリア（GPU の中）で、明示する。
     - 同期の間違いは「たまに画面が、乱れる」「環境でクラッシュする」という 再現しにくいバグになる。
 
+!!! info "このページを読む前に"
+    - [DirectX Concepts](index.md)（このセクション全体の地図と、読む順番）
+    - [Coordinate Conventions](conventions.md)（このセクションの約束（座標系・行列））
+
 ## CPU と GPU は非同期
 
 ```text

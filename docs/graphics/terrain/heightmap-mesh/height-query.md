@@ -14,6 +14,11 @@ tags:
     - CPU 側にも高さマップを持つ。
     - 格子の三角形の分割と、補間を合わせる。
 
+!!! info "このページを読む前に"
+    - [Heightmaps and Meshes](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 任意の位置の高さを取る
 <strong>キャラクターを地面に立たせる・草を置く・当たり判定</strong>には、CPU で任意の (x, z) の高さが必要です。高さマップの 4 点を双線形補間します。
 

@@ -14,6 +14,11 @@ tags:
     - 履歴でゆっくり消える。
     - 速さに応じて強さを変える。
 
+!!! info "このページを読む前に"
+    - [Shore Foam](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 航跡と衝突
 <strong>船や泳ぐキャラクターの後ろ</strong>には泡の筋が残ります。
 

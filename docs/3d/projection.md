@@ -16,6 +16,11 @@ tags:
     - 深度は非線形（near の近くに精度が集中する）。reverse-Z（near と far を入れ替える）で、精度を改善できる。
     - `proj` は、画面サイズやズームが変わったときだけ作り直す。
 
+!!! info "このページを読む前に"
+    - [3d/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [行列](../gamemath/matrices.md)（行列の基礎）
+    - [座標系](../gamemath/coordinate-systems.md)（このサイトの座標系の約束）
+
 ## 視錐台（見える範囲）
 
 カメラから見える 3D の範囲は、<strong>四角錐を、near と far で切り取った形（視錐台：frustum）</strong>です。

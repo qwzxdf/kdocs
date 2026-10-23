@@ -14,6 +14,11 @@ tags:
     - 長い道のり ＝ 低い太陽 ＝ 赤くなる（青が先に消える）。
     - LUT に事前計算しておくと速い。
 
+!!! info "このページを読む前に"
+    - [Atmospheric Scattering](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:sun-transmittance:begin -->
 
 <svg class="fig illust motion" data-fig="sun-transmittance" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>

@@ -14,6 +14,11 @@ tags:
     - 1 画素ごとに式を評価するだけ。
     - 宇宙からの視点には、向かない。
 
+!!! info "このページを読む前に"
+    - [Sky Models](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 解析的な空のモデル
 <strong>Preetham（1999）・Hosek-Wilkie（2012）</strong>は、空の輝度分布を少数のパラメータの数式で近似します。パラメータは太陽の高さ（天頂角）と、大気の濁り（turbidity）です。実測・シミュレーションにフィットさせた式なので、手作業のグラデーションより自然で、時刻による移り変わりも連続します。
 
@@ -50,9 +55,9 @@ Hosek-Wilkie は Preetham の改良版で、特に太陽が低いとき地面の
 | 用途 | 軽量・手軽 | 品質重視 |
 
 
-原典は Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、非常に軽い代わりに地上の視点から見た空にしか使えず、宇宙から見た地球や遠景のかすみ（空気遠近法）は扱えません。
+原典は Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、軽い代わりに地上の視点から見た空にしか使えず、宇宙から見た地球や遠景のかすみ（空気遠近法）は扱えません。
 
-原典は Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、非常に軽い代わりに地上の視点から見た空にしか使えず、宇宙から見た地球や遠景のかすみ（空気遠近法）は扱えません。
+原典は Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、軽い代わりに地上の視点から見た空にしか使えず、宇宙から見た地球や遠景のかすみ（空気遠近法）は扱えません。
 
 どちらも空の見た目だけで大気の中を通る光（遠景の霞・光の筋）は別に計算する必要があります。そこは[Atmospheric Scattering](../scattering/index.md)の担当です。
 
@@ -126,7 +131,7 @@ float PreethamLuminance(float3 view_dir, float3 sun_dir, float turbidity) {
 }
 ```
 
-濁り（turbidity）は、2（非常に澄んだ）〜 10（霞んだ）の範囲を、使います。大きいほど空が白っぽく霞んで見えます。
+濁り（turbidity）は、2（澄んだ）〜 10（霞んだ）の範囲を、使います。大きいほど空が白っぽく霞んで見えます。
 
 ## 長所と短所
 

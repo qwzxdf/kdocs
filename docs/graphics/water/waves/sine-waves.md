@@ -14,6 +14,11 @@ tags:
     - 向きをばらつかせると、規則的に見えない。
     - 波長と振幅は比例させる（長い波ほど大きい）。
 
+!!! info "このページを読む前に"
+    - [Water Waves](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:sine-sum:begin -->
 
 <svg class="fig illust motion" data-fig="sine-sum" viewBox="0 0 780 470" role="img"><rect x="0" y="0" width="780" height="470" rx="14" fill="#ffffff"/>
@@ -75,7 +80,7 @@ float WaveHeight(float2 position, Wave wave, float time) {
 | 1 | 長い（例：20 m） | 大 | 風向き |
 | 2 | 中 | 中 | 少しずらす |
 | 3 | 短い | 小 | さらにずらす |
-| 4 | 非常に短い | 極小 | 別の向き |
+| 4 | 短い | 極小 | 別の向き |
 
 欠点：サイン波は波頂が丸く、谷も同じ形で海の「尖った波頂・広い谷」の形にならない。
 

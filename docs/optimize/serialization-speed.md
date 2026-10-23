@@ -15,6 +15,10 @@ tags:
     - 速さの順の目安：ゼロコピー（cista・mmap）> 構造体のバイナリ（zpp_bits・struct_pack）> 汎用バイナリ（cereal）> 高速 JSON（simdjson）> 普通の JSON。
     - 測ってから決める。ロードが本当に解析で遅いかを確かめる（[計測](measure.md)）。
 
+!!! info "このページを読む前に"
+    - [optimize/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [計測（プロファイリング）](measure.md)（測ってから直す、という進め方）
+
 ## ロードが遅い理由
 
 ```text

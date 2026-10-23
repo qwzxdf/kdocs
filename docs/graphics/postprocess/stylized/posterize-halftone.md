@@ -16,6 +16,11 @@ tags:
     - 丸めの境は、ちらつきやすい。TAA・ディザリングで抑える。
     - どれも画風の選択。写実的な絵を良くする技法ではない。
 
+!!! info "このページを読む前に"
+    - [Outlines and Toon](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## ポスタライズ
 
 <strong>色の連続的な階調</strong>を少ない段階に丸めます。

@@ -17,6 +17,10 @@ tags:
     - アライメントを確保ごとに合わせる。
     - 標準では`std::pmr::monotonic_buffer_resource`が、同じもの（[std::pmr](../../stl/memory/pmr.md)）。
 
+!!! info "このページを読む前に"
+    - [optimize/index.md](../index.md)（このセクション全体の地図と、読む順番）
+    - [メモリ確保](../allocation.md)（メモリ確保が遅い理由）
+
 ## 仕組み
 
 ```text

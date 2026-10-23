@@ -16,6 +16,11 @@ tags:
     - 衝突判定（重なったか）と、衝突応答（どう動くか）は別。応答は物理エンジンに任せる手もある。
     - 数が多いなら、空間分割で判定する組み合わせを減らす。
 
+!!! info "このページを読む前に"
+    - [3d/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [行列](../gamemath/matrices.md)（行列の基礎）
+    - [座標系](../gamemath/coordinate-systems.md)（このサイトの座標系の約束）
+
 ## 形状の選び方
 
 <svg class="fig" viewBox="0 0 620 210" role="img" aria-label="当たり判定の形"><defs><marker id="c1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">コライダー（当たり判定の形）：複雑なモデルを、単純な形で近似する</text><circle cx="80" cy="110" r="44" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2"/><text x="45" y="190">球（最速）</text><rect x="170" y="70" width="90" height="80" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2"/><text x="165" y="190">AABB（軸に平行）</text><rect x="330" y="75" width="90" height="60" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2" transform="rotate(25 375 105)"/><text x="325" y="190">OBB（回転した箱）</text><rect x="490" y="65" width="50" height="100" rx="25" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2"/><line x1="515" y1="90" x2="515" y2="140" stroke="currentColor" stroke-dasharray="3 3"/><text x="480" y="190">カプセル（人型）</text></svg>
@@ -214,7 +219,7 @@ l b w hit 前→今の位置にレイ
 
 | 方法 | 説明 |
 | --- | --- |
-| **高さマップ** | 地形が高さの配列なら、XZ から高さを引くだけで、床判定ができる。非常に速い |
+| **高さマップ** | 地形が高さの配列なら、XZ から高さを引くだけで、床判定ができる。速い |
 | 三角形メッシュ | 正確。BVH で三角形を絞ってから判定 |
 | ボクセル・グリッド | ブロック状の世界（マインクラフト風）。セルの配列を調べるだけ |
 | ナビメッシュ | 歩ける場所を多角形で。経路探索に使う |

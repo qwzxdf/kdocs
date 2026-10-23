@@ -14,6 +14,11 @@ tags:
     - 乗算：Zero / SrcColor（影・色付きガラス）。
     - 深度の書き込みは OFF、読み取りは ON。
 
+!!! info "このページを読む前に"
+    - [Alpha Blending and Sorting](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## DirectX 11 のブレンド ステート
 ```cpp
 D3D11_BLEND_DESC blend_desc = {};

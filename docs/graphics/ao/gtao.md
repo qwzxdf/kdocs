@@ -16,6 +16,11 @@ tags:
     - 時間方向にスライスの向きを回して、少ない方向数でも収束させる。
     - マルチ バウンス（間接光の回り込み）の近似、ベント法線、スペキュラ遮蔽が付く。
 
+!!! info "このページを読む前に"
+    - [Ambient Occlusion (AO)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## HBAO からの改良
 
 HBAO と GTAO は、どちらも「地平線を探す」方式ですが、積分の扱いが違います。HBAO は<strong>立体角の割合</strong>を積分し、コサイン重みを省略していました。GTAO はコサイン重みを含めて、正しい AO の積分を行います。そのため、スライスごとに法線をスライス平面へ投影し、投影された法線の長さを、そのスライスの重みにします。
@@ -184,7 +189,7 @@ float SliceVisibility(float3 p, float3 v, float3 n, float2 dir, float2 h_cos) {
 
 画素ごとにスライスの向きを変え、空間的にノイズに変えます（4×4 や IGN など。[Noise Patterns](filtering/noise-pattern.md)）。さらに、フレームごとにスライスの向きを回して、時間的にも別の向きを見ます。ステップの位置にもジッターを足します。そして、バイラテラル ブラーと時間蓄積で、これらのノイズを平均します。実質、毎画素で数十本のスライスを使ったのと同じ結果になります。
 
-GTAO が実用的な速さで動くのは、この時間蓄積のおかげです。1 フレームの結果は非常に粗いものですが、数フレームを重ねるときれいになります（[Temporal Accumulation](filtering/temporal.md)）。
+GTAO が実用的な速さで動くのは、この時間蓄積のおかげです。1 フレームの結果は粗いものですが、数フレームを重ねるときれいになります（[Temporal Accumulation](filtering/temporal.md)）。
 
 ## 薄い物体への対策
 

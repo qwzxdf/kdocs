@@ -21,6 +21,10 @@ tags:
     - 長く保存してはいけない（元の値が消えるとぶら下がる）。
     - `std::apply` や `piecewise_construct` へ渡すために使う。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::forward_as_tuple {#forward_as_tuple}

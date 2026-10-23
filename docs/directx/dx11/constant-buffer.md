@@ -19,6 +19,12 @@ tags:
     - 毎フレーム、書き換えるなら `DYNAMIC` + `Map(WRITE_DISCARD)`。まれにしか変えないなら `DEFAULT` + `UpdateSubresource`。
     - 行列は `row_major` を付けて、HLSL で行ベクトル（`mul(v, M)`）の規約にそろえる。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## HLSL 側
 
 ```hlsl

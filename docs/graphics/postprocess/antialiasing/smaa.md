@@ -16,6 +16,11 @@ tags:
     - 縁検出は輝度（または色・深度）の差で行う。
     - SMAA T2x はジッターと時間蓄積を足した版（TAA の簡易版）。
 
+!!! info "このページを読む前に"
+    - [Anti-Aliasing](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 3 つのパス
 
 <svg class="fig illust" viewBox="0 0 780 200" role="img" aria-label="SMAA の 3 パス">

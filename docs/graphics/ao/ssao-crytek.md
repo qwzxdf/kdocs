@@ -17,6 +17,11 @@ tags:
     - 球を使うので平らな面でも約半分が「遮られる」。面全体が灰色になるのが弱点（次の[Hemisphere SSAO](ssao-hemisphere.md) で解決）。
     - サンプル数が少ない（16 程度）ので画素ごとにサンプルをランダムに回転し、ぼかしで消す。
 
+!!! info "このページを読む前に"
+    - [Ambient Occlusion (AO)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 発想
 
 [理論](theory/index.md)のとおり、AO は「<strong>点 p の周りの遮られていない方向の割合</strong>」でした。本来はシーンにレイを飛ばして調べます。Crytek 方式は、レイを飛ばす代わりに、「p の近くの点が物体の内側にあるか」を調べます。

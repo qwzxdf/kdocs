@@ -21,6 +21,10 @@ tags:
     - `decltype` や `sizeof`、コンセプトの `requires` の中だけで使う。
     - 実行時には呼べない。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::declval {#declval}

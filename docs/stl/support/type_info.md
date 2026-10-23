@@ -22,6 +22,10 @@ tags:
     - `hash_code()` は同じ型で同じ値になる（実行ごとには変わりうる）。
     - コンテナのキーにしたいなら [`type_index`](type_index.md)。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+
 ## 関数の詳しい説明
 
 ### std::type_info {#type_info}

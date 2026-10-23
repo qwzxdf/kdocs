@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\src\KCppErr.Vsix\BuildOutputParser.cs" />
+    <Compile Include="..\..\src\KCppErr.Vsix\Analyzer.cs" />
+  </ItemGroup>
+</Project>

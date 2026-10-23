@@ -9,6 +9,11 @@ tags:
 
 ufbx は**`ufbx.c` と `ufbx.h` の 2 ファイルだけ**です。ファイルを置いてプロジェクトに追加するのが、最も簡単です（導入の基本は [外部ライブラリの入れ方](../../vs/libraries.md)）。
 
+!!! info "このページを読む前に"
+    - [ufbx（FBX の読み込み）](index.md)（このセクション全体の地図と、読む順番）
+    - [3D モデルの読み込みライブラリの選び方](../model-loading.md)（3D モデルの読み込みの選び方）
+
+
 === "ファイルを置く"
 
     1. [GitHub の ufbx](https://github.com/ufbx/ufbx) から、`ufbx.c` と `ufbx.h` を取得し、`third_party/ufbx/` に置く

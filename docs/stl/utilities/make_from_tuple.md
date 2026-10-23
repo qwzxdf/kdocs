@@ -20,6 +20,10 @@ tags:
     - `std::make_from_tuple<Vec>(std::make_tuple(3, 4))` は `Vec(3, 4)` と同じ。
     - 設定データ（tuple）から、オブジェクトを組み立てるときに使える。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::make_from_tuple {#make_from_tuple}

@@ -17,6 +17,10 @@ tags:
     - マルチビューポートは `ImGuiConfigFlags_ViewportsEnable`。バックエンドの対応が必要で、描画の呼び出しが少し増える。
     - ゲームの画面はレンダー ターゲットに描いて、ウィンドウの中の画像として出す（[テクスチャ](textures.md)）。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](install.md)（ImGui の入れ方）
+
 ## ドッキングを有効にする
 
 ### docking ブランチ

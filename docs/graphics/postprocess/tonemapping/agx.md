@@ -16,6 +16,11 @@ tags:
     - 選ぶ基準：色の再現（忠実）か、映画的な絵（フィルム）か。
     - どれも露出の後・ガンマの前。
 
+!!! info "このページを読む前に"
+    - [Tone Mapping and Exposure](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 何が改善されたか
 
 <strong>ACES や Hable では</strong>、R・G・B に別々に曲線を掛けるため、明るい色の比率が崩れます（青い光が紫に赤が黄色に）。新しい方式は色空間を工夫したり、LUT で調整したりして、これを緩和します。

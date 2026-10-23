@@ -15,6 +15,10 @@ tags:
     - ヘッダに重い物（`<windows.h>` 全部、`<regex>`、`<iostream>`）を入れない。
     - Debug のビルドを、速くする（日々の開発で一番使う）。Release の LTCG は、遅くてよい（CI で）。
 
+!!! info "このページを読む前に"
+    - [optimize/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [計測（プロファイリング）](measure.md)（測ってから直す、という進め方）
+
 ## なぜ遅いのか
 
 <svg class="fig flow" viewBox="0 0 417 280" role="img" aria-label="同じヘッダを、すべての .cpp が読み直す"><defs><marker id="fl51929" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">同じヘッダを、すべての .cpp が読み直す</text><line x1="107.0" y1="80.2" x2="220.3" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl51929)"/><text x="163.7" y="96.6" text-anchor="middle" style="font-size:12px">#include</text><line x1="107.0" y1="148.0" x2="165.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl51929)"/><text x="136.0" y="142.0" text-anchor="middle" style="font-size:12px">#include</text><line x1="107.0" y1="215.8" x2="220.3" y2="171.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl51929)"/><text x="163.7" y="187.4" text-anchor="middle" style="font-size:12px">#include</text><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">A.cpp</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="168.0" y="128.0" width="221" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="278.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">big.h （100回、解析・展開）</text><circle cx="170.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="170.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="28.0" y="128.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="66.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">B.cpp</text><circle cx="30.0" cy="130.0" r="10" fill="#2ea043"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="28.0" y="212.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="66.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">C.cpp</text><circle cx="30.0" cy="214.0" r="10" fill="#e5a828"/><text x="30.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
@@ -26,7 +30,7 @@ tags:
 | 重い標準ヘッダ | `<regex>`、`<iostream>`、`<algorithm>`、`<ranges>`、`<format>` は、読み込みが重い |
 | テンプレートの展開 | 同じテンプレートを`.cpp` ごとにインスタンス化する |
 | インライン関数・巨大な `constexpr` | ヘッダに書くと全員が解析する |
-| リンク時コード生成（LTCG） | リリースの最適化。リンクが非常に遅くなる |
+| リンク時コード生成（LTCG） | リリースの最適化。リンクが遅くなる |
 | ディスク・ウイルス対策 | ファイルを大量に読むので、遅い環境ではさらに遅い |
 
 ## 測る
@@ -96,7 +100,7 @@ class Player {
 | `<regex>` | 重い。`.cpp` の中だけ。使わないのがよい |
 | `<algorithm>` `<ranges>` | 必要な `.cpp` だけ |
 | `<format>` `<print>` | 重め。ヘッダの中で使わない |
-| `<nlohmann/json.hpp>` | 非常に重い。一部の `.cpp` に閉じ込める |
+| `<nlohmann/json.hpp>` | 重い。一部の `.cpp` に閉じ込める |
 
 ### include のチェック
 
@@ -256,7 +260,7 @@ template class std::vector<Enemy>;
 | --- | --- |
 | <strong>増分リンク（`/INCREMENTAL`）</strong> | Debug で有効（既定）。変更だけをリンクし直す |
 | `/DEBUG:FASTLINK` | デバッグ情報の作成を速く（互換性・機能に制約あり） |
-| LTCG（`/GL`、`/LTCG`） | Release の最適化。非常に遅い。CI・最終ビルドだけ |
+| LTCG（`/GL`、`/LTCG`） | Release の最適化。遅い。CI・最終ビルドだけ |
 | 静的ライブラリの数を減らす | 小さなライブラリを大量にリンクすると、遅い |
 | ライブラリを DLL にする | 変更時の再リンクが速くなる（実行時のコストと配布に注意） |
 | 新しいリンカー・`lld` | 一部のプロジェクトで速くなる |

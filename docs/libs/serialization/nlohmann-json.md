@@ -1175,7 +1175,7 @@ Windows で Shift_JIS（CP932）の文字列をそのまま入れると、UTF-8 
 
 | ライブラリ | 違い |
 | --- | --- |
-| [simdjson](simdjson.md) | 読み込みが非常に速い。読み込み専用で、書き方が少し難しい |
+| [simdjson](simdjson.md) | 読み込みが速い。読み込み専用で、書き方が少し難しい |
 | [rapidyaml](rapidyaml.md) | YAML（と JSON）を速く読み書きする。人が書く設定ファイル向け |
 | RapidJSON | 速い JSON ライブラリ。書き方が冗長で古いスタイル |
 | Glaze | 構造体を自動で JSON にする、とても速い新しいライブラリ（C++23 が必要） |

@@ -14,6 +14,11 @@ tags:
     - 点光源：90° の透視投影を 6 面（キューブ マップ）。
     - 範囲（箱・近い面・遠い面）を、狭く決めると解像度が無駄にならない。
 
+!!! info "このページを読む前に"
+    - [Shadow Map Basics](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## ① 光の行列
 <!-- fig:light-frustum:begin -->
 

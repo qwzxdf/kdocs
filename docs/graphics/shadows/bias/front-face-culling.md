@@ -14,6 +14,11 @@ tags:
     - 閉じた立体で有効。薄い板・片面の物では影が欠ける。
     - ラスタライザの `CullMode = FRONT` で設定。
 
+!!! info "このページを読む前に"
+    - [Shadow Bias](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:front-face-cull:begin -->
 
 <svg class="fig illust motion" data-fig="front-face-cull" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>

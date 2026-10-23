@@ -16,6 +16,11 @@ tags:
     - 重みは合計 1 に正規化（明るさを保つ）。
     - ブルームでは、縮小した画像にかけるので、小さなカーネル（5〜9 タップ）で済む。
 
+!!! info "このページを読む前に"
+    - [Bloom](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## ガウス関数
 
 <div class="formula">G(x) = (1 / (σ√(2π))) · exp( −x² / (2σ²) )</div>

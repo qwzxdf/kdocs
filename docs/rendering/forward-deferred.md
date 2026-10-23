@@ -17,6 +17,11 @@ tags:
     - 代償：G-Buffer の帯域（書き込み・読み込み）。MSAA・半透明・材質の多様性が難しい。
     - ライトごとにフルスクリーンで読むのは、帯域が重い。→ Tiled / Clustered へ（[Tiled と Clustered](light-culling.md)）。
 
+!!! info "このページを読む前に"
+    - [描画最適化](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## 動きで比べる
 
 **同じ画面（28×16 マス）・同じ球体 10 個・同じ色付きのライト 5 個**を、Forward と Deferred で描く様子です。ライトが球体に当たると、ライトの色が付きます（近いライトほど濃く）。最後の絵は同じですが、計算の回数が違います。

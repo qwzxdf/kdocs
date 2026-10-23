@@ -14,6 +14,11 @@ tags:
     - 反射色と屈折色を、F で混ぜる。
     - 遠く（斜め）ほど、反射が強い。
 
+!!! info "このページを読む前に"
+    - [Water Shading](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:water-fresnel:begin -->
 
 <svg class="fig illust motion" data-fig="water-fresnel" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>

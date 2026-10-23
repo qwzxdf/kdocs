@@ -14,6 +14,11 @@ tags:
     - 頂点カラーで風の効き方（根元は動かない）を指定。
     - テクスチャで葉の形を切り抜く。
 
+!!! info "このページを読む前に"
+    - [Vegetation](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 草の形
 <strong>草は細い葉が大量に生えている</strong>ので、ポリゴンを工夫します。
 

@@ -14,6 +14,11 @@ tags:
     - テクスチャを流して、動きを付ける。
     - 水の色の上に白を乗せる。
 
+!!! info "このページを読む前に"
+    - [Shore Foam](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 泡テクスチャ
 <strong>マスクだけではべったりした白</strong>になります。泡の模様（粒の集まり）のテクスチャを乗せます。
 

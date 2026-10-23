@@ -17,6 +17,11 @@ tags:
     - 代償：後のパスが複雑（頂点を自分で読み直す）。テクスチャのミップ選択（微分）を自分で計算。バインドレスがほぼ必須。
     - Nanite・Meshlet ベースのレンダラと相性が良い（[Mesh Shader](mesh-shaders.md)）。
 
+!!! info "このページを読む前に"
+    - [描画最適化](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## G-Buffer の何が重いのか
 
 | 重い所 | 説明 |
@@ -77,7 +82,7 @@ tags:
 | --- | --- |
 | <strong>Forward（Forward+）</strong> | 透明・MSAA・モバイル。材質が単純 |
 | Deferred | ライトが多い・DX11・実装が比較的簡単 |
-| Visibility Buffer | 三角形が非常に多い・G-Buffer の帯域が、ボトルネック。GPU Driven / Meshlet と併用 |
+| Visibility Buffer | 三角形が多い・G-Buffer の帯域が、ボトルネック。GPU Driven / Meshlet と併用 |
 
 「G-Buffer の帯域が、ボトルネックと測れた」ときに検討します（[何が重いのか](bottlenecks.md)）。
 
@@ -171,7 +176,7 @@ float4 PSShading(float4 pos : SV_Position) : SV_Target {
 
 | 向く | 向かない |
 | --- | --- |
-| 三角形が非常に多い（細かいメッシュ。Nanite のようなメッシュ シェーダー系） | 三角形が少なく、ピクセルが重い場面（G バッファで、足りる） |
+| 三角形が多い（細かいメッシュ。Nanite のようなメッシュ シェーダー系） | 三角形が少なく、ピクセルが重い場面（G バッファで、足りる） |
 | G バッファの帯域がボトルネック | マテリアルの種類が多く、シェーダーの分岐が重くなる（シェーディングのパスが、肥大する） |
 | オーバードローで G バッファの書き込みが、無駄になる | 古い GPU（構造化バッファの大量の読み込みが、重い） |
 

@@ -15,6 +15,10 @@ tags:
     - キー入力は `ImGuiKey_` 列挙（1.87 以降の新方式）。`IsKeyPressed`・`IsKeyDown`・`IsKeyReleased`。
     - `ImGuiIO` に、毎フレームの状態（FPS・マウス座標）が入っている。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](../index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](../install.md)（ImGui の入れ方）
+
 ## 直前の項目の状態
 
 | 関数 | 内容 | 戻り値 |

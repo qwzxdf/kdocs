@@ -17,6 +17,10 @@ fastgltf で**glTF ファイルを読み込む最小のコード**とtinygltf �
     - 外部の `.bin` を読むかは、`Options` で指定（`LoadExternalBuffers`）。
     - 必要な拡張だけを `Parser` に教える（`Extensions`）。
 
+!!! info "このページを読む前に"
+    - [fastgltf（高速な glTF 読み込み）](index.md)（このセクション全体の地図と、読む順番）
+    - [3D モデルの読み込みライブラリの選び方](../model-loading.md)（3D モデルの読み込みの選び方）
+
 ## 最小の読み込み
 
 ```cpp

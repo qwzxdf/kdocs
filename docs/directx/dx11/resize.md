@@ -19,6 +19,12 @@ tags:
     - 画面の大きさに依存する、リソース（深度、G バッファ、ポスト プロセスの中間バッファ）も全部、作り直す。
     - `Present` が `DXGI_ERROR_DEVICE_REMOVED` を返したら、デバイスごと作り直す。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## バック バッファの作り直し
 
 ```cpp

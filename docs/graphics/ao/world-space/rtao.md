@@ -14,6 +14,11 @@ tags:
     - 1 ピクセル 1〜2 レイ ＋ デノイズが実用的。
     - 画面外・薄い物の裏側も正しい。
 
+!!! info "このページを読む前に"
+    - [Ray-Traced, Distance-Field and Voxel AO](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## レイトレース AO（RTAO）
 <strong>DXR</strong>（DirectX Raytracing）などのレイトレーシングで、三角形に実際にレイを飛ばして、AO を求めます。
 

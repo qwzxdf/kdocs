@@ -21,6 +21,10 @@ tags:
     - `hardware_constructive_interference_size` は逆に、「一緒に使うデータをこの中に収めると速い」大きさ。
     - GCC は ABI 警告を出す（`-Winterference-size`）。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [所有権（誰が消すのか）](../../basics/ownership.md)（所有権の考え方）
+
 ## 関数の詳しい説明
 
 ### std::hardware_destructive_interference_size {#hardware_destructive_interference_size}

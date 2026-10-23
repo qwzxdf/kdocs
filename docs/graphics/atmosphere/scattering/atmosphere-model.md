@@ -14,6 +14,11 @@ tags:
     - オゾン：青を吸収し、夕空の色に効く。
     - 散乱係数は波長ごとに持つ。
 
+!!! info "このページを読む前に"
+    - [Atmospheric Scattering](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:rayleigh-wavelength:begin -->
 
 <svg class="fig illust motion" data-fig="rayleigh-wavelength" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
@@ -127,7 +132,7 @@ tags:
 | 大気の上端 | 6,460 km（地表から、100 km） |
 | 地表の反射率（アルベド） | 0.3 程度（草地・土・海の平均） |
 
-大気の厚さは 惑星の半径に比べて非常に、薄いので 地表付近では平らな層と、みなせますが地平線の近くや宇宙から見るときは、球の曲率が重要になります。
+大気の厚さは 惑星の半径に比べて、薄いので 地表付近では平らな層と、みなせますが地平線の近くや宇宙から見るときは、球の曲率が重要になります。
 
 ## 3 つの成分
 

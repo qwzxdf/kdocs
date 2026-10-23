@@ -14,6 +14,11 @@ tags:
     - 遠く：ビルボード（板に木の絵）。
     - LOD の切り替えは、ディザでなめらかに。
 
+!!! info "このページを読む前に"
+    - [Vegetation](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 木
 <strong>木はポリゴンが多く（数万）、枚数も多い</strong>ので LOD が重要です。
 

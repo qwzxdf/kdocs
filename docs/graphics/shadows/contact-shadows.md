@@ -16,6 +16,11 @@ tags:
     - 画素ごとにジッターして、サンプル数を減らし、ノイズを時間蓄積で消す。
     - [SSR](../reflections/ssr-basics/index.md)・[SSAO](../ao/ssao-hemisphere.md) と同じ「画面空間」の方式で同じ限界を持つ。
 
+!!! info "このページを読む前に"
+    - [Shadows](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## なぜ接触部で影が欠けるのか
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="接触部の影の欠け">

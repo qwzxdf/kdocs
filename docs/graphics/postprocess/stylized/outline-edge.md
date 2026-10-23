@@ -16,6 +16,11 @@ tags:
     - 線の太さはサンプル間隔で調整する。距離で補正。
     - 斜めの面で深度の差が出て、不要な線が出る → 深度勾配で補正。
 
+!!! info "このページを読む前に"
+    - [Outlines and Toon](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 3 つの検出
 
 <strong>検出に使う画像</strong>は、不透明パスの出力（深度バッファ・法線バッファ・ID バッファ）です。

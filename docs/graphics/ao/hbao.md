@@ -16,6 +16,11 @@ tags:
     - 距離の減衰 W(r)を掛けて、遠い遮蔽を弱める。
     - 弱点：コサイン重みを省略（立体角の割合）。GTAO が修正。
 
+!!! info "このページを読む前に"
+    - [Ambient Occlusion (AO)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 発想：地平線を探す
 
 点 p に立って、<strong>ある 1 方向（たとえば右）</strong>を見ます。その方向の断面（p とその方向と視線を含む平面）を考えます。

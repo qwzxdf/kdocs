@@ -17,6 +17,10 @@ fastgltf は**アクセサー（accessor）からのデータの取り出し**�
     - `std::optional` の参照は `.has_value()` を確認してから使う。
     - 画像は自分でデコード（`stb_image`）。
 
+!!! info "このページを読む前に"
+    - [fastgltf（高速な glTF 読み込み）](index.md)（このセクション全体の地図と、読む順番）
+    - [3D モデルの読み込みライブラリの選び方](../model-loading.md)（3D モデルの読み込みの選び方）
+
 ## 頂点を取り出す
 
 ```cpp

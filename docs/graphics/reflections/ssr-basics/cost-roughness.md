@@ -14,6 +14,11 @@ tags:
     - 粗い面は反射もぼやける。簡易には結果をぼかす（ミップを選ぶ）。
     - 本格的な粗さは[Stochastic SSR](../ssr-stochastic.md)で扱う。
 
+!!! info "このページを読む前に"
+    - [SSR Basics](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 解像度とコスト
 | 方式 | 内容 |
 | --- | --- |

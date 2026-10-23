@@ -22,6 +22,10 @@ tags:
     - `std::is_lt(r)`、`is_eq(r)`、`is_gt(r)` で読みやすく書ける。
     - 小数は NaN があるので `partial_ordering`。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+
 ## 関数の詳しい説明
 
 ### std::strong_ordering {#strong_ordering}

@@ -17,6 +17,10 @@ FBX SDK の使い方は <strong>「マネージャー（FbxManager）→ イン�
     - `FbxGeometryConverter::Triangulate` で 全メッシュを、三角形化。
     - シーンはノードの木（`GetRootNode()` → `GetChild(i)`）。ノードが属性（メッシュなど）を持つ。
 
+!!! info "このページを読む前に"
+    - [FBX SDK（Autodesk 公式）](index.md)（このセクション全体の地図と、読む順番）
+    - [3D モデルの読み込みライブラリの選び方](../model-loading.md)（3D モデルの読み込みの選び方）
+
 ## 最小の読み込み
 
 ```cpp

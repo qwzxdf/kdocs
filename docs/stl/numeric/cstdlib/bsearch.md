@@ -22,6 +22,9 @@ tags:
     - 見つからないと `nullptr`。
     - C++ の ranges 版のほうが、型安全で簡単。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::bsearch {#bsearch}

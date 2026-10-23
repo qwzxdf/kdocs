@@ -19,6 +19,12 @@ tags:
     - `OMSetRenderTargets` の第 3 引数に DSV を渡す。
     - D3D11 の深度は 0（近い）〜1（遠い）。精度を上げるには reverse-Z（[Projection](../../3d/projection.md)）。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## 作る（深度だけ）
 
 ```cpp

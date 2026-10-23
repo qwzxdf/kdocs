@@ -14,6 +14,11 @@ tags:
     - 影はアルファ テストで、切り抜く。
     - 環境光（AO）で、根元を暗くする。
 
+!!! info "このページを読む前に"
+    - [Vegetation](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## ライティング
 | 要素 | 内容 |
 | --- | --- |
@@ -75,7 +80,7 @@ float3 FoliageTranslucency(float3 normal, float3 view_dir, float3 light_dir, flo
 
 | パラメーター | 内容 |
 | --- | --- |
-| `thickness` | 葉の厚さ（0 = 非常に薄い、1 = 厚い）。テクスチャで与える |
+| `thickness` | 葉の厚さ（0 = 薄い、1 = 厚い）。テクスチャで与える |
 | 指数（`pow` の 4.0） | 大きいほど、太陽の方向を見たときだけ強く光る |
 | `albedo` | 透けた光の色は葉の色（緑や黄色）になる。白い光は透けない |
 

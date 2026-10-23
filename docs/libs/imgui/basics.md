@@ -144,6 +144,10 @@ ImGui は、**プラットフォーム**（ウィンドウ・入力）とレン�
     ImGui の使い方で迷ったら、**`ImGui::ShowDemoWindow();` を毎フレーム呼んで、動かして<strong>見ます。ほとんどの部品の見た目と、</strong>その部品を出すコードの場所**が分かります（`imgui_demo.cpp` に全部書いてあります）。
 
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](install.md)（ImGui の入れ方）
+
 <!-- fig:imgui-frame-loop:begin -->
 
 <svg class="fig illust motion" data-fig="imgui-frame-loop" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>

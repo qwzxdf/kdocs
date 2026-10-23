@@ -21,6 +21,10 @@ tags:
     - テンプレートメタプログラミングの部品。
     - 自作クラスを構造化束縛に対応させるには、`tuple_size`・`tuple_element`・`get` を用意する。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::tuple_size, std::tuple_element {#tuple_size}

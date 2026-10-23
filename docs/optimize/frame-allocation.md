@@ -15,6 +15,10 @@ tags:
     - `operator new` を差し替えて、フレームごとの確保回数を数えると見つかる。
     - ロード中やメニューなど 落ち着いた場面の確保は許される。1 フレームごとに繰り返す所だけが問題。
 
+!!! info "このページを読む前に"
+    - [optimize/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [計測（プロファイリング）](measure.md)（測ってから直す、という進め方）
+
 ## なぜ避けるのか
 
 | 理由 | 説明 |
@@ -78,7 +82,7 @@ void Update() {
 | `std::map` / `std::set` / `std::list` | 要素ごとに確保。挿入・削除のたびに |
 | `std::unordered_map` | 要素ごとに確保 + 再ハッシュ |
 | `std::any` / `std::variant` に大きな型 | `any` は、大きいと確保。`variant` は確保しない |
-| 例外（`throw`） | 例外オブジェクトの確保 + 展開の処理（非常に遅い） |
+| 例外（`throw`） | 例外オブジェクトの確保 + 展開の処理（遅い） |
 | `std::deque` | ブロックごとに確保 |
 | ラムダ式を `std::function` に代入 | 上の `std::function` と同じ |
 | 仮想関数を持つポリモーフィックなオブジェクトの生成 | `new` + 派生クラス |
@@ -212,7 +216,7 @@ ImGui::TextUnformatted(buffer);
 
 ### 例外を使わない
 
-ループの中での例外は非常に遅いので、エラーは戻り値（`std::optional`、`std::expected`）で扱います（[エラー処理の方針](../design/foundations/error-handling.md)）。
+ループの中での例外は遅いので、エラーは戻り値（`std::optional`、`std::expected`）で扱います（[エラー処理の方針](../design/foundations/error-handling.md)）。
 
 ## 許されるもの
 

@@ -17,6 +17,11 @@ tags:
     - 根本的な解決：GPU Driven（命令を、GPU 自身に作らせる）（[GPU Driven](gpu-driven.md)）。
     - 測ってから。CPU がボトルネックのときだけ、効く（[何が重いのか](bottlenecks.md)）。
 
+!!! info "このページを読む前に"
+    - [描画最適化](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## なぜ、ドロー コールが重いのか
 
 **1 回の描画命令**には、GPU に実行させるための、準備が、CPU 側で必要です。

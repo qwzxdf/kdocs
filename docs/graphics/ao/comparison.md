@@ -15,6 +15,11 @@ tags:
     - 新規に実装するなら：GTAO（品質・速さ・機能のバランス）またはHBAO+ ライブラリ。
     - どれもブラーと時間蓄積が必要。
 
+!!! info "このページを読む前に"
+    - [Ambient Occlusion (AO)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 総合比較表
 
 | 項目 | Crytek SSAO | 半球 SSAO | Alchemy | SAO | HBAO | HBAO+ | GTAO |
