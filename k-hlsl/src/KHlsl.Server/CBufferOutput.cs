@@ -35,20 +35,71 @@ namespace KHlsl.Server
             return b.Size + " バイト(" + b.PaddedSize / 16 + " レジスタ)・隙間 " + wasted + " バイト";
         }
 
-        /// <summary>ホバー用の Markdown。</summary>
+        /// <summary>
+        /// ホバー用の Markdown。VS のホバーは Markdown の表を描けないので、等幅のコード ブロックに、
+        /// 桁をそろえた表と、レジスタの升目(16 バイト = 1 行)を入れる。
+        /// </summary>
         public static string HoverMarkdown(LBlock b, string highlight)
         {
             var sb = new StringBuilder();
             sb.Append("**").Append(Title(b)).Append("** — ").Append(Summary(b)).Append("\n\n");
             if (b.Kind == "struct") sb.Append("*cbuffer の先頭に置いたときのレイアウト*\n\n");
-            sb.Append("| オフセット | サイズ | レジスタ | 型 | 名前 |\n|---:|---:|---|---|---|\n");
-            int rows = 0;
+
+            // 表(桁をそろえる)
+            var rowsText = new List<string[]>();
+            rowsText.Add(new[] { "offset", "size", "reg", "type", "name" });
+            int n = 0;
             foreach (var m in b.Members)
             {
-                if (++rows > 40) { sb.Append("| … | | | | (残り ").Append(b.Members.Count - 40).Append(" 個) |\n"); break; }
-                string name = m.Name == highlight ? "**" + m.Name + "**" : m.Name;
-                sb.Append("| ").Append(m.Offset).Append(" | ").Append(m.Size).Append(" | ").Append(Register(m.Offset))
-                  .Append(" | `").Append(TypeLabel(m)).Append("` | ").Append(name).Append(" |\n");
+                if (++n > 40) { rowsText.Add(new[] { "...", "", "", "", "(残り " + (b.Members.Count - 40) + " 個)" }); break; }
+                rowsText.Add(new[] { m.Offset.ToString(), m.Size.ToString(), Register(m.Offset), TypeLabel(m), (m.Name == highlight ? "> " : "") + m.Name });
+            }
+            int[] w = new int[5];
+            foreach (var r in rowsText) for (int i = 0; i < 5; i++) w[i] = Math.Max(w[i], r[i].Length);
+            sb.Append("```text\n");
+            for (int k = 0; k < rowsText.Count; k++)
+            {
+                var r = rowsText[k];
+                sb.Append(r[0].PadLeft(w[0])).Append("  ").Append(r[1].PadLeft(w[1])).Append("  ").Append(r[2].PadRight(w[2])).Append("  ")
+                  .Append(r[3].PadRight(w[3])).Append("  ").Append(r[4]).Append("\n");
+            }
+            sb.Append("```\n");
+
+            // レジスタの升目(1 行 = 16 バイト = 4 つの 4 バイトの枠)
+            int rows = b.PaddedSize / 16;
+            if (rows > 0 && rows <= 24)
+            {
+                const int unit = 11;   // 4 バイトぶんの文字数
+                var segs = CBufferLayout.Segments(b);
+                sb.Append("\n```text\n");
+                for (int r = 0; r < rows; r++)
+                {
+                    var line = new StringBuilder();
+                    int pos = r * 16;
+                    while (pos < r * 16 + 16)
+                    {
+                        var seg = segs.FirstOrDefault(x => x.Offset <= pos && pos < x.Offset + x.Size);
+                        if (seg == null)
+                        {
+                            // 隙間。次の区画の手前か、行末まで
+                            int next = segs.Where(x => x.Offset > pos && x.Offset < r * 16 + 16).Select(x => x.Offset).DefaultIfEmpty(r * 16 + 16).Min();
+                            int units = Math.Max(1, (next - pos + 3) / 4);
+                            line.Append(new string('.', units * unit - 1)).Append(' ');
+                            pos = next;
+                            continue;
+                        }
+                        int endPos = Math.Min(seg.Offset + seg.Size, r * 16 + 16);
+                        int span = Math.Max(1, (endPos - pos + 3) / 4);
+                        int width = span * unit - 1;
+                        string label = (pos == seg.Offset ? seg.Path : "...");
+                        if (label.Length > width - 2) label = label.Substring(0, Math.Max(1, width - 3)) + "~";
+                        line.Append("[").Append(label.PadRight(width - 2)).Append("]").Append(' ');
+                        pos = endPos;
+                    }
+                    sb.Append("c").Append(r.ToString().PadRight(2)).Append(" ").Append(line.ToString().TrimEnd()).Append("\n");
+                }
+                sb.Append("```\n");
+                sb.Append("*[ ] メンバー   . 隙間(使われないバイト)   1 行 = 16 バイト*\n");
             }
             if (b.Problems.Count > 0) sb.Append("\n⚠ ").Append(string.Join(" / ", b.Problems)).Append("\n");
             return sb.ToString();
