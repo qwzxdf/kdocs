@@ -31,3 +31,7 @@ C++ の入門書や、cppreference のようなリファレンスは、「何が
 - [文字コード](encoding/index.md)
 - [外部ライブラリ](libs/index.md)
 - [K-HLSL](khlsl/index.md)（HLSL の新しい構文に対応した、Visual Studio 用の拡張。ダウンロードもここ）
+
+## K-HLSL
+
+HLSL を書いていて、Visual Studio の拡張に「新しい構文」を間違いだと言われた経験はありませんか。K-HLSL は、判定を本物の DXC に任せて、その偽のエラーを出さない HLSL 拡張です。Shader Model 6.9、レイトレーシング、メッシュ シェーダー、ワーク グラフに対応しています。紹介・ダウンロード・設定・更新履歴は [K-HLSL のページ](khlsl/index.md)にあります。
