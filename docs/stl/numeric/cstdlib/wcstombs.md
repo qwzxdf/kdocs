@@ -13,33 +13,36 @@ tags:
 `#include <cstdlib>`
 </div>
 
-`wchar_t` の文字列を、ロケールのマルチバイト文字列にまとめて変換します。
+Windows の API が返したワイド文字列（`wchar_t`）を、ゲームの内部で使うマルチバイトの文字列に戻すのが `std::wcstombs` です。`std::mbstowcs` の逆の変換です。
 
 !!! tip "ポイント"
-    - C 由来の関数。
-    - 失敗の知らせ方は関数ごとに違う。
-    - 新しいコードでは `std::from_chars` や `std::string` が安全。
+    - `std::wcstombs(dest, src, n)` は文字列全体を変換する
+    - 戻り値は書き込んだバイト数（null を除く）。変換できなければ `(size_t)-1`
+    - `dest` が `nullptr` なら、必要なバイト数だけを返す
+    - MSVC は安全版の `wcstombs_s` を勧める（警告 C4996）
 
 !!! info "このページを読む前に"
-    [`std::atoi`](atoi.md) を先に読んでください。
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::wcstombs {#wcstombs}
 
 ```cpp
-std::size_t wcstombs(char* dst, const wchar_t* src, std::size_t len);
+std::size_t wcstombs(char* dest, const wchar_t* src, std::size_t n);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `dst` | char* | 変換結果の書き込み先（`nullptr` で長さだけ調べる） |
-| `src` | const wchar_t* | 変換元の文字列 |
-| `len` | size_t | 書き込む最大のバイト数 |
+| `dest` | `char*` | 書き込み先。`nullptr` なら長さだけ調べる |
+| `src` | `const wchar_t*` | 変換元（null で終わる） |
+| `n` | `size_t` | `dest` に書き込める最大のバイト数 |
 
-- 戻り値: 書き込んだバイト数。不正なら `(size_t)-1`
-- 計算量: 定数
+`src` を現在のロケールのマルチバイト表現に変換して `dest` に書き込みます。戻り値は書き込んだバイト数で、終端の null は数えません。変換できない文字があれば `static_cast<std::size_t>(-1)` を返します。
 
+1 つのワイド文字が複数バイトになるので、必要な大きさは文字数より大きくなります。先に `dest = nullptr` で呼んで必要なバイト数を調べ、`+ 1` で確保します。
+
+既定の "C" ロケールでは、ASCII 以外の文字は変換できず、−1 を返します。Windows で UTF-8 に変換するなら `WideCharToMultiByte(CP_UTF8, ...)` を使います。
 
 ## 実際に動かしてみる
 
@@ -48,43 +51,49 @@ std::size_t wcstombs(char* dst, const wchar_t* src, std::size_t len);
 #include <print>
 
 int main() {
-  char buf[8];
-  std::size_t n = std::wcstombs(buf, L"abc", 8);
-  std::println("{}", n);
+  const std::size_t length = std::wcstombs(nullptr, L"abc", 0);   // 必要なバイト数を調べる
+  std::println("必要なバイト数 = {}", length);
+
+  char buffer[4];
+  const std::size_t written = std::wcstombs(buffer, L"abc", 4);
+  std::println("書き込んだバイト数 = {}", written);
 }
 ```
 
 ```text title="実行結果"
-3
+必要なバイト数 = 3
+書き込んだバイト数 = 3
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 文字コードの変換（ただし新しいコードは UTF-8 に統一する） |
+Windows API から受け取ったワイド文字列を、ログに出すために変換するときなどに使います。UTF-8 の日本語は `WideCharToMultiByte` を使います。
 
 ## よくあるミス
 
-??? failure "ロケールを設定せずに使う"
-    既定は `"C"` ロケールで、ASCII しか変換できません。`std::setlocale` で設定します。
+??? failure "変換先が小さくてあふれる"
+    先に必要なバイト数を調べます。
+
+??? failure "日本語が変換できず −1 になる"
+    ロケールを設定するか、`WideCharToMultiByte` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [文字コード](../../../encoding/index.md) | 変換の考え方 |
+| [`mbstowcs`](mbstowcs.md) | 逆の変換 |
+| [`wctomb`](wctomb.md) | 1 文字だけ変換 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます（C 言語由来）。`<cstdlib>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] wchar_t の文字列をマルチバイト文字列に変換する
-    - [x] C 由来の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `wcstombs` はワイド文字列をマルチバイト文字列に変換する
+    - [x] `dest = nullptr` で必要なバイト数を調べる
+    - [x] Windows の UTF-8 は `WideCharToMultiByte`
 
 ## 関連ページ
 

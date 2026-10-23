@@ -13,15 +13,16 @@ tags:
 `#include <cstdlib>`
 </div>
 
-ワイド文字（`wchar_t`）1 文字を、ロケールのマルチバイト文字に変換します。バッファは `MB_CUR_MAX` バイト以上必要です。
+ワイド文字（`wchar_t`）1 文字を、マルチバイトの文字（UTF-8 など）に戻すのが `std::wctomb` です。`std::mbtowc` の逆の変換です。
 
 !!! tip "ポイント"
-    - C 由来の関数。
-    - 失敗の知らせ方は関数ごとに違う。
-    - 新しいコードでは `std::from_chars` や `std::string` が安全。
+    - `std::wctomb(s, wc)` は `wc` を `s` に書き込む
+    - 戻り値は書き込んだバイト数。変換できなければ −1
+    - `s` には `MB_CUR_MAX` バイト以上の領域が要る
+    - ロケールに依存し、内部状態を持つ
 
 !!! info "このページを読む前に"
-    [`std::atoi`](atoi.md) を先に読んでください。
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -33,12 +34,14 @@ int wctomb(char* s, wchar_t wc);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `s` | char* | 変換結果の書き込み先（`MB_CUR_MAX` バイト以上） |
-| `wc` | wchar_t | 変換するワイド文字 |
+| `s` | `char*` | 書き込み先。`MB_CUR_MAX` バイト以上 |
+| `wc` | `wchar_t` | 変換するワイド文字 |
 
-- 戻り値: 書き込んだバイト数。変換できなければ -1
-- 計算量: 定数
+`wc` を現在のロケールのマルチバイト表現に変換して `s` に書き込み、書き込んだバイト数を返します。変換できない文字なら −1 です。
 
+`s` は、1 文字の最大長（`MB_CUR_MAX`）以上の大きさが必要です。足りないと書き込みがあふれます。
+
+ロケールに依存し、内部に状態を持つので、スレッドセーフではありません。MSVC は安全版の `wctomb_s` を勧めています。
 
 ## 実際に動かしてみる
 
@@ -48,43 +51,47 @@ int wctomb(char* s, wchar_t wc);
 #include <print>
 
 int main() {
-  char buf[MB_LEN_MAX];
-  int n = std::wctomb(buf, L'A');
-  std::println("{}", n);
+  char buffer[MB_LEN_MAX];
+  const int bytes = std::wctomb(buffer, L'a');
+  std::println("書き込んだバイト数 = {}", bytes);
+  std::println("結果は 'a': {}", buffer[0] == 'a');
 }
 ```
 
 ```text title="実行結果"
-1
+書き込んだバイト数 = 1
+結果は 'a': true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 文字コードの変換（ただし新しいコードは UTF-8 に統一する） |
+昔の C のコードで見かけます。現在は、Windows なら `WideCharToMultiByte`、標準ならスレッドセーフな `wcrtomb` を使います。
 
 ## よくあるミス
 
-??? failure "ロケールを設定せずに使う"
-    既定は `"C"` ロケールで、ASCII しか変換できません。`std::setlocale` で設定します。
+??? failure "バッファが小さくてあふれる"
+    `MB_LEN_MAX` バイト以上を確保します。
+
+??? failure "複数のスレッドから呼ぶ"
+    `wcrtomb` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [文字コード](../../../encoding/index.md) | 変換の考え方 |
+| [`mbtowc`](mbtowc.md) | 逆の変換 |
+| [`wcstombs`](wcstombs.md) | 文字列全体を変換 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます（C 言語由来）。`<cstdlib>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] wchar_t 1 文字をマルチバイト文字に変換する
-    - [x] C 由来の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `wctomb` は `wchar_t` 1 文字をマルチバイトに変換する
+    - [x] `MB_LEN_MAX` バイトの領域が要る
+    - [x] Windows では `WideCharToMultiByte`
 
 ## 関連ページ
 

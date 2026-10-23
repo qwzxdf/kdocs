@@ -14,31 +14,36 @@ tags:
 `#include <cstdlib>`
 </div>
 
-`quick_exit` が呼ぶ後始末の関数を登録します。`atexit` の `quick_exit` 版です。
+`std::quick_exit` で終了するときに実行したい後始末を登録するのが、`std::at_quick_exit` です。`atexit` の `quick_exit` 版で、登録した関数は `quick_exit` のときだけ呼ばれます。
 
 !!! tip "ポイント"
-    - C 由来の関数。
-    - 失敗の知らせ方は関数ごとに違う。
-    - 新しいコードでは `std::from_chars` や `std::string` が安全。
+    - `std::at_quick_exit(func)` で `quick_exit` 時の関数を登録する
+    - 登録の逆順に呼ばれる
+    - `exit` や `main` からの戻りでは呼ばれない
+    - 成功すれば 0 を返す
 
 !!! info "このページを読む前に"
-    [`std::atoi`](atoi.md) を先に読んでください。
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::at_quick_exit {#at_quick_exit}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-int at_quick_exit(void (*func)());
+int at_quick_exit(void (*func)()) noexcept;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `func` | 関数ポインタ | 終了時に呼ぶ関数 |
+| `func` | 関数ポインタ | `quick_exit` のときに呼ぶ関数 |
 
-- 戻り値: 成功なら 0
-- 計算量: 定数
+`func` を `quick_exit` 時の処理として登録します。登録できれば 0、できなければ 0 以外を返します。少なくとも 32 個まで登録できます。
 
+`atexit` で登録した関数とは別の一覧です。通常の終了と、素早い終了で、実行する後始末を分けられます。
+
+登録した関数の中で例外を投げ、外に出すと `std::terminate` が呼ばれます。
 
 ## 実際に動かしてみる
 
@@ -46,39 +51,44 @@ int at_quick_exit(void (*func)());
 #include <cstdlib>
 #include <print>
 
+void Handler() { std::println("後始末"); }
+
 int main() {
-  // 例: std::at_quick_exit(Cleanup);  std::quick_exit(0);
+  const int result = std::at_quick_exit(Handler);
+  std::println("登録の戻り値 = {}", result);
 }
+```
+
+```text title="実行結果"
+登録の戻り値 = 0
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | すばやい終了時の後始末 |
+`quick_exit` で終了する設計のプログラムが、必要最小限の保存処理を登録するときに使います。ほとんどのゲームでは `exit` か `main` の戻りで足りるため、使う機会はまれです。
 
 ## よくあるミス
 
-??? failure "`atexit` のつもりで登録する"
-    `atexit` の関数は `quick_exit` では呼ばれません。別に登録します。
+??? failure "`exit` のときにも呼ばれると思う"
+    `quick_exit` のときだけ呼ばれます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`quick_exit`](quick_exit.md) | 終了する |
-| [`atexit`](atexit.md) | 通常の終了時 |
+| [`atexit`](atexit.md) | `exit` 用の登録 |
+| [`quick_exit`](quick_exit.md) | 素早く終了する |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`<cstdlib>` で宣言されます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] quick_exit() で終了するときに呼ぶ関数を登録する
-    - [x] C 由来の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `at_quick_exit(func)` は `quick_exit` 用の関数を登録する
+    - [x] 逆順に呼ばれる
+    - [x] `exit` では呼ばれない
 
 ## 関連ページ
 

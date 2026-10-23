@@ -15,32 +15,39 @@ tags:
 `#include <cmath>`
 </div>
 
-浮動小数点数は連続ではなく、飛び飛びの値です。`nextafter(x, y)` は、x から y のほうへ 1 つ進んだ、隣の表せる値を返します。許容誤差をぎりぎりまで詰めたい場面で使います。
+浮動小数点数は、とびとびの値しか表せません。「1.0 の次に大きい数」はいくつか。`std::nextafter` は、<strong>ある値から指定した方向に、表現できる次の値</strong>を返します。許容誤差の見積もりや、境界の少し外側の値が欲しいときに使います。
 
 !!! tip "ポイント"
-    - `float` / `double` / `long double` の版がある。
-    - 引数が整数なら `double` として計算される。
-    - エラーは `errno` か浮動小数点例外で知らされる。
+    - `std::nextafter(1.0, 2.0)` は 1.0 の次に大きい値
+    - `nextafter(x, y)`: `x` から `y` の方向へ 1 つ進んだ値
+    - `x == y` なら `y` を返す
+    - `nexttoward` は、第 2 引数が `long double`
 
 !!! info "このページを読む前に"
-    [<cmath>](../cmath.md) の概要を先に読むと分かりやすいです。
+    [`<cmath>`](../cmath.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::nextafter {#nextafter}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-double nextafter(double x, double y);
+float nextafter(float from, float to);
+double nextafter(double from, double to);
+long double nextafter(long double from, long double to);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `x` | 浮動小数点 | 出発点 |
-| `y` | 浮動小数点 | 向かう先 |
+| `from` | 浮動小数点数 | 出発点 |
+| `to` | 浮動小数点数 | 向かう方向（値そのものではなく、方向を表す） |
 
-- 戻り値: x の隣の値（y の方向）
-- 計算量: 定数
+戻り値は、`from` から `to` の方向に向かって、その型で表せる隣の値です。`from < to` なら `from` より大きい最小の値、`from > to` なら小さい最大の値です。`from == to` のときは `to` を返します。
 
+隣の値との差は、`from` の大きさに比例します（`double` で 1.0 付近では約 2.2e-16）。ゼロの隣は、最小の非正規化数です。
+
+用途は、浮動小数点の精度の確認や、境界の少し外側の値を作ることです。たとえば、半開区間 [0, 1) の上限として、「1 より小さい最大の値」が必要なときに `nextafter(1.0, 0.0)` が使えます。乱数が 1.0 ちょうどを返さないことを保証したい場面です。
 
 ## 実際に動かしてみる
 
@@ -50,41 +57,51 @@ double nextafter(double x, double y);
 #include <print>
 
 int main() {
-  std::println("{}", std::nextafter(1.0, 2.0) - 1.0 == std::numeric_limits<double>::epsilon());
+  const double next = std::nextafter(1.0, 2.0);
+  std::println("1.0 より大きい: {}", next > 1.0);
+  std::println("差は epsilon : {}", next - 1.0 == std::numeric_limits<double>::epsilon());
+  std::println("1 未満の最大値は 1 未満: {}", std::nextafter(1.0, 0.0) < 1.0);
 }
 ```
 
 ```text title="実行結果"
-true
+1.0 より大きい: true
+差は epsilon : true
+1 未満の最大値は 1 未満: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 「1 より少しだけ大きい値」をつくる |
+乱数や補間の結果が、上限ちょうどにならないようにするときに使います。
+
+```cpp
+// [0, 1) の範囲に収める（1.0 ちょうどを避ける）
+const double upper = std::nextafter(1.0, 0.0);
+value = std::min(value, upper);
+```
 
 ## よくあるミス
 
-??? failure "`x + epsilon` と同じだと思う"
-    x が 1 から離れるほど、隣の値との差は変わります。`epsilon` は 1 付近の差です。
+??? failure "`to` を値として使うと誤解する"
+    第 2 引数は方向を決めるだけです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`nexttoward`](nexttoward.md) | y が long double |
+| [`nexttoward`](nexttoward.md) | 第 2 引数が `long double` |
+| [`numeric_limits`](../limits.md) | `epsilon` などの型の性質 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] x の次に表せる浮動小数点数を返す（y の方向へ）
-    - [x] `float` / `double` / `long double` の版がある
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `nextafter(x, y)` は `x` の隣の表現可能な値（`y` 方向）
+    - [x] 隣との差は値の大きさに比例する
+    - [x] 半開区間の上限などに使う
 
 ## 関連ページ
 

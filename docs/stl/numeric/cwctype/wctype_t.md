@@ -15,27 +15,30 @@ tags:
 `#include <cwctype>`
 </div>
 
-`iswctype` に渡す、「どの分類か」を表す型です。`wctype("alpha")` で作ります。ロケールごとの独自の分類を使いたいときに使います。
+`std::wctype` が返す、文字の分類を表す値の型が `std::wctype_t` です。`iswctype` に渡して使います。
 
 !!! tip "ポイント"
-    - `<cwctype>` の部品。
-    - ロケールに依存する。
-    - ふつうは `iswalpha` などの固定の関数を使う。
+    - `wctype` の戻り値の型
+    - 中身は環境依存の整数型（値の意味は触らない）
+    - 0 は「無効な分類」
+    - `iswctype` に渡して使う
 
 !!! info "このページを読む前に"
-    [`std::iswalpha`](iswalpha.md) を先に読んでください。
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::wctype_t {#wctype_t}
 
 ```cpp
-using wctype_t = /* 実装定義 */;
+using wctype_t = /* 環境依存の整数型 */;
 ```
 
-- 戻り値: なし（型）
-- 計算量: 定数
+`std::wctype_t` は、文字の分類（英字、数字など）を識別する値を保持する型で、実体は環境の整数型です。値の中身に意味はなく、`std::wctype` が返した値を、そのまま `std::iswctype` に渡すだけです。
 
+比較できるのは 0 だけです。`wctype("unknown")` のように、名前が正しくない場合に 0 を返すので、`!= 0` で有効か確かめます。
+
+値同士の大小や、数値としての計算には意味がありません。
 
 ## 実際に動かしてみる
 
@@ -44,42 +47,45 @@ using wctype_t = /* 実装定義 */;
 #include <print>
 
 int main() {
-  std::wctype_t t = std::wctype("alpha");
-  std::println("{}", t != 0);
+  std::wctype_t cat = std::wctype("alpha");
+  std::println("有効な分類: {}", cat != 0);
 }
 ```
 
 ```text title="実行結果"
-true
+有効な分類: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 実行時に分類・変換を選ぶ |
+`wctype` の戻り値を保持する変数の型として登場します。
+
+```cpp
+std::wctype_t category = std::wctype("digit");   // 保持して、何度も使う
+```
 
 ## よくあるミス
 
-??? failure "名前を間違える"
-    名前が不正だと 0 が返ります。0 を確かめてから使います。
+??? failure "値を計算に使おうとする"
+    値の意味は環境依存です。0 かどうかを確かめるだけにします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`iswalpha`](iswalpha.md) | 固定の分類の関数 |
+| [`wctype`](wctype.md) | 分類を得る関数 |
+| [`wctrans_t`](wctrans_t.md) | 変換を表す型 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++98 から使えます（C 言語由来）。`<cwctype>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ワイド文字の分類の種類を表す型
-    - [x] `<cwctype>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `wctype_t` は文字の分類を表す型
+    - [x] `wctype` の戻り値を保持して `iswctype` に渡す
+    - [x] 0 は無効
 
 ## 関連ページ
 

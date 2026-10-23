@@ -15,75 +15,90 @@ tags:
 `#include <cmath>`
 </div>
 
-計算が極端に小さい値（非正規数）になると、精度が落ちて遅くなります。`isnormal` は、通常の精度で扱える数かを調べます。
+浮動小数点数が 0 に近づきすぎると、通常の精度で表せない「非正規化数」になり、計算が遅くなったり、精度が落ちたりします。`std::isnormal` は、値が<strong>通常の数（ゼロでも非正規化数でも無限大でも NaN でもない）</strong>かを調べます。
 
 !!! tip "ポイント"
-    - `float` / `double` / `long double` の版がある。
-    - 引数が整数なら `double` として計算される。
-    - エラーは `errno` か浮動小数点例外で知らされる。
+    - `std::isnormal(1.0)` は `true`、`std::isnormal(0.0)` は `false`
+    - ゼロ・非正規化数・無限大・NaN はすべて `false`
+    - 有限かどうかだけなら `isfinite`
+    - 非正規化数の混入の検出に使える
 
 !!! info "このページを読む前に"
-    [<cmath>](../cmath.md) の概要を先に読むと分かりやすいです。
+    [`<cmath>`](../cmath.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::isnormal {#isnormal}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
+bool isnormal(float x);
 bool isnormal(double x);
+bool isnormal(long double x);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `x` | 浮動小数点 | 引数 |
+| `x` | 浮動小数点数 | 調べたい値 |
 
-- 戻り値: 正規数なら `true`
-- 計算量: 定数
+戻り値は、`x` が通常の（正規化された）数なら `true` です。ゼロは通常の数ではないので `false` です。ここが `isfinite`（ゼロも `true`）との違いです。
 
+非正規化数は、0 にとても近い値で、一部の CPU では計算が数十倍遅くなります。音声のフィルターなどで、フィードバックの値が 0 に向かって減衰していくと、この遅さが突然現れます。`isnormal` で検出するか、小さな値を 0 に丸める（FTZ / DAZ の設定）対策をとります。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <cmath>
+#include <limits>
 #include <print>
 
 int main() {
-  std::println("{} {}", std::isnormal(1.0), std::isnormal(0.0));
+  const double tiny = std::numeric_limits<double>::denorm_min();   // 最小の非正規化数
+  std::println("1.0 : {}", std::isnormal(1.0));
+  std::println("0.0 : {}", std::isnormal(0.0));
+  std::println("tiny: {}", std::isnormal(tiny));
 }
 ```
 
 ```text title="実行結果"
-true false
+1.0 : true
+0.0 : false
+tiny: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 異常な値が計算に混ざっていないか検査する |
+フィルターや減衰の計算で、非正規化数が出て重くならないかを検出します。
+
+```cpp
+if (!std::isnormal(state) && state != 0.0f) {
+  state = 0.0f;   // 非正規化数は 0 に丸める
+}
+```
 
 ## よくあるミス
 
-??? failure "0 を正規数と思う"
-    0 は正規数ではありません。`false` になります。
+??? failure "ゼロを `true` と期待する"
+    `isnormal(0.0)` は `false` です。ゼロを含めて有限かを調べるなら `isfinite`。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`fpclassify`](fpclassify.md) | 種類を分類する |
-| [`isfinite`](isfinite.md) | 有限かを判定する |
+| [`isfinite`](isfinite.md) | 有限の値か（ゼロも含む） |
+| [`fpclassify`](fpclassify.md) | 値の種類を分類 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 正規数（0・無限大・NaN・非正規数以外）かを判定する
-    - [x] `float` / `double` / `long double` の版がある
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `isnormal(x)` は通常の数のとき `true`
+    - [x] ゼロと非正規化数は `false`
+    - [x] 非正規化数による遅さの検出に使える
 
 ## 関連ページ
 

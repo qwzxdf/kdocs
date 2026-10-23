@@ -13,76 +13,84 @@ tags:
 `#include <complex>`
 </div>
 
-複素数に無限大が混ざると、`(inf, 1)` と `(inf, -1)` のように、同じ「無限遠点」でも表現が何通りもできます。`std::proj(z)` は、有限の値はそのまま、無限大を含むものを `(inf, ±0)` の 1 つの形にそろえます。
+複素数には、実部か虚部のどちらかが無限大の値が含まれることがあります。数学的には、無限大の点は「リーマン球面」上の 1 点にまとめられます。`std::proj` は、複素数を、この<strong>無限遠点を 1 通りの表現にそろえる</strong>関数です。
 
 !!! tip "ポイント"
-    - 引数は `std::complex<T>`。
-    - ゲームでは 2D の回転や周期的な波の計算で登場する。
-    - `float` / `double` / `long double` で使える。
+    - `std::proj(z)` は、有限の値はそのまま返す
+    - 無限大を含む値は `(inf, ±0)` に統一される
+    - 普通のゲームのコードでは使わない
+    - 数値計算ライブラリの実装で使われる
 
 !!! info "このページを読む前に"
-    [`std::complex`](../complex.md) を先に読んでください。
+    [`<complex>`](../complex.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::proj {#proj}
 
 ```cpp
-template <class T> complex<T> proj(const complex<T>& z);
+template <class T>
+complex<T> proj(const complex<T>& z);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `z` | complex<T> | 対象の複素数 |
+| `z` | `complex<T>` | 複素数 |
 
-- 戻り値: 複素数をリーマン球面への射影に直す（無限大の扱いをそろえる）結果
-- 計算量: 定数
+`z` の実部か虚部のどちらかが無限大なら、`(+inf, ±0)` の形の無限遠点を返します。虚部の符号は、元の虚部の符号に従います。それ以外（有限の値）は、`z` をそのまま返します。
 
+無限大を含む複素数は、実部と虚部の組み合わせがいくつもあり、同じ無限遠点として扱うべき値が別々の表現になります。`proj` はそれを 1 通りにそろえて、比較などを簡単にします。
+
+数値計算ライブラリの内部で使う関数で、ゲームのコードで直接呼ぶ場面はまずありません。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <complex>
+#include <limits>
 #include <print>
 
 int main() {
-  std::complex<double> z{3.0, 4.0};
-  auto p = std::proj(z);
-  std::println("{} {}", p.real(), p.imag());
+  const double inf = std::numeric_limits<double>::infinity();
+  const std::complex<double> finite{3.0, 4.0};
+  std::println("有限の値はそのまま: {}", std::proj(finite) == finite);
+
+  const auto p = std::proj(std::complex<double>{inf, 5.0});
+  std::println("無限遠点の虚部 = {}", p.imag());
 }
 ```
 
 ```text title="実行結果"
-3 4
+有限の値はそのまま: true
+無限遠点の虚部 = 0
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 2D の向きと回転 | `std::proj(z)` |
+複素数の無限大を、比較しやすい形にそろえます。ゲームのコードでは使う場面がありません。
 
 ## よくあるミス
 
-??? failure "float の変数に double を混ぜる"
-    `complex<float>` に `double` の値を混ぜると型が合わずコンパイルエラーになります。型をそろえます。
+??? failure "有限の値に変化を期待する"
+    有限の値はそのまま返ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::complex`](../complex.md) | 複素数の型 |
+| [`norm`](norm.md) | 絶対値の 2 乗 |
+| [`isinf`](../cmath/isinf.md) | 実数が無限大か |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。`<complex>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 複素数をリーマン球面への射影に直す（無限大の扱いをそろえる）
-    - [x] std::complex の関数
-    - [x] 2D の回転で使える
+    - [x] `proj(z)` は無限遠点を 1 通りの表現にそろえる
+    - [x] 有限の値はそのまま返る
+    - [x] ゲームではほぼ使わない
 
 ## 関連ページ
 

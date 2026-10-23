@@ -14,71 +14,79 @@ tags:
 `#include <cmath>`
 </div>
 
-古い C の関数は、範囲を超えた結果を `HUGE_VAL`（`double` の正の無限大）で知らせました。比較の相手としては `std::isinf` のほうが読みやすいです。
+計算結果が大きすぎて表せないとき、数学関数は `HUGE_VAL` という定数を返します。多くの環境では、これは無限大です。
 
 !!! tip "ポイント"
-    - マクロ（式）。
-    - `std::` を付けずに書く。
-    - 比較は専用関数（`isnan` など）で。
+    - `HUGE_VAL` は `double` の「非常に大きな値」を表すマクロ
+    - IEEE 754 の環境では、正の無限大に等しい
+    - `HUGE_VALF`（`float`）と `HUGE_VALL`（`long double`）もある
+    - オーバーフローしたときの戻り値として登場する
 
 !!! info "このページを読む前に"
-    [<cmath>](../cmath.md) の概要を先に読むと分かりやすいです。
+    [`<cmath>`](../cmath.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### HUGE_VAL {#huge_val}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-#define HUGE_VAL /* 実装定義 */
+#define HUGE_VAL /* double の定数式 */
+#define HUGE_VALF /* float の定数式 */
+#define HUGE_VALL /* long double の定数式 */
 ```
 
-- 戻り値: マクロの値
-- 計算量: なし
+`HUGE_VAL` は、数学関数が結果を表現できなかったとき（オーバーフロー）に返す値です。浮動小数点が IEEE 754 に従う環境では、これは正の無限大です。
 
+`std::exp(1000.0)` のようにあふれる計算は、`HUGE_VAL` を返し、`errno` に `ERANGE` を設定することがあります。無限大の値を直接書きたいなら、`std::numeric_limits<double>::infinity()` か `INFINITY` のほうが意図がはっきりします。
+
+C の古いコードで、エラーの判定に `if (r == HUGE_VAL)` と書かれているのを見かけます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <cmath>
+#include <limits>
 #include <print>
 
 int main() {
-  std::println("{}", HUGE_VAL);
+  std::println("HUGE_VAL は無限大: {}", HUGE_VAL == std::numeric_limits<double>::infinity());
+  std::println("exp(1000) は HUGE_VAL: {}", std::exp(1000.0) == HUGE_VAL);
 }
 ```
 
 ```text title="実行結果"
-inf
+HUGE_VAL は無限大: true
+exp(1000) は HUGE_VAL: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 異常値の目印や、エラー処理の分岐に使う |
+古い C のコードで、オーバーフローの検出に使われています。新しいコードでは `std::isinf` で調べます。
 
 ## よくあるミス
 
-??? failure "値を `==` で比べる"
-    NaN は `==` で比べられません。`std::isnan`・`std::isinf` を使います。
+??? failure "`HUGE_VAL` を最大値だと思う"
+    最大値は `numeric_limits<double>::max()` です。`HUGE_VAL` は無限大（に近い値）です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`isnan`](isnan.md) | NaN の判定 |
-| [`isinf`](isinf.md) | 無限大の判定 |
+| [`infinity`](infinity.md) | `float` の無限大を表すマクロ |
+| [`isinf`](isinf.md) | 無限大か |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] double の無限大を表すマクロ
-    - [x] マクロ（式）
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `HUGE_VAL` はオーバーフローの戻り値で、通常は無限大
+    - [x] 最大値ではない
+    - [x] 新しいコードでは `isinf`
 
 ## 関連ページ
 

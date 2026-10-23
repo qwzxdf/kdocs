@@ -14,31 +14,38 @@ tags:
 `#include <cstdlib>`
 </div>
 
-`exit` は、静的オブジェクトの破棄や `atexit` の関数をすべて実行するので、時間がかかり、デッドロックの危険もあります。`quick_exit` は、`at_quick_exit` で登録した関数だけを呼んで終了します。
+`std::exit` は、静的変数のデストラクターや `atexit` の関数を実行して終了します。後始末が多いと時間がかかり、他のスレッドが動いている最中だと、危険です。`std::quick_exit` は、<strong>後始末を最小限にして素早く終了</strong>します。
 
 !!! tip "ポイント"
-    - C 由来の関数。
-    - 失敗の知らせ方は関数ごとに違う。
-    - 新しいコードでは `std::from_chars` や `std::string` が安全。
+    - `std::quick_exit(status)` で素早く終了する
+    - `at_quick_exit` で登録した関数だけを呼ぶ
+    - `atexit` の関数と、静的変数のデストラクターは呼ばない
+    - 標準入出力はフラッシュされないことがある
 
 !!! info "このページを読む前に"
-    [`std::atoi`](atoi.md) を先に読んでください。
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::quick_exit {#quick_exit}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-[[noreturn]] void quick_exit(int exit_code);
+[[noreturn]] void quick_exit(int status) noexcept;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `exit_code` | int | 終了コード |
+| `status` | `int` | 終了コード。`EXIT_SUCCESS` か `EXIT_FAILURE` |
 
-- 戻り値: 戻らない
-- 計算量: 定数
+`at_quick_exit` で登録された関数を、登録の逆順に呼んで、プロセスを終了させます。`atexit` で登録した関数や、静的記憶域期間のオブジェクトのデストラクターは実行しません。
 
+通常の `exit` では、他のスレッドがまだ動いている状態で静的変数が破棄され、そのスレッドが破棄済みのオブジェクトを触って不具合になることがあります。`quick_exit` はこの危険を避けられます。
+
+標準入出力のバッファは、フラッシュされない場合があります。ログをファイルに残すなら、`quick_exit` の前に明示的にフラッシュします。
+
+`abort` との違いは、異常終了のシグナルを出さず、登録した処理を実行できる点です。
 
 ## 実際に動かしてみる
 
@@ -46,39 +53,56 @@ tags:
 #include <cstdlib>
 #include <print>
 
-int main() {
-  // 例: std::at_quick_exit(Cleanup);  std::quick_exit(0);
+void Handler() { std::println("quick_exit のハンドラ"); }
+
+int main(int argc, char**) {
+  std::at_quick_exit(Handler);          // quick_exit 用の関数を登録する
+  if (argc > 1) {
+    std::quick_exit(EXIT_SUCCESS);      // 引数があれば素早く終了（今回は実行されない）
+  }
+  std::println("quick_exit せずに終了");
 }
+```
+
+```text title="実行結果"
+quick_exit せずに終了
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 異常時にすばやく終了する |
+他のスレッドが動いている最中に、安全にプロセスを終わらせたいときに使います。
+
+```cpp
+std::fflush(stdout);                    // ログは自分でフラッシュする
+std::quick_exit(EXIT_FAILURE);
+```
 
 ## よくあるミス
 
-??? failure "通常の後始末を期待する"
-    デストラクタは実行されません。ファイルバッファなども書き出されない場合があります。
+??? failure "`atexit` の後始末が実行されると期待する"
+    `at_quick_exit` で登録した関数だけが呼ばれます。
+
+??? failure "出力が切れる"
+    標準出力を明示的にフラッシュします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`exit`](exit.md) | 通常の終了 |
+| [`exit`](exit.md) | 通常の後始末をして終了 |
 | [`abort`](abort.md) | 異常終了 |
+| [`at_quick_exit`](at_quick_exit.md) | `quick_exit` 用の関数を登録 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`<cstdlib>` で宣言されます。Visual Studio 2015 以降、GCC、Clang で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 後始末を最小限にして、プログラムを終了する
-    - [x] C 由来の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `quick_exit` は最小限の後始末で素早く終了する
+    - [x] `at_quick_exit` の関数だけを呼ぶ
+    - [x] 出力はフラッシュされない場合がある
 
 ## 関連ページ
 

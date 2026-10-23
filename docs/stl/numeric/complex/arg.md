@@ -13,31 +13,35 @@ tags:
 `#include <complex>`
 </div>
 
-複素数を平面の点 `(実部, 虚部)` と見ると、原点からの向きが角度になります。`std::arg(z)` は、その角度（−π 〜 π）をラジアンで返し、`atan2(虚部, 実部)` と同じ値です。
+複素数を平面上の点と見たとき、原点から見た向きの角度が偏角です。2D の位置ベクトルから向きの角度を求めるのと同じ計算で、`std::atan2(imag, real)` に相当します。`std::arg` は、その偏角を返します。
 
 !!! tip "ポイント"
-    - 引数は `std::complex<T>`。
-    - ゲームでは 2D の回転や周期的な波の計算で登場する。
-    - `float` / `double` / `long double` で使える。
+    - `std::arg(z)` は偏角（ラジアン、−π 〜 π）
+    - `atan2(imag, real)` と同じ
+    - 正の実軸が 0、虚軸の正の側が π/2
+    - 大きさは `abs`
 
 !!! info "このページを読む前に"
-    [`std::complex`](../complex.md) を先に読んでください。
+    [`<complex>`](../complex.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::arg {#arg}
 
 ```cpp
-template <class T> T arg(const complex<T>& z);
+template <class T>
+constexpr T arg(const complex<T>& z);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `z` | complex<T> | 対象の複素数 |
+| `z` | `complex<T>` | 複素数 |
 
-- 戻り値: 複素数の偏角（実軸からの角度）をラジアンで返す結果
-- 計算量: 定数
+戻り値は、実軸の正の方向から測った `z` の角度で、単位はラジアン、範囲は −π 〜 +π です。`arg(1 + 0i)` は 0、`arg(0 + 1i)` は π/2、`arg(−1 + 0i)` は π です。
 
+内部では `atan2(imag, real)` を計算しているので、象限を正しく区別できます。`z` が 0 のときは 0 を返します。
+
+大きさと偏角を組み合わせて、`std::polar` で元の複素数に戻せます。
 
 ## 実際に動かしてみる
 
@@ -46,42 +50,48 @@ template <class T> T arg(const complex<T>& z);
 #include <print>
 
 int main() {
-  std::complex<double> z{1.0, 1.0};
-  std::println("{:.4f}", std::arg(z));
+  std::println("arg(1)  = {}", std::arg(std::complex<double>{1.0, 0.0}));
+  std::println("arg(i)  = {}", std::arg(std::complex<double>{0.0, 1.0}));
+  std::println("arg(-1) = {}", std::arg(std::complex<double>{-1.0, 0.0}));
 }
 ```
 
 ```text title="実行結果"
-0.7854
+arg(1)  = 0
+arg(i)  = 1.5707963267948966
+arg(-1) = 3.141592653589793
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 2D の向きと回転 | `std::arg(z)` |
+2D の位置を複素数で持つ実装で、向きの角度を求めます。
+
+```cpp
+const float heading = std::arg(target - position);   // 目標に向かう角度
+```
 
 ## よくあるミス
 
-??? failure "float の変数に double を混ぜる"
-    `complex<float>` に `double` の値を混ぜると型が合わずコンパイルエラーになります。型をそろえます。
+??? failure "度とラジアンを取り違える"
+    戻り値はラジアンです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::complex`](../complex.md) | 複素数の型 |
+| [`polar`](polar.md) | 大きさと偏角から作る |
+| [`atan2`](../cmath/atan2.md) | 実数で角度を求める |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。`<complex>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 複素数の偏角（実軸からの角度）をラジアンで返す
-    - [x] std::complex の関数
-    - [x] 2D の回転で使える
+    - [x] `arg(z)` は偏角（ラジアン、−π 〜 π）
+    - [x] `atan2(imag, real)` と同じ
+    - [x] `polar` で元に戻せる
 
 ## 関連ページ
 

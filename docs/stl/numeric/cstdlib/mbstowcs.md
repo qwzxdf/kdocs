@@ -13,33 +13,36 @@ tags:
 `#include <cstdlib>`
 </div>
 
-ロケールのマルチバイト文字列を、`wchar_t` の文字列にまとめて変換します。Windows の API に渡す文字列を作るときに使います。
+Windows の API の多くは、ワイド文字列（`wchar_t`）を要求します。ゲームの内部で持つマルチバイトの文字列（`char`）を、ワイド文字列に変換するのが `std::mbstowcs` です。
 
 !!! tip "ポイント"
-    - C 由来の関数。
-    - 失敗の知らせ方は関数ごとに違う。
-    - 新しいコードでは `std::from_chars` や `std::string` が安全。
+    - `std::mbstowcs(dest, src, n)` は文字列全体を変換する
+    - 戻り値は変換したワイド文字数（null を除く）。不正なら `(size_t)-1`
+    - `dest` が `nullptr` なら、必要な長さだけを返す
+    - MSVC は安全版の `mbstowcs_s` を勧める（警告 C4996）
 
 !!! info "このページを読む前に"
-    [`std::atoi`](atoi.md) を先に読んでください。
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::mbstowcs {#mbstowcs}
 
 ```cpp
-std::size_t mbstowcs(wchar_t* dst, const char* src, std::size_t len);
+std::size_t mbstowcs(wchar_t* dest, const char* src, std::size_t n);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `dst` | wchar_t* | 変換結果の書き込み先（`nullptr` で長さだけ調べる） |
-| `src` | const char* | 変換元の文字列 |
-| `len` | size_t | 書き込む最大の `wchar_t` の数 |
+| `dest` | `wchar_t*` | 変換結果の書き込み先。`nullptr` なら長さだけ調べる |
+| `src` | `const char*` | 変換元（null で終わる） |
+| `n` | `size_t` | `dest` に書き込める最大のワイド文字数 |
 
-- 戻り値: 変換した `wchar_t` の数。不正なら `(size_t)-1`
-- 計算量: 定数
+`src` を現在のロケールのマルチバイト規則で解釈し、ワイド文字列に変換して `dest` に書き込みます。戻り値は書き込んだ文字数で、終端の null は数えません。不正なバイト列があれば `static_cast<std::size_t>(-1)` を返します。
 
+`n` に達しても null を書けなかった場合は、`dest` が null で終わらないので注意します。必要な長さは、先に `dest = nullptr` で呼んで調べ、`+ 1` で確保するのが安全な手順です。
+
+既定の "C" ロケールでは ASCII しか正しく変換されません。Windows の UTF-8 の文字列を扱うなら、`MultiByteToWideChar(CP_UTF8, ...)` が確実です。
 
 ## 実際に動かしてみる
 
@@ -48,43 +51,49 @@ std::size_t mbstowcs(wchar_t* dst, const char* src, std::size_t len);
 #include <print>
 
 int main() {
-  wchar_t buf[8];
-  std::size_t n = std::mbstowcs(buf, "abc", 8);
-  std::println("{}", n);
+  const std::size_t length = std::mbstowcs(nullptr, "abc", 0);   // 必要な長さだけを調べる
+  std::println("必要な長さ = {}", length);
+
+  wchar_t buffer[4];
+  const std::size_t written = std::mbstowcs(buffer, "abc", 4);
+  std::println("書き込んだ数 = {}", written);
 }
 ```
 
 ```text title="実行結果"
-3
+必要な長さ = 3
+書き込んだ数 = 3
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 文字コードの変換（ただし新しいコードは UTF-8 に統一する） |
+Windows API にファイル名を渡す前の変換などで使われます。UTF-8 が前提のゲームでは、変換用の自作関数（`MultiByteToWideChar` を包む）を 1 つ用意して使います。
 
 ## よくあるミス
 
-??? failure "ロケールを設定せずに使う"
-    既定は `"C"` ロケールで、ASCII しか変換できません。`std::setlocale` で設定します。
+??? failure "`n` ぎりぎりで null が書かれず、文字列が壊れる"
+    先に長さを調べ、`+ 1` で確保します。
+
+??? failure "UTF-8 の日本語が文字化けする"
+    ロケールの設定か、`MultiByteToWideChar` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [文字コード](../../../encoding/index.md) | 変換の考え方 |
+| [`wcstombs`](wcstombs.md) | 逆の変換 |
+| [`mbtowc`](mbtowc.md) | 1 文字だけ変換 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます（C 言語由来）。`<cstdlib>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] マルチバイト文字列を wchar_t の文字列に変換する
-    - [x] C 由来の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `mbstowcs` はマルチバイト文字列をワイド文字列に変換する
+    - [x] `dest = nullptr` で必要な長さを調べる
+    - [x] Windows の UTF-8 は `MultiByteToWideChar`
 
 ## 関連ページ
 
