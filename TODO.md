@@ -61,7 +61,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 
 ### 2-1. 開発の道具（Visual Studio セクション）
 
-- [ ] ★★★ Git の基礎（コミット、ブランチ、マージ、コンフリクト、`.gitignore`）。今は Git のページが無い
+- [x] ★★★ Git の基礎（`vs/git.md`、2026-10-23 追加。コミット、ブランチ、マージ、コンフリクト、`.gitignore`）。今は Git のページが無い
 - [ ] ★★★ SourceTree / GitHub Desktop の使い方（画面の見方、detached HEAD・force push・巨大ファイルのコミットなどの事故）
 - [ ] ★★ Git LFS とゲームのリポジトリ（バイナリの扱い、フォルダ構成）
 - [ ] ★★ チーム開発の進め方（ブランチの切り方、プルリクエスト、レビュー、`.editorconfig` / `clang-format` との組み合わせ）

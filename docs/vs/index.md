@@ -12,6 +12,7 @@ C++ でゲームを作る学生の多くは <strong>Visual Studio（ビジュア
 | [C++23 を使えるようにする設定](settings.md) | 言語標準、警告、よく変える設定、プロパティ シート |
 | [文字コードを UTF-8 にしよう](utf8.md) | `/utf-8`、`.gitattributes`、コンソールの文字化け |
 | [.editorconfig](editorconfig.md) | 改行・字下げ・文字コードをファイルに書いてそろえる。書き方、Visual Studio 独自の設定 |
+| [Git の基礎](git.md) | 履歴を残して戻す。コミット、ブランチ、マージ、コンフリクト、`.gitignore` |
 | [外部ライブラリの入れ方](libraries.md) | vcpkg、ヘッダを置く方法、`.lib` / `.dll` を使う方法 |
 | [デバッグのやり方](debugging.md) | ブレークポイント、ウォッチ、呼び出し履歴、例外、メモリのバグ探し |
 | [AddressSanitizer](asan.md) | メモリの範囲外アクセス・解放済みメモリの使用を、その場で検出 |
