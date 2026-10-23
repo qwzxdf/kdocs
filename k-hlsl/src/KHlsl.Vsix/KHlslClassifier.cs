@@ -250,9 +250,10 @@ namespace KHlsl.Vsix
             t[Tk.String] = str;
             t[Tk.StringDelim] = combine(new[] { get("cppStringDelimiterCharacter"), str });
             t[Tk.Number] = get("number");
-            t[Tk.Preprocessor] = combine(new[] { get("preprocessor keyword") ?? keyword, get(KHlslClassNames.Preprocessor) });
+            // keyword などと重ねると、そちらの色が勝つので、専用の分類だけを使う
+            t[Tk.Preprocessor] = get(KHlslClassNames.Preprocessor) ?? get("preprocessor keyword") ?? keyword;
             t[Tk.Keyword] = keyword;
-            t[Tk.Control] = combine(new[] { keyword, get(KHlslClassNames.Control) });
+            t[Tk.Control] = get(KHlslClassNames.Control) ?? keyword;
             t[Tk.Visibility] = combine(new[] { keyword, get(KHlslClassNames.Visibility) });
             t[Tk.Type] = semantic("cppType");
             t[Tk.Function] = semantic("cppFunction");
