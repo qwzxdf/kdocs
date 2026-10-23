@@ -15,78 +15,93 @@ tags:
 `#include <concepts>`
 </div>
 
-異なる型の値を入れ替えられるかを調べます。左辺値参照の型を渡します。
+型の違う 2 つの値を入れ替えられるかを要求したい。`std::swappable_with<T, U>` は、<strong>T と U の値を入れ替えられるか</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::swappable_with<...>` は `bool` の定数式。
-    - 満たさない型を渡すと、コンパイルエラーの原因が読みやすくなる。
+    - `std::swappable_with<T, U>` は、`T` と `U` の値を入れ替えられるか
+    - `template <std::swappable_with T>` のように、テンプレートの引数に直接書ける
+    - 値は `bool` の定数なので、`static_assert` や `if constexpr` にも使える
+    - 条件を満たさないと、分かりやすいエラーメッセージで弾かれる
 
 !!! info "このページを読む前に"
-    [コンセプト](../../../basics/template.md) の考え方と、[`std::same_as`](same_as.md) を先に読んでください。
+    [テンプレートの基本](../../../basics/template.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::swappable_with {#swappable_with}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class T, class U>
-concept swappable_with = /* ranges::swap(a, b) と ranges::swap(b, a) が使える */;
+concept swappable_with = /* 条件 */;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 調べる型 |
-| `U` | 型 | 調べる型 |
+| `T` | 型 | 1 つ目の型（`T&` で渡す） |
+| `U` | 型 | 2 つ目の型（`U&` で渡す） |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+`ranges::swap(t, u)` と `ranges::swap(u, t)` が書ければ満たします。`T` と `U` は参照（`int&`）で渡すのが普通です。
 
+コンセプトは、テンプレートの引数に条件を付ける C++20 の機能です。条件を満たさない型を渡すと、テンプレートの深い所でエラーが出るのではなく、呼び出しの場所で「この型は条件を満たしていない」と報告されます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <concepts>
 #include <print>
+#include <string>
 
 int main() {
-  std::println("{}", std::swappable_with<int&, int&>);
-  std::println("{}", std::swappable_with<int&, long&>);
+  std::println("int&, int&                         -> {}", std::swappable_with<int&, int&>);
+  std::println("int&, float&                       -> {}", std::swappable_with<int&, float&>);
+  std::println("std::string&, std::string&         -> {}", std::swappable_with<std::string&, std::string&>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+int&, int&                         -> true
+int&, float&                       -> false
+std::string&, std::string&         -> true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの引数に条件をつけて、使える型を制限する |
+テンプレートの引数を制限します。
+
+```cpp
+template <std::swappable_with T>
+void Process(T value) {
+  // T は swappable_with を満たす型だけ
+}
+```
 
 ## よくあるミス
 
-??? failure "参照を付けずに渡す"
-    `swappable_with<int, int>` は `false` です。参照で渡します。
+??? failure "参照や `const` が付いた型で、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "C++17 以前で使おうとする"
+    コンセプトは C++20 の機能です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`swappable`](swappable.md) | 同じ型 |
+| [`same_as`](same_as.md) | 2 つの型が同じ |
+| [`integral`](integral.md) | 整数型 |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 の機能です。GCC 10 以降、Clang 10 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 2 つの型の値を、たがいに `swap` できることを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::swappable_with<T, U>` は、`T` と `U` の値を入れ替えられるか
+    - [x] テンプレートの引数に直接書ける
+    - [x] `static_assert` と `if constexpr` にも使える
 
 ## 関連ページ
 

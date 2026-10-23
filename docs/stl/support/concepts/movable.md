@@ -15,18 +15,22 @@ tags:
 `#include <concepts>`
 </div>
 
-`std::movable<T>` は、**T がムーブでき、ムーブ代入でき、`swap` できる型であること**を要求するコンセプトです。コピーできなくてもよいので、`unique_ptr` も満たします。
+値のように扱えるが、コピーは要らない型を受け付けたい。`std::movable` は、<strong>T がムーブ構築・ムーブ代入・swap できるか</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
-    - `const T` は代入できないので `false`。
-    - コピーも要求するなら `std::copyable`。
+    - `std::movable<T>` は、`T` がムーブでき、入れ替えられるか
+    - `template <std::movable T>` のように、テンプレートの引数に直接書ける
+    - 値は `bool` の定数なので、`static_assert` や `if constexpr` にも使える
+    - 条件を満たさないと、分かりやすいエラーメッセージで弾かれる
 
 !!! info "このページを読む前に"
-    [テンプレートとコンセプト](../../../basics/template.md) の基本が前提です。
+    [テンプレートの基本](../../../basics/template.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::movable {#movable}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 template <class T>
@@ -35,52 +39,73 @@ concept movable = /* 条件 */;
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | テンプレート引数 | 調べる型 |
+| `T` | 型 | 調べる型 |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時
+オブジェクトとして、ムーブ構築、ムーブ代入、`swap` ができる型が満たします。`std::unique_ptr` や `std::vector` は満たします。ムーブを削除した型は満たしません。
+
+コンセプトは、テンプレートの引数に条件を付ける C++20 の機能です。条件を満たさない型を渡すと、テンプレートの深い所でエラーが出るのではなく、呼び出しの場所で「この型は条件を満たしていない」と報告されます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <concepts>
 #include <memory>
 #include <print>
 
+struct Fixed {
+  Fixed(Fixed&&) = delete;
+  Fixed& operator=(Fixed&&) = delete;
+};
+
 int main() {
-  std::println("{} {}", std::movable<std::unique_ptr<int>>, std::movable<const int>);
+  std::println("int                                -> {}", std::movable<int>);
+  std::println("std::unique_ptr<int>               -> {}", std::movable<std::unique_ptr<int>>);
+  std::println("Fixed                              -> {}", std::movable<Fixed>);
 }
 ```
 
 ```text title="実行結果"
-true false
+int                                -> true
+std::unique_ptr<int>               -> true
+Fixed                              -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ムーブだけできる型を受け取るジョブキュー | `template <std::movable T>` |
+テンプレートの引数を制限します。
+
+```cpp
+template <std::movable T>
+void Process(T value) {
+  // T は movable を満たす型だけ
+}
+```
 
 ## よくあるミス
 
-??? failure "const の型を渡す"
-    代入できないので条件を満たしません。
+??? failure "参照や `const` が付いた型で、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "C++17 以前で使おうとする"
+    コンセプトは C++20 の機能です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`copyable`](copyable.md) | コピーも必要 |
+| [`same_as`](same_as.md) | 2 つの型が同じ |
+| [`integral`](integral.md) | 整数型 |
 
 ## コンパイラ対応
 
-C++20 の機能です。
+C++20 の機能です。GCC 10 以降、Clang 10 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ムーブできる型
-    - [x] `unique_ptr` も満たす
-    - [x] const は false
+    - [x] `std::movable<T>` は、`T` がムーブでき、入れ替えられるか
+    - [x] テンプレートの引数に直接書ける
+    - [x] `static_assert` と `if constexpr` にも使える
 
 ## 関連ページ
 
