@@ -23,7 +23,7 @@ Visual Studio 2022 / 2026 用の HLSL 拡張です。Shader Model 6.9 までの�
 - 定義へ移動（`#include` のファイルも）と、アウトライン
 - DXC による診断（保存時と、入力が止まった 0.7 秒後）
 - 定数バッファのレイアウト（`cbuffer` / `ConstantBuffer<T>` / `struct`）。16 バイトのレジスタの詰め方を計算して、次の 3 つで見せる
-    - ホバー: オフセット・サイズ・レジスタの表。メンバーの宣言行では、そのメンバーのオフセット
+    - ホバー: 1 行の要約と、小さい字のレジスタの図（VS 拡張の QuickInfo。`CBufferQuickInfo.cs`）。メンバーの宣言行では、そのメンバーのオフセット
     - CodeLens: `cbuffer` の上に、大きさ・レジスタ数・隙間・並べ替えで減らせる量
     - ツール ウィンドウ（拡張機能 → K-HLSL → 定数バッファのレイアウトを表示）: レジスタ × 4 バイトの升目、並べ替えの提案（HLSL）、同じ配置の C++ の struct（`_pad` と `static_assert` つき）
     - 計算は `src/KHlsl.Server/CBufferLayout.cs`。`tests/CBufferTest` が、DXC（`-Od -Fc`）の出力と突き合わせる（固定ケース＋ランダム）。生成した C++ も、MSVC でコンパイルして確かめた
