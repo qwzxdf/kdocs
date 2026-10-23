@@ -3114,3 +3114,30 @@
 - terms: [スキーマファイル, Schema File]
   text: データの構造を、定義したファイル。
   link: libs/serialization/cista.md
+- terms: [コミット, commit]
+  text: ある時点のプロジェクト全体の状態を、Git に 1 つ記録したもの。
+  link: vs/git.md
+- terms: [ブランチ, branch, 枝]
+  text: 履歴の枝。機能ごとに枝を分けて作業し、終わったら元の枝に合体する。
+  link: vs/git.md
+- terms: [マージ, merge]
+  text: 別々の枝の変更を 1 つに合体すること。同じ行を直していると、コンフリクトになる。
+  link: vs/git.md
+- terms: [コンフリクト, conflict, 衝突]
+  text: 同じ場所を別々に直したため、Git が自動で合体できない状態。人が選んで直す。
+  link: vs/git.md
+- terms: [リポジトリ, repository]
+  text: プロジェクトのフォルダーと、その履歴を入れた入れ物。
+  link: vs/git.md
+- terms: [Git LFS, LFS]
+  text: 大きなファイルの中身を別の置き場に預け、リポジトリには目印だけを入れる仕組み。
+  link: vs/git-lfs.md
+- terms: [CI, 継続的インテグレーション]
+  text: push のたびに、ビルドとテストを自動で動かす仕組み。
+  link: vs/github-actions.md
+- terms: [静的解析]
+  text: プログラムを動かさずに、ソースを読んで怪しい書き方を見つけること。
+  link: vs/clang-tidy.md
+- terms: [フレームキャプチャ]
+  text: 1 フレーム分の描画命令を記録して、あとから調べられるようにすること。RenderDoc や PIX が行う。
+  link: vs/renderdoc-pix.md

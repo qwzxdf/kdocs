@@ -1,6 +1,8 @@
 nav:
   - ホーム: index.md
   - このサイトの読み方: how-to-read.md
+  - 学習ロードマップ: roadmap.md
+  - よくある質問: faq.md
   - Visual Studio: vs
   - STL: stl
   - 基礎: basics

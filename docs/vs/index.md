@@ -13,6 +13,15 @@ C++ でゲームを作る学生の多くは <strong>Visual Studio（ビジュア
 | [文字コードを UTF-8 にしよう](utf8.md) | `/utf-8`、`.gitattributes`、コンソールの文字化け |
 | [.editorconfig](editorconfig.md) | 改行・字下げ・文字コードをファイルに書いてそろえる。書き方、Visual Studio 独自の設定 |
 | [Git の基礎](git.md) | 履歴を残して戻す。コミット、ブランチ、マージ、コンフリクト、`.gitignore` |
+| [SourceTree と GitHub Desktop](git-gui.md) | 画面で Git を使う。事故（detached HEAD・force push・巨大ファイル）と対処 |
+| [Git LFS とゲームのリポジトリ](git-lfs.md) | 大きなバイナリの預け方、track、容量、フォルダー構成 |
+| [チーム開発の進め方](team.md) | ブランチ、プルリクエスト、レビュー、clang-format |
+| [GitHub Actions で自動ビルド](github-actions.md) | push のたびにビルドとテストを自動で動かす |
+| [clang-tidy と静的解析](clang-tidy.md) | 動かさずに怪しい書き方を見つける。設定と NOLINT |
+| [単体テスト](unit-test.md) | GoogleTest・doctest・Catch2 の選び方と書き方 |
+| [RenderDoc と PIX](renderdoc-pix.md) | フレームを捕まえて、描画呼び出しを 1 つずつ調べる |
+| [GPU デバッグの流れ](gpu-debug.md) | 真っ黒・一部だけ消える、などの症状からの切り分け |
+| [Tracy](tracy.md) | フレームごとの時間を時間軸で見るプロファイラ |
 | [外部ライブラリの入れ方](libraries.md) | vcpkg、ヘッダを置く方法、`.lib` / `.dll` を使う方法 |
 | [デバッグのやり方](debugging.md) | ブレークポイント、ウォッチ、呼び出し履歴、例外、メモリのバグ探し |
 | [AddressSanitizer](asan.md) | メモリの範囲外アクセス・解放済みメモリの使用を、その場で検出 |
