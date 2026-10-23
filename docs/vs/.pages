@@ -5,6 +5,7 @@ nav:
   - settings.md
   - utf8.md
   - editorconfig.md
+  - git.md
   - libraries.md
   - debugging.md
   - asan.md
