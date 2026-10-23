@@ -76,16 +76,16 @@ def hover(needle, delta=1, after=0):
 
 md = hover('cbuffer PerFrame', len('cbuffer ') + 2)
 print(md)
-check('PerFrame' in md and '272 バイト' in md and 'c4.w' in md, 'cbuffer 名のホバーに大きさとレジスタ')
+check('PerFrame' in md and '272 バイト' in md and '17 レジスタ' in md, 'cbuffer 名のホバーに大きさとレジスタ数')
 
 md = hover('float time;', len('float ') + 1)
 check('オフセット 76' in md, 'メンバー time のホバー: オフセット 76')
 
 md = hover('ConstantBuffer<Data> gData', len('ConstantBuffer<Data> ') + 1)
-check('gData' in md and 'tint' in md, 'ConstantBuffer 変数のホバー')
+check('gData' in md and '84 バイト' in md, 'ConstantBuffer 変数のホバー')
 
 md = hover('struct Light', len('struct ') + 1)
-check('Light' in md and 'color' in md, 'struct 名のホバー')
+check('Light' in md and '28 バイト' in md, 'struct 名のホバー')
 
 lenses = req('textDocument/codeLens', {'textDocument': td})
 for l in lenses:

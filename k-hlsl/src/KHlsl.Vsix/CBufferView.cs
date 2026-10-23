@@ -23,23 +23,15 @@ namespace KHlsl.Vsix
     /// </summary>
     public sealed class CBufferView : UserControl
     {
-        private const double ByteW = 24;      // 1 バイトの幅(16 バイトで 384 px)
-        private const double RowH = 30;
-        private const double LabelW = 92;
-
-        // 明るい中間色。文字は黒で、ライト/ダークの両方で読める
-        private static readonly Color[] Palette =
-        {
-            Color.FromRgb(0x8E, 0xB8, 0xF5), Color.FromRgb(0xF2, 0xB8, 0x7C), Color.FromRgb(0x9C, 0xD6, 0x9C), Color.FromRgb(0xE0, 0x9C, 0xD6),
-            Color.FromRgb(0xE8, 0xD8, 0x6E), Color.FromRgb(0x7F, 0xD0, 0xD0), Color.FromRgb(0xF0, 0xA0, 0xA0), Color.FromRgb(0xB8, 0xA8, 0xE8),
-            Color.FromRgb(0xC8, 0xC8, 0x8A), Color.FromRgb(0x9F, 0xC8, 0xB0)
-        };
-
         private readonly ComboBox _blocks = new ComboBox { MinWidth = 260, Margin = new Thickness(0, 0, 8, 0) };
         private readonly CheckBox _structs = new CheckBox { Content = "struct も表示", Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
         private readonly TextBlock _file = new TextBlock { VerticalAlignment = VerticalAlignment.Center };
         private readonly TextBlock _summary = new TextBlock { Margin = new Thickness(8, 4, 8, 4), TextWrapping = TextWrapping.Wrap };
-        private readonly Canvas _canvas = new Canvas();
+        private readonly ScrollViewer _gridHost = new ScrollViewer
+        {
+            HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+            VerticalScrollBarVisibility = ScrollBarVisibility.Auto
+        };
         private readonly TextBox _reorderBox = MakeCodeBox();
         private readonly TextBox _cppBox = MakeCodeBox();
         private readonly TextBlock _reorderNote = new TextBlock { Margin = new Thickness(6, 4, 6, 4), TextWrapping = TextWrapping.Wrap };
@@ -73,12 +65,7 @@ namespace KHlsl.Vsix
             _summary.SetResourceReference(TextBlock.ForegroundProperty, EnvironmentColors.ToolWindowTextBrushKey);
             _reorderNote.SetResourceReference(TextBlock.ForegroundProperty, EnvironmentColors.ToolWindowTextBrushKey);
 
-            var gridScroll = new ScrollViewer
-            {
-                Content = _canvas,
-                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
-            };
+            var gridScroll = _gridHost;
 
             var reorderPanel = new DockPanel();
             DockPanel.SetDock(_reorderNote, Dock.Top);
@@ -195,7 +182,7 @@ namespace KHlsl.Vsix
                 if (_blocks.SelectedItem == null && _blocks.Items.Count > 0) _blocks.SelectedIndex = 0;
                 if (_blocks.Items.Count == 0)
                 {
-                    _canvas.Children.Clear();
+                    _gridHost.Content = null;
                     _summary.Text = "このファイルには、cbuffer・ConstantBuffer<T> がありません。「struct も表示」で、struct のレイアウトも見られます。";
                     _reorderBox.Text = _cppBox.Text = "";
                     _reorderNote.Text = "";
@@ -228,7 +215,7 @@ namespace KHlsl.Vsix
             if (((JArray)b["problems"]).Count > 0) s += "\n⚠ " + string.Join(" / ", ((JArray)b["problems"]).Select(x => (string)x));
             _summary.Text = s;
 
-            Draw(b);
+            _gridHost.Content = CBufferGrid.Build(b, 24, 30, 11, EnvironmentColors.ToolWindowTextBrushKey, GoTo);
 
             var r = b["reorder"] as JObject;
             if (r != null)
@@ -242,136 +229,6 @@ namespace KHlsl.Vsix
                 _reorderBox.Text = "";
             }
             _cppBox.Text = (string)b["cpp"];
-        }
-
-        private void Draw(JObject b)
-        {
-            _canvas.Children.Clear();
-            int padded = Math.Max((int)b["paddedSize"], 16);
-            int rows = padded / 16;
-            var members = (JArray)b["members"];
-            double width = LabelW + 16 * ByteW + 10;
-            _canvas.Width = width;
-            _canvas.Height = rows * RowH + 24;
-
-            // 見出しの行(+0 +4 +8 +12)
-            for (int c = 0; c < 4; c++)
-                AddText("+" + c * 4, LabelW + c * 4 * ByteW + 4, 2, Brushes.Gray, 10);
-
-            // 行のラベルと、薄い下地(隙間)
-            for (int r = 0; r < rows; r++)
-            {
-                double y = 20 + r * RowH;
-                AddText("c" + r + "  (" + r * 16 + ")", 2, y + 6, null, 11);
-                var bg = new Rectangle
-                {
-                    Width = 16 * ByteW, Height = RowH - 2,
-                    Fill = new SolidColorBrush(Color.FromArgb(40, 128, 128, 128)),
-                    Stroke = new SolidColorBrush(Color.FromArgb(70, 128, 128, 128)),
-                    StrokeThickness = 1
-                };
-                Canvas.SetLeft(bg, LabelW);
-                Canvas.SetTop(bg, y);
-                _canvas.Children.Add(bg);
-            }
-
-            // 隙間の斜線は、使われていないバイトに重ねる
-            var used = new bool[rows * 16];
-            foreach (JObject s in (JArray)b["segments"])
-                for (int k = (int)s["offset"]; k < (int)s["offset"] + (int)s["size"] && k < used.Length; k++) used[k] = true;
-            for (int k = 0; k < used.Length; )
-            {
-                if (used[k]) { k++; continue; }
-                int start = k;
-                while (k < used.Length && !used[k] && k / 16 == start / 16) k++;
-                var gap = new Rectangle
-                {
-                    Width = (k - start) * ByteW, Height = RowH - 2,
-                    Fill = HatchBrush(),
-                    ToolTip = "隙間 " + (k - start) + " バイト(オフセット " + start + ")"
-                };
-                Canvas.SetLeft(gap, LabelW + start % 16 * ByteW);
-                Canvas.SetTop(gap, 20 + start / 16 * RowH);
-                _canvas.Children.Add(gap);
-            }
-
-            // メンバーの区画
-            foreach (JObject s in (JArray)b["segments"])
-            {
-                int off = (int)s["offset"], size = (int)s["size"], group = (int)s["group"];
-                string path = (string)s["path"];
-                Color col = Palette[group % Palette.Length];
-                int pos = off;
-                bool first = true;
-                while (pos < off + size)
-                {
-                    int rowEnd = (pos / 16 + 1) * 16;
-                    int end = Math.Min(off + size, rowEnd);
-                    var rect = new Rectangle
-                    {
-                        Width = (end - pos) * ByteW - 1, Height = RowH - 2,
-                        Fill = new SolidColorBrush(col),
-                        Stroke = new SolidColorBrush(Color.FromRgb(0x55, 0x55, 0x55)),
-                        StrokeThickness = 0.5,
-                        ToolTip = path + " : " + (string)s["type"] + "\nオフセット " + off + " ・ サイズ " + size + " バイト\nレジスタ c" + off / 16 + "." + "xyzw"[off % 16 / 4] + "\n(ダブルクリックで宣言へ)",
-                        Cursor = Cursors.Hand,
-                        Tag = group
-                    };
-                    rect.MouseLeftButtonDown += (sender, e) =>
-                    {
-                        if (e.ClickCount == 2)
-                        {
-                            int g = (int)((Rectangle)sender).Tag;
-                            if (g < members.Count) GoTo((string)members[g]["file"], (int)members[g]["line"]);
-                            e.Handled = true;
-                        }
-                    };
-                    Canvas.SetLeft(rect, LabelW + pos % 16 * ByteW);
-                    Canvas.SetTop(rect, 20 + pos / 16 * RowH);
-                    _canvas.Children.Add(rect);
-                    if (first || (end - pos) >= 8)
-                    {
-                        var t = new TextBlock
-                        {
-                            Text = first ? path : "…",
-                            Foreground = Brushes.Black, FontSize = 11,
-                            IsHitTestVisible = false,
-                            MaxWidth = Math.Max(8, (end - pos) * ByteW - 6),
-                            TextTrimming = TextTrimming.CharacterEllipsis
-                        };
-                        Canvas.SetLeft(t, LabelW + pos % 16 * ByteW + 3);
-                        Canvas.SetTop(t, 20 + pos / 16 * RowH + 6);
-                        _canvas.Children.Add(t);
-                    }
-                    first = false;
-                    pos = end;
-                }
-            }
-        }
-
-        private static Brush HatchBrush()
-        {
-            var lines = new DrawingBrush
-            {
-                TileMode = TileMode.Tile,
-                Viewport = new Rect(0, 0, 8, 8),
-                ViewportUnits = BrushMappingMode.Absolute,
-                Viewbox = new Rect(0, 0, 8, 8),
-                ViewboxUnits = BrushMappingMode.Absolute
-            };
-            var g = new GeometryDrawing(null, new Pen(new SolidColorBrush(Color.FromArgb(150, 150, 150, 150)), 1.2), new LineGeometry(new Point(0, 8), new Point(8, 0)));
-            lines.Drawing = g;
-            return lines;
-        }
-
-        private void AddText(string text, double x, double y, Brush fg, double size)
-        {
-            var t = new TextBlock { Text = text, FontSize = size };
-            if (fg != null) t.Foreground = fg;
-            else t.SetResourceReference(TextBlock.ForegroundProperty, EnvironmentColors.ToolWindowTextBrushKey);
-            Canvas.SetLeft(t, x);
-            Canvas.SetTop(t, y);
-            _canvas.Children.Add(t);
         }
 
         // ---- ファイルを開く ----
