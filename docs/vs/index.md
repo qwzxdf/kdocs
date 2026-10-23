@@ -23,6 +23,7 @@ C++ でゲームを作る学生の多くは <strong>Visual Studio（ビジュア
 | [GPU デバッグの流れ](gpu-debug.md) | 真っ黒・一部だけ消える、などの症状からの切り分け |
 | [Tracy](tracy.md) | フレームごとの時間を時間軸で見るプロファイラ |
 | [外部ライブラリの入れ方](libraries.md) | vcpkg、ヘッダを置く方法、`.lib` / `.dll` を使う方法 |
+| [パッケージ管理の比較](package-managers.md) | vcpkg と Conan の違いと選び方、バージョンの固定 |
 | [デバッグのやり方](debugging.md) | ブレークポイント、ウォッチ、呼び出し履歴、例外、メモリのバグ探し |
 | [AddressSanitizer](asan.md) | メモリの範囲外アクセス・解放済みメモリの使用を、その場で検出 |
 | [パフォーマンス プロファイラー](profiler.md) | 遅い場所を測る。ホット パス、PIX・Tracy |
@@ -30,6 +31,7 @@ C++ でゲームを作る学生の多くは <strong>Visual Studio（ビジュア
 | [インクルード ディレクトリとマクロ](include-dirs.md) | 追加のインクルード ディレクトリ、`$(SolutionDir)` などのパス用マクロ |
 | [プロジェクトの種類とエントリーポイント](project-types.md) | コンソールと Windows アプリ、`main` と `WinMain`、サブシステム、DLL |
 | [便利な機能とショートカット](tips.md) | よく使うキー、整形、IntelliSense、設定ファイル |
+| [C++ のエラーメッセージの読み方](error-messages.md) | 長いエラーのどこを読むか、テンプレートのエラー |
 | [よくあるエラー](errors.md) | `LNK2019`、`C1083`、文字化け DLL が見つからない、など |
 | [CMake で使う](cmake.md) | 「フォルダーを開く」で CMake のプロジェクトを開く |
 | [Ninja](ninja.md) | 速いビルド ツール。コマンド ラインや CI でのビルド |

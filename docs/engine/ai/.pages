@@ -1,0 +1,4 @@
+nav:
+  - index.md
+  - behavior-tree.md
+  - pathfinding.md

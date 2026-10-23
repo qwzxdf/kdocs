@@ -1,5 +1,6 @@
 nav:
   - index.md
+  - guide.md
   - util.md
   - window.md
   - factory-device.md

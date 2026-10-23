@@ -6,4 +6,8 @@ nav:
   - resource.md
   - シリアライズ: serialization
   - handle.md
+  - input.md
+  - audio.md
+  - ゲーム AI: ai
+  - network.md
   - ...
