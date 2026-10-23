@@ -17,7 +17,7 @@ K-HLSL は、判定を<strong>本物の DXC に任せる</strong>ことで、こ
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-HLSL-1.0.7.vsix" download>K-HLSL 1.0.7 をダウンロード（.vsix、約 360 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-HLSL-1.0.8.vsix" download>K-HLSL 1.0.8 をダウンロード（.vsix、約 360 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも、同じ手順で上書きできます。アンインストールは、Visual Studio の「拡張機能の管理」から行います。
 
@@ -86,6 +86,7 @@ Visual Studio を起動した直後に自動で開かれるファイルは、切
 
 | 版 | 内容 |
 | --- | --- |
+| 1.0.8 | `(a * b)` のような掛け算を、型と変数の宣言と取り違えて、変数名が型の色になる問題を直した |
 | 1.0.7 | `#include` `#define` を灰色、`if` `for` `return` などを紫にした（VS の C++ と同じ既定色の、専用の表示項目）。`#include` した先で定義された構造体を、型・変数・引数・メンバーとして色付けする。組み込み関数とリソースのメソッドを橙にした |
 | 1.0.5 | VS の C++ と同じ分類名で色付けするように作り直した。DXC の定義表と突き合わせて、組み込み関数とメソッドを追加・修正した。大きいファイルでの色付けを速くした |
 | 1.0.4 | レインボー括弧・エスケープ・書式指定子の検出を、Viasfora の実装と合わせた |

@@ -130,6 +130,9 @@ namespace KHlsl.Vsix
                 string typeWord = d.Groups["t"].Value;
                 if (!isTypeWord(typeWord))
                 {
+                    // HLSL にポインター・参照の宣言は無いので、「a * b」の形(掛け算)は、宣言と見なさない
+                    string between = m.Substring(d.Groups["t"].Index + d.Groups["t"].Length, d.Groups["n"].Index - d.Groups["t"].Index - d.Groups["t"].Length);
+                    if (between.IndexOf('*') >= 0 || between.IndexOf('&') >= 0) continue;
                     if (!LooksLikeDecl(m, d.Groups["t"].Index, typeWord, lx)) continue;
                     inferredTypes.Add(typeWord.Contains("::") ? typeWord.Substring(typeWord.LastIndexOf("::", StringComparison.Ordinal) + 2) : typeWord);
                 }
