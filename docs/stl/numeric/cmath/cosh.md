@@ -14,11 +14,13 @@ tags:
 `#include <cmath>`
 </div>
 
-`std::cosh` は、**双曲線余弦**を返す関数です。ロープやケーブルが両端でぶら下がる形（懸垂線）は、`cosh` で表せます。
+吊り橋のケーブルや電線のように、両端をつるして自然に垂れ下がる曲線は、放物線ではなく懸垂線（カテナリー）です。その式は `a * cosh(x / a)` で、`std::cosh` はこの双曲線余弦を計算します。
 
 !!! tip "ポイント"
-    - `cosh(0)` は 1。左右対称。
-    - `cosh(x) = (e^x + e^−x) / 2`。
+    - `std::cosh(0.0)` は 1、`std::cosh(1.0)` は約 1.5431
+    - 偶関数: `cosh(-x) = cosh(x)`。常に 1 以上
+    - `x` が大きいと急激に増え、オーバーフローする
+    - 懸垂線を描くときに使う
 
 !!! info "このページを読む前に"
     [`<cmath>`](../cmath.md) の概要を先に読むと分かりやすいです。
@@ -28,39 +30,53 @@ tags:
 ### std::cosh {#cosh}
 
 ```cpp
+float cosh(float x);
 double cosh(double x);
+long double cosh(long double x);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `x` | 浮動小数点 | 値 |
+| `x` | 浮動小数点数 | 入力 |
 
-- 戻り値: 双曲線余弦
-- 計算量: O(1)
+戻り値は `(exp(x) + exp(-x)) / 2` です。`x` が 0 のとき最小値 1 で、そこから左右対称に増えます。戻り値が 1 未満になることはありません。
+
+`cos` とは似て非なる関数で、周期を持たず、指数的に増えます。`cosh(x)^2 - sinh(x)^2 = 1` という関係があり、これが双曲線関数の名前の由来です。
+
+`double` では `x` の絶対値が約 710 を超えると、無限大を返します。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <cmath>
 #include <print>
 
 int main() {
-  std::println("{:.4f}", std::cosh(1.0));
+  std::println("cosh(0)  = {}", std::cosh(0.0));
+  std::println("cosh(1)  = {}", std::cosh(1.0));
+  std::println("cosh(-1) = {}", std::cosh(-1.0));    // 偶関数なので cosh(1) と同じ
 }
 ```
 
 ```text title="実行結果"
-1.5431
+cosh(0)  = 1
+cosh(1)  = 1.5430806348152437
+cosh(-1) = 1.5430806348152437
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 吊り橋・ロープのたるみの曲線 | `a * std::cosh(x / a)` |
+つり橋のケーブルを描く場合、両端を結ぶ曲線の高さを `a * cosh(x / a)` で計算します。`a` が大きいほど張りが強く、小さいほど深く垂れます。
+
+```cpp
+// x = 0 を最下点とする、懸垂線の高さ
+const float y = a * std::cosh(x / a) - a;
+```
 
 ## よくあるミス
 
-??? failure "cos と混同する"
-    周期関数ではなく、1 以上の値です。
+??? failure "`cos` の代わりに使って、振動しないことに驚く"
+    `cosh` は周期関数ではありません。
 
 ## 類似
 
@@ -68,19 +84,21 @@ int main() {
 | --- | --- |
 | [`sinh`](sinh.md) | 双曲線正弦 |
 | [`tanh`](tanh.md) | 双曲線正接 |
+| [`cos`](cos.md) | 三角関数の余弦 |
 
 ## コンパイラ対応
 
-C++98 から使えます。
+C++98 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 双曲線余弦
-    - [x] 1 以上の値
-    - [x] 懸垂線
+    - [x] `cosh(x)` は `(exp(x) + exp(-x)) / 2`
+    - [x] 偶関数で、最小値は `cosh(0) = 1`
+    - [x] 懸垂線を描くときに使う
 
 ## 関連ページ
 
+- [`std::sinh`](sinh.md)
 - [cpprefjp: std::cosh](https://cpprefjp.github.io/reference/cmath/cosh.html)
 - [cppreference: std::cosh](https://en.cppreference.com/w/cpp/numeric/math/cosh)
