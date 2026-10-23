@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="System.Design" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsBase" />
