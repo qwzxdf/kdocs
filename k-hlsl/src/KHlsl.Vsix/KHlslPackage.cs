@@ -21,7 +21,7 @@ namespace KHlsl.Vsix
     /// LSP の補完が使われない。"khlsl" へ切り離すと、K-HLSL の機能だけが働く。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-HLSL", "HLSL language support (SM 6.9)", "1.1.0")]
+    [InstalledProductRegistration("K-HLSL", "HLSL language support (SM 6.9)", "1.1.1")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideToolWindow(typeof(CBufferToolWindow), Style = VsDockStyle.Tabbed, Window = "34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3")]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]

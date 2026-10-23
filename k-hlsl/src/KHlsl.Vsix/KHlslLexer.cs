@@ -453,6 +453,8 @@ namespace KHlsl.Vsix
         // Viasfora の C++ の既定の可視性キーワード(keyword の分類のものだけに効く)
         private static readonly HashSet<string> VisibilityWords = new HashSet<string> { "public", "private", "protected", "internal", "friend" };
 
+        private static readonly Regex RxCustomSemantic = new Regex(@"^[A-Z][A-Z0-9_]*$", RegexOptions.Compiled);
+
         private static Tk? Classify(string q, string w, char prevCh, char prev2Ch, string prevWord, char nextCh, bool call,
             Lexicon lx, HashSet<string> userTypes, HashSet<string> userMacros)
         {
@@ -489,6 +491,9 @@ namespace KHlsl.Vsix
             if (userTypes.Contains(w)) return Tk.Type;
             if (lx.Constants.Contains(w)) return Tk.Enumerator;
             if (lx.Macros.Contains(w) || userMacros.Contains(w)) return Tk.Macro;
+            // 自分で決めたセマンティクス(JOINTS、WEIGHTS など)。": 大文字の名前" のあとが ; , ) { なら、セマンティクスとみなす
+            if (prevCh == ':' && prev2Ch != ':' && (nextCh == ';' || nextCh == ',' || nextCh == ')' || nextCh == '{') && RxCustomSemantic.IsMatch(w))
+                return Tk.Semantic;
             // 組み込み関数(mul、saturate など)と、リソースのメソッド(Sample など)は、独自の関数と色を分ける
             if (call && prevCh == '.') return lx.Methods.Contains(w) ? Tk.Intrinsic : Tk.MemberFunc;
             if (call) return lx.Intrinsics.Contains(w) ? Tk.Intrinsic : Tk.Function;
