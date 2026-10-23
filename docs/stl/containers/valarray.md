@@ -23,7 +23,7 @@ tags:
     - `sum()`、`min()`、`max()` で集計できる。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
     - [イテレータ](../../basics/iterator.md)（イテレーターの基礎）
 
 ## 宣言

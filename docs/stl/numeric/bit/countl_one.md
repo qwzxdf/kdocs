@@ -15,69 +15,92 @@ tags:
 `#include <bit>`
 </div>
 
-`std::countl_one` は、**最上位のビットから数えて、連続している 1 の数**を返す関数です。ネットマスクの長さ（IP アドレスの `/24` など）の計算で使われます。
+上位から数えて、1 のビットが何個続いているか。ビットを反転すると `countl_zero` と同じ意味になるので、使う機会は少ないですが、上位ビットが埋まっている長さを直接調べたいときに便利です。
 
 !!! tip "ポイント"
-    - 全部 1 なら、型のビット数。
-    - `countl_zero(~x)` と同じ。
+    - `std::countl_one(0xF0000000u)` は 4
+    - 全ビットが 1 なら型のビット幅
+    - `countl_zero(~x)` と同じ
+    - 符号なし整数型だけが対象
 
 !!! info "このページを読む前に"
-    [`<bit>`](../bit.md) の概要を先に読むと分かりやすいです。符号なし整数（`uint32_t` など）にだけ使えます。
+    [`<bit>`](../bit.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::countl_one {#countl_one}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 template <class T>
 constexpr int countl_one(T x) noexcept;
 ```
 
-- 一番上の位から続く 1 の数
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `x` | 符号なし整数型 | 対象の値 |
+
+`std::countl_one(x)` は、`x` の最上位ビットから見て、連続する 1 の数を返します。`x` の全ビットが 1 なら型のビット幅、最上位ビットが 0 なら 0 です。
+
+`countl_zero(~x)` と同じ値になります。`~x` を書く手間を省くための関数です。
+
+符号なし整数型だけが対象です。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <bit>
+#include <cstdint>
 #include <print>
 
 int main() {
-  std::println("{} {}", std::countl_one(0xF0000000u), std::countl_one(0u));
+  std::println("countl_one(0xF0000000) = {}", std::countl_one(std::uint32_t{0xF0000000}));
+  std::println("countl_one(0) = {}", std::countl_one(std::uint32_t{0}));
+  std::println("countl_one(0xFFFFFFFF) = {}", std::countl_one(std::uint32_t{0xFFFFFFFF}));
 }
 ```
 
 ```text title="実行結果"
-4 0
+countl_one(0xF0000000) = 4
+countl_one(0) = 0
+countl_one(0xFFFFFFFF) = 32
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ネットマスクの長さを求める | `std::countl_one(mask)` |
+上位ビットが連続して立っているマスクの幅を調べるときに使います。ネットワークマスク（IP アドレスのサブネット）の長さを求める処理が典型です。
+
+```cpp
+// サブネットマスク 255.255.255.0 の長さ（24）
+const int prefix_length = std::countl_one(mask);
+```
 
 ## よくあるミス
 
-??? failure "符号つきの型に使う"
-    符号なし整数だけです。
+??? failure "`countl_zero` と取り違える"
+    数える対象が 1 か 0 かの違いです。
+
+??? failure "符号つき整数を渡してコンパイルエラーになる"
+    符号なしに直します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`countl_zero`](countl_zero.md) | 0 を数える |
-| [`countr_one`](countr_one.md) | 下位から数える |
+| [`countl_zero`](countl_zero.md) | 上位の 0 の連続数 |
+| [`countr_one`](countr_one.md) | 下位の 1 の連続数 |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 9 / Clang 9 / MSVC 19.25 以降で使えます。
+C++20 から使えます。GCC 9 以降、Clang 9 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 上位から連続する 1 の数
-    - [x] 全部 1 なら全ビット数
-    - [x] ネットマスクの長さ
+    - [x] `countl_one(x)` は上位から続く 1 の数
+    - [x] `countl_zero(~x)` と同じ
+    - [x] サブネットマスクの長さなどに使う
 
 ## 関連ページ
 

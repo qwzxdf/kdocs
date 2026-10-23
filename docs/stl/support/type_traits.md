@@ -23,7 +23,7 @@ tags:
     - C++20 以降は、テンプレートの型の条件は [concepts](../../basics/template.md#concepts型に条件を付ける)（`std::integral` など）のほうが読みやすい。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
     - [テンプレート](../../basics/template.md)（テンプレートの基礎）
 
 ## 調べる（is_ 系）

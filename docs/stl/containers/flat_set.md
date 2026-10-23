@@ -22,7 +22,7 @@ tags:
     - 実は「vector に入れて sort して unique」したものとほぼ同じ。そちらで代用しても十分。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
     - [イテレータ](../../basics/iterator.md)（イテレーターの基礎）
 
 ## 宣言

@@ -15,78 +15,93 @@ tags:
 `#include <bit>`
 </div>
 
-`std::popcount` は、**整数の中で 1 になっているビットの数**を返す関数です。フラグがいくつ立っているか、ビットマスクの要素数を数えるときに使います。CPU の専用命令で速く動きます。
+立っているビット（1 のビット）が何個あるか。フラグの集合の要素数、ビットマスクで表した敵の数、ハッシュの一致度。ビットを 1 つずつ数えるループは、`popcount` なら CPU の専用命令 1 つで済みます。
 
 !!! tip "ポイント"
-    - 符号なし整数だけに使える（`uint32_t` など）。
-    - `std::bitset::count` と同じ。
-    - 1 命令で動く環境が多く、速い。
+    - `std::popcount(255u)` は 8（1 のビットの数）
+    - 符号なし整数型だけ。戻り値は `int`
+    - 多くの CPU で専用命令 1 つに置き換わる
+    - フラグの数、集合の要素数に使える
 
 !!! info "このページを読む前に"
-    [`<bit>`](../bit.md) の概要を先に読むと分かりやすいです。符号なし整数（`uint32_t` など）にだけ使えます。
+    [`<bit>`](../bit.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::popcount {#popcount}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class T>
-constexpr int popcount(T x) noexcept;  // T は符号なし整数
+constexpr int popcount(T x) noexcept;
 ```
 
-- 1 になっているビットの数
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `x` | 符号なし整数型 | 対象の値 |
 
-<div class="anim" data-label="std::popcount(0b1011u)">
-1 0 1 1 # ビット列
-*1 0 1 1 # 1 のビットを数える
-*1 0 *1 1 # 2 つ目
-*1 0 *1 *1 # 3 つ。結果は 3
-</div>
+`std::popcount(x)` は、`x` の 2 進表現で 1 になっているビットの数を返します。0 なら 0、全ビットが 1 ならそのビット幅です。符号なし整数型だけが対象で、`int` のような符号つき型はコンパイルエラーになります。
+
+多くの CPU に `popcnt` 命令があり、コンパイラはそれに置き換えます。対応していない CPU 向けにも、速いソフトウェア実装が使われます。
+
+戻り値は `int` で、`x` の型の幅（`uint32_t` なら 32）を超えません。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <bit>
+#include <cstdint>
 #include <print>
 
 int main() {
-  std::println("{}", std::popcount(0b1011u));
+  std::println("popcount(0) = {}", std::popcount(0u));
+  std::println("popcount(0b1011) = {}", std::popcount(0b1011u));
+  std::println("popcount(255) = {}", std::popcount(255u));
 }
 ```
 
 ```text title="実行結果"
-3
+popcount(0) = 0
+popcount(0b1011) = 3
+popcount(255) = 8
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| フラグのうち立っているものの数 | `std::popcount(mask)` |
-| レイヤーマスクに該当するものの数 | `std::popcount(layers & filter)` |
+ビットマスクで管理した集合の要素数を数えるときに使います。
+
+```cpp
+// 32 体の敵のうち、生きている敵をビットで管理している
+std::uint32_t alive_mask = 0b1011;
+const int alive_count = std::popcount(alive_mask);   // 3 体
+```
 
 ## よくあるミス
 
-??? failure "符号つき整数に使う"
-    コンパイルエラーです。`static_cast<unsigned>` にします。
+??? failure "符号つき整数を渡してコンパイルエラーになる"
+    `static_cast<unsigned>(x)` で符号なしに直します。負の値は、2 の補数表現のビットで数えられます。
+
+??? failure "ループで 1 ビットずつ数えて遅い"
+    `popcount` に置き換えます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::bitset`](../../containers/bitset.md) | `count()` で同じ |
-| [`has_single_bit`](has_single_bit.md) | 1 つだけ立っているか |
+| [`has_single_bit`](has_single_bit.md) | ビットが 1 つだけか |
+| [`countr_zero`](countr_zero.md) | 下位の 0 の連続数 |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 9 / Clang 9 / MSVC 19.25 以降で使えます。
+C++20 から使えます。GCC 9 以降、Clang 9 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 立っているビットの数
-    - [x] 符号なし整数だけ
-    - [x] CPU 命令で速い
+    - [x] `popcount(x)` は 1 のビットの個数
+    - [x] 符号なし整数型のみ。CPU の専用命令になる
+    - [x] 集合の要素数、フラグの数に使う
 
 ## 関連ページ
 

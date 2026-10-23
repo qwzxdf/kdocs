@@ -22,7 +22,7 @@ tags:
     - 引数は**符号なし整数**（`unsigned`、`std::uint32_t` など）。int を渡すとコンパイルエラー。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
 
 ## 関数一覧
 

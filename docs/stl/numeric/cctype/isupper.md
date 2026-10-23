@@ -13,31 +13,34 @@ tags:
 `#include <cctype>`
 </div>
 
-`<cctype>` の判定関数のひとつです。文字が英字の大文字（A〜Z）かを判定します。戻り値は真偽ではなく `int` で、真なら 0 以外が返ります。
+文字列を解析していると、「この文字は何の仲間か」を調べたくなります。数字の連なりを読み取る、識別子に使える文字か確かめる、空白を飛ばす。`std::isupper` は、<strong>文字が大文字の英字か</strong>を調べます。
 
 !!! tip "ポイント"
-    - 戻り値は `int`（真なら 0 以外）。
-    - 引数は `unsigned char` の範囲か `EOF`。`char` が負のときは `unsigned char` に直して渡す。
-    - ASCII 以外の文字（日本語）には使えない。
+    - 調べる対象は、アルファベットの大文字（A〜Z）
+    - 戻り値は `int`。条件を満たせば 0 以外、満たさなければ 0（`bool` ではない）
+    - 引数は `unsigned char` の範囲の値にして渡す。`char` のまま渡すと、負の値で未定義動作になることがある
+    - 全角文字や日本語は判定できない。ASCII の範囲だけが対象
 
 !!! info "このページを読む前に"
-    [`std::isalpha`](isalpha.md) を先に読んでください。
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::isupper {#isupper}
 
 ```cpp
-int isupper(int ch);
+int isupper(int c);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `ch` | int | 調べる文字（`unsigned char` の値か `EOF`） |
+| `c` | `int` | 調べる文字。`unsigned char` の範囲の値か `EOF` |
 
-- 戻り値: 条件に合えば 0 以外、合わなければ 0
-- 計算量: 定数
+戻り値は、`c` がアルファベットの大文字（A〜Z）（上の条件）に当てはまれば 0 以外の値、当てはまらなければ 0 です。真偽値として使えますが、型は `int` なので、`== true` と比べてはいけません。`!= 0` か、条件式にそのまま書きます。
 
+引数が `int` なのは、`EOF`（-1）を受け取れるようにするためです。`EOF` 以外の値は、`unsigned char` で表せる範囲（0〜255）でなければなりません。`char` が符号つきの環境で、`char` の値をそのまま渡すと、UTF-8 の日本語のように 128 以上のバイトが負の値になり、未定義動作です。Visual Studio のデバッグ ビルドでは、アサートで止まります。呼ぶときは、必ず `static_cast<unsigned char>(ch)` を挟みます。
+
+判定の基準はロケールで変わります。既定の "C" ロケールでは ASCII の範囲だけが対象で、日本語の文字はどれも「満たさない」になります。UTF-8 の文字を判定したい場合は、別の方法（Unicode のライブラリ）が必要です。
 
 ## 実際に動かしてみる
 
@@ -46,24 +49,40 @@ int isupper(int ch);
 #include <print>
 
 int main() {
-  std::println("{} {}", std::isupper('A') != 0, std::isupper('a') != 0);
+  for (char ch : {'A', 'Z', 'a', '5'}) {
+    // char を unsigned char にしてから渡す
+    std::println("'{}' -> {}", ch, std::isupper(static_cast<unsigned char>(ch)) != 0);
+  }
 }
 ```
 
 ```text title="実行結果"
-true false
+'A' -> true
+'Z' -> true
+'a' -> false
+'5' -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 入力文字の検査 |
+定数名（全部大文字）かの検査 で使います。
+
+```cpp
+if (std::isupper(static_cast<unsigned char>(ch))) { /* 大文字 */ }
+```
+
+文字列全体を調べるなら、`std::all_of` と組み合わせます。`std::all_of(s.begin(), s.end(), [](unsigned char c) { return std::isupper(c) != 0; })` のように、ラムダの引数を `unsigned char` にすると、キャストを書かずに済みます。
 
 ## よくあるミス
 
-??? failure "負の `char` をそのまま渡す"
-    `char` が符号付きの環境で、非 ASCII の文字は負の値になります。`static_cast<unsigned char>(c)` に直して渡さないと、未定義動作です。
+??? failure "`char` をそのまま渡して、日本語の文字列でクラッシュする"
+    `static_cast<unsigned char>(ch)` を挟みます。ラムダの引数を `unsigned char` にしても同じです。
+
+??? failure "戻り値を `true` と比べて、一致しない"
+    戻り値は 0 以外が真です。`!= 0` か、条件式でそのまま使います。
+
+??? failure "全角の文字に使って、すべて偽になる"
+    日本語は ASCII の範囲に入りません。必要なら Unicode 対応のライブラリを使います。
 
 ## 類似
 
@@ -71,17 +90,20 @@ true false
 | --- | --- |
 | [`isalpha`](isalpha.md) | 英字か |
 | [`isdigit`](isdigit.md) | 数字か |
+| [`isspace`](isspace.md) | 空白類か |
+| [`std::all_of`](../../algorithms/all_of.md) | 文字列全体で条件を調べる |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。`<cctype>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 英大文字かを調べる
-    - [x] 戻り値は `int`（真なら 0 以外）
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `isupper` は文字が大文字の英字か
+    - [x] 戻り値は `int`（0 以外が真）
+    - [x] `char` は `unsigned char` にキャストして渡す
+    - [x] ASCII のみ。日本語は判定できない
 
 ## 関連ページ
 

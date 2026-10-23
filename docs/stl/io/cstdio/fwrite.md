@@ -23,7 +23,7 @@ tags:
     - C++ では `ofstream::write`。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../../index.md)（STL 全体の地図（どこに何があるか））
 
 ## 関数の詳しい説明
 

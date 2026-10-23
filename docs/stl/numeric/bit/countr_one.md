@@ -15,25 +15,39 @@ tags:
 `#include <bit>`
 </div>
 
-`std::countr_one` は、**最下位のビットから数えて、連続している 1 の数**を返す関数です。「最初に 0 になっているビット（空きの番号）」を探すときに使えます。`countr_one(0b0111)` は 3 です。
+下位から数えて、1 が何個続いているか。空いている最初の場所を探す処理に使えます。たとえば、使用中の枠が 1 のビットで表されていて、最初の空き枠（0 のビット）の位置を知りたいとき、答えは「下位から続く 1 の数」と同じです。
 
 !!! tip "ポイント"
-    - 最初の空き（0 のビット）の番号が分かる。
-    - `countr_zero(~x)` と同じ。
+    - `std::countr_one(7u)` は 3（下位の 1 が 3 個）
+    - 全ビットが 1 なら型のビット幅
+    - `countr_zero(~x)` と同じ
+    - 最初の空き枠を探すのに使える
 
 !!! info "このページを読む前に"
-    [`<bit>`](../bit.md) の概要を先に読むと分かりやすいです。符号なし整数（`uint32_t` など）にだけ使えます。
+    [`<bit>`](../bit.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::countr_one {#countr_one}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 template <class T>
 constexpr int countr_one(T x) noexcept;
 ```
 
-- 一番下の位から続く 1 の数
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `x` | 符号なし整数型 | 対象の値 |
+
+`std::countr_one(x)` は、`x` の最下位ビットから見て、連続する 1 の数を返します。全ビットが 1 なら型のビット幅、最下位ビットが 0 なら 0 です。
+
+`countr_zero(~x)` と同じ値になります。
+
+使用中の枠を 1 で表したビットマスクでは、`countr_one(mask)` が最初の空き枠の番号になります。全部埋まっていれば、幅と同じ値が返るので、空きなしを判定できます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <bit>
@@ -41,45 +55,52 @@ constexpr int countr_one(T x) noexcept;
 #include <print>
 
 int main() {
-  std::uint8_t x = 0b0001'0111;
-  std::println("floor {} / width {} / countl_zero {} / countr_one {} / countl_one {}",
-               std::bit_floor(x), std::bit_width(x), std::countl_zero(x), std::countr_one(x),
-               std::countl_one(static_cast<std::uint8_t>(0b1110'0000)));
+  std::println("countr_one(7) = {}", std::countr_one(std::uint32_t{7}));
+  std::println("countr_one(0) = {}", std::countr_one(std::uint32_t{0}));
+  std::println("countr_one(0b0111) = {}", std::countr_one(std::uint32_t{0b0111}));
 }
 ```
 
 ```text title="実行結果"
-floor 16 / width 5 / countl_zero 3 / countr_one 3 / countl_one 3
+countr_one(7) = 3
+countr_one(0) = 0
+countr_one(0b0111) = 3
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使用中フラグのビットマスクから、最初の空きスロットを探す | `slot = std::countr_one(used_mask);` |
+オブジェクトプールで、使用中の枠をビットマスクで管理しているとき、最初の空き枠を探します。
+
+```cpp
+std::uint32_t used = 0b0111;                 // 0, 1, 2 番が使用中
+const int free_slot = std::countr_one(used); // 3 番が最初の空き
+```
 
 ## よくあるミス
 
-??? failure "すべて使用中のとき"
-    全ビット 1 なら、型のビット数が返ります。範囲外のスロット番号になるので確認します。
+??? failure "全部埋まっているときの戻り値を空きの番号と思う"
+    全ビットが 1 なら、型のビット幅が返ります。幅と比べて空きなしを判定します。
+
+??? failure "符号つき整数を渡してコンパイルエラーになる"
+    符号なしに直します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`countr_zero`](countr_zero.md) | 0 を数える |
-| [`countl_one`](countl_one.md) | 上位から数える |
+| [`countr_zero`](countr_zero.md) | 下位の 0 の連続数 |
+| [`countl_one`](countl_one.md) | 上位の 1 の連続数 |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 9 / Clang 9 / MSVC 19.25 以降で使えます。
+C++20 から使えます。GCC 9 以降、Clang 9 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 下位から連続する 1 の数
-    - [x] 最初の空きを探す
-    - [x] 全部 1 なら全ビット数
+    - [x] `countr_one(x)` は下位から続く 1 の数
+    - [x] `countr_zero(~x)` と同じ
+    - [x] 最初の空き枠の番号を求めるのに使える
 
 ## 関連ページ
 

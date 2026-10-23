@@ -22,7 +22,7 @@ tags:
     - `generator` と共に C++23 で入った。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../../index.md)（STL 全体の地図（どこに何があるか））
     - [テンプレート](../../../basics/template.md)（テンプレートの基礎）
 
 ## 関数の詳しい説明
