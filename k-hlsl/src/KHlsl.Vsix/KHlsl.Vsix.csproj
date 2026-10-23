@@ -29,6 +29,7 @@
 
   <ItemGroup>
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Design" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsBase" />
@@ -37,6 +38,9 @@
 
   <ItemGroup>
     <None Include="source.extension.vsixmanifest" SubType="Designer" />
+    <VSCTCompile Include="KHlsl.vsct">
+      <ResourceName>Menus.ctmenu</ResourceName>
+    </VSCTCompile>
     <Content Include="KHlsl.pkgdef" IncludeInVSIX="true" />
     <Content Include="Grammars\KHlsl.language-configuration.json" IncludeInVSIX="true" />
     <Content Include="..\..\LICENSE.txt" Link="LICENSE.txt" IncludeInVSIX="true" />

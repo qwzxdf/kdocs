@@ -258,7 +258,8 @@ namespace KHlsl.Vsix
             t[Tk.Type] = semantic("cppType");
             t[Tk.Function] = semantic("cppFunction");
             t[Tk.MemberFunc] = semantic("cppMemberFunction");
-            t[Tk.Intrinsic] = combine(new[] { get(KHlslClassNames.Intrinsic), identifier });
+            // identifier と重ねると、そちらの色が勝つので、専用の分類だけを使う
+            t[Tk.Intrinsic] = get(KHlslClassNames.Intrinsic) ?? identifier;
             t[Tk.Semantic] = semantic("cppEnumerator");
             t[Tk.Attribute] = get("cppAttributeIdentifier") ?? semantic("cppType");
             t[Tk.Enumerator] = semantic("cppEnumerator");
