@@ -13,15 +13,16 @@ tags:
 `#include <cstdlib>`
 </div>
 
-`atof` と違い、読み終えた位置を返し、範囲外のときは `errno` に `ERANGE` を設定します。`"inf"` や `"nan"` も読めます。
+"3.14" のような小数の文字列を `double` にしたい。`std::atof` でもできますが、失敗が分かりません。`std::strtod` は、読み終えた位置と範囲エラーを教えてくれる、より安全な版です。
 
 !!! tip "ポイント"
-    - C 由来の関数。
-    - 失敗の知らせ方は関数ごとに違う。
-    - 新しいコードでは `std::from_chars` や `std::string` が安全。
+    - `std::strtod("3.14abc", &end)` は 3.14 で、`end` は "abc" を指す
+    - "1e3"（指数）、"inf"、"nan" も読める
+    - 範囲を超えると `HUGE_VAL`、`errno` に `ERANGE`
+    - 小数点はロケールに従う
 
 !!! info "このページを読む前に"
-    [`std::atoi`](atoi.md) を先に読んでください。
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -33,12 +34,16 @@ double strtod(const char* str, char** str_end);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `str` | const char* | 変換する文字列 |
-| `str_end` | char** | 読み終えた位置を受け取る（不要なら `nullptr`） |
+| `str` | `const char*` | 変換する文字列 |
+| `str_end` | `char**` | 読み終えた位置の書き込み先。不要なら `nullptr` |
 
-- 戻り値: 変換した `double`
-- 計算量: 定数
+戻り値は変換した `double` です。先頭の空白を飛ばし、符号、数字、小数点、指数（`e` または `E`）を読みます。16 進の浮動小数点（`0x1.8p1`）、`inf`、`nan` も受け取ります。
 
+`str_end` に、読めなかった最初の文字の位置が入ります。`*str_end == str` なら、何も読めず、0 を返しています。
+
+小数点の記号は、現在のロケールで決まります。ロケールを変えていなければ "C" ロケールで `.` です。ロケールを日本語や欧州の設定にしているプログラムでは、`,` を小数点にする環境があり、ファイルの数値の読み込みが壊れることがあります。
+
+`double` ではなく `float` で読みたいなら `strtof` です。新しいコードでは `std::from_chars`（浮動小数点も読める）が速く、ロケールの影響を受けません。
 
 ## 実際に動かしてみる
 
@@ -48,43 +53,56 @@ double strtod(const char* str, char** str_end);
 
 int main() {
   char* end = nullptr;
-  double v = std::strtod("2.25abc", &end);
-  std::println("{} {}", v, end);
+  const double a = std::strtod("3.14abc", &end);
+  std::println("値 = {}, 残り = {}", a, end);
+
+  std::println("1e3   = {}", std::strtod("1e3", nullptr));    // 指数表記
+  std::println("-0.5  = {}", std::strtod("-0.5", nullptr));
 }
 ```
 
 ```text title="実行結果"
-2.25 abc
+値 = 3.14, 残り = abc
+1e3   = 1000
+-0.5  = -0.5
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 数値の後ろの単位を取り出す |
+設定ファイルやコンソールの入力から、小数の値を読むときに使います。
+
+```cpp
+char* end = nullptr;
+const double speed = std::strtod(text.c_str(), &end);
+if (end == text.c_str()) { /* 数値として読めなかった */ }
+```
 
 ## よくあるミス
 
-??? failure "`end` が先頭のまま"
-    読めなかったとき、`end` は元の位置のままです。`end == str` で検出します。
+??? failure "ロケール設定で小数点が `,` になり、読み込みが壊れる"
+    ロケールを変えない、または `std::from_chars` を使います。
+
+??? failure "失敗を `0` の結果と区別できない"
+    `end` の位置で、読めたかを確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`atof`](atof.md) | 簡易版 |
-| [`std::from_chars`](../../io/from_chars.md) | 新しい書き方 |
+| [`atof`](atof.md) | 失敗が分からない簡易版 |
+| [`strtof`](strtof.md) | `float` を返す |
+| [`from_chars`](../../io/from_chars.md) | ロケールに依存せず速い |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます（C 言語由来）。`<cstdlib>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 文字列を double に変換する（読み終えた位置が分かる）
-    - [x] C 由来の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `strtod` は文字列を `double` に変換する
+    - [x] `str_end` で読めた位置が分かる
+    - [x] ロケールで小数点が変わる。新しいコードは `from_chars`
 
 ## 関連ページ
 

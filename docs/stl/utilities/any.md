@@ -23,7 +23,7 @@ tags:
     - 取り出すときは `std::any_cast<T>(&a)`（ポインタ版）で、失敗したら nullptr をチェックする。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
     - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
 
 ## 宣言

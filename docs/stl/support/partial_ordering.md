@@ -23,7 +23,7 @@ tags:
     - `sort` に使うときは、NaN を含まないことが前提。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
     - [テンプレート](../../basics/template.md)（テンプレートの基礎）
 
 ## 関数の詳しい説明

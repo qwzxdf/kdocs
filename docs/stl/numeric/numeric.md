@@ -23,7 +23,7 @@ tags:
     - 累積和（前から足していった値の列）は `std::partial_sum` / `std::inclusive_scan`。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
 
 ## 関数一覧
 

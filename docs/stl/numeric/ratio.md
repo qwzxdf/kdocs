@@ -22,7 +22,7 @@ tags:
     - `std::milli` は `ratio<1, 1000>`、`std::kilo` は `ratio<1000>`。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
 
 ## 関数の詳しい説明
 

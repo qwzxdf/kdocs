@@ -15,25 +15,39 @@ tags:
 `#include <bit>`
 </div>
 
-`std::has_single_bit` は、**ビットがちょうど 1 つだけ立っているか（= 2 のべき乗か）**を調べる関数です。テクスチャの大きさや、バッファのアラインメントが 2 のべき乗かの確認に使います。
+バッファの大きさが 2 の累乗か。ハッシュテーブルやリング バッファは、大きさが 2 の累乗だと、剰余を `& (n - 1)` で速く計算できるので、その前提を守っているか検査したくなります。
+
+`std::has_single_bit` は、<strong>値が 2 の累乗か</strong>（1 のビットがちょうど 1 つか）を返します。
 
 !!! tip "ポイント"
-    - 0 は `false`（立っているビットがない）。
-    - `(x & (x - 1)) == 0` と同じ意味だが、0 の扱いが正しい。
+    - `std::has_single_bit(64u)` は `true`、`(100u)` は `false`
+    - 0 は 2 の累乗ではないので `false`
+    - 符号なし整数型だけが対象
+    - `popcount(x) == 1` と同じ意味
 
 !!! info "このページを読む前に"
-    [`<bit>`](../bit.md) の概要を先に読むと分かりやすいです。符号なし整数（`uint32_t` など）にだけ使えます。
+    [`<bit>`](../bit.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::has_single_bit {#has_single_bit}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 template <class T>
 constexpr bool has_single_bit(T x) noexcept;
 ```
 
-- 1 のビットがちょうど 1 つ（= 2 のべき乗）なら `true`。0 は `false`
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `x` | 符号なし整数型 | 対象の値 |
+
+戻り値は、`x` の 1 のビットがちょうど 1 つなら `true`、そうでなければ `false` です。1、2、4、8、16 …がそれにあたります。0 は 1 のビットが 0 個なので `false` です。
+
+古くから知られた書き方 `(x & (x - 1)) == 0` は、0 のときも `true` になる落とし穴がありました。`has_single_bit` はこの点を正しく扱います。
+
+符号なし整数型だけを受け取ります。
 
 ## 実際に動かしてみる
 
@@ -42,42 +56,53 @@ constexpr bool has_single_bit(T x) noexcept;
 #include <print>
 
 int main() {
-  std::println("{} {}", std::has_single_bit(8u), std::has_single_bit(6u));
+  std::println("64  -> {}", std::has_single_bit(64u));
+  std::println("100 -> {}", std::has_single_bit(100u));
+  std::println("0   -> {}", std::has_single_bit(0u));
 }
 ```
 
 ```text title="実行結果"
-true false
+64  -> true
+100 -> false
+0   -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| テクスチャの幅が 2 のべき乗か | `std::has_single_bit(width)` |
+2 の累乗の大きさが前提のデータ構造で、引数を検査します。
+
+```cpp
+assert(std::has_single_bit(capacity));   // リング バッファの容量は 2 の累乗
+const std::size_t index = position & (capacity - 1);   // 剰余をビット演算で
+```
 
 ## よくあるミス
 
-??? failure "0 を 2 のべき乗と判定する"
-    古い書き方 `(x & (x - 1)) == 0` は 0 でも真になります。
+??? failure "0 を 2 の累乗と扱ってしまう"
+    `has_single_bit(0)` は `false` です。
+
+??? failure "符号つき整数を渡してコンパイルエラーになる"
+    符号なしにします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`bit_ceil`](bit_ceil.md) | 次の 2 のべき乗へ切り上げ |
-| [`popcount`](popcount.md) | 立っているビットの数 |
+| [`bit_ceil`](bit_ceil.md) | 以上で最小の 2 の累乗 |
+| [`bit_floor`](bit_floor.md) | 以下で最大の 2 の累乗 |
+| [`popcount`](popcount.md) | 1 のビットの数 |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 9 / Clang 9 / MSVC 19.25 以降で使えます。
+C++20 から使えます。GCC 9 以降、Clang 9 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 2 のべき乗かを調べる
-    - [x] 0 は false
-    - [x] 符号なし整数だけ
+    - [x] `has_single_bit(x)` は 2 の累乗か
+    - [x] 0 は `false`
+    - [x] `popcount(x) == 1` と同じ
 
 ## 関連ページ
 

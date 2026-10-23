@@ -15,79 +15,96 @@ tags:
 `#include <cstdlib>`
 </div>
 
-`std::qsort` は、**配列を並べ替える**C 由来の関数です。比較関数（`void*` を受け取る）を渡します。型安全でなく、C++ の `std::sort` より遅いので、C のライブラリが「`qsort` 形式の比較関数」を要求する場面以外では使いません。
+C 言語から使われている並べ替え関数です。`std::sort` が登場する前に書かれたコードや、C のライブラリとの境界で出会います。比較の関数を渡す形が古めかしく、型の安全性もありません。
 
 !!! tip "ポイント"
-    - 比較関数は、負・0・正を返す。
-    - `std::sort` のほうが速く、型安全。
-    - `bsearch` と組み合わせて使う古い形。
+    - 配列の先頭、要素数、要素の大きさ、比較関数を渡す
+    - 比較関数は `int (*)(const void*, const void*)`。負・0・正を返す
+    - 型が消えるので、`std::sort` より遅いことが多い
+    - 新しいコードでは `std::sort` を使う
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../../index.md)（STL 全体の地図（どこに何があるか））
+    [STL](../../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::qsort {#qsort}
 
 ```cpp
-void qsort(void* base, std::size_t n, std::size_t size, int (*cmp)(const void*, const void*));
+void qsort(void* base, std::size_t num, std::size_t size,
+           int (*compare)(const void*, const void*));
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `base` | `void*` | 配列の先頭 |
-| `n` | `size_t` | 要素数 |
+| `num` | `size_t` | 要素の数 |
 | `size` | `size_t` | 1 要素のバイト数 |
-| `cmp` | 関数 | 比較関数 |
+| `compare` | 関数ポインタ | 2 要素の比較。第 1 引数が小さければ負、等しければ 0、大きければ正 |
 
-- 戻り値: なし
-- 計算量: O(n)
+`base` から始まる `num` 個の要素（1 つが `size` バイト）を、`compare` の結果に従って昇順に並べます。並べ替えは安定ではありません（等しい要素の順序は保たれない）。
+
+比較関数は `const void*` を受け取るので、中で正しい型にキャストして比べます。結果を整数の引き算（`a - b`）で返すと、`int` の範囲を超えて符号が逆になることがあります。`(a > b) - (a < b)` のように書くのが安全です。
+
+関数ポインタを介した呼び出しになるため、`std::sort` のようにコンパイラが比較をインライン化できません。そのぶん遅くなります。また、C++ のオブジェクト（コンストラクターを持つ型）を `memcpy` 相当で動かすので、トリビアルにコピーできない型には使えません。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <cstdlib>
 #include <print>
 
+int Compare(const void* a, const void* b) {
+  const int x = *static_cast<const int*>(a);
+  const int y = *static_cast<const int*>(b);
+  return (x > y) - (x < y);   // 引き算は桁あふれの恐れがある
+}
+
 int main() {
-  int a[] = {3, 1, 2};
-  std::qsort(a, 3, sizeof(int), [](const void* x, const void* y) {
-    return *static_cast<const int*>(x) - *static_cast<const int*>(y);
-  });
-  std::println("{} {} {}", a[0], a[1], a[2]);
+  int values[] = {5, 2, 9, 1};
+  std::qsort(values, 4, sizeof(int), Compare);
+  for (int v : values) std::print("{} ", v);
+  std::println("");
 }
 ```
 
 ```text title="実行結果"
-1 2 3
+1 2 5 9 
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 古いコードの読解 | `std::ranges::sort` に置き換える |
+C のライブラリが比較関数のコールバックを要求する場面で見かけます。自分で並べ替えるなら `std::sort` を使います。
+
+```cpp
+std::sort(std::begin(values), std::end(values));   // 型の安全と速さの両方で上
+```
 
 ## よくあるミス
 
-??? failure "比較で引き算する"
-    桁あふれで結果が壊れることがあります。`<` / `>` で比べます。
+??? failure "比較関数を `a - b` で書いて、桁あふれで順序が壊れる"
+    `(x > y) - (x < y)` と書きます。
+
+??? failure "`std::string` のようなオブジェクトの配列に使う"
+    `memcpy` で動かすため未定義動作です。`std::sort` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::sort`](../../algorithms/sort.md) | 型安全で速い |
-| [`bsearch`](bsearch.md) | 二分探索 |
+| [`std::sort`](../../algorithms/sort.md) | 型安全で速い |
+| [`bsearch`](bsearch.md) | 並べ替えた配列の二分探索 |
 
 ## コンパイラ対応
 
-C 由来の関数です。C++ のどの版でも使えます。
+C++98 から使えます（C 言語由来）。`<cstdlib>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] C 由来の並べ替え
-    - [x] 型安全でない
-    - [x] 新しいコードは std::sort
+    - [x] `qsort` は C の並べ替え。比較関数を渡す
+    - [x] 型が消え、`std::sort` より遅い
+    - [x] 新しいコードでは `std::sort`
 
 ## 関連ページ
 

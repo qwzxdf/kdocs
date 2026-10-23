@@ -22,7 +22,7 @@ tags:
     - `optional::emplace` と同じ目的。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
     - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
 
 ## 関数の詳しい説明

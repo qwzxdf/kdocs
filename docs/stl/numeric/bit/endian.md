@@ -15,71 +15,88 @@ tags:
 `#include <bit>`
 </div>
 
-`std::endian` は、**この環境のバイト順序（リトルエンディアンかビッグエンディアンか）**を表す列挙型です。`std::endian::native` と `std::endian::little` を比べると、環境の順序が分かります。通常の PC / コンソールはリトルエンディアンです。
+数値をメモリにどの順で並べるか。0x12345678 を、下位のバイトから 78 56 34 12 と並べる環境（リトルエンディアン）と、上位から 12 34 56 78 と並べる環境（ビッグエンディアン）があります。自作のファイル形式や通信を作るとき、環境のバイト順を知る必要があります。
+
+`std::endian` は、<strong>環境のバイト順を、コンパイル時に調べる</strong>ための列挙型です。
 
 !!! tip "ポイント"
-    - `if constexpr (std::endian::native == std::endian::little)` で分岐する。
-    - ファイル形式の順序と環境が違うときに `byteswap`。
+    - `std::endian::native` が、環境のバイト順
+    - `std::endian::little` と `std::endian::big` と比べて判定する
+    - コンパイル時の定数なので、`if constexpr` で使える
+    - PC・コンソール・スマホは、ほぼすべてリトルエンディアン
 
 !!! info "このページを読む前に"
-    [`<bit>`](../bit.md) の概要を先に読むと分かりやすいです。符号なし整数（`uint32_t` など）にだけ使えます。
+    [`<bit>`](../bit.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::endian {#endian}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-enum class endian { little, big, native };
+enum class endian {
+  little = /* ... */,
+  big    = /* ... */,
+  native = /* little か big */
+};
 ```
 
-- `std::endian::native == std::endian::little` で、今の CPU がリトルエンディアンか分かります（PC はほぼリトル）
+`std::endian::native` は、`little` か `big` のどちらかと等しくなります。環境が混在エンディアン（まれ）の場合は、どちらとも等しくありません。
+
+以前は、`int` を `char` の配列として見て、最初のバイトを調べる実行時のコードで確かめていました。`std::endian` は、コンパイル時に決まるので、`if constexpr` で分岐を消せます。
+
+ゲームの環境では、Windows、PlayStation、Xbox、Switch、スマホのほぼすべてがリトルエンディアンです。それでも明示するのは、ファイル形式がビッグエンディアンと決まっている相手（ネットワークのパケット、PNG などの形式）と、意識的にやり取りするためです。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <bit>
-#include <cstdint>
 #include <print>
 
 int main() {
-  std::uint8_t x = 0b1000'0001;
-  std::println("{:08b} {:08b}", std::rotl(x, 1), std::rotr(x, 1));
-  std::println("{:#x}", std::byteswap(std::uint32_t{0x11223344}));
-  std::println("リトルエンディアン？ {}", std::endian::native == std::endian::little);
+  std::println("リトルエンディアン: {}", std::endian::native == std::endian::little);
+  std::println("ビッグエンディアン: {}", std::endian::native == std::endian::big);
 }
 ```
 
 ```text title="実行結果"
-00000011 11000000
-0x44332211
-リトルエンディアン？ true
+リトルエンディアン: true
+ビッグエンディアン: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ファイル形式が環境と同じ順序か判定する | `std::endian::native == std::endian::big` |
+ビッグエンディアンの外部データを読むとき、環境に応じて入れ替えます。
+
+```cpp
+if constexpr (std::endian::native == std::endian::little) {
+  value = std::byteswap(value);   // ビッグエンディアンのデータをリトルの環境で読む
+}
+```
 
 ## よくあるミス
 
-??? failure "マクロで判定する"
-    `std::endian` なら、型安全に、コンパイル時に判定できます。
+??? failure "実行時に調べようとして、冗長なコードを書く"
+    `std::endian::native` でコンパイル時に判定します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`byteswap`](byteswap.md) | 順序を反転する |
+| [`byteswap`](byteswap.md) | バイト順を入れ替える |
+| [`bit_cast`](bit_cast.md) | ビット表現をそのまま別の型として見る |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 9 / Clang 9 / MSVC 19.25 以降で使えます。
+C++20 から使えます。GCC 9 以降、Clang 9 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 環境のバイト順序
-    - [x] `native` と `little` を比べる
-    - [x] 普通の PC はリトルエンディアン
+    - [x] `std::endian::native` が環境のバイト順
+    - [x] `little` / `big` と比べて判定する
+    - [x] ほぼすべてのゲーム環境はリトルエンディアン
 
 ## 関連ページ
 

@@ -24,7 +24,7 @@ tags:
     - 速さが必要なら、手で書いた処理（`find`、`starts_with`、`from_chars`）か外部ライブラリ（RE2、CTRE など）。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
 
 ## 関数一覧
 

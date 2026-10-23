@@ -15,26 +15,37 @@ tags:
 `#include <bit>`
 </div>
 
-`std::bit_ceil` は、**値以上で最小の 2 のべき乗に切り上げる**関数です。バッファの大きさを 2 のべき乗にそろえる、ハッシュ表の大きさを決める、テクスチャの大きさを丸める、といった処理に使います。
+リング バッファの容量を、要求された数以上の 2 の累乗にそろえたい。ハッシュテーブルのバケット数、GPU に渡すバッファの大きさ。「少なくともこの大きさが欲しいが、2 の累乗でなければならない」という場面で使うのが `std::bit_ceil` です。
 
 !!! tip "ポイント"
-    - `bit_ceil(5)` は 8、`bit_ceil(8)` は 8。
-    - 結果が型に収まらないと未定義動作。
-    - 切り捨ては `bit_floor`。
+    - `std::bit_ceil(100u)` は 128、`std::bit_ceil(128u)` は 128
+    - `0` や `1` のときは 1
+    - 結果が型に収まらないと未定義動作
+    - 切り捨てたいときは `bit_floor`
 
 !!! info "このページを読む前に"
-    [`<bit>`](../bit.md) の概要を先に読むと分かりやすいです。符号なし整数（`uint32_t` など）にだけ使えます。
+    [`<bit>`](../bit.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::bit_ceil {#bit_ceil}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 template <class T>
 constexpr T bit_ceil(T x);
 ```
 
-- `x` 以上で一番小さい 2 のべき乗。テクスチャやバッファの大きさを 2 のべき乗にそろえるのに使います
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `x` | 符号なし整数型 | 対象の値 |
+
+戻り値は、`x` 以上で最小の 2 の累乗です。`x` がすでに 2 の累乗ならそのまま返します。`x` が 0 のときは 1 を返します（`bit_floor` は 0 を返すのと異なります）。
+
+結果が型で表せない場合は未定義動作です。たとえば `uint8_t` で `bit_ceil(200)` は 256 になるはずですが、`uint8_t` に収まりません。定数式の中では、コンパイルエラーになります。要求が大きくなる可能性があるときは、広い型で呼びます。
+
+符号なし整数型だけが対象です。
 
 ## 実際に動かしてみる
 
@@ -43,43 +54,56 @@ constexpr T bit_ceil(T x);
 #include <print>
 
 int main() {
-  std::println("{} {}", std::bit_ceil(5u), std::bit_ceil(8u));
+  std::println("bit_ceil(100) = {}", std::bit_ceil(100u));
+  std::println("bit_ceil(128) = {}", std::bit_ceil(128u));
+  std::println("bit_ceil(1)   = {}", std::bit_ceil(1u));
+  std::println("bit_ceil(0)   = {}", std::bit_ceil(0u));
 }
 ```
 
 ```text title="実行結果"
-8 8
+bit_ceil(100) = 128
+bit_ceil(128) = 128
+bit_ceil(1)   = 1
+bit_ceil(0)   = 1
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| テクスチャのサイズを 2 のべき乗にそろえる | `std::bit_ceil(width)` |
-| ハッシュ表の容量 | `std::bit_ceil(count * 2)` |
+要求された容量を、2 の累乗に切り上げて確保します。
+
+```cpp
+// 少なくとも requested 個を入れられる、2 の累乗の大きさのリング バッファ
+const std::size_t capacity = std::bit_ceil(requested);
+std::vector<Event> buffer(capacity);
+```
 
 ## よくあるミス
 
-??? failure "結果が型に収まらない"
-    `uint8_t` の 200 → 256 は収まりません。
+??? failure "結果が型に収まらず未定義動作になる"
+    大きな値は `std::size_t` など広い型で呼びます。
+
+??? failure "切り捨てと取り違えて、容量が足りなくなる"
+    切り上げは `bit_ceil`、切り捨ては `bit_floor` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`bit_floor`](bit_floor.md) | 切り捨て |
-| [`has_single_bit`](has_single_bit.md) | 2 のべき乗か |
+| [`bit_floor`](bit_floor.md) | 以下で最大の 2 の累乗 |
+| [`bit_width`](bit_width.md) | 必要なビット数 |
+| [`has_single_bit`](has_single_bit.md) | 2 の累乗か |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 9 / Clang 9 / MSVC 19.25 以降で使えます。
+C++20 から使えます。GCC 9 以降、Clang 9 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 2 のべき乗に切り上げ
-    - [x] 切り捨ては bit_floor
-    - [x] 型に収まること
+    - [x] `bit_ceil(x)` は `x` 以上で最小の 2 の累乗
+    - [x] 0 は 1。結果が型に収まらないと未定義動作
+    - [x] 切り捨ては `bit_floor`
 
 ## 関連ページ
 

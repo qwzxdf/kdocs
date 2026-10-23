@@ -23,7 +23,7 @@ tags:
     - 引数の一部を固定した関数を作るなら、`std::bind` ではなくラムダか `std::bind_front`。
 
 !!! info "このページを読む前に"
-    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
     - [テンプレート](../../basics/template.md)（テンプレートの基礎）
 
 ## 関数一覧
