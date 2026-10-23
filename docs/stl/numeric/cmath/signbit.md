@@ -14,11 +14,13 @@ tags:
 `#include <cmath>`
 </div>
 
-`std::signbit` は、**値の符号ビット（負かどうか）を調べる**関数です。`x < 0` と違い、**`-0.0` も負と判定**します。符号を正確に扱いたいときに使います。
+`x < 0` で負かどうかは判定できますが、`-0.0` は `0` と等しいので、`-0.0 < 0` は偽になります。符号つきゼロや NaN の符号まで正しく調べたいときに使うのが `std::signbit` です。
 
 !!! tip "ポイント"
-    - `signbit(-0.0)` は `true`。`-0.0 < 0` は `false`。
-    - NaN の符号も調べられる。
+    - `std::signbit(-1.0)` は `true`、`std::signbit(1.0)` は `false`
+    - `-0.0` に対しても `true` を返す
+    - NaN の符号ビットも調べられる
+    - 通常の「負か」の判定は `x < 0` で足りる
 
 !!! info "このページを読む前に"
     [`<cmath>`](../cmath.md) の概要を先に読むと分かりやすいです。
@@ -27,60 +29,81 @@ tags:
 
 ### std::signbit {#signbit}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
+bool signbit(float x);
 bool signbit(double x);
+bool signbit(long double x);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `x` | 浮動小数点 | 調べる値 |
+| `x` | 浮動小数点数 | 符号ビットを調べたい値 |
 
-- 戻り値: 負（`-0.0` や負の NaN を含む）なら `true`
-- 計算量: O(1)
+戻り値は、符号ビットが立っていれば `true`、立っていなければ `false` です。IEEE 754 の浮動小数点数は、最上位の 1 ビットが符号で、これを直接見る関数です。
+
+`x < 0` との違いは、`-0.0` です。`-0.0` は `0.0` と比較して等しいので `-0.0 < 0` は偽ですが、符号ビットは立っているので `signbit(-0.0)` は `true` です。また NaN は、すべての大小比較が偽になりますが、`signbit` は NaN の符号ビットを返します。
+
+この違いが効くのは、符号つきゼロの意味を保つ必要がある計算（極限の向き、`atan2` の結果の分岐など）です。ゲームの普通の計算では、`x < 0` で十分です。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <cmath>
 #include <print>
 
 int main() {
-  std::println("{} {} {}", std::signbit(-0.0), std::signbit(3.0), -0.0 < 0);
+  std::println("signbit(-1.0) = {}", std::signbit(-1.0));
+  std::println("signbit(1.0)  = {}", std::signbit(1.0));
+  std::println("signbit(-0.0) = {}", std::signbit(-0.0));   // 符号つきゼロも拾う
+  std::println("-0.0 < 0     = {}", -0.0 < 0.0);             // 比較では偽になる
 }
 ```
 
 ```text title="実行結果"
-true false false
+signbit(-1.0) = true
+signbit(1.0)  = false
+signbit(-0.0) = true
+-0.0 < 0     = false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 速度が負か（−0 を含めて）正確に判定する | `std::signbit(v)` |
+符号つきゼロを区別したいとき、または符号ビットだけを分岐に使うときに登場します。
+
+```cpp
+// 速度がゼロでも、-0.0 なら「左向きに止まった」とみなす
+const bool facing_left = std::signbit(velocity.x);
+```
+
+通常の判定では `x < 0` のほうが読みやすいので、符号つきゼロを気にする理由がなければそちらを使います。
 
 ## よくあるミス
 
-??? failure "x < 0 で -0.0 を負と思う"
-    `-0.0 < 0` は `false` です。
+??? failure "`-0.0` を負でないと判定してしまう"
+    `x < 0` は `-0.0` に対して偽です。必要なら `signbit` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`copysign`](copysign.md) | 符号をコピーする |
-| [`abs`](abs.md) | 絶対値 |
+| [`fabs`](fabs.md) | 絶対値 |
 
 ## コンパイラ対応
 
-C++98 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 符号ビットを調べる
-    - [x] -0.0 も負
-    - [x] x < 0 とは違う
+    - [x] `signbit(x)` は符号ビットが立っているか
+    - [x] `-0.0` と NaN の符号も調べられる
+    - [x] 普通の「負か」の判定は `x < 0` で十分
 
 ## 関連ページ
 
+- [`std::copysign`](copysign.md)
 - [cpprefjp: std::signbit](https://cpprefjp.github.io/reference/cmath/signbit.html)
 - [cppreference: std::signbit](https://en.cppreference.com/w/cpp/numeric/math/signbit)
