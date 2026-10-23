@@ -21,6 +21,10 @@ tags:
     - ラムダ式にも渡せる。
     - 逆に、値から tuple を作る関数は [`std::make_tuple`](make_tuple.md)、クラスを作るのは [`std::make_from_tuple`](make_from_tuple.md)。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::apply {#apply}

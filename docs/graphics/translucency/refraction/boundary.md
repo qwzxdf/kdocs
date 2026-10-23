@@ -14,6 +14,11 @@ tags:
     - 境界のにじみは深度比較で防げる。
     - 完全には直らないので、見た目で許容する。
 
+!!! info "このページを読む前に"
+    - [Refraction](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 屈折の境界の問題
 <strong>画面空間の屈折には典型的な破綻</strong>があります。
 

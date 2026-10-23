@@ -22,6 +22,9 @@ tags:
     - 2 つの値の真ん中は `(a + b) / 2` ではなく `std::midpoint(a, b)`（あふれない）。
     - 累積和（前から足していった値の列）は `std::partial_sum` / `std::inclusive_scan`。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数一覧
 
 | 関数 | 重要度 | 何をする |

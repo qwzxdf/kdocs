@@ -14,6 +14,11 @@ tags:
     - 低い所ほど濃い霧。
     - 朝霧・谷の霧の表現に向く。
 
+!!! info "このページを読む前に"
+    - [Aerial Perspective and Fog](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:height-fog-ray:begin -->
 
 <svg class="fig illust motion" data-fig="height-fog-ray" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>

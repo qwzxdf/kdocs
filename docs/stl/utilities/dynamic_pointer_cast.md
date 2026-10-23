@@ -21,6 +21,10 @@ tags:
     - 同じ仲間に `static_pointer_cast`、`const_pointer_cast`、`reinterpret_pointer_cast` がある。
     - `dynamic_pointer_cast` は、基底クラスに仮想関数が必要。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::dynamic_pointer_cast {#pointer_cast}

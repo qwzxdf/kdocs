@@ -16,6 +16,11 @@ GPU Driven の心臓部です。**コンピュート シェーダーが、全イ
     - カウンタは、毎フレーム 0 にリセット。PSO バケットごとにカウンタと領域を分ける。
     - 書き込み後は、UAV → INDIRECT_ARGUMENT のバリアを忘れない。
 
+!!! info "このページを読む前に"
+    - [GPU Driven Rendering](../gpu-driven.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](../bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## 視錐台の平面（C++）
 
 **ビュー射影行列 `VP`**（行ベクトル規約：`clip = p * VP`）から、6 平面を作ります。クリップ空間の条件は、D3D では次のとおりです。

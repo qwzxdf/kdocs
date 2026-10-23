@@ -14,6 +14,11 @@ tags:
     - 法線で反射方向をずらして、波の歪みを出す。
     - フォールバックの順：SSR → 平面反射 → 環境マップ。
 
+!!! info "このページを読む前に"
+    - [Water Shading](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 反射
 <strong>反射はフレネルの F で重みを付けて合成</strong>します。反射の取り方は状況で選びます。
 

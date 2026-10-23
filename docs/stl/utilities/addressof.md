@@ -21,6 +21,10 @@ tags:
     - 普通の型では `&x` と同じ結果。
     - `std::to_address` とは別（そちらはポインターのようなものから生ポインターを取る）。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::addressof {#addressof}

@@ -17,6 +17,10 @@ ImGui の見た目（色・角丸・余白・線の太さ）は、**`ImGuiStyle`
     - 高 DPI は `style.ScaleAllSizes(scale)` とフォントの拡大。スケールは 1 回だけ。
     - テーマはコードかファイルに保存して、起動時に適用する。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](install.md)（ImGui の入れ方）
+
 ## 標準のテーマ
 
 ```cpp

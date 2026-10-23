@@ -782,7 +782,7 @@ class simdjson::dom::parser {
 | --- | --- |
 | [nlohmann/json](nlohmann-json.md) | 書きやすさ優先。読み書き両方。遅い |
 | RapidJSON | 速く、読み書き両方できる。書き方が冗長 |
-| Glaze | 構造体と JSON を自動で変換し、読み書きとも非常に速い（C++23） |
+| Glaze | 構造体と JSON を自動で変換し、読み書きとも速い（C++23） |
 | yyjson（C 言語） | simdjson と並ぶ速さの C ライブラリ。読み書き両方 |
 
 ## これだけ覚える

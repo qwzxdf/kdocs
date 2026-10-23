@@ -22,6 +22,9 @@ tags:
     - 範囲外の値は未定義動作。
     - 新しいコードでは `from_chars`。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::atoi {#atoi}

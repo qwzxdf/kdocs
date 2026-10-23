@@ -15,6 +15,11 @@ GPU Driven の土台は、<strong>「シーンの情報が、GPU のメモリに
     - ルート シグネチャは、ルート SRV/CBV（GPU アドレス直指定）を活用すると記述子テーブルが減って簡単。
     - バッファのサイズ・個数の上限（最大インスタンス数）を設計時に決める。
 
+!!! info "このページを読む前に"
+    - [GPU Driven Rendering](../gpu-driven.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](../bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## バッファ作成のヘルパー
 
 **デフォルト ヒープのバッファ**を作り、アップロード ヒープ経由で初期データを転送するヘルパーです。
@@ -255,7 +260,7 @@ void Renderer::UploadInstances(ID3D12GraphicsCommandList* list, uint32_t count) 
 | バリアで挟む | SRV 状態 → コピー先 → SRV 状態。カリング CS が読む前に、コピーが完了するように |
 | `NON_PIXEL_SHADER_RESOURCE` | コンピュート／頂点シェーダーが読む状態。ピクセル シェーダーも読むなら `PIXEL_SHADER_RESOURCE` を OR する |
 
-動く物体が非常に少ないなら、変更された要素だけを、CS で書き換える（スキャッター更新）方法もあります。大規模ではこれが効きます。
+動く物体が少ないなら、変更された要素だけを、CS で書き換える（スキャッター更新）方法もあります。大規模ではこれが効きます。
 
 ## ルート シグネチャ
 

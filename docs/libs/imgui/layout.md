@@ -17,6 +17,10 @@ ImGui は <strong>部品を呼んだ順に上から下へ並べます</strong>�
     - ウィンドウの中にスクロールする領域を作るのは`BeginChild`。
     - 固定のオーバーレイ（FPS 表示など）は、フラグでタイトルバーなしにして、位置を固定。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](install.md)（ImGui の入れ方）
+
 ## ウィンドウ
 
 ```cpp

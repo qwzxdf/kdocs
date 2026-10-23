@@ -21,6 +21,10 @@ tags:
     - 連続したメモリのイテレータ（`vector`、`string`、`array`）に使える。
     - スマートポインターの `.get()` と同じ目的。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [所有権（誰が消すのか）](../../basics/ownership.md)（所有権の考え方）
+
 ## 関数の詳しい説明
 
 ### std::to_address {#to_address}

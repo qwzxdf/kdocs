@@ -16,6 +16,9 @@ DirectX 11 と DirectX 12 は、<strong>同じ GPU を同じパイプライン�
     - DX11 の自動の同期は、DX12 では <strong>フェンス + リソース バリア</strong>。
     - 同じ HLSL・フォーマット・DXGI は、どちらでも同じ。
 
+!!! info "このページを読む前に"
+    - [DirectX](index.md)（このセクション全体の地図と、読む順番）
+
 ## 全体の違い
 
 | 観点 | DirectX 11 | DirectX 12 |

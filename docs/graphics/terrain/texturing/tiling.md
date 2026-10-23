@@ -14,6 +14,11 @@ tags:
     - タイルごとにランダムに回す・反転する。
     - 遠くは低周波の色むらを重ねる。
 
+!!! info "このページを読む前に"
+    - [Terrain Texturing](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:tiling-hide:begin -->
 
 <svg class="fig illust motion" data-fig="tiling-hide" viewBox="0 0 780 400" role="img"><rect x="0" y="0" width="780" height="400" rx="14" fill="#ffffff"/>

@@ -16,6 +16,11 @@ tags:
     - 少ないレイ（画素あたり 1 本）＋デノイズでリアルタイムに。
     - 最適化：Any-Hit 不要（当たった時点で終了）・RayQuery（インライン）。
 
+!!! info "このページを読む前に"
+    - [Shadows](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 原理
 
 画素の<strong>ワールド位置 `P`</strong> から、光源への方向へレイを飛ばします。途中で何かに当たったら影です。

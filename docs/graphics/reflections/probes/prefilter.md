@@ -14,6 +14,11 @@ tags:
     - もう 1 つの項（BRDF の積分）は、LUT に入れておく。
     - 実行時はミップ 1 回 ＋ LUT 1 回の読み出しだけ。
 
+!!! info "このページを読む前に"
+    - [Reflection Probes](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 粗さへの対応：事前フィルタ（Split-Sum）
 粗い面の反射は <strong>BRDF の山の範囲の景色を、重み付きで平均</strong>したものでした（[Reflections](../index.md)）。これを表面ごとに実行時に計算するのは重いので、事前計算します。Epic の Karis が提案した Split-Sum 近似が、標準になっています。
 

@@ -14,6 +14,11 @@ tags:
     - BVH ＝ レイの交差判定を速くする、木構造。
     - 動く物体は BVH を毎フレーム更新（再構築・リフィット）する。
 
+!!! info "このページを読む前に"
+    - [Ray-Traced Reflections](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## ヒット点のシェーディング
 <strong>当たった点</strong>の色をその場で計算します。最も重い部分です。
 
@@ -144,7 +149,7 @@ void ReflectionClosestHit(inout ReflectionPayload payload, in BuiltInTriangleInt
 | --- | --- |
 | 1（反射なし） | 当たった面は、拡散としてライティング。最安 |
 | 2 | 1 回の反射の反射（鏡の部屋、向かい合う窓）。重い |
-| 3 以上 | 非常に重い。ほぼ不要（2 回目以降は暗く、見えにくい） |
+| 3 以上 | 重い。ほぼ不要（2 回目以降は暗く、見えにくい） |
 
 実用では 再帰は 1〜2 回に制限し、それ以降はプローブや空の色で、打ち切ります。
 

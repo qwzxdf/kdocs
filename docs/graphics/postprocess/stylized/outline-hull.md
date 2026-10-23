@@ -16,6 +16,11 @@ tags:
     - 角（平らな面の境）で、法線が割れて、線が途切れる → スムーズ法線を別に持つ。
     - 線の太さは、頂点カラーで部位ごとに調整できる。
 
+!!! info "このページを読む前に"
+    - [Outlines and Toon](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 仕組み
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="背面法の仕組み">

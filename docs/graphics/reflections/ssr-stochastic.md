@@ -16,6 +16,11 @@ tags:
     - 時間蓄積とバイラテラル フィルタで、ノイズを消す。
     - 結果はBRDF の積分（スケール・バイアス）を掛けて合成する。
 
+!!! info "このページを読む前に"
+    - [Reflections](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 発想：粗い反射をモンテカルロ法で
 
 鏡面の出射光は、次の積分でした（[Reflections](index.md)）。

@@ -16,6 +16,11 @@ tags:
     - サンプルは画面上の螺旋に置き、画素ごとに回転する。
     - 最後に強度 σ と、コントラスト k（べき乗）で、見た目を調整。
 
+!!! info "このページを読む前に"
+    - [Ambient Occlusion (AO)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 半球 SSAO との違い
 
 [半球 SSAO](ssao-hemisphere.md) と Alchemy AO は、見た目は似ていますが、考え方がかなり違います。

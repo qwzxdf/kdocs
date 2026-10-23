@@ -16,6 +16,11 @@ tags:
     - 明るい点ほど形がはっきり見える。HDR で処理する。
     - 形を凝るほど、サンプル数が増える。コストと相談。
 
+!!! info "このページを読む前に"
+    - [Depth of Field (DOF)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 形の種類
 
 <svg class="fig illust" viewBox="0 0 780 220" role="img" aria-label="ボケの形">

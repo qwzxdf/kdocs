@@ -16,6 +16,10 @@ tags:
     - 独自の部品を作るときは、`InvisibleButton` で当たり判定を取り、見た目だけを `ImDrawList` で描く。
     - 線の太さ・丸み・分割数は引数の末尾。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](../index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](../install.md)（ImGui の入れ方）
+
 ## 描画リストの取得
 
 | 関数 | 描画先 |

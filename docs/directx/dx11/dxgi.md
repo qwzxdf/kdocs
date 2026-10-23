@@ -19,6 +19,12 @@ tags:
     - デバイスから辿って、ファクトリーを得るとデバイスと同じ GPU のファクトリーが、手に入る。
     - フォーマットの名前（`DXGI_FORMAT_…`）も DXGI の定義（[Formats and Typeless](../concepts/formats.md)）。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## ファクトリーを作る
 
 ```cpp

@@ -15,6 +15,11 @@ tags:
     - ストランドにはOIT（PPLL など）が使われる。メモリと時間が重い。
     - 髪専用のソート：カード単位で、根元から毛先など描画順を工夫する。
 
+!!! info "このページを読む前に"
+    - [Hair Overview](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## なぜ難しいのか
 
 [Alpha Blending and Sorting](../../translucency/blending-sorting/index.md) で見たとおりアルファ ブレンドは、<strong>奥から手前の順</strong>に描く必要があります。髪ではこれが 2 つの理由で破綻します。

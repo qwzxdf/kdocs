@@ -14,6 +14,11 @@ tags:
     - シミュレーション領域は、カメラの周りの四角。
     - 領域が動く時はマップをずらす。
 
+!!! info "このページを読む前に"
+    - [Water Interaction](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 高さマップを水面に反映する
 <strong>シミュレーションの高さを水面に反映</strong>します。
 

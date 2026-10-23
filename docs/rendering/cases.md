@@ -13,6 +13,11 @@ tags:
     - 症状から**ボトルネックの種類**を決め対応する手法を選ぶ。
     - 手法の詳細は各ページを見る。
 
+!!! info "このページを読む前に"
+    - [描画最適化](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## ゲームでの使いどころ
 
 | 場面 | 直し方 |
@@ -36,7 +41,7 @@ tags:
 | 解像度を下げると速くなる | GPU（ピクセル） | 低解像度・TAA・シェーダーの軽量化 | [低解像度](low-res-effects.md)・[TAA](taa-upscaling.md)・[シェーダー](shader-cost.md) |
 | ライトを増やすと極端に重い | GPU（ライティング） | Deferred・Tiled・Clustered | [Forward と Deferred](forward-deferred.md)・[Tiled と Clustered](light-culling.md) |
 | G-Buffer の書き込みが重い | 帯域幅 | フォーマット・Visibility Buffer | [帯域幅](bandwidth.md)・[Visibility Buffer](visibility-buffer.md) |
-| 三角形が非常に多い | GPU（頂点） | LOD・カリング・Meshlet | [LOD](lod.md)・[Mesh Shader](mesh-shaders.md) |
+| 三角形が多い | GPU（頂点） | LOD・カリング・Meshlet | [LOD](lod.md)・[Mesh Shader](mesh-shaders.md) |
 | 半透明で重くなる | GPU（ピクセル・帯域） | 縮小バッファ・枚数削減 | [パーティクル](particles.md) |
 | 影を付けると重い | CPU・GPU（頂点） | カスケード・影用カリング・キャッシュ | [影](shadows.md) |
 | VRAM が足りない | VRAM | 圧縮・ストリーミング | [テクスチャ](texture-streaming.md) |
@@ -94,7 +99,7 @@ tags:
     オブジェクトが数万になると、判定自体で CPU が重くなります。空間分割で階層的に判定します。
 
 ??? failure "ドロー コールの数だけを見る"
-    ドロー コールが少なくても、1 回が非常に重ければ遅いです。GPU 側のプロファイラーで、実際の時間を見ます。
+    ドロー コールが少なくても、1 回が重ければ遅いです。GPU 側のプロファイラーで、実際の時間を見ます。
 
 ??? failure "テクスチャが大きすぎる"
     必要以上に大きく圧縮もしていないとメモリ帯域とメモリ使用量の両方で、不利です。

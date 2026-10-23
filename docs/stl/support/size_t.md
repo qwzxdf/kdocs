@@ -22,6 +22,10 @@ tags:
     - 符号なし。`size() - 1` は 0 個のとき巨大な値になる。
     - 符号つきが欲しいときは [`std::ptrdiff_t`](ptrdiff_t.md)（や `ssize`）。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+
 ## 関数の詳しい説明
 
 ### std::size_t {#size_t}

@@ -22,6 +22,10 @@ tags:
     - `error_code` と `error_condition` を `==` で比べると、環境の差が吸収される。
     - 自分で作る機会は少ない。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+
 ## 関数の詳しい説明
 
 ### std::error_condition {#error_condition}

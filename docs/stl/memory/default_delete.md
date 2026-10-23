@@ -21,6 +21,10 @@ tags:
     - 配列版 `default_delete<T[]>` は `delete[]` を呼ぶ。
     - 自作の削除関数に置き換えて、`fclose` などを呼べる。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [所有権（誰が消すのか）](../../basics/ownership.md)（所有権の考え方）
+
 ## 関数の詳しい説明
 
 ### std::default_delete {#default_delete}

@@ -22,6 +22,9 @@ tags:
     - 構造体を書くときは、パディングや環境依存に注意する。
     - C++ では `ofstream::write`。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::fwrite {#fwrite}

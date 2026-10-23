@@ -17,6 +17,11 @@ tags:
     - 見た目への影響が小さい効果は、やめる。
     - 効果の順序にも意味がある（HDR のうちに行うもの、トーンマップ後に行うもの）。
 
+!!! info "このページを読む前に"
+    - [描画最適化](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## 何が重いのか
 
 | 重い所 | 説明 |

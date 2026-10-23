@@ -14,6 +14,11 @@ tags:
     - 葉などはポリゴンで形に切り抜くと、clip を減らせる。
     - 影のパスでもアルファ テストが必要（葉の影が板状にならない）。
 
+!!! info "このページを読む前に"
+    - [Alpha Testing](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## パフォーマンス：Early-Z が効かない
 <strong>`clip` を含むシェーダーは「深度を書くかどうか」が、シェーダー実行後でないと決まらない</strong>ため、Early-Z（シェーダーの前に深度テスト）が、使えません。
 

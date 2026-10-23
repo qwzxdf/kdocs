@@ -14,6 +14,11 @@ tags:
     - 屈折物体同士の重なりは、扱えない（片方の層のみ）。
     - 限界：画面外・重なり・手前の物。
 
+!!! info "このページを読む前に"
+    - [Refraction](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 実装の全体像
 ```hlsl
 float4 PSGlass(VsOutput input) : SV_Target {

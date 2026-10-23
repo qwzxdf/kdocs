@@ -21,6 +21,10 @@ tags:
     - リンクに専用のライブラリが要ることがある（GCC は `-lstdc++exp` など）。
     - C++23 の機能。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+
 ## 関数の詳しい説明
 
 ### std::stacktrace::current {#stacktrace}

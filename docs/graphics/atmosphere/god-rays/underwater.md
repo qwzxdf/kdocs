@@ -14,6 +14,11 @@ tags:
     - 深さとともに弱まる。
     - 詳細は[Underwater God Rays](../../water/underwater/god-rays.md)。
 
+!!! info "このページを読む前に"
+    - [God Rays](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 水中の光の筋
 <strong>水中の光の筋</strong>は 同じ原理でコースティクスで揺らぎが付くのが特徴です（[Underwater Rendering](../../water/underwater/index.md)）。
 

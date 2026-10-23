@@ -22,6 +22,9 @@ tags:
     - ゲームの 3D 計算は SimpleMath が主役。
     - C++26 の新機能。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::linalg {#linalg}

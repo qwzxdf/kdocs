@@ -14,6 +14,10 @@ ImGui の関数には、<strong>動作を細かく変える「フラグ」</stro
     - `ImGuiWindowFlags_`・`ImGuiInputTextFlags_`・`ImGuiTreeNodeFlags_`・`ImGuiTableFlags_`・`ImGuiSelectableFlags_`・`ImGuiComboFlags_`など、関数ごとに専用の型がある。
     - 型が違うフラグを渡すと、意味が変わる（コンパイルは通る）。名前の接頭辞を確認。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](../index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](../install.md)（ImGui の入れ方）
+
 ## ウィンドウ（ImGuiWindowFlags_）
 
 | フラグ | 内容 |

@@ -18,6 +18,9 @@ tags:
     - 見つける道具: **AddressSanitizer**（`/fsanitize=address` / `-fsanitize=address`）、MSVC の Debug ビルドのチェック、警告レベルを上げる（`/W4` / `-Wall -Wextra`）。
     - コンテナは `[]` より範囲チェック付きの関数や、そもそも添字を使わない書き方（範囲 for、アルゴリズム）にすると起きにくい。
 
+!!! info "このページを読む前に"
+    - [basics/index.md](index.md)（このセクション全体の地図と、読む順番）
+
 ## 基本
 
 ### よくある未定義動作

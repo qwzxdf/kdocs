@@ -23,6 +23,9 @@ tags:
     - 全体が一致するかは `regex_match`、どこかに含まれるかは `regex_search`、置き換えは `regex_replace`。
     - 速さが必要なら、手で書いた処理（`find`、`starts_with`、`from_chars`）か外部ライブラリ（RE2、CTRE など）。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数一覧
 
 | 関数・型 | 重要度 | 何をする |

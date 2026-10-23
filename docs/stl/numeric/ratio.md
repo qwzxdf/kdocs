@@ -21,6 +21,9 @@ tags:
     - 約分された形で保存される（`ratio<2, 4>` は `1/2`）。
     - `std::milli` は `ratio<1, 1000>`、`std::kilo` は `ratio<1000>`。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::ratio {#ratio}

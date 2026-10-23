@@ -14,6 +14,11 @@ tags:
     - Gerstner 波・FFT で、計算できる。
     - しきい値を決めて、泡のマスクにする。
 
+!!! info "このページを読む前に"
+    - [Shore Foam](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 波頂の泡：ヤコビアン
 <strong>波が尖りすぎると頂が折れて砕けます</strong>。折れる所は水平変位の面積が潰れる所で、ヤコビアン（変位の面積比）で検出できます。
 

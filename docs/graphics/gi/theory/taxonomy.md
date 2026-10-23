@@ -14,6 +14,11 @@ tags:
     - ライトマップ ＝ 静的・世界。SSGI ＝ 動的・画面。DDGI・Lumen ＝ 動的・世界。
     - 用途と予算に合わせて選ぶ。
 
+!!! info "このページを読む前に"
+    - [GI Theory](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 手法を分ける 2 つの軸
 
 ### 軸 1：いつ計算するか

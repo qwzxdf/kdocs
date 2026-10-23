@@ -22,6 +22,9 @@ tags:
     - 読み取りに失敗すると `failbit` が立ち、以降の読み込みが全部失敗する（`clear()` が必要）。
     - 大量に読むなら `std::ios::sync_with_stdio(false)` で高速化できる。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::cin {#cin}

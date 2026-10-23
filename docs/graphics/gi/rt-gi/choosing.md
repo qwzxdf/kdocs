@@ -14,6 +14,11 @@ tags:
     - 2D やステージ制 → Radiance Cascades。
     - 予算が厳しい → SSGI やプローブ。
 
+!!! info "このページを読む前に"
+    - [Ray-Traced GI](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 手法の選び方（動的 GI）
 | 状況 | 方式 |
 | --- | --- |
@@ -61,7 +66,7 @@ tags:
 | ボクセル GI | 不要 | 中〜大 | 中 | 小 | ○（範囲内） | 中〜高 |
 | DDGI | 必要 | 中 | 中〜高（低周波） | 小 | ○ | 中 |
 | ReSTIR GI + デノイズ | 必要 | 大 | 高 | 小〜中 | ○ | 高 |
-| Lumen 型 | 任意（距離場でも可） | 中〜大 | 高 | 小 | ○ | 非常に高 |
+| Lumen 型 | 任意（距離場でも可） | 中〜大 | 高 | 小 | ○ | 高 |
 | Radiance Cascades | 不要 | 中 | 高（2D） | なし | ×（2D） | 中 |
 
 ## 状況別のおすすめ

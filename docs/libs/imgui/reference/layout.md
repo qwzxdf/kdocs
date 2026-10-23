@@ -16,6 +16,10 @@ tags:
     - ウィンドウの位置・大きさは、`SetNextWindow…` を、`Begin` の前に呼ぶ。
     - ID が重なる部品は、`PushID` / `##` で区別。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](../index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](../install.md)（ImGui の入れ方）
+
 ## ウィンドウ
 
 | 関数 | 内容 | 閉じ方 |

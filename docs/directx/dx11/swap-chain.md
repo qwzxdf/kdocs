@@ -19,6 +19,12 @@ tags:
     - 作成は `IDXGIFactory2::CreateSwapChainForHwnd`。ファクトリーはデバイスから辿る。
     - 大きさを 0 にすると、ウィンドウの描画領域に合わせてくれる。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## 作る
 
 ```cpp

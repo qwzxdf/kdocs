@@ -22,6 +22,10 @@ tags:
     - `typeid(x).name()` は実装依存の文字列（デバッグ表示用）。
     - RTTI を無効にするプロジェクトでは使えない。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+
 ## 関数の詳しい説明
 
 ### typeid {#typeid}

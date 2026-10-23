@@ -21,6 +21,10 @@ tags:
     - 普通は `try_emplace` のほうが読みやすい。
     - 知っておくだけでよい。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::piecewise_construct {#piecewise_construct}

@@ -22,6 +22,10 @@ tags:
     - オプションのフラグで、追加・削除・フレームの移動・コピペのどれを許すかを決める。
     - 項目の中の絵（カーブなど）は、`CustomDraw` で自由に描ける。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](install.md)（ImGui の入れ方）
+
 ## 導入（Visual Studio）
 
 ImSequencer は、ImGuizmo のリポジトリに含まれています。[Dear ImGui の導入](install.md) を済ませてから、**ソースを 2 つ追加**します。

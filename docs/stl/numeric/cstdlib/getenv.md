@@ -22,6 +22,9 @@ tags:
     - 返った文字列は書き換えない（コピーして使う）。
     - MSVC は `getenv` で警告が出る（`_dupenv_s` を使う）。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::getenv {#getenv}

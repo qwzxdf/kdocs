@@ -14,6 +14,11 @@ tags:
     - 深いほど暗くする。
     - 水面からの光の量を、深さで減らす。
 
+!!! info "このページを読む前に"
+    - [Underwater Rendering](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 水中の霧
 <strong>水中では遠くの物ほど水の色に近づきます</strong>。地上のフォグと同じ構造ですが、吸収が色ごとに違うのが特徴です。
 
@@ -136,7 +141,7 @@ float3 sun_underwater = sun_color * exp(-g_absorption * depth_below_surface);
 | 水中 | 水中の霧（このページ） |
 | 水面をまたぐ（半分水中、半分空気中） | 水面の高さで霧を、切り替える（[The Underside of the Surface and Crossing It](surface-back.md)） |
 
-水中では 視界が非常に短くなるので、遠景（地形のチャンク、遠くの物）の描画は早めに打ち切って、コストを減らせます。
+水中では 視界が短くなるので、遠景（地形のチャンク、遠くの物）の描画は早めに打ち切って、コストを減らせます。
 
 ## 濁り：吸収と散乱
 

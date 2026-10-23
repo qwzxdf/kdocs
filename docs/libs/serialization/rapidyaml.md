@@ -405,7 +405,7 @@ for (ryml::ConstNodeRef child : node.children()) {
 
 | 項目 | 特徴 |
 | --- | --- |
-| 読み込みの速さ | YAML としては非常に速い。yaml-cpp より数十倍以上速いことが多い |
+| 読み込みの速さ | YAML としては速い。yaml-cpp より数十倍以上速いことが多い |
 | JSON を読むとき | nlohmann/json より速いことが多いが、[simdjson](simdjson.md) ほどではない |
 | メモリ | ノードを 1 つの配列で持つので、確保の回数がとても少ない |
 | 一番速い使い方 | `parse_in_place` で入力を直接使う。`Tree` を使い回す（`clear()` して再利用） |

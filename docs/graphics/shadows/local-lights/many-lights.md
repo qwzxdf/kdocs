@@ -14,6 +14,11 @@ tags:
     - 静止したライトと静止した物の影は、キャッシュして毎フレーム描かない。
     - 影を持つライトの数に、上限を設ける。
 
+!!! info "このページを読む前に"
+    - [Point and Spot Light Shadows](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:many-lights-cache:begin -->
 
 <svg class="fig illust motion" data-fig="many-lights-cache" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>

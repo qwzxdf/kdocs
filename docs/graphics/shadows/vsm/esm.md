@@ -14,6 +14,11 @@ tags:
     - `c` が大きいと影が硬く、小さいと柔らか。
     - 欠点：数値の範囲（オーバーフロー）・精度。浮動小数 32 ビットが無難。
 
+!!! info "このページを読む前に"
+    - [VSM, ESM and MSM](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:esm-exp:begin -->
 
 <svg class="fig illust motion" data-fig="esm-exp" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
@@ -104,7 +109,7 @@ float stored = g_shadow_esm.SampleLevel(g_linear_clamp, uv, 0);
 float lit = saturate(stored * exp(-kExponent * depth));
 ```
 
-`exp(c × z)` は 非常に大きい値になります（`c = 80`、`z = 1` で `e⁸⁰ ≈ 5×10³⁴`）。32 ビット浮動小数点の上限（約 3.4×10³⁸）に、近いので `c` を大きくしすぎない。logarithmic ブラー（`log(exp(a) + exp(b))` の形で、ぼかす）というあふれないぼかし方も、あります。
+`exp(c × z)` は 大きい値になります（`c = 80`、`z = 1` で `e⁸⁰ ≈ 5×10³⁴`）。32 ビット浮動小数点の上限（約 3.4×10³⁸）に、近いので `c` を大きくしすぎない。logarithmic ブラー（`log(exp(a) + exp(b))` の形で、ぼかす）というあふれないぼかし方も、あります。
 
 ## 長所と短所
 

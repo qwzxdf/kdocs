@@ -14,6 +14,11 @@ tags:
     - 多重散乱の近似を足して、暗くなりすぎを防ぐ。
     - パウダー効果で縁が暗く沈む表現。
 
+!!! info "このページを読む前に"
+    - [Clouds](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 光の計算
 ### Beer の法則
 

@@ -15,6 +15,11 @@ tags:
     - 彩度：輝度が大きいほど、彩度を落とすのが自然な白への向かい方。
     - 選び方：色の忠実さ → 輝度ベース寄り、映画的な絵 → チャンネルごと寄り。
 
+!!! info "このページを読む前に"
+    - [Tone Mapping and Exposure](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:hue-preserve:begin -->
 
 <svg class="fig illust motion" data-fig="hue-preserve" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
@@ -179,7 +184,7 @@ float3 TonemapHybrid(float3 color, float blend) {
 
 ## 彩度を落として白へ向かわせる
 
-<strong>実際の光は非常に明るいと目やセンサーの飽和で白っぽく</strong>見えます。輝度が大きいほど彩度を落とすと、自然に白へ向かいます。
+<strong>実際の光は明るいと目やセンサーの飽和で白っぽく</strong>見えます。輝度が大きいほど彩度を落とすと、自然に白へ向かいます。
 
 ```hlsl
 float3 DesaturateHighlights(float3 color, float threshold, float strength) {

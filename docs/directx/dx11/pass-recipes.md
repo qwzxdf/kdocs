@@ -8,6 +8,13 @@ tags:
 
 描画セクションの各ページには HLSL のコードがあります。しかし、シェーダーだけでは画面に何も出ません。<strong>テクスチャを作りビューを作りパスの順に束ねて描く（または、ディスパッチする）</strong>というホスト側（C++）の仕事が、必要です。このページは各ページで繰り返し使うその定型を 1 か所にまとめます。以降のページはここにある部品を組み合わせてパスを作る前提で、書かれています。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
+
 ## このページで扱うもの
 
 | 部品 | 使う場面 |

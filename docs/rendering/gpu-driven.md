@@ -17,6 +17,11 @@ tags:
     - DX11：`DrawIndexedInstancedIndirect` で、部分的にできる（複数の描画を、1 回の命令でできない）。DX12 の `ExecuteIndirect`・Vulkan の multi-draw indirectが、本命。
     - 制約：材質・シェーダーの扱い（バインドレス）が、必要。設計が大変。
 
+!!! info "このページを読む前に"
+    - [描画最適化](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## 従来の方式（CPU Driven）の問題
 
 **毎フレーム**、CPU が次の仕事を繰り返します。

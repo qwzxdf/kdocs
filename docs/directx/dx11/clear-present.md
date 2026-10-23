@@ -18,6 +18,12 @@ tags:
     - フリップ モデルの `Present` の後はレンダー ターゲットの束縛が、外れる。<strong>毎フレーム、`OMSetRenderTargets` を呼び直す</strong>。
     - 毎フレームの骨格は「束ねる → 消す → 描く → 出す」。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## 1 フレームの骨格
 
 ```cpp

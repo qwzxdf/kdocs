@@ -16,6 +16,11 @@ tags:
     - ノイズ的なサンプルの回転＋ぼかしで、サンプル数が少なくても滑らか。
     - 前景は別処理（[Foreground and Background](near-far.md)）。
 
+!!! info "このページを読む前に"
+    - [Depth of Field (DOF)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 基本の考え方
 
 <strong>出力画素 P の CoC が R 画素なら、P を中心に半径 R の円内の画素を、集めて平均</strong>します。

@@ -16,6 +16,11 @@ SSR は<strong>画面に映っているものだけ</strong>を反射できま�
     - スペキュラ遮蔽（隅で反射を弱める）を、プローブ側に掛ける。
     - 画面外へ出たレイは、空（またはプローブ）を引く。
 
+!!! info "このページを読む前に"
+    - [Reflections](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## SSR が反射できないもの
 
 | 状況 | 理由 |

@@ -14,6 +14,11 @@ tags:
     - 薄い物体 ＝ 厚みが分からず後ろを遮る。
     - 対策：厚みを仮定する（深度の厚み）・世界空間 AO と併用。
 
+!!! info "このページを読む前に"
+    - [AO Artifacts](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 画面端
 ### 症状
 

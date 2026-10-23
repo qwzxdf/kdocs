@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+
+  <Commands package="guidKCppErrPackage">
+
+    <Groups>
+      <Group guid="guidKCppErrCmdSet" id="KCppErrMenuGroup" priority="0x0610">
+        <Parent guid="guidVsMainMenu" id="IDM_EXTENSIONS_MENU" />
+      </Group>
+    </Groups>
+
+    <Buttons>
+      <Button guid="guidKCppErrCmdSet" id="CmdShow" priority="0x0100" type="Button">
+        <Parent guid="guidKCppErrCmdSet" id="KCppErrMenuGroup" />
+        <Strings>
+          <ButtonText>C++ エラー(かんたん表示)を開く</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <Symbols>
+    <!-- 拡張機能 メニュー。ビルド ツールの vsshlids.h に無いので、値を書く -->
+    <GuidSymbol name="guidVsMainMenu" value="{D309F791-903F-11D0-9EFC-00A0C911004F}">
+      <IDSymbol name="IDM_EXTENSIONS_MENU" value="0x0091" />
+    </GuidSymbol>
+
+    <GuidSymbol name="guidKCppErrPackage" value="{3e8c4a72-91d5-4b06-a7c2-5f1d8e6b0a34}" />
+
+    <GuidSymbol name="guidKCppErrCmdSet" value="{a4d2b7c9-6e13-4f85-92a0-7c3b1e5d8f46}">
+      <IDSymbol name="KCppErrMenuGroup" value="0x1000" />
+      <IDSymbol name="CmdShow" value="0x0100" />
+    </GuidSymbol>
+  </Symbols>
+
+</CommandTable>

@@ -22,6 +22,10 @@ tags:
     - リンクを新しく作る・消す操作は、`BeginCreate` / `BeginDelete`<strong> で受け取り、</strong>自分のデータに反映する（`AcceptNewItem` で許可）。
     - ノードの位置などは、ライブラリが設定ファイル（JSON）に自動で保存する。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](install.md)（ImGui の入れ方）
+
 ## 導入（Visual Studio）
 
 imgui-node-editor は、**ソースを数ファイル、プロジェクトに追加する**のが一番確実です。先に [Dear ImGui の導入](install.md) を済ませておきます。

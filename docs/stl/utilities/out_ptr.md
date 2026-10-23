@@ -21,6 +21,10 @@ tags:
     - 既存の値は解放される（`reset` と同じ）。
     - 解放の仕方が `delete` と違うときは、削除関数を持つ `unique_ptr` を使う。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::out_ptr {#out_ptr}

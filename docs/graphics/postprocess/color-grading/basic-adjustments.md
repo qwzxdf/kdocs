@@ -16,6 +16,11 @@ tags:
     - 計算する空間：リニアで行うか、見た目に近いガンマ（または対数）で行うかで効き方が変わる。
     - 順序で結果が変わる（非可換）。一定の順序を決める。
 
+!!! info "このページを読む前に"
+    - [Color Grading](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:basic-adjustments:begin -->
 
 <svg class="fig illust motion" data-fig="basic-adjustments" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>

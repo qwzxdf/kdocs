@@ -19,6 +19,12 @@ tags:
     - 画面の大きさがグループの、倍数でないとき <strong>範囲チェック</strong>が必須。
     - 同じリソースを UAV で書きながら、SRV で読めない（束縛の衝突）。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## 最小の計算シェーダー
 
 ```hlsl

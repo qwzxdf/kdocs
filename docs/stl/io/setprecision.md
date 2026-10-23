@@ -21,6 +21,9 @@ tags:
     - 指定は残り続ける。元に戻すには、元の設定を保存して復元する。
     - 新しいコードは `std::println("{:.2f}", x)`。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::setprecision {#setprecision}

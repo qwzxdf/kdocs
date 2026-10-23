@@ -19,6 +19,12 @@ tags:
     - 頂点構造体（C++）とレイアウトと頂点シェーダーの入力の <strong>3 つがそろっている</strong>必要がある。
     - インスタンスごとのデータ（`PER_INSTANCE_DATA`）も同じ仕組みで渡せる（[Instanced Drawing](instancing-draw.md)）。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## 要素の記述
 
 頂点が次の構造体のとき

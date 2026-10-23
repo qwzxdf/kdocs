@@ -21,6 +21,10 @@ tags:
     - 参照のまま持たせるなら [`std::tie`](tie.md) か `std::ref`。
     - 中身は**コピー**（またはムーブ）される。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::make_tuple {#make_tuple}

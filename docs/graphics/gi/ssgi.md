@@ -16,6 +16,11 @@ tags:
     - 限界：画面外・裏側・隠れた面は見えない。画面端でゲインが変わる。
     - 他の GI（プローブ等）の補助として、近距離の細かい間接光を足す使い方が多い。
 
+!!! info "このページを読む前に"
+    - [Global Illumination (GI)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 原理
 
 <strong>SSAO</strong>は半球に飛ばしたレイが「遮られたか」だけを見ました。SSGIはレイが当たった画素の「光（色）」を読みます。
@@ -275,7 +280,7 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 
 ## ノイズとデノイズ
 
-<strong>画素あたり 1〜数本</strong>のレイでは、ノイズが非常に目立ちます。
+<strong>画素あたり 1〜数本</strong>のレイでは、ノイズが目立ちます。
 
 | 手法 | 内容 |
 | --- | --- |

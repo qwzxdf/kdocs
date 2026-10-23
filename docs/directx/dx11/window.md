@@ -19,6 +19,12 @@ D3D11 は画像を作る API で、ウィンドウは作りません。画面に
     - `WM_SIZE`（大きさの変更）、`WM_DESTROY`（閉じる）は必ず処理する。
     - ウィンドウ ライブラリ（SDL、GLFW）を使うならこのページは、飛ばしてよい。`HWND` の取り出し方だけ見る。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## ウィンドウ クラスの登録
 
 ```cpp

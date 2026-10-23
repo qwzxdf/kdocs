@@ -21,6 +21,10 @@ tags:
     - `basic_string<char, MyTraits>` のように差し替えると、比較の規則を変えた文字列型が作れる。
     - 普段は意識しない。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [イテレータ](../../basics/iterator.md)（イテレーターの基礎）
+
 ## 宣言
 
 ```cpp

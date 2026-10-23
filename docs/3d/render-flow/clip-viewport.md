@@ -16,6 +16,11 @@ tags:
     - ビューポート変換 ＝ NDC をピクセル座標に写す。Y の向きが反転する。
     - 深度（z）はここで0〜1 の値になる。
 
+!!! info "このページを読む前に"
+    - [描画の流れ（入門）](index.md)（このセクション全体の地図と、読む順番）
+    - [行列](../../gamemath/matrices.md)（行列の基礎）
+    - [座標系](../../gamemath/coordinate-systems.md)（このサイトの座標系の約束）
+
 ## 全体の流れ
 
 <svg class="fig illust" viewBox="0 0 780 200" role="img" aria-label="クリップから画面まで"><defs><marker id="rfa" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs>

@@ -22,6 +22,10 @@ tags:
     - `ec == std::errc::no_such_file_or_directory` のように、環境に依存しない名前で比べる。
     - 例外を使う版と使わない版の両方を用意するのが標準ライブラリの流儀。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+
 ## 関数の詳しい説明
 
 ### std::error_code {#error_code}

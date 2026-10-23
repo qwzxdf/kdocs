@@ -19,6 +19,12 @@ tags:
     - ほかのクエリ: オクルージョン（見えたピクセル数）、パイプライン統計（頂点・ピクセルの数）、イベント（完了の確認）。
     - 本格的な計測はグラフィックス デバッガー（PIX、RenderDoc、Nsight）。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## タイムスタンプ クエリ
 
 ```cpp

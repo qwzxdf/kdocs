@@ -16,6 +16,11 @@ tags:
     - PSO は、コマンドの中で変えられない。PSO ごとに、1 回ずつ呼ぶ。
     - ExecuteIndirect で書き換えたルート引数は、呼び出し後に「不定」。必ず再設定。
 
+!!! info "このページを読む前に"
+    - [GPU Driven Rendering](../gpu-driven.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](../bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## コマンド シグネチャ
 
 <strong>`ExecuteIndirect` は、「バッファの中のコマンド列」</strong>を読みます。1 コマンドがどんな引数の並びかを事前に定義するのが、コマンド シグネチャです。

@@ -14,6 +14,11 @@ tags:
     - 最後に画素ごとに深度で並べ替えて、ブレンド。
     - 重なりが多いとメモリと時間が膨らむ。
 
+!!! info "このページを読む前に"
+    - [Order-Independent Transparency (OIT)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## Per-Pixel Linked List（PPLL）
 <strong>画素ごとに重なったフラグメントを「連結リスト」で全部保存</strong>し、最後に画素ごとに深度順に並べて合成します。DirectX 11 の UAV とアトミック操作で実現できます（Yang らの手法）。
 

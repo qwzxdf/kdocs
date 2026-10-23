@@ -15,6 +15,11 @@ tags:
     - GPU の内部（占有率・メモリ待ち）は、ベンダーのツール（Nsight・RGP）。
     - オーバードローの可視化は、自作でも簡単に作れる。
 
+!!! info "このページを読む前に"
+    - [描画最適化](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## 道具の一覧
 
 | 道具 | 何が分かるか |

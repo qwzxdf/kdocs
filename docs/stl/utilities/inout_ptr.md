@@ -21,6 +21,10 @@ tags:
     - `unique_ptr` が持っていた値を、API 側に引き渡す（所有権が一旦 API に渡る）。
     - API が失敗したときの挙動に注意する。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::inout_ptr {#inout_ptr}

@@ -16,6 +16,11 @@ tags:
     - 近似式は本物と同じではない。「ACES っぽい」曲線だと理解して使う。
     - より良いやり方：Hill のフィット（色空間変換つき）、または[AgX](agx.md)。
 
+!!! info "このページを読む前に"
+    - [Tone Mapping and Exposure](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## ACES とは
 
 <strong>ACES</strong> は撮影機材やデジタル素材の色を、共通の広い色空間（AP0・AP1）にそろえ、最後に出力デバイスに合わせて変換する仕組み全体の名前です。

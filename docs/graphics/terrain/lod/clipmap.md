@@ -14,6 +14,11 @@ tags:
     - カメラが動くと格子をずらす。
     - 高さデータも同じ入れ子で持つ。
 
+!!! info "このページを読む前に"
+    - [Terrain LOD](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## クリップマップ
 <strong>ジオメトリ クリップマップ</strong>（Losasso & Hoppe、2004）は カメラを中心に入れ子になった正方形リングでLOD を表現します。一番内側が最も細かく外側ほど 2 倍ずつ粗くなります。
 

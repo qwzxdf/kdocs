@@ -17,6 +17,11 @@ tags:
     - ダウンサンプルの取り方：単純な間引きは、ちらつく。平均・最大・最小深度など 用途で選ぶ。
     - 関連：動的解像度・TAA・チェッカーボード。
 
+!!! info "このページを読む前に"
+    - [描画最適化](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [何が重いのか（ボトルネック）](bottlenecks.md)（CPU と GPU のどちらが遅いかの切り分け）
+
 ## なぜ縮小して良いのか
 
 <svg class="fig illust" viewBox="0 0 800 250" role="img" aria-label="縮小バッファの、計算量">

@@ -12,6 +12,11 @@ tags:
     - 全体 ＝ 光の行列 → 深度パス → 比較（ライティング）。
     - 最小版はバイアス・フィルタなし。これにバイアスと PCF を足して実用に。
 
+!!! info "このページを読む前に"
+    - [Shadow Map Basics](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 全体のコード（最小）
 ```hlsl
 Texture2D<float> shadow_tex : register(t5);

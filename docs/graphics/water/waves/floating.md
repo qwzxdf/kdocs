@@ -14,6 +14,11 @@ tags:
     - FFT の場合は、GPU から読み戻すか CPU で近似する。
     - 浮力の物理は[Water Interaction](../interaction/index.md)を参照。
 
+!!! info "このページを読む前に"
+    - [Water Waves](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 物を水に浮かせる
 <strong>ボートや浮き</strong>を波に合わせて動かすには、CPU 側でも同じ波の高さを計算する必要があります。
 

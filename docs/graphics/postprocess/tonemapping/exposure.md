@@ -16,6 +16,11 @@ tags:
     - 露出補正 ＝ 自動露出の結果に足す EV のずれ。アーティストの調整。
     - 露出が合っていないと、明部が真っ白に飛ぶか、暗部が真っ黒に潰れる。
 
+!!! info "このページを読む前に"
+    - [Tone Mapping and Exposure](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:exposure-ev:begin -->
 
 <svg class="fig illust motion" data-fig="exposure-ev" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
@@ -135,7 +140,7 @@ tags:
 
 ## なぜ露出が要るのか
 
-<strong>HDR の値は、「光の絶対量」に近い</strong>ので幅が非常に広いです。ディスプレイに映せるのは 0〜1 だけなので、どの範囲を 0〜1 に割り当てるかを先に決める必要があります。これが露出です。
+<strong>HDR の値は、「光の絶対量」に近い</strong>ので幅が広いです。ディスプレイに映せるのは 0〜1 だけなので、どの範囲を 0〜1 に割り当てるかを先に決める必要があります。これが露出です。
 
 <svg class="fig illust" viewBox="0 0 780 250" role="img" aria-label="露出で範囲を選ぶ">
 <text x="20" y="26" class="fig-title">露出 ＝ 広い明るさの中から、見せたい範囲を選んで、0〜1 に合わせる</text>

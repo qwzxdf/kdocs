@@ -14,6 +14,11 @@ tags:
     - 水面の高さと比べて、水に入った部分だけ書く。
     - 書き込みはシミュレーション用のテクスチャへ。
 
+!!! info "このページを読む前に"
+    - [Water Interaction](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 物の接触を書き込む
 <strong>物が水に触れた所に高さを書き込むと</strong>、そこが波の起点になります。
 

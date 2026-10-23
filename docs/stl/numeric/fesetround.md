@@ -21,6 +21,9 @@ tags:
     - `<cfenv>` を include し、`#pragma STDC FENV_ACCESS ON` が本来必要。
     - `nearbyint` などの丸めの結果にも影響する。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::fesetround {#fesetround}

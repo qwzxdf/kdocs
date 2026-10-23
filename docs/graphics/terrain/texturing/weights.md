@@ -14,6 +14,11 @@ tags:
     - 重みの合計を 1 にする。
     - 4 枚ごとに 1 枚のスプラット マップ。
 
+!!! info "このページを読む前に"
+    - [Terrain Texturing](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:splat-weights:begin -->
 
 <svg class="fig illust motion" data-fig="splat-weights" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>

@@ -22,6 +22,9 @@ tags:
     - 戻り値は読めた個数。要求より少なければ、終端かエラー。
     - C++ では `ifstream::read`。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### std::fread {#fread}

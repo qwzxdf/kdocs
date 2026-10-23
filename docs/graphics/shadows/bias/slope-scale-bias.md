@@ -14,6 +14,11 @@ tags:
     - シェーダー側では、`tan(acos(N·L))` で傾きを計算してバイアスを決められる。
     - 傾きが極端な面は、バイアスが爆発するので上限を設ける。
 
+!!! info "このページを読む前に"
+    - [Shadow Bias](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:slope-bias:begin -->
 
 <svg class="fig illust motion" data-fig="slope-bias" viewBox="0 0 780 420" role="img"><rect x="0" y="0" width="780" height="420" rx="14" fill="#ffffff"/>
@@ -103,7 +108,7 @@ desc.DepthBiasClamp = 0.01f;
 | --- | --- | --- |
 | 光に正面 | 小さい | 小さい |
 | 斜め | 中くらい | 中くらい |
-| 光とほぼ平行 | 非常に大きい | 大きい |
+| 光とほぼ平行 | 大きい | 大きい |
 
 ## ハードウェアで行う
 
@@ -129,11 +134,11 @@ Bias は、DepthBiasClamp を、超えない
 | `DepthBias × r` | 定数バイアス（`r` は最小の、深度の刻み） |
 | `MaxDepthSlope` | 三角形の深度の傾き（`max(|∂z/∂x|, |∂z/∂y|)`、画面空間での変化） |
 | `SlopeScaledDepthBias` | 傾きに掛ける係数。1〜3 が一般的 |
-| `DepthBiasClamp` | 上限。非常に斜めの面でバイアスが暴走して影が、消えるのを防ぐ |
+| `DepthBiasClamp` | 上限。斜めの面でバイアスが暴走して影が、消えるのを防ぐ |
 
 ### 傾きの直感
 
-光にほぼ平行な面（朝夕の光が地面に、すれすれ）ではシャドウ マップの 1 画素が、地面の非常に長い範囲を覆い、その範囲での深度の変化が大きい。ハードウェアがその大きな傾きに、比例してバイアスを自動で足します。
+光にほぼ平行な面（朝夕の光が地面に、すれすれ）ではシャドウ マップの 1 画素が、地面の長い範囲を覆い、その範囲での深度の変化が大きい。ハードウェアがその大きな傾きに、比例してバイアスを自動で足します。
 
 ## シェーダーで行う
 
@@ -165,7 +170,7 @@ float lit = g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, coord.xy, coord.z 
 
 | 問題 | 内容 |
 | --- | --- |
-| 非常に斜めの面 | バイアスが非常に、大きくなりピーター パンニング |
+| 斜めの面 | バイアスが、大きくなりピーター パンニング |
 | PCF を広く取る | PCF の、範囲の中で面の深度はさらに変化する。傾き依存だけでは足りない（[Receiver Plane Bias](receiver-plane-bias.md)） |
 | 曲面 | 1 つの三角形内で傾きが、一定とは限らない |
 

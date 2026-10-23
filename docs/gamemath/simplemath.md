@@ -23,6 +23,10 @@ tags:
     - 行ベクトル規約（`v * M`）。掛け順は左から右（`S * R * T`）。
     - 導入は vcpkg の `directxtk`（SimpleMath を含む）。
 
+!!! info "このページを読む前に"
+    - [ゲーム数学](index.md)（このセクション全体の地図と、読む順番）
+    - [座標系](coordinate-systems.md)（このサイトの座標系の約束）
+
 ## 導入（Visual Studio）
 
 SimpleMath は、**DirectX Tool Kit** に含まれています（[GitHub](https://github.com/microsoft/DirectXTK)）。

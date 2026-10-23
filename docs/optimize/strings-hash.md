@@ -16,6 +16,10 @@ tags:
     - `unordered_map<std::string, T>` の検索で、`std::string` を作らない（C++20 の透過的検索）。
     - デバッグ用の名前は、製品ビルドで消せるようにする。
 
+!!! info "このページを読む前に"
+    - [optimize/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [計測（プロファイリング）](measure.md)（測ってから直す、という進め方）
+
 ## std::string のコスト
 
 | 操作 | コスト |

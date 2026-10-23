@@ -21,6 +21,10 @@ tags:
     - `shared_from_this()` は `shared_ptr` を、`weak_from_this()`（C++17）は `weak_ptr` を返す。
     - **すでに `shared_ptr` で管理されているときだけ**使える（コンストラクタの中では使えない）。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+
 ## 関数の詳しい説明
 
 ### std::enable_shared_from_this {#shared_from_this}

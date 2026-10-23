@@ -14,6 +14,11 @@ tags:
     - 1 フレームに更新するプローブ数を絞る。
     - 変化が無い所は更新を省く。
 
+!!! info "このページを読む前に"
+    - [Probe GI](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 動的な更新
 <strong>ベイクしたプローブ</strong>は 静的な光に対する固定の値です。
 

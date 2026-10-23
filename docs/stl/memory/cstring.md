@@ -134,7 +134,7 @@ int main() {
 
 | 項目 | 特徴 |
 | --- | --- |
-| `memcpy` / `memset` | CPU の最適な命令（AVX など）で、非常に速い。メモリの速度が限界 |
+| `memcpy` / `memset` | CPU の最適な命令（AVX など）で、速い。メモリの速度が限界 |
 | `strlen` | 最後まで数えるので O(n)。繰り返し呼ばない |
 | `std::copy` / `std::fill` | trivially copyable な型なら、`memcpy` / `memset` と同じ速さ |
 | `strcat` を繰り返す | 毎回先頭から終端を探すので O(n²) |

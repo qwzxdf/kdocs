@@ -19,6 +19,12 @@ tags:
     - コンパイルのエラーは、`errors` の ブロブに文字列で入る。必ず表示する。
     - バイトコードは <strong>入力レイアウトの作成</strong>にも、使う（[Input Layout](input-layout.md)）。
 
+!!! info "このページを読む前に"
+    - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
+    - [GPU Pipeline Overview](../concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+    - [Coordinate Conventions](../concepts/conventions.md)（このセクションの約束（座標系・行列））
+    - [DirectX 11 Guide](guide.md)（全体の手順（どの順に作るか））
+
 ## 最小の HLSL
 
 ```hlsl

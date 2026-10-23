@@ -14,6 +14,11 @@ tags:
     - くぼ地に水がたまり、湖になる。
     - 川の水面は[Water](../../water/index.md)で描く。
 
+!!! info "このページを読む前に"
+    - [Terrain Generation](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 川と湖
 <strong>侵食の結果から川を取り出せます</strong>。
 

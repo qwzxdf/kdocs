@@ -17,6 +17,10 @@ tags:
     - ホットなデータは、専用アロケータ、残りは置き換え、と組み合わせる。
     - DLL をまたぐとき、確保した側が解放する（アロケータが違うと壊れる）。
 
+!!! info "このページを読む前に"
+    - [optimize/index.md](../index.md)（このセクション全体の地図と、読む順番）
+    - [メモリ確保](../allocation.md)（メモリ確保が遅い理由）
+
 ## 代表的なアロケータ
 
 | 名前 | 作者 | 特徴 | Windows |
@@ -24,7 +28,7 @@ tags:
 | **mimalloc** | Microsoft | 小さく速い。断片化に強い。MIT ライセンス。スレッドごとのヒープ（クロススレッド解放も得意） | ◎ 公式に対応（Visual Studio で使える） |
 | jemalloc | Meta（旧 Facebook） | 断片化に強く、サーバーで実績。細かい調整ができる | △（ビルド・利用はやや面倒） |
 | tcmalloc | Google | スレッドキャッシュが有名。大規模サーバー向け | △ |
-| rpmalloc | Mattias Jansson | 非常に小さな実装。ゲームで人気（ロックフリー） | ○ |
+| rpmalloc | Mattias Jansson | 小さな実装。ゲームで人気（ロックフリー） | ○ |
 | snmalloc | Microsoft Research | メッセージパッシングで、クロススレッド解放が速い | ○ |
 | OS の標準（Windows） | Microsoft | Low Fragmentation Heap（LFH）で、普通に十分速い（既定） | — |
 

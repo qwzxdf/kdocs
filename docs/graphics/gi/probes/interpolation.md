@@ -14,6 +14,11 @@ tags:
     - 可視性（そのプローブから見えるか）で、重みを減らす。
     - DDGI は深度情報で可視性を判定する（[DDGI](../ddgi.md)）。
 
+!!! info "このページを読む前に"
+    - [Probe GI](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 補間の方式
 ### 四面体分割（Delaunay）
 

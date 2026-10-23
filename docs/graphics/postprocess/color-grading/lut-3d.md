@@ -16,6 +16,11 @@ tags:
     - 入力が広いダイナミック レンジ（HDR）なら、対数などでエンコードしてから引く。
     - 外部ツールで作った LUT を、そのまま使える（.cube・.png 形式）。
 
+!!! info "このページを読む前に"
+    - [Color Grading](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 仕組み
 
 <strong>RGB の各成分（0〜1）を、そのまま 3D テクスチャの X・Y・Z 座標</strong>とします。その座標の位置に、「変換後の色」を格納しておきます。

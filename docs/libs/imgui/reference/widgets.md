@@ -14,6 +14,10 @@ tags:
     - 表示系（`Text`・`Image`・`ProgressBar`・`PlotLines`）は、値を見せるだけ。
     - ラベルは ID を兼ねる。`"名前##id"` で見た目と ID を分けられる。
 
+!!! info "このページを読む前に"
+    - [Dear ImGui](../index.md)（このセクション全体の地図と、読む順番）
+    - [Dear ImGui の導入（Visual Studio）](../install.md)（ImGui の入れ方）
+
 ## テキスト
 
 | 関数 | 出るもの | 戻り値 | メモ |

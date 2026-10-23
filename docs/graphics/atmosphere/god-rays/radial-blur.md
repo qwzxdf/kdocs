@@ -14,6 +14,11 @@ tags:
     - 太陽が画面外にあると、使えない。
     - サンプル数が少ないと、縞が出る。
 
+!!! info "このページを読む前に"
+    - [God Rays](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:radial-streak:begin -->
 
 <svg class="fig illust motion" data-fig="radial-streak" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
@@ -406,7 +411,7 @@ float3 GodRays(float2 uv, float2 sun_uv) {
 
 ## 画面空間の放射状ブラー
 
-<strong>放射状ブラー</strong>（Mitchell、2007）は 画面に描かれた、画像を太陽の画面上の位置から、放射状にぼかして（引き伸ばして）、光の筋を作ります。3D のシーンを再計算せず画面の、画像だけで行うので非常に軽いです。
+<strong>放射状ブラー</strong>（Mitchell、2007）は 画面に描かれた、画像を太陽の画面上の位置から、放射状にぼかして（引き伸ばして）、光の筋を作ります。3D のシーンを再計算せず画面の、画像だけで行うので軽いです。
 
 ```text
  画面:  太陽（画面上の点）●

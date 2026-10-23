@@ -21,6 +21,10 @@ tags:
     - コンテナは、アロケーターを直接ではなく、`allocator_traits` 経由で使う。
     - 自分で使うのは、自作コンテナを作るとき。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [所有権（誰が消すのか）](../../basics/ownership.md)（所有権の考え方）
+
 ## 関数の詳しい説明
 
 ### std::allocator_traits {#allocator_traits}

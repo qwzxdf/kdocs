@@ -14,6 +14,11 @@ tags:
     - VXAO：動的に強い・メモリ。
     - スクリーン空間 AOは安いが、画面外に弱い。併用も多い。
 
+!!! info "このページを読む前に"
+    - [Ray-Traced, Distance-Field and Voxel AO](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 3 方式の比較
 
 3 つの方式は「V（遮蔽の有無）を何から求めるか」が違います。RTAO は三角形の BVH、DFAO は符号付き距離場（SDF）、VXAO はボクセルとそのミップです。

@@ -15,6 +15,11 @@ tags:
     - 輝度にだけ掛けると色相を保てるが、鮮やかな明部が飽和しすぎることがある。
     - より良いやり方：白点付き ＋ 輝度ベースで色を保つ ＋ 軽いコントラストの調整。
 
+!!! info "このページを読む前に"
+    - [Tone Mapping and Exposure](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 式と形
 
 <div class="formula">c = x / (1 + x)</div>

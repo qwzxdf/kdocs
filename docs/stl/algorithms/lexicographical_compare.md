@@ -21,6 +21,10 @@ tags:
     - 片方が片方の先頭部分なら、**短いほうが小さい**（`"ab"` < `"abc"`）。
     - コンテナどうしの `<` も同じ規則なので、普段は `a < b` で足りる。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [イテレータ](../../basics/iterator.md)（イテレーターの基礎）
+
 ## 関数の詳しい説明
 
 ### std::ranges::lexicographical_compare {#lexicographical_compare}

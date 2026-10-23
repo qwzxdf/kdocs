@@ -13,7 +13,7 @@ tags:
 `#include <limits>`
 </div>
 
-0 に非常に近い小さな値（非正規数）を持てるかを表す列挙型です。`std::numeric_limits<T>::has_denorm` の型で、多くの環境は `denorm_present`（持てる）です。C++23 で `has_denorm` は非推奨になりました。
+0 に近い小さな値（非正規数）を持てるかを表す列挙型です。`std::numeric_limits<T>::has_denorm` の型で、多くの環境は `denorm_present`（持てる）です。C++23 で `has_denorm` は非推奨になりました。
 
 !!! tip "ポイント"
     - `numeric_limits` のメンバが返す型。

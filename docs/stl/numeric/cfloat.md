@@ -21,6 +21,9 @@ tags:
     - `FLT_DIG` は 6、`DBL_DIG` は 15（確実に表せる 10 進の桁数）。
     - 新しいコードでは `std::numeric_limits<float>::epsilon()`。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+
 ## 関数の詳しい説明
 
 ### <cfloat> {#cfloat}

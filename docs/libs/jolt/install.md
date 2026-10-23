@@ -9,6 +9,11 @@ tags:
 
 Visual Studio での Jolt の入れ方です。Jolt は**ソースからビルドする**ライブラリで、`.lib` を作ります。
 
+!!! info "このページを読む前に"
+    - [Jolt Physics](index.md)（このセクション全体の地図と、読む順番）
+    - [物理演算の全体像](overview.md)（Jolt の全体像）
+
+
 Visual Studio での入れ方を先に説明します。Jolt はソースからビルドするライブラリで、`.lib` を作ります。次の 2 つの方法があります。
 
 ## 方法 1：Jolt のソースから Visual Studio のプロジェクトを作ってビルドする

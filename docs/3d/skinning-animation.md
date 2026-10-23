@@ -16,6 +16,11 @@ tags:
     - 更新は親から子の順（配列を親が先になるように並べる）。
     - 動き（アニメーション）と見た目（メッシュ）は、ボーンでつながる。
 
+!!! info "このページを読む前に"
+    - [3d/index.md](index.md)（このセクション全体の地図と、読む順番）
+    - [行列](../gamemath/matrices.md)（行列の基礎）
+    - [座標系](../gamemath/coordinate-systems.md)（このサイトの座標系の約束）
+
 ## スキニングの仕組み
 
 <svg class="fig" viewBox="0 0 670 240" role="img" aria-label="スキニング：ボーンと頂点の重み"><defs><marker id="k1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">肘を曲げると、関節の頂点は、2 本のボーンに影響される</text><line x1="60" y1="130" x2="200" y2="130" stroke="currentColor" stroke-width="5"/><text x="80" y="112">上腕のボーン</text><line x1="200" y1="130" x2="300" y2="60" stroke="currentColor" stroke-width="5"/><text x="260" y="55">前腕のボーン</text><circle cx="200" cy="130" r="9" fill="currentColor"/><circle cx="120" cy="128" r="6" fill="rgba(76,139,245,0.9)"/><text x="100" y="160">重み 1.0 / 0.0</text><circle cx="195" cy="118" r="6" fill="rgba(229,170,40,0.9)"/><text x="150" y="190">重み 0.5 / 0.5</text><circle cx="270" cy="82" r="6" fill="rgba(229,72,77,0.9)"/><text x="280" y="98">重み 0.0 / 1.0</text><text x="350" y="80">頂点の位置 ＝ 重み × (ボーン A で動かした位置)</text><text x="350" y="105">　　　　　　＋ 重み × (ボーン B で動かした位置)</text><text x="350" y="140">関節では、2 つのボーンの動きが、混ざる</text><text x="350" y="165">→ 曲がっても、皮膚が自然につながる</text></svg>

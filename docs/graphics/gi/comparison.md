@@ -16,6 +16,11 @@ tags:
     - 鏡面の間接光は別（反射の手法）。
     - ベースの GI ＋ AO ＋ 反射を、三位一体で設計する。
 
+!!! info "このページを読む前に"
+    - [Global Illumination (GI)](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 全方式の比較
 
 | 方式 | 動くライト | 動く物 | 画面外 | ノイズ | 実行コスト | 事前計算 | 必要な HW |

@@ -22,6 +22,10 @@ tags:
     - `strong_ordering` から暗黙に変換できる。
     - 大文字小文字を無視した比較、近似的な比較に使う。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+
 ## 関数の詳しい説明
 
 ### std::weak_ordering {#weak_ordering}

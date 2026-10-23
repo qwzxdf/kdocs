@@ -14,6 +14,11 @@ tags:
     - 区画ごとに行うと、効率的。
     - GPU カリングで、インスタンスごとに判定。
 
+!!! info "このページを読む前に"
+    - [Vegetation](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## カリング
 <strong>画面に映らない・遠すぎる植生は、描きません</strong>。
 

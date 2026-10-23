@@ -14,6 +14,11 @@ tags:
     - ゲイン ＝ 振幅の倍率（約 0.5）。
     - オクターブが多いと、細かいが重い。
 
+!!! info "このページを読む前に"
+    - [Terrain Generation](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 <!-- fig:fbm-octaves:begin -->
 
 <svg class="fig illust motion" data-fig="fbm-octaves" viewBox="0 0 960 540" role="img"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
@@ -140,7 +145,7 @@ gain = lacunarity^(−H)        （lacunarity = 2 なら、gain = 2^(−H)）
 | --- | --- | --- |
 | 1.0 | 0.5 | なだらかで、滑らか |
 | 0.5 | 0.707 | 標準的な山 |
-| 0.0 | 1.0 | 非常にごつごつ（ホワイト ノイズに近い） |
+| 0.0 | 1.0 | ごつごつ（ホワイト ノイズに近い） |
 
 `gain = 0.5`、`lacunarity = 2` は H = 1 に当たりなだらかな地形になります。ごつごつした山には `gain = 0.6〜0.7` に上げます。
 

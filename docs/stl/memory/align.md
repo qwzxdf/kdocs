@@ -21,6 +21,10 @@ tags:
     - 収まらないときは `nullptr` を返す（`ptr` と `space` は変わらない）。
     - [`monotonic_buffer_resource`](pmr/monotonic_buffer_resource.md) を使えば、自分で書かなくて済む。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [所有権（誰が消すのか）](../../basics/ownership.md)（所有権の考え方）
+
 ## 関数の詳しい説明
 
 ### std::align {#align}

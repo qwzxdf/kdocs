@@ -14,6 +14,11 @@ tags:
     - LOD で頂点が減っても、法線マップで細部を保てる。
     - 精度が足りないと、段々（バンディング）が出る。
 
+!!! info "このページを読む前に"
+    - [Heightmaps and Meshes](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 法線
 <strong>地形の法線</strong>は高さマップの勾配から求めます。隣のテクセルとの高さの差（中心差分）を使います。
 

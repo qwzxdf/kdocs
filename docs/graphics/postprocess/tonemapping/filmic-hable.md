@@ -15,6 +15,11 @@ tags:
     - 露出倍率（`× 2.0`）を曲線の前に掛けて、中間の明るさを合わせる。
     - より良いやり方：係数をアーティストが調整できるようにパラメータとして出す。3D LUT に焼く。
 
+!!! info "このページを読む前に"
+    - [Tone Mapping and Exposure](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## S 字の 3 つの領域
 
 <svg class="fig illust" viewBox="0 0 780 300" role="img" aria-label="S 字カーブの 3 領域">

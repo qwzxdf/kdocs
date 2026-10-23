@@ -22,6 +22,10 @@ tags:
     - `new` / `malloc` が返すメモリは、これで境界がそろっている。
     - SIMD の 32 バイト境界などは、これでは足りない（`alignas` を使う）。
 
+!!! info "このページを読む前に"
+    - [stl/index.md](../index.md)（STL 全体の地図（どこに何があるか））
+    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+
 ## 関数の詳しい説明
 
 ### std::max_align_t {#max_align_t}

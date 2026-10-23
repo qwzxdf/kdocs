@@ -14,6 +14,11 @@ tags:
     - 値はシーンの大きさと深度の精度で決まる。
     - 他の方式と組み合わせる前提で使う。
 
+!!! info "このページを読む前に"
+    - [Shadow Bias](index.md)（このセクション全体の地図と、読む順番）
+    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
+    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
+
 ## 対策 1：定数バイアス
 <strong>比較する深度から一定の値を引きます</strong>。
 
@@ -124,7 +129,7 @@ float bias_depth = bias_world_meters / (light_far - light_near);
 | --- | --- |
 | 光に正面（垂直） | 小さい |
 | 斜め（45°） | 中くらい |
-| ほぼ平行（80°〜） | 非常に大きい |
+| ほぼ平行（80°〜） | 大きい |
 
 定数では どれかに合わせると他で、破綻します。
 
