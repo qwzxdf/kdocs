@@ -6,7 +6,7 @@ tags:
 
 # Dispersion
 
-<strong>光の波長ごとに屈折率が違うため、ガラスの縁で色が分かれて見える</strong>ことがあります。<strong>赤・緑・青でずらす量を変える</strong>と、この効果を作れます。このページでは分散の表現を説明します。
+<strong>光の波長ごとに屈折率が違うため、ガラスの縁で色が分かれて見える</strong>ことがあります。赤・緑・青でずらす量を変えると、この効果を作れます。このページでは分散の表現を説明します。
 
 !!! tip "ポイント"
     - 波長ごとに屈折率が違う ＝ 分散。
@@ -15,7 +15,7 @@ tags:
     - やりすぎない（普通のガラスは、ほぼ目立たない）。
 
 ## 色収差（分散）
-<strong>波長ごとに屈折率が少し違う</strong>ので、<strong>ガラスの縁で色がずれて見えます</strong>（プリズムの虹）。R・G・B で屈折の強さを少しずつ変えて、3 回サンプルします。
+<strong>波長ごとに屈折率が少し違う</strong>ので、ガラスの縁で色がずれて見えます（プリズムの虹）。R・G・B で屈折の強さを少しずつ変えて、3 回サンプルします。
 
 ```hlsl
 float3 background;
@@ -24,7 +24,7 @@ background.g = scene_color_copy.Sample(linear_clamp, screen_uv + offset * 1.03).
 background.b = scene_color_copy.Sample(linear_clamp, screen_uv + offset * 1.06).b;
 ```
 
-<strong>わずか（数%）の差</strong>で<strong>十分</strong>です。宝石・水晶・厚いガラスで効果的です。
+わずか（数%）の差で十分です。宝石・水晶・厚いガラスで効果的です。
 
 ### 分散の原理
 
@@ -77,7 +77,7 @@ float3 DispersedRefraction(float2 uv, float2 offset, float spread) {
 
 ## 分散とは
 
-ガラスの屈折率は <strong>光の波長によって、少し違います</strong>。<strong>青い光は赤い光より少し大きく</strong>曲がります。結果、白い光がプリズムを通ると虹色に、分かれます。これが分散です。
+ガラスの屈折率は <strong>光の波長によって、少し違います</strong>。青い光は赤い光より少し大きく曲がります。結果、白い光がプリズムを通ると虹色に、分かれます。これが分散です。
 
 | 色 | 波長 | 屈折率（クラウン ガラス） |
 | --- | --- | --- |
@@ -85,7 +85,7 @@ float3 DispersedRefraction(float2 uv, float2 offset, float spread) {
 | 緑 | 約 550 nm | 約 1.519 |
 | 青 | 約 450 nm | 約 1.527 |
 
-差は <strong>わずか</strong>（1% 以下）ですが、<strong>曲がる角度のわずかな違い</strong>が距離を進むと、はっきりした色のずれになります。ダイヤモンドのきらめき（ファイア）、プリズム、縁の虹色はすべて分散による現象です。
+差は わずか（1% 以下）ですが、曲がる角度のわずかな違いが距離を進むと、はっきりした色のずれになります。ダイヤモンドのきらめき（ファイア）、プリズム、縁の虹色はすべて分散による現象です。
 
 ## 屈折率の波長依存
 
@@ -102,7 +102,7 @@ Cauchy の式:  n(λ) = A + B / λ²                  λ は、マイクロメ�
 | フリント ガラス | 1.7280 | 0.01342 |
 | ダイヤモンド | 2.3780 | 0.01158 |
 
-フリント ガラス（鉛を含み分散が大きい）や、ダイヤモンドは `B` が大きく <strong>分散が、強い</strong>。
+フリント ガラス（鉛を含み分散が大きい）や、ダイヤモンドは `B` が大きく 分散が、強い。
 
 ```hlsl
 // Cauchy の式で、波長（マイクロメートル）から屈折率を求める。
@@ -116,7 +116,7 @@ float ior_b = CauchyIOR(0.45, 1.5046, 0.00420);     // 青
 
 ## 実装：RGB を別々に、屈折させる
 
-最も簡単な方法は <strong>赤・緑・青の、3 つの屈折率</strong>で <strong>屈折ベクトルを、3 回</strong>求めそれぞれ違う位置を、読むことです。
+最も簡単な方法は <strong>赤・緑・青の、3 つの屈折率</strong>で 屈折ベクトルを、3 回求めそれぞれ違う位置を、読むことです。
 
 ```hlsl
 float3 view = normalize(input.world_position - g_camera_position);
@@ -138,7 +138,7 @@ refracted.g = g_scene_copy.Sample(g_linear_clamp, uv_g).g;
 refracted.b = g_scene_copy.Sample(g_linear_clamp, uv_b).b;
 ```
 
-簡易版は <strong>法線からずらし量を求め</strong>、<strong>RGB に少しだけ違う係数</strong>を、掛けます。
+簡易版は 法線からずらし量を求め、RGB に少しだけ違う係数を、掛けます。
 
 ```hlsl
 float2 offset = view_normal.xy * g_refraction_strength;
@@ -147,11 +147,11 @@ refracted.g = g_scene_copy.Sample(g_linear_clamp, screen_uv + offset * 1.00).g;
 refracted.b = g_scene_copy.Sample(g_linear_clamp, screen_uv + offset * 1.05).b;     // 青: 大きく曲がる
 ```
 
-0.95、1.00、1.05 の <strong>差</strong>を広げるほど、<strong>虹色の縁取り</strong>が強くなります。水のように分散が小さい物では差を、ごく小さくします。
+0.95、1.00、1.05 の 差を広げるほど、虹色の縁取りが強くなります。水のように分散が小さい物では差を、ごく小さくします。
 
 ## 3 色では足りない
 
-RGB の <strong>3 色だけ</strong>だと <strong>色の分離が、3 つのずれた像</strong>に見えます（赤の像、緑の像、青の像）。なめらかな虹にするにはもっと多くの波長で、サンプルします。
+RGB の <strong>3 色だけ</strong>だと 色の分離が、3 つのずれた像に見えます（赤の像、緑の像、青の像）。なめらかな虹にするにはもっと多くの波長で、サンプルします。
 
 ```hlsl
 // 波長を 8 つに分けて、それぞれ屈折させ、RGB に、変換して足す（スペクトルの、近似）。
@@ -170,7 +170,7 @@ for (int i = 0; i < 8; ++i) {
 float3 refracted = acc / weight_sum;
 ```
 
-`WavelengthToRGB` は <strong>波長（380〜700 nm）から、RGB の重みを返す関数</strong>です（虹色の、グラデーションの近似）。8〜16 サンプルで <strong>なめらかな虹</strong>に、なります。コストはサンプル数に比例して、増えます。
+`WavelengthToRGB` は 波長（380〜700 nm）から、RGB の重みを返す関数です（虹色の、グラデーションの近似）。8〜16 サンプルで なめらかな虹に、なります。コストはサンプル数に比例して、増えます。
 
 ## どこに現れるか
 
@@ -182,11 +182,11 @@ float3 refracted = acc / weight_sum;
 | プリズム | 白い光が虹色に、分かれる |
 | ダイヤモンド、宝石 | 内部の反射・屈折で、カラフルなきらめき（ファイア） |
 
-<strong>平らな薄いガラス</strong>では <strong>分散はほぼ、見えません</strong>。縁や曲がった厚い部分で効果が、現れるのでそこに使うとコストの割に、見栄えがよくなります。
+<strong>平らな薄いガラス</strong>では 分散はほぼ、見えません。縁や曲がった厚い部分で効果が、現れるのでそこに使うとコストの割に、見栄えがよくなります。
 
 ## 色収差（レンズ）との違い
 
-[Chromatic Aberration](../../postprocess/lens-effects/chromatic-aberration.md) は、<strong>カメラのレンズ</strong>が起こす <strong>色の、ずれ</strong>で画面の周辺に現れます。物体（ガラス）の分散はガラスの物体の、部分だけに現れます。原因も場所も別です。
+[Chromatic Aberration](../../postprocess/lens-effects/chromatic-aberration.md) は、<strong>カメラのレンズ</strong>が起こす 色の、ずれで画面の周辺に現れます。物体（ガラス）の分散はガラスの物体の、部分だけに現れます。原因も場所も別です。
 
 ## よくあるミス
 

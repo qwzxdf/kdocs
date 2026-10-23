@@ -6,7 +6,7 @@ tags:
 
 # Phase Functions
 
-<strong>光が散乱される時、どの方向へ散るかを表すのが位相関数</strong>です。<strong>レイリーは前後に均等、ミーは前方に強く偏ります</strong>。このページでは位相関数を説明します。
+<strong>光が散乱される時、どの方向へ散るかを表すのが位相関数</strong>です。レイリーは前後に均等、ミーは前方に強く偏ります。このページでは位相関数を説明します。
 
 !!! tip "ポイント"
     - レイリー：(1 + cos²θ) に比例。
@@ -43,13 +43,13 @@ tags:
 <!-- fig:phase-polar:end -->
 
 ## 位相関数
-<strong>位相関数 P(θ)</strong> は <strong>散乱の方向分布</strong>です。<strong>θ は元の光の進行方向と散乱後の方向のなす角</strong>です。
+<strong>位相関数 P(θ)</strong> は 散乱の方向分布です。θ は元の光の進行方向と散乱後の方向のなす角です。
 
 ### レイリー
 
 <div class="formula">P_R(θ) = (3 / 16π) · (1 + cos²θ)</div>
 
-<strong>前後に対称</strong>で<strong>横方向へ少し弱い</strong>形です。
+前後に対称で横方向へ少し弱い形です。
 
 ### ミー（Henyey-Greenstein）
 
@@ -69,11 +69,11 @@ float HenyeyGreenstein(float cos_theta, float g) {
 }
 ```
 
-<strong>雲や霧の散乱</strong>（[Clouds](../clouds/index.md)・[Volumetric Fog](../volumetric-fog/index.md)）も、<strong>同じ位相関数</strong>を使います。
+雲や霧の散乱（[Clouds](../clouds/index.md)・[Volumetric Fog](../volumetric-fog/index.md)）も、同じ位相関数を使います。
 
 ## 位相関数とは
 
-光が粒子に当たって <strong>散乱</strong>するとき、<strong>どの方向にどれだけ散らばるか</strong>を、表す関数が位相関数です。入射した光の向きと散乱した光の向きの、間の角度 `θ` だけで決まります（粒子が、球に近いと仮定する）。
+光が粒子に当たって <strong>散乱</strong>するとき、どの方向にどれだけ散らばるかを、表す関数が位相関数です。入射した光の向きと散乱した光の向きの、間の角度 `θ` だけで決まります（粒子が、球に近いと仮定する）。
 
 ```text
 θ = 0°    前方散乱（光が、そのまま、直進する向き）
@@ -81,11 +81,11 @@ float HenyeyGreenstein(float cos_theta, float g) {
 θ = 180°  後方散乱（光が、来た方向へ、戻る）
 ```
 
-位相関数は <strong>全方向に積分して、1</strong> になるように決めます（<strong>エネルギーが、保存</strong>される）。
+位相関数は 全方向に積分して、1 になるように決めます（エネルギーが、保存される）。
 
 ## レイリー散乱の位相関数
 
-空気の分子（光の波長よりはるかに小さい粒子）による、散乱です（Rayleigh、1871）。<strong>前方と後方に同じだけ散り</strong>、<strong>横には少なめ</strong>です。
+空気の分子（光の波長よりはるかに小さい粒子）による、散乱です（Rayleigh、1871）。<strong>前方と後方に同じだけ散り</strong>、横には少なめです。
 
 ```text
 P_Rayleigh(θ) = 3 / (16π) × (1 + cos²θ)
@@ -97,19 +97,19 @@ float RayleighPhase(float cos_theta) {
 }
 ```
 
-`cos_theta` は <strong>入射の向きと散乱の向きの、内積</strong>です。式は `cos²θ` を含むので <strong>前後対称</strong>で、ゆるやかな変化です。
+`cos_theta` は 入射の向きと散乱の向きの、内積です。式は `cos²θ` を含むので 前後対称で、ゆるやかな変化です。
 
-レイリー散乱は <strong>波長の 4 乗に、反比例</strong>する <strong>散乱の強さ</strong>（[Atmosphere Model](atmosphere-model.md)）を、持ちます。位相関数は向きの分布だけを決め、強さ（青が強い）は散乱係数が、決めます。
+レイリー散乱は 波長の 4 乗に、反比例する 散乱の強さ（[Atmosphere Model](atmosphere-model.md)）を、持ちます。位相関数は向きの分布だけを決め、強さ（青が強い）は散乱係数が、決めます。
 
 ## ミー散乱：エアロゾルと水滴
 
-<strong>光の波長と同じ程度の大きさの粒子</strong>（塵、水滴、霧）による散乱です。<strong>前方に強く散ります</strong>。霧の中の太陽が白くまぶしく見えるのは、前方散乱が強いためです。
+<strong>光の波長と同じ程度の大きさの粒子</strong>（塵、水滴、霧）による散乱です。前方に強く散ります。霧の中の太陽が白くまぶしく見えるのは、前方散乱が強いためです。
 
-厳密な <strong>Mie 理論</strong>の式は、<strong>複雑</strong>で重いので近似式を使います。
+厳密な Mie 理論の式は、複雑で重いので近似式を使います。
 
 ### Henyey–Greenstein（HG）
 
-Henyey と Greenstein（1941）の、<strong>単純な近似</strong>です。<strong>非対称パラメーター `g`</strong>（−1〜1）が前方か後方か、どれだけ偏るかを決めます。
+Henyey と Greenstein（1941）の、単純な近似です。非対称パラメーター `g`（−1〜1）が前方か後方か、どれだけ偏るかを決めます。
 
 ```text
 P_HG(θ, g) = (1 − g²) / ( 4π × (1 + g² − 2 g cosθ)^(3/2) )
@@ -123,7 +123,7 @@ float HenyeyGreenstein(float cos_theta, float g) {
 }
 ```
 
-`denom`（分母の中の 1 + g² − 2g cosθ）は、<strong>`cosθ = 1`（前方）のとき最小</strong>（`(1 − g)²`）になり <strong>値が、最大</strong>になります。`g` を大きくするほど前方への偏りが、強くなります。
+`denom`（分母の中の 1 + g² − 2g cosθ）は、`cosθ = 1`（前方）のとき最小（`(1 − g)²`）になり 値が、最大になります。`g` を大きくするほど前方への偏りが、強くなります。
 
 | `g` | 散り方 | 例 |
 | --- | --- | --- |
@@ -132,11 +132,11 @@ float HenyeyGreenstein(float cos_theta, float g) {
 | 0.7〜0.9 | 強く、前方 | 雲、濃い霧、太陽の周りの明るい輪（ハロー） |
 | 負 | 後方に偏る | — |
 
-`max(denom, 1e-4)` は <strong>`g` が 1 に近く `cosθ` も 1 に近い</strong>ときの、<strong>ゼロ割</strong>（無限大）を防ぎます。
+`max(denom, 1e-4)` は `g` が 1 に近く `cosθ` も 1 に近いときの、ゼロ割（無限大）を防ぎます。
 
 ### Cornette–Shanks
 
-HG は <strong>後方散乱の再現が不十分</strong>です。<strong>Cornette と Shanks（1992）</strong>は、レイリーに近い形の項（`1 + cos²θ`）を足してより実際の、ミー散乱に近い形に直しました。
+HG は 後方散乱の再現が不十分です。Cornette と Shanks（1992）は、レイリーに近い形の項（`1 + cos²θ`）を足してより実際の、ミー散乱に近い形に直しました。
 
 ```text
 P_CS(θ, g) = 3 / (8π) × (1 − g²) / (2 + g²) × (1 + cos²θ) / (1 + g² − 2 g cosθ)^(3/2)
@@ -150,11 +150,11 @@ float CornetteShanks(float cos_theta, float g) {
 }
 ```
 
-<strong>HG との違い</strong>は <strong>分子の `(1 + cos²θ)`</strong> です。横や後ろへの散り方が少し多くなります。大気のミー散乱（Hillaire の実装の、標準）では `g ≈ 0.8` の Cornette–Shanksが、使われます。
+HG との違いは 分子の `(1 + cos²θ)` です。横や後ろへの散り方が少し多くなります。大気のミー散乱（Hillaire の実装の、標準）では `g ≈ 0.8` の Cornette–Shanksが、使われます。
 
 ## 2 つの HG を混ぜる
 
-<strong>雲</strong>や <strong>霧</strong>の実際の散乱は、前方への強い山と後方への小さな山を両方、持ちます。HG を 2 つ（前方 `g > 0` と、後方 `g < 0`）、混ぜると近似できます。
+<strong>雲</strong>や 霧の実際の散乱は、前方への強い山と後方への小さな山を両方、持ちます。HG を 2 つ（前方 `g > 0` と、後方 `g < 0`）、混ぜると近似できます。
 
 ```hlsl
 // 2 つの HG の、混合。前方の強い山と、後方の弱い山。
@@ -164,9 +164,9 @@ float DualLobePhase(float cos_theta, float g_forward, float g_back, float blend)
 // 雲の例: g_forward = 0.8、g_back = −0.5、blend = 0.7
 ```
 
-`blend` が <strong>前方の山の割合</strong>です。<strong>雲の太陽側の縁が明るく光る</strong>（前方散乱）効果と雲の、太陽と反対側がうっすら明るい（後方散乱）効果を両方、出せます（[Cloud Lighting](../clouds/lighting.md)）。
+`blend` が 前方の山の割合です。雲の太陽側の縁が明るく光る（前方散乱）効果と雲の、太陽と反対側がうっすら明るい（後方散乱）効果を両方、出せます（[Cloud Lighting](../clouds/lighting.md)）。
 
-Jendersie と d'Eon（2023）は、<strong>雲や霧の Mie 散乱により近い</strong>、<strong>1 つの近似式</strong>（HG と、他の関数の混合）を提案しています。
+Jendersie と d'Eon（2023）は、雲や霧の Mie 散乱により近い、1 つの近似式（HG と、他の関数の混合）を提案しています。
 
 ## どれを使うか
 
@@ -190,12 +190,12 @@ float phase_r = RayleighPhase(cos_theta);
 float phase_m = CornetteShanks(cos_theta, 0.8);
 ```
 
-<strong>光の進む向き</strong>（太陽 → 点）と、<strong>散乱後の向き</strong>（点 → カメラ）の、間の角度が `θ` です。`cos θ` を取る向き（符号）を間違えると前方と後方が、逆になり太陽の反対側が明るい、おかしな空になります。向きの規約を 1 か所に決めて、位相関数に渡すことが重要です。
+光の進む向き（太陽 → 点）と、散乱後の向き（点 → カメラ）の、間の角度が `θ` です。`cos θ` を取る向き（符号）を間違えると前方と後方が、逆になり太陽の反対側が明るい、おかしな空になります。向きの規約を 1 か所に決めて、位相関数に渡すことが重要です。
 
 ## よくあるミス
 
 ??? failure "太陽の周りの、白いにじみが出ない"
-    <strong>ミー散乱の位相関数</strong>を<strong>入れる</strong>。
+    <strong>ミー散乱の位相関数</strong>を入れる。
 
 ## これだけ覚える
 

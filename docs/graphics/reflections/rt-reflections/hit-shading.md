@@ -6,7 +6,7 @@ tags:
 
 # Hit Shading and BVH
 
-<strong>レイが当たった所の「色」を決めるには、その点でライティングを計算する必要があります</strong>。<strong>そのために材質情報の取得と、BVH（加速構造）の準備</strong>が必要です。このページではヒット点のシェーディングの方法と、BVH の準備を説明します。
+<strong>レイが当たった所の「色」を決めるには、その点でライティングを計算する必要があります</strong>。そのために材質情報の取得と、BVH（加速構造）の準備が必要です。このページではヒット点のシェーディングの方法と、BVH の準備を説明します。
 
 !!! tip "ポイント"
     - ヒット点の材質（アルベド・法線・粗さ）を取り出して、ライティングする。
@@ -15,11 +15,11 @@ tags:
     - 動く物体は BVH を毎フレーム更新（再構築・リフィット）する。
 
 ## ヒット点のシェーディング
-<strong>当たった点</strong>の<strong>色</strong>をその場で計算します。最も重い部分です。
+<strong>当たった点</strong>の色をその場で計算します。最も重い部分です。
 
 | 方法 | 内容 | コスト |
 | --- | --- | --- |
-| <strong>クローゼスト ヒット シェーダー（フル）</strong> | ヒット点の<strong>マテリアル（テクスチャ・法線）</strong>を評価し、<strong>ライティング（直接光・影・間接光）</strong>を計算 | 大（反射の質は最高） |
+| クローゼスト ヒット シェーダー（フル） | ヒット点のマテリアル（テクスチャ・法線）を評価し、ライティング（直接光・影・間接光）を計算 | 大（反射の質は最高） |
 | 簡易シェーディング | ベースカラーと簡易ライトだけ。テクスチャの解像度を下げる（ミップを粗く） | 中 |
 | ライティング済みの結果を使う（ライト キャッシュ・G-Buffer のスクリーン空間が使える場合） | 画面内のヒットは、スクリーン空間のライティング結果を再利用 | 小 |
 | ミス → 空 | スカイ プローブ・スカイ ドーム | 最小 |
@@ -42,7 +42,7 @@ void ReflectionClosestHit(inout ReflectionPayload payload, BuiltInTriangleInters
 }
 ```
 
-<strong>マテリアルの評価</strong>（テクスチャの読み込み）は、<strong>画面の外</strong>なのでミップが決まらない問題があります（レイは微分がない）。ミップを距離・粗さから推定します（レイ コーン）。
+マテリアルの評価（テクスチャの読み込み）は、画面の外なのでミップが決まらない問題があります（レイは微分がない）。ミップを距離・粗さから推定します（レイ コーン）。
 
 ## BVH の準備
 | 項目 | 内容 |
@@ -56,11 +56,11 @@ void ReflectionClosestHit(inout ReflectionPayload payload, BuiltInTriangleInters
 
 ## レイが当たった面の色を求める
 
-<strong>反射レイ</strong>が <strong>三角形に当たる</strong>と、その面の色（反射として返す光）を、求める必要があります。DXR ではヒット シェーダー（closest hit shader）がこれを、行います。
+<strong>反射レイ</strong>が 三角形に当たると、その面の色（反射として返す光）を、求める必要があります。DXR ではヒット シェーダー（closest hit shader）がこれを、行います。
 
 ## 加速構造（BVH）
 
-<strong>レイがどの三角形に当たるか</strong>を、<strong>高速に探す</strong>ためにシーンの、三角形を加速構造（BVH：Bounding Volume Hierarchy、境界ボリューム階層）にまとめます。
+<strong>レイがどの三角形に当たるか</strong>を、高速に探すためにシーンの、三角形を加速構造（BVH：Bounding Volume Hierarchy、境界ボリューム階層）にまとめます。
 
 | 階層 | 内容 |
 | --- | --- |
@@ -84,7 +84,7 @@ TLAS（シーン全体）
 
 ## ヒット シェーダーの流れ
 
-<strong>ヒット シェーダー</strong>で <strong>当たった面の色</strong>を、計算します。
+<strong>ヒット シェーダー</strong>で 当たった面の色を、計算します。
 
 ```hlsl
 // 最も近い交点で、呼ばれる。当たった面の、属性（UV、法線、マテリアル）から、色を求める。
@@ -96,7 +96,7 @@ void ReflectionClosestHit(inout ReflectionPayload payload, in BuiltInTriangleInt
   float3 normal = normalize(mul(v.normal, (float3x3)ObjectToWorld3x4()));
 ```
 
-<strong>ヒット シェーダー</strong>では <strong>画面の G バッファが、無い</strong>（画面外の面かもしれない）ので、頂点バッファとインデックス バッファから、当たった三角形の属性を自分で、補間します（重心座標）。
+ヒット シェーダーでは 画面の G バッファが、無い（画面外の面かもしれない）ので、頂点バッファとインデックス バッファから、当たった三角形の属性を自分で、補間します（重心座標）。
 
 ```hlsl
   // ② マテリアルを、読む（アルベド、粗さなど）。テクスチャは、ミップを、手で選ぶ（レイは、画面の微分を、持たない）。
@@ -105,7 +105,7 @@ void ReflectionClosestHit(inout ReflectionPayload payload, in BuiltInTriangleInt
   float3 albedo = g_textures[m.albedo_index].SampleLevel(g_linear_wrap, v.uv, mip).rgb;
 ```
 
-<strong>ヒット シェーダーでは画面の微分</strong>（`ddx`、`ddy`）が <strong>使えません</strong>。ミップを自分で決める必要があり、レイ コーン（レイが進むほど広がる円錐の、幅）からミップを求めます（近似）。
+ヒット シェーダーでは画面の微分（`ddx`、`ddy`）が 使えません。ミップを自分で決める必要があり、レイ コーン（レイが進むほど広がる円錐の、幅）からミップを求めます（近似）。
 
 ```hlsl
   // ③ ライティング: 直接光（太陽 + 影レイ）+ 間接光（簡易）。
@@ -121,11 +121,11 @@ void ReflectionClosestHit(inout ReflectionPayload payload, in BuiltInTriangleInt
 }
 ```
 
-<strong>直接光</strong>は <strong>影レイ</strong>（光の方向に、短いレイを飛ばして遮られるか）で影を、判定します。間接光は簡易（SH、ライト プローブ）にします（反射の反射に、フル GIを使うと重すぎる）。
+直接光は 影レイ（光の方向に、短いレイを飛ばして遮られるか）で影を、判定します。間接光は簡易（SH、ライト プローブ）にします（反射の反射に、フル GIを使うと重すぎる）。
 
 ## コストを減らす工夫
 
-<strong>ヒット シェーダーが重い</strong>と、<strong>RT 反射全体が重く</strong>なります。当たる面のシェーディングは簡略化します。
+<strong>ヒット シェーダーが重い</strong>と、RT 反射全体が重くなります。当たる面のシェーディングは簡略化します。
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -138,7 +138,7 @@ void ReflectionClosestHit(inout ReflectionPayload payload, in BuiltInTriangleInt
 
 ## 反射の反射（再帰）
 
-<strong>反射レイが当たった面</strong>が <strong>さらに、反射する</strong>（つるつる）なら 2 回目の、反射レイを飛ばせます（再帰）。反射の中の反射です。
+<strong>反射レイが当たった面</strong>が さらに、反射する（つるつる）なら 2 回目の、反射レイを飛ばせます（再帰）。反射の中の反射です。
 
 | 再帰の深さ | 内容 |
 | --- | --- |
@@ -146,12 +146,12 @@ void ReflectionClosestHit(inout ReflectionPayload payload, in BuiltInTriangleInt
 | 2 | 1 回の反射の反射（鏡の部屋、向かい合う窓）。重い |
 | 3 以上 | 非常に重い。ほぼ不要（2 回目以降は暗く、見えにくい） |
 
-<strong>実用</strong>では <strong>再帰は 1〜2 回</strong>に制限し、それ以降はプローブや空の色で、打ち切ります。
+実用では 再帰は 1〜2 回に制限し、それ以降はプローブや空の色で、打ち切ります。
 
 ## よくあるミス
 
 ??? failure "BVH の更新が重く、フレーム時間が伸びる"
-    <strong>動かない物は静的 BVH</strong>に、<strong>動く物だけ更新</strong>する。
+    <strong>動かない物は静的 BVH</strong>に、動く物だけ更新する。
 
 ## これだけ覚える
 

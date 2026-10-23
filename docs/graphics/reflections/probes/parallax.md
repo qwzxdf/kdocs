@@ -6,7 +6,7 @@ tags:
 
 # Parallax Correction
 
-<strong>キューブマップは「プローブの位置から見た景色」なので、別の場所から見ると反射が実際とずれます</strong>。<strong>部屋の形の箱（ボックス）を想定して、レイと箱の交点を求めて補正する</strong>のが標準的な方法です。このページでは視差の問題・ボックス投影・補正の限界を説明します。
+<strong>キューブマップは「プローブの位置から見た景色」なので、別の場所から見ると反射が実際とずれます</strong>。部屋の形の箱（ボックス）を想定して、レイと箱の交点を求めて補正するのが標準的な方法です。このページでは視差の問題・ボックス投影・補正の限界を説明します。
 
 !!! tip "ポイント"
     - キューブマップは、無限遠の景色を前提にしているため、近くの壁がずれる。
@@ -17,7 +17,7 @@ tags:
 ## 視差の問題と補正
 ### 視差の問題
 
-プローブは <strong>1 点（プローブの位置）から見た景色</strong>です。<strong>面とプローブの位置が離れている</strong>と、面から見た景色とプローブから見た景色が、ずれます。
+プローブは <strong>1 点（プローブの位置）から見た景色</strong>です。面とプローブの位置が離れていると、面から見た景色とプローブから見た景色が、ずれます。
 
 <svg class="fig illust" viewBox="0 0 780 300" role="img" aria-label="視差の問題">
 <text x="20" y="24" class="fig-title">プローブの位置と、反射する面の位置が違うと、映り込みがずれる</text>
@@ -30,7 +30,7 @@ tags:
 <text x="420" y="290" style="font-size:12px">→ 実際より、遠く（別の場所）の景色が映ってしまう</text>
 </svg>
 
-特に<strong>平らな床</strong>で<strong>壁との境が実際より遠くに映る</strong>・物が宙に浮いて見えるといった症状が出ます。
+特に平らな床で壁との境が実際より遠くに映る・物が宙に浮いて見えるといった症状が出ます。
 
 <!-- fig:parallax-box:begin -->
 
@@ -167,11 +167,11 @@ tags:
 
 ### 視差補正：プローブの範囲を箱で近似する
 
-<strong>プローブが写している範囲（部屋）を、箱（または球）で近似</strong>します。<strong>反射レイ</strong>を表面の位置 p から R 方向に飛ばして、箱と交差する点 H を求めます。プローブの位置から H への方向で、キューブマップを引きます。
+プローブが写している範囲（部屋）を、箱（または球）で近似します。反射レイを表面の位置 p から R 方向に飛ばして、箱と交差する点 H を求めます。プローブの位置から H への方向で、キューブマップを引きます。
 
 <div class="formula">H = p + R · t　（レイと箱の交点）、　引く方向 R′ = H − probe_pos</div>
 
-<strong>表面の位置 p から</strong>、<strong>本当に当たる壁（H）</strong>を求めて、そこを<strong>プローブから見た方向</strong>で引き直すので、視差のずれが補正されます。
+表面の位置 p から、本当に当たる壁（H）を求めて、そこをプローブから見た方向で引き直すので、視差のずれが補正されます。
 
 ### 箱（AABB）との交差
 
@@ -195,7 +195,7 @@ float3 BoxProjection(float3 world_pos, float3 R, float3 probe_pos,
 | 戻り値 | プローブから見た方向（正規化はサンプラーが不要） |
 
 !!! note "箱の範囲の決め方"
-    <strong>プローブが写す範囲</strong>（影響範囲）を、<strong>部屋の大きさに合わせた箱</strong>にします。箱が実際の壁と合っているほど、補正が正確です。合っていないと補正が逆効果になることもあります。
+    プローブが写す範囲（影響範囲）を、部屋の大きさに合わせた箱にします。箱が実際の壁と合っているほど、補正が正確です。合っていないと補正が逆効果になることもあります。
 
 ### 視差補正の限界
 
@@ -208,7 +208,7 @@ float3 BoxProjection(float3 world_pos, float3 R, float3 probe_pos,
 
 ## 箱による視差補正
 
-<strong>部屋を箱</strong>と <strong>近似</strong>します。反射レイを箱と交差させて当たった位置を求め、その位置からプローブへの向きで、キューブマップを引き直します（Bjorke、2004、Lagarde と Zanuttini、2012）。
+<strong>部屋を箱</strong>と 近似します。反射レイを箱と交差させて当たった位置を求め、その位置からプローブへの向きで、キューブマップを引き直します（Bjorke、2004、Lagarde と Zanuttini、2012）。
 
 ```text
   P ──R──→ A（箱の壁との、交点）
@@ -228,18 +228,18 @@ float3 ParallaxCorrect(float3 R, float3 world_pos, float3 box_min, float3 box_ma
 }
 ```
 
-<strong>スラブ法</strong>で <strong>レイと箱の交点</strong>を、求めます。各軸についてレイが箱の外へ出る、平面までの距離を求めその最小が箱から出る、距離です。交点からプローブへの向きが補正した、反射方向です。
+スラブ法で レイと箱の交点を、求めます。各軸についてレイが箱の外へ出る、平面までの距離を求めその最小が箱から出る、距離です。交点からプローブへの向きが補正した、反射方向です。
 
 ```hlsl
 float3 corrected = ParallaxCorrect(R, input.world_position, g_probe_box_min, g_probe_box_max, g_probe_position);
 float3 prefiltered = g_probe_cube.SampleLevel(g_linear_clamp, corrected, mip).rgb;
 ```
 
-<strong>補正した方向</strong>で <strong>キューブマップを、引く</strong>だけで反射が面の位置に合い窓が歩くと動いて、見えます。
+補正した方向で キューブマップを、引くだけで反射が面の位置に合い窓が歩くと動いて、見えます。
 
 ## 箱の設定
 
-<strong>箱</strong>は <strong>部屋の形に合わせて</strong>、アーティストが設定します。
+<strong>箱</strong>は 部屋の形に合わせて、アーティストが設定します。
 
 | 設定 | 内容 |
 | --- | --- |
@@ -249,7 +249,7 @@ float3 prefiltered = g_probe_cube.SampleLevel(g_linear_clamp, corrected, mip).rg
 
 ## 球による補正（屋外）
 
-<strong>屋外</strong>（<strong>箱ではない広い空間</strong>）では球で、近似する方法もあります。半径を環境の大きさに合わせます。
+<strong>屋外</strong>（箱ではない広い空間）では球で、近似する方法もあります。半径を環境の大きさに合わせます。
 
 ```hlsl
 // 球による、視差補正（プローブを、中心とした、半径 radius の球）。
@@ -262,7 +262,7 @@ float3 ParallaxCorrectSphere(float3 R, float3 world_pos, float3 center, float ra
 }
 ```
 
-<strong>球は箱より単純</strong>ですが <strong>部屋の、形</strong>（直方体）には合いにくいので、屋内には箱、屋外・円形の空間には球を使い分けます。
+球は箱より単純ですが 部屋の、形（直方体）には合いにくいので、屋内には箱、屋外・円形の空間には球を使い分けます。
 
 ## 補正の限界
 
@@ -275,13 +275,13 @@ float3 ParallaxCorrectSphere(float3 R, float3 world_pos, float3 center, float ra
 
 ## 補正の強さを調整する
 
-<strong>補正した方向</strong>と <strong>補正なしの、方向</strong>を補間して補正の強さを、調整します。
+<strong>補正した方向</strong>と 補正なしの、方向を補間して補正の強さを、調整します。
 
 ```hlsl
 float3 dir = lerp(R, corrected, g_parallax_strength);                    // 0 = 補正なし、1 = 完全な補正
 ```
 
-<strong>部屋の形に合わない</strong>場合、<strong>弱める</strong>（0.5〜0.8）と破綻が、目立ちません。
+部屋の形に合わない場合、弱める（0.5〜0.8）と破綻が、目立ちません。
 
 ## よくあるミス
 

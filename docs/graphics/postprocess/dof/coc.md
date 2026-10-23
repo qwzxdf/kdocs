@@ -6,20 +6,20 @@ tags:
 
 # Circle of Confusion (CoC)
 
-<strong>錯乱円（Circle of Confusion、CoC）</strong>は、<strong>ピントが合っていない点が、センサー上に作る「円」</strong>です。<strong>この円の大きさがそのままボケの大きさ</strong>になります。<strong>DOF の最初の仕事は、画面の各画素について、この CoC を求めること</strong>です。このページでは、光学的な仕組み・薄いレンズの式・CoC のグラフ・ピクセルへの換算・符号の意味・物理ベースとアーティスト向けの簡易式を説明します。
+<strong>錯乱円（Circle of Confusion、CoC）</strong>は、ピントが合っていない点が、センサー上に作る「円」です。この円の大きさがそのままボケの大きさになります。DOF の最初の仕事は、画面の各画素について、この CoC を求めることです。このページでは、光学的な仕組み・薄いレンズの式・CoC のグラフ・ピクセルへの換算・符号の意味・物理ベースとアーティスト向けの簡易式を説明します。
 
 !!! tip "ポイント"
     - ピントが合った点は<strong>センサー上で 1 点</strong>、<strong>ずれた点は円（CoC）</strong>になる。
-    - <strong>CoC の大きさ</strong>は<strong>絞り（F 値）・焦点距離・ピント距離・被写体の距離</strong>で決まる。
-    - <strong>絞りを開く・望遠にする・被写体に近づく</strong>と<strong>ボケが大きくなる</strong>。
-    - <strong>背景は無限遠で CoC が飽和</strong>する。<strong>前景は近づくほど急に大きくなる</strong>。
-    - <strong>符号付きで持つ</strong>：<strong>前景（ピントより手前）は負、背景は正</strong>。
-    - <strong>画素数に換算し、最大値でクランプ</strong>する（<strong>コストの上限</strong>）。
-    - <strong>線形な深度</strong>（ビュー空間の z）を使う。
+    - CoC の大きさは絞り（F 値）・焦点距離・ピント距離・被写体の距離で決まる。
+    - 絞りを開く・望遠にする・被写体に近づくとボケが大きくなる。
+    - 背景は無限遠で CoC が飽和する。前景は近づくほど急に大きくなる。
+    - 符号付きで持つ：前景（ピントより手前）は負、背景は正。
+    - 画素数に換算し、最大値でクランプする（コストの上限）。
+    - 線形な深度（ビュー空間の z）を使う。
 
 ## 光学の仕組み
 
-<strong>レンズはある距離の点をセンサー上の 1 点に集めます</strong>（<strong>ピントが合う距離</strong>）。それより近い点・遠い点はセンサーの前や後ろで像を結び、センサー上では広がった円になります。
+<strong>レンズはある距離の点をセンサー上の 1 点に集めます</strong>（ピントが合う距離）。それより近い点・遠い点はセンサーの前や後ろで像を結び、センサー上では広がった円になります。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="錯乱円の仕組み">
 <text x="20" y="26" class="fig-title">ピント面にない点は、センサー上で円になる</text>
@@ -37,7 +37,7 @@ tags:
 
 ## 薄いレンズの式から
 
-<strong>薄いレンズの式</strong>から、<strong>CoC の直径</strong>（センサー上の長さ）が導けます。
+<strong>薄いレンズの式</strong>から、CoC の直径（センサー上の長さ）が導けます。
 
 <div class="formula">CoC = A · |S₂ − S₁| / S₂ · f / (S₁ − f)　（A = f / N）</div>
 
@@ -51,8 +51,8 @@ tags:
 
 | 要因 | ボケの大きさ |
 | --- | --- |
-| <strong>絞りを開く（N を小さく）</strong> | 大きくなる |
-| <strong>焦点距離を長く（望遠）</strong> | 大きくなる |
+| 絞りを開く（N を小さく） | 大きくなる |
+| 焦点距離を長く（望遠） | 大きくなる |
 | 被写体を近づける | 大きくなる |
 | ピント面から離れる | 大きくなる（背景は無限遠で頭打ち） |
 
@@ -113,13 +113,13 @@ tags:
 
 ## CoC のグラフの形
 
-<strong>被写体の距離 S₂ を横軸</strong>にすると、<strong>CoC は次の形</strong>になります。
+<strong>被写体の距離 S₂ を横軸</strong>にすると、CoC は次の形になります。
 
 - S₂ = S₁（ピント面）で 0。
 - 手前（S₂ < S₁）に行くと急に大きくなる（前景のボケは近いほど極端）。
 - 奥（S₂ > S₁）に行くと緩やかに大きくなり、無限遠で一定の値に近づく。
 
-<strong>したがって、前景は大きくぼけ、背景はある大きさで頭打ち</strong>になります。
+したがって、前景は大きくぼけ、背景はある大きさで頭打ちになります。
 
 ## HLSL
 
@@ -156,11 +156,11 @@ float SignedCocPixels(float linear_depth) {
 | センサー高さで割って画素数へ | ミリメートルの CoC を、画像の画素数に換算 |
 | `max_coc_in_pixels` | <strong>ボケの最大半径（画素）</strong>。コストの上限（20〜50 画素） |
 
-<strong>単位をそろえる</strong>ことが<strong>大切</strong>です（焦点距離・距離・センサー高さをすべてミリメートルかメートルに）。
+単位をそろえることが大切です（焦点距離・距離・センサー高さをすべてミリメートルかメートルに）。
 
 ## アーティスト向けの簡易式
 
-<strong>物理式はパラメータの意味が直感的でない</strong>ことがあります。<strong>「ピント距離・ピントが合う幅・ぼかしの強さ」</strong>だけで<strong>決める簡易式</strong>もよく使われます。
+<strong>物理式はパラメータの意味が直感的でない</strong>ことがあります。「ピント距離・ピントが合う幅・ぼかしの強さ」だけで決める簡易式もよく使われます。
 
 ```hlsl
 float SimpleCoc(float linear_depth, float focus, float range, float scale) {
@@ -189,22 +189,22 @@ float SimpleCoc(float linear_depth, float focus, float range, float scale) {
     <strong>ビュー空間の線形な z に直してから</strong>使う。
 
 ??? failure "単位がバラバラで、ボケの大きさが極端になる"
-    <strong>焦点距離・距離・センサー高さの単位をそろえる</strong>。
+    焦点距離・距離・センサー高さの単位をそろえる。
 
 ??? failure "前景と背景の符号を持たず、前景のボケが背景扱いになる"
-    <strong>符号付きで持ち、前景・背景を別に処理</strong>する（[Foreground and Background](near-far.md)）。
+    符号付きで持ち、前景・背景を別に処理する（[Foreground and Background](near-far.md)）。
 
 ??? failure "ピント距離が、画面中心の深度に追従せず、ガクガク動く"
-    <strong>ピント距離を時間で滑らかに追従</strong>させる。
+    ピント距離を時間で滑らかに追従させる。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] CoC ＝ <strong>ピント外の点が、センサー上に作る円</strong>。<strong>大きさ ＝ ボケの大きさ</strong>
-    - [x] <strong>`CoC = A·|S₂−S₁|/S₂·f/(S₁−f)`</strong>。<strong>絞りを開く・望遠・近づくと大きい</strong>
-    - [x] <strong>前景は急に、背景は頭打ち</strong>。<strong>符号付きで持つ</strong>
-    - [x] <strong>画素数に換算し、最大値でクランプ</strong>
-    - [x] <strong>線形な深度</strong>を使う。<strong>単位をそろえる</strong>
+    - [x] CoC ＝ <strong>ピント外の点が、センサー上に作る円</strong>。大きさ ＝ ボケの大きさ
+    - [x] `CoC = A·|S₂−S₁|/S₂·f/(S₁−f)`。絞りを開く・望遠・近づくと大きい
+    - [x] 前景は急に、背景は頭打ち。符号付きで持つ
+    - [x] 画素数に換算し、最大値でクランプ
+    - [x] 線形な深度を使う。単位をそろえる
 
 ## 参考
 

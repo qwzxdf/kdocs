@@ -17,13 +17,16 @@ tags:
 `#include <chrono>`
 </div>
 
-`std::chrono` は、**時間の長さ・時刻・時計を扱うライブラリ**です。「何秒か」を表す `duration`、「ある時点」を表す `time_point`、今の時刻を教えてくれる「時計」（clock）の 3 つが中心です。単位（秒・ミリ秒など）を型で区別するので、「ミリ秒のつもりで秒を渡した」ような間違いがコンパイル時に見つかります。
+フレームの処理に何ミリ秒かかったか。前のフレームから何秒たったか。時間を扱うとき、数値だけで持つと、秒なのかミリ秒なのかが分からなくなります。`std::chrono` は、時間の長さ・時刻・時計を扱うライブラリです。「何秒か」を表す `duration`、「ある時点」を表す `time_point`、現在の時刻を教える時計（clock）の 3 つが中心で、単位を型で区別するので、取り違えがコンパイルで見つかります。
 
 !!! tip "ポイント"
     - <strong>フレーム時間・処理時間の計測は `std::chrono::steady_clock::now()` の差。</strong> 時計が巻き戻らないので安全。
     - 秒の小数（`float`）が欲しいなら `std::chrono::duration<float>(差).count()`。
     - `using namespace std::chrono_literals;` で `16ms`、`3s` のように書ける。
     - カレンダーの日付・現在時刻の表示は `system_clock`。
+
+!!! info "このページを読む前に"
+    時間の単位（秒、ミリ秒）と、時刻と時間の長さの違いが分かると読みやすいです。
 
 ## 主な型
 
@@ -94,6 +97,20 @@ tags:
 | [`std::chrono::parse`](chrono/parse.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列を書式に従って読み込み、chrono の型にするための入力マニピュレータ。 <span class="ver ver-20">C++20</span> |
 | [`std::chrono::from_stream`](chrono/from_stream.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリームから書式に従って chrono の型を読み込む。 <span class="ver ver-20">C++20</span> |
 | [`std::chrono::to_stream`](chrono/to_stream.md) | <span class="rank rank-rare">知ってるだけ</span> | 書式に従って chrono の型をストリームに書き出す。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::abs`](chrono/abs.md) | <span class="rank rank-rare">知ってるだけ</span> | duration の絶対値を返す。 <span class="ver ver-17">C++17</span> |
+| [`std::chrono::ceil`](chrono/ceil.md) | <span class="rank rank-rare">知ってるだけ</span> | duration / time_point を、指定した単位に切り上げる。 <span class="ver ver-17">C++17</span> |
+| [`std::chrono::round`](chrono/round.md) | <span class="rank rank-rare">知ってるだけ</span> | duration / time_point を、指定した単位に四捨五入する。 <span class="ver ver-17">C++17</span> |
+| [`std::chrono::is_clock`](chrono/is_clock.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が chrono の「時計」の条件を満たすかを調べる型特性。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::local_t`](chrono/local_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 「どのタイムゾーンでもない、地域の時刻」を表す疑似の時計の型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::choose`](chrono/choose.md) | <span class="rank rank-rare">知ってるだけ</span> | 曖昧なローカル時刻の変換で、どちらを選ぶかを指定する列挙型。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::reload_tzdb`](chrono/reload_tzdb.md) | <span class="rank rank-rare">知ってるだけ</span> | タイムゾーンのデータベースを、最新のものに読み込み直す。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::remote_version`](chrono/remote_version.md) | <span class="rank rank-rare">知ってるだけ</span> | OS が持つ、最新のタイムゾーンデータベースの版を返す。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::zoned_traits`](chrono/zoned_traits.md) | <span class="rank rank-rare">知ってるだけ</span> | zoned_time が、ゾーンの指定をどう解釈するかを決める特性。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::tai_time`](chrono/tai_time.md) | <span class="rank rank-rare">知ってるだけ</span> | tai_clock の時点（単位を選べる）を表す別名。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::tai_seconds`](chrono/tai_seconds.md) | <span class="rank rank-rare">知ってるだけ</span> | tai_clock の時点（秒単位）を表す別名。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::gps_time`](chrono/gps_time.md) | <span class="rank rank-rare">知ってるだけ</span> | gps_clock の時点（単位を選べる）を表す別名。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::gps_seconds`](chrono/gps_seconds.md) | <span class="rank rank-rare">知ってるだけ</span> | gps_clock の時点（秒単位）を表す別名。 <span class="ver ver-20">C++20</span> |
+| [`std::chrono::utc_seconds`](chrono/utc_seconds.md) | <span class="rank rank-rare">知ってるだけ</span> | utc_clock の時点（秒単位）を表す別名。 <span class="ver ver-20">C++20</span> |
 
 ## 関数一覧
 
@@ -220,13 +237,11 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 例 |
-| --- | --- |
-| デルタタイム | `duration<float>(now - prev).count()` |
-| クールダウン | `now >= last_used + 1500ms` |
-| 処理時間の計測（プロファイル） | `duration_cast<microseconds>(end - start)` |
-| プレイ時間 | `seconds` で保存して `hh:mm:ss` で表示 |
-| セーブの日時 | `system_clock::now()` |
+フレーム時間とデルタタイムの計測が基本です。`steady_clock::now()` を毎フレーム取って、前のフレームとの差を `duration<float>` で受ければ、秒の `float` が得られます。位置の更新は、これに速度を掛けて行います。
+
+処理時間の計測にも使います。重そうな処理の前後で時刻を取り、差をログに出します。単位つきで書けるので、`16ms` や `3s` のように、読みやすくなります。
+
+待ち時間やタイムアウトの指定、クールダウンの管理にも向いています。現在の日時が必要なら、`system_clock` を使います。計測には、巻き戻らない `steady_clock` を選びます。
 
 ## パフォーマンス
 

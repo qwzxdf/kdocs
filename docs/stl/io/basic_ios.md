@@ -123,6 +123,120 @@ using ios = basic_ios<char>;
 
 `basic_ios<char>` の別名で、すべての `char` ストリームの土台です。`std::ios::sync_with_stdio` のような static な関数や、`std::ios::in` のようなフラグも、`ios_base` から受け継いでいるため、`std::ios::` で書けます。
 
+### eof {#eof}
+
+```cpp
+bool eof() const;
+```
+
+- 計算量: 定数
+
+入力が終端に達していれば `true`。ループの条件に使うと、最後に 1 回余分に読むことがあります。読み込みの成否で判定します。
+
+### clear {#clear}
+
+```cpp
+void clear(iostate state = goodbit);
+```
+
+- 計算量: 定数
+
+状態フラグを `state` で**置き換え**ます（既定は、エラーなしに戻す）。失敗したあとに、読み込みを再開するために使います。
+
+### tie {#tie}
+
+```cpp
+std::ostream* tie() const;
+std::ostream* tie(std::ostream* tiestr);
+```
+
+- 計算量: 定数
+
+入力の前に自動でフラッシュされる、結び付いた出力ストリームを返す、または設定します。`cin` は `cout` と結び付いています。`cin.tie(nullptr)` で解除すると、速くなります。
+
+### rdbuf {#rdbuf}
+
+```cpp
+std::streambuf* rdbuf() const;
+std::streambuf* rdbuf(std::streambuf* sb);
+```
+
+- 計算量: 定数
+
+ストリームバッファを返す、または付け替えます。`cout` の出力先を、一時的にファイルや文字列に切り替えられます。
+
+### copyfmt {#copyfmt}
+
+```cpp
+basic_ios& copyfmt(const basic_ios& rhs);
+```
+
+- 計算量: 定数
+
+書式の設定（フラグ・幅・桁数・ロケール・埋め文字）を、別のストリームからコピーします。
+
+### fill {#fill}
+
+```cpp
+char_type fill() const;
+char_type fill(char_type ch);
+```
+
+- 計算量: 定数
+
+幅を埋める文字（既定は空白）を返す、または設定します。`setfill` と同じ働きです。
+
+### narrow {#narrow}
+
+```cpp
+char narrow(char_type c, char dfault) const;
+```
+
+- 計算量: 定数
+
+`wchar_t` などの文字を `char` に変換します。変換できなければ `dfault` を返します。
+
+### widen {#widen}
+
+```cpp
+char_type widen(char c) const;
+```
+
+- 計算量: 定数
+
+`char` を、ストリームの文字型に変換します。
+
+### exceptions {#exceptions}
+
+```cpp
+iostate exceptions() const;
+void exceptions(iostate except);
+```
+
+- 計算量: 定数
+
+どの状態フラグが立ったときに、例外（`ios_base::failure`）を投げるかを設定します。
+
+### explicit operator bool {#op_bool}
+
+```cpp
+explicit operator bool() const;
+```
+
+- 計算量: 定数
+
+`!fail()` と同じです。`if (in >> x)` のように、読み込みの成否を判定するのに使います。
+
+### swap {#swap}
+
+```cpp
+void swap(basic_ios& rhs) noexcept;
+```
+
+- 計算量: 定数
+
+ストリームの状態と書式を入れ替えます（バッファは入れ替えません）。
+
 ## 実際に動かしてみる
 
 ```cpp

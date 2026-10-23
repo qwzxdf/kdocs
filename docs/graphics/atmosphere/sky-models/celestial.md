@@ -6,7 +6,7 @@ tags:
 
 # Sun, Moon and Stars
 
-<strong>空には太陽・月・星があります</strong>。<strong>太陽はディスク、月はテクスチャ付きの球、星は点の集まりで描きます</strong>。このページでは天体の描き方を説明します。
+<strong>空には太陽・月・星があります</strong>。太陽はディスク、月はテクスチャ付きの球、星は点の集まりで描きます。このページでは天体の描き方を説明します。
 
 !!! tip "ポイント"
     - 太陽 ＝ 明るいディスク ＋ 光の拡がり。
@@ -15,11 +15,11 @@ tags:
     - 昼は星が見えない（空の明るさに負ける）。
 
 ## 太陽・月・星
-<strong>空の主役</strong>は<strong>太陽</strong>です。
+<strong>空の主役</strong>は太陽です。
 
 ### 太陽の円盤
 
-<strong>太陽は視線と太陽の方向の角度が小さい所だけ、非常に明るい円盤</strong>です。<strong>実際の太陽の見た目の大きさは、約 0.53°</strong>（半径 約 0.265°）です。
+太陽は視線と太陽の方向の角度が小さい所だけ、非常に明るい円盤です。実際の太陽の見た目の大きさは、約 0.53°（半径 約 0.265°）です。
 
 ```hlsl
 float SunDisk(float3 view_dir, float3 sun_dir) {
@@ -35,12 +35,12 @@ float SunDisk(float3 view_dir, float3 sun_dir) {
 | 角度を内積で | `acos` を避け、`cos` の値で比べる |
 | 縁を少し滑らかに | ジャギーを防ぐ（TAA で滑らかになる） |
 | HDR の強度 | 昼の太陽は空の 1 万倍以上明るい。ブルームが光る |
-| <strong>周りのにじみ（コロナ）</strong> | 指数関数的に減る光を足す：`exp(-angle * k)` |
+| 周りのにじみ（コロナ） | 指数関数的に減る光を足す：`exp(-angle * k)` |
 | 大きすぎる太陽は不自然 | 誇張しすぎない |
 
 ### 夕焼けの色
 
-<strong>太陽が地平線に近づくと光が大気を長く通る</strong>ので、<strong>青が散り尽くして赤が残ります</strong>。太陽の色を高さに応じて変えるだけで、夕焼けの雰囲気が出ます。
+太陽が地平線に近づくと光が大気を長く通るので、青が散り尽くして赤が残ります。太陽の色を高さに応じて変えるだけで、夕焼けの雰囲気が出ます。
 
 ```hlsl
 float3 SunColor(float sun_height) {
@@ -49,14 +49,14 @@ float3 SunColor(float sun_height) {
 }
 ```
 
-<strong>正確には大気の透過率（光学的厚さ）から求めます</strong>（[Atmospheric Scattering](../scattering/index.md)）。
+正確には大気の透過率（光学的厚さ）から求めます（[Atmospheric Scattering](../scattering/index.md)）。
 
 ### 月と星
 
 | 要素 | 内容 |
 | --- | --- |
 | 月 | 太陽と同様に円盤。月の満ち欠けは太陽の向きとの角度から、球の陰影で表す |
-| 星 | <strong>星空のキューブマップ（HDR）</strong>を回して貼る。空が暗いほど見える（昼の明るさで消える） |
+| 星 | 星空のキューブマップ（HDR）を回して貼る。空が暗いほど見える（昼の明るさで消える） |
 | 夜空の明るさ | 月明かり・星明かりを環境光に足す |
 | またたき | 星に時間でわずかな明滅 |
 
@@ -91,15 +91,15 @@ float3 sky = day_sky + stars * night_factor;
 
 ## 太陽・月・星を空に置く
 
-大気の散乱で空の色が決まっても、<strong>太陽の円盤</strong>、<strong>月</strong>、星が無ければ空はのっぺりしています。これらの天体を空に描き足します。
+大気の散乱で空の色が決まっても、<strong>太陽の円盤</strong>、月、星が無ければ空はのっぺりしています。これらの天体を空に描き足します。
 
 ## 太陽の位置
 
-太陽の <strong>方向</strong>（空のどこにあるか）は、<strong>時刻</strong>と緯度・日付から決まります。
+太陽の <strong>方向</strong>（空のどこにあるか）は、時刻と緯度・日付から決まります。
 
 ### 簡易版：ゲームの時刻から
 
-ゲームでは <strong>1 日を数十分〜数時間</strong>に縮めて、<strong>太陽を一定の速さで動かす</strong>ことが、多いです。時刻（0〜24）から太陽の天頂角と、方位角を決めます。
+ゲームでは 1 日を数十分〜数時間に縮めて、太陽を一定の速さで動かすことが、多いです。時刻（0〜24）から太陽の天頂角と、方位角を決めます。
 
 ```hlsl
 // 時刻（0〜24）から、太陽の方向（光が来る向き）を求める。単純化: 東から昇り、西に沈む、円軌道。
@@ -108,7 +108,7 @@ float3 SunDirection(float hour, float latitude_rad, float axial_tilt_rad) {
   float elevation_noon = 3.14159265 * 0.5 - latitude_rad + axial_tilt_rad;   // 正午の、太陽の高さ（概算）
 ```
 
-<strong>時角</strong>（<strong>正午を 0</strong> とした時刻の、角度）が地球の自転を表します。1 時間が 15°（360° / 24）です。
+時角（正午を 0 とした時刻の、角度）が地球の自転を表します。1 時間が 15°（360° / 24）です。
 
 ```hlsl
   // 太陽の、赤緯（日付による、高さの変化）。ここでは、axial_tilt で、近似。
@@ -120,7 +120,7 @@ float3 SunDirection(float hour, float latitude_rad, float axial_tilt_rad) {
   if (hour_angle > 0.0) azimuth = 2.0 * 3.14159265 - azimuth;          // 午後は、西側
 ```
 
-<strong>緯度</strong>、<strong>赤緯</strong>（季節）、時角から太陽の高さ（仰角）と方位が、天文学の標準的な式で決まります。ゲームでは緯度や赤緯を固定して、時角だけを動かすのが普通です。
+緯度、赤緯（季節）、時角から太陽の高さ（仰角）と方位が、天文学の標準的な式で決まります。ゲームでは緯度や赤緯を固定して、時角だけを動かすのが普通です。
 
 ```hlsl
   // 方位角・仰角から、方向ベクトルへ（右手系、Y 上）。方位角は、北を 0、東を +90° とする。
@@ -128,11 +128,11 @@ float3 SunDirection(float hour, float latitude_rad, float axial_tilt_rad) {
 }
 ```
 
-<strong>天文学の精密な位置計算</strong>（日付、時刻、緯度・経度から）は Meeus の『Astronomical Algorithms』（1991）に、<strong>詳しい式</strong>があります。リアルな星空（実在の星座）を、再現したいときに必要です。
+天文学の精密な位置計算（日付、時刻、緯度・経度から）は Meeus の『Astronomical Algorithms』（1991）に、詳しい式があります。リアルな星空（実在の星座）を、再現したいときに必要です。
 
 ## 太陽の円盤
 
-太陽は <strong>視直径が約 0.53°</strong> の、<strong>明るい円盤</strong>です。大気の散乱だけでは円盤が描かれません。円盤を明るさつきで描き足します。
+太陽は <strong>視直径が約 0.53°</strong> の、明るい円盤です。大気の散乱だけでは円盤が描かれません。円盤を明るさつきで描き足します。
 
 ```hlsl
 // 太陽の円盤: 視線と太陽の、角度が、太陽の視半径より、小さければ、非常に明るい。
@@ -145,22 +145,22 @@ float SunDisk(float3 view_dir, float3 sun_dir) {
 float3 sun_color = g_sun_luminance * SunDisk(view_dir, sun_dir);
 ```
 
-`kSunCosAngle` の `0.99998` は <strong>太陽の視半径</strong>（約 0.265°）の、<strong>cos</strong> です。`smoothstep` で縁をわずかにぼかしてギザギザを、防ぎます。太陽の明るさは非常に高い（空の、数万倍）ので HDR で描きブルームで、光らせます（[Post-Processing](../../postprocess/index.md)）。
+`kSunCosAngle` の `0.99998` は 太陽の視半径（約 0.265°）の、cos です。`smoothstep` で縁をわずかにぼかしてギザギザを、防ぎます。太陽の明るさは非常に高い（空の、数万倍）ので HDR で描きブルームで、光らせます（[Post-Processing](../../postprocess/index.md)）。
 
 ### 大気を通した太陽の色
 
-<strong>太陽が低い</strong>（朝夕）と <strong>光が大気を、長く通る</strong>ので赤く暗くなります。透過率（[Transmittance](../scattering/transmittance.md)）を掛けて、円盤の色を決めます。
+太陽が低い（朝夕）と 光が大気を、長く通るので赤く暗くなります。透過率（[Transmittance](../scattering/transmittance.md)）を掛けて、円盤の色を決めます。
 
 ```hlsl
 float3 sun_through_atmosphere = g_sun_luminance * SunTransmittance(g_camera_position, sun_dir);
 float3 sun_disk_color = sun_through_atmosphere * SunDisk(view_dir, sun_dir);
 ```
 
-<strong>夕日が赤い橙の円盤</strong>として、見えるのは <strong>この透過率</strong>の効果です。
+夕日が赤い橙の円盤として、見えるのは この透過率の効果です。
 
 ## 月
 
-月は <strong>太陽と同じ</strong>程度の <strong>視直径</strong>（約 0.52°）ですがずっと、暗く（太陽の約 40 万分の 1）、満ち欠けします。
+月は <strong>太陽と同じ</strong>程度の 視直径（約 0.52°）ですがずっと、暗く（太陽の約 40 万分の 1）、満ち欠けします。
 
 | 要素 | 内容 |
 | --- | --- |
@@ -182,11 +182,11 @@ float3 MoonColor(float3 view_dir, float3 moon_dir, float3 sun_dir, float moon_an
 }
 ```
 
-<strong>球としての法線</strong>を求めて <strong>太陽の光で、ライティング</strong>するだけで満ち欠けが自然に、再現されます。太陽と月の位置関係（角度）が、満ち欠けを決めるからです。
+球としての法線を求めて 太陽の光で、ライティングするだけで満ち欠けが自然に、再現されます。太陽と月の位置関係（角度）が、満ち欠けを決めるからです。
 
 ## 星空
 
-星は <strong>夜に見える</strong>、<strong>無数の点</strong>です。
+星は <strong>夜に見える</strong>、無数の点です。
 
 | 方法 | 内容 |
 | --- | --- |
@@ -202,11 +202,11 @@ float3 stars = g_star_cubemap.Sample(g_linear_clamp, view_dir).rgb * night_facto
 float3 final_color = sky_color + stars * saturate(1.0 - Luminance(sky_color) * 10.0);
 ```
 
-<strong>星が昼間に見えない</strong>のは <strong>空の、明るさ</strong>にかき消されるためです。空の輝度が高いほど星を弱めると、薄明（夕暮れ）で明るい星から順に、見え始める様子が再現できます。
+星が昼間に見えないのは 空の、明るさにかき消されるためです。空の輝度が高いほど星を弱めると、薄明（夕暮れ）で明るい星から順に、見え始める様子が再現できます。
 
 ### 星の回転
 
-<strong>地球の自転</strong>で星は <strong>1 日に 1 回</strong>、夜空を回ります。星空のキューブマップを時刻に応じて、回転させます。回転の軸は天の北極（北極星の方向）で緯度に応じて、傾きます。
+地球の自転で星は 1 日に 1 回、夜空を回ります。星空のキューブマップを時刻に応じて、回転させます。回転の軸は天の北極（北極星の方向）で緯度に応じて、傾きます。
 
 ```cpp
 // 星空の、回転: 地球の自転（時角）と、観測者の緯度から、回転行列を作る。
@@ -222,7 +222,7 @@ Matrix star_rotation = Matrix::CreateRotationY(-hour_angle) * Matrix::CreateRota
 | 3 | 月、太陽の円盤 |
 | 4 | 雲（[Clouds](../clouds/index.md)） |
 
-<strong>星が大気の向こう</strong>にあるので <strong>星を、先に描き</strong>、大気の明るさで隠します。太陽と月は大気の手前の明るい点として、足します。
+<strong>星が大気の向こう</strong>にあるので 星を、先に描き、大気の明るさで隠します。太陽と月は大気の手前の明るい点として、足します。
 
 ## よくあるミス
 

@@ -6,7 +6,7 @@ tags:
 
 # Comparison Samplers
 
-<strong>シャドウ マップが描けたら、画面の各点で「光から見た深度」と「マップの深度」を比べます</strong>。<strong>この比較を GPU の比較サンプラーに任せる</strong>と、ハードウェア PCF（2×2 の補間）も同時に得られます。このページでは比較の手順・比較サンプラーの設定・ハードウェア PCF の効果を説明します。
+<strong>シャドウ マップが描けたら、画面の各点で「光から見た深度」と「マップの深度」を比べます</strong>。この比較を GPU の比較サンプラーに任せると、ハードウェア PCF（2×2 の補間）も同時に得られます。このページでは比較の手順・比較サンプラーの設定・ハードウェア PCF の効果を説明します。
 
 !!! tip "ポイント"
     - 画面の点を光の空間へ変換し、マップの深度と比べる。奥なら影。
@@ -15,7 +15,7 @@ tags:
     - 範囲外（マップの外）は、光が当たる扱いにする（境界色・クランプ）。
 
 ## ③〜⑤ 比較
-<strong>ワールド位置</strong>を<strong>光のクリップ空間</strong>に変換し、シャドウ マップの座標と深度を得ます。
+<strong>ワールド位置</strong>を光のクリップ空間に変換し、シャドウ マップの座標と深度を得ます。
 
 ```hlsl
 float ShadowFactor(float3 world_pos) {
@@ -40,7 +40,7 @@ float ShadowFactor(float3 world_pos) {
 
 ### 比較サンプラー
 
-<strong>比較サンプラー</strong>は <strong>ハードウェアが「保存された深度」と「参照値」を比べる</strong>機能です。結果は比較が真なら 1、偽なら 0でバイリニアで補間されます（4 点の比較結果を混ぜる）。
+比較サンプラーは ハードウェアが「保存された深度」と「参照値」を比べる機能です。結果は比較が真なら 1、偽なら 0でバイリニアで補間されます（4 点の比較結果を混ぜる）。
 
 ```cpp
 D3D11_SAMPLER_DESC sampler = {};
@@ -54,11 +54,11 @@ device->CreateSamplerState(&sampler, &shadow_sampler);
 サンプラー設定の意味です。`COMPARISON_..._LINEAR` は 4 点の比較結果を線形補間するもので、これが最も簡単な PCF になります。`ComparisonFunc = LESS_EQUAL` は参照値が保存された深度以下なら 1（光が当たる）を返します。アドレス モードを BORDER、色を 1.0 にするとシャドウ マップの外は影なし（1）になります。
 
 !!! note "標準 Z のとき"
-    標準の Z（near → 0、far → 1）では<strong>遠いほど深度が大きい</strong>ので、`LESS_EQUAL` を使います。<strong>reverse-Z</strong> のときは、`GREATER_EQUAL` です（[投影](../../../3d/projection.md)）。
+    標準の Z（near → 0、far → 1）では遠いほど深度が大きいので、`LESS_EQUAL` を使います。reverse-Z のときは、`GREATER_EQUAL` です（[投影](../../../3d/projection.md)）。
 
 ## 比較サンプラーとは
 
-影の判定は <strong>「シャドウ マップの深度」と、「画素の光からの深度」を比較</strong>する作業です。この比較を <strong>ハードウェアがやってくれる</strong>のが、比較サンプラーです。さらに、4 つの隣の画素で比較して結果を、バイリニア補間してくれる（2×2 の PCF がただで、できる）ためシャドウ マップの、読み取りは比較サンプラーを使うのが、定番です。
+影の判定は <strong>「シャドウ マップの深度」と、「画素の光からの深度」を比較</strong>する作業です。この比較を ハードウェアがやってくれるのが、比較サンプラーです。さらに、4 つの隣の画素で比較して結果を、バイリニア補間してくれる（2×2 の PCF がただで、できる）ためシャドウ マップの、読み取りは比較サンプラーを使うのが、定番です。
 
 ## 比較サンプラーの作り方
 
@@ -85,7 +85,7 @@ device->CreateSamplerState(&desc, &shadow_sampler);
 
 ## シェーダーでの使い方
 
-比較サンプラーは HLSL では、<strong>`SamplerComparisonState`</strong> 型で受け <strong>`SampleCmp`</strong> または `SampleCmpLevelZero` で、読みます。
+比較サンプラーは HLSL では、<strong>`SamplerComparisonState`</strong> 型で受け `SampleCmp` または `SampleCmpLevelZero` で、読みます。
 
 ```hlsl
 Texture2D<float> g_shadow_map : register(t5);
@@ -109,7 +109,7 @@ SampleCmpLevelZero(map, uv, ref):
    その 4 つの結果を、uv の小数部で、バイリニア補間
 ```
 
-<strong>重要</strong>：<strong>深度を補間してから、比較</strong>するのではなく比較してから、補間します。深度を先に補間すると遮蔽物の縁で、存在しない中間の深度ができて、間違った影になります。比較してから補間するのが PCF の、正しい手順でハードウェアがそれを行います（[PCF](../pcf.md)）。
+<strong>重要</strong>：深度を補間してから、比較するのではなく比較してから、補間します。深度を先に補間すると遮蔽物の縁で、存在しない中間の深度ができて、間違った影になります。比較してから補間するのが PCF の、正しい手順でハードウェアがそれを行います（[PCF](../pcf.md)）。
 
 ### 手動で比較する場合（比較サンプラーが、使えない）
 
@@ -119,7 +119,7 @@ float stored = g_shadow_map.SampleLevel(g_point_clamp, shadow_uv, 0);
 float lit = (shadow_depth <= stored) ? 1.0 : 0.0;
 ```
 
-比較サンプラーが <strong>使えない場面</strong>（VSM や、ESM のように <strong>深度そのものを、使う</strong>場合、深度の別の形式）ではこの方法に、なります（[VSM, ESM and MSM](../vsm/index.md)）。
+比較サンプラーが 使えない場面（VSM や、ESM のように 深度そのものを、使う場合、深度の別の形式）ではこの方法に、なります（[VSM, ESM and MSM](../vsm/index.md)）。
 
 ## 使うべき理由
 

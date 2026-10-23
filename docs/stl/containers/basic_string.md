@@ -15,7 +15,7 @@ tags:
 `#include <string>`
 </div>
 
-`std::basic_string<CharT>` は、**文字列クラスの本体**です。`std::string` は `basic_string<char>` の別名です。`wchar_t` を使う `std::wstring`、UTF-8 を型で表す `std::u8string` など、文字の型が違う文字列は、すべてこのクラスから作られます。使い方は [`std::string`](string.md) と同じです。
+Windows API の W 版に渡す文字列は `wchar_t` の並びで、UTF-8 を型で区別したいなら `char8_t` の並びです。`std::string` だけでは、これらを扱えません。`std::basic_string<CharT>` は、文字列クラスの本体で、`std::string` は `basic_string<char>` の別名です。`std::wstring`、`std::u8string`、`std::u16string` なども、すべてこのクラスから作られます。
 
 !!! tip "ポイント"
     - 普段は `std::string` で足りる。このページは「ほかの種類の文字列」を知るためのもの。
@@ -72,11 +72,11 @@ u8: 15 / u16: 5 / u32: 5
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| Windows API（W 版）に渡す文字列 | `std::wstring` |
-| UTF-8 のデータを型で区別して持つ | `std::u8string` |
-| 1 文字ずつ（コードポイント単位）処理する | `std::u32string` |
+Windows API を呼ぶとき、パスや名前を `std::wstring` で受け渡します。`CreateFileW` や `MessageBoxW` などの W 版の関数に渡す文字列がこの型です。標準の文字列と W 版の変換には、`MultiByteToWideChar` を使います。
+
+UTF-8 を型として区別したいときは、`std::u8string` を使います。ただし、標準ライブラリの対応がまだ薄く、`std::cout` に直接出せないなど、扱いにくい面があります。ゲームでは、内部は `std::string` の UTF-8 で統一し、Windows API の境界でだけ `wstring` に変換する構成が現実的です。
+
+`basic_string` を直接書くことは、ほとんどありません。独自の `char_traits` で大文字小文字を区別しない文字列を作る、といった特殊な場面だけです。
 
 ## よくあるミス
 

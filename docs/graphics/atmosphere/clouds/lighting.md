@@ -6,7 +6,7 @@ tags:
 
 # Cloud Lighting
 
-<strong>雲は光が内部で散乱するので明るく、ふわふわに見えます</strong>。<strong>各点で太陽の方向にもう一度進んで、光の減衰（自己影）を求めます</strong>。このページでは雲のライティングを説明します。
+<strong>雲は光が内部で散乱するので明るく、ふわふわに見えます</strong>。各点で太陽の方向にもう一度進んで、光の減衰（自己影）を求めます。このページでは雲のライティングを説明します。
 
 !!! tip "ポイント"
     - 太陽方向へ短くマーチして、光の減衰を求める。
@@ -17,7 +17,7 @@ tags:
 ## 光の計算
 ### Beer の法則
 
-<strong>太陽に向かって雲の中を進むと、水滴にぶつかって光が減ります</strong>。<strong>密度を太陽方向に積分した「厚み」から、届く光が決まります</strong>。
+<strong>太陽に向かって雲の中を進むと、水滴にぶつかって光が減ります</strong>。密度を太陽方向に積分した「厚み」から、届く光が決まります。
 
 <div class="formula">届く光 = exp( −厚み × 消散係数 )</div>
 
@@ -156,7 +156,7 @@ float LightMarch(float3 position, float3 sun_dir) {
 
 ### Powder 効果
 
-<strong>雲の縁（薄い所）は Beer の法則だと「明るすぎる」ですが実際には暗いことがあります</strong>。<strong>散乱された光が雲の奥から出てこないため</strong>です。Powder 効果はこれを近似します。
+雲の縁（薄い所）は Beer の法則だと「明るすぎる」ですが実際には暗いことがあります。散乱された光が雲の奥から出てこないためです。Powder 効果はこれを近似します。
 
 <div class="formula">Powder = 1 − exp( −2 · density )</div>
 
@@ -166,11 +166,11 @@ float PowderEffect(float density) {
 }
 ```
 
-<strong>Beer（薄いほど明るい）と Powder（薄いほど暗い）を掛ける</strong>と<strong>縁が暗く、中が明るい</strong>という実際の雲の見え方に近づきます（Beer-Powder）。
+Beer（薄いほど明るい）と Powder（薄いほど暗い）を掛けると縁が暗く、中が明るいという実際の雲の見え方に近づきます（Beer-Powder）。
 
 ### 位相関数
 
-<strong>雲の水滴は大きいため光を前方に強く散らします</strong>。<strong>太陽の方を見ると雲の縁が銀色に光る（シルバーライニング）のはこれが理由</strong>です。前方ローブと後方ローブを混ぜた二重 Henyey-Greenstein を使います。
+雲の水滴は大きいため光を前方に強く散らします。太陽の方を見ると雲の縁が銀色に光る（シルバーライニング）のはこれが理由です。前方ローブと後方ローブを混ぜた二重 Henyey-Greenstein を使います。
 
 ```hlsl
 float CloudPhase(float cos_theta) {
@@ -182,7 +182,7 @@ float CloudPhase(float cos_theta) {
 
 ### 多重散乱の近似
 
-<strong>雲の中では光が何度も散らされ、明るく見えます</strong>。<strong>Beer の法則だけだと厚い雲が暗くなりすぎます</strong>。消散・位相の寄与を数オクターブ分、減衰させながら足す近似で厚い雲を適度に明るくします。
+雲の中では光が何度も散らされ、明るく見えます。Beer の法則だけだと厚い雲が暗くなりすぎます。消散・位相の寄与を数オクターブ分、減衰させながら足す近似で厚い雲を適度に明るくします。
 
 ```hlsl
 float3 MultiScatteredLight(float optical_depth, float phase_cos) {
@@ -217,7 +217,7 @@ float3 MultiScatteredLight(float optical_depth, float phase_cos) {
 
 ## 雲の光の特徴
 
-<strong>雲が白くふわふわして立体的</strong>に、見えるのは <strong>光の散らばり方</strong>に特徴が、あるためです。
+<strong>雲が白くふわふわして立体的</strong>に、見えるのは 光の散らばり方に特徴が、あるためです。
 
 | 現象 | 見え方 |
 | --- | --- |
@@ -228,7 +228,7 @@ float3 MultiScatteredLight(float optical_depth, float phase_cos) {
 
 ## 1 点での光の計算
 
-レイマーチの <strong>各サンプル点</strong>で、<strong>太陽の光がその点にどれだけ、届くか</strong>を求め位相関数を掛けて、視線の方向へ散る光を得ます。
+レイマーチの <strong>各サンプル点</strong>で、太陽の光がその点にどれだけ、届くかを求め位相関数を掛けて、視線の方向へ散る光を得ます。
 
 ```hlsl
 float3 CloudLighting(float3 p, float3 view_dir, float density) {
@@ -237,7 +237,7 @@ float3 CloudLighting(float3 p, float3 view_dir, float density) {
   float beer = exp(-light_optical_depth * g_extinction);
 ```
 
-<strong>太陽の方向</strong>へ <strong>短くレイマーチ</strong>し（6〜8 ステップ）、途中の密度を積分します。Beer の法則（`exp(−τ)`）で太陽の光が点まで、届く割合を求めます。雲の厚い部分を通った光ほど弱くなります。
+太陽の方向へ 短くレイマーチし（6〜8 ステップ）、途中の密度を積分します。Beer の法則（`exp(−τ)`）で太陽の光が点まで、届く割合を求めます。雲の厚い部分を通った光ほど弱くなります。
 
 ```hlsl
   // ② 位相関数（前方散乱 + 後方散乱の、2 つの HG）。太陽の方向を、向いているとき、強く光る。
@@ -245,7 +245,7 @@ float3 CloudLighting(float3 p, float3 view_dir, float density) {
   float phase = lerp(HenyeyGreenstein(cos_theta, -0.3), HenyeyGreenstein(cos_theta, 0.8), 0.7);
 ```
 
-<strong>2 つの HG</strong>（<strong>前方の強い山</strong>と後方の、弱い山）を混ぜた位相関数です（[Phase Functions](../scattering/phase-function.md)）。太陽の方を向くと前方散乱で縁が強く、光ります。
+2 つの HG（前方の強い山と後方の、弱い山）を混ぜた位相関数です（[Phase Functions](../scattering/phase-function.md)）。太陽の方を向くと前方散乱で縁が強く、光ります。
 
 ```hlsl
   // ③ 粉っぽさ（Powder）: 薄い所（密度が低い所）では、光が、まだ、散乱しきらず、暗く見える。
@@ -253,7 +253,7 @@ float3 CloudLighting(float3 p, float3 view_dir, float density) {
   float beer_powder = 2.0 * beer * powder;
 ```
 
-<strong>Beer の法則</strong>だけだと、<strong>雲の縁（薄い所）が明るすぎ</strong>ます。Powder 効果（1 − exp(−2τ)）を、掛けると縁が暗く縁取られふわふわした、雲らしさが出ます（[Cloud Beer-Powder]の図、参照）。太陽の方向を向くときは Powder の影響を、弱めます（縁が輝くので）。
+Beer の法則だけだと、雲の縁（薄い所）が明るすぎます。Powder 効果（1 − exp(−2τ)）を、掛けると縁が暗く縁取られふわふわした、雲らしさが出ます（[Cloud Beer-Powder]の図、参照）。太陽の方向を向くときは Powder の影響を、弱めます（縁が輝くので）。
 
 ```hlsl
   // ④ 太陽の方を向くほど、Powder を弱める（縁が、輝くので）。
@@ -261,7 +261,7 @@ float3 CloudLighting(float3 p, float3 view_dir, float density) {
   float3 sun_light = g_sun_color * powder_blend * phase;
 ```
 
-<strong>太陽に背を向ける</strong>ときは <strong>Powder を、強く</strong>（縁が暗く）、太陽に向かうときは Beer だけ（縁が、明るい）、と補間します。
+太陽に背を向けるときは Powder を、強く（縁が暗く）、太陽に向かうときは Beer だけ（縁が、明るい）、と補間します。
 
 ```hlsl
   // ⑤ 環境光（空の光）: 雲の、上は、空の光で、明るく、底は、地面からの、暗い反射光だけ。
@@ -271,11 +271,11 @@ float3 CloudLighting(float3 p, float3 view_dir, float density) {
 }
 ```
 
-<strong>環境光</strong>は <strong>高さ</strong>で変えます。雲の上の方は空の光で明るく底は、地面から反射した暗い光だけです。雲の底が暗い（影っぽい）のは雲の厚みで、太陽の光が届かず環境光も弱いためです。
+環境光は 高さで変えます。雲の上の方は空の光で明るく底は、地面から反射した暗い光だけです。雲の底が暗い（影っぽい）のは雲の厚みで、太陽の光が届かず環境光も弱いためです。
 
 ## 光の方向へのレイマーチ
 
-<strong>太陽の方向</strong>へ <strong>短くレイマーチ</strong>して密度を、積分します。この計算がレイマーチの各サンプルで、必要なのでステップ数は少なく（6〜8）します。
+<strong>太陽の方向</strong>へ 短くレイマーチして密度を、積分します。この計算がレイマーチの各サンプルで、必要なのでステップ数は少なく（6〜8）します。
 
 ```hlsl
 // 太陽方向への、密度の、積分（光学的な厚さ）。少ないステップ数で、近似する。
@@ -293,11 +293,11 @@ float LightMarchDensity(float3 p, float3 sun_dir) {
 }
 ```
 
-<strong>光の方向の積分</strong>は <strong>細部が、不要</strong>（ぼんやり減衰するだけ）なので、安い密度（基本の形だけ）で十分です。ステップをだんだん大きくし円錐状に、少しずらす（ノイズ）と少ないステップでも、なめらかになります。
+光の方向の積分は 細部が、不要（ぼんやり減衰するだけ）なので、安い密度（基本の形だけ）で十分です。ステップをだんだん大きくし円錐状に、少しずらす（ノイズ）と少ないステップでも、なめらかになります。
 
 ## 多重散乱の近似
 
-<strong>1 回散乱</strong>（太陽 → 点 → 目）だけでは <strong>雲の内部が、暗すぎ</strong>ます。光は雲の中で何度も散乱して奥まで、届くためです。オクターブによる近似（[Multiple Scattering](../scattering/multiple-scattering.md)）で、足します。
+<strong>1 回散乱</strong>（太陽 → 点 → 目）だけでは 雲の内部が、暗すぎます。光は雲の中で何度も散乱して奥まで、届くためです。オクターブによる近似（[Multiple Scattering](../scattering/multiple-scattering.md)）で、足します。
 
 ```hlsl
 // 多重散乱: 散乱量 a を、半分ずつ、減衰 b を、弱く、位相の偏り c を、弱く（等方に、近づける）、4 回、足す。
@@ -311,7 +311,7 @@ for (int octave = 0; octave < 4; ++octave) {
 float3 sun_light = g_sun_color * multi;
 ```
 
-<strong>オクターブが進むほど</strong>、<strong>散乱量が半分</strong>に減衰が弱まり（深くまで届く）、位相関数が等方に近づく（散らばる）。これで厚い雲の内部でも光がほどよく届き、ふわっとした明るさが出ます。
+オクターブが進むほど、散乱量が半分に減衰が弱まり（深くまで届く）、位相関数が等方に近づく（散らばる）。これで厚い雲の内部でも光がほどよく届き、ふわっとした明るさが出ます。
 
 ## 長所と調整
 
@@ -326,7 +326,7 @@ float3 sun_light = g_sun_color * multi;
 ## よくあるミス
 
 ??? failure "雲が、のっぺり白い・立体感がない"
-    <strong>自己影（太陽方向のマーチ）</strong>を<strong>入れる</strong>。
+    <strong>自己影（太陽方向のマーチ）</strong>を入れる。
 
 ## これだけ覚える
 

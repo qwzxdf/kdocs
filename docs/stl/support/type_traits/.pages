@@ -34,6 +34,7 @@ nav:
   - common_reference.md
   - conjunction.md
   - disjunction.md
+  - extent.md
   - false_type.md
   - has_unique_object_representations.md
   - has_virtual_destructor.md
@@ -50,6 +51,7 @@ nav:
   - is_copy_assignable.md
   - is_corresponding_member.md
   - is_destructible.md
+  - is_empty.md
   - is_final.md
   - is_function.md
   - is_fundamental.md
@@ -63,34 +65,51 @@ nav:
   - is_member_pointer.md
   - is_move_assignable.md
   - is_move_constructible.md
+  - is_nothrow_assignable.md
   - is_nothrow_constructible.md
   - is_nothrow_convertible.md
+  - is_nothrow_copy_assignable.md
+  - is_nothrow_copy_constructible.md
+  - is_nothrow_default_constructible.md
   - is_nothrow_destructible.md
   - is_nothrow_invocable.md
+  - is_nothrow_invocable_r.md
+  - is_nothrow_move_assignable.md
   - is_nothrow_swappable.md
+  - is_nothrow_swappable_with.md
   - is_null_pointer.md
   - is_object.md
   - is_pod.md
   - is_pointer_interconvertible_base_of.md
+  - is_pointer_interconvertible_with_class.md
   - is_polymorphic.md
   - is_reference.md
   - is_rvalue_reference.md
   - is_scalar.md
   - is_scoped_enum.md
+  - is_signed.md
   - is_standard_layout.md
   - is_swappable.md
   - is_swappable_with.md
   - is_trivial.md
+  - is_trivially_assignable.md
   - is_trivially_constructible.md
+  - is_trivially_copy_assignable.md
+  - is_trivially_copy_constructible.md
+  - is_trivially_default_constructible.md
   - is_trivially_destructible.md
+  - is_trivially_move_assignable.md
+  - is_trivially_move_constructible.md
   - is_unbounded_array.md
   - is_union.md
   - is_unsigned.md
+  - is_virtual_base_of.md
   - is_void.md
   - is_volatile.md
   - is_within_lifetime.md
   - make_signed.md
   - negation.md
+  - rank.md
   - reference_constructs_from_temporary.md
   - reference_converts_from_temporary.md
   - remove_all_extents.md

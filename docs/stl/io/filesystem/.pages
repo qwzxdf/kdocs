@@ -6,6 +6,7 @@ nav:
   - directory_iterator.md
   - recursive_directory_iterator.md
   - directory_entry.md
+  - copy_options.md
   - create_directory.md
   - remove.md
   - remove_all.md
@@ -19,6 +20,8 @@ nav:
   - last_write_time.md
   - absolute.md
   - filesystem_error.md
+  - directory_options.md
+  - file_type.md
   - relative.md
   - temp_directory_path.md
   - canonical.md
@@ -30,4 +33,24 @@ nav:
   - is_empty.md
   - weakly_canonical.md
   - create_symlink.md
+  - copy_symlink.md
+  - create_directory_symlink.md
+  - create_hard_link.md
+  - file_status.md
+  - file_time_type.md
+  - hard_link_count.md
+  - is_block_file.md
+  - is_character_file.md
+  - is_fifo.md
+  - is_other.md
+  - is_socket.md
+  - is_symlink.md
+  - perm_options.md
+  - perms.md
+  - proximate.md
+  - read_symlink.md
+  - space_info.md
+  - status_known.md
+  - symlink_status.md
+  - u8path.md
   - ...

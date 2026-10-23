@@ -89,6 +89,10 @@ nav:
   - merge.md
   - inplace_merge.md
   - execution.md
+  - par_unseq.md
+  - seq.md
+  - unseq.md
+  - is_execution_policy.md
   - lexicographical_compare_three_way.md
   - fold_left_first_with_iter.md
   - fold_left_with_iter.md

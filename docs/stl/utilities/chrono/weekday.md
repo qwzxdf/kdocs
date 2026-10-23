@@ -45,6 +45,82 @@ class weekday {
 - 戻り値: `c_encoding()` は日曜 0 〜 土曜 6
 - 計算量: 定数
 
+### std::chrono::Sunday <span class="ver ver-20">C++20</span> {#Sunday data-toc-label="std::chrono::Sunday"}
+
+```cpp
+inline constexpr std::chrono::weekday Sunday{0};
+```
+
+- 戻り値: 日曜日を表す定数
+- 計算量: 定数
+
+`std::chrono::Sunday` は、日曜日（`c_encoding()` が 0）を表す定数です。`Sunday[2]`（第 2 日曜日）や、`Sunday[std::chrono::last]`（最後の日曜日）のように使います。
+
+### std::chrono::Monday <span class="ver ver-20">C++20</span> {#Monday data-toc-label="std::chrono::Monday"}
+
+```cpp
+inline constexpr std::chrono::weekday Monday{1};
+```
+
+- 戻り値: 月曜日を表す定数
+- 計算量: 定数
+
+`std::chrono::Monday` は、月曜日（`c_encoding()` が 1）を表す定数です。`Monday[2]`（第 2 月曜日）や、`Monday[std::chrono::last]`（最後の月曜日）のように使います。
+
+### std::chrono::Tuesday <span class="ver ver-20">C++20</span> {#Tuesday data-toc-label="std::chrono::Tuesday"}
+
+```cpp
+inline constexpr std::chrono::weekday Tuesday{2};
+```
+
+- 戻り値: 火曜日を表す定数
+- 計算量: 定数
+
+`std::chrono::Tuesday` は、火曜日（`c_encoding()` が 2）を表す定数です。`Tuesday[2]`（第 2 火曜日）や、`Tuesday[std::chrono::last]`（最後の火曜日）のように使います。
+
+### std::chrono::Wednesday <span class="ver ver-20">C++20</span> {#Wednesday data-toc-label="std::chrono::Wednesday"}
+
+```cpp
+inline constexpr std::chrono::weekday Wednesday{3};
+```
+
+- 戻り値: 水曜日を表す定数
+- 計算量: 定数
+
+`std::chrono::Wednesday` は、水曜日（`c_encoding()` が 3）を表す定数です。`Wednesday[2]`（第 2 水曜日）や、`Wednesday[std::chrono::last]`（最後の水曜日）のように使います。
+
+### std::chrono::Thursday <span class="ver ver-20">C++20</span> {#Thursday data-toc-label="std::chrono::Thursday"}
+
+```cpp
+inline constexpr std::chrono::weekday Thursday{4};
+```
+
+- 戻り値: 木曜日を表す定数
+- 計算量: 定数
+
+`std::chrono::Thursday` は、木曜日（`c_encoding()` が 4）を表す定数です。`Thursday[2]`（第 2 木曜日）や、`Thursday[std::chrono::last]`（最後の木曜日）のように使います。
+
+### std::chrono::Friday <span class="ver ver-20">C++20</span> {#Friday data-toc-label="std::chrono::Friday"}
+
+```cpp
+inline constexpr std::chrono::weekday Friday{5};
+```
+
+- 戻り値: 金曜日を表す定数
+- 計算量: 定数
+
+`std::chrono::Friday` は、金曜日（`c_encoding()` が 5）を表す定数です。`Friday[2]`（第 2 金曜日）や、`Friday[std::chrono::last]`（最後の金曜日）のように使います。
+
+### std::chrono::Saturday <span class="ver ver-20">C++20</span> {#Saturday data-toc-label="std::chrono::Saturday"}
+
+```cpp
+inline constexpr std::chrono::weekday Saturday{6};
+```
+
+- 戻り値: 土曜日を表す定数
+- 計算量: 定数
+
+`std::chrono::Saturday` は、土曜日（`c_encoding()` が 6）を表す定数です。`Saturday[2]`（第 2 土曜日）や、`Saturday[std::chrono::last]`（最後の土曜日）のように使います。
 
 ## 実際に動かしてみる
 

@@ -15,7 +15,7 @@ tags:
 `#include <filesystem>`
 </div>
 
-`std::filesystem::copy` は、**ファイルやフォルダをコピーする**関数です。`copy_options::recursive` を付けると、フォルダを中身ごとコピーします。
+セーブデータのバックアップを取りたい、フォルダごと別の場所へ写したい。ファイルを 1 つずつコピーするコードを書くのは面倒です。`std::filesystem::copy` は、ファイルやフォルダをコピーする関数で、`copy_options::recursive` を付けると、フォルダを中身ごとコピーします。
 
 !!! tip "ポイント"
     - フォルダの中身ごとなら `copy_options::recursive`。
@@ -56,14 +56,19 @@ true
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| アセットフォルダを丸ごとコピーする | `fs::copy(src, dst, fs::copy_options::recursive)` |
+フォルダ全体のバックアップに使います。`fs::copy("saves", "backup", fs::copy_options::recursive);` で、セーブデータのフォルダを丸ごとコピーできます。
+
+すでにあるファイルの扱いは、`copy_options` で決めます。上書きするなら `overwrite_existing`、すでにあれば飛ばすなら `skip_existing`、更新されたものだけを写すなら `update_existing` です。
+
+大きなフォルダのコピーは時間がかかります。メインスレッドで行うと画面が止まるので、裏のスレッドで行うか、進行状況を表示します。
 
 ## よくあるミス
 
 ??? failure "recursive を付け忘れる"
     付けないと、フォルダの直下のファイルだけがコピーされます。
+
+??? failure "既存のファイルがあってエラーになる"
+    既定では、コピー先に同名のファイルがあると、エラーです。`overwrite_existing` を付けて上書きするか、`skip_existing` で飛ばします。
 
 ## 類似
 

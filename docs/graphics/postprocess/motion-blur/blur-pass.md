@@ -6,15 +6,15 @@ tags:
 
 # Blur Pass Implementation
 
-<strong>速度バッファができたら、画素ごとに速度の向きへ、画像を複数サンプルして平均</strong>します。<strong>単純な線形ブラーは、速い物体の輪郭がぷつっと切れ、静止した前景に背景の動きがにじむ</strong>などの破綻を起こすので、深度と速度で重みを付けるのが標準です。このページでは、基本のぼかし・ジッターでバンディングを消す方法・前景と背景の重み付け（McGuire 方式）・サンプル数・コストを説明します。
+<strong>速度バッファができたら、画素ごとに速度の向きへ、画像を複数サンプルして平均</strong>します。単純な線形ブラーは、速い物体の輪郭がぷつっと切れ、静止した前景に背景の動きがにじむなどの破綻を起こすので、深度と速度で重みを付けるのが標準です。このページでは、基本のぼかし・ジッターでバンディングを消す方法・前景と背景の重み付け（McGuire 方式）・サンプル数・コストを説明します。
 
 !!! tip "ポイント"
     - ぼかし ＝ <strong>画素の速度ベクトルに沿って、前後にサンプルして平均</strong>。
-    - サンプル数は<strong>8〜16</strong>。<strong>少ないとサンプルが離散的に見える（縞）</strong>。
-    - <strong>サンプル位置を画素ごとにジッター</strong>すると、<strong>縞がノイズに変わる</strong>。
-    - <strong>重み付き平均</strong>：<strong>手前の速い物は奥にかぶさり、奥の速い物は手前の遅い物には、にじまない</strong>。
-    - <strong>速度の長さ</strong>を<strong>最大値で制限</strong>し、<strong>短い速度（< 0.5 画素）はスキップ</strong>。
-    - <strong>半解像度</strong>や<strong>タイル</strong>で<strong>コストを下げる</strong>。
+    - サンプル数は<strong>8〜16</strong>。少ないとサンプルが離散的に見える（縞）。
+    - サンプル位置を画素ごとにジッターすると、縞がノイズに変わる。
+    - 重み付き平均：手前の速い物は奥にかぶさり、奥の速い物は手前の遅い物には、にじまない。
+    - 速度の長さを最大値で制限し、短い速度（< 0.5 画素）はスキップ。
+    - 半解像度やタイルでコストを下げる。
 
 ## 基本のぼかし
 
@@ -32,11 +32,11 @@ float3 MotionBlurBasic(float2 uv, float2 velocity_uv, int sample_count) {
 
 ぼかしのコードの要点です。`t`（−0.5〜+0.5）は、速度ベクトルの両側（前後）にサンプルを置くパラメータで、中心がその画素です。`velocity_uv` は、シャッター角を掛けた UV での移動量です。サンプル数は 8〜16 で、速い動きほど多く必要です。
 
-<strong>線形ブラーの欠点</strong>：<strong>サンプルが一直線に並ぶので、サンプル数が少ないと、「点の列」が見える</strong>。輪郭がくっきり出ない。
+<strong>線形ブラーの欠点</strong>：サンプルが一直線に並ぶので、サンプル数が少ないと、「点の列」が見える。輪郭がくっきり出ない。
 
 ## ジッターで縞を消す
 
-<strong>サンプルの位置を画素ごとに少しずらす</strong>と、<strong>規則的な縞が細かいノイズに変わり、目立たなくなります</strong>。
+<strong>サンプルの位置を画素ごとに少しずらす</strong>と、規則的な縞が細かいノイズに変わり、目立たなくなります。
 
 ```hlsl
 float3 MotionBlurJitter(float2 uv, float2 velocity_uv, int sample_count, float noise) {
@@ -362,7 +362,7 @@ float3 MotionBlurJitter(float2 uv, float2 velocity_uv, int sample_count, float n
 
 ## 深度と速度による重み付け
 
-<strong>サンプルを集めるとき</strong>、<strong>そのサンプルが自分より手前か奥か</strong>、サンプルの速度が自分の位置まで届くかで重みを決めます（McGuire らの方法）。
+<strong>サンプルを集めるとき</strong>、そのサンプルが自分より手前か奥か、サンプルの速度が自分の位置まで届くかで重みを決めます（McGuire らの方法）。
 
 ```hlsl
 float SampleWeight(float center_depth, float sample_depth,
@@ -382,9 +382,9 @@ float SampleWeight(float center_depth, float sample_depth,
 | `depth_compare` | サンプルが自分より奥（1 に近い）か手前（0 に近い）か |
 | `sample_reach` | 手前のサンプルの速度が、自分の位置まで届くか（手前の動く物が自分にかぶさる） |
 | `center_reach` | 自分の速度が奥のサンプルまで届くか（自分の動きが奥の色を混ぜる） |
-| `front + back` | <strong>手前なら「相手の速度が届く」、奥なら「自分の速度が届く」</strong> |
+| `front + back` | 手前なら「相手の速度が届く」、奥なら「自分の速度が届く」 |
 
-<strong>考え方</strong>：<strong>手前の動く物のブラーは、奥の背景にかぶさる</strong>。奥の物が動いていても手前の静止した物にはにじまない。
+考え方：手前の動く物のブラーは、奥の背景にかぶさる。奥の物が動いていても手前の静止した物にはにじまない。
 
 ```hlsl
 float3 MotionBlurWeighted(float2 uv, int sample_count, float noise) {
@@ -407,7 +407,7 @@ float3 MotionBlurWeighted(float2 uv, int sample_count, float noise) {
 }
 ```
 
-<strong>サンプルの方向と長さ</strong>には、<strong>自分の速度ではなく、近傍の最大速度（`neighbor_velocity`）</strong>を<strong>使う</strong>ことで輪郭の外側にも尾が伸びます（[Tile Max Velocity](tile-max.md)）。
+サンプルの方向と長さには、自分の速度ではなく、近傍の最大速度（`neighbor_velocity`）を使うことで輪郭の外側にも尾が伸びます（[Tile Max Velocity](tile-max.md)）。
 
 ## サンプル数と最大長
 
@@ -435,22 +435,22 @@ float3 MotionBlurWeighted(float2 uv, int sample_count, float noise) {
     <strong>画素ごとのジッター</strong>を入れる。
 
 ??? failure "静止した前景に、背景の動きがにじむ"
-    <strong>深度と速度の重み付け</strong>を使う。
+    深度と速度の重み付けを使う。
 
 ??? failure "速い物体の輪郭で、ぼかしが切れる"
-    <strong>近傍の最大速度</strong>を使い、<strong>尾を輪郭の外へ</strong>伸ばす。
+    近傍の最大速度を使い、尾を輪郭の外へ伸ばす。
 
 ??? failure "サンプル数を増やしても、重いだけで効果が少ない"
-    <strong>ジッター</strong>で<strong>ノイズ化</strong>する方が効く。
+    ジッターでノイズ化する方が効く。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] ぼかし ＝ <strong>速度に沿って前後にサンプルして平均</strong>
-    - [x] <strong>画素ごとのジッター</strong>で<strong>縞をノイズに</strong>
-    - [x] <strong>深度と速度の重み付け</strong>で<strong>前景・背景の破綻を防ぐ</strong>
-    - [x] <strong>近傍最大速度</strong>で<strong>輪郭の外にも尾を伸ばす</strong>
-    - [x] <strong>最大長で制限、遅い画素はスキップ</strong>
+    - [x] 画素ごとのジッターで縞をノイズに
+    - [x] 深度と速度の重み付けで前景・背景の破綻を防ぐ
+    - [x] 近傍最大速度で輪郭の外にも尾を伸ばす
+    - [x] 最大長で制限、遅い画素はスキップ
 
 ## 参考
 

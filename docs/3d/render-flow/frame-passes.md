@@ -7,14 +7,14 @@ tags:
 
 # 1 フレームの中身
 
-<strong>ここまで見てきた「頂点 → ピクセル → 書き込み」の流れは、1 フレームの中で何十回も繰り返されます</strong>。<strong>影を作るために 1 回、物体を描くために 1 回、ぼかしのために 1 回…</strong>と、<strong>目的ごとに分けた描画のまとまりを「パス」</strong>と呼びます。このページでは、<strong>実際のゲームの 1 フレームがどんなパスの連なりで出来ているか</strong>を、<strong>図で追います</strong>。
+<strong>ここまで見てきた「頂点 → ピクセル → 書き込み」の流れは、1 フレームの中で何十回も繰り返されます</strong>。影を作るために 1 回、物体を描くために 1 回、ぼかしのために 1 回…と、目的ごとに分けた描画のまとまりを「パス」と呼びます。このページでは、実際のゲームの 1 フレームがどんなパスの連なりで出来ているかを、図で追います。
 
 !!! tip "ポイント"
     - 1 フレーム ＝ <strong>複数のパス</strong>の連なり。<strong>パスごとに描画先（レンダー ターゲット）と使うシェーダーが違う</strong>。
-    - 典型の順序：<strong>① シャドウ → ② 不透明 → ③ 空 → ④ 半透明 → ⑤ ポスト エフェクト → ⑥ UI → ⑦ Present</strong>。
-    - 前のパスの<strong>結果（画像）が、次のパスの入力（テクスチャ）</strong>になる。
-    - 途中の絵は<strong>HDR（明るさに上限がない）</strong>で持ち、<strong>最後にトーンマップで 0〜1 に収める</strong>。
-    - パスが多いほど、<strong>描画先の切り替え・メモリ読み書き</strong>が増える。
+    - 典型の順序：① シャドウ → ② 不透明 → ③ 空 → ④ 半透明 → ⑤ ポスト エフェクト → ⑥ UI → ⑦ Present。
+    - 前のパスの結果（画像）が、次のパスの入力（テクスチャ）になる。
+    - 途中の絵はHDR（明るさに上限がない）で持ち、最後にトーンマップで 0〜1 に収める。
+    - パスが多いほど、描画先の切り替え・メモリ読み書きが増える。
 
 ## パスとは
 
@@ -31,7 +31,7 @@ tags:
 <text x="20" y="180" style="font-size:12px">出力の画像は、次のパスの入力になる（たとえば「影の画像」→ 本体の描画で読んで、影を付ける）。</text>
 </svg>
 
-<strong>画像に描く</strong> ＝ <strong>レンダー ターゲットに描く</strong>です。<strong>レンダー ターゲットはふつうのテクスチャ</strong>で、<strong>描いたあとに別のパスが読めます</strong>。
+画像に描く ＝ レンダー ターゲットに描くです。レンダー ターゲットはふつうのテクスチャで、描いたあとに別のパスが読めます。
 
 ## 典型的な 1 フレーム
 
@@ -57,12 +57,12 @@ tags:
 
 | パス | 描画先 | 目的 |
 | --- | --- | --- |
-| <strong>① シャドウ</strong> | <strong>深度だけのテクスチャ（シャドウ マップ）</strong> | <strong>光から見えない所を調べる</strong> |
-| <strong>② 不透明</strong> | <strong>HDR カラー ＋ 深度</strong> | <strong>物体の本体</strong> |
-| <strong>③ 空</strong> | <strong>HDR カラー</strong> | <strong>背景</strong> |
-| <strong>④ 半透明</strong> | <strong>HDR カラー</strong> | <strong>透ける物・光る物</strong> |
-| <strong>⑤ ポスト</strong> | <strong>別の画像を経由して、最終はバック バッファ</strong> | <strong>見た目の仕上げ</strong> |
-| <strong>⑥ UI</strong> | <strong>バック バッファ</strong> | <strong>文字・メニュー</strong> |
+| <strong>① シャドウ</strong> | 深度だけのテクスチャ（シャドウ マップ） | 光から見えない所を調べる |
+| ② 不透明 | HDR カラー ＋ 深度 | 物体の本体 |
+| ③ 空 | HDR カラー | 背景 |
+| ④ 半透明 | HDR カラー | 透ける物・光る物 |
+| ⑤ ポスト | 別の画像を経由して、最終はバック バッファ | 見た目の仕上げ |
+| ⑥ UI | バック バッファ | 文字・メニュー |
 
 <!-- fig:frame-build-up:begin -->
 
@@ -150,18 +150,18 @@ tags:
 
 | 設定 | 例 |
 | --- | --- |
-| <strong>描画先（レンダー ターゲット）</strong> | <strong>シャドウ マップ → HDR カラー → バック バッファ</strong> |
-| <strong>ビューポート</strong> | <strong>シャドウ マップの大きさ・画面の大きさ</strong> |
-| <strong>カメラ（ビュー・射影）</strong> | <strong>光から見たカメラ → プレイヤーのカメラ</strong> |
-| <strong>シェーダー</strong> | <strong>深度だけのシェーダー → 本体のシェーダー</strong> |
-| <strong>深度・ブレンド</strong> | <strong>不透明は深度を書く、半透明は書かない</strong> |
-| <strong>カリング</strong> | <strong>シャドウは前面カリングなど</strong> |
+| 描画先（レンダー ターゲット） | シャドウ マップ → HDR カラー → バック バッファ |
+| ビューポート | シャドウ マップの大きさ・画面の大きさ |
+| カメラ（ビュー・射影） | 光から見たカメラ → プレイヤーのカメラ |
+| シェーダー | 深度だけのシェーダー → 本体のシェーダー |
+| 深度・ブレンド | 不透明は深度を書く、半透明は書かない |
+| カリング | シャドウは前面カリングなど |
 
-<strong>切り替え自体にコストがある</strong>ので、<strong>同じ設定のものをまとめて描きます</strong>（ソート）。
+切り替え自体にコストがあるので、同じ設定のものをまとめて描きます（ソート）。
 
 ## シャドウ パスを詳しく
 
-<strong>影は、「光から見て、手前に別の物があるか」で決まります</strong>。<strong>光の位置にカメラを置いて、深度だけを描いた画像（シャドウ マップ）</strong>を<strong>先に作ります</strong>。
+<strong>影は、「光から見て、手前に別の物があるか」で決まります</strong>。光の位置にカメラを置いて、深度だけを描いた画像（シャドウ マップ）を先に作ります。
 
 <svg class="fig illust" viewBox="0 0 780 280" role="img" aria-label="シャドウ マップ">
 <text x="20" y="24" class="fig-title">影のしくみ：光から見た深度を、本体の描画で比べる</text>
@@ -186,7 +186,7 @@ tags:
 
 ## ポスト エフェクトの連鎖
 
-<strong>ポスト エフェクトは、完成した絵を入力にして、全画面を覆う 1 枚の三角形を描き</strong>、<strong>ピクセル シェーダーで加工</strong>します。<strong>効果ごとにパスが分かれ、前の出力が次の入力</strong>になります。
+<strong>ポスト エフェクトは、完成した絵を入力にして、全画面を覆う 1 枚の三角形を描き</strong>、ピクセル シェーダーで加工します。効果ごとにパスが分かれ、前の出力が次の入力になります。
 
 <svg class="fig illust" viewBox="0 0 780 180" role="img" aria-label="ポスト エフェクトの連鎖"><defs><marker id="rfa" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs>
 <text x="20" y="24" class="fig-title">ポスト エフェクトの連鎖：画像 → 画像 → 画像</text>
@@ -207,8 +207,8 @@ tags:
 
 | 方式 | 流れ | 特徴 |
 | --- | --- | --- |
-| <strong>フォワード</strong> | <strong>物体を描くときにピクセル シェーダーで光まで全部計算</strong> | <strong>単純・半透明・MSAA が楽。光が多いと重い</strong> |
-| <strong>ディファード</strong> | <strong>まず材質情報（色・法線・粗さ）を G バッファへ書く → 別のパスで全画面に光を計算</strong> | <strong>光が多くても軽い。半透明・MSAA が苦手</strong> |
+| フォワード | 物体を描くときにピクセル シェーダーで光まで全部計算 | 単純・半透明・MSAA が楽。光が多いと重い |
+| ディファード | まず材質情報（色・法線・粗さ）を G バッファへ書く → 別のパスで全画面に光を計算 | 光が多くても軽い。半透明・MSAA が苦手 |
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="フォワードとディファード"><defs><marker id="rfa" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs>
 <text x="20" y="24" class="fig-title">フォワード（上）とディファード（下）の違い</text>
@@ -234,11 +234,11 @@ tags:
 
 | 画像 | 作るパス | 使うパス |
 | --- | --- | --- |
-| <strong>シャドウ マップ</strong> | <strong>シャドウ パス</strong> | <strong>不透明パス（影の判定）</strong> |
-| <strong>深度バッファ</strong> | <strong>不透明パス</strong> | <strong>空・半透明・SSAO・フォグ・水</strong> |
-| <strong>HDR カラー</strong> | <strong>不透明・空・半透明</strong> | <strong>ポスト エフェクト</strong> |
-| <strong>G バッファ</strong> | <strong>ディファードの材質パス</strong> | <strong>ライティング パス</strong> |
-| <strong>SSAO の画像</strong> | <strong>SSAO パス</strong> | <strong>ライティング／合成</strong> |
+| シャドウ マップ | シャドウ パス | 不透明パス（影の判定） |
+| 深度バッファ | 不透明パス | 空・半透明・SSAO・フォグ・水 |
+| HDR カラー | 不透明・空・半透明 | ポスト エフェクト |
+| G バッファ | ディファードの材質パス | ライティング パス |
+| SSAO の画像 | SSAO パス | ライティング／合成 |
 
 ## パスの数とコスト
 
@@ -246,12 +246,12 @@ tags:
 
 | コスト | 内容 |
 | --- | --- |
-| <strong>メモリ</strong> | <strong>中間画像（HDR・G バッファ）が増える</strong> |
-| <strong>帯域幅</strong> | <strong>各パスで画像を読み書き</strong>（[メモリ帯域](../../rendering/bandwidth.md)） |
-| <strong>切り替え</strong> | <strong>レンダー ターゲットやシェーダーの切り替え</strong> |
-| <strong>オーバードロー</strong> | <strong>同じピクセルに何度も描く</strong> |
+| メモリ | 中間画像（HDR・G バッファ）が増える |
+| 帯域幅 | 各パスで画像を読み書き（[メモリ帯域](../../rendering/bandwidth.md)） |
+| 切り替え | レンダー ターゲットやシェーダーの切り替え |
+| オーバードロー | 同じピクセルに何度も描く |
 
-<strong>フレーム全体の予算</strong>（60 FPS なら 16.7 ms）を<strong>パスに割り振って、重いパスを削る</strong>のが<strong>最適化の基本</strong>です（[フレーム時間の設計](../../optimize/frame-budget.md)）。
+フレーム全体の予算（60 FPS なら 16.7 ms）をパスに割り振って、重いパスを削るのが最適化の基本です（[フレーム時間の設計](../../optimize/frame-budget.md)）。
 
 ## パスを調べる道具
 
@@ -259,38 +259,38 @@ tags:
 
 | ツール | できること |
 | --- | --- |
-| <strong>RenderDoc</strong> | <strong>1 フレームの全ドロー コールと、各パスの出力画像を見る</strong> |
-| <strong>PIX（DirectX）</strong> | <strong>GPU の処理時間をパスごとに見る</strong> |
-| <strong>NVIDIA Nsight</strong> | <strong>GPU の詳細なプロファイル</strong> |
+| RenderDoc | 1 フレームの全ドロー コールと、各パスの出力画像を見る |
+| PIX（DirectX） | GPU の処理時間をパスごとに見る |
+| NVIDIA Nsight | GPU の詳細なプロファイル |
 
-<strong>ゲームの画面が出来上がる過程を、RenderDoc で 1 回観察する</strong>と、<strong>このシリーズの内容がすべてつながって理解できます</strong>。
+ゲームの画面が出来上がる過程を、RenderDoc で 1 回観察すると、このシリーズの内容がすべてつながって理解できます。
 
 ## よくあるミス
 
 ??? failure "描画先と読み込み元に同じ画像を指定して、動作が不定になる"
-    <strong>同じ画像を同時に出力と入力にできない</strong>。<strong>コピーするか、別の画像に描く</strong>。
+    同じ画像を同時に出力と入力にできない。コピーするか、別の画像に描く。
 
 ??? failure "UI にもトーンマップやブルームが掛かって、文字が光る"
-    <strong>UI はポスト エフェクトの後に描く</strong>。
+    UI はポスト エフェクトの後に描く。
 
 ??? failure "半透明が、ポスト エフェクトの後に描かれ、ブルームが効かない"
-    <strong>半透明は、HDR のうちに描く</strong>（ポストの前）。
+    半透明は、HDR のうちに描く（ポストの前）。
 
 ??? failure "パスの順番を間違えて、影のない状態で描かれる"
-    <strong>シャドウ マップ → 不透明の順</strong>。<strong>依存する画像を先に作る</strong>。
+    シャドウ マップ → 不透明の順。依存する画像を先に作る。
 
 ??? failure "不要なパスや画像を残して、無駄に重い"
-    <strong>使っていないパスを止める</strong>。<strong>画像は使い回す</strong>。
+    使っていないパスを止める。画像は使い回す。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 1 フレーム ＝ <strong>パスの連なり</strong>。<strong>前のパスの出力が次の入力</strong>
-    - [x] 順序：<strong>シャドウ → 不透明 → 空 → 半透明 → ポスト → UI → Present</strong>
-    - [x] <strong>HDR で持ち、最後のトーンマップで画面用に</strong>
-    - [x] パスごとに<strong>描画先・シェーダー・深度・ブレンド</strong>が<strong>切り替わる</strong>
-    - [x] <strong>フォワード／ディファード</strong>は<strong>不透明パスの作り方の違い</strong>
-    - [x] <strong>RenderDoc</strong>で<strong>実際のフレームを観察する</strong>と<strong>理解が深まる</strong>
+    - [x] 1 フレーム ＝ パスの連なり。前のパスの出力が次の入力
+    - [x] 順序：シャドウ → 不透明 → 空 → 半透明 → ポスト → UI → Present
+    - [x] HDR で持ち、最後のトーンマップで画面用に
+    - [x] パスごとに描画先・シェーダー・深度・ブレンドが切り替わる
+    - [x] フォワード／ディファードは不透明パスの作り方の違い
+    - [x] RenderDocで実際のフレームを観察すると理解が深まる
 
 ## 参考
 

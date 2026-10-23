@@ -14,7 +14,7 @@ tags:
 `#include <chrono>`
 </div>
 
-時間の長さを扱うとき、`duration<long long, std::ratio<1, 1000>>` のような書き方は長すぎます。標準は、よく使う単位に名前をつけています。`std::chrono::milliseconds` は、ミリ秒（1000 分の 1 秒）を数える `duration` の別名です。
+待ち時間を `16`、タイムアウトを `5000` と数値で書くと、何の単位か分かりません。`duration<long long, std::ratio<1, 1000>>` と書くのは、長すぎます。標準は、よく使う単位に名前をつけています。`std::chrono::milliseconds` は、ミリ秒（1000 分の 1 秒）を数える `duration` の別名です。ゲームでは、フレーム時間や待ち時間の単位として、いちばんよく使います。
 
 !!! tip "ポイント"
     - 1 つぶんの長さは 1/1000 秒。
@@ -53,14 +53,19 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| フレーム時間の計測 | `std::chrono::milliseconds{値}` |
+フレーム時間の表示に使います。処理時間を `duration_cast<milliseconds>(end - start).count()` でミリ秒の整数にして、画面に出します。
+
+待ち時間の指定にも使います。`std::this_thread::sleep_for(milliseconds(16))` と書けば、約 60 フレームに相当する待ちです。リテラルで `16ms` と書くほうが短く済みます。
+
+設定の値（クールダウンやタイムアウト）を `milliseconds` で持つと、単位の取り違えが減ります。60 フレーム換算の 16.6 ミリ秒のような小数は、整数のミリ秒では表せないので、`duration<float, std::milli>` を使います。
 
 ## よくあるミス
 
 ??? failure "整数に切り捨てられる"
     整数の `duration` に `duration_cast` で大きい単位へ直すと、小数点以下は切り捨てられます。小数で受けたいなら `duration<double>` を使います。
+
+??? failure "小数のミリ秒を表そうとする"
+    `milliseconds` は整数です。`16.6` ミリ秒は表せず、切り捨てられます。小数が要るなら `duration<float, std::milli>` を使います。
 
 ## 類似
 

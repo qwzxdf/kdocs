@@ -6,22 +6,22 @@ tags:
 
 # 座標系と格子
 
-ゲームでは**同じ位置をいろいろな座標で表す**ことがよくあります。マウスの位置は画面のピクセル、キャラの位置はワールド座標、マップのマス目はタイル座標、全方位の弾は極座標、といった具合です。**座標系どうしを行き来する計算**を知っておくと、タイルマップ・UI・レーダー・全方位の演出がすっきり書けます。このページでは、**極座標・グリッド座標・ヘックス座標・アイソメトリック・画面座標**を説明します。3D の座標変換（行列）は[3D のセクション](../3d/index.md)を参照してください。
+ゲームでは**同じ位置をいろいろな座標で表す**ことがよくあります。マウスの位置は画面のピクセル、キャラの位置はワールド座標、マップのマス目はタイル座標、全方位の弾は極座標、といった具合です。座標系どうしを行き来する計算を知っておくと、タイルマップ・UI・レーダー・全方位の演出がすっきり書けます。このページでは、極座標・グリッド座標・ヘックス座標・アイソメトリック・画面座標を説明します。3D の座標変換（行列）は[3D のセクション](../3d/index.md)を参照してください。
 
 !!! tip "ポイント"
     - 座標は<strong>「何を原点にして、どの向きに数えるか」</strong>で変わる。<strong>変換式を持っておく</strong>。
-    - <strong>極座標（角度と距離）</strong>は、円運動・全方位に向く。<strong>デカルト座標との相互変換</strong>は、sin / cos と atan2。
-    - <strong>タイルマップ</strong>は<strong>ワールド座標 ÷ タイルサイズ ＝ セル番号</strong>。<strong>負の座標の丸め</strong>に注意。
-    - <strong>ヘックス</strong>は<strong>キューブ座標（x + y + z = 0）</strong>が扱いやすい。
-    - <strong>アイソメトリック</strong>は<strong>2 つの軸を斜めに</strong>する変換。<strong>描画の順番（奥から手前）</strong>に注意。
-    - <strong>画面座標は Y が下向き</strong>が多い。数学の座標と上下が逆。
+    - 極座標（角度と距離）は、円運動・全方位に向く。デカルト座標との相互変換は、sin / cos と atan2。
+    - タイルマップはワールド座標 ÷ タイルサイズ ＝ セル番号。負の座標の丸めに注意。
+    - ヘックスはキューブ座標（x + y + z = 0）が扱いやすい。
+    - アイソメトリックは2 つの軸を斜めにする変換。描画の順番（奥から手前）に注意。
+    - 画面座標は Y が下向きが多い。数学の座標と上下が逆。
 
 ## デカルト座標と極座標
 
 | 座標 | 表し方 | 向いている場面 |
 | --- | --- | --- |
 | **デカルト座標** | (x, y) | 直線の移動・格子・矩形 |
-| **極座標** | (r, θ)（距離と角度） | 円運動・全方位・レーダー・渦巻き |
+| 極座標 | (r, θ)（距離と角度） | 円運動・全方位・レーダー・渦巻き |
 
 ### 変換
 
@@ -47,15 +47,15 @@ Vector2 FromPolar(Polar p) {
 
 | 使いどころ | 説明 |
 | --- | --- |
-| **渦巻き** | `r` を時間で増やしながら、`θ` も増やす |
-| <strong>全方位の弾（弾幕）</strong> | `θ` を等間隔に変えて、同じ `r` の方向に撃つ |
-| **レーダー・ミニマップ** | 距離を縮め、角度を保って描く |
-| **円形のメニュー** | 角度から、選択された項目を決める |
-| <strong>カメラの周回（オービット）</strong> | 注視点の周りを角度で回る |
+| 渦巻き | `r` を時間で増やしながら、`θ` も増やす |
+| 全方位の弾（弾幕） | `θ` を等間隔に変えて、同じ `r` の方向に撃つ |
+| レーダー・ミニマップ | 距離を縮め、角度を保って描く |
+| 円形のメニュー | 角度から、選択された項目を決める |
+| カメラの周回（オービット） | 注視点の周りを角度で回る |
 
 ### 球面座標（3D）
 
-3D の**全方位**を、**2 つの角度と距離**で表します。
+3D の全方位を、2 つの角度と距離で表します。
 
 ```text
 x = r × sin φ × cos θ
@@ -65,19 +65,19 @@ z = r × sin φ × sin θ
 
 | 記号 | 意味 |
 | --- | --- |
-| **r** | 中心からの距離 |
-| <strong>θ（方位角）</strong> | 水平面での回転 |
-| <strong>φ（天頂角・極角）</strong> | 上（+y）からの角度 |
+| r | 中心からの距離 |
+| θ（方位角） | 水平面での回転 |
+| φ（天頂角・極角） | 上（+y）からの角度 |
 
-**オービットカメラ**（対象の周りを回るカメラ）は、**θ と φ をマウスで動かし**、r をズームにして、位置を求めます。**φ は 0 や π（真上・真下）に近づきすぎない**ように、制限します。
+オービットカメラ（対象の周りを回るカメラ）は、θ と φ をマウスで動かし、r をズームにして、位置を求めます。φ は 0 や π（真上・真下）に近づきすぎないように、制限します。
 
 ## 画面座標・UV 座標・NDC
 
 | 座標 | 原点 | 範囲 | 使いどころ |
 | --- | --- | --- | --- |
-| **画面（ピクセル）座標** | **左上** | (0, 0)〜(幅, 高さ)。**Y は下向き** | マウス・UI |
-| **UV 座標** | **左上**（DirectX） | (0, 0)〜(1, 1) | テクスチャ |
-| <strong>NDC（正規化デバイス座標）</strong> | 中央 | x・y が -1〜1。**Y は上向き**（DirectX） | GPU の画面座標 |
+| **画面（ピクセル）座標** | 左上 | (0, 0)〜(幅, 高さ)。Y は下向き | マウス・UI |
+| UV 座標 | 左上（DirectX） | (0, 0)〜(1, 1) | テクスチャ |
+| NDC（正規化デバイス座標） | 中央 | x・y が -1〜1。Y は上向き（DirectX） | GPU の画面座標 |
 
 ### 変換
 
@@ -93,14 +93,14 @@ Vector2 NdcToScreen(Vector2 ndc, Vector2 size) {
 
 | 点 | 説明 |
 | --- | --- |
-| **Y の向きが逆** | 画面は下向き、NDC は上向き。**1 - y** で反転 |
-| **解像度に依存しない UI** | 画面を 0〜1 の割合で扱い、描画時にピクセルへ変換 |
-| **DPI・拡大率** | 高 DPI の画面では、論理ピクセルと物理ピクセルが違う（[ImGui の DPI](../libs/imgui/style.md)） |
-| **ワールド座標との変換** | 3D はビュー・射影の行列で（[3D：MVP](../3d/transforms-mvp.md)） |
+| Y の向きが逆 | 画面は下向き、NDC は上向き。1 - y で反転 |
+| 解像度に依存しない UI | 画面を 0〜1 の割合で扱い、描画時にピクセルへ変換 |
+| DPI・拡大率 | 高 DPI の画面では、論理ピクセルと物理ピクセルが違う（[ImGui の DPI](../libs/imgui/style.md)） |
+| ワールド座標との変換 | 3D はビュー・射影の行列で（[3D：MVP](../3d/transforms-mvp.md)） |
 
 ## グリッド（タイルマップ）
 
-**マス目のゲーム**（パズル・ローグライク・SRPG・2D アクション）では<strong>ワールド座標とマスの番号（セル）</strong>を行き来します。
+**マス目のゲーム**（パズル・ローグライク・SRPG・2D アクション）ではワールド座標とマスの番号（セル）を行き来します。
 
 ### 変換
 
@@ -125,15 +125,15 @@ Vector2 CellCenter(Cell cell, float tile_size) {
 ```
 
 !!! warning "負の座標は `floor` で丸める"
-    `static_cast<int>(-0.5f)` は **0**（0 に向かって切り捨て）です。**セル -1 になるべき**位置が、セル 0 になってしまいます。**`std::floor` を通してから整数にします**。
+    `static_cast<int>(-0.5f)` は 0（0 に向かって切り捨て）です。セル -1 になるべき位置が、セル 0 になってしまいます。`std::floor` を通してから整数にします。
 
 ### 配列に入れる
 
 | 方法 | 説明 |
 | --- | --- |
-| **1 次元配列** | `index = y × 幅 + x`。**メモリが連続**で速い |
-| **範囲外の確認** | `0 ≤ x < 幅` かつ `0 ≤ y < 高さ` を確かめてから、アクセス |
-| **チャンク** | 広いマップを、16×16 などの**ブロック**に分けて、必要な所だけ持つ |
+| 1 次元配列 | `index = y × 幅 + x`。メモリが連続で速い |
+| 範囲外の確認 | `0 ≤ x < 幅` かつ `0 ≤ y < 高さ` を確かめてから、アクセス |
+| チャンク | 広いマップを、16×16 などのブロックに分けて、必要な所だけ持つ |
 
 ```cpp
 bool InBounds(Cell c, int width, int height) {
@@ -149,27 +149,27 @@ int ToIndex(Cell c, int width) {
 
 | 近傍 | 方向 | 距離 |
 | --- | --- | --- |
-| **4 近傍** | 上下左右 | **マンハッタン距離** `|dx| + |dy|` |
-| **8 近傍** | 斜めも含む | **チェビシェフ距離** `max(|dx|, |dy|)` |
-| **ユークリッド距離** | 直線 | `√(dx² + dy²)`（円形の範囲） |
+| 4 近傍 | 上下左右 | マンハッタン距離 `|dx| + |dy|` |
+| 8 近傍 | 斜めも含む | チェビシェフ距離 `max(|dx|, |dy|)` |
+| ユークリッド距離 | 直線 | `√(dx² + dy²)`（円形の範囲） |
 
 | 場面 | 距離の選び方 |
 | --- | --- |
-| **上下左右にしか動けない** | マンハッタン |
-| **斜めも 1 歩** | チェビシェフ |
-| <strong>範囲攻撃（円形）</strong> | ユークリッド（2 乗のまま比較） |
+| 上下左右にしか動けない | マンハッタン |
+| 斜めも 1 歩 | チェビシェフ |
+| 範囲攻撃（円形） | ユークリッド（2 乗のまま比較） |
 
-**斜めの移動が 1 歩で、実際は `√2` 倍長い**ことが、経路探索で問題になります（コストを 14 と 10 にする、など。[アルゴリズム](../optimize/algorithms.md)）。
+斜めの移動が 1 歩で、実際は `√2` 倍長いことが、経路探索で問題になります（コストを 14 と 10 にする、など。[アルゴリズム](../optimize/algorithms.md)）。
 
 ## ヘックス（六角形）グリッド
 
-**六角形のマス**は、**隣のセルまでの距離が全方向で等しい**のでストラテジーゲームで人気です。**座標の表し方**が複数あります。
+**六角形のマス**は、隣のセルまでの距離が全方向で等しいのでストラテジーゲームで人気です。座標の表し方が複数あります。
 
 | 座標 | 特徴 |
 | --- | --- |
-| **オフセット座標** | 行を半分ずらして表す。**配列に入れやすい**が計算が面倒 |
-| <strong>軸座標（axial）</strong> | 2 つの軸 (q, r)。**配列にも計算にも使いやすい** |
-| **キューブ座標** | 3 つの軸 (x, y, z)、**x + y + z = 0**。**距離・回転の計算が簡単** |
+| オフセット座標 | 行を半分ずらして表す。配列に入れやすいが計算が面倒 |
+| 軸座標（axial） | 2 つの軸 (q, r)。配列にも計算にも使いやすい |
+| キューブ座標 | 3 つの軸 (x, y, z)、x + y + z = 0。距離・回転の計算が簡単 |
 
 ### キューブ座標
 
@@ -188,21 +188,21 @@ int HexDistance(Hex a, Hex b) {
 
 | 計算 | 説明 |
 | --- | --- |
-| **隣の 6 セル** | 6 個の方向ベクトル `(+1, 0)`・`(+1, -1)`・`(0, -1)`・`(-1, 0)`・`(-1, +1)`・`(0, +1)` を足す |
-| **距離** | キューブ座標なら `max(|dx|, |dy|, |dz|)` |
-| **60 度の回転** | 座標を並べ替えて符号を反転するだけ |
-| <strong>範囲（半径 N）</strong> | `|x|, |y|, |z| ≤ N` のセル |
-| **ピクセルとの変換** | 六角形の大きさから、決まった式で（尖った上向き・平らな上向きで違う） |
+| 隣の 6 セル | 6 個の方向ベクトル `(+1, 0)`・`(+1, -1)`・`(0, -1)`・`(-1, 0)`・`(-1, +1)`・`(0, +1)` を足す |
+| 距離 | キューブ座標なら `max(|dx|, |dy|, |dz|)` |
+| 60 度の回転 | 座標を並べ替えて符号を反転するだけ |
+| 範囲（半径 N） | `|x|, |y|, |z| ≤ N` のセル |
+| ピクセルとの変換 | 六角形の大きさから、決まった式で（尖った上向き・平らな上向きで違う） |
 
-**まず軸座標で保存し、計算するときにキューブ座標へ**と使い分けます。
+まず軸座標で保存し、計算するときにキューブ座標へと使い分けます。
 
 <svg class="fig illust" data-fig="grids-neighbors" viewBox="0 0 780 300" role="img" aria-label="グリッドの隣"><text x="20" y="24" class="fig-title">四角グリッドは 4 方向か 8 方向、六角グリッドは 6 方向（どれも距離が同じ）</text><rect x="40" y="60" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="80" y="60" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="120" y="60" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="160" y="60" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="200" y="60" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="40" y="100" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="80" y="100" width="40" height="40" fill="#e5484d" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="120" y="100" width="40" height="40" fill="#2ea043" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="160" y="100" width="40" height="40" fill="#e5484d" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="200" y="100" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="40" y="140" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="80" y="140" width="40" height="40" fill="#2ea043" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="120" y="140" width="40" height="40" fill="#e5aa28" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="160" y="140" width="40" height="40" fill="#2ea043" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="200" y="140" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="40" y="180" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="80" y="180" width="40" height="40" fill="#e5484d" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="120" y="180" width="40" height="40" fill="#2ea043" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="160" y="180" width="40" height="40" fill="#e5484d" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="200" y="180" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="40" y="220" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="80" y="220" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="120" y="220" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="160" y="220" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><rect x="200" y="220" width="40" height="40" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><text x="40" y="280" style="font-size:12px;">緑：4 近傍　緑＋赤：8 近傍</text><text x="40" y="298" style="font-size:12px;">斜めは距離 √2（直進の 1.41 倍）</text><polygon points="437.6,138.0 437.6,162.0 416.9,174.0 396.1,162.0 396.1,138.0 416.9,126.0" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="458.4,174.0 458.4,198.0 437.6,210.0 416.9,198.0 416.9,174.0 437.6,162.0" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="479.2,210.0 479.2,234.0 458.4,246.0 437.6,234.0 437.6,210.0 458.4,198.0" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="458.4,102.0 458.4,126.0 437.6,138.0 416.9,126.0 416.9,102.0 437.6,90.0" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="479.2,138.0 479.2,162.0 458.4,174.0 437.6,162.0 437.6,138.0 458.4,126.0" fill="#2ea043" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="500.0,174.0 500.0,198.0 479.2,210.0 458.4,198.0 458.4,174.0 479.2,162.0" fill="#2ea043" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="520.8,210.0 520.8,234.0 500.0,246.0 479.2,234.0 479.2,210.0 500.0,198.0" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="479.2,66.0 479.2,90.0 458.4,102.0 437.6,90.0 437.6,66.0 458.4,54.0" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="500.0,102.0 500.0,126.0 479.2,138.0 458.4,126.0 458.4,102.0 479.2,90.0" fill="#2ea043" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="520.8,138.0 520.8,162.0 500.0,174.0 479.2,162.0 479.2,138.0 500.0,126.0" fill="#e5aa28" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="541.6,174.0 541.6,198.0 520.8,210.0 500.0,198.0 500.0,174.0 520.8,162.0" fill="#2ea043" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="562.4,210.0 562.4,234.0 541.6,246.0 520.8,234.0 520.8,210.0 541.6,198.0" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="520.8,66.0 520.8,90.0 500.0,102.0 479.2,90.0 479.2,66.0 500.0,54.0" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="541.6,102.0 541.6,126.0 520.8,138.0 500.0,126.0 500.0,102.0 520.8,90.0" fill="#2ea043" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="562.4,138.0 562.4,162.0 541.6,174.0 520.8,162.0 520.8,138.0 541.6,126.0" fill="#2ea043" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="583.1,174.0 583.1,198.0 562.4,210.0 541.6,198.0 541.6,174.0 562.4,162.0" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="562.4,66.0 562.4,90.0 541.6,102.0 520.8,90.0 520.8,66.0 541.6,54.0" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="583.1,102.0 583.1,126.0 562.4,138.0 541.6,126.0 541.6,102.0 562.4,90.0" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><polygon points="603.9,138.0 603.9,162.0 583.1,174.0 562.4,162.0 562.4,138.0 583.1,126.0" fill="none" fill-opacity="0.45" stroke="currentColor" stroke-opacity="0.5"/><text x="430" y="262" style="font-size:12px;">六角グリッド：隣は 6 つ、どれも距離が等しい</text></svg>
 
-**どの方向を「隣」とするか**で経路探索・範囲攻撃の形が変わります。六角グリッドは、**隣がすべて同じ距離**なのが利点です。
+どの方向を「隣」とするかで経路探索・範囲攻撃の形が変わります。六角グリッドは、隣がすべて同じ距離なのが利点です。
 
 ## アイソメトリック（斜め見下ろし）
 
-**2D の絵で立体的に見える**ようにする、**斜め見下ろし**の表現です。<strong>タイル座標 (x, y)</strong> を、**画面の斜めの配置**に変換します。
+**2D の絵で立体的に見える**ようにする、斜め見下ろしの表現です。タイル座標 (x, y) を、画面の斜めの配置に変換します。
 
 ```text
 screen_x = (x - y) × (タイルの幅 / 2)
@@ -224,11 +224,11 @@ Vector2 ScreenToIso(Vector2 s, float tile_w, float tile_h) {
 
 | 点 | 説明 |
 | --- | --- |
-| **逆変換でクリック位置から、セルを求める** | `ScreenToIso` の結果を `floor` |
-| **タイルの縦横比は 2:1 が定番** | きれいな斜めの線になる |
-| **描画の順番** | **奥（x + y が小さい）から手前**へ。順番を間違えると**手前の物が奥に隠れる** |
-| <strong>高さ（z）</strong> | `screen_y` から、`z × 高さ` を引く（上へずらす） |
-| **当たり判定** | <strong>元のタイル座標（見えない直交座標）</strong>で行う（画面上の斜めではやらない） |
+| 逆変換でクリック位置から、セルを求める | `ScreenToIso` の結果を `floor` |
+| タイルの縦横比は 2:1 が定番 | きれいな斜めの線になる |
+| 描画の順番 | 奥（x + y が小さい）から手前へ。順番を間違えると手前の物が奥に隠れる |
+| 高さ（z） | `screen_y` から、`z × 高さ` を引く（上へずらす） |
+| 当たり判定 | 元のタイル座標（見えない直交座標）で行う（画面上の斜めではやらない） |
 
 ## 座標の「向き」の違い
 
@@ -236,14 +236,14 @@ Vector2 ScreenToIso(Vector2 s, float tile_w, float tile_h) {
 
 | 場面 | 違い |
 | --- | --- |
-| <strong>画面座標（Win32・ImGui）</strong> | 原点が左上、Y が下向き |
-| **数学・物理** | Y が上向き |
-| **DirectX の UV** | 原点が左上、V が下向き |
-| **OpenGL の UV** | 原点が左下、V が上向き |
-| **左手系・右手系** | Z の向き・外積の向き（[3D：座標系](coordinate-systems.md)） |
-| **画像ファイル** | 上の行がメモリの先頭（上下反転して扱うライブラリもある） |
+| 画面座標（Win32・ImGui） | 原点が左上、Y が下向き |
+| 数学・物理 | Y が上向き |
+| DirectX の UV | 原点が左上、V が下向き |
+| OpenGL の UV | 原点が左下、V が上向き |
+| 左手系・右手系 | Z の向き・外積の向き（[3D：座標系](coordinate-systems.md)） |
+| 画像ファイル | 上の行がメモリの先頭（上下反転して扱うライブラリもある） |
 
-**境界で変換する**（読み込み時・描画時に、1 か所で）ことが混乱を避けるコツです。
+境界で変換する（読み込み時・描画時に、1 か所で）ことが混乱を避けるコツです。
 
 <!-- fig:grid-cell-lookup:begin -->
 
@@ -338,12 +338,12 @@ Vector2 ScreenToIso(Vector2 s, float tile_w, float tile_h) {
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] <strong>極座標 ⇄ デカルト</strong>：<strong>sin / cos と atan2</strong>。円運動・全方位に
-    - [x] <strong>画面は Y が下向き</strong>。座標の向きの違いは<strong>境界で 1 回だけ変換</strong>
-    - [x] <strong>タイル座標 ＝ `floor(ワールド ÷ タイルサイズ)`</strong>。<strong>負は floor</strong>
-    - [x] <strong>4 近傍 ＝ マンハッタン</strong>、<strong>8 近傍 ＝ チェビシェフ</strong>
-    - [x] <strong>ヘックスは軸座標・キューブ座標</strong>
-    - [x] <strong>アイソメトリック</strong>は 2:1 の斜め変換。<strong>当たり判定は元の座標で</strong>
+    - [x] <strong>極座標 ⇄ デカルト</strong>：sin / cos と atan2。円運動・全方位に
+    - [x] 画面は Y が下向き。座標の向きの違いは境界で 1 回だけ変換
+    - [x] タイル座標 ＝ `floor(ワールド ÷ タイルサイズ)`。負は floor
+    - [x] 4 近傍 ＝ マンハッタン、8 近傍 ＝ チェビシェフ
+    - [x] ヘックスは軸座標・キューブ座標
+    - [x] アイソメトリックは 2:1 の斜め変換。当たり判定は元の座標で
 
 ## 関連ページ
 

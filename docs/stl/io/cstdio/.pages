@@ -5,4 +5,49 @@ nav:
   - fread.md
   - fwrite.md
   - fgets.md
+  - bufsiz.md
+  - eof.md
+  - file.md
+  - seek_cur.md
+  - seek_end.md
+  - seek_set.md
+  - clearerr.md
+  - fclose.md
+  - feof.md
+  - ferror.md
+  - fflush.md
+  - fgetc.md
+  - fgetpos.md
+  - fprintf.md
+  - fputc.md
+  - fputs.md
+  - freopen.md
+  - fscanf.md
+  - fseek.md
+  - fsetpos.md
+  - ftell.md
+  - getc.md
+  - getchar.md
+  - perror.md
+  - putc.md
+  - putchar.md
+  - puts.md
+  - remove.md
+  - rename.md
+  - rewind.md
+  - scanf.md
+  - setbuf.md
+  - setvbuf.md
+  - sprintf.md
+  - sscanf.md
+  - stderr.md
+  - stdin.md
+  - stdout.md
+  - tmpfile.md
+  - tmpnam.md
+  - ungetc.md
+  - vfprintf.md
+  - vprintf.md
+  - vsnprintf.md
+  - vsprintf.md
   - ...

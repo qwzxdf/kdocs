@@ -14,15 +14,15 @@ tags:
 `#include <ryml.hpp>` / `#include <ryml_std.hpp>`
 </div>
 
-**rapidyaml**（略して **ryml**、「ライムル」）は、**YAML を速く読み書きする**ライブラリです。YAML は、JSON と同じデータを**括弧やカンマをほとんど使わず、字下げで書ける**形式で、コメントも書けるので、**人が手で書く設定ファイルやゲームのデータ**（敵のパラメータ、ステージの配置、会話のスクリプト）にとても向いています。rapidyaml は、YAML ライブラリの中でも飛び抜けて速く（有名な yaml-cpp の数十倍以上）、メモリの確保もとても少ないのが特徴です。また JSON も読み書きできます。その代わり、文字列を `std::string` ではなく独自の **`csubstr`**（`string_view` のようなもの）で扱うなど、少しクセがあります。
+**rapidyaml**（略して ryml、「ライムル」）は、YAML を速く読み書きするライブラリです。YAML は、JSON と同じデータを括弧やカンマをほとんど使わず、字下げで書ける形式で、コメントも書けるので、人が手で書く設定ファイルやゲームのデータ（敵のパラメータ、ステージの配置、会話のスクリプト）にとても向いています。rapidyaml は、YAML ライブラリの中でも飛び抜けて速く（有名な yaml-cpp の数十倍以上）、メモリの確保もとても少ないのが特徴です。また JSON も読み書きできます。その代わり、文字列を `std::string` ではなく独自の `csubstr`（`string_view` のようなもの）で扱うなど、少しクセがあります。
 
 !!! tip "ポイント"
     - <strong>人が書くデータ（設定・パラメータ表・会話）を YAML で持ちたいときに使う。</strong>
     - 読み込みは **`ryml::parse_in_arena`**（文字列をコピーして持つ。安全）。
-    - 値は **`node["key"] >> 変数;`<strong> で読み、</strong>`node["key"] << 値;`** で書く。
+    - 値は `node["key"] >> 変数;`<strong> で読み、</strong>`node["key"] << 値;` で書く。
     - `#include <ryml_std.hpp>` を書くと、`std::string` と `std::vector` がそのまま使える。
-    - <strong>無いかもしれないキーは `has_child` で確認してから読む。</strong> 無いキーを読むとエラー。
-    - デフォルトのエラー処理は<strong>プログラムを止める（abort）</strong>。例外にしたいなら設定を変える。
+    - 無いかもしれないキーは `has_child` で確認してから読む。 無いキーを読むとエラー。
+    - デフォルトのエラー処理はプログラムを止める（abort）。例外にしたいなら設定を変える。
 
 !!! info "このページを読む前に"
     [シリアライズの概要](../../engine/serialization/index.md) と [nlohmann/json](nlohmann-json.md) を先に読むと、「木の形のデータを、キーで取り出す」という考え方がつかみやすいです。[string_view](../../stl/utilities/string_view.md) を知っていると `csubstr` が分かりやすくなります。
@@ -69,10 +69,10 @@ YAML（ヤムル）は、**字下げで構造を表す**テキスト形式です
 | `|` の後に複数行 | 改行を残した複数行の文字列 | `"1行目\n2行目"` |
 | `&name` / `*name` | アンカーと参照（同じ内容を使い回す） | 無い |
 
-JSON の文法はほぼそのまま YAML としても正しいので、**YAML のライブラリは JSON も読めます**。
+JSON の文法はほぼそのまま YAML としても正しいので、YAML のライブラリは JSON も読めます。
 
 !!! warning "YAML のよくある落とし穴"
-    - <strong>字下げにタブは使えません。</strong> 必ずスペースで書きます。
+    - 字下げにタブは使えません。 必ずスペースで書きます。
     - `キー:値` のように `:` の後にスペースが無いと、マップになりません。
     - `#` の前にスペースがあると、その後ろはコメントになります。`#` を含む文字列（`color: #ff0000`）は `"#ff0000"` と囲みます。
     - `yes` / `no` / `on` / `off` を真偽値として扱うかどうかはライブラリによって違います。真偽値は `true` / `false` と書くのが安全です。
@@ -85,9 +85,9 @@ Visual Studio を使っているなら、ここから読みます。ライブラ
 
 === "ファイルを置く"
 
-    1. [リリースページ](https://github.com/biojppm/rapidyaml/releases) の **単一ヘッダ版**（`rapidyaml-x.y.z.hpp`）を `third_party/rapidyaml/` に置き、**1 つの `.cpp` だけ**で、include の前に `#define RYML_SINGLE_HDR_DEFINE_NOW` を書く
-    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を **すべての構成**、プラットフォームを **x64** にする
-    3. **C/C++ → 全般 → 追加のインクルード ディレクトリ** に、`$(SolutionDir)third_party
+    1. [リリースページ](https://github.com/biojppm/rapidyaml/releases) の **単一ヘッダ版**（`rapidyaml-x.y.z.hpp`）を `third_party/rapidyaml/` に置き、1 つの `.cpp` だけで、include の前に `#define RYML_SINGLE_HDR_DEFINE_NOW` を書く
+    2. プロジェクトのプロパティを開き（[画面つきの手順](../../vs/include-dirs.md#additional)）、構成を すべての構成、プラットフォームを x64 にする
+    3. C/C++ → 全般 → 追加のインクルード ディレクトリ に、`$(SolutionDir)third_party
 
 === "vcpkg"
 
@@ -136,7 +136,7 @@ apidyaml` を追加する
 
 === "1 ファイル版"
 
-    [リリースページ](https://github.com/biojppm/rapidyaml/releases) から `rapidyaml-<バージョン>.hpp`（全部を 1 ファイルにまとめたもの）をダウンロードします。どれか **1 つの .cpp だけ**で、include の前に `#define RYML_SINGLE_HDR_DEFINE_NOW` を書きます（ここで関数の本体が作られます）。他の `.cpp` では普通に include するだけです。
+    [リリースページ](https://github.com/biojppm/rapidyaml/releases) から `rapidyaml-<バージョン>.hpp`（全部を 1 ファイルにまとめたもの）をダウンロードします。どれか 1 つの .cpp だけで、include の前に `#define RYML_SINGLE_HDR_DEFINE_NOW` を書きます（ここで関数の本体が作られます）。他の `.cpp` では普通に include するだけです。
 
 ## 3 つの大事な型
 
@@ -150,7 +150,7 @@ rapidyaml を使うには、まず次の 3 つの型を覚えます。
 
 <svg class="fig flow" viewBox="0 0 604 280" role="img" aria-label="rapidyaml：ノードの配列と、文字列置き場"><defs><marker id="fl73747" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">rapidyaml：ノードの配列と、文字列置き場</text><line x1="107.0" y1="133.3" x2="235.9" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl73747)"/><line x1="107.0" y1="162.7" x2="235.9" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl73747)"/><line x1="493.0" y1="64.0" x2="435.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl73747)"/><text x="464.0" y="58.0" text-anchor="middle" style="font-size:12px">番号で指す</text><line x1="493.0" y1="232.0" x2="404.0" y2="232.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl73747)"/><text x="448.5" y="226.0" text-anchor="middle" style="font-size:12px">ここを指す</text><rect x="28.0" y="128.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">Tree</text><rect x="168.0" y="44.0" width="264" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="300.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ノードの配列 [root][name][hp]...</text><rect x="199.0" y="212.0" width="202" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="300.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">アリーナ （文字列置き場）</text><rect x="496.0" y="44.0" width="80" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="536.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">NodeRef</text><rect x="496.0" y="212.0" width="80" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="536.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">csubstr</text></svg>
 
-rapidyaml が速いのは、ノードを**1 つの配列にまとめて**持ち、文字列も**元の入力（またはアリーナ）を指すだけ**で、値ごとにメモリを確保しないからです。その代わり、`csubstr` が指している先（入力やアリーナ）が消えると使えなくなります。
+rapidyaml が速いのは、ノードを**1 つの配列にまとめて**持ち、文字列も元の入力（またはアリーナ）を指すだけで、値ごとにメモリを確保しないからです。その代わり、`csubstr` が指している先（入力やアリーナ）が消えると使えなくなります。
 
 ## 関数一覧
 
@@ -272,7 +272,7 @@ rapidyaml の中では、**すべての値は文字列**として持っていま
 | `std::map<K, V>`（`ryml_std.hpp` が必要） | マップを読む |
 | 自作の型 | `read` 関数を書く（[自作の型](#custom)） |
 
-この仕組みのおかげで、**`version: 1.10` を文字列として読めば `"1.10"` のまま取れます**（数値として先に解釈してしまうライブラリでは `1.1` になってしまうことがあります）。
+この仕組みのおかげで、`version: 1.10` を文字列として読めば `"1.10"` のまま取れます（数値として先に解釈してしまうライブラリでは `1.1` になってしまうことがあります）。
 
 ## 自作の型を読み書きする {#custom}
 
@@ -347,11 +347,11 @@ enemies:
 ```
 
 !!! warning "関数名と引数の形は決まっている"
-    `write(ryml::NodeRef*, const T&)` と `bool read(const ryml::ConstNodeRef&, T*)` という形で書きます（ライブラリが名前で探すので、Google Style の `Write` にはできません）。`read` の第 2 引数が**ポインタ**なのが他のライブラリと違うところです。古いバージョン（0.4 以前）では `read` の第 1 引数が `const ryml::NodeRef&` でした。
+    `write(ryml::NodeRef*, const T&)` と `bool read(const ryml::ConstNodeRef&, T*)` という形で書きます（ライブラリが名前で探すので、Google Style の `Write` にはできません）。`read` の第 2 引数がポインタなのが他のライブラリと違うところです。古いバージョン（0.4 以前）では `read` の第 1 引数が `const ryml::NodeRef&` でした。
 
 ## エラー処理
 
-rapidyaml のデフォルトのエラー処理は、<strong>エラーメッセージを出してプログラムを止める（abort）</strong> です。ゲームで「設定ファイルを 1 文字間違えたらゲームが落ちる」のは困るので、**例外を投げるように設定を変える**のがおすすめです。
+rapidyaml のデフォルトのエラー処理は、<strong>エラーメッセージを出してプログラムを止める（abort）</strong> です。ゲームで「設定ファイルを 1 文字間違えたらゲームが落ちる」のは困るので、例外を投げるように設定を変えるのがおすすめです。
 
 一番簡単なのは、ビルド設定で次のマクロを定義する方法です。エラーのときに `std::runtime_error` が投げられるようになります。
 
@@ -385,12 +385,12 @@ try {
 
 YAML も JSON と同じく**キーの名前**で値を探すので、互換性を保つのは簡単です。
 
-- **メンバを追加した:** `read` で `has_child` を見て、無ければデフォルトのまま
-- **メンバを削除した:** 何もしなくてよい（知らないキーは読まないだけ）
-- **名前を変えた:** `read` で新しい名前と古い名前の両方を見る
-- **大きく形を変えた:** 一番上に `version: 2` を書き、`read` で分岐する
+- メンバを追加した: `read` で `has_child` を見て、無ければデフォルトのまま
+- メンバを削除した: 何もしなくてよい（知らないキーは読まないだけ）
+- 名前を変えた: `read` で新しい名前と古い名前の両方を見る
+- 大きく形を変えた: 一番上に `version: 2` を書き、`read` で分岐する
 
-人が書くデータでは、**書き間違ったキー（`hpp: 10`）に気づけない**という問題もあります。開発中は、知っているキー以外があったら警告を出すチェックを入れると、ミスにすぐ気づけます。
+人が書くデータでは、書き間違ったキー（`hpp: 10`）に気づけないという問題もあります。開発中は、知っているキー以外があったら警告を出すチェックを入れると、ミスにすぐ気づけます。
 
 ```cpp
 for (ryml::ConstNodeRef child : node.children()) {
@@ -428,8 +428,8 @@ void parse_in_arena(csubstr filename, csubstr yaml, Tree* t);
 | `t` | `ryml::Tree*` | 結果を入れる木。使い回すとメモリの再確保が減る |
 
 - **戻り値:** 読み込んだ木
-- **計算量:** O(n)
-- 入力を**木のアリーナにコピー**してから読むので、元の文字列はすぐ消してかまいません。迷ったらこちらを使います。
+- 計算量: O(n)
+- 入力を木のアリーナにコピーしてから読むので、元の文字列はすぐ消してかまいません。迷ったらこちらを使います。
 - ファイルから読むときは、[ifstream](../../stl/io/fstream.md) などで `std::string` に読んでから渡します（rapidyaml 自体にはファイルを開く関数がありません）。
 - `filename` を渡しておくと、エラーのときに「`enemies.yml:12:3`」のように場所が分かるので便利です。
 
@@ -439,7 +439,7 @@ void parse_in_arena(csubstr filename, csubstr yaml, Tree* t);
 NodeRef Tree::rootref();
 ```
 
-- **戻り値:** 一番上のノード。値の読み書きができる
+- 戻り値: 一番上のノード。値の読み書きができる
 - 書き込みをするときに使います。
 
 ### crootref {#crootref}
@@ -448,7 +448,7 @@ NodeRef Tree::rootref();
 ConstNodeRef Tree::crootref() const;
 ```
 
-- **戻り値:** 一番上のノード（読むだけ）
+- 戻り値: 一番上のノード（読むだけ）
 - 読むだけなら、間違えて書き込んだりシードを作ったりしないように、`ConstNodeRef` を使うのがおすすめです。
 
 ### operator[] {#operator_brackets}
@@ -465,8 +465,8 @@ ConstNodeRef ConstNodeRef::operator[](size_t pos) const;
 | `key` | `csubstr` | マップのキー |
 | `pos` | `size_t` | シーケンスの番号（0 から） |
 
-- **戻り値:** 子ノード
-- **計算量:** キーは O(子の数)（前から順に探す）、番号も O(番号)（リストをたどる）
+- 戻り値: 子ノード
+- 計算量: キーは O(子の数)（前から順に探す）、番号も O(番号)（リストをたどる）
 - `NodeRef` で無いキーを取ると「シード」（これから作るノード）が返り、書き込むとノードが作られます。読もうとするとエラーです。
 - `ConstNodeRef` で無いキーを取るとエラーです。
 
@@ -485,7 +485,7 @@ ConstNodeRef const& operator>>(ConstNodeRef const& node, T& v);
 | --- | --- | --- |
 | `v` | `T&` | 値を入れる変数。この型に合わせて変換される |
 
-- **戻り値:** ノード自身（`>>` をつなげられる）
+- 戻り値: ノード自身（`>>` をつなげられる）
 - 変換できないと（`"abc"` を `int` に）エラーです。
 
 ### operator<< {#operator_write}
@@ -498,9 +498,9 @@ NodeRef& operator<<(NodeRef& node, T const& v);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `v` | `const T&` | 書く値。文字列に変換して**アリーナにコピー**される |
+| `v` | `const T&` | 書く値。文字列に変換してアリーナにコピーされる |
 
-- **戻り値:** ノード自身（`<< ryml::key("hp") << 10` のようにつなげられる）
+- 戻り値: ノード自身（`<< ryml::key("hp") << 10` のようにつなげられる）
 - 値がコピーされるので、一時的な `std::string` や数値も安全に書けます。
 
 ### has_child {#has_child}
@@ -514,7 +514,7 @@ bool has_child(size_t pos) const;  // 番号の子があるか（バージョン
 | --- | --- | --- |
 | `key` | `csubstr` | 調べるキー |
 
-- **戻り値:** その名前の子があれば `true`
+- 戻り値: その名前の子があれば `true`
 - 無いかもしれないキーを読む前に、必ずこれで確認します。
 
 ### emitrs_yaml {#emitrs_yaml}
@@ -532,9 +532,9 @@ CharOwningContainer emitrs_yaml(ConstNodeRef const& n);
 | `CharOwningContainer` | 型引数 | 結果を入れる型。`std::string` か `std::vector<char>` |
 | `t` / `n` | `const Tree&` / `ConstNodeRef` | 書き出す木・ノード（ノードならその下だけ） |
 
-- **戻り値:** YAML の文字列
+- 戻り値: YAML の文字列
 - 名前の `rs` は「resize」の意味で、「コンテナを必要な大きさに広げて書く」という意味です。
-- 読み込んだ木を書き出すと、元の書き方（フロー形式 `[1, 2]` かブロック形式 `- 1` か）はなるべく保たれますが、**コメントは消えます**。
+- 読み込んだ木を書き出すと、元の書き方（フロー形式 `[1, 2]` かブロック形式 `- 1` か）はなるべく保たれますが、コメントは消えます。
 
 ### operator|= {#operator_or_assign}
 
@@ -556,8 +556,8 @@ children_view children();
 const_children_view children() const;
 ```
 
-- **戻り値:** 子ノードを範囲 for で回せるもの
-- **計算量:** 全体で O(子の数)
+- 戻り値: 子ノードを範囲 for で回せるもの
+- 計算量: 全体で O(子の数)
 
 ```cpp
 #include <print>
@@ -587,7 +587,7 @@ ether: 120G
 elixir: 1000G
 ```
 
-nlohmann/json と違って、マップの子は**書いた順番のまま**並んでいます。
+nlohmann/json と違って、マップの子は書いた順番のまま並んでいます。
 
 ### num_children {#num_children}
 
@@ -595,8 +595,8 @@ nlohmann/json と違って、マップの子は**書いた順番のまま**並�
 size_t num_children() const;
 ```
 
-- **戻り値:** 子の数
-- **計算量:** O(子の数)（数えるので、ループの条件に毎回書かない）
+- 戻り値: 子の数
+- 計算量: O(子の数)（数えるので、ループの条件に毎回書かない）
 
 ### key {#key}
 
@@ -604,7 +604,7 @@ size_t num_children() const;
 csubstr key() const;
 ```
 
-- **戻り値:** ノードのキーの文字列（`csubstr`）。キーを持たないノード（シーケンスの要素など）に使うとエラー
+- 戻り値: ノードのキーの文字列（`csubstr`）。キーを持たないノード（シーケンスの要素など）に使うとエラー
 - 指しているのは木の中（アリーナか入力）なので、木が消えると使えません。保存するなら `std::string(k.str, k.len)` でコピーします。
 
 ### val {#val}
@@ -613,7 +613,7 @@ csubstr key() const;
 csubstr val() const;
 ```
 
-- **戻り値:** ノードの値の文字列（`csubstr`）。変換しない生の文字列
+- 戻り値: ノードの値の文字列（`csubstr`）。変換しない生の文字列
 - 値を持たないノード（マップやシーケンス）に使うとエラーです。
 - `csubstr` には `==`（文字列リテラルと比べられる）、`begins_with`、`ends_with`、`find`、`trim` などの便利な関数があります。
 
@@ -623,7 +623,7 @@ csubstr val() const;
 NodeRef append_child();
 ```
 
-- **戻り値:** 最後に追加された空の子ノード
+- 戻り値: 最後に追加された空の子ノード
 - シーケンスに要素を足すとき、マップに `<< ryml::key(...)` でキー付きの子を足すときに使います。
 
 ### ryml::key {#ryml_key}
@@ -651,7 +651,7 @@ ConstNodeRef find_child(csubstr key) const;
 | --- | --- | --- |
 | `key` | `csubstr` | 探すキー |
 
-- **戻り値:** 見つかった子。無ければ**無効なノード**（`invalid()` が `true`）
+- 戻り値: 見つかった子。無ければ無効なノード（`invalid()` が `true`）
 - `has_child` と `[]` で 2 回探すのを 1 回にできます。
 
 ```cpp
@@ -666,7 +666,7 @@ if (ryml::ConstNodeRef hp = node.find_child("hp"); !hp.invalid()) {
 bool is_map() const;
 ```
 
-- **戻り値:** マップ（`キー: 値` の集まり）なら `true`
+- 戻り値: マップ（`キー: 値` の集まり）なら `true`
 - 人が書いたデータの形が正しいかを確認するときに使います。
 
 ### is_seq {#is_seq}
@@ -675,7 +675,7 @@ bool is_map() const;
 bool is_seq() const;
 ```
 
-- **戻り値:** シーケンス（`- 値` の並び、`[...]`）なら `true`
+- 戻り値: シーケンス（`- 値` の並び、`[...]`）なら `true`
 - 他にも `has_val()`（値を持つ）、`has_key()`（キーを持つ）、`is_keyval()`（キーと値を持つ）、`val_is_null()`（値が `~` や `null`）などがあります。
 
 ### parse_in_place {#parse_in_place}
@@ -688,12 +688,12 @@ void parse_in_place(substr yaml, Tree* t);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `yaml` | `substr` | 読む YAML。**書き換え可能な**文字列（`char` の配列や `std::string` の中身） |
+| `yaml` | `substr` | 読む YAML。書き換え可能な文字列（`char` の配列や `std::string` の中身） |
 | `filename` | `csubstr` | エラー表示用の名前 |
 | `t` | `Tree*` | 結果を入れる木 |
 
-- 入力の文字列を**コピーせずに**、そのまま木の文字列として使います（エスケープの処理などで中身が書き換えられます）。
-- 一番速い読み方ですが、**入力の文字列を木より長く残しておく**必要があります。入力が先に消えると、木の中の `csubstr` がすべて壊れます。
+- 入力の文字列をコピーせずに、そのまま木の文字列として使います（エスケープの処理などで中身が書き換えられます）。
+- 一番速い読み方ですが、入力の文字列を木より長く残しておく必要があります。入力が先に消えると、木の中の `csubstr` がすべて壊れます。
 
 ```cpp
 std::string text = LoadFile("enemies.yml");
@@ -708,7 +708,7 @@ template <class CharOwningContainer>
 CharOwningContainer emitrs_json(Tree const& t);
 ```
 
-- **戻り値:** JSON の文字列
+- 戻り値: JSON の文字列
 - 「人は YAML で書き、ゲームやツールには JSON で渡す」という変換にも使えます。
 
 ### emit_yaml {#emit_yaml}
@@ -721,7 +721,7 @@ size_t emit_yaml(Tree const& t, FILE* f = nullptr);
 | --- | --- | --- |
 | `f` | `FILE*` | 書き込む先のファイル。`nullptr` なら標準出力 |
 
-- **戻り値:** 書いたバイト数
+- 戻り値: 書いたバイト数
 - `std::cout << tree;` でも出力できます。デバッグ表示に便利です。
 
 ### operator= {#operator_assign}
@@ -733,9 +733,9 @@ void NodeRef::operator=(std::nullptr_t);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `v` | `csubstr` | ノードに設定する値の文字列。**コピーされない** |
+| `v` | `csubstr` | ノードに設定する値の文字列。コピーされない |
 
-- 値を**コピーせずに**ノードに設定します。文字列リテラルなら速くて安全ですが、一時的な `std::string` を渡すと、木の中で壊れた文字列になります。
+- 値をコピーせずにノードに設定します。文字列リテラルなら速くて安全ですが、一時的な `std::string` を渡すと、木の中で壊れた文字列になります。
 - 迷ったら、コピーしてくれる `<<` を使います。
 
 ```cpp
@@ -773,7 +773,7 @@ csubstr to_csubstr(const char* s);
 substr to_substr(std::string& s);            // 書き換え可能
 ```
 
-- **戻り値:** 文字列を指す `csubstr` / `substr`（コピーはしない）
+- 戻り値: 文字列を指す `csubstr` / `substr`（コピーはしない）
 - `std::string` を rapidyaml の関数に渡すときに使います。
 
 ### set_callbacks {#set_callbacks}

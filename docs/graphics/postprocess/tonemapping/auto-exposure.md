@@ -6,15 +6,15 @@ tags:
 
 # Auto Exposure
 
-<strong>暗い所から明るい所へ出ると、目が慣れるまでまぶしい</strong>——この<strong>明暗順応</strong>を再現するのが<strong>自動露出（Eye Adaptation）</strong>です。画面の明るさを測って、適切な露出を決め、時間をかけて追従させます。これがないと明るさが大きく変わるゲームでは、どこかで真っ白か真っ暗になります。このページでは、平均輝度の測り方（縮小・ヒストグラム）・外れ値の除外・目標露出の決め方・時間的な追従・仕上げの工夫を説明します。
+<strong>暗い所から明るい所へ出ると、目が慣れるまでまぶしい</strong>——この明暗順応を再現するのが自動露出（Eye Adaptation）です。画面の明るさを測って、適切な露出を決め、時間をかけて追従させます。これがないと明るさが大きく変わるゲームでは、どこかで真っ白か真っ暗になります。このページでは、平均輝度の測り方（縮小・ヒストグラム）・外れ値の除外・目標露出の決め方・時間的な追従・仕上げの工夫を説明します。
 
 !!! tip "ポイント"
     - 自動露出 ＝ <strong>画面の明るさを測る → 目標露出を決める → 時間で追従する</strong>。
-    - 明るさは<strong>対数平均（幾何平均）</strong>で測る。<strong>明るい点（太陽）に引きずられにくい</strong>。
-    - <strong>ヒストグラム</strong>で<strong>外れ値を除く</strong>と<strong>頑健</strong>。<strong>縮小（ミップ）</strong>は<strong>簡単</strong>。
-    - <strong>追従は指数的</strong>：<strong>`1 − exp(−dt · 速度)`</strong>。<strong>フレームレートに依らない</strong>。
-    - <strong>明→暗は遅く、暗→明は速く</strong>（<strong>目は暗順応が遅い</strong>）。
-    - <strong>最小・最大の EV を制限</strong>し、<strong>露出補正</strong>で画作りを残す。
+    - 明るさは<strong>対数平均（幾何平均）</strong>で測る。明るい点（太陽）に引きずられにくい。
+    - ヒストグラムで外れ値を除くと頑健。縮小（ミップ）は簡単。
+    - 追従は指数的：`1 − exp(−dt · 速度)`。フレームレートに依らない。
+    - 明→暗は遅く、暗→明は速く（目は暗順応が遅い）。
+    - 最小・最大の EV を制限し、露出補正で画作りを残す。
 
 ## 全体の流れ
 
@@ -34,13 +34,13 @@ tags:
 
 ### 対数平均
 
-<strong>単純な平均は太陽のような非常に明るい点に引きずられて、シーン全体が暗くなります</strong>。<strong>対数をとってから平均する（幾何平均）</strong>と、<strong>外れ値の影響が小さくなります</strong>。
+<strong>単純な平均は太陽のような非常に明るい点に引きずられて、シーン全体が暗くなります</strong>。対数をとってから平均する（幾何平均）と、外れ値の影響が小さくなります。
 
 <div class="formula">L_avg = exp( (1/N) · Σ log(L + ε) )</div>
 
 | 方式 | 内容 | 特徴 |
 | --- | --- | --- |
-| <strong>縮小（ミップ チェーン）</strong> | `log(L)` を 1×1 まで縮小して平均 | 簡単・速い。外れ値の除外はできない |
+| 縮小（ミップ チェーン） | `log(L)` を 1×1 まで縮小して平均 | 簡単・速い。外れ値の除外はできない |
 | ヒストグラム | 輝度を数十〜256 のビンに数える | 外れ値を除ける。頑健 |
 | 中心重み | 画面中心を重くして平均 | 視線が中心にあると仮定 |
 
@@ -52,11 +52,11 @@ float LogLuminance(float3 c) {
 }
 ```
 
-<strong>画面の `log(L)` を書いたテクスチャをミップで 1×1 まで縮小</strong>し、<strong>`exp` で戻す</strong>と対数平均です。実装が最も簡単ですが明るい点・暗い点が混ざるのでシーンによっては安定しません。
+画面の `log(L)` を書いたテクスチャをミップで 1×1 まで縮小し、`exp` で戻すと対数平均です。実装が最も簡単ですが明るい点・暗い点が混ざるのでシーンによっては安定しません。
 
 ### ヒストグラムで測る
 
-<strong>輝度を `log2` 空間で、等間隔のビンに数える</strong>方式です。<strong>各ビンのピクセル数をコンピュートで集計</strong>します。
+輝度を `log2` 空間で、等間隔のビンに数える方式です。各ビンのピクセル数をコンピュートで集計します。
 
 ```hlsl
 #define HISTOGRAM_BINS 256
@@ -761,7 +761,7 @@ void HistogramMain(uint3 id : SV_DispatchThreadID, uint group_index : SV_GroupIn
 
 ### 外れ値を除いて平均を取る
 
-<strong>ヒストグラムの下位 10〜40 %（暗い部分）・上位 5〜10 %（明るい部分）を除いた範囲</strong>で<strong>加重平均</strong>します。太陽・暗い隅・黒い UI の影響を抑えられます。
+ヒストグラムの下位 10〜40 %（暗い部分）・上位 5〜10 %（明るい部分）を除いた範囲で加重平均します。太陽・暗い隅・黒い UI の影響を抑えられます。
 
 ```hlsl
 float AverageLogLuminance(float low_percent, float high_percent) {
@@ -786,7 +786,7 @@ float AverageLogLuminance(float low_percent, float high_percent) {
 
 ## ② 目標の露出を決める
 
-<strong>平均輝度を「中間灰」（約 0.18）にするよう</strong>、<strong>EV を決めます</strong>。
+<strong>平均輝度を「中間灰」（約 0.18）にするよう</strong>、EV を決めます。
 
 <div class="formula">露出 = キー値 / 平均輝度　（キー値 ≒ 0.18）</div>
 
@@ -871,28 +871,28 @@ float AdaptExposure(float current, float target, float delta_time, float speed_u
 ## よくあるミス
 
 ??? failure "太陽が画面に入ると、全体が暗くなる"
-    <strong>単純平均</strong>になっている。<strong>対数平均・ヒストグラム（上位を除く）・中心重み</strong>を使う。
+    <strong>単純平均</strong>になっている。対数平均・ヒストグラム（上位を除く）・中心重みを使う。
 
 ??? failure "フレームごとに露出がちらつく"
-    <strong>追従が無い</strong>、または<strong>速すぎる</strong>。指数的な追従にし、ヒストグラムで安定させる。
+    追従が無い、または速すぎる。指数的な追従にし、ヒストグラムで安定させる。
 
 ??? failure "フレームレートによって、順応の速さが変わる"
-    <strong>`dt` を使わずに一定の割合で補間</strong>している。<strong>`1 − exp(−dt · speed)`</strong> にする。
+    `dt` を使わずに一定の割合で補間している。`1 − exp(−dt · speed)` にする。
 
 ??? failure "カットシーンの切り替えで、露出が遅れて、真っ白が数秒続く"
-    <strong>カット時に露出を目標値へ即時ジャンプ</strong>させる。
+    カット時に露出を目標値へ即時ジャンプさせる。
 
 ??? failure "GPU の結果を CPU へ読み戻して、パイプラインが止まる"
-    <strong>露出は GPU のバッファのまま、シェーダーが読む</strong>。<strong>CPU は触らない</strong>。
+    露出は GPU のバッファのまま、シェーダーが読む。CPU は触らない。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 自動露出 ＝ <strong>測る（対数平均・ヒストグラム）→ 目標露出 → 指数的に追従</strong>
-    - [x] <strong>対数平均</strong>と<strong>ヒストグラムの外れ値除外</strong>で<strong>太陽に引きずられない</strong>
-    - [x] <strong>キー値 0.18</strong>で<strong>中間灰を平均に</strong>。<strong>EV の範囲を制限</strong>
-    - [x] <strong>追従は `1 − exp(−dt · speed)`</strong>。<strong>暗くなるほうが遅い</strong>
-    - [x] <strong>読み戻しを避け</strong>、<strong>カットでリセット</strong>
+    - [x] 対数平均とヒストグラムの外れ値除外で太陽に引きずられない
+    - [x] キー値 0.18で中間灰を平均に。EV の範囲を制限
+    - [x] 追従は `1 − exp(−dt · speed)`。暗くなるほうが遅い
+    - [x] 読み戻しを避け、カットでリセット
 
 ## 参考
 

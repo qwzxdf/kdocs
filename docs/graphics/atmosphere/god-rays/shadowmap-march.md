@@ -6,7 +6,7 @@ tags:
 
 # Shadow Map Raymarching
 
-<strong>視線に沿って進み各点で「太陽の光が届くか」をシャドウ マップで判定</strong>して、<strong>光の量を足し合わせる</strong>のが正確な方式です。太陽が画面外でも使えます。このページではシャドウ マップを使ったレイマーチを説明します。
+<strong>視線に沿って進み各点で「太陽の光が届くか」をシャドウ マップで判定</strong>して、光の量を足し合わせるのが正確な方式です。太陽が画面外でも使えます。このページではシャドウ マップを使ったレイマーチを説明します。
 
 !!! tip "ポイント"
     - 視線に沿ってシャドウ マップを参照。
@@ -15,7 +15,7 @@ tags:
     - ステップ数が多いと重いので、ジッタ＋時間蓄積。
 
 ## シャドウ マップでレイマーチ
-<strong>正確な方法</strong>は<strong>視線に沿ってサンプル点を歩き、各点が日向か日陰かをシャドウ マップで判定して、日向の点の寄与を足す</strong>ことです。ボリューメトリック フォグ（[Volumetric Fog](../volumetric-fog/index.md)）と同じ原理です。
+<strong>正確な方法</strong>は視線に沿ってサンプル点を歩き、各点が日向か日陰かをシャドウ マップで判定して、日向の点の寄与を足すことです。ボリューメトリック フォグ（[Volumetric Fog](../volumetric-fog/index.md)）と同じ原理です。
 
 ```hlsl
 float3 VolumetricGodRays(float3 camera_pos, float3 pixel_world_pos, float2 pixel_coord) {
@@ -77,18 +77,18 @@ float3 VolumetricGodRays(float3 camera_pos, float3 pixel_world_pos, float2 pixel
 
 ## シャドウ マップで光の通り道を調べる
 
-<strong>放射状ブラー</strong>（[Screen-Space Radial Blur](radial-blur.md)）は、<strong>画面の画像</strong>だけを使うので、影の正確さがありません。シャドウ マップを使うと視線に沿った各点が、太陽の光を受けているかが正確に、分かります。
+<strong>放射状ブラー</strong>（[Screen-Space Radial Blur](radial-blur.md)）は、画面の画像だけを使うので、影の正確さがありません。シャドウ マップを使うと視線に沿った各点が、太陽の光を受けているかが正確に、分かります。
 
 ## 考え方
 
-<strong>カメラから各画素へ向かう視線</strong>を、<strong>細かく区切って</strong>、各点で 2 つのことを調べます。
+<strong>カメラから各画素へ向かう視線</strong>を、細かく区切って、各点で 2 つのことを調べます。
 
 | 調べること | 内容 |
 | --- | --- |
 | 光が届いているか | その点は、シャドウ マップで影の外か（太陽の光が、届く） |
 | どれだけ散乱するか | 霧の密度 × 位相関数（太陽の方向への、前方散乱） |
 
-<strong>光が届いている点の散乱光だけ</strong>を、<strong>足し合わせる</strong>と光の筋（光が通る、道筋）が現れます。
+光が届いている点の散乱光だけを、足し合わせると光の筋（光が通る、道筋）が現れます。
 
 ```text
 視線 ●────●────●────●────●────●
@@ -108,7 +108,7 @@ float3 GodRays(float3 camera, float3 world_pos, float2 screen_pos) {
   float step_len = ray_length / kSteps;
 ```
 
-<strong>カメラからその画素の物体まで</strong>の視線を、<strong>32 区間</strong>に分けます。物体より奥は積分しません（物体で視線が、止まる）。
+<strong>カメラからその画素の物体まで</strong>の視線を、32 区間に分けます。物体より奥は積分しません（物体で視線が、止まる）。
 
 ```hlsl
   // ステップの開始位置を、ノイズで、ずらす（縞を、細かいノイズに、変える）。
@@ -118,7 +118,7 @@ float3 GodRays(float3 camera, float3 world_pos, float2 screen_pos) {
   float phase = HenyeyGreenstein(cos_theta, 0.7);               // 太陽の方向への、前方散乱
 ```
 
-<strong>開始位置をノイズでずらす</strong>（ジッター）と、<strong>縞（バンディング）</strong>が細かいノイズに変わり、TAA でなめらかにならされます（[Cloud Temporal Reprojection](../clouds/temporal.md)）。位相関数は視線に沿って一定なので、ループの外で 1 回です。
+開始位置をノイズでずらす（ジッター）と、縞（バンディング）が細かいノイズに変わり、TAA でなめらかにならされます（[Cloud Temporal Reprojection](../clouds/temporal.md)）。位相関数は視線に沿って一定なので、ループの外で 1 回です。
 
 ```hlsl
   for (int i = 0; i < kSteps; ++i) {
@@ -128,7 +128,7 @@ float3 GodRays(float3 camera, float3 world_pos, float2 screen_pos) {
   }
 ```
 
-<strong>各点のワールド位置</strong>を <strong>シャドウ マップの座標</strong>へ、変換して影かどうかを調べます（[Comparison Samplers](../../shadows/shadow-map-basics/comparison-sampler.md)）。光が届く点（`shadow = 1`）だけが足されるので影に入った区間は、足されません。
+各点のワールド位置を シャドウ マップの座標へ、変換して影かどうかを調べます（[Comparison Samplers](../../shadows/shadow-map-basics/comparison-sampler.md)）。光が届く点（`shadow = 1`）だけが足されるので影に入った区間は、足されません。
 
 ```hlsl
   // 平均を取り、散乱の量（霧の密度 × 距離）と、位相関数、太陽の色を、掛ける。
@@ -137,11 +137,11 @@ float3 GodRays(float3 camera, float3 world_pos, float2 screen_pos) {
 }
 ```
 
-<strong>光が届いた区間の割合</strong>（`sum / kSteps`）に、<strong>霧の厚み</strong>と位相関数、太陽の色を掛けます。光が多く届く（影が少ない）視線ほど、明るい筋になります。
+光が届いた区間の割合（`sum / kSteps`）に、霧の厚みと位相関数、太陽の色を掛けます。光が多く届く（影が少ない）視線ほど、明るい筋になります。
 
 ## シャドウ マップの読み方
 
-<strong>視線に沿った各点</strong>は <strong>空間の、あらゆる場所</strong>にあるのでシャドウ マップ（カスケード）の、どの範囲に入るかを判定して適切な、カスケードを引きます（[CSM](../../shadows/cascaded.md)）。遠い点はカスケードの外になることがあり、影なし（光が届く）とみなします。
+<strong>視線に沿った各点</strong>は 空間の、あらゆる場所にあるのでシャドウ マップ（カスケード）の、どの範囲に入るかを判定して適切な、カスケードを引きます（[CSM](../../shadows/cascaded.md)）。遠い点はカスケードの外になることがあり、影なし（光が届く）とみなします。
 
 ```hlsl
 float SampleShadowMap(float3 world_pos) {
@@ -155,7 +155,7 @@ float SampleShadowMap(float3 world_pos) {
 
 ## 計算量と最適化
 
-<strong>画面の全画素</strong>に対して <strong>32 ステップ</strong>の、ループを回すと非常に重いです（1080p で、約 6,600 万回のシャドウ マップ読み込み）。
+<strong>画面の全画素</strong>に対して 32 ステップの、ループを回すと非常に重いです（1080p で、約 6,600 万回のシャドウ マップ読み込み）。
 
 | 最適化 | 内容 |
 | --- | --- |
@@ -178,7 +178,7 @@ float SampleShadowMap(float3 world_pos) {
 ## よくあるミス
 
 ??? failure "光の筋に縞（バンディング）が出る"
-    <strong>ジッタ</strong>＋ <strong>時間蓄積</strong>を使う。
+    <strong>ジッタ</strong>＋ 時間蓄積を使う。
 
 ## これだけ覚える
 

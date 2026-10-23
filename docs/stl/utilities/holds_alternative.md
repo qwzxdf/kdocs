@@ -14,7 +14,7 @@ tags:
 `#include <variant>`
 </div>
 
-`std::holds_alternative<T>(v)` は、**`variant` が今、型 `T` の値を持っているか**を `bool` で答える関数です。「中身が `int` か」を調べるだけで、値は取り出しません。
+`variant` が、いま `int` を持っているのか `float` を持っているのかを知りたい。値を取り出す前に、型を確かめたい場面があります。`std::holds_alternative<T>(v)` は、`variant` が型 `T` の値を持っているかを `bool` で答える関数です。値は取り出さず、型の確認だけをします。
 
 !!! tip "ポイント"
     - 値も取り出したいなら [`std::get_if`](get_if.md) のほうが 1 回で済む。
@@ -53,14 +53,19 @@ true false
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 今の状態が「移動中」か | `std::holds_alternative<Moving>(state)` |
+ステートや設定値の型を、分岐の条件にするときに使います。`if (std::holds_alternative<Moving>(state)) { ... }` と書けば、移動中かどうかが分かります。
+
+値も取り出したいなら、`get_if` のほうが一度で済みます。`holds_alternative` で確かめたあとに `get` を呼ぶと、型の確認が 2 回になります。
+
+`v.index()` で、番号で調べる方法もあります。ただし、型の並びを変えると番号がずれるので、型で調べるほうが安全です。
 
 ## よくあるミス
 
 ??? failure "同じ型が 2 つ入る variant"
     `variant<int, int>` のように同じ型が複数あると、型で指定できません。`index()` を使います。
+
+??? failure "同じ型が複数あるときに使う"
+    `variant<int, int>` のように同じ型が 2 つあると、`holds_alternative<int>` は曖昧でコンパイルエラーです。番号で調べます。
 
 ## 類似
 

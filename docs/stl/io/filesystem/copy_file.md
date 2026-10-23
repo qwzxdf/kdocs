@@ -15,7 +15,7 @@ tags:
 `#include <filesystem>`
 </div>
 
-`std::filesystem::copy_file` は、**ファイルを 1 つコピーする**関数です。すでに同名のファイルがあるときの動作は、`copy_options` で決めます。
+設定ファイルの初期値を、ユーザーのフォルダにコピーしたい、セーブデータを 1 つ複製したい。ファイルを 1 つコピーするには、読み込んで書き出すコードを書くことになります。`std::filesystem::copy_file` は、ファイルを 1 つコピーする関数です。すでに同名のファイルがあるときの動作は、`copy_options` で決めます。
 
 !!! tip "ポイント"
     - 既定では、コピー先があると**エラー**。`copy_options::overwrite_existing` で上書き。
@@ -80,14 +80,19 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| セーブデータのバックアップ | `fs::copy_file(src, bak, fs::copy_options::overwrite_existing)` |
+初回起動時に、既定の設定ファイルをコピーする処理に使います。`fs::copy_file("default.ini", user_dir / "settings.ini", fs::copy_options::skip_existing);` と書けば、すでにユーザーの設定があれば、上書きしません。
+
+セーブデータのバックアップにも使います。書き込む前に、元のセーブデータを `.bak` としてコピーしておけば、書き込み中のクラッシュで壊れても戻せます。
+
+フォルダ全体のコピーには `copy` を使います。`copy_file` は、ファイル 1 つ専用です。
 
 ## よくあるミス
 
 ??? failure "上書きの指定を忘れる"
     既存のファイルがあるとエラー（例外）になります。
+
+??? failure "コピー先が既にあってエラーになる"
+    既定では、コピー先に同名のファイルがあるとエラーです。`overwrite_existing` で上書きするか、`skip_existing` で飛ばします。
 
 ## 類似
 

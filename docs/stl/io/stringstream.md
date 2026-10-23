@@ -14,12 +14,15 @@ tags:
 `#include <sstream>`
 </div>
 
-`std::stringstream` は、**文字列をストリームとして読み書きできる**型です。`<<` で値をつなげて文字列を組み立てたり、`>>` や `getline` で文字列から値を取り出したりできます。読むだけの [`istringstream`](istringstream.md)、書くだけの [`ostringstream`](ostringstream.md) もあります。
+文字列を組み立てたり、文字列から値を取り出したりしたい。`std::stringstream` は、文字列をストリームとして読み書きできる型です。`<<` で値をつなげて文字列を作り、`>>` や `getline` で文字列から値を取り出せます。読むだけの `istringstream`、書くだけの `ostringstream` もあります。
 
 !!! tip "ポイント"
     - ファイルを使わずに、読み込み処理をテストできる（文字列を渡すだけ）。
     - 文字列の組み立ては [`std::format`](../utilities/format.md) のほうが短くて速い。
     - 中身を空にするのは `str("")`。`clear()` はエラー状態を消すだけ。
+
+!!! info "このページを読む前に"
+    [`std::ifstream`](ifstream.md) や [`std::cout`](cout.md) など、ストリームの基本を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -147,15 +150,19 @@ void swap(stringstream& other);
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 「1 行」を分解して読む | `std::istringstream ss(line); ss >> a >> b;` |
-| カンマ区切りの分割 | `std::getline(ss, field, ',')` |
+読み込み処理のテストで使います。ファイルを用意せず、文字列を `stringstream` に入れて、`std::istream&` を受け取る関数に渡せます。
+
+文字列の組み立ては、`std::format` のほうが短く、速くなります。`stringstream` は、読み書きの両方が要るときや、ストリームの機能（マニピュレーター）を使いたいときに残ります。
+
+中身を空にするのは `str("")` です。`clear()` は、エラー状態を消すだけです。ストリームは作成が重めなので、毎フレームのように大量に作るのは避けます。
 
 ## よくあるミス
 
 ??? failure "clear で中身が消えると思う"
     `clear()` はエラー状態を消すだけです。中身を空にするには `str("")` です。
+
+??? failure "`clear()` で中身が消えると思う"
+    `clear()` は、エラー状態をリセットするだけです。中身を空にするには `str("")` です。
 
 ## 類似
 

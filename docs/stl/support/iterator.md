@@ -72,6 +72,10 @@ tags:
 | [`std::iter_reference_t`](iterator/iter_reference_t.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータの `*it` の型（参照）を取り出す型の別名。 <span class="ver ver-20">C++20</span> |
 | [`std::iter_difference_t`](iterator/iter_difference_t.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータの差の型を取り出す型の別名。 <span class="ver ver-20">C++20</span> |
 | [`std::iter_move`](iterator/iter_move.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータが指す要素を、右辺値として取り出す。 <span class="ver ver-20">C++20</span> |
+| [`std::cbegin`](iterator/cbegin.md) | <span class="rank rank-sometimes">たまに</span> | コンテナや配列の先頭を指す、const のイテレータを返す。 <span class="ver ver-14">C++14</span> |
+| [`std::cend`](iterator/cend.md) | <span class="rank rank-rare">知ってるだけ</span> | コンテナや配列の終端を指す、const のイテレータを返す。 <span class="ver ver-14">C++14</span> |
+| [`std::rbegin`](iterator/rbegin.md) | <span class="rank rank-sometimes">たまに</span> | コンテナや配列の逆順の先頭（最後の要素）を指すイテレータを返す。 <span class="ver ver-14">C++14</span> |
+| [`std::rend`](iterator/rend.md) | <span class="rank rank-rare">知ってるだけ</span> | コンテナや配列の逆順の終端（先頭の手前）を指すイテレータを返す。 <span class="ver ver-14">C++14</span> |
 
 ## よくある使い方
 

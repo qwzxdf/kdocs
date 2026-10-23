@@ -6,7 +6,7 @@ tags:
 
 # Instancing
 
-<strong>草は同じメッシュを何十万個も描きます</strong>。<strong>インスタンシングは 1 回の描画命令で、同じメッシュを位置を変えて大量に描く</strong>方法で、描画命令の数を減らせます。このページではインスタンシングを説明します。
+<strong>草は同じメッシュを何十万個も描きます</strong>。インスタンシングは 1 回の描画命令で、同じメッシュを位置を変えて大量に描く方法で、描画命令の数を減らせます。このページではインスタンシングを説明します。
 
 !!! tip "ポイント"
     - 1 回の DrawIndexedInstanced で、大量に描く。
@@ -15,7 +15,7 @@ tags:
     - 描画命令の数が減る。
 
 ## インスタンシング
-<strong>同じメッシュを位置・向き・大きさだけ変えて、大量に描く</strong>のが<strong>インスタンシング</strong>です。
+<strong>同じメッシュを位置・向き・大きさだけ変えて、大量に描く</strong>のがインスタンシングです。
 
 インスタンシングの方式です。`DrawIndexedInstanced` はインスタンス数を指定して描き、インスタンスごとのデータは頂点バッファか StructuredBuffer に置きます。`DrawIndexedInstancedIndirect` はインスタンス数を GPU が決める方式で、カリング結果をそのまま使え CPU 待ちがありません。インスタンス データは位置（float3）・回転（1 つの角度）・スケール・色の個体差などで、16〜32 バイトに収めます。
 
@@ -62,7 +62,7 @@ VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
 }
 ```
 
-<strong>1 つの描画命令にまとめる</strong>ので、<strong>CPU の負担が小さく</strong>、GPU も効率的です。メッシュ（ポリゴン数）が小さいほど、インスタンシングの効果が大きいです。
+1 つの描画命令にまとめるので、CPU の負担が小さく、GPU も効率的です。メッシュ（ポリゴン数）が小さいほど、インスタンシングの効果が大きいです。
 
 <!-- fig:instancing-calls:begin -->
 
@@ -155,7 +155,7 @@ VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
 
 ## なぜ普通に描くと遅いのか
 
-草を 1 本ずつ `DrawIndexed` で描くと、<strong>ドローコールが数十万回</strong>になります。ドローコール 1 回ごとに CPU が、状態の設定とドライバーの処理を行うので、<strong>1 回あたり数マイクロ秒</strong>でも、積もるとフレームを使い切ります。
+草を 1 本ずつ `DrawIndexed` で描くと、<strong>ドローコールが数十万回</strong>になります。ドローコール 1 回ごとに CPU が、状態の設定とドライバーの処理を行うので、1 回あたり数マイクロ秒でも、積もるとフレームを使い切ります。
 
 | 方式 | ドローコール | CPU の負荷 |
 | --- | --- | --- |
@@ -201,7 +201,7 @@ device->CreateShaderResourceView(instance_buffer.Get(), &srv, &instance_srv);
 
 ## 間接描画（GPU 駆動）
 
-<strong>カリングを GPU で行う</strong>と「何個、描くか」が CPU には分かりません（GPU が、計算してから決まる）。CPU に読み戻すと <strong>GPU の処理を、待つことになり遅くなります</strong>。そこで、描画の引数を GPU が書きそのまま、描画に使うのが間接描画です。
+<strong>カリングを GPU で行う</strong>と「何個、描くか」が CPU には分かりません（GPU が、計算してから決まる）。CPU に読み戻すと GPU の処理を、待つことになり遅くなります。そこで、描画の引数を GPU が書きそのまま、描画に使うのが間接描画です。
 
 ### 全体の流れ
 
@@ -277,7 +277,7 @@ context->VSSetShaderResources(0, 1, visible_srv.GetAddressOf());
 context->DrawIndexedInstancedIndirect(args_buffer.Get(), 0);
 ```
 
-この流れでは <strong>CPU は見えた個数を、一度も読みません</strong>。GPU が自分で決めた個数を、そのまま描画に使います。
+この流れでは CPU は見えた個数を、一度も読みません。GPU が自分で決めた個数を、そのまま描画に使います。
 
 ## 描画のシェーダー
 

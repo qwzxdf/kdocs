@@ -15,7 +15,7 @@ tags:
 `#include <chrono>`
 </div>
 
-`std::chrono::time_point` は、**ある時計（`Clock`）の上の「ある時点」**を表すクラスです。内部では「その時計の基準時刻からの経過時間（`duration`）」を持っています。時点どうしを引くと `duration`（時間の長さ）、時点に長さを足すと別の時点になります。
+「処理を開始した時刻」と「いまの時刻」を覚えておいて、差を取りたい。時刻と時間の長さは別のものです。「午後 3 時」は時刻、「2 時間」は長さで、時刻どうしを引くと長さに、時刻に長さを足すと別の時刻になります。`std::chrono::time_point` は、ある時計の上の「ある時点」を表すクラスで、この関係を型で守ってくれます。
 
 !!! tip "ポイント"
     - `time_point - time_point` が `duration`、`time_point + duration` が `time_point`。
@@ -23,7 +23,7 @@ tags:
     - `time_since_epoch()` で、基準時刻からの経過時間が取れる。
 
 !!! info "このページを読む前に"
-    [`std::chrono`](../chrono.md) の概要を先に読むと分かりやすいです。
+    [`std::chrono::duration`](duration.md) と、[`steady_clock`](steady_clock.md) を先に読んでください。`time_point` は、時計の上の時点を表します。
 
 ## 関数の詳しい説明
 
@@ -141,25 +141,40 @@ constexpr auto operator<=>(const time_point& lhs, const time_point& rhs);
 
 時点の先後を比べる三方比較。
 
+## しくみ
+
+`time_point<Clock, Duration>` は、内部に「その時計の基準時刻からの経過時間」を `duration` として持っています。時計が違うと基準も違うので、違う時計の時点どうしは比べられません（型が違うため、コンパイルエラーになります）。
+
+使える演算は決まっています。`time_point - time_point` は `duration`、`time_point + duration` と `time_point - duration` は `time_point` です。時点どうしを足すことはできません。
+
+`time_since_epoch()` で、基準時刻からの経過時間が取れますが、基準時刻は時計の実装次第です。`steady_clock` では意味のある値にならないので、差を取ったときにだけ使います。
+
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| フレームの開始時刻の保存 | `auto last = steady_clock::now();` |
-| イベントの発火時刻 | `time_point<steady_clock> fire_at = now + 3s;` |
+処理時間の計測の起点と終点を、`auto start = steady_clock::now();` として保存しておくのが基本です。差が `duration` になります。
+
+イベントを時刻で管理するとき、`std::vector<std::pair<time_point, Event>>` のように、予定の時刻を持たせます。いまの時刻と比べて、過ぎていれば実行します。
+
+保存したい日時は、`system_clock` の `time_point` を使います。`steady_clock` の時点は、再起動で意味が変わるので、ファイルに保存してはいけません。
 
 ## よくあるミス
 
-??? failure "違う時計の time_point を引き算する"
-    `system_clock` の時点と `steady_clock` の時点は比べられません（コンパイルエラー）。
+??? failure "違う時計の時点を引き算する"
+    `steady_clock::now() - system_clock::now()` は、型が違うのでコンパイルエラーです。基準が違う時計の時点を、直接比べることはできません。
+
+??? failure "`steady_clock` の時点をファイルに保存する"
+    `steady_clock` の基準は、実装ごとに違い、再起動でも変わります。保存した値を後で読み込んでも、意味を持ちません。日時を保存するなら `system_clock` です。
+
+??? failure "時点どうしを足そうとする"
+    時点を足す演算はありません。差（`duration`）を足すのは正しい操作です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`steady_clock`](steady_clock.md) | 計測用の時計 |
-| [`duration`](duration.md) | 時間の長さ |
-| [`system_clock`](system_clock.md) | カレンダーの時刻 |
+| [`duration`](duration.md) | 時間の長さ。時点の差 |
+| [`steady_clock`](steady_clock.md) | 巻き戻らない時計。計測用 |
+| [`system_clock`](system_clock.md) | 世の中の時刻。日時の保存用 |
 
 ## コンパイラ対応
 
@@ -168,9 +183,9 @@ C++11 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 時計の上の「ある時点」
-    - [x] 差は duration、足すと別の時点
-    - [x] 違う時計は比べられない
+    - [x] `time_point - time_point` が `duration`、`time_point + duration` が `time_point`。
+    - [x] 違う時計の時点は比べられない。
+    - [x] 保存するのは `system_clock` の時点。
 
 ## 関連ページ
 

@@ -14,12 +14,15 @@ tags:
 `#include <optional>`
 </div>
 
-`std::nullopt` は、**`std::optional` を「値がない（空）」状態にするための印**です。`std::optional<int> o = std::nullopt;` と書くと空になり、関数が「見つからなかった」ことを伝えるときに `return std::nullopt;` と書きます。
+「見つからなかった」ことを、関数の戻り値で伝えたい。`std::optional` を返す関数で、値がない状態を表すには、何かの印が必要です。`std::nullopt` は、`std::optional` を「値がない（空）」状態にするための印です。`return std::nullopt;` と書けば、「ない」を返せます。
 
 !!! tip "ポイント"
     - `return std::nullopt;` で「無し」を返す。
     - `o = std::nullopt;` や `o.reset()` で、中身を捨てて空にする。
     - `o == std::nullopt` で空か調べられる（`has_value()` でも同じ）。
+
+!!! info "このページを読む前に"
+    [`std::optional`](optional.md) を先に読んでください。`nullopt` は、その空の状態を表す印です。
 
 ## 関数の詳しい説明
 
@@ -54,14 +57,19 @@ false 42
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 検索関数が「見つからなかった」を返す | `return std::nullopt;` |
+検索関数の戻り値で、「見つからなかった」を返すときに使います。`std::optional<Enemy*> FindNearest(Vec2 pos)` が、敵がいなければ `return std::nullopt;` と書きます。
+
+`optional` を空に戻すには、`o = std::nullopt;` か `o.reset()` です。選択中のユニットを解除する、といった処理に使います。
+
+空かどうかは、`o == std::nullopt` でも調べられますが、`has_value()` や `if (o)` のほうが読みやすくなります。
 
 ## よくあるミス
 
 ??? failure "nullptr と混同する"
     `optional` の空は `nullopt` です。`nullptr` ではありません。
+
+??? failure "`nullptr` と取り違える"
+    `optional` に `nullptr` を入れると、`nullptr` という値が入った状態になります。空にするのは `nullopt` です。
 
 ## 類似
 

@@ -6,7 +6,7 @@ tags:
 
 # Ridged Noise
 
-<strong>通常のノイズは丸い丘になりがち</strong>で、<strong>山脈の鋭い稜線は出ません</strong>。ノイズの絶対値を反転させると、尖った稜線ができます。このページではリッジ ノイズを説明します。
+<strong>通常のノイズは丸い丘になりがち</strong>で、山脈の鋭い稜線は出ません。ノイズの絶対値を反転させると、尖った稜線ができます。このページではリッジ ノイズを説明します。
 
 !!! tip "ポイント"
     - 1 − |ノイズ| で、稜線ができる。
@@ -15,7 +15,7 @@ tags:
     - 丘と混ぜて使い分ける。
 
 ## リッジ ノイズ
-<strong>山脈の尾根</strong>を作るには <strong>ノイズの絶対値を取って反転</strong>します。ゼロ付近が鋭い尾根になります。
+<strong>山脈の尾根</strong>を作るには ノイズの絶対値を取って反転します。ゼロ付近が鋭い尾根になります。
 
 ```hlsl
 float RidgedFbm(float2 p, int octaves, float lacunarity, float gain) {
@@ -88,11 +88,11 @@ float RidgedFbm(float2 p, int octaves, float lacunarity, float gain) {
 
 ## 通常の fBm は山の稜線が丸い
 
-fBm はノイズの値（−1〜1）を、そのまま高さにするので山頂は、<strong>丸い丘</strong>になります。現実の山脈には <strong>鋭い稜線（尾根）</strong>があります。尾根を作るにはノイズの値を折り返す加工をします。
+fBm はノイズの値（−1〜1）を、そのまま高さにするので山頂は、<strong>丸い丘</strong>になります。現実の山脈には 鋭い稜線（尾根）があります。尾根を作るにはノイズの値を折り返す加工をします。
 
 ## 尾根ノイズ（ridged multifractal）の考え方
 
-ノイズの値は 0 の近くをゆっくり通り抜けます。<strong>ノイズが 0 になる場所は、曲線（等値線）</strong>を作ります。この曲線を <strong>山の尾根</strong>にします。
+ノイズの値は 0 の近くをゆっくり通り抜けます。<strong>ノイズが 0 になる場所は、曲線（等値線）</strong>を作ります。この曲線を 山の尾根にします。
 
 1. ノイズの絶対値を取る（0 の位置で、V の字に折り返される）
 2. 1 から引いて上下をひっくり返す（0 の位置が山頂の、尖った稜線になる）
@@ -146,11 +146,11 @@ float RidgedMulti(float2 p, int octaves, float lacunarity, float gain,
 | 尾根の上 | 大きい | 大きい | 強く足される。尾根に細かい起伏が付く |
 | 谷 | 小さい | 小さい | ほとんど足されない。谷が平らに残る |
 
-結果として、<strong>尾根はごつごつして谷はなだらか</strong>になります。これがリッジ ノイズと fBm の、一番の違いです。山脈や荒れた岩山でよく使います。
+結果として、尾根はごつごつして谷はなだらかになります。これがリッジ ノイズと fBm の、一番の違いです。山脈や荒れた岩山でよく使います。
 
 ## fBm と組み合わせて使う
 
-尾根ノイズだけでは全体が山脈になります。<strong>平地・丘・山脈</strong>を混ぜる場合は、2 種類のノイズを <strong>マスク</strong>で混ぜます。
+尾根ノイズだけでは全体が山脈になります。<strong>平地・丘・山脈</strong>を混ぜる場合は、2 種類のノイズを マスクで混ぜます。
 
 ```hlsl
 // 低周波のノイズで「山の領域」を決め、その領域だけ、尾根ノイズを使う。
@@ -160,7 +160,7 @@ float mountain_mask = smoothstep(0.2, 0.6, Fbm(p * 0.1, 3, 2.0, 0.5, seed + 200)
 float height = lerp(height_fbm * 0.2, height_ridge, mountain_mask);
 ```
 
-低周波のノイズ（`p * 0.1`）をマスクにして、<strong>地域ごとに地形の性格を変える</strong>のは、手続き的な地形の基本の考え方です（[Converting Noise to Height](height-conversion.md)）。
+低周波のノイズ（`p * 0.1`）をマスクにして、地域ごとに地形の性格を変えるのは、手続き的な地形の基本の考え方です（[Converting Noise to Height](height-conversion.md)）。
 
 ## 注意点
 

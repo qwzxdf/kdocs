@@ -6,7 +6,7 @@ tags:
 
 # Cloud Density Model
 
-<strong>雲の形はノイズで作ります</strong>。<strong>低周波のノイズで大きな形、高周波のノイズで細部</strong>を作り、重ねます。このページでは雲の密度のモデルを説明します。
+<strong>雲の形はノイズで作ります</strong>。低周波のノイズで大きな形、高周波のノイズで細部を作り、重ねます。このページでは雲の密度のモデルを説明します。
 
 !!! tip "ポイント"
     - 基本形：Perlin-Worley ノイズ。
@@ -1592,8 +1592,8 @@ tags:
 
 | 要素 | 役割 |
 | --- | --- |
-| <strong>天気マップ（2D）</strong> | どこに雲があるか（被覆率）・どんな種類か |
-| <strong>高さの形（ゲイン）</strong> | 層の下と上で薄くなる（雲の底は平ら、頂は丸い） |
+| 天気マップ（2D） | どこに雲があるか（被覆率）・どんな種類か |
+| 高さの形（ゲイン） | 層の下と上で薄くなる（雲の底は平ら、頂は丸い） |
 | 基本形の 3D ノイズ | 雲全体の大まかな塊（低周波。Perlin–Worley） |
 | ディテールの 3D ノイズ | 塊の縁の細かい凹凸（高周波。Worley） |
 | 風の流れ | ノイズの座標を時間で動かす |
@@ -1647,15 +1647,15 @@ float Remap(float v, float a, float b, float c, float d) {
 | `Remap` | 値の範囲を変換する道具。閾値で塊を切り出すのに便利 |
 | `height_fraction` | 層の下端を 0、上端を 1 とした位置 |
 | `height_gradient` | 下と上で薄くなる山型（底が柔らかく、頂が丸く） |
-| <strong>被覆率（coverage）</strong> | 大きいほど雲が多い |
+| 被覆率（coverage） | 大きいほど雲が多い |
 | ディテールは密度がある所だけ | `if (density > 0)` で計算を省く |
 | 3D ノイズは事前生成 | 128³ と 32³ のテクスチャ（Perlin と Worley を重ねる） |
 
-<strong>ノイズ テクスチャ</strong>は<strong>事前に生成</strong>します（Perlin ノイズに Worley ノイズを重ね、4 チャンネルに異なる周波数を入れる）。
+ノイズ テクスチャは事前に生成します（Perlin ノイズに Worley ノイズを重ね、4 チャンネルに異なる周波数を入れる）。
 
 ## 雲の密度をどう作るか
 
-<strong>ボリューム レンダリング</strong>で、雲を描くには <strong>空間の各点での、雲の密度</strong>（どれだけ濃いか）が、必要です。3D の密度のデータをそのまま、持つ（ボクセル）と巨大になるので、ノイズ テクスチャを組み合わせて、実行時に密度を作ります（Schneider と Vos、2015）。
+<strong>ボリューム レンダリング</strong>で、雲を描くには 空間の各点での、雲の密度（どれだけ濃いか）が、必要です。3D の密度のデータをそのまま、持つ（ボクセル）と巨大になるので、ノイズ テクスチャを組み合わせて、実行時に密度を作ります（Schneider と Vos、2015）。
 
 | 材料 | 内容 |
 | --- | --- |
@@ -1666,7 +1666,7 @@ float Remap(float v, float a, float b, float c, float d) {
 
 ## 密度を組み立てる手順
 
-<strong>5 つの手順</strong>で密度が決まります。<strong>1 つずつコード</strong>を追います。
+<strong>5 つの手順</strong>で密度が決まります。1 つずつコードを追います。
 
 ### ① 天気マップからカバレッジと、種類を読む
 
@@ -1677,7 +1677,7 @@ float coverage = weather.r;
 float cloud_type = weather.b;
 ```
 
-<strong>天気マップ</strong>は <strong>空を真上から見た、2D の画像</strong>です。どこに雲があるか（R）、どんな種類か（B）を画素ごとに、決めるのでアーティストが空の、雲の配置を描けます。位置（`position.xz`）から UV を作って、読みます。
+天気マップは 空を真上から見た、2D の画像です。どこに雲があるか（R）、どんな種類か（B）を画素ごとに、決めるのでアーティストが空の、雲の配置を描けます。位置（`position.xz`）から UV を作って、読みます。
 
 ### ② 高さのグラデーション
 
@@ -1687,7 +1687,7 @@ float height_fraction = (length(position) - g_cloud_bottom_radius) / (g_cloud_to
 float gradient = HeightGradient(height_fraction, cloud_type);        // 種類ごとの、高さ方向の、密度の山
 ```
 
-雲の <strong>層</strong>（惑星の周りの球殻）の中で、<strong>どの高さか</strong>を 0〜1 で求めます。種類ごとのグラデーション（[Cloud Layers](layers.md)）を掛けて底は平ら上端は、丸い形にします。
+雲の 層（惑星の周りの球殻）の中で、どの高さかを 0〜1 で求めます。種類ごとのグラデーション（[Cloud Layers](layers.md)）を掛けて底は平ら上端は、丸い形にします。
 
 ### ③ 基本の形
 
@@ -1699,7 +1699,7 @@ float base_cloud = Remap(low.r, -(1.0 - low_freq_fbm), 1.0, 0.0, 1.0); // Perlin
 base_cloud *= gradient;                                                 // 高さの、グラデーションを、掛ける
 ```
 
-<strong>基本の形</strong>は <strong>128³ の、3D テクスチャ</strong>から読みます。R チャンネルは Perlin ノイズ（なめらかな、うねり）に Worley ノイズ（もこもこの粒）を、混ぜたもので GBA は周波数の違う、Worley ノイズです。Worley の fBm で、Perlin-Worley を、持ち上げる（`Remap` の下限を動かす）ことで雲の、もこもこした輪郭ができます。
+基本の形は 128³ の、3D テクスチャから読みます。R チャンネルは Perlin ノイズ（なめらかな、うねり）に Worley ノイズ（もこもこの粒）を、混ぜたもので GBA は周波数の違う、Worley ノイズです。Worley の fBm で、Perlin-Worley を、持ち上げる（`Remap` の下限を動かす）ことで雲の、もこもこした輪郭ができます。
 
 ```hlsl
 // Remap: 値 v を、範囲 [l0, h0] から、範囲 [l1, h1] へ、線形に、写す（範囲の外は、そのまま、外挿）。
@@ -1708,7 +1708,7 @@ float Remap(float v, float l0, float h0, float l1, float h1) {
 }
 ```
 
-`Remap` は <strong>この方式の基本の道具</strong>です。<strong>ノイズの値の範囲を動かして</strong>、雲の量（カバレッジ）や輪郭の、細かさを調整します。
+`Remap` は この方式の基本の道具です。ノイズの値の範囲を動かして、雲の量（カバレッジ）や輪郭の、細かさを調整します。
 
 ### ④ カバレッジを適用する
 
@@ -1718,7 +1718,7 @@ float base_with_coverage = Remap(base_cloud, coverage, 1.0, 0.0, 1.0);
 base_with_coverage *= coverage;                                          // カバレッジが、小さいとき、密度も、薄く
 ```
 
-<strong>カバレッジ</strong>以下のノイズの値は、 2<strong>3 （雲なし）に切られそれより上が、雲になります。カバレッジが大きいほど切られる部分が減って雲が、増えます。最後に、カバレッジを掛けて少ない雲が、薄くなるようにします。
+カバレッジ以下のノイズの値は、 2<strong>3 （雲なし）に切られそれより上が、雲になります。カバレッジが大きいほど切られる部分が減って雲が、増えます。最後に、カバレッジを掛けて少ない雲が、薄くなるようにします。
 
 ### ⑤ 細部で縁を削る（エロージョン）
 
@@ -1731,7 +1731,7 @@ float detail_modifier = lerp(high_freq_fbm, 1.0 - high_freq_fbm, saturate(height
 float density = Remap(base_with_coverage, detail_modifier * 0.2, 1.0, 0.0, 1.0);
 ```
 
-<strong>細部のノイズ</strong>（<strong>32³</strong>）で、基本の形の縁を削ります。雲の内側（密度が高い所）はほとんど、削られず縁（密度が低い所）が大きく、削られるので縁だけがちぎれたような、細かい形になります。`height_fraction` で底と上端の削り方を変えて底は、ふわっと上はもこもこにします。
+細部のノイズ（32³）で、基本の形の縁を削ります。雲の内側（密度が高い所）はほとんど、削られず縁（密度が低い所）が大きく、削られるので縁だけがちぎれたような、細かい形になります。`height_fraction` で底と上端の削り方を変えて底は、ふわっと上はもこもこにします。
 
 ```hlsl
 return max(density, 0.0) * g_density_scale;                              // 負の値を、切り、全体の濃さの、係数を、掛ける
@@ -1739,7 +1739,7 @@ return max(density, 0.0) * g_density_scale;                              // 負�
 
 ## ノイズ テクスチャの作り方
 
-<strong>ノイズ テクスチャ</strong>は <strong>事前に、ツールで作って</strong>、3D テクスチャとして読み込みます（実行時には、作りません）。
+<strong>ノイズ テクスチャ</strong>は 事前に、ツールで作って、3D テクスチャとして読み込みます（実行時には、作りません）。
 
 | テクスチャ | 大きさ | 内容 |
 | --- | --- | --- |
@@ -1765,11 +1765,11 @@ float Worley3D(float3 p, float frequency) {
 }
 ```
 
-<strong>Worley ノイズ</strong>（Worley、1996）は <strong>各セルに 1 つ、ランダムな点</strong>を置き各位置から、最も近い点までの距離で値を決めます。1 から引くと点の周りが明るい、丸い塊になり雲のもこもこに似ます。`fmod(cell + neighbor, frequency)` で周期的に（端でつながる）、3D テクスチャを繰り返して、使えるようにします。
+Worley ノイズ（Worley、1996）は 各セルに 1 つ、ランダムな点を置き各位置から、最も近い点までの距離で値を決めます。1 から引くと点の周りが明るい、丸い塊になり雲のもこもこに似ます。`fmod(cell + neighbor, frequency)` で周期的に（端でつながる）、3D テクスチャを繰り返して、使えるようにします。
 
 ## 風で動かす
 
-<strong>ノイズの読み込み位置</strong>を <strong>時間とともに、ずらす</strong>と雲が風で流れます。
+<strong>ノイズの読み込み位置</strong>を 時間とともに、ずらすと雲が風で流れます。
 
 ```hlsl
 float3 wind_offset = g_wind_direction * g_time * g_wind_speed;          // 風の向きに、時間とともに、ずらす
@@ -1778,16 +1778,16 @@ float4 low = g_base_noise.SampleLevel(g_linear_wrap, position * g_base_scale + w
 float3 high = g_detail_noise.SampleLevel(g_linear_wrap, position * g_detail_scale + wind_offset * 1.5, 0).rgb;
 ```
 
-<strong>基本の形と細部の動く速さを少し、変える</strong>と <strong>雲が変形しながら、流れる</strong>ように見えます（ただ、並行移動するだけだと平板）。
+基本の形と細部の動く速さを少し、変えると 雲が変形しながら、流れるように見えます（ただ、並行移動するだけだと平板）。
 
 ## 密度の使い方
 
-ここで求めた <strong>密度</strong>は <strong>レイマーチの、各サンプル</strong>で散乱・吸収の計算に、使います（[Cloud Raymarching](raymarch.md)）。密度が高い所ほど光をよく散らしよく、遮ります。
+ここで求めた <strong>密度</strong>は レイマーチの、各サンプルで散乱・吸収の計算に、使います（[Cloud Raymarching](raymarch.md)）。密度が高い所ほど光をよく散らしよく、遮ります。
 
 ## よくあるミス
 
 ??? failure "雲の縁が、なめらかすぎる"
-    <strong>高周波のノイズ</strong>で<strong>縁を削る</strong>。
+    <strong>高周波のノイズ</strong>で縁を削る。
 
 ## これだけ覚える
 

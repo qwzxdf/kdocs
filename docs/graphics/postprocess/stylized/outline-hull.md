@@ -6,15 +6,15 @@ tags:
 
 # Inverted Hull Outlines
 
-<strong>背面法（Inverted Hull Method）</strong>は、<strong>輪郭線を作る、もっとも古典的で簡単な方法</strong>です。<strong>同じモデルを「もう 1 回」描き、頂点を法線方向に少し膨らませ、表面（前面）を捨てて裏面だけを黒く描く</strong>と元のモデルの輪郭の外側に、黒い縁ができます。シェーダーだけで実現でき、線の太さや色を物体や部位ごとにアーティストが制御できるので、多くのアニメ調ゲームで使われます。このページでは、<strong>仕組み・実装・画面上の太さを一定にする方法・線の途切れ（角）の対策・太さの調整（頂点カラー）</strong>を説明します。
+<strong>背面法（Inverted Hull Method）</strong>は、輪郭線を作る、もっとも古典的で簡単な方法です。同じモデルを「もう 1 回」描き、頂点を法線方向に少し膨らませ、表面（前面）を捨てて裏面だけを黒く描くと元のモデルの輪郭の外側に、黒い縁ができます。シェーダーだけで実現でき、線の太さや色を物体や部位ごとにアーティストが制御できるので、多くのアニメ調ゲームで使われます。このページでは、仕組み・実装・画面上の太さを一定にする方法・線の途切れ（角）の対策・太さの調整（頂点カラー）を説明します。
 
 !!! tip "ポイント"
     - 背面法 ＝ <strong>モデルを、法線方向に膨らませて、裏面だけを黒く描く</strong>。<strong>はみ出た裏面が輪郭線に見える</strong>。
-    - <strong>実装が簡単</strong>。<strong>1 パス追加するだけ</strong>。
-    - <strong>前面をカリング</strong>（<strong>`CULL_FRONT`</strong>）して、<strong>裏面だけ</strong>描く。
-    - <strong>画面上の太さを一定</strong>にするには、<strong>クリップ空間で膨らませる</strong>（<strong>距離に応じて、補正</strong>）。
-    - <strong>角（平らな面の境）で、法線が割れて、線が途切れる</strong> → <strong>スムーズ法線を別に持つ</strong>。
-    - <strong>線の太さは、頂点カラーで部位ごとに調整</strong>できる。
+    - 実装が簡単。1 パス追加するだけ。
+    - 前面をカリング（`CULL_FRONT`）して、裏面だけ描く。
+    - 画面上の太さを一定にするには、クリップ空間で膨らませる（距離に応じて、補正）。
+    - 角（平らな面の境）で、法線が割れて、線が途切れる → スムーズ法線を別に持つ。
+    - 線の太さは、頂点カラーで部位ごとに調整できる。
 
 ## 仕組み
 
@@ -130,7 +130,7 @@ device->CreateRasterizerState(&desc, outline_rasterizer.GetAddressOf());
 
 ## 画面上の太さを一定にする
 
-<strong>ワールド空間で `normal × width` を足す</strong>と、<strong>カメラから遠いと線が細く見え、近いと太く見えます</strong>（遠近法）。画面上の太さを一定にするには、クリップ空間で膨らませます。
+<strong>ワールド空間で `normal × width` を足す</strong>と、カメラから遠いと線が細く見え、近いと太く見えます（遠近法）。画面上の太さを一定にするには、クリップ空間で膨らませます。
 
 ```hlsl
 VSOutput OutlineConstantWidthVS(VSInput input) {
@@ -154,7 +154,7 @@ VSOutput OutlineConstantWidthVS(VSInput input) {
 
 ## 線が途切れる問題（角）
 
-<strong>立方体のような、角のあるモデル</strong>は、<strong>角の頂点が面ごとに別の法線を持つ</strong>ので、<strong>法線方向に膨らませると、頂点が面ごとに別の方向へ離れ、角に隙間（線の途切れ）</strong>ができます。
+<strong>立方体のような、角のあるモデル</strong>は、角の頂点が面ごとに別の法線を持つので、法線方向に膨らませると、頂点が面ごとに別の方向へ離れ、角に隙間（線の途切れ）ができます。
 
 <svg class="fig illust" viewBox="0 0 780 210" role="img" aria-label="角の途切れ">
 <text x="20" y="26" class="fig-title">角の頂点は、面ごとに法線が違うので、膨らませると割れる</text>
@@ -179,7 +179,7 @@ float3 expanded = input.position + smooth_normal * outline_width;
 
 ## 太さの調整（頂点カラー）
 
-<strong>線の太さを部位ごとに変えたい</strong>ことが<strong>あります</strong>（顔は細く・体は太く）。<strong>頂点カラー（またはテクスチャ）</strong>で太さの係数を持ちます。
+<strong>線の太さを部位ごとに変えたい</strong>ことがあります（顔は細く・体は太く）。頂点カラー（またはテクスチャ）で太さの係数を持ちます。
 
 ```hlsl
 float width_scale = input.color.r;
@@ -214,22 +214,22 @@ float3 expanded = input.position + smooth_normal * outline_width * width_scale;
     <strong>スムーズ法線</strong>を使う。
 
 ??? failure "遠くのキャラの線が、太すぎる（または細すぎる）"
-    <strong>クリップ空間で膨らませる</strong>、または<strong>距離で補正</strong>。
+    クリップ空間で膨らませる、または距離で補正。
 
 ??? failure "前面も描いて、モデルが黒くなる"
-    <strong>`CULL_FRONT`</strong> で、<strong>裏面だけ</strong>描く。
+    `CULL_FRONT` で、裏面だけ描く。
 
 ??? failure "スキニングしたキャラの輪郭が、動いて崩れる"
-    <strong>輪郭パスでも同じスキニングを適用</strong>する（<strong>スムーズ法線も同じ骨で変形</strong>）。
+    輪郭パスでも同じスキニングを適用する（スムーズ法線も同じ骨で変形）。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 背面法 ＝ <strong>法線方向に膨らませた裏面を、黒く描く</strong>。<strong>前面はカリング</strong>
-    - [x] <strong>簡単・安く</strong>、<strong>太さや色を制御できる</strong>
-    - [x] <strong>クリップ空間で膨らませる</strong>と<strong>画面上の太さが一定</strong>
-    - [x] <strong>角の途切れ</strong>は<strong>スムーズ法線</strong>で<strong>解決</strong>
-    - [x] <strong>内側の線は出ない</strong> → <strong>画面空間エッジと併用</strong>
+    - [x] 背面法 ＝ <strong>法線方向に膨らませた裏面を、黒く描く</strong>。前面はカリング
+    - [x] 簡単・安く、太さや色を制御できる
+    - [x] クリップ空間で膨らませると画面上の太さが一定
+    - [x] 角の途切れはスムーズ法線で解決
+    - [x] 内側の線は出ない → 画面空間エッジと併用
 
 ## 参考
 

@@ -6,7 +6,7 @@ tags:
 
 # Screen-Space Refraction
 
-<strong>屈折する物体の後ろの景色は、既に描いた画面（不透明パスの結果）に入っています</strong>。<strong>法線に応じて読み出す位置をずらすだけ</strong>で、屈折の見た目が得られます。このページでは画面空間の屈折の仕組みと、コードを説明します。
+<strong>屈折する物体の後ろの景色は、既に描いた画面（不透明パスの結果）に入っています</strong>。法線に応じて読み出す位置をずらすだけで、屈折の見た目が得られます。このページでは画面空間の屈折の仕組みと、コードを説明します。
 
 !!! tip "ポイント"
     - 不透明パスの結果を、テクスチャとしてコピーしておく。
@@ -15,17 +15,17 @@ tags:
     - 画面の外は読めないので、端で破綻する。
 
 ## 画面空間の屈折
-<strong>屈折した光線を本当に追跡する</strong>（レイトレ）のは重いので、<strong>ゲームでは画面の画像を「背景」として、歪めて読む</strong>方法が標準です。
+<strong>屈折した光線を本当に追跡する</strong>（レイトレ）のは重いので、ゲームでは画面の画像を「背景」として、歪めて読む方法が標準です。
 
 ### 手順
 
 画面空間屈折の手順は 3 段階です。不透明な物をすべて描画します。この時点の画面（HDR カラー）を、別のテクスチャ（`scene_color_copy`）にコピーします。最後に、半透明を描くときにガラスの面で `scene_color_copy` を歪んだ UV で読み、背景とします。
 
-<strong>なぜコピーが要るか</strong>：<strong>ガラスを描くレンダー ターゲットを、同時にテクスチャとして読めない</strong>（読み書きの競合）ためです。
+なぜコピーが要るか：ガラスを描くレンダー ターゲットを、同時にテクスチャとして読めない（読み書きの競合）ためです。
 
 ### UV の歪ませ方
 
-<strong>法線の XY 成分（ビュー空間）に応じて、UV をずらす</strong>のが<strong>簡易</strong>です。
+法線の XY 成分（ビュー空間）に応じて、UV をずらすのが簡易です。
 
 ```hlsl
 float2 screen_uv = input.position.xy / screen_size;
@@ -36,7 +36,7 @@ float3 background = scene_color_copy.Sample(linear_clamp, screen_uv + offset).rg
 
 歪みのコードの要点です。`view_normal.xy` は法線が画面の左右・上下にどれだけ傾いているかを表します。`refraction_strength` は歪みの強さで屈折率や厚みに合わせて調整します（0.02〜0.1）。`linear_clamp` で端をクランプし画面外を読まないようにします。
 
-<strong>より物理的</strong>には <strong>`refract` で屈折ベクトルを求め、そのベクトルを使って「背景の画面位置」を決める</strong>方法もあります。
+より物理的には `refract` で屈折ベクトルを求め、そのベクトルを使って「背景の画面位置」を決める方法もあります。
 
 ```hlsl
 float3 view_dir = normalize(world_position - camera_position);
@@ -51,7 +51,7 @@ float3 background = scene_color_copy.Sample(linear_clamp, refract_uv).rgb;
 
 ## 考え方：画面のコピーを、ずらして読む
 
-本当の屈折は <strong>光線を物体の中で曲げて、追跡</strong>する必要があり <strong>重い</strong>です。画面空間の屈折はすでに描いたシーンの色を、テクスチャとしてコピーし屈折する物体の画素で、読む位置をずらすことで屈折らしい歪みを、安く作ります（Sousa、2005）。
+本当の屈折は <strong>光線を物体の中で曲げて、追跡</strong>する必要があり 重いです。画面空間の屈折はすでに描いたシーンの色を、テクスチャとしてコピーし屈折する物体の画素で、読む位置をずらすことで屈折らしい歪みを、安く作ります（Sousa、2005）。
 
 ```text
 ① 不透明な物を、すべて描く                       → シーンの色
@@ -65,7 +65,7 @@ float3 background = scene_color_copy.Sample(linear_clamp, refract_uv).rgb;
 
 ### ① シーンの色をコピーする
 
-屈折する物は <strong>画面にすでに描かれた</strong>、シーンの色を <strong>読み</strong>ながら同じ画面に、描きます。読み書きが同じテクスチャだと、衝突する（同時に読めない）ので、別のテクスチャにコピーします。
+屈折する物は <strong>画面にすでに描かれた</strong>、シーンの色を 読みながら同じ画面に、描きます。読み書きが同じテクスチャだと、衝突する（同時に読めない）ので、別のテクスチャにコピーします。
 
 ```cpp
 // 不透明の描画の後、屈折する物を描く前に、シーンの色を、コピーする。
@@ -73,7 +73,7 @@ context->CopyResource(scene_copy_tex.Get(), scene_color_tex.Get());
 // 屈折する物の描画では、scene_copy_srv を、読み取り元にする。書き込み先は、scene_color_rtv のまま。
 ```
 
-`CopyResource` は <strong>同じ大きさと形式</strong>の、テクスチャ同士をコピーします。MSAA のレンダー ターゲットを、コピーするには <strong>先にリゾルブ</strong>（`ResolveSubresource`）して、1 サンプルのテクスチャにします。
+`CopyResource` は 同じ大きさと形式の、テクスチャ同士をコピーします。MSAA のレンダー ターゲットを、コピーするには 先にリゾルブ（`ResolveSubresource`）して、1 サンプルのテクスチャにします。
 
 ### ② ピクセル シェーダー
 
@@ -104,7 +104,7 @@ float4 main(PSInput input) : SV_Target {
 
 ### ① 手前の物をずらさない
 
-ずらした先に <strong>ガラスより手前にある物</strong>（ガラスの手前に、立っている人）があるとその色を、<strong>読んでしまい</strong>、人の色がガラスににじむことがあります。深度で判定します。
+ずらした先に <strong>ガラスより手前にある物</strong>（ガラスの手前に、立っている人）があるとその色を、読んでしまい、人の色がガラスににじむことがあります。深度で判定します。
 
 ```hlsl
 float scene_depth = LinearizeDepth(g_scene_depth.Sample(g_point_clamp, refract_uv).r);
@@ -114,7 +114,7 @@ if (scene_depth < glass_depth) refract_uv = screen_uv;        // ガラスより
 
 ### ② 深度でずらし量を変える
 
-ガラスの<strong>向こうの物</strong>が <strong>遠いほど</strong>、屈折のずれは大きく見えます（視線が、曲がって遠くの物を見るため）。
+ガラスの向こうの物が 遠いほど、屈折のずれは大きく見えます（視線が、曲がって遠くの物を見るため）。
 
 ```hlsl
 float behind = max(scene_depth - glass_depth, 0.0);            // ガラスの向こうの、物までの距離
@@ -123,7 +123,7 @@ offset *= saturate(behind / g_refraction_distance);              // 近い物は
 
 ### ③ 画面の端
 
-ずらした UV が <strong>画面の外</strong>になることがあります。<strong>CLAMP</strong> で端の色を伸ばすか、ずらし量を端で弱めます。
+ずらした UV が 画面の外になることがあります。CLAMP で端の色を伸ばすか、ずらし量を端で弱めます。
 
 ```hlsl
 float2 edge = saturate(min(refract_uv, 1.0 - refract_uv) * 10.0);        // 端から 0.1 の幅で、弱める
@@ -132,7 +132,7 @@ offset *= min(edge.x, edge.y);
 
 ### ④ 色の分散（任意）
 
-RGB を <strong>わずかに違うずらし量</strong>で読むと <strong>縁が、虹色</strong>になります（[Dispersion](dispersion.md)）。
+RGB を わずかに違うずらし量で読むと 縁が、虹色になります（[Dispersion](dispersion.md)）。
 
 ## 限界
 

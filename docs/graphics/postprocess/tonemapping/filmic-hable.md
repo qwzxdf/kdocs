@@ -6,14 +6,14 @@ tags:
 
 # Filmic (Hable)
 
-<strong>フィルミック</strong>は、<strong>フィルムの感光特性に似た S 字カーブ</strong>でトーンマップする方式です。Uncharted 2 で使われた Hable の式が有名で、暗部を締め（黒を沈め）、中間にコントラストを付け、明部をなだらかにロールオフします。Reinhard の眠さが消え、映画のような絵になります。このページでは、S 字の 3 つの領域（つま先・直線部・肩）・Hable の式と各係数の意味・白点・露出との関係・自分で曲線を調整する方法を説明します。
+<strong>フィルミック</strong>は、フィルムの感光特性に似た S 字カーブでトーンマップする方式です。Uncharted 2 で使われた Hable の式が有名で、暗部を締め（黒を沈め）、中間にコントラストを付け、明部をなだらかにロールオフします。Reinhard の眠さが消え、映画のような絵になります。このページでは、S 字の 3 つの領域（つま先・直線部・肩）・Hable の式と各係数の意味・白点・露出との関係・自分で曲線を調整する方法を説明します。
 
 !!! tip "ポイント"
     - フィルミック ＝ <strong>S 字の曲線</strong>。<strong>つま先（暗部）→ 直線部（中間）→ 肩（明部）</strong>の 3 領域。
-    - <strong>つま先</strong>で<strong>暗部を締めて黒を沈め</strong>、<strong>肩</strong>で<strong>明部を滑らかに飽和</strong>させる。
-    - Hable の式は<strong>係数 A〜F</strong>で<strong>形を決め</strong>、<strong>白点で割って 1 に正規化</strong>する。
-    - <strong>露出倍率</strong>（`× 2.0`）を<strong>曲線の前に</strong>掛けて、<strong>中間の明るさを合わせる</strong>。
-    - <strong>より良いやり方</strong>：<strong>係数をアーティストが調整できる</strong>ようにパラメータとして出す。3D LUT に焼く。
+    - つま先で暗部を締めて黒を沈め、肩で明部を滑らかに飽和させる。
+    - Hable の式は係数 A〜Fで形を決め、白点で割って 1 に正規化する。
+    - 露出倍率（`× 2.0`）を曲線の前に掛けて、中間の明るさを合わせる。
+    - より良いやり方：係数をアーティストが調整できるようにパラメータとして出す。3D LUT に焼く。
 
 ## S 字の 3 つの領域
 
@@ -37,15 +37,15 @@ tags:
 | 領域 | 役割 | 見た目 |
 | --- | --- | --- |
 | <strong>つま先（toe）</strong> | 暗部の立ち上がりを抑える | 黒が沈んで締まる。暗部が持ち上がらない |
-| <strong>直線部（linear）</strong> | <strong>中間の傾き（コントラスト）</strong> | メリハリが付く |
-| <strong>肩（shoulder）</strong> | 明部で傾きがゆるやかになり 1 に漸近 | ハイライトが白飛びせず滑らかに白へ |
+| 直線部（linear） | 中間の傾き（コントラスト） | メリハリが付く |
+| 肩（shoulder） | 明部で傾きがゆるやかになり 1 に漸近 | ハイライトが白飛びせず滑らかに白へ |
 
 
 原典は、Hable の GDC 2010 の発表 "Uncharted 2: HDR Lighting" です。Kodak のフィルムの特性曲線を参考に、つま先・直線部・肩を 1 つの有理関数（分数の式）で表しました。係数は 6 個（A〜F）と白点 W です。
 
 原典は、Hable の GDC 2010 の発表 "Uncharted 2: HDR Lighting" です。Kodak のフィルムの特性曲線を参考に、つま先・直線部・肩を 1 つの有理関数（分数の式）で表しました。係数は 6 個（A〜F）と白点 W です。
 
-<strong>Reinhard はつま先がなく、暗部が持ち上がる</strong>ため<strong>眠い</strong>です。S 字はつま先で暗部を沈めるので、絵が締まります。
+Reinhard はつま先がなく、暗部が持ち上がるため眠いです。S 字はつま先で暗部を沈めるので、絵が締まります。
 
 <!-- fig:tonemap-hable:begin -->
 
@@ -184,7 +184,7 @@ tags:
 
 ## Hable の式（Uncharted 2）
 
-<strong>有理関数</strong>で<strong>S 字を作る</strong>式です。
+<strong>有理関数</strong>でS 字を作る式です。
 
 <div class="formula">f(x) = ( (x·(A·x + C·B) + D·E) / (x·(A·x + B) + D·F) ) − E/F</div>
 
@@ -212,17 +212,17 @@ float3 HableTonemap(float3 color) {
 
 | 係数 | 名前 | 効き方 |
 | --- | --- | --- |
-| <strong>A（0.15）</strong> | 肩の強さ | 大きいと明部が早く頭打ち |
-| <strong>B（0.50）</strong> | 直線部の強さ | <strong>中間の傾き（コントラスト）</strong> |
-| <strong>C（0.10）</strong> | 直線部の角度 | 直線の傾きの調整 |
-| <strong>D（0.20）</strong> | つま先の強さ | 大きいと暗部が沈む |
-| <strong>E（0.02）</strong> | つま先の分子 | つま先の細かい形 |
-| <strong>F（0.30）</strong> | つま先の分母 | つま先の細かい形 |
-| <strong>W（11.2）</strong> | 白点 | この入力で出力がちょうど 1 |
+| A（0.15） | 肩の強さ | 大きいと明部が早く頭打ち |
+| B（0.50） | 直線部の強さ | 中間の傾き（コントラスト） |
+| C（0.10） | 直線部の角度 | 直線の傾きの調整 |
+| D（0.20） | つま先の強さ | 大きいと暗部が沈む |
+| E（0.02） | つま先の分子 | つま先の細かい形 |
+| F（0.30） | つま先の分母 | つま先の細かい形 |
+| W（11.2） | 白点 | この入力で出力がちょうど 1 |
 
 ### 白点で正規化する理由
 
-<strong>曲線は、x が大きくても 1 に届きません</strong>。<strong>白点 W の出力で割る</strong>（`white_scale`）ことで入力 W のとき出力がちょうど 1 になります。
+曲線は、x が大きくても 1 に届きません。白点 W の出力で割る（`white_scale`）ことで入力 W のとき出力がちょうど 1 になります。
 
 | 入力 | 出力（おおよそ） |
 | --- | --- |
@@ -233,11 +233,11 @@ float3 HableTonemap(float3 color) {
 
 ### `exposure_bias`（2.0）
 
-<strong>曲線の前に掛ける倍率</strong>で、<strong>中間の明るさを合わせる</strong>ためのものです。露出（[Exposure](exposure.md)）が別にあるので二重にならないよう、この値は「曲線に合わせた補正」と考え、あまり動かさないようにします。
+曲線の前に掛ける倍率で、中間の明るさを合わせるためのものです。露出（[Exposure](exposure.md)）が別にあるので二重にならないよう、この値は「曲線に合わせた補正」と考え、あまり動かさないようにします。
 
 ## 色の保ち方
 
-<strong>Hable をチャンネルごとに掛ける</strong>と、<strong>フィルムのように明るい色が白へ向かう</strong>絵になります。色相を保ちたいなら、輝度に掛けて比率を保つ方式もあります（[Preserving Hue](hue-preservation.md)）。
+<strong>Hable をチャンネルごとに掛ける</strong>と、フィルムのように明るい色が白へ向かう絵になります。色相を保ちたいなら、輝度に掛けて比率を保つ方式もあります（[Preserving Hue](hue-preservation.md)）。
 
 ## より良いやり方
 
@@ -252,25 +252,25 @@ float3 HableTonemap(float3 color) {
 ## よくあるミス
 
 ??? failure "露出を `exposure_bias` で調整して、自動露出と二重になる"
-    <strong>明るさの調整は、露出（EV）で</strong>。<strong>`exposure_bias` は固定</strong>。
+    <strong>明るさの調整は、露出（EV）で</strong>。`exposure_bias` は固定。
 
 ??? failure "白点を変えたのに、白が出ない"
-    <strong>`white_scale` の計算を忘れた</strong>。<strong>`1 / HableCurve(white_point)` を掛ける</strong>。
+    `white_scale` の計算を忘れた。`1 / HableCurve(white_point)` を掛ける。
 
 ??? failure "暗部が潰れすぎて、夜のシーンが真っ黒"
-    <strong>つま先（D・E・F）を弱める</strong>、<strong>露出を上げる</strong>、曲線の前にオフセットを加える。
+    つま先（D・E・F）を弱める、露出を上げる、曲線の前にオフセットを加える。
 
 ??? failure "色相が変わって、赤い物がオレンジに見える"
-    <strong>チャンネルごとの副作用</strong>。<strong>輝度ベースにする、または AgX・ACES の色補正</strong>を検討。
+    チャンネルごとの副作用。輝度ベースにする、または AgX・ACES の色補正を検討。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] フィルミック ＝ <strong>S 字（つま先・直線部・肩）</strong>。<strong>暗部を締め、明部を滑らかに</strong>
-    - [x] Hable の式は<strong>係数 A〜F ＋ 白点 W</strong>。<strong>白点の出力で割って 1 に正規化</strong>
-    - [x] <strong>つま先が暗部を沈める</strong>ので、<strong>Reinhard より締まる</strong>
-    - [x] <strong>露出は別に</strong>。<strong>`exposure_bias` は固定</strong>
-    - [x] <strong>パラメータ化・LUT 化</strong>で<strong>画作りを制御しやすく</strong>
+    - [x] フィルミック ＝ <strong>S 字（つま先・直線部・肩）</strong>。暗部を締め、明部を滑らかに
+    - [x] Hable の式は係数 A〜F ＋ 白点 W。白点の出力で割って 1 に正規化
+    - [x] つま先が暗部を沈めるので、Reinhard より締まる
+    - [x] 露出は別に。`exposure_bias` は固定
+    - [x] パラメータ化・LUT 化で画作りを制御しやすく
 
 ## 参考
 

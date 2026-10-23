@@ -14,7 +14,7 @@ tags:
 `#include <sstream>`
 </div>
 
-`std::istringstream` は、**文字列を入力ストリームとして読む**型です。`std::cin` や `ifstream` と同じ `>>` や `getline` で読めます。設定の 1 行を分解する、コマンドを単語に分ける、といった処理に使います。
+設定の 1 行 `"hp 100 mp 50"` を、単語や数値に分けたい。`find` と `substr` を繰り返すと、読みにくくなります。`std::istringstream` は、文字列を入力ストリームとして読む型です。`std::cin` や `ifstream` と同じ `>>` や `getline` で読めます。コマンドを単語に分ける、1 行の中の値を取り出す、といった処理に向いています。
 
 !!! tip "ポイント"
     - `std::istringstream in("12 abc 3.5");` で作って、`in >> n >> word >> x;`。
@@ -105,14 +105,19 @@ std::string_view view() const noexcept;
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| コマンド入力を単語に分ける | `std::istringstream in(line); in >> cmd >> arg;` |
+コマンドの解析に使います。`std::istringstream in(line); std::string cmd; int arg; in >> cmd >> arg;` と書けば、「move 10」のような入力を分解できます。
+
+読み込み処理のテストにも便利です。ファイルを用意せず、文字列を渡すだけで、`std::istream` を受け取る関数を試せます。
+
+単純な区切りでの分割なら、`views::split` のほうが軽く書けます。`istringstream` は、型の違う値が並んでいる文字列を、型ごとに読み分けるときに向いています。
 
 ## よくあるミス
 
 ??? failure "型が合わず読めない"
     数字のところに文字があると、`failbit` が立って以降が読めません。
+
+??? failure "読みに失敗しても気づかない"
+    型が合わないと `failbit` が立ち、以降の読み込みも失敗します。`if (in >> n)` で確かめます。
 
 ## 類似
 

@@ -6,7 +6,7 @@ tags:
 
 # プロジェクト（.vcxproj）
 
-プロジェクトは、<strong>1 つの成果物（`.exe`、`.dll`、`.lib`）を作るための、ファイルと設定のまとまり</strong>です。ファイルとしては `.vcxproj` で、中身は <strong>MSBuild という、ビルド ツールが読む XML</strong> です。プロパティ画面で変えている設定は、すべてこの XML に書き込まれています。
+プロジェクトは、<strong>1 つの成果物（`.exe`、`.dll`、`.lib`）を作るための、ファイルと設定のまとまり</strong>です。ファイルとしては `.vcxproj` で、中身は MSBuild という、ビルド ツールが読む XML です。プロパティ画面で変えている設定は、すべてこの XML に書き込まれています。
 
 !!! tip "ポイント"
     - プロジェクトは「どのソースを、どんな設定でコンパイルして、何を作るか」を持つ
@@ -123,7 +123,7 @@ tags:
 $(SolutionDir)Engine\include;%(AdditionalIncludeDirectories)
 ```
 
-最後に `%(AdditionalIncludeDirectories)` を付けないと、<strong>ほかのプロパティ シートや、既定値で決まっていたものが、全部消えます</strong>。プロパティ画面で、「継承」のチェックが付いていれば、同じことです。
+最後に `%(AdditionalIncludeDirectories)` を付けないと、ほかのプロパティ シートや、既定値で決まっていたものが、全部消えます。プロパティ画面で、「継承」のチェックが付いていれば、同じことです。
 
 使えるマクロの例です。
 
@@ -136,7 +136,7 @@ $(SolutionDir)Engine\include;%(AdditionalIncludeDirectories)
 | `$(OutDir)` | 成果物を出すフォルダー |
 | `$(TargetName)` | 成果物の名前（拡張子なし） |
 
-プロパティ画面で、値の欄を選んで、右の ▼ から「編集」を開くと、<strong>評価した後の値</strong>を、確認できます。
+プロパティ画面で、値の欄を選んで、右の ▼ から「編集」を開くと、評価した後の値を、確認できます。
 
 ## プロジェクトの参照 {#reference}
 
@@ -161,7 +161,7 @@ $(SolutionDir)Engine\include;%(AdditionalIncludeDirectories)
 ```
 
 !!! warning "インクルード パスは足されない"
-    プロジェクトの参照が自動でやるのは、「ビルド順」と「`.lib` のリンク」だけです。`#include "engine/renderer.h"` を通すには、<strong>`追加のインクルード ディレクトリ` に、`$(SolutionDir)Engine\include` を足す</strong>必要があります。
+    プロジェクトの参照が自動でやるのは、「ビルド順」と「`.lib` のリンク」だけです。`#include "engine/renderer.h"` を通すには、`追加のインクルード ディレクトリ` に、`$(SolutionDir)Engine\include` を足す必要があります。
 
 自分のプロジェクトではない `.lib`（外部ライブラリ）は、プロジェクトの参照にできません。リンカーの入力に、`.lib` の名前を書きます（[外部ライブラリの入れ方](../libraries.md)）。
 
@@ -182,7 +182,7 @@ $(SolutionDir)Engine\include;%(AdditionalIncludeDirectories)
 
 ### HLSL をプロジェクトで、コンパイルする
 
-`.hlsl` ファイルをプロジェクトに追加すると、「HLSL コンパイラ」の項目になって、<strong>ビルドのたびに `.cso`（コンパイル済みのシェーダー）</strong>が作られます。ファイルごとに、プロパティを設定します。
+`.hlsl` ファイルをプロジェクトに追加すると、「HLSL コンパイラ」の項目になって、ビルドのたびに `.cso`（コンパイル済みのシェーダー）が作られます。ファイルごとに、プロパティを設定します。
 
 | 設定 | 値の例 | 意味 |
 | --- | --- | --- |
@@ -210,7 +210,7 @@ xcopy /Y /D /E /I "$(ProjectDir)Assets" "$(OutDir)Assets"
 
 ## 実行・デバッグの設定 {#debugging}
 
-プロパティ → <strong>デバッグ</strong>に、F5 で実行するときの設定があります。<strong>この設定は、`.vcxproj.user` に保存されます</strong>（個人用のファイルなので、Git に入れません）。
+プロパティ → <strong>デバッグ</strong>に、F5 で実行するときの設定があります。この設定は、`.vcxproj.user` に保存されます（個人用のファイルなので、Git に入れません）。
 
 | 設定 | 意味 |
 | --- | --- |
@@ -219,7 +219,7 @@ xcopy /Y /D /E /I "$(ProjectDir)Assets" "$(OutDir)Assets"
 | 作業ディレクトリ | 実行するときの、カレント フォルダー。相対パスでファイルを読むとき、重要 |
 | 環境 | 実行時の環境変数 |
 
-`assets/model.fbx` を相対パスで読むとき、<strong>作業ディレクトリ</strong>が違うと、見つかりません。Visual Studio から実行するときの既定は `$(ProjectDir)`（プロジェクトのフォルダー）です。`.exe` をダブルクリックで実行するときは、`.exe` のあるフォルダーです。この違いで、「Visual Studio からは動くのに、`.exe` を直接実行すると動かない」ことが起きます。
+`assets/model.fbx` を相対パスで読むとき、作業ディレクトリが違うと、見つかりません。Visual Studio から実行するときの既定は `$(ProjectDir)`（プロジェクトのフォルダー）です。`.exe` をダブルクリックで実行するときは、`.exe` のあるフォルダーです。この違いで、「Visual Studio からは動くのに、`.exe` を直接実行すると動かない」ことが起きます。
 
 ## 1 プロジェクトに、たくさんのファイルを入れるとき {#large}
 
@@ -233,7 +233,7 @@ xcopy /Y /D /E /I "$(ProjectDir)Assets" "$(OutDir)Assets"
 ## よくあるミス
 
 ??? failure "ファイルを追加したのに、ビルドされない"
-    ソリューション エクスプローラー上では見えているのに、<strong>項目の種類が `None`</strong> になっていると、コンパイルされません。右クリック → プロパティ → 全般 → <strong>項目の種類</strong>を「C/C++ コンパイラ」にします。
+    ソリューション エクスプローラー上では見えているのに、<strong>項目の種類が `None`</strong> になっていると、コンパイルされません。右クリック → プロパティ → 全般 → 項目の種類を「C/C++ コンパイラ」にします。
 
 ??? failure "`LNK2005`（すでに定義されています）が出る"
     同じ名前の関数やグローバル変数が、2 つの `.cpp` で定義されています。ヘッダーに、関数の本体を書いて、複数の `.cpp` から読み込んでいる場合は、`inline` を付けるか、`.cpp` に移します。

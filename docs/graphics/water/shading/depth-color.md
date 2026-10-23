@@ -6,7 +6,7 @@ tags:
 
 # Color by Water Depth
 
-<strong>水は深いほど色が濃くなり赤から先に吸収されます</strong>。<strong>Beer の法則（指数で減衰）</strong>で、この色の変化を表せます。このページでは水深の求め方と、色の付け方を説明します。
+<strong>水は深いほど色が濃くなり赤から先に吸収されます</strong>。Beer の法則（指数で減衰）で、この色の変化を表せます。このページでは水深の求め方と、色の付け方を説明します。
 
 !!! tip "ポイント"
     - 透過率 ＝ exp(−吸収 × 水深)。
@@ -15,7 +15,7 @@ tags:
     - 浅い所は透けて底の色が見える。
 
 ## 水深による色（Beer の法則）
-<strong>光が水の中を距離 d だけ進むと、強さは指数関数的に減ります</strong>（<strong>Beer–Lambert の法則</strong>）。吸収の強さは色（波長）ごとに違い、水は赤を強く吸収し青をあまり吸収しません。そのため、深くなるほど青緑に変わります。
+<strong>光が水の中を距離 d だけ進むと、強さは指数関数的に減ります</strong>（Beer–Lambert の法則）。吸収の強さは色（波長）ごとに違い、水は赤を強く吸収し青をあまり吸収しません。そのため、深くなるほど青緑に変わります。
 
 <div class="formula">透過率 T = exp( −σ · d )　（σ：色ごとの吸収係数、d：水中を通った距離）</div>
 
@@ -30,13 +30,13 @@ float3 refracted_color = scene_color * transmittance + deep_color * (1.0 - trans
 | 点 | 説明 |
 | --- | --- |
 | `scene_color * transmittance` | 底の色が水を通って減った分 |
-| `deep_color * (1 − T)` | 減った分を水自身の色で置き換える<strong>（</strong>散乱で光る水の色） |
+| `deep_color * (1 − T)` | 減った分を水自身の色で置き換える（散乱で光る水の色） |
 | 浅い所 | T ≈ 1。底がはっきり見える |
 | 深い所 | T ≈ 0。水自身の色（深い青）だけ |
 
 ### 水深の求め方
 
-<strong>水深</strong>は<strong>不透明な物の深度（水の後ろにある底）と、水面の深度の差</strong>です（[Refraction](../../translucency/refraction/index.md)）。
+水深は不透明な物の深度（水の後ろにある底）と、水面の深度の差です（[Refraction](../../translucency/refraction/index.md)）。
 
 ```hlsl
 float scene_depth = LinearizeDepth(depth_texture.Sample(point_clamp, screen_uv).r);
@@ -84,7 +84,7 @@ float water_depth = max(scene_depth - surface_depth, 0.0);
 
 ## 水は色を吸収する
 
-純水は <strong>赤い光をよく吸収し青い光を、あまり吸収しません</strong>。厚い水の層を通った光は <strong>赤が先に消え、青が最後まで残り</strong>ます。これが海やプールが青い理由です。
+純水は <strong>赤い光をよく吸収し青い光を、あまり吸収しません</strong>。厚い水の層を通った光は 赤が先に消え、青が最後まで残ります。これが海やプールが青い理由です。
 
 | 波長 | 吸収係数 a（1/m、純水） | 1 m で残る割合 | 10 m で、残る割合 |
 | --- | --- | --- | --- |
@@ -92,7 +92,7 @@ float water_depth = max(scene_depth - surface_depth, 0.0);
 | 緑（550 nm） | 約 0.06 | 94% | 55% |
 | 青（450 nm） | 約 0.01 | 99% | 90% |
 
-数値は純水の測定値（Pope と Fry、1997）の目安です。実際の海水や湖水は <strong>植物プランクトンや、濁り</strong>で <strong>緑や茶色に寄る</strong>のでもっと、大きな値になります（Jerlov、1976 の水質分類）。
+数値は純水の測定値（Pope と Fry、1997）の目安です。実際の海水や湖水は 植物プランクトンや、濁りで 緑や茶色に寄るのでもっと、大きな値になります（Jerlov、1976 の水質分類）。
 
 ## Beer–Lambert の法則
 
@@ -118,7 +118,7 @@ float3 transmittance = exp(-absorption * water_depth);
 
 ## 水の色は 2 つの項でできている
 
-水を通して底を見るときの色は、<strong>底から来る光が減ったもの</strong>と、<strong>水自体が散乱して返す光</strong>の、足し算です。
+水を通して底を見るときの色は、<strong>底から来る光が減ったもの</strong>と、水自体が散乱して返す光の、足し算です。
 
 ```text
 見える色 = 底の色 × T  +  水の色 × (1 − T)
@@ -133,21 +133,21 @@ float3 transmittance = exp(-absorption * water_depth);
 float3 refracted = scene_color * transmittance + deep_color * (1.0 - transmittance);
 ```
 
-<strong>浅いと</strong>、`T ≈ 1` なので底の色がそのまま見えます。<strong>深いと</strong>、`T ≈ 0` なので底は見えず水自体の色（`deep_color`）になります。
+浅いと、`T ≈ 1` なので底の色がそのまま見えます。深いと、`T ≈ 0` なので底は見えず水自体の色（`deep_color`）になります。
 
 ### `deep_color` はどう決めるか
 
-`deep_color` は <strong>水が空の光を散乱して返す色</strong>です。散乱が強く吸収が弱いほど明るく、青くなります。<strong>吸収と散乱から計算</strong>できます（[Scattering Color (SSS-Like)](scattering.md)）。
+`deep_color` は 水が空の光を散乱して返す色です。散乱が強く吸収が弱いほど明るく、青くなります。吸収と散乱から計算できます（[Scattering Color (SSS-Like)](scattering.md)）。
 
 ```text
 deep_color ≈ 空と太陽の光 × f × b_b / (a + b_b)        f ≈ 0.33、b_b: 後方散乱係数
 ```
 
-簡単には <strong>吸収係数と同じ傾向を持つ、青緑の色</strong>をアーティストが直接決めます。
+簡単には 吸収係数と同じ傾向を持つ、青緑の色をアーティストが直接決めます。
 
 ## 水深の求め方
 
-水深 `d` は <strong>水面の位置</strong>と、<strong>水の向こうにある不透明な物（底）の位置</strong>の、距離です。深度バッファから求めます。
+水深 `d` は <strong>水面の位置</strong>と、水の向こうにある不透明な物（底）の位置の、距離です。深度バッファから求めます。
 
 ```text
 水深 = 底までの距離（視線方向）− 水面までの距離
@@ -160,7 +160,7 @@ deep_color ≈ 空と太陽の光 × f × b_b / (a + b_b)        f ≈ 0.33、b_
 | 視線方向の距離 | 目から水面、底までの視線に沿った距離の差 | 光が、水の中を進む距離。吸収に使う（斜めから見ると長く進むので色が、濃い） |
 | 鉛直方向の水深 | 水面から、底までの真下への深さ | 泡、岸辺の境界（岸に近い所で水が浅い） |
 
-吸収（Beer の法則）には、<strong>視線方向の距離</strong>を使います。<strong>斜めから見るほど光が水の中を長く通る</strong>ので色が、濃くなります。
+吸収（Beer の法則）には、視線方向の距離を使います。斜めから見るほど光が水の中を長く通るので色が、濃くなります。
 
 ```hlsl
 // 水面のピクセルで、水深（視線方向）を求める。
@@ -186,7 +186,7 @@ float LinearizeDepth(float d) {
 
 ## DirectX 11 で、深度バッファをシェーダーで読む
 
-水面を描くとき <strong>水より手前に、描かれた不透明な物の深度</strong>を、読む必要があります。深度バッファを <strong>深度ステンシル ビュー（書き込み用）</strong>と、シェーダー リソース ビュー（読み取り用）の、両方で使えるように作ります。
+水面を描くとき <strong>水より手前に、描かれた不透明な物の深度</strong>を、読む必要があります。深度バッファを 深度ステンシル ビュー（書き込み用）と、シェーダー リソース ビュー（読み取り用）の、両方で使えるように作ります。
 
 ```cpp
 // 深度テクスチャ: TYPELESS で作って、DSV と SRV で、別々の形式のビューを作る。
@@ -213,7 +213,7 @@ srv.Texture2D.MipLevels = 1;
 device->CreateShaderResourceView(depth_tex.Get(), &srv, &depth_srv);
 ```
 
-<strong>同じ深度テクスチャを DSV として、設定したまま SRV としても、読むことはできません</strong>（読み書きの衝突）。水の描画では <strong>深度の書き込みを、無効</strong>にして DSV を 読み取り専用（`D3D11_DSV_READ_ONLY_DEPTH` を指定した DSV）にするか深度を、コピーしてから読みます。
+同じ深度テクスチャを DSV として、設定したまま SRV としても、読むことはできません（読み書きの衝突）。水の描画では 深度の書き込みを、無効にして DSV を 読み取り専用（`D3D11_DSV_READ_ONLY_DEPTH` を指定した DSV）にするか深度を、コピーしてから読みます。
 
 ```cpp
 // 読み取り専用の DSV: 深度テストはできるが、書き込みはしない。同時に SRV としても読める。
@@ -235,7 +235,7 @@ float3 sun_at_depth = sun_color * exp(-absorption * depth_below_surface);
 
 ### 水自体の色（`deep_color`）も時間帯で変わる
 
-`deep_color` を固定の色にすると <strong>夜も、昼と同じ色</strong>になります。`deep_color` は <strong>空の光を散乱して返す</strong>ので、空の明るさ（太陽の高さ天気）に、比例させます。
+`deep_color` を固定の色にすると 夜も、昼と同じ色になります。`deep_color` は 空の光を散乱して返すので、空の明るさ（太陽の高さ天気）に、比例させます。
 
 ```hlsl
 float3 deep_color = base_deep_color * (sky_irradiance + sun_color * saturate(sun_dir.y) * 0.5);
@@ -243,7 +243,7 @@ float3 deep_color = base_deep_color * (sky_irradiance + sun_color * saturate(sun
 
 ### 浅瀬：底の色を見せる
 
-浅い水で <strong>底の色が見える</strong>ためには、<strong>屈折（歪み）を適用した位置で、底の色を読む</strong>必要があります（[Water Refraction Distortion](refraction.md)）。水深を読む位置も歪ませた位置にして深さの、整合性を保ちます。
+浅い水で 底の色が見えるためには、屈折（歪み）を適用した位置で、底の色を読む必要があります（[Water Refraction Distortion](refraction.md)）。水深を読む位置も歪ませた位置にして深さの、整合性を保ちます。
 
 ## よくあるミス
 

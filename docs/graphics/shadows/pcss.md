@@ -6,15 +6,15 @@ tags:
 
 # PCSS
 
-[PCF](pcf.md)は、<strong>どこでも同じ幅</strong>で影の縁をぼかします。しかし、<strong>現実の影</strong>は遮蔽物に近い所は鋭く、離れるほどぼやけます（半影が広がる）。PCSS（Percentage-Closer Soft Shadows）は、遮蔽物までの距離をシャドウ マップから見積もり、その距離に応じて、PCF のカーネルの大きさを変える方式です。2005 年に NVIDIA の Fernando が提案しました。面光源が作る半影をシャドウ マップ 1 枚で、近似できます。
+[PCF](pcf.md)は、<strong>どこでも同じ幅</strong>で影の縁をぼかします。しかし、現実の影は遮蔽物に近い所は鋭く、離れるほどぼやけます（半影が広がる）。PCSS（Percentage-Closer Soft Shadows）は、遮蔽物までの距離をシャドウ マップから見積もり、その距離に応じて、PCF のカーネルの大きさを変える方式です。2005 年に NVIDIA の Fernando が提案しました。面光源が作る半影をシャドウ マップ 1 枚で、近似できます。
 
 !!! tip "ポイント"
     - 半影の幅は<strong>(受け手の距離 − 遮蔽物の距離) × 光源の大きさ ÷ 遮蔽物の距離</strong>（相似三角形）。
-    - 3 段階：<strong>① 遮蔽物の探索（平均の遮蔽物の深度を求める）</strong> → <strong>② 半影の幅を計算</strong> → <strong>③ その幅で PCF</strong>。
-    - <strong>遮蔽物に近い → 鋭い</strong>、<strong>遠い → ソフト</strong>（<strong>接触硬化</strong>）。
-    - 光源の大きさ（<strong>光源サイズ</strong>）が、<strong>ぼけの強さを決める</strong>パラメータ。
-    - コストは<strong>探索 ＋ 大きな PCF</strong>で、重い。<strong>サンプル数を減らす工夫</strong>が要る。
-    - シャドウ マップは<strong>1 枚</strong>だけ。<strong>1 つの遮蔽物（平均）</strong>を仮定する近似。
+    - 3 段階：<strong>① 遮蔽物の探索（平均の遮蔽物の深度を求める）</strong> → ② 半影の幅を計算 → ③ その幅で PCF。
+    - 遮蔽物に近い → 鋭い、遠い → ソフト（接触硬化）。
+    - 光源の大きさ（光源サイズ）が、ぼけの強さを決めるパラメータ。
+    - コストは探索 ＋ 大きな PCFで、重い。サンプル数を減らす工夫が要る。
+    - シャドウ マップは1 枚だけ。1 つの遮蔽物（平均）を仮定する近似。
 
 ## 半影の幾何
 
@@ -33,7 +33,7 @@ tags:
 <text x="400" y="156" style="font-size:12px">遮蔽物が光源に近い・受け手が遠い → 半影が広い</text>
 </svg>
 
-<strong>光源から</strong>、遮蔽物までの距離を `d_b`、受け手までを `d_r`、光源の幅を `w_light` とすると、<strong>相似な三角形</strong>から、半影の幅は次のとおりです。
+<strong>光源から</strong>、遮蔽物までの距離を `d_b`、受け手までを `d_r`、光源の幅を `w_light` とすると、相似な三角形から、半影の幅は次のとおりです。
 
 <div class="formula">w_penumbra = (d_r − d_b) · w_light / d_b</div>
 
@@ -44,7 +44,7 @@ tags:
 | 光源が大きい（w_light が大きい） | 広い |
 | 遮蔽物が光源に近い（d_b が小さい） | 非常に広い |
 
-<strong>物体の足元は鋭く、離れるほどぼやける</strong>という、<strong>現実の影の性質</strong>がこの式で再現できます。
+物体の足元は鋭く、離れるほどぼやけるという、現実の影の性質がこの式で再現できます。
 
 <!-- fig:pcss-penumbra:begin -->
 
@@ -230,9 +230,9 @@ tags:
 
 ### ① 遮蔽物の探索（Blocker Search）
 
-<strong>受け手の点</strong>から、<strong>光源の方向</strong>にシャドウ マップのある範囲を探索し、<strong>「受け手より手前にある（遮蔽物の）深度」</strong>の平均を求めます。
+<strong>受け手の点</strong>から、光源の方向にシャドウ マップのある範囲を探索し、「受け手より手前にある（遮蔽物の）深度」の平均を求めます。
 
-<strong>探索する範囲の大きさ</strong>は、<strong>光源の大きさ</strong>と受け手の位置で決まります（光源の幅をシャドウ マップ上に投影した幅）。
+探索する範囲の大きさは、光源の大きさと受け手の位置で決まります（光源の幅をシャドウ マップ上に投影した幅）。
 
 <div class="formula">w_search = w_light · (d_r − near) / d_r　（透視投影の場合）</div>
 
@@ -261,11 +261,11 @@ float AverageBlockerDepth(float2 uv, float receiver_depth, float search_radius_u
 
 ### ② 半影の幅を計算
 
-見つかった<strong>平均の遮蔽物の深度 `d_b`</strong> から、<strong>半影の幅</strong>を計算します。
+見つかった平均の遮蔽物の深度 `d_b` から、半影の幅を計算します。
 
 <div class="formula">w_penumbra = (d_r − d_b) · w_light / d_b</div>
 
-<strong>深度を線形（光からの距離）</strong>にしてから計算します（<strong>非線形の深度のままだと、式が成り立ちません</strong>）。
+深度を線形（光からの距離）にしてから計算します（非線形の深度のままだと、式が成り立ちません）。
 
 ```hlsl
 float penumbra_width = (receiver_z - blocker_z) * light_size_uv / blocker_z;
@@ -273,7 +273,7 @@ float penumbra_width = (receiver_z - blocker_z) * light_size_uv / blocker_z;
 
 ### ③ 可変幅の PCF
 
-<strong>半影の幅</strong>を、<strong>PCF のカーネルの半径</strong>にして、通常の PCF を行います。
+半影の幅を、PCF のカーネルの半径にして、通常の PCF を行います。
 
 ```hlsl
 float PCSS(float2 uv, float receiver_depth, float receiver_z) {
@@ -293,28 +293,28 @@ float PCSS(float2 uv, float receiver_depth, float receiver_z) {
 
 ## 平行光（太陽）の PCSS
 
-<strong>太陽</strong>は<strong>平行光</strong>で正射影のシャドウ マップです。光源の大きさは、視直径（約 0.53 度、半角で約 0.27 度）で表します。半影の幅は深度の差に角度のタンジェントを掛けたものです。
+<strong>太陽</strong>は平行光で正射影のシャドウ マップです。光源の大きさは、視直径（約 0.53 度、半角で約 0.27 度）で表します。半影の幅は深度の差に角度のタンジェントを掛けたものです。
 
 <div class="formula">w_penumbra = (d_r − d_b) · tan(θ_light)　（θ_light：光源の角半径）</div>
 
 正射影（太陽など）での式の項です。`d_r − d_b` は、受け手と遮蔽物の光の方向の距離差（ワールド単位）です。`tan θ` は光源の見かけの大きさで、太陽は約 0.0047 です。シャドウ マップ上の幅は、ワールド単位の幅をマップの 1 テクセルの大きさで割って求めます。
 
-<strong>正射影</strong>では<strong>探索範囲も一定</strong>（遠近の補正が不要）なので単純です。
+正射影では探索範囲も一定（遠近の補正が不要）なので単純です。
 
 ## 現実の影との違い
 
-PCSS は、<strong>1 枚のシャドウ マップ</strong>から、<strong>半影を近似</strong>します。以下の仮定・限界があります。
+PCSS は、<strong>1 枚のシャドウ マップ</strong>から、半影を近似します。以下の仮定・限界があります。
 
 | 限界 | 説明 |
 | --- | --- |
-| 遮蔽物は平均 1 枚の面 | <strong>複数の遮蔽物（深度が異なる）</strong>を、平均した 1 つの面として扱う。<strong>複雑な形（葉・髪）</strong>で、不正確 |
+| 遮蔽物は平均 1 枚の面 | 複数の遮蔽物（深度が異なる）を、平均した 1 つの面として扱う。複雑な形（葉・髪）で、不正確 |
 | シャドウ マップが遮蔽物しか持たない | 光から見て、一番手前の面だけ。奥の遮蔽物は見えない |
 | 探索範囲の限界 | 探索範囲外の遮蔽物は、見逃す |
 | 光源の形 | 円・矩形程度。複雑な形の面光源は、近似 |
 
 ## コストと工夫
 
-PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上）</strong>で、<strong>画素あたり 30 回以上</strong>シャドウ マップを読む、<strong>重い</strong>方式です。
+PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上）</strong>で、画素あたり 30 回以上シャドウ マップを読む、重い方式です。
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -346,7 +346,7 @@ PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上�
 | 最小・最大の半影幅 | 鋭さ・ぼけすぎの制限 | 最小は数テクセル（エイリアシングを隠す） |
 | 探索範囲の上限 | 計算コストの制限 | シーンの大きさ |
 
-<strong>半影の幅に最小値</strong>（たとえば 1〜2 テクセル）を設けると<strong>接触部でもエイリアシングが目立ちません</strong>。
+<strong>半影の幅に最小値</strong>（たとえば 1〜2 テクセル）を設けると接触部でもエイリアシングが目立ちません。
 
 ## よくあるミス
 
@@ -354,25 +354,25 @@ PCSS は<strong>探索（8〜16 サンプル）＋ PCF（16 サンプル以上�
     <strong>線形（光からの距離）に変換</strong>してから計算します。
 
 ??? failure "遮蔽物の探索で、比較サンプラーを使って、深度が得られない"
-    <strong>通常のサンプラー</strong>で<strong>生の深度</strong>を読みます。
+    通常のサンプラーで生の深度を読みます。
 
 ??? failure "遮蔽物が見つからないのに、PCF をして、無駄・誤判定"
-    `count == 0` で、<strong>日向として終了</strong>します。
+    `count == 0` で、日向として終了します。
 
 ??? failure "探索範囲が小さすぎて、遠くの遮蔽物を見逃し、半影が狭すぎる"
-    <strong>光源サイズ・受け手の距離</strong>から、<strong>探索範囲</strong>を適切に取ります。
+    光源サイズ・受け手の距離から、探索範囲を適切に取ります。
 
 ??? failure "サンプルが少なすぎて、ノイズがひどい"
-    <strong>画素ごとの回転 ＋ TAA</strong>、または<strong>サンプルを増やす</strong>。
+    画素ごとの回転 ＋ TAA、またはサンプルを増やす。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] PCSS ＝ <strong>遮蔽物との距離で、PCF のぼけの幅を変える</strong>（接触硬化を再現）
-    - [x] 半影の幅 ＝ <strong>(d_receiver − d_blocker) × 光源の大きさ ÷ d_blocker</strong>
-    - [x] 手順：<strong>① 遮蔽物の平均深度を探索 → ② 半影の幅を計算 → ③ その幅で PCF</strong>
-    - [x] 深度は<strong>線形</strong>にして計算。<strong>遮蔽物が無ければ、日向で終了</strong>
-    - [x] <strong>重い</strong>ので<strong>サンプルを減らして、ノイズ ＋ 時間蓄積</strong>で補う
+    - [x] 半影の幅 ＝ (d_receiver − d_blocker) × 光源の大きさ ÷ d_blocker
+    - [x] 手順：① 遮蔽物の平均深度を探索 → ② 半影の幅を計算 → ③ その幅で PCF
+    - [x] 深度は線形にして計算。遮蔽物が無ければ、日向で終了
+    - [x] 重いのでサンプルを減らして、ノイズ ＋ 時間蓄積で補う
 
 ## 参考
 

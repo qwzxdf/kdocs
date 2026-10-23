@@ -6,20 +6,20 @@ tags:
 
 # GPU Driven（D3D12 詳細）
 
-[GPU Driven Rendering](../gpu-driven.md)のページでは、<strong>「カリングと描画引数の生成を GPU に任せる」</strong>という**考え方**を説明しました。このパートでは、それを **Direct3D 12 の実コード**で**組み立てます**。**バッファの作り方・ルート シグネチャ・コンピュート シェーダーによるカリング・`ExecuteIndirect`・Hi-Z オクルージョン・メッシュレット・バリア**まで**コピーして動かせる粒度**で、**なぜそう書くのか**とともに**解説**します。
+[GPU Driven Rendering](../gpu-driven.md)のページでは、<strong>「カリングと描画引数の生成を GPU に任せる」</strong>という考え方を説明しました。このパートでは、それを Direct3D 12 の実コードで組み立てます。バッファの作り方・ルート シグネチャ・コンピュート シェーダーによるカリング・`ExecuteIndirect`・Hi-Z オクルージョン・メッシュレット・バリアまでコピーして動かせる粒度で、なぜそう書くのかとともに解説します。
 
 ## このパートの前提
 
 | 項目 | 内容 |
 | --- | --- |
-| **API** | **Direct3D 12**（Windows 10 以降）。<strong>dxc（DirectX Shader Compiler）</strong>で HLSL をコンパイル |
-| **ヘルパー** | **`d3dx12.h`**（`CD3DX12_*`）、**`Microsoft::WRL::ComPtr`** |
-| **シェーダー モデル** | 基本は **6.0 以上**。**バインドレス（ResourceDescriptorHeap）は 6.6**、**メッシュ シェーダーは 6.5** |
-| **座標系** | このサイトの標準（**左手系・Y 上・+Z 前方・行ベクトル**） |
-| **コーディング規約** | Google C++ Style（メンバーは末尾 `_`、関数は大文字始まり） |
+| **API** | Direct3D 12（Windows 10 以降）。dxc（DirectX Shader Compiler）で HLSL をコンパイル |
+| ヘルパー | `d3dx12.h`（`CD3DX12_*`）、`Microsoft::WRL::ComPtr` |
+| シェーダー モデル | 基本は 6.0 以上。バインドレス（ResourceDescriptorHeap）は 6.6、メッシュ シェーダーは 6.5 |
+| 座標系 | このサイトの標準（左手系・Y 上・+Z 前方・行ベクトル） |
+| コーディング規約 | Google C++ Style（メンバーは末尾 `_`、関数は大文字始まり） |
 
 !!! note "D3D11 の章との関係"
-    このサイトの描画の解説は、**主に D3D11** を前提にしています。**GPU Driven は、D3D12 の機能**（`ExecuteIndirect`・明示的バリア・バインドレス）が**本領を発揮する**ので**このパートだけ D3D12** で書きます。
+    このサイトの描画の解説は、主に D3D11 を前提にしています。GPU Driven は、D3D12 の機能（`ExecuteIndirect`・明示的バリア・バインドレス）が本領を発揮するのでこのパートだけ D3D12 で書きます。
 
 ## 全体の流れ
 
@@ -41,18 +41,18 @@ tags:
 
 | 手順 | 担当 | 内容 | 解説ページ |
 | --- | --- | --- | --- |
-| **① インスタンス更新** | CPU → GPU | **動いた物の行列だけ**を**アップロード** | [シーン データ](scene-data.md) |
-| **② カウンタのリセット** | GPU | **出力の個数を 0 に** | [カリング](culling.md) |
-| **③ カリング** | GPU（CS） | **見える物だけ**、**描画コマンドを書く** | [カリング](culling.md) |
-| **④ バリア** | GPU | **UAV → INDIRECT_ARGUMENT** | [カリング](culling.md) |
-| <strong>⑤ 描画（深度）</strong> | GPU | **`ExecuteIndirect`** | [ExecuteIndirect](execute-indirect.md) |
-| **⑥ Hi-Z 構築** | GPU（CS） | **深度から、最大深度のミップ チェーン** | [Hi-Z と 2 パス](hiz-two-pass.md) |
-| **⑦ 2 パス目のカリング** | GPU（CS） | **新しい Hi-Z で、1 パス目で漏れた物を判定** | [Hi-Z と 2 パス](hiz-two-pass.md) |
-| **⑧ 本描画** | GPU | **`ExecuteIndirect`** | [ExecuteIndirect](execute-indirect.md) |
+| **① インスタンス更新** | CPU → GPU | 動いた物の行列だけをアップロード | [シーン データ](scene-data.md) |
+| ② カウンタのリセット | GPU | 出力の個数を 0 に | [カリング](culling.md) |
+| ③ カリング | GPU（CS） | 見える物だけ、描画コマンドを書く | [カリング](culling.md) |
+| ④ バリア | GPU | UAV → INDIRECT_ARGUMENT | [カリング](culling.md) |
+| ⑤ 描画（深度） | GPU | `ExecuteIndirect` | [ExecuteIndirect](execute-indirect.md) |
+| ⑥ Hi-Z 構築 | GPU（CS） | 深度から、最大深度のミップ チェーン | [Hi-Z と 2 パス](hiz-two-pass.md) |
+| ⑦ 2 パス目のカリング | GPU（CS） | 新しい Hi-Z で、1 パス目で漏れた物を判定 | [Hi-Z と 2 パス](hiz-two-pass.md) |
+| ⑧ 本描画 | GPU | `ExecuteIndirect` | [ExecuteIndirect](execute-indirect.md) |
 
 ## このパートで使うデータ構造
 
-**C++ と HLSL で、同じ形の構造体**を使います。**サイズと整列**は、**`static_assert`**で**固定**します（**ずれると描画が壊れ、デバッグしづらい**）。
+**C++ と HLSL で、同じ形の構造体**を使います。サイズと整列は、`static_assert`で固定します（ずれると描画が壊れ、デバッグしづらい）。
 
 ```cpp
 struct alignas(16) InstanceData {
@@ -111,32 +111,32 @@ struct IndirectCommand {
 
 | 構造体 | 役割 |
 | --- | --- |
-| **`InstanceData`** | **配置された 1 つの物体**（ワールド行列・メッシュ番号・マテリアル番号）。**シーンの全物体**が並ぶ |
-| **`MeshInfo`** | **メッシュの種類ごと**の情報（**境界球**・**インデックスの範囲**・**PSO のバケット**） |
-| **`IndirectCommand`** | **`ExecuteIndirect` が読む、1 回分の描画引数**。<strong>先頭の 1 ワードがルート定数（インスタンス番号）</strong>、**続く 20 バイトが `DrawIndexedInstanced` の引数** |
+| `InstanceData` | 配置された 1 つの物体（ワールド行列・メッシュ番号・マテリアル番号）。シーンの全物体が並ぶ |
+| `MeshInfo` | メッシュの種類ごとの情報（境界球・インデックスの範囲・PSO のバケット） |
+| `IndirectCommand` | `ExecuteIndirect` が読む、1 回分の描画引数。先頭の 1 ワードがルート定数（インスタンス番号）、続く 20 バイトが `DrawIndexedInstanced` の引数 |
 
-**`D3D12_DRAW_INDEXED_ARGUMENTS`** は、**`IndexCountPerInstance`・`InstanceCount`・`StartIndexLocation`・`BaseVertexLocation`・`StartInstanceLocation`**の**20 バイト**です。**HLSL 側**の**`IndirectCommand`**（6 ワード＝24 バイト）と、**フィールドの並び順が同じ**でなければなりません。
+`D3D12_DRAW_INDEXED_ARGUMENTS` は、`IndexCountPerInstance`・`InstanceCount`・`StartIndexLocation`・`BaseVertexLocation`・`StartInstanceLocation`の20 バイトです。HLSL 側の`IndirectCommand`（6 ワード＝24 バイト）と、フィールドの並び順が同じでなければなりません。
 
 ## 全メッシュを 1 つの巨大バッファに
 
-**GPU Driven**では、**メッシュごとに頂点バッファを切り替えません**（**切り替えは CPU の仕事**になるため）。**全メッシュの頂点を 1 つの頂点バッファ**、**全メッシュのインデックスを 1 つのインデックス バッファ**に**詰め**、**`MeshInfo` の `start_index`・`base_vertex`**で**範囲**を指します。
+**GPU Driven**では、メッシュごとに頂点バッファを切り替えません（切り替えは CPU の仕事になるため）。全メッシュの頂点を 1 つの頂点バッファ、全メッシュのインデックスを 1 つのインデックス バッファに詰め、`MeshInfo` の `start_index`・`base_vertex`で範囲を指します。
 
 | バッファ | 内容 |
 | --- | --- |
-| **グローバル頂点バッファ** | **全メッシュの頂点**を**連結** |
-| **グローバル インデックス バッファ** | **全メッシュのインデックス**を、**連結**（`base_vertex` で頂点の位置を補正） |
-| **メッシュ情報バッファ** | **`MeshInfo` の配列** |
-| **インスタンス バッファ** | **`InstanceData` の配列**（毎フレーム更新される部分あり） |
+| グローバル頂点バッファ | 全メッシュの頂点を連結 |
+| グローバル インデックス バッファ | 全メッシュのインデックスを、連結（`base_vertex` で頂点の位置を補正） |
+| メッシュ情報バッファ | `MeshInfo` の配列 |
+| インスタンス バッファ | `InstanceData` の配列（毎フレーム更新される部分あり） |
 
 ## 読む順序
 
 1. [シーン データ](scene-data.md)：**バッファと記述子の作り方**
-2. [バインドレス](bindless.md)：**テクスチャを番号で引く**
-3. [カリング](culling.md)：**コンピュート シェーダーで、コマンドを書く**
-4. [ExecuteIndirect](execute-indirect.md)：**コマンド シグネチャと、描画ループ**
-5. [Hi-Z と 2 パス](hiz-two-pass.md)：**オクルージョン カリング**
-6. [メッシュレット](meshlets.md)：**クラスタ単位のカリングと、メッシュ シェーダー**
-7. [同期とデバッグ](sync-debug.md)：**バリア・フェンス・よくある事故**
+2. [バインドレス](bindless.md)：テクスチャを番号で引く
+3. [カリング](culling.md)：コンピュート シェーダーで、コマンドを書く
+4. [ExecuteIndirect](execute-indirect.md)：コマンド シグネチャと、描画ループ
+5. [Hi-Z と 2 パス](hiz-two-pass.md)：オクルージョン カリング
+6. [メッシュレット](meshlets.md)：クラスタ単位のカリングと、メッシュ シェーダー
+7. [同期とデバッグ](sync-debug.md)：バリア・フェンス・よくある事故
 
 ## 関連ページ
 

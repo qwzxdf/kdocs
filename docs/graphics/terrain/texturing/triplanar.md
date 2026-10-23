@@ -6,7 +6,7 @@ tags:
 
 # Triplanar Mapping
 
-<strong>急斜面では上から貼ったテクスチャが、縦に引き伸ばされます</strong>。<strong>X・Y・Z の 3 方向から貼って、法線に応じて混ぜる</strong>ことで伸びを防げます。このページではトライプラナー マッピングを説明します。
+<strong>急斜面では上から貼ったテクスチャが、縦に引き伸ばされます</strong>。X・Y・Z の 3 方向から貼って、法線に応じて混ぜることで伸びを防げます。このページではトライプラナー マッピングを説明します。
 
 !!! tip "ポイント"
     - 3 方向（XY・YZ・ZX）から、テクスチャを貼る。
@@ -74,7 +74,7 @@ tags:
 <!-- fig:triplanar-weights:end -->
 
 ## トライプラナー
-<strong>XZ 平面に投影する UV は急斜面や崖でテクスチャが縦に引き伸ばされます</strong>。<strong>X・Y・Z の 3 方向から投影した 3 枚を法線の向きで混ぜる</strong>のがトライプラナー マッピングです。
+<strong>XZ 平面に投影する UV は急斜面や崖でテクスチャが縦に引き伸ばされます</strong>。X・Y・Z の 3 方向から投影した 3 枚を法線の向きで混ぜるのがトライプラナー マッピングです。
 
 <svg class="fig illust" viewBox="0 0 780 220" role="img" aria-label="トライプラナー">
 <text x="20" y="24" class="fig-title">トライプラナー：面の向きに応じて、3 方向の投影を混ぜる</text>
@@ -111,7 +111,7 @@ float3 Triplanar(Texture2D tex, float3 world_position, float3 normal, float scal
 
 ## なぜ上から貼ると伸びるのか
 
-地形のテクスチャは普通、<strong>真上から（XZ 平面に）投影</strong>して貼ります。UV はワールドの x と z をそのまま使います。平らな場所ではこれでよいのですが、<strong>斜面が急になると 1 テクセルが、斜面の上で縦に長く伸びます</strong>。
+地形のテクスチャは普通、<strong>真上から（XZ 平面に）投影</strong>して貼ります。UV はワールドの x と z をそのまま使います。平らな場所ではこれでよいのですが、斜面が急になると 1 テクセルが、斜面の上で縦に長く伸びます。
 
 | 斜面の角度 | テクスチャの伸び（1 / cos θ） |
 | --- | --- |
@@ -150,7 +150,7 @@ float3 TriplanarColor(Texture2D tex, float3 world_pos, float3 n, float scale) {
 }
 ```
 
-`sharpness` が小さいと 3 枚が広い範囲で混ざって、模様がぼやけます。大きいと切り替えが鋭くなって境目に線が出ます。<strong>4〜8 がよく使われる範囲</strong>です。
+`sharpness` が小さいと 3 枚が広い範囲で混ざって、模様がぼやけます。大きいと切り替えが鋭くなって境目に線が出ます。4〜8 がよく使われる範囲です。
 
 ## 法線マップを正しく混ぜる
 
@@ -184,7 +184,7 @@ float3 TriplanarNormal(Texture2D normal_tex, float3 world_pos, float3 n, float s
 | Reoriented Normal Mapping（RNM） | 回転で合成する。もっとも正確 | 少し重い（Barré-Brisebois と Hill の比較を参照） |
 
 !!! warning "法線マップの Y の向きを確認する"
-    DirectX 系の法線マップは、緑（Y）が下向きを正と数える形式（D3D 形式）と上向きを正と数える形式（OpenGL 形式）があります。取り違えると <strong>凹凸が逆に見えます</strong>。アセットの形式にシェーダーを合わせます。
+    DirectX 系の法線マップは、緑（Y）が下向きを正と数える形式（D3D 形式）と上向きを正と数える形式（OpenGL 形式）があります。取り違えると 凹凸が逆に見えます。アセットの形式にシェーダーを合わせます。
 
 ## コスト
 
@@ -219,7 +219,7 @@ float3 TriplanarColorFast(Texture2D tex, float3 world_pos, float3 n, float scale
 
 ## 向き（符号）に注意する
 
-法線が <strong>負の向き</strong>（`-X`、`-Y`、`-Z`）を向く面ではテクスチャが、<strong>鏡に映したように</strong>反転して見えます。UV をそのまま使っているので、裏側から見たことになるためです。ほとんどの地形では目立ちませんが文字や向きのある模様では、気になります。
+法線が <strong>負の向き</strong>（`-X`、`-Y`、`-Z`）を向く面ではテクスチャが、鏡に映したように反転して見えます。UV をそのまま使っているので、裏側から見たことになるためです。ほとんどの地形では目立ちませんが文字や向きのある模様では、気になります。
 
 | 対策 | 内容 |
 | --- | --- |

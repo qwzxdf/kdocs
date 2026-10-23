@@ -6,7 +6,7 @@ tags:
 
 # The Light Matrix
 
-<strong>シャドウ マップを作るには、「光から見た世界」を描く</strong>必要があり、そのための<strong>ビュー行列と射影行列（光の行列）</strong>を作ります。光の種類で射影が変わります：太陽（平行光）は正射影、スポットライトは透視投影、点光源はキューブ マップの 6 方向です。このページではそれぞれの行列の作り方・範囲の決め方・点光源の 6 方向を説明します。
+<strong>シャドウ マップを作るには、「光から見た世界」を描く</strong>必要があり、そのためのビュー行列と射影行列（光の行列）を作ります。光の種類で射影が変わります：太陽（平行光）は正射影、スポットライトは透視投影、点光源はキューブ マップの 6 方向です。このページではそれぞれの行列の作り方・範囲の決め方・点光源の 6 方向を説明します。
 
 !!! tip "ポイント"
     - 平行光（太陽）：正射影。光の向きにカメラを置き見える範囲を箱で囲む。
@@ -40,7 +40,7 @@ tags:
 
 ### 平行光（太陽）：正射影
 
-平行光は<strong>光が全て平行</strong>なので<strong>正射影</strong>（遠近感なし）で撮ります。光の向きを前方向にしてシーンの範囲（影を落とす物・受ける物）を覆う箱を決めます。
+平行光は<strong>光が全て平行</strong>なので正射影（遠近感なし）で撮ります。光の向きを前方向にしてシーンの範囲（影を落とす物・受ける物）を覆う箱を決めます。
 
 ```cpp
 Matrix LightViewProjection(const Vector3& light_dir, const Vector3& center, float radius) {
@@ -60,15 +60,15 @@ Matrix LightViewProjection(const Vector3& light_dir, const Vector3& center, floa
 
 ### スポットライト：透視投影
 
-<strong>スポットライト</strong>は <strong>一点から円錐状</strong>に光が出るので、透視投影で撮ります。視野角はスポットの円錐の角度に合わせます。
+スポットライトは 一点から円錐状に光が出るので、透視投影で撮ります。視野角はスポットの円錐の角度に合わせます。
 
 ### 点光源：キューブマップ
 
-<strong>全方向</strong>に光が出るので<strong>6 方向（キューブマップ）</strong>で撮ります（[Point and Spot Light Shadows](../local-lights/index.md)）。
+全方向に光が出るので6 方向（キューブマップ）で撮ります（[Point and Spot Light Shadows](../local-lights/index.md)）。
 
 ## 光の行列：ビューと射影
 
-シャドウ マップを描くには <strong>光の視点</strong>から見た、<strong>ビュー行列</strong>と射影行列が必要です。メインのカメラの行列と同じ考え方で、作ります。このサイトの座標系は右手系・Y 上・行ベクトル（`v * M`）です（[座標系](../../../3d/index.md)）。
+シャドウ マップを描くには <strong>光の視点</strong>から見た、ビュー行列と射影行列が必要です。メインのカメラの行列と同じ考え方で、作ります。このサイトの座標系は右手系・Y 上・行ベクトル（`v * M`）です（[座標系](../../../3d/index.md)）。
 
 ```text
 ワールド座標 → [ビュー行列] → 光の視点の座標 → [射影行列] → 光のクリップ空間 → シャドウ マップの UV と深度
@@ -76,11 +76,11 @@ Matrix LightViewProjection(const Vector3& light_dir, const Vector3& center, floa
 
 ## 平行光源（太陽）：正射影
 
-太陽の光は <strong>平行</strong>なので <strong>正射影</strong>（遠近感なし）で、描きます。
+太陽の光は <strong>平行</strong>なので 正射影（遠近感なし）で、描きます。
 
 ### ビュー行列
 
-光の<strong>向き</strong>だけが重要で <strong>位置</strong>は影を、落とす範囲の中心から光の逆向きに、離れた所に置きます。
+光の向きだけが重要で 位置は影を、落とす範囲の中心から光の逆向きに、離れた所に置きます。
 
 ```cpp
 using namespace DirectX::SimpleMath;
@@ -103,7 +103,7 @@ Matrix light_view = Matrix::CreateLookAt(eye, center, up);       // 右手系
 
 ### 射影行列
 
-<strong>影を落とす範囲をちょうど覆う</strong>、<strong>箱（正射影のボリューム）</strong>を、作ります。
+影を落とす範囲をちょうど覆う、箱（正射影のボリューム）を、作ります。
 
 ```cpp
 // 正射影: 左、右、下、上、ニア、ファー（光のビュー空間で）。右手系の、オフ センター版。
@@ -120,11 +120,11 @@ Matrix light_view_proj = light_view * light_proj;                  // 行ベク�
 | `radius` | 影の範囲の半径。小さいほどシャドウ マップの、解像度が有効に使われる。大きいと広く覆えるがぼやける |
 | `near_z`、`far_z` | 光の方向の奥行き範囲。影を落とす物がすべて含まれるように、広めに取る |
 
-<strong>影を落とす物が範囲の外</strong>（光の、さらに手前、たとえば高い山）にあると <strong>影が、欠けます</strong>。ニアを手前に延ばすか光の後ろにある、物の深度をクランプします（深度クランプ、`DepthClipEnable = FALSE`）。
+影を落とす物が範囲の外（光の、さらに手前、たとえば高い山）にあると 影が、欠けます。ニアを手前に延ばすか光の後ろにある、物の深度をクランプします（深度クランプ、`DepthClipEnable = FALSE`）。
 
 ## スポットライト：透視投影
 
-スポットライトは <strong>円錐状</strong>に、光を出すので <strong>透視投影</strong>で描きます。円錐の開き角が視野角です。
+スポットライトは <strong>円錐状</strong>に、光を出すので 透視投影で描きます。円錐の開き角が視野角です。
 
 ```cpp
 Vector3 position = spot.position;
@@ -137,11 +137,11 @@ Matrix light_proj = Matrix::CreatePerspectiveFieldOfView(fov, aspect, spot.near_
 Matrix light_view_proj = light_view * light_proj;
 ```
 
-視野角は <strong>170° 未満</strong>に、します（180° に近づくと、透視投影が破綻する）。
+視野角は 170° 未満に、します（180° に近づくと、透視投影が破綻する）。
 
 ## メイン パスで：ワールドから、シャドウ マップの座標へ
 
-メインの描画で各画素の <strong>ワールド座標</strong>を、<strong>光の行列</strong>で変換しシャドウ マップの UV と深度を、求めます。
+メインの描画で各画素の <strong>ワールド座標</strong>を、光の行列で変換しシャドウ マップの UV と深度を、求めます。
 
 ```hlsl
 cbuffer ShadowCB : register(b2) { float4x4 g_light_view_proj; };
@@ -164,11 +164,11 @@ float ShadowFactor(float3 world_pos) {
 }
 ```
 
-<strong>v を反転</strong>（`-0.5`）するのは、<strong>NDC の y は上が正</strong>で、テクスチャの v は下が正だからです。この反転を忘れると影が上下に、逆転します。
+v を反転（`-0.5`）するのは、NDC の y は上が正で、テクスチャの v は下が正だからです。この反転を忘れると影が上下に、逆転します。
 
 ### 変換を 1 つの行列に、まとめる
 
-<strong>NDC から UV への変換</strong>（`* 0.5 + 0.5`、y の反転）も <strong>行列</strong>にして、光の行列と掛けておくとシェーダーが、簡単になります。
+NDC から UV への変換（`* 0.5 + 0.5`、y の反転）も 行列にして、光の行列と掛けておくとシェーダーが、簡単になります。
 
 ```cpp
 // NDC (-1..1) → UV (0..1)、y 反転。行ベクトル用。
@@ -187,7 +187,7 @@ float lit = g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, shadow_coord.xy, s
 
 ## 視錐台にぴったり合わせる
 
-太陽の `radius` を <strong>メインのカメラの視錐台</strong>に、<strong>合わせて</strong>、毎フレーム、計算すると無駄なく解像度を使えます。ただし、カメラが動くたびに範囲が変わり影が、ちらつきます（[Aliasing and Stabilization](aliasing-stabilize.md)）。カスケードでは視錐台を分割して、それぞれに合わせた行列を作ります（[CSM](../cascaded.md)）。
+太陽の `radius` を <strong>メインのカメラの視錐台</strong>に、合わせて、毎フレーム、計算すると無駄なく解像度を使えます。ただし、カメラが動くたびに範囲が変わり影が、ちらつきます（[Aliasing and Stabilization](aliasing-stabilize.md)）。カスケードでは視錐台を分割して、それぞれに合わせた行列を作ります（[CSM](../cascaded.md)）。
 
 ## よくあるミス
 

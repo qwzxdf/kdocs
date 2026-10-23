@@ -4,7 +4,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
 
 迷ったら [コンテナの選び方](../basics/container-chart.md) も見てください。
 
-??? abstract "コンテナ（61）: データをまとめて持つ入れ物"
+??? abstract "コンテナ（63）: データをまとめて持つ入れ物"
     | コンテナ | 重要度 | 速さ | 一言で |
     | --- | --- | --- | --- |
     | [`std::vector`](containers/vector.md) | <span class="rank rank-must">必須</span> | <span class="perf perf-4">◎</span> | あとから増減できる配列。要素が隣り合って並ぶので速い。迷ったらこれ。 |
@@ -43,6 +43,8 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::layout_left`](containers/layout_left.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 多次元の添字を、1 次元の位置に変える規則（列優先）。 <span class="ver ver-23">C++23</span> |
     | [`std::layout_stride`](containers/layout_stride.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 次元ごとの「歩幅」を自分で決める配置規則。 <span class="ver ver-23">C++23</span> |
     | [`std::aligned_accessor`](containers/aligned_accessor.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 要素が指定した境界に並ぶことを保証する mdspan のアクセサ。 <span class="ver ver-26">C++26</span> |
+    | [`std::as_bytes`](containers/as_bytes.md) | <span class="rank rank-rare">知ってるだけ</span> | — | span を、読み取り専用のバイト列（span<const std::byte>）として見る。 <span class="ver ver-20">C++20</span> |
+    | [`std::as_writable_bytes`](containers/as_writable_bytes.md) | <span class="rank rank-rare">知ってるだけ</span> | — | span を、書き込み可能のバイト列（span<std::byte>）として見る。 <span class="ver ver-20">C++20</span> |
     | [`std::default_accessor`](containers/default_accessor.md) | <span class="rank rank-rare">知ってるだけ</span> | — | mdspan の要素への標準のアクセス方法（ふつうのポインタ）。 <span class="ver ver-23">C++23</span> |
     | [`std::dextents`](containers/dextents.md) | <span class="rank rank-rare">知ってるだけ</span> | — | すべての次元が実行時に決まる extents の別名。 <span class="ver ver-23">C++23</span> |
     | [`std::dynamic_extent`](containers/dynamic_extent.md) | <span class="rank rank-rare">知ってるだけ</span> | — | span や mdspan で「要素数が実行時に決まる」ことを表す定数。 <span class="ver ver-20">C++20</span> |
@@ -225,7 +227,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [views::cache_latest](algorithms/views/cache_latest.md) | <span class="rank rank-rare">知ってるだけ</span> | 直前に計算した要素を覚えておく view。 <span class="ver ver-26">C++26</span> |
     | [views::concat](algorithms/views/concat.md) | <span class="rank rank-rare">知ってるだけ</span> | 複数の範囲を、1 本につなげて見せる view。 <span class="ver ver-26">C++26</span> |
 
-??? abstract "ユーティリティ（204）: optional, unique_ptr, format などの便利な部品"
+??? abstract "ユーティリティ（223）: optional, unique_ptr, format などの便利な部品"
     | 機能 | 重要度 | 速さ | 一言で |
     | --- | --- | --- | --- |
     | [`std::unique_ptr`](utilities/unique_ptr.md) | <span class="rank rank-must">必須</span> | <span class="perf perf-4">◎</span> | 持ち主が 1 つだけの、スマートポインタ。スコープを出ると自動で解放される。 |
@@ -234,6 +236,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::format`](utilities/format.md) | <span class="rank rank-must">必須</span> | — | `{}` を使って、文字列を整形する（`printf` の安全版）。書式の書き方を一通りまとめている。 <span class="ver ver-20">C++20</span> |
     | [`std::make_unique`](utilities/make_unique.md) | <span class="rank rank-must">必須</span> | — | オブジェクトを作って unique_ptr にする。普通はこれで unique_ptr を作る。 |
     | [`std::make_shared`](utilities/make_shared.md) | <span class="rank rank-must">必須</span> | — | オブジェクトを作って shared_ptr にする。普通はこれで shared_ptr を作る。 |
+    | [`std::println`](utilities/println.md) | <span class="rank rank-must">必須</span> | — | 書式つきで出力して、最後に改行する。 <span class="ver ver-23">C++23</span> |
     | [`std::pair`](utilities/pair.md) | <span class="rank rank-often">よく使う</span> | <span class="perf perf-4">◎</span> | 2 つの値を、1 つにまとめる。map の要素や、関数が 2 つの値を返すときに。 |
     | [`std::shared_ptr`](utilities/shared_ptr.md) | <span class="rank rank-often">よく使う</span> | <span class="perf perf-3">○</span> | 持ち主が複数いる、スマートポインタ。最後の持ち主が消えたときに解放される。 |
     | [`std::function`](utilities/function.md) | <span class="rank rank-often">よく使う</span> | <span class="perf perf-3">○</span> | 関数・ラムダ式を変数に入れて持つ。コールバックの保存に。 |
@@ -294,7 +297,9 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::format_kind`](utilities/format_kind.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 範囲の書式化の種類（sequence・map・set など）を表す変数。 <span class="ver ver-23">C++23</span> |
     | [`std::format_parse_context`](utilities/format_parse_context.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 書式文字列の解析の途中状態を持つクラス（自作の formatter の parse で受け取る）。 <span class="ver ver-20">C++20</span> |
     | [`std::format_string`](utilities/format_string.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 書式文字列を、コンパイル時に検査する型（char 版の別名）。 <span class="ver ver-20">C++20</span> |
+    | [`std::format_to_n`](utilities/format_to_n.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 最大 n 文字だけ、出力先に書式化して書き込む。 <span class="ver ver-20">C++20</span> |
     | [`std::formattable`](utilities/formattable.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 型が `std::format` で書式化できることを要求するコンセプト。 <span class="ver ver-23">C++23</span> |
+    | [`std::formatted_size`](utilities/formatted_size.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 書式化した結果が何文字になるかだけを返す（文字列は作らない）。 <span class="ver ver-20">C++20</span> |
     | [`std::forward_like`](utilities/forward_like.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 別の式の値カテゴリ（左辺値 / 右辺値、const）を、メンバにも引き継いで転送する。 <span class="ver ver-23">C++23</span> |
     | [`std::in_place_index`](utilities/in_place_index.md) | <span class="rank rank-rare">知ってるだけ</span> | — | variant に、番号を指定してその場で作らせる目印。 <span class="ver ver-17">C++17</span> |
     | [`std::in_place_type`](utilities/in_place_type.md) | <span class="rank rank-rare">知ってるだけ</span> | — | variant / any / optional に、型を指定してその場で作らせる目印。 <span class="ver ver-17">C++17</span> |
@@ -312,6 +317,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::range_format`](utilities/range_format.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 範囲の書式化の種類を表す列挙型。 <span class="ver ver-23">C++23</span> |
     | [`std::range_formatter`](utilities/range_formatter.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 範囲（vector など）を書式化する formatter の部品。 <span class="ver ver-23">C++23</span> |
     | [`std::ranlux24_base`](utilities/random/ranlux24_base.md) | <span class="rank rank-rare">知ってるだけ</span> | — | ranlux24 の土台になる、キャリーつき引き算法のエンジン。 |
+    | [`std::ranlux48`](utilities/random/ranlux48.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 高品質で遅い乱数エンジン（`ranlux48_base` を間引いたもの）。 |
     | [`std::ranlux48_base`](utilities/random/ranlux48_base.md) | <span class="rank rank-rare">知ってるだけ</span> | — | ranlux48 の土台になる、キャリーつき引き算法のエンジン。 |
     | [`std::reinterpret_pointer_cast`](utilities/reinterpret_pointer_cast.md) | <span class="rank rank-rare">知ってるだけ</span> | — | shared_ptr の指す先を、reinterpret_cast で別の型に見せる（持ち主は共有）。 <span class="ver ver-17">C++17</span> |
     | [`std::runtime_format`](utilities/runtime_format.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 実行時の文字列を、書式文字列として `format` に渡す。 <span class="ver ver-26">C++26</span> |
@@ -324,6 +330,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::unexpect`](utilities/unexpect.md) | <span class="rank rank-rare">知ってるだけ</span> | — | expected に、エラー側をその場で作らせる目印。 <span class="ver ver-23">C++23</span> |
     | [`std::variant_alternative`](utilities/variant_alternative.md) | <span class="rank rank-rare">知ってるだけ</span> | — | variant の N 番目の選択肢の型を取り出す。 <span class="ver ver-17">C++17</span> |
     | [`std::variant_npos`](utilities/variant_npos.md) | <span class="rank rank-rare">知ってるだけ</span> | — | variant が値を持たない状態を表す、index() の値。 <span class="ver ver-17">C++17</span> |
+    | [`std::variant_size`](utilities/variant_size.md) | <span class="rank rank-rare">知ってるだけ</span> | — | variant が持てる型の数をコンパイル時に取り出す。 <span class="ver ver-17">C++17</span> |
     | [`std::vformat_to`](utilities/vformat_to.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 実行時の書式文字列で、出力イテレータに書式化して出力する。 <span class="ver ver-20">C++20</span> |
     | [`std::visit_format_arg`](utilities/visit_format_arg.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 書式化の引数 1 つの中身を、型に応じて取り出す。 <span class="ver ver-20">C++20</span> |
     | [`std::vprint_nonunicode`](utilities/vprint_nonunicode.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 実行時の書式文字列で、Unicode 変換なしで出力する。 <span class="ver ver-23">C++23</span> |
@@ -394,7 +401,10 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::chrono::hh_mm_ss`](utilities/chrono/hh_mm_ss.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 経過時間を「時・分・秒」に分解する。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::zoned_time`](utilities/chrono/zoned_time.md) | <span class="rank rank-rare">知ってるだけ</span> | — | タイムゾーンつきの日時。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::file_clock`](utilities/chrono/file_clock.md) | <span class="rank rank-rare">知ってるだけ</span> | — | ファイルの更新日時に使われる時計。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::abs`](utilities/chrono/abs.md) | <span class="rank rank-rare">知ってるだけ</span> | — | duration の絶対値を返す。 <span class="ver ver-17">C++17</span> |
     | [`std::chrono::ambiguous_local_time`](utilities/chrono/ambiguous_local_time.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 夏時間の終わりで 2 回ある（曖昧な）ローカル時刻を変換したときの例外。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::ceil`](utilities/chrono/ceil.md) | <span class="rank rank-rare">知ってるだけ</span> | — | duration / time_point を、指定した単位に切り上げる。 <span class="ver ver-17">C++17</span> |
+    | [`std::chrono::choose`](utilities/chrono/choose.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 曖昧なローカル時刻の変換で、どちらを選ぶかを指定する列挙型。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::clock_cast`](utilities/chrono/clock_cast.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 時計どうしの時点を、別の時計の時点に変換する。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::current_zone`](utilities/chrono/current_zone.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 今の環境のタイムゾーンを取得する。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::day`](utilities/chrono/day.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 月の中の日（1〜31）を表す型。 <span class="ver ver-20">C++20</span> |
@@ -405,14 +415,18 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::chrono::get_leap_second_info`](utilities/chrono/get_leap_second_info.md) | <span class="rank rank-rare">知ってるだけ</span> | — | ある UTC の時点が、うるう秒の中か、それまでに何秒入ったかを調べる。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::get_tzdb`](utilities/chrono/get_tzdb.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 現在のタイムゾーンデータベースを取得する。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::gps_clock`](utilities/chrono/gps_clock.md) | <span class="rank rank-rare">知ってるだけ</span> | — | GPS の時刻に合わせた時計。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::gps_seconds`](utilities/chrono/gps_seconds.md) | <span class="rank rank-rare">知ってるだけ</span> | — | gps_clock の時点（秒単位）を表す別名。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::gps_time`](utilities/chrono/gps_time.md) | <span class="rank rank-rare">知ってるだけ</span> | — | gps_clock の時点（単位を選べる）を表す別名。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::hours`](utilities/chrono/hours.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 時間を数える duration の別名。 |
     | [`std::chrono::is_am`](utilities/chrono/is_am.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 24 時間制の時刻が午前かを調べる。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::is_clock`](utilities/chrono/is_clock.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 型が chrono の「時計」の条件を満たすかを調べる型特性。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::is_pm`](utilities/chrono/is_pm.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 24 時間制の時刻が午後かを調べる。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::last_spec`](utilities/chrono/last_spec.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 「最後」を表す定数 `std::chrono::last` の型。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::leap_second`](utilities/chrono/leap_second.md) | <span class="rank rank-rare">知ってるだけ</span> | — | うるう秒の挿入日と値を表す型。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::local_days`](utilities/chrono/local_days.md) | <span class="rank rank-rare">知ってるだけ</span> | — | ローカル時刻を、日の単位で表す別名（地域のカレンダーの日付）。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::local_info`](utilities/chrono/local_info.md) | <span class="rank rank-rare">知ってるだけ</span> | — | あるローカル時刻の時差情報（曖昧・存在しない場合も表す）。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::local_seconds`](utilities/chrono/local_seconds.md) | <span class="rank rank-rare">知ってるだけ</span> | — | ローカル時刻を、秒の単位で表す別名。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::local_t`](utilities/chrono/local_t.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 「どのタイムゾーンでもない、地域の時刻」を表す疑似の時計の型。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::local_time`](utilities/chrono/local_time.md) | <span class="rank rank-rare">知ってるだけ</span> | — | タイムゾーンのない、地域の時刻を表す別名。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::locate_zone`](utilities/chrono/locate_zone.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 名前から time_zone を取得する。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::make12`](utilities/chrono/make12.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 24 時間制の時を、12 時間制の時（1〜12）に直す。 <span class="ver ver-20">C++20</span> |
@@ -428,11 +442,16 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::chrono::nanoseconds`](utilities/chrono/nanoseconds.md) | <span class="rank rank-rare">知ってるだけ</span> | — | ナノ秒（10 億分の 1 秒）を数える duration の別名。 |
     | [`std::chrono::nonexistent_local_time`](utilities/chrono/nonexistent_local_time.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 夏時間の切り替えで存在しないローカル時刻を変換したときの例外。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::parse`](utilities/chrono/parse.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 文字列を書式に従って読み込み、chrono の型にするための入力マニピュレータ。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::reload_tzdb`](utilities/chrono/reload_tzdb.md) | <span class="rank rank-rare">知ってるだけ</span> | — | タイムゾーンのデータベースを、最新のものに読み込み直す。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::remote_version`](utilities/chrono/remote_version.md) | <span class="rank rank-rare">知ってるだけ</span> | — | OS が持つ、最新のタイムゾーンデータベースの版を返す。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::round`](utilities/chrono/round.md) | <span class="rank rank-rare">知ってるだけ</span> | — | duration / time_point を、指定した単位に四捨五入する。 <span class="ver ver-17">C++17</span> |
     | [`std::chrono::sys_days`](utilities/chrono/sys_days.md) | <span class="rank rank-rare">知ってるだけ</span> | — | system_clock の時点を、日の単位で表す別名（カレンダーの日付）。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::sys_info`](utilities/chrono/sys_info.md) | <span class="rank rank-rare">知ってるだけ</span> | — | ある UTC の時点での、時差・夏時間・略称の情報。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::sys_seconds`](utilities/chrono/sys_seconds.md) | <span class="rank rank-rare">知ってるだけ</span> | — | system_clock の時点を、秒の単位で表す別名。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::sys_time`](utilities/chrono/sys_time.md) | <span class="rank rank-rare">知ってるだけ</span> | — | system_clock の時点を表す別名（単位を選べる）。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::tai_clock`](utilities/chrono/tai_clock.md) | <span class="rank rank-rare">知ってるだけ</span> | — | うるう秒を含まず、連続して進む国際原子時（TAI）の時計。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::tai_seconds`](utilities/chrono/tai_seconds.md) | <span class="rank rank-rare">知ってるだけ</span> | — | tai_clock の時点（秒単位）を表す別名。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::tai_time`](utilities/chrono/tai_time.md) | <span class="rank rank-rare">知ってるだけ</span> | — | tai_clock の時点（単位を選べる）を表す別名。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::time_point_cast`](utilities/chrono/time_point_cast.md) | <span class="rank rank-rare">知ってるだけ</span> | — | time_point の単位を、別の単位に変換する（切り捨て）。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::time_zone`](utilities/chrono/time_zone.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 1 つのタイムゾーン（例: Asia/Tokyo）を表す型。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::time_zone_link`](utilities/chrono/time_zone_link.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 別名のタイムゾーン（古い名前から新しい名前への対応）を表す型。 <span class="ver ver-20">C++20</span> |
@@ -441,6 +460,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::chrono::tzdb`](utilities/chrono/tzdb.md) | <span class="rank rank-rare">知ってるだけ</span> | — | タイムゾーンのデータベース（IANA）を表す型。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::tzdb_list`](utilities/chrono/tzdb_list.md) | <span class="rank rank-rare">知ってるだけ</span> | — | tzdb の更新履歴（世代ごとの一覧）を管理する型。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::utc_clock`](utilities/chrono/utc_clock.md) | <span class="rank rank-rare">知ってるだけ</span> | — | うるう秒を数に入れた、協定世界時（UTC）の時計。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::utc_seconds`](utilities/chrono/utc_seconds.md) | <span class="rank rank-rare">知ってるだけ</span> | — | utc_clock の時点（秒単位）を表す別名。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::utc_time`](utilities/chrono/utc_time.md) | <span class="rank rank-rare">知ってるだけ</span> | — | utc_clock の時点を表す別名（単位を選べる）。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::weekday`](utilities/chrono/weekday.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 曜日を表す型。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::weekday_indexed`](utilities/chrono/weekday_indexed.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 「第 n の曜日」を表す型（第 2 月曜日など）。 <span class="ver ver-20">C++20</span> |
@@ -452,8 +472,9 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::chrono::year_month_weekday`](utilities/chrono/year_month_weekday.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 「その年のその月の第 n 曜日」を表す型。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::year_month_weekday_last`](utilities/chrono/year_month_weekday_last.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 「その年のその月の最後の曜日」を表す型。 <span class="ver ver-20">C++20</span> |
     | [`std::chrono::years`](utilities/chrono/years.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 年（平均の長さ）を数える duration の別名。 <span class="ver ver-20">C++20</span> |
+    | [`std::chrono::zoned_traits`](utilities/chrono/zoned_traits.md) | <span class="rank rank-rare">知ってるだけ</span> | — | zoned_time が、ゾーンの指定をどう解釈するかを決める特性。 <span class="ver ver-20">C++20</span> |
 
-??? abstract "メモリ（78）: 確保の仕組み、アロケータ、C 由来の関数"
+??? abstract "メモリ（80）: 確保の仕組み、アロケータ、C 由来の関数"
     | 名前 | 重要度 | 一言で |
     | --- | --- | --- |
     | [new と delete・配置 new](memory/new_delete.md) | <span class="rank rank-often">よく使う</span> | メモリの確保と、オブジェクトの作成・破棄。配置 `new`、`construct_at` も含む。 |
@@ -522,16 +543,18 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | --- | --- | --- |
     | [new 式](memory/new_delete/new.md) | <span class="rank rank-often">よく使う</span> | オブジェクトをヒープに作る式。メモリ確保とコンストラクターの呼び出しを一度に行う。 |
     | [delete 式](memory/new_delete/delete.md) | <span class="rank rank-often">よく使う</span> | new で作ったオブジェクトを壊して、メモリを解放する式。 |
-    | [new[] と delete[]](memory/new_delete/new_array.md) | <span class="rank rank-rare">知ってるだけ</span> | 配列をヒープに作り、解放する式。 |
+    | [new[]](memory/new_delete/new_array.md) | <span class="rank rank-rare">知ってるだけ</span> | 配列をヒープに作り、解放する式。 |
     | [`std::nothrow`](memory/new_delete/nothrow.md) | <span class="rank rank-rare">知ってるだけ</span> | new が失敗したとき、例外ではなく nullptr を返させる指定。 |
     | [配置 new（placement new）](memory/new_delete/placement_new.md) | <span class="rank rank-rare">知ってるだけ</span> | 用意したメモリの上に、オブジェクトを作る。 |
     | [`std::construct_at`](memory/new_delete/construct_at.md) | <span class="rank rank-rare">知ってるだけ</span> | 確保済みのメモリの上に、オブジェクトを作る（配置 new の安全版）。 <span class="ver ver-20">C++20</span> |
     | [`std::destroy_at`](memory/new_delete/destroy_at.md) | <span class="rank rank-rare">知ってるだけ</span> | オブジェクトのデストラクターを呼ぶ（メモリは解放しない）。 <span class="ver ver-17">C++17</span> |
-    | [operator new / operator delete](memory/new_delete/operator_new.md) | <span class="rank rank-rare">知ってるだけ</span> | メモリの確保・解放だけを行う関数（new 式の内部で使われる）。 |
+    | [operator new](memory/new_delete/operator_new.md) | <span class="rank rank-rare">知ってるだけ</span> | メモリの確保・解放だけを行う関数（new 式の内部で使われる）。 |
     | [`std::uninitialized_copy`](memory/new_delete/uninitialized_copy.md) | <span class="rank rank-rare">知ってるだけ</span> | 未初期化のメモリへ、要素を（コンストラクターで）コピーして作る。 |
     | [`std::launder`](memory/new_delete/launder.md) | <span class="rank rank-rare">知ってるだけ</span> | オブジェクトの置き換えを、コンパイラに知らせてポインターを取り直す。 <span class="ver ver-17">C++17</span> |
     | [`std::align_val_t`](memory/new_delete/align_val_t.md) | <span class="rank rank-rare">知ってるだけ</span> | new にアラインメントを指定するための型。 <span class="ver ver-17">C++17</span> |
     | [`std::set_new_handler`](memory/new_delete/set_new_handler.md) | <span class="rank rank-rare">知ってるだけ</span> | `new` が失敗したときに呼ばれる関数を登録する。 |
+    | [delete[]](memory/new_delete/delete_array.md) | <span class="rank rank-rare">知ってるだけ</span> | new[] で確保した配列を解放する。 |
+    | [operator delete](memory/new_delete/operator_delete.md) | <span class="rank rank-rare">知ってるだけ</span> | new 式の「解放の部分」だけを行う関数（デストラクタは呼ばない）。 |
     | [`std::bad_array_new_length`](memory/new_delete/bad_array_new_length.md) | <span class="rank rank-rare">知ってるだけ</span> | 配列の new で、要素数が不正だったときの例外。 |
     | [`std::destroy`](memory/new_delete/destroy.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲のオブジェクトのデストラクタを呼ぶ（メモリは返さない）。 <span class="ver ver-17">C++17</span> |
     | [`std::destroy_n`](memory/new_delete/destroy_n.md) | <span class="rank rank-rare">知ってるだけ</span> | 先頭から n 個のオブジェクトのデストラクタを呼ぶ。 <span class="ver ver-17">C++17</span> |
@@ -555,7 +578,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::pmr::memory_resource`](memory/pmr/memory_resource.md) | <span class="rank rank-rare">知ってるだけ</span> | メモリの取り先を表す、抽象基底クラス。 |
     | [`std::pmr::set_default_resource`](memory/pmr/default_resource.md) | <span class="rank rank-rare">知ってるだけ</span> | pmr コンテナの既定のメモリリソースを取得・変更する。 |
 
-??? abstract "入出力・文字列（266）: ファイル、パス、文字列と数値の変換"
+??? abstract "入出力・文字列（283）: ファイル、パス、文字列と数値の変換"
     | 名前 | 重要度 | 一言で |
     | --- | --- | --- |
     | [`std::ifstream`](io/ifstream.md) | <span class="rank rank-must">必須</span> | ファイルを読むための型（テキスト・バイナリ）。 |
@@ -597,9 +620,9 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [errno](io/cerrno.md) | <span class="rank rank-rare">知ってるだけ</span> | C 由来の関数が失敗した理由を入れる、グローバルなエラー番号。 |
     | [`std::signal`](io/csignal.md) | <span class="rank rank-rare">知ってるだけ</span> | Ctrl+C やクラッシュ（シグナル）を受け取る関数を登録する。 |
     | [va_list](io/cstdarg.md) | <span class="rank rank-rare">知ってるだけ</span> | 引数の数が決まっていない関数（C 風の可変長引数）を書く。 |
+    | [<csetjmp>（setjmp と longjmp）](io/csetjmp.md) | <span class="rank rank-rare">知ってるだけ</span> | 離れた場所へ一気に戻る（C 由来・C++ では危険）。 |
     | [`<cuchar>`](io/cuchar.md) | <span class="rank rank-rare">知ってるだけ</span> | マルチバイト文字と UTF-8 / 16 / 32 の変換をする C 由来の関数群。 |
     | [`<cwchar>`](io/cwchar.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字（`wchar_t`）の C 由来の関数群。 |
-    | [setjmp / longjmp](io/csetjmp.md) | <span class="rank rank-rare">知ってるだけ</span> | 離れた場所へ一気に戻る（C 由来・C++ では危険）。 |
     | [`std::codecvt`](io/codecvt.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字コードの変換を行う、ロケールの部品。 |
     | [BUFSIZ](io/cstdio/bufsiz.md) | <span class="rank rank-rare">知ってるだけ</span> | 標準のバッファの大きさ（バイト）。 |
     | [CLOCKS_PER_SEC](io/ctime/clocks_per_sec.md) | <span class="rank rank-rare">知ってるだけ</span> | clock() の値を、秒に直すための 1 秒あたりのカウント数。 |
@@ -610,6 +633,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [SEEK_SET](io/cstdio/seek_set.md) | <span class="rank rank-rare">知ってるだけ</span> | `fseek` の基準：ファイルの先頭。 |
     | [WEOF](io/cwchar/weof.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字の終端またはエラーを表す定数。 |
     | [jmp_buf](io/jmp_buf.md) | <span class="rank rank-rare">知ってるだけ</span> | setjmp が保存した、実行位置の情報を入れる型。 |
+    | [setjmp](io/setjmp.md) | <span class="rank rank-rare">知ってるだけ</span> | いまの実行位置を記録する（あとで longjmp で戻れる）。 |
     | [`std::asctime`](io/ctime/asctime.md) | <span class="rank rank-rare">知ってるだけ</span> | tm を、決まった形の文字列にする。 |
     | [`std::basic_ios`](io/basic_ios.md) | <span class="rank rank-rare">知ってるだけ</span> | すべてのストリームの土台。状態の確認（good / fail / bad）とロケールの設定を持つ。 |
     | [`std::basic_iostream`](io/basic_iostream.md) | <span class="rank rank-rare">知ってるだけ</span> | 読み書き両用のストリームの元になるテンプレート（`iostream` の元）。 |
@@ -621,6 +645,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::chars_format`](io/chars_format.md) | <span class="rank rank-rare">知ってるだけ</span> | to_chars / from_chars で浮動小数点の書式（固定・指数・16 進）を選ぶ列挙型。 <span class="ver ver-17">C++17</span> |
     | [`std::clearerr`](io/cstdio/clearerr.md) | <span class="rank rank-rare">知ってるだけ</span> | ファイルのエラー状態と終端状態をクリアする。 |
     | [`std::clock_t`](io/ctime/clock_t.md) | <span class="rank rank-rare">知ってるだけ</span> | プロセッサ時間（clock の戻り値）を表す型。 |
+    | [`std::clog`](io/clog.md) | <span class="rank rank-rare">知ってるだけ</span> | 標準のログ出力（cerr と同じ出力先で、バッファあり）。 |
     | [`std::cmatch`](io/regex/cmatch.md) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列用の match_results。 |
     | [`std::codecvt`](io/locale/codecvt.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字コードの変換を担当するファセット。 |
     | [`std::codecvt_utf8`](io/locale/codecvt_utf8.md) | <span class="rank rank-rare">知ってるだけ</span> | UTF-8 と、UCS-2 / UTF-32 を変換するファセット（非推奨）。 |
@@ -645,6 +670,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::fgetws`](io/cwchar/fgetws.md) | <span class="rank rank-rare">知ってるだけ</span> | ファイルからワイド文字列を 1 行読む。 |
     | [`std::filebuf`](io/filebuf.md) | <span class="rank rank-rare">知ってるだけ</span> | ファイルへの読み書きを担当するストリームバッファ。 |
     | [`std::flush_emit`](io/flush_emit.md) | <span class="rank rank-rare">知ってるだけ</span> | osyncstream の出力を確定して、フラッシュする。 <span class="ver ver-20">C++20</span> |
+    | [`std::fpos`](io/fpos.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリームの位置を状態つきで表すクラス。 |
     | [`std::fprintf`](io/cstdio/fprintf.md) | <span class="rank rank-rare">知ってるだけ</span> | 書式を指定して、ファイルに出力する。 |
     | [`std::fputc`](io/cstdio/fputc.md) | <span class="rank rank-rare">知ってるだけ</span> | ファイルに 1 文字を書く。 |
     | [`std::fputs`](io/cstdio/fputs.md) | <span class="rank rank-rare">知ってるだけ</span> | ファイルに文字列を書く（改行は付かない）。 |
@@ -664,12 +690,14 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::has_facet`](io/locale/has_facet.md) | <span class="rank rank-rare">知ってるだけ</span> | ロケールが、指定したファセット（部品）を持っているかを調べる。 |
     | [`std::hexfloat`](io/hexfloat.md) | <span class="rank rank-rare">知ってるだけ</span> | 浮動小数点数を、16 進の指数表記で出力する。 |
     | [`std::internal`](io/internal.md) | <span class="rank rank-rare">知ってるだけ</span> | 符号や接頭辞を左に、数字を右に寄せる（間を埋める）。 |
+    | [`std::ios_base::failure`](io/ios_base_failure.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリームのエラーで投げられる例外クラス。 |
     | [`std::iostream`](io/iostream.md) | <span class="rank rank-rare">知ってるだけ</span> | 入力も出力もできるストリームのクラス。 |
     | [`std::ispanstream`](io/ispanstream.md) | <span class="rank rank-rare">知ってるだけ</span> | `span` の上にあるメモリから、読み込むストリーム。 <span class="ver ver-23">C++23</span> |
     | [`std::lconv`](io/locale/lconv.md) | <span class="rank rank-rare">知ってるだけ</span> | 数値と通貨の書式情報をまとめた構造体。 |
     | [`std::left`](io/left.md) | <span class="rank rank-rare">知ってるだけ</span> | 出力を、幅の中で左寄せにする。 |
     | [`std::localeconv`](io/locale/localeconv.md) | <span class="rank rank-rare">知ってるだけ</span> | 現在のロケールの数値・通貨の書式情報を取得する。 |
     | [`std::localtime`](io/ctime/localtime.md) | <span class="rank rank-rare">知ってるだけ</span> | time_t を、ローカル時刻の tm に変換する。 |
+    | [`std::longjmp`](io/longjmp.md) | <span class="rank rank-rare">知ってるだけ</span> | setjmp で記録した位置へ、一気に戻る。 |
     | [`std::match_flag_type`](io/regex/match_flag_type.md) | <span class="rank rank-rare">知ってるだけ</span> | 一致や置換の動作を指定するビットマスク型。 |
     | [`std::match_results`](io/regex/match_results.md) | <span class="rank rank-rare">知ってるだけ</span> | 一致の結果（全体とグループ）を保持するクラスの、元になるテンプレート。 |
     | [`std::mbrlen`](io/cwchar/mbrlen.md) | <span class="rank rank-rare">知ってるだけ</span> | マルチバイト文字 1 文字のバイト数を返す（途中状態つき）。 |
@@ -699,6 +727,8 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::regex_iterator`](io/regex/regex_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列から、正規表現に一致する部分を、順に取り出すイテレータ。 |
     | [`std::regex_token_iterator`](io/regex/regex_token_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列を、正規表現で分割して（または一致を取り出して）、順に返すイテレータ。 |
     | [`std::regex_traits`](io/regex/regex_traits.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字の分類や変換の規則をまとめた、正規表現の部品。 |
+    | [std::remove（<cstdio>）](io/cstdio/remove.md) | <span class="rank rank-rare">知ってるだけ</span> | ファイルを削除する（C の関数）。 |
+    | [`std::rename`](io/cstdio/rename.md) | <span class="rank rank-rare">知ってるだけ</span> | ファイルの名前を変える（移動もできる）。 |
     | [`std::resetiosflags`](io/resetiosflags.md) | <span class="rank rank-rare">知ってるだけ</span> | 書式フラグを、まとめて解除する。 |
     | [`std::rewind`](io/cstdio/rewind.md) | <span class="rank rank-rare">知ってるだけ</span> | ファイルの読み書き位置を、先頭に戻す。 |
     | [`std::right`](io/right.md) | <span class="rank rank-rare">知ってるだけ</span> | 出力を、幅の中で右寄せにする（既定）。 |
@@ -713,7 +743,6 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::showpos`](io/showpos.md) | <span class="rank rank-rare">知ってるだけ</span> | 正の数の出力に、`+` を付ける。 |
     | [`std::sig_atomic_t`](io/sig_atomic_t.md) | <span class="rank rank-rare">知ってるだけ</span> | シグナルハンドラの中で、安全に読み書きできる整数型。 |
     | [`std::skipws`](io/skipws.md) | <span class="rank rank-rare">知ってるだけ</span> | 入力で、先頭の空白を読み飛ばす（既定でオン）。 |
-    | [`std::snprintf`](io/cstdio/snprintf.md) | <span class="rank rank-rare">知ってるだけ</span> | 書式を指定して、大きさを決めた文字配列に書き込む（あふれない）。 |
     | [`std::spanbuf`](io/spanbuf.md) | <span class="rank rank-rare">知ってるだけ</span> | `span` の上にあるメモリを使うストリームバッファ。 <span class="ver ver-23">C++23</span> |
     | [`std::sprintf`](io/cstdio/sprintf.md) | <span class="rank rank-rare">知ってるだけ</span> | 書式を指定して、文字配列に書き込む。 |
     | [`std::sregex_token_iterator`](io/regex/sregex_token_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | string 用の regex_token_iterator。 |
@@ -722,9 +751,13 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::stderr`](io/cstdio/stderr.md) | <span class="rank rank-rare">知ってるだけ</span> | 標準エラー出力を表す FILE*。 |
     | [`std::stdin`](io/cstdio/stdin.md) | <span class="rank rank-rare">知ってるだけ</span> | 標準入力を表す FILE*。 |
     | [`std::stdout`](io/cstdio/stdout.md) | <span class="rank rank-rare">知ってるだけ</span> | 標準出力を表す FILE*。 |
+    | [`std::streamoff`](io/streamoff.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリーム上の位置の差（オフセット）を表す符号付き整数型。 |
+    | [`std::streampos`](io/streampos.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリーム上の位置を表す型。 |
+    | [`std::streamsize`](io/streamsize.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリームで読み書きする文字数を表す符号付き整数型。 |
     | [`std::stringbuf`](io/stringbuf.md) | <span class="rank rank-rare">知ってるだけ</span> | メモリ上の文字列への読み書きを担当するストリームバッファ。 |
     | [`std::sub_match`](io/regex/sub_match.md) | <span class="rank rank-rare">知ってるだけ</span> | 一致したグループ 1 つぶんを表すクラス。 |
     | [`std::swprintf`](io/cwchar/swprintf.md) | <span class="rank rank-rare">知ってるだけ</span> | 書式を指定して、ワイド文字の配列に書き込む。 |
+    | [`std::syncbuf`](io/syncbuf.md) | <span class="rank rank-rare">知ってるだけ</span> | 出力を溜めておき、emit() でまとめて書き出すストリームバッファ。 <span class="ver ver-20">C++20</span> |
     | [`std::syntax_option_type`](io/regex/syntax_option_type.md) | <span class="rank rank-rare">知ってるだけ</span> | 正規表現の構文やオプションを指定するビットマスク型。 |
     | [`std::time_get`](io/locale/time_get.md) | <span class="rank rank-rare">知ってるだけ</span> | 日時を、書式に従って文字列から読み込むファセット。 |
     | [`std::time_put`](io/locale/time_put.md) | <span class="rank rank-rare">知ってるだけ</span> | 日時を、書式に従って文字列に書き出すファセット。 |
@@ -743,7 +776,11 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::vprintf`](io/cstdio/vprintf.md) | <span class="rank rank-rare">知ってるだけ</span> | 可変引数のリスト（va_list）を使って、標準出力に出力する。 |
     | [`std::vsnprintf`](io/cstdio/vsnprintf.md) | <span class="rank rank-rare">知ってるだけ</span> | 可変引数のリスト（va_list）を使って、大きさを指定して文字配列に書き込む。 |
     | [`std::vsprintf`](io/cstdio/vsprintf.md) | <span class="rank rank-rare">知ってるだけ</span> | 可変引数のリスト（va_list）を使って、文字配列に書き込む。 |
+    | [`std::wcerr`](io/wcerr.md) | <span class="rank rank-rare">知ってるだけ</span> | `wchar_t` の標準エラー出力。 |
+    | [`std::wcin`](io/wcin.md) | <span class="rank rank-rare">知ってるだけ</span> | `wchar_t` の標準入力。 |
+    | [`std::wclog`](io/wclog.md) | <span class="rank rank-rare">知ってるだけ</span> | `wchar_t` の標準ログ出力（バッファあり）。 |
     | [`std::wcmatch`](io/regex/wcmatch.md) | <span class="rank rank-rare">知ってるだけ</span> | wchar_t の C 文字列用の match_results。 |
+    | [`std::wcout`](io/wcout.md) | <span class="rank rank-rare">知ってるだけ</span> | `wchar_t` の標準出力。 |
     | [`std::wcrtomb`](io/cwchar/wcrtomb.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字を、マルチバイト文字に変換する（途中状態つき）。 |
     | [`std::wcscmp`](io/cwchar/wcscmp.md) | <span class="rank rank-rare">知ってるだけ</span> | 2 つのワイド文字列を比べる。 |
     | [`std::wcscpy`](io/cwchar/wcscpy.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字列をコピーする。 |
@@ -786,6 +823,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::filesystem::directory_iterator`](io/filesystem/directory_iterator.md) | <span class="rank rank-often">よく使う</span> | フォルダの中身（直下のファイル）を順に回す。 <span class="ver ver-17">C++17</span> |
     | [`std::filesystem::recursive_directory_iterator`](io/filesystem/recursive_directory_iterator.md) | <span class="rank rank-often">よく使う</span> | フォルダの中身を、サブフォルダの中まで全部回す。 <span class="ver ver-17">C++17</span> |
     | [`std::filesystem::directory_entry`](io/filesystem/directory_entry.md) | <span class="rank rank-often">よく使う</span> | フォルダを回して得られる、1 つの項目（パスと情報）。 <span class="ver ver-17">C++17</span> |
+    | [`std::filesystem::copy_options`](io/filesystem/copy_options.md) | <span class="rank rank-often">よく使う</span> | copy / copy_file の動作（上書き・再帰など）を指定するビットマスク型。 <span class="ver ver-17">C++17</span> |
     | [`std::filesystem::create_directory`](io/filesystem/create_directory.md) | <span class="rank rank-sometimes">たまに</span> | フォルダを 1 階層だけ作る。 <span class="ver ver-17">C++17</span> |
     | [`std::filesystem::remove`](io/filesystem/remove.md) | <span class="rank rank-sometimes">たまに</span> | ファイルか空のフォルダを 1 つ消す。 <span class="ver ver-17">C++17</span> |
     | [`std::filesystem::remove_all`](io/filesystem/remove_all.md) | <span class="rank rank-sometimes">たまに</span> | フォルダを中身ごと、まとめて消す。 <span class="ver ver-17">C++17</span> |
@@ -799,6 +837,8 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::filesystem::last_write_time`](io/filesystem/last_write_time.md) | <span class="rank rank-sometimes">たまに</span> | ファイルの最終更新日時を取得する。 <span class="ver ver-17">C++17</span> |
     | [`std::filesystem::absolute`](io/filesystem/absolute.md) | <span class="rank rank-sometimes">たまに</span> | 相対パスを絶対パスにする。 <span class="ver ver-17">C++17</span> |
     | [`std::filesystem::filesystem_error`](io/filesystem/filesystem_error.md) | <span class="rank rank-sometimes">たまに</span> | filesystem の関数が投げる例外。 <span class="ver ver-17">C++17</span> |
+    | [`std::filesystem::directory_options`](io/filesystem/directory_options.md) | <span class="rank rank-sometimes">たまに</span> | フォルダの走査の動作（権限のないフォルダを飛ばすなど）を指定する型。 <span class="ver ver-17">C++17</span> |
+    | [`std::filesystem::file_type`](io/filesystem/file_type.md) | <span class="rank rank-sometimes">たまに</span> | ファイルの種類（通常ファイル・フォルダ・リンクなど）を表す列挙型。 <span class="ver ver-17">C++17</span> |
     | [`std::filesystem::relative`](io/filesystem/relative.md) | <span class="rank rank-rare">知ってるだけ</span> | 基準のフォルダからの、相対パスにする。 <span class="ver ver-17">C++17</span> |
     | [`std::filesystem::temp_directory_path`](io/filesystem/temp_directory_path.md) | <span class="rank rank-rare">知ってるだけ</span> | 一時ファイル用のフォルダの場所を返す。 <span class="ver ver-17">C++17</span> |
     | [`std::filesystem::canonical`](io/filesystem/canonical.md) | <span class="rank rank-rare">知ってるだけ</span> | パスを正規化する（`..` やリンクを解決する）。 <span class="ver ver-17">C++17</span> |
@@ -840,15 +880,22 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::strftime`](io/ctime/strftime.md) | <span class="rank rank-rare">知ってるだけ</span> | 日時を、書式に従った文字列にする（C 由来）。 |
     | [`std::gmtime`](io/ctime/gmtime.md) | <span class="rank rank-rare">知ってるだけ</span> | 秒数を、UTC の年月日時分秒に分解する（C 由来）。 |
 
-??? abstract "数値（244）: 数学関数、定数、整数型、ビット操作"
+??? abstract "数値（285）: 数学関数、定数、整数型、ビット操作"
     | 名前 | 重要度 | 一言で |
     | --- | --- | --- |
     | [<cmath>（数学関数）](numeric/cmath.md) | <span class="rank rank-must">必須</span> | `sqrt`、`sin` / `cos`、`atan2`、`lerp` など数学の関数。 |
     | [<cstdint>（大きさの決まった整数型）](numeric/cstdint.md) | <span class="rank rank-often">よく使う</span> | `std::int32_t` など大きさが決まった整数の型。 |
     | [`std::numeric_limits`](numeric/limits.md) | <span class="rank rank-often">よく使う</span> | 型の最大値・最小値・誤差の大きさを、調べる。 |
     | [<numbers>（数学定数）](numeric/numbers.md) | <span class="rank rank-often">よく使う</span> | π などの数学の定数。 <span class="ver ver-20">C++20</span> |
+    | [`std::int32_t`](numeric/cstdint/int32_t.md) | <span class="rank rank-often">よく使う</span> | ちょうど 32 ビットの符号付き整数。 |
+    | [`std::int64_t`](numeric/cstdint/int64_t.md) | <span class="rank rank-often">よく使う</span> | ちょうど 64 ビットの符号付き整数。 |
+    | [`std::uint32_t`](numeric/cstdint/uint32_t.md) | <span class="rank rank-often">よく使う</span> | ちょうど 32 ビットの符号なし整数。 |
+    | [`std::uint8_t`](numeric/cstdint/uint8_t.md) | <span class="rank rank-often">よく使う</span> | ちょうど 8 ビットの符号なし整数。 |
     | [<numeric>（gcd / lcm / midpoint など）](numeric/numeric.md) | <span class="rank rank-sometimes">たまに</span> | 最大公約数（`gcd`）、最小公倍数、中間値、累積和など。 <span class="ver ver-17">C++17</span> |
     | [<bit>（ビット操作）](numeric/bit.md) | <span class="rank rank-sometimes">たまに</span> | ビットを数える（`popcount`）・型を読み替える（`bit_cast`）など、ビット操作。 <span class="ver ver-20">C++20</span> |
+    | [`std::int16_t`](numeric/cstdint/int16_t.md) | <span class="rank rank-sometimes">たまに</span> | ちょうど 16 ビットの符号付き整数。 |
+    | [`std::uint16_t`](numeric/cstdint/uint16_t.md) | <span class="rank rank-sometimes">たまに</span> | ちょうど 16 ビットの符号なし整数。 |
+    | [`std::uint64_t`](numeric/cstdint/uint64_t.md) | <span class="rank rank-sometimes">たまに</span> | ちょうど 64 ビットの符号なし整数。 |
     | [<climits>（整数の限界マクロ）](numeric/climits.md) | <span class="rank rank-rare">知ってるだけ</span> | `INT_MAX` など、整数型の最大値・最小値を表す C 由来のマクロ。 |
     | [<cfloat>（小数の限界マクロ）](numeric/cfloat.md) | <span class="rank rank-rare">知ってるだけ</span> | `FLT_EPSILON` など、小数型の精度・範囲を表す C 由来のマクロ。 |
     | [<stdfloat>（float16_t・bfloat16_t など）](numeric/stdfloat.md) | <span class="rank rank-rare">知ってるだけ</span> | 大きさが決まった浮動小数点型（16・32・64・128 ビット）。 <span class="ver ver-23">C++23</span> |
@@ -865,6 +912,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::atof`](numeric/cstdlib/atof.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列を double に変換する。 |
     | [`std::atol`](numeric/cstdlib/atol.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列を long に変換する。 |
     | [`std::atoll`](numeric/cstdlib/atoll.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列を long long に変換する。 |
+    | [`std::bfloat16_t`](numeric/bfloat16_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 16 ビットの浮動小数点型。 <span class="ver ver-23">C++23</span> |
     | [`std::c16rtomb`](numeric/cuchar/c16rtomb.md) | <span class="rank rank-rare">知ってるだけ</span> | c16 → mb：UTF-16 のコード単位（`char16_t`）を、ロケールのマルチバイト文字列に変換します。 |
     | [`std::c32rtomb`](numeric/cuchar/c32rtomb.md) | <span class="rank rank-rare">知ってるだけ</span> | c32 → mb：UTF-32（コードポイント、`char32_t`）を、ロケールのマルチバイト文字列に変換します。 |
     | [`std::c8rtomb`](numeric/cuchar/c8rtomb.md) | <span class="rank rank-rare">知ってるだけ</span> | c8 → mb：UTF-8 のコード単位（`char8_t`）を、ロケールのマルチバイト文字列に変換します。 <span class="ver ver-20">C++20</span> |
@@ -873,11 +921,28 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::deca`](numeric/ratio/deca.md) | <span class="rank rank-rare">知ってるだけ</span> | SI 接頭辞「deca」（10 倍）を表す `ratio` の別名。 |
     | [`std::deci`](numeric/ratio/deci.md) | <span class="rank rank-rare">知ってるだけ</span> | SI 接頭辞「deci」（10 分の 1）を表す `ratio` の別名。 |
     | [`std::exa`](numeric/ratio/exa.md) | <span class="rank rank-rare">知ってるだけ</span> | SI 接頭辞「exa」（100 京倍）を表す `ratio` の別名。 |
+    | [`std::float128_t`](numeric/float128_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 128 ビットの浮動小数点型。 <span class="ver ver-23">C++23</span> |
+    | [`std::float16_t`](numeric/float16_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 16 ビットの浮動小数点型。 <span class="ver ver-23">C++23</span> |
+    | [`std::float32_t`](numeric/float32_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 32 ビットの浮動小数点型。 <span class="ver ver-23">C++23</span> |
+    | [`std::float64_t`](numeric/float64_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 64 ビットの浮動小数点型。 <span class="ver ver-23">C++23</span> |
+    | [`std::float_denorm_style`](numeric/float_denorm_style.md) | <span class="rank rank-rare">知ってるだけ</span> | 非正規数を持つかを表す列挙型。 |
+    | [`std::float_round_style`](numeric/float_round_style.md) | <span class="rank rank-rare">知ってるだけ</span> | 浮動小数点の丸めの方向を表す列挙型。 |
     | [`std::giga`](numeric/ratio/giga.md) | <span class="rank rank-rare">知ってるだけ</span> | SI 接頭辞「giga」（10 億倍）を表す `ratio` の別名。 |
     | [`std::hecto`](numeric/ratio/hecto.md) | <span class="rank rank-rare">知ってるだけ</span> | SI 接頭辞「hecto」（100 倍）を表す `ratio` の別名。 |
     | [`std::imag`](numeric/complex/imag.md) | <span class="rank rank-rare">知ってるだけ</span> | 複素数の虚部を取り出す。 |
     | [`std::imaxabs`](numeric/cinttypes/imaxabs.md) | <span class="rank rank-rare">知ってるだけ</span> | `intmax_t` の絶対値を返す。 |
     | [`std::imaxdiv`](numeric/cinttypes/imaxdiv.md) | <span class="rank rank-rare">知ってるだけ</span> | `intmax_t` の割り算で、商と余りをいっしょに返す。 |
+    | [`std::int8_t`](numeric/cstdint/int8_t.md) | <span class="rank rank-rare">知ってるだけ</span> | ちょうど 8 ビットの符号付き整数。 |
+    | [`std::int_fast16_t`](numeric/cstdint/int_fast16_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 16 ビット以上で、その環境で最も速く扱える符号付き整数。 |
+    | [`std::int_fast32_t`](numeric/cstdint/int_fast32_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 32 ビット以上で、その環境で最も速く扱える符号付き整数。 |
+    | [`std::int_fast64_t`](numeric/cstdint/int_fast64_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 64 ビット以上で、その環境で最も速く扱える符号付き整数。 |
+    | [`std::int_fast8_t`](numeric/cstdint/int_fast8_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 8 ビット以上で、その環境で最も速く扱える符号付き整数。 |
+    | [`std::int_least16_t`](numeric/cstdint/int_least16_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 16 ビット以上で、最も小さい符号付き整数。 |
+    | [`std::int_least32_t`](numeric/cstdint/int_least32_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 32 ビット以上で、最も小さい符号付き整数。 |
+    | [`std::int_least64_t`](numeric/cstdint/int_least64_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 64 ビット以上で、最も小さい符号付き整数。 |
+    | [`std::int_least8_t`](numeric/cstdint/int_least8_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 8 ビット以上で、最も小さい符号付き整数。 |
+    | [`std::intmax_t`](numeric/cstdint/intmax_t.md) | <span class="rank rank-rare">知ってるだけ</span> | その環境で最も大きい符号付き整数。 |
+    | [`std::intptr_t`](numeric/cstdint/intptr_t.md) | <span class="rank rank-rare">知ってるだけ</span> | ポインタをそのまま入れられる大きさの符号付き整数。 |
     | [`std::isalnum`](numeric/cctype/isalnum.md) | <span class="rank rank-rare">知ってるだけ</span> | 英字か数字かを調べる。 |
     | [`std::isblank`](numeric/cctype/isblank.md) | <span class="rank rank-rare">知ってるだけ</span> | 空白かタブかを調べる。 |
     | [`std::iscntrl`](numeric/cctype/iscntrl.md) | <span class="rank rank-rare">知ってるだけ</span> | 制御文字かを調べる。 |
@@ -929,6 +994,16 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::strtoumax`](numeric/cinttypes/strtoumax.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列を `uintmax_t` に変換する。 |
     | [`std::system`](numeric/cstdlib/system.md) | <span class="rank rank-rare">知ってるだけ</span> | OS のコマンドを実行する。 |
     | [`std::tera`](numeric/ratio/tera.md) | <span class="rank rank-rare">知ってるだけ</span> | SI 接頭辞「tera」（1 兆倍）を表す `ratio` の別名。 |
+    | [`std::uint_fast16_t`](numeric/cstdint/uint_fast16_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 16 ビット以上で、その環境で最も速く扱える符号なし整数。 |
+    | [`std::uint_fast32_t`](numeric/cstdint/uint_fast32_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 32 ビット以上で、その環境で最も速く扱える符号なし整数。 |
+    | [`std::uint_fast64_t`](numeric/cstdint/uint_fast64_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 64 ビット以上で、その環境で最も速く扱える符号なし整数。 |
+    | [`std::uint_fast8_t`](numeric/cstdint/uint_fast8_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 8 ビット以上で、その環境で最も速く扱える符号なし整数。 |
+    | [`std::uint_least16_t`](numeric/cstdint/uint_least16_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 16 ビット以上で、最も小さい符号なし整数。 |
+    | [`std::uint_least32_t`](numeric/cstdint/uint_least32_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 32 ビット以上で、最も小さい符号なし整数。 |
+    | [`std::uint_least64_t`](numeric/cstdint/uint_least64_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 64 ビット以上で、最も小さい符号なし整数。 |
+    | [`std::uint_least8_t`](numeric/cstdint/uint_least8_t.md) | <span class="rank rank-rare">知ってるだけ</span> | 8 ビット以上で、最も小さい符号なし整数。 |
+    | [`std::uintmax_t`](numeric/cstdint/uintmax_t.md) | <span class="rank rank-rare">知ってるだけ</span> | その環境で最も大きい符号なし整数。 |
+    | [`std::uintptr_t`](numeric/cstdint/uintptr_t.md) | <span class="rank rank-rare">知ってるだけ</span> | ポインタをそのまま入れられる大きさの符号なし整数。 |
     | [`std::wcstombs`](numeric/cstdlib/wcstombs.md) | <span class="rank rank-rare">知ってるだけ</span> | wchar_t の文字列をマルチバイト文字列に変換する。 |
     | [`std::wctomb`](numeric/cstdlib/wctomb.md) | <span class="rank rank-rare">知ってるだけ</span> | wchar_t 1 文字をマルチバイト文字に変換する。 |
 
@@ -964,6 +1039,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::iswalpha`](numeric/cwctype/iswalpha.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字が英字かを調べる。 |
     | [`std::iswblank`](numeric/cwctype/iswblank.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字が空白かタブかを調べる。 |
     | [`std::iswcntrl`](numeric/cwctype/iswcntrl.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字が制御文字かを調べる。 |
+    | [`std::iswctype`](numeric/cwctype/iswctype.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字が、指定した分類に属するかを調べる。 |
     | [`std::iswdigit`](numeric/cwctype/iswdigit.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字が数字かを調べる。 |
     | [`std::iswgraph`](numeric/cwctype/iswgraph.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字が空白以外の表示できる文字かを調べる。 |
     | [`std::iswlower`](numeric/cwctype/iswlower.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字が小文字かを調べる。 |
@@ -972,8 +1048,13 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::iswspace`](numeric/cwctype/iswspace.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字が空白類かを調べる。 |
     | [`std::iswupper`](numeric/cwctype/iswupper.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字が大文字かを調べる。 |
     | [`std::iswxdigit`](numeric/cwctype/iswxdigit.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字が 16 進数の数字かを調べる。 |
+    | [`std::towctrans`](numeric/cwctype/towctrans.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字を、指定した変換で変換する。 |
     | [`std::towlower`](numeric/cwctype/towlower.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字を小文字にする。 |
     | [`std::towupper`](numeric/cwctype/towupper.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字を大文字にする。 |
+    | [`std::wctrans`](numeric/cwctype/wctrans.md) | <span class="rank rank-rare">知ってるだけ</span> | 変換の名前から、wctrans_t を取得する。 |
+    | [`std::wctrans_t`](numeric/cwctype/wctrans_t.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字の変換の種類を表す型。 |
+    | [`std::wctype`](numeric/cwctype/wctype.md) | <span class="rank rank-rare">知ってるだけ</span> | 分類の名前から、wctype_t を取得する。 |
+    | [`std::wctype_t`](numeric/cwctype/wctype_t.md) | <span class="rank rank-rare">知ってるだけ</span> | ワイド文字の分類の種類を表す型。 |
 
     **<numeric> の整数・補間関数**
 
@@ -1128,7 +1209,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::div_sat`](numeric/div_sat.md) | <span class="rank rank-rare">知ってるだけ</span> | 割り算。範囲を超える唯一の場合（最小値 ÷ −1）で張り付く。 <span class="ver ver-26">C++26</span> |
     | [`std::saturate_cast`](numeric/saturate_cast.md) | <span class="rank rank-rare">知ってるだけ</span> | 整数を別の整数型に変換する。範囲を超えたら張り付く。 <span class="ver ver-26">C++26</span> |
 
-??? abstract "並行処理（71）: スレッドとデータの守り方"
+??? abstract "並行処理（72）: スレッドとデータの守り方"
     | 名前 | 重要度 | 速さ | 一言で |
     | --- | --- | --- | --- |
     | [`std::jthread`](concurrency/jthread.md) | <span class="rank rank-sometimes">たまに</span> | <span class="perf perf-2">△</span> | スコープを抜けると自動で join する、止める合図つきのスレッド。 <span class="ver ver-20">C++20</span> |
@@ -1197,6 +1278,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::rcu_synchronize`](concurrency/rcu_synchronize.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 読み取り中のスレッドがいなくなるまで待つ。 <span class="ver ver-26">C++26</span> |
     | [`std::recursive_timed_mutex`](concurrency/recursive_timed_mutex.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 同じスレッドで何度でもロックでき、時間切れも指定できるミューテックス。 |
     | [`std::shared_timed_mutex`](concurrency/shared_timed_mutex.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 読み取りは同時に、書き込みは 1 つだけで、時間切れも指定できるミューテックス。 |
+    | [`std::try_lock`](concurrency/try_lock.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 複数のミューテックスを、待たずにまとめてロックしようとする。 |
     | [`std::try_to_lock`](concurrency/try_to_lock.md) | <span class="rank rank-rare">知ってるだけ</span> | — | unique_lock に「ロックを試すだけ。取れなければ待たない」と伝える目印。 |
 
     **this_thread**
@@ -1208,7 +1290,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::this_thread::yield`](concurrency/this_thread/yield.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 他のスレッドに、実行の順番を譲る。 |
     | [`std::this_thread::get_id`](concurrency/this_thread/get_id.md) | <span class="rank rank-rare">知ってるだけ</span> | — | 今のスレッドの ID を取得する。 |
 
-??? abstract "型・言語サポート（376）: イテレータの道具、関数オブジェクト、型の性質、例外"
+??? abstract "型・言語サポート（413）: イテレータの道具、関数オブジェクト、型の性質、例外"
     | 名前 | 重要度 | 一言で |
     | --- | --- | --- |
     | [`std::source_location`](support/source_location.md) | <span class="rank rank-sometimes">たまに</span> | 今の場所（ファイル・行・関数）を取得する。 <span class="ver ver-20">C++20</span> |
@@ -1229,6 +1311,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::ranges::borrowed_range`](support/ranges/borrowed_range.md) | <span class="rank rank-rare">知ってるだけ</span> | 元の範囲より長生きするイテレータを返せる範囲を要求するコンセプト。 <span class="ver ver-20">C++20</span> |
     | [`std::ranges::common_range`](support/ranges/common_range.md) | <span class="rank rank-rare">知ってるだけ</span> | begin と end が同じ型の範囲を要求するコンセプト。 <span class="ver ver-20">C++20</span> |
     | [`std::ranges::contiguous_range`](support/ranges/contiguous_range.md) | <span class="rank rank-rare">知ってるだけ</span> | 要素がメモリ上で連続して並ぶ範囲を要求するコンセプト。 <span class="ver ver-20">C++20</span> |
+    | [`std::ranges::elements_of`](support/elements_of.md) | <span class="rank rank-rare">知ってるだけ</span> | generator の中で、別の範囲の要素を全部取り出す目印。 <span class="ver ver-23">C++23</span> |
     | [`std::ranges::enable_borrowed_range`](support/ranges/enable_borrowed_range.md) | <span class="rank rank-rare">知ってるだけ</span> | 自分の型を borrowed_range として扱ってよいと宣言する変数テンプレート。 <span class="ver ver-20">C++20</span> |
     | [`std::ranges::enable_view`](support/ranges/enable_view.md) | <span class="rank rank-rare">知ってるだけ</span> | 自分の型を view として扱ってよいと宣言する変数テンプレート。 <span class="ver ver-20">C++20</span> |
     | [`std::ranges::forward_range`](support/ranges/forward_range.md) | <span class="rank rank-rare">知ってるだけ</span> | 何度でも先頭から読み直せる範囲を要求するコンセプト。 <span class="ver ver-20">C++20</span> |
@@ -1258,6 +1341,17 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::ranges::begin`](support/ranges/begin.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲の先頭のイテレータを取る（配列・コンテナ・独自の範囲に対応）。 <span class="ver ver-20">C++20</span> |
     | [`std::ranges::size`](support/ranges/size.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲の要素数を取る。 <span class="ver ver-20">C++20</span> |
     | [`std::ranges::dangling`](support/ranges/dangling.md) | <span class="rank rank-rare">知ってるだけ</span> | 「一時オブジェクトのイテレータは危険」と知らせるための印の型。 <span class="ver ver-20">C++20</span> |
+    | [`std::ranges::cbegin`](support/ranges/cbegin.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲の先頭を指す、const のイテレータを返す。 <span class="ver ver-20">C++20</span> |
+    | [`std::ranges::cdata`](support/ranges/cdata.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲の要素が並ぶ先頭への、const のポインタを返す。 <span class="ver ver-20">C++20</span> |
+    | [`std::ranges::cend`](support/ranges/cend.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲の終端を指す、const のイテレータを返す。 <span class="ver ver-20">C++20</span> |
+    | [`std::ranges::crbegin`](support/ranges/crbegin.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲の逆順の先頭を指す、const のイテレータを返す。 <span class="ver ver-20">C++20</span> |
+    | [`std::ranges::crend`](support/ranges/crend.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲の逆順の終端を指す、const のイテレータを返す。 <span class="ver ver-20">C++20</span> |
+    | [`std::ranges::data`](support/ranges/data.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲の要素が並ぶ先頭へのポインタを返す。 <span class="ver ver-20">C++20</span> |
+    | [`std::ranges::empty`](support/ranges/empty.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲が空かを調べる。 <span class="ver ver-20">C++20</span> |
+    | [`std::ranges::end`](support/ranges/end.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲の終端を指すイテレータ（またはセンチネル）を返す。 <span class="ver ver-20">C++20</span> |
+    | [`std::ranges::rbegin`](support/ranges/rbegin.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲の逆順の先頭（最後の要素）を指すイテレータを返す。 <span class="ver ver-20">C++20</span> |
+    | [`std::ranges::rend`](support/ranges/rend.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲の逆順の終端（先頭の手前）を指すイテレータを返す。 <span class="ver ver-20">C++20</span> |
+    | [`std::ranges::ssize`](support/ranges/ssize.md) | <span class="rank rank-rare">知ってるだけ</span> | 範囲の要素数を、符号付きの整数で返す。 <span class="ver ver-20">C++20</span> |
 
     **イテレータの道具（<iterator>）**
 
@@ -1265,10 +1359,13 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | --- | --- | --- |
     | [`std::size`](support/iterator/size.md) | <span class="rank rank-often">よく使う</span> | コンテナや配列の要素数を返す（配列にも使える）。 |
     | [`std::back_inserter`](support/iterator/back_inserter.md) | <span class="rank rank-often">よく使う</span> | 代入するたびに、コンテナの末尾に push_back するイテレータ。 |
+    | [`std::end`](support/iterator/end.md) | <span class="rank rank-often">よく使う</span> | コンテナや配列の終わり（最後の次）を指すイテレータを返す。 |
     | [`std::next`](support/iterator/next.md) | <span class="rank rank-sometimes">たまに</span> | イテレータを n 個進めた位置を返す（元は変えない）。 |
     | [`std::prev`](support/iterator/prev.md) | <span class="rank rank-sometimes">たまに</span> | イテレータを n 個戻した位置を返す（元は変えない）。 |
     | [`std::distance`](support/iterator/distance.md) | <span class="rank rank-sometimes">たまに</span> | 2 つのイテレータの間の要素数を返す。 |
     | [`std::inserter`](support/iterator/inserter.md) | <span class="rank rank-sometimes">たまに</span> | 代入するたびに、指定した位置にコンテナへ挿入するイテレータ。 |
+    | [`std::cbegin`](support/iterator/cbegin.md) | <span class="rank rank-sometimes">たまに</span> | コンテナや配列の先頭を指す、const のイテレータを返す。 |
+    | [`std::rbegin`](support/iterator/rbegin.md) | <span class="rank rank-sometimes">たまに</span> | コンテナや配列の逆順の先頭（最後の要素）を指すイテレータを返す。 |
     | [`std::advance`](support/iterator/advance.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータそのものを n 個進める（戻り値なし）。 |
     | [`std::ssize`](support/iterator/ssize.md) | <span class="rank rank-rare">知ってるだけ</span> | 要素数を符号つきの整数で返す。 <span class="ver ver-20">C++20</span> |
     | [`std::empty`](support/iterator/empty.md) | <span class="rank rank-rare">知ってるだけ</span> | コンテナが空かを調べる（配列・initializer_list にも使える）。 |
@@ -1282,6 +1379,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::back_insert_iterator`](support/iterator/back_insert_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 代入するたびに、コンテナの末尾へ push_back するイテレータ。 |
     | [`std::basic_const_iterator`](support/iterator/basic_const_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 要素を const として見せるイテレータのアダプタ。 <span class="ver ver-23">C++23</span> |
     | [`std::bidirectional_iterator_tag`](support/iterator/bidirectional_iterator_tag.md) | <span class="rank rank-rare">知ってるだけ</span> | 双方向イテレータ（前後どちらにも進める）を表すタグの型。 |
+    | [`std::cend`](support/iterator/cend.md) | <span class="rank rank-rare">知ってるだけ</span> | コンテナや配列の終端を指す、const のイテレータを返す。 |
     | [`std::common_iterator`](support/iterator/common_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータと sentinel（終端）を、1 つの型にまとめる。 <span class="ver ver-20">C++20</span> |
     | [`std::contiguous_iterator_tag`](support/iterator/contiguous_iterator_tag.md) | <span class="rank rank-rare">知ってるだけ</span> | 連続イテレータ（メモリ上で連続した要素を指す）を表すタグの型。 <span class="ver ver-20">C++20</span> |
     | [`std::counted_iterator`](support/iterator/counted_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 残りの個数を数えながら進むイテレータ。 <span class="ver ver-20">C++20</span> |
@@ -1305,6 +1403,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::output_iterator_tag`](support/iterator/output_iterator_tag.md) | <span class="rank rank-rare">知ってるだけ</span> | 出力イテレータ（書き込みながら進められる）を表すタグの型。 |
     | [`std::projected`](support/iterator/projected.md) | <span class="rank rank-rare">知ってるだけ</span> | プロジェクション（変換）を通した値を、アルゴリズムに見せるための型。 <span class="ver ver-20">C++20</span> |
     | [`std::random_access_iterator_tag`](support/iterator/random_access_iterator_tag.md) | <span class="rank rank-rare">知ってるだけ</span> | ランダムアクセスイテレータ（添字で好きな位置へ飛べる）を表すタグの型。 |
+    | [`std::rend`](support/iterator/rend.md) | <span class="rank rank-rare">知ってるだけ</span> | コンテナや配列の逆順の終端（先頭の手前）を指すイテレータを返す。 |
     | [`std::unreachable_sentinel`](support/iterator/unreachable_sentinel.md) | <span class="rank rank-rare">知ってるだけ</span> | 「終わりには絶対に届かない」と約束する終端。 <span class="ver ver-20">C++20</span> |
 
     **エラーコード（<system_error>）**
@@ -1437,6 +1536,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::common_reference`](support/type_traits/common_reference.md) | <span class="rank rank-rare">知ってるだけ</span> | 複数の型が共有できる、共通の参照型を求める。 <span class="ver ver-20">C++20</span> |
     | [`std::conjunction`](support/type_traits/conjunction.md) | <span class="rank rank-rare">知ってるだけ</span> | 複数の条件がすべて真かを調べる（短絡評価）。 <span class="ver ver-17">C++17</span> |
     | [`std::disjunction`](support/type_traits/disjunction.md) | <span class="rank rank-rare">知ってるだけ</span> | 複数の条件のどれかが真かを調べる（短絡評価）。 <span class="ver ver-17">C++17</span> |
+    | [`std::extent`](support/type_traits/extent.md) | <span class="rank rank-rare">知ってるだけ</span> | 配列の指定した次元の要素数を返す。 |
     | [`std::false_type`](support/type_traits/false_type.md) | <span class="rank rank-rare">知ってるだけ</span> | `false` を表すコンパイル時の定数の型。 |
     | [`std::has_unique_object_representations`](support/type_traits/has_unique_object_representations.md) | <span class="rank rank-rare">知ってるだけ</span> | 同じ値なら必ず同じビット列になる型かを調べる。 <span class="ver ver-17">C++17</span> |
     | [`std::has_virtual_destructor`](support/type_traits/has_virtual_destructor.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が仮想デストラクタを持つかを調べる。 |
@@ -1453,6 +1553,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::is_copy_assignable`](support/type_traits/is_copy_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | コピー代入できる型かを調べる。 |
     | [`std::is_corresponding_member`](support/type_traits/is_corresponding_member.md) | <span class="rank rank-rare">知ってるだけ</span> | 2 つのメンバが、2 つの構造体の対応する位置にあるかを調べる。 <span class="ver ver-20">C++20</span> |
     | [`std::is_destructible`](support/type_traits/is_destructible.md) | <span class="rank rank-rare">知ってるだけ</span> | 破棄できる型かを調べる。 |
+    | [`std::is_empty`](support/type_traits/is_empty.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が空（非静的なメンバ変数を持たない）かを調べる。 |
     | [`std::is_final`](support/type_traits/is_final.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が `final`（継承できない）かを調べる。 |
     | [`std::is_function`](support/type_traits/is_function.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が関数の型かを調べる。 |
     | [`std::is_fundamental`](support/type_traits/is_fundamental.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が基本型（算術型・`void`・`nullptr_t`）かを調べる。 |
@@ -1466,34 +1567,51 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::is_member_pointer`](support/type_traits/is_member_pointer.md) | <span class="rank rank-rare">知ってるだけ</span> | 型がメンバへのポインタかを調べる。 |
     | [`std::is_move_assignable`](support/type_traits/is_move_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | ムーブ代入できる型かを調べる。 |
     | [`std::is_move_constructible`](support/type_traits/is_move_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | ムーブして構築できる型かを調べる。 |
+    | [`std::is_nothrow_assignable`](support/type_traits/is_nothrow_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を投げずに代入できる型の組かを調べる。 |
     | [`std::is_nothrow_constructible`](support/type_traits/is_nothrow_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | 指定した引数で、例外を投げずに構築できる型かを調べる。 |
     | [`std::is_nothrow_convertible`](support/type_traits/is_nothrow_convertible.md) | <span class="rank rank-rare">知ってるだけ</span> | 暗黙の変換が例外を投げないかを調べる。 <span class="ver ver-20">C++20</span> |
+    | [`std::is_nothrow_copy_assignable`](support/type_traits/is_nothrow_copy_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を投げずにコピー代入できる型かを調べる。 |
+    | [`std::is_nothrow_copy_constructible`](support/type_traits/is_nothrow_copy_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を投げずにコピーして構築できる型かを調べる。 |
+    | [`std::is_nothrow_default_constructible`](support/type_traits/is_nothrow_default_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を投げずに既定構築できる型かを調べる。 |
     | [`std::is_nothrow_destructible`](support/type_traits/is_nothrow_destructible.md) | <span class="rank rank-rare">知ってるだけ</span> | デストラクタが例外を投げない型かを調べる。 |
     | [`std::is_nothrow_invocable`](support/type_traits/is_nothrow_invocable.md) | <span class="rank rank-rare">知ってるだけ</span> | 指定した引数で、例外を投げずに呼び出せるかを調べる。 <span class="ver ver-17">C++17</span> |
+    | [`std::is_nothrow_invocable_r`](support/type_traits/is_nothrow_invocable_r.md) | <span class="rank rank-rare">知ってるだけ</span> | 指定した引数で例外を投げずに呼び出せ、結果を R に変換できるかを調べる。 <span class="ver ver-17">C++17</span> |
+    | [`std::is_nothrow_move_assignable`](support/type_traits/is_nothrow_move_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を投げずにムーブ代入できる型かを調べる。 |
     | [`std::is_nothrow_swappable`](support/type_traits/is_nothrow_swappable.md) | <span class="rank rank-rare">知ってるだけ</span> | `swap` が例外を投げない型かを調べる。 <span class="ver ver-17">C++17</span> |
+    | [`std::is_nothrow_swappable_with`](support/type_traits/is_nothrow_swappable_with.md) | <span class="rank rank-rare">知ってるだけ</span> | 2 つの型の値を、例外を投げずに `swap` できるかを調べる。 <span class="ver ver-17">C++17</span> |
     | [`std::is_null_pointer`](support/type_traits/is_null_pointer.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が `std::nullptr_t` かを調べる。 |
     | [`std::is_object`](support/type_traits/is_object.md) | <span class="rank rank-rare">知ってるだけ</span> | 型がオブジェクト型（関数・参照・`void` 以外）かを調べる。 |
     | [`std::is_pod`](support/type_traits/is_pod.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が POD（トリビアルかつ標準レイアウト）かを調べる。 |
     | [`std::is_pointer_interconvertible_base_of`](support/type_traits/is_pointer_interconvertible_base_of.md) | <span class="rank rank-rare">知ってるだけ</span> | 基底クラスのポインタと派生クラスのポインタを、相互に変換できるかを調べる。 <span class="ver ver-20">C++20</span> |
+    | [`std::is_pointer_interconvertible_with_class`](support/type_traits/is_pointer_interconvertible_with_class.md) | <span class="rank rank-rare">知ってるだけ</span> | メンバへのポインタが、クラスの先頭のメンバを指すかを調べる。 <span class="ver ver-20">C++20</span> |
     | [`std::is_polymorphic`](support/type_traits/is_polymorphic.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が仮想関数を持つ（多態的な）かを調べる。 |
     | [`std::is_reference`](support/type_traits/is_reference.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が参照（左辺値でも右辺値でも）かを調べる。 |
     | [`std::is_rvalue_reference`](support/type_traits/is_rvalue_reference.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が右辺値参照かを調べる。 |
     | [`std::is_scalar`](support/type_traits/is_scalar.md) | <span class="rank rank-rare">知ってるだけ</span> | 型がスカラー型（算術型・列挙・ポインタなど）かを調べる。 |
     | [`std::is_scoped_enum`](support/type_traits/is_scoped_enum.md) | <span class="rank rank-rare">知ってるだけ</span> | 型がスコープ付き列挙型（`enum class`）かを調べる。 <span class="ver ver-23">C++23</span> |
+    | [`std::is_signed`](support/type_traits/is_signed.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が符号付きの算術型かを調べる。 |
     | [`std::is_standard_layout`](support/type_traits/is_standard_layout.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が標準レイアウト（C 言語と互換のメモリ配置）かを調べる。 |
     | [`std::is_swappable`](support/type_traits/is_swappable.md) | <span class="rank rank-rare">知ってるだけ</span> | `swap` で入れ替えられる型かを調べる。 <span class="ver ver-17">C++17</span> |
     | [`std::is_swappable_with`](support/type_traits/is_swappable_with.md) | <span class="rank rank-rare">知ってるだけ</span> | 2 つの型の値を、たがいに `swap` できるかを調べる。 <span class="ver ver-17">C++17</span> |
     | [`std::is_trivial`](support/type_traits/is_trivial.md) | <span class="rank rank-rare">知ってるだけ</span> | 型がトリビアル（自明な構築・コピー・破棄ができる）かを調べる。 |
+    | [`std::is_trivially_assignable`](support/type_traits/is_trivially_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | 代入が自明（メモリのコピーだけ）な型の組かを調べる。 |
     | [`std::is_trivially_constructible`](support/type_traits/is_trivially_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | 指定した引数で、自明に（特別な処理なしで）構築できる型かを調べる。 |
+    | [`std::is_trivially_copy_assignable`](support/type_traits/is_trivially_copy_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | コピー代入が自明（メモリのコピーだけ）な型かを調べる。 |
+    | [`std::is_trivially_copy_constructible`](support/type_traits/is_trivially_copy_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | コピーして構築するのが自明（メモリのコピーだけ）な型かを調べる。 |
+    | [`std::is_trivially_default_constructible`](support/type_traits/is_trivially_default_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | 既定構築が自明（何もしなくてよい）な型かを調べる。 |
     | [`std::is_trivially_destructible`](support/type_traits/is_trivially_destructible.md) | <span class="rank rank-rare">知ってるだけ</span> | 破棄が自明（何もしなくてよい）な型かを調べる。 |
+    | [`std::is_trivially_move_assignable`](support/type_traits/is_trivially_move_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | ムーブ代入が自明（メモリのコピーだけ）な型かを調べる。 |
+    | [`std::is_trivially_move_constructible`](support/type_traits/is_trivially_move_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | ムーブして構築するのが自明（メモリのコピーだけ）な型かを調べる。 |
     | [`std::is_unbounded_array`](support/type_traits/is_unbounded_array.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が要素数の決まっていない配列かを調べる。 <span class="ver ver-20">C++20</span> |
     | [`std::is_union`](support/type_traits/is_union.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が共用体（union）かを調べる。 |
     | [`std::is_unsigned`](support/type_traits/is_unsigned.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が符号なしの算術型かを調べる。 |
+    | [`std::is_virtual_base_of`](support/type_traits/is_virtual_base_of.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が、別の型の仮想基底クラスかを調べる。 <span class="ver ver-26">C++26</span> |
     | [`std::is_void`](support/type_traits/is_void.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が `void` かを調べる。 |
     | [`std::is_volatile`](support/type_traits/is_volatile.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が `volatile` 修飾されているかを調べる。 |
     | [`std::is_within_lifetime`](support/type_traits/is_within_lifetime.md) | <span class="rank rank-rare">知ってるだけ</span> | ポインタが指すオブジェクトが、いま寿命の中にあるかを調べる。 <span class="ver ver-26">C++26</span> |
     | [`std::make_signed`](support/type_traits/make_signed.md) | <span class="rank rank-rare">知ってるだけ</span> | 符号なしの整数型を、同じ大きさの符号付きにする。 |
     | [`std::negation`](support/type_traits/negation.md) | <span class="rank rank-rare">知ってるだけ</span> | 型特性の結果を反転する。 <span class="ver ver-17">C++17</span> |
+    | [`std::rank`](support/type_traits/rank.md) | <span class="rank rank-rare">知ってるだけ</span> | 配列の次元の数を返す。 |
     | [`std::reference_constructs_from_temporary`](support/type_traits/reference_constructs_from_temporary.md) | <span class="rank rank-rare">知ってるだけ</span> | 参照が、一時オブジェクトを作って束縛されるかを調べる。 <span class="ver ver-23">C++23</span> |
     | [`std::reference_converts_from_temporary`](support/type_traits/reference_converts_from_temporary.md) | <span class="rank rank-rare">知ってるだけ</span> | 参照が、暗黙の変換で一時オブジェクトに束縛されるかを調べる。 <span class="ver ver-23">C++23</span> |
     | [`std::remove_all_extents`](support/type_traits/remove_all_extents.md) | <span class="rank rank-rare">知ってるだけ</span> | 配列の全部の次元を取り除く。 |
@@ -1629,6 +1747,7 @@ C++23 の標準ライブラリをゲーム制作でよく使う順にまとめ�
     | [`std::boyer_moore_horspool_searcher`](support/functional/boyer_moore_horspool_searcher.md) | <span class="rank rank-rare">知ってるだけ</span> | ボイヤー・ムーア・ホースプール法で部分列を探す検索のオブジェクト。 <span class="ver ver-17">C++17</span> |
     | [`std::boyer_moore_searcher`](support/functional/boyer_moore_searcher.md) | <span class="rank rank-rare">知ってるだけ</span> | 長い列の中から部分列を速く探す検索のオブジェクト（ボイヤー・ムーア法）。 <span class="ver ver-17">C++17</span> |
     | [`std::copyable_function`](support/functional/copyable_function.md) | <span class="rank rank-rare">知ってるだけ</span> | コピーできる、const や noexcept も指定できる関数のラッパー。 <span class="ver ver-26">C++26</span> |
+    | [`std::cref`](support/functional/cref.md) | <span class="rank rank-rare">知ってるだけ</span> | const 参照を、値のように渡せる reference_wrapper にする。 |
     | [`std::default_searcher`](support/functional/default_searcher.md) | <span class="rank rank-rare">知ってるだけ</span> | `std::search` に渡せる、素朴な部分列検索のオブジェクト。 <span class="ver ver-17">C++17</span> |
     | [`std::divides`](support/functional/divides.md) | <span class="rank rank-rare">知ってるだけ</span> | `a / b` を表す関数オブジェクト。 |
     | [`std::function_ref`](support/functional/function_ref.md) | <span class="rank rank-rare">知ってるだけ</span> | 呼び出せるものを借りて参照するだけの、軽い関数ラッパー。 <span class="ver ver-26">C++26</span> |

@@ -6,19 +6,19 @@ tags:
 
 # Authoring LUTs
 
-<strong>3D LUT は、「どうやって中身を作るか」</strong>が<strong>次の問題</strong>です。<strong>ゲームの中で調整パラメータから LUT をコンピュート シェーダーで生成する</strong>方法と、外部の映像ツール（Photoshop・DaVinci Resolve）で作った LUT を読み込む方法の2 つがあります。さらに場所や時間帯ごとに LUT を切り替え・補間して、雰囲気を変えるのが実用的です。このページでは、コンピュートでの生成・外部ツールとのやり取り・ゾーンごとの LUT と補間・更新のタイミングを説明します。
+<strong>3D LUT は、「どうやって中身を作るか」</strong>が次の問題です。ゲームの中で調整パラメータから LUT をコンピュート シェーダーで生成する方法と、外部の映像ツール（Photoshop・DaVinci Resolve）で作った LUT を読み込む方法の2 つがあります。さらに場所や時間帯ごとに LUT を切り替え・補間して、雰囲気を変えるのが実用的です。このページでは、コンピュートでの生成・外部ツールとのやり取り・ゾーンごとの LUT と補間・更新のタイミングを説明します。
 
 !!! tip "ポイント"
-    - <strong>ゲーム内で生成</strong>：<strong>パラメータ → コンピュート シェーダーで、全格子点に調整を適用して LUT を作る</strong>。<strong>パラメータが変わったときだけ再生成</strong>。
-    - <strong>外部ツールで作る</strong>：<strong>基準の LUT（無加工）に、ツールでルックを焼き、保存して読み込む</strong>。
-    - <strong>基準の LUT（アイデンティティ LUT）</strong>＝ <strong>変換しない LUT</strong>。<strong>これに調整をかけて保存すると、LUT になる</strong>。
-    - <strong>ゾーンごとの LUT</strong>：<strong>場所・時間帯で LUT を切り替え、境で補間</strong>する。
-    - <strong>2 つの LUT を混ぜる</strong>：<strong>1 回の表引きで両方読み、`lerp`</strong>。
-    - <strong>再生成は毎フレーム不要</strong>。<strong>パラメータの変化時のみ</strong>。
+    - <strong>ゲーム内で生成</strong>：<strong>パラメータ → コンピュート シェーダーで、全格子点に調整を適用して LUT を作る</strong>。パラメータが変わったときだけ再生成。
+    - 外部ツールで作る：基準の LUT（無加工）に、ツールでルックを焼き、保存して読み込む。
+    - 基準の LUT（アイデンティティ LUT）＝ 変換しない LUT。これに調整をかけて保存すると、LUT になる。
+    - ゾーンごとの LUT：場所・時間帯で LUT を切り替え、境で補間する。
+    - 2 つの LUT を混ぜる：1 回の表引きで両方読み、`lerp`。
+    - 再生成は毎フレーム不要。パラメータの変化時のみ。
 
 ## ゲーム内で生成（コンピュート）
 
-<strong>3D の各格子点（r, g, b）</strong>について、<strong>その色に調整（露出・ホワイト バランス・LGG・彩度・トーンマップ）を順に適用</strong>し、<strong>結果を LUT に書きます</strong>。
+<strong>3D の各格子点（r, g, b）</strong>について、その色に調整（露出・ホワイト バランス・LGG・彩度・トーンマップ）を順に適用し、結果を LUT に書きます。
 
 ```hlsl
 RWTexture3D<float4> out_lut : register(u0);
@@ -80,7 +80,7 @@ void GenerateLut(uint3 id : SV_DispatchThreadID) {
 
 いつ再生成するかです。パラメータが変わったときは、調整ボリュームの補間中は毎フレーム再生成します。変わらないときは再生成せず、LUT をテクスチャとして保持します。ステージ読み込み時に、初期の LUT を作ります。
 
-<strong>コンピュートの 1 回あたりが非常に軽い</strong>ので、<strong>毎フレーム再生成</strong>しても問題ない場合も多いです。
+コンピュートの 1 回あたりが非常に軽いので、毎フレーム再生成しても問題ない場合も多いです。
 
 ## 外部ツールで作る
 
@@ -88,14 +88,14 @@ void GenerateLut(uint3 id : SV_DispatchThreadID) {
 
 | 手順 | 内容 |
 | --- | --- |
-| ① 基準の LUT を用意 | <strong>変換しない LUT（アイデンティティ LUT）</strong> を <strong>画像（.png）</strong>または .cube で出力 |
+| ① 基準の LUT を用意 | 変換しない LUT（アイデンティティ LUT） を 画像（.png）または .cube で出力 |
 | ② ツールで調整 | スクリーンショットに基準の LUT を重ねて、調整レイヤーで加工（Photoshop）。または、Resolve でグレーディング |
 | ③ LUT を書き出す | 加工後の基準 LUT 画像を保存（.png）または .cube |
 | ④ ゲームに読み込む | 3D テクスチャとして使う |
 
 ### 基準の LUT（アイデンティティ LUT）
 
-<strong>入力色をそのまま出力する LUT</strong> です。<strong>各格子点の値がその座標の色と同じ</strong>です。
+入力色をそのまま出力する LUT です。各格子点の値がその座標の色と同じです。
 
 ```cpp
 std::vector<uint16_t> BuildIdentityLut(int size) {
@@ -115,7 +115,7 @@ std::vector<uint16_t> BuildIdentityLut(int size) {
 }
 ```
 
-<strong>ツールで基準の LUT 画像を加工して保存</strong>すれば、<strong>加工した内容が LUT に焼かれます</strong>。
+ツールで基準の LUT 画像を加工して保存すれば、加工した内容が LUT に焼かれます。
 
 ### 外部ツール使用時の注意
 
@@ -128,7 +128,7 @@ std::vector<uint16_t> BuildIdentityLut(int size) {
 
 ## ゾーンごと・時間帯ごとの LUT
 
-<strong>場所（洞窟・森・砂漠）や時間帯（朝・昼・夕・夜）</strong>ごとに<strong>別の LUT</strong> を<strong>用意</strong>し、状態に応じて切り替え・補間します。
+<strong>場所（洞窟・森・砂漠）や時間帯（朝・昼・夕・夜）</strong>ごとに別の LUT を用意し、状態に応じて切り替え・補間します。
 
 ```hlsl
 Texture3D<float3> lut_a : register(t4);
@@ -148,7 +148,7 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 
 ### 時間帯の遷移
 
-<strong>時刻に応じて、朝・昼・夕・夜の 4 つの LUT の間を補間</strong>します。<strong>太陽の高さ</strong>などから重みを決め、隣り合う 2 つを混ぜるのが自然です（[Sky Models](../../atmosphere/sky-models/index.md)）。
+時刻に応じて、朝・昼・夕・夜の 4 つの LUT の間を補間します。太陽の高さなどから重みを決め、隣り合う 2 つを混ぜるのが自然です（[Sky Models](../../atmosphere/sky-models/index.md)）。
 
 <!-- fig:lut-blend-zones:begin -->
 
@@ -280,25 +280,25 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 ## よくあるミス
 
 ??? failure "外部ツールで作った LUT を使ったら、色がずれる"
-    <strong>色空間（sRGB かリニアか）・LUT の入力の定義</strong>を<strong>そろえる</strong>。
+    <strong>色空間（sRGB かリニアか）・LUT の入力の定義</strong>をそろえる。
 
 ??? failure "8 ビット画像の LUT で、グラデーションにバンディング"
-    <strong>16 ビット・.cube・FP16 の LUT</strong>にする。<strong>出力にディザリング</strong>。
+    16 ビット・.cube・FP16 の LUTにする。出力にディザリング。
 
 ??? failure "LUT の補間が、ゾーンの境で急に切り替わる"
-    <strong>`blend` を時間・距離で滑らかに補間</strong>する。
+    `blend` を時間・距離で滑らかに補間する。
 
 ??? failure "毎フレーム 64³ の LUT を生成して、無駄が出る"
-    <strong>パラメータが変わった時だけ</strong>再生成する。
+    パラメータが変わった時だけ再生成する。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] LUT は<strong>ゲーム内でコンピュート生成</strong>、または<strong>外部ツールで作って読み込む</strong>
-    - [x] <strong>基準（アイデンティティ）LUT に調整をかけて保存</strong> ＝ <strong>LUT になる</strong>
-    - [x] <strong>色空間・ビット深度・エンコードをそろえる</strong>
-    - [x] <strong>ゾーン・時間帯ごとに LUT を切り替え、`lerp` で補間</strong>
-    - [x] <strong>再生成は、パラメータが変わった時だけ</strong>
+    - [x] LUT は<strong>ゲーム内でコンピュート生成</strong>、または外部ツールで作って読み込む
+    - [x] 基準（アイデンティティ）LUT に調整をかけて保存 ＝ LUT になる
+    - [x] 色空間・ビット深度・エンコードをそろえる
+    - [x] ゾーン・時間帯ごとに LUT を切り替え、`lerp` で補間
+    - [x] 再生成は、パラメータが変わった時だけ
 
 ## 参考
 

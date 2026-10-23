@@ -7,19 +7,19 @@ tags:
 
 # glTF の構造
 
-glTF のファイルは**種類ごとの配列**（`nodes`、`meshes`、`accessors` ...）の集まりです。**配列の要素同士はポインタではなく、「配列の何番目か」という番号（インデックス）でつながっています**。この<strong>「参照はインデックスで表す」</strong>という約束を理解すれば、glTF の構造はほぼ分かります。このページは**各配列の役割**と**番号でつながる仕組み**を図と一緒に説明します。ここで説明する構造はそのまま tinygltf の `tinygltf::Model` の構造です。
+glTF のファイルは**種類ごとの配列**（`nodes`、`meshes`、`accessors` ...）の集まりです。配列の要素同士はポインタではなく、「配列の何番目か」という番号（インデックス）でつながっています。この「参照はインデックスで表す」という約束を理解すれば、glTF の構造はほぼ分かります。このページは各配列の役割と番号でつながる仕組みを図と一緒に説明します。ここで説明する構造はそのまま tinygltf の `tinygltf::Model` の構造です。
 
 !!! tip "ポイント"
     - glTF の中の<strong>「参照」は、すべて「配列の番号（インデックス）」</strong>。<strong>ポインタでも名前でもない</strong>。
-    - たとえば <strong>`"mesh": 0`</strong> は「<strong>`meshes` 配列の 0 番目</strong>」という意味。
-    - <strong>どの配列の番号なのかは、キーの名前で決まっている</strong>（`mesh` なら `meshes`、`material` なら `materials`）。
-    - <strong>データ本体は `buffers` → `bufferViews` → `accessors` の 3 段階</strong>で、「どこをどう読むか」を指定する。
-    - <strong>番号は 0 始まり</strong>。<strong>配列の順番を変えると番号の参照が、すべてずれる</strong>（書き換えるときは全部直す）。
-    - tinygltf では <strong>`model.meshes[i]`、`model.accessors[j]` のように番号でそのまま配列を引く</strong>。
+    - たとえば `"mesh": 0` は「`meshes` 配列の 0 番目」という意味。
+    - どの配列の番号なのかは、キーの名前で決まっている（`mesh` なら `meshes`、`material` なら `materials`）。
+    - データ本体は `buffers` → `bufferViews` → `accessors` の 3 段階で、「どこをどう読むか」を指定する。
+    - 番号は 0 始まり。配列の順番を変えると番号の参照が、すべてずれる（書き換えるときは全部直す）。
+    - tinygltf では `model.meshes[i]`、`model.accessors[j]` のように番号でそのまま配列を引く。
 
 ## 参照は「番号」で表す
 
-glTF の要素は**配列の中に並んでいます**。ほかの要素を指したいときは**その要素が、配列の何番目かを書く**だけです。
+glTF の要素は**配列の中に並んでいます**。ほかの要素を指したいときはその要素が、配列の何番目かを書くだけです。
 
 <svg class="fig" viewBox="0 0 665 300" role="img" aria-label="配列の番号による参照">
 <defs><marker id="sa" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
@@ -47,11 +47,11 @@ glTF の要素は**配列の中に並んでいます**。ほかの要素を指�
 
 | 理由 | 説明 |
 | --- | --- |
-| **ファイルに書ける** | ポインタ（アドレス）は、ファイルに保存しても意味がない。**番号ならそのまま保存できる** |
-| **読み込み側で自由に配置できる** | メモリのどこに置くかは、**読み込む側が決める**。番号は**配列の位置**さえ分かれば、引ける |
-| **共有しやすい** | **1 つのメッシュを複数のノードから参照**（インスタンス）できる。**同じ番号を書く**だけ |
-| **コンパクト** | 数字 1 つで済む |
-| **どの言語でも読める** | JSON の数字なので、**言語に依存しない** |
+| ファイルに書ける | ポインタ（アドレス）は、ファイルに保存しても意味がない。番号ならそのまま保存できる |
+| 読み込み側で自由に配置できる | メモリのどこに置くかは、読み込む側が決める。番号は配列の位置さえ分かれば、引ける |
+| 共有しやすい | 1 つのメッシュを複数のノードから参照（インスタンス）できる。同じ番号を書くだけ |
+| コンパクト | 数字 1 つで済む |
+| どの言語でも読める | JSON の数字なので、言語に依存しない |
 
 [ハンドル](../../engine/handle.md)や[ポインタをインデックスにする](../../optimize/data-layout.md)のと同じ考え方です。
 
@@ -66,10 +66,10 @@ glTF の要素は**配列の中に並んでいます**。ほかの要素を指�
 
 | 書き方 | 意味 |
 | --- | --- |
-| `nodes[1]` の `"mesh": 0` | `meshes` 配列の **0 番目**（`Enemy`）を使う |
-| `-1`（tinygltf の既定値） | **参照なし**（その要素は、使わない） |
+| `nodes[1]` の `"mesh": 0` | `meshes` 配列の 0 番目（`Enemy`）を使う |
+| `-1`（tinygltf の既定値） | 参照なし（その要素は、使わない） |
 
-**tinygltf では「参照なし」は `-1` で表されます**（`int` の既定値が `-1`）。**使う前に `-1` かどうかを必ず調べます**。
+tinygltf では「参照なし」は `-1` で表されます（`int` の既定値が `-1`）。使う前に `-1` かどうかを必ず調べます。
 
 ```cpp
 const tinygltf::Node& node = model.nodes[1];
@@ -86,7 +86,7 @@ if (node.mesh >= 0) {
 
 ### 実際の参照の連なり（キャラクターの例）
 
-**1 体のキャラクターがどの番号をたどって、数値データまで行きつくか**をツリーで示します。`→` の先がその番号が指す要素です。
+1 体のキャラクターがどの番号をたどって、数値データまで行きつくかをツリーで示します。`→` の先がその番号が指す要素です。
 
 <ul class="reftree">
 <li><code>scene: 0</code> → <b>scenes[0]</b>
@@ -140,22 +140,22 @@ if (node.mesh >= 0) {
 </li>
 </ul>
 
-**読み方のコツ**：<strong>どの行も「フィールド名: 番号 → その番号の配列の要素」</strong>の形です。**`buffer` の行まで来たら数値データ（バイナリ）の実体に着きます**。
+読み方のコツ：どの行も「フィールド名: 番号 → その番号の配列の要素」の形です。`buffer` の行まで来たら数値データ（バイナリ）の実体に着きます。
 
 | 参照を持つ側 | フィールド | 指す先 |
 | --- | --- | --- |
-| **scenes** | `nodes[]` | nodes |
-| **nodes** | `children[]` / `mesh` / `skin` / `camera` | nodes / meshes / skins / cameras |
-| **meshes**（primitives） | `attributes.*` / `indices` / `material` | accessors / accessors / materials |
-| **accessors** | `bufferView` | bufferViews |
-| **bufferViews** | `buffer` | buffers |
-| **materials** | `*Texture.index` | textures |
-| **textures** | `source` / `sampler` | images / samplers |
-| **skins** | `joints[]` / `inverseBindMatrices` | nodes / accessors |
-| **animations** | `channels[].target.node` / `samplers[].input・output` | nodes / accessors |
-| **images**（`.glb` 内） | `bufferView` | bufferViews |
+| scenes | `nodes[]` | nodes |
+| nodes | `children[]` / `mesh` / `skin` / `camera` | nodes / meshes / skins / cameras |
+| meshes（primitives） | `attributes.*` / `indices` / `material` | accessors / accessors / materials |
+| accessors | `bufferView` | bufferViews |
+| bufferViews | `buffer` | buffers |
+| materials | `*Texture.index` | textures |
+| textures | `source` / `sampler` | images / samplers |
+| skins | `joints[]` / `inverseBindMatrices` | nodes / accessors |
+| animations | `channels[].target.node` / `samplers[].input・output` | nodes / accessors |
+| images（`.glb` 内） | `bufferView` | bufferViews |
 
-**参照を持たない側**（**images（外部ファイル時）・samplers・buffers・cameras**）が、**行き止まり**です。
+参照を持たない側（images（外部ファイル時）・samplers・buffers・cameras）が、行き止まりです。
 
 ## 全体の地図
 
@@ -164,22 +164,22 @@ if (node.mesh >= 0) {
 | 参照元 | キー | 参照先（配列） |
 | --- | --- | --- |
 | **`scenes[i].nodes`** | `[...]` | `nodes` |
-| **`nodes[i].children`** | `[...]` | `nodes`（子ノード） |
-| **`nodes[i].mesh`** | 番号 | `meshes` |
-| **`nodes[i].skin`** | 番号 | `skins` |
-| **`nodes[i].camera`** | 番号 | `cameras` |
-| **`meshes[i].primitives[j].attributes`** | `{"POSITION": 番号, ...}` | `accessors` |
-| **`meshes[i].primitives[j].indices`** | 番号 | `accessors` |
-| **`meshes[i].primitives[j].material`** | 番号 | `materials` |
-| **`accessors[i].bufferView`** | 番号 | `bufferViews` |
-| **`bufferViews[i].buffer`** | 番号 | `buffers` |
-| **`materials[i]....baseColorTexture.index`** | 番号 | `textures` |
-| **`textures[i].source`** | 番号 | `images` |
-| **`textures[i].sampler`** | 番号 | `samplers` |
-| **`skins[i].joints`** | `[...]` | `nodes`（ボーンになるノード） |
-| **`skins[i].inverseBindMatrices`** | 番号 | `accessors` |
-| **`animations[i].channels[j].target.node`** | 番号 | `nodes` |
-| **`animations[i].samplers[j].input / output`** | 番号 | `accessors`（時刻・値） |
+| `nodes[i].children` | `[...]` | `nodes`（子ノード） |
+| `nodes[i].mesh` | 番号 | `meshes` |
+| `nodes[i].skin` | 番号 | `skins` |
+| `nodes[i].camera` | 番号 | `cameras` |
+| `meshes[i].primitives[j].attributes` | `{"POSITION": 番号, ...}` | `accessors` |
+| `meshes[i].primitives[j].indices` | 番号 | `accessors` |
+| `meshes[i].primitives[j].material` | 番号 | `materials` |
+| `accessors[i].bufferView` | 番号 | `bufferViews` |
+| `bufferViews[i].buffer` | 番号 | `buffers` |
+| `materials[i]....baseColorTexture.index` | 番号 | `textures` |
+| `textures[i].source` | 番号 | `images` |
+| `textures[i].sampler` | 番号 | `samplers` |
+| `skins[i].joints` | `[...]` | `nodes`（ボーンになるノード） |
+| `skins[i].inverseBindMatrices` | 番号 | `accessors` |
+| `animations[i].channels[j].target.node` | 番号 | `nodes` |
+| `animations[i].samplers[j].input / output` | 番号 | `accessors`（時刻・値） |
 
 ## 実際のファイルを読んでみる
 
@@ -210,19 +210,19 @@ glTF の最も小さな例（三角形 1 つ）です。**番号でどうつな�
 
 | 手順 | 見るところ | 値 | 意味 |
 | --- | --- | --- | --- |
-| 1 | `scene` | `0` | 表示する**シーン**は `scenes[0]` |
-| 2 | `scenes[0].nodes` | `[0]` | シーンの**ノード**は `nodes[0]` |
-| 3 | `nodes[0].mesh` | `0` | そのノードの**メッシュ**は `meshes[0]` |
-| 4 | `meshes[0].primitives[0].attributes.POSITION` | `1` | **頂点の位置**は `accessors[1]` |
+| 1 | `scene` | `0` | 表示するシーンは `scenes[0]` |
+| 2 | `scenes[0].nodes` | `[0]` | シーンのノードは `nodes[0]` |
+| 3 | `nodes[0].mesh` | `0` | そのノードのメッシュは `meshes[0]` |
+| 4 | `meshes[0].primitives[0].attributes.POSITION` | `1` | 頂点の位置は `accessors[1]` |
 | 5 | `accessors[1].bufferView` | `1` | そのデータは、`bufferViews[1]` の範囲 |
-| 6 | `bufferViews[1].buffer` | `0` | その範囲は、`buffers[0]`（`triangle.bin`）の**8 バイト目から 36 バイト** |
-| 7 | `meshes[0].primitives[0].indices` | `0` | <strong>インデックス（三角形の番号リスト）</strong>は `accessors[0]` |
+| 6 | `bufferViews[1].buffer` | `0` | その範囲は、`buffers[0]`（`triangle.bin`）の8 バイト目から 36 バイト |
+| 7 | `meshes[0].primitives[0].indices` | `0` | インデックス（三角形の番号リスト）は `accessors[0]` |
 
-**番号をたどるだけで「どのファイルの何バイト目から、何を読むか」が分かります**。
+番号をたどるだけで「どのファイルの何バイト目から、何を読むか」が分かります。
 
 ## データ本体：buffers・bufferViews・accessors
 
-**頂点やインデックスなどの数値**は、**バイナリ**で保存されています。それを取り出すために**3 段階**で指定します。
+**頂点やインデックスなどの数値**は、バイナリで保存されています。それを取り出すために3 段階で指定します。
 
 <svg class="fig" viewBox="0 0 640 300" role="img" aria-label="buffer・bufferView・accessor の関係">
 <defs><marker id="sb" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs>
@@ -248,26 +248,26 @@ glTF の最も小さな例（三角形 1 つ）です。**番号でどうつな�
 
 | 段階 | 役割 | 主なキー |
 | --- | --- | --- |
-| **buffer** | **バイナリ全体**（`.bin` ファイル、または `.glb` 内のデータ） | `uri`（ファイル名）、`byteLength` |
-| **bufferView** | buffer の**ある範囲** | `buffer`（番号）、`byteOffset`、`byteLength`、`byteStride`、`target` |
-| **accessor** | bufferView の中の <strong>「どう読むか」</strong> | `bufferView`（番号）、`byteOffset`、`componentType`、`count`、`type` |
+| buffer | バイナリ全体（`.bin` ファイル、または `.glb` 内のデータ） | `uri`（ファイル名）、`byteLength` |
+| bufferView | buffer のある範囲 | `buffer`（番号）、`byteOffset`、`byteLength`、`byteStride`、`target` |
+| accessor | bufferView の中の 「どう読むか」 | `bufferView`（番号）、`byteOffset`、`componentType`、`count`、`type` |
 
 ### accessor が持つ情報
 
 | キー | 意味 | 例 |
 | --- | --- | --- |
-| **`componentType`** | **1 つの数の型** | `5126`＝float、`5123`＝unsigned short、`5125`＝unsigned int、`5121`＝unsigned byte |
-| **`type`** | **まとまりの種類** | `"SCALAR"`（1 つ）、`"VEC2"`、`"VEC3"`、`"VEC4"`、`"MAT4"` |
-| **`count`** | **要素の個数** | 頂点の数 |
-| **`byteOffset`** | bufferView の先頭からのずれ | `0`、`12` |
+| `componentType` | 1 つの数の型 | `5126`＝float、`5123`＝unsigned short、`5125`＝unsigned int、`5121`＝unsigned byte |
+| `type` | まとまりの種類 | `"SCALAR"`（1 つ）、`"VEC2"`、`"VEC3"`、`"VEC4"`、`"MAT4"` |
+| `count` | 要素の個数 | 頂点の数 |
+| `byteOffset` | bufferView の先頭からのずれ | `0`、`12` |
 | `normalized` | 整数を 0〜1 に変換して読むか | UV や色（`unsigned byte`）に使う |
-| `min` / `max` | 値の範囲 | **POSITION は必須**（境界の計算に使える） |
+| `min` / `max` | 値の範囲 | POSITION は必須（境界の計算に使える） |
 
-<strong>「`VEC3` の `float` が `count` 個」</strong>と指定すれば、**頂点の位置の並び**が取り出せます。
+「`VEC3` の `float` が `count` 個」と指定すれば、頂点の位置の並びが取り出せます。
 
 ### byteStride（インターリーブ）
 
-**位置・法線・UV を 1 頂点ぶんずつ交互に並べる**（インターリーブ）と、**頂点バッファそのまま**で GPU に渡せます。
+位置・法線・UV を 1 頂点ぶんずつ交互に並べる（インターリーブ）と、頂点バッファそのままで GPU に渡せます。
 
 ```text
 通常：  [位置×N] [法線×N] [UV×N]           （項目ごとに、まとまる）
@@ -276,14 +276,14 @@ glTF の最も小さな例（三角形 1 つ）です。**番号でどうつな�
 
 | 項目 | 説明 |
 | --- | --- |
-| **`byteStride` が無い** | 要素は**隙間なく**並ぶ |
-| **`byteStride` がある** | **次の要素までの距離**。要素の大きさより大きい |
+| `byteStride` が無い | 要素は隙間なく並ぶ |
+| `byteStride` がある | 次の要素までの距離。要素の大きさより大きい |
 
-tinygltf では**`Accessor::ByteStride(bufferView)`** が、**実際の間隔**を返します（隙間なしなら要素のサイズ）。
+tinygltf では`Accessor::ByteStride(bufferView)` が、実際の間隔を返します（隙間なしなら要素のサイズ）。
 
 ## シーンとノード
 
-**ノード**は <strong>3D 空間の中の 1 つの「物」</strong>です。**親子関係**を持ち**位置・回転・拡大**を持ちます。
+**ノード**は 3D 空間の中の 1 つの「物」です。親子関係を持ち位置・回転・拡大を持ちます。
 
 ```json
 "nodes": [
@@ -297,23 +297,23 @@ tinygltf では**`Accessor::ByteStride(bufferView)`** が、**実際の間隔**�
 
 | キー | 意味 |
 | --- | --- |
-| **`children`** | **子ノードの番号**のリスト。**子の位置・回転は親からの相対値** |
-| **`mesh`** | このノードに**表示するメッシュ**の番号 |
-| **`translation`** | 位置 `[x, y, z]` |
-| **`rotation`** | 回転 `[x, y, z, w]`（クォータニオン） |
-| **`scale`** | 拡大 `[x, y, z]` |
-| **`matrix`** | 上の 3 つの代わりに**4×4 行列**（16 個、列優先）で指定 |
-| `skin` | **ボーン**を使うときスキンの番号 |
+| `children` | 子ノードの番号のリスト。子の位置・回転は親からの相対値 |
+| `mesh` | このノードに表示するメッシュの番号 |
+| `translation` | 位置 `[x, y, z]` |
+| `rotation` | 回転 `[x, y, z, w]`（クォータニオン） |
+| `scale` | 拡大 `[x, y, z]` |
+| `matrix` | 上の 3 つの代わりに4×4 行列（16 個、列優先）で指定 |
+| `skin` | ボーンを使うときスキンの番号 |
 | `camera` | カメラを使うときカメラの番号 |
 
 !!! warning "TRS と matrix は、どちらか一方"
-    `translation` / `rotation` / `scale` と `matrix` は、**どちらか一方**で指定されます。tinygltf では**`matrix` が空かどうかで、判断**します（[データの取り出し方](reading.md)）。
+    `translation` / `rotation` / `scale` と `matrix` は、どちらか一方で指定されます。tinygltf では`matrix` が空かどうかで、判断します（[データの取り出し方](reading.md)）。
 
-**`scenes[i].nodes`** は**そのシーンの根（ルート）のノード**の番号です。**根から `children` をたどると全ノードに到達**します。
+`scenes[i].nodes` はそのシーンの根（ルート）のノードの番号です。根から `children` をたどると全ノードに到達します。
 
 ## メッシュとプリミティブ
 
-**`meshes` の 1 つ**は <strong>複数の「プリミティブ」</strong>を持ちます。**プリミティブ**は**1 つのマテリアルで描く、三角形の集まり**です。
+**`meshes` の 1 つ**は 複数の「プリミティブ」を持ちます。プリミティブは1 つのマテリアルで描く、三角形の集まりです。
 
 ```json
 "meshes": [
@@ -329,29 +329,29 @@ tinygltf では**`Accessor::ByteStride(bufferView)`** が、**実際の間隔**�
 
 | キー | 意味 |
 | --- | --- |
-| **`attributes`** | **頂点の項目名 → accessor の番号**の対応 |
-| **`indices`** | **三角形のインデックス**の accessor の番号（無ければ、頂点を順に並べる） |
-| **`material`** | **マテリアルの番号**（省略すると、既定のマテリアル） |
-| `mode` | 描画の種類（`4`＝三角形のリスト。**通常**） |
+| `attributes` | 頂点の項目名 → accessor の番号の対応 |
+| `indices` | 三角形のインデックスの accessor の番号（無ければ、頂点を順に並べる） |
+| `material` | マテリアルの番号（省略すると、既定のマテリアル） |
+| `mode` | 描画の種類（`4`＝三角形のリスト。通常） |
 
 ### 頂点属性の名前
 
 | 名前 | 内容 | type |
 | --- | --- | --- |
-| **`POSITION`** | 位置 | `VEC3` float |
-| **`NORMAL`** | 法線 | `VEC3` float |
-| **`TANGENT`** | 接線（法線マップ用）。<strong>w は従接線の向き（±1）</strong> | `VEC4` float |
-| **`TEXCOORD_0`** | UV（1 組目） | `VEC2` |
+| `POSITION` | 位置 | `VEC3` float |
+| `NORMAL` | 法線 | `VEC3` float |
+| `TANGENT` | 接線（法線マップ用）。w は従接線の向き（±1） | `VEC4` float |
+| `TEXCOORD_0` | UV（1 組目） | `VEC2` |
 | `TEXCOORD_1` | UV（2 組目。ライトマップなど） | `VEC2` |
 | `COLOR_0` | 頂点カラー | `VEC3` / `VEC4` |
-| **`JOINTS_0`** | **影響を受けるボーン**の番号（4 つ） | `VEC4` unsigned byte/short |
-| **`WEIGHTS_0`** | **ボーンの重み**（4 つ。合計 1） | `VEC4` float |
+| `JOINTS_0` | 影響を受けるボーンの番号（4 つ） | `VEC4` unsigned byte/short |
+| `WEIGHTS_0` | ボーンの重み（4 つ。合計 1） | `VEC4` float |
 
-**このプリミティブごとに 1 回の描画**（`DrawIndexed`）になります。**マテリアルが 2 つならプリミティブは 2 つ**です（[メッシュとテクスチャ](../../3d/mesh-textures.md)）。
+このプリミティブごとに 1 回の描画（`DrawIndexed`）になります。マテリアルが 2 つならプリミティブは 2 つです（[メッシュとテクスチャ](../../3d/mesh-textures.md)）。
 
 ## マテリアル・テクスチャ・画像・サンプラー
 
-**マテリアル**は**質感の設定**です。**テクスチャ**を番号で参照します。
+**マテリアル**は質感の設定です。テクスチャを番号で参照します。
 
 ```json
 "materials": [
@@ -382,37 +382,37 @@ tinygltf では**`Accessor::ByteStride(bufferView)`** が、**実際の間隔**�
 
 | 配列 | 役割 | 主なキー |
 | --- | --- | --- |
-| **`materials`** | 質感の設定 | `pbrMetallicRoughness`（`baseColorFactor`・`metallicFactor`・`roughnessFactor`・各テクスチャ）、`normalTexture`、`occlusionTexture`、`emissiveTexture`、`alphaMode` |
-| **`textures`** | **画像 + サンプラー**の組み合わせ | **`source`**（画像の番号）、**`sampler`**（サンプラーの番号） |
-| **`images`** | **画像データ** | `uri`（ファイル名）、または `bufferView`（`.glb` に埋め込み） |
-| **`samplers`** | **読み方の設定** | `magFilter`、`minFilter`、`wrapS`、`wrapT` |
+| `materials` | 質感の設定 | `pbrMetallicRoughness`（`baseColorFactor`・`metallicFactor`・`roughnessFactor`・各テクスチャ）、`normalTexture`、`occlusionTexture`、`emissiveTexture`、`alphaMode` |
+| `textures` | 画像 + サンプラーの組み合わせ | `source`（画像の番号）、`sampler`（サンプラーの番号） |
+| `images` | 画像データ | `uri`（ファイル名）、または `bufferView`（`.glb` に埋め込み） |
+| `samplers` | 読み方の設定 | `magFilter`、`minFilter`、`wrapS`、`wrapT` |
 
 ### テクスチャの参照は 2 段階
 
 | 段階 | 内容 |
 | --- | --- |
-| **マテリアル → テクスチャ** | `{ "index": 0 }` ＝ `textures[0]` |
-| **テクスチャ → 画像・サンプラー** | `source` ＝ `images[…]`、`sampler` ＝ `samplers[…]` |
+| マテリアル → テクスチャ | `{ "index": 0 }` ＝ `textures[0]` |
+| テクスチャ → 画像・サンプラー | `source` ＝ `images[…]`、`sampler` ＝ `samplers[…]` |
 
-**同じ画像を別のサンプラーで使う**ときは、`textures` の要素が増えます（画像は 1 つテクスチャが 2 つ）。
+同じ画像を別のサンプラーで使うときは、`textures` の要素が増えます（画像は 1 つテクスチャが 2 つ）。
 
 ### PBR のテクスチャ
 
 | 場所 | 内容 | 色空間 |
 | --- | --- | --- |
-| `baseColorTexture` | ベースカラー（RGB + A） | **sRGB** |
-| `metallicRoughnessTexture` | **G ＝ roughness、B ＝ metallic** | リニア |
+| `baseColorTexture` | ベースカラー（RGB + A） | sRGB |
+| `metallicRoughnessTexture` | G ＝ roughness、B ＝ metallic | リニア |
 | `normalTexture` | 法線マップ | リニア |
-| `occlusionTexture` | **R ＝ AO**（metallicRoughness と、**同じ画像**を使うことが多い） | リニア |
+| `occlusionTexture` | R ＝ AO（metallicRoughness と、同じ画像を使うことが多い） | リニア |
 | `emissiveTexture` | 自己発光 | sRGB |
 
-**色空間を間違えない**ようにします（[PBR](../../3d/pbr.md#色空間とトーンマッピング)）。
+色空間を間違えないようにします（[PBR](../../3d/pbr.md#色空間とトーンマッピング)）。
 
 ## スキンとアニメーション
 
 ### スキン（ボーン）
 
-**ボーンは普通のノードです**。**スキン**は <strong>「どのノードをボーンとして使うか」の一覧</strong>を持ちます。
+**ボーンは普通のノードです**。スキンは 「どのノードをボーンとして使うか」の一覧を持ちます。
 
 ```json
 "skins": [
@@ -422,17 +422,17 @@ tinygltf では**`Accessor::ByteStride(bufferView)`** が、**実際の間隔**�
 
 | キー | 意味 |
 | --- | --- |
-| **`joints`** | **ボーンになるノードの番号**のリスト。**順番が `JOINTS_0` の番号に対応** |
-| **`inverseBindMatrices`** | **逆バインド行列**の accessor の番号（`MAT4`）。**ボーンごとに 1 つ**（[スキニング](../../3d/skinning-animation.md)のオフセット行列） |
+| `joints` | ボーンになるノードの番号のリスト。順番が `JOINTS_0` の番号に対応 |
+| `inverseBindMatrices` | 逆バインド行列の accessor の番号（`MAT4`）。ボーンごとに 1 つ（[スキニング](../../3d/skinning-animation.md)のオフセット行列） |
 | `skeleton` | ボーンの根のノードの番号 |
 
-<strong>頂点の `JOINTS_0` の値 `2` は「`skins[0].joints[2]` のボーン」</strong>という意味です（**ノードの番号そのものではなく、`joints` 配列の位置**）。ここも**番号のもう 1 段の参照**です。
+頂点の `JOINTS_0` の値 `2` は「`skins[0].joints[2]` のボーン」という意味です（ノードの番号そのものではなく、`joints` 配列の位置）。ここも番号のもう 1 段の参照です。
 
 <svg class="fig flow" viewBox="0 0 634 112" role="img" aria-label="頂点のボーン番号は、joints 配列の位置。その先が、ノードの番号"><defs><marker id="fl7390" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">頂点のボーン番号は、joints 配列の位置。その先が、ノードの番号</text><line x1="149.0" y1="64.0" x2="207.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7390)"/><text x="178.0" y="58.0" text-anchor="middle" style="font-size:12px">joints の 2 番目</text><line x1="408.0" y1="64.0" x2="466.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl7390)"/><text x="437.0" y="58.0" text-anchor="middle" style="font-size:12px">ノード番号</text><rect x="28.0" y="44.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="87.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">JOINTS 0 = 2</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="210.0" y="44.0" width="195" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="307.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">skins[0].joints[2] = 5</text><circle cx="212.0" cy="46.0" r="10" fill="#2ea043"/><text x="212.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="469.0" y="44.0" width="137" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="537.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">nodes[5] （ボーン）</text><circle cx="471.0" cy="46.0" r="10" fill="#e5a828"/><text x="471.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 ### アニメーション
 
-**アニメーション**は <strong>「どのノードの何をどう変えるか」</strong>です。
+アニメーションは 「どのノードの何をどう変えるか」です。
 
 ```json
 "animations": [
@@ -448,28 +448,28 @@ tinygltf では**`Accessor::ByteStride(bufferView)`** が、**実際の間隔**�
 
 | 要素 | 意味 |
 | --- | --- |
-| **`channels[j].target.node`** | **動かすノードの番号** |
-| **`channels[j].target.path`** | **何を動かすか**：`translation` / `rotation` / `scale` / `weights` |
-| **`channels[j].sampler`** | **`samplers` の番号**（値の出所） |
-| **`samplers[j].input`** | **時刻**の accessor の番号（`SCALAR` float） |
-| **`samplers[j].output`** | **値**の accessor の番号（`VEC3` / `VEC4`） |
+| `channels[j].target.node` | 動かすノードの番号 |
+| `channels[j].target.path` | 何を動かすか：`translation` / `rotation` / `scale` / `weights` |
+| `channels[j].sampler` | `samplers` の番号（値の出所） |
+| `samplers[j].input` | 時刻の accessor の番号（`SCALAR` float） |
+| `samplers[j].output` | 値の accessor の番号（`VEC3` / `VEC4`） |
 | `interpolation` | 補間：`LINEAR`、`STEP`、`CUBICSPLINE` |
 
-**時刻の配列と値の配列は同じ数**で、**時刻 `input[k]` のときの値が `output[k]`** です（[スキニング](../../3d/skinning-animation.md)のキーフレーム）。
+時刻の配列と値の配列は同じ数で、時刻 `input[k]` のときの値が `output[k]` です（[スキニング](../../3d/skinning-animation.md)のキーフレーム）。
 
 ## 構造の覚え方
 
 | 質問 | 答え |
 | --- | --- |
-| **何を表示するか** | `scenes` → `nodes`（親子の木） |
-| **ノードは何を持つか** | **位置・回転・拡大**（TRS）と、`mesh` / `skin` / `camera` の**番号** |
-| **メッシュの形は** | `meshes` → `primitives` → `attributes` / `indices`（**accessor の番号**） |
-| **数値の実体は** | `accessors` → `bufferViews` → `buffers`（**3 段階**で、番号をたどる） |
-| **見た目は** | `primitives[].material` → `materials` → `textures` → `images` + `samplers` |
-| **ボーンは** | `skins[].joints`（**ノードの番号の一覧**）、頂点の `JOINTS_0` は**joints の位置** |
-| **動きは** | `animations` → `channels`（**どのノードを**）、`samplers`（**時刻と値の accessor**） |
+| 何を表示するか | `scenes` → `nodes`（親子の木） |
+| ノードは何を持つか | 位置・回転・拡大（TRS）と、`mesh` / `skin` / `camera` の番号 |
+| メッシュの形は | `meshes` → `primitives` → `attributes` / `indices`（accessor の番号） |
+| 数値の実体は | `accessors` → `bufferViews` → `buffers`（3 段階で、番号をたどる） |
+| 見た目は | `primitives[].material` → `materials` → `textures` → `images` + `samplers` |
+| ボーンは | `skins[].joints`（ノードの番号の一覧）、頂点の `JOINTS_0` はjoints の位置 |
+| 動きは | `animations` → `channels`（どのノードを）、`samplers`（時刻と値の accessor） |
 
-**すべて「配列の何番目か」で、つながっています**。
+すべて「配列の何番目か」で、つながっています。
 
 <!-- fig:gltf-chain:begin -->
 
@@ -521,35 +521,35 @@ tinygltf では**`Accessor::ByteStride(bufferView)`** が、**実際の間隔**�
 ## よくあるミス
 
 ??? failure "番号を別の配列の番号と取り違える"
-    `nodes[1].mesh = 0` は**`meshes[0]`**です。`nodes[0]` ではありません。**キー名で配列を判断**します。
+    `nodes[1].mesh = 0` は`meshes[0]`です。`nodes[0]` ではありません。キー名で配列を判断します。
 
 ??? failure "`-1`（参照なし）を調べず `model.meshes[-1]` を引く"
-    範囲外アクセスです。**使う前に `>= 0` を確認**します。
+    範囲外アクセスです。使う前に `>= 0` を確認します。
 
 ??? failure "`JOINTS_0` の値をノード番号として使う"
-    **`skins[…].joints[値]`** を引いた先が、ノード番号です。
+    `skins[…].joints[値]` を引いた先が、ノード番号です。
 
 ??? failure "`byteStride` を無視して、隙間なしで読む"
-    **インターリーブ**のデータは、`byteStride` ごとに次の要素が来ます。
+    インターリーブのデータは、`byteStride` ごとに次の要素が来ます。
 
 ??? failure "accessor の `byteOffset` と bufferView の `byteOffset` の、足し忘れ"
-    **データの先頭 ＝ buffer の先頭 ＋ bufferView.byteOffset ＋ accessor.byteOffset** です。
+    データの先頭 ＝ buffer の先頭 ＋ bufferView.byteOffset ＋ accessor.byteOffset です。
 
 ??? failure "配列の順番を入れ替えて、参照が壊れる"
-    **番号の参照はすべて、ずれます**。入れ替えたら**参照している場所もすべて書き換え**ます（ツールを使う）。
+    番号の参照はすべて、ずれます。入れ替えたら参照している場所もすべて書き換えます（ツールを使う）。
 
 ??? failure "1 つのメッシュに複数のプリミティブがあることを忘れる"
-    **マテリアルごとにプリミティブが分かれます**。`primitives[0]` だけを読むと**一部が表示されません**。
+    マテリアルごとにプリミティブが分かれます。`primitives[0]` だけを読むと一部が表示されません。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] glTF は<strong>種類ごとの配列</strong>。<strong>参照はすべて「配列の番号（0 始まり）」</strong>
-    - [x] <strong>どの配列かはキー名で決まる</strong>（`mesh` → `meshes`、`material` → `materials`）。<strong>`-1` は参照なし</strong>
-    - [x] <strong>データ本体は buffer → bufferView → accessor の 3 段階</strong>。<strong>accessor が「どう読むか」</strong>
-    - [x] <strong>ノードは親子の木</strong>。<strong>メッシュはプリミティブ（マテリアルごと）の集まり</strong>
-    - [x] <strong>マテリアル → texture → image + sampler</strong>。<strong>ボーンの番号（`JOINTS_0`）は `joints` の位置</strong>
-    - [x] <strong>アニメーションは、channel（どのノード）＋ sampler（時刻と値の accessor）</strong>
+    - [x] glTF は種類ごとの配列。参照はすべて「配列の番号（0 始まり）」
+    - [x] どの配列かはキー名で決まる（`mesh` → `meshes`、`material` → `materials`）。`-1` は参照なし
+    - [x] データ本体は buffer → bufferView → accessor の 3 段階。accessor が「どう読むか」
+    - [x] ノードは親子の木。メッシュはプリミティブ（マテリアルごと）の集まり
+    - [x] マテリアル → texture → image + sampler。ボーンの番号（`JOINTS_0`）は `joints` の位置
+    - [x] アニメーションは、channel（どのノード）＋ sampler（時刻と値の accessor）
 
 ## 関連ページ
 

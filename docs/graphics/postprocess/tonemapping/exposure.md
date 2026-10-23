@@ -6,15 +6,15 @@ tags:
 
 # Exposure
 
-<strong>露出</strong>は、<strong>HDR の光の量に掛ける倍率</strong>です。カメラで言う「絞り・シャッター速度・ISO 感度」をまとめた 1 つの数で、画面全体の明るさを決めます。トーンマップの前に掛けるので、同じ光景でも露出で「明るい昼」にも「暗い夜」にも見えます。このページでは、EV（露出値）・カメラの 3 要素・EV100 による物理ベースの露出・露出補正・露出の決め方を説明します。
+<strong>露出</strong>は、HDR の光の量に掛ける倍率です。カメラで言う「絞り・シャッター速度・ISO 感度」をまとめた 1 つの数で、画面全体の明るさを決めます。トーンマップの前に掛けるので、同じ光景でも露出で「明るい昼」にも「暗い夜」にも見えます。このページでは、EV（露出値）・カメラの 3 要素・EV100 による物理ベースの露出・露出補正・露出の決め方を説明します。
 
 !!! tip "ポイント"
     - 露出後の値 ＝ <strong>HDR の輝度 × 倍率</strong>。<strong>トーンマップの前に掛ける</strong>。
-    - <strong>EV</strong> は<strong>2 の冪で表す指標</strong>。<strong>EV が 1 上がるごとに、光の量は半分（暗く）</strong>。<strong>1 EV ＝ 1 ストップ</strong>。
-    - カメラの<strong>絞り・シャッター・ISO</strong>は<strong>どれも光の量を 2 倍・半分にできる</strong>。<strong>ゲームでは 1 つの倍率にまとめる</strong>。
-    - <strong>EV100</strong> は <strong>ISO 100 を基準にした EV</strong>。<strong>物理ベース（PBR）の光の単位</strong>と<strong>相性が良い</strong>。
-    - <strong>露出補正</strong> ＝ <strong>自動露出の結果に足す EV のずれ</strong>。<strong>アーティストの調整</strong>。
-    - 露出が<strong>合っていない</strong>と、<strong>明部が真っ白に飛ぶ</strong>か、<strong>暗部が真っ黒に潰れる</strong>。
+    - EV は2 の冪で表す指標。EV が 1 上がるごとに、光の量は半分（暗く）。1 EV ＝ 1 ストップ。
+    - カメラの絞り・シャッター・ISOはどれも光の量を 2 倍・半分にできる。ゲームでは 1 つの倍率にまとめる。
+    - EV100 は ISO 100 を基準にした EV。物理ベース（PBR）の光の単位と相性が良い。
+    - 露出補正 ＝ 自動露出の結果に足す EV のずれ。アーティストの調整。
+    - 露出が合っていないと、明部が真っ白に飛ぶか、暗部が真っ黒に潰れる。
 
 <!-- fig:exposure-ev:begin -->
 
@@ -135,7 +135,7 @@ tags:
 
 ## なぜ露出が要るのか
 
-<strong>HDR の値は、「光の絶対量」に近い</strong>ので<strong>幅が非常に広い</strong>です。ディスプレイに映せるのは 0〜1 だけなので、どの範囲を 0〜1 に割り当てるかを先に決める必要があります。これが露出です。
+<strong>HDR の値は、「光の絶対量」に近い</strong>ので幅が非常に広いです。ディスプレイに映せるのは 0〜1 だけなので、どの範囲を 0〜1 に割り当てるかを先に決める必要があります。これが露出です。
 
 <svg class="fig illust" viewBox="0 0 780 250" role="img" aria-label="露出で範囲を選ぶ">
 <text x="20" y="26" class="fig-title">露出 ＝ 広い明るさの中から、見せたい範囲を選んで、0〜1 に合わせる</text>
@@ -161,15 +161,15 @@ tags:
 | +3 EV | 1/8 | かなり暗く |
 | 差が 0 | そのまま | — |
 
-<strong>「1 段（ストップ）」で 2 倍・半分</strong>という<strong>単位</strong>は、<strong>人間の明るさの感じ方が対数的</strong>であることに合っています。EV が等間隔なら、見た目の明るさもほぼ等間隔に変わります。
+<strong>「1 段（ストップ）」で 2 倍・半分</strong>という単位は、人間の明るさの感じ方が対数的であることに合っています。EV が等間隔なら、見た目の明るさもほぼ等間隔に変わります。
 
 ## カメラの 3 つの要素
 
-<strong>実際のカメラは、3 つの要素で光の量を決めます</strong>。<strong>どれも「1 段」変えると光が 2 倍・半分</strong>になります。
+<strong>実際のカメラは、3 つの要素で光の量を決めます</strong>。どれも「1 段」変えると光が 2 倍・半分になります。
 
 | 要素 | 内容 | 副作用 |
 | --- | --- | --- |
-| <strong>絞り（F 値）</strong> | レンズの穴の大きさ。F が小さいほど明るい | 被写界深度が変わる（開けるとボケる） |
+| 絞り（F 値） | レンズの穴の大きさ。F が小さいほど明るい | 被写界深度が変わる（開けるとボケる） |
 | シャッター速度 | 光を取り込む時間。長いほど明るい | モーション ブラーが変わる（遅いとブレる） |
 | ISO 感度 | センサーの増幅率。高いほど明るい | ノイズが増える |
 
@@ -180,11 +180,11 @@ tags:
 
 <div class="formula">EV = log₂( F² / t ) − log₂( ISO / 100 )　（F：F 値、t：シャッター秒、ISO：感度）</div>
 
-<strong>ゲームではこれを 1 つの倍率にまとめます</strong>。<strong>絞りは DOF</strong>（[被写界深度](../dof/index.md)）、シャッターはモーション ブラー（[Motion Blur](../motion-blur/index.md)）と別に決めることも多く、露出としては合計の EV だけ使います。
+ゲームではこれを 1 つの倍率にまとめます。絞りは DOF（[被写界深度](../dof/index.md)）、シャッターはモーション ブラー（[Motion Blur](../motion-blur/index.md)）と別に決めることも多く、露出としては合計の EV だけ使います。
 
 ## EV100 と物理ベースの露出
 
-<strong>EV100</strong> は、<strong>ISO 100 に換算した EV</strong> です。絞り・シャッターの組み合わせが違っても、同じ EV100 なら、同じ明るさになります。
+<strong>EV100</strong> は、ISO 100 に換算した EV です。絞り・シャッターの組み合わせが違っても、同じ EV100 なら、同じ明るさになります。
 
 ```hlsl
 float ExposureFromEV100(float ev100) {
@@ -203,11 +203,11 @@ float3 ApplyExposure(float3 hdr_color, float ev100) {
 
 | 状況 | EV100 |
 | --- | --- |
-| <strong>晴天の屋外（日向）</strong> | 約 15 |
+| 晴天の屋外（日向） | 約 15 |
 | 曇り | 約 12 |
 | 明るい室内 | 約 7〜8 |
 | 暗い室内 | 約 4〜5 |
-| <strong>夜景（街灯）</strong> | 約 0〜3 |
+| 夜景（街灯） | 約 0〜3 |
 | 星明かり | 約 −3〜−5 |
 
 <svg class="fig illust" viewBox="0 0 780 200" role="img" aria-label="EV100 の目盛り">
@@ -226,7 +226,7 @@ float3 ApplyExposure(float3 hdr_color, float ev100) {
 
 ## 露出補正
 
-<strong>自動露出が決めた EV に、手で EV を足す</strong>のが<strong>露出補正</strong>です。画作りの意図（ここは少し暗く、雰囲気を出す）を反映できます。
+<strong>自動露出が決めた EV に、手で EV を足す</strong>のが露出補正です。画作りの意図（ここは少し暗く、雰囲気を出す）を反映できます。
 
 ```hlsl
 float finalEV100 = autoEV100 + exposure_compensation;
@@ -249,25 +249,25 @@ float finalEV100 = autoEV100 + exposure_compensation;
     <strong>露出は HDR のリニア値に、トーンマップの前</strong>に掛ける。
 
 ??? failure "EV の符号を逆にして、明るくしたつもりが暗くなる"
-    <strong>EV が大きいほど暗い</strong>（`× 2^(−EV)`）。<strong>明るくしたいなら EV を下げる</strong>。
+    EV が大きいほど暗い（`× 2^(−EV)`）。明るくしたいなら EV を下げる。
 
 ??? failure "ライトの強さがバラバラで、露出を変えるとあるものだけ飛ぶ"
-    <strong>ライトを物理単位にそろえる</strong>。<strong>オブジェクトごとの強さの「調整」を露出で隠さない</strong>。
+    ライトを物理単位にそろえる。オブジェクトごとの強さの「調整」を露出で隠さない。
 
 ??? failure "屋内と屋外の境で、画面が急に明るく・暗くなる"
-    <strong>露出を境でゆっくり補間</strong>する（[Auto Exposure](auto-exposure.md)の時間追従）。
+    露出を境でゆっくり補間する（[Auto Exposure](auto-exposure.md)の時間追従）。
 
 ??? failure "絞り・シャッターの値をそのまま倍率に使って、DOF やブレとぶつかる"
-    <strong>露出（明るさ）と、DOF・ブレ（見た目の効果）は、別に設計する</strong>。
+    露出（明るさ）と、DOF・ブレ（見た目の効果）は、別に設計する。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 露出 ＝ <strong>HDR に掛ける倍率</strong>。<strong>トーンマップの前</strong>に掛ける
-    - [x] <strong>EV が 1 増えると光は半分</strong>。<strong>`× 2^(−EV)`</strong>
-    - [x] カメラの<strong>絞り・シャッター・ISO</strong>は<strong>どれも 1 段で 2 倍</strong>。<strong>ゲームでは 1 つの倍率にまとめる</strong>
-    - [x] <strong>EV100</strong>（ISO 100 基準）と<strong>物理単位のライト</strong>で<strong>明るさが一貫</strong>
-    - [x] <strong>露出補正</strong>は<strong>自動露出に足す EV</strong>
+    - [x] 露出 ＝ <strong>HDR に掛ける倍率</strong>。トーンマップの前に掛ける
+    - [x] EV が 1 増えると光は半分。`× 2^(−EV)`
+    - [x] カメラの絞り・シャッター・ISOはどれも 1 段で 2 倍。ゲームでは 1 つの倍率にまとめる
+    - [x] EV100（ISO 100 基準）と物理単位のライトで明るさが一貫
+    - [x] 露出補正は自動露出に足す EV
 
 ## 参考
 

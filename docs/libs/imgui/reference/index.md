@@ -7,7 +7,7 @@ tags:
 
 # ImGui 関数早見表
 
-ImGui の関数は数百個あり、<strong>「どの関数を呼ぶと画面に何が出るのか」</strong>を覚えるのが最初の壁です。このセクションは、**関数を目的別に並べて、「何が出るか・主な引数・戻り値」を一覧**にした**早見表**です。<strong>実際の見た目（ギャラリー）</strong>と<strong>動き（アニメーション）</strong>も付けています。**読む本ではなく、引く辞書**として使ってください。
+ImGui の関数は数百個あり、<strong>「どの関数を呼ぶと画面に何が出るのか」</strong>を覚えるのが最初の壁です。このセクションは、関数を目的別に並べて、「何が出るか・主な引数・戻り値」を一覧にした早見表です。実際の見た目（ギャラリー）と動き（アニメーション）も付けています。読む本ではなく、引く辞書として使ってください。
 
 ## 早見表の一覧
 
@@ -22,7 +22,7 @@ ImGui の関数は数百個あり、<strong>「どの関数を呼ぶと画面に
 
 ## 見た目のギャラリー（基本のウィジェット）
 
-左が**実際の見た目**、右が**そのウィジェットを出す関数**です。
+左が**実際の見た目**、右がそのウィジェットを出す関数です。
 
 <svg class="fig imgui" data-fig="imgui-gallery-basic" viewBox="0 0 780 340" role="img" aria-label="基本ウィジェットの見た目"><rect x="0" y="0" width="780" height="340" fill="#1b1b1f" rx="6"/><rect x="20.0" y="20.0" width="360.0" height="300.0" rx="0" fill="#0f0f0f" stroke="#4b4b57" stroke-width="1" /><rect x="20.0" y="20.0" width="360.0" height="19.0" rx="0" fill="#294a7a" /><path d="M27,26 l5,0 l-2.5,7 z" fill="#ffffff"/><text x="40.0" y="34.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Demo</text><text x="28.0" y="61.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Hello, ImGui!</text><rect x="28.0" y="70.0" width="48.0" height="19.0" rx="3" fill="#23456d" /><text x="36.0" y="84.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Save</text><rect x="28.0" y="93.0" width="17.0" height="17.0" rx="3" fill="#1d2f49" /><path d="M32,102 l4,4 l7,-8" fill="none" stroke="#4296fa" stroke-width="2.2"/><text x="49.0" y="107.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Enable</text><circle cx="36" cy="125" r="8" fill="#1d2f49"/><text x="48.0" y="130.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >A</text><circle cx="76" cy="125" r="8" fill="#1d2f49"/><circle cx="76" cy="125" r="4" fill="#4296fa"/><text x="88.0" y="130.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >B</text><circle cx="116" cy="125" r="8" fill="#1d2f49"/><text x="128.0" y="130.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >C</text><rect x="28.0" y="139.0" width="213.0" height="19.0" rx="3" fill="#1d2f49" /><rect x="139.2" y="141.0" width="10.0" height="15.0" rx="2" fill="#3d85e0" /><text x="118.5" y="153.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >5.50</text><text x="249.0" y="153.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >speed</text><rect x="28.0" y="162.0" width="213.0" height="19.0" rx="3" fill="#1d2f49" /><text x="114.5" y="176.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >1.250</text><text x="249.0" y="176.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >pos</text><rect x="28.0" y="185.0" width="213.0" height="19.0" rx="3" fill="#1d2f49" /><text x="32.0" y="199.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Player</text><text x="249.0" y="199.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >name</text><rect x="28.0" y="208.0" width="213.0" height="19.0" rx="3" fill="#1d2f49" /><rect x="222.0" y="208.0" width="19.0" height="19.0" rx="3" fill="#23456d" /><path d="M227,215 l4.5,6 l4.5,-6 z" fill="#ffffff"/><text x="32.0" y="222.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Fast</text><text x="249.0" y="222.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >mode</text><rect x="28.0" y="231.0" width="19.0" height="19.0" rx="3" fill="#4296fa" stroke="#4b4b57"/><rect x="51.0" y="231.0" width="190.0" height="19.0" rx="3" fill="#1d2f49" /><text x="55.0" y="245.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >0.26 0.59 0.98</text><text x="249.0" y="245.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >color</text><rect x="28.0" y="254.0" width="220.0" height="19.0" rx="3" fill="#1d2f49" /><rect x="28.0" y="254.0" width="136.4" height="19.0" rx="3" fill="#3d85e0" /><text x="127.2" y="268.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >62%</text><rect x="21.0" y="279.0" width="358.0" height="1.0" rx="0" fill="#5c5c6e" /><line x1="385" y1="56" x2="405" y2="56" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="60" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::Text("...")</text><line x1="385" y1="79" x2="405" y2="79" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="83" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::Button("Save")</text><line x1="385" y1="102" x2="405" y2="102" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="106" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::Checkbox("Enable", &amp;b)</text><line x1="385" y1="125" x2="405" y2="125" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="129" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::RadioButton("A", &amp;i, 0)</text><line x1="385" y1="148" x2="405" y2="148" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="152" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::SliderFloat("speed", &amp;f, 0, 10)</text><line x1="385" y1="171" x2="405" y2="171" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="175" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::DragFloat("pos", &amp;f, 0.01f)</text><line x1="385" y1="194" x2="405" y2="194" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="198" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::InputText("name", buf, size)</text><line x1="385" y1="217" x2="405" y2="217" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="221" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::Combo("mode", &amp;i, items, n)</text><line x1="385" y1="240" x2="405" y2="240" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="244" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::ColorEdit3("color", col)</text><line x1="385" y1="263" x2="405" y2="263" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="267" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::ProgressBar(0.62f, size)</text></svg>
 
@@ -32,7 +32,7 @@ ImGui の関数は数百個あり、<strong>「どの関数を呼ぶと画面に
 
 ## 動きで見る
 
-**操作したときに何が起こるか**を、**動き**で見ます。
+**操作したときに何が起こるか**を、動きで見ます。
 
 ### スライダー
 
@@ -58,13 +58,13 @@ ImGui の関数は数百個あり、<strong>「どの関数を呼ぶと画面に
 
 | 列 | 内容 |
 | --- | --- |
-| **関数** | **呼び方の例**（引数は主なものだけ） |
-| **出るもの** | **画面に表示される部品** |
-| **戻り値** | **`bool`：操作された**／**`void`**／**値を返す** |
-| **閉じ方** | **`End` 系を呼ぶ必要があるか**（「常に」「true のとき」「不要」） |
+| **関数** | 呼び方の例（引数は主なものだけ） |
+| 出るもの | 画面に表示される部品 |
+| 戻り値 | `bool`：操作された／`void`／値を返す |
+| 閉じ方 | `End` 系を呼ぶ必要があるか（「常に」「true のとき」「不要」） |
 
 !!! note "バージョンについて"
-    **ImGui は、関数名・引数が版で少し変わります**（例：`ImGui::Image` の引数、`ImGuiKey` への移行、`BeginChild` のフラグ）。**このセクションは、1.90 系を基準**にしています。**手元の版で、`imgui.h` を確認**してください（**ヘッダーのコメントが最も正確な辞書**です）。
+    ImGui は、関数名・引数が版で少し変わります（例：`ImGui::Image` の引数、`ImGuiKey` への移行、`BeginChild` のフラグ）。このセクションは、1.90 系を基準にしています。手元の版で、`imgui.h` を確認してください（ヘッダーのコメントが最も正確な辞書です）。
 
 ## 関連ページ
 

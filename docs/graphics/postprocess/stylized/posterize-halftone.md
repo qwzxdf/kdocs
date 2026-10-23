@@ -6,19 +6,19 @@ tags:
 
 # Posterization and Halftone
 
-<strong>ポスタライズ</strong>は、<strong>色の段階（階調）を減らして、ポスターのように平らな色の面にする</strong>表現です。ハーフトーンは、網点（ドット）の大きさで濃淡を表す、漫画・印刷のような表現です。どちらも、3D の絵を「イラスト・漫画・印刷物」の質感に近づけるための後処理で、セル シェーディングや輪郭線と組み合わせて、画風を作ります。写実的な品質とは別の軸の、好みの表現です。このページでは、ポスタライズの式・色数・ディザリングとの組み合わせ・ハーフトーンの網点・クロスハッチ（線の濃淡）・使いどころを説明します。
+<strong>ポスタライズ</strong>は、色の段階（階調）を減らして、ポスターのように平らな色の面にする表現です。ハーフトーンは、網点（ドット）の大きさで濃淡を表す、漫画・印刷のような表現です。どちらも、3D の絵を「イラスト・漫画・印刷物」の質感に近づけるための後処理で、セル シェーディングや輪郭線と組み合わせて、画風を作ります。写実的な品質とは別の軸の、好みの表現です。このページでは、ポスタライズの式・色数・ディザリングとの組み合わせ・ハーフトーンの網点・クロスハッチ（線の濃淡）・使いどころを説明します。
 
 !!! tip "ポイント"
-    - ポスタライズ ＝ <strong>各チャンネルを、N 段階に丸める</strong>（<strong>`floor(c × N) / N`</strong>）。<strong>色の面が平らに</strong>。
-    - <strong>輝度だけを丸める</strong>と<strong>色相を保てる</strong>。
-    - <strong>ハーフトーン</strong> ＝ <strong>明るさに応じた大きさの円（網点）</strong>を、<strong>格子状に並べる</strong>。<strong>角度を付ける</strong>と<strong>漫画風</strong>。
-    - <strong>クロスハッチ</strong> ＝ <strong>線の本数で濃淡</strong>（<strong>ペン画・版画風</strong>）。
-    - <strong>丸めの境は、ちらつきやすい</strong>。<strong>TAA・ディザリングで抑える</strong>。
-    - <strong>どれも画風の選択</strong>。<strong>写実的な絵を良くする技法ではない</strong>。
+    - ポスタライズ ＝ <strong>各チャンネルを、N 段階に丸める</strong>（<strong>`floor(c × N) / N`</strong>）。色の面が平らに。
+    - 輝度だけを丸めると色相を保てる。
+    - ハーフトーン ＝ 明るさに応じた大きさの円（網点）を、格子状に並べる。角度を付けると漫画風。
+    - クロスハッチ ＝ 線の本数で濃淡（ペン画・版画風）。
+    - 丸めの境は、ちらつきやすい。TAA・ディザリングで抑える。
+    - どれも画風の選択。写実的な絵を良くする技法ではない。
 
 ## ポスタライズ
 
-<strong>色の連続的な階調</strong>を<strong>少ない段階に丸めます</strong>。
+<strong>色の連続的な階調</strong>を少ない段階に丸めます。
 
 <div class="formula">c' = floor( c × N ) / N　（N：段階数）</div>
 
@@ -44,7 +44,7 @@ float3 Posterize(float3 color, float levels) {
 
 ### 輝度だけ丸める
 
-<strong>RGB 別々に丸めると、色相がずれます</strong>（<strong>例：茶色が緑や赤に分かれる</strong>）。輝度だけを丸め、色の比率を保つ方が色の自然さが保たれます。
+RGB 別々に丸めると、色相がずれます（例：茶色が緑や赤に分かれる）。輝度だけを丸め、色の比率を保つ方が色の自然さが保たれます。
 
 ```hlsl
 float3 PosterizeLuma(float3 color, float levels) {
@@ -58,7 +58,7 @@ float3 PosterizeLuma(float3 color, float levels) {
 
 ## ディザリングと組み合わせる
 
-<strong>丸めるだけだと段の境がくっきりします</strong>。<strong>丸める前にノイズやパターン（ディザ）を足す</strong>と境が模様のように混ざります（古いゲーム機・版画風）。
+<strong>丸めるだけだと段の境がくっきりします</strong>。丸める前にノイズやパターン（ディザ）を足すと境が模様のように混ざります（古いゲーム機・版画風）。
 
 ```hlsl
 float3 PosterizeDithered(float3 color, float levels, float2 pixel_position) {
@@ -71,7 +71,7 @@ float3 PosterizeDithered(float3 color, float levels, float2 pixel_position) {
 
 ## ハーフトーン（網点）
 
-<strong>印刷・漫画の網点</strong>は<strong>明るさに応じた大きさの円を、格子状に並べて濃淡を表します</strong>。
+<strong>印刷・漫画の網点</strong>は明るさに応じた大きさの円を、格子状に並べて濃淡を表します。
 
 網点の要素です。格子は等間隔の点の配置で、傾けると漫画風になります。点の大きさは、暗いほど大きく、明るいほど小さくします。角度は 45°（白黒）が標準で、カラーは色ごとに別の角度を使います（CMYK の網点）。
 
@@ -92,7 +92,7 @@ float Halftone(float2 pixel_position, float luminance, float cell_size, float an
 | `rotated / cell_size` | 傾けた格子のセル座標 |
 | `frac − 0.5` | セルの中心を原点に |
 | `radius = √(1 − 輝度) × 0.7` | 暗いほど、円が大きい（面積が明るさに比例するよう√） |
-| `smoothstep` | <strong>円の縁を少しぼかす（ジャギー防止）</strong> |
+| `smoothstep` | 円の縁を少しぼかす（ジャギー防止） |
 
 <!-- fig:halftone-dots:begin -->
 
@@ -160,26 +160,26 @@ float Halftone(float2 pixel_position, float luminance, float cell_size, float an
 
 ### カラーのハーフトーン
 
-<strong>CMYK の 4 色</strong>を<strong>別々の角度</strong>で重ねると、印刷物のような、カラーの網点になります。
+CMYK の 4 色を別々の角度で重ねると、印刷物のような、カラーの網点になります。
 
 | インク | 角度 |
 | --- | --- |
-| <strong>C（シアン）</strong> | 15° |
-| <strong>M（マゼンタ）</strong> | 75° |
-| <strong>Y（イエロー）</strong> | 0° |
-| <strong>K（黒）</strong> | 45° |
+| C（シアン） | 15° |
+| M（マゼンタ） | 75° |
+| Y（イエロー） | 0° |
+| K（黒） | 45° |
 
-<strong>角度をずらす</strong>ことで<strong>モアレ（干渉縞）を避けます</strong>。
+角度をずらすことでモアレ（干渉縞）を避けます。
 
 ## クロスハッチ（線の濃淡）
 
-<strong>線の本数と向きで濃淡</strong>を<strong>表す</strong>のがクロスハッチで、<strong>ペン画・版画・ゲーム「オブラ・ディン号の帰還」</strong>のような絵になります。
+<strong>線の本数と向きで濃淡</strong>を表すのがクロスハッチで、ペン画・版画・ゲーム「オブラ・ディン号の帰還」のような絵になります。
 
 | 明るさ | 線 |
 | --- | --- |
-| 明るい | <strong>線なし（白）</strong> |
+| 明るい | 線なし（白） |
 | やや暗い | 斜線 1 方向 |
-| 暗い | <strong>斜線 2 方向（交差）</strong> |
+| 暗い | 斜線 2 方向（交差） |
 | とても暗い | さらに別の方向を重ねる |
 
 ```hlsl
@@ -192,7 +192,7 @@ float Hatch(float2 pixel_position, float luminance) {
 }
 ```
 
-<strong>画面に固定した網点・線</strong>は<strong>カメラが動くと、「画面に張り付いた模様」</strong>に<strong>見えます</strong>（シャワー ドア効果）。物体の表面（UV やワールド座標）に貼ると物体と一緒に動いて自然です（トゥーン レンダリングの手法の 1 つ）。
+画面に固定した網点・線はカメラが動くと、「画面に張り付いた模様」に見えます（シャワー ドア効果）。物体の表面（UV やワールド座標）に貼ると物体と一緒に動いて自然です（トゥーン レンダリングの手法の 1 つ）。
 
 ## 使いどころ
 
@@ -220,22 +220,22 @@ float Hatch(float2 pixel_position, float luminance) {
     <strong>輝度だけを丸める</strong>。
 
 ??? failure "網点が、画面に張り付いて見える"
-    <strong>物体表面（UV・ワールド）に貼る</strong>。
+    物体表面（UV・ワールド）に貼る。
 
 ??? failure "細かい網点が、モアレになる"
-    <strong>セルの大きさを大きく</strong>、<strong>解像度に合わせる</strong>、TAA の影響を確認。
+    セルの大きさを大きく、解像度に合わせる、TAA の影響を確認。
 
 ??? failure "段の境がちらつく"
-    <strong>丸める前に軽くぼかす</strong>、<strong>TAA</strong>。
+    丸める前に軽くぼかす、TAA。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ポスタライズ ＝ <strong>色の階調を N 段階に丸める</strong>。<strong>輝度だけ丸めると色相を保てる</strong>
-    - [x] <strong>ディザ</strong>と組み合わせて<strong>レトロ・版画風</strong>
-    - [x] ハーフトーン ＝ <strong>明るさに応じた大きさの網点を、傾けた格子に並べる</strong>
-    - [x] <strong>クロスハッチ</strong> ＝ <strong>線の本数で濃淡</strong>
-    - [x] <strong>画面固定の模様に注意</strong>。<strong>画風の選択</strong>（<strong>好みの問題</strong>）
+    - [x] ポスタライズ ＝ <strong>色の階調を N 段階に丸める</strong>。輝度だけ丸めると色相を保てる
+    - [x] ディザと組み合わせてレトロ・版画風
+    - [x] ハーフトーン ＝ 明るさに応じた大きさの網点を、傾けた格子に並べる
+    - [x] クロスハッチ ＝ 線の本数で濃淡
+    - [x] 画面固定の模様に注意。画風の選択（好みの問題）
 
 ## 参考
 

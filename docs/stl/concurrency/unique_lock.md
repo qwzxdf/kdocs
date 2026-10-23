@@ -15,7 +15,7 @@ tags:
 `#include <mutex>`
 </div>
 
-`std::unique_lock` は、`lock_guard` より**柔軟な鍵**です。ロックを後からかけたり、途中で開けたり、別の場所に渡したりできます。[`condition_variable`](condition_variable.md) は、待っている間に鍵を開ける必要があるので、必ず `unique_lock` を使います。
+`lock_guard` は、作った瞬間にロックして、スコープを抜けるまで開けられません。途中で一度開けたい、最初はロックせずに後でかけたい、という場面には使えません。`std::unique_lock` は、`lock_guard` より柔軟な鍵です。ロックを後からかけたり、途中で開けたり、別の場所へ渡したりできます。条件変数は、待っている間に鍵を開ける必要があるので、必ず `unique_lock` と組み合わせます。
 
 !!! tip "ポイント"
     - **条件変数と使うなら `unique_lock`**。それ以外は `lock_guard` で足りる。
@@ -161,14 +161,19 @@ true
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ワーカースレッドが、仕事が来るまで待つ | `std::unique_lock lock(m); cv.wait(lock, ...);` |
+条件変数で待つときに使います。`std::unique_lock lock(m); cv.wait(lock, [&] { return !queue.empty(); });` と書くと、待っている間は鍵が開き、起こされたら鍵をかけ直します。タスクキューを持つスレッドプールの定番の形です。
+
+ロックを遅らせたいときは、`std::unique_lock lock(m, std::defer_lock);` と作り、あとで `lock.lock()` を呼びます。
+
+手動で開け閉めできる分、`lock_guard` よりわずかに重くなります。条件変数を使わず、開け閉めも要らないなら、`lock_guard` で足ります。
 
 ## よくあるミス
 
 ??? failure "lock_guard で足りるのに使う"
     条件変数も、途中の開け閉めも要らないなら、`lock_guard` のほうが軽くて意図が伝わります。
+
+??? failure "条件変数に `lock_guard` を渡そうとする"
+    `condition_variable::wait` は、`unique_lock` を要求します。待ちの間に鍵を開けて、起きたらかけ直す必要があるからです。`lock_guard` はコンパイルエラーになります。
 
 ## 類似
 

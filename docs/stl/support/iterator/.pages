@@ -2,10 +2,13 @@ title: イテレータの道具（iterator）
 nav:
   - size.md
   - back_inserter.md
+  - end.md
   - next.md
   - prev.md
   - distance.md
   - inserter.md
+  - cbegin.md
+  - rbegin.md
   - advance.md
   - ssize.md
   - empty.md
@@ -19,6 +22,7 @@ nav:
   - back_insert_iterator.md
   - basic_const_iterator.md
   - bidirectional_iterator_tag.md
+  - cend.md
   - common_iterator.md
   - contiguous_iterator_tag.md
   - counted_iterator.md
@@ -42,5 +46,6 @@ nav:
   - output_iterator_tag.md
   - projected.md
   - random_access_iterator_tag.md
+  - rend.md
   - unreachable_sentinel.md
   - ...

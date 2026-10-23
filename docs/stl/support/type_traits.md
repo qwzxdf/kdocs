@@ -124,6 +124,25 @@ tags:
 | [`std::bool_constant`](type_traits/bool_constant.md) | <span class="rank rank-rare">知ってるだけ</span> | `bool` のコンパイル時の定数を、型として表す。 <span class="ver ver-11">C++11</span> |
 | [`std::true_type`](type_traits/true_type.md) | <span class="rank rank-rare">知ってるだけ</span> | `true` を表すコンパイル時の定数の型。 <span class="ver ver-11">C++11</span> |
 | [`std::false_type`](type_traits/false_type.md) | <span class="rank rank-rare">知ってるだけ</span> | `false` を表すコンパイル時の定数の型。 <span class="ver ver-11">C++11</span> |
+| [`std::is_empty`](type_traits/is_empty.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が空（非静的なメンバ変数を持たない）かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::is_signed`](type_traits/is_signed.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が符号付きの算術型かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::rank`](type_traits/rank.md) | <span class="rank rank-rare">知ってるだけ</span> | 配列の次元の数を返す。 <span class="ver ver-11">C++11</span> |
+| [`std::extent`](type_traits/extent.md) | <span class="rank rank-rare">知ってるだけ</span> | 配列の指定した次元の要素数を返す。 <span class="ver ver-11">C++11</span> |
+| [`std::is_nothrow_copy_constructible`](type_traits/is_nothrow_copy_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を投げずにコピーして構築できる型かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::is_nothrow_default_constructible`](type_traits/is_nothrow_default_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を投げずに既定構築できる型かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::is_trivially_default_constructible`](type_traits/is_trivially_default_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | 既定構築が自明（何もしなくてよい）な型かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::is_trivially_copy_constructible`](type_traits/is_trivially_copy_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | コピーして構築するのが自明（メモリのコピーだけ）な型かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::is_trivially_move_constructible`](type_traits/is_trivially_move_constructible.md) | <span class="rank rank-rare">知ってるだけ</span> | ムーブして構築するのが自明（メモリのコピーだけ）な型かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::is_trivially_assignable`](type_traits/is_trivially_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | 代入が自明（メモリのコピーだけ）な型の組かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::is_trivially_copy_assignable`](type_traits/is_trivially_copy_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | コピー代入が自明（メモリのコピーだけ）な型かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::is_trivially_move_assignable`](type_traits/is_trivially_move_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | ムーブ代入が自明（メモリのコピーだけ）な型かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::is_nothrow_assignable`](type_traits/is_nothrow_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を投げずに代入できる型の組かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::is_nothrow_copy_assignable`](type_traits/is_nothrow_copy_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を投げずにコピー代入できる型かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::is_nothrow_move_assignable`](type_traits/is_nothrow_move_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を投げずにムーブ代入できる型かを調べる。 <span class="ver ver-11">C++11</span> |
+| [`std::is_nothrow_invocable_r`](type_traits/is_nothrow_invocable_r.md) | <span class="rank rank-rare">知ってるだけ</span> | 指定した引数で例外を投げずに呼び出せ、結果を R に変換できるかを調べる。 <span class="ver ver-17">C++17</span> |
+| [`std::is_nothrow_swappable_with`](type_traits/is_nothrow_swappable_with.md) | <span class="rank rank-rare">知ってるだけ</span> | 2 つの型の値を、例外を投げずに `swap` できるかを調べる。 <span class="ver ver-17">C++17</span> |
+| [`std::is_virtual_base_of`](type_traits/is_virtual_base_of.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が、別の型の仮想基底クラスかを調べる。 <span class="ver ver-26">C++26</span> |
+| [`std::is_pointer_interconvertible_with_class`](type_traits/is_pointer_interconvertible_with_class.md) | <span class="rank rank-rare">知ってるだけ</span> | メンバへのポインタが、クラスの先頭のメンバを指すかを調べる。 <span class="ver ver-20">C++20</span> |
 
 ## 変換する（_t 系）
 

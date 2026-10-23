@@ -6,14 +6,14 @@ tags:
 
 # Reinhard
 
-<strong>Reinhard</strong> は、<strong>もっとも簡単なトーンマップ</strong>です。式は `x / (1 + x)` だけでどれだけ明るい値も、1 を超えずに 0〜1 に収まります。実装が 1 行で済むので最初の一歩に向きますが、中間調まで圧縮されて、絵が眠くなりやすいので、見た目の目標が決まったら、フィルミックなどに替えます。このページでは、<strong>式の性質・白点付きの拡張・チャンネルごとと輝度ベース・改良（より良いやり方）</strong>を説明します。
+<strong>Reinhard</strong> は、もっとも簡単なトーンマップです。式は `x / (1 + x)` だけでどれだけ明るい値も、1 を超えずに 0〜1 に収まります。実装が 1 行で済むので最初の一歩に向きますが、中間調まで圧縮されて、絵が眠くなりやすいので、見た目の目標が決まったら、フィルミックなどに替えます。このページでは、式の性質・白点付きの拡張・チャンネルごとと輝度ベース・改良（より良いやり方）を説明します。
 
 !!! tip "ポイント"
     - 式 ＝ <strong>`c = x / (1 + x)`</strong>。<strong>どれだけ明るくても 1 に漸近</strong>（飽和しない）。
-    - <strong>x = 1 で 0.5</strong>。<strong>中間調が持ち上がり、コントラストが低い</strong>。
-    - <strong>拡張版</strong>は<strong>白点 L_w</strong>を決め、<strong>そこでちょうど 1</strong>。<strong>簡単で見た目が良くなる</strong>。
-    - <strong>輝度にだけ掛ける</strong>と<strong>色相を保てる</strong>が、<strong>鮮やかな明部が飽和しすぎる</strong>ことがある。
-    - <strong>より良いやり方</strong>：<strong>白点付き ＋ 輝度ベースで色を保つ ＋ 軽いコントラストの調整</strong>。
+    - x = 1 で 0.5。中間調が持ち上がり、コントラストが低い。
+    - 拡張版は白点 L_wを決め、そこでちょうど 1。簡単で見た目が良くなる。
+    - 輝度にだけ掛けると色相を保てるが、鮮やかな明部が飽和しすぎることがある。
+    - より良いやり方：白点付き ＋ 輝度ベースで色を保つ ＋ 軽いコントラストの調整。
 
 ## 式と形
 
@@ -34,7 +34,7 @@ float3 Reinhard(float3 x) {
 | 8 | 0.89 |
 | 100 | 0.99 |
 
-<strong>x が大きくなるほど増え方が緩やか</strong>になり、<strong>1 に近づきます</strong>。どんな明るさでも 1 を超えないので、明部が真っ白に潰れる（クランプ）ことはありません。
+<strong>x が大きくなるほど増え方が緩やか</strong>になり、1 に近づきます。どんな明るさでも 1 を超えないので、明部が真っ白に潰れる（クランプ）ことはありません。
 
 <!-- fig:tonemap-reinhard:begin -->
 
@@ -157,7 +157,7 @@ float3 Reinhard(float3 x) {
 
 ## 白点付き Reinhard
 
-<strong>白点 `L_w`</strong>（<strong>この入力値でちょうど 1 になる</strong>）を決める拡張です。
+<strong>白点 `L_w`</strong>（この入力値でちょうど 1 になる）を決める拡張です。
 
 <div class="formula">c = x · (1 + x / L_w²) / (1 + x)</div>
 
@@ -170,11 +170,11 @@ float3 ReinhardExtended(float3 x, float white_point) {
 
 `white_point` の値による見た目です。小さい値（例：2）なら、早く白に届き、明るくコントラストが強くなります。大きい値（例：8）なら、ゆっくり白に近づき、ハイライトに余裕が残ります。∞にすると、元の Reinhard と同じです。
 
-<strong>白点を使うと、「真っ白」が出せる</strong>ので<strong>太陽や強い光がちゃんと白く飛びます</strong>。
+白点を使うと、「真っ白」が出せるので太陽や強い光がちゃんと白く飛びます。
 
 ## チャンネルごと・輝度ベース
 
-<strong>R・G・B に別々に掛ける</strong>と<strong>彩度の高い明るい色の色相がずれます</strong>。輝度にだけ掛けて、色の比率を保つ方法もあります。
+<strong>R・G・B に別々に掛ける</strong>と彩度の高い明るい色の色相がずれます。輝度にだけ掛けて、色の比率を保つ方法もあります。
 
 ```hlsl
 float Luminance(float3 c) {
@@ -188,13 +188,13 @@ float3 ReinhardLuminance(float3 color, float white_point) {
 }
 ```
 
-色の扱いには 2 通りあります。<strong>チャンネルごと</strong>に適用する方式は、明るい色が白へ向かい、フィルムのような見た目になりますが、色相がずれます（オレンジが黄に）。<strong>輝度ベース</strong>の方式は、色相が保たれますが、彩度が高い明部が飽和して、色が濃すぎることがあります。
+色の扱いには 2 通りあります。チャンネルごとに適用する方式は、明るい色が白へ向かい、フィルムのような見た目になりますが、色相がずれます（オレンジが黄に）。輝度ベースの方式は、色相が保たれますが、彩度が高い明部が飽和して、色が濃すぎることがあります。
 
 詳しくは[Preserving Hue](hue-preservation.md)で比べます。
 
 ## より良いやり方
 
-<strong>Reinhard をそのまま使う</strong>と<strong>眠い絵</strong>になりがちです。次の工夫で簡単なまま見栄えを上げられます。
+<strong>Reinhard をそのまま使う</strong>と眠い絵になりがちです。次の工夫で簡単なまま見栄えを上げられます。
 
 | 工夫 | 内容 |
 | --- | --- |
@@ -202,7 +202,7 @@ float3 ReinhardLuminance(float3 color, float white_point) {
 | 暗部を少し締める | トーンマップ後に軽く S 字のコントラスト（`pow(c, 1.1)` など）を掛ける |
 | 輝度ベースで色を保つ | 鮮やかな色が白に飛びすぎるのを防ぐ（ただし、飽和に注意） |
 | ブレンド | チャンネルごと 50 % ＋ 輝度ベース 50 %（ハイブリッド） |
-| 早めに卒業する | <strong>画作りが固まったら、[Filmic (Hable)](filmic-hable.md)・[ACES](aces.md)・[AgX](agx.md)</strong> へ |
+| 早めに卒業する | 画作りが固まったら、[Filmic (Hable)](filmic-hable.md)・[ACES](aces.md)・[AgX](agx.md) へ |
 
 ## 使いどころ
 
@@ -211,25 +211,25 @@ float3 ReinhardLuminance(float3 color, float white_point) {
 ## よくあるミス
 
 ??? failure "Reinhard を掛けたら、全体が白っぽく眠い"
-    <strong>曲線の性質</strong>。<strong>白点を設定し、軽くコントラストを足す</strong>、または別の曲線へ。
+    <strong>曲線の性質</strong>。白点を設定し、軽くコントラストを足す、または別の曲線へ。
 
 ??? failure "白点を 1 にして、明るい所が飽和しすぎる"
-    <strong>`white_point` は 1 より十分大きく</strong>（4〜8）。<strong>1 だとほぼクランプ</strong>と同じ。
+    `white_point` は 1 より十分大きく（4〜8）。1 だとほぼクランプと同じ。
 
 ??? failure "輝度ベースで、鮮やかな光が派手すぎる"
-    <strong>チャンネルごととブレンド</strong>する。または<strong>彩度を軽く落とす</strong>。
+    チャンネルごととブレンドする。または彩度を軽く落とす。
 
 ??? failure "ガンマ変換の後に Reinhard を掛けて、暗部が潰れる"
-    <strong>トーンマップはリニアで</strong>。<strong>sRGB は最後</strong>（[Gamma and HDR Output](gamma-srgb.md)）。
+    トーンマップはリニアで。sRGB は最後（[Gamma and HDR Output](gamma-srgb.md)）。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] Reinhard ＝ <strong>`x / (1 + x)`</strong>。<strong>1 行でどんな明るさも 0〜1 に収まる</strong>
-    - [x] <strong>中間調が持ち上がって低コントラスト</strong>。<strong>眠い絵になりやすい</strong>
-    - [x] <strong>白点付き</strong>で<strong>ちゃんと白を出す</strong>（<strong>4〜8</strong> が目安）
-    - [x] <strong>輝度ベース</strong>で<strong>色相を保つ</strong>。ただし<strong>飽和に注意</strong>
-    - [x] <strong>本番の画作りは、フィルミック・ACES・AgX へ</strong>
+    - [x] Reinhard ＝ <strong>`x / (1 + x)`</strong>。1 行でどんな明るさも 0〜1 に収まる
+    - [x] 中間調が持ち上がって低コントラスト。眠い絵になりやすい
+    - [x] 白点付きでちゃんと白を出す（4〜8 が目安）
+    - [x] 輝度ベースで色相を保つ。ただし飽和に注意
+    - [x] 本番の画作りは、フィルミック・ACES・AgX へ
 
 ## 参考
 

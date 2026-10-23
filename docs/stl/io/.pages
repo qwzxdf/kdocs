@@ -23,37 +23,86 @@ nav:
   - setprecision.md
   - setfill.md
   - hex.md
-  - dec.md
   - fixed.md
   - boolalpha.md
-  - oct.md
-  - showbase.md
-  - showpos.md
-  - uppercase.md
   - scientific.md
-  - hexfloat.md
   - regex_search.md
-  - left.md
   - regex_match.md
   - regex_replace.md
-  - skipws.md
   - smatch.md
-  - ws.md
   - sregex_iterator.md
-  - unitbuf.md
-  - quoted.md
-  - put_time.md
   - streambuf.md
-  - get_money.md
   - osyncstream.md
-  - put_money.md
   - spanstream.md
   - locale.md
   - cerrno.md
   - csignal.md
   - cstdarg.md
+  - csetjmp.md
   - cuchar.md
   - cwchar.md
-  - csetjmp.md
   - codecvt.md
+  - jmp_buf.md
+  - setjmp.md
+  - basic_ios.md
+  - basic_iostream.md
+  - basic_istream.md
+  - basic_ostream.md
+  - basic_streambuf.md
+  - chars_format.md
+  - clog.md
+  - dec.md
+  - defaultfloat.md
+  - emit_on_flush.md
+  - ends.md
+  - filebuf.md
+  - flush_emit.md
+  - fpos.md
+  - from_chars_result.md
+  - get_money.md
+  - get_time.md
+  - hexfloat.md
+  - internal.md
+  - ios_base_failure.md
+  - iostream.md
+  - ispanstream.md
+  - left.md
+  - longjmp.md
+  - oct.md
+  - ospanstream.md
+  - put_money.md
+  - put_time.md
+  - quoted.md
+  - raise.md
+  - resetiosflags.md
+  - right.md
+  - setbase.md
+  - setiosflags.md
+  - showbase.md
+  - showpoint.md
+  - showpos.md
+  - sig_atomic_t.md
+  - skipws.md
+  - spanbuf.md
+  - streamoff.md
+  - streampos.md
+  - streamsize.md
+  - stringbuf.md
+  - syncbuf.md
+  - to_chars_result.md
+  - unitbuf.md
+  - uppercase.md
+  - wcerr.md
+  - wcin.md
+  - wclog.md
+  - wcout.md
+  - wfstream.md
+  - wistream.md
+  - wostream.md
+  - ws.md
+  - wstringstream.md
+  - va_arg.md
+  - va_copy.md
+  - va_end.md
+  - va_start.md
   - ...

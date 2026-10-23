@@ -32,16 +32,16 @@ tags:
 
 | 症状 | ボトルネック | 効く手法 | ページ |
 | --- | --- | --- | --- |
-| **解像度を下げても速くならない** | CPU | バッチ・インスタンシング・GPU Driven | [ドロー コール](draw-calls.md)・[GPU Driven](gpu-driven.md) |
-| **解像度を下げると速くなる** | GPU（ピクセル） | 低解像度・TAA・シェーダーの軽量化 | [低解像度](low-res-effects.md)・[TAA](taa-upscaling.md)・[シェーダー](shader-cost.md) |
-| **ライトを増やすと極端に重い** | GPU（ライティング） | Deferred・Tiled・Clustered | [Forward と Deferred](forward-deferred.md)・[Tiled と Clustered](light-culling.md) |
-| **G-Buffer の書き込みが重い** | 帯域幅 | フォーマット・Visibility Buffer | [帯域幅](bandwidth.md)・[Visibility Buffer](visibility-buffer.md) |
-| **三角形が非常に多い** | GPU（頂点） | LOD・カリング・Meshlet | [LOD](lod.md)・[Mesh Shader](mesh-shaders.md) |
-| **半透明で重くなる** | GPU（ピクセル・帯域） | 縮小バッファ・枚数削減 | [パーティクル](particles.md) |
-| **影を付けると重い** | CPU・GPU（頂点） | カスケード・影用カリング・キャッシュ | [影](shadows.md) |
-| **VRAM が足りない** | VRAM | 圧縮・ストリーミング | [テクスチャ](texture-streaming.md) |
-| **ポストプロセスが重い** | 帯域幅 | パスをまとめる・縮小 | [ポストプロセス](postprocess.md) |
-| **フレーム時間が不安定** | 全体 | 動的解像度・予算の設計 | [TAA・アップスケーラ](taa-upscaling.md)・[フレーム時間](../optimize/frame-budget.md) |
+| 解像度を下げても速くならない | CPU | バッチ・インスタンシング・GPU Driven | [ドロー コール](draw-calls.md)・[GPU Driven](gpu-driven.md) |
+| 解像度を下げると速くなる | GPU（ピクセル） | 低解像度・TAA・シェーダーの軽量化 | [低解像度](low-res-effects.md)・[TAA](taa-upscaling.md)・[シェーダー](shader-cost.md) |
+| ライトを増やすと極端に重い | GPU（ライティング） | Deferred・Tiled・Clustered | [Forward と Deferred](forward-deferred.md)・[Tiled と Clustered](light-culling.md) |
+| G-Buffer の書き込みが重い | 帯域幅 | フォーマット・Visibility Buffer | [帯域幅](bandwidth.md)・[Visibility Buffer](visibility-buffer.md) |
+| 三角形が非常に多い | GPU（頂点） | LOD・カリング・Meshlet | [LOD](lod.md)・[Mesh Shader](mesh-shaders.md) |
+| 半透明で重くなる | GPU（ピクセル・帯域） | 縮小バッファ・枚数削減 | [パーティクル](particles.md) |
+| 影を付けると重い | CPU・GPU（頂点） | カスケード・影用カリング・キャッシュ | [影](shadows.md) |
+| VRAM が足りない | VRAM | 圧縮・ストリーミング | [テクスチャ](texture-streaming.md) |
+| ポストプロセスが重い | 帯域幅 | パスをまとめる・縮小 | [ポストプロセス](postprocess.md) |
+| フレーム時間が不安定 | 全体 | 動的解像度・予算の設計 | [TAA・アップスケーラ](taa-upscaling.md)・[フレーム時間](../optimize/frame-budget.md) |
 
 ## 事例で流れを追う
 
@@ -64,10 +64,10 @@ tags:
 | 手順 | 内容 |
 | --- | --- |
 | 症状 | ライトを 20 個から 200 個に増やすと GPU が、18 ms から 55 ms に |
-| 切り分け | 解像度を下げると速くなる → <strong>GPU のピクセル処理</strong> |
+| 切り分け | 解像度を下げると速くなる → GPU のピクセル処理 |
 | 計測 | ライティングのパスが重い。フォワード描画で各ピクセルが、全 200 個のライトをループしている |
 | 原因 | 全ピクセルが画面全体の全ライトを計算している |
-| 直し方 | ディファードにして、<strong>クラスタード方式</strong>で各ピクセルに影響するライトだけを渡す |
+| 直し方 | ディファードにして、クラスタード方式で各ピクセルに影響するライトだけを渡す |
 | 結果 | ライティングが、40 ms → 6 ms |
 | 次の一手 | G バッファの帯域が、次の壁になる。フォーマットを軽くする（[帯域幅](bandwidth.md)） |
 
@@ -83,7 +83,7 @@ tags:
 | 結果 | 煙のコストが約 1/8 に。フレームは 11 ms に |
 | 次の一手 | 見た目の差を確認する。縁がにじむなら深度を考慮した拡大（[パーティクル](particles.md)） |
 
-3 つに共通するのは <strong>① 切り分け → ② 計測 → ③ 原因 → ④ 直す → ⑤ 測り直す</strong>の順です。勘で直さず数字で確かめます。
+3 つに共通するのは ① 切り分け → ② 計測 → ③ 原因 → ④ 直す → ⑤ 測り直すの順です。勘で直さず数字で確かめます。
 
 ## 全体のよくあるミス
 

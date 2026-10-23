@@ -9,10 +9,18 @@ nav:
   - bidirectional_range.md
   - borrowed_iterator_t.md
   - borrowed_range.md
+  - cbegin.md
+  - cdata.md
+  - cend.md
   - common_range.md
   - contiguous_range.md
+  - crbegin.md
+  - crend.md
+  - data.md
+  - empty.md
   - enable_borrowed_range.md
   - enable_view.md
+  - end.md
   - forward_range.md
   - input_range.md
   - iterator_t.md
@@ -23,8 +31,11 @@ nav:
   - range_reference_t.md
   - range_size_t.md
   - range_value_t.md
+  - rbegin.md
+  - rend.md
   - sentinel_t.md
   - sized_range.md
+  - ssize.md
   - view_interface.md
   - viewable_range.md
   - all_t.md

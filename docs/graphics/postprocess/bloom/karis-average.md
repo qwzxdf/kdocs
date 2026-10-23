@@ -6,19 +6,19 @@ tags:
 
 # Fireflies (Karis Average)
 
-<strong>ブルームを動かすと小さくて非常に明るい点（スペキュラのハイライト・小さな光源）が、画面の隅々で「ぴかぴか」と点滅</strong>することがあります。これを<strong>ファイアフライ（蛍）</strong>と呼びます。<strong>原因は極端に明るい 1 画素が、縮小のたびに周りの数画素分の平均に混ざり、強い光が画素の位置次第で出たり消えたりする</strong>からです。対策が Karis Average（Brian Karis）で、明るい画素の重みを下げて平均します。このページでは、ちらつきの原因・Karis Average の式・どの段に使うか・クランプ・より良いやり方を説明します。
+<strong>ブルームを動かすと小さくて非常に明るい点（スペキュラのハイライト・小さな光源）が、画面の隅々で「ぴかぴか」と点滅</strong>することがあります。これをファイアフライ（蛍）と呼びます。原因は極端に明るい 1 画素が、縮小のたびに周りの数画素分の平均に混ざり、強い光が画素の位置次第で出たり消えたりするからです。対策が Karis Average（Brian Karis）で、明るい画素の重みを下げて平均します。このページでは、ちらつきの原因・Karis Average の式・どの段に使うか・クランプ・より良いやり方を説明します。
 
 !!! tip "ポイント"
     - ファイアフライ ＝ <strong>極端に明るい小さな点が、縮小でちらつくブルーム</strong>。
     - 原因 ＝ <strong>HDR の値が非常に大きい 1 画素が、平均に混ざる量が位置で変わる</strong>。
-    - 対策 ＝ <strong>Karis Average</strong>：<strong>各サンプルの重みを `1 / (1 + 輝度)`</strong> にして、<strong>明るい画素の影響を抑える</strong>。
-    - <strong>最初の縮小（1 段目）だけ</strong>に使えば<strong>十分</strong>。<strong>それ以降は普通の平均</strong>。
-    - <strong>輝度のクランプ</strong>（上限を決める）も<strong>併用</strong>できる。
-    - <strong>TAA</strong> があれば<strong>さらに安定</strong>する。
+    - 対策 ＝ Karis Average：各サンプルの重みを `1 / (1 + 輝度)` にして、明るい画素の影響を抑える。
+    - 最初の縮小（1 段目）だけに使えば十分。それ以降は普通の平均。
+    - 輝度のクランプ（上限を決める）も併用できる。
+    - TAA があればさらに安定する。
 
 ## ちらつきの原因
 
-<strong>縮小は「周りの画素を平均して 1 画素にする」</strong>処理です。<strong>ここにとても明るい（例：値 1000）画素が 1 つ混ざる</strong>と、<strong>平均の値がその 1 画素に支配されます</strong>。画面が少し動くとこの明るい画素がどの縮小画素に混ざるかが変わり、ある縮小画素は 1000 ÷ 4 = 250、次のフレームは別の画素に移って 0——<strong>これが「ぴかぴか」</strong>です。
+<strong>縮小は「周りの画素を平均して 1 画素にする」</strong>処理です。ここにとても明るい（例：値 1000）画素が 1 つ混ざると、平均の値がその 1 画素に支配されます。画面が少し動くとこの明るい画素がどの縮小画素に混ざるかが変わり、ある縮小画素は 1000 ÷ 4 = 250、次のフレームは別の画素に移って 0——これが「ぴかぴか」です。
 
 <svg class="fig illust" viewBox="0 0 780 250" role="img" aria-label="ファイアフライの原因">
 <text x="20" y="26" class="fig-title">非常に明るい 1 画素が、縮小の平均を支配する</text>
@@ -233,7 +233,7 @@ float3 KarisAverage(float3 a, float3 b, float3 c, float3 d) {
 
 ## 13 タップ ダウンサンプルに組み込む
 
-<strong>13 タップの縮小</strong>（[ダウンサンプル](downsample.md)）では、<strong>5 つの 2×2 ボックス（中央 1・四隅 4）それぞれに Karis 重みを掛けて平均</strong>します。
+<strong>13 タップの縮小</strong>（[ダウンサンプル](downsample.md)）では、5 つの 2×2 ボックス（中央 1・四隅 4）それぞれに Karis 重みを掛けて平均します。
 
 ```hlsl
 float3 Downsample13Karis(Texture2D src, SamplerState linear_clamp, float2 uv, float2 texel) {
@@ -260,17 +260,17 @@ float3 Downsample13Karis(Texture2D src, SamplerState linear_clamp, float2 uv, fl
 }
 ```
 
-<strong>各グループの Karis 平均を、通常のボックス平均の代わりに使う</strong>だけです。
+各グループの Karis 平均を、通常のボックス平均の代わりに使うだけです。
 
 ## 最初の段だけに使う
 
-<strong>Karis Average は、重みが輝度で変わるので、すべての段に使う</strong>と<strong>広いにじみまで明るい部分が弱くなりすぎます</strong>。ちらつきの原因は、最初の縮小（元の高解像度 → 1/2）で極端な値が混ざることなので、最初の 1 段だけに使い、2 段目以降は普通の平均にします。
+<strong>Karis Average は、重みが輝度で変わるので、すべての段に使う</strong>と広いにじみまで明るい部分が弱くなりすぎます。ちらつきの原因は、最初の縮小（元の高解像度 → 1/2）で極端な値が混ざることなので、最初の 1 段だけに使い、2 段目以降は普通の平均にします。
 
 Karis Average は、重みが輝度で変わるので、すべての段に使うと、広いにじみまで明るい部分が弱くなりすぎます。ちらつきの原因は最初の縮小（元の高解像度から 1/2）なので、1 段目だけ Karis Average（13 タップ）を使い、2 段目以降は通常の平均（4 タップのバイリニア）にします。
 
 ## 輝度のクランプ
 
-<strong>もう 1 つの対策</strong>は、<strong>輝度の上限（クランプ）</strong>です。<strong>ブルームに入れる明るさを、たとえば 10 まで</strong>に切ると、極端な値が混ざらず、ちらつきが減ります。
+<strong>もう 1 つの対策</strong>は、輝度の上限（クランプ）です。ブルームに入れる明るさを、たとえば 10 までに切ると、極端な値が混ざらず、ちらつきが減ります。
 
 ```hlsl
 float3 ClampBloomInput(float3 color, float max_luma) {
@@ -298,25 +298,25 @@ float3 ClampBloomInput(float3 color, float max_luma) {
 ## よくあるミス
 
 ??? failure "ブルームを動かすと、小さな光がぴかぴかする"
-    <strong>ファイアフライ</strong>。<strong>最初の縮小に Karis Average</strong>、または輝度クランプ。
+    <strong>ファイアフライ</strong>。最初の縮小に Karis Average、または輝度クランプ。
 
 ??? failure "全段に Karis を使って、にじみが弱く暗い"
-    <strong>1 段目だけ</strong>に使う。
+    1 段目だけに使う。
 
 ??? failure "重みの合計で割り忘れて、全体が暗くなる"
-    <strong>`Σ(w·色) / Σw`</strong>。<strong>必ず重みの合計で割る</strong>。
+    `Σ(w·色) / Σw`。必ず重みの合計で割る。
 
 ??? failure "クランプを強くしすぎて、太陽が光らない"
-    <strong>上限を上げる</strong>、または<strong>Karis に切り替える</strong>。
+    上限を上げる、またはKaris に切り替える。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] ファイアフライ ＝ <strong>極端に明るい小さな点が、縮小でちらつく</strong>
-    - [x] <strong>Karis Average</strong> ＝ <strong>重み `1/(1+輝度)` の加重平均</strong>。<strong>明るさを保ちつつ、ちらつきを消す</strong>
-    - [x] <strong>最初の縮小（1 段目）だけ</strong>に使う
-    - [x] <strong>輝度クランプ</strong>も併用できる
-    - [x] <strong>TAA</strong> で<strong>さらに安定</strong>
+    - [x] Karis Average ＝ 重み `1/(1+輝度)` の加重平均。明るさを保ちつつ、ちらつきを消す
+    - [x] 最初の縮小（1 段目）だけに使う
+    - [x] 輝度クランプも併用できる
+    - [x] TAA でさらに安定
 
 ## 参考
 

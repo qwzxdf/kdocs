@@ -6,7 +6,7 @@ tags:
 
 # シェーダー
 
-このセクションは、<strong>ゲームの画面を作る、シェーダーで書く描画手法</strong>を、<strong>原理から</strong>説明します。「3D ゲーム」のセクションが座標・カメラ・基本のライティングといった土台を扱うのに対し、ここではその上に積む影・環境光遮蔽（AO）・反射・間接光・ポストプロセスなどを方式ごとに扱います。それぞれの手法が「何を近似しているのか」「どんな式なのか」「どこで破綻するのか」を、順に追います。速さの話（何が重く、どう減らすか）は、[描画最適化](../rendering/index.md)に分けて書いています。
+このセクションは、<strong>ゲームの画面を作る、シェーダーで書く描画手法</strong>を、原理から説明します。「3D ゲーム」のセクションが座標・カメラ・基本のライティングといった土台を扱うのに対し、ここではその上に積む影・環境光遮蔽（AO）・反射・間接光・ポストプロセスなどを方式ごとに扱います。それぞれの手法が「何を近似しているのか」「どんな式なのか」「どこで破綻するのか」を、順に追います。速さの話（何が重く、どう減らすか）は、[描画最適化](../rendering/index.md)に分けて書いています。
 
 ## セクションの地図
 
@@ -29,7 +29,7 @@ tags:
     - [AO Artifacts](ao/artifacts/index.md)
 
 ??? abstract map "Shadows"
-    <strong>[Shadows のトップ](shadows/index.md)</strong>
+    [Shadows のトップ](shadows/index.md)
 
     - [Shadow Map Basics](shadows/shadow-map-basics/index.md)
     - [Shadow Bias](shadows/bias/index.md)
@@ -47,7 +47,7 @@ tags:
     - [Shadow Techniques Compared](shadows/comparison.md)
 
 ??? abstract map "Reflections"
-    <strong>[Reflections のトップ](reflections/index.md)</strong>
+    [Reflections のトップ](reflections/index.md)
 
     - [Planar Reflections](reflections/planar.md)
     - [Reflection Probes](reflections/probes/index.md)
@@ -59,7 +59,7 @@ tags:
     - [Reflection Comparison](reflections/comparison.md)
 
 ??? abstract map "Global Illumination (GI)"
-    <strong>[Global Illumination (GI) のトップ](gi/index.md)</strong>
+    [Global Illumination (GI) のトップ](gi/index.md)
 
     - [GI Theory](gi/theory/index.md)
     - [Lightmaps](gi/lightmaps/index.md)
@@ -71,7 +71,7 @@ tags:
     - [GI Comparison](gi/comparison.md)
 
 ??? abstract map "Post-Processing"
-    <strong>[Post-Processing のトップ](postprocess/index.md)</strong>
+    [Post-Processing のトップ](postprocess/index.md)
 
     - [Tone Mapping and Exposure](postprocess/tonemapping/index.md)
     - [Bloom](postprocess/bloom/index.md)
@@ -83,7 +83,7 @@ tags:
     - [Outlines and Toon](postprocess/stylized/index.md)
 
 ??? abstract map "Translucency"
-    <strong>[Translucency のトップ](translucency/index.md)</strong>
+    [Translucency のトップ](translucency/index.md)
 
     - [Alpha Blending and Sorting](translucency/blending-sorting/index.md)
     - [Alpha Testing](translucency/alpha-test/index.md)
@@ -91,7 +91,7 @@ tags:
     - [Refraction](translucency/refraction/index.md)
 
 ??? abstract map "Water"
-    <strong>[Water のトップ](water/index.md)</strong>
+    [Water のトップ](water/index.md)
 
     - [Water Waves](water/waves/index.md)
     - [Water Shading](water/shading/index.md)
@@ -100,7 +100,7 @@ tags:
     - [Underwater Rendering](water/underwater/index.md)
 
 ??? abstract map "Terrain"
-    <strong>[Terrain のトップ](terrain/index.md)</strong>
+    [Terrain のトップ](terrain/index.md)
 
     - [Heightmaps and Meshes](terrain/heightmap-mesh/index.md)
     - [LOD](terrain/lod/index.md)
@@ -109,7 +109,7 @@ tags:
     - [Terrain Generation](terrain/generation/index.md)
 
 ??? abstract map "Sky and Atmosphere"
-    <strong>[Sky and Atmosphere のトップ](atmosphere/index.md)</strong>
+    [Sky and Atmosphere のトップ](atmosphere/index.md)
 
     - [Sky Models](atmosphere/sky-models/index.md)
     - [Atmospheric Scattering](atmosphere/scattering/index.md)
@@ -119,7 +119,7 @@ tags:
     - [God Rays](atmosphere/god-rays/index.md)
 
 ??? abstract map "Skin and Hair"
-    <strong>[Skin and Hair のトップ](skin-hair/index.md)</strong>
+    [Skin and Hair のトップ](skin-hair/index.md)
 
     - [Skin Overview](skin-hair/skin/index.md)
     - [Subsurface Scattering](skin-hair/skin/subsurface-theory.md)

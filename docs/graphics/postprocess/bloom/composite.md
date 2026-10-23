@@ -6,19 +6,19 @@ tags:
 
 # Compositing and Intensity
 
-<strong>ブルームの最後の工程</strong>は、<strong>できあがったにじみを元の絵に足す</strong>ことです。足す強さ・足す位置（トーンマップの前）・段ごとの重み・レンズ ダート（汚れ）との組み合わせ・コストで見た目と重さが決まります。このページでは、合成の式・強さの決め方・エネルギー保存・レンズ ダート・コスト・パスの統合を説明します。
+<strong>ブルームの最後の工程</strong>は、できあがったにじみを元の絵に足すことです。足す強さ・足す位置（トーンマップの前）・段ごとの重み・レンズ ダート（汚れ）との組み合わせ・コストで見た目と重さが決まります。このページでは、合成の式・強さの決め方・エネルギー保存・レンズ ダート・コスト・パスの統合を説明します。
 
 !!! tip "ポイント"
     - 合成 ＝ <strong>元の HDR 画像 + ブルーム × 強さ</strong>。<strong>トーンマップの前</strong>に足す。
-    - <strong>強さは小さく</strong>（<strong>0.04〜0.2</strong>）。<strong>かけすぎると眠い絵</strong>になる。
-    - <strong>エネルギー保存型</strong>：<strong>元 × (1−強さ) + ブルーム × 強さ</strong>。<strong>明るさが増えない</strong>。
-    - <strong>段ごとの重み</strong>で<strong>すそ野の形</strong>を調整。
-    - <strong>レンズ ダート</strong>：<strong>汚れのテクスチャでブルームの強さを画面の場所ごとに変える</strong>。
-    - <strong>コスト</strong>は<strong>帯域が支配的</strong>。<strong>半解像度・パスの統合</strong>で下げる。
+    - 強さは小さく（0.04〜0.2）。かけすぎると眠い絵になる。
+    - エネルギー保存型：元 × (1−強さ) + ブルーム × 強さ。明るさが増えない。
+    - 段ごとの重みですそ野の形を調整。
+    - レンズ ダート：汚れのテクスチャでブルームの強さを画面の場所ごとに変える。
+    - コストは帯域が支配的。半解像度・パスの統合で下げる。
 
 ## 合成の式
 
-<strong>元の絵に足す（加算）</strong>のが<strong>基本</strong>です。
+<strong>元の絵に足す（加算）</strong>のが基本です。
 
 <div class="formula">最終 = 元 + ブルーム × 強さ</div>
 
@@ -32,7 +32,7 @@ float3 CompositeBloom(float3 scene, float3 bloom, float intensity) {
 | --- | --- | --- |
 | 加算 | 元 + ブルーム × 強さ | 明るさが増える。簡単・標準 |
 | エネルギー保存 | 元 × (1 − 強さ) + ブルーム × 強さ | 全体の明るさが保たれ、眠くなりにくい |
-| スクリーン | <strong>1 − (1−元)(1−ブルーム)</strong> | LDR 向き（HDR では使わない） |
+| スクリーン | 1 − (1−元)(1−ブルーム) | LDR 向き（HDR では使わない） |
 
 <!-- fig:bloom-intensity:begin -->
 
@@ -284,7 +284,7 @@ float3 CompositeBloom(float3 scene, float3 bloom, float intensity) {
 | 0.1〜0.2 | はっきり光る |
 | 0.3 以上 | 夢のような、ぼんやりした絵（意図的な表現） |
 
-<strong>強さ</strong>は<strong>ステージや演出ごとに変える</strong>のが自然です（夜のネオン街は強め、昼の砂漠は控えめ）。
+<strong>強さ</strong>はステージや演出ごとに変えるのが自然です（夜のネオン街は強め、昼の砂漠は控えめ）。
 
 ## 足す位置
 
@@ -294,7 +294,7 @@ float3 CompositeBloom(float3 scene, float3 bloom, float intensity) {
 
 ## エネルギー保存
 
-<strong>単純に足す</strong>と<strong>画面全体が少し明るくなります</strong>。足す分だけ元を減らすと、全体の明るさが保たれます。
+<strong>単純に足す</strong>と画面全体が少し明るくなります。足す分だけ元を減らすと、全体の明るさが保たれます。
 
 ```hlsl
 float3 CompositeEnergyConserving(float3 scene, float3 bloom, float intensity) {
@@ -304,11 +304,11 @@ float3 CompositeEnergyConserving(float3 scene, float3 bloom, float intensity) {
 
 コードの要点です。`lerp(元, ブルーム, 強さ)` は `元 × (1−強さ) + ブルーム × 強さ` と同じです。ブルームが「ぼかした全体の画像」（しきい値なし）のときにだけ使います。しきい値で抜き出した光だけを足す場合は、単純な加算にします。
 
-<strong>しきい値なしのブルーム</strong>（全画素をぼかす）と<strong>この合成</strong>の組み合わせは、物理的にも自然です。
+しきい値なしのブルーム（全画素をぼかす）とこの合成の組み合わせは、物理的にも自然です。
 
 ## 段ごとの重み
 
-<strong>ミップ チェーンの各段を足し合わせるとき、重みを付ける</strong>と<strong>すそ野の形が変わります</strong>。
+<strong>ミップ チェーンの各段を足し合わせるとき、重みを付ける</strong>とすそ野の形が変わります。
 
 ミップ チェーンの各段を足し合わせるときに重みを付けると、すそ野の形が変わります。均等なら標準です。細かい段を強くすると、くっきりしたシャープなにじみになります。粗い段を強くすると、広い柔らかい「もや」になります。
 
@@ -320,7 +320,7 @@ float3 CombineLevels(float3 l0, float3 l1, float3 l2, float3 l3, float3 l4, floa
 
 ## レンズ ダート
 
-<strong>カメラのレンズに付いた汚れ・傷</strong>に<strong>強い光が当たると汚れが光って見えます</strong>。汚れのテクスチャをブルームに掛けると、この効果が出ます。
+<strong>カメラのレンズに付いた汚れ・傷</strong>に強い光が当たると汚れが光って見えます。汚れのテクスチャをブルームに掛けると、この効果が出ます。
 
 ```hlsl
 float3 ApplyLensDirt(float3 bloom, float2 uv, Texture2D dirt, float dirt_intensity) {
@@ -335,18 +335,18 @@ float3 ApplyLensDirt(float3 bloom, float2 uv, Texture2D dirt, float dirt_intensi
 
 ## コストと最適化
 
-<strong>ブルームは画面全体を何度も読み書きする</strong>ので、<strong>帯域が支配的</strong>です。
+<strong>ブルームは画面全体を何度も読み書きする</strong>ので、帯域が支配的です。
 
 | 項目 | 目安 | 対策 |
 | --- | --- | --- |
-| 最初の縮小 | <strong>フル解像度の読み込み（重い）</strong> | 最初から半解像度・13 タップを 1 回 |
+| 最初の縮小 | フル解像度の読み込み（重い） | 最初から半解像度・13 タップを 1 回 |
 | 各段の読み書き | 小さいので安い | 段数を 5〜6 に |
 | 最終合成 | フル解像度の読み書き | トーンマップと同じパスにまとめる |
-| フォーマット | R16G16B16A16_FLOAT | <strong>R11G11B10_FLOAT（半分のメモリ）</strong> |
+| フォーマット | R16G16B16A16_FLOAT | R11G11B10_FLOAT（半分のメモリ） |
 
 ### パスの統合
 
-<strong>ブルームの最後の足し算</strong>は、<strong>トーンマップ・ビネット・色収差などの画面全体のパス</strong>と同じシェーダーにまとめることができます。
+ブルームの最後の足し算は、トーンマップ・ビネット・色収差などの画面全体のパスと同じシェーダーにまとめることができます。
 
 ```hlsl
 float3 FinalPass(float2 uv) {
@@ -360,7 +360,7 @@ float3 FinalPass(float2 uv) {
 }
 ```
 
-<strong>フル解像度のパスを 1 回に減らす</strong>だけで、<strong>帯域が大きく減ります</strong>。
+フル解像度のパスを 1 回に減らすだけで、帯域が大きく減ります。
 
 ## より良いやり方
 
@@ -376,25 +376,25 @@ float3 FinalPass(float2 uv) {
 ## よくあるミス
 
 ??? failure "ブルームを強くしすぎて、画面全体が眠く、ぼんやりする"
-    <strong>強さを 0.05〜0.1 に</strong>。<strong>しきい値なしなら、エネルギー保存</strong>。
+    <strong>強さを 0.05〜0.1 に</strong>。しきい値なしなら、エネルギー保存。
 
 ??? failure "トーンマップの後でブルームを足して、にじまない"
-    <strong>ブルームは HDR のうちに、トーンマップの前</strong>に足す。
+    ブルームは HDR のうちに、トーンマップの前に足す。
 
 ??? failure "フル解像度のパスが多くて、帯域で重い"
-    <strong>合成・トーンマップ・ビネットを 1 パスに</strong>まとめる。
+    合成・トーンマップ・ビネットを 1 パスにまとめる。
 
 ??? failure "レンズ ダートを強くしすぎて、汚れが常に見える"
-    <strong>強い光のときだけ見える</strong>よう、<strong>強さを弱く</strong>する。
+    強い光のときだけ見えるよう、強さを弱くする。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 合成 ＝ <strong>元 + ブルーム × 強さ</strong>。<strong>HDR のうちにトーンマップの前</strong>
-    - [x] <strong>強さは小さく</strong>（<strong>0.04〜0.1</strong>）。<strong>エネルギー保存</strong>も選べる
-    - [x] <strong>段ごとの重み</strong>で<strong>すそ野の形</strong>を調整
-    - [x] <strong>レンズ ダート</strong>で<strong>場所ごとの強さ</strong>を<strong>演出</strong>
-    - [x] <strong>パスを統合</strong>して<strong>帯域を節約</strong>
+    - [x] 合成 ＝ <strong>元 + ブルーム × 強さ</strong>。HDR のうちにトーンマップの前
+    - [x] 強さは小さく（0.04〜0.1）。エネルギー保存も選べる
+    - [x] 段ごとの重みですそ野の形を調整
+    - [x] レンズ ダートで場所ごとの強さを演出
+    - [x] パスを統合して帯域を節約
 
 ## 参考
 

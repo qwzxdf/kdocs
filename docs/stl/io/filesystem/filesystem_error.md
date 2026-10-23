@@ -15,7 +15,7 @@ tags:
 `#include <filesystem>`
 </div>
 
-`std::filesystem::filesystem_error` は、**filesystem の関数が失敗したときに投げる例外**です。失敗した原因（`code()`）と、対象のパス（`path1()`、`path2()`）を持っています。
+ファイル操作は、よく失敗します。権限がない、ファイルが無い、ディスクが満杯、など。`std::filesystem` の関数は、失敗すると `filesystem_error` という例外を投げます。失敗した原因（`code()`）と、対象のパス（`path1()`、`path2()`）を持っているので、ログに残すと原因を追いやすくなります。
 
 !!! tip "ポイント"
     - `catch (const fs::filesystem_error& e)` で受け、`e.what()` を表示する。
@@ -61,14 +61,19 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ファイルが開けなかった原因をログに出す | `e.code().message()` |
+ファイル操作を `try` で囲み、`catch (const fs::filesystem_error& e)` で受けて、`e.what()` と `e.path1()` をログに出します。エラー画面を出す、別のデータで続ける、といった対応をその後に行います。
+
+ゲームで例外を使わない方針なら、`std::error_code` を渡す版の関数を使います。例外は投げられず、エラーコードに結果が入ります。
+
+`code()` で OS のエラーコードが取れます。`std::errc::permission_denied` と比べると、権限のエラーかを調べられます。
 
 ## よくあるミス
 
 ??? failure "どの関数でも例外が出ると思う"
     `error_code` を渡す版は、例外を投げません。
+
+??? failure "値渡しで `catch` する"
+    `catch (fs::filesystem_error e)` と値で受けると、コピーが発生します。`const&` で受けます。
 
 ## 類似
 

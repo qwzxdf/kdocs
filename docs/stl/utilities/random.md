@@ -17,7 +17,7 @@ tags:
 `#include <random>`
 </div>
 
-`<random>` は、**乱数を作るためのライブラリ**です。乱数は 2 つの部品を組み合わせて作ります。1 つは**乱数エンジン**（`std::mt19937` など）で、でたらめな整数を次々に作る「乱数の源」です。もう 1 つは**分布**（`std::uniform_int_distribution` など）で、エンジンの出した整数を「1〜6 のサイコロ」「0.0〜1.0 の小数」のような欲しい形に整えます。
+ゲームには、ダメージの幅、アイテムのドロップ、敵の動きなど、乱数が欠かせません。`rand()` は手軽ですが、品質が低く、偏りもあります。`<random>` は、乱数を作るための標準のライブラリです。乱数は 2 つの部品を組み合わせて作ります。1 つは乱数エンジン（`std::mt19937` など）で、でたらめな整数を次々に作る乱数の源です。もう 1 つは分布（`uniform_int_distribution` など）で、エンジンの出力を、必要な範囲と形に変えます。
 
 !!! tip "ポイント"
     - <strong>エンジンは `std::mt19937` を 1 つ作って使い回す。</strong> 種（シード）は `std::random_device{}()` か固定値。
@@ -25,6 +25,9 @@ tags:
     - 小数は `std::uniform_real_distribution<float> dist(0.0f, 1.0f); dist(rng)`（上限は含まない）。
     - 確率で当たり外れは `std::bernoulli_distribution(0.3)`、重み付き抽選は `std::discrete_distribution`。
     - `rand() % 6` は使わない（偏りがあり、品質も低い）。
+
+!!! info "このページを読む前に"
+    確率の基本（一様に出る、偏りがある）が分かると読みやすいです。
 
 ## 主な型
 
@@ -161,14 +164,11 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 使うもの |
-| --- | --- |
-| ダメージの振れ幅 | `uniform_int_distribution` |
-| 会心・回避の判定 | `bernoulli_distribution` |
-| ドロップ・ガチャ | `discrete_distribution` |
-| パーティクルの方向・速度 | `uniform_real_distribution` |
-| 弾のブレ | `normal_distribution` |
-| マップ生成 | 種を保存しておけば同じマップを再生成できる |
+ダメージの幅やドロップは、整数の一様分布（`uniform_int_distribution`）で作ります。会心などの判定は `bernoulli_distribution`、重みのある抽選は `discrete_distribution` です。ばらつきのある値（敵の個体差）には `normal_distribution` を使います。
+
+エンジンは 1 つ作って使い回します。種を固定すれば、同じ乱数列が出て、リプレイやバグの再現に役立ちます。戦闘用と見た目用でエンジンを分けると、見た目の乱数の使い方が変わっても、戦闘の結果は変わりません。
+
+種を作るには `random_device` を使います。エンジンを毎回作り直したり、`rand() % n` で範囲を作ったりしないことが基本です。
 
 ## パフォーマンス
 

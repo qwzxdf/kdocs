@@ -6,15 +6,15 @@ tags:
 
 # Vignette
 
-<strong>ビネット（周辺減光）</strong>は、<strong>画面の周辺が中心より暗くなる</strong>効果です。<strong>実際のレンズでは、設計や絞り・フィルターの影響で周辺に届く光が減る</strong>ために起きます。視線を画面の中心に集める効果があり、映画風・夜・緊張した場面でよく使われます。実装はとても簡単ですが、かけすぎると周辺が見えずプレイしにくいので、注意が必要です。このページでは、物理的な原因（cos⁴ の法則）・基本の式・形（円・楕円）・色付きのビネット・ゲームでの使い方を説明します。
+<strong>ビネット（周辺減光）</strong>は、画面の周辺が中心より暗くなる効果です。実際のレンズでは、設計や絞り・フィルターの影響で周辺に届く光が減るために起きます。視線を画面の中心に集める効果があり、映画風・夜・緊張した場面でよく使われます。実装はとても簡単ですが、かけすぎると周辺が見えずプレイしにくいので、注意が必要です。このページでは、物理的な原因（cos⁴ の法則）・基本の式・形（円・楕円）・色付きのビネット・ゲームでの使い方を説明します。
 
 !!! tip "ポイント"
     - ビネット ＝ <strong>画面の周辺ほど暗くする</strong>。<strong>中心は変えない</strong>。
-    - 物理的な原因 ＝ <strong>cos⁴θ の法則</strong>（<strong>光軸から離れた光ほど、角度の 4 乗で暗い</strong>）と<strong>レンズ・絞りの遮り（機械的ビネット）</strong>。
-    - 実装 ＝ <strong>画面中心からの距離で、暗くする係数を `smoothstep` で決め、色に掛ける</strong>。
-    - <strong>形</strong>は<strong>円・楕円・四角寄り</strong>。<strong>アスペクト比の補正</strong>が<strong>必要</strong>。
-    - <strong>色付き（暗い赤・黒以外）</strong>のビネットも<strong>演出</strong>に<strong>使える</strong>。
-    - <strong>強すぎない</strong>。<strong>周辺のゲーム情報が見づらくなる</strong>。<strong>設定で切れる</strong>。
+    - 物理的な原因 ＝ cos⁴θ の法則（光軸から離れた光ほど、角度の 4 乗で暗い）とレンズ・絞りの遮り（機械的ビネット）。
+    - 実装 ＝ 画面中心からの距離で、暗くする係数を `smoothstep` で決め、色に掛ける。
+    - 形は円・楕円・四角寄り。アスペクト比の補正が必要。
+    - 色付き（暗い赤・黒以外）のビネットも演出に使える。
+    - 強すぎない。周辺のゲーム情報が見づらくなる。設定で切れる。
 
 ## 起きる理由
 
@@ -1906,7 +1906,7 @@ float3 ApplyVignette(float3 color, float2 uv) {
 
 ### 物理的な cos⁴
 
-<strong>画面中心からの距離と視野角から、`cos⁴(θ)` で暗くする</strong>と<strong>自然なビネット</strong>になります。
+画面中心からの距離と視野角から、`cos⁴(θ)` で暗くすると自然なビネットになります。
 
 ```hlsl
 float NaturalVignette(float2 uv, float vertical_fov_radians, float aspect) {
@@ -1921,7 +1921,7 @@ float NaturalVignette(float2 uv, float vertical_fov_radians, float aspect) {
 
 物理版のコードの要点です。`tan(fov/2)` は、画面の端に対応する視線の傾きです。`cos θ = 1 / √(1 + tan²)` で、視線の角度の余弦を求めます。`cos⁴` が、物理的なビネットの係数です。
 
-<strong>広角（視野角が大きい）ほど、周辺が暗くなる</strong>ことが<strong>自然</strong>に再現されます。
+広角（視野角が大きい）ほど、周辺が暗くなることが自然に再現されます。
 
 ## 形
 
@@ -1937,14 +1937,14 @@ float BoxVignette(float2 uv, float intensity, float smoothness) {
 
 ## 色付きのビネット
 
-<strong>黒だけでなく、色を付ける</strong>と<strong>演出</strong>になります。
+<strong>黒だけでなく、色を付ける</strong>と演出になります。
 
 | 色 | 演出 |
 | --- | --- |
 | 暗い赤 | 体力が少ない・ダメージ・危険 |
 | 暗い青 | 水中・夜・冷たさ |
 | 暗い緑 | 毒・ナイト ビジョン |
-| <strong>白（明るい縁）</strong> | 夢・回想・眩しさ |
+| 白（明るい縁） | 夢・回想・眩しさ |
 
 ```hlsl
 float3 ColoredVignette(float3 color, float2 uv, float3 vignette_color) {
@@ -1960,7 +1960,7 @@ float3 ColoredVignette(float3 color, float2 uv, float3 vignette_color) {
 | 映画風の常時 | <strong>ごく弱く（0.2〜0.3）</strong> |
 | 夜・洞窟 | 強め（懐中電灯の円のような） |
 | 体力が低い | 赤いビネットを体力に応じて濃く |
-| 狙い・ズーム | <strong>スコープ中は強いビネット（円）</strong> |
+| 狙い・ズーム | スコープ中は強いビネット（円） |
 | 会話・カットシーン | 視線を中心に集める |
 
 ## より良いやり方
@@ -1978,25 +1978,25 @@ float3 ColoredVignette(float3 color, float2 uv, float3 vignette_color) {
 ## よくあるミス
 
 ??? failure "ビネットが強すぎて、周辺の敵や UI が見えない"
-    <strong>控えめに（0.2〜0.3）</strong>、<strong>オプションで調整</strong>。
+    <strong>控えめに（0.2〜0.3）</strong>、オプションで調整。
 
 ??? failure "ウルトラワイドで、ビネットが横に伸びて不自然"
-    <strong>アスペクト比を補正</strong>。
+    アスペクト比を補正。
 
 ??? failure "ビネットの境がはっきり見える"
-    <strong>`smoothness` を大きく</strong>し、<strong>`smoothstep`</strong> を使う。
+    `smoothness` を大きくし、`smoothstep` を使う。
 
 ??? failure "UI まで暗くなる"
-    <strong>ビネットは UI の前に掛ける</strong>。
+    ビネットは UI の前に掛ける。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ビネット ＝ <strong>画面の周辺ほど暗くする</strong>。<strong>視線を中心へ</strong>
-    - [x] <strong>物理的な原因は cos⁴θ</strong>（と<strong>レンズの遮り</strong>）
-    - [x] <strong>中心からの距離 ＋ `smoothstep`</strong> で<strong>簡単に実装</strong>。<strong>アスペクト比を補正</strong>
-    - [x] <strong>色付き</strong>で<strong>体力・水中・毒</strong>などの<strong>演出</strong>
-    - [x] <strong>控えめに</strong>。<strong>UI の前に設定で切れる</strong>
+    - [x] ビネット ＝ <strong>画面の周辺ほど暗くする</strong>。視線を中心へ
+    - [x] 物理的な原因は cos⁴θ（とレンズの遮り）
+    - [x] 中心からの距離 ＋ `smoothstep` で簡単に実装。アスペクト比を補正
+    - [x] 色付きで体力・水中・毒などの演出
+    - [x] 控えめに。UI の前に設定で切れる
 
 ## 参考
 

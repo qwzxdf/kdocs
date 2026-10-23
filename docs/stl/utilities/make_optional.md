@@ -14,7 +14,7 @@ tags:
 `#include <optional>`
 </div>
 
-`std::optional<int>{42}` のように型を書くのが面倒なとき、`make_optional(42)` なら型を推論して作ってくれます。`make_pair` や `make_tuple` の optional 版です。コンストラクタ引数だけを渡して、中でオブジェクトを作る形もあります。
+`std::optional<int>{42}` のように、型を書くのは面倒です。`make_optional(42)` なら、型を推論して `optional<int>` を作ってくれます。`make_pair` や `make_tuple` の `optional` 版です。型を指定して、コンストラクターの引数だけを渡し、その場でオブジェクトを作る形もあります。C++17 以降は、`std::optional o{42};` と型の推論が効くので、出番はほとんどありません。
 
 !!! tip "ポイント"
     - 値を渡すと型を推論する（`make_optional(42)` は `optional<int>`）。
@@ -62,14 +62,19 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 関数の戻り値を optional で返す | `return std::make_optional(value);` |
+新しいコードでは、`std::optional o{42};` と書けば、型の推論が働くので、`make_optional` は不要です。古いコードや、他人のコードを読むときに出会う関数です。
+
+型を指定してコンストラクター引数を渡す形は、コピーを避けて、その場でオブジェクトを作りたいときに使えます。`make_optional<Enemy>(hp, speed)` と書くと、`optional<Enemy>` の中で `Enemy` が直接作られます。
+
+関数の戻り値で「見つかった」を返すときは、`return value;` と値を返すだけで、暗黙に `optional` になります。
 
 ## よくあるミス
 
 ??? failure "参照を渡したつもりでコピーされる"
     `make_optional(x)` は `x` をコピーまたはムーブします。参照のまま保持するわけではありません。
+
+??? failure "型の推論で意図しない型になる"
+    `make_optional("abc")` は、`optional<const char*>` になり、`optional<std::string>` にはなりません。文字列にしたいなら型を明示します。
 
 ## 類似
 

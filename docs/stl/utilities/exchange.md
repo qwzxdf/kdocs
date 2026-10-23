@@ -14,7 +14,7 @@ tags:
 `#include <utility>`
 </div>
 
-`std::exchange` は、**変数に新しい値を入れて、元の値を返す**関数です。「取り出して、空にする」処理を 1 行で書けます。ムーブコンストラクタで、元のオブジェクトを `nullptr` や 0 にしながら値を受け取るときの定番です。
+ムーブコンストラクターを書くとき、元のオブジェクトのポインターを自分に移して、元は `nullptr` にしたい。「古い値を取り出して、新しい値を入れる」処理は、一時変数を使って 3 行になります。`std::exchange` は、変数に新しい値を入れて、元の値を返す関数です。この 3 行が 1 行になります。
 
 !!! tip "ポイント"
     - `old = std::exchange(x, new_value);` は「`old = x; x = new_value;`」と同じ。
@@ -66,15 +66,19 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 溜まっていたダメージを取り出して、0 に戻す | `int applied = std::exchange(pending_damage, 0);` |
-| ムーブコンストラクタ | `handle_(std::exchange(other.handle_, nullptr))` |
+自作のリソースクラスのムーブコンストラクターで使います。`Texture(Texture&& other) : handle_(std::exchange(other.handle_, nullptr)) {}` と書けば、ハンドルを移して、元を空にします。元のデストラクターが二重に解放しません。
+
+「保留中の値を取り出して、0 に戻す」処理にも向いています。保留中のダメージを `int dmg = std::exchange(pending_damage_, 0);` と書けば、取り出しと初期化が一度に済みます。
+
+フラグを立てて、前の値を調べる用途もあります。`bool was_dirty = std::exchange(dirty_, false);` です。
 
 ## よくあるミス
 
 ??? failure "戻り値を捨てる"
     戻り値（古い値）を使わないなら、ただの代入で足ります。
+
+??? failure "古い値と新しい値の順序を取り違える"
+    `std::exchange(x, new)` は、新しい値を入れて、古い値を返します。引数の順が逆だと、意図しない値が入ります。
 
 ## 類似
 

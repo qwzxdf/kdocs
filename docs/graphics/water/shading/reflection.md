@@ -6,7 +6,7 @@ tags:
 
 # Water Reflection
 
-<strong>水面には空や周囲の景色が映ります</strong>。<strong>空は環境マップで安く</strong>、周囲の物は SSR や平面反射で映します。このページでは水の反射の手法と、使い分けを説明します。
+<strong>水面には空や周囲の景色が映ります</strong>。空は環境マップで安く、周囲の物は SSR や平面反射で映します。このページでは水の反射の手法と、使い分けを説明します。
 
 !!! tip "ポイント"
     - 空は環境マップ（キューブマップ）。
@@ -15,16 +15,16 @@ tags:
     - フォールバックの順：SSR → 平面反射 → 環境マップ。
 
 ## 反射
-<strong>反射はフレネルの F で重みを付けて合成</strong>します。<strong>反射の取り方は状況で選びます</strong>。
+<strong>反射はフレネルの F で重みを付けて合成</strong>します。反射の取り方は状況で選びます。
 
 | 方式 | 内容 |
 | --- | --- |
-| <strong>環境マップ（キューブ）</strong> | 安い。空や遠景だけ。近くの物は映らない |
+| 環境マップ（キューブ） | 安い。空や遠景だけ。近くの物は映らない |
 | 平面反射 | 水面は平らなので鏡像用にもう一度描く。正確だが重い（[Reflections](../../reflections/index.md)） |
 | SSR | 画面内の物を映す。画面外は環境マップに落とす |
 | レイトレ反射 | 最も正確。重い |
 
-<strong>波で法線が傾く</strong>ので<strong>反射ベクトルを法線から作り</strong>、平面反射なら法線の XZ で UV をずらして歪ませます。
+波で法線が傾くので反射ベクトルを法線から作り、平面反射なら法線の XZ で UV をずらして歪ませます。
 
 ```hlsl
 float3 reflect_dir = reflect(-view_dir, normal);
@@ -80,7 +80,7 @@ SSR の詳細は[Reflections](../../reflections/index.md) の、SSR のページ
 
 ## 反射方向の作り方
 
-反射の方向は <strong>波の法線</strong>から、計算します（`reflect(−V, N)`）。波で法線が傾くので <strong>反射が揺れて、歪みます</strong>。
+反射の方向は <strong>波の法線</strong>から、計算します（`reflect(−V, N)`）。波で法線が傾くので 反射が揺れて、歪みます。
 
 ```hlsl
 float3 reflect_dir = reflect(-view_dir, wave_normal);
@@ -88,7 +88,7 @@ float3 reflect_dir = reflect(-view_dir, wave_normal);
 
 ### 地平線の下を向く反射
 
-波の法線が <strong>視線の方向に傾きすぎる</strong>と、反射の向きが <strong>水面の下を向く</strong>ことがあります。空が映る環境マップの下半分（地面）を読むことになり黒や、不自然な色が出ます。
+波の法線が 視線の方向に傾きすぎると、反射の向きが 水面の下を向くことがあります。空が映る環境マップの下半分（地面）を読むことになり黒や、不自然な色が出ます。
 
 ```hlsl
 // 反射の向きが、地平線の下に向いたときは、水平に近い向きへ、押し戻す。
@@ -96,11 +96,11 @@ reflect_dir.y = max(reflect_dir.y, 0.02);
 reflect_dir = normalize(reflect_dir);
 ```
 
-<strong>遠くの水面ほど起きやすい</strong>です（視線が、水平に近く法線の少しの傾きで反射が、下を向く）。<strong>遠くでは波の法線を弱めて</strong>、反射の向きを安定させます（[Computing Normals](../waves/normals.md)）。
+遠くの水面ほど起きやすいです（視線が、水平に近く法線の少しの傾きで反射が、下を向く）。遠くでは波の法線を弱めて、反射の向きを安定させます（[Computing Normals](../waves/normals.md)）。
 
 ## 平面反射
 
-水面は <strong>ほぼ平ら</strong>です。<strong>水面を鏡としてカメラを水面の反対側に置いた、仮想のカメラでシーンをもう一度描く</strong>と、正確な反射が得られます。
+水面は <strong>ほぼ平ら</strong>です。水面を鏡としてカメラを水面の反対側に置いた、仮想のカメラでシーンをもう一度描くと、正確な反射が得られます。
 
 ```text
  実際のカメラ ●
@@ -133,11 +133,11 @@ reflect_uv.x = 1.0 - reflect_uv.x;                         // 鏡像なので、
 float3 reflection = g_planar_reflection.Sample(g_linear_clamp, reflect_uv).rgb;
 ```
 
-平面反射は <strong>水面が平ら</strong>（波が小さい）ときに、<strong>最も正確</strong>です。波が大きい海では歪みが大きく、ごまかしになります。小さな池、プール、湖に向きます。
+平面反射は 水面が平ら（波が小さい）ときに、最も正確です。波が大きい海では歪みが大きく、ごまかしになります。小さな池、プール、湖に向きます。
 
 ## 空の反射
 
-空は <strong>環境マップ</strong>（キューブマップ）で、映すのが基本です。昼と夜、天候の変化に合わせて <strong>環境マップを、更新</strong>します。
+空は <strong>環境マップ</strong>（キューブマップ）で、映すのが基本です。昼と夜、天候の変化に合わせて 環境マップを、更新します。
 
 | 方法 | 内容 |
 | --- | --- |
@@ -145,7 +145,7 @@ float3 reflection = g_planar_reflection.Sample(g_linear_clamp, reflect_uv).rgb;
 | 大気からリアルタイムに生成 | [Atmosphere Model](../../atmosphere/scattering/atmosphere-model.md) の結果を、キューブマップに描いて使う |
 | 大気の LUT を直接引く | 反射ベクトルから、空の色を LUT から読む。キューブマップが要らない |
 
-粗さがあるとき（細かい波のばらつき）は、<strong>キューブマップのミップ</strong>（ぼかした版）を、読みます。`SampleLevel` で粗さに応じたミップを選びます（[Prefiltering (Split-Sum)](../../reflections/probes/prefilter.md)）。
+粗さがあるとき（細かい波のばらつき）は、キューブマップのミップ（ぼかした版）を、読みます。`SampleLevel` で粗さに応じたミップを選びます（[Prefiltering (Split-Sum)](../../reflections/probes/prefilter.md)）。
 
 ## 合成
 
@@ -156,7 +156,7 @@ float F = FresnelSchlick(saturate(dot(wave_normal, view_dir)), 0.02);
 float3 color = lerp(refraction, reflection, F);
 ```
 
-真上から見ると `F ≈ 0.02` で <strong>反射は、ほぼ見えません</strong>。遠くを見るほど `F` が大きく <strong>反射が、支配的</strong>になります。
+真上から見ると `F ≈ 0.02` で 反射は、ほぼ見えません。遠くを見るほど `F` が大きく 反射が、支配的になります。
 
 ## よくあるミス
 
