@@ -15,83 +15,106 @@ tags:
 `#include <type_traits>`
 </div>
 
-ムーブ代入が `noexcept` かを判定します。`vector` の操作が強い例外保証を保つために、この結果を見て、ムーブとコピーを選びます。ムーブ代入に `noexcept` を付け忘れると、効率が落ちます。
+`std::vector` などの操作が強い例外保証を持てるかに関わる。`std::is_nothrow_move_assignable` は、<strong>型のムーブ代入が例外を投げないか</strong>を調べます。
 
 !!! tip "ポイント"
-    - `::value`（または `_v` 版）が `bool` の定数。
-    - コンパイル時に決まるので、`if constexpr` や `static_assert` に使える。
-    - 型だけを見る（値は見ない）。
+    - `std::is_nothrow_move_assignable_v<T>` は、`T` のムーブ代入が例外を投げないか
+    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `std::is_nothrow_move_assignable<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
+    - 実行時のコストはない（コンパイル時に決まる）
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::is_nothrow_move_assignable {#is_nothrow_move_assignable}
+### std::is_nothrow_move_assignable_v {#is_nothrow_move_assignable}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <class T>
-struct is_nothrow_move_assignable;
 template <class T>
 inline constexpr bool is_nothrow_move_assignable_v = is_nothrow_move_assignable<T>::value;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 調べる型 |
+| `T` | 型 | 調べたい型 |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+ムーブ代入が `noexcept` なら `true` です。標準のコンテナのムーブ代入は、通常 `noexcept` です。自作の型で `noexcept` を付け忘れると `false` になり、`vector` の操作が遅いコピーになることがあります。
 
+型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
+#include <string>
 #include <type_traits>
 
-struct MA {
-  MA& operator=(MA&&) { return *this; }
+struct MayThrow {
+  MayThrow() = default;
+  MayThrow(MayThrow&&) noexcept(false) {}
+  MayThrow& operator=(MayThrow&&) noexcept(false) { return *this; }
+};
+struct Player {
+  int hp;
+  float x;
 };
 
 int main() {
-  std::println("{}", std::is_nothrow_move_assignable_v<int>);
-  std::println("{}", std::is_nothrow_move_assignable_v<MA>);
+  std::println("Player                             -> {}", std::is_nothrow_move_assignable_v<Player>);
+  std::println("std::string                        -> {}", std::is_nothrow_move_assignable_v<std::string>);
+  std::println("MayThrow                           -> {}", std::is_nothrow_move_assignable_v<MayThrow>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+Player                             -> true
+std::string                        -> true
+MayThrow                           -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの中で、型の性質に応じて処理を切り替える |
+型によって処理を切り替えるテンプレートで使います。
+
+```cpp
+template <class T>
+void Process(const T& value) {
+  if constexpr (std::is_nothrow_move_assignable_v<T>) {
+    // T が条件に当てはまる型のときの処理
+  } else {
+    // それ以外の型の処理
+  }
+}
+```
 
 ## よくあるミス
 
-??? failure "値と型を取り違える"
-    `is_nothrow_move_assignable` は型を調べます。変数を渡すときは `decltype(x)` にします。
+??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "実行時の値に使おうとする"
+    調べるのは型です。値の判定には通常の比較を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_same`](is_same.md) | 同じ型か |
+| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
+| [`is_same`](is_same.md) | 2 つの型が同じか |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 例外を投げずにムーブ代入できる型かを調べる
-    - [x] `::value`（または `_v` 版）が `bool` の定数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::is_nothrow_move_assignable_v<T>` は、`T` のムーブ代入が例外を投げないか
+    - [x] `static_assert` と `if constexpr` に使える
+    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
 
 ## 関連ページ
 

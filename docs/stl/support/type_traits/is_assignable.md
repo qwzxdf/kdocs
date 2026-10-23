@@ -15,80 +15,99 @@ tags:
 `#include <type_traits>`
 </div>
 
-`T = U` が書けるかを判定します。左辺は参照の型で渡します（`int&`）。
+`a = b` と書ける組み合わせかを事前に調べたい。`std::is_assignable<T, U>` は、<strong>T への U の代入が可能か</strong>を調べます。
 
 !!! tip "ポイント"
-    - `::value`（または `_v` 版）が `bool` の定数。
-    - コンパイル時に決まるので、`if constexpr` や `static_assert` に使える。
-    - 型だけを見る（値は見ない）。
+    - `std::is_assignable_v<T, U>` は、`T` に `U` を代入できるか
+    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `std::is_assignable<T, U>::value` と書いても同じ（`_v` は C++17 の短縮形）
+    - 実行時のコストはない（コンパイル時に決まる）
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::is_assignable {#is_assignable}
+### std::is_assignable_v {#is_assignable}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <class T, class U>
-struct is_assignable;
 template <class T, class U>
 inline constexpr bool is_assignable_v = is_assignable<T, U>::value;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 調べる型 |
-| `U` | 型 | 調べる型 |
+| `T` | 型 | 代入される側の型（`T&` で渡す） |
+| `U` | 型 | 代入する値の型 |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+`declval<T>() = declval<U>()` が書けるなら `true` です。第 1 引数は代入される側で、通常は `T&` を渡します。`int` のような右辺値への代入は `false` です。
 
+型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+
+`is_copy_assignable` と `is_move_assignable` は、この特殊なケースです。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
+#include <string>
 #include <type_traits>
 
 int main() {
-  std::println("{}", std::is_assignable_v<int&, int>);
-  std::println("{}", std::is_assignable_v<int, int>);
+  std::println("int&, int                          -> {}", std::is_assignable_v<int&, int>);
+  std::println("int, int                           -> {}", std::is_assignable_v<int, int>);
+  std::println("std::string&, const char*          -> {}", std::is_assignable_v<std::string&, const char*>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+int&, int                          -> true
+int, int                           -> false
+std::string&, const char*          -> true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの中で、型の性質に応じて処理を切り替える |
+型によって処理を切り替えるテンプレートで使います。
+
+```cpp
+template <class T>
+void Process(const T& value) {
+  if constexpr (std::is_assignable_v<T>) {
+    // T が条件に当てはまる型のときの処理
+  } else {
+    // それ以外の型の処理
+  }
+}
+```
 
 ## よくあるミス
 
-??? failure "左辺に値の型を渡す"
-    `is_assignable<int, int>` は `false` です。左辺は `int&` のように参照で渡します。
+??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "実行時の値に使おうとする"
+    調べるのは型です。値の判定には通常の比較を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_same`](is_same.md) | 同じ型か |
+| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
+| [`is_same`](is_same.md) | 2 つの型が同じか |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 代入できる型の組かを調べる
-    - [x] `::value`（または `_v` 版）が `bool` の定数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::is_assignable_v<T, U>` は、`T` に `U` を代入できるか
+    - [x] `static_assert` と `if constexpr` に使える
+    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
 
 ## 関連ページ
 

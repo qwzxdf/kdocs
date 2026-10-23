@@ -14,25 +14,37 @@ tags:
 `#include <type_traits>`
 </div>
 
-`std::is_enum_v<T>` は、**型 T が列挙型（`enum` / `enum class`）か**を調べます。`std::to_underlying` を使えるかの確認や、列挙型だけを受け取るテンプレートで使います。
+列挙型を整数に変換して保存する処理を書きたい。`std::is_enum` は、<strong>型が列挙型か</strong>を調べます。
 
 !!! tip "ポイント"
-    - `enum class` も `true`。
-    - 元の整数型は `underlying_type_t` で取れる。
+    - `std::is_enum_v<T>` は、`T` が列挙型（`enum` または `enum class`）か
+    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `std::is_enum<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
+    - 実行時のコストはない（コンパイル時に決まる）
 
 !!! info "このページを読む前に"
-    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。[テンプレート](../../../basics/template.md) の基本が前提です。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::is_enum_v {#is_enum}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 template <class T>
-inline constexpr bool is_enum_v;
+inline constexpr bool is_enum_v = is_enum<T>::value;
 ```
 
-- enum（enum class 含む）なら true
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型 | 調べたい型 |
+
+`enum` と `enum class` のどちらの列挙型も `true` です。整数型や、クラスは `false` です。
+
+`enum class` かどうかを区別するときは `std::is_scoped_enum`（C++23）を使います。
+
+型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
 
 ## 実際に動かしてみる
 
@@ -40,45 +52,65 @@ inline constexpr bool is_enum_v;
 #include <print>
 #include <type_traits>
 
-enum class Color { kRed };
+enum class Color { kRed, kBlue };
+struct Player {
+  int hp;
+  float x;
+};
 
 int main() {
-  std::println("{} {}", std::is_enum_v<Color>, std::is_enum_v<int>);
+  std::println("Color                      -> {}", std::is_enum_v<Color>);
+  std::println("int                        -> {}", std::is_enum_v<int>);
+  std::println("Player                     -> {}", std::is_enum_v<Player>);
 }
 ```
 
 ```text title="実行結果"
-true false
+Color                      -> true
+int                        -> false
+Player                     -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| enum 型だけを受け取る関数 | `static_assert(std::is_enum_v<E>)` |
+型によって処理を切り替えるテンプレートで使います。
+
+```cpp
+template <class T>
+void Process(const T& value) {
+  if constexpr (std::is_enum_v<T>) {
+    // T が条件に当てはまる型のときの処理
+  } else {
+    // それ以外の型の処理
+  }
+}
+```
 
 ## よくあるミス
 
-??? failure "整数と取り違える"
-    `enum` は `is_integral` ではありません。
+??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "実行時の値に使おうとする"
+    調べるのは型です。値の判定には通常の比較を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`underlying_type`](underlying_type.md) | 元の整数型 |
-| [`std::to_underlying`](../to_underlying.md) | 整数に変換 |
+| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
+| [`is_same`](is_same.md) | 2 つの型が同じか |
 
 ## コンパイラ対応
 
-C++11 から使えます。`_v` と `_t` の簡略形は C++14 / C++17 です。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 列挙型かを調べる
-    - [x] enum class も true
-    - [x] 整数型ではない
+    - [x] `std::is_enum_v<T>` は、`T` が列挙型（`enum` または `enum class`）か
+    - [x] `static_assert` と `if constexpr` に使える
+    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
 
 ## 関連ページ
 

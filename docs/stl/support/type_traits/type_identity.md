@@ -15,34 +15,41 @@ tags:
 `#include <type_traits>`
 </div>
 
-`Max2(1.5, 1)` のように、`double` と `int` を混ぜて呼ぶと、`template <class T> T Max2(T a, T b)` は T を 2 通りに推論して失敗します。片方を `type_identity_t<T>` で包むと、その引数からは T を推論しなくなり、`double` に統一できます。
+テンプレートの引数を推論させたくない場所があります。たとえば、`Clamp(T value, T low, T high)` で、`Clamp(x, 0, 1)` のように型が揃わない引数が渡されると、推論が矛盾します。`std::type_identity` は、<strong>何も変換せず型をそのまま返す</strong>型で、その型を推論の対象外にするために使います。
 
 !!! tip "ポイント"
-    - `type_identity_t<T>` は `T` そのもの。
-    - 推論に使われない文脈（non-deduced context）にするために使う。
-    - 「ここは推論しない」と示す、目印として働く。
+    - `std::type_identity_t<T>` は `T` そのもの
+    - 引数の型に使うと、その引数から `T` を推論しなくなる
+    - 型が揃わない引数を、他の引数に合わせたいときに使う
+    - C++20 で追加
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::type_identity {#type_identity}
+### std::type_identity_t {#type_identity}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 template <class T>
-struct type_identity { using type = T; };
+struct type_identity {
+  using type = T;
+};
 template <class T>
 using type_identity_t = typename type_identity<T>::type;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | そのまま返す型 |
+| `T` | 型 | 返したい型 |
 
-- 戻り値: `T` そのもの
-- 計算量: コンパイル時のみ
+`std::type_identity_t<T>` は `T` そのものです。何も変えません。ただし、これを関数の引数の型に使うと、その引数からは `T` が推論されなくなります（推論されない文脈になる）。
 
+他の引数から推論された `T` に合わせて、この引数を変換させたいときに便利です。
+
+戻り値は型です。実行時には何も起きず、コンパイル時に型が決まります。`std::type_identity<T>::type` と書いても同じ型ですが、C++14 以降の `std::type_identity_t<T>` のほうが短く書けます。
 
 ## 実際に動かしてみる
 
@@ -50,47 +57,50 @@ using type_identity_t = typename type_identity<T>::type;
 #include <print>
 #include <type_traits>
 
-template <class T>
-T Max2(T a, std::type_identity_t<T> b) {
-  return a > b ? a : b;
-}
-
 int main() {
-  std::println("{}", Max2(1.5, 1));
+  std::println("std::type_identity_t<int> は int : {}", std::is_same_v<std::type_identity_t<int>, int>);
+  std::println("std::type_identity_t<const float&> は const float& : {}", std::is_same_v<std::type_identity_t<const float&>, const float&>);
 }
 ```
 
 ```text title="実行結果"
-1.5
+std::type_identity_t<int> は int : true
+std::type_identity_t<const float&> は const float& : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 第 1 引数の型で、第 2 引数を決める |
+推論させたくない引数に使います。
+
+```cpp
+template <class T>
+T Lerp(T a, T b, std::type_identity_t<T> t) {   // t は a から推論された T に合わせる
+  return a + (b - a) * t;
+}
+auto v = Lerp(1.0f, 3.0f, 0.5);   // t は double だが float に変換される
+```
 
 ## よくあるミス
 
-??? failure "両方を包む"
-    全部の引数を包むと、どこからも T を推論できなくなります。1 つは普通に書きます。
+??? failure "変換後の型を実行時の値と混同する"
+    これは型を返します。値を作るには、その型で変数を宣言します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`decay`](decay.md) | 型を値渡し用に変換 |
+| [`<type_traits>`](../type_traits.md) | 型の性質を調べる・変換する道具の一覧 |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 何もしない型変換（テンプレート引数の推論を止めるのに使う）
-    - [x] `type_identity_t<T>` は `T` そのもの
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::type_identity_t<T>` は `T` そのもの
+    - [x] 引数の型に使うと、その引数から `T` を推論しなくなる
+    - [x] 型が揃わない引数を、他の引数に合わせたいときに使う
 
 ## 関連ページ
 

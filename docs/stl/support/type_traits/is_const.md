@@ -14,20 +14,35 @@ tags:
 `#include <type_traits>`
 </div>
 
-`std::is_const_v<T>` は、**型 T に最上位の `const` が付いているか**を調べます。参照やポインターの指す先の `const` は見ません。
+`const` の型かどうかで、書き込めるかを判断したい。`std::is_const` は、<strong>型そのものが `const` か</strong>を調べます。
 
 !!! tip "ポイント"
-    - `const int` は `true`、`const int&` は `false`（参照自体は const にならない）。
-    - `const int*` は `false`（指す先が const なだけ）。
+    - `std::is_const_v<T>` は、`T` が `const` 修飾されているか
+    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `std::is_const<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
+    - 実行時のコストはない（コンパイル時に決まる）
 
 !!! info "このページを読む前に"
-    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。[テンプレート](../../../basics/template.md) の基本が前提です。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::is_const_v {#is_const}
 
-- `const` が付いていれば true（`const int&` は参照なので false。`std::remove_reference_t` してから調べる）
+```cpp
+template <class T>
+inline constexpr bool is_const_v = is_const<T>::value;
+```
+
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型 | 調べたい型 |
+
+`const int` は `true` です。ただし、`const int*`（`const int` を指すポインタ）は、ポインタ自体が `const` でないので `false` です。`int* const`（ポインタ自体が `const`）は `true` です。
+
+参照は `const` を付けられないため、`const int&` も `false` になります。
+
+型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
 
 ## 実際に動かしてみる
 
@@ -36,41 +51,60 @@ tags:
 #include <type_traits>
 
 int main() {
-  std::println("{} {} {}", std::is_const_v<const int>, std::is_const_v<int>, std::is_const_v<const int&>);
+  std::println("const int                  -> {}", std::is_const_v<const int>);
+  std::println("int                        -> {}", std::is_const_v<int>);
+  std::println("const int*                 -> {}", std::is_const_v<const int*>);
+  std::println("int* const                 -> {}", std::is_const_v<int* const>);
 }
 ```
 
 ```text title="実行結果"
-true false false
+const int                  -> true
+int                        -> false
+const int*                 -> false
+int* const                 -> true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| テンプレートで、const のときだけ別の処理 | `std::is_const_v<T>` |
+型によって処理を切り替えるテンプレートで使います。
+
+```cpp
+template <class T>
+void Process(const T& value) {
+  if constexpr (std::is_const_v<T>) {
+    // T が条件に当てはまる型のときの処理
+  } else {
+    // それ以外の型の処理
+  }
+}
+```
 
 ## よくあるミス
 
-??? failure "参照型で調べて false"
-    `remove_reference_t` を先に通します。
+??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "実行時の値に使おうとする"
+    調べるのは型です。値の判定には通常の比較を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`remove_cvref`](remove_cvref.md) | 修飾を外す |
+| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
+| [`is_same`](is_same.md) | 2 つの型が同じか |
 
 ## コンパイラ対応
 
-C++11 から使えます。`_v` と `_t` の簡略形は C++14 / C++17 です。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 最上位の const か
-    - [x] 参照・ポインター先は見ない
-    - [x] `const int*` は false
+    - [x] `std::is_const_v<T>` は、`T` が `const` 修飾されているか
+    - [x] `static_assert` と `if constexpr` に使える
+    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
 
 ## 関連ページ
 

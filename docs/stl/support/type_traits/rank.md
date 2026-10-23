@@ -15,34 +15,35 @@ tags:
 `#include <type_traits>`
 </div>
 
-`int[2][3]` のような配列が、何次元かを調べます。配列でない型は 0 です。
+配列は、`int[2][3]` のように何次元にもなります。`std::rank` は、<strong>配列の次元数</strong>を返します。
 
 !!! tip "ポイント"
-    - `::value`（または `_v` 版）が `bool` の定数。
-    - コンパイル時に決まるので、`if constexpr` や `static_assert` に使える。
-    - 型だけを見る（値は見ない）。
+    - `std::rank_v<int[2][3]>` は 2
+    - 配列でない型は 0
+    - 各次元の要素数は `std::extent`
+    - 戻り値は `std::size_t`
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::rank {#rank}
+### std::rank_v {#rank}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <class T>
-struct rank;
 template <class T>
 inline constexpr std::size_t rank_v = rank<T>::value;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 調べる型 |
+| `T` | 型 | 次元数を調べたい型 |
 
-- 戻り値: 次元の数（配列でなければ 0）
-- 計算量: コンパイル時のみ
+`rank_v<T>` は、`T` が配列型のとき、その次元数です。`int[3]` は 1、`int[2][3]` は 2、`int[2][3][4]` は 3 です。配列でない型は 0 です。
 
+`int[]` のように要素数が決まっていない配列でも、次元数は数えます。各次元の要素数は、`std::extent` が返します。
 
 ## 実際に動かしてみる
 
@@ -51,43 +52,44 @@ inline constexpr std::size_t rank_v = rank<T>::value;
 #include <type_traits>
 
 int main() {
-  std::println("{}", std::rank_v<int[2][3]>);
-  std::println("{}", std::rank_v<int>);
+  std::println("rank<int>         = {}", std::rank_v<int>);
+  std::println("rank<int[3]>      = {}", std::rank_v<int[3]>);
+  std::println("rank<int[2][3]>   = {}", std::rank_v<int[2][3]>);
 }
 ```
 
 ```text title="実行結果"
-2
-0
+rank<int>         = 0
+rank<int[3]>      = 1
+rank<int[2][3]>   = 2
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの中で、型の性質に応じて処理を切り替える |
+多次元配列を扱う汎用のテンプレートで、次元数を取り出します。ゲームでは、通常、`std::array` などを使うので、直接使う場面はまれです。
 
 ## よくあるミス
 
-??? failure "要素数と取り違える"
-    `rank` は次元の数です。要素数は `extent` で調べます。
+??? failure "`std::array` の次元数も取れると思う"
+    `std::array` は配列型ではなくクラスなので、0 です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_same`](is_same.md) | 同じ型か |
+| [`extent`](extent.md) | 次元の要素数 |
+| [`remove_extent`](remove_extent.md) | 次元を外す |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 配列の次元の数を返す
-    - [x] `::value`（または `_v` 版）が `bool` の定数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `rank_v<T>` は配列の次元数
+    - [x] 配列でなければ 0
+    - [x] 要素数は `extent`
 
 ## 関連ページ
 

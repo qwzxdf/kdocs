@@ -14,21 +14,33 @@ tags:
 `#include <type_traits>`
 </div>
 
-`std::is_copy_constructible_v<T>` は、**型 T のオブジェクトをコピーして作れるか**を調べます。`unique_ptr` のようなムーブだけできる型は `false` です。`std::function` に入れられる型かの確認にも使えます。
+コンテナに入れる、関数に値渡しする、といった場面で、コピーできる型かが必要になります。`std::is_copy_constructible` は、<strong>型がコピー構築できるか</strong>を調べます。
 
 !!! tip "ポイント"
-    - `unique_ptr` は `false`。
-    - `std::function` に入れるには `true` が必要。
-    - コンセプト版は `std::copy_constructible`。
+    - `std::is_copy_constructible_v<T>` は、`T` がコピー構築できるか
+    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `std::is_copy_constructible<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
+    - 実行時のコストはない（コンパイル時に決まる）
 
 !!! info "このページを読む前に"
-    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。[テンプレート](../../../basics/template.md) の基本が前提です。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::is_copy_constructible_v {#is_copy_constructible}
 
-- コピーできるか。`std::unique_ptr` は false
+```cpp
+template <class T>
+inline constexpr bool is_copy_constructible_v = is_copy_constructible<T>::value;
+```
+
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型 | 調べたい型 |
+
+`T(const T&)` で構築できる型は `true` です。`std::unique_ptr` や、コピーコンストラクターを `= delete` した型は `false` です。
+
+型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
 
 ## 実際に動かしてみる
 
@@ -37,42 +49,69 @@ tags:
 #include <print>
 #include <type_traits>
 
+struct Player {
+  int hp;
+  float x;
+};
+struct NoCopy {
+  NoCopy() = default;
+  NoCopy(const NoCopy&) = delete;
+  NoCopy& operator=(const NoCopy&) = delete;
+};
+
 int main() {
-  std::println("{} {}", std::is_copy_constructible_v<int>, std::is_copy_constructible_v<std::unique_ptr<int>>);
+  std::println("Player                     -> {}", std::is_copy_constructible_v<Player>);
+  std::println("NoCopy                     -> {}", std::is_copy_constructible_v<NoCopy>);
+  std::println("std::unique_ptr<int>       -> {}", std::is_copy_constructible_v<std::unique_ptr<int>>);
 }
 ```
 
 ```text title="実行結果"
-true false
+Player                     -> true
+NoCopy                     -> false
+std::unique_ptr<int>       -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| コピー可能な型だけをキューに入れる | `static_assert(std::is_copy_constructible_v<Job>)` |
+型によって処理を切り替えるテンプレートで使います。
+
+```cpp
+template <class T>
+void Process(const T& value) {
+  if constexpr (std::is_copy_constructible_v<T>) {
+    // T が条件に当てはまる型のときの処理
+  } else {
+    // それ以外の型の処理
+  }
+}
+```
 
 ## よくあるミス
 
-??? failure "ムーブだけの型を function に入れる"
-    コンパイルエラーです。`move_only_function` を使います。
+??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "実行時の値に使おうとする"
+    調べるのは型です。値の判定には通常の比較を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_nothrow_move_constructible`](is_nothrow_move_constructible.md) | ムーブが例外を投げないか |
+| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
+| [`is_same`](is_same.md) | 2 つの型が同じか |
 
 ## コンパイラ対応
 
-C++11 から使えます。`_v` と `_t` の簡略形は C++14 / C++17 です。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] コピーして作れるか
-    - [x] unique_ptr は false
-    - [x] function に入れる条件
+    - [x] `std::is_copy_constructible_v<T>` は、`T` がコピー構築できるか
+    - [x] `static_assert` と `if constexpr` に使える
+    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
 
 ## 関連ページ
 

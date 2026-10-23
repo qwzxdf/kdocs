@@ -15,34 +15,35 @@ tags:
 `#include <type_traits>`
 </div>
 
-型に `const` を付けます。参照には付けられない（参照自体は const にならない）ので、そのままです。
+型に `const` を付けたい。`std::add_const` は、<strong>型に `const` を付けた型</strong>を返します。
 
 !!! tip "ポイント"
-    - `::type` の代わりに `std::add_const_t<T>` と書ける。
-    - コンパイル時に型を作り換える。
-    - 値ではなく型を扱う。
+    - `std::add_const_t<int>` は `const int`
+    - すでに `const` ならそのまま
+    - 参照には変化しない
+    - `std::as_const` は値に使う関数
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::add_const {#add_const}
+### std::add_const_t {#add_const}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <class T>
-struct add_const { using type = /* `const` を付け足す */; };
 template <class T>
 using add_const_t = typename add_const<T>::type;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 元の型 |
+| `T` | 型 | 変換元の型 |
 
-- 戻り値: 変換後の型（`::type`）
-- 計算量: コンパイル時のみ
+`T` が `int` なら `const int` を返します。すでに `const` なら、そのままです。参照型に使っても、参照自体には `const` を付けられないので、変化しません（`int&` は `int&` のまま）。
 
+戻り値は型です。実行時には何も起きず、コンパイル時に型が決まります。`std::add_const<T>::type` と書いても同じ型ですが、C++14 以降の `std::add_const_t<T>` のほうが短く書けます。
 
 ## 実際に動かしてみる
 
@@ -51,42 +52,44 @@ using add_const_t = typename add_const<T>::type;
 #include <type_traits>
 
 int main() {
-  using R = std::add_const_t<int>;
-  std::println("{}", std::is_same_v<R, const int>);
+  std::println("std::add_const_t<int> は const int : {}", std::is_same_v<std::add_const_t<int>, const int>);
+  std::println("std::add_const_t<const int> は const int : {}", std::is_same_v<std::add_const_t<const int>, const int>);
+  std::println("std::add_const_t<int&> は int& : {}", std::is_same_v<std::add_const_t<int&>, int&>);
 }
 ```
 
 ```text title="実行結果"
-true
+std::add_const_t<int> は const int : true
+std::add_const_t<const int> は const int : true
+std::add_const_t<int&> は int& : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの中で、型から余計な修飾を取り除く・付け足す |
+型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
 
 ## よくあるミス
 
-??? failure "`::type` を付け忘れる"
-    `std::add_const<T>` は型を持つ構造体です。型そのものが欲しいときは `_t` を使います。
+??? failure "変換後の型を実行時の値と混同する"
+    これは型を返します。値を作るには、その型で変数を宣言します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`remove_cvref`](remove_cvref.md) | const・volatile・参照をまとめて外す |
+| [`remove_const`](remove_const.md) | `const` を外す |
+| [`add_cv`](add_cv.md) | `const` と `volatile` を付ける |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `const` を付け足す
-    - [x] `::type` の代わりに `std::add_const_t<T>` と書ける
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::add_const_t<int>` は `const int`
+    - [x] すでに `const` ならそのまま
+    - [x] 参照には変化しない
 
 ## 関連ページ
 

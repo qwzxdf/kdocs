@@ -14,79 +14,87 @@ tags:
 `#include <type_traits>`
 </div>
 
-CPU はアドレスが決まった倍数でないと遅くなる（または動かない）ことがあります。型ごとに必要な倍数が「アライメント」で、`alignment_of_v<T>` で取れます。`alignof(T)` と同じ値です。
+メモリ上に型の値を置くとき、アドレスは型ごとの倍数に揃っている必要があります（アラインメント）。`std::alignment_of` は、<strong>型のアラインメント</strong>を調べます。`alignof(T)` と同じ値です。
 
 !!! tip "ポイント"
-    - `alignof(T)` と同じ値。
-    - `double` は 8、`char` は 1 が多い。
-    - テンプレートの中で型から取りたいときに使う。
+    - `std::alignment_of_v<T>` は `alignof(T)` と同じ
+    - 戻り値は `std::size_t`
+    - `double` は 8 バイト境界など、型で違う
+    - テンプレートの中では `alignof(T)` を直接書くほうが短い
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::alignment_of {#alignment_of}
+### std::alignment_of_v {#alignment_of}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
 template <class T>
-struct alignment_of : integral_constant<size_t, alignof(T)> {};
-template <class T>
-inline constexpr size_t alignment_of_v = alignment_of<T>::value;
+inline constexpr std::size_t alignment_of_v = alignment_of<T>::value;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 調べる型 |
+| `T` | 型 | アラインメントを調べたい型 |
 
-- 戻り値: アライメント（バイト）
-- 計算量: コンパイル時のみ
+`alignment_of_v<T>` は、型 `T` のオブジェクトを置けるアドレスの間隔（バイト）です。`alignof(T)` と同じ値で、`alignof` のほうが言語の機能として短く書けます。この関数は、トレイトとして使いたい場面（`integral_constant` を継承したい場合）のために用意されています。
 
+用途は、SIMD や GPU に渡すバッファの配置、自前のメモリ アロケーターで、境界を揃えるときの計算です。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <cstddef>
 #include <print>
 #include <type_traits>
 
 int main() {
-  std::println("{}", std::alignment_of_v<double>);
-  std::println("{}", std::alignment_of_v<char>);
+  std::println("alignof(int)    と一致: {}", std::alignment_of_v<int> == alignof(int));
+  std::println("alignof(double) と一致: {}", std::alignment_of_v<double> == alignof(double));
+  std::println("2 の累乗: {}", (std::alignment_of_v<double> & (std::alignment_of_v<double> - 1)) == 0);
 }
 ```
 
 ```text title="実行結果"
-8
-1
+alignof(int)    と一致: true
+alignof(double) と一致: true
+2 の累乗: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自前のメモリプールで、型に合う境界に配置する |
+自前のアロケーターで、確保するアドレスを型の境界に揃えます。
+
+```cpp
+constexpr std::size_t align = alignof(T);   // alignment_of_v<T> と同じ
+address = (address + align - 1) & ~(align - 1);
+```
 
 ## よくあるミス
 
-??? failure "`sizeof` と取り違える"
-    `sizeof` は大きさ、`alignment_of` は置ける境界です。
+??? failure "`alignof` と別の値を期待する"
+    同じ値です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::align`](../../memory/align.md) | ポインタを境界に合わせる |
+| [`alignof`](../../../basics/index.md) | 言語の演算子 |
+| [`align`](../../memory/align.md) | ポインターを境界に揃える |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 型のアライメント（配置できる境界のバイト数）を調べる
-    - [x] `alignof(T)` と同じ値
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `alignment_of_v<T>` は `alignof(T)` と同じ
+    - [x] アラインメントは 2 の累乗
+    - [x] 自前のアロケーターで使う
 
 ## 関連ページ
 

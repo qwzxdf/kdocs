@@ -15,34 +15,35 @@ tags:
 `#include <type_traits>`
 </div>
 
-`!is_void<T>::value` のように書く代わりに、`negation<is_void<T>>` と書くと、型特性として他の組み合わせ（`conjunction` など）に渡せます。
+条件を反転したいとき、`!std::is_integral_v<T>` と書けますが、型の性質どうしの組み合わせ（`conjunction`、`disjunction`）の中では、型として反転した結果が欲しいことがあります。`std::negation` は、<strong>型の性質の結果を反転した型</strong>です。
 
 !!! tip "ポイント"
-    - `_v` 版で `bool` の定数が取れる。
-    - 型特性を組み合わせる道具（メタ関数）。
-    - C++20 では `requires` の `&&` `||` `!` が読みやすい。
+    - `std::negation_v<B>` は `!B::value`
+    - `B` はトレイト（`::value` を持つ型）
+    - `conjunction` と `disjunction` の引数として使える
+    - C++17 で追加
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::negation {#negation}
+### std::negation_v {#negation}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
-template <class B>
-struct negation;
 template <class B>
 inline constexpr bool negation_v = negation<B>::value;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `B...` | 型特性 | 組み合わせる型特性（`::value` をもつ型） |
+| `B` | トレイト | `::value` を持つ型 |
 
-- 戻り値: 結果の `bool`（`::value`）
-- 計算量: コンパイル時のみ
+`negation<B>` は、`B::value` を反転した値を持つ型です。`conjunction<is_integral<T>, negation<is_signed<T>>>` のように、型の性質を論理式のように組み合わせるときに使います。
 
+単独の否定なら `!B::value` や `!std::is_integral_v<T>` で足ります。`negation` が必要なのは、`conjunction` / `disjunction` の引数の中だけです。
 
 ## 実際に動かしてみる
 
@@ -51,43 +52,46 @@ inline constexpr bool negation_v = negation<B>::value;
 #include <type_traits>
 
 int main() {
-  std::println("{}", std::negation_v<std::is_void<int>>);
-  std::println("{}", std::negation_v<std::is_void<void>>);
+  std::println("negation<is_integral<float>> = {}", std::negation_v<std::is_integral<float>>);
+  std::println("negation<is_integral<int>>   = {}", std::negation_v<std::is_integral<int>>);
+  // 符号なしの整数か: 整数かつ、符号つきではない
+  std::println("unsigned は符号なし整数 = {}",
+               std::conjunction_v<std::is_integral<unsigned>, std::negation<std::is_signed<unsigned>>>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+negation<is_integral<float>> = true
+negation<is_integral<int>>   = false
+unsigned は符号なし整数 = true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの条件を、複数の型特性で組み合わせる |
+複数の型の性質を、論理式のように組み合わせます（上のコード）。
 
 ## よくあるミス
 
-??? failure "`::value` を持たない型を渡す"
-    型特性（`::value` を持つ型）を渡します。値の `bool` ではなく型です。
+??? failure "単独の否定にも使い、読みにくくなる"
+    単独なら `!` で足ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`conjunction`](conjunction.md) | すべてが真か |
+| [`conjunction`](conjunction.md) | 論理積 |
+| [`disjunction`](disjunction.md) | 論理和 |
 
 ## コンパイラ対応
 
-C++17 から使えます。
+C++17 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 型特性の結果を反転する
-    - [x] `_v` 版で `bool` の定数が取れる
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `negation_v<B>` は `!B::value`
+    - [x] `conjunction` / `disjunction` の引数に使う
+    - [x] 単独の否定は `!` で足りる
 
 ## 関連ページ
 

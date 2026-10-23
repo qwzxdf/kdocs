@@ -15,34 +15,35 @@ tags:
 `#include <type_traits>`
 </div>
 
-`volatile int` から `volatile` を外した `int` を作ります。`const` は残ります。
+`volatile` が付いた型から `volatile` を外したい。`std::remove_volatile` は、<strong>型の最上位の `volatile` を外した型</strong>を返します。
 
 !!! tip "ポイント"
-    - `::type` の代わりに `std::remove_volatile_t<T>` と書ける。
-    - コンパイル時に型を作り換える。
-    - 値ではなく型を扱う。
+    - `std::remove_volatile_t<volatile int>` は `int`
+    - 最上位の `volatile` だけを外す
+    - `const` も外すなら `remove_cv`
+    - ゲームでは `volatile` を使う場面が少ない
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::remove_volatile {#remove_volatile}
+### std::remove_volatile_t {#remove_volatile}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <class T>
-struct remove_volatile { using type = /* `volatile` を取り除く */; };
 template <class T>
 using remove_volatile_t = typename remove_volatile<T>::type;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 元の型 |
+| `T` | 型 | 変換元の型 |
 
-- 戻り値: 変換後の型（`::type`）
-- 計算量: コンパイル時のみ
+`T` が `volatile int` なら `int` を返します。付いていない型は、そのまま返します。ポインタが指す先の `volatile` は外れません。
 
+戻り値は型です。実行時には何も起きず、コンパイル時に型が決まります。`std::remove_volatile<T>::type` と書いても同じ型ですが、C++14 以降の `std::remove_volatile_t<T>` のほうが短く書けます。
 
 ## 実際に動かしてみる
 
@@ -51,42 +52,42 @@ using remove_volatile_t = typename remove_volatile<T>::type;
 #include <type_traits>
 
 int main() {
-  using R = std::remove_volatile_t<volatile int>;
-  std::println("{}", std::is_same_v<R, int>);
+  std::println("std::remove_volatile_t<volatile int> は int : {}", std::is_same_v<std::remove_volatile_t<volatile int>, int>);
+  std::println("std::remove_volatile_t<int> は int : {}", std::is_same_v<std::remove_volatile_t<int>, int>);
 }
 ```
 
 ```text title="実行結果"
-true
+std::remove_volatile_t<volatile int> は int : true
+std::remove_volatile_t<int> は int : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの中で、型から余計な修飾を取り除く・付け足す |
+型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
 
 ## よくあるミス
 
-??? failure "`::type` を付け忘れる"
-    `std::remove_volatile<T>` は型を持つ構造体です。型そのものが欲しいときは `_t` を使います。
+??? failure "変換後の型を実行時の値と混同する"
+    これは型を返します。値を作るには、その型で変数を宣言します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`remove_cvref`](remove_cvref.md) | const・volatile・参照をまとめて外す |
+| [`remove_cv`](remove_cv.md) | `const` と `volatile` の両方を外す |
+| [`add_volatile`](add_volatile.md) | `volatile` を付ける |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `volatile` を取り除く
-    - [x] `::type` の代わりに `std::remove_volatile_t<T>` と書ける
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::remove_volatile_t<volatile int>` は `int`
+    - [x] 最上位の `volatile` だけを外す
+    - [x] `const` も外すなら `remove_cv`
 
 ## 関連ページ
 

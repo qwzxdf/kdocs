@@ -15,34 +15,37 @@ tags:
 `#include <type_traits>`
 </div>
 
-`is_integral<T> || is_floating_point<T>` のような条件を、型特性のまま組み合わせます。先に真になった時点で、残りを調べずに止まります。
+複数の型の性質のうち、どれか 1 つでも当てはまるか調べたい。`std::disjunction` は、<strong>左から順に評価し、真が出た時点で止める</strong>論理和です。
 
 !!! tip "ポイント"
-    - `_v` 版で `bool` の定数が取れる。
-    - 型特性を組み合わせる道具（メタ関数）。
-    - C++20 では `requires` の `&&` `||` `!` が読みやすい。
+    - `std::disjunction_v<B1, B2, ...>`: どれか 1 つでも真か
+    - 最初に真になった時点で評価を止める（短絡評価）
+    - 各 `Bi` はトレイト（`::value` を持つ型）
+    - C++17 で追加
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::disjunction {#disjunction}
+### std::disjunction_v {#disjunction}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
-template <class... B>
-struct disjunction;
 template <class... B>
 inline constexpr bool disjunction_v = disjunction<B...>::value;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `B...` | 型特性 | 組み合わせる型特性（`::value` をもつ型） |
+| `B...` | トレイトの並び | `::value` を持つ型 |
 
-- 戻り値: 結果の `bool`（`::value`）
-- 計算量: コンパイル時のみ
+`disjunction<B1, B2, ...>` は、`B1::value`、`B2::value`、…のどれか 1 つでも真なら真です。最初に真が出ると、それ以降のトレイトはインスタンス化されません。
 
+引数が 0 個なら偽です。
+
+用途は、「いくつかの型のうち、どれかに一致する」を書くことです。`disjunction_v<is_same<T, int>, is_same<T, float>>` で、「`T` が `int` か `float`」を表せます。
 
 ## 実際に動かしてみる
 
@@ -50,45 +53,48 @@ inline constexpr bool disjunction_v = disjunction<B...>::value;
 #include <print>
 #include <type_traits>
 
+template <class T>
+inline constexpr bool is_int_or_float = std::disjunction_v<std::is_same<T, int>, std::is_same<T, float>>;
+
 int main() {
-  std::println("{}", std::disjunction_v<std::is_integral<float>, std::is_floating_point<float>>);
-  std::println("{}", std::disjunction_v<std::is_integral<float>, std::is_void<float>>);
+  std::println("int    : {}", is_int_or_float<int>);
+  std::println("float  : {}", is_int_or_float<float>);
+  std::println("double : {}", is_int_or_float<double>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+int    : true
+float  : true
+double : false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの条件を、複数の型特性で組み合わせる |
+許可する型の一覧を、テンプレートで表します（上のコード）。
 
 ## よくあるミス
 
-??? failure "`::value` を持たない型を渡す"
-    型特性（`::value` を持つ型）を渡します。値の `bool` ではなく型です。
+??? failure "引数 0 個で真と思う"
+    引数が 0 個なら偽です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`conjunction`](conjunction.md) | すべてが真か |
+| [`conjunction`](conjunction.md) | 論理積 |
 | [`negation`](negation.md) | 否定 |
 
 ## コンパイラ対応
 
-C++17 から使えます。
+C++17 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 複数の条件のどれかが真かを調べる（短絡評価）
-    - [x] `_v` 版で `bool` の定数が取れる
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `disjunction_v<B...>` はどれか 1 つでも真か（短絡評価）
+    - [x] 引数 0 個は偽
+    - [x] 許可する型の一覧を表せる
 
 ## 関連ページ
 

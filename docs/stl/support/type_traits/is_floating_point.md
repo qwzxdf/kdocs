@@ -14,107 +14,97 @@ tags:
 `#include <type_traits>`
 </div>
 
-テンプレートの数値計算で、整数と小数の処理を分けたいとき、型をコンパイラーに聞くのが `std::is_floating_point_v<T>` です。型 `T` が小数型（`float`、`double`、`long double`）なら `true` を返します。`if constexpr` と組み合わせて、小数のときだけ誤差を考えた比較にする、などの分岐に使います。
+数値を受け取るテンプレートで、整数と小数で処理を分けたい。`std::is_floating_point` は、<strong>型が浮動小数点型か</strong>を調べます。
 
 !!! tip "ポイント"
-    - `half` などの拡張型は含まれない（`std::float16_t` は C++23 で含まれる）。
-    - コンセプト版は `std::floating_point`。
+    - `std::is_floating_point_v<T>` は、`T` が浮動小数点型（`float`、`double`、`long double`）か
+    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `std::is_floating_point<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
+    - 実行時のコストはない（コンパイル時に決まる）
 
 !!! info "このページを読む前に"
-    テンプレートの基本（型を引数にする関数やクラス）が分かると読みやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::is_floating_point_v {#is_floating_point}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 template <class T>
-inline constexpr bool is_floating_point_v;
+inline constexpr bool is_floating_point_v = is_floating_point<T>::value;
 ```
 
-- float、double、long double なら true
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型 | 調べたい型 |
+
+`float`、`double`、`long double`（`const` や `volatile` 付きを含む）が `true` です。C++23 の拡張浮動小数点型（`std::float32_t` など）も、`true` になります。整数型は `false` です。
+
+型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
-#include <string>
 #include <type_traits>
 
-template <class T>
-std::string Describe(T value) {
-  if constexpr (std::is_integral_v<T>) {
-    return "整数 " + std::to_string(value);
-  } else if constexpr (std::is_floating_point_v<T>) {
-    return "小数 " + std::to_string(value);
-  } else {
-    return "その他";
-  }
-}
-
 int main() {
-  std::println("{} / {} / {}", Describe(3), Describe(1.5f), Describe("x"));
-  std::println("{} {}", std::is_same_v<int, int>, std::is_same_v<int, const int>);
+  std::println("float                      -> {}", std::is_floating_point_v<float>);
+  std::println("double                     -> {}", std::is_floating_point_v<double>);
+  std::println("int                        -> {}", std::is_floating_point_v<int>);
+  std::println("float*                     -> {}", std::is_floating_point_v<float*>);
 }
 ```
 
 ```text title="実行結果"
-整数 3 / 小数 1.500000 / その他
-true false
+float                      -> true
+double                     -> true
+int                        -> false
+float*                     -> false
 ```
-
-## しくみ
-
-`is_floating_point_v<T>` は、`T` が `float`、`double`、`long double` のどれか（`const` や `volatile` は無視）なら `true` です。C++23 の `std::float16_t`、`std::float32_t` なども、含まれます。
-
-整数型は `false`、参照とポインターも `false` です。テンプレートが参照で型を受けているなら、`remove_cvref_t` を通してから調べます。
-
-C++20 のコンセプト `std::floating_point` は、同じ判定を `template <std::floating_point T>` と書ける形にしたものです。
 
 ## ゲームでの使いどころ
 
-数値の比較関数で、整数と小数を分けるのが代表例です。小数なら `std::abs(a - b) < epsilon`、整数なら `a == b` と書き分けます。
+型によって処理を切り替えるテンプレートで使います。
 
 ```cpp
 template <class T>
-bool NearlyEqual(T a, T b) {
+void Process(const T& value) {
   if constexpr (std::is_floating_point_v<T>) {
-    return std::abs(a - b) < static_cast<T>(1e-5);
+    // T が条件に当てはまる型のときの処理
   } else {
-    return a == b;
+    // それ以外の型の処理
   }
 }
 ```
 
-ベクトルや行列のテンプレートで、要素の型が小数であることを制約するときにも使います。`static_assert(std::is_floating_point_v<T>)` と書いておけば、整数の行列を作ったときに、早めに気づけます。
-
 ## よくあるミス
 
-??? failure "整数を小数として扱うつもりで `true` を期待する"
-    `is_floating_point_v<int>` は `false` です。整数と小数をまとめて「数値」とするなら `std::is_arithmetic_v` を使います。
+??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
 
-??? failure "参照型で `false` になる"
-    `is_floating_point_v<float&>` は `false` です。`std::remove_cvref_t<T>` を通してから調べます。
-
-??? failure "`half` などの拡張型を期待する"
-    GPU 向けの `half` のような独自の型は、`is_floating_point_v` が `false` です。標準の拡張型（`std::float16_t`）は、C++23 で含まれます。
+??? failure "実行時の値に使おうとする"
+    調べるのは型です。値の判定には通常の比較を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::is_integral`](is_integral.md) | 整数型かを調べる |
-| `std::is_arithmetic` | 整数または小数のどちらかか |
-| `std::floating_point` | コンセプト版。関数の制約に使う |
+| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
+| [`is_same`](is_same.md) | 2 つの型が同じか |
 
 ## コンパイラ対応
 
-C++11 から使えます。`_v` と `_t` の簡略形は C++14 / C++17 です。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `is_floating_point_v<T>` で小数型かを調べる。
-    - [x] 参照型には `remove_cvref_t` を通してから使う。
-    - [x] C++20 では `std::floating_point` コンセプトでも書ける。
+    - [x] `std::is_floating_point_v<T>` は、`T` が浮動小数点型（`float`、`double`、`long double`）か
+    - [x] `static_assert` と `if constexpr` に使える
+    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
 
 ## 関連ページ
 

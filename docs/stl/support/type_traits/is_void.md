@@ -15,34 +15,35 @@ tags:
 `#include <type_traits>`
 </div>
 
-戻り値が `void` の関数だけ特別扱いしたいときなど、`void` かどうかを型から判定します。`void` は値を持たない型なので、変数や引数にはできません。
+関数の戻り値が `void` かどうかで処理を分けたい。テンプレートの中で、`void` だけが他の型と違う扱いを受ける場面は多くあります（値を返せない、変数を作れない）。`std::is_void` は、<strong>型が `void` か</strong>を調べます。
 
 !!! tip "ポイント"
-    - `::value`（または `_v` 版）が `bool` の定数。
-    - コンパイル時に決まるので、`if constexpr` や `static_assert` に使える。
-    - 型だけを見る（値は見ない）。
+    - `std::is_void_v<T>` は、`T` が `void`（`const` や `volatile` 付きを含む）か
+    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `std::is_void<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
+    - 実行時のコストはない（コンパイル時に決まる）
 
 !!! info "このページを読む前に"
-    [<type_traits>](../type_traits.md) の概要を先に読むと分かりやすいです。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::is_void {#is_void}
+### std::is_void_v {#is_void}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <class T>
-struct is_void;
 template <class T>
 inline constexpr bool is_void_v = is_void<T>::value;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 調べる型 |
+| `T` | 型 | 調べたい型 |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+`T` が `void`、`const void`、`volatile void`、`const volatile void` のいずれかなら `true` です。ポインタ `void*` は `void` ではないので `false` です。
 
+型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
 
 ## 実際に動かしてみる
 
@@ -51,43 +52,58 @@ inline constexpr bool is_void_v = is_void<T>::value;
 #include <type_traits>
 
 int main() {
-  std::println("{}", std::is_void_v<void>);
-  std::println("{}", std::is_void_v<int>);
+  std::println("void                       -> {}", std::is_void_v<void>);
+  std::println("const void                 -> {}", std::is_void_v<const void>);
+  std::println("void*                      -> {}", std::is_void_v<void*>);
+  std::println("int                        -> {}", std::is_void_v<int>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+void                       -> true
+const void                 -> true
+void*                      -> false
+int                        -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの中で、型の性質に応じて処理を切り替える |
+関数の戻り値の型で分岐する場面で使います。
+
+```cpp
+using R = std::invoke_result_t<F>;
+if constexpr (std::is_void_v<R>) {
+  f();            // 戻り値がないので、結果を受け取れない
+} else {
+  auto result = f();
+}
+```
 
 ## よくあるミス
 
-??? failure "値と型を取り違える"
-    `is_void` は型を調べます。変数を渡すときは `decltype(x)` にします。
+??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
+    `std::remove_cvref_t<T>` で外してから調べます。
+
+??? failure "実行時の値に使おうとする"
+    調べるのは型です。値の判定には通常の比較を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_same`](is_same.md) | 同じ型か |
+| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
+| [`is_same`](is_same.md) | 2 つの型が同じか |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 型が `void` かを調べる
-    - [x] `::value`（または `_v` 版）が `bool` の定数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::is_void_v<T>` は、`T` が `void`（`const` や `volatile` 付きを含む）か
+    - [x] `static_assert` と `if constexpr` に使える
+    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
 
 ## 関連ページ
 

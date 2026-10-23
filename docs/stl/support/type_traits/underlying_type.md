@@ -14,26 +14,37 @@ tags:
 `#include <type_traits>`
 </div>
 
-`std::underlying_type_t<E>` は、**列挙型 E が内部で使っている整数型**を返します。`enum class Color : uint8_t` なら `uint8_t` です。`std::to_underlying` の戻り値の型です。
+`enum class` は、内部で整数として保存されます。その整数の型を知りたいことがあります。たとえば、`enum class` の値をファイルに書くときです。`std::underlying_type` は、<strong>列挙型の基底の整数型</strong>を返します。
 
 !!! tip "ポイント"
-    - 列挙型にだけ使える。
-    - `enum class E : uint8_t` と書くと、型が明示される。
-    - 値の取り出しは [`std::to_underlying`](../to_underlying.md)。
+    - `std::underlying_type_t<Color>` は列挙型の基底の整数型
+    - `enum class` の既定は `int`
+    - 列挙型以外には使えない
+    - 値の変換は C++23 の `to_underlying` が簡単
 
 !!! info "このページを読む前に"
-    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。[テンプレート](../../../basics/template.md) の基本が前提です。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::underlying_type_t {#underlying_type}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-template <class E>
-using underlying_type_t = /* enum E の中身の整数型 */;
+template <class T>
+using underlying_type_t = typename underlying_type<T>::type;
 ```
 
-- enum class を整数に変換するときの型。C++23 なら [`std::to_underlying`](../to_underlying.md#to_underlying) が簡単です
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T` | 型 | 変換元の型 |
+
+`T` が列挙型のとき、その基底型（`enum class Color : std::uint8_t` なら `std::uint8_t`）を返します。基底型を指定しなかった `enum class` では `int` です。列挙型でない型を渡すと、C++20 より前は未定義、C++20 以降は不適格です。
+
+C++23 の `std::to_underlying(value)` を使えば、値を基底型に変換する処理も簡単に書けます。
+
+戻り値は型です。実行時には何も起きず、コンパイル時に型が決まります。`std::underlying_type<T>::type` と書いても同じ型ですが、C++14 以降の `std::underlying_type_t<T>` のほうが短く書けます。
 
 ## 実際に動かしてみる
 
@@ -43,44 +54,50 @@ using underlying_type_t = /* enum E の中身の整数型 */;
 #include <type_traits>
 
 enum class Color : std::uint8_t { kRed, kBlue };
+enum class Shape { kCircle, kSquare };
 
 int main() {
-  std::println("{} {}", std::is_same_v<std::underlying_type_t<Color>, std::uint8_t>, sizeof(Color));
+  std::println("std::underlying_type_t<Color> は std::uint8_t : {}", std::is_same_v<std::underlying_type_t<Color>, std::uint8_t>);
+  std::println("std::underlying_type_t<Shape> は int : {}", std::is_same_v<std::underlying_type_t<Shape>, int>);
 }
 ```
 
 ```text title="実行結果"
-true 1
+std::underlying_type_t<Color> は std::uint8_t : true
+std::underlying_type_t<Shape> は int : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| enum のビットフラグを、元の整数型で扱う | `std::underlying_type_t<Flags>` |
+`enum class` の値を、基底の型でファイルに書き出します。
+
+```cpp
+using Raw = std::underlying_type_t<Color>;
+const Raw raw = static_cast<Raw>(color);   // ファイルに書く
+```
 
 ## よくあるミス
 
-??? failure "列挙型でない型に使う"
-    コンパイルエラーです。
+??? failure "変換後の型を実行時の値と混同する"
+    これは型を返します。値を作るには、その型で変数を宣言します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::to_underlying`](../to_underlying.md) | 値を取り出す |
-| [`is_enum`](is_enum.md) | 列挙型か |
+| [`to_underlying`](../to_underlying.md) | 値を基底型に変換する（C++23） |
+| [`is_enum`](is_enum.md) | 列挙型か調べる |
 
 ## コンパイラ対応
 
-C++11 から使えます。`_v` と `_t` の簡略形は C++14 / C++17 です。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 列挙型の元の整数型
-    - [x] 列挙型だけ
-    - [x] to_underlying の戻り値型
+    - [x] `std::underlying_type_t<Color>` は列挙型の基底の整数型
+    - [x] `enum class` の既定は `int`
+    - [x] 列挙型以外には使えない
 
 ## 関連ページ
 

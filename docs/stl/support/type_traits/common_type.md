@@ -14,20 +14,37 @@ tags:
 `#include <type_traits>`
 </div>
 
-`std::common_type_t<A, B>` は、**型 A と B の両方を無理なく表せる共通の型**を返します。`int` と `double` なら `double` です。`std::min` / `max` の引数の型や、`std::chrono::duration` の足し算の結果の型を決めるのに使われています。
+2 つの異なる型の値を混ぜて計算するとき、結果はどの型になるでしょうか。`int` と `double` を足すと `double` です。この「共通の型」を型として取り出したいときに使うのが `std::common_type` です。`std::gcd` や `std::min` のようなテンプレートの戻り値の型を決めるときに使われます。
 
 !!! tip "ポイント"
-    - 算術演算の結果の型と同じ（`int + double` は `double`）。
-    - `std::chrono` の単位の合成にも使われる。
+    - `std::common_type_t<int, double>` は `double`
+    - 三項演算子 `cond ? a : b` の結果の型と同じ規則
+    - 引数は 1 個以上いくつでも渡せる
+    - 共通の型がなければ、エラー
 
 !!! info "このページを読む前に"
-    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。[テンプレート](../../../basics/template.md) の基本が前提です。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::common_type_t {#common_type}
 
-- 両方の型を表せる型（`int` と `double` なら `double`）
+<span class="ver ver-11">C++11</span>
+
+```cpp
+template <class... T>
+using common_type_t = typename common_type<T...>::type;
+```
+
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `T...` | 型の並び | 共通の型を求めたい型 |
+
+`common_type_t<A, B>` は、`A` と `B` の値を混ぜて計算したときの共通の型です。算術型なら、通常の算術変換と同じ結果です。`int` と `long` なら `long`、`char` と `short` なら `int`、`int` と `double` なら `double` です。
+
+3 つ以上の型は、左から順に 2 つずつ共通の型を求めます。共通の型が存在しない組み合わせは、型が存在せず、エラーになります。
+
+`decay` された型を返す点に注意します。参照や `const` は外れます。
 
 ## 実際に動かしてみる
 
@@ -36,41 +53,51 @@ tags:
 #include <type_traits>
 
 int main() {
-  std::println("{} {}", std::is_same_v<std::common_type_t<int, double>, double>, std::is_same_v<std::common_type_t<int, long>, long>);
+  std::println("int, double  -> double : {}", std::is_same_v<std::common_type_t<int, double>, double>);
+  std::println("int, long    -> long   : {}", std::is_same_v<std::common_type_t<int, long>, long>);
+  std::println("char, short  -> int    : {}", std::is_same_v<std::common_type_t<char, short>, int>);
 }
 ```
 
 ```text title="実行結果"
-true true
+int, double  -> double : true
+int, long    -> long   : true
+char, short  -> int    : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 2 つの値を足すテンプレートの戻り値型 | `std::common_type_t<A, B>` |
+2 つの型を受け取る汎用の関数で、戻り値の型を決めます。
+
+```cpp
+template <class A, class B>
+std::common_type_t<A, B> Max(A a, B b) {
+  return a > b ? a : b;   // 共通の型で返す
+}
+```
 
 ## よくあるミス
 
-??? failure "符号の違う整数の組み合わせ"
-    `int` と `unsigned` は `unsigned` になり、負の値が壊れます。
+??? failure "参照や `const` が残ると思う"
+    `decay` された型が返ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::cmp_less`](../cmp_less.md) | 符号の混ざった比較を安全にする |
+| [`conditional`](conditional.md) | 条件で型を選ぶ |
+| [`decay`](decay.md) | 型の変換 |
 
 ## コンパイラ対応
 
-C++11 から使えます。`_v` と `_t` の簡略形は C++14 / C++17 です。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 共通の型を調べる
-    - [x] int と double は double
-    - [x] chrono の単位合成に使われる
+    - [x] `common_type_t<A, B...>` は共通の型
+    - [x] 算術型は通常の算術変換と同じ
+    - [x] 参照や `const` は外れる
 
 ## 関連ページ
 

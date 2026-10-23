@@ -14,81 +14,95 @@ tags:
 `#include <type_traits>`
 </div>
 
-`std::is_base_of_v<Base, Derived>` は、**`Base` が `Derived` の基底クラス（または同じ型）か**を調べます。テンプレートで、「このクラスの派生クラスだけ受け取る」という制約に使います。コンセプト版は `std::derived_from` です。
+継承関係をコンパイル時に確かめたいことがあります。コンポーネントの登録時に、`Component` を継承した型だけを受け付けたい、といった場面です。`std::is_base_of<Base, Derived>` は、<strong>Base が Derived の基底クラスか</strong>を調べます。
 
 !!! tip "ポイント"
-    - **基底が先、派生が後**。
-    - 同じ型どうしも `true`（クラスの場合）。
-    - private 継承でも `true`。
+    - `std::is_base_of_v<A, B>` は、`A` が `B` の基底クラスか
+    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `std::is_base_of<A, B>::value` と書いても同じ
+    - 実行時のコストはない（コンパイル時に決まる）
 
 !!! info "このページを読む前に"
-    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。[テンプレート](../../../basics/template.md) の基本が前提です。
+    [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::is_base_of_v {#is_base_of}
 
 ```cpp
-template <class Base, class Derived>
-inline constexpr bool is_base_of_v;
+template <class A, class B>
+inline constexpr bool is_base_of_v = is_base_of<A, B>::value;
 ```
 
-- Derived が Base を継承していれば true。「Component を継承した型だけ AddComponent できる」のチェックに使えます
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `A` | 型 | 1 つ目の型 |
+| `B` | 型 | 2 つ目の型 |
+
+`B` が `A` を（直接または間接に）継承していれば `true` です。同じクラス型どうしも `true` です。`private` 継承でも `true` になる点に注意します。クラスでない型（`int` など）は、常に `false` です。
+
+型の関係を調べるだけで、オブジェクトは作りません。テンプレートの制約や、`static_assert` による型の確認に使います。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <type_traits>
 
-struct Component {};
-struct Transform : Component {};
-struct NotComponent {};
-
-template <class T>
-void AddComponent() {
-  static_assert(std::is_base_of_v<Component, T>, "Component を継承していない");
-  std::println("追加した");
-}
+struct Base {};
+struct Derived : Base {};
 
 int main() {
-  AddComponent<Transform>();
-  // AddComponent<NotComponent>();  // コンパイルエラー
-  std::println("{} {}", std::is_pointer_v<int*>, std::is_enum_v<int>);
+  std::println("Base, Derived -> {}", std::is_base_of_v<Base, Derived>);
+  std::println("Derived, Base -> {}", std::is_base_of_v<Derived, Base>);
+  std::println("Base, Base -> {}", std::is_base_of_v<Base, Base>);
+  std::println("Base, int -> {}", std::is_base_of_v<Base, int>);
 }
 ```
 
 ```text title="実行結果"
-追加した
-true false
+Base, Derived -> true
+Derived, Base -> false
+Base, Base -> true
+Base, int -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| Component の派生だけを受け取るテンプレート | `static_assert(std::is_base_of_v<Component, T>)` |
+テンプレートの引数どうしの関係を、コンパイル時に保証します。
+
+```cpp
+template <class D>
+void Register(D& obj) {
+  static_assert(std::is_base_of_v<Component, D>, "型の関係が合いません");
+}
+```
 
 ## よくあるミス
 
-??? failure "引数の順番を逆にする"
-    `is_base_of_v<Derived, Base>` は `false` です。
+??? failure "引数の順序を取り違える"
+    `is_base_of<Base, Derived>` のように、先に基底、後に派生です。
+
+??? failure "参照や `const` が付いた型で期待と違う結果になる"
+    `remove_cvref_t` で外してから調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| `std::derived_from` | コンセプト版（C++20） |
-| [`is_same`](is_same.md) | 同じ型か |
+| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
+| [`is_same`](is_same.md) | 2 つの型が同じか |
 
 ## コンパイラ対応
 
-C++11 から使えます。`_v` と `_t` の簡略形は C++14 / C++17 です。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 基底クラスかを調べる
-    - [x] 基底が先、派生が後
-    - [x] コンセプト版もある
+    - [x] `std::is_base_of_v<A, B>` は、`A` が `B` の基底クラスか
+    - [x] `static_assert` と `if constexpr` に使える
+    - [x] 型の関係の確認に使う
 
 ## 関連ページ
 
