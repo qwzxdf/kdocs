@@ -30,7 +30,7 @@ namespace KCppAssist
     /// Alt+Q はローカル変数(その場に型を足す)、Alt+W はクラスのメンバー変数(ヘッダーに足す)。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-CppAssist", "宣言していない変数に型を付ける", "0.4.1")]
+    [InstalledProductRegistration("K-CppAssist", "宣言していない変数に型を付ける", "0.5.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideOptionPage(typeof(OptionsPage), "K-CppAssist", "全般", 0, 0, true)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
@@ -43,6 +43,7 @@ namespace KCppAssist
         internal const int CmdLocal = 0x0100;
         internal const int CmdMember = 0x0101;
         internal const int CmdAccessor = 0x0102;
+        private const int CmdSettings = 0x0103;
 
         internal static void Log(string text)
         {
@@ -64,6 +65,7 @@ namespace KCppAssist
                 commands.AddCommand(new MenuCommand((s, e) => Run(false), new CommandID(CmdSet, CmdLocal)));
                 commands.AddCommand(new MenuCommand((s, e) => Run(true), new CommandID(CmdSet, CmdMember)));
                 commands.AddCommand(new MenuCommand((s, e) => RunAccessor(), new CommandID(CmdSet, CmdAccessor)));
+                commands.AddCommand(new MenuCommand((s, e) => ShowOptionPage(typeof(OptionsPage)), new CommandID(CmdSet, CmdSettings)));
             }
             Log("package initialized");
         }
