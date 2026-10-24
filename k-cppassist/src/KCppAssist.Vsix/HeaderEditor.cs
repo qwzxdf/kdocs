@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace KCppMember
+namespace KCppAssist
 {
     /// <summary>クラスの宣言(ヘッダーの文字)を探し、メンバー変数を足す場所と文字を決める。VS に依存しない。</summary>
     internal static class HeaderEditor

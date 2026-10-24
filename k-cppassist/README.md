@@ -1,8 +1,8 @@
-# K-CppMember
+# K-CppAssist
 
 Visual Studio 2022 / 2026 用の拡張です。宣言していない変数に代入したとき、キー 1 つで**型を付けて宣言**します。
 
-メンバー関数の中で `stride_ = device->GetDescriptorHandleIncrementSize(type);` と書くと、Visual Studio は `E0020: 識別子 "stride_" が定義されていません` と赤い波線を出します。直すには、ヘッダーを開いて、`GetDescriptorHandleIncrementSize` の戻り値が何だったかを調べて（`UINT`）、`UINT stride_;` を書き足して、元のファイルに戻る、という手間がかかります。K-CppMember は、この往復を 1 回のキーにします。
+メンバー関数の中で `stride_ = device->GetDescriptorHandleIncrementSize(type);` と書くと、Visual Studio は `E0020: 識別子 "stride_" が定義されていません` と赤い波線を出します。直すには、ヘッダーを開いて、`GetDescriptorHandleIncrementSize` の戻り値が何だったかを調べて（`UINT`）、`UINT stride_;` を書き足して、元のファイルに戻る、という手間がかかります。K-CppAssist は、この往復を 1 回のキーにします。
 
 ## 使い方
 
@@ -64,7 +64,7 @@ Alt+W は、カーソルのある `Class::Func` の `Class` を宣言から探�
 
 ## 設定
 
-ツール → オプション → K-CppMember → 全般（Visual Studio 2026 では、設定画面の「K-CppMember」から、従来のダイアログへ進みます）にあります。
+ツール → オプション → K-CppAssist → 全般（Visual Studio 2026 では、設定画面の「K-CppAssist」から、従来のダイアログへ進みます）にあります。
 
 - **ゲッターとセッターの間に空行を入れる**（初期値は True）。True のときは、ゲッターの前（直前がメンバーの行のとき）とゲッターとセッターの間に、空行を 1 行入れます。
 - **キー。** 3 つのコマンドのキーを、ここで変えられます。「Alt+Q」「Ctrl+Alt+M」のように書き、OK を押すと Visual Studio のキー割り当てに反映されます。空にするとキーを外します。開いたときは、今の割り当てが表示されます。
@@ -77,6 +77,8 @@ Alt+W は、カーソルのある `Class::Func` の `Class` を宣言から探�
 2. **Quick Info（ホバーの内容）。** 関数呼び出しなら、戻り値の型を取り出します。`virtual UINT __stdcall ID3D12Device::GetDescriptorHandleIncrementSize(...)` から `UINT` を取ります。変数や引数なら、その型を取ります。
 3. **どちらでも決まらないとき。** Alt+W は、型の入力欄を出します。Alt+Q は `auto` を入れます。
 
+右辺が `cond ? A : B` の形のときは、A と B を順に試して、最初に型が決まったほうを使います。`{}` と `nullptr` の枝は、型を持たないので飛ばします。
+
 `const` と参照は外して、値の型にそろえます（`const UINT&` は `UINT`）。ポインターの `const` は残します。
 
 ## 制限
@@ -87,11 +89,11 @@ Alt+W は、カーソルのある `Class::Func` の `Class` を宣言から探�
 - クラスが入れ子や、同じ名前が複数あるときは、最初に見つかったものに足します。
 - 右辺に演算子が入る式（`a + b` など）は、Quick Info では決められないので、入力欄（Alt+W）か `auto`（Alt+Q）になります。
 - Alt+W は、Visual Studio の「ウィンドウ」メニューのアクセスキーと重なります。効かない場合は、上の「設定」のキーで、別のキーに付け替えてください。
-- 失敗したときは、ステータスバーに理由が出ます。詳しいログは `%LOCALAPPDATA%\K-CppMember\vsix.log` です。
+- 失敗したときは、ステータスバーに理由が出ます。詳しいログは `%LOCALAPPDATA%\K-CppAssist\vsix.log` です。
 
 ## インストールとビルド
 
-`bin\K-CppMember.vsix` をダブルクリックして、Visual Studio を再起動します。作るには、次を実行します。事前に、Visual Studio の「Visual Studio extension development」ワークロードが要ります。
+`bin\K-CppAssist.vsix` をダブルクリックして、Visual Studio を再起動します。作るには、次を実行します。事前に、Visual Studio の「Visual Studio extension development」ワークロードが要ります。
 
 ```powershell
 .\build.ps1

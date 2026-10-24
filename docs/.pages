@@ -18,5 +18,6 @@ nav:
   - 文字コード: encoding
   - 外部ライブラリ: libs
   - K-HLSL: khlsl
+  - K-CppAssist: kcppassist
   - 用語集: glossary.md
   - ...

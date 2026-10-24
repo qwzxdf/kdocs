@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace KCppMember
+namespace KCppAssist
 {
     /// <summary>cpp の文字から、カーソルのいる関数がどのクラスのメンバー関数かを探す。VS に依存しない。</summary>
     internal static class CppScan

@@ -23,19 +23,19 @@ using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Task = System.Threading.Tasks.Task;
 
-namespace KCppMember
+namespace KCppAssist
 {
     /// <summary>
     /// 宣言していない変数への代入に、型を付ける。
     /// Alt+Q はローカル変数(その場に型を足す)、Alt+W はクラスのメンバー変数(ヘッダーに足す)。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-CppMember", "宣言していない変数に型を付ける", "0.4.0")]
+    [InstalledProductRegistration("K-CppAssist", "宣言していない変数に型を付ける", "0.4.1")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
-    [ProvideOptionPage(typeof(OptionsPage), "K-CppMember", "全般", 0, 0, true)]
+    [ProvideOptionPage(typeof(OptionsPage), "K-CppAssist", "全般", 0, 0, true)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     [Guid(PackageGuid)]
-    public sealed class KCppMemberPackage : AsyncPackage
+    public sealed class KCppAssistPackage : AsyncPackage
     {
         public const string PackageGuid = "b2f6c1a8-3d47-4e09-9a5c-81e7d0f4b362";
         internal const string CmdSetGuid = "e5a93d17-0c82-4b6f-a1d4-6f27b8c30e95";
@@ -48,7 +48,7 @@ namespace KCppMember
         {
             try
             {
-                string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "K-CppMember");
+                string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "K-CppAssist");
                 Directory.CreateDirectory(dir);
                 File.AppendAllText(Path.Combine(dir, "vsix.log"), DateTime.Now.ToString("HH:mm:ss.fff") + " " + text + Environment.NewLine);
             }
@@ -82,7 +82,7 @@ namespace KCppMember
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             Log((failed ? "FAIL " : "OK ") + message);
             var bar = await GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
-            if (bar != null) bar.SetText("K-CppMember: " + message);
+            if (bar != null) bar.SetText("K-CppAssist: " + message);
         }
 
         private async Task RunAsync(bool member)
@@ -121,12 +121,21 @@ namespace KCppMember
             }
 
             // 型を決める。式 → Quick Info → 聞く の順
-            string type = TypeInference.FromExpression(rhs);
+            // 「cond ? A : B」なら、枝を 1 つずつ試す。{} や nullptr の枝は型が決まらないので飛ばす
+            string type = null;
             string how = "式";
-            if (type == null)
+            var candidates = TypeInference.TernaryBranches(rhs) ?? new List<KeyValuePair<string, int>> { new KeyValuePair<string, int>(rhs, 0) };
+            foreach (var cand in candidates)
             {
-                type = await FromQuickInfoAsync(view, broker, snap, line.Start.Position + rhsStart, rhs);
-                how = "Quick Info";
+                if (Regex.IsMatch(cand.Key, @"^(\{.*\}|nullptr|NULL)$")) continue;
+                type = TypeInference.FromExpression(cand.Key);
+                how = "式";
+                if (type == null)
+                {
+                    type = await FromQuickInfoAsync(view, broker, snap, line.Start.Position + rhsStart + cand.Value, cand.Key);
+                    how = "Quick Info";
+                }
+                if (type != null) break;
             }
             if (type == null)
             {
@@ -442,7 +451,7 @@ namespace KCppMember
             panel.Children.Add(ok);
             var w = new System.Windows.Window
             {
-                Title = "K-CppMember",
+                Title = "K-CppAssist",
                 Content = panel,
                 SizeToContent = SizeToContent.WidthAndHeight,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,

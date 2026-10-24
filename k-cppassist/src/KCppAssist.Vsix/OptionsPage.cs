@@ -4,9 +4,9 @@ using System.Windows.Forms;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 
-namespace KCppMember
+namespace KCppAssist
 {
-    /// <summary>ツール → オプション → K-CppMember → 全般</summary>
+    /// <summary>ツール → オプション → K-CppAssist → 全般</summary>
     public class OptionsPage : DialogPage
     {
         [Category("ゲッター・セッター")]
@@ -38,11 +38,11 @@ namespace KCppMember
             ThreadHelper.ThrowIfNotOnUIThread();
             try
             {
-                LocalKey = Current(KCppMemberPackage.CmdLocal);
-                MemberKey = Current(KCppMemberPackage.CmdMember);
-                AccessorKey = Current(KCppMemberPackage.CmdAccessor);
+                LocalKey = Current(KCppAssistPackage.CmdLocal);
+                MemberKey = Current(KCppAssistPackage.CmdMember);
+                AccessorKey = Current(KCppAssistPackage.CmdAccessor);
             }
-            catch (Exception ex) { KCppMemberPackage.Log("read keys failed: " + ex.Message); }
+            catch (Exception ex) { KCppAssistPackage.Log("read keys failed: " + ex.Message); }
         }
 
         /// <summary>OK を押したとき、変わっていたキーを割り当て直す。</summary>
@@ -53,14 +53,14 @@ namespace KCppMember
             if (e.ApplyBehavior != ApplyKind.Apply) return;
             try
             {
-                Assign(KCppMemberPackage.CmdLocal, LocalKey);
-                Assign(KCppMemberPackage.CmdMember, MemberKey);
-                Assign(KCppMemberPackage.CmdAccessor, AccessorKey);
+                Assign(KCppAssistPackage.CmdLocal, LocalKey);
+                Assign(KCppAssistPackage.CmdMember, MemberKey);
+                Assign(KCppAssistPackage.CmdAccessor, AccessorKey);
             }
             catch (Exception ex)
             {
-                KCppMemberPackage.Log("assign keys failed: " + ex);
-                MessageBox.Show("キーを割り当てられませんでした。\n" + ex.Message, "K-CppMember");
+                KCppAssistPackage.Log("assign keys failed: " + ex);
+                MessageBox.Show("キーを割り当てられませんでした。\n" + ex.Message, "K-CppAssist");
             }
         }
 
@@ -68,7 +68,7 @@ namespace KCppMember
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var dte = (DTE)Package.GetGlobalService(typeof(DTE));
-            return dte.Commands.Item("{" + KCppMemberPackage.CmdSetGuid + "}", id);
+            return dte.Commands.Item("{" + KCppAssistPackage.CmdSetGuid + "}", id);
         }
 
         private static string Current(int id)
