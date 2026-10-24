@@ -9,7 +9,6 @@
   <ItemGroup>
     <Compile Include="..\..\src\KHlsl.Server\CBufferLayout.cs" />
     <Compile Include="..\..\src\KHlsl.Server\Analyzer.cs" />
-    <Compile Include="..\..\src\KHlsl.Server\CBufferOutput.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />

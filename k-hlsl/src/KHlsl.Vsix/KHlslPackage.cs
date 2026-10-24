@@ -21,7 +21,7 @@ namespace KHlsl.Vsix
     /// LSP の補完が使われない。"khlsl" へ切り離すと、K-HLSL の機能だけが働く。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-HLSL", "HLSL language support (SM 6.9)", "1.1.3")]
+    [InstalledProductRegistration("K-HLSL", "HLSL language support (SM 6.9)", "1.2.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideToolWindow(typeof(CBufferToolWindow), Style = VsDockStyle.Tabbed, Window = "34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3")]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
@@ -57,8 +57,11 @@ namespace KHlsl.Vsix
         private ITextDocumentFactoryService _documents;
         private IContentTypeRegistryService _contentTypes;
 
+        internal static KHlslPackage Current;
+
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            Current = this;
             await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
             var model = await GetServiceAsync(typeof(SComponentModel)) as IComponentModel;
             if (model == null) return;
@@ -96,6 +99,16 @@ namespace KHlsl.Vsix
             if (window == null || window.Frame == null) return;
             ((Microsoft.VisualStudio.Shell.Interop.IVsWindowFrame)window.Frame).Show();
             window.View.Reload(true);
+        }
+
+        /// <summary>C++ の構造体を、HLSL の cbuffer と比べる(C++ のホバーのリンクから呼ばれる)。</summary>
+        internal void ShowCompare(string cppPath, string cppText, string cppStruct)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var window = FindToolWindow(typeof(CBufferToolWindow), 0, true) as CBufferToolWindow;
+            if (window == null || window.Frame == null) return;
+            ((Microsoft.VisualStudio.Shell.Interop.IVsWindowFrame)window.Frame).Show();
+            window.View.ShowCompare(cppPath, cppText, cppStruct);
         }
 
         private void RefreshCBufferWindow()

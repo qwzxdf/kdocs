@@ -103,8 +103,6 @@ namespace KHlsl.Vsix
         {
             int size = (int)b["size"], padded = (int)b["paddedSize"], wasted = (int)b["wasted"];
             string summary = (string)b["title"] + "  " + size + " バイト(" + padded / 16 + " レジスタ)・隙間 " + wasted + " バイト";
-            var r = b["reorder"] as JObject;
-            if (r != null) summary += "・並べ替えで " + (int)r["saved"] + " バイト減";
             var panel = new StackPanel();
             panel.Children.Add(new TextBlock { Text = summary, FontSize = 10, FontWeight = FontWeights.SemiBold, Foreground = null, Margin = new Thickness(0, 0, 0, 4), TextWrapping = TextWrapping.Wrap, MaxWidth = 420 });
             var grid = CBufferGrid.Build(b, 13, 17, 8, EnvironmentColors.ToolTipTextBrushKey, null);

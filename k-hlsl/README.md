@@ -24,9 +24,13 @@ Visual Studio 2022 / 2026 用の HLSL 拡張です。Shader Model 6.9 までの�
 - DXC による診断（保存時と、入力が止まった 0.7 秒後）
 - 定数バッファのレイアウト（`cbuffer` / `ConstantBuffer<T>` / `struct`）。16 バイトのレジスタの詰め方を計算して、次の 3 つで見せる
     - ホバー: 1 行の要約と、小さい字のレジスタの図（VS 拡張の QuickInfo。`CBufferQuickInfo.cs`）。メンバーの宣言行では、そのメンバーのオフセット
-    - CodeLens: `cbuffer` の上に、大きさ・レジスタ数・隙間・並べ替えで減らせる量
-    - ツール ウィンドウ（拡張機能 → K-HLSL → 定数バッファのレイアウトを表示）: レジスタ × 4 バイトの升目、並べ替えの提案（HLSL）、同じ配置の C++ の struct（`_pad` と `static_assert` つき）
-    - 計算は `src/KHlsl.Server/CBufferLayout.cs`。`tests/CBufferTest` が、DXC（`-Od -Fc`）の出力と突き合わせる（固定ケース＋ランダム）。生成した C++ も、MSVC でコンパイルして確かめた
+    - CodeLens: `cbuffer` の上に、大きさ・レジスタ数・隙間
+    - ツール ウィンドウ（拡張機能 → K-HLSL → 定数バッファのレイアウトを表示）: レジスタ × 4 バイトの升目。下の領域に、C++ の構造体との比較（表と、2 つの図）
+    - 計算は `src/KHlsl.Server/CBufferLayout.cs`。`tests/CBufferTest` が、DXC（`-Od -Fc`）の出力と突き合わせる（固定ケース＋ランダム）
+- C++ の構造体との比較。C++ のファイルで `struct` の名前にカーソルを置くと、標準のホバーの下に「HLSL の cbuffer と比べる」リンクが出る（`CppQuickInfo.cs`）
+    - C++ の構造体は、MSVC（x64）の規則で `src/KHlsl.Server/CppLayout.cs` が計算する（コンパイラーは呼ばない）。`tests/CppLayoutTest` が、計算した値を `static_assert` にして MSVC でコンパイルし、`sizeof` / `offsetof` と突き合わせる
+    - 対応: 標準の型・DirectXMath の型・自作の構造体（入れ子・配列・継承）・`alignas`・`#pragma pack`・`std::array`。テンプレート・`union`・ビット フィールド・定義が見つからない型は、理由を表示する
+    - 比較は `src/KHlsl.Server/CppCompare.cs`。名前（`uv_scale` と `uvScale`）で対応づけ、最初のずれと、その続きを分けて示す
     - `-enable-16bit-types`・`-Zpr`・`#pragma pack_matrix`・`packoffset`・`typedef`・継承・`vector<T,N>` / `matrix<T,R,C>` に対応。16 ビット型を有効にしない `min16float` と配列の組み合わせは、DXC と合わない場合がある
 
 対応している新しい機能: `ResourceDescriptorHeap` / `SamplerDescriptorHeap`（SM 6.6）、パック 8 ビット演算、64 ビット アトミック、`WaveSize`、クアッド / ウェーブの全関数、メッシュ / 増幅シェーダー、DXR 1.1 の `RayQuery`、ワーク グラフ（SM 6.8）、`SampleCmpBias` / `SampleCmpGrad`、SM 6.9 の `dx::HitObject` と `dx::MaybeReorderThread`（Shader Execution Reordering）。
