@@ -32,5 +32,5 @@ C++ の入門書や、cppreference のようなリファレンスは、「何が
 - [描画最適化](rendering/index.md)
 - [文字コード](encoding/index.md)
 - [外部ライブラリ](libs/index.md)
-- [K-HLSL](khlsl/index.md)（HLSL の新しい構文に対応した、Visual Studio 用の拡張。ダウンロードもここ）
-- [K-CppAssist](kcppassist/index.md)（宣言していない変数に型を付けたり、ゲッター・セッターを作ったりする、Visual Studio 用の拡張。ダウンロードもここ）
+- [K-HLSL](khlsl/index.md)（Visual Studio 拡張機能）
+- [K-CppAssist](kcppassist/index.md)（Visual Studio 拡張機能）
