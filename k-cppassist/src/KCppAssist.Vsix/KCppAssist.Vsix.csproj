@@ -5,8 +5,8 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <LangVersion>latest</LangVersion>
-    <AssemblyName>KCppMember.Vsix</AssemblyName>
-    <RootNamespace>KCppMember</RootNamespace>
+    <AssemblyName>KCppAssist.Vsix</AssemblyName>
+    <RootNamespace>KCppAssist</RootNamespace>
     <GeneratePkgDefFile>true</GeneratePkgDefFile>
     <UseCodebase>true</UseCodebase>
     <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <VSCTCompile Include="KCppMember.vsct">
+    <VSCTCompile Include="KCppAssist.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>
     </VSCTCompile>
     <None Include="source.extension.vsixmanifest" SubType="Designer" />
@@ -47,6 +47,6 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" />
 
   <!-- SDK 形式のプロジェクトでは PrepareForRun が .vsix を作らないので、Build のあとで呼ぶ -->
-  <Target Name="KCppMemberPackVsix" AfterTargets="Build" DependsOnTargets="CreateVsixContainer" />
+  <Target Name="KCppAssistPackVsix" AfterTargets="Build" DependsOnTargets="CreateVsixContainer" />
 
 </Project>

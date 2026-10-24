@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace KCppMember
+namespace KCppAssist
 {
     /// <summary>メンバー変数のゲッター・セッターを作る。ヘッダーの文字だけを見る(VS に依存しない)。</summary>
     internal static class AccessorEditor
