@@ -30,7 +30,7 @@ namespace KCppMember
     /// Alt+Q はローカル変数(その場に型を足す)、Alt+W はクラスのメンバー変数(ヘッダーに足す)。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-CppMember", "宣言していない変数に型を付ける", "0.2.0")]
+    [InstalledProductRegistration("K-CppMember", "宣言していない変数に型を付ける", "0.3.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     [Guid(PackageGuid)]
@@ -40,6 +40,7 @@ namespace KCppMember
         private static readonly Guid CmdSet = new Guid("e5a93d17-0c82-4b6f-a1d4-6f27b8c30e95");
         private const int CmdLocal = 0x0100;
         private const int CmdMember = 0x0101;
+        private const int CmdAccessor = 0x0102;
 
         internal static void Log(string text)
         {
@@ -60,6 +61,7 @@ namespace KCppMember
             {
                 commands.AddCommand(new MenuCommand((s, e) => Run(false), new CommandID(CmdSet, CmdLocal)));
                 commands.AddCommand(new MenuCommand((s, e) => Run(true), new CommandID(CmdSet, CmdMember)));
+                commands.AddCommand(new MenuCommand((s, e) => RunAccessor(), new CommandID(CmdSet, CmdAccessor)));
             }
             Log("package initialized");
         }
@@ -189,6 +191,93 @@ namespace KCppMember
                 catch (Exception) { }
             }
             await ReportAsync(declaration + " を " + Path.GetFileName(header) + " に追加しました (" + how + ")", false);
+        }
+
+        // ---- ゲッター・セッター ----
+
+        private void RunAccessor()
+        {
+            _ = JoinableTaskFactory.RunAsync(async () =>
+            {
+                try { await RunAccessorAsync(); }
+                catch (Exception ex) { await ReportAsync("例外: " + ex.Message, true); Log(ex.ToString()); }
+            });
+        }
+
+        /// <summary>
+        /// ヘッダーの宣言行(UINT stride_;)か、cpp の代入行(stride_ = ...;)にカーソルがあれば、
+        /// そのメンバー変数の GetStride / SetStride を、クラスの public: の末尾に足す。
+        /// </summary>
+        private async Task RunAccessorAsync()
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
+            var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
+            var adapters = model.GetService<IVsEditorAdaptersFactoryService>();
+            var manager = (IVsTextManager)await GetServiceAsync(typeof(SVsTextManager));
+            var dte = (DTE)await GetServiceAsync(typeof(DTE));
+
+            IVsTextView vsView;
+            manager.GetActiveView(1, null, out vsView);
+            IWpfTextView view = vsView == null ? null : adapters.GetWpfTextView(vsView);
+            if (view == null) { await ReportAsync("アクティブなエディターがありません", true); return; }
+
+            string path = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
+            string ext = path == null ? "" : Path.GetExtension(path).ToLowerInvariant();
+            bool inHeader = ext == ".h" || ext == ".hpp" || ext == ".hh" || ext == ".hxx";
+
+            ITextSnapshot snap = view.TextSnapshot;
+            SnapshotPoint caret = view.Caret.Position.BufferPosition;
+            ITextSnapshotLine line = caret.GetContainingLine();
+            string lineText = line.GetText();
+
+            string member;
+            string className;
+            IWpfTextView target;      // 編集するヘッダーのビュー
+            if (inHeader)
+            {
+                member = AccessorEditor.NameFromDeclarationLine(lineText);
+                if (member == null) { await ReportAsync("この行はメンバー変数の宣言ではありません", true); return; }
+                var span = AccessorEditor.ClassAt(snap.GetText(), caret.Position);
+                if (span == null) { await ReportAsync("この行は、クラスの中ではありません", true); return; }
+                className = span.Name;
+                target = view;
+            }
+            else
+            {
+                var assign = Regex.Match(lineText, @"^\s*(?:this\s*->\s*)?([A-Za-z_]\w*)\s*=(?!=)");
+                if (!assign.Success) { await ReportAsync("この行は「名前 = 右辺;」の形ではありません", true); return; }
+                member = assign.Groups[1].Value;
+                className = EnclosingClass(snap, line.LineNumber);
+                if (className == null) { await ReportAsync("Class::Func の形のメンバー関数の中ではありません", true); return; }
+                string header = FindHeader(SolutionDir(dte, path), path, className);
+                if (header == null) { await ReportAsync("クラス " + className + " の宣言 (.h) が見つかりません", true); return; }
+                IVsUIHierarchy hier; uint itemId; IVsWindowFrame frame;
+                Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, header, Guid.Empty, out hier, out itemId, out frame);
+                IVsTextView hv = frame == null ? null : Microsoft.VisualStudio.Shell.VsShellUtilities.GetTextView(frame);
+                target = hv == null ? null : adapters.GetWpfTextView(hv);
+                if (target == null) { await ReportAsync(Path.GetFileName(header) + " を開けませんでした", true); return; }
+            }
+
+            string all = target.TextSnapshot.GetText();
+            var cls = AccessorEditor.Find(all, className);
+            if (cls == null) { await ReportAsync("クラス " + className + " の本体を読めませんでした", true); return; }
+            string type = AccessorEditor.FindMemberType(all, cls, member);
+            if (type == null) { await ReportAsync(className + " の中に、" + member + " の宣言が見つかりません (配列と static は未対応)", true); return; }
+
+            var skipped = new List<string>();
+            var lines = AccessorEditor.MakeLines(all, cls, member, type, skipped);
+            if (lines.Count == 0) { await ReportAsync(string.Join("、", skipped) + " はすでにあります", true); return; }
+            string eol = all.Contains("\r\n") ? "\r\n" : "\n";
+            var edit = AccessorEditor.PlanPublic(all, cls, lines, eol);
+            target.TextBuffer.Insert(edit.Position, edit.Text);
+
+            if (!inHeader && path != null)
+            {
+                IVsUIHierarchy h2; uint i2; IVsWindowFrame f2;
+                try { Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, path, Guid.Empty, out h2, out i2, out f2); }
+                catch (Exception) { }
+            }
+            await ReportAsync(string.Join(" / ", lines.Select(l => l.Substring(0, l.IndexOf('{')).Trim())) + " を追加しました", false);
         }
 
         /// <summary>
