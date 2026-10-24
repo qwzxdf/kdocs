@@ -143,8 +143,6 @@ namespace KHlsl.Server
                 if (!SamePathText(b.File, set.Path)) continue;
                 int wasted = CBufferLayout.WastedBytes(b);
                 string title = b.Size + " バイト(" + b.PaddedSize / 16 + " レジスタ)・隙間 " + wasted + " バイト";
-                var r = CBufferLayout.SuggestReorder(set.Table, set.Opt, b);
-                if (r != null) title += "・並べ替えで " + r.Saved + " バイト減らせる";
                 result.Add(new JObject
                 {
                     ["range"] = Range(b.Line, 0, b.Line, 0),
@@ -175,6 +173,123 @@ namespace KHlsl.Server
                     if (b != null && b.Members.Count > 0) blocks.Add(CBufferOutput.ToJson(set.Table, set.Opt, b));
                 }
             return new JObject { ["uri"] = uri, ["blocks"] = blocks };
+        }
+
+        // ---- C++ の構造体との比較 ----
+
+        /// <summary>C++ ファイルと、#include "..." したファイルのソース(同じフォルダーと、親フォルダー 3 つまでを探す)。</summary>
+        private List<CBufferLayout.Source> GatherCppSources(string path, string text)
+        {
+            var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { path };
+            var order = new List<CBufferLayout.Source>();
+            Action<CBufferLayout.Source, int> visit = null;
+            visit = (src, depth) =>
+            {
+                if (depth < 5)
+                    foreach (Match m in Regex.Matches(src.Masked, @"^[ 	]*#[ 	]*include[ 	]*""(?<f>[^""
+]+)""", RegexOptions.Multiline))
+                    {
+                        string resolved = null;
+                        string dir = Path.GetDirectoryName(src.Path);
+                        for (int up = 0; up < 4 && dir != null && resolved == null; up++, dir = Path.GetDirectoryName(dir))
+                        {
+                            try
+                            {
+                                string cand = Path.GetFullPath(Path.Combine(dir, m.Groups["f"].Value));
+                                if (File.Exists(cand)) resolved = cand;
+                            }
+                            catch (Exception) { }
+                        }
+                        if (resolved == null || !visited.Add(resolved)) continue;
+                        string t;
+                        try { t = File.ReadAllText(resolved); } catch (Exception) { continue; }
+                        visit(CBufferLayout.MakeSource(resolved, t), depth + 1);
+                    }
+                order.Add(src);
+            };
+            visit(CBufferLayout.MakeSource(path, text), 0);
+            return order;
+        }
+
+        /// <summary>C++ のカーソル位置の語が、計算できる struct の名前か(ホバーに、比べるリンクを出すかどうか)。</summary>
+        private JToken CppStructProbe(JToken p)
+        {
+            string path = (string)p["cppPath"];
+            string text = (string)p["cppText"] ?? SafeRead(path);
+            string word = (string)p["word"];
+            int line = p["line"] == null ? -1 : (int)p["line"];
+            var table = CppLayout.Collect(GatherCppSources(path, text));
+            string name = CppLayout.Has(table, word) ? word : null;
+            if (name == null && line >= 0) name = CppLayout.StructAt(table, path, line);
+            if (name == null) return new JObject { ["found"] = false };
+            var cs = CppLayout.Layout(table, name);
+            if (cs == null || cs.Incomplete) return new JObject { ["found"] = false };
+            return new JObject { ["found"] = true, ["name"] = name, ["size"] = cs.Size };
+        }
+
+        private static string SafeRead(string path)
+        {
+            try { return File.ReadAllText(path); } catch (Exception) { return ""; }
+        }
+
+        private JToken CppCompareRequest(JToken p)
+        {
+            string path = (string)p["cppPath"];
+            string text = (string)p["cppText"] ?? SafeRead(path);
+            string name = (string)p["cppStruct"];
+            int line = p["line"] == null ? -1 : (int)p["line"];
+            var table = CppLayout.Collect(GatherCppSources(path, text));
+            if (name == null && line >= 0) name = CppLayout.StructAt(table, path, line);
+            if (name == null) return new JObject { ["error"] = "C++ の構造体が見つかりません" };
+            var cs = CppLayout.Layout(table, name);
+            if (cs == null) return new JObject { ["error"] = "C++ の構造体 '" + name + "' の定義が見つかりません" };
+            if (cs.Incomplete) return new JObject { ["error"] = "C++ の構造体 '" + name + "' を計算できません: " + string.Join(" / ", cs.Problems) };
+
+            // 比べる相手の HLSL: 指定された物。なければ、開いている HLSL のうち、名前が合う物
+            string uri = (string)p["hlslUri"];
+            string wanted = (string)p["hlslBlock"];
+            var uris = new List<string>();
+            lock (_docs) uris.AddRange(_docs.Keys);
+            if (uri != null) { uris.Remove(uri); uris.Insert(0, uri); }
+            if (uris.Count == 0) return new JObject { ["error"] = "HLSL のファイルが開かれていません。比べる cbuffer のあるファイルを、K-HLSL で開いてください", ["cpp"] = CppCompare.CppBlockJson(cs) };
+
+            LayoutSet chosenSet = null;
+            LBlock chosen = null;
+            var candidates = new JArray();
+            string norm = CppCompare.Normalize(name);
+            foreach (string u in uris)
+            {
+                var set = LayoutsFor(u, TextOf(u));
+                var all = new List<LBlock>(set.Blocks);
+                foreach (var s in set.Table.Structs.Values)
+                {
+                    var sb = CBufferLayout.LayoutStruct(set.Table, set.Opt, s.Name);
+                    if (sb != null && sb.Members.Count > 0) all.Add(sb);
+                }
+                foreach (var b in all)
+                    if (u == uris[0]) candidates.Add(new JObject { ["name"] = b.Name, ["title"] = CBufferOutput.Title(b) });
+                LBlock hit = null;
+                if (wanted != null) hit = all.FirstOrDefault(b => b.Name == wanted);
+                if (hit == null && wanted == null) hit = all.FirstOrDefault(b => b.Kind != "struct" && CppCompare.Normalize(b.Name) == norm)
+                    ?? all.FirstOrDefault(b => CppCompare.Normalize(b.Name) == norm);
+                if (hit != null && chosen == null) { chosen = hit; chosenSet = set; }
+                if (chosen != null && u == uris[0]) break;
+            }
+            if (chosen == null)
+            {
+                // 名前が合う物がないときは、最初の HLSL ファイルの先頭の cbuffer
+                var set0 = LayoutsFor(uris[0], TextOf(uris[0]));
+                chosen = set0.Blocks.FirstOrDefault();
+                chosenSet = set0;
+                if (chosen == null) return new JObject { ["error"] = "HLSL のファイルに、cbuffer が見つかりません", ["cpp"] = CppCompare.CppBlockJson(cs), ["candidates"] = candidates };
+            }
+            var rows = CppCompare.Compare(cs.Members.Select(CppCompare.FromCpp).ToList(), chosen.Members.Select(CppCompare.FromHlsl).ToList());
+            var result = CppCompare.ToJson(cs, chosen, rows);
+            result["hlsl"] = CBufferOutput.ToJson(chosenSet.Table, chosenSet.Opt, chosen);
+            result["candidates"] = candidates;
+            result["cppStruct"] = name;
+            result["cppFile"] = cs.File;
+            return result;
         }
     }
 }

@@ -32,9 +32,11 @@ namespace KHlsl.Vsix
             HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
             VerticalScrollBarVisibility = ScrollBarVisibility.Auto
         };
-        private readonly TextBox _reorderBox = MakeCodeBox();
-        private readonly TextBox _cppBox = MakeCodeBox();
-        private readonly TextBlock _reorderNote = new TextBlock { Margin = new Thickness(6, 4, 6, 4), TextWrapping = TextWrapping.Wrap };
+
+        private readonly CppComparePanel _compare = new CppComparePanel { Visibility = Visibility.Collapsed };
+        private readonly GridSplitter _splitter = new GridSplitter { Height = 4, HorizontalAlignment = HorizontalAlignment.Stretch, Background = Brushes.Gray, Visibility = Visibility.Collapsed };
+        private string _cmpPath, _cmpText, _cmpStruct;
+        private readonly RowDefinition _cmpRow = new RowDefinition { Height = GridLength.Auto };
 
         private IServiceProvider _services;
         private string _path;
@@ -63,36 +65,26 @@ namespace KHlsl.Vsix
             bar.Children.Add(_file);
 
             _summary.SetResourceReference(TextBlock.ForegroundProperty, EnvironmentColors.ToolWindowTextBrushKey);
-            _reorderNote.SetResourceReference(TextBlock.ForegroundProperty, EnvironmentColors.ToolWindowTextBrushKey);
 
             var gridScroll = _gridHost;
-
-            var reorderPanel = new DockPanel();
-            DockPanel.SetDock(_reorderNote, Dock.Top);
-            reorderPanel.Children.Add(_reorderNote);
-            reorderPanel.Children.Add(_reorderBox);
-
-            var tabs = new TabControl { MinHeight = 150 };
-            tabs.Items.Add(new TabItem { Header = "並べ替えの提案(HLSL)", Content = WithCopy(reorderPanel, _reorderBox) });
-            tabs.Items.Add(new TabItem { Header = "C++ の struct", Content = WithCopy(_cppBox, _cppBox) });
 
             var grid = new Grid();
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(3, GridUnitType.Star) });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
             grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(2, GridUnitType.Star) });
-            var splitter = new GridSplitter { Height = 4, HorizontalAlignment = HorizontalAlignment.Stretch, Background = Brushes.Gray };
+            grid.RowDefinitions.Add(_cmpRow);
+            Grid.SetRow(_splitter, 3);
+            Grid.SetRow(_compare, 4);
+            grid.Children.Add(_splitter);
+            grid.Children.Add(_compare);
+            _compare.HlslBlockChanged = name => RunCompare(name);
             Grid.SetRow(bar, 0);
             Grid.SetRow(_summary, 1);
             Grid.SetRow(gridScroll, 2);
-            Grid.SetRow(splitter, 3);
-            Grid.SetRow(tabs, 4);
             grid.Children.Add(bar);
             grid.Children.Add(_summary);
             grid.Children.Add(gridScroll);
-            grid.Children.Add(splitter);
-            grid.Children.Add(tabs);
             Content = grid;
 
             IsVisibleChanged += (s, e) => { if (IsVisible) Reload(false); };
@@ -184,8 +176,6 @@ namespace KHlsl.Vsix
                 {
                     _gridHost.Content = null;
                     _summary.Text = "このファイルには、cbuffer・ConstantBuffer<T> がありません。「struct も表示」で、struct のレイアウトも見られます。";
-                    _reorderBox.Text = _cppBox.Text = "";
-                    _reorderNote.Text = "";
                 }
             });
         }
@@ -200,6 +190,42 @@ namespace KHlsl.Vsix
             }
             catch (Exception) { }
             return null;
+        }
+
+        // ---- C++ の構造体との比較 ----
+
+        /// <summary>C++ の構造体を、HLSL の cbuffer と比べて、結果を下の領域に出す。</summary>
+        public void ShowCompare(string cppPath, string cppText, string cppStruct)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            _cmpPath = cppPath; _cmpText = cppText; _cmpStruct = cppStruct;
+            _compare.Visibility = Visibility.Visible;
+            _splitter.Visibility = Visibility.Visible;
+            _cmpRow.Height = new GridLength(1, GridUnitType.Star);
+            _compare.ShowMessage("比べています...");
+            RunCompare(null);
+        }
+
+        private void RunCompare(string hlslBlock)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            string cppPath = _cmpPath, cppText = _cmpText, cppStruct = _cmpStruct;
+            string hlslUri = _path != null ? new Uri(_path).AbsoluteUri : null;
+            ThreadHelper.JoinableTaskFactory.RunAsync(async () =>
+            {
+                JToken result = null;
+                string error = null;
+                try
+                {
+                    result = await KHlslLanguageClient.RequestAsync("khlsl/cppcompare", new { cppPath, cppText, cppStruct, hlslUri, hlslBlock });
+                }
+                catch (Exception ex) { error = ex.Message; }
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                if (result == null) { _compare.ShowMessage(error != null ? "言語サーバーに問い合わせられませんでした: " + error : "言語サーバーがまだ起動していません。HLSL のファイルを開いて、少し待ってから、もう一度試してください。"); return; }
+                var o = (JObject)result;
+                if (o["error"] != null) { _compare.ShowMessage((string)o["error"]); return; }
+                _compare.Show(o);
+            });
         }
 
         // ---- 描画 ----
@@ -217,18 +243,6 @@ namespace KHlsl.Vsix
 
             _gridHost.Content = CBufferGrid.Build(b, 24, 30, 11, EnvironmentColors.ToolWindowTextBrushKey, GoTo);
 
-            var r = b["reorder"] as JObject;
-            if (r != null)
-            {
-                _reorderNote.Text = "メンバーの順番を入れ替えると、" + (int)r["size"] + " バイトになります(" + (int)r["saved"] + " バイト減)。C++ 側の struct も、同じ順に直してください。";
-                _reorderBox.Text = (string)r["hlsl"];
-            }
-            else
-            {
-                _reorderNote.Text = (bool)b["incomplete"] ? "計算できなかったので、提案を出せません。" : "これ以上は、入れ替えても小さくなりません(または packoffset を使っています)。";
-                _reorderBox.Text = "";
-            }
-            _cppBox.Text = (string)b["cpp"];
         }
 
         // ---- ファイルを開く ----

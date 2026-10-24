@@ -191,6 +191,8 @@ namespace KHlsl.Server
                 case "textDocument/definition": Respond(id, Definition(p)); break;
                 case "textDocument/codeLens": Respond(id, CodeLens(p)); break;
                 case "khlsl/cbuffers": Respond(id, CBuffersRequest(p)); break;
+                case "khlsl/cppcompare": Respond(id, CppCompareRequest(p)); break;
+                case "khlsl/cppstruct": Respond(id, CppStructProbe(p)); break;
                 default:
                     if (id != null) Respond(id, null);
                     break;
@@ -239,7 +241,7 @@ namespace KHlsl.Server
                     ["definitionProvider"] = true,
                     ["codeLensProvider"] = new JObject { ["resolveProvider"] = false }
                 },
-                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.1.3" }
+                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.2.0" }
             };
         }
 

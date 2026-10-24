@@ -49,6 +49,17 @@ namespace KHlsl.Vsix
             return await rpc.InvokeWithParameterObjectAsync<JToken>("khlsl/cbuffers", new { uri, includeStructs }).ConfigureAwait(false);
         }
 
+        /// <summary>言語サーバーが動いていて、独自のリクエストを送れるか。</summary>
+        internal static bool IsConnected { get { return _rpc != null; } }
+
+        /// <summary>言語サーバーへ、独自のリクエストを送る。接続がなければ null。</summary>
+        internal static async Task<JToken> RequestAsync(string method, object args)
+        {
+            var rpc = _rpc;
+            if (rpc == null) return null;
+            return await rpc.InvokeWithParameterObjectAsync<JToken>(method, args).ConfigureAwait(false);
+        }
+
         public async Task<Connection> ActivateAsync(CancellationToken token)
         {
             await Task.Yield();

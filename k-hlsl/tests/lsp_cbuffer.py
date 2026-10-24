@@ -91,7 +91,6 @@ lenses = req('textDocument/codeLens', {'textDocument': td})
 for l in lenses:
     print('lens', l['range']['start']['line'], l['command']['title'])
 check(len(lenses) == 3, 'CodeLens が 3 つ(PerFrame / Wasteful / gData)')
-check(any('並べ替えで' in l['command']['title'] for l in lenses), 'Wasteful に並べ替えの提案')
 
 res = req('khlsl/cbuffers', {'uri': uri, 'includeStructs': False})
 names = [b['name'] for b in res['blocks']]
@@ -99,12 +98,6 @@ print(names)
 check(names == ['PerFrame', 'Wasteful', 'gData'], 'khlsl/cbuffers のブロック名')
 pf = res['blocks'][0]
 check(pf['size'] == 272, 'PerFrame の大きさ: %s' % pf['size'])
-w = [b for b in res['blocks'] if b['name'] == 'Wasteful'][0]
-print(w['cpp'])
-print(w.get('reorder', {}).get('hlsl'))
-check('reorder' in w and w['reorder']['saved'] > 0, 'Wasteful の並べ替え')
-check('static_assert(sizeof(Wasteful)' in w['cpp'], 'C++ の struct と static_assert')
-
 req('shutdown', None)
 note('exit', None)
 sys.exit(0 if ok else 1)

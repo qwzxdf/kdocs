@@ -13,8 +13,6 @@ internal static class Program
 {
     private static string dxc;
     private static int failed, passed;
-    private static readonly StringBuilder CppAll = new StringBuilder();
-    private static int caseNo;
 
     private static int Main(string[] args)
     {
@@ -26,7 +24,6 @@ internal static class Program
         var rnd = new Random(20260101);
         for (int i = 0; i < random; i++) { var c = Generate(rnd, i); Run(c.Item1, c.Item2, c.Item3); }
         Console.WriteLine("一致 " + passed + " / 不一致 " + failed);
-        File.WriteAllText(Path.Combine(Path.GetTempPath(), "khlsl-cbtest", "cpp_all.cpp"), "#include <cstddef>\n#include <cstdint>\n#include <DirectXMath.h>\n" + CppAll);
         return failed == 0 ? 0 : 1;
     }
 
@@ -185,13 +182,6 @@ cbuffer C { vector<float,3> a; float b; matrix<float,3,3> c; vector<int,2> d; fl
                 else if (hit.Item2 != mem.Offset) { report.AppendLine("  " + b.Name + "." + mem.Name + " (" + mem.Type + (mem.ArrayCount > 0 ? "[" + mem.ArrayCount + "]" : "") + "): 自分 " + mem.Offset + " / DXC " + hit.Item2); ok = false; }
             }
             if (d.Item2 != b.Size && d.Item2 != b.PaddedSize) { report.AppendLine("  " + b.Name + " の大きさ: 自分 " + b.Size + " (" + b.PaddedSize + ") / DXC " + d.Item2); ok = false; }
-        }
-        if (ok)
-        {
-            caseNo++;
-            CppAll.Append("namespace case").Append(caseNo).Append(" {\n");
-            foreach (var b in blocks) CppAll.Append(CBufferOutput.CppStruct(b)).Append("\n");
-            CppAll.Append("}\n");
         }
         if (ok) { passed++; Console.WriteLine("OK   " + name); }
         else { failed++; Console.WriteLine("FAIL " + name); Console.Write(report); Console.WriteLine(src); }
