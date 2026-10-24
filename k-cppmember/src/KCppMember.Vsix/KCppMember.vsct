@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+
+  <Commands package="guidKCppMemberPackage">
+
+    <Groups>
+      <Group guid="guidKCppMemberCmdSet" id="KCppMemberMenuGroup" priority="0x0610">
+        <Parent guid="guidVsMainMenu" id="IDM_EXTENSIONS_MENU" />
+      </Group>
+    </Groups>
+
+    <Buttons>
+      <Button guid="guidKCppMemberCmdSet" id="CmdLocal" priority="0x0100" type="Button">
+        <Parent guid="guidKCppMemberCmdSet" id="KCppMemberMenuGroup" />
+        <Strings>
+          <ButtonText>ローカル変数に型を付ける</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidKCppMemberCmdSet" id="CmdMember" priority="0x0101" type="Button">
+        <Parent guid="guidKCppMemberCmdSet" id="KCppMemberMenuGroup" />
+        <Strings>
+          <ButtonText>メンバー変数として宣言する</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <KeyBindings>
+    <KeyBinding guid="guidKCppMemberCmdSet" id="CmdLocal" editor="guidVSStd97" key1="Q" mod1="Alt" />
+    <KeyBinding guid="guidKCppMemberCmdSet" id="CmdMember" editor="guidVSStd97" key1="W" mod1="Alt" />
+  </KeyBindings>
+
+  <Symbols>
+    <GuidSymbol name="guidVsMainMenu" value="{D309F791-903F-11D0-9EFC-00A0C911004F}">
+      <IDSymbol name="IDM_EXTENSIONS_MENU" value="0x0091" />
+    </GuidSymbol>
+
+    <GuidSymbol name="guidVSStd97" value="{5EFC7975-14BC-11CF-9B2B-00AA00573819}" />
+
+    <GuidSymbol name="guidKCppMemberPackage" value="{b2f6c1a8-3d47-4e09-9a5c-81e7d0f4b362}" />
+
+    <GuidSymbol name="guidKCppMemberCmdSet" value="{e5a93d17-0c82-4b6f-a1d4-6f27b8c30e95}">
+      <IDSymbol name="KCppMemberMenuGroup" value="0x1000" />
+      <IDSymbol name="CmdLocal" value="0x0100" />
+      <IDSymbol name="CmdMember" value="0x0101" />
+    </GuidSymbol>
+  </Symbols>
+
+</CommandTable>
