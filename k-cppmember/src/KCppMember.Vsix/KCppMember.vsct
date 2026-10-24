@@ -25,12 +25,19 @@
           <ButtonText>メンバー変数として宣言する</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidKCppMemberCmdSet" id="CmdAccessor" priority="0x0102" type="Button">
+        <Parent guid="guidKCppMemberCmdSet" id="KCppMemberMenuGroup" />
+        <Strings>
+          <ButtonText>ゲッター・セッターを作る</ButtonText>
+        </Strings>
+      </Button>
     </Buttons>
   </Commands>
 
   <KeyBindings>
     <KeyBinding guid="guidKCppMemberCmdSet" id="CmdLocal" editor="guidVSStd97" key1="Q" mod1="Alt" />
     <KeyBinding guid="guidKCppMemberCmdSet" id="CmdMember" editor="guidVSStd97" key1="W" mod1="Alt" />
+    <KeyBinding guid="guidKCppMemberCmdSet" id="CmdAccessor" editor="guidVSStd97" key1="E" mod1="Alt" />
   </KeyBindings>
 
   <Symbols>
@@ -46,6 +53,7 @@
       <IDSymbol name="KCppMemberMenuGroup" value="0x1000" />
       <IDSymbol name="CmdLocal" value="0x0100" />
       <IDSymbol name="CmdMember" value="0x0101" />
+      <IDSymbol name="CmdAccessor" value="0x0102" />
     </GuidSymbol>
   </Symbols>
 

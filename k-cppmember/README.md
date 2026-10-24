@@ -10,6 +10,7 @@ Visual Studio 2022 / 2026 用の拡張です。宣言していない変数に代
 |---|---|---|
 | Alt+W | メンバー変数として宣言する | クラスのヘッダー（`.h`）に `型 名前;` を足す |
 | Alt+Q | ローカル変数に型を付ける | その場の `count = 0;` を `int count = 0;` にする |
+| Alt+E | ゲッター・セッターを作る | `stride_` の `GetStride()` と `SetStride(...)` を、クラスの `public:` の末尾に足す |
 
 どちらも、**その行のどこにカーソルがあっても**押せます。行頭の `名前 = 右辺;` の左辺が対象です（`this->名前 = ...;` は Alt+W だけ）。拡張機能 メニューからも実行できます。
 
@@ -28,6 +29,18 @@ Alloc::Alloc(Dev* device, int type) {
 ```
 
 Alt+W は、カーソルのある `Class::Func` の `Class` を宣言から探して、そのクラスの末尾に足します。`private:` が最後でなければ、末尾に `private:` を作ってから足します。ヘッダーはエディターで開いたままになり（保存はしません）、作業中のファイルへ戻ります。挿入は 1 回の編集なので、Undo も 1 回です。
+
+## ゲッター・セッター（Alt+E）
+
+メンバー変数の宣言行（`UINT stride_;`）にカーソルを置くか、`.cpp` の `stride_ = ...;` の行にカーソルを置いて押します。名前は `stride_` から末尾の `_` を外して、先頭を大文字にします（`cpu_start_` は `GetCpuStart` / `SetCpuStart`）。
+
+```cpp
+ public:
+  unsigned int GetStride() const { return stride_; }
+  void SetStride(unsigned int value) { stride_ = value; }
+```
+
+`int`・`float`・`bool`・ポインター・`UINT` のような大文字の型は値で、`std::string` や構造体のような大きい型は `const T&` で受け渡します。`std::unique_ptr<T>` はゲッターだけで、`T*`（`.get()`）を返します。同じ名前がすでにあるときは足しません。`public:` がなければ、クラスの先頭に作ります。配列と `static` のメンバーは対象外です。
 
 ## 型の決め方
 
