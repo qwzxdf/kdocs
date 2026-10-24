@@ -13,22 +13,27 @@
     </Groups>
 
     <Buttons>
+      <!-- 3 つのコマンドは、メニューには出さない(キーだけで使う。キーは設定で変えられる) -->
       <Button guid="guidKCppAssistCmdSet" id="CmdLocal" priority="0x0100" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
           <ButtonText>ローカル変数に型を付ける</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdMember" priority="0x0101" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
           <ButtonText>メンバー変数として宣言する</ButtonText>
         </Strings>
       </Button>
       <Button guid="guidKCppAssistCmdSet" id="CmdAccessor" priority="0x0102" type="Button">
-        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
         <Strings>
           <ButtonText>ゲッター・セッターを作る</ButtonText>
+        </Strings>
+      </Button>
+      <!-- 拡張機能 メニューに出るのは、設定画面を開くこの 1 つだけ -->
+      <Button guid="guidKCppAssistCmdSet" id="CmdSettings" priority="0x0103" type="Button">
+        <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
+        <Strings>
+          <ButtonText>K-CppAssist の設定...</ButtonText>
         </Strings>
       </Button>
     </Buttons>
@@ -54,6 +59,7 @@
       <IDSymbol name="CmdLocal" value="0x0100" />
       <IDSymbol name="CmdMember" value="0x0101" />
       <IDSymbol name="CmdAccessor" value="0x0102" />
+      <IDSymbol name="CmdSettings" value="0x0103" />
     </GuidSymbol>
   </Symbols>
 
