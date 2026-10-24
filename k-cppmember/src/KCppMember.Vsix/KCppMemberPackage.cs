@@ -30,17 +30,19 @@ namespace KCppMember
     /// Alt+Q はローカル変数(その場に型を足す)、Alt+W はクラスのメンバー変数(ヘッダーに足す)。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-CppMember", "宣言していない変数に型を付ける", "0.3.0")]
+    [InstalledProductRegistration("K-CppMember", "宣言していない変数に型を付ける", "0.4.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
+    [ProvideOptionPage(typeof(OptionsPage), "K-CppMember", "全般", 0, 0, true)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
     [Guid(PackageGuid)]
     public sealed class KCppMemberPackage : AsyncPackage
     {
         public const string PackageGuid = "b2f6c1a8-3d47-4e09-9a5c-81e7d0f4b362";
-        private static readonly Guid CmdSet = new Guid("e5a93d17-0c82-4b6f-a1d4-6f27b8c30e95");
-        private const int CmdLocal = 0x0100;
-        private const int CmdMember = 0x0101;
-        private const int CmdAccessor = 0x0102;
+        internal const string CmdSetGuid = "e5a93d17-0c82-4b6f-a1d4-6f27b8c30e95";
+        private static readonly Guid CmdSet = new Guid(CmdSetGuid);
+        internal const int CmdLocal = 0x0100;
+        internal const int CmdMember = 0x0101;
+        internal const int CmdAccessor = 0x0102;
 
         internal static void Log(string text)
         {
@@ -114,7 +116,7 @@ namespace KCppMember
             string className = null;
             if (member)
             {
-                className = EnclosingClass(snap, line.LineNumber);
+                className = CppScan.EnclosingClass(snap.GetText(), caret.Position);
                 if (className == null) { await ReportAsync("Class::Func の形のメンバー関数の中ではありません", true); return; }
             }
 
@@ -247,7 +249,7 @@ namespace KCppMember
                 var assign = Regex.Match(lineText, @"^\s*(?:this\s*->\s*)?([A-Za-z_]\w*)\s*=(?!=)");
                 if (!assign.Success) { await ReportAsync("この行は「名前 = 右辺;」の形ではありません", true); return; }
                 member = assign.Groups[1].Value;
-                className = EnclosingClass(snap, line.LineNumber);
+                className = CppScan.EnclosingClass(snap.GetText(), caret.Position);
                 if (className == null) { await ReportAsync("Class::Func の形のメンバー関数の中ではありません", true); return; }
                 string header = FindHeader(SolutionDir(dte, path), path, className);
                 if (header == null) { await ReportAsync("クラス " + className + " の宣言 (.h) が見つかりません", true); return; }
@@ -261,14 +263,18 @@ namespace KCppMember
             string all = target.TextSnapshot.GetText();
             var cls = AccessorEditor.Find(all, className);
             if (cls == null) { await ReportAsync("クラス " + className + " の本体を読めませんでした", true); return; }
-            string type = AccessorEditor.FindMemberType(all, cls, member);
+            bool readOnly;
+            string type = AccessorEditor.FindMemberType(all, cls, member, out readOnly);
             if (type == null) { await ReportAsync(className + " の中に、" + member + " の宣言が見つかりません (配列と static は未対応)", true); return; }
 
             var skipped = new List<string>();
-            var lines = AccessorEditor.MakeLines(all, cls, member, type, skipped);
+            var page = (OptionsPage)GetDialogPage(typeof(OptionsPage));
+            string refused;
+            var lines = AccessorEditor.MakeLines(all, cls, member, type, readOnly, page.BlankLineBetweenAccessors, skipped, out refused);
+            if (lines == null) { await ReportAsync(refused, true); return; }
             if (lines.Count == 0) { await ReportAsync(string.Join("、", skipped) + " はすでにあります", true); return; }
             string eol = all.Contains("\r\n") ? "\r\n" : "\n";
-            var edit = AccessorEditor.PlanPublic(all, cls, lines, eol);
+            var edit = AccessorEditor.PlanPublic(all, cls, lines, eol, page.BlankLineBetweenAccessors);
             target.TextBuffer.Insert(edit.Position, edit.Text);
 
             if (!inHeader && path != null)
@@ -277,7 +283,7 @@ namespace KCppMember
                 try { Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, path, Guid.Empty, out h2, out i2, out f2); }
                 catch (Exception) { }
             }
-            await ReportAsync(string.Join(" / ", lines.Select(l => l.Substring(0, l.IndexOf('{')).Trim())) + " を追加しました", false);
+            await ReportAsync(string.Join(" / ", lines.Where(l => l.Length > 0).Select(l => l.Substring(0, l.IndexOf('{')).Trim())) + " を追加しました", false);
         }
 
         /// <summary>
