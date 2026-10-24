@@ -10,6 +10,11 @@
   --kd-cpp23: #c2185b;
 }
 
+/* 画面が広いときは、左の目次と右の目次を端に寄せて、本文を広げる（既定は 61rem で打ち止め） */
+.md-grid {
+  max-width: 120rem;
+}
+
 [data-md-color-scheme="slate"] {
   --kd-must: #ef5350;
   --kd-often: #ffa726;
