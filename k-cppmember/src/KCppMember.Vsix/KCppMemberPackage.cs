@@ -98,21 +98,16 @@ namespace KCppMember
             SnapshotPoint caret = view.Caret.Position.BufferPosition;
             ITextSnapshotLine line = caret.GetContainingLine();
             string text = line.GetText();
-            int caretCol = caret.Position - line.Start.Position;
 
-            string name = IdentifierAt(text, caretCol);
-            if (name == null) { await ReportAsync("カーソルの下に識別子がありません", true); return; }
-
-            // 「name = 右辺;」の形だけ扱う
-            int nameStart = caretCol;
-            while (nameStart > 0 && IsId(text[nameStart - 1])) nameStart--;
-            int eq = text.IndexOf('=', nameStart + name.Length);
-            if (eq < 0 || (eq + 1 < text.Length && text[eq + 1] == '=')) { await ReportAsync("同じ行に代入 (=) がありません", true); return; }
-            string rhs = text.Substring(eq + 1);
-            int semi = rhs.LastIndexOf(';');
-            if (semi >= 0) rhs = rhs.Substring(0, semi);
-            rhs = rhs.Trim();
-            int rhsStart = text.IndexOf(rhs, eq + 1, StringComparison.Ordinal);
+            // カーソルが行のどこにあっても、行頭の「name = 右辺;」(this-> は付いていてもよい)を対象にする
+            var assign = Regex.Match(text, @"^\s*(this\s*->\s*)?([A-Za-z_]\w*)\s*=(?!=)\s*(.*?)\s*;?\s*$");
+            if (!assign.Success || assign.Groups[3].Length == 0)
+            { await ReportAsync("この行は「名前 = 右辺;」の形ではありません", true); return; }
+            string name = assign.Groups[2].Value;
+            int nameStart = assign.Groups[2].Index;
+            string rhs = assign.Groups[3].Value;
+            int rhsStart = assign.Groups[3].Index;
+            if (!member && assign.Groups[1].Success) { await ReportAsync("this-> の付いた代入は、ローカル変数にできません", true); return; }
 
             string className = null;
             if (member)
