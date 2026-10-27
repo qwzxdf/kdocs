@@ -158,6 +158,8 @@ namespace KHlsl.Server
                     {
                         string between = m.Substring(pendingDecl.Index + pendingDecl.Length, i - (pendingDecl.Index + pendingDecl.Length));
                         if (Regex.IsMatch(between, @"^\s*(?::\s*[\w:,\s<>]+)?\s*$") || between.Trim().Length == 0 || Regex.IsMatch(between, @"^\s*:\s*[\w:,\s]+$")) isType = true;
+                        // cbuffer Name : register(b0, space1) { ... } のように、かっこ付きの指定が入ることがある
+                        else if ((pendingDecl.Groups[1].Value == "cbuffer" || pendingDecl.Groups[1].Value == "tbuffer") && between.IndexOfAny(new[] { ';', '{', '}' }) < 0) isType = true;
                     }
                     var b = new Block { Start = i, IsType = isType, Name = isType ? pendingDecl.Groups[2].Value : null, Kind = isType ? pendingDecl.Groups[1].Value : null };
                     if (isType) pendingDecl = null;
@@ -294,6 +296,29 @@ namespace KHlsl.Server
                     if (cont != null) s.Container = cont.Name;
                 }
                 scan.Syms.Add(s);
+
+                // float a, b = 1, c[4]; の 2 つ目以降
+                int tail = x.Index + x.Length;
+                if (tail < m.Length && (m[tail] == ',' || m[tail] == '='))
+                {
+                    int depth = 0, end = tail;
+                    for (; end < m.Length; end++)
+                    {
+                        char ch = m[end];
+                        if (ch == '(' || ch == '[' || ch == '{') depth++;
+                        else if (ch == ')' || ch == ']' || ch == '}') { if (--depth < 0) break; }
+                        else if (ch == ';' && depth == 0) break;
+                    }
+                    string rest = m.Substring(tail, end - tail);
+                    foreach (var piece in SplitTopLevel(rest, tail))
+                    {
+                        var dm2 = Regex.Match(piece.Item1, @"^\s*\*?\s*(?<name>[A-Za-z_]\w*)\s*(?:\[[^\]]*\]\s*)*(?::\s*\w+(?:\([^)]*\))?\s*)?(?:=.*)?$", RegexOptions.Singleline);
+                        if (!dm2.Success || NotType.Contains(dm2.Groups["name"].Value)) continue;
+                        var s2 = new Sym { Kind = SymKind.Variable, Name = dm2.Groups["name"].Value, Type = s.Type, File = path, Container = s.Container, Local = s.Local, ScopeStart = s.ScopeStart, ScopeEnd = s.ScopeEnd };
+                        Place(s2, lineStarts, piece.Item2 + dm2.Groups["name"].Index);
+                        scan.Syms.Add(s2);
+                    }
+                }
             }
 
             // typedef

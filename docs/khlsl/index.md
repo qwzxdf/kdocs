@@ -17,7 +17,7 @@ K-HLSL は、判定を<strong>本物の DXC に任せる</strong>ことで、こ
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-HLSL-1.2.0.vsix" download>K-HLSL 1.2.0 をダウンロード（.vsix、約 390 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-HLSL-1.2.1.vsix" download>K-HLSL 1.2.1 をダウンロード（.vsix、約 390 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも、同じ手順で上書きできます。アンインストールは、Visual Studio の「拡張機能の管理」から行います。
 
@@ -114,6 +114,7 @@ Visual Studio を起動した直後に自動で開かれるファイルは、切
 
 | 版 | 内容 |
 | --- | --- |
+| 1.2.1 | `cbuffer CB : register(b0) { ... }` のように `register` を付けた定数バッファの変数が、補完・ホバー・定義ジャンプに出なかった問題を直した。`float a, b;` のような、1 行で複数の変数を宣言したときの 2 つ目以降も、出るようにした |
 | 1.2.0 | C++ の構造体との比較を追加した（C++ のホバーのリンクから、表と図で比べる）。並べ替えの提案と、C++ の struct の生成は、外した |
 | 1.1.3 | ホバーのシグネチャを、見出しの大きさにした（コード ブロックの「コピー」ボタンは付けない） |
 | 1.1.2 | ホバーのコード ブロックを小さいインライン コードにした。定数バッファのホバーの図を小さくした |
