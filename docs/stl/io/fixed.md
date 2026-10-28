@@ -14,12 +14,13 @@ tags:
 `#include <ios>`
 </div>
 
-`std::fixed` は、**小数を固定小数点の形（`3.140000` のように、小数点以下の桁数をそろえる形）で出力する**マニピュレーターです。[`std::setprecision`](setprecision.md) と組み合わせて、小数点以下の桁数を指定します。**設定は残り続ける**ので注意します。新しいコードでは `std::println("{:.2f}", x)` が簡単です。
+座標を `10.5` と `10.50` のどちらで出すか。桁をそろえて、小数点以下を必ず 2 桁出したい。浮動小数点数を、指数表記ではなく、固定小数点の形で出すのが `std::fixed` です。
 
 !!! tip "ポイント"
-    - `std::cout << std::fixed << std::setprecision(2) << 3.14159;` → `3.14`。
-    - `fixed` なしの `setprecision(2)` は、全体の有効桁数になる。
-    - 新しいコードでは `{:.2f}`。
+    - `std::fixed` で、`123.456000` のような固定小数点の形で出す
+    - `setprecision(n)` と組み合わせると、小数点以下 `n` 桁になる
+    - 精度の既定は 6 桁。`fixed` だけなら、`3.140000` と出る
+    - 設定は残り続ける。戻すには `defaultfloat`
 
 !!! info "このページを読む前に"
     [`std::cout`](cout.md) などの出力ストリームの設定です。新しいコードでは [`std::println`](../utilities/print.md) の書式が簡単です。
@@ -32,39 +33,57 @@ tags:
 std::ios_base& fixed(std::ios_base& str);
 ```
 
-- 戻り値: `str`
-- 計算量: O(1)
+浮動小数点数を、`123.456` のような固定小数点の形で出します。桁が大きくても小さくても、指数表記（`1.23e+10`）には切り替わりません。
+
+[`setprecision`](setprecision.md) との組み合わせが前提です。`fixed` を流すと、精度の意味が「小数点以下の桁数」に変わります。`fixed` だけで精度を指定しないと、既定の 6 桁になり、`3.140000` のように末尾のゼロが並びます。
+
+表示が必要な桁数を超えた部分は、四捨五入されます。`std::fixed << std::setprecision(1) << 0.25` は、`0.2` か `0.3` のどちらかになります。浮動小数点数の内部表現が 2 進数のため、0.25 は正確に表せますが、丸め方は偶数丸めが一般的で `0.2` です。
+
+整数には効きません。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <iomanip>
 #include <iostream>
 
 int main() {
-  std::cout << std::fixed << std::setprecision(2) << 3.14159 << '\n';
+  std::cout << std::fixed;
+  std::cout << 3.14 << '\n';                         // 3.140000（既定の精度 6）
+  std::cout << std::setprecision(2) << 3.14159 << '\n';   // 3.14
+  std::cout << 1e10 << '\n';                         // 指数表記にならない
+  std::cout << 0.5 << '\n';                          // 0.50
 }
 ```
 
 ```text title="実行結果"
+3.140000
 3.14
+10000000000.00
+0.50
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 古いコードで、小数点以下の桁数をそろえる | `std::cout << std::fixed << std::setprecision(1) << hp_rate;` |
+座標、体力の割合、経過時間の表示で、小数点以下の桁数をそろえるときに使います。桁がそろうと、一覧表が読みやすくなります。
+
+C++20 の `std::format("{:.2f}", v)` なら、設定を残さずに同じ表示ができます。
 
 ## よくあるミス
 
-??? failure "設定が残る"
-    後の `double` の出力も固定小数点になります。
+??? failure "`fixed` を流したまま、あとの数値が全部固定小数点になる"
+    `std::defaultfloat` で戻します。
+
+??? failure "`setprecision` を忘れて、`3.140000` が出る"
+    桁数を指定します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
+| [`scientific`](scientific.md) | 指数表記にする |
+| [`defaultfloat`](defaultfloat.md) | 既定の書式に戻す |
 | [`setprecision`](setprecision.md) | 桁数を決める |
-| [`std::println`](../utilities/print.md) | `{:.2f}` |
 
 ## コンパイラ対応
 
@@ -74,8 +93,8 @@ C++11 以前から使えます。
 
 !!! abstract "まとめ"
     - [x] 固定小数点の形で出す
-    - [x] setprecision と組み合わせる
-    - [x] 設定が残る
+    - [x] `setprecision` で小数点以下の桁数
+    - [x] 戻すのは `defaultfloat`
 
 ## 関連ページ
 

@@ -90,8 +90,8 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 
 書き方は `tools/` の生成の仕組みではなく、1 ページずつ具体的に書く（同じ文章が並ばないように）。1 項目の単位は、同じ話題のまとまり 10〜40 ページ。
 
-- [ ] 2-3-1. `io/filesystem`（53）と `io/cstdio`（50）。filesystem は 36 ページ、cstdio は 31 ページを書き直した（残りは、filesystem の `path` 周辺の 10 ページほどと、cstdio の定数・`FILE`・`v*printf` など）
-- [ ] 2-3-2. `io` のルート（106）: ストリームの操作子、`cin`・`cout`・`endl`・`setw` など
+- [x] 2-3-1. `io/filesystem`（53）と `io/cstdio`（50）（2026-10-28 filesystem は `path`・`directory_entry` などの既に濃い所を除いて全部、cstdio は `printf` 以外の主要ページと定数を書き直した。サンプルは `verify_samples.py` で全部一致）
+- [ ] 2-3-2. `io` のルート（106）: 操作子（`hex`・`dec`・`oct`・`setbase`・`setw`・`setfill`・`left`・`right`・`internal`・`setprecision`・`fixed`・`scientific`・`defaultfloat`・`showpos`・`showbase`・`showpoint`・`uppercase`・`boolalpha`・`endl`・`flush`）は書き直した（2026-10-28）。残り: `ends`・`ws`・`unitbuf`・`skipws`・`hexfloat`・`resetiosflags`・`setiosflags`・`put_time`・`get_time`・`put_money`・`get_money`・`quoted`、`cin`・`cout`・`cerr`・`clog` とワイド版、`basic_*stream`、`*buf`、`va_*`、`setjmp` 系、regex 系 ほか
 - [ ] 2-3-3. `io/cwchar`（22）・`locale`（19）・`regex`（18）・`ctime`（15）
 - [ ] 2-3-4. `utilities/chrono`（86）
 - [ ] 2-3-5. `utilities/random`（39）

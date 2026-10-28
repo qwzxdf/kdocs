@@ -13,27 +13,30 @@ tags:
 `#include <cstdio>`
 </div>
 
-`fseek(f, offset, SEEK_CUR)` は、**現在の位置**から `offset` バイト動かします。負の値で戻れます。
+`fseek` の基準のうち、<strong>今の位置</strong>から数えるのが `SEEK_CUR` です。「今の場所から 4 バイト飛ばしたい」「1 バイト戻りたい」といった、相対的な移動に使います。
 
 !!! tip "ポイント"
-    - C 由来の入出力関数。
-    - 戻り値で失敗を調べる。
-    - 新しいコードでは `std::print` や `std::ifstream` / `std::ofstream` が安全。
+    - `fseek(f, n, SEEK_CUR)` で、今の位置から `n` バイト動く。負の値で戻る
+    - `fseek(f, 0, SEEK_CUR)` は、位置を変えずに、読み書きの切り替えをするときに使う
+    - テキスト モードでは、`offset` は 0 のときだけ使える
+    - 値そのものは環境定義。名前で使う
 
 !!! info "このページを読む前に"
     [`std::printf`](printf.md) と [`std::fopen`](fopen.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### SEEK_CUR {#seek_cur}
+### SEEK_CUR {#SEEK_CUR}
 
 ```cpp
-#define SEEK_CUR /* 実装定義 */
+#define SEEK_CUR /* 整数定数 */
 ```
 
-- 戻り値: 基準を表す整数
-- 計算量: 入出力の量に比例
+位置の基準を「今の位置」にします。`offset` が正なら先へ、負なら手前へ動きます。
 
+構造のあるバイナリ ファイルを順に読むとき、不要な部分を読み飛ばす用途で使います。たとえば、サイズ 16 バイトのヘッダーの後ろに、使わない 8 バイトのパディングがあるなら、`fseek(f, 8, SEEK_CUR)` で飛ばします。
+
+読み書き兼用で開いたファイルで、書き込みから読み込みに切り替える間には、`fseek` を挟む決まりがあります。位置を変えたくないときは、`fseek(f, 0, SEEK_CUR)` が、その役割を果たします。
 
 ## 実際に動かしてみる
 
@@ -42,37 +45,41 @@ tags:
 #include <print>
 
 int main() {
-  std::FILE* f = std::tmpfile();
-  std::fputs("abc", f);
-  std::rewind(f);
-  std::fgetc(f);
-  std::fseek(f, 1, SEEK_CUR);
-  std::println("{}", static_cast<char>(std::fgetc(f)));
+  std::FILE* out = std::fopen("abc.txt", "w");
+  std::fputs("ABCDEF", out);
+  std::fclose(out);
+
+  std::FILE* f = std::fopen("abc.txt", "rb");
+  std::fgetc(f);                    // A を読む
+  std::fseek(f, 2, SEEK_CUR);       // B, C を飛ばす
+  std::println("{}", static_cast<char>(std::fgetc(f)));   // D
+  std::fseek(f, -2, SEEK_CUR);      // 2 つ戻る（C へ）
+  std::println("{}", static_cast<char>(std::fgetc(f)));   // C
   std::fclose(f);
 }
 ```
 
 ```text title="実行結果"
-c
+D
+C
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | いまの位置から読み飛ばす |
+バイナリ形式の読み込みで、不要な領域を読み飛ばすときに使います。読んだ量に関係なく、「ここから N バイト」と相対的に指定できるので、レコードの長さが変わる形式の解析で重宝します。
 
 ## よくあるミス
 
-??? failure "テキストモードで使う"
-    テキストモードでは、0 以外のオフセットが使えない環境があります。
+??? failure "テキスト モードで 0 以外の `offset` を使う"
+    テキスト モードでは、`\r\n` の変換のため、バイト数の計算が合いません。バイナリ モードで使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`SEEK_SET`](seek_set.md) | 先頭 |
-| [`SEEK_END`](seek_end.md) | 末尾 |
+| [`SEEK_SET`](seek_set.md) | 先頭を基準にする |
+| [`SEEK_END`](seek_end.md) | 末尾を基準にする |
+| [`fseek`](fseek.md) | これらを受け取る関数 |
 
 ## コンパイラ対応
 
@@ -81,9 +88,9 @@ C++11 以前から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `fseek` の基準：現在位置
-    - [x] C 由来の入出力関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] 今の位置を基準にする
+    - [x] 負の値で戻れる
+    - [x] テキスト モードでは 0 だけ
 
 ## 関連ページ
 
