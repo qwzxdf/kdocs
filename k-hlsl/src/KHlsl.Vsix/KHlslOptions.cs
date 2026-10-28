@@ -1,94 +1,186 @@
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.Shell;
 
 namespace KHlsl.Vsix
 {
-    /// <summary>ツール → オプション → K-HLSL → 色。項目ごとに、専用の色を付けるかを選ぶ。色そのものは「フォントおよび色」で変える。</summary>
+    /// <summary>
+    /// ツール → オプション → K-HLSL → 色。色の見本から、K-HLSL の色を全部変えられる。
+    /// 空欄の色は、既定(専用の色、または VS の C++ と同じ色)。自動生成した部分を含む。
+    /// </summary>
     [ComVisible(true)]
     [Guid("8c4b1f6e-2d7a-4e39-b5c0-6a91d3e8f207")]
     public class KHlslColorOptions : DialogPage
     {
-        private const string Brackets = "1. 括弧";
-        private const string Keywords = "2. キーワードと関数";
-        private const string Names = "3. 名前の種類ごとの色";
-        private const string Strings = "4. 文字列の中";
-
-        [Category(Brackets), DisplayName("レインボー括弧")]
+        [Category("1. 括弧"), DisplayName("レインボー括弧")]
         [Description("( ) [ ] { } を、入れ子の深さで色分けする。OFF にすると、演算子と同じ色になる。")]
         public bool Rainbow { get; set; } = true;
 
-        [Category(Brackets), DisplayName("対応しない括弧を赤くする")]
+        [Category("1. 括弧"), DisplayName("対応しない括弧を赤くする")]
         [Description("対応する括弧のない ) ] } の背景を、薄い赤にする。")]
         public bool RainbowError { get; set; } = true;
 
-        [Category(Keywords), DisplayName("制御キーワードの専用色")]
-        [Description("if for while switch return などを、専用の色(既定は紫)にする。OFF にすると、キーワードの色になる。")]
+        [Category("3. 専用色の ON / OFF"), DisplayName("制御キーワードの専用色")]
+        [Description("OFF にすると、キーワードの色になる。")]
         public bool Control { get; set; } = true;
 
-        [Category(Keywords), DisplayName("#include などの専用色")]
-        [Description("# で始まるディレクティブを、専用の色(既定は灰色)にする。OFF にすると、キーワードの色になる。")]
+        [Category("3. 専用色の ON / OFF"), DisplayName("#include などの専用色")]
+        [Description("OFF にすると、キーワードの色になる。")]
         public bool Preprocessor { get; set; } = true;
 
-        [Category(Keywords), DisplayName("組み込み関数の専用色")]
-        [Description("mul saturate Sample などを、専用の色(既定は橙)にする。OFF にすると、独自の関数と同じ色になる。")]
+        [Category("3. 専用色の ON / OFF"), DisplayName("組み込み関数の専用色")]
+        [Description("OFF にすると、独自の関数と同じ色になる。")]
         public bool Intrinsic { get; set; } = true;
 
-        [Category(Keywords), DisplayName("public / private などの色")]
-        [Description("public private protected friend を、灰色にする。OFF にすると、キーワードの色になる。")]
+        [Category("3. 専用色の ON / OFF"), DisplayName("public / private などの専用色")]
+        [Description("OFF にすると、キーワードの色になる。")]
         public bool Visibility { get; set; } = true;
 
-        [Category(Names), DisplayName("型と名前空間")]
-        [Description("型名・名前空間・ラベルに、C++ と同じ色を付ける。OFF にすると、普通の識別子の色になる。")]
-        public bool Types { get; set; } = true;
-
-        [Category(Names), DisplayName("関数")]
-        [Description("独自の関数とメンバー関数に、C++ と同じ色を付ける。")]
-        public bool Functions { get; set; } = true;
-
-        [Category(Names), DisplayName("変数(スコープ別)")]
-        [Description("引数・ローカル変数・メンバー・グローバル変数を、別々の色にする。OFF にすると、すべて普通の識別子の色になる。")]
-        public bool Variables { get; set; } = true;
-
-        [Category(Names), DisplayName("マクロ")]
-        [Description("#define したマクロに、C++ と同じ色を付ける。")]
-        public bool Macros { get; set; } = true;
-
-        [Category(Names), DisplayName("列挙子・セマンティクス・属性")]
-        [Description("列挙子・SV_Position などのセマンティクス・[numthreads] などの属性に、色を付ける。")]
-        public bool Enumerators { get; set; } = true;
-
-        [Category(Strings), DisplayName("エスケープ(\\n \\x41 など)")]
-        [Description("文字列の中のエスケープを、マゼンタにする。OFF にすると、文字列と同じ色になる。")]
+        [Category("3. 専用色の ON / OFF"), DisplayName("文字列のエスケープの専用色")]
+        [Description("OFF にすると、文字列と同じ色になる。")]
         public bool Escape { get; set; } = true;
 
-        [Category(Strings), DisplayName("書式指定子(%d など)")]
-        [Description("文字列の中の %d %5.2f などを、専用の色にする。OFF にすると、文字列と同じ色になる。")]
+        [Category("3. 専用色の ON / OFF"), DisplayName("書式指定子の専用色")]
+        [Description("OFF にすると、文字列と同じ色になる。")]
         public bool FormatSpec { get; set; } = true;
 
-        private const string Colors = "5. 色(#RRGGBB。空欄は既定の色)";
+        [Category("3. 専用色の ON / OFF"), DisplayName("型・名前空間・ラベルの色分け")]
+        [Description("OFF にすると、普通の識別子の色になる。")]
+        public bool Types { get; set; } = true;
 
-        [Category(Colors), DisplayName("制御キーワード")] [Description("if for return など。例: #D8A0DF")]
-        public string ColorControl { get; set; } = "";
-        [Category(Colors), DisplayName("#include などのディレクティブ")] [Description("例: #9B9B9B")]
-        public string ColorPreprocessor { get; set; } = "";
-        [Category(Colors), DisplayName("組み込み関数")] [Description("mul saturate Sample など。例: #E8892B")]
-        public string ColorIntrinsic { get; set; } = "";
-        [Category(Colors), DisplayName("public / private など")] [Description("例: #696969")]
-        public string ColorVisibility { get; set; } = "";
-        [Category(Colors), DisplayName("文字列のエスケープ")] [Description("例: #FF00FF")]
-        public string ColorEscape { get; set; } = "";
-        [Category(Colors), DisplayName("書式指定子")] [Description("例: #7B68EE")]
-        public string ColorFormat { get; set; } = "";
-        [Category(Colors), DisplayName("レインボー括弧 1 番目")] [Description("例: #FF9900")]
-        public string ColorRainbow1 { get; set; } = "";
-        [Category(Colors), DisplayName("レインボー括弧 2 番目")] [Description("例: #FF1493")]
-        public string ColorRainbow2 { get; set; } = "";
-        [Category(Colors), DisplayName("レインボー括弧 3 番目")] [Description("例: #9ACD32")]
-        public string ColorRainbow3 { get; set; } = "";
-        [Category(Colors), DisplayName("レインボー括弧 4 番目")] [Description("例: #9400D3")]
-        public string ColorRainbow4 { get; set; } = "";
+        [Category("3. 専用色の ON / OFF"), DisplayName("関数の色分け")]
+        [Description("OFF にすると、普通の識別子の色になる。")]
+        public bool Functions { get; set; } = true;
+
+        [Category("3. 専用色の ON / OFF"), DisplayName("変数のスコープ別の色分け")]
+        [Description("引数・ローカル・メンバー・グローバルを別の色にする。OFF にすると、すべて普通の識別子の色になる。")]
+        public bool Variables { get; set; } = true;
+
+        [Category("3. 専用色の ON / OFF"), DisplayName("マクロの色分け")]
+        [Description("OFF にすると、普通の識別子の色になる。")]
+        public bool Macros { get; set; } = true;
+
+        [Category("3. 専用色の ON / OFF"), DisplayName("列挙子・セマンティクス・属性の色分け")]
+        [Description("OFF にすると、普通の識別子の色になる。")]
+        public bool Enumerators { get; set; } = true;
+
+        [Category("4. キーワードと関数の色"), DisplayName("制御キーワード")]
+        [Description("if for return など。既定は #D8A0DF")]
+        public Color ColorControl { get; set; }
+
+        [Category("4. キーワードと関数の色"), DisplayName("#include などのディレクティブ")]
+        [Description("#include #define など。既定は #9B9B9B")]
+        public Color ColorPreprocessor { get; set; }
+
+        [Category("4. キーワードと関数の色"), DisplayName("組み込み関数")]
+        [Description("mul saturate Sample など。既定は #E8892B")]
+        public Color ColorIntrinsic { get; set; }
+
+        [Category("4. キーワードと関数の色"), DisplayName("public / private など")]
+        [Description("public private protected friend。既定は #696969")]
+        public Color ColorVisibility { get; set; }
+
+        [Category("5. 文字列の中の色"), DisplayName("文字列のエスケープ")]
+        [Description("\n \x41 など。既定は #FF00FF")]
+        public Color ColorEscape { get; set; }
+
+        [Category("5. 文字列の中の色"), DisplayName("書式指定子")]
+        [Description("%d %5.2f など。既定は #7B68EE")]
+        public Color ColorFormat { get; set; }
+
+        [Category("2. レインボー括弧の色"), DisplayName("レインボー括弧 1 番目")]
+        [Description("最も外側の括弧。既定は #FF9900")]
+        public Color ColorRainbow1 { get; set; }
+
+        [Category("2. レインボー括弧の色"), DisplayName("レインボー括弧 2 番目")]
+        [Description("既定は #FF1493")]
+        public Color ColorRainbow2 { get; set; }
+
+        [Category("2. レインボー括弧の色"), DisplayName("レインボー括弧 3 番目")]
+        [Description("既定は #9ACD32")]
+        public Color ColorRainbow3 { get; set; }
+
+        [Category("2. レインボー括弧の色"), DisplayName("レインボー括弧 4 番目")]
+        [Description("既定は #9400D3")]
+        public Color ColorRainbow4 { get; set; }
+
+        [Category("7. コメント・リテラルなどの色(空欄は、VS の C++ と同じ色)"), DisplayName("コメント")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorComment { get; set; }
+
+        [Category("7. コメント・リテラルなどの色(空欄は、VS の C++ と同じ色)"), DisplayName("文字列")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorString { get; set; }
+
+        [Category("7. コメント・リテラルなどの色(空欄は、VS の C++ と同じ色)"), DisplayName("数値")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorNumber { get; set; }
+
+        [Category("7. コメント・リテラルなどの色(空欄は、VS の C++ と同じ色)"), DisplayName("演算子")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorOperator { get; set; }
+
+        [Category("4. キーワードと関数の色"), DisplayName("キーワード(float struct など)")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorKeyword { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("型")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorType { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("名前空間")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorNamespace { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("ラベル")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorLabel { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("関数")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorFunction { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("メンバー関数")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorMemberfunc { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("引数")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorParam { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("ローカル変数")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorLocal { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("メンバー変数")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorMember { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("グローバル変数")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorGlobal { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("マクロ")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorMacro { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("列挙子")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorEnumerator { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("セマンティクス(SV_Position など)")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorSemantic { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("属性([numthreads] など)")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorAttribute { get; set; }
+
+        [Category("6. 名前の色(空欄は、VS の C++ と同じ色)"), DisplayName("その他の識別子")]
+        [Description("VS の C++ の色を借りている")]
+        public Color ColorIdentifier { get; set; }
 
         public override void LoadSettingsFromStorage()
         {
@@ -105,46 +197,83 @@ namespace KHlsl.Vsix
             Variables = KHlslSettings.IsOn(KHlslSettings.Variables);
             Macros = KHlslSettings.IsOn(KHlslSettings.Macros);
             Enumerators = KHlslSettings.IsOn(KHlslSettings.Enumerators);
-            ColorControl = KHlslSettings.GetColor(KHlslSettings.ColorControl);
-            ColorPreprocessor = KHlslSettings.GetColor(KHlslSettings.ColorPreprocessor);
-            ColorIntrinsic = KHlslSettings.GetColor(KHlslSettings.ColorIntrinsic);
-            ColorVisibility = KHlslSettings.GetColor(KHlslSettings.ColorVisibility);
-            ColorEscape = KHlslSettings.GetColor(KHlslSettings.ColorEscape);
-            ColorFormat = KHlslSettings.GetColor(KHlslSettings.ColorFormat);
-            ColorRainbow1 = KHlslSettings.GetColor(KHlslSettings.ColorRainbow1);
-            ColorRainbow2 = KHlslSettings.GetColor(KHlslSettings.ColorRainbow2);
-            ColorRainbow3 = KHlslSettings.GetColor(KHlslSettings.ColorRainbow3);
-            ColorRainbow4 = KHlslSettings.GetColor(KHlslSettings.ColorRainbow4);
+            ColorControl = KHlslSettings.GetColorValue("color.control", "#D8A0DF");
+            ColorPreprocessor = KHlslSettings.GetColorValue("color.preprocessor", "#9B9B9B");
+            ColorIntrinsic = KHlslSettings.GetColorValue("color.intrinsic", "#E8892B");
+            ColorVisibility = KHlslSettings.GetColorValue("color.visibility", "#696969");
+            ColorEscape = KHlslSettings.GetColorValue("color.escape", "#FF00FF");
+            ColorFormat = KHlslSettings.GetColorValue("color.format", "#7B68EE");
+            ColorRainbow1 = KHlslSettings.GetColorValue("color.rainbow1", "#FF9900");
+            ColorRainbow2 = KHlslSettings.GetColorValue("color.rainbow2", "#FF1493");
+            ColorRainbow3 = KHlslSettings.GetColorValue("color.rainbow3", "#9ACD32");
+            ColorRainbow4 = KHlslSettings.GetColorValue("color.rainbow4", "#9400D3");
+            ColorComment = KHlslSettings.GetColorValue("color.comment", null);
+            ColorString = KHlslSettings.GetColorValue("color.string", null);
+            ColorNumber = KHlslSettings.GetColorValue("color.number", null);
+            ColorOperator = KHlslSettings.GetColorValue("color.operator", null);
+            ColorKeyword = KHlslSettings.GetColorValue("color.keyword", null);
+            ColorType = KHlslSettings.GetColorValue("color.type", null);
+            ColorNamespace = KHlslSettings.GetColorValue("color.namespace", null);
+            ColorLabel = KHlslSettings.GetColorValue("color.label", null);
+            ColorFunction = KHlslSettings.GetColorValue("color.function", null);
+            ColorMemberfunc = KHlslSettings.GetColorValue("color.memberfunc", null);
+            ColorParam = KHlslSettings.GetColorValue("color.param", null);
+            ColorLocal = KHlslSettings.GetColorValue("color.local", null);
+            ColorMember = KHlslSettings.GetColorValue("color.member", null);
+            ColorGlobal = KHlslSettings.GetColorValue("color.global", null);
+            ColorMacro = KHlslSettings.GetColorValue("color.macro", null);
+            ColorEnumerator = KHlslSettings.GetColorValue("color.enumerator", null);
+            ColorSemantic = KHlslSettings.GetColorValue("color.semantic", null);
+            ColorAttribute = KHlslSettings.GetColorValue("color.attribute", null);
+            ColorIdentifier = KHlslSettings.GetColorValue("color.identifier", null);
         }
 
         public override void SaveSettingsToStorage()
         {
-            KHlslSettings.Save(new Dictionary<string, string>
-            {
-                { KHlslSettings.Rainbow, Rainbow ? "1" : "0" },
-                { KHlslSettings.RainbowError, RainbowError ? "1" : "0" },
-                { KHlslSettings.Control, Control ? "1" : "0" },
-                { KHlslSettings.Preprocessor, Preprocessor ? "1" : "0" },
-                { KHlslSettings.Intrinsic, Intrinsic ? "1" : "0" },
-                { KHlslSettings.Visibility, Visibility ? "1" : "0" },
-                { KHlslSettings.Escape, Escape ? "1" : "0" },
-                { KHlslSettings.FormatSpec, FormatSpec ? "1" : "0" },
-                { KHlslSettings.Types, Types ? "1" : "0" },
-                { KHlslSettings.Functions, Functions ? "1" : "0" },
-                { KHlslSettings.Variables, Variables ? "1" : "0" },
-                { KHlslSettings.Macros, Macros ? "1" : "0" },
-                { KHlslSettings.Enumerators, Enumerators ? "1" : "0" },
-                { KHlslSettings.ColorControl, ColorControl },
-                { KHlslSettings.ColorPreprocessor, ColorPreprocessor },
-                { KHlslSettings.ColorIntrinsic, ColorIntrinsic },
-                { KHlslSettings.ColorVisibility, ColorVisibility },
-                { KHlslSettings.ColorEscape, ColorEscape },
-                { KHlslSettings.ColorFormat, ColorFormat },
-                { KHlslSettings.ColorRainbow1, ColorRainbow1 },
-                { KHlslSettings.ColorRainbow2, ColorRainbow2 },
-                { KHlslSettings.ColorRainbow3, ColorRainbow3 },
-                { KHlslSettings.ColorRainbow4, ColorRainbow4 }
-            });
+            var d = new Dictionary<string, string>();
+            d[KHlslSettings.Rainbow] = Rainbow ? "1" : "0";
+            d[KHlslSettings.RainbowError] = RainbowError ? "1" : "0";
+            d[KHlslSettings.Control] = Control ? "1" : "0";
+            d[KHlslSettings.Preprocessor] = Preprocessor ? "1" : "0";
+            d[KHlslSettings.Intrinsic] = Intrinsic ? "1" : "0";
+            d[KHlslSettings.Visibility] = Visibility ? "1" : "0";
+            d[KHlslSettings.Escape] = Escape ? "1" : "0";
+            d[KHlslSettings.FormatSpec] = FormatSpec ? "1" : "0";
+            d[KHlslSettings.Types] = Types ? "1" : "0";
+            d[KHlslSettings.Functions] = Functions ? "1" : "0";
+            d[KHlslSettings.Variables] = Variables ? "1" : "0";
+            d[KHlslSettings.Macros] = Macros ? "1" : "0";
+            d[KHlslSettings.Enumerators] = Enumerators ? "1" : "0";
+            d["color.control"] = KHlslSettings.ToHex(ColorControl, "#D8A0DF");
+            d["color.preprocessor"] = KHlslSettings.ToHex(ColorPreprocessor, "#9B9B9B");
+            d["color.intrinsic"] = KHlslSettings.ToHex(ColorIntrinsic, "#E8892B");
+            d["color.visibility"] = KHlslSettings.ToHex(ColorVisibility, "#696969");
+            d["color.escape"] = KHlslSettings.ToHex(ColorEscape, "#FF00FF");
+            d["color.format"] = KHlslSettings.ToHex(ColorFormat, "#7B68EE");
+            d["color.rainbow1"] = KHlslSettings.ToHex(ColorRainbow1, "#FF9900");
+            d["color.rainbow2"] = KHlslSettings.ToHex(ColorRainbow2, "#FF1493");
+            d["color.rainbow3"] = KHlslSettings.ToHex(ColorRainbow3, "#9ACD32");
+            d["color.rainbow4"] = KHlslSettings.ToHex(ColorRainbow4, "#9400D3");
+            d["color.comment"] = KHlslSettings.ToHex(ColorComment, null);
+            d["color.string"] = KHlslSettings.ToHex(ColorString, null);
+            d["color.number"] = KHlslSettings.ToHex(ColorNumber, null);
+            d["color.operator"] = KHlslSettings.ToHex(ColorOperator, null);
+            d["color.keyword"] = KHlslSettings.ToHex(ColorKeyword, null);
+            d["color.type"] = KHlslSettings.ToHex(ColorType, null);
+            d["color.namespace"] = KHlslSettings.ToHex(ColorNamespace, null);
+            d["color.label"] = KHlslSettings.ToHex(ColorLabel, null);
+            d["color.function"] = KHlslSettings.ToHex(ColorFunction, null);
+            d["color.memberfunc"] = KHlslSettings.ToHex(ColorMemberfunc, null);
+            d["color.param"] = KHlslSettings.ToHex(ColorParam, null);
+            d["color.local"] = KHlslSettings.ToHex(ColorLocal, null);
+            d["color.member"] = KHlslSettings.ToHex(ColorMember, null);
+            d["color.global"] = KHlslSettings.ToHex(ColorGlobal, null);
+            d["color.macro"] = KHlslSettings.ToHex(ColorMacro, null);
+            d["color.enumerator"] = KHlslSettings.ToHex(ColorEnumerator, null);
+            d["color.semantic"] = KHlslSettings.ToHex(ColorSemantic, null);
+            d["color.attribute"] = KHlslSettings.ToHex(ColorAttribute, null);
+            d["color.identifier"] = KHlslSettings.ToHex(ColorIdentifier, null);
+            KHlslSettings.Save(d);
         }
     }
 }

@@ -39,8 +39,35 @@ namespace KHlsl.Vsix
 
         public static readonly string[] ColorKeys =
         {
-            ColorControl, ColorPreprocessor, ColorIntrinsic, ColorVisibility, ColorEscape, ColorFormat,
-            ColorRainbow1, ColorRainbow2, ColorRainbow3, ColorRainbow4
+            "color.control",
+            "color.preprocessor",
+            "color.intrinsic",
+            "color.visibility",
+            "color.escape",
+            "color.format",
+            "color.rainbow1",
+            "color.rainbow2",
+            "color.rainbow3",
+            "color.rainbow4",
+            "color.comment",
+            "color.string",
+            "color.number",
+            "color.operator",
+            "color.keyword",
+            "color.type",
+            "color.namespace",
+            "color.label",
+            "color.function",
+            "color.memberfunc",
+            "color.param",
+            "color.local",
+            "color.member",
+            "color.global",
+            "color.macro",
+            "color.enumerator",
+            "color.semantic",
+            "color.attribute",
+            "color.identifier"
         };
 
         public static readonly string[] Keys =
@@ -79,6 +106,22 @@ namespace KHlsl.Vsix
                 v = (v ?? "").Trim();
                 return System.Text.RegularExpressions.Regex.IsMatch(v, "^#[0-9A-Fa-f]{6}$") ? v : "";
             }
+        }
+
+        /// <summary>設定ページに出す色。保存した色が無ければ、既定の色(既定が無ければ空欄 = Color.Empty)。</summary>
+        public static System.Drawing.Color GetColorValue(string key, string defaultHex)
+        {
+            string c = GetColor(key);
+            if (c.Length == 0) c = defaultHex ?? "";
+            return c.Length == 0 ? System.Drawing.Color.Empty : System.Drawing.ColorTranslator.FromHtml(c);
+        }
+
+        /// <summary>保存する値。空欄と、既定と同じ色は、空文字(既定のまま)。</summary>
+        public static string ToHex(System.Drawing.Color c, string defaultHex)
+        {
+            if (c.IsEmpty || c.A == 0) return "";
+            string hex = string.Format("#{0:X2}{1:X2}{2:X2}", c.R, c.G, c.B);
+            return string.Equals(hex, defaultHex, StringComparison.OrdinalIgnoreCase) ? "" : hex;
         }
 
         public static void Save(IDictionary<string, string> values)
