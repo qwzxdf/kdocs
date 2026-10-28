@@ -108,6 +108,8 @@ ClosingCommand = new DelegateCommand<CancelEventArgs>(e =>
 標準のトリガーで足りない場合は、`Behavior<T>` を継承して、部品に「振る舞い」を足せます。たとえば「入力欄にフォーカスが当たったら、全選択する」ビヘイビアです。
 
 ```csharp title="Behaviors/SelectAllOnFocusBehavior.cs（新規）"
+using System.Windows.Controls;
+using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
 
 namespace Editor.Behaviors;

@@ -352,6 +352,19 @@ public class ConfirmDialogViewModel : BindableBase, IDialogAware
 }
 ```
 
+呼ばれる順は、ダイアログを開いて「いいえ」で閉じたとき、次のとおりです（Prism 9.0.537 で、各メンバーに出力を足して確かめました）。
+
+```text title="実験の出力：開いて、「いいえ」で閉じたとき"
+ctor                  （ビューモデルのコンストラクター）
+OnDialogOpened
+（ここで、ボタンを押す）
+CanCloseDialog
+OnDialogClosed
+callback No           （ShowDialog に渡した、閉じたときの処理）
+```
+
+`ShowDialog` は、このあとで戻ります。`CanCloseDialog` が `false` を返すと、ダイアログは閉じられません。
+
 `IDialogAware` には 4 つのメンバーがあります。
 
 | メンバー | 役目 |
