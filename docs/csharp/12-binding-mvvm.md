@@ -366,7 +366,7 @@ View（XAML）                   ViewModel（C#）
 | ファイルやエンジンの呼び出し | ビューモデルから、サービス（インターフェース）を通して |
 | 見た目だけの話（アニメーション、部品の配置の微調整） | XAML か、ビューのコードビハインド |
 | ウィンドウや部品そのものを触る処理（`HwndHost` のイベントを受けるなど） | ビューのコードビハインド（ビューモデルに橋渡しするだけにする） |
-| `MessageBox`、ファイル ダイアログ | サービスに包んで、ビューモデルから呼ぶ（第 18 章） |
+| `MessageBox`、ファイル ダイアログ | サービスに包んで、ビューモデルから呼ぶ（第 23 章） |
 
 コードビハインドを絶対に使ってはいけない、という決まりではありません。画面の部品そのものを相手にする処理は、ビューのコードビハインドに書いたほうが素直です。ただしロジックは書かず、ビューモデルへ橋渡しするだけにとどめます。
 
@@ -381,8 +381,8 @@ View（XAML）                   ViewModel（C#）
 
 - [第 13 章 バインディングを掘り下げる](13-binding.md)：Mode と UpdateSourceTrigger の既定値、ElementName、RelativeSource、MultiBinding、入力検証、デバッグ
 - [第 14 章 リストとデータ表示](14-lists.md)：ListBox / ListView / DataGrid / ComboBox の使い分けと選択
-- [第 22 章 コードビハインドを減らす](22-behaviors.md)：Behaviors でイベントをコマンドに結ぶ
-- [第 20 章 MVVM ライブラリを比べる](20-mvvm-libraries.md)：Prism の `BindableBase` と CommunityToolkit.Mvvm、ReactiveProperty
+- [第 27 章 コードビハインドを減らす](27-behaviors.md)：Behaviors でイベントをコマンドに結ぶ
+- [第 25 章 MVVM ライブラリを比べる](25-mvvm-libraries.md)：Prism の `BindableBase` と CommunityToolkit.Mvvm、ReactiveProperty
 
 次の章では、バインディングの設定を細かく見ていきます。「更新されない」の原因の多くは、ここにあります。
 

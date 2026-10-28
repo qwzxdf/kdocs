@@ -84,37 +84,42 @@ MiniEngine.sln
 |  | [第 14 章 リストとデータ表示](14-lists.md) | ListBox、ComboBox、DataGrid、選択、仮想化 |
 |  | [第 15 章 非同期処理と UI スレッド](15-async-ui.md) | async / await、Dispatcher、IProgress |
 |  | [第 16 章 Prism の導入と起動の流れ](16-prism-bootstrap.md) | Prism、DI コンテナー、ViewModelLocator |
-|  | [第 17 章 リージョン、モジュール、ナビゲーション](17-regions-modules.md) | リージョン、モジュール、ナビゲーション |
-|  | [第 18 章 イベント集約、ダイアログ、サービス](18-events-dialogs.md) | IEventAggregator、ダイアログ、サービス |
-|  | [第 19 章 Prism を掘り下げる](19-prism-deep.md) | KeepAlive、IConfirmNavigationRequest、CompositeCommand |
-|  | [第 20 章 MVVM ライブラリを比べる](20-mvvm-libraries.md) | BindableBase と CommunityToolkit.Mvvm などの比較 |
-|  | [第 21 章 UserControl とカスタム コントロール](21-custom-controls.md) | UserControl とカスタム コントロール |
-|  | [第 22 章 コードビハインドを減らす（Behaviors）](22-behaviors.md) | Behaviors でイベントをコマンドに結ぶ |
-|  | [第 23 章 アプリの基本（起動・終了・ウィンドウ・コマンド）](23-app-basics.md) | 起動と終了、ウィンドウ、標準のコマンド |
-|  | [第 24 章 アニメーション](24-animation.md) | Storyboard とイージング |
-| 3 C# から C++ を呼ぶ | [第 25 章 C# から C++ を呼ぶ：連携方式の比較](25-interop-overview.md) | P/Invoke、C++/CLI、COM、IPC の比較と、境界のルール |
-|  | [第 26 章 EngineApi：C の入口を作る](26-engine-api.md) | C の API（ハンドル、エラー コード） |
-|  | [第 27 章 P/Invoke で C# から呼ぶ](27-pinvoke.md) | LibraryImport、構造体、SafeHandle、コールバック |
-|  | [第 28 章 C++/CLI で橋を作る](28-cpp-cli.md) | C++/CLI の橋と比較 |
-|  | [第 29 章 DLL の読み込み、x64、デバッグ](29-dll-loading.md) | 読み込みの仕組みと、エラーの切り分け、混在デバッグ |
-| 4 3D ビューポート | [第 30 章 3D ビューポートを埋め込む方法の比較](30-viewport-options.md) | HwndHost、D3DImage、WriteableBitmap などの比較 |
-|  | [第 31 章 HwndHost でビューポートを実装する](31-hwndhost.md) | 子ウィンドウの埋め込みと DX12 |
-|  | [第 32 章 描画ループとスレッド](32-render-loop.md) | 描画スレッドとコマンド キュー |
-|  | [第 33 章 入力とエディタ カメラ](33-input-camera.md) | 入力、カメラ、線の描画 |
-| 5 エディタの機能 | [第 34 章 シーンのデータと API](34-scene-api.md) | ドキュメントとエンジンの分離、同期 |
-|  | [第 35 章 シーン ツリー](35-scene-tree.md) | TreeView、選択、ドラッグ アンド ドロップ |
-|  | [第 36 章 プロパティ パネル](36-property-panel.md) | 型ごとの DataTemplate、入力の検証 |
-|  | [第 37 章 ピッキングとギズモ](37-picking-gizmo.md) | レイ、ピッキング、ギズモ |
-|  | [第 38 章 Undo/Redo](38-undo-redo.md) | コマンド パターン、トランザクション |
-|  | [第 39 章 保存と読み込み](39-save-load.md) | JSON、検証、非同期 |
-|  | [第 40 章 アセット ブラウザ](40-asset-browser.md) | FileSystemWatcher、サムネイル、ドロップ |
-| 6 ゲーム DLL と仕上げ | [第 41 章 Game DLL のインターフェース](41-game-interface.md) | 純粋仮想インターフェースと DLL の境界 |
-|  | [第 42 章 ホット リロード](42-hot-reload.md) | シャドウ コピー、状態の引き継ぎ |
-|  | [第 43 章 Play モード](43-play-mode.md) | 編集と Play の切り替え、元に戻す |
-|  | [第 44 章 ログとエラー処理](44-logging-errors.md) | 例外の捕捉、ログ、ダンプ |
-|  | [第 45 章 スレッド、メモリ、IDisposable](45-threads-memory.md) | スレッドの約束、リーク、IDisposable |
-|  | [第 46 章 ビルド、テスト、配布](46-build-deploy.md) | Release、配布、CI、テスト |
-|  | [第 47 章 まとめと、これから](47-next-steps.md) | 設計の振り返りと、これから |
+|  | [第 17 章 DI とは何か：IoC・DI・DI コンテナー](17-di-basics.md) | 自分で new する困りごと、コンストラクター インジェクション、IoC との違い |
+|  | [第 18 章 Prism の起動で何が起きるか](18-prism-startup.md) | `Main` の正体、起動の順番、`Container` の持ち主、Service Locator |
+|  | [第 19 章 登録とライフタイム](19-registration-lifetime.md) | 遅延生成、Singleton と Transient、未登録の型、インターフェースの要否 |
+|  | [第 20 章 ViewModelLocator のしくみ](20-viewmodel-locator.md) | AutoWire の流れ、名前の規則、動かないとき |
+|  | [第 21 章 DI コンテナーの種類と DryIoc](21-di-containers.md) | コンテナーの種類、Prism の共通の窓口、DryIoc 単体 |
+|  | [第 22 章 リージョン、モジュール、ナビゲーション](22-regions-modules.md) | リージョン、モジュール、ナビゲーション |
+|  | [第 23 章 イベント集約、ダイアログ、サービス](23-events-dialogs.md) | IEventAggregator、ダイアログ、サービス |
+|  | [第 24 章 Prism を掘り下げる](24-prism-deep.md) | KeepAlive、IConfirmNavigationRequest、CompositeCommand |
+|  | [第 25 章 MVVM ライブラリを比べる](25-mvvm-libraries.md) | BindableBase と CommunityToolkit.Mvvm などの比較 |
+|  | [第 26 章 UserControl とカスタム コントロール](26-custom-controls.md) | UserControl とカスタム コントロール |
+|  | [第 27 章 コードビハインドを減らす（Behaviors）](27-behaviors.md) | Behaviors でイベントをコマンドに結ぶ |
+|  | [第 28 章 アプリの基本（起動・終了・ウィンドウ・コマンド）](28-app-basics.md) | 起動と終了、ウィンドウ、標準のコマンド |
+|  | [第 29 章 アニメーション](29-animation.md) | Storyboard とイージング |
+| 3 C# から C++ を呼ぶ | [第 30 章 C# から C++ を呼ぶ：連携方式の比較](30-interop-overview.md) | P/Invoke、C++/CLI、COM、IPC の比較と、境界のルール |
+|  | [第 31 章 EngineApi：C の入口を作る](31-engine-api.md) | C の API（ハンドル、エラー コード） |
+|  | [第 32 章 P/Invoke で C# から呼ぶ](32-pinvoke.md) | LibraryImport、構造体、SafeHandle、コールバック |
+|  | [第 33 章 C++/CLI で橋を作る](33-cpp-cli.md) | C++/CLI の橋と比較 |
+|  | [第 34 章 DLL の読み込み、x64、デバッグ](34-dll-loading.md) | 読み込みの仕組みと、エラーの切り分け、混在デバッグ |
+| 4 3D ビューポート | [第 35 章 3D ビューポートを埋め込む方法の比較](35-viewport-options.md) | HwndHost、D3DImage、WriteableBitmap などの比較 |
+|  | [第 36 章 HwndHost でビューポートを実装する](36-hwndhost.md) | 子ウィンドウの埋め込みと DX12 |
+|  | [第 37 章 描画ループとスレッド](37-render-loop.md) | 描画スレッドとコマンド キュー |
+|  | [第 38 章 入力とエディタ カメラ](38-input-camera.md) | 入力、カメラ、線の描画 |
+| 5 エディタの機能 | [第 39 章 シーンのデータと API](39-scene-api.md) | ドキュメントとエンジンの分離、同期 |
+|  | [第 40 章 シーン ツリー](40-scene-tree.md) | TreeView、選択、ドラッグ アンド ドロップ |
+|  | [第 41 章 プロパティ パネル](41-property-panel.md) | 型ごとの DataTemplate、入力の検証 |
+|  | [第 42 章 ピッキングとギズモ](42-picking-gizmo.md) | レイ、ピッキング、ギズモ |
+|  | [第 43 章 Undo/Redo](43-undo-redo.md) | コマンド パターン、トランザクション |
+|  | [第 44 章 保存と読み込み](44-save-load.md) | JSON、検証、非同期 |
+|  | [第 45 章 アセット ブラウザ](45-asset-browser.md) | FileSystemWatcher、サムネイル、ドロップ |
+| 6 ゲーム DLL と仕上げ | [第 46 章 Game DLL のインターフェース](46-game-interface.md) | 純粋仮想インターフェースと DLL の境界 |
+|  | [第 47 章 ホット リロード](47-hot-reload.md) | シャドウ コピー、状態の引き継ぎ |
+|  | [第 48 章 Play モード](48-play-mode.md) | 編集と Play の切り替え、元に戻す |
+|  | [第 49 章 ログとエラー処理](49-logging-errors.md) | 例外の捕捉、ログ、ダンプ |
+|  | [第 50 章 スレッド、メモリ、IDisposable](50-threads-memory.md) | スレッドの約束、リーク、IDisposable |
+|  | [第 51 章 ビルド、テスト、配布](51-build-deploy.md) | Release、配布、CI、テスト |
+|  | [第 52 章 まとめと、これから](52-next-steps.md) | 設計の振り返りと、これから |
 
 ## この教材の進め方
 

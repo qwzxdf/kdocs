@@ -112,7 +112,7 @@ WinUI や UWP の `{x:Bind}`（コンパイル時にチェックされるバイ�
 Debug.WriteLine($"Selection = {SelectedItem?.Name}");
 ```
 
-リリース ビルドでは、`Debug.WriteLine` は消えます。本番に残したいログは、第 44 章のログ サービスを使います。
+リリース ビルドでは、`Debug.WriteLine` は消えます。本番に残したいログは、第 49 章のログ サービスを使います。
 
 ## この章のまとめ
 

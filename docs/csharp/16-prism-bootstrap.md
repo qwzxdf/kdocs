@@ -27,17 +27,17 @@ Prism はこれらに対する部品をそろえたフレームワークです�
 
 | Prism の機能 | 何に使うか | 扱う場所 |
 | --- | --- | --- |
-| DI コンテナー | 必要なクラスを自動で作って渡す | この章、第 18 章 |
+| DI コンテナー | 必要なクラスを自動で作って渡す | この章、第 17〜21 章 |
 | ViewModelLocator | 画面とビューモデルを名前の規則で自動でつなぐ | この章 |
 | BindableBase、DelegateCommand | 通知とコマンドの定型文を減らす | この章 |
-| リージョン | 画面の枠にあとから部品を差し込む | 第 17 章 |
-| モジュール | 機能のまとまりを起動時に登録する | 第 17 章 |
-| IEventAggregator | お互いを知らない部品の間で連絡する | 第 18 章 |
-| ダイアログ サービス | ビューモデルからダイアログを開く | 第 18 章 |
+| リージョン | 画面の枠にあとから部品を差し込む | 第 22 章 |
+| モジュール | 機能のまとまりを起動時に登録する | 第 22 章 |
+| IEventAggregator | お互いを知らない部品の間で連絡する | 第 23 章 |
+| ダイアログ サービス | ビューモデルからダイアログを開く | 第 23 章 |
 
 Prism のバージョンは、上げると名前空間や API が変わる所があります（とくにダイアログ周り）。Web で見つけた古い記事のコードを写すときは、どのバージョン向けかを確かめてください。この教材は Prism 9（DryIoc 版）で書いています。
 
-また、MVVM の補助だけが目的なら、CommunityToolkit.Mvvm のような軽いライブラリも選べます。違いは第 20 章で比べました。
+また、MVVM の補助だけが目的なら、CommunityToolkit.Mvvm のような軽いライブラリも選べます。違いは第 25 章で比べました。
 
 ## NuGet で入れる
 
@@ -119,7 +119,7 @@ public partial class App : PrismApplication
 - `CreateShell()` は、最初の画面を作る関数です。この「一番外側のウィンドウ」を Prism 用語でシェルと呼びます。ここでは `MainWindow` です。
 - `RegisterTypes()` は、DI コンテナーに型を登録する場所です。今は空ですが、このあと使います。
 
-`Container.Resolve<MainWindow>()` の `Container` が DI コンテナーです。「`MainWindow` を作って」と頼むと、必要なものを自動で作って渡してくれます。DI の話は、次の節でじっくり説明します。
+`Container.Resolve<MainWindow>()` の `Container` が DI コンテナーです。「`MainWindow` を作って」と頼むと、必要なものを自動で作って渡してくれます。DI の話は、次の節で入口を説明し、第 17〜21 章でじっくり掘り下げます。
 
 ## DI コンテナーとは何か
 
@@ -373,9 +373,10 @@ public class MainWindowViewModel : BindableBase
 
 ## 関連する章
 
-- [第 20 章 MVVM ライブラリを比べる](20-mvvm-libraries.md)：`BindableBase` と CommunityToolkit.Mvvm の書き比べ
-- [第 19 章 Prism を掘り下げる](19-prism-deep.md)：ナビゲーションの確認、KeepAlive、CompositeCommand、モジュールの遅延読み込み
+- [第 17 章 DI とは何か](17-di-basics.md)〜[第 21 章 DI コンテナーの種類と DryIoc](21-di-containers.md)：DI の掘り下げ
+- [第 25 章 MVVM ライブラリを比べる](25-mvvm-libraries.md)：`BindableBase` と CommunityToolkit.Mvvm の書き比べ
+- [第 24 章 Prism を掘り下げる](24-prism-deep.md)：ナビゲーションの確認、KeepAlive、CompositeCommand、モジュールの遅延読み込み
 
-次の章では、画面を「リージョン」という領域に分けて、機能ごとのモジュールが自分の画面をそこへ差し込む形に作り直します。
+次の章からは、ここで出てきた DI の仕組みを、「なぜ必要か」から順に掘り下げます。その後の第 22 章では、画面を「リージョン」という領域に分けて、機能ごとのモジュールが自分の画面をそこへ差し込む形に作り直します。
 
-[第 17 章 リージョン、モジュール、ナビゲーション](17-regions-modules.md) へ進みます。
+[第 17 章 DI とは何か](17-di-basics.md) へ進みます。第 22 章の画面づくりに進みたいときは、DI の章（第 17〜21 章）を飛ばして、[第 22 章 リージョン、モジュール、ナビゲーション](22-regions-modules.md) へ進んでも構いません。
