@@ -3116,22 +3116,22 @@
   link: libs/serialization/cista.md
 - terms: [コミット, commit]
   text: ある時点のプロジェクト全体の状態を、Git に 1 つ記録したもの。
-  link: vs/git.md
+  link: git/commit.md
 - terms: [ブランチ, branch, 枝]
   text: 履歴の枝。機能ごとに枝を分けて作業し、終わったら元の枝に合体する。
-  link: vs/git.md
+  link: git/branch.md
 - terms: [マージ, merge]
   text: 別々の枝の変更を 1 つに合体すること。同じ行を直していると、コンフリクトになる。
-  link: vs/git.md
+  link: git/merge.md
 - terms: [コンフリクト, conflict, 衝突]
   text: 同じ場所を別々に直したため、Git が自動で合体できない状態。人が選んで直す。
-  link: vs/git.md
+  link: git/conflict.md
 - terms: [リポジトリ, repository]
   text: プロジェクトのフォルダーと、その履歴を入れた入れ物。
-  link: vs/git.md
+  link: git/concepts.md
 - terms: [Git LFS, LFS]
   text: 大きなファイルの中身を別の置き場に預け、リポジトリには目印だけを入れる仕組み。
-  link: vs/git-lfs.md
+  link: git/git-lfs.md
 - terms: [CI, 継続的インテグレーション]
   text: push のたびに、ビルドとテストを自動で動かす仕組み。
   link: vs/github-actions.md

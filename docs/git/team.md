@@ -1,7 +1,7 @@
 ---
 title: チーム開発の進め方
 tags:
-  - Visual Studio
+  - Git
 ---
 
 # チーム開発の進め方
@@ -17,8 +17,8 @@ tags:
     - 書き方の議論は人間がせず、`.editorconfig` と `clang-format` に任せる
 
 !!! info "このページを読む前に"
-    - [Git の基礎](git.md)（ブランチ、マージ、コンフリクト）
-    - [.editorconfig](editorconfig.md)（改行や字下げをそろえる）
+    - [ブランチ](branch.md)、[マージ](merge.md)、[コンフリクト](conflict.md)
+    - [.editorconfig](../vs/editorconfig.md)（改行や字下げをそろえる）
 
 ## ブランチの切り方 {#branch}
 
@@ -92,7 +92,7 @@ Visual Studio は `.clang-format` を読みます。「ツール → オプシ�
 ## よくあるミス {#mistakes}
 
 ??? failure "`main` が壊れたまま放置された"
-    ビルドが通らないコミットが `main` に入ると、全員の作業が止まります。まず元に戻す（`git revert`）ことを優先し、原因の調査はあとで行います。自動ビルドの [GitHub Actions](github-actions.md) で、PR のビルドを確認すると防げます。
+    ビルドが通らないコミットが `main` に入ると、全員の作業が止まります。まず元に戻す（`git revert`）ことを優先し、原因の調査はあとで行います。自動ビルドの [GitHub Actions](../vs/github-actions.md) で、PR のビルドを確認すると防げます。
 
 ??? failure "PR が大きすぎて、誰も見ない"
     機能を分けて、小さい PR を複数出します。「まず下準備だけの PR」「次に機能の本体の PR」と段階を踏むと読みやすくなります。
@@ -105,6 +105,6 @@ Visual Studio は `.clang-format` を読みます。「ツール → オプシ�
 
 ## 関連ページ {#related}
 
-- [Git の基礎](git.md)
-- [GitHub Actions で自動ビルド](github-actions.md)
-- [clang-tidy と静的解析](clang-tidy.md)
+- [GitHub を使う](github.md)
+- [GitHub Actions で自動ビルド](../vs/github-actions.md)
+- [clang-tidy と静的解析](../vs/clang-tidy.md)

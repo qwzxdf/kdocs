@@ -1,7 +1,7 @@
 ---
 title: Git LFS とゲームのリポジトリ
 tags:
-  - Visual Studio
+  - Git
 ---
 
 # Git LFS とゲームのリポジトリ
@@ -17,8 +17,8 @@ Git LFS（Large File Storage）は、<strong>大きなファイルの中身を�
     - GitHub の無料枠には LFS の容量と転送量の上限がある。大きなデータは、事前に見積もる
 
 !!! info "このページを読む前に"
-    - [Git の基礎](git.md)（コミット、`.gitignore`）
-    - [SourceTree と GitHub Desktop](git-gui.md)（巨大ファイルを入れてしまう事故）
+    - [記録する](commit.md)（コミット）と [.gitignore](gitignore.md)
+    - [事故と対処](accidents.md#bigfile)（巨大ファイルを入れてしまう事故）
 
 ## 導入 {#setup}
 
@@ -113,6 +113,6 @@ MyGame/
 
 ## 関連ページ {#related}
 
-- [Git の基礎](git.md)
+- [Git の考え方](concepts.md)
 - [チーム開発の進め方](team.md)
-- [外部ライブラリの入れ方](libraries.md)
+- [外部ライブラリの入れ方](../vs/libraries.md)

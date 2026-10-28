@@ -16,7 +16,7 @@ tags:
 
 !!! info "このページを読む前に"
     - [DirectX 11](index.md)（このセクションの全体像）
-    - [Git の基礎](../../vs/git.md)（段階ごとにコミットする）
+    - [記録する（add と commit）](../../git/commit.md)（段階ごとにコミットする）
 
 ## 7 つの段階 {#steps}
 

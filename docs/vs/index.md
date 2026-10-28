@@ -12,10 +12,6 @@ C++ でゲームを作る学生の多くは <strong>Visual Studio（ビジュア
 | [C++23 を使えるようにする設定](settings.md) | 言語標準、警告、よく変える設定、プロパティ シート |
 | [文字コードを UTF-8 にしよう](utf8.md) | `/utf-8`、`.gitattributes`、コンソールの文字化け |
 | [.editorconfig](editorconfig.md) | 改行・字下げ・文字コードをファイルに書いてそろえる。書き方、Visual Studio 独自の設定 |
-| [Git の基礎](git.md) | 履歴を残して戻す。コミット、ブランチ、マージ、コンフリクト、`.gitignore` |
-| [SourceTree と GitHub Desktop](git-gui.md) | 画面で Git を使う。事故（detached HEAD・force push・巨大ファイル）と対処 |
-| [Git LFS とゲームのリポジトリ](git-lfs.md) | 大きなバイナリの預け方、track、容量、フォルダー構成 |
-| [チーム開発の進め方](team.md) | ブランチ、プルリクエスト、レビュー、clang-format |
 | [GitHub Actions で自動ビルド](github-actions.md) | push のたびにビルドとテストを自動で動かす |
 | [clang-tidy と静的解析](clang-tidy.md) | 動かさずに怪しい書き方を見つける。設定と NOLINT |
 | [単体テスト](unit-test.md) | GoogleTest・doctest・Catch2 の選び方と書き方 |
@@ -35,6 +31,10 @@ C++ でゲームを作る学生の多くは <strong>Visual Studio（ビジュア
 | [よくあるエラー](errors.md) | `LNK2019`、`C1083`、文字化け DLL が見つからない、など |
 | [CMake で使う](cmake.md) | 「フォルダーを開く」で CMake のプロジェクトを開く |
 | [Ninja](ninja.md) | 速いビルド ツール。コマンド ラインや CI でのビルド |
+
+## Git について
+
+Git、GitHub、SourceTree、GitHub Desktop、Git LFS、チーム開発は、独立したカテゴリ [Git](../git/index.md) にまとめています。
 
 ## 用語
 

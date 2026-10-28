@@ -4,6 +4,7 @@ nav:
   - 学習ロードマップ: roadmap.md
   - よくある質問: faq.md
   - Visual Studio: vs
+  - Git: git
   - STL: stl
   - 基礎: basics
   - ゲーム数学: gamemath
