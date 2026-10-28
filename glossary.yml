@@ -3141,3 +3141,12 @@
 - terms: [フレームキャプチャ]
   text: 1 フレーム分の描画命令を記録して、あとから調べられるようにすること。RenderDoc や PIX が行う。
   link: vs/renderdoc-pix.md
+- terms: [DI, 依存性の注入, DI コンテナー, IoC]
+  text: 必要な部品を、クラスの中で new せず、外から渡してもらう設計。渡す役を引き受けるのが DI コンテナー。
+  link: csharp/17-di-basics.md
+- terms: [Service Locator, サービス ロケーター]
+  text: コンテナーをどこからでも呼べるようにして、必要な物をクラスの中で取り出す書き方。依存が見えなくなるので、避けるほうがよい。
+  link: csharp/18-prism-startup.md
+- terms: [ViewModelLocator]
+  text: View の名前から ViewModel を探して作り、DataContext に入れる Prism の仕組み。
+  link: csharp/20-viewmodel-locator.md

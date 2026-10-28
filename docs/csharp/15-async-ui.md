@@ -209,6 +209,8 @@ BindingOperations.EnableCollectionSynchronization(Entries, _lock);
 lock (_lock) { Entries.Add(entry); }
 ```
 
+`lock (_lock) { … }` は、同じ `_lock` を持つ `lock` の中に、同時に 1 つのスレッドしか入れないようにする文です。C++ の `std::lock_guard<std::mutex>` に当たり、`{}` を抜けると自動でロックが外れます。ロックに使うのは、このように専用の `object` にするのが決まりで、`this` や文字列は避けます。外から同じ物を `lock` されて、思わぬ待ちが起きるためです。
+
 2 のほうの `EnableCollectionSynchronization` は、UI スレッドで呼びます。別のスレッドから `Add` を始める前に設定を済ませておいてください。迷ったら 1 のほうが単純です。
 
 ## 固まる原因の定番
