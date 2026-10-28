@@ -58,6 +58,9 @@ tags:
 2. 外から指定できるプロパティを依存関係プロパティとして公開します（第 10 章）。
 
 ```csharp title="Controls/LabeledNumber.xaml.cs（新規）"
+using System.Windows;
+using System.Windows.Controls;
+
 namespace Editor.Controls;
 
 public partial class LabeledNumber : UserControl
