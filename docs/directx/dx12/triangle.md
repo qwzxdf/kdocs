@@ -178,7 +178,7 @@ void Renderer::Init(HWND hwnd) {
                                IID_PPV_ARGS(&root_signature_));
 ```
 
-シェーダーはここでは `D3DCompileFromFile`（シェーダー モデル 5.0）でコンパイルします。`dxc` を使うときは [Shaders and DXC](shaders-dxc.md) を見てください。続けて入力レイアウトを使って PSO を作ります。面の向きを `FrontCounterClockwise = TRUE` にしていることに注意します。
+シェーダーはここでは `D3DCompileFromFile`（シェーダー モデル 5.0）でコンパイルします。`dxc` を使うときは [Shaders and DXC](shaders-dxc.md) を見てください。続けて入力レイアウトを使って PSO を作ります。面の向きを `FrontCounterClockwise = FALSE`（時計回りが表）にしていることに注意します。
 
 ```cpp
   ComPtr<ID3DBlob> vs;
@@ -201,7 +201,7 @@ void Renderer::Init(HWND hwnd) {
   pso.SampleDesc.Count = 1;
   pso.SampleMask = UINT_MAX;
   pso.RasterizerState = MakeDefaultRasterizerDesc();
-  pso.RasterizerState.FrontCounterClockwise = TRUE;  // 反時計回りが表
+  pso.RasterizerState.FrontCounterClockwise = FALSE;  // 時計回りが表
   pso.BlendState = MakeDefaultBlendDesc();
   pso.DepthStencilState.DepthEnable = FALSE;  // 深度は使わない
   device_->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&pipeline_state_));
@@ -215,8 +215,8 @@ void Renderer::Init(HWND hwnd) {
 
   const Vertex vertices[] = {
       {{0.0f, 0.5f, 0.0f}, {1, 0, 0, 1}},
-      {{-0.5f, -0.5f, 0.0f}, {0, 1, 0, 1}},
       {{0.5f, -0.5f, 0.0f}, {0, 0, 1, 1}},
+      {{-0.5f, -0.5f, 0.0f}, {0, 1, 0, 1}},
   };
   const UINT size = sizeof(vertices);
   D3D12_RESOURCE_DESC buffer_desc = MakeBufferDesc(size);
@@ -334,7 +334,7 @@ void Renderer::RenderFrame() {
 2. シザー矩形を設定しましたか。設定し忘れると描く範囲が 0 になります。
 3. ビューポートを設定しましたか。大きさが 0 だと何も描かれません。
 4. PSO の `RTVFormats` は RTV の形式と一致していますか。`_SRGB` の有無の食い違いがよくある原因です。
-5. `FrontCounterClockwise` はどうなっていますか。反時計回りの三角形が裏面として捨てられていることがあります。
+5. `FrontCounterClockwise` はどうなっていますか。頂点の並びと食い違うと、三角形が裏面として捨てられます。
 6. 頂点バッファの状態の切り替えと完了待ちをしましたか。`COPY_DEST` のままだったりコピーが終わる前に描いたりしていないか確認します。
 7. デバッグ レイヤーのメッセージを見ましたか。原因はほぼ必ず出ています（[Debug Layer](debug-layer.md)）。
 8. PIX で 1 フレームを撮ると、各命令の結果を目で見られます。
@@ -342,7 +342,7 @@ void Renderer::RenderFrame() {
 ## よくあるミス
 
 ??? failure "クリアの色は出るが、三角形が出ない"
-    シザー矩形が未設定か PSO の面の向きが、時計回りが表のままです。
+    シザー矩形が未設定か PSO の面の向きが、頂点の並びと逆のままです。
 
 ??? failure "最初のフレームだけ描けて、2 フレーム目にエラーになる"
     GPU の完了を待たずにアロケーターを `Reset` しています。この例のように毎フレーム `WaitForGpu` するかフレームごとのフェンスで管理します。

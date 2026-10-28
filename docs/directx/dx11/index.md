@@ -37,7 +37,7 @@ D3D11 は <strong>ドライバーが面倒を見てくれる API</strong>です�
 | --- | --- |
 | 言語 | C++23。Google C++ Style（関数は大文字始まり変数は `snake_case`、メンバーは末尾 `_`） |
 | COM | `Microsoft::WRL::ComPtr`（`#include <wrl/client.h>`）で解放を自動にする |
-| 座標系 | 右手系・Y が上・前は −Z。行ベクトル（`v * M`）。三角形は反時計回り（CCW）が表 |
+| 座標系 | 左手系・Y が上・前は +Z。行ベクトル（`v * M`）。三角形は時計回り（CW）が表 |
 | シェーダー | HLSL、シェーダー モデル 5.0（`vs_5_0`、`ps_5_0`、`cs_5_0`） |
 | 数学 | DirectXMath（[DirectXMath](../../gamemath/directxmath.md)）。型は `DirectX::XMFLOAT4X4` など |
 | 機能レベル | 11.0 以上 |

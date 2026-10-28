@@ -324,11 +324,11 @@ D3D12_RASTERIZER_DESC MakeDefaultRasterizerDesc();
 
 PSO のラスタライザー設定の既定値を返します。
 
-塗りつぶし（`FillMode = SOLID`）、裏面のカリング（`CullMode = BACK`）、深度クリップあり（`DepthClipEnable = TRUE`）、深度バイアスなしが既定です。そのうえで、`FrontCounterClockwise` は `FALSE`、つまり**時計回りが表**の設定になっています。このサイトでは反時計回りを表にするので、PSO を作るときこの関数の戻り値のあとに `FrontCounterClockwise = TRUE` と書きます（[PSO](pso.md)）。
+塗りつぶし（`FillMode = SOLID`）、裏面のカリング（`CullMode = BACK`）、深度クリップあり（`DepthClipEnable = TRUE`）、深度バイアスなしが既定です。そのうえで、`FrontCounterClockwise` は `FALSE`、つまり**時計回りが表**の設定になっています。これはこのサイトの規約と同じなので、そのまま使います。反時計回りが表のメッシュを描くときだけ、戻り値のあとに `FrontCounterClockwise = TRUE` と書きます（[PSO](pso.md)）。
 
 ```cpp
 D3D12_RASTERIZER_DESC rasterizer = MakeDefaultRasterizerDesc();
-rasterizer.FrontCounterClockwise = TRUE;  // このサイトでは、反時計回りが表
+rasterizer.FrontCounterClockwise = TRUE;  // 反時計回りが表のメッシュを描くときだけ
 ```
 
 ### MakeDefaultBlendDesc {#makedefaultblenddesc}

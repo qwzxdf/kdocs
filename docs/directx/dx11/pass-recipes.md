@@ -100,7 +100,7 @@ context->VSSetShader(fullscreen_vs.Get(), nullptr, 0);
 context->Draw(3, 0);                                           // 頂点 3 つ
 ```
 
-`Draw(3, 0)` の 1 回で全画素にピクセル シェーダーが走ります。座標系は右手系 Y-up、前は −Z ですが画面の uv は左上が原点（Y が下向き）なので `uv.y` を反転してクリップ空間に直しています。
+`Draw(3, 0)` の 1 回で全画素にピクセル シェーダーが走ります。座標系は左手系 Y-up、前は +Z ですが画面の uv は左上が原点（Y が下向き）なので `uv.y` を反転してクリップ空間に直しています。
 
 ## 計算シェーダーのディスパッチ
 
@@ -271,14 +271,14 @@ device->CreateDepthStencilState(&none, &depth_off);
 D3D11_RASTERIZER_DESC raster = {};
 raster.FillMode = D3D11_FILL_SOLID;
 raster.CullMode = D3D11_CULL_BACK;
-raster.FrontCounterClockwise = TRUE;                           // 三角形は、反時計回りが、表（右手系）
+raster.FrontCounterClockwise = FALSE;                          // 三角形は、時計回りが、表（左手系）
 raster.DepthBias = 1000;                                       // 整数のバイアス（深度の最小単位に対する、倍数）
 raster.SlopeScaledDepthBias = 2.0f;                            // 面の傾きに、比例する、バイアス
 raster.DepthClipEnable = TRUE;
 device->CreateRasterizerState(&raster, &shadow_raster);
 ```
 
-`FrontCounterClockwise = TRUE` はこのサイトの規約（三角形は CCW が表）に合わせた設定です。`DepthBias` の単位は深度フォーマットに依存するので調整が必要です（[Shadow Bias](../../graphics/shadows/bias/index.md)）。
+`FrontCounterClockwise = FALSE` はこのサイトの規約（三角形は CW が表）に合わせた設定です。`DepthBias` の単位は深度フォーマットに依存するので調整が必要です（[Shadow Bias](../../graphics/shadows/bias/index.md)）。
 
 ## パスのつなぎ方：全体の骨格
 

@@ -138,15 +138,15 @@ tags:
 <text x="20" y="24" class="fig-title">格子メッシュ：1 マスは三角形 2 枚</text>
 <g stroke="currentColor" stroke-opacity="0.6" fill="none">
 <rect x="100" y="50" width="120" height="120"/><rect x="220" y="50" width="120" height="120"/>
-<line x1="100" y1="50" x2="220" y2="170"/><line x1="220" y1="50" x2="340" y2="170"/>
+<line x1="100" y1="170" x2="220" y2="50"/><line x1="220" y1="170" x2="340" y2="50"/>
 </g>
 <circle cx="100" cy="50" r="4" fill="#4c8bf5"/><circle cx="220" cy="50" r="4" fill="#4c8bf5"/><circle cx="340" cy="50" r="4" fill="#4c8bf5"/>
 <circle cx="100" cy="170" r="4" fill="#4c8bf5"/><circle cx="220" cy="170" r="4" fill="#4c8bf5"/><circle cx="340" cy="170" r="4" fill="#4c8bf5"/>
-<text x="100" y="40" text-anchor="middle" style="font-size:11px">0</text><text x="220" y="40" text-anchor="middle" style="font-size:11px">1</text><text x="340" y="40" text-anchor="middle" style="font-size:11px">2</text>
-<text x="100" y="190" text-anchor="middle" style="font-size:11px">N</text><text x="220" y="190" text-anchor="middle" style="font-size:11px">N+1</text><text x="340" y="190" text-anchor="middle" style="font-size:11px">N+2</text>
+<text x="100" y="40" text-anchor="middle" style="font-size:11px">N</text><text x="220" y="40" text-anchor="middle" style="font-size:11px">N+1</text><text x="340" y="40" text-anchor="middle" style="font-size:11px">N+2</text>
+<text x="100" y="190" text-anchor="middle" style="font-size:11px">0</text><text x="220" y="190" text-anchor="middle" style="font-size:11px">1</text><text x="340" y="190" text-anchor="middle" style="font-size:11px">2</text>
 <text x="420" y="90" style="font-size:13px">頂点番号 ＝ z × N ＋ x</text>
-<text x="420" y="116" style="font-size:13px">1 マス ＝ (i, i+1, i+N) と (i+1, i+N+1, i+N)</text>
-<text x="420" y="142" style="font-size:13px">反時計回りが表（右手系）</text>
+<text x="420" y="116" style="font-size:13px">1 マス ＝ (i, i+N, i+N+1) と (i, i+N+1, i+1)</text>
+<text x="420" y="142" style="font-size:13px">時計回りが表（左手系）</text>
 </svg>
 
 頂点は(x, z) の位置だけ持てば十分です（高さは頂点シェーダーで読む）。メッシュは全タイルで共有できます。
@@ -170,7 +170,7 @@ std::vector<uint32_t> BuildGridIndices(uint32_t n) {
 }
 ```
 
-格子メッシュのインデックスのコードの要点です。反時計回りが表です（右手系・Y 上で、上から見て反時計回り。[座標系](../../../3d/index.md)）。対角線の向きは一方向に揃えると斜めの縞が出ることがあるので、交互に切り替える（ジグザグ）と自然です。インデックス数は (N−1)² × 6 で、65×65 頂点で約 2.5 万です。
+格子メッシュのインデックスのコードの要点です。時計回りが表です（左手系・Y 上で、上から見て時計回り。[座標系](../../../3d/index.md)）。対角線の向きは一方向に揃えると斜めの縞が出ることがあるので、交互に切り替える（ジグザグ）と自然です。インデックス数は (N−1)² × 6 で、65×65 頂点で約 2.5 万です。
 
 ### 頂点シェーダーで高さを読む
 
@@ -262,11 +262,11 @@ std::vector<uint16_t> BuildCheckerIndices(uint32_t n) {
   idx.reserve((n - 1) * (n - 1) * 6);
   for (uint32_t z = 0; z + 1 < n; ++z) {
     for (uint32_t x = 0; x + 1 < n; ++x) {
-      const uint16_t a = z * n + x;        // 左上
-      const uint16_t b = a + 1;            // 右上
-      const uint16_t c = a + n;            // 左下
-      const uint16_t d = c + 1;            // 右下
-      // 上から見て反時計回りが表。マスの位置で、対角線の向きを変える。
+      const uint16_t a = z * n + x;        // 手前左
+      const uint16_t b = a + 1;            // 手前右
+      const uint16_t c = a + n;            // 奥左
+      const uint16_t d = c + 1;            // 奥右
+      // 上から見て時計回りが表（z は奥へ伸びる）。マスの位置で、対角線の向きを変える。
       if (((x + z) & 1) == 0) {
         idx.insert(idx.end(), {a, c, d, a, d, b});
       } else {
@@ -280,13 +280,13 @@ std::vector<uint16_t> BuildCheckerIndices(uint32_t n) {
 
 ### ④ 表裏の向き（ワインディング）
 
-地形は 上から見たとき反時計回りの三角形が表です（右手系・Y 上）。Direct3D 11 の既定は、時計回りが表なのでラスタライザー ステートで、反転します。
+地形は 上から見たとき時計回りの三角形が表です（左手系・Y 上）。Direct3D 11 の既定も時計回りが表なので、ラスタライザー ステートはそのままで合います。
 
 ```cpp
 D3D11_RASTERIZER_DESC rs = {};
 rs.FillMode = D3D11_FILL_SOLID;
 rs.CullMode = D3D11_CULL_BACK;
-rs.FrontCounterClockwise = TRUE;      // 反時計回りを表にする（このサイトの決まり）
+rs.FrontCounterClockwise = FALSE;     // 時計回りが表（このサイトの決まり。既定と同じ）
 rs.DepthClipEnable = TRUE;
 device->CreateRasterizerState(&rs, &rasterizer_state);
 ```

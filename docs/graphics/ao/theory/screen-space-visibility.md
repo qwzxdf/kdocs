@@ -52,7 +52,7 @@ tags:
 ### 再構成：深度から、ビュー空間の位置へ
 
 ```hlsl
-// 深度（0〜1）と uv から、ビュー空間の位置を復元する（右手系、前は −Z）。
+// 深度（0〜1）と uv から、ビュー空間の位置を復元する（左手系、前は +Z）。
 float3 ViewPosition(float2 uv, float depth) {
   float4 clip = float4(uv * float2(2.0, -2.0) + float2(-1.0, 1.0), depth, 1.0);
   float4 view = mul(clip, g_inv_proj);
@@ -70,7 +70,7 @@ float3 s = p + offset;                                              // offset �
 float4 clip = mul(float4(s, 1.0), g_proj);
 float2 uv = clip.xy / clip.w * float2(0.5, -0.5) + 0.5;
 float scene_z = ViewPosition(uv, g_depth.SampleLevel(g_point_clamp, uv, 0)).z;   // その画素で見えている面の、z
-bool occluded = scene_z >= s.z + g_bias;                            // −Z が前なので、z が大きいほど手前。面が手前にあれば、遮蔽
+bool occluded = scene_z <= s.z - g_bias;                            // +Z が前なので、z が小さいほど手前。面が手前にあれば、遮蔽
 ```
 
 サンプル点 `s` をカメラの射影で画面に落とし、その画素に見えている面の深度と比べます。面が `s` より手前なら、`s` はその面の裏にあるので、遮られていると数えます。`g_bias` は、同じ面の上の点を自分で遮ってしまわないための、わずかな余裕です。

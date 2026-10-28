@@ -311,11 +311,11 @@ float3 TAA(float2 uv) {
 float jitter_x = (Halton(frame_index % 8 + 1, 2) - 0.5f) * 2.0f / width;     // NDC で、±1 画素の範囲
 float jitter_y = (Halton(frame_index % 8 + 1, 3) - 0.5f) * 2.0f / height;
 DirectX::XMFLOAT4X4 projection = base_projection;
-projection._31 = -jitter_x;     // 右手系: w = −z_view なので、符号を反転すると、NDC で +jitter ずれる
-projection._32 = -jitter_y;
+projection._31 = jitter_x;      // 左手系: w = z_view なので、そのまま足すと、NDC で +jitter ずれる
+projection._32 = jitter_y;
 ```
 
-行ベクトルの規約（`v * M`）では `_31`、`_32` が `z` に掛かり `w = −z` で割られるので、ジッターが NDC の一定のずれ（`−_31`）になります。カメラが止まっていても毎フレーム、少しずつ違う位置でサンプルされるので時間で、平均するとサブピクセルの情報が集まります。速度の計算と履歴の再投影ではジッターを引いて、使います（[Velocity Buffer](../motion-blur/velocity-buffer.md)）。
+行ベクトルの規約（`v * M`）では `_31`、`_32` が `z` に掛かり `w = z` で割られるので、ジッターが NDC の一定のずれ（`_31`）になります。カメラが止まっていても毎フレーム、少しずつ違う位置でサンプルされるので時間で、平均するとサブピクセルの情報が集まります。速度の計算と履歴の再投影ではジッターを引いて、使います（[Velocity Buffer](../motion-blur/velocity-buffer.md)）。
 
 ### 履歴テクスチャと合成パス
 

@@ -40,17 +40,17 @@ XMMATRIX proj = XMMatrixPerspectiveFovLH(outer_cone_angle * 2.0f, 1.0f, near_z, 
 ```cpp
 using namespace DirectX::SimpleMath;
 
-// スポットライトの、光の行列（右手系、行ベクトル）。
+// スポットライトの、光の行列（左手系、行ベクトル）。
 Matrix SpotLightMatrix(const SpotLight& spot) {
   Vector3 position = spot.position;
   Vector3 target = spot.position + spot.direction;
   // 上方向は、光の向きと、平行にならない軸を選ぶ。
   Vector3 up = (std::abs(spot.direction.y) > 0.99f) ? Vector3::UnitZ : Vector3::UnitY;
-  Matrix view = Matrix::CreateLookAt(position, target, up);
+  Matrix view = DirectX::XMMatrixLookAtLH(position, target, up);
 
   // 視野角 = 外側の円錐の全角。170° を超えない（透視投影が破綻する）。
   float fov = std::min(2.0f * spot.outer_angle, DirectX::XMConvertToRadians(170.0f));
-  Matrix proj = Matrix::CreatePerspectiveFieldOfView(fov, 1.0f, spot.near_z, spot.range);
+  Matrix proj = DirectX::XMMatrixPerspectiveFovLH(fov, 1.0f, spot.near_z, spot.range);
   return view * proj;
 }
 ```

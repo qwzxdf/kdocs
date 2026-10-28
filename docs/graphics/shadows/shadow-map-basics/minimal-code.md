@@ -35,7 +35,7 @@ float3 Shade(float3 world_pos, float3 N, float3 L, float3 albedo, float3 light_c
 
 ## 最小のシャドウ マップ（全体の流れ）
 
-ここまでのページの内容を <strong>1 つの、流れ</strong>にまとめます。<strong>太陽（平行光源）</strong>の 1 枚の、シャドウ マップです。座標系は右手系・Y 上、反時計回りが表です。
+ここまでのページの内容を <strong>1 つの、流れ</strong>にまとめます。<strong>太陽（平行光源）</strong>の 1 枚の、シャドウ マップです。座標系は左手系・Y 上、時計回りが表です。
 
 ### ① リソースを作る（起動時）
 
@@ -55,7 +55,7 @@ device->CreateSamplerState(&sd, &shadow_sampler);
 D3D11_RASTERIZER_DESC rs = {};
 rs.FillMode = D3D11_FILL_SOLID;
 rs.CullMode = D3D11_CULL_BACK;
-rs.FrontCounterClockwise = TRUE;
+rs.FrontCounterClockwise = FALSE;
 rs.DepthBias = 1000;                          // 24 ビット深度なら、この値 × 最小の深度の刻み
 rs.SlopeScaledDepthBias = 1.5f;
 rs.DepthBiasClamp = 0.01f;
@@ -67,8 +67,8 @@ device->CreateRasterizerState(&rs, &shadow_rs);
 
 ```cpp
 // 光の行列を作る（Light Matrix）。
-Matrix light_view = Matrix::CreateLookAt(eye, center, up);
-Matrix light_proj = Matrix::CreateOrthographicOffCenter(-r, r, -r, r, 0.0f, 2.0f * r);
+Matrix light_view = DirectX::XMMatrixLookAtLH(eye, center, up);
+Matrix light_proj = DirectX::XMMatrixOrthographicOffCenterLH(-r, r, -r, r, 0.0f, 2.0f * r);
 Matrix shadow_matrix = light_view * light_proj * ndc_to_uv;
 
 // 深度だけを描く。

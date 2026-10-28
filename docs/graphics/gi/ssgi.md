@@ -378,7 +378,7 @@ bool TraceScreenSpace(float3 origin_vs, float3 dir_vs, float2 pixel, out float3 
 
 ```hlsl
     float scene_depth = g_depth.SampleLevel(g_point_clamp, uv, 0);     // その画素の、深度（ビュー空間の、距離）
-    float ray_depth = -p_vs.z;                                          // レイ上の点の、深度（右手系は、前方が -Z）
+    float ray_depth = p_vs.z;                                           // レイ上の点の、深度（左手系は、前方が +Z）
     float diff = ray_depth - scene_depth;
     if (diff > 0.0 && diff < g_thickness) {                             // レイが面の「裏」に入った（交差した）。厚み以内なら、当たりとする。
       hit_color = g_lit_scene.SampleLevel(g_linear_clamp, uv, 0).rgb;   // 当たった画素の、ライティング済みの色

@@ -157,8 +157,8 @@ float4 main(float3 position : POSITION) : SV_Position {
 // 裏面を描く: 表面をカリング。
 D3D11_RASTERIZER_DESC rs = {};
 rs.FillMode = D3D11_FILL_SOLID;
-rs.CullMode = D3D11_CULL_FRONT;                  // 光に向いた面を描かない（このサイトでは、反時計回りが表）
-rs.FrontCounterClockwise = TRUE;
+rs.CullMode = D3D11_CULL_FRONT;                  // 光に向いた面を描かない（このサイトでは、時計回りが表）
+rs.FrontCounterClockwise = FALSE;
 rs.DepthClipEnable = TRUE;
 ```
 

@@ -112,7 +112,7 @@ context->OMSetDepthStencilState(ds_state.Get(), 0);
 D3D11_RASTERIZER_DESC rs_desc = {};
 rs_desc.FillMode = D3D11_FILL_SOLID;
 rs_desc.CullMode = D3D11_CULL_BACK;
-rs_desc.FrontCounterClockwise = TRUE;
+rs_desc.FrontCounterClockwise = FALSE;   // 時計回りが表（既定）
 rs_desc.DepthClipEnable = TRUE;
 
 Microsoft::WRL::ComPtr<ID3D11RasterizerState> rs_state;

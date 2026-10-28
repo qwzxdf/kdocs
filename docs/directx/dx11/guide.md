@@ -70,7 +70,7 @@ swap_chain->Present(1, 0);                                    // 画面に出す
 3. 入力レイアウトで、頂点バッファの中身とシェーダーの入力を結びつける
 4. ビューポートとラスタライザー ステートを設定して `Draw(3, 0)`
 
-三角形が出ないときの確認順は、[Drawing a Triangle](triangle.md) の「面の向き」にあります。このサイトの規約は、反時計回りが表です。`FrontCounterClockwise = TRUE` を設定し忘れると、三角形が裏面と判断されて、消えます。
+三角形が出ないときの確認順は、[Drawing a Triangle](triangle.md) の「面の向き」にあります。このサイトの規約は、時計回りが表です（D3D の既定と同じ）。頂点を反時計回りに並べたり `FrontCounterClockwise` を `TRUE` にしたりすると、三角形が裏面と判断されて、消えます。
 
 ## 段階 5：回す {#step5}
 
@@ -85,8 +85,8 @@ struct Constants {
 
 // 毎フレーム
 auto world = Matrix::CreateRotationY(angle);                       // 回転
-auto view = Matrix::CreateLookAt({0, 1.5f, 3}, {0, 0, 0}, Vector3::Up);
-auto proj = Matrix::CreatePerspectiveFieldOfView(
+Matrix view = XMMatrixLookAtLH(XMVectorSet(0, 1.5f, -3, 0), XMVectorZero(), XMVectorSet(0, 1, 0, 0));   // 左手系
+Matrix proj = XMMatrixPerspectiveFovLH(
     XMConvertToRadians(60.0f), aspect, 0.1f, 100.0f);
 Constants c{world * view * proj};                                  // 左から右へ掛ける
 context->UpdateSubresource(constant_buffer.Get(), 0, nullptr, &c, 0, 0);
@@ -106,7 +106,7 @@ cbuffer Constants : register(b0) {
 
 ゴールは、立方体が手前の面だけ見えて回ることです。三角形では、重なりを考えませんでしたが、立体では、奥の面が手前に描かれてしまう問題が出ます。深度バッファで解決します。
 
-立方体は 8 頂点 36 インデックスで書けます。面の巻き順は、外から見て反時計回りにします。
+立方体は 8 頂点 36 インデックスで書けます。面の巻き順は、外から見て時計回りにします。
 
 ```cpp
 // 頂点は ±0.5 の 8 点。色は頂点ごとに変えておくと、向きが分かりやすい
@@ -152,7 +152,7 @@ context->OMSetRenderTargets(1, rtv.GetAddressOf(), dsv.Get());
 
 - 段階を飛ばさず、ゴールの絵が出てから次へ
 - 最初から、デバッグ レイヤーを有効にして、`HRESULT` を確認する
-- 規約は、右手系・Y-up・行ベクトル・反時計回りが表
+- 規約は、左手系・Y-up・行ベクトル・時計回りが表
 
 ## 関連ページ
 

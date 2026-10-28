@@ -135,7 +135,7 @@ float4 main(float2 uv : TEXCOORD0) : SV_Target {
 ```cpp
 using namespace DirectX::SimpleMath;
 
-// 平面 n·p + d = 0 に、光の方向 l（光が進む向き）で、投影する行列（右手系、行ベクトル）。
+// 平面 n·p + d = 0 に、光の方向 l（光が進む向き）で、投影する行列（左手系、行ベクトル）。
 // 投影行列 = d·I − l·nᵀ  の形（頂点を同次座標で、平面上へ移す）。
 Matrix PlanarShadowMatrix(const Vector3& plane_normal, float plane_d, const Vector3& light_dir) {
   const float dot = plane_normal.Dot(light_dir);
