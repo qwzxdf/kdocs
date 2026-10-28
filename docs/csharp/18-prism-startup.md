@@ -14,6 +14,9 @@ tags:
     - [第 17 章 DI とは何か](17-di-basics.md)（登録、解決、コンストラクター インジェクションの言葉を使う）
     - [第 16 章 Prism の導入と起動の流れ](16-prism-bootstrap.md)（`App` を `PrismApplication` に作り替えた）
 
+!!! abstract "この章での Editor"
+    この章では、Editor に残るファイルは足しません。第 16 章の `App.xaml.cs` に、起動の順番を確かめるための実験コードを一時的に重ねて、あとで消します。
+
 ## `Main` が見当たらないのは、なぜか
 
 C++ の `main` に当たる C# の `Main` は、WPF では自分で書きません。`App.xaml` のビルド アクションが `ApplicationDefinition` になっていて、ビルドのときに、`Main` が自動で生成されるからです。
@@ -33,39 +36,42 @@ public static void Main()
 
 ## 起動の順番を、実際に確かめる
 
-`RegisterTypes` はいつ呼ばれるのでしょうか。推測せず、確かめます。`App` のメソッドを上書きして、呼ばれた順に出力してみます（確認のためのコードで、本編のエディタには入れません）。
+`RegisterTypes` はいつ呼ばれるのでしょうか。推測せず、確かめます。`App` のメソッドを上書きして、呼ばれた順に出力してみます。WPF のアプリには、文字を出す画面（コンソール）がないので、`Debug.WriteLine` を使います。出力は、Visual Studio の「出力」ウィンドウに出ます。
 
-```csharp
+```csharp title="実験：起動の順番を確かめる（App.xaml.cs に一時的に足す。Editor には残さない）"
+using System.Diagnostics;
+
 public partial class App : PrismApplication
 {
     protected override void ConfigureViewModelLocator()
     {
-        Console.WriteLine("1 ConfigureViewModelLocator");
+        Debug.WriteLine("1 ConfigureViewModelLocator");
         base.ConfigureViewModelLocator();
     }
 
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {
-        Console.WriteLine("2 RegisterTypes");
-        containerRegistry.RegisterSingleton<ILogger, ConsoleLogger>();
-        containerRegistry.RegisterSingleton<ProjectService>();
+        Debug.WriteLine("2 RegisterTypes");
+        containerRegistry.RegisterSingleton<AssetScanner>();
+        containerRegistry.RegisterSingleton<LogViewModel>();
+        containerRegistry.RegisterSingleton<AssetBrowserViewModel>();
     }
 
     protected override Window CreateShell()
     {
-        Console.WriteLine("3 CreateShell");
+        Debug.WriteLine("3 CreateShell");
         return Container.Resolve<MainWindow>();
     }
 
     protected override void InitializeShell(Window shell)
     {
-        Console.WriteLine("4 InitializeShell");
+        Debug.WriteLine("4 InitializeShell");
         base.InitializeShell(shell);
     }
 
     protected override void OnInitialized()
     {
-        Console.WriteLine("5 OnInitialized");
+        Debug.WriteLine("5 OnInitialized");
         base.OnInitialized();
     }
 }
@@ -131,37 +137,38 @@ C++ で言えば、`main` の中でコンテナー オブジェクトをロー�
 
 `Container` は、`App` から見えるだけでなく、静的な入口をたどれば、どのクラスからも取り出せてしまいます。
 
-```csharp
-// 悪い例
-public class SceneTreeViewModel
+```csharp title="実験：悪い例（Editor には入れない）"
+public class AssetBrowserViewModel : BindableBase
 {
-    public void Reload()
+    private async Task LoadAsync()
     {
-        var engine = ((App)Application.Current).Container.Resolve<IEngineService>();
-        engine.Reload();
+        var scanner = ((App)Application.Current).Container.Resolve<AssetScanner>();   // 取りに行く
+        var files = await scanner.ScanAsync(AppContext.BaseDirectory);
+        // ...
     }
 }
 ```
 
-動きますが、問題があります。`SceneTreeViewModel` が `IEngineService` に依存していることが、コンストラクターの引数に現れません。クラスの外から見て、何に頼っているのかが分からなくなります。テストのとき、コンテナーごと用意しないと動かないので、偽物の差し替えも面倒です。必要なものを外から取りに行くこの書き方は、<strong>Service Locator</strong> と呼ばれるアンチパターンです。
+動きますが、問題があります。`AssetBrowserViewModel` が `AssetScanner` に依存していることが、コンストラクターの引数に現れません。クラスの外から見て、何に頼っているのかが分からなくなります。テストのとき、コンテナーごと用意しないと動かないので、偽物の差し替えも面倒です。必要なものを外から取りに行くこの書き方は、<strong>Service Locator</strong> と呼ばれるアンチパターンです。
 
 良い書き方は、第 17 章で見たとおり、コンストラクターで受け取ることです。
 
-```csharp
-// 良い例
-public class SceneTreeViewModel
+```csharp title="第 16 章の形（良い例）"
+public class AssetBrowserViewModel : BindableBase
 {
-    private readonly IEngineService _engine;
+    private readonly AssetScanner _scanner;
 
-    public SceneTreeViewModel(IEngineService engine) => _engine = engine;
-
-    public void Reload() => _engine.Reload();
+    public AssetBrowserViewModel(LogViewModel log, AssetScanner scanner)
+    {
+        _scanner = scanner;
+        // ...
+    }
 }
 ```
 
 実行時に、どの型を作るかを選ぶファクトリーのように、どうしてもコンテナー自体が要るときは、`IContainerProvider` をコンストラクターで受け取れます。コンテナーが、自分自身を注入してくれます。
 
-```csharp
+```csharp title="実験：ファクトリー（Editor には入れない）"
 public class PanelFactory
 {
     private readonly IContainerProvider _container;

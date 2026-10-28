@@ -6,7 +6,7 @@ tags:
 
 # 第 19 章 登録とライフタイム：登録しただけで、作られるのか
 
-`RegisterTypes` に `RegisterSingleton<ILogger, ConsoleLogger>()` と書くと、`ConsoleLogger` は、その場で作られるのでしょうか。「Singleton」と書くと、アプリにひとつだけの実体になりますが、その実体は、どこにあるのでしょう。登録していない型を欲しがったら、何が起きるのでしょう。
+第 16 章で `RegisterTypes` に書いた `RegisterSingleton<LogViewModel>()` で、`LogViewModel` は、その場で作られるのでしょうか。「Singleton」と書くと、アプリにひとつだけの実体になりますが、その実体は、どこにあるのでしょう。登録していない型を欲しがったら、何が起きるのでしょう。
 
 この章では、登録と解決の違い、実体が作られるタイミング、インターフェースを挟むかどうかの判断を扱います。
 
@@ -14,11 +14,14 @@ tags:
     - [第 18 章 Prism の起動で何が起きるか](18-prism-startup.md)（`RegisterTypes` が `CreateShell` より前に呼ばれる）
     - [第 17 章 DI とは何か](17-di-basics.md)（登録、解決、注入）
 
+!!! abstract "この章での Editor"
+    前半は、仕組みを確かめる実験です。Editor の中だとウィンドウなどが絡んで分かりにくいので、別の小さなコンソール アプリ（NuGet で `Prism.DryIoc` を入れる）で行い、Editor には入れません。後半の「インターフェースを挟む」では、Editor の `AssetScanner` に実際に手を入れます。
+
 ## 登録は「レシピを書く」だけ
 
 `RegisterTypes` の時点では、実体は作られません。確かめます。作られたときに出力するクラスを用意します。
 
-```csharp
+```csharp title="実験：コンソール アプリ（Editor には入れない）"
 public class ConsoleLogger : ILogger
 {
     public ConsoleLogger() { Console.WriteLine("  [new ConsoleLogger]"); }
@@ -26,7 +29,7 @@ public class ConsoleLogger : ILogger
 }
 ```
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 var container = new DryIocContainerExtension();   // Prism.DryIoc のコンテナー
 container.RegisterSingleton<ILogger, ConsoleLogger>();
 Console.WriteLine("登録した");
@@ -53,7 +56,7 @@ Console.WriteLine("同じ実体: " + ReferenceEquals(a, b));
 
 <strong>`Register`</strong> は、解決のたびに、新しいインスタンスを作ります（Transient）。状態を持たない小さな部品や、利用者ごとに別の状態を持たせたい物に使います。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 container.Register<Plain>();
 var p1 = container.Resolve<Plain>();
 var p2 = container.Resolve<Plain>();
@@ -70,7 +73,7 @@ Singleton の実体が入っている場所は、`App` ではなく、コンテ�
 
 ひとつは、自分で `Resolve` を呼ぶ方法です。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 protected override void OnInitialized()
 {
     Container.Resolve<ILogger>();   // ここで作られる
@@ -80,7 +83,7 @@ protected override void OnInitialized()
 
 もうひとつは、自分で作った物を、そのまま登録する方法です。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 containerRegistry.RegisterInstance<ILogger>(new ConsoleLogger());
 ```
 
@@ -90,7 +93,7 @@ containerRegistry.RegisterInstance<ILogger>(new ConsoleLogger());
 
 登録を忘れると、何が起きるのでしょうか。確かめます。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 var container = new DryIocContainerExtension();   // 何も登録していない
 var plain = container.Resolve<Plain>();            // 具体的なクラス
 container.Resolve<ILogger>();                      // インターフェース
@@ -128,6 +131,60 @@ container.Resolve<ILogger>();                      // インターフェース
 インターフェースの取り出しは、IDE の機能でできます。Visual Studio では、クラス名にカーソルを置いて `Ctrl + .` を押し、「インターフェースの抽出」を選びます。自動でやってくれるのは、インターフェースの生成と、クラスへの実装の宣言までです。使う側の引数の型を `IFoo` に書き換える作業と、`RegisterTypes` の登録の変更は、自分で行います。
 
 C++ で言えば、仮想関数を持つ抽象基底クラスを置くか、テンプレートや具体的な型で直接持つかの選択と同じです。差し替えたい場所にだけ、抽象を置きます。
+
+### Editor で、IAssetScanner を取り出す
+
+`AssetScanner` は、ディスクを読みます。読む場所が変わると結果が変わるので、画面の確認やテストのとき、決まった結果を返す偽物に差し替えたくなる部品です。上の目安で言えば、インターフェースを挟む側です。
+
+`AssetScanner` から、インターフェースを取り出します。クラス名にカーソルを置いて `Ctrl + .` を押し、「インターフェースの抽出」を選ぶと、できます。
+
+```csharp title="Services/IAssetScanner.cs（新規）"
+using Editor.Models;
+
+namespace Editor.Services;
+
+public interface IAssetScanner
+{
+    Task<IReadOnlyList<FileEntry>> ScanAsync(
+        string root, IProgress<double>? progress = null,
+        Action<string>? log = null, CancellationToken token = default);
+}
+```
+
+```csharp title="Services/AssetScanner.cs（変更：宣言だけ）"
+public class AssetScanner : IAssetScanner
+```
+
+使う側の引数の型と、登録は、自分で書き換えます。
+
+```csharp title="ViewModels/AssetBrowserViewModel.cs（変更）"
+private readonly IAssetScanner _scanner;
+
+public AssetBrowserViewModel(LogViewModel log, IAssetScanner scanner)
+```
+
+```csharp title="App.xaml.cs（変更）"
+containerRegistry.RegisterSingleton<IAssetScanner, AssetScanner>();   // 前は RegisterSingleton<AssetScanner>()
+```
+
+実行して、第 15 章までと同じに動けば成功です。見た目は何も変わりません。変わったのは、`AssetBrowserViewModel` が「本物のディスクを読むクラス」ではなく、「`ScanAsync` できる物」だけを知っている点です。
+
+その効果を確かめるために、偽物を作ってみます。Editor には入れない実験です。
+
+```csharp title="実験：決まった結果を返す偽物（Editor には入れない）"
+public class FakeAssetScanner : IAssetScanner
+{
+    public Task<IReadOnlyList<FileEntry>> ScanAsync(
+        string root, IProgress<double>? progress = null,
+        Action<string>? log = null, CancellationToken token = default)
+    {
+        IReadOnlyList<FileEntry> files = new[] { new FileEntry("fake.png", "texture", 1_024) };
+        return Task.FromResult(files);
+    }
+}
+```
+
+`RegisterTypes` の登録を `RegisterSingleton<IAssetScanner, FakeAssetScanner>()` に替えるだけで、読み込みボタンを押すと、ディスクを見ずに `fake.png` の 1 件が出ます。`AssetBrowserViewModel` は、1 行も直していません。確かめたら、元の登録に戻してください。
 
 ## まとめ
 

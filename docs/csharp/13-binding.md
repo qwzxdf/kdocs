@@ -6,74 +6,180 @@ tags:
 
 # 第 13 章 バインディングを掘り下げる
 
-第 12 章では、`{Binding プロパティ名}` の基本を説明しました。実際に画面を作り込んでいくと、「親のビューモデルのコマンドをリストの中のボタンから呼びたい」「2 つの値を組み合わせて表示したい」「入力が不正なら赤く表示したい」といった場面が必ず出てきます。この章では、そのあたりを一通りそろえます。
+第 12 章で、シーン ツリーとプロパティ パネルがつながりました。ただ、使い込むと不満が出てきます。リストの 1 行ごとに削除ボタンを付けたい。位置は「1.0, 0.0, 2.0」のようにまとめて見せたい。オブジェクトが増えたので、名前で絞り込みたい。名前を空にしたら、怒ってほしい。この章では、これらを Editor に足しながら、バインディングの細かい設定を順に見ていきます。
 
 !!! info "このページを読む前に"
-    - [第 12 章 データバインディングと MVVM](12-binding-mvvm.md)（前の章。ここまでの内容が前提になる）
+    - [第 12 章 データバインディングと MVVM](12-binding-mvvm.md)（前の章。この章は、そこで作った Editor に足していく）
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Mvvm/RelayCommand.cs`（変更） | 引数を受け取る `RelayCommand<T>` を足す |
+    | `Mvvm/ValidatableViewModelBase.cs`（新規） | 入力のエラーを覚えておく土台 |
+    | `ViewModels/SceneObjectViewModel.cs`（変更） | `Scale` を足す。名前が空ならエラーにする |
+    | `ViewModels/MainWindowViewModel.cs`（変更） | 削除コマンド、名前での絞り込み |
+    | `MainWindow.xaml`（変更） | スケールのスライダー、位置の表示、削除ボタン、検索ボックス、ステータス バー |
 
-## Mode と UpdateSourceTrigger の既定値
+## 表示を整える
 
-データが流れる向き（`Mode`）と、画面からデータへ書き戻すタイミング（`UpdateSourceTrigger`）は、何も書かなければ部品ごとの既定値になります。「更新されない」トラブルの多くは、この既定値を知らなかったことが原因です。
+### StringFormat：位置を読みやすく
 
-### Mode
+シーン ツリーの各行には、第 12 章で `X: 1.0` のように X だけを出しました。X、Y、Z をまとめて出したいので、3 つの値から 1 つの文字列を作ります。これには `MultiBinding` を使います。
 
-| 値 | データの流れ |
+```xml title="MainWindow.xaml（変更：ListBox の ItemTemplate の中）"
+<TextBlock Foreground="Gray" Margin="8,0,0,0">
+    <TextBlock.Text>
+        <MultiBinding StringFormat="({0:F1}, {1:F1}, {2:F1})">
+            <Binding Path="X" />
+            <Binding Path="Y" />
+            <Binding Path="Z" />
+        </MultiBinding>
+    </TextBlock.Text>
+</TextBlock>
+```
+
+オブジェクトの行が `Cube (1.0, 0.0, 2.0)` のように出ます。位置を書き換えると、フォーカスを外した時点で、リストの数字も変わります。
+
+`{0}` が最初の `Binding` の値、`{1}` が 2 つ目、という並びです。書式の指定は C# の `ToString` と同じで、`F1` なら小数 1 桁、`yyyy/MM/dd` なら日付です。値が 1 つだけの普通のバインディングでも、同じように使えます。
+
+```xml
+<TextBlock Text="{Binding X, StringFormat=X: {0:F2}}" />
+<TextBlock Text="{Binding X, StringFormat={}{0:F2} m}" />
+```
+
+書式文字列が `{` で始まる場合は、XAML が「マークアップ拡張だ」と誤解します。先頭に `{}` を付けて逃がします。
+
+`StringFormat` だけで足りない計算が必要なときは、`IMultiValueConverter` を実装します。次の例は仕組みを見るためのもので、Editor には入れません。
+
+```csharp title="実験：IMultiValueConverter の中身（Editor には入れない）"
+public class SumConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        => values.OfType<float>().Sum();
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        => throw new NotSupportedException();
+}
+```
+
+値を渡す `ConverterParameter` もあります。`Converter={StaticResource GreaterThan}, ConverterParameter=0` のように固定の値を渡せば、しきい値だけ違うコンバーターを何個も作らなくて済みます。
+
+### ElementName：同じ画面の部品から読む
+
+`SceneObjectViewModel` に、拡大率の `Scale` を足します。位置と同じ形で、初期値は 1 です。
+
+```csharp title="ViewModels/SceneObjectViewModel.cs（変更：フィールドとプロパティを足す）"
+private float _scale = 1f;
+
+public float Scale { get => _scale; set => SetProperty(ref _scale, value); }
+```
+
+プロパティ パネルに、スライダーを置きます。
+
+```xml title="MainWindow.xaml（変更：右のパネルに足す）"
+<TextBlock Text="スケール" Foreground="Gray" Margin="0,8,0,0" />
+<Slider x:Name="ScaleSlider" Minimum="0.1" Maximum="10"
+        Value="{Binding Selected.Scale}" />
+<TextBlock Foreground="White"
+           Text="{Binding Value, ElementName=ScaleSlider, StringFormat=F2}" />
+```
+
+スライダーを動かすと、下の数字が追従します。`Slider.Value` は、既定で双方向のバインディングなので、動かした値が `Scale` に書き戻され、`Scale` が変われば動きます。
+
+`ElementName` は、`x:Name` を付けた部品を指して、その部品のプロパティを読みます。ビューモデルを通さず、画面の中だけで完結する連動に便利です。ここでは、下の数字を `Selected.Scale` から読んでも同じ結果になります。`ElementName` を使ったのは、スライダーを動かしている途中の値を、そのまま出したかったからです。
+
+### FallbackValue と TargetNullValue：何も選んでいないとき
+
+ウィンドウの下のステータス バーに、選択中のオブジェクトの名前を出します。第 6 章で、ここには「準備完了」と書いてありました。
+
+```xml title="MainWindow.xaml（変更：StatusBar）"
+<StatusBar DockPanel.Dock="Bottom">
+    <StatusBarItem Content="準備完了" />
+    <Separator />
+    <StatusBarItem>
+        <TextBlock Text="{Binding Selected.Name, TargetNullValue=(なし), FallbackValue=(なし)}" />
+    </StatusBarItem>
+</StatusBar>
+```
+
+| 設定 | 使われるとき |
 | --- | --- |
-| `OneWay` | データ → 画面 |
-| `TwoWay` | データ ⇄ 画面 |
-| `OneTime` | 最初の 1 回だけデータ → 画面。あとで変わっても追従しない |
-| `OneWayToSource` | 画面 → データ |
-| `Default` | 部品ごとの既定値に従う |
+| `TargetNullValue=(なし)` | 元の値が `null` のとき |
+| `FallbackValue=(なし)` | バインディングが失敗したとき（パスが見つからない、途中が `null`、など） |
 
-`Default` のときは、入力を受け付けるプロパティ（`TextBox.Text`、`CheckBox.IsChecked`、`Slider.Value` など）が `TwoWay`、それ以外（`TextBlock.Text` など）が `OneWay` になります。
+`Selected` が `null` のとき、`Selected.Name` は途中でたどれなくなります。この場合に使われるのが `FallbackValue` です。`Name` そのものが `null` のときは `TargetNullValue` が使われます。どちらも空白のまま放置せず、人が読める言葉に置き換えるための設定です。
 
-`OneTime` は、起動時にだけ読めばよい値（変わらない設定値など）に使うと、通知の仕組みを使わないので軽くなります。ただし、後から変えても画面が追従しないので、うっかり付けると「更新されない」の原因になります。
+## 別の場所のコマンドを呼ぶ
 
-### UpdateSourceTrigger
+### RelativeSource：リストの中のボタンから、リストの外のコマンドを呼ぶ
 
-| 値 | 書き戻すタイミング |
-| --- | --- |
-| `PropertyChanged` | 画面の値が変わるたびにすぐ |
-| `LostFocus` | その部品からフォーカスが外れたとき |
-| `Explicit` | コードで `UpdateSource()` を呼んだとき |
-| `Default` | 部品ごとの既定値。ほとんどは `PropertyChanged`、`TextBox.Text` だけ `LostFocus` |
+シーン ツリーの各行に、削除ボタンを付けます。`MainWindowViewModel` に、削除のコマンドを足します。
 
-初心者がつまずく定番は、`TextBox` だけ既定が `LostFocus` なことです。入力しても `Tab` や別の場所のクリックでフォーカスを外すまで、ビューモデルの値が変わりません。1 文字ごとに反映したいときは、`UpdateSourceTrigger=PropertyChanged` を付けます。
+先に、引数を受け取れるコマンドの部品を、`RelayCommand` のファイルに足します。
 
-ただし、1 文字ごとに反映すると、重い処理（検索や再描画）を毎回起こすことになります。入力が止まるまで少し待ちたいときは、`Delay=300`（ミリ秒）を併用します。
+```csharp title="Mvvm/RelayCommand.cs（変更：クラスを足す）"
+public class RelayCommand<T> : ICommand
+{
+    private readonly Action<T> _execute;
+    private readonly Func<T, bool>? _canExecute;
 
-```xml
-<TextBox Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
+    public RelayCommand(Action<T> execute, Func<T, bool>? canExecute = null)
+    {
+        _execute = execute;
+        _canExecute = canExecute;
+    }
+
+    public event EventHandler? CanExecuteChanged;
+
+    public bool CanExecute(object? parameter) => parameter is T t && (_canExecute?.Invoke(t) ?? true);
+
+    public void Execute(object? parameter)
+    {
+        if (parameter is T t) _execute(t);
+    }
+
+    public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+}
 ```
 
-数値を入れるときに、`1.` と打った途中で、`1` に戻されてしまう現象も、`PropertyChanged` にしたときに起きがちです。そういう入力欄は、`LostFocus`（既定）のままにしておくほうが扱いやすいです。
+`ICommand` の引数は `object?` なので、`T` かどうかを確かめて取り出しています。
 
-## どこからデータを取るか
+```csharp title="ViewModels/MainWindowViewModel.cs（変更：コンストラクターとメソッドを足す）"
+// コンストラクターの最後
+DeleteCommand = new RelayCommand<SceneObjectViewModel>(Delete);
 
-`{Binding Name}` と書いたときの探し先は、`DataContext` でした。それ以外のところから取りたいときの書き方がいくつかあります。
+public RelayCommand<SceneObjectViewModel> DeleteCommand { get; }
 
-### ElementName：同じ画面の別の部品から
-
-```xml
-<Slider x:Name="Volume" Minimum="0" Maximum="100" />
-<TextBlock Text="{Binding Value, ElementName=Volume}" />
+private void Delete(SceneObjectViewModel obj)
+{
+    Objects.Remove(obj);
+    if (Selected == obj) Selected = null;
+}
 ```
 
-`x:Name` を付けた部品を指して、その部品のプロパティを読みます。スライダーを動かすと、横の文字が追従します。ビューモデルを通さず、画面の中だけで完結する連動に便利です。
+削除したオブジェクトが選ばれていたら、`Selected` を `null` にします。右のパネルが丸ごと消えるのは、第 12 章で作った `HasSelection` のおかげです。
 
-### RelativeSource：自分や祖先を指す
+ボタンを置くのは、`ListBox` の `ItemTemplate` の中です。ところが、そこの `DataContext` は、リストの 1 要素の `SceneObjectViewModel` になっています。`DeleteCommand` は、その外の `MainWindowViewModel` にあります。
 
-```xml
-<!-- 親の ListBox の DataContext にある DeleteCommand を、リストの中のボタンから呼ぶ -->
-<Button Content="削除"
-        Command="{Binding DataContext.DeleteCommand,
-                  RelativeSource={RelativeSource AncestorType=ListBox}}"
-        CommandParameter="{Binding}" />
+```xml title="MainWindow.xaml（変更：ItemTemplate）"
+<DataTemplate>
+    <DockPanel LastChildFill="False">
+        <Button DockPanel.Dock="Right" Content="×" Padding="6,0"
+                Command="{Binding DataContext.DeleteCommand,
+                          RelativeSource={RelativeSource AncestorType=ListBox}}"
+                CommandParameter="{Binding}" />
+        <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+        <!-- 位置の TextBlock は前のとおり -->
+    </DockPanel>
+</DataTemplate>
 ```
 
-`DataTemplate` の中は、`DataContext` がリストの 1 要素になっています。1 件ごとのボタンから、リスト全体を持っているビューモデルのコマンドを呼びたいときに、祖先の `ListBox` の `DataContext` へ回り込むのに使います。
+`RelativeSource={RelativeSource AncestorType=ListBox}` は、「上にたどって最初に見つかる `ListBox`」を指します。その `DataContext` は、`ListBox` に設定された `MainWindowViewModel` なので、`DataContext.DeleteCommand` で届きます。`CommandParameter="{Binding}"` は、何も書かない `{Binding}` で、その行の `DataContext`、つまりそのオブジェクト自身を渡します。
+
+### 深掘り：RelativeSource とパスの書き方
+
+`RelativeSource` で指せるものは、次のとおりです。
 
 | 書き方 | 指すもの |
 | --- | --- |
@@ -81,154 +187,187 @@ tags:
 | `RelativeSource={RelativeSource AncestorType=Window}` | 上にたどって最初に見つかる `Window` |
 | `RelativeSource={RelativeSource TemplatedParent}` | テンプレートを適用されている部品（`TemplateBinding` の正式形） |
 
-`CommandParameter="{Binding}"` と何も書かずに `{Binding}` だけにすると、`DataContext` そのもの（この場合はリストの 1 要素）を渡せます。
-
-### パスの書き方
-
-`Path` には、ドットでたどる書き方や、インデックスも使えます。
+`Path` には、ドットでたどる書き方やインデックスも使えます。
 
 | 書き方 | 意味 |
 | --- | --- |
-| `{Binding Player.Name}` | `Player` プロパティの `Name` |
-| `{Binding Items[0]}` | 0 番目の要素 |
+| `{Binding Selected.Name}` | `Selected` プロパティの `Name` |
+| `{Binding Objects[0]}` | 0 番目の要素 |
 | `{Binding Scores[Alice]}` | 辞書の `"Alice"` キーの値 |
 | `{Binding}` または `{Binding .}` | `DataContext` そのもの |
 
-## 表示を整える
+## 名前で絞り込む
 
-### StringFormat
+オブジェクトが増えてくると、探すのが大変になります。シーン ツリーの上に検索ボックスを置いて、名前に文字を含むものだけを残します。
 
-```xml
-<TextBlock Text="{Binding Hp, StringFormat=HP: {0}}" />
-<TextBlock Text="{Binding Position.X, StringFormat={}{0:F2} m}" />
+### UpdateSourceTrigger と Delay
+
+検索ボックスは、1 文字打つたびに絞り込んでほしいので、入力のたびに反映します。
+
+```xml title="MainWindow.xaml（変更：左のパネル）"
+<DockPanel Grid.Column="0" Background="#FF252526">
+    <TextBox DockPanel.Dock="Top" Margin="8"
+             Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
+    <Button DockPanel.Dock="Bottom" Content="オブジェクトを追加" Margin="8"
+            Command="{Binding AddCommand}" />
+    <ListBox ...>
 ```
 
-`{0}` が値の入る場所です。書式の指定は C# の `ToString` と同じです（`F2` なら小数 2 桁、`yyyy/MM/dd` なら日付）。書式文字列が `{` で始まる場合は、XAML が「マークアップ拡張だ」と誤解するので、先頭に `{}` を付けて逃がします。
+`Delay=300` は、入力が止まってから 300 ミリ秒たったら反映する指定です。1 文字ごとに絞り込みを走らせると、オブジェクトが数千個になったとき、打つたびに画面が重くなります。入力が止まるまで少し待つ、というときに使います。
 
-### FallbackValue と TargetNullValue
+### CollectionView：元のリストを変えずに見せ方だけ変える
 
-| 設定 | 使われるとき |
-| --- | --- |
-| `FallbackValue=---` | バインディングが失敗したとき（パスが見つからない、など） |
-| `TargetNullValue=(なし)` | 元の値が `null` のとき |
+絞り込み自体は、`ObservableCollection` を書き換えずに行います。`ListBox` などに `ObservableCollection` を渡すと、WPF は裏で `CollectionView` というラッパーを作って、並べ替え、絞り込み、グループ化、「現在の項目」の管理をしています。この `CollectionView` を取り出して、条件を設定します。
 
-選択が何もないときに、空白でなく「(なし)」と出したい、といった場面に便利です。
+```csharp title="ViewModels/MainWindowViewModel.cs（変更）"
+using System.ComponentModel;
+using System.Windows.Data;
 
-### MultiBinding：複数の値から 1 つの表示を作る
+private string _filterText = "";
+private readonly ICollectionView _objectsView;
 
-```xml
-<TextBlock>
-    <TextBlock.Text>
-        <MultiBinding StringFormat="{}{0} ({1} 個)">
-            <Binding Path="Name" />
-            <Binding Path="Children.Count" />
-        </MultiBinding>
-    </TextBlock.Text>
-</TextBlock>
-```
+// コンストラクターの中、Objects を作ったあと
+_objectsView = CollectionViewSource.GetDefaultView(Objects);
+_objectsView.Filter = o => o is SceneObjectViewModel s
+    && s.Name.Contains(_filterText, StringComparison.OrdinalIgnoreCase);
 
-複数の値をまとめるときは、`StringFormat` だけで足りることもあります。計算が必要なら、`IMultiValueConverter` を実装します。
-
-```csharp
-public class AddConverter : IMultiValueConverter
+public string FilterText
 {
-    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        => values.OfType<double>().Sum();
-
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        => throw new NotSupportedException();
+    get => _filterText;
+    set
+    {
+        if (SetProperty(ref _filterText, value))
+            _objectsView.Refresh();         // 条件が変わったので、かけ直す
+    }
 }
 ```
 
-### コンバーターに引数を渡す
+`Filter` に、「この要素を残すか」を返す関数を渡します。条件が変わったら、`Refresh()` で、かけ直してもらいます。`ListBox` は `Objects` をそのまま受け取っていますが、裏でこの `CollectionView` を通して見ているので、絞り込みの結果だけが並びます。
 
-```xml
-<TextBlock Visibility="{Binding Count, Converter={StaticResource GreaterThan}, ConverterParameter=0}" />
+並べ替えやグループ化も、同じ `CollectionView` で設定します。Editor には入れませんが、書き方はこうです。
+
+```csharp title="実験：並べ替えとグループ化（Editor には入れない）"
+_objectsView.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));
+_objectsView.GroupDescriptions.Add(new PropertyGroupDescription("Kind"));
 ```
 
-`ConverterParameter` で、固定の値を渡せます。しきい値だけ違うコンバーターを何個も作らなくて済みます。
+### 深掘り：Mode と UpdateSourceTrigger の既定値
 
-## コレクションの見せ方を変える（CollectionView）
+データが流れる向き（`Mode`）と、画面からデータへ書き戻すタイミング（`UpdateSourceTrigger`）は、何も書かなければ部品ごとの既定値になります。「更新されない」トラブルの多くは、この既定値を知らなかったことが原因です。
 
-`ListBox` などに `ObservableCollection` を渡すと、WPF は裏で `CollectionView` というラッパーを作って、並べ替え、絞り込み、グループ化、「現在の項目」の管理をしています。この `CollectionView` を取り出せば、元のコレクションを変えずに、見せ方だけを変えられます。
+| `Mode` | データの流れ |
+| --- | --- |
+| `OneWay` | データ → 画面 |
+| `TwoWay` | データ ⇄ 画面 |
+| `OneTime` | 最初の 1 回だけデータ → 画面。あとで変わっても追従しない |
+| `OneWayToSource` | 画面 → データ |
+| `Default` | 部品ごとの既定値に従う |
 
-```csharp
-var view = CollectionViewSource.GetDefaultView(Items);
+`Default` のときは、入力を受け付けるプロパティ（`TextBox.Text`、`CheckBox.IsChecked`、`Slider.Value` など）が `TwoWay`、それ以外（`TextBlock.Text` など）が `OneWay` になります。`OneTime` は、起動時にだけ読めばよい値に使うと、通知の仕組みを使わないので軽くなります。ただし、あとから変えても画面が追従しないので、うっかり付けると「更新されない」の原因になります。
 
-view.Filter = o => o is Item i && i.Name.Contains(Keyword);          // 絞り込み
-view.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascending));   // 並べ替え
-view.GroupDescriptions.Add(new PropertyGroupDescription("Kind"));    // グループ化
-```
+| `UpdateSourceTrigger` | 書き戻すタイミング |
+| --- | --- |
+| `PropertyChanged` | 画面の値が変わるたびにすぐ |
+| `LostFocus` | その部品からフォーカスが外れたとき |
+| `Explicit` | コードで `UpdateSource()` を呼んだとき |
+| `Default` | 部品ごとの既定値。ほとんどは `PropertyChanged`、`TextBox.Text` だけ `LostFocus` |
 
-絞り込みの条件を変えたら、`view.Refresh()` を呼んで、かけ直します（第 45 章の検索ボックスで使っています）。
+初心者がつまずく定番は、`TextBox` だけ既定が `LostFocus` なことです。入力しても `Tab` や別の場所のクリックでフォーカスを外すまで、ビューモデルの値が変わりません。数値を入れる欄で `1.` と打った途中に `1` へ戻されてしまう現象も、`PropertyChanged` にしたときに起きがちです。第 12 章で位置の入力欄を既定のままにしたのは、そのためでした。
 
 ## 入力の検証
 
-ユーザーが入れた値が不正なとき、赤い枠を出したり、メッセージを出したりする仕組みが、バインディングには組み込まれています。方法は 3 つあります。
+ユーザーが入れた値が不正なとき、赤い枠を出したり、メッセージを出したりする仕組みが、バインディングには組み込まれています。方法は 3 つあります。Editor には、名前を空にできないようにする規則を入れたいので、そのうち 1 つを選びます。
 
 ### 1. 例外で知らせる（簡易）
 
 プロパティの `set` の中で、不正な値なら例外を投げます。バインディング側で `ValidatesOnExceptions=True` を付けると、例外が検証エラーとして扱われます。
 
-```csharp
-public int Hp
+```csharp title="実験：例外で知らせる（Editor には入れない）"
+public string Name
 {
-    get => _hp;
+    get => _name;
     set
     {
-        if (value < 0) throw new ArgumentException("HP は 0 以上にしてください");
-        SetProperty(ref _hp, value);
+        if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("名前を入力してください");
+        SetProperty(ref _name, value);
     }
 }
 ```
 
 ```xml
-<TextBox Text="{Binding Hp, ValidatesOnExceptions=True}" />
+<TextBox Text="{Binding Selected.Name, ValidatesOnExceptions=True}" />
 ```
 
-手軽ですが、例外を日常的に投げるのは重く、デバッガーで毎回止まって煩わしいので、おすすめは次の 2 つです。
+手軽ですが、例外を日常的に投げるのは重く、デバッガーで毎回止まって煩わしいので、おすすめは次の 2 番です。
 
 ### 2. INotifyDataErrorInfo（おすすめ）
 
-ビューモデルが `INotifyDataErrorInfo` を実装して、エラーを覚えておきます。非同期の検証（サーバーに確認する）や、1 つのプロパティに複数のエラーを持たせることもできます。
+ビューモデルが `INotifyDataErrorInfo` を実装して、エラーを覚えておきます。非同期の検証（サーバーに確認する）や、1 つのプロパティに複数のエラーを持たせることもできます。エラーを覚える部分は、どのビューモデルでも同じなので、基底クラスにします。
 
-```csharp
-public class PlayerViewModel : BindableBase, INotifyDataErrorInfo
+```csharp title="Mvvm/ValidatableViewModelBase.cs（新規）"
+using System.Collections;
+using System.ComponentModel;
+
+namespace Editor.Mvvm;
+
+public abstract class ValidatableViewModelBase : ViewModelBase, INotifyDataErrorInfo
 {
-    private readonly Dictionary<string, List<string>> _errors = new();
+    private readonly Dictionary<string, string> _errors = new();
 
     public bool HasErrors => _errors.Count > 0;
+
     public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
     public IEnumerable GetErrors(string? propertyName)
-        => propertyName != null && _errors.TryGetValue(propertyName, out var list) ? list : Enumerable.Empty<string>();
-
-    private int _hp;
-    public int Hp
     {
-        get => _hp;
-        set
-        {
-            if (SetProperty(ref _hp, value)) Validate(nameof(Hp), value >= 0, "HP は 0 以上にしてください");
-        }
+        if (propertyName is not null && _errors.TryGetValue(propertyName, out var message))
+            return new[] { message };
+        return Array.Empty<string>();
     }
 
-    private void Validate(string property, bool ok, string message)
+    // message が null ならエラーを消す
+    protected void SetError(string propertyName, string? message)
     {
-        if (ok) _errors.Remove(property);
-        else _errors[property] = new List<string> { message };
-        ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(property));
+        if (message is null)
+        {
+            if (!_errors.Remove(propertyName)) return;
+        }
+        else
+        {
+            _errors[propertyName] = message;
+        }
+        ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
     }
 }
 ```
 
-Prism の `BindableBase` には含まれていませんが、`ErrorsContainer<T>` という補助クラスがあります。また CommunityToolkit.Mvvm の `ObservableValidator` を使うと、`[Range(0, 100)]` のような属性（DataAnnotations）だけで検証を書けます（第 25 章）。
+`SceneObjectViewModel` の土台を、これに差し替えて、名前の `set` で検証します。
 
-WPF の `Binding` は、`INotifyDataErrorInfo` のエラーを自動で拾ってくれます（`ValidatesOnNotifyDataErrors` の既定が `true`）。
+```csharp title="ViewModels/SceneObjectViewModel.cs（変更）"
+public class SceneObjectViewModel : ValidatableViewModelBase
+{
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            if (SetProperty(ref _name, value))
+                SetError(nameof(Name), string.IsNullOrWhiteSpace(value) ? "名前を入力してください" : null);
+        }
+    }
+    // ほかは前のとおり
+}
+```
+
+名前の入力欄を全部消すと、入力欄が赤い枠になります。WPF の `Binding` は、`INotifyDataErrorInfo` のエラーを自動で拾ってくれます（`ValidatesOnNotifyDataErrors` の既定が `true`）。
+
+Prism の `BindableBase` には含まれていませんが、`ErrorsContainer<T>` という補助クラスがあります（第 24 章）。CommunityToolkit.Mvvm の `ObservableValidator` を使うと、`[Required]` のような属性（DataAnnotations）だけで検証を書けます（第 25 章）。
 
 ### 3. ValidationRule（XAML 側で完結）
 
-```csharp
+規則を、画面の側のクラスに書く方法もあります。
+
+```csharp title="実験：ValidationRule（Editor には入れない）"
 public class RangeRule : ValidationRule
 {
     public double Min { get; set; }
@@ -245,9 +384,9 @@ public class RangeRule : ValidationRule
 ```xml
 <TextBox>
     <TextBox.Text>
-        <Binding Path="Hp" UpdateSourceTrigger="PropertyChanged">
+        <Binding Path="Selected.Scale" UpdateSourceTrigger="PropertyChanged">
             <Binding.ValidationRules>
-                <local:RangeRule Min="0" Max="100" />
+                <local:RangeRule Min="0.1" Max="10" />
             </Binding.ValidationRules>
         </Binding>
     </TextBox.Text>
@@ -258,23 +397,31 @@ XAML だけで完結するのが長所ですが、規則が画面に埋まるの
 
 ### 赤枠の見た目を変える
 
-検証エラーのとき、既定では入力欄に赤い枠が出ます。メッセージも見せたいなら、`Validation.ErrorTemplate` を差し替えます。
+検証エラーのとき、既定では入力欄に赤い枠が出ますが、メッセージは出ません。メッセージも見せたいので、`Validation.ErrorTemplate` を差し替えたスタイルを作って、名前の入力欄に使います。
 
-```xml
-<TextBox Text="{Binding Hp, UpdateSourceTrigger=PropertyChanged}">
-    <Validation.ErrorTemplate>
-        <ControlTemplate>
-            <StackPanel>
-                <AdornedElementPlaceholder />
-                <TextBlock Foreground="Red"
-                           Text="{Binding [0].ErrorContent}" />
-            </StackPanel>
-        </ControlTemplate>
-    </Validation.ErrorTemplate>
-</TextBox>
+```xml title="MainWindow.xaml（変更：Window.Resources に足す）"
+<Style x:Key="ValidatedTextBox" TargetType="TextBox"
+       BasedOn="{StaticResource {x:Type TextBox}}">
+    <Setter Property="Validation.ErrorTemplate">
+        <Setter.Value>
+            <ControlTemplate>
+                <StackPanel>
+                    <AdornedElementPlaceholder />
+                    <TextBlock Foreground="#FFF48771"
+                               Text="{Binding [0].ErrorContent}" />
+                </StackPanel>
+            </ControlTemplate>
+        </Setter.Value>
+    </Setter>
+</Style>
 ```
 
-`AdornedElementPlaceholder` は、元の入力欄が入る場所です。`Validation.HasError`（添付プロパティ）をスタイルのトリガーで見ると、エラーのときにツールチップを出す、といった表現もできます。
+```xml title="MainWindow.xaml（変更：名前の入力欄）"
+<TextBox Style="{StaticResource ValidatedTextBox}"
+         Text="{Binding Selected.Name, UpdateSourceTrigger=PropertyChanged}" />
+```
+
+`AdornedElementPlaceholder` は、元の入力欄が入る場所です。このテンプレートの中の `DataContext` は、エラーの一覧なので、`[0].ErrorContent` が先頭のエラーのメッセージになります。`Validation.HasError`（添付プロパティ）をスタイルのトリガーで見ると、エラーのときにツールチップを出す、といった表現もできます。
 
 ## 動かないときに調べる
 
@@ -288,7 +435,7 @@ XAML だけで完結するのが長所ですが、規則が画面に埋まるの
 ```xml
 xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
 
-<TextBlock Text="{Binding Name, diag:PresentationTraceSources.TraceLevel=High}" />
+<TextBlock Text="{Binding Selected.Name, diag:PresentationTraceSources.TraceLevel=High}" />
 ```
 
 3 番を付けると、そのバインディングが「どこでどのオブジェクトを探して、何が見つかったか」を出力に詳しく書き出してくれます。うまくいかないバインディングの原因が分からないときの最後の手段です。
@@ -304,14 +451,29 @@ xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
 | `DataTemplate` の中で、親のプロパティが見つからない | `DataContext` がリストの 1 要素になっている。`RelativeSource` で祖先に回る |
 | `ContextMenu` の中でバインディングが効かない | `ContextMenu` は別のウィンドウ扱い。`PlacementTarget` 経由で書く（第 40 章） |
 
-## コードからバインディングを作る
+### 実行しなくても確認する：デザイン時の DataContext
 
-XAML に書けないとき（部品をコードで作るときなど）は、コードでも作れます。
+XAML エディタのデザイナーでも、バインディングのパスを補完してもらうには、デザイン時だけ有効な `d:DataContext` を書きます。`MainWindow.xaml` の `Window` タグに足します。
 
-```csharp
-var binding = new Binding("Hp")
+```xml title="MainWindow.xaml（変更：Window タグ）"
+<Window ...
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:Editor.ViewModels"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}">
+```
+
+`d:DesignInstance` を指定すると、Visual Studio は `MainWindowViewModel` のプロパティを知っているものとして、パスの入力補完を出します。つづり間違いを、実行前に減らせます。
+
+### 深掘り：コードからバインディングを作る
+
+XAML に書けないとき（部品をコードで作るときなど）は、コードでも作れます。Editor には入れません。
+
+```csharp title="実験：コードでバインディング（Editor には入れない）"
+var binding = new Binding("Name")
 {
-    Source = viewModel,
+    Source = viewModel.Selected,
     Mode = BindingMode.TwoWay,
     UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
 };
@@ -320,18 +482,48 @@ textBox.SetBinding(TextBox.TextProperty, binding);
 
 `TextBox.TextProperty` は、依存関係プロパティの登録証です（第 10 章）。バインディングのターゲットは、このように依存関係プロパティでなければなりません。
 
-## 実行しなくても確認できる：デザイン時の DataContext
+## 動かして確かめる
 
-XAML エディタのデザイナーでも、バインディングの中身を見えるようにするには、デザイン時だけ有効な `d:DataContext` を書きます。
+`F5` で実行して、次を確かめてください。
 
-```xml
-<UserControl xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance Type=vm:PropertyViewModel}">
+- スライダーを動かすと、下の数字が追従する。別のオブジェクトを選ぶと、スライダーの位置が切り替わる。
+- 左のリストに、`Cube (1.0, 0.0, 2.0)` のように位置が出る。
+- 行の「×」で削除できる。選んでいる行を消すと、右のパネルが消える。
+- ステータス バーに、選択中の名前が出る。何も選んでいないと `(なし)` と出る。
+- 検索ボックスに `c` と打つと、`Camera` と `Cube` だけが残る。
+- 名前を全部消すと赤い枠とメッセージが出る。
+
+??? failure "削除ボタンを押しても、何も起きない"
+    「出力」ウィンドウに `BindingExpression path error` が出ていないかを確かめます。`DataContext.DeleteCommand` の `DeleteCommand` が `public` のプロパティか、`RelativeSource` の `AncestorType` が `ListBox` かを見てください。
+
+??? failure "検索ボックスに打っても、絞り込まれない"
+    `Delay=300` のため、打ち終わって 0.3 秒たつまで反映されません。それでも変わらないときは、`FilterText` の `set` で `_objectsView.Refresh()` を呼んでいるかを確かめます。
+
+??? failure "名前を空にしても、赤い枠が出ない"
+    `SceneObjectViewModel` の土台が `ValidatableViewModelBase` になっているか、`Name` の `set` の中で `SetError` を呼んでいるかを確かめます。
+
+## ここまでの Editor
+
+```text
+Editor/
+├─ Mvvm/
+│   ├─ ViewModelBase.cs
+│   ├─ ValidatableViewModelBase.cs   入力エラーを覚える（新規）
+│   └─ RelayCommand.cs               RelayCommand<T> を足した
+├─ ViewModels/
+│   ├─ SceneObjectViewModel.cs       Scale、名前の検証を足した
+│   └─ MainWindowViewModel.cs        削除、絞り込みを足した
+├─ MainWindow.xaml                   検索ボックス、削除ボタン、スライダー、ステータス バー
+└─ MainWindow.xaml.cs
 ```
 
-`d:DesignInstance` を指定すると、Visual Studio は `PropertyViewModel` のプロパティを知っているものとして、バインディングのパスを入力補完してくれます。パスのつづり間違いを実行前に減らせます。
+## この章のまとめ
+
+- 部品の値は `ElementName`、祖先の `DataContext` は `RelativeSource` で読む。
+- 見せ方は `StringFormat`、`MultiBinding`、`TargetNullValue`、`FallbackValue` で整える。
+- 絞り込みや並べ替えは、`CollectionView` で見せ方だけを変える。
+- 検証は `INotifyDataErrorInfo` に持たせるのが、いちばん素直。
+- 動かないときは、まず「出力」ウィンドウを見る。
 
 次の章では、リストやグリッドで大量のデータを見せる方法を扱います。
 

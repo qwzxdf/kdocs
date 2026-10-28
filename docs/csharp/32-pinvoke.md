@@ -527,12 +527,12 @@ public string GetName(uint id)
 
 ## 失敗する経路も動かしてみる
 
-最後に、エラーの経路が通っているかを確かめます。`MainWindowViewModel` に `IEngineService` を受け取らせ、わざと失敗する呼び出しを書きます。
+最後に、エラーの経路が通っているかを確かめます。`MainWindowViewModel` のコンストラクターに `IEngineService` と `ILogService` を一時的に足して、わざと失敗する呼び出しを書きます（確かめたら消します）。
 
-```csharp
+```csharp title="実験：わざと失敗させる（確かめたら消す）"
 public DelegateCommand TestErrorCommand { get; }
 
-public MainWindowViewModel(IEngineService engine, ILogService log)
+public MainWindowViewModel(IEngineService engine, ILogService log /* ほかの引数は前のとおり */)
 {
     TestErrorCommand = new DelegateCommand(() =>
     {

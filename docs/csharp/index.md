@@ -79,18 +79,18 @@ MiniEngine.sln
 |  | [第 9 章 レイアウトの仕組み](09-layout.md) | Measure と Arrange、Grid、スクロール、DPI |
 |  | [第 10 章 依存関係プロパティ、添付プロパティ、ルーテッド イベント](10-dependency-properties.md) | 依存関係プロパティ、添付プロパティ、ルーテッド イベント |
 |  | [第 11 章 スタイル、リソース、テンプレート、トリガー](11-style-template.md) | リソース、スタイル、トリガー、ControlTemplate |
-|  | [第 12 章 データバインディングと MVVM](12-binding-mvvm.md) | データ バインディング、MVVM、ICommand |
-|  | [第 13 章 バインディングを掘り下げる](13-binding.md) | Mode と UpdateSourceTrigger、RelativeSource、入力検証、デバッグ |
-|  | [第 14 章 リストとデータ表示](14-lists.md) | ListBox、ComboBox、DataGrid、選択、仮想化 |
-|  | [第 15 章 非同期処理と UI スレッド](15-async-ui.md) | async / await、Dispatcher、IProgress |
-|  | [第 16 章 Prism の導入と起動の流れ](16-prism-bootstrap.md) | Prism、DI コンテナー、ViewModelLocator |
-|  | [第 17 章 DI とは何か：IoC・DI・DI コンテナー](17-di-basics.md) | 自分で new する困りごと、コンストラクター インジェクション、IoC との違い |
+|  | [第 12 章 データバインディングと MVVM](12-binding-mvvm.md) | シーン ツリーとプロパティ パネルをつなぎながら、バインディング、通知、ICommand、ObservableCollection、MVVM |
+|  | [第 13 章 バインディングを掘り下げる](13-binding.md) | 削除ボタン、絞り込み、入力検証を足しながら、Mode と UpdateSourceTrigger、RelativeSource、CollectionView、デバッグ |
+|  | [第 14 章 リストとデータ表示](14-lists.md) | アセット一覧とログ一覧を作りながら、ListBox、ComboBox、DataGrid、選択、仮想化 |
+|  | [第 15 章 非同期処理と UI スレッド](15-async-ui.md) | アセットの読み込みを作りながら、async / await、Dispatcher、IProgress、キャンセル |
+|  | [第 16 章 Prism の導入と起動の流れ](16-prism-bootstrap.md) | ここまでの Editor を Prism に載せ替える：BindableBase、DelegateCommand、DI コンテナー、ViewModelLocator |
+|  | [第 17 章 DI とは何か：IoC・DI・DI コンテナー](17-di-basics.md) | Editor の組み立てで見る、自分で new する困りごと、コンストラクター インジェクション、IoC との違い |
 |  | [第 18 章 Prism の起動で何が起きるか](18-prism-startup.md) | `Main` の正体、起動の順番、`Container` の持ち主、Service Locator |
 |  | [第 19 章 登録とライフタイム](19-registration-lifetime.md) | 遅延生成、Singleton と Transient、未登録の型、インターフェースの要否 |
 |  | [第 20 章 ViewModelLocator のしくみ](20-viewmodel-locator.md) | AutoWire の流れ、名前の規則、動かないとき |
 |  | [第 21 章 DI コンテナーの種類と DryIoc](21-di-containers.md) | コンテナーの種類、Prism の共通の窓口、DryIoc 単体 |
-|  | [第 22 章 リージョン、モジュール、ナビゲーション](22-regions-modules.md) | リージョン、モジュール、ナビゲーション |
-|  | [第 23 章 イベント集約、ダイアログ、サービス](23-events-dialogs.md) | IEventAggregator、ダイアログ、サービス |
+|  | [第 22 章 リージョン、モジュール、ナビゲーション](22-regions-modules.md) | MainWindow を枠にして、シーン ツリー、プロパティ、アセット、ログをモジュールに分ける。ナビゲーション |
+|  | [第 23 章 イベント集約、ダイアログ、サービス](23-events-dialogs.md) | シーン ツリーの選択をプロパティ パネルへ伝える。IEventAggregator、サービス、ダイアログ |
 |  | [第 24 章 Prism を掘り下げる](24-prism-deep.md) | KeepAlive、IConfirmNavigationRequest、CompositeCommand |
 |  | [第 25 章 MVVM ライブラリを比べる](25-mvvm-libraries.md) | BindableBase と CommunityToolkit.Mvvm などの比較 |
 |  | [第 26 章 UserControl とカスタム コントロール](26-custom-controls.md) | UserControl とカスタム コントロール |
@@ -123,7 +123,10 @@ MiniEngine.sln
 
 ## この教材の進め方
 
-- 各章は、ゴール → 追加するもの → 手順（コードつき）→ 新しく出てきたものの解説 → 動作確認 → よくあるミス → 次への順です。
+- 各章は、「この章で Editor に足すもの」の表で始まります。そのあと、Editor を少し作って動かし、そこで出てきた仕組みを「深掘り」で説明する、という繰り返しです。最後に、動作確認、よくあるミス、ここまでの Editor のファイル一覧が付きます。
+- コード ブロックのタイトルで、その扱いが分かります。
+    - `ViewModels/SceneObjectViewModel.cs（新規）` や `（変更）`：Editor のファイルです。このまま残ります。
+    - `実験：…（Editor には入れない）`：仕組みを見るためだけの、捨てるコードです。
 - 手順は必ず上から順に実行してください。前の章で作った物の上に次の章を積みます。
 - 新しい型や関数が出てきたら、その場の表で、何者か、どう使うか、C++ では何に近いかを説明します。
 - コードは、実際にビルドして確かめてはいません。ビルドが通らないときは、各章の「よくあるミス」とエラー メッセージを手がかりにしてください。

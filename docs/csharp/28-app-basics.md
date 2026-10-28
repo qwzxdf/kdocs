@@ -13,6 +13,15 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Services/WindowPlacementStore.cs`（新規） | ウィンドウの位置と大きさを、保存して復元する |
+    | `Views/MainWindow.xaml.cs`（変更） | 起動時に復元し、閉じるときに保存する |
+    | `App.xaml.cs`（変更） | 二重に起動しないようにする |
+
+    ほかの節は、必要になったときに引く、アプリの基本の紹介です。
+
 ## 起動と終了の流れ
 
 `App.xaml`（`Application` クラス）には、アプリ全体の出来事に対応するイベントや関数があります。
@@ -51,7 +60,7 @@ Prism を使うときは、`OnStartup` の代わりに `PrismApplication` の `O
 
 ビューモデルから `new Window()` と書くのは、ビューを知ってしまうので避けます。第 23 章の `IDialogService` か、ナビゲーション、または自作のウィンドウ サービスで開きます。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 public interface IWindowService
 {
     void ShowToolWindow<TView>() where TView : Window;
@@ -73,9 +82,15 @@ public interface IWindowService
 
 ## ウィンドウの位置と大きさを覚える
 
-エディタを閉じて、また開いたときに、前回と同じ位置と大きさで出てほしい。これは、設定ファイルに保存して実現します（第 44 章の設定の保存と同じ要領）。
+エディタを閉じて、また開いたときに、前回と同じ位置と大きさで出てほしい。これは、設定ファイルに保存して実現します（第 44 章の設定の保存と同じ要領）。保存の置き場所は、ユーザーごとの設定なので `%APPDATA%` にします。
 
-```csharp
+```csharp title="Services/WindowPlacementStore.cs（新規）"
+using System.IO;
+using System.Text.Json;
+using System.Windows;
+
+namespace Editor.Services;
+
 public class WindowPlacement
 {
     public double Left { get; set; }
@@ -84,26 +99,67 @@ public class WindowPlacement
     public double Height { get; set; }
     public WindowState State { get; set; }
 }
-```
 
-```csharp
-// 閉じるとき
-var p = new WindowPlacement
+public static class WindowPlacementStore
 {
-    Left = RestoreBounds.Left, Top = RestoreBounds.Top,
-    Width = RestoreBounds.Width, Height = RestoreBounds.Height,
-    State = WindowState,
-};
+    private static readonly string s_path = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+        "MiniEngine", "Editor", "window.json");
+
+    public static void Save(Window window)
+    {
+        var b = window.RestoreBounds;      // 最大化・最小化の前の、通常状態の位置と大きさ
+        var p = new WindowPlacement
+        {
+            Left = b.Left, Top = b.Top, Width = b.Width, Height = b.Height,
+            State = window.WindowState == WindowState.Minimized ? WindowState.Normal : window.WindowState,
+        };
+        Directory.CreateDirectory(Path.GetDirectoryName(s_path)!);
+        File.WriteAllText(s_path, JsonSerializer.Serialize(p));
+    }
+
+    public static void Restore(Window window)
+    {
+        if (!File.Exists(s_path)) return;
+
+        WindowPlacement? p;
+        try { p = JsonSerializer.Deserialize<WindowPlacement>(File.ReadAllText(s_path)); }
+        catch (JsonException) { return; }
+        if (p is null) return;
+
+        // 保存された位置が、今の画面の外（外したモニターの上など）なら、使わない
+        if (p.Left >= SystemParameters.VirtualScreenLeft + SystemParameters.VirtualScreenWidth
+            || p.Top >= SystemParameters.VirtualScreenTop + SystemParameters.VirtualScreenHeight
+            || p.Left + p.Width <= SystemParameters.VirtualScreenLeft
+            || p.Top + p.Height <= SystemParameters.VirtualScreenTop)
+            return;
+
+        window.WindowStartupLocation = WindowStartupLocation.Manual;
+        window.Left = p.Left;
+        window.Top = p.Top;
+        window.Width = p.Width;
+        window.Height = p.Height;
+        window.WindowState = p.State;
+    }
+}
 ```
 
-最大化したまま保存すると、`Left` / `Width` が画面いっぱいの値になって、復元したときに不自然になります。`RestoreBounds` は、最大化・最小化の前の、通常状態での位置と大きさを返してくれます。
+最大化したまま保存すると、`Left` / `Width` が画面いっぱいの値になって、復元したときに不自然になります。`RestoreBounds` は、最大化・最小化の前の、通常状態での位置と大きさを返してくれます。そのため、状態は `State` に別に持ち、位置と大きさは `RestoreBounds` から取っています。
 
-復元するときは、保存された位置が今の画面の外（外したモニターの上など）になっていないかを確かめます。
+`SystemParameters.VirtualScreen...` は、すべてのモニターを含む領域です。保存された位置がこの外にあるときは、復元しないで、既定の位置で開きます。
 
-```csharp
-var screen = SystemParameters.VirtualScreenLeft;     // すべてのモニターを含む領域の左端
-bool visible = p.Left < SystemParameters.VirtualScreenWidth && p.Top < SystemParameters.VirtualScreenHeight;
+呼ぶのは、ウィンドウ自身のコードビハインドです。ウィンドウの大きさや位置は、画面そのものの話なので、ビューモデルではなく、ビューに書いて構いません（第 12 章の表のとおりです）。
+
+```csharp title="Views/MainWindow.xaml.cs（変更）"
+public MainWindow()
+{
+    InitializeComponent();
+    WindowPlacementStore.Restore(this);
+    Closing += (_, _) => WindowPlacementStore.Save(this);
+}
 ```
+
+ウィンドウを動かして閉じ、また起動すると、同じ位置と大きさで出ます。
 
 ## WPF 標準のコマンド
 
@@ -119,7 +175,7 @@ bool visible = p.Left < SystemParameters.VirtualScreenWidth && p.Top < SystemPar
 
 `TextBox` は、`Copy`、`Cut`、`Paste`、`Undo` を最初から処理できます。メニューやボタンの `Command` に指定するだけで、コピー貼り付けが動きます。
 
-```xml
+```xml title="実験（Editor には入れない）"
 <MenuItem Header="コピー" Command="ApplicationCommands.Copy" />
 <MenuItem Header="貼り付け" Command="ApplicationCommands.Paste" />
 ```
@@ -128,7 +184,7 @@ bool visible = p.Left < SystemParameters.VirtualScreenWidth && p.Top < SystemPar
 
 これは「ルーテッド コマンド」という仕組みで、ビューモデルのコマンド（`DelegateCommand`）とは別物です。`ApplicationCommands.Undo` をエディタのシーンの Undo に使いたい場合は、`CommandBinding` で自分の処理に結び付けます。
 
-```xml
+```xml title="実験（Editor には入れない）"
 <Window.CommandBindings>
     <CommandBinding Command="ApplicationCommands.Undo"
                     Executed="OnUndoExecuted" CanExecute="OnUndoCanExecute" />
@@ -158,7 +214,7 @@ bool visible = p.Left < SystemParameters.VirtualScreenWidth && p.Top < SystemPar
 
 `Tab` を押したときの移動先は、基本的に XAML に書いた順（論理ツリーの順）です。順番を変えたいときは、`TabIndex` を使います。小さい値から順に移ります。
 
-```xml
+```xml title="実験（Editor には入れない）"
 <StackPanel KeyboardNavigation.TabNavigation="Cycle">
     <TextBox x:Name="PositionX" TabIndex="0" />
     <TextBox x:Name="PositionY" TabIndex="1" />
@@ -181,7 +237,7 @@ bool visible = p.Left < SystemParameters.VirtualScreenWidth && p.Top < SystemPar
 
 画面が開いたときに入力欄へカーソルを置く、のようにフォーカスを移したいときは、`Focus()` を呼ぶか、XAML で `FocusManager.FocusedElement` を指定します。
 
-```xml
+```xml title="実験（Editor には入れない）"
 <Window FocusManager.FocusedElement="{Binding ElementName=NameBox}">
     <TextBox x:Name="NameBox" />
 </Window>
@@ -189,7 +245,7 @@ bool visible = p.Left < SystemParameters.VirtualScreenWidth && p.Top < SystemPar
 
 コードビハインドで `Focus()` を呼ぶときは、画面が出来上がったあとで呼ばないと効かないことがあります。`Loaded` イベントの中で呼んでください。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 Loaded += (_, _) => NameBox.Focus();
 ```
 
@@ -197,7 +253,7 @@ Loaded += (_, _) => NameBox.Focus();
 
 ラベルに `_` を付けると、`Alt` と組み合わせたキーで、そのラベルの部品へ移れます。メニューの `ファイル(_F)` と同じ仕組みです。入力欄の横のラベルには、`Label` を使います。
 
-```xml
+```xml title="実験（Editor には入れない）"
 <Label Content="名前(_N)" Target="{Binding ElementName=NameBox}" />
 <TextBox x:Name="NameBox" />
 ```
@@ -225,7 +281,7 @@ Loaded += (_, _) => NameBox.Focus();
 
 `ToolTip` は、短い説明なら文字列、中身を作り込みたいなら要素を入れます。表示されるまでの時間は、`ToolTipService` で調整します。
 
-```xml
+```xml title="実験（Editor には入れない）"
 <Button Content="保存" ToolTipService.InitialShowDelay="300">
     <Button.ToolTip>
         <StackPanel>
@@ -238,7 +294,7 @@ Loaded += (_, _) => NameBox.Focus();
 
 `Popup` は、`IsOpen` をバインドして開閉します。
 
-```xml
+```xml title="実験（Editor には入れない）"
 <ToggleButton x:Name="FilterButton" Content="絞り込み" />
 <Popup IsOpen="{Binding IsChecked, ElementName=FilterButton}"
        PlacementTarget="{Binding ElementName=FilterButton}"
@@ -255,7 +311,7 @@ Loaded += (_, _) => NameBox.Focus();
 
 エディタは、同じものを 2 つ起動されると困ることがあります（同じプロジェクト ファイルを 2 つが同時に書く、など）。Windows の `Mutex`（名前付きの排他オブジェクト）で、起動済みかどうかを確かめます。
 
-```csharp
+```csharp title="App.xaml.cs（変更）"
 public partial class App : PrismApplication
 {
     private Mutex? _mutex;

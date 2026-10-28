@@ -14,6 +14,9 @@ Prism は DryIoc を使っていますが、DI コンテナーは、ほかにも
     - [第 19 章 登録とライフタイム](19-registration-lifetime.md)（`Register`、`RegisterSingleton`、`Resolve` の意味）
     - [第 17 章 DI とは何か](17-di-basics.md)
 
+!!! abstract "この章での Editor"
+    この章でも、Editor にファイルは足しません。Prism を介さない DryIoc だけの動きは、別の小さなコンソール アプリで確かめます。
+
 ## DI コンテナーには、どんな種類があるのか
 
 .NET には、定番のコンテナーがいくつかあります。
@@ -31,10 +34,10 @@ Prism は DryIoc を使っていますが、DI コンテナーは、ほかにも
 
 Prism はコンテナーごとにパッケージが分かれています（`Prism.DryIoc`、`Prism.Unity` など）。どれを選んでも、アプリのコードでは、`IContainerRegistry`（登録する窓口）と `IContainerProvider`（解決する窓口）という、共通の窓口を使います。`RegisterTypes` が `containerRegistry` を受け取っているのは、そのためです。
 
-```csharp
+```csharp title="第 19 章の形"
 protected override void RegisterTypes(IContainerRegistry containerRegistry)
 {
-    containerRegistry.RegisterSingleton<ILogger, ConsoleLogger>();   // どのコンテナーでも同じ書き方
+    containerRegistry.RegisterSingleton<IAssetScanner, AssetScanner>();   // どのコンテナーでも同じ書き方
 }
 ```
 
@@ -42,14 +45,14 @@ protected override void RegisterTypes(IContainerRegistry containerRegistry)
 
 DryIoc 固有の機能（たとえば、特定の範囲だけで使い回す `Reuse.Scoped`）が必要になったら、`GetContainer()` で、内側の DryIoc の `IContainer` を取り出せます。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 using DryIoc;
 using Prism.DryIoc;
 
 protected override void RegisterTypes(IContainerRegistry containerRegistry)
 {
     IContainer dryIoc = containerRegistry.GetContainer();   // DryIoc 本来の窓口
-    dryIoc.Register<IFoo, Foo>(Reuse.Scoped);
+    dryIoc.Register<IAssetScanner, AssetScanner>(Reuse.Scoped);
 }
 ```
 
@@ -61,9 +64,9 @@ protected override void RegisterTypes(IContainerRegistry containerRegistry)
 
 ## DryIoc だけで使う最小の例
 
-Prism を介さず、DryIoc だけを使うと、コンテナーの動きが分かりやすくなります。コンソール アプリを作り、NuGet で `DryIoc.dll` を入れます。
+Prism を介さず、DryIoc だけを使うと、コンテナーの動きが分かりやすくなります。Editor とは別に、コンソール アプリを作り、NuGet で `DryIoc.dll` を入れます。
 
-```csharp
+```csharp title="実験：コンソール アプリ（Editor には入れない）"
 using DryIoc;
 
 public interface ILogger
@@ -111,7 +114,7 @@ open: test.prest
 
 登録の書き方は、よく使うものが 4 つあります。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 container.Register<IFoo, Foo>(Reuse.Transient);          // 解決のたびに新規作成（省略時の既定）
 container.Register<IFoo, Foo>(Reuse.Singleton);          // 1 つだけ作って使い回す
 container.RegisterInstance<IFoo>(new Foo());             // 自分で作った物を登録する
