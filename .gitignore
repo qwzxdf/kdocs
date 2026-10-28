@@ -7,7 +7,8 @@ __pycache__/
 
 # Claude 関連
 CLAUDE.local.md
-.claude/
+.claude/*
+!.claude/skills/
 .mcp.json
 
 # エディタ・OS
