@@ -6,60 +6,68 @@ tags:
 
 # 第 17 章 DI とは何か：IoC・DI・DI コンテナー
 
-第 16 章で、ビューモデルのコンストラクターに `IGreeter` と書くだけで、`Greeter` が渡されました。便利でしたが、「誰が、いつ、どうやって渡したのか」は、はっきりしないまま進めました。ここから 5 つの章をかけて、この仕組みを順に読み解きます。
+第 16 章で、`AssetBrowserViewModel` のコンストラクターに `LogViewModel` と `AssetScanner` と書くだけで、コンテナーが両方を作って渡してくれました。便利でしたが、「誰が、いつ、どうやって渡したのか」は、はっきりしないまま進めました。ここから 5 つの章をかけて、この仕組みを順に読み解きます。
 
-この章では、まず言葉を整理します。IoC、DI、DI コンテナーは、よく一緒に出てきて、区別がつきにくい言葉です。それぞれが何を指すのか、なぜそんなものが要るのかを、C++ の書き方と比べながら見ていきます。
+この章では、まず言葉を整理します。IoC、DI、DI コンテナーは、よく一緒に出てきて、区別がつきにくい言葉です。それぞれが何を指すのか、なぜそんなものが要るのかを、Editor の実物と、C++ の書き方と比べながら見ていきます。
 
 !!! info "このページを読む前に"
     - [第 16 章 Prism の導入と起動の流れ](16-prism-bootstrap.md)（`RegisterTypes` と ViewModelLocator を一度動かしてある）
     - [第 5 章 C++ を知っている人のための C# 入門](05-csharp-basics.md)（インターフェースとコンストラクターの書き方）
 
+!!! abstract "この章での Editor"
+    この章では、Editor にファイルを足しません。第 16 章で `RegisterTypes` に書いた 3 行と、2 つのコンストラクターを読み直して、その裏にある考え方を調べます。
+
 ## 自分で new すると、何が困るのか
 
-シーン ツリーのビューモデルが、エンジンの窓口（`EngineService`）を使う場面を考えます。DI を知らないと、次のように書きたくなります。
+第 15 章までの `AssetBrowserViewModel` は、使う部品を、自分の中で作っていました。
 
-```csharp
-public class SceneTreeViewModel
+```csharp title="第 15 章までの書き方"
+public class AssetBrowserViewModel : ViewModelBase
 {
-    private readonly EngineService _engine = new EngineService();   // 自分で作る
+    private readonly AssetScanner _scanner = new();     // 自分で作る
+    private readonly LogViewModel _log;
+
+    public AssetBrowserViewModel(LogViewModel log) => _log = log;
 }
 ```
 
 動きます。ただし、エディタが育つにつれて、次のような困りごとが出ます。
 
-`EngineService` が、ログ出力の `Logger` を必要とするようになったとします。`new EngineService(new Logger())` と書き直しますが、`EngineService` を作っている場所が 10 か所あれば、10 か所とも直さなければなりません。さらに `Logger` がファイルのパスを必要とするようになれば、また全部の場所に波及します。
+`AssetScanner` が、除外するフォルダーの一覧を必要とするようになったとします。`new AssetScanner(excludes)` と書き直しますが、`AssetScanner` を作っている場所をすべて探して直さなければなりません。作っている場所が `AssetBrowserViewModel` のほかにもあると、直し漏れが起きます。
 
-テストのときは、本物のエンジンではなく、偽物の `EngineService` を使いたくなります。しかし、`SceneTreeViewModel` の中で `new` しているので、外から差し替える手段がありません。
+テストのときは、本物のディスクを読む `AssetScanner` ではなく、決まった結果を返す偽物を使いたくなります。しかし、`AssetBrowserViewModel` の中で `new` しているので、外から差し替える入口がありません。
 
-複数のビューモデルが、同じ `EngineService` を共有したいときも困ります。それぞれが `new` すると、別々のインスタンスができてしまいます。
+複数のビューモデルが、同じ `LogViewModel` を共有したいときも困ります。それぞれが `new` すると、別々のインスタンスができて、ログが別々の一覧に入ってしまいます。第 15 章で、`MainWindowViewModel` が `Log` を作って `AssetBrowserViewModel` に渡していたのは、その共有のためでした。
 
-C++ で言えば、クラスのメンバーに `EngineService engine_;` を値で持たせて、コンストラクターの中で作っているのと同じ状態です。作り方を変えたとき、そのクラスを書き換えるしかありません。
+C++ で言えば、クラスのメンバーに `AssetScanner scanner_;` を値で持たせて、コンストラクターの中で作っているのと同じ状態です。作り方を変えたとき、使っている側を全部直すことになります。
 
 ## 必要なものを、外から渡してもらう
 
-解決の方向は単純で、<strong>必要なものを自分で作らず、コンストラクターの引数で受け取る</strong>ことです。
+解決の方向は単純で、<strong>必要なものを自分で作らず、コンストラクターの引数で受け取る</strong>ことです。第 16 章で書き換えた形が、まさにそれです。
 
-```csharp
-public class SceneTreeViewModel
+```csharp title="ViewModels/AssetBrowserViewModel.cs（第 16 章の形）"
+public class AssetBrowserViewModel : BindableBase
 {
-    private readonly IEngineService _engine;
+    private readonly AssetScanner _scanner;
+    private readonly LogViewModel _log;
 
-    public SceneTreeViewModel(IEngineService engine)   // 外から渡してもらう
+    public AssetBrowserViewModel(LogViewModel log, AssetScanner scanner)   // 外から渡してもらう
     {
-        _engine = engine;
+        _log = log;
+        _scanner = scanner;
     }
 }
 ```
 
-これを<strong>コンストラクター インジェクション</strong>と呼びます。クラスは「何が必要か」を引数で宣言するだけで、「どれを、どう作るか」を知らなくて済みます。
+これを<strong>コンストラクター インジェクション</strong>と呼びます。クラスは「何が必要か」を引数で宣言するだけで、「どれを、どう作るか」は知りません。
 
 得られるものは 3 つあります。
 
-- 引数の一覧を見れば、そのクラスが何に頼っているかが、一目で分かります。
+- 引数の一覧を見れば、そのクラスが何に頼っているかが、一目で分かります。`AssetBrowserViewModel` は、ログとスキャナーに頼っています。
 - 本物の代わりに、偽物（テスト用の実装）を渡せます。
-- 「作る係」と「使う係」が分かれるので、`EngineService` の作り方が変わっても、`SceneTreeViewModel` は書き換えずに済みます。
+- 「作る係」と「使う係」が分かれるので、`AssetScanner` の作り方が変わっても、`AssetBrowserViewModel` は書き換えずに済みます。
 
-C++ では、コンストラクターで `IEngineService&` や `std::unique_ptr<IEngineService>` を受け取る形と、同じ発想です。C# の参照型は、変数が実体そのものではなく、実体を指す参照なので、`IEngineService&` を受け取っている感覚に近いと考えると、つかみやすくなります。
+C++ では、コンストラクターで `IAssetScanner&` や `std::unique_ptr<IAssetScanner>` を受け取る形と、同じ発想です。C# の参照型は、変数が実体そのものではなく、実体を指す参照なので、`IAssetScanner&` を受け取っている感覚に近いと考えると、つかみやすくなります。
 
 ## IoC、DI、DI コンテナーは何が違うのか
 
@@ -77,42 +85,46 @@ IoC は、DI 以外の形でも現れます。WPF で、自分は `Main` の中�
 
 ## コンテナーが無いと、どう組み立てるのか
 
-DI コンテナーが無くても、DI はできます。自分で、順に組み立てて渡せばよいのです。
+DI コンテナーが無くても、DI はできます。自分で、順に組み立てて渡せばよいのです。Editor の画面を、手で組み立てると、こうなります。
 
-```csharp
-var logger = new ConsoleLogger();
-var engine = new EngineService(logger);
-var viewModel = new SceneTreeViewModel(engine);
+```csharp title="実験：コンテナーなしで Editor を組み立てる（Editor には入れない）"
+var log = new LogViewModel();
+var scanner = new AssetScanner();
+var assetBrowser = new AssetBrowserViewModel(log, scanner);
+var main = new MainWindowViewModel(log, assetBrowser);
 ```
 
 アプリの一番外側（C++ の `main`、C# の起動処理）で、全部を組み立てて渡します。これを、コンテナーを使わない DI という意味で、Pure DI と呼ぶことがあります。小さなアプリなら、これで十分です。C++ では、コンテナー ライブラリを使わず、`main` で手作業で組み立てる流儀が、よく選ばれます。
 
-困るのは、規模が大きくなったときです。エディタには、ビューモデルが何十個もあり、それぞれが違う組み合わせの部品を必要とします。この組み立てを手で書くと、長くて、直しにくくなります。引数が 1 つ増えるたびに、組み立てのコードを探して直すことになります。
+困るのは、規模が大きくなったときです。エディタには、ビューモデルがこれから何十個も増え、それぞれが違う組み合わせの部品を必要とします。上の 4 行は、今の 2 つの画面だけで 4 行ですが、パネルが増えるたびに、組み立てのコードを探して直すことになります。引数が 1 つ増えるたびにも、同じです。
 
 DI コンテナーは、この「組み立て」を、型の登録と、コンストラクターの引数の型だけから、自動でやってくれる道具です。
 
 ## 登録したあと、何が起きるのか
 
-第 16 章の例を、もう一度見ます。
+第 16 章で書いた登録を、もう一度見ます。
 
 ```csharp
 // App.xaml.cs の RegisterTypes
-containerRegistry.RegisterSingleton<IGreeter, Greeter>();
+containerRegistry.RegisterSingleton<AssetScanner>();
+containerRegistry.RegisterSingleton<LogViewModel>();
+containerRegistry.RegisterSingleton<AssetBrowserViewModel>();
 ```
 
 ```csharp
-public MainWindowViewModel(IGreeter greeter) { ... }
+public MainWindowViewModel(LogViewModel log, AssetBrowserViewModel assetBrowser) { ... }
 ```
 
 `MainWindowViewModel` をコンテナーに作ってもらうと、次の順で組み立てられます。
 
 1. コンテナーが、`MainWindowViewModel` のコンストラクターの引数を調べる
-2. `IGreeter` が要ることが分かる
-3. 登録を見て、`IGreeter` には `Greeter` を使うと分かる
-4. `Greeter` を作る（`Greeter` のコンストラクターに引数があれば、同じ手順を繰り返す）
-5. 作った `Greeter` を引数にして、`MainWindowViewModel` を作る
+2. `LogViewModel` と `AssetBrowserViewModel` が要ることが分かる
+3. `AssetBrowserViewModel` のコンストラクターを調べると、`LogViewModel` と `AssetScanner` が要ることが分かる
+4. `AssetScanner` を作る。`LogViewModel` を作る（登録が Singleton なので、1 つだけ）
+5. それらを引数にして `AssetBrowserViewModel` を作る
+6. `LogViewModel` と `AssetBrowserViewModel` を引数にして、`MainWindowViewModel` を作る
 
-引数の先に、さらに別の依存があっても、コンテナーは再帰的に、全部をたどって組み立てます。
+引数の先に、さらに別の依存があっても、コンテナーは再帰的に、全部をたどって組み立てます。さっきの手作業の 4 行を、コンテナーが代わりにやっています。
 
 ## 動かない例：自分で new すると、注入されない
 
@@ -122,13 +134,13 @@ public MainWindowViewModel(IGreeter greeter) { ... }
 var vm = new MainWindowViewModel();   // コンパイル エラー
 ```
 
-`MainWindowViewModel` のコンストラクターは `IGreeter` を要求しているので、引数なしの `new` は、そもそも書けません（`CS7036` などのエラー）。書くなら、自分で引数を渡すことになります。
+`MainWindowViewModel` のコンストラクターは `LogViewModel` と `AssetBrowserViewModel` を要求しているので、引数なしの `new` は、そもそも書けません（`CS7036` などのエラー）。書くなら、自分で引数を渡すことになります。
 
 ```csharp
-var vm = new MainWindowViewModel(new Greeter());   // 動くが、DI を使っていない
+var vm = new MainWindowViewModel(new LogViewModel(), ...);   // 動くが、DI を使っていない
 ```
 
-これは動きますが、注入ではなく、手で組み立てているだけです。`Greeter` の作り方が変わるたびに、ここも直すことになり、DI の利点が消えます。
+これは動きますが、注入ではなく、手で組み立てているだけです。`LogViewModel` の作り方が変わるたびに、ここも直すことになり、DI の利点が消えます。しかもここで作った `LogViewModel` は、ほかの場所の `LogViewModel` とは別の実体になるので、ログが分かれて入ります。
 
 「注入されない」バグの典型的な原因は、次の 2 つです。
 

@@ -27,7 +27,7 @@ tags:
 
 ## 選択サービス
 
-第 23 章では、`int?` の ID で選択を持つ簡易版を書きました。ここで、物そのものを持つ形に作り直します。
+第 23 章では、1 つだけ選べる簡易版（`SceneObjectViewModel` を 1 つ持つ）を書きました。ここで、シーンの物（`SceneObject`）を、複数持てる形に作り直します。
 
 ```csharp title="Services/ISelectionService.cs"
 using Editor.Models;

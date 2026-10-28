@@ -8,6 +8,16 @@ tags:
 
 ここまでの章で、スレッドとメモリに関する約束があちこちに散らばって出てきました。この章では、それらを 1 か所にまとめて整理します。さらに、長時間動かしたときの問題（メモリが増え続ける、終了時に固まる）の見つけ方と直し方を学びます。「動いた」から「安定して動き続ける」へ進むための章です。
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Infrastructure/SubscriptionBag.cs`（新規） | 購読解除の処理を溜めて、`Dispose` でまとめて実行する |
+    | `Modules/Property/PropertyViewModel.cs`（変更） | `IDisposable` にして、購読を解除する |
+    | `Modules/Property/PropertyView.xaml.cs`（変更） | ビューが閉じるときに、ビューモデルを `Dispose` する |
+    | `App.xaml.cs`（変更） | 終了の順序に合わせて、後片付けを `OnExit` に書く |
+
+    ほかのコードは、仕組みを見るための例や、調べ方の紹介です。
+
 ## 起きる問題は 4 つ
 
 C# には GC があるので、メモリを気にしなくてよいと思われがちです。しかし、エディタのようなアプリでは、次の 4 つの問題が必ず起きます。
@@ -59,7 +69,7 @@ C# には GC があるので、メモリを気にしなくてよいと思われ�
 
 C# で最も多いリークは、イベントの購読を外し忘れることです。
 
-```csharp
+```csharp title="実験：解除し忘れの形（Editor には入れない）"
 public class PropertyViewModel
 {
     public PropertyViewModel(ISelectionService selection)
@@ -93,7 +103,7 @@ ISelectionService（アプリの間ずっと生きる）
 
 解除のタイミングが分かりにくいときは、WPF が用意している `WeakEventManager` を使います。通常の `+=` では、発行側が購読者への強い参照を持ちます。`WeakEventManager` は、間に仲介役を挟んで、発行側から購読者への参照を弱い参照にします。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 // 通常の購読（発行側が購読者を強く参照する）
 source.Changed += OnChanged;
 
@@ -108,7 +118,7 @@ WeakEventManager<SceneDocument, EventArgs>.RemoveHandler(source, nameof(SceneDoc
 
 `INotifyPropertyChanged` の `PropertyChanged` には、専用の `PropertyChangedEventManager` があります。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 PropertyChangedEventManager.AddHandler(source, OnSourcePropertyChanged, nameof(Source.Name));
 ```
 
@@ -119,7 +129,7 @@ PropertyChangedEventManager.AddHandler(source, OnSourcePropertyChanged, nameof(S
 
 購読が多いビューモデルでは、解除を忘れがちです。購読解除の処理を溜めておいて、`Dispose` で一括解除する、小さな仕組みを作ります。
 
-```csharp
+```csharp title="Infrastructure/SubscriptionBag.cs（新規）"
 namespace Editor.Infrastructure;
 
 // 購読解除の処理を溜めておき、Dispose でまとめて実行する
@@ -137,7 +147,7 @@ public sealed class SubscriptionBag : IDisposable
 }
 ```
 
-```csharp
+```csharp title="Modules/Property/PropertyViewModel.cs（変更）"
 public class PropertyViewModel : BindableBase, IDisposable
 {
     private readonly SubscriptionBag _subscriptions = new();
@@ -163,7 +173,7 @@ public class PropertyViewModel : BindableBase, IDisposable
 | 自分で `new` した物 | 自分 |
 | ダイアログのビューモデル | `OnDialogClosed()` の中で |
 
-```csharp
+```csharp title="Modules/Property/PropertyView.xaml.cs（変更）"
 // ビューのコードビハインド
 Unloaded += (_, _) => (DataContext as IDisposable)?.Dispose();
 ```
@@ -172,7 +182,7 @@ Unloaded += (_, _) => (DataContext as IDisposable)?.Dispose();
 
 `IDisposable` は、ネイティブの資源や購読を確実に手放すための約束です。管理された資源だけを持つ場合は、単純です。
 
-```csharp
+```csharp title="Services/RenderLoop.cs（変更：Dispose）"
 public sealed class RenderLoop : IRenderLoop
 {
     private bool _disposed;
@@ -188,7 +198,7 @@ public sealed class RenderLoop : IRenderLoop
 
 ネイティブのハンドル（`nint`）を直接持つと、ファイナライザーが必要になり、複雑になります。標準的なパターンを示しますが、避けられるなら避けるべき形です。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 public class NativeThing : IDisposable
 {
     private nint _handle;
@@ -241,7 +251,7 @@ public class NativeThing : IDisposable
 
 簡易的には、コードで確認する手もあります。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 // 強制的に GC を走らせて、残っているメモリを見る（デバッグ用）
 GC.Collect();
 GC.WaitForPendingFinalizers();
@@ -254,7 +264,7 @@ _log.Info($"managed メモリ: {bytes / 1024 / 1024} MB");
 
 「破棄されたはずのオブジェクトが回収されたか」は、弱い参照で確かめられます。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 var weak = new WeakReference(viewModel);
 viewModel = null;
 GC.Collect(); GC.WaitForPendingFinalizers(); GC.Collect();
@@ -299,7 +309,7 @@ if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
 
 4 を 5 より前にするのが重要です。エンジンが生きている間にコールバックを解除すると、エンジンのログが失われます。逆に、エンジンの破棄が終わったあとで、ネイティブからコールバックが呼ばれる可能性はありません。
 
-```csharp
+```csharp title="App.xaml.cs（変更）"
 protected override void OnExit(ExitEventArgs e)
 {
     // 描画スレッドとエンジンは、ViewportHost の破棄ですでに止まっている。

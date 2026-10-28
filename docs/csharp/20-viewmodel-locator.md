@@ -14,19 +14,32 @@ tags:
     - [第 19 章 登録とライフタイム](19-registration-lifetime.md)（コンテナーに作らせる、という言い方を使う）
     - [第 18 章 Prism の起動で何が起きるか](18-prism-startup.md)（`ConfigureViewModelLocator` が最初に呼ばれる）
 
+!!! abstract "この章での Editor"
+    この章では、Editor に残るファイルは足しません。第 16 章で `Views` に移した `MainWindow` で何が起きているかを、コンストラクターに出力を足して確かめます（確かめたら消します）。
+
 ## `AutoWireViewModel="True"` の裏で起きていること
 
-`MainWindow` を、コンテナーに作ってもらったときの流れを、実際の出力で確かめます。`MainWindow.xaml` には `AutoWireViewModel="True"` を書き、`MainWindowViewModel` のコンストラクターは `ProjectService` を要求しています。
+`MainWindow` を、コンテナーに作ってもらったときの流れを、実際の出力で確かめます。`MainWindow.xaml` には `AutoWireViewModel="True"` を書き、`MainWindowViewModel` のコンストラクターは `LogViewModel` と `AssetBrowserViewModel` を要求しています。各クラスのコンストラクターの先頭と、`MainWindow` のコンストラクターの前後に、`Debug.WriteLine` を一時的に足して、「出力」ウィンドウを見ます。
 
-```csharp
-var window = Container.Resolve<MainWindow>();
+```csharp title="実験：コンストラクターに出力を足す（Editor には残さない）"
+// LogViewModel、AssetScanner、AssetBrowserViewModel、MainWindowViewModel のコンストラクターの先頭
+Debug.WriteLine("  [new LogViewModel]");      // 名前は、それぞれのクラス名にする
+
+// MainWindow のコンストラクター
+public MainWindow()
+{
+    Debug.WriteLine("  [MainWindow ctor 開始]");
+    InitializeComponent();
+    Debug.WriteLine($"  [MainWindow ctor 終了] DataContext = {DataContext?.GetType().Name}");
+}
 ```
 
-```text title="実行結果（Prism 9.0.537）"
+```text title="「出力」ウィンドウの表示（Prism 9.0.537）"
   [MainWindow ctor 開始]
-  [new ConsoleLogger]
-  [new ProjectService]
-  [new MainWindowViewModel] 注入された: True
+  [new LogViewModel]
+  [new AssetScanner]
+  [new AssetBrowserViewModel]
+  [new MainWindowViewModel]
   [MainWindow ctor 終了] DataContext = MainWindowViewModel
 ```
 
@@ -37,7 +50,7 @@ var window = Container.Resolve<MainWindow>();
 3. XAML の `AutoWireViewModel="True"` が設定された瞬間に、ViewModelLocator が動く。
 4. ViewModelLocator が、名前の規則で、`MainWindowViewModel` という型を探す。
 5. その型を、コンテナーに作ってもらう（`ConfigureViewModelLocator` で、そう設定してある）。
-6. コンテナーが、`ProjectService`、さらにその引数の `ConsoleLogger` を作って渡し、`MainWindowViewModel` を作る。
+6. コンテナーが、コンストラクターの引数を左から順に、`LogViewModel`、`AssetBrowserViewModel`（その引数の `AssetScanner` も）を作って渡し、`MainWindowViewModel` を作る。
 7. できた `MainWindowViewModel` が、`DataContext` に設定される。
 8. コンストラクターが終わる。このとき、`DataContext` は、すでに入っている。
 
@@ -54,13 +67,11 @@ ViewModelLocator が型を探す規則は、Prism のソースで確かめられ
 
 具体的には、次のように決まります。
 
-- `Editor.MainWindow` には `Editor.MainWindowViewModel`（`View` で終わらないので、`ViewModel` を足す）
-- `Editor.Modules.SceneTree.SceneTreeView` には `Editor.Modules.SceneTree.SceneTreeViewModel`（`View` で終わるので、`Model` を足す）
-- `Editor.Views.MainWindow` には `Editor.ViewModels.MainWindowViewModel`（`Views` と `ViewModels` のフォルダーに分けて置く形でも、規則どおりに見つかる）
+- `Editor.Views.MainWindow` には `Editor.ViewModels.MainWindowViewModel`（`View` で終わらないので、`ViewModel` を足す。`Views` と `ViewModels` のフォルダーに分けて置く、第 16 章の形）
+- `Editor.Modules.SceneTree.SceneTreeView` には `Editor.Modules.SceneTree.SceneTreeViewModel`（`View` で終わるので、`Model` を足す。機能ごとのフォルダーに、画面とビューモデルを並べる形。第 22 章で使います）
+- `Editor.MainWindow` には `Editor.MainWindowViewModel`（`.Views.` がないので、置き換えは起きない）
 
-この連載では、機能ごとのフォルダーに画面とビューモデルを並べる形（上の 2 つ）で書きます。
-
-第 16 章で「`View` が付く画面は `ViewModel`、付かない画面にも `ViewModel`」と覚えておけば、まず迷いません。
+Editor は、第 16 章で上の 1 つ目の形にしました。第 22 章からは、2 つ目の形でも画面を作ります。どちらの形でも、規則は同じです。
 
 ## 動かないとき
 
@@ -74,7 +85,7 @@ ViewModelLocator が型を探す規則は、Prism のソースで確かめられ
 
 ### 規則から外れる場合は、明示的に結ぶ
 
-名前や配置が規則に合わないときは、画面とビューモデルの組み合わせを、明示的に登録できます。
+名前や配置が規則に合わないときは、画面とビューモデルの組み合わせを、明示的に登録できます。たとえば、第 16 章で `MainWindow` を `Views` に移し忘れて、`Editor.MainWindow` のままにしたとします。規則は `Editor.MainWindowViewModel` を探しますが、ビューモデルは `Editor.ViewModels` にあるので、見つかりません。移し忘れを直すか、次のように結びます。
 
 ```csharp
 protected override void ConfigureViewModelLocator()
@@ -92,28 +103,28 @@ protected override void ConfigureViewModelLocator()
 
 画面を `new` で作っても、AutoWire は動きます。ただし、<strong>コンテナーが出来たあと</strong>に限ります。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 var b = new MainWindow();   // CreateShell の中など、起動の途中で自分で new
 ```
 
-```text title="実行結果（Prism 9.0.537）"
+```text title="「出力」ウィンドウの表示（Prism 9.0.537）"
   [MainWindow ctor 開始]
-  [new MainWindowViewModel] 注入された: True
+  [new MainWindowViewModel]
   [MainWindow ctor 終了] DataContext = MainWindowViewModel
 ```
 
-画面を自分で `new` しても、XAML の `AutoWireViewModel="True"` が働いて、ビューモデルは、コンテナー経由で作られます（`ProjectService` はすでに作られているので、ここでは `new` が出ません）。画面を作るのが `Container.Resolve<MainWindow>()` か `new MainWindow()` かは、AutoWire の動きには関係がないのです。
+画面を自分で `new` しても、XAML の `AutoWireViewModel="True"` が働いて、ビューモデルは、コンテナー経由で作られます（`LogViewModel` などは、最初の画面を作るときにすでに作られているので、ここでは `new` が出ません）。画面を作るのが `Container.Resolve<MainWindow>()` か `new MainWindow()` かは、AutoWire の動きには関係がないのです。
 
 動かなくなるのは、画面を作る時点で、コンテナーがまだ無い場合です。たとえば、`App` のコンストラクターの中で `new MainWindow()` と書いた場合です。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 public App()
 {
     new MainWindow();   // コンテナーを作る前
 }
 ```
 
-```text title="実行結果（Prism 9.0.537）"
+```text title="「出力」ウィンドウの表示（Prism 9.0.537）"
   [MainWindow ctor 開始]
   例外: XamlParseException / MissingMethodException
 ```

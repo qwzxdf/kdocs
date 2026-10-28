@@ -13,6 +13,14 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    この章は、必要になったときに引く、機能の紹介が中心です。Editor に実際に入れるのは、次の 2 つだけです。そのほかのコードは、「実験」と書いてあるとおり、仕組みを見るための形で、Editor には入れません。
+
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Modules/Property/SettingsViewModel.cs`（変更） | 設定の画面は、切り替えたら捨てる（`KeepAlive`） |
+    | `Mvvm/ValidatableViewModelBase.cs`（変更） | エラーの管理を、自作から Prism の `ErrorsContainer` に替える |
+
 Prism は、バージョンによって細かな API が変わります。ここに書いたコードがそのままコンパイルできないときは、使っているバージョンの公式ドキュメントと見比べてください。この章は Prism 9 を前提にしています。
 
 ## ナビゲーションで切り替えたビューは残る
@@ -25,7 +33,9 @@ Prism は、バージョンによって細かな API が変わります。ここ
 
 ビューまたはビューモデルに `IRegionMemberLifetime` を実装し、`KeepAlive` を返します。
 
-```csharp
+Editor では、第 22 章で作った「設定」の画面に付けます。設定は、開くたびに最新の内容で出したい画面なので、切り替えたら捨てます。プロパティ パネルは、選択に追従して動き続けるので、残します（既定のままです）。
+
+```csharp title="Modules/Property/SettingsViewModel.cs（変更）"
 public class SettingsViewModel : BindableBase, IRegionMemberLifetime
 {
     public bool KeepAlive => false;     // 切り替えたら、リージョンから外して捨てる
@@ -34,7 +44,7 @@ public class SettingsViewModel : BindableBase, IRegionMemberLifetime
 
 `false` を返すと、別の画面に移ったときにビューが破棄されます。戻ってきたときは、毎回新しく作られます。属性で書くこともできます。
 
-```csharp
+```csharp title="実験：属性で書く（Editor には入れない）"
 [RegionMemberLifetime(KeepAlive = false)]
 public class SettingsViewModel : BindableBase { }
 ```
@@ -43,7 +53,7 @@ public class SettingsViewModel : BindableBase { }
 
 `INavigationAware.IsNavigationTarget` は、「今の移動先として、この既存のビューでよいか」を答えます（第 22 章）。たとえば、物の詳細画面を物ごとに別のビューにしたいなら、渡されたパラメーターを見て判定します。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 public bool IsNavigationTarget(NavigationContext context)
 {
     var id = context.Parameters.GetValue<int>("ObjectId");
@@ -55,7 +65,7 @@ public bool IsNavigationTarget(NavigationContext context)
 
 未保存の編集があるのに、別の画面に移動しようとしたときに、確認を出したい。そのときは `IConfirmNavigationRequest` を実装します。`INavigationAware` に、`ConfirmNavigationRequest` が加わったものです。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 public class EditorViewModel : BindableBase, IConfirmNavigationRequest
 {
     public void ConfirmNavigationRequest(NavigationContext navigationContext, Action<bool> continuationCallback)
@@ -78,7 +88,7 @@ public class EditorViewModel : BindableBase, IConfirmNavigationRequest
 
 移動の結果は、`RequestNavigate` のコールバックで受け取れます。`result.Success` が成否で、失敗の理由が例外のときは `result.Exception` に入ります。Prism 8 以前の記事にある `result.Result` や `result.Error` は、Prism 9 には無いので、コンパイル エラーになります。なお、登録していない名前（`"Nothing"` など）へ移動を頼んだときは、`Success` が `false` で返りますが、その前に今のビューの `OnNavigatedFrom` が呼ばれます（9.0.537 で確認）。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 _regionManager.RequestNavigate(RegionNames.Property, "SettingsView", result =>
 {
     if (!result.Success)
@@ -93,7 +103,7 @@ _regionManager.RequestNavigate(RegionNames.Property, "SettingsView", result =>
 
 `NavigationContext` から、ジャーナル（履歴）を使えます。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 public void OnNavigatedTo(NavigationContext navigationContext)
 {
     _journal = navigationContext.NavigationService.Journal;
@@ -111,7 +121,7 @@ private void GoBack()
 
 リージョンの中のビューにリージョンを置いた側から値を渡したいときは、`RegionContext` を使います。親の画面に次のように書きます。
 
-```xml
+```xml title="実験（Editor には入れない）"
 <ContentControl prism:RegionManager.RegionName="DetailRegion"
                 prism:RegionManager.RegionContext="{Binding SelectedItem}" />
 ```
@@ -122,7 +132,7 @@ private void GoBack()
 
 「すべて保存」のように、複数のビューモデルのコマンドを一度に呼びたいときは `CompositeCommand` を使います。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 // 共有の場所（サービスなど）に 1 つだけ作る
 public interface IApplicationCommands
 {
@@ -135,7 +145,7 @@ public class ApplicationCommands : IApplicationCommands
 }
 ```
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 // 各ビューモデルが自分の保存コマンドを登録する
 public EditorViewModel(IApplicationCommands appCommands)
 {
@@ -152,7 +162,7 @@ public EditorViewModel(IApplicationCommands appCommands)
 
 第 22 章では、`AddModule<T>()` で、すべてのモジュールを起動時に読み込みました。数が増えると、起動が遅くなります。使うまで読み込まないモジュールは、オンデマンドにできます。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
 {
     moduleCatalog.AddModule<SceneTreeModule>();                                   // 起動時
@@ -162,7 +172,7 @@ protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
 
 必要になったところで、`IModuleManager` から読み込みます。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 public MainWindowViewModel(IModuleManager moduleManager)
 {
     ShowAssetsCommand = new DelegateCommand(() => moduleManager.LoadModule(nameof(AssetModule)));
@@ -175,7 +185,7 @@ public MainWindowViewModel(IModuleManager moduleManager)
 
 モジュールを別の C# プロジェクトに分けた場合、その DLL を実行ファイルと同じフォルダーに置いて、フォルダーを探索して読み込む方式もあります。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 protected override IModuleCatalog CreateModuleCatalog()
 {
     return new DirectoryModuleCatalog { ModulePath = @".\Modules" };
@@ -190,7 +200,7 @@ protected override IModuleCatalog CreateModuleCatalog()
 
 既定のダイアログ ウィンドウの見た目（枠、タイトル バー、アイコン）を変えたいときは、`IDialogWindow` を実装した自作の `Window` を登録します。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 public partial class MyDialogWindow : Window, IDialogWindow
 {
     public IDialogResult? Result { get; set; }
@@ -202,7 +212,7 @@ public partial class MyDialogWindow : Window, IDialogWindow
 }
 ```
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 containerRegistry.RegisterDialogWindow<MyDialogWindow>();
 ```
 
@@ -221,7 +231,7 @@ containerRegistry.RegisterDialogWindow<MyDialogWindow>();
 
 `RequestClose.Invoke(...)` には、使い分けられる形がいくつかあります。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 RequestClose.Invoke();                                        // 結果なし
 RequestClose.Invoke(ButtonResult.OK);                         // 結果だけ
 RequestClose.Invoke(new DialogParameters { { "Name", name } }); // 値だけ
@@ -232,27 +242,44 @@ RequestClose.Invoke(new DialogParameters { { "Name", name } }, ButtonResult.OK);
 
 ## 入力の検証の補助：ErrorsContainer
 
-`INotifyDataErrorInfo`（第 13 章）を実装するとき、エラーの一覧を管理する `ErrorsContainer<T>` が Prism に用意されています。自分で `Dictionary` を作らなくても済みます。
+`INotifyDataErrorInfo`（第 13 章）を実装するとき、エラーの一覧を管理する `ErrorsContainer<T>` が Prism に用意されています。第 13 章で自作した `ValidatableViewModelBase` の中の `Dictionary` を、これに替えます。
 
-```csharp
-private readonly ErrorsContainer<string> _errors;
+```csharp title="Mvvm/ValidatableViewModelBase.cs（変更：全体）"
+using System.Collections;
+using System.ComponentModel;
+using Prism.Mvvm;
 
-public PlayerViewModel()
+namespace Editor.Mvvm;
+
+public abstract class ValidatableViewModelBase : BindableBase, INotifyDataErrorInfo
 {
-    _errors = new ErrorsContainer<string>(name => ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(name)));
-}
+    private readonly ErrorsContainer<string> _errors;
 
-public IEnumerable GetErrors(string? propertyName) => _errors.GetErrors(propertyName);
-public bool HasErrors => _errors.HasErrors;
+    protected ValidatableViewModelBase()
+    {
+        _errors = new ErrorsContainer<string>(
+            name => ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(name)));
+    }
+
+    public bool HasErrors => _errors.HasErrors;
+
+    public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
+
+    public IEnumerable GetErrors(string? propertyName) => _errors.GetErrors(propertyName ?? string.Empty);
+
+    // message が null ならエラーを消す
+    protected void SetError(string propertyName, string? message)
+        => _errors.SetErrors(propertyName, message is null ? Array.Empty<string>() : new[] { message });
+}
 ```
 
-エラーを設定するときは `_errors.SetErrors(nameof(Hp), new[] { "0 以上にしてください" })` です。
+`ErrorsContainer<T>` は、プロパティ名ごとのエラーの一覧を持ち、変わったときに、渡したコールバックを呼んでくれます。`SetError` を呼ぶ側（`SceneObjectViewModel` の `Name` の `set`）は、何も変わりません。エラーが空になったときの後始末や、変わっていないときの無駄な通知を抑える処理も、`ErrorsContainer` に任せられます。
 
 ## ViewModelLocator の動きを変える
 
 規則に合わないビューとビューモデルを結びつけたい、あるいは規則そのものを変えたいときは、`ViewModelLocationProvider` を使います。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 protected override void ConfigureViewModelLocator()
 {
     base.ConfigureViewModelLocator();

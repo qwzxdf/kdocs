@@ -13,23 +13,43 @@ MVVM では、ボタンの処理はコマンドで書けます。でも、`Butto
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Modules/SceneTree/SceneTreeView.xaml`（変更） | `Delete` キーで、選んだオブジェクトを削除する |
+    | `Behaviors/SelectAllOnFocusBehavior.cs`（新規） | 入力欄に入ったら、全選択する |
+    | `Modules/Property/PropertyView.xaml`（変更） | 名前の入力欄に、このビヘイビアを付ける |
+
+    ほかの例は、使い方を見るためのもので、Editor には入れません。
+
 ## まず、標準の機能で済むもの
 
 NuGet を足さなくても、次のものは XAML だけで書けます。
 
 ### キーとマウスの操作（InputBindings）
 
-```xml
+```xml title="実験：キーとマウス（Editor には入れない）"
 <ListBox ItemsSource="{Binding Items}">
     <ListBox.InputBindings>
-        <KeyBinding Key="Delete" Command="{Binding DeleteCommand}" />
         <KeyBinding Key="F2" Command="{Binding RenameCommand}" />
         <MouseBinding Gesture="LeftDoubleClick" Command="{Binding OpenCommand}" />
     </ListBox.InputBindings>
 </ListBox>
 ```
 
-`Key` と `Modifiers`（`Control` など）の組み合わせでキー操作、`MouseBinding` でダブルクリックなどのマウス操作をコマンドに結べます。ショートカットやダブルクリックなら、これで足ります。第 40 章の `Delete` や `F2` もこの方法でした。
+`Key` と `Modifiers`（`Control` など）の組み合わせでキー操作、`MouseBinding` でダブルクリックなどのマウス操作をコマンドに結べます。ショートカットやダブルクリックなら、これで足ります。
+
+Editor では、シーン ツリーの `Delete` キーに使います。第 13 章で作った `DeleteCommand` は、行の「×」ボタンからしか呼べませんでした。キーからも呼べるようにします。
+
+```xml title="Modules/SceneTree/SceneTreeView.xaml（変更：ListBox に足す）"
+<ListBox.InputBindings>
+    <KeyBinding Key="Delete"
+                Command="{Binding DeleteCommand}"
+                CommandParameter="{Binding Selected}" />
+</ListBox.InputBindings>
+```
+
+`CommandParameter` に、選択中のオブジェクトを渡しています。シーン ツリーで行を選んで `Delete` を押すと、「×」を押したときと同じに消えます。第 40 章の `F2` による名前変更も、この方法です。
 
 ### コマンドを持つコントロール
 
@@ -42,13 +62,13 @@ NuGet を足さなくても、次のものは XAML だけで書けます。
 1. NuGet で `Microsoft.Xaml.Behaviors.Wpf` を入れます。
 2. XAML に名前空間を足します。
 
-```xml
+```xml title="実験（Editor には入れない）"
 xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
 ```
 
 3. イベントを指定して、コマンドを呼びます。
 
-```xml
+```xml title="実験（Editor には入れない）"
 <Window ...>
     <i:Interaction.Triggers>
         <i:EventTrigger EventName="Loaded">
@@ -65,7 +85,7 @@ xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
 
 ビューモデル側では、渡された引数を使えます。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 ClosingCommand = new DelegateCommand<CancelEventArgs>(e =>
 {
     if (HasUnsavedChanges) e.Cancel = true;     // 閉じるのを止める
@@ -74,7 +94,7 @@ ClosingCommand = new DelegateCommand<CancelEventArgs>(e =>
 
 ただし、`CancelEventArgs` のような「画面の型」をビューモデルが受け取ると、ビューモデルが画面に依存してしまいます。Prism の `InvokeCommandAction` を使うと、イベント引数の特定のプロパティだけを取り出して渡せます。
 
-```xml
+```xml title="実験（Editor には入れない）"
 <i:EventTrigger EventName="SelectionChanged">
     <prism:InvokeCommandAction Command="{Binding SelectionChangedCommand}"
                                TriggerParameterPath="AddedItems" />
@@ -87,7 +107,7 @@ ClosingCommand = new DelegateCommand<CancelEventArgs>(e =>
 
 標準のトリガーで足りない場合は、`Behavior<T>` を継承して、部品に「振る舞い」を足せます。たとえば「入力欄にフォーカスが当たったら、全選択する」ビヘイビアです。
 
-```csharp title="Behaviors/SelectAllOnFocusBehavior.cs"
+```csharp title="Behaviors/SelectAllOnFocusBehavior.cs（新規）"
 using Microsoft.Xaml.Behaviors;
 
 namespace Editor.Behaviors;
@@ -113,13 +133,17 @@ public class SelectAllOnFocusBehavior : Behavior<TextBox>
 }
 ```
 
-```xml
-<TextBox Text="{Binding Name}">
+```xml title="Modules/Property/PropertyView.xaml（変更：名前の入力欄）"
+<!-- UserControl タグに xmlns:i と xmlns:behaviors（clr-namespace:Editor.Behaviors）を足す -->
+<TextBox Style="{StaticResource ValidatedTextBox}"
+         Text="{Binding Target.Name, UpdateSourceTrigger=PropertyChanged}">
     <i:Interaction.Behaviors>
         <behaviors:SelectAllOnFocusBehavior />
     </i:Interaction.Behaviors>
 </TextBox>
 ```
+
+名前の入力欄をクリックしたり、`Tab` で入ったりすると、文字全体が選ばれて、そのまま打ち直せます。
 
 `AssociatedObject` は、このビヘイビアが付けられた部品（ここでは `TextBox`）です。`OnAttached` で登録し、`OnDetaching` で解除するのが決まりです（解除を忘れると、メモリが残る原因になります。第 50 章）。
 
@@ -129,7 +153,7 @@ public class SelectAllOnFocusBehavior : Behavior<TextBox>
 
 もっと軽く、`True` にするだけで振る舞いを足したいなら、添付プロパティ（第 10 章）を使う方法もあります。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 public static class TextBoxHelper
 {
     public static readonly DependencyProperty SelectAllOnFocusProperty =
@@ -150,7 +174,7 @@ public static class TextBoxHelper
 }
 ```
 
-```xml
+```xml title="実験（Editor には入れない）"
 <TextBox helpers:TextBoxHelper.SelectAllOnFocus="True" />
 ```
 

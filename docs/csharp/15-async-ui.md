@@ -6,26 +6,67 @@ tags:
 
 # 第 15 章 非同期処理と UI スレッド
 
-「ボタンを押したら、画面が固まった」。WPF を作っていて、いちばん早くぶつかる問題の 1 つです。原因はほとんど決まっていて、重い処理を UI スレッドでやってしまったからです。この章では、UI スレッドとは何か、どう逃がすか、よくある落とし穴を説明します。
+「ボタンを押したら、画面が固まった」。WPF を作っていて、いちばん早くぶつかる問題の 1 つです。原因はほとんど決まっていて、重い処理を UI スレッドでやってしまったからです。
+
+前の章で作ったアセット一覧は、ダミーのデータを並べているだけでした。この章では、本物のフォルダーを読み込むボタンを足します。ファイルが多いフォルダーを読むと、まず画面が固まります。そこから、固まらない書き方、進み具合の表示、キャンセルを、順に足していきます。
 
 !!! info "このページを読む前に"
-    - [第 14 章 リストとデータ表示](14-lists.md)（前の章。ここまでの内容が前提になる）
+    - [第 14 章 リストとデータ表示](14-lists.md)（前の章。この章は、そこで作った「アセット」のタブに足していく）
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Services/AssetScanner.cs`（新規） | フォルダーの中のファイルを読む（非同期） |
+    | `Mvvm/AsyncCommand.cs`（新規） | 非同期の処理を実行するコマンド |
+    | `ViewModels/LogViewModel.cs`（変更） | 別のスレッドからでもログを足せるようにする |
+    | `ViewModels/AssetBrowserViewModel.cs`（変更） | 読み込み、進み具合、キャンセル |
+    | `ViewModels/MainWindowViewModel.cs`（変更） | `Log` を `AssetBrowser` に渡す |
+    | `MainWindow.xaml`（変更） | 「読み込み」「キャンセル」のボタンと進行バー |
 
-## UI スレッドは 1 本だけ
+## まず、普通に書いて固まらせる
+
+「アセット」のタブに、読み込むボタンを足します。先に画面の側です。
+
+```xml title="MainWindow.xaml（変更：アセットのタブの DockPanel の先頭に足す）"
+<StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="4">
+    <Button Content="読み込み" Padding="12,2" Command="{Binding LoadCommand}" />
+</StackPanel>
+```
+
+`AssetBrowserViewModel` に、同期で書いた最初の版を足します。ファイルを 1 つずつ調べて、一覧に足すだけです。
+
+```csharp title="ViewModels/AssetBrowserViewModel.cs（変更：最初の版）"
+using System.IO;       // WPF のプロジェクトでは、System.IO は自動では入らない
+
+public RelayCommand LoadCommand { get; }
+
+// コンストラクターの中
+LoadCommand = new RelayCommand(Load);
+
+private void Load()
+{
+    Entries.Clear();
+    foreach (var path in Directory.GetFiles(AppContext.BaseDirectory, "*", SearchOption.AllDirectories))
+    {
+        var info = new FileInfo(path);
+        Entries.Add(new FileEntry(info.Name, "other", info.Length));
+        Thread.Sleep(20);        // ディスクが遅いふりをする（あとで消す）
+    }
+}
+```
+
+`AppContext.BaseDirectory` は、Editor を実行している場所のフォルダーです。今はつなぐ先のプロジェクトがないので、ここを読みます。`Thread.Sleep(20)` は、実際のフォルダーが大きくて遅いときの代わりです。
+
+押すと、数秒のあいだウィンドウが固まります。ボタンもスクロールも効かず、ウィンドウのタイトル バーに「応答なし」と出ます。
+
+### 深掘り：UI スレッドは 1 本だけ
 
 WPF の画面の部品は、作ったスレッドからしか触れません。通常のアプリでは、画面を作るのは「UI スレッド」という 1 本のスレッドです。ボタンのクリックも、文字の入力も、再描画も、すべてこの 1 本が順番に処理しています。
 
-そこで 3 秒かかる処理を直接実行すると、その間 UI スレッドが埋まって、クリックにも再描画にも応えられなくなり、画面が固まって見えます。
+そこへ 3 秒かかる処理を直接実行すると、その間 UI スレッドが埋まって、クリックにも再描画にも応えられなくなり、画面が固まって見えます。`Load` は、`Thread.Sleep` を挟んだ 1 本の長い処理なので、終わるまで次のクリックを受けられません。
 
-```csharp
-private void OnLoadClicked()
-{
-    var text = File.ReadAllText(bigFile);    // 3 秒かかる → その間、画面が固まる
-    Content = text;
-}
-```
+C++ で考えると、UI スレッドはゲームのメイン スレッドのようなものです。画面に触れるのはここだけで、ここが長く止まると、ゲームのフレームが落ちるのと同じように、画面が固まります。
 
 ## 解決の基本：async / await
 
@@ -34,8 +75,8 @@ private void OnLoadClicked()
 ```csharp
 private async Task LoadAsync()
 {
-    var text = await File.ReadAllTextAsync(bigFile);   // 待っている間、UI スレッドは自由
-    Content = text;                                      // 終わったら、UI スレッドに戻ってくる
+    var text = await File.ReadAllTextAsync(path);   // 待っている間、UI スレッドは自由
+    Content = text;                                  // 終わったら、UI スレッドに戻ってくる
 }
 ```
 
@@ -50,13 +91,74 @@ Result = result;                                              // 戻ってきた
 
 `Task.Run` の中のラムダでは、画面の部品や `ObservableCollection` を触ってはいけません（別のスレッドだからです）。結果を `await` で受け取ってから、UI スレッドで反映します。
 
+`await` は、C++20 のコルーチンの `co_await` に近い考え方です。待っている間はスレッドを塞がず、結果が出たら続きを再開します。`std::async` や `std::future::get()` は、結果が出るまでスレッドを止めて待つので、UI スレッドで使うと固まります。`await` が別物なのは、そこです。
+
+## フォルダーを読む処理を、別のクラスに出す
+
+読み込みの本体を、ビューモデルから出して、非同期のクラスにします。
+
+```csharp title="Services/AssetScanner.cs（新規）"
+using System.IO;
+using Editor.Models;
+
+namespace Editor.Services;
+
+public class AssetScanner
+{
+    public Task<IReadOnlyList<FileEntry>> ScanAsync(string root, Action<string>? log = null)
+    {
+        return Task.Run(() =>
+        {
+            var paths = Directory.GetFiles(root, "*", SearchOption.AllDirectories);
+            log?.Invoke($"{paths.Length} 個のファイルを見つけました");   // 別のスレッドで動いている
+
+            var result = new List<FileEntry>(paths.Length);
+            foreach (var path in paths)
+            {
+                var info = new FileInfo(path);
+                result.Add(new FileEntry(info.Name, KindOf(info.Extension), info.Length));
+                Thread.Sleep(20);        // ディスクが遅いふりをする（あとで消す）
+            }
+            return (IReadOnlyList<FileEntry>)result;
+        });
+    }
+
+    private static string KindOf(string extension) => extension.ToLowerInvariant() switch
+    {
+        ".scene" => "scene",
+        ".png" or ".jpg" or ".dds" => "texture",
+        ".mesh" or ".fbx" or ".obj" => "mesh",
+        _ => "other",
+    };
+}
+```
+
+`Task.Run` の中は、別のスレッドで動きます。ここで画面の部品や `ObservableCollection` には触れていません。見つけたファイルを `List` に溜めて、最後に返しているだけです。`KindOf` の `switch` 式は、拡張子から種類を決める C# の書き方で、`or` は「どれか」を表します。
+
+`log` は、ログを出したいときに外から渡してもらう関数です。ここでログを出すとどうなるのかは、少しあとで見ます。
+
+ビューモデルを、この `ScanAsync` を使う形に書き換えます。
+
+```csharp title="ViewModels/AssetBrowserViewModel.cs（変更）"
+private readonly AssetScanner _scanner = new();
+
+private async Task LoadAsync()
+{
+    var files = await _scanner.ScanAsync(AppContext.BaseDirectory);   // 待っている間、UI は動く
+    Entries.Clear();
+    foreach (var file in files) Entries.Add(file);                     // 戻ってきたので、UI スレッド
+}
+```
+
+`Load` を `LoadAsync` に置き換えます。`LoadCommand` は、ボタンに渡す形が要ります。次の節で作ります。
+
 ## ボタンから非同期処理を呼ぶ
 
-Prism の `DelegateCommand` は、同期のメソッドしか受け取れません。`new DelegateCommand(async () => await LoadAsync())` と書くことはできますが、中身は `async void` と同じになります。`async void` の関数で起きた例外は、呼び出し元で捕まえられず、アプリが落ちることがあります。実行中に二重で押される問題も、自分で防がなければなりません。
+第 12 章で作った `RelayCommand` は、同期のメソッドしか受け取れません。`new RelayCommand(async () => await LoadAsync())` と書くことはできますが、中身は `async void` と同じになります。`async void` の関数で起きた例外は、呼び出し元で捕まえられず、アプリが落ちることがあります。実行中に二重で押される問題も、自分で防がなければなりません。
 
-そこで、非同期の処理を渡せるコマンドを自分で 1 つ作っておきます。第 12 章で作った `RelayCommand` の仲間です。
+そこで、非同期の処理を渡せるコマンドを、もう 1 つ作ります。
 
-```csharp title="Mvvm/AsyncCommand.cs"
+```csharp title="Mvvm/AsyncCommand.cs（新規）"
 using System.Windows.Input;
 
 namespace Editor.Mvvm;
@@ -109,19 +211,150 @@ public sealed class AsyncCommand : ICommand
 
 `ICommand.Execute` が `void` を返す決まりなので、`async void` をなくすことはできません。そこで、`async void` を 1 か所に閉じ込めて、例外の処理と二重実行の防止をそこで済ませます。`onError` を渡さなかったときは、例外がそのまま UI スレッドの未処理例外になります（第 49 章でまとめて受け取ります）。
 
-使う側は、次のように書きます。
+実行中は `CanExecute` が `false` になるので、読み込み中はボタンが自動で押せなくなります。CommunityToolkit.Mvvm なら `AsyncRelayCommand` が同じ役目を果たします（第 25 章）。
 
-```csharp
-LoadCommand = new AsyncCommand(LoadAsync, onError: e => _log.Error($"読み込みに失敗: {e.Message}"));
+`AssetBrowserViewModel` の `LoadCommand` を、これに差し替えます。
+
+```csharp title="ViewModels/AssetBrowserViewModel.cs（変更）"
+public AsyncCommand LoadCommand { get; }
+
+// コンストラクターの中
+LoadCommand = new AsyncCommand(LoadAsync, onError: e => _log.Add("Error", $"読み込みに失敗: {e.Message}"));
 ```
 
+`_log` は、次の節で用意する `LogViewModel` です。
+
+実行して「読み込み」を押すと、読み込んでいる間もウィンドウが動きます。ボタンは灰色になり、終わると一覧が入れ替わります。
+
+## 別のスレッドからログを出す
+
+`AssetScanner` の `log` を使う場所を作ります。`AssetBrowserViewModel` が `LogViewModel` を受け取れるようにして、読み込みの経過をログに出します。まず、受け渡しです。
+
+```csharp title="ViewModels/MainWindowViewModel.cs（変更）"
+public LogViewModel Log { get; }
+public AssetBrowserViewModel AssetBrowser { get; }
+
+// コンストラクターの中
+Log = new LogViewModel();
+AssetBrowser = new AssetBrowserViewModel(Log);
+```
+
+```csharp title="ViewModels/AssetBrowserViewModel.cs（変更）"
+private readonly LogViewModel _log;
+
+public AssetBrowserViewModel(LogViewModel log)
+{
+    _log = log;
+    // 以下は前のとおり
+}
+
+private async Task LoadAsync()
+{
+    var files = await _scanner.ScanAsync(AppContext.BaseDirectory, msg => _log.Add("Info", msg));
+    Entries.Clear();
+    foreach (var file in files) Entries.Add(file);
+}
+```
+
+ここで `LogViewModel` に `Add` を作ります。何も考えずに書くと、こうなります。
+
+```csharp title="実験：スレッドを考えない Add（Editor には入れない）"
+public void Add(string level, string message)
+{
+    Entries.Add(new LogEntry(DateTime.Now, level, message));
+}
+```
+
+読み込むと、`log` が呼ばれた瞬間に、次のような例外でアプリが落ちます。
+
+```text
+System.NotSupportedException:
+  このタイプの CollectionView は、Dispatcher スレッドとは異なるスレッドからの SourceCollection への変更をサポートしていません。
+```
+
+`log` は `Task.Run` の中、つまり別のスレッドから呼ばれています。そのスレッドから、画面にバインドされた `ObservableCollection` を直接変更したからです。
+
+### 深掘り：別のスレッドから UI を更新する
+
+イベントやコールバックが別のスレッドから呼ばれるとき（エンジンのログなど）は、UI スレッドに仕事を頼みます。
+
 ```csharp
+Application.Current.Dispatcher.InvokeAsync(() => Entries.Add(entry));   // 頼んだら待たずに戻る
+await Application.Current.Dispatcher.InvokeAsync(() => Entries.Add(entry));   // 終わるまで await
+```
+
+`Invoke`（同期的に待つ）は、UI スレッドが別の用事で待っていると、お互いに待ち合ってデッドロックする危険があります。基本は `InvokeAsync`（または `BeginInvoke`）を使います。これで `Add` を直します。
+
+```csharp title="ViewModels/LogViewModel.cs（変更）"
+using System.Windows;
+
+public void Add(string level, string message)
+{
+    var entry = new LogEntry(DateTime.Now, level, message);
+    var dispatcher = Application.Current.Dispatcher;
+    if (dispatcher.CheckAccess())
+        Entries.Add(entry);                                  // もう UI スレッドなので、そのまま
+    else
+        dispatcher.InvokeAsync(() => Entries.Add(entry));    // UI スレッドに頼む
+}
+```
+
+`CheckAccess()` は、今のスレッドが UI スレッドかを調べます。どのスレッドから呼んでも安全な `Add` になりました。エンジンからのコールバックでログを受け取る第 49 章でも、この `Add` をそのまま使います。
+
+コレクションを別のスレッドから触りたいときの方法は、もう 1 つあります。`BindingOperations.EnableCollectionSynchronization(collection, lockObject)` を呼んで、WPF にロックの仕組みを教える方法です。
+
+```csharp title="実験：EnableCollectionSynchronization（Editor には入れない）"
+private readonly object _lock = new();
+BindingOperations.EnableCollectionSynchronization(Entries, _lock);
+
+// 別のスレッドから
+lock (_lock) { Entries.Add(entry); }
+```
+
+`lock (_lock) { … }` は、同じ `_lock` を持つ `lock` の中に、同時に 1 つのスレッドしか入れないようにする文です。C++ の `std::lock_guard<std::mutex>` に当たり、`{}` を抜けると自動でロックが外れます。ロックに使うのは、このように専用の `object` にするのが決まりで、`this` や文字列は避けます。外から同じ物を `lock` されて、思わぬ待ちが起きるためです。`EnableCollectionSynchronization` は UI スレッドで呼び、別のスレッドから `Add` を始める前に済ませます。迷ったら、上の `Dispatcher` のほうが単純です。
+
+## 進み具合を画面に出す
+
+読み込みに数秒かかるようになったので、進み具合を見せます。長い処理の途中経過を画面に出すときは、`IProgress<T>` を使います。`AssetScanner` に、進み具合を報告する引数を足します。
+
+```csharp title="Services/AssetScanner.cs（変更）"
+public Task<IReadOnlyList<FileEntry>> ScanAsync(
+    string root, IProgress<double>? progress = null, Action<string>? log = null)
+{
+    return Task.Run(() =>
+    {
+        // ... paths を取るところまでは前のとおり
+        for (int i = 0; i < paths.Length; ++i)
+        {
+            var info = new FileInfo(paths[i]);
+            result.Add(new FileEntry(info.Name, KindOf(info.Extension), info.Length));
+            Thread.Sleep(20);
+            progress?.Report((i + 1) / (double)paths.Length);      // 進み具合を知らせる
+        }
+        return (IReadOnlyList<FileEntry>)result;
+    });
+}
+```
+
+ビューモデルに、進み具合のプロパティと、`Progress<double>` を渡す処理を足します。
+
+```csharp title="ViewModels/AssetBrowserViewModel.cs（変更）"
+private double _progressValue;
+private bool _isBusy;
+
+public double ProgressValue { get => _progressValue; private set => SetProperty(ref _progressValue, value); }
+public bool IsBusy { get => _isBusy; private set => SetProperty(ref _isBusy, value); }
+
 private async Task LoadAsync()
 {
     IsBusy = true;
+    ProgressValue = 0;
     try
     {
-        Items = await _service.LoadAsync();
+        var progress = new Progress<double>(p => ProgressValue = p);    // UI スレッドで作る
+        var files = await _scanner.ScanAsync(AppContext.BaseDirectory, progress, msg => _log.Add("Info", msg));
+        Entries.Clear();
+        foreach (var file in files) Entries.Add(file);
     }
     finally
     {
@@ -130,88 +363,93 @@ private async Task LoadAsync()
 }
 ```
 
-実行中は `CanExecute` が `false` になるので、ボタンが自動で押せなくなります。`canExecute` を渡せば、「実行中でなく、かつ編集中のとき」のような条件も足せます。条件が変わったら、`RaiseCanExecuteChanged()` を呼びます。
-
-CommunityToolkit.Mvvm なら `AsyncRelayCommand` が同じ役目を果たします（第 25 章）。
-
-## 進み具合を画面に出す（IProgress）
-
-長い処理の途中経過を画面のプログレスバーに出したいときは、`IProgress<T>` を使います。
-
-```csharp
-public async Task ScanAsync(IProgress<double> progress, CancellationToken token)
-{
-    var files = Directory.GetFiles(root, "*", SearchOption.AllDirectories);
-    for (int i = 0; i < files.Length; ++i)
-    {
-        token.ThrowIfCancellationRequested();
-        await Task.Run(() => Process(files[i]), token);
-        progress.Report((i + 1) / (double)files.Length);     // 進み具合を知らせる
-    }
-}
+```xml title="MainWindow.xaml（変更：アセットのタブの DockPanel に足す）"
+<ProgressBar DockPanel.Dock="Bottom" Height="6" Maximum="1"
+             Value="{Binding ProgressValue, Mode=OneWay}"
+             Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
 ```
 
-```csharp
-var progress = new Progress<double>(p => ProgressValue = p);    // UI スレッドで作る
-await ScanAsync(progress, _cts.Token);
-```
+読み込み中は、パネルの下に細い進行バーが出て、右へ伸びていきます。
 
-`Progress<T>` は、作ったスレッド（ここでは UI スレッド）に自動で結果を戻してくれます。バックグラウンドの処理から `Report` を呼ぶだけで、UI スレッドへの切り替えを自分で書かなくて済みます。
+`Progress<T>` は、作ったスレッド（ここでは UI スレッド）に自動で結果を戻してくれます。バックグラウンドの処理から `Report` を呼ぶだけで、UI スレッドへの切り替えを自分で書かなくて済みます。バーの `Value` が `Mode=OneWay` なのは、`ProgressBar.Value` が読み取り専用のように振る舞うためです。
 
 ## キャンセルできるようにする
 
 長い処理には、キャンセルの手段を用意しておくと親切です。`CancellationTokenSource` を作り、`Token` を処理に渡し、キャンセルするときに `Cancel()` を呼びます。
 
-```csharp
+```csharp title="Services/AssetScanner.cs（変更）"
+public Task<IReadOnlyList<FileEntry>> ScanAsync(
+    string root, IProgress<double>? progress = null, Action<string>? log = null,
+    CancellationToken token = default)
+{
+    return Task.Run(() =>
+    {
+        // ...
+        for (int i = 0; i < paths.Length; ++i)
+        {
+            token.ThrowIfCancellationRequested();       // キャンセルされていたら、ここで抜ける
+            // ...
+        }
+        return (IReadOnlyList<FileEntry>)result;
+    }, token);
+}
+```
+
+```csharp title="ViewModels/AssetBrowserViewModel.cs（変更）"
 private CancellationTokenSource? _cts;
 
-private async Task StartAsync()
+public RelayCommand CancelCommand { get; }
+
+// コンストラクターの中
+CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => IsBusy);
+
+private async Task LoadAsync()
 {
     _cts = new CancellationTokenSource();
+    IsBusy = true;
+    ProgressValue = 0;
     try
     {
-        await ScanAsync(progress, _cts.Token);
+        var progress = new Progress<double>(p => ProgressValue = p);
+        var files = await _scanner.ScanAsync(AppContext.BaseDirectory, progress,
+            msg => _log.Add("Info", msg), _cts.Token);
+        Entries.Clear();
+        foreach (var file in files) Entries.Add(file);
     }
     catch (OperationCanceledException)
     {
-        _log.Info("キャンセルしました");
+        _log.Add("Info", "読み込みをキャンセルしました");
+    }
+    finally
+    {
+        IsBusy = false;
+        _cts.Dispose();
+        _cts = null;
     }
 }
-
-private void Cancel() => _cts?.Cancel();
 ```
 
-処理の側は、ところどころで `token.ThrowIfCancellationRequested()` を呼んで、キャンセルされたら `OperationCanceledException` で抜けます。この例外は「異常」ではなく、キャンセルの合図です。
-
-## 別のスレッドから UI を更新したい
-
-イベントやコールバックが別のスレッドから呼ばれるとき（エンジンのログなど）は、UI スレッドに仕事を頼みます。
+`IsBusy` が変わったとき、キャンセルボタンの状態も聞き直してもらう必要があります。`IsBusy` の `set` に、1 行足します。
 
 ```csharp
-Application.Current.Dispatcher.BeginInvoke(() => Entries.Add(entry));   // 頼んだら待たずに戻る
-await Application.Current.Dispatcher.InvokeAsync(() => Entries.Add(entry));   // 終わるまで await
+public bool IsBusy
+{
+    get => _isBusy;
+    private set
+    {
+        if (SetProperty(ref _isBusy, value))
+            CancelCommand.RaiseCanExecuteChanged();
+    }
+}
 ```
 
-`Invoke`（同期的に待つ）は、UI スレッドが別の用事で待っていると、お互いに待ち合ってデッドロックする危険があります。基本は `BeginInvoke` か `InvokeAsync` を使います。
+最後に、画面にキャンセルのボタンを足します。
 
-### コレクションを別のスレッドから触りたいとき
-
-`ObservableCollection` を別のスレッドで直接変更すると、例外になります。次のどちらかで逃げます。
-
-1. 変更を `Dispatcher.BeginInvoke` で UI スレッドに回す（第 23 章のログ サービスはこの方法）。
-2. `BindingOperations.EnableCollectionSynchronization(collection, lockObject)` を呼んで、WPF にロックの仕組みを教える。
-
-```csharp
-private readonly object _lock = new();
-BindingOperations.EnableCollectionSynchronization(Entries, _lock);
-
-// 別のスレッドから
-lock (_lock) { Entries.Add(entry); }
+```xml title="MainWindow.xaml（変更：読み込みボタンのあとに足す）"
+<Button Content="キャンセル" Padding="12,2" Margin="4,0,0,0" Command="{Binding CancelCommand}" />
 ```
 
-`lock (_lock) { … }` は、同じ `_lock` を持つ `lock` の中に、同時に 1 つのスレッドしか入れないようにする文です。C++ の `std::lock_guard<std::mutex>` に当たり、`{}` を抜けると自動でロックが外れます。ロックに使うのは、このように専用の `object` にするのが決まりで、`this` や文字列は避けます。外から同じ物を `lock` されて、思わぬ待ちが起きるためです。
-
-2 のほうの `EnableCollectionSynchronization` は、UI スレッドで呼びます。別のスレッドから `Add` を始める前に設定を済ませておいてください。迷ったら 1 のほうが単純です。
+処理の側は、ところどころで `token.ThrowIfCancellationRequested()` を呼んで、キャンセルされたら `OperationCanceledException` で抜けます。この例外は「異常」ではなく、キャンセルの合図なので、受け取る側で `catch` してログに残すだけにしています。
 
 ## 固まる原因の定番
 
@@ -225,13 +463,50 @@ lock (_lock) { Entries.Add(entry); }
 
 `.Result` と `.Wait()` は、非同期の関数を同期的に待つ書き方ですが、UI スレッドで使うと、「UI スレッドの再開を待つ処理」を「UI スレッドが待つ」というデッドロックになりやすいです。非同期の呼び出しは、最後まで `await` でつなぐのが原則です。
 
-## ConfigureAwait
+### 深掘り：ConfigureAwait
 
 ライブラリを書くときによく見る `await x.ConfigureAwait(false)` は、「`await` の後は、元のスレッドに戻らなくてよい」という指定です。画面を触らない低レベルの関数では、少し速くなりますが、画面を触る関数の中で付けてはいけません。アプリの画面側のコードでは、付けない（既定のまま）で構いません。
 
-## C++ で考えると
+## 動かして確かめる
 
-UI スレッドは、ゲームのメイン スレッドのようなものです。画面に触れるのはここだけで、ここが長く止まると、ゲームのフレームが落ちるのと同じように、画面が固まります。`await` は、C++20 のコルーチンの `co_await` に近い考え方です。待っている間はスレッドを塞がず、結果が出たら続きを再開します。`std::async` や `std::future::get()` は、結果が出るまでスレッドを止めて待つので、UI スレッドで使うと固まります。`await` が別物なのは、そこです。
+`F5` で実行して、次を確かめてください。
+
+- 「アセット」のタブで「読み込み」を押すと、ボタンが灰色になり、下に進行バーが伸びる。その間、ウィンドウの移動やタブの切り替えができる。
+- 終わると一覧が入れ替わり、`Editor.dll` などのファイルが並ぶ。「ログ」のタブに「N 個のファイルを見つけました」と出ている。
+- 読み込み中に「キャンセル」を押すと止まり、一覧は元のままで、ログに「読み込みをキャンセルしました」と出る。
+- 読み込み中は、「読み込み」のボタンが押せない（二重に始まらない）。
+
+確かめ終わったら、`AssetScanner` の `Thread.Sleep(20)` の行を消してください。ディスクが遅いふりをするための行で、本番には要りません。
+
+??? failure "ログに足した瞬間にアプリが落ちる"
+    `LogViewModel.Add` の中で、`Dispatcher` を経由せず `Entries.Add` を直接呼んでいます。上の `CheckAccess` を使った版に直してください。
+
+??? failure "キャンセルを押しても、止まらない"
+    `ScanAsync` のループで `token.ThrowIfCancellationRequested()` を呼んでいるか、`ScanAsync` に `_cts.Token` を渡しているかを確かめます。
+
+??? failure "キャンセルボタンがずっと灰色のまま"
+    `IsBusy` の `set` で、`CancelCommand.RaiseCanExecuteChanged()` を呼んでいるかを確かめます。
+
+## ここまでの Editor
+
+```text
+Editor/
+├─ Models/                           （第 14 章のまま）
+├─ Mvvm/
+│   ├─ ViewModelBase.cs
+│   ├─ ValidatableViewModelBase.cs
+│   ├─ RelayCommand.cs
+│   └─ AsyncCommand.cs               非同期のコマンド（新規）
+├─ Services/
+│   └─ AssetScanner.cs               フォルダーを非同期で読む（新規）
+├─ ViewModels/
+│   ├─ SceneObjectViewModel.cs
+│   ├─ AssetBrowserViewModel.cs      読み込み、進み具合、キャンセル
+│   ├─ LogViewModel.cs               どのスレッドからでも Add できる
+│   └─ MainWindowViewModel.cs
+├─ MainWindow.xaml                   読み込み、キャンセル、進行バー
+└─ MainWindow.xaml.cs
+```
 
 ## この章のまとめ
 
@@ -239,8 +514,8 @@ UI スレッドは、ゲームのメイン スレッドのようなものです�
 - `await` の後は UI スレッドに戻るので、画面を触ってよい。`Task.Run` の中では触らない。
 - `async void` はイベント ハンドラー以外では使わない。コマンドは、自作の `AsyncCommand`（または `AsyncRelayCommand`）。
 - 経過は `Progress<T>`、中断は `CancellationToken`。
-- 別のスレッドから UI を更新するときは、`Dispatcher.BeginInvoke`。`.Result` / `.Wait()` で待たない。
+- 別のスレッドから UI を更新するときは、`Dispatcher.InvokeAsync`。`.Result` / `.Wait()` で待たない。
 
-次の章では、Prism を導入して、定型文をライブラリに任せ、アプリの起動の流れを作り直します。
+次の章では、Prism を導入して、ここまで自分で書いた `ViewModelBase` や `RelayCommand` などの定型文をライブラリに任せ、アプリの起動の流れを作り直します。
 
 [第 16 章 Prism の導入と起動の流れ](16-prism-bootstrap.md) へ進みます。

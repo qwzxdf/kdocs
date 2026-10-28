@@ -13,6 +13,13 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Modules/Asset/AssetView.xaml`（変更） | アセットの読み込み中に、回転するマークを出す |
+
+    ほかの例（フェードイン、マウスを乗せたときの拡大）は、仕組みを見るためのもので、Editor には入れません。エディタは、動きを控えめにしたいからです。
+
 ## アニメーションの考え方
 
 WPF のアニメーションは、「プロパティの値を時間をかけて変化させる」仕組みです。パラパラ漫画のようにコマを描くのではなく、「`Opacity` を 0 から 1 まで 0.3 秒かけて変える」と指定します。補間の計算は WPF がやってくれます。
@@ -28,7 +35,7 @@ WPF のアニメーションは、「プロパティの値を時間をかけて�
 
 ## 最小の例：フェードイン
 
-```xml
+```xml title="実験：フェードイン（Editor には入れない）"
 <Border x:Name="Panel" Opacity="0">
     <Border.Triggers>
         <EventTrigger RoutedEvent="Loaded">
@@ -54,7 +61,7 @@ WPF のアニメーションは、「プロパティの値を時間をかけて�
 
 マウスが乗ったら大きくなる、のような動きは、トリガーの中に書きます。
 
-```xml
+```xml title="実験：マウスを乗せると大きくなる（Editor には入れない）"
 <Style TargetType="Button">
     <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
     <Setter Property="RenderTransform">
@@ -89,8 +96,11 @@ WPF のアニメーションは、「プロパティの値を時間をかけて�
 
 ## 回転し続ける読み込みマーク
 
-```xml
-<Path x:Name="Spinner" Data="M 0,0 A 8,8 0 1 1 8,8" Stroke="White" StrokeThickness="2"
+第 15 章で、アセットの読み込みに進行バーを付けました。バーだけだと、読み込みが始まった直後や、ファイルの一覧を作っている間は、動いているのかが分かりにくいので、回転するマークも出します。読み込みボタンの横に置いて、`IsBusy` の間だけ見せます。
+
+```xml title="Modules/Asset/AssetView.xaml（変更：読み込みボタンの横に足す）"
+<Path x:Name="Spinner" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}"
+      Margin="8,0,0,0" Data="M 0,0 A 8,8 0 1 1 8,8" Stroke="White" StrokeThickness="2"
       RenderTransformOrigin="0.5,0.5">
     <Path.RenderTransform>
         <RotateTransform />
@@ -110,11 +120,13 @@ WPF のアニメーションは、「プロパティの値を時間をかけて�
 
 `RepeatBehavior="Forever"` で、止めるまで繰り返します。
 
+`BoolToVisibility` は、`AssetView` の `UserControl.Resources` に、第 13 章と同じ `BooleanToVisibilityConverter` を置いて使います。非表示（`Collapsed`）の間も、アニメーションは裏で回り続けますが、描画されないので負担は軽く済みます。
+
 ## C# のコードから
 
 トリガーを使わずに、ビューのコードビハインドから再生することもできます。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 var animation = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(300));
 Panel.BeginAnimation(UIElement.OpacityProperty, animation);
 ```
@@ -125,7 +137,7 @@ Panel.BeginAnimation(UIElement.OpacityProperty, animation);
 
 アニメーションの速度の変化は、既定では一定の速さ（直線）です。滑らかな動きにしたいときは `EasingFunction` を付けます。
 
-```xml
+```xml title="実験（Editor には入れない）"
 <DoubleAnimation To="1" Duration="0:0:0.3">
     <DoubleAnimation.EasingFunction>
         <CubicEase EasingMode="EaseOut" />

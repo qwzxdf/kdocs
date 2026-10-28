@@ -13,6 +13,9 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章での Editor"
+    この章では、Editor にファイルを足しません。Editor の `SceneObjectViewModel`（名前と位置 X、リセット ボタン）を題材にして、3 つのライブラリでの書き方を比べます。
+
 ## 何を提供するライブラリなのか
 
 先に整理しておくと、MVVM を支えるライブラリは、2 種類の仕事に分かれます。
@@ -26,45 +29,54 @@ Prism は①と②の両方を持っています。CommunityToolkit.Mvvm は①�
 
 ## 同じ画面を 3 通りで書く
 
-名前と HP を持つビューモデルを 3 つの書き方で並べます。
+第 12〜16 章で作った `SceneObjectViewModel` の、名前と位置 X、リセット コマンドだけを取り出して、3 つの書き方で並べます。
 
 ### Prism
 
-```csharp
-public class PlayerViewModel : BindableBase
+```csharp title="Editor の書き方（第 16 章）"
+public class SceneObjectViewModel : BindableBase
 {
     private string _name = "";
+    private float _x;
+
     public string Name
     {
         get => _name;
         set => SetProperty(ref _name, value);
     }
 
-    public DelegateCommand HealCommand { get; }
-
-    public PlayerViewModel()
+    public float X
     {
-        HealCommand = new DelegateCommand(Heal).ObservesCanExecute(() => CanHeal);
+        get => _x;
+        set => SetProperty(ref _x, value);
+    }
+
+    public DelegateCommand ResetCommand { get; }
+
+    public SceneObjectViewModel()
+    {
+        ResetCommand = new DelegateCommand(() => X = 0, () => X != 0)
+            .ObservesProperty(() => X);
     }
 }
 ```
 
 ### CommunityToolkit.Mvvm
 
-```csharp
-public partial class PlayerViewModel : ObservableObject
+```csharp title="実験：CommunityToolkit.Mvvm で書くと（Editor には入れない）"
+public partial class SceneObjectViewModel : ObservableObject
 {
     [ObservableProperty]
     private string _name = "";
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(HealCommand))]
-    private int _hp = 100;
+    [NotifyCanExecuteChangedFor(nameof(ResetCommand))]
+    private float _x;
 
-    [RelayCommand(CanExecute = nameof(CanHeal))]
-    private void Heal() => Hp += 10;
+    [RelayCommand(CanExecute = nameof(CanReset))]
+    private void Reset() => X = 0;
 
-    private bool CanHeal() => Hp < 100;
+    private bool CanReset() => X != 0;
 }
 ```
 
@@ -79,17 +91,17 @@ public partial class PlayerViewModel : ObservableObject
 
 ### ReactiveProperty
 
-```csharp
-public class PlayerViewModel
+```csharp title="実験：ReactiveProperty で書くと（Editor には入れない）"
+public class SceneObjectViewModel
 {
     public ReactiveProperty<string> Name { get; } = new("");
-    public ReactiveProperty<int> Hp { get; } = new(100);
-    public ReactiveCommand HealCommand { get; }
+    public ReactiveProperty<float> X { get; } = new(0);
+    public ReactiveCommand ResetCommand { get; }
 
-    public PlayerViewModel()
+    public SceneObjectViewModel()
     {
-        HealCommand = Hp.Select(h => h < 100).ToReactiveCommand();
-        HealCommand.Subscribe(() => Hp.Value += 10);
+        ResetCommand = X.Select(x => x != 0).ToReactiveCommand();
+        ResetCommand.Subscribe(() => X.Value = 0);
     }
 }
 ```
@@ -120,23 +132,23 @@ public class PlayerViewModel
 | 条件が変わったら再判定 | `.ObservesProperty(() => X)` | `[NotifyCanExecuteChangedFor(...)]` |
 | 値が変わったときの処理 | `SetProperty(ref _x, value, OnChanged)` | `partial void OnXxxChanged(T value)` |
 | メッセージの送受信 | `IEventAggregator` | `WeakReferenceMessenger`（`ObservableRecipient`） |
-| 入力の検証 | `ErrorsContainer<T>`（自作で組む） | `ObservableValidator`（`[Required]`、`[Range]` など） |
+| 入力の検証 | `ErrorsContainer<T>`（第 24 章で Editor に入れた） | `ObservableValidator`（`[Required]`、`[Range]` など） |
 
 `WeakReferenceMessenger` の「Weak（弱い）」は、弱参照のことです。ふつうの参照は、持っている間は相手を GC に片付けさせません。メッセージの受け手を強い参照で登録すると、画面を閉じても登録が残って、受け手が解放されません（C++ で `shared_ptr` を持ち合って解放されないのと同じ種類の問題です）。弱参照は、持っていても GC を止めない参照なので、受け手が消えたら登録も自然に無効になります。
 
 ### 入力の検証を属性で書く（ObservableValidator）
 
-```csharp
-public partial class PlayerViewModel : ObservableValidator
+```csharp title="実験：属性で検証する（Editor には入れない）"
+public partial class SceneObjectViewModel : ObservableValidator
 {
     [ObservableProperty]
     [NotifyDataErrorInfo]
-    [Range(0, 100, ErrorMessage = "HP は 0〜100 です")]
-    private int _hp;
+    [Required(ErrorMessage = "名前を入力してください")]
+    private string _name = "";
 }
 ```
 
-`INotifyDataErrorInfo`（第 13 章）を実装済みで、`System.ComponentModel.DataAnnotations` の属性で検証規則を書けます。入力検証を多用する画面を作るなら、これは魅力的です。
+`INotifyDataErrorInfo`（第 13 章）を実装済みで、`System.ComponentModel.DataAnnotations` の属性で検証規則を書けます。第 13 章で、`Name` の `set` に手で書いた「空なら `SetError`」が、属性 1 行になります。入力検証を多用する画面を作るなら、これは魅力的です。
 
 ## Prism と組み合わせる
 

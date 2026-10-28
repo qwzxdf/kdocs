@@ -13,6 +13,14 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Controls/LabeledNumber.xaml`・`.xaml.cs`（新規） | 「ラベル + 数値入力」の部品 |
+    | `Modules/Property/PropertyView.xaml`（変更） | 位置の入力欄を、この部品に置き換える |
+
+    後半のカスタム コントロール（`StepperBox`）と `Adorner` は、作り方を見るための実験で、Editor には入れません。
+
 ## どちらを選ぶか
 
 | | UserControl | カスタム コントロール（Control を継承） |
@@ -26,11 +34,11 @@ tags:
 
 ## UserControl で、数値入力の部品を作る
 
-「ラベル + 数値入力」の部品 `LabeledNumber` を作ります。
+第 12〜13 章で、プロパティ パネルの位置は、`TextBox` を 3 つ並べて書きました。「ラベル + 数値入力」の組み合わせは、回転や拡大でも出てくるので、部品 `LabeledNumber` にまとめます。
 
 1. `Controls` フォルダーを作り、「追加 → 新しい項目 → ユーザー コントロール (WPF)」で `LabeledNumber.xaml` を作ります。
 
-```xml title="Controls/LabeledNumber.xaml"
+```xml title="Controls/LabeledNumber.xaml（新規）"
 <UserControl x:Class="Editor.Controls.LabeledNumber"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -49,7 +57,7 @@ tags:
 
 2. 外から指定できるプロパティを依存関係プロパティとして公開します（第 10 章）。
 
-```csharp title="Controls/LabeledNumber.xaml.cs"
+```csharp title="Controls/LabeledNumber.xaml.cs（新規）"
 namespace Editor.Controls;
 
 public partial class LabeledNumber : UserControl
@@ -71,11 +79,16 @@ public partial class LabeledNumber : UserControl
 }
 ```
 
-3. 使う側は、普通の部品のように書きます。
+3. 使う側は、普通の部品のように書きます。プロパティ パネルの位置の入力欄を、置き換えます。
 
-```xml
-<controls:LabeledNumber Label="位置 X" Value="{Binding PositionX}" />
+```xml title="Modules/Property/PropertyView.xaml（変更：位置の入力欄）"
+<!-- UserControl タグに xmlns:controls="clr-namespace:Editor.Controls" を足す -->
+<controls:LabeledNumber Label="位置 X" Value="{Binding Target.X}" />
+<controls:LabeledNumber Label="位置 Y" Value="{Binding Target.Y}" Margin="0,4,0,0" />
+<controls:LabeledNumber Label="位置 Z" Value="{Binding Target.Z}" Margin="0,4,0,0" />
 ```
+
+部品の `Value` は `double`、ビューモデルの `X` は `float` ですが、バインディングが自動で変換します。部品の中の `TextBox` は、第 12 章で決めたとおり、フォーカスが外れたときに反映します（`UpdateSourceTrigger=LostFocus`）。
 
 ここで注意してほしいのが、`UserControl` 内部の `DataContext` です。部品の中で `{Binding Value}` と書くと、使う側から引き継いだ `DataContext`（たとえば親のビューモデル）の `Value` を探しに行ってしまいます。そこで、ここでは `ElementName=Root` で、部品自身の `Value` プロパティを指しました。
 
@@ -88,7 +101,7 @@ public partial class LabeledNumber : UserControl
 1. 「追加 → 新しい項目 → カスタム コントロール (WPF)」を選ぶと、`.cs` ファイルと、`Themes\Generic.xaml` ができます。
 2. `.cs` には、機能（プロパティとロジック）だけを書きます。
 
-```csharp title="Controls/StepperBox.cs"
+```csharp title="実験：Controls/StepperBox.cs（Editor には入れない）"
 [TemplatePart(Name = "PART_Up", Type = typeof(ButtonBase))]
 [TemplatePart(Name = "PART_Down", Type = typeof(ButtonBase))]
 public class StepperBox : Control
@@ -115,7 +128,7 @@ public class StepperBox : Control
 
 3. 見た目は `Themes\Generic.xaml` の `ControlTemplate` に書きます。
 
-```xml title="Themes/Generic.xaml"
+```xml title="実験：Themes/Generic.xaml（Editor には入れない）"
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:Editor.Controls">
@@ -150,7 +163,7 @@ public class StepperBox : Control
 
 自分で作るときは、`Adorner` を継承して、`OnRender` で描きます。
 
-```csharp title="Controls/SelectionAdorner.cs"
+```csharp title="実験：Controls/SelectionAdorner.cs（Editor には入れない）"
 using System.Windows.Documents;
 using System.Windows.Media;
 
@@ -184,7 +197,7 @@ public sealed class SelectionAdorner : Adorner
 
 付けるときは、部品がいる `AdornerLayer` を取って、`Add` します。
 
-```csharp
+```csharp title="実験（Editor には入れない）"
 var layer = AdornerLayer.GetAdornerLayer(targetElement);
 var adorner = new SelectionAdorner(targetElement);
 layer?.Add(adorner);
