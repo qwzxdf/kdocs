@@ -60,7 +60,7 @@ physics_system.AddConstraint(hinge);
 
 ### ワールドに固定する
 
-片方を動かない地面にしたいときは、`Body::sFixedToWorld` を、もう一方の引数に渡します。
+片方を動かない地面にしたいときは、`Body::sFixedToWorld` をもう一方の引数に渡します。
 
 ```cpp
 Constraint* c = settings.Create(body, Body::sFixedToWorld);
@@ -75,7 +75,7 @@ Constraint* c = settings.Create(body, Body::sFixedToWorld);
 | `EConstraintSpace::WorldSpace`（既定） | 接続点をワールド座標で指定（今の配置から、自動で各物体のローカルに変換） |
 | `EConstraintSpace::LocalToBodyCOM` | 各物体の重心からのローカル座標で指定 |
 
-ワールド座標で指定する方が、簡単です（今、物体が置いてある場所に、ヒンジを置くだけ）。
+ワールド座標で指定する方が簡単です（今、物体が置いてある場所にヒンジを置くだけ）。
 
 ## 主な制約
 
@@ -197,18 +197,18 @@ hinge->SetTargetAngularVelocity(JPH_PI);
 | --- | --- |
 | `EMotorState::Off` | モーターなし（自由に動く） |
 | `EMotorState::Velocity` | 目標の速度で回す |
-| `EMotorState::Position` | 目標の位置（角度）に、向かう（バネのように） |
+| `EMotorState::Position` | 目標の位置（角度）に向かう（バネのように） |
 
 | 設定 | 意味 |
 | --- | --- |
 | `SetTargetAngularVelocity` / `SetTargetAngle` | 目標の角速度・角度 |
 | `GetMotorSettings()` | モーターの強さ（`mMaxTorqueLimit` ＝ 出せる力の上限）、バネの固さ |
 
-`Position` モードに、バネを使うと「目標の姿勢に引き戻される」関節になります（アニメーションに物理的に追従する、キャラクター）。
+`Position` モードにバネを使うと「目標の姿勢に引き戻される」関節になります（アニメーションに物理的に追従する、キャラクター）。
 
 ## ラグドール
 
-**ラグドール**は人間の体を剛体（部位）と、制約（関節）で作り、死んだ・気絶したキャラクターが、力なく崩れる表現です。
+**ラグドール**は人間の体を剛体（部位）と、制約（関節）で作り、死んだ・気絶したキャラクターが力なく崩れる表現です。
 
 | 構成 | 内容 |
 | --- | --- |
@@ -223,14 +223,14 @@ Ragdoll* ragdoll = ragdoll_settings->CreateRagdoll(0, 0, &physics_system);
 ragdoll->AddToPhysicsSystem(EActivation::Activate);
 ```
 
-アニメーションの姿勢を、ラグドールに設定して、そこから物理で崩れさせます（`SetPose`）。部位の位置をボーンの姿勢に書き戻して描画します（[スキニングとアニメーション](../../3d/skinning-animation.md)）。
+アニメーションの姿勢をラグドールに設定して、そこから物理で崩れさせます（`SetPose`）。部位の位置をボーンの姿勢に書き戻して描画します（[スキニングとアニメーション](../../3d/skinning-animation.md)）。
 
 !!! note "ラグドールの作成は、大変"
-    ボーンの構造・関節の範囲・質量の配分を、1 つずつ調整する必要があり、手間がかかります。モデルのツール（Blender など）の、ラグドール生成や、Jolt のサンプル（`RagdollTest`）が、参考になります。
+    ボーンの構造・関節の範囲・質量の配分を 1 つずつ調整する必要があり、手間がかかります。モデルのツール（Blender など）の、ラグドール生成や、Jolt のサンプル（`RagdollTest`）が参考になります。
 
 ## 連結した物体の衝突
 
-**制約でつないだ 2 つの物体が、お互いに衝突すると不安定**になります（関節の部分でめり込む）。
+**制約でつないだ 2 つの物体がお互いに衝突すると不安定**になります（関節の部分でめり込む）。
 
 | 方法 | 説明 |
 | --- | --- |
@@ -306,25 +306,25 @@ bodies.DestroyBody(id);
 ??? failure "接続点がずれて、物体が勢いよく動く"
     2 つの接続点が一致するようにします（ワールド座標で同じ点）。
 
-??? failure "ヒンジの軸の指定が、2 つの物体で食い違う"
-    `mHingeAxis1` と `mHingeAxis2` を、同じ向き（ワールドで）にします。
+??? failure "ヒンジの軸の指定が 2 つの物体で食い違う"
+    `mHingeAxis1` と `mHingeAxis2` を同じ向き（ワールドで）にします。
 
-??? failure "連結した部位が、お互いに衝突して、震える"
+??? failure "連結した部位がお互いに衝突して、震える"
     衝突グループで衝突を無効にします。
 
 ??? failure "物体を削除したのに、制約が残って、クラッシュする"
     制約を先に削除します。
 
-??? failure "質量が極端に違う物体を、制約でつないで不安定になる"
+??? failure "質量が極端に違う物体を制約でつないで不安定になる"
     質量比を抑えます（10 倍程度まで）。反復回数を増やす方法もあります。
 
-??? failure "モーターを `Update` の最中に、変更する"
+??? failure "モーターを `Update` の最中に変更する"
     `Update` の外で呼びます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 制約は2 つの物体の動きを、つなぐ。`Settings` ＋ `Create(body1, body2)` ＋ `AddConstraint`
+    - [x] 制約は2 つの物体の動きをつなぐ。`Settings` ＋ `Create(body1, body2)` ＋ `AddConstraint`
     - [x] 種類：固定・点・ヒンジ（1 軸の回転）・スライダー（1 軸の移動）・距離（ロープ・バネ）・スイング ツイスト（関節）
     - [x] 片方をワールドに固定するなら `Body::sFixedToWorld`。接続点はワールド座標で指定（簡単）
     - [x] モーター（`Velocity`・`Position`）で、能動的に駆動

@@ -53,7 +53,7 @@ l b o hit 所有
 | `std::shared_ptr<Texture> tex;` | ○（複数） | 最後の 1 人が消すときに消える |
 | `Enemy& enemy` | × | 必ずある相手を使わせてもらう |
 | `Enemy* enemy` | × | 無いかもしれない相手を指す（`nullptr` あり） |
-| `std::weak_ptr<Enemy> enemy` | × | shared_ptr の相手を、消えたか確かめながら指す |
+| `std::weak_ptr<Enemy> enemy` | × | shared_ptr の相手を消えたか確かめながら指す |
 | `EnemyId id` | × | 番号で間接的に指す（相手が消えても安全に確かめられる） |
 
 ```cpp

@@ -6,11 +6,11 @@ tags:
 
 # Crest Foam: The Jacobian
 
-<strong>波頭が尖ってメッシュが縮む所に、泡が出る</strong>のが自然な波です。この縮み具合をヤコビアンという値で測れます。このページではヤコビアンによる波頂の泡を説明します。
+<strong>波頭が尖ってメッシュが縮む所に泡が出る</strong>のが自然な波です。この縮み具合をヤコビアンという値で測れます。このページではヤコビアンによる波頂の泡を説明します。
 
 !!! tip "ポイント"
     - ヤコビアン ＝ 水面の面積の変化率。
-    - 値が小さい（縮む）所に、泡が出る。
+    - 値が小さい（縮む）所に泡が出る。
     - Gerstner 波・FFT で、計算できる。
     - しきい値を決めて、泡のマスクにする。
 
@@ -450,13 +450,13 @@ FFT では水平変位マップの差分からヤコビアンを求め、別の�
 <text x="670" y="366" text-anchor="start" style="font-size:26px;font-weight:700;fill:#e5484d" opacity="0">9<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4620;0.4622;0.6665;0.6667;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="670" y="366" text-anchor="start" style="font-size:26px;font-weight:700;fill:#e5484d" opacity="0">21<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6665;0.6667;1.0000" values="0;0;1;1"/></text>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8354;0.8356;1.0000" values="0;0;1;1"/><rect x="560" y="384" width="370" height="120" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
-<text x="576" y="408" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">J = (横の伸び縮み)× 1 を、数値で調べる</text>
+<text x="576" y="408" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">J = (横の伸び縮み)× 1 を数値で調べる</text>
 <text x="576" y="431" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">J &lt; 0.25 の所 = 水面が詰まって、折り返す所</text>
-<text x="576" y="454" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">→ 泡の濃さを、その場所だけ上げる</text>
+<text x="576" y="454" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">→ 泡の濃さをその場所だけ上げる</text>
 <text x="576" y="477" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">λ を上げるほど、泡の出る範囲が広がる</text>
 </g>
-<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">水面の各点が、横にどれだけ動いたかから、詰まり具合 J を計算する<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0443;0.0444;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">λ を上げて、波頭を尖らせる。J が小さい所に、赤い点(泡)が出る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0443;0.0444;0.8620;0.8622;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">水面の各点が横にどれだけ動いたかから、詰まり具合 J を計算する<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0443;0.0444;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">λ を上げて、波頭を尖らせる。J が小さい所に赤い点(泡)が出る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0443;0.0444;0.8620;0.8622;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">泡は、波頭に沿って、自然に出る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8620;0.8622;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -466,7 +466,7 @@ FFT では水平変位マップの差分からヤコビアンを求め、別の�
 
 海の波は <strong>波頭が尖り</strong>、さらに強くなると 波頭が砕けて、泡になります。波が砕けるのは波の斜面が急になりすぎたときです。水の粒が波頭で集まりすぎてぶつかるとも、言えます。
 
-波の頂点を水平にも動かす方式（Gerstner 波、FFT 海面）では 頂点が集まって面積が、小さくなった場所が砕けそうな場所です。この「面積の縮み具合」を、数値にしたものがヤコビアンです。
+波の頂点を水平にも動かす方式（Gerstner 波、FFT 海面）では 頂点が集まって面積が小さくなった場所が砕けそうな場所です。この「面積の縮み具合」を数値にしたものがヤコビアンです。
 
 ## ヤコビアン
 
@@ -478,15 +478,15 @@ J = ( 1 + ∂Dx/∂x )( 1 + ∂Dz/∂z ) − ( ∂Dx/∂z )( ∂Dz/∂x )
 
 | J の値 | 意味 |
 | --- | --- |
-| 1 | 面積が変わらない（頂点の間隔が、そのまま） |
-| 1 より大きい | 面積が、広がる（谷。頂点が散る） |
-| 0 に近づく | 面積が、つぶれる（波頭。頂点が集まる） |
-| 負 | 写像が裏返る（頂点が、追い越して波頭が折れている） |
+| 1 | 面積が変わらない（頂点の間隔がそのまま） |
+| 1 より大きい | 面積が広がる（谷。頂点が散る） |
+| 0 に近づく | 面積がつぶれる（波頭。頂点が集まる） |
+| 負 | 写像が裏返る（頂点が追い越して波頭が折れている） |
 
 `J` が小さい（しきい値より、小さい）場所に泡を出します。
 
 ```hlsl
-// ヤコビアンが、しきい値（たとえば 0.5）より小さい場所を、泡にする。
+// ヤコビアンがしきい値（たとえば 0.5）より小さい場所を泡にする。
 float foam = saturate((foam_threshold - jacobian) / foam_softness);
 ```
 
@@ -497,7 +497,7 @@ float foam = saturate((foam_threshold - jacobian) / foam_softness);
 
 ## Gerstner 波の、ヤコビアン
 
-Gerstner 波では水平変位の偏微分が、<strong>解析的</strong>に求まります（[Gerstner Waves](../waves/gerstner.md)）。
+Gerstner 波では水平変位の偏微分が <strong>解析的</strong>に求まります（[Gerstner Waves](../waves/gerstner.md)）。
 
 ```text
 ∂Dx/∂x = −Σ Q A ω Dx² sinθ         ∂Dz/∂z = −Σ Q A ω Dz² sinθ
@@ -533,12 +533,12 @@ float jacobian = (1.0 + ddx_.x) * (1.0 + ddz_.y) - ddz_.x * ddx_.y;
 
 `texel_world` は変位マップの 1 画素のワールド上の大きさ（`patch_size / N`）です。
 
-!!! tip "ヤコビアンを、FFT で直接求める"
-    差分は <strong>ノイズを増やしやすい</strong>です。<strong>周波数空間で微分を掛けて逆 FFT する</strong>と正確に、偏微分が得られます（`∂/∂x ↔ i kx`）。逆 FFT の画像の枚数が増えますが、きれいな泡になります。
+!!! tip "ヤコビアンを FFT で直接求める"
+    差分は <strong>ノイズを増やしやすい</strong>です。<strong>周波数空間で微分を掛けて逆 FFT する</strong>と正確に偏微分が得られます（`∂/∂x ↔ i kx`）。逆 FFT の画像の枚数が増えますが、きれいな泡になります。
 
 ## 泡のためる・消す
 
-ヤコビアンが小さい瞬間だけ泡を出すと、<strong>一瞬で消えてちらつきます</strong>。泡をためてゆっくり消すと波頭が、通り過ぎた後にも泡が尾を引いて残ります（[Persistent Foam](foam-history.md)）。
+ヤコビアンが小さい瞬間だけ泡を出すと、<strong>一瞬で消えてちらつきます</strong>。泡をためてゆっくり消すと波頭が通り過ぎた後にも泡が尾を引いて残ります（[Persistent Foam](foam-history.md)）。
 
 ```hlsl
 // 泡の蓄積: 新しい泡と、前の泡（減衰させたもの）の、大きい方を取る。
@@ -548,11 +548,11 @@ float foam = max(new_foam, prev_foam * exp(-decay_rate * dt));
 
 ## 泡の位置の補正
 
-ヤコビアンは <strong>動く前の位置 `P₀`</strong> の関数です。泡を 画面のどこに出すかは、動いた後の位置 `P` です。頂点シェーダーでヤコビアンを求めて、補間してピクセルへ渡すなら自動で、合います。テクスチャに焼く場合は `P₀` の座標に、書かれるので波頭の位置と泡が、わずかにずれて見えることがあります。変位を足して `P` の位置で読むように、補正します（水平変位は頂点シェーダーがすでに、反映しているので頂点の `P₀` を、UV として読めばよい）。
+ヤコビアンは <strong>動く前の位置 `P₀`</strong> の関数です。泡を 画面のどこに出すかは、動いた後の位置 `P` です。頂点シェーダーでヤコビアンを求めて、補間してピクセルへ渡すなら自動で、合います。テクスチャに焼く場合は `P₀` の座標に書かれるので波頭の位置と泡がわずかにずれて見えることがあります。変位を足して `P` の位置で読むように、補正します（水平変位は頂点シェーダーがすでに、反映しているので頂点の `P₀` を UV として読めばよい）。
 
 ## よくあるミス
 
-??? failure "波頭に、泡がまったく出ない"
+??? failure "波頭に泡がまったく出ない"
     <strong>ヤコビアンのしきい値</strong>を調整する。
 
 ## これだけ覚える

@@ -11,7 +11,7 @@ tags:
 !!! tip "ポイント"
     - 深度は 0 か 1 の判定。半透明の「薄い影」は表せない。
     - ステップリング ＝ 網点のパターンで一部だけ影を落とす。フィルタで薄い影に見える。
-    - 色付きの影：半透明の色を、別の画像に描き影に掛ける。
+    - 色付きの影：半透明の色を別の画像に描き影に掛ける。
     - 簡易には半透明は影を落とさないことも多い。
 
 !!! info "このページを読む前に"
@@ -25,9 +25,9 @@ tags:
 | 方法 | 内容 |
 | --- | --- |
 | 影を落とさない | 一番簡単。半透明の物は影を落とさない設定 |
-| スクリーン ドア（ステッポリング） | 透明度に応じた、確率的（ディザ パターン）に、一部の画素を `clip`。少し遮る。PCF・TAAで平均されて薄い影に見える |
+| スクリーン ドア（ステッポリング） | 透明度に応じた、確率的（ディザ パターン）に一部の画素を `clip`。少し遮る。PCF・TAAで平均されて薄い影に見える |
 | 不透明として扱う | ガラスでも影を濃く落とす（嘘だが手軽） |
-| 色付きシャドウ マップ | 別のシャドウ マップ（RGB ＋ 深度）に、半透明の物の色と透過率を乗算ブレンドで保存。ステンドグラスのような色付きの影。不透明の物の影とは別に引く |
+| 色付きシャドウ マップ | 別のシャドウ マップ（RGB ＋ 深度）に半透明の物の色と透過率を乗算ブレンドで保存。ステンドグラスのような色付きの影。不透明の物の影とは別に引く |
 | 多層（Deep Shadow Maps） | 深度ごとの透過率を保存（煙・髪）。メモリが重く専用 |
 | レイトレース影（Any-Hit） | Any-Hit シェーダーで、透過率を累積（[Ray-Traced Shadows](../ray-traced.md)） |
 
@@ -38,7 +38,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">半透明の影: 透明度に応じて、シャドウ マップに「点描」で書き込み、PCF でなめらかにする</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 24 マスの影の表に、透明度の違う 3 枚の板の影を書く。点描のパターンのままだと粗いが、PCF で平均すると、薄い影になる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 24 マスの影の表に透明度の違う 3 枚の板の影を書く。点描のパターンのままだと粗いが、PCF で平均すると、薄い影になる</text>
 <text x="60.0" y="100" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">① 透明度の違う 3 枚(α = 0.25、0.5、0.8)</text>
 <rect x="60.0" y="108" width="238.0" height="22" fill="#94a3b8" fill-opacity="0.25"/>
 <text x="180.0" y="124" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#1f2937">α = 0.25</text>
@@ -202,7 +202,7 @@ tags:
 <text x="76" y="484" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">点描は、1 マスに 0 か 1 しか書けない。周りの平均で、薄い影を作る(特別なテクスチャは不要)</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">シャドウ マップは「物がある / ない」の 2 値。薄い影は書けない<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">透明度を、点描(しきい値との比較)で、書く / 書かないに変える<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;0.2779;0.2780;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">透明度を点描(しきい値との比較)で、書く / 書かないに変える<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;0.2779;0.2780;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">PCF で平均すると、点描が混ざって、薄い影になる<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.2779;0.2780;0.4008;0.4010;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">透明度に近い濃さになる<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.4008;0.4010;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -220,13 +220,13 @@ clip(opacity - threshold);
 
 ## 問題：半透明の物は光を一部、通す
 
-ガラス窓、色付きのステンド グラス、煙、薄い布は <strong>光を一部だけ通します</strong>。通常の、シャドウ マップは 光が通るか、完全に遮られるかの二択です。そのまま半透明の物を描くと完全な影になるか影が、まったくできないかのどちらかに、なってしまいます。
+ガラス窓、色付きのステンド グラス、煙、薄い布は <strong>光を一部だけ通します</strong>。通常の、シャドウ マップは 光が通るか、完全に遮られるかの二択です。そのまま半透明の物を描くと完全な影になるか影がまったくできないかのどちらかに、なってしまいます。
 
 | 物 | 現実の影 | 通常のシャドウ マップ（不透明として、描く） | 描かない場合 |
 | --- | --- | --- | --- |
 | 無色のガラス | ほぼ透明（わずかに、暗い） | 真っ黒（間違い） | 影なし（近い） |
 | 色付きガラス | 色付きの影 | 真っ黒 | 影なし |
-| 煙・霧 | 薄い影（密度に、比例） | 真っ黒 | 影なし |
+| 煙・霧 | 薄い影（密度に比例） | 真っ黒 | 影なし |
 
 ## 方法 1：影を落とさない（最も簡単）
 
@@ -234,10 +234,10 @@ clip(opacity - threshold);
 
 ## 方法 2：アルファに応じた、確率的な影
 
-<strong>アルファが 0.3 の物</strong>を、30% の画素だけ不透明として、シャドウ マップに描きます。PCFで読むと平均されて 30% の、濃さの影になります（[Hashed Alpha](../../translucency/alpha-test/hashed-alpha.md)）。
+<strong>アルファが 0.3 の物</strong>を 30% の画素だけ不透明として、シャドウ マップに描きます。PCFで読むと平均されて 30% の、濃さの影になります（[Hashed Alpha](../../translucency/alpha-test/hashed-alpha.md)）。
 
 ```hlsl
-// 半透明の影: アルファを、ランダムなしきい値と、比べて、確率的に、深度を書く。
+// 半透明の影: アルファをランダムなしきい値と、比べて、確率的に深度を書く。
 void main(float4 pos : SV_Position, float2 uv : TEXCOORD0) {
   float alpha = g_albedo.Sample(g_linear_wrap, uv).a * g_opacity;
   clip(alpha - BlueNoiseThreshold(pos.xy));        // アルファが小さいほど、深度が書かれにくい
@@ -251,7 +251,7 @@ void main(float4 pos : SV_Position, float2 uv : TEXCOORD0) {
 
 ## 方法 3：色付きの影
 
-<strong>色付きガラス</strong>の影は ガラスの色に、染まります。光がガラスを通る間に吸収されて、ガラスの色だけが残るためです。色付きの影を作るにはシャドウ マップを 2 枚、使います。
+<strong>色付きガラス</strong>の影は ガラスの色に染まります。光がガラスを通る間に吸収されて、ガラスの色だけが残るためです。色付きの影を作るにはシャドウ マップを 2 枚、使います。
 
 | シャドウ マップ | 内容 |
 | --- | --- |
@@ -259,7 +259,7 @@ void main(float4 pos : SV_Position, float2 uv : TEXCOORD0) {
 | ② 半透明な物の色（透過色） | 半透明な物を描き、各画素の光の透過色を乗算ブレンドで、書き込む（カラー テクスチャ） |
 
 ```hlsl
-// 半透明の、シャドウ パス（②）: 光の透過色を、乗算で積む（RGB のレンダー ターゲット）。
+// 半透明の、シャドウ パス（②）: 光の透過色を乗算で積む（RGB のレンダー ターゲット）。
 // ブレンド: SrcBlend = ZERO、DestBlend = SRC_COLOR（現在の値 × 出力色）。初期値は (1,1,1)。
 float4 main(PSInput input) : SV_Target {
   float4 tint = g_albedo.Sample(g_linear_wrap, input.uv);
@@ -272,23 +272,23 @@ float4 main(PSInput input) : SV_Target {
 ```hlsl
 // メイン パス: 不透明な影（深度）で光を遮り、半透明な影（色）で光を染める。
 float opaque_lit = SampleOpaqueShadow(world_pos);             // 0 or 1（PCF 込み）
-float3 tint = g_translucent_shadow.Sample(g_linear_clamp, uv).rgb;   // 光が、ガラスを通ったあとの、色
+float3 tint = g_translucent_shadow.Sample(g_linear_clamp, uv).rgb;   // 光がガラスを通ったあとの、色
 // ただし、ガラスより、手前にある画素だけ、色を受ける（ガラスの、奥にある物だけが、染まる）。
 float glass_depth = g_translucent_depth.Sample(g_linear_clamp, uv);
 float3 light_color = (depth > glass_depth) ? g_light_color * tint : g_light_color;
 float3 lit = light_color * opaque_lit;
 ```
 
-「画素がガラスの奥にあるか」を、判定するために ガラスの深度（半透明な物の最も、手前の深度）も別に保存します。
+「画素がガラスの奥にあるか」を判定するために ガラスの深度（半透明な物の最も、手前の深度）も別に保存します。
 
-## 方法 4：深度の分布を、保存する（Deep / Opacity シャドウ マップ）
+## 方法 4：深度の分布を保存する（Deep / Opacity シャドウ マップ）
 
-<strong>半透明の物が複数、重なる</strong>（煙、髪、葉）と 光は重なった層を順に、通るので通過した光の割合は、奥に進むほど減っていきます。この深度ごとの光の通過率をシャドウ マップに、保存する方法です。
+<strong>半透明の物が複数、重なる</strong>（煙、髪、葉）と 光は重なった層を順に通るので通過した光の割合は、奥に進むほど減っていきます。この深度ごとの光の通過率をシャドウ マップに保存する方法です。
 
 | 手法 | 内容 |
 | --- | --- |
 | Deep Shadow Maps（Lokovic と Veach、2000） | 画素ごとに深度に対する、透過率の関数（区分的な線形）を保存。映画のレンダリングで使われた |
-| Opacity Shadow Maps（Kim と Neumann、2001） | 深度を複数の層（スライス）に分け、各層での不透明度をテクスチャに、保存 |
+| Opacity Shadow Maps（Kim と Neumann、2001） | 深度を複数の層（スライス）に分け、各層での不透明度をテクスチャに保存 |
 
 ```text
 Opacity Shadow Maps:
@@ -305,7 +305,7 @@ Opacity Shadow Maps:
 
 | 物 | 方法 |
 | --- | --- |
-| 無色の窓ガラス | 影を、落とさない（方法 1） |
+| 無色の窓ガラス | 影を落とさない（方法 1） |
 | 薄い布、半透明の植物 | 確率的な影（方法 2） |
 | 色付きガラス、ステンド グラス | 色付きの影（方法 3）。重要な演出なら |
 | 煙、霧、パーティクル | 確率的な影、またはボリューム ライティング（[Volumetric Fog](../../atmosphere/volumetric-fog/index.md)） |

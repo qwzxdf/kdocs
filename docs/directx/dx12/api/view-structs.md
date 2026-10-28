@@ -14,7 +14,7 @@ api:
 `#include <d3d12.h>`
 </div>
 
-GPU はリソースの名前もポインタも知りません。シェーダーがテクスチャを読んだり、出力がレンダー ターゲットに書いたりするには、「このリソースを、この形式で、この範囲で見る」という小さなデータ（ディスクリプタ）をヒープに書いておく必要があります。そのディスクリプタを書き込むときに渡す構造体と、書き込み先を指すハンドルが、このページの主役です。
+GPU はリソースの名前もポインタも知りません。シェーダーがテクスチャを読んだり、出力がレンダー ターゲットに書いたりするには、「このリソースをこの形式で、この範囲で見る」という小さなデータ（ディスクリプタ）をヒープに書いておく必要があります。そのディスクリプタを書き込むときに渡す構造体と、書き込み先を指すハンドルがこのページの主役です。
 
 !!! tip "ポイント"
     - ディスクリプタの置き場は `D3D12_DESCRIPTOR_HEAP_DESC` で作り、書き込み先は `D3D12_CPU_DESCRIPTOR_HANDLE` で指す。
@@ -56,7 +56,7 @@ typedef struct D3D12_DESCRIPTOR_HEAP_DESC {
 } D3D12_DESCRIPTOR_HEAP_DESC;
 ```
 
-ディスクリプタを並べて置くヒープを、どんな種類でいくつ作るかを決めます。
+ディスクリプタを並べて置くヒープをどんな種類でいくつ作るかを決めます。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -111,7 +111,7 @@ typedef struct D3D12_GPU_DESCRIPTOR_HANDLE {
 } D3D12_GPU_DESCRIPTOR_HANDLE;
 ```
 
-シェーダー可視のヒープの中の、GPU が読む位置を表します。ルート シグネチャのディスクリプタ テーブルへ、「この位置から始まる」と教えるために使います。
+シェーダー可視のヒープの中の、GPU が読む位置を表します。ルート シグネチャのディスクリプタ テーブルへ「この位置から始まる」と教えるために使います。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -199,7 +199,7 @@ typedef struct D3D12_DEPTH_STENCIL_VIEW_DESC {
 
 `Format` には、深度の書ける形式を指定します。リソースが `R32_TYPELESS` なら `D32_FLOAT` です。
 
-`Flags` の `READ_ONLY_DEPTH` は、深度を「読み取り専用」で使う DSV にします。同じ深度バッファをシェーダーで読みながら、深度テストにも使いたいとき（ソフト パーティクルなど）に、この DSV と SRV を同時に使えます。通常は `NONE` です。
+`Flags` の `READ_ONLY_DEPTH` は、深度を「読み取り専用」で使う DSV にします。同じ深度バッファをシェーダーで読みながら、深度テストにも使いたいとき（ソフト パーティクルなど）にこの DSV と SRV を同時に使えます。通常は `NONE` です。
 
 ### D3D12_SHADER_RESOURCE_VIEW_DESC {#d3d12_shader_resource_view_desc}
 
@@ -236,7 +236,7 @@ typedef struct D3D12_SHADER_RESOURCE_VIEW_DESC {
 | `Texture2D.PlaneSlice` | `UINT` | 通常は 0 |
 | `Texture2D.ResourceMinLODClamp` | `FLOAT` | これ未満の詳細度へは下げない。通常は 0 |
 
-`Shader4ComponentMapping` は、必ず設定します。0 のままだと、すべての成分が成分 0（R）から読まれて、おかしな見た目になります。通常は `D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING`（R、G、B、A の順そのまま）を入れます。成分を入れ替えたい（例えば 1 チャンネルのテクスチャを、RGB すべてに広げる）ときだけ、`D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING` で組み立てます。
+`Shader4ComponentMapping` は、必ず設定します。0 のままだと、すべての成分が成分 0（R）から読まれて、おかしな見た目になります。通常は `D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING`（R、G、B、A の順そのまま）を入れます。成分を入れ替えたい（例えば 1 チャンネルのテクスチャを RGB すべてに広げる）ときだけ、`D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING` で組み立てます。
 
 `MipLevels` に `UINT_MAX`（`-1`）を入れると、`MostDetailedMip` から最後までのすべてを見ます。0 や、実際の数を超える値は、作成の失敗になります。
 
@@ -301,14 +301,14 @@ typedef struct D3D12_CONSTANT_BUFFER_VIEW_DESC {
 } D3D12_CONSTANT_BUFFER_VIEW_DESC;
 ```
 
-定数バッファのどこからどこまでを、シェーダーが見るかを決めます。
+定数バッファのどこからどこまでをシェーダーが見るかを決めます。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
 | `BufferLocation` | `D3D12_GPU_VIRTUAL_ADDRESS` | 先頭の GPU 仮想アドレス。256 の倍数 |
 | `SizeInBytes` | `UINT` | 範囲の大きさ。256 の倍数 |
 
-`BufferLocation` は `ID3D12Resource::GetGPUVirtualAddress()` で取った値に、バッファの中のオフセットを足したものです。256 バイトの倍数でない位置を指定すると、作成に失敗します。`SizeInBytes` も 256 の倍数に切り上げます。1 つの大きな定数バッファに複数のオブジェクト分を並べて、オブジェクトごとに 256 バイトずつずらした CBV を作るのは、定番のやり方です。
+`BufferLocation` は `ID3D12Resource::GetGPUVirtualAddress()` で取った値にバッファの中のオフセットを足したものです。256 バイトの倍数でない位置を指定すると、作成に失敗します。`SizeInBytes` も 256 の倍数に切り上げます。1 つの大きな定数バッファに複数のオブジェクト分を並べて、オブジェクトごとに 256 バイトずつずらした CBV を作るのは、定番のやり方です。
 
 ## 頂点バッファとインデックス バッファ
 
@@ -350,7 +350,7 @@ typedef struct D3D12_INDEX_BUFFER_VIEW {
 } D3D12_INDEX_BUFFER_VIEW;
 ```
 
-インデックス バッファを、`IASetIndexBuffer` に伝えます。
+インデックス バッファを `IASetIndexBuffer` に伝えます。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -435,7 +435,7 @@ typedef struct D3D12_STATIC_SAMPLER_DESC {
 } D3D12_STATIC_SAMPLER_DESC;
 ```
 
-サンプラーを、ディスクリプタ ヒープではなくルート シグネチャの中に埋め込む形です。サンプラーの設定が固定なら、ヒープを用意しなくてよいので、最もよく使います。
+サンプラーをディスクリプタ ヒープではなくルート シグネチャの中に埋め込む形です。サンプラーの設定が固定なら、ヒープを用意しなくてよいので、最もよく使います。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |

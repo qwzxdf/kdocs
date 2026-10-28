@@ -7,7 +7,7 @@ tags:
 
 # ビルドと CMake の構成
 
-**ビルド**はソースコードを実行できるファイルにする作業です。ゲームが大きくなるとビルドの設計（どのファイルをどのまとまりでどの順番で作るか）が、開発の快適さを左右します。「ビルドに 10 分かかる」「ヘッダを 1 行直しただけで、全部がビルドし直される」「他の人の PC でビルドが通らない」といった問題は、コードの設計（[ヘッダとソースの分け方](../foundations/header-source.md)、[レイヤー](../foundations/layers.md)）と、ビルドの構成の両方で防げます。このページはヘッダとソースの分離の延長として、ビルドを速く、再現可能に整理して保つ考え方を説明します（Visual Studio の操作は [Visual Studio](../../vs/index.md)、CMake の基本は [CMake で使う](../../vs/cmake.md)）。
+**ビルド**はソースコードを実行できるファイルにする作業です。ゲームが大きくなるとビルドの設計（どのファイルをどのまとまりでどの順番で作るか）が開発の快適さを左右します。「ビルドに 10 分かかる」「ヘッダを 1 行直しただけで、全部がビルドし直される」「他の人の PC でビルドが通らない」といった問題は、コードの設計（[ヘッダとソースの分け方](../foundations/header-source.md)、[レイヤー](../foundations/layers.md)）と、ビルドの構成の両方で防げます。このページはヘッダとソースの分離の延長として、ビルドを速く、再現可能に整理して保つ考え方を説明します（Visual Studio の操作は [Visual Studio](../../vs/index.md)、CMake の基本は [CMake で使う](../../vs/cmake.md)）。
 
 !!! tip "ポイント"
     - **ビルドが遅い原因は、ほとんど `#include`**。ヘッダに入れる `#include` を減らす（前方宣言、PImpl）。
@@ -33,7 +33,7 @@ tags:
 
 ### 計測する
 
-「ビルドが遅い」と感じたら、どこで時間を使っているかを、測ります。
+「ビルドが遅い」と感じたら、どこで時間を使っているかを測ります。
 
 | 道具 | 説明 |
 | --- | --- |
@@ -55,7 +55,7 @@ tags:
 
 ### プリコンパイル済みヘッダ（PCH）
 
-変更されない巨大なヘッダ（標準ライブラリ、`<windows.h>`、外部ライブラリ）を、先に 1 回だけコンパイルして、使い回す仕組みです。
+変更されない巨大なヘッダ（標準ライブラリ、`<windows.h>`、外部ライブラリ）を先に 1 回だけコンパイルして、使い回す仕組みです。
 
 | 手順（Visual Studio） | 内容 |
 | --- | --- |
@@ -80,7 +80,7 @@ CMake なら `target_precompile_headers(MyGame PRIVATE pch.h)` の 1 行です�
 | 変更した部分だけ再ビルド | `game.lib` を直しても、`engine.lib` と `base.lib` は再ビルドされない |
 | 依存の向きを強制できる | `base` が `game` を include すると、ビルドが通らない（[レイヤー](../foundations/layers.md)） |
 | ツールとゲームで共有できる | エディタも `engine.lib` にリンクして、同じコードを使う |
-| テストしやすい | `base.lib` だけを、テスト用の exe にリンクして、単体テスト（[テスト容易性](../foundations/testability.md)） |
+| テストしやすい | `base.lib` だけをテスト用の exe にリンクして、単体テスト（[テスト容易性](../foundations/testability.md)） |
 
 ### CMake での書き方
 
@@ -122,7 +122,7 @@ target_link_libraries(MyGame PRIVATE game)
 | `target_link_libraries(A PUBLIC B)` | A は B に依存し、A を使う側も B を使う |
 | `PUBLIC` / `PRIVATE` / `INTERFACE` | 依存を使う側に伝えるか、内部だけにするか |
 
-`engine` が `base` に `PUBLIC` でリンクしているので、`game` は `engine` にリンクするだけで、`base` も使えます。依存の向き（下から上へ）が、`CMakeLists.txt` にそのまま書かれます。
+`engine` が `base` に `PUBLIC` でリンクしているので、`game` は `engine` にリンクするだけで、`base` も使えます。依存の向き（下から上へ）が `CMakeLists.txt` にそのまま書かれます。
 
 ## 3. ファイルとフォルダーの構成
 
@@ -185,7 +185,7 @@ target_compile_definitions(game PRIVATE
 | --- | --- |
 | 「自分の PC でだけ動く」を防ぐ | きれいな環境で毎回ビルドする |
 | 壊れたら、すぐ分かる | push 直後に通知される |
-| テストが自動で回る | [テスト](../foundations/testability.md)を、実行し忘れない |
+| テストが自動で回る | [テスト](../foundations/testability.md)を実行し忘れない |
 
 ```yaml
 # .github/workflows/build.yml（Windows でビルドする例）
@@ -217,7 +217,7 @@ jobs:
 
 ## よくあるミス
 
-??? failure "全部のヘッダを、`common.h` にまとめて、全員が include する"
+??? failure "全部のヘッダを `common.h` にまとめて、全員が include する"
     `common.h` を 1 行変えると、**全部が再ビルド**されます。必要なものだけ、必要な場所で include します。
 
 ??? failure "ビルド結果（`Debug/`、`x64/`、`.vs/`）を Git に入れる"

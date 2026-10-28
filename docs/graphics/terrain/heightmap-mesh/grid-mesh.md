@@ -6,12 +6,12 @@ tags:
 
 # Grid Mesh
 
-<strong>格子状に頂点を並べ各頂点の高さを、高さマップから読み出して設定</strong>します。頂点の数が地形の細かさを決めます。このページでは格子メッシュの作り方と、頂点の高さを説明します。
+<strong>格子状に頂点を並べ各頂点の高さを高さマップから読み出して設定</strong>します。頂点の数が地形の細かさを決めます。このページでは格子メッシュの作り方と、頂点の高さを説明します。
 
 !!! tip "ポイント"
     - 格子 ＝ 規則的に並べた頂点とインデックス。
     - 頂点シェーダーで、高さマップを読んで持ち上げる（頂点テクスチャ フェッチ）。
-    - 同じ格子メッシュを、何度も再利用できる。
+    - 同じ格子メッシュを何度も再利用できる。
     - 頂点が多いほど細かいが重い。
 
 !!! info "このページを読む前に"
@@ -25,8 +25,8 @@ tags:
 <defs><marker id="arr-heightmap-lift" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">高さマップを、格子の頂点の高さに使う: 平らな格子を、1 頂点ずつ持ち上げ、法線は、隣の高さの差から求める</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 次元の断面。頂点 17 個の平らな線を、高さマップで持ち上げる。三角形の数と、各頂点の法線の傾きを計算する</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">高さマップを格子の頂点の高さに使う: 平らな格子を 1 頂点ずつ持ち上げ、法線は、隣の高さの差から求める</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 次元の断面。頂点 17 個の平らな線を高さマップで持ち上げる。三角形の数と、各頂点の法線の傾きを計算する</text>
 <rect x="30" y="96" width="900" height="270" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 平らな格子 → 高さで持ち上げた格子(青 = 持ち上げた線)</text>
 <line x1="70.0" y1="330.0" x2="870.0" y2="330.0" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="5 4"/>
@@ -118,12 +118,12 @@ tags:
 <text x="150" y="408" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2563eb" opacity="0">15<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3776;0.3778;0.3998;0.4000;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="150" y="408" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2563eb" opacity="0">16<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3998;0.4000;0.4220;0.4222;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="150" y="408" text-anchor="start" style="font-size:24px;font-weight:700;fill:#2563eb" opacity="0">17<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4220;0.4222;1.0000" values="0;0;1;1"/></text>
-<text x="40" y="440" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d" opacity="0">法線(赤い線)は、左右の高さの差 (b − a) から求める: 法線 = (−(b − a)÷間隔, 1) を、正規化<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4709;0.4711;1.0000" values="0;0;1;1"/></text>
+<text x="40" y="440" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d" opacity="0">法線(赤い線)は、左右の高さの差 (b − a) から求める: 法線 = (−(b − a)÷間隔, 1) を正規化<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4709;0.4711;1.0000" values="0;0;1;1"/></text>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6109;0.6111;1.0000" values="0;0;1;1"/><rect x="40" y="456" width="880" height="56" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="56" y="480" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">頂点を動かすだけ。三角形の数(2D では 32)は、変わらない。いちばん傾いた所の法線: 傾き 0.69</text>
 <text x="56" y="503" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">頂点シェーダーで、高さマップを読んで、持ち上げる(CPU でメッシュを作り直さない)</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">平らな格子に、高さマップを、1 頂点ずつ当てはめる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">平らな格子に高さマップを 1 頂点ずつ当てはめる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">頂点を持ち上げる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.4709;0.4711;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">隣の高さの差から、法線(陰の向き)を求める<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4709;0.4711;0.6109;0.6111;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">メッシュの形は変えず、頂点の高さだけで、地形になる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6109;0.6111;1.0000;1.0000" values="0;0;1;1;0"/></text>
@@ -242,7 +242,7 @@ std::vector<GridVertex> BuildGridVertices(uint32_t n) {
 }
 ```
 
-さらに小さくするなら座標を `uint16` 2 つ（0〜n−1 の整数）にして、シェーダーで `/ (n - 1)` します。129×129 頂点なら頂点バッファが、約 66 KB から 33 KB に、減ります。1 つの格子を数百回、使い回すので 頂点バッファ自体の大きさは、ほとんど問題になりません。大切なのは インデックスと頂点シェーダーの、軽さです。
+さらに小さくするなら座標を `uint16` 2 つ（0〜n−1 の整数）にして、シェーダーで `/ (n - 1)` します。129×129 頂点なら頂点バッファが約 66 KB から 33 KB に、減ります。1 つの格子を数百回、使い回すので 頂点バッファ自体の大きさは、ほとんど問題になりません。大切なのは インデックスと頂点シェーダーの、軽さです。
 
 ### ③ 三角形の貼り方
 
@@ -250,7 +250,7 @@ std::vector<GridVertex> BuildGridVertices(uint32_t n) {
 
 | 方式 | 見た目 | 使いどころ |
 | --- | --- | --- |
-| 全マス、同じ向き | 斜面の同じ方向に、筋が出ることがある | 簡単 |
+| 全マス、同じ向き | 斜面の同じ方向に筋が出ることがある | 簡単 |
 | 市松（交互） | 筋が目立ちにくい | モーフィング（CDLOD）を使うなら、必須（[CDLOD](../lod/cdlod.md)） |
 | 高さに応じて向きを選ぶ | 谷や尾根の形に沿って貼る。見た目は最も自然 | 頂点ごとの判断が要る。実行時に決めにくい |
 
@@ -304,15 +304,15 @@ device->CreateRasterizerState(&rs, &rasterizer_state);
 
 ## 頂点キャッシュに合わせる
 
-GPU は <strong>直前に処理した頂点の結果を、数十個だけキャッシュ</strong>しています。同じ頂点を続けて使うほど処理が減ります。
+GPU は <strong>直前に処理した頂点の結果を数十個だけキャッシュ</strong>しています。同じ頂点を続けて使うほど処理が減ります。
 
 格子を 行ごとに順番に並べると、1 行ぶんの頂点数がキャッシュの大きさを超えて、上の行の頂点がキャッシュから出てしまいます。
 
 | 並べ方 | 頂点の再利用 |
 | --- | --- |
-| 行ごとの順（上のコード） | 頂点が、ほぼ 2 回、使われる。キャッシュが小さいと再計算が増える |
-| 小さなブロック（例：8×8）ごとの順 | ブロック内で頂点を、使い回せる。キャッシュに収まりやすい |
-| 最適化ツール（Forsyth のアルゴリズムなど）で並べ替え | インデックスを、キャッシュに最適な順に並べ替える。地形の格子のような規則的なメッシュでは効果は、限定的 |
+| 行ごとの順（上のコード） | 頂点がほぼ 2 回、使われる。キャッシュが小さいと再計算が増える |
+| 小さなブロック（例：8×8）ごとの順 | ブロック内で頂点を使い回せる。キャッシュに収まりやすい |
+| 最適化ツール（Forsyth のアルゴリズムなど）で並べ替え | インデックスをキャッシュに最適な順に並べ替える。地形の格子のような規則的なメッシュでは効果は、限定的 |
 
 格子メッシュは規則的なので 元の並びでも、十分に効率が良いことが多いです。数百万頂点を描くのでなければ、頂点キャッシュの最適化は後回しで、かまいません。
 
@@ -337,7 +337,7 @@ device->CreateBuffer(&ib_desc, &ib_data, &grid_ib);
 ```
 
 ```hlsl
-// 頂点シェーダー: 格子の位置を、ワールドに直し、高さマップから、高さを読む。
+// 頂点シェーダー: 格子の位置をワールドに直し、高さマップから、高さを読む。
 Texture2D<float> g_height : register(t0);
 SamplerState g_linear_clamp : register(s0);
 
@@ -358,16 +358,16 @@ float4 main(float2 grid : POSITION) : SV_Position {
 }
 ```
 
-高さマップの端の画素の中心が、チャンクの端の頂点に合うように、`height_uv_origin` と `height_uv_size` を <strong>半画素分、内側に</strong>寄せます。そうしないと隣のチャンクと 高さが、半画素分ずれて継ぎ目が出ます。
+高さマップの端の画素の中心がチャンクの端の頂点に合うように、`height_uv_origin` と `height_uv_size` を <strong>半画素分、内側に</strong>寄せます。そうしないと隣のチャンクと 高さが、半画素分ずれて継ぎ目が出ます。
 
 ## 格子の解像度と高さマップの解像度
 
-格子の頂点の間隔と高さマップの画素の間隔を、<strong>同じ</strong>にするのが標準です（頂点 1 つに、画素 1 つ）。
+格子の頂点の間隔と高さマップの画素の間隔を <strong>同じ</strong>にするのが標準です（頂点 1 つに、画素 1 つ）。
 
 | 関係 | 内容 |
 | --- | --- |
 | 頂点の方が粗い | 高さマップの、細かい凹凸がメッシュに反映されない（LOD の遠景ではこれが、普通） |
-| 頂点の方が細かい | 高さマップを、補間して使う。余計な頂点が増えるだけ |
+| 頂点の方が細かい | 高さマップを補間して使う。余計な頂点が増えるだけ |
 | 同じ | 1 頂点 = 1 画素。無駄がない |
 
 遠景で頂点の方が粗くなる場合は、ミップを選んで読むことで、ちらつきを防ぎます（[Heightmap LOD (Mips)](../lod/height-mip.md)）。
@@ -380,7 +380,7 @@ float4 main(float2 grid : POSITION) : SV_Position {
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 格子の頂点を、高さマップで持ち上げる
+    - [x] 格子の頂点を高さマップで持ち上げる
 
 ## 参考
 

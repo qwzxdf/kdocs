@@ -25,7 +25,7 @@ tags:
 <defs><marker id="arr-evsm-warp" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">EVSM:深度を、2 つの指数で変形して、光漏れを抑える</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">EVSM:深度を 2 つの指数で変形して、光漏れを抑える</text>
 <rect x="60" y="80" width="400" height="230" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
 <line x1="160.0" y1="80" x2="160.0" y2="310" stroke="#e2e8f0" stroke-width="1"/>
 <line x1="60" y1="137.5" x2="460" y2="137.5" stroke="#e2e8f0" stroke-width="1"/>
@@ -52,7 +52,7 @@ tags:
 <!-- fig:evsm-warp:end -->
 
 ## EVSM（指数 VSM）
-<strong>EVSM</strong>（Exponential Variance Shadow Maps）は、深度を exp でワープしてから、VSMを行います。正のワープ `exp(c z)` と負のワープ `−exp(−c z)` を、それぞれ VSMにして小さい方（保守的な方）を採用します。
+<strong>EVSM</strong>（Exponential Variance Shadow Maps）は、深度を exp でワープしてから、VSMを行います。正のワープ `exp(c z)` と負のワープ `−exp(−c z)` をそれぞれ VSMにして小さい方（保守的な方）を採用します。
 
 | 項目 | 内容 |
 | --- | --- |
@@ -70,19 +70,19 @@ ESM:   exp(c × z) を、保存
 EVSM:  warp(z) = exp(c × z)   →   warp(z) と warp(z)² を、保存し、チェビシェフで判定
 ```
 
-指数変換で深度の差を 増幅するため、光漏れ（VSM の最大の弱点）が、大きく減ります。
+指数変換で深度の差を 増幅するため、光漏れ（VSM の最大の弱点）が大きく減ります。
 
 ## 2 つの指数（正と負）
 
-EVSM は <strong>2 つの方向の指数</strong>（`+c` と `−c`）を、使います。
+EVSM は <strong>2 つの方向の指数</strong>（`+c` と `−c`）を使います。
 
 | 指数 | 変換 | 役割 |
 | --- | --- | --- |
-| 正の指数 | `exp(+c × z)` | 遮蔽物の奥（遠く）に、影を落とす。通常の、判定を担当 |
+| 正の指数 | `exp(+c × z)` | 遮蔽物の奥（遠く）に影を落とす。通常の、判定を担当 |
 | 負の指数 | `−exp(−c × z)` | 反対向きの、光漏れを抑える。2 つの判定の小さい方を採用する |
 
 ```hlsl
-// シャドウ パス: 4 チャンネル（正の指数の、1 次と 2 次、負の指数の、1 次と 2 次）を、書き出す。
+// シャドウ パス: 4 チャンネル（正の指数の、1 次と 2 次、負の指数の、1 次と 2 次）を書き出す。
 float2 WarpDepth(float z, float2 exponents) {
   // exponents.x = c+、exponents.y = c−
   float pos = exp(exponents.x * z);
@@ -123,7 +123,7 @@ float EvsmShadow(float4 moments, float depth) {
 | 16 ビット浮動小数点（`R16G16B16A16_FLOAT`） | `c ≈ 5`（`e⁵ ≈ 148`、16 ビットの上限は 65504） |
 | 32 ビット浮動小数点（`R32G32B32A32_FLOAT`） | `c ≈ 40`（`e⁴⁰ ≈ 2×10¹⁷`、2 乗しても収まる）|
 
-16 ビットでは `c` を小さくせざるを得ず、光漏れの削減効果が減ります。32 ビット（メモリが 2 倍）が、標準です。
+16 ビットでは `c` を小さくせざるを得ず、光漏れの削減効果が減ります。32 ビット（メモリが 2 倍）が標準です。
 
 ## 長所と短所
 
@@ -135,13 +135,13 @@ float EvsmShadow(float4 moments, float depth) {
 | 短所 | メモリ：4 チャンネル × 32 ビット = 16 バイト / 画素（通常の深度の、4 倍） |
 | 短所 | 指数の調整（`c` の値）。深度の範囲に依存 |
 | 短所 | 光漏れはゼロにならない（重なる、遮蔽物では残る） |
-| 短所 | シャドウ パスが、ピクセル シェーダー付き（指数の、計算） |
+| 短所 | シャドウ パスがピクセル シェーダー付き（指数の、計算） |
 
 ## 使いどころ
 
 | 場面 | 判断 |
 | --- | --- |
-| ぼかしを広くかけたい（柔らかい影） | 有効。ガウスぼかしをシャドウ マップに、1 回かけるだけ |
+| ぼかしを広くかけたい（柔らかい影） | 有効。ガウスぼかしをシャドウ マップに 1 回かけるだけ |
 | カスケードの遠い側（広い範囲を覆う粗い、シャドウ マップ） | 有効。ミップ、フィルタでエイリアシングを減らせる |
 | 接触部分の正確さが必要 | PCF や、レイトレーシングのほうが確実 |
 

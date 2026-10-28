@@ -64,7 +64,7 @@ float3 MotionBlurJitter(float2 uv, float2 velocity_uv, int sample_count, float n
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">モーション ブラーのサンプル: 少ない数で等間隔に取ると、帯になる。ずらして取ると、ノイズになる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 64 画素。幅 4 の明るい棒が、1 フレームで 16 画素、右へ動く。流れた軌跡を、4 サンプルや 16 サンプルで描く</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 64 画素。幅 4 の明るい棒が 1 フレームで 16 画素、右へ動く。流れた軌跡を 4 サンプルや 16 サンプルで描く</text>
 <text x="60.0" y="108" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">4 サンプル・等間隔</text>
 <rect x="60.0" y="112.0" width="12.8" height="28.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0667" values="#e5e7eb;#ffffff"/></rect>
 <rect x="72.5" y="112.0" width="12.8" height="28.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0682" values="#e5e7eb;#ffffff"/></rect>
@@ -352,7 +352,7 @@ float3 MotionBlurJitter(float2 uv, float2 velocity_uv, int sample_count, float n
 <text x="56" y="483" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">ずれ: 等間隔 4 = 0.008 / ずらす 4 = 0.021 / 等間隔 16 = 0.000</text>
 <text x="56" y="505" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">ノイズは、TAA や、ぼかしで消せる。帯は、消えない。だから、ジッターを使う</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">動いた軌跡を、画素ごとに、何点かサンプルして平均する<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">動いた軌跡を画素ごとに、何点かサンプルして平均する<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">サンプルが少ないと、「離れた棒」が見える(帯)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.7776;0.7778;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ずらして取れば、帯が消えて、ノイズに変わる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7776;0.7778;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -363,7 +363,7 @@ float3 MotionBlurJitter(float2 uv, float2 velocity_uv, int sample_count, float n
 
 <strong>単純な平均では、次の破綻が起きます</strong>。
 
-単純な平均では、2 つの破綻が起きます。速い物体の輪郭の外（背景）は、背景の画素の速度が 0 なので、ぼけず、物体の尾が輪郭でぷつっと切れます。静止した前景の物の縁では、背景の速い動きでぼかした色が、静止した前景にまでにじみます。
+単純な平均では、2 つの破綻が起きます。速い物体の輪郭の外（背景）は、背景の画素の速度が 0 なので、ぼけず、物体の尾が輪郭でぷつっと切れます。静止した前景の物の縁では、背景の速い動きでぼかした色が静止した前景にまでにじみます。
 
 ## 深度と速度による重み付け
 
@@ -385,7 +385,7 @@ float SampleWeight(float center_depth, float sample_depth,
 | 点 | 説明 |
 | --- | --- |
 | `depth_compare` | サンプルが自分より奥（1 に近い）か手前（0 に近い）か |
-| `sample_reach` | 手前のサンプルの速度が、自分の位置まで届くか（手前の動く物が自分にかぶさる） |
+| `sample_reach` | 手前のサンプルの速度が自分の位置まで届くか（手前の動く物が自分にかぶさる） |
 | `center_reach` | 自分の速度が奥のサンプルまで届くか（自分の動きが奥の色を混ぜる） |
 | `front + back` | 手前なら「相手の速度が届く」、奥なら「自分の速度が届く」 |
 
@@ -439,7 +439,7 @@ float3 MotionBlurWeighted(float2 uv, int sample_count, float noise) {
 ??? failure "サンプルが点の列に見える（縞）"
     <strong>画素ごとのジッター</strong>を入れる。
 
-??? failure "静止した前景に、背景の動きがにじむ"
+??? failure "静止した前景に背景の動きがにじむ"
     深度と速度の重み付けを使う。
 
 ??? failure "速い物体の輪郭で、ぼかしが切れる"

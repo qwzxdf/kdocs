@@ -15,7 +15,7 @@ tags:
 `#include <compare>`
 </div>
 
-三方比較 `a <=> b` の結果は、`less`、`equal`、`greater` のような値で、`<` や `==` の真偽値ではありません。`std::is_lt` は、<strong>三方比較の結果が「より小さい」かを、`bool` で返します</strong>。
+三方比較 `a <=> b` の結果は、`less`、`equal`、`greater` のような値で、`<` や `==` の真偽値ではありません。`std::is_lt` は、<strong>三方比較の結果が「より小さい」かを `bool` で返します</strong>。
 
 !!! tip "ポイント"
     - `std::is_lt(a <=> b)` は、`a` と `b` が「より小さい」のとき `true`
@@ -63,7 +63,7 @@ is_lt(2 <=> 1) = false
 
 ## ゲームでの使いどころ
 
-自作の型の `operator<=>` を使った比較の結果を、読みやすく判定します。
+自作の型の `operator<=>` を使った比較の結果を読みやすく判定します。
 
 ```cpp
 auto result = a <=> b;

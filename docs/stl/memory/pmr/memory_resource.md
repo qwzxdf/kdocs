@@ -118,7 +118,7 @@ bool is_equal(const memory_resource& other) const noexcept;
 
 - 計算量: 定数
 
-2 つのリソースが、互いのメモリを解放できる（同じ）ものなら `true`。
+2 つのリソースが互いのメモリを解放できる（同じ）ものなら `true`。
 
 ## ゲームでの使いどころ
 

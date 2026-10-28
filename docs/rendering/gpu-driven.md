@@ -7,15 +7,15 @@ tags:
 
 # GPU Driven Rendering
 
-[ドロー コール](draw-calls.md)と[カリング](culling.md)は、**CPU が**、「何を描くか」を、1 つずつ、判断して、1 つずつ、命令を出す仕事でした。物体が数万個になるとこの CPU の仕事が、限界になります。GPU Driven Renderingは、その判断と命令の作成を、GPU 自身にやらせる方式です。CPU は、「全物体のデータ」を、GPU に置いておくだけでカリングも描画命令の作成も、GPU が行います。このページは何が改善するのか、仕組み、DX11 でできること・できないことを説明します。
+[ドロー コール](draw-calls.md)と[カリング](culling.md)は、**CPU が**、「何を描くか」を 1 つずつ、判断して、1 つずつ、命令を出す仕事でした。物体が数万個になるとこの CPU の仕事が限界になります。GPU Driven Renderingは、その判断と命令の作成を GPU 自身にやらせる方式です。CPU は、「全物体のデータ」を GPU に置いておくだけでカリングも描画命令の作成も、GPU が行います。このページは何が改善するのか、仕組み、DX11 でできること・できないことを説明します。
 
 !!! tip "ポイント"
-    - 目的：<strong>CPU の仕事（カリング・ドロー コールの作成）を、GPU に移す</strong>。<strong>物体数が数万〜数十万でも、CPU がほぼ一定</strong>。
-    - 中心の仕組み：① 全物体のデータを、GPU バッファに常駐　② コンピュート シェーダーで、カリング　③ 生き残った物の、描画引数を、GPU が書く　④ インダイレクト描画（Indirect）で、GPU が自分の書いた命令を実行。
+    - 目的：<strong>CPU の仕事（カリング・ドロー コールの作成）を GPU に移す</strong>。<strong>物体数が数万〜数十万でも、CPU がほぼ一定</strong>。
+    - 中心の仕組み：① 全物体のデータを GPU バッファに常駐　② コンピュート シェーダーで、カリング　③ 生き残った物の、描画引数を GPU が書く　④ インダイレクト描画（Indirect）で、GPU が自分の書いた命令を実行。
     - CPU ⇄ GPU の、やり取りがほぼなくなる（ドロー コールもほぼ 1 回に）。
     - カリングも細かくできる（サブメッシュ・Meshlet 単位）。Hi-Z オクルージョンも、GPU で。
-    - DX11：`DrawIndexedInstancedIndirect` で、部分的にできる（複数の描画を、1 回の命令でできない）。DX12 の `ExecuteIndirect`・Vulkan の multi-draw indirectが、本命。
-    - 制約：材質・シェーダーの扱い（バインドレス）が、必要。設計が大変。
+    - DX11：`DrawIndexedInstancedIndirect` で、部分的にできる（複数の描画を 1 回の命令でできない）。DX12 の `ExecuteIndirect`・Vulkan の multi-draw indirectが本命。
+    - 制約：材質・シェーダーの扱い（バインドレス）が必要。設計が大変。
 
 !!! info "このページを読む前に"
     - [描画最適化](index.md)（このセクション全体の地図と、読む順番）
@@ -35,9 +35,9 @@ tags:
 <line x1="410" y1="70" x2="460" y2="70" stroke="currentColor" stroke-width="3" marker-end="url(#gd1)"/>
 <rect x="468" y="40" width="130" height="60" rx="8" fill="rgba(46,160,67,0.25)" stroke="currentColor" stroke-width="2"/><text x="533" y="76" text-anchor="middle" style="font-weight:700">GPU が描く</text>
 <text x="620" y="76" style="font-size:12px;fill:#e5484d;font-weight:700">CPU が、ボトルネック</text>
-<rect x="20" y="150" width="190" height="90" rx="8" fill="rgba(76,139,245,0.25)" stroke="currentColor" stroke-width="2"/><text x="115" y="176" text-anchor="middle" style="font-weight:700">全物体のデータ</text><text x="115" y="196" text-anchor="middle" style="font-size:11px">GPU バッファに、常駐</text><text x="115" y="214" text-anchor="middle" style="font-size:11px">（毎フレーム送らない）</text>
+<rect x="20" y="150" width="190" height="90" rx="8" fill="rgba(76,139,245,0.25)" stroke="currentColor" stroke-width="2"/><text x="115" y="176" text-anchor="middle" style="font-weight:700">全物体のデータ</text><text x="115" y="196" text-anchor="middle" style="font-size:11px">GPU バッファに常駐</text><text x="115" y="214" text-anchor="middle" style="font-size:11px">（毎フレーム送らない）</text>
 <line x1="216" y1="195" x2="262" y2="195" stroke="currentColor" stroke-width="3" marker-end="url(#gd1)"/>
-<rect x="270" y="150" width="170" height="90" rx="8" fill="rgba(229,170,40,0.3)" stroke="currentColor" stroke-width="2"/><text x="355" y="176" text-anchor="middle" style="font-weight:700">コンピュート</text><text x="355" y="196" text-anchor="middle" style="font-size:11px">カリング</text><text x="355" y="214" text-anchor="middle" style="font-size:11px">描画引数を、書く</text>
+<rect x="270" y="150" width="170" height="90" rx="8" fill="rgba(229,170,40,0.3)" stroke="currentColor" stroke-width="2"/><text x="355" y="176" text-anchor="middle" style="font-weight:700">コンピュート</text><text x="355" y="196" text-anchor="middle" style="font-size:11px">カリング</text><text x="355" y="214" text-anchor="middle" style="font-size:11px">描画引数を書く</text>
 <line x1="446" y1="195" x2="492" y2="195" stroke="currentColor" stroke-width="3" marker-end="url(#gd1)"/>
 <rect x="500" y="150" width="150" height="90" rx="8" fill="rgba(46,160,67,0.25)" stroke="currentColor" stroke-width="2"/><text x="575" y="176" text-anchor="middle" style="font-weight:700">インダイレクト</text><text x="575" y="196" text-anchor="middle" style="font-size:11px">描画（ほぼ 1 回）</text>
 <text x="660" y="196" style="font-size:12px;fill:#2ea043;font-weight:700">CPU は、ほぼ暇</text>
@@ -48,23 +48,23 @@ tags:
 | 物体ごとのカリング | 数万個を毎フレーム、CPU が判定 |
 | 物体ごとの描画命令 | ドロー コールが数千〜数万 |
 | 物体ごとの定数バッファ更新 | CPU → GPU の、転送が多い |
-| GPU の結果を待てない | カリングの結果を、CPU が知れない（同期待ちを避けるため） |
+| GPU の結果を待てない | カリングの結果を CPU が知れない（同期待ちを避けるため） |
 
 ## GPU Driven の、仕組み
 
-### 1. データを、GPU に常駐させる
+### 1. データを GPU に常駐させる
 
-**シーンの全物体**（インスタンス）の、ワールド行列・境界（球・箱）・メッシュの番号・材質の番号を、GPU のバッファ（構造化バッファ）に、置いておきます。動く物の変化した部分だけ、毎フレーム、更新します。
+**シーンの全物体**（インスタンス）の、ワールド行列・境界（球・箱）・メッシュの番号・材質の番号を GPU のバッファ（構造化バッファ）に置いておきます。動く物の変化した部分だけ、毎フレーム、更新します。
 
 | バッファ | 内容 |
 | --- | --- |
 | インスタンス バッファ | ワールド行列・境界・メッシュ ID・材質 ID |
-| メッシュ（ジオメトリ）バッファ | 全メッシュの頂点・インデックスを、1 つの巨大なバッファに（オフセットで参照） |
+| メッシュ（ジオメトリ）バッファ | 全メッシュの頂点・インデックスを 1 つの巨大なバッファに（オフセットで参照） |
 | 材質バッファ | 全材質のパラメータ・テクスチャの番号 |
 
 ### 2. コンピュート シェーダーで、カリング
 
-物体ごと（またはサブメッシュ・Meshlet ごと）に、1 つのスレッドが視錐台・オクルージョン・距離で見えるかを判定します。
+物体ごと（またはサブメッシュ・Meshlet ごと）に 1 つのスレッドが視錐台・オクルージョン・距離で見えるかを判定します。
 
 ```hlsl
 [numthreads(64, 1, 1)]
@@ -85,9 +85,9 @@ void CullCS(uint3 id : SV_DispatchThreadID) {
 | `InterlockedAdd` | 見えた物の詰め込み位置をアトミックに確保 |
 | 出力 | 見えた物のインスタンス番号のリストと、個数（カウンター） |
 
-### 3. 描画引数を、GPU が書く
+### 3. 描画引数を GPU が書く
 
-インダイレクト描画は、描画の引数（インデックス数・インスタンス数・開始位置）を、GPU バッファから、読んで描きます。この引数をコンピュート シェーダーが、書きます。
+インダイレクト描画は、描画の引数（インデックス数・インスタンス数・開始位置）を GPU バッファから、読んで描きます。この引数をコンピュート シェーダーが書きます。
 
 ```cpp
 struct DrawIndexedIndirectArgs {
@@ -111,24 +111,24 @@ context->DrawIndexedInstancedIndirect(args_buffer, 0);
 
 ### 4. 1 回（または少数回）で、描く
 
-全メッシュを、1 つの巨大なバッファに入れ、マルチ ドロー（複数の描画を、1 回の命令で）にすれば、ドロー コール 1 回で、全シーンを描けます。
+全メッシュを 1 つの巨大なバッファに入れ、マルチ ドロー（複数の描画を 1 回の命令で）にすれば、ドロー コール 1 回で、全シーンを描けます。
 
 | API | マルチ ドロー |
 | --- | --- |
-| DX12 | `ExecuteIndirect`（複数の描画を、1 回で） |
+| DX12 | `ExecuteIndirect`（複数の描画を 1 回で） |
 | Vulkan | `vkCmdDrawIndexedIndirectCount` |
-| DX11 | `DrawIndexedInstancedIndirect` を、メッシュの種類ごとに、1 回（メッシュの数だけ。マルチ ドローは、標準ではない） |
+| DX11 | `DrawIndexedInstancedIndirect` をメッシュの種類ごとに、1 回（メッシュの数だけ。マルチ ドローは、標準ではない） |
 
-DX11 では、「メッシュの種類ごとに、1 回のインスタンス描画」が、現実的な形です（同じメッシュを多数描く）。
+DX11 では、「メッシュの種類ごとに、1 回のインスタンス描画」が現実的な形です（同じメッシュを多数描く）。
 
 ## 何が改善するのか
 
 | 改善 | 説明 |
 | --- | --- |
-| **CPU の負担が一定** | 物体が、10 倍になっても、CPU はほぼ同じ（GPU が並列に処理） |
-| カリングが細かく・強力に | サブメッシュ・Meshlet 単位・Hi-Z オクルージョンを、GPU で（[カリング](culling.md)） |
+| **CPU の負担が一定** | 物体が 10 倍になっても、CPU はほぼ同じ（GPU が並列に処理） |
+| カリングが細かく・強力に | サブメッシュ・Meshlet 単位・Hi-Z オクルージョンを GPU で（[カリング](culling.md)） |
 | ドロー コール・状態切り替えが激減 | 1 回〜少数回 |
-| 同期待ちがない | カリング結果を、CPU に戻さない |
+| 同期待ちがない | カリング結果を CPU に戻さない |
 | 大量のインスタンス | 数十万個の草・岩・瓦礫 |
 
 ## 2 パス オクルージョン カリング
@@ -138,7 +138,7 @@ DX11 では、「メッシュの種類ごとに、1 回のインスタンス描�
 | パス | 内容 |
 | --- | --- |
 | パス 1 | 前フレームで見えていた物をカリングして、描く（深度ができる） |
-| 深度の階層（Hi-Z）を、作る | 今のフレームのパス 1 の深度から |
+| 深度の階層（Hi-Z）を作る | 今のフレームのパス 1 の深度から |
 | パス 2 | パス 1 で除外された物を今の Hi-Z で再判定し、見えるものだけ、追加で描く |
 
 前フレームの見えていた物は、ほぼ、今も見えるのでパス 1 で大半を描け、パス 2 は新しく見えるものだけ——遅れによる、ポップインも起きません。
@@ -152,7 +152,7 @@ DX11 では、「メッシュの種類ごとに、1 回のインスタンス描�
 | 動的なメッシュ（スキニング） | 事前にスキニング結果をバッファに書く |
 | デバッグが難しい | GPU の中の処理。RenderDoc・PIX でバッファの中身を確認 |
 | API の制約（DX11） | マルチ ドローがない。DX12・Vulkan が本命 |
-| ツールとアセットの準備 | メッシュを、1 つのバッファに。Meshlet 化など、ビルド時の処理（[ベイク](../optimize/baking.md)） |
+| ツールとアセットの準備 | メッシュを 1 つのバッファに。Meshlet 化など、ビルド時の処理（[ベイク](../optimize/baking.md)） |
 
 ## 段階的に取り入れる
 
@@ -161,19 +161,19 @@ DX11 では、「メッシュの種類ごとに、1 回のインスタンス描�
 | **1. GPU インスタンシング** | 同じメッシュの多数のインスタンスをコンピュートでカリングし、`DrawIndexedInstancedIndirect` |
 | 2. 複数メッシュのインダイレクト | メッシュごとに引数バッファ。カリングをコンピュートに |
 | 3. Hi-Z オクルージョン | GPU で、2 パス |
-| 4. マルチ ドロー・バインドレス（DX12 / Vulkan） | 全シーンを、1 回の描画で |
+| 4. マルチ ドロー・バインドレス（DX12 / Vulkan） | 全シーンを 1 回の描画で |
 | 5. Meshlet | 単位を細かく（[Mesh Shader](mesh-shaders.md)） |
 
 ## よくあるミス
 
 ??? failure "CPU が、ボトルネックでないのに、GPU Driven を導入する"
-    **複雑さに見合いません**。CPU のドロー コールが、限界のときに導入します。
+    **複雑さに見合いません**。CPU のドロー コールが限界のときに導入します。
 
 ??? failure "インダイレクト引数の、構造体の並びを間違える"
-    引数の順序・型（`uint`）を、確認します。デバッグ時はバッファを読み出して確認。
+    引数の順序・型（`uint`）を確認します。デバッグ時はバッファを読み出して確認。
 
 ??? failure "カリング結果の、カウンターを毎フレーム、クリアしない"
-    コンピュートの前に、0 にリセットします。
+    コンピュートの前に 0 にリセットします。
 
 ??? failure "前フレームの Hi-Z で、急なカメラ移動にポップインする"
     2 パス方式にします。
@@ -184,8 +184,8 @@ DX11 では、「メッシュの種類ごとに、1 回のインスタンス描�
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] GPU Driven ＝ <strong>カリングと描画命令の作成を、GPU にやらせる</strong>。CPU の負担が物体数に依存しない
-    - [x] 流れ：データ常駐 → コンピュートでカリング → 描画引数を、GPU が書く → インダイレクト描画
+    - [x] GPU Driven ＝ <strong>カリングと描画命令の作成を GPU にやらせる</strong>。CPU の負担が物体数に依存しない
+    - [x] 流れ：データ常駐 → コンピュートでカリング → 描画引数を GPU が書く → インダイレクト描画
     - [x] 同期待ちがなく、カリングも細かく（Meshlet・Hi-Z）できる
     - [x] 2 パス オクルージョンで、前フレームの遅れを解決
     - [x] DX11 は、`DrawIndexedInstancedIndirect`（メッシュごと）。マルチ ドローは DX12 / Vulkan

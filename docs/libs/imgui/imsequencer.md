@@ -13,7 +13,7 @@ tags:
 `#include "ImSequencer.h"`
 </div>
 
-**ImSequencer**（イムシーケンサー）は、[ImGuizmo](imguizmo.md) と同じ作者のリポジトリに入っている、タイムライン（シーケンサー）を出す ImGui の部品です。動画編集ソフトや、Unity の Timeline のような、横軸が時間（フレーム）で、縦に項目が並び、それぞれの項目が「いつからいつまで」を帯で表す画面を作れます。アニメーションのクリップ、エフェクトの発生タイミング、カットシーンのイベントなどを、マウスで編集できます。使い方は、自分のデータを `SequencerInterface` という決まった窓口（インターフェース）でライブラリに見せる形です。
+**ImSequencer**（イムシーケンサー）は、[ImGuizmo](imguizmo.md) と同じ作者のリポジトリに入っている、タイムライン（シーケンサー）を出す ImGui の部品です。動画編集ソフトや、Unity の Timeline のような、横軸が時間（フレーム）で、縦に項目が並び、それぞれの項目が「いつからいつまで」を帯で表す画面を作れます。アニメーションのクリップ、エフェクトの発生タイミング、カットシーンのイベントなどをマウスで編集できます。使い方は、自分のデータを `SequencerInterface` という決まった窓口（インターフェース）でライブラリに見せる形です。
 
 !!! tip "ポイント"
     - 自分の **データ（項目の一覧）を持つクラス**を作り、**`ImSequencer::SequencerInterface` を継承**して、決まった関数を実装する。
@@ -36,7 +36,7 @@ ImSequencer は、ImGuizmo のリポジトリに含まれています。[Dear Im
 | ファイル | 内容 |
 | --- | --- |
 | `ImSequencer.h` / `ImSequencer.cpp` | タイムライン本体 |
-| `ImCurveEdit.h` / `ImCurveEdit.cpp` | カーブ エディタ（項目の中に、カーブを描いて編集したいときだけ） |
+| `ImCurveEdit.h` / `ImCurveEdit.cpp` | カーブ エディタ（項目の中にカーブを描いて編集したいときだけ） |
 
 3. 追加のインクルード ディレクトリ に `$(SolutionDir)third_party\ImGuizmo` を追加する
 4. `imgui_internal.h` を使うので、ImGui のインクルード パスも通っていること
@@ -95,7 +95,7 @@ class MySequence : public ImSequencer::SequencerInterface {
   int GetFrameMax() const override { return frame_max_; }
   int GetItemCount() const override { return static_cast<int>(clips_.size()); }
 
-  // index 番目の項目の情報を、ポインタで教える（start / end はマウスで書き換えられる）
+  // index 番目の項目の情報をポインタで教える（start / end はマウスで書き換えられる）
   void Get(int index, int** start, int** end, int* type, unsigned int* color) override {
     Clip& clip = clips_[index];
     if (color) {
@@ -181,7 +181,7 @@ bool Sequencer(SequencerInterface* sequencer, int* currentFrame, bool* expanded,
 | `firstFrame` | `int*` | 画面左端のフレームへのポインタ（スクロール位置） |
 | `sequenceOptions` | `int` | 許可する操作のフラグ（[オプション](#options)） |
 
-- 戻り値: 今のフレームに、ユーザーが何かを操作したとき `true`
+- 戻り値: 今のフレームにユーザーが何かを操作したとき `true`
 - `currentFrame`、`expanded`、`selectedEntry`、`firstFrame` は、自分で持っている変数（`static` やメンバ）を渡します。毎フレーム新しく作ると、状態が保持されません
 - `ImGui::Begin` と `End` の間で呼びます
 
@@ -230,11 +230,11 @@ struct SequencerInterface {
 | `Del(index)` | 項目を削除する |
 | `Duplicate(index)` | 項目を複製する |
 | `Copy()` / `Paste()` | コピー・貼り付け（`SEQUENCER_COPYPASTE` が有効なとき） |
-| `BeginEdit(index)` / `EndEdit()` | 帯をドラッグし始めたとき・終わったときに呼ばれる。アンドゥ用に、操作の前後の状態を保存するのに使う |
+| `BeginEdit(index)` / `EndEdit()` | 帯をドラッグし始めたとき・終わったときに呼ばれる。アンドゥ用に操作の前後の状態を保存するのに使う |
 | `GetCustomHeight(index)` | その項目を開いたときの追加の高さ（ピクセル）。0 なら開かない |
 | `DoubleClick(index)` | 項目をダブルクリックしたとき（項目を開く、など） |
-| `CustomDraw(...)` | 開いた項目の中身を、自分で描く（カーブ、波形など） |
-| `CustomDrawCompact(...)` | 閉じているときの帯の上に、小さな絵を描く（キーフレームの印など） |
+| `CustomDraw(...)` | 開いた項目の中身を自分で描く（カーブ、波形など） |
+| `CustomDrawCompact(...)` | 閉じているときの帯の上に小さな絵を描く（キーフレームの印など） |
 | `GetCollapseFmt()` | タイムラインを折りたたんだときの表示の書式 |
 
 !!! warning "Get の `color` の並び"
@@ -352,7 +352,7 @@ int Edit(Delegate& delegate, const ImVec2& size, unsigned int id,
 
 ## タイムラインとゲームをつなぐ
 
-タイムラインの値を、**ゲームのアニメーションに反映**します。
+タイムラインの値を**ゲームのアニメーションに反映**します。
 
 ```cpp
 // 現在のフレームに合わせて、各項目を再生する
@@ -377,17 +377,17 @@ void ApplyTimeline(const MySequence& sequence, int current_frame) {
 
 | 場面 | 使い方 |
 | --- | --- |
-| カットシーン・演出の編集 | カメラ、キャラのアニメ、効果音、台詞のタイミングを、タイムラインで並べる |
+| カットシーン・演出の編集 | カメラ、キャラのアニメ、効果音、台詞のタイミングをタイムラインで並べる |
 | エフェクト（パーティクル）の発生タイミング | 帯の開始・終了で、発生・消滅を決める |
-| ボスの行動パターン | 攻撃の予兆と判定の時間を、フレーム単位で調整する |
-| アニメーションのイベント | 「このフレームで足音を出す」を、印として置く |
+| ボスの行動パターン | 攻撃の予兆と判定の時間をフレーム単位で調整する |
+| アニメーションのイベント | 「このフレームで足音を出す」を印として置く |
 
 ## よくあるミス
 
 ??? failure "`Get` で `start` / `end` に値のコピーを渡す"
     `*start = &local_variable;` のように、**一時的な変数のアドレス**を渡すと、関数を抜けたあとに無効になります。`std::vector<Clip>` の中の要素など、ずっと残るデータのアドレスを渡します。vector が再確保されると、アドレスが無効になるので、タイムラインを描いている最中に項目を追加・削除しません（`Add` / `Del` の中では、描画の後に反映する、などの工夫をします）。
 
-??? failure "状態の変数を、毎フレーム作り直す"
+??? failure "状態の変数を毎フレーム作り直す"
     `int current_frame = 0;` を関数の中に書くと、毎フレーム 0 に戻って、縦線が動かせません。`static` やメンバ変数で持ちます。
 
 ??? failure "`GetFrameMax` が小さすぎて、帯が見えない"
@@ -396,7 +396,7 @@ void ApplyTimeline(const MySequence& sequence, int current_frame) {
 ??? failure "色の並びを間違える"
     色は `0xAABBGGRR`（ABGR）です。RGBA の感覚で書くと、赤と青が入れ替わります。
 
-??? failure "Add / Del の最中に、項目の配列が壊れる"
+??? failure "Add / Del の最中に項目の配列が壊れる"
     ライブラリは、項目の並びを使っている最中に `Add` / `Del` を呼ぶことがあります。描画が終わったあとにまとめて反映するか、`index` の範囲を毎回確認します。
 
 ## 類似

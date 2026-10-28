@@ -124,7 +124,7 @@ SDL の場合は `SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PR
 
 ## よくあるミス
 
-??? failure "描画領域が、指定した大きさより小さい"
+??? failure "描画領域が指定した大きさより小さい"
     `AdjustWindowRect` を通していません。ウィンドウ全体の大きさと描画領域の大きさを混同しています。
 
 ??? failure "ウィンドウを閉じても、プロセスが残る"

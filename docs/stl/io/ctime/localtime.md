@@ -13,7 +13,7 @@ tags:
 `#include <ctime>`
 </div>
 
-`time_t`（秒数）を、年月日時分秒に分けたいときに使います。`std::localtime` はローカル時刻（OS のタイムゾーン）で、UTC なら [`gmtime`](gmtime.md) です。
+`time_t`（秒数）を年月日時分秒に分けたいときに使います。`std::localtime` はローカル時刻（OS のタイムゾーン）で、UTC なら [`gmtime`](gmtime.md) です。
 
 !!! tip "ポイント"
     - 戻り値は**静的な領域**を指すので、次に呼ぶと上書きされる。

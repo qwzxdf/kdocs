@@ -6,13 +6,13 @@ tags:
 
 # SIMD（ベクトル化）
 
-**SIMD**（シムディー、Single Instruction, Multiple Data）は、1 つの命令で、複数のデータをまとめて計算するCPU の機能です。たとえば、4 つの `float` の足し算を、普通は 4 回の命令で行いますが、SIMD なら1 回の命令で 4 つ同時に計算できます（SSE なら 4 個、AVX なら 8 個の `float`）。ゲームには、大量の座標・色・行列の計算があるので、SIMD でうまく計算すると、数倍速くなることがあります。ただし、手で書くのは難しいので、まず「コンパイラに自動でやってもらう」ことから始め、本当に必要なときだけ手で書きます。
+**SIMD**（シムディー、Single Instruction, Multiple Data）は、1 つの命令で、複数のデータをまとめて計算するCPU の機能です。たとえば、4 つの `float` の足し算を普通は 4 回の命令で行いますが、SIMD なら1 回の命令で 4 つ同時に計算できます（SSE なら 4 個、AVX なら 8 個の `float`）。ゲームには、大量の座標・色・行列の計算があるので、SIMD でうまく計算すると、数倍速くなることがあります。ただし、手で書くのは難しいので、まず「コンパイラに自動でやってもらう」ことから始め、本当に必要なときだけ手で書きます。
 
 !!! tip "ポイント"
-    - <strong>まず自動ベクトル化</strong>。ループを、コンパイラが SIMD にできる形で書く（Release、`/O2`）。
-    - 自動でできる形は、<strong>連続した配列を、前から順に、同じ計算</strong>。[SoA](memory-cache.md)（種類ごとの配列）と相性がよい。
+    - <strong>まず自動ベクトル化</strong>。ループをコンパイラが SIMD にできる形で書く（Release、`/O2`）。
+    - 自動でできる形は、<strong>連続した配列を前から順に同じ計算</strong>。[SoA](memory-cache.md)（種類ごとの配列）と相性がよい。
     - 手で書くならライブラリ（DirectXMath、glm、xsimd、`std::simd`）。生のイントリンシックは最後の手段。
-    - データの並び（メモリ）が先。SIMD の前に、キャッシュとアルゴリズムを直す。
+    - データの並び（メモリ）が先。SIMD の前にキャッシュとアルゴリズムを直す。
     - 計測して効果を確かめる。SIMD にしても、メモリがボトルネックなら速くならない。
 
 !!! info "このページを読む前に"
@@ -46,7 +46,7 @@ tags:
 // 自動ベクトル化されやすい書き方
 void ScaleAll(float* data, int count, float k) {
   for (int i = 0; i < count; ++i) {
-    data[i] *= k;               // 連続した配列を、同じ計算で
+    data[i] *= k;               // 連続した配列を同じ計算で
   }
 }
 ```
@@ -55,9 +55,9 @@ void ScaleAll(float* data, int count, float k) {
 
 | 条件 | 説明 |
 | --- | --- |
-| 連続した配列を、前から順に読む | `vector<float>`、`float[]`。ポインタをたどる構造は不可 |
-| ループの回数が、事前に分かる | `for (i = 0; i < n; ++i)`。途中で `break` しない |
-| 反復どうしが独立している | `a[i]` の計算が、`a[i-1]` の結果に依存しない |
+| 連続した配列を前から順に読む | `vector<float>`、`float[]`。ポインタをたどる構造は不可 |
+| ループの回数が事前に分かる | `for (i = 0; i < n; ++i)`。途中で `break` しない |
+| 反復どうしが独立している | `a[i]` の計算が `a[i-1]` の結果に依存しない |
 | 同じ型・同じ計算の繰り返し | 分岐が少ない（`if` が多いと難しい） |
 | ポインタが重ならないと、コンパイラが分かる | `__restrict` を付ける（MSVC・GCC・Clang） |
 | 関数呼び出しがない（またはインライン化できる） | ループの中で、見えない関数を呼ばない |
@@ -73,9 +73,9 @@ void ScaleAll(float* data, int count, float k) {
 | 浮動小数点の合計（`sum += a[i]`） | 厳密な順序の保証で、ベクトル化されない。`/fp:fast` を付けるか、手で複数の和に分ける |
 | 例外・`virtual` 呼び出しのあるループ | ループの外へ出す |
 
-### コンパイラに、結果を聞く（MSVC）
+### コンパイラに結果を聞く（MSVC）
 
-プロパティ → C/C++ → コマンド ライン → 追加のオプションに `/Qvec-report:2` を入れると、各ループが、ベクトル化されたか・されなかった理由を出力してくれます。
+プロパティ → C/C++ → コマンド ライン → 追加のオプションに `/Qvec-report:2` を入れると、各ループがベクトル化されたか・されなかった理由を出力してくれます。
 
 ```text
 --- Analyzing function: ScaleAll
@@ -87,13 +87,13 @@ c:\game\math.cpp(12) : info C5002: loop not vectorized due to reason '1100'
 
 ## 2. 手で書く：数学ライブラリを使う
 
-ゲームの数学（`Vec3`、`Mat4`、クォータニオン）は、**SIMD を使ったライブラリ**がすでにあります。自分でイントリンシックを書く前に、これを使います。
+ゲームの数学（`Vec3`、`Mat4`、クォータニオン）は、**SIMD を使ったライブラリ**がすでにあります。自分でイントリンシックを書く前にこれを使います。
 
 | ライブラリ | 特徴 |
 | --- | --- |
 | DirectXMath（`<DirectXMath.h>`） | Windows の標準。`XMVECTOR`、`XMMATRIX` が SIMD。Visual Studio に含まれる。DirectX と相性が良い |
 | glm | OpenGL 風の数学。`GLM_FORCE_SIMD_AVX2` などで SIMD を有効にできる。vcpkg: `glm` |
-| xsimd | C++ の SIMD ラッパー。SSE / AVX / NEON を、同じコードで書ける。vcpkg: `xsimd` |
+| xsimd | C++ の SIMD ラッパー。SSE / AVX / NEON を同じコードで書ける。vcpkg: `xsimd` |
 | Eigen | 行列・線形代数。SIMD を自動で使う |
 | `std::simd`（C++26） | 標準の SIMD ライブラリ（`<simd>`）。まだ新しく、コンパイラ対応は途中 |
 
@@ -101,7 +101,7 @@ c:\game\math.cpp(12) : info C5002: loop not vectorized due to reason '1100'
 #include <DirectXMath.h>
 using namespace DirectX;
 
-// 位置を、速度で更新する（XMVECTOR は 4 つの float をまとめた SIMD 型）
+// 位置を速度で更新する（XMVECTOR は 4 つの float をまとめた SIMD 型）
 void Integrate(XMFLOAT3* positions, const XMFLOAT3* velocities, int count, float dt) {
   XMVECTOR vdt = XMVectorReplicate(dt);
   for (int i = 0; i < count; ++i) {
@@ -118,18 +118,18 @@ void Integrate(XMFLOAT3* positions, const XMFLOAT3* velocities, int count, float
 | コツ | 説明 |
 | --- | --- |
 | 保存用の型と、計算用の型を分ける | メンバ変数は `XMFLOAT3`（普通の `float` 3 つ）、計算するときだけ `XMVECTOR` にロードする |
-| `XMVECTOR` を、構造体のメンバにしない（16 バイト境界が必要） | アライメント違反で、クラッシュする |
-| 関数の引数は `FXMVECTOR` などの別名 | 呼び出し規約が、レジスタ渡しになる |
-| ロードとストアを、最小限に | `XMLoad` → 計算を連続 → `XMStore`。行き来すると遅くなる |
+| `XMVECTOR` を構造体のメンバにしない（16 バイト境界が必要） | アライメント違反で、クラッシュする |
+| 関数の引数は `FXMVECTOR` などの別名 | 呼び出し規約がレジスタ渡しになる |
+| ロードとストアを最小限に | `XMLoad` → 計算を連続 → `XMStore`。行き来すると遅くなる |
 
 ## 3. 手で書く：イントリンシック（上級）
 
-CPU の SIMD 命令を、C++ の関数として直接呼ぶ方法です（`<immintrin.h>`）。
+CPU の SIMD 命令を C++ の関数として直接呼ぶ方法です（`<immintrin.h>`）。
 
 ```cpp
 #include <immintrin.h>
 
-// 8 個の float を、一度に足す（AVX）。配列は 32 バイト境界が望ましい
+// 8 個の float を一度に足す（AVX）。配列は 32 バイト境界が望ましい
 void AddArrays(const float* a, const float* b, float* out, int count) {
   int i = 0;
   for (; i + 8 <= count; i += 8) {
@@ -148,7 +148,7 @@ void AddArrays(const float* a, const float* b, float* out, int count) {
 | **CPU が対応しているか確認する** | AVX2 がない CPU で実行すると、クラッシュする。実行時に判定して、切り替える（`__cpuid`） |
 | コードが読みにくい | 命令名が難しい。ライブラリを優先する |
 | 移植性がない | x86 専用。ARM では別の書き方（NEON） |
-| 余りの処理が必要 | 要素数が、幅（8 個）で割り切れないとき |
+| 余りの処理が必要 | 要素数が幅（8 個）で割り切れないとき |
 | コンパイラのほうが速いこともある | 自動ベクトル化の結果と、必ず比べる |
 
 ## SIMD が効く場面・効かない場面
@@ -168,7 +168,7 @@ void AddArrays(const float* a, const float* b, float* out, int count) {
 | 場面 | 方法 |
 | --- | --- |
 | パーティクルの更新（数万個） | SoA + 自動ベクトル化。必要なら xsimd |
-| スキニング（ボーンのアニメーション） | 行列計算を、DirectXMath で |
+| スキニング（ボーンのアニメーション） | 行列計算を DirectXMath で |
 | 当たり判定の距離計算 | 位置を SoA にして、まとめて距離の 2 乗を計算 |
 | 数学ライブラリ全般 | DirectXMath / glm（SIMD 有効）を使う |
 | 画像処理・音のミキシング | 配列をまとめて処理するループ。自動ベクトル化を確認 |
@@ -185,16 +185,16 @@ void AddArrays(const float* a, const float* b, float* out, int count) {
     16 バイト境界が必要で、`new` したときなどに、ずれてクラッシュします。メンバは `XMFLOAT3` などにします。
 
 ??? failure "SIMD にしても、速くならない"
-    ボトルネックが、メモリ読み込みや分岐にあります。プロファイラーで、本当に計算が重いかを確かめます。
+    ボトルネックがメモリ読み込みや分岐にあります。プロファイラーで、本当に計算が重いかを確かめます。
 
-??? failure "浮動小数点の結果が、少し変わる"
+??? failure "浮動小数点の結果が少し変わる"
     SIMD で足す順番が変わると、丸め誤差で、結果が少し変わります。決定的な（再現できる）シミュレーションが必要なら、注意します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] SIMD ＝ <strong>1 命令で、複数のデータをまとめて計算</strong>（SSE は `float` 4 個、AVX は 8 個）
-    - [x] まず自動ベクトル化。連続した配列（SoA）を、同じ計算で回すループを書く
+    - [x] まず自動ベクトル化。連続した配列（SoA）を同じ計算で回すループを書く
     - [x] 手で書くならライブラリ（DirectXMath、glm、xsimd）。生のイントリンシックは最後
     - [x] CPU の対応を実行時に確認する。メンバに `XMVECTOR` を置かない
     - [x] メモリが原因のことが多い。計測して効果を確かめる

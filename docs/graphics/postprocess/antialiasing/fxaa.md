@@ -9,7 +9,7 @@ tags:
 <strong>FXAA（Fast Approximate Anti-Aliasing）</strong>は、完成した画像だけを見て、「縁らしい所」を見つけてぼかす、1 パスの後処理 AA です。深度も法線も速度も要らず、どんなレンダラーにも後付けできるので、導入が簡単でコストも小さいです。一方で縁以外（テクスチャの文字や細かい模様）まで少しぼかし、時間的なちらつきは直せません。このページでは、考え方・輝度による縁の検出・縁の向きと方向に沿ったぼかし・品質プリセット・弱点と使いどころを説明します。
 
 !!! tip "ポイント"
-    - FXAA ＝ <strong>最終画像の輝度から、コントラストが高い所（縁）を見つけ、縁に沿った方向と直交方向に、ぼかす</strong>。
+    - FXAA ＝ <strong>最終画像の輝度から、コントラストが高い所（縁）を見つけ、縁に沿った方向と直交方向にぼかす</strong>。
     - <strong>入力は、1 枚の画像だけ</strong>。深度・速度が要らない。1 パス。
     - 低コスト（1080p で 0.2〜0.5 ms）。どの描画方式にも付けられる。
     - 欠点：文字・細かい模様も少しぼける。時間的なちらつきは残る。細い線は救えない。
@@ -577,7 +577,7 @@ tags:
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ジャギーは、輝度の差が大きい所(縁)にだけ出る<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0767;0.0769;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">画面をなぞって、縁の画素に印を付ける<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0767;0.0769;0.4613;0.4615;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">縁の画素だけを、周りの画素と混ぜる<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.4613;0.4615;0.5639;0.5641;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">縁の画素だけを周りの画素と混ぜる<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.4613;0.4615;0.5639;0.5641;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">縁以外は、触らないので軽い<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.5639;0.5641;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -591,7 +591,7 @@ tags:
 <text x="20" y="26" class="fig-title">FXAA：縁を見つけて、縁に沿って分析し、縁をまたいでぼかす</text>
 <defs><marker id="fx-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs>
 <g font-size="13">
-<rect x="20" y="56" width="200" height="90" rx="8" fill="#4c8bf5" fill-opacity="0.18" stroke="#4c8bf5" stroke-width="2"/><text x="120" y="86" text-anchor="middle" style="font-weight:700">① 縁を探す</text><text x="120" y="108" text-anchor="middle" style="font-size:11px">周囲 5 画素の輝度差が、</text><text x="120" y="124" text-anchor="middle" style="font-size:11px">しきい値以上なら縁</text>
+<rect x="20" y="56" width="200" height="90" rx="8" fill="#4c8bf5" fill-opacity="0.18" stroke="#4c8bf5" stroke-width="2"/><text x="120" y="86" text-anchor="middle" style="font-weight:700">① 縁を探す</text><text x="120" y="108" text-anchor="middle" style="font-size:11px">周囲 5 画素の輝度差が </text><text x="120" y="124" text-anchor="middle" style="font-size:11px">しきい値以上なら縁</text>
 <rect x="290" y="56" width="200" height="90" rx="8" fill="#e5aa28" fill-opacity="0.2" stroke="#e5aa28" stroke-width="2"/><text x="390" y="86" text-anchor="middle" style="font-weight:700">② 縁の向きと端</text><text x="390" y="108" text-anchor="middle" style="font-size:11px">水平か垂直か、</text><text x="390" y="124" text-anchor="middle" style="font-size:11px">縁がどこまで続くか</text>
 <rect x="560" y="56" width="200" height="90" rx="8" fill="#2ea043" fill-opacity="0.18" stroke="#2ea043" stroke-width="2"/><text x="660" y="86" text-anchor="middle" style="font-weight:700">③ 縁と直交にぼかす</text><text x="660" y="108" text-anchor="middle" style="font-size:11px">縁の位置に応じた、</text><text x="660" y="124" text-anchor="middle" style="font-size:11px">サブピクセルのずれで混ぜる</text>
 </g>
@@ -662,7 +662,7 @@ float4 FxaaPS(float2 uv) {
 
 | 弱点 | 理由 |
 | --- | --- |
-| 文字・細かい模様がぼける | コントラストの高い所を、すべて縁とみなす |
+| 文字・細かい模様がぼける | コントラストの高い所をすべて縁とみなす |
 | 時間的なちらつきは残る | 1 フレームの画像だけを見ている |
 | 細い線・点の途切れは救えない | 画像に情報がない |
 | 斜めの縁の品質は、MSAA に劣る | 推測で補う |

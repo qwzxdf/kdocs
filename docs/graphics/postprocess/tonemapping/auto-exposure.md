@@ -76,13 +76,13 @@ cbuffer HistogramConstants : register(b0) {
 };
 ```
 
-ヒストグラムは、256 個の、ビンで、輝度（の、対数）を、数えます。入力は、HDR の色で、出力は、全グループで、共有する、ヒストグラムの、バッファ（UAV）です。
+ヒストグラムは、256 個の、ビンで、輝度（の、対数）を数えます。入力は、HDR の色で、出力は、全グループで、共有する、ヒストグラムの、バッファ（UAV）です。
 
 ```hlsl
 groupshared uint s_histogram[HISTOGRAM_BINS];
 ```
 
-グループ内で、まず、数えるための、共有メモリです。全画素が、直接、グローバルの、ヒストグラムに、足すと、同じビンに、衝突が、集中して、遅くなるので、グループ内で、数えてから、まとめて、足します。
+グループ内で、まず、数えるための、共有メモリです。全画素が直接、グローバルの、ヒストグラムに足すと、同じビンに衝突が集中して、遅くなるので、グループ内で、数えてから、まとめて、足します。
 
 ```hlsl
 uint LuminanceToBin(float luminance) {
@@ -92,7 +92,7 @@ uint LuminanceToBin(float luminance) {
 }
 ```
 
-輝度を、ビンの番号に、変えます。対数に直して、範囲に、正規化し、1〜255 に、割り当てます。ビン 0 は、ほぼ、真っ暗な画素（`0.001` 未満）を、数えて、平均から、除くための、専用です。
+輝度をビンの番号に変えます。対数に直して、範囲に正規化し、1〜255 に、割り当てます。ビン 0 は、ほぼ、真っ暗な画素（`0.001` 未満）を数えて、平均から、除くための、専用です。
 
 ```hlsl
 [numthreads(16, 16, 1)]
@@ -101,7 +101,7 @@ void HistogramMain(uint3 id : SV_DispatchThreadID, uint group_index : SV_GroupIn
   GroupMemoryBarrierWithGroupSync();
 ```
 
-共有メモリを、0 に、初期化して、グループ全体で、そろうのを、待ちます。
+共有メモリを 0 に、初期化して、グループ全体で、そろうのを待ちます。
 
 ```hlsl
   if (all(id.xy < size)) {
@@ -111,7 +111,7 @@ void HistogramMain(uint3 id : SV_DispatchThreadID, uint group_index : SV_GroupIn
   }
 ```
 
-画素の色を、読み、輝度（Rec.709 の、重み）から、ビンを、求めて、共有メモリの、カウンターを、1 増やします。`InterlockedAdd` で、グループ内の、スレッドが、同時に、足しても、正しく、数えられます。
+画素の色を読み、輝度（Rec.709 の、重み）から、ビンを求めて、共有メモリの、カウンターを 1 増やします。`InterlockedAdd` で、グループ内の、スレッドが同時に、足しても、正しく、数えられます。
 
 ```hlsl
   GroupMemoryBarrierWithGroupSync();
@@ -758,8 +758,8 @@ void HistogramMain(uint3 id : SV_DispatchThreadID, uint group_index : SV_GroupIn
 <text x="170" y="450" text-anchor="start" style="font-size:14px;font-weight:700;fill:#7c3aed" opacity="0">単純平均 → 画面の明るさ 0.18(つぶれる)/ ヒストグラム → 0.45(見える)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7154;0.7156;1.0000" values="0;0;1;1"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">窓の外は明るすぎて、平均を引っぱってしまう<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">画素を明るさ(EV)ごとのビンに数える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.5020;0.5022;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">暗すぎる画素と、明るすぎる画素を、捨てる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5020;0.5022;0.5820;0.5822;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">残りの平均が、目に見えてほしい明るさ → 露出が決まる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5820;0.5822;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">暗すぎる画素と、明るすぎる画素を捨てる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5020;0.5022;0.5820;0.5822;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">残りの平均が目に見えてほしい明るさ → 露出が決まる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5820;0.5822;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:auto-exposure-histogram:end -->

@@ -14,7 +14,7 @@ tags:
 `#include <regex>`
 </div>
 
-`std::sregex_iterator` は、**文字列の中でパターンに合う部分を、先頭から順にすべて取り出す**イテレータです。`regex_search` は最初の 1 つだけですが、こちらは全部を回せます。
+`std::sregex_iterator` は、**文字列の中でパターンに合う部分を先頭から順にすべて取り出す**イテレータです。`regex_search` は最初の 1 つだけですが、こちらは全部を回せます。
 
 !!! tip "ポイント"
     - `std::sregex_iterator it(s.begin(), s.end(), re), end;` と作り、`it != end` で回す。

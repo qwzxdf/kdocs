@@ -48,22 +48,22 @@ float3 fog_color_dir = ambient_fog_color + sun_color * phase * sun_inscatter_sca
 
 ## 太陽の方向の霞
 
-太陽の方を見ると <strong>霞が明るく白く</strong>、光ります。霧の中で太陽がまぶしい、あの見た目です。これは霧の粒子（ミー散乱）が光を前方に、強く散らすためで太陽の方向の、内向き散乱を足すことで再現できます。
+太陽の方を見ると <strong>霞が明るく白く</strong>、光ります。霧の中で太陽がまぶしい、あの見た目です。これは霧の粒子（ミー散乱）が光を前方に強く散らすためで太陽の方向の、内向き散乱を足すことで再現できます。
 
 ## 内向き散乱を足す
 
-簡易な霧の霧の色に <strong>太陽の方向に応じた項</strong>を、足します。
+簡易な霧の霧の色に <strong>太陽の方向に応じた項</strong>を足します。
 
 ```hlsl
-// 太陽に、向かって見るほど、霧の色を、太陽の色へ、寄せる。
+// 太陽に向かって見るほど、霧の色を太陽の色へ寄せる。
 float3 FogColorWithSun(float3 view_dir, float3 sun_dir) {
-  float sun_amount = saturate(dot(view_dir, sun_dir));             // 視線が、太陽の方を、向いているほど、1
+  float sun_amount = saturate(dot(view_dir, sun_dir));             // 視線が太陽の方を向いているほど、1
 ```
 
 `dot(view_dir, sun_dir)` は 視線と太陽の近さです（1 のとき太陽の、真正面）。
 
 ```hlsl
-  // 前方散乱の、位相関数（HG）で、太陽の方向を、強調する。
+  // 前方散乱の、位相関数（HG）で、太陽の方向を強調する。
   float phase = HenyeyGreenstein(sun_amount, 0.6);                 // g = 0.6: やや、前方に偏る
   float3 sun_glow = g_sun_color * phase;
   return g_fog_color + sun_glow * g_sun_inscatter_strength;
@@ -82,19 +82,19 @@ float3 ApplyFogWithSun(float3 scene_color, float3 view_dir, float distance) {
 }
 ```
 
-<strong>霧の色</strong>が 視線の方向によって、変わるので同じ霧でも太陽の方向と、反対側で色が違う立体的な霧に、なります。
+<strong>霧の色</strong>が 視線の方向によって、変わるので同じ霧でも太陽の方向と、反対側で色が違う立体的な霧になります。
 
 ## 太陽の影を考える
 
-<strong>霧の中</strong>では 太陽の光が遮られた、場所（建物、木の影）は霧も暗くなります。影を考慮しない霧は影の中でも一様に、明るいので光の筋（ゴッド レイ）が、出ません（[God Rays](../god-rays/index.md)）。
+<strong>霧の中</strong>では 太陽の光が遮られた、場所（建物、木の影）は霧も暗くなります。影を考慮しない霧は影の中でも一様に明るいので光の筋（ゴッド レイ）が出ません（[God Rays](../god-rays/index.md)）。
 
 | 方式 | 影の扱い |
 | --- | --- |
-| この方式（霧の色に太陽を足す） | 影を、無視（全体が一様） |
+| この方式（霧の色に太陽を足す） | 影を無視（全体が一様） |
 | ボリューム フォグ（froxel） | シャドウ マップを引いて、影の中は暗い（[Volumetric Fog](../volumetric-fog/index.md)） |
-| ゴッド レイ（放射状ブラー、レイマーチ） | 影の有無で筋を、作る（[God Rays](../god-rays/index.md)） |
+| ゴッド レイ（放射状ブラー、レイマーチ） | 影の有無で筋を作る（[God Rays](../god-rays/index.md)） |
 
-簡単な霧に太陽を足す方法は 影を、無視する代わりに軽いので遠景の霞に、向いています。近景の影つきの霧はボリュームで、作ります。
+簡単な霧に太陽を足す方法は 影を無視する代わりに軽いので遠景の霞に向いています。近景の影つきの霧はボリュームで、作ります。
 
 ## 物理ベースでは自動
 

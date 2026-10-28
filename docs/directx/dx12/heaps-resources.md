@@ -127,7 +127,7 @@ heap_desc.Flags = D3D12_HEAP_FLAG_ALLOW_ONLY_RT_DS_TEXTURES;
 ComPtr<ID3D12Heap> heap;
 device->CreateHeap(&heap_desc, IID_PPV_ARGS(&heap));
 
-// ヒープの指定位置に、リソースを置く。
+// ヒープの指定位置にリソースを置く。
 device->CreatePlacedResource(heap.Get(), offset, &desc, initial_state, nullptr, IID_PPV_ARGS(&resource));
 ```
 

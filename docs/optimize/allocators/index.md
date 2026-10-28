@@ -23,12 +23,12 @@ class Allocator {
 
 | 操作 | 意味 |
 | --- | --- |
-| `Allocate(size, alignment)` | `size` バイトを、`alignment`（境界）に合わせて貸す。足りなければ `nullptr`（または例外） |
+| `Allocate(size, alignment)` | `size` バイトを `alignment`（境界）に合わせて貸す。足りなければ `nullptr`（または例外） |
 | `Deallocate(ptr)` | 返す。種類によっては、できない（リニア）か、一括でだけできる |
 
 ### アライメント
 
-メモリの開始位置が、型の大きさの倍数でないと、遅い（またはエラー）ことがあります。確保するたびに、境界に合わせます。
+メモリの開始位置が型の大きさの倍数でないと、遅い（またはエラー）ことがあります。確保するたびに、境界に合わせます。
 
 ```cpp
 constexpr size_t AlignUp(size_t value, size_t alignment) {
@@ -51,15 +51,15 @@ constexpr size_t AlignUp(size_t value, size_t alignment) {
 
 ## 種類の一覧
 
-<svg class="fig flow" viewBox="0 0 755 340" role="img" aria-label="アロケータの種類：大きなメモリを、切り分けるやり方の違い"><defs><marker id="fl96255" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">アロケータの種類：大きなメモリを、切り分けるやり方の違い</text><line x1="170.0" y1="185.0" x2="271.5" y2="147.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><line x1="192.0" y1="208.0" x2="289.0" y2="208.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><line x1="170.0" y1="231.0" x2="292.0" y2="276.7" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><line x1="192.0" y1="191.4" x2="474.0" y2="135.5" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><path d="M108.5,186.0 Q320.2,134.0 532.0,186.0" fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><line x1="192.0" y1="224.6" x2="491.0" y2="283.9" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><path d="M108.5,186.0 Q398.8,134.0 689.0,186.0" fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><rect x="28.0" y="188.0" width="161" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="108.5" y="208.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">OS （大きなメモリ）</text><circle cx="30.0" cy="190.0" r="10" fill="#4c8bf5"/><text x="30.0" y="190.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="253.0" y="104.0" width="160" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="333.0" y="124.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">リニア （アリーナ）</text><circle cx="255.0" cy="106.0" r="10" fill="#2ea043"/><text x="255.0" y="106.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="292.0" y="188.0" width="82" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="333.0" y="208.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">スタック</text><circle cx="294.0" cy="190.0" r="10" fill="#2ea043"/><text x="294.0" y="190.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="295.0" y="272.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="333.0" y="292.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">プール</text><circle cx="297.0" cy="274.0" r="10" fill="#2ea043"/><text x="297.0" y="274.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="477.0" y="104.0" width="110" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="532.0" y="124.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">フリーリスト</text><circle cx="479.0" cy="106.0" r="10" fill="#2ea043"/><text x="479.0" y="106.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="494.0" y="188.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="532.0" y="208.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">バディ</text><circle cx="496.0" cy="190.0" r="10" fill="#2ea043"/><text x="496.0" y="190.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="494.0" y="272.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="532.0" y="292.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">スラブ</text><circle cx="496.0" cy="274.0" r="10" fill="#2ea043"/><text x="496.0" y="274.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="651.0" y="188.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="689.0" y="208.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">TLSF</text><circle cx="653.0" cy="190.0" r="10" fill="#2ea043"/><text x="653.0" y="190.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text></svg>
+<svg class="fig flow" viewBox="0 0 755 340" role="img" aria-label="アロケータの種類：大きなメモリを、切り分けるやり方の違い"><defs><marker id="fl96255" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">アロケータの種類：大きなメモリを切り分けるやり方の違い</text><line x1="170.0" y1="185.0" x2="271.5" y2="147.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><line x1="192.0" y1="208.0" x2="289.0" y2="208.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><line x1="170.0" y1="231.0" x2="292.0" y2="276.7" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><line x1="192.0" y1="191.4" x2="474.0" y2="135.5" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><path d="M108.5,186.0 Q320.2,134.0 532.0,186.0" fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><line x1="192.0" y1="224.6" x2="491.0" y2="283.9" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><path d="M108.5,186.0 Q398.8,134.0 689.0,186.0" fill="none" stroke="currentColor" stroke-width="2" marker-end="url(#fl96255)"/><rect x="28.0" y="188.0" width="161" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="108.5" y="208.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">OS （大きなメモリ）</text><circle cx="30.0" cy="190.0" r="10" fill="#4c8bf5"/><text x="30.0" y="190.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="253.0" y="104.0" width="160" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="333.0" y="124.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">リニア （アリーナ）</text><circle cx="255.0" cy="106.0" r="10" fill="#2ea043"/><text x="255.0" y="106.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="292.0" y="188.0" width="82" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="333.0" y="208.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">スタック</text><circle cx="294.0" cy="190.0" r="10" fill="#2ea043"/><text x="294.0" y="190.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="295.0" y="272.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="333.0" y="292.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">プール</text><circle cx="297.0" cy="274.0" r="10" fill="#2ea043"/><text x="297.0" y="274.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="477.0" y="104.0" width="110" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="532.0" y="124.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">フリーリスト</text><circle cx="479.0" cy="106.0" r="10" fill="#2ea043"/><text x="479.0" y="106.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="494.0" y="188.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="532.0" y="208.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">バディ</text><circle cx="496.0" cy="190.0" r="10" fill="#2ea043"/><text x="496.0" y="190.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="494.0" y="272.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="532.0" y="292.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">スラブ</text><circle cx="496.0" cy="274.0" r="10" fill="#2ea043"/><text x="496.0" y="274.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="651.0" y="188.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="689.0" y="208.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">TLSF</text><circle cx="653.0" cy="190.0" r="10" fill="#2ea043"/><text x="653.0" y="190.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text></svg>
 
 | アロケータ | 仕組み | 確保 | 解放 | 向く用途 | 弱点 |
 | --- | --- | --- | --- | --- | --- |
 | <strong>[リニア](linear.md)</strong>（アリーナ・バンプ） | ポインタを進めるだけ | 最速 | まとめて（`Reset`） | フレームの一時データ、ロード | 個別に返せない |
 | [スタック](stack.md) | リニア + マーカーに戻す | 最速 | 後に確保したものから（LIFO） | スコープごとの一時データ | 順番を守る必要 |
-| [プール](pool.md) | 同じ大きさのブロックを、並べておく | 最速 | 最速（個別に返せる） | 弾・敵・パーティクル | 大きさが、1 種類だけ |
-| [フリーリスト](free-list.md) | 空きを、リストで管理 | 遅め（探す） | 個別（隣と結合） | 大きさがバラバラ・汎用 | 断片化・探す時間 |
-| [バディ](buddy.md) | 2 のべき乗に、半分ずつ分割 | 速い | 速い（相棒と結合） | 大きさがバラバラ・断片化を抑えたい | 内部の無駄（最大 50%） |
+| [プール](pool.md) | 同じ大きさのブロックを並べておく | 最速 | 最速（個別に返せる） | 弾・敵・パーティクル | 大きさが、1 種類だけ |
+| [フリーリスト](free-list.md) | 空きをリストで管理 | 遅め（探す） | 個別（隣と結合） | 大きさがバラバラ・汎用 | 断片化・探す時間 |
+| [バディ](buddy.md) | 2 のべき乗に半分ずつ分割 | 速い | 速い（相棒と結合） | 大きさがバラバラ・断片化を抑えたい | 内部の無駄（最大 50%） |
 | [スラブ](slab.md)（サイズクラス） | 大きさの段階ごとに、プールを持つ | 速い | 速い | 汎用（多くのメモリ管理の土台） | クラス間の無駄 |
 | [TLSF](tlsf.md) | 2 段階の分類で、空きを O(1) で探す | O(1) | O(1) | リアルタイム・汎用 | 実装が複雑 |
 | [フレーム](frame.md) | リニア + フレームごとにリセット | 最速 | フレームの頭で、まとめて | 毎フレームの一時データ | 1 フレームの寿命 |
@@ -70,7 +70,7 @@ constexpr size_t AlignUp(size_t value, size_t alignment) {
 | --- | --- |
 | [スレッドとアロケータ](thread-local.md) | スレッドごとのアロケータ、ロックフリーのプール、キャッシュ |
 | [STL との接続](stl-adapter.md) | `std::vector` などに、自作のアロケータを使わせる（`pmr`、`allocator_traits`） |
-| [malloc の置き換え](global-replace.md) | mimalloc・jemalloc・tcmalloc。`operator new` を、丸ごと替える |
+| [malloc の置き換え](global-replace.md) | mimalloc・jemalloc・tcmalloc。`operator new` を丸ごと替える |
 | [デバッグ用アロケータ](debug.md) | ガード・リーク追跡・使用量の計測・ページヒープ |
 
 ## 選び方
@@ -78,14 +78,14 @@ constexpr size_t AlignUp(size_t value, size_t alignment) {
 | 質問 | 答え → 選ぶもの |
 | --- | --- |
 | **まとめて捨てられるか**（フレーム・ロード・レベル） | はい → リニア / フレーム |
-| 後から確保したものを、先に捨てるか（スコープ） | はい → スタック |
+| 後から確保したものを先に捨てるか（スコープ） | はい → スタック |
 | 同じ大きさか（弾・敵・コンポーネント） | はい → プール |
 | 大きさがバラバラ、個別に返す | 汎用 → TLSF / フリーリスト / スラブ、またはmimalloc |
 | スレッドが複数 | スレッドごとに持つ、または mimalloc など |
 | STL のコンテナで使いたい | `std::pmr` と組み合わせる |
 
 !!! note "まず、`new` を減らす"
-    アロケータを自作する前に、確保の回数を、減らすほうが、効果が大きいことが多いです（[メモリ確保](../allocation.md)、[毎フレームのヒープ確保を避ける](../frame-allocation.md)）。測って、遅いと分かってから作ります。
+    アロケータを自作する前に確保の回数を減らすほうが、効果が大きいことが多いです（[メモリ確保](../allocation.md)、[毎フレームのヒープ確保を避ける](../frame-allocation.md)）。測って、遅いと分かってから作ります。
 
 ## 設計の基本
 
@@ -96,7 +96,7 @@ constexpr size_t AlignUp(size_t value, size_t alignment) {
 | 使用量・最大使用量を数える | 予算管理・デバッグ |
 | 足りなくなったときの動きを決める | `nullptr`・例外・assert・拡張 |
 | デストラクタは、アロケータが呼ばない | `placement new` で作り、自分でデストラクタを呼ぶ（またはトリビアルな型だけ） |
-| スレッド安全かどうかを、はっきりさせる | 既定は、ロックなし（速い）。共有するなら、別に対策（[スレッド](thread-local.md)） |
+| スレッド安全かどうかをはっきりさせる | 既定は、ロックなし（速い）。共有するなら、別に対策（[スレッド](thread-local.md)） |
 
 ### オブジェクトを作る
 
@@ -131,7 +131,7 @@ void Delete(Allocator& allocator, T* object) {
 ## よくあるミス
 
 ??? failure "測らずに、アロケータを自作する"
-    **`new` が、本当に遅いか**を、先にプロファイラーで確かめます（[プロファイラー](../../vs/profiler.md)）。
+    **`new` が、本当に遅いか**を先にプロファイラーで確かめます（[プロファイラー](../../vs/profiler.md)）。
 
 ??? failure "アライメントを無視して、確保する"
     SIMD や `double` で、クラッシュしたり、遅くなったりします。`alignof` を守ります。
@@ -140,15 +140,15 @@ void Delete(Allocator& allocator, T* object) {
     アロケータの `Reset` は、デストラクタを呼びません。ファイルハンドルなどを持つ型は、自分で `~T()` を呼ぶか、トリビアルな型だけを置きます。
 
 ??? failure "リセット後のポインタを使う"
-    `Reset` した後の、古いポインタは、すべて無効です。デバッグ時は、解放したメモリを、特別な値で埋めると気づきやすい（[デバッグ用アロケータ](debug.md)）。
+    `Reset` した後の、古いポインタは、すべて無効です。デバッグ時は、解放したメモリを特別な値で埋めると気づきやすい（[デバッグ用アロケータ](debug.md)）。
 
-??? failure "別のアロケータで確保したものを、別の方で返す"
+??? failure "別のアロケータで確保したものを別の方で返す"
     確保した本人に返すのが、鉄則です。どのアロケータのものか分かるようにします。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] アロケータは<strong>「大きなメモリを、自分のやり方で切り分けて貸す」</strong>仕組み
+    - [x] アロケータは<strong>「大きなメモリを自分のやり方で切り分けて貸す」</strong>仕組み
     - [x] 用途が決まれば、専用のアロケータが速い。まとめて捨てる → リニア、同じ大きさ → プール、後入れ先出し → スタック
     - [x] アライメントを守る。デストラクタは、自分で呼ぶ
     - [x] STL とは、`pmr` で接続。全体は mimalloc などに置き換えも選べる

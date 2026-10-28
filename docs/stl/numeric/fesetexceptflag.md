@@ -15,7 +15,7 @@ tags:
 `#include <cfenv>`
 </div>
 
-`std::fegetexceptflag` で保存した異常フラグの状態を、元に戻すのが `std::fesetexceptflag` です。フラグを消して別の計算をしたあとに、呼び出し側のフラグを復元するために使います。
+`std::fegetexceptflag` で保存した異常フラグの状態を元に戻すのが `std::fesetexceptflag` です。フラグを消して別の計算をしたあとに、呼び出し側のフラグを復元するために使います。
 
 !!! tip "ポイント"
     - `std::fesetexceptflag(&flags, FE_ALL_EXCEPT)` で保存した状態に戻す
@@ -41,7 +41,7 @@ int fesetexceptflag(const std::fexcept_t* flagp, int excepts);
 | `flagp` | `const fexcept_t*` | `fegetexceptflag` で保存した値 |
 | `excepts` | `int` | 復元したいフラグ |
 
-`*flagp` に保存されているフラグの状態を、`excepts` で指定した分だけ現在の状態に書き戻します。成功すれば 0 を返します。
+`*flagp` に保存されているフラグの状態を `excepts` で指定した分だけ現在の状態に書き戻します。成功すれば 0 を返します。
 
 `feraiseexcept` との違いは、例外そのものを発生させず、フラグの状態だけを復元する点です。トラップが有効な環境でも、シグナルは飛びません。
 
@@ -75,7 +75,7 @@ int main() {
 
 ## ゲームでの使いどころ
 
-保存したフラグの状態を、計算の後で元に戻します。使い方の全体は `fegetexceptflag` のページを参照してください。
+保存したフラグの状態を計算の後で元に戻します。使い方の全体は `fegetexceptflag` のページを参照してください。
 
 ## よくあるミス
 

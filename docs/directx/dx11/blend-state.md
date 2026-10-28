@@ -10,7 +10,7 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>ブレンド ステート</strong>はピクセル シェーダーが、出した色を <strong>レンダー ターゲットのすでにある色とどう混ぜて書くか</strong>を決める、設定です。何も設定しないと新しい色が古い色を上書きします。半透明（ガラス、煙）、光の加算（炎、魔法）、ブルームの足し込みマスクはブレンドで、実現します。
+<strong>ブレンド ステート</strong>はピクセル シェーダーが出した色を <strong>レンダー ターゲットのすでにある色とどう混ぜて書くか</strong>を決める、設定です。何も設定しないと新しい色が古い色を上書きします。半透明（ガラス、煙）、光の加算（炎、魔法）、ブルームの足し込みマスクはブレンドで、実現します。
 
 !!! tip "ポイント"
     - ブレンド ＝ 「新しい色（ソース）」と「今ある色（デスト）」の、混ぜ方。式は `結果 = ソース × 係数 S  演算  デスト × 係数 D`。
@@ -49,7 +49,7 @@ rt.BlendOp = D3D11_BLEND_OP_ADD;                            // 足す
 rt.SrcBlendAlpha = D3D11_BLEND_ONE;
 rt.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 rt.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;    // RGBA を、全部、書く
+rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;    // RGBA を全部、書く
 
 Microsoft::WRL::ComPtr<ID3D11BlendState> state;
 device->CreateBlendState(&desc, &state);
@@ -79,7 +79,7 @@ context->OMSetBlendState(state.Get(), blend_factor, 0xFFFFFFFF);   // 第 3 引�
 | `DEST_COLOR`・`INV_DEST_COLOR` | デストの色、(1 − デストの色) |
 | `DEST_ALPHA`・`INV_DEST_ALPHA` | デストのアルファ、(1 − デストのアルファ) |
 | `BLEND_FACTOR`・`INV_BLEND_FACTOR` | `OMSetBlendState` で渡した定数色 |
-| `SRC1_COLOR`・`SRC1_ALPHA` | デュアル ソース ブレンド（ピクセル シェーダーが、2 つの色を出力） |
+| `SRC1_COLOR`・`SRC1_ALPHA` | デュアル ソース ブレンド（ピクセル シェーダーが 2 つの色を出力） |
 
 ## よく使うブレンド
 
@@ -95,11 +95,11 @@ context->OMSetBlendState(state.Get(), blend_factor, 0xFFFFFFFF);   // 第 3 引�
 
 ### プリマルチプライド アルファ
 
-色にアルファをあらかじめ掛けて持つ形式です（`rgb = rgb × a`）。通常の、アルファ ブレンドより <strong>フィルタリングで縁が、にじまず</strong>、加算と通常の半透明を <strong>同じブレンド</strong>（`ONE`、`INV_SRC_ALPHA`）で扱えます。パーティクルの現在の標準です。
+色にアルファをあらかじめ掛けて持つ形式です（`rgb = rgb × a`）。通常の、アルファ ブレンドより <strong>フィルタリングで縁がにじまず</strong>、加算と通常の半透明を <strong>同じブレンド</strong>（`ONE`、`INV_SRC_ALPHA`）で扱えます。パーティクルの現在の標準です。
 
 ```hlsl
 float4 color = texture.Sample(sampler, uv);
-return float4(color.rgb * color.a, color.a);                // アルファを、色に、掛けてから、返す
+return float4(color.rgb * color.a, color.a);                // アルファを色に掛けてから、返す
 ```
 
 ## 描く順序
@@ -108,7 +108,7 @@ return float4(color.rgb * color.a, color.a);                // アルファを�
 
 | 種類 | 順序 |
 | --- | --- |
-| 不透明 | 順序は自由（深度テストが、解決する）。手前から描くとオーバードローが、減る |
+| 不透明 | 順序は自由（深度テストが解決する）。手前から描くとオーバードローが減る |
 | 半透明（通常のアルファ） | <strong>奥から、手前</strong>の順（ソートが必要） |
 | 加算（`ONE`、`ONE`） | 順序に依存しない（足し算は、交換できる）。ソート不要 |
 
@@ -117,7 +117,7 @@ return float4(color.rgb * color.a, color.a);                // アルファを�
 ## 複数のレンダー ターゲットに別々のブレンド
 
 ```cpp
-desc.IndependentBlendEnable = TRUE;                         // RenderTarget[0]〜[7] を、それぞれ指定する
+desc.IndependentBlendEnable = TRUE;                         // RenderTarget[0]〜[7] をそれぞれ指定する
 desc.RenderTarget[0].BlendEnable = TRUE;                    // ターゲット 0: 加算
 desc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
 desc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
@@ -126,7 +126,7 @@ desc.RenderTarget[1].SrcBlend = D3D11_BLEND_ZERO;
 desc.RenderTarget[1].DestBlend = D3D11_BLEND_INV_SRC_COLOR;
 ```
 
-[Weighted Blended OIT](../../graphics/translucency/oit/wboit.md) のように 1 回の描画で 2 枚のターゲットに、別の混ぜ方で書くときに使います。
+[Weighted Blended OIT](../../graphics/translucency/oit/wboit.md) のように 1 回の描画で 2 枚のターゲットに別の混ぜ方で書くときに使います。
 
 ## RenderTargetWriteMask
 
@@ -140,7 +140,7 @@ rt.RenderTargetWriteMask = 0;                               // 何も、書か�
 ## アルファ トゥ カバレッジ
 
 ```cpp
-desc.AlphaToCoverageEnable = TRUE;                          // MSAA 時に、アルファを、サブサンプルの、カバレッジに変える
+desc.AlphaToCoverageEnable = TRUE;                          // MSAA 時にアルファをサブサンプルの、カバレッジに変える
 ```
 
 葉やフェンスのアルファ テストを MSAA でなめらかにします（[Alpha to Coverage](../../graphics/translucency/alpha-test/alpha-to-coverage.md)）。
@@ -151,9 +151,9 @@ desc.AlphaToCoverageEnable = TRUE;                          // MSAA 時に、ア
     奥から手前の順に描いていない。または、深度の書き込みを有効のままにしている（[Depth-Stencil State](depth-stencil-state.md)）。
 
 ??? failure "パーティクルの縁に暗い（白い）縁取りが出る"
-    通常のアルファ ブレンドで、アルファ 0 のピクセルの色（黒や白）が、フィルタリングでにじむ。プリマルチプライド アルファにする。
+    通常のアルファ ブレンドで、アルファ 0 のピクセルの色（黒や白）がフィルタリングでにじむ。プリマルチプライド アルファにする。
 
-??? failure "加算した色が、まぶしすぎる（白飛び）"
+??? failure "加算した色がまぶしすぎる（白飛び）"
     HDR のレンダー ターゲットでは 1 を超えて、足せる。LDR（`R8G8B8A8_UNORM`）では 1 で頭打ち。トーン マッピングを見直す。
 
 ??? failure "ブレンドを設定したのに効かない"

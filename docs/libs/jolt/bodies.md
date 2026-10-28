@@ -65,7 +65,7 @@ BodyID id = bodies.CreateAndAddBody(settings, EActivation::Activate);
 
 ### 大量の物体をまとめて追加する
 
-数百〜数千の物体を1 つずつ `CreateAndAddBody` すると、ブロードフェーズの更新が、毎回起きて遅くなります。まとめて追加します。
+数百〜数千の物体を1 つずつ `CreateAndAddBody` すると、ブロードフェーズの更新が毎回起きて遅くなります。まとめて追加します。
 
 ```cpp
 BodyIDVector ids;
@@ -124,7 +124,7 @@ bodies.AddBodiesFinalize(ids.data(), (int)ids.size(), state, EActivation::Activa
 | `Kinematic` | プログラムが動かす。力を受けないがほかの物体を押す | 動く床・エレベーター・ドア・プレイヤーが操作する足場 |
 | `Dynamic` | 物理で動く。力・衝突・重力で動く | ボール・箱・敵（物理で動くもの） |
 
-`Static` の物体を動かす（位置を変える）ことは、避けます（ブロードフェーズの木の再構築が、重い）。動かしたいなら `Kinematic` にします。
+`Static` の物体を動かす（位置を変える）ことは、避けます（ブロードフェーズの木の再構築が重い）。動かしたいなら `Kinematic` にします。
 
 ## 位置・向き・速度
 
@@ -265,10 +265,10 @@ physics_system.SetContactListener(&listener);
 
 | 関数 | 呼ばれるとき |
 | --- | --- |
-| `OnContactValidate` | 接触が、判定される前（接触を無視することもできる） |
+| `OnContactValidate` | 接触が判定される前（接触を無視することもできる） |
 | `OnContactAdded` | 新しく接触したとき |
-| `OnContactPersisted` | 接触が、続いているとき（毎ステップ） |
-| `OnContactRemoved` | 接触が、なくなったとき |
+| `OnContactPersisted` | 接触が続いているとき（毎ステップ） |
+| `OnContactRemoved` | 接触がなくなったとき |
 
 !!! warning "リスナーは、物理スレッドから呼ばれる"
     接触リスナーは物理のジョブ（複数スレッド）から、同時に呼ばれることがあります。スレッド安全に書きます（ミューテックス、またはスレッドごとのバッファ）。リスナーの中で物体を削除・変更しません。イベントを溜めて `Update` の後にメインスレッドで処理します（[ECS・ゲームとの連携](integration.md)）。
@@ -317,10 +317,10 @@ if (lock.Succeeded()) {
 ??? failure "接触リスナーの中で、物体を削除してクラッシュする"
     イベントを溜めて、あとで処理します。
 
-??? failure "質量が、極端に違う物体どうしで不安定になる"
+??? failure "質量が極端に違う物体どうしで不安定になる"
     質量比を 10 倍程度に抑えます。
 
-??? failure "高速な弾が、壁をすり抜ける"
+??? failure "高速な弾が壁をすり抜ける"
     `mMotionQuality = LinearCast`、または`collision_steps` を増やす。
 
 ## これだけ覚える

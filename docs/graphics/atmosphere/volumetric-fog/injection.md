@@ -25,10 +25,10 @@ tags:
 <defs><marker id="arr-light-injection" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">光の注入: 霧の 3D 格子の各マスに、「そこに届く光」を、ライトごとに書き込む</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">光の注入: 霧の 3D 格子の各マスに「そこに届く光」をライトごとに書き込む</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">上から見た 1 つのスライス(24×12 マス)。2 つのライトと、光を遮る壁。各マスで、光を計算して足す</text>
 <rect x="30" y="96" width="620.0" height="320.0" fill="#ffffff" stroke="#e5aa28" stroke-width="1.8" rx="6"/>
-<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5aa28">① 霧の 1 スライス(各マスに、光を足す)</text>
+<text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5aa28">① 霧の 1 スライス(各マスに光を足す)</text>
 <rect x="40.0" y="110.0" width="25.3" height="25.3" fill="#0f172a"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0698;0.3256" values="#0f172a;#1b140b;#1b140b"/></rect>
 <rect x="65.0" y="110.0" width="25.3" height="25.3" fill="#0f172a"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0721;0.3279" values="#0f172a;#261c0f;#261c0f"/></rect>
 <rect x="90.0" y="110.0" width="25.3" height="25.3" fill="#0f172a"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0744;0.3302" values="#0f172a;#342715;#342715"/></rect>
@@ -344,7 +344,7 @@ tags:
 <text x="46" y="464" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">格子に書き込むのは、ライトごとに 921,600 マス(ライト 100 個なら 92,160,000 回)</text>
 <text x="46" y="488" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">画素ごとに霧の中を進んで、ライトを足す方法なら、画素 2,073,600 × 歩数 64 × ライト数 になる</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">霧の中の各点に、どの色の光が、どれだけ届いているかを、先に調べて貯めておく<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">霧の中の各点にどの色の光がどれだけ届いているかを先に調べて貯めておく<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ライト 1: 距離で弱まり、壁の向こうには届かない<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.3254;0.3256;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ライト 2: 足し合わせると、2 色が混ざる所もできる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3254;0.3256;0.6091;0.6093;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">画面の画素には、関係しない計算量。ライトが増えても、格子の数だけ増える<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6091;0.6093;1.0000;1.0000" values="0;0;1;1;0"/></text>
@@ -386,9 +386,9 @@ float3 scattering = inscattered * density * albedo;
 | ライトの数が多い場合 | froxel ごとにライトをカリング（[Tiled と Clustered](../../../rendering/light-culling.md)） |
 | 解像度が低くても綺麗 | 霧は低周波（細かい構造がない）ので低解像度で十分 |
 
-## ステップ 2：ライトの光を、注入する
+## ステップ 2：ライトの光を注入する
 
-<strong>密度</strong>（[Step 1: Density](density.md)）が、決まったら 各セルに、ライトの光を散乱光として書き込みます（注入）。そのセルの霧がライトに照らされて、どれだけ光るかを計算します。
+<strong>密度</strong>（[Step 1: Density](density.md)）が決まったら 各セルにライトの光を散乱光として書き込みます（注入）。そのセルの霧がライトに照らされて、どれだけ光るかを計算します。
 
 ## セルでの光の計算
 
@@ -403,46 +403,46 @@ float3 scattering = inscattered * density * albedo;
 | 散乱係数（`σ_s`） | セルの、密度（霧が濃いほどよく光る） |
 | 位相関数 | ライトの向きと、カメラへの向きの角度に依存（[Phase Functions](../scattering/phase-function.md)） |
 | ライトの強さ | 太陽、点光源の明るさ |
-| 影 | シャドウ マップで光が、届くか |
+| 影 | シャドウ マップで光が届くか |
 | 減衰 | 点光源の距離による、減衰 |
 
 ## 太陽（平行光）を注入する
 
 ```hlsl
-// 計算シェーダー: 各セルに、太陽の光の、散乱を、足す。
+// 計算シェーダー: 各セルに太陽の光の、散乱を足す。
 [numthreads(8, 8, 4)]
 void InjectSunCS(uint3 id : SV_DispatchThreadID) {
   float4 cell = g_froxel_scatter[id];                                      // 密度のステップで書いた値
   float3 scattering = cell.xyz;                                            // 散乱係数（RGB）
-  if (cell.w < 1e-6) return;                                               // 霧が、無いセルは、スキップ
+  if (cell.w < 1e-6) return;                                               // 霧が無いセルは、スキップ
 
   float3 world = FroxelToWorld(float3(id) + JitterOffset());
   float3 view_dir = normalize(world - g_camera_position);                  // カメラから、セルへ向かう向き
 ```
 
-<strong>霧がない</strong>セル（密度 0）は、光らないのでスキップします。カメラからセルへの向きが位相関数に、必要です。
+<strong>霧がない</strong>セル（密度 0）は、光らないのでスキップします。カメラからセルへの向きが位相関数に必要です。
 
 ```hlsl
-  // 太陽の光が、このセルに、届くか。シャドウ マップ（カスケード）を、1 回引く。雲の影も、掛ける。
+  // 太陽の光がこのセルに届くか。シャドウ マップ（カスケード）を 1 回引く。雲の影も、掛ける。
   float shadow = SampleCascadedShadow(world) * CloudShadow(world);
 
-  // 位相関数: 太陽の光が、カメラの方向へ、散る割合。霧は、前方に、やや強く、散る。
+  // 位相関数: 太陽の光がカメラの方向へ散る割合。霧は、前方にやや強く、散る。
   float phase = HenyeyGreenstein(dot(view_dir, g_sun_dir), g_phase_g);
 
   float3 sun_scatter = scattering * g_sun_color * shadow * phase;
   g_froxel_scatter[id] = float4(cell.xyz, cell.w);                          // 密度は、そのまま
-  g_froxel_lighting[id] += float4(sun_scatter, 0);                          // 散乱光を、別のテクスチャに、足す
+  g_froxel_lighting[id] += float4(sun_scatter, 0);                          // 散乱光を別のテクスチャに足す
 }
 ```
 
-シャドウ マップ（[CSM](../../shadows/cascaded.md)）を、セルごとに 1 回、引きます。影の中のセルは光らず光が届くセルだけが、散乱光を持ちます。これが光の筋（ゴッド レイ）の、源です（[Volume-Based God Rays](../god-rays/volume.md)）。
+シャドウ マップ（[CSM](../../shadows/cascaded.md)）をセルごとに 1 回、引きます。影の中のセルは光らず光が届くセルだけが、散乱光を持ちます。これが光の筋（ゴッド レイ）の、源です（[Volume-Based God Rays](../god-rays/volume.md)）。
 
-## 点光源・スポットライトを、注入する
+## 点光源・スポットライトを注入する
 
 <strong>ライトの周りの霧</strong>は 光の玉になります。セルごとに影響するライトを探して、足し合わせます。
 
 ```hlsl
-// 点光源: セルから、ライトへの距離で、減衰させ、位相関数と、影（ライトの、シャドウ マップ）を、掛ける。
+// 点光源: セルから、ライトへの距離で、減衰させ、位相関数と、影（ライトの、シャドウ マップ）を掛ける。
 float3 InjectPointLight(Light light, float3 world, float3 view_dir, float3 scattering) {
   float3 to_light = light.position - world;
   float dist = length(to_light);
@@ -458,10 +458,10 @@ float3 InjectPointLight(Light light, float3 world, float3 view_dir, float3 scatt
 }
 ```
 
-光源からの距離の2 乗に、反比例して暗くなる逆二乗の法則と、範囲での打ち切り（窓関数）を、組み合わせます。影つきのライトはライトのシャドウ マップ（[Point Lights: Cube Maps](../../shadows/local-lights/point-cubemap.md)）を、セルごとに引きます。
+光源からの距離の2 乗に反比例して暗くなる逆二乗の法則と、範囲での打ち切り（窓関数）を組み合わせます。影つきのライトはライトのシャドウ マップ（[Point Lights: Cube Maps](../../shadows/local-lights/point-cubemap.md)）をセルごとに引きます。
 
 ```hlsl
-// ライトが、多いとき: クラスターごとの、ライトのリストを、使い、そのセルに影響する、ライトだけを、ループする。
+// ライトが多いとき: クラスターごとの、ライトのリストを使い、そのセルに影響する、ライトだけをループする。
 uint cluster = ClusterIndexAt(world);
 uint count = g_cluster_light_count[cluster];
 float3 total = 0.0;
@@ -471,14 +471,14 @@ for (uint i = 0; i < count; ++i) {
 }
 ```
 
-ライトが数百個ある場合、全ライトを全セルでループすると、重いです。クラスター（空間を小さな領域に分け、各領域に影響するライトのリストを、持つ）を使います（[Shadows for Many Lights](../../shadows/local-lights/many-lights.md)）。
+ライトが数百個ある場合、全ライトを全セルでループすると、重いです。クラスター（空間を小さな領域に分け、各領域に影響するライトのリストを持つ）を使います（[Shadows for Many Lights](../../shadows/local-lights/many-lights.md)）。
 
 ## 環境光（空の光）を足す
 
 <strong>ライトが無い</strong>場所でも 霧は、空の光でぼんやりと明るいものです。環境光を一様に足します。
 
 ```hlsl
-float3 ambient_scatter = scattering * g_ambient_color * g_ambient_strength;     // 空の光が、霧を、全方向から、照らす
+float3 ambient_scatter = scattering * g_ambient_color * g_ambient_strength;     // 空の光が霧を全方向から、照らす
 ```
 
 霧の中の日陰が真っ黒にならないための、重要な項です。空の色（青い）が霧の日陰の色です（[Using the Sky for Lighting](../sky-models/sky-lighting.md)）。

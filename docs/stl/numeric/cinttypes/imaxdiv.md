@@ -14,7 +14,7 @@ tags:
 `#include <cinttypes>`
 </div>
 
-`std::div` の、型違いの仲間です。`std::imaxdiv` は、`std::intmax_t`の割り算の商と余りを、1 回の呼び出しで返します。
+`std::div` の、型違いの仲間です。`std::imaxdiv` は、`std::intmax_t`の割り算の商と余りを 1 回の呼び出しで返します。
 
 !!! tip "ポイント"
     - `std::imaxdiv(7, 2)` は商 3、余り 1
@@ -65,7 +65,7 @@ int main() {
 
 ## ゲームでの使いどころ
 
-大きな値の商と余りを、1 回で受け取りたいときに使います。
+大きな値の商と余りを 1 回で受け取りたいときに使います。
 
 ```cpp
 const auto t = std::imaxdiv(total_ms, 1000);   // 秒とミリ秒に分ける

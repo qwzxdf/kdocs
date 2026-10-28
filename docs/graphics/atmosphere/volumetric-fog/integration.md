@@ -63,8 +63,8 @@ void IntegrateCS(uint3 id : SV_DispatchThreadID) {
 <defs><marker id="arr-fog-integrate" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">霧の積分: 手前の層から順に、「光が減った分」と「霧が足した光」を積み重ねる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 本の視線を、奥行き 16 枚のスライス(froxel)に分けて、前から順に積算する。霧の塊が、途中にある</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">霧の積分: 手前の層から順に「光が減った分」と「霧が足した光」を積み重ねる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 本の視線を奥行き 16 枚のスライス(froxel)に分けて、前から順に積算する。霧の塊が途中にある</text>
 <rect x="30" y="96" width="900" height="150" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 各スライス(手前 → 奥)の、霧の濃さ</text>
 <rect x="60.0" y="219.67" width="48.0" height="8.33" fill="#93c5fd" opacity="0.9"/>
@@ -99,7 +99,7 @@ void IntegrateCS(uint3 id : SV_DispatchThreadID) {
 <text x="805.0" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">41.1 m</text>
 <rect x="832.5" y="219.74" width="48.0" height="8.26" fill="#93c5fd" opacity="0.9"/>
 <text x="856.5" y="240" text-anchor="middle" style="font-size:9px;font-weight:500;fill:#64748b">55.6 m</text>
-<text x="40" y="126" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">棒 = そのスライスの霧の濃さ(中央が、霧の塊)。スライスの厚みは、奥ほど厚い</text>
+<text x="40" y="126" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">棒 = そのスライスの霧の濃さ(中央が霧の塊)。スライスの厚みは、奥ほど厚い</text>
 <rect x="30" y="262" width="900" height="160" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
 <text x="30" y="252" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">② 積算の途中経過(前から順に)</text>
 <g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;1.0000" values="0;0;1;1"/><rect x="60.0" y="300.07" width="23.0" height="99.93" fill="#c4b5fd" opacity="0.95"/>
@@ -196,7 +196,7 @@ void IntegrateCS(uint3 id : SV_DispatchThreadID) {
 <text x="46" y="488" text-anchor="start" style="font-size:14px;font-weight:700;fill:#166534">3D テクスチャ 160×90×64 = 921,600 個で積算。画素ごとに 64 回進める方法は 132,710,400 回(約 144 倍)</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">霧の中を進む光は、減る(吸収・散乱)ことと、足される(霧が光る)ことを同時に受ける<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">前のスライスから順に、T(残る光)を掛けて、霧の光を足す<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;0.7020;0.7021;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">前のスライスから順に T(残る光)を掛けて、霧の光を足す<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;0.7020;0.7021;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">積算は 1 回。以後、どの画素も、奥行きに応じて、結果を 1 回読むだけ<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.7020;0.7021;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -233,7 +233,7 @@ float3 final_color = scene_color * fog.a + fog.rgb;
 
 ## ステップ 3：奥行き方向の積分
 
-<strong>注入</strong>（[Step 2: Light Injection](injection.md)）で、各セルの散乱光と消散係数が、決まりました。画面の各画素に必要なのは「カメラから、そこまでのすべてのセルの散乱光の、合計」です。これを奥行き方向の積分で事前に、求めておきます。
+<strong>注入</strong>（[Step 2: Light Injection](injection.md)）で、各セルの散乱光と消散係数が決まりました。画面の各画素に必要なのは「カメラから、そこまでのすべてのセルの散乱光の、合計」です。これを奥行き方向の積分で事前に、求めておきます。
 
 ```text
 画素 (x, y) の、列:  カメラ ──→  [z=0] [z=1] [z=2] ... [z=63]
@@ -243,7 +243,7 @@ float3 final_color = scene_color * fog.a + fog.rgb;
 
 ## 積分の計算シェーダー
 
-<strong>画面の各 (x, y) の、列</strong>について 1 スレッドが、奥行き方向にループします。
+<strong>画面の各 (x, y) の、列</strong>について 1 スレッドが奥行き方向にループします。
 
 ```hlsl
 Texture3D<float4> g_froxel_lighting : register(t0);        // 各セルの、散乱光（xyz）と、消散（w）
@@ -255,7 +255,7 @@ void IntegrateCS(uint3 id : SV_DispatchThreadID) {
   float transmittance = 1.0;                                // これまでの、透過率（カメラ → このスライス）
 ```
 
-スレッドのブロックは (x, y) を、担当し z はループで手前から奥へ、進みます。
+スレッドのブロックは (x, y) を担当し z はループで手前から奥へ進みます。
 
 ```hlsl
   for (uint z = 0; z < 64; ++z) {
@@ -265,34 +265,34 @@ void IntegrateCS(uint3 id : SV_DispatchThreadID) {
     float slice_thickness = SliceThickness(z);              // このスライスの、厚み（メートル。奥ほど、厚い）
 ```
 
-セルの散乱光と消散係数を、読み、スライスの厚み（奥行き方向の、長さ）を求めます。奥のスライスほど厚い（[Froxels](froxel.md) の、奥行きの割り当て）ので厚みを、掛けることが重要です。
+セルの散乱光と消散係数を読み、スライスの厚み（奥行き方向の、長さ）を求めます。奥のスライスほど厚い（[Froxels](froxel.md) の、奥行きの割り当て）ので厚みを掛けることが重要です。
 
 ```hlsl
-    // このスライスを、通るときの、透過率（Beer の法則）。
+    // このスライスを通るときの、透過率（Beer の法則）。
     float slice_transmittance = exp(-extinction * slice_thickness);
 
-    // スライスの中の、積分（解析的）: 散乱光 × (1 − 透過率) / 消散。エネルギーを、保つ。
+    // スライスの中の、積分（解析的）: 散乱光 × (1 − 透過率) / 消散。エネルギーを保つ。
     float3 integral = (scatter - scatter * slice_transmittance) / max(extinction, 1e-5);
-    accumulated += transmittance * integral;                // これまでの透過率を、掛けて、足す
-    transmittance *= slice_transmittance;                    // 透過率を、更新
+    accumulated += transmittance * integral;                // これまでの透過率を掛けて、足す
+    transmittance *= slice_transmittance;                    // 透過率を更新
 ```
 
-区間の中でも光は減るので、解析的な積分（[Single-Scattering Integral](../scattering/single-scattering.md) と、同じ）を使います。単純に散乱光 × 厚みを足す方法は、ステップが粗いと不安定でエネルギーが、保存されません。
+区間の中でも光は減るので、解析的な積分（[Single-Scattering Integral](../scattering/single-scattering.md) と、同じ）を使います。単純に散乱光 × 厚みを足す方法は、ステップが粗いと不安定でエネルギーが保存されません。
 
 ```hlsl
-    g_froxel_integrated[uint3(id.xy, z)] = float4(accumulated, transmittance);   // z までの結果を、保存
+    g_froxel_integrated[uint3(id.xy, z)] = float4(accumulated, transmittance);   // z までの結果を保存
   }
 }
 ```
 
-各スライス `z` に「カメラから、`z` まで」の累積結果を保存します。画素は自分の距離に対応する、スライスを 1 回読むだけで、カメラからその物までの霧の効果が、得られます。
+各スライス `z` に「カメラから、`z` まで」の累積結果を保存します。画素は自分の距離に対応する、スライスを 1 回読むだけで、カメラからその物までの霧の効果が得られます。
 
 ## ステップ 4：画面に適用する
 
-<strong>物体を描く</strong>とき（またはポスト プロセス）に、物体の距離から対応するスライスを読んで霧を、かけます。
+<strong>物体を描く</strong>とき（またはポスト プロセス）に物体の距離から対応するスライスを読んで霧をかけます。
 
 ```hlsl
-// ピクセル シェーダーの、最後（または、ポスト プロセス）で、ボリューム フォグを、かける。
+// ピクセル シェーダーの、最後（または、ポスト プロセス）で、ボリューム フォグをかける。
 float3 ApplyVolumetricFog(float3 scene_color, float2 screen_uv, float view_depth) {
   float slice = ViewDepthToSlice(view_depth);                              // 距離 → スライス（連続値）
   float4 fog = g_froxel_integrated.SampleLevel(g_linear_clamp, float3(screen_uv, slice), 0);
@@ -300,11 +300,11 @@ float3 ApplyVolumetricFog(float3 scene_color, float2 screen_uv, float view_depth
 }
 ```
 
-3D テクスチャのトライリニア補間（`SampleLevel` + `LINEAR`）が、スライスの間もなめらかに、補間します。1 回の読み込みで霧の色と透過率が、得られます。
+3D テクスチャのトライリニア補間（`SampleLevel` + `LINEAR`）がスライスの間もなめらかに、補間します。1 回の読み込みで霧の色と透過率が得られます。
 
 ### 物体の深度が froxel の範囲の外
 
-物体が froxel の最大距離より、遠いとき 最後のスライスの値を、使います（クランプ）。それ以上の遠景の霧は空気遠近法など、別の方法で補います（[Froxels](froxel.md)）。
+物体が froxel の最大距離より、遠いとき 最後のスライスの値を使います（クランプ）。それ以上の遠景の霧は空気遠近法など、別の方法で補います（[Froxels](froxel.md)）。
 
 ```hlsl
 float slice = saturate(ViewDepthToSlice(view_depth));                       // 0〜1 に、クランプ。範囲の外は、最後のスライス
@@ -312,22 +312,22 @@ float slice = saturate(ViewDepthToSlice(view_depth));                       // 0
 
 ### 半透明の物にも
 
-半透明の物（パーティクル）も、自分の距離で同じボリュームを引いて霧を、かけることができます。ポスト プロセスでなく物体の、ピクセル シェーダーで行うのが、一般的です（[Where to Apply Fog](../aerial-fog/where.md)）。
+半透明の物（パーティクル）も、自分の距離で同じボリュームを引いて霧をかけることができます。ポスト プロセスでなく物体の、ピクセル シェーダーで行うのが、一般的です（[Where to Apply Fog](../aerial-fog/where.md)）。
 
 ## 描画の順序
 
 | 順 | 内容 |
 | --- | --- |
-| 1 | シャドウ マップを、描く |
+| 1 | シャドウ マップを描く |
 | 2 | 密度（[Step 1: Density](density.md)）、ライト注入（[Step 2: Light Injection](injection.md)）、積分（このページ）を計算シェーダーで、実行 |
 | 3 | 不透明な物を描く（ピクセル シェーダーで、ボリュームを引いて霧をかける） |
-| 4 | 半透明の物を描く（同様に霧を、かける） |
+| 4 | 半透明の物を描く（同様に霧をかける） |
 
-<strong>ボリュームの計算</strong>は 画面を、描く前に行います。物体の描画がボリュームを引くためです。
+<strong>ボリュームの計算</strong>は 画面を描く前に行います。物体の描画がボリュームを引くためです。
 
 ## よくあるミス
 
-??? failure "積分の結果が、手前の物にも霧がかかる"
+??? failure "積分の結果が手前の物にも霧がかかる"
     <strong>物体の深度</strong>で積分の位置を引く。
 
 ## これだけ覚える

@@ -50,7 +50,7 @@ constexpr copy_backward_result<borrowed_iterator_t<R>, I> copy_backward(R&& r, I
 int main() {
   std::vector<int> v = {1, 2, 3, 4, 5, 0};  // 末尾に空きが 1 つある
 
-  // 先頭の 5 個を、1 つ後ろへずらす（v の終わりを、コピー先の終わりにする）
+  // 先頭の 5 個を 1 つ後ろへずらす（v の終わりをコピー先の終わりにする）
   std::ranges::copy_backward(std::ranges::subrange(v.begin(), v.begin() + 5), v.end());
   v[0] = 99;  // 空いた先頭に新しい値を入れる
   std::println("{}", v);
@@ -72,7 +72,7 @@ int main() {
 
 | やったこと | 結果 |
 | --- | --- |
-| コピー先が、コピー元の範囲の内側に入る（`result` が `r` の (begin, end] にある） | 未定義動作 |
+| コピー先がコピー元の範囲の内側に入る（`result` が `r` の (begin, end] にある） | 未定義動作 |
 
 ## よくあるミス
 

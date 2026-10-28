@@ -6,7 +6,7 @@ tags:
 
 # Lens Effects
 
-<strong>CG の画面は、本来「完璧すぎる」</strong>ものです。実際のカメラは、レンズの歪み・色のずれ・周辺の暗さ・センサーのノイズ・光の反射など、さまざまな「不完全さ」を持ちます。ポストプロセスでこれらを再現すると、「カメラで撮った絵」に見え、リアリティや映画らしさが増します。ただし、どれも「あれば高品質」というものではなく、表現の好みの問題です。このセクションでは、色収差・ビネット・フィルム グレイン・レンズ フレアを、1 つずつ別のページで説明します。
+<strong>CG の画面は、本来「完璧すぎる」</strong>ものです。実際のカメラは、レンズの歪み・色のずれ・周辺の暗さ・センサーのノイズ・光の反射など、さまざまな「不完全さ」を持ちます。ポストプロセスでこれらを再現すると、「カメラで撮った絵」に見え、リアリティや映画らしさが増します。ただし、どれも「あれば高品質」というものではなく、表現の好みの問題です。このセクションでは、色収差・ビネット・フィルム グレイン・レンズ フレアを 1 つずつ別のページで説明します。
 
 ## 効果の一覧
 
@@ -27,8 +27,8 @@ tags:
 <defs><marker id="arr-chromatic-aberration-shift" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">色収差: 画面の中心から離れるほど、赤と青が逆向きにずれ、白い縁に、色のにじみが出る</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 64 画素。白と黒の境目(縁)が 3 カ所。赤を外へ、青を内へ、中心からの距離に比例してずらす</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">色収差: 画面の中心から離れるほど、赤と青が逆向きにずれ、白い縁に色のにじみが出る</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 64 画素。白と黒の境目(縁)が 3 カ所。赤を外へ青を内へ中心からの距離に比例してずらす</text>
 <text x="60.0" y="112" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">ずれの強さ k = 0</text>
 <rect x="60.0" y="116.0" width="10.8" height="30.3" fill="#0f172a"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0698" values="#0f172a;#000000"/></rect>
 <rect x="70.5" y="116.0" width="10.8" height="30.3" fill="#0f172a"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0712" values="#0f172a;#000000"/></rect>
@@ -320,7 +320,7 @@ tags:
 <text x="496" y="457" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">中心の縁: 0 → 2 画素 / 端の縁: 0 → 12 画素</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">レンズは、色(波長)によって、曲がり方が少し違う<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">中心からの距離に比例して、赤を外へ、青を内へずらす<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.8138;0.8140;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">中心からの距離に比例して、赤を外へ青を内へずらす<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.8138;0.8140;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ずれを強くしすぎると、見づらい。やりすぎない<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.8138;0.8140;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 

@@ -6,7 +6,7 @@ tags:
 
 # CMake で使う
 
-<strong>CMake（シーメイク）</strong> は、「どのファイルを、どの設定でビルドするか」を `CMakeLists.txt` というテキストファイルに書いて、Visual Studio のプロジェクトを自動で作ってくれるツールです。Visual Studio は、`.sln` / `.vcxproj` を使わずに、CMake のプロジェクトを「フォルダーを開く」で直接開くこともできます。ライブラリが CMake で配布されている（Jolt Physics など）ときや、将来 Linux / Mac でも動かしたいときに使います。
+<strong>CMake（シーメイク）</strong> は、「どのファイルをどの設定でビルドするか」を `CMakeLists.txt` というテキストファイルに書いて、Visual Studio のプロジェクトを自動で作ってくれるツールです。Visual Studio は、`.sln` / `.vcxproj` を使わずに、CMake のプロジェクトを「フォルダーを開く」で直接開くこともできます。ライブラリが CMake で配布されている（Jolt Physics など）ときや、将来 Linux / Mac でも動かしたいときに使います。
 
 !!! tip "ポイント"
     - <strong>学生のうちは、Visual Studio のプロジェクト（`.sln`）で十分。</strong> CMake は、必要になったときに覚えればよい。

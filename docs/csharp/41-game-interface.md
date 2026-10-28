@@ -38,24 +38,24 @@ Editor.exe ──▶ EngineApi.dll ──▶ Engine.dll ──読み込む──
 | B: 純粋仮想クラス（採用） | 仮想関数だけを持つクラス（インターフェース）で受け渡す | ゲームのコードを C++ のクラスで書ける。仮想関数テーブルの形は MSVC なら安定 | 同じコンパイラー、同じ設定で作る必要がある。STL の型を境界に出せない |
 | C: クラスをそのまま export | `__declspec(dllexport)` でクラスを出す | 書くのは楽 | 名前修飾、STL のメモリ、バージョン管理で壊れやすい |
 
-B は A と C の中間です。境界に出すのは、「仮想関数だけを持つ抽象クラス」と「基本型の引数」だけにすれば、実用上、安全に使えます。ただし、ゲームとエンジンを、同じコンパイラーの同じ版、同じランタイム設定（`/MD`）で作ることが前提です。1 つのソリューションの中で作るので、これは満たされます。
+B は A と C の中間です。境界に出すのは、「仮想関数だけを持つ抽象クラス」と「基本型の引数」だけにすれば、実用上、安全に使えます。ただし、ゲームとエンジンを同じコンパイラーの同じ版、同じランタイム設定（`/MD`）で作ることが前提です。1 つのソリューションの中で作るので、これは満たされます。
 
 境界では、次の 3 つの約束を守ります。破ると、原因の分かりにくい不具合になります。
 
-1. STL の型（`std::string`、`std::vector`）を、境界の関数の引数にも戻り値にも出さない。実装やデバッグ設定が違うと、型のレイアウトが変わるからです。
+1. STL の型（`std::string`、`std::vector`）を境界の関数の引数にも戻り値にも出さない。実装やデバッグ設定が違うと、型のレイアウトが変わるからです。
 2. メモリは、確保した側で解放する。ゲームが `new` した物は、ゲームの側の `Destroy` で解放します。
-3. C++ の例外を、境界の外に出さない。呼ぶ側（エンジン）が `try/catch` で受け止めます。
+3. C++ の例外を境界の外に出さない。呼ぶ側（エンジン）が `try/catch` で受け止めます。
 
 この章のゴールは、次のとおりです。
 
-- `Engine` の公開ヘッダーに、`IGameModule`（ゲームが実装）と `IGameHost`（エンジンが提供）を定義する。
+- `Engine` の公開ヘッダーに `IGameModule`（ゲームが実装）と `IGameHost`（エンジンが提供）を定義する。
 - `Game.dll` に、実際のゲーム（回転する物）を実装する。
 - エンジンが `Game.dll` を読み込んで、毎フレーム更新する。
 - `Player` から動かして確かめる。
 
 ## インターフェースを定義する
 
-2 つのインターフェースを、`Engine/include/Engine/Game.h` に書きます。まず、エンジンがゲームに提供する窓口 `IGameHost` です。
+2 つのインターフェースを `Engine/include/Engine/Game.h` に書きます。まず、エンジンがゲームに提供する窓口 `IGameHost` です。
 
 ```cpp title="Engine/include/Engine/Game.h"
 #pragma once
@@ -68,7 +68,7 @@ namespace mini {
 
 using ObjectId = std::uint32_t;      // 0 は「なし」
 
-// ゲームの API の版。インターフェースを変えたら増やす。読み込み時に、エンジンとゲームの版を照合する。
+// ゲームの API の版。インターフェースを変えたら増やす。読み込み時にエンジンとゲームの版を照合する。
 inline constexpr std::uint32_t kGameApiVersion = 1;
 
 // ゲームがエンジンを呼ぶための窓口。エンジンが実装して、ゲームに渡す。
@@ -170,7 +170,7 @@ GAME_API void DestroyGame(mini::IGameModule* game) {
 
 `IGameModule` のデストラクターは `protected` なので、`delete game` はできません。派生クラス `SpinnerGame` の型にキャストして、`delete` します。`SpinnerGame` のデストラクターは `public` です。
 
-次が、ゲームの本体です。「名前が `Spin` で始まる物を、Y 軸まわりに回し続ける」ゲームを作ります。
+次がゲームの本体です。「名前が `Spin` で始まる物を Y 軸まわりに回し続ける」ゲームを作ります。
 
 ```cpp title="Game/src/SpinnerGame.h"
 #pragma once
@@ -181,7 +181,7 @@ GAME_API void DestroyGame(mini::IGameModule* game) {
 
 #include "Engine/Game.h"
 
-// 名前が "Spin" で始まる物を、Y 軸まわりに回す。
+// 名前が "Spin" で始まる物を Y 軸まわりに回す。
 class SpinnerGame final : public mini::IGameModule {
  public:
   ~SpinnerGame() = default;
@@ -248,7 +248,7 @@ class SpinnerGame final : public mini::IGameModule {
 
 ## エンジン側に IGameHost を実装する
 
-ゲームから呼ばれる窓口の実体を、エンジンの側に作ります。`Scene` とログへの橋渡しです。
+ゲームから呼ばれる窓口の実体をエンジンの側に作ります。`Scene` とログへの橋渡しです。
 
 ```cpp title="Engine/src/GameHost.h"
 #pragma once
@@ -341,7 +341,7 @@ bool GameHost::SetTransform(ObjectId id, const float p[3], const float r[3], con
 
 ## エンジンがゲーム DLL を読み込む
 
-DLL の読み込みと破棄を、`GameLibrary` というクラスにまとめます。
+DLL の読み込みと破棄を `GameLibrary` というクラスにまとめます。
 
 ```cpp title="Engine/src/GameModule.h"
 #pragma once
@@ -443,9 +443,9 @@ void GameLibrary::Unload() {
 
 `LoadLibraryW` は、DLL を実行時に読み込む Win32 API です（`W` 付きで UTF-16 のパスを取ります）。`GetProcAddress` は、DLL から関数のアドレスを取り出します。`extern "C"` で export した関数は、飾りのない素の名前で探せます。返ってくるのは汎用の関数ポインター（`FARPROC`）なので、`reinterpret_cast` で正しい型に読み替えます。
 
-読み込みで大事なのは、API の版の照合です。古いゲーム DLL を新しいエンジンで読み込むと、仮想関数テーブルの形が合わずにクラッシュします。それを、起動の時点でエラーメッセージにして防ぎます。`OnLoad` が例外を投げても、`try/catch` で受け止めるので、エンジンは落ちません。
+読み込みで大事なのは、API の版の照合です。古いゲーム DLL を新しいエンジンで読み込むと、仮想関数テーブルの形が合わずにクラッシュします。それを起動の時点でエラーメッセージにして防ぎます。`OnLoad` が例外を投げても、`try/catch` で受け止めるので、エンジンは落ちません。
 
-外すときの順序は、`OnUnload`、`DestroyGame`、`FreeLibrary` です。逆にしてはいけません。DLL の中で作ったオブジェクトを、すべて壊してから `FreeLibrary` を呼ばないと、そのアドレスを呼んだ瞬間にクラッシュします。
+外すときの順序は、`OnUnload`、`DestroyGame`、`FreeLibrary` です。逆にしてはいけません。DLL の中で作ったオブジェクトをすべて壊してから `FreeLibrary` を呼ばないと、そのアドレスを呼んだ瞬間にクラッシュします。
 
 ## エンジンのループに組み込む
 
@@ -502,7 +502,7 @@ void Engine::Tick(float delta_seconds) {
 
 ## Player で動かして確かめる
 
-エディタを使う前に、Player で `Game.dll` の読み込みと更新を確かめます。第 4 章の Player に、回す物を作る処理と `LoadGame` を足します。
+エディタを使う前に Player で `Game.dll` の読み込みと更新を確かめます。第 4 章の Player に、回す物を作る処理と `LoadGame` を足します。
 
 ```cpp
 // Player の wWinMain、Engine::Create の直後
@@ -533,7 +533,7 @@ g_engine->SetPlaying(true);                        // すぐに Play を始め�
     `Game.dll` が必要とする `Engine.dll` が見つかりません。出力先をそろえます（第 1 章）。または、パスが相対で、作業ディレクトリが違います。`GetModuleFileName` で、実行ファイルのフォルダーを基準にします。
 
 ??? failure "`delete game` でヒープ破損のクラッシュ"
-    ゲームの DLL で `new` した物を、エンジンの側で `delete` しています。`DestroyGame` を通します。両方が `/MD` で同じ CRT を共有していても、このルールは守ります。
+    ゲームの DLL で `new` した物をエンジンの側で `delete` しています。`DestroyGame` を通します。両方が `/MD` で同じ CRT を共有していても、このルールは守ります。
 
 ??? failure "ゲームが `Scene` に直接アクセスしようとして、リンクできない"
     ゲームが触れるのは、`IGameHost` の関数だけです。`Scene` の型は、ゲームに見せません。必要な機能は、`IGameHost` に仮想関数を足して、版を上げます。
@@ -546,7 +546,7 @@ g_engine->SetPlaying(true);                        // すぐに Play を始め�
 - ゲームは `IGameModule`（純粋仮想クラス）を実装し、DLL は生成・破棄・版の 3 関数を export する。
 - エンジンは `IGameHost` を提供し、ゲームはそれだけを通して、エンジンを触る。
 - 境界では、STL の型を使わず、メモリを確保した側が解放し、例外を外へ出さない。
-- 読み込み時に、API の版を照合する。
+- 読み込み時に API の版を照合する。
 
 次の章では、エディタを動かしたまま `Game.dll` を差し替える、ホット リロードを作ります。
 

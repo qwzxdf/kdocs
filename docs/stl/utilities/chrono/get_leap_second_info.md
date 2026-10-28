@@ -15,7 +15,7 @@ tags:
 `#include <chrono>`
 </div>
 
-UTC の時刻が、うるう秒の 1 秒（23:59:60）そのものなのか、そしてその時点までに累計で何秒挿入されたかを知りたいことがあります。`get_leap_second_info(utc_time)` が教えてくれます。
+UTC の時刻がうるう秒の 1 秒（23:59:60）そのものなのか、そしてその時点までに累計で何秒挿入されたかを知りたいことがあります。`get_leap_second_info(utc_time)` が教えてくれます。
 
 !!! tip "ポイント"
     - `is_leap_second` が `true` なら、うるう秒の最中。

@@ -6,7 +6,7 @@ tags:
 
 # Gerstner Waves
 
-<strong>Gerstner 波は頂点を、上下だけでなく横方向にも動かす</strong>ことで、波頭が尖り谷が広い本物の波に近い形を作ります。サイン波と同じくらい軽いです。このページでは Gerstner 波の式と、パラメータ（急峻さ）を説明します。
+<strong>Gerstner 波は頂点を上下だけでなく横方向にも動かす</strong>ことで、波頭が尖り谷が広い本物の波に近い形を作ります。サイン波と同じくらい軽いです。このページでは Gerstner 波の式と、パラメータ（急峻さ）を説明します。
 
 !!! tip "ポイント"
     - 頂点が円運動する（水の粒子の動きに近い）。
@@ -20,7 +20,7 @@ tags:
     - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## Gerstner 波
-<strong>Gerstner 波</strong>は 水面の「粒子」を、円を描くように動かすモデルです。上下に動くだけでなく水平方向にも動くので波頂に向かって粒子が集まり、波頂が尖り谷が広がります。
+<strong>Gerstner 波</strong>は 水面の「粒子」を円を描くように動かすモデルです。上下に動くだけでなく水平方向にも動くので波頂に向かって粒子が集まり、波頂が尖り谷が広がります。
 
 <!-- fig:water-gerstner:begin -->
 
@@ -65,7 +65,7 @@ tags:
 
 <!-- fig:water-gerstner:end -->
 
-頂点の位置は元の位置 `P₀` を中心に、円運動します。
+頂点の位置は元の位置 `P₀` を中心に円運動します。
 
 <div class="formula">
 x = x₀ + Σ ( Q · A · D.x · cos(ω · D·P₀ + φt) )<br>
@@ -153,7 +153,7 @@ y =      Σ     A       sin θ
 
 ## 急峻さ Q の上限
 
-`Q` を大きくしすぎると <strong>波頭で頂点が、追い越し合ってメッシュが裏返ります</strong>（ループができる）。裏返らない条件は 水平の動きの、微分（ヤコビアン）が正のままであることです。1 本の波なら
+`Q` を大きくしすぎると <strong>波頭で頂点が追い越し合ってメッシュが裏返ります</strong>（ループができる）。裏返らない条件は 水平の動きの、微分（ヤコビアン）が正のままであることです。1 本の波なら
 
 ```text
 Q × ω × A ≤ 1       （1 本だけのとき）
@@ -165,7 +165,7 @@ Q × ω × A ≤ 1       （1 本だけのとき）
 Σ Q_i ω_i A_i ≤ 1
 ```
 
-Finch（2004）はこれを、使いやすくする 全体の急峻さ `Q`（0〜1）を、1 つ決めて波ごとに次のように割る方法を、示しています。
+Finch（2004）はこれを使いやすくする 全体の急峻さ `Q`（0〜1）を 1 つ決めて波ごとに次のように割る方法を示しています。
 
 ```text
 Q_i = Q / ( ω_i × A_i × 波の本数 )
@@ -190,7 +190,7 @@ struct GerstnerWave {
 };
 ```
 
-波 1 本ぶんの設定です。`steepness` は上の式で波の数で割ったあとの値（`Q_i`）を、入れておきます。シェーダー内で割ると画素ごと（頂点ごと）に、同じ割り算を繰り返すことになるので、CPU 側で済ませます。末尾の `pad` は 16 バイト境界に、そろえるための詰め物です。
+波 1 本ぶんの設定です。`steepness` は上の式で波の数で割ったあとの値（`Q_i`）を入れておきます。シェーダー内で割ると画素ごと（頂点ごと）に同じ割り算を繰り返すことになるので、CPU 側で済ませます。末尾の `pad` は 16 バイト境界にそろえるための詰め物です。
 
 ```hlsl
 cbuffer GerstnerCB : register(b2) {
@@ -201,14 +201,14 @@ cbuffer GerstnerCB : register(b2) {
 };
 ```
 
-波を最大 8 本まで定数バッファに入れます。`g_wave_count` で実際に使う数を決めるので、波の数を変えてもシェーダーを、作り直さずに済みます。`g_time` は毎フレーム、CPU から更新します。
+波を最大 8 本まで定数バッファに入れます。`g_wave_count` で実際に使う数を決めるので、波の数を変えてもシェーダーを作り直さずに済みます。`g_time` は毎フレーム、CPU から更新します。
 
 ```hlsl
 // 元の位置 p0 に対する、水面の位置を返す。
 float3 GerstnerDisplace(float2 p0, out float3 normal, out float jacobian) {
   float3 pos = float3(p0.x, 0.0, p0.y);
   float3 n = float3(0, 1, 0);
-  // ヤコビアン（波頭が、折れているかの目安）を作る要素
+  // ヤコビアン（波頭が折れているかの目安）を作る要素
   float dxdx = 0, dzdz = 0, dxdz = 0;
 ```
 
@@ -253,7 +253,7 @@ float3 GerstnerDisplace(float2 p0, out float3 normal, out float jacobian) {
   }
 ```
 
-水平変位を位置で偏微分した値を、`dxdx` などに足します。これは水平方向の面積がどれだけ、縮んだか（波頭が折れ返す兆し）を、調べる材料です。
+水平変位を位置で偏微分した値を `dxdx` などに足します。これは水平方向の面積がどれだけ、縮んだか（波頭が折れ返す兆し）を調べる材料です。
 
 ```hlsl
   normal = normalize(n);
@@ -267,21 +267,21 @@ float3 GerstnerDisplace(float2 p0, out float3 normal, out float jacobian) {
 
 ### ヤコビアンと泡
 
-最後の `jacobian` は「<strong>水平方向の、面積の変化率</strong>」です。1 のとき変化なし 0 に近づくと頂点が、集まって（波頭が折れそうに）なり、負になると裏返っています。この値が小さい場所に泡を出すのが、定番の方法です（[Crest Foam: The Jacobian](../shore-foam/crest-jacobian.md)）。
+最後の `jacobian` は「<strong>水平方向の、面積の変化率</strong>」です。1 のとき変化なし 0 に近づくと頂点が集まって（波頭が折れそうに）なり、負になると裏返っています。この値が小さい場所に泡を出すのが、定番の方法です（[Crest Foam: The Jacobian](../shore-foam/crest-jacobian.md)）。
 
 ## 法線の計算はピクセルで
 
-頂点で求めた法線を補間して渡すと、<strong>細かい波の陰影が出ません</strong>。ピクセル シェーダーでも小さい波だけ、もう一度、計算します。位置の水平変位が画素ごとに異なる点に、注意します（次の節）。
+頂点で求めた法線を補間して渡すと、<strong>細かい波の陰影が出ません</strong>。ピクセル シェーダーでも小さい波だけ、もう一度、計算します。位置の水平変位が画素ごとに異なる点に注意します（次の節）。
 
 ## 「元の位置」の問題
 
-Gerstner 波の式の入力は、<strong>水平に動く前の位置 `P₀`</strong> です。ところが、画素に見えている水面の位置は、動いた後の位置 `P` です。画素で波の計算をするとき `P` を `P₀` の代わりに使うと位置が水平に、ずれます。
+Gerstner 波の式の入力は、<strong>水平に動く前の位置 `P₀`</strong> です。ところが、画素に見えている水面の位置は、動いた後の位置 `P` です。画素で波の計算をするとき `P` を `P₀` の代わりに使うと位置が水平にずれます。
 
 | 状況 | 影響 |
 | --- | --- |
 | 頂点シェーダー | 格子の頂点が `P₀`。そのまま使える |
-| ピクセル シェーダーで細かい波の法線を足す | `P` を、`P₀` の近似として使う。誤差は小さい（急峻さが低いとき、水平の動きは小さい） |
-| CPU で浮かぶ物の高さを求める | `P` から `P₀` を、逆に求める必要がある（[Floating Objects](floating.md)） |
+| ピクセル シェーダーで細かい波の法線を足す | `P` を `P₀` の近似として使う。誤差は小さい（急峻さが低いとき、水平の動きは小さい） |
+| CPU で浮かぶ物の高さを求める | `P` から `P₀` を逆に求める必要がある（[Floating Objects](floating.md)） |
 
 ## サイン波との比較
 
@@ -310,7 +310,7 @@ Gerstner 波の式の入力は、<strong>水平に動く前の位置 `P₀`</str
 
 ## 参考
 
-- Fournier, Reeves, "A Simple Model of Ocean Waves", SIGGRAPH 1986（Gerstner 波を、CG に持ち込んだ論文）
+- Fournier, Reeves, "A Simple Model of Ocean Waves", SIGGRAPH 1986（Gerstner 波を CG に持ち込んだ論文）
 - Finch, "Effective Water Simulation from Physical Models", GPU Gems, Chapter 1, 2004（サイン波と Gerstner 波の、GPU 実装）
 - Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（FFT による海面の合成。ほとんどの FFT 海面の出発点）
 - Jensen, Golias, "Deep-Water Animation and Rendering", Gamasutra, 2001

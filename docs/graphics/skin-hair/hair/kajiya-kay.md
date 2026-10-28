@@ -6,7 +6,7 @@ tags:
 
 # Kajiya-Kay
 
-髪の光り方を計算する最も古く、最も軽い式が <strong>Kajiya-Kay モデル</strong>です。1989 年に Kajiya と Kay が、毛皮のレンダリングのために考案しました。「髪は細い円柱でありその接線方向（髪の流れ）が、光の反射を決める」という考え方で、法線を使わず接線だけでハイライトを計算します。このページでは通常の面の反射と何が違うのか式の導出、2 本のハイライトを作るずらしの工夫（Scheuermann の方法）を説明します。
+髪の光り方を計算する最も古く、最も軽い式が <strong>Kajiya-Kay モデル</strong>です。1989 年に Kajiya と Kay が、毛皮のレンダリングのために考案しました。「髪は細い円柱でありその接線方向（髪の流れ）が光の反射を決める」という考え方で、法線を使わず接線だけでハイライトを計算します。このページでは通常の面の反射と何が違うのか式の導出、2 本のハイライトを作るずらしの工夫（Scheuermann の方法）を説明します。
 
 !!! tip "ポイント"
     - 髪は<strong>細い円柱</strong>。1 点に法線が無数にある（円柱の周り全方向）。接線 T で考える。
@@ -1665,12 +1665,12 @@ float KajiyaKaySpecular(float3 t, float3 l, float3 v, float exponent) {
 <g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6603;0.6605;1.0000" values="0;0;1;1"/><rect x="560" y="410" width="370" height="100" rx="12" fill="#faf5ff" stroke="#7c3aed" stroke-width="2.5"/>
 <text x="576" y="434" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">1 つ目(白): 表面の反射。p が大きいので細い</text>
 <text x="576" y="456" text-anchor="start" style="font-size:13px;font-weight:700;fill:#92400e">2 つ目(色): 髪の中を通った光。接線をずらして、広く・色つき</text>
-<text x="576" y="478" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1e3a8a">帯の位置が、毛の向きで動くので、艶が髪に沿って流れる</text>
+<text x="576" y="478" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1e3a8a">帯の位置が毛の向きで動くので、艶が髪に沿って流れる</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">毛の向き(接線)は、場所ごとに変わる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">1 つ目: 毛の向きだけから、細い白い帯が決まる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;0.2510;0.2512;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">2 つ目: 接線を少しずらして、広い色つきの帯を足す<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2510;0.2512;0.4556;0.4558;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">足すと、髪の艶が、白と色の 2 本の帯になる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4556;0.4558;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">足すと、髪の艶が白と色の 2 本の帯になる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4556;0.4558;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:kajiya-lobes:end -->

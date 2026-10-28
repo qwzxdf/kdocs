@@ -83,7 +83,7 @@ int main() {
 
 ## ゲームでの使いどころ
 
-重複の除去に、`sort` → `unique` → `erase` の 3 点セットで使います。
+重複の除去に `sort` → `unique` → `erase` の 3 点セットで使います。
 
 ```cpp
 std::ranges::sort(tags);

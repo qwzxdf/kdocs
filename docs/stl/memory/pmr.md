@@ -86,7 +86,7 @@ l alloc res2 hit サイズ別
 #include <vector>
 
 int main() {
-  // スタックに置いた 256 バイトの領域を、メモリの取り先にする
+  // スタックに置いた 256 バイトの領域をメモリの取り先にする
   std::byte buffer[256];
   std::pmr::monotonic_buffer_resource pool(buffer, sizeof(buffer));
 
@@ -149,7 +149,7 @@ frame 1: 2 hits
 frame 2: 2 hits
 ```
 
-!!! warning "release の前に、コンテナを破棄する"
+!!! warning "release の前にコンテナを破棄する"
     `release()` したあと、その領域を使っていたコンテナ（`hits` など）は**使えません**（中身は上書きされます）。上の例のように、コンテナのスコープを先に閉じてから `release()` を呼びます。
 
 ## どのリソースを選ぶか

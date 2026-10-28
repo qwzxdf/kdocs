@@ -64,7 +64,7 @@ bool TraceSSR(float3 origin_vs, float3 dir_vs, float2 jitter,
   float3 end_vs = origin_vs + dir_vs * ray_length;
 ```
 
-レイを画面の線分にするための、準備です。レイが近クリップ面より手前（カメラの後ろ）に、出る場合は近クリップ面で切ります。そうしないと投影した終点が画面の外の、おかしな位置になります。
+レイを画面の線分にするための、準備です。レイが近クリップ面より手前（カメラの後ろ）に出る場合は近クリップ面で切ります。そうしないと投影した終点が画面の外の、おかしな位置になります。
 
 ```hlsl
   float4 h0 = mul(float4(origin_vs, 1.0), projection);
@@ -77,7 +77,7 @@ bool TraceSSR(float3 origin_vs, float3 dir_vs, float2 jitter,
   float2 p1 = (h1.xy * k1 * float2(0.5, -0.5) + 0.5) * screen_size;
 ```
 
-始点と終点をクリップ空間へ投影します。`k = 1/w` と `q = 位置 × k` を持っておくのが要点です。この 2 つは画面空間で線形に、補間できるので透視補正を正しく、行えます。`p0`、`p1` は画素単位の画面座標です。
+始点と終点をクリップ空間へ投影します。`k = 1/w` と `q = 位置 × k` を持っておくのが要点です。この 2 つは画面空間で線形に補間できるので透視補正を正しく、行えます。`p0`、`p1` は画素単位の画面座標です。
 
 ```hlsl
   float2 delta = p1 - p0;
@@ -87,7 +87,7 @@ bool TraceSSR(float3 origin_vs, float3 dir_vs, float2 jitter,
   }
 ```
 
-線分が縦に長いとき（`|dy| > |dx|`）は x と y を、入れ替えます（`permute`）。こうすると常に x を 1 画素ずつ進める形にでき、ループが単純になります（DDA の、準備です）。
+線分が縦に長いとき（`|dy| > |dx|`）は x と y を入れ替えます（`permute`）。こうすると常に x を 1 画素ずつ進める形にでき、ループが単純になります（DDA の、準備です）。
 
 ```hlsl
   float step_dir = sign(delta.x);
@@ -97,7 +97,7 @@ bool TraceSSR(float3 origin_vs, float3 dir_vs, float2 jitter,
   float dk = (k1 - k0) * inv_dx * stride;
 ```
 
-x を 1 画素進めるごとの y・`q`・`k` の増分を、求めます。`stride` は何画素ずつ進むか（1 なら、全画素）で大きくすると速いが、取りこぼします。
+x を 1 画素進めるごとの y・`q`・`k` の増分を求めます。`stride` は何画素ずつ進むか（1 なら、全画素）で大きくすると速いが、取りこぼします。
 
 ```hlsl
   float2 p = p0 + dp * jitter.x;
@@ -131,7 +131,7 @@ x を 1 画素進めるごとの y・`q`・`k` の増分を、求めます。`st
   }
 ```
 
-この画素の実際の深度 `scene_z` と、レイの区間を比べます。レイの区間が `[scene_z, scene_z + thickness]` と重なれば当たりです。当たったら `q / k` でビュー空間の位置に戻して、返します。ステップを使い切るか線分の終点に、達したら外れです（[Thickness](thickness.md)）。
+この画素の実際の深度 `scene_z` と、レイの区間を比べます。レイの区間が `[scene_z, scene_z + thickness]` と重なれば当たりです。当たったら `q / k` でビュー空間の位置に戻して、返します。ステップを使い切るか線分の終点に達したら外れです（[Thickness](thickness.md)）。
 
 ```hlsl
   return false;
@@ -193,7 +193,7 @@ x を 1 画素進めるごとの y・`q`・`k` の増分を、求めます。`st
 <rect x="290" y="276" width="20" height="12" fill="#e5484d" stroke="#1f2937" opacity="0"><animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.5142;0.5145;1.0000" values="0;0;1;1"/></rect>
 <text x="40" y="52" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">① カメラから床のピクセルへ視線が届く<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.1360;0.1364;1.0000" values="1;1;0;0"/></text>
 <text x="40" y="52" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">② 反射した向きへ、一定の間隔で進みながら、物があるか調べる<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.1360;0.1364;0.4869;0.4873;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="40" y="52" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">③ ぶつかった所の色を、床に映す（床のピクセルが赤くなる）<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.4869;0.4873;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="40" y="52" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">③ ぶつかった所の色を床に映す（床のピクセルが赤くなる）<animate attributeName="opacity" dur="11s" repeatCount="indefinite" keyTimes="0.0000;0.4869;0.4873;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:ssr-march:end -->
@@ -217,7 +217,7 @@ float2 RefineHit(float2 p_before, float2 p_after, int steps) {
 
 ## 線形マーチ：画面空間でレイを辿る
 
-<strong>最も単純な SSR</strong> は 反射レイを、画面空間で一定の歩幅で辿り、各点で深度バッファと比べる方法です（線形マーチ）。当たりを見つけるまで繰り返します。
+<strong>最も単純な SSR</strong> は 反射レイを画面空間で一定の歩幅で辿り、各点で深度バッファと比べる方法です（線形マーチ）。当たりを見つけるまで繰り返します。
 
 ```text
 画面上の、線分（始点 → 終点）を、N 区間に、分ける。各区間で:
@@ -228,9 +228,9 @@ float2 RefineHit(float2 p_before, float2 p_after, int steps) {
 ## 実装
 
 ```hlsl
-// 線形マーチ: 画面空間で、レイを、一定の歩幅で、進める。戻り値: 当たった uv（当たらなければ、-1）。
+// 線形マーチ: 画面空間で、レイを一定の歩幅で、進める。戻り値: 当たった uv（当たらなければ、-1）。
 float2 LinearMarch(float3 origin_vs, float3 dir_vs, float2 pixel) {
-  // 始点・終点を、クリップ空間→ uv へ（前のページと同じ）。
+  // 始点・終点をクリップ空間→ uv へ（前のページと同じ）。
   float3 end_vs = origin_vs + dir_vs * g_max_distance;
   float4 s = mul(float4(origin_vs, 1.0), g_proj);
   float4 e = mul(float4(end_vs, 1.0), g_proj);
@@ -244,7 +244,7 @@ float2 LinearMarch(float3 origin_vs, float3 dir_vs, float2 pixel) {
 
 ```hlsl
   const int kSteps = 32;
-  float jitter = InterleavedGradientNoise(pixel) * 0.5;                   // 開始位置を、ずらして、縞を、減らす
+  float jitter = InterleavedGradientNoise(pixel) * 0.5;                   // 開始位置をずらして、縞を減らす
   for (int i = 1; i <= kSteps; ++i) {
     float t = (i + jitter) / kSteps;                                        // 線分上の、位置（0〜1）。画面空間で、等間隔
     float2 uv = lerp(start_uv, end_uv, t);                                  // 画面上の位置
@@ -254,26 +254,26 @@ float2 LinearMarch(float3 origin_vs, float3 dir_vs, float2 pixel) {
 画面空間で等間隔に進みます。画面の外に出たら情報が無いので、打ち切ります。
 
 ```hlsl
-    // レイ上の点の、深度（ビュー空間の距離）。1/w を、画面空間で線形補間して、逆数を取る（透視補正）。
+    // レイ上の点の、深度（ビュー空間の距離）。1/w を画面空間で線形補間して、逆数を取る（透視補正）。
     float inv_w = lerp(start_inv_w, end_inv_w, t);
     float ray_depth = 1.0 / inv_w;                                          // レイ上の点の、ビュー空間での、深度（正の距離）
 
     float scene_depth = LinearizeDepth(g_depth.SampleLevel(g_point_clamp, uv, 0));   // その画素の、実際の深度
 
     float diff = ray_depth - scene_depth;
-    if (diff > 0.0 && diff < g_thickness) return uv;                        // レイが、面の「裏」に入った（厚み以内）→ 当たり
+    if (diff > 0.0 && diff < g_thickness) return uv;                        // レイが面の「裏」に入った（厚み以内）→ 当たり
   }
   return -1.0;                                                              // 当たらなかった
 }
 ```
 
-レイ上の点の深度は `1 / w` を、画面空間で線形補間し、その逆数を取ると正しい値です（透視補正）。画面の深度と比べレイが面より奥に入ってかつ、厚み以内なら当たりです。
+レイ上の点の深度は `1 / w` を画面空間で線形補間し、その逆数を取ると正しい値です（透視補正）。画面の深度と比べレイが面より奥に入ってかつ、厚み以内なら当たりです。
 
 ## 線形マーチの問題
 
 ### ① 細い物をすり抜ける
 
-<strong>歩幅が粗い</strong>と 細い物（フェンス、手すり）の上を飛び越えて当たりを、見逃します。
+<strong>歩幅が粗い</strong>と 細い物（フェンス、手すり）の上を飛び越えて当たりを見逃します。
 
 ```text
 ステップ:  ●     ●     ●     ●     ●          ← 粗い歩幅
@@ -283,29 +283,29 @@ float2 LinearMarch(float3 origin_vs, float3 dir_vs, float2 pixel) {
 
 | 対策 | 内容 |
 | --- | --- |
-| 歩幅を細かく | ステップ数を、増やす。重い |
-| 厚みを大きく | すり抜けは減るが、偽の当たり（物の手前の面に誤って当たる）が、増える（[Thickness](thickness.md)） |
-| 二分探索で洗練 | 当たりを、見つけた後、直前のステップとの間で二分探索し正確な交点を、求める |
+| 歩幅を細かく | ステップ数を増やす。重い |
+| 厚みを大きく | すり抜けは減るが、偽の当たり（物の手前の面に誤って当たる）が増える（[Thickness](thickness.md)） |
+| 二分探索で洗練 | 当たりを見つけた後、直前のステップとの間で二分探索し正確な交点を求める |
 | Hi-Z | 階層的な深度で、空の部分を大きく飛ばし細かい所は、細かく（[Hi-Z SSR](../ssr-hiz.md)） |
 
-### ② 二分探索で交点を、洗練する
+### ② 二分探索で交点を洗練する
 
-当たったステップの 1 つ前（まだ、当たっていない）と当たったステップの間に真の交点が、あります。二分探索で絞り込みます。
+当たったステップの 1 つ前（まだ、当たっていない）と当たったステップの間に真の交点があります。二分探索で絞り込みます。
 
 ```hlsl
-// 当たった t_hit と、その 1 つ前 t_prev の間を、二分探索して、正確な交点を求める。
+// 当たった t_hit と、その 1 つ前 t_prev の間を二分探索して、正確な交点を求める。
 float lo = t_prev, hi = t_hit;
 for (int k = 0; k < 6; ++k) {                                               // 6 回で、歩幅の 1/64 の精度
   float mid = 0.5 * (lo + hi);
   float2 uv_mid = lerp(start_uv, end_uv, mid);
   float ray_d = 1.0 / lerp(start_inv_w, end_inv_w, mid);
   float scene_d = LinearizeDepth(g_depth.SampleLevel(g_point_clamp, uv_mid, 0));
-  if (ray_d > scene_d) hi = mid; else lo = mid;                              // レイが、面の裏なら、手前へ。そうでなければ、奥へ
+  if (ray_d > scene_d) hi = mid; else lo = mid;                              // レイが面の裏なら、手前へ。そうでなければ、奥へ
 }
 float2 hit_uv = lerp(start_uv, end_uv, hi);
 ```
 
-6 回の二分探索で 歩幅の、1/64の精度になります。粗い歩幅でも正確な交点が得られ反射が、なめらかになります。
+6 回の二分探索で 歩幅の、1/64の精度になります。粗い歩幅でも正確な交点が得られ反射がなめらかになります。
 
 ### ③ 画面空間で等間隔でも、3D では不均等
 
@@ -314,10 +314,10 @@ float2 hit_uv = lerp(start_uv, end_uv, hi);
 | 方式 | 内容 |
 | --- | --- |
 | 画面空間で等間隔 | 実装が簡単。遠くが粗い |
-| 3D 空間で等間隔 | 歩幅が、3D で一定。画面上の歩幅が不均等（近くは画素を、飛ばす） |
-| DDA（デジタル微分解析器）で、1 画素ずつ | 画面上のすべての画素を、1 つずつ辿る。取りこぼしが無い。線が長いと重い |
+| 3D 空間で等間隔 | 歩幅が 3D で一定。画面上の歩幅が不均等（近くは画素を飛ばす） |
+| DDA（デジタル微分解析器）で、1 画素ずつ | 画面上のすべての画素を 1 つずつ辿る。取りこぼしが無い。線が長いと重い |
 
-DDA は 線分が通るすべての画素を、辿るので取りこぼしがありません（McGuire と Mara、2014）。画面上の線分が長いとステップが、多くなるので最大のステップ数を、制限します。
+DDA は 線分が通るすべての画素を辿るので取りこぼしがありません（McGuire と Mara、2014）。画面上の線分が長いとステップが多くなるので最大のステップ数を制限します。
 
 ## 速さの目安
 
@@ -329,7 +329,7 @@ DDA は 線分が通るすべての画素を、辿るので取りこぼしがあ
 
 ## よくあるミス
 
-??? failure "薄い柵や線が、反射に映らない"
+??? failure "薄い柵や線が反射に映らない"
     <strong>歩幅を小さく</strong>するか、Hi-Z トレースにする。
 
 ## これだけ覚える

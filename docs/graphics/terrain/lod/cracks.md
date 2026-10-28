@@ -9,7 +9,7 @@ tags:
 <strong>LOD の異なる区画が隣り合うと境界で頂点が合わず隙間（クラック）ができます</strong>。境界の頂点を調整することで、隙間を埋められます。このページでは継ぎ目の原因と対策を説明します。
 
 !!! tip "ポイント"
-    - 原因 ＝ 隣の区画の頂点が、粗い側にはない。
+    - 原因 ＝ 隣の区画の頂点が粗い側にはない。
     - 対策 1：粗い側に合わせて、細かい側の境界頂点を動かす。
     - 対策 2：境界にスカート（垂れ幕）を付ける。
     - CDLOD はモーフィングで自然に解決する。
@@ -25,8 +25,8 @@ tags:
 <defs><marker id="arr-lod-cracks" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">LOD の継ぎ目の割れ目: 粗い側と細かい側で、境の頂点の高さが食い違うと、穴が空く。細かい側を、粗い側に合わせる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。左は LOD 1(間隔 2)、右は LOD 0(間隔 1)。境(x = 8)の近くの高さを、計算して、割れ目の大きさを測る</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">LOD の継ぎ目の割れ目: 粗い側と細かい側で、境の頂点の高さが食い違うと、穴が空く。細かい側を粗い側に合わせる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。左は LOD 1(間隔 2)、右は LOD 0(間隔 1)。境(x = 8)の近くの高さを計算して、割れ目の大きさを測る</text>
 <rect x="30" y="96" width="900" height="260" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 高さ(黒 = 細かい LOD の頂点、赤い線 = 粗い LOD の辺)</text>
 <path d="M60.0,259.8 L110.0,195.96 L160.0,174.65 L210.0,175.28 L260.0,231.02 L310.0,235.1 L360.0,203.12 L410.0,196.94 L460.0,228.4 L510.0,229.44 L560.0,274.97 L610.0,264.42 L660.0,242.93 L710.0,249.79 L760.0,229.36 L810.0,235.07 L860.0,253.01" fill="none" stroke="#1f2937" stroke-width="2.5"/>
@@ -67,14 +67,14 @@ tags:
 <text x="240" y="384" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">52<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2043;0.2044;1.0000" values="0;0;1;1"/></text>
 <text x="290" y="384" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">(×0.01 m。粗い辺と、細かい頂点の高さの差)</text>
 <path d="M60.0,259.8 L110.0,217.22 L160.0,174.65 L210.0,202.84 L260.0,231.02 L310.0,217.07 L360.0,203.12 L410.0,215.76 L460.0,228.4 L510.0,229.44 L560.0,274.97 L610.0,264.42 L660.0,242.93 L710.0,249.79 L760.0,229.36 L810.0,235.07 L860.0,253.01" fill="none" stroke="#2ea043" stroke-width="4" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3109;0.3111;1.0000" values="0;0;1;1"/></path>
-<text x="40" y="420" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043" opacity="0">対策: 粗い辺の上にある、細かい頂点を、粗い辺の高さへ下ろす(奇数番目を、両隣の平均にする)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3109;0.3111;1.0000" values="0;0;1;1"/></text>
+<text x="40" y="420" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043" opacity="0">対策: 粗い辺の上にある、細かい頂点を粗い辺の高さへ下ろす(奇数番目を両隣の平均にする)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3109;0.3111;1.0000" values="0;0;1;1"/></text>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4220;0.4222;1.0000" values="0;0;1;1"/><rect x="40" y="446" width="880" height="60" rx="12" fill="#f0fdf4" stroke="#2ea043" stroke-width="2.5"/>
 <text x="56" y="470" text-anchor="start" style="font-size:15px;font-weight:700;fill:#166534">割れ目の最大 0.77 m → 対策後 0 m</text>
-<text x="56" y="494" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">頂点の高さを、LOD 境でだけ、粗い側に合わせると、継ぎ目が閉じる(スカートで、隠す方法もある)</text>
+<text x="56" y="494" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">頂点の高さを LOD 境でだけ、粗い側に合わせると、継ぎ目が閉じる(スカートで、隠す方法もある)</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">LOD の異なる地形が、隣り合う<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">細かい側の頂点が、粗い辺の上にないと、高さが食い違って、穴が見える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.3109;0.3111;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">境の頂点を、粗い辺に載せれば、割れ目が閉じる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3109;0.3111;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">LOD の異なる地形が隣り合う<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">細かい側の頂点が粗い辺の上にないと、高さが食い違って、穴が見える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.3109;0.3111;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">境の頂点を粗い辺に載せれば、割れ目が閉じる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3109;0.3111;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:lod-cracks:end -->
@@ -83,14 +83,14 @@ tags:
 <strong>LOD の違うタイルが隣り合う</strong>と 境界で頂点の位置が合わず隙間（クラック）ができます。細かい側の境界の頂点が粗い側の辺の上にないためです。
 
 <svg class="fig illust" viewBox="0 0 780 220" role="img" aria-label="LOD の継ぎ目">
-<text x="20" y="24" class="fig-title">LOD の継ぎ目：細かい側の頂点が、粗い側の辺から浮く</text>
+<text x="20" y="24" class="fig-title">LOD の継ぎ目：細かい側の頂点が粗い側の辺から浮く</text>
 <line x1="120" y1="150" x2="420" y2="150" stroke="currentColor" stroke-opacity="0.7" stroke-width="2"/>
 <polyline fill="none" stroke="#4c8bf5" stroke-width="2" points="120,150 195,128 270,150 345,118 420,150"/>
 <circle cx="195" cy="128" r="4" fill="#e5484d"/><circle cx="345" cy="118" r="4" fill="#e5484d"/>
-<text x="120" y="190" style="font-size:12px">粗い側の辺 / 細かい側（青）の中間頂点が、辺から離れる → 隙間</text>
+<text x="120" y="190" style="font-size:12px">粗い側の辺 / 細かい側（青）の中間頂点が辺から離れる → 隙間</text>
 <line x1="500" y1="150" x2="740" y2="150" stroke="currentColor" stroke-opacity="0.7" stroke-width="2"/>
 <polyline fill="none" stroke="#2ea043" stroke-width="2" points="500,150 560,150 620,150 680,150 740,150"/>
-<text x="500" y="190" style="font-size:12px">対策：中間頂点を、辺の上へ寄せる</text>
+<text x="500" y="190" style="font-size:12px">対策：中間頂点を辺の上へ寄せる</text>
 </svg>
 
 | 対策 | 内容 |
@@ -123,7 +123,7 @@ LOD の違うタイルが辺を共有して隣り合っているとします。�
 タイルの縁から下向きに <strong>壁（スカート）</strong>を足します。隙間は壁の裏に隠れます。
 
 ```cpp
-// 格子の周囲に、スカートの頂点を足す。
+// 格子の周囲にスカートの頂点を足す。
 // 縁の頂点を複製して、高さだけを下げる。
 struct SkirtVertex { float x, z; float skirt; };  // skirt = 0（地面）or 1（下げる）
 
@@ -142,9 +142,9 @@ float h = SampleHeight(xz) - input.skirt * skirt_depth;
 
 | 長所 | 短所 |
 | --- | --- |
-| 実装が簡単。どの LOD の組み合わせでも使える | 壁が、ひび割れのように見えることがある（特に急な斜面と強い光） |
+| 実装が簡単。どの LOD の組み合わせでも使える | 壁がひび割れのように見えることがある（特に急な斜面と強い光） |
 | 事前処理が要らない | 壁の分だけ三角形が増える |
-| チャンク LOD（Ulrich 2002）が提案した定番の方法 | 影やデプスの計算に、壁が映る |
+| チャンク LOD（Ulrich 2002）が提案した定番の方法 | 影やデプスの計算に壁が映る |
 
 壁が見えてしまう場合は 壁の法線を隣の地面の法線と同じにする、壁のテクスチャを地面と同じ座標から引くと目立たなくなります。
 
@@ -183,17 +183,17 @@ LOD の組み合わせごとにインデックス バッファを用意する必
 | 長所 | 短所 |
 | --- | --- |
 | 頂点シェーダーが単純 | 16 種類のインデックス バッファを管理する |
-| 継ぎ目に余計な負荷がない | インスタンシングが、種類ごとに分かれる |
+| 継ぎ目に余計な負荷がない | インスタンシングが種類ごとに分かれる |
 
 ### ④ モーフィング（CDLOD の方式）
 
 細かい側の境界頂点を 距離に応じて、連続的に粗い側の位置へ寄せます。粗いレベルの範囲に入る時点で、すべての奇数番の頂点が偶数番に重なっているので、境界の隙間は 自動的になくなります。
 
-CDLOD はこの仕組みで継ぎ目の専用処理が、いっさい要りません。ただし、隣のノードのレベルが 2 以上違わないことが、前提です。違うとモーフィングで片方しか寄らず隙間が出ます（[Geomorphing](morphing.md)）。
+CDLOD はこの仕組みで継ぎ目の専用処理がいっさい要りません。ただし、隣のノードのレベルが 2 以上違わないことが、前提です。違うとモーフィングで片方しか寄らず隙間が出ます（[Geomorphing](morphing.md)）。
 
 ### ⑤ 共通の関数で高さを決める
 
-境界の頂点の高さを 両側のノードが、同じ関数で決める方法です。たとえば、「境界上の高さは粗い側の補間で決める」と決めれば、細かい側もその値を使えば隙間はできません。クリップマップの層の境界で使われる考え方です。
+境界の頂点の高さを 両側のノードが同じ関数で決める方法です。たとえば、「境界上の高さは粗い側の補間で決める」と決めれば、細かい側もその値を使えば隙間はできません。クリップマップの層の境界で使われる考え方です。
 
 ## 方式の選び方
 

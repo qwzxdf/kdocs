@@ -10,7 +10,7 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-<strong>深度ステンシル ステート</strong>は、<strong>深度テストとステンシル テストを、どう行うか</strong>の設定です。「深度を比べるか」「テストに通ったら深度を、書くか」「ステンシルをどう使うか」を、決めます。不透明な物、半透明の物、ポスト プロセス、シャドウでそれぞれ設定が違うので、用途ごとにステートを作って切り替えます。
+<strong>深度ステンシル ステート</strong>は、<strong>深度テストとステンシル テストをどう行うか</strong>の設定です。「深度を比べるか」「テストに通ったら深度を書くか」「ステンシルをどう使うか」を決めます。不透明な物、半透明の物、ポスト プロセス、シャドウでそれぞれ設定が違うので、用途ごとにステートを作って切り替えます。
 
 !!! tip "ポイント"
     - 深度ステート ＝ 深度テストの、有効・無効、比較関数、書き込みの有無。
@@ -29,8 +29,8 @@ tags:
 
 ```cpp
 D3D11_DEPTH_STENCIL_DESC desc = {};
-desc.DepthEnable = TRUE;                                    // 深度テストを、行う
-desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;           // テストに通ったら、深度を、書く
+desc.DepthEnable = TRUE;                                    // 深度テストを行う
+desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;           // テストに通ったら、深度を書く
 desc.DepthFunc = D3D11_COMPARISON_LESS;                     // 手前（小さい）なら、通る
 desc.StencilEnable = FALSE;
 
@@ -55,11 +55,11 @@ D3D11 の既定のステート（何も、設定しないとき）は `DepthEnab
 | `DepthFunc` | 通る条件（新しい深度 `<op>` バッファの深度） | 使いどころ |
 | --- | --- | --- |
 | `LESS` | より小さい（近い） | 通常の、不透明 |
-| `LESS_EQUAL` | 以下 | 深度を、事前に描いた後の本描画（同じ深度を、通す） |
+| `LESS_EQUAL` | 以下 | 深度を事前に描いた後の本描画（同じ深度を通す） |
 | `GREATER` | より大きい | reverse-Z で、通常の描画 |
 | `GREATER_EQUAL` | 以上 | reverse-Z で、事前深度の後 |
 | `EQUAL` | 等しい | 事前深度の後、同じ深度のピクセルだけシェーディング |
-| `ALWAYS` | 常に通る | 深度に、関係なく描く（UI） |
+| `ALWAYS` | 常に通る | 深度に関係なく描く（UI） |
 | `NEVER` | 通らない | 使わない |
 
 <strong>reverse-Z</strong>（近い面が 1、遠い面が 0）を使うときは `LESS` を `GREATER` に `LESS_EQUAL` を `GREATER_EQUAL` に、読み替えます。クリア値も `1.0` から `0.0` に変えます。
@@ -71,11 +71,11 @@ D3D11 の既定のステート（何も、設定しないとき）は `DepthEnab
 ```cpp
 D3D11_DEPTH_STENCIL_DESC desc = {};
 desc.DepthEnable = TRUE;
-desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;          // 書かない（後ろの、半透明が、隠れないように）
+desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;          // 書かない（後ろの、半透明が隠れないように）
 desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 ```
 
-半透明の物は不透明な物に隠れる（深度テスト有り）が、半透明同士は互いを隠さない（書き込み無し）ように、します。奥から手前の順に描きます（[Alpha Blending and Sorting](../../graphics/translucency/index.md)）。
+半透明の物は不透明な物に隠れる（深度テスト有り）が半透明同士は互いを隠さない（書き込み無し）ように、します。奥から手前の順に描きます（[Alpha Blending and Sorting](../../graphics/translucency/index.md)）。
 
 ### ポスト プロセス・フルスクリーン
 
@@ -90,31 +90,31 @@ desc.DepthEnable = FALSE;                                   // 深度テスト�
 
 ```cpp
 // パス 1: 深度だけ描く（色は、書かない）。通常の、LESS、書き込み有り。
-// パス 2: 色を描く。深度は、書かず、EQUAL（または LESS_EQUAL）で、同じ深度だけを、通す。
+// パス 2: 色を描く。深度は、書かず、EQUAL（または LESS_EQUAL）で、同じ深度だけを通す。
 D3D11_DEPTH_STENCIL_DESC color_pass = {};
 color_pass.DepthEnable = TRUE;
 color_pass.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 color_pass.DepthFunc = D3D11_COMPARISON_EQUAL;
 ```
 
-深度を先に描くと本描画のピクセル シェーダーが、見える物だけで走り <strong>オーバードロー</strong>（隠れる物の、シェーディング）がなくなります（[Overdraw](../../rendering/overdraw.md)）。
+深度を先に描くと本描画のピクセル シェーダーが見える物だけで走り <strong>オーバードロー</strong>（隠れる物の、シェーディング）がなくなります（[Overdraw](../../rendering/overdraw.md)）。
 
 ### スカイボックス
 
 ```cpp
 desc.DepthEnable = TRUE;
 desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;               // 頂点シェーダーで、z = w（深度 1.0）に、固定して、描く
+desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;               // 頂点シェーダーで、z = w（深度 1.0）に固定して、描く
 ```
 
-不透明な物を先に描いた後、空を最後に深度 1.0 で描くと空に、隠れていないピクセルだけが塗られます。
+不透明な物を先に描いた後、空を最後に深度 1.0 で描くと空に隠れていないピクセルだけが塗られます。
 
 ## ステンシル
 
-ステンシルは深度と同じバッファに、同居する 8 ビットの <strong>マスク</strong>です。ピクセルごとに整数の値を書き後のパスで、その値で描くかを決めます。
+ステンシルは深度と同じバッファに同居する 8 ビットの <strong>マスク</strong>です。ピクセルごとに整数の値を書き後のパスで、その値で描くかを決めます。
 
 ```cpp
-// 例: 皮膚のピクセルに、ステンシル値 1 を書く（描画パス）。
+// 例: 皮膚のピクセルにステンシル値 1 を書く（描画パス）。
 D3D11_DEPTH_STENCIL_DESC write = {};
 write.DepthEnable = TRUE;
 write.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
@@ -132,12 +132,12 @@ context->OMSetDepthStencilState(skin_write_state.Get(), 1); // 参照値 1
 ```
 
 ```cpp
-// 皮膚の後処理: ステンシルが 1 のピクセルだけ、シェーダーを、走らせる。
+// 皮膚の後処理: ステンシルが 1 のピクセルだけ、シェーダーを走らせる。
 D3D11_DEPTH_STENCIL_DESC test = {};
 test.DepthEnable = FALSE;
 test.StencilEnable = TRUE;
 test.StencilReadMask = 0xFF;
-test.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;        // ステンシルが、参照値と、等しければ、通る
+test.FrontFace.StencilFunc = D3D11_COMPARISON_EQUAL;        // ステンシルが参照値と、等しければ、通る
 test.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 test.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 test.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_KEEP;
@@ -175,7 +175,7 @@ struct DepthStates {
 ??? failure "半透明の物が互いを隠して、おかしく見える"
     半透明の物に深度の書き込みが有効。`DepthWriteMask = ZERO` にする。
 
-??? failure "ポスト プロセスが、画面の一部しか描かれない"
+??? failure "ポスト プロセスが画面の一部しか描かれない"
     深度テストが有効のまま。`DepthEnable = FALSE` にする。または、DSV が `OMSetRenderTargets` に束ねられたまま。
 
 ??? failure "事前深度の後、本描画でちらつく（Z ファイティング）"

@@ -77,15 +77,15 @@ float SkyViewV(float view_zenith_cos, float horizon_cos) {
 | ④ 物体にかける | 空気遠近法 LUT で、物体の色を霞ませる（[Aerial Perspective and Fog](../aerial-fog/index.md)） |
 
 
-原典は Hillaire の "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（Eurographics Symposium on Rendering 2020）です。この方式の特長は Bruneton の 4D テーブルを、毎フレーム更新できる小さな LUT に分解したことです。LUT が小さいので大気の組成（ミーの密度、オゾンの量）をリアルタイムに変えて、天候の変化も表現できます。モバイルから高性能 PC まで、LUT の解像度を変えるだけで対応でき、Unreal Engine の Sky Atmosphere などに採用されています。
+原典は Hillaire の "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（Eurographics Symposium on Rendering 2020）です。この方式の特長は Bruneton の 4D テーブルを毎フレーム更新できる小さな LUT に分解したことです。LUT が小さいので大気の組成（ミーの密度、オゾンの量）をリアルタイムに変えて、天候の変化も表現できます。モバイルから高性能 PC まで、LUT の解像度を変えるだけで対応でき、Unreal Engine の Sky Atmosphere などに採用されています。
 
-原典は Hillaire の "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（Eurographics Symposium on Rendering 2020）です。この方式の特長は Bruneton の 4D テーブルを、毎フレーム更新できる小さな LUT に分解したことです。LUT が小さいので大気の組成（ミーの密度、オゾンの量）をリアルタイムに変えて、天候の変化も表現できます。モバイルから高性能 PC まで、LUT の解像度を変えるだけで対応でき、Unreal Engine の Sky Atmosphere などに採用されています。
+原典は Hillaire の "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"（Eurographics Symposium on Rendering 2020）です。この方式の特長は Bruneton の 4D テーブルを毎フレーム更新できる小さな LUT に分解したことです。LUT が小さいので大気の組成（ミーの密度、オゾンの量）をリアルタイムに変えて、天候の変化も表現できます。モバイルから高性能 PC まで、LUT の解像度を変えるだけで対応でき、Unreal Engine の Sky Atmosphere などに採用されています。
 
 LUT は小さいので毎フレーム更新しても軽く（0.1〜0.3 ms 程度）、時刻・天気・大気の濃さを動的に変えられます。
 
 ## 4 つの LUT の役割分担
 
-Hillaire（2020）の方式は <strong>空の計算を、4 つの小さな LUT に分けて</strong>、毎フレーム、更新します。すべてがリアルタイムで動くので、時間帯の変化、天候の変化に即座に追従できます。
+Hillaire（2020）の方式は <strong>空の計算を 4 つの小さな LUT に分けて</strong>、毎フレーム、更新します。すべてがリアルタイムで動くので、時間帯の変化、天候の変化に即座に追従できます。
 
 | LUT | 大きさ | 軸 | 内容 | 更新 |
 | --- | --- | --- | --- | --- |
@@ -106,7 +106,7 @@ Hillaire（2020）の方式は <strong>空の計算を、4 つの小さな LUT �
 
 <strong>高度と天頂角</strong>から 大気の上端までの、透過率を事前に計算します（詳細は、[Transmittance](transmittance.md)）。太陽の光が各点に届く割合を 1 回の、テクスチャ読み込みで得るための、基礎です。
 
-更新の頻度は 低く（大気の係数が、変わらない限り 1 回で済む）。
+更新の頻度は 低く（大気の係数が変わらない限り 1 回で済む）。
 
 ## 2：多重散乱 LUT
 
@@ -114,22 +114,22 @@ Hillaire（2020）の方式は <strong>空の計算を、4 つの小さな LUT �
 
 ## 3：Sky-View LUT
 
-<strong>カメラの位置</strong>から見た 空の、全方向の色を 1 枚の小さな画像に、描きます。空はゆるやかに変化するので 192×108 という、小さな解像度で十分です。
+<strong>カメラの位置</strong>から見た 空の、全方向の色を 1 枚の小さな画像に描きます。空はゆるやかに変化するので 192×108 という、小さな解像度で十分です。
 
 ### 空の方向を画像に割り当てる
 
-方向（視線の向き）を 画像の、座標に割り当てます。地平線の近くは色が急に変わるので、非線形な割り当てで地平線の近くを、細かく取ります。
+方向（視線の向き）を 画像の、座標に割り当てます。地平線の近くは色が急に変わるので、非線形な割り当てで地平線の近くを細かく取ります。
 
 ```hlsl
 // Sky-View LUT の uv から、視線の方向（緯度 = 地平線からの角度、経度 = 太陽との、方位角の差）を求める。
 void UvToSkyViewParams(float2 uv, float view_height, out float view_zenith_cos, out float light_view_cos) {
-  // 地平線までの、角度。地平線の、すぐ上と、すぐ下を、細かく取る。
+  // 地平線までの、角度。地平線の、すぐ上と、すぐ下を細かく取る。
   float v_horizon = sqrt(view_height * view_height - g_bottom_radius * g_bottom_radius) / view_height;
   float beta = asin(g_bottom_radius / view_height);                    // 地平線の、俯角
   float zenith_horizon_angle = 3.14159265 - beta;                      // 天頂角の、地平線の値
 ```
 
-まず、カメラの高度から 地平線の、天頂角（地平線がどこに見えるか）を、求めます。カメラが高いほど地平線は下がり（天頂角が、大きく）ます。
+まず、カメラの高度から 地平線の、天頂角（地平線がどこに見えるか）を求めます。カメラが高いほど地平線は下がり（天頂角が大きく）ます。
 
 ```hlsl
   float coord;
@@ -139,7 +139,7 @@ void UvToSkyViewParams(float2 uv, float view_height, out float view_zenith_cos, 
     coord *= coord;
     view_zenith_cos = cos(zenith_horizon_angle * (1.0 - coord) ...);
   } else {
-    // 下半分: 地平線より、下（地面の方向）。同様に、地平線の近くを、細かく
+    // 下半分: 地平線より、下（地面の方向）。同様に地平線の近くを細かく
     coord = uv.y * 2.0 - 1.0;
     coord *= coord;
     // ...
@@ -158,20 +158,20 @@ void UvToSkyViewParams(float2 uv, float view_height, out float view_zenith_cos, 
 横軸は 太陽との方位角の差にします。太陽のすぐ近く（ミー散乱が強い、明るい輪）を細かく取るためです。
 
 ```hlsl
-// Sky-View LUT を描く: 各画素について、視線の方向に、1 回散乱 + 多重散乱を、積分する。
+// Sky-View LUT を描く: 各画素について、視線の方向に 1 回散乱 + 多重散乱を積分する。
 float4 SkyViewPS(float2 uv : TEXCOORD0) : SV_Target {
   float view_height = length(g_camera_position_from_planet_center);
   float view_zenith_cos, light_view_cos;
   UvToSkyViewParams(uv, view_height, view_zenith_cos, light_view_cos);
 
-  float3 ray_dir = ...;                         // 求めた角度から、視線の向きを、復元
+  float3 ray_dir = ...;                         // 求めた角度から、視線の向きを復元
   float3 sun_dir = ...;
   float3 L = IntegrateScatteredLuminance(float3(0, view_height, 0), ray_dir, sun_dir, /*steps*/ 30);
   return float4(L, 1.0);
 }
 ```
 
-積分は 1 回散乱のループ（[Single-Scattering Integral](single-scattering.md)）に、多重散乱 LUT（[Multiple Scattering](multiple-scattering.md)）を足した、ものです。LUT の画素数が少ない（192×108 = 約 2 万）ので積分の、ステップ数を多く（30〜）しても、軽いです。
+積分は 1 回散乱のループ（[Single-Scattering Integral](single-scattering.md)）に多重散乱 LUT（[Multiple Scattering](multiple-scattering.md)）を足した、ものです。LUT の画素数が少ない（192×108 = 約 2 万）ので積分の、ステップ数を多く（30〜）しても、軽いです。
 
 ### 空を描く
 
@@ -188,7 +188,7 @@ float3 SampleSkyView(float3 view_dir) {
 
 ## 4：Aerial Perspective LUT
 
-<strong>空気遠近法</strong>（遠くの物が霞んで、青みを帯びる）を 物体に、適用するための LUT です。カメラの前方の空間を 32×32×32 の、3D テクスチャに分割し（froxel と、同じ発想）、各セルにカメラからそのセルまでの、散乱光と透過率を保存します。
+<strong>空気遠近法</strong>（遠くの物が霞んで、青みを帯びる）を 物体に適用するための LUT です。カメラの前方の空間を 32×32×32 の、3D テクスチャに分割し（froxel と、同じ発想）、各セルにカメラからそのセルまでの、散乱光と透過率を保存します。
 
 | 軸 | 内容 |
 | --- | --- |
@@ -198,9 +198,9 @@ float3 SampleSkyView(float3 view_dir) {
 | A | 透過率（カメラから、そのセルまでの平均的な透過率） |
 
 ```hlsl
-// Aerial Perspective LUT を、1 スライス（距離）ずつ、描く。各スライスは、カメラから、その距離までを、積分する。
+// Aerial Perspective LUT を 1 スライス（距離）ずつ、描く。各スライスは、カメラから、その距離までを積分する。
 float4 AerialPerspectivePS(float2 uv, uint slice) {
-  float distance_m = SliceToDistance(slice);                         // スライス → 距離（近くを、細かく）
+  float distance_m = SliceToDistance(slice);                         // スライス → 距離（近くを細かく）
   float3 ray_dir = ScreenToViewDir(uv);
   float3 scattered; float3 transmittance;
   IntegrateScatteredLuminance(g_camera_position, ray_dir, g_sun_dir, distance_m, scattered, transmittance);
@@ -214,17 +214,17 @@ float4 AerialPerspectivePS(float2 uv, uint slice) {
 物体を描くとき その画素の深度から、カメラまでの距離を求め LUT の、対応するセルを読んで散乱光を足し、透過率を掛けます。
 
 ```hlsl
-// 物体の色に、空気遠近法を、適用する（ピクセル シェーダーの、最後）。
+// 物体の色に空気遠近法を適用する（ピクセル シェーダーの、最後）。
 float3 ApplyAerialPerspective(float3 scene_color, float2 screen_uv, float distance_m) {
   float slice = DistanceToSlice(distance_m);                          // 距離 → スライス（連続値）
   float4 ap = g_aerial_perspective_lut.SampleLevel(g_linear_clamp, float3(screen_uv, slice), 0);
-  float3 inscatter = ap.rgb;                                          // 空気が、足す光
-  float transmittance = 1.0 - ap.a;                                   // 物体の光が、届く割合
+  float3 inscatter = ap.rgb;                                          // 空気が足す光
+  float transmittance = 1.0 - ap.a;                                   // 物体の光が届く割合
   return scene_color * transmittance + inscatter;
 }
 ```
 
-この 1 行で どんな物体にも、空気遠近法がかかります。物体ごとに大気の積分を行う必要が、ありません。距離に応じた霞と青みが物理的な、正しい値で自然に付きます。
+この 1 行で どんな物体にも、空気遠近法がかかります。物体ごとに大気の積分を行う必要がありません。距離に応じた霞と青みが物理的な、正しい値で自然に付きます。
 
 ## 全体の更新の流れ
 
@@ -247,7 +247,7 @@ float3 ApplyAerialPerspective(float3 scene_color, float2 screen_uv, float distan
 | Sky-View | 毎フレーム 0.05〜0.1 ms |
 | Aerial Perspective | 毎フレーム 0.1〜0.2 ms |
 
-<strong>合計で毎フレーム、0.3 ms 未満</strong>と 軽く、時間帯の変化にもリアルタイムに、追従できます。
+<strong>合計で毎フレーム、0.3 ms 未満</strong>と 軽く、時間帯の変化にもリアルタイムに追従できます。
 
 ## DirectX 11 で組む
 
@@ -289,7 +289,7 @@ MakeLut(32, 32, 32, DXGI_FORMAT_R16G16B16A16_FLOAT, aerial_srv, aerial_uav);    
 // 透過率と多重散乱は、大気のパラメータが変わったときだけ（普通は、起動時の 1 回）。
 if (atmosphere_changed) {
   Dispatch(transmittance_cs, {}, {transmittance_uav}, 256 / 8, 64 / 8, 1);
-  Dispatch(multiscatter_cs, {transmittance_srv}, {multiscatter_uav}, 32, 32, 1);     // 1 グループ = 1 テクセル（内部で、並列に、積分）
+  Dispatch(multiscatter_cs, {transmittance_srv}, {multiscatter_uav}, 32, 32, 1);     // 1 グループ = 1 テクセル（内部で、並列に積分）
 }
 // Sky-View と Aerial Perspective は、毎フレーム（太陽の向きや、カメラの高さが、変わるため）。
 Dispatch(skyview_cs, {transmittance_srv, multiscatter_srv}, {skyview_uav}, 192 / 8, 108 / 8, 1);

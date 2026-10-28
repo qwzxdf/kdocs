@@ -28,20 +28,20 @@
 | --- | --- |
 | [デザインパターン早見表](patterns/index.md) | 困りごとから、使えるパターンを探す |
 | [RAII とスマートポインタ](patterns/raii.md) | 取得はコンストラクタ、解放はデストラクタ |
-| [イベントシステム（オブザーバー）](patterns/event.md) | 起きたことを、相手を知らずに通知する |
-| [ステートマシン](patterns/state-machine.md) | 状態と遷移を、はっきり管理する |
+| [イベントシステム（オブザーバー）](patterns/event.md) | 起きたことを相手を知らずに通知する |
+| [ステートマシン](patterns/state-machine.md) | 状態と遷移をはっきり管理する |
 | [コマンドパターン](patterns/command.md) | 命令をオブジェクトにする（キーコンフィグ・アンドゥ・リプレイ） |
 | [ストラテジー](patterns/strategy.md) | やり方を部品にして差し替える |
 | [ファクトリとデータ駆動](patterns/factory.md) | 作る処理をまとめ、数値はデータファイルへ |
 | [ECS](patterns/ecs.md) | データと処理を分けて、大量のオブジェクトを速く |
-| [オブジェクトプール](patterns/object-pool.md) | 作っては消すものを、使い回す |
+| [オブジェクトプール](patterns/object-pool.md) | 作っては消すものを使い回す |
 | [データ指向設計](patterns/data-oriented.md) | データの並びから考えて、大量の処理を速く |
 | [依存性の注入](patterns/dependency-injection.md) | 使う相手を外から渡して、差し替えやすく |
 | [シングルトンとグローバル](patterns/singleton.md) | 便利だが使いすぎに注意。代わりの方法 |
 | [PImpl](patterns/pimpl.md) | 実装を `.cpp` に隠して、ビルドを速くする |
-| [ビジター](patterns/visitor.md) | 種類が決まったデータに、処理を足す |
-| [イテレータ（パターン）](patterns/iterator-pattern.md) | 自作のデータ構造を、範囲 for で回す |
-| [デコレータ](patterns/decorator.md) | 機能を、包んで重ねる |
+| [ビジター](patterns/visitor.md) | 種類が決まったデータに処理を足す |
+| [イテレータ（パターン）](patterns/iterator-pattern.md) | 自作のデータ構造を範囲 for で回す |
+| [デコレータ](patterns/decorator.md) | 機能を包んで重ねる |
 | [CRTP とポリシーベース設計](patterns/crtp-policy.md) | コンパイル時に決める多態 |
 
 ## 実践

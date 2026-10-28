@@ -42,7 +42,7 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
   float3 scattered = 0;
 ```
 
-レイの区間を `kStepCount` 個に分け歩幅を、決めます。開始位置をブルー ノイズでずらして縞を、ノイズに変えます。`transmittance`（透過率）は 1 から減らしていき `scattered` に、散乱光を貯めます。
+レイの区間を `kStepCount` 個に分け歩幅を決めます。開始位置をブルー ノイズでずらして縞をノイズに変えます。`transmittance`（透過率）は 1 から減らしていき `scattered` に、散乱光を貯めます。
 
 ```hlsl
   for (int i = 0; i < kStepCount; ++i) {
@@ -53,7 +53,7 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
     if (density <= 0.001) continue;
 ```
 
-1 歩ごとの位置を求めそこの雲の密度を、調べます。雲の外（密度がほぼ 0）は飛ばします。高さの割合 `height_fraction` は雲の層の中で、どの高さかを表します（0 が底、1 が頂上）。
+1 歩ごとの位置を求めそこの雲の密度を調べます。雲の外（密度がほぼ 0）は飛ばします。高さの割合 `height_fraction` は雲の層の中で、どの高さかを表します（0 が底、1 が頂上）。
 
 ```hlsl
     float light_optical_depth = LightMarch(position, sun_dir);
@@ -773,7 +773,7 @@ float4 MarchClouds(float3 ray_origin, float3 ray_dir, float t_start, float t_end
 
 ## レイマーチで雲を描く
 
-<strong>雲</strong>は 空間に密度が分布する、ボリュームです。画面の各画素から視線を雲の殻（[Cloud Layers](layers.md)）の中へ、少しずつ進み各点で密度と光を調べて色を、積算します。レイマーチです。
+<strong>雲</strong>は 空間に密度が分布する、ボリュームです。画面の各画素から視線を雲の殻（[Cloud Layers](layers.md)）の中へ少しずつ進み各点で密度と光を調べて色を積算します。レイマーチです。
 
 ## 全体の骨格
 
@@ -785,13 +785,13 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
   if (range.y <= range.x) return float4(0, 0, 0, 1);                    // 交わらない → 雲なし（透過率 1）
 ```
 
-まず、<strong>視線が雲の殻と交わる区間</strong>（入口と出口）を、求めます（[Cloud Layers](layers.md)）。交わらなければ、雲はありません（色 0、透過率 1）。
+まず、<strong>視線が雲の殻と交わる区間</strong>（入口と出口）を求めます（[Cloud Layers](layers.md)）。交わらなければ、雲はありません（色 0、透過率 1）。
 
 ```hlsl
   const int kSteps = 64;
   float distance_range = min(range.y - range.x, g_max_march_distance);  // 遠すぎる区間は、打ち切る
   float step_len = distance_range / kSteps;
-  float t = range.x + step_len * InterleavedGradientNoise(uv * g_screen_size);   // 開始位置を、ノイズで、ずらす（ジッター）
+  float t = range.x + step_len * InterleavedGradientNoise(uv * g_screen_size);   // 開始位置をノイズで、ずらす（ジッター）
 ```
 
 区間を 64 に分け、開始位置をノイズでずらします（ジッター）。画素ごとに違う位置から始まるので、縞（バンディング）が細かいノイズに変わり、TAA でなめらかにならされます（[Cloud Temporal Reprojection](temporal.md)）。
@@ -805,19 +805,19 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
     if (density > 0.001) {
 ```
 
-各ステップで その点の密度を、求めます。密度がほぼ 0（雲の外）の点は何も、しません（空の部分はスキップ）。
+各ステップで その点の密度を求めます。密度がほぼ 0（雲の外）の点は何も、しません（空の部分はスキップ）。
 
 ```hlsl
-      float3 light = CloudLighting(p, ray_dir, density);                // その点で、視線の方向へ、散る光（[Cloud Lighting]）
+      float3 light = CloudLighting(p, ray_dir, density);                // その点で、視線の方向へ散る光（[Cloud Lighting]）
       float sigma_t = density * g_extinction;                           // 消散係数
       float step_transmittance = exp(-sigma_t * step_len);
-      // 区間内の、積分（解析的）: エネルギーを、保つ、形。
+      // 区間内の、積分（解析的）: エネルギーを保つ、形。
       float3 integral = (light - light * step_transmittance) / max(sigma_t, 1e-5);
       scattered += transmittance * integral;
       transmittance *= step_transmittance;
 ```
 
-散乱光を 積算します。区間の中でも光は減るので解析的な、積分（`(1 − exp(−σΔs)) / σ`）を使うとステップが、粗くても安定します（[Single-Scattering Integral](../scattering/single-scattering.md)）。透過率は区間ごとに掛けて更新します。
+散乱光を 積算します。区間の中でも光は減るので解析的な、積分（`(1 − exp(−σΔs)) / σ`）を使うとステップが粗くても安定します（[Single-Scattering Integral](../scattering/single-scattering.md)）。透過率は区間ごとに掛けて更新します。
 
 ```hlsl
       if (transmittance < 0.01) break;                                  // ほぼ、不透明になったら、打ち切る（以降は、見えない）
@@ -828,10 +828,10 @@ float4 CloudPS(float2 uv : TEXCOORD0) : SV_Target {
 }
 ```
 
-透過率がほぼ 0（雲が濃く、向こうが見えない）ならそれ以上進んでも結果が、変わらないので打ち切ります（早期終了）。最後に、散乱光と透過率を返し空の色（背景）を、透過率で重ねます。
+透過率がほぼ 0（雲が濃く、向こうが見えない）ならそれ以上進んでも結果が変わらないので打ち切ります（早期終了）。最後に、散乱光と透過率を返し空の色（背景）を透過率で重ねます。
 
 ```hlsl
-// 呼び出し側: 空の色（背景）に、雲を重ねる。
+// 呼び出し側: 空の色（背景）に雲を重ねる。
 float4 cloud = CloudPS(uv);
 float3 final_color = sky_color * cloud.a + cloud.rgb;                   // 背景 × 透過率 + 雲の散乱光
 ```
@@ -842,16 +842,16 @@ float3 final_color = sky_color * cloud.a + cloud.rgb;                   // 背�
 
 ### ① 空の部分は大きく進む
 
-雲がない空間（密度 0）では、細かく進む必要がありません。粗いサンプル（安い）で密度を調べ雲に、入ったら細かいサンプル（重い）に、切り替えます。
+雲がない空間（密度 0）では、細かく進む必要がありません。粗いサンプル（安い）で密度を調べ雲に入ったら細かいサンプル（重い）に切り替えます。
 
 ```hlsl
-// 2 段階: 最初は、粗い歩幅で、安い密度（基本の形だけ）を、調べる。雲に入ったら、細かい歩幅で、細部まで。
+// 2 段階: 最初は、粗い歩幅で、安い密度（基本の形だけ）を調べる。雲に入ったら、細かい歩幅で、細部まで。
 bool in_cloud = false;
 float coarse_step = step_len * 2.0;
 for (int i = 0; i < kSteps; ++i) {
   float3 p = origin + ray_dir * t;
   if (!in_cloud) {
-    float coarse = CloudDensityCheap(p);                                // 基本の形だけ（細部のノイズを、読まない。安い）
+    float coarse = CloudDensityCheap(p);                                // 基本の形だけ（細部のノイズを読まない。安い）
     if (coarse > 0.0) { in_cloud = true; t -= coarse_step; continue; }  // 雲に入った → 1 歩戻って、細かく
     t += coarse_step;
   } else {
@@ -860,7 +860,7 @@ for (int i = 0; i < kSteps; ++i) {
 }
 ```
 
-空の部分は 基本の形だけの、安い密度で大きな歩幅で進み雲に、当たったら 1 歩戻って細かく、進みます。雲が少ない画素では大幅に速くなります。
+空の部分は 基本の形だけの、安い密度で大きな歩幅で進み雲に当たったら 1 歩戻って細かく、進みます。雲が少ない画素では大幅に速くなります。
 
 ### ② 遠くほど歩幅を広げる
 
@@ -872,11 +872,11 @@ float step_len = lerp(g_min_step, g_max_step, saturate((t - range.x) / g_step_gr
 
 ### ③ 低解像度で描く
 
-雲はふわふわで 細かいエッジが、少ないので画面の 1/4 の解像度（縦横、半分）で描いてアップサンプルしても、目立ちません（[Cloud Temporal Reprojection](temporal.md)）。
+雲はふわふわで 細かいエッジが少ないので画面の 1/4 の解像度（縦横、半分）で描いてアップサンプルしても、目立ちません（[Cloud Temporal Reprojection](temporal.md)）。
 
 | 工夫 | 効果（目安） |
 | --- | --- |
-| 空の部分を大きく進む | 2〜3 倍 速い（雲が、疎な画素で） |
+| 空の部分を大きく進む | 2〜3 倍 速い（雲が疎な画素で） |
 | 遠くで歩幅を広げる | 約 1.5 倍 |
 | 低解像度（1/4 の画素数） | 4 倍 |
 | 時間方向の更新の間引き（1/16 の画素だけ、毎フレーム） | 16 倍（[Cloud Temporal Reprojection](temporal.md)） |
@@ -884,7 +884,7 @@ float step_len = lerp(g_min_step, g_max_step, saturate((t - range.x) / g_step_gr
 
 ## 視線の起点
 
-<strong>カメラが雲の殻の中</strong>（飛行機）や、上（宇宙）にある場合、入口の位置が変わります（[Cloud Layers](layers.md)）。どの場合でも入口から出口までの区間を、マーチする 1 つのコードで書けます。
+<strong>カメラが雲の殻の中</strong>（飛行機）や、上（宇宙）にある場合、入口の位置が変わります（[Cloud Layers](layers.md)）。どの場合でも入口から出口までの区間をマーチする 1 つのコードで書けます。
 
 ## よくあるミス
 

@@ -6,7 +6,7 @@ tags:
 
 # Circle of Confusion (CoC)
 
-<strong>錯乱円（Circle of Confusion、CoC）</strong>は、ピントが合っていない点が、センサー上に作る「円」です。この円の大きさがそのままボケの大きさになります。DOF の最初の仕事は、画面の各画素について、この CoC を求めることです。このページでは、光学的な仕組み・薄いレンズの式・CoC のグラフ・ピクセルへの換算・符号の意味・物理ベースとアーティスト向けの簡易式を説明します。
+<strong>錯乱円（Circle of Confusion、CoC）</strong>は、ピントが合っていない点がセンサー上に作る「円」です。この円の大きさがそのままボケの大きさになります。DOF の最初の仕事は、画面の各画素について、この CoC を求めることです。このページでは、光学的な仕組み・薄いレンズの式・CoC のグラフ・ピクセルへの換算・符号の意味・物理ベースとアーティスト向けの簡易式を説明します。
 
 !!! tip "ポイント"
     - ピントが合った点は<strong>センサー上で 1 点</strong>、<strong>ずれた点は円（CoC）</strong>になる。
@@ -67,7 +67,7 @@ tags:
 <defs><marker id="arr-coc-graph" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">錯乱円(CoC): ピントの距離からのずれで、ぼける半径が決まる。手前は急に、奥はゆるやかに大きくなる</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">錯乱円(CoC): ピントの距離からのずれで、ぼける半径が決まる。手前は急に奥はゆるやかに大きくなる</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">レンズの式から計算。ピントを 2 m → 5 m → 20 m に動かして、各距離の CoC(画素)を見る</text>
 <rect x="30" y="96" width="900" height="270" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 距離ごとのぼける半径(画素)</text>
@@ -111,7 +111,7 @@ tags:
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ピントの合う距離は、ぼけが 0 になる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">離れるほど、ぼけが増える。手前は急、奥は頭打ち<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8398;0.8400;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ポストプロセスは、この CoC を、深度から画素ごとに計算して使う<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8398;0.8400;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ポストプロセスは、この CoC を深度から画素ごとに計算して使う<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8398;0.8400;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:coc-graph:end -->
@@ -158,7 +158,7 @@ float SignedCocPixels(float linear_depth) {
 | --- | --- |
 | `linear_depth` | カメラからの線形な距離（ビュー空間の z）。深度バッファの非線形な値は使えない |
 | 符号 | 前景は負、背景は正。前景と背景を別々に扱うため |
-| センサー高さで割って画素数へ | ミリメートルの CoC を、画像の画素数に換算 |
+| センサー高さで割って画素数へ | ミリメートルの CoC を画像の画素数に換算 |
 | `max_coc_in_pixels` | <strong>ボケの最大半径（画素）</strong>。コストの上限（20〜50 画素） |
 
 単位をそろえることが大切です（焦点距離・距離・センサー高さをすべてミリメートルかメートルに）。
@@ -190,7 +190,7 @@ float SimpleCoc(float linear_depth, float focus, float range, float scale) {
 
 ## よくあるミス
 
-??? failure "非線形の深度バッファの値を、そのまま CoC の計算に使う"
+??? failure "非線形の深度バッファの値をそのまま CoC の計算に使う"
     <strong>ビュー空間の線形な z に直してから</strong>使う。
 
 ??? failure "単位がバラバラで、ボケの大きさが極端になる"
@@ -199,15 +199,15 @@ float SimpleCoc(float linear_depth, float focus, float range, float scale) {
 ??? failure "前景と背景の符号を持たず、前景のボケが背景扱いになる"
     符号付きで持ち、前景・背景を別に処理する（[Foreground and Background](near-far.md)）。
 
-??? failure "ピント距離が、画面中心の深度に追従せず、ガクガク動く"
+??? failure "ピント距離が画面中心の深度に追従せず、ガクガク動く"
     ピント距離を時間で滑らかに追従させる。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] CoC ＝ <strong>ピント外の点が、センサー上に作る円</strong>。大きさ ＝ ボケの大きさ
+    - [x] CoC ＝ <strong>ピント外の点がセンサー上に作る円</strong>。大きさ ＝ ボケの大きさ
     - [x] `CoC = A·|S₂−S₁|/S₂·f/(S₁−f)`。絞りを開く・望遠・近づくと大きい
-    - [x] 前景は急に、背景は頭打ち。符号付きで持つ
+    - [x] 前景は急に背景は頭打ち。符号付きで持つ
     - [x] 画素数に換算し、最大値でクランプ
     - [x] 線形な深度を使う。単位をそろえる
 

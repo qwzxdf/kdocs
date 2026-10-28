@@ -56,7 +56,7 @@ Ray MakePickRay(float mouse_x, float mouse_y, const Viewport& viewport,
 | `proj`, `view`, `world` | 射影・ビュー・ワールド行列。ワールド空間のレイが欲しいなら、`world` は単位行列 |
 
 !!! warning "リバース Z のとき"
-    リバース Z では、近い面が 1、遠い面が 0 です（[深度とカリング](depth-culling.md)）。`z` の 0 と 1 を、入れ替えます。レイの向きが逆になります。
+    リバース Z では、近い面が 1、遠い面が 0 です（[深度とカリング](depth-culling.md)）。`z` の 0 と 1 を入れ替えます。レイの向きが逆になります。
 
 ### マウス座標の注意
 
@@ -174,7 +174,7 @@ Hit Pick(const Ray& ray, std::vector<Object>& objects) {
 
 ## 物体のローカル空間で判定する
 
-境界（ローカル座標）が、物体の回転・スケールでワールドに置かれている場合、**レイをローカル空間に変換**すると、境界はそのまま使えます。
+境界（ローカル座標）が物体の回転・スケールでワールドに置かれている場合、**レイをローカル空間に変換**すると、境界はそのまま使えます。
 
 ```cpp
 Matrix inverse_world = obj.world.Invert();
@@ -227,7 +227,7 @@ local_ray.direction.Normalize();
 ??? failure "`direction` が正規化されておらず、距離がおかしい"
     `Ray` の向きは、長さ 1 にします。
 
-??? failure "近い面のすぐ前にある物体に、当たらない"
+??? failure "近い面のすぐ前にある物体に当たらない"
     レイの始点が近い面にあります。`near` より手前は、判定されません。必要なら、カメラ位置から飛ばします。
 
 ## これだけ覚える

@@ -164,7 +164,7 @@ dxc -T ps_6_0 -E PSMain -Zi -Qembed_debug -Fo shader.cso shader.hlsl
 ## よくあるミス
 
 ??? failure "SM 6 の機能（ウェーブ命令、DXR）を使ったら PSO の作成が失敗する"
-    GPU かドライバーが、その SM に対応していません。`CheckFeatureSupport` で確認して対応していなければ別のシェーダーに切り替えます。
+    GPU かドライバーがその SM に対応していません。`CheckFeatureSupport` で確認して対応していなければ別のシェーダーに切り替えます。
 
 ??? failure "Visual Studio の HLSL コンパイラーで `vs_6_0` を指定してエラーになる"
     標準の HLSL コンパイラーは `fxc`（SM 5.1 まで）です。SM 6 は `dxc` をカスタム ビルドで呼びます。

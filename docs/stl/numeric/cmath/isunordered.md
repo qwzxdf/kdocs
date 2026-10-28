@@ -15,7 +15,7 @@ tags:
 `#include <cmath>`
 </div>
 
-NaN が混ざった 2 つの値は、大小の順序が決まりません。`std::isunordered` は、<strong>2 つの値のどちらかが NaN か</strong>（順序が決まらないか）を、例外を立てずに調べます。
+NaN が混ざった 2 つの値は、大小の順序が決まりません。`std::isunordered` は、<strong>2 つの値のどちらかが NaN か</strong>（順序が決まらないか）を例外を立てずに調べます。
 
 !!! tip "ポイント"
     - `std::isunordered(x, y)` は、どちらかが NaN のとき `true`
@@ -45,7 +45,7 @@ bool isunordered(long double x, long double y);
 
 戻り値は、`x` と `y` のどちらかが NaN なら `true` です。両方が普通の数なら `false` です。
 
-比較の前に、順序が決まる値かを確かめる用途に向いています。`isless` などの関数は、順序が決まらないときに `false` を返すので、`false` の理由が「小さくない」なのか「比較できない」なのかを区別したいときに、`isunordered` を併用します。
+比較の前に順序が決まる値かを確かめる用途に向いています。`isless` などの関数は、順序が決まらないときに `false` を返すので、`false` の理由が「小さくない」なのか「比較できない」なのかを区別したいときに、`isunordered` を併用します。
 
 ## 実際に動かしてみる
 
@@ -68,7 +68,7 @@ isunordered(nan, 2) = true
 
 ## ゲームでの使いどころ
 
-値の並べ替えの前に、NaN が混ざっていないかを確かめます。NaN が混ざると、比較が一貫しなくなり、`std::sort` が不正な動作をします。
+値の並べ替えの前に NaN が混ざっていないかを確かめます。NaN が混ざると、比較が一貫しなくなり、`std::sort` が不正な動作をします。
 
 ```cpp
 for (std::size_t i = 1; i < v.size(); ++i) {

@@ -160,7 +160,7 @@ path& make_preferred();
 
 - 計算量: O(長さ)
 
-区切り文字を、その OS の好みの区切り（Windows なら `\`）に変換します。
+区切り文字をその OS の好みの区切り（Windows なら `\`）に変換します。
 
 ### remove_filename {#remove_filename}
 
@@ -180,7 +180,7 @@ path& replace_filename(const path& replacement);
 
 - 計算量: O(長さ)
 
-最後の要素（ファイル名）を、別のものに置き換えます。
+最後の要素（ファイル名）を別のものに置き換えます。
 
 ### replace_extension {#replace_extension}
 
@@ -290,7 +290,7 @@ path lexically_relative(const path& base) const;
 
 - 計算量: O(長さ)
 
-`base` から見た相対パスを、文字列だけで求めます。ファイルシステムは調べません。
+`base` から見た相対パスを文字列だけで求めます。ファイルシステムは調べません。
 
 ### lexically_proximate {#lexically_proximate}
 
@@ -530,7 +530,7 @@ std::strong_ordering operator<=>(const path& lhs, const path& rhs) noexcept;
 
 - 計算量: O(長さ)
 
-パスを、要素ごとに比べる三方比較。
+パスを要素ごとに比べる三方比較。
 
 ## ゲームでの使いどころ
 

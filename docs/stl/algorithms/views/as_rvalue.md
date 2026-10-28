@@ -15,7 +15,7 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::views::as_rvalue` は、**範囲の要素を右辺値として見せる**ビューです。コピーのアルゴリズム（`copy` など）に使うと、コピーではなく**ムーブ**になります。`std::string` の `vector` を、中身を移しながら別の場所へ渡したいときに便利です。
+`std::views::as_rvalue` は、**範囲の要素を右辺値として見せる**ビューです。コピーのアルゴリズム（`copy` など）に使うと、コピーではなく**ムーブ**になります。`std::string` の `vector` を中身を移しながら別の場所へ渡したいときに便利です。
 
 !!! tip "ポイント"
     - `std::move` を要素ごとに書く代わりに、範囲全体に対して 1 回で済む。
@@ -77,7 +77,7 @@ class as_rvalue_view;
 
 | 場面 | 書き方 |
 | --- | --- |
-| 巨大な文字列の配列を、コピーせずに別のコンテナへ移す | `copy(src | as_rvalue, back_inserter(dst))` |
+| 巨大な文字列の配列をコピーせずに別のコンテナへ移す | `copy(src | as_rvalue, back_inserter(dst))` |
 
 ## よくあるミス
 

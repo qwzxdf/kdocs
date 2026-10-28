@@ -40,7 +40,7 @@ Microsoft::WRL::ComPtr<ID3D11RenderTargetView> rtv;
 device->CreateRenderTargetView(back_buffer.Get(), &desc, &rtv);
 ```
 
-`desc` を `nullptr` にするとリソースと同じ形式の既定のビューができます。バック バッファは `UNORM` で作られているので `_SRGB` のビューにしたいときだけ記述子を、書きます。
+`desc` を `nullptr` にするとリソースと同じ形式の既定のビューができます。バック バッファは `UNORM` で作られているので `_SRGB` のビューにしたいときだけ記述子を書きます。
 
 | メンバー | 内容 |
 | --- | --- |
@@ -60,7 +60,7 @@ desc.ArraySize = 1;
 desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 desc.SampleDesc.Count = 1;
 desc.Usage = D3D11_USAGE_DEFAULT;
-desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;   // 描く・読む、両方を、指定
+desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;   // 描く・読む、両方を指定
 Microsoft::WRL::ComPtr<ID3D11Texture2D> scene_texture;
 device->CreateTexture2D(&desc, nullptr, &scene_texture);
 
@@ -77,7 +77,7 @@ ID3D11RenderTargetView* targets[] = {scene_rtv.Get()};
 context->OMSetRenderTargets(1, targets, depth_dsv.Get());   // 第 3 引数: 深度ステンシル ビュー（無ければ nullptr）
 ```
 
-`OMSetRenderTargets` は <strong>出力マージャー</strong>（OM）に描き込み先を設定します。1 回で最大 8 枚の RTV を束ねられます（[Multiple Render Targets](mrt.md)）。第 3 引数の深度バッファが、無ければ `nullptr` で深度テストは行われません（[Depth Buffer and DSV](depth-stencil.md)）。
+`OMSetRenderTargets` は <strong>出力マージャー</strong>（OM）に描き込み先を設定します。1 回で最大 8 枚の RTV を束ねられます（[Multiple Render Targets](mrt.md)）。第 3 引数の深度バッファが無ければ `nullptr` で深度テストは行われません（[Depth Buffer and DSV](depth-stencil.md)）。
 
 | 引数 | 内容 |
 | --- | --- |
@@ -87,10 +87,10 @@ context->OMSetRenderTargets(1, targets, depth_dsv.Get());   // 第 3 引数: 深
 
 ## 読みながら書けない
 
-<strong>同じテクスチャを RTV で書きつつ SRV で読む</strong>ことはできません。D3D11 はエラーを出さず読む側の束縛を黙って外します（デバッグ レイヤーが、有効なら警告が出ます）。
+<strong>同じテクスチャを RTV で書きつつ SRV で読む</strong>ことはできません。D3D11 はエラーを出さず読む側の束縛を黙って外します（デバッグ レイヤーが有効なら警告が出ます）。
 
 ```cpp
-// パス A で scene_texture に描いた後、パス B で、それを、読む前に、書き込みの束縛を、外す。
+// パス A で scene_texture に描いた後、パス B で、それを読む前に書き込みの束縛を外す。
 ID3D11RenderTargetView* none[] = {nullptr};
 context->OMSetRenderTargets(1, none, nullptr);
 context->PSSetShaderResources(0, 1, scene_srv.GetAddressOf());
@@ -103,13 +103,13 @@ context->PSSetShaderResources(0, 1, scene_srv.GetAddressOf());
 ??? failure "`CreateRenderTargetView` が、失敗する"
     テクスチャに `D3D11_BIND_RENDER_TARGET` を付けていない。圧縮フォーマット（BC）や深度フォーマットは、RTV にできない。
 
-??? failure "描いたのに画面が、真っ黒"
+??? failure "描いたのに画面が真っ黒"
     `OMSetRenderTargets` を呼んでいない。または、ビューポートが 0 のまま。または、`Present` していない。
 
 ??? failure "読もうとしたテクスチャが真っ黒"
     同じテクスチャがまだ RTV として束ねられている。`OMSetRenderTargets` で外してから SRV で束ねる。
 
-??? failure "画面の色が、暗い（または明るい）"
+??? failure "画面の色が暗い（または明るい）"
     バック バッファの RTV を `_SRGB` にしたのにシェーダーでガンマ変換も、している（二重）。または、その逆。
 
 ## これだけ覚える

@@ -75,7 +75,7 @@ class as_const_view;
 
 | 場面 | 書き方 |
 | --- | --- |
-| 描画関数に、データを読み取り専用で渡す | `draw(enemies | as_const)` |
+| 描画関数にデータを読み取り専用で渡す | `draw(enemies | as_const)` |
 
 ## よくあるミス
 

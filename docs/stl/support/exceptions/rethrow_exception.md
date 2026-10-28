@@ -15,7 +15,7 @@ tags:
 `#include <exception>`
 </div>
 
-保存しておいた例外を、あとで投げ直したい。`std::rethrow_exception(ptr)` は、<strong>`exception_ptr` が指す例外を、改めて投げます</strong>。別スレッドで起きた例外を、メイン スレッドで処理するときの最後の一歩です。
+保存しておいた例外をあとで投げ直したい。`std::rethrow_exception(ptr)` は、<strong>`exception_ptr` が指す例外を改めて投げます</strong>。別スレッドで起きた例外をメイン スレッドで処理するときの最後の一歩です。
 
 !!! tip "ポイント"
     - `exception_ptr` が指す例外を投げ直す
@@ -40,7 +40,7 @@ tags:
 | --- | --- | --- |
 | `p` | `exception_ptr` | 投げ直す例外。空でないこと |
 
-`exception_ptr` が指す例外オブジェクトを、そのまま投げます。型は、元の例外の型です。そのため、`catch (const std::runtime_error&)` で、元の型として受け取れます。
+`exception_ptr` が指す例外オブジェクトをそのまま投げます。型は、元の例外の型です。そのため、`catch (const std::runtime_error&)` で、元の型として受け取れます。
 
 空の `exception_ptr` を渡すと、動作は未定義です。`if (ptr)` で確かめてから呼びます。この関数は戻らず、必ず例外を投げます（`[[noreturn]]`）。
 
@@ -67,7 +67,7 @@ int main() {
 
 ## ゲームでの使いどころ
 
-保存した例外を、処理しやすい場所で投げ直します。
+保存した例外を処理しやすい場所で投げ直します。
 
 ```cpp
 if (error) std::rethrow_exception(error);

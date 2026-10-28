@@ -26,7 +26,7 @@ tags:
 <strong>ACES や Hable では</strong>、R・G・B に別々に曲線を掛けるため、明るい色の比率が崩れます（青い光が紫に赤が黄色に）。新しい方式は色空間を工夫したり、LUT で調整したりして、これを緩和します。
 
 <svg class="fig illust" viewBox="0 0 780 230" role="img" aria-label="色の偏りの比較">
-<text x="20" y="26" class="fig-title">同じ青い強い光を、トーンマップすると</text>
+<text x="20" y="26" class="fig-title">同じ青い強い光をトーンマップすると</text>
 <g font-size="13">
 <text x="40" y="62" style="font-weight:700">入力（HDR）</text>
 <rect x="40" y="72" width="190" height="40" fill="#2563eb"/><text x="40" y="132" style="font-size:12px">明るさを上げていく →</text>
@@ -37,7 +37,7 @@ tags:
 <text x="520" y="62" style="font-weight:700">AgX など</text>
 <rect x="520" y="72" width="190" height="40" fill="url(#ag-agx)"/><text x="520" y="132" style="font-size:12px">青のまま白へ</text>
 </g>
-<text x="40" y="180" style="font-size:13px">色相を保つ方式は、強い光（ネオン・魔法・炎）の色が、意図どおりに見える。</text>
+<text x="40" y="180" style="font-size:13px">色相を保つ方式は、強い光（ネオン・魔法・炎）の色が意図どおりに見える。</text>
 <text x="40" y="204" style="font-size:13px">一方、フィルムのような「ハイライトの色飛び」は弱くなる（好みで選ぶ）。</text>
 </svg>
 
@@ -48,7 +48,7 @@ tags:
 | 特徴 | 内容 |
 | --- | --- |
 | 広い色域で扱う | 作業を広い色空間で行い、最後に出力へ |
-| 対数空間で曲線を掛ける | 露出の幅（ダイナミック レンジ）を、対数で受けて、S 字で圧縮 |
+| 対数空間で曲線を掛ける | 露出の幅（ダイナミック レンジ）を対数で受けて、S 字で圧縮 |
 | 色相を保ちつつ、白へ滑らかに | ハイライトの色飛びが穏やか |
 | ルック（見た目）を選べる | Punchy（強め）・Golden など、後段でルックを調整 |
 
@@ -79,7 +79,7 @@ float3 AgXTonemap(float3 color) {
 
 ## Tony McMapface
 
-<strong>Tomasz Stachowiak</strong> による、3D LUT ベースのトーンマップです。あらかじめ作った 48×48×48 の LUT を、表引きするだけで使えます。
+<strong>Tomasz Stachowiak</strong> による、3D LUT ベースのトーンマップです。あらかじめ作った 48×48×48 の LUT を表引きするだけで使えます。
 
 | 特徴 | 内容 |
 | --- | --- |
@@ -128,13 +128,13 @@ Khronos PBR Neutral の特徴です。暗部から中間は曲線を掛けず、
 
 ## よくあるミス
 
-??? failure "AgX の行列や係数を、自分で書き写して、一部間違える"
+??? failure "AgX の行列や係数を自分で書き写して、一部間違える"
     <strong>公開されている実装をそのまま使う</strong>。テスト画像（グレースケールと彩度のグラデーション）で、確認する。
 
 ??? failure "Tony McMapface の LUT の端で、色がずれる"
     半テクセルのずらしを入れ、`linear_clamp` を使う。
 
-??? failure "PBR Neutral を、映画的な絵に使って、地味になる"
+??? failure "PBR Neutral を映画的な絵に使って、地味になる"
     用途に合った曲線を選ぶ。映画的なら、ACES・AgX。
 
 ??? failure "曲線を切り替えたら、全体の明るさが変わって、露出がずれる"

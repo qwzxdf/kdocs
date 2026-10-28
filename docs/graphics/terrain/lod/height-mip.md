@@ -89,9 +89,9 @@ tags:
 <g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.8594;0.8596;1.0000" values="0;0;1;1"/><rect x="440" y="410" width="490" height="100" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="456" y="434" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">層が 1 つ上がると、点は半分、差は増える(0.00 → 0.74)</text>
 <text x="456" y="457" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">遠くは、画面で 1 画素が数 m ぶんなので、粗い層で、見た目が変わらない</text>
-<text x="456" y="479" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">遠い頂点を、粗い層から読めば、テクスチャの読み込みが軽く、キャッシュにも優しい</text>
+<text x="456" y="479" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">遠い頂点を粗い層から読めば、テクスチャの読み込みが軽く、キャッシュにも優しい</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">高さを、隣と平均して、小さな高さマップを作る<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">高さを隣と平均して、小さな高さマップを作る<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">層を重ねるほど、粗く、小さく<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;0.8807;0.8809;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">距離に応じて、層を選ぶ(ミップ)<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.8807;0.8809;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -100,11 +100,11 @@ tags:
 
 ## なぜミップが要るのか
 
-遠くの地形を粗い LOD で描くと頂点が、数百メートルおきにしかありません。その頂点が <strong>細かい高さマップの、1 点だけ</strong>を読むとどうなるでしょうか。
+遠くの地形を粗い LOD で描くと頂点が数百メートルおきにしかありません。その頂点が <strong>細かい高さマップの、1 点だけ</strong>を読むとどうなるでしょうか。
 
-高さマップが 1 m ごとに値を持つなら、数百メートル間隔の頂点はその中の 1 点を、たまたま拾います。カメラが少し動いて頂点の位置が、1 m 動くと拾う値が変わります。山の頂上を拾ったり谷を拾ったりして地形が、ちらちら揺れます。 これはテクスチャの縮小で出る、エイリアシングと同じ現象です。
+高さマップが 1 m ごとに値を持つなら、数百メートル間隔の頂点はその中の 1 点をたまたま拾います。カメラが少し動いて頂点の位置が 1 m 動くと拾う値が変わります。山の頂上を拾ったり谷を拾ったりして地形がちらちら揺れます。 これはテクスチャの縮小で出る、エイリアシングと同じ現象です。
 
-ミップマップは「大きい画像を、半分の大きさに平均して縮めたもの」を、積み重ねたものです（Williams、1983）。頂点の間隔に合ったミップを読めば、その頂点が受け持つ範囲の平均の高さが取れます。
+ミップマップは「大きい画像を半分の大きさに平均して縮めたもの」を積み重ねたものです（Williams、1983）。頂点の間隔に合ったミップを読めば、その頂点が受け持つ範囲の平均の高さが取れます。
 
 ## どのミップを読むか
 
@@ -127,7 +127,7 @@ LOD が 1 つ上がるごとに、ミップも 1 つ上がります。これは 
 ```hlsl
 // LOD レベルから、読むミップを決める。
 // level は、頂点を持つノードのレベル（0 が最も細かい）。
-// base_mip は、レベル 0 の頂点の間隔に、合うミップ。
+// base_mip は、レベル 0 の頂点の間隔に合うミップ。
 float HeightMip(float level, float base_mip) {
   return base_mip + level;
 }
@@ -138,10 +138,10 @@ float SampleHeightLod(float2 world_xz, float level) {
 }
 ```
 
-<strong>連続的な LOD（モーフィングつき）では、ミップも連続的に変える</strong>と切り替えのポップが、さらに目立たなくなります。トライリニア補間が 2 つのミップを自動で混ぜてくれるので `SampleLevel` に、小数のミップ レベルを渡します。
+<strong>連続的な LOD（モーフィングつき）では、ミップも連続的に変える</strong>と切り替えのポップがさらに目立たなくなります。トライリニア補間が 2 つのミップを自動で混ぜてくれるので `SampleLevel` に、小数のミップ レベルを渡します。
 
 ```hlsl
-// モーフ係数 morph（0〜1）を使って、ミップを、レベルの間で連続的に動かす。
+// モーフ係数 morph（0〜1）を使って、ミップをレベルの間で連続的に動かす。
 float mip = level + morph;
 float h = g_height.SampleLevel(g_linear_clamp, uv, mip);
 ```
@@ -166,7 +166,7 @@ float h = g_height.SampleLevel(g_linear_clamp, uv, mip);
 | 平均と最大の間で混ぜる | `lerp(average, maximum, 0.5)` のように、中間を取る |
 
 ```cpp
-// 高さマップのミップを、平均ではなく、最大値で作る例（CPU 側）。
+// 高さマップのミップを平均ではなく、最大値で作る例（CPU 側）。
 void BuildMaxMip(const std::vector<float>& src, int src_size, std::vector<float>& dst) {
   const int dst_size = src_size / 2;
   dst.resize(static_cast<size_t>(dst_size) * dst_size);
@@ -182,11 +182,11 @@ void BuildMaxMip(const std::vector<float>& src, int src_size, std::vector<float>
 }
 ```
 
-最大値のミップは カリングにも使えます。四分木のノードの AABB の「最大の高さ」は、そのノードが覆う範囲の最大値のミップを、引けば求まります。
+最大値のミップは カリングにも使えます。四分木のノードの AABB の「最大の高さ」は、そのノードが覆う範囲の最大値のミップを引けば求まります。
 
 ## 最小・最大のミップを AABB に使う
 
-CDLOD ではノードごとの AABB が、必要です。高さの最小値と最大値を <strong>ミップ（最小と最大の 2 本）</strong>として持てば、四分木の各ノードの値がミップのテクセルに、1 対 1 で対応します。
+CDLOD ではノードごとの AABB が、必要です。高さの最小値と最大値を <strong>ミップ（最小と最大の 2 本）</strong>として持てば、四分木の各ノードの値がミップのテクセルに 1 対 1 で対応します。
 
 | ノードのレベル | 対応するミップ | 内容 |
 | --- | --- | --- |
@@ -194,7 +194,7 @@ CDLOD ではノードごとの AABB が、必要です。高さの最小値と�
 | 1 つ上 | ミップ k+1 | 1 テクセル = 4 ノードの最小・最大 |
 
 ```cpp
-// 四分木のノードの AABB を、最小・最大ミップから作る。
+// 四分木のノードの AABB を最小・最大ミップから作る。
 Aabb NodeBounds(int level, int x, int z, const MinMaxMips& mips) {
   const int mip = level + mips.base_mip;
   const float min_y = mips.min[mip].At(x, z);
@@ -204,7 +204,7 @@ Aabb NodeBounds(int level, int x, int z, const MinMaxMips& mips) {
 }
 ```
 
-高さを編集したら その範囲のミップを作り直し、影響する四分木のノードの AABB を、更新します。
+高さを編集したら その範囲のミップを作り直し、影響する四分木のノードの AABB を更新します。
 
 ## DirectX 11 での、ミップの作り方
 
@@ -223,7 +223,7 @@ desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;  // Gene
 desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
 
 device->CreateTexture2D(&desc, nullptr, &height_texture);
-// 0 番のミップに、高さを書き込んだあと
+// 0 番のミップに高さを書き込んだあと
 context->GenerateMips(height_srv.Get());
 ```
 
@@ -234,7 +234,7 @@ context->GenerateMips(height_srv.Get());
 
 ## よくあるミス
 
-??? failure "遠くの山が、低く見える"
+??? failure "遠くの山が低く見える"
     <strong>最大値のミップ</strong>も併用する。
 
 ## これだけ覚える

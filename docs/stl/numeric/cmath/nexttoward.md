@@ -15,7 +15,7 @@ tags:
 `#include <cmath>`
 </div>
 
-`std::nextafter` と同じく、隣の表現できる値を返しますが、第 2 引数（向かう方向）が常に `long double` の版です。`float` や `double` の値を、より精度の高い値の方向へ進めたいときに使えます。
+`std::nextafter` と同じく、隣の表現できる値を返しますが、第 2 引数（向かう方向）が常に `long double` の版です。`float` や `double` の値をより精度の高い値の方向へ進めたいときに使えます。
 
 !!! tip "ポイント"
     - `std::nexttoward(1.0f, 2.0L)` は `1.0f` の次に大きい `float` の値

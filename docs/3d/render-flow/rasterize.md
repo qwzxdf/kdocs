@@ -7,7 +7,7 @@ tags:
 
 # ラスタライズ
 
-**ここまでで三角形は「画面の座標が決まった 3 つの点」になりました**。次の工程はその三角形が画面のどのピクセルを覆っているかを見つけることです。これがラスタライズです。3D のデータ（頂点）を、2D のピクセルの集まりに変える、描画パイプラインの中核です。このページでは、ピクセルの中心で判定するしくみ・辺の式による内外判定・頂点の値の補間（重心座標）・裏面カリング・2×2 のクワッド・MSAA を説明します。
+**ここまでで三角形は「画面の座標が決まった 3 つの点」になりました**。次の工程はその三角形が画面のどのピクセルを覆っているかを見つけることです。これがラスタライズです。3D のデータ（頂点）を 2D のピクセルの集まりに変える、描画パイプラインの中核です。このページでは、ピクセルの中心で判定するしくみ・辺の式による内外判定・頂点の値の補間（重心座標）・裏面カリング・2×2 のクワッド・MSAA を説明します。
 
 !!! tip "ポイント"
     - ラスタライズ ＝ <strong>三角形が覆うピクセルを見つけ、ピクセルごとに頂点の値を補間する</strong>。
@@ -24,7 +24,7 @@ tags:
 
 ## 三角形をピクセルに分ける
 
-**画面はピクセルの格子**です。三角形の各ピクセルの「中心」が、三角形の内側にあるかどうかで判定します。中心が内側なら、そのピクセルは三角形に覆われているとみなされます。
+**画面はピクセルの格子**です。三角形の各ピクセルの「中心」が三角形の内側にあるかどうかで判定します。中心が内側なら、そのピクセルは三角形に覆われているとみなされます。
 
 <svg class="fig illust" viewBox="0 0 720 470" role="img" aria-label="ラスタライズの例">
 <text x="20" y="24" class="fig-title">16×10 ピクセルの画面と三角形：ピクセルの中心が内側なら塗る（34 個）</text>
@@ -366,7 +366,7 @@ tags:
 <defs><marker id="arr-raster-sweep" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ラスタライズ:ピクセルの中心が三角形の内側かを、1 つずつ調べる</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ラスタライズ:ピクセルの中心が三角形の内側かを 1 つずつ調べる</text>
 <rect x="20" y="56" width="560" height="336" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
 <line x1="48" y1="56" x2="48" y2="392" stroke="#e2e8f0" stroke-width="1"/>
 <line x1="76" y1="56" x2="76" y2="392" stroke="#e2e8f0" stroke-width="1"/>
@@ -733,7 +733,7 @@ tags:
 <text x="620" y="264" text-anchor="start" style="font-size:30px;font-weight:700;fill:#64748b" opacity="0">170<animate attributeName="opacity" dur="11.1s" repeatCount="indefinite" keyTimes="0.0000;0.5847;0.5850;0.6315;0.6319;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="620" y="264" text-anchor="start" style="font-size:30px;font-weight:700;fill:#64748b" opacity="0">190<animate attributeName="opacity" dur="11.1s" repeatCount="indefinite" keyTimes="0.0000;0.6315;0.6319;1.0000" values="0;0;1;1"/></text>
 <text x="20" y="420" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">白い点 = ピクセルの中心。内側なら青く塗り、外側なら塗らない<animate attributeName="opacity" dur="11.1s" repeatCount="indefinite" keyTimes="0.0000;0.6429;0.6432;1.0000" values="1;1;0;0"/></text>
-<text x="20" y="420" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">内側の 50 個が、このあとピクセルシェーダーで色を計算される<animate attributeName="opacity" dur="11.1s" repeatCount="indefinite" keyTimes="0.0000;0.6429;0.6432;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="20" y="420" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">内側の 50 個がこのあとピクセルシェーダーで色を計算される<animate attributeName="opacity" dur="11.1s" repeatCount="indefinite" keyTimes="0.0000;0.6429;0.6432;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:raster-sweep:end -->
@@ -774,7 +774,7 @@ E の計算は単純な掛け算と引き算で、隣のピクセルへ動くと
 | 三角形の中心 | (1/3, 1/3, 1/3) |
 
 <svg class="fig illust" viewBox="0 0 780 280" role="img" aria-label="重心座標による補間">
-<text x="20" y="24" class="fig-title">頂点の色（赤・緑・青）が、ピクセルの位置に応じて混ざる</text>
+<text x="20" y="24" class="fig-title">頂点の色（赤・緑・青）がピクセルの位置に応じて混ざる</text>
 <polygon points="90,230 330,230 210,50" fill="#fff" fill-opacity="0.04" stroke="currentColor" stroke-opacity="0.6" stroke-width="2"/>
 <circle cx="90" cy="230" r="8" fill="#e5484d"/><circle cx="330" cy="230" r="8" fill="#2ea043"/><circle cx="210" cy="50" r="8" fill="#4c8bf5"/>
 <text x="60" y="254" style="font-size:12px">A（赤）</text><text x="310" y="254" style="font-size:12px">B（緑）</text><text x="224" y="52" style="font-size:12px">C（青）</text>
@@ -913,7 +913,7 @@ context->RSSetState(rasterizer_state.Get());
 ??? failure "細い三角形が多く、ピクセル シェーダーが重い"
     LOD で頂点を減らし、細長い三角形を作らないモデリングにする。
 
-??? failure "補間した法線を、そのままライティングに使って暗くなる"
+??? failure "補間した法線をそのままライティングに使って暗くなる"
     補間すると長さが 1 でなくなる。ピクセル シェーダーで正規化する。
 
 ## これだけ覚える

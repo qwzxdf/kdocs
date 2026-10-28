@@ -15,7 +15,7 @@ tags:
 `#include <functional>`
 </div>
 
-`std::reference_wrapper<T>` は、**参照を、コピーや代入のできる値として持つ**入れ物です。通常の参照 `T&` は、コンテナに入れたり、代入し直したりできません。`reference_wrapper` なら、`std::vector<std::reference_wrapper<Enemy>>` のように参照の一覧を作れます。[`std::ref`](ref.md) が作ります。
+`std::reference_wrapper<T>` は、**参照をコピーや代入のできる値として持つ**入れ物です。通常の参照 `T&` は、コンテナに入れたり、代入し直したりできません。`reference_wrapper` なら、`std::vector<std::reference_wrapper<Enemy>>` のように参照の一覧を作れます。[`std::ref`](ref.md) が作ります。
 
 !!! tip "ポイント"
     - `std::vector<T&>` は書けないが、`std::vector<std::reference_wrapper<T>>` は書ける。
@@ -69,7 +69,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| 別のコンテナにある要素への参照を、並べ替え用の一覧に集める | `std::vector<std::reference_wrapper<Enemy>>` |
+| 別のコンテナにある要素への参照を並べ替え用の一覧に集める | `std::vector<std::reference_wrapper<Enemy>>` |
 
 ## よくあるミス
 

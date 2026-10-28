@@ -67,7 +67,7 @@ num = 1, den = 10
 日常のゲームのコードでは使う機会が少なく、`std::ratio` の学習や、単位のテンプレートを作るときに登場します。
 
 ```cpp
-// 3 デシ を、基本単位に直す
+// 3 デシ を基本単位に直す
 constexpr long long value = 3LL * std::deci::num / std::deci::den;
 ```
 

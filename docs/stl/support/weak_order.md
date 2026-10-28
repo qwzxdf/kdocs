@@ -15,12 +15,12 @@ tags:
 `#include <compare>`
 </div>
 
-`<=>` が使えない型や、使えても意味が足りない型（浮動小数点数の NaN や符号つきゼロ）を、指定した強さの順序で比べたい。`std::weak_order` は、<strong>2 つの値を弱順序で比較する</strong>関数オブジェクトです。
+`<=>` が使えない型や、使えても意味が足りない型（浮動小数点数の NaN や符号つきゼロ）を指定した強さの順序で比べたい。`std::weak_order` は、<strong>2 つの値を弱順序で比較する</strong>関数オブジェクトです。
 
 !!! tip "ポイント"
     - `std::weak_order(a, b)` は `std::weak_ordering` を返す
     - 浮動小数点数の NaN や `-0.0` の扱いが、順序の強さで違う
-    - `<=>` があればそれを、なければ代わりの手段を探す
+    - `<=>` があればそれをなければ代わりの手段を探す
     - `<compare>` で宣言される
 
 !!! info "このページを読む前に"
@@ -66,7 +66,7 @@ weak_order(-0.0, 0.0) は equivalent : true
 
 ## ゲームでの使いどころ
 
-浮動小数点数の配列を、NaN が混ざっても壊れずに並べ替えるときに使います。
+浮動小数点数の配列を NaN が混ざっても壊れずに並べ替えるときに使います。
 
 ```cpp
 std::ranges::sort(values, [](double a, double b) { return std::is_lt(std::weak_order(a, b)); });

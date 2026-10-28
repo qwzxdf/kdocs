@@ -13,7 +13,7 @@ tags:
     - DX11 では、深度ステンシルビュー（DSV）を作って、`OMSetRenderTargets` に渡す。毎フレーム `ClearDepthStencilView` でクリア。
     - バックフェイスカリング：裏を向いた三角形は描かない。左手系・CW 表（このサイトの規約）なら `FrontCounterClockwise = FALSE`（既定のまま）。
     - Z ファイティングは、深度の精度不足。near を大きく、またはリバース Z で減らす。
-    - 視錐台カリング：画面に入らないオブジェクトを、描画前に除外する（`BoundingFrustum`）。
+    - 視錐台カリング：画面に入らないオブジェクトを描画前に除外する（`BoundingFrustum`）。
     - 半透明は深度の書き込みを止めて、奥から手前の順に描く。
 
 !!! info "このページを読む前に"
@@ -127,7 +127,7 @@ context->RSSetState(rs_state.Get());
 | `FillMode` | `SOLID` / `WIREFRAME` | ワイヤーフレームは、デバッグ用 |
 
 !!! warning "DX11 の既定は `FrontCounterClockwise = FALSE`（時計回りが表）。右手系のモデルは注意"
-    何も設定しないと、DX11 は時計回りを表とします。このサイトの左手系（CW が表）とは合っています。ただし、右手系で作ったメッシュ（glTF・OpenGL 向けは CCW が表）を、そのまま読み込むと裏表が逆になって、外側が消え、内側が見えます。読み込み時に巻き順を反転します。症状が出たら、`FrontCounterClockwise` と、メッシュの巻き順を確認します。
+    何も設定しないと、DX11 は時計回りを表とします。このサイトの左手系（CW が表）とは合っています。ただし、右手系で作ったメッシュ（glTF・OpenGL 向けは CCW が表）をそのまま読み込むと裏表が逆になって、外側が消え、内側が見えます。読み込み時に巻き順を反転します。症状が出たら、`FrontCounterClockwise` と、メッシュの巻き順を確認します。
 
 ### 巻き順（ワインディング）
 
@@ -142,7 +142,7 @@ context->RSSetState(rs_state.Get());
 
 ## Z ファイティング
 
-**ほぼ同じ深度の 2 つの面**が、ちらちら入れ替わる現象です。深度の精度が足りないために、起こります。
+**ほぼ同じ深度の 2 つの面**がちらちら入れ替わる現象です。深度の精度が足りないために、起こります。
 
 ### なぜ起こるか
 
@@ -152,7 +152,7 @@ context->RSSetState(rs_state.Get());
 
 | 対策 | 説明 |
 | --- | --- |
-| near を大きくする | 最も効く。`0.01` → `0.1` で、精度が、10 倍ほど改善する |
+| near を大きくする | 最も効く。`0.01` → `0.1` で、精度が 10 倍ほど改善する |
 | far を小さくする | 効果は、near ほど大きくない |
 | リバース Z | 浮動小数点の精度が遠くに多く残り、大きく改善 |
 | 面の位置をずらす | 壁の絵（デカール）は、少し浮かす。または深度バイアス |
@@ -196,7 +196,7 @@ context->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH, 0.0f, 0);
 
 <svg class="fig" viewBox="0 0 622 250" role="img" aria-label="視錐台カリング"><defs><marker id="f2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">視錐台カリング：見えない物は、描画命令を出さない（真上から見た図）</text><circle cx="80" cy="130" r="7" fill="currentColor"/><text x="55" y="155">カメラ</text><polygon points="80,130 330,40 330,220" fill="rgba(76,139,245,0.12)" stroke="currentColor" stroke-width="2"/><circle cx="200" cy="130" r="14" fill="rgba(46,160,67,0.5)" stroke="currentColor"/><text x="190" y="168">描く</text><circle cx="270" cy="85" r="14" fill="rgba(46,160,67,0.5)" stroke="currentColor"/><text x="262" y="64">描く</text><circle cx="250" cy="230" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="230" y="212">外：除外</text><circle cx="150" cy="40" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="125" y="74">外：除外</text><circle cx="420" cy="130" r="14" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="380" y="170">far より奥：除外</text><text x="400" y="80">球（BoundingSphere）で、判定する</text></svg>
 
-**視錐台**（カメラの見える範囲）の外にあるオブジェクトを、描画命令の前に除外します。描画命令・頂点処理を丸ごと省けます。
+**視錐台**（カメラの見える範囲）の外にあるオブジェクトを描画命令の前に除外します。描画命令・頂点処理を丸ごと省けます。
 
 ```cpp
 #include <DirectXCollision.h>
@@ -257,7 +257,7 @@ std::sort(transparent.begin(), transparent.end(),
 ??? failure "深度バッファを作ったのに、何も隠れない"
     `OMSetRenderTargets` に DSV を渡していない、または `DepthEnable = FALSE` です。
 
-??? failure "モデルが、裏返って見える"
+??? failure "モデルが裏返って見える"
     `FrontCounterClockwise` と、メッシュの巻き順を確認します。DX11 の既定は、**時計回りが表**です。右手系のモデルは、巻き順を反転します。
 
 ??? failure "リバース Z にしたら、何も描かれない"
@@ -266,7 +266,7 @@ std::sort(transparent.begin(), transparent.end(),
 ??? failure "近くで画面が欠ける"
     `near` が大きすぎて、手前がクリップされています。小さくするなら、リバース Z で精度を補います。
 
-??? failure "半透明が、ほかの物体に隠れて、おかしく見える"
+??? failure "半透明がほかの物体に隠れて、おかしく見える"
     不透明を先、半透明を遠い順に描き、半透明は深度を書き込みません。
 
 ??? failure "視錐台カリングで、見えるものが消える"

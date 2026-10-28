@@ -46,9 +46,9 @@ tags:
 | 肩（shoulder） | 明部で傾きがゆるやかになり 1 に漸近 | ハイライトが白飛びせず滑らかに白へ |
 
 
-原典は、Hable の GDC 2010 の発表 "Uncharted 2: HDR Lighting" です。Kodak のフィルムの特性曲線を参考に、つま先・直線部・肩を 1 つの有理関数（分数の式）で表しました。係数は 6 個（A〜F）と白点 W です。
+原典は、Hable の GDC 2010 の発表 "Uncharted 2: HDR Lighting" です。Kodak のフィルムの特性曲線を参考につま先・直線部・肩を 1 つの有理関数（分数の式）で表しました。係数は 6 個（A〜F）と白点 W です。
 
-原典は、Hable の GDC 2010 の発表 "Uncharted 2: HDR Lighting" です。Kodak のフィルムの特性曲線を参考に、つま先・直線部・肩を 1 つの有理関数（分数の式）で表しました。係数は 6 個（A〜F）と白点 W です。
+原典は、Hable の GDC 2010 の発表 "Uncharted 2: HDR Lighting" です。Kodak のフィルムの特性曲線を参考につま先・直線部・肩を 1 つの有理関数（分数の式）で表しました。係数は 6 個（A〜F）と白点 W です。
 
 Reinhard はつま先がなく、暗部が持ち上がるため眠いです。S 字はつま先で暗部を沈めるので、絵が締まります。
 
@@ -59,7 +59,7 @@ Reinhard はつま先がなく、暗部が持ち上がるため眠いです。S 
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">Hable(Uncharted 2)のフィルミック曲線: 暗い所は立ち上がりをゆるやかに(つま先)、明るい所は、なだらかに(肩)</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">同じ明るさの階調を、直線的な圧縮(Reinhard)と並べる。曲線の傾きが、コントラストを決める</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">同じ明るさの階調を直線的な圧縮(Reinhard)と並べる。曲線の傾きが、コントラストを決める</text>
 <rect x="30" y="96" width="500" height="270" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 曲線(横 = 入力、対数)</text>
 <path d="M70.0,341.88 L75.5,341.57 L81.0,341.23 L86.5,340.87 L92.0,340.48 L97.5,340.06 L103.0,339.62 L108.5,339.14 L114.0,338.62 L119.5,338.07 L125.0,337.48 L130.5,336.84 L136.0,336.17 L141.5,335.44 L147.0,334.66 L152.5,333.83 L158.0,332.94 L163.5,332.0 L169.0,330.99 L174.5,329.91 L180.0,328.76 L185.5,327.54 L191.0,326.24 L196.5,324.85 L202.0,323.39 L207.5,321.83 L213.0,320.18 L218.5,318.44 L224.0,316.59 L229.5,314.65 L235.0,312.6 L240.5,310.44 L246.0,308.17 L251.5,305.79 L257.0,303.3 L262.5,300.7 L268.0,297.98 L273.5,295.15 L279.0,292.21 L284.5,289.16 L290.0,286.0 L295.5,282.74 L301.0,279.38 L306.5,275.93 L312.0,272.39 L317.5,268.77 L323.0,265.08 L328.5,261.32 L334.0,257.51 L339.5,253.66 L345.0,249.77 L350.5,245.85 L356.0,241.92 L361.5,237.99 L367.0,234.07 L372.5,230.17 L378.0,226.29 L383.5,222.46 L389.0,218.68 L394.5,214.95 L400.0,211.3 L405.5,207.72 L411.0,204.23 L416.5,200.82 L422.0,197.52 L427.5,194.31 L433.0,191.21 L438.5,188.22 L444.0,185.33 L449.5,182.56 L455.0,179.91 L460.5,177.36 L466.0,174.93 L471.5,172.61 L477.0,170.4 L482.5,168.3 L488.0,166.31 L493.5,164.42 L499.0,162.63 L504.5,160.93 L510.0,159.33" fill="none" stroke="#2563eb" stroke-width="3.5"/>
@@ -180,8 +180,8 @@ Reinhard はつま先がなく、暗部が持ち上がるため眠いです。S 
 <text x="650" y="448" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043">Reinhard 0.14 / Hable 0.24</text>
 <text x="650" y="466" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">Hable の方がコントラストが高い</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">曲線の形が、画の「味」を決める<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ階調を、3 通りで並べる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.4882;0.4884;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">曲線の形が画の「味」を決める<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ階調を 3 通りで並べる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.4882;0.4884;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">Hable は、中間のコントラストを上げ、暗部と明部をなだらかにする(フィルムの特性)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4882;0.4884;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -250,7 +250,7 @@ float3 HableTonemap(float3 color) {
 | --- | --- |
 | 係数をパラメータで出す | A〜F をアーティストが調整できるようにする（肩・つま先・白点をスライダーで） |
 | 形を「見た目の言葉」で設定 | <strong>「つま先の強さ」「肩の長さ」「白点」</strong> の3 つだけを出し、内部で A〜F に変換 |
-| 3D LUT に焼く | 計算の重い曲線を、LUT に焼いて、1 回の表引きにする（[Color Grading](../color-grading/index.md)） |
+| 3D LUT に焼く | 計算の重い曲線を LUT に焼いて、1 回の表引きにする（[Color Grading](../color-grading/index.md)） |
 | ACES・AgX と比べる | 同じシーンで比べ、色の出方で選ぶ（[ACES](aces.md)・[AgX](agx.md)） |
 | HDR 出力と分ける | HDR ディスプレイでは、別の曲線（[Gamma and HDR Output](gamma-srgb.md)） |
 

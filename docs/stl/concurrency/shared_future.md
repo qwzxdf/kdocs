@@ -108,7 +108,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| 1 つのロード結果を、描画・物理・AI の全スレッドで使う | `std::shared_future<Assets> assets = loader.share();` |
+| 1 つのロード結果を描画・物理・AI の全スレッドで使う | `std::shared_future<Assets> assets = loader.share();` |
 
 ## よくあるミス
 

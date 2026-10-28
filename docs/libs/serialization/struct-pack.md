@@ -253,7 +253,7 @@ struct SaveV2 {
 };
 
 int main() {
-  // 古い形で保存したデータを、新しい形で読む
+  // 古い形で保存したデータを新しい形で読む
   auto old_data = struct_pack::serialize(SaveV1{"Alice", 12});
   auto loaded = struct_pack::deserialize<SaveV2>(old_data);
   if (loaded.has_value()) {

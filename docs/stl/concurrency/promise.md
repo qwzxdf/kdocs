@@ -126,7 +126,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| ロード完了を、別のスレッドへ通知する | `promise.set_value(handle)` |
+| ロード完了を別のスレッドへ通知する | `promise.set_value(handle)` |
 | コールバック形式のAPIを future にする | コールバックの中で `set_value` |
 
 ## よくあるミス

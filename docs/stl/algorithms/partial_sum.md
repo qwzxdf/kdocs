@@ -50,7 +50,7 @@ int main() {
   std::vector<int> cumulative(drop_rate.size());
 
   std::partial_sum(drop_rate.begin(), drop_rate.end(), cumulative.begin());
-  std::println("{}", cumulative);  // 乱数 0〜99 を、この表のどこに入るかで判定
+  std::println("{}", cumulative);  // 乱数 0〜99 をこの表のどこに入るかで判定
 }
 ```
 

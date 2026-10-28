@@ -55,12 +55,12 @@ AO の不具合は、原因が 1 つとは限りません。段階ごとに切�
 | 見た目 | 主な原因 | 詳しく |
 | --- | --- | --- |
 | 物体の周りの、白い／黒い縁 | 範囲チェックの欠如、深度の不連続 | [Halo](halo.md) |
-| 平らな面が、縞や斑になる | サンプル点が、自分の面に当たる | [Self-Occlusion](self-occlusion.md) |
-| 画面端で、AO が消える／細い物に付かない | 画面外の情報が、無い。深度が、細い物を拾えない | [Screen Edges and Thin Objects](edge-thin.md) |
+| 平らな面が縞や斑になる | サンプル点が自分の面に当たる | [Self-Occlusion](self-occlusion.md) |
+| 画面端で、AO が消える／細い物に付かない | 画面外の情報が無い。深度が細い物を拾えない | [Screen Edges and Thin Objects](edge-thin.md) |
 | ざらざら、縞（バンディング）、ちらつき | サンプル数が少ない。ノイズの並びが、規則的／毎フレーム違う | [Noise, Banding and Flicker](noise-flicker.md) |
-| 光の当たる所まで、暗い | AO を、直接光にも掛けている／二重に掛けている | [Application Mistakes](application-mistakes.md) |
+| 光の当たる所まで、暗い | AO を直接光にも掛けている／二重に掛けている | [Application Mistakes](application-mistakes.md) |
 
-見た目から原因を当てるには、AO の生の出力（ぼかし前）と、ぼかし後を、別々に画面に出して見るのが近道です。ざらつきはぼかしで消え、ハローや自己遮蔽はぼかしでは消えません。
+見た目から原因を当てるには、AO の生の出力（ぼかし前）と、ぼかし後を別々に画面に出して見るのが近道です。ざらつきはぼかしで消え、ハローや自己遮蔽はぼかしでは消えません。
 
 ## これだけ覚える
 

@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-特定の引数で構築する処理が、例外を投げないと保証できるかを知りたい。`std::is_nothrow_constructible<T, Args...>` は、<strong>構築が `noexcept` か</strong>を調べます。
+特定の引数で構築する処理が例外を投げないと保証できるかを知りたい。`std::is_nothrow_constructible<T, Args...>` は、<strong>構築が `noexcept` か</strong>を調べます。
 
 !!! tip "ポイント"
     - `std::is_nothrow_constructible_v<T, Args...>` は、`T` を `Args...` から構築するとき例外を投げないか

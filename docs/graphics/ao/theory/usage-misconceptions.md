@@ -23,7 +23,7 @@ tags:
 
 ### 掛ける相手：間接光の拡散項だけ
 
-AO は「環境光（空や周囲から来る間接光）が、周囲の物にどれだけ遮られるか」を表します。ライト 1 つ 1 つの向きや位置は考えていない量です。そのため、太陽やスポットライトのような<strong>直接光に掛けてはいけません</strong>。直接光の遮蔽はシャドウ マップなどでライトごとに求めるべきものです。直接光に AO を掛けてしまうとライトが当たっている日向の隅まで暗くなり、絵が不自然に汚れます。
+AO は「環境光（空や周囲から来る間接光）が周囲の物にどれだけ遮られるか」を表します。ライト 1 つ 1 つの向きや位置は考えていない量です。そのため、太陽やスポットライトのような<strong>直接光に掛けてはいけません</strong>。直接光の遮蔽はシャドウ マップなどでライトごとに求めるべきものです。直接光に AO を掛けてしまうとライトが当たっている日向の隅まで暗くなり、絵が不自然に汚れます。
 
 ```hlsl
 float3 ambient = irradiance * albedo * ao;
@@ -53,7 +53,7 @@ AO は <strong>間接光（環境光）にだけ</strong>掛けます。ライ�
 ```hlsl
 Texture2D<float> g_ao : register(t5);                          // AO（ぼかし・アップサンプル済み）
 
-// GTAO のマルチ バウンス近似: 明るい色の面ほど、隅で、光が回り込むので、AO を、弱める（Jimenez 2016）。
+// GTAO のマルチ バウンス近似: 明るい色の面ほど、隅で、光が回り込むので、AO を弱める（Jimenez 2016）。
 float3 MultiBounceAO(float ao, float3 albedo) {
   float3 a = 2.0404 * albedo - 0.3324;
   float3 b = -4.7951 * albedo + 0.6417;
@@ -61,7 +61,7 @@ float3 MultiBounceAO(float ao, float3 albedo) {
   return max(ao, ((ao * a + b) * ao + c) * ao);               // ao 自身より、暗くならない
 }
 
-// スペキュラ遮蔽: 拡散の AO を、鏡面反射の、遮蔽に、変換する（Lagarde と de Rousiers、2014）。
+// スペキュラ遮蔽: 拡散の AO を鏡面反射の、遮蔽に変換する（Lagarde と de Rousiers、2014）。
 float SpecularOcclusion(float n_dot_v, float ao, float roughness) {
   return saturate(pow(n_dot_v + ao, exp2(-16.0 * roughness - 1.0)) - 1.0 + ao);
 }
@@ -69,7 +69,7 @@ float SpecularOcclusion(float n_dot_v, float ao, float roughness) {
 float3 AmbientLighting(float3 albedo, float3 f0, float roughness, float n_dot_v, float2 uv,
                        float3 diffuse_irradiance, float3 specular_ibl) {
   float ao = g_ao.SampleLevel(g_linear_clamp, uv, 0);
-  float3 diffuse = diffuse_irradiance * albedo * MultiBounceAO(ao, albedo);   // 拡散の環境光に、掛ける
+  float3 diffuse = diffuse_irradiance * albedo * MultiBounceAO(ao, albedo);   // 拡散の環境光に掛ける
   float3 specular = specular_ibl * SpecularOcclusion(n_dot_v, ao, roughness); // 鏡面の環境光には、変換して掛ける
   return diffuse + specular;
 }
@@ -90,7 +90,7 @@ float3 AmbientLighting(float3 albedo, float3 f0, float roughness, float n_dot_v,
 AO が正しく掛かっているかは <strong>AO だけ</strong>、ライティング済みの画面、AO を掛けない画面をキーで、切り替えて見ます。
 
 ```hlsl
-// デバッグ表示: 切り替えで、AO だけを、白黒で出す。
+// デバッグ表示: 切り替えで、AO だけを白黒で出す。
 if (g_debug_mode == kDebugAoOnly) return float4(ao.xxx, 1.0);
 if (g_debug_mode == kDebugNoAo) return float4(AmbientLightingWithoutAo(...) + direct, 1.0);
 ```

@@ -15,7 +15,7 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::views::zip_transform` は、**複数の範囲の同じ位置どうしを関数に渡して、その結果を並べる**ビューです。[`zip`](zip.md) して [`transform`](transform.md) するのを、1 つにまとめたものです。2 つの配列を足し合わせる、のような処理に向きます。
+`std::views::zip_transform` は、**複数の範囲の同じ位置どうしを関数に渡して、その結果を並べる**ビューです。[`zip`](zip.md) して [`transform`](transform.md) するのを 1 つにまとめたものです。2 つの配列を足し合わせる、のような処理に向きます。
 
 !!! tip "ポイント"
     - 第 1 引数が関数、残りが範囲。

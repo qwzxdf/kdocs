@@ -191,7 +191,7 @@ iterator lower_bound(const Key& value);
 iterator upper_bound(const Key& value);
 ```
 
-- `value` より大きい最初の要素。`lower_bound` との間が、同じ値の範囲
+- `value` より大きい最初の要素。`lower_bound` との間が同じ値の範囲
 
 ### emplace {#emplace}
 
@@ -245,7 +245,7 @@ void merge(multiset<..., C2>& source);
 
 - 計算量: O(移動する要素数 × log n)
 
-別のコンテナの要素を、ノードごとこちらへ移します。キーが重複するものは、移動元に残ります。
+別のコンテナの要素をノードごとこちらへ移します。キーが重複するものは、移動元に残ります。
 
 ### begin {#begin}
 

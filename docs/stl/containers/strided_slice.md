@@ -14,7 +14,7 @@ tags:
 `#include <mdspan>`
 </div>
 
-`mdspan` の一部を、1 つおきに取り出したいことがあります（偶数番目の列だけ、など）。`strided_slice{offset, extent, stride}` は、開始位置・長さ・間隔を指定する範囲で、`submdspan` に渡します。
+`mdspan` の一部を 1 つおきに取り出したいことがあります（偶数番目の列だけ、など）。`strided_slice{offset, extent, stride}` は、開始位置・長さ・間隔を指定する範囲で、`submdspan` に渡します。
 
 !!! tip "ポイント"
     - `offset`・`extent`・`stride` の 3 つのメンバ。

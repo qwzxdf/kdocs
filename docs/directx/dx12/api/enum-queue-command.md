@@ -56,7 +56,7 @@ GPU は、描画ができるエンジン、計算だけのエンジン、コピ�
 
 #### D3D12_COMMAND_LIST_TYPE_BUNDLE {#d3d12_command_list_type_bundle}
 
-値は 1 です。何度も使う短い命令の並びを、前もって記録しておくための種類です。キューには直接渡さず、`DIRECT` のリストの中から `ExecuteBundle` で呼びます。ドライバーが記録の時点で最適化しやすくなる反面、使える命令に制限があり、実際のゲームで使う場面は多くありません。
+値は 1 です。何度も使う短い命令の並びを前もって記録しておくための種類です。キューには直接渡さず、`DIRECT` のリストの中から `ExecuteBundle` で呼びます。ドライバーが記録の時点で最適化しやすくなる反面、使える命令に制限があり、実際のゲームで使う場面は多くありません。
 
 #### D3D12_COMMAND_LIST_TYPE_COMPUTE {#d3d12_command_list_type_compute}
 
@@ -119,7 +119,7 @@ typedef enum D3D12_COMMAND_QUEUE_PRIORITY {
 
 #### D3D12_COMMAND_QUEUE_PRIORITY_HIGH {#d3d12_command_queue_priority_high}
 
-値は 100 で、高い優先度です。遅れると体感が悪くなる処理（VR のタイムワープなど）を、別のキューで先に走らせたいときに使います。
+値は 100 で、高い優先度です。遅れると体感が悪くなる処理（VR のタイムワープなど）を別のキューで先に走らせたいときに使います。
 
 #### D3D12_COMMAND_QUEUE_PRIORITY_GLOBAL_REALTIME {#d3d12_command_queue_priority_global_realtime}
 
@@ -200,7 +200,7 @@ typedef enum D3D12_QUERY_TYPE {
 
 #### D3D12_QUERY_TYPE_TIMESTAMP {#d3d12_query_type_timestamp}
 
-値は 2 です。`EndQuery` を呼んだ時点の GPU のタイムスタンプを返します。2 つの時刻の差を、`GetTimestampFrequency` で割ると秒になります。GPU の処理時間を測る標準の方法です。`BeginQuery` は使えず、`EndQuery` だけを呼びます。
+値は 2 です。`EndQuery` を呼んだ時点の GPU のタイムスタンプを返します。2 つの時刻の差を `GetTimestampFrequency` で割ると秒になります。GPU の処理時間を測る標準の方法です。`BeginQuery` は使えず、`EndQuery` だけを呼びます。
 
 #### D3D12_QUERY_TYPE_PIPELINE_STATISTICS {#d3d12_query_type_pipeline_statistics}
 
@@ -303,7 +303,7 @@ void ID3D12GraphicsCommandList::IASetPrimitiveTopology(
     D3D12_PRIMITIVE_TOPOLOGY PrimitiveTopology);  // D3D_PRIMITIVE_TOPOLOGY の別名
 ```
 
-頂点（またはインデックス）の並びを、どう図形としてつなぐかを決めます。型としては `D3D_PRIMITIVE_TOPOLOGY` を使います。`D3D12_PRIMITIVE_TOPOLOGY` はその別名です。PSO の `PrimitiveTopologyType` と食い違う組み合わせ（`TRIANGLE` の PSO に `LINELIST`）は、描画時にエラーになります。
+頂点（またはインデックス）の並びをどう図形としてつなぐかを決めます。型としては `D3D_PRIMITIVE_TOPOLOGY` を使います。`D3D12_PRIMITIVE_TOPOLOGY` はその別名です。PSO の `PrimitiveTopologyType` と食い違う組み合わせ（`TRIANGLE` の PSO に `LINELIST`）は、描画時にエラーになります。
 
 #### D3D_PRIMITIVE_TOPOLOGY_UNDEFINED {#d3d_primitive_topology_undefined}
 
@@ -351,7 +351,7 @@ void ID3D12GraphicsCommandList::IASetPrimitiveTopology(
 
 #### D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST {#d3d_primitive_topology_3_control_point_patchlist}
 
-テッセレーション用のパッチで、制御点が 3 つです。三角形のパッチを、細かく分割するときに使います。同じ並びで `1_CONTROL_POINT_PATCHLIST` から `32_CONTROL_POINT_PATCHLIST` まで、制御点の数だけ値が用意されています。PSO 側は `D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH` にします。
+テッセレーション用のパッチで、制御点が 3 つです。三角形のパッチを細かく分割するときに使います。同じ並びで `1_CONTROL_POINT_PATCHLIST` から `32_CONTROL_POINT_PATCHLIST` まで、制御点の数だけ値が用意されています。PSO 側は `D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH` にします。
 
 #### D3D_PRIMITIVE_TOPOLOGY_4_CONTROL_POINT_PATCHLIST {#d3d_primitive_topology_4_control_point_patchlist}
 

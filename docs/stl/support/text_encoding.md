@@ -14,7 +14,7 @@ tags:
 `#include <text_encoding>`
 </div>
 
-ファイルや端末がどの文字コードかを、文字列ではなく型で扱いたいことがあります。`std::text_encoding` は、IANA 登録の文字エンコーディング（UTF-8、Shift_JIS など）を表す型で、`literal()` でソース上の文字列リテラルのエンコーディング、`environment()` で環境の既定を取れます。
+ファイルや端末がどの文字コードかを文字列ではなく型で扱いたいことがあります。`std::text_encoding` は、IANA 登録の文字エンコーディング（UTF-8、Shift_JIS など）を表す型で、`literal()` でソース上の文字列リテラルのエンコーディング、`environment()` で環境の既定を取れます。
 
 !!! tip "ポイント"
     - `text_encoding::literal()` で文字列リテラルの文字コードを取る。

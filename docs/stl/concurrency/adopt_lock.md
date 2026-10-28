@@ -14,7 +14,7 @@ tags:
 `#include <mutex>`
 </div>
 
-すでに自分でロックしたミューテックスを、`lock_guard` や `unique_lock` に引き取らせて、スコープを抜けるときに解除させたいときに、`std::adopt_lock` を渡します。`std::lock` で複数を同時にロックしたあとに使います。
+すでに自分でロックしたミューテックスを `lock_guard` や `unique_lock` に引き取らせて、スコープを抜けるときに解除させたいときに、`std::adopt_lock` を渡します。`std::lock` で複数を同時にロックしたあとに使います。
 
 !!! tip "ポイント"
     - `std::adopt_lock_t` 型の定数。

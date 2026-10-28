@@ -15,7 +15,7 @@ tags:
 `#include <chrono>`
 </div>
 
-ミリ秒で測った処理時間を、秒に直して画面に出したい。細かい単位から粗い単位へ変換すると、端数が失われます。C++ は、そのような情報が失われる変換を、`=` で暗黙には許しません。`std::chrono::duration_cast` は、`duration` を別の単位へ明示的に変換する関数です。端数は切り捨てられます。
+ミリ秒で測った処理時間を秒に直して画面に出したい。細かい単位から粗い単位へ変換すると、端数が失われます。C++ は、そのような情報が失われる変換を `=` で暗黙には許しません。`std::chrono::duration_cast` は、`duration` を別の単位へ明示的に変換する関数です。端数は切り捨てられます。
 
 !!! tip "ポイント"
     - ミリ秒 → 秒のように、**粗くする変換は明示が必要**。
@@ -70,7 +70,7 @@ int main() {
 
 ## ゲームでの使いどころ
 
-処理時間の計測結果を、画面やログに出すために使います。`steady_clock` の差は、ナノ秒の `duration` で得られるので、`duration_cast<milliseconds>(end - start).count()` でミリ秒の整数に直します。
+処理時間の計測結果を画面やログに出すために使います。`steady_clock` の差は、ナノ秒の `duration` で得られるので、`duration_cast<milliseconds>(end - start).count()` でミリ秒の整数に直します。
 
 小数で欲しいときは、`duration_cast` を使わず、`duration<float, std::milli>` のように浮動小数点の型で受けます。`std::chrono::duration<float, std::milli> ms = end - start;` と書けば、端数を失いません。
 

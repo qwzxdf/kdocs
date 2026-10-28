@@ -149,7 +149,7 @@ rt_state_object.As(&props);
 void* raygen_id = props->GetShaderIdentifier(L"ReflectionRayGen");
 void* miss_id = props->GetShaderIdentifier(L"Miss");
 void* hit_id = props->GetShaderIdentifier(L"HitGroup");
-// 各識別子（D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES = 32 バイト）を、
+// 各識別子（D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES = 32 バイト）を
 // 64 バイトの境界（テーブルのレコードのアラインメント）に並べて、アップロードする。
 ```
 
@@ -160,7 +160,7 @@ void* hit_id = props->GetShaderIdentifier(L"HitGroup");
 ```cpp
 command_list4->SetPipelineState1(rt_state_object.Get());
 command_list4->SetComputeRootSignature(global_root_signature.Get());
-// ... TLAS の SRV、出力の UAV、定数バッファを、ルート シグネチャへ結ぶ ...
+// ... TLAS の SRV、出力の UAV、定数バッファをルート シグネチャへ結ぶ ...
 
 D3D12_DISPATCH_RAYS_DESC dispatch = {};
 dispatch.RayGenerationShaderRecord = {table_address + 0, 64};

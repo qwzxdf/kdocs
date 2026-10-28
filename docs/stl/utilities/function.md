@@ -303,7 +303,7 @@ function& operator=(std::nullptr_t) noexcept;
 
 ## ゲームでの使いどころ
 
-コールバックの保存が基本です。`std::function<void()> on_click;` というメンバーを持たせ、UI のボタンを押したときに `on_click()` を呼びます。ボタンを作る側が、押したときの処理をラムダ式で渡します。
+コールバックの保存が基本です。`std::function<void()> on_click;` というメンバーを持たせ、UI のボタンを押したときに `on_click()` を呼びます。ボタンを作る側が押したときの処理をラムダ式で渡します。
 
 イベントの購読では、`vector<std::function<void(const Event&)>>` に登録して、イベントが起きたら全部を呼びます。
 

@@ -41,7 +41,7 @@ class range_error : public runtime_error {
 | --- | --- | --- |
 | `what_arg` | 文字列 | `what()` で返すメッセージ |
 
-変換の結果が、結果の型で表せる範囲を超えたとき に投げます。呼び出し側は、`catch (const std::range_error&)` で、この種類だけを捕まえられます。
+変換の結果が結果の型で表せる範囲を超えたとき に投げます。呼び出し側は、`catch (const std::range_error&)` で、この種類だけを捕まえられます。
 
 `std::runtime_error` の仲間は、プログラムの誤りというより、実行時の状況（データの値、環境）によって起こる失敗を表します。`std::logic_error` の仲間との違いです。
 

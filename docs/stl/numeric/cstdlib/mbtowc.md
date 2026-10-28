@@ -13,7 +13,7 @@ tags:
 `#include <cstdlib>`
 </div>
 
-マルチバイト文字列（UTF-8 など）の先頭の 1 文字を、ワイド文字（`wchar_t`）に変換するのが `std::mbtowc` です。Windows の API に渡す前の変換などで使われました。
+マルチバイト文字列（UTF-8 など）の先頭の 1 文字をワイド文字（`wchar_t`）に変換するのが `std::mbtowc` です。Windows の API に渡す前の変換などで使われました。
 
 !!! tip "ポイント"
     - `std::mbtowc(&wc, s, n)` は先頭の 1 文字を `wchar_t` に変換する
@@ -40,7 +40,7 @@ int mbtowc(wchar_t* pwc, const char* s, std::size_t n);
 
 `s` の先頭の 1 文字を変換して `*pwc` に書き込み、その文字が占めていたバイト数を返します。null 文字なら 0、不正なら −1 です。
 
-`mblen` と同様に、ロケールに依存し、内部に状態を持つため、スレッドセーフではありません。スレッドセーフな `mbrtowc` を使うのが、現在の推奨です。
+`mblen` と同様にロケールに依存し、内部に状態を持つため、スレッドセーフではありません。スレッドセーフな `mbrtowc` を使うのが、現在の推奨です。
 
 Windows の `wchar_t` は UTF-16 で 16 ビットなので、サロゲートペアになる文字は 1 つの `wchar_t` に入りきりません。Windows では、`MultiByteToWideChar` で UTF-8 から UTF-16 に変換するほうが確実です。
 

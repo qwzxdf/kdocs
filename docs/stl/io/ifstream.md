@@ -225,7 +225,7 @@ void open(const std::filesystem::path& p, std::ios::openmode mode = /* in / out 
 
 ### std::ios::ate
 
-開いた直後に、読み書き位置をファイルの終わりへ動かします（at end）。ファイルの大きさを `tellg()` で調べるときに使います。
+開いた直後に読み書き位置をファイルの終わりへ動かします（at end）。ファイルの大きさを `tellg()` で調べるときに使います。
 
 ### std::ios::app
 
@@ -257,7 +257,7 @@ int_type peek();
 
 - 計算量: 定数
 
-次の 1 文字を、読み進めずにのぞきます。終端なら `EOF`。
+次の 1 文字を読み進めずにのぞきます。終端なら `EOF`。
 
 ### unget {#unget}
 
@@ -277,7 +277,7 @@ istream& putback(char_type ch);
 
 - 計算量: 定数
 
-指定した文字を、読み直せるように戻します。
+指定した文字を読み直せるように戻します。
 
 ### fail {#fail}
 
@@ -317,7 +317,7 @@ streamsize readsome(char_type* s, streamsize n);
 
 - 計算量: O(n)
 
-バッファに**すでにある**文字だけを、待たずに読みます。
+バッファに**すでにある**文字だけを待たずに読みます。
 
 ### sync {#sync}
 

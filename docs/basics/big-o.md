@@ -106,7 +106,7 @@ for (int id : ids) {
 
 #### O(n log n) {#onlogn}
 
-O(n) より少し重く、O(n²) よりずっと軽い計算量です。「全員を、半分ずつに分けながら処理する」整列がこれです。
+O(n) より少し重く、O(n²) よりずっと軽い計算量です。「全員を半分ずつに分けながら処理する」整列がこれです。
 
 - 例: `std::sort`、`std::stable_sort`
 
@@ -154,7 +154,7 @@ vector の `push_back` は、容量が足りなくなると全要素を引っ越
 <defs><marker id="arr-big-o-curves" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">データが増えたとき、かかる時間が、どう増えるか</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">データが増えたとき、かかる時間がどう増えるか</text>
 <rect x="70" y="70" width="640" height="250" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
 <line x1="230.0" y1="70" x2="230.0" y2="320" stroke="#e2e8f0" stroke-width="1"/>
 <line x1="70" y1="132.5" x2="710" y2="132.5" stroke="#e2e8f0" stroke-width="1"/>
@@ -179,7 +179,7 @@ vector の `push_back` は、容量が足りなくなると全要素を引っ越
 <text x="464.0" y="198.13" text-anchor="end" style="font-size:12px;font-weight:700;fill:#7c3aed" opacity="0">O(n log n)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5239;0.5241;1.0000" values="0;0;1;1"/></text>
 <path d="M102.0,319.38 L108.08,319.11 L114.16,318.81 L120.24,318.46 L126.32,318.06 L132.4,317.62 L138.48,317.14 L144.56,316.61 L150.64,316.03 L156.72,315.41 L162.8,314.74 L168.88,314.03 L174.96,313.28 L181.04,312.47 L187.12,311.63 L193.2,310.74 L199.28,309.8 L205.36,308.82 L211.44,307.79 L217.52,306.72 L223.6,305.6 L229.68,304.44 L235.76,303.23 L241.84,301.98 L247.92,300.68 L254.0,299.34 L260.08,297.95 L266.16,296.51 L272.24,295.04 L278.32,293.51 L284.4,291.94 L290.48,290.33 L296.56,288.67 L302.64,286.97 L308.72,285.22 L314.8,283.42 L320.88,281.58 L326.96,279.7 L333.04,277.77 L339.12,275.79 L345.2,273.77 L351.28,271.71 L357.36,269.6 L363.44,267.44 L369.52,265.24 L375.6,263.0 L381.68,260.71 L387.76,258.37 L393.84,255.99 L399.92,253.56 L406.0,251.09 L412.08,248.58 L418.16,246.02 L424.24,243.41 L430.32,240.76 L436.4,238.06 L442.48,235.32 L448.56,232.53 L454.64,229.7 L460.72,226.82 L466.8,223.9 L472.88,220.93 L478.96,217.92 L485.04,214.86 L491.12,211.76 L497.2,208.61 L503.28,205.42 L509.36,202.18 L515.44,198.9 L521.52,195.57 L527.6,192.19 L533.68,188.77 L539.76,185.31 L545.84,181.8 L551.92,178.25 L558.0,174.65 L564.08,171.0 L570.16,167.31 L576.24,163.58 L582.32,159.8 L588.4,155.97 L594.48,152.1 L600.56,148.19 L606.64,144.23 L612.72,140.22 L618.8,136.17 L624.88,132.08 L630.96,127.94 L637.04,123.75 L643.12,119.52 L649.2,115.24 L655.28,110.92 L661.36,106.56 L667.44,102.14 L673.52,97.69 L679.6,93.19 L685.68,88.64 L691.76,84.05 L697.84,79.41 L703.92,74.73 L710.0,70.0" fill="none" stroke="#e5484d" stroke-width="4" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6756;0.6759;1.0000" values="0;0;1;1"/></path>
 <text x="672.0" y="86.38" text-anchor="end" style="font-size:12px;font-weight:700;fill:#e5484d" opacity="0">O(n²)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6756;0.6759;1.0000" values="0;0;1;1"/></text>
-<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">n が増えたとき、操作の回数が、どう増えるか<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">n が増えたとき、操作の回数がどう増えるか<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
 <text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">O(1): 増えない（配列の添字アクセス）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.2204;0.2207;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">O(log n): ほぼ増えない（二分探索）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2204;0.2207;0.3721;0.3724;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="395" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">O(n): 比例（線形探索）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3721;0.3724;0.5239;0.5241;1.0000" values="0;0;1;1;0;0"/></text>

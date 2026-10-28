@@ -13,8 +13,8 @@ tags:
     - <strong>深度</strong>：物体の輪郭・前後関係の境。法線：折り目・面の向きが変わる所。ID：物体・材質の境。
     - 3 つを組み合わせると内側の線も外側の線も出る。
     - Sobel フィルタが標準。勾配の大きさで線の強さを決める。
-    - 線の太さはサンプル間隔で調整する。距離で補正。
-    - 斜めの面で深度の差が出て、不要な線が出る → 深度勾配で補正。
+    - 線の太さはサンプル間隔で調整する。距離で補正する。
+    - 斜めの面で深度の差が出て、不要な線が出る → 深度勾配で補正する。
 
 !!! info "このページを読む前に"
     - [Outlines and Toon](index.md)（このセクション全体の地図と、読む順番）
@@ -42,7 +42,7 @@ tags:
 
 ## Sobel フィルタ
 
-<strong>画像の勾配（変化の大きさ）</strong>を測る標準的な方法がSobel フィルタです。周囲 3×3 の画素に、重みを掛けて、縦・横の勾配を求めます。
+<strong>画像の勾配（変化の大きさ）</strong>を測る標準的な方法がSobel フィルタです。周囲 3×3 の画素に重みを掛けて、縦・横の勾配を求めます。
 
 ```hlsl
 float Sobel(Texture2D<float> source, float2 uv, float2 texel) {
@@ -74,7 +74,7 @@ float Sobel(Texture2D<float> source, float2 uv, float2 texel) {
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">輪郭線(エッジ検出): 深度の差だけでは、同じ深さで、向きが変わる折れ目を見逃す。法線の差も、使う</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">24×12 画素。後ろの壁(深度 10)の前に、手前の箱(深度 4、上面と側面)がある。3 つの方法で、輪郭の画素を、見つける</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">24×12 画素。後ろの壁(深度 10)の前に手前の箱(深度 4、上面と側面)がある。3 つの方法で、輪郭の画素を見つける</text>
 <rect x="30" y="100" width="300.0" height="150.0" fill="#ffffff" stroke="#e5484d" stroke-width="1.8" rx="6"/>
 <text x="30" y="90" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">① 深度の差だけ</text>
 <rect x="30.0" y="100.0" width="12.8" height="12.8" fill="#f8fafc"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#f8fafc;#f1f5f9"/></rect>
@@ -945,7 +945,7 @@ float Sobel(Texture2D<float> source, float2 uv, float2 texel) {
 <rect x="902.5" y="237.5" width="12.8" height="12.8" fill="#f8fafc"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#f8fafc;#f1f5f9"/></rect>
 <rect x="915.0" y="237.5" width="12.8" height="12.8" fill="#f8fafc"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#f8fafc;#f1f5f9"/></rect>
 <rect x="927.5" y="237.5" width="12.8" height="12.8" fill="#f8fafc"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#f8fafc;#f1f5f9"/></rect>
-<text x="30" y="280" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">箱の上面と前面の境(深度は同じ 4)が、輪郭に、なるか?</text>
+<text x="30" y="280" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">箱の上面と前面の境(深度は同じ 4)が輪郭になるか?</text>
 <text x="30" y="320" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">輪郭の画素:</text>
 <text x="150" y="324" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="1">0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.1465;0.1467;1.0000" values="1;1;0;0"/></text>
 <text x="150" y="324" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">92<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.1465;0.1467;0.3154;0.3156;1.0000" values="0;0;1;1;0;0"/></text>
@@ -984,7 +984,7 @@ float DepthEdge(float2 uv) {
 
 ### 斜めの面の誤検出の対策
 
-斜めの面では隣の画素との深度の差が、自然に生じます（エッジではない）。法線と視線の角度から、その差の予想値を求め、予想を超える差だけをエッジとします。
+斜めの面では隣の画素との深度の差が自然に生じます（エッジではない）。法線と視線の角度から、その差の予想値を求め、予想を超える差だけをエッジとします。
 
 ```hlsl
 float DepthEdgeCorrected(float2 uv, float3 normal, float3 view_dir) {
@@ -1071,7 +1071,7 @@ float IdEdge(float2 uv) {
 
 ## よくあるミス
 
-??? failure "地面（斜めの面）に、縞のような線が出る"
+??? failure "地面（斜めの面）に縞のような線が出る"
     深度の勾配補正を入れる。
 
 ??? failure "法線マップのせいで、細かい線がうるさい"

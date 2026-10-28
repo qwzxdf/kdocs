@@ -15,7 +15,7 @@ tags:
 `#include <exception>`
 </div>
 
-`std::set_terminate` で登録した関数を、あとから確認したい。`std::get_terminate()` は、<strong>現在登録されている終了ハンドラーを返します</strong>。
+`std::set_terminate` で登録した関数をあとから確認したい。`std::get_terminate()` は、<strong>現在登録されている終了ハンドラーを返します</strong>。
 
 !!! tip "ポイント"
     - 現在登録されている終了ハンドラーを返す

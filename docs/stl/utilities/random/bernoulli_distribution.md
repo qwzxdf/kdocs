@@ -15,7 +15,7 @@ tags:
 `#include <random>`
 </div>
 
-「30% の確率で会心の一撃」「5% でレアドロップ」。ゲームでは、確率で成功か失敗かを決める判定が、あちこちに出てきます。`uniform_real_distribution` で 0 から 1 の値を作って `< 0.3f` と比べる書き方もありますが、何をしているのかが、少し読み取りにくくなります。`std::bernoulli_distribution` は、確率 `p` で `true`、`1 - p` で `false` を出す分布です。意図がそのまま名前に出ます。
+「30% の確率で会心の一撃」「5% でレアドロップ」。ゲームでは、確率で成功か失敗かを決める判定があちこちに出てきます。`uniform_real_distribution` で 0 から 1 の値を作って `< 0.3f` と比べる書き方もありますが、何をしているのかが、少し読み取りにくくなります。`std::bernoulli_distribution` は、確率 `p` で `true`、`1 - p` で `false` を出す分布です。意図がそのまま名前に出ます。
 
 !!! tip "ポイント"
     - `bernoulli_distribution crit(0.3);` は 30% で `true`。

@@ -15,7 +15,7 @@ tags:
 `#include <chrono>`
 </div>
 
-`time_point<system_clock, seconds>` のように毎回書くのは長いので、標準が別名を用意しています。`std::chrono::sys_seconds` は、system_clock の時点を、秒の単位で表す別名です。
+`time_point<system_clock, seconds>` のように毎回書くのは長いので、標準が別名を用意しています。`std::chrono::sys_seconds` は、system_clock の時点を秒の単位で表す別名です。
 
 !!! tip "ポイント"
     - 中身は `sys_time<seconds>`。
@@ -78,7 +78,7 @@ C++20 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] system_clock の時点を、秒の単位で表す別名
+    - [x] system_clock の時点を秒の単位で表す別名
     - [x] time_since_epoch() で経過を取る
     - [x] 型で時計の種類を区別する
 

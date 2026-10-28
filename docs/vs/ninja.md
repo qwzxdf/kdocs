@@ -7,7 +7,7 @@ tags:
 
 # Ninja（高速なビルド ツール）
 
-**Ninja**（ニンジャ）は、ビルドを速く実行することだけに特化した、小さなビルド ツールです。[CMake](cmake.md) は「何をどうビルドするか」を書いた設計図（`CMakeLists.txt`）から、実際にビルドを行う道具用の指示書を作ります。その「実行する道具」に、Visual Studio の MSBuild や、Unix の Make の代わりに、Ninja を使えるのです。Ninja は、変更したファイルだけを素早く判断して、コンパイルを並列に走らせることが得意で、ビルドの開始が速く、大きなプロジェクトでは MSBuild より速いことがよくあります。Visual Studio の「フォルダーを開く」で CMake を使うときも、既定で Ninja が使われています。
+**Ninja**（ニンジャ）は、ビルドを速く実行することだけに特化した、小さなビルド ツールです。[CMake](cmake.md) は「何をどうビルドするか」を書いた設計図（`CMakeLists.txt`）から、実際にビルドを行う道具用の指示書を作ります。その「実行する道具」に Visual Studio の MSBuild や、Unix の Make の代わりに、Ninja を使えるのです。Ninja は、変更したファイルだけを素早く判断して、コンパイルを並列に走らせることが得意で、ビルドの開始が速く、大きなプロジェクトでは MSBuild より速いことがよくあります。Visual Studio の「フォルダーを開く」で CMake を使うときも、既定で Ninja が使われています。
 
 !!! tip "ポイント"
     - Ninja は<strong>CMake の「ジェネレーター」の 1 つ</strong>。`cmake -G Ninja` で選ぶ。自分でルールは書かない（CMake が `build.ninja` を作る）。
@@ -38,7 +38,7 @@ tags:
 | --- | --- |
 | 起動が軽い | 依存関係の判断が速く、変更がないときは、ほぼ一瞬で終わる |
 | 無駄な処理がない | ルールが最小限。指示書の解析も速い |
-| 並列がうまい | 依存関係を見て、同時にできるコンパイルを、コア数ぶん、自動で並列に走らせる |
+| 並列がうまい | 依存関係を見て、同時にできるコンパイルをコア数ぶん、自動で並列に走らせる |
 | 進捗表示が 1 行 | 出力が少なく、端末の描画で遅くならない（`[12/340] Building CXX ...`） |
 
 小さなプロジェクトでは、差はあまり感じません。ファイルが数百〜数千になると、何も変更していないときの再ビルドや、1 ファイルだけ変えたときの、待ち時間の差が出ます。
@@ -71,7 +71,7 @@ Visual Studio のインストーラーで、<strong>「C++ CMake ツール（C++
 
 ### コマンド ラインで使う
 
-Developer Command Prompt for VS（または Developer PowerShell for VS）を、スタート メニューから開きます。MSVC のコンパイラ（`cl.exe`）が使える環境変数が、設定された状態になります。
+Developer Command Prompt for VS（または Developer PowerShell for VS）をスタート メニューから開きます。MSVC のコンパイラ（`cl.exe`）が使える環境変数が設定された状態になります。
 
 ```powershell
 # 構成（設計図から build.ninja を作る）
@@ -101,7 +101,7 @@ ninja -C build
 
 ### 構成が 1 つずつ別になる（Debug と Release）
 
-Ninja は、1 つのビルド フォルダーに、1 つの構成だけです（Visual Studio の `.sln` は、Debug と Release を切り替えられます）。
+Ninja は、1 つのビルド フォルダーに 1 つの構成だけです（Visual Studio の `.sln` は、Debug と Release を切り替えられます）。
 
 | 方法 | 説明 |
 | --- | --- |
@@ -133,7 +133,7 @@ ninja -C build -d stats        # 内部の統計
 | オプション | 用途 |
 | --- | --- |
 | `-C フォルダー` | そのフォルダーに移動して実行（`cd` と同じ） |
-| `-v` | ビルド コマンドを、そのまま表示 |
+| `-v` | ビルド コマンドをそのまま表示 |
 | `-j N` | 同時に実行する数 |
 | `-k N` | N 個のエラーまで続行（0 で無制限） |
 | `-n` | ドライ ラン |
@@ -141,7 +141,7 @@ ninja -C build -d stats        # 内部の統計
 
 ## compile_commands.json（解析ツール用）
 
-**`compile_commands.json`** は、各ソースファイルを、どんなコマンドでコンパイルしているかを記録したファイルです。clang-tidy、clangd（VS Code の補完）、cppcheck などの解析ツールが、これを使って、正しいインクルード パスや定義で、コードを解析します。
+**`compile_commands.json`** は、各ソースファイルをどんなコマンドでコンパイルしているかを記録したファイルです。clang-tidy、clangd（VS Code の補完）、cppcheck などの解析ツールがこれを使って、正しいインクルード パスや定義で、コードを解析します。
 
 ```powershell
 cmake -S . -B build -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
@@ -151,7 +151,7 @@ cmake -S . -B build -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
 Visual Studio のジェネレーター（`.sln`）では、この出力に対応していません。Ninja（または Makefile）のジェネレーターだけが、出せます。
 
-## ビルドを、さらに速くする
+## ビルドをさらに速くする
 
 | 方法 | 説明 |
 | --- | --- |
@@ -175,16 +175,16 @@ Visual Studio のジェネレーター（`.sln`）では、この出力に対応
 ## よくあるミス
 
 ??? failure "「C++ コンパイラが見つかりません」と出る"
-    普通のターミナルから実行しているためです。**Developer Command Prompt for VS** から実行するか、`vcvars64.bat` を呼びます。VS Code の場合は、CMake Tools 拡張機能が、自動で環境を設定してくれます。
+    普通のターミナルから実行しているためです。**Developer Command Prompt for VS** から実行するか、`vcvars64.bat` を呼びます。VS Code の場合は、CMake Tools 拡張機能が自動で環境を設定してくれます。
 
-??? failure "Debug と Release を、同じフォルダーに混ぜる"
+??? failure "Debug と Release を同じフォルダーに混ぜる"
     Ninja は、1 つのビルド フォルダーに 1 つの構成です。`build/` に、Debug と Release を交互にビルドすると、設定が混ざります。フォルダーを分けるか、`Ninja Multi-Config` を使います。
 
 ??? failure "古い `build/` を使い回して、設定が反映されない"
     ジェネレーターを変えたとき（Visual Studio から Ninja へ）や、コンパイラを変えたときは、`build/` を削除して、構成し直します。CMake は、最初の設定をキャッシュ（`CMakeCache.txt`）に残します。
 
 ??? failure "ビルドが 32 ビットになる"
-    Developer Command Prompt の種類（x86 / x64）が、環境を決めます。x64 Native Tools Command Prompt を使います。
+    Developer Command Prompt の種類（x86 / x64）が環境を決めます。x64 Native Tools Command Prompt を使います。
 
 ??? failure "並列数が多すぎて、PC が固まる"
     メモリが少ないと、大量のコンパイラが同時に動いて、スワップします。`-j` で制限します。

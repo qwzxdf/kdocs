@@ -169,13 +169,13 @@ float RotateToward(float current, float target, float max_step) {
 
 | 使いどころ | 説明 |
 | --- | --- |
-| 敵がプレイヤーへ向く | 目標の角度へ、1 フレームに `max_step` だけ回す（急に振り向かない） |
+| 敵がプレイヤーへ向く | 目標の角度へ 1 フレームに `max_step` だけ回す（急に振り向かない） |
 | 砲台の旋回 | 同じ。回転速度を制限する |
 | 向きの補間 | 角度の `lerp` も同じく最短の差を使う |
 
 ## 2D の回転
 
-ベクトル (x, y) を、角度 θ だけ**反時計回りに回転**させる式です。
+ベクトル (x, y) を角度 θ だけ**反時計回りに回転**させる式です。
 
 ```text
 x' = x cos θ - y sin θ
@@ -257,7 +257,7 @@ bool InRange(Vector2 a, Vector2 b, float range) {
 ??? failure "`atan2(x, y)` と、引数の順番を逆にする"
     <strong>(y, x)</strong> の順です。
 
-??? failure "角度の差を、引き算だけで求めて、遠回りする"
+??? failure "角度の差を引き算だけで求めて、遠回りする"
     `WrapAngle(to - from)` で、最短の差にします。
 
 ??? failure "`acos` に 1.0000001 を渡して NaN になる"

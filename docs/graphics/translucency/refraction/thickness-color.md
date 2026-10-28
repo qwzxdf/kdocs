@@ -77,7 +77,7 @@ tags:
 <text x="852.0" y="214.5967943866105" text-anchor="end" style="font-size:13px;font-weight:700;fill:#2ea043" opacity="0">G<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3393;0.3395;1.0000" values="0;0;1;1"/></text>
 <path d="M60.0,184.0 L73.33,186.84 L86.67,189.59 L100.0,192.26 L113.33,194.86 L126.67,197.37 L140.0,199.81 L153.33,202.18 L166.67,204.48 L180.0,206.72 L193.33,208.88 L206.67,210.98 L220.0,213.02 L233.33,215.0 L246.67,216.92 L260.0,218.79 L273.33,220.6 L286.67,222.35 L300.0,224.06 L313.33,225.71 L326.67,227.31 L340.0,228.87 L353.33,230.38 L366.67,231.85 L380.0,233.27 L393.33,234.65 L406.67,235.99 L420.0,237.29 L433.33,238.56 L446.67,239.78 L460.0,240.97 L473.33,242.12 L486.67,243.24 L500.0,244.33 L513.33,245.38 L526.67,246.41 L540.0,247.4 L553.33,248.36 L566.67,249.3 L580.0,250.2 L593.33,251.09 L606.67,251.94 L620.0,252.77 L633.33,253.57 L646.67,254.36 L660.0,255.11 L673.33,255.85 L686.67,256.56 L700.0,257.25 L713.33,257.93 L726.67,258.58 L740.0,259.21 L753.33,259.83 L766.67,260.42 L780.0,261.0 L793.33,261.56 L806.67,262.11 L820.0,262.64 L833.33,263.15 L846.67,263.65 L860.0,264.13" fill="none" stroke="#2563eb" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3719;0.3721;1.0000" values="0;0;1;1"/></path>
 <text x="852.0" y="258.1313067307277" text-anchor="end" style="font-size:13px;font-weight:700;fill:#2563eb" opacity="0">B<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3719;0.3721;1.0000" values="0;0;1;1"/></text>
-<text x="40" y="330" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2563eb">ガラスの球(中心ほど厚い)を、正面から見る</text>
+<text x="40" y="330" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2563eb">ガラスの球(中心ほど厚い)を正面から見る</text>
 <rect x="60.0" y="338.0" width="8.3" height="8.3" fill="#ffffff"/>
 <rect x="68.0" y="338.0" width="8.3" height="8.3" fill="#ffffff"/>
 <rect x="76.0" y="338.0" width="8.3" height="8.3" fill="#ffffff"/>
@@ -454,13 +454,13 @@ float3 tinted_background = background * transmittance;
 
 ## 色付きガラスは厚いほど濃い
 
-色付きのガラス（緑のボトル、青い氷）は <strong>光がガラスの中を、通る距離が長いほど濃く</strong>見えます。光が ガラスに吸収されるためで、水の中の光と同じ原理です（[Color by Water Depth](../../water/shading/depth-color.md)）。
+色付きのガラス（緑のボトル、青い氷）は <strong>光がガラスの中を通る距離が長いほど濃く</strong>見えます。光が ガラスに吸収されるためで、水の中の光と同じ原理です（[Color by Water Depth](../../water/shading/depth-color.md)）。
 
 ```text
 透過率 T = exp( −σ × 厚み )          σ: 吸収係数（RGB ごと）
 ```
 
-| 厚み | 緑のガラス（赤と青を、吸収） |
+| 厚み | 緑のガラス（赤と青を吸収） |
 | --- | --- |
 | 薄い（縁のとがった所） | ほぼ透明 |
 | 中くらい | 薄い緑 |
@@ -475,7 +475,7 @@ float3 tinted_background = background * transmittance;
 形が単純なら <strong>視線が物体を通る長さ</strong>を数式で、求められます。
 
 ```hlsl
-// 球: 視線（原点 ro、方向 rd）が、中心 c、半径 r の球を、通り抜ける長さ。
+// 球: 視線（原点 ro、方向 rd）が中心 c、半径 r の球を通り抜ける長さ。
 float SphereThickness(float3 ro, float3 rd, float3 c, float r) {
   float3 oc = ro - c;
   float b = dot(oc, rd);
@@ -512,7 +512,7 @@ float4 main(PSInput input) : SV_Target {
 
 ### ③ 厚みをテクスチャに焼く
 
-物体ごとの厚みの分布を事前に、テクスチャ（厚みマップ）に、焼いておく方法です。物体の内側から外へレイを飛ばして厚みを求め、UV に焼きます（ツールで事前計算）。実行時はテクスチャを読むだけで、安いです。視線の向きによらない（近似）ので、簡易です。
+物体ごとの厚みの分布を事前に、テクスチャ（厚みマップ）に焼いておく方法です。物体の内側から外へレイを飛ばして厚みを求め、UV に焼きます（ツールで事前計算）。実行時はテクスチャを読むだけで、安いです。視線の向きによらない（近似）ので、簡易です。
 
 | 方法 | 正確さ | コスト | 向き |
 | --- | --- | --- | --- |
@@ -526,7 +526,7 @@ float4 main(PSInput input) : SV_Target {
 
 ### 吸収係数 σ を色から作る
 
-「<strong>1 m の厚さでこの色になる</strong>」と、アーティストが色を指定しそこから `σ` を、逆算します。
+「<strong>1 m の厚さでこの色になる</strong>」と、アーティストが色を指定しそこから `σ` を逆算します。
 
 ```text
 T(1m) = exp(−σ)   →   σ = −ln( T(1m) )
@@ -541,25 +541,25 @@ float3 AbsorptionFromColor(float3 color_at_1m) {
 float3 sigma = AbsorptionFromColor(float3(0.2, 0.8, 0.3));
 ```
 
-ガラスは薄い（数 mm〜数 cm）ので `color_at_1m` を、そのまま使うとほとんど色が付きません。厚みのスケール（`thickness × scale`）を調整するか、「厚み 1 cm の色」を基準にします。
+ガラスは薄い（数 mm〜数 cm）ので `color_at_1m` をそのまま使うとほとんど色が付きません。厚みのスケール（`thickness × scale`）を調整するか、「厚み 1 cm の色」を基準にします。
 
 ### 表面の色と内部の色
 
 | 色 | 原因 | 表現 |
 | --- | --- | --- |
-| 内部の吸収 | 光がガラスの中を、通る間に吸収される | `exp(−σ × 厚み)`（このページ） |
-| 表面の反射 | 表面の反射。色が付かない（ガラスは反射が、白い）。金属は反射に色が付く | フレネル（[Fresnel](fresnel.md)）。白い反射 |
-| 内部の散乱 | すりガラス、乳白色、氷の気泡 | 屈折をぼかし散乱の色を、足す |
+| 内部の吸収 | 光がガラスの中を通る間に吸収される | `exp(−σ × 厚み)`（このページ） |
+| 表面の反射 | 表面の反射。色が付かない（ガラスは反射が白い）。金属は反射に色が付く | フレネル（[Fresnel](fresnel.md)）。白い反射 |
+| 内部の散乱 | すりガラス、乳白色、氷の気泡 | 屈折をぼかし散乱の色を足す |
 
 ## 濁り（散乱）
 
 すりガラス、氷、乳白色のガラスは <strong>内部の散乱</strong>で、背景がぼやけます。
 
 ```hlsl
-// 厚みに応じて、背景を、ぼかす（粗さを、厚みで増やす）。
+// 厚みに応じて、背景をぼかす（粗さを厚みで増やす）。
 float lod = saturate(thickness / g_scatter_distance) * kMaxMip;
 float3 background = g_scene_copy_blurred.SampleLevel(g_linear_clamp, refract_uv, lod).rgb;
-// 散乱の色（白っぽい）を、厚みに応じて、足す
+// 散乱の色（白っぽい）を厚みに応じて、足す
 float scatter = 1.0 - exp(-thickness * g_scatter_coeff);
 float3 color = lerp(background * T, g_scatter_color, scatter);
 ```

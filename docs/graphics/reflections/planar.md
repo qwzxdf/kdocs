@@ -23,10 +23,10 @@ tags:
 
 ## 仕組み
 
-反射を、「<strong>鏡の向こう側にある、もう 1 つの世界を覗き込んでいる</strong>」と見なします。カメラを反射面を挟んで反対側に置いた（鏡映した）位置から、シーンを描けば、鏡に映る景色が得られます。
+反射を「<strong>鏡の向こう側にある、もう 1 つの世界を覗き込んでいる</strong>」と見なします。カメラを反射面を挟んで反対側に置いた（鏡映した）位置から、シーンを描けば、鏡に映る景色が得られます。
 
 <svg class="fig illust" viewBox="0 0 798 300" role="img" aria-label="平面反射のカメラ鏡映">
-<text x="20" y="24" class="fig-title">反射面を軸に、カメラを鏡映する。鏡映カメラから描いた画像が、反射として貼られる</text>
+<text x="20" y="24" class="fig-title">反射面を軸にカメラを鏡映する。鏡映カメラから描いた画像が反射として貼られる</text>
 <line x1="60" y1="160" x2="720" y2="160" stroke="currentColor" stroke-width="5"/><text x="620" y="152" style="font-size:12px;font-weight:700">反射面（水面など）</text>
 <circle cx="180" cy="80" r="9" fill="#4c8bf5"/><text x="150" y="62" style="font-size:12px">カメラ</text>
 <circle cx="180" cy="240" r="9" fill="rgba(76,139,245,0.4)" stroke="#4c8bf5" stroke-dasharray="3 2"/><text x="120" y="268" style="font-size:12px">鏡映カメラ</text>
@@ -92,7 +92,7 @@ tags:
 <text x="44" y="500" text-anchor="start" style="font-size:14px;font-weight:700;fill:#7c3aed" opacity="0">描画回数: 反射なし 120 → 平面反射 240(シーンを 2 回描く)/ SSR は 120 + 画面全体 1 回<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6045;0.6047;1.0000" values="0;0;1;1"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">床の鏡に映る像は、鏡の下にある「もう 1 つの世界」を見ているのと同じ<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">本物のカメラから見ると、光は鏡で曲がって物体へ届く<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;0.4649;0.4651;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">鏡の下に、カメラを反転して置くと、同じ線が、まっすぐ物体の像へ伸びる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4649;0.4651;0.6045;0.6047;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">鏡の下にカメラを反転して置くと、同じ線がまっすぐ物体の像へ伸びる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4649;0.4651;0.6045;0.6047;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">反転したカメラで、もう 1 回シーンを描く(描画 2 倍)。完全に正確だが、鏡が平面のときだけ<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6045;0.6047;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -152,7 +152,7 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 コードの要点です。`uv = clip.xy / clip.w` は、反射面のピクセルが画面のどこにあるかを示します。鏡映カメラの画像は、通常のカメラと同じ画面位置で対応します。`distortion` は、水面の波の法線で uv を少しずらし、揺らぎを出します。フレネルは、斜めから見るほど反射が強くなる効果です（水の `F0` は約 0.02 です）。
 
 !!! note "鏡映カメラの画面位置"
-    反射テクスチャは、鏡映カメラの視点で描いたものです。鏡映すると左右が反転することを、行列（ビュー）が吸収しているので通常のカメラと同じ画面位置で引けば、正しい位置に映ります。射影行列は通常のものと同じ（斜めクリップを除く）です。
+    反射テクスチャは、鏡映カメラの視点で描いたものです。鏡映すると左右が反転することを行列（ビュー）が吸収しているので通常のカメラと同じ画面位置で引けば、正しい位置に映ります。射影行列は通常のものと同じ（斜めクリップを除く）です。
 
 ## 粗さとぼかし
 
@@ -210,10 +210,10 @@ float3 color = lerp(refraction_color, reflection, fresnel);
 ??? failure "反射パスで、カリングの設定を反転せず、反射が消える・内側が見える"
     反射パスの間だけ、巻き方向（`FrontCounterClockwise`）を反転します。
 
-??? failure "反射面より下の物が、反射に映り込む"
+??? failure "反射面より下の物が反射に映り込む"
     斜めの近クリップ面か、クリップ距離で反射面より下を切ります。
 
-??? failure "反射テクスチャを、画面と別の座標で引いてずれる"
+??? failure "反射テクスチャを画面と別の座標で引いてずれる"
     クリップ座標 `/ w` から、スクリーン座標を作って引きます。
 
 ??? failure "全てのフレームで、フル解像度・フル品質で反射を描いて、重い"

@@ -27,7 +27,7 @@ tags:
 <defs><marker id="arr-exposure-ev" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">露出(EV): 1 段上げると、明るさが 2 倍。同じ絵を、−3 〜 +3 段で並べる</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">露出(EV): 1 段上げると、明るさが 2 倍。同じ絵を−3 〜 +3 段で並べる</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">線形の明るさ 0.02 〜 3 の 5 つの面。EV を変えて、画面(sRGB)での見え方がどう変わるか</text>
 <text x="170.0" y="116" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">黒い布</text>
 <text x="170.0" y="134" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">明るさ 0.02</text>
@@ -132,7 +132,7 @@ tags:
 <text x="576" y="504" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1e3a8a">全部がちょうど見える露出は、無い → トーンマップが必要</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">1 EV 上げる = 光の量が 2 倍(カメラの絞り 1 段)<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">5 つの面は、明るさがバラバラ。露出を変えると、見える面が、入れ替わる<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;0.8535;0.8537;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">5 つの面は、明るさがバラバラ。露出を変えると、見える面が入れ替わる<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;0.8535;0.8537;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">暗い面を見えるように上げると、明るい面が白飛びする<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.8535;0.8537;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -179,9 +179,9 @@ tags:
 | ISO 感度 | センサーの増幅率。高いほど明るい | ノイズが増える |
 
 
-ゲームでは、被写界深度、モーション ブラー、ノイズの効果は別々に処理し、露出は「全体の倍率」として扱うのが普通です。ただし、物理に忠実な設計にしたい場合は、絞りとシャッター速度を、被写界深度とモーション ブラーのパラメータにも接続します。
+ゲームでは、被写界深度、モーション ブラー、ノイズの効果は別々に処理し、露出は「全体の倍率」として扱うのが普通です。ただし、物理に忠実な設計にしたい場合は、絞りとシャッター速度を被写界深度とモーション ブラーのパラメータにも接続します。
 
-ゲームでは、被写界深度、モーション ブラー、ノイズの効果は別々に処理し、露出は「全体の倍率」として扱うのが普通です。ただし、物理に忠実な設計にしたい場合は、絞りとシャッター速度を、被写界深度とモーション ブラーのパラメータにも接続します。
+ゲームでは、被写界深度、モーション ブラー、ノイズの効果は別々に処理し、露出は「全体の倍率」として扱うのが普通です。ただし、物理に忠実な設計にしたい場合は、絞りとシャッター速度を被写界深度とモーション ブラーのパラメータにも接続します。
 
 <div class="formula">EV = log₂( F² / t ) − log₂( ISO / 100 )　（F：F 値、t：シャッター秒、ISO：感度）</div>
 
@@ -251,7 +251,7 @@ float finalEV100 = autoEV100 + exposure_compensation;
 ## よくあるミス
 
 ??? failure "露出をトーンマップの後に掛けて、明るさが調整できない"
-    <strong>露出は HDR のリニア値に、トーンマップの前</strong>に掛ける。
+    <strong>露出は HDR のリニア値にトーンマップの前</strong>に掛ける。
 
 ??? failure "EV の符号を逆にして、明るくしたつもりが暗くなる"
     EV が大きいほど暗い（`× 2^(−EV)`）。明るくしたいなら EV を下げる。

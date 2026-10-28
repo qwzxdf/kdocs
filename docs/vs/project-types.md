@@ -39,7 +39,7 @@ Visual Studio で新しいプロジェクトを作るとき、「**コンソー�
 プログラムを実行すると、OS は `.exe` の中の<strong>最初に動く場所（エントリーポイント）</strong>を呼びます。ただし、これは自分で書く `main` ではありません。
 
 1. OS が、ランタイム（C ランタイム）のスタートアップ関数を呼ぶ
-2. スタートアップ関数が、グローバル変数の初期化などを済ませる
+2. スタートアップ関数がグローバル変数の初期化などを済ませる
 3. そのあとで、自分の `main` や `WinMain` を呼ぶ
 
 スタートアップ関数の名前は、サブシステムと、`main` の種類で決まります。
@@ -107,7 +107,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE prev_instance,
 | コンソール | `/SUBSYSTEM:CONSOLE` | コンソールあり | `main` / `wmain` |
 | Windows | `/SUBSYSTEM:WINDOWS` | コンソールなし | `WinMain` / `wWinMain` |
 
-エントリーポイントを、名前で直接指定することもできます。リンカー → 詳細設定 → エントリ ポイント に、スタートアップ関数の名前（`mainCRTStartup` など）を書きます（`/ENTRY`）。
+エントリーポイントを名前で直接指定することもできます。リンカー → 詳細設定 → エントリ ポイント に、スタートアップ関数の名前（`mainCRTStartup` など）を書きます（`/ENTRY`）。
 
 ### 組み合わせを変える {#combos}
 
@@ -198,7 +198,7 @@ extern "C" __declspec(dllexport) void InitializeGame() {
     逆で、サブシステムが CONSOLE なのに、`WinMain` しか書いていません。サブシステムを WINDOWS にするか、`main` を書きます。
 
 ??? failure "`wWinMain` と `WinMain` を取り違える"
-    `WinMain` は char の文字列を、`wWinMain` は wchar_t の文字列を受け取ります。エントリ ポイントは、書いた関数に合わせて自動で決まります。
+    `WinMain` は char の文字列を `wWinMain` は wchar_t の文字列を受け取ります。エントリ ポイントは、書いた関数に合わせて自動で決まります。
 
 ??? failure "Windows アプリで `std::println` を書いたのに、何も出ない"
     コンソールがないので、出力の行き先がありません。Debug だけ `AllocConsole` で足すか、`OutputDebugStringA` で、「出力」ウィンドウに出します。

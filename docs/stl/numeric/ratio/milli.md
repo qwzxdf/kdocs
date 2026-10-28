@@ -69,7 +69,7 @@ num = 1, den = 1000
 ```cpp
 #include <chrono>
 
-// 1.5 秒を、ミリ秒単位の時間として持つ
+// 1.5 秒をミリ秒単位の時間として持つ
 std::chrono::duration<double, std::milli> frame_time{16.7};   // 16.7 ミリ秒
 const double seconds = std::chrono::duration<double>(frame_time).count();   // 0.0167 秒
 ```

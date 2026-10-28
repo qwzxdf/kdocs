@@ -69,7 +69,7 @@ typedef enum D3D12_RESOURCE_STATES {
 
 #### D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER {#d3d12_resource_state_vertex_and_constant_buffer}
 
-値は 0x1 です。頂点バッファと定数バッファとして読む状態を、1 つの値にまとめています。読み取り専用なので、ほかの読み取り状態と OR できます。
+値は 0x1 です。頂点バッファと定数バッファとして読む状態を 1 つの値にまとめています。読み取り専用なので、ほかの読み取り状態と OR できます。
 
 `DEFAULT` ヒープに置いた頂点バッファは、コピーが終わったあとにこの状態へ遷移させます。定数バッファ ビュー（CBV）で読むバッファもこの状態です。ただし定数バッファを `UPLOAD` ヒープに置いているなら、そもそも `GENERIC_READ` のまま変えないので、この値は出番がありません。
 
@@ -79,7 +79,7 @@ typedef enum D3D12_RESOURCE_STATES {
 
 #### D3D12_RESOURCE_STATE_RENDER_TARGET {#d3d12_resource_state_render_target}
 
-値は 0x4 です。レンダー ターゲットとして描き込む状態で、書き込み側の状態です。`OMSetRenderTargets` に渡す前、`ClearRenderTargetView` を呼ぶ前に、リソースはこの状態になっていなければなりません。
+値は 0x4 です。レンダー ターゲットとして描き込む状態で、書き込み側の状態です。`OMSetRenderTargets` に渡す前、`ClearRenderTargetView` を呼ぶ前にリソースはこの状態になっていなければなりません。
 
 バックバッファなら `PRESENT` から入り、描き終えたら `PRESENT` へ戻します。シャドウやポストプロセスの中間テクスチャは、描き込むときにこの状態、次のパスで読むときに `PIXEL_SHADER_RESOURCE` へ遷移させます。作成時にこの状態を初期状態にすると、最初のパスでバリアが要りません。
 
@@ -117,7 +117,7 @@ typedef enum D3D12_RESOURCE_STATES {
 
 #### D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT {#d3d12_resource_state_indirect_argument}
 
-値は 0x200 です。`ExecuteIndirect` の引数バッファとして読む状態です。GPU が計算した描画回数（GPU カリングの結果など）を、そのまま描画コマンドへ渡すときに使います。述語（`SetPredication`）の値として読む状態も、同じ値 0x200 で、`D3D12_RESOURCE_STATE_PREDICATION` という別名が付いています。
+値は 0x200 です。`ExecuteIndirect` の引数バッファとして読む状態です。GPU が計算した描画回数（GPU カリングの結果など）をそのまま描画コマンドへ渡すときに使います。述語（`SetPredication`）の値として読む状態も、同じ値 0x200 で、`D3D12_RESOURCE_STATE_PREDICATION` という別名が付いています。
 
 #### D3D12_RESOURCE_STATE_COPY_DEST {#d3d12_resource_state_copy_dest}
 
@@ -141,7 +141,7 @@ typedef enum D3D12_RESOURCE_STATES {
 
 #### D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE {#d3d12_resource_state_raytracing_acceleration_structure}
 
-値は 0x400000 です。DXR の加速構造（BLAS・TLAS）を、レイ トレーシングのシェーダーが読む状態です。`D3D12_HEAP_TYPE_DEFAULT` に作る加速構造のバッファは、作成時から `D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE` を付けて、この状態で作ります。ビルド中は `UNORDERED_ACCESS` ではなくこの状態のままで構いません。ビルド同士の順序は UAV バリアで保ちます。
+値は 0x400000 です。DXR の加速構造（BLAS・TLAS）をレイ トレーシングのシェーダーが読む状態です。`D3D12_HEAP_TYPE_DEFAULT` に作る加速構造のバッファは、作成時から `D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE` を付けて、この状態で作ります。ビルド中は `UNORDERED_ACCESS` ではなくこの状態のままで構いません。ビルド同士の順序は UAV バリアで保ちます。
 
 #### D3D12_RESOURCE_STATE_SHADING_RATE_SOURCE {#d3d12_resource_state_shading_rate_source}
 

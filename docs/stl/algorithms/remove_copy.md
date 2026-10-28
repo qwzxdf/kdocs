@@ -62,7 +62,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| 死んだ敵を除いた一覧を、元は残したまま作る | `remove_copy_if(enemies, back_inserter(alive), 死んでいる)` |
+| 死んだ敵を除いた一覧を元は残したまま作る | `remove_copy_if(enemies, back_inserter(alive), 死んでいる)` |
 
 ## よくあるミス
 

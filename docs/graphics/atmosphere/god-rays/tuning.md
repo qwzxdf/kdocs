@@ -48,7 +48,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">放射ぼかしの減衰(decay): 1 に近いほど、遠くの光も効いて、筋が長く伸びる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">光源から 64 画素の線。各画素が、光源の方向へ 32 回読んで、decay^i の重みで足す。光源だけが明るいときの、筋の明るさ</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">光源から 64 画素の線。各画素が光源の方向へ 32 回読んで、decay^i の重みで足す。光源だけが明るいときの、筋の明るさ</text>
 <rect x="30" y="96" width="640" height="260" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 光源からの距離と、筋の明るさ</text>
 <path d="M70.0,259.77 L78.89,259.77 L87.78,271.62 L96.67,287.7 L105.56,311.64 L114.44,319.37 L123.33,322.53 L132.22,324.26 L141.11,325.57 L150.0,326.19 L158.89,326.82 L167.78,327.18 L176.67,327.64 L185.56,328.0 L194.44,328.0 L203.33,328.39 L212.22,328.39 L221.11,328.39 L230.0,328.62 L238.89,328.74 L247.78,328.74 L256.67,328.74 L265.56,329.01 L274.44,329.01 L283.33,329.01 L292.22,329.01 L301.11,329.11 L310.0,329.11 L318.89,329.3 L327.78,329.3 L336.67,329.3 L345.56,329.3 L354.44,329.3 L363.33,329.3 L372.22,329.3 L381.11,329.3 L390.0,329.3 L398.89,329.3 L407.78,329.3 L416.67,329.48 L425.56,329.48 L434.44,329.48 L443.33,329.48 L452.22,329.57 L461.11,329.57 L470.0,329.57 L478.89,329.57 L487.78,329.57 L496.67,329.57 L505.56,329.57 L514.44,329.57 L523.33,329.57 L532.22,329.57 L541.11,329.57 L550.0,329.57 L558.89,329.57 L567.78,329.57 L576.67,329.57 L585.56,329.57 L594.44,329.57 L603.33,329.57 L612.22,329.57 L621.11,329.57 L630.0,329.57" fill="none" stroke="#e5484d" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="0;0;1;1"/></path>
@@ -87,8 +87,8 @@ tags:
 <text x="56" y="478" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">重み decay^i は、遠くを読むほど小さい。1 に近いと、遠くの光源の光も、そのまま混ざって、筋が長い</text>
 <text x="56" y="500" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">伸ばしすぎると、画面全体が白っぽくぼける。強さ(weight)と一緒に調整する</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">遠くを読んだ分の重みを、decay の累乗で、弱めていく<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">decay が 1 に近いほど、筋が、遠くまで伸びる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8132;0.8133;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">遠くを読んだ分の重みを decay の累乗で、弱めていく<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">decay が 1 に近いほど、筋が遠くまで伸びる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8132;0.8133;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">伸ばしすぎず、見た目で決める<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8132;0.8133;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -96,17 +96,17 @@ tags:
 
 ## 調整のパラメーター
 
-ゴッド レイは <strong>強すぎると画面が白く、もやもや</strong>し 弱すぎると見えません。主要なパラメーターの意味と効き方を、整理します。
+ゴッド レイは <strong>強すぎると画面が白く、もやもや</strong>し 弱すぎると見えません。主要なパラメーターの意味と効き方を整理します。
 
 | パラメーター | 意味 | 大きくすると | 目安 |
 | --- | --- | --- | --- |
 | 強さ（intensity） | 光の筋の、明るさ | 明るく画面が白っぽく | 0.1〜1 |
-| 密度（density） | 放射状ブラーで、どこまで遠くを読むか | 筋が、長く伸びる | 0.5〜1 |
-| 減衰（decay） | 遠くの、サンプルの重み（読むたびに掛ける） | 筋が、遠くまで（1 に近い） | 0.95〜0.99 |
+| 密度（density） | 放射状ブラーで、どこまで遠くを読むか | 筋が長く伸びる | 0.5〜1 |
+| 減衰（decay） | 遠くの、サンプルの重み（読むたびに掛ける） | 筋が遠くまで（1 に近い） | 0.95〜0.99 |
 | 重み（weight） | 1 回の、サンプルの寄与 | 全体が明るく | 0.01〜0.1 |
 | 位相関数の `g` | 太陽の方向への、偏り | 太陽の近くだけが明るく | 0.6〜0.9 |
 | 霧の密度 | 散乱する粒子の、濃さ | 筋がはっきり（濃い霧で、強く） | 場面による |
-| サンプル数 | 放射状ブラー / レイマーチの、読み込み回数 | なめらか（ノイズ・縞が、減る） | 32〜64 |
+| サンプル数 | 放射状ブラー / レイマーチの、読み込み回数 | なめらか（ノイズ・縞が減る） | 32〜64 |
 
 ## 見た目を決める 3 つの考え方
 
@@ -115,7 +115,7 @@ tags:
 光の筋は <strong>太陽の方を見たとき</strong>に 最も、はっきり見えます（前方散乱）。太陽に背を向けたときはほぼ見えません。位相関数（[Phase Functions](../scattering/phase-function.md)）と、視線と太陽の角度で強さを変えます。
 
 ```hlsl
-// 太陽を、向いているほど、強く。背を向けたら、ほぼ 0。
+// 太陽を向いているほど、強く。背を向けたら、ほぼ 0。
 float facing = saturate(dot(g_camera_forward, g_sun_dir));
 float strength = g_intensity * pow(facing, 2.0);
 ```
@@ -125,7 +125,7 @@ float strength = g_intensity * pow(facing, 2.0);
 光の筋の色は 太陽の色（大気を通った後の、色）です。昼は白〜淡い黄色、朝夕は橙〜赤。空の青を使うと筋が見えません（青い光の筋は、不自然）。
 
 ```hlsl
-float3 ray_color = SunColorAtGround(g_sun_dir) * g_intensity;       // 大気の透過率を、掛けた、太陽の色
+float3 ray_color = SunColorAtGround(g_sun_dir) * g_intensity;       // 大気の透過率を掛けた、太陽の色
 ```
 
 ### ③ 時間帯で強さを変える
@@ -136,7 +136,7 @@ float3 ray_color = SunColorAtGround(g_sun_dir) * g_intensity;       // 大気の
 | 朝・夕（太陽が低い） | 強い（光が斜めに長く通る。霧・もやも多い） |
 | 夜 | なし（太陽が地平線の下） |
 
-ゴッド レイが最も美しいのは、朝夕です。太陽の高さに応じて強さを、変えると時間帯の雰囲気がぐっと、増します。
+ゴッド レイが最も美しいのは、朝夕です。太陽の高さに応じて強さを変えると時間帯の雰囲気がぐっと、増します。
 
 ```hlsl
 float sun_height = g_sun_dir.y;                                       // 1 = 真上、0 = 地平線
@@ -147,16 +147,16 @@ float time_of_day_factor = lerp(1.0, 0.3, saturate(sun_height * 2.0));   // 低�
 
 | 症状 | 原因 | 対策 |
 | --- | --- | --- |
-| 縞（バンディング） | サンプル数が、少ない | ジッター（ノイズで、開始位置をずらす）+ TAA。サンプル数を増やす |
-| 画面全体が白くもやもや | 強さが、強すぎる重み・減衰の設定 | 強さを、下げる。しきい値で明るい部分だけを、光源に |
-| 筋が画面の端で途切れる | 放射状ブラーの起点が、画面の外 | 起点が画面の外でも計算し端で、フェード |
+| 縞（バンディング） | サンプル数が少ない | ジッター（ノイズで、開始位置をずらす）+ TAA。サンプル数を増やす |
+| 画面全体が白くもやもや | 強さが、強すぎる重み・減衰の設定 | 強さを下げる。しきい値で明るい部分だけを光源に |
+| 筋が画面の端で途切れる | 放射状ブラーの起点が画面の外 | 起点が画面の外でも計算し端で、フェード |
 | 太陽の周りに四角いアーティファクト | 低解像度の、マスクの補間 | マスクをバイラテラルで、アップサンプル、解像度を上げる |
-| 筋がちらつく | TAA の履歴が、不安定 | 履歴のクランプ（[Cloud Temporal Reprojection](../clouds/temporal.md)） |
+| 筋がちらつく | TAA の履歴が不安定 | 履歴のクランプ（[Cloud Temporal Reprojection](../clouds/temporal.md)） |
 | 木の葉の隙間がざらざら | アルファ テストの、ジャギー | 光のマスクをぼかしてから、放射状ブラーへ |
 
 ## ブルームと組み合わせる
 
-<strong>まぶしい</strong>、光の筋は ブルーム（[Bloom](../../postprocess/bloom/index.md)）と一緒に使うと、映えます。ゴッド レイを足した後にブルームを、かけます。
+<strong>まぶしい</strong>、光の筋は ブルーム（[Bloom](../../postprocess/bloom/index.md)）と一緒に使うと、映えます。ゴッド レイを足した後にブルームをかけます。
 
 ```text
 シーン + ゴッド レイ（加算） → ブルーム → トーン マッピング

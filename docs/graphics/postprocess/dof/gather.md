@@ -9,7 +9,7 @@ tags:
 <strong>ギャザー（Gather）</strong>は、「各画素が自分の周りの画素を集めて平均する」方式の DOF です。出力の画素ごとに、CoC の半径の円の中のサンプルを読み、加重平均します。実装が簡単で、GPU に向いていて速いので、現代のゲームの標準です。このページでは、基本の考え方・サンプルの配置（ヴォーゲル螺旋）・「他の画素の CoC」を考慮した重み・ちらつきの対策・半解像度・コストを説明します。
 
 !!! tip "ポイント"
-    - ギャザー ＝ <strong>各出力画素が、周りの画素を CoC の半径で集めて平均する</strong>。
+    - ギャザー ＝ <strong>各出力画素が周りの画素を CoC の半径で集めて平均する</strong>。
     - サンプルは<strong>円盤状に散らす</strong>（ヴォーゲル螺旋・ポアソン円盤）。16〜64 サンプルが目安。
     - 重要：集める相手の CoC も見る。相手のボケが自分に届かないなら、混ぜない（ピント内の物にぼけた背景がにじむのを防ぐ）。
     - 半解像度で行い、フル解像度に合成するとコストが 1/4。
@@ -23,10 +23,10 @@ tags:
 
 ## 基本の考え方
 
-<strong>出力画素 P の CoC が R 画素なら、P を中心に半径 R の円内の画素を、集めて平均</strong>します。
+<strong>出力画素 P の CoC が R 画素なら、P を中心に半径 R の円内の画素を集めて平均</strong>します。
 
 <svg class="fig illust" viewBox="0 0 780 250" role="img" aria-label="ギャザー">
-<text x="20" y="26" class="fig-title">ギャザー：出力画素が、周りを集める</text>
+<text x="20" y="26" class="fig-title">ギャザー：出力画素が周りを集める</text>
 <g transform="translate(40,50)">
 <rect x="0" y="0" width="220" height="180" fill="#f8fafc" stroke="#94a3b8"/>
 <circle cx="110" cy="90" r="64" fill="#2563eb" fill-opacity="0.12" stroke="#2563eb" stroke-width="2" stroke-dasharray="5 4"/>
@@ -37,7 +37,7 @@ tags:
 <g font-size="13"><text x="320" y="86" style="font-weight:700">手順</text>
 <text x="320" y="112">① P の CoC（半径 R）を読む</text>
 <text x="320" y="136">② 半径 R の円盤状に N 個のサンプル</text>
-<text x="320" y="160">③ 各サンプルの色を、重み付きで平均</text>
+<text x="320" y="160">③ 各サンプルの色を重み付きで平均</text>
 <text x="320" y="196" style="font-weight:700">重み：サンプルの CoC が P まで届くか</text></g>
 </svg>
 
@@ -100,7 +100,7 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 <defs><marker id="arr-dof-gather-weight" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ギャザーの重み: ピントが合っている画素の色を、ぼけた画素に混ぜない(にじみを防ぐ)</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ギャザーの重み: ピントが合っている画素の色をぼけた画素に混ぜない(にじみを防ぐ)</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">左 24 画素は、ピントの合った赤い物(CoC 0)。右は、ぼけた青い背景(CoC 4)。境目のぼけた側の画素は、周りを集めてぼかす</text>
 <text x="60.0" y="108" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">入力(CoC を数字で示す: 0 = ピントが合っている)</text>
 <rect x="60.0" y="112.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#e5e7eb;#e63333"/></rect>
@@ -262,13 +262,13 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 <text x="60.0" y="366" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d" opacity="0">そのまま: 赤 3 / 9 が混ざる → 青い背景が赤みを帯びる。重みを付けると、赤 0 / 9<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5243;0.5244;1.0000" values="0;0;1;1"/></text>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5909;0.5911;1.0000" values="0;0;1;1"/><rect x="60" y="400" width="860" height="90" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="76" y="424" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">赤のにじみ(境目から 8 画素の、赤成分の合計): そのまま 0.78 → 重み付き 0.00</text>
-<text x="76" y="448" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">集める画素に、その画素自身の CoC を見て、「自分のぼけがここまで届く」ときだけ、混ぜる</text>
-<text x="76" y="470" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">ピントの合った物の輪郭が、ぼけた背景に、にじまなくなる</text>
+<text x="76" y="448" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">集める画素にその画素自身の CoC を見て、「自分のぼけがここまで届く」ときだけ、混ぜる</text>
+<text x="76" y="470" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">ピントの合った物の輪郭がぼけた背景ににじまなくなる</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ぼけた画素は、周りを集めて平均する<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">そのまま集めると、ピントの合った画素の色が、混ざってにじむ<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.2887;0.2889;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">そのまま集めると、ピントの合った画素の色が混ざってにじむ<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.2887;0.2889;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">各画素の CoC を見て、重みを付けると、混ざらない<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2887;0.2889;0.5909;0.5911;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ピントの合った物の輪郭が、くっきり残る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5909;0.5911;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ピントの合った物の輪郭がくっきり残る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5909;0.5911;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:dof-gather-weight:end -->
@@ -281,7 +281,7 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 | --- | --- |
 | サンプルの回転（ノイズ） | 画素ごとに `phi` を変え、規則的な縞を細かいノイズに |
 | ブルー ノイズ | ノイズの質が良く、後のぼかしで綺麗に消える |
-| 後処理のぼかし | ギャザーの後に、3×3 程度の小さなぼかし |
+| 後処理のぼかし | ギャザーの後に 3×3 程度の小さなぼかし |
 | サンプル数を CoC に応じて変える | ボケの小さい画素は、サンプルを減らす（半径 1 画素以下は、元のまま） |
 | TAA で時間的に平均 | 毎フレーム `phi` を変え、TAA で滑らかに |
 
@@ -308,7 +308,7 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 
 ## よくあるミス
 
-??? failure "ピントが合った物の輪郭に、背景の色がにじむ"
+??? failure "ピントが合った物の輪郭に背景の色がにじむ"
     <strong>サンプル側の CoC を重みに使っていない</strong>。重みに「サンプルの CoC が自分まで届くか」を入れる。
 
 ??? failure "ボケが縞模様（同心円）になる"
@@ -323,7 +323,7 @@ float4 DofGather(float2 uv, float2 texel, float phi) {
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ギャザー ＝ <strong>各画素が、CoC の半径で周りを集めて平均</strong>
+    - [x] ギャザー ＝ <strong>各画素が CoC の半径で周りを集めて平均</strong>
     - [x] サンプルはヴォーゲル螺旋 ＋ 画素ごとの回転
     - [x] サンプル側の CoC を見て重み付け（ピント内の輪郭を守る）
     - [x] 半解像度でコスト 1/4

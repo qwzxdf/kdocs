@@ -17,7 +17,7 @@ tags:
     - 作成は `CreateSamplerState`、束縛は `PSSetSamplers`。HLSL では `SamplerState g_sampler : register(s0);`。
     - 普通のテクスチャ貼りは `ANISOTROPIC`（またはトライリニア）+ `WRAP`。
     - G バッファ、深度、LUT は `POINT` または `LINEAR` + `CLAMP`。
-    - シャドウ マップは <strong>比較サンプラー</strong>（`COMPARISON_*`）でハードウェアが、PCF する。
+    - シャドウ マップは <strong>比較サンプラー</strong>（`COMPARISON_*`）でハードウェアが PCF する。
 
 !!! info "このページを読む前に"
     - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
@@ -37,7 +37,7 @@ desc.MipLODBias = 0.0f;
 desc.MaxAnisotropy = 8;                                     // 異方性の、倍率（1〜16）
 desc.ComparisonFunc = D3D11_COMPARISON_NEVER;               // 比較しない（普通のサンプラー）
 desc.MinLOD = 0.0f;
-desc.MaxLOD = D3D11_FLOAT32_MAX;                            // ミップの、全段を、使える
+desc.MaxLOD = D3D11_FLOAT32_MAX;                            // ミップの、全段を使える
 
 Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler;
 device->CreateSamplerState(&desc, &sampler);
@@ -71,7 +71,7 @@ context->PSSetSamplers(0, 1, sampler.GetAddressOf());       // スロット 0（
 ### 比較サンプラー（シャドウ マップ）
 
 ```cpp
-// シャドウ マップ用: 読んだ深度と、参照値を、ハードウェアが、比較して、0 か 1 を返す。バイリニアなら、PCF になる。
+// シャドウ マップ用: 読んだ深度と、参照値をハードウェアが比較して、0 か 1 を返す。バイリニアなら、PCF になる。
 D3D11_SAMPLER_DESC shadow = {};
 shadow.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
 shadow.AddressU = shadow.AddressV = shadow.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
@@ -116,7 +116,7 @@ uv が 0〜1 の範囲の外に出たときの扱いです。
 これらを起動時に作ってスロットを固定（`s0`〜`s4`）にすると全パスで同じサンプラーを使い回せます。
 
 ```hlsl
-// 共通のサンプラーを、スロットで、固定する。
+// 共通のサンプラーをスロットで、固定する。
 SamplerState g_linear_wrap : register(s0);
 SamplerState g_linear_clamp : register(s1);
 SamplerState g_point_clamp : register(s2);
@@ -127,7 +127,7 @@ SamplerComparisonState g_shadow_cmp : register(s4);
 ## 束縛
 
 ```cpp
-// 全パスで共通のサンプラーを、一度だけ、つなぐ（フレームの最初）。
+// 全パスで共通のサンプラーを一度だけ、つなぐ（フレームの最初）。
 ID3D11SamplerState* samplers[] = {linear_wrap.Get(), linear_clamp.Get(), point_clamp.Get(), anisotropic_wrap.Get(),
                                   shadow_cmp.Get()};
 context->PSSetSamplers(0, 5, samplers);
@@ -145,7 +145,7 @@ context->CSSetSamplers(0, 5, samplers);                     // 計算シェー�
 ??? failure "床の遠くが、ぼやける（またはちらつく）"
     ミップが無いまたは異方性が 1。ミップを作り `ANISOTROPIC`（倍率 8 以上）にする。
 
-??? failure "画面端が、引き伸ばされて見える（ポスト プロセス）"
+??? failure "画面端が引き伸ばされて見える（ポスト プロセス）"
     `WRAP` のまま画面の外を読んでいる。`CLAMP` にする。ただし、画面端のぼかしは端の色がそのまま伸びる。
 
 ??? failure "G バッファや深度を読んだ値がぼやける"

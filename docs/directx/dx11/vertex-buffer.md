@@ -35,7 +35,7 @@ struct Vertex {
   DirectX::XMFLOAT4 color;        // 16 バイト → 1 頂点 28 バイト
 };
 
-// 三角形: 反時計回り（CCW）が表。クリップ空間の座標を、そのまま使う（変換なし）。
+// 三角形: 反時計回り（CCW）が表。クリップ空間の座標をそのまま使う（変換なし）。
 const Vertex vertices[] = {
     {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f, 1.0f}},       // 上: 赤
     {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f, 1.0f}},     // 左下: 緑
@@ -139,7 +139,7 @@ context->Unmap(dynamic_vertex_buffer.Get(), 0);
 
 ## よくあるミス
 
-??? failure "三角形が、見えない（クリアの色のまま）"
+??? failure "三角形が見えない（クリアの色のまま）"
     頂点が時計回り（CW）で、裏面として捨てられている。ラスタライザー ステートの `FrontCounterClockwise = TRUE`（このサイトの規約）にするか頂点の順序を変える（[Rasterizer State](rasterizer-state.md)）。
 
 ??? failure "頂点が化けて、ぐちゃぐちゃに見える"

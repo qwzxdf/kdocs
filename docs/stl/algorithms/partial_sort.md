@@ -58,7 +58,7 @@ constexpr borrowed_iterator_t<R> partial_sort(R&& r, iterator_t<R> middle,
 int main() {
   std::vector<int> scores = {40, 90, 10, 70, 100, 30, 60};
 
-  // 点数が高い順に、上位 3 件だけを先頭に並べる
+  // 点数が高い順に上位 3 件だけを先頭に並べる
   std::ranges::partial_sort(scores, scores.begin() + 3, std::greater{});
   std::println("上位 3 件: {} {} {}", scores[0], scores[1], scores[2]);
 }

@@ -83,7 +83,7 @@ struct Asset {
 
 int main() {
   std::vector<Asset> assets = {{100, 100}, {80, 100}};
-  // 読み込んだ量が全体に達しているかを、すべてのアセットで調べる
+  // 読み込んだ量が全体に達しているかをすべてのアセットで調べる
   bool done = std::ranges::all_of(assets, [](const Asset& a) { return a.loaded_bytes == a.total_bytes; });
   std::println("ロード完了？ {}", done);
 }
@@ -124,9 +124,9 @@ int main() {
 ## よくあるミス
 
 ??? failure "空の範囲で `true` になって、早すぎる判定になる"
-    敵のリストが空のとき、`all_of(enemies, &Enemy::dead)` は `true` です。ステージの開始直前に、まだ敵を配置していないと、いきなりクリア判定になります。`!enemies.empty() && all_of(...)` のように、空でないことも確かめます。
+    敵のリストが空のとき、`all_of(enemies, &Enemy::dead)` は `true` です。ステージの開始直前にまだ敵を配置していないと、いきなりクリア判定になります。`!enemies.empty() && all_of(...)` のように、空でないことも確かめます。
 
-??? failure "`none_of` で書くべき条件を、否定した `all_of` で書く"
+??? failure "`none_of` で書くべき条件を否定した `all_of` で書く"
     `all_of(v, [](auto& x) { return !x.alive; })` は読みにくいので、`none_of(v, &X::alive)` と書きます。「全員が〜でない」は、`none_of` と同じ意味です。
 
 ??? failure "条件に副作用を入れる"

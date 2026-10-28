@@ -6,7 +6,7 @@ tags:
 
 # SSGI
 
-<strong>SSGI</strong>（Screen-Space Global Illumination、画面空間 GI）は [SSAO](../ao/ssao-hemisphere.md) と同じ発想を、「暗さ」だけでなく「光（色）」にまで広げたものです。画素の周りの半球にレイを飛ばし（深度バッファ上で）、当たった画素の「色（その画素の出射光）」を、間接光として集めます。事前計算が不要で動く物・動くライトも自動的に反映されます。ただし、画面に映っているものしか見えないという画面空間の限界があります。
+<strong>SSGI</strong>（Screen-Space Global Illumination、画面空間 GI）は [SSAO](../ao/ssao-hemisphere.md) と同じ発想を「暗さ」だけでなく「光（色）」にまで広げたものです。画素の周りの半球にレイを飛ばし（深度バッファ上で）、当たった画素の「色（その画素の出射光）」を間接光として集めます。事前計算が不要で動く物・動くライトも自動的に反映されます。ただし、画面に映っているものしか見えないという画面空間の限界があります。
 
 !!! tip "ポイント"
     - <strong>画素から半球方向にレイ</strong>を飛ばし（<strong>深度バッファ上</strong>）、当たった点の色を間接光として平均。
@@ -37,8 +37,8 @@ tags:
 <defs><marker id="arr-ssgi-bounce" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">SSGI: 画面に見えている色を、周りの画素から集めて、壁の色が床へ「にじむ」</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。右に赤い壁、床は灰色。床の 1 画素が、周りの見える画素(の明るさと色)を 16 個サンプルして集める</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">SSGI: 画面に見えている色を周りの画素から集めて、壁の色が床へ「にじむ」</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。右に赤い壁、床は灰色。床の 1 画素が周りの見える画素(の明るさと色)を 16 個サンプルして集める</text>
 <rect x="30" y="96" width="840" height="150" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 断面</text>
 <rect x="660.0" y="130.0" width="19.0" height="96.0" fill="#e62e26"/>
@@ -233,13 +233,13 @@ tags:
 <text x="40" y="450" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">サンプル数(画素あたり):</text>
 <text x="250" y="450" text-anchor="start" style="font-size:14px;font-weight:700;fill:#7c3aed">SSGI 16 個 / 正解 180 本</text>
 <g opacity="0"><animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.7071;0.7073;1.0000" values="0;0;1;1"/><rect x="40" y="462" width="860" height="56" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
-<text x="56" y="486" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">壁に近い床へ、赤い色がにじむ。正解とのずれ(平均): にじみなし 0.013 → SSGI 0.005</text>
+<text x="56" y="486" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">壁に近い床へ赤い色がにじむ。正解とのずれ(平均): にじみなし 0.013 → SSGI 0.005</text>
 <text x="56" y="510" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">画面に見えていない物(壁の裏・画面の外)の色は、集められない</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">床の画素が、周りの見える画素の色を集める<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0486;0.0488;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">半円の中に、16 個のサンプルを撒き、壁に当たったら、その色を足す<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0486;0.0488;0.3608;0.3610;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">全部の画素で繰り返すと、壁の近くの床が、赤みを帯びる<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.3608;0.3610;0.7071;0.7073;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">細かい光線の正解に、近い色になる(サンプルが少ないとノイズが出る)<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.7071;0.7073;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">床の画素が周りの見える画素の色を集める<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0486;0.0488;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">半円の中に 16 個のサンプルを撒き、壁に当たったら、その色を足す<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0486;0.0488;0.3608;0.3610;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">全部の画素で繰り返すと、壁の近くの床が赤みを帯びる<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.3608;0.3610;0.7071;0.7073;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">細かい光線の正解に近い色になる(サンプルが少ないとノイズが出る)<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.7071;0.7073;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:ssgi-bounce:end -->
@@ -304,15 +304,15 @@ float3 SSGI(float3 view_pos, float3 view_normal, float2 pixel) {
 | 画面外の光源・面 | 見えないので間接光に寄与しない。カメラの向きで明るさが変わる |
 | 隠れた面の裏側 | 深度バッファは、一番手前の面だけ。裏側・遮蔽物の向こうは不明 |
 | 画面端 | サンプルが画面外へ出るので端で暗くなる（フェードが必要） |
-| 厚み | 薄い物の背後を通過できない／遠くの面の手前を、誤ってヒット |
+| 厚み | 薄い物の背後を通過できない／遠くの面の手前を誤ってヒット |
 | 視点依存 | カメラを動かすと間接光が変わって見える（破綻） |
 
 
-そのため、SSGI 単体では安定した GI になりません。プローブやライトマップなどのベースの GI に、近距離の細かい間接光とカラー ブリーディングを足す使い方が、一般的です。
+そのため、SSGI 単体では安定した GI になりません。プローブやライトマップなどのベースの GI に、近距離の細かい間接光とカラー ブリーディングを足す使い方が一般的です。
 
-そのため、SSGI 単体では安定した GI になりません。プローブやライトマップなどのベースの GI に、近距離の細かい間接光とカラー ブリーディングを足す使い方が、一般的です。
+そのため、SSGI 単体では安定した GI になりません。プローブやライトマップなどのベースの GI に、近距離の細かい間接光とカラー ブリーディングを足す使い方が一般的です。
 
-<strong>そのため SSGI 単体で安定した GI にはなりません</strong>。プローブやライトマップなどの、ベースの GIに近距離の細かい間接光・カラー ブリーディングを足す使い方が、一般的です。
+<strong>そのため SSGI 単体で安定した GI にはなりません</strong>。プローブやライトマップなどの、ベースの GIに近距離の細かい間接光・カラー ブリーディングを足す使い方が一般的です。
 
 ## コストと工夫
 
@@ -365,7 +365,7 @@ SSGI の弱点は「画面外が見えない」の一点に集約されます。
 bool TraceScreenSpace(float3 origin_vs, float3 dir_vs, float2 pixel, out float3 hit_color) {
   const int kSteps = 16;
   float step_len = g_ssgi_max_distance / kSteps;
-  float jitter = InterleavedGradientNoise(pixel);                      // 開始を、ずらして、縞を消す
+  float jitter = InterleavedGradientNoise(pixel);                      // 開始をずらして、縞を消す
   hit_color = 0;
   for (int i = 0; i < kSteps; ++i) {
     float3 p_vs = origin_vs + dir_vs * ((i + jitter) * step_len);      // ビュー空間での、レイ上の点
@@ -380,7 +380,7 @@ bool TraceScreenSpace(float3 origin_vs, float3 dir_vs, float2 pixel, out float3 
     float scene_depth = g_depth.SampleLevel(g_point_clamp, uv, 0);     // その画素の、深度（ビュー空間の、距離）
     float ray_depth = -p_vs.z;                                          // レイ上の点の、深度（右手系は、前方が -Z）
     float diff = ray_depth - scene_depth;
-    if (diff > 0.0 && diff < g_thickness) {                             // レイが、面の「裏」に入った（交差した）。厚み以内なら、当たりとする。
+    if (diff > 0.0 && diff < g_thickness) {                             // レイが面の「裏」に入った（交差した）。厚み以内なら、当たりとする。
       hit_color = g_lit_scene.SampleLevel(g_linear_clamp, uv, 0).rgb;   // 当たった画素の、ライティング済みの色
       return true;
     }
@@ -389,7 +389,7 @@ bool TraceScreenSpace(float3 origin_vs, float3 dir_vs, float2 pixel, out float3 
 }
 ```
 
-レイ上の点の深度が その画素の、深度より奥（`diff > 0`）になった瞬間が面との、交差です。厚み（`g_thickness`）の範囲内なら当たりと、みなします（薄い物の裏を通り抜けるのを、避けるため。[Thickness](../reflections/ssr-basics/thickness.md)）。当たった画素のライティング済みの色（`g_lit_scene`）を、間接光として使います。
+レイ上の点の深度が その画素の、深度より奥（`diff > 0`）になった瞬間が面との、交差です。厚み（`g_thickness`）の範囲内なら当たりと、みなします（薄い物の裏を通り抜けるのを避けるため。[Thickness](../reflections/ssr-basics/thickness.md)）。当たった画素のライティング済みの色（`g_lit_scene`）を間接光として使います。
 
 ## 間接光を積算する
 
@@ -402,7 +402,7 @@ float3 SSGI(float2 pixel, float3 position_vs, float3 normal_vs, float3 albedo) {
     float3 dir = LocalToWorld(CosineHemisphere(u.x, u.y), normal_vs);   // 余弦重みづけ（[Monte Carlo Integration]）
     float3 hit_color;
     if (TraceScreenSpace(position_vs + normal_vs * 0.02, dir, pixel, hit_color)) {
-      sum += hit_color;                                                  // 当たった → その色が、光
+      sum += hit_color;                                                  // 当たった → その色が光
     } else {
       sum += g_sky_ambient;                                              // 当たらない → 空の環境光で、補う（画面の外は、不明）
     }
@@ -421,11 +421,11 @@ float3 SSGI(float2 pixel, float3 position_vs, float3 normal_vs, float3 albedo) {
 
 | 問題 | 内容 | 対策 |
 | --- | --- | --- |
-| 画面の外の光が使えない | 画面に、映っていない光源・壁は間接光に、反映されない。カメラを動かすと明るさが変わる（画面の端で光が、出入りする） | フォールバック（ライト プローブ、空の環境光）。画面を少し広く描く |
+| 画面の外の光が使えない | 画面に映っていない光源・壁は間接光に反映されない。カメラを動かすと明るさが変わる（画面の端で光が出入りする） | フォールバック（ライト プローブ、空の環境光）。画面を少し広く描く |
 | 隠れた面が使えない | 手前の物の裏は、見えていないので反射光が出ない | 深度の厚みを仮定。限界として許容 |
 | 遠くの光は使えない | レイの、最大距離を短く（数 m）。遠くからの間接光は無い | プローブ GI などと、併用 |
 | ノイズ | 少ないレイ | 時間蓄積 + 空間フィルタ |
-| コスト | 画面解像度に、比例 | 半分の解像度で計算して、アップサンプル |
+| コスト | 画面解像度に比例 | 半分の解像度で計算して、アップサンプル |
 
 ## 長所と短所
 
@@ -433,8 +433,8 @@ float3 SSGI(float2 pixel, float3 position_vs, float3 normal_vs, float3 albedo) {
 | --- | --- |
 | 長所 | 導入が簡単（ポスト プロセス）。シーンの形状・事前計算が不要 |
 | 長所 | 完全に動的（動く物、動くライトも反映） |
-| 長所 | レイトレーシング ハードウェアが、不要 |
-| 短所 | 画面の外の情報が、無い（カメラを動かすとちらつく） |
+| 長所 | レイトレーシング ハードウェアが不要 |
+| 短所 | 画面の外の情報が無い（カメラを動かすとちらつく） |
 | 短所 | 単独では不十分。他の手法（プローブ、ライトマップ）と併用が前提 |
 
 ## 使いどころ
@@ -442,7 +442,7 @@ float3 SSGI(float2 pixel, float3 position_vs, float3 normal_vs, float3 albedo) {
 | 場面 | 判断 |
 | --- | --- |
 | 補助（近距離の間接光、色のにじみ） | 向く（プローブ GI の、細かい部分を補う） |
-| GI の主役 | 向かない（画面の外の情報が、無い） |
+| GI の主役 | 向かない（画面の外の情報が無い） |
 | ハードウェア RT がない環境の、動的な GI | 選択肢の 1 つ（他の手法と、併用） |
 
 ## よくあるミス
@@ -450,10 +450,10 @@ float3 SSGI(float2 pixel, float3 position_vs, float3 normal_vs, float3 albedo) {
 ??? failure "画面端で、間接光が急に暗くなる"
     画面端付近をフェードさせる・ベースの GI にフォールバックします。
 
-??? failure "前フレームの色を、再投影せずに読んで動くとずれる"
+??? failure "前フレームの色を再投影せずに読んで動くとずれる"
     動きのベクトルで再投影します。
 
-??? failure "前フレーム色を、減衰なしで読み続けて発散して明るくなる"
+??? failure "前フレーム色を減衰なしで読み続けて発散して明るくなる"
     減衰（1 未満）を掛けます。
 
 ??? failure "ノイズが残って、チラつく"
@@ -462,7 +462,7 @@ float3 SSGI(float2 pixel, float3 position_vs, float3 normal_vs, float3 albedo) {
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] SSGI ＝ SSAO の拡張。半球レイが当たった画素の「色」を、間接光として集める
+    - [x] SSGI ＝ SSAO の拡張。半球レイが当たった画素の「色」を間接光として集める
     - [x] 前フレームの最終画像を光源にすると、多バウンスがほぼ無料
     - [x] 少ないレイ ＋ 時間・空間デノイズが必須
     - [x] 画面外・裏側は見えない。視点依存。単独は不安定

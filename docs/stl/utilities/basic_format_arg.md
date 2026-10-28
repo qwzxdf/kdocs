@@ -14,7 +14,7 @@ tags:
 `#include <format>`
 </div>
 
-`std::make_format_args` が作る引数リストの 1 つの要素です。整数・文字列・小数など、さまざまな型の値を、型を消した形で持ちます。中身を調べるには `visit_format_arg` を使います。
+`std::make_format_args` が作る引数リストの 1 つの要素です。整数・文字列・小数など、さまざまな型の値を型を消した形で持ちます。中身を調べるには `visit_format_arg` を使います。
 
 !!! tip "ポイント"
     - `<format>` の部品。

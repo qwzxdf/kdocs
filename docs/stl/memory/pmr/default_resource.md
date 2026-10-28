@@ -14,7 +14,7 @@ tags:
 `#include <memory_resource>`
 </div>
 
-`std::pmr::get_default_resource()` と `set_default_resource()` は、**pmr コンテナにリソースを渡さなかったときの既定のメモリリソース**を取得・変更する関数です。プログラム全体の取り先を、一度に切り替えたいときに使います。
+`std::pmr::get_default_resource()` と `set_default_resource()` は、**pmr コンテナにリソースを渡さなかったときの既定のメモリリソース**を取得・変更する関数です。プログラム全体の取り先を一度に切り替えたいときに使います。
 
 !!! tip "ポイント"
     - 既定は `new_delete_resource()`。
@@ -33,7 +33,7 @@ memory_resource* get_default_resource() noexcept;
 ```
 
 - 戻り値: 今のデフォルトのリソース。最初は `new_delete_resource()`
-- リソースを渡さなかった pmr コンテナが、これを使います
+- リソースを渡さなかった pmr コンテナがこれを使います
 
 ### set_default_resource {#set_default_resource}
 
@@ -46,7 +46,7 @@ memory_resource* set_default_resource(memory_resource* r) noexcept;
 | `r` | `std::pmr::memory_resource*` | 新しいデフォルトのリソース。`nullptr` なら `new_delete_resource()` に戻る |
 
 - 戻り値: 前のデフォルト
-- 以降に作る pmr コンテナ（リソースを渡さないもの）が、`r` を使うようになります。**プログラム全体に効く**ので、普通は使わず、リソースを明示的に渡します
+- 以降に作る pmr コンテナ（リソースを渡さないもの）が `r` を使うようになります。**プログラム全体に効く**ので、普通は使わず、リソースを明示的に渡します
 
 ## 実際に動かしてみる
 
@@ -67,12 +67,12 @@ true
 
 | 場面 | 書き方 |
 | --- | --- |
-| プロファイル用に、全 pmr コンテナの確保を数える | `set_default_resource(&counting_resource)` |
+| プロファイル用に全 pmr コンテナの確保を数える | `set_default_resource(&counting_resource)` |
 
 ## よくあるミス
 
 ??? failure "途中で変更する"
-    変更前に確保したメモリを、変更後のリソースで解放してしまうことがあります。起動直後に 1 回だけにします。
+    変更前に確保したメモリを変更後のリソースで解放してしまうことがあります。起動直後に 1 回だけにします。
 
 ## 類似
 

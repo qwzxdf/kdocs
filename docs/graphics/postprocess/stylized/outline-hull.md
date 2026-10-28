@@ -6,10 +6,10 @@ tags:
 
 # Inverted Hull Outlines
 
-<strong>背面法（Inverted Hull Method）</strong>は、輪郭線を作る、もっとも古典的で簡単な方法です。同じモデルを「もう 1 回」描き、頂点を法線方向に少し膨らませ、表面（前面）を捨てて裏面だけを黒く描くと元のモデルの輪郭の外側に、黒い縁ができます。シェーダーだけで実現でき、線の太さや色を物体や部位ごとにアーティストが制御できるので、多くのアニメ調ゲームで使われます。このページでは、仕組み・実装・画面上の太さを一定にする方法・線の途切れ（角）の対策・太さの調整（頂点カラー）を説明します。
+<strong>背面法（Inverted Hull Method）</strong>は、輪郭線を作る、もっとも古典的で簡単な方法です。同じモデルを「もう 1 回」描き、頂点を法線方向に少し膨らませ、表面（前面）を捨てて裏面だけを黒く描くと元のモデルの輪郭の外側に黒い縁ができます。シェーダーだけで実現でき、線の太さや色を物体や部位ごとにアーティストが制御できるので、多くのアニメ調ゲームで使われます。このページでは、仕組み・実装・画面上の太さを一定にする方法・線の途切れ（角）の対策・太さの調整（頂点カラー）を説明します。
 
 !!! tip "ポイント"
-    - 背面法 ＝ <strong>モデルを、法線方向に膨らませて、裏面だけを黒く描く</strong>。<strong>はみ出た裏面が輪郭線に見える</strong>。
+    - 背面法 ＝ <strong>モデルを法線方向に膨らませて、裏面だけを黒く描く</strong>。<strong>はみ出た裏面が輪郭線に見える</strong>。
     - 実装が簡単。1 パス追加するだけ。
     - 前面をカリング（`CULL_FRONT`）して、裏面だけ描く。
     - 画面上の太さを一定にするには、クリップ空間で膨らませる（距離に応じて、補正）。
@@ -24,7 +24,7 @@ tags:
 ## 仕組み
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="背面法の仕組み">
-<text x="20" y="26" class="fig-title">膨らませた裏面が、輪郭線として見える</text>
+<text x="20" y="26" class="fig-title">膨らませた裏面が輪郭線として見える</text>
 <g transform="translate(50,56)">
 <text x="0" y="-8" style="font-size:13px;font-weight:700">① 元のモデル</text>
 <circle cx="80" cy="80" r="56" fill="#f5deb3" stroke="#334155" stroke-width="2"/>
@@ -84,7 +84,7 @@ device->CreateRasterizerState(&desc, outline_rasterizer.GetAddressOf());
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">裏面法線の輪郭線: 世界で一定の太さにすると、遠くで細く、近くで太くなる。距離で補正して、画面で一定にする</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">輪郭の太さ(世界座標 0.02 m)を、距離 2・5・10・20 m で、画面の画素に直す。補正の有無で比べる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">輪郭の太さ(世界座標 0.02 m)を距離 2・5・10・20 m で、画面の画素に直す。補正の有無で比べる</text>
 <rect x="30" y="96" width="900" height="190" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 輪郭の画面での太さ(画素)</text>
 <g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="0;0;1;1"/><text x="70" y="126" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937">距離 2 m</text>
@@ -123,10 +123,10 @@ device->CreateRasterizerState(&desc, outline_rasterizer.GetAddressOf());
 <text x="280" y="484" text-anchor="start" style="font-size:26px;font-weight:700;fill:#e5484d" opacity="0">1<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.9021;0.9023;1.0000" values="0;0;1;1"/></text>
 <text x="320" y="484" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">倍(補正なし)→ 1 倍(補正あり)</text>
 <g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.9487;0.9488;1.0000" values="0;0;1;1"/><rect x="560" y="466" width="370" height="56" rx="12" fill="#f0fdf4" stroke="#2ea043" stroke-width="2.5"/>
-<text x="576" y="490" text-anchor="start" style="font-size:13px;font-weight:700;fill:#166534">補正: 太さ ∝ 距離(カメラから頂点までの距離を、掛ける)</text>
+<text x="576" y="490" text-anchor="start" style="font-size:13px;font-weight:700;fill:#166534">補正: 太さ ∝ 距離(カメラから頂点までの距離を掛ける)</text>
 <text x="576" y="512" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">遠景も近景も、同じ太さの線になる</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">裏返した殻を、法線方向へ、少し膨らませて、輪郭にする<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">裏返した殻を法線方向へ少し膨らませて、輪郭にする<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">世界で一定の太さだと、遠いほど画面で細くなる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.7905;0.7907;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">距離に比例して膨らませると、画面では一定の太さ<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.7905;0.7907;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -175,7 +175,7 @@ VSOutput OutlineConstantWidthVS(VSInput input) {
 </g>
 </svg>
 
-角のあるモデルでは、法線が頂点ごとに分かれていて、膨らませると角で線が途切れます。対策は、スムーズ法線を別に持つことです。同じ位置の頂点の法線を平均した滑らかな法線を、輪郭用に頂点（UV2 や頂点カラー）に保存します。DCC ツールやインポート時に計算して、モデル作成時に焼きます。スキニングでも崩れないよう、スムーズ法線を接線空間で保存する方法もあります。
+角のあるモデルでは、法線が頂点ごとに分かれていて、膨らませると角で線が途切れます。対策は、スムーズ法線を別に持つことです。同じ位置の頂点の法線を平均した滑らかな法線を輪郭用に頂点（UV2 や頂点カラー）に保存します。DCC ツールやインポート時に計算して、モデル作成時に焼きます。スキニングでも崩れないよう、スムーズ法線を接線空間で保存する方法もあります。
 
 ```hlsl
 float3 smooth_normal = input.smooth_normal;
@@ -218,19 +218,19 @@ float3 expanded = input.position + smooth_normal * outline_width * width_scale;
 ??? failure "立方体の角で、線が途切れる"
     <strong>スムーズ法線</strong>を使う。
 
-??? failure "遠くのキャラの線が、太すぎる（または細すぎる）"
+??? failure "遠くのキャラの線が太すぎる（または細すぎる）"
     クリップ空間で膨らませる、または距離で補正。
 
 ??? failure "前面も描いて、モデルが黒くなる"
     `CULL_FRONT` で、裏面だけ描く。
 
-??? failure "スキニングしたキャラの輪郭が、動いて崩れる"
+??? failure "スキニングしたキャラの輪郭が動いて崩れる"
     輪郭パスでも同じスキニングを適用する（スムーズ法線も同じ骨で変形）。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 背面法 ＝ <strong>法線方向に膨らませた裏面を、黒く描く</strong>。前面はカリング
+    - [x] 背面法 ＝ <strong>法線方向に膨らませた裏面を黒く描く</strong>。前面はカリング
     - [x] 簡単・安く、太さや色を制御できる
     - [x] クリップ空間で膨らませると画面上の太さが一定
     - [x] 角の途切れはスムーズ法線で解決

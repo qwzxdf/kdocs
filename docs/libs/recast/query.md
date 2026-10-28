@@ -51,7 +51,7 @@ query->init(nav_mesh, 2048);
 
 ## 位置：ポリゴン参照
 
-Detour では、**どのポリゴンの上にいるか**を、`dtPolyRef`（ポリゴンの ID）で表します。ワールド座標だけでは、経路探索を始められません。
+Detour では、**どのポリゴンの上にいるか**を `dtPolyRef`（ポリゴンの ID）で表します。ワールド座標だけでは、経路探索を始められません。
 
 ```cpp
 dtQueryFilter filter;
@@ -75,7 +75,7 @@ query->findNearestPoly(start_pos, half_extents, &filter, &start_ref, nearest);
 | 点 | 説明 |
 | --- | --- |
 | 補正する | 敵の足元・クリックした位置は、ナビメッシュ上にぴったりとはない。範囲を指定して、最寄りを探す |
-| 範囲が小さすぎると見つからない | 高さ方向（`halfExtents[1]`）を、段差より大きく取る |
+| 範囲が小さすぎると見つからない | 高さ方向（`halfExtents[1]`）を段差より大きく取る |
 | 戻り値 | `dtStatus`。`dtStatusSucceed(status)` で成功を確認する |
 
 ## 経路探索
@@ -158,7 +158,7 @@ query->findStraightPath(start_nearest, end_nearest, path.data(), path_count,
 
 | 手順 | 内容 |
 | --- | --- |
-| **① 位置を補正** | 自分と目標の位置を、`findNearestPoly` でナビメッシュ上へ |
+| **① 位置を補正** | 自分と目標の位置を `findNearestPoly` でナビメッシュ上へ |
 | ② 経路探索 | `findPath` でポリゴンの列 |
 | ③ 直線化 | `findStraightPath` で、歩く点の列 |
 | ④ 移動 | 次の点へ向かって歩く。近づいたら次の点へ |
@@ -176,13 +176,13 @@ query->findStraightPath(start_nearest, end_nearest, path.data(), path_count,
 
 ## よくあるミス
 
-??? failure "ナビメッシュ上にない座標を、そのまま `findPath` に渡す"
+??? failure "ナビメッシュ上にない座標をそのまま `findPath` に渡す"
     先に `findNearestPoly` で補正します。見つからないときは、範囲（`halfExtents`）を大きくします。
 
 ??? failure "`findNearestPoly` の高さの範囲が小さく、見つからない"
     高さ方向を大きくします（キャラの身長程度）。
 
-??? failure "`findPath` の結果を、そのままキャラの座標の列として使う"
+??? failure "`findPath` の結果をそのままキャラの座標の列として使う"
     ポリゴンの列です。`findStraightPath` で点にします。
 
 ??? failure "到達できない目標に対し、`DT_PARTIAL_RESULT` を無視して動く"

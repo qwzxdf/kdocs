@@ -41,7 +41,7 @@ float Perez(float cos_theta, float gamma, float cos_gamma, PerezCoefficients coe
 }
 ```
 
-コードの要点です。`max(cos θ, 0.01)` は地平線で発散するのを防ぎます。xyY から RGB への変換は、色度 (x, y) と輝度 Y を、XYZ から sRGB（線形）へ変換する処理です。輝度が絶対値（cd/m²）なので、露出で合わせます。
+コードの要点です。`max(cos θ, 0.01)` は地平線で発散するのを防ぎます。xyY から RGB への変換は、色度 (x, y) と輝度 Y を XYZ から sRGB（線形）へ変換する処理です。輝度が絶対値（cd/m²）なので、露出で合わせます。
 
 ### Hosek-Wilkie
 
@@ -63,13 +63,13 @@ Hosek-Wilkie は Preetham の改良版で、特に太陽が低いとき地面の
 
 ## 解析的な空のモデル
 
-<strong>解析的なモデル</strong>は 観測や、シミュレーションの結果に数式を、当てはめたものです。太陽の高さと大気の濁り（turbidity）を、入れると空の各方向の色が式 1 つで、返ります。積分も LUT も不要です。
+<strong>解析的なモデル</strong>は 観測や、シミュレーションの結果に数式を当てはめたものです。太陽の高さと大気の濁り（turbidity）を入れると空の各方向の色が式 1 つで、返ります。積分も LUT も不要です。
 
 | モデル | 特徴 |
 | --- | --- |
-| Perez の式（1993） | 空の輝度の分布を、5 つの係数で表す古典的な式。後続のモデルの土台 |
-| Preetham（1999） | Perez の式の係数を、濁りの関数として決めた。簡単で広く使われた。昼の空だけ（太陽が地平線より、上） |
-| Hošek–Wilkie（2012） | Preetham より精度が高く太陽が、低いとき（朝夕）もうまく動く。スペクトル全体でフィット |
+| Perez の式（1993） | 空の輝度の分布を 5 つの係数で表す古典的な式。後続のモデルの土台 |
+| Preetham（1999） | Perez の式の係数を濁りの関数として決めた。簡単で広く使われた。昼の空だけ（太陽が地平線より、上） |
+| Hošek–Wilkie（2012） | Preetham より精度が高く太陽が低いとき（朝夕）もうまく動く。スペクトル全体でフィット |
 
 ## Perez の式
 
@@ -99,7 +99,7 @@ float PerezFunction(float cos_theta, float gamma, float cos_gamma, float A, floa
 
 ## Preetham の使い方
 
-Preetham は <strong>空の色</strong>を、CIE xyY 色空間で、Perez の式を 3 回（Y、x、y それぞれ）、計算して得ます。各係数は濁り `T` の 1 次式で、決まります。
+Preetham は <strong>空の色</strong>を CIE xyY 色空間で、Perez の式を 3 回（Y、x、y それぞれ）、計算して得ます。各係数は濁り `T` の 1 次式で、決まります。
 
 ```text
 係数 A_Y = 0.1787 × T − 1.4630,  B_Y = −0.3554 × T + 0.4275,  C_Y = −0.0227 × T + 5.3251,
@@ -110,7 +110,7 @@ Preetham は <strong>空の色</strong>を、CIE xyY 色空間で、Perez の式
 天頂の色（輝度 Y、色 x、y）も 太陽の天頂角と濁りから式で、決まります。最終的な色は天頂の値 × `F(θ, γ) / F(0, θ_s)` です。
 
 ```hlsl
-// Preetham の概略（輝度 Y のみ。色 x, y も、同様に、別の係数で計算する）。
+// Preetham の概略（輝度 Y のみ。色 x, y も、同様に別の係数で計算する）。
 float PreethamLuminance(float3 view_dir, float3 sun_dir, float turbidity) {
   float cos_theta = max(view_dir.y, 0.0);
   float cos_gamma = dot(view_dir, sun_dir);
@@ -131,19 +131,19 @@ float PreethamLuminance(float3 view_dir, float3 sun_dir, float turbidity) {
 }
 ```
 
-濁り（turbidity）は、2（澄んだ）〜 10（霞んだ）の範囲を、使います。大きいほど空が白っぽく霞んで見えます。
+濁り（turbidity）は、2（澄んだ）〜 10（霞んだ）の範囲を使います。大きいほど空が白っぽく霞んで見えます。
 
 ## 長所と短所
 
 | | 内容 |
 | --- | --- |
-| 長所 | 実行時のコストが、小さい（数十命令）。事前計算も LUT も不要 |
-| 長所 | パラメーターが、少ない（太陽の高さ濁り）。調整が簡単 |
-| 長所 | 昼のリアルな空が、得られる |
-| 短所 | 太陽が低い（朝夕）、地平線の下（薄明）では精度が、落ちる（Preetham）。Hošek–Wilkie で、改善 |
+| 長所 | 実行時のコストが小さい（数十命令）。事前計算も LUT も不要 |
+| 長所 | パラメーターが少ない（太陽の高さ濁り）。調整が簡単 |
+| 長所 | 昼のリアルな空が得られる |
+| 短所 | 太陽が低い（朝夕）、地平線の下（薄明）では精度が落ちる（Preetham）。Hošek–Wilkie で、改善 |
 | 短所 | カメラが地上に固定。高い山、飛行機、宇宙では使えない |
-| 短所 | 空気遠近法（遠景の霞）を、別の方法で与える必要がある（空の色と、整合させる） |
-| 短所 | 大気のパラメーターを自由に、変えられない（濁り以外） |
+| 短所 | 空気遠近法（遠景の霞）を別の方法で与える必要がある（空の色と、整合させる） |
+| 短所 | 大気のパラメーターを自由に変えられない（濁り以外） |
 
 ## 使いどころ
 
@@ -151,8 +151,8 @@ float PreethamLuminance(float3 view_dir, float3 sun_dir, float turbidity) {
 | --- | --- |
 | 昼間の地上（時間帯があまり動かない） | 適している |
 | 時間帯が動く（朝夕、夜） | Hošek–Wilkie、または Hillaire（[Hillaire 2020: Four LUTs](../scattering/hillaire.md)） |
-| 宇宙、高高度 | 使えない（大気散乱の方式を、使う） |
-| 環境光（IBL）の元に使う | 空を、キューブマップに描いてライティングの、元にする（[Using the Sky for Lighting](sky-lighting.md)） |
+| 宇宙、高高度 | 使えない（大気散乱の方式を使う） |
+| 環境光（IBL）の元に使う | 空をキューブマップに描いてライティングの、元にする（[Using the Sky for Lighting](sky-lighting.md)） |
 
 ## よくあるミス
 

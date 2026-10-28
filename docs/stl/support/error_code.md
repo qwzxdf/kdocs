@@ -162,7 +162,7 @@ std::strong_ordering operator<=>(const error_code& lhs, const error_code& rhs) n
 
 | 場面 | 書き方 |
 | --- | --- |
-| ファイル操作の失敗を、例外なしで受け取る | `std::filesystem::exists(path, ec)` |
+| ファイル操作の失敗を例外なしで受け取る | `std::filesystem::exists(path, ec)` |
 
 ## よくあるミス
 

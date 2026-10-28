@@ -73,7 +73,7 @@ difference_type position(size_type n = 0) const;
 
 - 計算量: 定数
 
-n 番目のグループが、元の文字列の何文字目から始まるか。
+n 番目のグループが元の文字列の何文字目から始まるか。
 
 ### str {#str}
 
@@ -143,7 +143,7 @@ string_type format(const string_type& fmt) const;
 
 - 計算量: O(長さ)
 
-`$1` や `$&` を含む書式文字列に、一致の結果を埋め込んだ文字列を返します。
+`$1` や `$&` を含む書式文字列に一致の結果を埋め込んだ文字列を返します。
 
 ### ready {#ready}
 

@@ -23,7 +23,7 @@ tags:
 
 ## 形状の選び方
 
-<svg class="fig" viewBox="0 0 620 210" role="img" aria-label="当たり判定の形"><defs><marker id="c1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">コライダー（当たり判定の形）：複雑なモデルを、単純な形で近似する</text><circle cx="80" cy="110" r="44" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2"/><text x="45" y="190">球（最速）</text><rect x="170" y="70" width="90" height="80" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2"/><text x="165" y="190">AABB（軸に平行）</text><rect x="330" y="75" width="90" height="60" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2" transform="rotate(25 375 105)"/><text x="325" y="190">OBB（回転した箱）</text><rect x="490" y="65" width="50" height="100" rx="25" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2"/><line x1="515" y1="90" x2="515" y2="140" stroke="currentColor" stroke-dasharray="3 3"/><text x="480" y="190">カプセル（人型）</text></svg>
+<svg class="fig" viewBox="0 0 620 210" role="img" aria-label="当たり判定の形"><defs><marker id="c1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">コライダー（当たり判定の形）：複雑なモデルを単純な形で近似する</text><circle cx="80" cy="110" r="44" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2"/><text x="45" y="190">球（最速）</text><rect x="170" y="70" width="90" height="80" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2"/><text x="165" y="190">AABB（軸に平行）</text><rect x="330" y="75" width="90" height="60" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2" transform="rotate(25 375 105)"/><text x="325" y="190">OBB（回転した箱）</text><rect x="490" y="65" width="50" height="100" rx="25" fill="rgba(76,139,245,0.2)" stroke="currentColor" stroke-width="2"/><line x1="515" y1="90" x2="515" y2="140" stroke="currentColor" stroke-dasharray="3 3"/><text x="480" y="190">カプセル（人型）</text></svg>
 
 | 形状 | クラス | 速さ | 向いているもの |
 | --- | --- | --- | --- |
@@ -65,7 +65,7 @@ BoundingSphere sphere;
 BoundingSphere::CreateFromPoints(sphere, vertices.size(), &vertices[0].position, sizeof(Vertex));
 ```
 
-メッシュの頂点から、ぴったりの境界を求められます。モデル読み込み時に、1 回計算します。
+メッシュの頂点から、ぴったりの境界を求められます。モデル読み込み時に 1 回計算します。
 
 ### 判定
 
@@ -235,16 +235,16 @@ l b w hit 前→今の位置にレイ
 
 ## よくあるミス
 
-??? failure "AABB のサイズを、幅で渡してしまう"
+??? failure "AABB のサイズを幅で渡してしまう"
     `BoundingBox` の第 2 引数は、**半分の大きさ**（`Extents`）です。
 
-??? failure "ローカルの境界を、そのまま使って、当たらない"
+??? failure "ローカルの境界をそのまま使って、当たらない"
     `Transform` で、ワールド空間に変換してから判定します。
 
 ??? failure "回転した物体の AABB が、大きすぎる"
     回転すると軸に平行な箱は、大きくなります。OBB・カプセルを使います。
 
-??? failure "弾が、壁を通り抜ける"
+??? failure "弾が壁を通り抜ける"
     トンネリングです。レイキャストやサブステップを使います。
 
 ??? failure "全物体の総当たりで、重い"

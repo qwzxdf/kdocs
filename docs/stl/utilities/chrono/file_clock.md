@@ -48,7 +48,7 @@ int main() {
   namespace fs = std::filesystem;
   using namespace std::chrono;
 
-  // ファイルの更新日時を、system_clock に変換して表示する例
+  // ファイルの更新日時を system_clock に変換して表示する例
   auto ft = fs::last_write_time("main.cpp");
   auto st = clock_cast<system_clock>(ft);
   std::println("{:%F %T}", floor<seconds>(st));

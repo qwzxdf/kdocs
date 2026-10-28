@@ -14,7 +14,7 @@ tags:
 `#include <format>`
 </div>
 
-自作の型を `std::format` に対応させるとき、`formatter<T>::parse` が受け取るのが `format_parse_context` です。`{:` の後ろの書式指定（`.2f` など）を、`begin()` から `end()` の範囲で読み取り、解析した位置を `parse` の戻り値で返します。
+自作の型を `std::format` に対応させるとき、`formatter<T>::parse` が受け取るのが `format_parse_context` です。`{:` の後ろの書式指定（`.2f` など）を `begin()` から `end()` の範囲で読み取り、解析した位置を `parse` の戻り値で返します。
 
 !!! tip "ポイント"
     - `<format>` の部品。

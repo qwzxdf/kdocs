@@ -6,7 +6,7 @@ tags:
 
 # 同期とデバッグ
 
-GPU Driven は、<strong>「GPU が書いたものを、GPU が読む」</strong>処理の連続です。D3D12 は、リソースの状態遷移・フェンス・メモリの寿命をアプリが管理するのでここを間違えると描画が欠ける・たまに壊れる・デバイスが消えるといった、再現しにくい不具合になります。このページでは、フレームごとのバリアの全体像・フレーム リングとフェンス・デバッグ レイヤーと GPU ベース検証・PIX・統計の読み戻し・典型的な事故とチェックリストを、実コードで説明します。
+GPU Driven は、<strong>「GPU が書いたものを GPU が読む」</strong>処理の連続です。D3D12 は、リソースの状態遷移・フェンス・メモリの寿命をアプリが管理するのでここを間違えると描画が欠ける・たまに壊れる・デバイスが消えるといった、再現しにくい不具合になります。このページでは、フレームごとのバリアの全体像・フレーム リングとフェンス・デバッグ レイヤーと GPU ベース検証・PIX・統計の読み戻し・典型的な事故とチェックリストを実コードで説明します。
 
 !!! tip "ポイント"
     - <strong>GPU が書く → GPU が読む</strong>の<strong>間には必ずバリア</strong>。UAV 書き込み → INDIRECT_ARGUMENT は状態遷移。
@@ -23,7 +23,7 @@ GPU Driven は、<strong>「GPU が書いたものを、GPU が読む」</strong
 
 ## 1 フレームのバリア一覧
 
-**GPU Driven の 1 フレーム**で、各リソースがどの状態を行き来するかを、表にします。
+**GPU Driven の 1 フレーム**で、各リソースがどの状態を行き来するかを表にします。
 
 | リソース | 状態の遷移 |
 | --- | --- |
@@ -70,7 +70,7 @@ class TrackedResource {
 
 ### バリアをまとめる
 
-`ResourceBarrier` は、複数のバリアを、1 回の呼び出しにまとめられます。バリアごとに GPU がパイプラインを待つので、まとめるほうが効率的です（[GPU プロファイラの読み方](../tools.md)）。
+`ResourceBarrier` は、複数のバリアを 1 回の呼び出しにまとめられます。バリアごとに GPU がパイプラインを待つので、まとめるほうが効率的です（[GPU プロファイラの読み方](../tools.md)）。
 
 ```cpp
 CD3DX12_RESOURCE_BARRIER barriers[2] = {
@@ -87,14 +87,14 @@ list->ResourceBarrier(_countof(barriers), barriers);
 | <strong>状態遷移バリア（Transition）</strong> | リソースの「使い方」が変わるとき（UAV → INDIRECT_ARGUMENT など） |
 | UAV バリア | 同じ UAV 状態のまま、前の書き込みを次の読み書きの前に完了させる（ディスパッチ同士の順序保証） |
 
-UAV で書いたバッファを、別のディスパッチが UAV で読む場合は、UAV バリアです。UAV で書いたバッファを、ExecuteIndirect が読む場合は、状態遷移（UAV → INDIRECT_ARGUMENT）です。
+UAV で書いたバッファを別のディスパッチが UAV で読む場合は、UAV バリアです。UAV で書いたバッファを ExecuteIndirect が読む場合は、状態遷移（UAV → INDIRECT_ARGUMENT）です。
 
 !!! note "Enhanced Barriers"
     新しい API「Enhanced Barriers」（`ID3D12GraphicsCommandList7::Barrier`、Agility SDK）は、同期点・アクセス・レイアウトを細かく指定でき、従来の状態遷移より、柔軟で効率的です。新規に書くなら、検討する価値がありますが、このパートは広く使われている従来のバリアで書いています。
 
 ## フレーム リングとフェンス
 
-**CPU は GPU より先に進み**、数フレーム先のコマンドを積みます。GPU がまだ使っているリソース（アップロード バッファ・コマンド アロケータ）を、CPU が上書きしないように、フェンスで同期します。
+**CPU は GPU より先に進み**、数フレーム先のコマンドを積みます。GPU がまだ使っているリソース（アップロード バッファ・コマンド アロケータ）を CPU が上書きしないように、フェンスで同期します。
 
 ```cpp
 void Renderer::WaitForFrame(uint32_t frame_index) {
@@ -119,7 +119,7 @@ void Renderer::EndFrame() {
 
 | 点 | 説明 |
 | --- | --- |
-| `fence_value` | そのフレームのコマンドが、完了したときの値 |
+| `fence_value` | そのフレームのコマンドが完了したときの値 |
 | `WaitForFrame` | これから使うフレームの、前回のコマンドが完了するまで待つ |
 | `SetEventOnCompletion` | 指定の値に達したら、イベントを立てる。`WaitForSingleObject` で待つ |
 | `CollectGarbage` | 遅延解放した記述子を完了済みのフェンス値で回収（[バインドレス](bindless.md)） |
@@ -138,7 +138,7 @@ GPU がまだ実行しているアロケータを `Reset` すると、未定義�
 
 ## デバッグ レイヤーと GPU ベース検証
 
-**開発中はデバッグ レイヤーを必ず有効にします**。状態遷移の誤り・リソースの不正な使用を、メッセージで報告してくれます。
+**開発中はデバッグ レイヤーを必ず有効にします**。状態遷移の誤り・リソースの不正な使用をメッセージで報告してくれます。
 
 ```cpp
 #if defined(_DEBUG)
@@ -172,7 +172,7 @@ ExecuteIndirect 関連では、引数バッファの状態が `INDIRECT_ARGUMENT
 
 ### DRED（デバイス消失の原因追跡）
 
-GPU がクラッシュ（デバイス消失）したとき、DRED（Device Removed Extended Data）が、どのコマンドで落ちたかを教えます。
+GPU がクラッシュ（デバイス消失）したとき、DRED（Device Removed Extended Data）がどのコマンドで落ちたかを教えます。
 
 ```cpp
 ComPtr<ID3D12DeviceRemovedExtendedDataSettings> dred_settings;
@@ -182,7 +182,7 @@ if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&dred_settings)))) {
 }
 ```
 
-GPU Driven は、シェーダーが GPU メモリを自由に読み書きするので、範囲外アクセスでデバイスが消えることがあります。DRED のページ フォルト情報が、原因のリソースを絞るのに役立ちます。
+GPU Driven は、シェーダーが GPU メモリを自由に読み書きするので、範囲外アクセスでデバイスが消えることがあります。DRED のページ フォルト情報が原因のリソースを絞るのに役立ちます。
 
 ## PIX でバッファを見る
 
@@ -192,7 +192,7 @@ GPU Driven は、シェーダーが GPU メモリを自由に読み書きする�
 | --- | --- |
 | カウント バッファ | カリング後の個数が想定どおりか（0 ばかり・上限に張り付く） |
 | コマンド バッファ | `IndirectCommand` の中身（`instance_index`・`index_count`・`start_index`）が妥当か |
-| インスタンス バッファ | アップロードしたデータが、化けていないか |
+| インスタンス バッファ | アップロードしたデータが化けていないか |
 | Hi-Z | ミップが正しく縮小されているか（画像として見る） |
 | ExecuteIndirect | PIX は間接描画の個々のコマンドに展開して、表示する |
 | GPU タイミング | カリング・Hi-Z・描画の各パスの時間 |
@@ -258,7 +258,7 @@ std::array<uint32_t, kBucketCount> Renderer::ReadCounts(uint32_t frame_index) {
 
 | 順序 | 内容 |
 | --- | --- |
-| **① まずカリング無しで** | 全インスタンスを、ExecuteIndirect で描く（コマンド生成だけ確認） |
+| **① まずカリング無しで** | 全インスタンスを ExecuteIndirect で描く（コマンド生成だけ確認） |
 | ② 視錐台カリングを追加 | PIX でカウントを確認。意図的にカメラを動かして検証 |
 | ③ バインドレス | テクスチャが正しく引かれるか |
 | ④ バケット | PSO ごとに分けて、描画 |

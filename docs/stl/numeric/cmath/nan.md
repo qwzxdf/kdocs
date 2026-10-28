@@ -68,7 +68,7 @@ x == x          = false
 
 ## ゲームでの使いどころ
 
-デバッグ中に、NaN の種類を区別して発生源を探る、という限られた使い方があります。通常は、`numeric_limits<double>::quiet_NaN()` で足ります。
+デバッグ中に NaN の種類を区別して発生源を探る、という限られた使い方があります。通常は、`numeric_limits<double>::quiet_NaN()` で足ります。
 
 ## よくあるミス
 

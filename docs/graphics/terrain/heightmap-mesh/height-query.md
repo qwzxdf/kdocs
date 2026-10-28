@@ -57,8 +57,8 @@ float SampleHeight(const HeightMap& map, float world_x, float world_z) {
 <defs><marker id="arr-bilinear-height" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">好きな位置の高さ: 周りの 4 つの高さを、距離で混ぜる(バイリニア)。最も近い 1 点だと、階段になる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">なだらかな坂の上に、キャラクターが歩く。高さマップは 1 マス = 1 m。1 マスの途中の位置で、2 つの方法の高さを比べる</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">好きな位置の高さ: 周りの 4 つの高さを距離で混ぜる(バイリニア)。最も近い 1 点だと、階段になる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">なだらかな坂の上にキャラクターが歩く。高さマップは 1 マス = 1 m。1 マスの途中の位置で、2 つの方法の高さを比べる</text>
 <rect x="30" y="96" width="900" height="260" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">歩いた線に沿った高さ</text>
 <path d="M60.0,310.91 L76.8,304.84 L93.6,299.13 L110.4,293.82 L127.2,288.93 L144.0,284.5 L160.8,280.54 L177.6,277.07 L194.4,274.08 L211.2,271.57 L228.0,269.54 L244.8,267.95 L261.6,266.78 L278.4,266.01 L295.2,265.57 L312.0,265.44 L328.8,265.55 L345.6,265.87 L362.4,266.31 L379.2,266.84 L396.0,267.38 L412.8,267.88 L429.6,268.28 L446.4,268.52 L463.2,268.54 L480.0,268.29 L496.8,267.73 L513.6,266.82 L530.4,265.52 L547.2,263.8 L564.0,261.64 L580.8,259.02 L597.6,255.95 L614.4,252.41 L631.2,248.41 L648.0,243.98 L664.8,239.14 L681.6,233.9 L698.4,228.31 L715.2,222.41 L732.0,216.25 L748.8,209.87 L765.6,203.32 L782.4,196.67 L799.2,189.97 L816.0,183.27 L832.8,176.64 L849.6,170.12 L866.4,163.78 L883.2,157.66 L900.0,151.81" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="6 5"/>
@@ -79,26 +79,26 @@ float SampleHeight(const HeightMap& map, float world_x, float world_z) {
 <text x="340" y="396" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">(最近点 → バイリニア)</text>
 <g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6807;0.6809;1.0000" values="0;0;1;1"/><rect x="40" y="420" width="880" height="90" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="56" y="444" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">ずれの平均: 最も近い 1 点 13.2 cm → バイリニア 2.5 cm</text>
-<text x="56" y="468" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">最も近い 1 点だと、1 m ごとに、階段状に段差。キャラが、ガクガク上下する</text>
-<text x="56" y="490" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">バイリニアは、4 回読むだけで、なめらか。当たり判定・接地・草の根元に、使う</text>
+<text x="56" y="468" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">最も近い 1 点だと、1 m ごとに、階段状に段差。キャラがガクガク上下する</text>
+<text x="56" y="490" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">バイリニアは、4 回読むだけで、なめらか。当たり判定・接地・草の根元に使う</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">高さマップは、整数の格子点にしか、高さが無い<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">最も近い格子点の高さを使うと、階段になる<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;0.3828;0.3830;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">周りの 4 点を、距離で混ぜると、なめらかな坂になる<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3828;0.3830;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">周りの 4 点を距離で混ぜると、なめらかな坂になる<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.3828;0.3830;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:bilinear-height:end -->
 
 ## 双線形補間は描画のメッシュとずれる
 
-上の `SampleHeight` は 4 点から <strong>双線形補間</strong>で、高さを求めます。ところが、描画される地形は 格子のマスを、2 枚の三角形に分けた折れ曲がった面です。双線形補間の面は曲がった面（双曲放物面）で、三角形の平面とは違います。
+上の `SampleHeight` は 4 点から <strong>双線形補間</strong>で、高さを求めます。ところが、描画される地形は 格子のマスを 2 枚の三角形に分けた折れ曲がった面です。双線形補間の面は曲がった面（双曲放物面）で、三角形の平面とは違います。
 
 | 方式 | 面の形 | 描画との一致 |
 | --- | --- | --- |
 | 双線形補間 | 4 点を通る、曲面 | マスの中心でずれる |
 | 三角形で補間（重心座標） | 2 枚の平面 | 描画のメッシュと、完全に一致 |
 
-ずれはわずかですが 足が地面に、めり込んだり浮いたりします。特に、急な斜面や高さマップの解像度が、粗い場合は目立ちます。キャラクターの足や物の接地には、メッシュと同じ三角形で補間する必要があります。
+ずれはわずかですが 足が地面にめり込んだり浮いたりします。特に、急な斜面や高さマップの解像度が粗い場合は目立ちます。キャラクターの足や物の接地には、メッシュと同じ三角形で補間する必要があります。
 
 ## 三角形に合わせた補間
 
@@ -120,7 +120,7 @@ float InterpolateTriangle(float h00, float h10, float h01, float h11,
   if (diagonal_a) {
 ```
 
-関数の入口です。マスの 4 隅の高さとマスの中での位置 `(fx, fz)`（0〜1）、そしてこのマスの対角線がどちらかを、受け取ります。メッシュはマスを 2 枚の三角形に、割っているので高さも 三角形の平面で、補間しないと見た目の地面とずれます（双一次補間だと、曲面になってメッシュと一致しません）。
+関数の入口です。マスの 4 隅の高さとマスの中での位置 `(fx, fz)`（0〜1）、そしてこのマスの対角線がどちらかを受け取ります。メッシュはマスを 2 枚の三角形に割っているので高さも 三角形の平面で、補間しないと見た目の地面とずれます（双一次補間だと、曲面になってメッシュと一致しません）。
 
 ```cpp
     // 対角線 a−d。a, c, d の三角形（左下側）と、a, d, b の三角形（右上側）
@@ -134,7 +134,7 @@ float InterpolateTriangle(float h00, float h10, float h01, float h11,
   } else {
 ```
 
-対角線が左上 a と右下 d を、結ぶときマスは左下側（a、c、d）と右上側（a、d、b）に割れます。`fx <= fz` なら点は左下側にあります。どちらも、基準の頂点の高さに 2 方向への傾きを、足すだけの平面の式です。
+対角線が左上 a と右下 d を結ぶときマスは左下側（a、c、d）と右上側（a、d、b）に割れます。`fx <= fz` なら点は左下側にあります。どちらも、基準の頂点の高さに 2 方向への傾きを足すだけの平面の式です。
 
 ```cpp
     // 対角線 b−c。a, c, b の三角形（左上側）と、b, c, d の三角形（右下側）
@@ -149,7 +149,7 @@ float InterpolateTriangle(float h00, float h10, float h01, float h11,
 }
 ```
 
-対角線が右上 b と左下 c を、結ぶときは `fx + fz <= 1` が左上側（a、c、b）と右下側（b、c、d）の境目です。右下側は d を基準にして `1 − fx`、`1 − fz` 方向に足します。
+対角線が右上 b と左下 c を結ぶときは `fx + fz <= 1` が左上側（a、c、b）と右下側（b、c、d）の境目です。右下側は d を基準にして `1 − fx`、`1 − fz` 方向に足します。
 
 ```cpp
 float SampleHeightMatchingMesh(const HeightMap& map, float world_x, float world_z) {
@@ -165,7 +165,7 @@ float SampleHeightMatchingMesh(const HeightMap& map, float world_x, float world_
   const float fx = u - x0, fz = v - z0;
 ```
 
-対角線の向きはメッシュを作ったときと、同じ規則（市松）で決めます。ここがメッシュと食い違うと高さが、半マスぶんずれます（[Grid Mesh](grid-mesh.md)）。最後に、4 隅の高さを読んで先ほどの関数に、渡します。
+対角線の向きはメッシュを作ったときと、同じ規則（市松）で決めます。ここがメッシュと食い違うと高さが、半マスぶんずれます（[Grid Mesh](grid-mesh.md)）。最後に、4 隅の高さを読んで先ほどの関数に渡します。
 
 ```cpp
   const bool diagonal_a = ((x0 + z0) & 1) == 0;       // 市松の貼り方と、同じ規則
@@ -179,7 +179,7 @@ float SampleHeightMatchingMesh(const HeightMap& map, float world_x, float world_
 
 ## 法線も同じ三角形から
 
-高さと同じ三角形から <strong>面の法線</strong>も、求められます。足を斜面に合わせて傾けるキャラクターを、斜面に沿って滑らせるときに使います。
+高さと同じ三角形から <strong>面の法線</strong>も、求められます。足を斜面に合わせて傾けるキャラクターを斜面に沿って滑らせるときに使います。
 
 ```cpp
 float3 NormalAt(const HeightMap& map, float world_x, float world_z) {
@@ -195,7 +195,7 @@ float3 NormalAt(const HeightMap& map, float world_x, float world_z) {
 
 ## レイと地形の交差
 
-「画面をクリックした場所の地面」「弾が、地面に当たる位置」を求めるには、<strong>レイと高さ場の交差</strong>を調べます。
+「画面をクリックした場所の地面」「弾が地面に当たる位置」を求めるには、<strong>レイと高さ場の交差</strong>を調べます。
 
 ### ① 一定の歩幅で進む（レイマーチ）
 
@@ -218,7 +218,7 @@ bool RaycastTerrain(const HeightMap& map, float3 origin, float3 dir, float max_d
     if (diff < 0.0f && prev_diff >= 0.0f) {
 ```
 
-一定の歩幅 `step` で進みます。`diff` が正から負に変わった瞬間が地面に、入ったときです。
+一定の歩幅 `step` で進みます。`diff` が正から負に変わった瞬間が地面に入ったときです。
 
 ```cpp
       // 地面の下に入った。直前の位置との間で、二分探索して、交点を絞り込む。
@@ -242,7 +242,7 @@ bool RaycastTerrain(const HeightMap& map, float3 origin, float3 dir, float max_d
 }
 ```
 
-歩幅が大きいと 細い尾根を飛び越えて、取りこぼします。小さいと遅くなります。歩幅は格子の間隔の半分以下が、目安です。
+歩幅が大きいと 細い尾根を飛び越えて、取りこぼします。小さいと遅くなります。歩幅は格子の間隔の半分以下が目安です。
 
 ### ② マスを 1 つずつ進む（DDA）
 
@@ -250,15 +250,15 @@ Amanatides と Woo（1987）の方法で、レイが通る マスだけを 1 つ
 
 | 方式 | 取りこぼし | 速さ | 実装 |
 | --- | --- | --- | --- |
-| 一定の歩幅 | 出ることがある | 歩幅が、小さいと遅い | 簡単 |
+| 一定の歩幅 | 出ることがある | 歩幅が小さいと遅い | 簡単 |
 | マスを 1 つずつ（DDA） | ない | 速い | やや複雑 |
-| 四分木の最大高さで枝刈り | ない | 長いレイで、特に速い | 複雑（最大高さのミップが、必要） |
+| 四分木の最大高さで枝刈り | ない | 長いレイで、特に速い | 複雑（最大高さのミップが必要） |
 
-長距離（狙撃、視線チェック）では 最大高さのミップ（[Heightmap LOD (Mips)](../lod/height-mip.md)）で、「このブロックの上をレイが通過するか」を、先に判定して 大きく飛ばすと、速くなります。
+長距離（狙撃、視線チェック）では 最大高さのミップ（[Heightmap LOD (Mips)](../lod/height-mip.md)）で、「このブロックの上をレイが通過するか」を先に判定して 大きく飛ばすと、速くなります。
 
 ## 物理エンジンの高さ場
 
-物理エンジンも地形の当たり判定に使える<strong>高さ場（heightfield）の形状</strong>を、持っています（PhysX、Jolt など）。
+物理エンジンも地形の当たり判定に使える<strong>高さ場（heightfield）の形状</strong>を持っています（PhysX、Jolt など）。
 
 | 項目 | 内容 |
 | --- | --- |
@@ -267,19 +267,19 @@ Amanatides と Woo（1987）の方法で、レイが通る マスだけを 1 つ
 | 更新 | 地形を変形したら、高さ場の該当範囲を更新する |
 | 穴 | 洞窟の入口などの穴は、材質の ID に穴を表す値を持たせて、表現する（エンジンによる） |
 
-物理エンジンが独自の補間を使う場合、自分で同じ補間を実装して見た目を、合わせるのが無難です。
+物理エンジンが独自の補間を使う場合、自分で同じ補間を実装して見た目を合わせるのが無難です。
 
 ## 範囲外と穴
 
 | 場合 | 扱い |
 | --- | --- |
-| 地形の外 | `clamp` で端の高さを、そのまま使う。または、「地面がない」を返す |
+| 地形の外 | `clamp` で端の高さをそのまま使う。または、「地面がない」を返す |
 | 穴（洞窟の入口） | 穴の画素は `NaN` や、特別な値で表す。高さの補間で穴の境目が混ざらないように、4 点のどれかが穴ならその三角形は、穴として扱う |
-| チャンクの境界 | 隣のチャンクを、読み込んでいない間は境界の画素を両側が、同じ値で持つ（[Chunking](chunks.md)） |
+| チャンクの境界 | 隣のチャンクを読み込んでいない間は境界の画素を両側が同じ値で持つ（[Chunking](chunks.md)） |
 
 ## よくあるミス
 
-??? failure "キャラクターが、地面にめり込む・浮く"
+??? failure "キャラクターが地面にめり込む・浮く"
     <strong>描画と同じ補間方法</strong>で高さを求める。
 
 ## これだけ覚える

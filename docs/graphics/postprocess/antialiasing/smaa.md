@@ -27,7 +27,7 @@ tags:
 <text x="20" y="26" class="fig-title">SMAA：3 つのパス</text>
 <defs><marker id="sm-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs>
 <g font-size="13">
-<rect x="20" y="56" width="210" height="100" rx="8" fill="#4c8bf5" fill-opacity="0.18" stroke="#4c8bf5" stroke-width="2"/><text x="125" y="86" text-anchor="middle" style="font-weight:700">① 縁の検出</text><text x="125" y="110" text-anchor="middle" style="font-size:11px">輝度の差が大きい画素に、</text><text x="125" y="126" text-anchor="middle" style="font-size:11px">左・上の縁フラグを立てる</text><text x="125" y="144" text-anchor="middle" style="font-size:11px">出力：縁テクスチャ（RG）</text>
+<rect x="20" y="56" width="210" height="100" rx="8" fill="#4c8bf5" fill-opacity="0.18" stroke="#4c8bf5" stroke-width="2"/><text x="125" y="86" text-anchor="middle" style="font-weight:700">① 縁の検出</text><text x="125" y="110" text-anchor="middle" style="font-size:11px">輝度の差が大きい画素に </text><text x="125" y="126" text-anchor="middle" style="font-size:11px">左・上の縁フラグを立てる</text><text x="125" y="144" text-anchor="middle" style="font-size:11px">出力：縁テクスチャ（RG）</text>
 <rect x="285" y="56" width="210" height="100" rx="8" fill="#e5aa28" fill-opacity="0.2" stroke="#e5aa28" stroke-width="2"/><text x="390" y="86" text-anchor="middle" style="font-weight:700">② ブレンドの重み</text><text x="390" y="110" text-anchor="middle" style="font-size:11px">縁の形（L・Z・U など）を</text><text x="390" y="126" text-anchor="middle" style="font-size:11px">分類して、重みを計算</text><text x="390" y="144" text-anchor="middle" style="font-size:11px">出力：重みテクスチャ（RGBA）</text>
 <rect x="550" y="56" width="210" height="100" rx="8" fill="#2ea043" fill-opacity="0.18" stroke="#2ea043" stroke-width="2"/><text x="655" y="86" text-anchor="middle" style="font-weight:700">③ 近傍ブレンド</text><text x="655" y="110" text-anchor="middle" style="font-size:11px">重みに従って、</text><text x="655" y="126" text-anchor="middle" style="font-size:11px">元の画像の隣の画素と混ぜる</text><text x="655" y="144" text-anchor="middle" style="font-size:11px">出力：AA 済みの画像</text>
 </g>
@@ -83,7 +83,7 @@ float2 EdgeDetection(float2 uv) {
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">SMAA: 縁を見つけ、階段の長さを調べて、画素ごとに、混ぜる割合を決める</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">緩い傾き(1/6)の縁。階段の 1 段が 6 画素。画素ごとに、縁の上下の色を、面積の割合で混ぜる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">緩い傾き(1/6)の縁。階段の 1 段が 6 画素。画素ごとに、縁の上下の色を面積の割合で混ぜる</text>
 <rect x="30" y="100" width="300.0" height="100.0" fill="#ffffff" stroke="#64748b" stroke-width="1.8" rx="6"/>
 <text x="30" y="90" text-anchor="start" style="font-size:15px;font-weight:700;fill:#64748b">① 入力(階段)</text>
 <rect x="30.0" y="100.0" width="12.8" height="12.8" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#e5e7eb;#f2f2f2"/></rect>
@@ -722,7 +722,7 @@ float2 EdgeDetection(float2 uv) {
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5554;0.5556;1.0000" values="0;0;1;1"/><rect x="30" y="436" width="900" height="76" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="46" y="460" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">正解とのずれ(平均): 入力 0.025 → SMAA 0.007</text>
 <text x="46" y="484" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">手順: 縁を見つける → 階段の長さを数える → 長さと位置から、混ぜる割合(面積)を決める → 隣の画素と混ぜる</text>
-<text x="46" y="505" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">ぼかさず、縁の画素だけを、面積に合わせて混ぜる</text>
+<text x="46" y="505" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">ぼかさず、縁の画素だけを面積に合わせて混ぜる</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ジャギーは、階段の形<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">輝度の差から、縁の画素に印を付け、階段の長さを調べる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.3332;0.3333;1.0000" values="0;0;1;1;0;0"/></text>
@@ -786,14 +786,14 @@ float4 NeighborhoodBlending(float2 uv) {
 ??? failure "Area・Search テクスチャを自作して、縁がおかしい"
     <strong>公開されているテクスチャ・データをそのまま使う</strong>。
 
-??? failure "縁テクスチャを、sRGB 形式で作って、値がずれる"
+??? failure "縁テクスチャを sRGB 形式で作って、値がずれる"
     UNORM（リニア）で作る。
 
 ??? failure "HDR のまま SMAA を掛けて、縁の検出が不安定"
     LDR（トーンマップ後）で行う。
 
-??? failure "テクスチャの細部が、縁と誤検出されて、ぼやける"
-    しきい値を上げる、局所コントラスト適応を有効に、深度で検出する。
+??? failure "テクスチャの細部が縁と誤検出されて、ぼやける"
+    しきい値を上げる、局所コントラスト適応を有効に深度で検出する。
 
 ## これだけ覚える
 

@@ -6,7 +6,7 @@ tags:
 
 # コンピュート カリングと描画コマンド生成
 
-GPU Driven の心臓部です。**コンピュート シェーダーが、全インスタンスを 1 つずつ判定**し、見えるものだけを、`ExecuteIndirect` が読む形式の「描画コマンド」としてバッファに書き出します。このページでは、視錐台の平面の求め方（行ベクトル・左手系・D3D の深度範囲）・境界球の判定・原子的な追加（ストリーム コンパクション）・PSO バケット・カウンタのリセット・ディスパッチ・バリアを実コードで示します。
+GPU Driven の心臓部です。**コンピュート シェーダーが全インスタンスを 1 つずつ判定**し、見えるものだけを `ExecuteIndirect` が読む形式の「描画コマンド」としてバッファに書き出します。このページでは、視錐台の平面の求め方（行ベクトル・左手系・D3D の深度範囲）・境界球の判定・原子的な追加（ストリーム コンパクション）・PSO バケット・カウンタのリセット・ディスパッチ・バリアを実コードで示します。
 
 !!! tip "ポイント"
     - <strong>1 スレッド ＝ 1 インスタンス</strong>。<strong>64 スレッド</strong>のグループでディスパッチ。
@@ -95,7 +95,7 @@ cbuffer CullConstants : register(b0) {
 };
 ```
 
-**定数バッファは、毎フレーム値が変わる**ので、[アップロード リング](scene-data.md)に書き、GPU 仮想アドレスを、ルート CBV に渡します（256 バイト境界に揃える）。
+**定数バッファは、毎フレーム値が変わる**ので、[アップロード リング](scene-data.md)に書き、GPU 仮想アドレスをルート CBV に渡します（256 バイト境界に揃える）。
 
 ## カリング シェーダー
 
@@ -164,7 +164,7 @@ void CullMain(uint3 id : SV_DispatchThreadID) {
 
 ### スレッドの順序は不定
 
-`InterlockedAdd` で出力位置を取るので、コマンドが書かれる順序は、実行のたびに変わります。不透明の描画では、順序は問題ない（深度テストで解決）が、半透明（ソートが必要）には使えません（別の方法：キー付きソート）。
+`InterlockedAdd` で出力位置を取るので、コマンドが書かれる順序は、実行のたびに変わります。不透明の描画では、順序は問題ない（深度テストで解決）が半透明（ソートが必要）には使えません（別の方法：キー付きソート）。
 
 ## 同じメッシュをまとめる（インスタンシング）
 
@@ -173,7 +173,7 @@ void CullMain(uint3 id : SV_DispatchThreadID) {
 | 方式 | 内容 | 向き |
 | --- | --- | --- |
 | 1 インスタンス = 1 コマンド（本ページ） | 単純。ルート定数にインスタンス番号 | メッシュの種類が多い・実装を単純にしたい |
-| メッシュ単位でまとめる | 見えるインスタンス番号の「リスト」を、メッシュごとに作り、`InstanceCount` ＝ 個数 | 同じメッシュが大量（木・草・岩） |
+| メッシュ単位でまとめる | 見えるインスタンス番号の「リスト」をメッシュごとに作り、`InstanceCount` ＝ 個数 | 同じメッシュが大量（木・草・岩） |
 
 まとめる方式は、2 段階（メッシュごとのカウント → プレフィックス和でオフセット → インスタンス番号を書く）になり、やや複雑です。まず単純な形を作り、ボトルネックならに進むのが現実的です。
 
@@ -292,7 +292,7 @@ uint slot = wave_offset + WavePrefixCountBits(visible);
 <defs><marker id="arr-prefix-compact" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">カリング結果の詰め直し: 見える物の番号を、隙間なく並べる</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">カリング結果の詰め直し: 見える物の番号を隙間なく並べる</text>
 <text x="148" y="121" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">物体の番号</text>
 <text x="148" y="186" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2563eb">見える? (1 = 見える)</text>
 <text x="148" y="251" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2ea043">手前までの合計(出力位置)</text>
@@ -394,7 +394,7 @@ uint slot = wave_offset + WavePrefixCountBits(visible);
     法線の長さで4 成分を割る。
 
 ??? failure "ワールド行列のスケールを無視して、拡大された物が端で消える"
-    境界球の半径に、`MaxScale`を掛ける。
+    境界球の半径に `MaxScale`を掛ける。
 
 ??? failure "カウンタをリセットせず、フレームごとにコマンドが積み上がる"
     毎フレーム、ゼロ コピー（または Clear）をする。

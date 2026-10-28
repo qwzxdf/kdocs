@@ -14,7 +14,7 @@ tags:
 `#include <memory>`
 </div>
 
-`std::allocator_traits<Alloc>` は、**アロケータの機能（確保、解放、構築、破棄）を、足りない関数を自動で補いながら、一様に使えるようにする窓口**です。自作のアロケーターは `allocate` と `deallocate` だけ書けば、残りは `allocator_traits` が補ってくれます。コンテナの内部で、アロケーターを使うときの入口です。
+`std::allocator_traits<Alloc>` は、**アロケータの機能（確保、解放、構築、破棄）を足りない関数を自動で補いながら、一様に使えるようにする窓口**です。自作のアロケーターは `allocate` と `deallocate` だけ書けば、残りは `allocator_traits` が補ってくれます。コンテナの内部で、アロケーターを使うときの入口です。
 
 !!! tip "ポイント"
     - 自作のアロケーターは最低限 `allocate` / `deallocate` と `value_type` だけでよい。
@@ -67,7 +67,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| 自作コンテナを、どんなアロケーターでも使えるようにする | `allocator_traits<Alloc>::allocate(...)` |
+| 自作コンテナをどんなアロケーターでも使えるようにする | `allocator_traits<Alloc>::allocate(...)` |
 
 ## よくあるミス
 

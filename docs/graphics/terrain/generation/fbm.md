@@ -64,8 +64,8 @@ tags:
 <g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.8277;0.8279;1.0000" values="0;0;1;1"/><path d="M650.0,510.26 L652.63,507.69 L655.26,506.23 L657.89,504.44 L660.53,502.91 L663.16,505.56 L665.79,503.46 L668.42,500.53 L671.05,501.92 L673.68,499.92 L676.32,500.0 L678.95,507.27 L681.58,504.83 L684.21,499.25 L686.84,498.38 L689.47,495.46 L692.11,494.29 L694.74,499.63 L697.37,497.6 L700.0,492.73 L702.63,491.3 L705.26,491.74 L707.89,496.46 L710.53,502.67 L713.16,505.94 L715.79,504.02 L718.42,495.9 L721.05,494.26 L723.68,494.77 L726.32,493.43 L728.95,495.39 L731.58,495.96 L734.21,487.71 L736.84,489.78 L739.47,496.47 L742.11,498.95 L744.74,500.49 L747.37,498.67 L750.0,491.15 L752.63,487.3 L755.26,484.64 L757.89,483.6 L760.53,481.51 L763.16,479.34 L765.79,475.63 L768.42,478.58 L771.05,484.03 L773.68,491.61 L776.32,493.96 L778.95,495.28 L781.58,496.94 L784.21,497.16 L786.84,493.79 L789.47,489.47 L792.11,488.09 L794.74,488.76 L797.37,484.61 L800.0,485.54 L802.63,486.39 L805.26,486.32 L807.89,486.26 L810.53,489.63 L813.16,493.64 L815.79,493.24 L818.42,488.01 L821.05,484.96 L823.68,480.15 L826.32,479.75 L828.95,484.58 L831.58,488.89 L834.21,492.15 L836.84,490.47 L839.47,492.63 L842.11,495.58 L844.74,501.89 L847.37,500.63 L850.0,495.42 L852.63,492.22 L855.26,492.39 L857.89,493.18 L860.53,490.53 L863.16,487.93 L865.79,485.85 L868.42,484.34 L871.05,484.94 L873.68,485.83 L876.32,487.31 L878.95,482.13 L881.58,474.52 L884.21,471.26 L886.84,472.4 L889.47,476.65 L892.11,476.5 L894.74,477.38 L897.37,480.22 L900.0,480.81" fill="none" stroke="#2ea043" stroke-width="2.5"/>
 <text x="650" y="466" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">gain 0.70: ざらつき 0.153</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">地形の高さを、ノイズを重ねて作る<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0556;0.0558;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">オクターブを足すほど、大きな起伏の上に、細かい起伏が乗る<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0556;0.0558;0.6417;0.6419;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">地形の高さをノイズを重ねて作る<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0556;0.0558;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">オクターブを足すほど、大きな起伏の上に細かい起伏が乗る<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0556;0.0558;0.6417;0.6419;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">gain が小さいと滑らか、大きいとざらつく。オクターブの数だけ、計算が増える<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6417;0.6419;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -109,7 +109,7 @@ float Fbm(float2 p, int octaves, float lacunarity, float gain) {
 
 ## fBm とは何を足しているのか
 
-fBm（fractional Brownian motion、分数ブラウン運動）はもともとは、確率過程の名前です（Mandelbrot と Van Ness、1968）。地形の分野では <strong>「周波数が 2 倍になるたびに振幅が、一定の割合で小さくなるノイズの重ね合わせ」</strong>という意味で使います。
+fBm（fractional Brownian motion、分数ブラウン運動）はもともとは、確率過程の名前です（Mandelbrot と Van Ness、1968）。地形の分野では <strong>「周波数が 2 倍になるたびに振幅が一定の割合で小さくなるノイズの重ね合わせ」</strong>という意味で使います。
 
 自然の山は大きな起伏の上に小さな起伏があり、その上にまた小さな起伏がある、という自己相似の形をしています。ノイズを 1 つだけ使うと同じ大きさの、なだらかな丘しか作れません。大きさの違うノイズを重ねると、山らしい形になります。
 
@@ -130,8 +130,8 @@ fBm(p) = Σ  gain^i × noise(p × lacunarity^i)         （i = 0, 1, …, octave
 | パラメーター | 一般的な値 | 意味 |
 | --- | --- | --- |
 | `octaves`（オクターブ数） | 4〜8 | 重ねる回数。多いほど細かいが重い |
-| `lacunarity`（空隙度） | 2.0 | 周波数が、毎回何倍になるか |
-| `gain`（持続度、persistence） | 0.5 | 振幅が、毎回何倍になるか |
+| `lacunarity`（空隙度） | 2.0 | 周波数が毎回何倍になるか |
+| `gain`（持続度、persistence） | 0.5 | 振幅が毎回何倍になるか |
 
 ### gain と地形の粗さ
 
@@ -157,7 +157,7 @@ gain = lacunarity^(−H)        （lacunarity = 2 なら、gain = 2^(−H)）
 合計 = (1 − gain^octaves) / (1 − gain)
 ```
 
-`gain = 0.5`、8 オクターブなら約 1.99 です。合計で割って−1〜1（または 0〜1）に、収めるとあとの計算（高さの変換）が、扱いやすくなります。
+`gain = 0.5`、8 オクターブなら約 1.99 です。合計で割って−1〜1（または 0〜1）に収めるとあとの計算（高さの変換）が扱いやすくなります。
 
 ## 勾配ノイズ（Perlin ノイズ）
 
@@ -172,7 +172,7 @@ uint Pcg(uint v) {
 }
 ```
 
-整数のハッシュ（PCG）です。`sin` を使うハッシュは GPU によって結果が、違うので使いません。同じ入力にはどの GPU でも、同じ値を返します。
+整数のハッシュ（PCG）です。`sin` を使うハッシュは GPU によって結果が違うので使いません。同じ入力にはどの GPU でも、同じ値を返します。
 
 ```hlsl
 float2 GradientAt(int2 p, uint seed) {
@@ -182,7 +182,7 @@ float2 GradientAt(int2 p, uint seed) {
 }
 ```
 
-格子点ごとに長さ 1 の勾配（ランダムな向き）を、決めます。向きはハッシュの下位 16 ビットを角度に直して、作ります。
+格子点ごとに長さ 1 の勾配（ランダムな向き）を決めます。向きはハッシュの下位 16 ビットを角度に直して、作ります。
 
 ```hlsl
 float GradientNoise(float2 p, uint seed) {
@@ -205,8 +205,8 @@ float GradientNoise(float2 p, uint seed) {
 
 | 種類 | 内容 | 特徴 |
 | --- | --- | --- |
-| 値ノイズ（value noise） | 格子点に、ランダムな値を置いて補間 | 安いが、格子の形が目立つ |
-| 勾配ノイズ（Perlin） | 格子点に、ランダムな向きを置く | 自然。地形の標準 |
+| 値ノイズ（value noise） | 格子点にランダムな値を置いて補間 | 安いが、格子の形が目立つ |
+| 勾配ノイズ（Perlin） | 格子点にランダムな向きを置く | 自然。地形の標準 |
 | シンプレックス ノイズ | 三角形の格子を使う | 次元が上がっても速い。方向の偏りが少ない |
 
 ## fBm の実装
@@ -226,8 +226,8 @@ float Fbm(float2 p, int octaves, float lacunarity, float gain, uint seed) {
 }
 ```
 
-!!! warning "同じノイズを、そのまま重ねない"
-    オクターブごとに <strong>座標をずらす</strong>か、種（seed）を変えることをします。同じ種で周波数だけを 2 倍にすると、格子点（座標 0）ですべてのオクターブが、同時に 0 になり原点の周りに、模様の偏りが出ます。
+!!! warning "同じノイズをそのまま重ねない"
+    オクターブごとに <strong>座標をずらす</strong>か、種（seed）を変えることをします。同じ種で周波数だけを 2 倍にすると、格子点（座標 0）ですべてのオクターブが同時に 0 になり原点の周りに、模様の偏りが出ます。
 
 ## 計算シェーダーで高さマップを作る
 
@@ -249,7 +249,7 @@ cbuffer GenCB : register(b0) {
 [numthreads(8, 8, 1)]
 void main(uint3 id : SV_DispatchThreadID) {
   // ワールド座標で、ノイズを計算する。
-  // 隣のタイルも、同じ式なので、境界が、自動的に、つながる。
+  // 隣のタイルも、同じ式なので、境界が自動的につながる。
   float2 world = world_origin + float2(id.xy) * texel_size;
   float h = Fbm(world * frequency, octaves, lacunarity, gain, seed);
   g_height[id.xy] = h * 0.5 + 0.5;   // 0〜1 にして保存
@@ -261,17 +261,17 @@ void main(uint3 id : SV_DispatchThreadID) {
 context->CSSetShader(noise_cs.Get(), nullptr, 0);
 context->CSSetUnorderedAccessViews(0, 1, height_uav.GetAddressOf(), nullptr);
 context->CSSetConstantBuffers(0, 1, gen_cb.GetAddressOf());
-context->Dispatch(1024 / 8, 1024 / 8, 1);       // 8×8 スレッドのグループを、並べる
+context->Dispatch(1024 / 8, 1024 / 8, 1);       // 8×8 スレッドのグループを並べる
 ```
 
 座標をワールド座標で計算することが、チャンク分割された地形で継ぎ目を作らない、鍵です。タイル内の座標（0〜1）で計算すると、タイルごとに別のノイズになって、境界が合いません。
 
 ## 解析的な微分で侵食らしく見せる
 
-fBm のオクターブごとにノイズの<strong>傾き（勾配）</strong>も同時に計算できます。傾きが急な場所では小さい起伏の振幅を、減らすと 水で削られたように、斜面がなめらかで谷底に細かい起伏が残る地形になります（Quilez）。
+fBm のオクターブごとにノイズの<strong>傾き（勾配）</strong>も同時に計算できます。傾きが急な場所では小さい起伏の振幅を減らすと 水で削られたように、斜面がなめらかで谷底に細かい起伏が残る地形になります（Quilez）。
 
 ```hlsl
-// 勾配ノイズの値と、勾配（2 成分）を、同時に返す。
+// 勾配ノイズの値と、勾配（2 成分）を同時に返す。
 float3 GradientNoiseD(float2 p, uint seed);   // x = 値, yz = 勾配
 
 float FbmEroded(float2 p, int octaves, float lacunarity, float gain, uint seed) {
@@ -281,7 +281,7 @@ float FbmEroded(float2 p, int octaves, float lacunarity, float gain, uint seed) 
   for (int i = 0; i < octaves; ++i) {
     float3 n = GradientNoiseD(p, seed + i);
     slope_sum += n.yz;
-    // 傾きが、これまでに、急になっているほど、このオクターブの寄与を、小さくする。
+    // 傾きが、これまでに、急になっているほど、このオクターブの寄与を小さくする。
     sum += amplitude * n.x / (1.0 + dot(slope_sum, slope_sum));
     p *= lacunarity;
     amplitude *= gain;
@@ -290,20 +290,20 @@ float FbmEroded(float2 p, int octaves, float lacunarity, float gain, uint seed) 
 }
 ```
 
-水の流れのシミュレーションは不要で、1 回のノイズ計算で侵食に似た形が得られます。本格的な侵食（[Erosion](erosion.md)）に比べると谷が、つながっていない点は見破られます。
+水の流れのシミュレーションは不要で、1 回のノイズ計算で侵食に似た形が得られます。本格的な侵食（[Erosion](erosion.md)）に比べると谷がつながっていない点は見破られます。
 
 ## 実装の注意点
 
 | 項目 | 内容 |
 | --- | --- |
 | 精度 | 浮動小数点は座標が大きい（数十 km）と、精度が落ちる。ワールド原点から離れた場所では、タイルの原点を引いてから計算する |
-| オクターブ数 | 画素が、1 テクセル未満になる周波数は、意味がない。テクセルの大きさに合わせて打ち切る |
+| オクターブ数 | 画素が 1 テクセル未満になる周波数は、意味がない。テクセルの大きさに合わせて打ち切る |
 | 再現性 | ハッシュは `sin` ではなく、整数演算（PCG）を使う。GPU が違っても同じ地形になる |
 | 保存 | 高さは 16 ビット（`R16_UNORM`）で保存すると、メモリが半分になる |
 
 ## よくあるミス
 
-??? failure "地形が、のっぺりしている"
+??? failure "地形がのっぺりしている"
     <strong>オクターブを増やす</strong>。
 
 ## これだけ覚える

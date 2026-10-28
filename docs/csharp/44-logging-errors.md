@@ -39,7 +39,7 @@ tags:
 
 - すべての未処理の例外を拾って、ログに残して、利用者に知らせる。
 - ログをファイルに書く（日付ごとに分け、古いものは自動で消す）。
-- ログ パネルを、重大度のフィルター、コピー、クリア付きに改良する。
+- ログ パネルを重大度のフィルター、コピー、クリア付きに改良する。
 - ネイティブのクラッシュのとき、ミニダンプを残す。
 
 ## 未処理の例外を拾う
@@ -177,7 +177,7 @@ public sealed class FileLogWriter : IDisposable
 
 ディスクへの書き込みは遅いので、呼び出し側（UI スレッド、描画スレッド）を待たせないように、専用のスレッドで書きます。スレッド間の受け渡しに使っている `BlockingCollection<T>` は、待ち行列です。`GetConsumingEnumerable()` は、要素が来るまで待ち、`CompleteAdding()` で終わります。「入れる側」と「取り出す側」を別のスレッドにする、定番の部品です。`boundedCapacity`（上限）を付けて、`TryAdd` が満杯のときは捨てることで、ログのためにプログラムを止めないようにしています。
 
-`AutoFlush = true` は、1 行書くたびにディスクへ出す設定です。クラッシュ直前のログが失われません。`FileShare.Read` は、書き込み中のログを、他のプログラム（メモ帳など）が読めるようにします。`{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}` は、補間文字列の中の書式指定です。起動時に、14 日より古いログを消します。
+`AutoFlush = true` は、1 行書くたびにディスクへ出す設定です。クラッシュ直前のログが失われません。`FileShare.Read` は、書き込み中のログを他のプログラム（メモ帳など）が読めるようにします。`{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}` は、補間文字列の中の書式指定です。起動時に 14 日より古いログを消します。
 
 `LogService`（第 18 章）は、これに書くように変えます。
 
@@ -190,7 +190,7 @@ public sealed class LogService : ILogService
     private void Add(LogLevel level, string source, string message)
     {
         _file.Write(level.ToString().ToUpperInvariant(), source, message);     // ファイルへ
-        // …（第 18 章：画面のコレクションへ、UI スレッドで追加）
+        // …（第 18 章：画面のコレクションへ UI スレッドで追加）
     }
 
     public void Info(string message) => Add(LogLevel.Info, "Editor", message);
@@ -237,7 +237,7 @@ public static class CrashReporter
 
 ## ログ パネルを改良する
 
-ログ パネル（第 18 章）に、重大度のフィルター、コピー、クリア、自動スクロールを足します。
+ログ パネル（第 18 章）に重大度のフィルター、コピー、クリア、自動スクロールを足します。
 
 ```csharp
 public class LogViewModel : BindableBase
@@ -356,7 +356,7 @@ MeResult me_install_crash_handler(const char* dump_dir_utf8) {
 }
 ```
 
-`SetUnhandledExceptionFilter` は、どこからも処理されなかった構造化例外（SEH、アクセス違反など）を、最後に受ける関数を登録する Win32 API です。`MiniDumpWriteDump`（`dbghelp.dll`）が、プロセスのメモリ、スレッド、スタックを `.dmp` ファイルに書きます。`MiniDumpWithDataSegs` などは、ダンプに含める情報の指定で、大きくなりすぎない範囲で、役に立つものを選んでいます。`EXCEPTION_EXECUTE_HANDLER` を返すと、例外を処理したことにして、プロセスが終了します。
+`SetUnhandledExceptionFilter` は、どこからも処理されなかった構造化例外（SEH、アクセス違反など）を最後に受ける関数を登録する Win32 API です。`MiniDumpWriteDump`（`dbghelp.dll`）がプロセスのメモリ、スレッド、スタックを `.dmp` ファイルに書きます。`MiniDumpWithDataSegs` などは、ダンプに含める情報の指定で、大きくなりすぎない範囲で、役に立つものを選んでいます。`EXCEPTION_EXECUTE_HANDLER` を返すと、例外を処理したことにして、プロセスが終了します。
 
 限界も知っておいてください。クラッシュ ハンドラーの中は、プロセスが壊れかけています。ヒープを確保する処理（`std::wstring` の連結など）が危険な場合があります。本格的な製品では、別プロセスのクラッシュ ハンドラー（Crashpad、Breakpad、Sentry など）を使います。
 
@@ -376,7 +376,7 @@ NativeMethods.me_install_crash_handler(Path.Combine(
 
 1. `.dmp` を開いて、「混合でデバッグ」（C# と C++ の両方）を押す。
 2. シンボル（`.pdb`）が必要なので、ビルドごとに `.pdb` を保存しておく。
-3. コール スタックの一番上が、クラッシュした位置。
+3. コール スタックの一番上がクラッシュした位置。
 
 ## 利用者への知らせ方
 
@@ -397,7 +397,7 @@ NativeMethods.me_install_crash_handler(Path.Combine(
 | --- | --- |
 | 例外を投げるボタン（テスト用） | ダイアログが出る。「はい」で続行、「いいえ」で終了。クラッシュ レポートが `crashes\` に残る |
 | 起動して操作 | `%LOCALAPPDATA%\MiniEngine\logs\editor-YYYYMMDD.log` に行が増える |
-| 古いログ | 15 日以上前のファイルが、起動時に消える |
+| 古いログ | 15 日以上前のファイルが起動時に消える |
 | ログ パネルのフィルターを Warning に | Info の行が消える |
 | 行を右クリック → コピー | クリップボードに入る |
 | ネイティブにわざと null を参照させる | プロセスが終了し、`crashes\*.dmp` が残る |

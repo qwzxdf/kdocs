@@ -28,7 +28,7 @@ tags:
 ## 最小の HLSL
 
 ```hlsl
-// triangle.hlsl: 位置と色を、受け取り、そのまま、通す。
+// triangle.hlsl: 位置と色を受け取り、そのまま、通す。
 struct VSInput {
   float3 position : POSITION;      // 頂点バッファから来る（input-layout.md）
   float4 color : COLOR;
@@ -36,7 +36,7 @@ struct VSInput {
 
 struct VSOutput {
   float4 position : SV_Position;   // クリップ空間の位置（システム値）。ラスタライザーが使う
-  float4 color : COLOR;            // ピクセル シェーダーへ、補間されて渡る
+  float4 color : COLOR;            // ピクセル シェーダーへ補間されて渡る
 };
 
 VSOutput VSMain(VSInput input) {
@@ -62,7 +62,7 @@ float4 PSMain(VSOutput input) : SV_Target {
 Microsoft::WRL::ComPtr<ID3DBlob> CompileShader(const wchar_t* path, const char* entry, const char* target) {
   UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
 #if defined(_DEBUG)
-  flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;   // デバッガーで、ソースを、辿れる
+  flags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;   // デバッガーで、ソースを辿れる
 #endif
   Microsoft::WRL::ComPtr<ID3DBlob> bytecode;
   Microsoft::WRL::ComPtr<ID3DBlob> errors;
@@ -122,7 +122,7 @@ device->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBuffe
 
 ## ビルド時にコンパイルする
 
-実行時のコンパイルは起動が遅く、リリースで HLSL を同梱する必要が、あります。<strong>ビルド時にコンパイルして `.cso`（コンパイル済み）を、読み込む</strong>のが製品の標準です。
+実行時のコンパイルは起動が遅く、リリースで HLSL を同梱する必要があります。<strong>ビルド時にコンパイルして `.cso`（コンパイル済み）を読み込む</strong>のが製品の標準です。
 
 ### Visual Studio
 
@@ -136,7 +136,7 @@ HLSL ファイルをプロジェクトに追加し、ファイルのプロパテ
 | エントリ ポイント名 | `VSMain` など |
 | オブジェクト ファイル名 | `$(OutDir)%(Filename).cso` |
 
-1 つの HLSL ファイルに、複数のシェーダーがある場合は、シェーダーごとに別の HLSL ファイル（または別の、設定）にします。
+1 つの HLSL ファイルに複数のシェーダーがある場合は、シェーダーごとに別の HLSL ファイル（または別の、設定）にします。
 
 ```cpp
 // .cso を読み込む。
@@ -172,25 +172,25 @@ fxc /T ps_5_0 /E PSMain /Fo triangle_ps.cso triangle.hlsl
 
 ## 開発中のホット リロード
 
-実行時のコンパイルを使うとシェーダーを、書き換えてゲームを再起動せずに、反映できます。
+実行時のコンパイルを使うとシェーダーを書き換えてゲームを再起動せずに、反映できます。
 
 ```cpp
-// ファイルの更新時刻が、変わったら、再コンパイルして、シェーダーを、差し替える。
+// ファイルの更新時刻が変わったら、再コンパイルして、シェーダーを差し替える。
 auto time = std::filesystem::last_write_time(L"triangle.hlsl");
 if (time != last_write_time_) {
   last_write_time_ = time;
   auto bytecode = CompileShader(L"triangle.hlsl", "PSMain", "ps_5_0");
-  if (bytecode) {                                          // 失敗したら、古いシェーダーを、使い続ける
+  if (bytecode) {                                          // 失敗したら、古いシェーダーを使い続ける
     device->CreatePixelShader(bytecode->GetBufferPointer(), bytecode->GetBufferSize(), nullptr, &pixel_shader);
   }
 }
 ```
 
-コンパイルが失敗したときは <strong>古いシェーダーを、残す</strong>ようにします。そうしないとタイプミスのたびに画面が、真っ黒になります。
+コンパイルが失敗したときは <strong>古いシェーダーを残す</strong>ようにします。そうしないとタイプミスのたびに画面が真っ黒になります。
 
 ## リフレクション（シェーダーの情報を読む）
 
-バイトコードから「どんな入力・定数バッファ・テクスチャが、あるか」を読み取れます（`D3DReflect`）。入力レイアウトの自動生成などに、使えます。
+バイトコードから「どんな入力・定数バッファ・テクスチャがあるか」を読み取れます（`D3DReflect`）。入力レイアウトの自動生成などに、使えます。
 
 ```cpp
 Microsoft::WRL::ComPtr<ID3D11ShaderReflection> reflection;
@@ -204,11 +204,11 @@ reflection->GetDesc(&desc);                                // 入力の数、定
 ??? failure "`D3DCompileFromFile` が、失敗するが理由が分からない"
     `errors` の内容を表示していない。`OutputDebugStringA` で出力ウィンドウに出す。ファイルのパスが実行ファイルの、作業ディレクトリから見えるかも、確認する。
 
-??? failure "実行ファイルを、別の場所に置くとシェーダーが、見つからない"
-    パスが相対で作業ディレクトリに、依存している。`.cso` を実行ファイルの隣に置き `GetModuleFileName` でパスを、組み立てる。
+??? failure "実行ファイルを別の場所に置くとシェーダーが見つからない"
+    パスが相対で作業ディレクトリに依存している。`.cso` を実行ファイルの隣に置き `GetModuleFileName` でパスを組み立てる。
 
-??? failure "ピクセル シェーダーの入力が、頂点シェーダーの出力と合わない"
-    セマンティクスや型が、合っていない。`VSOutput` を両方で同じ構造体にすると、間違えにくい。
+??? failure "ピクセル シェーダーの入力が頂点シェーダーの出力と合わない"
+    セマンティクスや型が合っていない。`VSOutput` を両方で同じ構造体にすると、間違えにくい。
 
 ??? failure "ビルドしたのに古い、シェーダーが動く"
     `.cso` の出力先と読み込み先が違う。Debug と Release の、出力フォルダを取り違えている。

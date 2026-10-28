@@ -14,7 +14,7 @@ tags:
 `#include <numeric>`
 </div>
 
-累積和を作る前に、各要素を何か変換したいことがあります（たとえば 2 乗してから足す）。`inclusive_scan` の前に `transform` を挟むと 2 回走査しますが、`transform_inclusive_scan` なら 1 回で済みます。
+累積和を作る前に各要素を何か変換したいことがあります（たとえば 2 乗してから足す）。`inclusive_scan` の前に `transform` を挟むと 2 回走査しますが、`transform_inclusive_scan` なら 1 回で済みます。
 
 !!! tip "ポイント"
     - 変換関数と結合関数の 2 つを渡す。

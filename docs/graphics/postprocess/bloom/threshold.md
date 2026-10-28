@@ -641,7 +641,7 @@ float3 ThresholdSoft(float3 color, float threshold, float knee) {
 ??? failure "露出を変えると、光る範囲が変わりすぎる"
     しきい値の基準を露出後の値にそろえる。
 
-??? failure "光る色が、白っぽく変わる"
+??? failure "光る色が白っぽく変わる"
     色の比率を保つ（`/ brightness`）。
 
 ??? failure "しきい値なしにしたら、全体が霞んで眠い"

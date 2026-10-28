@@ -6,7 +6,7 @@ tags:
 
 # Refraction
 
-<strong>ガラスや水を通して見ると、後ろの景色が曲がって見えます</strong>。<strong>これが屈折</strong>で、ゲームでは「画面空間の屈折」で、安く近似します。このセクションでは、原理・画面空間の屈折・境界の問題・フレネル・厚みと色・色収差・薄いガラスと厚いガラス・実装の全体像を、1 つずつ別のページで説明します。
+<strong>ガラスや水を通して見ると、後ろの景色が曲がって見えます</strong>。<strong>これが屈折</strong>で、ゲームでは「画面空間の屈折」で、安く近似します。このセクションでは、原理・画面空間の屈折・境界の問題・フレネル・厚みと色・色収差・薄いガラスと厚いガラス・実装の全体像を 1 つずつ別のページで説明します。
 
 <!-- fig:snell-refraction:begin -->
 
@@ -65,7 +65,7 @@ tags:
 <text x="50" y="182" text-anchor="start" style="font-size:16px;font-weight:700;fill:#e5484d">屈折角 40.1°</text>
 <text x="50" y="208" text-anchor="start" style="font-size:14px;font-weight:700;fill:#92400e">出口の横ずれ(灰色 = 曲がらない場合との差): 2.24</text>
 </g>
-<text x="40" y="410" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">背景の縞模様を、ガラスごしに見たときのずれ:</text>
+<text x="40" y="410" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">背景の縞模様をガラスごしに見たときのずれ:</text>
 <rect x="40.0" y="424.0" width="16.3" height="16.3" fill="#e5e7eb"><animate attributeName="fill" dur="23.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0128" values="#e5e7eb;#2563eb"/></rect>
 <rect x="56.0" y="424.0" width="16.3" height="16.3" fill="#e5e7eb"><animate attributeName="fill" dur="23.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0128" values="#e5e7eb;#2563eb"/></rect>
 <rect x="72.0" y="424.0" width="16.3" height="16.3" fill="#e5e7eb"><animate attributeName="fill" dur="23.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0128" values="#e5e7eb;#2563eb"/></rect>
@@ -153,13 +153,13 @@ tags:
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光は、空気からガラスへ入ると、曲がる(屈折率が違うため)<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0424;0.0426;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">角度を変えると、曲がり方と、横ずれが変わる<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0424;0.0426;0.9275;0.9277;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ゲームでは、ガラスの法線を使って、画面の背景を、ずらして見せる(スクリーン スペース屈折)<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.9275;0.9277;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ゲームでは、ガラスの法線を使って、画面の背景をずらして見せる(スクリーン スペース屈折)<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.9275;0.9277;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:snell-refraction:end -->
 
 ## 屈折の原理
-<strong>光が、空気からガラスや水へ入るとき、境目で曲がります</strong>。<strong>曲がり方は、媒質ごとの「屈折率」</strong>で決まります。
+<strong>光が空気からガラスや水へ入るとき、境目で曲がります</strong>。<strong>曲がり方は、媒質ごとの「屈折率」</strong>で決まります。
 
 | 媒質 | 屈折率（n） |
 | --- | --- |

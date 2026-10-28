@@ -7,13 +7,13 @@ tags:
 
 # 車両・ソフトボディ
 
-Jolt には、**剛体・制約・キャラクター**のほかに車両（エンジン・タイヤ・サスペンション）と、ソフトボディ（布・ゴム・ぬいぐるみのような、柔らかい物体）の機能があります。このページは車両の仕組み（車輪付き車両・追従車両（戦車）・バイク）と、ソフトボディの基本を概要としてまとめます。どちらも設定項目が多く、バージョンで API が変わりやすいので、公式のサンプル（`VehicleTest`、`SoftBodyTest`）を、参考にします。
+Jolt には、**剛体・制約・キャラクター**のほかに車両（エンジン・タイヤ・サスペンション）と、ソフトボディ（布・ゴム・ぬいぐるみのような、柔らかい物体）の機能があります。このページは車両の仕組み（車輪付き車両・追従車両（戦車）・バイク）と、ソフトボディの基本を概要としてまとめます。どちらも設定項目が多く、バージョンで API が変わりやすいので、公式のサンプル（`VehicleTest`、`SoftBodyTest`）を参考にします。
 
 !!! tip "ポイント"
     - <strong>車両は「車体（剛体）＋ 車両制約（`VehicleConstraint`）」</strong>。<strong>車輪は物体ではなく、制約の中の「レイキャスト」</strong>で、地面に触れる。
     - タイヤの動きは、サスペンション（バネ）と、摩擦（縦・横）で決まる。エンジン・変速機・差動装置で駆動を表現。
     - 種類：車輪付き（`WheeledVehicleController`）・追従（戦車、`TrackedVehicleController`）・バイク（`MotorcycleController`）。
-    - 入力（アクセル・ブレーキ・ハンドル）を、毎フレーム、コントローラーに渡す。
+    - 入力（アクセル・ブレーキ・ハンドル）を毎フレーム、コントローラーに渡す。
     - ソフトボディは、頂点（質点）と、エッジ（バネ）で、形を保つ。布・風船・ゴムに使う。
     - ソフトボディは、重く、制限もある（数が多いと遅い）。
     - 車両はリアルさとゲームらしさの、バランス調整が大変。アーケード風は、設定を大きく盛る。
@@ -36,7 +36,7 @@ Jolt には、**剛体・制約・キャラクター**のほかに車両（エ�
 | サスペンション | 車輪をバネで車体に支える（バネの強さ・減衰） |
 | コントローラー | エンジン・変速機・差動装置（駆動）、ハンドル・ブレーキ |
 
-<svg class="fig flow" viewBox="0 0 810 280" role="img" aria-label="車両：車体に付いた車輪が、地面にレイを飛ばして、サスペンションと摩擦で力を生む"><defs><marker id="fl61617" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">車両：車体に付いた車輪が、地面にレイを飛ばして、サスペンションと摩擦で力を生む</text><line x1="149.0" y1="148.0" x2="207.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><text x="178.0" y="142.0" text-anchor="middle" style="font-size:12px">取り付け</text><line x1="387.0" y1="148.0" x2="501.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><text x="444.0" y="142.0" text-anchor="middle" style="font-size:12px">レイを飛ばす</text><line x1="364.1" y1="125.0" x2="474.9" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><line x1="364.1" y1="171.0" x2="474.9" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><line x1="596.5" y1="87.0" x2="697.0" y2="129.4" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><line x1="596.5" y1="209.0" x2="697.0" y2="166.6" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><rect x="28.0" y="128.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="87.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">車体 （剛体）</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="210.0" y="128.0" width="174" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="297.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">車輪 （レイキャスト）</text><circle cx="212.0" cy="130.0" r="10" fill="#2ea043"/><text x="212.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="504.0" y="128.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="542.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">地面</text><circle cx="506.0" cy="130.0" r="10" fill="#e5a828"/><text x="506.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="448.0" y="44.0" width="188" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="542.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">サスペンション （バネ）</text><circle cx="450.0" cy="46.0" r="10" fill="#e5484d"/><text x="450.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="448.0" y="212.0" width="188" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="542.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">タイヤの摩擦 （縦・横）</text><circle cx="450.0" cy="214.0" r="10" fill="#e5484d"/><text x="450.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="700.0" y="128.0" width="82" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="741.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">車体に力</text><circle cx="702.0" cy="130.0" r="10" fill="#9664e6"/><text x="702.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
+<svg class="fig flow" viewBox="0 0 810 280" role="img" aria-label="車両：車体に付いた車輪が、地面にレイを飛ばして、サスペンションと摩擦で力を生む"><defs><marker id="fl61617" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">車両：車体に付いた車輪が地面にレイを飛ばして、サスペンションと摩擦で力を生む</text><line x1="149.0" y1="148.0" x2="207.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><text x="178.0" y="142.0" text-anchor="middle" style="font-size:12px">取り付け</text><line x1="387.0" y1="148.0" x2="501.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><text x="444.0" y="142.0" text-anchor="middle" style="font-size:12px">レイを飛ばす</text><line x1="364.1" y1="125.0" x2="474.9" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><line x1="364.1" y1="171.0" x2="474.9" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><line x1="596.5" y1="87.0" x2="697.0" y2="129.4" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><line x1="596.5" y1="209.0" x2="697.0" y2="166.6" stroke="currentColor" stroke-width="2" marker-end="url(#fl61617)"/><rect x="28.0" y="128.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="87.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">車体 （剛体）</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="210.0" y="128.0" width="174" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="297.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">車輪 （レイキャスト）</text><circle cx="212.0" cy="130.0" r="10" fill="#2ea043"/><text x="212.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="504.0" y="128.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="542.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">地面</text><circle cx="506.0" cy="130.0" r="10" fill="#e5a828"/><text x="506.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="448.0" y="44.0" width="188" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="542.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">サスペンション （バネ）</text><circle cx="450.0" cy="46.0" r="10" fill="#e5484d"/><text x="450.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="448.0" y="212.0" width="188" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="542.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">タイヤの摩擦 （縦・横）</text><circle cx="450.0" cy="214.0" r="10" fill="#e5484d"/><text x="450.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="700.0" y="128.0" width="82" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="741.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">車体に力</text><circle cx="702.0" cy="130.0" r="10" fill="#9664e6"/><text x="702.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
 
 車輪を物体（回転する円柱）にしないのは安定して、速く、車の動きを制御しやすいためです。
 
@@ -89,7 +89,7 @@ physics_system.AddStepListener(constraint);
 | `mTransmission.mMode` | 変速機（`Auto`：自動、`Manual`：手動） |
 
 !!! warning "`AddStepListener` を忘れない"
-    `VehicleConstraint` は、物理の各ステップの前後に、処理が必要なので、`physics_system.AddStepListener(constraint)` も呼びます。忘れると車が動きません。
+    `VehicleConstraint` は、物理の各ステップの前後に処理が必要なので、`physics_system.AddStepListener(constraint)` も呼びます。忘れると車が動きません。
 
 ### 入力を渡す
 
@@ -133,7 +133,7 @@ controller->SetDriverInput(forward, right, brake, hand_brake);
 
 ## ソフトボディ
 
-**ソフトボディ**は、形が変わる、柔らかい物体です。頂点（質点）を、エッジ（バネ）でつなぎ、形を保つ力を与えます。布・旗・風船・ゴム・ぬいぐるみに使えます。
+**ソフトボディ**は、形が変わる、柔らかい物体です。頂点（質点）をエッジ（バネ）でつなぎ、形を保つ力を与えます。布・旗・風船・ゴム・ぬいぐるみに使えます。
 
 ### 仕組み
 
@@ -218,22 +218,22 @@ for (const auto& vertex : props->GetVertices()) {
 
 ## よくあるミス
 
-??? failure "車が、動かない"
-    **`AddStepListener`** を呼んでいない、入力（`SetDriverInput`）を、設定していない、サスペンションの長さが、地面に届かない、が考えられます。
+??? failure "車が動かない"
+    **`AddStepListener`** を呼んでいない、入力（`SetDriverInput`）を設定していない、サスペンションの長さが、地面に届かない、が考えられます。
 
-??? failure "車が、すぐ横転する"
+??? failure "車がすぐ横転する"
     重心を下げる、サスペンションを固く、質量を増やす、ハンドルの角度を速度で減らす。
 
-??? failure "車が、勝手に滑る・グリップしない"
+??? failure "車が勝手に滑る・グリップしない"
     タイヤの摩擦を上げます。
 
-??? failure "車輪の見た目が、車体と合わない"
+??? failure "車輪の見た目が車体と合わない"
     車輪の位置（`mPosition`）と、モデルの車輪の位置をそろえます。描画は、`vehicle->GetWheelLocalTransform` などから、車輪の位置・回転を取得します。
 
-??? failure "ソフトボディが、重すぎる"
+??? failure "ソフトボディが重すぎる"
     頂点・制約を減らします。数も限ります。
 
-??? failure "ソフトボディを、`CreateAndAddBody` で追加して、動かない"
+??? failure "ソフトボディを `CreateAndAddBody` で追加して、動かない"
     `CreateAndAddSoftBody` を使います。
 
 ## これだけ覚える

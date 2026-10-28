@@ -83,7 +83,7 @@ int main() {
 
 ## ゲームでの使いどころ
 
-自作のコンテナ型やベクトル型に、`MyList list = {1, 2, 3};` と書けるコンストラクターを用意するときに使います。`MyList(std::initializer_list<int> init)` を持たせるだけです。
+自作のコンテナ型やベクトル型に `MyList list = {1, 2, 3};` と書けるコンストラクターを用意するときに使います。`MyList(std::initializer_list<int> init)` を持たせるだけです。
 
 可変個の引数を持つ関数にも向いています。`int Sum(std::initializer_list<int> values)` と書くと、`Sum({1, 2, 3})` のように呼べます。型がそろっている引数の並びを渡すだけなら、可変長テンプレートより簡単です。
 

@@ -14,7 +14,7 @@ tags:
 `#include <any>`
 </div>
 
-`std::any_cast<T>` は、**`std::any` に入っている値を、型 `T` で取り出す**関数です。型が違うと `std::bad_any_cast` の例外になります。ポインターで渡すと、違う型のとき例外を投げず `nullptr` を返します。
+`std::any_cast<T>` は、**`std::any` に入っている値を型 `T` で取り出す**関数です。型が違うと `std::bad_any_cast` の例外になります。ポインターで渡すと、違う型のとき例外を投げず `nullptr` を返します。
 
 !!! tip "ポイント"
     - `std::any_cast<int>(a)` は、違う型なら**例外**。

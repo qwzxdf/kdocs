@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-関数に渡せる型かどうかを、事前に調べたい。`std::is_convertible<From, To>` は、<strong>From の値を To に暗黙に変換できるか</strong>を調べます。
+関数に渡せる型かどうかを事前に調べたい。`std::is_convertible<From, To>` は、<strong>From の値を To に暗黙に変換できるか</strong>を調べます。
 
 !!! tip "ポイント"
     - `std::is_convertible_v<A, B>` は、`A` の値を `B` へ暗黙に変換できるか
@@ -42,7 +42,7 @@ inline constexpr bool is_convertible_v = is_convertible<A, B>::value;
 | `A` | 型 | 1 つ目の型 |
 | `B` | 型 | 2 つ目の型 |
 
-`From` の値を、`To` を受け取る関数にそのまま渡せるなら `true` です。`explicit` なコンストラクターだけで変換できる場合は `false` です。派生クラスから基底クラスへのポインタは `true` ですが、逆は `false` です。
+`From` の値を `To` を受け取る関数にそのまま渡せるなら `true` です。`explicit` なコンストラクターだけで変換できる場合は `false` です。派生クラスから基底クラスへのポインタは `true` ですが、逆は `false` です。
 
 型の関係を調べるだけで、オブジェクトは作りません。テンプレートの制約や、`static_assert` による型の確認に使います。
 
@@ -74,7 +74,7 @@ int, Base -> false
 
 ## ゲームでの使いどころ
 
-テンプレートの引数どうしの関係を、コンパイル時に保証します。
+テンプレートの引数どうしの関係をコンパイル時に保証します。
 
 ```cpp
 template <class D>

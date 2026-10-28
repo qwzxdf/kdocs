@@ -25,7 +25,7 @@ C++ でゲームを作る学生の多くは <strong>Visual Studio（ビジュア
 | [外部ライブラリの入れ方](libraries.md) | vcpkg、ヘッダを置く方法、`.lib` / `.dll` を使う方法 |
 | [パッケージ管理の比較](package-managers.md) | vcpkg と Conan の違いと選び方、バージョンの固定 |
 | [デバッグのやり方](debugging.md) | ブレークポイント、ウォッチ、呼び出し履歴、例外、メモリのバグ探し |
-| [AddressSanitizer](asan.md) | メモリの範囲外アクセス・解放済みメモリの使用を、その場で検出 |
+| [AddressSanitizer](asan.md) | メモリの範囲外アクセス・解放済みメモリの使用をその場で検出 |
 | [パフォーマンス プロファイラー](profiler.md) | 遅い場所を測る。ホット パス、PIX・Tracy |
 | [プリプロセッサマクロ](preprocessor.md) | `NOMINMAX`、`IMGUI_API`、`_DEBUG` などビルド設定でのマクロ |
 | [インクルード ディレクトリとマクロ](include-dirs.md) | 追加のインクルード ディレクトリ、`$(SolutionDir)` などのパス用マクロ |

@@ -34,13 +34,13 @@ tags:
 
 ## CPU でも水面の高さが、必要になる
 
-船、浮き輪、樽、プレイヤーの泳ぎを波に合わせるには、<strong>CPU（ゲームのロジックや、物理）が</strong>、水面の高さを知る必要があります。水面は GPU の頂点シェーダーで、動いているので CPU が同じ式で、計算するか GPU から結果を、取り出します。
+船、浮き輪、樽、プレイヤーの泳ぎを波に合わせるには、<strong>CPU（ゲームのロジックや、物理）が</strong>、水面の高さを知る必要があります。水面は GPU の頂点シェーダーで、動いているので CPU が同じ式で、計算するか GPU から結果を取り出します。
 
 | 方法 | 内容 | 向く波 |
 | --- | --- | --- |
-| 同じ式を CPU で計算する | シェーダーの式を、C++ で書き直す。時間も同じ値を使う | サイン波、Gerstner 波 |
-| GPU の結果を読み戻す | 浮かぶ物の位置だけ高さを、GPU で計算してステージング バッファで、CPU へ返す。数フレーム遅れる | FFT |
-| 低解像度の近似を CPU で持つ | 大きな波（低周波のカスケード）だけを、CPU で計算する | FFT（大きなうねりだけで船が、動くなら十分） |
+| 同じ式を CPU で計算する | シェーダーの式を C++ で書き直す。時間も同じ値を使う | サイン波、Gerstner 波 |
+| GPU の結果を読み戻す | 浮かぶ物の位置だけ高さを GPU で計算してステージング バッファで、CPU へ返す。数フレーム遅れる | FFT |
+| 低解像度の近似を CPU で持つ | 大きな波（低周波のカスケード）だけを CPU で計算する | FFT（大きなうねりだけで船が動くなら十分） |
 
 ## 「元の位置」を逆算する
 
@@ -53,12 +53,12 @@ P = P₀ + D(P₀)         ← D は、水平の動き。P が、与えられた
 不動点反復で近似的に解けます。
 
 ```cpp
-// 位置 p（見えている位置）に対応する、動く前の位置 p0 を、反復で求める。
+// 位置 p（見えている位置）に対応する、動く前の位置 p0 を反復で求める。
 float2 FindUndisplacedPosition(float2 p, float time, int iterations = 4) {
   float2 p0 = p;                                  // 最初の推定: 動いていないとする
   for (int i = 0; i < iterations; ++i) {
     const float2 d = HorizontalDisplacement(p0, time);   // 推定した p0 での、水平の動き
-    p0 = p - d;                                    // p = p0 + d を、p0 について解く
+    p0 = p - d;                                    // p = p0 + d を p0 について解く
   }
   return p0;
 }
@@ -81,7 +81,7 @@ struct FloatPoint { float3 local_position; };       // 物体のローカル座�
 void ApplyBuoyancy(RigidBody& body, const std::vector<FloatPoint>& points, float time) {
   const float rho = 1000.0f;                         // 水の密度 (kg/m³)
   const float g = 9.81f;
-  const float point_volume = body.volume / points.size();   // 各点が、受け持つ体積の目安
+  const float point_volume = body.volume / points.size();   // 各点が受け持つ体積の目安
 
   for (const FloatPoint& fp : points) {
     const float3 world = body.LocalToWorld(fp.local_position);
@@ -89,12 +89,12 @@ void ApplyBuoyancy(RigidBody& body, const std::vector<FloatPoint>& points, float
     const float depth = surface_y - world.y;         // 水面の下にある深さ（正なら、水の中）
     if (depth <= 0.0f) continue;                      // 水面より上: 力なし
 
-    // 浮力: 沈んでいる体積の、水の重さ。深く沈むほど、強い（ただし、点の体積が、上限）
+    // 浮力: 沈んでいる体積の、水の重さ。深く沈むほど、強い（ただし、点の体積が上限）
     const float submerged = std::clamp(depth / point_height, 0.0f, 1.0f);
     const float3 buoyancy = {0.0f, rho * g * point_volume * submerged, 0.0f};
     body.ApplyForceAtPoint(buoyancy, world);
 
-    // 水の抵抗（動きを、減衰させる）
+    // 水の抵抗（動きを減衰させる）
     const float3 v = body.VelocityAtPoint(world);
     body.ApplyForceAtPoint(-v * drag_coefficient * submerged, world);
   }
@@ -104,7 +104,7 @@ void ApplyBuoyancy(RigidBody& body, const std::vector<FloatPoint>& points, float
 | 項目 | 内容 |
 | --- | --- |
 | 点の数 | 4〜16 点。多いほど傾きの表現が正確 |
-| 抵抗 | 速度に比例した力をかけて揺れを、収束させる。ないと跳ね続ける |
+| 抵抗 | 速度に比例した力をかけて揺れを収束させる。ないと跳ね続ける |
 | 回転 | 点で力をかけると、トルク（回転力）も自然に生じ、波の傾きに合わせて傾く |
 | 安定性 | 浮力が強すぎると、物理が発振する。抵抗と物体の質量で調整する |
 
@@ -114,30 +114,30 @@ Kerner（2015）は船の、水との相互作用を <strong>船体の三角形�
 
 | 力 | 内容 |
 | --- | --- |
-| 静水圧（浮力） | 水面の下の、三角形ごとに水深に比例した圧力を、法線の向きにかける |
+| 静水圧（浮力） | 水面の下の、三角形ごとに水深に比例した圧力を法線の向きにかける |
 | 粘性抗力 | 水と船体の、相対速度に比例した摩擦。三角形ごと |
-| 圧力抗力 | 船体が水を、押しのける力。進行方向を向いた三角形が強く受ける |
-| スラミング（衝撃） | 船体が水面に、叩きつけられたときの衝撃の力 |
+| 圧力抗力 | 船体が水を押しのける力。進行方向を向いた三角形が強く受ける |
+| スラミング（衝撃） | 船体が水面に叩きつけられたときの衝撃の力 |
 
 点サンプリングより 計算は重いですが、船の動きがはるかに自然です。水に浸かっている三角形を求める処理（水面と三角形の、切り取り）が必要になります。
 
 ## FFT 海面での高さ
 
-FFT の海面は頂点シェーダーが、テクスチャから高さを読んでいます。CPU で同じ高さを知るには
+FFT の海面は頂点シェーダーがテクスチャから高さを読んでいます。CPU で同じ高さを知るには
 
 | 方法 | 内容 |
 | --- | --- |
-| 読み戻し | 高さのテクスチャを、ステージング テクスチャにコピーして、CPU が読む。1〜3 フレーム遅れる。遅れを許容できるほどゆっくりした動き（船）なら、問題ない |
+| 読み戻し | 高さのテクスチャをステージング テクスチャにコピーして、CPU が読む。1〜3 フレーム遅れる。遅れを許容できるほどゆっくりした動き（船）なら、問題ない |
 | 低周波だけを CPU で計算する | 大きなカスケードの、高さマップを CPU 側にも持ち、双線形補間で読む |
-| 数点だけ GPU で計算する | 浮力点の位置だけを、計算シェーダーでサンプリングして、小さなバッファへ書き読み戻す |
+| 数点だけ GPU で計算する | 浮力点の位置だけを計算シェーダーでサンプリングして、小さなバッファへ書き読み戻す |
 
 ```cpp
-// 高さのテクスチャを、読み戻す（非同期）。
+// 高さのテクスチャを読み戻す（非同期）。
 context->CopyResource(staging.Get(), height_texture.Get());
-// 次のフレーム（以降）に、Map して読む。すぐに Map すると、GPU の完了を待ってしまう。
+// 次のフレーム（以降）に Map して読む。すぐに Map すると、GPU の完了を待ってしまう。
 D3D11_MAPPED_SUBRESOURCE m;
 if (SUCCEEDED(context->Map(staging_prev.Get(), 0, D3D11_MAP_READ, D3D11_MAP_FLAG_DO_NOT_WAIT, &m))) {
-  // CPU 側のコピーを、更新する
+  // CPU 側のコピーを更新する
   context->Unmap(staging_prev.Get(), 0);
 }
 ```
@@ -146,17 +146,17 @@ if (SUCCEEDED(context->Map(staging_prev.Get(), 0, D3D11_MAP_READ, D3D11_MAP_FLAG
 
 ## 時間をそろえる
 
-GPU の見た目と CPU の浮力の、<strong>時間の値</strong>がずれると 船が、波と合わずに浮きます。
+GPU の見た目と CPU の浮力の、<strong>時間の値</strong>がずれると 船が波と合わずに浮きます。
 
 | 注意点 | 内容 |
 | --- | --- |
-| 同じ時間を使う | シェーダーに渡す `time` と、CPU の波の計算の `time` を、同じ変数から作る |
+| 同じ時間を使う | シェーダーに渡す `time` と、CPU の波の計算の `time` を同じ変数から作る |
 | 時間の折り返し | 折り返す（`fmod`）なら両方で、同じ周期を使う（[Wave Animation Tricks](animation-tricks.md)） |
-| 読み戻しの遅れ | 1〜3 フレーム遅れた高さを、使うなら遅れた時間の波として、扱う（その時間に読み戻した値だから） |
+| 読み戻しの遅れ | 1〜3 フレーム遅れた高さを使うなら遅れた時間の波として、扱う（その時間に読み戻した値だから） |
 
 ## よくあるミス
 
-??? failure "船が、見た目の波と合わずに浮く"
+??? failure "船が見た目の波と合わずに浮く"
     <strong>GPU と同じ式・同じ時間</strong>で、CPU 側も計算する。
 
 ## これだけ覚える

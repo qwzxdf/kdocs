@@ -9,7 +9,7 @@ tags:
 <strong>光が散乱される時、どの方向へ散るかを表すのが位相関数</strong>です。レイリーは前後に均等、ミーは前方に強く偏ります。このページでは位相関数を説明します。
 
 !!! tip "ポイント"
-    - レイリー：(1 + cos²θ) に比例。
+    - レイリー：(1 + cos²θ) に比例する。
     - ミー：Henyey-Greenstein などで、前方に偏る。
     - ミーの偏り g は、約 0.76〜0.8。
     - 太陽の周りが白くにじむのは、ミーの前方散乱。
@@ -25,7 +25,7 @@ tags:
 <defs><marker id="arr-phase-polar" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">位相関数:光が、どの方向へ散るか（光は左から来る）</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">位相関数:光がどの方向へ散るか（光は左から来る）</text>
 <circle cx="300" cy="220" r="130" fill="none" stroke="#e2e8f0" stroke-width="1.5"/>
 <circle cx="300" cy="220" r="65.0" fill="none" stroke="#e2e8f0" stroke-width="1"/>
 <line x1="60" y1="220" x2="284" y2="220" stroke="#e5aa28" stroke-width="3" marker-end="url(#arr-phase-polar)"/>
@@ -78,7 +78,7 @@ float HenyeyGreenstein(float cos_theta, float g) {
 
 ## 位相関数とは
 
-光が粒子に当たって <strong>散乱</strong>するとき、どの方向にどれだけ散らばるかを、表す関数が位相関数です。入射した光の向きと散乱した光の向きの、間の角度 `θ` だけで決まります（粒子が、球に近いと仮定する）。
+光が粒子に当たって <strong>散乱</strong>するとき、どの方向にどれだけ散らばるかを表す関数が位相関数です。入射した光の向きと散乱した光の向きの、間の角度 `θ` だけで決まります（粒子が球に近いと仮定する）。
 
 ```text
 θ = 0°    前方散乱（光が、そのまま、直進する向き）
@@ -86,7 +86,7 @@ float HenyeyGreenstein(float cos_theta, float g) {
 θ = 180°  後方散乱（光が、来た方向へ、戻る）
 ```
 
-位相関数は 全方向に積分して、1 になるように決めます（エネルギーが、保存される）。
+位相関数は 全方向に積分して、1 になるように決めます（エネルギーが保存される）。
 
 ## レイリー散乱の位相関数
 
@@ -104,7 +104,7 @@ float RayleighPhase(float cos_theta) {
 
 `cos_theta` は 入射の向きと散乱の向きの、内積です。式は `cos²θ` を含むので 前後対称で、ゆるやかな変化です。
 
-レイリー散乱は 波長の 4 乗に、反比例する 散乱の強さ（[Atmosphere Model](atmosphere-model.md)）を、持ちます。位相関数は向きの分布だけを決め、強さ（青が強い）は散乱係数が、決めます。
+レイリー散乱は 波長の 4 乗に反比例する 散乱の強さ（[Atmosphere Model](atmosphere-model.md)）を持ちます。位相関数は向きの分布だけを決め、強さ（青が強い）は散乱係数が決めます。
 
 ## ミー散乱：エアロゾルと水滴
 
@@ -128,7 +128,7 @@ float HenyeyGreenstein(float cos_theta, float g) {
 }
 ```
 
-`denom`（分母の中の 1 + g² − 2g cosθ）は、`cosθ = 1`（前方）のとき最小（`(1 − g)²`）になり 値が、最大になります。`g` を大きくするほど前方への偏りが、強くなります。
+`denom`（分母の中の 1 + g² − 2g cosθ）は、`cosθ = 1`（前方）のとき最小（`(1 − g)²`）になり 値が最大になります。`g` を大きくするほど前方への偏りが、強くなります。
 
 | `g` | 散り方 | 例 |
 | --- | --- | --- |
@@ -155,7 +155,7 @@ float CornetteShanks(float cos_theta, float g) {
 }
 ```
 
-HG との違いは 分子の `(1 + cos²θ)` です。横や後ろへの散り方が少し多くなります。大気のミー散乱（Hillaire の実装の、標準）では `g ≈ 0.8` の Cornette–Shanksが、使われます。
+HG との違いは 分子の `(1 + cos²θ)` です。横や後ろへの散り方が少し多くなります。大気のミー散乱（Hillaire の実装の、標準）では `g ≈ 0.8` の Cornette–Shanksが使われます。
 
 ## 2 つの HG を混ぜる
 
@@ -185,7 +185,7 @@ Jendersie と d'Eon（2023）は、雲や霧の Mie 散乱により近い、1 �
 
 ## シェーダーでの使い方
 
-視線に沿った各点で <strong>太陽の光が、視線の方向へどれだけ散るか</strong>を、求めます。
+視線に沿った各点で <strong>太陽の光が視線の方向へどれだけ散るか</strong>を求めます。
 
 ```hlsl
 // view_dir: カメラから、点へ向かう、視線の向き。sun_dir: 点から、太陽へ向かう向き。
@@ -195,7 +195,7 @@ float phase_r = RayleighPhase(cos_theta);
 float phase_m = CornetteShanks(cos_theta, 0.8);
 ```
 
-光の進む向き（太陽 → 点）と、散乱後の向き（点 → カメラ）の、間の角度が `θ` です。`cos θ` を取る向き（符号）を間違えると前方と後方が、逆になり太陽の反対側が明るい、おかしな空になります。向きの規約を 1 か所に決めて、位相関数に渡すことが重要です。
+光の進む向き（太陽 → 点）と、散乱後の向き（点 → カメラ）の、間の角度が `θ` です。`cos θ` を取る向き（符号）を間違えると前方と後方が逆になり太陽の反対側が明るい、おかしな空になります。向きの規約を 1 か所に決めて、位相関数に渡すことが重要です。
 
 ## よくあるミス
 

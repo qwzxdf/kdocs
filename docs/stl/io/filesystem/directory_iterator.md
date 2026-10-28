@@ -15,7 +15,7 @@ tags:
 `#include <filesystem>`
 </div>
 
-フォルダに入っているファイルを、全部調べたい。ファイルの一覧を取る関数は OS ごとに違い、Windows の `FindFirstFile` や Linux の `readdir` を使い分けるのは面倒です。`std::filesystem::directory_iterator` は、フォルダの直下にあるファイルやフォルダを順に回す標準のイテレーターで、OS の違いを吸収してくれます。サブフォルダの中までは入りません。
+フォルダに入っているファイルを全部調べたい。ファイルの一覧を取る関数は OS ごとに違い、Windows の `FindFirstFile` や Linux の `readdir` を使い分けるのは面倒です。`std::filesystem::directory_iterator` は、フォルダの直下にあるファイルやフォルダを順に回す標準のイテレーターで、OS の違いを吸収してくれます。サブフォルダの中までは入りません。
 
 !!! tip "ポイント"
     - 範囲 for で回せる: `for (const auto& entry : fs::directory_iterator(dir))`。
@@ -100,7 +100,7 @@ int main() {
 
 ## ゲームでの使いどころ
 
-ゲームの起動時に、アセットフォルダやセーブデータのフォルダを調べるのに使います。
+ゲームの起動時にアセットフォルダやセーブデータのフォルダを調べるのに使います。
 
 ```cpp
 std::vector<fs::path> saves;
@@ -125,7 +125,7 @@ std::ranges::sort(saves);  // 順番は不定なので、並べる
     存在しないフォルダを渡すと、`filesystem_error` を投げます。先に `exists` と `is_directory` で確かめるか、`std::error_code` を渡す版を使います。
 
 ??? failure "回している最中にフォルダの中身を変更する"
-    ファイルの追加や削除を、回している最中に行うと、イテレーターの挙動が不定になります。いったん結果を集めてから、あとで操作します。
+    ファイルの追加や削除を回している最中に行うと、イテレーターの挙動が不定になります。いったん結果を集めてから、あとで操作します。
 
 ## 類似
 
@@ -133,7 +133,7 @@ std::ranges::sort(saves);  // 順番は不定なので、並べる
 | --- | --- |
 | [`recursive_directory_iterator`](recursive_directory_iterator.md) | サブフォルダの中まで回す |
 | [`directory_entry`](directory_entry.md) | 回して得られる 1 つの項目 |
-| [`exists`](exists.md) | 回す前に、フォルダがあるかを確かめる |
+| [`exists`](exists.md) | 回す前にフォルダがあるかを確かめる |
 
 ## コンパイラ対応
 

@@ -60,18 +60,18 @@ tags:
 | [`std::front_insert_iterator`](iterator/front_insert_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 代入するたびに、コンテナの先頭へ push_front するイテレータ。 |
 | [`std::insert_iterator`](iterator/insert_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 代入するたびに、コンテナの指定位置へ insert するイテレータ。 |
 | [`std::istreambuf_iterator`](iterator/istreambuf_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリームバッファから、1 文字ずつ生で読むイテレータ。 |
-| [`std::ostreambuf_iterator`](iterator/ostreambuf_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリームバッファへ、1 文字ずつ生で書くイテレータ。 |
+| [`std::ostreambuf_iterator`](iterator/ostreambuf_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | ストリームバッファへ 1 文字ずつ生で書くイテレータ。 |
 | [`std::counted_iterator`](iterator/counted_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 残りの個数を数えながら進むイテレータ。 <span class="ver ver-20">C++20</span> |
 | [`std::default_sentinel`](iterator/default_sentinel.md) | <span class="rank rank-rare">知ってるだけ</span> | counted_iterator などの終端を表す目印の定数。 <span class="ver ver-20">C++20</span> |
 | [`std::unreachable_sentinel`](iterator/unreachable_sentinel.md) | <span class="rank rank-rare">知ってるだけ</span> | 「終わりには絶対に届かない」と約束する終端。 <span class="ver ver-20">C++20</span> |
-| [`std::common_iterator`](iterator/common_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータと sentinel（終端）を、1 つの型にまとめる。 <span class="ver ver-20">C++20</span> |
+| [`std::common_iterator`](iterator/common_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータと sentinel（終端）を 1 つの型にまとめる。 <span class="ver ver-20">C++20</span> |
 | [`std::basic_const_iterator`](iterator/basic_const_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | 要素を const として見せるイテレータのアダプタ。 <span class="ver ver-23">C++23</span> |
-| [`std::make_const_iterator`](iterator/make_const_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータを、要素が const として見えるイテレータに変換する。 <span class="ver ver-23">C++23</span> |
-| [`std::projected`](iterator/projected.md) | <span class="rank rank-rare">知ってるだけ</span> | プロジェクション（変換）を通した値を、アルゴリズムに見せるための型。 <span class="ver ver-20">C++20</span> |
+| [`std::make_const_iterator`](iterator/make_const_iterator.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータを要素が const として見えるイテレータに変換する。 <span class="ver ver-23">C++23</span> |
+| [`std::projected`](iterator/projected.md) | <span class="rank rank-rare">知ってるだけ</span> | プロジェクション（変換）を通した値をアルゴリズムに見せるための型。 <span class="ver ver-20">C++20</span> |
 | [`std::iter_value_t`](iterator/iter_value_t.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータが指す値の型を取り出す型の別名。 <span class="ver ver-20">C++20</span> |
 | [`std::iter_reference_t`](iterator/iter_reference_t.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータの `*it` の型（参照）を取り出す型の別名。 <span class="ver ver-20">C++20</span> |
 | [`std::iter_difference_t`](iterator/iter_difference_t.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータの差の型を取り出す型の別名。 <span class="ver ver-20">C++20</span> |
-| [`std::iter_move`](iterator/iter_move.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータが指す要素を、右辺値として取り出す。 <span class="ver ver-20">C++20</span> |
+| [`std::iter_move`](iterator/iter_move.md) | <span class="rank rank-rare">知ってるだけ</span> | イテレータが指す要素を右辺値として取り出す。 <span class="ver ver-20">C++20</span> |
 | [`std::cbegin`](iterator/cbegin.md) | <span class="rank rank-sometimes">たまに</span> | コンテナや配列の先頭を指す、const のイテレータを返す。 <span class="ver ver-14">C++14</span> |
 | [`std::cend`](iterator/cend.md) | <span class="rank rank-rare">知ってるだけ</span> | コンテナや配列の終端を指す、const のイテレータを返す。 <span class="ver ver-14">C++14</span> |
 | [`std::rbegin`](iterator/rbegin.md) | <span class="rank rank-sometimes">たまに</span> | コンテナや配列の逆順の先頭（最後の要素）を指すイテレータを返す。 <span class="ver ver-14">C++14</span> |

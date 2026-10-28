@@ -6,7 +6,7 @@ tags:
 
 # Special Cases
 
-<strong>シャドウ マップは不透明な立体には素直に使えますが、アルファ テストの葉・半透明のガラス・キャラクターの顔・遠景の雲など、そのままでは扱いにくい物</strong>が<strong>あります</strong>。このセクションではアルファ テストの影・半透明の影・ブロブ/平面投影の影・遠景の影・キャラクターの影と影の色を、1 つずつ別のページで説明します。
+<strong>シャドウ マップは不透明な立体には素直に使えますが、アルファ テストの葉・半透明のガラス・キャラクターの顔・遠景の雲など、そのままでは扱いにくい物</strong>が<strong>あります</strong>。このセクションではアルファ テストの影・半透明の影・ブロブ/平面投影の影・遠景の影・キャラクターの影と影の色を 1 つずつ別のページで説明します。
 
 ## ページ一覧
 
@@ -28,7 +28,7 @@ tags:
 | 半透明の物（ガラス、煙、色付きの窓） | 光を一部、通す | [Translucent Shadows](translucent-shadows.md) |
 | キャラクター | 小さな、動く物。接地と自己影が重要。色の問題も | [Character Shadows and Color](character-shadows.md) |
 | 遠景 | シャドウ マップの、範囲外。遠くの影をどう扱うか | [Distant Shadows](distant-shadows.md) |
-| 簡易な影（接地、軽量） | シャドウ マップが、重すぎる要らない | [Blob and Planar Projected Shadows](blob-planar.md) |
+| 簡易な影（接地、軽量） | シャドウ マップが重すぎる要らない | [Blob and Planar Projected Shadows](blob-planar.md) |
 
 ## 共通の考え方
 

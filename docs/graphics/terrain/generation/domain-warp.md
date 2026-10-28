@@ -25,8 +25,8 @@ tags:
 <defs><marker id="arr-domain-warp" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ドメイン ワープ: 地形を読む「座標」を、別のノイズでゆがめると、自然な曲がりくねりができる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">縞模様(直線)を、座標ゆがめの強さ 0 → 2 → 5 → 9 で、ゆがめる。縞の曲がり具合を、計算する</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ドメイン ワープ: 地形を読む「座標」を別のノイズでゆがめると、自然な曲がりくねりができる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">縞模様(直線)を座標ゆがめの強さ 0 → 2 → 5 → 9 で、ゆがめる。縞の曲がり具合を計算する</text>
 <rect x="30" y="100" width="220.0" height="76.0" fill="#ffffff" stroke="#64748b" stroke-width="1.8" rx="6"/>
 <text x="30" y="90" text-anchor="start" style="font-size:15px;font-weight:700;fill:#64748b">強さ 0</text>
 <rect x="32.0" y="102.0" width="7.5" height="7.5" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0667" values="#e5e7eb;#1e293b"/></rect>
@@ -1244,7 +1244,7 @@ tags:
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7332;0.7333;1.0000" values="0;0;1;1"/><text x="705" y="196" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">縞の曲がり幅 5 画素</text>
 </g>
 <rect x="30" y="240" width="900" height="150" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
-<text x="30" y="230" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">1 本の線で見る(座標 x を、ノイズでずらして、縞を読む)</text>
+<text x="30" y="230" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">1 本の線で見る(座標 x をノイズでずらして、縞を読む)</text>
 <path d="M60.0,372.0 L72.5,372.0 L85.0,332.0 L97.5,332.0 L110.0,332.0 L122.5,332.0 L135.0,332.0 L147.5,372.0 L160.0,372.0 L172.5,372.0 L185.0,372.0 L197.5,372.0 L210.0,332.0 L222.5,332.0 L235.0,332.0 L247.5,332.0 L260.0,332.0 L272.5,332.0 L285.0,372.0 L297.5,372.0 L310.0,372.0 L322.5,372.0 L335.0,372.0 L347.5,372.0 L360.0,372.0 L372.5,332.0 L385.0,332.0 L397.5,332.0 L410.0,332.0 L422.5,332.0 L435.0,332.0 L447.5,332.0 L460.0,372.0 L472.5,372.0 L485.0,372.0 L497.5,372.0 L510.0,372.0 L522.5,372.0 L535.0,332.0 L547.5,332.0 L560.0,332.0 L572.5,332.0 L585.0,332.0 L597.5,372.0 L610.0,372.0 L622.5,372.0 L635.0,372.0 L647.5,372.0 L660.0,332.0 L672.5,332.0 L685.0,332.0 L697.5,332.0 L710.0,332.0 L722.5,372.0 L735.0,372.0 L747.5,372.0 L760.0,372.0 L772.5,372.0 L785.0,332.0 L797.5,332.0" fill="none" stroke="#2563eb" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8665;0.8667;1.0000" values="0;0;1;1"/></path>
 <path d="M60.0,372.0 L72.5,372.0 L85.0,372.0 L97.5,372.0 L110.0,332.0 L122.5,332.0 L135.0,332.0 L147.5,372.0 L160.0,372.0 L172.5,372.0 L185.0,372.0 L197.5,372.0 L210.0,332.0 L222.5,332.0 L235.0,332.0 L247.5,332.0 L260.0,332.0 L272.5,372.0 L285.0,372.0 L297.5,372.0 L310.0,372.0 L322.5,372.0 L335.0,372.0 L347.5,372.0 L360.0,372.0 L372.5,372.0 L385.0,372.0 L397.5,372.0 L410.0,372.0 L422.5,332.0 L435.0,332.0 L447.5,332.0 L460.0,332.0 L472.5,332.0 L485.0,332.0 L497.5,372.0 L510.0,372.0 L522.5,372.0 L535.0,372.0 L547.5,332.0 L560.0,332.0 L572.5,332.0 L585.0,332.0 L597.5,332.0 L610.0,372.0 L622.5,372.0 L635.0,372.0 L647.5,332.0 L660.0,332.0 L672.5,332.0 L685.0,372.0 L697.5,372.0 L710.0,372.0 L722.5,372.0 L735.0,372.0 L747.5,372.0 L760.0,332.0 L772.5,332.0 L785.0,332.0 L797.5,332.0" fill="none" stroke="#2ea043" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.9198;0.9200;1.0000" values="0;0;1;1"/></path>
 <path d="M60.0,332.0 L72.5,332.0 L85.0,332.0 L97.5,372.0 L110.0,372.0 L122.5,332.0 L135.0,332.0 L147.5,332.0 L160.0,372.0 L172.5,372.0 L185.0,372.0 L197.5,332.0 L210.0,332.0 L222.5,332.0 L235.0,332.0 L247.5,332.0 L260.0,372.0 L272.5,372.0 L285.0,372.0 L297.5,372.0 L310.0,372.0 L322.5,372.0 L335.0,332.0 L347.5,372.0 L360.0,372.0 L372.5,372.0 L385.0,372.0 L397.5,372.0 L410.0,372.0 L422.5,372.0 L435.0,372.0 L447.5,372.0 L460.0,372.0 L472.5,332.0 L485.0,332.0 L497.5,332.0 L510.0,372.0 L522.5,372.0 L535.0,372.0 L547.5,372.0 L560.0,372.0 L572.5,332.0 L585.0,332.0 L597.5,332.0 L610.0,372.0 L622.5,372.0 L635.0,372.0 L647.5,332.0 L660.0,332.0 L672.5,372.0 L685.0,372.0 L697.5,372.0 L710.0,332.0 L722.5,332.0 L735.0,332.0 L747.5,332.0 L760.0,332.0 L772.5,372.0 L785.0,372.0 L797.5,372.0" fill="none" stroke="#e5484d" stroke-width="2.5" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.9732;0.9733;1.0000" values="0;0;1;1"/></path>
@@ -1256,12 +1256,12 @@ tags:
 <text x="40" y="430" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">5<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7332;0.7333;1.0000" values="0;0;1;1"/></text>
 <text x="100" y="430" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">画素(縞の曲がり幅)</text>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="0;0;1"/><rect x="480" y="410" width="450" height="74" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
-<text x="496" y="434" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">読む座標を、ノイズで動かす = ワープ</text>
-<text x="496" y="457" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">強さを上げるほど、直線が、蛇行する。ノイズを重ねてもよい</text>
+<text x="496" y="434" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">読む座標をノイズで動かす = ワープ</text>
+<text x="496" y="457" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">強さを上げるほど、直線が蛇行する。ノイズを重ねてもよい</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">まっすぐな縞(高さの元になる模様)がある<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">読む場所を、別のノイズで動かすと、縞が曲がる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">強さが大きいほど、複雑に、うねる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">読む場所を別のノイズで動かすと、縞が曲がる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">強さが大きいほど、複雑にうねる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:domain-warp:end -->
@@ -1286,7 +1286,7 @@ float WarpedFbm(float2 p) {
 
 ## ドメイン ワーピングとは
 
-ノイズに座標を渡す前に <strong>座標そのものを、別のノイズでずらす</strong>手法です。ノイズ関数 `f(p)` の代わりに `f(p + w(p))` を計算します。`w` はずらし量を返す別のノイズ関数です。
+ノイズに座標を渡す前に <strong>座標そのものを別のノイズでずらす</strong>手法です。ノイズ関数 `f(p)` の代わりに `f(p + w(p))` を計算します。`w` はずらし量を返す別のノイズ関数です。
 
 ```text
 普通:        height = fbm(p)
@@ -1301,7 +1301,7 @@ fBm や勾配ノイズの地形は、<strong>どの方向にも同じ性質</str
 
 | 比較 | fBm | ワーピングした fBm |
 | --- | --- | --- |
-| 尾根・谷の形 | 同じ方向に、ばらばら | 曲がって流れる |
+| 尾根・谷の形 | 同じ方向にばらばら | 曲がって流れる |
 | 全体の印象 | 砂山、小さな丘の集まり | 大陸、浸食された山地 |
 | 細部 | 一様 | 場所によって、密度が変わる |
 
@@ -1324,7 +1324,7 @@ float WarpedFbm(float2 p, float strength, uint seed) {
 
 ### 2 重のワーピング
 
-Quilez は ワーピングの結果を、もう一度、ワーピングの入力にする方法を紹介しています。
+Quilez は ワーピングの結果をもう一度、ワーピングの入力にする方法を紹介しています。
 
 ```hlsl
 float WarpedFbm2(float2 p, float strength, uint seed) {
@@ -1338,7 +1338,7 @@ float WarpedFbm2(float2 p, float strength, uint seed) {
 f(p + fbm(p + fbm(p)))
 ```
 
-重ねるほど渦や折りたたまれた形が、複雑になります。そのかわり ノイズの計算が回数分、増えます（1 回で 3 つ、2 重で 5 つ分の fBm）。
+重ねるほど渦や折りたたまれた形が複雑になります。そのかわり ノイズの計算が回数分、増えます（1 回で 3 つ、2 重で 5 つ分の fBm）。
 
 ## パラメーター
 
@@ -1346,10 +1346,10 @@ f(p + fbm(p + fbm(p)))
 | --- | --- | --- |
 | `strength`（ずらし量） | 0.3〜2.0（周波数 1 に対して） | 小さいと、わずかなゆがみ。大きいと渦、折りたたみ |
 | ワーピング用の fBm の周波数 | 本体より、低い（1/2〜1/4） | 低いと大きな、ゆっくりした曲がり。高いと細かいゆがみ |
-| ワーピング用の fBm の、オクターブ数 | 2〜4 | 少なくてもよい（形が、なめらかなので） |
+| ワーピング用の fBm の、オクターブ数 | 2〜4 | 少なくてもよい（形がなめらかなので） |
 
-!!! tip "ずらし量を、場所で変える"
-    ずらし量を <strong>別の低周波ノイズで、変える</strong>と「あまりゆがんでいない平地」と「大きくゆがんだ山岳」が、同じ地形の中に共存します。`strength * mask(p)` の形です。
+!!! tip "ずらし量を場所で変える"
+    ずらし量を <strong>別の低周波ノイズで、変える</strong>と「あまりゆがんでいない平地」と「大きくゆがんだ山岳」が同じ地形の中に共存します。`strength * mask(p)` の形です。
 
 ## 注意点
 
@@ -1364,14 +1364,14 @@ f(p + fbm(p + fbm(p)))
 
 | 場面 | 使い方 |
 | --- | --- |
-| 大陸・島の形 | 低周波に、強くワーピングして海岸線を複雑にする |
-| 山岳地帯 | 尾根ノイズの座標を、ワーピングして尾根を曲げる（[Ridged Noise](ridge.md)） |
-| 砂漠 | 縞模様の砂丘を、少しだけゆがめる |
-| 地層・岩の模様 | 色のノイズを、ワーピングして流れるような模様にする |
+| 大陸・島の形 | 低周波に強くワーピングして海岸線を複雑にする |
+| 山岳地帯 | 尾根ノイズの座標をワーピングして尾根を曲げる（[Ridged Noise](ridge.md)） |
+| 砂漠 | 縞模様の砂丘を少しだけゆがめる |
+| 地層・岩の模様 | 色のノイズをワーピングして流れるような模様にする |
 
 ## よくあるミス
 
-??? failure "地形に、規則的な模様が見える"
+??? failure "地形に規則的な模様が見える"
     <strong>ドメイン ワーピング</strong>でゆがめる。
 
 ## これだけ覚える

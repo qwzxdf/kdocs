@@ -13,9 +13,9 @@ pybind11 は、<strong>C++ の関数やクラスを Python から使える形に
 !!! tip "ポイント"
     - 方向は 2 つある。C++ を Python のモジュールにする（拡張モジュール）と、C++ の中で Python を動かす（埋め込み）
     - 拡張モジュールは、DLL（拡張子 `.pyd`）として作る。Python から `import` で使える
-    - `PYBIND11_MODULE` マクロの中に、見せたい関数やクラスを並べる
+    - `PYBIND11_MODULE` マクロの中に見せたい関数やクラスを並べる
     - 型変換は自動。`std::vector` や `std::string` は、Python のリストや文字列になる
-    - Python のバージョンと、ビルドの設定（x64、Debug/Release）を、そろえる
+    - Python のバージョンと、ビルドの設定（x64、Debug/Release）をそろえる
 
 !!! info "このページを読む前に"
     - [外部ライブラリの入れ方](../vs/libraries.md)（vcpkg）
@@ -71,7 +71,7 @@ p.heal(20)
 print(p.hp)                   # 120
 ```
 
-プロジェクトは、DLL として作り、出力のファイル名の拡張子を `.pyd` にします。ファイル名は、モジュール名（`gamecore.pyd`）と一致させます。これを、Python が探せる場所（スクリプトと同じフォルダー）に置くと、`import` で読み込めます。
+プロジェクトは、DLL として作り、出力のファイル名の拡張子を `.pyd` にします。ファイル名は、モジュール名（`gamecore.pyd`）と一致させます。これを Python が探せる場所（スクリプトと同じフォルダー）に置くと、`import` で読み込めます。
 
 `py::arg("amount")` は、Python 側でキーワード引数（`p.heal(amount=20)`）を使えるようにします。省略もできます。
 
@@ -117,7 +117,7 @@ std::vector<int> Double(const std::vector<int>& v) {
 ゲームの周辺ツールを Python で書く場合に便利です。
 
 - アセットの変換、一括処理のツールから、ゲームの形式の読み書きを呼ぶ
-- バランス調整の計算を、ゲームの本物のコードで実行して、Python でグラフにする
+- バランス調整の計算をゲームの本物のコードで実行して、Python でグラフにする
 - 自動テストを Python で書く
 
 ゲーム本体の中の組み込みスクリプトには、Python は大きすぎます。Lua のような軽いものが向きます。
@@ -130,7 +130,7 @@ std::vector<int> Double(const std::vector<int>& v) {
 ??? failure "リストを渡すたびに、重くなる"
     `std::vector` の変換はコピーです。大きなデータは NumPy の配列で共有します。
 
-??? failure "Python のオブジェクトを、インタープリタの終了後に触って落ちる"
+??? failure "Python のオブジェクトをインタープリタの終了後に触って落ちる"
     `scoped_interpreter` のスコープの外で、Python のオブジェクトを解放しています。オブジェクトは、スコープの中で破棄します。
 
 ## これだけ覚える {#summary}

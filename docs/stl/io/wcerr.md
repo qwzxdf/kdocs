@@ -13,7 +13,7 @@ tags:
 `#include <iostream>`
 </div>
 
-`std::wcerr` は、`cerr` の `wchar_t` 版です。`wchar_t` の文字列（`L"..."`）を、標準エラー出力に出します。1 つのプログラムで `cerr` と `wcerr` を混ぜて使うと、文字化けや動作不良の原因になることがあります。
+`std::wcerr` は、`cerr` の `wchar_t` 版です。`wchar_t` の文字列（`L"..."`）を標準エラー出力に出します。1 つのプログラムで `cerr` と `wcerr` を混ぜて使うと、文字化けや動作不良の原因になることがあります。
 
 !!! tip "ポイント"
     - `cerr` の`wchar_t` 版。

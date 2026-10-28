@@ -25,7 +25,7 @@ tags:
 <defs><marker id="arr-flowmap-blend" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">フローマップ:位相をずらした 2 枚を、三角波で入れ替えながら流す</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">フローマップ:位相をずらした 2 枚を三角波で入れ替えながら流す</text>
 <line x1="80" y1="134" x2="700" y2="134" stroke="#e2e8f0" stroke-width="1.5"/>
 <text x="80" y="86" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2563eb">流した模様 A（位相 t）</text>
 <line x1="80" y1="224" x2="700" y2="224" stroke="#e2e8f0" stroke-width="1.5"/>
@@ -128,7 +128,7 @@ float3 flow_normal = normalize(lerp(n0, n1, blend));
 | B（任意） | 流れの速さまたは、泡の量 |
 
 ```hlsl
-// フロー マップから、流れの向きと速さを読む（0〜1 を、−1〜1 にする）。
+// フロー マップから、流れの向きと速さを読む（0〜1 を−1〜1 にする）。
 float2 flow = g_flow_map.Sample(g_linear_clamp, flow_uv).xy * 2.0 - 1.0;
 ```
 
@@ -154,17 +154,17 @@ float3 n = g_normal_map.Sample(g_linear_wrap, uv).xyz;
 Vlachos（2010）は <strong>この、引き伸ばしを避ける方法</strong>を示しています。
 
 1. 時間を周期的に 0 → 1 に、動かす（のこぎり波）。ずらす量が一定の範囲でリセットされる
-2. リセットの瞬間は模様がぱっと、元に戻るので半周期ずれたもう 1 つを、用意する
+2. リセットの瞬間は模様がぱっと、元に戻るので半周期ずれたもう 1 つを用意する
 3. 2 つを交互にフェードしながら混ぜる
 
 ```hlsl
-// 2 つの位相: 周期 1 のこぎり波を、半周期ずらして、2 つ用意する。
+// 2 つの位相: 周期 1 のこぎり波を半周期ずらして、2 つ用意する。
 float phase0 = frac(time * flow_speed);
 float phase1 = frac(time * flow_speed + 0.5);
 
 // それぞれの位相で、UV をずらして、法線マップを読む。
 float2 uv0 = world_uv - flow * phase0 * flow_scale;
-float2 uv1 = world_uv - flow * phase1 * flow_scale + 0.5;           // 0.5 は、2 つの模様が、重ならないよう、ずらす
+float2 uv1 = world_uv - flow * phase1 * flow_scale + 0.5;           // 0.5 は、2 つの模様が重ならないよう、ずらす
 float3 n0 = g_normal_map.Sample(g_linear_wrap, uv0).xyz * 2.0 - 1.0;
 float3 n1 = g_normal_map.Sample(g_linear_wrap, uv1).xyz * 2.0 - 1.0;
 
@@ -187,12 +187,12 @@ float3 n = normalize(lerp(n1, n0, w0));         // w0 が 1 のとき n0、0 の
 
 | 対策 | 内容 |
 | --- | --- |
-| 位相にノイズ | 位相に、位置依存のノイズを足して場所ごとに周期を、ずらす |
-| 周期を長くする | 周期が、長いほど脈打ちがゆっくりで目立たない（ただし、引き伸ばしが大きくなる） |
+| 位相にノイズ | 位相に位置依存のノイズを足して場所ごとに周期をずらす |
+| 周期を長くする | 周期が長いほど脈打ちがゆっくりで目立たない（ただし、引き伸ばしが大きくなる） |
 | 3 つの位相 | 3 位相で、重みを混ぜる。よりなめらかになる |
 
 ```hlsl
-// 位相に、位置依存の、ずれを足して、水面全体が、同時に、脈打たないようにする。
+// 位相に位置依存の、ずれを足して、水面全体が同時に、脈打たないようにする。
 float noise = g_noise.Sample(g_linear_wrap, world_uv * 0.5).r;
 float phase0 = frac(time * flow_speed + noise);
 float phase1 = frac(time * flow_speed + noise + 0.5);
@@ -204,7 +204,7 @@ float phase1 = frac(time * flow_speed + noise + 0.5);
 
 ```hlsl
 float speed = length(flow);
-// 流れが弱いほど、波も穏やかに（法線の強さを、速さで変える）
+// 流れが弱いほど、波も穏やかに（法線の強さを速さで変える）
 float normal_strength = lerp(0.3, 1.0, saturate(speed));
 ```
 
@@ -212,9 +212,9 @@ float normal_strength = lerp(0.3, 1.0, saturate(speed));
 
 | 方法 | 内容 |
 | --- | --- |
-| 手描き | ブラシで流れの向きを、描く（専用のツール、または Photoshop の拡張） |
-| 地形から計算 | 地形の、高さマップから水が流れる向き（斜面の下り）を、求める。川の流れを自動で作る（[Rivers and Lakes](../../terrain/generation/rivers.md) の、D8 法の方向） |
-| 流体シミュレーション | 川のシミュレーション（流体の計算）の結果を、焼く |
+| 手描き | ブラシで流れの向きを描く（専用のツール、または Photoshop の拡張） |
+| 地形から計算 | 地形の、高さマップから水が流れる向き（斜面の下り）を求める。川の流れを自動で作る（[Rivers and Lakes](../../terrain/generation/rivers.md) の、D8 法の方向） |
+| 流体シミュレーション | 川のシミュレーション（流体の計算）の結果を焼く |
 | 障害物の周りに曲げる | 岩や、橋脚の周りの流れを回り込む向きで、描く |
 
 川の中心線（スプライン）から、<strong>流れの向きをスプラインの接線方向</strong>として、作る方法もあります。川の岸に近いほど流れを 遅くします（岸は摩擦で、遅い）。
@@ -231,15 +231,15 @@ float normal_strength = lerp(0.3, 1.0, saturate(speed));
 | 流す対象 | 方法 |
 | --- | --- |
 | 泡のテクスチャ | 法線と同じ、2 位相の混ぜ合わせ |
-| 泡の履歴（蓄積されたもの） | 履歴のテクスチャを、フロー マップの向きに毎フレーム、少しずつずらして書き直す（移流） |
-| 水面に浮くオブジェクト | 位置を、フロー マップの向きに動かす（物理の、外力として） |
+| 泡の履歴（蓄積されたもの） | 履歴のテクスチャをフロー マップの向きに毎フレーム、少しずつずらして書き直す（移流） |
+| 水面に浮くオブジェクト | 位置をフロー マップの向きに動かす（物理の、外力として） |
 
 ## 移流（advection）：テクスチャ自体を流す
 
-2 位相の方法は <strong>模様のテクスチャ</strong>を流す、簡単な方法です。蓄積した情報（泡の履歴）を、流すときは毎フレーム、流れの向きの逆向きにサンプルして、書き直す方法（移流、Neyret 2003 の考え方の、一部）を使います。
+2 位相の方法は <strong>模様のテクスチャ</strong>を流す、簡単な方法です。蓄積した情報（泡の履歴）を流すときは毎フレーム、流れの向きの逆向きにサンプルして、書き直す方法（移流、Neyret 2003 の考え方の、一部）を使います。
 
 ```hlsl
-// 前のフレームの泡の量を、流れに沿って動かす（半ラグランジュ法）。
+// 前のフレームの泡の量を流れに沿って動かす（半ラグランジュ法）。
 float2 flow = g_flow_map.Sample(g_linear_clamp, uv).xy * 2.0 - 1.0;
 float2 prev_uv = uv - flow * flow_scale * dt;               // 流れの上流側から、読む
 float foam = g_foam_prev.Sample(g_linear_clamp, prev_uv).r;

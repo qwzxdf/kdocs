@@ -13,7 +13,7 @@ tags:
 `#include "SimpleMath.h"`
 </div>
 
-**SimpleMath**（シンプル マス）は、Microsoft の DirectX Tool Kit（DirectXTK） に入っている、DirectXMath を、普通の C++ らしく書けるようにしたラッパーです。DirectXMath の `XMVECTOR` と `XMFLOAT3` を、1 つの型（`Vector3`）にまとめ、`+`、`-`、`*` などの演算子とメンバ関数（`v.Length()`、`v.Dot(w)`）で書けます。メンバ変数にも計算にも同じ型でそのまま使えます（16 バイト境界の問題もありません）。内部では DirectXMath を呼ぶので、遅くはなりません。普通のゲームのコードは、SimpleMath で書き、本当に速さが必要な所だけ、DirectXMath を直接使うのが、おすすめです。このサイトのサンプルは、SimpleMath の型で書き、座標系は左手系・Y-up・+Z が前にそろえています（SimpleMath の `Create…` 関数は右手系なので、そこだけ注意が必要です。[下](#convention)）。
+**SimpleMath**（シンプル マス）は、Microsoft の DirectX Tool Kit（DirectXTK） に入っている、DirectXMath を普通の C++ らしく書けるようにしたラッパーです。DirectXMath の `XMVECTOR` と `XMFLOAT3` を 1 つの型（`Vector3`）にまとめ、`+`、`-`、`*` などの演算子とメンバ関数（`v.Length()`、`v.Dot(w)`）で書けます。メンバ変数にも計算にも同じ型でそのまま使えます（16 バイト境界の問題もありません）。内部では DirectXMath を呼ぶので、遅くはなりません。普通のゲームのコードは、SimpleMath で書き、本当に速さが必要な所だけ、DirectXMath を直接使うのが、おすすめです。このサイトのサンプルは、SimpleMath の型で書き、座標系は左手系・Y-up・+Z が前にそろえています（SimpleMath の `Create…` 関数は右手系なので、そこだけ注意が必要です。[下](#convention)）。
 
 !!! tip "ポイント"
     - 型は <strong>`Vector2` / `Vector3` / `Vector4`、`Matrix`、`Quaternion`、`Plane`、`Ray`、`Color`、`Viewport`</strong>。<strong>`DirectX::SimpleMath` 名前空間</strong>。
@@ -34,7 +34,7 @@ SimpleMath は、**DirectX Tool Kit** に含まれています（[GitHub](https:
 | 方法 | 手順 |
 | --- | --- |
 | vcpkg | `vcpkg install directxtk:x64-windows`（[外部ライブラリの入れ方](../vs/libraries.md#vcpkg)）。`#include <SimpleMath.h>` で使える |
-| ソースを追加 | DirectXTK のリポジトリの `Inc/SimpleMath.h`、`Inc/SimpleMath.inl`、`Src/SimpleMath.cpp` を、プロジェクトに追加する。DirectXMath があれば、SimpleMath だけを、ソースで追加するのが簡単 |
+| ソースを追加 | DirectXTK のリポジトリの `Inc/SimpleMath.h`、`Inc/SimpleMath.inl`、`Src/SimpleMath.cpp` をプロジェクトに追加する。DirectXMath があれば、SimpleMath だけをソースで追加するのが簡単 |
 | NuGet | `directxtk_desktop_win10` パッケージ |
 
 DirectXMath（`<DirectXMath.h>`）は、Windows SDK に含まれるので、別に入れる必要はありません。
@@ -115,7 +115,7 @@ Matrix world = Matrix::CreateScale(2.0f)
 Matrix view = XMMatrixLookAtLH(camera_pos, target, Vector3::Up);
 Matrix proj = XMMatrixPerspectiveFovLH(fov_y, aspect, 0.1f, 1000.0f);
 
-// 頂点を、クリップ空間へ
+// 頂点をクリップ空間へ
 Matrix mvp = world * view * proj;
 ```
 
@@ -150,7 +150,7 @@ Matrix mvp = world * view * proj;
 // Y 軸まわりに 90 度回転
 Quaternion q = Quaternion::CreateFromAxisAngle(Vector3::UnitY, XM_PIDIV2);
 
-// ベクトルを、クォータニオンで回転する
+// ベクトルをクォータニオンで回転する
 Vector3 rotated = Vector3::Transform(kForward, q);
 
 // 球面線形補間
@@ -194,7 +194,7 @@ Vector3 v(1, 2, 3);
 
 // SimpleMath → DirectXMath（暗黙の変換）
 XMVECTOR xv = v;                                       // Vector3 → XMVECTOR
-XMVECTOR n = XMVector3Normalize(v);                    // DirectXMath の関数に、そのまま渡せる
+XMVECTOR n = XMVector3Normalize(v);                    // DirectXMath の関数にそのまま渡せる
 
 // DirectXMath → SimpleMath（代入）
 Vector3 back = XMVector3Cross(v, Vector3::Up);         // XMVECTOR → Vector3
@@ -211,8 +211,8 @@ Matrix m2 = XMMatrixTranslation(1, 2, 3);
 
 | 項目 | 説明 |
 | --- | --- |
-| **内部は DirectXMath** | 各演算が、`XMLoad` → 計算 → `XMStore`。1 回の演算は、SIMD |
-| DirectXMath を、手で連続して使う場合より、少し遅い | 演算のたびにロード・ストアが入る（コンパイラの最適化でかなり消える） |
+| **内部は DirectXMath** | 各演算が `XMLoad` → 計算 → `XMStore`。1 回の演算は、SIMD |
+| DirectXMath を手で連続して使う場合より、少し遅い | 演算のたびにロード・ストアが入る（コンパイラの最適化でかなり消える） |
 | ふつうのゲームでは、十分速い | 毎フレームの数百〜数千回の演算なら、問題ない |
 | ホット ループ（数万個ぶん）は、`XMVECTOR` で直接 | [SIMD](../optimize/simd.md)、[DirectXMath](directxmath.md) |
 
@@ -262,7 +262,7 @@ inline Matrix MakeWorld(const Vector3& position, const Vector3& forward, const V
 | 三角形の巻き方向 | 時計回りが表（Direct3D の既定）。法線は `Cross(v1 - v0, v2 - v0)` |
 | 一貫性 | ビュー・射影を `LH` にそろえる。1 つでも `RH` が混ざると、画面が反転する |
 
-DirectXTK には、`#define DIRECTX_MATH_LH` のような全体の設定はありません。上の置き換えを、1 つのヘッダ（`math_conventions.h`）にまとめて、プロジェクト全体で使います（[座標系](coordinate-systems.md)）。
+DirectXTK には、`#define DIRECTX_MATH_LH` のような全体の設定はありません。上の置き換えを 1 つのヘッダ（`math_conventions.h`）にまとめて、プロジェクト全体で使います（[座標系](coordinate-systems.md)）。
 
 ## よくあるミス
 
@@ -275,19 +275,19 @@ DirectXTK には、`#define DIRECTX_MATH_LH` のような全体の設定はあ�
 ??? failure "位置を `TransformNormal` で、方向を `Transform` で変換する"
     位置は `Transform`（平行移動が効く）、方向は `TransformNormal`（平行移動が効かない）です。逆にするとずれます。
 
-??? failure "掛け順を、列ベクトルの感覚で書く"
+??? failure "掛け順を列ベクトルの感覚で書く"
     行ベクトル規約なので、`world = S * R * T`（拡大 → 回転 → 平行移動）です。
 
 ??? failure "`Matrix::Lerp` で回転を補間する"
     要素ごとの補間なので回転がつぶれます。回転はクォータニオンの `Slerp` で補間します。
 
-??? failure "右手系と左手系の関数を、混ぜて呼ぶ"
+??? failure "右手系と左手系の関数を混ぜて呼ぶ"
     `CreateLookAt`（右手系）と `XMMatrixPerspectiveFovLH`（左手系）を混ぜると画面がおかしくなります。ビュー・射影は `LH` に統一します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] SimpleMath ＝ DirectXMath を、普通の C++ で書けるようにしたラッパー（DirectX Tool Kit）
+    - [x] SimpleMath ＝ DirectXMath を普通の C++ で書けるようにしたラッパー（DirectX Tool Kit）
     - [x] 型は `Vector3`、`Matrix`、`Quaternion`、`Ray`、`Plane`、`Viewport`。メンバにも配列にも使える
     - [x] 関数の既定は右手系（前は `(0, 0, -1)`）。このサイトは左手系・+Z が前でビュー・射影は `LH`、前は `kForward`。行ベクトル（`S * R * T`）
     - [x] `XMVECTOR` / `XMMATRIX` と、自動で変換できる。速さが必要な所だけ DirectXMath を直接

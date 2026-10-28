@@ -67,7 +67,7 @@ true
 
 | 場面 | 書き方 |
 | --- | --- |
-| 想定外のエラー時に、呼び出し履歴をログに残す | `std::println("{}", std::stacktrace::current());` |
+| 想定外のエラー時に呼び出し履歴をログに残す | `std::println("{}", std::stacktrace::current());` |
 
 ## よくあるミス
 

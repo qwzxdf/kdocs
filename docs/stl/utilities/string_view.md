@@ -436,7 +436,7 @@ size_type find_last_of(basic_string_view chars, size_type pos = npos) const noex
 
 - 計算量: O(長さ × chars の長さ)
 
-`chars` のどれかの文字が、最後に現れる位置を探します。なければ `npos`。
+`chars` のどれかの文字が最後に現れる位置を探します。なければ `npos`。
 
 ### find_last_not_of {#find_last_not_of}
 
@@ -446,7 +446,7 @@ size_type find_last_not_of(basic_string_view chars, size_type pos = npos) const 
 
 - 計算量: O(長さ × chars の長さ)
 
-`chars` に含まれない文字が、最後に現れる位置を探します。末尾の空白を取り除く位置を探すときに便利です。
+`chars` に含まれない文字が最後に現れる位置を探します。末尾の空白を取り除く位置を探すときに便利です。
 
 ### length {#length}
 
@@ -568,7 +568,7 @@ const_reference at(size_type pos) const;
 
 - 計算量: 定数
 
-`pos` 番目の文字を、範囲チェックつきで返します。範囲外なら `std::out_of_range` を投げます。
+`pos` 番目の文字を範囲チェックつきで返します。範囲外なら `std::out_of_range` を投げます。
 
 ## ゲームでの使いどころ
 

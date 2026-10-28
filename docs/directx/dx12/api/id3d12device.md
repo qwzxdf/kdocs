@@ -378,7 +378,7 @@ HRESULT ID3D12Device::CreateRootSignature(
 
 ルート シグネチャ（シェーダーに渡す引数の型の定義）を作ります。
 
-`pBlobWithRootSignature` と `blobLengthInBytes` には `D3D12SerializeRootSignature` が作ったバイト列（`ID3DBlob` の `GetBufferPointer()` と `GetBufferSize()`）を渡します。構造体をそのまま渡すのではなく、いったんシリアライズしたものを渡す点が、見落としやすい所です。HLSL のシェーダーにルート シグネチャを埋め込んだ場合は、コンパイル済みシェーダーのバイト列をそのまま渡せます。
+`pBlobWithRootSignature` と `blobLengthInBytes` には `D3D12SerializeRootSignature` が作ったバイト列（`ID3DBlob` の `GetBufferPointer()` と `GetBufferSize()`）を渡します。構造体をそのまま渡すのではなく、いったんシリアライズしたものを渡す点が見落としやすい所です。HLSL のシェーダーにルート シグネチャを埋め込んだ場合は、コンパイル済みシェーダーのバイト列をそのまま渡せます。
 
 戻り値は成功なら `S_OK` です。`E_INVALIDARG` はバイト列がルート シグネチャとして読めないときです。
 
@@ -425,7 +425,7 @@ GPU の時刻や統計（タイムスタンプ、オクルージョン、パイ�
 | `riid` | `REFIID` | 取り出すインターフェースの ID。`ID3D12QueryHeap` |
 | `ppvHeap` | `void**` | 結果を受け取るポインタのアドレス |
 
-`Type` が何を記録するかを決めます。時刻を測るなら `D3D12_QUERY_HEAP_TYPE_TIMESTAMP` です。COPY のキューの時刻だけは別の種類 `COPY_QUEUE_TIMESTAMP` で、DIRECT と COMPUTE のキューの時刻とは混ぜられません。`Count` は、そのヒープに記録できる数です。1 フレームに記録する数に、結果を読むまで待つフレーム数を掛けた分を確保します。`NodeMask` は GPU が 1 つなら 0 です。
+`Type` が何を記録するかを決めます。時刻を測るなら `D3D12_QUERY_HEAP_TYPE_TIMESTAMP` です。COPY のキューの時刻だけは別の種類 `COPY_QUEUE_TIMESTAMP` で、DIRECT と COMPUTE のキューの時刻とは混ぜられません。`Count` は、そのヒープに記録できる数です。1 フレームに記録する数に結果を読むまで待つフレーム数を掛けた分を確保します。`NodeMask` は GPU が 1 つなら 0 です。
 
 `riid` と `ppvHeap` は `IID_PPV_ARGS(&query_heap)` でまとめて渡します。戻り値は成功なら `S_OK` で、`pDesc` の内容が不正だと失敗します。使い方（`EndQuery`、`ResolveQueryData`）は [ID3D12QueryHeap](id3d12queryheap.md) と [GPU Queries and Timing (D3D12)](../query-timing.md) にあります。
 

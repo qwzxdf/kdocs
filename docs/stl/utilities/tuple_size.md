@@ -14,7 +14,7 @@ tags:
 `#include <tuple>`
 </div>
 
-`std::tuple_size` と `std::tuple_element` は、**tuple・pair・array の要素数と、各要素の型を、コンパイル時に調べる**部品です。テンプレートを書くとき以外は使いません。自作の型を構造化束縛に対応させるときにも、これらの特殊化を書きます。
+`std::tuple_size` と `std::tuple_element` は、**tuple・pair・array の要素数と、各要素の型をコンパイル時に調べる**部品です。テンプレートを書くとき以外は使いません。自作の型を構造化束縛に対応させるときにも、これらの特殊化を書きます。
 
 !!! tip "ポイント"
     - `std::tuple_size_v<T>` が要素数、`std::tuple_element_t<N, T>` が N 番目の型。

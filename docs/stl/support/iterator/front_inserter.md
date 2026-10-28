@@ -59,7 +59,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| 履歴の先頭に、新しいものを足していく | `copy(src, std::front_inserter(history))` |
+| 履歴の先頭に新しいものを足していく | `copy(src, std::front_inserter(history))` |
 
 ## よくあるミス
 

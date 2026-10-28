@@ -189,17 +189,17 @@ Matrix Scene::WorldMatrix(const SceneObject& o) const {
 注目したい点が 3 つあります。
 
 - `Destroy` は、壊す物の ID を先に全部集めてから消しています。`unordered_map` を走査しながら `erase` すると、イテレーターが無効になるからです。
-- `SetParent` の `IsDescendant` は、輪を防ぐ検査です。「A の親を、A の子孫にする」と、親をたどっても終わらなくなってしまいます。
+- `SetParent` の `IsDescendant` は、輪を防ぐ検査です。「A の親を A の子孫にする」と、親をたどっても終わらなくなってしまいます。
 - `WorldMatrix` の掛け順は、行ベクトルの約束で、`自分 → 親 → さらに親` の順に左から右へ掛けます。`v * S * R * T * 親のS * 親のR * 親のT ...` と適用されるイメージです。
 
 ## ワイヤーフレームの箱を描く
 
-物を、単位立方体の枠線として描きます。物ごとに変換して、12 本の辺（24 頂点）を追加します。`Engine.cpp` に追加するコードです。
+物を単位立方体の枠線として描きます。物ごとに変換して、12 本の辺（24 頂点）を追加します。`Engine.cpp` に追加するコードです。
 
 ```cpp
 namespace {
 
-// 単位立方体（-0.5〜0.5）の枠線を、変換して線の頂点に追加する。
+// 単位立方体（-0.5〜0.5）の枠線を変換して線の頂点に追加する。
 void AddWireBox(std::vector<LineVertex>& lines, const Matrix& world, const Vector4& color) {
   Vector3 corners[8];
   for (int i = 0; i < 8; ++i) {
@@ -456,14 +456,14 @@ public class SceneDocument
 読みどころを拾います。
 
 - `Create` の `uint? id = null` は、省略できる引数です。省略されたら `AllocateId()` で新しい ID を振り、指定されたら、その番号で作ります（Undo で復活させるときのため）。
-- `(parent?.Children ?? Roots)` は、親がいればその `Children` を、いなければ `Roots` を使う書き方です。親の有無で入れ物を切り替えるのに、よく使います。
+- `(parent?.Children ?? Roots)` は、親がいればその `Children` をいなければ `Roots` を使う書き方です。親の有無で入れ物を切り替えるのに、よく使います。
 - `Destroy` で `obj.Children.ToList()` とコピーしているのは、反復中にコレクションが変わるのを避けるためです。
 - `Reparent` の `for` 文は、輪を防ぐ検査です。新しい親から親をたどって、`obj` に出会ったら不可にします。
-- `Changed` は、変更があったときに購読者へ知らせるイベントで、エンジンへの同期とツリーの更新が、これを購読します。
+- `Changed` は、変更があったときに購読者へ知らせるイベントで、エンジンへの同期とツリーの更新がこれを購読します。
 
 ## エンジンへの同期
 
-ドキュメントの変更を、エンジンへの命令に変えるクラスを作ります。まず、P/Invoke の宣言です。
+ドキュメントの変更をエンジンへの命令に変えるクラスを作ります。まず、P/Invoke の宣言です。
 
 ```csharp
 [StructLayout(LayoutKind.Sequential)]
@@ -527,7 +527,7 @@ using Editor.Models;
 
 namespace Editor.Services;
 
-// SceneDocument の変更を、エンジンに送る
+// SceneDocument の変更をエンジンに送る
 public sealed class SceneEngineSync
 {
     private readonly IRenderLoop _loop;
@@ -580,7 +580,7 @@ public sealed class SceneEngineSync
 }
 ```
 
-ここで大事なのは、`Post` に渡す前に、値をローカル変数にコピーしていることです。ラムダ式は変数を捕まえるので、`o.Position` のままにしておくと、描画スレッドが実行するとき（あとで）の最新の値を読んでしまい、UI スレッドと競合します。送る時点の値を、手元にコピーしておきます。また、`Created` では、作成、変換、色を 1 つの `Post` にまとめています。途中で他の命令が割り込まないようにするためです。
+ここで大事なのは、`Post` に渡す前に値をローカル変数にコピーしていることです。ラムダ式は変数を捕まえるので、`o.Position` のままにしておくと、描画スレッドが実行するとき（あとで）の最新の値を読んでしまい、UI スレッドと競合します。送る時点の値を手元にコピーしておきます。また、`Created` では、作成、変換、色を 1 つの `Post` にまとめています。途中で他の命令が割り込まないようにするためです。
 
 `SceneEngineSync` は、`SceneDocument` を購読するだけで、誰からも参照されません。そのまま放っておくと作られないので、起動時に一度解決して、コンストラクターで購読させます。
 

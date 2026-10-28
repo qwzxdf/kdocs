@@ -9,8 +9,8 @@ tags:
 <strong>シャドウ マップが重い・使えない環境（モバイル・遠くの小物）</strong>では、もっと安い影の技法を使います。ブロブ シャドウは足元に丸い暗い円を置くだけ、平面投影シャドウは物体を地面に押しつぶして黒く描く方法です。どちらも、柔らかさや正確さは劣りますが、安いです。このページではブロブ・平面投影の仕組みと使いどころを説明します。
 
 !!! tip "ポイント"
-    - ブロブ ＝ 足元に、丸いぼかした影の板を置く。
-    - 平面投影 ＝ 物体を、光の向きで地面に投影した形で、黒く描く。
+    - ブロブ ＝ 足元に丸いぼかした影の板を置く。
+    - 平面投影 ＝ 物体を光の向きで地面に投影した形で、黒く描く。
     - どちらも安いが、地面が平らな場合のみ。
     - モバイル・遠くの小さな物・キャラクターの補助の影に使う。
 
@@ -39,18 +39,18 @@ tags:
 <polygon points="530,220 590,220 590,280 530,280" fill="#b8794b" stroke="#7a4b2a" stroke-width="2"/>
 <polygon points="0,0 0,0 0,0 0,0" fill="#000000" fill-opacity="0.5"><animate attributeName="points" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.0663;0.0667;0.3333;0.6667;0.9583;1.0000" values="0,0 0,0 0,0 0,0;0,0 0,0 0,0 0,0;542.35,310 696.36,310 696.36,316 542.35,316;542.35,310 696.36,310 696.36,316 542.35,316;415.45,310 575.88,310 575.88,316 415.45,316;415.45,310 575.88,310 575.88,316 415.45,316;415.45,310 575.88,310 575.88,316 415.45,316"/></polygon>
 <circle cx="460" cy="110" r="12" fill="#e5aa28"><animate attributeName="cx" dur="12s" repeatCount="indefinite" keyTimes="0.0000;0.0667;0.3333;0.6667;0.9583;1.0000" values="460;460;460;670;670;670"/></circle>
-<text x="420" y="360" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">光の向きに沿って、物の頂点を地面へ投影した所が、影<animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
+<text x="420" y="360" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">光の向きに沿って、物の頂点を地面へ投影した所が影<animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
 <text x="40" y="410" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">どちらもシャドウ マップなしで描ける、安い影。地面が平らな場合に有効（段差や他の物には落ちない）。</text>
 </svg>
 
 <!-- fig:blob-planar:end -->
 
 ## ブロブ シャドウ（丸い影）
-<strong>足元に柔らかい丸い暗い画像</strong>（ブロブ）を、地面に貼るだけの影です。シャドウ マップなしで最も安く、「地面に接している」感じを出せます。
+<strong>足元に柔らかい丸い暗い画像</strong>（ブロブ）を地面に貼るだけの影です。シャドウ マップなしで最も安く、「地面に接している」感じを出せます。
 
 | 項目 | 内容 |
 | --- | --- |
-| 実装 | 地面に丸いグラデーションの四角形（デカール）を、キャラの足元に置く（デカール） |
+| 実装 | 地面に丸いグラデーションの四角形（デカール）をキャラの足元に置く（デカール） |
 | 変化 | 高さに応じて薄く・大きく（ジャンプ中は薄くぼける） |
 | 利点 | 安い。モバイル・多数のキャラに向く |
 | 欠点 | 形が丸いだけ。光の方向・物の形を反映しない。傾斜地で浮く |
@@ -80,11 +80,11 @@ XMMATRIX shadow_matrix = XMMatrixShadow(plane, XMVectorNegate(light));
 
 ## シャドウ マップを使わない影
 
-<strong>シャドウ マップ</strong>は 強力ですが、コストが高く画質の調整（バイアス、ちらつき）も大変です。用途によってはもっと簡単な方法で十分に、見栄えのする影が作れます。
+<strong>シャドウ マップ</strong>は 強力ですが、コストが高く画質の調整（バイアス、ちらつき）も大変です。用途によってはもっと簡単な方法で十分に見栄えのする影が作れます。
 
 ## ブロブ影（丸い影）
 
-<strong>物の足元に丸くてぼんやりした、暗い絵</strong>（ブロブ）を地面に、貼るだけの最も簡単な影です。
+<strong>物の足元に丸くてぼんやりした、暗い絵</strong>（ブロブ）を地面に貼るだけの最も簡単な影です。
 
 ```text
      ●  キャラクター
@@ -95,10 +95,10 @@ XMMATRIX shadow_matrix = XMMatrixShadow(plane, XMVectorNegate(light));
 
 | 長所 | 短所 |
 | --- | --- |
-| 軽い（四角形 1 枚） | 形が、丸い（物の形にならない） |
-| ちらつかない安定 | 光の方向に、依存しない（真下にできる） |
-| 接地感がしっかり出る | 地面が、凸凹だと浮いて見える |
-| モバイル、低スペックで使える | 他の物に影が、落ちない |
+| 軽い（四角形 1 枚） | 形が丸い（物の形にならない） |
+| ちらつかない安定 | 光の方向に依存しない（真下にできる） |
+| 接地感がしっかり出る | 地面が凸凹だと浮いて見える |
+| モバイル、低スペックで使える | 他の物に影が落ちない |
 
 ### 実装
 
@@ -107,20 +107,20 @@ XMMATRIX shadow_matrix = XMMatrixShadow(plane, XMVectorNegate(light));
 float4 main(float2 uv : TEXCOORD0) : SV_Target {
   float d = distance(uv, float2(0.5, 0.5)) * 2.0;            // 中心 0、縁 1
   float alpha = saturate(1.0 - d);
-  alpha *= alpha;                                             // 縁を、なだらかに（2 乗）
-  return float4(0, 0, 0, alpha * g_shadow_opacity);          // アルファ ブレンドで、地面に、重ねる
+  alpha *= alpha;                                             // 縁をなだらかに（2 乗）
+  return float4(0, 0, 0, alpha * g_shadow_opacity);          // アルファ ブレンドで、地面に重ねる
 }
 ```
 
 | 工夫 | 内容 |
 | --- | --- |
-| 高さで薄くする | 物が、地面から離れる（ジャンプ）ほど薄く、広がる |
-| 地面に沿わせる | 四角形を地面の形に、投影（デカール、[Terrain Decals and Roads](../../terrain/texturing/decals.md)）。斜面でも浮かない |
-| 複数（足ごと） | 足ごとに、ブロブを置くと歩く足元の接地が、強調される |
+| 高さで薄くする | 物が地面から離れる（ジャンプ）ほど薄く、広がる |
+| 地面に沿わせる | 四角形を地面の形に投影（デカール、[Terrain Decals and Roads](../../terrain/texturing/decals.md)）。斜面でも浮かない |
+| 複数（足ごと） | 足ごとに、ブロブを置くと歩く足元の接地が強調される |
 
 ## 平面への投影影（プラナー シャドウ）
 
-<strong>物の頂点を平面（地面）に投影</strong>して、影の形をそのまま描く方法です（Blinn、1988）。物の形になった影が平らな地面に、できます。
+<strong>物の頂点を平面（地面）に投影</strong>して、影の形をそのまま描く方法です（Blinn、1988）。物の形になった影が平らな地面にできます。
 
 ```text
  光
@@ -136,7 +136,7 @@ float4 main(float2 uv : TEXCOORD0) : SV_Target {
 using namespace DirectX::SimpleMath;
 
 // 平面 n·p + d = 0 に、光の方向 l（光が進む向き）で、投影する行列（右手系、行ベクトル）。
-// 投影行列 = d·I − l·nᵀ  の形（頂点を、同次座標で、平面上へ、移す）。
+// 投影行列 = d·I − l·nᵀ  の形（頂点を同次座標で、平面上へ移す）。
 Matrix PlanarShadowMatrix(const Vector3& plane_normal, float plane_d, const Vector3& light_dir) {
   const float dot = plane_normal.Dot(light_dir);
   Matrix m;
@@ -147,12 +147,12 @@ Matrix PlanarShadowMatrix(const Vector3& plane_normal, float plane_d, const Vect
 }
 ```
 
-`DirectX::XMMatrixShadow`（DirectXMath）が、平面と光の位置（または方向）から、投影行列を作ってくれます。
+`DirectX::XMMatrixShadow`（DirectXMath）が平面と光の位置（または方向）から、投影行列を作ってくれます。
 
 | 要素 | 内容 |
 | --- | --- |
 | 描き方 | 物を投影行列で、変換してもう一度描く。色は半透明の黒 |
-| 二重ブレンドの問題 | 物の、三角形が重なる部分が 2 回描かれ、濃くなる（ムラ）。ステンシルで 1 画素 1 回に、制限する |
+| 二重ブレンドの問題 | 物の、三角形が重なる部分が 2 回描かれ、濃くなる（ムラ）。ステンシルで 1 画素 1 回に制限する |
 | Z ファイティング | 影の平面が地面と、同じ高さでチラつく。少し持ち上げる（バイアス）、または深度バイアス |
 
 ```cpp
@@ -175,8 +175,8 @@ device->CreateDepthStencilState(&ds, &planar_shadow_ds);
 | 長所 | 短所 |
 | --- | --- |
 | 物の形の影が出る | 平らな地面にしか、落ちない（階段、壁、他の物に落ちない） |
-| 光の方向に従う | 影の縁が、硬い（ぼかしが難しい） |
-| シャドウ マップが不要 | 物を、もう一度描く（コストがかかる） |
+| 光の方向に従う | 影の縁が硬い（ぼかしが難しい） |
+| シャドウ マップが不要 | 物をもう一度描く（コストがかかる） |
 | 古いゲーム機、モバイルで使われる | 自己影、他の物への影が無い |
 
 ## 使い分け

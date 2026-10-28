@@ -64,7 +64,7 @@ true
 
 | 場面 | 書き方 |
 | --- | --- |
-| メモリ不足で終わる前に、ログを残す | `std::set_new_handler([] { LogOutOfMemory(); std::abort(); })` |
+| メモリ不足で終わる前にログを残す | `std::set_new_handler([] { LogOutOfMemory(); std::abort(); })` |
 
 ## よくあるミス
 

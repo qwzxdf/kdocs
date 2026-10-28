@@ -18,7 +18,7 @@ tags:
 
 !!! tip "ポイント"
     - クラスが `public std::enable_shared_from_this<自分>` を継承する。
-    - `shared_from_this()` は `shared_ptr` を、`weak_from_this()`（C++17）は `weak_ptr` を返す。
+    - `shared_from_this()` は `shared_ptr` を `weak_from_this()`（C++17）は `weak_ptr` を返す。
     - **すでに `shared_ptr` で管理されているときだけ**使える（コンストラクタの中では使えない）。
 
 !!! info "このページを読む前に"
@@ -69,8 +69,8 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| 自分を、非同期処理やイベントの購読者に登録する | `events.Subscribe(weak_from_this())` |
-| ツリーの子が、親への `weak_ptr` を持つ | `child->parent = weak_from_this();` |
+| 自分を非同期処理やイベントの購読者に登録する | `events.Subscribe(weak_from_this())` |
+| ツリーの子が親への `weak_ptr` を持つ | `child->parent = weak_from_this();` |
 
 ## よくあるミス
 

@@ -74,7 +74,7 @@ allocators[frame_index]->Reset();               // これで安全に Reset で�
 1 つのアロケーターには同時に記録できるコマンド リストが 1 つだけです。2 つのリストを同じアロケーターで続けて `Reset` すると、2 つ目が失敗します。
 
 ```cpp
-// 間違い。同じアロケーターに、2 つのリストを同時に記録している。
+// 間違い。同じアロケーターに 2 つのリストを同時に記録している。
 list_a->Reset(allocator.Get(), nullptr);
 list_b->Reset(allocator.Get(), nullptr);  // エラー。list_a が記録中
 ```

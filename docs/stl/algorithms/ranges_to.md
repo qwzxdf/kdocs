@@ -15,7 +15,7 @@ tags:
 `#include <ranges>`
 </div>
 
-`views::filter` や `views::transform` で絞り込んだり変換したりした結果は、「見えているだけ」で、実体のあるコンテナではありません。そのまま保存しておくことも、`size()` で個数を調べることもできません。`std::ranges::to` は、ビューの結果を、`vector` や `set` などの実体のあるコンテナに作り直す C++23 の関数です。パイプの最後に `| std::ranges::to<std::vector>()` と付けるだけで使えます。
+`views::filter` や `views::transform` で絞り込んだり変換したりした結果は、「見えているだけ」で、実体のあるコンテナではありません。そのまま保存しておくことも、`size()` で個数を調べることもできません。`std::ranges::to` は、ビューの結果を `vector` や `set` などの実体のあるコンテナに作り直す C++23 の関数です。パイプの最後に `| std::ranges::to<std::vector>()` と付けるだけで使えます。
 
 !!! tip "ポイント"
     - <strong>ビューの結果を保存したいときは、最後に `| std::ranges::to<std::vector>()`。</strong>

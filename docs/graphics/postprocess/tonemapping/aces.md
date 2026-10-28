@@ -23,7 +23,7 @@ tags:
 
 ## ACES とは
 
-<strong>ACES</strong> は撮影機材やデジタル素材の色を、共通の広い色空間（AP0・AP1）にそろえ、最後に出力デバイスに合わせて変換する仕組み全体の名前です。
+<strong>ACES</strong> は撮影機材やデジタル素材の色を共通の広い色空間（AP0・AP1）にそろえ、最後に出力デバイスに合わせて変換する仕組み全体の名前です。
 
 <svg class="fig illust" viewBox="0 0 780 150" role="img" aria-label="ACES の流れ">
 <text x="20" y="26" class="fig-title">ACES の流れ（本物）：広い色空間で扱い、最後に出力へ</text>
@@ -56,7 +56,7 @@ float3 ACESNarkowicz(float3 x) {
 }
 ```
 
-Narkowicz 版のコードの要点です。入力に露出を掛けておく必要があります。この式は、ACES の曲線を、露出済みの値に合わせてフィットしたもので、中間灰 0.18 付近が、おおよそ 0.27 になります。`saturate` で、1 を超えた分を切ります（式はほぼ 1 に漸近しますが、超えることがあります）。R・G・B にチャンネルごとに適用するので、これが色の偏りの原因にもなります。
+Narkowicz 版のコードの要点です。入力に露出を掛けておく必要があります。この式は、ACES の曲線を露出済みの値に合わせてフィットしたもので、中間灰 0.18 付近がおおよそ 0.27 になります。`saturate` で、1 を超えた分を切ります（式はほぼ 1 に漸近しますが、超えることがあります）。R・G・B にチャンネルごとに適用するので、これが色の偏りの原因にもなります。
 
 ## 色空間つきのフィット：Stephen Hill
 
@@ -91,15 +91,15 @@ float3 ACESFitted(float3 color) {
 
 | 点 | 説明 |
 | --- | --- |
-| 入力・出力の行列 | sRGB ↔ ACES の色空間を、3×3 行列で変換 |
+| 入力・出力の行列 | sRGB ↔ ACES の色空間を 3×3 行列で変換 |
 | `RRTAndODTFit` | 曲線の部分（有理関数） |
 | 行列を掛ける向き | 列ベクトル規約で書かれている（`mul(行列, ベクトル)`）。行ベクトル規約の C++・HLSL では、転置に注意 |
 | Narkowicz との違い | 色空間の変換が入るので、彩度や色相の変化が本物に近い |
 
 
-原典は、映画業界の標準である Academy Color Encoding System (ACES) で、Narkowicz（2016）と Hill（2017）が、この変換をゲーム向けの軽い式にフィットしました。
+原典は、映画業界の標準である Academy Color Encoding System (ACES) で、Narkowicz（2016）と Hill（2017）がこの変換をゲーム向けの軽い式にフィットしました。
 
-原典は、映画業界の標準である Academy Color Encoding System (ACES) で、Narkowicz（2016）と Hill（2017）が、この変換をゲーム向けの軽い式にフィットしました。
+原典は、映画業界の標準である Academy Color Encoding System (ACES) で、Narkowicz（2016）と Hill（2017）がこの変換をゲーム向けの軽い式にフィットしました。
 
 ## 色が偏る理由
 
@@ -107,7 +107,7 @@ float3 ACESFitted(float3 color) {
 
 ACES は、ハイライトの色が白へ向かうように作られた、フィルム的な曲線です。そのため、いくつかの現象が起きます。青い強い光が紫がかるのは、青の成分だけ先に飽和し、赤が残るためです。赤やオレンジの強い光が黄色へ変わるのは、赤が先に飽和し、緑が目立つためです。彩度の高い明部が白に近づくのは、フィルムのハイライトの特徴で、意図した表現にもなります。
 
-ゲームではネオンやエフェクトの鮮やかな色が、意図とずれることがあります。その場合は、AgX や色補正で対処します。
+ゲームではネオンやエフェクトの鮮やかな色が意図とずれることがあります。その場合は、AgX や色補正で対処します。
 
 ## より良いやり方
 
@@ -125,7 +125,7 @@ ACES は、ハイライトの色が白へ向かうように作られた、フィ
 <defs><marker id="arr-tonemap-aces-curves" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">トーンマップ: 明るさ 0〜8 を、画面に出せる 0〜1 に押し込む</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">トーンマップ: 明るさ 0〜8 を画面に出せる 0〜1 に押し込む</text>
 <rect x="70" y="70" width="640" height="240" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
 <line x1="230.0" y1="70" x2="230.0" y2="310" stroke="#e2e8f0" stroke-width="1"/>
 <line x1="70" y1="130.0" x2="710" y2="130.0" stroke="#e2e8f0" stroke-width="1"/>
@@ -163,10 +163,10 @@ ACES は、ハイライトの色が白へ向かうように作られた、フィ
 ??? failure "行列の掛ける順（転置）を間違えて、色が変になる"
     Hill のコードは列ベクトル規約。行ベクトル規約の環境では、行列を転置して掛ける。
 
-??? failure "ACES の後に、さらに露出やコントラストを足して、二重になる"
+??? failure "ACES の後にさらに露出やコントラストを足して、二重になる"
     ACES はすでにコントラストが強い。グレーディングは、控えめに。
 
-??? failure "ブルームやエフェクトが、紫・黄に偏って見える"
+??? failure "ブルームやエフェクトが紫・黄に偏って見える"
     ACES の色の偏り。エフェクトの色を調整する、またはAgX を検討。
 
 ## これだけ覚える

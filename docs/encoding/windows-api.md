@@ -7,7 +7,7 @@ tags:
 
 # Windows API と文字コード
 
-Windows の API は**文字列を扱う関数が、2 種類**あります。末尾が `A` の関数（`CreateFileA`、`MessageBoxA`）と末尾が `W` の関数（`CreateFileW`、`MessageBoxW`）です。`A` は ANSI（日本語版 Windows では Shift_JIS 系の CP932）、`W` は Wide（UTF-16）を受け取ります。しかも普段書く `CreateFile` や `MessageBox` は実はマクロで、プロジェクトの設定によって A か W に置き換わります。この仕組みを知らないと「`std::string` を渡したら、日本語が文字化けする」「ファイルが開けない」といった問題が起きます。このページではWindows API では、どの文字コードが要求されるのか、どう呼び分けるのかを徹底的に整理します。
+Windows の API は**文字列を扱う関数が 2 種類**あります。末尾が `A` の関数（`CreateFileA`、`MessageBoxA`）と末尾が `W` の関数（`CreateFileW`、`MessageBoxW`）です。`A` は ANSI（日本語版 Windows では Shift_JIS 系の CP932）、`W` は Wide（UTF-16）を受け取ります。しかも普段書く `CreateFile` や `MessageBox` は実はマクロで、プロジェクトの設定によって A か W に置き換わります。この仕組みを知らないと「`std::string` を渡したら、日本語が文字化けする」「ファイルが開けない」といった問題が起きます。このページではWindows API では、どの文字コードが要求されるのか、どう呼び分けるのかを徹底的に整理します。
 
 !!! tip "ポイント"
     - <strong>Windows の API は、内部が UTF-16。`W` 版が本物</strong>で `A` 版は「ANSI → UTF-16 に変換して、`W` 版を呼ぶ」ラッパー。
@@ -56,7 +56,7 @@ Windows の API は**文字列を扱う関数が、2 種類**あります。末�
 プロジェクトのプロパティ → 構成プロパティ → 詳細 → 文字セット が、「Unicode 文字セットを使用する」なら `UNICODE` と `_UNICODE` が定義されます。
 
 !!! warning "マクロの落とし穴"
-    `UNICODE` の有無で同じコードが、`A` 版にも `W` 版にもなるので、意図せず別の関数を呼ぶことがあります。さらに、自分で作った関数名がマクロに置き換えられる事故もあります（`GetObject`、`CreateWindow`、`SendMessage`、`min` / `max` など）。`W` 版を明示的に呼ぶのが安全です。
+    `UNICODE` の有無で同じコードが `A` 版にも `W` 版にもなるので、意図せず別の関数を呼ぶことがあります。さらに、自分で作った関数名がマクロに置き換えられる事故もあります（`GetObject`、`CreateWindow`、`SendMessage`、`min` / `max` など）。`W` 版を明示的に呼ぶのが安全です。
 
 ## どの関数が何を要求するか
 
@@ -99,7 +99,7 @@ Windows の API は**文字列を扱う関数が、2 種類**あります。末�
 ## 推奨のやり方
 
 ```cpp
-// ゲームの文字列は UTF-8。API を呼ぶ直前に、W 版に渡せる形に変換する
+// ゲームの文字列は UTF-8。API を呼ぶ直前に W 版に渡せる形に変換する
 
 void ShowError(const std::string& message_utf8) {
   std::wstring wide = Utf8ToWide(message_utf8);                    // 変換の関数は、conversion.md
@@ -186,7 +186,7 @@ Visual Studio ではこのファイルを `app.manifest` として作りプロ�
 
 ### 「Beta: ワールドワイド言語サポートで Unicode UTF-8 を使用」（システム設定）
 
-Windows の設定（地域 → 管理者用の言語の設定 → システム ロケールの変更）に、システム全体を UTF-8 にするチェックがあります。ユーザーの PC の設定なので、配るアプリが前提にしてはいけません（古いアプリが壊れることがあるため、既定はオフです）。
+Windows の設定（地域 → 管理者用の言語の設定 → システム ロケールの変更）にシステム全体を UTF-8 にするチェックがあります。ユーザーの PC の設定なので、配るアプリが前提にしてはいけません（古いアプリが壊れることがあるため、既定はオフです）。
 
 ## main、wmain、WinMain、wWinMain
 

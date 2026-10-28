@@ -9,7 +9,7 @@ tags:
 [SSR の基礎](ssr-basics/index.md)の線形マーチ（1 ピクセルずつ進む）は、<strong>遠くまで進むとステップが何十〜何百回</strong>にもなり 重くなります。Hi-Z SSRは 階層的な深度バッファ（Hi-Z）を使って、空いている領域を一気に飛ばすことで、少ないステップで遠くまでレイを進めます。粗い反射・長いレイ・精度の高い当たり判定が要る現在の主流の方式です。このページでは Hi-Z の作り方・探索のアルゴリズム・精度の工夫を順に説明します。
 
 !!! tip "ポイント"
-    - <strong>Hi-Z</strong> ＝ <strong>各セルが、「その範囲で最も手前の深度（最小）」を持つミップ チェーン</strong>。
+    - <strong>Hi-Z</strong> ＝ <strong>各セルが「その範囲で最も手前の深度（最小）」を持つミップ チェーン</strong>。
     - レイを進めるとき 粗いミップで大きなセルごとに、「レイはこのセルの中のどの面よりも手前にいる」なら セルの端まで一気に飛ばす。
     - 当たりそうな所では ミップを下りて、細かく確かめる。
     - 画面空間では レイは(x, y, 深度) の空間で直線。深度（z/w）は画面上で線形なので計算が簡単。
@@ -32,7 +32,7 @@ tags:
 <text x="64" y="144" style="font-size:12px">セルの「最小深度」（最も手前の面）</text>
 <polyline points="80,60 220,100 380,140" fill="none" stroke="#e5484d" stroke-width="3"/>
 <g fill="#e5484d"><circle cx="80" cy="60" r="5"/><circle cx="220" cy="100" r="5"/><circle cx="380" cy="140" r="5"/></g>
-<text x="90" y="52" style="font-size:12px;fill:#e5484d;font-weight:700">大きなセルを、1 ステップで飛ばす</text>
+<text x="90" y="52" style="font-size:12px;fill:#e5484d;font-weight:700">大きなセルを 1 ステップで飛ばす</text>
 <polyline points="380,140 420,155 460,170 480,182" fill="none" stroke="#2ea043" stroke-width="3"/>
 <g fill="#2ea043"><circle cx="420" cy="155" r="4"/><circle cx="460" cy="170" r="4"/><circle cx="480" cy="182" r="4"/></g>
 <text x="400" y="272" style="font-size:12px;fill:#2ea043;font-weight:700">近づいたら、細かいセルで確かめる</text>
@@ -271,9 +271,9 @@ float3 dir_ss = end_ss - origin_ss;
 <g opacity="0"><animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.6126;0.6129;1.0000" values="0;0;1;1"/><rect x="30" y="462" width="900" height="56" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="46" y="486" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1e3a8a">命中は同じ(列 52)。深度の読み込みは 線形 51 回 → Hi-Z 14 回(約 3.6 分の 1)</text>
 </g>
-<text x="30" y="532" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ地形(灰色)に、同じ光線を飛ばす<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="532" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ地形(灰色)に同じ光線を飛ばす<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="532" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">上: 毎回 1 マス進む。 下: 空いている所は、大きな枠でまとめて飛ばす<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;0.5610;0.5613;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="532" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">手前の遮蔽物が無い所を、一気に飛ばせるのが Hi-Z の強み<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5610;0.5613;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="532" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">手前の遮蔽物が無い所を一気に飛ばせるのが Hi-Z の強み<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5610;0.5613;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:ssr-hiz-steps:end -->
@@ -308,7 +308,7 @@ Hi-Z のトレースの初期化です。`level` は今、見ているミップ�
     float min_z = hiz.Load(int3(cell, level)).r;
 ```
 
-今の階層でレイがいるマスを求めそのマスの 最小の深度 `min_z`（そのマスの中で、最も手前の面）を読みます。Hi-Z は深度の最小値のミップなのでレイが、`min_z` より手前ならそのマスの中には何も無いと言えます。
+今の階層でレイがいるマスを求めそのマスの 最小の深度 `min_z`（そのマスの中で、最も手前の面）を読みます。Hi-Z は深度の最小値のミップなのでレイが `min_z` より手前ならそのマスの中には何も無いと言えます。
 
 ```hlsl
     float2 boundary = (cell + step_dir) / dims;
@@ -339,7 +339,7 @@ Hi-Z のトレースの初期化です。`level` は今、見ているミップ�
   }
 ```
 
-判定です。レイが `min_z` より手前ならレイが、マスの中で面に達する前に境界を出るかを比べます。面に先に着くならそこまで進み階層を 1 つ下げて細かく、調べ直します。境界を先に出るなら境界の少し先まで進み階層を 1 つ上げて、大きく飛びます。レイがすでに面の奥なら階層を下げて、調べ直します。階層が 0 のさらに下（-1）まで、下がれば当たりです（[Hi-Z SSR](ssr-hiz.md)）。
+判定です。レイが `min_z` より手前ならレイがマスの中で面に達する前に境界を出るかを比べます。面に先に着くならそこまで進み階層を 1 つ下げて細かく、調べ直します。境界を先に出るなら境界の少し先まで進み階層を 1 つ上げて、大きく飛びます。レイがすでに面の奥なら階層を下げて、調べ直します。階層が 0 のさらに下（-1）まで、下がれば当たりです（[Hi-Z SSR](ssr-hiz.md)）。
 
 ```hlsl
   hit = origin + dir * t;
@@ -364,7 +364,7 @@ Hi-Z のトレースの初期化です。`level` は今、見ているミップ�
 
 Hi-Z は<strong>レイが最も細かいセルで深度に達した</strong>所を当たりとします。この点が本当に「その物体の表面」かを厚みで検証します。
 
-Hi-Z はレイが最も細かいセルで深度に達した所を当たりとします。この点が本当に物体の表面かどうかは 厚みで検証します。当たった位置のレイのビュー空間の奥行きとその画素の深度の差が、厚み以内かを調べます。範囲外なら薄い物のはるか後ろに突き抜けたとみなして当たりとせずレイを続けるか、その方向を諦めます。
+Hi-Z はレイが最も細かいセルで深度に達した所を当たりとします。この点が本当に物体の表面かどうかは 厚みで検証します。当たった位置のレイのビュー空間の奥行きとその画素の深度の差が厚み以内かを調べます。範囲外なら薄い物のはるか後ろに突き抜けたとみなして当たりとせずレイを続けるか、その方向を諦めます。
 
 ```hlsl
 float ray_z = LinearizeDepth(hit.z);
@@ -372,7 +372,7 @@ float scene_z = LinearizeDepth(depth_tex.Load(int3(hit_pixel, 0)).r);
 bool valid = (ray_z - scene_z) < thickness;
 ```
 
-単純に諦めると手前の細い物の後ろにある面が、反射に映らず、穴が開きます。厚みで弾かれたら探索を続ける実装もあります（手前の物体を飛び越えて、奥を探す）。
+単純に諦めると手前の細い物の後ろにある面が反射に映らず、穴が開きます。厚みで弾かれたら探索を続ける実装もあります（手前の物体を飛び越えて、奥を探す）。
 
 ## 精度とアーティファクト
 
@@ -416,9 +416,9 @@ bool valid = (ray_z - scene_z) < thickness;
 | ステップ数が距離に依存しない | 画面外・裏側が映らない限界は同じ |
 
 
-原典は Uludag の "Hi-Z Screen-Space Cone Tracing"（GPU Pro 5, 2014）で、Hi-Z によるレイ トレースを広めました。その後、Stachowiak らの確率的 SSR の発表が、Hi-Z と確率的サンプリングの組み合わせを標準にしました。
+原典は Uludag の "Hi-Z Screen-Space Cone Tracing"（GPU Pro 5, 2014）で、Hi-Z によるレイ トレースを広めました。その後、Stachowiak らの確率的 SSR の発表が Hi-Z と確率的サンプリングの組み合わせを標準にしました。
 
-原典は Uludag の "Hi-Z Screen-Space Cone Tracing"（GPU Pro 5, 2014）で、Hi-Z によるレイ トレースを広めました。その後、Stachowiak らの確率的 SSR の発表が、Hi-Z と確率的サンプリングの組み合わせを標準にしました。
+原典は Uludag の "Hi-Z Screen-Space Cone Tracing"（GPU Pro 5, 2014）で、Hi-Z によるレイ トレースを広めました。その後、Stachowiak らの確率的 SSR の発表が Hi-Z と確率的サンプリングの組み合わせを標準にしました。
 
 ## よくあるミス
 
@@ -441,10 +441,10 @@ bool valid = (ray_z - scene_z) < thickness;
 
 !!! abstract "まとめ"
     - [x] Hi-Z SSR ＝ <strong>階層的な最小深度で、空いている領域を一気に飛ばす</strong>レイ探索
-    - [x] Hi-Z ＝ 各セルが、範囲内の最も手前の深度（最小）のミップ。reverse-Z は最大
+    - [x] Hi-Z ＝ 各セルが範囲内の最も手前の深度（最小）のミップ。reverse-Z は最大
     - [x] 空いていれば端まで進んで、ミップを上げ、当たりそうなら下りて精査
     - [x] 探索は(画面 xy, NDC の z) の直線。最後に厚みで検証
-    - [x] ステップ数が、距離に依存しない。確率的 SSR の基盤
+    - [x] ステップ数が距離に依存しない。確率的 SSR の基盤
 
 ## 参考
 

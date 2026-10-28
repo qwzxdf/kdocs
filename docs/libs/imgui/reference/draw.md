@@ -7,7 +7,7 @@ tags:
 
 # 早見表：描画（ImDrawList）
 
-<strong>ImGui の部品は、最終的に「頂点とインデックスの列（描画リスト）」</strong>に変換されます。この描画リスト（`ImDrawList`）に、自分で線・四角・円・文字を足すことで独自のウィジェット・デバッグ表示・グラフを自由に作れます。座標は「画面の座標」で、`GetCursorScreenPos()` が基準です。
+<strong>ImGui の部品は、最終的に「頂点とインデックスの列（描画リスト）」</strong>に変換されます。この描画リスト（`ImDrawList`）に自分で線・四角・円・文字を足すことで独自のウィジェット・デバッグ表示・グラフを自由に作れます。座標は「画面の座標」で、`GetCursorScreenPos()` が基準です。
 
 !!! tip "ポイント"
     - <strong>`ImGui::GetWindowDrawList()`</strong>（そのウィンドウの上）・<strong>`GetForegroundDrawList()`</strong>（全ウィンドウの手前）・`GetBackgroundDrawList()`（全ウィンドウの奥）。
@@ -151,7 +151,7 @@ bool Knob(const char* label, float* value, float min, float max) {
 | `IdxBuffer` | インデックス（三角形） |
 | `CmdBuffer` | 描画コマンド（クリップ矩形・テクスチャ・インデックスの範囲） |
 
-バックエンド（`ImGui_ImplDX11_RenderDrawData` など）が、これらを GPU に送り、コマンドごとに `DrawIndexed` します。1 フレームの描画が重いときは、`ImGui::ShowMetricsWindow` で、頂点数・コマンド数を確認します。
+バックエンド（`ImGui_ImplDX11_RenderDrawData` など）がこれらを GPU に送り、コマンドごとに `DrawIndexed` します。1 フレームの描画が重いときは、`ImGui::ShowMetricsWindow` で、頂点数・コマンド数を確認します。
 
 ## 関連ページ
 

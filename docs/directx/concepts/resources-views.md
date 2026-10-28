@@ -39,8 +39,8 @@ GPU は「このメモリを描き込み先として、使う」「このメモ�
 | ビュー | 略 | 用途 | HLSL |
 | --- | --- | --- | --- |
 | レンダー ターゲット ビュー | RTV | ピクセル シェーダーの、出力先 | `SV_Target` |
-| シェーダー リソース ビュー | SRV | シェーダーが、読む | `Texture2D`、`StructuredBuffer`（`t#`） |
-| アンオーダード アクセス ビュー | UAV | シェーダーが、読み書き（順序なし） | `RWTexture2D`、`RWStructuredBuffer`（`u#`） |
+| シェーダー リソース ビュー | SRV | シェーダーが読む | `Texture2D`、`StructuredBuffer`（`t#`） |
+| アンオーダード アクセス ビュー | UAV | シェーダーが読み書き（順序なし） | `RWTexture2D`、`RWStructuredBuffer`（`u#`） |
 | 深度ステンシル ビュー | DSV | 深度・ステンシルの書き込み | （固定機能） |
 | 定数バッファ ビュー | CBV | シェーダーにパラメータを渡す | `cbuffer`（`b#`） |
 | サンプラー | — | テクスチャの読み方の設定 | `SamplerState`（`s#`） |

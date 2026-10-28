@@ -6,7 +6,7 @@ tags:
 
 # 第 31 章 HwndHost でビューポートを実装する
 
-この章で、エディタの真ん中にエンジンの絵が出ます。`HwndHost` を継承した部品を作って、その中に Win32 の子ウィンドウを作り、その `HWND` で `Engine` を動かします。第 3〜4 章で作った「色が変わるウィンドウ」が、WPF の画面の中に入るところです。
+この章で、エディタの真ん中にエンジンの絵が出ます。`HwndHost` を継承した部品を作って、その中に Win32 の子ウィンドウを作り、その `HWND` で `Engine` を動かします。第 3〜4 章で作った「色が変わるウィンドウ」が WPF の画面の中に入るところです。
 
 !!! info "このページを読む前に"
     - [第 30 章 3D ビューポートを埋め込む方法の比較](30-viewport-options.md)（前の章。ここまでの内容が前提になる）
@@ -115,7 +115,7 @@ internal static partial class Win32
 }
 ```
 
-定数の値は、C++ の `windows.h` に書かれているものと同じです。`WS_CHILD` は「親の中だけに表示される子ウィンドウ」、`WS_CLIPSIBLINGS` と `WS_CLIPCHILDREN` は「兄弟や子と重なる部分を描画から除く」指定で、ちらつきを防ぎます。`WNDCLASSEXW` は第 4 章の C++ と同じ構造体を、`nint` の個数や並びごと、そのまま C# で再現しています。`RECT` は矩形で、`GetClientRect` が返す値は物理ピクセルです。
+定数の値は、C++ の `windows.h` に書かれているものと同じです。`WS_CHILD` は「親の中だけに表示される子ウィンドウ」、`WS_CLIPSIBLINGS` と `WS_CLIPCHILDREN` は「兄弟や子と重なる部分を描画から除く」指定で、ちらつきを防ぎます。`WNDCLASSEXW` は第 4 章の C++ と同じ構造体を `nint` の個数や並びごと、そのまま C# で再現しています。`RECT` は矩形で、`GetClientRect` が返す値は物理ピクセルです。
 
 `SetLastError = true` は、呼び出しの直後に Windows のエラー コードを保存する指定で、あとから `Marshal.GetLastPInvokeError()` で読めます。`EntryPoint = "CreateWindowExW"` は、DLL 内の関数名を指定します。C# のメソッド名と変えたいときに使います（Windows API の `W` 付きが UTF-16 版です）。
 
@@ -147,7 +147,7 @@ public sealed class ViewportSizeEventArgs : EventArgs
     }
 }
 
-// エンジンが描く子ウィンドウを、WPF の中に置く部品
+// エンジンが描く子ウィンドウを WPF の中に置く部品
 public sealed class ViewportHost : HwndHost
 {
     private const string ClassName = "MiniEngineViewport";
@@ -194,7 +194,7 @@ public sealed class ViewportHost : HwndHost
     {
         if (s_classRegistered) return;
 
-        // 既定のウィンドウ プロシージャ（DefWindowProcW）のアドレスを、user32.dll から取る
+        // 既定のウィンドウ プロシージャ（DefWindowProcW）のアドレスを user32.dll から取る
         nint user32 = NativeLibrary.Load("user32.dll");
         nint defWindowProc = NativeLibrary.GetExport(user32, "DefWindowProcW");
 
@@ -221,7 +221,7 @@ public sealed class ViewportHost : HwndHost
 ウィンドウ クラスは、アプリで 1 回だけ登録すればよいので、`static` のフラグで管理しています。ウィンドウ プロシージャには、何もしない既定の `DefWindowProcW` のアドレスを `user32.dll` から取って渡しました。メッセージの処理は WPF（`HwndHost`）が受け取るので、この子ウィンドウ自身は何もしなくて済みます。クラス名の文字列は、プログラムが動いている間ずっと必要なので、`StringToHGlobalUni` でコピーして、解放しません。
 
 !!! note "「static」クラスで済ませない理由"
-    手軽に、既存の `"static"` クラスで子ウィンドウを作る例もあります。ただ、`"static"` はマウスのメッセージを親に素通しにしてしまうので、第 33 章のマウス入力が取れません。自分で登録したクラスなら、マウスのメッセージがこの子ウィンドウに届きます。
+    手軽に既存の `"static"` クラスで子ウィンドウを作る例もあります。ただ、`"static"` はマウスのメッセージを親に素通しにしてしまうので、第 33 章のマウス入力が取れません。自分で登録したクラスなら、マウスのメッセージがこの子ウィンドウに届きます。
 
 ### 壊す
 
@@ -452,7 +452,7 @@ public class ViewportModule : IModule
     `Renderer::Resize` が、バック バッファの参照を残しています（第 3 章）。または、`Resize` の前に `WaitForGpu` していません。
 
 ??? failure "終了時にクラッシュする"
-    エンジンを破棄する前に、ウィンドウが壊されています。`DestroyWindowCore` で、先に `HandleDestroying` を呼んでいるかを確認します。
+    エンジンを破棄する前にウィンドウが壊されています。`DestroyWindowCore` で、先に `HandleDestroying` を呼んでいるかを確認します。
 
 ??? failure "`controls:ViewportHost` が見つからない（`MC3074`）"
     `xmlns:controls` の名前空間が合っていないか、`ViewportHost` を作ったあとにまだビルドしていません。一度ビルドしてから XAML を開き直します。

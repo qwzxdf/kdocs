@@ -49,8 +49,8 @@ tags:
 <defs><marker id="arr-gaussian-separable" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">分離可能なガウス: 2 次元のぼかしを、横 1 回 + 縦 1 回に分けると、同じ結果で、読み込みが半径に比例するだけになる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">12×12 画素に光源を 1 つ。半径 4(9×9 = 81 タップ)の 2 次元ガウスと、横 9 + 縦 9 の 2 回を、比べる</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">分離可能なガウス: 2 次元のぼかしを横 1 回 + 縦 1 回に分けると、同じ結果で、読み込みが半径に比例するだけになる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">12×12 画素に光源を 1 つ。半径 4(9×9 = 81 タップ)の 2 次元ガウスと、横 9 + 縦 9 の 2 回を比べる</text>
 <rect x="30" y="100" width="208.0" height="208.0" fill="#ffffff" stroke="#e5aa28" stroke-width="1.8" rx="6"/>
 <text x="30" y="90" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5aa28">① 入力</text>
 <rect x="32.0" y="102.0" width="17.3" height="17.3" fill="#0f172a"/>
@@ -504,7 +504,7 @@ tags:
 <text x="676" y="415" text-anchor="start" style="font-size:13px;font-weight:700;fill:#166534">分離: 130 タップ(32 倍少ない)</text>
 <text x="676" y="437" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">半径に比例なので、大きなぼかしも安い</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ガウス関数は、横と縦に、分けて掛け算できる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ガウス関数は、横と縦に分けて掛け算できる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">横にぼかして、その結果を縦にぼかす<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.4665;0.4667;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">結果は 2 次元のぼかしと、完全に同じ。読み込みは、9 × 9 = 81 から 18 に<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4887;0.4889;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -547,7 +547,7 @@ float4 BlurMain(float4 position : SV_POSITION, float2 uv : TEXCOORD0) : SV_Targe
 新しい位置 = (o1·w1 + o2·w2) / (w1 + w2)
 </div>
 
-バイリニアを利用すると、タップ数をさらに減らせます。元の 9 タップは、位置が 0、±1、±2、±3、±4 で、重みが 0.227、0.195、0.122、0.054、0.016 です。これを、バイリニア補間の特性を使って、隣り合う 2 つのタップを 1 回の読み込みにまとめると、位置が 0、±1.385、±3.231 の 5 タップになり、重みが 0.227、0.316、0.070 になります。ハードウェアが 2 画素を重み付きで混ぜてくれるので、読み込み回数が約半分になります。
+バイリニアを利用すると、タップ数をさらに減らせます。元の 9 タップは、位置が 0、±1、±2、±3、±4 で、重みが 0.227、0.195、0.122、0.054、0.016 です。これをバイリニア補間の特性を使って、隣り合う 2 つのタップを 1 回の読み込みにまとめると、位置が 0、±1.385、±3.231 の 5 タップになり、重みが 0.227、0.316、0.070 になります。ハードウェアが 2 画素を重み付きで混ぜてくれるので、読み込み回数が約半分になります。
 
 ```hlsl
 static const float kOffsets[3] = { 0.0, 1.3846153846, 3.2307692308 };
@@ -587,7 +587,7 @@ std::vector<float> GaussianWeights(int radius, float sigma) {
 
 ## ブルームでの使い方
 
-<strong>ブルームでは縮小した画像（1/2〜1/64）に、小さなカーネル（5〜9 タップ）</strong>でぼかします。元の解像度では、広い範囲になるのでガウスの半径が小さくても、十分なにじみになります。
+<strong>ブルームでは縮小した画像（1/2〜1/64）に小さなカーネル（5〜9 タップ）</strong>でぼかします。元の解像度では、広い範囲になるのでガウスの半径が小さくても、十分なにじみになります。
 
 | 段 | 解像度 | カーネル |
 | --- | --- | --- |
@@ -628,7 +628,7 @@ std::vector<float> GaussianWeights(int radius, float sigma) {
     - [x] 分離（横 → 縦の 2 パス）でタップ数が大幅に減る
     - [x] バイリニア利用でさらに約半分
     - [x] 重みの合計は 1。端は clamp
-    - [x] ブルームでは縮小した画像に、小さなカーネル
+    - [x] ブルームでは縮小した画像に小さなカーネル
 
 ## 参考
 

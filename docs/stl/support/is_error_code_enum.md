@@ -15,7 +15,7 @@ tags:
 `#include <system_error>`
 </div>
 
-ゲーム固有のエラー（`GameError::OutOfMana`）を、`std::error_code` として扱いたいとき、`is_error_code_enum<GameError>` を `true_type` に特殊化し、`make_error_code(GameError)` を定義します。すると、`std::error_code ec = GameError::OutOfMana;` と書けます。
+ゲーム固有のエラー（`GameError::OutOfMana`）を `std::error_code` として扱いたいとき、`is_error_code_enum<GameError>` を `true_type` に特殊化し、`make_error_code(GameError)` を定義します。すると、`std::error_code ec = GameError::OutOfMana;` と書けます。
 
 !!! tip "ポイント"
     - 例外の関連の部品。
@@ -106,7 +106,7 @@ C++11 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 自作の列挙型を、error_code に暗黙変換できるようにする特性
+    - [x] 自作の列挙型を error_code に暗黙変換できるようにする特性
     - [x] 例外の関連の部品
     - [x] 戻り値と失敗時の動きを確かめて使う
 

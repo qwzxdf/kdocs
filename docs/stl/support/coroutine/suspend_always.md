@@ -23,7 +23,7 @@ tags:
     - `final_suspend()` も `suspend_always` にして、後片付けを呼び出し側で行うのが定番。
 
 !!! info "このページを読む前に"
-    [`std::generator`](../generator.md) のページに、コルーチンの簡単な例があります。
+    [`std::generator`](../generator.md) のページにコルーチンの簡単な例があります。
 
 ## 関数の詳しい説明
 

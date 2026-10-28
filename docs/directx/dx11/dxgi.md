@@ -10,13 +10,13 @@ tags:
 <span class="rank rank-often">よく使う</span>
 </div>
 
-<strong>DXGI</strong>（DirectX Graphics Infrastructure）は、D3D11・D3D12 に共通の「GPU と画面の間」をつなぐ層です。<strong>どの GPU（アダプター）を使うか画面にどう出すか（スワップ チェーン）、画面の形式（フォーマット）</strong>を扱います。D3D11 のデバイスを作る前にアダプターを選びたいときやスワップ チェーンを、作るときに DXGI のファクトリーを使います。
+<strong>DXGI</strong>（DirectX Graphics Infrastructure）は、D3D11・D3D12 に共通の「GPU と画面の間」をつなぐ層です。<strong>どの GPU（アダプター）を使うか画面にどう出すか（スワップ チェーン）、画面の形式（フォーマット）</strong>を扱います。D3D11 のデバイスを作る前にアダプターを選びたいときやスワップ チェーンを作るときに DXGI のファクトリーを使います。
 
 !!! tip "ポイント"
     - DXGI は D3D とは別の層。`<dxgi1_6.h>` の `IDXGIFactory…` と `IDXGIAdapter…` が中心。
     - <strong>ファクトリー</strong>で、アダプターを列挙しスワップ チェーンを作る。
     - ノート PC の内蔵 GPU と外付け GPU から、<strong>高性能なほう</strong>を選ぶには `EnumAdapterByGpuPreference` を使う。
-    - デバイスから辿って、ファクトリーを得るとデバイスと同じ GPU のファクトリーが、手に入る。
+    - デバイスから辿って、ファクトリーを得るとデバイスと同じ GPU のファクトリーが手に入る。
     - フォーマットの名前（`DXGI_FORMAT_…`）も DXGI の定義（[Formats and Typeless](../concepts/formats.md)）。
 
 !!! info "このページを読む前に"
@@ -39,12 +39,12 @@ flags |= DXGI_CREATE_FACTORY_DEBUG;                        // DXGI のデバッ�
 CreateDXGIFactory2(flags, IID_PPV_ARGS(&factory));
 ```
 
-`IDXGIFactory6` は Windows 10 1803 以降で、使えます（GPU の性能による選択が、可能）。`IID_PPV_ARGS` は COM の型の取り違えを防ぐマクロで `IID` とポインターのキャストを、1 度に書きます。
+`IDXGIFactory6` は Windows 10 1803 以降で、使えます（GPU の性能による選択が可能）。`IID_PPV_ARGS` は COM の型の取り違えを防ぐマクロで `IID` とポインターのキャストを 1 度に書きます。
 
 ## アダプターを選ぶ
 
 ```cpp
-// 高性能な GPU から、順に調べ、D3D11 に対応する、最初のアダプターを、使う。
+// 高性能な GPU から、順に調べ、D3D11 に対応する、最初のアダプターを使う。
 Microsoft::WRL::ComPtr<IDXGIAdapter1> adapter;
 for (UINT i = 0;
      factory->EnumAdapterByGpuPreference(i, DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE, IID_PPV_ARGS(&adapter)) != DXGI_ERROR_NOT_FOUND;
@@ -52,7 +52,7 @@ for (UINT i = 0;
   DXGI_ADAPTER_DESC1 desc;
   adapter->GetDesc1(&desc);
   if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;   // ソフトウェア アダプター（WARP）は、飛ばす
-  // デバイスが、作れるかだけ確かめる（第 4 引数以降は、実際の作成時と同じ）
+  // デバイスが作れるかだけ確かめる（第 4 引数以降は、実際の作成時と同じ）
   if (SUCCEEDED(D3D11CreateDevice(adapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION,
                                   nullptr, nullptr, nullptr))) {
     break;
@@ -79,12 +79,12 @@ std::wprintf(L"GPU: %s, VRAM: %zu MB\n", desc.Description, desc.DedicatedVideoMe
 
 ## デバイスからファクトリーを辿る
 
-すでにデバイスを作っている場合はデバイスからファクトリーを辿れます。<strong>デバイスと同じ GPU</strong> のファクトリーが得られるのでスワップ チェーンの作成に、使います。
+すでにデバイスを作っている場合はデバイスからファクトリーを辿れます。<strong>デバイスと同じ GPU</strong> のファクトリーが得られるのでスワップ チェーンの作成に使います。
 
 ```cpp
 // ID3D11Device → IDXGIDevice → IDXGIAdapter → IDXGIFactory2
 Microsoft::WRL::ComPtr<IDXGIDevice> dxgi_device;
-device.As(&dxgi_device);                                   // QueryInterface（別のインターフェースを、取り出す）
+device.As(&dxgi_device);                                   // QueryInterface（別のインターフェースを取り出す）
 
 Microsoft::WRL::ComPtr<IDXGIAdapter> adapter;
 dxgi_device->GetAdapter(&adapter);
@@ -93,7 +93,7 @@ Microsoft::WRL::ComPtr<IDXGIFactory2> factory2;
 adapter->GetParent(IID_PPV_ARGS(&factory2));
 ```
 
-`ComPtr::As` は COM の `QueryInterface` で 1 つのオブジェクトの別の顔（インターフェース）を、取り出します。`ID3D11Device` と `IDXGIDevice` は同じデバイスの別の見方です。別の GPU のファクトリーを使うとスワップ チェーンが作れません。
+`ComPtr::As` は COM の `QueryInterface` で 1 つのオブジェクトの別の顔（インターフェース）を取り出します。`ID3D11Device` と `IDXGIDevice` は同じデバイスの別の見方です。別の GPU のファクトリーを使うとスワップ チェーンが作れません。
 
 ## 出力（モニター）の列挙
 
@@ -136,7 +136,7 @@ factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allow_tearing,
     - [x] DXGI は D3D11・D3D12 で共通の GPU と画面の層
     - [x] ファクトリー → アダプター（GPU）を列挙・選択
     - [x] 高性能な GPU は `EnumAdapterByGpuPreference(HIGH_PERFORMANCE)`
-    - [x] デバイスから辿ると、同じ GPU のファクトリーが、得られる
+    - [x] デバイスから辿ると、同じ GPU のファクトリーが得られる
     - [x] 次はスワップ チェーンの作成
 
 ## 関連ページ

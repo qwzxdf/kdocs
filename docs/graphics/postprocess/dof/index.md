@@ -6,7 +6,7 @@ tags:
 
 # Depth of Field (DOF)
 
-<strong>被写界深度（Depth of Field）</strong>は、<strong>カメラの「ピントが合う範囲」の外がぼける</strong>効果です。<strong>ピントが合った物が際立ち手前や奥がぼける</strong>ので視線を誘導し、「撮影された」映画的な絵になります。3D の描画はすべてにピントが合ったピンホール カメラなので、ぼかしを後から加える必要があります。このセクションでは錯乱円・ギャザー方式・スキャッター方式・前景と背景の扱い・ボケの形を、1 つずつ別のページで説明します。
+<strong>被写界深度（Depth of Field）</strong>は、<strong>カメラの「ピントが合う範囲」の外がぼける</strong>効果です。<strong>ピントが合った物が際立ち手前や奥がぼける</strong>ので視線を誘導し、「撮影された」映画的な絵になります。3D の描画はすべてにピントが合ったピンホール カメラなので、ぼかしを後から加える必要があります。このセクションでは錯乱円・ギャザー方式・スキャッター方式・前景と背景の扱い・ボケの形を 1 つずつ別のページで説明します。
 
 ## 動きで見る
 
@@ -17,7 +17,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">被写界深度: ピントの距離から外れるほど、ぼかす半径(錯乱円)が大きくなる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">横 1 列の画像(48 画素)に、手前から奥まで 5 つの物体。ピントを 3 通りに動かして、実際にぼかす</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">横 1 列の画像(48 画素)に手前から奥まで 5 つの物体。ピントを 3 通りに動かして、実際にぼかす</text>
 <text x="48.0" y="98" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">元の画像(全部くっきり)</text>
 <rect x="48.0" y="104" width="18.3" height="36" fill="#ef4444"/>
 <rect x="66.0" y="104" width="18.3" height="36" fill="#ef4444"/>
@@ -177,7 +177,7 @@ tags:
 <rect x="858.0" y="320.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1535;0.4558;0.7581" values="#e5e7eb;#cc9cfb;#be80fa;#a855f7"/></rect>
 <rect x="876.0" y="320.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1553;0.4577;0.7600" values="#e5e7eb;#c895fb;#d3aafc;#e9d5ff"/></rect>
 <rect x="894.0" y="320.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1572;0.4595;0.7619" values="#e5e7eb;#cd9efc;#e9d5ff;#e9d5ff"/></rect>
-<text x="48.0" y="392" text-anchor="start" style="font-size:18px;font-weight:700;fill:#e5484d" opacity="0">5 つの物体を、手前から奥へ並べる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;1.0000" values="1;1;0;0"/></text>
+<text x="48.0" y="392" text-anchor="start" style="font-size:18px;font-weight:700;fill:#e5484d" opacity="0">5 つの物体を手前から奥へ並べる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;1.0000" values="1;1;0;0"/></text>
 <text x="48.0" y="392" text-anchor="start" style="font-size:18px;font-weight:700;fill:#e5484d" opacity="0">ピント: 手前(2 m)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;0.3487;0.3488;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="48.0" y="392" text-anchor="start" style="font-size:18px;font-weight:700;fill:#e5484d" opacity="0">ピント: 中くらい(8 m)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3487;0.3488;0.6510;0.6512;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="48.0" y="392" text-anchor="start" style="font-size:18px;font-weight:700;fill:#e5484d" opacity="0">ピント: 奥(32 m)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6510;0.6512;1.0000;1.0000" values="0;0;1;1;0"/></text>
@@ -375,15 +375,15 @@ device->CreateTexture2D(&desc, nullptr, &coc_color_texture);
 ```
 
 ```cpp
-// ② 半解像度に縮小（CoC で重みを付けて）→ ③ 近景・遠景を、別々に、ぼかす（ギャザー）→ ④ フル解像度に合成。
+// ② 半解像度に縮小（CoC で重みを付けて）→ ③ 近景・遠景を別々に、ぼかす（ギャザー）→ ④ フル解像度に合成。
 SetViewport(width / 2, height / 2);
 Draw(downsample_coc_ps, {coc_color_srv}, {half_rtv});
-Draw(gather_ps, {half_srv}, {far_blur_rtv, near_blur_rtv});            // 2 枚の MRT に、近景と遠景を、別々に出す
+Draw(gather_ps, {half_srv}, {far_blur_rtv, near_blur_rtv});            // 2 枚の MRT に、近景と遠景を別々に出す
 SetViewport(width, height);
 Draw(composite_ps, {scene_srv, far_blur_srv, near_blur_srv, coc_color_srv}, {final_rtv});
 ```
 
-ギャザーを半解像度で行うとコストが、約 1/4 になります。近景と遠景を別々のターゲットに出すのは、近景のボケは手前の物の輪郭を越えて奥へにじむ（遠景は、越えない）という性質の違いを合成の時点で、扱うためです（[Near and Far Fields](near-far.md)）。
+ギャザーを半解像度で行うとコストが約 1/4 になります。近景と遠景を別々のターゲットに出すのは、近景のボケは手前の物の輪郭を越えて奥へにじむ（遠景は、越えない）という性質の違いを合成の時点で、扱うためです（[Near and Far Fields](near-far.md)）。
 
 ## 関連ページ
 

@@ -84,22 +84,22 @@ tags:
 | [`std::is_trivially_destructible`](type_traits/is_trivially_destructible.md) | <span class="rank rank-rare">知ってるだけ</span> | 破棄が自明（何もしなくてよい）な型かを調べる。 <span class="ver ver-11">C++11</span> |
 | [`std::is_nothrow_destructible`](type_traits/is_nothrow_destructible.md) | <span class="rank rank-rare">知ってるだけ</span> | デストラクタが例外を投げない型かを調べる。 <span class="ver ver-11">C++11</span> |
 | [`std::is_swappable`](type_traits/is_swappable.md) | <span class="rank rank-rare">知ってるだけ</span> | `swap` で入れ替えられる型かを調べる。 <span class="ver ver-17">C++17</span> |
-| [`std::is_swappable_with`](type_traits/is_swappable_with.md) | <span class="rank rank-rare">知ってるだけ</span> | 2 つの型の値を、たがいに `swap` できるかを調べる。 <span class="ver ver-17">C++17</span> |
+| [`std::is_swappable_with`](type_traits/is_swappable_with.md) | <span class="rank rank-rare">知ってるだけ</span> | 2 つの型の値をたがいに `swap` できるかを調べる。 <span class="ver ver-17">C++17</span> |
 | [`std::is_nothrow_swappable`](type_traits/is_nothrow_swappable.md) | <span class="rank rank-rare">知ってるだけ</span> | `swap` が例外を投げない型かを調べる。 <span class="ver ver-17">C++17</span> |
 | [`std::has_virtual_destructor`](type_traits/has_virtual_destructor.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が仮想デストラクタを持つかを調べる。 <span class="ver ver-11">C++11</span> |
 | [`std::has_unique_object_representations`](type_traits/has_unique_object_representations.md) | <span class="rank rank-rare">知ってるだけ</span> | 同じ値なら必ず同じビット列になる型かを調べる。 <span class="ver ver-17">C++17</span> |
 | [`std::is_layout_compatible`](type_traits/is_layout_compatible.md) | <span class="rank rank-rare">知ってるだけ</span> | 2 つの型のメモリ配置が互換かを調べる。 <span class="ver ver-20">C++20</span> |
-| [`std::is_pointer_interconvertible_base_of`](type_traits/is_pointer_interconvertible_base_of.md) | <span class="rank rank-rare">知ってるだけ</span> | 基底クラスのポインタと派生クラスのポインタを、相互に変換できるかを調べる。 <span class="ver ver-20">C++20</span> |
+| [`std::is_pointer_interconvertible_base_of`](type_traits/is_pointer_interconvertible_base_of.md) | <span class="rank rank-rare">知ってるだけ</span> | 基底クラスのポインタと派生クラスのポインタを相互に変換できるかを調べる。 <span class="ver ver-20">C++20</span> |
 | [`std::is_convertible`](type_traits/is_convertible.md) | <span class="rank rank-rare">知ってるだけ</span> | 型 `From` から `To` へ暗黙に変換できるかを調べる。 <span class="ver ver-11">C++11</span> |
 | [`std::is_nothrow_convertible`](type_traits/is_nothrow_convertible.md) | <span class="rank rank-rare">知ってるだけ</span> | 暗黙の変換が例外を投げないかを調べる。 <span class="ver ver-20">C++20</span> |
 | [`std::is_invocable`](type_traits/is_invocable.md) | <span class="rank rank-rare">知ってるだけ</span> | 指定した引数で呼び出せる型かを調べる。 <span class="ver ver-17">C++17</span> |
 | [`std::is_invocable_r`](type_traits/is_invocable_r.md) | <span class="rank rank-rare">知ってるだけ</span> | 指定した引数で呼び出せ、結果を `R` に変換できる型かを調べる。 <span class="ver ver-17">C++17</span> |
 | [`std::is_nothrow_invocable`](type_traits/is_nothrow_invocable.md) | <span class="rank rank-rare">知ってるだけ</span> | 指定した引数で、例外を投げずに呼び出せるかを調べる。 <span class="ver ver-17">C++17</span> |
-| [`std::reference_constructs_from_temporary`](type_traits/reference_constructs_from_temporary.md) | <span class="rank rank-rare">知ってるだけ</span> | 参照が、一時オブジェクトを作って束縛されるかを調べる。 <span class="ver ver-23">C++23</span> |
-| [`std::reference_converts_from_temporary`](type_traits/reference_converts_from_temporary.md) | <span class="rank rank-rare">知ってるだけ</span> | 参照が、暗黙の変換で一時オブジェクトに束縛されるかを調べる。 <span class="ver ver-23">C++23</span> |
+| [`std::reference_constructs_from_temporary`](type_traits/reference_constructs_from_temporary.md) | <span class="rank rank-rare">知ってるだけ</span> | 参照が一時オブジェクトを作って束縛されるかを調べる。 <span class="ver ver-23">C++23</span> |
+| [`std::reference_converts_from_temporary`](type_traits/reference_converts_from_temporary.md) | <span class="rank rank-rare">知ってるだけ</span> | 参照が暗黙の変換で一時オブジェクトに束縛されるかを調べる。 <span class="ver ver-23">C++23</span> |
 | [`std::alignment_of`](type_traits/alignment_of.md) | <span class="rank rank-rare">知ってるだけ</span> | 型のアライメント（配置できる境界のバイト数）を調べる。 |
-| [`std::is_corresponding_member`](type_traits/is_corresponding_member.md) | <span class="rank rank-rare">知ってるだけ</span> | 2 つのメンバが、2 つの構造体の対応する位置にあるかを調べる。 <span class="ver ver-20">C++20</span> |
-| [`std::is_within_lifetime`](type_traits/is_within_lifetime.md) | <span class="rank rank-rare">知ってるだけ</span> | ポインタが指すオブジェクトが、いま寿命の中にあるかを調べる。 <span class="ver ver-26">C++26</span> |
+| [`std::is_corresponding_member`](type_traits/is_corresponding_member.md) | <span class="rank rank-rare">知ってるだけ</span> | 2 つのメンバが 2 つの構造体の対応する位置にあるかを調べる。 <span class="ver ver-20">C++20</span> |
+| [`std::is_within_lifetime`](type_traits/is_within_lifetime.md) | <span class="rank rank-rare">知ってるだけ</span> | ポインタが指すオブジェクトがいま寿命の中にあるかを調べる。 <span class="ver ver-26">C++26</span> |
 | [`std::remove_cv`](type_traits/remove_cv.md) | <span class="rank rank-rare">知ってるだけ</span> | `const` と `volatile` を取り除く。 <span class="ver ver-11">C++11</span> |
 | [`std::remove_const`](type_traits/remove_const.md) | <span class="rank rank-rare">知ってるだけ</span> | `const` を取り除く。 <span class="ver ver-11">C++11</span> |
 | [`std::remove_volatile`](type_traits/remove_volatile.md) | <span class="rank rank-rare">知ってるだけ</span> | `volatile` を取り除く。 <span class="ver ver-11">C++11</span> |
@@ -109,7 +109,7 @@ tags:
 | [`std::remove_reference`](type_traits/remove_reference.md) | <span class="rank rank-rare">知ってるだけ</span> | 参照を取り除く。 <span class="ver ver-11">C++11</span> |
 | [`std::add_lvalue_reference`](type_traits/add_lvalue_reference.md) | <span class="rank rank-rare">知ってるだけ</span> | 左辺値参照を付け足す。 <span class="ver ver-11">C++11</span> |
 | [`std::add_rvalue_reference`](type_traits/add_rvalue_reference.md) | <span class="rank rank-rare">知ってるだけ</span> | 右辺値参照を付け足す。 <span class="ver ver-11">C++11</span> |
-| [`std::make_signed`](type_traits/make_signed.md) | <span class="rank rank-rare">知ってるだけ</span> | 符号なしの整数型を、同じ大きさの符号付きにする。 <span class="ver ver-11">C++11</span> |
+| [`std::make_signed`](type_traits/make_signed.md) | <span class="rank rank-rare">知ってるだけ</span> | 符号なしの整数型を同じ大きさの符号付きにする。 <span class="ver ver-11">C++11</span> |
 | [`std::remove_extent`](type_traits/remove_extent.md) | <span class="rank rank-rare">知ってるだけ</span> | 配列の最初の次元を取り除く。 <span class="ver ver-11">C++11</span> |
 | [`std::remove_all_extents`](type_traits/remove_all_extents.md) | <span class="rank rank-rare">知ってるだけ</span> | 配列の全部の次元を取り除く。 <span class="ver ver-11">C++11</span> |
 | [`std::remove_pointer`](type_traits/remove_pointer.md) | <span class="rank rank-rare">知ってるだけ</span> | ポインタを取り除く。 <span class="ver ver-11">C++11</span> |
@@ -124,8 +124,8 @@ tags:
 | [`std::type_identity`](type_traits/type_identity.md) | <span class="rank rank-rare">知ってるだけ</span> | 何もしない型変換（テンプレート引数の推論を止めるのに使う）。 <span class="ver ver-20">C++20</span> |
 | [`std::void_t`](type_traits/void_t.md) | <span class="rank rank-rare">知ってるだけ</span> | どんな型を渡しても `void` になる別名（検出イディオム用）。 <span class="ver ver-17">C++17</span> |
 | [`std::is_constant_evaluated`](type_traits/is_constant_evaluated.md) | <span class="rank rank-rare">知ってるだけ</span> | いま、コンパイル時に評価されているかを調べる。 <span class="ver ver-20">C++20</span> |
-| [`std::integral_constant`](type_traits/integral_constant.md) | <span class="rank rank-rare">知ってるだけ</span> | コンパイル時の定数を、型として表す。 <span class="ver ver-11">C++11</span> |
-| [`std::bool_constant`](type_traits/bool_constant.md) | <span class="rank rank-rare">知ってるだけ</span> | `bool` のコンパイル時の定数を、型として表す。 <span class="ver ver-11">C++11</span> |
+| [`std::integral_constant`](type_traits/integral_constant.md) | <span class="rank rank-rare">知ってるだけ</span> | コンパイル時の定数を型として表す。 <span class="ver ver-11">C++11</span> |
+| [`std::bool_constant`](type_traits/bool_constant.md) | <span class="rank rank-rare">知ってるだけ</span> | `bool` のコンパイル時の定数を型として表す。 <span class="ver ver-11">C++11</span> |
 | [`std::true_type`](type_traits/true_type.md) | <span class="rank rank-rare">知ってるだけ</span> | `true` を表すコンパイル時の定数の型。 <span class="ver ver-11">C++11</span> |
 | [`std::false_type`](type_traits/false_type.md) | <span class="rank rank-rare">知ってるだけ</span> | `false` を表すコンパイル時の定数の型。 <span class="ver ver-11">C++11</span> |
 | [`std::is_empty`](type_traits/is_empty.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が空（非静的なメンバ変数を持たない）かを調べる。 <span class="ver ver-11">C++11</span> |
@@ -144,9 +144,9 @@ tags:
 | [`std::is_nothrow_copy_assignable`](type_traits/is_nothrow_copy_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を投げずにコピー代入できる型かを調べる。 <span class="ver ver-11">C++11</span> |
 | [`std::is_nothrow_move_assignable`](type_traits/is_nothrow_move_assignable.md) | <span class="rank rank-rare">知ってるだけ</span> | 例外を投げずにムーブ代入できる型かを調べる。 <span class="ver ver-11">C++11</span> |
 | [`std::is_nothrow_invocable_r`](type_traits/is_nothrow_invocable_r.md) | <span class="rank rank-rare">知ってるだけ</span> | 指定した引数で例外を投げずに呼び出せ、結果を R に変換できるかを調べる。 <span class="ver ver-17">C++17</span> |
-| [`std::is_nothrow_swappable_with`](type_traits/is_nothrow_swappable_with.md) | <span class="rank rank-rare">知ってるだけ</span> | 2 つの型の値を、例外を投げずに `swap` できるかを調べる。 <span class="ver ver-17">C++17</span> |
-| [`std::is_virtual_base_of`](type_traits/is_virtual_base_of.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が、別の型の仮想基底クラスかを調べる。 <span class="ver ver-26">C++26</span> |
-| [`std::is_pointer_interconvertible_with_class`](type_traits/is_pointer_interconvertible_with_class.md) | <span class="rank rank-rare">知ってるだけ</span> | メンバへのポインタが、クラスの先頭のメンバを指すかを調べる。 <span class="ver ver-20">C++20</span> |
+| [`std::is_nothrow_swappable_with`](type_traits/is_nothrow_swappable_with.md) | <span class="rank rank-rare">知ってるだけ</span> | 2 つの型の値を例外を投げずに `swap` できるかを調べる。 <span class="ver ver-17">C++17</span> |
+| [`std::is_virtual_base_of`](type_traits/is_virtual_base_of.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が別の型の仮想基底クラスかを調べる。 <span class="ver ver-26">C++26</span> |
+| [`std::is_pointer_interconvertible_with_class`](type_traits/is_pointer_interconvertible_with_class.md) | <span class="rank rank-rare">知ってるだけ</span> | メンバへのポインタがクラスの先頭のメンバを指すかを調べる。 <span class="ver ver-20">C++20</span> |
 
 ## 変換する（_t 系）
 

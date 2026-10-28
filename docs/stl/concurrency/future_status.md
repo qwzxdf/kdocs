@@ -58,7 +58,7 @@ true
 
 | 場面 | 書き方 |
 | --- | --- |
-| ロード中を、別の画面表示でつなぐ | `if (f.wait_for(0s) == std::future_status::ready) { ... }` |
+| ロード中を別の画面表示でつなぐ | `if (f.wait_for(0s) == std::future_status::ready) { ... }` |
 
 ## よくあるミス
 

@@ -7,12 +7,12 @@ tags:
 
 # 1 フレームの中身
 
-<strong>ここまで見てきた「頂点 → ピクセル → 書き込み」の流れは、1 フレームの中で何十回も繰り返されます</strong>。影を作るために 1 回、物体を描くために 1 回、ぼかしのために 1 回…と、目的ごとに分けた描画のまとまりを「パス」と呼びます。このページでは、実際のゲームの 1 フレームがどんなパスの連なりで出来ているかを、図で追います。
+<strong>ここまで見てきた「頂点 → ピクセル → 書き込み」の流れは、1 フレームの中で何十回も繰り返されます</strong>。影を作るために 1 回、物体を描くために 1 回、ぼかしのために 1 回…と、目的ごとに分けた描画のまとまりを「パス」と呼びます。このページでは、実際のゲームの 1 フレームがどんなパスの連なりで出来ているかを図で追います。
 
 !!! tip "ポイント"
     - 1 フレーム ＝ <strong>複数のパス</strong>の連なり。<strong>パスごとに描画先（レンダー ターゲット）と使うシェーダーが違う</strong>。
     - 典型の順序：① シャドウ → ② 不透明 → ③ 空 → ④ 半透明 → ⑤ ポスト エフェクト → ⑥ UI → ⑦ Present。
-    - 前のパスの結果（画像）が、次のパスの入力（テクスチャ）になる。
+    - 前のパスの結果（画像）が次のパスの入力（テクスチャ）になる。
     - 途中の絵はHDR（明るさに上限がない）で持ち、最後にトーンマップで 0〜1 に収める。
     - パスが多いほど、描画先の切り替え・メモリ読み書きが増える。
 
@@ -54,7 +54,7 @@ tags:
 <rect x="30" y="324" width="720" height="86" rx="8" fill="#e5484d" fill-opacity="0.15" stroke="#e5484d" stroke-width="2"/>
 <text x="46" y="348" style="font-weight:700">⑤ ポスト エフェクト</text><text x="46" y="370">全画面の絵を入力にして加工：ブルーム → 被写界深度 → モーション ブラー → トーンマップ（HDR → 0〜1）</text><text x="46" y="392">出力：LDR（ふつうの明るさ）の画像</text>
 <rect x="30" y="420" width="720" height="40" rx="8" fill="#2ea043" fill-opacity="0.18" stroke="#2ea043" stroke-width="2"/>
-<text x="46" y="445" style="font-weight:700">⑥ UI パス</text><text x="120" y="445">HP バー・文字・メニューを、最後に上から描く（HDR 加工の影響を受けない）</text>
+<text x="46" y="445" style="font-weight:700">⑥ UI パス</text><text x="120" y="445">HP バー・文字・メニューを最後に上から描く（HDR 加工の影響を受けない）</text>
 <rect x="30" y="470" width="720" height="36" rx="8" fill="#4c8bf5" fill-opacity="0.35" stroke="#4c8bf5" stroke-width="2"/>
 <text x="46" y="493" style="font-weight:700">⑦ Present</text><text x="130" y="493">完成した絵を画面に出す（バック バッファ → 画面）</text>
 </g>
@@ -89,7 +89,7 @@ tags:
 <stop offset="1" stop-color="#000000" stop-opacity="0.45"/>
 </radialGradient>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">1 フレームが、パスごとに完成していく</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">1 フレームがパスごとに完成していく</text>
 <rect x="20" y="52" width="420" height="280" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
 <g clip-path="url(#fp-clip)"><g opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3037;0.3040;1.0000" values="0;0;1;1"/><rect x="20" y="52" width="420" height="170" fill="url(#fp-sky)"/>
 <circle cx="350" cy="107" r="18" fill="#fff3b0"/>
@@ -169,7 +169,7 @@ tags:
 <strong>影は、「光から見て、手前に別の物があるか」で決まります</strong>。光の位置にカメラを置いて、深度だけを描いた画像（シャドウ マップ）を先に作ります。
 
 <svg class="fig illust" viewBox="0 0 780 280" role="img" aria-label="シャドウ マップ">
-<text x="20" y="24" class="fig-title">影のしくみ：光から見た深度を、本体の描画で比べる</text>
+<text x="20" y="24" class="fig-title">影のしくみ：光から見た深度を本体の描画で比べる</text>
 <g transform="translate(40,50)">
 <circle cx="40" cy="20" r="14" fill="#e5aa28"/><text x="64" y="26" style="font-size:12px">光</text>
 <line x1="40" y1="36" x2="130" y2="150" stroke="#e5aa28" stroke-dasharray="5 4"/><line x1="40" y1="36" x2="210" y2="150" stroke="#e5aa28" stroke-dasharray="5 4"/>
@@ -268,7 +268,7 @@ tags:
 | PIX（DirectX） | GPU の処理時間をパスごとに見る |
 | NVIDIA Nsight | GPU の詳細なプロファイル |
 
-ゲームの画面が出来上がる過程を、RenderDoc で 1 回観察すると、このシリーズの内容がすべてつながって理解できます。
+ゲームの画面が出来上がる過程を RenderDoc で 1 回観察すると、このシリーズの内容がすべてつながって理解できます。
 
 ## よくあるミス
 
@@ -278,7 +278,7 @@ tags:
 ??? failure "UI にもトーンマップやブルームが掛かって、文字が光る"
     UI はポスト エフェクトの後に描く。
 
-??? failure "半透明が、ポスト エフェクトの後に描かれ、ブルームが効かない"
+??? failure "半透明がポスト エフェクトの後に描かれ、ブルームが効かない"
     半透明は、HDR のうちに描く（ポストの前）。
 
 ??? failure "パスの順番を間違えて、影のない状態で描かれる"

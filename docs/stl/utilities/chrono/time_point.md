@@ -119,7 +119,7 @@ constexpr time_point& operator+=(const duration& d);
 
 - 計算量: 定数
 
-自分の時点を、`d` だけ進めます。
+自分の時点を `d` だけ進めます。
 
 ### operator== {#op_eq}
 
@@ -151,7 +151,7 @@ constexpr auto operator<=>(const time_point& lhs, const time_point& rhs);
 
 ## ゲームでの使いどころ
 
-処理時間の計測の起点と終点を、`auto start = steady_clock::now();` として保存しておくのが基本です。差が `duration` になります。
+処理時間の計測の起点と終点を `auto start = steady_clock::now();` として保存しておくのが基本です。差が `duration` になります。
 
 イベントを時刻で管理するとき、`std::vector<std::pair<time_point, Event>>` のように、予定の時刻を持たせます。いまの時刻と比べて、過ぎていれば実行します。
 
@@ -160,7 +160,7 @@ constexpr auto operator<=>(const time_point& lhs, const time_point& rhs);
 ## よくあるミス
 
 ??? failure "違う時計の時点を引き算する"
-    `steady_clock::now() - system_clock::now()` は、型が違うのでコンパイルエラーです。基準が違う時計の時点を、直接比べることはできません。
+    `steady_clock::now() - system_clock::now()` は、型が違うのでコンパイルエラーです。基準が違う時計の時点を直接比べることはできません。
 
 ??? failure "`steady_clock` の時点をファイルに保存する"
     `steady_clock` の基準は、実装ごとに違い、再起動でも変わります。保存した値を後で読み込んでも、意味を持ちません。日時を保存するなら `system_clock` です。

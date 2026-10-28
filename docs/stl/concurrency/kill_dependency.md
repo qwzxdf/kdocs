@@ -13,7 +13,7 @@ tags:
 `#include <atomic>`
 </div>
 
-`memory_order_consume` の依存の連鎖を、ここで終わらせます。実際の実装では `consume` が `acquire` として扱われるので、ほとんど使われません。C++26 では `consume` 自体が非推奨です。
+`memory_order_consume` の依存の連鎖をここで終わらせます。実際の実装では `consume` が `acquire` として扱われるので、ほとんど使われません。C++26 では `consume` 自体が非推奨です。
 
 !!! tip "ポイント"
     - `std::atomic` のメンバ関数と同じ働きの、自由関数版。

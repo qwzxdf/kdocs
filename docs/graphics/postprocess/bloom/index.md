@@ -6,7 +6,7 @@ tags:
 
 # Bloom
 
-<strong>ブルーム</strong>は<strong>明るい光の周りに柔らかいにじみ（光のもや）</strong>を<strong>足す</strong>効果です。実際のカメラではレンズや目の中で光が少し広がるために起きる現象で、これを足すだけで「眩しさ」「光の強さ」が伝わります。このセクションでは原理・しきい値・ダウンサンプル・ガウスぼかし・Dual Filter・ファイアフライ対策（Karis）・合成を、1 つずつ別のページで説明します。
+<strong>ブルーム</strong>は<strong>明るい光の周りに柔らかいにじみ（光のもや）</strong>を<strong>足す</strong>効果です。実際のカメラではレンズや目の中で光が少し広がるために起きる現象で、これを足すだけで「眩しさ」「光の強さ」が伝わります。このセクションでは原理・しきい値・ダウンサンプル・ガウスぼかし・Dual Filter・ファイアフライ対策（Karis）・合成を 1 つずつ別のページで説明します。
 
 ## 仕組みを動かして見る
 
@@ -1374,7 +1374,7 @@ tags:
 
 ## DirectX 11 で組む
 
-ブルームは半分ずつ縮めながら、下へ降りるダウンサンプルと同じ段を逆に昇る、アップサンプルの 2 つのパスの列です。ホスト側は <strong>ミップのような縮小列</strong>を、用意して段ごとに描きます。
+ブルームは半分ずつ縮めながら、下へ降りるダウンサンプルと同じ段を逆に昇る、アップサンプルの 2 つのパスの列です。ホスト側は <strong>ミップのような縮小列</strong>を用意して段ごとに描きます。
 
 ### 縮小列を作る
 
@@ -1409,7 +1409,7 @@ for (auto& level : levels) {
 ### 降りる
 
 ```cpp
-// ダウンサンプル: シーン色 → levels[0] → levels[1] → …。各段で、ビューポートを、出力の大きさにする。
+// ダウンサンプル: シーン色 → levels[0] → levels[1] → …。各段で、ビューポートを出力の大きさにする。
 ID3D11ShaderResourceView* input = scene_srv.Get();
 for (auto& level : levels) {
   context->OMSetRenderTargets(1, level.rtv.GetAddressOf(), nullptr);
@@ -1421,12 +1421,12 @@ for (auto& level : levels) {
 }
 ```
 
-最初の段は Karis 平均（明るすぎる点が、ちらつくのを防ぐ）を使いほかの段は通常の重みで、縮めます（[Karis Average](karis-average.md)）。
+最初の段は Karis 平均（明るすぎる点がちらつくのを防ぐ）を使いほかの段は通常の重みで、縮めます（[Karis Average](karis-average.md)）。
 
 ### 昇る
 
 ```cpp
-// アップサンプル: 小さい段から、1 つ大きい段へ、加算ブレンドで、足し込む（置き換えない）。
+// アップサンプル: 小さい段から、1 つ大きい段へ加算ブレンドで、足し込む（置き換えない）。
 context->OMSetBlendState(additive_blend.Get(), nullptr, 0xFFFFFFFF);   // SrcBlend = ONE、DestBlend = ONE
 for (int i = int(levels.size()) - 2; i >= 0; --i) {
   context->OMSetRenderTargets(1, levels[i].rtv.GetAddressOf(), nullptr);
@@ -1437,7 +1437,7 @@ for (int i = int(levels.size()) - 2; i >= 0; --i) {
 context->OMSetBlendState(nullptr, nullptr, 0xFFFFFFFF);
 ```
 
-小さい段（広いにじみ）を 1 つ大きい段へ、足し込みそれをさらに大きい段へ、足し込むと段ごとのにじみが重なり合った、ブルームになります。最後に、`levels[0]` をシーン色へ強さを掛けて、足します（[Composite](composite.md)）。
+小さい段（広いにじみ）を 1 つ大きい段へ足し込みそれをさらに大きい段へ足し込むと段ごとのにじみが重なり合った、ブルームになります。最後に、`levels[0]` をシーン色へ強さを掛けて、足します（[Composite](composite.md)）。
 
 ## 関連ページ
 

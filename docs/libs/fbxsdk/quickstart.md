@@ -7,14 +7,14 @@ tags:
 
 # FBX SDK の基本
 
-FBX SDK の使い方は <strong>「マネージャー（FbxManager）→ インポーター（FbxImporter）→ シーン（FbxScene）」</strong>の流れです。オブジェクトの管理（`Create` と `Destroy`）に、独特のルールがあります。このページは最小の読み込み、座標系・単位の変換、三角形化、シーンの構造をまとめます（FBX 自体の説明は、[FBX と ufbx の基本](../ufbx/quickstart.md)）。
+FBX SDK の使い方は <strong>「マネージャー（FbxManager）→ インポーター（FbxImporter）→ シーン（FbxScene）」</strong>の流れです。オブジェクトの管理（`Create` と `Destroy`）に独特のルールがあります。このページは最小の読み込み、座標系・単位の変換、三角形化、シーンの構造をまとめます（FBX 自体の説明は、[FBX と ufbx の基本](../ufbx/quickstart.md)）。
 
 !!! tip "ポイント"
-    - <strong>最初に `FbxManager::Create()`</strong>。<strong>最後に `manager->Destroy()`</strong>（これで関連するすべてのオブジェクトが、解放される）。
+    - <strong>最初に `FbxManager::Create()`</strong>。<strong>最後に `manager->Destroy()`</strong>（これで関連するすべてのオブジェクトが解放される）。
     - オブジェクトは、`new` / `delete` ではなく `Create` / `Destroy`。FBX SDK がメモリを管理。
     - 読み込みは`FbxImporter::Initialize` → `Import(scene)`。`Import` の後、インポーターは破棄してよい。
     - `FbxAxisSystem::DirectX.ConvertScene(scene)` で 座標系を変換（※右手系か左手系かに、注意）。`FbxSystemUnit::m.ConvertScene` でメートルに。
-    - `FbxGeometryConverter::Triangulate` で 全メッシュを、三角形化。
+    - `FbxGeometryConverter::Triangulate` で 全メッシュを三角形化。
     - シーンはノードの木（`GetRootNode()` → `GetChild(i)`）。ノードが属性（メッシュなど）を持つ。
 
 !!! info "このページを読む前に"
@@ -61,11 +61,11 @@ int main() {
 | **`FbxManager::Create()`** | SDK 全体の管理者。最初に 1 つ作る |
 | `FbxIOSettings::Create(manager, IOSROOT)` | 入出力の設定（何を読み込むか） |
 | `FbxImporter::Create(manager, "")` | インポーター（ファイルを読む係） |
-| `importer->Initialize(path, -1, ios)` | ファイルを開く（`-1` ＝ 形式を、自動判定）。失敗は `false` |
+| `importer->Initialize(path, -1, ios)` | ファイルを開く（`-1` ＝ 形式を自動判定）。失敗は `false` |
 | `FbxScene::Create(manager, "scene")` | シーン（読み込み先の入れ物） |
-| `importer->Import(scene)` | ファイルの内容を、シーンに読む |
+| `importer->Import(scene)` | ファイルの内容をシーンに読む |
 | `importer->Destroy()` | インポーターを破棄（`Import` の後、不要） |
-| `manager->Destroy()` | すべてのオブジェクトを、解放 |
+| `manager->Destroy()` | すべてのオブジェクトを解放 |
 
 ### Create と Destroy
 
@@ -103,11 +103,11 @@ if (scene_unit != FbxSystemUnit::m) {
 | `FbxAxisSystem::DirectX` | DirectX 用の座標系（Y 上・左手系）。ソースを左手系に変換して出す |
 | `FbxAxisSystem::OpenGL` | OpenGL 用（Y 上・右手系）。これを使いルートに X 反転の行列を掛けて、このサイトの左手系にする |
 | `FbxAxisSystem::MayaYUp` | Maya の Y 上 |
-| `ConvertScene(scene)` | シーン全体を、その座標系に変換 |
+| `ConvertScene(scene)` | シーン全体をその座標系に変換 |
 | `FbxSystemUnit::m` | メートル（`cm`・`inch` もある）。`ConvertScene` でスケールを変換 |
 
 !!! warning "DirectX 用の座標系は、左手系"
-    `FbxAxisSystem::DirectX` は左手系です。このサイトは右手系（SimpleMath）なので、`FbxAxisSystem::OpenGL`（右手系・Y 上）を使うか、左手系 → 右手系の変換（Z の反転・巻き順の反転）を、自分で行います（[座標系](../../gamemath/coordinate-systems.md)）。変換後、実際に表示して確認します。
+    `FbxAxisSystem::DirectX` は左手系です。このサイトは右手系（SimpleMath）なので、`FbxAxisSystem::OpenGL`（右手系・Y 上）を使うか、左手系 → 右手系の変換（Z の反転・巻き順の反転）を自分で行います（[座標系](../../gamemath/coordinate-systems.md)）。変換後、実際に表示して確認します。
 
 ## 三角形化
 
@@ -120,7 +120,7 @@ converter.Triangulate(scene, true);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `Triangulate(scene, replace)` | `FbxScene*`, `bool` | シーンの全メッシュを、三角形化。`true` ＝ 元のメッシュを置き換える |
+| `Triangulate(scene, replace)` | `FbxScene*`, `bool` | シーンの全メッシュを三角形化。`true` ＝ 元のメッシュを置き換える |
 | 効果 | — | 以後、`GetPolygonSize(p)` がすべて 3 |
 
 スキン・ブレンドシェイプも、保ったまま三角形化されます。
@@ -160,7 +160,7 @@ void Traverse(FbxNode* node) {
 ??? failure "`delete` で、FBX SDK のオブジェクトを解放して、クラッシュ"
     **`Destroy()`**、または `manager->Destroy()` を使います。
 
-??? failure "`manager->Destroy()` の後に、ノード・メッシュを触る"
+??? failure "`manager->Destroy()` の後にノード・メッシュを触る"
     すべて無効です。先にゲーム用のデータにコピーします。
 
 ??? failure "座標系の変換をしないで、モデルが横倒し・裏返しになる"

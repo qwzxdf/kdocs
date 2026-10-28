@@ -54,7 +54,7 @@ Result = result;                                              // 戻ってきた
 
 Prism の `DelegateCommand` は、同期のメソッドしか受け取れません。`new DelegateCommand(async () => await LoadAsync())` と書くことはできますが、中身は `async void` と同じになります。`async void` の関数で起きた例外は、呼び出し元で捕まえられず、アプリが落ちることがあります。実行中に二重で押される問題も、自分で防がなければなりません。
 
-そこで、非同期の処理を渡せるコマンドを、自分で 1 つ作っておきます。第 12 章で作った `RelayCommand` の仲間です。
+そこで、非同期の処理を渡せるコマンドを自分で 1 つ作っておきます。第 12 章で作った `RelayCommand` の仲間です。
 
 ```csharp title="Mvvm/AsyncCommand.cs"
 using System.Windows.Input;
@@ -136,7 +136,7 @@ CommunityToolkit.Mvvm なら `AsyncRelayCommand` が同じ役目を果たしま�
 
 ## 進み具合を画面に出す（IProgress）
 
-長い処理の途中経過を、画面のプログレスバーに出したいときは、`IProgress<T>` を使います。
+長い処理の途中経過を画面のプログレスバーに出したいときは、`IProgress<T>` を使います。
 
 ```csharp
 public async Task ScanAsync(IProgress<double> progress, CancellationToken token)
@@ -156,7 +156,7 @@ var progress = new Progress<double>(p => ProgressValue = p);    // UI スレッ�
 await ScanAsync(progress, _cts.Token);
 ```
 
-`Progress<T>` は、作ったスレッド（ここでは UI スレッド）に、自動で結果を戻してくれます。バックグラウンドの処理から `Report` を呼ぶだけで、UI スレッドへの切り替えを自分で書かなくて済みます。
+`Progress<T>` は、作ったスレッド（ここでは UI スレッド）に自動で結果を戻してくれます。バックグラウンドの処理から `Report` を呼ぶだけで、UI スレッドへの切り替えを自分で書かなくて済みます。
 
 ## キャンセルできるようにする
 
@@ -198,7 +198,7 @@ await Application.Current.Dispatcher.InvokeAsync(() => Entries.Add(entry));   //
 
 `ObservableCollection` を別のスレッドで直接変更すると、例外になります。次のどちらかで逃げます。
 
-1. 変更を、`Dispatcher.BeginInvoke` で UI スレッドに回す（第 18 章のログ サービスはこの方法）。
+1. 変更を `Dispatcher.BeginInvoke` で UI スレッドに回す（第 18 章のログ サービスはこの方法）。
 2. `BindingOperations.EnableCollectionSynchronization(collection, lockObject)` を呼んで、WPF にロックの仕組みを教える。
 
 ```csharp
@@ -209,7 +209,7 @@ BindingOperations.EnableCollectionSynchronization(Entries, _lock);
 lock (_lock) { Entries.Add(entry); }
 ```
 
-2 のほうの `EnableCollectionSynchronization` は、UI スレッドで呼びます。別のスレッドから `Add` を始める前に、設定を済ませておいてください。迷ったら 1 のほうが単純です。
+2 のほうの `EnableCollectionSynchronization` は、UI スレッドで呼びます。別のスレッドから `Add` を始める前に設定を済ませておいてください。迷ったら 1 のほうが単純です。
 
 ## 固まる原因の定番
 

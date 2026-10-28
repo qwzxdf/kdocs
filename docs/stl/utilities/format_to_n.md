@@ -65,7 +65,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| 固定長のバッファに、はみ出さず書式化する | `std::format_to_n(buf, sizeof buf - 1, "Score:{}", s);` |
+| 固定長のバッファにはみ出さず書式化する | `std::format_to_n(buf, sizeof buf - 1, "Score:{}", s);` |
 
 ## よくあるミス
 

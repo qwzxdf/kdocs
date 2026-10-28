@@ -14,7 +14,7 @@ tags:
 `#include <memory_resource>`
 </div>
 
-プール方式のメモリリソースは、同じ大きさのブロックをまとめて用意します。「1 回にいくつ取るか」「どの大きさまでプールにするか」を、`pool_options` で指定します。
+プール方式のメモリリソースは、同じ大きさのブロックをまとめて用意します。「1 回にいくつ取るか」「どの大きさまでプールにするか」を `pool_options` で指定します。
 
 !!! tip "ポイント"
     - `max_blocks_per_chunk` と `largest_required_pool_block` の 2 つのメンバ。

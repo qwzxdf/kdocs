@@ -250,7 +250,7 @@ void swap(shared_ptr& r) noexcept;
 
 - 計算量: 定数
 
-管理しているオブジェクトと参照カウントを、入れ替えます。
+管理しているオブジェクトと参照カウントを入れ替えます。
 
 ### owner_before {#owner_before}
 

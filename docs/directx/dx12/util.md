@@ -15,7 +15,7 @@ api:
 
 D3D12 の構造体はフィールドが多くて、ほとんどの値は決まりきっています。たとえば、バッファを 1 つ作るために `D3D12_RESOURCE_DESC` を埋めると、書く必要があるのは `Width` だけなのに `Height = 1`、`MipLevels = 1`、`SampleDesc.Count = 1` など 11 個のフィールドをすべて決めなければなりません。1 つでも間違えると `CreateCommittedResource` が `E_INVALIDARG` で失敗します。
 
-マイクロソフトの `d3dx12.h` にはこれを短く書くための `CD3DX12_*` が入っています。ただ、フィールドが隠れてしまうので、「この構造体の何が設定されているのか」が、読んでいても分かりません。このサイトでは `d3dx12.h` を使わず**素の構造体**を使います。そのうえで、毎回同じになる部分だけをこのページの小さな関数にまとめます。
+マイクロソフトの `d3dx12.h` にはこれを短く書くための `CD3DX12_*` が入っています。ただ、フィールドが隠れてしまうので、「この構造体の何が設定されているのか」が読んでいても分かりません。このサイトでは `d3dx12.h` を使わず**素の構造体**を使います。そのうえで、毎回同じになる部分だけをこのページの小さな関数にまとめます。
 
 !!! tip "ポイント"
     - `d3dx12.h` は使わない。構造体は素の `D3D12_*` を書く。
@@ -274,7 +274,7 @@ D3D12_RESOURCE_BARRIER MakeTransitionBarrier(
 `before` はリソースが今実際にある状態と必ず一致させます。一致していないとデバッグ レイヤーがエラーを出します。`subresource` を指定するとミップ 1 枚、または配列の 1 要素だけの状態を切り替えられます。
 
 ```cpp
-// バックバッファを、表示用から描き込み用へ。
+// バックバッファを表示用から描き込み用へ。
 D3D12_RESOURCE_BARRIER barrier = MakeTransitionBarrier(
     back_buffer.Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET);
 command_list->ResourceBarrier(1, &barrier);

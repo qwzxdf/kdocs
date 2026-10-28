@@ -102,7 +102,7 @@ D3D12_HEAP_PROPERTIES heap = MakeHeapProperties(D3D12_HEAP_TYPE_DEFAULT);
 device->CreateCommittedResource(&heap, D3D12_HEAP_FLAG_NONE, &desc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
                                 nullptr, IID_PPV_ARGS(&output_texture));
 
-// ディスクリプタ ヒープに、SRV（入力）と UAV（出力）を並べる。
+// ディスクリプタ ヒープに SRV（入力）と UAV（出力）を並べる。
 device->CreateShaderResourceView(input_texture.Get(), &srv_desc, srv_handle);
 device->CreateUnorderedAccessView(output_texture.Get(), nullptr, &uav_desc, uav_handle);
 ```

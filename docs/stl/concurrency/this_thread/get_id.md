@@ -19,7 +19,7 @@ tags:
 
 !!! tip "ポイント"
     - 比較できる（`==`）。出力もできる（`std::println("{}", id)`、C++23）。
-    - 「このコードはメインスレッドからだけ呼ぶ」の確認に、`assert(this_thread::get_id() == main_id)`。
+    - 「このコードはメインスレッドからだけ呼ぶ」の確認に `assert(this_thread::get_id() == main_id)`。
     - 環境によって数値が違う。
 
 !!! info "このページを読む前に"

@@ -23,7 +23,7 @@ tags:
     - `std::generator`（C++23）の中で使うのが普通。
 
 !!! info "このページを読む前に"
-    [`std::generator`](../generator.md) のページに、コルーチンの簡単な例があります。
+    [`std::generator`](../generator.md) のページにコルーチンの簡単な例があります。
 
 ## 関数の詳しい説明
 

@@ -14,7 +14,7 @@ tags:
 `#include <regex>`
 </div>
 
-`std::regex_constants` の中に、`icase`（大文字小文字を区別しない）のような**構文オプション**、`match_continuous` のような**一致オプション**、`error_paren` のような**エラーコード**が入っています。
+`std::regex_constants` の中に `icase`（大文字小文字を区別しない）のような**構文オプション**、`match_continuous` のような**一致オプション**、`error_paren` のような**エラーコード**が入っています。
 
 !!! tip "ポイント"
     - `<regex>` の部品。

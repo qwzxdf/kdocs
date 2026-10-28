@@ -6,7 +6,7 @@ tags:
 
 # Eye Rendering
 
-<strong>目は魂の窓</strong>と言われるようにキャラクターの目が不自然だと顔全体が死んで見えます。人間の目は実は複雑な光学系で、角膜・虹彩・瞳孔・強膜（白目）・涙の膜とさまざまな部分が、それぞれ別の光の振る舞いをします。このページでは目の構造とゲームでの再現方法（角膜の屈折、虹彩の見え方、湿った反射、強膜の SSS）を説明します。
+<strong>目は魂の窓</strong>と言われるようにキャラクターの目が不自然だと顔全体が死んで見えます。人間の目は実は複雑な光学系で、角膜・虹彩・瞳孔・強膜（白目）・涙の膜とさまざまな部分がそれぞれ別の光の振る舞いをします。このページでは目の構造とゲームでの再現方法（角膜の屈折、虹彩の見え方、湿った反射、強膜の SSS）を説明します。
 
 !!! tip "ポイント"
     - 目の表面は<strong>透明な角膜</strong>。その奥に<strong>虹彩</strong>（色の部分）と瞳孔がある。
@@ -34,8 +34,8 @@ tags:
 <defs><marker id="arr-eye-refraction" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">目の屈折: 角膜(透明な丸いドーム)の中を光が曲がり、虹彩が、本当の位置からずれて見える</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。角膜の屈折率 n = 1.376。斜めから見るほど、虹彩の見える位置が、横にずれる</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">目の屈折: 角膜(透明な丸いドーム)の中を光が曲がり、虹彩が本当の位置からずれて見える</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。角膜の屈折率 n = 1.376。斜めから見るほど、虹彩の見える位置が横にずれる</text>
 <rect x="30" y="96" width="900" height="330" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 目の断面(上 = 外、下 = 目の中)</text>
 <line x1="271.0" y1="232.0" x2="689.0" y2="232.0" stroke="#38bdf8" stroke-width="5"/>
@@ -95,11 +95,11 @@ tags:
 <text x="205" y="456" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">(0.01 mm 単位)</text>
 <g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.8789;0.8791;1.0000" values="0;0;1;1"/><rect x="340" y="436" width="590" height="80" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="356" y="460" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">正面から見ると、ずれ 0。斜めになるほど、虹彩が横にずれて見える</text>
-<text x="356" y="483" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">ゲームでは、虹彩のテクスチャ座標を、この分だけずらす(視差オフセット)</text>
+<text x="356" y="483" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">ゲームでは、虹彩のテクスチャ座標をこの分だけずらす(視差オフセット)</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">角膜は透明なドーム。光は、その中で曲がる(屈折)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">斜めから見ると、虹彩の見える位置が、本当の位置から、横にずれる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;0.9021;0.9023;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">このずれを、テクスチャ座標の補正で作ると、目が「奥行きのある丸い物」に見える<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.9021;0.9023;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">斜めから見ると、虹彩の見える位置が本当の位置から、横にずれる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;0.9021;0.9023;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">このずれをテクスチャ座標の補正で作ると、目が「奥行きのある丸い物」に見える<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.9021;0.9023;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:eye-refraction:end -->
@@ -176,7 +176,7 @@ float2 iris_uv = (uv - 0.5) / pupil_scale + 0.5;
 ??? failure "目に反射がなく、死んだ目に見える"
     低粗さの鏡面と環境の映り込みを足す。キャッチライトを入れる。
 
-??? failure "虹彩の模様が、SSS のぼかしでぼける"
+??? failure "虹彩の模様が SSS のぼかしでぼける"
     目を SSS の対象（ステンシル）から外す。
 
 ??? failure "白目が真っ白で、のっぺりしている"

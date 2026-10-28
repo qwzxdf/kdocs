@@ -14,7 +14,7 @@ tags:
 **描画は工場のライン**に似ています。材料（頂点）が流れてきて、工程ごとに加工され、最後に製品（ピクセルの色）になって、画面に並べられます。
 
 <svg class="fig illust" viewBox="0 0 780 300" role="img" aria-label="描画パイプラインの全体像">
-<text x="20" y="24" class="fig-title">描画パイプライン：頂点が、ピクセルの色になるまで</text>
+<text x="20" y="24" class="fig-title">描画パイプライン：頂点がピクセルの色になるまで</text>
 <defs><marker id="rfa" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs>
 <rect x="20" y="60" width="110" height="80" rx="8" fill="#4c8bf5" fill-opacity="0.2" stroke="#4c8bf5" stroke-width="2"/>
 <text x="75" y="92" text-anchor="middle" style="font-size:13px;font-weight:700">① 入力</text>

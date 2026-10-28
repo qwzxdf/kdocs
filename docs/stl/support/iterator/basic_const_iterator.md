@@ -15,7 +15,7 @@ tags:
 `#include <iterator>`
 </div>
 
-読み取り専用でしか使わないイテレータを、「書き換えない」型で保証したいことがあります。`basic_const_iterator<It>` は、`*it` が必ず const 参照になるように包みます。
+読み取り専用でしか使わないイテレータを「書き換えない」型で保証したいことがあります。`basic_const_iterator<It>` は、`*it` が必ず const 参照になるように包みます。
 
 !!! tip "ポイント"
     - `<iterator>` の部品。

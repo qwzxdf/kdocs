@@ -7,7 +7,7 @@ tags:
 
 # バディアロケータ
 
-**バディアロケータ**（buddy allocator）は、メモリを、2 のべき乗の大きさのブロックに、半分ずつ分割して貸すアロケータです。分割したときの「相棒」（バディ）は、アドレスの計算だけですぐに見つかるので返すとき、相棒が空いていれば、すぐに合体できます。結合が速く、断片化も抑えられます。Linux カーネルの、ページ単位の管理に使われています。
+**バディアロケータ**（buddy allocator）は、メモリを 2 のべき乗の大きさのブロックに半分ずつ分割して貸すアロケータです。分割したときの「相棒」（バディ）は、アドレスの計算だけですぐに見つかるので返すとき、相棒が空いていれば、すぐに合体できます。結合が速く、断片化も抑えられます。Linux カーネルの、ページ単位の管理に使われています。
 
 !!! tip "ポイント"
     - <strong>ブロックの大きさは、すべて 2 のべき乗</strong>（64、128、256 ...）。<strong>要求は次の 2 のべき乗に切り上げ</strong>。
@@ -23,7 +23,7 @@ tags:
 
 ## 仕組み
 
-メモリ全体（たとえば 256 バイト）を、**1 つの大きなブロック**とします。要求が来たら、必要な大きさになるまで、半分に分割します。
+メモリ全体（たとえば 256 バイト）を**1 つの大きなブロック**とします。要求が来たら、必要な大きさになるまで、半分に分割します。
 
 <svg class="fig flow" viewBox="0 0 647 364" role="img" aria-label="バディ：32 バイトを取りたい。256 → 128 → 64 → 32 と、半分ずつ割る"><defs><marker id="fl81686" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">バディ：32 バイトを取りたい。256 → 128 → 64 → 32 と、半分ずつ割る</text><line x1="107.0" y1="210.3" x2="183.5" y2="169.7" stroke="currentColor" stroke-width="2" marker-end="url(#fl81686)"/><text x="145.2" y="184.0" text-anchor="middle" style="font-size:12px">割る</text><line x1="107.0" y1="253.7" x2="181.1" y2="293.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl81686)"/><text x="144.1" y="267.4" text-anchor="middle" style="font-size:12px">割る</text><line x1="265.5" y1="138.0" x2="356.5" y2="116.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl81686)"/><text x="311.0" y="121.0" text-anchor="middle" style="font-size:12px">割る</text><line x1="265.5" y1="158.0" x2="342.0" y2="176.5" stroke="currentColor" stroke-width="2" marker-end="url(#fl81686)"/><text x="303.8" y="161.2" text-anchor="middle" style="font-size:12px">割る</text><line x1="438.5" y1="95.8" x2="511.0" y2="77.8" stroke="currentColor" stroke-width="2" marker-end="url(#fl81686)"/><text x="474.8" y="80.8" text-anchor="middle" style="font-size:12px">割る</text><line x1="438.5" y1="116.2" x2="511.0" y2="134.2" stroke="currentColor" stroke-width="2" marker-end="url(#fl81686)"/><text x="474.8" y="119.2" text-anchor="middle" style="font-size:12px">割る</text><rect x="28.0" y="212.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2" opacity="0.55"/><text x="66.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">256</text><circle cx="30.0" cy="214.0" r="10" fill="#4c8bf5"/><text x="30.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="186.5" y="128.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2" opacity="0.55"/><text x="224.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">128</text><circle cx="188.5" cy="130.0" r="10" fill="#2ea043"/><text x="188.5" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="168.0" y="296.0" width="113" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="224.5" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">128 （空き）</text><circle cx="170.0" cy="298.0" r="10" fill="#2ea043"/><text x="170.0" y="298.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="359.5" y="86.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2" opacity="0.55"/><text x="397.5" y="106.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">64</text><circle cx="361.5" cy="88.0" r="10" fill="#e5a828"/><text x="361.5" y="88.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="345.0" y="170.0" width="105" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="397.5" y="190.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">64 （空き）</text><circle cx="347.0" cy="172.0" r="10" fill="#e5a828"/><text x="347.0" y="172.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="514.0" y="44.0" width="105" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="566.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">32 （貸す）</text><circle cx="516.0" cy="46.0" r="10" fill="#e5484d"/><text x="516.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="514.0" y="128.0" width="105" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="566.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">32 （空き）</text><circle cx="516.0" cy="130.0" r="10" fill="#e5484d"/><text x="516.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
@@ -45,7 +45,7 @@ tags:
 
 ### 合体（結合）
 
-返されたブロックの相棒が、空きなら、2 つを合体して、1 つ大きなブロックにします。さらにその親の相棒も空きなら、合体を続けます。
+返されたブロックの相棒が空きなら、2 つを合体して、1 つ大きなブロックにします。さらにその親の相棒も空きなら、合体を続けます。
 
 <div class="anim" data-type="graph" data-label="返却：相棒も空きなら、合体して、大きなブロックに戻る">
 n a 32_（返す） 0 0 hit
@@ -130,7 +130,7 @@ class BuddyAllocator {
 | --- | --- |
 | **`free_lists_[order]`** | 大きさごとの空きリスト（オフセットを入れる） |
 | `OrderFor` | 要求を次の 2 のべき乗に切り上げ（`std::bit_ceil`） |
-| `Allocate` の分割 | 大きな空きを見つけたら、必要な大きさになるまで、半分に割り、片方（相棒）を、空きリストへ |
+| `Allocate` の分割 | 大きな空きを見つけたら、必要な大きさになるまで、半分に割り、片方（相棒）を空きリストへ |
 | `Deallocate` の合体 | 相棒が空きなら、リストから取り出して、合体。`order` を上げて、繰り返す |
 | `offset ^ BlockSize(order)` | 相棒のオフセット |
 | `std::min(offset, buddy)` | 合体後のブロックの先頭は、小さい方のオフセット |
@@ -140,7 +140,7 @@ class BuddyAllocator {
 
 ## 内部断片化
 
-**要求を、2 のべき乗に切り上げる**ので、無駄が出ます。
+**要求を 2 のべき乗に切り上げる**ので、無駄が出ます。
 
 | 要求 | 実際の確保 | 無駄 |
 | --- | --- | --- |
@@ -158,7 +158,7 @@ class BuddyAllocator {
 | **結合が速い**（XOR で相棒が見つかる） | 内部断片化（最大約 50%） |
 | 外部断片化が抑えられる | 要求は、2 のべき乗に切り上げ |
 | 確保・解放が速く、時間が読める（段階の数だけ） | 小さなブロックには、不向き（管理が重い） |
-| 仕組みが単純 | 最小のブロックサイズが、決まっている |
+| 仕組みが単純 | 最小のブロックサイズが決まっている |
 
 ## 使いどころ
 
@@ -173,22 +173,22 @@ class BuddyAllocator {
 
 ## よくあるミス
 
-??? failure "要求の大きさを、切り上げ忘れて、ブロックを壊す"
-    **要求の大きさ以上の最も小さい 2 のべき乗**に、切り上げます。
+??? failure "要求の大きさを切り上げ忘れて、ブロックを壊す"
+    **要求の大きさ以上の最も小さい 2 のべき乗**に切り上げます。
 
-??? failure "返却時に、確保したときと違う大きさを渡す"
+??? failure "返却時に確保したときと違う大きさを渡す"
     `order` が違い、間違った相棒を探して、メモリが壊れます。ヘッダに大きさを記録する方法もあります。
 
-??? failure "最小ブロックを、小さくしすぎる"
+??? failure "最小ブロックを小さくしすぎる"
     管理の情報（リスト）のほうが大きくなります。64 バイト以上など、用途に合わせて決めます。
 
 ??? failure "全体の大きさが、2 のべき乗でない"
-    最大のブロックが取れず、端が無駄になります。全体を、2 のべき乗にするか、複数の木で管理します。
+    最大のブロックが取れず、端が無駄になります。全体を 2 のべき乗にするか、複数の木で管理します。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] <strong>2 のべき乗のブロックを、半分ずつ割って</strong>貸す。返されたら、相棒と合体
+    - [x] <strong>2 のべき乗のブロックを半分ずつ割って</strong>貸す。返されたら、相棒と合体
     - [x] 相棒のアドレス ＝ `offset ^ size`。計算だけで見つかる
     - [x] 結合が速く、外部断片化を抑えられる。代わりに内部断片化（最大約 50%）
     - [x] 向くのはページ単位・大きなブロックの管理。小さなオブジェクトは、スラブ・TLSF

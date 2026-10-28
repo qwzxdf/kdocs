@@ -95,8 +95,8 @@ float BokehWeight(float2 sample_offset, float edge_boost) {
 <defs><marker id="arr-bokeh-shapes-anim" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ボケの形: 絞りの羽根の枚数が、点の光のぼけの形になる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">15×15 画素の点光源のぼけ。羽根 5・6・8 枚と、円(羽根が多い)を、実際に計算して並べる</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ボケの形: 絞りの羽根の枚数が点の光のぼけの形になる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">15×15 画素の点光源のぼけ。羽根 5・6・8 枚と、円(羽根が多い)を実際に計算して並べる</text>
 <rect x="30" y="110" width="231.0" height="231.0" fill="#ffffff" stroke="#e5484d" stroke-width="1.8" rx="6"/>
 <text x="30" y="100" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">羽根 5 枚</text>
 <rect x="33.0" y="113.0" width="15.3" height="15.3" fill="#0f172a"/>
@@ -1018,7 +1018,7 @@ float BokehWeight(float2 sample_offset, float edge_boost) {
 <text x="705" y="392" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">丸い(理想)</text>
 </g>
 <rect x="30" y="420" width="900" height="60" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
-<text x="30" y="410" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">夜景の光点 5 つを、羽根 6 枚のボケで描くと(1 列に簡略)</text>
+<text x="30" y="410" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">夜景の光点 5 つを羽根 6 枚のボケで描くと(1 列に簡略)</text>
 <rect x="44.0" y="440.0" width="14.3" height="14.3" fill="#0f172a"/>
 <rect x="58.0" y="440.0" width="14.3" height="14.3" fill="#0f172a"/>
 <rect x="72.0" y="440.0" width="14.3" height="14.3" fill="#0f172a"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.8037" values="#0f172a;#6b674f"/></rect>
@@ -1091,7 +1091,7 @@ float BokehWeight(float2 sample_offset, float edge_boost) {
 
 <strong>画面の端</strong>ではレンズの筒の影響でボケが丸くなく、楕円形（猫の目）に欠けることがあります。映画的な味として人気があります。
 
-猫の目ボケの作り方です。画面中心からの距離に応じて、円を欠きます。端のサンプルを、画面中心に向かってずらしたもう 1 つの円との交差領域に限定します。欠けた円の向きは、画面中心の方向に揃います。
+猫の目ボケの作り方です。画面中心からの距離に応じて、円を欠きます。端のサンプルを画面中心に向かってずらしたもう 1 つの円との交差領域に限定します。欠けた円の向きは、画面中心の方向に揃います。
 
 ```hlsl
 float2 ApplyCatEye(float2 offset_in_disk, float2 screen_uv, float strength) {
@@ -1131,7 +1131,7 @@ float2 ApplyCatEye(float2 offset_in_disk, float2 screen_uv, float strength) {
 ??? failure "猫の目で欠けたサンプルを使い続け、暗くなる"
     欠けたサンプルの重みを 0 に、合計の重みで割る。
 
-??? failure "ボケの形が、小さい画素ではまったく見えない"
+??? failure "ボケの形が小さい画素ではまったく見えない"
     形が見えるのは、大きなボケだけ。小さいボケは円で十分。
 
 ## これだけ覚える

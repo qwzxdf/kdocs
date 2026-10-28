@@ -29,7 +29,7 @@ tags:
 | **書き込み** | 1080p・4 枚で約 33 MB / フレーム（60 FPS で約 2 GB/s） |
 | 読み込み | ライティングで毎回、読む（Tiled なら 1 回） |
 | オーバードロー | 後ろで隠れる物も G-Buffer に全部書く（[オーバードロー](overdraw.md)） |
-| 小さな三角形 | ピクセルシェーダーが、2×2 ピクセル単位で動くため、小さな三角形ほど無駄（quad overdraw） |
+| 小さな三角形 | ピクセルシェーダーが 2×2 ピクセル単位で動くため、小さな三角形ほど無駄（quad overdraw） |
 
 ## 仕組み
 
@@ -43,9 +43,9 @@ tags:
 <rect x="488" y="50" width="150" height="80" rx="10" fill="rgba(46,160,67,0.25)" stroke="currentColor" stroke-width="2"/><text x="563" y="84" text-anchor="middle" style="font-weight:700">③ 材質</text><text x="563" y="106" text-anchor="middle" style="font-size:12px">テクスチャを引く</text>
 <line x1="644" y1="90" x2="690" y2="90" stroke="currentColor" stroke-width="3" marker-end="url(#vb1)"/>
 <rect x="698" y="50" width="86" height="80" rx="10" fill="rgba(229,72,77,0.25)" stroke="currentColor" stroke-width="2"/><text x="741" y="96" text-anchor="middle" style="font-weight:700">④ 光</text>
-<text x="20" y="176" style="font-weight:700">G-Buffer：</text><text x="110" y="176" style="font-size:12px">アルベド・法線・粗さ・深度 …（4 枚）を、画面全体に書く</text>
+<text x="20" y="176" style="font-weight:700">G-Buffer：</text><text x="110" y="176" style="font-size:12px">アルベド・法線・粗さ・深度 …（4 枚）を画面全体に書く</text>
 <text x="20" y="204" style="font-weight:700">Visibility：</text><text x="110" y="204" style="font-size:12px">ID（1 枚）だけ書く。残りは、ID から、後で計算</text>
-<text x="20" y="240" style="font-size:12px">書き込みを減らす代わりに、②③ で、頂点バッファとテクスチャを、画面全体で読み直す</text>
+<text x="20" y="240" style="font-size:12px">書き込みを減らす代わりに、②③ で、頂点バッファとテクスチャを画面全体で読み直す</text>
 </svg>
 
 | 段階 | 内容 |
@@ -82,9 +82,9 @@ tags:
 | --- | --- |
 | <strong>Forward（Forward+）</strong> | 透明・MSAA・モバイル。材質が単純 |
 | Deferred | ライトが多い・DX11・実装が比較的簡単 |
-| Visibility Buffer | 三角形が多い・G-Buffer の帯域が、ボトルネック。GPU Driven / Meshlet と併用 |
+| Visibility Buffer | 三角形が多い・G-Buffer の帯域がボトルネック。GPU Driven / Meshlet と併用 |
 
-「G-Buffer の帯域が、ボトルネックと測れた」ときに検討します（[何が重いのか](bottlenecks.md)）。
+「G-Buffer の帯域がボトルネックと測れた」ときに検討します（[何が重いのか](bottlenecks.md)）。
 
 ## Visibility Buffer を実装する
 
@@ -93,7 +93,7 @@ G バッファは「マテリアルの値」を全部、書きます。Visibilit
 ### ① 可視性のパス：三角形の ID だけを書く
 
 ```hlsl
-// 1 つのレンダー ターゲット（R32_UINT）に、「どの描画の、どの三角形か」を、詰めて書く。
+// 1 つのレンダー ターゲット（R32_UINT）に「どの描画の、どの三角形か」を詰めて書く。
 cbuffer DrawCB : register(b1) {
   uint g_draw_id;                                   // この描画（インスタンス）の番号。0〜255
 };
@@ -103,7 +103,7 @@ uint PSVisibility(float4 pos : SV_Position, uint primitive_id : SV_PrimitiveID) 
 }
 ```
 
-ピクセル シェーダーはテクスチャを読まず色の計算もしません。1 ピクセルあたり 4 バイトを書くだけで、G バッファ（数枚 × 4〜8 バイト）より帯域が、大きく減ります。深度も同時に書きます（[Multiple Render Targets](../directx/dx11/mrt.md)）。
+ピクセル シェーダーはテクスチャを読まず色の計算もしません。1 ピクセルあたり 4 バイトを書くだけで、G バッファ（数枚 × 4〜8 バイト）より帯域が大きく減ります。深度も同時に書きます（[Multiple Render Targets](../directx/dx11/mrt.md)）。
 
 ### ② シェーディングのパス：三角形から、全部を復元する
 
@@ -136,7 +136,7 @@ float4 PSShading(float4 pos : SV_Position) : SV_Target {
   uint triangle = packed & 0x00FFFFFF;
   DrawInfo draw = g_draws[draw_id];
 
-  // 三角形の 3 頂点を、読む（インデックス → 頂点 → ワールド座標）。
+  // 三角形の 3 頂点を読む（インデックス → 頂点 → ワールド座標）。
   uint i0 = g_indices[draw.index_offset + triangle * 3 + 0];
   uint i1 = g_indices[draw.index_offset + triangle * 3 + 1];
   uint i2 = g_indices[draw.index_offset + triangle * 3 + 2];
@@ -151,7 +151,7 @@ float4 PSShading(float4 pos : SV_Position) : SV_Target {
   float3 ray_dir = normalize(PixelToWorldRay(pos.xy));
   float3 bary = Barycentrics(g_camera_position, ray_dir, w0, w1, w2);
 
-  // 属性を、重心座標で補間して、マテリアルを評価し、ライティング。
+  // 属性を重心座標で補間して、マテリアルを評価し、ライティング。
   float2 uv = v0.uv * bary.x + v1.uv * bary.y + v2.uv * bary.z;
   float3 normal = normalize(v0.normal * bary.x + v1.normal * bary.y + v2.normal * bary.z);
   return ShadeMaterial(draw.material_id, uv, normal /* , ... */);
@@ -177,12 +177,12 @@ float4 PSShading(float4 pos : SV_Position) : SV_Target {
 | 向く | 向かない |
 | --- | --- |
 | 三角形が多い（細かいメッシュ。Nanite のようなメッシュ シェーダー系） | 三角形が少なく、ピクセルが重い場面（G バッファで、足りる） |
-| G バッファの帯域がボトルネック | マテリアルの種類が多く、シェーダーの分岐が重くなる（シェーディングのパスが、肥大する） |
+| G バッファの帯域がボトルネック | マテリアルの種類が多く、シェーダーの分岐が重くなる（シェーディングのパスが肥大する） |
 | オーバードローで G バッファの書き込みが、無駄になる | 古い GPU（構造化バッファの大量の読み込みが、重い） |
 
 ## よくあるミス
 
-??? failure "帯域が、ボトルネックでないのに導入する"
+??? failure "帯域がボトルネックでないのに導入する"
     **複雑さが見合いません**。測ってから。
 
 ??? failure "テクスチャのミップ選択が合わずちらつく"

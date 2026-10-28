@@ -88,14 +88,14 @@ target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${imgui_SOURCE_DIR}/
 #include "imgui.h"
 
 int main() {
-  IMGUI_CHECKVERSION();                                    // ヘッダーと、ライブラリの、バージョンが、合っているかを確認
+  IMGUI_CHECKVERSION();                                    // ヘッダーと、ライブラリの、バージョンが合っているかを確認
   ImGuiContext* context = ImGui::CreateContext();
   std::println("Dear ImGui {}", ImGui::GetVersion());      // 例: 1.91.x
   ImGui::DestroyContext(context);
 }
 ```
 
-`IMGUI_CHECKVERSION()` は <strong>ヘッダーとコンパイルした `.cpp` のバージョンが、食い違っていないか</strong>を実行時に確かめます（食い違うとアサートで止まる）。バージョンが表示されれば ImGui 本体の導入は、成功です。次に、バックエンド（DX11、Win32）を足して画面に出します（[仕組みと最小のコード](basics.md)）。
+`IMGUI_CHECKVERSION()` は <strong>ヘッダーとコンパイルした `.cpp` のバージョンが食い違っていないか</strong>を実行時に確かめます（食い違うとアサートで止まる）。バージョンが表示されれば ImGui 本体の導入は、成功です。次に、バックエンド（DX11、Win32）を足して画面に出します（[仕組みと最小のコード](basics.md)）。
 
 ## 追加するファイル
 
@@ -117,7 +117,7 @@ int main() {
 | `LNK2019`（`ImGui_ImplWin32_…` が未解決） | バックエンドの `.cpp` を追加していない | `imgui_impl_win32.cpp` と `imgui_impl_dx11.cpp` を追加 |
 | `C1083`（`imgui_impl_win32.h` を開けない） | バックエンドは、`backends/` フォルダーにある | インクルード ディレクトリに `backends` も追加 |
 | `IM_ASSERT` で止まる（起動時） | `IMGUI_CHECKVERSION` の食い違いまたは、`CreateContext` の前に ImGui の関数を呼んだ | ヘッダーと `.cpp` を同じバージョンにする。`CreateContext` を最初に呼ぶ |
-| 日本語が `???` になる | 既定のフォントに日本語が、入っていない | 日本語フォントを読み込む（[フォント](fonts.md)） |
+| 日本語が `???` になる | 既定のフォントに日本語が入っていない | 日本語フォントを読み込む（[フォント](fonts.md)） |
 
 ## バージョンの注意
 

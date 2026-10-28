@@ -10,7 +10,7 @@ tags:
 <span class="rank rank-often">よく使う</span>
 </div>
 
-<strong>計算シェーダー</strong>（Compute Shader、CS）は描画パイプライン（頂点 → ラスタライズ → ピクセル）とは<strong>別に</strong>、GPU の並列計算を <strong>自由に使う</strong>ための、シェーダーです。ぼかしヒストグラム、パーティクルの更新、カリング、プローブの更新など「画面の 1 ピクセル」や「三角形」に、縛られない処理を書けます。ポスト プロセスの多くと GPU ドリブンな処理は、計算シェーダーが土台です。
+<strong>計算シェーダー</strong>（Compute Shader、CS）は描画パイプライン（頂点 → ラスタライズ → ピクセル）とは<strong>別に</strong>、GPU の並列計算を <strong>自由に使う</strong>ための、シェーダーです。ぼかしヒストグラム、パーティクルの更新、カリング、プローブの更新など「画面の 1 ピクセル」や「三角形」に縛られない処理を書けます。ポスト プロセスの多くと GPU ドリブンな処理は、計算シェーダーが土台です。
 
 !!! tip "ポイント"
     - 計算シェーダーは、<strong>スレッド グループ</strong>（`numthreads`）を `Dispatch(x, y, z)` 個、起動する。合計のスレッド数 ＝ グループの数 × グループ内のスレッド数。
@@ -28,7 +28,7 @@ tags:
 ## 最小の計算シェーダー
 
 ```hlsl
-// 画像を、グレースケールに、変換する。1 スレッド = 1 ピクセル。
+// 画像をグレースケールに変換する。1 スレッド = 1 ピクセル。
 Texture2D<float4> g_input : register(t0);
 RWTexture2D<float4> g_output : register(u0);
 
@@ -86,7 +86,7 @@ const UINT groups_x = (width + 7) / 8;                                          
 const UINT groups_y = (height + 7) / 8;
 context->Dispatch(groups_x, groups_y, 1);
 
-// ④ 後始末: UAV と SRV の束縛を外す（次のパスで、同じテクスチャを、読むため）。
+// ④ 後始末: UAV と SRV の束縛を外す（次のパスで、同じテクスチャを読むため）。
 ID3D11UnorderedAccessView* null_uav = nullptr;
 context->CSSetUnorderedAccessViews(0, 1, &null_uav, nullptr);
 ID3D11ShaderResourceView* null_srv = nullptr;
@@ -108,20 +108,20 @@ context->CSSetShaderResources(0, 1, &null_srv);
 
 ## groupshared：グループ内の、共有メモリ
 
-1 つのグループのスレッド同士が、<strong>高速な共有メモリ</strong>でデータを、やり取りできます。ぼかし（隣のピクセルを何度も読む）や、リダクション（合計、最大）で <strong>メモリ アクセスを、減らす</strong>ために使います。
+1 つのグループのスレッド同士が <strong>高速な共有メモリ</strong>でデータをやり取りできます。ぼかし（隣のピクセルを何度も読む）や、リダクション（合計、最大）で <strong>メモリ アクセスを減らす</strong>ために使います。
 
 ```hlsl
 groupshared float4 s_tile[8 + 2][8 + 2];                    // 8×8 のグループと、その周り 1 ピクセルぶん
 
 [numthreads(8, 8, 1)]
 void BlurCS(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID) {
-  // ① 各スレッドが、自分の位置を、共有メモリに、読み込む（周りの分は、端のスレッドが、追加で読む）
+  // ① 各スレッドが自分の位置を共有メモリに読み込む（周りの分は、端のスレッドが追加で読む）
   s_tile[local.y + 1][local.x + 1] = g_input.Load(int3(id.xy, 0));
   // ...（端のスレッドは、周りの 1 ピクセルも読む）...
 
-  GroupMemoryBarrierWithGroupSync();                        // ② 全スレッドの、書き込みが、終わるのを、待つ
+  GroupMemoryBarrierWithGroupSync();                        // ② 全スレッドの、書き込みが、終わるのを待つ
 
-  // ③ 共有メモリから、周りの値を、読む（高速）
+  // ③ 共有メモリから、周りの値を読む（高速）
   float4 sum = 0;
   for (int dy = -1; dy <= 1; ++dy)
     for (int dx = -1; dx <= 1; ++dx) sum += s_tile[local.y + 1 + dy][local.x + 1 + dx];
@@ -129,7 +129,7 @@ void BlurCS(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID) {
 }
 ```
 
-`GroupMemoryBarrierWithGroupSync()` は <strong>グループ内の全スレッドが、ここまで来るのを待ち</strong>、共有メモリへの書き込みを他のスレッドに、見えるようにします。これを忘れると他のスレッドがまだ、書いていない値を読みます。共有メモリの大きさは 1 グループあたり 32 KB までです。
+`GroupMemoryBarrierWithGroupSync()` は <strong>グループ内の全スレッドがここまで来るのを待ち</strong>、共有メモリへの書き込みを他のスレッドに見えるようにします。これを忘れると他のスレッドがまだ、書いていない値を読みます。共有メモリの大きさは 1 グループあたり 32 KB までです。
 
 ## アトミック操作
 
@@ -144,18 +144,18 @@ void BlurCS(uint3 id : SV_DispatchThreadID, uint3 local : SV_GroupThreadID) {
 | `InterlockedOr`・`And`・`Xor` | ビット演算 |
 
 ```hlsl
-// ヒストグラム: 各ピクセルが、自分の、ビンを、1 つ増やす。
+// ヒストグラム: 各ピクセルが自分の、ビンを 1 つ増やす。
 uint bin = LuminanceToBin(luminance);
-InterlockedAdd(s_histogram[bin], 1);                        // groupshared（グループ内で、衝突を、減らす）
+InterlockedAdd(s_histogram[bin], 1);                        // groupshared（グループ内で、衝突を減らす）
 ```
 
-アトミックは同じ場所への書き込みが直列に、なるので衝突が多いと遅くなります。グループ内の `groupshared` で先に数えてから、グローバルに足すと衝突が減ります。
+アトミックは同じ場所への書き込みが直列になるので衝突が多いと遅くなります。グループ内の `groupshared` で先に数えてから、グローバルに足すと衝突が減ります。
 
 ## 描画パイプラインとの使い分け
 
 | | 描画（ピクセル シェーダー） | 計算シェーダー |
 | --- | --- | --- |
-| 出力 | レンダー ターゲット（ROP が、ブレンド・深度） | UAV（任意の場所に、書く） |
+| 出力 | レンダー ターゲット（ROP が、ブレンド・深度） | UAV（任意の場所に書く） |
 | 範囲 | 三角形が覆うピクセル | 自由（ディスパッチの範囲） |
 | 共有メモリ | なし | `groupshared` |
 | 向く | 3D を描く | ぼかし、リダクション、パーティクル、カリング |
@@ -165,18 +165,18 @@ InterlockedAdd(s_histogram[bin], 1);                        // groupshared（グ
 | 注意 | 内容 |
 | --- | --- |
 | UAV のフォーマット | `_SRGB` は、UAV に指定できない。`R8G8B8A8_UNORM` で作り色空間は自分で変換する |
-| 型つき UAV の読み込み | 読み書きできるのは `R32_FLOAT`、`R32_UINT`、`R32_SINT` のみ（それ以外は書き込みだけ。環境の `CheckFeatureSupport` で追加の型の対応を、確認する） |
+| 型つき UAV の読み込み | 読み書きできるのは `R32_FLOAT`、`R32_UINT`、`R32_SINT` のみ（それ以外は書き込みだけ。環境の `CheckFeatureSupport` で追加の型の対応を確認する） |
 | SRV と UAV の同時束縛 | 同じリソースを同時に、読み書きできない |
 | スレッド数 | 1 グループ 64 の倍数（NVIDIA は 32 の倍数、AMD は 64 の倍数だと無駄がない）。8×8 や 16×16 が無難 |
 | `cs_5_0` の制約 | 1 グループ、最大 1024 スレッド、`groupshared` は 32 KB |
 
 ## よくあるミス
 
-??? failure "画面の右端・下端が、処理されないまたはメモリ外に書く"
+??? failure "画面の右端・下端が処理されないまたはメモリ外に書く"
     `Dispatch` を切り捨てで計算したまたは、範囲チェックが無い。`(size + N − 1) / N` と `if (id.x >= width) return;`。
 
 ??? failure "出力が真っ黒、または前の値のまま"
-    UAV を `CSSetUnorderedAccessViews` で束ねていない。SRV と UAV に同じリソースを、束ねている。`Dispatch` のグループ数が 0。
+    UAV を `CSSetUnorderedAccessViews` で束ねていない。SRV と UAV に同じリソースを束ねている。`Dispatch` のグループ数が 0。
 
 ??? failure "ぼかしの結果に、縞が出る（共有メモリ）"
     `GroupMemoryBarrierWithGroupSync` を入れていない。または、バリアを条件分岐（`if`）の中に置いて一部の、スレッドが到達しない（デッドロック）。
@@ -185,7 +185,7 @@ InterlockedAdd(s_histogram[bin], 1);                        // groupshared（グ
     テクスチャの `BindFlags` に `UNORDERED_ACCESS` が無い。`_SRGB` や圧縮フォーマットを指定している。
 
 ??? failure "別のパスで結果を読むと、古い値が見える"
-    UAV の束縛を外していない。次のパスで SRV として読む前に、UAV を `nullptr` で外す。
+    UAV の束縛を外していない。次のパスで SRV として読む前に UAV を `nullptr` で外す。
 
 ## これだけ覚える
 

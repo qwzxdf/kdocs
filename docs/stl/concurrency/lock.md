@@ -15,7 +15,7 @@ tags:
 `#include <mutex>`
 </div>
 
-`std::lock` は、**複数の mutex を、デッドロックしない順序でまとめてロックする**関数です。C++17 以降は [`std::scoped_lock`](scoped_lock.md) で足ります。古いコードや、`unique_lock` の `defer_lock` と組み合わせるときに使います。
+`std::lock` は、**複数の mutex をデッドロックしない順序でまとめてロックする**関数です。C++17 以降は [`std::scoped_lock`](scoped_lock.md) で足ります。古いコードや、`unique_lock` の `defer_lock` と組み合わせるときに使います。
 
 !!! tip "ポイント"
     - `unique_lock` を `std::defer_lock`（ロックしない）で作ってから、`std::lock(a, b)`。

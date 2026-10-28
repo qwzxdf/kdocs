@@ -71,7 +71,7 @@ private void OnSelectionChanged(int? objectId)
 
 ### どのスレッドで受け取るか
 
-受け取る関数を呼ぶスレッドを、指定できます。
+受け取る関数を呼ぶスレッドを指定できます。
 
 ```csharp
 events.GetEvent<LogAddedEvent>().Subscribe(
@@ -179,7 +179,7 @@ public class LogViewModel : BindableBase
 </ListBox>
 ```
 
-次は選択のサービスです。状態を持つことと、変わったときに知らせることを、1 つのクラスにまとめます。
+次は選択のサービスです。状態を持つことと、変わったときに知らせることを 1 つのクラスにまとめます。
 
 ```csharp title="Services/SelectionService.cs"
 public interface ISelectionService
@@ -217,7 +217,7 @@ public class SelectionService : BindableBase, ISelectionService
 
 ## ダイアログ
 
-「保存しますか？」の確認や入力ダイアログを、ビューモデルから開きたいことがあります。ビューモデルから `MessageBox.Show` を直接呼ぶと、画面に依存してしまい、テストもできません。Prism の `IDialogService` を使います。
+「保存しますか？」の確認や入力ダイアログをビューモデルから開きたいことがあります。ビューモデルから `MessageBox.Show` を直接呼ぶと、画面に依存してしまい、テストもできません。Prism の `IDialogService` を使います。
 
 !!! warning "Prism 9 の変更点"
     ダイアログの API は、Prism 8 から 9 で変わりました。8 までは名前空間が `Prism.Services.Dialogs` で、`IDialogAware` に `Title` があり、`RequestClose` はイベントでした。9 では名前空間が `Prism.Dialogs` になり、`Title` がなくなり、`RequestClose` は `DialogCloseListener` 型になっています。古い記事のコードがコンパイルできないときは、まずバージョンを疑ってください。
@@ -396,10 +396,10 @@ public class FileDialogService : IFileDialogService
     `This type of CollectionView does not support changes to its SourceCollection from a thread different from the Dispatcher thread` と出ます。`Dispatcher.BeginInvoke` で UI スレッドに回してください。
 
 ??? failure "イベントを購読しているのに、呼ばれない"
-    受け取る側が GC に片付けられた可能性があります（`keepSubscriberReferenceAlive: false` の場合）。受け取る側のオブジェクトが、どこかに保持されているか確かめます。ビューモデルは画面の `DataContext` が持っているので、普通は消えません。
+    受け取る側が GC に片付けられた可能性があります（`keepSubscriberReferenceAlive: false` の場合）。受け取る側のオブジェクトがどこかに保持されているか確かめます。ビューモデルは画面の `DataContext` が持っているので、普通は消えません。
 
 ??? failure "ダイアログが開かない"
-    `RegisterDialog` を書き忘れているか、`ShowDialog` に渡した名前が、ビューの型名と違っています。
+    `RegisterDialog` を書き忘れているか、`ShowDialog` に渡した名前がビューの型名と違っています。
 
 ??? failure "`DialogCloseListener` が見つからない（`CS0246`）"
     使っている Prism のバージョンが 8 以前です。`Prism.DryIoc` を 9 以降に更新するか、Prism 8 用の書き方を調べてください。

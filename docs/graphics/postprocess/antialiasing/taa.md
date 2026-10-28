@@ -12,7 +12,7 @@ tags:
     - TAA ＝ <strong>毎フレーム、サブピクセルだけずらして描き前フレームの結果（履歴）と混ぜる</strong>。
     - <strong>ジッター</strong>：投影行列にサブピクセルの微小オフセット（Halton(2,3)・8〜16 フレーム周期）。
     - 再投影：速度バッファで前フレームの画面位置を求め履歴を読む。
-    - 履歴のクランプ：現在の画素の周囲 3×3 の色の範囲に、履歴を押し込む。ゴーストの主な対策。
+    - 履歴のクランプ：現在の画素の周囲 3×3 の色の範囲に履歴を押し込む。ゴーストの主な対策。
     - 合成：履歴 90 %・現在 10 % が目安。小さいほど滑らか・ゴースト増。
     - 必要なもの：速度バッファ・前フレームの結果・ジッター。
 
@@ -33,7 +33,7 @@ tags:
 <circle cx="30" cy="35" r="5" fill="#e5484d"/><circle cx="170" cy="70" r="5" fill="#e5484d"/><circle cx="330" cy="30" r="5" fill="#e5484d"/><circle cx="420" cy="80" r="5" fill="#e5484d"/>
 <text x="20" y="124" style="font-size:12px">フレーム 0</text><text x="150" y="124" style="font-size:12px">フレーム 1</text><text x="280" y="124" style="font-size:12px">フレーム 2</text><text x="410" y="124" style="font-size:12px">フレーム 3</text>
 </g>
-<g font-size="13"><text x="40" y="206">サンプル（赤）が、毎フレーム画素内の違う位置 → 縁をまたぐ画素では、内側・外側の結果が混ざる</text>
+<g font-size="13"><text x="40" y="206">サンプル（赤）が毎フレーム画素内の違う位置 → 縁をまたぐ画素では、内側・外側の結果が混ざる</text>
 <text x="40" y="228">混ぜるたびに、縁の画素が「何割内側か」に収束 → 滑らかな縁（SSAA と同じ）</text></g>
 </svg>
 
@@ -115,7 +115,7 @@ float3 TAA(float2 uv) {
 <defs><marker id="arr-taa-history-clamp" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">TAA の履歴クランプ: 前の画像の色を、いまの周りの色の範囲に押し込めて、ゴーストを消す</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">TAA の履歴クランプ: 前の画像の色をいまの周りの色の範囲に押し込めて、ゴーストを消す</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 40 画素。明るい物(幅 6)が右へ 3 画素動いた。前のフレームの履歴をそのまま混ぜる場合と、周りの最小〜最大に押し込める場合</text>
 <text x="60.0" y="104" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">前のフレーム(履歴)</text>
 <rect x="60.0" y="108.0" width="20.3" height="20.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#e5e7eb;#e8e8e8"/></rect>
@@ -243,7 +243,7 @@ float3 TAA(float2 uv) {
 <rect x="820.0" y="220.0" width="20.3" height="20.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1511" values="#e5e7eb;#e8e8e8"/></rect>
 <rect x="840.0" y="220.0" width="20.3" height="20.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1533" values="#e5e7eb;#e8e8e8"/></rect>
 <rect x="60.0" y="220" width="800.0" height="20.0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-<text x="60.0" y="272" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">履歴を、周りの最小〜最大に押し込めてから混ぜる</text>
+<text x="60.0" y="272" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">履歴を周りの最小〜最大に押し込めてから混ぜる</text>
 <rect x="60.0" y="276.0" width="20.3" height="20.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2178" values="#e5e7eb;#e8e8e8"/></rect>
 <rect x="80.0" y="276.0" width="20.3" height="20.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2200" values="#e5e7eb;#e8e8e8"/></rect>
 <rect x="100.0" y="276.0" width="20.3" height="20.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2222" values="#e5e7eb;#e8e8e8"/></rect>
@@ -292,12 +292,12 @@ float3 TAA(float2 uv) {
 <text x="60" y="410" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">ゴースト(物の後ろに残る、画素 11〜15 の差の合計):</text>
 <text x="440" y="412" text-anchor="start" style="font-size:18px;font-weight:700;fill:#7c3aed" opacity="0">そのまま 2.43 / クランプ 0.81(3 分の 1)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5020;0.5022;1.0000" values="0;0;1;1"/></text>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5243;0.5244;1.0000" values="0;0;1;1"/><rect x="60" y="440" width="860" height="60" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
-<text x="76" y="464" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">履歴が、いまの周りの色の範囲を外れていたら、その範囲の端に寄せる</text>
-<text x="76" y="487" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">動いた後に残る、古い色(ゴースト)が、混ざらなくなる。代わりに、細かい線がちらつくことがある</text>
+<text x="76" y="464" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">履歴がいまの周りの色の範囲を外れていたら、その範囲の端に寄せる</text>
+<text x="76" y="487" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">動いた後に残る、古い色(ゴースト)が混ざらなくなる。代わりに、細かい線がちらつくことがある</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">動く物があると、前のフレームの色が、古くなる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">古い色を、そのまま混ぜると、残像になる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.5243;0.5244;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">周りの色の範囲に押し込めば、古い色が、自然に消える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5243;0.5244;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">動く物があると、前のフレームの色が古くなる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">古い色をそのまま混ぜると、残像になる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.5243;0.5244;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">周りの色の範囲に押し込めば、古い色が自然に消える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5243;0.5244;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:taa-history-clamp:end -->
@@ -307,7 +307,7 @@ float3 TAA(float2 uv) {
 ### ジッターを射影行列に入れる
 
 ```cpp
-// 毎フレーム、サブピクセルのずれ（Halton 数列）を、射影行列に足す。
+// 毎フレーム、サブピクセルのずれ（Halton 数列）を射影行列に足す。
 float jitter_x = (Halton(frame_index % 8 + 1, 2) - 0.5f) * 2.0f / width;     // NDC で、±1 画素の範囲
 float jitter_y = (Halton(frame_index % 8 + 1, 3) - 0.5f) * 2.0f / height;
 DirectX::XMFLOAT4X4 projection = base_projection;
@@ -315,7 +315,7 @@ projection._31 = -jitter_x;     // 右手系: w = −z_view なので、符号�
 projection._32 = -jitter_y;
 ```
 
-行ベクトルの規約（`v * M`）では `_31`、`_32` が `z` に掛かり `w = −z` で割られるので、ジッターが NDC の一定のずれ（`−_31`）になります。カメラが止まっていても毎フレーム、少しずつ違う位置でサンプルされるので時間で、平均するとサブピクセルの情報が、集まります。速度の計算と履歴の再投影ではジッターを引いて、使います（[Velocity Buffer](../motion-blur/velocity-buffer.md)）。
+行ベクトルの規約（`v * M`）では `_31`、`_32` が `z` に掛かり `w = −z` で割られるので、ジッターが NDC の一定のずれ（`−_31`）になります。カメラが止まっていても毎フレーム、少しずつ違う位置でサンプルされるので時間で、平均するとサブピクセルの情報が集まります。速度の計算と履歴の再投影ではジッターを引いて、使います（[Velocity Buffer](../motion-blur/velocity-buffer.md)）。
 
 ### 履歴テクスチャと合成パス
 
@@ -370,13 +370,13 @@ history.Swap();
 
 ## よくあるミス
 
-??? failure "静止した物が、ぼやける・ちらつく"
+??? failure "静止した物がぼやける・ちらつく"
     <strong>ジッターが速度に混ざっている</strong>。速度からジッターを除く。
 
 ??? failure "動く物体の後ろにゴースト（残像）が出る"
     近傍クランプを入れる。速度の精度を上げる。
 
-??? failure "画面全体が、少しぼやけて見える"
+??? failure "画面全体が少しぼやけて見える"
     バイリニアの履歴読み出しが原因。バイキュービック・シャープ化。
 
 ??? failure "カット・瞬間移動の後、前の絵が残る"

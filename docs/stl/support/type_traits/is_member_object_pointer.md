@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-クラスのメンバー変数を、名前でなく「どのメンバーか」を値として持ち回したいときに、メンバー変数へのポインタを使います。`std::is_member_object_pointer` は、<strong>型がメンバー変数へのポインタか</strong>を調べます。
+クラスのメンバー変数を名前でなく「どのメンバーか」を値として持ち回したいときに、メンバー変数へのポインタを使います。`std::is_member_object_pointer` は、<strong>型がメンバー変数へのポインタか</strong>を調べます。
 
 !!! tip "ポイント"
     - `std::is_member_object_pointer_v<T>` は、`T` がメンバー変数へのポインタか

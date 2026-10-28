@@ -25,7 +25,7 @@ tags:
 <defs><marker id="arr-day-night" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">昼夜のサイクル:時刻から、空・太陽・光の色が、いっせいに変わる</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">昼夜のサイクル:時刻から、空・太陽・光の色がいっせいに変わる</text>
 <rect x="40" y="70" width="700" height="230" fill="#0b1224"><animate attributeName="fill" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.0571;0.2238;0.2738;0.3238;0.4571;0.5905;0.6571;0.7071;0.7571;0.8571;1.0000" values="#0b1224;#0b1224;#0b1224;#f59e8b;#7dd3fc;#38bdf8;#7dd3fc;#fb923c;#312e81;#0b1224;#0b1224;#0b1224"/></rect>
 <rect x="40" y="190" width="700" height="110" fill="#fb923c" opacity="0"><animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.0571;0.2238;0.2738;0.3238;0.5905;0.6571;0.7071;0.8571;1.0000" values="0;0;0;0.7;0;0;0.8;0;0;0"/></rect>
 <circle cx="70" cy="84" r="1.8" fill="#ffffff" opacity="1"><animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.0571;0.2238;0.2905;0.6571;0.7238;0.8571;1.0000" values="1;1;1;0;0;1;1;1"/></circle>
@@ -93,7 +93,7 @@ sun_direction.Normalize();
 | 時間帯 | 太陽の高さ | 空 | 光 |
 | --- | --- | --- | --- |
 | 昼（正午） | 高い | 明るい青 | 白〜やや黄色、強い |
-| 朝・夕（日の出・日の入り前後） | 低い | 地平線付近が、橙・赤。反対側は青紫 | 橙〜赤、影が長い |
+| 朝・夕（日の出・日の入り前後） | 低い | 地平線付近が橙・赤。反対側は青紫 | 橙〜赤、影が長い |
 | 薄明（日没後、約 30〜60 分） | 地平線の下（0〜−18°） | 深い青〜紫。地平線付近だけわずかに明るい | ほぼ、空の光だけ（太陽の直接光は無い） |
 | 夜 | −18° 以下 | 暗い。星空 | 月（あれば）、星 |
 
@@ -102,7 +102,7 @@ sun_direction.Normalize();
 <strong>太陽が低い</strong>ほど 光が大気を長く通り、青から先に散って失われます。赤い光が残るので朝夕の太陽は赤い。
 
 ```hlsl
-// 太陽の、高さ（天頂角の cos = sun_dir.y）から、地表での、太陽の光の色を求める（大気の透過率を、掛ける）。
+// 太陽の、高さ（天頂角の cos = sun_dir.y）から、地表での、太陽の光の色を求める（大気の透過率を掛ける）。
 float3 SunColorAtGround(float3 sun_dir) {
   float3 ground_pos = float3(0, g_bottom_radius + 1.0, 0);           // 地表に近い点
   return g_sun_illuminance * SunTransmittance(ground_pos, sun_dir);   // 透過率 LUT で、大気を通った、光の色
@@ -113,7 +113,7 @@ float3 SunColorAtGround(float3 sun_dir) {
 
 ## 光の強さ
 
-<strong>太陽の光の強さ</strong>は 高さとともに急に、変わります。
+<strong>太陽の光の強さ</strong>は 高さとともに急に変わります。
 
 | 太陽の高さ | 地表の照度（目安、lux） |
 | --- | --- |
@@ -126,26 +126,26 @@ float3 SunColorAtGround(float3 sun_dir) {
 | 夜（満月） | 約 0.1〜0.3 |
 | 夜（月なし） | 約 0.001 |
 
-対数的に 桁が変わるので、HDR と露出の自動調整（[Auto Exposure](../../postprocess/tonemapping/auto-exposure.md)）がほぼ、必須です。固定の露出では昼が白飛びするか夜が、真っ暗になります。
+対数的に 桁が変わるので、HDR と露出の自動調整（[Auto Exposure](../../postprocess/tonemapping/auto-exposure.md)）がほぼ、必須です。固定の露出では昼が白飛びするか夜が真っ暗になります。
 
 ## 薄明（トワイライト）
 
-<strong>太陽が地平線の下に沈んだ後</strong>も 空は、しばらく明るいです。大気の高い部分（太陽の光がまだ、当たっている）が光を散乱して地上へ、届けるためです。
+<strong>太陽が地平線の下に沈んだ後</strong>も 空は、しばらく明るいです。大気の高い部分（太陽の光がまだ、当たっている）が光を散乱して地上へ届けるためです。
 
 | 太陽の高さ | 名前 | 見え方 |
 | --- | --- | --- |
-| 0° 〜 −6° | 市民薄明 | 空が、明るい。屋外で活動できる |
-| −6° 〜 −12° | 航海薄明 | 明るい星が、見える。地平線がぼんやり見える |
+| 0° 〜 −6° | 市民薄明 | 空が明るい。屋外で活動できる |
+| −6° 〜 −12° | 航海薄明 | 明るい星が見える。地平線がぼんやり見える |
 | −12° 〜 −18° | 天文薄明 | ほぼ夜。かすかな明るさ |
 
-大気散乱の 物理計算（[Hillaire 2020: Four LUTs](../scattering/hillaire.md)）は、多重散乱とオゾンの吸収を、含めると薄明も自然に再現します（1 回散乱だけでは、足りない。[Multiple Scattering](../scattering/multiple-scattering.md)）。
+大気散乱の 物理計算（[Hillaire 2020: Four LUTs](../scattering/hillaire.md)）は、多重散乱とオゾンの吸収を含めると薄明も自然に再現します（1 回散乱だけでは、足りない。[Multiple Scattering](../scattering/multiple-scattering.md)）。
 
 ## 1 日の時間を進める
 
 ゲームでは <strong>1 日を数十分</strong>に、縮めます。時刻を一定の速さで進めます。
 
 ```cpp
-// ゲーム内の時刻（時）を、進める。1 日を day_length_minutes 分に、縮める。
+// ゲーム内の時刻（時）を進める。1 日を day_length_minutes 分に縮める。
 float AdvanceTime(float hour, float dt_seconds, float day_length_minutes) {
   const float hours_per_second = 24.0f / (day_length_minutes * 60.0f);
   hour += dt_seconds * hours_per_second;
@@ -156,24 +156,24 @@ float AdvanceTime(float hour, float dt_seconds, float day_length_minutes) {
 
 | 設計 | 内容 |
 | --- | --- |
-| 昼夜の長さを変える | 昼を長く夜を、短く（プレイしやすい）など時間の進みを、時刻に応じて変える |
-| 季節 | 日付で太陽の最大の高さ（赤緯）が、変わる（夏は高い） |
+| 昼夜の長さを変える | 昼を長く夜を短く（プレイしやすい）など時間の進みを時刻に応じて変える |
+| 季節 | 日付で太陽の最大の高さ（赤緯）が変わる（夏は高い） |
 | 時刻の固定 | ある場面だけ夕方で、固定（演出） |
 
 ## 夜への移行で変えるもの
 
-時刻が進むと <strong>複数のシステムを、連動</strong>させます。
+時刻が進むと <strong>複数のシステムを連動</strong>させます。
 
 | システム | 変化 |
 | --- | --- |
-| 空（大気散乱） | LUT を、太陽の位置で更新（Hillaire の方式なら、自動） |
-| 太陽の光（方向光） | 向き・色・強さを、透過率から更新 |
-| 月の光 | 夜は月を方向光に（太陽が、下がったら月の光に切り替え。または、足す） |
+| 空（大気散乱） | LUT を太陽の位置で更新（Hillaire の方式なら、自動） |
+| 太陽の光（方向光） | 向き・色・強さを透過率から更新 |
+| 月の光 | 夜は月を方向光に（太陽が下がったら月の光に切り替え。または、足す） |
 | 環境光（空のライティング） | 空の色から、再計算（[Using the Sky for Lighting](sky-lighting.md)） |
 | 星 | 夜にフェード イン（[Sun, Moon and Stars](celestial.md)） |
-| 霧（空気遠近法） | 空の色に、合わせて色・強さを変える（[Matching Fog Color to the Sky](../aerial-fog/color-match.md)） |
+| 霧（空気遠近法） | 空の色に合わせて色・強さを変える（[Matching Fog Color to the Sky](../aerial-fog/color-match.md)） |
 | 人工の光（街灯、窓） | 夜に点灯 |
-| 影 | 太陽が低いと影が、長く（シャドウ マップの範囲、バイアスの調整が必要） |
+| 影 | 太陽が低いと影が長く（シャドウ マップの範囲、バイアスの調整が必要） |
 | 露出 | 自動露出が数秒かけて、追従 |
 | 色補正（カラー グレーディング） | 夜は、青みがかり彩度が下がる（人間の目の、暗所での見え方） |
 

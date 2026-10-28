@@ -6,7 +6,7 @@ tags:
 
 # 第 27 章 P/Invoke で C# から呼ぶ
 
-第 26 章で作った `EngineApi.dll` の C の関数を、C# から呼びます。宣言の書き方、構造体や文字列の受け渡し、ハンドルを安全に持つ `SafeHandle`、C++ から C# を呼ぶコールバックと、順番に進めます。この章の終わりには、ビューモデルが使える `IEngineService` ができあがります。
+第 26 章で作った `EngineApi.dll` の C の関数を C# から呼びます。宣言の書き方、構造体や文字列の受け渡し、ハンドルを安全に持つ `SafeHandle`、C++ から C# を呼ぶコールバックと、順番に進めます。この章の終わりには、ビューモデルが使える `IEngineService` ができあがります。
 
 !!! info "このページを読む前に"
     - [第 26 章 EngineApi：C の入口を作る](26-engine-api.md)（前の章。ここまでの内容が前提になる）
@@ -15,7 +15,7 @@ tags:
 
 ## P/Invoke は、宣言をもう一度書く仕組み
 
-P/Invoke は、「C の関数の宣言を、C# の側にもう一度書く」という仕組みです。
+P/Invoke は、「C の関数の宣言を C# の側にもう一度書く」という仕組みです。
 
 ```c
 /* C の宣言（EngineApi.h） */
@@ -85,7 +85,7 @@ int version = NativeMethods.me_get_api_version();
 
 ### 動かして確かめる
 
-`App.xaml.cs` の `OnInitialized`（Prism が準備を終えたあとに呼ばれる）に、仮のコードを足します。
+`App.xaml.cs` の `OnInitialized`（Prism が準備を終えたあとに呼ばれる）に仮のコードを足します。
 
 ```csharp
 protected override void OnInitialized()
@@ -207,7 +207,7 @@ NativeMethods.ThrowIfFailed(result);
 
 ## ハンドルを SafeHandle で包む
 
-`out nint engine` で受け取ったハンドルは、ただの整数です。これを `Editor` のあちこちに持ち回ると、解放し忘れ、二重に解放、解放したあとで使う、といった間違いが起きます。C++ の `unique_ptr` の役目を、C# では `SafeHandle` が担います。
+`out nint engine` で受け取ったハンドルは、ただの整数です。これを `Editor` のあちこちに持ち回ると、解放し忘れ、二重に解放、解放したあとで使う、といった間違いが起きます。C++ の `unique_ptr` の役目を C# では `SafeHandle` が担います。
 
 ```csharp title="Interop/EngineHandle.cs"
 using System.Runtime.InteropServices;
@@ -234,7 +234,7 @@ internal sealed class EngineHandle : SafeHandle
 
 `SafeHandle` は、`Dispose()` か GC による破棄のときに、`ReleaseHandle()` がちょうど 1 回だけ呼ばれることを保証してくれます。`handle` は、持っているポインターの値です。`ownsHandle: true` は、「このオブジェクトが解放の責任を持つ」という意味です。
 
-関数の宣言を、`nint` から `EngineHandle` に変えます。
+関数の宣言を `nint` から `EngineHandle` に変えます。
 
 ```csharp
 [LibraryImport(Dll)]
@@ -385,7 +385,7 @@ internal static unsafe class NativeLog
         }
         catch
         {
-            // C++ の呼び出しスタックへ、例外を通さない
+            // C++ の呼び出しスタックへ例外を通さない
         }
     }
 
@@ -460,7 +460,7 @@ protected override void OnInitialized()
     int version = Interop.NativeMethods.me_get_api_version();
     var log = Container.Resolve<ILogService>();
 
-    // C++ のログを、エディタのログへ
+    // C++ のログをエディタのログへ
     Interop.NativeLog.Install((level, message) =>
     {
         switch (level)
@@ -496,7 +496,7 @@ ME_API MeResult me_asset_load(MeEngine* engine, const char* path_utf8);
 internal static partial MeResult me_asset_load(EngineHandle engine, string path);
 ```
 
-`StringMarshalling.Utf8` を指定すると、`string` を UTF-8 の `char*` に変換して渡してくれます。変換用の一時的なバッファーは、呼び出しの間だけ有効で、戻れば解放されます。だから C++ 側は、受け取った `const char*` を、呼び出しの外に持ち出してはいけません（保存したいなら、コピーを取ります）。Windows API を呼ぶときは `Utf16` を使います。
+`StringMarshalling.Utf8` を指定すると、`string` を UTF-8 の `char*` に変換して渡してくれます。変換用の一時的なバッファーは、呼び出しの間だけ有効で、戻れば解放されます。だから C++ 側は、受け取った `const char*` を呼び出しの外に持ち出してはいけません（保存したいなら、コピーを取ります）。Windows API を呼ぶときは `Utf16` を使います。
 
 逆に、C++ が文字列を書き込んで返したいときは、C# がバッファーを用意して渡します。
 
@@ -555,7 +555,7 @@ public MainWindowViewModel(IEngineService engine, ILogService log)
 InvalidArgument: window が null、または大きさが 0
 ```
 
-C++ 側で `SetLastError` した文字列が、そのまま C# の例外のメッセージになりました。エラー コードを返して、理由を別の関数で取る、という経路が通っています。
+C++ 側で `SetLastError` した文字列がそのまま C# の例外のメッセージになりました。エラー コードを返して、理由を別の関数で取る、という経路が通っています。
 
 確かめたいのは次の点です。
 
@@ -567,7 +567,7 @@ C++ 側で `SetLastError` した文字列が、そのまま C# の例外のメ�
     DLL が `Editor.exe` の隣にない、依存する `Engine.dll` がない、あるいはビット数が違います。調べ方は第 29 章にあります。
 
 ??? failure "`EntryPointNotFoundException`"
-    DLL の中に、その名前の関数がありません。C# 側の名前のタイプミス、`extern "C"` の付け忘れ、または `dumpbin /exports` に出ていないことが原因です。
+    DLL の中にその名前の関数がありません。C# 側の名前のタイプミス、`extern "C"` の付け忘れ、または `dumpbin /exports` に出ていないことが原因です。
 
 ??? failure "値が化ける、ランダムにクラッシュする"
     構造体のフィールドの型や順番が C 側と違うか、`bool` を使っているか、`long` を使っています（C# の `long` は 64 ビット）。宣言を C のヘッダーと見比べてください。

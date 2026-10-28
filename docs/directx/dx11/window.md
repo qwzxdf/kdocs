@@ -48,7 +48,7 @@ HWND CreateGameWindow(HINSTANCE instance, int width, int height) {
 ## 描画領域の大きさを指定する
 
 ```cpp
-  // 指定した大きさは「描画領域」の大きさ。タイトル バーや枠のぶんを、足して、ウィンドウ全体の大きさにする。
+  // 指定した大きさは「描画領域」の大きさ。タイトル バーや枠のぶんを足して、ウィンドウ全体の大きさにする。
   RECT rect = {0, 0, width, height};
   const DWORD style = WS_OVERLAPPEDWINDOW;
   AdjustWindowRect(&rect, style, FALSE);
@@ -59,7 +59,7 @@ HWND CreateGameWindow(HINSTANCE instance, int width, int height) {
 }
 ```
 
-`CreateWindowExW` の幅と高さは枠を含むウィンドウ全体の大きさです。1280×720 の描画領域が欲しいときに、そのまま 1280×720 を渡すと、枠のぶん描画領域が小さくなります。`AdjustWindowRect` が枠のぶんを足した大きさを、計算してくれます。
+`CreateWindowExW` の幅と高さは枠を含むウィンドウ全体の大きさです。1280×720 の描画領域が欲しいときに、そのまま 1280×720 を渡すと、枠のぶん描画領域が小さくなります。`AdjustWindowRect` が枠のぶんを足した大きさを計算してくれます。
 
 ## ウィンドウ プロシージャ
 
@@ -74,14 +74,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lpara
       }
       return 0;
     case WM_DESTROY:
-      PostQuitMessage(0);                                    // メッセージ ループを、終わらせる
+      PostQuitMessage(0);                                    // メッセージ ループを終わらせる
       return 0;
   }
   return DefWindowProcW(hwnd, message, wparam, lparam);      // それ以外は、既定の処理に任せる
 }
 ```
 
-`WM_SIZE` でバック バッファを作り直します（[Window Resize and Device Removal](resize.md)）。`WM_DESTROY` で `PostQuitMessage` を呼ぶとメッセージ ループに、`WM_QUIT` が届き終了します。処理しないメッセージは `DefWindowProcW` に必ず、渡します。
+`WM_SIZE` でバック バッファを作り直します（[Window Resize and Device Removal](resize.md)）。`WM_DESTROY` で `PostQuitMessage` を呼ぶとメッセージ ループに `WM_QUIT` が届き終了します。処理しないメッセージは `DefWindowProcW` に必ず、渡します。
 
 ## メッセージ ループ
 
@@ -106,9 +106,9 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 }
 ```
 
-`GetMessage` はメッセージが来るまで待つので、ゲームのループには使えません。`PeekMessage` は無ければすぐ戻るのでメッセージが無い間に、ゲームの更新と描画を回せます。フレームの速さは `Present` の垂直同期（[Clear and Present](clear-present.md)）で、決まります。
+`GetMessage` はメッセージが来るまで待つので、ゲームのループには使えません。`PeekMessage` は無ければすぐ戻るのでメッセージが無い間にゲームの更新と描画を回せます。フレームの速さは `Present` の垂直同期（[Clear and Present](clear-present.md)）で、決まります。
 
-## クライアント領域の大きさを、取り出す
+## クライアント領域の大きさを取り出す
 
 ```cpp
 RECT client;
@@ -117,7 +117,7 @@ const UINT width = client.right - client.left;
 const UINT height = client.bottom - client.top;
 ```
 
-スワップ チェーンやビューポートの、大きさには <strong>ウィンドウ全体ではなく、クライアント領域</strong>の大きさを、使います（[Swap Chain](swap-chain.md)）。
+スワップ チェーンやビューポートの、大きさには <strong>ウィンドウ全体ではなく、クライアント領域</strong>の大きさを使います（[Swap Chain](swap-chain.md)）。
 
 ## ウィンドウ ライブラリを使うとき
 
@@ -130,8 +130,8 @@ const UINT height = client.bottom - client.top;
 
 ## よくあるミス
 
-??? failure "描画領域が、指定した大きさより小さい"
-    `AdjustWindowRect` を通していない。ウィンドウ全体の大きさと描画領域の大きさを、混同している。
+??? failure "描画領域が指定した大きさより小さい"
+    `AdjustWindowRect` を通していない。ウィンドウ全体の大きさと描画領域の大きさを混同している。
 
 ??? failure "ウィンドウを閉じても、プロセスが残る"
     `WM_DESTROY` で `PostQuitMessage` を呼んでいない。または、ループの条件が `WM_QUIT` を見ていない。
@@ -139,13 +139,13 @@ const UINT height = client.bottom - client.top;
 ??? failure "最小化すると `ResizeBuffers` が、失敗する"
     最小化のとき `WM_SIZE` の幅と高さが 0 になる。`SIZE_MINIMIZED` のときは作り直さない。
 
-??? failure "メッセージ ループが、固まる"
+??? failure "メッセージ ループが固まる"
     `GetMessage` で待っている。ゲームのループは `PeekMessage` で書く。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] D3D11 の前に、Win32 のウィンドウ（`HWND`）が要る
+    - [x] D3D11 の前に Win32 のウィンドウ（`HWND`）が要る
     - [x] クラス登録 → `AdjustWindowRect` → `CreateWindowExW` → `ShowWindow`
     - [x] ループは `PeekMessage`。無ければ 1 フレーム描く
     - [x] `WM_SIZE` でバック バッファを作り直す。最小化は除く

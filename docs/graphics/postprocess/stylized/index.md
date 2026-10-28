@@ -6,7 +6,7 @@ tags:
 
 # Outlines and Toon
 
-<strong>写実的ではなく、アニメやイラストのような絵</strong>を<strong>作る技法</strong>が<strong>ノンフォトリアリスティック レンダリング（NPR）</strong>です。<strong>輪郭線（アウトライン）で形を強調し、陰影を数段階に区切る（セル シェーディング）</strong>ことで、<strong>「手描きのアニメ」風</strong>の絵になります。どれも写実より優れているわけではなく、作品の画風に合うかどうかの好みの問題です。このセクションでは、背面法の輪郭線・画面空間のエッジ検出・セル シェーディング・ポスタライズとハーフトーンを、1 つずつ別のページで説明します。
+<strong>写実的ではなく、アニメやイラストのような絵</strong>を<strong>作る技法</strong>が<strong>ノンフォトリアリスティック レンダリング（NPR）</strong>です。<strong>輪郭線（アウトライン）で形を強調し、陰影を数段階に区切る（セル シェーディング）</strong>ことで、<strong>「手描きのアニメ」風</strong>の絵になります。どれも写実より優れているわけではなく、作品の画風に合うかどうかの好みの問題です。このセクションでは、背面法の輪郭線・画面空間のエッジ検出・セル シェーディング・ポスタライズとハーフトーンを 1 つずつ別のページで説明します。
 
 ## 動きで見る
 
@@ -17,7 +17,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">トゥーンの手順: ベース色 → 段のある陰 → リム ライト → 輪郭線。1 層ずつ足す</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">球の断面(48 画素)。層を 1 つずつ足して、各段階の見え方を、実際に計算する</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">球の断面(48 画素)。層を 1 つずつ足して、各段階の見え方を実際に計算する</text>
 <text x="60.0" y="108" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">① ベース色(一様)</text>
 <rect x="60.0" y="112.0" width="14.8" height="40.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0667" values="#e5e7eb;#f9c294"/></rect>
 <rect x="74.5" y="112.0" width="14.8" height="40.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0684" values="#e5e7eb;#f9c294"/></rect>
@@ -177,7 +177,7 @@ tags:
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5465;0.5467;1.0000" values="0;0;1;1"/><text x="766.0" y="268" text-anchor="start" style="font-size:12px;font-weight:700;fill:#e5aa28">色の種類 5</text>
 <text x="766.0" y="288" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b">平均の明るさ 0.55</text>
 </g>
-<text x="60.0" y="318" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">④ 輪郭線(視線に近い縁を、黒く)</text>
+<text x="60.0" y="318" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d">④ 輪郭線(視線に近い縁を黒く)</text>
 <rect x="60.0" y="322.0" width="14.8" height="40.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6533" values="#e5e7eb;#fff3d2"/></rect>
 <rect x="74.5" y="322.0" width="14.8" height="40.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6551" values="#e5e7eb;#f9c294"/></rect>
 <rect x="89.0" y="322.0" width="14.8" height="40.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6569" values="#e5e7eb;#f9c294"/></rect>

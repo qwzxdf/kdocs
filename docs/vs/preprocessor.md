@@ -6,12 +6,12 @@ tags:
 
 # プリプロセッサマクロ
 
-C++ のビルドではコンパイルの前に**プリプロセッサ**が `#include` や `#define` を処理します。ビルド設定でマクロを定義することで、コードを書き換えずに動作を切り替えることができます。Windows の `min` / `max` 問題を避ける `NOMINMAX`、ImGui の `IMGUI_API`、Debug / Release を分ける `_DEBUG` などゲーム開発でよく出てくるマクロを、Visual Studio での設定方法とあわせてまとめます。
+C++ のビルドではコンパイルの前に**プリプロセッサ**が `#include` や `#define` を処理します。ビルド設定でマクロを定義することで、コードを書き換えずに動作を切り替えることができます。Windows の `min` / `max` 問題を避ける `NOMINMAX`、ImGui の `IMGUI_API`、Debug / Release を分ける `_DEBUG` などゲーム開発でよく出てくるマクロを Visual Studio での設定方法とあわせてまとめます。
 
 !!! tip "ポイント"
     - マクロは <strong>ソースの `#define`</strong> か <strong>プロジェクトのプロパティ（C/C++ → プリプロセッサ → プリプロセッサの定義）</strong>で定義する。全部のファイルに効かせたいならプロパティ。
     - Windows を使うなら `NOMINMAX` と `WIN32_LEAN_AND_MEAN` は、ほぼ必須。`#include <windows.h>` より前に効いていること。
-    - 構成（Debug / Release）ごとに別の定義ができる。設定するときは どの構成に設定しているかを確認。
+    - 構成（Debug / Release）ごとに別の定義ができる。設定するときは どの構成に設定しているかを確認する。
     - ライブラリとプロジェクトで、定義をそろえる（`_ITERATOR_DEBUG_LEVEL`、Jolt の定義など）。ずれると実行時に壊れる。
     - `_DEBUG` と `NDEBUG` は Visual Studio が自動で定義する。自分の機能スイッチ（`ENABLE_PROFILER` など）もプロパティで切り替えられる。
 
@@ -114,7 +114,7 @@ error C2589: '(': '::' の右側のトークンが正しくありません
 
 | 効果 | 説明 |
 | --- | --- |
-| ビルドが速くなる | 読むヘッダが、減る（[ビルド時間の最適化](../optimize/build-time.md)） |
+| ビルドが速くなる | 読むヘッダが減る（[ビルド時間の最適化](../optimize/build-time.md)） |
 | Winsock の衝突を防ぐ | `winsock2.h` を使うとき `windows.h` が古い `winsock.h` を先に読むと、再定義エラーになる |
 | 注意 | `shellapi.h`、`ole2.h`、`commdlg.h` などが必要なら自分で include する |
 
@@ -251,7 +251,7 @@ IMGUI_API bool Button(const char* label, const ImVec2& size = ImVec2(0, 0));
 | ゲーム本体（exe）とツール（DLL）で、ImGui を共有 | 同じ ImGui を共有し、`ImGui::SetCurrentContext` でコンテキストを渡す |
 
 !!! warning "DLL をまたぐとき"
-    DLL 側で作った `ImGuiContext` を exe 側から使うには、`ImGui::SetCurrentContext` と `SetAllocatorFunctions` を両方で呼ぶ必要があります（ImGui のグローバル状態が、DLL ごとに別になるため）。詳しくは[Dear ImGui](../libs/imgui/index.md) を見てください。
+    DLL 側で作った `ImGuiContext` を exe 側から使うには、`ImGui::SetCurrentContext` と `SetAllocatorFunctions` を両方で呼ぶ必要があります（ImGui のグローバル状態が DLL ごとに別になるため）。詳しくは[Dear ImGui](../libs/imgui/index.md) を見てください。
 
 ### ImGui のそのほかのマクロ
 
@@ -270,7 +270,7 @@ IMGUI_API bool Button(const char* label, const ImVec2& size = ImVec2(0, 0));
 IMGUI_DEFINE_MATH_OPERATORS;IMGUI_DISABLE_OBSOLETE_FUNCTIONS;%(PreprocessorDefinitions)
 ```
 
-`imconfig.h` を直接書き換えるとImGui の更新で、衝突します。`IMGUI_USER_CONFIG` で自分のファイルを指す方法が、おすすめです（[Dear ImGui](../libs/imgui/index.md)）。
+`imconfig.h` を直接書き換えるとImGui の更新で、衝突します。`IMGUI_USER_CONFIG` で自分のファイルを指す方法がおすすめです（[Dear ImGui](../libs/imgui/index.md)）。
 
 ### 自作ライブラリの API マクロ（DLL）
 
@@ -308,7 +308,7 @@ Visual Studio の DLL プロジェクトには `プロジェクト名_EXPORTS` �
 | nlohmann/json | `JSON_USE_IMPLICIT_CONVERSIONS=0`、`JSON_NOEXCEPTION` | 全部のファイルで同じ設定 |
 | 標準ライブラリ | `_ITERATOR_DEBUG_LEVEL`、`_HAS_EXCEPTIONS` | ライブラリとプロジェクトで、そろえる |
 
-vcpkg や CMake で入れると、ビルドの定義が自動でそろいます。手作業で設定するときはライブラリのドキュメントの「ビルド設定」の節を、必ず読みます。
+vcpkg や CMake で入れると、ビルドの定義が自動でそろいます。手作業で設定するときはライブラリのドキュメントの「ビルド設定」の節を必ず読みます。
 
 ## コンパイラが定義する定義済みマクロ
 
@@ -319,7 +319,7 @@ vcpkg や CMake で入れると、ビルドの定義が自動でそろいます�
 | `_M_X64` / `_M_ARM64` | CPU の種類（64 ビット x86 / ARM） |
 | `_WIN32` / `_WIN64` | Windows。64 ビットでも `_WIN32` は定義される |
 | `__FILE__` / `__LINE__` | ファイル名と行番号（ログ・assert に） |
-| `__has_include(<header>)` | ヘッダが、存在するか（C++17）。`#if __has_include(<print>)` |
+| `__has_include(<header>)` | ヘッダが存在するか（C++17）。`#if __has_include(<print>)` |
 | **`__cpp_lib_*`** | 標準ライブラリの機能が使えるか（`__cpp_lib_print`、`__cpp_lib_flat_map` など） |
 
 ```cpp
@@ -339,11 +339,11 @@ vcpkg や CMake で入れると、ビルドの定義が自動でそろいます�
 | 方法 | 説明 |
 | --- | --- |
 | **プロパティの画面** | 構成・プラットフォームを選んで、値を直接確認 |
-| `/P`（プリプロセス結果をファイルに出力） | マクロ展開後のソースを、`.i` ファイルに。どう展開されたかを見る |
+| `/P`（プリプロセス結果をファイルに出力） | マクロ展開後のソースを `.i` ファイルに。どう展開されたかを見る |
 | `/showIncludes` | どのヘッダをどの順に読んだか |
 | `#pragma message("...")` | コンパイル時にメッセージを出す。`#pragma message("MYLEVEL = " _CRT_STRINGIZE(MY_LEVEL))` |
 | `/d1PP`（`/E` と併用） | 展開の様子を詳しく |
-| IntelliSense の淡色表示 | `#ifdef` で無効な部分が、灰色になる |
+| IntelliSense の淡色表示 | `#ifdef` で無効な部分が灰色になる |
 
 !!! note "IntelliSense が、プロパティの設定を見ていないとき"
     プロパティで定義したマクロは、IntelliSense にも反映されますが、CMake プロジェクトなどでは、反映が遅れることがあります。ビルドして確認します。

@@ -9,10 +9,10 @@ tags:
 <strong>影を持つライトが数十個になる</strong>と、すべてにシャドウ マップを作ると、フレームが破綻します。そこで、シャドウ マップを 1 枚の大きなアトラスにまとめ、画面上の大きさに応じて解像度を配分し、静止したライトの影はキャッシュします。このページではアトラス・解像度の割り当て・キャッシュ・影付きライトの描画・バイアスと精度を説明します。
 
 !!! tip "ポイント"
-    - シャドウ マップを、大きなアトラスにまとめて管理する。
-    - 画面上で大きい・近いライトに、大きな解像度を割り当てる。
+    - シャドウ マップを大きなアトラスにまとめて管理する。
+    - 画面上で大きい・近いライトに大きな解像度を割り当てる。
     - 静止したライトと静止した物の影は、キャッシュして毎フレーム描かない。
-    - 影を持つライトの数に、上限を設ける。
+    - 影を持つライトの数に上限を設ける。
 
 !!! info "このページを読む前に"
     - [Point and Spot Light Shadows](index.md)（このセクション全体の地図と、読む順番）
@@ -82,7 +82,7 @@ tags:
 <text x="670.0" y="360" text-anchor="middle" style="font-size:12px;font-weight:500;fill:#64748b">静止</text>
 <text x="50" y="66" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">黄色 = このフレームで、シャドウ マップを描き直したライト。他は、前のフレームの結果を使い回す<animate attributeName="opacity" dur="12s" repeatCount="indefinite" keyTimes="0.0000;1.0000;1.0000" values="1;1;0"/></text>
 <text x="50" y="366" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">動くライト（赤い文字）は、毎フレーム更新。静止したライトは、順番に（ラウンド ロビン）、数個ずつ更新する。</text>
-<text x="50" y="390" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 フレームに描くシャドウ マップの数に、上限を決める → コストが一定になる。</text>
+<text x="50" y="390" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 フレームに描くシャドウ マップの数に上限を決める → コストが一定になる。</text>
 </svg>
 
 <!-- fig:many-lights-cache:end -->
@@ -98,7 +98,7 @@ tags:
 | --- | --- |
 | 影付きライトの数を制限 | 重要なライトだけ影付き（例：画面の近く・大きい・明るい） |
 | 優先度付け | 画面上の大きさ・明るさ・距離でスコアを付け、上位 N 個だけに影 |
-| アトラス | 1 枚の大きなテクスチャに、複数のシャドウ マップを敷き詰める。ライトごとに解像度を可変（近いライトは大きく） |
+| アトラス | 1 枚の大きなテクスチャに複数のシャドウ マップを敷き詰める。ライトごとに解像度を可変（近いライトは大きく） |
 | 解像度の可変 | 画面上で小さいライトは、低い解像度 |
 | 更新頻度 | 静的なライト・静的な物はキャッシュし、動く物が入ったときだけ更新 |
 | 遠方・画面外の除外 | 視錐台の外・遠いライトは描かない |
@@ -112,7 +112,7 @@ tags:
 2 枚（静的用・動的用）を持ち、画素ごとに両方を引いて小さい方（より暗い方）を取る方法もあります。
 
 ## 影のあるライトの描画での使い方
-<strong>ライティング</strong>の段階でライトごとの影の係数を、そのライトの寄与に掛けます。
+<strong>ライティング</strong>の段階でライトごとの影の係数をそのライトの寄与に掛けます。
 
 ```hlsl
 float shadow = SpotShadow(world_pos, light_index);
@@ -132,14 +132,14 @@ float3 lit = EvaluateLight(light, surface) * shadow;
 
 | 基準 | 内容 |
 | --- | --- |
-| 画面に映っている | 視錐台の外にある光（光の、範囲球が視錐台と交わらない）は影を、作らない |
-| 画面上の大きさ | 光が画面に、大きく映る（近い明るい光）ほど、優先 |
-| 明るさ | 暗い光は影が、見えない。影を省く |
+| 画面に映っている | 視錐台の外にある光（光の、範囲球が視錐台と交わらない）は影を作らない |
+| 画面上の大きさ | 光が画面に大きく映る（近い明るい光）ほど、優先 |
+| 明るさ | 暗い光は影が見えない。影を省く |
 | 距離 | 遠い光は影が細かく見えない。影なしまたは低解像度 |
 | 重要さ | ゲームの演出上、重要な光（プレイヤーの懐中電灯、重要なランプ）は優先 |
 
 ```cpp
-// 光ごとに、「影の優先度」を、計算して、上位 N 個だけ、影を作る。
+// 光ごとに、「影の優先度」を計算して、上位 N 個だけ、影を作る。
 float ShadowPriority(const Light& light, const Camera& camera) {
   const float dist = Distance(light.position, camera.position);
   if (dist > light.range + camera.far_plane) return 0.0f;
@@ -149,14 +149,14 @@ float ShadowPriority(const Light& light, const Camera& camera) {
   return screen_size * light.intensity * light.importance;
 }
 
-// 優先度の高い順に、N 個（8 個など）を選んで、シャドウ マップを割り当てる。
+// 優先度の高い順に N 個（8 個など）を選んで、シャドウ マップを割り当てる。
 std::sort(lights.begin(), lights.end(), [&](auto& a, auto& b) { return a.priority > b.priority; });
 for (int i = 0; i < std::min<int>(kMaxShadowLights, lights.size()); ++i) lights[i].shadow_slot = i;
 ```
 
 ## シャドウ マップをアトラスに
 
-影を落とす光が複数あるときシャドウ マップを、<strong>1 枚の大きなテクスチャ（アトラス）</strong>に、まとめます。ライトごとにテクスチャをバインドし直す必要が、なくなります。
+影を落とす光が複数あるときシャドウ マップを <strong>1 枚の大きなテクスチャ（アトラス）</strong>に、まとめます。ライトごとにテクスチャをバインドし直す必要がなくなります。
 
 ```text
 ┌──────────┬──────┬──────┐
@@ -186,7 +186,7 @@ float SampleShadowAtlas(uint tile_index, float2 local_uv, float depth) {
 }
 ```
 
-タイルの境界では PCF が、隣のタイルを読んでしまうので、タイルの縁に余白を設け UV を、余白の内側にクランプします。
+タイルの境界では PCF が、隣のタイルを読んでしまうので、タイルの縁に余白を設け UV を余白の内側にクランプします。
 
 ## 描画の頻度を減らす
 
@@ -207,10 +207,10 @@ float SampleShadowAtlas(uint tile_index, float2 local_uv, float depth) {
 ```
 
 ```cpp
-// 静止物の影のキャッシュを、毎フレームの、シャドウ マップに、コピーしてから、動く物を、描き足す。
-context->CopyResource(shadow_map.Get(), static_shadow_cache.Get());     // 静止物の深度を、コピー
+// 静止物の影のキャッシュを毎フレームの、シャドウ マップにコピーしてから、動く物を描き足す。
+context->CopyResource(shadow_map.Get(), static_shadow_cache.Get());     // 静止物の深度をコピー
 context->OMSetRenderTargets(0, nullptr, shadow_dsv.Get());
-// ここでは、Clear しない（コピーした深度を、残したまま、動く物を、重ねて描く）
+// ここでは、Clear しない（コピーした深度を残したまま、動く物を重ねて描く）
 DrawDynamicShadowCasters();
 ```
 
@@ -241,7 +241,7 @@ DrawDynamicShadowCasters();
 数百の光を <strong>画面の小さな領域（クラスター）</strong>ごとに、影響する光を絞って、シェーディングする方法です（Olsson ら、2012）。影を落とす光はクラスターごとの、光のリストの中で影のアトラスの、タイル番号を持ちます。
 
 ```hlsl
-// クラスターの、光のリストを、走査して、影つきの光だけ、シャドウ マップを読む。
+// クラスターの、光のリストを走査して、影つきの光だけ、シャドウ マップを読む。
 for (uint i = 0; i < light_count_in_cluster; ++i) {
   Light light = g_lights[light_indices[i]];
   float shadow = 1.0;

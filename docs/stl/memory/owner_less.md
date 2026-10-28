@@ -14,7 +14,7 @@ tags:
 `#include <memory>`
 </div>
 
-`std::owner_less` は、**`shared_ptr` や `weak_ptr` を、指す先ではなく「管理ブロック（持ち主）」で比べる**関数オブジェクトです。`std::set<std::weak_ptr<T>, std::owner_less<>>` のように、`weak_ptr` を `set` や `map` のキーにするときに使います。同じオブジェクトを管理する `weak_ptr` どうしは、等しいとみなされます。
+`std::owner_less` は、**`shared_ptr` や `weak_ptr` を指す先ではなく「管理ブロック（持ち主）」で比べる**関数オブジェクトです。`std::set<std::weak_ptr<T>, std::owner_less<>>` のように、`weak_ptr` を `set` や `map` のキーにするときに使います。同じオブジェクトを管理する `weak_ptr` どうしは、等しいとみなされます。
 
 !!! tip "ポイント"
     - `weak_ptr` は `<` で比べられないので、`set` のキーにするには `owner_less` が必要。

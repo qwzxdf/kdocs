@@ -6,7 +6,7 @@ tags:
 
 # Water Shading
 
-<strong>水の見た目は、反射・屈折・吸収・散乱が混ざったものです</strong>。<strong>角度によって反射と屈折の割合が変わり（フレネル）、深いほど色が濃くなります（Beer の法則）</strong>。このセクションでは、水面で起きていること・フレネル・水深による色・屈折の歪み・スペキュラ・反射・散乱・パラメータを、1 つずつ別のページで説明します。
+<strong>水の見た目は、反射・屈折・吸収・散乱が混ざったものです</strong>。<strong>角度によって反射と屈折の割合が変わり（フレネル）、深いほど色が濃くなります（Beer の法則）</strong>。このセクションでは、水面で起きていること・フレネル・水深による色・屈折の歪み・スペキュラ・反射・散乱・パラメータを 1 つずつ別のページで説明します。
 
 ## 水面で何が起きているか
 <strong>光が水面に当たると一部は反射し、残りは水の中へ屈折して入ります</strong>。<strong>水の中では吸収と散乱を受けながら進み</strong>、底や水中の物で跳ね返り、再び水面を通って目に入ります。
@@ -86,7 +86,7 @@ color += specular + scatter + foam;
 - Gordon, Brown, Jacobs, "Computed Relationships between the Inherent and Apparent Optical Properties of a Flat Homogeneous Ocean", Applied Optics, Vol. 14, No. 2, 1975（水中の散乱と吸収から、水の色を求める式）
 - Pope, Fry, "Absorption Spectrum (380–700 nm) of Pure Water. II. Integrating Cavity Measurements", Applied Optics, Vol. 36, No. 33, 1997（純水の吸収係数の測定値）
 - Schlick, "An Inexpensive BRDF Model for Physically-based Rendering", Computer Graphics Forum, Vol. 13, No. 3, 1994（Schlick 近似）
-- Sousa, "Generic Refraction Simulation", GPU Gems 2, Chapter 19, 2005（画面のコピーを、ずらして使う屈折）
+- Sousa, "Generic Refraction Simulation", GPU Gems 2, Chapter 19, 2005（画面のコピーをずらして使う屈折）
 - Cox, Munk, "Measurement of the Roughness of the Sea Surface from Photographs of the Sun's Glitter", Journal of the Optical Society of America, Vol. 44, No. 11, 1954（風速と波の傾きの関係）
 - Lagarde, de Rousiers, "Moving Frostbite to Physically Based Rendering 3.0", SIGGRAPH 2014（反射と、フレネルの扱い）
 

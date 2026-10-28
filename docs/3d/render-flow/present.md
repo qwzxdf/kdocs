@@ -48,7 +48,7 @@ tags:
 | --- | --- |
 | フロント バッファ | 今、画面に表示されている画像 |
 | バック バッファ | 次に表示する画像（描画中） |
-| Present | 完成したバック バッファを、画面に出す命令（入れ替え） |
+| Present | 完成したバック バッファを画面に出す命令（入れ替え） |
 | スワップチェーン | バック バッファの列（2 枚や 3 枚を順番に回す） |
 
 <!-- fig:double-buffer-swap:begin -->
@@ -73,7 +73,7 @@ tags:
 <rect x="50" y="100" width="0" height="110" fill="#2ea043" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6077;0.6080;0.8757;0.8760;1.0000" values="0;0;1;1;0;0"/><animate attributeName="width" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.6080;0.7840;1.0000" values="0;0;180;180"/><animate attributeName="x" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.8160;0.8720;1.0000" values="50;50;310;310"/></rect>
 <text x="140.0" y="161.0" text-anchor="middle" style="font-size:18px;font-weight:700;fill:#ffffff" opacity="0">フレーム 3<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.7837;0.7840;0.8757;0.8760;1.0000" values="0;0;1;1;0;0"/><animate attributeName="x" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.8160;0.8720;1.0000" values="140;140;400;400"/></text>
 <text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">GPU の描画が始まる前<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0317;0.0320;1.0000" values="1;1;0;0"/></text>
-<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">GPU が フレーム 1 を、見えない裏（バック）に描いている<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0317;0.0320;0.2077;0.2080;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">GPU が フレーム 1 を見えない裏（バック）に描いている<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0317;0.0320;0.2077;0.2080;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">描き終わり<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2077;0.2080;0.2397;0.2400;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">Present:バックとフロントを入れ替える<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2397;0.2400;0.3037;0.3040;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="40" y="272" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0"><animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3037;0.3040;0.3197;0.3200;1.0000" values="0;0;1;1;0;0"/></text>
@@ -117,7 +117,7 @@ factory->CreateSwapChainForHwnd(device.Get(), hwnd, &desc, nullptr, nullptr, swa
 
 ## Present と VSync
 
-**ディスプレイは、決まった周期（60 Hz なら 1 秒に 60 回）で画面を更新**します。Present のタイミングが、この更新の途中だと上半分は古い絵、下半分は新しい絵が見える「ティアリング」が起きます。
+**ディスプレイは、決まった周期（60 Hz なら 1 秒に 60 回）で画面を更新**します。Present のタイミングがこの更新の途中だと上半分は古い絵、下半分は新しい絵が見える「ティアリング」が起きます。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="ティアリング">
 <text x="20" y="24" class="fig-title">VSync なし：更新の途中で入れ替えると、画面が裂ける</text>

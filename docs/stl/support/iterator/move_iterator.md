@@ -60,7 +60,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| 巨大な文字列の配列を、別のコンテナへ移す | `dst.insert(dst.end(), make_move_iterator(...), ...)` |
+| 巨大な文字列の配列を別のコンテナへ移す | `dst.insert(dst.end(), make_move_iterator(...), ...)` |
 
 ## よくあるミス
 

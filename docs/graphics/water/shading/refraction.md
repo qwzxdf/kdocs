@@ -60,12 +60,12 @@ n₁ sinθ₁ = n₂ sinθ₂            n₁ = 1.0（空気）、n₂ = 1.33（
 float3 refracted_dir = refract(-view_dir, wave_normal, 1.0 / 1.33);
 ```
 
-この向きに光が水の中を進みます。屈折した向きに水の中を一定の距離だけ進んだ点が目に、見えている点です。
+この向きに光が水の中を進みます。屈折した向きに水の中を一定の距離だけ進んだ点が目に見えている点です。
 
 ```hlsl
 // 水面の点 P から、屈折した向きに、水の深さぶん進んだ点（水中の、見える位置）。
 float3 refracted_pos = world_pos + refracted_dir * (water_depth / max(-refracted_dir.y, 0.05));
-// この点を、画面に投影して、そこの、シーンの色を、読む。
+// この点を画面に投影して、そこの、シーンの色を読む。
 float4 clip = mul(float4(refracted_pos, 1), view_proj);
 float2 refract_uv = clip.xy / clip.w * float2(0.5, -0.5) + 0.5;
 ```
@@ -74,13 +74,13 @@ float2 refract_uv = clip.xy / clip.w * float2(0.5, -0.5) + 0.5;
 
 ## 画面のコピーを歪ませる（簡易な方法）
 
-幾何学的な方法は <strong>水深と屈折ベクトル</strong>が必要で計算が、増えます。多くのゲームではもっと簡単な方法を、使います（Sousa、2005）。
+幾何学的な方法は <strong>水深と屈折ベクトル</strong>が必要で計算が増えます。多くのゲームではもっと簡単な方法を使います（Sousa、2005）。
 
-1. 水面を描く前に画面（シーンの色）を、テクスチャにコピーする
+1. 水面を描く前に画面（シーンの色）をテクスチャにコピーする
 2. 水面のピクセルで波の法線に応じて、UV をずらしてそのコピーを読む
 
 ```cpp
-// 水面を描く前に、シーンの色を、コピーする。
+// 水面を描く前にシーンの色をコピーする。
 context->CopyResource(scene_copy_tex.Get(), scene_color_tex.Get());
 // 水の描画では、scene_copy を SRV として、読む（書き込み先の scene_color とは、別のテクスチャ）。
 ```
@@ -92,22 +92,22 @@ float2 refract_uv = screen_uv + distortion;
 float3 scene_color = g_scene_copy.Sample(g_linear_clamp, refract_uv).rgb;
 ```
 
-波の法線が 傾いている方向に、ずれて見えるので 水面がゆらゆらして、水中の物が揺らいで見えます。
+波の法線が 傾いている方向にずれて見えるので 水面がゆらゆらして、水中の物が揺らいで見えます。
 
 ### パラメーター
 
 | パラメーター | 目安 | 内容 |
 | --- | --- | --- |
 | `distortion_strength` | 0.02〜0.05 | ずれの大きさ。大きいと不自然に歪む |
-| 水深での強さ | 浅いほど、弱める | 浅い所は光が水中を、通る距離が短くほとんどずれない |
-| 距離での強さ | 遠いほど、弱める | 遠くはちらつきを、防ぐ |
+| 水深での強さ | 浅いほど、弱める | 浅い所は光が水中を通る距離が短くほとんどずれない |
+| 距離での強さ | 遠いほど、弱める | 遠くはちらつきを防ぐ |
 
 ## 手前の物をずらさない
 
-歪ませた UV でシーンの色を、読むとき <strong>水より手前にある物</strong>（水面から、突き出た杭、船、プレイヤーの足）を 読んでしまうことがあります。杭の色が水面ににじみ出して見えます。
+歪ませた UV でシーンの色を読むとき <strong>水より手前にある物</strong>（水面から、突き出た杭、船、プレイヤーの足）を 読んでしまうことがあります。杭の色が水面ににじみ出して見えます。
 
 ```hlsl
-// ずらした先の深度が、水面より手前なら（水の外にある物）、ずらさない。
+// ずらした先の深度が水面より手前なら（水の外にある物）、ずらさない。
 float2 refract_uv = screen_uv + distortion;
 float scene_depth_at_uv = LinearizeDepth(g_scene_depth.Sample(g_point_clamp, refract_uv).r);
 if (scene_depth_at_uv < surface_depth) {
@@ -121,11 +121,11 @@ float3 scene_color = g_scene_copy.Sample(g_linear_clamp, refract_uv).rgb;
 | ずらした先が水の中（底） | そのまま、歪ませた色を使う |
 | ずらした先が水より手前の物 | 歪ませず、元の位置の色を使う |
 
-これでも 水面の境界でわずかに、にじみます。さらに、水の外にある物のマスクを、別のテクスチャで持つ方法もありますが、簡易な方法ではこの深度のチェックだけで、十分なことが多いです。
+これでも 水面の境界でわずかに、にじみます。さらに、水の外にある物のマスクを別のテクスチャで持つ方法もありますが、簡易な方法ではこの深度のチェックだけで、十分なことが多いです。
 
 ## 水深から歪みを決める
 
-<strong>浅い場所</strong>では光が水の中を、通る距離が短く 屈折の影響が、小さいです。水深に比例して歪みを強めます。
+<strong>浅い場所</strong>では光が水の中を通る距離が短く 屈折の影響が小さいです。水深に比例して歪みを強めます。
 
 ```hlsl
 float depth_factor = saturate(water_depth / 2.0);       // 2 m で、最大
@@ -136,7 +136,7 @@ float2 distortion = wave_normal.xz * distortion_strength * depth_factor;
 
 ## 色収差（分散）
 
-水の屈折率は <strong>波長で少し違います</strong>（赤で 1.331、青で 1.337）。これを再現すると RGB を、わずかに別々にずらして、読みます。
+水の屈折率は <strong>波長で少し違います</strong>（赤で 1.331、青で 1.337）。これを再現すると RGB をわずかに別々にずらして、読みます。
 
 ```hlsl
 float3 scene_color;
@@ -145,7 +145,7 @@ scene_color.g = g_scene_copy.Sample(g_linear_clamp, screen_uv + distortion * 1.0
 scene_color.b = g_scene_copy.Sample(g_linear_clamp, screen_uv + distortion * 1.05).b;
 ```
 
-水は屈折率の差が小さく効果は、ごくわずかです。入れると 水面の縁がわずかに、虹色に見えます。ガラス（[Dispersion](../../translucency/refraction/dispersion.md)）では効果が、目立ちます。
+水は屈折率の差が小さく効果は、ごくわずかです。入れると 水面の縁がわずかに、虹色に見えます。ガラス（[Dispersion](../../translucency/refraction/dispersion.md)）では効果が目立ちます。
 
 ## 画面の端
 
@@ -154,12 +154,12 @@ scene_color.b = g_scene_copy.Sample(g_linear_clamp, screen_uv + distortion * 1.0
 | 対策 | 内容 |
 | --- | --- |
 | 歪みを画面の端で弱める | 端に近いほど、歪みを小さくする |
-| 画面を少し大きく描く | シーンを、画面より少し広い範囲で描く（コストが、増える） |
+| 画面を少し大きく描く | シーンを画面より少し広い範囲で描く（コストが増える） |
 | 気にしない | 水面の歪みは、小さいので多くの場合、目立たない |
 
 ## よくあるミス
 
-??? failure "岸辺の物が、水面に引き込まれて歪む"
+??? failure "岸辺の物が水面に引き込まれて歪む"
     <strong>深度を比べて手前の物は除く</strong>。
 
 ## これだけ覚える
@@ -170,7 +170,7 @@ scene_color.b = g_scene_copy.Sample(g_linear_clamp, screen_uv + distortion * 1.0
 
 ## 参考
 
-- Sousa, "Generic Refraction Simulation", GPU Gems 2, Chapter 19, 2005（画面のコピーを、ずらして使う屈折）
+- Sousa, "Generic Refraction Simulation", GPU Gems 2, Chapter 19, 2005（画面のコピーをずらして使う屈折）
 - Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（フレネル、屈折、スネルの法則）
 - Mittring, "Finding Next Gen: CryEngine 2", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games（水の描画、平面反射と屈折のコピー）
 - Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes

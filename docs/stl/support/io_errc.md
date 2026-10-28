@@ -15,7 +15,7 @@ tags:
 `#include <system_error>`
 </div>
 
-`ios_base::failure` の `code()` は、`io_errc::stream` を返します。ストリームのエラーを、標準の `error_code` の仕組みで扱うための列挙型です。
+`ios_base::failure` の `code()` は、`io_errc::stream` を返します。ストリームのエラーを標準の `error_code` の仕組みで扱うための列挙型です。
 
 !!! tip "ポイント"
     - 例外の関連の部品。

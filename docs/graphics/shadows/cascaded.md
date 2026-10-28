@@ -6,10 +6,10 @@ tags:
 
 # Cascaded Shadow Maps (CSM)
 
-<strong>広い屋外</strong>で太陽の影を、1 枚のシャドウ マップで覆うと、画面の近くの影が粗く（ギザギザ）なります。カメラの近くは、細かく、遠くは粗くて十分なのにマップが全体を均等に覆っているからです（遠近エイリアシング）。カスケード シャドウ マップ（CSM、Cascaded Shadow Maps）は、カメラの視錐台を奥行き方向に複数に分割し、分割ごとに別のシャドウ マップを用意します。近い範囲ほど、小さな領域を細かく、遠い範囲は広い領域を粗く覆うので、画面でほぼ一定の細かさの影になります。屋外の太陽の影の標準的な方式です。
+<strong>広い屋外</strong>で太陽の影を 1 枚のシャドウ マップで覆うと、画面の近くの影が粗く（ギザギザ）なります。カメラの近くは、細かく、遠くは粗くて十分なのにマップが全体を均等に覆っているからです（遠近エイリアシング）。カスケード シャドウ マップ（CSM、Cascaded Shadow Maps）は、カメラの視錐台を奥行き方向に複数に分割し、分割ごとに別のシャドウ マップを用意します。近い範囲ほど、小さな領域を細かく、遠い範囲は広い領域を粗く覆うので、画面でほぼ一定の細かさの影になります。屋外の太陽の影の標準的な方式です。
 
 !!! tip "ポイント"
-    - 視錐台を<strong>奥行きで N 個（3〜4）に分割</strong>。<strong>各分割（カスケード）に、シャドウ マップ</strong>を 1 枚。
+    - 視錐台を<strong>奥行きで N 個（3〜4）に分割</strong>。<strong>各分割（カスケード）にシャドウ マップ</strong>を 1 枚。
     - 分割の位置は、対数と一様の中間（PSSM）で決める。
     - 各カスケードの光の正射影は、その分割をちょうど覆うように決める。球で包むと回転に強く安定。
     - テクセルのスナップで、カメラが動いても影の縁がちらつかない。
@@ -31,7 +31,7 @@ tags:
 <rect x="72" y="140" width="98" height="40" fill="rgba(46,160,67,0.3)"/><rect x="170" y="115" width="150" height="90" fill="rgba(229,170,40,0.25)"/><rect x="320" y="80" width="180" height="160" fill="rgba(229,72,77,0.2)"/><rect x="500" y="50" width="200" height="220" fill="rgba(150,100,230,0.18)"/>
 <text x="84" y="132" style="font-size:12px">カスケード 0（最も細かい）</text>
 <text x="190" y="108" style="font-size:12px">カスケード 1</text><text x="350" y="72" style="font-size:12px">カスケード 2</text><text x="540" y="44" style="font-size:12px">カスケード 3（最も粗い）</text>
-<text x="20" y="292" style="font-size:12px">同じ解像度（例：2048²）の影の地図が、近い範囲ほど狭い領域を覆う → 画面での影の細かさが、距離によらず、ほぼ一定</text>
+<text x="20" y="292" style="font-size:12px">同じ解像度（例：2048²）の影の地図が近い範囲ほど狭い領域を覆う → 画面での影の細かさが、距離によらず、ほぼ一定</text>
 </svg>
 
 | 項目 | 1 枚のシャドウ マップ | カスケード |
@@ -39,7 +39,7 @@ tags:
 | 近い影 | 粗い（広い範囲を均等に） | 細かい（狭い範囲） |
 | 遠い影 | 無駄に細かい | 粗い（広い範囲） |
 | メモリ | 1 枚 | N 枚（解像度は各 1024〜4096） |
-| 描画コスト | 1 回 | N 回（シーンを、N 回描く） |
+| 描画コスト | 1 回 | N 回（シーンを N 回描く） |
 
 <!-- fig:cascade-splits:begin -->
 
@@ -48,7 +48,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">カスケード シャドウ マップ: 距離で区切って、近くほど細かい影を割り当てる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">4 つの影マップ(各 1024×1024)を、どこで区切るか。区切り方で、影の細かさが変わる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">4 つの影マップ(各 1024×1024)をどこで区切るか。区切り方で、影の細かさが変わる</text>
 <rect x="30" y="82" width="900" height="232" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="72" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">カメラの上から見た図(左 = カメラ、右 = 遠く)</text>
 <circle cx="70" cy="200.0" r="7" fill="#1f2937"/>
@@ -107,7 +107,7 @@ tags:
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5776;0.5778;1.0000" values="0;0;1;1"/><text x="636" y="410" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2ea043">混ぜる(λ=0.75): 最大 12.1</text>
 <text x="636" y="436" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">よく選ばれる折衷案</text>
 </g>
-<text x="30" y="528" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">① 均等に区切る: 近い所の影が、荒くなりやすい<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2398;0.2400;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="528" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">① 均等に区切る: 近い所の影が荒くなりやすい<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2398;0.2400;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="528" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">② 対数で区切る: 全カスケードの細かさが、そろう<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2398;0.2400;0.5065;0.5067;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="528" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">③ 二つを混ぜる: 近くを少し細かくして、遠くを無駄にしない<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5065;0.5067;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -116,7 +116,7 @@ tags:
 
 ## 分割の決め方
 
-<strong>視錐台の近クリップ面 `n` から遠クリップ面 `f`</strong> までを、N 個に分けます。一様に分けると近くの細かさが足りず、対数で分けると近くが極端に狭くなります。中間（PSSM、Parallel-Split Shadow Maps）が、実用的です。
+<strong>視錐台の近クリップ面 `n` から遠クリップ面 `f`</strong> までを N 個に分けます。一様に分けると近くの細かさが足りず、対数で分けると近くが極端に狭くなります。中間（PSSM、Parallel-Split Shadow Maps）が実用的です。
 
 <div class="formula">C_i = λ · n · (f / n)^(i/N) + (1 − λ) · ( n + (i/N) · (f − n) )　（i = 1 … N）</div>
 
@@ -138,11 +138,11 @@ std::array<float, kCascadeCount + 1> SplitDistances(float n, float f, float lamb
 }
 ```
 
-影の最大距離（`f`）は、遠クリップ面より短くします（遠すぎる影は見えないので描画しない）。100〜300 m程度が、多くのゲームの設定です。
+影の最大距離（`f`）は、遠クリップ面より短くします（遠すぎる影は見えないので描画しない）。100〜300 m程度が多くのゲームの設定です。
 
 ## 各カスケードの光の射影
 
-<strong>各分割の視錐台</strong>（8 つの角）を、光の視点から、ちょうど覆う正射影を作ります。
+<strong>各分割の視錐台</strong>（8 つの角）を光の視点から、ちょうど覆う正射影を作ります。
 
 正射影の作り方は 2 通りあります。AABB でフィットする方法は、分割の 8 つの角を光空間に変換して、最小の AABB で包みます。小さく収まり、無駄がありませんが、カメラが回転すると AABB の大きさが変わり、影がちらつきます。球でフィットする方法は、8 つの角を包む最小の球を求め、球の直径を正射影の大きさにします。回転しても大きさが変わらず、安定します。やや無駄があり、解像度が少し下がるのが代償です。
 
@@ -191,7 +191,7 @@ radius = std::ceil(radius * 16.0f) / 16.0f;
 <line x1="400" y1="92" x2="400" y2="178" stroke="#2563eb" stroke-width="3"/>
 <rect x="50" y="120" width="350" height="30" fill="#334155" opacity="0.8"/>
 <rect x="50" y="120" width="350" height="30" fill="none" stroke="#e5aa28" stroke-width="4"><animate attributeName="width" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;0.0926;0.1111;0.1296;0.1481;0.1667;0.1852;0.2037;0.2222;0.2407;0.2593;0.2778;0.2963;0.3148;0.3333;0.3519;0.3704;0.3889;0.4074;0.4259;0.4444;0.4630;0.4815;0.5000;0.5185;0.5370;0.5556;0.5741;0.5926;0.6111;0.6296;0.6481;0.6667;0.6852;0.7037;0.7222;0.7407;1.0000" values="350;350;360;357.11;354.22;351.33;388.44;385.56;382.67;379.78;376.89;374;371.11;368.22;365.33;362.44;359.56;356.67;353.78;350.89;388;385.11;382.22;379.33;376.44;373.56;370.67;367.78;364.89;362;359.11;356.22;353.33;350.44;387.56;384.67;381.78;378.89;376;376"/></rect>
-<text x="50" y="242" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043">スナップあり:格子が、テクセル単位で動く</text>
+<text x="50" y="242" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043">スナップあり:格子がテクセル単位で動く</text>
 <rect x="50" y="270" width="680" height="70" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
 <line x1="10" y1="270" x2="10" y2="340" stroke="#94a3b8" stroke-width="1.5"/>
 <line x1="50" y1="270" x2="50" y2="340" stroke="#94a3b8" stroke-width="1.5"/>
@@ -250,11 +250,11 @@ D3D11_RASTERIZER_DESC desc = {};
 desc.DepthClipEnable = FALSE;
 ```
 
-深度クランプでシャドウ マップの深度範囲を、その分割に必要な分だけにできます。
+深度クランプでシャドウ マップの深度範囲をその分割に必要な分だけにできます。
 
 ## カスケードの選択
 
-描画時、<strong>各画素のカメラからの深度</strong>（ビュー空間の z）を、分割の境界と比べ、どのカスケードを使うかを決めます。
+描画時、<strong>各画素のカメラからの深度</strong>（ビュー空間の z）を分割の境界と比べ、どのカスケードを使うかを決めます。
 
 ```hlsl
 int SelectCascade(float view_depth) {
@@ -266,7 +266,7 @@ int SelectCascade(float view_depth) {
 }
 ```
 
-カスケードの選び方は 2 つあります。深度で選ぶ方式は、`view_depth` と分割の距離を比べるだけで簡単です。シャドウ マップの範囲で選ぶ方式は、各カスケードの uv が範囲内（0〜1）に入るかを、細かい順に調べ、入った最初のものを使います。範囲を安全に使えるので、ブレンドと相性が良いです。
+カスケードの選び方は 2 つあります。深度で選ぶ方式は、`view_depth` と分割の距離を比べるだけで簡単です。シャドウ マップの範囲で選ぶ方式は、各カスケードの uv が範囲内（0〜1）に入るかを細かい順に調べ、入った最初のものを使います。範囲を安全に使えるので、ブレンドと相性が良いです。
 
 ### シャドウ マップを選んで引く
 
@@ -324,7 +324,7 @@ shadow = lerp(1.0, shadow, fade);
 | --- | --- |
 | カスケードごとのカリング | そのカスケードの箱に入る物体だけ |
 | 小さい物の除外 | 遠いカスケードでは、小さな物体を影から外す |
-| インスタンシング・GPU Driven | カスケードごとの描画を、まとめて（[GPU Driven](../../rendering/gpu-driven.md)） |
+| インスタンシング・GPU Driven | カスケードごとの描画をまとめて（[GPU Driven](../../rendering/gpu-driven.md)） |
 | 1 回の描画で全カスケード | ジオメトリ シェーダーや、ビュー インスタンシングで、1 回のドローで複数のカスケードへ。ただし、効果は環境による |
 
 ## 設計のパラメータ
@@ -361,10 +361,10 @@ shadow = lerp(1.0, shadow, fade);
 ??? failure "視錐台の外にある、影を落とす物体の影が欠ける"
     近クリップ面を光の方向に延ばすか、深度クランプを使います。
 
-??? failure "バイアスを、全カスケードで同じにして、遠いカスケードでアクネ・近いカスケードで浮く"
+??? failure "バイアスを全カスケードで同じにして、遠いカスケードでアクネ・近いカスケードで浮く"
     テクセルの大きさに比例させます。
 
-??? failure "全カスケードを、毎フレーム フル品質で描いて、重い"
+??? failure "全カスケードを毎フレーム フル品質で描いて、重い"
     遠いカスケードは、更新頻度・LOD・カリングで軽くします。
 
 ## これだけ覚える

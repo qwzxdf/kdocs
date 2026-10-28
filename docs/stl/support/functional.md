@@ -60,8 +60,8 @@ tags:
 | [`std::bit_or`](functional/bit_or.md) | <span class="rank rank-rare">知ってるだけ</span> | `a \| b`（ビットごとの OR）を表す関数オブジェクト。 |
 | [`std::bit_xor`](functional/bit_xor.md) | <span class="rank rank-rare">知ってるだけ</span> | `a ^ b`（ビットごとの XOR）を表す関数オブジェクト。 |
 | [`std::bit_not`](functional/bit_not.md) | <span class="rank rank-rare">知ってるだけ</span> | `~a`（ビット反転）を表す関数オブジェクト。 |
-| [`std::invoke_r`](functional/invoke_r.md) | <span class="rank rank-rare">知ってるだけ</span> | 呼び出しの結果を、指定した戻り値の型に変換して返す。 <span class="ver ver-23">C++23</span> |
-| [`std::unwrap_reference`](functional/unwrap_reference.md) | <span class="rank rank-rare">知ってるだけ</span> | reference_wrapper を、ふつうの参照の型に戻す型変換。 <span class="ver ver-20">C++20</span> |
+| [`std::invoke_r`](functional/invoke_r.md) | <span class="rank rank-rare">知ってるだけ</span> | 呼び出しの結果を指定した戻り値の型に変換して返す。 <span class="ver ver-23">C++23</span> |
+| [`std::unwrap_reference`](functional/unwrap_reference.md) | <span class="rank rank-rare">知ってるだけ</span> | reference_wrapper をふつうの参照の型に戻す型変換。 <span class="ver ver-20">C++20</span> |
 | [`std::unwrap_ref_decay`](functional/unwrap_ref_decay.md) | <span class="rank rank-rare">知ってるだけ</span> | decay してから、reference_wrapper を参照に戻す型変換。 <span class="ver ver-20">C++20</span> |
 | [`std::placeholders`](functional/placeholders.md) | <span class="rank rank-rare">知ってるだけ</span> | bind の引数の位置を表す _1, _2, … の名前空間。 |
 | [`std::is_bind_expression`](functional/is_bind_expression.md) | <span class="rank rank-rare">知ってるだけ</span> | 型が bind の式かどうかを調べる型特性。 <span class="ver ver-17">C++17</span> |

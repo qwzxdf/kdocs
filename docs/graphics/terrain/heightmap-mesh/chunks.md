@@ -277,9 +277,9 @@ struct TerrainChunk {
 <g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.8849;0.8851;1.0000" values="0;0;1;1"/><rect x="480" y="392" width="450" height="100" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="496" y="416" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">メモリのチャンクは 16〜16 個で、ほぼ一定</text>
 <text x="496" y="439" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">1 歩あたり、新しく 4〜4、捨てる 4〜4</text>
-<text x="496" y="461" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">世界が、どれだけ広くても、必要なメモリは、半径で決まる</text>
+<text x="496" y="461" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">世界がどれだけ広くても、必要なメモリは、半径で決まる</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">広い世界を、全部は持てない<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">広い世界を全部は持てない<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">カメラの周りだけ持つ。動いた分だけ、読み込み・解放する<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;0.9062;0.9064;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">読み込みは、1 フレームに 1 つずつ、などに分けて、ガクつきを防ぐ<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.9062;0.9064;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -292,11 +292,11 @@ struct TerrainChunk {
 
 | 大きさ | 利点 | 欠点 |
 | --- | --- | --- |
-| 小さい（17×17 頂点など） | カリングが細かい。見えない部分を無駄に描かない | チャンクの数が、爆発する。ドローコールと CPU のカリングの仕事が増える |
-| 大きい（513×513 頂点など） | チャンクの数が、少ない | 画面に少しだけ入っている、巨大なチャンクを丸ごと描く。LOD の細かさが粗い |
+| 小さい（17×17 頂点など） | カリングが細かい。見えない部分を無駄に描かない | チャンクの数が爆発する。ドローコールと CPU のカリングの仕事が増える |
+| 大きい（513×513 頂点など） | チャンクの数が少ない | 画面に少しだけ入っている、巨大なチャンクを丸ごと描く。LOD の細かさが粗い |
 | 中くらい（65×65〜129×129） | 両方の、ちょうど中間 | — |
 
-目安は 1 つのチャンクが画面上で、数百〜数千三角形程度になる大きさです。それより小さいチャンクを大量に、個別のドローコールにするのは、割に合いません。
+目安は 1 つのチャンクが画面上で、数百〜数千三角形程度になる大きさです。それより小さいチャンクを大量に個別のドローコールにするのは、割に合いません。
 
 ### 数の見積もり
 
@@ -316,7 +316,7 @@ struct TerrainChunk {
   float min_height, max_height;  // 高さの最小・最大（AABB のため）
   BoundingBox bounds;            // ワールド座標の AABB
   int lod_level;                 // いまの LOD
-  bool loaded;                   // 高さデータが、メモリに、あるか
+  bool loaded;                   // 高さデータがメモリにあるか
 };
 
 BoundingBox ChunkBounds(const TerrainChunk& c, float chunk_size) {
@@ -354,15 +354,15 @@ p 頂点テストは AABB の 8 頂点を調べず、<strong>平面ごとに 1 �
 
 ## 描画：インスタンスでまとめる
 
-見えるチャンクは <strong>同じ格子メッシュ</strong>を、位置だけ変えて描きます。
+見えるチャンクは <strong>同じ格子メッシュ</strong>を位置だけ変えて描きます。
 
 | 方法 | ドローコール | 特徴 |
 | --- | --- | --- |
 | 1 チャンク = 1 ドローコール | チャンクの数 | 簡単。数百個なら問題ない |
-| インスタンシング | 1 回（または、LOD ごと） | チャンクの位置などを、インスタンス バッファへ。CPU の仕事が最小 |
+| インスタンシング | 1 回（または、LOD ごと） | チャンクの位置などをインスタンス バッファへ。CPU の仕事が最小 |
 
 ```cpp
-// 見えるチャンクの情報を、インスタンス バッファに詰めて、1 回で描く。
+// 見えるチャンクの情報をインスタンス バッファに詰めて、1 回で描く。
 struct ChunkInstance { float2 origin; float size; float level; float2 uv_origin; float2 uv_size; };
 
 std::vector<ChunkInstance> instances;
@@ -374,7 +374,7 @@ UploadToInstanceBuffer(context, instance_buffer, instances);
 context->DrawIndexedInstanced(index_count, UINT(instances.size()), 0, 0, 0);
 ```
 
-LOD ごとに頂点数の違う格子を、使うなら LOD ごとに 1 回ずつ描きます。
+LOD ごとに頂点数の違う格子を使うなら LOD ごとに 1 回ずつ描きます。
 
 ## 高さデータの持ち方
 
@@ -382,10 +382,10 @@ LOD ごとに頂点数の違う格子を、使うなら LOD ごとに 1 回ず�
 
 | 方法 | 内容 | 特徴 |
 | --- | --- | --- |
-| 全体で 1 枚の巨大なテクスチャ | 世界全体の高さマップを、1 枚に持つ | 単純。巨大な地形ではメモリに収まらない |
+| 全体で 1 枚の巨大なテクスチャ | 世界全体の高さマップを 1 枚に持つ | 単純。巨大な地形ではメモリに収まらない |
 | チャンクごとに別のテクスチャ | チャンクごとに、小さな高さマップを持つ | ストリーミングが簡単。ドローコールごとにテクスチャを切り替える必要がある |
 | テクスチャ配列 | 同じ大きさの、チャンクの高さを配列のスライスにする | 1 回のドローコールで、全チャンクを描ける。スライスの番号をインスタンスに持たせる |
-| アトラス（大きな 1 枚に、並べる） | カメラの周りの、チャンクだけを窓として持つ | クリップマップと、似た発想（[Geometry Clipmaps](../lod/clipmap.md)） |
+| アトラス（大きな 1 枚に並べる） | カメラの周りの、チャンクだけを窓として持つ | クリップマップと、似た発想（[Geometry Clipmaps](../lod/clipmap.md)） |
 
 <strong>テクスチャ配列</strong>はインスタンシングと、相性が良くよく使われる方法です。
 
@@ -406,12 +406,12 @@ float height = g_height_array.SampleLevel(g_linear_clamp, float3(uv, input.chunk
 
 | 範囲 | 状態 |
 | --- | --- |
-| 描画範囲 | 高さデータが、メモリに読み込み済み |
+| 描画範囲 | 高さデータがメモリに読み込み済み |
 | 先読み範囲（描画範囲の少し外） | これから使うので、非同期で読み込み中 |
 | それ以外 | メモリから、解放 |
 
 ```cpp
-// プレイヤーの周りの、チャンクの範囲を、計算して、読み込み・解放する。
+// プレイヤーの周りの、チャンクの範囲を計算して、読み込み・解放する。
 void UpdateStreaming(const float3& player, int load_radius, int unload_radius) {
   const int px = int(player.x / chunk_size), pz = int(player.z / chunk_size);
   for (TerrainChunk& c : chunks) {
@@ -430,14 +430,14 @@ void UpdateStreaming(const float3& player, int load_radius, int unload_radius) {
 | --- | --- |
 | 隣り合うチャンクの境界の高さが、違う | 境界の画素を両側のチャンクで、同じ値にする（共有する） |
 | 隣り合うチャンクの LOD が違う | モーフィング、スカートなど（[Cracks and Seams](../lod/cracks.md)） |
-| 高さマップの半画素のずれ | UV の範囲を、半画素分、内側へ寄せる |
+| 高さマップの半画素のずれ | UV の範囲を半画素分、内側へ寄せる |
 | 法線が境界で不連続 | 隣のチャンクの、高さを読んで法線を計算する（または、法線マップを共有する） |
 
-境界の画素は <strong>両方のチャンクに、同じ値を重複して保存</strong>します（`N×N` でなく、`(N+1)×(N+1)` 画素）。そうすると、隣のチャンクを読み込まなくても、境界が合います。
+境界の画素は <strong>両方のチャンクに同じ値を重複して保存</strong>します（`N×N` でなく、`(N+1)×(N+1)` 画素）。そうすると、隣のチャンクを読み込まなくても、境界が合います。
 
 ## よくあるミス
 
-??? failure "区画の境目に、隙間が見える"
+??? failure "区画の境目に隙間が見える"
     <strong>境界の頂点の高さを揃える</strong>。
 
 ## これだけ覚える
@@ -450,7 +450,7 @@ void UpdateStreaming(const float3& player, int load_radius, int unload_radius) {
 - Ulrich, "Rendering Massive Terrains Using Chunked Level of Detail Control", SIGGRAPH 2002 Course Notes
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps", Journal of Graphics, GPU, and Game Tools, Vol. 14, No. 4, 2009
 - Akenine-Möller, Haines, Hoffman, Pesce, Iwanicki, Hillaire, "Real-Time Rendering", 4th Edition, CRC Press, 2018（地形、ビュー フラスタム カリング、法線、補間の章）
-- Gribb, Hartmann, "Fast Extraction of Viewing Frustum Planes from the World-View-Projection Matrix", 2001（視錐台の平面を、行列から取り出す）
+- Gribb, Hartmann, "Fast Extraction of Viewing Frustum Planes from the World-View-Projection Matrix", 2001（視錐台の平面を行列から取り出す）
 
 ## 関連ページ
 

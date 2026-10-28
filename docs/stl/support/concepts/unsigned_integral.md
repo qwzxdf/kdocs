@@ -68,7 +68,7 @@ float                              -> false
 
 ## ゲームでの使いどころ
 
-ビット演算の関数を、符号なしだけに限ります。
+ビット演算の関数を符号なしだけに限ります。
 
 ```cpp
 template <std::unsigned_integral T>

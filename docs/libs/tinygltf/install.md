@@ -88,11 +88,11 @@ int main() {
 | エラー | 原因 | 直し方 |
 | --- | --- | --- |
 | `LNK2005`（関数がすでに定義されている） | `TINYGLTF_IMPLEMENTATION` を複数の `.cpp` に書いた | 専用の `.cpp` 1 つだけに書く |
-| `LNK2019`（未解決の外部シンボル）。`tinygltf::TinyGLTF::LoadBinaryFromFile` など | 実装をどの `.cpp` にも書いていない | `TINYGLTF_IMPLEMENTATION` を書いた `.cpp` を、プロジェクトに追加 |
-| `C1083`（`json.hpp` を開けない） | `json.hpp`（nlohmann/json）が、見つからない | `third_party/tinygltf/` に置く。または、vcpkg の nlohmann-json を使う |
-| `stb_image` の二重定義 | プロジェクトが、すでに `STB_IMAGE_IMPLEMENTATION` を持っている | `TINYGLTF_NO_STB_IMAGE` を定義し、自分の `stb_image` を使う（画像の読み込みを自分で行う） |
+| `LNK2019`（未解決の外部シンボル）。`tinygltf::TinyGLTF::LoadBinaryFromFile` など | 実装をどの `.cpp` にも書いていない | `TINYGLTF_IMPLEMENTATION` を書いた `.cpp` をプロジェクトに追加 |
+| `C1083`（`json.hpp` を開けない） | `json.hpp`（nlohmann/json）が見つからない | `third_party/tinygltf/` に置く。または、vcpkg の nlohmann-json を使う |
+| `stb_image` の二重定義 | プロジェクトがすでに `STB_IMAGE_IMPLEMENTATION` を持っている | `TINYGLTF_NO_STB_IMAGE` を定義し、自分の `stb_image` を使う（画像の読み込みを自分で行う） |
 | `C2589`、`C2059`（`min` や `max` 周辺） | `<windows.h>` のマクロとの衝突 | `NOMINMAX` を定義 |
-| `C4996`（非推奨の関数） | 古い C の関数 | `_CRT_SECURE_NO_WARNINGS` を定義するか警告を、個別に無効化 |
+| `C4996`（非推奨の関数） | 古い C の関数 | `_CRT_SECURE_NO_WARNINGS` を定義するか警告を個別に無効化 |
 
 ## CMake で使う
 
@@ -111,7 +111,7 @@ glTF のライブラリはバージョンで、挙動や API が変わります�
 
 | 方法 | 内容 |
 | --- | --- |
-| ファイルを置く | リポジトリにヘッダーをそのままコミットする（バージョンが、固定される） |
+| ファイルを置く | リポジトリにヘッダーをそのままコミットする（バージョンが固定される） |
 | vcpkg（マニフェスト） | `vcpkg.json` の `builtin-baseline` に vcpkg のコミット ハッシュを書く |
 | FetchContent | `GIT_TAG` にタグ（`v2.9.x`）、またはコミット ハッシュを書く |
 

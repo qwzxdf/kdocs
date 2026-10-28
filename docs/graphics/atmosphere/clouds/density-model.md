@@ -25,7 +25,7 @@ tags:
 <defs><marker id="arr-cloud-coverage" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">雲の量(カバレッジ): ノイズから、しきい値を引いて、残った所だけを、雲にする</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">雲の量(カバレッジ): ノイズから、しきい値を引いて、残った所だけを雲にする</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">32×12 のノイズ(0〜1)。カバレッジ 0.2・0.5・0.8 で、雲になる画素の割合と、雲のつながり(塊の数)を計算する</text>
 <rect x="30" y="96" width="294.0" height="114.0" fill="#ffffff" stroke="#64748b" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#64748b">元のノイズ</text>
@@ -1582,10 +1582,10 @@ tags:
 <text x="240" y="304" text-anchor="start" style="font-size:26px;font-weight:700;fill:#2563eb" opacity="0">12<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3056;0.3058;0.5056;0.5058;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="240" y="304" text-anchor="start" style="font-size:26px;font-weight:700;fill:#2563eb" opacity="0">1<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5056;0.5058;1.0000" values="0;0;1;1"/></text>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6532;0.6533;1.0000" values="0;0;1;1"/><rect x="330" y="230" width="600" height="90" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
-<text x="346" y="254" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">カバレッジを上げると、雲の割合が、3% → 35% → 89% と増え、塊が、つながる(塊の数 5 → 12 → 1)</text>
+<text x="346" y="254" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">カバレッジを上げると、雲の割合が 3% → 35% → 89% と増え、塊がつながる(塊の数 5 → 12 → 1)</text>
 <text x="346" y="277" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">濃さ = (ノイズ − (1 − カバレッジ)) ÷ 幅 を 0〜1 に切る。カバレッジは、天気で動かす</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じノイズから、雲の量を、1 つのつまみで決める<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じノイズから、雲の量を 1 つのつまみで決める<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">しきい値より大きい所だけが、雲になる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.6665;0.6667;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">天気の遷移は、カバレッジを動かすだけ<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6665;0.6667;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -1619,7 +1619,7 @@ float CloudDensity(float3 position, float height_fraction) {
   float base = Remap(noise.r, shape_fbm - 1.0, 1.0, 0.0, 1.0);
 ```
 
-形を決める 3D ノイズを風で、流しながら読みます。`r` チャンネルが低周波の基本形、`gba` がその細かい成分です。基本形を細かい成分で削る形に、再マップします。
+形を決める 3D ノイズを風で、流しながら読みます。`r` チャンネルが低周波の基本形、`gba` がその細かい成分です。基本形を細かい成分で削る形に再マップします。
 
 ```hlsl
   float density = Remap(base * height_gradient, 1.0 - coverage, 1.0, 0.0, 1.0) * coverage;
@@ -1639,7 +1639,7 @@ float CloudDensity(float3 position, float height_fraction) {
 }
 ```
 
-密度があるときだけ細かいノイズで輪郭を、削ります。底に近いほどふわっと頂上に近いほど、もこもこになるよう高さで混ぜ方を、変えます。
+密度があるときだけ細かいノイズで輪郭を削ります。底に近いほどふわっと頂上に近いほど、もこもこになるよう高さで混ぜ方を変えます。
 
 ```hlsl
 float Remap(float v, float a, float b, float c, float d) {
@@ -1660,7 +1660,7 @@ float Remap(float v, float a, float b, float c, float d) {
 
 ## 雲の密度をどう作るか
 
-<strong>ボリューム レンダリング</strong>で、雲を描くには 空間の各点での、雲の密度（どれだけ濃いか）が、必要です。3D の密度のデータをそのまま、持つ（ボクセル）と巨大になるので、ノイズ テクスチャを組み合わせて、実行時に密度を作ります（Schneider と Vos、2015）。
+<strong>ボリューム レンダリング</strong>で、雲を描くには 空間の各点での、雲の密度（どれだけ濃いか）が必要です。3D の密度のデータをそのまま、持つ（ボクセル）と巨大になるので、ノイズ テクスチャを組み合わせて、実行時に密度を作ります（Schneider と Vos、2015）。
 
 | 材料 | 内容 |
 | --- | --- |
@@ -1699,15 +1699,15 @@ float gradient = HeightGradient(height_fraction, cloud_type);        // 種類�
 ```hlsl
 // 低周波の 3D ノイズ（Perlin-Worley）: 雲の、大きなもこもこ。R = Perlin-Worley、GBA = 異なる周波数の Worley。
 float4 low = g_base_noise.SampleLevel(g_linear_wrap, position * g_base_scale + g_wind_offset, 0);
-float low_freq_fbm = low.g * 0.625 + low.b * 0.25 + low.a * 0.125;     // Worley の 3 オクターブを、足す
-float base_cloud = Remap(low.r, -(1.0 - low_freq_fbm), 1.0, 0.0, 1.0); // Perlin-Worley を、Worley の fBm で、持ち上げる
-base_cloud *= gradient;                                                 // 高さの、グラデーションを、掛ける
+float low_freq_fbm = low.g * 0.625 + low.b * 0.25 + low.a * 0.125;     // Worley の 3 オクターブを足す
+float base_cloud = Remap(low.r, -(1.0 - low_freq_fbm), 1.0, 0.0, 1.0); // Perlin-Worley を Worley の fBm で、持ち上げる
+base_cloud *= gradient;                                                 // 高さの、グラデーションを掛ける
 ```
 
-基本の形は 128³ の、3D テクスチャから読みます。R チャンネルは Perlin ノイズ（なめらかな、うねり）に Worley ノイズ（もこもこの粒）を、混ぜたもので GBA は周波数の違う、Worley ノイズです。Worley の fBm で、Perlin-Worley を、持ち上げる（`Remap` の下限を動かす）ことで雲の、もこもこした輪郭ができます。
+基本の形は 128³ の、3D テクスチャから読みます。R チャンネルは Perlin ノイズ（なめらかな、うねり）に Worley ノイズ（もこもこの粒）を混ぜたもので GBA は周波数の違う、Worley ノイズです。Worley の fBm で、Perlin-Worley を持ち上げる（`Remap` の下限を動かす）ことで雲の、もこもこした輪郭ができます。
 
 ```hlsl
-// Remap: 値 v を、範囲 [l0, h0] から、範囲 [l1, h1] へ、線形に、写す（範囲の外は、そのまま、外挿）。
+// Remap: 値 v を範囲 [l0, h0] から、範囲 [l1, h1] へ、線形に写す（範囲の外は、そのまま、外挿）。
 float Remap(float v, float l0, float h0, float l1, float h1) {
   return l1 + (v - l0) * (h1 - l1) / (h0 - l0);
 }
@@ -1718,20 +1718,20 @@ float Remap(float v, float l0, float h0, float l1, float h1) {
 ### ④ カバレッジを適用する
 
 ```hlsl
-// カバレッジ（0〜1）で、雲の量を決める。カバレッジが、大きいほど、下限が、下がり、雲が、増える。
+// カバレッジ（0〜1）で、雲の量を決める。カバレッジが大きいほど、下限が下がり、雲が増える。
 float base_with_coverage = Remap(base_cloud, coverage, 1.0, 0.0, 1.0);
-base_with_coverage *= coverage;                                          // カバレッジが、小さいとき、密度も、薄く
+base_with_coverage *= coverage;                                          // カバレッジが小さいとき、密度も、薄く
 ```
 
-カバレッジ以下のノイズの値は、 2<strong>3 （雲なし）に切られそれより上が、雲になります。カバレッジが大きいほど切られる部分が減って雲が、増えます。最後に、カバレッジを掛けて少ない雲が、薄くなるようにします。
+カバレッジ以下のノイズの値は、 2<strong>3 （雲なし）に切られそれより上が雲になります。カバレッジが大きいほど切られる部分が減って雲が増えます。最後に、カバレッジを掛けて少ない雲が薄くなるようにします。
 
 ### ⑤ 細部で縁を削る（エロージョン）
 
 ```hlsl
-// 高周波の 3D ノイズ（Worley の fBm）で、雲の縁を、削って、細かいちぎれを、作る。
+// 高周波の 3D ノイズ（Worley の fBm）で、雲の縁を削って、細かいちぎれを作る。
 float3 high = g_detail_noise.SampleLevel(g_linear_wrap, position * g_detail_scale + g_wind_offset * 0.3, 0).rgb;
 float high_freq_fbm = high.r * 0.625 + high.g * 0.25 + high.b * 0.125;
-// 底（height_fraction が小さい）では、ノイズを、反転して、ふわっとした底に。上は、そのまま。
+// 底（height_fraction が小さい）では、ノイズを反転して、ふわっとした底に。上は、そのまま。
 float detail_modifier = lerp(high_freq_fbm, 1.0 - high_freq_fbm, saturate(height_fraction * 10.0));
 float density = Remap(base_with_coverage, detail_modifier * 0.2, 1.0, 0.0, 1.0);
 ```
@@ -1739,7 +1739,7 @@ float density = Remap(base_with_coverage, detail_modifier * 0.2, 1.0, 0.0, 1.0);
 細部のノイズ（32³）で、基本の形の縁を削ります。雲の内側（密度が高い所）はほとんど、削られず縁（密度が低い所）が大きく、削られるので縁だけがちぎれたような、細かい形になります。`height_fraction` で底と上端の削り方を変えて底は、ふわっと上はもこもこにします。
 
 ```hlsl
-return max(density, 0.0) * g_density_scale;                              // 負の値を、切り、全体の濃さの、係数を、掛ける
+return max(density, 0.0) * g_density_scale;                              // 負の値を切り、全体の濃さの、係数を掛ける
 ```
 
 ## ノイズ テクスチャの作り方
@@ -1752,7 +1752,7 @@ return max(density, 0.0) * g_density_scale;                              // 負�
 | 細部 | 32×32×32（`R8G8B8A8`） | R/G/B = Worley（周波数 2×、4×、8×） |
 
 ```hlsl
-// Worley ノイズ（セル ノイズ）: 各セルに、ランダムな点を置き、最も近い点までの、距離を、返す。1 から引いて、「もこもこ」にする。
+// Worley ノイズ（セル ノイズ）: 各セルにランダムな点を置き、最も近い点までの、距離を返す。1 から引いて、「もこもこ」にする。
 float Worley3D(float3 p, float frequency) {
   float3 q = p * frequency;
   float3 cell = floor(q);
@@ -1778,7 +1778,7 @@ Worley ノイズ（Worley、1996）は 各セルに 1 つ、ランダムな点�
 
 ```hlsl
 float3 wind_offset = g_wind_direction * g_time * g_wind_speed;          // 風の向きに、時間とともに、ずらす
-// 基本の形は、ゆっくり、細部は、少し速く（細部が、基本の形の中を、流れる、ように見える）。
+// 基本の形は、ゆっくり、細部は、少し速く（細部が基本の形の中を流れる、ように見える）。
 float4 low = g_base_noise.SampleLevel(g_linear_wrap, position * g_base_scale + wind_offset, 0);
 float3 high = g_detail_noise.SampleLevel(g_linear_wrap, position * g_detail_scale + wind_offset * 1.5, 0).rgb;
 ```
@@ -1787,11 +1787,11 @@ float3 high = g_detail_noise.SampleLevel(g_linear_wrap, position * g_detail_scal
 
 ## 密度の使い方
 
-ここで求めた <strong>密度</strong>は レイマーチの、各サンプルで散乱・吸収の計算に、使います（[Cloud Raymarching](raymarch.md)）。密度が高い所ほど光をよく散らしよく、遮ります。
+ここで求めた <strong>密度</strong>は レイマーチの、各サンプルで散乱・吸収の計算に使います（[Cloud Raymarching](raymarch.md)）。密度が高い所ほど光をよく散らしよく、遮ります。
 
 ## よくあるミス
 
-??? failure "雲の縁が、なめらかすぎる"
+??? failure "雲の縁がなめらかすぎる"
     <strong>高周波のノイズ</strong>で縁を削る。
 
 ## これだけ覚える

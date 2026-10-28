@@ -11,7 +11,7 @@ tags:
 !!! tip "ポイント"
     - 半透明ブレンドは、ソートが必要で葉には不向き。
     - アルファ テストで、切り抜く。
-    - 遠くで細る問題は、アルファの補正で対処。
+    - 遠くで細る問題は、アルファの補正で対処する。
     - A2C やハッシュドで、縁をなめらかに。
 
 !!! info "このページを読む前に"
@@ -45,17 +45,17 @@ clip(alpha - 0.5);                // アルファが 0.5 未満の画素は、�
 
 ### ① 縁がギザギザになる
 
-アルファ テストは <strong>画素ごとに、残すか捨てるかを決める</strong>ので縁が、ジャギーになります。MSAA の効果も出ません（シェーダー内の `clip` は、1 画素ごとの結果でサブサンプルごとには、決まらない）。
+アルファ テストは <strong>画素ごとに、残すか捨てるかを決める</strong>ので縁がジャギーになります。MSAA の効果も出ません（シェーダー内の `clip` は、1 画素ごとの結果でサブサンプルごとには、決まらない）。
 
 | 対策 | 内容 |
 | --- | --- |
-| Alpha to Coverage | アルファの値を、MSAA のカバレッジ（サブサンプルの何個を、描くか）に変換する。縁がなめらか（[Alpha to Coverage](../../translucency/alpha-test/alpha-to-coverage.md)） |
+| Alpha to Coverage | アルファの値を MSAA のカバレッジ（サブサンプルの何個を描くか）に変換する。縁がなめらか（[Alpha to Coverage](../../translucency/alpha-test/alpha-to-coverage.md)） |
 | TAA | 時間方向に平均する。ジャギーがならされる（[TAA](../../postprocess/antialiasing/taa.md)） |
-| ハッシュ アルファ | 画素ごとに、ランダムなしきい値で判定する。時間方向に平均すると半透明に、見える（[Hashed Alpha](../../translucency/alpha-test/hashed-alpha.md)、Wyman と McGuire、2017） |
+| ハッシュ アルファ | 画素ごとに、ランダムなしきい値で判定する。時間方向に平均すると半透明に見える（[Hashed Alpha](../../translucency/alpha-test/hashed-alpha.md)、Wyman と McGuire、2017） |
 
 ### ② 遠くで葉が痩せて見える
 
-テクスチャのミップマップで、アルファを 平均して縮めると、遠くのミップでアルファの値が、小さくなります。しきい値（0.5）を下回る画素が増えて葉が、スカスカになります。
+テクスチャのミップマップで、アルファを 平均して縮めると、遠くのミップでアルファの値が小さくなります。しきい値（0.5）を下回る画素が増えて葉がスカスカになります。
 
 | 距離 | ミップ | アルファの平均 | 0.5 以上の画素の割合 |
 | --- | --- | --- | --- |
@@ -65,23 +65,23 @@ clip(alpha - 0.5);                // アルファが 0.5 未満の画素は、�
 
 葉の 見た目の面積が距離で小さくなるのです。
 
-対策：ミップごとにアルファを、補正します（Castaño、2010）。
+対策：ミップごとにアルファを補正します（Castaño、2010）。
 
 | 手順 | 内容 |
 | --- | --- |
 | ① ミップ 0 でしきい値以上の画素の割合（カバレッジ）を求める | たとえば、60% |
-| ② 各ミップでカバレッジが、同じ 60% になるようにアルファに、スケールを掛ける | ミップ 4 で、元の 60% を保つ |
+| ② 各ミップでカバレッジが同じ 60% になるようにアルファにスケールを掛ける | ミップ 4 で、元の 60% を保つ |
 | ③ スケールをミップごとに、保存する | ミップ作成の前処理で、行う |
 
 ```cpp
-// ミップごとに、アルファを、補正して、カバレッジを保つ（前処理の例）。
+// ミップごとに、アルファを補正して、カバレッジを保つ（前処理の例）。
 float ComputeCoverage(const std::vector<float>& alpha, float threshold, float scale) {
   size_t covered = 0;
   for (float a : alpha) if (a * scale > threshold) ++covered;
   return float(covered) / float(alpha.size());
 }
 
-// 二分探索で、カバレッジが、目標（ミップ 0 の値）に、一致する scale を探す。
+// 二分探索で、カバレッジが目標（ミップ 0 の値）に一致する scale を探す。
 float FindAlphaScale(const std::vector<float>& mip_alpha, float threshold, float target_coverage) {
   float lo = 0.0f, hi = 8.0f;
   for (int i = 0; i < 20; ++i) {
@@ -91,7 +91,7 @@ float FindAlphaScale(const std::vector<float>& mip_alpha, float threshold, float
   return 0.5f * (lo + hi);
 }
 
-// 全ミップに、適用する。
+// 全ミップに適用する。
 for (int level = 1; level < mip_count; ++level) {
   const float scale = FindAlphaScale(mips[level].alpha, 0.5f, coverage_at_mip0);
   for (float& a : mips[level].alpha) a = std::min(a * scale, 1.0f);
@@ -102,7 +102,7 @@ for (int level = 1; level < mip_count; ++level) {
 
 ### ③ 距離でシェーダー側で補う
 
-ツールで作り直せない既存のテクスチャには、シェーダーで距離に応じてしきい値を、下げる方法もあります。
+ツールで作り直せない既存のテクスチャには、シェーダーで距離に応じてしきい値を下げる方法もあります。
 
 ```hlsl
 // ミップが進むほど、しきい値を下げる（簡易な補正）。
@@ -111,7 +111,7 @@ float threshold = lerp(0.5, 0.25, saturate(mip / 4.0));
 clip(alpha - threshold);
 ```
 
-簡単ですが ミップごとのアルファの分布が、画像によって違うので前処理の補正（②）より、精度が劣ります。
+簡単ですが ミップごとのアルファの分布が画像によって違うので前処理の補正（②）より、精度が劣ります。
 
 ## 薄い植生（草）のアルファ
 
@@ -126,18 +126,18 @@ clip(alpha - threshold);
 
 ## 木の葉
 
-木の葉は <strong>カード（板に葉の絵）</strong>で、表現します。アルファ テストで 葉の形を、切り抜きます。
+木の葉は <strong>カード（板に葉の絵）</strong>で、表現します。アルファ テストで 葉の形を切り抜きます。
 
 | 項目 | 内容 |
 | --- | --- |
 | 葉の描画 | アルファ テスト ＋ Alpha to Coverage |
 | 影 | アルファ テストで影も、切り抜く（[Alpha-Tested Shadows](../../shadows/special-cases/alpha-test-shadows.md)） |
-| 遠景（インポスター） | 木全体を、1 枚の絵（板）に。アルファ テスト、またはディザでフェード（[Trees](trees.md)） |
-| LOD の切り替え | ディザ フェード（市松の、ディザ パターンで 2 つの LOD を、混ぜる） |
+| 遠景（インポスター） | 木全体を 1 枚の絵（板）に。アルファ テスト、またはディザでフェード（[Trees](trees.md)） |
+| LOD の切り替え | ディザ フェード（市松の、ディザ パターンで 2 つの LOD を混ぜる） |
 
 ## よくあるミス
 
-??? failure "遠くの木の葉が、スカスカに見える"
+??? failure "遠くの木の葉がスカスカに見える"
     <strong>ミップごとにアルファを補正</strong>する。
 
 ## これだけ覚える

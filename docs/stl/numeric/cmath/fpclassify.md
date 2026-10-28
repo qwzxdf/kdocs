@@ -15,7 +15,7 @@ tags:
 `#include <cmath>`
 </div>
 
-浮動小数点数には、普通の数のほかに、ゼロ、非常に小さい数（非正規化数）、無限大、NaN があります。`std::fpclassify` は、値がどの種類かを 1 回の呼び出しで分類します。
+浮動小数点数には、普通の数のほかに、ゼロ、ゼロに近すぎる数（非正規化数）、無限大、NaN があります。`std::fpclassify` は、値がどの種類かを 1 回の呼び出しで分類します。
 
 !!! tip "ポイント"
     - `std::fpclassify(x)` は `FP_NORMAL`、`FP_ZERO`、`FP_SUBNORMAL`、`FP_INFINITE`、`FP_NAN` のいずれかを返す
@@ -77,7 +77,7 @@ inf は無限大   : true
 
 ## ゲームでの使いどころ
 
-デバッグ用に、値の種類をログに出すときに使います。
+デバッグ用に値の種類をログに出すときに使います。
 
 ```cpp
 switch (std::fpclassify(value)) {

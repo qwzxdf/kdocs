@@ -26,7 +26,7 @@ tags:
     - `__FILE__` や `__LINE__` の関数版の置き換え。
 
 !!! info "このページを読む前に"
-    関数の引数の既定値と `__FILE__` などのマクロは、[定義済みマクロ](../../basics/predefined-macros.md) で説明しています。既定値が「呼び出した側」で評価される点が、このクラスの仕組みの中心です。
+    関数の引数の既定値と `__FILE__` などのマクロは、[定義済みマクロ](../../basics/predefined-macros.md) で説明しています。既定値が「呼び出した側」で評価される点がこのクラスの仕組みの中心です。
 
 ## 関数一覧
 
@@ -52,7 +52,7 @@ tags:
 #include <string_view>
 #include <type_traits>
 
-// 呼び出した側の場所を、引数の既定値で受け取る。
+// 呼び出した側の場所を引数の既定値で受け取る。
 void Log(std::string_view msg, std::source_location loc = std::source_location::current()) {
   std::println("{}:{} [{}] {}", loc.file_name(), loc.line(), loc.function_name(), msg);
 }
@@ -77,7 +77,7 @@ int main() {
   auto lambda = [] { Log("ラムダ式"); };
   lambda();
 
-  // 場所の中身を、1 つずつ見る。
+  // 場所の中身を 1 つずつ見る。
   std::source_location here = std::source_location::current();
   std::println("file_name     = {}", here.file_name());
   std::println("line          = {}", here.line());
@@ -264,7 +264,7 @@ Release ビルドでログの呼び出しごとにファイル名と関数名の
 ??? failure "関数の中で current() を呼ぶ"
     呼び出し側ではなくその関数の中の位置になります。ログ関数の中で `std::source_location::current()` を直接書くといつも同じ行が出ます。引数の既定値に書きます。
 
-??? failure "ラッパー関数が、位置を渡していない"
+??? failure "ラッパー関数が位置を渡していない"
     `Log` を呼ぶ別の関数（`Warn` など）を作ったとき `Warn` の中で `Log(msg)` と書くと、`Log` の既定値が評価されるのは `Warn` の中なので、いつも `Warn` の中の位置が出ます。`Warn` にも `source_location` の引数を持たせて、`Log(msg, loc)` と渡します。
 
 
@@ -280,7 +280,7 @@ Release ビルドでログの呼び出しごとにファイル名と関数名の
     // 悪い例: loc を渡していないので、Log の既定値が Warn の中の位置になる。
     void WarnBad(std::string_view msg) { Log(msg); }
 
-    // 良い例: 受け取った loc を、そのまま渡す。
+    // 良い例: 受け取った loc をそのまま渡す。
     void Warn(std::string_view msg, std::source_location loc = std::source_location::current()) { Log(msg, loc); }
 
     int main() {

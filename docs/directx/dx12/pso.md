@@ -122,7 +122,7 @@ if (FAILED(hr)) {
   device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pso));
   library->StorePipeline(L"OpaquePSO", pso.Get());
 }
-// 終了時に、library->Serialize(buffer, size) でファイルに保存する。
+// 終了時に library->Serialize(buffer, size) でファイルに保存する。
 ```
 
 ドライバーや GPU が変わると、キャッシュは使えなくなります。読み込みに失敗したときに作り直す道を必ず持ちます。

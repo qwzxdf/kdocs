@@ -15,7 +15,7 @@ tags:
 `#include <cfenv>`
 </div>
 
-`std::fegetenv` で保存した浮動小数点環境を、元に戻すのが `std::fesetenv` です。丸めモードを一時的に変えた計算の後始末に使います。
+`std::fegetenv` で保存した浮動小数点環境を元に戻すのが `std::fesetenv` です。丸めモードを一時的に変えた計算の後始末に使います。
 
 !!! tip "ポイント"
     - `std::fesetenv(&env)` で保存した環境に戻す
@@ -40,7 +40,7 @@ int fesetenv(const std::fenv_t* envp);
 | --- | --- | --- |
 | `envp` | `const fenv_t*` | `fegetenv` / `feholdexcept` で得た値。または `FE_DFL_ENV`（既定の環境） |
 
-浮動小数点環境を、`*envp` が表す状態に設定します。成功すれば 0 を返します。特別な値 `FE_DFL_ENV` を渡すと、プログラム開始時の既定の環境に戻ります。
+浮動小数点環境を `*envp` が表す状態に設定します。成功すれば 0 を返します。特別な値 `FE_DFL_ENV` を渡すと、プログラム開始時の既定の環境に戻ります。
 
 保存した時点の異常フラグも書き戻されます。そのため、保存後にその計算で立ったフラグも消えます。その計算の異常を調べたいときは、`fesetenv` の前に `fetestexcept` で調べるか、異常を引き継ぐ `feupdateenv` を使います。
 

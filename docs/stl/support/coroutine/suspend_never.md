@@ -22,7 +22,7 @@ tags:
     - `final_suspend` に `suspend_never` を返すと、終わった時点で自動で破棄される（取っ手が無効になる）。
 
 !!! info "このページを読む前に"
-    [`std::generator`](../generator.md) のページに、コルーチンの簡単な例があります。
+    [`std::generator`](../generator.md) のページにコルーチンの簡単な例があります。
 
 ## 関数の詳しい説明
 

@@ -10,7 +10,7 @@ tags:
 
 !!! tip "ポイント"
     - レンズ フレア ＝ <strong>レンズ内の反射で、強い光源から出る、ゴースト・ハロー・光芒</strong>。
-    - <strong>ゴースト</strong> ＝ 光源を、画面中心を挟んで反対側に、複数の円として並べる。
+    - <strong>ゴースト</strong> ＝ 光源を画面中心を挟んで反対側に複数の円として並べる。
     - 画面空間の方法：ブルームの明るい部分を取り出し、反転・ずらしてサンプルする（光源の位置を知らなくてよい）。
     - ハロー ＝ 画面中心を軸にした、大きな輪。光芒 ＝ 絞りの羽根による筋。
     - 画面端のゴーストは弱める。色収差を付けると虹色でリアル。
@@ -32,7 +32,7 @@ tags:
 <circle cx="230" cy="85" r="4" fill="#fff"/>
 <circle cx="300" cy="64" r="12" fill="#5fa8ff" fill-opacity="0.45"/><circle cx="215" cy="90" r="18" fill="#ffd27a" fill-opacity="0.4"/><circle cx="150" cy="108" r="26" fill="#ff8aa0" fill-opacity="0.3"/><circle cx="90" cy="125" r="14" fill="#8affc1" fill-opacity="0.4"/>
 <circle cx="230" cy="85" r="85" fill="none" stroke="#fff" stroke-opacity="0.25" stroke-width="6"/>
-<text x="6" y="164" style="font-size:12px;fill:#fff">画面中心（白い点）を軸に、反対側にゴースト</text>
+<text x="6" y="164" style="font-size:12px;fill:#fff">画面中心（白い点）を軸に反対側にゴースト</text>
 </g>
 <g font-size="13"><text x="530" y="90" style="font-weight:700">要素</text>
 <text x="530" y="116">ゴースト：光源の像の円</text>
@@ -43,7 +43,7 @@ tags:
 
 | 要素 | 内容 | 原因 |
 | --- | --- | --- |
-| ゴースト | 光源の像が画面中心を挟んで反対側に、複数の円として現れる | レンズ面での多重反射 |
+| ゴースト | 光源の像が画面中心を挟んで反対側に複数の円として現れる | レンズ面での多重反射 |
 | ハロー | 画面中心を中心にした、大きな輪 | レンズ構成の光学的な効果 |
 | <strong>光芒（スターバースト）</strong> | 光源から放射状に伸びる筋（羽根の数 × 2 本など） | 絞りの羽根による回折 |
 | ストリーク | 横に長く伸びる光 | アナモルフィック レンズ（映画的） |
@@ -82,7 +82,7 @@ float3 LensFlareGhosts(float2 uv, int ghost_count, float dispersal, float distor
 <defs><marker id="arr-lens-flare-ghosts" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">レンズ フレア(ゴースト): 光源から画面の中心を通る直線の上に、レンズの反射の像が、並ぶ</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">レンズ フレア(ゴースト): 光源から画面の中心を通る直線の上にレンズの反射の像が並ぶ</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">画面(16:9)の中の光源の位置が動くと、ゴーストの位置は、中心から見た対称の位置に動く。ゴーストの倍率 = −1.2, −0.6, 0.4, 0.9</text>
 <rect x="30.0" y="100.0" width="640.0" height="360.0" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30.0" y="90.0" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">画面(中心から、光源・ゴーストの位置)</text>
@@ -177,7 +177,7 @@ float3 LensFlareGhosts(float2 uv, int ghost_count, float dispersal, float distor
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8443;0.8444;1.0000" values="0;0;1;1"/><rect x="480" y="470" width="450" height="56" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="496" y="494" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1e3a8a">光源が画面の端にあるほど、ゴーストが広く散る。中心では、全部が重なる</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">レンズの中で光が反射して、光源の像が、何個か、ずれて写る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">レンズの中で光が反射して、光源の像が何個か、ずれて写る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ゴーストは、光源の位置 × 倍率(負なら反対側)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8665;0.8667;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">簡単な式で、位置が決まる。画面の端は、フェードで消す<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8665;0.8667;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -277,7 +277,7 @@ float3 Starburst(float2 uv, float2 light_uv, Texture2D starburst_texture, float 
 
 !!! abstract "まとめ"
     - [x] レンズ フレア ＝ <strong>強い光源から出る、ゴースト・ハロー・光芒</strong>
-    - [x] 画面空間：ブルームの明るい部分を、反転・ずらしてサンプル
+    - [x] 画面空間：ブルームの明るい部分を反転・ずらしてサンプル
     - [x] ゴーストは、画面中心を挟んで反対側。端は弱める。色収差で虹色
     - [x] 光芒・ダートはテクスチャで
     - [x] 隠れた光源は消えるように。控えめに

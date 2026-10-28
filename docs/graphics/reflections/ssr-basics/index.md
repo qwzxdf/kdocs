@@ -6,13 +6,13 @@ tags:
 
 # SSR Basics
 
-<strong>SSR（スクリーン スペース リフレクション）は、すでに描いた画面の画像（色と深度）だけを使って、反射を作る手法</strong>です。反射レイを画面の上でたどり、当たった画素の色を持ってくるという、とても単純な発想ですが細かい所で、つまずきやすいです。このセクションでは発想・レイの進め方・厚み・色の取得とフェード・コストと粗さ・アーティファクトを、1 つずつ別のページで説明します。
+<strong>SSR（スクリーン スペース リフレクション）は、すでに描いた画面の画像（色と深度）だけを使って、反射を作る手法</strong>です。反射レイを画面の上でたどり、当たった画素の色を持ってくるという、とても単純な発想ですが細かい所で、つまずきやすいです。このセクションでは発想・レイの進め方・厚み・色の取得とフェード・コストと粗さ・アーティファクトを 1 つずつ別のページで説明します。
 
 ## 発想
 [Reflections](../index.md)で見たとおり、鏡面反射は「<strong>反射方向 R に何が見えるか</strong>」です。SSR は R の方向にレイを飛ばして、画面の深度バッファを「簡易なシーン」とみなして、レイが当たる所を探します。
 
 <svg class="fig illust" viewBox="0 0 780 300" role="img" aria-label="SSR のレイ進行">
-<text x="20" y="24" class="fig-title">反射方向のレイを、画面の深度バッファの上で進める。面の奥に入った所が「当たり」</text>
+<text x="20" y="24" class="fig-title">反射方向のレイを画面の深度バッファの上で進める。面の奥に入った所が「当たり」</text>
 <polygon points="60,230 300,230 300,150 420,150 420,230 720,230 720,270 60,270" fill="rgba(150,150,150,0.3)" stroke="currentColor" stroke-width="2"/>
 <text x="330" y="140" style="font-size:12px">壁（深度バッファに映る面）</text>
 <circle cx="150" cy="230" r="7" fill="currentColor"/><text x="130" y="254" style="font-size:12px">p（反射する点）</text>
@@ -52,7 +52,7 @@ tags:
 
 ## SSR とは
 
-<strong>SSR</strong>（Screen-Space Reflections、画面空間の反射）は画面に、映っている情報（深度、色）だけを使って反射を近似する方法です。反射する面の各画素から反射方向にレイを飛ばし、画面の中の何かに当たったらその画素の色を、反射として使います。
+<strong>SSR</strong>（Screen-Space Reflections、画面空間の反射）は画面に映っている情報（深度、色）だけを使って反射を近似する方法です。反射する面の各画素から反射方向にレイを飛ばし、画面の中の何かに当たったらその画素の色を反射として使います。
 
 ```text
 反射する面の画素 P:
@@ -69,7 +69,7 @@ tags:
 | --- | --- | --- |
 | ① 反射ベクトルを求める | 視線と、法線から | このページ |
 | ② レイを進める | 画面空間で、1 歩ずつ深度を確かめる | [Linear Marching](linear-march.md) |
-| ③ 当たりを判定する | レイが面の裏に、入った（厚み以内） | [Thickness](thickness.md) |
+| ③ 当たりを判定する | レイが面の裏に入った（厚み以内） | [Thickness](thickness.md) |
 | ④ 色を読む・フェードする | 当たった画素の色。画面の端、遠いほど薄く | [Color Lookup and Fading](color-fade.md) |
 | ⑤ 粗さに応じてぼかす | 粗い面は、ぼかす（[Cost and Roughness](cost-roughness.md)） | [Cost and Roughness](cost-roughness.md) |
 
@@ -83,10 +83,10 @@ float3 view_dir_vs = normalize(position_vs);                                // �
 float3 reflect_dir_vs = reflect(view_dir_vs, normal_vs);                    // 反射ベクトル
 ```
 
-<strong>カメラから画素への向き</strong>（視線）を、法線で反射させた向きが反射ベクトルです。ビュー空間で扱うとカメラが原点で、簡単です。
+<strong>カメラから画素への向き</strong>（視線）を法線で反射させた向きが反射ベクトルです。ビュー空間で扱うとカメラが原点で、簡単です。
 
 ```hlsl
-// レイの、始点と終点を、画面（uv）に、投影して、画面上の、線分にする。
+// レイの、始点と終点を画面（uv）に投影して、画面上の、線分にする。
 float3 end_vs = position_vs + reflect_dir_vs * g_max_distance;
 float4 start_clip = mul(float4(position_vs, 1.0), g_proj);
 float4 end_clip = mul(float4(end_vs, 1.0), g_proj);
@@ -94,18 +94,18 @@ float2 start_uv = start_clip.xy / start_clip.w * float2(0.5, -0.5) + 0.5;
 float2 end_uv = end_clip.xy / end_clip.w * float2(0.5, -0.5) + 0.5;
 ```
 
-レイの始点と終点を 画面空間（uv）に、投影します。画面上の線分を 1 画素ずつ（または、数画素ずつ）辿ると画面の深度と、比べられます（[Linear Marching](linear-march.md)）。
+レイの始点と終点を 画面空間（uv）に投影します。画面上の線分を 1 画素ずつ（または、数画素ずつ）辿ると画面の深度と、比べられます（[Linear Marching](linear-march.md)）。
 
 ## SSR の限界
 
-SSR は <strong>画面の情報だけ</strong>を、使うので 根本的な限界があります。
+SSR は <strong>画面の情報だけ</strong>を使うので 根本的な限界があります。
 
 | 限界 | 内容 | 対策 |
 | --- | --- | --- |
-| 画面の外が映らない | 画面に、映っていない物は反射に出ない | 反射プローブで、補う（[Combining with SSR](../probes/combine-ssr.md)） |
-| 隠れた面が映らない | 手前の物の裏は、深度バッファに無い。物の裏側の反射が欠ける | 厚みを、仮定（[Thickness](thickness.md)）、プローブで補う |
-| 画面の端で反射が消える | レイが、画面の外に出る | 端でフェード（[Color Lookup and Fading](color-fade.md)） |
-| カメラに向かう反射が弱い | 反射方向が、カメラの方向に近い（鏡に真正面から、向き合う）とカメラの背後の景色が、必要（画面に無い） | 信頼度を下げて、プローブへ |
+| 画面の外が映らない | 画面に映っていない物は反射に出ない | 反射プローブで、補う（[Combining with SSR](../probes/combine-ssr.md)） |
+| 隠れた面が映らない | 手前の物の裏は、深度バッファに無い。物の裏側の反射が欠ける | 厚みを仮定（[Thickness](thickness.md)）、プローブで補う |
+| 画面の端で反射が消える | レイが画面の外に出る | 端でフェード（[Color Lookup and Fading](color-fade.md)） |
+| カメラに向かう反射が弱い | 反射方向がカメラの方向に近い（鏡に真正面から、向き合う）とカメラの背後の景色が必要（画面に無い） | 信頼度を下げて、プローブへ |
 | 細い物をすり抜ける | ステップが粗いと、細い物を飛び越える | ステップを細かく、Hi-Z（[Hi-Z SSR](../ssr-hiz.md)） |
 
 ## DirectX 11 で組む
@@ -137,7 +137,7 @@ device->CreateTexture2D(&desc, nullptr, &ssr_texture);
 ```
 
 ```cpp
-// SSR を描く。深度・法線・材質・前フレームの色を、読む。サンプラーは、深度が POINT、色が LINEAR。
+// SSR を描く。深度・法線・材質・前フレームの色を読む。サンプラーは、深度が POINT、色が LINEAR。
 context->OMSetRenderTargets(1, ssr_rtv.GetAddressOf(), nullptr);
 ID3D11ShaderResourceView* srvs[] = {depth_srv.Get(), normal_srv.Get(), material_srv.Get(), prev_color.Read()};
 context->PSSetShaderResources(0, 4, srvs);

@@ -84,14 +84,14 @@ D3D12_RANGE no_write = {0, 0};
 readback_buffer->Unmap(0, &no_write);
 ```
 
-2 つのタイムスタンプの差が、チックの数です。周波数で割ると秒になり 1000 を掛けるとミリ秒です。周波数はキューごとに違います。COMPUTE のキューで測ったなら COMPUTE のキューで `GetTimestampFrequency` を呼びます。
+2 つのタイムスタンプの差がチックの数です。周波数で割ると秒になり 1000 を掛けるとミリ秒です。周波数はキューごとに違います。COMPUTE のキューで測ったなら COMPUTE のキューで `GetTimestampFrequency` を呼びます。
 
 ## フレームごとに別の領域を使う
 
 CPU が結果を読んでいる間に GPU が次のフレームの結果を同じ場所へ書くと、値が壊れます。READBACK の領域はフレームを同時に進める数だけ持って、フレームごとに分けます（[Frame Resources](frame-resources.md)）。
 
 ```cpp
-// READBACK のバッファを、フレームの数だけ分ける。このフレームの結果は、kFrameCount フレームあとに読む。
+// READBACK のバッファをフレームの数だけ分ける。このフレームの結果は、kFrameCount フレームあとに読む。
 const UINT slot = frame_number % kFrameCount;
 command_list->ResolveQueryData(query_heap.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0, used_count,
                                readback_buffer.Get(), slot * kMaxTimestamps * sizeof(UINT64));
@@ -119,7 +119,7 @@ PIX on Windows は無料で、D3D12 の標準のツールです。GPU のカウ�
 
 ## よくあるミス
 
-??? failure "測った時間が、異常に短い（CPU の時間になっている）"
+??? failure "測った時間が異常に短い（CPU の時間になっている）"
     CPU の時計で `DrawInstanced` の前後を測っています。GPU が実行するのはあとです。GPU のタイムスタンプで測ります。
 
 ??? failure "時間が負になる巨大な値になる"

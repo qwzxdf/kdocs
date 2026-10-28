@@ -15,7 +15,7 @@ tags:
 `#include <system_error>`
 </div>
 
-`is_error_code_enum` の、`error_condition` 版です。`std::errc` がこれに対応しています。自作の列挙型を、移植性のあるエラー条件として使いたいときに特殊化します。
+`is_error_code_enum` の、`error_condition` 版です。`std::errc` がこれに対応しています。自作の列挙型を移植性のあるエラー条件として使いたいときに特殊化します。
 
 !!! tip "ポイント"
     - 例外の関連の部品。
@@ -85,7 +85,7 @@ C++11 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 自作の列挙型を、error_condition に暗黙変換できるようにする特性
+    - [x] 自作の列挙型を error_condition に暗黙変換できるようにする特性
     - [x] 例外の関連の部品
     - [x] 戻り値と失敗時の動きを確かめて使う
 

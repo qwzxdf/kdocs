@@ -7,12 +7,12 @@ tags:
 
 # ImGui のウィジェット一覧
 
-ImGui の<strong>部品（ウィジェット）</strong>は、関数を 1 回呼ぶだけで、画面に出て、操作の結果が戻り値と、渡した変数に返ってきます（[即時モード](index.md)）。このページは、よく使う部品を、種類ごとに、使い方と戻り値で説明します。部品の「ラベル」が ID を兼ねることと、`Begin` と `End` の対応が、最初の落とし穴です。
+ImGui の<strong>部品（ウィジェット）</strong>は、関数を 1 回呼ぶだけで、画面に出て、操作の結果が戻り値と、渡した変数に返ってきます（[即時モード](index.md)）。このページは、よく使う部品を種類ごとに、使い方と戻り値で説明します。部品の「ラベル」が ID を兼ねることと、`Begin` と `End` の対応が最初の落とし穴です。
 
 !!! tip "ポイント"
-    - 部品は<strong>「描く」と「入力を受け取る」を、1 回の関数呼び出し</strong>で行う。<strong>戻り値 ＝ 今フレームで、変更・クリックされたか</strong>。
+    - 部品は<strong>「描く」と「入力を受け取る」を 1 回の関数呼び出し</strong>で行う。<strong>戻り値 ＝ 今フレームで、変更・クリックされたか</strong>。
     - 値はポインタ（`float*`、`bool*`）で渡す。ImGui が、その変数を直接書き換える。
-    - ラベル（文字列）が、部品の ID。同じラベルが 2 つあると、同じ部品として扱われる（`##` で、見えない ID を付ける）。
+    - ラベル（文字列）が部品の ID。同じラベルが 2 つあると、同じ部品として扱われる（`##` で、見えない ID を付ける）。
     - `Begin...` が `true` を返したときだけ、`End...` を呼ぶもの（`BeginCombo`、`BeginTable` など）と、常に `End` を呼ぶもの（`Begin` / `End`）がある。
     - 数値の調整は、`Drag`（ドラッグで増減）が便利。範囲があるなら `Slider`。
     - `std::string` を `InputText` に渡すには、`imgui_stdlib.h`。
@@ -42,7 +42,7 @@ ImGui::End();
 | --- | --- |
 | **`ImGui::Button(...)`** | クリックされたフレームだけ `true` を返す |
 | `ImGui::SliderFloat(..., &speed, ...)` | 変更されたフレームだけ `true`。`speed` が、直接書き換わる |
-| `static` や、メンバ変数 | 値を、フレームをまたいで持つ必要がある（ローカル変数は、毎フレーム初期化される） |
+| `static` や、メンバ変数 | 値をフレームをまたいで持つ必要がある（ローカル変数は、毎フレーム初期化される） |
 | `Begin` / `End` | ウィンドウを作る。`End` は、`Begin` の戻り値に関係なく必ず呼ぶ |
 
 <svg class="fig imgui" data-fig="imgui-gallery-basic" viewBox="0 0 780 340" role="img" aria-label="基本ウィジェットの見た目"><rect x="0" y="0" width="780" height="340" fill="#1b1b1f" rx="6"/><rect x="20.0" y="20.0" width="360.0" height="300.0" rx="0" fill="#0f0f0f" stroke="#4b4b57" stroke-width="1" /><rect x="20.0" y="20.0" width="360.0" height="19.0" rx="0" fill="#294a7a" /><path d="M27,26 l5,0 l-2.5,7 z" fill="#ffffff"/><text x="40.0" y="34.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Demo</text><text x="28.0" y="61.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Hello, ImGui!</text><rect x="28.0" y="70.0" width="48.0" height="19.0" rx="3" fill="#23456d" /><text x="36.0" y="84.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Save</text><rect x="28.0" y="93.0" width="17.0" height="17.0" rx="3" fill="#1d2f49" /><path d="M32,102 l4,4 l7,-8" fill="none" stroke="#4296fa" stroke-width="2.2"/><text x="49.0" y="107.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Enable</text><circle cx="36" cy="125" r="8" fill="#1d2f49"/><text x="48.0" y="130.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >A</text><circle cx="76" cy="125" r="8" fill="#1d2f49"/><circle cx="76" cy="125" r="4" fill="#4296fa"/><text x="88.0" y="130.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >B</text><circle cx="116" cy="125" r="8" fill="#1d2f49"/><text x="128.0" y="130.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >C</text><rect x="28.0" y="139.0" width="213.0" height="19.0" rx="3" fill="#1d2f49" /><rect x="139.2" y="141.0" width="10.0" height="15.0" rx="2" fill="#3d85e0" /><text x="118.5" y="153.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >5.50</text><text x="249.0" y="153.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >speed</text><rect x="28.0" y="162.0" width="213.0" height="19.0" rx="3" fill="#1d2f49" /><text x="114.5" y="176.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >1.250</text><text x="249.0" y="176.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >pos</text><rect x="28.0" y="185.0" width="213.0" height="19.0" rx="3" fill="#1d2f49" /><text x="32.0" y="199.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Player</text><text x="249.0" y="199.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >name</text><rect x="28.0" y="208.0" width="213.0" height="19.0" rx="3" fill="#1d2f49" /><rect x="222.0" y="208.0" width="19.0" height="19.0" rx="3" fill="#23456d" /><path d="M227,215 l4.5,6 l4.5,-6 z" fill="#ffffff"/><text x="32.0" y="222.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >Fast</text><text x="249.0" y="222.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >mode</text><rect x="28.0" y="231.0" width="19.0" height="19.0" rx="3" fill="#4296fa" stroke="#4b4b57"/><rect x="51.0" y="231.0" width="190.0" height="19.0" rx="3" fill="#1d2f49" /><text x="55.0" y="245.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >0.26 0.59 0.98</text><text x="249.0" y="245.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >color</text><rect x="28.0" y="254.0" width="220.0" height="19.0" rx="3" fill="#1d2f49" /><rect x="28.0" y="254.0" width="136.4" height="19.0" rx="3" fill="#3d85e0" /><text x="127.2" y="268.0" style="fill:#ffffff;font-family:Consolas,'Courier New',monospace;font-size:13px;" >62%</text><rect x="21.0" y="279.0" width="358.0" height="1.0" rx="0" fill="#5c5c6e" /><line x1="385" y1="56" x2="405" y2="56" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="60" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::Text("...")</text><line x1="385" y1="79" x2="405" y2="79" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="83" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::Button("Save")</text><line x1="385" y1="102" x2="405" y2="102" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="106" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::Checkbox("Enable", &amp;b)</text><line x1="385" y1="125" x2="405" y2="125" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="129" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::RadioButton("A", &amp;i, 0)</text><line x1="385" y1="148" x2="405" y2="148" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="152" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::SliderFloat("speed", &amp;f, 0, 10)</text><line x1="385" y1="171" x2="405" y2="171" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="175" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::DragFloat("pos", &amp;f, 0.01f)</text><line x1="385" y1="194" x2="405" y2="194" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="198" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::InputText("name", buf, size)</text><line x1="385" y1="217" x2="405" y2="217" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="221" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::Combo("mode", &amp;i, items, n)</text><line x1="385" y1="240" x2="405" y2="240" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="244" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::ColorEdit3("color", col)</text><line x1="385" y1="263" x2="405" y2="263" stroke="#9ec5ff" stroke-width="1"/><text x="412" y="267" style="fill:#9ec5ff;font-family:Consolas,monospace;font-size:12px;">ImGui::ProgressBar(0.62f, size)</text></svg>
@@ -68,7 +68,7 @@ ImGui::TextColored(ImVec4(1, 0.3f, 0.3f, 1), "警告: 残りわずか");
 ImGui::TextUnformatted(log_line.c_str());
 ```
 
-!!! warning "ユーザーの文字列を、そのまま `Text` に渡さない"
+!!! warning "ユーザーの文字列をそのまま `Text` に渡さない"
     `ImGui::Text(user_string)` は、`%` を書式として解釈して、クラッシュします。`TextUnformatted`、または `Text("%s", str)` にします。
 
 ## ボタンと選択
@@ -119,7 +119,7 @@ ImGui::SliderFloat("FOV", &camera.fov, 30.0f, 120.0f, "%.0f 度");
 | 書式文字列（`"%.2f"`） | 表示の桁数・単位を決める |
 | `ImGuiSliderFlags_Logarithmic` | 対数スケール（広い範囲の値に） |
 | `&v.x` | `Vector3` の先頭（3 つの `float` が、連続して並んでいる前提） |
-| ダブルクリック / Ctrl + クリック | スライダーに、直接数値を入力できる |
+| ダブルクリック / Ctrl + クリック | スライダーに直接数値を入力できる |
 
 ## 文字の入力
 
@@ -136,7 +136,7 @@ ImGui::InputText("名前", name, sizeof(name));
 
 ### std::string で使う
 
-固定長の `char` 配列は不便です。`misc/cpp/imgui_stdlib.h`（ImGui に同梱）を include すれば、`std::string` を、そのまま渡せます。
+固定長の `char` 配列は不便です。`misc/cpp/imgui_stdlib.h`（ImGui に同梱）を include すれば、`std::string` をそのまま渡せます。
 
 ```cpp
 #include "misc/cpp/imgui_stdlib.h"
@@ -149,7 +149,7 @@ ImGui::InputText("名前", &name);
 | --- | --- |
 | `ImGuiInputTextFlags_EnterReturnsTrue` | Enter を押したときだけ `true` を返す |
 | `ImGuiInputTextFlags_ReadOnly` | 読み取り専用 |
-| `ImGuiInputTextFlags_Password` | 入力を、`*` で隠す |
+| `ImGuiInputTextFlags_Password` | 入力を `*` で隠す |
 | `ImGuiInputTextFlags_CharsDecimal` | 数字だけを入力できる |
 
 ## 色
@@ -158,7 +158,7 @@ ImGui::InputText("名前", &name);
 | --- | --- |
 | **`ColorEdit3("ラベル", &color.x)`** | 色の編集（小さな色見本 + 数値。クリックでピッカー） |
 | `ColorEdit4` | アルファ付き |
-| `ColorPicker4("ラベル", &color.x)` | 大きな色のピッカーを、直接表示 |
+| `ColorPicker4("ラベル", &color.x)` | 大きな色のピッカーを直接表示 |
 | `ColorButton("##id", ImVec4)` | 色のボタン（押せる色見本） |
 
 ```cpp
@@ -224,7 +224,7 @@ if (ImGui::CollapsingHeader("Physics", ImGuiTreeNodeFlags_DefaultOpen)) {
 }
 ```
 
-エンティティの階層表示（シーンのツリー）に、`TreeNodeEx` の `Leaf` / `OpenOnArrow` を、よく使います。
+エンティティの階層表示（シーンのツリー）に `TreeNodeEx` の `Leaf` / `OpenOnArrow` をよく使います。
 
 ## テーブル {#table}
 
@@ -285,7 +285,7 @@ ImGui::PlotLines("フレーム時間(ms)", frame_times, IM_ARRAYSIZE(frame_times
 | `PlotHistogram` | 棒グラフ |
 | `ProgressBar(fraction, ImVec2, overlay)` | 進行バー（HP・ロード進捗） |
 
-リングバッファ（`offset`）で、新しい値を書き続ける使い方が、定番です（[フレーム時間の設計](../../optimize/frame-budget.md)）。本格的なグラフが必要なら、ImPlot などの拡張があります。
+リングバッファ（`offset`）で、新しい値を書き続ける使い方が定番です（[フレーム時間の設計](../../optimize/frame-budget.md)）。本格的なグラフが必要なら、ImPlot などの拡張があります。
 
 ## メニュー・ポップアップ・ツールチップ
 
@@ -372,7 +372,7 @@ for (int i = 0; i < enemies.size(); ++i) {
 | 組 | `End` を呼ぶ条件 |
 | --- | --- |
 | `Begin` / `End`（ウィンドウ） | `Begin` の戻り値に関係なく、必ず `End` |
-| `BeginChild` / `EndChild` | 同様に、必ず `EndChild` |
+| `BeginChild` / `EndChild` | 同様に必ず `EndChild` |
 | `BeginCombo`・`BeginListBox`・`BeginTable`・`BeginMenu`・`BeginPopup`・`BeginTabBar`・`TreeNode` | `true` のときだけ、対応する `End` / `Pop` |
 
 対応が崩れると、assertで止まります（デバッグビルドで分かる）。
@@ -385,7 +385,7 @@ for (int i = 0; i < enemies.size(); ++i) {
 ??? failure "`BeginCombo` が `false` なのに `EndCombo` を呼ぶ"
     `true` のときだけ、`End` を呼びます。
 
-??? failure "ローカル変数を、スライダーに渡して、値が戻る"
+??? failure "ローカル変数をスライダーに渡して、値が戻る"
     毎フレーム、初期化されます。`static` かメンバ変数にします。
 
 ??? failure "`ImGui::Text(user_string)` でクラッシュする"
@@ -394,7 +394,7 @@ for (int i = 0; i < enemies.size(); ++i) {
 ??? failure "`DragFloat3(..., &v)` で、構造体が壊れる"
     `float` 3 つが連続している型（`&v.x`）にだけ使います。
 
-??? failure "大量の行を、毎フレーム全部描いて遅い"
+??? failure "大量の行を毎フレーム全部描いて遅い"
     `ImGuiListClipper` を使います。
 
 ??? failure "日本語のラベルが `?` になる"

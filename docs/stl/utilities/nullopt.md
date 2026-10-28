@@ -14,7 +14,7 @@ tags:
 `#include <optional>`
 </div>
 
-「見つからなかった」ことを、関数の戻り値で伝えたい。`std::optional` を返す関数で、値がない状態を表すには、何かの印が必要です。`std::nullopt` は、`std::optional` を「値がない（空）」状態にするための印です。`return std::nullopt;` と書けば、「ない」を返せます。
+「見つからなかった」ことを関数の戻り値で伝えたい。`std::optional` を返す関数で、値がない状態を表すには、何かの印が必要です。`std::nullopt` は、`std::optional` を「値がない（空）」状態にするための印です。`return std::nullopt;` と書けば、「ない」を返せます。
 
 !!! tip "ポイント"
     - `return std::nullopt;` で「無し」を返す。

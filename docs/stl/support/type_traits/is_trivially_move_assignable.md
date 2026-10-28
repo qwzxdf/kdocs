@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-ムーブ代入が、ビットの複製だけで済む型かを知りたい。`std::is_trivially_move_assignable` は、<strong>型が自明なムーブ代入を持つか</strong>を調べます。
+ムーブ代入がビットの複製だけで済む型かを知りたい。`std::is_trivially_move_assignable` は、<strong>型が自明なムーブ代入を持つか</strong>を調べます。
 
 !!! tip "ポイント"
     - `std::is_trivially_move_assignable_v<T>` は、`T` が自明なムーブ代入を持つか
@@ -41,7 +41,7 @@ inline constexpr bool is_trivially_move_assignable_v = is_trivially_move_assigna
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-ムーブ代入が、ビットを写すだけで済む型なら `true` です。リソースを管理する型は `false` です。
+ムーブ代入がビットを写すだけで済む型なら `true` です。リソースを管理する型は `false` です。
 
 型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
 

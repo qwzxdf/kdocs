@@ -14,7 +14,7 @@ tags:
     - 解像度は 16³〜64³（32³ が定番）。間はハードウェアの 3 線形補間。
     - 半テクセルのオフセット（`× (N−1)/N + 0.5/N`）を忘れない（端の色がずれる）。
     - 入力が広いダイナミック レンジ（HDR）なら、対数などでエンコードしてから引く。
-    - 外部ツールで作った LUT を、そのまま使える（.cube・.png 形式）。
+    - 外部ツールで作った LUT をそのまま使える（.cube・.png 形式）。
 
 !!! info "このページを読む前に"
     - [Color Grading](index.md)（このセクション全体の地図と、読む順番）
@@ -23,7 +23,7 @@ tags:
 
 ## 仕組み
 
-<strong>RGB の各成分（0〜1）を、そのまま 3D テクスチャの X・Y・Z 座標</strong>とします。その座標の位置に、「変換後の色」を格納しておきます。
+<strong>RGB の各成分（0〜1）をそのまま 3D テクスチャの X・Y・Z 座標</strong>とします。その座標の位置に「変換後の色」を格納しておきます。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="3D LUT">
 <text x="20" y="26" class="fig-title">入力の色 (r, g, b) を座標にして、3D テクスチャから変換後の色を引く</text>
@@ -33,7 +33,7 @@ tags:
 <polygon points="120,60 160,20 160,120 120,160" fill="#4c8bf5" fill-opacity="0.14" stroke="#94a3b8" stroke-width="2"/>
 <g stroke="#cbd5e1"><line x1="40" y1="60" x2="40" y2="160"/><line x1="80" y1="60" x2="80" y2="160"/><line x1="0" y1="93" x2="120" y2="93"/><line x1="0" y1="126" x2="120" y2="126"/></g>
 <circle cx="76" cy="104" r="6" fill="#e5484d"/>
-<text x="0" y="190" style="font-size:12px">32 × 32 × 32 のセルに、変換後の RGB を格納</text>
+<text x="0" y="190" style="font-size:12px">32 × 32 × 32 のセルに変換後の RGB を格納</text>
 <text x="124" y="176" style="font-size:12px">R →</text><text x="-20" y="82" style="font-size:12px">G ↑</text>
 </g>
 <g font-size="13"><text x="330" y="96" style="font-weight:700">手順</text>
@@ -48,7 +48,7 @@ tags:
 | 入力 | 画素の色 (r, g, b)（0〜1） |
 | 出力 | 変換後の色 |
 | 格子の点 | 32³ ＝ 32,768 個（各点に変換後の RGB） |
-| 間の点 | GPU の 3 線形補間が、自動で滑らかにつなぐ |
+| 間の点 | GPU の 3 線形補間が自動で滑らかにつなぐ |
 
 ## DX11 での適用
 
@@ -73,7 +73,7 @@ float3 ApplyLut(float3 color) {
 
 ### なぜ半テクセルが要るのか
 
-<strong>テクスチャ座標 0.0 は、最初のテクセルの「端」</strong>で、中心は 0.5/N です。LUT の格子点 0 と 1 を、そのまま 0.0・1.0 に対応させると、最初と最後の格子点が補間で薄まります。`× (N−1)/N + 0.5/N` で、格子点の中心に合わせると、正確な値が得られます。
+<strong>テクスチャ座標 0.0 は、最初のテクセルの「端」</strong>で、中心は 0.5/N です。LUT の格子点 0 と 1 をそのまま 0.0・1.0 に対応させると、最初と最後の格子点が補間で薄まります。`× (N−1)/N + 0.5/N` で、格子点の中心に合わせると、正確な値が得られます。
 
 <!-- fig:lut-half-texel:begin -->
 
@@ -82,7 +82,7 @@ float3 ApplyLut(float3 color) {
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">LUT の半テクセル補正: テクスチャの座標 0 と 1 は、端のテクセルの「中心」ではない。補正しないと、表全体がずれる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">16 個の表(テクセル)を、GPU の補間で引く。入力 0 〜 1 を、そのまま座標にした場合と、補正した場合の誤差</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">16 個の表(テクセル)を GPU の補間で引く。入力 0 〜 1 をそのまま座標にした場合と、補正した場合の誤差</text>
 <rect x="30" y="96" width="660" height="260" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 表の値(黒い点 = 各テクセルの中心)と、引いた値</text>
 <path d="M70.0,330.0 L77.5,327.98 L85.0,325.93 L92.5,323.84 L100.0,321.71 L107.5,319.55 L115.0,317.36 L122.5,315.13 L130.0,312.88 L137.5,310.6 L145.0,308.28 L152.5,305.94 L160.0,303.57 L167.5,301.17 L175.0,298.75 L182.5,296.31 L190.0,293.84 L197.5,291.35 L205.0,288.84 L212.5,286.3 L220.0,283.75 L227.5,281.18 L235.0,278.59 L242.5,275.98 L250.0,273.36 L257.5,270.72 L265.0,268.07 L272.5,265.41 L280.0,262.73 L287.5,260.04 L295.0,257.34 L302.5,254.64 L310.0,251.92 L317.5,249.2 L325.0,246.47 L332.5,243.73 L340.0,240.99 L347.5,238.25 L355.0,235.5 L362.5,232.75 L370.0,230.0 L377.5,227.25 L385.0,224.5 L392.5,221.75 L400.0,219.01 L407.5,216.27 L415.0,213.53 L422.5,210.8 L430.0,208.08 L437.5,205.36 L445.0,202.66 L452.5,199.96 L460.0,197.27 L467.5,194.59 L475.0,191.93 L482.5,189.28 L490.0,186.64 L497.5,184.02 L505.0,181.41 L512.5,178.82 L520.0,176.25 L527.5,173.7 L535.0,171.16 L542.5,168.65 L550.0,166.16 L557.5,163.69 L565.0,161.25 L572.5,158.83 L580.0,156.43 L587.5,154.06 L595.0,151.72 L602.5,149.4 L610.0,147.12 L617.5,144.87 L625.0,142.64 L632.5,140.45 L640.0,138.29 L647.5,136.16 L655.0,134.07 L662.5,132.02 L670.0,130.0" fill="none" stroke="#64748b" stroke-width="2.5" stroke-dasharray="5 4"/>
@@ -121,12 +121,12 @@ float3 ApplyLut(float3 color) {
 <rect x="30" y="376" width="900" height="100" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
 <text x="30" y="366" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">クランプと補間の仕組み</text>
 <text x="50" y="412" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">座標 0 は、最初のテクセルの「左端」。中心は 0.5/16 = 0.0312 の位置</text>
-<text x="50" y="440" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937">座標 0〜1 を、そのまま、テクセル 0〜15 の位置に使うと、表全体が、少し伸びて(縮んで)引かれる。中間の色が、本来の値と、ずれる</text>
-<text x="50" y="462" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">補正は、入力を、最初と最後のテクセルの中心の間に押し込む</text>
+<text x="50" y="440" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937">座標 0〜1 をそのまま、テクセル 0〜15 の位置に使うと、表全体が少し伸びて(縮んで)引かれる。中間の色が本来の値と、ずれる</text>
+<text x="50" y="462" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">補正は、入力を最初と最後のテクセルの中心の間に押し込む</text>
 <g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.5347;0.5349;1.0000" values="0;0;1;1"/><rect x="560" y="486" width="370" height="40" rx="12" fill="#fef2f2" stroke="#e5484d" stroke-width="2.5"/>
 <text x="576" y="510" text-anchor="start" style="font-size:13px;font-weight:700;fill:#991b1b">補正しないと、中間の明るさが、わずかにずれる</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">LUT を引くとき、入力の 0〜1 を、そのまま座標にしてはいけない<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">LUT を引くとき、入力の 0〜1 をそのまま座標にしてはいけない<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">そのまま引くと、中間で、ずれる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.3021;0.3023;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">半テクセルぶん、内側へ寄せると、ぴったり合う<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3021;0.3023;0.5347;0.5349;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">3D LUT でも、同じ補正をする(3 軸すべて)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.5347;0.5349;1.0000;1.0000" values="0;0;1;1;0"/></text>
@@ -146,11 +146,11 @@ float3 ApplyLut(float3 color) {
 
 ## 2D テクスチャに並べる（ストリップ）
 
-<strong>3D テクスチャを、2D の画像に「スライスを横に並べて」保存</strong>する形式もよく使われます（.png で外部ツールとのやり取り）。
+<strong>3D テクスチャを 2D の画像に「スライスを横に並べて」保存</strong>する形式もよく使われます（.png で外部ツールとのやり取り）。
 
-LUT を 2D の画像に保存する形式もよく使われます。32×32×32 のストリップは、幅 1024・高さ 32 の画像に、32 枚のスライスを横に並べたもので、.png で外部ツールとやり取りできます。.cube はテキスト形式で、DaVinci Resolve や多くのツールが出力します。
+LUT を 2D の画像に保存する形式もよく使われます。32×32×32 のストリップは、幅 1024・高さ 32 の画像に 32 枚のスライスを横に並べたもので、.png で外部ツールとやり取りできます。.cube はテキスト形式で、DaVinci Resolve や多くのツールが出力します。
 
-ゲームでは読み込み時に、2D のストリップを、3D テクスチャに変換して使います。
+ゲームでは読み込み時に 2D のストリップを 3D テクスチャに変換して使います。
 
 ## 広いダイナミック レンジを扱う（対数エンコード）
 
@@ -203,7 +203,7 @@ LUT には 2 つの方式があります。LDR LUT は、トーンマップ後�
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 3D LUT ＝ <strong>入力色を座標に、変換後の色を格納した 3D テクスチャ</strong>
+    - [x] 3D LUT ＝ <strong>入力色を座標に変換後の色を格納した 3D テクスチャ</strong>
     - [x] 1 回のサンプルで、何段階の調整もまとめて適用
     - [x] 32³ が標準。半テクセルのオフセットを忘れない
     - [x] FP16・10 ビットでバンディングを避ける

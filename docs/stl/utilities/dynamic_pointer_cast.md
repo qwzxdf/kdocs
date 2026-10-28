@@ -14,7 +14,7 @@ tags:
 `#include <memory>`
 </div>
 
-`std::dynamic_pointer_cast` は、**`shared_ptr` を、別の型の `shared_ptr` に変換する**関数で、`dynamic_cast` の `shared_ptr` 版です。基底クラスの `shared_ptr` から、本当の型（派生クラス）の `shared_ptr` を取り出すときに使います。キャストできなければ、空の `shared_ptr` が返ります。
+`std::dynamic_pointer_cast` は、**`shared_ptr` を別の型の `shared_ptr` に変換する**関数で、`dynamic_cast` の `shared_ptr` 版です。基底クラスの `shared_ptr` から、本当の型（派生クラス）の `shared_ptr` を取り出すときに使います。キャストできなければ、空の `shared_ptr` が返ります。
 
 !!! tip "ポイント"
     - `shared_ptr` 同士のキャストは、普通の `dynamic_cast<T*>(p.get())` ではなく、これを使う（参照カウントが共有される）。

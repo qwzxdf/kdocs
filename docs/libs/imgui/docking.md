@@ -65,7 +65,7 @@ ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport());
 
 ### 背景を透けさせる（ゲームの画面を見せる）
 
-ドッキング領域の「中央」を空けておくとゲームの画面が、背景に見えます。
+ドッキング領域の「中央」を空けておくとゲームの画面が背景に見えます。
 
 ```cpp
 ImGui::DockSpaceOverViewport(0, ImGui::GetMainViewport(), ImGuiDockNodeFlags_PassthruCentralNode);
@@ -119,7 +119,7 @@ ImGui::End();
 
 | 方法 | 説明 |
 | --- | --- |
-| <strong>`imgui.ini`（自動）</strong> | ウィンドウの位置・大きさ・ドッキングの配置が、自動で保存・復元される（`io.IniFilename`） |
+| <strong>`imgui.ini`（自動）</strong> | ウィンドウの位置・大きさ・ドッキングの配置が自動で保存・復元される（`io.IniFilename`） |
 | 保存先を変える | `io.IniFilename = "layout.ini";`、または `nullptr` で保存しない |
 | 文字列で保存・読み込み | `ImGui::SaveIniSettingsToMemory()` / `LoadIniSettingsFromMemory(data)` で、独自のファイル・メモリへ |
 | `SaveIniSettingsToDisk(path)` / `LoadIniSettingsFromDisk(path)` | 別のファイルへ保存・読み込み（複数のレイアウト切り替えに） |
@@ -177,7 +177,7 @@ io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 | --- | --- |
 | バックエンドの対応が必要 | Win32 + DirectX 11 は、対応している |
 | 描画のあとに追加の呼び出し | メインの描画が終わったあとに、`UpdatePlatformWindows()` と `RenderPlatformWindowsDefault()` を呼ぶ |
-| スタイルの調整 | ウィンドウの角丸・背景の透明が、OS ウィンドウでは違和感がある → `WindowRounding = 0`、`WindowBg.w = 1` |
+| スタイルの調整 | ウィンドウの角丸・背景の透明が OS ウィンドウでは違和感がある → `WindowRounding = 0`、`WindowBg.w = 1` |
 
 ```cpp
 ImGui::Render();
@@ -190,7 +190,7 @@ if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
 ```
 
 !!! warning "デバイス・スワップチェーンの扱い"
-    マルチビューポートでは、ImGui が追加のスワップチェーンを作ります。デバイスのコンテキストの設定（レンダー ターゲット・ビューポート）を、メインの描画の後に再設定する必要があるかもしれません。公式サンプル（`example_win32_directx11`）を参考にします。
+    マルチビューポートでは、ImGui が追加のスワップチェーンを作ります。デバイスのコンテキストの設定（レンダー ターゲット・ビューポート）をメインの描画の後に再設定する必要があるかもしれません。公式サンプル（`example_win32_directx11`）を参考にします。
 
 ## ゲームの画面をドッキングできるウィンドウにする
 
@@ -215,7 +215,7 @@ ImGui::PopStyleVar();
     **`docking` ブランチではない**、または `ImGuiConfigFlags_DockingEnable` を設定していません。
 
 ??? failure "`DockSpaceOverViewport` をウィンドウより後に呼んでいる"
-    ドッキング領域より先にウィンドウを作るとドッキングが、うまく効かないことがあります。`NewFrame` の直後に呼びます。
+    ドッキング領域より先にウィンドウを作るとドッキングがうまく効かないことがあります。`NewFrame` の直後に呼びます。
 
 ??? failure "`imgui.ini` が、古いレイアウトを復元して初期レイアウトが反映されない"
     `imgui.ini` を消すか`DockBuilderGetNode` で、ノードがないときだけ作る処理にします。
@@ -223,7 +223,7 @@ ImGui::PopStyleVar();
 ??? failure "マルチビューポートで、ウィンドウが真っ黒・描画が崩れる"
     `RenderPlatformWindowsDefault()` を呼んでいません。描画後に呼び出します。
 
-??? failure "シーンビューが、ぼやける・伸びる"
+??? failure "シーンビューがぼやける・伸びる"
     ウィンドウの大きさに合わせて、レンダー ターゲットのサイズを変えています。拡大縮小で伸びていませんか。
 
 ## これだけ覚える

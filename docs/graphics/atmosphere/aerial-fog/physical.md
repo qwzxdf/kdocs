@@ -43,7 +43,7 @@ float3 final_color = scene_color * transmittance + inscattered;
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">空気遠近法: 青の光ほど散って減り、遠くの山は、青く霞んで、薄くなる(物の色 + 空気の色)</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">同じ茶色の山が、距離 0.5〜48 km に並ぶ。色ごとに、減る割合と、空気が足す光(空の青)を計算して、1 つずつ見る</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">同じ茶色の山が距離 0.5〜48 km に並ぶ。色ごとに、減る割合と、空気が足す光(空の青)を計算して、1 つずつ見る</text>
 <rect x="30" y="96" width="900" height="160" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 山の色(左 = 近い、右 = 遠い)</text>
 <rect x="32" y="98" width="896" height="156" fill="#b1d2ff" fill-opacity="0.35"/>
@@ -78,7 +78,7 @@ float3 final_color = scene_color * transmittance + inscattered;
 <path d="M60.0,316.0 L64.06,320.16 L68.12,324.18 L72.19,328.08 L76.25,331.85 L80.31,335.5 L84.38,339.03 L88.44,342.45 L92.5,345.76 L96.56,348.97 L100.62,352.07 L104.69,355.08 L108.75,357.98 L112.81,360.8 L116.88,363.52 L120.94,366.16 L125.0,368.71 L129.06,371.18 L133.12,373.58 L137.19,375.89 L141.25,378.13 L145.31,380.3 L149.38,382.41 L153.44,384.44 L157.5,386.41 L161.56,388.31 L165.62,390.16 L169.69,391.94 L173.75,393.67 L177.81,395.35 L181.88,396.96 L185.94,398.53 L190.0,400.05 L194.06,401.52 L198.12,402.94 L202.19,404.32 L206.25,405.65 L210.31,406.94 L214.38,408.19 L218.44,409.4 L222.5,410.57 L226.56,411.7 L230.62,412.8 L234.69,413.86 L238.75,414.89 L242.81,415.88 L246.88,416.85 L250.94,417.78 L255.0,418.68 L259.06,419.56 L263.12,420.4 L267.19,421.22 L271.25,422.01 L275.31,422.78 L279.38,423.52 L283.44,424.24 L287.5,424.94 L291.56,425.61 L295.62,426.26 L299.69,426.89 L303.75,427.5 L307.81,428.1 L311.88,428.67 L315.94,429.22 L320.0,429.76 L324.06,430.28 L328.12,430.78 L332.19,431.27 L336.25,431.74 L340.31,432.19 L344.38,432.64 L348.44,433.06 L352.5,433.48 L356.56,433.88 L360.62,434.27 L364.69,434.64 L368.75,435.0 L372.81,435.36 L376.88,435.7 L380.94,436.03 L385.0,436.34 L389.06,436.65 L393.12,436.95 L397.19,437.24 L401.25,437.52 L405.31,437.79 L409.38,438.06 L413.44,438.31 L417.5,438.56 L421.56,438.79 L425.62,439.02 L429.69,439.25 L433.75,439.46 L437.81,439.67 L441.88,439.87 L445.94,440.07 L450.0,440.26" fill="none" stroke="#2563eb" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4892;0.4894;1.0000" values="0;0;1;1"/></path>
 <text x="454.0" y="444.25956810543994" text-anchor="start" style="font-size:11px;font-weight:700;fill:#2563eb" opacity="0">B 4%<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4892;0.4894;1.0000" values="0;0;1;1"/></text>
 <rect x="490" y="276" width="440" height="190" fill="#ffffff" stroke="#e5484d" stroke-width="1.8" rx="6"/>
-<text x="490" y="266" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">③ 遠い山が、物の色と、空の色の、どちらに近いか</text>
+<text x="490" y="266" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">③ 遠い山が物の色と、空の色の、どちらに近いか</text>
 <g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.5403;0.5404;1.0000" values="0;0;1;1"/><rect x="510" y="312" width="60" height="32" fill="#b1c4fb" stroke="#94a3b8" stroke-width="1.5"/>
 <text x="582" y="333" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">48 km 先の山   R 0.45 / G 0.56 / B 0.96</text>
 </g>
@@ -94,8 +94,8 @@ float3 final_color = scene_color * transmittance + inscattered;
 <text x="430" y="498" text-anchor="start" style="font-size:24px;font-weight:700;fill:#e5484d" opacity="0">13<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6424;0.6426;1.0000" values="0;0;1;1"/></text>
 <text x="480" y="498" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">(×0.01。近い山 → 48 km 先)</text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">遠くの物は、色が薄くなり、青みを帯びる(空気遠近法)<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">距離を増やすと、山の色が、空の色へ近づく<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;0.4126;0.4128;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">赤は残り、青は先に消える。代わりに、空気が、青い光を足す<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4126;0.4128;0.6892;0.6894;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">距離を増やすと、山の色が空の色へ近づく<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0637;0.0638;0.4126;0.4128;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">赤は残り、青は先に消える。代わりに、空気が青い光を足す<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4126;0.4128;0.6892;0.6894;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">遠景を空の色に近づけると、奥行きが出る<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6892;0.6894;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -105,7 +105,7 @@ float3 final_color = scene_color * transmittance + inscattered;
 
 Hillaire の方式（EGSR 2020、"A Scalable and Production Ready Sky and Atmosphere Rendering Technique"）では、カメラの前方に画面に合わせた 3D テクスチャ（froxel 格子）を用意します。解像度は 32×32×32 程度の小さなものです。x と y が画面上の位置、z がカメラからの距離（深度スライス）に対応します。
 
-毎フレーム、この 3D テクスチャの各セルで、「カメラからそのセルまでの視線」に沿って、単散乱をレイマーチで積分します。各セルにはそこまでの散乱光（RGB）と透過率（アルファに、RGB の平均値）を保存します。多重散乱は別に用意した小さな LUT（Multi-Scattering LUT）から近似して足します（[Multiple Scattering](../scattering/multiple-scattering.md)）。
+毎フレーム、この 3D テクスチャの各セルで、「カメラからそのセルまでの視線」に沿って、単散乱をレイマーチで積分します。各セルにはそこまでの散乱光（RGB）と透過率（アルファに RGB の平均値）を保存します。多重散乱は別に用意した小さな LUT（Multi-Scattering LUT）から近似して足します（[Multiple Scattering](../scattering/multiple-scattering.md)）。
 
 実行時は画面のピクセルの深度から、対応するスライスを求めその位置で LUT を 1 回引くだけです。フォグの計算はピクセルあたりテクスチャ 1 回の読み込みで済みます。LUT が小さいので生成のコストも小さく（0.1 ms 前後）、品質と速さを両立できます。
 
@@ -113,31 +113,31 @@ LUT の距離方向は線形でなく、近くを細かく取る非線形な配�
 
 ## 物理ベースの空気遠近法
 
-<strong>簡易な霧</strong>（[Fog Equations](fog-equation.md)）は、霧の色と濃さを手で決めます。物理ベースの空気遠近法は大気の散乱（[Atmosphere Model](../scattering/atmosphere-model.md)）から、霧の色と濃さを計算します。時間帯（朝、昼、夕）やカメラの高度で自動的に、霧の色が変わります。
+<strong>簡易な霧</strong>（[Fog Equations](fog-equation.md)）は、霧の色と濃さを手で決めます。物理ベースの空気遠近法は大気の散乱（[Atmosphere Model](../scattering/atmosphere-model.md)）から、霧の色と濃さを計算します。時間帯（朝、昼、夕）やカメラの高度で自動的に霧の色が変わります。
 
 ## 何が物理的か
 
-<strong>遠くの物が霞む</strong>のは 物から、カメラまでの空気が 2 つのことを、行うためです。
+<strong>遠くの物が霞む</strong>のは 物から、カメラまでの空気が 2 つのことを行うためです。
 
 | 効果 | 内容 |
 | --- | --- |
-| 減衰（透過率） | 物から来た光が、散乱・吸収で一部、失われる（青の方が減りやすい） |
-| 内向き散乱（インスキャッター） | 太陽や空の光が、視線の途中でカメラの方へ散乱して、足される（空と同じ色） |
+| 減衰（透過率） | 物から来た光が散乱・吸収で一部、失われる（青の方が減りやすい） |
+| 内向き散乱（インスキャッター） | 太陽や空の光が視線の途中でカメラの方へ散乱して、足される（空と同じ色） |
 
 ```text
 カメラに届く色 = 物の色 × 透過率  +  内向き散乱（視線に沿って、足された、散乱光）
 ```
 
-1 つ目は 霧の式と同じ（物を暗くし色を、変える）。2 つ目が霧の色（霧の色に近づく、部分）に相当し物理ベースでは計算で、求まります。
+1 つ目は 霧の式と同じ（物を暗くし色を変える）。2 つ目が霧の色（霧の色に近づく、部分）に相当し物理ベースでは計算で、求まります。
 
 ## Aerial Perspective LUT
 
 Hillaire（2020）の方式は、<strong>カメラの前方の空間</strong>を 3D テクスチャ（32×32×32）に分割し、各セルにカメラからそのセルまでの、内向き散乱と透過率を保存します（[Hillaire 2020: Four LUTs](../scattering/hillaire.md)）。
 
 ```hlsl
-// 物体の、色に、空気遠近法を、適用する（ピクセル シェーダーの、最後）。
+// 物体の、色に空気遠近法を適用する（ピクセル シェーダーの、最後）。
 float3 ApplyAerialPerspective(float3 scene_color, float2 screen_uv, float distance_m) {
-  // 距離を、LUT の、奥行き方向の座標へ（近くを、細かく）。
+  // 距離を LUT の、奥行き方向の座標へ（近くを細かく）。
   float slice = DistanceToSlice(distance_m);
   float4 ap = g_aerial_perspective_lut.SampleLevel(g_linear_clamp, float3(screen_uv, slice), 0);
 ```
@@ -145,8 +145,8 @@ float3 ApplyAerialPerspective(float3 scene_color, float2 screen_uv, float distan
 画面上の位置 `screen_uv` と距離から、LUT の セルを引きます。1 回のテクスチャ読み込みです。
 
 ```hlsl
-  float3 inscatter = ap.rgb;                           // この距離までに、空気が、足した光
-  float transmittance = 1.0 - ap.a;                    // 物体の光が、届く割合
+  float3 inscatter = ap.rgb;                           // この距離までに、空気が足した光
+  float transmittance = 1.0 - ap.a;                    // 物体の光が届く割合
   return scene_color * transmittance + inscatter;
 }
 ```
@@ -158,7 +158,7 @@ float3 ApplyAerialPerspective(float3 scene_color, float2 screen_uv, float distan
 LUT の奥行き方向の <strong>分割</strong>は、近くを細かく、遠くを粗くします。近くの霞は変化が急で遠くはゆるやかなためです。
 
 ```hlsl
-// 距離（m）→ スライス（0〜1）。距離の、平方根に比例させて、近くを、細かくする。
+// 距離（m）→ スライス（0〜1）。距離の、平方根に比例させて、近くを細かくする。
 float DistanceToSlice(float distance_m) {
   const float kMaxDistance = 32000.0;                  // 32 km
   return sqrt(saturate(distance_m / kMaxDistance));
@@ -169,7 +169,7 @@ float SliceToDistance(float slice) {
 }
 ```
 
-平方根で 近くにスライスを、集めるのが簡単で効果的な割り当てです。
+平方根で 近くにスライスを集めるのが簡単で効果的な割り当てです。
 
 ## 簡易な霧との違い
 
@@ -177,7 +177,7 @@ float SliceToDistance(float slice) {
 | --- | --- | --- |
 | 霧の色 | 手で決める | 大気から、計算（時間帯で自動で変わる） |
 | 夕焼け | 手で色を変える | 自動（太陽が低いと、赤い霞） |
-| 太陽の方向 | 考慮しない | 太陽に、向かうと明るい霞（ミー散乱の、前方散乱） |
+| 太陽の方向 | 考慮しない | 太陽に向かうと明るい霞（ミー散乱の、前方散乱） |
 | 高度 | 考慮しない | 高い所から見ると霧の濃さが、変わる |
 | 空との整合 | 手で合わせる（ずれやすい） | 自動（同じ、大気の計算） |
 | コスト | 最小 | 小（LUT の更新 + 1 回の読み込み） |
@@ -193,14 +193,14 @@ float SliceToDistance(float slice) {
 太陽の反対を見る:   視線と太陽が、逆向き   → 後方散乱は、弱い → 霞が、暗く、青い
 ```
 
-この 方向による違いが 景色に、立体感を与えます。簡易な霧では全方向で同じ色になり、平板です。
+この 方向による違いが 景色に立体感を与えます。簡易な霧では全方向で同じ色になり、平板です。
 
 ## コスト
 
 | 処理 | コスト |
 | --- | --- |
 | Aerial Perspective LUT の、更新 | 0.1〜0.2 ms |
-| 物体ごとの適用 | テクスチャ 1 回（物体の、ピクセル シェーダーに数命令を、足すだけ） |
+| 物体ごとの適用 | テクスチャ 1 回（物体の、ピクセル シェーダーに数命令を足すだけ） |
 
 <strong>物体の数に関係なく</strong>、LUT を 1 回、更新し各物体は引くだけなので、軽く済みます。
 

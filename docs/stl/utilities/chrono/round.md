@@ -85,7 +85,7 @@ C++17 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] duration / time_point を、指定した単位に四捨五入する
+    - [x] duration / time_point を指定した単位に四捨五入する
     - [x] duration にも time_point にも使える
     - [x] 丸め方で使い分ける
 

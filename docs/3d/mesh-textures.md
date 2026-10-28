@@ -112,7 +112,7 @@ device->CreateBuffer(&ib_desc, &ib_data, &index_buffer);
 
 ## 入力レイアウト
 
-**頂点バッファの中身の並び**を、GPU に教えるのが入力レイアウトです。頂点シェーダーの入力（セマンティクス）と対応させます。
+**頂点バッファの中身の並び**を GPU に教えるのが入力レイアウトです。頂点シェーダーの入力（セマンティクス）と対応させます。
 
 ```cpp
 D3D11_INPUT_ELEMENT_DESC layout[] = {
@@ -216,7 +216,7 @@ context->PSSetSamplers(0, 1, sampler.GetAddressOf());
 <rect x="30" y="40" width="30" height="30" fill="#2a4fa8"/><rect x="60" y="40" width="30" height="30" fill="#e5e5e5"/><rect x="90" y="40" width="30" height="30" fill="#2a4fa8"/><rect x="120" y="40" width="30" height="30" fill="#e5e5e5"/>
 <rect x="30" y="70" width="30" height="30" fill="#e5e5e5"/><rect x="60" y="70" width="30" height="30" fill="#2a4fa8"/><rect x="90" y="70" width="30" height="30" fill="#e5e5e5"/><rect x="120" y="70" width="30" height="30" fill="#2a4fa8"/>
 </g>
-<text x="20" y="130">拡大しても、マスの色が、そのまま</text><text x="20" y="152">→ ピクセルアート向き</text>
+<text x="20" y="130">拡大しても、マスの色がそのまま</text><text x="20" y="152">→ ピクセルアート向き</text>
 <text x="320" y="22" class="fig-title">LINEAR（線形補間）：なめらか</text>
 <defs><linearGradient id="lg1" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#2a4fa8"/><stop offset="0.5" stop-color="#9aa7c9"/><stop offset="1" stop-color="#2a4fa8"/></linearGradient></defs>
 <rect x="330" y="40" width="120" height="60" fill="url(#lg1)" stroke="currentColor"/>
@@ -235,11 +235,11 @@ context->PSSetSamplers(0, 1, sampler.GetAddressOf());
 <text x="20" y="22" class="fig-title">WRAP（繰り返す）</text>
 <rect x="30" y="40" width="40" height="40" fill="#2a4fa8" stroke="currentColor"/><rect x="70" y="40" width="40" height="40" fill="#2a4fa8" stroke="currentColor"/><rect x="110" y="40" width="40" height="40" fill="#2a4fa8" stroke="currentColor"/>
 <text x="44" y="62" style="fill:#fff">絵</text><text x="84" y="62" style="fill:#fff">絵</text><text x="124" y="62" style="fill:#fff">絵</text>
-<text x="20" y="110">0〜1 の外では、画像が、</text><text x="20" y="130">タイルのように並ぶ（床・壁）</text>
+<text x="20" y="110">0〜1 の外では、画像が </text><text x="20" y="130">タイルのように並ぶ（床・壁）</text>
 <text x="320" y="22" class="fig-title">CLAMP（端を伸ばす）</text>
 <rect x="330" y="40" width="40" height="40" fill="#2a4fa8" stroke="currentColor"/><rect x="370" y="40" width="40" height="40" fill="#5f8ff0" stroke="currentColor"/><rect x="410" y="40" width="40" height="40" fill="#5f8ff0" stroke="currentColor"/>
 <text x="344" y="62" style="fill:#fff">絵</text><text x="384" y="62" style="fill:#fff">端</text><text x="424" y="62" style="fill:#fff">端</text>
-<text x="320" y="110">外では、端の色が、</text><text x="320" y="130">そのまま伸びる（空・UI）</text>
+<text x="320" y="110">外では、端の色が </text><text x="320" y="130">そのまま伸びる（空・UI）</text>
 </svg>
 
 UV が `0..1` の外に出たときの扱いです。
@@ -253,7 +253,7 @@ UV が `0..1` の外に出たときの扱いです。
 
 ## ミップマップ
 
-**テクスチャを半分・4 分の 1 ... と縮小した画像を、あらかじめ作っておく**仕組みです。遠くの面では小さい画像を使うのでちらつき（モアレ）が減り、キャッシュにも優しくなります。
+**テクスチャを半分・4 分の 1 ... と縮小した画像をあらかじめ作っておく**仕組みです。遠くの面では小さい画像を使うのでちらつき（モアレ）が減り、キャッシュにも優しくなります。
 
 <svg class="fig flow" viewBox="0 0 704 112" role="img" aria-label="ミップマップ：半分ずつ縮小した画像を用意する（メモリは約 1.33 倍）"><defs><marker id="fl37951" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ミップマップ：半分ずつ縮小した画像を用意する（メモリは約 1.33 倍）</text><line x1="111.0" y1="64.0" x2="169.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37951)"/><line x1="255.0" y1="64.0" x2="313.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37951)"/><line x1="399.0" y1="64.0" x2="457.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37951)"/><line x1="539.0" y1="64.0" x2="597.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37951)"/><rect x="28.0" y="44.0" width="80" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="68.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">512×512</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="172.0" y="44.0" width="80" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="212.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">256×256</text><circle cx="174.0" cy="46.0" r="10" fill="#2ea043"/><text x="174.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="316.0" y="44.0" width="80" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="356.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">128×128</text><circle cx="318.0" cy="46.0" r="10" fill="#e5a828"/><text x="318.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="460.0" y="44.0" width="76" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="498.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">...</text><circle cx="462.0" cy="46.0" r="10" fill="#e5484d"/><text x="462.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="600.0" y="44.0" width="76" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="638.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">1×1</text><circle cx="602.0" cy="46.0" r="10" fill="#9664e6"/><text x="602.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text></svg>
 
@@ -283,7 +283,7 @@ UV が `0..1` の外に出たときの扱いです。
 | --- | --- |
 | 頂点の共有（インデックス） | メモリ・頂点処理を減らす |
 | 頂点のフォーマットを小さく | 法線を `R10G10B10A2`、UV を `half` に |
-| 頂点キャッシュの最適化 | 三角形の並びを、GPU のキャッシュに優しく並べ替え（`DirectXMesh` の `OptimizeFaces`） |
+| 頂点キャッシュの最適化 | 三角形の並びを GPU のキャッシュに優しく並べ替え（`DirectXMesh` の `OptimizeFaces`） |
 | インスタンシング | 同じメッシュを大量に描く（木・草・弾）。1 回の描画命令で |
 | LOD | 遠くは頂点の少ないモデル |
 
@@ -378,16 +378,16 @@ UV が `0..1` の外に出たときの扱いです。
 ??? failure "メッシュが表示されない"
     巻き順（CW が表）、`FrontCounterClockwise`、入力レイアウト、`stride`、インデックスの型（`R16_UINT` / `R32_UINT`）を確認します。
 
-??? failure "テクスチャが、上下逆になる"
+??? failure "テクスチャが上下逆になる"
     UV の原点の違い（DX は左上）です。`v = 1 - v` で直します。
 
 ??? failure "入力レイアウトの作成が失敗する"
     頂点シェーダーの入力と、セマンティクス・フォーマットが一致していません。
 
-??? failure "テクスチャが、ぼやける・ちらつく"
+??? failure "テクスチャがぼやける・ちらつく"
     ミップマップとフィルター（`MIN_MAG_MIP_LINEAR`、異方性）を確認します。
 
-??? failure "色が、暗い・明るすぎる"
+??? failure "色が暗い・明るすぎる"
     sRGB の扱い（色は sRGB、法線マップなどは、sRGB にしない）を確認します。
 
 ??? failure "毎フレーム、バッファを作り直して遅い"

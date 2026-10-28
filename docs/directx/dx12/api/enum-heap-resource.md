@@ -70,7 +70,7 @@ GPU が書いて CPU が読む用のメモリです。GPU が計算した結果�
 
 #### D3D12_HEAP_TYPE_GPU_UPLOAD {#d3d12_heap_type_gpu_upload}
 
-CPU から直接書けて、GPU からも VRAM と同じくらい速く読めるヒープです。Resizable BAR（CPU が VRAM 全体を覗ける機能）が使える環境で、CPU が書いたデータを、アップロードのコピーを挟まずに GPU が読めます。比較的新しい種類で、使える Agility SDK と GPU が限られます。`D3D12_FEATURE_D3D12_OPTIONS16` の `GPUUploadHeapSupported` で確認してから使います。対応していなければ `UPLOAD` と `DEFAULT` の組み合わせに戻します。
+CPU から直接書けて、GPU からも VRAM と同じくらい速く読めるヒープです。Resizable BAR（CPU が VRAM 全体を覗ける機能）が使える環境で、CPU が書いたデータをアップロードのコピーを挟まずに GPU が読めます。比較的新しい種類で、使える Agility SDK と GPU が限られます。`D3D12_FEATURE_D3D12_OPTIONS16` の `GPUUploadHeapSupported` で確認してから使います。対応していなければ `UPLOAD` と `DEFAULT` の組み合わせに戻します。
 
 ## D3D12_CPU_PAGE_PROPERTY {#d3d12_cpu_page_property}
 
@@ -136,7 +136,7 @@ typedef enum D3D12_HEAP_FLAGS {
 } D3D12_HEAP_FLAGS;
 ```
 
-ヒープの性質を決めるフラグで、`|` で組み合わせます。`CreateCommittedResource` では引数に、`CreateHeap` では `D3D12_HEAP_DESC` のメンバーとして渡します。フラグのうち、ゲームでふつうに使うのは `NONE` と、`CreateHeap` で置ける物を限定する 3 つです。
+ヒープの性質を決めるフラグで、`|` で組み合わせます。`CreateCommittedResource` では引数に `CreateHeap` では `D3D12_HEAP_DESC` のメンバーとして渡します。フラグのうち、ゲームでふつうに使うのは `NONE` と、`CreateHeap` で置ける物を限定する 3 つです。
 
 #### D3D12_HEAP_FLAG_NONE {#d3d12_heap_flag_none}
 
@@ -188,11 +188,11 @@ typedef enum D3D12_HEAP_FLAGS {
 
 #### D3D12_HEAP_FLAG_TOOLS_USE_MANUAL_WRITE_TRACKING {#d3d12_heap_flag_tools_use_manual_write_tracking}
 
-値は 0x2000 です。PIX などのツールが、書き込みの追跡を手動で行うことを示します。自分で指定することはほとんどありません。
+値は 0x2000 です。PIX などのツールが書き込みの追跡を手動で行うことを示します。自分で指定することはほとんどありません。
 
 #### D3D12_HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES {#d3d12_heap_flag_allow_all_buffers_and_textures}
 
-値は 0 で、`NONE` と同じです。バッファとテクスチャのどれでも置けるという意味を、名前で示します。リソース ヒープ層 2 以上の GPU でしか通りません。
+値は 0 で、`NONE` と同じです。バッファとテクスチャのどれでも置けるという意味を名前で示します。リソース ヒープ層 2 以上の GPU でしか通りません。
 
 #### D3D12_HEAP_FLAG_ALLOW_ONLY_BUFFERS {#d3d12_heap_flag_allow_only_buffers}
 
@@ -204,7 +204,7 @@ typedef enum D3D12_HEAP_FLAGS {
 
 #### D3D12_HEAP_FLAG_ALLOW_ONLY_RT_DS_TEXTURES {#d3d12_heap_flag_allow_only_rt_ds_textures}
 
-値は 0x84 で、`DENY_BUFFERS | DENY_NON_RT_DS_TEXTURES` の組み合わせです。レンダー ターゲットと深度ステンシルのテクスチャだけを置けるヒープにします。画面と同じ大きさの描画先を、ヒープごと使い回すときに、この指定を使います。
+値は 0x84 で、`DENY_BUFFERS | DENY_NON_RT_DS_TEXTURES` の組み合わせです。レンダー ターゲットと深度ステンシルのテクスチャだけを置けるヒープにします。画面と同じ大きさの描画先をヒープごと使い回すときに、この指定を使います。
 
 ## D3D12_RESOURCE_DIMENSION {#d3d12_resource_dimension}
 
@@ -226,7 +226,7 @@ typedef enum D3D12_RESOURCE_DIMENSION {
 
 #### D3D12_RESOURCE_DIMENSION_BUFFER {#d3d12_resource_dimension_buffer}
 
-バイト列の並びです。頂点バッファ、インデックス バッファ、定数バッファ、構造化バッファが、すべてこれです。`Height`、`DepthOrArraySize`、`MipLevels` は 1、`Format` は `DXGI_FORMAT_UNKNOWN`、`Layout` は `ROW_MAJOR` にします。`Width` が大きさ（バイト）です。
+バイト列の並びです。頂点バッファ、インデックス バッファ、定数バッファ、構造化バッファがすべてこれです。`Height`、`DepthOrArraySize`、`MipLevels` は 1、`Format` は `DXGI_FORMAT_UNKNOWN`、`Layout` は `ROW_MAJOR` にします。`Width` が大きさ（バイト）です。
 
 #### D3D12_RESOURCE_DIMENSION_TEXTURE1D {#d3d12_resource_dimension_texture1d}
 
@@ -234,7 +234,7 @@ typedef enum D3D12_RESOURCE_DIMENSION {
 
 #### D3D12_RESOURCE_DIMENSION_TEXTURE2D {#d3d12_resource_dimension_texture2d}
 
-幅と高さを持つ 2 次元のテクスチャで、最もよく使います。通常の画像、レンダー ターゲット、深度バッファ、キューブマップ（`DepthOrArraySize` を 6）、テクスチャ配列が、すべてこの値です。
+幅と高さを持つ 2 次元のテクスチャで、最もよく使います。通常の画像、レンダー ターゲット、深度バッファ、キューブマップ（`DepthOrArraySize` を 6）、テクスチャ配列がすべてこの値です。
 
 #### D3D12_RESOURCE_DIMENSION_TEXTURE3D {#d3d12_resource_dimension_texture3d}
 
@@ -352,7 +352,7 @@ typedef enum D3D12_TEXTURE_COPY_TYPE {
     テクスチャは作れても、`CreateRenderTargetView` の呼び出しや、実行時のバリアでエラーになります。描き込むテクスチャは、作成時にフラグを付けます。
 
 ??? failure "RowPitch を 256 の倍数にしていない"
-    画像の行の幅を、そのまま `RowPitch` にすると、`CopyTextureRegion` が失敗します。アップロード用バッファには、256 の倍数に切り上げた幅で 1 行ずつコピーします。
+    画像の行の幅をそのまま `RowPitch` にすると、`CopyTextureRegion` が失敗します。アップロード用バッファには、256 の倍数に切り上げた幅で 1 行ずつコピーします。
 
 ## 関連ページ
 

@@ -14,7 +14,7 @@ tags:
 `#include <string_view>`
 </div>
 
-`u16string` を、コピーせずに見るだけの型です。
+`u16string` をコピーせずに見るだけの型です。
 
 !!! tip "ポイント"
     - `std::basic_string_view<char16_t>` の別名。

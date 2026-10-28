@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-型にポインタを付けたい。`std::add_pointer` は、<strong>型を指すポインタの型</strong>を返します。参照型の場合は、参照を外してからポインタにする点が、`T*` と直接書く場合との違いです。
+型にポインタを付けたい。`std::add_pointer` は、<strong>型を指すポインタの型</strong>を返します。参照型の場合は、参照を外してからポインタにする点が `T*` と直接書く場合との違いです。
 
 !!! tip "ポイント"
     - `std::add_pointer_t<int>` は `int*`

@@ -14,7 +14,7 @@ tags:
 `#include <string_view>`
 </div>
 
-`wstring` の中身を、コピーせずに見るだけの型です。Windows の API に渡す文字列を、関数の引数で受けるときに使います。
+`wstring` の中身をコピーせずに見るだけの型です。Windows の API に渡す文字列を関数の引数で受けるときに使います。
 
 !!! tip "ポイント"
     - `std::basic_string_view<wchar_t>` の別名。

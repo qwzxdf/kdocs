@@ -458,7 +458,7 @@ void reverse() noexcept;
 void merge(list& other);
 ```
 
-- ソート済みの `other` を、ソート済みの自分に合流させます。`other` は空になります
+- ソート済みの `other` をソート済みの自分に合流させます。`other` は空になります
 
 <div class="anim" data-label="a.merge(b)">
 1 4 7 | 2 5 8 # どちらも整列済み
@@ -518,7 +518,7 @@ iterator insert_range(const_iterator pos, R&& rg);
 
 - 計算量: O(挿入数 + 移動する要素数)
 
-範囲の要素を、`pos` の位置に挿入します。
+範囲の要素を `pos` の位置に挿入します。
 
 ### append_range <span class="ver ver-23">C++23</span> {#append_range data-toc-label="append_range"}
 
@@ -529,7 +529,7 @@ void append_range(R&& rg);
 
 - 計算量: O(追加数)
 
-範囲の要素を、末尾に追加します。`insert(end(), ...)` より意図が伝わります。
+範囲の要素を末尾に追加します。`insert(end(), ...)` より意図が伝わります。
 
 ### prepend_range <span class="ver ver-23">C++23</span> {#prepend_range data-toc-label="prepend_range"}
 
@@ -540,7 +540,7 @@ void prepend_range(R&& rg);
 
 - 計算量: O(追加数)
 
-範囲の要素を、先頭に追加します。
+範囲の要素を先頭に追加します。
 
 ### resize {#resize}
 

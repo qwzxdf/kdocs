@@ -14,7 +14,7 @@ tags:
 `#include <functional>`
 </div>
 
-`std::mem_fn(&Class::member)` は、**メンバ関数（またはメンバ変数）へのポインターを、`f(obj)` の形で呼べる関数オブジェクトにする**道具です。`transform` や `for_each` に渡して、各オブジェクトのメンバ関数を呼ぶときに使います。
+`std::mem_fn(&Class::member)` は、**メンバ関数（またはメンバ変数）へのポインターを `f(obj)` の形で呼べる関数オブジェクトにする**道具です。`transform` や `for_each` に渡して、各オブジェクトのメンバ関数を呼ぶときに使います。
 
 !!! tip "ポイント"
     - ranges のアルゴリズムは、メンバポインターをそのまま渡せる（`&Enemy::hp`）ので、`mem_fn` は不要なことが多い。
@@ -32,7 +32,7 @@ template <class M, class T>
 /* unspecified */ mem_fn(M T::* pm) noexcept;
 ```
 
-- メンバ関数のポインタを、`f(obj, 引数...)` の形で呼べる関数オブジェクトにします。今は `std::invoke` やプロジェクションで足ります
+- メンバ関数のポインタを `f(obj, 引数...)` の形で呼べる関数オブジェクトにします。今は `std::invoke` やプロジェクションで足ります
 
 ## 実際に動かしてみる
 

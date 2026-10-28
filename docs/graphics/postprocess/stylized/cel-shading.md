@@ -6,11 +6,11 @@ tags:
 
 # Cel Shading
 
-<strong>セル シェーディング（トゥーン シェーディング）</strong>は、陰影を滑らかなグラデーションではなく、数段階（2〜3 段）に区切る表現です。手描きアニメの「セル画」のように、「明るい面」「影の面」がくっきり分かれるので、アニメ調の絵になります。ライティングの結果（明るさ）を、段階に変換する関数が核で、ランプ テクスチャで自由に調整できます。写実的な高品質とは別の方向の表現で、画風に合うかどうかが基準です。このページでは、基本の段階化・ランプ テクスチャ・なめらかな境・スペキュラとリム ライト・影の色・影を受けるときの扱いを説明します。
+<strong>セル シェーディング（トゥーン シェーディング）</strong>は、陰影を滑らかなグラデーションではなく、数段階（2〜3 段）に区切る表現です。手描きアニメの「セル画」のように、「明るい面」「影の面」がくっきり分かれるので、アニメ調の絵になります。ライティングの結果（明るさ）を段階に変換する関数が核で、ランプ テクスチャで自由に調整できます。写実的な高品質とは別の方向の表現で、画風に合うかどうかが基準です。このページでは、基本の段階化・ランプ テクスチャ・なめらかな境・スペキュラとリム ライト・影の色・影を受けるときの扱いを説明します。
 
 !!! tip "ポイント"
-    - セル シェーディング ＝ <strong>ライティングの明るさを、数段階に区切る</strong>。
-    - 基本 ＝ <strong>`N·L`（拡散）を、しきい値で段階化</strong>。`step` や `smoothstep`。
+    - セル シェーディング ＝ <strong>ライティングの明るさを数段階に区切る</strong>。
+    - 基本 ＝ <strong>`N·L`（拡散）をしきい値で段階化</strong>。`step` や `smoothstep`。
     - ランプ テクスチャ：`N·L` を座標に色を引く 1D テクスチャ。アーティストが段階を自由に調整できる。
     - 境を少しぼかす（`smoothstep`）とちらつき・ジャギーが減る。
     - 影の色を暗い灰色でなく、色相を変えた暗い色に。
@@ -26,7 +26,7 @@ tags:
 <strong>普通のライティング</strong>は、`N·L`（法線と光の向きの内積）で、明るさが滑らかに変わります。セルではこれをしきい値で数段階に変換します。
 
 <svg class="fig illust" viewBox="0 0 780 230" role="img" aria-label="セル シェーディング">
-<text x="20" y="26" class="fig-title">滑らかな明るさを、段階に区切る</text>
+<text x="20" y="26" class="fig-title">滑らかな明るさを段階に区切る</text>
 <defs><linearGradient id="cs-smooth" x1="0" x2="1"><stop offset="0" stop-color="#1e293b"/><stop offset="1" stop-color="#f8e9c8"/></linearGradient></defs>
 <g transform="translate(40,56)">
 <text x="0" y="-8" style="font-size:13px;font-weight:700">通常（滑らか）</text>
@@ -88,7 +88,7 @@ float3 CelShadeRamp(float3 albedo, float3 normal, float3 light_dir) {
 <defs><marker id="arr-cel-ramp" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">セル シェーディング: N·L を、段に区切ると、アニメ調の影になる。段数でタッチが変わる</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">セル シェーディング: N·L を段に区切ると、アニメ調の影になる。段数でタッチが変わる</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">球の断面(光は左上)。N·L を 2・3・4 段に区切って塗る。なめらかな陰影と、どれだけ違うかを計算する</text>
 <text x="60.0" y="108" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">なめらか(通常)</text>
 <rect x="60.0" y="112.0" width="14.8" height="34.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0698" values="#e5e7eb;#1f1f1f"/></rect>
@@ -308,7 +308,7 @@ float3 CelShadeRamp(float3 albedo, float3 normal, float3 light_dir) {
 <text x="130" y="438" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937" opacity="0">明・中・影。もっとも標準的なアニメ調<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.8742;0.8744;1.0000" values="0;0;1;1"/></text>
 <text x="50" y="460" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2563eb" opacity="0">4 段<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.9207;0.9209;1.0000" values="0;0;1;1"/></text>
 <text x="130" y="460" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937" opacity="0">段が多い分、なめらかに近づく。グラデーション寄り<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.9207;0.9209;1.0000" values="0;0;1;1"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">なめらかな陰影を、段に区切る<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">なめらかな陰影を段に区切る<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">段が少ないほど、くっきり。多いほど、なめらかに近づく<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.8277;0.8279;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">段の境目の位置(しきい値)で、影の形が決まる。ランプ画像で、アーティストが調整する<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.8277;0.8279;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -352,7 +352,7 @@ float RimLight(float3 normal, float3 view_dir, float power, float threshold) {
 
 ## 影を受ける
 
-<strong>シャドウ マップの影</strong>（[Shadows](../../shadows/index.md)）をセルの陰影に取り込むには影の判定値（0〜1）を、`N·L` と掛け合わせます。
+<strong>シャドウ マップの影</strong>（[Shadows](../../shadows/index.md)）をセルの陰影に取り込むには影の判定値（0〜1）を `N·L` と掛け合わせます。
 
 ```hlsl
 float shadow = SampleShadow(world_position);
@@ -361,7 +361,7 @@ float toon_input = n_dot_l * shadow;
 float lit = smoothstep(0.0, 0.02, toon_input);
 ```
 
-シャドウ マップの境が、PCF などで柔らかいと、セルの境がぎざぎざになるので、境の硬さを合わせる（影も段階化する）のがよいです。
+シャドウ マップの境が PCF などで柔らかいと、セルの境がぎざぎざになるので、境の硬さを合わせる（影も段階化する）のがよいです。
 
 ## より良いやり方
 
@@ -383,16 +383,16 @@ float lit = smoothstep(0.0, 0.02, toon_input);
 ??? failure "影が灰色っぽく、絵が汚い"
     影色に色相を持たせる。
 
-??? failure "複数のライトを、全部段階化して、ごちゃごちゃする"
+??? failure "複数のライトを全部段階化して、ごちゃごちゃする"
     メイン ライトだけセル化し、他は弱い環境光に。
 
-??? failure "顔に、鼻や顎の汚い影が出る"
+??? failure "顔に鼻や顎の汚い影が出る"
     顔の法線を平らにする（法線の補正）。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] セル シェーディング ＝ <strong>ライティングの明るさを、数段階に区切る</strong>
+    - [x] セル シェーディング ＝ <strong>ライティングの明るさを数段階に区切る</strong>
     - [x] `N·L` をしきい値で段階化。`smoothstep` で境を滑らかに
     - [x] ランプ テクスチャで画風を自由に調整
     - [x] 影は、色相を変えた暗い色に

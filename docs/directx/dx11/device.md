@@ -15,7 +15,7 @@ D3D11 のすべての出発点は <strong>デバイス</strong>（`ID3D11Device`
 !!! tip "ポイント"
     - <strong>デバイス = 作る</strong>（バッファ・テクスチャ・シェーダー・ステート・ビューの `Create…`）。<strong>コンテキスト = 命令する</strong>（`Draw`・`Dispatch`・`…Set…`・`Map`）。
     - 作成は `D3D11CreateDevice` 1 回。デバッグ ビルドでは `D3D11_CREATE_DEVICE_DEBUG` を付ける。
-    - 機能レベルの配列を渡すと GPU が対応する最も高いレベルが、選ばれる。
+    - 機能レベルの配列を渡すと GPU が対応する最も高いレベルが選ばれる。
     - コンテキストの命令は <strong>1 つのスレッドから</strong>出す（即時コンテキスト）。
     - 全部の COM オブジェクトは `ComPtr` で持つ。
 
@@ -27,7 +27,7 @@ D3D11 のすべての出発点は <strong>デバイス</strong>（`ID3D11Device`
 
 ## ID3D11Device
 
-デバイスは GPU 1 つ（のドライバー）を表すオブジェクトです。GPU 上のあらゆる物はデバイスが、作ります。
+デバイスは GPU 1 つ（のドライバー）を表すオブジェクトです。GPU 上のあらゆる物はデバイスが作ります。
 
 | 作るもの | 関数 |
 | --- | --- |
@@ -62,7 +62,7 @@ D3D11 のすべての出発点は <strong>デバイス</strong>（`ID3D11Device`
 | `OM` | 出力マージャー（レンダー ターゲット、深度、ブレンド） |
 | `CS` | 計算シェーダー |
 
-<strong>即時コンテキスト</strong>（`ID3D11DeviceContext`）の命令は 1 つのスレッドから出します。複数のスレッドで命令を作りたいときは、<strong>遅延コンテキスト</strong>（`CreateDeferredContext`）で、コマンド リストを作る方法が、ありますが効果は限定的です。マルチスレッドの描画が本命なら[DirectX 12](../dx12/index.md) を検討します。
+<strong>即時コンテキスト</strong>（`ID3D11DeviceContext`）の命令は 1 つのスレッドから出します。複数のスレッドで命令を作りたいときは、<strong>遅延コンテキスト</strong>（`CreateDeferredContext`）で、コマンド リストを作る方法がありますが効果は限定的です。マルチスレッドの描画が本命なら[DirectX 12](../dx12/index.md) を検討します。
 
 ## D3D11CreateDevice
 
@@ -98,11 +98,11 @@ HRESULT hr = D3D11CreateDevice(
     D3D11_SDK_VERSION,
     &device, &obtained, &context);
 if (FAILED(hr)) {
-  // 失敗: GPU が非対応、または、デバッグ レイヤーが、入っていない（下の表）
+  // 失敗: GPU が非対応、または、デバッグ レイヤーが入っていない（下の表）
 }
 ```
 
-`levels` の配列を高い順に渡すと GPU が対応する、最も高いレベルが `obtained` に返ります。11.1 を含めると一部の機能（UAV を頂点シェーダーで使うなど）が、使えます。
+`levels` の配列を高い順に渡すと GPU が対応する、最も高いレベルが `obtained` に返ります。11.1 を含めると一部の機能（UAV を頂点シェーダーで使うなど）が使えます。
 
 | 引数 | 内容 |
 | --- | --- |
@@ -137,7 +137,7 @@ device->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS, &options, sizeof(option
 
 | 症状 | 原因 |
 | --- | --- |
-| `DXGI_ERROR_SDK_COMPONENT_MISSING`（`0x887A002D`） | デバッグ レイヤーを要求したが Windows のオプション機能「グラフィックス ツール」が、入っていない |
+| `DXGI_ERROR_SDK_COMPONENT_MISSING`（`0x887A002D`） | デバッグ レイヤーを要求したが Windows のオプション機能「グラフィックス ツール」が入っていない |
 | `E_INVALIDARG`（Windows 7） | 機能レベル 11.1 を含めたが OS が非対応。リストから 11.1 を外して、再試行する |
 | `DXGI_ERROR_UNSUPPORTED` | GPU が機能レベル 10 以上に対応していない。`D3D_DRIVER_TYPE_WARP` で再試行する |
 
@@ -148,8 +148,8 @@ device->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS, &options, sizeof(option
 `ComPtr` はスコープを抜けると自動で、解放します。ただし、<strong>パイプラインに束ねたままのリソースは解放が遅れます</strong>。終了時やリソースの作り直しの前に `ClearState` を呼び束縛を外します。
 
 ```cpp
-context->ClearState();         // すべての束縛（シェーダー、リソース、レンダー ターゲット）を、外す
-context->Flush();              // 溜まっている命令を、GPU へ送る
+context->ClearState();         // すべての束縛（シェーダー、リソース、レンダー ターゲット）を外す
+context->Flush();              // 溜まっている命令を GPU へ送る
 ```
 
 ## よくあるミス

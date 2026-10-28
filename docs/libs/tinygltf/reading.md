@@ -7,10 +7,10 @@ tags:
 
 # tinygltf のデータの取り出し方
 
-[glTF の構造](structure.md)で見たように glTF の要素は、<strong>配列の番号（インデックス）</strong>でつながっています。このページはその番号をたどって、頂点・インデックス・マテリアル・テクスチャ・ノード・アニメーションを、C++（SimpleMath、DX11）で取り出す方法をまとめます。番号 → 配列を引く、という操作を順に重ねていく形です。
+[glTF の構造](structure.md)で見たように glTF の要素は、<strong>配列の番号（インデックス）</strong>でつながっています。このページはその番号をたどって、頂点・インデックス・マテリアル・テクスチャ・ノード・アニメーションを C++（SimpleMath、DX11）で取り出す方法をまとめます。番号 → 配列を引く、という操作を順に重ねていく形です。
 
 !!! tip "ポイント"
-    - <strong>番号はそのまま配列の添字</strong>：<strong>`model.meshes[node.mesh]`</strong> のように引く。使う前に `-1`（参照なし）を確認。
+    - <strong>番号はそのまま配列の添字</strong>：<strong>`model.meshes[node.mesh]`</strong> のように引く。使う前に `-1`（参照なし）を確認する。
     - 頂点データはaccessor → bufferView → buffer をたどって、先頭アドレス・間隔（stride）・個数を求める。
     - 先頭は `buffer.data` ＋ `bufferView.byteOffset` ＋ `accessor.byteOffset`。間隔は`accessor.ByteStride(bufferView)`。
     - インデックスの型は`unsigned byte / short / int` の 3 種類。`uint32_t` にそろえると楽。
@@ -431,7 +431,7 @@ for (const tinygltf::AnimationChannel& channel : anim.channels) {
 | `sampler.output` | 値の accessor の番号（`VEC3` / `VEC4`） |
 | 補間 | `LINEAR` は位置・拡大は `Lerp`、回転は `Slerp`（[回転](../../gamemath/rotation.md)） |
 
-ここでも番号の参照先の配列が、場所によって違います（`channel.sampler` はそのアニメーションの `samplers`）。
+ここでも番号の参照先の配列が場所によって違います（`channel.sampler` はそのアニメーションの `samplers`）。
 
 ## 読み込み後のまとめ方
 
@@ -474,11 +474,11 @@ ID3D11ShaderResourceView* GetTexture(int texture_index, bool srgb) {
 ??? failure "インデックスをすべて `unsigned short` として読む"
     型は accessor ごとに違います。`componentType` で分岐します。
 
-??? failure "プリミティブが、複数あるのに先頭だけを読む"
+??? failure "プリミティブが複数あるのに先頭だけを読む"
     マテリアルごとにプリミティブが分かれます。全部読みます。
 
 ??? failure "`JOINTS_0` の値で、直接 `model.nodes` を引く"
-    `skin.joints[値]` を引いた先が、ノード番号です。
+    `skin.joints[値]` を引いた先がノード番号です。
 
 ??? failure "ワールド行列を `parent_world * local`（逆順）で掛ける"
     行ベクトル規約では**`local * parent_world`** です。

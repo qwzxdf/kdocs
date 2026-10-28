@@ -41,7 +41,7 @@ PSO（Pipeline State Object）は、シェーダー、ブレンド、ラスタ�
 HRESULT ID3D12PipelineState::GetCachedBlob(ID3DBlob** ppBlob);
 ```
 
-PSO を作るときにドライバーがシェーダーから作った、その GPU 専用の機械語を、バイト列の塊として取り出します。
+PSO を作るときにドライバーがシェーダーから作った、その GPU 専用の機械語をバイト列の塊として取り出します。
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |

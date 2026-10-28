@@ -54,7 +54,7 @@ device->CreateFence(...);          // ふつうのポインタのように使う
 | [`As`](#as) | 別のインターフェースを取り出す |
 | [`Detach`](#detach) | 手放さずに、持ち主をやめる |
 | [`Attach`](#attach) | 生ポインタの持ち主になる |
-| [`IID_PPV_ARGS`](#iid_ppv_args) | 型と受け取り先を、まとめて書くマクロ |
+| [`IID_PPV_ARGS`](#iid_ppv_args) | 型と受け取り先をまとめて書くマクロ |
 
 ## メソッドの詳しい説明
 
@@ -149,7 +149,7 @@ template <typename U>
 HRESULT ComPtr<T>::As(ComPtr<U>* p) const;
 ```
 
-同じオブジェクトを、別のインターフェースの形で取り出します（COM の `QueryInterface` を包んだものです）。
+同じオブジェクトを別のインターフェースの形で取り出します（COM の `QueryInterface` を包んだものです）。
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
@@ -184,7 +184,7 @@ COM の外に所有権を渡すとき（C のコードに渡して向こうで `
 void ComPtr<T>::Attach(T* other);
 ```
 
-すでに参照カウントを 1 持っている生ポインタ `other` の持ち主に、この `ComPtr` がなります。`AddRef` は呼びません。いま入っている物があれば、先に手放します。
+すでに参照カウントを 1 持っている生ポインタ `other` の持ち主にこの `ComPtr` がなります。`AddRef` は呼びません。いま入っている物があれば、先に手放します。
 
 「生ポインタを返す古い API から受け取る」ときに使います。`AddRef` 済みの物を受け取ったのに、`ComPtr` のコンストラクターやコピーで包むと、参照カウントが 1 多くなって解放されません。`Attach` なら 1 つ分だけを引き継げます。`Detach` の逆の操作です。
 
@@ -194,7 +194,7 @@ void ComPtr<T>::Attach(T* other);
 #define IID_PPV_ARGS(ppType) __uuidof(**(ppType)), IID_PPV_ARGS_Helper(ppType)
 ```
 
-D3D12 や DXGI で「作った物を受け取る」関数は、`REFIID riid` と `void** ppv` の 2 つの引数がペアになっています。たとえば `ID3D12Device::CreateFence(..., REFIID riid, void** ppFence)` です。`riid` に取り出したいインターフェースの ID を、`ppv` に受け取り先のアドレスを渡します。
+D3D12 や DXGI で「作った物を受け取る」関数は、`REFIID riid` と `void** ppv` の 2 つの引数がペアになっています。たとえば `ID3D12Device::CreateFence(..., REFIID riid, void** ppFence)` です。`riid` に取り出したいインターフェースの ID を `ppv` に受け取り先のアドレスを渡します。
 
 ```cpp
 ComPtr<ID3D12Fence> fence;

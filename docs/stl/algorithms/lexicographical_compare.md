@@ -14,7 +14,7 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::lexicographical_compare` は、**2 つの範囲を辞書順（先頭から順に比べる）で比べて、最初の範囲のほうが小さいか**を返します。文字列の `<` と同じ規則を、`vector` など任意の範囲に使えます。
+`std::ranges::lexicographical_compare` は、**2 つの範囲を辞書順（先頭から順に比べる）で比べて、最初の範囲のほうが小さいか**を返します。文字列の `<` と同じ規則を `vector` など任意の範囲に使えます。
 
 !!! tip "ポイント"
     - 先頭から比べて、最初に違った要素で大小が決まる。
@@ -79,7 +79,7 @@ false
 | 引数 | 重要度 | 渡すもの | 意味 |
 | --- | --- | --- | --- |
 | `comp` | <span class="rank rank-rare">知ってるだけ</span> | `std::greater{}` など | 大小の決め方を変える |
-| `proj1` / `proj2` | <span class="rank rank-rare">知ってるだけ</span> | `&Type::member` | 比べる前に、メンバを取り出す |
+| `proj1` / `proj2` | <span class="rank rank-rare">知ってるだけ</span> | `&Type::member` | 比べる前にメンバを取り出す |
 
 ## ゲームでの使いどころ
 

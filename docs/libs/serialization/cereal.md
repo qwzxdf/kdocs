@@ -116,7 +116,7 @@ l file in hit 読む
 </div>
 
 
-`ar(name, level, items);` という同じ 1 行が、保存用のアーカイブが渡されたときは「書く」、読み込み用のアーカイブが渡されたときは「読む」になります。そのため、保存と読み込みで順番がずれることがありません。アーカイブを入れ替えれば、同じ `serialize` 関数でバイナリにも JSON にもなります。
+`ar(name, level, items);` という同じ 1 行が保存用のアーカイブが渡されたときは「書く」、読み込み用のアーカイブが渡されたときは「読む」になります。そのため、保存と読み込みで順番がずれることがありません。アーカイブを入れ替えれば、同じ `serialize` 関数でバイナリにも JSON にもなります。
 
 ## 関数一覧
 
@@ -637,7 +637,7 @@ void load(Archive& ar, const std::uint32_t version);
 | `version` | `const std::uint32_t` | データに書かれていたバージョン |
 
 - 読み込みのときだけ呼ばれます。`save` と同じ順番で読みます。
-- 読み込んだ後に、保存しなかったデータを作り直すのに使います。
+- 読み込んだ後に保存しなかったデータを作り直すのに使います。
 
 ```cpp
 template <class Archive>
@@ -767,7 +767,7 @@ CEREAL_REGISTER_TYPE_WITH_NAME(T, Name)
 | `T` | 型 | 登録する子のクラス |
 | `Name` | 文字列リテラル | 保存する型の名前（文字列）。クラス名を変えても古いデータを読めるようにする |
 
-- 親のポインタ（`unique_ptr<Enemy>` など）で保存する子のクラスを、すべて登録します。
+- 親のポインタ（`unique_ptr<Enemy>` など）で保存する子のクラスをすべて登録します。
 - 登録していない子のクラスを保存しようとすると、実行時に `cereal::Exception`（`Trying to save an unregistered polymorphic type`）になります。
 
 ### CEREAL_REGISTER_POLYMORPHIC_RELATION {#register_relation}
@@ -860,7 +860,7 @@ static void load_and_construct(Archive& ar, cereal::construct<T>& construct);
 | `ar` | `Archive&` | 入力アーカイブ |
 | `construct` | `construct<T>&` | 読んだ値でオブジェクトを作る道具。`construct(引数...)` でコンストラクタを呼ぶ |
 
-- デフォルトコンストラクタが無い型を、`unique_ptr` / `shared_ptr` 経由で読み込むときに使います。
+- デフォルトコンストラクタが無い型を `unique_ptr` / `shared_ptr` 経由で読み込むときに使います。
 - 普通は、デフォルトコンストラクタを用意する方が簡単です。
 
 ### binary_data {#binary_data}
@@ -972,7 +972,7 @@ JSONOutputArchive::Options(int precision = std::numeric_limits<double>::max_digi
     Windows でファイルを `std::ios::binary` なしで開くと、`\n`（0x0A）のバイトが `\r\n` に変換されて、データが壊れます。
 
 ??? failure "後からバージョンを付ける"
-    `CEREAL_CLASS_VERSION` の無い状態でリリースした型に、後からバージョンを付けると、古いデータが読めなくなります。最初から付けておきます。
+    `CEREAL_CLASS_VERSION` の無い状態でリリースした型に後からバージョンを付けると、古いデータが読めなくなります。最初から付けておきます。
 
 ??? failure "普通のポインタを保存しようとする"
     `Enemy* target;` はコンパイルエラーになります。所有しているなら `unique_ptr`、参照しているだけなら ID で保存します。

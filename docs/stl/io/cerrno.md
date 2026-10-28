@@ -58,10 +58,10 @@ true
 #define EDOM /* 実装定義の整数 */
 ```
 
-- 戻り値: `errno` の値：数学関数の引数が、定義域の外
+- 戻り値: `errno` の値：数学関数の引数が定義域の外
 - 計算量: なし
 
-`errno` が `EDOM` のとき、数学関数の引数が、定義域の外ことを表します。`std::errc` の対応する値（`std::errc::argument_out_of_domain`）と比べるほうが、移植性があります。
+`errno` が `EDOM` のとき、数学関数の引数が定義域の外ことを表します。`std::errc` の対応する値（`std::errc::argument_out_of_domain`）と比べるほうが、移植性があります。
 
 ### ERANGE {#ERANGE}
 
@@ -69,10 +69,10 @@ true
 #define ERANGE /* 実装定義の整数 */
 ```
 
-- 戻り値: `errno` の値：結果が、表せる範囲の外
+- 戻り値: `errno` の値：結果が表せる範囲の外
 - 計算量: なし
 
-`errno` が `ERANGE` のとき、結果が、表せる範囲の外ことを表します。`std::errc` の対応する値（`std::errc::result_out_of_range`）と比べるほうが、移植性があります。
+`errno` が `ERANGE` のとき、結果が表せる範囲の外ことを表します。`std::errc` の対応する値（`std::errc::result_out_of_range`）と比べるほうが、移植性があります。
 
 ### EILSEQ {#EILSEQ}
 

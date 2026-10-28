@@ -20,7 +20,7 @@
 
 | ライブラリ | 用途 | 一言で |
 | --- | --- | --- |
-| [Dear ImGui](imgui/index.md) | 即時モード GUI | ゲームのデバッグ画面・エディタを、数行で作る |
+| [Dear ImGui](imgui/index.md) | 即時モード GUI | ゲームのデバッグ画面・エディタを数行で作る |
 | [ImGuizmo](imgui/imguizmo.md) | 3D のギズモ | オブジェクトの移動・回転・拡大をマウスで操作する矢印 |
 | [ImSequencer](imgui/imsequencer.md) | タイムライン | アニメーションやイベントの時間軸を編集する |
 | [imgui-node-editor](imgui/node-editor.md) | ノード エディタ | ノードを線でつないで、グラフを編集する |

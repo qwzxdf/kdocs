@@ -64,7 +64,7 @@ static constexpr ObjectLayer NUM_LAYERS = 6;
 
 ### ブロードフェーズ レイヤー（BroadPhaseLayer）
 
-ブロードフェーズ（衝突判定の最初の絞り込み）が、物体を空間分割の木に入れるとき 「動かない物体」と「動く物体」を、別の木にします。木ごとに更新の頻度が違う（動かない木は、ほぼ更新不要）ので速くなります。
+ブロードフェーズ（衝突判定の最初の絞り込み）が物体を空間分割の木に入れるとき 「動かない物体」と「動く物体」を別の木にします。木ごとに更新の頻度が違う（動かない木は、ほぼ更新不要）ので速くなります。
 
 ```cpp
 namespace BroadPhaseLayers {
@@ -77,7 +77,7 @@ static constexpr uint NUM_LAYERS(2);
 | | オブジェクト レイヤー | ブロードフェーズ レイヤー |
 | --- | --- | --- |
 | 役割 | ゲームの衝突ルール（種類の分類） | 性能のための、大まかなグループ |
-| 数 | 多くてよい（種類に応じて） | 少数（2〜3 個が、普通） |
+| 数 | 多くてよい（種類に応じて） | 少数（2〜3 個が普通） |
 | 型 | `ObjectLayer`（`uint16_t`） | `BroadPhaseLayer`（`uint8_t`） |
 | 付ける対象 | 物体（Body） | オブジェクト レイヤーから、自動で決まる |
 
@@ -192,7 +192,7 @@ constexpr bool kCollisionMatrix[Layers::NUM_LAYERS][Layers::NUM_LAYERS] = {
 | 動かない物体どうしは `false` | 無駄な判定を避ける |
 | 自分の弾は自分に当たらない | プレイヤーの弾 × プレイヤー ＝ `false` |
 | トリガー（センサー） | 反応させたい相手とだけ `true` |
-| ビット マスクで書く方法も | 各レイヤーが、「衝突する相手」のビットを持つ（`1 << layer`）。マトリクスよりコンパクト |
+| ビット マスクで書く方法も | 各レイヤーが「衝突する相手」のビットを持つ（`1 << layer`）。マトリクスよりコンパクト |
 
 !!! note "ビット マスク版"
     `uint32_t mask[NUM_LAYERS]` に当たる相手のビットを立て、`ShouldCollide(a, b)` は `(mask[a] & (1u << b)) != 0` と書く方法もあります。レイヤーが 32 個以内のときに便利です。
@@ -279,10 +279,10 @@ DefaultObjectLayerFilter obj_filter(object_pair_filter, Layers::PLAYER_BULLET);
 ??? failure "3 つのクラスのうち 1 つを実装し忘れる"
     **`PhysicsSystem::Init` の引数が 3 つ**必要です。全部作ります。
 
-??? failure "`GetBroadPhaseLayer` の対応表が、レイヤーを足したのに更新されていない"
+??? failure "`GetBroadPhaseLayer` の対応表がレイヤーを足したのに更新されていない"
     新しいレイヤーの分をコンストラクタに足します（`NUM_LAYERS` も）。
 
-??? failure "衝突マトリクスが、非対称で片方からしか当たらない"
+??? failure "衝突マトリクスが非対称で片方からしか当たらない"
     `[a][b]` と `[b][a]` を同じにします。
 
 ??? failure "動かない物体どうしを `true` にして、重くなる"
@@ -291,7 +291,7 @@ DefaultObjectLayerFilter obj_filter(object_pair_filter, Layers::PLAYER_BULLET);
 ??? failure "ブロードフェーズ レイヤーをオブジェクト レイヤーと同じ数だけ作って、遅くなる"
     ブロードフェーズは少数（2〜3）で十分です。
 
-??? failure "弾が、味方に当たる"
+??? failure "弾が味方に当たる"
     衝突マトリクスの `PLAYER_BULLET × PLAYER` を `false` に。
 
 ## これだけ覚える

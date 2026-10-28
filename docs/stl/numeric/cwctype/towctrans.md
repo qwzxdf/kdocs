@@ -15,7 +15,7 @@ tags:
 `#include <cwctype>`
 </div>
 
-`std::wctrans` で選んだ変換を、実際に 1 文字に適用するのが `std::towctrans` です。`towlower` や `towupper` を、変換の種類を引数で受け取る形にしたものです。
+`std::wctrans` で選んだ変換を実際に 1 文字に適用するのが `std::towctrans` です。`towlower` や `towupper` を変換の種類を引数で受け取る形にしたものです。
 
 !!! tip "ポイント"
     - `std::towctrans(wc, desc)` は、`wc` に変換 `desc` を適用して返す

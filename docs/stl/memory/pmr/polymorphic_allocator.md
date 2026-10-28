@@ -14,7 +14,7 @@ tags:
 `#include <memory_resource>`
 </div>
 
-`std::pmr::polymorphic_allocator<T>` は、**実行時にメモリの取り先（メモリリソース）を切り替えられるアロケータ**です。`std::pmr::vector` などの pmr コンテナが、内部で使っています。コンテナの型を変えずに取り先を変えられるのが特徴です。
+`std::pmr::polymorphic_allocator<T>` は、**実行時にメモリの取り先（メモリリソース）を切り替えられるアロケータ**です。`std::pmr::vector` などの pmr コンテナが内部で使っています。コンテナの型を変えずに取り先を変えられるのが特徴です。
 
 !!! tip "ポイント"
     - 普通は直接使わず、`std::pmr::vector<int> v(&pool);` のようにリソースを渡すだけ。
@@ -56,7 +56,7 @@ T* allocate(std::size_t n);
 
 - 計算量: リソースによる
 
-`T` を `n` 個ぶんのメモリを、内部のメモリリソースから確保します。
+`T` を `n` 個ぶんのメモリを内部のメモリリソースから確保します。
 
 ### deallocate {#deallocate}
 
@@ -141,7 +141,7 @@ void construct(U* p, Args&&... args);
 
 - 計算量: 構築による
 
-`p` の場所に、オブジェクトを作ります。内部のメモリリソースを、要素にも引き継ぎます（uses-allocator 構築）。
+`p` の場所にオブジェクトを作ります。内部のメモリリソースを要素にも引き継ぎます（uses-allocator 構築）。
 
 ### resource {#resource}
 

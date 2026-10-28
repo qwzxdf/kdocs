@@ -6,12 +6,12 @@ tags:
 
 # Tone Mapping and Exposure
 
-<strong>現実の明るさ</strong>は、<strong>暗い部屋の 0.01 から、太陽の 100,000 まで</strong>、桁違いの幅があります。ディスプレイが出せる範囲は、<strong>0〜1（LDR）</strong>です。HDR で計算した光を、この狭い範囲に収めるのがトーンマッピングで、その前段で「どれだけ明るく撮るか」＝露出を決めます。このセクションでは、露出・各トーンマップ曲線・色相の保ち方・自動露出・ガンマを、1 つずつ別のページで説明します。
+<strong>現実の明るさ</strong>は、<strong>暗い部屋の 0.01 から、太陽の 100,000 まで</strong>、桁違いの幅があります。ディスプレイが出せる範囲は、<strong>0〜1（LDR）</strong>です。HDR で計算した光をこの狭い範囲に収めるのがトーンマッピングで、その前段で「どれだけ明るく撮るか」＝露出を決めます。このセクションでは、露出・各トーンマップ曲線・色相の保ち方・自動露出・ガンマを 1 つずつ別のページで説明します。
 
 ## 流れ
 
 <svg class="fig illust" viewBox="0 0 780 190" role="img" aria-label="トーンマップの流れ">
-<text x="20" y="26" class="fig-title">HDR のリニア画像が、画面に出るまで</text>
+<text x="20" y="26" class="fig-title">HDR のリニア画像が画面に出るまで</text>
 <defs><marker id="tm-arrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs>
 <g font-size="13">
 <rect x="20" y="60" width="140" height="80" rx="8" fill="#4c8bf5" fill-opacity="0.18" stroke="#4c8bf5" stroke-width="2"/>
@@ -24,14 +24,14 @@ tags:
 <text x="675" y="92" text-anchor="middle" style="font-weight:700">③ ガンマ（sRGB）</text><text x="675" y="114" text-anchor="middle" style="font-size:11px">画面へ</text>
 </g>
 <g stroke="currentColor" stroke-width="2"><line x1="162" y1="100" x2="208" y2="100" marker-end="url(#tm-arrow)"/><line x1="352" y1="100" x2="398" y2="100" marker-end="url(#tm-arrow)"/><line x1="542" y1="100" x2="588" y2="100" marker-end="url(#tm-arrow)"/></g>
-<text x="20" y="176" style="font-size:12px">自動露出は、①の倍率を、画面の明るさから毎フレーム決める。</text>
+<text x="20" y="176" style="font-size:12px">自動露出は、①の倍率を画面の明るさから毎フレーム決める。</text>
 </svg>
 
 ## なぜトーンマップが要るのか
 
-現実の明るさは、桁違いに幅広く変化します。晴天の太陽の下は、星明かりの 10 億倍以上明るいと言われます。ゲームの内部では、このような広い明るさの範囲を、HDR のリニア値（0 から数万以上）で計算します。ところが、ディスプレイが出せる明るさは、0 から 1（SDR の場合）の狭い範囲に限られます。この差を埋める処理がトーンマップです。
+現実の明るさは、桁違いに幅広く変化します。晴天の太陽の下は、星明かりの 10 億倍以上明るいと言われます。ゲームの内部では、このような広い明るさの範囲を HDR のリニア値（0 から数万以上）で計算します。ところが、ディスプレイが出せる明るさは、0 から 1（SDR の場合）の狭い範囲に限られます。この差を埋める処理がトーンマップです。
 
-最も単純な方法は、1 を超える値を 1 に切る（クランプ）ことですが、明るい部分が一様な白に潰れて、階調が失われます。トーンマップは、明るい部分を滑らかに圧縮して、白に向かって「ゆるやかに」近づけます。暗い部分はなるべくそのまま残し、明るい部分を大きく圧縮するこの特性を、カメラのフィルムが光に反応する様子（S 字の特性曲線）が参考にされました。
+最も単純な方法は、1 を超える値を 1 に切る（クランプ）ことですが、明るい部分が一様な白に潰れて、階調が失われます。トーンマップは、明るい部分を滑らかに圧縮して、白に向かって「ゆるやかに」近づけます。暗い部分はなるべくそのまま残し、明るい部分を大きく圧縮するこの特性をカメラのフィルムが光に反応する様子（S 字の特性曲線）が参考にされました。
 
 トーンマップには、もう 1 つ重要な役割があります。それは<strong>画作りの方向性を決める</strong>ことです。同じ HDR の絵でも、選ぶ曲線によって、コントラストの強さ、色の出方、ハイライトの白への向かい方が変わります。このセクションでは、露出（入力の明るさを揃える）から始めて、曲線の種類を順に見て、最後に自動露出と、ディスプレイへの出力を扱います。
 
@@ -58,8 +58,8 @@ tags:
 <defs><marker id="arr-tonemap-curves" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">トーンマップの比較: 明るさ(HDR)を、画面に出せる 0〜1 に押し込む</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">オレンジ色の物体を、暗い所から、白より 16 倍明るい所まで 32 段階で並べる。4 つの方法で、画面に出す</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">トーンマップの比較: 明るさ(HDR)を画面に出せる 0〜1 に押し込む</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">オレンジ色の物体を暗い所から、白より 16 倍明るい所まで 32 段階で並べる。4 つの方法で、画面に出す</text>
 <text x="70.0" y="96" text-anchor="start" style="font-size:14px;font-weight:700;fill:#64748b">切り捨て(1 で頭打ち)</text>
 <rect x="70.0" y="100.0" width="24.3" height="24.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0465" values="#e5e7eb;#412d17"/></rect>
 <rect x="94.0" y="100.0" width="24.3" height="24.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0493" values="#e5e7eb;#473119"/></rect>
@@ -231,7 +231,7 @@ tags:
 <text x="772" y="446" text-anchor="start" style="font-size:12px;font-weight:500;fill:#1f2937">色相 57°(差 34°)</text>
 <text x="772" y="468" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">なだらか</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ明るさの並びを、4 つの方法で画面に出す<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ明るさの並びを 4 つの方法で画面に出す<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">上から順に: 切り捨て、Reinhard、ACES、Hable<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0463;0.0465;0.7161;0.7163;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">切り捨てだと、明るい所が全部白に潰れる。曲線で圧縮すると、明るい所の差も残る<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.7161;0.7163;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>

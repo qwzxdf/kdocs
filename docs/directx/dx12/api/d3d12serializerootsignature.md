@@ -48,9 +48,9 @@ HRESULT D3D12SerializeRootSignature(
 
 `Version` には `D3D_ROOT_SIGNATURE_VERSION_1_0`（`D3D_ROOT_SIGNATURE_VERSION_1` も同じ値）を渡します。この関数が受け取る構造体はバージョン 1.0 の形だけなので、`D3D_ROOT_SIGNATURE_VERSION_1_1` を渡すと失敗します。
 
-`ppBlob` には、成功したときにバイト列が入ります。`GetBufferPointer` と `GetBufferSize` を、そのまま `CreateRootSignature` の第 2 引数と第 3 引数に渡します。`ppBlob` に `nullptr` を渡すのは、変換結果が要らないということなので意味がありません。
+`ppBlob` には、成功したときにバイト列が入ります。`GetBufferPointer` と `GetBufferSize` をそのまま `CreateRootSignature` の第 2 引数と第 3 引数に渡します。`ppBlob` に `nullptr` を渡すのは、変換結果が要らないということなので意味がありません。
 
-`ppErrorBlob` には、失敗したとき（記述が正しくないとき）に、原因を書いた文字列が入ります。成功したときは `nullptr` のままです。
+`ppErrorBlob` には、失敗したとき（記述が正しくないとき）に原因を書いた文字列が入ります。成功したときは `nullptr` のままです。
 
 戻り値は、成功なら `S_OK` です。記述の矛盾（ディスクリプタ テーブルの範囲が重なっている、など）は `E_INVALIDARG` で、詳しい理由は `ppErrorBlob` の文字列を見ます。
 

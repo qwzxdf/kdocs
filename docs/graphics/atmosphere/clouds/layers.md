@@ -12,7 +12,7 @@ tags:
     - 層積雲・積雲・巻雲など、高度で種類が違う。
     - 高さに応じて密度のプロファイルを変える。
     - 層ごとにレイマーチの範囲を限定する。
-    - 天気（晴れ・曇り）を、カバレッジで制御。
+    - 天気（晴れ・曇り）をカバレッジで制御。
 
 !!! info "このページを読む前に"
     - [Clouds](index.md)（このセクション全体の地図と、読む順番）
@@ -52,7 +52,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">雲の高さ方向の形: 雲の種類ごとに、高さに応じた、密度の山(プロファイル)を掛ける</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">高さ 0〜1(雲の層の下端〜上端)。積雲・層雲・積乱雲の密度の形と、垂直に積分した「厚さ」を、計算する</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">高さ 0〜1(雲の層の下端〜上端)。積雲・層雲・積乱雲の密度の形と、垂直に積分した「厚さ」を計算する</text>
 <rect x="30" y="96" width="560" height="310" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 高さと密度(横 = 密度、縦 = 高さ)</text>
 <line x1="110.0" y1="130" x2="110.0" y2="380" stroke="#94a3b8" stroke-width="2"/>
@@ -118,7 +118,7 @@ tags:
 
 ## 雲の種類と高さ
 
-雲には <strong>種類</strong>があり 高さと形が、違います。同じノイズから種類ごとの雲を、作るには高さ方向の密度の山（高さのグラデーション）を、変えます。
+雲には <strong>種類</strong>があり 高さと形が違います。同じノイズから種類ごとの雲を作るには高さ方向の密度の山（高さのグラデーション）を変えます。
 
 | 種類 | 高さ | 形 | 見た目 |
 | --- | --- | --- | --- |
@@ -133,7 +133,7 @@ tags:
 ```hlsl
 // 高さの割合 h と、種類 type（0 = 層雲、0.5 = 積雲、1 = 積乱雲）から、高さ方向の、密度の山を返す。
 float HeightGradient(float h, float type) {
-  // 層雲: 低い位置に、薄い層。0〜0.1 で立ち上がり、0.2〜0.3 で、消える。
+  // 層雲: 低い位置に薄い層。0〜0.1 で立ち上がり、0.2〜0.3 で、消える。
   float stratus = Remap(h, 0.0, 0.1, 0.0, 1.0) * Remap(h, 0.2, 0.3, 1.0, 0.0);
   // 積雲: 0〜0.1 で、立ち上がり（底は、はっきり）、0.6〜0.95 で、ゆるやかに、消える（上は、丸い）。
   float cumulus = Remap(h, 0.0, 0.1, 0.0, 1.0) * Remap(h, 0.6, 0.95, 1.0, 0.0);
@@ -141,24 +141,24 @@ float HeightGradient(float h, float type) {
   float cumulonimbus = Remap(h, 0.0, 0.07, 0.0, 1.0) * Remap(h, 0.9, 1.0, 1.0, 0.0);
 ```
 
-3 つの関数は どれも `Remap` で、立ち上がり（底）と消え方（上端）を、作ります。
+3 つの関数は どれも `Remap` で、立ち上がり（底）と消え方（上端）を作ります。
 
 - 層雲は高さ 0.2〜0.3 でもう、消える（薄い層）
 - 積雲は 0.6 からゆっくり消えて上端が丸い
-- 積乱雲はほぼ上端まで密度が、続く（高く伸びる）
+- 積乱雲はほぼ上端まで密度が続く（高く伸びる）
 
 ```hlsl
-  // 種類に応じて、3 つを、補間する（0〜0.5 で、層雲 → 積雲、0.5〜1 で、積雲 → 積乱雲）。
+  // 種類に応じて、3 つを補間する（0〜0.5 で、層雲 → 積雲、0.5〜1 で、積雲 → 積乱雲）。
   float a = lerp(stratus, cumulus, saturate(type * 2.0));
   return lerp(a, cumulonimbus, saturate(type * 2.0 - 1.0));
 }
 ```
 
-種類（0〜1）で 3 つの関数を、なめらかに補間します。天気マップ（[Cloud Density Model](density-model.md)）の、B チャンネルに種類を描いておけば、場所ごとに雲の種類が変わります。
+種類（0〜1）で 3 つの関数をなめらかに補間します。天気マップ（[Cloud Density Model](density-model.md)）の、B チャンネルに種類を描いておけば、場所ごとに雲の種類が変わります。
 
 ## 雲の層の構成
 
-<strong>雲を描く範囲</strong>は 惑星の周りの、2 つの球（底の球と上端の球）に、挟まれた殻です。
+<strong>雲を描く範囲</strong>は 惑星の周りの、2 つの球（底の球と上端の球）に挟まれた殻です。
 
 ```text
          上端の球（半径 = 惑星 + 雲の上端の、高さ）
@@ -178,19 +178,19 @@ float HeightGradient(float h, float type) {
 | 殻の厚さ | 2,500 m |
 
 ```hlsl
-// 視線が、雲の殻と、交わる区間（入口と、出口）を、求める。レイマーチは、この区間だけ。
+// 視線が雲の殻と、交わる区間（入口と、出口）を求める。レイマーチは、この区間だけ。
 float2 CloudLayerIntersect(float3 origin, float3 dir) {
   float2 t_bottom = RaySphere(origin, dir, g_planet_radius + g_cloud_bottom);
   float2 t_top = RaySphere(origin, dir, g_planet_radius + g_cloud_top);
   float height = length(origin) - g_planet_radius;
   float t_start, t_end;
-  if (height < g_cloud_bottom) {                         // カメラが、雲の下
+  if (height < g_cloud_bottom) {                         // カメラが雲の下
     t_start = t_bottom.y;                                // 底の球の、出口
     t_end = t_top.y;                                     // 上端の球の、出口
-  } else if (height > g_cloud_top) {                     // カメラが、雲の上
+  } else if (height > g_cloud_top) {                     // カメラが雲の上
     t_start = t_top.x;                                   // 上端の球の、入口
     t_end = t_bottom.x;                                  // 底の球の、入口
-  } else {                                               // カメラが、雲の中
+  } else {                                               // カメラが雲の中
     t_start = 0.0;
     t_end = (t_bottom.x > 0.0) ? t_bottom.x : t_top.y;
   }
@@ -202,7 +202,7 @@ float2 CloudLayerIntersect(float3 origin, float3 dir) {
 
 ## 複数の層
 
-<strong>低い雲</strong>（層雲、積雲）と 高い雲（巻雲）を、別の層として重ねることもできます。
+<strong>低い雲</strong>（層雲、積雲）と 高い雲（巻雲）を別の層として重ねることもできます。
 
 | 層 | 高さ | 描き方 |
 | --- | --- | --- |
@@ -213,7 +213,7 @@ float2 CloudLayerIntersect(float3 origin, float3 dir) {
 
 ## 雲の遠近
 
-<strong>地平線の近く</strong>では 視線が、雲の殻を長く通ります。レイマーチの距離が長くなり重いです。
+<strong>地平線の近く</strong>では 視線が雲の殻を長く通ります。レイマーチの距離が長くなり重いです。
 
 | 工夫 | 内容 |
 | --- | --- |

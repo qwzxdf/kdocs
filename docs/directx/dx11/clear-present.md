@@ -15,7 +15,7 @@ tags:
 !!! tip "ポイント"
     - `ClearRenderTargetView` でレンダー ターゲットを 1 色で塗る。深度は `ClearDepthStencilView`。
     - `Present(1, 0)` は垂直同期（モニターの更新）を待つ。`Present(0, 0)` は待たない。
-    - フリップ モデルの `Present` の後はレンダー ターゲットの束縛が、外れる。<strong>毎フレーム、`OMSetRenderTargets` を呼び直す</strong>。
+    - フリップ モデルの `Present` の後はレンダー ターゲットの束縛が外れる。<strong>毎フレーム、`OMSetRenderTargets` を呼び直す</strong>。
     - 毎フレームの骨格は「束ねる → 消す → 描く → 出す」。
 
 !!! info "このページを読む前に"
@@ -28,15 +28,15 @@ tags:
 
 ```cpp
 void RenderFrame() {
-  // ① 描き込み先を、パイプラインに、つなぐ（フリップ モデルは、Present のたびに、外れる）
+  // ① 描き込み先をパイプラインにつなぐ（フリップ モデルは、Present のたびに、外れる）
   ID3D11RenderTargetView* targets[] = {rtv.Get()};
   context->OMSetRenderTargets(1, targets, nullptr);
 
-  // ② ビューポートを、設定する（viewport.md）
+  // ② ビューポートを設定する（viewport.md）
   D3D11_VIEWPORT viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
   context->RSSetViewports(1, &viewport);
 
-  // ③ 画面を、塗りつぶす
+  // ③ 画面を塗りつぶす
   const float clear_color[4] = {0.1f, 0.2f, 0.4f, 1.0f};     // RGBA。リニア値（RTV が _SRGB なら、自動で変換）
   context->ClearRenderTargetView(rtv.Get(), clear_color);
 
@@ -93,9 +93,9 @@ HRESULT hr = swap_chain->Present(sync_interval, flags);
 
 ```cpp
 if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
-  // GPU が、リセットされた、または、取り外された。デバイスを、作り直す（resize.md）。
+  // GPU が、リセットされた、または、取り外された。デバイスを作り直す（resize.md）。
 } else if (hr == DXGI_STATUS_OCCLUDED) {
-  // ウィンドウが、隠れている（最小化など）。描かずに、少し待つ。
+  // ウィンドウが隠れている（最小化など）。描かずに、少し待つ。
 }
 ```
 
@@ -107,8 +107,8 @@ D3D11 は「状態を持つ」API で一度、設定した束縛は次の設定�
 
 | 場面 | 理由 |
 | --- | --- |
-| フリップ モデルの `Present` の後 | レンダー ターゲットの束縛が、外れる |
-| 別のパスの前 | 別のパスは別のシェーダー・リソース・ステートが、必要 |
+| フリップ モデルの `Present` の後 | レンダー ターゲットの束縛が外れる |
+| 別のパスの前 | 別のパスは別のシェーダー・リソース・ステートが必要 |
 | リソースの読み書きを切り替えるとき | 読みながら、書けない（[Render Target View (RTV)](render-target-view.md)） |
 
 `context->ClearState()` で全束縛を外せますが毎フレーム呼ぶと遅いのでフレームの最初と最後には、使いません。
@@ -132,10 +132,10 @@ previous = now;
 ??? failure "最初のフレームは、描けるのに 2 フレーム目から、真っ黒になる"
     フリップ モデルで `OMSetRenderTargets` を毎フレーム、呼んでいない。`Present` の後、束縛が外れる。
 
-??? failure "物が、前のフレームと重なって見える"
+??? failure "物が前のフレームと重なって見える"
     深度バッファをクリアしていない（古い深度が残って、新しい描画をはじく）。または、`ClearRenderTargetView` を呼んでいない。
 
-??? failure "フレームレートが、60 を超えてティアリングが出る"
+??? failure "フレームレートが 60 を超えてティアリングが出る"
     `Present(0, …)` で垂直同期を切っている。通常は、`Present(1, 0)`。
 
 ??? failure "GPU の更新後に突然、描画されなくなる"

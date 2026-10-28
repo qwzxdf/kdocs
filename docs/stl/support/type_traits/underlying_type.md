@@ -69,7 +69,7 @@ std::underlying_type_t<Shape> は int : true
 
 ## ゲームでの使いどころ
 
-`enum class` の値を、基底の型でファイルに書き出します。
+`enum class` の値を基底の型でファイルに書き出します。
 
 ```cpp
 using Raw = std::underlying_type_t<Color>;

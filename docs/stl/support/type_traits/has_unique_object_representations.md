@@ -15,10 +15,10 @@ tags:
 `#include <type_traits>`
 </div>
 
-2 つの値が等しいかを、バイト列の比較（`memcmp`）で判定してよいかを知りたい。ハッシュ値をバイト列から作ってよいかも同じ問題です。`std::has_unique_object_representations` は、<strong>等しい値が必ず等しいビット列になるか</strong>を調べます。
+2 つの値が等しいかをバイト列の比較（`memcmp`）で判定してよいかを知りたい。ハッシュ値をバイト列から作ってよいかも同じ問題です。`std::has_unique_object_representations` は、<strong>等しい値が必ず等しいビット列になるか</strong>を調べます。
 
 !!! tip "ポイント"
-    - `std::has_unique_object_representations_v<T>` は、`T` の値が、ビット表現と 1 対 1 に対応するか
+    - `std::has_unique_object_representations_v<T>` は、`T` の値がビット表現と 1 対 1 に対応するか
     - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
     - `std::has_unique_object_representations<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
     - 実行時のコストはない（コンパイル時に決まる）
@@ -109,7 +109,7 @@ C++17 から使えます。主要なコンパイラのすべてで使えます�
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `std::has_unique_object_representations_v<T>` は、`T` の値が、ビット表現と 1 対 1 に対応するか
+    - [x] `std::has_unique_object_representations_v<T>` は、`T` の値がビット表現と 1 対 1 に対応するか
     - [x] `static_assert` と `if constexpr` に使える
     - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
 

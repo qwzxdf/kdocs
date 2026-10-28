@@ -54,7 +54,7 @@ float3 ApplyVignette(float3 color, float2 uv) {
 | --- | --- |
 | `d = (uv − 0.5) × 2` | 画面中心を原点に±1 の座標（角で約 1.4） |
 | `length(d)` | 画面中心からの距離 |
-| `smoothstep` | 暗くなり始める距離〜暗くなりきる距離を、滑らかに |
+| `smoothstep` | 暗くなり始める距離〜暗くなりきる距離を滑らかに |
 | `intensity` | <strong>周辺の暗さの強さ（0〜1）</strong> |
 | `smoothness` | 暗さの移り変わりの幅 |
 | `roundness` | アスペクト比の補正。1 で画面の縦横比に沿った楕円、画面の高さで円なら調整 |

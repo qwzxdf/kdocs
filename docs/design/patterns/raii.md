@@ -6,13 +6,13 @@ tags:
 
 # RAII とスマートポインタ
 
-**RAII**（アールエーアイアイ、Resource Acquisition Is Initialization）は、C++ の設計の中心になる考え方です。「リソース（メモリ、ファイル、ロック、GPU のバッファなど）の取得を、オブジェクトの作成（コンストラクタ）で行い、解放を、オブジェクトの破棄（デストラクタ）で行う」というものです。C++ では、オブジェクトがスコープを出るとき、必ずデストラクタが呼ばれます（`return` でも、例外でも）。この性質を使うと、「解放し忘れ」がコードから消えます。スマートポインタ（`unique_ptr`、`shared_ptr`）は、RAII の代表例で、メモリを自動で解放してくれます。
+**RAII**（アールエーアイアイ、Resource Acquisition Is Initialization）は、C++ の設計の中心になる考え方です。「リソース（メモリ、ファイル、ロック、GPU のバッファなど）の取得をオブジェクトの作成（コンストラクタ）で行い、解放をオブジェクトの破棄（デストラクタ）で行う」というものです。C++ では、オブジェクトがスコープを出るとき、必ずデストラクタが呼ばれます（`return` でも、例外でも）。この性質を使うと、「解放し忘れ」がコードから消えます。スマートポインタ（`unique_ptr`、`shared_ptr`）は、RAII の代表例で、メモリを自動で解放してくれます。
 
 !!! tip "ポイント"
-    - <strong>「取る」と「返す」を、コンストラクタとデストラクタにまとめる</strong>。解放を、手で書かない。
+    - <strong>「取る」と「返す」をコンストラクタとデストラクタにまとめる</strong>。解放を手で書かない。
     - メモリは<strong>スマートポインタ（`unique_ptr`）</strong>、配列は `vector`、文字列は `string`、ファイルは `ifstream`、ロックは `lock_guard`。全部 RAII。
     - 自作のリソース（GPU のバッファ、ソケット、OS のハンドル）も、RAII のクラスで包む。
-    - `new` / `delete`、`fopen` / `fclose`、`lock` / `unlock` を、自分で書かない。
+    - `new` / `delete`、`fopen` / `fclose`、`lock` / `unlock` を自分で書かない。
     - 資源の解放を忘れる・例外で飛ばされる、が起きなくなる。
 
 !!! info "このページを読む前に"
@@ -45,7 +45,7 @@ void LoadLevel(const char* path) {
 | **途中の `return` で、解放が飛ぶ** | 出口が増えるたびに、全部の解放を書き足す必要がある |
 | 例外で、解放が飛ぶ | `Apply` が例外を投げると、`delete` に届かない |
 | 解放を書き忘れる | リークは、気づかれないまま溜まっていく |
-| 二重解放 | 解放したものを、もう一度解放する |
+| 二重解放 | 解放したものをもう一度解放する |
 
 ## 良い例：RAII のクラスに任せる
 
@@ -91,7 +91,7 @@ xfile _ _ # 次に file が片付く（デストラクタ）
 
 ## 自作の RAII クラス
 
-C の API やゲーム機の SDK のリソースを、RAII で包みます。
+C の API やゲーム機の SDK のリソースを RAII で包みます。
 
 ### unique_ptr に、解放の仕方を教える（簡単）
 
@@ -108,7 +108,7 @@ FilePtr file(std::fopen("save.dat", "rb"));   // 閉じるのは自動
 ### 自作のクラスで包む
 
 ```cpp
-// OpenGL のバッファ（glGenBuffers / glDeleteBuffers）を、RAII で包む
+// OpenGL のバッファ（glGenBuffers / glDeleteBuffers）を RAII で包む
 class GpuBuffer {
  public:
   GpuBuffer() { glGenBuffers(1, &id_); }              // 取得
@@ -142,7 +142,7 @@ class GpuBuffer {
 
 「コピー禁止 + ムーブ可能」の型は、Rule of Five（コピーコンストラクタ、コピー代入、ムーブコンストラクタ、ムーブ代入、デストラクタ）を考えます。可能なら、`unique_ptr` や `vector` のメンバだけで作って、自分では何も書かない（Rule of Zero、[クラス設計](../foundations/class-design.md)）のが一番です。
 
-### スコープ ガード（後始末を、スコープの最後にやる）
+### スコープ ガード（後始末をスコープの最後にやる）
 
 ```cpp
 // 関数を出るとき、必ず何かをする
@@ -181,7 +181,7 @@ enemies.push_back(std::move(enemy));                  // 持ち主を移す
 
 詳しい選び方は [所有権とライフタイム設計](../foundations/ownership-lifetime.md) を見てください。
 
-## RAII でない書き方を、RAII に直す
+## RAII でない書き方を RAII に直す
 
 | 手で書いていたこと | RAII の書き方 |
 | --- | --- |
@@ -202,13 +202,13 @@ enemies.push_back(std::move(enemy));                  // 持ち主を移す
 | ロード画面の「ロード中」表示 | `ScopedLoadingScreen`（作ると表示、破棄すると消える） |
 | プロファイラーの計測区間 | `ScopedTimer`（スコープの長さを自動で測る） |
 | ミューテックスのロック | `std::scoped_lock` |
-| デバッグの描画の状態（色、線の太さ）を、一時的に変える | `ScopedState`（戻すのを忘れない） |
+| デバッグの描画の状態（色、線の太さ）を一時的に変える | `ScopedState`（戻すのを忘れない） |
 | ファイルへの書き込み | `ofstream`。書き込み中にエラーでも、閉じられる |
 
 ## よくあるミス
 
-??? failure "RAII のクラスを、コピーできるままにしてしまう"
-    ハンドルを持つクラスを、コピーできる（コンパイラが勝手に作る）ままにすると、同じハンドルを 2 つのオブジェクトが持ち、**二重に解放**されます。`= delete` するか、`unique_ptr` のメンバだけで作ります。
+??? failure "RAII のクラスをコピーできるままにしてしまう"
+    ハンドルを持つクラスをコピーできる（コンパイラが勝手に作る）ままにすると、同じハンドルを 2 つのオブジェクトが持ち、**二重に解放**されます。`= delete` するか、`unique_ptr` のメンバだけで作ります。
 
 ??? failure "一時オブジェクトに名前を付けない"
     `std::lock_guard<std::mutex>(m);` と書くと、変数名がないので、すぐ破棄され、ロックが一瞬で外れます。`std::lock_guard<std::mutex> lock(m);` と、名前を付けます。
@@ -216,7 +216,7 @@ enemies.push_back(std::move(enemy));                  // 持ち主を移す
 ??? failure "デストラクタで例外を投げる"
     デストラクタは例外を出さない約束です。解放の失敗は、ログに出して、飲み込みます（`noexcept`）。
 
-??? failure "生ポインタを、新しい `unique_ptr` に 2 回入れる"
+??? failure "生ポインタを新しい `unique_ptr` に 2 回入れる"
     `unique_ptr<T> a(raw); unique_ptr<T> b(raw);` は、同じ生ポインタを 2 人が持ち、二重に解放します。ポインタは、作ったその場でスマートポインタに入れます（`make_unique`）。
 
 ??? failure "デストラクタの順番を考えない"

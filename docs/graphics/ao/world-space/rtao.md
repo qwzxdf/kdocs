@@ -28,7 +28,7 @@ tags:
 <defs><marker id="arr-rtao-rays" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">レイトレース AO: 半球にレイを N 本飛ばし、近くに当たった割合を、数える。N が少ないとノイズが出る</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">レイトレース AO: 半球にレイを N 本飛ばし、近くに当たった割合を数える。N が少ないとノイズが出る</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">床と壁の角(90°)の近くの点。cos 重みで 2 次元の向きを選び、半径 1.5 以内の壁に当たったら、遮蔽。N = 1・4・16・64</text>
 <rect x="30" y="96" width="440" height="260" fill="#ffffff" stroke="#e5aa28" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5aa28">① 点と壁(断面)</text>
@@ -164,7 +164,7 @@ tags:
 <text x="536" y="448" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">1 本 0.442 → 64 本 0.056(約 8.0 分の 1)</text>
 <text x="536" y="470" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">実際は 1 本で撮って、時間方向に重ねて(デノイズ)消す</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">近くに当たったレイの割合が、遮蔽<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">近くに当たったレイの割合が遮蔽<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">レイが少ないと、割合がばらつく(ノイズ)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8843;0.8844;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ノイズは、デノイズで消す。レイ自体は、画面の外の物にも当たる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8843;0.8844;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>

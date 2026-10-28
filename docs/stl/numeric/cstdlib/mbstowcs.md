@@ -13,7 +13,7 @@ tags:
 `#include <cstdlib>`
 </div>
 
-Windows の API の多くは、ワイド文字列（`wchar_t`）を要求します。ゲームの内部で持つマルチバイトの文字列（`char`）を、ワイド文字列に変換するのが `std::mbstowcs` です。
+Windows の API の多くは、ワイド文字列（`wchar_t`）を要求します。ゲームの内部で持つマルチバイトの文字列（`char`）をワイド文字列に変換するのが `std::mbstowcs` です。
 
 !!! tip "ポイント"
     - `std::mbstowcs(dest, src, n)` は文字列全体を変換する

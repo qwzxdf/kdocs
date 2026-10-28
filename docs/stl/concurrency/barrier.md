@@ -124,7 +124,7 @@ void wait(arrival_token&& arrival) const;
 
 | 場面 | 書き方 |
 | --- | --- |
-| 物理 → AI → 描画の段階を、全スレッドで揃えて進める | 各段階の終わりで `barrier.arrive_and_wait()` |
+| 物理 → AI → 描画の段階を全スレッドで揃えて進める | 各段階の終わりで `barrier.arrive_and_wait()` |
 
 ## よくあるミス
 

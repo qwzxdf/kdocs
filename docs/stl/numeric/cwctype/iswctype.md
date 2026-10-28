@@ -15,7 +15,7 @@ tags:
 `#include <cwctype>`
 </div>
 
-文字の種類を、実行時に選んだ分類で判定したい。`std::wctype` で分類を表す値を取り、`std::iswctype` で、ワイド文字がその分類に属するかを調べます。
+文字の種類を実行時に選んだ分類で判定したい。`std::wctype` で分類を表す値を取り、`std::iswctype` で、ワイド文字がその分類に属するかを調べます。
 
 !!! tip "ポイント"
     - `std::iswctype(wc, desc)` は、`wc` が分類 `desc` に属すれば 0 以外

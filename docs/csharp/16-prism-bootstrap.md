@@ -6,7 +6,7 @@ tags:
 
 # 第 16 章 Prism の導入と起動の流れ
 
-この章では `Editor` に Prism を入れます。やることは 3 つです。NuGet で Prism を入れること、アプリの起動を `PrismApplication` に作り替えること、そして第 12 章で手書きした通知とコマンドの定型文を、Prism の `BindableBase` と `DelegateCommand` に置き換えることです。
+この章では `Editor` に Prism を入れます。やることは 3 つです。NuGet で Prism を入れること、アプリの起動を `PrismApplication` に作り替えること、そして第 12 章で手書きした通知とコマンドの定型文を Prism の `BindableBase` と `DelegateCommand` に置き換えることです。
 
 !!! info "このページを読む前に"
     - [第 15 章 非同期処理と UI スレッド](15-async-ui.md)（前の章。ここまでの内容が前提になる）
@@ -30,8 +30,8 @@ Prism はこれらに対する部品をそろえたフレームワークです�
 | DI コンテナー | 必要なクラスを自動で作って渡す | この章、第 18 章 |
 | ViewModelLocator | 画面とビューモデルを名前の規則で自動でつなぐ | この章 |
 | BindableBase、DelegateCommand | 通知とコマンドの定型文を減らす | この章 |
-| リージョン | 画面の枠に、あとから部品を差し込む | 第 17 章 |
-| モジュール | 機能のまとまりを、起動時に登録する | 第 17 章 |
+| リージョン | 画面の枠にあとから部品を差し込む | 第 17 章 |
+| モジュール | 機能のまとまりを起動時に登録する | 第 17 章 |
 | IEventAggregator | お互いを知らない部品の間で連絡する | 第 18 章 |
 | ダイアログ サービス | ビューモデルからダイアログを開く | 第 18 章 |
 
@@ -107,7 +107,7 @@ public partial class App : PrismApplication
         return Container.Resolve<MainWindow>();
     }
 
-    // DI コンテナーに、クラスを登録する
+    // DI コンテナーにクラスを登録する
     protected override void RegisterTypes(IContainerRegistry containerRegistry)
     {
     }
@@ -116,7 +116,7 @@ public partial class App : PrismApplication
 
 `PrismApplication` は、起動の手順（コンテナーを作る → 型を登録する → 最初の画面を作って表示する）を代わりにやってくれる基底クラスです。私たちが書くのは、その途中の 2 つの穴だけです。
 
-- `CreateShell()` は、最初の画面を作る関数です。この「一番外側のウィンドウ」を、Prism 用語でシェルと呼びます。ここでは `MainWindow` です。
+- `CreateShell()` は、最初の画面を作る関数です。この「一番外側のウィンドウ」を Prism 用語でシェルと呼びます。ここでは `MainWindow` です。
 - `RegisterTypes()` は、DI コンテナーに型を登録する場所です。今は空ですが、このあと使います。
 
 `Container.Resolve<MainWindow>()` の `Container` が DI コンテナーです。「`MainWindow` を作って」と頼むと、必要なものを自動で作って渡してくれます。DI の話は、次の節でじっくり説明します。
@@ -160,7 +160,7 @@ public class SceneTreeViewModel
 | --- | --- |
 | 登録（Register） | 「この型が欲しいと言われたら、これを作る」と教えること |
 | 解決（Resolve） | コンテナーにオブジェクトを作ってもらうこと |
-| 注入（Inject） | 作ったものを、コンストラクターの引数で渡すこと |
+| 注入（Inject） | 作ったものをコンストラクターの引数で渡すこと |
 | 生存期間 | 作ったものを使い回すか、毎回作るか |
 
 ### 登録の書き方
@@ -328,7 +328,7 @@ public class Greeter : IGreeter
 containerRegistry.RegisterSingleton<IGreeter, Greeter>();
 ```
 
-ビューモデルのコンストラクターに、欲しいものを書きます。
+ビューモデルのコンストラクターに欲しいものを書きます。
 
 ```csharp
 public class MainWindowViewModel : BindableBase
@@ -357,7 +357,7 @@ public class MainWindowViewModel : BindableBase
 - 「出力」ウィンドウに `System.Windows.Data Error` が出ていない。
 
 ??? failure "起動時に `ContainerResolutionException` が出る"
-    ビューモデルのコンストラクターが欲しがっている型が、登録されていません。メッセージの奥のほう（内側の例外）に、足りない型の名前が書いてあります。具体的なクラスなら登録しなくても解決できる場合がありますが、インターフェースは必ず登録が必要です。
+    ビューモデルのコンストラクターが欲しがっている型が登録されていません。メッセージの奥のほう（内側の例外）に足りない型の名前が書いてあります。具体的なクラスなら登録しなくても解決できる場合がありますが、インターフェースは必ず登録が必要です。
 
 ??? failure "ウィンドウが 2 つ開く"
     `App.xaml` に `StartupUri` が残っています。消してください。

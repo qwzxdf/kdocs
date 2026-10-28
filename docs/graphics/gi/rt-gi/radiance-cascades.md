@@ -29,7 +29,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ラディアンス カスケード: 近くは点を細かく、遠くは方向を細かく</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">16×16 の画面を、4 段のカスケードで調べる。各段の光線の総数は同じで、届く距離が 4 倍ずつ伸びる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">16×16 の画面を 4 段のカスケードで調べる。各段の光線の総数は同じで、届く距離が 4 倍ずつ伸びる</text>
 <g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0424;0.0426;1.0000" values="0;0;1;1"/><rect x="40" y="110" width="170.0" height="170.0" fill="#ffffff" stroke="#60a5fa" stroke-width="2.5" rx="6"/>
 <circle cx="45.31" cy="115.31" r="1.9124999999999999" fill="#60a5fa"/>
 <circle cx="45.31" cy="125.94" r="1.9124999999999999" fill="#60a5fa"/>
@@ -550,12 +550,12 @@ tags:
 <text x="150" y="414" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">4,096<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.5147;0.5149;1.0000" values="0;0;1;1"/></text>
 <g opacity="0"><animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6424;0.6426;1.0000" values="0;0;1;1"/><rect x="330" y="392" width="600" height="118" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="346" y="416" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1e3a8a">カスケード 4 段: 光線 4,096 本</text>
-<text x="346" y="442" text-anchor="start" style="font-size:15px;font-weight:700;fill:#991b1b">全部の点が、全方向へ、最大距離まで調べる方法: 65,536 本(約 16 倍)</text>
-<text x="346" y="466" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">近くは細かい点で、遠くは粗い点でよい。後の段の結果を、前の段に混ぜる</text>
+<text x="346" y="442" text-anchor="start" style="font-size:15px;font-weight:700;fill:#991b1b">全部の点が全方向へ最大距離まで調べる方法: 65,536 本(約 16 倍)</text>
+<text x="346" y="466" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">近くは細かい点で、遠くは粗い点でよい。後の段の結果を前の段に混ぜる</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">遠くの光は、細かい位置の違いが、見た目にほとんど効かない<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0424;0.0426;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">段が進むごとに、点は 4 分の 1、方向は 4 倍、届く距離は 4 倍<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0424;0.0426;0.6551;0.6553;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">どの段も光線の数が同じなので、全体の計算量が、距離に関係なく一定になる<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6551;0.6553;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">どの段も光線の数が同じなので、全体の計算量が距離に関係なく一定になる<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6551;0.6553;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:radiance-cascades:end -->
@@ -568,7 +568,7 @@ tags:
 
 近くの光源（短いレイで届く光）を考えます。近い光源は点の位置が少し動くと、見える方向が大きく変わります。だから、点は細かく取らなければなりません。一方、近い光源は大きく見えるので方向は粗くても、見逃しません。逆に、遠くの光源（長いレイで届く光）では、点が少し動いても見える方向はほとんど変わらないので、点は粗くてかまいません。ただし、遠い光源は小さく見えるので見逃さないように、方向は細かく取らなければなりません。
 
-つまり、「細かい点 × 粗い方向」で近距離を、「粗い点 × 細かい方向」で遠距離を担当させれば、どちらも少ないサンプルで済みます。
+つまり、「細かい点 × 粗い方向」で近距離を「粗い点 × 細かい方向」で遠距離を担当させれば、どちらも少ないサンプルで済みます。
 
 ### カスケード
 
@@ -580,9 +580,9 @@ tags:
 
 ### マージ：遠い光を近い方に伝える
 
-各カスケードは自分の区間の光しか知りません。全体の光を得るには 遠いカスケードの結果を、近いカスケードに伝えます（マージ）。
+各カスケードは自分の区間の光しか知りません。全体の光を得るには 遠いカスケードの結果を近いカスケードに伝えます（マージ）。
 
-具体的にはカスケード n のある方向のレイが、自分の区間を進んで何にも当たらなかったとします。そのレイが見ているさらに遠くの光は、カスケード n+1 が担当しています。そこで、カスケード n+1 の近傍の 4 つのプローブから、同じ方向をカバーしているレイの値を、補間して持ってきます。当たった場合は当たった点の光が、そのレイの値です。この処理を最も遠いカスケードから、順にカスケード 0 まで繰り返すと、カスケード 0 に全距離の光が集まります。
+具体的にはカスケード n のある方向のレイが自分の区間を進んで何にも当たらなかったとします。そのレイが見ているさらに遠くの光は、カスケード n+1 が担当しています。そこで、カスケード n+1 の近傍の 4 つのプローブから、同じ方向をカバーしているレイの値を補間して持ってきます。当たった場合は当たった点の光がそのレイの値です。この処理を最も遠いカスケードから、順にカスケード 0 まで繰り返すと、カスケード 0 に全距離の光が集まります。
 
 ```hlsl
 float3 MergeCascade(int cascade, float2 probe_pos, int dir_index) {
@@ -619,14 +619,14 @@ Radiance Cascades は、ランダムを使わず規則的なサンプルなの�
 
 | 距離 | 必要な方向の数 | 必要な位置の、細かさ |
 | --- | --- | --- |
-| 近い（数画素） | 少ない（角度が、粗くてよい。近くの光は少ない方向で十分に、捉えられる） | 細かい（近くの変化は、急） |
-| 遠い（数百画素） | 多い（遠くの、小さな光源を見つけるには細かい角度が、必要） | 粗い（遠くの光は、位置の変化にゆるやか） |
+| 近い（数画素） | 少ない（角度が粗くてよい。近くの光は少ない方向で十分に捉えられる） | 細かい（近くの変化は、急） |
+| 遠い（数百画素） | 多い（遠くの、小さな光源を見つけるには細かい角度が必要） | 粗い（遠くの光は、位置の変化にゆるやか） |
 
 近くは位置を細かく方向を粗く、遠くは位置を粗く方向を細かく、サンプルすれば効率が良いという、観察です。
 
 ## カスケード
 
-<strong>距離の範囲ごと</strong>に 別の解像度（位置の密度と方向の数）で光を、集めます。カスケード（階層）と呼びます。
+<strong>距離の範囲ごと</strong>に 別の解像度（位置の密度と方向の数）で光を集めます。カスケード（階層）と呼びます。
 
 ```text
 カスケード 0: 距離 0〜4 画素   位置: 全画素ごと   方向: 4 方向
@@ -635,39 +635,39 @@ Radiance Cascades は、ランダムを使わず規則的なサンプルなの�
 カスケード 3: 距離 64〜256 画素 位置: 8 画素おき  方向: 256 方向（4 倍）
 ```
 
-次のカスケードに行くごとに、位置の密度が 1/4（縦横、半分）に方向の数が 4 倍になります。どのカスケードもサンプルの総数が、ほぼ同じ（位置 × 方向）なので、コストが一定です。
+次のカスケードに行くごとに、位置の密度が 1/4（縦横、半分）に方向の数が 4 倍になります。どのカスケードもサンプルの総数がほぼ同じ（位置 × 方向）なので、コストが一定です。
 
 ## 各カスケードで光を集める
 
-<strong>各カスケードの各プローブ</strong>は、自分の担当する距離の範囲（たとえば、16〜64 画素）だけ各方向にレイを進めそこにある光と遮蔽を、集めます。レイが短い（担当する範囲だけ）ので安く、同じ範囲をどのレイも見るため、ノイズが出ません（ランダムでなく、決まった方向）。
+<strong>各カスケードの各プローブ</strong>は、自分の担当する距離の範囲（たとえば、16〜64 画素）だけ各方向にレイを進めそこにある光と遮蔽を集めます。レイが短い（担当する範囲だけ）ので安く、同じ範囲をどのレイも見るため、ノイズが出ません（ランダムでなく、決まった方向）。
 
 ```hlsl
-// カスケード n の、プローブ 1 つ: 担当する距離範囲（[start, end]）で、各方向に、短いレイを、進める。
+// カスケード n の、プローブ 1 つ: 担当する距離範囲（[start, end]）で、各方向に短いレイを進める。
 float4 CastRayInterval(float2 origin, float2 dir, float start, float end) {
   float3 radiance = 0.0;
-  float transmittance = 1.0;                                             // 遮蔽（光が、通り抜けたか）
+  float transmittance = 1.0;                                             // 遮蔽（光が通り抜けたか）
   for (float t = start; t < end; t += 1.0) {
     float2 p = origin + dir * t;
     float4 scene = g_scene.SampleLevel(g_point_clamp, p / g_size, 0);    // rgb = その画素の、発光、a = 不透明度
     radiance += transmittance * scene.rgb * scene.a;                      // 光源に当たったら、足す
-    transmittance *= (1.0 - scene.a);                                     // 遮蔽物に当たったら、光が、減る
+    transmittance *= (1.0 - scene.a);                                     // 遮蔽物に当たったら、光が減る
     if (transmittance < 0.01) break;
   }
   return float4(radiance, transmittance);                                 // 担当範囲の、光と、通り抜ける割合
 }
 ```
 
-各レイは 自分の担当範囲（`start` 〜 `end`）だけ進み、光（発光）と遮蔽を集めます。担当範囲の外は他のカスケードが、見ます。
+各レイは 自分の担当範囲（`start` 〜 `end`）だけ進み、光（発光）と遮蔽を集めます。担当範囲の外は他のカスケードが見ます。
 
 ## カスケードをマージする
 
-<strong>遠いカスケード（粗い）の結果</strong>を、近いカスケード（細かい）に、足し込みます。近いカスケードの各レイは自分の範囲の、先（遠く）を次のカスケードに、問い合わせて遠くの光を引き継ぎます。
+<strong>遠いカスケード（粗い）の結果</strong>を近いカスケード（細かい）に足し込みます。近いカスケードの各レイは自分の範囲の、先（遠く）を次のカスケードに問い合わせて遠くの光を引き継ぎます。
 
 ```hlsl
-// カスケード n の、1 方向の結果 = 自分の範囲の結果 + 自分の範囲を、通り抜けた、割合 × 次のカスケードの、同じ方向の結果。
+// カスケード n の、1 方向の結果 = 自分の範囲の結果 + 自分の範囲を通り抜けた、割合 × 次のカスケードの、同じ方向の結果。
 float4 near = CastRayInterval(origin, dir, start, end);                   // このカスケードの範囲
 float4 far = SampleNextCascade(origin, dir);                              // 次の（遠い）カスケードの、同じ方向の、結果
-float3 total_radiance = near.rgb + near.a * far.rgb;                      // 近くを通り抜けた分だけ、遠くの光が、届く
+float3 total_radiance = near.rgb + near.a * far.rgb;                      // 近くを通り抜けた分だけ、遠くの光が届く
 float total_transmittance = near.a * far.a;
 ```
 
@@ -684,9 +684,9 @@ float total_transmittance = near.a * far.a;
 | 長所 | 多くの光源（数千）でも、同じコスト |
 | 長所 | ソフトな影、間接光がまとめて得られる |
 | 短所 | 主に 2D（画面空間）向け。3D への拡張は研究段階（メモリ、コストが増える） |
-| 短所 | 画面の外の情報が、無い（2D ゲームなら画面が、世界全体） |
+| 短所 | 画面の外の情報が無い（2D ゲームなら画面が世界全体） |
 | 短所 | カスケードの継ぎ目で、アーティファクト（リンギング、ブロック状の模様）が出ることがある |
-| 短所 | シーンの解像度に、依存（画素ごとの不透明度・発光の、マップが必要） |
+| 短所 | シーンの解像度に依存（画素ごとの不透明度・発光の、マップが必要） |
 
 ## 使いどころ
 
@@ -698,7 +698,7 @@ float total_transmittance = near.a * far.a;
 
 ## よくあるミス
 
-??? failure "階層の境目に、段差が見える"
+??? failure "階層の境目に段差が見える"
     <strong>階層間を補間</strong>して、なめらかにつなぐ。
 
 ## これだけ覚える

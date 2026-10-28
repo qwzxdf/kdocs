@@ -14,7 +14,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-テンプレートの中で、型が `float` のときだけ別の処理をしたい、2 つの型が同じかどうかを確かめたい。型を人の目で判断するのではなく、コンパイラーに聞くのが `std::is_same_v<A, B>` です。2 つの型が、まったく同じ型なら `true` になります。`const` や参照の有無も区別されます。`if constexpr` と組み合わせて、型ごとの処理を書き分けます。
+テンプレートの中で、型が `float` のときだけ別の処理をしたい、2 つの型が同じかどうかを確かめたい。型を人の目で判断するのではなく、コンパイラーに聞くのが `std::is_same_v<A, B>` です。2 つの型がまったく同じ型なら `true` になります。`const` や参照の有無も区別されます。`if constexpr` と組み合わせて、型ごとの処理を書き分けます。
 
 !!! tip "ポイント"
     - `std::is_same_v<int, int>` は `true`、`<int, const int>` は `false`。
@@ -39,7 +39,7 @@ inline constexpr bool is_same_v = /* T と U が同じなら true */;
 
 `is_same_v<A, B>` は、A と B が同一の型のときだけ `true` です。`int` と `const int` は別の型、`int` と `int&` も別の型、`int` と `long` も別の型です。`using` で別名を付けただけの型は、元の型と同じものとして扱われます。
 
-型を比べる前に、`const` や参照を取り除きたいなら、`std::remove_cvref_t<T>` を通します。引数が `const int&` で来ても `int&&` で来ても、`remove_cvref_t` で `int` に直してから比べられます。
+型を比べる前に `const` や参照を取り除きたいなら、`std::remove_cvref_t<T>` を通します。引数が `const int&` で来ても `int&&` で来ても、`remove_cvref_t` で `int` に直してから比べられます。
 
 C++20 のコンセプト `std::same_as` は、同じ判定を `template <std::same_as<int> T>` の形で書けます。
 
@@ -103,7 +103,7 @@ C++11 から使えます。`_v` と `_t` の簡略形は C++14 / C++17 です。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 2 つの型が同じかを、コンパイル時に調べる。
+    - [x] 2 つの型が同じかをコンパイル時に調べる。
     - [x] `const` と参照は区別される。比べる前に `remove_cvref_t` を通す。
     - [x] 型ごとの処理は `if constexpr` で書き分ける。
 

@@ -46,7 +46,7 @@ tags:
 <defs><marker id="arr-probe-light-leak" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ライト リーク:壁の向こうのプローブが、混ざってしまう</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ライト リーク:壁の向こうのプローブが混ざってしまう</text>
 <text x="40" y="68" text-anchor="start" style="font-size:14px;font-weight:700;fill:#e5484d">可視性なし（そのまま補間）</text>
 <rect x="40" y="90" width="330" height="220" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.5"/>
 <rect x="202" y="90" width="10" height="220" fill="#475569"/>
@@ -75,7 +75,7 @@ tags:
 <rect x="490" y="330" width="150" height="30" fill="#888888" stroke="#94a3b8" stroke-width="1.5"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;0.1440;0.2080;0.2720;0.3360;0.4000;0.4640;0.5280;0.5920;0.6560;0.7200;1.0000" values="#888888;#888888;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a;#5a5a5a"/></rect>
 <text x="565" y="352" text-anchor="start" style="font-size:1px;font-weight:700;fill:#ffffff">→</text>
 <text x="420" y="352" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">結果:</text>
-<text x="40" y="386" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">暗い部屋の中の点を、壁へ近づける<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="386" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">暗い部屋の中の点を壁へ近づける<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000" values="1;1;0;0"/></text>
 <text x="40" y="386" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b" opacity="0">左:壁の向こうの明るいプローブが混ざり、暗い部屋が明るくなる（漏れ）。右:壁越しは重み 0 → 暗いまま<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0797;0.0800;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -83,7 +83,7 @@ tags:
 
 ### ライト リーク（壁越しの漏れ）
 
-プローブ間の補間は 壁の存在を知らないので、壁の向こう側のプローブの光が、こちら側に漏れることがあります。
+プローブ間の補間は 壁の存在を知らないので、壁の向こう側のプローブの光がこちら側に漏れることがあります。
 
 | 対策 | 内容 |
 | --- | --- |
@@ -103,23 +103,23 @@ tags:
 
 ## プローブをどこに置くか
 
-プローブの <strong>数と位置</strong>が GI の品質を、決めます。少ないと光がぼやけ多いとメモリと更新が、重くなります。光が急に変わる所（壁のすぐ両側、窓の近く）に密に変化のゆるやかな所（広い、空き地）に疎に置くのが基本です。
+プローブの <strong>数と位置</strong>が GI の品質を決めます。少ないと光がぼやけ多いとメモリと更新が重くなります。光が急に変わる所（壁のすぐ両側、窓の近く）に密に変化のゆるやかな所（広い、空き地）に疎に置くのが基本です。
 
 ## 配置の方法
 
 | 方法 | 内容 | 長所 | 短所 |
 | --- | --- | --- | --- |
-| 均等な格子 | 空間を一定の、間隔（2 m など）で格子状に | 簡単。補間も単純（トライリニア） | 無駄が、多い（何もない空間にも置く）。壁の中にプローブが埋まる |
-| 手動 | アーティストが重要な場所に、置く | 少なく済む（必要な所だけ） | 手間。置き忘れ |
-| 自動（ジオメトリに合わせる） | 床、壁、天井の近くに自動で配置 | 無駄が、少ない | 実装が複雑 |
-| 適応的（光の変化に応じて） | 光が、急に変わる場所に自動で細かく置く | 品質と数の、バランスがよい | 複雑。事前計算が重い |
+| 均等な格子 | 空間を一定の、間隔（2 m など）で格子状に | 簡単。補間も単純（トライリニア） | 無駄が多い（何もない空間にも置く）。壁の中にプローブが埋まる |
+| 手動 | アーティストが重要な場所に置く | 少なく済む（必要な所だけ） | 手間。置き忘れ |
+| 自動（ジオメトリに合わせる） | 床、壁、天井の近くに自動で配置 | 無駄が少ない | 実装が複雑 |
+| 適応的（光の変化に応じて） | 光が急に変わる場所に自動で細かく置く | 品質と数の、バランスがよい | 複雑。事前計算が重い |
 
 ## 格子配置
 
-<strong>最も単純でよく使われる</strong>方法です。空間を立方体の格子に分け格子の頂点に、プローブを置きます。
+<strong>最も単純でよく使われる</strong>方法です。空間を立方体の格子に分け格子の頂点にプローブを置きます。
 
 ```cpp
-// 立方体の範囲に、均等な間隔で、プローブを置く。
+// 立方体の範囲に均等な間隔で、プローブを置く。
 struct ProbeGrid {
   Vector3 origin;          // 格子の、最小の角（ワールド座標）
   Vector3 spacing;         // 各軸の、プローブの、間隔（メートル）
@@ -129,7 +129,7 @@ struct ProbeGrid {
 Vector3 ProbePosition(const ProbeGrid& g, int x, int y, int z) {
   return g.origin + Vector3(x * g.spacing.x, y * g.spacing.y, z * g.spacing.z);
 }
-// 例: 64 m × 16 m × 64 m の、場面を、4 m 間隔で → 17 × 5 × 17 = 1,445 個のプローブ。
+// 例: 64 m × 16 m × 64 m の、場面を 4 m 間隔で → 17 × 5 × 17 = 1,445 個のプローブ。
 ```
 
 間隔は 光の変化の細かさに、合わせます。部屋の中（光が場所で変わる）は、1〜2 m、屋外の広場は 4〜8 m が目安です。
@@ -138,8 +138,8 @@ Vector3 ProbePosition(const ProbeGrid& g, int x, int y, int z) {
 
 | 問題 | 内容 |
 | --- | --- |
-| 壁の中に埋まる | 格子の頂点が、壁・床の中にある。中のプローブは真っ暗（光が届かない）。補間で周りの明るいプローブに暗さが、混ざる |
-| 壁の向こうの光が漏れる | 壁の両側で光が、まったく違うのに 1 つの格子のセルに、含まれると補間で混ざる |
+| 壁の中に埋まる | 格子の頂点が壁・床の中にある。中のプローブは真っ暗（光が届かない）。補間で周りの明るいプローブに暗さが、混ざる |
+| 壁の向こうの光が漏れる | 壁の両側で光がまったく違うのに 1 つの格子のセルに含まれると補間で混ざる |
 | 無駄が多い | 地面の下、空中、何もない場所にもプローブを置く |
 
 ## 埋まったプローブへの対処
@@ -147,35 +147,35 @@ Vector3 ProbePosition(const ProbeGrid& g, int x, int y, int z) {
 <strong>壁や床の中</strong>に 埋まった、プローブは使えないので検出して、無効にするまたは押し出して外に動かす。
 
 ```cpp
-// プローブが、ジオメトリの内側にあるかを、調べる（複数方向に、レイを飛ばし、裏面に、当たる割合）。
+// プローブがジオメトリの内側にあるかを調べる（複数方向にレイを飛ばし、裏面に当たる割合）。
 bool IsInsideGeometry(const Vector3& pos) {
   int back_hits = 0;
   for (const Vector3& dir : kSampleDirections) {                    // 球面上の、数十方向
     RayHit hit;
     if (Raycast(pos, dir, 100.0f, &hit) && hit.is_back_face) ++back_hits;   // 裏面に当たった = 物体の内側から、見ている
   }
-  return back_hits > kSampleDirections.size() * 0.5f;               // 半分以上が、裏面 → 内側
+  return back_hits > kSampleDirections.size() * 0.5f;               // 半分以上が裏面 → 内側
 }
 
-// 内側のプローブは、最も近い、表面の外へ、押し出す（または、無効にする）。
+// 内側のプローブは、最も近い、表面の外へ押し出す（または、無効にする）。
 ```
 
 プローブから全方向にレイを飛ばし、多くが物体の裏面（物の内側から、見た面）に当たるならそのプローブは、物体の中にあります。無効にするか表面の外へ押し出します。
 
 ## 光漏れを防ぐ
 
-<strong>壁の両側</strong>で 光がまったく違うとき（室内と屋外）、プローブの補間が壁をまたぐと光が、漏れます。
+<strong>壁の両側</strong>で 光がまったく違うとき（室内と屋外）、プローブの補間が壁をまたぐと光が漏れます。
 
 | 対策 | 内容 |
 | --- | --- |
 | 壁の両側にプローブを置く | 壁の、すぐ近くに両側から 1 つずつ。補間で混ざる範囲が狭い |
-| 可視性による重み | 補間の重みを、「そのプローブがその物の位置を、見通せるか」で調整（壁の向こうの、プローブは重みを 0 に）（[Interpolation Methods](interpolation.md)） |
+| 可視性による重み | 補間の重みを「そのプローブがその物の位置を見通せるか」で調整（壁の向こうの、プローブは重みを 0 に）（[Interpolation Methods](interpolation.md)） |
 | ゾーン（部屋）で分ける | 部屋ごとに別の、プローブ セット。部屋の境目ではブレンド |
 | 補間に法線を使う | 物の向いている側の、プローブを重視 |
 
 ## 密度の調整
 
-<strong>光の変化が大きい場所</strong>ほど 密に、置くと品質が上がります。
+<strong>光の変化が大きい場所</strong>ほど 密に置くと品質が上がります。
 
 | 場所 | 間隔の目安 |
 | --- | --- |
@@ -187,7 +187,7 @@ bool IsInsideGeometry(const Vector3& pos) {
 
 ### 階層構造（カスケード）
 
-カメラの近くは 密に、遠くは疎にプローブを入れ子（カスケード）に、並べる方法です（[Geometry Clipmaps](../../terrain/lod/clipmap.md) と、似た発想）。
+カメラの近くは 密に遠くは疎にプローブを入れ子（カスケード）に並べる方法です（[Geometry Clipmaps](../../terrain/lod/clipmap.md) と、似た発想）。
 
 | カスケード | 範囲 | 間隔 |
 | --- | --- | --- |
@@ -207,7 +207,7 @@ struct ProbeData {
   float3 sh[9];            // SH L2（RGB × 9）
   float validity;          // 0 = 無効（壁の中）、1 = 有効
 };
-// 全プローブを、配列で、ファイルに保存する。起動時に、GPU のバッファに、読み込む。
+// 全プローブを配列で、ファイルに保存する。起動時に GPU のバッファに読み込む。
 ```
 
 ## よくあるミス

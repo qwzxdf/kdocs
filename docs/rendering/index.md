@@ -7,7 +7,7 @@ tags:
 
 # 描画最適化
 
-このセクションは、<strong>現代のゲームの描画が、「何が重くて」「どう直してきたか」</strong>を、段階を追って、言葉で説明します。「ライティングを、Forward から Deferred に」「ライトをタイルで分ける（Tiled）」「3 次元に分ける（Clustered）」「カリングを、GPU に任せる（GPU Driven）」「三角形の塊（Meshlet）で、細かくカリング」「ビジビリティ バッファ」など、名前だけは聞くが何が嬉しいのか分からない手法を、目的（何を減らしたいのか）から、理解することが狙いです。コードは要点だけで考え方が中心です。
+このセクションは、<strong>現代のゲームの描画が「何が重くて」「どう直してきたか」</strong>を段階を追って、言葉で説明します。「ライティングを Forward から Deferred に」「ライトをタイルで分ける（Tiled）」「3 次元に分ける（Clustered）」「カリングを GPU に任せる（GPU Driven）」「三角形の塊（Meshlet）で、細かくカリング」「ビジビリティ バッファ」など、名前だけは聞くが何が嬉しいのか分からない手法を目的（何を減らしたいのか）から、理解することが狙いです。コードは要点だけで考え方が中心です。
 
 ## ページ一覧
 
@@ -26,7 +26,7 @@ tags:
 | [Tiled と Clustered](light-culling.md) | ライトをタイル・3 次元のセルに分ける | <span class="gain gain-alu">🧮 計算（ALU）減</span> <span class="gain gain-bw">📶 帯域幅減</span> |
 | [ドロー コールとバッチ](draw-calls.md) | CPU 側の負担、バッチ・インスタンシング・ステートの整理 | <span class="gain gain-cpu">🖥️ CPU の命令減</span> |
 | [カリング](culling.md) | 視錐台・オクルージョン・距離。見えないものを描かない | <span class="gain gain-cpu">🖥️ CPU の命令減</span> <span class="gain gain-vtx">🔺 頂点量減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
-| [GPU Driven Rendering](gpu-driven.md) | カリングと描画命令を、GPU が作る | <span class="gain gain-cpu">🖥️ CPU の命令減</span> |
+| [GPU Driven Rendering](gpu-driven.md) | カリングと描画命令を GPU が作る | <span class="gain gain-cpu">🖥️ CPU の命令減</span> |
 | [Mesh Shader と Meshlet](mesh-shaders.md) | 三角形の塊単位の細かいカリング | <span class="gain gain-vtx">🔺 頂点量減</span> <span class="gain gain-bw">📶 帯域幅減</span> |
 | [Visibility Buffer](visibility-buffer.md) | G-Buffer を三角形の ID だけに | <span class="gain gain-bw">📶 帯域幅減</span> <span class="gain gain-pix">🎨 ピクセル量減</span> |
 | [オーバードローと Z プリパス](overdraw.md) | 無駄に塗る問題・Early-Z・小さな三角形 | <span class="gain gain-pix">🎨 ピクセル量減</span> <span class="gain gain-alu">🧮 計算（ALU）減</span> |

@@ -6,13 +6,13 @@ tags:
 
 # MVP 変換（モデル・ビュー・プロジェクション）
 
-3D の描画の核心が、**MVP 変換**です。M（Model：モデル／ワールド）、V（View：ビュー）、P（Projection：プロジェクション）の 3 つの行列でモデルの中の頂点を画面に映る位置まで順番に変換します。この 3 つを、CPU で 1 つの行列（`mvp`）に掛け合わせて、GPU に渡し、頂点シェーダーで頂点に掛けるのが、基本の流れです。このページは、3 つの行列がそれぞれ何をするか、DirectX 11 で、どう GPU に渡して使うかを、コードで説明します。
+3D の描画の核心が**MVP 変換**です。M（Model：モデル／ワールド）、V（View：ビュー）、P（Projection：プロジェクション）の 3 つの行列でモデルの中の頂点を画面に映る位置まで順番に変換します。この 3 つを CPU で 1 つの行列（`mvp`）に掛け合わせて、GPU に渡し、頂点シェーダーで頂点に掛けるのが、基本の流れです。このページは、3 つの行列がそれぞれ何をするか、DirectX 11 で、どう GPU に渡して使うかをコードで説明します。
 
 !!! tip "ポイント"
     - <strong>M（ワールド）＝ 物体を世界に置く</strong>。<strong>V（ビュー）＝ カメラから見た座標にする</strong>。P（プロジェクション）＝ 遠近感をつけて、画面に映る範囲にする。
     - 掛け順（行ベクトル規約）は `world * view * proj`（左から右）。頂点は左から掛ける。
     - CPU で 1 回掛けて（`mvp`）、定数バッファに入れて、GPU に渡す。頂点ごとに 3 回掛けない。
-    - HLSL では `row_major float4x4` と `mul(float4(pos, 1), mvp)`（SimpleMath の行列を、そのまま渡せる）。
+    - HLSL では `row_major float4x4` と `mul(float4(pos, 1), mvp)`（SimpleMath の行列をそのまま渡せる）。
     - `view * proj` は、カメラが同じなら全オブジェクトで共通。1 回だけ作る。
 
 !!! info "このページを読む前に"
@@ -22,11 +22,11 @@ tags:
 
 ## 3 つの行列
 
-<svg class="fig flow" viewBox="0 0 418 532" role="img" aria-label="MVP 変換：頂点が、いくつもの空間を順に通って、画面に出る"><defs><marker id="fl3200" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">MVP 変換：頂点が、いくつもの空間を順に通って、画面に出る</text><line x1="157.0" y1="87.0" x2="157.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="100.0" text-anchor="middle" style="font-size:12px">M（ワールド行列）</text><line x1="157.0" y1="171.0" x2="157.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="184.0" text-anchor="middle" style="font-size:12px">V（ビュー行列）</text><line x1="157.0" y1="255.0" x2="157.0" y2="293.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="268.0" text-anchor="middle" style="font-size:12px">P（射影行列）</text><line x1="157.0" y1="339.0" x2="157.0" y2="377.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="352.0" text-anchor="middle" style="font-size:12px">w で割る</text><line x1="157.0" y1="423.0" x2="157.0" y2="461.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="436.0" text-anchor="middle" style="font-size:12px">ビューポート変換</text><rect x="42.0" y="44.0" width="230" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="157.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">モデル空間 （モデル内の座標）</text><circle cx="44.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="44.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="49.0" y="128.0" width="216" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="157.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワールド空間 （世界の座標）</text><circle cx="51.0" cy="130.0" r="10" fill="#2ea043"/><text x="51.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="28.0" y="212.0" width="258" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="157.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ビュー空間 （カメラから見た座標）</text><circle cx="30.0" cy="214.0" r="10" fill="#e5a828"/><text x="30.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="63.0" y="296.0" width="188" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="157.0" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">クリップ空間 （射影後）</text><circle cx="65.0" cy="298.0" r="10" fill="#e5484d"/><text x="65.0" y="298.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="71.0" y="380.0" width="172" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="157.0" y="400.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">NDC （-1〜1 の範囲）</text><circle cx="73.0" cy="382.0" r="10" fill="#9664e6"/><text x="73.0" y="382.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="88.0" y="464.0" width="138" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="157.0" y="484.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">画面（ピクセル）</text><circle cx="90.0" cy="466.0" r="10" fill="#4c8bf5"/><text x="90.0" y="466.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">6</text></svg>
+<svg class="fig flow" viewBox="0 0 418 532" role="img" aria-label="MVP 変換：頂点が、いくつもの空間を順に通って、画面に出る"><defs><marker id="fl3200" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">MVP 変換：頂点がいくつもの空間を順に通って、画面に出る</text><line x1="157.0" y1="87.0" x2="157.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="100.0" text-anchor="middle" style="font-size:12px">M（ワールド行列）</text><line x1="157.0" y1="171.0" x2="157.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="184.0" text-anchor="middle" style="font-size:12px">V（ビュー行列）</text><line x1="157.0" y1="255.0" x2="157.0" y2="293.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="268.0" text-anchor="middle" style="font-size:12px">P（射影行列）</text><line x1="157.0" y1="339.0" x2="157.0" y2="377.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="352.0" text-anchor="middle" style="font-size:12px">w で割る</text><line x1="157.0" y1="423.0" x2="157.0" y2="461.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl3200)"/><text x="157.0" y="436.0" text-anchor="middle" style="font-size:12px">ビューポート変換</text><rect x="42.0" y="44.0" width="230" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="157.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">モデル空間 （モデル内の座標）</text><circle cx="44.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="44.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="49.0" y="128.0" width="216" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="157.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワールド空間 （世界の座標）</text><circle cx="51.0" cy="130.0" r="10" fill="#2ea043"/><text x="51.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="28.0" y="212.0" width="258" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="157.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ビュー空間 （カメラから見た座標）</text><circle cx="30.0" cy="214.0" r="10" fill="#e5a828"/><text x="30.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="63.0" y="296.0" width="188" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="157.0" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">クリップ空間 （射影後）</text><circle cx="65.0" cy="298.0" r="10" fill="#e5484d"/><text x="65.0" y="298.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="71.0" y="380.0" width="172" height="40" rx="9" fill="rgba(150,100,230,0.22)" stroke="#9664e6" stroke-width="2"/><text x="157.0" y="400.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">NDC （-1〜1 の範囲）</text><circle cx="73.0" cy="382.0" r="10" fill="#9664e6"/><text x="73.0" y="382.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">5</text><rect x="88.0" y="464.0" width="138" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="157.0" y="484.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">画面（ピクセル）</text><circle cx="90.0" cy="466.0" r="10" fill="#4c8bf5"/><text x="90.0" y="466.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">6</text></svg>
 
 ### M：モデル行列（ワールド行列） {#model}
 
-**モデルの座標（ローカル空間）を、ゲームの世界の座標（ワールド空間）に変換**します。物体の位置・向き・大きさを表します。
+**モデルの座標（ローカル空間）をゲームの世界の座標（ワールド空間）に変換**します。物体の位置・向き・大きさを表します。
 
 ```cpp
 Matrix world = Matrix::CreateScale(scale)
@@ -49,7 +49,7 @@ Matrix view = XMMatrixLookAtLH(camera_position, camera_target, Vector3::Up);
 
 ### P：プロジェクション行列
 
-ビュー空間の座標をクリップ空間に変換します。遠近感（遠いものが小さく見える）をつけ、見える範囲（視錐台）を、標準の箱に変換します。
+ビュー空間の座標をクリップ空間に変換します。遠近感（遠いものが小さく見える）をつけ、見える範囲（視錐台）を標準の箱に変換します。
 
 ```cpp
 float fov_y = DirectX::XMConvertToRadians(60.0f);          // 縦の視野角
@@ -62,7 +62,7 @@ Matrix proj = XMMatrixPerspectiveFovLH(fov_y, aspect, 0.1f, 1000.0f);   // near=
 ## 掛け合わせる
 
 ```cpp
-// 行ベクトル規約：頂点に、左から ワールド → ビュー → プロジェクション の順に掛ける
+// 行ベクトル規約：頂点に左から ワールド → ビュー → プロジェクション の順に掛ける
 Matrix mvp = world * view * proj;
 
 // 同じカメラの間は、view * proj を共通にして、物体ごとに world だけ掛ける
@@ -124,7 +124,7 @@ void DrawObject(ID3D11DeviceContext* context, ID3D11Buffer* cb,
   data->mvp = world * view_proj;                               // CPU で 1 回掛ける
   context->Unmap(cb, 0);
 
-  context->VSSetConstantBuffers(0, 1, &cb);                    // スロット 0（b0）に、頂点シェーダーへ
+  context->VSSetConstantBuffers(0, 1, &cb);                    // スロット 0（b0）に頂点シェーダーへ
   // ... 頂点バッファ、インデックス バッファをセットして DrawIndexed
 }
 ```
@@ -153,7 +153,7 @@ struct VSOutput {
 VSOutput main(VSInput input) {
   VSOutput output;
   output.position = mul(float4(input.position, 1.0f), mvp);   // 行ベクトル × 行列（v * M）
-  output.world_normal = mul(input.normal, (float3x3)world);   // 法線を、ワールド空間へ（簡易版）
+  output.world_normal = mul(input.normal, (float3x3)world);   // 法線をワールド空間へ（簡易版）
   output.uv = input.uv;
   return output;
 }
@@ -161,7 +161,7 @@ VSOutput main(VSInput input) {
 
 | 部分 | 意味 |
 | --- | --- |
-| `row_major float4x4` | メモリの並びが行優先であることを、HLSL に教える。SimpleMath の `Matrix` を、転置せずに渡せる |
+| `row_major float4x4` | メモリの並びが行優先であることを HLSL に教える。SimpleMath の `Matrix` を転置せずに渡せる |
 | `mul(v, M)` | 行ベクトル × 行列。C++ の `v * M` と同じ意味 |
 | `float4(input.position, 1.0f)` | 位置なので、w = 1 |
 | `SV_POSITION` | クリップ空間の座標。GPU が、w で割る（透視除算）ところまでやってくれる |
@@ -237,10 +237,10 @@ sy = (1 - (y_ndc * 0.5 + 0.5)) * height     ← Y は上下が反転する
 
 ## 手で変換して、確かめる
 
-GPU が行っている計算を、**CPU で再現**できます（デバッグ、ピッキング、UI の位置合わせに使います）。
+GPU が行っている計算を**CPU で再現**できます（デバッグ、ピッキング、UI の位置合わせに使います）。
 
 ```cpp
-// ワールド座標の点が、画面のどこに映るか
+// ワールド座標の点が画面のどこに映るか
 Vector3 WorldToScreen(const Vector3& world_pos, const Matrix& view, const Matrix& proj,
                       float width, float height) {
   Vector4 clip = Vector4::Transform(Vector4(world_pos.x, world_pos.y, world_pos.z, 1.0f), view * proj);
@@ -255,7 +255,7 @@ Vector3 WorldToScreen(const Vector3& world_pos, const Matrix& view, const Matrix
 }
 ```
 
-SimpleMath の `Viewport::Project` でも同じことができます（[SimpleMath](../gamemath/simplemath.md)）。敵の頭上に HP バーを出す、3D の位置に、UI を重ねるときに使います。
+SimpleMath の `Viewport::Project` でも同じことができます（[SimpleMath](../gamemath/simplemath.md)）。敵の頭上に HP バーを出す、3D の位置に UI を重ねるときに使います。
 
 ## 規約の確認
 
@@ -279,7 +279,7 @@ SimpleMath の `Viewport::Project` でも同じことができます（[SimpleMa
 | 多数の同じ物体 | インスタンシング。`world` の配列を頂点バッファか構造化バッファで渡す（[描画の最適化](../rendering/draw-calls.md)） |
 | カメラが動く | `view` を作り直して、`view_proj` を更新 |
 | ウィンドウをリサイズ | `proj`（アスペクト比）とビューポートを更新 |
-| 3D の位置に、UI（HP バー）を出す | `WorldToScreen` で、画面の座標に |
+| 3D の位置に UI（HP バー）を出す | `WorldToScreen` で、画面の座標に |
 | デバッグ表示（線・球） | `view_proj` を使って、ワールド座標の線を描く |
 
 ## よくあるミス
@@ -299,7 +299,7 @@ SimpleMath の `Viewport::Project` でも同じことができます（[SimpleMa
 ??? failure "定数バッファの大きさが、16 バイトの倍数でない"
     `CreateBuffer` が失敗します。`float3` を使うと、16 バイト境界に合わせるための**パディング**が必要です。`float3 + float` の組にするか、パディングを足します。
 
-??? failure "カメラの後ろの点を、画面に出す"
+??? failure "カメラの後ろの点を画面に出す"
     `clip.w <= 0` の点は、カメラの後ろです。`w` で割ると反転した位置に出ます。`w` を確認します。
 
 ## これだけ覚える

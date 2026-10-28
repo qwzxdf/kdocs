@@ -6,7 +6,7 @@ tags:
 
 # 回転とクォータニオン
 
-3D の**回転**の表し方は、いくつかあります。一番分かりやすいのは、オイラー角（X 軸まわりに何度、Y 軸まわりに何度、Z 軸まわりに何度）ですがジンバルロックという欠点があり、回転の補間（滑らかな途中経過）が、うまくいきません。そこでゲームではクォータニオン（四元数）で回転を持つのが標準です。クォータニオンは、`x, y, z, w` の 4 つの数字で、ジンバルロックがなく、補間も滑らかで行列より小さく、合成も速いです。仕組み（四元数の数学）は難しいですが使い方は簡単です。このページはオイラー角の問題、クォータニオンの使い方、補間（Slerp）、よくある操作をまとめます。
+3D の**回転**の表し方は、いくつかあります。一番分かりやすいのは、オイラー角（X 軸まわりに何度、Y 軸まわりに何度、Z 軸まわりに何度）ですがジンバルロックという欠点があり、回転の補間（滑らかな途中経過）がうまくいきません。そこでゲームではクォータニオン（四元数）で回転を持つのが標準です。クォータニオンは、`x, y, z, w` の 4 つの数字で、ジンバルロックがなく、補間も滑らかで行列より小さく、合成も速いです。仕組み（四元数の数学）は難しいですが使い方は簡単です。このページはオイラー角の問題、クォータニオンの使い方、補間（Slerp）、よくある操作をまとめます。
 
 !!! tip "ポイント"
     - <strong>ゲーム内の回転は、クォータニオンで持つ</strong>（`Quaternion`）。<strong>オイラー角は入力・表示・エディターだけ</strong>。
@@ -31,7 +31,7 @@ tags:
 
 ## オイラー角の問題 {#euler}
 
-<svg class="fig" viewBox="0 0 650 230" role="img" aria-label="ジンバルロック"><defs><marker id="g1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">ふつうの姿勢：3 つの軸が、独立に回せる</text><line x1="120" y1="130" x2="120" y2="50" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" /><text x="126" y="56">Y（yaw）</text><line x1="120" y1="130" x2="200" y2="130" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" /><text x="204" y="134">X（pitch）</text><line x1="120" y1="130" x2="70" y2="175" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" /><text x="30" y="190">Z（roll）</text><text x="20" y="215">どの軸まわりにも、自由に回せる</text><text x="330" y="20" class="fig-title">pitch を 90°にすると</text><line x1="430" y1="160" x2="430" y2="60" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" /><text x="436" y="66">yaw の軸</text><line x1="430" y1="160" x2="430" y2="90" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" stroke-dasharray="4 3"/><text x="436" y="120">roll の軸（同じ向き）</text><text x="330" y="190">2 つの軸が重なり、回せる自由度が 1 つ消える</text><text x="330" y="212">→ ジンバルロック（クォータニオンなら起きない）</text></svg>
+<svg class="fig" viewBox="0 0 650 230" role="img" aria-label="ジンバルロック"><defs><marker id="g1" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">ふつうの姿勢：3 つの軸が独立に回せる</text><line x1="120" y1="130" x2="120" y2="50" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" /><text x="126" y="56">Y（yaw）</text><line x1="120" y1="130" x2="200" y2="130" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" /><text x="204" y="134">X（pitch）</text><line x1="120" y1="130" x2="70" y2="175" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" /><text x="30" y="190">Z（roll）</text><text x="20" y="215">どの軸まわりにも、自由に回せる</text><text x="330" y="20" class="fig-title">pitch を 90°にすると</text><line x1="430" y1="160" x2="430" y2="60" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" /><text x="436" y="66">yaw の軸</text><line x1="430" y1="160" x2="430" y2="90" stroke="currentColor" stroke-width="2" marker-end="url(#g1)" stroke-dasharray="4 3"/><text x="436" y="120">roll の軸（同じ向き）</text><text x="330" y="190">2 つの軸が重なり、回せる自由度が 1 つ消える</text><text x="330" y="212">→ ジンバルロック（クォータニオンなら起きない）</text></svg>
 
 ### ジンバルロック
 
@@ -81,7 +81,7 @@ using namespace DirectX::SimpleMath;
 // 軸と角度（ラジアン）から
 Quaternion q1 = Quaternion::CreateFromAxisAngle(Vector3::UnitY, DirectX::XMConvertToRadians(90.0f));
 
-// オイラー角（ラジアン）から。入力・エディターの値を、クォータニオンにするとき
+// オイラー角（ラジアン）から。入力・エディターの値をクォータニオンにするとき
 Quaternion q2 = Quaternion::CreateFromYawPitchRoll(yaw, pitch, roll);
 
 // 回転行列から
@@ -123,7 +123,7 @@ Quaternion combined = q1 * q2;
 ### 現在の向きにさらに回す
 
 ```cpp
-// 現在の回転 current に、「Y 軸まわりに delta 度」の回転を、さらに加える（ワールド軸まわり）
+// 現在の回転 current に、「Y 軸まわりに delta 度」の回転をさらに加える（ワールド軸まわり）
 Quaternion delta = Quaternion::CreateFromAxisAngle(Vector3::UnitY, delta_angle);
 current = current * delta;     // 先に今の回転、次にワールドの Y 軸まわり（行ベクトル規約）
 current.Normalize();           // 誤差を直す
@@ -160,7 +160,7 @@ Quaternion mid = Quaternion::Slerp(from, to, 0.5f);     // 半分のところ
 | オイラー角の補間 | 不自然（ジンバルロックの影響） | 使わない |
 
 ```cpp
-// 振り向き：現在の向きを、目標の向きに、少しずつ近づける（フレームレート非依存）
+// 振り向き：現在の向きを目標の向きに、少しずつ近づける（フレームレート非依存）
 float t = 1.0f - std::exp(-turn_speed * dt);
 current = Quaternion::Slerp(current, target, t);
 ```
@@ -174,7 +174,7 @@ current = Quaternion::Slerp(current, target, t);
 **ある方向（ターゲット）を向く回転**を作りたい場面は、多いです（敵がプレイヤーを向く、砲台が狙う）。
 
 ```cpp
-// 「ある前方向を向く」回転を、行列から作る
+// 「ある前方向を向く」回転を行列から作る
 Quaternion LookRotation(const Vector3& forward, const Vector3& up) {
   Matrix m = MakeWorld(Vector3::Zero, forward, up);
   return Quaternion::CreateFromRotationMatrix(m);
@@ -275,7 +275,7 @@ Quaternion RotationBetween(Vector3 a, Vector3 b) {
 
 ## よくあるミス
 
-??? failure "オイラー角を、そのまま補間する"
+??? failure "オイラー角をそのまま補間する"
     ジンバルロックと遠回りの原因です。クォータニオンに変換して、`Slerp` します。
 
 ??? failure "角度を度のまま渡す"
@@ -285,7 +285,7 @@ Quaternion RotationBetween(Vector3 a, Vector3 b) {
     `q1 * q2` は「先に q1、次に q2」（行ベクトル規約）です。意図と逆なら、`q2 * q1` にします。ワールド軸まわりか、ローカル軸まわりかも確認します。
 
 ??? failure "正規化せず、回転が歪む"
-    毎フレーム掛け算を重ねると、長さが 1 からずれます。`Normalize()` を、ときどき呼びます。
+    毎フレーム掛け算を重ねると、長さが 1 からずれます。`Normalize()` をときどき呼びます。
 
 ??? failure "ほぼ逆向きの 2 つのベクトルの間の回転で、NaN になる"
     外積が 0 になり、回転軸が決まりません。上のように特別に扱います。

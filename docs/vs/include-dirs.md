@@ -41,7 +41,7 @@ tags:
 
 ![プロジェクト メニューの一番下にあるプロパティ](img/project-menu.jpg)
 
-プロパティ ページは、左に設定のグループ、右に項目が並ぶ画面です。上の「構成」と「プラットフォーム」が、いま編集している対象を表します。
+プロパティ ページは、左に設定のグループ、右に項目が並ぶ画面です。上の「構成」と「プラットフォーム」がいま編集している対象を表します。
 
 ![プロジェクトのプロパティ ページ。左が C/C++ → 全般、右の先頭が追加のインクルード ディレクトリ](img/props-cpp-general.jpg)
 
@@ -51,7 +51,7 @@ tags:
 
 ![追加のインクルード ディレクトリの編集画面。上の欄に書き、下の「評価された値」で実際のパスを確かめられる](img/include-edit-dialog.jpg)
 
-上の欄に書いたマクロが、実際のどのパスになるかは、その下の「評価された値」に出ます。ここで、意図したフォルダーになっているかを確かめます。
+上の欄に書いたマクロが実際のどのパスになるかは、その下の「評価された値」に出ます。ここで、意図したフォルダーになっているかを確かめます。
 
 ```text
 $(SolutionDir)third_party;$(ProjectDir)include;%(AdditionalIncludeDirectories)
@@ -125,19 +125,19 @@ cl /I C:\proj\third_party /I C:\proj\Engine\include main.cpp
 
 | やりたいこと | 書き方 |
 | --- | --- |
-| ソリューション直下の `third_party` を、インクルードに足す | `$(SolutionDir)third_party` |
+| ソリューション直下の `third_party` をインクルードに足す | `$(SolutionDir)third_party` |
 | 自分のプロジェクトの `include` フォルダーを足す | `$(ProjectDir)include` |
-| 出力を、構成ごとのフォルダーに分ける（出力ディレクトリ） | `$(SolutionDir)bin\$(Platform)\$(Configuration)\` |
-| 中間ファイルを、プロジェクトごとに分ける（中間ディレクトリ） | `$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\` |
+| 出力を構成ごとのフォルダーに分ける（出力ディレクトリ） | `$(SolutionDir)bin\$(Platform)\$(Configuration)\` |
+| 中間ファイルをプロジェクトごとに分ける（中間ディレクトリ） | `$(SolutionDir)obj\$(ProjectName)\$(Platform)\$(Configuration)\` |
 | ライブラリを構成ごとに使い分ける（追加の依存ファイル） | `mylib_$(Configuration).lib` |
-| 実行時に、`assets` フォルダーを出力先へコピー（ビルド後イベント） | `xcopy /Y /E /I "$(ProjectDir)assets" "$(OutDir)assets"` |
+| 実行時に `assets` フォルダーを出力先へコピー（ビルド後イベント） | `xcopy /Y /E /I "$(ProjectDir)assets" "$(OutDir)assets"` |
 | デバッグ時の作業ディレクトリをプロジェクトにそろえる | `$(ProjectDir)` |
 
 出力ディレクトリを `$(Platform)\$(Configuration)\` で分けておくと、Debug と Release の `.exe` や `.lib` が混ざりません。ライブラリの Debug 用と Release 用を `mylib_Debug.lib` のように分けているとき、`$(Configuration)` で 1 行にまとめられます。
 
 ## 複数のプロジェクトにまとめて設定する {#props}
 
-同じインクルード ディレクトリを、ソリューションの全プロジェクトに足したいときは、プロパティ シートを使います。
+同じインクルード ディレクトリをソリューションの全プロジェクトに足したいときは、プロパティ シートを使います。
 
 `Directory.Build.props` を `.sln` と同じフォルダーに置くと、配下の全プロジェクトに自動で適用されます。
 
@@ -159,7 +159,7 @@ cl /I C:\proj\third_party /I C:\proj\Engine\include main.cpp
     プロパティ画面の上にある**構成**が「Debug」のままだと、Release でビルドしたときに設定が効きません。「すべての構成」にしてから入力します。`x64` と `Win32` も同じです。
 
 ??? failure "`%(AdditionalIncludeDirectories)` を消してしまった"
-    引き継ぎの記述を消すと、上位（プロパティ シートや既定値）で足していたフォルダーが、すべて外れます。編集画面で、「親または既定の設定から継承」のチェックを残してください。
+    引き継ぎの記述を消すと、上位（プロパティ シートや既定値）で足していたフォルダーがすべて外れます。編集画面で、「親または既定の設定から継承」のチェックを残してください。
 
 ??? failure "絶対パスで書いて、他の人の PC でビルドできない"
     `C:\Users\自分の名前\...` と書くと、その PC でしか動きません。`$(SolutionDir)` や相対パスにします。
@@ -175,7 +175,7 @@ cl /I C:\proj\third_party /I C:\proj\Engine\include main.cpp
 - 追加するのは <strong>C/C++ → 全般 → 追加のインクルード ディレクトリ</strong>。パスは `$(SolutionDir)` や `$(ProjectDir)` で書く
 - マクロの一覧は、入力欄の「編集」→「マクロ」で見られる
 - 外部ライブラリのヘッダは、外部インクルード ディレクトリに入れる
-- 構成とプラットフォームを、設定の前に確認する
+- 構成とプラットフォームを設定の前に確認する
 
 ## 関連ページ
 

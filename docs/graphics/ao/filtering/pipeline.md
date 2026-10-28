@@ -42,14 +42,14 @@ tags:
 AO、ぼかし時間蓄積、アップサンプルをつないだ 1 フレームのホスト側の順序です。
 
 ```cpp
-// 解像度は、AO を、半分で、計算し、フルへ戻す構成。
+// 解像度は、AO を半分で、計算し、フルへ戻す構成。
 const UINT half_w = width / 2, half_h = height / 2;
 
-// ① 深度・法線を、半分に縮める（最も近い、または、最も遠い、深度を選ぶ。平均しない）
+// ① 深度・法線を半分に縮める（最も近い、または、最も遠い、深度を選ぶ。平均しない）
 SetViewport(half_w, half_h);
 Draw(downsample_depth_ps, {depth_srv, normal_srv}, {half_depth_rtv, half_normal_rtv});
 
-// ② AO を、半解像度で、計算する
+// ② AO を半解像度で、計算する
 Draw(ao_ps, {half_depth_srv, half_normal_srv, noise_srv}, {ao_raw_rtv});
 
 // ③ 時間蓄積: 前のフレームの AO と、混ぜる（ピンポン）
@@ -60,12 +60,12 @@ ao_history.Swap();
 Draw(blur_h_ps, {ao_history.Read(), half_depth_srv}, {ao_blur_rtv});
 Draw(blur_v_ps, {ao_blur_srv, half_depth_srv}, {ao_filtered_rtv});
 
-// ⑤ フル解像度へ、アップサンプル（フル解像度の深度で、重みを付ける）
+// ⑤ フル解像度へアップサンプル（フル解像度の深度で、重みを付ける）
 SetViewport(width, height);
 Draw(upsample_ps, {ao_filtered_srv, half_depth_srv, depth_srv}, {ao_full_rtv});
 ```
 
-`Draw(...)` は「入力の SRV を束ね出力の RTV を束ねフルスクリーン三角形を、描く」をまとめた仮の関数です。パスごとに <strong>ビューポートを出力の大きさに合わせる</strong>のを忘れないでください（忘れると画面の左上の、一部にしか描かれません）。`ao_history` はピンポンの構造体です（[D3D11 Pass Recipes](../../../directx/dx11/pass-recipes.md)）。
+`Draw(...)` は「入力の SRV を束ね出力の RTV を束ねフルスクリーン三角形を描く」をまとめた仮の関数です。パスごとに <strong>ビューポートを出力の大きさに合わせる</strong>のを忘れないでください（忘れると画面の左上の、一部にしか描かれません）。`ao_history` はピンポンの構造体です（[D3D11 Pass Recipes](../../../directx/dx11/pass-recipes.md)）。
 
 ## パラメータの目安
 

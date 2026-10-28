@@ -22,9 +22,9 @@ tags:
 
 ## 何が起きているか
 
-肌の内部で光は散乱しながら進み少しずつ吸収されます。薄い部位では反対側から入った光が、<strong>吸収されきる前に</strong>こちら側の表面にたどり着けます。吸収されやすさは色で違います。赤は吸収されにくく緑や青は吸収されやすいので、通り抜けた光は 赤みを帯びます。耳を光に透かすと赤橙色に見えるのは、そのためです。
+肌の内部で光は散乱しながら進み少しずつ吸収されます。薄い部位では反対側から入った光が <strong>吸収されきる前に</strong>こちら側の表面にたどり着けます。吸収されやすさは色で違います。赤は吸収されにくく緑や青は吸収されやすいので、通り抜けた光は 赤みを帯びます。耳を光に透かすと赤橙色に見えるのは、そのためです。
 
-必要な計算は「点 P に裏側から入った光が、肌の中を通って P まで届く量」です。この量は 光が肌の中を通った距離 s（厚み）で決まります。
+必要な計算は「点 P に裏側から入った光が肌の中を通って P まで届く量」です。この量は 光が肌の中を通った距離 s（厚み）で決まります。
 
 * 厚みが小さい（薄い）→ 光が強く届く。
 * 厚みが大きい（厚い）→ 光は弱く、赤だけが残る。
@@ -35,7 +35,7 @@ tags:
 
 厚みを知る方法として <strong>シャドウ マップ</strong>が利用できます。シャドウ マップは光から見た最も手前の面までの距離を保存しています。
 
-点 P が光に照らされていない側（影の側）にあるとします。光から見て P の前に光に近い側の肌の面があります。シャドウ マップに保存された距離 d₁（光から、手前の面まで）と P の光からの距離 d₂ の差が、光が肌の中を通った距離、つまり厚みになります。
+点 P が光に照らされていない側（影の側）にあるとします。光から見て P の前に光に近い側の肌の面があります。シャドウ マップに保存された距離 d₁（光から、手前の面まで）と P の光からの距離 d₂ の差が光が肌の中を通った距離、つまり厚みになります。
 
 <div class="formula">s = d₂ − d₁　（光から見た P の距離 − シャドウ マップの距離）</div>
 
@@ -60,8 +60,8 @@ float Thickness(float3 world_pos, float3 normal) {
 <defs><marker id="arr-thin-transmit" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">薄い物の透過光: 耳や葉が、後ろからの光で、赤く(緑に)透ける</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">耳の断面(厚さの違うところ)を、後ろから照らす。色ごとに「厚さに応じて」光が減る(ベールの法則)</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">薄い物の透過光: 耳や葉が後ろからの光で、赤く(緑に)透ける</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">耳の断面(厚さの違うところ)を後ろから照らす。色ごとに「厚さに応じて」光が減る(ベールの法則)</text>
 <rect x="30" y="96" width="392.0" height="196.0" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 厚さ(濃い = 厚い)</text>
 <rect x="30.0" y="96.0" width="14.3" height="14.3" fill="#f8fafc"/>
@@ -862,9 +862,9 @@ float Thickness(float3 world_pos, float3 normal) {
 <text x="506" y="354" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">ふちの薄い所(厚さ 1.1): R 55% / G 24% / B 6%</text>
 <text x="506" y="377" text-anchor="start" style="font-size:14px;font-weight:700;fill:#991b1b">真ん中の厚い所(厚さ 2.6): R 24% / G 3% / B 0%</text>
 <text x="506" y="400" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">厚いほど、青 → 緑 → 赤の順に光が減り、赤が残る</text>
-<text x="506" y="422" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">(ゲームでは、厚さを、事前に焼いた画像で持つ)</text>
+<text x="506" y="422" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">(ゲームでは、厚さを事前に焼いた画像で持つ)</text>
 </g>
-<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">耳のように薄い所は、後ろの光が、肉を通り抜けてくる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">耳のように薄い所は、後ろの光が肉を通り抜けてくる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">各画素の厚さから、色ごとの光の減り方を計算する<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.1477;0.1479;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">青はすぐ消え、赤が最後まで残る<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1477;0.1479;0.2873;0.2874;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ふちは明るく、真ん中は暗い赤。これが、耳が赤く透ける理由<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2873;0.2874;1.0000;1.0000" values="0;0;1;1;0"/></text>

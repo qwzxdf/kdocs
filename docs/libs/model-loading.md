@@ -12,9 +12,9 @@ tags:
 !!! tip "ポイント"
     - <strong>ゲームの実行時に読む形式は、glTF が第一候補</strong>（<strong>公開仕様・軽い・PBR 対応</strong>）。
     - 制作データ（ツールの出力）は、FBX が多い。ufbx で読むのが手軽（FBX SDK は、導入・ライセンスが重い）。
-    - 本番は、ビルド時に、ゲーム専用のバイナリに変換（ベイク）。読み込みライブラリは、変換ツールの中だけに、置くのが理想。
+    - 本番は、ビルド時にゲーム専用のバイナリに変換（ベイク）。読み込みライブラリは、変換ツールの中だけに、置くのが理想。
     - 学習・小規模なら tinygltf。大量・高速なら fastgltf。
-    - 多くの形式を、1 つの API で読みたいなら Assimp（重い）。
+    - 多くの形式を 1 つの API で読みたいなら Assimp（重い）。
 
 !!! info "このページを読む前に"
     - [libs/index.md](index.md)（このセクション全体の地図と、読む順番）
@@ -76,26 +76,26 @@ l o ob hit
 
 | 状況 | 選ぶもの |
 | --- | --- |
-| <strong>ゲームの実行時に、モデルを読む（新規）</strong> | glTF ＋ tinygltf / fastgltf |
-| ロードを、とにかく速くしたい・大量のモデル | fastgltf、または独自形式に、ビルド時変換 |
+| <strong>ゲームの実行時にモデルを読む（新規）</strong> | glTF ＋ tinygltf / fastgltf |
+| ロードをとにかく速くしたい・大量のモデル | fastgltf、または独自形式にビルド時変換 |
 | 制作側から FBX を受け取る（実行時に読む） | ufbx |
 | FBX の書き出し・全機能（ツール） | FBX SDK（ライセンスを確認） |
-| 多様な形式を、1 つの API で | Assimp（ツール・プロトタイプ） |
+| 多様な形式を 1 つの API で | Assimp（ツール・プロトタイプ） |
 | 学習・まず動かす | tinygltf（簡単）。OBJ なら tinyobjloader |
-| 製品版 | ビルド時に、独自のバイナリへ変換（[ベイク](../optimize/baking.md)） |
+| 製品版 | ビルド時に独自のバイナリへ変換（[ベイク](../optimize/baking.md)） |
 
 ## 製品版の、定番の構成
 
-**ゲームの実行ファイルに、FBX の読み込みを、入れない**構成が、よく使われます。
+**ゲームの実行ファイルに FBX の読み込みを入れない**構成がよく使われます。
 
-<svg class="fig flow" viewBox="0 0 1034 112" role="img" aria-label="アセット パイプライン：制作データを、ビルド時に、ゲーム専用の形式に変換する"><defs><marker id="fl43356" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">アセット パイプライン：制作データを、ビルド時に、ゲーム専用の形式に変換する</text><line x1="231.0" y1="64.0" x2="289.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43356)"/><text x="260.0" y="58.0" text-anchor="middle" style="font-size:12px">ビルド時</text><line x1="569.0" y1="64.0" x2="627.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43356)"/><text x="598.0" y="58.0" text-anchor="middle" style="font-size:12px">出力</text><line x1="785.0" y1="64.0" x2="843.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43356)"/><text x="814.0" y="58.0" text-anchor="middle" style="font-size:12px">そのまま読む</text><rect x="28.0" y="44.0" width="200" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="128.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">制作データ （FBX・glTF）</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="292.0" y="44.0" width="274" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="429.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">変換ツール （ufbx・tinygltf など）</text><circle cx="294.0" cy="46.0" r="10" fill="#2ea043"/><text x="294.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="630.0" y="44.0" width="152" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="706.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム専用バイナリ</text><circle cx="632.0" cy="46.0" r="10" fill="#2ea043"/><text x="632.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="846.0" y="44.0" width="160" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="926.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム （読むだけ）</text><circle cx="848.0" cy="46.0" r="10" fill="#e5a828"/><text x="848.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
+<svg class="fig flow" viewBox="0 0 1034 112" role="img" aria-label="アセット パイプライン：制作データを、ビルド時に、ゲーム専用の形式に変換する"><defs><marker id="fl43356" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">アセット パイプライン：制作データをビルド時にゲーム専用の形式に変換する</text><line x1="231.0" y1="64.0" x2="289.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43356)"/><text x="260.0" y="58.0" text-anchor="middle" style="font-size:12px">ビルド時</text><line x1="569.0" y1="64.0" x2="627.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43356)"/><text x="598.0" y="58.0" text-anchor="middle" style="font-size:12px">出力</text><line x1="785.0" y1="64.0" x2="843.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl43356)"/><text x="814.0" y="58.0" text-anchor="middle" style="font-size:12px">そのまま読む</text><rect x="28.0" y="44.0" width="200" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="128.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">制作データ （FBX・glTF）</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="292.0" y="44.0" width="274" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="429.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">変換ツール （ufbx・tinygltf など）</text><circle cx="294.0" cy="46.0" r="10" fill="#2ea043"/><text x="294.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="630.0" y="44.0" width="152" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="706.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム専用バイナリ</text><circle cx="632.0" cy="46.0" r="10" fill="#2ea043"/><text x="632.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="846.0" y="44.0" width="160" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="926.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム （読むだけ）</text><circle cx="848.0" cy="46.0" r="10" fill="#e5a828"/><text x="848.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | 利点 | 説明 |
 | --- | --- |
-| ロードが、最速 | 解析なし・そのまま読める（[シリアライズでロードを速く](../optimize/serialization-speed.md)） |
-| 実行ファイルが、軽い | FBX SDK・ufbx を、ゲームに含めない |
-| ライセンスの問題を、避けられる | FBX SDK は、ツールだけ |
-| 形式の違いを、吸収 | 入力が FBX でも glTF でも、出力は同じ |
+| ロードが最速 | 解析なし・そのまま読める（[シリアライズでロードを速く](../optimize/serialization-speed.md)） |
+| 実行ファイルが軽い | FBX SDK・ufbx をゲームに含めない |
+| ライセンスの問題を避けられる | FBX SDK は、ツールだけ |
+| 形式の違いを吸収 | 入力が FBX でも glTF でも、出力は同じ |
 
 （[ベイク](../optimize/baking.md)、[メッシュとテクスチャ](../3d/mesh-textures.md)）
 
@@ -103,7 +103,7 @@ l o ob hit
 
 | 注意 | 説明 |
 | --- | --- |
-| **座標系・単位** | 形式ごとに違う。読み込み時に、右手系・Y 上・メートルにそろえ、ルートに X 反転の行列を掛けて左手系にする（[座標系](../gamemath/coordinate-systems.md)） |
+| **座標系・単位** | 形式ごとに違う。読み込み時に右手系・Y 上・メートルにそろえ、ルートに X 反転の行列を掛けて左手系にする（[座標系](../gamemath/coordinate-systems.md)） |
 | UV の原点 | glTF は左上（DirectX と同じ）、FBX・OBJ は左下（`v = 1 - v`） |
 | 巻き順 | どれも、反時計回りが表。このサイトは時計回りが表なので、左手系へ変換するとき、インデックスを入れ替える |
 | 色空間 | ベースカラーは sRGB、法線・メタリック・ラフネスはリニア（[PBR](../3d/pbr.md)） |

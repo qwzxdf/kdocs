@@ -6,7 +6,7 @@ tags:
 
 # 第 28 章 C++/CLI で橋を作る
 
-この章では、第 27 章と同じ `IEngineService` を、C++/CLI で実装します。P/Invoke 版は C の API（`EngineApi`）を通りましたが、こちらは C++ の `Engine` クラスを直接包みます。作り終えたら、2 つの方式を手間と書き味の両面から比べます。
+この章では、第 27 章と同じ `IEngineService` を C++/CLI で実装します。P/Invoke 版は C の API（`EngineApi`）を通りましたが、こちらは C++ の `Engine` クラスを直接包みます。作り終えたら、2 つの方式を手間と書き味の両面から比べます。
 
 !!! info "このページを読む前に"
     - [第 27 章 P/Invoke で C# から呼ぶ](27-pinvoke.md)（前の章。ここまでの内容が前提になる）
@@ -15,7 +15,7 @@ tags:
 
 ## C++/CLI とは
 
-C++/CLI は、普通の C++ に、.NET の型（`ref class`）を書ける拡張を足した言語です。1 つの `.cpp` の中に、ネイティブの C++ と、C# から見える .NET のクラスを同居させられます。
+C++/CLI は、普通の C++ に、.NET の型（`ref class`）を書ける拡張を足した言語です。1 つの `.cpp` の中にネイティブの C++ と、C# から見える .NET のクラスを同居させられます。
 
 ```cpp
 public ref class EngineBridge {      // C# からは普通の .NET クラスに見える
@@ -110,7 +110,7 @@ C++/CLI のクラスの後始末は、2 段構えです。
 
 ```cpp
 EngineBridge::~EngineBridge() {
-  this->!EngineBridge();     // ファイナライザーの処理を、ここで実行する
+  this->!EngineBridge();     // ファイナライザーの処理をここで実行する
 }
 
 EngineBridge::!EngineBridge() {
@@ -136,7 +136,7 @@ namespace Bridge {
 
 namespace {
 
-// ネイティブの UTF-8 の文字列を、.NET の String に変える。
+// ネイティブの UTF-8 の文字列を.NET の String に変える。
 String^ ToManaged(const char* text) {
   if (!text) return String::Empty;
   return gcnew String(text, 0, static_cast<int>(std::strlen(text)), System::Text::Encoding::UTF8);
@@ -153,7 +153,7 @@ EngineBridge::EngineBridge(IntPtr window, UInt32 width, UInt32 height) : engine_
   try {
     engine_ = mini::Engine::Create(desc);
   } catch (const std::exception& e) {
-    // ネイティブの例外を、.NET の例外に変える
+    // ネイティブの例外を.NET の例外に変える
     throw gcnew InvalidOperationException(ToManaged(e.what()));
   }
   if (!engine_) {
@@ -204,7 +204,7 @@ UInt64 EngineBridge::FrameCount::get() {
 - `String^` は、マネージドの文字列へのハンドルです。`^` は「GC が管理するオブジェクトへの参照」を表す記号で、ネイティブの `*` と区別します。
 - `gcnew` は、GC のヒープにオブジェクトを作る演算子で、C++ の `new` にあたりますが、解放は GC がやってくれます。
 - `FrameCount::get()` は、プロパティの getter の実装です。
-- 例外は、`std::exception` を `catch` して .NET の例外に変えて投げ直しています。P/Invoke 版では、エラー コードと `me_get_last_error` で行っていたことを、C++/CLI では `try/catch` で直接書けます。
+- 例外は、`std::exception` を `catch` して .NET の例外に変えて投げ直しています。P/Invoke 版では、エラー コードと `me_get_last_error` で行っていたことを C++/CLI では `try/catch` で直接書けます。
 
 `std::string` と `String^` の変換には、`marshal_as` も使えます。
 
@@ -234,7 +234,7 @@ public ref class EngineLog abstract sealed {
 ```cpp
 namespace {
 
-// マネージドのデリゲートを、ネイティブのコードから安全に持つための入れ物
+// マネージドのデリゲートをネイティブのコードから安全に持つための入れ物
 msclr::gcroot<System::Action<int, System::String^>^>* g_sink = nullptr;
 
 // ネイティブから呼ばれる関数
@@ -263,7 +263,7 @@ void EngineLog::Uninstall() {
 }
 ```
 
-`abstract sealed` を付けた `ref class` は、C# の `static class` にあたります。`msclr::gcroot<T>` は、マネージドのオブジェクトへの参照を、ネイティブのメモリの中に安全に持つための道具です。GC がその参照を追い続けてくれるので、回収されたり動かされたりしても大丈夫です。`NativeLogThunk` は、ただのネイティブの関数で、P/Invoke 版の `[UnmanagedCallersOnly]` のメソッドと同じ役目をしています。マネージドとネイティブの橋渡しを、`gcroot` が担います。
+`abstract sealed` を付けた `ref class` は、C# の `static class` にあたります。`msclr::gcroot<T>` は、マネージドのオブジェクトへの参照をネイティブのメモリの中に安全に持つための道具です。GC がその参照を追い続けてくれるので、回収されたり動かされたりしても大丈夫です。`NativeLogThunk` は、ただのネイティブの関数で、P/Invoke 版の `[UnmanagedCallersOnly]` のメソッドと同じ役目をしています。マネージドとネイティブの橋渡しを `gcroot` が担います。
 
 ## C# から使う
 
@@ -350,8 +350,8 @@ containerRegistry.RegisterSingleton<IEngineService, PInvokeEngineService>();
 選ぶときの目安はこうです。
 
 - 関数が増えても構造が単純で、将来、他の OS や他の言語からも使いたいなら、P/Invoke + C API。
-- すでにある C++ の API を、クラスの形のまま見せたいなら、C++/CLI。
-- C# 側の型のずれを、ビルドで見つけたいなら、C++/CLI。
+- すでにある C++ の API をクラスの形のまま見せたいなら、C++/CLI。
+- C# 側の型のずれをビルドで見つけたいなら、C++/CLI。
 - 設定の手間を減らしたい小さなチームなら、P/Invoke + C API。
 
 この教材では、以降は P/Invoke + C API を使います。C のインターフェースを整理する作業がエンジンの設計の練習になり、ビルドも速いからです。ただ、`IEngineService` で分けてあるので、あとから C++/CLI 版に差し替えても、ビューモデルは変わりません。

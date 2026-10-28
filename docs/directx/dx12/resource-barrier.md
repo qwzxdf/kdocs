@@ -20,7 +20,7 @@ D3D11 ではこの切り替えをドライバーが自動でやっていまし�
     - バック バッファは `PRESENT` と `RENDER_TARGET` を行き来する。
     - バリアはコマンド リストに記録される。GPU が実行するときに処理される。
     - 複数のバリアは 1 回の `ResourceBarrier` でまとめて渡すほうが効率がよい。
-    - デバッグ レイヤー（GPU ベース検証）が、バリアの間違いを教えてくれる。
+    - デバッグ レイヤー（GPU ベース検証）がバリアの間違いを教えてくれる。
 
 !!! info "このページを読む前に"
     バリアはコマンド リストに記録する命令です。先に [Command List](command-list.md) を読むと流れが分かります。リソースの作り方は [Heaps and Resources](heaps-resources.md)、`ResourceBarrier` の引数は [ID3D12GraphicsCommandList](api/id3d12graphicscommandlist.md#resourcebarrier) にあります。バリアを作る小さな関数は [Helper Functions](util.md) です。
@@ -42,7 +42,7 @@ D3D11 ではこの切り替えをドライバーが自動でやっていまし�
 一番よく使うのが遷移バリアです。状態を今の状態から次の状態へ切り替えます。
 
 ```cpp
-// レンダー ターゲットに描いたテクスチャを、次のパスで読む前に、状態を切り替える。
+// レンダー ターゲットに描いたテクスチャを次のパスで読む前に状態を切り替える。
 D3D12_RESOURCE_BARRIER barrier = MakeTransitionBarrier(
     scene_texture.Get(),
     D3D12_RESOURCE_STATE_RENDER_TARGET,       // 前の状態
@@ -82,7 +82,7 @@ G バッファはジオメトリ パスで `RENDER_TARGET` として書きライ
 同じ UAV に対してコンピュート シェーダーの `Dispatch` を続けて呼びあとのほうが前の結果を読むときは、前の `Dispatch` の書き込みが終わるのを待たせる必要があります。そのためのバリアが UAV バリアです。状態は `UNORDERED_ACCESS` のまま変わりません。
 
 ```cpp
-// 計算シェーダー A が書いた UAV を、計算シェーダー B が読む前に。
+// 計算シェーダー A が書いた UAV を計算シェーダー B が読む前に。
 D3D12_RESOURCE_BARRIER uav_barrier = MakeUavBarrier(uav_resource.Get());
 command_list->ResourceBarrier(1, &uav_barrier);
 command_list->Dispatch(group_x, group_y, 1);  // B
@@ -92,7 +92,7 @@ UAV バリアがないと B が A の書き込み途中の値を読みます。F
 
 ## エイリアシング バリア
 
-同じメモリを複数のリソースで共有して使い回すときリソース A から B に切り替える合図が、エイリアシング バリアです。使わない時間が重ならない一時バッファを同じメモリに重ねて、VRAM を節約する上級の技術で使います。
+同じメモリを複数のリソースで共有して使い回すときリソース A から B に切り替える合図がエイリアシング バリアです。使わない時間が重ならない一時バッファを同じメモリに重ねて、VRAM を節約する上級の技術で使います。
 
 ```cpp
 D3D12_RESOURCE_BARRIER aliasing = {};
@@ -126,7 +126,7 @@ command_list->ResourceBarrier(ARRAYSIZE(barriers), barriers);
 
 遷移の「開始」と「終了」を分けて記録できる `BEGIN_ONLY` と `END_ONLY` があります。2 つの間に別の仕事を挟むと GPU が遷移を裏で進められます。上級の最適化です。
 
-新しいバリアの API（Enhanced Barriers、`ID3D12Device10` と `ID3D12GraphicsCommandList7`）は状態の代わりに「どの段が、どのアクセスを終えたか」で書きます。より細かく制御できますが対応した環境が必要です（[Device and Factory](factory-device.md#enhanced-barriers)）。
+新しいバリアの API（Enhanced Barriers、`ID3D12Device10` と `ID3D12GraphicsCommandList7`）は状態の代わりに「どの段がどのアクセスを終えたか」で書きます。より細かく制御できますが対応した環境が必要です（[Device and Factory](factory-device.md#enhanced-barriers)）。
 
 ## 暗黙の状態遷移
 

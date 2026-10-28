@@ -12,7 +12,7 @@ tags:
 
 メッシュの頂点やテクスチャの画素は GPU の専用メモリ（DEFAULT ヒープ）に置きたいデータです。そのほうが速いからです。ところが CPU は DEFAULT のヒープに直接書けません。
 
-そこで、CPU から見える UPLOAD ヒープにいったんデータを書いておき GPU のコピー命令で DEFAULT ヒープへ送ります。この一時的な中継用のバッファが、<strong>アップロード バッファ</strong>です。
+そこで、CPU から見える UPLOAD ヒープにいったんデータを書いておき GPU のコピー命令で DEFAULT ヒープへ送ります。この一時的な中継用のバッファが <strong>アップロード バッファ</strong>です。
 
 !!! tip "ポイント"
     - 流れは UPLOAD に `memcpy`、コマンド リストで `CopyBufferRegion`、DEFAULT のリソースが使えるようになる。
@@ -46,7 +46,7 @@ UPLOAD のバッファは初期状態を必ず `GENERIC_READ` にします。DEF
 次に、CPU のデータを UPLOAD に書き GPU にコピーさせます。
 
 ```cpp
-// 3. CPU のデータを、UPLOAD のバッファに書く。
+// 3. CPU のデータを UPLOAD のバッファに書く。
 uint8_t* mapped = nullptr;
 D3D12_RANGE no_read = {0, 0};
 upload_buffer->Map(0, &no_read, reinterpret_cast<void**>(&mapped));
@@ -118,7 +118,7 @@ GPU が前のフレームを読んでいる間に同じ領域を書き換えて�
 GPU が書いた結果を CPU で読むときは、READBACK のバッファへコピーして、`Map` で読みます。
 
 ```cpp
-// READBACK のバッファへ、GPU の結果をコピーして、CPU が読む。
+// READBACK のバッファへ GPU の結果をコピーして、CPU が読む。
 D3D12_HEAP_PROPERTIES readback_heap = MakeHeapProperties(D3D12_HEAP_TYPE_READBACK);
 device->CreateCommittedResource(&readback_heap, D3D12_HEAP_FLAG_NONE, &buffer_desc,
                                 D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&readback_buffer));

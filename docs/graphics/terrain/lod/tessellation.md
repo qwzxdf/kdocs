@@ -9,7 +9,7 @@ tags:
 <strong>GPU のテッセレーションで、パッチを距離に応じて細かく分割</strong>できます。メッシュの管理が楽で細かさを連続的に変えられます。このページではテッセレーションによる地形の LODを説明します。
 
 !!! tip "ポイント"
-    - ハル・ドメイン シェーダーで、パッチを分割。
+    - ハル・ドメイン シェーダーで、パッチを分割する。
     - 距離に応じて分割数を決める。
     - 隣のパッチと境界の分割数を揃える。
     - 対応していない環境もある。
@@ -20,7 +20,7 @@ tags:
     - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## ハードウェア テッセレーション
-<strong>DX11 のテッセレーション</strong>は ハル シェーダー・ドメイン シェーダーでパッチ（四角形）を、GPU 内で細分します。地形ではパッチ（例：64×64 m）を渡し、距離に応じた細分数を決めます。
+<strong>DX11 のテッセレーション</strong>は ハル シェーダー・ドメイン シェーダーでパッチ（四角形）を GPU 内で細分します。地形ではパッチ（例：64×64 m）を渡し、距離に応じた細分数を決めます。
 
 テッセレーションのステージの役割です。ハル シェーダーはパッチの 4 辺と内側の細分係数を決めます（距離から）。固定機能のテッセレータは係数に従ってパッチを細分します。ドメイン シェーダーは細分された点の位置を計算し、高さマップを読んで持ち上げます。
 
@@ -95,12 +95,12 @@ struct HullConstants {
 float EdgeFactor(float3 p0, float3 p1) {
   float3 mid = 0.5 * (p0 + p1);
   float dist = distance(mid, camera_position);
-  // 距離が 2 倍になったら、係数を半分に（画面上の三角形の大きさを、一定にしたい）
+  // 距離が 2 倍になったら、係数を半分に（画面上の三角形の大きさを一定にしたい）
   return clamp(kFactorAtOneMeter / dist, 1.0, 64.0);
 }
 ```
 
-辺の分割数を辺の中点とカメラの距離から、決めます。距離が 2 倍になれば係数を半分にして、画面上の三角形の大きさが一定になるようにします。1〜64 に制限するのはハードウェアの上限（64）と下限（1 = 分割しない）に、合わせるためです。
+辺の分割数を辺の中点とカメラの距離から、決めます。距離が 2 倍になれば係数を半分にして、画面上の三角形の大きさが一定になるようにします。1〜64 に制限するのはハードウェアの上限（64）と下限（1 = 分割しない）に合わせるためです。
 
 ```hlsl
 HullConstants ComputeConstants(InputPatch<ControlPoint, 4> patch) {
@@ -118,7 +118,7 @@ HullConstants ComputeConstants(InputPatch<ControlPoint, 4> patch) {
 }
 ```
 
-辺の係数は 辺の両端の点だけから、決めます。隣り合うパッチは共有する辺を同じ両端から、計算するので必ず同じ値になり隙間（ひび割れ）が、出ません。内側の係数は向かい合う 2 辺の平均にします。
+辺の係数は 辺の両端の点だけから、決めます。隣り合うパッチは共有する辺を同じ両端から、計算するので必ず同じ値になり隙間（ひび割れ）が出ません。内側の係数は向かい合う 2 辺の平均にします。
 
 ```hlsl
 [domain("quad")]
@@ -132,7 +132,7 @@ ControlPoint main(InputPatch<ControlPoint, 4> patch, uint i : SV_OutputControlPo
 ```
 
 !!! warning "辺の係数は、辺の両端だけから計算する"
-    パッチの中心の距離から、4 辺とも同じ係数にすると隣のパッチとの境界で、左のパッチの右辺と右のパッチの左辺の係数が、食い違います。すると、境界の頂点が合わず隙間（クラック）が出ます。辺の係数は その辺の 2 つの端点だけから計算します。同じ辺を隣のパッチが同じ順序の 2 点で計算する必要があります（両端を座標の大きさの順に並べるなどして、計算の順序をそろえます）。
+    パッチの中心の距離から、4 辺とも同じ係数にすると隣のパッチとの境界で、左のパッチの右辺と右のパッチの左辺の係数が食い違います。すると、境界の頂点が合わず隙間（クラック）が出ます。辺の係数は その辺の 2 つの端点だけから計算します。同じ辺を隣のパッチが同じ順序の 2 点で計算する必要があります（両端を座標の大きさの順に並べるなどして、計算の順序をそろえます）。
 
 ### 分割方式（`partitioning`）
 
@@ -156,7 +156,7 @@ SamplerState g_linear_clamp : register(s0);
 [domain("quad")]
 DSOutput main(HullConstants constants, float2 uv : SV_DomainLocation,
               const OutputPatch<ControlPoint, 4> patch) {
-  // パッチの四隅を、バイリニアに補間して、XZ を作る
+  // パッチの四隅をバイリニアに補間して、XZ を作る
   float3 bottom = lerp(patch[0].position, patch[1].position, uv.x);
   float3 top = lerp(patch[2].position, patch[3].position, uv.x);
   float3 p = lerp(bottom, top, uv.y);
@@ -178,7 +178,7 @@ DSOutput main(HullConstants constants, float2 uv : SV_DomainLocation,
 距離だけで係数を決めると <strong>画角（FOV）や画面の解像度が変わったとき</strong>に、三角形の見た目の大きさが変わります。より正確には 辺が画面上で何画素になるかから、係数を決めます。
 
 ```hlsl
-// 辺の、画面上の長さ（画素）を測って、1 つの三角形の辺が、目標の画素数になるように割る。
+// 辺の、画面上の長さ（画素）を測って、1 つの三角形の辺が目標の画素数になるように割る。
 float EdgeFactorScreen(float3 p0, float3 p1, float target_pixels) {
   float4 c0 = mul(float4(p0, 1), view_proj);
   float4 c1 = mul(float4(p1, 1), view_proj);
@@ -221,12 +221,12 @@ if (!Visible(patch_min, patch_max)) {
 | --- | --- |
 | 長所 | CPU に四分木が要らない。パッチの配置は固定の格子でよい。LOD が連続的 |
 | 長所 | パッチの数が少なく、頂点バッファが小さい（1 パッチ = 4 点） |
-| 短所 | 固定機能のテッセレータが、GPU によって速度がまちまち |
+| 短所 | 固定機能のテッセレータが GPU によって速度がまちまち |
 | 短所 | 小さい三角形が多くなると、急に遅くなる |
-| 短所 | 新しい形式（メッシュ シェーダー）が、同じことをより柔軟にできる |
+| 短所 | 新しい形式（メッシュ シェーダー）が同じことをより柔軟にできる |
 | 短所 | DX11 以降の GPU が必要（モバイルや古い環境では使えない） |
 
-最近はテッセレーションの代わりに <strong>四分木でノードを選び同じ格子をインスタンスで描く</strong>（CDLOD 型）が、より一般的です。ただし、パッチ 1 枚から高さマップで変位させる形は、ディスプレースメント マッピング（岩や壁の凹凸）とそのまま同じなので、地形以外でも使い道があります。
+最近はテッセレーションの代わりに <strong>四分木でノードを選び同じ格子をインスタンスで描く</strong>（CDLOD 型）がより一般的です。ただし、パッチ 1 枚から高さマップで変位させる形は、ディスプレースメント マッピング（岩や壁の凹凸）とそのまま同じなので、地形以外でも使い道があります。
 
 ## よくあるミス
 
@@ -243,7 +243,7 @@ if (!Visible(patch_min, patch_max)) {
 - Cantlay, "DirectX 11 Terrain Tessellation", NVIDIA ホワイトペーパー, 2011
 - Microsoft Learn, "Tessellation Stages"（Direct3D 11 のハル・テッセレータ・ドメインの仕様）
 - Vlachos, Peters, Boyd, Mitchell, "Curved PN Triangles", Symposium on Interactive 3D Graphics 2001（テッセレーションで曲面にする考え方の源流）
-- Moreton, "Watertight Tessellation Using Forward Differencing", Graphics Hardware 2001（辺の細分を、辺の両端だけで決める隙間の出ない方式）
+- Moreton, "Watertight Tessellation Using Forward Differencing", Graphics Hardware 2001（辺の細分を辺の両端だけで決める隙間の出ない方式）
 - Strugar, "Continuous Distance-Dependent Level of Detail for Rendering Heightmaps", Journal of Graphics, GPU, and Game Tools, Vol. 14, No. 4, 2009（CDLOD の原典。作者の公開サンプル `fstrugar/CDLOD` が GitHub にある）
 
 ## 関連ページ
