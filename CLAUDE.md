@@ -16,6 +16,7 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
   - 途中で確認は取らない。作業が全部終わるまで続ける
 - 書き方を変えるときは、まず見本の 1 ページで試して OK をもらってから全体に広げる
 - 一括の修正は Python スクリプトで行う。`sed` で `|` や `\|` を含むパターンは使わない（GNU sed では `\|` が「または」になる）
+- 検索は Material の search プラグインを使わず、自前（`hooks/searchindex.py` がビルド時に `search/meta.json` と `search/body.*.json` を作り、`docs/javascripts/search.js` が部分一致で走査する）。Pagefind は日本語の語分割が合わず（「コンストラクタ」が 0 件）、見送った
 - プレビューは `mkdocs serve`（`serve.bat`、`http://127.0.0.1:8123/kdocs/`）。起動中のサーバーは止めない。アプリ内ブラウザで見てよい
 
 ## 文章の書き方（全ページ共通）

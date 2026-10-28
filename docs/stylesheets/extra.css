@@ -495,22 +495,206 @@
   .md-typeset .anim-stage span.pop { animation: none; }
 }
 
-.md-search-result .md-search-result__teaser,
-.md-search-result .md-search-result__terms,
-.md-search-result .md-search-result__more,
-.md-search-result .md-tags,
-.md-search-result .md-search-result__item > a ~ a {
+.kd-search-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border: 0;
+  border-radius: 0.2rem;
+  background: var(--md-default-bg-color--lightest, rgba(255, 255, 255, 0.12));
+  color: inherit;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.kd-search-button:hover,
+.kd-search-button:focus-visible {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.kd-search-button svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: currentcolor;
+}
+
+.kd-search-button kbd {
+  padding: 0 0.4em;
+  border: 1px solid currentcolor;
+  border-radius: 0.2rem;
+  font: inherit;
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+@media screen and (max-width: 59.9375em) {
+  .kd-search-button__label,
+  .kd-search-button kbd {
+    display: none;
+  }
+}
+
+html.kd-search-open {
+  overflow: hidden;
+}
+
+.kd-search {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 8vh 0.8rem 0;
+}
+
+.kd-search[hidden] {
   display: none;
 }
 
-.md-search-result .md-search-result__article {
-  padding-top: 0.3em;
-  padding-bottom: 0.3em;
+.kd-search__scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
 }
 
-.md-search-result .md-search-result__article > p,
-.md-search-result .md-search-result__link:has(article > h2) {
-  display: none;
+.kd-search__panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(44rem, 100%);
+  max-height: 80vh;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: var(--md-default-bg-color);
+  color: var(--md-default-fg-color);
+  box-shadow: 0 0.6rem 2rem rgba(0, 0, 0, 0.35);
+}
+
+.kd-search__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.kd-search__bar svg {
+  flex: none;
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: var(--md-default-fg-color--light);
+}
+
+.kd-search__bar input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 1rem;
+}
+
+.kd-search__bar kbd {
+  flex: none;
+  padding: 0 0.4em;
+  border: 1px solid var(--md-default-fg-color--lighter);
+  border-radius: 0.2rem;
+  color: var(--md-default-fg-color--light);
+  font: inherit;
+  font-size: 0.7rem;
+}
+
+.kd-search__status {
+  padding: 0.35rem 0.9rem;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.7rem;
+}
+
+.kd-search__list {
+  margin: 0;
+  padding: 0 0 0.4rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.kd-search__group {
+  margin: 0;
+  padding: 0.2rem 0;
+  border-top: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.kd-search__hit {
+  display: block;
+  padding: 0.35rem 0.9rem;
+  color: inherit;
+  line-height: 1.5;
+}
+
+.kd-search__hit:hover,
+.kd-search__hit.is-active {
+  background: var(--md-code-bg-color);
+  color: inherit;
+}
+
+.kd-search__hit.is-active {
+  box-shadow: inset 0.15rem 0 0 var(--md-accent-fg-color);
+}
+
+.kd-search__title {
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.kd-search__path {
+  margin-left: 0.6em;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.65rem;
+}
+
+.kd-search__sub {
+  padding-left: 1.8rem;
+}
+
+.kd-search__heading {
+  display: block;
+  font-size: 0.78rem;
+}
+
+.kd-search__snippet {
+  display: block;
+  overflow: hidden;
+  color: var(--md-default-fg-color--light);
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kd-search__snippet mark {
+  background: transparent;
+  color: var(--md-accent-fg-color);
+  font-weight: 700;
+}
+
+.md-typeset mark.kd-mark {
+  background: var(--md-typeset-mark-color);
+  color: inherit;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .kd-search__panel {
+    animation: kd-search-in 0.12s ease-out;
+  }
+}
+
+@keyframes kd-search-in {
+  from { opacity: 0; transform: translateY(-0.5rem); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .md-typeset code.inline-cpp {

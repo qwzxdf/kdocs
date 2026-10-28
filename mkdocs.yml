@@ -44,9 +44,6 @@ theme:
     - navigation.footer
     - navigation.path
     - toc.follow
-    - search.suggest
-    - search.highlight
-    - search.share
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
@@ -59,11 +56,9 @@ hooks:
   - hooks/codelink.py
   - hooks/glossary.py
   - hooks/pageicons.py
+  - hooks/searchindex.py
 
 plugins:
-  - search:
-      lang: ja
-      separator: '[\s\-、。，．,:!=\[\]()"/<>{}]+|\.(?!\d)|&[lg]t;'
   - awesome-pages
   - tags
 
@@ -74,7 +69,7 @@ extra_javascript:
   - javascripts/toc.js
   - javascripts/anim.js
   - javascripts/anim-graph.js
-  - javascripts/search-tune.js
+  - javascripts/search.js
   - javascripts/table-labels.js
   - javascripts/proscons.js
   - javascripts/motion-control.js
