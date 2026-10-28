@@ -48,7 +48,7 @@ int main() {
   auto newest_first = history | std::views::reverse | std::ranges::to<std::vector>();
   std::println("{}", newest_first);
 
-  // 最後の 2 個だけ
+  // 新しい順に 2 個だけ
   auto last2 = history | std::views::reverse | std::views::take(2) | std::ranges::to<std::vector>();
   std::println("{}", last2);
 }
@@ -56,7 +56,7 @@ int main() {
 
 ```text title="実行結果"
 [3, 2, 1]
-[2, 1]
+[3, 2]
 ```
 
 ### std::ranges::reverse_view <span class="ver ver-20">C++20</span> {#reverse_view data-toc-label="std::ranges::reverse_view"}

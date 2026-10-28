@@ -50,7 +50,7 @@ int main() {
   std::string line = "a-b-c";
 
   for (auto part : line | std::views::lazy_split('-')) {
-    std::println("{}", std::string(part.begin(), part.end()));
+    std::println("{}", part | std::ranges::to<std::string>());
   }
 }
 ```

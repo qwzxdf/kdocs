@@ -32,7 +32,11 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 ### 1-2. 今回の作業の品質で、気になる所
 
 - **同じ型の文章が並ぶ。** 同じ種類のページ（`cctype`、`ratio` の接頭辞、`cstdint`、`type_traits` の `is_xxx`、`functional` の演算子）は、生成スクリプトで、同じ構成の文章を作った。1 ページずつ読むと自然だが、続けて読むと、言い回しが同じで、人が書いた感じが薄い。特に「ゲームでの使いどころ」が、型どおりのページがある
-- **実行結果は手計算。** この環境にコンパイラが無く、Compiler Explorer も使っていない。値は、既知の値と照らして確かめたが、実機の出力と 1 文字違う可能性が残る。C++23・C++26 の機能（`bind_back`、`from_range`、飽和演算など）の対応バージョンも、実機では確かめていない
+- **実行結果は、スクリプトで検証した（2026-10-28）。** 手元の Visual Studio 18（MSVC 14.51、`/std:c++latest`）で、サンプルをビルド・実行して「実行結果」と照合する `tools/verify_samples.py` を作った。今回の作業で変わった 1854 ページの 1362 サンプルのうち、1275 が一致、30 が標準以外のヘッダー等でスキップ、57 が不一致だった
+    - 不一致のうち、自分のページの原因は 2 種類だけ。特殊関数 21 ページで出力の見出しを書き忘れた（数値は全部合っていた）。`is_error_code_enum` / `is_error_condition_enum` の期待値の取り違え。いずれも直して再検証済み
+    - 検証で、元からあったページの間違いも見つかり、直した: `io/left.md`（`'|
+'` の文字定数）、`algorithms/views/reverse.md`（`take(2)` の結果）、`algorithms/views/lazy_split.md`（`string(begin, end)` でビルドできない）、`utilities/random/ranlux48.md`（10000 回目の値が規格と違った）、`support/concepts/sortable.md`（ランダムアクセスは要求しない）
+    - 使い方: `python tools/verify_samples.py docs/stl/numeric`、`--since <版>`（その版からの変更分）、`--jobs 8`（並列）。MSVC で確認できる範囲の照合で、GCC / Clang との差は見えない
 - **「このページを読む前に」を機械的に入れた。** 約 690 ページに、フォルダーごとの対応表で前提ページを入れた。リンク先は実在するが、そのページに本当に必要な前提かは、1 ページずつ見ていない（例: `graphics` の全ページに、MVP 変換と GPU パイプラインを入れた）
 - **「非常に」を地の文から削った。** 201 か所。「影が非常に、長く」→「影が、長く」のように、読点だけ残った所がある
 - **検査スクリプトが無い。** CLAUDE.md が push 前に要求する `.handoff/scripts/check_anchors.py` と `check_docs.py` が、このチェックアウトに無く、一度も実行できていない。`mkdocs build --strict` だけで push している
@@ -59,7 +63,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 1. **検査スクリプトを復活させる**（`.handoff/scripts/` の 2 本。無いなら、`tools/` に作り直す）。以降の作業の安全網になる
 2. **生成ページを読み直す**: 特に `cctype`、`cwctype`、`cstdint` の fast / least、`ratio`、`cmath` の特殊関数、`type_traits` の `is_xxx`。同じ文章の所を、ページごとの具体的な話に差し替える
 3. **STL の残りを濃くする**（`io` → `utilities` → `memory` → `concurrency` → `containers` → `algorithms` → `support` の残り）。約 720 ページ
-4. **Compiler Explorer で、書き直したページのサンプルを実行して照合する**（ユーザーの指示があったときだけ。CLAUDE.md のルール）
+4. **検証で残った不一致を直す**（下の「検証で残っているもの」）。以降も、STL を書いたら `tools/verify_samples.py` で照合してから push する
 5. 読点（`tools/fix_commas.py`）と太字（`tools/fix_bold.py`）の一括整理。まず見本の 1 ページで試して、OK をもらってから広げる
 6. 「必要があります」「つまり」「効率的」などの整理（文脈ごとに、手で）
 
@@ -71,6 +75,12 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 - `concurrency`（72 ページ中 43）、`containers`（63 ページ中 26）、`algorithms`（140 ページ中 56。`views` と数値アルゴリズム）
 - `support` の残り: iterator のコンセプト（約 35）、iterator の細かい型、`coroutine`（8）、`functional` の検索器・`function_ref`・placeholders、`invoke_result` 系、`stacktrace`・`contract_violation`・`text_encoding`・`*_order_fallback`
 - `numeric` の残り: `cfloat`、`climits`、`complex`、`cstdint`、`numbers`、`ratio` の概要ページ（`cmath/atan2.md`、`lerp.md`、`sqrt.md` を含む）
+
+### 検証で残っているもの
+
+- 手元の MSVC が未対応の機能（環境側の問題。ページの「コンパイラ対応」に対応版を書いてある）: `add_sat` 系・`saturate_cast`（C++26）、`runtime_format`、`ranges::to_input`、`strided_slice`、`c8rtomb`・`mbrtoc8`、`is_virtual_base_of`、`elements_of`（`generator` と組み合わせる例）。GCC / Clang で確かめる
+- 元からあるページで直したいもの: `design/patterns/event-plus.md`（`<cstddef>` が無い）、`stl/utilities/chrono/local_days.md`（初期化できない）、`stl/utilities/wformat_string.md`（ビルドできない）、`stl/io/csignal.md`・`put_money.md`（ビルドできない）、`stl/containers/multiset.md`（出力の行末の空白）、`engine/resource.md`（破棄の順序は実装で変わる。その旨を書く）、`basics/file-io.md`（Windows のテキスト モードは改行が 2 バイトで、バイト数が違う）
+- 環境で出力が変わる（直さなくてよい）: `source_location`・`predefined-macros`（パス）、`vs/terms/platform`（アドレス）、`hexfloat`、`cerr`・`wcerr`・`wclog`（標準エラー）、`file_clock`、`create_symlink`
 
 ## 3. 追加したいページ（残り）
 
