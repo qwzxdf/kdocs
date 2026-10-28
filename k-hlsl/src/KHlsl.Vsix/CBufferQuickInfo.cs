@@ -98,18 +98,19 @@ namespace KHlsl.Vsix
 
         private static bool IsIdent(char c) { return char.IsLetterOrDigit(c) || c == '_'; }
 
-        // ホバーは小さめの字で、図と 1 行の説明だけにする(オフセットの細かい値は、升目の上にカーソルを置くと出る)
+        // ホバーは小さめの字で、図と短い説明だけにする(オフセットの細かい値は、升目の上にカーソルを置くと出る)。
+        // ホバーの幅(約 230 DIP)からはみ出さないよう、図は約 185 DIP に収め、説明は折り返す
         private static object MakeContent(JObject b)
         {
             int size = (int)b["size"], padded = (int)b["paddedSize"], wasted = (int)b["wasted"];
             string summary = (string)b["title"] + "  " + size + " バイト(" + padded / 16 + " レジスタ)・隙間 " + wasted + " バイト";
             var panel = new StackPanel();
-            panel.Children.Add(new TextBlock { Text = summary, FontSize = 10, FontWeight = FontWeights.SemiBold, Foreground = null, Margin = new Thickness(0, 0, 0, 4), TextWrapping = TextWrapping.Wrap, MaxWidth = 420 });
-            var grid = CBufferGrid.Build(b, 13, 17, 8, EnvironmentColors.ToolTipTextBrushKey, null);
+            panel.Children.Add(new TextBlock { Text = summary, FontSize = 10, FontWeight = FontWeights.SemiBold, Foreground = null, Margin = new Thickness(0, 0, 0, 4), TextWrapping = TextWrapping.Wrap, MaxWidth = 190 });
+            var grid = CBufferGrid.Build(b, 9, 15, 7, EnvironmentColors.ToolTipTextBrushKey, null);
             panel.Children.Add(grid);
             var problems = (JArray)b["problems"];
             if (problems.Count > 0)
-                panel.Children.Add(new TextBlock { Text = "⚠ " + string.Join(" / ", problems.Select(x => (string)x)), FontSize = 10, TextWrapping = TextWrapping.Wrap, MaxWidth = 420, Margin = new Thickness(0, 4, 0, 0) });
+                panel.Children.Add(new TextBlock { Text = "⚠ " + string.Join(" / ", problems.Select(x => (string)x)), FontSize = 10, TextWrapping = TextWrapping.Wrap, MaxWidth = 190, Margin = new Thickness(0, 4, 0, 0) });
             return panel;
         }
 
