@@ -257,10 +257,10 @@ protected override void ConfigureViewModelLocator()
 {
     base.ConfigureViewModelLocator();
 
-    // 規則を変える：Views.Xxx → ViewModels.XxxVM
+    // 規則を変える：Editor.MainWindow → Editor.MainWindowVM（末尾を VM にする）
     ViewModelLocationProvider.SetDefaultViewTypeToViewModelTypeResolver(viewType =>
     {
-        var name = viewType.FullName!.Replace(".Views.", ".ViewModels.") + "VM";
+        var name = viewType.FullName! + "VM";
         return Type.GetType(name);
     });
 

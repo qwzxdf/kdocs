@@ -61,8 +61,8 @@ public static class RegionNames
 
 第 6 章のレイアウトはそのままに、中身をリージョンに置き換えます。
 
-```xml title="Views/MainWindow.xaml"
-<Window x:Class="Editor.Views.MainWindow"
+```xml title="MainWindow.xaml"
+<Window x:Class="Editor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:prism="http://prismlibrary.com/"
@@ -137,11 +137,11 @@ public string StatusText
 
 各機能の画面は `UserControl` で作ります。`Window` のような外枠を持たず、他の画面の中に入れて使える小さな画面です。
 
-1. `Editor` に `Modules\SceneTree` フォルダーを作り、中に `Views` と `ViewModels` を作ります。
-2. `Views` を右クリックして「追加 → 新しい項目 → ユーザー コントロール (WPF)」で `SceneTreeView.xaml` を作ります。
+1. `Editor` に `Modules\SceneTree` フォルダーを作ります。
+2. そのフォルダーを右クリックして「追加 → 新しい項目 → ユーザー コントロール (WPF)」で `SceneTreeView.xaml` を作ります。
 
-```xml title="Modules/SceneTree/Views/SceneTreeView.xaml"
-<UserControl x:Class="Editor.Modules.SceneTree.Views.SceneTreeView"
+```xml title="Modules/SceneTree/SceneTreeView.xaml"
+<UserControl x:Class="Editor.Modules.SceneTree.SceneTreeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
@@ -155,10 +155,10 @@ public string StatusText
 </UserControl>
 ```
 
-```csharp title="Modules/SceneTree/ViewModels/SceneTreeViewModel.cs"
+```csharp title="Modules/SceneTree/SceneTreeViewModel.cs"
 using Prism.Mvvm;
 
-namespace Editor.Modules.SceneTree.ViewModels;
+namespace Editor.Modules.SceneTree;
 
 public class SceneTreeViewModel : BindableBase
 {
@@ -166,7 +166,7 @@ public class SceneTreeViewModel : BindableBase
 }
 ```
 
-フォルダーに合わせて名前空間が `...SceneTree.Views` / `...SceneTree.ViewModels` になるので、ViewModelLocator の規則にもちゃんと合います。
+フォルダーに合わせて、画面とビューモデルの名前空間が、どちらも `Editor.Modules.SceneTree` になります。同じ名前空間に並んでいれば、ViewModelLocator の規則（`SceneTreeView` には `SceneTreeViewModel`）で見つかります。
 
 同じようにして `Property`（`PropertyView`）、`Asset`（`AssetView`）、`Log`（`LogView`）も作ります。中身は今のところタイトルだけで構いません。
 
@@ -180,7 +180,6 @@ using Prism.Modularity;
 using Prism.Navigation.Regions;
 
 using Editor.Infrastructure;
-using Editor.Modules.SceneTree.Views;
 
 namespace Editor.Modules.SceneTree;
 

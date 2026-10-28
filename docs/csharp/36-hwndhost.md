@@ -35,8 +35,8 @@ ViewportView（UserControl）
 ```text
 Editor\Modules\Viewport\
   ViewportModule.cs
-  Views\ViewportView.xaml / .xaml.cs
-  ViewModels\ViewportViewModel.cs
+  ViewportView.xaml / .xaml.cs
+  ViewportViewModel.cs
   Controls\ViewportHost.cs      ← HwndHost
 Editor\Interop\Win32.cs         ← Win32 API の宣言
 ```
@@ -281,8 +281,8 @@ public sealed class ViewportHost : HwndHost
 
 ビューは、`ViewportHost` を置くだけです。
 
-```xml title="Views/ViewportView.xaml"
-<UserControl x:Class="Editor.Modules.Viewport.Views.ViewportView"
+```xml title="ViewportView.xaml"
+<UserControl x:Class="Editor.Modules.Viewport.ViewportView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
@@ -296,12 +296,10 @@ public sealed class ViewportHost : HwndHost
 
 `HwndHost` のイベントは、バインディングでは受けられません。そこで、ビューのコードビハインドで受けて、ビューモデルへ橋渡しします。ビューモデルは、画面を知らず、`HWND` と数値だけを受け取ります。
 
-```csharp title="Views/ViewportView.xaml.cs"
+```csharp title="ViewportView.xaml.cs"
 using System.Windows.Controls;
 
-using Editor.Modules.Viewport.ViewModels;
-
-namespace Editor.Modules.Viewport.Views;
+namespace Editor.Modules.Viewport;
 
 public partial class ViewportView : UserControl
 {
@@ -322,7 +320,7 @@ public partial class ViewportView : UserControl
 
 コードビハインドにロジックは書いていません。画面の部品のイベントをビューモデルへ渡すだけの用途なら、コードビハインドを使っても問題ありません。
 
-```csharp title="ViewModels/ViewportViewModel.cs"
+```csharp title="ViewportViewModel.cs"
 using System.Diagnostics;
 using System.Windows.Media;
 
@@ -330,7 +328,7 @@ using Prism.Mvvm;
 
 using Editor.Services;
 
-namespace Editor.Modules.Viewport.ViewModels;
+namespace Editor.Modules.Viewport;
 
 public class ViewportViewModel : BindableBase
 {
@@ -412,7 +410,6 @@ using Prism.Modularity;
 using Prism.Navigation.Regions;
 
 using Editor.Infrastructure;
-using Editor.Modules.Viewport.Views;
 
 namespace Editor.Modules.Viewport;
 

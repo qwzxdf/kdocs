@@ -47,14 +47,18 @@ var window = Container.Resolve<MainWindow>();
 
 ViewModelLocator が型を探す規則は、Prism のソースで確かめられます（`ViewModelLocationProvider` の既定の規則）。
 
-- 画面の完全な名前の `.Views.` を `.ViewModels.` に置き換える。
+- 画面の完全な名前（名前空間つき）を取る。
+- その中の `.Views.` を `.ViewModels.` に置き換える。`.Views.` がなければ何も変わらないので、画面と同じ名前空間で探すことになる。
 - 画面の名前の末尾が `View` なら `Model` を、そうでなければ `ViewModel` を足す。
 - 画面と同じアセンブリ（同じプロジェクト）の中から探す。
 
 具体的には、次のように決まります。
 
-- `Editor.Views.MainWindow` には `Editor.ViewModels.MainWindowViewModel`（`View` で終わらないので、`ViewModel` を足す）
-- `Editor.Views.SceneTreeView` には `Editor.ViewModels.SceneTreeViewModel`（`View` で終わるので、`Model` を足す）
+- `Editor.MainWindow` には `Editor.MainWindowViewModel`（`View` で終わらないので、`ViewModel` を足す）
+- `Editor.Modules.SceneTree.SceneTreeView` には `Editor.Modules.SceneTree.SceneTreeViewModel`（`View` で終わるので、`Model` を足す）
+- `Editor.Views.MainWindow` には `Editor.ViewModels.MainWindowViewModel`（`Views` と `ViewModels` のフォルダーに分けて置く形でも、規則どおりに見つかる）
+
+この連載では、機能ごとのフォルダーに画面とビューモデルを並べる形（上の 2 つ）で書きます。
 
 第 16 章で「`View` が付く画面は `ViewModel`、付かない画面にも `ViewModel`」と覚えておけば、まず迷いません。
 
@@ -63,7 +67,7 @@ ViewModelLocator が型を探す規則は、Prism のソースで確かめられ
 ビューモデルが結びつかない原因は、ほとんど次の 3 つのどれかです。
 
 - XAML に `AutoWireViewModel="True"` が書かれていない。
-- 名前の規則から外れている。画面が `Views` でなく `Windows` というフォルダー（名前空間）にある、ビューモデルが別のプロジェクトにある、名前の末尾が違う、など。
+- 名前の規則から外れている。画面とビューモデルの名前空間が違う、ビューモデルが別のプロジェクトにある、名前の末尾が違う、など。
 - ビューモデルの引数の型が、登録されていない（第 19 章）。
 
 最初の 2 つは、バインディングが空振りして、画面に何も出ません。出力ウィンドウに `System.Windows.Data Error: 40 : BindingExpression path error` が出ているときは、`DataContext` が `null` のままのことが多いです。
@@ -124,7 +128,7 @@ public App()
 ## まとめ
 
 - AutoWire は、XAML の読み込み中に動き、ビューモデルを探して、`DataContext` に設定する。
-- ビューモデルの型は、名前の規則（`.Views.` → `.ViewModels.`、末尾 `View` なら `Model`、そうでなければ `ViewModel`）で探す。
+- ビューモデルの型は、名前の規則（画面と同じ名前空間、末尾 `View` なら `Model`、そうでなければ `ViewModel`。`.Views.` があれば `.ViewModels.` に置き換える）で探す。
 - 実際に作るのはコンテナーなので、ビューモデルのコンストラクターで注入が効く。
 - 規則から外れるときは、`ViewModelLocationProvider.Register<TView, TViewModel>()` で明示する。
 - 画面を作る時点で、コンテナーが無いと、`XamlParseException` になる。
