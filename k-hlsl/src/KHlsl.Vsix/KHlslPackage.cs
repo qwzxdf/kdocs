@@ -21,7 +21,7 @@ namespace KHlsl.Vsix
     /// LSP の補完が使われない。"khlsl" へ切り離すと、K-HLSL の機能だけが働く。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-HLSL", "HLSL language support (SM 6.9)", "1.2.0")]
+    [InstalledProductRegistration("K-HLSL", "HLSL language support (SM 6.9)", "1.3.0")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideToolWindow(typeof(CBufferToolWindow), Style = VsDockStyle.Tabbed, Window = "34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3")]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
@@ -133,6 +133,18 @@ namespace KHlsl.Vsix
             ThreadHelper.ThrowIfNotOnUIThread();
             try
             {
+                // Tools.Options にページの GUID(波括弧なし)を渡すと、そのページが開く。
+                // PostExecCommand は、渡し方によってはページが選ばれず何も起きないので、DTE を先に使う
+                try
+                {
+                    var dte = GetService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
+                    if (dte != null)
+                    {
+                        dte.ExecuteCommand("Tools.Options", FontsAndColorsPage.Trim('{', '}'));
+                        return;
+                    }
+                }
+                catch (Exception ex) { Log("ExecuteCommand Tools.Options failed: " + ex.Message); }
                 var shell = GetService(typeof(Microsoft.VisualStudio.Shell.Interop.SVsUIShell)) as Microsoft.VisualStudio.Shell.Interop.IVsUIShell;
                 if (shell == null) return;
                 Guid group = VSConstants.GUID_VSStandardCommandSet97;

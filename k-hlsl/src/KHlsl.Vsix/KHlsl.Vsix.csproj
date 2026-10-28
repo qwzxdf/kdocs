@@ -37,6 +37,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- 整形は、サーバーと同じ物を使う -->
+    <Compile Include="..\KHlsl.Server\Formatter.cs" Link="Formatter.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="source.extension.vsixmanifest" SubType="Designer" />
     <VSCTCompile Include="KHlsl.vsct">
       <ResourceName>Menus.ctmenu</ResourceName>

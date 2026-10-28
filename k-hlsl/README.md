@@ -21,6 +21,7 @@ Visual Studio 2022 / 2026 用の HLSL 拡張です。Shader Model 6.9 までの�
 - ホバー（日本語の説明、シグネチャ、必要な Shader Model）
 - シグネチャ ヘルプ（組み込み関数、メソッド、自分で書いた関数）
 - 定義へ移動（`#include` のファイルも）と、アウトライン
+- 整形（Ctrl+K, D でドキュメント全体、Ctrl+K, F で選択範囲）と、Enter・`}`・`;` での自動字下げ。`if` `for` `while` `else` `do` の本体（`{` なしでも）、`switch` の `case`、`{ }` の入れ子、複数行の引数や初期化子、`[unroll]` などの属性行、ブロック コメントの中を、VS の C++ に近い規則で字下げする。`if(` → `if (`、`a=b` → `a = b`、`,` の後ろなど、足りない空白も補う（空白を詰めたり、改行を変えたりはしない。`#` で始まる行は動かさない）。計算は `src/KHlsl.Server/Formatter.cs`、`tests/lsp_format.py` が確かめる
 - DXC による診断（保存時と、入力が止まった 0.7 秒後）
 - 定数バッファのレイアウト（`cbuffer` / `ConstantBuffer<T>` / `struct`）。16 バイトのレジスタの詰め方を計算して、次の 3 つで見せる
     - ホバー: 1 行の要約と、小さい字のレジスタの図（VS 拡張の QuickInfo。`CBufferQuickInfo.cs`）。メンバーの宣言行では、そのメンバーのオフセット
