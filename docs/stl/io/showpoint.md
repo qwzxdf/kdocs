@@ -13,12 +13,13 @@ tags:
 `#include <iostream>`
 </div>
 
-`std::cout << 1.0` は、既定では `1` と出力されます。`showpoint` を設定すると、`1.00000` のように、小数点と桁数ぶんの 0 が付きます。
+`3.0` と出したいのに、`std::cout << 3.0` は `3` と出ます。小数点以下が全部 0 のとき、小数点も 0 も省かれるからです。`std::showpoint` は、<strong>小数点と、末尾の 0 を必ず出す</strong>操作子です。
 
 !!! tip "ポイント"
-    - 有効桁数（既定は 6）ぶんまで 0 が付く。
-    - `noshowpoint` で解除する。
-    - 桁数は `setprecision` で変える。
+    - `std::showpoint` で、`3` が `3.00000` のように、小数点と精度の桁数ぶんの 0 を付けて出る
+    - 既定の書式（`defaultfloat`）で、精度の桁数までを出す
+    - `fixed` では、もともと小数点が付く
+    - 設定は残る。戻すには `std::noshowpoint`
 
 !!! info "このページを読む前に"
     [`std::cout`](cout.md) と [`std::cin`](cin.md) を先に読んでください。
@@ -31,13 +32,11 @@ tags:
 std::ios_base& showpoint(std::ios_base& str);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `str` | ios_base& | 対象のストリーム |
+既定の書式では、浮動小数点数の末尾の 0 は省かれ、整数と同じ値なら小数点も出ません。`showpoint` を立てると、精度で決まる桁数まで 0 を出して、小数点も必ず出します。
 
-- 戻り値: ストリームへの参照
-- 計算量: 定数
+`std::cout << std::showpoint << 3.0` は、既定の精度 6（有効数字）なので `3.00000` です。有効数字の桁数分が出る点に注意します。小数点以下の桁数を決めたいときは、`fixed` と `setprecision` を使います。
 
+整数型には効きません。
 
 ## 実際に動かしてみる
 
@@ -45,31 +44,35 @@ std::ios_base& showpoint(std::ios_base& str);
 #include <iostream>
 
 int main() {
-  std::cout << std::showpoint << 1.0 << '\n';
+  std::cout << 3.0 << '\n';                          // 3
+  std::cout << std::showpoint << 3.0 << '\n';        // 3.00000
+  std::cout << 2.5 << '\n';                          // 2.50000
+  std::cout << std::noshowpoint << 2.5 << '\n';      // 2.5
 }
 ```
 
 ```text title="実行結果"
-1.00000
+3
+3.00000
+2.50000
+2.5
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 出力の書式をストリームに設定する |
+小数であることを、見た目ではっきりさせたいときに使います。桁をそろえる目的なら、`fixed` と `setprecision` のほうが確実です。
 
 ## よくあるミス
 
-??? failure "`fixed` と取り違える"
-    `showpoint` は有効桁数ぶんの桁、`fixed` は小数点以下の桁数が基準です。
+??? failure "`showpoint` で小数点以下 2 桁が出ると期待する"
+    出るのは有効数字の桁数です。小数点以下の桁数は `fixed` と `setprecision` で決めます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`fixed`](fixed.md) | 小数点以下の桁数で固定 |
-| [`setprecision`](setprecision.md) | 桁数を設定 |
+| [`fixed`](fixed.md) | 固定小数点にする |
+| [`setprecision`](setprecision.md) | 桁数を決める |
 
 ## コンパイラ対応
 
@@ -78,9 +81,9 @@ C++11 以前から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 小数の出力に小数点と末尾の 0 を必ず付ける
-    - [x] 有効桁数（既定は 6）ぶんまで 0 が付く
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] 小数点と末尾の 0 を必ず出す
+    - [x] 有効数字の桁数まで出る
+    - [x] 戻すのは `noshowpoint`
 
 ## 関連ページ
 

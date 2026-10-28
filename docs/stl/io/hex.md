@@ -14,12 +14,15 @@ tags:
 `#include <ios>`
 </div>
 
-`std::hex` は、**整数を 16 進数で出力・入力するようにストリームの設定を切り替える**マニピュレーターです。仲間に 10 進数の `std::dec`、8 進数の `std::oct` があります。**設定は残り続ける**ので、出力のあとに `std::dec` で戻します。`std::println("{:x}", n)` のほうが、設定が残らず簡単です。
+ピクセルの色を 16 進数で `FF8800` と表示したい。メモリのアドレスやフラグの値を、16 進数で確かめたい。`std::cout << 255` は、10 進数の `255` を出します。ストリームの基数を切り替える操作子の 1 つが `std::hex` です。
+
+<strong>以降の整数の出力と入力を、16 進数にする</strong>操作子です。`std::cout << std::hex << 255` で `ff` と出ます。
 
 !!! tip "ポイント"
-    - `std::cout << std::hex << 255;` → `ff`。
-    - 一度指定すると以降ずっと有効。元に戻すのは `std::dec`。
-    - 新しいコードでは `std::println("{:x}", n)`。
+    - `std::hex` を流すと、そのストリームの整数の基数が 16 進数に変わる
+    - 設定は残り続ける。戻すには `std::dec`
+    - 英字は小文字。大文字にするには `std::uppercase`、`0x` を付けるには `std::showbase`
+    - 負の数は、符号なしとして解釈されたビット列（`ffffffff` など）で出る
 
 !!! info "このページを読む前に"
     [`std::cout`](cout.md) などの出力ストリームの設定です。新しいコードでは [`std::println`](../utilities/print.md) の書式が簡単です。
@@ -30,44 +33,71 @@ tags:
 
 ```cpp
 std::ios_base& hex(std::ios_base& str);
-std::ios_base& dec(std::ios_base& str);
-std::ios_base& oct(std::ios_base& str);
 ```
 
-- 戻り値: `str`（`<<` で続けて書ける）
-- 計算量: O(1)
+`std::cout << std::hex` のように、ストリームに流して使います。引数は、ストリームの書式フラグで、`basefield`（基数のグループ）を 16 進数に設定します。10 進数なら [`dec`](dec.md)、8 進数なら [`oct`](oct.md)です。
+
+効果は、<strong>設定を戻すまで続きます</strong>。1 回の出力で終わりではないので、`hex` の後に出した整数は、すべて 16 進数になります。ログの途中で `hex` を使って、戻し忘れると、その後の数値が全部 16 進数で出て、混乱します。
+
+標準では、`hex` で出る英字は小文字です。`std::uppercase` を併用すると大文字になり、`std::showbase` を併用すると、先頭に `0x` が付きます。
+
+`bool` や `char` には効きません。`char` はそのまま文字として出るので、バイトを 16 進数で見たいときは、`int` に変換して出します。
+
+C++23 の `std::print` では、`{:x}` のように書式で指定できて、設定が残る問題がありません。新しいコードでは、そちらのほうが安全です。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <iostream>
 
 int main() {
-  std::cout << std::hex << 255 << '\n';   // ff
-  std::cout << std::dec << 255 << '\n';   // 255 に戻す
+  int color = 0xFF8800;
+
+  std::cout << std::hex << color << '\n';                       // ff8800
+  std::cout << std::uppercase << color << '\n';                 // FF8800
+  std::cout << std::showbase << 255 << '\n';                    // 0XFF
+  std::cout << std::dec << std::nouppercase << std::noshowbase;  // 元に戻す
+  std::cout << 255 << '\n';                                     // 255
+
+  // バイトを 16 進数で見たいときは、int に変換する
+  unsigned char byte = 0x7F;
+  std::cout << std::hex << static_cast<int>(byte) << '\n';
 }
 ```
 
 ```text title="実行結果"
-ff
+ff8800
+FF8800
+0XFF
 255
+7f
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 古いコードで、アドレスや色コードを 16 進数で出す | `std::cout << std::hex << color;` |
+色コード、メモリのアドレス、フラグのビット列を、ログや画面に出すときに使います。ゲーム エンジンのデバッグ出力で、ハンドルや ID を 16 進数で出すのは定番です。
+
+設定が残る性質のため、ログ関数の中で使うときは、出力のあとで必ず `dec` に戻すか、ストリームの状態を保存・復元します。`std::format` や `std::print` なら、この問題はありません。
 
 ## よくあるミス
 
-??? failure "設定が残って、後の出力が 16 進数のまま"
-    出力の最後に `std::dec` で戻します。
+??? failure "`hex` を戻さず、その後の数値が全部 16 進数になる"
+    `std::dec` で戻します。ログ関数ごとに状態を戻す習慣をつけます。
+
+??? failure "`char` を `hex` で出しても、文字のまま出る"
+    `static_cast<int>` で整数にします。
+
+??? failure "`std::cout << std::hex << 255.0` が効かない"
+    基数は整数だけに効きます。浮動小数点数の 16 進表記は `hexfloat` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::println`](../utilities/print.md) | `{:x}` で 16 進数、設定が残らない |
-| [`setw`](setw.md) | 幅を決める |
+| [`dec`](dec.md) | 10 進数にする |
+| [`oct`](oct.md) | 8 進数にする |
+| [`setbase`](setbase.md) | 基数を数値で指定する |
+| [`showbase`](showbase.md) | `0x` を付ける |
 
 ## コンパイラ対応
 
@@ -76,9 +106,9 @@ C++11 以前から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 整数の進数を切り替える
-    - [x] 設定は残り続ける
-    - [x] 新しいコードは `{:x}`
+    - [x] 以降の整数を 16 進数にする
+    - [x] 戻すまで続く
+    - [x] 大文字は `uppercase`、`0x` は `showbase`
 
 ## 関連ページ
 

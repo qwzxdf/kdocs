@@ -14,12 +14,13 @@ tags:
 `#include <ios>`
 </div>
 
-大きい、または小さい数は、`1500` よりも `1.5e+03` のほうが桁を読み取りやすくなります。`std::scientific` を流すと、浮動小数が指数表記になります。小数点以下の桁数は `setprecision` で決めます。
+とても大きい値や小さい値（`6.02e23` や `1e-9`）を、桁数に悩まずに、指数表記で出したい。浮動小数点数を、`1.234560e+03` の形で出すのが `std::scientific` です。
 
 !!! tip "ポイント"
-    - `scientific` で `d.ddde+xx` の形。
-    - 桁数は `setprecision`。
-    - 新しいコードは `println("{:.2e}", x)`。
+    - `std::scientific` で、`d.ddddde+XX` の形（仮数と指数）で出す
+    - `setprecision(n)` と組み合わせると、仮数の小数点以下 `n` 桁になる
+    - 大文字の `E` にするなら `std::uppercase`
+    - 設定は残り続ける。戻すには `defaultfloat`
 
 !!! info "このページを読む前に"
     - [STL](../index.md)（STL 全体の地図（どこに何があるか））
@@ -29,10 +30,16 @@ tags:
 ### std::scientific {#scientific}
 
 ```cpp
-ios_base& scientific(ios_base& str);
+std::ios_base& scientific(std::ios_base& str);
 ```
 
-- 浮動小数を指数表記にします
+浮動小数点数を、仮数部が 1 以上 10 未満の、指数表記で出します。`1234.5` は `1.234500e+03` です。
+
+[`setprecision`](setprecision.md) と組み合わせると、精度は<strong>仮数部の小数点以下の桁数</strong>になります。`setprecision(2)` なら `1.23e+03` です。
+
+科学計算やログで、桁の大きさをそろえて比べたいとき、極端な値を見やすく出したいときに使います。ゲームでは、物理シミュレーションの誤差や、確率の小さな値の表示などで出てきます。
+
+既定の書式（`defaultfloat`）でも、桁数が多いと自動で指数表記に切り替わります。`scientific` は、それを常に強制する指定です。
 
 ## 実際に動かしてみる
 
@@ -41,31 +48,39 @@ ios_base& scientific(ios_base& str);
 #include <iostream>
 
 int main() {
-  std::cout << std::scientific << std::setprecision(2) << 1500.0 << "\n";
+  std::cout << std::scientific;
+  std::cout << 1234.5 << '\n';                           // 1.234500e+03
+  std::cout << std::setprecision(2) << 1234.5 << '\n';   // 1.23e+03
+  std::cout << 0.000123 << '\n';                         // 1.23e-04
+  std::cout << std::uppercase << 1234.5 << '\n';         // 1.23E+03
 }
 ```
 
 ```text title="実行結果"
-1.50e+03
+1.234500e+03
+1.23e+03
+1.23e-04
+1.23E+03
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 物理量の桁を見る | `std::cout << std::scientific` |
+物理演算の誤差、確率、非常に大きな座標など、桁の幅が広い値のデバッグ出力で使います。
+
+`std::format("{:.2e}", v)` でも書けて、設定が残りません。
 
 ## よくあるミス
 
-??? failure "桁数が合わない"
-    `setprecision` は、`scientific` のときは小数点以下の桁数になります。通常の表示とは意味が違います。
+??? failure "戻し忘れて、あとの数値が全部指数表記になる"
+    `std::defaultfloat` で戻します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::println`](../utilities/print.md) | 書式指定で同じことができる |
-| [`std::fixed`](fixed.md) | 固定小数点表記 |
+| [`fixed`](fixed.md) | 固定小数点にする |
+| [`defaultfloat`](defaultfloat.md) | 既定の書式に戻す |
+| [`hexfloat`](hexfloat.md) | 16 進の浮動小数点表記にする |
 
 ## コンパイラ対応
 
@@ -74,9 +89,9 @@ C++98 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 指数表記にするマニピュレーター。
-    - [x] 桁数は `setprecision`。
-    - [x] 新しいコードは `{:e}`。
+    - [x] 指数表記で出す
+    - [x] `setprecision` で仮数部の桁数
+    - [x] 戻すのは `defaultfloat`
 
 ## 関連ページ
 

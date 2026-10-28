@@ -13,62 +13,77 @@ tags:
 `#include <cstdio>`
 </div>
 
-`fopen` が返す `FILE*` の、`FILE` 型です。ファイルの位置、バッファ、エラー状態などをまとめて持ちますが、中身は実装依存なので、触れません。ポインタで受け渡して、`fclose` で閉じます。
+ファイルを開くと、`FILE*` というポインターが返ってきます。その `FILE` は、ファイルの位置、バッファー、終わりやエラーの印など、入出力に必要な状態をまとめた型です。中身は処理系が決めていて、使う側は見えません。
 
 !!! tip "ポイント"
-    - C 由来の入出力関数。
-    - 戻り値で失敗を調べる。
-    - 新しいコードでは `std::print` や `std::ifstream` / `std::ofstream` が安全。
+    - `std::FILE` は、中身の見えない型。`FILE*` として、関数に渡すだけ
+    - 自分で `FILE` を作ったり、コピーしたりしてはいけない。`fopen` が返したポインターだけを使う
+    - ファイルを開いたら `fclose` で閉じる。`unique_ptr` と組み合わせると、閉じ忘れを防げる
+    - 同じ `FILE*` を、複数のスレッドから同時に使うときは、排他が要る
 
 !!! info "このページを読む前に"
     [`std::printf`](printf.md) と [`std::fopen`](fopen.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### FILE {#file}
+### FILE {#FILE}
 
 ```cpp
 using FILE = /* 実装定義 */;
 ```
 
-- 戻り値: なし（型）
-- 計算量: 入出力の量に比例
+`FILE` の中には、ファイルを表す OS のハンドル、読み書きの位置、バッファーの先頭、終わりとエラーの印などが入っています。構造が処理系ごとに違うので、`sizeof(FILE)` に意味はなく、コピーもできません。
 
+`FILE*` を例外安全に扱うには、`std::unique_ptr` に削除関数を渡します。
+
+```cpp
+std::unique_ptr<std::FILE, decltype(&std::fclose)> f(std::fopen("a.txt", "rb"), &std::fclose);
+```
+
+こう書くと、関数を抜けるときに、例外が起きても自動で `fclose` されます。`f.get()` で、C の関数に渡せます。
+
+C の標準ライブラリの関数は、`FILE*` を受け取るので、C のライブラリ（zlib、libpng など）とつなぐ共通の形になっています。`FILE*` から C++ のストリームを作る標準の方法はなく、逆もありません。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <cstdio>
+#include <memory>
 #include <print>
 
 int main() {
-  std::FILE* f = std::tmpfile();
-  std::println("{}", f != nullptr);
-  std::fclose(f);
-}
+  // 例外が起きても閉じ忘れない書き方
+  std::unique_ptr<std::FILE, decltype(&std::fclose)> f(std::fopen("auto.txt", "w"), &std::fclose);
+  if (!f) return 1;
+
+  std::fputs("auto close", f.get());
+  std::println("書いた");
+}   // ここで fclose が呼ばれる
 ```
 
 ```text title="実行結果"
-true
+書いた
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | C のファイル API を使うとき |
+C のライブラリとの連携で、`FILE*` を受け渡す場面で出てきます。C++ のコードでは、`std::ofstream` と `std::ifstream` を使うほうが自然ですが、`FILE*` を要求するライブラリには、`unique_ptr` で包んで渡します。
 
 ## よくあるミス
 
-??? failure "`FILE` をコピーする"
-    `FILE` はコピーできません。必ず `FILE*` で扱います。
+??? failure "`FILE` を値として宣言・コピーする"
+    `FILE` は不完全な型として扱います。`FILE*` だけを使います。
+
+??? failure "開いた `FILE*` を閉じ忘れる"
+    `unique_ptr` で包み、閉じ忘れを防ぎます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`fopen`](fopen.md) | 開く |
-| [`fclose`](fclose.md) | 閉じる |
+| [`fopen`](fopen.md) | `FILE*` を得る |
+| [`fclose`](fclose.md) | `FILE*` を閉じる |
+| `std::ofstream` | C++ のストリーム |
 
 ## コンパイラ対応
 
@@ -77,9 +92,9 @@ C++11 以前から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ファイルを表す型
-    - [x] C 由来の入出力関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] ファイルの状態をまとめた型
+    - [x] `FILE*` として受け渡す
+    - [x] `unique_ptr` で閉じ忘れを防ぐ
 
 ## 関連ページ
 
