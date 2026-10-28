@@ -14,32 +14,39 @@ tags:
 `#include <iterator>`
 </div>
 
-`istream_iterator<char>` は空白をスキップしてしまいます。`istreambuf_iterator` は、書式を無視して、バッファから 1 文字ずつそのまま読みます。ファイルの全体を `std::string` に読むときに使われます。
+ファイルの内容を、まるごと `std::string` に読み込みたい。`istream_iterator<char>` は空白を飛ばしてしまいます。`std::istreambuf_iterator` は、<strong>ストリームのバッファから 1 文字ずつ、空白も含めてそのまま読む</strong>入力イテレーターです。
 
 !!! tip "ポイント"
-    - `<iterator>` の部品。
-    - ふつうは補助関数（`back_inserter` など）経由で使う。
-    - アルゴリズムの出力先や入力元に渡す。
+    - `std::istreambuf_iterator<char>(stream)` で作る
+    - 空白や改行も含めて、1 文字ずつ読む
+    - 引数なしで作ると、終端を表す
+    - `std::string` のコンストラクターに範囲として渡せる
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::istreambuf_iterator {#istreambuf_iterator}
 
+<span class="ver ver-98">C++98</span>
+
 ```cpp
-template <class CharT, class Traits = char_traits<CharT>>
-class istreambuf_iterator;
+template <class CharT>
+class istreambuf_iterator {
+ public:
+  istreambuf_iterator();
+  istreambuf_iterator(std::basic_istream<CharT>& stream) noexcept;
+};
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `CharT` | 型 | 文字の型 |
+| `stream` | 入力ストリーム | 読み取り元 |
 
-- 戻り値: `*it` で 1 文字
-- 計算量: 定数
+`istream_iterator<char>` は、`>>` を使うので空白を読み飛ばします。`istreambuf_iterator` は、バッファを直接読むので、空白も改行もそのままです。ファイル全体を読む定番の書き方に使われます。
 
+速度が必要な大きなファイルには、`std::ifstream::read` で一気に読むほうが速いです。
 
 ## 実際に動かしてみる
 
@@ -50,43 +57,47 @@ class istreambuf_iterator;
 #include <string>
 
 int main() {
-  std::istringstream in("a b");
-  std::string s{std::istreambuf_iterator<char>(in), {}};
-  std::println("{}", s);
+  std::istringstream input("a b\nc");
+  const std::string text((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+  std::println("文字数 = {}", text.size());   // 空白と改行も数える
 }
 ```
 
 ```text title="実行結果"
-a b
+文字数 = 5
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ファイルを丸ごと文字列に読み込む |
+テキスト ファイルを、まるごと文字列に読み込みます。
+
+```cpp
+std::ifstream file("config.txt");
+std::string text((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+```
 
 ## よくあるミス
 
-??? failure "`istream_iterator<char>` で空白が消える"
-    `istream_iterator` は空白を読み飛ばします。空白を残したいときは `istreambuf_iterator` を使います。
+??? failure "`istream_iterator<char>` で読んで空白が消える"
+    `istreambuf_iterator` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`istream_iterator`](istream_iterator.md) | 書式つきで読む |
+| [`ostreambuf_iterator`](ostreambuf_iterator.md) | 出力版 |
+| [`istream_iterator`](istream_iterator.md) | 空白区切りで読む |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ストリームバッファから、1 文字ずつ生で読むイテレータ
-    - [x] `<iterator>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `istreambuf_iterator` は空白も含めて 1 文字ずつ読む
+    - [x] ファイル全体を文字列に読む書き方に使う
+    - [x] 大きなファイルは `read` が速い
 
 ## 関連ページ
 

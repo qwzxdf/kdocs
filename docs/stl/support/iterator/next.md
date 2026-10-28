@@ -14,82 +14,87 @@ tags:
 `#include <iterator>`
 </div>
 
-`std::next(it, n)` は、**イテレータを n 個進めた位置を返す**関数です。`it` 自身は変わりません（`std::advance` は変わる）。`list` のようにランダムアクセスできない範囲でも使えます。
+イテレーターを 3 つ進めたい。`it + 3` は、ランダムアクセスのイテレーター（`vector`）にしか使えません。`std::list` や `std::set` のイテレーターは `+` がありません。`std::next(it, n)` は、<strong>どんなイテレーターでも `n` 個進めた新しいイテレーターを返します</strong>。
 
 !!! tip "ポイント"
-    - `n` を省略すると 1 つ進める。
-    - 範囲の終わりを超えて進むと未定義動作。
-    - `it + n` が書けない `list` などで便利。
+    - `std::next(it, n)` は `it` を `n` 個進めたコピーを返す
+    - `n` の既定は 1。元の `it` は変わらない
+    - `std::list` などの双方向イテレーターでも使える
+    - `n` が負の数なら戻る（双方向イテレーター以上）
 
 !!! info "このページを読む前に"
-    [`<iterator>`](../iterator.md) の概要を先に読むと分かりやすいです。[イテレータ](../../../basics/iterator.md) の基本が前提です。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::next {#next}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-template <class InputIt>
-InputIt next(InputIt it, std::iter_difference_t<InputIt> n = 1);
+template <class It>
+constexpr It next(It it, typename std::iterator_traits<It>::difference_type n = 1);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `it` | イテレータ | 元の位置（変わらない） |
-| `n` | 整数 | 何個先か（省略すると 1） |
+| `it` | イテレーター | 出発点 |
+| `n` | 整数 | 進める数。既定は 1 |
 
-- n 個先のイテレータを**新しく返します**。list など `+ n` できないイテレータにも使えます（その場合 O(n)）
+元のイテレーターは変えず、`n` 個先のイテレーターを新しく返します。ランダムアクセスのイテレーターなら 1 回の計算、そうでなければ `n` 回のインクリメントです（計算量は O(n)）。
 
-<div class="anim" data-label="std::next(it, 2)">
-*a b c d # it は a を指す
-a b *c d # 2 つ先を返す。it 自体は動かない
-</div>
+範囲外に進めると、未定義動作になります。`std::list` の 3 番目の要素を取るときなどは、先に要素数を確かめます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <iterator>
+#include <list>
 #include <print>
-#include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3, 4};
-  std::println("{} {}", *std::next(v.begin()), *std::next(v.begin(), 2));
+  std::list<int> l = {10, 20, 30, 40};
+  std::println("3 番目: {}", *std::next(l.begin(), 2));
+  std::println("最後の要素: {}", *std::prev(l.end()));
 }
 ```
 
 ```text title="実行結果"
-2 3
+3 番目: 30
+最後の要素: 40
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 2 番目の要素を指す | `std::next(v.begin())` |
+`list` の途中の要素に、アクセスします。
+
+```cpp
+auto second = std::next(items.begin());   // 2 番目
+```
 
 ## よくあるミス
 
-??? failure "end() を超えて進む"
-    未定義動作です。
+??? failure "範囲外まで進めて未定義動作になる"
+    要素数を先に確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`prev`](prev.md) | 戻る |
-| [`advance`](advance.md) | イテレータそのものを進める |
+| [`advance`](advance.md) | 元のイテレーターを進める |
+| [`distance`](distance.md) | 距離 |
 
 ## コンパイラ対応
 
-C++11 から使えます。`ssize` は C++20 です。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 進めた位置を返す
-    - [x] 元は変えない
-    - [x] list にも使える
+    - [x] `std::next(it, n)` は `n` 個進めたコピー
+    - [x] 元は変わらない
+    - [x] `list` でも使える（O(n)）
 
 ## 関連ページ
 

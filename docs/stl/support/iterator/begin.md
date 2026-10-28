@@ -14,72 +14,96 @@ tags:
 `#include <iterator>`
 </div>
 
-`std::begin(c)` と `std::end(c)` は、**先頭と終わりのイテレータを返す**関数です。`c.begin()` / `c.end()` と同じですが、**生の配列にも使える**のが利点です。範囲 for の内部でも使われています。
+範囲 for を使わず、イテレーターでループを書くとき、`v.begin()` と書くのは配列には使えません。配列も、コンテナも、同じ書き方で扱えるのが、非メンバー関数の `std::begin` です。<strong>先頭を指すイテレーター</strong>を返します。
 
 !!! tip "ポイント"
-    - テンプレートで、コンテナも配列も同じ書き方で扱える。
-    - C++20 の ranges には `std::ranges::begin` がある。
-    - 普段は `c.begin()` で足りる。
+    - `std::begin(c)` は 先頭を指すイテレーター
+    - コンテナにはメンバー関数 `c.begin()` を、配列にはポインターを返す
+    - 汎用のテンプレートで、配列とコンテナを同じように扱える
+    - 範囲 for の内部で使われている
 
 !!! info "このページを読む前に"
-    [`<iterator>`](../iterator.md) の概要を先に読むと分かりやすいです。[イテレータ](../../../basics/iterator.md) の基本が前提です。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::begin {#begin}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 template <class C>
-constexpr auto begin(C& c) -> decltype(c.begin());
+auto begin(C& c) -> decltype(c.begin());
 template <class T, std::size_t N>
-constexpr T* begin(T (&array)[N]) noexcept;
+T* begin(T (&array)[N]) noexcept;
 ```
 
-- C の配列でもコンテナでも先頭を返します。テンプレートで「何でも受け取る」関数を書くときに使います
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `c` | コンテナまたは配列 | 対象 |
+
+`std::begin(c)` は、コンテナなら `c.begin()` を呼んだ結果を、配列なら配列の先頭のポインターを返します。
+
+汎用のテンプレートで、配列とコンテナの両方を受け取る関数を書くときに使います。範囲 for は、内部でこの規則を使っています。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <iterator>
 #include <print>
+#include <vector>
 
 int main() {
-  int a[] = {10, 20, 30};
-  std::println("{} {}", *std::begin(a), std::end(a) - std::begin(a));
+  std::vector<int> v = {10, 20, 30};
+  int a[3] = {1, 2, 3};          // 配列にも使える
+  std::println("begin(v) の先頭要素 : {}", *std::begin(v));
+  std::println("配列の要素数 : {}", std::end(a) - std::begin(a));
 }
 ```
 
 ```text title="実行結果"
-10 3
+begin(v) の先頭要素 : 10
+配列の要素数 : 3
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 配列を std::sort に渡す | `std::sort(std::begin(a), std::end(a))` |
+汎用のテンプレートで、配列とコンテナを同じ書き方で走査します。
+
+```cpp
+template <class Range>
+void Dump(const Range& r) {
+  for (auto it = std::begin(r); it != std::end(r); ++it) Print(*it);
+}
+```
+
+コンテナだけを扱うなら、`v.begin()` と書いても同じです。
 
 ## よくあるミス
 
-??? failure "ポインターに変換された配列に使う"
-    大きさが分からずコンパイルエラーになります。
+??? failure "空のコンテナの先頭を参照する"
+    `begin() == end()` のとき、`*begin()` は未定義動作です。
+
+??? failure "末尾を指すイテレーターを参照する"
+    `end()` は最後の要素の 1 つ後ろです。参照できません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::sort`](../../algorithms/sort.md) | 範囲をそのまま渡せる |
+| [`size`](ssize.md) | 要素数 |
+| [`next`](next.md) | イテレーターを進める |
 
 ## コンパイラ対応
 
-C++11 から使えます。`ssize` は C++20 です。
+C++11 から使えます。`<iterator>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 先頭と終端のイテレータ
-    - [x] 配列にも使える
-    - [x] ranges では範囲を渡せば不要
+    - [x] `std::begin(c)` は先頭を指すイテレーター
+    - [x] 配列にもコンテナにも使える
+    - [x] 範囲 for の内部でも使われる
 
 ## 関連ページ
 

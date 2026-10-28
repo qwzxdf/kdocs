@@ -14,30 +14,36 @@ tags:
 `#include <iterator>`
 </div>
 
-`std::prev(it, n)` は、**イテレータを n 個戻した位置を返す**関数です。`std::prev(v.end())` で、最後の要素を指すイテレータが取れます。双方向にたどれる範囲で使えます。
+末尾の要素を取りたい。`v.end()` は最後の要素の「1 つ後ろ」なので、参照できません。`std::prev(v.end())` は、<strong>イテレーターを 1 つ（または n 個）戻したコピー</strong>を返します。
 
 !!! tip "ポイント"
-    - 最後の要素: `*std::prev(v.end())`（空では不可）。
-    - begin より前へ戻ると未定義動作。
+    - `std::prev(it, n)` は `it` を `n` 個戻したコピーを返す
+    - `n` の既定は 1。元の `it` は変わらない
+    - 双方向イテレーター以上で使える（前方向のみは不可）
+    - 最後の要素は `*std::prev(c.end())`
 
 !!! info "このページを読む前に"
-    [`<iterator>`](../iterator.md) の概要を先に読むと分かりやすいです。[イテレータ](../../../basics/iterator.md) の基本が前提です。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::prev {#prev}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-template <class BidirIt>
-BidirIt prev(BidirIt it, std::iter_difference_t<BidirIt> n = 1);
+template <class It>
+constexpr It prev(It it, typename std::iterator_traits<It>::difference_type n = 1);
 ```
 
-- n 個前のイテレータを返します。`std::prev(v.end())` で最後の要素
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `it` | 双方向イテレーター | 出発点 |
+| `n` | 整数 | 戻す数。既定は 1 |
 
-<div class="anim" data-label="std::prev(it, 2)">
-a b c *d # it は d を指す
-a *b c d # 2 つ前を返す。it 自体は動かない
-</div>
+元のイテレーターは変えず、`n` 個前のイテレーターを新しく返します。`std::forward_list` のように、後ろへ戻れないイテレーターには使えません。
+
+範囲外に戻すと未定義動作です。空のコンテナで `prev(c.end())` を呼んではいけません。
 
 ## 実際に動かしてみる
 
@@ -47,42 +53,49 @@ a *b c d # 2 つ前を返す。it 自体は動かない
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3, 4};
-  std::println("{} {}", *std::prev(v.end()), *std::prev(v.end(), 2));
+  std::vector<int> v = {10, 20, 30};
+  std::println("最後の要素: {}", *std::prev(v.end()));
+  std::println("最後から 2 番目: {}", *std::prev(v.end(), 2));
 }
 ```
 
 ```text title="実行結果"
-4 3
+最後の要素: 30
+最後から 2 番目: 20
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 最後の要素を指す | `std::prev(v.end())` |
+末尾の要素を、イテレーターで取ります。
+
+```cpp
+if (!items.empty()) Use(*std::prev(items.end()));
+```
+
+`vector` なら `items.back()` のほうが簡単です。
 
 ## よくあるミス
 
-??? failure "空の範囲で prev(end())"
-    未定義動作です。
+??? failure "空のコンテナで呼んで未定義動作"
+    `empty()` を確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`next`](next.md) | 進む |
+| [`next`](next.md) | 進める |
+| [`advance`](advance.md) | 元のイテレーターを動かす |
 
 ## コンパイラ対応
 
-C++11 から使えます。`ssize` は C++20 です。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 戻した位置を返す
-    - [x] 最後の要素は prev(end())
-    - [x] 空では使えない
+    - [x] `std::prev(it, n)` は `n` 個戻したコピー
+    - [x] 双方向イテレーター以上
+    - [x] 空のコンテナでは使わない
 
 ## 関連ページ
 

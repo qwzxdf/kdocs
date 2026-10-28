@@ -14,80 +14,89 @@ tags:
 `#include <iterator>`
 </div>
 
-`inserter(c, pos)` が返す型の正体です。`*it = x` と代入するたびに `c.insert(pos, x)` が呼ばれ、位置は挿入した要素の次に進みます。連続して挿すと、順番を保ったまま入ります。
+`std::inserter` が返す、挿入用のイテレーターの型が `std::insert_iterator` です。型名を直接書く機会は少なく、`std::inserter(c, pos)` で作ります。
 
 !!! tip "ポイント"
-    - `<iterator>` の部品。
-    - ふつうは補助関数（`back_inserter` など）経由で使う。
-    - アルゴリズムの出力先や入力元に渡す。
+    - `std::inserter(c, pos)` が返す型
+    - 代入するたびに `c.insert(pos, value)` を呼ぶ
+    - `set` / `map` / `list` / `vector` などに使える
+    - 通常は型名を書かず、補助関数で作る
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::insert_iterator {#insert_iterator}
 
+<span class="ver ver-98">C++98</span>
+
 ```cpp
 template <class Container>
-class insert_iterator;
+class insert_iterator {
+ public:
+  insert_iterator(Container& c, typename Container::iterator pos);
+};
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `Container` | 型 | `insert` をもつコンテナ |
+| `c` | コンテナ | 追加先 |
+| `pos` | イテレーター | 挿入位置 |
 
-- 戻り値: 代入で `insert` する
-- 計算量: 定数
+出力イテレーターとして `*it = value` で `insert` を呼び、挿入した位置の次に位置を進めます。入力としては使えません（読み取れない）。
 
+C++ では、型名を書かずに `auto` で受けたり、`std::inserter` を呼んだりするのが普通です。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <algorithm>
 #include <iterator>
+#include <list>
 #include <print>
-#include <vector>
 
 int main() {
-  std::vector<int> v = {1, 4};
-  std::insert_iterator<std::vector<int>> it(v, v.begin() + 1);
-  *it = 2;
-  *it = 3;
-  std::println("{}", v);
+  std::list<int> l = {1, 4};
+  auto pos = std::next(l.begin());        // 4 の位置
+  std::insert_iterator<std::list<int>> out(l, pos);
+  *out = 2;
+  *out = 3;                                // 4 の手前に 2, 3 が入る
+  for (int x : l) std::print("{} ", x);
+  std::println("");
 }
 ```
 
 ```text title="実行結果"
-[1, 2, 3, 4]
+1 2 3 4 
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | `set` や `vector` の途中に順番に挿す |
+型名を明示したい場面で使います。通常は `std::inserter` を使います。
 
 ## よくあるミス
 
-??? failure "毎回 `insert` で `vector` の途中に挿す"
-    `vector` の途中への挿入は、後ろの要素を全部ずらします。大量に挿すなら別の方法を検討します。
+??? failure "入力として使おうとする"
+    出力専用です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`inserter`](inserter.md) | 作る関数 |
+| [`inserter`](inserter.md) | 作成用の補助関数 |
+| [`back_insert_iterator`](back_insert_iterator.md) | 末尾に追加 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 代入するたびに、コンテナの指定位置へ insert するイテレータ
-    - [x] `<iterator>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `insert_iterator` は `insert` で追加する出力イテレーター
+    - [x] 通常は `std::inserter` で作る
+    - [x] 入力としては使えない
 
 ## 関連ページ
 

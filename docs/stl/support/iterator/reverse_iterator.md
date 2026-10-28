@@ -14,26 +14,39 @@ tags:
 `#include <iterator>`
 </div>
 
-`std::reverse_iterator` は、**逆向きにたどるイテレータ**です。`v.rbegin()` と `v.rend()` が返す型で、`++` すると前へ進みます。自分で作る機会は少なく、範囲 for で逆順に回す [`views::reverse`](../../algorithms/views/reverse.md) のほうが簡単です。
+双方向のイテレーターがあれば、逆順に走査できます。`std::reverse_iterator` は、<strong>元のイテレーターを包んで、`++` で後ろに進む（元の向きでは前へ戻る）</strong>イテレーターアダプターです。`rbegin()` / `rend()` が返す型です。
 
 !!! tip "ポイント"
-    - `rbegin()` は最後の要素、`rend()` は先頭の前。
-    - `base()` で、元の順方向のイテレータに戻せる（1 つずれる）。
-    - 逆順の走査は `views::reverse`。
+    - `rbegin()` / `rend()` が返す型
+    - `++` で元のイテレーターを戻す
+    - `base()` で元のイテレーターに変換できる
+    - 参照すると、元の 1 つ手前の要素になる
 
 !!! info "このページを読む前に"
-    [`<iterator>`](../iterator.md) の概要を先に読むと分かりやすいです。[イテレータ](../../../basics/iterator.md) の基本が前提です。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::reverse_iterator {#reverse_iterator}
 
+<span class="ver ver-98">C++98</span>
+
 ```cpp
-template <class Iter>
-class reverse_iterator;
+template <class It>
+class reverse_iterator {
+ public:
+  explicit reverse_iterator(It it);
+  It base() const;
+};
 ```
 
-- `++` すると前に進むイテレータ。`rbegin()` / `rend()` が返すのはこれです。`.base()` で普通のイテレータに戻せます
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `it` | 双方向イテレーター | 包む元のイテレーター |
+
+`reverse_iterator(it)` を参照（`*`）すると、`it` の 1 つ手前の要素になります。この「1 つずれ」のおかげで、`rbegin()` が `end()` から作られても、最後の要素を指せます。
+
+`base()` で元のイテレーターに戻すとき、位置が 1 つずれます。`std::find` などで見つけた逆順のイテレーターを、`erase` に渡すときは、`std::next(it).base()` のように補正が必要です。
 
 ## 実際に動かしてみる
 
@@ -44,42 +57,49 @@ class reverse_iterator;
 
 int main() {
   std::vector<int> v = {1, 2, 3};
-  std::vector<int> rev(v.rbegin(), v.rend());  // rbegin / rend は reverse_iterator
-  std::println("{}", rev);
+  std::reverse_iterator<std::vector<int>::iterator> r(v.end());
+  std::println("逆順の先頭 = {}", *r);
+  std::println("base() は元の位置: {}", r.base() == v.end());
 }
 ```
 
 ```text title="実行結果"
-[3, 2, 1]
+逆順の先頭 = 3
+base() は元の位置: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 末尾から条件に合う要素を探す | `std::find_if(v.rbegin(), v.rend(), pred)` |
+逆順にループします。
+
+```cpp
+for (auto it = v.rbegin(); it != v.rend(); ++it) Use(*it);
+```
+
+範囲 for では、`std::views::reverse`（C++20）が簡単です。
 
 ## よくあるミス
 
-??? failure "base() の位置がずれる"
-    `rit.base()` は、指している要素の次を指します。
+??? failure "`base()` で戻すと 1 つずれる"
+    `erase` に渡す前に、位置を補正します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::views::reverse`](../../algorithms/views/reverse.md) | 簡単な書き方 |
+| [`make_reverse_iterator`](make_reverse_iterator.md) | 作成用の補助関数 |
+| [`rbegin`](rbegin.md) | 逆順の先頭 |
 
 ## コンパイラ対応
 
-C++11 から使えます。`ssize` は C++20 です。
+C++98 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 逆向きのイテレータ
-    - [x] rbegin / rend
-    - [x] base() は 1 つずれる
+    - [x] `reverse_iterator` は逆順に走査するアダプター
+    - [x] 参照すると元の 1 つ手前の要素
+    - [x] `base()` は 1 つずれる
 
 ## 関連ページ
 

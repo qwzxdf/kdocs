@@ -14,25 +14,33 @@ tags:
 `#include <iterator>`
 </div>
 
-`std::front_inserter(c)` は、**代入するたびにコンテナの先頭へ `push_front` するイテレータ**を作ります。`deque` や `list` など、先頭に足せるコンテナで使えます。要素の順序が逆になる点に注意します。
+`std::deque` や `std::list` の先頭に、要素を次々に追加したい。`std::front_inserter(c)` は、<strong>`push_front` で追加するイテレーターを作る補助関数</strong>です。
 
 !!! tip "ポイント"
-    - `push_front` があるコンテナ（`deque`、`list`）だけ。
-    - 要素は逆順で並ぶ。
+    - `std::front_inserter(c)` は `front_insert_iterator` を作る
+    - 代入するたびに `c.push_front(value)` が呼ばれる
+    - `deque` / `list` / `forward_list` で使える（`vector` は不可）
+    - 追加は先頭から。結果は逆順に並ぶ
 
 !!! info "このページを読む前に"
-    [`<iterator>`](../iterator.md) の概要を先に読むと分かりやすいです。[イテレータ](../../../basics/iterator.md) の基本が前提です。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::front_inserter {#front_inserter}
 
+<span class="ver ver-98">C++98</span>
+
 ```cpp
 template <class Container>
-std::front_insert_iterator<Container> front_inserter(Container& c);
+front_insert_iterator<Container> front_inserter(Container& c);
 ```
 
-- 書き込むと `c.push_front(x)` が呼ばれます（deque、list 用）。逆順に入ります
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `c` | コンテナ | 追加先（`push_front` を持つこと） |
+
+`vector` は `push_front` を持たないので使えません。先頭に追加するので、`{1, 2, 3}` をコピーすると、`{3, 2, 1}` の順になります。
 
 ## 実際に動かしてみる
 
@@ -44,44 +52,44 @@ std::front_insert_iterator<Container> front_inserter(Container& c);
 #include <vector>
 
 int main() {
-  std::vector<int> src = {1, 2, 3};
+  const std::vector<int> src = {1, 2, 3};
   std::deque<int> dst;
-  std::ranges::copy(src, std::front_inserter(dst));  // 先頭に足していくので逆順になる
-  std::println("{}", dst);
+  std::copy(src.begin(), src.end(), std::front_inserter(dst));
+  for (int x : dst) std::print("{} ", x);
+  std::println("");
 }
 ```
 
 ```text title="実行結果"
-[3, 2, 1]
+3 2 1 
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 履歴の先頭に新しいものを足していく | `copy(src, std::front_inserter(history))` |
+順序を逆にしながら、コピーしたいときに使えます。
 
 ## よくあるミス
 
-??? failure "vector に使う"
-    `push_front` が無いのでコンパイルエラーです。
+??? failure "`vector` に使ってコンパイルエラーになる"
+    `push_front` を持つコンテナを使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`back_inserter`](back_inserter.md) | 末尾に足す |
+| [`back_insert_iterator`](back_insert_iterator.md) | 末尾に追加 |
+| [`inserter`](inserter.md) | 位置を指定して追加 |
 
 ## コンパイラ対応
 
-C++11 から使えます。`ssize` は C++20 です。
+C++98 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 先頭に自動で足す出力先
-    - [x] deque / list 用
-    - [x] 逆順になる
+    - [x] `front_inserter(c)` は `push_front` で追加するイテレーター
+    - [x] `vector` では使えない
+    - [x] 結果は逆順になる
 
 ## 関連ページ
 

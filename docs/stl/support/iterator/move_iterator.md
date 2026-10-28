@@ -14,76 +14,90 @@ tags:
 `#include <iterator>`
 </div>
 
-`std::make_move_iterator(it)` は、**`*it` を右辺値（ムーブ可能）として返すイテレータ**を作ります。コピーのアルゴリズムに渡すと、コピーではなくムーブになります。C++20 以降は [`views::as_rvalue`](../../algorithms/views/as_rvalue.md) でも書けます。
+`std::copy` でコンテナを別のコンテナに移すと、要素がコピーされます。`std::string` や `std::vector` のような重い要素は、コピーでなくムーブしたい。`std::move_iterator` は、<strong>参照すると、右辺値参照として要素を返す</strong>アダプターです。
 
 !!! tip "ポイント"
-    - `std::vector<std::string> b(make_move_iterator(a.begin()), make_move_iterator(a.end()));` で中身を移す。
-    - 元の要素は不定になる。
+    - `std::make_move_iterator(it)` で作る
+    - 参照すると、要素を右辺値参照で返す（ムーブされる）
+    - `std::copy` に渡すと、コピーでなくムーブになる
+    - 元の要素は、ムーブ後の有効だが未規定の状態
 
 !!! info "このページを読む前に"
-    [`<iterator>`](../iterator.md) の概要を先に読むと分かりやすいです。[イテレータ](../../../basics/iterator.md) の基本が前提です。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::make_move_iterator {#make_move_iterator}
+### std::move_iterator {#move_iterator}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <class Iter>
-std::move_iterator<Iter> make_move_iterator(Iter i);
+template <class It>
+class move_iterator {
+ public:
+  explicit move_iterator(It it);
+};
 ```
 
-- 読むたびに要素を**ムーブ**するイテレータ。別の vector へ中身をムーブで移すときに使います
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `it` | イテレーター | 包む元のイテレーター |
+
+`*it` が `std::move(*base)` と同じ右辺値を返します。そのため、`std::copy` や `vector` のコンストラクターで要素を代入するとき、ムーブ代入・ムーブ構築が選ばれます。
+
+ムーブしたあとの要素は、有効だが中身が未規定です。使わずに、破棄するか、新しい値を代入します。
+
+## 実際に動かしてみる
 
 ```cpp
-#include <algorithm>
-#include <deque>
 #include <iterator>
 #include <print>
 #include <string>
 #include <vector>
 
 int main() {
-  std::vector<std::string> from = {"sword", "shield"};
-  std::vector<std::string> to(std::make_move_iterator(from.begin()),
-                              std::make_move_iterator(from.end()));
-  std::deque<int> d;
-  std::ranges::copy(std::vector<int>{1, 2, 3}, std::front_inserter(d));
-  std::println("{} / {}", to, d);
+  std::vector<std::string> src = {std::string(40, 'a'), std::string(40, 'b')};
+  std::vector<std::string> dst(std::make_move_iterator(src.begin()), std::make_move_iterator(src.end()));
+  std::println("dst[0] の長さ = {}", dst[0].size());
+  std::println("src[0] は移された: {}", src[0].empty());
 }
 ```
 
 ```text title="実行結果"
-["sword", "shield"] / [3, 2, 1]
+dst[0] の長さ = 40
+src[0] は移された: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 巨大な文字列の配列を別のコンテナへ移す | `dst.insert(dst.end(), make_move_iterator(...), ...)` |
+大きな要素のコンテナを、コピーなしで別のコンテナに移します。
+
+```cpp
+std::vector<Enemy> alive(std::make_move_iterator(all.begin()), std::make_move_iterator(all.end()));
+```
 
 ## よくあるミス
 
-??? failure "移したあとの元を読む"
-    不定です。
+??? failure "ムーブ後の要素を使う"
+    中身は未規定です。使いません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::views::as_rvalue`](../../algorithms/views/as_rvalue.md) | C++23 の書き方 |
-| [`std::ranges::move`](../../algorithms/move.md) | 範囲を移す |
+| [`move`](../../algorithms/move.md) | 範囲をムーブするアルゴリズム |
+| [`move_sentinel`](move_sentinel.md) | 終端を表す番兵 |
 
 ## コンパイラ対応
 
-C++11 から使えます。`ssize` は C++20 です。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] *it を右辺値にする
-    - [x] コピーがムーブになる
-    - [x] 元は不定になる
+    - [x] `move_iterator` は要素を右辺値で返すアダプター
+    - [x] `copy` がムーブになる
+    - [x] ムーブ後の要素は未規定
 
 ## 関連ページ
 

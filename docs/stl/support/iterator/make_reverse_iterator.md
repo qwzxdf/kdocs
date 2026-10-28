@@ -14,77 +14,80 @@ tags:
 `#include <iterator>`
 </div>
 
-`reverse_iterator<It>` は型を書く必要があります。`make_reverse_iterator(it)` なら、型を推論して作ってくれます（C++17 以降は CTAD でも書けます）。
+`std::reverse_iterator<std::vector<int>::iterator>(it)` と型名を書くのは長いです。`std::make_reverse_iterator(it)` は、<strong>型を推論して `reverse_iterator` を作る</strong>補助関数です。
 
 !!! tip "ポイント"
-    - `<iterator>` の部品。
-    - ふつうは補助関数（`back_inserter` など）経由で使う。
-    - アルゴリズムの出力先や入力元に渡す。
+    - `std::make_reverse_iterator(it)` は `reverse_iterator` を作る
+    - 型名を書かなくてよい
+    - `std::copy` の入力に、逆順の範囲を渡せる
+    - C++14 で追加
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::make_reverse_iterator {#make_reverse_iterator}
 
+<span class="ver ver-14">C++14</span>
+
 ```cpp
-auto make_reverse_iterator(/* ... */);
+template <class It>
+constexpr reverse_iterator<It> make_reverse_iterator(It it);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `c / it` | コンテナ / イテレータ | 対象 |
+| `it` | 双方向イテレーター | 包む元のイテレーター |
 
-- 戻り値: イテレータから reverse_iterator を作る
-- 計算量: 定数
-
+`reverse_iterator<It>(it)` と同じ値を作ります。範囲を逆順で渡したいときは、`make_reverse_iterator(last)` と `make_reverse_iterator(first)` を組にします。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <algorithm>
 #include <iterator>
 #include <print>
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3};
-  auto r = std::make_reverse_iterator(v.end());
-  std::println("{}", *r);
+  const std::vector<int> src = {1, 2, 3};
+  std::vector<int> dst;
+  std::copy(std::make_reverse_iterator(src.end()), std::make_reverse_iterator(src.begin()), std::back_inserter(dst));
+  for (int x : dst) std::print("{} ", x);
+  std::println("");
 }
 ```
 
 ```text title="実行結果"
-3
+3 2 1 
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 逆順に走査する |
+逆順にコピーします。`std::ranges::reverse_view` を使うほうが、書きやすい場面もあります。
 
 ## よくあるミス
 
-??? failure "`end()` の指す先を読む"
-    `make_reverse_iterator(end)` は、`end()` の 1 つ手前の要素を指します。`end()` そのものは読めません。
+??? failure "範囲の始点と終点の順を逆にする"
+    `make_reverse_iterator(last)`、`make_reverse_iterator(first)` の順です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`reverse_iterator`](reverse_iterator.md) | 逆順イテレータの型 |
+| [`reverse_iterator`](reverse_iterator.md) | アダプターの型 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++14 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] イテレータから reverse_iterator を作る
-    - [x] `<iterator>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `make_reverse_iterator(it)` は `reverse_iterator` を作る
+    - [x] 型名を書かなくてよい
+    - [x] 範囲は終点、始点の順に渡す
 
 ## 関連ページ
 

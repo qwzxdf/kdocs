@@ -14,73 +14,94 @@ tags:
 `#include <iterator>`
 </div>
 
-`std::istream_iterator<T>` は、**入力ストリームから `T` 型の値を 1 つずつ読み出すイテレータ**です。`std::vector<int> v((istream_iterator<int>(in)), istream_iterator<int>());` のように、ストリームの全部を `vector` に読み込めます。C++20 以降は [`views::istream`](../../algorithms/views/istream_view.md) もあります。
+`std::cin` やファイルから、数値を次々に読み取って、`vector` に詰めたい。`while (cin >> x) v.push_back(x);` と書くところを、`std::istream_iterator` を使うと、アルゴリズムの入力として渡せます。
 
 !!! tip "ポイント"
-    - 終端は、引数なしで作ったイテレータ。
-    - ストリームが失敗する（型が違う・終わり）と終端になる。
-    - ranges 版は `views::istream<T>(in)`。
+    - `std::istream_iterator<T>(stream)` は、ストリームから `T` を読み取る入力イテレーター
+    - 引数なしで作ると、終端を表す
+    - `std::vector` のコンストラクターなどに、範囲として渡せる
+    - 空白区切りで読み取る
 
 !!! info "このページを読む前に"
-    [`<iterator>`](../iterator.md) の概要を先に読むと分かりやすいです。[イテレータ](../../../basics/iterator.md) の基本が前提です。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::istream_iterator {#istream_iterator}
 
+<span class="ver ver-98">C++98</span>
+
 ```cpp
 template <class T>
-class istream_iterator;
+class istream_iterator {
+ public:
+  istream_iterator();
+  explicit istream_iterator(std::istream& stream);
+};
 ```
 
-- ストリームから `>>` で値を読むイテレータ。ファイルの数値を全部 vector に読むのに使えます
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `stream` | 入力ストリーム | 読み取り元 |
+
+`*it` で現在の値を読み、`++it` で次の値を読み取ります。読み取りに失敗する（終端に達する）と、引数なしで作った終端のイテレーターと等しくなります。
+
+入力イテレーターなので、1 回しか読めません。`vector` のコンストラクターに範囲として渡すと、全部読み取って詰められます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <iterator>
+#include <numeric>
 #include <print>
 #include <sstream>
 #include <vector>
 
 int main() {
-  std::istringstream in("10 20 30");
-  std::vector<int> values(std::istream_iterator<int>(in), std::istream_iterator<int>{});
-  std::vector<int> v = {1, 2, 3};
-  auto r = v.rbegin();
-  std::println("{} / {} {}", values, *r, *std::prev(r.base()));
+  std::istringstream input("1 2 3 4");
+  std::vector<int> v((std::istream_iterator<int>(input)), std::istream_iterator<int>());
+  std::println("要素数 = {}", v.size());
+  std::println("合計   = {}", std::accumulate(v.begin(), v.end(), 0));
 }
 ```
 
 ```text title="実行結果"
-[10, 20, 30] / 3 3
+要素数 = 4
+合計   = 10
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ファイルの数値を全部 vector に読み込む | `istream_iterator<int>(in)` |
+数値の羅列を、まとめて読み込みます。
+
+```cpp
+std::vector<int> values((std::istream_iterator<int>(file)), std::istream_iterator<int>());
+```
+
+最初の引数を括弧で囲んでいるのは、関数宣言と解釈されるのを避けるためです。
 
 ## よくあるミス
 
-??? failure "最も困惑する構文 (vexing parse)"
-    関数宣言と解釈されることがあります。引数を二重のかっこで包みます。
+??? failure "最初の引数を括弧で囲まず、関数宣言と解釈される"
+    `std::vector<int> v((std::istream_iterator<int>(in)), {})` のように括弧を付けます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::views::istream`](../../algorithms/views/istream_view.md) | ranges 版 |
+| [`ostream_iterator`](ostream_iterator.md) | 出力版 |
+| [`istreambuf_iterator`](istreambuf_iterator.md) | 1 文字ずつ読む |
 
 ## コンパイラ対応
 
-C++11 から使えます。`ssize` は C++20 です。
+C++98 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 値を 1 つずつ読むイテレータ
-    - [x] 終端は引数なしで作る
-    - [x] ranges 版もある
+    - [x] `istream_iterator<T>(s)` はストリームから `T` を読む入力イテレーター
+    - [x] 引数なしは終端
+    - [x] 空白区切りで読む
 
 ## 関連ページ
 

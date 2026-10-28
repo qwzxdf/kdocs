@@ -15,14 +15,16 @@ tags:
 `#include <iterator>`
 </div>
 
-`std::ssize(c)` は、**要素数を符号つきの整数（`ptrdiff_t`）で返す**関数です。`size()` は符号なしなので、`i < v.size() - 1` で 0 個のときに巨大な値になる事故が起きます。符号つきで扱いたいときに使います。
+コンテナの要素数は `size()` が返しますが、型が符号なし（`size_t`）です。`i < v.size() - 1` のような式は、空のコンテナで巨大な値になり、バグの元です。`std::ssize` は、<strong>符号つきの要素数</strong>を返します。
 
 !!! tip "ポイント"
-    - `for (ptrdiff_t i = 0; i < std::ssize(v); ++i)` が安全に書ける。
-    - C++20 の機能。
+    - `std::ssize(c)` は符号つき整数で返す要素数
+    - 空のコンテナでも、`ssize(c) - 1` が `-1` になる
+    - `for (int i = 0; i < std::ssize(v); ++i)` が安全に書ける
+    - 配列にも使える
 
 !!! info "このページを読む前に"
-    [`<iterator>`](../iterator.md) の概要を先に読むと分かりやすいです。[イテレータ](../../../basics/iterator.md) の基本が前提です。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -32,10 +34,18 @@ tags:
 
 ```cpp
 template <class C>
-constexpr auto ssize(const C& c);  // 符号付き
+constexpr auto ssize(const C& c) -> std::common_type_t<std::ptrdiff_t, std::make_signed_t<decltype(c.size())>>;
 ```
 
-- 符号付き（`std::ptrdiff_t`）の要素数。`int` と比べたり、後ろから回したりするときに警告が出ません
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `c` | コンテナまたは配列 | 対象 |
+
+戻り値は符号つき整数（通常 `std::ptrdiff_t`）です。`size()` を `int` に変換する手間も、符号の異なる比較の警告もなくなります。
+
+`v.size() - 1` は、`v` が空のとき、符号なしの 0 − 1 で巨大な値になります。`std::ssize(v) - 1` なら `-1` です。逆順のループを書くときに特に有効です。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <iterator>
@@ -43,45 +53,47 @@ constexpr auto ssize(const C& c);  // 符号付き
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3};
-  for (auto i = std::ssize(v) - 1; i >= 0; --i) {  // 符号付きなので -1 で止まる
-    std::print("{} ", v[i]);
-  }
-  std::println("/ 最後 {}", *std::prev(v.end()));
+  const std::vector<int> empty;
+  std::println("size()  - 1 = {}", empty.size() - 1);          // 符号なしで折り返す
+  std::println("ssize() - 1 = {}", std::ssize(empty) - 1);     // -1
 }
 ```
 
 ```text title="実行結果"
-3 2 1 / 最後 3
+size()  - 1 = 18446744073709551615
+ssize() - 1 = -1
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 符号つきのループ | `for (int i = 0; i < std::ssize(v); ++i)` |
+添字ループを安全に書きます。
+
+```cpp
+for (int i = std::ssize(items) - 1; i >= 0; --i) { /* 逆順に処理 */ }
+```
 
 ## よくあるミス
 
-??? failure "size() - 1 の落とし穴"
-    空の `vector` で `v.size() - 1` は巨大な値になります。`ssize` を使うと −1 になります。
+??? failure "`size()` の符号なしを引き算に使って折り返す"
+    `std::ssize` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`size`](size.md) | 符号なし |
+| [`begin`](begin.md) | 先頭のイテレーター |
+| [`empty`](empty.md) | 空か |
 
 ## コンパイラ対応
 
-C++11 から使えます。`ssize` は C++20 です。
+C++20 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 符号つきの要素数
-    - [x] `size() - 1` の事故を防ぐ
-    - [x] C++20
+    - [x] `std::ssize(c)` は符号つきの要素数
+    - [x] 空のコンテナでも引き算が安全
+    - [x] 配列にも使える
 
 ## 関連ページ
 
