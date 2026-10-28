@@ -6,7 +6,7 @@ tags:
 
 # 第 20 章 MVVM ライブラリを比べる
 
-この教材では Prism の `BindableBase` と `DelegateCommand` を使っています。ただ、WPF の解説記事を探すと、CommunityToolkit.Mvvm、ReactiveProperty、Livet など、別のライブラリを使った記事のほうがたくさん見つかります。「自分はどれを使えばいいのか」「他の記事のコードを、Prism に読み替えるにはどうするのか」がすぐ分かるように、この章で並べて比べます。
+この教材では Prism の `BindableBase` と `DelegateCommand` を使っています。ただ、WPF の解説記事を探すと、CommunityToolkit.Mvvm、ReactiveProperty、Livet など、別のライブラリを使った記事のほうがたくさん見つかります。「自分はどれを使えばいいのか」「他の記事のコードを Prism に読み替えるにはどうするのか」がすぐ分かるように、この章で並べて比べます。
 
 !!! info "このページを読む前に"
     - [第 19 章 Prism を掘り下げる](19-prism-deep.md)（前の章。ここまでの内容が前提になる）
@@ -26,7 +26,7 @@ Prism は①と②の両方を持っています。CommunityToolkit.Mvvm は①�
 
 ## 同じ画面を 3 通りで書く
 
-名前と HP を持つビューモデルを、3 つの書き方で並べます。
+名前と HP を持つビューモデルを 3 つの書き方で並べます。
 
 ### Prism
 
@@ -68,7 +68,7 @@ public partial class PlayerViewModel : ObservableObject
 }
 ```
 
-こちらは、ソース ジェネレーターという仕組みで、`[ObservableProperty]` を付けたフィールドから、`Name` というプロパティと変更通知のコードを、コンパイル時に自動で生成します。`[RelayCommand]` は、メソッドから `HealCommand` を生成します。ルールは次のとおりです。
+こちらは、ソース ジェネレーターという仕組みで、`[ObservableProperty]` を付けたフィールドから、`Name` というプロパティと変更通知のコードをコンパイル時に自動で生成します。`[RelayCommand]` は、メソッドから `HealCommand` を生成します。ルールは次のとおりです。
 
 - クラスに `partial` を付ける。付けないと、ジェネレーターがエラーを出す。
 - フィールド名は `_name`、`name`、`m_name` のように書くと、`Name` というプロパティが生成される。
@@ -105,7 +105,7 @@ public class PlayerViewModel
 | 非同期の流れや、入力の連動を宣言的に書きたい | ReactiveProperty（+ 他と併用） |
 | 小規模で、とにかく依存を増やしたくない | ライブラリなし（`INotifyPropertyChanged` と自作の `RelayCommand`） |
 
-この教材は、リージョンとモジュールを使う前提なので、Prism を選んでいます。ただし、`BindableBase` の代わりに CommunityToolkit.Mvvm の `ObservableObject` を使う、という組み合わせもできます。Prism は MVVM の補助部分を、別のライブラリに替えられる設計です。
+この教材は、リージョンとモジュールを使う前提なので、Prism を選んでいます。ただし、`BindableBase` の代わりに CommunityToolkit.Mvvm の `ObservableObject` を使う、という組み合わせもできます。Prism は MVVM の補助部分を別のライブラリに替えられる設計です。
 
 ## 書き換えの対応表
 

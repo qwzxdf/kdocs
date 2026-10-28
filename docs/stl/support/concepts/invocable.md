@@ -15,7 +15,7 @@ tags:
 `#include <concepts>`
 </div>
 
-コールバックを受け取る関数で、渡された関数やラムダが、期待する引数で呼べるかを調べたい。`std::invocable<F, Args...>` は、<strong>F を Args... で呼び出せるか</strong>を要求するコンセプトです。
+コールバックを受け取る関数で、渡された関数やラムダが期待する引数で呼べるかを調べたい。`std::invocable<F, Args...>` は、<strong>F を Args... で呼び出せるか</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
     - `std::invocable<F, Args...>`: `F` を `Args...` で呼び出せるか

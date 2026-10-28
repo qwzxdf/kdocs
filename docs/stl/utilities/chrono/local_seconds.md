@@ -15,7 +15,7 @@ tags:
 `#include <chrono>`
 </div>
 
-`time_point<system_clock, seconds>` のように毎回書くのは長いので、標準が別名を用意しています。`std::chrono::local_seconds` は、ローカル時刻を、秒の単位で表す別名です。
+`time_point<system_clock, seconds>` のように毎回書くのは長いので、標準が別名を用意しています。`std::chrono::local_seconds` は、ローカル時刻を秒の単位で表す別名です。
 
 !!! tip "ポイント"
     - 中身は `local_time<seconds>`。
@@ -78,7 +78,7 @@ C++20 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ローカル時刻を、秒の単位で表す別名
+    - [x] ローカル時刻を秒の単位で表す別名
     - [x] time_since_epoch() で経過を取る
     - [x] 型で時計の種類を区別する
 

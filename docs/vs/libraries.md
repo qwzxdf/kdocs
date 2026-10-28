@@ -33,7 +33,7 @@ C++ には、Python の `pip` や Node.js の `npm` のような「標準のパ�
 
 **ヘッダだけ**（`.hpp` / `.h` だけ）のライブラリは、ファイルを置いて、インクルードのパスを教えるだけで使えます。
 
-1. ライブラリのヘッダを、プロジェクトの横の `third_party/ライブラリ名/` に置く（Git から取得、または ZIP を展開）
+1. ライブラリのヘッダをプロジェクトの横の `third_party/ライブラリ名/` に置く（Git から取得、または ZIP を展開）
 
 ```text
 MyGame/
@@ -97,7 +97,7 @@ vcpkg install nlohmann-json:x64-windows
 
 ### 方法 B：マニフェスト モード（プロジェクトごとに管理）
 
-プロジェクトのフォルダーに `vcpkg.json`<strong> というファイルを置くと、</strong>そのプロジェクトが使うライブラリを、ファイルで管理できます。Git に入れておけば、チームの全員が同じライブラリ・同じバージョンで動かせます。
+プロジェクトのフォルダーに `vcpkg.json`<strong> というファイルを置くと、</strong>そのプロジェクトが使うライブラリをファイルで管理できます。Git に入れておけば、チームの全員が同じライブラリ・同じバージョンで動かせます。
 
 1. プロジェクト（`.vcxproj` と同じ場所）に `vcpkg.json` を作る
 
@@ -187,7 +187,7 @@ third_party/
 
 ![② リンカー → 全般 → 追加のライブラリ ディレクトリ](img/props-linker-general.jpg)
 
-③ は、リンカー → 入力 のページです。先頭の「追加の依存ファイル」に、`.lib` の名前を足します。最初から入っている `$(CoreLibraryDependencies);%(AdditionalDependencies)` は、消さずに、`;` で区切って後ろに足します。
+③ は、リンカー → 入力 のページです。先頭の「追加の依存ファイル」に `.lib` の名前を足します。最初から入っている `$(CoreLibraryDependencies);%(AdditionalDependencies)` は、消さずに、`;` で区切って後ろに足します。
 
 ![③ リンカー → 入力 → 追加の依存ファイル](img/props-linker-input.jpg)
 

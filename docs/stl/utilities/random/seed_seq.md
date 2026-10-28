@@ -69,7 +69,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| リプレイ用に、複数の値（ステージ番号 + プレイヤー ID）から種を作る | `std::seed_seq{stage, player_id}` |
+| リプレイ用に複数の値（ステージ番号 + プレイヤー ID）から種を作る | `std::seed_seq{stage, player_id}` |
 | エンジンの状態を十分にばらけさせる | `std::seed_seq{rd(), rd(), rd(), rd()}` |
 
 ## よくあるミス

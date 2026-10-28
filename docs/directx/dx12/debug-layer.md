@@ -44,7 +44,7 @@ if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debug)))) {
 #if defined(_DEBUG)
 ComPtr<ID3D12Debug1> debug1;
 if (SUCCEEDED(debug.As(&debug1))) {
-  debug1->SetEnableGPUBasedValidation(TRUE);  // 遅い。バリアやディスクリプタの誤りを、GPU の実行中に検出する
+  debug1->SetEnableGPUBasedValidation(TRUE);  // 遅い。バリアやディスクリプタの誤りを GPU の実行中に検出する
 }
 #endif
 ```
@@ -62,7 +62,7 @@ with the state (0x0: D3D12_RESOURCE_STATE_PRESENT) specified by the previous cal
 [ RESOURCE_MANIPULATION ERROR #527: RESOURCE_BARRIER_BEFORE_AFTER_MISMATCH]
 ```
 
-この例は「バリアの前の状態（`StateBefore`）が、実際の状態と違う」という典型的なエラーです。メッセージにはリソースの名前が出ます。`SetName` で名前を付けておくとどのリソースかがすぐ分かります。
+この例は「バリアの前の状態（`StateBefore`）が実際の状態と違う」という典型的なエラーです。メッセージにはリソースの名前が出ます。`SetName` で名前を付けておくとどのリソースかがすぐ分かります。
 
 ## InfoQueue でエラーのときに止める
 
@@ -137,12 +137,12 @@ if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 }
 ```
 
-GPU が 2 秒以上応答しないと Windows の TDR（Timeout Detection and Recovery）が、ドライバーをリセットしてデバイスが失われます。1 回の `Dispatch` や `Draw` を重くしすぎないようにします（[ID3D12Device::GetDeviceRemovedReason](api/id3d12device.md#getdeviceremovedreason)）。
+GPU が 2 秒以上応答しないと Windows の TDR（Timeout Detection and Recovery）がドライバーをリセットしてデバイスが失われます。1 回の `Dispatch` や `Draw` を重くしすぎないようにします（[ID3D12Device::GetDeviceRemovedReason](api/id3d12device.md#getdeviceremovedreason)）。
 
 ## 終了時のリーク検出
 
 ```cpp
-// 終了時（デバイスを解放する直前）に、生きているオブジェクトを一覧にする。
+// 終了時（デバイスを解放する直前）に生きているオブジェクトを一覧にする。
 ComPtr<IDXGIDebug1> dxgi_debug;
 if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&dxgi_debug)))) {
   dxgi_debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);

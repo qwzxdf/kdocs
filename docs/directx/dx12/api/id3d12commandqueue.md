@@ -112,7 +112,7 @@ HRESULT ID3D12CommandQueue::Wait(
 HRESULT ID3D12CommandQueue::GetTimestampFrequency(UINT64* pFrequency);
 ```
 
-タイムスタンプ クエリの値が、1 秒あたり何刻みかを返します。`pFrequency` に結果が書き込まれます。
+タイムスタンプ クエリの値が 1 秒あたり何刻みかを返します。`pFrequency` に結果が書き込まれます。
 
 2 つのタイムスタンプの差をこの値で割ると、秒になります。1,000 を掛けるとミリ秒です。値は GPU ごとに違うので、決め打ちにせず起動時に 1 回取得しておきます。戻り値は成功なら `S_OK` です。使い方の全体は [GPU Queries and Timing](../query-timing.md) にあります。
 

@@ -13,7 +13,7 @@ tags:
     - 循環（A が B を使い、B が A を使う）を作らない。 作りそうになったら、インターフェースか、イベントで逆向きをなくす。
     - 変わりにくいもの（数学、コンテナ）を下に変わりやすいもの（ゲームの仕様、UI）を上に置く。
     - 境界には小さなインターフェースを置く（[インターフェース設計](interface-design.md)）。
-    - フォルダー（や CMake のターゲット）を、モジュールに合わせて分けて、依存を機械的にチェックする。
+    - フォルダー（や CMake のターゲット）をモジュールに合わせて分けて、依存を機械的にチェックする。
 
 !!! info "このページを読む前に"
     - [design/index.md](../index.md)（このセクション全体の地図と、読む順番）
@@ -32,7 +32,7 @@ tags:
 
 ## 良い例：レイヤーに分ける
 
-<svg class="fig flow" viewBox="0 0 360 364" role="img" aria-label="層は、上から下へ、一方向に依存する"><defs><marker id="fl37638" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">層は、上から下へ、一方向に依存する</text><line x1="150.0" y1="87.0" x2="150.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37638)"/><text x="150.0" y="100.0" text-anchor="middle" style="font-size:12px">使う</text><line x1="150.0" y1="171.0" x2="150.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37638)"/><text x="150.0" y="184.0" text-anchor="middle" style="font-size:12px">使う</text><line x1="150.0" y1="255.0" x2="150.0" y2="293.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37638)"/><text x="150.0" y="268.0" text-anchor="middle" style="font-size:12px">使う</text><rect x="55.0" y="44.0" width="190" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">アプリ層 （main・起動）</text><rect x="56.0" y="128.0" width="188" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム層 （敵・ルール）</text><rect x="37.5" y="212.0" width="225" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">エンジン層 （描画・ECS・音）</text><rect x="28.0" y="296.0" width="244" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">基盤層 （数学・コンテナ・ログ）</text></svg>
+<svg class="fig flow" viewBox="0 0 360 364" role="img" aria-label="層は、上から下へ、一方向に依存する"><defs><marker id="fl37638" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">層は、上から下へ一方向に依存する</text><line x1="150.0" y1="87.0" x2="150.0" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37638)"/><text x="150.0" y="100.0" text-anchor="middle" style="font-size:12px">使う</text><line x1="150.0" y1="171.0" x2="150.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37638)"/><text x="150.0" y="184.0" text-anchor="middle" style="font-size:12px">使う</text><line x1="150.0" y1="255.0" x2="150.0" y2="293.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl37638)"/><text x="150.0" y="268.0" text-anchor="middle" style="font-size:12px">使う</text><rect x="55.0" y="44.0" width="190" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">アプリ層 （main・起動）</text><rect x="56.0" y="128.0" width="188" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲーム層 （敵・ルール）</text><rect x="37.5" y="212.0" width="225" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">エンジン層 （描画・ECS・音）</text><rect x="28.0" y="296.0" width="244" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="150.0" y="316.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">基盤層 （数学・コンテナ・ログ）</text></svg>
 
 | 層 | 中身 | 依存してよい先 |
 | --- | --- | --- |
@@ -101,7 +101,7 @@ physics.SetOnCollision([&game](EntityId a, EntityId b) { game.OnHit(a, b); });
 
 詳しくは [イベントシステム](../patterns/event.md) を見てください。
 
-### 2. 依存の向きを、インターフェースで逆にする（依存性逆転）
+### 2. 依存の向きをインターフェースで逆にする（依存性逆転）
 
 上の層の都合で下の層を使いたいとき、上の層がインターフェースを持ち、下の層がそれを実装すると、依存の向きが逆になります。
 
@@ -123,7 +123,7 @@ l f i - 実装する
 
 ## ヘッダの循環を防ぐ
 
-クラスの循環は、ヘッダの循環（`a.h` が `b.h` を、`b.h` が `a.h` を `#include`）として現れます。
+クラスの循環は、ヘッダの循環（`a.h` が `b.h` を `b.h` が `a.h` を `#include`）として現れます。
 
 | 方法 | 説明 |
 | --- | --- |
@@ -134,7 +134,7 @@ l f i - 実装する
 
 ## フォルダー構成とモジュール
 
-フォルダーとビルドの単位を、レイヤーに合わせます。
+フォルダーとビルドの単位をレイヤーに合わせます。
 
 ```text
 src/
@@ -147,7 +147,7 @@ src/
 | 工夫 | 説明 |
 | --- | --- |
 | **フォルダーごとに別の静的ライブラリ**（Visual Studio のプロジェクト / CMake のターゲット） | 逆向きの `#include` が、リンクエラーやコンパイルエラーで見つかる |
-| `#include` のルール | 「`engine/` は `game/` を include しない」を、コードレビューやスクリプトで確認する |
+| `#include` のルール | 「`engine/` は `game/` を include しない」をコードレビューやスクリプトで確認する |
 | 公開ヘッダと内部ヘッダを分ける | `include/` に外へ出すもの、`src/` に内部のものを置く |
 
 ## 境界を作るときの判断
@@ -164,7 +164,7 @@ src/
 | 場面 | 設計 |
 | --- | --- |
 | 描画エンジンとゲームの切り離し | 描画は、`DrawCommand` のような**データ**を受け取るだけ。ゲームの型を知らない |
-| 入力 | OS の入力を、「ジャンプ」「攻撃」のようなゲームの操作に変換する層を挟む |
+| 入力 | OS の入力を「ジャンプ」「攻撃」のようなゲームの操作に変換する層を挟む |
 | 保存と読み込み | ゲーム層は `ISaveStorage` だけ知る。ファイル・クラウドは下で実装 |
 | ツールとゲームで共通のコード | 基盤層・エンジン層をツールのプロジェクトからも使う |
 | 描画のスレッド | ゲームの更新と描画で共有するデータを境界で受け渡す（[並行処理の設計](../practice/concurrency-design.md)） |
@@ -181,7 +181,7 @@ src/
     学生のゲームで、10 層も作ると何をどの層に置くかで迷うだけです。<strong>3〜4 層（基盤・エンジン・ゲーム・アプリ）</strong>で十分です。
 
 ??? failure "グローバル変数・シングルトンで層を飛び越えて呼ぶ"
-    `GameManager::Instance()` を、どこからでも呼べると依存の向きが見えなくなります（[シングルトン](../patterns/singleton.md)）。必要なものは引数やコンストラクタで渡します。
+    `GameManager::Instance()` をどこからでも呼べると依存の向きが見えなくなります（[シングルトン](../patterns/singleton.md)）。必要なものは引数やコンストラクタで渡します。
 
 ## これだけ覚える
 
@@ -189,7 +189,7 @@ src/
     - [x] コードを層に分けて、依存は**上から下への一方向**だけにする
     - [x] 循環しそうになったら、イベント、インターフェース、共通部品の切り出しで切る
     - [x] 変わりにくいものを下、変わりやすいものを上に置く
-    - [x] フォルダーとビルドの単位を、層に合わせる
+    - [x] フォルダーとビルドの単位を層に合わせる
     - [x] 層は 3〜4 つで十分
 
 ## 関連ページ

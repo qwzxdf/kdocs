@@ -70,8 +70,8 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| `unique_ptr` で持つオブジェクトのリストを、別のリストに渡す | `move(src, dst.begin())` |
-| 巨大な文字列の配列を、コピーせずに別のコンテナへ移す | `move(strings, back_inserter(other))` |
+| `unique_ptr` で持つオブジェクトのリストを別のリストに渡す | `move(src, dst.begin())` |
+| 巨大な文字列の配列をコピーせずに別のコンテナへ移す | `move(strings, back_inserter(other))` |
 
 ## よくあるミス
 

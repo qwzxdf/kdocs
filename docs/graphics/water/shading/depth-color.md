@@ -78,7 +78,7 @@ float water_depth = max(scene_depth - surface_depth, 0.0);
 <text x="690.8" y="141.4" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2563eb">B</text>
 <rect x="70" y="345" width="640" height="34" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
 <rect x="72" y="347" width="636" height="30" fill="#ffffff"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1600;0.1750;0.1900;0.2050;0.2200;0.2350;0.2500;0.2650;0.2800;0.2950;0.3100;0.3250;0.3400;0.3550;0.3700;0.3850;0.4000;0.4150;0.4300;0.4450;0.4600;0.4750;0.4900;0.5050;0.5200;0.5350;0.5500;0.5650;0.5800;0.5950;0.6100;0.6250;0.6400;0.6550;0.6700;0.6850;0.7000;0.7150;0.7300;0.7450;0.7600;1.0000" values="#ffffff;#ffffff;#ccf6fc;#a3eefa;#82e6f7;#68def5;#53d6f3;#42cff0;#35c8ee;#2ac1eb;#22bae9;#1bb4e7;#15aee4;#11a8e2;#0ea2e0;#0b9cde;#0997db;#0792d9;#068dd7;#0488d5;#0483d3;#037fd1;#027acf;#0276cd;#0172cb;#016ec9;#016ac7;#0167c5;#0163c3;#0060c1;#005cbf;#0059bd;#0056bb;#0053b9;#0050b7;#004eb6;#004bb4;#0048b2;#0046b0;#0043ae;#0041ad;#003fab;#003fab"/></rect>
-<text x="70" y="338" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">白い砂底が、深さ d の水を通して見える色</text>
+<text x="70" y="338" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">白い砂底が深さ d の水を通して見える色</text>
 <text x="390" y="420" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">浅い所: 砂の色がそのまま見える<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1597;0.1600;0.3097;0.3100;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="420" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">数 m: 赤が消えて、緑がかった色に<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.3097;0.3100;0.4597;0.4600;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="420" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">10 m 前後: 青緑だけが残る<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.4597;0.4600;0.6097;0.6100;1.0000" values="0;0;1;1;0;0"/></text>
@@ -89,7 +89,7 @@ float water_depth = max(scene_depth - surface_depth, 0.0);
 
 ## 水は色を吸収する
 
-純水は <strong>赤い光をよく吸収し青い光を、あまり吸収しません</strong>。厚い水の層を通った光は 赤が先に消え、青が最後まで残ります。これが海やプールが青い理由です。
+純水は <strong>赤い光をよく吸収し青い光をあまり吸収しません</strong>。厚い水の層を通った光は 赤が先に消え、青が最後まで残ります。これが海やプールが青い理由です。
 
 | 波長 | 吸収係数 a（1/m、純水） | 1 m で残る割合 | 10 m で、残る割合 |
 | --- | --- | --- | --- |
@@ -131,7 +131,7 @@ float3 transmittance = exp(-absorption * water_depth);
 
 | 項 | 内容 |
 | --- | --- |
-| `底の色 × T` | 底（砂、岩）で反射した光が水を通ってくる間に、吸収されて減った分 |
+| `底の色 × T` | 底（砂、岩）で反射した光が水を通ってくる間に吸収されて減った分 |
 | `水の色 × (1 − T)` | 水の中で散乱されて、目に届く光。深くなるほど増える |
 
 ```hlsl
@@ -162,10 +162,10 @@ deep_color ≈ 空と太陽の光 × f × b_b / (a + b_b)        f ≈ 0.33、b_
 
 | 距離 | 内容 | 使う場面 |
 | --- | --- | --- |
-| 視線方向の距離 | 目から水面、底までの視線に沿った距離の差 | 光が、水の中を進む距離。吸収に使う（斜めから見ると長く進むので色が、濃い） |
+| 視線方向の距離 | 目から水面、底までの視線に沿った距離の差 | 光が水の中を進む距離。吸収に使う（斜めから見ると長く進むので色が濃い） |
 | 鉛直方向の水深 | 水面から、底までの真下への深さ | 泡、岸辺の境界（岸に近い所で水が浅い） |
 
-吸収（Beer の法則）には、視線方向の距離を使います。斜めから見るほど光が水の中を長く通るので色が、濃くなります。
+吸収（Beer の法則）には、視線方向の距離を使います。斜めから見るほど光が水の中を長く通るので色が濃くなります。
 
 ```hlsl
 // 水面のピクセルで、水深（視線方向）を求める。
@@ -191,7 +191,7 @@ float LinearizeDepth(float d) {
 
 ## DirectX 11 で、深度バッファをシェーダーで読む
 
-水面を描くとき <strong>水より手前に、描かれた不透明な物の深度</strong>を、読む必要があります。深度バッファを 深度ステンシル ビュー（書き込み用）と、シェーダー リソース ビュー（読み取り用）の、両方で使えるように作ります。
+水面を描くとき <strong>水より手前に描かれた不透明な物の深度</strong>を読む必要があります。深度バッファを 深度ステンシル ビュー（書き込み用）と、シェーダー リソース ビュー（読み取り用）の、両方で使えるように作ります。
 
 ```cpp
 // 深度テクスチャ: TYPELESS で作って、DSV と SRV で、別々の形式のビューを作る。
@@ -218,7 +218,7 @@ srv.Texture2D.MipLevels = 1;
 device->CreateShaderResourceView(depth_tex.Get(), &srv, &depth_srv);
 ```
 
-同じ深度テクスチャを DSV として、設定したまま SRV としても、読むことはできません（読み書きの衝突）。水の描画では 深度の書き込みを、無効にして DSV を 読み取り専用（`D3D11_DSV_READ_ONLY_DEPTH` を指定した DSV）にするか深度を、コピーしてから読みます。
+同じ深度テクスチャを DSV として、設定したまま SRV としても、読むことはできません（読み書きの衝突）。水の描画では 深度の書き込みを無効にして DSV を 読み取り専用（`D3D11_DSV_READ_ONLY_DEPTH` を指定した DSV）にするか深度をコピーしてから読みます。
 
 ```cpp
 // 読み取り専用の DSV: 深度テストはできるが、書き込みはしない。同時に SRV としても読める。
@@ -234,13 +234,13 @@ device->CreateDepthStencilView(depth_tex.Get(), &dsv_ro, &depth_dsv_readonly);
 深い所では <strong>太陽の光そのもの</strong>が、届かなくなります。水中の物（底の岩）をライティングするとき光の減衰も、考える必要があります。
 
 ```hlsl
-// 水面から深さ d の所へ届く、太陽光の減衰（赤が、先に消える）。
+// 水面から深さ d の所へ届く、太陽光の減衰（赤が先に消える）。
 float3 sun_at_depth = sun_color * exp(-absorption * depth_below_surface);
 ```
 
 ### 水自体の色（`deep_color`）も時間帯で変わる
 
-`deep_color` を固定の色にすると 夜も、昼と同じ色になります。`deep_color` は 空の光を散乱して返すので、空の明るさ（太陽の高さ天気）に、比例させます。
+`deep_color` を固定の色にすると 夜も、昼と同じ色になります。`deep_color` は 空の光を散乱して返すので、空の明るさ（太陽の高さ天気）に比例させます。
 
 ```hlsl
 float3 deep_color = base_deep_color * (sky_irradiance + sun_color * saturate(sun_dir.y) * 0.5);
@@ -266,7 +266,7 @@ float3 deep_color = base_deep_color * (sky_irradiance + sun_color * saturate(sun
 - Pope, Fry, "Absorption Spectrum (380–700 nm) of Pure Water. II. Integrating Cavity Measurements", Applied Optics, Vol. 36, No. 33, 1997（純水の吸収係数の測定値）
 - Jerlov, "Marine Optics", Elsevier, 1976（海水の水質の分類 Jerlov water types）
 - Gordon, Brown, Jacobs, "Computed Relationships between the Inherent and Apparent Optical Properties of a Flat Homogeneous Ocean", Applied Optics, Vol. 14, No. 2, 1975（水中の散乱と吸収から、水の色を求める式）
-- Microsoft Learn, "Reading depth-stencil as shader resource"（深度バッファを、`R32_TYPELESS` で作って SRV として読む方法）
+- Microsoft Learn, "Reading depth-stencil as shader resource"（深度バッファを `R32_TYPELESS` で作って SRV として読む方法）
 - Mittring, "Finding Next Gen: CryEngine 2", SIGGRAPH 2007, Advances in Real-Time Rendering in 3D Graphics and Games（水の描画、平面反射と屈折のコピー）
 
 ## 関連ページ

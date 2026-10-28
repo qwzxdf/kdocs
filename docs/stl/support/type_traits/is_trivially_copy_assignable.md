@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-代入が、ビットの複製だけで済む型かを知りたい。`std::is_trivially_copy_assignable` は、<strong>型が自明なコピー代入を持つか</strong>を調べます。
+代入がビットの複製だけで済む型かを知りたい。`std::is_trivially_copy_assignable` は、<strong>型が自明なコピー代入を持つか</strong>を調べます。
 
 !!! tip "ポイント"
     - `std::is_trivially_copy_assignable_v<T>` は、`T` が自明なコピー代入を持つか

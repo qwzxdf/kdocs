@@ -118,7 +118,7 @@ auto hits = FindHits();  // ここに直接作られる、またはムーブさ�
 
 ```cpp
 // 遅い：1 つずつコピーしている（auto は値）
-for (auto enemy : enemies) {        // Enemy を、毎回コピー
+for (auto enemy : enemies) {        // Enemy を毎回コピー
   enemy.Update();                    // しかも、コピーを更新しているので、元は変わらない（バグ）
 }
 

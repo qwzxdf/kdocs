@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-特定の引数で構築できる型かを、事前に調べたい。たとえば、`emplace_back` に渡す引数で構築できるかを確かめます。`std::is_constructible<T, Args...>` は、<strong>T を Args... から構築できるか</strong>を調べます。
+特定の引数で構築できる型かを事前に調べたい。たとえば、`emplace_back` に渡す引数で構築できるかを確かめます。`std::is_constructible<T, Args...>` は、<strong>T を Args... から構築できるか</strong>を調べます。
 
 !!! tip "ポイント"
     - `std::is_constructible_v<T, Args...>` は、`T` を `Args...` から構築できるか

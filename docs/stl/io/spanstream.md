@@ -14,7 +14,7 @@ tags:
 `#include <spanstream>`
 </div>
 
-`std::spanstream`（と `ispanstream`、`ospanstream`）は、**すでにあるメモリ上のバッファを、コピーも確保もせずに、ストリームとして読み書きする**クラスです。`stringstream` は内部で文字列を確保しますが、こちらは渡されたバッファをそのまま使います。固定長のバッファに書式つきで書き込みたいとき（`snprintf` の代わり）に向きます。
+`std::spanstream`（と `ispanstream`、`ospanstream`）は、**すでにあるメモリ上のバッファをコピーも確保もせずに、ストリームとして読み書きする**クラスです。`stringstream` は内部で文字列を確保しますが、こちらは渡されたバッファをそのまま使います。固定長のバッファに書式つきで書き込みたいとき（`snprintf` の代わり）に向きます。
 
 !!! tip "ポイント"
     - `std::ospanstream out(buffer);` で、`buffer` に書き込む。
@@ -62,7 +62,7 @@ HP 45/120
 
 | 場面 | 書き方 |
 | --- | --- |
-| 固定長のバッファに、確保なしで書式つきの文字列を作る | `std::ospanstream out(buffer);` |
+| 固定長のバッファに確保なしで書式つきの文字列を作る | `std::ospanstream out(buffer);` |
 
 ## よくあるミス
 

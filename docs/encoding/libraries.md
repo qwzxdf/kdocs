@@ -6,7 +6,7 @@ tags:
 
 # 外部ライブラリと文字コード
 
-ゲームではウィンドウ、描画、音、GUI、JSON、画像など**たくさんの外部ライブラリ**を使います。ライブラリごとに文字列を受け取るときの文字コード（UTF-8 か、UTF-16 か ANSI か）が決まっています。それを知らずに文字列を渡すと文字化けやファイルが開けない原因になります。このページはよく使うライブラリが、何を要求するかを一覧にし、あわせて文字コードを本格的に扱うライブラリ（utfcpp、simdutf、ICU）を紹介します。
+ゲームではウィンドウ、描画、音、GUI、JSON、画像など**たくさんの外部ライブラリ**を使います。ライブラリごとに文字列を受け取るときの文字コード（UTF-8 か、UTF-16 か ANSI か）が決まっています。それを知らずに文字列を渡すと文字化けやファイルが開けない原因になります。このページはよく使うライブラリが何を要求するかを一覧にし、あわせて文字コードを本格的に扱うライブラリ（utfcpp、simdutf、ICU）を紹介します。
 
 !!! tip "ポイント"
     - <strong>ほとんどのライブラリは UTF-8（`char*`）</strong>。ゲームの文字列（UTF-8）をそのまま渡せる。
@@ -56,7 +56,7 @@ tags:
 
 | ライブラリ | 問題 | 対策 |
 | --- | --- | --- |
-| stb_image / stb_vorbis など | `stbi_load(filename)` が、内部で `fopen` を使う。Windows では日本語パスが、ANSI として解釈されて失敗する | ファイルを自分で読んで `stbi_load_from_memory`。または、ワイド文字版の `fopen` に差し替える（`STBI_WINDOWS_UTF8` を定義して、`stbi_convert_wchar_to_utf8` を使う） |
+| stb_image / stb_vorbis など | `stbi_load(filename)` が、内部で `fopen` を使う。Windows では日本語パスが ANSI として解釈されて失敗する | ファイルを自分で読んで `stbi_load_from_memory`。または、ワイド文字版の `fopen` に差し替える（`STBI_WINDOWS_UTF8` を定義して、`stbi_convert_wchar_to_utf8` を使う） |
 | **`fopen` / `std::ifstream(const char*)`** | ANSI のパス | `std::filesystem::path`、`_wfopen` |
 | 古い C ライブラリ（zlib の `gzopen` など） | ANSI のパス | メモリに読んでから渡す。または、`gzopen_w` などの W 版 |
 | `main` の `argv` | ANSI | `GetCommandLineW`、マニフェストの UTF-8 |
@@ -75,7 +75,7 @@ tags:
 
 | 方針 | 理由 |
 | --- | --- |
-| ファイルは自分で読む | パスの文字コードの問題が、ライブラリに入らない |
+| ファイルは自分で読む | パスの文字コードの問題がライブラリに入らない |
 | **ライブラリにはメモリ（`const void*` + サイズ）を渡す** | `stbi_load_from_memory`、`FT_New_Memory_Face`、`FMOD_CREATESOUNDEXINFO` など |
 | アセットのパスは ASCII にする | `data/textures/hero.png`。日本語のファイル名は避ける |
 | ユーザーが選ぶパス（セーブ、スクリーンショット）だけ日本語を考慮する | `std::filesystem::path` と W 版 |
@@ -130,7 +130,7 @@ for (auto p = text.begin(); p != text.end();) {
 ```cpp
 #include <simdutf.h>
 
-// 検証（非常に速い）
+// 検証（速い）
 bool ok = simdutf::validate_utf8(text.data(), text.size());
 
 // UTF-8 → UTF-16

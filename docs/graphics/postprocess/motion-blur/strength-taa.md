@@ -81,10 +81,10 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
 | 点 | 内容 |
 | --- | --- |
 | 順序 | TAA の後にブラー（または前）。エンジンによる |
-| ジッター | 速度から、TAA のジッターを除く（除かないと静止した物が、ブラーやゴーストでぶれる） |
+| ジッター | 速度から、TAA のジッターを除く（除かないと静止した物がブラーやゴーストでぶれる） |
 | ゴースト | ブラーで混ざった色は、TAA の履歴の妥当性を下げるので、履歴を拒否する判定に注意 |
 | 見た目の混ざり | TAA 自体が時間平均なので、ブラーを強くしすぎると、二重にぼける |
-| ノイズ（ジッター）の相乗効果 | ブラーのサンプル ノイズを、TAA が平均して、滑らかに |
+| ノイズ（ジッター）の相乗効果 | ブラーのサンプル ノイズを TAA が平均して、滑らかに |
 
 <!-- fig:motion-blur-vs-taa:begin -->
 
@@ -92,7 +92,7 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
 <defs><marker id="arr-motion-blur-vs-taa" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">モーション ブラーと TAA: TAA は、動きに合わせて前の色を使い、くっきり保つ。ブラーは、動きの跡を、わざとぼかす</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">モーション ブラーと TAA: TAA は、動きに合わせて前の色を使い、くっきり保つ。ブラーは、動きの跡をわざとぼかす</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">棒(幅 4)が右へ動く。速さ 4・8・16・32 画素 / フレーム。見た目の流れの長さと、TAA で、履歴を使いすぎたときの残像を比べる</text>
 <rect x="30" y="96" width="900" height="250" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 速さごとの、跡の長さ(画素)</text>
@@ -125,7 +125,7 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
 <text x="50" y="406" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043" opacity="0">TAA(再投影つき)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8265;0.8267;1.0000" values="0;0;1;1"/></text>
 <text x="260" y="406" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937" opacity="0">動きの分だけ履歴の位置をずらして使う → 棒は、くっきり。ぼけない<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8265;0.8267;1.0000" values="0;0;1;1"/></text>
 <text x="50" y="430" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2563eb" opacity="0">モーション ブラー<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8798;0.8800;1.0000" values="0;0;1;1"/></text>
-<text x="260" y="430" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937" opacity="0">動きの跡を、わざとぼかす → 速さが「見える」。映像らしさ<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8798;0.8800;1.0000" values="0;0;1;1"/></text>
+<text x="260" y="430" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937" opacity="0">動きの跡をわざとぼかす → 速さが「見える」。映像らしさ<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8798;0.8800;1.0000" values="0;0;1;1"/></text>
 <text x="50" y="454" text-anchor="start" style="font-size:13px;font-weight:700;fill:#e5484d" opacity="0">TAA の履歴を再投影しない<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.9332;0.9333;1.0000" values="0;0;1;1"/></text>
 <text x="260" y="454" text-anchor="start" style="font-size:13px;font-weight:500;fill:#1f2937" opacity="0">跡が 928 画素も残る → ゴースト(悪い)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.9332;0.9333;1.0000" values="0;0;1;1"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">動く物は、TAA でも、ブラーでも、見た目が変わる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
@@ -140,7 +140,7 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
 | 項目 | 内容 |
 | --- | --- |
 | ON / OFF | 酔いやすい人のため、必ず切れるように |
-| <strong>強さ（スライダー）</strong> | シャッター角を、0〜360° の範囲で |
+| <strong>強さ（スライダー）</strong> | シャッター角を 0〜360° の範囲で |
 | カメラ / オブジェクトを別々に | カメラ ブラーだけオンなど |
 | 品質 | サンプル数・半解像度 |
 
@@ -154,7 +154,7 @@ float2 ScaleVelocity(float2 velocity_per_frame, float delta_time, float shutter_
 ??? failure "強すぎて酔う・見づらい"
     最大ブラー長で制限、デフォルトは控えめ、オプションで OFF。
 
-??? failure "静止した物が、TAA とブラーでぶれる"
+??? failure "静止した物が TAA とブラーでぶれる"
     ジッターを速度から除く。
 
 ??? failure "武器・UI までぼける"

@@ -6,7 +6,7 @@ tags:
 
 # Slope-Scale Bias
 
-<strong>面が光に対して斜めなほどアクネが出やすく、必要なバイアスは大きくなります</strong>。面の傾き（深度の勾配）に比例してバイアスを増やすのがスロープ スケール バイアスです。ハードウェアのラスタライザが、これをサポートしているのでシャドウ マップを描くときに設定するだけで使えます。このページでは傾きとアクネの関係・ハードウェアの設定（`SlopeScaledDepthBias`）・シェーダーでの計算を説明します。
+<strong>面が光に対して斜めなほどアクネが出やすく、必要なバイアスは大きくなります</strong>。面の傾き（深度の勾配）に比例してバイアスを増やすのがスロープ スケール バイアスです。ハードウェアのラスタライザがこれをサポートしているのでシャドウ マップを描くときに設定するだけで使えます。このページでは傾きとアクネの関係・ハードウェアの設定（`SlopeScaledDepthBias`）・シェーダーでの計算を説明します。
 
 !!! tip "ポイント"
     - スロープ スケール ＝ 面の傾きに比例して、バイアスを増やす。
@@ -81,7 +81,7 @@ tags:
 <!-- fig:slope-bias:end -->
 
 ## 対策 2：スロープ スケール バイアス
-<strong>面の傾き（深度の勾配）に比例</strong>して、バイアスを大きくします。Direct3D のラスタライザ ステートに、機能があります。
+<strong>面の傾き（深度の勾配）に比例</strong>して、バイアスを大きくします。Direct3D のラスタライザ ステートに機能があります。
 
 ```cpp
 D3D11_RASTERIZER_DESC desc = {};
@@ -90,7 +90,7 @@ desc.SlopeScaledDepthBias = 2.0f;
 desc.DepthBiasClamp = 0.01f;
 ```
 
-ラスタライザ ステートの 3 つの項目の意味です。`DepthBias` は定数で深度バッファの最小単位（精度）の倍数です。D32_FLOAT の場合は、深度値の大きさに応じて変わります。`SlopeScaledDepthBias` はポリゴンの画面上での深度の勾配（`max(|dz/dx|, |dz/dy|)`）に、この値を掛けて加えます。`DepthBiasClamp` はバイアスの上限で極端に傾いた面で暴走しないようにします。
+ラスタライザ ステートの 3 つの項目の意味です。`DepthBias` は定数で深度バッファの最小単位（精度）の倍数です。D32_FLOAT の場合は、深度値の大きさに応じて変わります。`SlopeScaledDepthBias` はポリゴンの画面上での深度の勾配（`max(|dz/dx|, |dz/dy|)`）にこの値を掛けて加えます。`DepthBiasClamp` はバイアスの上限で極端に傾いた面で暴走しないようにします。
 
 この設定はシャドウ マップを描くときに使います（書き込む深度にオフセットを足す）。
 
@@ -98,7 +98,7 @@ desc.DepthBiasClamp = 0.01f;
 
 ## 傾き依存バイアスとは
 
-面が <strong>光に対して斜めになるほど</strong>、シャドウ マップの 1 画素の中で、深度が大きく変わります。その変化の大きさ（深度の傾き）に、比例してバイアスを大きくするのが、傾き依存（slope-scale）バイアスです。
+面が <strong>光に対して斜めになるほど</strong>、シャドウ マップの 1 画素の中で、深度が大きく変わります。その変化の大きさ（深度の傾き）に比例してバイアスを大きくするのが、傾き依存（slope-scale）バイアスです。
 
 ```text
 バイアス = 定数 + 傾き係数 × 深度の傾き
@@ -118,7 +118,7 @@ desc.DepthBiasClamp = 0.01f;
 D3D11_RASTERIZER_DESC rs = {};
 rs.DepthBias = 1000;                  // 定数分
 rs.SlopeScaledDepthBias = 1.5f;       // 傾き係数。深度の最大の傾きに、この値を掛ける
-rs.DepthBiasClamp = 0.01f;            // バイアスの、上限（ピーター パンニングの、暴走を、防ぐ）
+rs.DepthBiasClamp = 0.01f;            // バイアスの、上限（ピーター パンニングの、暴走を防ぐ）
 device->CreateRasterizerState(&rs, &shadow_rs);
 ```
 
@@ -134,15 +134,15 @@ Bias は、DepthBiasClamp を、超えない
 | `DepthBias × r` | 定数バイアス（`r` は最小の、深度の刻み） |
 | `MaxDepthSlope` | 三角形の深度の傾き（`max(|∂z/∂x|, |∂z/∂y|)`、画面空間での変化） |
 | `SlopeScaledDepthBias` | 傾きに掛ける係数。1〜3 が一般的 |
-| `DepthBiasClamp` | 上限。斜めの面でバイアスが暴走して影が、消えるのを防ぐ |
+| `DepthBiasClamp` | 上限。斜めの面でバイアスが暴走して影が消えるのを防ぐ |
 
 ### 傾きの直感
 
-光にほぼ平行な面（朝夕の光が地面に、すれすれ）ではシャドウ マップの 1 画素が、地面の長い範囲を覆い、その範囲での深度の変化が大きい。ハードウェアがその大きな傾きに、比例してバイアスを自動で足します。
+光にほぼ平行な面（朝夕の光が地面にすれすれ）ではシャドウ マップの 1 画素が地面の長い範囲を覆い、その範囲での深度の変化が大きい。ハードウェアがその大きな傾きに、比例してバイアスを自動で足します。
 
 ## シェーダーで行う
 
-ハードウェアのバイアスは <strong>シャドウ パスで、書く深度</strong>に効きます。メイン パスで比較する側を、シェーダーで補正する方法もあります。面の法線と光の方向から傾きを、計算します。
+ハードウェアのバイアスは <strong>シャドウ パスで、書く深度</strong>に効きます。メイン パスで比較する側をシェーダーで補正する方法もあります。面の法線と光の方向から傾きを計算します。
 
 ```hlsl
 // 法線と光の方向から、深度の傾きに、比例した、バイアスを求める。
@@ -150,7 +150,7 @@ float SlopeScaledBias(float3 normal, float3 light_dir, float base_bias, float sl
   float cos_theta = saturate(dot(normal, -light_dir));
   float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
   float tan_theta = sin_theta / max(cos_theta, 0.05);          // tan(光と法線の角度)。斜めほど大きい
-  return base_bias + slope_bias * min(tan_theta, 10.0);         // 暴走を、防ぐ上限
+  return base_bias + slope_bias * min(tan_theta, 10.0);         // 暴走を防ぐ上限
 }
 
 float bias = SlopeScaledBias(N, g_light_dir, 0.0005, 0.0005);
@@ -170,7 +170,7 @@ float lit = g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, coord.xy, coord.z 
 
 | 問題 | 内容 |
 | --- | --- |
-| 斜めの面 | バイアスが、大きくなりピーター パンニング |
+| 斜めの面 | バイアスが大きくなりピーター パンニング |
 | PCF を広く取る | PCF の、範囲の中で面の深度はさらに変化する。傾き依存だけでは足りない（[Receiver Plane Bias](receiver-plane-bias.md)） |
 | 曲面 | 1 つの三角形内で傾きが、一定とは限らない |
 

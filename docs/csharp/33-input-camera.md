@@ -6,7 +6,7 @@ tags:
 
 # 第 33 章 入力とエディタ カメラ
 
-ここまでのビューポートは、色が変わるだけでした。この章では、地面のグリッドと座標軸を描いて、マウスでカメラを動かせるようにします。3D エディタらしい画面に、ぐっと近づきます。
+ここまでのビューポートは、色が変わるだけでした。この章では、地面のグリッドと座標軸を描いて、マウスでカメラを動かせるようにします。3D エディタらしい画面にぐっと近づきます。
 
 !!! info "このページを読む前に"
     - [第 32 章 描画ループとスレッド](32-render-loop.md)（前の章。ここまでの内容が前提になる）
@@ -19,11 +19,11 @@ tags:
 
 マウスを動かしたとき、カメラを動かす計算は、C# とエンジンのどちらがやるべきでしょうか。C# で計算して行列をエンジンに渡す案もありますが、それだと Player（C++ だけ）にも同じカメラが必要になり、二重に書くことになります。
 
-そこで、エンジンが計算する方式にします。C# は生の入力（マウスの動き、ボタン、ホイール）をそのまま送るだけで、カメラの計算はエンジンの中で行います。こうすれば、エディタ以外でも同じ入力処理が使えます。C# の仕事は、WPF（Win32）の入力を、エンジンが分かる形に変換して送ることだけです。
+そこで、エンジンが計算する方式にします。C# は生の入力（マウスの動き、ボタン、ホイール）をそのまま送るだけで、カメラの計算はエンジンの中で行います。こうすれば、エディタ以外でも同じ入力処理が使えます。C# の仕事は、WPF（Win32）の入力をエンジンが分かる形に変換して送ることだけです。
 
 ### 座標系の約束
 
-3D に入る前に、この教材の約束を確認しておきます。
+3D に入る前にこの教材の約束を確認しておきます。
 
 | 項目 | 約束 |
 | --- | --- |
@@ -207,12 +207,12 @@ LineRenderer::LineRenderer(ID3D12Device* device, DXGI_FORMAT render_target_forma
   ThrowIfFailed(device->CreateGraphicsPipelineState(&pso, IID_PPV_ARGS(&pipeline_state_)), "パイプライン ステートの作成");
 ```
 
-ルート シグネチャは、`InitAsConstants(16, 0, 0, ...)` で、16 個の 32 ビット値（ちょうど 4×4 行列 1 つ分）を、シェーダー レジスタ `b0` に直接渡す形にしています。この方法なら、定数バッファーを作らずに済みます。`D3DCompile` は、HLSL を実行時にコンパイルする関数で、`"vs_5_0"` はシェーダー モデル 5.0 の頂点シェーダーを意味します。失敗したときのメッセージは `compile_error` に入るので、例外にして外に出しています。
+ルート シグネチャは、`InitAsConstants(16, 0, 0, ...)` で、16 個の 32 ビット値（ちょうど 4×4 行列 1 つ分）をシェーダー レジスタ `b0` に直接渡す形にしています。この方法なら、定数バッファーを作らずに済みます。`D3DCompile` は、HLSL を実行時にコンパイルする関数で、`"vs_5_0"` はシェーダー モデル 5.0 の頂点シェーダーを意味します。失敗したときのメッセージは `compile_error` に入るので、例外にして外に出しています。
 
 頂点のレイアウトは、`POSITION` が 12 バイト（`float3`）、`COLOR` がその後ろの 12 バイト目から 16 バイト（`float4`）です。パイプラインでは、`FrontCounterClockwise = TRUE` で「CCW が表」の約束を明示し、`RTVFormats[0]` は、第 3 章のレンダー ターゲットと同じフォーマットにします。DX12 のパイプラインの各項目は、[PSO](../directx/dx12/pso.md) と [Root Signature](../directx/dx12/root-signature.md) のページで説明しています。
 
 ```cpp
-  // ④ フレームごとの頂点バッファー（CPU から書ける領域を、常時マップしておく）
+  // ④ フレームごとの頂点バッファー（CPU から書ける領域を常時マップしておく）
   const UINT64 size = sizeof(LineVertex) * kMaxVertices;
   const CD3DX12_HEAP_PROPERTIES upload_heap(D3D12_HEAP_TYPE_UPLOAD);
   const CD3DX12_RESOURCE_DESC buffer_desc = CD3DX12_RESOURCE_DESC::Buffer(size);
@@ -227,7 +227,7 @@ LineRenderer::LineRenderer(ID3D12Device* device, DXGI_FORMAT render_target_forma
 }
 ```
 
-頂点バッファーは `D3D12_HEAP_TYPE_UPLOAD`（CPU が書いて GPU が読む領域）に作り、`Map` で CPU から書けるアドレスを得ます。アップロード ヒープは、マップしたまま使い続けてよい決まりです。フレームごとに 3 つ作るのは、GPU が前のフレームを読んでいる最中に、CPU が同じバッファーを書き換えないようにするためです（第 3 章のスロットと同じ考え方です）。
+頂点バッファーは `D3D12_HEAP_TYPE_UPLOAD`（CPU が書いて GPU が読む領域）に作り、`Map` で CPU から書けるアドレスを得ます。アップロード ヒープは、マップしたまま使い続けてよい決まりです。フレームごとに 3 つ作るのは、GPU が前のフレームを読んでいる最中に CPU が同じバッファーを書き換えないようにするためです（第 3 章のスロットと同じ考え方です）。
 
 描く関数はこうです。
 
@@ -254,7 +254,7 @@ void LineRenderer::Draw(ID3D12GraphicsCommandList* list, UINT slot, const Direct
 }  // namespace mini
 ```
 
-頂点を、マップ済みのバッファーに `memcpy` でコピーします。GPU が実際に読むのは、このフレームのコマンドが実行されるときです。`SetGraphicsRoot32BitConstants` で、`Matrix`（メモリ上で 16 個の `float` が行優先に並んだもの）をそのままルート定数に書きます。`LINELIST` は、頂点 2 つで 1 本の線を表すトポロジーです。
+頂点をマップ済みのバッファーに `memcpy` でコピーします。GPU が実際に読むのは、このフレームのコマンドが実行されるときです。`SetGraphicsRoot32BitConstants` で、`Matrix`（メモリ上で 16 個の `float` が行優先に並んだもの）をそのままルート定数に書きます。`LINELIST` は、頂点 2 つで 1 本の線を表すトポロジーです。
 
 ## エディタ カメラ
 
@@ -332,7 +332,7 @@ void EditorCamera::Pan(float dx, float dy) {
   const Matrix view = View();
   const Vector3 right(view._11, view._21, view._31);
   const Vector3 up(view._12, view._22, view._32);
-  const float scale = distance_ * std::tan(fov_ * 0.5f) * 2.0f / 720.0f;   // 1 ピクセルが、注視点付近で何メートルか（高さ 720 を仮定）
+  const float scale = distance_ * std::tan(fov_ * 0.5f) * 2.0f / 720.0f;   // 1 ピクセルが注視点付近で何メートルか（高さ 720 を仮定）
   target_ += (-right * dx + up * dy) * scale;
 }
 
@@ -348,7 +348,7 @@ void EditorCamera::Focus(const Vector3& target, float radius) {
 }  // namespace mini
 ```
 
-カメラの位置は、球面座標（`yaw` が横、`pitch` が縦、`distance` が距離）から求めます。注視点を中心にした球の上を、カメラが動く形です。`Matrix::CreateLookAt` と `CreatePerspectiveFieldOfView` は、SimpleMath の右手系の関数で、前が −Z になります。視野角は縦の角度です。
+カメラの位置は、球面座標（`yaw` が横、`pitch` が縦、`distance` が距離）から求めます。注視点を中心にした球の上をカメラが動く形です。`Matrix::CreateLookAt` と `CreatePerspectiveFieldOfView` は、SimpleMath の右手系の関数で、前が −Z になります。視野角は縦の角度です。
 
 `Pan` の中の `view._11, _21, _31` は、ビュー行列の第 1 列で、カメラの右方向（ワールド空間）を表しています。行ベクトルの規約では、行列の列が基底の向きになるためです。移動量の `scale` は、注視点付近で 1 ピクセルが何メートルに当たるかです。遠いほど、同じマウスの動きで大きく動きます（今はビューポートの高さを 720 と仮定した近似です）。`Zoom` は、ホイール 1 目盛りで距離を 0.9 倍にします。
 
@@ -618,7 +618,7 @@ private void Raise(InputType type, int button, nint lParam, float delta)
 - `WM_MOUSEWHEEL` の `wParam` は、上位 16 ビットが回転量で、120 が 1 目盛りです。
 - `WM_KILLFOCUS` はフォーカスを失ったときのメッセージです。押しっぱなしのボタンの状態をリセットするために、エンジンへ `FocusLost` を送ります。
 
-イベントの引数と種類の定義を、ホストの近くに置きます。
+イベントの引数と種類の定義をホストの近くに置きます。
 
 ```csharp
 public enum InputType { MouseMove = 0, ButtonDown = 1, ButtonUp = 2, Wheel = 3, KeyDown = 4, KeyUp = 5, FocusLost = 6 }
@@ -707,7 +707,7 @@ public void OnInput(Controls.InputType type, int button, float x, float y, float
     `HwndHost` はフォーカスがないと、ホイールを受け取らないことがあります。クリックしたときに `SetFocus` を呼んでいるかを確認します。
 
 ??? failure "右ドラッグで、コンテキスト メニューが出てしまう"
-    `WM_CONTEXTMENU` が親に伝わっています。WPF 側の `ContextMenu` を、ビューポートの親に設定しないようにします。
+    `WM_CONTEXTMENU` が親に伝わっています。WPF 側の `ContextMenu` をビューポートの親に設定しないようにします。
 
 ??? failure "カメラが勝手に動き続ける"
     `ButtonUp` が届いていません（ウィンドウの外でボタンを離した、など）。`SetCapture` を呼んでいるか、`FocusLost` で状態をリセットしているかを確かめます。

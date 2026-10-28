@@ -43,7 +43,7 @@ class nested_exception {
 
 `std::throw_with_nested` で投げると、元の例外が `nested_exception` として内側に保持されます。受け取った側は、`std::rethrow_if_nested` で内側を取り出して、原因をたどれます。
 
-例外のチェーン（原因の連鎖）を作る仕組みです。ログには、外側から内側へ、順にメッセージを出力すると、原因がたどれます。
+例外のチェーン（原因の連鎖）を作る仕組みです。ログには、外側から内側へ順にメッセージを出力すると、原因がたどれます。
 
 `nested_exception` を直接使うことは少なく、`throw_with_nested` と `rethrow_if_nested` を使います。
 

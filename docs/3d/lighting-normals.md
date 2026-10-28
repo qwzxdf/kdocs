@@ -78,7 +78,7 @@ H = normalize(L + V)          V は、面から、カメラへの向き
 
 ## ライトの種類
 
-<svg class="fig" viewBox="0 0 616 220" role="img" aria-label="ライトの種類"><defs><marker id="m4" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">ディレクショナル</text><line x1="30" y1="40" x2="50" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="70" y1="40" x2="90" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="110" y1="40" x2="130" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="150" y1="40" x2="170" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="10" y1="170" x2="190" y2="170" stroke="currentColor" stroke-width="3"/><text x="30" y="200">全体が、同じ向き（太陽）</text><text x="225" y="20" class="fig-title">ポイント</text><circle cx="300" cy="90" r="8" fill="currentColor"/><line x1="300" y1="90" x2="300" y2="30" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="355" y2="50" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="365" y2="100" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="340" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="260" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="235" y2="100" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="245" y2="50" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><text x="225" y="200">位置から四方へ（電球）。距離で減る</text><text x="430" y="20" class="fig-title">スポット</text><circle cx="480" cy="40" r="8" fill="currentColor"/><polygon points="480,40 420,170 540,170" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><line x1="480" y1="40" x2="480" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><text x="420" y="200">位置・向き・角度（懐中電灯）</text></svg>
+<svg class="fig" viewBox="0 0 616 220" role="img" aria-label="ライトの種類"><defs><marker id="m4" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="20" class="fig-title">ディレクショナル</text><line x1="30" y1="40" x2="50" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="70" y1="40" x2="90" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="110" y1="40" x2="130" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="150" y1="40" x2="170" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="10" y1="170" x2="190" y2="170" stroke="currentColor" stroke-width="3"/><text x="30" y="200">全体が同じ向き（太陽）</text><text x="225" y="20" class="fig-title">ポイント</text><circle cx="300" cy="90" r="8" fill="currentColor"/><line x1="300" y1="90" x2="300" y2="30" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="355" y2="50" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="365" y2="100" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="340" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="260" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="235" y2="100" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><line x1="300" y1="90" x2="245" y2="50" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><text x="225" y="200">位置から四方へ（電球）。距離で減る</text><text x="430" y="20" class="fig-title">スポット</text><circle cx="480" cy="40" r="8" fill="currentColor"/><polygon points="480,40 420,170 540,170" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 4"/><line x1="480" y1="40" x2="480" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m4)" /><text x="420" y="200">位置・向き・角度（懐中電灯）</text></svg>
 
 | 種類 | 向き | 減衰 | 用途 |
 | --- | --- | --- | --- |
@@ -155,11 +155,11 @@ float4 PSMain(VsOutput input) : SV_TARGET {
 
 | ポイント | 説明 |
 | --- | --- |
-| **`row_major`** | SimpleMath の行列を、そのまま渡すため（[MVP](transforms-mvp.md)） |
+| **`row_major`** | SimpleMath の行列をそのまま渡すため（[MVP](transforms-mvp.md)） |
 | `mul(ベクトル, 行列)` | 行ベクトル規約 |
 | ピクセルシェーダーで `normalize` | 頂点から補間された法線は、長さが 1 からずれる |
 | `float pad` | 定数バッファの 16 バイト境界（`float3` の後ろに詰め物） |
-| `step(0, diffuse)` | 光が当たっていない面に、ハイライトが出ないように |
+| `step(0, diffuse)` | 光が当たっていない面にハイライトが出ないように |
 
 ### C++ 側の定数バッファ
 
@@ -185,13 +185,13 @@ cb.world_inverse_transpose = world.Invert().Transpose();
 cb.view_proj = view * proj;
 ```
 
-C++ と HLSL の構造体の並びを、そろえます。`float3` の次に `float` を置くと、ちょうど 16 バイトに収まります。
+C++ と HLSL の構造体の並びをそろえます。`float3` の次に `float` を置くと、ちょうど 16 バイトに収まります。
 
 ## 法線の変換（逆転置行列）
 
 <svg class="fig" viewBox="0 0 629 230" role="img" aria-label="非一様スケールで法線がずれる"><defs><marker id="m5" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><text x="20" y="22" class="fig-title">元の面（45°）と法線</text><line x1="40" y1="170" x2="160" y2="70" stroke="currentColor" stroke-width="3"/><line x1="100" y1="120" x2="140" y2="76" stroke="currentColor" stroke-width="2" marker-end="url(#m5)" /><text x="200" y="22" class="fig-title">X を 3 倍にすると</text><line x1="210" y1="170" x2="360" y2="130" stroke="currentColor" stroke-width="3"/><line x1="285" y1="150" x2="345" y2="110" stroke="currentColor" stroke-width="2" marker-end="url(#m5)" stroke-dasharray="4 3"/><line x1="285" y1="150" x2="303" y2="88" stroke="currentColor" stroke-width="2" marker-end="url(#m5)" /><text x="210" y="205">破線：面と同じ変換をした法線（垂直でなくなる）</text><text x="210" y="222">実線：逆転置行列で変換した法線（垂直のまま）</text><text x="420" y="22" class="fig-title">法線は「向き」</text><text x="420" y="60">面と垂直であることを</text><text x="420" y="85">保つ変換が必要</text><text x="420" y="120">→ transpose( inverse(World) )</text></svg>
 
-!!! warning "法線を、ワールド行列で変換してはいけない"
+!!! warning "法線をワールド行列で変換してはいけない"
     **非一様スケール**（`Scale(2, 1, 1)` など）があると法線が面に垂直でなくなります。法線はワールド行列の逆行列の転置で変換します。
 
 ```text
@@ -210,7 +210,7 @@ C++ と HLSL の構造体の並びを、そろえます。`float3` の次に `fl
 
 ## 法線マップ
 
-<svg class="fig" viewBox="0 0 560 220" role="img" aria-label="接空間と TBN"><defs><marker id="m6" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><polygon points="60,180 300,180 380,110 140,110" fill="none" stroke="currentColor" stroke-width="2"/><line x1="220" y1="150" x2="300" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m6)" /><text x="304" y="154">T（接線：U の向き）</text><line x1="220" y1="150" x2="250" y2="112" stroke="currentColor" stroke-width="2" marker-end="url(#m6)" /><text x="254" y="108">B（従接線：V の向き）</text><line x1="220" y1="150" x2="220" y2="55" stroke="currentColor" stroke-width="2" marker-end="url(#m6)" /><text x="228" y="62">N（法線）</text><text x="20" y="22" class="fig-title">TBN：面の上の座標系</text><text x="400" y="190">法線マップの値を、</text><text x="400" y="210">この座標系でワールドへ</text></svg>
+<svg class="fig" viewBox="0 0 560 220" role="img" aria-label="接空間と TBN"><defs><marker id="m6" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="currentColor"/></marker></defs><polygon points="60,180 300,180 380,110 140,110" fill="none" stroke="currentColor" stroke-width="2"/><line x1="220" y1="150" x2="300" y2="150" stroke="currentColor" stroke-width="2" marker-end="url(#m6)" /><text x="304" y="154">T（接線：U の向き）</text><line x1="220" y1="150" x2="250" y2="112" stroke="currentColor" stroke-width="2" marker-end="url(#m6)" /><text x="254" y="108">B（従接線：V の向き）</text><line x1="220" y1="150" x2="220" y2="55" stroke="currentColor" stroke-width="2" marker-end="url(#m6)" /><text x="228" y="62">N（法線）</text><text x="20" y="22" class="fig-title">TBN：面の上の座標系</text><text x="400" y="190">法線マップの値を </text><text x="400" y="210">この座標系でワールドへ</text></svg>
 
 **テクスチャで細かい凹凸の法線**を与えると、頂点数を増やさず、凹凸を表現できます。
 
@@ -269,7 +269,7 @@ C++ と HLSL の構造体の並びを、そろえます。`float3` の次に `fl
 
 ## よくあるミス
 
-??? failure "陰影が、反転して見える"
+??? failure "陰影が反転して見える"
     **L の向き**が逆です。L は面から光源へ向かう向きです。
 
 ??? failure "拡大・縮小した物体の陰影がおかしい"
@@ -278,13 +278,13 @@ C++ と HLSL の構造体の並びを、そろえます。`float3` の次に `fl
 ??? failure "カクカク・ギザギザに見える"
     頂点法線が面法線のままです。隣の面の法線を平均します。
 
-??? failure "ハイライトが、光の反対側に出る"
+??? failure "ハイライトが光の反対側に出る"
     スペキュラの H や V の向きが、逆です。V は面から、カメラへ。
 
-??? failure "モデル全体が、暗い"
+??? failure "モデル全体が暗い"
     法線が内向き（巻き順の間違い）、または、`normalize` していません。
 
-??? failure "定数バッファの値が、ずれる"
+??? failure "定数バッファの値がずれる"
     `float3` の後ろに、詰め物が足りません。16 バイト境界を確認します。
 
 ## これだけ覚える

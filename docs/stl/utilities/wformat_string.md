@@ -14,7 +14,7 @@ tags:
 `#include <format>`
 </div>
 
-`format_string` の `wchar_t` 版です。`std::wformat(L"{}", x)` の書式文字列を、コンパイル時に検査します。
+`format_string` の `wchar_t` 版です。`std::wformat(L"{}", x)` の書式文字列をコンパイル時に検査します。
 
 !!! tip "ポイント"
     - `<format>` の部品。
@@ -84,7 +84,7 @@ C++20 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 書式文字列を、コンパイル時に検査する型（wchar_t 版の別名）
+    - [x] 書式文字列をコンパイル時に検査する型（wchar_t 版の別名）
     - [x] `<format>` の部品
     - [x] 戻り値と失敗時の動きを確かめて使う
 

@@ -52,7 +52,7 @@ GPU が**圧縮したまま読める**フォーマットを使います。読み
 | ビルド時に圧縮 | 実行時に圧縮すると遅い。ツールで事前に作る（[ベイク](../optimize/baking.md)） |
 | チャンネルの詰め込み | 粗さ・金属・AO を 1 枚の R・G・B に入れて、読み込み回数も減らす |
 | 法線は BC5 | XY だけ保存して、Z はシェーダーで計算する |
-| 品質の確認 | 圧縮によるブロックノイズを、実機で確認する |
+| 品質の確認 | 圧縮によるブロックノイズを実機で確認する |
 
 ## ミップマップ
 
@@ -144,7 +144,7 @@ BC 圧縮は、4×4 ピクセルの<strong>ブロック</strong>ごとに、決�
 | RGBA8（無圧縮） | — | 32 ビット（4 バイト） |
 
 ```cpp
-// 圧縮テクスチャの、1 つのミップの大きさ（バイト）。幅・高さは、4 ピクセル単位に、切り上げる。
+// 圧縮テクスチャの、1 つのミップの大きさ（バイト）。幅・高さは、4 ピクセル単位に切り上げる。
 size_t BlockCompressedSize(uint32_t width, uint32_t height, size_t bytes_per_block) {
   const size_t blocks_x = std::max<size_t>(1, (width + 3) / 4);
   const size_t blocks_y = std::max<size_t>(1, (height + 3) / 4);
@@ -165,9 +165,9 @@ size_t TotalMipSize(uint32_t width, uint32_t height, size_t bytes_per_block) {
 // 例: 4096×4096 の BC7（16 バイト/ブロック）→ 約 21 MB。RGBA8 の無圧縮（約 85 MB）の 1/4。
 ```
 
-## 必要なミップを、決める
+## 必要なミップを決める
 
-ストリーミングの核心は、「<strong>この物体に、どのミップが必要か</strong>」を、決めることです。画面上で、1 ピクセルが、テクスチャの、何テクセルに当たるかで決まります。
+ストリーミングの核心は、「<strong>この物体にどのミップが必要か</strong>」を決めることです。画面上で、1 ピクセルがテクスチャの、何テクセルに当たるかで決まります。
 
 ```cpp
 // 物体の、画面上の大きさから、必要なミップを求める。
@@ -175,7 +175,7 @@ size_t TotalMipSize(uint32_t width, uint32_t height, size_t bytes_per_block) {
 float RequiredMip(float texture_size, float uv_density, float distance, float screen_height_px, float fov_y) {
   // 距離 distance での、1 ピクセルが覆う、ワールドの長さ。
   const float meters_per_pixel = 2.0f * distance * std::tan(fov_y * 0.5f) / screen_height_px;
-  // 1 ピクセルが、テクスチャの何テクセルに当たるか。
+  // 1 ピクセルがテクスチャの何テクセルに当たるか。
   const float texels_per_pixel = meters_per_pixel * uv_density * texture_size;
   return std::max(0.0f, std::log2(texels_per_pixel));        // 1 テクセル/ピクセルなら、ミップ 0。2 倍で、ミップ 1。
 }
@@ -192,18 +192,18 @@ struct StreamedTexture {
   float required_mip;          // 今、画面で必要なミップ（小さいほど細かい）
   int resident_mip;            // 今、VRAM に置いてあるミップ
   int lowest_mip;              // 常駐させる、最も粗いミップ（読み込みが、間に合わない時の代わり）
-  size_t SizeAtMip(int mip) const;   // そのミップ以下を、全部置くときの、大きさ
+  size_t SizeAtMip(int mip) const;   // そのミップ以下を全部置くときの、大きさ
 };
 
 // 毎フレーム（または、数フレームに 1 回）: 予算に収まるよう、各テクスチャの、目標のミップを決める。
 void UpdateStreaming(std::vector<StreamedTexture>& textures, size_t budget_bytes) {
-  // ① まず、全テクスチャを、最低限のミップ（小さい）にする。
+  // ① まず、全テクスチャを最低限のミップ（小さい）にする。
   size_t used = 0;
   for (auto& t : textures) {
     t.target_mip = t.lowest_mip;
     used += t.SizeAtMip(t.target_mip);
   }
-  // ② 必要なミップに、近づける。画面で大きい（required_mip が小さい）物から、1 段ずつ、細かくする。
+  // ② 必要なミップに近づける。画面で大きい（required_mip が小さい）物から、1 段ずつ、細かくする。
   bool changed = true;
   while (changed) {
     changed = false;
@@ -221,19 +221,19 @@ void UpdateStreaming(std::vector<StreamedTexture>& textures, size_t budget_bytes
 }
 ```
 
-予算内で、足りなければ、遠くや、小さい物の、ミップを下げます。画面に大きく映る物は、細かいミップが、確保されます。読み込みは、別スレッドで、ディスクから行い、完了したら、`resident_mip` を、更新します。
+予算内で、足りなければ、遠くや、小さい物の、ミップを下げます。画面に大きく映る物は、細かいミップが確保されます。読み込みは、別スレッドで、ディスクから行い、完了したら、`resident_mip` を更新します。
 
 ## ストリーミングの、実装上の、注意
 
 | 注意 | 内容 |
 | --- | --- |
-| ポップイン | 読み込みが間に合わず、ぼやけた画像から、急に細かい画像に、切り替わる。ミップ バイアスを、徐々に変えて、なじませる |
-| ヒステリシス | 境目で、上げ下げを、繰り返すと、読み込みが、止まらない。下げるのは、少し遅らせる |
+| ポップイン | 読み込みが間に合わず、ぼやけた画像から、急に細かい画像に切り替わる。ミップ バイアスを徐々に変えて、なじませる |
+| ヒステリシス | 境目で、上げ下げを繰り返すと、読み込みが、止まらない。下げるのは、少し遅らせる |
 | 最低ミップの常駐 | 小さいミップ（たとえば 64×64 以下）は、常に VRAM に置いて、読み込みが間に合わないときの、保険にする |
-| ミップ チェーンの、ファイル配置 | 小さいミップを、ファイルの先頭に置くと、先に読める。細かいミップだけを、後から、追加で読める |
+| ミップ チェーンの、ファイル配置 | 小さいミップをファイルの先頭に置くと、先に読める。細かいミップだけを後から、追加で読める |
 | 先読み | カメラの移動方向や、場面の切り替えを予測して、事前に、読み込む |
 
-D3D12 には、ミップ単位で、メモリを、確保・解放できる、<strong>予約リソース</strong>（Reserved Resource、タイルド リソース）の機能があり、GPU が、一部のミップだけを、メモリに、持てます。仮想テクスチャの土台でもあります（[Texture Upload](../directx/dx12/texture-upload.md)）。
+D3D12 には、ミップ単位で、メモリを確保・解放できる、<strong>予約リソース</strong>（Reserved Resource、タイルド リソース）の機能があり、GPU が、一部のミップだけをメモリに持てます。仮想テクスチャの土台でもあります（[Texture Upload](../directx/dx12/texture-upload.md)）。
 
 ## よくあるミス
 

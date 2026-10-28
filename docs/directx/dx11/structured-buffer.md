@@ -82,7 +82,7 @@ void UpdateCS(uint3 id : SV_DispatchThreadID) {
 }
 ```
 
-HLSL の構造体と C++ の構造体を <strong>同じ並び・同じ大きさ</strong>にそろえます。定数バッファと違い 16 バイト境界の規則は、ありませんが `float3` の次に `float` を置くときれいに 16 バイトに収まる並びに、しておくと GPU のアクセスが、効率的です。
+HLSL の構造体と C++ の構造体を <strong>同じ並び・同じ大きさ</strong>にそろえます。定数バッファと違い 16 バイト境界の規則は、ありませんが `float3` の次に `float` を置くときれいに 16 バイトに収まる並びに、しておくと GPU のアクセスが効率的です。
 
 ## 生のバッファ（ByteAddressBuffer）
 
@@ -93,7 +93,7 @@ D3D11_BUFFER_DESC desc = {};
 desc.ByteWidth = byte_size;                                          // 4 の倍数
 desc.Usage = D3D11_USAGE_DEFAULT;
 desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;
-desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;         // 生のビューを、許可
+desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_ALLOW_RAW_VIEWS;         // 生のビューを許可
 device->CreateBuffer(&desc, nullptr, &raw_buffer);
 
 D3D11_UNORDERED_ACCESS_VIEW_DESC uav_desc = {};
@@ -107,10 +107,10 @@ device->CreateUnorderedAccessView(raw_buffer.Get(), &uav_desc, &raw_uav);
 ```hlsl
 RWByteAddressBuffer g_raw : register(u0);
 
-uint value = g_raw.Load(byte_offset);                       // 4 バイトを、読む
-g_raw.Store(byte_offset, value);                            // 4 バイトを、書く
-g_raw.InterlockedAdd(byte_offset, 1);                       // アトミックに、足す
-uint4 four = g_raw.Load4(byte_offset);                      // 16 バイトを、まとめて
+uint value = g_raw.Load(byte_offset);                       // 4 バイトを読む
+g_raw.Store(byte_offset, value);                            // 4 バイトを書く
+g_raw.InterlockedAdd(byte_offset, 1);                       // アトミックに足す
+uint4 four = g_raw.Load4(byte_offset);                      // 16 バイトをまとめて
 ```
 
 ヒストグラム（[Auto Exposure](../../graphics/postprocess/tonemapping/auto-exposure.md)）、描画の引数バッファ（間接描画）、バインドレスなデータの詰め合わせに使います。
@@ -133,11 +133,11 @@ uint index = g_free_list.Consume();                                 // カウン
 ```
 
 ```cpp
-// UAV を束ねるとき、最後の引数で、カウンターの、初期値を、指定する（-1 で、そのまま、維持。0 で、空に）。
+// UAV を束ねるとき、最後の引数で、カウンターの、初期値を指定する（-1 で、そのまま、維持。0 で、空に）。
 UINT initial_counts[] = {0};
 context->CSSetUnorderedAccessViews(0, 1, append_uav.GetAddressOf(), initial_counts);
 
-// カウンターの値を、別のバッファ（間接描画の引数など）へ、コピーする。
+// カウンターの値を別のバッファ（間接描画の引数など）へコピーする。
 context->CopyStructureCount(args_buffer.Get(), sizeof(UINT), append_uav.Get());
 ```
 
@@ -153,14 +153,14 @@ context->CopyStructureCount(args_buffer.Get(), sizeof(UINT), append_uav.Get());
 | 読み書き | 読み取り専用 | SRV で読む UAV で書く |
 | 速さ | 全スレッドが同じ値を読むなら速い | スレッドごとに別の要素を読むなら速い |
 
-全ピクセルが同じ値（カメラ行列）を読むなら定数バッファが速く頂点・インスタンスごとに、別の要素を読むなら構造化バッファが、向きます。
+全ピクセルが同じ値（カメラ行列）を読むなら定数バッファが速く頂点・インスタンスごとに、別の要素を読むなら構造化バッファが向きます。
 
 ## よくあるミス
 
 ??? failure "`CreateBuffer` が、失敗する（構造化バッファ）"
     `StructureByteStride` が 0、または `ByteWidth` がストライドの倍数でない。構造化バッファに `BIND_CONSTANT_BUFFER`、`BIND_VERTEX_BUFFER` を同時に指定している。
 
-??? failure "C++ で書いた、データとシェーダーで読んだ値が、ずれる"
+??? failure "C++ で書いた、データとシェーダーで読んだ値がずれる"
     HLSL の構造体と C++ の構造体の並びが違う。`float3` の後のパディングの扱いが違う。`static_assert(sizeof(T) == ...)` で確かめる。
 
 ??? failure "`CreateShaderResourceView` が、失敗する（構造化バッファ）"

@@ -51,7 +51,7 @@ typedef struct D3D12_ROOT_SIGNATURE_DESC {
 } D3D12_ROOT_SIGNATURE_DESC;
 ```
 
-ルート シグネチャの中身を、まとめて書きます。
+ルート シグネチャの中身をまとめて書きます。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -120,7 +120,7 @@ typedef struct D3D12_ROOT_PARAMETER {
 ```cpp
 std::array<D3D12_ROOT_PARAMETER, 2> parameters = {};
 
-// 0 番: 定数バッファ b0 を、アドレスで直接渡す。
+// 0 番: 定数バッファ b0 をアドレスで直接渡す。
 parameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 parameters[0].Descriptor.ShaderRegister = 0;
 parameters[0].Descriptor.RegisterSpace = 0;
@@ -135,7 +135,7 @@ parameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 !!! failure "よくあるミス"
     - ルート パラメーターのインデックスを間違えて、別のリソースが結びつく。
-    - 範囲の配列（`D3D12_DESCRIPTOR_RANGE`）を、ローカル変数のまま関数を抜けて、ポインタが無効になる。シリアライズが終わるまで、配列を生かしておく。
+    - 範囲の配列（`D3D12_DESCRIPTOR_RANGE`）をローカル変数のまま関数を抜けて、ポインタが無効になる。シリアライズが終わるまで、配列を生かしておく。
     - シェーダーの `register(t0)` と、`BaseShaderRegister` が合わない。
 
 ## D3D12_DESCRIPTOR_RANGE {#d3d12_descriptor_range}
@@ -150,7 +150,7 @@ typedef struct D3D12_DESCRIPTOR_RANGE {
 } D3D12_DESCRIPTOR_RANGE;
 ```
 
-ディスクリプタ テーブルの 1 区間を表します。「この種類のディスクリプタが、この数だけ並んでいて、シェーダーのこのレジスタから始まる」と書きます。
+ディスクリプタ テーブルの 1 区間を表します。「この種類のディスクリプタがこの数だけ並んでいて、シェーダーのこのレジスタから始まる」と書きます。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -184,14 +184,14 @@ typedef struct D3D12_ROOT_DESCRIPTOR_TABLE {
 } D3D12_ROOT_DESCRIPTOR_TABLE;
 ```
 
-テーブル 1 つを、複数の区間の並びとして書きます。
+テーブル 1 つを複数の区間の並びとして書きます。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
 | `NumDescriptorRanges` | `UINT` | 区間の数 |
 | `pDescriptorRanges` | `const D3D12_DESCRIPTOR_RANGE*` | 区間の配列 |
 
-1 つのテーブルに、`CBV` の区間と `SRV` の区間を並べることもできます。1 回の `SetGraphicsRootDescriptorTable` で、その全部のヒープの区間を結びつけられます。ただし、サンプラーは別のヒープなので、同じテーブルには混ぜられません。
+1 つのテーブルに `CBV` の区間と `SRV` の区間を並べることもできます。1 回の `SetGraphicsRootDescriptorTable` で、その全部のヒープの区間を結びつけられます。ただし、サンプラーは別のヒープなので、同じテーブルには混ぜられません。
 
 ## D3D12_ROOT_CONSTANTS {#d3d12_root_constants}
 
@@ -203,7 +203,7 @@ typedef struct D3D12_ROOT_CONSTANTS {
 } D3D12_ROOT_CONSTANTS;
 ```
 
-定数を、ディスクリプタを介さずルートに直接置く指定です。シェーダーからは、`cbuffer` の定数バッファとして見えます。
+定数をディスクリプタを介さずルートに直接置く指定です。シェーダーからは、`cbuffer` の定数バッファとして見えます。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -222,7 +222,7 @@ typedef struct D3D12_ROOT_DESCRIPTOR {
 } D3D12_ROOT_DESCRIPTOR;
 ```
 
-CBV / SRV / UAV を、ヒープを介さず GPU アドレスで直接結びつける指定です。
+CBV / SRV / UAV をヒープを介さず GPU アドレスで直接結びつける指定です。
 
 | メンバー | 型 | 意味 |
 | --- | --- | --- |
@@ -299,7 +299,7 @@ DirectX Raytracing のローカル ルート シグネチャであることを�
 
 #### D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED {#d3d12_root_signature_flag_cbv_srv_uav_heap_directly_indexed}
 
-Shader Model 6.6 の `ResourceDescriptorHeap[i]` を許可します。シェーダーは、バインドされている CBV/SRV/UAV ヒープを、番号で直接引けるようになります。バインドレスの土台です。付けずに `ResourceDescriptorHeap` を使うシェーダーで PSO を作ると失敗します。このフラグはバージョン 1.1 の記述でシリアライズします。
+Shader Model 6.6 の `ResourceDescriptorHeap[i]` を許可します。シェーダーは、バインドされている CBV/SRV/UAV ヒープを番号で直接引けるようになります。バインドレスの土台です。付けずに `ResourceDescriptorHeap` を使うシェーダーで PSO を作ると失敗します。このフラグはバージョン 1.1 の記述でシリアライズします。
 
 もう 1 つ決まりがあります。このフラグを付けたルート シグネチャは、`SetGraphicsRootSignature` を呼ぶ時点で、ヒープがすでに `SetDescriptorHeaps` で結ばれている必要があります。順序が逆だと、デバッグ レイヤーがエラーを出します（[バインドレス](../../../rendering/gpu-driven-dx12/bindless.md)）。
 
@@ -328,7 +328,7 @@ typedef struct D3D12_ROOT_DESCRIPTOR1 {
 } D3D12_ROOT_DESCRIPTOR1;
 ```
 
-バージョン 1.0 と 1.1 の構造体を、1 つの入れ物で扱うのが `D3D12_VERSIONED_ROOT_SIGNATURE_DESC` です。`Version` で `D3D_ROOT_SIGNATURE_VERSION_1_0` か `_1_1` を選び、対応する `Desc_1_0` か `Desc_1_1` を埋めます。シリアライズは `D3D12SerializeVersionedRootSignature` で行います（[D3D12SerializeRootSignature](d3d12serializerootsignature.md)）。
+バージョン 1.0 と 1.1 の構造体を 1 つの入れ物で扱うのが `D3D12_VERSIONED_ROOT_SIGNATURE_DESC` です。`Version` で `D3D_ROOT_SIGNATURE_VERSION_1_0` か `_1_1` を選び、対応する `Desc_1_0` か `Desc_1_1` を埋めます。シリアライズは `D3D12SerializeVersionedRootSignature` で行います（[D3D12SerializeRootSignature](d3d12serializerootsignature.md)）。
 
 ### D3D12_DESCRIPTOR_RANGE_FLAGS {#d3d12_descriptor_range_flags}
 
@@ -340,19 +340,19 @@ typedef struct D3D12_ROOT_DESCRIPTOR1 {
 
 #### D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE {#d3d12_descriptor_range_flag_descriptors_volatile}
 
-ディスクリプタが、コマンド リストの実行中に書き換えられるかもしれないと伝えます。バインドレスで、テクスチャを後から読み込んで空き番号を埋める使い方では、この指定が必要です。ドライバーは、ディスクリプタを先読みしたり、キャッシュしたりできなくなるので、必要な区間だけに付けます。
+ディスクリプタがコマンド リストの実行中に書き換えられるかもしれないと伝えます。バインドレスで、テクスチャを後から読み込んで空き番号を埋める使い方では、この指定が必要です。ドライバーは、ディスクリプタを先読みしたり、キャッシュしたりできなくなるので、必要な区間だけに付けます。
 
 #### D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE {#d3d12_descriptor_range_flag_data_volatile}
 
-ディスクリプタが指すデータが、実行中に書き換えられるかもしれないと伝えます。UAV で書く区間は、これが既定です。CBV や SRV の区間に付けると、ドライバーはデータをキャッシュできなくなります。
+ディスクリプタが指すデータが実行中に書き換えられるかもしれないと伝えます。UAV で書く区間は、これが既定です。CBV や SRV の区間に付けると、ドライバーはデータをキャッシュできなくなります。
 
 #### D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE {#d3d12_descriptor_range_flag_data_static_while_set_at_execute}
 
-データが、テーブルが設定されてから実行が終わる間は変わらないと約束します。CBV と SRV の既定の約束です。
+データがテーブルが設定されてから実行が終わる間は変わらないと約束します。CBV と SRV の既定の約束です。
 
 #### D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC {#d3d12_descriptor_range_flag_data_static}
 
-データが、ディスクリプタが設定された時点から、二度と変わらないと約束します。最も強い約束で、読み込んだあとに書き換えない静的なテクスチャに向きます。この約束を破ると、描画結果は未定義です。
+データがディスクリプタが設定された時点から、二度と変わらないと約束します。最も強い約束で、読み込んだあとに書き換えない静的なテクスチャに向きます。この約束を破ると、描画結果は未定義です。
 
 #### D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_STATIC_KEEPING_BUFFER_BOUNDS_CHECKS {#d3d12_descriptor_range_flag_descriptors_static_keeping_buffer_bounds_checks}
 
@@ -368,15 +368,15 @@ typedef struct D3D12_ROOT_DESCRIPTOR1 {
 
 #### D3D12_ROOT_DESCRIPTOR_FLAG_DATA_VOLATILE {#d3d12_root_descriptor_flag_data_volatile}
 
-データが実行中に変わりうると伝えます。GPU が自分で書いたバッファを、そのまま次のパスで読むような使い方が当たります。
+データが実行中に変わりうると伝えます。GPU が自分で書いたバッファをそのまま次のパスで読むような使い方が当たります。
 
 #### D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC_WHILE_SET_AT_EXECUTE {#d3d12_root_descriptor_flag_data_static_while_set_at_execute}
 
-データが、ルート引数として設定されている間は変わらないと約束します。フレームの頭にアップロードしたあと、そのフレームでは書き換えないインスタンス バッファやマテリアル バッファに向いています。
+データがルート引数として設定されている間は変わらないと約束します。フレームの頭にアップロードしたあと、そのフレームでは書き換えないインスタンス バッファやマテリアル バッファに向いています。
 
 #### D3D12_ROOT_DESCRIPTOR_FLAG_DATA_STATIC {#d3d12_root_descriptor_flag_data_static}
 
-データが、設定された時点から二度と変わらないと約束します。起動時に作って、そのまま使い続ける定数バッファなどです。
+データが設定された時点から二度と変わらないと約束します。起動時に作って、そのまま使い続ける定数バッファなどです。
 
 ### D3D12_SHADER_VISIBILITY {#d3d12_shader_visibility}
 

@@ -206,7 +206,7 @@ int main() {
 <text x="390" y="330" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">① オブジェクトの先頭の vptr を読む<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;0.2578;0.2581;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="330" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">② vtable の「Update」の欄を読む<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2578;0.2581;0.4514;0.4516;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="330" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">③ そこに書かれた関数 Slime::Update を呼ぶ(実行時に決まる)<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.4514;0.4516;0.7094;0.7097;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="330" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">普通の関数より、メモリを 2 回余計に読む。この差が、仮想関数のコスト<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.7094;0.7097;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="390" y="330" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">普通の関数より、メモリを 2 回余計に読む。この差が仮想関数のコスト<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.7094;0.7097;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:vtable-call:end -->

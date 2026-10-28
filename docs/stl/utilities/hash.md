@@ -16,7 +16,7 @@ tags:
 `#include <functional>`
 </div>
 
-`unordered_map` のキーに、自作の構造体（たとえば `GridPos`）を使いたい。整数や文字列は、そのままキーにできますが、自作の型は、どうやってキーから置き場所を決めるのかが分かりません。`std::hash<T>` は、値からハッシュ値（整数）を作る関数オブジェクトで、`unordered_map` が内部で使っています。自作の型をキーにするには、`std::hash` の特殊化を書いて、メンバーを混ぜた値を返します。
+`unordered_map` のキーに自作の構造体（たとえば `GridPos`）を使いたい。整数や文字列は、そのままキーにできますが、自作の型は、どうやってキーから置き場所を決めるのかが分かりません。`std::hash<T>` は、値からハッシュ値（整数）を作る関数オブジェクトで、`unordered_map` が内部で使っています。自作の型をキーにするには、`std::hash` の特殊化を書いて、メンバーを混ぜた値を返します。
 
 !!! tip "ポイント"
     - **整数・文字列・ポインタ・enum は、そのまま `unordered_map` のキーにできる**（標準が `std::hash` を用意している）。
@@ -114,7 +114,7 @@ struct hash {
 
 - 戻り値: `std::size_t` のハッシュ値
 - 計算量: 値の大きさに比例（文字列なら長さに比例 O(n)、整数なら O(1)）
-- 実行する環境・コンパイラ・プログラムの実行ごとに、**値が変わることがあります**。ファイルに保存した値を、次の実行で使ってはいけません
+- 実行する環境・コンパイラ・プログラムの実行ごとに、**値が変わることがあります**。ファイルに保存した値を次の実行で使ってはいけません
 
 ### `std::hash` の特殊化 {#specialization data-toc-label="std::hash の特殊化"}
 
@@ -132,7 +132,7 @@ struct GridPos {
   bool operator==(const GridPos&) const = default;  // == も必要（キーが同じかの判定）
 };
 
-// std 名前空間に、GridPos 用の hash を追加する
+// std 名前空間に GridPos 用の hash を追加する
 template <>
 struct std::hash<GridPos> {
   std::size_t operator()(const GridPos& p) const noexcept {
@@ -237,7 +237,7 @@ grid[{1, 2}] = 5;
 
 ### 透過的ハッシュ（string_view で引く） <span class="ver ver-20">C++20</span> {#transparent data-toc-label="透過的ハッシュ"}
 
-`std::unordered_map<std::string, int>` を、`std::string_view` や `const char*` で引くと、**毎回 `std::string` を作って<strong>から探します（メモリ確保が起きて遅い）。C++20 では、</strong>透過的（transparent）なハッシュ**を指定すると、`string_view` のまま引けます。
+`std::unordered_map<std::string, int>` を `std::string_view` や `const char*` で引くと、**毎回 `std::string` を作って<strong>から探します（メモリ確保が起きて遅い）。C++20 では、</strong>透過的（transparent）なハッシュ**を指定すると、`string_view` のまま引けます。
 
 ```cpp
 #include <functional>
@@ -318,7 +318,7 @@ true
 | パスワード・署名 | SHA-256、bcrypt など**暗号用**（`std::hash` や FNV は使えない） |
 
 !!! warning "ID は衝突する"
-    32 ビットのハッシュは、数万個の名前があると衝突の可能性が出てきます。**開発中に、ハッシュ値の重複を検出する**チェック（別の名前が同じ ID になっていないか）をビルド時に入れておきます。
+    32 ビットのハッシュは、数万個の名前があると衝突の可能性が出てきます。**開発中にハッシュ値の重複を検出する**チェック（別の名前が同じ ID になっていないか）をビルド時に入れておきます。
 
 ### bucket_count と load_factor {#bucket_load data-toc-label="bucket_count と load_factor"}
 

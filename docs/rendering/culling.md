@@ -7,15 +7,15 @@ tags:
 
 # カリング
 
-**カリング**は見えないものを描かないことです。最も効果が大きく、基本の最適化でドロー コール・頂点処理・ピクセル処理のすべてを、減らせます。このページはカリングの種類（視錐台・オクルージョン・距離・LOD）、それぞれが何を減らすのか、CPU でやる場合の課題、段階的な発展（GPU Driven・Meshlet へ）を、説明します。基本は [深度とカリング](../3d/depth-culling.md) にあります。
+**カリング**は見えないものを描かないことです。最も効果が大きく、基本の最適化でドロー コール・頂点処理・ピクセル処理のすべてを減らせます。このページはカリングの種類（視錐台・オクルージョン・距離・LOD）、それぞれが何を減らすのか、CPU でやる場合の課題、段階的な発展（GPU Driven・Meshlet へ）を説明します。基本は [深度とカリング](../3d/depth-culling.md) にあります。
 
 !!! tip "ポイント"
     - <strong>カリングの目的</strong>：<strong>描画命令・頂点・ピクセルの無駄をなくす</strong>。早い段階で除外するほど、効果が大きい。
     - 視錐台カリング：カメラの視界の外を除外。最も基本。
     - オクルージョン カリング：ほかの物に隠れた物を除外。効果が大きいが実装が難しい。
     - 距離・小物カリング、LOD：遠い・小さい物を除外・簡略化。
-    - CPU でのカリングの限界：物体数が増えると判断自体が、CPU の負担。→ 階層構造・GPU Driven・Meshlet。
-    - カリングの単位（物体・クラスター・三角形）を、細かくするほど、無駄が減る（が、判断の数は増える）。
+    - CPU でのカリングの限界：物体数が増えると判断自体が CPU の負担。→ 階層構造・GPU Driven・Meshlet。
+    - カリングの単位（物体・クラスター・三角形）を細かくするほど、無駄が減る（が、判断の数は増える）。
 
 !!! info "このページを読む前に"
     - [描画最適化](index.md)（このセクション全体の地図と、読む順番）
@@ -34,9 +34,9 @@ tags:
 <rect x="180" y="50" width="30" height="30" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="150" y="44" style="font-size:11px">視錐台の外</text>
 <rect x="190" y="250" width="30" height="30" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="150" y="296" style="font-size:11px">視錐台の外</text>
 <rect x="470" y="130" width="30" height="30" fill="rgba(229,72,77,0.5)" stroke="currentColor"/><text x="440" y="178" style="font-size:11px">遠すぎる</text>
-<text x="560" y="80" style="font-weight:700">視錐台カリング</text><text x="560" y="100" style="font-size:12px">視界の外を、除外</text>
-<text x="560" y="140" style="font-weight:700">オクルージョン カリング</text><text x="560" y="160" style="font-size:12px">壁の裏に、隠れた物を除外</text>
-<text x="560" y="200" style="font-weight:700">距離カリング</text><text x="560" y="220" style="font-size:12px">遠すぎ・小さすぎを、除外</text>
+<text x="560" y="80" style="font-weight:700">視錐台カリング</text><text x="560" y="100" style="font-size:12px">視界の外を除外</text>
+<text x="560" y="140" style="font-weight:700">オクルージョン カリング</text><text x="560" y="160" style="font-size:12px">壁の裏に隠れた物を除外</text>
+<text x="560" y="200" style="font-weight:700">距離カリング</text><text x="560" y="220" style="font-size:12px">遠すぎ・小さすぎを除外</text>
 </svg>
 
 | カリング | 何を除外するか | どこで効くか |
@@ -50,7 +50,7 @@ tags:
 
 ## 視錐台カリング
 
-**カメラの視界（視錐台）の外**の物体を描画しない。物体の境界（球・箱）が、視錐台と交わるかで判定します（[深度とカリング](../3d/depth-culling.md)）。
+**カメラの視界（視錐台）の外**の物体を描画しない。物体の境界（球・箱）が視錐台と交わるかで判定します（[深度とカリング](../3d/depth-culling.md)）。
 
 | 点 | 説明 |
 | --- | --- |
@@ -60,13 +60,13 @@ tags:
 
 ### 階層構造で速くする
 
-物体を、1 つずつ判定するのは、遅いです。空間を階層（木）にして、「木の枝全体が外」なら、中の物をまとめて除外します。
+物体を 1 つずつ判定するのは、遅いです。空間を階層（木）にして、「木の枝全体が外」なら、中の物をまとめて除外します。
 
 | 構造 | 説明 |
 | --- | --- |
 | 八分木（Octree）・BVH | 空間を再帰的に分割。親が外なら、子は判定しない |
 | グリッド | セルごとに物体を持つ。セル単位で判定 |
-| 効果 | 判定の回数が、O(n) から O(log n) に（[空間分割](../optimize/algorithms.md)） |
+| 効果 | 判定の回数が O(n) から O(log n) に（[空間分割](../optimize/algorithms.md)） |
 
 <!-- fig:frustum-culling-sweep:begin -->
 
@@ -150,20 +150,20 @@ tags:
 
 ## オクルージョン カリング
 
-**壁・建物・地形の裏に隠れた物**を除外します。視錐台カリングより、効果が大きい（都市・室内）が、実装が難しいです。
+**壁・建物・地形の裏に隠れた物**を除外します。視錐台カリングより、効果が大きい（都市・室内）が実装が難しいです。
 
 ### 手法
 
 | 手法 | 仕組み | 長所 | 短所 |
 | --- | --- | --- | --- |
-| 事前計算（PVS） | 「この場所から見える物」を、あらかじめ計算（ベイク） | 実行時がほぼゼロ | 動くものに使えない・ビルドが重い |
+| 事前計算（PVS） | 「この場所から見える物」をあらかじめ計算（ベイク） | 実行時がほぼゼロ | 動くものに使えない・ビルドが重い |
 | ソフトウェア ラスタライザ | CPU で低解像度の深度バッファを描き、物体の境界が隠れるか判定 | GPU を使わない・同期待ちなし | CPU の負担 |
 | GPU オクルージョン クエリ | 物体の境界を描いて、1 ピクセルでも通れば、見えると判定 | GPU の深度を使える | 結果が遅れて届く（数フレーム） |
 | Hi-Z（階層的な深度） | 前フレームの深度から、階層（ミップ）を作り、GPU で物体が隠れるか判定 | GPU で並列・高速 | 前フレームの情報（動きに遅れる）（[Hi-Z](hiz.md)） |
 
 ### 時間の遅れの問題
 
-GPU クエリや Hi-Z は、前のフレームの深度を使うことが多く、カメラが急に動くと、「見えるはずの物がまだ見えない」（ポップイン）ことが起きます。対策：保守的に（少し、多めに描く）、2 パス（前フレームで見えていた物を、先に描き、その深度で残りを判定）にします（[GPU Driven](gpu-driven.md)）。
+GPU クエリや Hi-Z は、前のフレームの深度を使うことが多く、カメラが急に動くと、「見えるはずの物がまだ見えない」（ポップイン）ことが起きます。対策：保守的に（少し、多めに描く）、2 パス（前フレームで見えていた物を先に描き、その深度で残りを判定）にします（[GPU Driven](gpu-driven.md)）。
 
 ## 距離カリング・小物カリング
 
@@ -194,7 +194,7 @@ LOD の切り替わりが、目立つ（ポップ）ときはディザリング�
 | ポータル・セル | 部屋（セル）と、ドア（ポータル）で、見える部屋だけを描く（室内ゲーム） |
 | 影のカリング | 影を落とさない物・影が見えない物を影マップの描画から、除外 |
 
-## カリングの単位を、細かくする
+## カリングの単位を細かくする
 
 カリングは**どの単位で判定するか**で効果と判定のコストが変わります。
 
@@ -203,7 +203,7 @@ LOD の切り替わりが、目立つ（ポップ）ときはディザリング�
 <text x="20" y="24" class="fig-title">単位を細かくするほど、無駄は減るが、判定の数は、増える</text>
 <rect x="20" y="50" width="170" height="90" rx="10" fill="rgba(229,72,77,0.2)" stroke="currentColor" stroke-width="3"/><text x="105" y="82" text-anchor="middle" style="font-weight:700">物体ごと</text><text x="105" y="104" text-anchor="middle" style="font-size:12px">（CPU で判定）</text><text x="105" y="122" text-anchor="middle" style="font-size:12px">一部が見えれば、全部描く</text>
 <line x1="196" y1="95" x2="246" y2="95" stroke="currentColor" stroke-width="3" marker-end="url(#cu1)"/>
-<rect x="254" y="50" width="170" height="90" rx="10" fill="rgba(229,170,40,0.25)" stroke="currentColor" stroke-width="3"/><text x="339" y="82" text-anchor="middle" style="font-weight:700">サブメッシュごと</text><text x="339" y="104" text-anchor="middle" style="font-size:12px">（GPU Driven）</text><text x="339" y="122" text-anchor="middle" style="font-size:12px">物体の一部を、除外</text>
+<rect x="254" y="50" width="170" height="90" rx="10" fill="rgba(229,170,40,0.25)" stroke="currentColor" stroke-width="3"/><text x="339" y="82" text-anchor="middle" style="font-weight:700">サブメッシュごと</text><text x="339" y="104" text-anchor="middle" style="font-size:12px">（GPU Driven）</text><text x="339" y="122" text-anchor="middle" style="font-size:12px">物体の一部を除外</text>
 <line x1="430" y1="95" x2="480" y2="95" stroke="currentColor" stroke-width="3" marker-end="url(#cu1)"/>
 <rect x="488" y="50" width="170" height="90" rx="10" fill="rgba(76,139,245,0.25)" stroke="currentColor" stroke-width="3"/><text x="573" y="82" text-anchor="middle" style="font-weight:700">Meshlet ごと</text><text x="573" y="104" text-anchor="middle" style="font-size:12px">（64 頂点ほどの塊）</text><text x="573" y="122" text-anchor="middle" style="font-size:12px">細かく除外</text>
 <line x1="664" y1="95" x2="704" y2="95" stroke="currentColor" stroke-width="3" marker-end="url(#cu1)"/>
@@ -216,9 +216,9 @@ LOD の切り替わりが、目立つ（ポップ）ときはディザリング�
 | 物体（インスタンス） | CPU で判定。大きな物体は一部だけ見えても全体を描く |
 | サブメッシュ | 物体を分割（建物の部屋ごと）。無駄が減る |
 | Meshlet（クラスター） | 64 頂点・124 三角形ほどの塊。GPU が塊ごとにカリング（[Mesh Shader](mesh-shaders.md)） |
-| 三角形 | 最も細かい。GPU のフィクスト ファンクションが、行う（バックフェイスなど） |
+| 三角形 | 最も細かい。GPU のフィクスト ファンクションが行う（バックフェイスなど） |
 
-物体数が多く・形が複雑になるほど、判定を、CPU から GPU へ、単位を細かく——この流れが次の GPU Driven・Meshletです。
+物体数が多く・形が複雑になるほど、判定を CPU から GPU へ、単位を細かく——この流れが次の GPU Driven・Meshletです。
 
 ## 段階のまとめ
 
@@ -232,13 +232,13 @@ LOD の切り替わりが、目立つ（ポップ）ときはディザリング�
 
 ## よくあるミス
 
-??? failure "境界ボックスが、大きすぎて、カリングが効かない"
+??? failure "境界ボックスが大きすぎて、カリングが効かない"
     **物体にぴったりの境界**にします（回転で広がる AABB に注意）。
 
 ??? failure "オクルージョンで、見えるはずの物が消える"
     前フレームの情報の遅れです。保守的な判定・2 パスにします。
 
-??? failure "カリングの判定が、重すぎて、CPU が詰まる"
+??? failure "カリングの判定が重すぎて、CPU が詰まる"
     階層構造にする、GPU に任せる。
 
 ??? failure "LOD の切り替わりが、目立つ"
@@ -250,11 +250,11 @@ LOD の切り替わりが、目立つ（ポップ）ときはディザリング�
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] カリング ＝ 見えないものを、描かない。早い段階で除外するほど、効果が大きい
+    - [x] カリング ＝ 見えないものを描かない。早い段階で除外するほど、効果が大きい
     - [x] 種類：視錐台・オクルージョン・距離・小物・バックフェイス・LOD
     - [x] 視錐台カリングは、基本。階層構造（Octree・BVH）で、速くする
     - [x] オクルージョンは、効果大・難しい。Hi-Z が主流。前フレームの遅れに注意
-    - [x] 単位を細かく（物体 → サブメッシュ → Meshlet）。判定を、CPU から GPU へ
+    - [x] 単位を細かく（物体 → サブメッシュ → Meshlet）。判定を CPU から GPU へ
 
 ## 関連ページ
 

@@ -15,7 +15,7 @@ tags:
 `#include <functional>`
 </div>
 
-`std::make_pair` や `make_tuple` は、引数を保存するときに「配列は先頭ポインタへ、const は外す、`reference_wrapper` は参照へ」という型の変換をします。この変換を自分のテンプレートで使うための部品が `unwrap_ref_decay` です。
+`std::make_pair` や `make_tuple` は、引数を保存するときに「配列は先頭ポインタへ const は外す、`reference_wrapper` は参照へ」という型の変換をします。この変換を自分のテンプレートで使うための部品が `unwrap_ref_decay` です。
 
 !!! tip "ポイント"
     - `decay_t<T>` を作り、それが `reference_wrapper<U>` なら `U&` にする。

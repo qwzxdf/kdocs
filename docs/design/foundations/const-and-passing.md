@@ -160,7 +160,7 @@ class Inventory {
 | 場面 | 書き方 |
 | --- | --- |
 | 毎フレーム呼ぶ更新関数 | `void Update(float dt)`（小さい型は値渡し） |
-| 描画に、モデルや行列を渡す | `void Draw(const Model& model, const Mat4& world)` |
+| 描画にモデルや行列を渡す | `void Draw(const Model& model, const Mat4& world)` |
 | ログ、メッセージ | `void Log(std::string_view message)` |
 | 配列を処理する関数 | `void Process(std::span<Enemy> enemies)` |
 | 設定を読むだけ | `void Apply(const Config& config)` |

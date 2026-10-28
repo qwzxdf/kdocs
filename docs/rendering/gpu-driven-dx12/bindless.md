@@ -32,9 +32,9 @@ tags:
 | バインド型 | ドローごとに CPU がテーブルを設定する | 合わない（CPU が何を描くか知らない） |
 | バインドレス | シェーダーが番号でヒープを直接引く | 合う（番号はバッファに入れておける） |
 
-1 回の `ExecuteIndirect` で、数万個の物体を、それぞれ違うテクスチャで描くには、この方式が前提になります。
+1 回の `ExecuteIndirect` で、数万個の物体をそれぞれ違うテクスチャで描くには、この方式が前提になります。
 
-## 全体像：誰が、いつ、何を結ぶか
+## 全体像：誰がいつ、何を結ぶか
 
 話がいくつもの層にまたがるので、先に全部を並べます。
 
@@ -150,7 +150,7 @@ class BindlessHeap {
   }
 ```
 
-`Register` は、空き番号を 1 つ取り出し、その番号の位置に SRV を書いて、番号を返します。返された番号が、`MaterialData::albedo_index` などに入ります。
+`Register` は、空き番号を 1 つ取り出し、その番号の位置に SRV を書いて、番号を返します。返された番号が `MaterialData::albedo_index` などに入ります。
 
 SRV の記述（`D3D12_SHADER_RESOURCE_VIEW_DESC`）は、バインドレスで事故が起きやすい所です。色テクスチャの例を示します。
 
@@ -178,7 +178,7 @@ D3D12_SHADER_RESOURCE_VIEW_DESC MakeColorTextureSrv(const D3D12_RESOURCE_DESC& d
 
 `Texture2D.MostDetailedMip` と `MipLevels` は、ビューから見えるミップの範囲です。`MipLevels` に 0 を入れると作成に失敗するので、リソース側の値か、`-1`（すべて）を入れます。テクスチャ ストリーミングで、低解像度のミップしかまだ読み込んでいない場合は、`MostDetailedMip` を上げたビューを作ります。
 
-`ResourceMinLODClamp` は、これ未満の詳細度（小さい値ほど詳細）へは下げない下限です。通常は 0 です。ストリーミング中に、読み込み前のミップを誤って引かないようにするために使います。
+`ResourceMinLODClamp` は、これ未満の詳細度（小さい値ほど詳細）へは下げない下限です。通常は 0 です。ストリーミング中に読み込み前のミップを誤って引かないようにするために使います。
 
 最後に、SRV を `nullptr` で作る方法があります。
 
@@ -259,7 +259,7 @@ ComPtr<ID3D12RootSignature> CreateBindlessRootSignature(ID3D12Device* device) {
   params[kRootDraw].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 ```
 
-この 32 ビット定数が、ドローごとに変わる値の入り口です。`ExecuteIndirect` がコマンドごとにここへ値を書き込みます。頂点シェーダーでもピクセル シェーダーでも読むので、`ShaderVisibility` は `ALL` にします。`PIXEL` だけにすると、頂点シェーダーからは見えません。
+この 32 ビット定数がドローごとに変わる値の入り口です。`ExecuteIndirect` がコマンドごとにここへ値を書き込みます。頂点シェーダーでもピクセル シェーダーでも読むので、`ShaderVisibility` は `ALL` にします。`PIXEL` だけにすると、頂点シェーダーからは見えません。
 
 ```cpp
   params[kRootInstances].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
@@ -385,9 +385,9 @@ ComPtr<ID3D12CommandSignature> CreateCommandSignature(ID3D12Device* device,
 }
 ```
 
-`args[0]` は、コマンドの先頭 8 バイトを、ルート パラメーター `kRootDraw` の 0 番目から 2 ワードに書き込むという意味です。続く `args[1]` が、`DrawIndexedInstanced` の 20 バイトの引数です。ルート定数を書き換える引数を含むので、`CreateCommandSignature` の第 2 引数にルート シグネチャを渡す必要があります。
+`args[0]` は、コマンドの先頭 8 バイトをルート パラメーター `kRootDraw` の 0 番目から 2 ワードに書き込むという意味です。続く `args[1]` が、`DrawIndexedInstanced` の 20 バイトの引数です。ルート定数を書き換える引数を含むので、`CreateCommandSignature` の第 2 引数にルート シグネチャを渡す必要があります。
 
-マテリアル番号を、インスタンス バッファから引くのではなく、コマンドに直接入れているのがここの工夫です。カリングの CS が、ドローを書くときに `instances[i].material_index` をコピーして書くだけで、シェーダーが 1 回引く手間を省けます。インスタンス番号だけを渡して、シェーダーで `instances[draw_instance_index].material_index` と引く方法でも動きます。コマンドが大きくなるのと、シェーダーの読み出しが 1 回増えるのを、天秤にかけて選びます。
+マテリアル番号をインスタンス バッファから引くのではなく、コマンドに直接入れているのがここの工夫です。カリングの CS が、ドローを書くときに `instances[i].material_index` をコピーして書くだけで、シェーダーが 1 回引く手間を省けます。インスタンス番号だけを渡して、シェーダーで `instances[draw_instance_index].material_index` と引く方法でも動きます。コマンドが大きくなるのと、シェーダーの読み出しが 1 回増えるのを天秤にかけて選びます。
 
 描画の呼び出しは、これだけです。
 
@@ -469,7 +469,7 @@ bool supports_tier3 = options.ResourceBindingTier == D3D12_RESOURCE_BINDING_TIER
 
 ## SM 6.6 より前：無制限の記述子テーブル
 
-SM 6.6 が使えない環境では、ルート シグネチャに、サイズが無制限の記述子テーブルを 1 つ置きます。シェーダーでは、テクスチャの配列として宣言します。
+SM 6.6 が使えない環境では、ルート シグネチャにサイズが無制限の記述子テーブルを 1 つ置きます。シェーダーでは、テクスチャの配列として宣言します。
 
 ```cpp
 D3D12_DESCRIPTOR_RANGE1 range = {};
@@ -495,9 +495,9 @@ float4 c = textures[NonUniformResourceIndex(material.albedo_index)].Sample(linea
 
 `NumDescriptors = UINT_MAX` は「ヒープの終わりまで」という意味の無制限です。`RegisterSpace = 1` は、他の `t0` のバインディングと衝突しないように、レジスタ空間を分けています。無制限の範囲は、その空間の `t` レジスタを全部使い切るので、同じ空間に別の SRV を置けません。
 
-`DESCRIPTORS_VOLATILE` は、「コマンド リストの実行中に、この範囲の記述子が書き換えられるかもしれない」とドライバーに伝えます。テクスチャを後から読み込んで、空いている番号を埋めていく使い方では必要です。
+`DESCRIPTORS_VOLATILE` は、「コマンド リストの実行中にこの範囲の記述子が書き換えられるかもしれない」とドライバーに伝えます。テクスチャを後から読み込んで、空いている番号を埋めていく使い方では必要です。
 
-ドローの前に、ヒープの先頭の GPU ハンドルを 1 回だけ渡します。
+ドローの前にヒープの先頭の GPU ハンドルを 1 回だけ渡します。
 
 ```cpp
 list->SetGraphicsRootDescriptorTable(kRootTextures, bindless_.GpuStart());
@@ -588,10 +588,10 @@ if (material.albedo_index != kInvalidTexture) {
 <rect x="600" y="286" width="130" height="52" fill="#cbd5e1" opacity="0.9"/>
 <text x="665" y="318" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#1f2937">heap[3] 画像</text>
 <text x="665" y="88" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b">記述子ヒープ(全テクスチャ)</text>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">全テクスチャを、1 つの配列(ヒープ)に入れておく<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">全テクスチャを 1 つの配列(ヒープ)に入れておく<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;1.0000" values="1;1;0;0"/></text>
 <text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">岩: 番号 2 → heap[2]<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.0643;0.0645;0.2836;0.2839;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">木: 番号 0 → heap[0]<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.2836;0.2839;0.5030;0.5032;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">壁: 番号 1 → heap[1]。物体ごとのテクスチャ切り替え命令が、要らなくなる<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5030;0.5032;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">壁: 番号 1 → heap[1]。物体ごとのテクスチャ切り替え命令が要らなくなる<animate attributeName="opacity" dur="15.5s" repeatCount="indefinite" keyTimes="0.0000;0.5030;0.5032;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:bindless-index:end -->
@@ -604,7 +604,7 @@ if (material.albedo_index != kInvalidTexture) {
 
 ## よくあるミス
 
-??? failure "NonUniformResourceIndex を付けず、画素ごとに違うはずのテクスチャが、全部同じになる"
+??? failure "NonUniformResourceIndex を付けず、画素ごとに違うはずのテクスチャが全部同じになる"
     非一様な番号には、必ず `NonUniformResourceIndex` を付ける。
 
 ??? failure "ルート シグネチャに DIRECTLY_INDEXED フラグを付けず、PSO の作成に失敗する"
@@ -616,7 +616,7 @@ if (material.albedo_index != kInvalidTexture) {
 ??? failure "テクスチャを破棄した直後に番号を再利用して、別のテクスチャが一瞬映る"
     フェンスの完了を待って番号を返す（遅延解放）。
 
-??? failure "SRV の種類（Texture2D と TextureCube など）が、シェーダーの型と合わない"
+??? failure "SRV の種類（Texture2D と TextureCube など）がシェーダーの型と合わない"
     登録時の `ViewDimension` と、シェーダーの型を一致させる。
 
 ??? failure "SRV の Shader4ComponentMapping を 0 のままにして、テクスチャが 1 色に見える"

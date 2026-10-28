@@ -13,7 +13,7 @@ tags:
 `#include <sstream>`
 </div>
 
-`std::wstringstream` は、`stringstream` の `wchar_t` 版です。`wchar_t` の文字列を、組み立てたり解析したりするときに使います。
+`std::wstringstream` は、`stringstream` の `wchar_t` 版です。`wchar_t` の文字列を組み立てたり解析したりするときに使います。
 
 !!! tip "ポイント"
     - `stringstream` の `wchar_t` 版。

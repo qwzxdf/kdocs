@@ -6,7 +6,7 @@ tags:
 
 # 第 32 章 描画ループとスレッド
 
-第 31 章では、WPF の `CompositionTarget.Rendering` から `Tick` を呼びました。動きはしますが、エディタとして使うには問題があります。この章では、その問題を整理して、専用の描画スレッドでエンジンを動かす形に作り替えます。あわせて、「エンジンの関数を、どのスレッドから呼んでよいのか」という、連携でいちばん事故の起きやすい約束事を決めます。
+第 31 章では、WPF の `CompositionTarget.Rendering` から `Tick` を呼びました。動きはしますが、エディタとして使うには問題があります。この章では、その問題を整理して、専用の描画スレッドでエンジンを動かす形に作り替えます。あわせて、「エンジンの関数をどのスレッドから呼んでよいのか」という、連携でいちばん事故の起きやすい約束事を決めます。
 
 !!! info "このページを読む前に"
     - [第 31 章 HwndHost でビューポートを実装する](31-hwndhost.md)（前の章。ここまでの内容が前提になる）
@@ -44,7 +44,7 @@ UI スレッド（WPF）            描画スレッド
 
 ## .NET のスレッドの道具
 
-C++ の `std::thread` に当たるものを、先に整理しておきます。
+C++ の `std::thread` に当たるものを先に整理しておきます。
 
 | C# | C++ で近いもの | 役目 |
 | --- | --- | --- |
@@ -74,7 +74,7 @@ thread.Join();
 
 ## IRenderLoop を作る
 
-エンジンを動かす専用スレッドの窓口を、インターフェースで定義します。
+エンジンを動かす専用スレッドの窓口をインターフェースで定義します。
 
 ```csharp title="Services/IRenderLoop.cs"
 namespace Editor.Services;
@@ -128,7 +128,7 @@ public sealed class RenderLoop : IRenderLoop
     public double FramesPerSecond => Volatile.Read(ref _fps);
 ```
 
-`ConcurrentQueue<Action>` は、複数のスレッドから安全に出し入れできる待ち行列で、`Enqueue` で追加し、`TryDequeue` で取り出します。`volatile bool _running` は、別のスレッドが変えた値が、すぐ見えるようにする指定で、単純なフラグに向いています。`Volatile.Read(ref _fps)` は、別のスレッドが書いた `double` を安全に読むための関数です。
+`ConcurrentQueue<Action>` は、複数のスレッドから安全に出し入れできる待ち行列で、`Enqueue` で追加し、`TryDequeue` で取り出します。`volatile bool _running` は、別のスレッドが変えた値がすぐ見えるようにする指定で、単純なフラグに向いています。`Volatile.Read(ref _fps)` は、別のスレッドが書いた `double` を安全に読むための関数です。
 
 次は、開始と停止です。
 
@@ -151,7 +151,7 @@ public sealed class RenderLoop : IRenderLoop
         if (_thread == null) return;
         _running = false;
         _wake.Set();            // 待っていたら起こす
-        _thread.Join();         // 描画スレッドが、エンジンを破棄して終わるまで待つ
+        _thread.Join();         // 描画スレッドがエンジンを破棄して終わるまで待つ
         _thread = null;
     }
 
@@ -184,7 +184,7 @@ public sealed class RenderLoop : IRenderLoop
 
         while (_running)
         {
-            // ① 溜まっている命令を、すべて実行する
+            // ① 溜まっている命令をすべて実行する
             while (_commands.TryDequeue(out var command))
             {
                 try { command(); }
@@ -263,11 +263,11 @@ public sealed class RenderLoop : IRenderLoop
 `Invoke` の中のラムダ式は、外の変数（`result`、`error`）を捕まえて書き換えています（C++ の `[&]` と同じです）。`finally { done.Set(); }` が大事で、これを忘れると、例外が起きたときに永遠に待ちます。`default!` は、型の既定値を入れつつ、「`null` ではない」とコンパイラーに伝える書き方です。
 
 !!! warning "Invoke でデッドロックしないために"
-    描画スレッドが UI スレッドの結果を待っている最中に、UI スレッドが `Invoke` で描画スレッドを待つと、お互いに待ち合って止まります。ルールは 1 つです。描画スレッドは、UI スレッドを待たない。描画スレッドから UI に知らせるときは、`Dispatcher.BeginInvoke`（待たない）か、イベント（第 18 章）を使います。
+    描画スレッドが UI スレッドの結果を待っている最中に UI スレッドが `Invoke` で描画スレッドを待つと、お互いに待ち合って止まります。ルールは 1 つです。描画スレッドは、UI スレッドを待たない。描画スレッドから UI に知らせるときは、`Dispatcher.BeginInvoke`（待たない）か、イベント（第 18 章）を使います。
 
 ## ViewportViewModel を作り替える
 
-`ViewportViewModel` を、`IRenderLoop` を使う形にします。`IEngineService` を直接触るのは、`RenderLoop` だけになります。
+`ViewportViewModel` を `IRenderLoop` を使う形にします。`IEngineService` を直接触るのは、`RenderLoop` だけになります。
 
 ```csharp
 public class ViewportViewModel : BindableBase
@@ -330,9 +330,9 @@ public MainWindowViewModel(IRenderLoop loop /*, ほか */)
 
 `Present(0, DXGI_PRESENT_ALLOW_TEARING)` なら VSync を待たず最速になりますが、ティアリングが出ます。可変リフレッシュ レート（G-Sync など）向けです。さらに遅延を減らしたいときは、待機可能スワップ チェーン（`DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT`）という手段もありますが、この教材では触れません。
 
-## 約束が守られているかを、エンジン側でも確かめる
+## 約束が守られているかをエンジン側でも確かめる
 
-「エンジンを触るのは 1 本」という約束は、守られているかを確かめる手段がないと、いつか破られます。`Engine` の Debug ビルドに、スレッド ID の検査を入れておきます。
+「エンジンを触るのは 1 本」という約束は、守られているかを確かめる手段がないと、いつか破られます。`Engine` の Debug ビルドにスレッド ID の検査を入れておきます。
 
 ```cpp
 // Engine.cpp の Impl
@@ -361,9 +361,9 @@ struct Engine::Impl {
 - UI スレッドから `Tick` を呼んでみると、Debug でブレークする。
 
 ??? failure "終了するときに固まる"
-    `Stop()` が描画スレッドの終了を待っている最中に、描画スレッドが UI スレッドの結果を待っている可能性があります。描画スレッドから UI を待たないようにします。あるいは、`Invoke` の中で例外が起きたのに `done.Set()` が呼ばれていません（`finally` が必要です）。
+    `Stop()` が描画スレッドの終了を待っている最中に描画スレッドが UI スレッドの結果を待っている可能性があります。描画スレッドから UI を待たないようにします。あるいは、`Invoke` の中で例外が起きたのに `done.Set()` が呼ばれていません（`finally` が必要です）。
 
-??? failure "リサイズ中に、絵が引き伸ばされる"
+??? failure "リサイズ中に絵が引き伸ばされる"
     正常です。DXGI のフリップ モデルは、`ResizeBuffers` が終わるまで古いバッファーを引き伸ばして出します。気になるなら、リサイズの命令を複数積まずに、最新の大きさだけを保持します（デバウンス）。
 
 ??? failure "`Invoke` で UI が固まる"

@@ -15,7 +15,7 @@ tags:
 `#include <chrono>`
 </div>
 
-ユーザーが入力した日付文字列を、`year_month_day` のような型に変換したいことがあります。`std::chrono::parse(書式, 変数)` を `>>` に渡すと、書式（`%Y-%m-%d` など）に従って読み込みます。
+ユーザーが入力した日付文字列を `year_month_day` のような型に変換したいことがあります。`std::chrono::parse(書式, 変数)` を `>>` に渡すと、書式（`%Y-%m-%d` など）に従って読み込みます。
 
 !!! tip "ポイント"
     - `in >> std::chrono::parse("%F", ymd);` の形で使う。

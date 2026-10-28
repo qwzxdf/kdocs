@@ -15,7 +15,7 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::views::istream<T>` は、**入力ストリーム（`cin`、ファイル、`istringstream`）から、`T` 型の値を 1 つずつ読み出す範囲**を作るビューです。「空白区切りの数字をすべて読む」を、範囲 for で書けます。
+`std::views::istream<T>` は、**入力ストリーム（`cin`、ファイル、`istringstream`）から、`T` 型の値を 1 つずつ読み出す範囲**を作るビューです。「空白区切りの数字をすべて読む」を範囲 for で書けます。
 
 !!! tip "ポイント"
     - `views::istream<int>(stream)` と、読みたい型を指定する。

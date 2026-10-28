@@ -25,8 +25,8 @@ tags:
 <defs><marker id="arr-fog-curves" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">フォグの式: 線形・指数・指数の 2 乗。遠くの物が、どれだけ残って見えるかが、違う</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">距離 0〜200 m。物の色が残る割合(透過率)を、3 つの式で計算する。密度は、100 m で 5% しか残らないように、そろえる</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">フォグの式: 線形・指数・指数の 2 乗。遠くの物がどれだけ残って見えるかが、違う</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">距離 0〜200 m。物の色が残る割合(透過率)を 3 つの式で計算する。密度は、100 m で 5% しか残らないように、そろえる</text>
 <rect x="30" y="96" width="640" height="270" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 透過率(1 = くっきり、0 = 霧の色)</text>
 <text x="70.0" y="358" text-anchor="middle" style="font-size:10px;font-weight:500;fill:#64748b">0 m</text>
@@ -87,8 +87,8 @@ tags:
 <text x="56" y="479" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">指数の 2 乗は、近くはくっきり、あるところで、一気に霞む。濃い霧の感じに合う(150 m で 0%)</text>
 <text x="56" y="501" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">物理的には、指数(Beer の法則)が基本。ほかは、見た目の調整用</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">距離に応じて、物の色を、霧の色へ近づける<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">式によって、遠くの物の残り方が、違う<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.6265;0.6267;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">距離に応じて、物の色を霧の色へ近づける<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">式によって、遠くの物の残り方が違う<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.6265;0.6267;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">100 m で 5% にそろえても、近くと遠くの見え方が違う<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6265;0.6267;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -134,7 +134,7 @@ float distance_to_pixel = length(world_position - camera_position);
 
 ## 霧を式で書く
 
-<strong>霧</strong>（フォグ）は 遠くの物の色を、霧の色へ近づける効果です。距離が遠いほど霧の色に染まります。式の骨格は 1 つです。
+<strong>霧</strong>（フォグ）は 遠くの物の色を霧の色へ近づける効果です。距離が遠いほど霧の色に染まります。式の骨格は 1 つです。
 
 ```text
 最終の色 = 物の色 × 透過率  +  霧の色 × (1 − 透過率)
@@ -158,7 +158,7 @@ float LinearFog(float distance, float fog_start, float fog_end) {
 
 ### ② 指数フォグ
 
-物理に近い式です。進んだ距離に比例して同じ割合ずつ光が、減る（Beer の法則）。
+物理に近い式です。進んだ距離に比例して同じ割合ずつ光が減る（Beer の法則）。
 
 ```hlsl
 float ExpFog(float distance, float density) {
@@ -166,7 +166,7 @@ float ExpFog(float distance, float density) {
 }
 ```
 
-`density` は 霧の濃さです。距離が 2 倍になると透過率が、2 乗に（0.5 → 0.25）なります。霧の現実の振る舞いに近い標準的な式です。
+`density` は 霧の濃さです。距離が 2 倍になると透過率が 2 乗に（0.5 → 0.25）なります。霧の現実の振る舞いに近い標準的な式です。
 
 ### ③ 指数の 2 乗フォグ
 
@@ -179,25 +179,25 @@ float Exp2Fog(float distance, float density) {
 }
 ```
 
-`exp(−(d × k)²)` は 近くでほぼ 1（霧が、ほとんど見えない）で ある距離（`1 / k` くらい）から急に、0 へ落ちます。霧の中に入ったような急な視界の悪化を、表現できます。
+`exp(−(d × k)²)` は 近くでほぼ 1（霧がほとんど見えない）で ある距離（`1 / k` くらい）から急に 0 へ落ちます。霧の中に入ったような急な視界の悪化を表現できます。
 
 | 式 | 透過率 | 見た目 | 物理的な、正しさ |
 | --- | --- | --- | --- |
 | 線形 | 直線で減る | 霧の、開始と終了がはっきり | 正しくない |
 | 指数 | `exp(−kd)` | 自然な、霞 | 正しい（Beer の法則） |
-| 指数の 2 乗 | `exp(−(kd)²)` | 近くは澄み遠くで急に、濃い | 正しくない（見た目の、調整用） |
+| 指数の 2 乗 | `exp(−(kd)²)` | 近くは澄み遠くで急に濃い | 正しくない（見た目の、調整用） |
 
 ## 霧の色を適用する
 
 ```hlsl
-// 物の色に、霧を、かける（ピクセル シェーダーの最後。距離は、カメラからの、実際の距離）。
+// 物の色に霧をかける（ピクセル シェーダーの最後。距離は、カメラからの、実際の距離）。
 float3 ApplyFog(float3 scene_color, float distance) {
   float transmittance = ExpFog(distance, g_fog_density);
   return scene_color * transmittance + g_fog_color * (1.0 - transmittance);
 }
 ```
 
-最初の式をそのままコードにしたものです。`distance` は <strong>カメラからその画素までの、距離</strong>です。深度（視点の奥行き）では視線が、斜めの画素で霧が薄くなります（距離が、実際より短く測られるため）。視線方向の距離を使います。
+最初の式をそのままコードにしたものです。`distance` は <strong>カメラからその画素までの、距離</strong>です。深度（視点の奥行き）では視線が斜めの画素で霧が薄くなります（距離が実際より短く測られるため）。視線方向の距離を使います。
 
 ```hlsl
 // 視線方向の距離: ワールド位置から、カメラまでの、実際の距離。
@@ -213,7 +213,7 @@ float3 transmittance = exp(-g_extinction_rgb * distance);              // RGB �
 float3 result = scene_color * transmittance + g_inscatter_color * (1.0 - transmittance);
 ```
 
-赤は遠くまで残り、青は先に霧の色へ染まるので、霞む遠景が青みがかる空気遠近法の効果が、出ます。
+赤は遠くまで残り、青は先に霧の色へ染まるので、霞む遠景が青みがかる空気遠近法の効果が出ます。
 
 ## 密度の決め方
 
@@ -224,7 +224,7 @@ float3 result = scene_color * transmittance + g_inscatter_color * (1.0 - transmi
 ```
 
 ```hlsl
-// 「視界が、D メートルで、ほぼ、霧の色になる」から、密度を求める。
+// 「視界が D メートルで、ほぼ、霧の色になる」から、密度を求める。
 float DensityFromVisibility(float visibility_m) { return 3.0 / visibility_m; }
 ```
 
@@ -243,7 +243,7 @@ float DensityFromVisibility(float visibility_m) { return 3.0 / visibility_m; }
 | --- | --- |
 | HDR | 霧の色は HDR の値（空の、明るさ）に合わせる。霧の色が暗すぎると遠景が暗く沈み、明るすぎると白く浮く（[Matching Fog Color to the Sky](color-match.md)） |
 | 加算ブレンドの物 | 火や光の、パーティクル（加算）は霧で暗くなるが、霧の色を足してはいけない（光の物が霧で白く、浮く）。霧の適用は透過率の掛け算だけに、する |
-| 半透明 | 半透明の物にも霧を、かける（透過率を掛ける）。かけ忘れると遠くの煙が霧の中で、浮く |
+| 半透明 | 半透明の物にも霧をかける（透過率を掛ける）。かけ忘れると遠くの煙が霧の中で、浮く |
 | 空 | 空にも霧をかけるかは、場面による。霧の中では空も霧の色に近づく |
 
 ## よくあるミス

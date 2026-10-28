@@ -133,7 +133,7 @@ arena.Reset();
 | リソースを持つ型（`std::vector`、`std::string`、ファイルハンドル） | `Reset` の前に自分で `~T()` を呼ぶ。または、置かない |
 | `std::pmr` コンテナ | アリーナに乗せる場合、コンテナの中身の確保はアリーナから。`vector` 自体のデストラクタは解放を何もしないので、呼んでも安全 |
 
-!!! warning "std::string や std::vector を、そのまま置かない"
+!!! warning "std::string や std::vector をそのまま置かない"
     `arena.New<std::string>()` で作った文字列は中身を `new` で確保します。`Reset` してもその `new` した分はリークします。アリーナで使うなら `std::pmr::string`（アリーナから確保）にします。
 
 ## 満杯になったとき

@@ -12,7 +12,7 @@ tags:
 !!! tip "ポイント"
     - 半透明は<strong>オーバードローが避けられない</strong>。重なる分だけ計算・ブレンドする。
     - ブレンドは<strong>レンダーターゲットの読み込み＋書き込み</strong>なので、帯域幅も使う。
-    - 画面を大きく覆う 1 枚が、小さな 100 枚より重いことがある。
+    - 画面を大きく覆う 1 枚が小さな 100 枚より重いことがある。
     - 対策は縮小バッファ・枚数削減・形に合わせた板・軽いシェーダー。
     - ソートが必要（奥から手前）。順序が崩れると見た目が壊れる。
     - 数が多いときはGPU パーティクル（コンピュートで更新）。
@@ -29,7 +29,7 @@ tags:
 | **Early-Z が効かない** | 奥も見せるので深度テストで捨てられない |
 | ブレンドの読み書き | 既存の色を読んで混ぜて、書く（帯域幅を使う） |
 | 重なりの数 | 煙の板が 10 枚重なれば、そのピクセルは 10 回計算される |
-| 大きな板 | 画面の大半を覆う 1 枚が、数百万ピクセルを塗る |
+| 大きな板 | 画面の大半を覆う 1 枚が数百万ピクセルを塗る |
 | 透明部分の無駄 | 四角い板の中の透明な部分もシェーダーが実行される |
 
 オーバードローを色で可視化する（重なるほど明るくする）と、どこが重いのかが一目で分かります（[調査ツール](tools.md)）。
@@ -98,9 +98,9 @@ tags:
 | 描画 | インスタンシング（インダイレクト）で、生きている粒子だけ描く |
 | 衝突 | 深度バッファを読んで画面空間で簡易な衝突をする |
 
-## 半透明が、どれだけ重いか：数字で見る
+## 半透明がどれだけ重いか：数字で見る
 
-1920×1080 は、約 207 万ピクセルです。画面全体を、覆う半透明を、10 枚重ねると、どれだけのピクセルを、ブレンドするでしょうか。
+1920×1080 は、約 207 万ピクセルです。画面全体を覆う半透明を 10 枚重ねると、どれだけのピクセルをブレンドするでしょうか。
 
 ```text
 ブレンドするピクセル数 ＝ 207 万 × 10 枚 ＝ 約 2,070 万ピクセル / フレーム
@@ -123,10 +123,10 @@ SetViewport(width / 2, height / 2);
 context->OMSetRenderTargets(1, half_rtv.GetAddressOf(), half_depth_dsv.Get());
 Clear(half_rtv, {0, 0, 0, 0});                                    // 透明な黒で、クリア
 
-// ② 半透明のパーティクルを、ここに描く（プリマルチプライド アルファ）。
+// ② 半透明のパーティクルをここに描く（プリマルチプライド アルファ）。
 DrawParticles();
 
-// ③ フル解像度のシーンに、重ねて合成する。
+// ③ フル解像度のシーンに重ねて合成する。
 SetViewport(width, height);
 context->OMSetRenderTargets(1, scene_rtv.GetAddressOf(), nullptr);
 context->PSSetShaderResources(0, 1, half_srv.GetAddressOf());
@@ -134,19 +134,19 @@ DrawFullscreenTriangle();                                         // 合成シ�
 ```
 
 ```hlsl
-// ③ の合成シェーダー: 縮小バッファ（rgb は色、a は、後ろを、どれだけ隠すか）を、バイリニアで、拡大して重ねる。
+// ③ の合成シェーダー: 縮小バッファ（rgb は色、a は、後ろをどれだけ隠すか）をバイリニアで、拡大して重ねる。
 Texture2D g_particles : register(t0);
 SamplerState g_linear : register(s0);
 
 float4 PSComposite(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
-  float4 p = g_particles.Sample(g_linear, uv);                    // プリマルチプライド（色に、アルファが掛け済み）
+  float4 p = g_particles.Sample(g_linear, uv);                    // プリマルチプライド（色にアルファが掛け済み）
   return p;                                                       // ブレンド: ONE, INV_SRC_ALPHA で、シーンに重ねる
 }
 ```
 
-縮小して描くと、物体の縁で、煙が、にじみます（低解像度の深度が、縁を、またぐため）。縁が気になるときは、<strong>深度を考慮した拡大</strong>（フル解像度の深度と、近い縮小の深度を、比べて、似た位置の値だけを、混ぜる）にします（[Upsampling](../graphics/ao/filtering/upsample.md) と同じ考え方）。
+縮小して描くと、物体の縁で、煙がにじみます（低解像度の深度が縁をまたぐため）。縁が気になるときは、<strong>深度を考慮した拡大</strong>（フル解像度の深度と、近い縮小の深度を比べて、似た位置の値だけを混ぜる）にします（[Upsampling](../graphics/ao/filtering/upsample.md) と同じ考え方）。
 
-## GPU パーティクルを、実装する
+## GPU パーティクルを実装する
 
 粒子が数万を超えるなら、<strong>計算シェーダーで、粒子を更新し、そのまま描く</strong>のが速くなります。
 
@@ -177,17 +177,17 @@ void UpdateCS(uint3 id : SV_DispatchThreadID) {
   p.position += p.velocity * g_dt;
   p.life -= g_dt;
   g_particles[id.x] = p;
-  if (p.life > 0.0) g_alive_list.Append(id.x);                     // 生きている粒子の番号を、追加
+  if (p.life > 0.0) g_alive_list.Append(id.x);                     // 生きている粒子の番号を追加
 }
 ```
 
 ```cpp
-// 更新: 生きている粒子のリスト（Append バッファ）を、毎フレーム空にして、作り直す。
+// 更新: 生きている粒子のリスト（Append バッファ）を毎フレーム空にして、作り直す。
 UINT zero = 0;
 context->CSSetUnorderedAccessViews(1, 1, alive_uav.GetAddressOf(), &zero);   // カウンターを 0 に
 context->Dispatch((max_particles + 63) / 64, 1, 1);
 
-// 描画: 生きている粒子の数を、間接描画の引数へコピーして、CPU に戻さず、描く。
+// 描画: 生きている粒子の数を間接描画の引数へコピーして、CPU に戻さず、描く。
 context->CopyStructureCount(draw_args_buffer.Get(), sizeof(UINT), alive_uav.Get());   // InstanceCount の位置へ
 context->DrawInstancedIndirect(draw_args_buffer.Get(), 0);        // 4 頂点（四角形）× 生きている数
 ```
@@ -196,16 +196,16 @@ context->DrawInstancedIndirect(draw_args_buffer.Get(), 0);        // 4 頂点（
 
 ## よくあるミス
 
-??? failure "画面を覆う巨大な煙を、フル解像度で描く"
+??? failure "画面を覆う巨大な煙をフル解像度で描く"
     縮小バッファにします。
 
-??? failure "透明な余白が大きい板を、そのまま使う"
+??? failure "透明な余白が大きい板をそのまま使う"
     形に沿って切り詰めます。
 
-??? failure "全粒子に、重いライティングを使う"
+??? failure "全粒子に重いライティングを使う"
     簡略化します。
 
-??? failure "加算でよい物を、アルファ ブレンドにしてソートしている"
+??? failure "加算でよい物をアルファ ブレンドにしてソートしている"
     加算に変えるとソートが不要になります。
 
 ??? failure "オーバードローを見ずに、枚数だけ減らす"

@@ -6,7 +6,7 @@ tags:
 
 # D3D11 Pass Recipes
 
-描画セクションの各ページには HLSL のコードがあります。しかし、シェーダーだけでは画面に何も出ません。<strong>テクスチャを作りビューを作りパスの順に束ねて描く（または、ディスパッチする）</strong>というホスト側（C++）の仕事が、必要です。このページは各ページで繰り返し使うその定型を 1 か所にまとめます。以降のページはここにある部品を組み合わせてパスを作る前提で、書かれています。
+描画セクションの各ページには HLSL のコードがあります。しかし、シェーダーだけでは画面に何も出ません。<strong>テクスチャを作りビューを作りパスの順に束ねて描く（または、ディスパッチする）</strong>というホスト側（C++）の仕事が必要です。このページは各ページで繰り返し使うその定型を 1 か所にまとめます。以降のページはここにある部品を組み合わせてパスを作る前提で、書かれています。
 
 !!! info "このページを読む前に"
     - [DirectX 11 Guide](index.md)（このセクション全体の地図と、読む順番）
@@ -100,14 +100,14 @@ context->VSSetShader(fullscreen_vs.Get(), nullptr, 0);
 context->Draw(3, 0);                                           // 頂点 3 つ
 ```
 
-`Draw(3, 0)` の 1 回で全画素にピクセル シェーダーが、走ります。座標系は右手系 Y-up、前は −Z ですが画面の uv は左上が原点（Y が下向き）なので `uv.y` を、反転してクリップ空間に直しています。
+`Draw(3, 0)` の 1 回で全画素にピクセル シェーダーが走ります。座標系は右手系 Y-up、前は −Z ですが画面の uv は左上が原点（Y が下向き）なので `uv.y` を反転してクリップ空間に直しています。
 
 ## 計算シェーダーのディスパッチ
 
 画面全体のぼかしやヒストグラムのような「1 画素 = 1 スレッド」の処理は、計算シェーダーで書けます。
 
 ```hlsl
-// 8×8 スレッドで、1 グループ。1 スレッドが、1 画素を受け持つ。
+// 8×8 スレッドで、1 グループ。1 スレッドが 1 画素を受け持つ。
 RWTexture2D<float4> g_output : register(u0);
 Texture2D<float4> g_input : register(t0);
 
@@ -123,7 +123,7 @@ void MainCS(uint3 id : SV_DispatchThreadID) {
 グループの大きさが 8×8 なので、画面の大きさが 8 の倍数でないとき最後のグループの一部のスレッドは、画面の外に出ます。必ず範囲チェックを入れます。
 
 ```cpp
-// グループ数は、画面を、グループの大きさで、割って、切り上げる。
+// グループ数は、画面をグループの大きさで、割って、切り上げる。
 UINT groups_x = (width + 7) / 8;
 UINT groups_y = (height + 7) / 8;
 
@@ -140,7 +140,7 @@ context->Dispatch(groups_x, groups_y, 1);
 毎フレーム変わるパラメータ（カメラ、時間、パスごとの設定）は定数バッファで、渡します。
 
 ```cpp
-// HLSL の cbuffer と、同じ並びの、構造体。float4 の境界（16 バイト）に、そろえる。
+// HLSL の cbuffer と、同じ並びの、構造体。float4 の境界（16 バイト）にそろえる。
 struct PassConstants {
   DirectX::XMFLOAT4X4 view_projection;
   DirectX::XMFLOAT3 camera_position;
@@ -161,7 +161,7 @@ device->CreateBuffer(&desc, nullptr, &constant_buffer);
 `cbuffer` の中身は 16 バイト（`float4`）の境目をまたぐメンバーを置けません。`float3` の次に `float` を置くのは 4 バイトで境目に収まるので問題ありませんが `float3` の次に `float3` を置くと、2 つ目が次の 16 バイトへ押し出されます。C++ 側の構造体とずれる典型的な原因です。`static_assert` でサイズを確かめます。
 
 ```cpp
-// 毎フレーム: WRITE_DISCARD で、バッファを、丸ごと、書き換える。
+// 毎フレーム: WRITE_DISCARD で、バッファを丸ごと、書き換える。
 D3D11_MAPPED_SUBRESOURCE mapped;
 context->Map(constant_buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped);
 std::memcpy(mapped.pData, &constants, sizeof(constants));
@@ -170,27 +170,27 @@ context->VSSetConstantBuffers(0, 1, constant_buffer.GetAddressOf());
 context->PSSetConstantBuffers(0, 1, constant_buffer.GetAddressOf());
 ```
 
-`WRITE_DISCARD` は GPU がまだ前のフレームの内容を読んでいても待たずに新しい領域を、割り当てます。行列は `XMMatrixTranspose` で転置してから書くか HLSL 側で `row_major` を付けてそろえます（行ベクトル、`v * M` の規約）。
+`WRITE_DISCARD` は GPU がまだ前のフレームの内容を読んでいても待たずに新しい領域を割り当てます。行列は `XMMatrixTranspose` で転置してから書くか HLSL 側で `row_major` を付けてそろえます（行ベクトル、`v * M` の規約）。
 
 ## 束縛の衝突：読みながら、書けない
 
 <strong>同じリソースを同時に読む（SRV）と書く（RTV、UAV、DSV）</strong>ことはできません。D3D11 はエラーを出さずに読む側の束縛を黙って外します。結果は真っ黒のテクスチャです。
 
 ```cpp
-// パス A の出力（texture_a）を、パス B の入力に使う前に、A の書き込み先を、外す。
+// パス A の出力（texture_a）をパス B の入力に使う前に A の書き込み先を外す。
 ID3D11RenderTargetView* null_rtv = nullptr;
-context->OMSetRenderTargets(1, &null_rtv, nullptr);            // 書き込みの束縛を、外す
-context->PSSetShaderResources(0, 1, srv_a.GetAddressOf());     // これで、安全に、読める
+context->OMSetRenderTargets(1, &null_rtv, nullptr);            // 書き込みの束縛を外す
+context->PSSetShaderResources(0, 1, srv_a.GetAddressOf());     // これで、安全に読める
 ```
 
 パスを切り替えるたびに次の順で、行います。前のパスの出力を外し次のパスの入力を束ね新しい出力を束ねる。シェーダー リソースを先に外すほうが安全で `ID3D11ShaderResourceView* nulls[8] = {}` を `PSSetShaderResources(0, 8, nulls)` に渡して一括で、外します。デバッグ レイヤーを有効にすると `D3D11 WARNING: ... Resource being set to OM RenderTarget slot 0 is still bound on input` と警告が出ます。
 
 ## ピンポン：前のフレームを読みつつ今のフレームを書く
 
-泡、波の高さ TAA の履歴のように「前の結果」を使って「今の結果」を作る処理は同じ内容のテクスチャを、2 枚用意して毎フレーム、読み書きを入れ替えます。
+泡、波の高さ TAA の履歴のように「前の結果」を使って「今の結果」を作る処理は同じ内容のテクスチャを 2 枚用意して毎フレーム、読み書きを入れ替えます。
 
 ```cpp
-// 2 枚のテクスチャ（それぞれ RTV と SRV を持つ）を、交互に、入力と出力にする。
+// 2 枚のテクスチャ（それぞれ RTV と SRV を持つ）を交互に入力と出力にする。
 struct PingPong {
   Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv[2];
   Microsoft::WRL::ComPtr<ID3D11RenderTargetView> rtv[2];
@@ -201,7 +201,7 @@ struct PingPong {
 };
 ```
 
-`Read()` が前のフレームの結果、`Write()` が今のフレームの出力先です。パスの終わりに `Swap()` を呼ぶと次のフレームでは役割が、入れ替わります。最初のフレームは履歴が無いので、黒（または今のフレームの値）で、初期化します。
+`Read()` が前のフレームの結果、`Write()` が今のフレームの出力先です。パスの終わりに `Swap()` を呼ぶと次のフレームでは役割が入れ替わります。最初のフレームは履歴が無いので、黒（または今のフレームの値）で、初期化します。
 
 ## 深度：typeless で書く読む
 
@@ -238,7 +238,7 @@ DSV を束ねたまま同じ深度を SRV で読むと先の節の「束縛の�
 パスごとに必要なステートが違います。ステートは `Create*State` で一度だけ作りパスで `OMSet*` で、切り替えます。
 
 ```cpp
-// 半透明の、通常のアルファ ブレンド（奥から手前の、順に、描く）。
+// 半透明の、通常のアルファ ブレンド（奥から手前の、順に描く）。
 D3D11_BLEND_DESC blend = {};
 auto& rt = blend.RenderTarget[0];
 rt.BlendEnable = TRUE;
@@ -267,7 +267,7 @@ device->CreateDepthStencilState(&none, &depth_off);
 ```
 
 ```cpp
-// シャドウ パス: 面の表裏、深度バイアスを、ラスタライザー ステートで、指定する。
+// シャドウ パス: 面の表裏、深度バイアスをラスタライザー ステートで、指定する。
 D3D11_RASTERIZER_DESC raster = {};
 raster.FillMode = D3D11_FILL_SOLID;
 raster.CullMode = D3D11_CULL_BACK;
@@ -285,9 +285,9 @@ device->CreateRasterizerState(&raster, &shadow_raster);
 ここまでの部品を組み合わせると、1 フレームは次の骨格になります。
 
 ```cpp
-// 1 フレームの、骨格。各パスの、詳しい中身は、各ページの「DirectX 11 で…」の節を、参照。
+// 1 フレームの、骨格。各パスの、詳しい中身は、各ページの「DirectX 11 で…」の節を参照。
 void RenderFrame() {
-  UpdatePassConstants();                                        // 定数バッファを、更新
+  UpdatePassConstants();                                        // 定数バッファを更新
 
   // ① シャドウ: 光源から見た深度を描く（DSV だけ。ピクセル シェーダーなし）
   RenderShadowMaps();
@@ -296,7 +296,7 @@ void RenderFrame() {
   context->OMSetRenderTargets(kGBufferCount, gbuffer_rtv, depth_dsv.Get());
   DrawOpaqueGeometry();
 
-  // ③ スクリーン空間のパス: AO、SSR など（深度と法線を、SRV で読む。DSV は、外す）
+  // ③ スクリーン空間のパス: AO、SSR など（深度と法線を SRV で読む。DSV は、外す）
   context->OMSetRenderTargets(0, nullptr, nullptr);
   RunAmbientOcclusion();
 
@@ -321,7 +321,7 @@ void RenderFrame() {
 このセクションの各ページにある、ミリ秒の目安は自分の環境で測れます。
 
 ```cpp
-// タイムスタンプ クエリ。フレームの開始と終了、パスの開始と終了を、記録する。
+// タイムスタンプ クエリ。フレームの開始と終了、パスの開始と終了を記録する。
 D3D11_QUERY_DESC q = {};
 q.Query = D3D11_QUERY_TIMESTAMP_DISJOINT;
 device->CreateQuery(&q, &disjoint_query);
@@ -337,7 +337,7 @@ context->End(disjoint_query.Get());
 ```
 
 ```cpp
-// 数フレーム後に、結果を読む（すぐに読むと、GPU の完了を、待って、止まる）。
+// 数フレーム後に結果を読む（すぐに読むと、GPU の完了を待って、止まる）。
 D3D11_QUERY_DATA_TIMESTAMP_DISJOINT disjoint;
 UINT64 t0, t1;
 if (context->GetData(disjoint_query.Get(), &disjoint, sizeof(disjoint), 0) == S_OK && !disjoint.Disjoint &&
@@ -354,17 +354,17 @@ if (context->GetData(disjoint_query.Get(), &disjoint, sizeof(disjoint), 0) == S_
 ??? failure "真っ黒、または前のフレームのままで描かれない"
     同じリソースを読みつつ書いている（束縛の衝突）。パスのつなぎ目で `OMSetRenderTargets(0, nullptr, nullptr)` や `PSSetShaderResources` に `nullptr` を渡して外す。デバッグ レイヤーの警告で見つかる。
 
-??? failure "定数バッファの値が、ずれる"
+??? failure "定数バッファの値がずれる"
     HLSL の `cbuffer` は 16 バイトの境目をまたげない。C++ の構造体にパディングを入れ `static_assert(sizeof(...) % 16 == 0)` で、確かめる。行列は転置が必要か確かめる。
 
-??? failure "画面の右端・下端が、処理されないまたはメモリ外に書く"
+??? failure "画面の右端・下端が処理されないまたはメモリ外に書く"
     計算シェーダーのグループ数を切り捨てで計算した（`width / 8`）、または範囲チェックが無い。`(width + 7) / 8` にしてシェーダーで `id.x >= width` を確かめる。
 
 ??? failure "深度を SRV で読むとエラーになる"
     深度を `D32_FLOAT` で作ると SRV を作れない。`R32_TYPELESS` で作り DSV と SRV で、別の型を指定する。
 
 ??? failure "HDR が、白飛び・暗いまま"
-    シーン色を `R8G8B8A8_UNORM` で作っている（1 を超える値が、切れる）。`R16G16B16A16_FLOAT` にしトーン マッピングで、LDR に落とす。
+    シーン色を `R8G8B8A8_UNORM` で作っている（1 を超える値が切れる）。`R16G16B16A16_FLOAT` にしトーン マッピングで、LDR に落とす。
 
 ## これだけ覚える
 

@@ -13,7 +13,7 @@ tags:
 `#include <cwchar>`
 </div>
 
-`printf` の `wchar_t` 版です。書式文字列も `L"..."` のワイド文字列を使います。1 つのストリームに、ふつうの `printf` とワイドの `wprintf` を混ぜて使うと、向き（orientation）が食い違って、動作しなくなります。
+`printf` の `wchar_t` 版です。書式文字列も `L"..."` のワイド文字列を使います。1 つのストリームにふつうの `printf` とワイドの `wprintf` を混ぜて使うと、向き（orientation）が食い違って、動作しなくなります。
 
 !!! tip "ポイント"
     - `wchar_t`（ワイド文字）版の C の関数。

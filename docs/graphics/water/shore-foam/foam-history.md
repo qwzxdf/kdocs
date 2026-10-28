@@ -62,18 +62,18 @@ float foam_now = max(decayed, crest_mask);
 
 ## なぜ履歴が要るのか
 
-波頭や岸の泡を <strong>そのフレームの、条件だけ</strong>で決めると 波頭が、通り過ぎた瞬間に泡も消えて、ちらつきます。現実の泡はゆっくり消え水の動きに乗って、流れます。泡の量をテクスチャに記録して、毎フレーム更新します（履歴）。
+波頭や岸の泡を <strong>そのフレームの、条件だけ</strong>で決めると 波頭が通り過ぎた瞬間に泡も消えて、ちらつきます。現実の泡はゆっくり消え水の動きに乗って、流れます。泡の量をテクスチャに記録して、毎フレーム更新します（履歴）。
 
 | 現象 | 履歴での表現 |
 | --- | --- |
 | 波頭が通った後に泡が残る | 新しい泡を足し減衰で、ゆっくり消す |
-| 泡が水の流れに乗って動く | 履歴を、流れの向きに移流させる |
+| 泡が水の流れに乗って動く | 履歴を流れの向きに移流させる |
 | 泡が広がって薄くなる | 履歴を少し、ぼかす |
-| 物（船）が通ると泡が出る | 物の位置に泡を、描き込む（[Wakes and Collisions](wake.md)） |
+| 物（船）が通ると泡が出る | 物の位置に泡を描き込む（[Wakes and Collisions](wake.md)） |
 
 ## 泡の履歴テクスチャ
 
-カメラの周りの <strong>数十〜数百メートル</strong>を覆う小さな、テクスチャ（`R8_UNORM` で十分）を、用意します。2 枚を ping-pong（前のフレームを読み、今のフレームに書く）します。
+カメラの周りの <strong>数十〜数百メートル</strong>を覆う小さな、テクスチャ（`R8_UNORM` で十分）を用意します。2 枚を ping-pong（前のフレームを読み、今のフレームに書く）します。
 
 ```cpp
 D3D11_TEXTURE2D_DESC desc = {};
@@ -85,7 +85,7 @@ desc.Usage = D3D11_USAGE_DEFAULT;
 desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 device->CreateTexture2D(&desc, nullptr, &foam_tex[0]);
 device->CreateTexture2D(&desc, nullptr, &foam_tex[1]);
-// 毎フレーム: foam_tex[prev] を読み、foam_tex[cur] に書く。終わったら、役割を、入れ替える。
+// 毎フレーム: foam_tex[prev] を読み、foam_tex[cur] に書く。終わったら、役割を入れ替える。
 ```
 
 ## 更新のシェーダー
@@ -106,12 +106,12 @@ cbuffer FoamCB : register(b0) {
   float g_decay;          // 1 秒あたりの減衰率（例: 0.5 → 約 2 秒で、半分以下）
   float g_blur;           // 広がり（0〜1）
   float g_texel;          // 1 画素の、UV 上の大きさ
-  float2 g_origin_shift;  // 窓が、動いた分（UV）
+  float2 g_origin_shift;  // 窓が動いた分（UV）
   float2 pad;
 };
 ```
 
-減衰や広がりの強さは定数バッファから、与えます。`g_origin_shift` は泡のテクスチャがカメラに、ついて動くとき窓が動いた分を、補正するためのものです。
+減衰や広がりの強さは定数バッファから、与えます。`g_origin_shift` は泡のテクスチャがカメラについて動くとき窓が動いた分を補正するためのものです。
 
 ```hlsl
 float4 main(float2 uv : TEXCOORD0) : SV_Target {
@@ -121,10 +121,10 @@ float4 main(float2 uv : TEXCOORD0) : SV_Target {
   float prev = g_foam_prev.Sample(g_linear_clamp, prev_uv);
 ```
 
-①の移流です。今の画素に泡が流れてきたと考え流れの、逆向きの位置（上流）から前の泡を、読みます。窓の移動分も引いて泡が地面に、貼りついたように見せます。
+①の移流です。今の画素に泡が流れてきたと考え流れの、逆向きの位置（上流）から前の泡を読みます。窓の移動分も引いて泡が地面に貼りついたように見せます。
 
 ```hlsl
-  // ② 広がり: 周りの泡を、少し混ぜる（ぼかし）
+  // ② 広がり: 周りの泡を少し混ぜる（ぼかし）
   float blur = 0.25 * (g_foam_prev.Sample(g_linear_clamp, prev_uv + float2( g_texel, 0))
                      + g_foam_prev.Sample(g_linear_clamp, prev_uv + float2(-g_texel, 0))
                      + g_foam_prev.Sample(g_linear_clamp, prev_uv + float2(0,  g_texel))
@@ -139,7 +139,7 @@ float4 main(float2 uv : TEXCOORD0) : SV_Target {
   prev *= exp(-g_decay * g_dt);
 ```
 
-③の減衰です。`exp(−減衰率 × dt)` を掛けてフレームレートに、依存せず同じ速さで泡を薄くします。
+③の減衰です。`exp(−減衰率 × dt)` を掛けてフレームレートに依存せず同じ速さで泡を薄くします。
 
 ```hlsl
   // ④ 新しい泡を足す（大きい方）
@@ -151,25 +151,25 @@ float4 main(float2 uv : TEXCOORD0) : SV_Target {
 | 段階 | 内容 |
 | --- | --- |
 | 移流 | 流れが無い海では、省く（`flow = 0`）。川や波の押し寄せる岸で効く |
-| ぼかし | 強すぎると泡が、にじんで輪郭が失われる。弱く（0.05〜0.2） |
+| ぼかし | 強すぎると泡がにじんで輪郭が失われる。弱く（0.05〜0.2） |
 | 減衰 | 遅いと泡がずっと残る。波の周期と同じくらい（2〜5 秒） |
 | 新しい泡 | ヤコビアン、物の位置、岸の深度差など複数の源を `max` でまとめる |
 
 ## 窓をカメラに追従させる
 
-履歴は <strong>カメラの周りだけ</strong>を、覆います。窓が動いたとき 中身をずらす必要があります。
+履歴は <strong>カメラの周りだけ</strong>を覆います。窓が動いたとき 中身をずらす必要があります。
 
 | 方法 | 内容 |
 | --- | --- |
 | UV をずらして読む | 上のコードの `g_origin_shift`。窓が動いた分だけ読む位置をずらす。ずらすとぼやける（補間のため） |
-| 画素単位で動かす | 窓を、画素の整数倍でだけ動かす。ぼやけない。窓が少しずつカクカク動く |
+| 画素単位で動かす | 窓を画素の整数倍でだけ動かす。ぼやけない。窓が少しずつカクカク動く |
 | 円環バッファ | `WRAP` で、コピーせずに済む（[Trampled Grass](../../terrain/vegetation/trample.md)） |
 
 窓が 1 画素動くたびに更新する方式では、ぼやけないので泡のように、細かい模様に向きます。
 
 ## 解像度と見た目
 
-泡の履歴は <strong>低解像度</strong>（512×512）でも、ディテールを別に足せば十分です。泡の形（細かい模様）は高解像度の、泡のテクスチャで作り履歴はどこに、どれだけ泡があるか（マスク）だけを、持ちます（[Foam Textures and Compositing](foam-texture.md)）。
+泡の履歴は <strong>低解像度</strong>（512×512）でも、ディテールを別に足せば十分です。泡の形（細かい模様）は高解像度の、泡のテクスチャで作り履歴はどこに、どれだけ泡があるか（マスク）だけを持ちます（[Foam Textures and Compositing](foam-texture.md)）。
 
 | 解像度の役割 | 内容 |
 | --- | --- |
@@ -178,13 +178,13 @@ float4 main(float2 uv : TEXCOORD0) : SV_Target {
 
 ## よくあるミス
 
-??? failure "泡が、いつまでも消えない"
+??? failure "泡がいつまでも消えない"
     <strong>減衰率を上げる</strong>。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 前フレームの泡を、薄めて残す
+    - [x] 前フレームの泡を薄めて残す
 
 ## 参考
 

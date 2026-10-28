@@ -70,7 +70,7 @@ int main() {
 | 引数 | 重要度 | 渡すもの | 意味 |
 | --- | --- | --- | --- |
 | `op` | <span class="rank rank-must">必須</span> | ラムダ式など | 要素 1 つを受け取り、変換した値を返す |
-| `proj` | <span class="rank rank-sometimes">たまに</span> | `&Type::member` | `op` に渡す前に、メンバを取り出す |
+| `proj` | <span class="rank rank-sometimes">たまに</span> | `&Type::member` | `op` に渡す前にメンバを取り出す |
 | 2 範囲版 | <span class="rank rank-sometimes">たまに</span> | `transform(a, b, out, op)` | 2 つの範囲から 1 つずつ取って変換する |
 
 ## ゲームでの使いどころ
@@ -96,7 +96,7 @@ int main() {
     `transform` の関数は、要素を変換するための純粋な関数として書くのが原則です。カウンターを増やすなど、状態を変える処理を入れたいなら、`for_each` を使います。
 
 ??? failure "入力と出力が一部重なる"
-    入力の範囲と出力の範囲が、ずれて重なっていると、読む前に書き換えてしまいます。まったく同じ範囲か、重ならない範囲にします。
+    入力の範囲と出力の範囲がずれて重なっていると、読む前に書き換えてしまいます。まったく同じ範囲か、重ならない範囲にします。
 
 ## 類似
 

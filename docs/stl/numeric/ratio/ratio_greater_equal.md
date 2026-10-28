@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-2 つの単位の大小を、コンパイル時に調べたい場面があります。たとえば、「この時間の単位は、ミリ秒より細かいか」を `static_assert` で保証したい。`std::ratio_greater_equal` は、<strong>2 つの `ratio` について R1 が R2 以上かを、コンパイル時に</strong>調べます。
+2 つの単位の大小をコンパイル時に調べたい場面があります。たとえば、「この時間の単位は、ミリ秒より細かいか」を `static_assert` で保証したい。`std::ratio_greater_equal` は、<strong>2 つの `ratio` について R1 が R2 以上かをコンパイル時に</strong>調べます。
 
 !!! tip "ポイント"
     - `std::ratio_greater_equal<R1, R2>::value` が結果（`bool`）
@@ -71,7 +71,7 @@ true
 単位の前提をビルド時に保証します。
 
 ```cpp
-// 計測の単位が、ミリ秒以下の細かさであることを要求する
+// 計測の単位がミリ秒以下の細かさであることを要求する
 template <class Period>
 void StartTimer() {
   static_assert(std::ratio_less_equal<Period, std::milli>::value, "ミリ秒以下の単位が必要");

@@ -6,7 +6,7 @@ tags:
 
 # Water Interaction
 
-<strong>物が水に入ると波紋が広がり、水が流れ物が浮きます</strong>。<strong>波の高さをシミュレーションし、水面に反映する</strong>ことでインタラクティブな水ができます。このセクションでは波動方程式・物の接触の書き込み・高さマップの反映・フローマップ・浮力を、1 つずつ別のページで説明します。
+<strong>物が水に入ると波紋が広がり、水が流れ物が浮きます</strong>。<strong>波の高さをシミュレーションし、水面に反映する</strong>ことでインタラクティブな水ができます。このセクションでは波動方程式・物の接触の書き込み・高さマップの反映・フローマップ・浮力を 1 つずつ別のページで説明します。
 
 ## 波動方程式
 <strong>水面の高さ `h(x, y, t)` は波動方程式に従います</strong>。
@@ -57,7 +57,7 @@ void CSMain(uint3 id : SV_DispatchThreadID) {
   float down = height_now[clamp(p + int2(0, 1), 0, int2(size) - 1)];
 ```
 
-今の高さと上下左右の 4 点の高さを、読みます。端は `clamp` で外側を端と同じ値にして、はみ出しを防ぎます。
+今の高さと上下左右の 4 点の高さを読みます。端は `clamp` で外側を端と同じ値にして、はみ出しを防ぎます。
 
 ```hlsl
   float laplacian = left + right + up + down - 4.0 * h;
@@ -96,15 +96,15 @@ void CSMain(uint3 id : SV_DispatchThreadID) {
 
 | ページ | 内容 |
 | --- | --- |
-| [Writing Object Contacts](contact.md) | 水に入った物が、波を起こす |
-| [Applying a Height Map to the Surface](apply-height.md) | 波紋を、水面の形にする |
+| [Writing Object Contacts](contact.md) | 水に入った物が波を起こす |
+| [Applying a Height Map to the Surface](apply-height.md) | 波紋を水面の形にする |
 | [Flow Maps](flow-map.md) | 水の流れの表現 |
 | [Buoyancy and Reaction](buoyancy.md) | 物が浮く・水を押す |
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 高さマップで波紋を、フローマップで流れを
+    - [x] 高さマップで波紋をフローマップで流れを
 
 ## 参考
 

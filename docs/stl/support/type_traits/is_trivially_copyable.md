@@ -60,7 +60,7 @@ true false
 
 | 場面 | 書き方 |
 | --- | --- |
-| セーブデータの構造体を、そのままファイルに書いてよいか | `static_assert(std::is_trivially_copyable_v<SaveData>)` |
+| セーブデータの構造体をそのままファイルに書いてよいか | `static_assert(std::is_trivially_copyable_v<SaveData>)` |
 
 ## よくあるミス
 

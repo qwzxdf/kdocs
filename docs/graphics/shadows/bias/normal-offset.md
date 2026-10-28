@@ -6,10 +6,10 @@ tags:
 
 # Normal Offset
 
-<strong>深度にバイアスを足す</strong>代わりに、影を調べる点（受け手の位置）を、法線方向に少しずらす方法が法線オフセットです。面の傾きに自然に追従しピーター パンニングが出にくいので、現在の標準的な手法です。このページでは考え方・ずらす量の決め方・実装・注意（細い物・影の縁）を説明します。
+<strong>深度にバイアスを足す</strong>代わりに、影を調べる点（受け手の位置）を法線方向に少しずらす方法が法線オフセットです。面の傾きに自然に追従しピーター パンニングが出にくいので、現在の標準的な手法です。このページでは考え方・ずらす量の決め方・実装・注意（細い物・影の縁）を説明します。
 
 !!! tip "ポイント"
-    - 法線オフセット ＝ 受け手の位置を、法線方向にずらしてから光の空間へ変換する。
+    - 法線オフセット ＝ 受け手の位置を法線方向にずらしてから光の空間へ変換する。
     - ずらす量はテクセルの大きさに比例させる。
     - 傾いた面ほど大きくずらす（`1 − N·L`）。
     - ピーター パンニングが出にくいが、影の位置が少しずれる。
@@ -25,7 +25,7 @@ tags:
 <defs><marker id="arr-normal-offset" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">法線オフセット:受ける点を、法線方向へ少しずらしてから、深度を比べる</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">法線オフセット:受ける点を法線方向へ少しずらしてから、深度を比べる</text>
 <line x1="60" y1="280" x2="700" y2="139.2" stroke="#b8794b" stroke-width="6"/>
 <line x1="60" y1="110" x2="60" y2="340" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="4 3"/>
 <line x1="140" y1="110" x2="140" y2="340" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="4 3"/>
@@ -69,9 +69,9 @@ tags:
 <circle cx="680" cy="143.6" r="6" fill="#2ea043" stroke="#ffffff" stroke-width="1.5"><animate attributeName="fill" dur="12.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0640;0.2000;0.6000;0.8000" values="#2ea043;#e5484d;#e5484d;#2ea043;#2ea043"/><animate attributeName="cx" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2000;0.6000;0.8000;1.0000" values="680;680;680;675.27;675.27;675.27"/><animate attributeName="cy" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.0640;0.2000;0.6000;0.8000;1.0000" values="143.6;143.6;143.6;122.11;122.11;122.11"/></circle>
 <line x1="680" y1="143.6" x2="675.27" y2="122.11" stroke="#64748b" stroke-width="1.5" opacity="0.6"/>
 <text x="60" y="70" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">面上の点（赤 = 自己遮蔽のアクネ、緑 = OK）。矢印は法線<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1997;0.2000;1.0000" values="1;1;0;0"/></text>
-<text x="60" y="70" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">法線方向に、ずらしていく…<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1997;0.2000;0.5997;0.6000;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="60" y="70" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">法線方向にずらしていく…<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.1997;0.2000;0.5997;0.6000;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="60" y="70" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">光に近い側へ持ち上げたので、アクネが消えた<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5997;0.6000;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="60" y="380" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">深度ではなく「位置」をずらすので、傾きによらず効く。ずらしすぎると、影の位置が、わずかにずれる。</text>
+<text x="60" y="380" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">深度ではなく「位置」をずらすので、傾きによらず効く。ずらしすぎると、影の位置がわずかにずれる。</text>
 </svg>
 
 <!-- fig:normal-offset:end -->
@@ -99,7 +99,7 @@ float4 light_clip = mul(float4(shadow_pos, 1.0), light_view_projection);
 
 ## 法線オフセットとは
 
-<strong>深度を引く</strong>代わりに 画素の位置そのものを、面の法線の向きに少しずらしてから、シャドウ マップを引きます。面の少し上（表面の外側）の点を、調べることになるので自分自身の面と、交差しません。
+<strong>深度を引く</strong>代わりに 画素の位置そのものを面の法線の向きに少しずらしてから、シャドウ マップを引きます。面の少し上（表面の外側）の点を調べることになるので自分自身の面と、交差しません。
 
 ```text
               光
@@ -115,12 +115,12 @@ float4 light_clip = mul(float4(shadow_pos, 1.0), light_view_projection);
 
 ```hlsl
 float ShadowFactorNormalOffset(float3 world_pos, float3 world_normal, float3 light_dir, float offset_scale) {
-  // 面が、光に対して、斜めなほど、大きくずらす（斜めの面ほど、自己影が、出やすいため）。
+  // 面が光に対して、斜めなほど、大きくずらす（斜めの面ほど、自己影が出やすいため）。
   float cos_theta = saturate(dot(world_normal, -light_dir));
   float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
   float3 offset = world_normal * (sin_theta * offset_scale);
 
-  // 位置を、法線方向に、ずらしてから、光の座標に変換する。
+  // 位置を法線方向にずらしてから、光の座標に変換する。
   float4 p = mul(float4(world_pos + offset, 1.0), g_shadow_matrix);
   float3 coord = p.xyz / p.w;
   return g_shadow_map.SampleCmpLevelZero(g_shadow_sampler, coord.xy, coord.z);
@@ -129,12 +129,12 @@ float ShadowFactorNormalOffset(float3 world_pos, float3 world_normal, float3 lig
 
 | 要素 | 内容 |
 | --- | --- |
-| `offset_scale` | ずらす距離。シャドウ マップの 1 画素の、ワールドでの大きさの 1〜3 倍が、目安 |
+| `offset_scale` | ずらす距離。シャドウ マップの 1 画素の、ワールドでの大きさの 1〜3 倍が目安 |
 | `sin_theta` | 光に正面（`sin = 0`）なら、ずらさない。斜め（`sin` が大きい）ほど大きくずらす |
 
 ### ずらす距離の決め方
 
-シャドウ マップの 1 画素が、ワールドで <strong>どのくらいの大きさか</strong>を、基準にします。
+シャドウ マップの 1 画素がワールドで <strong>どのくらいの大きさか</strong>を基準にします。
 
 ```cpp
 // 太陽（正射影）のとき、1 画素の、ワールドでの大きさ（メートル）。
@@ -149,21 +149,21 @@ float normal_offset = texel_world_size * 2.0f;
 
 | | 内容 |
 | --- | --- |
-| 長所 | ピーター パンニングが、少ない（深度を動かさないので影が物から、離れにくい） |
-| 長所 | 斜めの面でも自己影を、抑えられる（傾きに応じてずらすため） |
+| 長所 | ピーター パンニングが少ない（深度を動かさないので影が物から、離れにくい） |
+| 長所 | 斜めの面でも自己影を抑えられる（傾きに応じてずらすため） |
 | 長所 | ワールドの距離で、指定できる（直感的。カスケードごとにスケールしやすい） |
 | 短所 | 法線が必要（シャドウを引く、メイン パスで法線を持っている必要がある） |
-| 短所 | 影がわずかにずれる（位置を、動かすので）。物の縁・角で影が欠けることがある |
-| 短所 | 法線が滑らか（頂点法線の、補間）でないと面の境目で影が、段差になる。ノーマル マップは使わずジオメトリの法線を、使う |
+| 短所 | 影がわずかにずれる（位置を動かすので）。物の縁・角で影が欠けることがある |
+| 短所 | 法線が滑らか（頂点法線の、補間）でないと面の境目で影が段差になる。ノーマル マップは使わずジオメトリの法線を使う |
 
 ### 角（エッジ）での問題
 
-<strong>物の角</strong>で法線方向にずらすと、隣の面の影の内部に入ってしまうことがあります。ずらす距離が大きすぎると角の影が、欠けます。
+<strong>物の角</strong>で法線方向にずらすと、隣の面の影の内部に入ってしまうことがあります。ずらす距離が大きすぎると角の影が欠けます。
 
 | 対策 | 内容 |
 | --- | --- |
 | ずらす距離を控えめに | 1 画素の、1〜2 倍にとどめる |
-| 補間した法線（頂点法線）を使う | 面法線ではなく、頂点法線を補間して使う（角で法線が、滑らかに変わる） |
+| 補間した法線（頂点法線）を使う | 面法線ではなく、頂点法線を補間して使う（角で法線が滑らかに変わる） |
 | 定数バイアスと併用 | 法線オフセットで、大部分を抑え残りを小さな定数バイアスで、補う |
 
 ## 他のバイアスとの組み合わせ
@@ -182,7 +182,7 @@ float normal_offset = texel_world_size * 2.0f;
 | 深度の量子化誤差 | 小さな、定数バイアス |
 | 三角形ごとの微調整 | 傾き依存（ごく小さく） |
 
-どれも 大きくすると副作用が、出るので 小さな値を組み合わせるのが、コツです。
+どれも 大きくすると副作用が出るので 小さな値を組み合わせるのが、コツです。
 
 ## よくあるミス
 

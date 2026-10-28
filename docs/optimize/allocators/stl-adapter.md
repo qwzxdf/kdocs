@@ -7,7 +7,7 @@ tags:
 
 # STL との接続（アロケータ対応）
 
-自作のアロケータを作っても**`std::vector` や `std::string` などの標準のコンテナ**が、それを使ってくれなければ、役に立ちません。C++ にはコンテナにアロケータを渡す仕組みが 2 つあります。① 型にアロケータを持たせる（古くからある方式：`std::allocator<T>` の置き換え）、② 実行時に差し替える（C++17 の `std::pmr`）です。このページは両方の方法と使い分けをまとめます（標準のアロケータ自体は [std::allocator](../../stl/memory/allocator.md)、[std::pmr](../../stl/memory/pmr.md)）。
+自作のアロケータを作っても**`std::vector` や `std::string` などの標準のコンテナ**がそれを使ってくれなければ、役に立ちません。C++ にはコンテナにアロケータを渡す仕組みが 2 つあります。① 型にアロケータを持たせる（古くからある方式：`std::allocator<T>` の置き換え）、② 実行時に差し替える（C++17 の `std::pmr`）です。このページは両方の方法と使い分けをまとめます（標準のアロケータ自体は [std::allocator](../../stl/memory/allocator.md)、[std::pmr](../../stl/memory/pmr.md)）。
 
 !!! tip "ポイント"
     - コンテナは<strong>アロケータをテンプレート引数</strong>に持つ：<strong>`std::vector<int, MyAllocator<int>>`</strong>。
@@ -63,7 +63,7 @@ class ArenaAllocator {
 | `value_type` | 確保する要素の型 |
 | `allocate(n)` | `n` 個ぶんのメモリを貸す（要素の構築は、コンテナがやる） |
 | `deallocate(p, n)` | 返す。リニアなら何もしない |
-| 変換コンストラクタ（`ArenaAllocator<U>` から） | コンテナが、内部のノード型（`std::list` のノードなど）用に `rebind` するときに使う |
+| 変換コンストラクタ（`ArenaAllocator<U>` から） | コンテナが内部のノード型（`std::list` のノードなど）用に `rebind` するときに使う |
 | `operator==` | 「同じアロケータか」。一方で確保したものを他方で解放できるかの判断（C++20 は、`!=` を自動で作る） |
 
 ### 使い方
@@ -186,11 +186,11 @@ class PoolResource : public std::pmr::memory_resource {
 | `do_deallocate(p, bytes, alignment)` | 返す |
 | `do_is_equal(other)` | 同じ資源か（一方で確保したものを他方で解放できるか） |
 
-これだけで自作のアロケータが、`std::pmr::vector` などに使えます。
+これだけで自作のアロケータが `std::pmr::vector` などに使えます。
 
 ### pmr のコンテナの入れ子
 
-`pmr` のコンテナの中に `pmr` のコンテナを入れると、中のコンテナも同じ `memory_resource` を使います（アロケータが、自動で伝わる）。
+`pmr` のコンテナの中に `pmr` のコンテナを入れると、中のコンテナも同じ `memory_resource` を使います（アロケータが自動で伝わる）。
 
 ```cpp
 std::pmr::monotonic_buffer_resource resource(buffer, sizeof(buffer));
@@ -198,7 +198,7 @@ std::pmr::vector<std::pmr::string> names(&resource);
 names.emplace_back("Alice");
 ```
 
-`names` の中の `pmr::string` も `resource` から確保されます（`uses_allocator` 構築）。普通の `std::vector<std::string>` では文字列の中身が、ヒープに行ってしまうのと対照的です。
+`names` の中の `pmr::string` も `resource` から確保されます（`uses_allocator` 構築）。普通の `std::vector<std::string>` では文字列の中身がヒープに行ってしまうのと対照的です。
 
 ### 既定の memory_resource を替える
 
@@ -242,7 +242,7 @@ void Frame() {
 ## よくあるミス
 
 ??? failure "`pmr` のコンテナを `memory_resource` より長生きさせる"
-    **`memory_resource` が先に消える**とコンテナが、消えたメモリを使うことになります。`memory_resource` はコンテナより長く生かす。
+    **`memory_resource` が先に消える**とコンテナが消えたメモリを使うことになります。`memory_resource` はコンテナより長く生かす。
 
 ??? failure "`monotonic_buffer_resource` の `release()` 後にコンテナを使う"
     すべての確保が無効です。コンテナも同時に破棄します。

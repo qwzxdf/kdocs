@@ -87,7 +87,7 @@ froxel はカメラの前方のごく近い範囲だけを覆うのが現実的�
 </g>
 <text x="60" y="275" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">カメラ 0 m</text>
 <text x="720" y="275" text-anchor="end" style="font-size:12px;font-weight:500;fill:#64748b">100 m</text>
-<text x="390" y="315" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">16 枚のスライスを、0〜100 m に並べる<animate attributeName="opacity" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.0949;0.0952;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="315" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">16 枚のスライスを 0〜100 m に並べる<animate attributeName="opacity" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.0949;0.0952;1.0000" values="1;1;0;0"/></text>
 <text x="390" y="315" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">等間隔: 遠くも近くも同じ粗さ<animate attributeName="opacity" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.0949;0.0952;0.3330;0.3333;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="315" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">指数: 目に近い所を細かく、遠くを粗く(遠くは、もともと小さく見える)<animate attributeName="opacity" dur="10.5s" repeatCount="indefinite" keyTimes="0.0000;0.3330;0.3333;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -114,9 +114,9 @@ froxel はカメラの前方のごく近い範囲だけを覆うのが現実的�
 
 | 原因 | 対策 |
 | --- | --- |
-| スライスが粗い | スライス数を、増やす。近くを細かく（指数的な割り当て。[Froxels](froxel.md)） |
+| スライスが粗い | スライス数を増やす。近くを細かく（指数的な割り当て。[Froxels](froxel.md)） |
 | トライリニア補間でも滑らかさが、足りない | トリキュービック補間（高次の補間）で読む。コストが増える |
-| ジッターなし | ジッター + 時間方向の平均（[Temporal Accumulation](temporal.md)）で縞を、細かいノイズに変えて平均 |
+| ジッターなし | ジッター + 時間方向の平均（[Temporal Accumulation](temporal.md)）で縞を細かいノイズに変えて平均 |
 
 ### ② 光の筋がぼやける
 
@@ -128,19 +128,19 @@ froxel はカメラの前方のごく近い範囲だけを覆うのが現実的�
 | 重要なライトだけ別の方法（放射状ブラー、メッシュ）で補う | [Screen-Space Radial Blur](../god-rays/radial-blur.md)、[Light Shaft Meshes](../god-rays/mesh-shafts.md) |
 | ぼやけを許容 | 霧はゆるやかな効果。ある程度のぼやけは自然 |
 
-### ③ 光漏れ（ライトが壁を、越える）
+### ③ 光漏れ（ライトが壁を越える）
 
-低解像度の froxelでは 壁の、向こう側のセルも壁のこちら側と、同じセルに混ざり壁の向こうの光が、漏れて見えます。
+低解像度の froxelでは 壁の、向こう側のセルも壁のこちら側と、同じセルに混ざり壁の向こうの光が漏れて見えます。
 
 | 対策 | 内容 |
 | --- | --- |
-| 解像度を上げる | セルを、小さくする |
+| 解像度を上げる | セルを小さくする |
 | セルの影を複数サンプル | セルの中の、複数の位置でシャドウ マップを引き、平均 |
 | ジッター + 履歴 | 複数フレームで、平均すると漏れが目立ちにくい |
 
 ### ④ 遠景で解像度が粗い
 
-奥行きが遠いスライスは 厚く、1 つのセルが広い範囲を、代表します。遠くの霧の細部（光の筋、局所的な霧）が失われます。
+奥行きが遠いスライスは 厚く、1 つのセルが広い範囲を代表します。遠くの霧の細部（光の筋、局所的な霧）が失われます。
 
 | 対策 | 内容 |
 | --- | --- |
@@ -158,7 +158,7 @@ froxel はカメラの前方のごく近い範囲だけを覆うのが現実的�
 | 適用（全画素で 1 回の 3D テクスチャ読み込み） | 0.1〜0.2 ms |
 | 合計 | 0.6〜1.4 ms |
 
-<strong>ライト注入が最も重い</strong>ことが、多いです。影つきライトの数を絞る（[Shadows for Many Lights](../../shadows/local-lights/many-lights.md)）、重要なライトだけボリューム フォグに、注入するといった工夫が効きます。
+<strong>ライト注入が最も重い</strong>ことが、多いです。影つきライトの数を絞る（[Shadows for Many Lights](../../shadows/local-lights/many-lights.md)）、重要なライトだけボリューム フォグに注入するといった工夫が効きます。
 
 ## 品質設定のプリセット
 

@@ -20,7 +20,7 @@ tags:
 !!! tip "ポイント"
     - コンセプト。`requires` やテンプレートの制約に書く。
     - `std::bidirectional_iterator<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが、引数の制約に使っている。
+    - C++20 のアルゴリズムが引数の制約に使っている。
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。

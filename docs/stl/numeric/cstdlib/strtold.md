@@ -13,7 +13,7 @@ tags:
 `#include <cstdlib>`
 </div>
 
-小数の文字列を数値にするとき、`std::strtod` は `double` を返します。`long double`で受けたい場合に、型違いの `std::strtold` を使います。読み終えた位置を教えてくれる点は同じです。
+小数の文字列を数値にするとき、`std::strtod` は `double` を返します。`long double`で受けたい場合に型違いの `std::strtold` を使います。読み終えた位置を教えてくれる点は同じです。
 
 !!! tip "ポイント"
     - 戻り値は `long double`

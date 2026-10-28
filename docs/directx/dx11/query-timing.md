@@ -15,7 +15,7 @@ tags:
 !!! tip "ポイント"
     - GPU の時間は <strong>タイムスタンプ クエリ</strong>で測る。開始と終了の 2 つのタイムスタンプと周波数（`DISJOINT`）が 1 組。
     - 結果は GPU が実行を終えてから取り出せる。<strong>数フレーム、遅れて読む</strong>（すぐ読むと CPU が、GPU を待って止まる）。
-    - `Disjoint` が `TRUE` のフレーム（クロックが、変わった）の結果は捨てる。
+    - `Disjoint` が `TRUE` のフレーム（クロックが変わった）の結果は捨てる。
     - ほかのクエリ: オクルージョン（見えたピクセル数）、パイプライン統計（頂点・ピクセルの数）、イベント（完了の確認）。
     - 本格的な計測はグラフィックス デバッガー（PIX、RenderDoc、Nsight）。
 
@@ -55,7 +55,7 @@ GpuTimer CreateGpuTimer(ID3D11Device* device) {
 
 ```cpp
 context->Begin(timer.disjoint.Get());                       // 計測の、開始
-context->End(timer.start.Get());                            // 時刻 1: この時点の、GPU の時刻を、記録
+context->End(timer.start.Get());                            // 時刻 1: この時点の、GPU の時刻を記録
 RunPass();                                                  // 測りたい処理
 context->End(timer.end.Get());                              // 時刻 2
 context->End(timer.disjoint.Get());                         // 計測の、終了
@@ -66,7 +66,7 @@ context->End(timer.disjoint.Get());                         // 計測の、終�
 ### 結果を読む
 
 ```cpp
-// 数フレーム後に、読む。S_OK が返れば、結果が、揃っている。
+// 数フレーム後に読む。S_OK が返れば、結果が揃っている。
 D3D11_QUERY_DATA_TIMESTAMP_DISJOINT disjoint_data;
 UINT64 t0, t1;
 if (context->GetData(timer.disjoint.Get(), &disjoint_data, sizeof(disjoint_data), 0) == S_OK &&
@@ -77,7 +77,7 @@ if (context->GetData(timer.disjoint.Get(), &disjoint_data, sizeof(disjoint_data)
 }
 ```
 
-`GetData` の最後の引数はフラグで `0` は結果が、まだなら `S_FALSE` を返して <strong>待たずに</strong>、戻ります。`D3D11_ASYNC_GETDATA_DONOTFLUSH` を付けると命令のフラッシュもしません。
+`GetData` の最後の引数はフラグで `0` は結果がまだなら `S_FALSE` を返して <strong>待たずに</strong>、戻ります。`D3D11_ASYNC_GETDATA_DONOTFLUSH` を付けると命令のフラッシュもしません。
 
 ## 遅れて読む（リング）
 
@@ -117,12 +117,12 @@ desc.Query = D3D11_QUERY_OCCLUSION;                         // 通ったピク�
 device->CreateQuery(&desc, &occlusion_query);
 
 context->Begin(occlusion_query.Get());
-DrawBoundingBox();                                          // 物の、バウンディング ボックスを、描く（色は、書かない）
+DrawBoundingBox();                                          // 物の、バウンディング ボックスを描く（色は、書かない）
 context->End(occlusion_query.Get());
 
 UINT64 pixels = 0;
 if (context->GetData(occlusion_query.Get(), &pixels, sizeof(pixels), 0) == S_OK && pixels == 0) {
-  // 完全に隠れている → 次のフレームで、その物を、描かない
+  // 完全に隠れている → 次のフレームで、その物を描かない
 }
 ```
 
@@ -143,7 +143,7 @@ desc.Query = D3D11_QUERY_PIPELINE_STATISTICS;
 desc.Query = D3D11_QUERY_EVENT;
 device->CreateQuery(&desc, &event_query);
 
-context->End(event_query.Get());                            // ここまでの命令が、完了したら、シグナル
+context->End(event_query.Get());                            // ここまでの命令が完了したら、シグナル
 BOOL done = FALSE;
 while (context->GetData(event_query.Get(), &done, sizeof(done), 0) != S_OK || !done) {
   // GPU の完了を待つ（スピンするので、実際には、別の仕事をする）
@@ -156,7 +156,7 @@ while (context->GetData(event_query.Get(), &done, sizeof(done), 0) != S_OK || !d
 
 | 方法 | 内容 |
 | --- | --- |
-| タイムスタンプ クエリ（このページ） | コードに埋め込み各パスのミリ秒を画面に、表示する |
+| タイムスタンプ クエリ（このページ） | コードに埋め込み各パスのミリ秒を画面に表示する |
 | PIX（Windows） | 1 フレームを撮って、各ドロー コールの時間を見る。GPU カウンター |
 | RenderDoc | 1 フレームを撮って各段の入出力を見る。無料 |
 | NVIDIA Nsight、AMD Radeon GPU Profiler | ベンダー固有の詳細な、カウンター |

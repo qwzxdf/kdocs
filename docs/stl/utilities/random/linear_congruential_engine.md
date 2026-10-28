@@ -14,7 +14,7 @@ tags:
 `#include <random>`
 </div>
 
-「次の値 = (a × 今の値 + c) mod m」で乱数を作る方法が、線形合同法です。`linear_congruential_engine<UInt, a, c, m>` は、そのパラメータを自分で選べるテンプレートで、`minstd_rand0` や `minstd_rand` はその特定の設定です。
+「次の値 = (a × 今の値 + c) mod m」で乱数を作る方法が線形合同法です。`linear_congruential_engine<UInt, a, c, m>` は、そのパラメータを自分で選べるテンプレートで、`minstd_rand0` や `minstd_rand` はその特定の設定です。
 
 !!! tip "ポイント"
     - `<random>` のエンジン（乱数を作る部品）。

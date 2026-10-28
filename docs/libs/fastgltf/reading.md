@@ -7,7 +7,7 @@ tags:
 
 # fastgltf のデータの取り出し方
 
-fastgltf は**アクセサー（accessor）からのデータの取り出し**を、ヘルパー関数で簡単にしてくれます。型の変換・`byteStride`・正規化をライブラリが処理します。このページは頂点・インデックス・ノード・マテリアル・アニメーションを、SimpleMath の型で取り出す方法をまとめます。番号で配列を引く考え方は[glTF の構造](../tinygltf/structure.md)と同じです。
+fastgltf は**アクセサー（accessor）からのデータの取り出し**をヘルパー関数で簡単にしてくれます。型の変換・`byteStride`・正規化をライブラリが処理します。このページは頂点・インデックス・ノード・マテリアル・アニメーションを SimpleMath の型で取り出す方法をまとめます。番号で配列を引く考え方は[glTF の構造](../tinygltf/structure.md)と同じです。
 
 !!! tip "ポイント"
     - <strong>メッシュの描画単位は `Primitive`</strong>。<strong>`findAttribute("POSITION")` で頂点属性の accessor の番号</strong>を得る。
@@ -244,7 +244,7 @@ fastgltf::copyFromAccessor<fastgltf::math::fmat4x4>(
 | やること | 説明 |
 | --- | --- |
 | **プリミティブごとに `MeshData`** | 1 プリミティブ ＝ 1 回の描画 |
-| テクスチャは番号の表で重複を避ける | 同じ `textures[i]` を、一度だけ作る |
+| テクスチャは番号の表で重複を避ける | 同じ `textures[i]` を一度だけ作る |
 | `Asset` は変換後に捨てる | メモリを節約 |
 | 非同期ロード | `Parser` と `Asset` は、別スレッドで読み込める（スレッドごとに `Parser`） |
 | ゲーム用の形式にビルド時に変換 | 開発中は glTF、製品は独自のバイナリ（[ベイク](../../optimize/baking.md)） |
@@ -263,7 +263,7 @@ fastgltf::copyFromAccessor<fastgltf::math::fmat4x4>(
 ??? failure "画像が `URI` のままで、デコードを忘れる"
     `LoadExternalImages`、または自分で読み込んでデコードします。
 
-??? failure "`getTransformMatrix` の名前が、バージョンで違いコンパイルできない"
+??? failure "`getTransformMatrix` の名前がバージョンで違いコンパイルできない"
     使っている版のヘッダ（`fastgltf/tools.hpp`・`math.hpp`）を確認します。
 
 ## 関連ページ

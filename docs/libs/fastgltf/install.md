@@ -43,7 +43,7 @@ fastgltf は**ヘッダ ＋ ビルドが必要なライブラリ**（`.cpp` を�
 === "ソースを入れる"
 
     1. [GitHub の fastgltf](https://github.com/spnda/fastgltf) を取得し、`third_party/fastgltf/` に置く
-    2. `src/` の `.cpp`（`fastgltf.cpp`・`base64_decode.cpp` など）とsimdjson（`simdjson.cpp`）を、プロジェクトに追加
+    2. `src/` の `.cpp`（`fastgltf.cpp`・`base64_decode.cpp` など）とsimdjson（`simdjson.cpp`）をプロジェクトに追加
     3. 追加のインクルード ディレクトリに `include` を追加
 
     依存が多いので、vcpkg か CMake が、おすすめです（手間が減ります）。
@@ -74,9 +74,9 @@ fastgltf はバージョンで、API が変わるので動作確認のコード�
 
 | 確認 | 見るところ |
 | --- | --- |
-| ① C++ 標準 | プロジェクトの C++ 言語標準が、`/std:c++17` 以上 |
+| ① C++ 標準 | プロジェクトの C++ 言語標準が `/std:c++17` 以上 |
 | ② ヘッダーが見える | `#include <fastgltf/core.hpp>` が、通る |
-| ③ ライブラリがリンクされる | `fastgltf.lib`（と simdjson）が、リンクに含まれる。vcpkg か CMake なら自動 |
+| ③ ライブラリがリンクされる | `fastgltf.lib`（と simdjson）がリンクに含まれる。vcpkg か CMake なら自動 |
 | ④ ランタイムがそろう | fastgltf のビルドと自分のプロジェクトで、`/MD` か `/MT` が同じ |
 | ⑤ 1 つのファイルを読める | `.glb` を 1 つ読んで、メッシュの数を表示（クイックスタート） |
 
@@ -85,8 +85,8 @@ fastgltf はバージョンで、API が変わるので動作確認のコード�
 | エラー | 原因 | 直し方 |
 | --- | --- | --- |
 | `LNK2019`（`fastgltf::…` が未解決） | ライブラリをリンクしていない | CMake なら `target_link_libraries(… fastgltf::fastgltf)`、手動なら `fastgltf.lib` と `simdjson.lib` |
-| `C1083`（`fastgltf/core.hpp` を開けない） | インクルード ディレクトリの設定が違う | `include` フォルダーのパスを、追加 |
-| C++ の構文エラーが大量に出る | C++ の標準が、古い | `/std:c++17` 以上に |
+| `C1083`（`fastgltf/core.hpp` を開けない） | インクルード ディレクトリの設定が違う | `include` フォルダーのパスを追加 |
+| C++ の構文エラーが大量に出る | C++ の標準が古い | `/std:c++17` 以上に |
 | `LNK2038`（ランタイムの不一致） | `/MD` と `/MT` の取り違え | そろえる（[ランタイム ライブラリ](../../vs/errors.md#runtime_library)） |
 | 古い記事のコードが動かない | fastgltf の API が、バージョンで変わった | 導入したバージョンのドキュメントとサンプルを見る |
 

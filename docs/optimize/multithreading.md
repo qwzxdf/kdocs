@@ -69,7 +69,7 @@ std::for_each(std::execution::par, enemies.begin(), enemies.end(),
 
 | 分け方 | 説明 |
 | --- | --- |
-| 更新 / 描画の分離 | ゲームの更新と描画コマンドの作成を、1 フレームずらして並行 |
+| 更新 / 描画の分離 | ゲームの更新と描画コマンドの作成を 1 フレームずらして並行 |
 | 物理 / AI / アニメーション | 依存のない、別々のシステムを同時に |
 | ロード / ゲーム本体 | ロードを別スレッドで（[ロード時間](loading.md)） |
 | 音 / ネットワーク | 専用のスレッドで常に動かす |
@@ -110,7 +110,7 @@ std::for_each(std::execution::par, enemies.begin(), enemies.end(),
 | ダブル バッファ | 読む用と書く用を分けて、フレームの区切りで入れ替える |
 
 ```cpp
-// 悪い：全スレッドが、1 つの合計に足す（ロックか atomic が必要で、遅い）
+// 悪い：全スレッドが 1 つの合計に足す（ロックか atomic が必要で、遅い）
 std::atomic<int> total = 0;
 parallel_for(items, [&](const Item& i) { total += i.score; });
 
@@ -120,7 +120,7 @@ parallel_for_indexed(items, [&](int thread_id, const Item& i) { partial[thread_i
 int total = std::accumulate(partial.begin(), partial.end(), 0);
 ```
 
-（`partial[thread_id]` の隣り合う要素が、false sharing にならないよう、`alignas(64)` の構造体にするとさらに良いです。）
+（`partial[thread_id]` の隣り合う要素が false sharing にならないよう、`alignas(64)` の構造体にするとさらに良いです。）
 
 ## 測って確認する
 
@@ -148,16 +148,16 @@ int total = std::accumulate(partial.begin(), partial.end(), 0);
 
 ## よくあるミス
 
-??? failure "小さな処理を、並列にして遅くなる"
+??? failure "小さな処理を並列にして遅くなる"
     スレッドの起動・同期のコストが仕事の時間を上回ると、1 スレッドより遅くなります。**十分に重い処理**だけを並列にします。
 
-??? failure "共有変数に、全スレッドが書く"
+??? failure "共有変数に全スレッドが書く"
     ロックや atomic の競合で、ほぼ 1 スレッドぶんの速さに戻ります。データを分けて、最後にまとめます。
 
-??? failure "スレッド数を、コア数以上に増やす"
+??? failure "スレッド数をコア数以上に増やす"
     コア数を超えるスレッドは、切り替えのコストが増えるだけです。ワーカーはコア数に合わせます。
 
-??? failure "メイン スレッドが、ワーカーを待ち続ける"
+??? failure "メイン スレッドがワーカーを待ち続ける"
     ジョブの完了待ちの間、メイン スレッドが遊びます。待っている間に自分も仕事を取る（ジョブを手伝う）設計にします。
 
 ??? failure "並列にしたら、結果が毎回違う"

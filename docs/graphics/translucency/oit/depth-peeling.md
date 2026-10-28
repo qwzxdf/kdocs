@@ -26,7 +26,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">デプス ピーリング: 手前の層から 1 枚ずつ「皮をむく」ように取り出して、正しく混ぜる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 24 画素に、3 枚の半透明を重ねる。毎回の描画(パス)で、まだ取っていない一番手前の層を取る</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 24 画素に 3 枚の半透明を重ねる。毎回の描画(パス)で、まだ取っていない一番手前の層を取る</text>
 <text x="60.0" y="96" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">半透明の 3 枚(深度: 小さいほど手前)</text>
 <rect x="126.0" y="102" width="396.0" height="18" fill="#f24c4c" fill-opacity="0.5"/>
 <text x="132.0" y="116" text-anchor="start" style="font-size:11px;font-weight:700;fill:#1f2937">A 深度 5</text>
@@ -149,7 +149,7 @@ tags:
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">画素ごとに、手前から何枚重なっているかは、描くまで分からない<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">毎回、前のパスで取った層より奥で、一番手前の層だけを残す<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0730;0.0732;0.6583;0.6585;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">取れた層を、奥から手前へ混ぜる<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.6583;0.6585;0.7676;0.7678;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">取れた層を奥から手前へ混ぜる<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.6583;0.6585;0.7676;0.7678;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">正確だが、層の数だけ描き直す(高コスト)<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.7676;0.7678;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -161,9 +161,9 @@ tags:
 | 手順 | 内容 |
 | --- | --- |
 | ① 1 枚目 | 通常の深度テストで、最も手前の半透明の層を画像 1 に描く。深度 1 を保存 |
-| ② 2 枚目 | 深度 1 より奥の最も手前を、画像 2 に描く（前の深度より手前のフラグメントは、捨てる） |
+| ② 2 枚目 | 深度 1 より奥の最も手前を画像 2 に描く（前の深度より手前のフラグメントは、捨てる） |
 | ③ N 枚目まで繰り返す | 層の数だけ、描画を繰り返す |
-| ④ 合成 | 奥の層から手前へ、N 枚の画像を重ねる |
+| ④ 合成 | 奥の層から手前へ N 枚の画像を重ねる |
 
 
 原典は Everitt の "Interactive Order-Independent Transparency"（NVIDIA、2001）で後に Bavoil と Myers が、手前と奥を同時に剥がす Dual Depth Peeling（2008）で、パスを半分にしました。
@@ -182,12 +182,12 @@ float4 PSMain(VsOutput input) : SV_Target {
 | --- | --- |
 | `clip(z - previous_depth - ε)` | 前の層と同じか手前のフラグメントを捨てる |
 | 層の数 | 4 層で多くのシーンは足りるが、足りない画素は欠ける |
-| コスト | N 回の描画（シーン全体の半透明ジオメトリを、N 回流す） |
-| 派生 | Dual Depth Peeling（手前と奥を、同時に剥がす：パスが半分） |
+| コスト | N 回の描画（シーン全体の半透明ジオメトリを N 回流す） |
+| 派生 | Dual Depth Peeling（手前と奥を同時に剥がす：パスが半分） |
 
 ## 考え方：1 層ずつ剥がす
 
-<strong>デプス ピーリング</strong>（Everitt、2001）は 最も手前の層から順に、1 層ずつ、剥がすように取り出していく方法です。
+<strong>デプス ピーリング</strong>（Everitt、2001）は 最も手前の層から順に 1 層ずつ、剥がすように取り出していく方法です。
 
 ```text
 視線 ──→  ┌────┐   ┌────┐   ┌────┐
@@ -199,13 +199,13 @@ float4 PSMain(VsOutput input) : SV_Target {
 2. 2 つ目のパスで層 1 より奥の、最も手前（層 2）を描く
 3. 3 つ目のパスで層 2 より奥の、最も手前（層 3）を描く
 4. …（層がなくなるまで）
-5. 取り出した層を奥から手前の順に、ブレンドする
+5. 取り出した層を奥から手前の順にブレンドする
 
-各層は画素ごとに 1 つのフラグメントです。正確な順序でブレンドできるので、順序に依存しない透明が正確に、得られます。
+各層は画素ごとに 1 つのフラグメントです。正確な順序でブレンドできるので、順序に依存しない透明が正確に得られます。
 
 ## 仕組み：深度を 2 枚、使う
 
-<strong>前のパスの深度</strong>をテクスチャとして、ピクセル シェーダーで読み、それより手前のフラグメントを、捨てます。
+<strong>前のパスの深度</strong>をテクスチャとして、ピクセル シェーダーで読み、それより手前のフラグメントを捨てます。
 
 ```hlsl
 Texture2D<float> g_prev_depth : register(t0);       // 前のパスで取り出した層の深度
@@ -227,7 +227,7 @@ PSOut main(PSInput input) {
 | --- | --- |
 | 深度テスト | `LESS`（最も手前の、1 つだけが残る） |
 | 深度の書き込み | 有効（そのパスでの、最も手前を決めるため） |
-| 前の深度 | ping-pong（2 枚の深度を交互に、読み書き）。書き込み先と読み取り元は別のテクスチャ |
+| 前の深度 | ping-pong（2 枚の深度を交互に読み書き）。書き込み先と読み取り元は別のテクスチャ |
 | 色 | 各パスの色を別の、レンダー ターゲットに保存 |
 
 ```cpp
@@ -239,7 +239,7 @@ for (int layer = 0; layer < kMaxLayers; ++layer) {
   context->PSSetShaderResources(0, 1, depth_srv[read].GetAddressOf());
   DrawTransparentObjects();
 }
-// 最後に、層を奥（最後に取り出した層）から手前（最初）の順に、ブレンドする。
+// 最後に、層を奥（最後に取り出した層）から手前（最初）の順にブレンドする。
 ```
 
 ## 層の数
@@ -252,7 +252,7 @@ for (int layer = 0; layer < kMaxLayers; ++layer) {
 | 葉の群れ | 5〜20 | 多い（重い） |
 | 髪の毛 | 10〜50 | 、多い |
 
-すべての層を取り出すには、パスの数 × 半透明の描画コストが、かかります。実用では手前の数層（3〜4 層）だけを正確に残りは近似、という使い方になります。
+すべての層を取り出すには、パスの数 × 半透明の描画コストがかかります。実用では手前の数層（3〜4 層）だけを正確に残りは近似、という使い方になります。
 
 ## デュアル デプス ピーリング
 
@@ -263,13 +263,13 @@ Bavoil と Myers（2008）の、<strong>デュアル デプス ピーリング</
 | 通常 | 手前から 1 層 | 8 |
 | デュアル | 手前と奥から、各 1 層 | 4 |
 
-最小深度と最大深度を同時に追跡し、ブレンドの MIN / MAX 演算を使って、実現します（`BlendOp = MAX`、深度を `-depth` で 2 つを 1 つのテクスチャに、格納する）。実装は複雑ですがパスの半減が、得られます。
+最小深度と最大深度を同時に追跡し、ブレンドの MIN / MAX 演算を使って、実現します（`BlendOp = MAX`、深度を `-depth` で 2 つを 1 つのテクスチャに格納する）。実装は複雑ですがパスの半減が得られます。
 
 ## 長所と短所
 
 | | 内容 |
 | --- | --- |
-| 長所 | 正確（順序が完全に、正しい）。ソート不要。実装が概念的に単純 |
+| 長所 | 正確（順序が完全に正しい）。ソート不要。実装が概念的に単純 |
 | 短所 | 重い。層の数 × 描画。層が足りないと奥が欠ける |
 | 短所 | メモリ：層ごとの、レンダー ターゲット（1 層 = 画面 1 枚） |
 | 短所 | 半透明を層の数だけ、何度も描く（ジオメトリ、頂点シェーダーも繰り返す） |

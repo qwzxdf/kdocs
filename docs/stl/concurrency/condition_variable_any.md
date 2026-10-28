@@ -72,7 +72,7 @@ ready
 
 | 場面 | 書き方 |
 | --- | --- |
-| `jthread` のワーカーを、停止の合図で起こして終了させる | `cv.wait(lock, stop_token, 条件)` |
+| `jthread` のワーカーを停止の合図で起こして終了させる | `cv.wait(lock, stop_token, 条件)` |
 
 ## よくあるミス
 

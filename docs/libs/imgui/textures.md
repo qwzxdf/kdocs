@@ -10,7 +10,7 @@ tags:
 ImGui には、**画像を表示する部品**（`Image`・`ImageButton`）があります。画像の中身（テクスチャ）は、ImGui ではなく、自分の描画 API（DirectX 11）で作り、その「ハンドル」を ImGui に渡します。このページは、`ImTextureID` の意味、DX11 の Shader Resource View を渡す方法、画像ファイルの読み込み、ゲームの画面をウィンドウの中に出す（シーンビュー）方法、アイコン・スプライトシートをまとめます。
 
 !!! tip "ポイント"
-    - ImGui は、<strong>画像そのものを持たない</strong>。<strong>`ImTextureID`（テクスチャを指す「札」）</strong>を、受け取って、描画する。
+    - ImGui は、<strong>画像そのものを持たない</strong>。<strong>`ImTextureID`（テクスチャを指す「札」）</strong>を受け取って、描画する。
     - DirectX 11 では、`ImTextureID` ＝ `ID3D11ShaderResourceView*`（SRV）。
     - 画像の表示は `ImGui::Image(texture_id, 大きさ, uv0, uv1)`。
     - 画像ファイルは、`stb_image` などで読み込み、DX11 のテクスチャと SRV にして、渡す。
@@ -34,7 +34,7 @@ ImGui には、**画像を表示する部品**（`Image`・`ImageButton`）が�
 
 ImGui は、この値を中身を知らずにそのまま、バックエンドの描画関数に渡すだけです。
 
-!!! note "型が、バージョンで変わる"
+!!! note "型がバージョンで変わる"
     `ImTextureID` は、**以前は `void*`、新しい版（1.91.4 以降）では整数型（`ImU64`）です。キャストの書き方**が少し変わります。
 
 ```cpp
@@ -71,7 +71,7 @@ if (ImGui::IsItemHovered()) ImGui::SetTooltip("クリックして選択");
 
 ### 画像ファイルを読み込む（stb_image）
 
-画像ファイル（PNG・JPG）を、ピクセルに展開するのに、`stb_image.h`（ImGui のサンプルでも使われる、単一ヘッダ）を使います。
+画像ファイル（PNG・JPG）をピクセルに展開するのに、`stb_image.h`（ImGui のサンプルでも使われる、単一ヘッダ）を使います。
 
 ```cpp
 #define STB_IMAGE_IMPLEMENTATION
@@ -117,24 +117,24 @@ bool LoadTextureFromFile(ID3D11Device* device, const char* path,
 
 | 点 | 説明 |
 | --- | --- |
-| `stbi_load(path, &w, &h, nullptr, 4)` | 画像を、RGBA（4 チャンネル）に展開（最後の `4` ＝ 強制的に 4 チャンネル） |
-| `CreateTexture2D` | GPU のテクスチャを、作る |
+| `stbi_load(path, &w, &h, nullptr, 4)` | 画像を RGBA（4 チャンネル）に展開（最後の `4` ＝ 強制的に 4 チャンネル） |
+| `CreateTexture2D` | GPU のテクスチャを作る |
 | `CreateShaderResourceView` | シェーダー（ImGui の描画）から読むための、SRVを作る |
 | テクスチャを `Release` | SRV が参照を保持するのでテクスチャ本体は、手放してよい（SRV を解放するときに、一緒に解放される） |
 | `stbi_image_free` | ピクセルの一時領域を解放 |
 
-ゲーム本体のテクスチャ読み込み（[メッシュとテクスチャ](../../3d/mesh-textures.md)）と、同じ仕組みです。ゲーム側で読み込んだテクスチャの SRV を、そのまま `ImGui::Image` に渡せます（アセットブラウザーなど）。
+ゲーム本体のテクスチャ読み込み（[メッシュとテクスチャ](../../3d/mesh-textures.md)）と、同じ仕組みです。ゲーム側で読み込んだテクスチャの SRV をそのまま `ImGui::Image` に渡せます（アセットブラウザーなど）。
 
 ### 解放のタイミング
 
 ImGui は、`ImGui::Render()` で、描画データを作り、`RenderDrawData` で実際に描画します。`Image` を呼んだ後、描画が終わるまで、SRV は生きている必要があります。
 
 !!! warning "フレーム内で、SRV を解放しない"
-    `Image` に渡した SRV を、同じフレームの描画前に `Release` すると、クラッシュします。テクスチャを入れ替えるときは、次のフレームまで、古いものを保持します。
+    `Image` に渡した SRV を同じフレームの描画前に `Release` すると、クラッシュします。テクスチャを入れ替えるときは、次のフレームまで、古いものを保持します。
 
 ## シーンビュー（ゲームの画面をウィンドウに出す） {#sceneview}
 
-**エディタのようにゲームの 3D 画面を、ImGui のウィンドウの中**に出します。ゲームの描画をバックバッファではなく、レンダー ターゲット（テクスチャ）に描き、その SRV を `Image` で表示します。
+**エディタのようにゲームの 3D 画面を ImGui のウィンドウの中**に出します。ゲームの描画をバックバッファではなく、レンダー ターゲット（テクスチャ）に描き、その SRV を `Image` で表示します。
 
 <svg class="fig flow" viewBox="0 0 1027 112" role="img" aria-label="シーンビュー：ゲームの画面をテクスチャに描いて、ImGui のウィンドウの中に出す"><defs><marker id="fl66077" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">シーンビュー：ゲームの画面をテクスチャに描いて、ImGui のウィンドウの中に出す</text><line x1="141.0" y1="64.0" x2="199.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl66077)"/><text x="170.0" y="58.0" text-anchor="middle" style="font-size:12px">描く</text><line x1="470.0" y1="64.0" x2="528.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl66077)"/><text x="499.0" y="58.0" text-anchor="middle" style="font-size:12px">読む</text><line x1="610.0" y1="64.0" x2="668.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl66077)"/><text x="639.0" y="58.0" text-anchor="middle" style="font-size:12px">渡す</text><line x1="792.0" y1="64.0" x2="850.0" y2="64.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl66077)"/><text x="821.0" y="58.0" text-anchor="middle" style="font-size:12px">表示</text><rect x="28.0" y="44.0" width="110" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="83.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ゲームの描画</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="202.0" y="44.0" width="265" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="334.5" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">レンダー ターゲット （テクスチャ）</text><circle cx="204.0" cy="46.0" r="10" fill="#2ea043"/><text x="204.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="531.0" y="44.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="569.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">SRV</text><circle cx="533.0" cy="46.0" r="10" fill="#e5a828"/><text x="533.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text><rect x="671.0" y="44.0" width="118" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="730.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ImGui::Image</text><circle cx="673.0" cy="46.0" r="10" fill="#e5484d"/><text x="673.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text><rect x="853.0" y="44.0" width="146" height="40" rx="9" fill="rgba(229,72,77,0.20)" stroke="#e5484d" stroke-width="2"/><text x="926.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">シーン ウィンドウ</text><circle cx="855.0" cy="46.0" r="10" fill="#e5484d"/><text x="855.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">4</text></svg>
 
@@ -203,7 +203,7 @@ ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 | 順番 | 内容 |
 | --- | --- |
 | 1. ImGui でウィンドウの大きさを得る | `GetContentRegionAvail` |
-| 2. レンダー ターゲットを、その大きさに | `Resize`（大きさが変わったときだけ） |
+| 2. レンダー ターゲットをその大きさに | `Resize`（大きさが変わったときだけ） |
 | 3. ゲームをレンダー ターゲットに描く | ゲームの描画（カメラの `aspect` も、この大きさに合わせる） |
 | 4. バックバッファに戻し、ImGui を描く | `RenderDrawData` |
 
@@ -214,7 +214,7 @@ ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 | アスペクト比 | ウィンドウの縦横比をカメラの `aspect` に反映（[射影](../../3d/projection.md)） |
 | ウィンドウの大きさが、0 | ウィンドウが折りたたまれたとき。`Resize` をスキップ |
 | マウスの位置 | ゲーム内のクリック位置は、ウィンドウの左上を原点にして、画像の座標に変換（[ピッキング](../../3d/picking-raycast.md)） |
-| ホバー・フォーカス | `IsWindowHovered()` / `IsWindowFocused()`で、ゲームの入力を受けるかを、判断 |
+| ホバー・フォーカス | `IsWindowHovered()` / `IsWindowFocused()`で、ゲームの入力を受けるかを判断 |
 | ImGui のマウス占有 | `io.WantCaptureMouse` が `true` のときは、ゲームに入力を渡さない |
 
 ## 画像ボタン・アイコン
@@ -234,7 +234,7 @@ if (ImGui::ImageButton("##play", (ImTextureID)(intptr_t)icon_play, ImVec2(24, 24
 
 ## UV とスプライトシート
 
-**`uv0` / `uv1`** で、画像の一部だけを表示できます。スプライトシート（複数のアイコンを、1 枚の画像にまとめたもの）から、1 つを切り出すのに使います。
+**`uv0` / `uv1`** で、画像の一部だけを表示できます。スプライトシート（複数のアイコンを 1 枚の画像にまとめたもの）から、1 つを切り出すのに使います。
 
 ```cpp
 const int kColumns = 8;
@@ -253,7 +253,7 @@ ImGui::Image((ImTextureID)(intptr_t)sheet_srv, ImVec2(32, 32), uv0, uv1);
 
 | 点 | 説明 |
 | --- | --- |
-| UV は 0〜1 | 画像全体が、(0,0)〜(1,1) |
+| UV は 0〜1 | 画像全体が(0,0)〜(1,1) |
 | DirectX は、左上が原点 | `uv0` が左上、`uv1` が右下 |
 | 1 枚にまとめる利点 | テクスチャの数が減る（読み込み・メモリが少ない） |
 
@@ -269,7 +269,7 @@ ImGui::Image((ImTextureID)(intptr_t)sheet_srv, ImVec2(32, 32), uv0, uv1);
 
 ## よくあるミス
 
-??? failure "画像が、真っ黒・何も出ない"
+??? failure "画像が真っ黒・何も出ない"
     **SRV が `nullptr`**、`stbi_load` が失敗（パスが違う）、`BindFlags` に `SHADER_RESOURCE` がない、が考えられます。
 
 ??? failure "`ImGui::Image` にテクスチャそのもの（`ID3D11Texture2D*`）を渡している"
@@ -278,16 +278,16 @@ ImGui::Image((ImTextureID)(intptr_t)sheet_srv, ImVec2(32, 32), uv0, uv1);
 ??? failure "フレーム内で、SRV を解放してクラッシュする"
     描画が終わるまで保持します。
 
-??? failure "シーンビューが、ぼやける・伸びる"
-    ウィンドウの大きさに合わせて、レンダー ターゲットを、作り直していません。
+??? failure "シーンビューがぼやける・伸びる"
+    ウィンドウの大きさに合わせて、レンダー ターゲットを作り直していません。
 
-??? failure "シーンビューのクリックが、ゲームに届かない・ずれる"
+??? failure "シーンビューのクリックがゲームに届かない・ずれる"
     `WantCaptureMouse`、ウィンドウの原点からの座標変換を確認します。
 
-??? failure "画像が、上下逆に出る"
+??? failure "画像が上下逆に出る"
     UV の向き（`uv0` と `uv1` の入れ替え）、または レンダー ターゲットの、Y の向きです。
 
-??? failure "色が、暗い・薄い"
+??? failure "色が暗い・薄い"
     sRGB の扱い（`_SRGB` の使用）を確認します。
 
 ## これだけ覚える

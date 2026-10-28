@@ -15,7 +15,7 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::views::adjacent_transform<N>` は、**隣り合う N 個の要素を関数に渡し、その結果を並べる**ビューです。[`adjacent`](adjacent.md) して [`transform`](transform.md) するのを、1 つにしたものです。「前後の差」を一覧にするのに便利です。
+`std::views::adjacent_transform<N>` は、**隣り合う N 個の要素を関数に渡し、その結果を並べる**ビューです。[`adjacent`](adjacent.md) して [`transform`](transform.md) するのを 1 つにしたものです。「前後の差」を一覧にするのに便利です。
 
 !!! tip "ポイント"
     - 関数は N 個の引数を取る。

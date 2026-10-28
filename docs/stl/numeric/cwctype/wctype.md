@@ -15,7 +15,7 @@ tags:
 `#include <cwctype>`
 </div>
 
-文字の種類を調べる関数は `iswalpha`、`iswdigit` など、種類ごとに別の名前です。文字の種類を、文字列の名前（"alpha"、"digit"）で選びたいとき、`std::wctype` が、その名前に対応する分類を表す値を返します。それを `iswctype` に渡して判定します。
+文字の種類を調べる関数は `iswalpha`、`iswdigit` など、種類ごとに別の名前です。文字の種類を文字列の名前（"alpha"、"digit"）で選びたいとき、`std::wctype` が、その名前に対応する分類を表す値を返します。それを `iswctype` に渡して判定します。
 
 !!! tip "ポイント"
     - `std::wctype("alpha")` は「英字」の分類を表す `wctype_t` の値
@@ -64,7 +64,7 @@ alpha は有効: true
 
 ## ゲームでの使いどころ
 
-入力の検査ルールを、設定の文字列で切り替えるときに使います。
+入力の検査ルールを設定の文字列で切り替えるときに使います。
 
 ```cpp
 const std::wctype_t category = std::wctype(rule_name.c_str());   // "digit" や "alpha"

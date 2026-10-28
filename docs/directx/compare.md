@@ -6,10 +6,10 @@ tags:
 
 # DX11 and DX12 Mapping
 
-DirectX 11 と DirectX 12 は、<strong>同じ GPU を同じパイプラインで、動かして</strong>いますが <strong>誰が何を管理するか</strong>が違います。このページは DX11 で書き慣れた人が、DX12 に移るときまたはその逆のとき用の <strong>対応表</strong>です。各項目は専用のページへリンクしています。
+DirectX 11 と DirectX 12 は、<strong>同じ GPU を同じパイプラインで、動かして</strong>いますが <strong>誰が何を管理するか</strong>が違います。このページは DX11 で書き慣れた人が DX12 に移るときまたはその逆のとき用の <strong>対応表</strong>です。各項目は専用のページへリンクしています。
 
 !!! tip "ポイント"
-    - DX11 はドライバーが、メモリ・同期・状態管理を自動で行う。DX12 は <strong>アプリが明示的に</strong>行う。
+    - DX11 はドライバーがメモリ・同期・状態管理を自動で行う。DX12 は <strong>アプリが明示的に</strong>行う。
     - DX11 の「コンテキスト」は、DX12 では <strong>コマンド リスト + コマンド キュー</strong>に分かれる。
     - DX11 のステートの個別設定（ブレンド、深度、ラスタライザー）は DX12 では <strong>PSO にまとまる</strong>。
     - DX11 のビューの直接束縛は DX12 では <strong>ディスクリプタ ヒープ + ルート シグネチャ</strong>。
@@ -23,10 +23,10 @@ DirectX 11 と DirectX 12 は、<strong>同じ GPU を同じパイプライン�
 
 | 観点 | DirectX 11 | DirectX 12 |
 | --- | --- | --- |
-| 考え方 | ドライバーが、面倒を見る | アプリが直接、管理する |
+| 考え方 | ドライバーが面倒を見る | アプリが直接、管理する |
 | コードの量 | 少ない | 多い（三角形で、約 3〜4 倍） |
-| CPU の負荷 | 大きい（ドライバーが、多くの仕事） | 小さい |
-| マルチスレッド | 限定的（遅延コンテキスト） | 本格的（コマンド リストを、スレッドごとに） |
+| CPU の負荷 | 大きい（ドライバーが多くの仕事） | 小さい |
+| マルチスレッド | 限定的（遅延コンテキスト） | 本格的（コマンド リストをスレッドごとに） |
 | 新機能 | 古い | DXR、メッシュ シェーダー、バインドレス、GPU ドリブン |
 | 向く用途 | 学習、中小規模、素早い開発 | 大規模、最高性能、最新機能 |
 
@@ -48,7 +48,7 @@ DirectX 11 と DirectX 12 は、<strong>同じ GPU を同じパイプライン�
 | CPU から書く | [`Map` / `UpdateSubresource`](dx11/map-update.md) | [UPLOAD ヒープに書いて、コピー](dx12/upload-buffer.md) |
 | ビューの作成 | `CreateRenderTargetView` など。ビュー オブジェクトができる | `Create…View(resource, desc, handle)`。[ディスクリプタ ヒープの位置に書く](dx12/descriptor.md) |
 | ビューの保管 | ビュー オブジェクト（`ComPtr`） | [ディスクリプタ ヒープ](dx12/descriptor-heap.md) |
-| 頂点バッファの束縛 | [`IASetVertexBuffers`](dx11/vertex-buffer.md)（バッファを渡す） | [`IASetVertexBuffers`](dx12/vertex-index-view.md)（<strong>ビュー構造体</strong>を、渡す） |
+| 頂点バッファの束縛 | [`IASetVertexBuffers`](dx11/vertex-buffer.md)（バッファを渡す） | [`IASetVertexBuffers`](dx12/vertex-index-view.md)（<strong>ビュー構造体</strong>を渡す） |
 | 定数バッファ | [`VSSetConstantBuffers`。16 バイト境界](dx11/constant-buffer.md) | [ルート CBV。256 バイト境界。フレームごとの領域](dx12/constant-buffer.md) |
 | テクスチャのアップロード | [`UpdateSubresource`、`GenerateMips`](dx11/texture2d.md) | [`CopyTextureRegion`。ミップは自分で](dx12/texture-upload.md) |
 | 深度バッファ | [DSV。typeless で SRV も](dx11/depth-stencil.md) | [DSV ヒープ。typeless で SRV も](dx12/depth-buffer.md) |
@@ -82,7 +82,7 @@ DirectX 11 と DirectX 12 は、<strong>同じ GPU を同じパイプライン�
 
 | やりたいこと | DirectX 11 | DirectX 12 |
 | --- | --- | --- |
-| 読み書きの順序 | ドライバーが、自動 | [リソース バリアで、明示](dx12/resource-barrier.md) |
+| 読み書きの順序 | ドライバーが自動 | [リソース バリアで、明示](dx12/resource-barrier.md) |
 | CPU が GPU の完了を待つ | `D3D11_QUERY_EVENT`、`Map(READ)`（暗黙に待つ） | [フェンス + イベント](dx12/fence.md) |
 | 動的なデータの更新 | [`Map(WRITE_DISCARD)`（ドライバーが領域を割り当てる）](dx11/map-update.md) | [フレームごとに、別の領域](dx12/frame-resources.md) |
 | 解放 | ドライバーが参照を数えて、遅延 | アプリがフェンスで完了を確認 |
@@ -115,7 +115,7 @@ DirectX 11 と DirectX 12 は、<strong>同じ GPU を同じパイプライン�
 | レイトレーシング（DXR）、メッシュ シェーダー、バインドレスを使う | DX12 |
 | CPU がボトルネック（ドロー コールが多い）、マルチスレッド描画 | DX12 |
 | GPU ドリブン、非同期コンピュート | DX12 |
-| 最高の性能を引き出したい（専任のレンダリング プログラマーが、いる） | DX12 |
+| 最高の性能を引き出したい（専任のレンダリング プログラマーがいる） | DX12 |
 
 DX12 は DX11 より <strong>必ずしも速くなるわけではありません</strong>。ドライバーの仕事をアプリが引き受けるので、<strong>うまく書けないと DX11 より遅く</strong>なります。
 

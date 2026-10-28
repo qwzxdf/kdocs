@@ -14,7 +14,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-継承関係をコンパイル時に確かめたいことがあります。コンポーネントの登録時に、`Component` を継承した型だけを受け付けたい、といった場面です。`std::is_base_of<Base, Derived>` は、<strong>Base が Derived の基底クラスか</strong>を調べます。
+継承関係をコンパイル時に確かめたいことがあります。コンポーネントの登録時に `Component` を継承した型だけを受け付けたい、といった場面です。`std::is_base_of<Base, Derived>` は、<strong>Base が Derived の基底クラスか</strong>を調べます。
 
 !!! tip "ポイント"
     - `std::is_base_of_v<A, B>` は、`A` が `B` の基底クラスか
@@ -69,7 +69,7 @@ Base, int -> false
 
 ## ゲームでの使いどころ
 
-テンプレートの引数どうしの関係を、コンパイル時に保証します。
+テンプレートの引数どうしの関係をコンパイル時に保証します。
 
 ```cpp
 template <class D>

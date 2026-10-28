@@ -6,7 +6,7 @@ tags:
 
 # Ray-Traced GI
 
-<strong>レイトレ GI はレイを飛ばして間接光を直接求める手法</strong>で、正確ですが重くノイズが出ます。このセクションでは素直な方式・ノイズ対策・ReSTIR・Lumen 的な方式・Radiance Cascades・選び方を、1 つずつ別のページで説明します。
+<strong>レイトレ GI はレイを飛ばして間接光を直接求める手法</strong>で、正確ですが重くノイズが出ます。このセクションでは素直な方式・ノイズ対策・ReSTIR・Lumen 的な方式・Radiance Cascades・選び方を 1 つずつ別のページで説明します。
 
 ## 素直なレイトレ GI
 <strong>画素のワールド位置と法線</strong>から、余弦重み付きでランダムな方向にレイを飛ばし、ヒット点の放射輝度を集めます。
@@ -47,14 +47,14 @@ float3 PathTraceGI(float3 pos, float3 normal, uint2 pixel) {
 
 ## レイトレーシングで間接光を求める
 
-<strong>ハードウェア レイトレーシング</strong>（DXR、[DirectX Raytracing](https://learn.microsoft.com/windows/win32/direct3d12/direct3d-12-raytracing)）が、GPU で使えるようになり、間接光を実際にレイを飛ばして、求めることがリアルタイムで可能になりました。シーンの形状を近似せず（ボクセル、距離場、画面空間）、本物の三角形に対してレイを飛ばせます。
+<strong>ハードウェア レイトレーシング</strong>（DXR、[DirectX Raytracing](https://learn.microsoft.com/windows/win32/direct3d12/direct3d-12-raytracing)）が GPU で使えるようになり、間接光を実際にレイを飛ばして、求めることがリアルタイムで可能になりました。シーンの形状を近似せず（ボクセル、距離場、画面空間）、本物の三角形に対してレイを飛ばせます。
 
 ## 基本の考え方
 
 <strong>各画素</strong>から 半球のランダムな、方向にレイを飛ばし（モンテカルロ、[Monte Carlo Integration](../theory/monte-carlo.md)）、当たった面のライティングを集めます。1 回の反射（1 バウンス）で、間接光を直接、サンプルします。
 
 ```hlsl
-// DXR: 各画素の、拡散の、間接光を、1 本のレイで、推定する（レイ生成シェーダー）。
+// DXR: 各画素の、拡散の、間接光を 1 本のレイで、推定する（レイ生成シェーダー）。
 [shader("raygeneration")]
 void GIRayGen() {
   uint2 pixel = DispatchRaysIndex().xy;
@@ -83,11 +83,11 @@ void GIRayGen() {
 
 | アプローチ | 内容 | ページ |
 | --- | --- | --- |
-| 画素ごとにレイ + デノイズ | 1 画素に、1 本のレイ + 時空間フィルタ | [Fighting Noise](noise.md) |
+| 画素ごとにレイ + デノイズ | 1 画素に 1 本のレイ + 時空間フィルタ | [Fighting Noise](noise.md) |
 | ReSTIR GI | 隣の画素・前フレームの、レイの結果を再利用 | [ReSTIR GI](restir.md) |
-| キャッシュ（プローブ）に、レイ | プローブからレイを飛ばし結果を、蓄積（[DDGI](../ddgi.md)） | [DDGI](../ddgi.md) |
-| Lumen 型（ハイブリッド） | 画面空間 + 距離場 + サーフェス キャッシュを、組み合わせる | [Lumen-Style Approaches](lumen-style.md) |
-| Radiance Cascades | カスケード状にレイを、まとめて再利用 | [Radiance Cascades](radiance-cascades.md) |
+| キャッシュ（プローブ）にレイ | プローブからレイを飛ばし結果を蓄積（[DDGI](../ddgi.md)） | [DDGI](../ddgi.md) |
+| Lumen 型（ハイブリッド） | 画面空間 + 距離場 + サーフェス キャッシュを組み合わせる | [Lumen-Style Approaches](lumen-style.md) |
+| Radiance Cascades | カスケード状にレイをまとめて再利用 | [Radiance Cascades](radiance-cascades.md) |
 
 ## 選び方
 
@@ -98,7 +98,7 @@ void GIRayGen() {
 | 2D ゲーム、画面空間 | Radiance Cascades |
 | 広いオープン ワールド | Lumen 型、DDGI（カスケードのプローブ） |
 
-詳しい判断は[Choosing a Method](choosing.md) を、見てください。
+詳しい判断は[Choosing a Method](choosing.md) を見てください。
 
 ## DirectX 11 では動かない部分
 

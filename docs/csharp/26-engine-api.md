@@ -6,7 +6,7 @@ tags:
 
 # 第 26 章 EngineApi：C の入口を作る
 
-この章では、`EngineApi` プロジェクトに C から呼べる関数を作ります。`Engine`（C++ のクラス）を、C の関数と「中身の見えないハンドル」に包んで、C# から呼べる形にします。ここで作る関数の一覧が、そのまま次の章の P/Invoke 宣言の元になります。
+この章では、`EngineApi` プロジェクトに C から呼べる関数を作ります。`Engine`（C++ のクラス）を C の関数と「中身の見えないハンドル」に包んで、C# から呼べる形にします。ここで作る関数の一覧がそのまま次の章の P/Invoke 宣言の元になります。
 
 !!! info "このページを読む前に"
     - [第 25 章 C# から C++ を呼ぶ：連携方式の比較](25-interop-overview.md)（前の章。ここまでの内容が前提になる）
@@ -38,7 +38,7 @@ me_engine_destroy(engine);
 
 ## API を作るときの決めごと
 
-関数を書き始める前に、全部の関数に共通するルールを決めておきます。あとで「この関数だけ違う」が出てくると、C# 側が書きにくくなるからです。
+関数を書き始める前に全部の関数に共通するルールを決めておきます。あとで「この関数だけ違う」が出てくると、C# 側が書きにくくなるからです。
 
 - 関数は `me_`、型は `Me` で始めます。ほかのライブラリと名前がぶつからないようにするためです。
 - 失敗するかもしれない関数は、`MeResult`（中身は `int32_t`）を返します。`ME_OK` は 0 です。
@@ -66,7 +66,7 @@ me_engine_destroy(engine);
 
 ## 公開ヘッダーを書く
 
-`EngineApi\include\EngineApi\EngineApi.h` を、純粋な C で書きます。まず、DLL の出し入れと `extern "C"` の準備です。
+`EngineApi\include\EngineApi\EngineApi.h` を純粋な C で書きます。まず、DLL の出し入れと `extern "C"` の準備です。
 
 ```c
 #pragma once
@@ -155,7 +155,7 @@ ME_API MeResult me_engine_get_frame_count(const MeEngine* engine, uint64_t* out_
 
 `me_engine_destroy` だけ戻り値がありません。破棄に失敗しても、呼び出し側にできることは何もないからです。`NULL` を渡しても何も起きないようにしておきます。
 
-`me_engine_create` の第 2 引数 `MeEngine** out_engine` は、ポインターへのポインターです。C++ なら `MeEngine*& out_engine` と書くところですが、C には参照がないので、「呼ばれた関数が、呼び出し側のポインター変数に値を書き込む」ために、アドレスを渡します。
+`me_engine_create` の第 2 引数 `MeEngine** out_engine` は、ポインターへのポインターです。C++ なら `MeEngine*& out_engine` と書くところですが、C には参照がないので、「呼ばれた関数が呼び出し側のポインター変数に値を書き込む」ために、アドレスを渡します。
 
 ## 実装する
 
@@ -189,7 +189,7 @@ void SetLastError(const char* message) {
 }  // namespace
 ```
 
-ヘッダーでは宣言だけだった `MeEngine` に、ここで中身を与えています。この中身を知っているのは `EngineApi.cpp` だけです。`thread_local` は、スレッドごとに別の変数を持つ指定で、これのおかげで、あるスレッドで起きたエラーのメッセージが、別のスレッドのものと混ざりません。
+ヘッダーでは宣言だけだった `MeEngine` に、ここで中身を与えています。この中身を知っているのは `EngineApi.cpp` だけです。`thread_local` は、スレッドごとに別の変数を持つ指定で、これのおかげで、あるスレッドで起きたエラーのメッセージが別のスレッドのものと混ざりません。
 
 ### 例外を止める
 

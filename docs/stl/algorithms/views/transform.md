@@ -90,7 +90,7 @@ class transform_view;
 
 メンバだけを取り出す処理で使います。`enemies | std::views::transform(&Enemy::hp)` で、HP だけの範囲になります。これを `std::ranges::max` に渡せば最大の HP が、`std::ranges::to<std::vector>` に渡せば HP の配列が得られます。
 
-座標の変換にも使います。ワールド座標を画面の座標へ直す、すべての頂点に行列を掛ける、といった処理を、ループを書かずに表せます。
+座標の変換にも使います。ワールド座標を画面の座標へ直す、すべての頂点に行列を掛ける、といった処理をループを書かずに表せます。
 
 `filter` と組み合わせることがほとんどです。`enemies | views::filter(alive) | views::transform(&Enemy::position)` で、生きている敵の位置だけが取り出せます。ただし、`transform` は取り出すたびに変換を実行するので、同じ要素を何度も読むと、そのたびに計算されます。何度も使うなら、いったん `vector` に入れます。
 
@@ -103,7 +103,7 @@ class transform_view;
     `transform` のラムダ式が値を返すと、その値は一時的なものです。`auto& x : view | transform(...)` のように参照で受けると、コンパイルエラーになります。`auto x` か `const auto& x` で受けます。
 
 ??? failure "一時的な `vector` からビューを作る"
-    `make_vec() | views::transform(f)` は、`make_vec()` が返した一時オブジェクトが、行の終わりで消えます。以降にビューを使うとぶら下がり参照になります。いったん変数に受けてからビューを作ります。
+    `make_vec() | views::transform(f)` は、`make_vec()` が返した一時オブジェクトが行の終わりで消えます。以降にビューを使うとぶら下がり参照になります。いったん変数に受けてからビューを作ります。
 
 ## 類似
 

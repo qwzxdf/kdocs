@@ -15,7 +15,7 @@ tags:
 `#include <ctime>`
 </div>
 
-`std::time(nullptr)` は、**現在の時刻を、1970-01-01 00:00:00 UTC からの秒数で返す**C 由来の関数です。乱数の種や、ファイル名に使う時刻の取得に使われます。C++ では [`std::chrono::system_clock`](../../utilities/chrono/system_clock.md) が型安全です。
+`std::time(nullptr)` は、**現在の時刻を 1970-01-01 00:00:00 UTC からの秒数で返す**C 由来の関数です。乱数の種や、ファイル名に使う時刻の取得に使われます。C++ では [`std::chrono::system_clock`](../../utilities/chrono/system_clock.md) が型安全です。
 
 !!! tip "ポイント"
     - 戻り値は `time_t`（秒）。

@@ -23,7 +23,7 @@ tags:
     - 関数の最後まで流れて終わると、`co_return;` と同じ。
 
 !!! info "このページを読む前に"
-    [`std::generator`](../generator.md) のページに、コルーチンの簡単な例があります。
+    [`std::generator`](../generator.md) のページにコルーチンの簡単な例があります。
 
 ## 関数の詳しい説明
 

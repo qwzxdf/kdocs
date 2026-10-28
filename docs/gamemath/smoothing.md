@@ -6,7 +6,7 @@ tags:
 
 # スムージングとフィルタ
 
-ゲームの値は**そのまま使うとガタガタ**になることがよくあります。カメラが急に動く、スティック入力がぶれる、FPS の表示が読めないほど変わる、HP バーが一瞬で減る、といった問題です。値をなめらかにするための数学が、スムージング（平滑化）です。このページでは、指数減衰・SmoothDamp・ばね・PID・移動平均・入力の補正を説明します。
+ゲームの値は**そのまま使うとガタガタ**になることがよくあります。カメラが急に動く、スティック入力がぶれる、FPS の表示が読めないほど変わる、HP バーが一瞬で減る、といった問題です。値をなめらかにするための数学がスムージング（平滑化）です。このページでは、指数減衰・SmoothDamp・ばね・PID・移動平均・入力の補正を説明します。
 
 !!! tip "ポイント"
     - 基本は<strong>目標へ少しずつ近づく</strong>。<strong>`dt` に依存しない式</strong>（`1 - exp(-rate × dt)`）で書く。
@@ -22,7 +22,7 @@ tags:
 
 ## 指数減衰（Damp）
 
-**現在値から目標までの差を、毎フレーム一定の割合で縮める**方法です。
+**現在値から目標までの差を毎フレーム一定の割合で縮める**方法です。
 
 ```cpp
 float Damp(float current, float target, float rate, float delta_time) {
@@ -88,7 +88,7 @@ float SmoothDamp(float current, float target, float* velocity, float smooth_time
 | 使いどころ | カメラの追従・UI のスクロール・キャラへ向かう視点 |
 
 !!! note "式は、そのまま写す"
-    この実装は近似が入った、よく知られた形です。自分で書き換えず、ライブラリや公開されたコードを、そのまま使うのが安全です。
+    この実装は近似が入った、よく知られた形です。自分で書き換えず、ライブラリや公開されたコードをそのまま使うのが安全です。
 
 ## 減衰つきばね
 
@@ -221,7 +221,7 @@ smoothed = std::lerp(smoothed, new_value, alpha);
 
 ### デッドゾーン
 
-中央付近の小さな値を、0 とみなします。
+中央付近の小さな値を 0 とみなします。
 
 ```cpp
 Vector2 ApplyDeadzone(Vector2 stick, float deadzone) {
@@ -238,7 +238,7 @@ Vector2 ApplyDeadzone(Vector2 stick, float deadzone) {
 | --- | --- |
 | 軸ごとのデッドゾーン | x・y それぞれで判定（斜めの動きが不自然になる） |
 | 円形のデッドゾーン | ベクトルの長さで判定（推奨） |
-| 再スケール | デッドゾーンの外を、0〜1 に引き伸ばす（急に動き出さない） |
+| 再スケール | デッドゾーンの外を 0〜1 に引き伸ばす（急に動き出さない） |
 
 ### 入力のカーブ
 
@@ -248,7 +248,7 @@ Vector2 ApplyDeadzone(Vector2 stick, float deadzone) {
 | --- | --- |
 | 線形 | そのまま |
 | 2 乗（`x²`） | 小さな倒しで細かく操作できる（狙い・微調整）。大きく倒すと速い |
-| S 字（smoothstep） | 小さい所と大きい所の両端を、なだらかに |
+| S 字（smoothstep） | 小さい所と大きい所の両端をなだらかに |
 
 ```cpp
 float ApplyCurve(float input, float exponent) {
@@ -284,7 +284,7 @@ float ApplyCurve(float input, float exponent) {
 ??? failure "`lerp(current, target, 0.1f)` を毎フレーム使って、フレームレートで速さが変わる"
     `1 - exp(-rate × dt)` にします。
 
-??? failure "指数減衰が、いつまでも目標に着かない"
+??? failure "指数減衰がいつまでも目標に着かない"
     十分近づいたら、目標へスナップします。
 
 ??? failure "PID の積分が膨らみ続ける"

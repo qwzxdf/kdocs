@@ -10,7 +10,7 @@ tags:
 FBX SDK で読み込んだ**シーン**から、メッシュ・法線・UV・マテリアル・スキン・アニメーションを取り出す方法をまとめます。FBX SDK は、API が細かく、独特（「コントロール ポイント」と「ポリゴン頂点」の区別など）で、慣れが必要です。三角形化済み（[基本](quickstart.md)）の前提で説明します。
 
 !!! tip "ポイント"
-    - <strong>メッシュの頂点は「コントロール ポイント」</strong>（<strong>位置が異なる点</strong>）。面の角（「ポリゴン頂点」）が、コントロール ポイントの番号を指す。
+    - <strong>メッシュの頂点は「コントロール ポイント」</strong>（<strong>位置が異なる点</strong>）。面の角（「ポリゴン頂点」）がコントロール ポイントの番号を指す。
     - `GetPolygonVertex(poly, i)` で、面の i 番目の角がどのコントロール ポイントか。
     - 法線・UV は、「ポリゴン頂点ごと」「コントロール ポイントごと」などのマッピング方式で持つ。`GetPolygonVertexNormal` / `GetPolygonVertexUV` が、面倒を吸収。
     - ノードのワールド変換は `EvaluateGlobalTransform()`（`FbxAMatrix`）。
@@ -69,7 +69,7 @@ void ReadMesh(FbxMesh* mesh, std::vector<Vertex>& vertices, std::vector<uint32_t
 | **`mesh->GetControlPoints()`** | コントロール ポイント（位置）の配列（`FbxVector4`：`double` の 4 つ） |
 | `GetPolygonCount()` | 面の数 |
 | `GetPolygonSize(p)` | 面 p の角の数（三角形化済みなら、3） |
-| `GetPolygonVertex(p, i)` | 面 p の i 番目の角が、指すコントロール ポイントの番号 |
+| `GetPolygonVertex(p, i)` | 面 p の i 番目の角が指すコントロール ポイントの番号 |
 | `GetPolygonVertexNormal(p, i, normal)` | 面 p の i 番目の角の、法線（マッピング方式を吸収） |
 | `GetPolygonVertexUV(p, i, uv_set, uv, unmapped)` | UV（UV セットの名前を指定） |
 | `1.0f - uv[1]` | UV の V を反転（FBX は左下原点、DirectX は左上） |
@@ -77,7 +77,7 @@ void ReadMesh(FbxMesh* mesh, std::vector<Vertex>& vertices, std::vector<uint32_t
 `FbxVector4` は、`double`です。`float` に変換して使います。4 つ目の成分（`w`）は、位置では 1。
 
 !!! note "コントロール ポイントと、ポリゴン頂点"
-    同じ位置のコントロール ポイントが、複数の面で共有されます。面の角ごとに法線・UV が違うことがあります（角の立った箱）。角ごとに頂点を作る（重複させる）のが、GPU 向けの簡単な変換です。後で重複をまとめる（[メッシュの最適化](../../optimize/data-layout.md)）。
+    同じ位置のコントロール ポイントが複数の面で共有されます。面の角ごとに法線・UV が違うことがあります（角の立った箱）。角ごとに頂点を作る（重複させる）のが、GPU 向けの簡単な変換です。後で重複をまとめる（[メッシュの最適化](../../optimize/data-layout.md)）。
 
 ## ノードの変換
 
@@ -160,7 +160,7 @@ for (int s = 0; s < skin_count; ++s) {
 | `GetControlPointIndices()` / `GetControlPointWeights()` | このボーンが影響する、コントロール ポイントと、重み |
 | `GetTransformLinkMatrix` | バインド時のボーンの変換（逆行列が逆バインド行列） |
 
-頂点（コントロール ポイント）ごとにボーンと重みを集め直す（頂点側から見た形）と、GPU スキニングに使えます（[スキニング](../../3d/skinning-animation.md)）。1 つの頂点に、4 つを超える重みは、上位 4 つに絞って、正規化します。
+頂点（コントロール ポイント）ごとにボーンと重みを集め直す（頂点側から見た形）と、GPU スキニングに使えます（[スキニング](../../3d/skinning-animation.md)）。1 つの頂点に 4 つを超える重みは、上位 4 つに絞って、正規化します。
 
 ## アニメーション
 
@@ -199,16 +199,16 @@ for (double t = start; t <= stop; t += 1.0 / 30.0) {
 ??? failure "コントロール ポイントの番号と、頂点の番号を混同する"
     **`GetPolygonVertex(p, i)`** が返すのはコントロール ポイントの番号です。法線・UV は角（ポリゴン頂点）ごとに別の関数で。
 
-??? failure "`FbxVector4` の `w` を、位置に含めて、間違える"
+??? failure "`FbxVector4` の `w` を位置に含めて、間違える"
     `[0]`〜`[2]` だけ使います。
 
 ??? failure "UV が、上下逆になる"
     V を反転します。
 
-??? failure "テクスチャのパスが、制作者の PC の絶対パスで、見つからない"
+??? failure "テクスチャのパスが制作者の PC の絶対パスで、見つからない"
     ファイル名だけ取り出して、ゲームのフォルダーで探します。
 
-??? failure "実行時に、FBX SDK でアニメーションを評価して、重い"
+??? failure "実行時に FBX SDK でアニメーションを評価して、重い"
     ツールで事前に焼きます。
 
 ## 関連ページ

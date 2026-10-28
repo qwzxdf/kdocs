@@ -40,10 +40,10 @@ tags:
 | [`std::as_const`](as_const.md) | <span class="rank rank-rare">知ってるだけ</span> | const 参照にする <span class="ver ver-17">C++17</span> | `<utility>` |
 | [`std::to_integer`](to_integer.md) | <span class="rank rank-rare">知ってるだけ</span> | byte を整数に <span class="ver ver-17">C++17</span> | `<cstddef>` |
 | [`std::initializer_list`](../containers/initializer_list.md) | <span class="rank rank-rare">知ってるだけ</span> | `{1, 2, 3}` を受け取る型 | `<initializer_list>` |
-| [`std::cmp_not_equal`](cmp_not_equal.md) | <span class="rank rank-rare">知ってるだけ</span> | 符号付きと符号なしの整数を、安全に `!=` で比べる。 <span class="ver ver-20">C++20</span> | `<utility>` |
-| [`std::cmp_greater`](cmp_greater.md) | <span class="rank rank-rare">知ってるだけ</span> | 符号付きと符号なしの整数を、安全に `>` で比べる。 <span class="ver ver-20">C++20</span> | `<utility>` |
-| [`std::cmp_less_equal`](cmp_less_equal.md) | <span class="rank rank-rare">知ってるだけ</span> | 符号付きと符号なしの整数を、安全に `<=` で比べる。 <span class="ver ver-20">C++20</span> | `<utility>` |
-| [`std::cmp_greater_equal`](cmp_greater_equal.md) | <span class="rank rank-rare">知ってるだけ</span> | 符号付きと符号なしの整数を、安全に `>=` で比べる。 <span class="ver ver-20">C++20</span> | `<utility>` |
+| [`std::cmp_not_equal`](cmp_not_equal.md) | <span class="rank rank-rare">知ってるだけ</span> | 符号付きと符号なしの整数を安全に `!=` で比べる。 <span class="ver ver-20">C++20</span> | `<utility>` |
+| [`std::cmp_greater`](cmp_greater.md) | <span class="rank rank-rare">知ってるだけ</span> | 符号付きと符号なしの整数を安全に `>` で比べる。 <span class="ver ver-20">C++20</span> | `<utility>` |
+| [`std::cmp_less_equal`](cmp_less_equal.md) | <span class="rank rank-rare">知ってるだけ</span> | 符号付きと符号なしの整数を安全に `<=` で比べる。 <span class="ver ver-20">C++20</span> | `<utility>` |
+| [`std::cmp_greater_equal`](cmp_greater_equal.md) | <span class="rank rank-rare">知ってるだけ</span> | 符号付きと符号なしの整数を安全に `>=` で比べる。 <span class="ver ver-20">C++20</span> | `<utility>` |
 
 ## フラグ・オプション
 

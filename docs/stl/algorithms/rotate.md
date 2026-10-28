@@ -67,7 +67,7 @@ int main() {
 
 ### rotate_copy の使い方
 
-回転した結果を、元を残したまま別の場所に書く `rotate_copy` もあります。
+回転した結果を元を残したまま別の場所に書く `rotate_copy` もあります。
 
 ```cpp
 #include <algorithm>
@@ -79,7 +79,7 @@ int main() {
   std::vector<int> v = {1, 2, 3, 4, 5};
   std::vector<int> out;
 
-  // 3（v.begin() + 2）が先頭になるように回した結果を、out に作る
+  // 3（v.begin() + 2）が先頭になるように回した結果を out に作る
   std::ranges::rotate_copy(v, v.begin() + 2, std::back_inserter(out));
   std::println("{} → {}", v, out);
 }
@@ -91,7 +91,7 @@ int main() {
 
 ## ゲームでの使いどころ
 
-ターンの順番の回し方に使います。行動順の配列を、`rotate(order, order.begin() + 1)` と回せば、先頭が末尾へ移り、次のキャラクターが先頭になります。
+ターンの順番の回し方に使います。行動順の配列を `rotate(order, order.begin() + 1)` と回せば、先頭が末尾へ移り、次のキャラクターが先頭になります。
 
 メニューの項目を循環させる、カードの手札を回転させる、といった表示にも向いています。
 

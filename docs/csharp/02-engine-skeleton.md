@@ -23,7 +23,7 @@ DLL は、「他のプログラムに貸し出す部品」です。貸し出す�
 
 ## この章のゴール
 
-- Engine を、公開ヘッダー（`include/`）と非公開のソース（`src/`）に分ける。
+- Engine を公開ヘッダー（`include/`）と非公開のソース（`src/`）に分ける。
 - `__declspec(dllexport)` / `dllimport` を切り替えるマクロ `ENGINE_API` を作る。
 - ログの仕組みと、エンジンの入口（`Engine::Create` / `Tick` / `Destroy`）を作る。
 - 他のプロジェクトが `Engine.lib` をリンクして `Engine.dll` を使えるように設定する。
@@ -50,7 +50,7 @@ DLL（Dynamic Link Library）は、実行時に読み込まれるコードの束
 | DLL を作る側（Engine） | `__declspec(dllexport)` | この関数・クラスを DLL の外に公開する |
 | DLL を使う側（Player など） | `__declspec(dllimport)` | この関数・クラスは DLL から読み込む |
 
-同じヘッダーを、作る側と使う側で共有したいので、マクロで印を切り替えます。
+同じヘッダーを作る側と使う側で共有したいので、マクロで印を切り替えます。
 
 ### 手順 1：Export.h
 
@@ -119,7 +119,7 @@ namespace mini {
 enum class LogLevel : std::int32_t { Info, Warning, Error };
 
 // ログの出力先。C 言語の関数ポインターにして、C# からも渡せる形にしておく（第 27 章）。
-// user: 登録した側が好きに使えるポインター（コールバックに、そのまま返ってくる）。
+// user: 登録した側が好きに使えるポインター（コールバックにそのまま返ってくる）。
 using LogCallback = void (*)(LogLevel level, const char* message, void* user);
 
 // 出力先を差し替える。nullptr で、既定（デバッガーの出力ウィンドウ）に戻す。
@@ -148,7 +148,7 @@ void LogError(std::format_string<Args...> format, Args&&... args) {
 | 新しく出てきたもの | 説明 |
 | --- | --- |
 | `using LogCallback = void (*)(...)` | 関数ポインターの別名。C の関数ポインターにしておくと、後で C# の `delegate` と対応させられる |
-| `std::format_string<Args...>` | `std::format` の書式文字列を、コンパイル時に検査する型（C++20） |
+| `std::format_string<Args...>` | `std::format` の書式文字列をコンパイル時に検査する型（C++20） |
 | `std::forward` | 引数を元の値カテゴリー（左辺値・右辺値）のまま渡す（完全転送） |
 | ヘッダーに書くテンプレート | DLL の境界を越えない。使う側のプロジェクトで展開されて、エクスポート済みの `Log` だけを呼ぶ |
 
@@ -274,7 +274,7 @@ class ENGINE_API Engine {
 | `struct HWND__;` | `HWND`（ウィンドウ ハンドル）は、`struct HWND__*` の別名。前方宣言だけにして、巨大な `<windows.h>` を公開ヘッダーに持ち込まない |
 | `ENGINE_API` をクラスに付ける | クラスのすべてのメンバー関数がエクスポートされる |
 | `private` なコンストラクター・デストラクター | 利用者が `new Engine` や `delete` を直接しないようにする。`Create`/`Destroy` を通させる |
-| `Create`/`Destroy` を対にする | メモリの確保と解放を、同じ DLL の中で行う。DLL をまたいで `new` と `delete` を混ぜると、ヒープが別々のときに壊れる |
+| `Create`/`Destroy` を対にする | メモリの確保と解放を同じ DLL の中で行う。DLL をまたいで `new` と `delete` を混ぜると、ヒープが別々のときに壊れる |
 | pimpl（`struct Impl; Impl* impl_;`） | 内部のデータを `.cpp` に隠す。ヘッダーに `std::vector` などを書くと、警告 `C4251`（DLL の境界で STL を使っている）が出るので、それを避ける |
 
 ### 手順 6：Engine.cpp
@@ -336,11 +336,11 @@ std::uint64_t Engine::FrameCount() const {
 
 1. ソリューション エクスプローラーで、`EngineApi` のプロジェクトを右クリックして、「追加 → 参照」を開く。
 2. 「プロジェクト」の一覧で `Engine` にチェックを入れて、OK を押す。
-3. `EngineApi` のプロパティ → C/C++ → 全般 → 追加のインクルード ディレクトリに、`$(SolutionDir)Engine\include` を追加する。
+3. `EngineApi` のプロパティ → C/C++ → 全般 → 追加のインクルード ディレクトリに `$(SolutionDir)Engine\include` を追加する。
 
 | 新しく出てきたもの | 説明 |
 | --- | --- |
-| 参照（プロジェクト参照） | 他のプロジェクトを、ビルドの順序とリンクの対象に加える。C++ の DLL への参照では、`Engine.lib`（インポート ライブラリ）が自動でリンクされる |
+| 参照（プロジェクト参照） | 他のプロジェクトをビルドの順序とリンクの対象に加える。C++ の DLL への参照では、`Engine.lib`（インポート ライブラリ）が自動でリンクされる |
 | インポート ライブラリ（`.lib`） | DLL の目録。「`Engine::Create` は `Engine.dll` のここにある」という情報が入っている。使う側はこれをリンクして、実行時に DLL から読み込む |
 | `$(SolutionDir)` | `.sln` があるフォルダー。他のプロジェクトのパスを指すときに使う |
 
@@ -382,7 +382,7 @@ dumpbin /exports MiniEngine\bin\x64\Debug\Engine.dll
     使う側のプロジェクトに `ENGINE_EXPORTS` を定義していないか確認してください。この定義が必要なのは `Engine` プロジェクトだけです。
 
 ??? failure "`C4251`（`std::` の型が DLL インターフェイスを持つ必要がある）"
-    エクスポートするクラスのメンバーに、`std::vector` などを置いています。`Impl` に隠してください（pimpl）。
+    エクスポートするクラスのメンバーに `std::vector` などを置いています。`Impl` に隠してください（pimpl）。
 
 ??? failure "`Create` で作ったのに、`delete` するとクラッシュする"
     `delete engine` を直接書いています。`Engine::Destroy` を呼んでください（デストラクターを `private` にしておけば、直接は書けなくなります）。

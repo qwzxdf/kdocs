@@ -79,7 +79,7 @@ class filter_view;
 
 `filter` は消すのではなく、見えなくするだけです。本当にコンテナから消すなら、`std::erase_if` を使います。
 
-`transform` と組み合わせると、「生きている敵の HP だけを取り出す」ような処理を、ループを書かずに表せます。ただし、`filter` のビューは `size()` を持たないので、個数が必要なら `std::ranges::distance` で数えるか、いったん `vector` に変換します。
+`transform` と組み合わせると、「生きている敵の HP だけを取り出す」ような処理をループを書かずに表せます。ただし、`filter` のビューは `size()` を持たないので、個数が必要なら `std::ranges::distance` で数えるか、いったん `vector` に変換します。
 
 ## よくあるミス
 

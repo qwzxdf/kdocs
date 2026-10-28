@@ -59,13 +59,13 @@ RenderDoc は 1 フレームを撮って、描画の中身を細かく見る道�
 | --- | --- |
 | ① 起動して実行ファイルを指定 | `Launch Application` に実行ファイルのパスを入れて `Launch` |
 | ② 1 フレームを撮る | ゲームの画面で `F12`（または `Print Screen`）。撮ったフレームが一覧に出る |
-| ③ イベントを見る | `Event Browser` にドロー コールとクリアが、順に並ぶ。マーカー（下）でパスごとにまとまる |
+| ③ イベントを見る | `Event Browser` にドロー コールとクリアが順に並ぶ。マーカー（下）でパスごとにまとまる |
 | ④ 1 つの描画を調べる | イベントを選び `Pipeline State` で、シェーダー、ステート、束縛を見る。`Texture Viewer` でレンダー ターゲットと入力テクスチャを見る |
 | ⑤ オーバードローを見る | `Texture Viewer` の `Overlay` で `Quad Overdraw (Draw)`（1 回の描画の重なり）や `Quad Overdraw (Pass)`（パス全体） |
 | ⑥ ピクセルの履歴 | ピクセルを右クリックして `Pixel History`。そのピクセルにどの描画が書いたかが分かる |
 | ⑦ シェーダーのデバッグ | ピクセルの履歴から `Debug this Pixel` で、シェーダーを 1 行ずつ追う |
 
-「何も映らない」「色がおかしい」といった、見た目の問題には特に役立ちます。入力のテクスチャが真っ黒だった、ビューポートが 0 だったといった原因が、すぐ見つかります。
+「何も映らない」「色がおかしい」といった、見た目の問題には特に役立ちます。入力のテクスチャが真っ黒だった、ビューポートが 0 だったといった原因がすぐ見つかります。
 
 ## PIX で GPU の時間を見る
 
@@ -108,7 +108,7 @@ D3D12 では WinPixEventRuntime の `PIXBeginEvent(command_list, color, name)` �
 エンジンの中にデバッグ表示として、組み込めます。<strong>全ての物を「1 回描くと少しだけ足す」</strong>シェーダーで描き色に変えます。
 
 ```hlsl
-// ① 全オブジェクトを、このピクセル シェーダーで描く（加算ブレンド）。1 回の重なりで、1/8 だけ足す。
+// ① 全オブジェクトをこのピクセル シェーダーで描く（加算ブレンド）。1 回の重なりで、1/8 だけ足す。
 float PSOverdraw() : SV_Target {
   return 1.0 / 8.0;
 }
@@ -128,11 +128,11 @@ blend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_RED;
 ```
 
 ```hlsl
-// ② フルスクリーン パスで、重なりの数を、色に変える（青 → 緑 → 黄 → 赤）。
+// ② フルスクリーン パスで、重なりの数を色に変える（青 → 緑 → 黄 → 赤）。
 Texture2D<float> g_overdraw : register(t0);
 
 float4 PSHeat(float4 pos : SV_Position) : SV_Target {
-  float layers = g_overdraw.Load(int3(pos.xy, 0)) * 8.0;         // 重なりの数（1/8 を、戻す）
+  float layers = g_overdraw.Load(int3(pos.xy, 0)) * 8.0;         // 重なりの数（1/8 を戻す）
   float t = saturate(layers / 8.0);                              // 8 重なりで、真っ赤
   float3 color = lerp(float3(0, 0, 1), float3(0, 1, 0), saturate(t * 2.0));
   color = lerp(color, float3(1, 0, 0), saturate(t * 2.0 - 1.0));
@@ -140,7 +140,7 @@ float4 PSHeat(float4 pos : SV_Position) : SV_Target {
 }
 ```
 
-青なら 1〜2 重ね緑・黄が、3〜5 重ね赤なら 8 重ね以上、という見え方になります。赤い所（煙、草むら UI の重ね）を優先して減らします（[Overdraw](overdraw.md)）。
+青なら 1〜2 重ね緑・黄が 3〜5 重ね赤なら 8 重ね以上、という見え方になります。赤い所（煙、草むら UI の重ね）を優先して減らします（[Overdraw](overdraw.md)）。
 
 ## フレーム時間をグラフと数字で見る
 

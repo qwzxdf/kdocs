@@ -11,7 +11,7 @@ tags:
 !!! tip "ポイント"
     - TAA の失敗は<strong>「履歴が現在の内容と合わない」</strong>ことから起きる。
     - <strong>ゴースト</strong>：近傍クランプ・分散クリップ・速度の精度で抑える。
-    - ぼけ：履歴の読み出し（バイリニアの繰り返し）が原因。バイキュービック・シャープ化で対処。
+    - ぼけ：履歴の読み出し（バイリニアの繰り返し）が原因。バイキュービック・シャープ化で対処する。
     - 細い物のちらつき：1 画素より細い線がサンプルのずれで出入り。ジッターの調整・シャープ・描画側の工夫。
     - 半透明・パーティクル：速度や深度が無いので別扱い（TAA の後に描く、など）。
     - カット・露出の急変では履歴をリセット。
@@ -26,7 +26,7 @@ tags:
 | 問題 | 原因 | 対策 |
 | --- | --- | --- |
 | <strong>ゴースト（残像）</strong> | 履歴が現在の内容と合わない（物の後ろから、背景が現れる） | 近傍クランプ・分散クリップ・速度の精度 |
-| 全体のぼけ | バイリニアな履歴の読み出しを、毎フレーム繰り返す | バイキュービック・シャープ化 |
+| 全体のぼけ | バイリニアな履歴の読み出しを毎フレーム繰り返す | バイキュービック・シャープ化 |
 | 細い物のちらつき | 1 画素以下の線がサンプルのずれで出入り | ジッターの調整・描画側で太くする |
 | 半透明・パーティクル | 速度・深度が無い | TAA の後に描く・別の AA |
 | 動きの速い物 | 速度バッファの精度不足 | 高精度の速度・近い深度の速度 |
@@ -40,7 +40,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">TAA のゴースト: 混ぜる割合 α が小さいほど、滑らかだが、残像が長く残る</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">明るい物が消えた画素。履歴の色が、新しい色へ、何フレームで置き換わるか。α を 0.5 → 0.2 → 0.1 → 0.05 で比べる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">明るい物が消えた画素。履歴の色が新しい色へ何フレームで置き換わるか。α を 0.5 → 0.2 → 0.1 → 0.05 で比べる</text>
 <rect x="30" y="96" width="900" height="230" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 画素に残っている、消えた物の色(1 = 完全に残っている)</text>
 <path d="M70.0,130.0 L90.5,215.0 L111.0,257.5 L131.5,278.75 L152.0,289.38 L172.5,294.69 L193.0,297.34 L213.5,298.67 L234.0,299.34 L254.5,299.67 L275.0,299.83 L295.5,299.92 L316.0,299.96 L336.5,299.98 L357.0,299.99 L377.5,299.99 L398.0,300.0 L418.5,300.0 L439.0,300.0 L459.5,300.0 L480.0,300.0 L500.5,300.0 L521.0,300.0 L541.5,300.0 L562.0,300.0 L582.5,300.0 L603.0,300.0 L623.5,300.0 L644.0,300.0 L664.5,300.0 L685.0,300.0 L705.5,300.0 L726.0,300.0 L746.5,300.0 L767.0,300.0 L787.5,300.0 L808.0,300.0 L828.5,300.0 L849.0,300.0 L869.5,300.0 L890.0,300.0" fill="none" stroke="#e5484d" stroke-width="3.5" opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="0;0;1;1"/></path>
@@ -74,7 +74,7 @@ tags:
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000" values="0;0;1;1"/><rect x="620" y="490" width="310" height="36" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="636" y="514" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1e3a8a">小さい α は滑らか、でも、残像が長い</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">物が消えたあとも、履歴の色が、少しずつ薄れながら、残る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">物が消えたあとも、履歴の色が少しずつ薄れながら、残る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">α が小さいほど、薄れるのが遅い<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.7065;0.7067;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ゴーストを抑えるには、α を速度に応じて上げる、履歴を押し込める、などを併用する<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -115,7 +115,7 @@ float3 ClipAabb(float3 aabb_min, float3 aabb_max, float3 history, float3 center)
 }
 ```
 
-コードの要点です。`ClipAabb` は、履歴を範囲の「中心」へ向かって境界までクリップし、単純な `clamp` より色が自然になります。分散クリップでは、`aabb_min/max` を、`平均 ± γ × 標準偏差`（γ ≒ 1.0〜1.25）で作ります。
+コードの要点です。`ClipAabb` は、履歴を範囲の「中心」へ向かって境界までクリップし、単純な `clamp` より色が自然になります。分散クリップでは、`aabb_min/max` を `平均 ± γ × 標準偏差`（γ ≒ 1.0〜1.25）で作ります。
 
 ## ぼけ
 
@@ -179,10 +179,10 @@ TAA の発展形として、低解像度で描き、時間的に蓄積しなが�
 ??? failure "TAA を入れたら、全体がぼやけた"
     バイリニアの履歴が原因。バイキュービック ＋ シャープ化。
 
-??? failure "パーティクルが、TAA で二重に見える"
+??? failure "パーティクルが TAA で二重に見える"
     パーティクルは、TAA の後に描く。
 
-??? failure "カット直後に、前のシーンが一瞬残る"
+??? failure "カット直後に前のシーンが一瞬残る"
     履歴をリセットする。
 
 ## これだけ覚える

@@ -14,7 +14,7 @@ tags:
 `#include <tuple>`
 </div>
 
-`std::forward_as_tuple` は、**引数を、左辺値・右辺値の区別を保ったまま、参照の tuple にまとめる**関数です。他の関数へ引数の束をそのまま転送するときに使います。[`std::piecewise_construct`](piecewise_construct.md) と組み合わせて、`map::emplace` に使うのが典型です。
+`std::forward_as_tuple` は、**引数を左辺値・右辺値の区別を保ったまま、参照の tuple にまとめる**関数です。他の関数へ引数の束をそのまま転送するときに使います。[`std::piecewise_construct`](piecewise_construct.md) と組み合わせて、`map::emplace` に使うのが典型です。
 
 !!! tip "ポイント"
     - 作った tuple は**参照**を持つだけ。コピーはしない。
@@ -66,7 +66,7 @@ int main() {
 ## よくあるミス
 
 ??? failure "保存して後で使う"
-    参照の tuple を、元の値が消えたあとで使うと未定義動作です。保存するなら `std::make_tuple` でコピーします。
+    参照の tuple を元の値が消えたあとで使うと未定義動作です。保存するなら `std::make_tuple` でコピーします。
 
 ## 類似
 

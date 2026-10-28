@@ -15,7 +15,7 @@ tags:
 `#include <cmath>`
 </div>
 
-`std::ilogb` が指数を `int` で返すのに対し、`std::logb` は、<strong>指数を浮動小数点数で返し</strong>ます。非正規化数でも正しい指数を返す点が、`frexp` などと違います。
+`std::ilogb` が指数を `int` で返すのに対し、`std::logb` は、<strong>指数を浮動小数点数で返し</strong>ます。非正規化数でも正しい指数を返す点が `frexp` などと違います。
 
 !!! tip "ポイント"
     - `std::logb(8.0)` は 3.0、`std::logb(10.0)` も 3.0

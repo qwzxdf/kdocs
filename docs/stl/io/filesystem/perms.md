@@ -15,7 +15,7 @@ tags:
 `#include <filesystem>`
 </div>
 
-`owner_read`・`owner_write`・`owner_exec` のように、所有者・グループ・その他に対する権限を、ビットで表します。`|` でつなぎ、`&` で調べます。Windows では、読み取り専用かどうかだけが反映されます。
+`owner_read`・`owner_write`・`owner_exec` のように、所有者・グループ・その他に対する権限をビットで表します。`|` でつなぎ、`&` で調べます。Windows では、読み取り専用かどうかだけが反映されます。
 
 !!! tip "ポイント"
     - `std::filesystem` の部品。

@@ -55,7 +55,7 @@ Release の設定を確認します。
 | --- | --- |
 | C++（Engine、EngineApi、Game、Player） | 構成「Release」、プラットフォーム「x64」。C/C++ → 最適化 = 速度を優先 (`/O2`)。コード生成 → ランタイム ライブラリ = マルチスレッド DLL (`/MD`) |
 | C#（Editor） | 構成「Release」。`Optimize` = true（Release の既定） |
-| 全体 | `Directory.Build.props` の出力先が、`bin\x64\Release\` になる（第 1 章） |
+| 全体 | `Directory.Build.props` の出力先が `bin\x64\Release\` になる（第 1 章） |
 
 Release でも `pdb` を作る設定にしておくと、クラッシュ ダンプ（第 44 章）が読めます。
 
@@ -134,7 +134,7 @@ Write-Host "作成しました: $out.zip"
 
 ## .NET ランタイムをどうするか
 
-`Editor.exe` を動かすための .NET を、同梱するかどうかを選びます。
+`Editor.exe` を動かすための .NET を同梱するかどうかを選びます。
 
 | 方式 | 内容 | 長所 | 短所 |
 | --- | --- | --- | --- |
@@ -218,7 +218,7 @@ jobs:
           path: dist/*.zip
 ```
 
-`actions/checkout` はリポジトリを取得する公式の部品、`upload-artifact` は成果物（zip）を実行結果から取り出せるようにする部品です。CI の価値は、「自分の PC では動く」問題を、他の環境でもビルドが通ることで検出できる点にあります。
+`actions/checkout` はリポジトリを取得する公式の部品、`upload-artifact` は成果物（zip）を実行結果から取り出せるようにする部品です。CI の価値は、「自分の PC では動く」問題を他の環境でもビルドが通ることで検出できる点にあります。
 
 ## ビューモデルのテスト
 
@@ -465,7 +465,7 @@ Windows Sandbox（Windows の機能の 1 つ）を使うと、まっさらな Wi
 ??? failure "Release だけ、アプリが起動しない"
     C# 側の `Debug.Assert` に必要な処理を書いていたか、C++ の未初期化変数です。Release でも、日常的に動かします。
 
-??? failure "CI で `windows-latest` のビルドが、ローカルと違う結果になる"
+??? failure "CI で `windows-latest` のビルドがローカルと違う結果になる"
     Visual Studio の版や Windows SDK の版の差です。`.vcxproj` の `PlatformToolset` と `WindowsTargetPlatformVersion` を明示して、そろえます。
 
 ??? failure "テスト プロジェクトが `Editor` を参照できない"
@@ -476,7 +476,7 @@ Windows Sandbox（Windows の機能の 1 つ）を使うと、まっさらな Wi
 - 配布は、「何がないと動かないか」を洗い出す作業。Release 版を配布し、ランタイムの扱い（.NET、VC++）を決める。
 - 配布物の作成はスクリプト化して、ビルドはコマンドラインや CI でも通るようにする。
 - ビューモデルはインターフェースに依存しているので、フェイクで単体テストできる。
-- 起動時に、各 API の版を確認する。
+- 起動時に各 API の版を確認する。
 
 最後の章では、作ったものの全体を振り返って、次に進むための道筋を示します。
 

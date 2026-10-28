@@ -32,7 +32,7 @@ tags:
 
 最も単純な方法は <strong>アルファ テスト</strong>です。アルファが 0.5 などのしきい値より小さい画素を捨て（`clip`）、それ以外を不透明として描きます。深度を書けるのでソートが不要で、Z バッファで正しく重なります。影も付けられます。
 
-問題は 輪郭がギザギザになることと遠くで髪がやせることです。アルファの値が連続的に変わる縁が、0 と 1 の 2 値に切られるため、階段状になります。また、ミップマップでアルファが平均されて薄まり閾値を超える画素が減るので、遠くで髪が薄くなります（[Alpha Testing](../../translucency/alpha-test/index.md) のミップの罠）。
+問題は 輪郭がギザギザになることと遠くで髪がやせることです。アルファの値が連続的に変わる縁が 0 と 1 の 2 値に切られるため、階段状になります。また、ミップマップでアルファが平均されて薄まり閾値を超える画素が減るので、遠くで髪が薄くなります（[Alpha Testing](../../translucency/alpha-test/index.md) のミップの罠）。
 
 ## A2C（Alpha to Coverage）と TAA
 
@@ -87,7 +87,7 @@ AMD の TressFX は PPLL（Per-Pixel Linked List）を使います。各画素�
 float Hash(float2 p) { return frac(sin(dot(p, float2(127.1, 311.7))) * 43758.5453); }
 
 float HashedThreshold(float3 object_pos, float3 object_dx, float3 object_dy) {
-  float max_deriv = max(length(object_dx), length(object_dy));            // 画面上の 1 画素が、オブジェクト空間で覆う大きさ
+  float max_deriv = max(length(object_dx), length(object_dy));            // 画面上の 1 画素がオブジェクト空間で覆う大きさ
   float pix_scale = 1.0 / max_deriv;
   float2 pix_scale_pair = float2(exp2(floor(log2(pix_scale))), exp2(ceil(log2(pix_scale))));
   float2 alpha = float2(Hash(floor(pix_scale_pair.x * object_pos.xy)), Hash(floor(pix_scale_pair.y * object_pos.xy)));
@@ -107,11 +107,11 @@ if (alpha < threshold) discard;
 ### 2 パス描画：まず毛先を深度に書き次に色を描く
 
 ```cpp
-// パス 1: アルファ テスト（閾値 0.5 ほど）で、深度だけ書く。毛の芯の部分が、確実に、深度を作る。
+// パス 1: アルファ テスト（閾値 0.5 ほど）で、深度だけ書く。毛の芯の部分が確実に深度を作る。
 context->OMSetDepthStencilState(depth_write_state.Get(), 0);
 DrawHairDepthOnly();
 
-// パス 2: 深度は、書かずに、比較だけ（EQUAL ではなく LESS_EQUAL）。色を、アルファ ブレンドで描く（奥から手前の順に並べ替えた、ストランド）。
+// パス 2: 深度は、書かずに、比較だけ（EQUAL ではなく LESS_EQUAL）。色をアルファ ブレンドで描く（奥から手前の順に並べ替えた、ストランド）。
 context->OMSetDepthStencilState(depth_test_only_state.Get(), 0);
 context->OMSetBlendState(alpha_blend_state.Get(), nullptr, 0xFFFFFFFF);
 DrawHairColor();
@@ -127,8 +127,8 @@ DrawHairColor();
 ??? failure "遠くで髪が薄くなって、透けて見える"
     ミップでアルファが薄まっている。ミップごとにアルファを補正する（カバレッジ保存）。
 
-??? failure "髪の縁が、頭皮や服の手前に出てしまう"
-    半透明パスの描画順が、深度と合っていない。不透明パスの深度を読んで、背後を隠す。
+??? failure "髪の縁が頭皮や服の手前に出てしまう"
+    半透明パスの描画順が深度と合っていない。不透明パスの深度を読んで、背後を隠す。
 
 ??? failure "OIT のメモリが足りず髪の一部が欠ける"
     保存するフラグメントの数を絞り、残りは近似でまとめる（ハイブリッド OIT）。

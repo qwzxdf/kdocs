@@ -41,13 +41,13 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 
 | 項目 | 設定 | 意味 |
 | --- | --- | --- |
-| `SrcBlend` | `SRC_ALPHA` | ソースの色に、ソースのアルファを掛ける |
-| `DestBlend` | `INV_SRC_ALPHA` | デスティネーションに、(1 − ソースのアルファ) を掛ける |
+| `SrcBlend` | `SRC_ALPHA` | ソースの色にソースのアルファを掛ける |
+| `DestBlend` | `INV_SRC_ALPHA` | デスティネーションに(1 − ソースのアルファ) を掛ける |
 | `BlendOp` | `ADD` | 足す |
-| `DepthWriteMask` | `ZERO` | 深度を書かない（半透明が、後の半透明を隠さない） |
+| `DepthWriteMask` | `ZERO` | 深度を書かない（半透明が後の半透明を隠さない） |
 | `DepthFunc` | `LESS` | 深度テストは行う（不透明の後ろにある物は描かない） |
 
-<strong>深度書き込みを ON のままにする</strong>と、手前の半透明が奥の半透明の描画を妨げます（奥が、描かれなくなる）。
+<strong>深度書き込みを ON のままにする</strong>と、手前の半透明が奥の半透明の描画を妨げます（奥が描かれなくなる）。
 
 <!-- fig:blend-modes:begin -->
 
@@ -55,7 +55,7 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 <defs><marker id="arr-blend-modes" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ブレンドの種類:同じ円を、3 つの混ぜ方で重ねる</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">ブレンドの種類:同じ円を 3 つの混ぜ方で重ねる</text>
 <text x="130" y="70" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">通常（アルファ）</text>
 <rect x="30" y="90" width="50" height="170" fill="#e5484d"/>
 <rect x="80" y="90" width="50" height="170" fill="#2ea043"/>
@@ -107,8 +107,8 @@ device->CreateDepthStencilState(&depth_desc, &transparent_depth_state);
 
 | 部品 | 意味 | よく使う値 |
 | --- | --- | --- |
-| `SrcBlend` | ソース（これから描く色）に、掛ける係数 | `SRC_ALPHA`、`ONE` |
-| `DestBlend` | デスティネーション（画面の色）に、掛ける係数 | `INV_SRC_ALPHA`、`ONE` |
+| `SrcBlend` | ソース（これから描く色）に掛ける係数 | `SRC_ALPHA`、`ONE` |
+| `DestBlend` | デスティネーション（画面の色）に掛ける係数 | `INV_SRC_ALPHA`、`ONE` |
 | `BlendOp` | 2 つをどう組み合わせるか | `ADD`（足す）、`MAX`、`MIN` |
 
 ## 代表的なブレンド
@@ -139,11 +139,11 @@ rt.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 結果 = ソース × α  +  デスティネーション × 1
 ```
 
-火、光、魔法の輝きなど 明るさを足していく表現です。順序に依存しない（足し算は順序を、入れ替えても同じ）のでソートが不要です。
+火、光、魔法の輝きなど 明るさを足していく表現です。順序に依存しない（足し算は順序を入れ替えても同じ）のでソートが不要です。
 
 ```cpp
 rt.SrcBlend = D3D11_BLEND_SRC_ALPHA;
-rt.DestBlend = D3D11_BLEND_ONE;                    // 画面の色を、そのまま残して、足す
+rt.DestBlend = D3D11_BLEND_ONE;                    // 画面の色をそのまま残して、足す
 rt.BlendOp = D3D11_BLEND_OP_ADD;
 ```
 
@@ -170,7 +170,7 @@ rt.DestBlend = D3D11_BLEND_SRC_COLOR;              // 画面の色 × ソース�
 結果 = ソース（すでに α が掛かっている）  +  デスティネーション × (1 − α)
 ```
 
-アルファ ブレンドの ソースに、あらかじめアルファを掛けておく形です（[Premultiplied Alpha](premultiplied.md)）。
+アルファ ブレンドの ソースにあらかじめアルファを掛けておく形です（[Premultiplied Alpha](premultiplied.md)）。
 
 ```cpp
 rt.SrcBlend = D3D11_BLEND_ONE;                     // ソースには、掛けない（掛け済み）
@@ -182,7 +182,7 @@ rt.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 | ブレンド | SrcBlend | DestBlend | 向く表現 | 順序依存 |
 | --- | --- | --- | --- | --- |
 | アルファ | SRC_ALPHA | INV_SRC_ALPHA | ガラス、フェード | 依存する |
-| 乗算済みアルファ | ONE | INV_SRC_ALPHA | 煙 + 光を、1 つのレイヤーで | 依存する |
+| 乗算済みアルファ | ONE | INV_SRC_ALPHA | 煙 + 光を 1 つのレイヤーで | 依存する |
 | 加算 | SRC_ALPHA（または ONE） | ONE | 火、光、魔法 | しない |
 | 乗算 | ZERO | SRC_COLOR | 色ガラス、影 | しない |
 | 最大値（MAX） | ONE | ONE（`BlendOp = MAX`） | 重なっても、強い方だけ残す（[Trampled Grass](../../terrain/vegetation/trample.md)） | しない |
@@ -202,7 +202,7 @@ device->CreateDepthStencilState(&ds, &transparent_depth_state);
 | 設定 | 理由 |
 | --- | --- |
 | テスト：有効 | 不透明な物の、後ろにある半透明は描かない |
-| 書き込み：無効 | 半透明が、深度を書くとその後ろの半透明が、隠れてしまう |
+| 書き込み：無効 | 半透明が深度を書くとその後ろの半透明が隠れてしまう |
 
 ## 描画の順番
 
@@ -218,7 +218,7 @@ device->CreateDepthStencilState(&ds, &transparent_depth_state);
 
 ## 複数のレンダー ターゲットと、ブレンド
 
-レンダー ターゲットごとに <strong>別のブレンド</strong>を、指定できます（`IndependentBlendEnable = TRUE`）。OIT の実装（[WBOIT](../oit/wboit.md)）で、2 つのターゲットに別々の、ブレンドを使います。
+レンダー ターゲットごとに <strong>別のブレンド</strong>を指定できます（`IndependentBlendEnable = TRUE`）。OIT の実装（[WBOIT](../oit/wboit.md)）で、2 つのターゲットに別々の、ブレンドを使います。
 
 ```cpp
 blend.IndependentBlendEnable = TRUE;
@@ -228,7 +228,7 @@ blend.RenderTarget[1] = reveal_blend;        // 乗算風（WBOIT の、透過�
 
 ## よくあるミス
 
-??? failure "半透明の物が、後ろの物を隠して穴が開いたように見える"
+??? failure "半透明の物が後ろの物を隠して穴が開いたように見える"
     <strong>深度の書き込みを OFF</strong>にする。
 
 ## これだけ覚える

@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-`a ? b : c` のように、2 つの型を 1 つの式で扱うとき、型の「共通の姿」が必要です。`common_type` は値の型を、`common_reference` は参照も含めた型を決めます。`int&` と `const int&` からは `const int&` が得られます。
+`a ? b : c` のように、2 つの型を 1 つの式で扱うとき、型の「共通の姿」が必要です。`common_type` は値の型を `common_reference` は参照も含めた型を決めます。`int&` と `const int&` からは `const int&` が得られます。
 
 !!! tip "ポイント"
     - `common_reference_t<T...>` で型が取れる。

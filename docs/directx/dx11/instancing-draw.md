@@ -16,7 +16,7 @@ tags:
     - 1 回の命令で同じメッシュを N 個描く。物ごとの違い（位置、色）は <strong>インスタンス データ</strong>で渡す。
     - インスタンス データの渡し方は 2 通り。<strong>入力レイアウトの `PER_INSTANCE_DATA`</strong>（頂点バッファの 2 本目）、または <strong>`StructuredBuffer` を `SV_InstanceID` で引く</strong>。
     - 描画は `DrawIndexedInstanced`（`DrawInstanced`）。
-    - インスタンスの数が、GPU で決まるなら `DrawIndexedInstancedIndirect`（間接描画）。
+    - インスタンスの数が GPU で決まるなら `DrawIndexedInstancedIndirect`（間接描画）。
     - ドロー コールを減らす最も基本の手段（[Draw Calls](../../rendering/draw-calls.md)）。
 
 !!! info "このページを読む前に"
@@ -41,7 +41,7 @@ const D3D11_INPUT_ELEMENT_DESC elements[] = {
     // スロット 0: メッシュの頂点（頂点ごと）
     {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
     {"NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0},
-    // スロット 1: インスタンス データ（インスタンスごと）。4×4 行列は、float4 を 4 本に、分けて渡す。
+    // スロット 1: インスタンス データ（インスタンスごと）。4×4 行列は、float4 を 4 本に分けて渡す。
     {"WORLD", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 0,  D3D11_INPUT_PER_INSTANCE_DATA, 1},
     {"WORLD", 1, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 16, D3D11_INPUT_PER_INSTANCE_DATA, 1},
     {"WORLD", 2, DXGI_FORMAT_R32G32B32A32_FLOAT, 1, 32, D3D11_INPUT_PER_INSTANCE_DATA, 1},
@@ -50,7 +50,7 @@ const D3D11_INPUT_ELEMENT_DESC elements[] = {
 };
 ```
 
-`PER_INSTANCE_DATA` の要素は <strong>インスタンスが、1 つ進むごと</strong>（最後の引数 `1`）に次のデータに進みます。1 つの要素は最大 16 バイトなので、4×4 行列は `float4` の 4 要素（`WORLD0`〜`WORLD3`）に分けます。
+`PER_INSTANCE_DATA` の要素は <strong>インスタンスが 1 つ進むごと</strong>（最後の引数 `1`）に次のデータに進みます。1 つの要素は最大 16 バイトなので、4×4 行列は `float4` の 4 要素（`WORLD0`〜`WORLD3`）に分けます。
 
 ```hlsl
 struct VSInput {
@@ -97,7 +97,7 @@ VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
 ```
 
 ```cpp
-// 構造化バッファを作り、SRV を、頂点シェーダーに、つなぐ。
+// 構造化バッファを作り、SRV を頂点シェーダーにつなぐ。
 D3D11_BUFFER_DESC desc = {};
 desc.ByteWidth = sizeof(InstanceData) * max_instances;
 desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -121,7 +121,7 @@ context->DrawIndexedInstanced(index_count, instance_count, 0, 0, 0);
 
 | | `PER_INSTANCE_DATA` | `StructuredBuffer` + `SV_InstanceID` |
 | --- | --- | --- |
-| 入力レイアウト | インスタンスの要素が、要る | 要らない |
+| 入力レイアウト | インスタンスの要素が要る | 要らない |
 | 構造体の自由度 | 1 要素 16 バイトまで、分ける | 自由 |
 | 計算シェーダーとの連携 | UAV で書いた、バッファを頂点バッファに（`BIND_VERTEX_BUFFER` と `BIND_UNORDERED_ACCESS` は、同時に不可の場合あり） | UAV で書いて、SRV で読める |
 | 向く場面 | 単純なインスタンス（草、弾） | 大量・複雑なデータ、GPU カリング |
@@ -132,7 +132,7 @@ context->DrawIndexedInstanced(index_count, instance_count, 0, 0, 0);
 context->DrawIndexedInstanced(IndexCountPerInstance,   // 1 インスタンスの、インデックスの数
                               InstanceCount,           // インスタンスの数
                               StartIndexLocation,      // インデックス バッファの、開始位置
-                              BaseVertexLocation,      // 各インデックスに、足す値
+                              BaseVertexLocation,      // 各インデックスに足す値
                               StartInstanceLocation);  // インスタンス ID の、開始値（SV_InstanceID の、基準）
 ```
 
@@ -169,15 +169,15 @@ context->DrawIndexedInstancedIndirect(args_buffer.Get(), 0);   // 引数は、�
 | `DrawIndexedInstanced`（同じ木） | 1 回 |
 | 種類の違う木（5 種類）ごとにインスタンス描画 | 5 回 |
 
-ドロー コールが数千回を超えると、CPU のドライバーの処理が、ボトルネックになります。インスタンス描画で数十回に減らせます。
+ドロー コールが数千回を超えると、CPU のドライバーの処理がボトルネックになります。インスタンス描画で数十回に減らせます。
 
 ## よくあるミス
 
 ??? failure "全部のインスタンスが同じ位置に描かれる"
     `PER_INSTANCE_DATA` の `InstanceDataStepRate` が 0（頂点ごと）。`1` にする。または、`SV_InstanceID` でバッファを引いていない。
 
-??? failure "入力レイアウトの作成が、失敗する（行列）"
-    `WORLD` のセマンティクス番号（`WORLD0`〜`WORLD3`）が、シェーダーの `float4x4` の入力と合っていない。4 つの `float4` に分けて書く。
+??? failure "入力レイアウトの作成が失敗する（行列）"
+    `WORLD` のセマンティクス番号（`WORLD0`〜`WORLD3`）がシェーダーの `float4x4` の入力と合っていない。4 つの `float4` に分けて書く。
 
 ??? failure "インスタンスの一部だけ描かれる"
     バッファの要素数が `InstanceCount` より少ない。`DYNAMIC` バッファの `Map` で全インスタンスぶん書いていない。
@@ -192,7 +192,7 @@ context->DrawIndexedInstancedIndirect(args_buffer.Get(), 0);   // 引数は、�
     - [x] インスタンス データは、`PER_INSTANCE_DATA`（2 本目の頂点バッファ）か `StructuredBuffer` + `SV_InstanceID`
     - [x] 描画は `DrawIndexedInstanced`
     - [x] 4×4 行列は `float4` の 4 要素に分けて入力する
-    - [x] 描く数が、GPU で決まるなら間接描画（`…Indirect`）
+    - [x] 描く数が GPU で決まるなら間接描画（`…Indirect`）
 
 ## 関連ページ
 

@@ -6,7 +6,7 @@ tags:
 
 # Shadow Map Basics
 
-<strong>シャドウ マップ</strong>は <strong>「光から見える一番手前の物までの距離」を画像に記録し、画面の点がそれより遠ければ影</strong>と判定する方式です。原理が簡単で GPU に向いているので、現代のリアルタイムの影の土台です。このセクションでは原理と手順・光の行列・深度を描くパス・比較と比較サンプラー・エイリアシングと安定化・最小のコードを、1 つずつ別のページで説明します。
+<strong>シャドウ マップ</strong>は <strong>「光から見える一番手前の物までの距離」を画像に記録し、画面の点がそれより遠ければ影</strong>と判定する方式です。原理が簡単で GPU に向いているので、現代のリアルタイムの影の土台です。このセクションでは原理と手順・光の行列・深度を描くパス・比較と比較サンプラー・エイリアシングと安定化・最小のコードを 1 つずつ別のページで説明します。
 
 ## 原理
 <svg class="fig illust" viewBox="0 0 780 290" role="img" aria-label="シャドウ マップの原理">
@@ -31,7 +31,7 @@ tags:
 | --- | --- |
 | ① 光のビュー・射影行列を作る | 光の位置・向きから、ビューと射影（平行光は正射影） |
 | ② シャドウ マップを描く | 光の視点から、影を落とす物体の深度だけを描く（ピクセルシェーダーなし） |
-| ③ 通常の描画で光の座標に変換 | 各ピクセルのワールド位置を、光のクリップ空間へ |
+| ③ 通常の描画で光の座標に変換 | 各ピクセルのワールド位置を光のクリップ空間へ |
 | ④ シャドウ マップを引く | 変換した <strong>(u, v)</strong> で、保存された深度を読む |
 | ⑤ 深度を比べる | <strong>自分の深度（光から見た）</strong>が、保存された深度より奥なら影 |
 
@@ -43,7 +43,7 @@ tags:
 | [Rendering Depth](render-depth.md) | 光から見た深度だけのパス・設定 |
 | [Comparison Samplers](comparison-sampler.md) | 深度の比較・比較サンプラー（ハードウェア PCF） |
 | [Aliasing and Stabilization](aliasing-stabilize.md) | 解像度不足・テクセルの揺れ・スナップ |
-| [Minimal Code](minimal-code.md) | 全体の流れを、最小のコードで通す |
+| [Minimal Code](minimal-code.md) | 全体の流れを最小のコードで通す |
 
 ## 動きで見る
 
@@ -54,7 +54,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">シャドウ マップ: 光から見た「いちばん手前の深度」と比べて、影かどうかを決める</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面図。地面 28 マスのそれぞれを、光の側の深度表(シャドウ マップ)と比べる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面図。地面 28 マスのそれぞれを光の側の深度表(シャドウ マップ)と比べる</text>
 <rect x="30" y="92" width="500" height="200" fill="#ffffff" stroke="#e5aa28" stroke-width="1.8" rx="6"/>
 <text x="30" y="82" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5aa28">① 光から見たシーン(断面)</text>
 <line x1="44.0" y1="258.0" x2="520.0" y2="258.0" stroke="#94a3b8" stroke-width="3"/>
@@ -108,7 +108,7 @@ tags:
 <text x="690" y="314" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed" opacity="0">15<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1734;0.1736;0.1828;0.1830;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="690" y="314" text-anchor="start" style="font-size:20px;font-weight:700;fill:#7c3aed" opacity="0">16<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.1828;0.1830;1.0000" values="0;0;1;1"/></text>
 <text x="730" y="312" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">マス(深度の最小値だけ残す)</text>
-<text x="30" y="340" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">③ 地面の 28 マスを、表と比べる(黄 = 光が当たる / 暗い = 影、赤枠 = 偽の影、青枠 = 欠けた影)</text>
+<text x="30" y="340" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">③ 地面の 28 マスを表と比べる(黄 = 光が当たる / 暗い = 影、赤枠 = 偽の影、青枠 = 欠けた影)</text>
 <rect x="134.0" y="368.0" width="12.8" height="12.8" fill="#e5e7eb"><animate attributeName="fill" dur="23.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2434" values="#e5e7eb;#fde68a"/></rect>
 <rect x="146.5" y="368.0" width="12.8" height="12.8" fill="#e5e7eb"><animate attributeName="fill" dur="23.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2485" values="#e5e7eb;#475569"/></rect>
 <rect x="159.0" y="368.0" width="12.8" height="12.8" fill="#e5e7eb"><animate attributeName="fill" dur="23.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2536" values="#e5e7eb;#fde68a"/></rect>
@@ -305,9 +305,9 @@ tags:
 <text x="626" y="442" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">小さすぎると縞、大きすぎると影が浮く</text>
 </g>
 <text x="30" y="524" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光から見て、各方向のいちばん手前の面までの距離だけを覚える<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0424;0.0426;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="524" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">① 光から見た深度を、表(シャドウ マップ)に書く(マスの中心だけで測る)<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0424;0.0426;0.2177;0.2179;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="524" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">② 地面の各マスの「光からの距離」を、表と比べる(バイアス 0)<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.2432;0.2434;0.4458;0.4460;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="524" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">③ 比べる前に、少しだけ引く → 縞が消える<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4458;0.4460;0.6483;0.6485;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="524" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">① 光から見た深度を表(シャドウ マップ)に書く(マスの中心だけで測る)<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.0424;0.0426;0.2177;0.2179;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="524" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">② 地面の各マスの「光からの距離」を表と比べる(バイアス 0)<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.2432;0.2434;0.4458;0.4460;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="524" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">③ 比べる前に少しだけ引く → 縞が消える<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.4458;0.4460;0.6483;0.6485;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="524" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">④ 引きすぎると、本物の影まで欠ける(影が浮く)<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.6483;0.6485;0.8509;0.8511;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="524" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">バイアスは、偽の影が消える最小に近い値にする<animate attributeName="opacity" dur="23.5s" repeatCount="indefinite" keyTimes="0.0000;0.8509;0.8511;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -320,7 +320,7 @@ tags:
 
 1. 光の位置にカメラを置いて、シーンを描き光から一番近い物までの、距離（深度）をテクスチャに保存する（シャドウ マップ）
 2. 普通に、カメラからシーンを描くとき画素ごとに、「この点を光から見たらどこに映り、光からの距離はいくつか」を求める
-3. その距離がシャドウ マップに、保存された深度より遠いなら光との間に、別の物がある（影の中）。ほぼ同じなら光が当たる
+3. その距離がシャドウ マップに保存された深度より遠いなら光との間に別の物がある（影の中）。ほぼ同じなら光が当たる
 
 ```text
 光 ●────────●────────●
@@ -336,7 +336,7 @@ tags:
 | ① シャドウ パス | 光の視点で、深度だけを描く | シャドウ マップ（深度テクスチャ） |
 | ② メイン パス | カメラの視点で描く。各画素で光の座標系に変換して、シャドウ マップを比べる | 最終の色 |
 
-①は <strong>色を計算しない</strong>ので <strong>軽く</strong>（深度だけ）、②では 1 画素あたりテクスチャ読み込み 1 回（比較つき）が、増えます。
+①は <strong>色を計算しない</strong>ので <strong>軽く</strong>（深度だけ）、②では 1 画素あたりテクスチャ読み込み 1 回（比較つき）が増えます。
 
 ## 光の種類ごとのカメラ
 
@@ -344,19 +344,19 @@ tags:
 | --- | --- | --- |
 | 平行光源（太陽） | 正射影（平行投影） | 1 枚（広い場所では複数。[CSM](../cascaded.md)） |
 | スポットライト | 透視投影（円錐の、開き角が視野角） | 1 枚 |
-| 点光源 | 全方向。6 面のキューブマップ（各面が、90° の透視投影） | 6 枚 |
+| 点光源 | 全方向。6 面のキューブマップ（各面が 90° の透視投影） | 6 枚 |
 
 ## シャドウ マップの課題
 
-シャドウ マップは <strong>解像度に、限りのある深度の画像</strong>です。そのため、次の問題が避けられません。
+シャドウ マップは <strong>解像度に限りのある深度の画像</strong>です。そのため、次の問題が避けられません。
 
 | 問題 | 原因 | 対策 |
 | --- | --- | --- |
-| 影のジャギー（階段状の縁） | 解像度が、足りない（シャドウ マップの 1 画素が、画面の複数画素に拡大） | フィルタリング（[PCF](../pcf.md)）、解像度を上げるカスケード |
+| 影のジャギー（階段状の縁） | 解像度が足りない（シャドウ マップの 1 画素が画面の複数画素に拡大） | フィルタリング（[PCF](../pcf.md)）、解像度を上げるカスケード |
 | シャドウ アクネ（縞模様の、自己影） | 深度の精度の誤差と、斜めの面で自分自身を遮蔽 | バイアス（[Shadow Bias](../bias/index.md)） |
 | ピーター パンニング（影が物から、浮く） | バイアスが大きすぎる | バイアスを適切に小さく、法線オフセット |
 | 影がちらつく（カメラの動きで） | シャドウ マップの、画素の位置がフレームごとにずれる | テクセル スナップ（[Aliasing and Stabilization](aliasing-stabilize.md)） |
-| 遠くで解像度が足りない | 太陽の、シャドウ マップが広い範囲を、覆う | カスケード（[CSM](../cascaded.md)） |
+| 遠くで解像度が足りない | 太陽の、シャドウ マップが広い範囲を覆う | カスケード（[CSM](../cascaded.md)） |
 | 影の縁が硬い | 点光源の、仮定 | [PCSS](../pcss.md)、[VSM](../vsm/index.md) |
 
 ## 実装の順序

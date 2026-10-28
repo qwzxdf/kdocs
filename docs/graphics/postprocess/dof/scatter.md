@@ -6,10 +6,10 @@ tags:
 
 # Scatter Method
 
-<strong>スキャッター（Scatter）</strong>は、ギャザーの逆で、「各画素が自分の色を、CoC の円盤として周りに広げる（散らす）」方式の DOF です。特に明るい小さな点が大きな円盤（ボケ）として広がる様子をギャザーより正確に表現できます。映画のような、光の玉ボケが得られる反面、重いため、使い所を絞ります。このページでは、ギャザーとの違い・スプライトで散らす方法・明るさの扱い・コスト・使い分け（ハイブリッド）を説明します。
+<strong>スキャッター（Scatter）</strong>は、ギャザーの逆で、「各画素が自分の色を CoC の円盤として周りに広げる（散らす）」方式の DOF です。特に明るい小さな点が大きな円盤（ボケ）として広がる様子をギャザーより正確に表現できます。映画のような、光の玉ボケが得られる反面、重いため、使い所を絞ります。このページでは、ギャザーとの違い・スプライトで散らす方法・明るさの扱い・コスト・使い分け（ハイブリッド）を説明します。
 
 !!! tip "ポイント"
-    - スキャッター ＝ <strong>各画素が、自分の色を CoC の大きさの円盤として周りに足し込む</strong>。
+    - スキャッター ＝ <strong>各画素が自分の色を CoC の大きさの円盤として周りに足し込む</strong>。
     - <strong>ギャザー</strong>は小さなボケは得意、大きな明るいボケの形（玉ボケ）は苦手。スキャッターは玉ボケが得意。
     - 実装は画素ごとにスプライト（板ポリ）を描き、加算ブレンド。ジオメトリ数が画素数になり重い。
     - ボケが大きい（CoC が閾値以上）画素だけをスキャッターし、残りはギャザーにする（ハイブリッド）。
@@ -34,7 +34,7 @@ tags:
 光源が円盤として広がる「玉ボケ」は、スキャッターがもっとも得意です。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="スキャッター">
-<text x="20" y="26" class="fig-title">スキャッター：明るい点が、円盤として広がる</text>
+<text x="20" y="26" class="fig-title">スキャッター：明るい点が円盤として広がる</text>
 <g transform="translate(40,50)">
 <rect x="0" y="0" width="200" height="160" fill="#0f172a"/>
 <circle cx="60" cy="60" r="3" fill="#fff7d1"/><circle cx="140" cy="100" r="3" fill="#fff7d1"/><circle cx="90" cy="130" r="3" fill="#fff7d1"/>
@@ -98,7 +98,7 @@ float4 PSMain(VSOutput input) : SV_Target {
 
 ### 方式 2：コンピュートでタイル分け
 
-ボケの大きい画素だけを、コンピュートで分類してから描画する方法もあります。画素の数が多いのでボケが大きい画素（CoC が閾値以上）だけをスキャッターします。
+ボケの大きい画素だけをコンピュートで分類してから描画する方法もあります。画素の数が多いのでボケが大きい画素（CoC が閾値以上）だけをスキャッターします。
 
 ## ハイブリッド（実用の標準）
 
@@ -115,7 +115,7 @@ float4 PSMain(VSOutput input) : SV_Target {
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">スキャッター(広げる)とギャザー(集める): ぼけの半径が大きいほど、直接のスキャッターは高い。タップ数を固定したギャザーは、一定</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1920×1080。ぼける半径(画素)ごとの、1 画素あたりの処理の回数を、数えて比べる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1920×1080。ぼける半径(画素)ごとの、1 画素あたりの処理の回数を数えて比べる</text>
 <rect x="30" y="96" width="900" height="280" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 1 画素あたり、必要な処理の回数(対数目盛)</text>
 <line x1="70" y1="346.0" x2="900" y2="346.0" stroke="#e2e8f0" stroke-width="1.2"/>
@@ -170,20 +170,20 @@ float4 PSMain(VSOutput input) : SV_Target {
 <g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.7673;0.7674;1.0000" values="0;0;1;1"/><rect x="40" y="436" width="880" height="80" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="56" y="460" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">半径 32 では、広げる 4,225 回 / 画素、集める(上限つき)49 回 / 画素(約 86 倍)</text>
 <text x="56" y="484" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">集める方は、サンプルを減らすので、粗くなる(ノイズ・縞)。広げる方は、きれいだが重い</text>
-<text x="56" y="506" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">だから、ぼけの小さい所は、集める。明るい大きなぼけだけを、広げる、という組み合わせが多い</text>
+<text x="56" y="506" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">だから、ぼけの小さい所は、集める。明るい大きなぼけだけを広げる、という組み合わせが多い</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ぼかし方は、広げる(スキャッター)と、集める(ギャザー)の 2 通り<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ぼけが大きくなると、円盤の面積が、半径の 2 乗で増える<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.7673;0.7674;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">上限つきの集めは、一定のコスト。見た目とコストを、天秤にかける<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.7673;0.7674;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ぼけが大きくなると、円盤の面積が半径の 2 乗で増える<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.7673;0.7674;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">上限つきの集めは、一定のコスト。見た目とコストを天秤にかける<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.7673;0.7674;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:dof-scatter-gather:end -->
 
 ## 明るさの扱い
 
-<strong>玉ボケの見た目は、元の点の「明るさ」で決まります</strong>。HDR の高い値（1 を超える）が、そのまま円盤に広がることで、明るい玉ボケができます。
+<strong>玉ボケの見た目は、元の点の「明るさ」で決まります</strong>。HDR の高い値（1 を超える）がそのまま円盤に広がることで、明るい玉ボケができます。
 
-玉ボケの見た目は、元の点の明るさで決まります。HDR の高い値（1 を超える）が、そのまま円盤に広がるので、明るい玉ボケができます。そのため、トーンマップの前の HDR で処理します。面積で割る（エネルギー保存）ことで、広げても合計の明るさは同じになり、円盤は薄くても十分明るくなります。極端に明るい 1 点が巨大な円盤になって目立つファイアフライには、輝度のクランプを併用します。
+玉ボケの見た目は、元の点の明るさで決まります。HDR の高い値（1 を超える）がそのまま円盤に広がるので、明るい玉ボケができます。そのため、トーンマップの前の HDR で処理します。面積で割る（エネルギー保存）ことで、広げても合計の明るさは同じになり、円盤は薄くても十分明るくなります。極端に明るい 1 点が巨大な円盤になって目立つファイアフライには、輝度のクランプを併用します。
 
 ## コスト
 
@@ -204,19 +204,19 @@ float4 PSMain(VSOutput input) : SV_Target {
 ??? failure "スキャッターで、画面全体が明るくなりすぎる"
     <strong>面積で割っていない</strong>。エネルギー保存にする。
 
-??? failure "小さな明るい点が、巨大な円盤になって目立ちすぎる"
+??? failure "小さな明るい点が巨大な円盤になって目立ちすぎる"
     輝度のクランプ、CoC の最大値を下げる。
 
 ??? failure "全画素をスキャッターして、フレームが落ちる"
     大きく明るい画素だけにする（ハイブリッド）。
 
-??? failure "前景と背景の円盤が、正しい順序で重ならない"
+??? failure "前景と背景の円盤が正しい順序で重ならない"
     前景・背景を別々の画像に描き、合成する。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] スキャッター ＝ <strong>各画素が、色を円盤として周りに広げる</strong>
+    - [x] スキャッター ＝ <strong>各画素が色を円盤として周りに広げる</strong>
     - [x] 玉ボケ（明るい大きなボケ）が得意。重い
     - [x] 面積で割ってエネルギー保存。加算ブレンド
     - [x] ハイブリッド（小さいボケはギャザー）が実用的

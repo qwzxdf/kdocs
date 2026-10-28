@@ -15,7 +15,7 @@ tags:
 `#include <atomic>`
 </div>
 
-`std::atomic_ref` は、**すでにある普通の変数（`int` や配列の要素）を、その場でアトミックに操作できるようにする**参照です。大きな配列の一部の要素だけを、複数のスレッドから安全に足したいとき（ヒストグラムなど）に、`std::atomic<int>` の配列を作らずに済みます。
+`std::atomic_ref` は、**すでにある普通の変数（`int` や配列の要素）をその場でアトミックに操作できるようにする**参照です。大きな配列の一部の要素だけを複数のスレッドから安全に足したいとき（ヒストグラムなど）に `std::atomic<int>` の配列を作らずに済みます。
 
 !!! tip "ポイント"
     - `std::atomic_ref<int> ref(counter);` と包むと、`fetch_add` などが使える。
@@ -71,7 +71,7 @@ T load(std::memory_order order = std::memory_order_seq_cst) const noexcept;
 
 - 計算量: 定数
 
-参照している変数の値を、アトミックに読みます。
+参照している変数の値をアトミックに読みます。
 
 ### store {#store}
 
@@ -81,7 +81,7 @@ void store(T desired, std::memory_order order = std::memory_order_seq_cst) const
 
 - 計算量: 定数
 
-参照している変数に、アトミックに値を書きます。
+参照している変数にアトミックに値を書きます。
 
 ### exchange {#exchange}
 
@@ -177,12 +177,12 @@ void notify_all() const noexcept;
 
 | 場面 | 書き方 |
 | --- | --- |
-| 巨大な配列の要素を、複数のスレッドが加算する（ヒストグラム） | `std::atomic_ref<int>(bins[i]).fetch_add(1);` |
+| 巨大な配列の要素を複数のスレッドが加算する（ヒストグラム） | `std::atomic_ref<int>(bins[i]).fetch_add(1);` |
 
 ## よくあるミス
 
 ??? failure "同時に別の方法で触る"
-    `atomic_ref` の最中に、普通の代入や読み取りを混ぜると競合します。アクセスは全部 `atomic_ref` 経由にします。
+    `atomic_ref` の最中に普通の代入や読み取りを混ぜると競合します。アクセスは全部 `atomic_ref` 経由にします。
 
 ??? failure "アラインメントが足りない"
     `float` や `int` は通常問題ありませんが、パックされた構造体のメンバでは足りないことがあります。

@@ -6,7 +6,7 @@ tags:
 
 # MSAA
 
-<strong>MSAA（マルチサンプル アンチエイリアス）</strong>は、三角形の縁だけを、1 画素に複数のサンプル点で判定して、滑らかにする方式です。ピクセル シェーダーは 1 画素につき 1 回だけ走るので、画素を全部 4 倍や 8 倍に増やす SSAA より、はるかに安いのにジオメトリの縁のジャギーはしっかり消せます。ただし、シェーダー内のエイリアシングには効かず、ディファード レンダリングとは相性が悪いという弱点があります。このページでは、SSAA との違い・サンプル パターン・カバレッジとリゾルブ・DX11 の設定・弱点と対処を説明します。
+<strong>MSAA（マルチサンプル アンチエイリアス）</strong>は、三角形の縁だけを 1 画素に複数のサンプル点で判定して、滑らかにする方式です。ピクセル シェーダーは 1 画素につき 1 回だけ走るので、画素を全部 4 倍や 8 倍に増やす SSAA より、はるかに安いのにジオメトリの縁のジャギーはしっかり消せます。ただし、シェーダー内のエイリアシングには効かず、ディファード レンダリングとは相性が悪いという弱点があります。このページでは、SSAA との違い・サンプル パターン・カバレッジとリゾルブ・DX11 の設定・弱点と対処を説明します。
 
 !!! tip "ポイント"
     - MSAA ＝ <strong>1 画素に複数のサンプル点（2・4・8）</strong>。<strong>三角形が各サンプルを覆うかを判定</strong>。
@@ -371,7 +371,7 @@ tags:
 <text x="46" y="501" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">内側の画素は、4 サンプルとも同じ → 色は 1 回で足りる</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">縁の画素は、三角形に半分だけかかっている<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">4 つのサンプル点が、三角形の中か外かを、画素ごとに数える<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.1626;0.1628;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">4 つのサンプル点が三角形の中か外かを画素ごとに数える<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.1626;0.1628;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">中の数の割合で、三角形の色と背景を混ぜる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.1626;0.1628;0.2556;0.2558;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">色の計算は 1 画素 1 回のまま。解像度を上げるより、ずっと安い<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.2556;0.2558;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -411,7 +411,7 @@ SSAA 4x と MSAA 4x を比べます。SSAA 4x は、ピクセル シェーダー
 
 | 手順 | 内容 |
 | --- | --- |
-| ① 各サンプルのカバレッジ | 三角形が画素内の複数のサンプル点を、それぞれ覆うかを判定（ラスタライザ） |
+| ① 各サンプルのカバレッジ | 三角形が画素内の複数のサンプル点をそれぞれ覆うかを判定（ラスタライザ） |
 | ② ピクセル シェーダーは 1 回 | 画素ごとに 1 回、色を計算（画素の中心付近） |
 | ③ 覆ったサンプルに書く | その色を覆ったサンプルすべてに書く（深度はサンプルごとに別） |
 | ④ リゾルブ | 各画素のサンプルを平均して、1 つの色に |
@@ -464,7 +464,7 @@ HDR（値が 1 を超える）をそのまま平均すると、明るい点が�
 
 ### アルファ トゥ カバレッジ（A2C）
 
-葉・フェンスのアルファ テストの縁は、MSAA で滑らかになりません。A2C を有効にすると、ピクセル シェーダーが出力したアルファを、カバレッジ マスクに変換し、サンプルごとに覆う・覆わないを決めます。
+葉・フェンスのアルファ テストの縁は、MSAA で滑らかになりません。A2C を有効にすると、ピクセル シェーダーが出力したアルファをカバレッジ マスクに変換し、サンプルごとに覆う・覆わないを決めます。
 
 ```cpp
 D3D11_BLEND_DESC blend = {};
@@ -492,7 +492,7 @@ blend.AlphaToCoverageEnable = TRUE;
 ??? failure "ディファードで MSAA を有効にして、極端に重くなる"
     G バッファが全サンプル分。フォワード系にするか、TAA に切り替える。
 
-??? failure "葉のアルファ テストの縁が、ジャギーのまま"
+??? failure "葉のアルファ テストの縁がジャギーのまま"
     A2C（`AlphaToCoverageEnable`）を使う。
 
 ## これだけ覚える

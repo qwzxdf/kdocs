@@ -6,10 +6,10 @@ tags:
 
 # Self-Occlusion
 
-<strong>平らな面なのに、縞や斑点が出る</strong>のが自己遮蔽の失敗です。深度バッファの精度が足りず、自分自身の面が、サンプルを遮ると判定されるためです。バイアス（わずかな余裕）や、法線に沿った半球で防ぎます。このページでは、自己遮蔽の原因・バイアス・法線方向の半球を説明します。
+<strong>平らな面なのに、縞や斑点が出る</strong>のが自己遮蔽の失敗です。深度バッファの精度が足りず、自分自身の面がサンプルを遮ると判定されるためです。バイアス（わずかな余裕）や、法線に沿った半球で防ぎます。このページでは、自己遮蔽の原因・バイアス・法線方向の半球を説明します。
 
 !!! tip "ポイント"
-    - 自己遮蔽 ＝ 自分の面が、サンプルを遮ると誤判定。
+    - 自己遮蔽 ＝ 自分の面がサンプルを遮ると誤判定。
     - 原因 ＝ 深度の精度・面の傾き。
     - 対策 ＝ バイアス（深度の比較に余裕）・法線に沿った半球にサンプルを置く。
     - バイアスが大きすぎると、細かい凹凸の AO が消える。
@@ -26,7 +26,7 @@ tags:
 
 ### 原因：深度の量子化と、面の傾き
 
-SSAO は、画素 p の周りに点を撒き、「その点の深度が、バッファに書かれた深度より奥にあるか」を調べます。奥にあれば、その点は「何かの裏側に隠れている」＝「遮蔽されている」と数えます。ここで、p 自身が乗っている平らな面を考えてください。p の隣の画素に撒いた点は、平らな面の上にほぼ乗っています。理屈では、バッファの深度と点の深度は同じ値のはずです。
+SSAO は、画素 p の周りに点を撒き、「その点の深度がバッファに書かれた深度より奥にあるか」を調べます。奥にあれば、その点は「何かの裏側に隠れている」＝「遮蔽されている」と数えます。ここで、p 自身が乗っている平らな面を考えてください。p の隣の画素に撒いた点は、平らな面の上にほぼ乗っています。理屈では、バッファの深度と点の深度は同じ値のはずです。
 
 ところが、実際の値には誤差が乗ります。誤差の出どころは 3 つあります。
 
@@ -42,8 +42,8 @@ SSAO は、画素 p の周りに点を撒き、「その点の深度が、バッ
 <defs><marker id="arr-bias-quant" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">自己遮蔽: 深度の丸め誤差より、バイアスが小さいと、平らな面が、自分で自分を暗くする(縞・斑点)</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">傾いた平らな床。深度を、段(1/16・1/64・1/256)に丸めて保存する。床の上のサンプル点が、丸めた深度に隠されて、誤って「遮蔽」と判定される割合</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">自己遮蔽: 深度の丸め誤差より、バイアスが小さいと、平らな面が自分で自分を暗くする(縞・斑点)</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">傾いた平らな床。深度を段(1/16・1/64・1/256)に丸めて保存する。床の上のサンプル点が丸めた深度に隠されて、誤って「遮蔽」と判定される割合</text>
 <rect x="30" y="96" width="700" height="280" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① バイアスと、誤って遮蔽と判定される割合</text>
 <line x1="70.0" y1="350" x2="710.0" y2="350" stroke="#e2e8f0" stroke-width="1.2"/>
@@ -82,10 +82,10 @@ SSAO は、画素 p の周りに点を撒き、「その点の深度が、バッ
 <text x="280" y="414" text-anchor="start" style="font-size:26px;font-weight:700;fill:#e5484d" opacity="0">48<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.3859;0.3860;1.0000" values="0;0;1;1"/></text>
 <g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.5347;0.5349;1.0000" values="0;0;1;1"/><rect x="40" y="440" width="880" height="70" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="56" y="464" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">丸めた深度は、最大で、半分の段ぶん(1/32・1/128・1/512)ずれる。バイアスは、それより大きく</text>
-<text x="56" y="487" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">深度の精度が荒いほど、必要なバイアスが大きい(0.0314 → 0.0026)。大きすぎると、影や遮蔽が、浮く</text>
+<text x="56" y="487" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">深度の精度が荒いほど、必要なバイアスが大きい(0.0314 → 0.0026)。大きすぎると、影や遮蔽が浮く</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">深度バッファは、段階的に丸められている<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">バイアスが小さいと、平らな床が、自分の丸め誤差で、遮蔽と判定される<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.5347;0.5349;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">バイアスが小さいと、平らな床が自分の丸め誤差で、遮蔽と判定される<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.5347;0.5349;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">精度に合わせて、バイアスを決める(16 ビット深度なら、特に大きく)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.5347;0.5349;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -108,7 +108,7 @@ SSAO は、画素 p の周りに点を撒き、「その点の深度が、バッ
 ### 対策 3：精度を確保する
 
 * 32 ビット浮動小数点の深度と reverse-Z を使う。遠くでも誤差が小さい。
-* 比較は、非線形の深度値ではなく、ビュー空間の z（線形深度）で行う。非線形深度の誤差を、比較の前に増幅させない。
+* 比較は、非線形の深度値ではなく、ビュー空間の z（線形深度）で行う。非線形深度の誤差を比較の前に増幅させない。
 * SAO のように深度から位置を復元する方式では、復元した位置の誤差が縞になるので、深度を 2 チャンネルに分けて持つなど、精度を保つ工夫がある（[SAO](../sao.md)）。
 
 ### より良いやり方：面の傾きに応じたバイアス
@@ -123,13 +123,13 @@ SSAO は、画素 p の周りに点を撒き、「その点の深度が、バッ
 
 ## よくあるミス
 
-??? failure "平らな床に、縞模様の AO が出る"
+??? failure "平らな床に縞模様の AO が出る"
     <strong>バイアスを入れる</strong>、法線に沿った半球にする。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 自分の面を、遮蔽物と誤判定
+    - [x] 自分の面を遮蔽物と誤判定
     - [x] バイアス・法線半球で防ぐ
 
 ## 参考

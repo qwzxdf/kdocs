@@ -41,7 +41,7 @@ float specular = pow(n_dot_h, shininess) * sun_intensity;
 <defs><marker id="arr-ggx-lobe" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">粗さを上げると、ハイライトの山が、低く広くなる(山の高さを 1 に正規化)</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">粗さを上げると、ハイライトの山が低く広くなる(山の高さを 1 に正規化)</text>
 <rect x="70" y="70" width="640" height="240" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
 <line x1="230.0" y1="70" x2="230.0" y2="310" stroke="#e2e8f0" stroke-width="1"/>
 <line x1="70" y1="130.0" x2="710" y2="130.0" stroke="#e2e8f0" stroke-width="1"/>
@@ -85,15 +85,15 @@ float specular = pow(n_dot_h, shininess) * sun_intensity;
 | 風速 U（m/s） | m² | 傾きの目安（√m²） | 見た目 |
 | --- | --- | --- | --- |
 | 0 | 0.003 | 0.055（約 3°） | 鏡のような水面。光が 1 つに集まる |
-| 5 | 0.029 | 0.17（約 10°） | 光が、広がり始める |
+| 5 | 0.029 | 0.17（約 10°） | 光が広がり始める |
 | 10 | 0.054 | 0.23（約 13°） | 光の帯が太く、散らばる |
-| 15 | 0.080 | 0.28（約 16°） | 広い範囲が、ぎらつく |
+| 15 | 0.080 | 0.28（約 16°） | 広い範囲がぎらつく |
 
 風が強いほど波が荒れて光る範囲は、広くなり 1 点の明るさは下がります。
 
 ## 粗さへの対応
 
-GGX や Beckmann などの、<strong>微小面分布</strong>（法線の分布）の粗さを、波の傾きの分布に合わせます。Beckmann 分布のパラメーター `m` は、傾きの 2 乗平均の平方根そのものです。
+GGX や Beckmann などの、<strong>微小面分布</strong>（法線の分布）の粗さを波の傾きの分布に合わせます。Beckmann 分布のパラメーター `m` は、傾きの 2 乗平均の平方根そのものです。
 
 ```text
 m² = 傾きの 2 乗平均 = 0.003 + 0.00512 × U         ← Beckmann の m
@@ -144,22 +144,22 @@ float3 WaterSunSpecular(float3 N, float3 V, float3 L, float3 sun_radiance, float
 
 ### ① 強さ（HDR）
 
-太陽の反射は <strong>空よりはるかに、明るい</strong>です（太陽は空の数万倍）。HDR で出力してブルームを、かけるとまぶしく光る様子が出ます。LDR のままクランプすると白く、ただ飽和するだけです（[Post-Processing](../../postprocess/index.md)）。
+太陽の反射は <strong>空よりはるかに、明るい</strong>です（太陽は空の数万倍）。HDR で出力してブルームをかけるとまぶしく光る様子が出ます。LDR のままクランプすると白く、ただ飽和するだけです（[Post-Processing](../../postprocess/index.md)）。
 
 | 太陽の輝度（放射輝度）の目安 | 値 |
 | --- | --- |
 | 青空 | 数千 cd/m² |
 | 太陽（直視） | 10⁹ cd/m²（約 10 億） |
 
-実際の値を、そのまま使うのではなく 露出と、ブルームを見た目で調整します（[Exposure](../../postprocess/tonemapping/exposure.md)）。
+実際の値をそのまま使うのではなく 露出と、ブルームを見た目で調整します（[Exposure](../../postprocess/tonemapping/exposure.md)）。
 
 ### ② 法線の細かさ
 
-細かい法線（さざ波）を使うほど光が、細かく散らばって、きらきら光ります。大きな波の法線だけだと 1 つの、大きな光になります（[Computing Normals](../waves/normals.md)）。
+細かい法線（さざ波）を使うほど光が細かく散らばって、きらきら光ります。大きな波の法線だけだと 1 つの、大きな光になります（[Computing Normals](../waves/normals.md)）。
 
 ### ③ 遠くのちらつき
 
-遠くの水面では 1 画素に、多数の波が入り、法線が画素ごとにばらついて光が、ちらつきます。対策は 2 つです。
+遠くの水面では 1 画素に多数の波が入り、法線が画素ごとにばらついて光がちらつきます。対策は 2 つです。
 
 | 対策 | 内容 |
 | --- | --- |

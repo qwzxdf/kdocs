@@ -10,7 +10,7 @@ tags:
 <span class="rank rank-often">よく使う</span>
 </div>
 
-<strong>アンオーダード アクセス ビュー（UAV）</strong>は、テクスチャやバッファをシェーダーから、<strong>自由な位置に読み書き</strong>するための窓です。「アンオーダード」は複数のスレッドが、<strong>順序の決まらない</strong>まま同時にアクセスしてよいという意味です。計算シェーダーの出力の標準で、ピクセル シェーダーからも使えます。RTV が「描画の決まった位置（ピクセル）」にしか書けないのに対し UAV は <strong>どこにでも</strong>書けます。
+<strong>アンオーダード アクセス ビュー（UAV）</strong>は、テクスチャやバッファをシェーダーから、<strong>自由な位置に読み書き</strong>するための窓です。「アンオーダード」は複数のスレッドが <strong>順序の決まらない</strong>まま同時にアクセスしてよいという意味です。計算シェーダーの出力の標準で、ピクセル シェーダーからも使えます。RTV が「描画の決まった位置（ピクセル）」にしか書けないのに対し UAV は <strong>どこにでも</strong>書けます。
 
 !!! tip "ポイント"
     - UAV ＝ 読み書き可能なビュー。HLSL では `RWTexture2D`、`RWStructuredBuffer`、`RWByteAddressBuffer`。
@@ -32,7 +32,7 @@ tags:
 D3D11_UNORDERED_ACCESS_VIEW_DESC desc = {};
 desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 desc.ViewDimension = D3D11_UAV_DIMENSION_TEXTURE2D;
-desc.Texture2D.MipSlice = 0;                                // どのミップに、書くか
+desc.Texture2D.MipSlice = 0;                                // どのミップに書くか
 device->CreateUnorderedAccessView(texture.Get(), &desc, &uav);
 ```
 
@@ -58,7 +58,7 @@ UAV は <strong>1 つのミップ</strong>しか見せられません（SRV と�
 `RWTexture2D<float4>` の <strong>読み込み</strong>（`g_texture[id.xy]` を右辺に書く）をしたいとき `R16G16B16A16_FLOAT` などは保証されません。ハードウェアが対応しているかを `CheckFeatureSupport` で、確認します。
 
 ```cpp
-// 型つき UAV の、読み込みに、対応しているフォーマットを、調べる。
+// 型つき UAV の、読み込みに、対応しているフォーマットを調べる。
 D3D11_FEATURE_DATA_FORMAT_SUPPORT2 support = {DXGI_FORMAT_R16G16B16A16_FLOAT};
 device->CheckFeatureSupport(D3D11_FEATURE_FORMAT_SUPPORT2, &support, sizeof(support));
 bool can_load = support.OutFormatSupport2 & D3D11_FORMAT_SUPPORT2_UAV_TYPED_LOAD;
@@ -79,7 +79,7 @@ context->CSSetUnorderedAccessViews(0, 1, none, nullptr);   // 終わったら、
 
 ```hlsl
 RWTexture2D<float4> g_output : register(u0);                // u# が、UAV のスロット
-g_output[id.xy] = result;                                   // 好きな位置に、書ける
+g_output[id.xy] = result;                                   // 好きな位置に書ける
 ```
 
 UAV のスロットは `register(u#)` です。SRV（`t#`）、サンプラー（`s#`）、定数バッファ（`b#`）とは別の番号の空間です。
@@ -89,13 +89,13 @@ UAV のスロットは `register(u#)` です。SRV（`t#`）、サンプラー�
 ピクセル シェーダーでも UAV に書けます（順序なしの書き込み。ヒストグラム、PPLL、ヒットの記録など）。UAV はレンダー ターゲットと同じ番号の空間を <strong>共有</strong>します（RTV が 0 番〜、その後ろに UAV）。
 
 ```cpp
-// ピクセル シェーダーで、UAV を使う: レンダー ターゲットと、UAV を、同時に、束ねる。
+// ピクセル シェーダーで、UAV を使う: レンダー ターゲットと、UAV を同時に、束ねる。
 ID3D11RenderTargetView* rtvs[] = {scene_rtv.Get()};
 ID3D11UnorderedAccessView* uavs[] = {head_uav.Get(), node_uav.Get()};
 context->OMSetRenderTargetsAndUnorderedAccessViews(
     1, rtvs, depth_dsv.Get(),            // レンダー ターゲット 1 枚（スロット 0）
     1,                                   // UAV の開始スロット（RTV の、数の後ろ）
-    2, uavs, nullptr);                   // UAV を、スロット 1 から、2 個
+    2, uavs, nullptr);                   // UAV をスロット 1 から、2 個
 ```
 
 <strong>UAV の開始スロットはレンダー ターゲットの数以上</strong>にします。HLSL では `register(u1)`、`register(u2)` のように RTV の後ろの番号を使います（[PPLL](../../graphics/translucency/oit/ppll.md)）。
@@ -105,7 +105,7 @@ context->OMSetRenderTargetsAndUnorderedAccessViews(
 構造化バッファの UAV にカウンターを付けられます（[Structured and Raw Buffers](structured-buffer.md)）。
 
 ```cpp
-UINT counts[] = {0};                                        // 束縛時に、カウンターを 0 にする（-1 で維持）
+UINT counts[] = {0};                                        // 束縛時にカウンターを 0 にする（-1 で維持）
 context->CSSetUnorderedAccessViews(0, 1, append_uav.GetAddressOf(), counts);
 ```
 
@@ -113,10 +113,10 @@ context->CSSetUnorderedAccessViews(0, 1, append_uav.GetAddressOf(), counts);
 
 ```cpp
 const UINT zero[4] = {0, 0, 0, 0};
-context->ClearUnorderedAccessViewUint(uav.Get(), zero);          // 整数フォーマット（R32_UINT など）を、0 で埋める
+context->ClearUnorderedAccessViewUint(uav.Get(), zero);          // 整数フォーマット（R32_UINT など）を 0 で埋める
 
 const float clear[4] = {0, 0, 0, 0};
-context->ClearUnorderedAccessViewFloat(uav.Get(), clear);        // 浮動小数・UNORM を、埋める
+context->ClearUnorderedAccessViewFloat(uav.Get(), clear);        // 浮動小数・UNORM を埋める
 ```
 
 ヒストグラムのバッファや間接描画の引数バッファを毎フレーム、0 に戻すときに使います。
@@ -147,9 +147,9 @@ D3D11 は UAV の書き込みと次のパスの読み込みの <strong>順序</s
     型つき UAV の読み込みにそのフォーマットが対応していない。`R32_FLOAT` などにするか入力と出力を別のテクスチャにする。
 
 ??? failure "ピクセル シェーダーで、UAV が効かない"
-    `OMSetRenderTargetsAndUnorderedAccessViews` の UAV の開始スロットが、RTV の数より小さい。通常の `OMSetRenderTargets` は UAV を外してしまう。
+    `OMSetRenderTargetsAndUnorderedAccessViews` の UAV の開始スロットが RTV の数より小さい。通常の `OMSetRenderTargets` は UAV を外してしまう。
 
-??? failure "書いた結果が、次のパスで読めない"
+??? failure "書いた結果が次のパスで読めない"
     UAV の束縛を外さずに同じリソースを SRV として、束ねた。D3D11 は SRV の束縛を黙って外す。
 
 ## これだけ覚える

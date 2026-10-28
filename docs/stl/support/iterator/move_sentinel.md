@@ -15,7 +15,7 @@ tags:
 `#include <iterator>`
 </div>
 
-範囲の終端が別の型（sentinel）のとき、`move_iterator` とそろえた終端として `move_sentinel` を使います。ふつうは `ranges::copy` などの C++20 のアルゴリズムに、`move_iterator` と一緒に渡します。
+範囲の終端が別の型（sentinel）のとき、`move_iterator` とそろえた終端として `move_sentinel` を使います。ふつうは `ranges::copy` などの C++20 のアルゴリズムに `move_iterator` と一緒に渡します。
 
 !!! tip "ポイント"
     - `<iterator>` の部品。

@@ -12,7 +12,7 @@ ImGui の関数には、<strong>動作を細かく変える「フラグ」</stro
 !!! tip "ポイント"
     - <strong>フラグは `|` で組み合わせる</strong>。<strong>`0` は「何も付けない」</strong>。
     - `ImGuiWindowFlags_`・`ImGuiInputTextFlags_`・`ImGuiTreeNodeFlags_`・`ImGuiTableFlags_`・`ImGuiSelectableFlags_`・`ImGuiComboFlags_`など、関数ごとに専用の型がある。
-    - 型が違うフラグを渡すと、意味が変わる（コンパイルは通る）。名前の接頭辞を確認。
+    - 型が違うフラグを渡すと、意味が変わる（コンパイルは通る）。名前の接頭辞を確認する。
 
 !!! info "このページを読む前に"
     - [Dear ImGui](../index.md)（このセクション全体の地図と、読む順番）
@@ -138,7 +138,7 @@ bool open = ImGui::TreeNodeEx(node.name.c_str(), flags);
 | `SizingFixedFit` | 列の幅を内容に合わせて固定 |
 | `SizingStretchProp` | 列の幅を割合で伸縮 |
 | `NoSavedSettings` | 設定を保存しない |
-| `ContextMenuInBody` | 右クリック メニューを、本文でも出す |
+| `ContextMenuInBody` | 右クリック メニューを本文でも出す |
 | `PadOuterX` | 外側の余白 |
 
 ### テーブルの列（ImGuiTableColumnFlags_）

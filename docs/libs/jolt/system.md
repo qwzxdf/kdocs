@@ -7,7 +7,7 @@ tags:
 
 # 世界の初期化と更新
 
-Jolt の**物理の世界**は`PhysicsSystem` です。物体（Body）・制約（Constraint）が、この中に入り、毎フレームの `Update` で時間が進みます。このページはアプリの最初にやる初期化、`PhysicsSystem::Init` の引数の意味、`Update` の使い方、固定タイムステップ、一時メモリ（`TempAllocator`）とジョブ システム（スレッド）、終了時の片付けをまとめます。
+Jolt の**物理の世界**は`PhysicsSystem` です。物体（Body）・制約（Constraint）がこの中に入り、毎フレームの `Update` で時間が進みます。このページはアプリの最初にやる初期化、`PhysicsSystem::Init` の引数の意味、`Update` の使い方、固定タイムステップ、一時メモリ（`TempAllocator`）とジョブ システム（スレッド）、終了時の片付けをまとめます。
 
 !!! tip "ポイント"
     - 初期化の順番：<strong>① メモリ確保の登録 → ② `Factory` → ③ `RegisterTypes` → ④ `TempAllocator`・`JobSystem` → ⑤ `PhysicsSystem::Init`</strong>。
@@ -87,7 +87,7 @@ class PhysicsWorld {
 | --- | --- |
 | `RegisterDefaultAllocator()` | Jolt が使うメモリ確保関数を登録（既定は `malloc` / `free`）。自作のアロケータに替えたいときは、`Allocate` / `Free` の関数ポインタを設定（[アロケータ](../../optimize/allocators/index.md)） |
 | `Factory::sInstance = new Factory()` | 型の登録簿（`Factory`）を作る。形（Shape）などの型を名前から作る仕組み |
-| `RegisterTypes()` | 標準の型（BoxShape・SphereShape など）を、`Factory` に登録 |
+| `RegisterTypes()` | 標準の型（BoxShape・SphereShape など）を `Factory` に登録 |
 | `TempAllocatorImpl` | 1 回の `Update` の間だけ使う一時メモリ |
 | `JobSystemThreadPool` | 物理の計算を複数スレッドに分ける |
 | `PhysicsSystem::Init` | 物理の世界を実際に作る |
@@ -103,12 +103,12 @@ system.Init(max_bodies, num_body_mutexes, max_body_pairs, max_contact_constraint
 | --- | --- | --- |
 | **`max_bodies`** | 同時に存在できる物体の最大数 | 実際の最大数に余裕を持たせる（数千〜数万） |
 | `num_body_mutexes` | 物体のロック（ミューテックス）の数（0 で自動） | 通常は 0 |
-| `max_body_pairs` | ブロードフェーズが、保持するペアの最大数 | 物体の数 × 数倍（足りないと、衝突が検出されない） |
+| `max_body_pairs` | ブロードフェーズが保持するペアの最大数 | 物体の数 × 数倍（足りないと、衝突が検出されない） |
 | `max_contact_constraints` | 接触の制約の最大数 | 同時に接触する数（足りないと、貫通する） |
 | レイヤー設定 3 つ | どの物体が衝突するか | [レイヤー](layers.md) |
 
 !!! warning "上限を超えると、無言で失敗する"
-    `max_body_pairs` や `max_contact_constraints` を超えると衝突が、検出されない（物体がすり抜ける）ことがあります。Debug では警告が出ることがあります。物体が多いシーンですり抜けが起きたらまずこの上限を疑います。メモリは事前確保なので、必要な分だけにします。
+    `max_body_pairs` や `max_contact_constraints` を超えると衝突が検出されない（物体がすり抜ける）ことがあります。Debug では警告が出ることがあります。物体が多いシーンですり抜けが起きたらまずこの上限を疑います。メモリは事前確保なので、必要な分だけにします。
 
 ## 世界の設定
 
@@ -147,7 +147,7 @@ void Update(float dt, int collision_steps, TempAllocator* temp_allocator, JobSys
 
 ### 固定タイムステップ
 
-可変の `dt`（フレームごとに違う値）を渡すと物理が、不安定になります（物体が跳ねる・すり抜ける・震える）。固定の刻み（`1/60` 秒）で、何度も進めます。
+可変の `dt`（フレームごとに違う値）を渡すと物理が不安定になります（物体が跳ねる・すり抜ける・震える）。固定の刻み（`1/60` 秒）で、何度も進めます。
 
 ```cpp
 constexpr float kPhysicsDt = 1.0f / 60.0f;
@@ -212,7 +212,7 @@ JobSystemThreadPool job_system(cMaxPhysicsJobs, cMaxPhysicsBarriers,
 system.OptimizeBroadPhase();
 ```
 
-**最初に大量の物体を追加した後**に1 回呼ぶと衝突判定の、空間分割（ブロードフェーズ）が、最適化されます。ステージのロード後に呼ぶのが、定番です。
+**最初に大量の物体を追加した後**に1 回呼ぶと衝突判定の、空間分割（ブロードフェーズ）が最適化されます。ステージのロード後に呼ぶのが、定番です。
 
 ## 物理の更新をほかの処理と順番づける
 
@@ -238,7 +238,7 @@ Factory::sInstance = nullptr;
 
 | 手順 | 内容 |
 | --- | --- |
-| **1. 物体・制約をすべて削除** | `RemoveBody` → `DestroyBody`（追加したものを、すべて） |
+| **1. 物体・制約をすべて削除** | `RemoveBody` → `DestroyBody`（追加したものをすべて） |
 | 2. `PhysicsSystem` を破棄 | デストラクタで |
 | 3. `UnregisterTypes` | 型の登録を解除 |
 | 4. `Factory` を `delete` | `sInstance` を `nullptr` に |

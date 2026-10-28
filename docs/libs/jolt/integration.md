@@ -10,10 +10,10 @@ tags:
 Jolt の**物理の世界**と、ゲームのオブジェクト（エンティティ）の世界は別のものとして持ち、つなぎます。ゲーム → 物理（キャラクターの入力・位置の設定）、物理 → ゲーム（物体の位置の反映・衝突のイベント）という、2 つの向きの同期が必要です。このページは、`BodyID` とエンティティの対応、位置の同期、固定ステップと補間、衝突イベントの処理、生成と破棄の管理をまとめます。
 
 !!! tip "ポイント"
-    - <strong>物理の世界は、ゲームの世界とは別</strong>。<strong>エンティティが、`BodyID` を持つ</strong>（`Body*` ではなく ID）。
+    - <strong>物理の世界は、ゲームの世界とは別</strong>。<strong>エンティティが `BodyID` を持つ</strong>（`Body*` ではなく ID）。
     - 逆向き（`BodyID` → エンティティ）は、`mUserData` に、エンティティ ID を入れる。
-    - 毎フレーム、物理 `Update` の後に、物体の位置・向きをエンティティの Transform に反映する（動的な物体だけ）。
-    - 固定ステップ ＋ 補間で、描画を滑らかにする（前回と今回の位置を、`alpha` で混ぜる）。
+    - 毎フレーム、物理 `Update` の後に物体の位置・向きをエンティティの Transform に反映する（動的な物体だけ）。
+    - 固定ステップ ＋ 補間で、描画を滑らかにする（前回と今回の位置を `alpha` で混ぜる）。
     - 衝突イベントは、接触リスナーで溜め、`Update` の後、メインスレッドで処理（リスナーの中で物体を変更しない）。
     - 生成と破棄は、`Update` の外で。エンティティを消すとき、物体も消す（`RemoveBody` → `DestroyBody`）。
     - キネマティック・キャラクターは、ゲーム → 物理、動的な物体は物理 → ゲーム。
@@ -86,7 +86,7 @@ inline Quaternion ToQuaternion(JPH::QuatArg q) { return Quaternion(q.GetX(), q.G
 inline JPH::Quat ToJolt(const Quaternion& q) { return JPH::Quat(q.x, q.y, q.z, q.w); }
 ```
 
-変換を、1 か所にまとめておくと、型の違い（`float` と `double`・`Vec3` と `Vector3`）を、意識せずに済みます。
+変換を 1 か所にまとめておくと、型の違い（`float` と `double`・`Vec3` と `Vector3`）を意識せずに済みます。
 
 ## ゲーム → 物理
 
@@ -100,11 +100,11 @@ inline JPH::Quat ToJolt(const Quaternion& q) { return JPH::Quat(q.x, q.y, q.z, q
 | リスポーン・テレポート | `SetPosition`（速度はリセット） |
 | エンティティを物理に追加 | `CreateAndAddBody` |
 
-1 つの物体を、「ゲームが動かす」と同時に「物理が動かす」と、喧嘩して不安定になります。どちらが位置の主導権を持つかを、物体ごとに決めます。
+1 つの物体を「ゲームが動かす」と同時に「物理が動かす」と、喧嘩して不安定になります。どちらが位置の主導権を持つかを物体ごとに決めます。
 
 ## 固定ステップと補間
 
-**物理は固定の刻み（1/60 秒）で進み**、描画は画面のリフレッシュレート（144Hz など）で動きます。描画フレームが物理ステップの間に入ると、位置がカクつきます。前回と今回の物理の位置を、補間して描きます。
+**物理は固定の刻み（1/60 秒）で進み**、描画は画面のリフレッシュレート（144Hz など）で動きます。描画フレームが物理ステップの間に入ると、位置がカクつきます。前回と今回の物理の位置を補間して描きます。
 
 ```cpp
 struct PhysicsTransform {
@@ -191,10 +191,10 @@ void ProcessCollisionEvents() {
 | リスナーの中では、記録だけ | 溜める（ロック付き） |
 | `Update` の後に取り出して処理 | メインスレッドでゲームのイベント（ダメージ・音・エフェクト）に変換 |
 | `GetUserData` | 物体 → エンティティ |
-| ゲームのイベントシステムへ | `CollisionEvent` を、通知（[イベントシステム](../../design/patterns/event.md)） |
+| ゲームのイベントシステムへ | `CollisionEvent` を通知（[イベントシステム](../../design/patterns/event.md)） |
 
 !!! warning "リスナーの中で、物体を削除・変更しない"
-    スレッド安全でなく、物理の計算中です。イベントを溜めて、`Update` の後に、削除・変更を行います。
+    スレッド安全でなく、物理の計算中です。イベントを溜めて、`Update` の後に削除・変更を行います。
 
 ### 衝突の強さ
 
@@ -209,7 +209,7 @@ float impact = relative_velocity.Dot(manifold.mWorldSpaceNormal);
 
 | 場面 | 物理側の操作 |
 | --- | --- |
-| **エンティティを作る** | `CreateAndAddBody` → `BodyID` を、コンポーネントに保存 |
+| **エンティティを作る** | `CreateAndAddBody` → `BodyID` をコンポーネントに保存 |
 | エンティティを消す | `RemoveBody` → `DestroyBody` → コンポーネントを外す |
 | ステージの切り替え | 全物体をまとめて削除（ループで）。ステージの物体をまとめて追加（`AddBodiesPrepare`） |
 
@@ -226,11 +226,11 @@ void DestroyPhysicsBody(PhysicsBody& component, BodyInterface& bodies) {
 
 ### 遅延削除
 
-衝突イベントの処理中（弾が当たって、敵が死ぬ）に、すぐ物体を消すと同じフレームのほかの処理で無効な ID を使うことがあります。
+衝突イベントの処理中（弾が当たって、敵が死ぬ）にすぐ物体を消すと同じフレームのほかの処理で無効な ID を使うことがあります。
 
 | 方法 | 説明 |
 | --- | --- |
-| 削除キューに入れる | 「このフレームの終わりに、消す」を、溜めて、まとめて処理（[ECS](../../design/patterns/ecs.md)） |
+| 削除キューに入れる | 「このフレームの終わりに、消す」を溜めて、まとめて処理（[ECS](../../design/patterns/ecs.md)） |
 | `Update` の外で | 物理の更新中でないタイミングで |
 
 ## ECS（コンポーネント）との組み合わせ
@@ -250,7 +250,7 @@ void DestroyPhysicsBody(PhysicsBody& component, BodyInterface& bodies) {
 | PhysicsEventSystem | 衝突イベントをゲームのイベントに |
 | PhysicsCleanupSystem | エンティティが消えたとき、物体も消す |
 
-物理を、「システム」として、ECS に組み込むとゲームの構造がすっきりします（[ECS](../../design/patterns/ecs.md)、[データ指向設計](../../design/patterns/data-oriented.md)）。
+物理を「システム」として、ECS に組み込むとゲームの構造がすっきりします（[ECS](../../design/patterns/ecs.md)、[データ指向設計](../../design/patterns/data-oriented.md)）。
 
 ## シリアライズ（セーブ・ロード）
 
@@ -263,26 +263,26 @@ void DestroyPhysicsBody(PhysicsBody& component, BodyInterface& bodies) {
 
 ## よくあるミス
 
-??? failure "`Body*` を、エンティティに保存して、物体が消えてクラッシュする"
+??? failure "`Body*` をエンティティに保存して、物体が消えてクラッシュする"
     **`BodyID`** を保存します。
 
 ??? failure "接触リスナーの中で、エンティティを消して、クラッシュする"
     イベントを溜めて、`Update` の後に処理します。
 
 ??? failure "エンティティを消したのに、物体が残って、見えない壁になる"
-    エンティティの削除時に、`RemoveBody` → `DestroyBody` を呼びます。
+    エンティティの削除時に `RemoveBody` → `DestroyBody` を呼びます。
 
-??? failure "描画が、カクつく"
+??? failure "描画がカクつく"
     固定ステップ ＋ 補間にします。
 
-??? failure "同じ物体を、ゲームも物理も動かして、震える"
+??? failure "同じ物体をゲームも物理も動かして、震える"
     位置の主導権を片方に決めます（キネマティック・キャラクターは、ゲーム側）。
 
 ??? failure "休止中の物体の、同期を毎フレームやって、重い"
     `IsActive` で動いている物体だけにします。
 
 ??? failure "`mUserData` を設定し忘れて、衝突相手が分からない"
-    物体の作成時にエンティティ ID を、`mUserData` に入れます。
+    物体の作成時にエンティティ ID を `mUserData` に入れます。
 
 ## これだけ覚える
 
@@ -292,7 +292,7 @@ void DestroyPhysicsBody(PhysicsBody& component, BodyInterface& bodies) {
     - [x] 固定ステップ ＋ 補間（`Lerp` / `Slerp`）で、描画を滑らかに
     - [x] 衝突イベントは、リスナーで溜めて、`Update` の後に処理。リスナー内で物体を変更しない
     - [x] エンティティを消すとき、物体も消す（`RemoveBody` → `DestroyBody`）。削除は遅延
-    - [x] 物理を、ECS の「システム」として組み込む
+    - [x] 物理を ECS の「システム」として組み込む
 
 ## 関連ページ
 

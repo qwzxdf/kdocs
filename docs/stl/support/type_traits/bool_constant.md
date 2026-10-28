@@ -41,7 +41,7 @@ using bool_constant = integral_constant<bool, B>;
 | --- | --- | --- |
 | `B` | `bool` | 真偽値の定数式 |
 
-`bool_constant<B>` は、`integral_constant<bool, B>` を短く書くための別名です。自作のトレイトを、条件式から直接作れます。
+`bool_constant<B>` は、`integral_constant<bool, B>` を短く書くための別名です。自作のトレイトを条件式から直接作れます。
 
 条件式に `>` を含むときは、テンプレート引数の閉じ括弧と区別するために、括弧で囲む必要があります。
 

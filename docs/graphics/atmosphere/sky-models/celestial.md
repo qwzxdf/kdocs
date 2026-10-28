@@ -125,7 +125,7 @@ float3 SunDirection(float hour, float latitude_rad, float axial_tilt_rad) {
   if (hour_angle > 0.0) azimuth = 2.0 * 3.14159265 - azimuth;          // 午後は、西側
 ```
 
-緯度、赤緯（季節）、時角から太陽の高さ（仰角）と方位が、天文学の標準的な式で決まります。ゲームでは緯度や赤緯を固定して、時角だけを動かすのが普通です。
+緯度、赤緯（季節）、時角から太陽の高さ（仰角）と方位が天文学の標準的な式で決まります。ゲームでは緯度や赤緯を固定して、時角だけを動かすのが普通です。
 
 ```hlsl
   // 方位角・仰角から、方向ベクトルへ（右手系、Y 上）。方位角は、北を 0、東を +90° とする。
@@ -133,28 +133,28 @@ float3 SunDirection(float hour, float latitude_rad, float axial_tilt_rad) {
 }
 ```
 
-天文学の精密な位置計算（日付、時刻、緯度・経度から）は Meeus の『Astronomical Algorithms』（1991）に、詳しい式があります。リアルな星空（実在の星座）を、再現したいときに必要です。
+天文学の精密な位置計算（日付、時刻、緯度・経度から）は Meeus の『Astronomical Algorithms』（1991）に詳しい式があります。リアルな星空（実在の星座）を再現したいときに必要です。
 
 ## 太陽の円盤
 
 太陽は <strong>視直径が約 0.53°</strong> の、明るい円盤です。大気の散乱だけでは円盤が描かれません。円盤を明るさつきで描き足します。
 
 ```hlsl
-// 太陽の円盤: 視線と太陽の、角度が、太陽の視半径より、小さければ、非常に明るい。
+// 太陽の円盤: 視線と太陽の角度が太陽の視半径より小さければ、とても明るい。
 float SunDisk(float3 view_dir, float3 sun_dir) {
   float cos_angle = dot(view_dir, sun_dir);
   const float kSunCosAngle = 0.99998;                    // cos(0.265°)。太陽の視半径は、約 0.265°
-  // 縁を、少しだけ、なめらかにする（エイリアシング防止）。
+  // 縁を少しだけ、なめらかにする（エイリアシング防止）。
   return smoothstep(kSunCosAngle - 0.00001, kSunCosAngle + 0.00001, cos_angle);
 }
 float3 sun_color = g_sun_luminance * SunDisk(view_dir, sun_dir);
 ```
 
-`kSunCosAngle` の `0.99998` は 太陽の視半径（約 0.265°）の、cos です。`smoothstep` で縁をわずかにぼかしてギザギザを、防ぎます。太陽の明るさは高い（空の、数万倍）ので HDR で描きブルームで、光らせます（[Post-Processing](../../postprocess/index.md)）。
+`kSunCosAngle` の `0.99998` は 太陽の視半径（約 0.265°）の、cos です。`smoothstep` で縁をわずかにぼかしてギザギザを防ぎます。太陽の明るさは高い（空の、数万倍）ので HDR で描きブルームで、光らせます（[Post-Processing](../../postprocess/index.md)）。
 
 ### 大気を通した太陽の色
 
-太陽が低い（朝夕）と 光が大気を、長く通るので赤く暗くなります。透過率（[Transmittance](../scattering/transmittance.md)）を掛けて、円盤の色を決めます。
+太陽が低い（朝夕）と 光が大気を長く通るので赤く暗くなります。透過率（[Transmittance](../scattering/transmittance.md)）を掛けて、円盤の色を決めます。
 
 ```hlsl
 float3 sun_through_atmosphere = g_sun_luminance * SunTransmittance(g_camera_position, sun_dir);
@@ -169,17 +169,17 @@ float3 sun_disk_color = sun_through_atmosphere * SunDisk(view_dir, sun_dir);
 
 | 要素 | 内容 |
 | --- | --- |
-| 円盤 | 太陽と同じ方法。テクスチャ（月の表面の模様）を、貼る |
+| 円盤 | 太陽と同じ方法。テクスチャ（月の表面の模様）を貼る |
 | 満ち欠け | 月の照らされた部分は太陽の、方向で決まる。球として描き太陽の光でライティングする |
 | 位置 | 太陽と独立に動く（約 29.5 日の周期で、太陽との角度が一巡） |
 | 明るさ | 太陽の約 0.0000025（満月で）。夜の空の主な光源 |
 
 ```hlsl
-// 月: 球として、太陽の光で、ライティング（満ち欠けは、自動的に、出る）。
+// 月: 球として、太陽の光で、ライティング（満ち欠けは、自動的に出る）。
 float3 MoonColor(float3 view_dir, float3 moon_dir, float3 sun_dir, float moon_angular_radius) {
   float cos_angle = dot(view_dir, moon_dir);
   if (cos_angle < cos(moon_angular_radius)) return 0.0;               // 月の円盤の外
-  // 円盤上の位置から、月の表面の法線を、復元する（球とみなす）。
+  // 円盤上の位置から、月の表面の法線を復元する（球とみなす）。
   float3 moon_normal = MoonSurfaceNormal(view_dir, moon_dir, moon_angular_radius);
   float lit = saturate(dot(moon_normal, sun_dir));                     // 太陽に向いた面だけ、明るい
   float3 albedo = g_moon_texture.Sample(g_linear_clamp, MoonUv(moon_normal)).rgb;
@@ -187,7 +187,7 @@ float3 MoonColor(float3 view_dir, float3 moon_dir, float3 sun_dir, float moon_an
 }
 ```
 
-球としての法線を求めて 太陽の光で、ライティングするだけで満ち欠けが自然に、再現されます。太陽と月の位置関係（角度）が、満ち欠けを決めるからです。
+球としての法線を求めて 太陽の光で、ライティングするだけで満ち欠けが自然に再現されます。太陽と月の位置関係（角度）が満ち欠けを決めるからです。
 
 ## 星空
 
@@ -200,14 +200,14 @@ float3 MoonColor(float3 view_dir, float3 moon_dir, float3 sun_dir, float moon_an
 | 星表（実在の星の位置・明るさ） | 数千個の星の、データから点を描く。星の明るさ・色を反映 |
 
 ```hlsl
-// 星空のキューブマップに、夜の明るさを、掛けて、足す。昼は、見えない（空が、明るすぎる）。
-float night_factor = saturate(-sun_dir.y * 5.0 + 0.2);                // 太陽が、地平線の下に行くほど、1
+// 星空のキューブマップに夜の明るさを掛けて、足す。昼は、見えない（空が明るすぎる）。
+float night_factor = saturate(-sun_dir.y * 5.0 + 0.2);                // 太陽が地平線の下に行くほど、1
 float3 stars = g_star_cubemap.Sample(g_linear_clamp, view_dir).rgb * night_factor;
-// 星は、空の明るさに、負けるので、空の輝度で、隠す（空が、明るいほど、星が、消える）。
+// 星は、空の明るさに、負けるので、空の輝度で、隠す（空が明るいほど、星が消える）。
 float3 final_color = sky_color + stars * saturate(1.0 - Luminance(sky_color) * 10.0);
 ```
 
-星が昼間に見えないのは 空の、明るさにかき消されるためです。空の輝度が高いほど星を弱めると、薄明（夕暮れ）で明るい星から順に、見え始める様子が再現できます。
+星が昼間に見えないのは 空の、明るさにかき消されるためです。空の輝度が高いほど星を弱めると、薄明（夕暮れ）で明るい星から順に見え始める様子が再現できます。
 
 ### 星の回転
 
@@ -227,7 +227,7 @@ Matrix star_rotation = Matrix::CreateRotationY(-hour_angle) * Matrix::CreateRota
 | 3 | 月、太陽の円盤 |
 | 4 | 雲（[Clouds](../clouds/index.md)） |
 
-<strong>星が大気の向こう</strong>にあるので 星を、先に描き、大気の明るさで隠します。太陽と月は大気の手前の明るい点として、足します。
+<strong>星が大気の向こう</strong>にあるので 星を先に描き、大気の明るさで隠します。太陽と月は大気の手前の明るい点として、足します。
 
 ## よくあるミス
 
@@ -237,7 +237,7 @@ Matrix star_rotation = Matrix::CreateRotationY(-hour_angle) * Matrix::CreateRota
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 太陽・月・星を、それぞれに合う方法で
+    - [x] 太陽・月・星をそれぞれに合う方法で
 
 ## 参考
 

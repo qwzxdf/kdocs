@@ -16,7 +16,7 @@ ufbx で読み込んだ**シーン**から、メッシュ（頂点・インデ�
     - ノードの変換は `node->node_to_world`（ワールド行列）。列優先の 3×4。
     - マテリアルは `material->pbr`（メタリック・ラフネス）。
     - スキンは `ufbx_skin_deformer`。アニメーションは `ufbx_evaluate_transform` で、時刻の姿勢。
-    - `ufbx_free_scene` の前に、ゲーム用にコピーする。
+    - `ufbx_free_scene` の前にゲーム用にコピーする。
 
 !!! info "このページを読む前に"
     - [ufbx（FBX の読み込み）](index.md)（このセクション全体の地図と、読む順番）
@@ -80,7 +80,7 @@ void ReadMesh(const ufbx_mesh* mesh, std::vector<Vertex>& vertices, std::vector<
 | 関数 | 意味 |
 | --- | --- |
 | `mesh->max_face_triangles` | 1 つの面の三角形の最大数（作業バッファの大きさに） |
-| `ufbx_triangulate_face(out, size, mesh, face)` | 面を三角形に分割。角の番号（コーナー・インデックス）を、`out` に書く。三角形の数を返す |
+| `ufbx_triangulate_face(out, size, mesh, face)` | 面を三角形に分割。角の番号（コーナー・インデックス）を `out` に書く。三角形の数を返す |
 | `ufbx_get_vertex_vec3(&attr, corner)` | 角（コーナー）の、属性値（位置・法線）。インデックスを引いた値 |
 | `ufbx_get_vertex_vec2` | UV |
 | `1.0f - uv.y` | UV の V を反転（FBX は左下原点 → DirectX は左上原点） |
@@ -108,7 +108,7 @@ vertices.resize(unique);
 | 返り値 | 重複を除いた、頂点の数 |
 | 効果 | 頂点数が数分の一に（頂点バッファのメモリ・GPU の頂点処理の節約） |
 
-FBX は位置・法線・UV に別々のインデックスを持つので、そのままでは、GPU の頂点バッファ（1 つのインデックス）に、使えません。頂点を角ごとに展開して、重複をまとめる、というのが定番の変換です。
+FBX は位置・法線・UV に別々のインデックスを持つので、そのままでは、GPU の頂点バッファ（1 つのインデックス）に使えません。頂点を角ごとに展開して、重複をまとめる、というのが定番の変換です。
 
 ### 座標系・巻き順
 
@@ -169,13 +169,13 @@ if (material->pbr.base_color.texture != nullptr) {
 
 | 点 | 説明 |
 | --- | --- |
-| **`material->pbr`** | PBR のパラメータ（ufbx が各種の FBX マテリアルを、PBR に変換） |
+| **`material->pbr`** | PBR のパラメータ（ufbx が各種の FBX マテリアルを PBR に変換） |
 | `ufbx_material_map` | 値（`value_vec4`・`value_real`）と、`texture`。`has_value` で、設定があるか |
 | `base_color`・`metalness`・`roughness`・`normal_map`・`emission_color` | 主な項目 |
 | `texture->filename` | テクスチャのファイル名（相対・絶対）。`texture->content` に、埋め込みデータがある場合も |
 | `material->fbx` | FBX 固有のマテリアル（Phong など）。`pbr` で足りないとき |
 
-FBX のマテリアルは、ツールごとに違う形（Phong・Lambert・Stingray PBR ...）で、変換がツール依存です。見た目が合わない場合は、ツール側で、PBR のマテリアルを、書き出すようにしてもらいます（[PBR](../../3d/pbr.md)）。
+FBX のマテリアルは、ツールごとに違う形（Phong・Lambert・Stingray PBR ...）で、変換がツール依存です。見た目が合わない場合は、ツール側で、PBR のマテリアルを書き出すようにしてもらいます（[PBR](../../3d/pbr.md)）。
 
 ## スキンとアニメーション
 
@@ -232,7 +232,7 @@ Vector3 scale(t.scale.x, t.scale.y, t.scale.z);
 | `ufbx_evaluate_transform(anim, node, time)` | ある時刻のノードの変換（TRS） |
 | `ufbx_transform` | `translation`・`rotation`（クォータニオン）・`scale` |
 
-ゲームでは毎フレームの評価を避けるため、事前に焼く（一定のレート、たとえば 30 FPS で、全ノードの姿勢をサンプリングして、配列に）のが定番です。`ufbx_bake_anim` が、キーフレームを焼く機能を、提供します（[ベイク](../../optimize/baking.md)）。
+ゲームでは毎フレームの評価を避けるため、事前に焼く（一定のレート、たとえば 30 FPS で、全ノードの姿勢をサンプリングして、配列に）のが定番です。`ufbx_bake_anim` が、キーフレームを焼く機能を提供します（[ベイク](../../optimize/baking.md)）。
 
 ## ゲーム用にコピーして、解放する
 
@@ -252,19 +252,19 @@ ufbx_free_scene(scene);
 
 ## よくあるミス
 
-??? failure "四角形のポリゴンを、そのまま扱って、三角形が足りない"
+??? failure "四角形のポリゴンをそのまま扱って、三角形が足りない"
     **`ufbx_triangulate_face`** で、三角形にします。
 
 ??? failure "位置と法線・UV を同じインデックスで引いて、値がずれる"
     FBX は属性ごとにインデックスが別です。`ufbx_get_vertex_vec3(&attr, corner)` で、角ごとに引きます。
 
-??? failure "FBX の UV を、そのまま使って、テクスチャが上下逆になる"
+??? failure "FBX の UV をそのまま使って、テクスチャが上下逆になる"
     V を反転（`1 - v`）します。
 
-??? failure "`ufbx_free_scene` の後に、ノードやメッシュを触る"
+??? failure "`ufbx_free_scene` の後にノードやメッシュを触る"
     ポインタが無効です。先にコピーします。
 
-??? failure "ノードの変換を、自分で親から掛けて、二重にかける"
+??? failure "ノードの変換を自分で親から掛けて、二重にかける"
     `node_to_world` は、親の変換を含めた結果です。
 
 ??? failure "頂点のスキンの重みが 4 つを超えて、GPU に入らない"

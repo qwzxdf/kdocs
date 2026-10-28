@@ -6,7 +6,7 @@ tags:
 
 # Motion Blur
 
-<strong>モーション ブラー</strong>は <strong>動いている物（またはカメラ）が、動いた方向に「にじむ・流れる」</strong>効果です。<strong>実際のカメラはシャッターが開いている間に物が動くので、その軌跡がぶれて写ります</strong>。ゲームの 1 フレームは「一瞬」を切り取った絵なので動きがカクカクに見えがちですが、ブラーを足すと滑らかでスピード感のある動きになります。このセクションでは速度バッファ・カメラのブラー・オブジェクトのブラー・ぼかしの実装・タイル最大速度・強さと TAA を、1 つずつ別のページで説明します。
+<strong>モーション ブラー</strong>は <strong>動いている物（またはカメラ）が動いた方向に「にじむ・流れる」</strong>効果です。<strong>実際のカメラはシャッターが開いている間に物が動くので、その軌跡がぶれて写ります</strong>。ゲームの 1 フレームは「一瞬」を切り取った絵なので動きがカクカクに見えがちですが、ブラーを足すと滑らかでスピード感のある動きになります。このセクションでは速度バッファ・カメラのブラー・オブジェクトのブラー・ぼかしの実装・タイル最大速度・強さと TAA を 1 つずつ別のページで説明します。
 
 ## 動きで見る
 
@@ -16,8 +16,8 @@ tags:
 <defs><marker id="arr-motion-blur-shutter" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">モーション ブラー: シャッターが開いている間の位置を、全部足して平均する</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 フレームで 16 画素動く棒(幅 4 画素)を、シャッターの開き具合を変えて撮る。8 回に分けて足す</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">モーション ブラー: シャッターが開いている間の位置を全部足して平均する</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 フレームで 16 画素動く棒(幅 4 画素)をシャッターの開き具合を変えて撮る。8 回に分けて足す</text>
 <text x="48.0" y="92" text-anchor="start" style="font-size:14px;font-weight:700;fill:#64748b">シャッター 0°(一瞬)</text>
 <rect x="48.0" y="100" width="864.0" height="26" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
 <rect x="192.0" y="102" width="72.0" height="22" fill="#64748b" opacity="0"><animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0511;0.0513;1.0000" values="0;0;0.9;0.9"/></rect>
@@ -313,7 +313,7 @@ tags:
 <text x="576" y="454" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">0° → 90° → 180° → 360° で、長さ 0 / 4 / 8 / 16 画素</text>
 <text x="576" y="476" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">全体の明るさは変えずに、ぼかすので、ピークが下がる</text>
 </g>
-<text x="48" y="480" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ動きを、シャッターの開き具合だけ変えて撮る<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0511;0.0513;1.0000" values="1;1;0;0"/></text>
+<text x="48" y="480" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ動きをシャッターの開き具合だけ変えて撮る<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0511;0.0513;1.0000" values="1;1;0;0"/></text>
 <text x="48" y="480" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">シャッター 0°: 位置は 1 つ。くっきり止まって見える<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0511;0.0513;0.2254;0.2256;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="48" y="480" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">90°: 動く間の 8 つの位置を足す。少し尾を引く<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.2254;0.2256;0.4101;0.4103;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="48" y="480" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">180°: 映画で一般的な長さ<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.4101;0.4103;0.5947;0.5949;1.0000" values="0;0;1;1;0;0"/></text>
@@ -350,26 +350,26 @@ desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 device->CreateTexture2D(&desc, nullptr, &velocity_texture);
 ```
 
-動く物はジオメトリのパスで速度を、書きます。動かない物（背景）はカメラの動きだけで、決まるので速度を書く必要がなくパスの最後に、深度から計算して補います（[Velocity Buffer](velocity-buffer.md)）。
+動く物はジオメトリのパスで速度を書きます。動かない物（背景）はカメラの動きだけで、決まるので速度を書く必要がなくパスの最後に、深度から計算して補います（[Velocity Buffer](velocity-buffer.md)）。
 
 ### 3 つのパス
 
 ```cpp
-// ① タイル最大: 速度を、16×16 画素のタイルごとの、最大に、縮める（計算シェーダー）。
+// ① タイル最大: 速度を 16×16 画素のタイルごとの、最大に縮める（計算シェーダー）。
 const UINT tile = 16;
 Dispatch(tile_max_cs, {velocity_srv}, {tile_max_uav}, (width + tile - 1) / tile, (height + tile - 1) / tile, 1);
 
-// ② 近傍最大: 周りの 3×3 タイルの、最大を、取る（広がりを、隣へ伝える）。
+// ② 近傍最大: 周りの 3×3 タイルの、最大を取る（広がりを隣へ伝える）。
 Dispatch(neighbor_max_cs, {tile_max_srv}, {neighbor_max_uav}, tile_groups_x, tile_groups_y, 1);
 
-// ③ ブラー: 近傍最大の方向へ、シーン色を、サンプル（フルスクリーン）。
+// ③ ブラー: 近傍最大の方向へシーン色をサンプル（フルスクリーン）。
 context->OMSetRenderTargets(1, motion_blur_rtv.GetAddressOf(), nullptr);
 ID3D11ShaderResourceView* srvs[] = {scene_srv.Get(), velocity_srv.Get(), depth_srv.Get(), neighbor_max_srv.Get()};
 context->PSSetShaderResources(0, 4, srvs);
 DrawFullscreenTriangle();
 ```
 
-タイル最大は「このタイルの近くで、最も速く動く物はどちらへ動いているか」を、教えます。ブラーのパスはこの方向を基準に、サンプルするので速い物の輪郭の、外側までにじみます（[Tile Max](tile-max.md)）。
+タイル最大は「このタイルの近くで、最も速く動く物はどちらへ動いているか」を教えます。ブラーのパスはこの方向を基準にサンプルするので速い物の輪郭の、外側までにじみます（[Tile Max](tile-max.md)）。
 
 ## 関連ページ
 

@@ -193,7 +193,7 @@ ImGui は、**プラットフォーム**（ウィンドウ・入力）とレン�
     ImGui のウィンドウ上でマウスを使っているのに、ゲーム側もクリックを受け取ってしまいます。`ImGui::GetIO().WantCaptureMouse` が `true` のときは、ゲーム側でマウスの入力を無視します（キーボードは `WantCaptureKeyboard`）。
 
 ??? failure "NewFrame を呼ぶ順番が違う"
-    `ImGui_ImplDX11_NewFrame()` → `ImGui_ImplWin32_NewFrame()` → `ImGui::NewFrame()` の順番を守ります。`Render()` の後に、画面の描画で ImGui を呼ぶのを忘れると、何も表示されません。
+    `ImGui_ImplDX11_NewFrame()` → `ImGui_ImplWin32_NewFrame()` → `ImGui::NewFrame()` の順番を守ります。`Render()` の後に画面の描画で ImGui を呼ぶのを忘れると、何も表示されません。
 
 ??? failure "リリースビルドにも ImGui が入っている"
     デバッグ用の画面なので、製品版ではビルドに含めないようにします（`#ifdef _DEBUG` で囲む、`IMGUI_DISABLE` を定義する、など）。

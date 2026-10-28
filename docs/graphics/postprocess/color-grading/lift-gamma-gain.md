@@ -6,7 +6,7 @@ tags:
 
 # Lift, Gamma, Gain
 
-<strong>リフト・ガンマ・ゲイン（LGG）</strong>は、映画のカラー グレーディングで定番の 3 つのつまみで、暗部（リフト）・中間（ガンマ）・明部（ゲイン）を、別々に調整します。「暗い所は青く、明るい所は暖かく」のように明るさの領域ごとに色味を変える表現が簡単にできます。このページでは、3 つの役割・式・ASC CDL（スロープ・オフセット・パワー）との関係・色（RGB）ごとの調整・シャドウ/ミッド/ハイライトのカラー バランスを説明します。
+<strong>リフト・ガンマ・ゲイン（LGG）</strong>は、映画のカラー グレーディングで定番の 3 つのつまみで、暗部（リフト）・中間（ガンマ）・明部（ゲイン）を別々に調整します。「暗い所は青く、明るい所は暖かく」のように明るさの領域ごとに色味を変える表現が簡単にできます。このページでは、3 つの役割・式・ASC CDL（スロープ・オフセット・パワー）との関係・色（RGB）ごとの調整・シャドウ/ミッド/ハイライトのカラー バランスを説明します。
 
 !!! tip "ポイント"
     - <strong>ゲイン</strong> ＝ <strong>掛け算</strong>。明部に強く効く（傾き）。
@@ -124,8 +124,8 @@ float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highli
 <defs><marker id="arr-color-lgg-curves" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">リフト・ガンマ・ゲイン: 暗い所(リフト)・中間(ガンマ)・明るい所(ゲイン)を、別々に動かす</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">入力 0〜1 → 出力。3 つのつまみを、1 つずつ動かして、暗部・中間・明部が、どれだけ動くかを計算する</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">リフト・ガンマ・ゲイン: 暗い所(リフト)・中間(ガンマ)・明るい所(ゲイン)を別々に動かす</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">入力 0〜1 → 出力。3 つのつまみを 1 つずつ動かして、暗部・中間・明部がどれだけ動くかを計算する</text>
 <rect x="30" y="96" width="480" height="340" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">曲線(青 = リフト、緑 = ガンマ、赤 = ゲイン)</text>
 <path d="M70.0,410.0 L77.0,405.5 L84.0,401.0 L91.0,396.5 L98.0,392.0 L105.0,387.5 L112.0,383.0 L119.0,378.5 L126.0,374.0 L133.0,369.5 L140.0,365.0 L147.0,360.5 L154.0,356.0 L161.0,351.5 L168.0,347.0 L175.0,342.5 L182.0,338.0 L189.0,333.5 L196.0,329.0 L203.0,324.5 L210.0,320.0 L217.0,315.5 L224.0,311.0 L231.0,306.5 L238.0,302.0 L245.0,297.5 L252.0,293.0 L259.0,288.5 L266.0,284.0 L273.0,279.5 L280.0,275.0 L287.0,270.5 L294.0,266.0 L301.0,261.5 L308.0,257.0 L315.0,252.5 L322.0,248.0 L329.0,243.5 L336.0,239.0 L343.0,234.5 L350.0,230.0 L357.0,225.5 L364.0,221.0 L371.0,216.5 L378.0,212.0 L385.0,207.5 L392.0,203.0 L399.0,198.5 L406.0,194.0 L413.0,189.5 L420.0,185.0 L427.0,180.5 L434.0,176.0 L441.0,171.5 L448.0,167.0 L455.0,162.5 L462.0,158.0 L469.0,153.5 L476.0,149.0 L483.0,144.5 L490.0,140.0" fill="none" stroke="#64748b" stroke-width="2" stroke-dasharray="5 4"/>
@@ -174,10 +174,10 @@ float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highli
 <text x="801.1999999999999" y="398" text-anchor="start" style="font-size:11px;font-weight:700;fill:#e5484d">-0.180</text>
 </g>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6932;0.6933;1.0000" values="0;0;1;1"/><rect x="40" y="452" width="880" height="60" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
-<text x="56" y="476" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">リフトは暗部を、ガンマは中間を、ゲインは明部を、いちばん動かす。互いに、他をあまり動かさない</text>
+<text x="56" y="476" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">リフトは暗部をガンマは中間をゲインは明部をいちばん動かす。互いに、他をあまり動かさない</text>
 <text x="56" y="499" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">3 つのつまみで、「暗部を青く、明部を橙に」といった、色の演出が作れる(RGB それぞれに設定)</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">明るさを、全体で、一括して動かすのではなく、明るさの範囲ごとに動かす<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">明るさを全体で、一括して動かすのではなく、明るさの範囲ごとに動かす<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">3 つのつまみは、効く範囲が違う<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.7065;0.7067;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">色ごとにつまみを持たせると、色味のグレーディングになる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -200,14 +200,14 @@ float3 ColorBalance(float3 color, float3 shadows, float3 midtones, float3 highli
 | --- | --- |
 | ガンマ・対数空間で | 映像ツールと感覚が合う |
 | CDL 形式でやり取り | 外部のカラリストと数値を共有 |
-| LUT に焼く | LGG・バランス・彩度を、1 つの 3D LUT に（[3D LUT](lut-3d.md)） |
+| LUT に焼く | LGG・バランス・彩度を 1 つの 3D LUT に（[3D LUT](lut-3d.md)） |
 | 小さな値で調整 | リフト・カラー バランスは、± 0.05 程度 |
 | ボリュームで補間 | 場所ごとに、LGG を補間（[Authoring LUTs](lut-authoring.md)） |
 
 ## よくあるミス
 
 ??? failure "リフトを上げたら、白まで動いて、全体が白っぽい"
-    <strong>リフトの式を、`c + lift · (1 − c)` に</strong>（白を動かさない）。
+    <strong>リフトの式を `c + lift · (1 − c)` に</strong>（白を動かさない）。
 
 ??? failure "ガンマの向き（`gamma` か `1 / gamma`）を間違えて、逆に動く"
     `pow(c, 1 / gamma)` で、`gamma > 1` が明るく。ツールの定義を確認。

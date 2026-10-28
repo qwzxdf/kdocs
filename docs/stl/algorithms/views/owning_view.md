@@ -62,7 +62,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| 関数が、加工した結果の範囲を返す（元の `vector` を中に持たせる） | `return std::views::all(std::move(v)) | ...;` |
+| 関数が加工した結果の範囲を返す（元の `vector` を中に持たせる） | `return std::views::all(std::move(v)) | ...;` |
 
 ## よくあるミス
 

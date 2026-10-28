@@ -24,7 +24,7 @@ tags:
           ▕ 画面
 ```
 
-この線が、どの物と最初に交わるかを調べるのがピッキングです。やることは 3 つです。クリックしたピクセルからレイを作ること（逆行列で、画面から世界へ戻す）、レイと各物の交差を調べること、いちばん近い物を返すことです。
+この線がどの物と最初に交わるかを調べるのがピッキングです。やることは 3 つです。クリックしたピクセルからレイを作ること（逆行列で、画面から世界へ戻す）、レイと各物の交差を調べること、いちばん近い物を返すことです。
 
 ### 誰が何を担当するか
 
@@ -76,14 +76,14 @@ namespace mini {
 using namespace DirectX::SimpleMath;
 
 Ray MakeRay(float x, float y, float width, float height, const Matrix& view_proj) {
-  // ① ピクセル座標を、正規化デバイス座標 (-1〜1) に変える。画面の上が +Y なので、Y は反転する。
+  // ① ピクセル座標を正規化デバイス座標 (-1〜1) に変える。画面の上が +Y なので、Y は反転する。
   const float ndc_x = 2.0f * x / width - 1.0f;
   const float ndc_y = 1.0f - 2.0f * y / height;
 
   // ② 画面から世界へ戻す行列は、view_proj の逆行列。
   const Matrix inverse = view_proj.Invert();
 
-  // ③ 手前の面 (z = 0) と奥の面 (z = 1) の 2 点を、世界へ戻す。Direct3D の深度は 0〜1。
+  // ③ 手前の面 (z = 0) と奥の面 (z = 1) の 2 点を世界へ戻す。Direct3D の深度は 0〜1。
   const Vector3 near_point = Vector3::Transform(Vector3(ndc_x, ndc_y, 0.0f), inverse);
   const Vector3 far_point = Vector3::Transform(Vector3(ndc_x, ndc_y, 1.0f), inverse);
 
@@ -101,7 +101,7 @@ Ray MakeRay(float x, float y, float width, float height, const Matrix& view_proj
 
 ```cpp
 bool IntersectBox(const Ray& ray, const Matrix& world, float* out_t) {
-  // レイを、箱のローカル空間に移す。
+  // レイを箱のローカル空間に移す。
   const Matrix inverse = world.Invert();
   const Vector3 origin = Vector3::Transform(ray.origin, inverse);
   const Vector3 direction = Vector3::TransformNormal(ray.direction, inverse);   // 方向は平行移動を受けない
@@ -132,7 +132,7 @@ bool IntersectBox(const Ray& ray, const Matrix& world, float* out_t) {
 }  // namespace mini
 ```
 
-これは「スラブ法」といって、箱を、X、Y、Z それぞれの「2 枚の平行な平面にはさまれた領域（スラブ）」の共通部分と見なします。軸ごとに、レイがそのスラブに入る距離 `t1` と出る距離 `t2` を求めて、3 軸ぶんの重なりを取ります。入る距離（`t_min`）が出る距離（`t_max`）を超えたら、入る前に出てしまっているので、当たりません。軸に平行なレイでは割り算ができないので、スラブの内側にあれば OK、外側なら絶対に当たらない、と別に判定します。
+これは「スラブ法」といって、箱を X、Y、Z それぞれの「2 枚の平行な平面にはさまれた領域（スラブ）」の共通部分と見なします。軸ごとに、レイがそのスラブに入る距離 `t1` と出る距離 `t2` を求めて、3 軸ぶんの重なりを取ります。入る距離（`t_min`）が出る距離（`t_max`）を超えたら、入る前に出てしまっているので、当たりません。軸に平行なレイでは割り算ができないので、スラブの内側にあれば OK、外側なら絶対に当たらない、と別に判定します。
 
 `TransformNormal` は、方向ベクトル用の変換で、平行移動（行列の最下行）を無視します。方向を正規化し直さないのは、意図的です。ローカル空間では長さが変わりますが、`origin + t * direction` の `t` は、ワールドでもローカルでも同じ値になるので、そのままワールドの距離として使えます。
 
@@ -272,12 +272,12 @@ bool ctrl = (Win32.GetKeyState(0x11) & 0x8000) != 0;   // VK_CONTROL
 
 ## ギズモを描く（エンジン側）
 
-選んだ物の位置に、3 本の矢印を描きます。大きさは、画面上で一定（たとえば 90 ピクセル）にします。カメラを遠ざけても、小さくならないようにするためです。
+選んだ物の位置に 3 本の矢印を描きます。大きさは、画面上で一定（たとえば 90 ピクセル）にします。カメラを遠ざけても、小さくならないようにするためです。
 
-そのために、「画面の 1 ピクセルが、その位置では世界でどれだけの長さか」を求めます。
+そのために、「画面の 1 ピクセルがその位置では世界でどれだけの長さか」を求めます。
 
 ```cpp
-// position の位置で、画面上の 1 ピクセルが、世界でどれだけの長さか
+// position の位置で、画面上の 1 ピクセルが世界でどれだけの長さか
 float WorldPerPixel(const Vector3& position, const Vector3& camera_position, float fov_y, float viewport_height) {
   const float distance = Vector3::Distance(position, camera_position);
   return 2.0f * distance * std::tan(fov_y * 0.5f) / viewport_height;
@@ -299,7 +299,7 @@ void AddGizmo(std::vector<LineVertex>& lines, const Vector3& origin, float lengt
     lines.push_back({origin, color});
     lines.push_back({tip, color});
 
-    // 矢じり：先端から後ろへ少し戻った位置に、軸に垂直な 4 方向の点を取り、先端と結ぶ
+    // 矢じり：先端から後ろへ少し戻った位置に軸に垂直な 4 方向の点を取り、先端と結ぶ
     const Vector3 u = axes[(i + 1) % 3];
     const Vector3 v = axes[(i + 2) % 3];
     const Vector3 base = tip - axes[i] * (length * 0.18f);
@@ -322,7 +322,7 @@ void AddGizmo(std::vector<LineVertex>& lines, const Vector3& origin, float lengt
 
 ### カメラ情報からレイを作る
 
-エンジン側の `MakeRay` を、そのまま C# に書き直します。ギズモの操作のたびにエンジンへ聞き直すと遅延が出るので、カメラ情報を一度だけ取って、手元で計算します。
+エンジン側の `MakeRay` をそのまま C# に書き直します。ギズモの操作のたびにエンジンへ聞き直すと遅延が出るので、カメラ情報を一度だけ取って、手元で計算します。
 
 ```csharp title="Services/GizmoController.cs"
 using System.Numerics;
@@ -415,7 +415,7 @@ public sealed class GizmoController
     }
 ```
 
-この式は、「`(O + sR - P - tD)` が `R` と `D` の両方に垂直」という条件を、連立方程式として解いたものです。`AxisT` が軸上の最近点の位置で、`Distance` が 2 直線の最短距離（マウスが軸にどれだけ近いか）です。2 直線がほぼ平行（カメラが軸の真正面）のときは、解が決まらないので、別扱いにしています。
+この式は、「`(O + sR - P - tD)` が `R` と `D` の両方に垂直」という条件を連立方程式として解いたものです。`AxisT` が軸上の最近点の位置で、`Distance` が 2 直線の最短距離（マウスが軸にどれだけ近いか）です。2 直線がほぼ平行（カメラが軸の真正面）のときは、解が決まらないので、別扱いにしています。
 
 ### 当たり判定とドラッグ
 
@@ -426,7 +426,7 @@ public sealed class GizmoController
         var target = _selection.Primary;
         if (target == null) return false;
 
-        _camera = _loop.Invoke(e => e.GetCameraInfo());            // ドラッグ中のカメラ情報を、1 度だけ取る
+        _camera = _loop.Invoke(e => e.GetCameraInfo());            // ドラッグ中のカメラ情報を 1 度だけ取る
         var cam = _camera;
         Ray ray = MakeRay(cam, px, py);
 
@@ -476,11 +476,11 @@ public sealed class GizmoController
         UpdateGizmo();
     }
 
-    // position の位置で、画面の 1 ピクセルが、世界でどれだけの長さか
+    // position の位置で、画面の 1 ピクセルが世界でどれだけの長さか
     private static float WorldPerPixel(CameraInfo cam, Vector3 position)
     {
         Matrix4x4.Invert(cam.View, out var inverseView);
-        Vector3 cameraPosition = inverseView.Translation;          // ビュー行列の逆行列の移動成分が、カメラの位置
+        Vector3 cameraPosition = inverseView.Translation;          // ビュー行列の逆行列の移動成分がカメラの位置
         float distance = Vector3.Distance(position, cameraPosition);
         float tanHalfFov = 1f / cam.Projection.M22;                // 投影行列の M22 = 1 / tan(fov / 2)
         return 2f * distance * tanHalfFov / cam.Height;
@@ -488,7 +488,7 @@ public sealed class GizmoController
 }
 ```
 
-押した瞬間に、各軸について最近点を調べて、矢印の長さの範囲内で、マウスに近い（`tolerance` 以内の）軸があれば、その軸のドラッグを始めます。ドラッグ中は、現在の最近点の位置 `t` から、ドラッグ開始時の `t` を引いた分だけ物を動かします。これで、マウスを押した瞬間に物が飛ぶことがありません。
+押した瞬間に各軸について最近点を調べて、矢印の長さの範囲内で、マウスに近い（`tolerance` 以内の）軸があれば、その軸のドラッグを始めます。ドラッグ中は、現在の最近点の位置 `t` から、ドラッグ開始時の `t` を引いた分だけ物を動かします。これで、マウスを押した瞬間に物が飛ぶことがありません。
 
 カメラ情報は、押した瞬間に一度だけ取ります。左ボタンのドラッグ中は、カメラが動かないので、それで足ります。`WorldPerPixel` のほうは、`inverseView.Translation`（ビュー行列の逆の移動成分、つまりワールドでのカメラ位置）と、`Projection.M22`（`1 / tan(fov / 2)`）から、エンジンと同じ式を再現しています。エンジンと C# で、同じ式が 2 か所にあるのは割り切りです。式がずれると、見た目の矢印と当たり判定がずれるので、変えるときは両方を変えます。
 
@@ -530,16 +530,16 @@ public void OnInput(Controls.InputType type, int button, float x, float y, float
 ??? failure "クリックしても選ばれない"
     ピッキングが `0` を返しています。`MakeRay` の `ndc_y` の反転忘れ、`view_proj` の掛け順が逆、`Resize` でビューポートの幅や高さが更新されていない、の 3 つを確かめます。
 
-??? failure "選ぶ位置が、少しずれる"
+??? failure "選ぶ位置が少しずれる"
     クリック座標は、ビューポートのクライアント座標（物理ピクセル）です。DPI が 100% 以外のとき、`GetClientRect` と同じ物理ピクセルで計算しているかを確認します。
 
-??? failure "ギズモが、画面上で大きさが変わる"
+??? failure "ギズモが画面上で大きさが変わる"
     エンジンの `WorldPerPixel` と、C# の `WorldPerPixel` の式が違っています。または、エンジンで `fov` を固定の値で使っています。
 
 ??? failure "矢印をドラッグすると、物が飛ぶ"
     開始時の `t` を引いていません。または、最近点の計算で `denom` がほぼ 0 になっています（軸の真正面から見ている）。カメラを少し回して試します。
 
-??? failure "矢印のドラッグ中に、カメラが回ってしまう"
+??? failure "矢印のドラッグ中にカメラが回ってしまう"
     `IsDragging` のときに、入力をエンジンに送っています。ドラッグ中は `return` して、カメラに送らないようにします。
 
 ??? failure "物を動かすと、ギズモが遅れてついてくる"

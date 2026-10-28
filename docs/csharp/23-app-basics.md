@@ -37,7 +37,7 @@ Prism を使うときは、`OnStartup` の代わりに `PrismApplication` の `O
 | `OnMainWindowClose` | メイン ウィンドウが閉じたとき |
 | `OnExplicitShutdown` | `Application.Current.Shutdown()` を呼んだとき |
 
-ダイアログを閉じたら、アプリごと終了してしまう、という現象は、メインのつもりのウィンドウが、実は最後のウィンドウだったときに起きます。`OnMainWindowClose` にして対処します。
+ダイアログを閉じたら、アプリごと終了してしまう、という現象は、メインのつもりのウィンドウが実は最後のウィンドウだったときに起きます。`OnMainWindowClose` にして対処します。
 
 ## ウィンドウの種類
 
@@ -98,7 +98,7 @@ var p = new WindowPlacement
 
 最大化したまま保存すると、`Left` / `Width` が画面いっぱいの値になって、復元したときに不自然になります。`RestoreBounds` は、最大化・最小化の前の、通常状態での位置と大きさを返してくれます。
 
-復元するときは、保存された位置が、今の画面の外（外したモニターの上など）になっていないかを確かめます。
+復元するときは、保存された位置が今の画面の外（外したモニターの上など）になっていないかを確かめます。
 
 ```csharp
 var screen = SystemParameters.VirtualScreenLeft;     // すべてのモニターを含む領域の左端
@@ -124,7 +124,7 @@ bool visible = p.Left < SystemParameters.VirtualScreenWidth && p.Top < SystemPar
 <MenuItem Header="貼り付け" Command="ApplicationCommands.Paste" />
 ```
 
-コマンドが、フォーカスのある部品に伝わって実行されるので、`TextBox` を選んでいる間だけ、有効になります。
+コマンドがフォーカスのある部品に伝わって実行されるので、`TextBox` を選んでいる間だけ、有効になります。
 
 これは「ルーテッド コマンド」という仕組みで、ビューモデルのコマンド（`DelegateCommand`）とは別物です。`ApplicationCommands.Undo` をエディタのシーンの Undo に使いたい場合は、`CommandBinding` で自分の処理に結び付けます。
 
@@ -156,7 +156,7 @@ bool visible = p.Left < SystemParameters.VirtualScreenWidth && p.Top < SystemPar
 
 ### Tab で動く順番
 
-`Tab` を押したときの移動先は、基本的に、XAML に書いた順（論理ツリーの順）です。順番を変えたいときは、`TabIndex` を使います。小さい値から順に移ります。
+`Tab` を押したときの移動先は、基本的に XAML に書いた順（論理ツリーの順）です。順番を変えたいときは、`TabIndex` を使います。小さい値から順に移ります。
 
 ```xml
 <StackPanel KeyboardNavigation.TabNavigation="Cycle">
@@ -211,11 +211,11 @@ Loaded += (_, _) => NameBox.Focus();
 衝突を避けるには、次のいずれかにします。
 
 - コマンドの `CanExecute` で、フォーカスが入力欄にあるときは `false` を返す。
-- 登録する場所を、リストやツリーといった「文字を打たない部品」の `InputBindings` に限る（第 22 章）。
+- 登録する場所をリストやツリーといった「文字を打たない部品」の `InputBindings` に限る（第 22 章）。
 
 ## ポップアップ、ツールチップ
 
-画面の上に、一時的に何かを浮かべる部品は 3 つあります。
+画面の上に一時的に何かを浮かべる部品は 3 つあります。
 
 | 部品 | 使いどころ |
 | --- | --- |
@@ -249,7 +249,7 @@ Loaded += (_, _) => NameBox.Focus();
 </Popup>
 ```
 
-`Placement` は、`PlacementTarget` から見てどこに出すか、`StaysOpen="False"` は、外をクリックしたら閉じる、という指定です。`Popup` は、別のウィンドウとして描かれるので、ほかの部品の後ろに隠れず、親の `Clip` にも切られません。そのかわり、親の `DataContext` やリソースを、自動では引き継がない場合があります。見た目が崩れたときは、`Popup` の中身に `DynamicResource` で色を指定しているか、確かめてください。
+`Placement` は、`PlacementTarget` から見てどこに出すか、`StaysOpen="False"` は、外をクリックしたら閉じる、という指定です。`Popup` は、別のウィンドウとして描かれるので、ほかの部品の後ろに隠れず、親の `Clip` にも切られません。そのかわり、親の `DataContext` やリソースを自動では引き継がない場合があります。見た目が崩れたときは、`Popup` の中身に `DynamicResource` で色を指定しているか、確かめてください。
 
 ## 二重に起動させない
 
@@ -283,7 +283,7 @@ public partial class App : PrismApplication
 }
 ```
 
-`out` で受けた値（`_ownsMutex`）が `false` なら、同じ名前の `Mutex` が、すでにほかのプロセスに作られています。この場合は、`base.OnStartup` を呼ばないで終わります。`PrismApplication` の起動処理（コンテナーの作成など）を、無駄に走らせないためです。
+`out` で受けた値（`_ownsMutex`）が `false` なら、同じ名前の `Mutex` が、すでにほかのプロセスに作られています。この場合は、`base.OnStartup` を呼ばないで終わります。`PrismApplication` の起動処理（コンテナーの作成など）を無駄に走らせないためです。
 
 すでに起動している側のウィンドウを前に出したいときは、`Process.GetProcessesByName` で相手を探して `SetForegroundWindow` を呼ぶ方法がありますが、ここでは扱いません。
 

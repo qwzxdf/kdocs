@@ -14,7 +14,7 @@ tags:
 `#include <Jolt/Jolt.h>`
 </div>
 
-**Jolt Physics**（ジョルト・フィジクス）は、**3D の物理演算（剛体、衝突判定、キャラクターの移動など）を行う C++ ライブラリ**です。オランダのゲーム会社 Guerrilla Games の開発者 Jorrit Rouwé が、**PlayStation 5 の「Horizon Forbidden West」のために作った**エンジンを、オープンソース（MIT ライセンス）として公開したものです。**マルチスレッドで速く**、<strong>同じ入力から同じ結果が出る（決定的）</strong>ことを重視していて、Godot（4.4 以降の選択肢）や Unity 以外の多くの新しいゲームでも採用されています。Bullet や PhysX と同じ種類のライブラリですが、<strong>新しくてモダンな C++</strong>で書かれていて、導入しやすいのが特徴です。
+**Jolt Physics**（ジョルト・フィジクス）は、**3D の物理演算（剛体、衝突判定、キャラクターの移動など）を行う C++ ライブラリ**です。オランダのゲーム会社 Guerrilla Games の開発者 Jorrit Rouwé が、**PlayStation 5 の「Horizon Forbidden West」のために作った**エンジンをオープンソース（MIT ライセンス）として公開したものです。**マルチスレッドで速く**、<strong>同じ入力から同じ結果が出る（決定的）</strong>ことを重視していて、Godot（4.4 以降の選択肢）や Unity 以外の多くの新しいゲームでも採用されています。Bullet や PhysX と同じ種類のライブラリですが、<strong>新しくてモダンな C++</strong>で書かれていて、導入しやすいのが特徴です。
 
 ## ページ一覧
 

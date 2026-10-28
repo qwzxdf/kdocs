@@ -15,7 +15,7 @@ tags:
 `#include <filesystem>`
 </div>
 
-`std::filesystem::weakly_canonical` は、[`canonical`](canonical.md) の**存在しない部分があっても使える版**です。存在する部分だけを正規化（`..` やリンクを解決）し、残りは字句的に整えます。これから作るファイルのパスを、絶対パスに整えるときに使います。
+`std::filesystem::weakly_canonical` は、[`canonical`](canonical.md) の**存在しない部分があっても使える版**です。存在する部分だけを正規化（`..` やリンクを解決）し、残りは字句的に整えます。これから作るファイルのパスを絶対パスに整えるときに使います。
 
 !!! tip "ポイント"
     - `canonical` は存在しないと例外、こちらは例外にならない。

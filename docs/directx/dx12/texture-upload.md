@@ -59,7 +59,7 @@ device->CreateCommittedResource(&upload_heap, D3D12_HEAP_FLAG_NONE, &upload_desc
 中継バッファの 1 行の幅は `footprint.Footprint.RowPitch` です。この幅で 1 行ずつ並べるために画像の行を 1 つずつコピーします。
 
 ```cpp
-// 3. 画素を、中継バッファへ 1 行ずつコピーする。
+// 3. 画素を中継バッファへ 1 行ずつコピーする。
 uint8_t* mapped = nullptr;
 D3D12_RANGE no_read = {0, 0};
 upload_buffer->Map(0, &no_read, reinterpret_cast<void**>(&mapped));
@@ -77,7 +77,7 @@ upload_buffer->Unmap(0, nullptr);
 次に、コピーの命令を記録します。
 
 ```cpp
-// 4. 中継バッファからテクスチャへ、コピーを記録する。
+// 4. 中継バッファからテクスチャへコピーを記録する。
 D3D12_TEXTURE_COPY_LOCATION dst = {};
 dst.pResource = texture.Get();
 dst.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;

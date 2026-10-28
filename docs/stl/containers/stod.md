@@ -15,7 +15,7 @@ tags:
 `#include <string>`
 </div>
 
-設定ファイルから読んだ「9.80665」のような文字列を、`double` の値として使いたい。精度が要る計算では、`float` では足りないことがあります。`std::stod` は、文字列を `double` に変換する関数です。[`stof`](stof.md) の `double` 版で、使い方はまったく同じです。読めない文字列には `std::invalid_argument`、範囲外には `std::out_of_range` を投げます。
+設定ファイルから読んだ「9.80665」のような文字列を `double` の値として使いたい。精度が要る計算では、`float` では足りないことがあります。`std::stod` は、文字列を `double` に変換する関数です。[`stof`](stof.md) の `double` 版で、使い方はまったく同じです。読めない文字列には `std::invalid_argument`、範囲外には `std::out_of_range` を投げます。
 
 !!! tip "ポイント"
     - 失敗は例外。

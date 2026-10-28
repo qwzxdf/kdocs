@@ -90,12 +90,12 @@ vcpkg install joltphysics:x64-windows
 
 #include <print>
 
-JPH_SUPPRESS_WARNINGS                                      // Jolt のヘッダーが出す、警告を、抑える
+JPH_SUPPRESS_WARNINGS                                      // Jolt のヘッダーが出す、警告を抑える
 
 int main() {
-  JPH::RegisterDefaultAllocator();                         // メモリ確保の関数を、登録（最初に 1 回）
-  JPH::Factory::sInstance = new JPH::Factory();            // 型の登録に、必要な、ファクトリー
-  JPH::RegisterTypes();                                    // Jolt の、標準の型（形状、制約など）を、登録
+  JPH::RegisterDefaultAllocator();                         // メモリ確保の関数を登録（最初に 1 回）
+  JPH::Factory::sInstance = new JPH::Factory();            // 型の登録に必要な、ファクトリー
+  JPH::RegisterTypes();                                    // Jolt の、標準の型（形状、制約など）を登録
 
   std::println("Jolt を、初期化できました");
 
@@ -113,14 +113,14 @@ int main() {
 | --- | --- | --- |
 | `LNK2038`（`_ITERATOR_DEBUG_LEVEL` の不一致） | `Jolt.lib` を Release で作ったのに、自分のプロジェクトが Debug（または、逆） | Debug と Release の両方で、`Jolt.lib` を作り構成ごとに正しいほうをリンクする |
 | `LNK2038`（`RuntimeLibrary` の不一致） | `/MD` と `/MT` の取り違え | Jolt のビルドと、自分のプロジェクトでランタイム ライブラリをそろえる（[ランタイム ライブラリ](../../vs/errors.md#runtime_library)） |
-| 実行時に原因の分からない、クラッシュ | `JPH_DEBUG_RENDERER` などの定義が、ライブラリと自分のプロジェクトで、違う | 定義をライブラリのビルドとそろえる。CMake の `Jolt` ターゲットを使えば自動で、そろう |
+| 実行時に原因の分からない、クラッシュ | `JPH_DEBUG_RENDERER` などの定義がライブラリと自分のプロジェクトで、違う | 定義をライブラリのビルドとそろえる。CMake の `Jolt` ターゲットを使えば自動で、そろう |
 | `LNK2019`（`JPH::…` が未解決） | `Jolt.lib` をリンクしていない | 追加の依存ファイルに `Jolt.lib` |
-| `C1083`（`Jolt/Jolt.h` を開けない） | インクルード ディレクトリが、違う | `Jolt` フォルダーの <strong>親</strong>を指定する（`JoltPhysics` のルート） |
-| `C4324` などの警告が大量 | Jolt のアラインメント指定 | `JPH_SUPPRESS_WARNINGS` を、`#include` の後に書く |
+| `C1083`（`Jolt/Jolt.h` を開けない） | インクルード ディレクトリが違う | `Jolt` フォルダーの <strong>親</strong>を指定する（`JoltPhysics` のルート） |
+| `C4324` などの警告が大量 | Jolt のアラインメント指定 | `JPH_SUPPRESS_WARNINGS` を `#include` の後に書く |
 
 ## C++ の設定
 
-Jolt は C++17 以降が、必要です。プロジェクトの <strong>C++ 言語標準</strong>を `/std:c++17` 以上（このサイトでは `/std:c++latest`）にします（[C++23 を使えるようにする設定](../../vs/settings.md)）。
+Jolt は C++17 以降が必要です。プロジェクトの <strong>C++ 言語標準</strong>を `/std:c++17` 以上（このサイトでは `/std:c++latest`）にします（[C++23 を使えるようにする設定](../../vs/settings.md)）。
 
 | 設定 | 値 |
 | --- | --- |

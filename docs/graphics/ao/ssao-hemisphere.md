@@ -32,14 +32,14 @@ tags:
 | コスト | 同程度 | わずかに増える（法線の読み込み） |
 
 
-1 つ目は、サンプルを置く領域を球から、法線側の半球に変えたことです。これで、平らな面では約 50 % が遮られて灰色になる問題がなくなり、遮蔽がない面は明るいままになります。2 つ目は、入力に法線が加わったことです。深度のみだった入力が、深度と法線になり、法線を読む分のコストがわずかに増えます。3 つ目は、ランダム化の方法です。Crytek 方式はサンプル ベクトルを鏡映していましたが、半球 SSAO は接空間（TBN）をランダムに回します。サンプルの半球が、常に法線を向いたまま回転するわけです。4 つ目のコストは、同程度です。
+1 つ目は、サンプルを置く領域を球から、法線側の半球に変えたことです。これで、平らな面では約 50 % が遮られて灰色になる問題がなくなり、遮蔽がない面は明るいままになります。2 つ目は、入力に法線が加わったことです。深度のみだった入力が深度と法線になり、法線を読む分のコストがわずかに増えます。3 つ目は、ランダム化の方法です。Crytek 方式はサンプル ベクトルを鏡映していましたが、半球 SSAO は接空間（TBN）をランダムに回します。サンプルの半球が常に法線を向いたまま回転するわけです。4 つ目のコストは、同程度です。
 
-1 つ目は、サンプルを置く領域を球から、法線側の半球に変えたことです。これで、平らな面では約 50 % が遮られて灰色になる問題がなくなり、遮蔽がない面は明るいままになります。2 つ目は、入力に法線が加わったことです。深度のみだった入力が、深度と法線になり、法線を読む分のコストがわずかに増えます。3 つ目は、ランダム化の方法です。Crytek 方式はサンプル ベクトルを鏡映していましたが、半球 SSAO は接空間（TBN）をランダムに回します。サンプルの半球が、常に法線を向いたまま回転するわけです。4 つ目のコストは、同程度です。
+1 つ目は、サンプルを置く領域を球から、法線側の半球に変えたことです。これで、平らな面では約 50 % が遮られて灰色になる問題がなくなり、遮蔽がない面は明るいままになります。2 つ目は、入力に法線が加わったことです。深度のみだった入力が深度と法線になり、法線を読む分のコストがわずかに増えます。3 つ目は、ランダム化の方法です。Crytek 方式はサンプル ベクトルを鏡映していましたが、半球 SSAO は接空間（TBN）をランダムに回します。サンプルの半球が常に法線を向いたまま回転するわけです。4 つ目のコストは、同程度です。
 
-!!! info "ここで使われる「積分」を、やさしく言うと"
-    Hemisphere SSAO の積分も、Crytek SSAO と同じ、ランダムな点を撒いて、遮られた割合を数える（モンテカルロ法）です。違いは、点を撒く場所が、法線の向きの半球だけ、という点です。
+!!! info "ここで使われる「積分」をやさしく言うと"
+    Hemisphere SSAO の積分も、Crytek SSAO と同じ、ランダムな点を撒いて、遮られた割合を数える（モンテカルロ法）です。違いは、点を撒く場所が法線の向きの半球だけ、という点です。
 
-    - 面の下側に、点を撒かないので、平らな面が、灰色にならない。
+    - 面の下側に点を撒かないので、平らな面が灰色にならない。
     - 点は、面の近くに、多く（`scale` で、近くに寄せる）。近い遮蔽物ほど、AO に効くため。
     - 点の数は 16 前後。足りない分は、ノイズとぼかしで、ごまかす。
 
@@ -70,9 +70,9 @@ std::vector<Vector3> MakeHemisphereKernel(int n, std::mt19937& rng) {
 
 ### サンプルの分布と、コサイン重み
 
-[理論](theory/index.md)の AO はコサイン重み付きの積分でした。法線に近い方向のサンプルが、より重要です。上の分布は一様な半球なので、法線方向に特別に寄せてはいません（コサイン重みを無視した近似です）。コサイン重みを正しく扱うなら、コサイン分布のサンプルを使います。
+[理論](theory/index.md)の AO はコサイン重み付きの積分でした。法線に近い方向のサンプルがより重要です。上の分布は一様な半球なので、法線方向に特別に寄せてはいません（コサイン重みを無視した近似です）。コサイン重みを正しく扱うなら、コサイン分布のサンプルを使います。
 
-一様な半球は、半球上で方向を一様に選びます。この分布は、横方向（水平寄り）の遮蔽に必要以上に敏感になります。コサイン分布は、`x = √u1 cos(2πu2)`、`y = √u1 sin(2πu2)`、`z = √(1 − u1)` で作り、法線付近の方向を多く選びます。このとき、モンテカルロの V の割合が、そのまま AO になります（[理論](theory/index.md)のとおり、重みが分布に吸収されるためです）。
+一様な半球は、半球上で方向を一様に選びます。この分布は、横方向（水平寄り）の遮蔽に必要以上に敏感になります。コサイン分布は、`x = √u1 cos(2πu2)`、`y = √u1 sin(2πu2)`、`z = √(1 − u1)` で作り、法線付近の方向を多く選びます。このとき、モンテカルロの V の割合がそのまま AO になります（[理論](theory/index.md)のとおり、重みが分布に吸収されるためです）。
 
 ```cpp
 Vector3 CosineSample(float u1, float u2) {
@@ -326,10 +326,10 @@ float3x3 tbn = float3x3(tangent, bitangent, normal);
 <text x="566" y="408" text-anchor="start" style="font-size:15px;font-weight:700;fill:#4c1d95">24 列 × 8 サンプル = 192 回の深度読み込み</text>
 <text x="566" y="432" text-anchor="start" style="font-size:14px;font-weight:700;fill:#4c1d95">壁際の床 0.75 / 離れた床 1.00 / 壁の上 1.00</text>
 </g>
-<text x="30" y="520" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">調べたいピクセルの周りの、半円の中に、サンプル点を撒く<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.0683;0.0686;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="520" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">調べたいピクセルの周りの、半円の中にサンプル点を撒く<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.0683;0.0686;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="520" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">各サンプル点の位置の深度を読んで、「点がかべの中にあるか」を調べる<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.0683;0.0686;0.3198;0.3200;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="520" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">数えた結果で、このピクセルの AO が決まる<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.3198;0.3200;0.3655;0.3657;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="520" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ処理を、すべてのピクセルに繰り返す(暗い = 囲まれている)<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.3655;0.3657;0.6398;0.6400;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="520" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ処理をすべてのピクセルに繰り返す(暗い = 囲まれている)<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.3655;0.3657;0.6398;0.6400;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="520" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">壁際の床だけが暗く、壁の上や離れた床は明るい → 隅が自然に暗くなる<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.6398;0.6400;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -337,7 +337,7 @@ float3x3 tbn = float3x3(tangent, bitangent, normal);
 
 ## 判定
 
-接空間のサンプルを、<strong>TBN でビュー空間へ</strong>変換し、p にずらしてから、画面に投影します。
+接空間のサンプルを <strong>TBN でビュー空間へ</strong>変換し、p にずらしてから、画面に投影します。
 
 <div class="formula">s_i = p + (TBN · k_i) · R</div>
 
@@ -398,7 +398,7 @@ float HemisphereSSAO(float2 uv) {
 <line x1="100" y1="240" x2="225" y2="190" stroke="#e5484d" stroke-width="1.5" stroke-dasharray="4 3" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1034;0.1037;1.0000;1.0000" values="0;0;1;1;0"/></line>
 <circle cx="210" cy="165" r="7" fill="#e5484d" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1330;0.1333;1.0000;1.0000" values="0;0;1;1;0"/></circle>
 <line x1="100" y1="240" x2="210" y2="165" stroke="#e5484d" stroke-width="1.5" stroke-dasharray="4 3" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1330;0.1333;1.0000;1.0000" values="0;0;1;1;0"/></line>
-<text x="60" y="300" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">P のまわりのサンプルが、手前の物に当たる<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1479;0.1481;1.0000" values="1;1;0;0"/></text>
+<text x="60" y="300" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">P のまわりのサンプルが手前の物に当たる<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1479;0.1481;1.0000" values="1;1;0;0"/></text>
 <text x="60" y="300" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">深度が P よりずっと近い → 遮蔽と数える（誤り）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.1479;0.1481;0.4812;0.4815;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="60" y="300" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937" opacity="0">深度差 &gt; 半径 なら数えない（範囲チェック）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000;1.0000" values="0;0;1;1;0"/></text>
 <text x="60" y="326" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b" opacity="0">rangeCheck = smoothstep(0, 1, 半径 / |深度差|)<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.4812;0.4815;1.0000;1.0000" values="0;0;1;1;0"/></text>
@@ -408,7 +408,7 @@ float HemisphereSSAO(float2 uv) {
 
 ### 範囲チェックの意味
 
-遮られる物体が、p のすぐ近くにあれば、AO は暗くなるべきです。しかし、手前に遠く離れた物体（たとえば p が壁の近くで、その手前 10 m に別の柱）があるとサンプルがその柱の裏に入り、p が暗くなってしまいます。
+遮られる物体が p のすぐ近くにあれば、AO は暗くなるべきです。しかし、手前に遠く離れた物体（たとえば p が壁の近くで、その手前 10 m に別の柱）があるとサンプルがその柱の裏に入り、p が暗くなってしまいます。
 
 深度差が R 以下なら、範囲チェックは 1 で、近い物による遮蔽としてそのまま効かせます。R より大きければ、R / 差 の値（1 より小さい）になり、遠い物による遮蔽として弱めます。差が大きいほど、効きはどんどん小さくなります。
 
@@ -438,7 +438,7 @@ float Blur(float2 uv) {
 
 ## DirectX 11 で組む
 
-ここまでの HLSL を、1 回の描画パスとして、動かすための、ホスト側の、準備です（共通の部品は、[D3D11 Pass Recipes](../../directx/dx11/pass-recipes.md) を参照）。
+ここまでの HLSL を 1 回の描画パスとして、動かすための、ホスト側の、準備です（共通の部品は、[D3D11 Pass Recipes](../../directx/dx11/pass-recipes.md) を参照）。
 
 ### 入力と出力
 
@@ -458,7 +458,7 @@ device->CreateRenderTargetView(ao_texture.Get(), nullptr, &ao_rtv);
 device->CreateShaderResourceView(ao_texture.Get(), nullptr, &ao_srv);
 ```
 
-AO は、0〜1 の 1 チャンネルなので、`R8_UNORM` で足ります。ぼかしの、2 パスのために、同じ大きさの、もう 1 枚（`ao_blur_texture`）を、作ります。
+AO は、0〜1 の 1 チャンネルなので、`R8_UNORM` で足ります。ぼかしの、2 パスのために、同じ大きさの、もう 1 枚（`ao_blur_texture`）を作ります。
 
 ### ノイズ テクスチャとカーネル
 
@@ -482,39 +482,39 @@ device->CreateTexture2D(&nd, &init, &noise_texture);
 device->CreateShaderResourceView(noise_texture.Get(), nullptr, &noise_srv);
 ```
 
-ノイズは、4×4 の、小さなテクスチャを、画面いっぱいに、繰り返し（`WRAP` サンプラー）、画素ごとに、違う回転を、与えます。ぼかしで、この 4×4 の模様を、消します。サンプラーは、ノイズ用に、`POINT` と `WRAP`、深度用に、`POINT` と `CLAMP` の、2 つを、用意します。
+ノイズは、4×4 の、小さなテクスチャを画面いっぱいに、繰り返し（`WRAP` サンプラー）、画素ごとに、違う回転を与えます。ぼかしで、この 4×4 の模様を消します。サンプラーは、ノイズ用に `POINT` と `WRAP`、深度用に `POINT` と `CLAMP` の、2 つを用意します。
 
 ```cpp
-// カーネル: 半球のサンプル（64 個の float4）を、定数バッファに入れる。起動時に、1 度だけ作る。
+// カーネル: 半球のサンプル（64 個の float4）を定数バッファに入れる。起動時に 1 度だけ作る。
 struct SsaoConstants {
   DirectX::XMFLOAT4 kernel[64];                                 // xyz: 半球内のオフセット
   DirectX::XMFLOAT4X4 projection;
-  DirectX::XMFLOAT2 noise_scale;                                // (画面幅 / 4, 画面高さ / 4): ノイズを、画面に敷く倍率
+  DirectX::XMFLOAT2 noise_scale;                                // (画面幅 / 4, 画面高さ / 4): ノイズを画面に敷く倍率
   float radius;
   float bias;
 };
 ```
 
-`noise_scale` は、`uv` に掛けて、ノイズの座標にする倍率です。画面が、1920×1080 なら、(480, 270) で、ノイズが、480×270 回、繰り返されます。
+`noise_scale` は、`uv` に掛けて、ノイズの座標にする倍率です。画面が 1920×1080 なら、(480, 270) で、ノイズが 480×270 回、繰り返されます。
 
 ### パスの流れ
 
 ```cpp
-// ① AO を描く（深度 SRV と、法線 SRV を、読む。DSV は、束ねない）。
+// ① AO を描く（深度 SRV と、法線 SRV を読む。DSV は、束ねない）。
 context->OMSetRenderTargets(1, ao_rtv.GetAddressOf(), nullptr);
 context->PSSetShaderResources(0, 1, depth_srv.GetAddressOf());      // t0: 深度
 context->PSSetShaderResources(1, 1, normal_srv.GetAddressOf());     // t1: 法線
 context->PSSetShaderResources(2, 1, noise_srv.GetAddressOf());      // t2: ノイズ
 DrawFullscreenTriangle();
 
-// ② ぼかし（水平 → 垂直）。入力と出力を、別のテクスチャにする。
+// ② ぼかし（水平 → 垂直）。入力と出力を別のテクスチャにする。
 context->OMSetRenderTargets(1, ao_blur_rtv.GetAddressOf(), nullptr);
 context->PSSetShaderResources(0, 1, ao_srv.GetAddressOf());
 DrawFullscreenTriangle();     // 水平
 // （もう 1 回、ao_blur → ao へ、垂直）
 ```
 
-深度の DSV を、束ねたままにすると、深度を、SRV で、読めません（[D3D11 Pass Recipes](../../directx/dx11/pass-recipes.md) の、束縛の衝突）。AO の、結果は、ライティングの、パスで、環境光に、掛けます（[Usage and Misconceptions of AO](theory/usage-misconceptions.md)）。
+深度の DSV を束ねたままにすると、深度を SRV で、読めません（[D3D11 Pass Recipes](../../directx/dx11/pass-recipes.md) の、束縛の衝突）。AO の、結果は、ライティングの、パスで、環境光に掛けます（[Usage and Misconceptions of AO](theory/usage-misconceptions.md)）。
 
 ## パラメータ
 
@@ -569,13 +569,13 @@ float3 n = normalize(cross(ddx(p), ddy(p)));
 ??? failure "法線をワールド空間のまま使う"
     位置と<strong>同じ空間</strong>（ビュー空間）に変換してから使います。
 
-??? failure "ノイズ テクスチャを、補間（リニア）で読む"
+??? failure "ノイズ テクスチャを補間（リニア）で読む"
     ポイント サンプリング ＋ ラップにします。
 
-??? failure "ノイズの周期とぼかしの周期が、合っていない"
+??? failure "ノイズの周期とぼかしの周期が合っていない"
     4×4 のノイズなら、4×4 のぼかしです。
 
-??? failure "AO を、直接光にも掛けて、全体が暗い"
+??? failure "AO を直接光にも掛けて、全体が暗い"
     間接光（環境光）だけに掛けます（[理論](theory/index.md)）。
 
 ??? failure "法線マップ込みの法線を使い、凹凸が AO に出る"
@@ -585,7 +585,7 @@ float3 n = normalize(cross(ddx(p), ddy(p)));
 
 !!! abstract "まとめ"
     - [x] 半球 SSAO ＝ 法線の側の半球にサンプルを置く SSAO。平らな面が灰色にならない
-    - [x] TBN を、ランダム ベクトルから作る（グラム・シュミット）。接線は不要
+    - [x] TBN をランダム ベクトルから作る（グラム・シュミット）。接線は不要
     - [x] 判定は投影して深度を比べる。バイアスと範囲チェックが肝
     - [x] ぼかしは、ノイズと同じ周期。境界をにじませないならバイラテラル
     - [x] 法線は G-Buffer から。無ければ深度から復元

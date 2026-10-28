@@ -69,7 +69,7 @@ tags:
 <text x="80" y="358" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">① 床に当たる（直接光）→ 明るくなる<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;0.2431;0.2435;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="80" y="358" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">② 赤い壁に当たる<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.2431;0.2435;0.3823;0.3826;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="80" y="358" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">③ 壁は赤い光だけを反射して、四方に跳ね返す<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.3823;0.3826;0.5214;0.5217;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="80" y="358" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">④ 壁の近くの床が、赤っぽくなる（色のにじみ）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5214;0.5217;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="80" y="358" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">④ 壁の近くの床が赤っぽくなる（色のにじみ）<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.5214;0.5217;1.0000;1.0000" values="0;0;1;1;0"/></text>
 <text x="80" y="384" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">間接光は、直接光が当たった面が「次の光源」になる。リアルタイムでは、プローブやボクセルで近似する。</text>
 <text x="590" y="90" text-anchor="start" style="font-size:14px;font-weight:700;fill:#64748b">光の跳ね返り</text>
 <text x="590" y="130" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937" opacity="0">0 回<animate attributeName="opacity" dur="11.5s" repeatCount="indefinite" keyTimes="0.0000;0.0866;0.0870;1.0000" values="1;1;0;0"/></text>
@@ -86,11 +86,11 @@ GI の手法は <strong>多く</strong>ありますが、2 つの軸（いつ計
 
 | 手法 | いつ計算 | 情報の置き場 | 動的な物 | 動的な光 | 見える範囲 |
 | --- | --- | --- | --- | --- | --- |
-| ライトマップ | 事前（ベイク） | テクスチャ（面に、貼る） | △（受け取れない） | ×（固定） | 世界全体（事前に、計算済み） |
+| ライトマップ | 事前（ベイク） | テクスチャ（面に貼る） | △（受け取れない） | ×（固定） | 世界全体（事前に、計算済み） |
 | プローブ GI（ベイク） | 事前 | 空間の点（プローブ） | ○（プローブから、受け取る） | × | 世界全体 |
-| DDGI | 実行時 | 空間の点（プローブ） | ○ | ○ | 世界全体（レイトレーシングが、必要） |
+| DDGI | 実行時 | 空間の点（プローブ） | ○ | ○ | 世界全体（レイトレーシングが必要） |
 | ボクセル GI（VXGI） | 実行時 | ボクセル（3D グリッド） | ○ | ○ | 世界全体（ボクセル化した範囲） |
-| SSGI | 実行時 | 画面（G バッファ、深度） | ○ | ○ | 画面に、映る範囲だけ |
+| SSGI | 実行時 | 画面（G バッファ、深度） | ○ | ○ | 画面に映る範囲だけ |
 | Lumen 型 | 実行時 | 距離場、サーフェス キャッシュ、画面 | ○ | ○ | 世界全体 |
 | ReSTIR GI | 実行時 | 画素ごとの、サンプル | ○ | ○ | 世界全体（レイトレーシング） |
 | Radiance Cascades | 実行時 | カスケード（レイの、束） | ○ | ○ | 画面または、世界 |
@@ -99,10 +99,10 @@ GI の手法は <strong>多く</strong>ありますが、2 つの軸（いつ計
 
 | | 事前（ベイク） | 実行時（リアルタイム） |
 | --- | --- | --- |
-| 品質 | 最高（時間をかけて、計算） | 手法による（近似が、多い） |
-| 動的な光（昼夜、動くライト） | 対応できない（光が、固定） | 対応できる |
-| 動的な物（扉、移動する壁） | 反映できない（物が、動いても光はそのまま） | 反映できる |
-| 実行時のコスト | 最小（テクスチャを、読むだけ） | 大きい（毎フレーム、計算） |
+| 品質 | 最高（時間をかけて、計算） | 手法による（近似が多い） |
+| 動的な光（昼夜、動くライト） | 対応できない（光が固定） | 対応できる |
+| 動的な物（扉、移動する壁） | 反映できない（物が動いても光はそのまま） | 反映できる |
+| 実行時のコスト | 最小（テクスチャを読むだけ） | 大きい（毎フレーム、計算） |
 | 制作の手間 | ベイクの、待ち時間（数分〜数時間）、UV、データ管理 | ベイク不要 |
 
 <strong>静的な場面</strong>（光も物も動かない）なら、ベイクが最高品質で最安です。時間帯が変わる物が壊れる場面では、実行時の手法が必要です。
@@ -116,7 +116,7 @@ GI の手法は <strong>多く</strong>ありますが、2 つの軸（いつ計
 | コスト | 画面の解像度に比例。シーンの複雑さに依存しない | 世界の、複雑さに依存（ボクセル化、キャッシュ更新） |
 | 実装 | 簡単（ポスト プロセス） | 複雑（空間データ構造の、管理） |
 
-<strong>画面空間</strong>の手法は 簡単で、軽い一方、見えていない物（画面の外、物の裏）からの光が反映されません。世界空間の手法はそのような制限が、ありませんがデータ構造の維持が重く、複雑です。
+<strong>画面空間</strong>の手法は 簡単で、軽い一方、見えていない物（画面の外、物の裏）からの光が反映されません。世界空間の手法はそのような制限がありませんがデータ構造の維持が重く、複雑です。
 
 ## どう選ぶか
 
@@ -156,7 +156,7 @@ GI の手法は <strong>多く</strong>ありますが、2 つの軸（いつ計
 
 ## よくあるミス
 
-??? failure "動的な光に、ライトマップを使ってしまう"
+??? failure "動的な光にライトマップを使ってしまう"
     <strong>動的な光には動的な GI</strong>（プローブ・SSGI など）を選ぶ。
 
 ## これだけ覚える

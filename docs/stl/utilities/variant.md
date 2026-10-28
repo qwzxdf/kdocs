@@ -295,7 +295,7 @@ bool operator==(const variant<Types...>& a, const variant<Types...>& b);
 
 ステートマシンの状態を表すのに使います。`variant<Idle, Moving, Attacking>` なら、それぞれの状態が必要なデータだけを持ちます。`std::visit` で、状態ごとの更新処理を書き分けます。
 
-イベントやコマンドの種類を表すのにも向いています。`variant<ClickEvent, KeyEvent, ResizeEvent>` のように、種類ごとのデータを持つメッセージを、1 つの型で扱えます。
+イベントやコマンドの種類を表すのにも向いています。`variant<ClickEvent, KeyEvent, ResizeEvent>` のように、種類ごとのデータを持つメッセージを 1 つの型で扱えます。
 
 設定値が `int`、`float`、`string` のどれかである、というときにも使えます。種類が多くて、後から増やす前提なら、仮想関数のほうが拡張しやすいです。
 

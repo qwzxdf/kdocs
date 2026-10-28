@@ -14,7 +14,7 @@ tags:
 `#include <utility>`
 </div>
 
-`std::piecewise_construct` は、**pair の 1 つ目と 2 つ目を、それぞれ別々のコンストラクタ引数（tuple）で作る**ための印です。`map::emplace` で、キーと値の両方に複数の引数を渡したいときに使います。
+`std::piecewise_construct` は、**pair の 1 つ目と 2 つ目をそれぞれ別々のコンストラクタ引数（tuple）で作る**ための印です。`map::emplace` で、キーと値の両方に複数の引数を渡したいときに使います。
 
 !!! tip "ポイント"
     - `m.emplace(std::piecewise_construct, std::forward_as_tuple(キーの引数...), std::forward_as_tuple(値の引数...));` という形で使う。
@@ -51,7 +51,7 @@ struct Vec {
 int main() {
   std::map<std::string, Vec> positions;
 
-  // キーは "a"、値は Vec(1, 2) を、それぞれ別の引数で作る
+  // キーは "a"、値は Vec(1, 2) をそれぞれ別の引数で作る
   positions.emplace(std::piecewise_construct,
                     std::forward_as_tuple("a"),
                     std::forward_as_tuple(1, 2));

@@ -60,7 +60,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| C のライブラリが返した文字列を、`std::string` にする | `std::string(s, strlen(s))` |
+| C のライブラリが返した文字列を `std::string` にする | `std::string(s, strlen(s))` |
 
 ## よくあるミス
 

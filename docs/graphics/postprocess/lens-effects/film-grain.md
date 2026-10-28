@@ -6,10 +6,10 @@ tags:
 
 # Film Grain
 
-<strong>フィルム グレイン</strong>は、画面に細かい粒状のノイズを加える効果です。フィルム写真の「粒子」の質感を再現し、映画らしい雰囲気を出します。また、グラデーション（空・暗部）の縞（バンディング）を、ノイズで目立たなくするという実用的な効果もあります。ノイズの質（周波数・分布）と、明るさに応じた強さの付け方が見た目を左右します。このページでは、ノイズの作り方・強さを明るさで変える方法・動かし方（毎フレーム変える）・ディザリングとの関係・使いどころを説明します。
+<strong>フィルム グレイン</strong>は、画面に細かい粒状のノイズを加える効果です。フィルム写真の「粒子」の質感を再現し、映画らしい雰囲気を出します。また、グラデーション（空・暗部）の縞（バンディング）をノイズで目立たなくするという実用的な効果もあります。ノイズの質（周波数・分布）と、明るさに応じた強さの付け方が見た目を左右します。このページでは、ノイズの作り方・強さを明るさで変える方法・動かし方（毎フレーム変える）・ディザリングとの関係・使いどころを説明します。
 
 !!! tip "ポイント"
-    - グレイン ＝ <strong>画面に、粒状のノイズを足す</strong>。<strong>フィルムの質感</strong>。
+    - グレイン ＝ <strong>画面に粒状のノイズを足す</strong>。<strong>フィルムの質感</strong>。
     - ノイズは毎フレーム変える（動くノイズ ＝ フィルムの粒子が動く感じ）。
     - 明るさで強さを変える：中間調が最も目立ち、真っ黒・真っ白では弱い。
     - ノイズの質：白色ノイズ（粗い）か、ブルー ノイズ／ガウス（自然）か。
@@ -23,7 +23,7 @@ tags:
 
 ## 実際のグレイン
 
-<strong>フィルムの感光材料は、微小な銀の粒子</strong>からできています。露光された粒子の分布が、ランダムなので画像に粒状のノイズが見えます。感度（ISO）が高いフィルムほど、粒子が大きく、ノイズが目立つです。
+<strong>フィルムの感光材料は、微小な銀の粒子</strong>からできています。露光された粒子の分布がランダムなので画像に粒状のノイズが見えます。感度（ISO）が高いフィルムほど、粒子が大きく、ノイズが目立つです。
 
 | 特徴 | 内容 |
 | --- | --- |
@@ -64,7 +64,7 @@ float3 ApplyGrain(float3 color, float2 uv, float time, float intensity) {
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">フィルム グレイン: 暗い所と明るい所には、粒を弱く、中間に強く(明るさに応じて強さを変える)</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">黒 → 白の階調(48 段)に、でたらめな粒を足す。粒の強さの掛け方を 2 通りで比べる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">黒 → 白の階調(48 段)にでたらめな粒を足す。粒の強さの掛け方を 2 通りで比べる</text>
 <text x="60.0" y="108" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">階調(粒なし)</text>
 <rect x="60.0" y="114.0" width="17.3" height="34.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0140" values="#e5e7eb;#030303"/></rect>
 <rect x="77.0" y="114.0" width="17.3" height="34.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0140" values="#e5e7eb;#080808"/></rect>
@@ -234,7 +234,7 @@ float3 ApplyGrain(float3 color, float2 uv, float time, float intensity) {
 <text x="826" y="438" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">調整 0.015</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">粒を足して、フィルムらしくする<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">一様に足すと、暗い所が、粒でざらつく<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.5021;0.5023;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">一様に足すと、暗い所が粒でざらつく<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.5021;0.5023;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">明るさに応じて強さを変えると、暗部がきれいで、中間に粒が出る(本物のフィルムに近い)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.5021;0.5023;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -332,7 +332,7 @@ float3 Dither(float3 color, float2 pixel_position) {
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] グレイン ＝ <strong>画面に、粒状のノイズを足す</strong>。フィルムの質感
+    - [x] グレイン ＝ <strong>画面に粒状のノイズを足す</strong>。フィルムの質感
     - [x] 毎フレーム変え、中間調で強く、黒・白で弱く
     - [x] 粒の大きさで質感が変わる。TAA の後に足す
     - [x] ディザリング（1/255）でバンディング隠しにもなる

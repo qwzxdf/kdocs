@@ -7,7 +7,7 @@ tags:
 
 # malloc の置き換え（mimalloc ほか）
 
-ゲーム全体の、**`new` / `delete` / `malloc` / `free` を、丸ごと高速なアロケータに置き換える**と、コードをほとんど変えずに、確保が速くなり、断片化も減ります。mimalloc（マイマロック）、jemalloc、tcmalloc などの、高性能な汎用アロケータが、無料で使えます。自作の専用アロケータ（リニア・プール）で、ホットな場所を置き換えたアロケータで、それ以外全体を速くする、という二段構えが現実的です。
+ゲーム全体の、**`new` / `delete` / `malloc` / `free` を丸ごと高速なアロケータに置き換える**と、コードをほとんど変えずに、確保が速くなり、断片化も減ります。mimalloc（マイマロック）、jemalloc、tcmalloc などの、高性能な汎用アロケータが無料で使えます。自作の専用アロケータ（リニア・プール）で、ホットな場所を置き換えたアロケータで、それ以外全体を速くする、という二段構えが現実的です。
 
 !!! tip "ポイント"
     - OS・標準ライブラリの `malloc` は<strong>万能型</strong>。<strong>高性能な代替</strong>に替えると、確保が速く、断片化も減ることが多い。
@@ -46,7 +46,7 @@ vcpkg install mimalloc:x64-windows
 
 ### new / delete だけを置き換える
 
-**一番簡単な方法**です。1 つの `.cpp` に、ヘッダを include するだけで、`operator new` / `operator delete`（全形式）が、mimalloc になります。
+**一番簡単な方法**です。1 つの `.cpp` に、ヘッダを include するだけで、`operator new` / `operator delete`（全形式）が mimalloc になります。
 
 ```cpp
 #include <mimalloc-new-delete.h>
@@ -57,7 +57,7 @@ vcpkg install mimalloc:x64-windows
 | 1 つの `.cpp` だけ | プロジェクトの 1 か所（たとえば `main.cpp`）に書く。複数に書くと二重定義 |
 | `new` / `delete` が、すべて置き換わる | `std::vector`・`std::string`・`std::make_shared` の確保も、含まれる |
 | `malloc` / `free` は、そのまま | 古い C のコードは、変わらない（混ぜても問題ない） |
-| リンク | `mimalloc.lib` を、リンクに追加（vcpkg なら、自動） |
+| リンク | `mimalloc.lib` をリンクに追加（vcpkg なら、自動） |
 
 ### 自分で書く場合
 
@@ -83,11 +83,11 @@ C++17 のアライメント指定版（`std::align_val_t`）や、`new[]` / `del
 | 項目 | 説明 |
 | --- | --- |
 | `mimalloc-override.dll` と `mimalloc-redirect.dll` | 実行ファイルと同じフォルダーに置く |
-| リンクの設定 | `mimalloc-override.lib` を、リンクし、`mi_version()` などを、1 つ呼ぶ（DLL を確実に読み込ませる） |
+| リンクの設定 | `mimalloc-override.lib` をリンクし、`mi_version()` などを 1 つ呼ぶ（DLL を確実に読み込ませる） |
 | ランタイム | `/MD`（DLL 版のランタイム） が、前提 |
 | 効果 | CRT の `malloc` / `free` / `new` / `delete` が、すべて mimalloc に転送される |
 
-詳しい手順は、mimalloc の公式ドキュメント（Windows の項）を、確認してください（バージョンで手順が変わることがあります）。
+詳しい手順は、mimalloc の公式ドキュメント（Windows の項）を確認してください（バージョンで手順が変わることがあります）。
 
 ### 使い方を確かめる
 
@@ -111,9 +111,9 @@ int main() {
 
 | API | 内容 |
 | --- | --- |
-| 既定のヒープ（`GetProcessHeap`） | `malloc` / `new` が、裏で使う。LFH（Low Fragmentation Heap）が、小さな確保を高速化（Vista 以降、既定） |
+| 既定のヒープ（`GetProcessHeap`） | `malloc` / `new` が、裏で使う。LFH（Low Fragmentation Heap）が小さな確保を高速化（Vista 以降、既定） |
 | `HeapCreate` / `HeapAlloc` | 専用のヒープを作る。`HEAP_NO_SERIALIZE` で、ロックなし（1 スレッド専用） |
-| `VirtualAlloc` | ページ単位（通常 4KB、最小の確保単位は 64KB）で、OS から、メモリをもらう。予約（`MEM_RESERVE`）と、確保（`MEM_COMMIT`）を、分けられる |
+| `VirtualAlloc` | ページ単位（通常 4KB、最小の確保単位は 64KB）で、OS から、メモリをもらう。予約（`MEM_RESERVE`）と、確保（`MEM_COMMIT`）を分けられる |
 | `_aligned_malloc` | アライメント指定の確保（SIMD・キャッシュライン用）。`_aligned_free` で解放 |
 
 ### VirtualAlloc（OS に直接頼む）
@@ -147,7 +147,7 @@ VirtualAlloc(base, 64 * 1024, MEM_COMMIT, PAGE_READWRITE);
 
 ## DLL をまたぐときの注意
 
-<strong>EXE と DLL が、別々のアロケータ（別の CRT）</strong>を使っていると、DLL で確保したものを、EXE で `delete` すると、壊れます。
+<strong>EXE と DLL が、別々のアロケータ（別の CRT）</strong>を使っていると、DLL で確保したものを EXE で `delete` すると、壊れます。
 
 | 方法 | 説明 |
 | --- | --- |
@@ -171,7 +171,7 @@ VirtualAlloc(base, 64 * 1024, MEM_COMMIT, PAGE_READWRITE);
 ??? failure "`new` だけ置き換えて、`delete` を替えない（または逆）"
     **確保と解放で別のアロケータ**になり、クラッシュします。全形式をそろえる（`mimalloc-new-delete.h`）。
 
-??? failure "`mimalloc-new-delete.h` を、複数の `.cpp` に include する"
+??? failure "`mimalloc-new-delete.h` を複数の `.cpp` に include する"
     二重定義（`LNK2005`）になります。1 つだけ。
 
 ??? failure "EXE と DLL で、ランタイム（`/MD` と `/MT`）が違う"
@@ -180,13 +180,13 @@ VirtualAlloc(base, 64 * 1024, MEM_COMMIT, PAGE_READWRITE);
 ??? failure "測らずに置き換えて、効果がないまま、複雑さだけが増える"
     先にプロファイラーで確保が遅いことを確かめます。
 
-??? failure "リリースだけ置き換えて、デバッグでメモリのバグが、再現しない"
+??? failure "リリースだけ置き換えて、デバッグでメモリのバグが再現しない"
     デバッグビルドも同じ構成で試します。メモリのバグは、アロケータで挙動が変わります（[AddressSanitizer](../../vs/asan.md)）。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] <strong>`malloc` / `new` を、mimalloc など高性能なアロケータに替える</strong>と、コードを変えずに速くなることもある
+    - [x] <strong>`malloc` / `new` を mimalloc など高性能なアロケータに替える</strong>と、コードを変えずに速くなることもある
     - [x] Visual Studio なら mimalloc が手軽（`vcpkg install mimalloc`、`#include <mimalloc-new-delete.h>` を 1 か所）
     - [x] `new` と `delete` は、全形式をそろえて置き換える。EXE と DLL は、`/MD` でそろえる
     - [x] `VirtualAlloc` は、予約とコミットを分けられる（自作アロケータの土台）

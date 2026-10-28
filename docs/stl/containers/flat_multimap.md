@@ -15,7 +15,7 @@ tags:
 `#include <flat_map>`
 </div>
 
-`std::flat_multimap` は、**同じキーを複数持てる [`flat_map`](flat_map.md)** です。キーの配列と値の配列を `vector` 上に並べ、キーの順に整列させます。検索と巡回が速く、挿入と削除が遅いという `flat_map` の性質を、そのまま引き継ぎます。
+`std::flat_multimap` は、**同じキーを複数持てる [`flat_map`](flat_map.md)** です。キーの配列と値の配列を `vector` 上に並べ、キーの順に整列させます。検索と巡回が速く、挿入と削除が遅いという `flat_map` の性質をそのまま引き継ぎます。
 
 !!! tip "ポイント"
     - <strong>使う場面は少ない。</strong> 読み込み中心で、同じキーの複数の値を高速に回したいときだけ。

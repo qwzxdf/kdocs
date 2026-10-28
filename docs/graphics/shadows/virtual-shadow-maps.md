@@ -6,7 +6,7 @@ tags:
 
 # Virtual Shadow Maps
 
-[Cascaded Shadow Maps (CSM)](cascaded.md)は、<strong>カスケードの数と解像度が固定</strong>なので、近くを細かくしようとすると、解像度（メモリ・描画）が膨らみます。仮想シャドウ マップ（Virtual Shadow Maps、VSM。[分散 VSM](vsm/index.md) とは別物）は、途方もなく大きな解像度（例：16K×16K 以上）の「仮想的な」シャドウ マップを考え、画面に実際に必要な部分（ページ）だけを物理メモリに割り当てて描く方式です。テクスチャのバーチャル テクスチャリングと同じ発想で、画面の各画素にちょうど 1 テクセルが対応する精度の影を、現実的なメモリで実現します。Unreal Engine 5 の標準的な影の方式です。
+[Cascaded Shadow Maps (CSM)](cascaded.md)は、<strong>カスケードの数と解像度が固定</strong>なので、近くを細かくしようとすると、解像度（メモリ・描画）が膨らみます。仮想シャドウ マップ（Virtual Shadow Maps、VSM。[分散 VSM](vsm/index.md) とは別物）は、途方もなく大きな解像度（例：16K×16K 以上）の「仮想的な」シャドウ マップを考え、画面に実際に必要な部分（ページ）だけを物理メモリに割り当てて描く方式です。テクスチャのバーチャル テクスチャリングと同じ発想で、画面の各画素にちょうど 1 テクセルが対応する精度の影を現実的なメモリで実現します。Unreal Engine 5 の標準的な影の方式です。
 
 !!! tip "ポイント"
     - <strong>巨大な仮想解像度</strong>のシャドウ マップを<strong>ページ（例 128×128）に分割</strong>し、必要なページだけを物理メモリに置く。
@@ -26,7 +26,7 @@ tags:
 <strong>画面に映る影</strong>に本当に必要な解像度は、画素ごとに決まります。近い画素は細かいシャドウ マップ、遠い画素は粗いものでよいのです。カスケードはこれを階段状（3〜4 段）で近似しますが仮想シャドウ マップは、画素ごとに連続的に（ミップごとに）選びます。
 
 <svg class="fig illust" viewBox="0 0 780 280" role="img" aria-label="仮想シャドウ マップのページ">
-<text x="20" y="24" class="fig-title">巨大な仮想テクスチャを、ページに分割し、画面に必要なページだけ実体化する</text>
+<text x="20" y="24" class="fig-title">巨大な仮想テクスチャをページに分割し、画面に必要なページだけ実体化する</text>
 <rect x="40" y="50" width="320" height="200" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="4 3"/><text x="40" y="44" style="font-size:12px">仮想シャドウ マップ（巨大）</text>
 <g stroke="currentColor" opacity="0.35"><line x1="120" y1="50" x2="120" y2="250"/><line x1="200" y1="50" x2="200" y2="250"/><line x1="280" y1="50" x2="280" y2="250"/><line x1="40" y1="100" x2="360" y2="100"/><line x1="40" y1="150" x2="360" y2="150"/><line x1="40" y1="200" x2="360" y2="200"/></g>
 <rect x="120" y="100" width="80" height="50" fill="rgba(46,160,67,0.45)"/><rect x="200" y="100" width="80" height="50" fill="rgba(46,160,67,0.45)"/><rect x="200" y="150" width="80" height="50" fill="rgba(46,160,67,0.45)"/><rect x="280" y="150" width="80" height="50" fill="rgba(46,160,67,0.45)"/>
@@ -52,8 +52,8 @@ tags:
 <defs><marker id="arr-vsm-pages" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">仮想シャドウ マップ: 巨大な影の表を、画面に見える所だけ、ページ単位で作る</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">16×16 ページの仮想的な表(各ページ 128×128 マス)。カメラが動くと、見える所のページだけを、確保・描画する</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">仮想シャドウ マップ: 巨大な影の表を画面に見える所だけ、ページ単位で作る</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">16×16 ページの仮想的な表(各ページ 128×128 マス)。カメラが動くと、見える所のページだけを確保・描画する</text>
 <rect x="30" y="96" width="436.0" height="436.0" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">仮想的な表(青 = 確保済み、赤 = 今フレームで描いた)</text>
 <rect x="40.0" y="110.0" width="26.3" height="26.3" fill="#f1f5f9"/>
@@ -366,11 +366,11 @@ tags:
 <text x="536" y="368" text-anchor="start" style="font-size:14px;font-weight:700;fill:#991b1b">全部を確保すると 16 MB(2048×2048 マスの表)</text>
 <text x="536" y="391" text-anchor="start" style="font-size:15px;font-weight:700;fill:#166534">見えるページだけなら 3 MB</text>
 <text x="536" y="415" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">動いても、新しく見えるページだけを描く(キャッシュ)</text>
-<text x="536" y="437" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">ライトが動かなければ、前のページを、そのまま使う</text>
+<text x="536" y="437" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">ライトが動かなければ、前のページをそのまま使う</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">巨大な表を全部持つのは無理。見える所だけ持つ<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">カメラが動くと、新しく見える所だけを描き足す<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8665;0.8667;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">描くページが少ないので、高解像度の影が、安く作れる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8665;0.8667;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">描くページが少ないので、高解像度の影が安く作れる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8665;0.8667;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:vsm-pages:end -->
@@ -397,7 +397,7 @@ tags:
 
 ### ① 必要なページの判定
 
-<strong>毎フレーム</strong>、画面の各画素の深度から、ワールド位置を復元し、ライト空間の位置に変換します。その画素の影に必要な解像度（ミップ レベル）を、画面での 1 画素の大きさから決め、そのミップのそのページを「必要」とマークします。
+<strong>毎フレーム</strong>、画面の各画素の深度から、ワールド位置を復元し、ライト空間の位置に変換します。その画素の影に必要な解像度（ミップ レベル）を画面での 1 画素の大きさから決め、そのミップのそのページを「必要」とマークします。
 
 ```hlsl
 float3 world_pos = ReconstructWorldPosition(pixel, depth);
@@ -411,11 +411,11 @@ MarkPageNeeded(mip, page);
 
 ### ② ページの割り当て
 
-必要とマークされ、まだ物理ページがないページに、物理ページを割り当てます。使われなくなったページは、解放（再利用）します（LRU など）。
+必要とマークされ、まだ物理ページがないページに物理ページを割り当てます。使われなくなったページは、解放（再利用）します（LRU など）。
 
 ### ③ ページの描画
 
-割り当てられた（または無効になった）ページだけ、シャドウ マップの描画を行います。各ページの範囲に入る物体を、カリングして描きます。
+割り当てられた（または無効になった）ページだけ、シャドウ マップの描画を行います。各ページの範囲に入る物体をカリングして描きます。
 
 ページの描画の工夫です。ページごとに、ページの範囲（ライト空間の箱）に入るクラスタや物体だけを描きます。ページ × オブジェクトの判定を GPU で行い、間接描画します（[GPU Driven](../../rendering/gpu-driven.md)）。Nanite の小さな三角形は、コンピュートでソフトウェア ラスタライズします。ハードウェアより効率が良いことがあります。
 
@@ -470,7 +470,7 @@ float shadow = physical_pool.SampleCmpLevelZero(shadow_sampler, physical_uv, dep
 
 ## よくあるミス
 
-??? failure "必要なページの判定を、毎フレーム全画素で行って重い"
+??? failure "必要なページの判定を毎フレーム全画素で行って重い"
     <strong>ダウンサンプルした深度</strong>・タイル単位の最小/最大で、判定を減らします。
 
 ??? failure "ページ プールが足りなくなり、影が欠ける"

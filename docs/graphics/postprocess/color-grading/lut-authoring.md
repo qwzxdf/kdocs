@@ -10,7 +10,7 @@ tags:
 
 !!! tip "ポイント"
     - <strong>ゲーム内で生成</strong>：<strong>パラメータ → コンピュート シェーダーで、全格子点に調整を適用して LUT を作る</strong>。パラメータが変わったときだけ再生成。
-    - 外部ツールで作る：基準の LUT（無加工）に、ツールでルックを焼き、保存して読み込む。
+    - 外部ツールで作る：基準の LUT（無加工）にツールでルックを焼き、保存して読み込む。
     - 基準の LUT（アイデンティティ LUT）＝ 変換しない LUT。これに調整をかけて保存すると、LUT になる。
     - ゾーンごとの LUT：場所・時間帯で LUT を切り替え、境で補間する。
     - 2 つの LUT を混ぜる：1 回の表引きで両方読み、`lerp`。
@@ -41,7 +41,7 @@ cbuffer GradingParams : register(b0) {
 };
 ```
 
-LUT を、書き込む、3D テクスチャと、調整パラメータです。リフト・ガンマ・ゲイン、コントラスト、彩度、色温度などを、定数バッファに、まとめます。
+LUT を書き込む、3D テクスチャと、調整パラメータです。リフト・ガンマ・ゲイン、コントラスト、彩度、色温度などを定数バッファにまとめます。
 
 ```hlsl
 float3 LogToLinear(float3 log_c) {
@@ -51,7 +51,7 @@ float3 LogToLinear(float3 log_c) {
 }
 ```
 
-LUT の、座標（0〜1）を、対数の値から、線形の光に、戻します。LUT は、対数空間で、並べると、暗部にも、十分な、精度を、割けます。範囲は、`2^−10` から `2^6.5` です。
+LUT の、座標（0〜1）を対数の値から、線形の光に戻します。LUT は、対数空間で、並べると、暗部にも、十分な、精度を割けます。範囲は、`2^−10` から `2^6.5` です。
 
 ```hlsl
 [numthreads(8, 8, 8)]
@@ -60,7 +60,7 @@ void GenerateLut(uint3 id : SV_DispatchThreadID) {
   float3 color = LogToLinear(uvw);
 ```
 
-1 画素が、LUT の、1 つの格子点を、受け持ちます。格子点の、中心（+0.5）を、座標にして、線形の色に、戻します。
+1 画素が LUT の、1 つの格子点を受け持ちます。格子点の、中心（+0.5）を座標にして、線形の色に戻します。
 
 ```hlsl
   color *= exposure;
@@ -77,13 +77,13 @@ void GenerateLut(uint3 id : SV_DispatchThreadID) {
 | --- | --- |
 | `numthreads(8, 8, 8)` | 32³ なら、4×4×4 グループで生成 |
 | `uvw = (id + 0.5) / size` | 各セルの中心の座標（半テクセル） |
-| `LogToLinear` | 対数エンコードされた入力を、リニアに戻す（適用時の `LinearToLog` の逆） |
+| `LogToLinear` | 対数エンコードされた入力をリニアに戻す（適用時の `LinearToLog` の逆） |
 | 調整を順に適用 | 露出 → ホワイト バランス → LGG → コントラスト → 彩度 → トーンマップ |
 | コスト | 32³ ＝ 32,768 回の計算のみ。1920×1080 の画面の 1.6 % 程度で軽い |
 
 ### いつ再生成するか
 
-いつ再生成するかです。パラメータが変わったときは、調整ボリュームの補間中は毎フレーム再生成します。変わらないときは再生成せず、LUT をテクスチャとして保持します。ステージ読み込み時に、初期の LUT を作ります。
+いつ再生成するかです。パラメータが変わったときは、調整ボリュームの補間中は毎フレーム再生成します。変わらないときは再生成せず、LUT をテクスチャとして保持します。ステージ読み込み時に初期の LUT を作ります。
 
 コンピュートの 1 回あたりが軽いので、毎フレーム再生成しても問題ない場合も多いです。
 
@@ -161,8 +161,8 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 <defs><marker id="arr-lut-blend-zones" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">場所ごとの色補正: 2 つの LUT を、プレイヤーの位置で、なめらかに混ぜる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">洞窟(青く暗い補正)から、野外(暖かく明るい補正)へ歩く。中間の灰色のパレットの見え方を、位置ごとに計算する</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">場所ごとの色補正: 2 つの LUT をプレイヤーの位置で、なめらかに混ぜる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">洞窟(青く暗い補正)から、野外(暖かく明るい補正)へ歩く。中間の灰色のパレットの見え方を位置ごとに計算する</text>
 <rect x="30" y="96" width="900" height="90" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 通路(左 = 洞窟、右 = 野外)。黄色の帯 = 混ぜる区間</text>
 <rect x="298.0" y="114" width="340.0" height="60" fill="#fde68a" opacity="0.5"/>
@@ -261,11 +261,11 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 <text x="630" y="290" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">(×0.01。マイナス = 青い、プラス = 暖かい)</text>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7998;0.8000;1.0000" values="0;0;1;1"/><rect x="40" y="400" width="880" height="90" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="56" y="424" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">1 歩ごとの色の変化は、最大 0.019(なめらか)。一気に切り替えると、一度に 0.25 変わる(ちらつき)</text>
-<text x="56" y="448" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">2 つの LUT を混ぜる重みを、位置から計算する(smoothstep)。LUT 自体を混ぜるか、結果を混ぜる</text>
+<text x="56" y="448" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">2 つの LUT を混ぜる重みを位置から計算する(smoothstep)。LUT 自体を混ぜるか、結果を混ぜる</text>
 <text x="56" y="470" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">場所ごとに LUT を持つと、同じゲームでも、場面の雰囲気を作り分けられる</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">洞窟と野外で、別の色補正をしたい<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">歩きながら、2 つの LUT の重みを、少しずつ入れ替える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8220;0.8222;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">歩きながら、2 つの LUT の重みを少しずつ入れ替える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8220;0.8222;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">境目で、色が急に変わらない<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8220;0.8222;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -277,10 +277,10 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 | --- | --- |
 | コンピュートで生成し、ボリュームでパラメータ補間 | ゾーンの境で滑らか |
 | 外部ツールの LUT は 16 ビット・.cube | バンディングを避ける |
-| <strong>LUT を連結（合成）</strong> | 複数の LUT を、1 つに焼く（エフェクト用の LUT を重ねる） |
+| <strong>LUT を連結（合成）</strong> | 複数の LUT を 1 つに焼く（エフェクト用の LUT を重ねる） |
 | ダメージ・状態の演出は LUT のブレンド | 体力が低い時に色あせた LUT へ |
 | 更新は変化時のみ | 毎フレーム再生成しない |
-| デバッグ用に、LUT を画像に出す | LUT の中身を確認できるように |
+| デバッグ用に LUT を画像に出す | LUT の中身を確認できるように |
 
 ## よくあるミス
 
@@ -290,7 +290,7 @@ float3 ApplyBlendedLut(float3 color, float blend) {
 ??? failure "8 ビット画像の LUT で、グラデーションにバンディング"
     16 ビット・.cube・FP16 の LUTにする。出力にディザリング。
 
-??? failure "LUT の補間が、ゾーンの境で急に切り替わる"
+??? failure "LUT の補間がゾーンの境で急に切り替わる"
     `blend` を時間・距離で滑らかに補間する。
 
 ??? failure "毎フレーム 64³ の LUT を生成して、無駄が出る"

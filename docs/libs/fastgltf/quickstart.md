@@ -92,7 +92,7 @@ const fastgltf::Accessor& accessor = asset.accessors[primitive.indicesAccessor.v
 | データの取り出し | 自分で、バイトを読む（[データの取り出し方](../tinygltf/reading.md)） | `iterateAccessor` などヘルパーが型変換・stride を処理 |
 | 書き出し | できる | 限定的（バージョンによる） |
 | API の安定性 | 安定 | バージョンで変わりやすい |
-| 向く用途 | 学習・小さなツール | 大きなアセットを、速くロード |
+| 向く用途 | 学習・小さなツール | 大きなアセットを速くロード |
 
 学習用や手軽さなら tinygltf、ロード速度が重要なら fastgltf です（[3D モデルの読み込みライブラリの選び方](../model-loading.md)）。
 
@@ -125,7 +125,7 @@ fastgltf::Parser parser(fastgltf::Extensions::KHR_materials_emissive_strength |
 | `EXT_meshopt_compression` | 対応（meshoptimizer を使って、展開するオプション） |
 | `KHR_texture_basisu` | 画像の場所を返す（KTX2 の展開は、自分で） |
 
-使う拡張を `Parser` に教えておく必要があります（教えないとそのファイルを、拒否します）。
+使う拡張を `Parser` に教えておく必要があります（教えないとそのファイルを拒否します）。
 
 ## よくあるミス
 

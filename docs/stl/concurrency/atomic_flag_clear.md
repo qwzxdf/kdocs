@@ -13,7 +13,7 @@ tags:
 `#include <atomic>`
 </div>
 
-`atomic_flag_test_and_set` で立てた旗を、`clear` で下ろします。スピンロックの解除に使います。
+`atomic_flag_test_and_set` で立てた旗を `clear` で下ろします。スピンロックの解除に使います。
 
 !!! tip "ポイント"
     - `std::atomic` のメンバ関数と同じ働きの、自由関数版。

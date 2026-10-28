@@ -79,7 +79,7 @@ class adjacent_view;
 
 | 場面 | 書き方 |
 | --- | --- |
-| 折れ線（点の並び）を、線分のペアにして描画する | `points | adjacent<2>` |
+| 折れ線（点の並び）を線分のペアにして描画する | `points | adjacent<2>` |
 | 隣り合うフレームの値の差を調べる | `values | adjacent<2>` |
 
 ## よくあるミス

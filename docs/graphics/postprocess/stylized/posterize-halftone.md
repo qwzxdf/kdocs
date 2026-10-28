@@ -9,9 +9,9 @@ tags:
 <strong>ポスタライズ</strong>は、色の段階（階調）を減らして、ポスターのように平らな色の面にする表現です。ハーフトーンは、網点（ドット）の大きさで濃淡を表す、漫画・印刷のような表現です。どちらも、3D の絵を「イラスト・漫画・印刷物」の質感に近づけるための後処理で、セル シェーディングや輪郭線と組み合わせて、画風を作ります。写実的な品質とは別の軸の、好みの表現です。このページでは、ポスタライズの式・色数・ディザリングとの組み合わせ・ハーフトーンの網点・クロスハッチ（線の濃淡）・使いどころを説明します。
 
 !!! tip "ポイント"
-    - ポスタライズ ＝ <strong>各チャンネルを、N 段階に丸める</strong>（<strong>`floor(c × N) / N`</strong>）。色の面が平らに。
+    - ポスタライズ ＝ <strong>各チャンネルを N 段階に丸める</strong>（<strong>`floor(c × N) / N`</strong>）。色の面が平らに。
     - 輝度だけを丸めると色相を保てる。
-    - ハーフトーン ＝ 明るさに応じた大きさの円（網点）を、格子状に並べる。角度を付けると漫画風。
+    - ハーフトーン ＝ 明るさに応じた大きさの円（網点）を格子状に並べる。角度を付けると漫画風。
     - クロスハッチ ＝ 線の本数で濃淡（ペン画・版画風）。
     - 丸めの境は、ちらつきやすい。TAA・ディザリングで抑える。
     - どれも画風の選択。写実的な絵を良くする技法ではない。
@@ -36,7 +36,7 @@ float3 Posterize(float3 color, float levels) {
 段階数による見た目です。2 段階は白黒で、極端なポスターになります。4〜6 段階はポスターやグラフィック的な絵です。8〜16 段階は控えめで、バンディングが目立ち始めます。
 
 <svg class="fig illust" viewBox="0 0 780 210" role="img" aria-label="ポスタライズ">
-<text x="20" y="26" class="fig-title">滑らかなグラデーションを、数段階の面に</text>
+<text x="20" y="26" class="fig-title">滑らかなグラデーションを数段階の面に</text>
 <defs><linearGradient id="ph-g" x1="0" x2="1"><stop offset="0" stop-color="#1e293b"/><stop offset="1" stop-color="#fde68a"/></linearGradient></defs>
 <g transform="translate(40,56)">
 <text x="0" y="-8" style="font-size:12px">元（滑らか）</text><rect x="0" y="0" width="680" height="30" fill="url(#ph-g)"/>
@@ -76,7 +76,7 @@ float3 PosterizeDithered(float3 color, float levels, float2 pixel_position) {
 
 ## ハーフトーン（網点）
 
-<strong>印刷・漫画の網点</strong>は明るさに応じた大きさの円を、格子状に並べて濃淡を表します。
+<strong>印刷・漫画の網点</strong>は明るさに応じた大きさの円を格子状に並べて濃淡を表します。
 
 網点の要素です。格子は等間隔の点の配置で、傾けると漫画風になります。点の大きさは、暗いほど大きく、明るいほど小さくします。角度は 45°（白黒）が標準で、カラーは色ごとに別の角度を使います（CMYK の網点）。
 
@@ -105,8 +105,8 @@ float Halftone(float2 pixel_position, float luminance, float cell_size, float an
 <defs><marker id="arr-halftone-dots" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ハーフトーン: 明るさを、点の大きさに置き換える。点の面積が、暗さに比例するようにする</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">黒 → 白のグラデーションを、12×4 のセルの点で表す。点の半径の決め方を 2 通り比べる(半径 ∝ 暗さ と、面積 ∝ 暗さ)</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ハーフトーン: 明るさを点の大きさに置き換える。点の面積が暗さに比例するようにする</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">黒 → 白のグラデーションを 12×4 のセルの点で表す。点の半径の決め方を 2 通り比べる(半径 ∝ 暗さ と、面積 ∝ 暗さ)</text>
 <text x="60.0" y="108" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">元のグラデーション(暗い → 明るい)</text>
 <rect x="60.0" y="112.0" width="54.3" height="20.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0140" values="#e5e7eb;#0b0b0b"/></rect>
 <rect x="114.0" y="112.0" width="54.3" height="20.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0140" values="#e5e7eb;#202020"/></rect>
@@ -224,10 +224,10 @@ float Hatch(float2 pixel_position, float luminance) {
 ??? failure "RGB 別々にポスタライズして、色相がずれる"
     <strong>輝度だけを丸める</strong>。
 
-??? failure "網点が、画面に張り付いて見える"
+??? failure "網点が画面に張り付いて見える"
     物体表面（UV・ワールド）に貼る。
 
-??? failure "細かい網点が、モアレになる"
+??? failure "細かい網点がモアレになる"
     セルの大きさを大きく、解像度に合わせる、TAA の影響を確認。
 
 ??? failure "段の境がちらつく"
@@ -238,7 +238,7 @@ float Hatch(float2 pixel_position, float luminance) {
 !!! abstract "まとめ"
     - [x] ポスタライズ ＝ <strong>色の階調を N 段階に丸める</strong>。輝度だけ丸めると色相を保てる
     - [x] ディザと組み合わせてレトロ・版画風
-    - [x] ハーフトーン ＝ 明るさに応じた大きさの網点を、傾けた格子に並べる
+    - [x] ハーフトーン ＝ 明るさに応じた大きさの網点を傾けた格子に並べる
     - [x] クロスハッチ ＝ 線の本数で濃淡
     - [x] 画面固定の模様に注意。画風の選択（好みの問題）
 

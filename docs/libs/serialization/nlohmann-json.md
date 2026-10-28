@@ -960,7 +960,7 @@ const_iterator find(const typename object_t::key_type& key) const;
 | `key` | `const std::string&` | 探すキー |
 
 - 戻り値: 見つかればその要素のイテレータ、無ければ `end()`
-- `contains` + `at` で 2 回探すのを、1 回にできます。
+- `contains` + `at` で 2 回探すのを 1 回にできます。
 
 ```cpp
 if (auto it = j.find("boss"); it != j.end()) {
@@ -1125,7 +1125,7 @@ Windows で Shift_JIS（CP932）の文字列をそのまま入れると、UTF-8 
 | マクロ | 意味 |
 | --- | --- |
 | `JSON_USE_IMPLICIT_CONVERSIONS=0` | `int x = j;` のような暗黙の変換を禁止し、`get<T>()` を強制する |
-| `JSON_DIAGNOSTICS=1` | 例外のメッセージに、エラーが起きた場所のパス（`/stages/0/hp` など）を付ける。デバッグに便利だが少し重い |
+| `JSON_DIAGNOSTICS=1` | 例外のメッセージにエラーが起きた場所のパス（`/stages/0/hp` など）を付ける。デバッグに便利だが少し重い |
 | `JSON_NOEXCEPTION` | 例外を使わない（エラー時は `abort`） |
 | `JSON_USE_GLOBAL_UDLS=0` | `_json` リテラルをグローバルに置かない |
 

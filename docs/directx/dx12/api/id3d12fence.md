@@ -47,7 +47,7 @@ UINT64 ID3D12Fence::GetCompletedValue();
 
 GPU が `Signal` を予約した位置まで仕事を終えていれば、その数字になっています。まだなら前の数字のままです。待たずにすぐ値が返ります。
 
-「自分が予約した数字（`fence_value`）が、`GetCompletedValue()` 以下になったか」で終わったかどうかが分かります。デバイスが削除されたときは `UINT64_MAX` が返ります。この値を終了判定に使うと「終わった」と誤解するので、デバイスの削除は別に確認します。
+「自分が予約した数字（`fence_value`）が `GetCompletedValue()` 以下になったか」で終わったかどうかが分かります。デバイスが削除されたときは `UINT64_MAX` が返ります。この値を終了判定に使うと「終わった」と誤解するので、デバイスの削除は別に確認します。
 
 ### SetEventOnCompletion {#seteventoncompletion}
 

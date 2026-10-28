@@ -130,7 +130,7 @@ int main() {
 <defs><marker id="arr-data-race-counter" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">2 つのスレッドが、同じカウンターを +1 する: ロックなしで 1 になる</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">2 つのスレッドが同じカウンターを +1 する: ロックなしで 1 になる</text>
 <text x="60" y="85" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">ロックなし</text>
 <line x1="110" y1="138" x2="720" y2="138" stroke="#e2e8f0" stroke-width="1.5"/>
 <text x="100" y="144" text-anchor="end" style="font-size:12px;font-weight:700;fill:#64748b">スレッド A</text>
@@ -174,7 +174,7 @@ int main() {
 ## よくあるミス
 
 ??? failure "守らずに共有する"
-    「たぶん大丈夫」で共有した変数が、数時間に 1 回だけ壊れる、というバグになります。共有するものは必ず守ります。
+    「たぶん大丈夫」で共有した変数が数時間に 1 回だけ壊れる、というバグになります。共有するものは必ず守ります。
 
 ??? failure "std::thread の join を忘れる"
     `std::thread` は、join も detach もせずに消えるとプログラムが強制終了します。`std::jthread` を使えば自動で join されます。

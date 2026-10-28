@@ -14,7 +14,7 @@ tags:
 `#include <algorithm>`
 </div>
 
-`minmax_element` は、**最小の要素と最大の要素の位置を、1 回の走査で両方返す**関数です。[`min_element`](min_element.md) と [`max_element`](max_element.md) を別々に呼ぶより、範囲を 1 回なめるだけで済みます。
+`minmax_element` は、**最小の要素と最大の要素の位置を 1 回の走査で両方返す**関数です。[`min_element`](min_element.md) と [`max_element`](max_element.md) を別々に呼ぶより、範囲を 1 回なめるだけで済みます。
 
 !!! tip "ポイント"
     - 戻り値は `.min` と `.max` を持つ構造体（どちらもイテレータ）。

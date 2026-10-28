@@ -12,7 +12,7 @@ tags:
     - まず SSR。当たらなかった画素だけレイトレ。
     - 粗さが高い画素は、プローブ（ノイズが多くレイトレの価値が低い）。
     - 半解像度でトレースして、アップサンプル。
-    - レイの数・距離に、上限を設ける。
+    - レイの数・距離に上限を設ける。
 
 !!! info "このページを読む前に"
     - [Ray-Traced Reflections](index.md)（このセクション全体の地図と、読む順番）
@@ -103,7 +103,7 @@ tags:
 ## 流れ（概略）
 
 ```hlsl
-// ① SSR パス: 各画素で、SSR を試す。結果と、成否を、書き出す。
+// ① SSR パス: 各画素で、SSR を試す。結果と、成否を書き出す。
 float4 ssr = TraceSSR(pixel);                                          // rgb = 色、a = 信頼度（0 = 失敗）
 g_ssr_result[pixel] = ssr;
 
@@ -113,17 +113,17 @@ void HybridRayGen() {
   uint2 pixel = DispatchRaysIndex().xy;
   float4 ssr = g_ssr_result[pixel];
   if (ssr.a > 0.99) { g_final_reflection[pixel] = ssr.rgb; return; }   // SSR が、十分 → RT は、不要
-  // ... 反射レイを、飛ばす（[Ray Generation]）...
+  // ... 反射レイを飛ばす（[Ray Generation]）...
   float3 rt = payload.radiance;
   g_final_reflection[pixel] = lerp(rt, ssr.rgb, ssr.a);                // 信頼度で、混ぜる（SSR が、一部、成功した画素）
 }
 ```
 
-<strong>SSR の信頼度が十分に高い</strong>画素は、RT を飛ばしません。信頼度が低い（画面の端、物の裏、SSR が外れた）画素だけ RT を、飛ばします。RT の画素数が画面の数 %〜数十 % に、減ります。
+<strong>SSR の信頼度が十分に高い</strong>画素は、RT を飛ばしません。信頼度が低い（画面の端、物の裏、SSR が外れた）画素だけ RT を飛ばします。RT の画素数が画面の数 %〜数十 % に、減ります。
 
 ## DXR のインライン レイトレーシング
 
-<strong>RT を飛ばす画素が少ない</strong>（疎）なら、計算シェーダーの中からインラインでレイを、飛ばす（`RayQuery`）方法が効率的です。DXR 1.1 の機能でレイ生成シェーダーの、ディスパッチ（シェーダー テーブル）が、不要です。
+<strong>RT を飛ばす画素が少ない</strong>（疎）なら、計算シェーダーの中からインラインでレイを飛ばす（`RayQuery`）方法が効率的です。DXR 1.1 の機能でレイ生成シェーダーの、ディスパッチ（シェーダー テーブル）が不要です。
 
 ```hlsl
 // 計算シェーダーの中から、インラインで、レイを飛ばす（DXR 1.1 の RayQuery）。
@@ -140,16 +140,16 @@ void InlineRTCS(uint3 id : SV_DispatchThreadID) {
 }
 ```
 
-`RayQuery` は 計算シェーダー・ピクセル シェーダーから、呼べます。画素を絞ってシェーダー テーブルを使わず手軽に、RT を組み込めます。ただし、当たった面のマテリアルを動的に、切り替える（シェーダー テーブルの、利点）ことは自分で書く必要が、あります。
+`RayQuery` は 計算シェーダー・ピクセル シェーダーから、呼べます。画素を絞ってシェーダー テーブルを使わず手軽に RT を組み込めます。ただし、当たった面のマテリアルを動的に切り替える（シェーダー テーブルの、利点）ことは自分で書く必要があります。
 
 ## SSR と RT の継ぎ目
 
-<strong>SSR の画素</strong>と RT の画素が、隣り合うと色がずれて境目が見えることが、あります。
+<strong>SSR の画素</strong>と RT の画素が隣り合うと色がずれて境目が見えることが、あります。
 
 | 問題 | 対策 |
 | --- | --- |
 | 明るさ・色のずれ | SSR と RT の、ライティングをそろえる（同じ露出、環境光） |
-| 境目のギザギザ | 信頼度を、なめらかに変化させる（SSR の、フェード。[Color Lookup and Fading](../ssr-basics/color-fade.md)）、RT の重みを少しずつ増やす |
+| 境目のギザギザ | 信頼度をなめらかに変化させる（SSR の、フェード。[Color Lookup and Fading](../ssr-basics/color-fade.md)）、RT の重みを少しずつ増やす |
 | SSR の細部と RT の、粗さ | RT の BVH が、簡略（LOD、細部が無い）だと SSR の詳細な反射と差が出る。BVH の LOD を高めに |
 
 ## 選択の目安
@@ -162,13 +162,13 @@ void InlineRTCS(uint3 id : SV_DispatchThreadID) {
 
 ## よくあるミス
 
-??? failure "レイトレの負荷が、画面いっぱいで重い"
+??? failure "レイトレの負荷が画面いっぱいで重い"
     <strong>SSR で当たった画素は、レイトレを飛ばさない</strong>。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] SSR → レイトレ → プローブ の順に、フォールバック
+    - [x] SSR → レイトレ → プローブ の順にフォールバック
     - [x] 半解像度とレイ数の上限で、コストを抑える
 
 ## 参考

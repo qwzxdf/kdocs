@@ -55,7 +55,7 @@ struct PerObject {
   DirectX::XMFLOAT4 tint;                     // 16 バイト。合計 80 バイト
 };
 
-// D3D12 の CBV は 256 バイトの倍数。物ごとの領域を、256 バイトに切り上げる。
+// D3D12 の CBV は 256 バイトの倍数。物ごとの領域を 256 バイトに切り上げる。
 constexpr UINT AlignUp(UINT size, UINT alignment) { return (size + alignment - 1) & ~(alignment - 1); }
 constexpr UINT kPerObjectStride = AlignUp(sizeof(PerObject), 256);  // 80 から 256 へ
 ```
@@ -100,7 +100,7 @@ GPU が前のフレームを読んでいる間に同じ領域を上書きしな�
 物ごとの定数バッファはルート CBV で GPU アドレスを直接渡すのが、一番簡単です。ディスクリプタ ヒープに CBV を作る必要がありません。ルート シグネチャでパラメーターの種類を `D3D12_ROOT_PARAMETER_TYPE_CBV` にします（[Root Signature](root-signature.md)）。
 
 ```cpp
-// 描画。物ごとのアドレスを、直接渡す。
+// 描画。物ごとのアドレスを直接渡す。
 const D3D12_GPU_VIRTUAL_ADDRESS base = constant_buffer->GetGPUVirtualAddress() + frame_base;
 for (UINT i = 0; i < object_count; ++i) {
   command_list->SetGraphicsRootConstantBufferView(0, base + i * kPerObjectStride);  // 物 i の定数

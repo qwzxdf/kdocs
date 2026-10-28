@@ -6,7 +6,7 @@ tags:
 
 # Anti-Aliasing
 
-<strong>ピクセルは四角い格子</strong>なので、<strong>斜めの線や細い物の縁が、階段状（ジャギー）に見えます</strong>。これがエイリアシングで、<strong>アンチエイリアシング（AA）</strong>は、これを滑らかにする技術です。方式が多く、画質・速さ・弱点がそれぞれ違います。このセクションでは、エイリアシングの原因・SSAA/MSAA・FXAA・SMAA・TAA・TAA の課題・比較と選び方を、1 つずつ別のページで説明します。
+<strong>ピクセルは四角い格子</strong>なので、<strong>斜めの線や細い物の縁が階段状（ジャギー）に見えます</strong>。これがエイリアシングで、<strong>アンチエイリアシング（AA）</strong>は、これを滑らかにする技術です。方式が多く、画質・速さ・弱点がそれぞれ違います。このセクションでは、エイリアシングの原因・SSAA/MSAA・FXAA・SMAA・TAA・TAA の課題・比較と選び方を 1 つずつ別のページで説明します。
 
 ## エイリアシングの 3 つの種類
 
@@ -44,7 +44,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">TAA: 毎フレーム、画素の中の別の場所を測り、履歴と平均して縁をなめらかにする</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">三角形の縁(斜めの線)を、12×8 画素で描く。1 フレームだけ vs 8 フレームぶん平均</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">三角形の縁(斜めの線)を 12×8 画素で描く。1 フレームだけ vs 8 フレームぶん平均</text>
 <rect x="30" y="100" width="288.0" height="192.0" fill="#ffffff" stroke="#e5484d" stroke-width="1.8" rx="6"/>
 <text x="30" y="90" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">1 フレームだけ(画素の中心で 1 回測る)</text>
 <rect x="30.0" y="100.0" width="24.3" height="24.3" fill="#f1f5f9"/>

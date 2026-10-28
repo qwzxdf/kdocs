@@ -63,7 +63,7 @@ context->VSSetShader(vertex_shader.Get(), nullptr, 0);     // 第 2・3 引数: 
 context->PSSetShader(pixel_shader.Get(), nullptr, 0);
 ```
 
-使うシェーダーをつなぎます（[Shaders and Compilation](shaders.md)）。ジオメトリ、ハル、ドメイン シェーダーを使わない間は設定しません（前に設定した物が、残らないよう `nullptr` で外す）。
+使うシェーダーをつなぎます（[Shaders and Compilation](shaders.md)）。ジオメトリ、ハル、ドメイン シェーダーを使わない間は設定しません（前に設定した物が残らないよう `nullptr` で外す）。
 
 ### ラスタライザーと出力
 
@@ -84,7 +84,7 @@ context->OMSetRenderTargets(1, targets, nullptr);
 context->Draw(3, 0);
 ```
 
-`Draw(頂点の数, 開始位置)` で頂点シェーダーが 3 回、呼ばれ 3 頂点が 1 つの三角形になります。ラスタライザーが三角形の内側のピクセルを列挙しピクセル シェーダーが、各ピクセルで呼ばれます。
+`Draw(頂点の数, 開始位置)` で頂点シェーダーが 3 回、呼ばれ 3 頂点が 1 つの三角形になります。ラスタライザーが三角形の内側のピクセルを列挙しピクセル シェーダーが各ピクセルで呼ばれます。
 
 ## 面の向き（カリング）
 
@@ -93,8 +93,8 @@ D3D11 の既定は <strong>時計回り（CW）が表</strong>で、<strong>裏�
 ```cpp
 D3D11_RASTERIZER_DESC desc = {};
 desc.FillMode = D3D11_FILL_SOLID;
-desc.CullMode = D3D11_CULL_BACK;                           // 裏面を、捨てる
-desc.FrontCounterClockwise = TRUE;                         // 反時計回りを、表とする
+desc.CullMode = D3D11_CULL_BACK;                           // 裏面を捨てる
+desc.FrontCounterClockwise = TRUE;                         // 反時計回りを表とする
 desc.DepthClipEnable = TRUE;
 device->CreateRasterizerState(&desc, &rasterizer_state);
 ```
@@ -276,7 +276,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 | 4 | シェーダーはコンパイルできたか | エラー文を見ていない |
 | 5 | 入力レイアウトと頂点の構造体は合うか | 頂点が化けて、画面外に |
 | 6 | `OMSetRenderTargets` を毎フレーム、呼んでいるか | `Present` で外れている |
-| 7 | デバッグ レイヤーのメッセージは無いか | 警告に原因が、出ている（[Debug Layer](debug-layer.md)） |
+| 7 | デバッグ レイヤーのメッセージは無いか | 警告に原因が出ている（[Debug Layer](debug-layer.md)） |
 | 8 | グラフィックス デバッガーで、1 フレーム、撮る | 各段の入出力を目で見る |
 
 ## よくあるミス
@@ -285,7 +285,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
     反時計回りの三角形を時計回りが表の既定で描いて裏面として、捨てられている。`FrontCounterClockwise = TRUE`。または、`Draw` の前にビューポートやシェーダーをつなぎ忘れている。
 
 ??? failure "最初のフレームだけ描けて以降、真っ黒"
-    `Present` の後でレンダー ターゲットの束縛が、外れる。毎フレーム、`OMSetRenderTargets` を呼ぶ。
+    `Present` の後でレンダー ターゲットの束縛が外れる。毎フレーム、`OMSetRenderTargets` を呼ぶ。
 
 ??? failure "三角形の色が想定と違う（暗い明るい）"
     RTV が `_SRGB` で色をリニアとして書いている。見た目の色を出したいならリニアに直した値を渡すか頂点の色の変換を考える。

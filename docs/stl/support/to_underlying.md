@@ -36,7 +36,7 @@ template <class Enum>
 constexpr std::underlying_type_t<Enum> to_underlying(Enum e) noexcept;
 ```
 
-- enum の値を、中身の整数型に変換します。`static_cast<int>(e)` と違って、中身の型を自分で書かなくていいです
+- enum の値を中身の整数型に変換します。`static_cast<int>(e)` と違って、中身の型を自分で書かなくていいです
 
 ```cpp
 #include <array>
@@ -58,7 +58,7 @@ int main() {
 
 ## ゲームでの使いどころ
 
-配列の添え字に、`enum class` を使うときに便利です。`std::array<Texture, kTextureCount> textures; textures[std::to_underlying(TextureId::kPlayer)]` と書けます。
+配列の添え字に `enum class` を使うときに便利です。`std::array<Texture, kTextureCount> textures; textures[std::to_underlying(TextureId::kPlayer)]` と書けます。
 
 ビットフラグでは、`enum class Flag : uint8_t { kA = 1, kB = 2 }` の値をビット演算に使いたいときに、`std::to_underlying(Flag::kA) | std::to_underlying(Flag::kB)` と書きます。演算子オーバーロードを用意して隠す書き方もよく使われます。
 
@@ -89,7 +89,7 @@ C++17〜C++23 の機能です。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `enum class` を、元の整数型に変換する。
+    - [x] `enum class` を元の整数型に変換する。
     - [x] `static_cast<int>` と違い、元の型に自動でそろう。
     - [x] C++23 の機能。C++20 では `underlying_type_t` と `static_cast` で書く。
 

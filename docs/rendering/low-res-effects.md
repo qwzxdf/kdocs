@@ -32,8 +32,8 @@ tags:
 <rect x="284" y="80" width="100" height="60" fill="rgba(229,170,40,0.4)" stroke="currentColor" stroke-width="2"/><text x="334" y="106" text-anchor="middle" style="font-weight:700">960×540</text><text x="334" y="126" text-anchor="middle" style="font-size:12px">計算量 25%</text>
 <line x1="390" y1="110" x2="440" y2="110" stroke="currentColor" stroke-width="3" marker-end="url(#lr1)"/>
 <rect x="448" y="95" width="50" height="30" fill="rgba(46,160,67,0.45)" stroke="currentColor" stroke-width="2"/><text x="473" y="114" text-anchor="middle" style="font-size:10px">480×270</text><text x="473" y="142" text-anchor="middle" style="font-size:12px">計算量 6%</text>
-<text x="20" y="206" style="font-size:12px">AO・ブルーム・フォグは、結果が、ぼやけている。低い解像度で計算して、拡大しても、見た目が、ほぼ変わらない</text>
-<text x="20" y="226" style="font-size:12px">計算量・書き込み・読み込み（帯域幅）が、同じ割合で、減る</text>
+<text x="20" y="206" style="font-size:12px">AO・ブルーム・フォグは、結果がぼやけている。低い解像度で計算して、拡大しても、見た目がほぼ変わらない</text>
+<text x="20" y="226" style="font-size:12px">計算量・書き込み・読み込み（帯域幅）が同じ割合で、減る</text>
 </svg>
 
 | 効果 | 縮小の目安 |
@@ -94,7 +94,7 @@ float4 UpsampleDepthAware(float2 uv, float full_depth) {
 | アップスケーラ（DLSS・FSR・TAAU） | 低解像度で描き、時間情報で高解像度へ（品質を保つ） |
 | チェッカーボード レンダリング | 半分のピクセルを市松模様で描き、前フレームで補う |
 | 可変レート シェーディング（VRS） | 画面の場所ごとにシェーディングの細かさを変える（[その他の最適化](taa-upscaling.md)） |
-| ハーフ解像度のライティング | 拡散ライティングだけを、縮小で（鏡面はフル） |
+| ハーフ解像度のライティング | 拡散ライティングだけを縮小で（鏡面はフル） |
 
 ## 深度を使って境界をにじませずに拡大する
 
@@ -102,7 +102,7 @@ float4 UpsampleDepthAware(float2 uv, float full_depth) {
 
 ```hlsl
 Texture2D<float4> g_low_color : register(t0);       // 低解像度の結果（煙、AO、ブルームなど）
-Texture2D<float> g_low_depth : register(t1);        // 低解像度の深度（縮小時に、最大か最小で作る）
+Texture2D<float> g_low_depth : register(t1);        // 低解像度の深度（縮小時に最大か最小で作る）
 Texture2D<float> g_full_depth : register(t2);       // フル解像度の深度
 SamplerState g_point_clamp : register(s0);
 
@@ -111,7 +111,7 @@ cbuffer UpsampleCB : register(b0) {
   float2 pad;
 };
 
-// 4 つの、近い低解像度ピクセルのうち、フル解像度の深度に、最も近い深度を持つものを、採る。
+// 4 つの、近い低解像度ピクセルのうち、フル解像度の深度に最も近い深度を持つものを採る。
 float4 PSUpsample(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
   const float full_z = LinearizeDepth(g_full_depth.SampleLevel(g_point_clamp, uv, 0));
   const int2 base = int2(floor(uv * g_low_size - 0.5));       // 低解像度の、左上のピクセル
@@ -124,19 +124,19 @@ float4 PSUpsample(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target {
     const float diff = abs(low_z - full_z);                    // フル解像度の深度との、差
     if (diff < best_diff) {
       best_diff = diff;
-      best_color = g_low_color.Load(int3(q, 0));               // 深度が、いちばん近いサンプルの色
+      best_color = g_low_color.Load(int3(q, 0));               // 深度がいちばん近いサンプルの色
     }
   }
   return best_color;
 }
 ```
 
-数行ずつ見ると 「このピクセルと同じ物体にいる、低解像度のピクセル」を深度で選んで、その色をそのまま使います。手前の物体のピクセルは手前の低解像度の色を奥は奥の色を使うので輪郭が、にじみません。ただし、色を混ぜずに選ぶので階段状に見えることがあります。
+数行ずつ見ると 「このピクセルと同じ物体にいる、低解像度のピクセル」を深度で選んで、その色をそのまま使います。手前の物体のピクセルは手前の低解像度の色を奥は奥の色を使うので輪郭がにじみません。ただし、色を混ぜずに選ぶので階段状に見えることがあります。
 
 | 方式 | 内容 | 向く場面 |
 | --- | --- | --- |
 | バイリニア | 4 つを距離で混ぜる。最も安い | 輪郭が目立たない物（霧、ブルーム） |
-| 最近深度（上のコード） | 深度が、近い 1 つを選ぶ | 輪郭のある物の前の煙 |
+| 最近深度（上のコード） | 深度が近い 1 つを選ぶ | 輪郭のある物の前の煙 |
 | 深度で重みづけ | 4 つを深度の近さで、重みづけして混ぜる | 階段が気になるとき（少し重い） |
 | 法線も使う | 深度に加えて、法線の近さも見る | AO など面の向きで変わる物 |
 
@@ -155,14 +155,14 @@ float DownsampleDepth(int2 p) {
 }
 ```
 
-縮小する深度が最大か最小かは用途で選びます。煙（手前の物の後ろに隠れるべき）は 最小（最も近い）を選ぶと手前の物に煙が、はみ出しにくくなります。
+縮小する深度が最大か最小かは用途で選びます。煙（手前の物の後ろに隠れるべき）は 最小（最も近い）を選ぶと手前の物に煙がはみ出しにくくなります。
 
 ## よくあるミス
 
 ??? failure "バイリニアで拡大して、物体の縁ににじみ（ハロー）が出る"
     **深度を使ったアップサンプル**にします。
 
-??? failure "鋭い輪郭が、必要な物を縮小してぼやける"
+??? failure "鋭い輪郭が必要な物を縮小してぼやける"
     UI・文字・シャープな影は、フル解像度で。
 
 ??? failure "縮小時に間引いて、ちらつく"

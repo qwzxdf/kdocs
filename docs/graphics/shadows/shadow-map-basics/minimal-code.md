@@ -116,7 +116,7 @@ float4 main(PSInput input) : SV_Target {
   float3 N = normalize(input.world_normal);
   float n_dot_l = saturate(dot(N, -g_light_dir));
   float shadow = ShadowFactor(input.world_position);
-  float3 diffuse = g_albedo * g_light_color * n_dot_l * shadow;      // 影の中は、直接光が、0
+  float3 diffuse = g_albedo * g_light_color * n_dot_l * shadow;      // 影の中は、直接光が 0
   float3 ambient = g_albedo * g_ambient;                              // 環境光は、影に関係なく残る
   return float4(diffuse + ambient, 1.0);
 }
@@ -126,19 +126,19 @@ float4 main(PSInput input) : SV_Target {
 
 | 症状 | 見るところ |
 | --- | --- |
-| 影が全く出ない | シャドウ パスで物が、描かれているか（PIX / RenderDoc で、シャドウ マップの内容を見る）。光の行列が正しいか |
+| 影が全く出ない | シャドウ パスで物が描かれているか（PIX / RenderDoc で、シャドウ マップの内容を見る）。光の行列が正しいか |
 | 影が上下逆 | NDC → UV の変換で、`y` を反転したか（`ndc.y * -0.5 + 0.5`） |
-| 全体が縞模様（シャドウ アクネ） | バイアスが、足りない（[Shadow Bias](../bias/index.md)） |
-| 影が物から浮いている | バイアスが、大きすぎる（ピーター パンニング） |
-| 影がずれている | 光の行列が、シャドウ パスとメイン パスで、同じか。カメラの位置を使っていないか |
+| 全体が縞模様（シャドウ アクネ） | バイアスが足りない（[Shadow Bias](../bias/index.md)） |
+| 影が物から浮いている | バイアスが大きすぎる（ピーター パンニング） |
+| 影がずれている | 光の行列がシャドウ パスとメイン パスで、同じか。カメラの位置を使っていないか |
 | 影が常に真っ暗 | 比較関数の向き（reversed-Z）。範囲外の境界色 |
 | 影の端がギザギザ | 解像度を上げる、PCF（[PCF](../pcf.md)） |
 | 地形の遠くで影が無い | シャドウ マップの、範囲（`radius`）が足りない。カスケード（[CSM](../cascaded.md)） |
 
-デバッグには <strong>シャドウ マップを画面に、表示</strong>するのが最も効果的です。深度を白黒で画面の隅に描きます。
+デバッグには <strong>シャドウ マップを画面に表示</strong>するのが最も効果的です。深度を白黒で画面の隅に描きます。
 
 ```hlsl
-// デバッグ表示: シャドウ マップの深度を、グレースケールで、画面に表示する。
+// デバッグ表示: シャドウ マップの深度をグレースケールで、画面に表示する。
 float d = g_shadow_map.Load(int3(pos.xy, 0));
 return float4(d.xxx, 1.0);
 ```

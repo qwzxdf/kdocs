@@ -25,7 +25,7 @@ api:
     - 作るのは [`CreateSwapChainForHwnd`](idxgifactory.md#createswapchainforhwnd)。受け取った `IDXGISwapChain1` を `As` で `IDXGISwapChain3` にする。
     - 今の描き先は `GetCurrentBackBufferIndex()`。自分で数えない。
     - `Present(1, 0)` が垂直同期あり、`Present(0, DXGI_PRESENT_ALLOW_TEARING)` が同期なし。
-    - `ResizeBuffers` の前に、バック バッファへの参照を全部手放す。
+    - `ResizeBuffers` の前にバック バッファへの参照を全部手放す。
     - 戻り値が `DXGI_ERROR_DEVICE_REMOVED` ならデバイスが失われている。
 
 !!! info "このページを読む前に"
@@ -94,7 +94,7 @@ if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 HRESULT IDXGISwapChain::GetBuffer(UINT Buffer, REFIID riid, void** ppSurface);
 ```
 
-スワップ チェーンのバック バッファを、リソースとして取り出します。
+スワップ チェーンのバック バッファをリソースとして取り出します。
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |

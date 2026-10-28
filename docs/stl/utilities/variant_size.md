@@ -14,7 +14,7 @@ tags:
 `#include <variant>`
 </div>
 
-`variant<int, double, std::string>` が、何種類の型を持てるかを、テンプレートの中で知りたいことがあります。`variant_size_v<V>` が、その数（この例では 3）を返します。型のリストを `index_sequence` で順に処理するときの終点にも使えます。
+`variant<int, double, std::string>` が、何種類の型を持てるかをテンプレートの中で知りたいことがあります。`variant_size_v<V>` が、その数（この例では 3）を返します。型のリストを `index_sequence` で順に処理するときの終点にも使えます。
 
 !!! tip "ポイント"
     - `variant_size_v<V>` で数が取れる（`size_t`）。

@@ -14,7 +14,7 @@ tags:
 `#include <string_view>`
 </div>
 
-`u32string` を、コピーせずに見るだけの型です。1 コード単位が 1 コードポイントです。
+`u32string` をコピーせずに見るだけの型です。1 コード単位が 1 コードポイントです。
 
 !!! tip "ポイント"
     - `std::basic_string_view<char32_t>` の別名。

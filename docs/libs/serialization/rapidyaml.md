@@ -25,7 +25,7 @@ tags:
     - デフォルトのエラー処理はプログラムを止める（abort）。例外にしたいなら設定を変える。
 
 !!! info "このページを読む前に"
-    [シリアライズの概要](../../engine/serialization/index.md) と [nlohmann/json](nlohmann-json.md) を先に読むと、「木の形のデータを、キーで取り出す」という考え方がつかみやすいです。[string_view](../../stl/utilities/string_view.md) を知っていると `csubstr` が分かりやすくなります。
+    [シリアライズの概要](../../engine/serialization/index.md) と [nlohmann/json](nlohmann-json.md) を先に読むと、「木の形のデータをキーで取り出す」という考え方がつかみやすいです。[string_view](../../stl/utilities/string_view.md) を知っていると `csubstr` が分かりやすくなります。
 
 ## YAML とは
 
@@ -276,7 +276,7 @@ rapidyaml の中では、**すべての値は文字列**として持っていま
 
 ## 自作の型を読み書きする {#custom}
 
-自作の型と**同じ名前空間**に、`write` と `read` という名前の関数を書くと、`<<` と `>>` で使えるようになります。
+自作の型と**同じ名前空間**に `write` と `read` という名前の関数を書くと、`<<` と `>>` で使えるようになります。
 
 ```cpp
 #include <print>
@@ -515,7 +515,7 @@ bool has_child(size_t pos) const;  // 番号の子があるか（バージョン
 | `key` | `csubstr` | 調べるキー |
 
 - 戻り値: その名前の子があれば `true`
-- 無いかもしれないキーを読む前に、必ずこれで確認します。
+- 無いかもしれないキーを読む前に必ずこれで確認します。
 
 ### emitrs_yaml {#emitrs_yaml}
 
@@ -546,7 +546,7 @@ NodeRef& operator|=(NodeRef& node, NodeType_e type);
 | --- | --- | --- |
 | `type` | `NodeType_e` | `ryml::MAP`（マップ）か `ryml::SEQ`（シーケンス）。`ryml::FLOW_SL` などのスタイルを ` | ` で足せる |
 
-- 新しく作ったノードを、子を持てるマップかシーケンスにします。書き込むときは、子を足す前にまずこれをします。
+- 新しく作ったノードを子を持てるマップかシーケンスにします。書き込むときは、子を足す前にまずこれをします。
 - `items |= ryml::SEQ | ryml::FLOW_SL;` とすると、`items: [101, 205]` のように 1 行で書き出されます（スタイルのフラグはバージョンによって名前が違うことがあります）。
 
 ### children {#children}
@@ -787,7 +787,7 @@ Callbacks const& get_callbacks();
 | --- | --- | --- |
 | `c` | `ryml::Callbacks` | メモリ確保・解放・エラー処理の関数をまとめたもの |
 
-- エラーのときに呼ばれる関数を、自分の関数に置き換えます。ログに出して例外を投げる、などができます。
+- エラーのときに呼ばれる関数を自分の関数に置き換えます。ログに出して例外を投げる、などができます。
 - エラー処理関数の引数の形はバージョンによって変わっているので、使っているバージョンの `ryml::Callbacks` の定義を確認して書きます。簡単に済ませたいなら、[エラー処理](#エラー処理) の `RYML_DEFAULT_CALLBACK_USES_EXCEPTIONS` を使います。
 
 ## フラグ・オプション

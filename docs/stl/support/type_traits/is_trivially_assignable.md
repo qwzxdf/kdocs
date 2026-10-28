@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-代入が、ビットの複製だけで済むかを知りたい。`std::is_trivially_assignable<T, U>` は、<strong>T への U の代入が自明か</strong>を調べます。
+代入がビットの複製だけで済むかを知りたい。`std::is_trivially_assignable<T, U>` は、<strong>T への U の代入が自明か</strong>を調べます。
 
 !!! tip "ポイント"
     - `std::is_trivially_assignable_v<T, U>` は、`T` に `U` を自明に代入できるか

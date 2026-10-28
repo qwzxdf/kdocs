@@ -13,7 +13,7 @@ tags:
 `#include <iostream>`
 </div>
 
-`std::wcin` は、`cin` の `wchar_t` 版です。`wchar_t` の文字列（`std::wstring`）を、標準入力から読みます。`cin` と混ぜて使うと、文字化けや動作不良の原因になることがあります。
+`std::wcin` は、`cin` の `wchar_t` 版です。`wchar_t` の文字列（`std::wstring`）を標準入力から読みます。`cin` と混ぜて使うと、文字化けや動作不良の原因になることがあります。
 
 !!! tip "ポイント"
     - `cin` の`wchar_t` 版。

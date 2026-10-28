@@ -98,7 +98,7 @@ Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各�
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">デュアル フィルター: 縮小は「中心 + 四隅」、拡大は「8 方向」のタップ。少ない読み込みで、ガウスに近いぼかし</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 48 画素の光源。縮小(1/2)× 3 段、拡大 × 3 段を、実際に計算して、ガウスと比べる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 48 画素の光源。縮小(1/2)× 3 段、拡大 × 3 段を実際に計算して、ガウスと比べる</text>
 <text x="60" y="106" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">縮小 1(48 → 24)</text>
 <rect x="60.0" y="110.0" width="30.3" height="17.3" fill="#0f172a"/>
 <rect x="90.0" y="110.0" width="30.3" height="17.3" fill="#0f172a"/>
@@ -340,7 +340,7 @@ Dual Filter の手順は 3 段階です。ダウンは N 段繰り返し、各�
 
 ## よくあるミス
 
-??? failure "`half_pixel` の基準が、ダウン（ソース側）とアップ（小さい画像側）で混同される"
+??? failure "`half_pixel` の基準がダウン（ソース側）とアップ（小さい画像側）で混同される"
     <strong>どちらも「読む側のテクスチャ」の半画素</strong>。読むテクスチャごとに計算する。
 
 ??? failure "`offset` を大きくしすぎて、格子状の模様が出る"

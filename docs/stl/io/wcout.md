@@ -13,7 +13,7 @@ tags:
 `#include <iostream>`
 </div>
 
-`std::wcout` は、`cout` の `wchar_t` 版です。`wchar_t` の文字列（`L"..."`）を、標準出力に出します。`cout` と混ぜて使うと、文字化けや動作不良の原因になることがあります。
+`std::wcout` は、`cout` の `wchar_t` 版です。`wchar_t` の文字列（`L"..."`）を標準出力に出します。`cout` と混ぜて使うと、文字化けや動作不良の原因になることがあります。
 
 !!! tip "ポイント"
     - `cout` の`wchar_t` 版。

@@ -22,7 +22,7 @@ tags:
 
 ## 考え方
 
-肌に光が当たると光が当たった側で入った光が、内部で広がって <strong>影の側にも染み出します</strong>。その結果、明暗の境（N·L が 0 の付近）が、通常のランバート反射のようにくっきり切れずなだらかに暗くなります。さらに、このなだらかさは 赤の方が大きいので、境が赤く染まります。
+肌に光が当たると光が当たった側で入った光が内部で広がって <strong>影の側にも染み出します</strong>。その結果、明暗の境（N·L が 0 の付近）が通常のランバート反射のようにくっきり切れずなだらかに暗くなります。さらに、このなだらかさは 赤の方が大きいので、境が赤く染まります。
 
 ここで注目するのはこの広がりが、表面がどれだけ曲がっているかによって変わることです。平らな面（曲率 0）では光が当たる範囲も影になる範囲も広いので、広がった光が影の側へ染み出す量は少なくなります（染み出す先も一様に当たっている）。逆に、細く丸い面（指や耳、鼻の頭のように曲率が大きい面）では光が当たっている領域のすぐ隣が影の領域なので、光が影へ染み出す効果が大きく見えます。
 
@@ -35,7 +35,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">事前積分スキン: 光 × 曲率 の表で、影の境目の赤いにじみを作る</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">球の影の境目(N·L が 0 の付近)で、赤は広くにじみ、青は鋭く切れる。その差を、表にあらかじめ焼き込む</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">球の影の境目(N·L が 0 の付近)で、赤は広くにじみ、青は鋭く切れる。その差を表にあらかじめ焼き込む</text>
 <rect x="30" y="96" width="500" height="190" fill="#ffffff" stroke="#7c3aed" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#7c3aed">① 表(横 = N·L、縦 = 曲率)</text>
 <rect x="104.0" y="112" width="17.3" height="40.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0667" values="#e5e7eb;#000000"/></rect>
@@ -259,7 +259,7 @@ tags:
 <text x="576" y="505" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">ふつうの拡散: R 0 / G 0 / B 0(真っ黒)</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">肌の中で光が散らばるので、影の境目で赤い光が先に回り込む<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光の当たり方と曲率から、色を求める表(LUT)を、あらかじめ作る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.2220;0.2222;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光の当たり方と曲率から、色を求める表(LUT)をあらかじめ作る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.2220;0.2222;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">赤は広く、青は狭く(境目で鋭く)切れる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2220;0.2222;0.3998;0.4000;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">N·L を動かすと、境目の外でも、赤がまだ残っている<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3998;0.4000;0.7465;0.7467;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">球に当てると、ふつうの拡散は硬く切れて、事前積分は、赤い帯がにじむ<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7465;0.7467;1.0000;1.0000" values="0;0;1;1;0"/></text>
@@ -269,7 +269,7 @@ tags:
 
 ## LUT の作り方
 
-LUT は次のように計算します。曲率は半径 r の球で表します（曲率 = 1/r）。球の表面の点 P を考え光の方向と法線のなす角 θ（N·L = cos θ）を決めます。点 P での拡散光は <strong>球の全表面に当たった光が、拡散プロファイル R_d で P に広がってきた量の合計</strong>です。
+LUT は次のように計算します。曲率は半径 r の球で表します（曲率 = 1/r）。球の表面の点 P を考え光の方向と法線のなす角 θ（N·L = cos θ）を決めます。点 P での拡散光は <strong>球の全表面に当たった光が拡散プロファイル R_d で P に広がってきた量の合計</strong>です。
 
 球上の各点 Q は光に対する角度が違いその点での直接光は、`max(0, cos(θ + x))`（x は P から Q までの角度）に比例します。P と Q の距離は `2r sin(x/2)` です。したがって P での拡散光は次の積分で表されます。
 
@@ -324,7 +324,7 @@ diffuse.g = skin_lut.SampleLevel(linear_clamp, float2(dot(n_g, l) * 0.5 + 0.5, c
 diffuse.b = skin_lut.SampleLevel(linear_clamp, float2(dot(n_b, l) * 0.5 + 0.5, curvature), 0).b;
 ```
 
-この小さな工夫で毛穴の凹凸の陰影が、青ではくっきり赤ではぼんやり見える現実の肌の柔らかさに近づきます。
+この小さな工夫で毛穴の凹凸の陰影が青ではくっきり赤ではぼんやり見える現実の肌の柔らかさに近づきます。
 
 ## 長所と限界
 

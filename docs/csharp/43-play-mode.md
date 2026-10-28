@@ -6,7 +6,7 @@ tags:
 
 # 第 43 章 Play モード
 
-この章で、エディタに編集モードと Play モードを作ります。Play ボタンでゲームが動き出し、Stop ボタンで、動かす前のシーンに戻ります。Unity や Unreal Engine と同じ操作です。第 34 章で決めた「データの持ち主はエディタ、エンジンは写し」という設計が、ここで報われます。
+この章で、エディタに編集モードと Play モードを作ります。Play ボタンでゲームが動き出し、Stop ボタンで、動かす前のシーンに戻ります。Unity や Unreal Engine と同じ操作です。第 34 章で決めた「データの持ち主はエディタ、エンジンは写し」という設計がここで報われます。
 
 !!! info "このページを読む前に"
     - [第 42 章 ホット リロード](42-hot-reload.md)（前の章。ここまでの内容が前提になる）
@@ -21,7 +21,7 @@ tags:
 
 | 方式 | 内容 | 問題 |
 | --- | --- | --- |
-| Play 前に状態を保存し、Stop で復元する | シーン全体をコピーする | コピーを取る処理が要る。Play 中の変更を、間違ってドキュメントに混ぜない注意が要る |
+| Play 前に状態を保存し、Stop で復元する | シーン全体をコピーする | コピーを取る処理が要る。Play 中の変更を間違ってドキュメントに混ぜない注意が要る |
 | ドキュメントは触らず、エンジンのコピーだけが動く（採用） | Play 中に動くのはエンジンの写しだけ。Stop で、写しをドキュメントから作り直す | 追加のコピー処理が要らない |
 
 この教材の構造では、ドキュメント（`SceneDocument`）はエンジンの外にあって、Play 中は一切変わりません。ゲームが動かすのは、エンジンの `Scene`（写し）だけです。だから、Stop のときは、エンジンのシーンを空にして、ドキュメントの内容から作り直すだけで、元に戻ります。
@@ -68,7 +68,7 @@ ME_API MeResult me_play_get_state(const MeEngine* engine, int32_t* out_state);
 ME_API MeResult me_play_step(MeEngine* engine);                  /* 一時停止中に、1 フレームだけ進める */
 ```
 
-エンジン側では、第 41 章の `SetPlaying(bool)` を、この章の `SetPlayState(PlayState)` に置き換えます。一時停止が `bool` では表せないからです。Player の `SetPlaying(true)` も、`SetPlayState(PlayState::Playing)` に直してください。
+エンジン側では、第 41 章の `SetPlaying(bool)` をこの章の `SetPlayState(PlayState)` に置き換えます。一時停止が `bool` では表せないからです。Player の `SetPlaying(true)` も、`SetPlayState(PlayState::Playing)` に直してください。
 
 ```cpp
 enum class PlayState : std::int32_t { Edit = 0, Playing = 1, Paused = 2 };
@@ -115,7 +115,7 @@ void Engine::Tick(float delta_seconds) {
 
 ## エンジンのシーンをドキュメントから作り直す
 
-Stop のとき、エンジンの `Scene` を、ドキュメントの内容にそろえます。`SceneEngineSync` に `Resync` を足します。
+Stop のとき、エンジンの `Scene` をドキュメントの内容にそろえます。`SceneEngineSync` に `Resync` を足します。
 
 ```csharp
 public sealed class SceneEngineSync
@@ -338,7 +338,7 @@ if (!_play.IsEditing)
 
 ## ツール バーと見た目
 
-`MainWindow.xaml` のメニューの下に、ツール バーを足します。
+`MainWindow.xaml` のメニューの下にツール バーを足します。
 
 ```xml
 <ToolBar DockPanel.Dock="Top">
@@ -366,7 +366,7 @@ TogglePlayCommand = new DelegateCommand(() => { if (_play.State == PlayState.Edi
 </Window.InputBindings>
 ```
 
-Play 中であることを、色でも一目で分かるようにします。本体を `Border` で囲み、状態に応じて枠の色を変えます。
+Play 中であることを色でも一目で分かるようにします。本体を `Border` で囲み、状態に応じて枠の色を変えます。
 
 ```xml
 <Border BorderThickness="3">
@@ -387,7 +387,7 @@ Play 中であることを、色でも一目で分かるようにします。本
 </Border>
 ```
 
-`Setter` が既定値（透明）で、`DataTrigger` が当たったときだけ上書きする形です（第 11 章）。XAML では、バインドした列挙型の値を、名前の文字列（`"Playing"`）で比較できます。
+`Setter` が既定値（透明）で、`DataTrigger` が当たったときだけ上書きする形です（第 11 章）。XAML では、バインドした列挙型の値を名前の文字列（`"Playing"`）で比較できます。
 
 ## 動かして確かめる
 

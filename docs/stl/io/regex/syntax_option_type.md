@@ -80,9 +80,9 @@ constexpr syntax_option_type collate = /* 実装定義 */;
 constexpr syntax_option_type multiline = /* 実装定義 */;
 ```
 
-- 戻り値: `^` と `$` を、行の先頭・末尾にも一致させる（C++17）
+- 戻り値: `^` と `$` を行の先頭・末尾にも一致させる（C++17）
 
-`^` と `$` を、行の先頭・末尾にも一致させる（C++17）。
+`^` と `$` を行の先頭・末尾にも一致させる（C++17）。
 
 ### std::regex_constants::ECMAScript {#ECMAScript}
 

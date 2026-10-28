@@ -63,7 +63,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| 開発用に、アセットフォルダを共有する | `create_directory_symlink` |
+| 開発用にアセットフォルダを共有する | `create_directory_symlink` |
 
 ## よくあるミス
 

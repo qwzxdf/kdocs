@@ -73,7 +73,7 @@ float WaveHeight(float2 position, Wave wave, float time) {
 }
 ```
 
-方向・波長・振幅を変えた波を、4〜8 本重ねるとランダムな海面に見えます。波長を倍々に（大きい波から小さい波へ）、振幅を半分ずつと減らすのが定番です。
+方向・波長・振幅を変えた波を 4〜8 本重ねるとランダムな海面に見えます。波長を倍々に（大きい波から小さい波へ）、振幅を半分ずつと減らすのが定番です。
 
 | 波 | 波長 | 振幅 | 向き |
 | --- | --- | --- | --- |
@@ -123,12 +123,12 @@ h(p, t) = Σ_i A_i × sin( ω_i (D_i · p) + φ_i t + θ_i )
 | 0.05 | なだらかな、うねり |
 | 0.2 | 標準的な海の波 |
 | 0.5 | 荒れた海。波頭が尖る |
-| 1.0 以上 | 物理的に、成り立たない（波が砕ける） |
+| 1.0 以上 | 物理的に成り立たない（波が砕ける） |
 
 波を手で作るとき 「波長を決めて振幅は、波長に比例させる」とすると、見た目が自然になります。
 
 ```cpp
-// 波を、波長から作る。急峻さを、一定に保つ。
+// 波を波長から作る。急峻さを一定に保つ。
 std::vector<Wave> MakeWaves(int count, float base_wavelength, float steepness, uint32_t seed) {
   std::vector<Wave> waves;
   Rng rng(seed);
@@ -147,7 +147,7 @@ std::vector<Wave> MakeWaves(int count, float base_wavelength, float steepness, u
 }
 ```
 
-「次の波長を前の 0.6 倍前後」にすると、波の大きさが 等比数列で並びます。波長が 2 倍違えば見え方が、違う波になるのでバラエティが出ます。
+「次の波長を前の 0.6 倍前後」にすると、波の大きさが 等比数列で並びます。波長が 2 倍違えば見え方が違う波になるのでバラエティが出ます。
 
 ## 速さ：深い水の分散関係
 
@@ -189,15 +189,15 @@ cbuffer WaveCB : register(b2) {
 };
 ```
 
-波は最大 8 本まで定数バッファに、入れます。`g_wave_count` と `g_time` も同じバッファに置いて、CPU から毎フレーム、更新します。
+波は最大 8 本まで定数バッファに入れます。`g_wave_count` と `g_time` も同じバッファに置いて、CPU から毎フレーム、更新します。
 
 ```hlsl
-// 高さと、偏微分（傾き）を、同時に計算する。
-// 傾きは、法線のために使う（高さの微分を、解析的に、求められるのがサイン波の長所）。
+// 高さと、偏微分（傾き）を同時に計算する。
+// 傾きは、法線のために使う（高さの微分を解析的に求められるのがサイン波の長所）。
 float WaterHeight(float2 p, out float2 slope) {
 ```
 
-高さと傾き（偏微分）を同時に、返します。サイン波は微分も解析的に求められるので、法線のために高さを何度も読み直す必要が、ありません。
+高さと傾き（偏微分）を同時に、返します。サイン波は微分も解析的に求められるので、法線のために高さを何度も読み直す必要がありません。
 
 ```hlsl
   float h = 0.0;
@@ -227,13 +227,13 @@ float3 WaterNormal(float2 slope) {
 
 ## 水面メッシュ
 
-波を頂点シェーダーで足すなら水面を、<strong>格子メッシュ</strong>にして各頂点を、動かします。
+波を頂点シェーダーで足すなら水面を <strong>格子メッシュ</strong>にして各頂点を動かします。
 
 | 項目 | 内容 |
 | --- | --- |
-| メッシュ | 平らな格子。カメラの周りを細かく（[Geometry Clipmaps](../../terrain/lod/clipmap.md) と同じ構造が、よく使われる） |
+| メッシュ | 平らな格子。カメラの周りを細かく（[Geometry Clipmaps](../../terrain/lod/clipmap.md) と同じ構造がよく使われる） |
 | 頂点の間隔 | 波の最も短い波長の、半分以下にする（ナイキスト）。それより粗いと波がエイリアシングする |
-| 法線 | 頂点でなくピクセル シェーダーで波を、もう一度、計算して求める。細かい波の陰影が出る |
+| 法線 | 頂点でなくピクセル シェーダーで波をもう一度、計算して求める。細かい波の陰影が出る |
 
 ### 短すぎる波を消す
 
@@ -250,7 +250,7 @@ float AliasFade(float wavelength, float vertex_spacing) {
 
 | 限界 | 内容 |
 | --- | --- |
-| 形が対称 | 波頭と谷が、同じ形（上下対称）。実際の波は、波頭が尖って谷が広い |
+| 形が対称 | 波頭と谷が同じ形（上下対称）。実際の波は、波頭が尖って谷が広い |
 | 水平には動かない | 頂点は、上下にしか動かない。波が押し寄せる感じが弱い |
 | 規則的 | 波の数が少ないと、周期が見える |
 
@@ -258,7 +258,7 @@ float AliasFade(float wavelength, float vertex_spacing) {
 
 ## よくあるミス
 
-??? failure "波が、規則的な縞に見える"
+??? failure "波が規則的な縞に見える"
     <strong>向き・波長をばらつかせる</strong>。
 
 ## これだけ覚える
@@ -270,7 +270,7 @@ float AliasFade(float wavelength, float vertex_spacing) {
 ## 参考
 
 - Finch, "Effective Water Simulation from Physical Models", GPU Gems, Chapter 1, 2004（サイン波と Gerstner 波の、GPU 実装）
-- Fournier, Reeves, "A Simple Model of Ocean Waves", SIGGRAPH 1986（Gerstner 波を、CG に持ち込んだ論文）
+- Fournier, Reeves, "A Simple Model of Ocean Waves", SIGGRAPH 1986（Gerstner 波を CG に持ち込んだ論文）
 - Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（FFT による海面の合成。ほとんどの FFT 海面の出発点）
 - Akenine-Möller et al., "Real-Time Rendering", 4th Edition, CRC Press, 2018（サンプリングとエイリアシング）
 

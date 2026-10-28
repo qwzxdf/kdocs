@@ -15,7 +15,7 @@ tags:
 `#include <concepts>`
 </div>
 
-一時オブジェクトや、所有権を渡す関数の引数に、ムーブできる型だけを受け付けたい。`std::move_constructible` は、<strong>T がムーブ構築でき、破棄できるか</strong>を要求するコンセプトです。
+一時オブジェクトや、所有権を渡す関数の引数にムーブできる型だけを受け付けたい。`std::move_constructible` は、<strong>T がムーブ構築でき、破棄できるか</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
     - `std::move_constructible<T>` は、`T` がムーブ構築できるか

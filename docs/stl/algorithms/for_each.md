@@ -154,7 +154,7 @@ int main() {
 | `std::execution::par_unseq` | 並列 + SIMD でまとめて処理 |
 | `std::execution::unseq` | 1 スレッドで SIMD <span class="ver ver-20">C++20</span> |
 
-`std::sort`、`std::transform`、`std::reduce` など多くのアルゴリズムが、最初の引数にこれを受け取れます（ranges 版は非対応）。
+`std::sort`、`std::transform`、`std::reduce` など多くのアルゴリズムが最初の引数にこれを受け取れます（ranges 版は非対応）。
 
 ## ゲームでの使いどころ
 

@@ -15,7 +15,7 @@ tags:
 `#include <compare>`
 </div>
 
-`a <=> b` の結果の型は、`int` なら `strong_ordering`、`double` なら `partial_ordering` と、型によって違います。その型を、テンプレートの中で取り出したいときに使うのが `std::compare_three_way_result` です。
+`a <=> b` の結果の型は、`int` なら `strong_ordering`、`double` なら `partial_ordering` と、型によって違います。その型をテンプレートの中で取り出したいときに使うのが `std::compare_three_way_result` です。
 
 !!! tip "ポイント"
     - `std::compare_three_way_result_t<T>` は `T <=> T` の結果の型

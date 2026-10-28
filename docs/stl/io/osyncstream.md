@@ -57,7 +57,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| 複数のスレッドのデバッグログを、混ざらずに出す | `std::osyncstream(std::cout) << msg << "\n";` |
+| 複数のスレッドのデバッグログを混ざらずに出す | `std::osyncstream(std::cout) << msg << "\n";` |
 
 ## よくあるミス
 

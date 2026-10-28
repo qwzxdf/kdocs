@@ -70,10 +70,10 @@ tags:
 | [`std::rint`](cmath/rint.md) | <span class="rank rank-rare">知ってるだけ</span> | 現在の丸めモードで整数に丸める（結果は小数）。 <span class="ver ver-11">C++11</span> |
 | [`std::lrint`](cmath/lrint.md) | <span class="rank rank-rare">知ってるだけ</span> | 現在の丸めモードで整数に丸める（long で返す）。 <span class="ver ver-11">C++11</span> |
 | [`std::llrint`](cmath/llrint.md) | <span class="rank rank-rare">知ってるだけ</span> | 現在の丸めモードで整数に丸める（long long で返す）。 <span class="ver ver-11">C++11</span> |
-| [`std::scalbn`](cmath/scalbn.md) | <span class="rank rank-rare">知ってるだけ</span> | x × 2ⁿ を、乗算を使わずに計算する。 <span class="ver ver-11">C++11</span> |
+| [`std::scalbn`](cmath/scalbn.md) | <span class="rank rank-rare">知ってるだけ</span> | x × 2ⁿ を乗算を使わずに計算する。 <span class="ver ver-11">C++11</span> |
 | [`std::scalbln`](cmath/scalbln.md) | <span class="rank rank-rare">知ってるだけ</span> | x × 2ⁿ を計算する（指数が long）。 <span class="ver ver-11">C++11</span> |
 | [`std::ilogb`](cmath/ilogb.md) | <span class="rank rank-rare">知ってるだけ</span> | x の指数部（2 を底とした対数の整数部分）を int で返す。 <span class="ver ver-11">C++11</span> |
-| [`std::logb`](cmath/logb.md) | <span class="rank rank-rare">知ってるだけ</span> | x の指数部を、浮動小数点で返す。 <span class="ver ver-11">C++11</span> |
+| [`std::logb`](cmath/logb.md) | <span class="rank rank-rare">知ってるだけ</span> | x の指数部を浮動小数点で返す。 <span class="ver ver-11">C++11</span> |
 | [`std::nextafter`](cmath/nextafter.md) | <span class="rank rank-rare">知ってるだけ</span> | x の次に表せる浮動小数点数を返す（y の方向へ）。 <span class="ver ver-11">C++11</span> |
 | [`std::nexttoward`](cmath/nexttoward.md) | <span class="rank rank-rare">知ってるだけ</span> | x の次に表せる値を返す（向かう先が long double）。 <span class="ver ver-11">C++11</span> |
 | [`std::fpclassify`](cmath/fpclassify.md) | <span class="rank rank-rare">知ってるだけ</span> | 浮動小数点数の種類（0・正規数・NaN など）を判定する。 <span class="ver ver-11">C++11</span> |

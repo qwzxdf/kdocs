@@ -10,7 +10,7 @@ tags:
 
 !!! tip "ポイント"
     - froxel ＝ frustum ＋ voxel。
-    - 画面の縦横に分割し、奥行きを対数的に分割。
+    - 画面の縦横に分割し、奥行きを対数的に分割する。
     - 3D テクスチャ（例：160×90×64）で持つ。
     - 近くが細かいので、少ないセルで見た目を保てる。
 
@@ -25,7 +25,7 @@ tags:
 <defs><marker id="arr-froxel-slices" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">froxel:視錐台を、奥行きに沿って、手前ほど細かく分ける</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">froxel:視錐台を奥行きに沿って、手前ほど細かく分ける</text>
 <polygon points="372,380 408,380 690,90 90,90" fill="#eff6ff" stroke="#64748b" stroke-width="2"/>
 <circle cx="390" cy="406" r="8" fill="#e5484d"/>
 <text x="404" y="412" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">カメラ</text>
@@ -47,10 +47,10 @@ tags:
 <line x1="390.0" y1="380" x2="390.0" y2="90" stroke="#cbd5e1" stroke-width="1"/>
 <line x1="396.0" y1="380" x2="490.0" y2="90" stroke="#cbd5e1" stroke-width="1"/>
 <line x1="402.0" y1="380" x2="590.0" y2="90" stroke="#cbd5e1" stroke-width="1"/>
-<text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">奥行きを、等間隔に分けると:手前が粗すぎる<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2797;0.2800;1.0000" values="1;1;0;0"/></text>
+<text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">奥行きを等間隔に分けると:手前が粗すぎる<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2797;0.2800;1.0000" values="1;1;0;0"/></text>
 <text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">手前を細かく、奥を粗くしていく…<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.2797;0.2800;0.5197;0.5200;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="40" y="60" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1f2937" opacity="0">対数的に分けた froxel:近くが細かい（見た目に効率が良い）<animate attributeName="opacity" dur="12.5s" repeatCount="indefinite" keyTimes="0.0000;0.5197;0.5200;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="40" y="424" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">画面の縦横に分け、奥行きに沿って分割した 3D のグリッド（上から見た断面）。各セルに、密度と光を持つ。</text>
+<text x="40" y="424" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">画面の縦横に分け、奥行きに沿って分割した 3D のグリッド（上から見た断面）。各セルに密度と光を持つ。</text>
 </svg>
 
 <!-- fig:froxel-slices:end -->
@@ -59,7 +59,7 @@ tags:
 <strong>froxel</strong>（frustum voxel）は、カメラの視錐台を画面の格子（X, Y）と奥行き（Z）で分割した 3D 格子です。
 
 <svg class="fig illust" viewBox="0 0 780 280" role="img" aria-label="froxel">
-<text x="20" y="24" class="fig-title">froxel：視錐台を、画面に沿った 3D の格子に切る</text>
+<text x="20" y="24" class="fig-title">froxel：視錐台を画面に沿った 3D の格子に切る</text>
 <polygon points="80,140 400,60 400,220" fill="#4c8bf5" fill-opacity="0.1" stroke="#4c8bf5" stroke-width="2"/>
 <g stroke="currentColor" stroke-opacity="0.4">
 <line x1="130" y1="127" x2="130" y2="153"/><line x1="190" y1="112" x2="190" y2="168"/><line x1="260" y1="95" x2="260" y2="185"/><line x1="340" y1="75" x2="340" y2="205"/><line x1="400" y1="60" x2="400" y2="220"/>
@@ -106,7 +106,7 @@ float DepthToSlice(float depth, float near_z, float far_z, float slice_count) {
 
 ## froxel のグリッドを作る
 
-<strong>froxel</strong> は カメラの視錐台を、細かく分割した 3D グリッドです（frustum + voxel）。カメラから見た画面の横・縦と、奥行きでセルを並べます。ボクセル（立方体のグリッド）と違いセルの形が、遠いほど大きい（視錐台は遠くで、広がるため）。
+<strong>froxel</strong> は カメラの視錐台を細かく分割した 3D グリッドです（frustum + voxel）。カメラから見た画面の横・縦と、奥行きでセルを並べます。ボクセル（立方体のグリッド）と違いセルの形が遠いほど大きい（視錐台は遠くで、広がるため）。
 
 ```text
   カメラ ●
@@ -118,10 +118,10 @@ float DepthToSlice(float depth, float near_z, float far_z, float slice_count) {
 
 ## 3D テクスチャで持つ
 
-<strong>3D テクスチャ</strong>に 各セルの値を、書き込みます。
+<strong>3D テクスチャ</strong>に 各セルの値を書き込みます。
 
 ```cpp
-// 160×90×64 の、3D テクスチャを、2 枚（散乱と、積分結果）作る。計算シェーダーが、書き込む。
+// 160×90×64 の、3D テクスチャを 2 枚（散乱と、積分結果）作る。計算シェーダーが書き込む。
 D3D11_TEXTURE3D_DESC desc = {};
 desc.Width = 160;
 desc.Height = 90;
@@ -133,11 +133,11 @@ desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_UNORDERED_ACCESS;   // 
 device->CreateTexture3D(&desc, nullptr, &froxel_tex);
 ```
 
-`R16G16B16A16_FLOAT` は HDR の色（明るい光）を、収めるためです。`BIND_UNORDERED_ACCESS` は計算シェーダーが書き込むために、必要です。3D テクスチャの 1 つの値が、1 つの froxelです。
+`R16G16B16A16_FLOAT` は HDR の色（明るい光）を収めるためです。`BIND_UNORDERED_ACCESS` は計算シェーダーが書き込むために、必要です。3D テクスチャの 1 つの値が 1 つの froxelです。
 
 ## セル ↔ ワールド座標
 
-<strong>セルの番号</strong>から ワールド位置を、求める変換がすべての段階（密度、ライト、積分、適用）で必要です。
+<strong>セルの番号</strong>から ワールド位置を求める変換がすべての段階（密度、ライト、積分、適用）で必要です。
 
 ```hlsl
 // froxel の番号 (x, y, z) から、ワールド位置を求める。z は、スライス番号（小数も可）。
@@ -158,9 +158,9 @@ float3 FroxelToWorld(float3 froxel_id) {
 <strong>奥行き方向</strong>は 均等に分割しません。近くは細かく遠くは粗くします。近くの霧の変化は画面上で大きく遠くは、小さいためです。
 
 ```hlsl
-// 奥行きの割り当て: 指数的に（近くを、細かく）。near から far まで、64 スライス。
+// 奥行きの割り当て: 指数的に（近くを細かく）。near から far まで、64 スライス。
 float SliceToViewDepth(float slice01) {                                  // slice01: 0〜1
-  // slice01 = 0 で near、1 で far。指数的に、広がる。
+  // slice01 = 0 で near、1 で far。指数的に広がる。
   return g_near * pow(g_far / g_near, slice01);
 }
 float ViewDepthToSlice(float view_depth) {
@@ -172,20 +172,20 @@ float ViewDepthToSlice(float view_depth) {
 
 | 割り当て | 内容 |
 | --- | --- |
-| 均等 | 簡単だが近くが粗く縞が、目立つ |
-| 指数（対数） | 近くを、細かく。標準 |
+| 均等 | 簡単だが近くが粗く縞が目立つ |
+| 指数（対数） | 近くを細かく。標準 |
 | べき乗（`slice²`） | 指数より、ゆるやか。近くを細かく簡単な式 |
 
 ## 近・遠の範囲
 
-<strong>froxel</strong> は カメラの、近くから一定の距離（数十〜数百メートル）までを、覆います。それより遠くの霧は別の方法（高さフォグ、空気遠近法）で補います。
+<strong>froxel</strong> は カメラの、近くから一定の距離（数十〜数百メートル）までを覆います。それより遠くの霧は別の方法（高さフォグ、空気遠近法）で補います。
 
 | 範囲 | 方式 |
 | --- | --- |
 | 〜 64 m 〜 200 m（froxel の、範囲） | ボリューム フォグ |
 | それより遠く | 空気遠近法（[Physically Based Aerial Perspective](../aerial-fog/physical.md)）、高さフォグ |
 
-境目では froxel の、最後のスライスの値を遠景の霧へ、フェードしてつなぎます。
+境目では froxel の、最後のスライスの値を遠景の霧へフェードしてつなぎます。
 
 ## 解像度の選び方
 
@@ -195,14 +195,14 @@ float ViewDepthToSlice(float view_depth) {
 | 160×90×64 | 約 92 万 | 標準 | 中 |
 | 320×180×128 | 約 740 万 | 高（細かい光の筋） | 重い |
 
-<strong>画面の解像度</strong>（1920×1080）の、1/12（160×90）が、標準的です。霧はゆるやかに変化するので低解像度でも、十分です。時間方向の平均（[Temporal Accumulation](temporal.md)）で品質を、補います。
+<strong>画面の解像度</strong>（1920×1080）の、1/12（160×90）が標準的です。霧はゆるやかに変化するので低解像度でも、十分です。時間方向の平均（[Temporal Accumulation](temporal.md)）で品質を補います。
 
 ## DirectX 11 で組む
 
 ### froxel の 3D テクスチャ
 
 ```cpp
-// froxel: 画面を 160×90 に、奥行きを 64 段に分けた、3D テクスチャ。散乱・消散係数を、書く。
+// froxel: 画面を 160×90 に、奥行きを 64 段に分けた、3D テクスチャ。散乱・消散係数を書く。
 D3D11_TEXTURE3D_DESC desc = {};
 desc.Width = 160;
 desc.Height = 90;
@@ -226,18 +226,18 @@ context->CSSetUnorderedAccessViews(0, 1, froxel_uav.GetAddressOf(), nullptr);
 context->Dispatch((160 + 7) / 8, (90 + 7) / 8, 64);           // グループ数 = (20, 12, 64)
 ```
 
-深度方向を `Dispatch` の第 3 引数に、割り当てると `SV_DispatchThreadID.z` がそのまま奥行きの、段の番号になります。
+深度方向を `Dispatch` の第 3 引数に割り当てると `SV_DispatchThreadID.z` がそのまま奥行きの、段の番号になります。
 
 ### 3 つのステップをつなぐ
 
 ```cpp
-// ① 密度: 各セルの、霧の濃さ。② 注入: 各セルの、光を、計算。③ 積分: 奥へ、散乱光と、透過率を、足し込む。
+// ① 密度: 各セルの、霧の濃さ。② 注入: 各セルの、光を計算。③ 積分: 奥へ散乱光と、透過率を足し込む。
 Dispatch(density_cs, {noise_srv}, {froxel_uav}, 20, 12, 64);
 Dispatch(inject_cs, {froxel_srv, shadow_srv}, {froxel_light_uav}, 20, 12, 64);     // 入力と出力は、別のテクスチャにする
 Dispatch(integrate_cs, {froxel_light_srv}, {froxel_integrated_uav}, 20, 12, 1);    // 奥行きは、シェーダーの中で、ループ
 ```
 
-積分のパスだけ奥行き方向のディスパッチが、1 です。奥行き方向は前から後ろへ累積する（前の層の結果に、依存する）ので 1 つのスレッドが、奥行きをループします。結果は画面に霧を描くとき画素の、深度から froxel を引いて、使います（[Integration](integration.md)）。
+積分のパスだけ奥行き方向のディスパッチが 1 です。奥行き方向は前から後ろへ累積する（前の層の結果に、依存する）ので 1 つのスレッドが奥行きをループします。結果は画面に霧を描くとき画素の、深度から froxel を引いて、使います（[Integration](integration.md)）。
 
 ## よくあるミス
 

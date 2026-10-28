@@ -63,7 +63,7 @@ true true
 
 ## ゲームでの使いどころ
 
-ゲームのデータ型の比較に使います。`struct Score { int points; std::string name; auto operator<=>(const Score&) const = default; };` と書けば、`Score` を `sort` や `std::set` に入れられます。比較は、宣言した順にメンバーを調べます。点数が先なら、点数で比べ、同点なら名前で比べます。メンバーの宣言順が、比較の優先順位になる点に注意します。
+ゲームのデータ型の比較に使います。`struct Score { int points; std::string name; auto operator<=>(const Score&) const = default; };` と書けば、`Score` を `sort` や `std::set` に入れられます。比較は、宣言した順にメンバーを調べます。点数が先なら、点数で比べ、同点なら名前で比べます。メンバーの宣言順が比較の優先順位になる点に注意します。
 
 ID や座標の組のような小さな型は、`= default` で十分です。特殊な順序（降順など）が必要なときは、手で書いた `<=>` で `strong_ordering` を返します。
 

@@ -9,11 +9,11 @@ tags:
 <strong>モーション ブラーは、「各画素が前フレームからどう動いたか」</strong>という情報に頼ります。これを画素ごとに保存した画像が速度バッファ（Velocity Buffer）です。TAA・モーション ブラー・時間的なノイズ除去・アップスケールなど、時間方向の処理すべてが使う、現代の描画の共通インフラです。このページでは、速度の定義・書き込み方法・精度と形式・ジッターの扱い・動かない物の扱いを説明します。
 
 !!! tip "ポイント"
-    - 速度 ＝ <strong>この画素の点が、前フレームでは画面のどこにいたか、との差</strong>（<strong>`現在位置 − 前フレームの位置`</strong>）。
+    - 速度 ＝ <strong>この画素の点が前フレームでは画面のどこにいたか、との差</strong>（<strong>`現在位置 − 前フレームの位置`</strong>）。
     - 動く物体は、描画時に速度を書く。静止した物はカメラ移動分だけ（深度から計算できる）。
     - 保存は `R16G16_FLOAT`（UV 単位または画素単位）。
     - 前フレームのワールド行列が必要（物体ごとに保存）。
-    - TAA のジッターを、速度に混ぜない。
+    - TAA のジッターを速度に混ぜない。
     - アニメーション・スキニングは前フレームの姿勢で頂点位置を計算する。
 
 !!! info "このページを読む前に"
@@ -297,16 +297,16 @@ tags:
 <text x="76" y="494" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">速度バッファは、TAA・モーション ブラーの土台。物の動きから、頂点シェーダーで計算して書く</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">動く物の前の位置は、画素だけからは分からない<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">描くとき、前のフレームとの位置の差を、速度バッファに書く<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.2212;0.2213;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">描くとき、前のフレームとの位置の差を速度バッファに書く<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.2212;0.2213;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">速度を引いて、前のフレームの色を引き当てる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2212;0.2213;0.5269;0.5271;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">速度なしだと、物の色が、前の位置のまま、ずれる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5269;0.5271;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">速度なしだと、物の色が前の位置のまま、ずれる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5269;0.5271;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:velocity-buffer:end -->
 
 ## 速度とは
 
-<strong>画素 P が表す 3D の点が、前フレームでは画面のどこにいたか</strong>を求め、現在位置との差を速度とします。
+<strong>画素 P が表す 3D の点が前フレームでは画面のどこにいたか</strong>を求め、現在位置との差を速度とします。
 
 <svg class="fig illust" viewBox="0 0 780 230" role="img" aria-label="速度の定義">
 <text x="20" y="26" class="fig-title">速度 ＝ 今のフレームの画面位置 − 前のフレームの画面位置</text>
@@ -319,14 +319,14 @@ tags:
 <text x="130" y="68" style="font-size:12px;fill:#e5484d;font-weight:700">速度</text>
 </g>
 <g font-size="13"><text x="400" y="90" style="font-weight:700">速度バッファの中身</text>
-<text x="400" y="116">各画素に、(vx, vy)（2 要素）を保存</text>
+<text x="400" y="116">各画素に(vx, vy)（2 要素）を保存</text>
 <text x="400" y="140">動く物体 → 大きな値、静止した物 → カメラの動き分だけ</text>
-<text x="400" y="164">この画像を、ブラー・TAA・アップスケールが読む</text></g>
+<text x="400" y="164">この画像をブラー・TAA・アップスケールが読む</text></g>
 </svg>
 
 ## 書き込み（動く物体）
 
-<strong>物体を描くときに、「今の位置」と「前フレームの位置」を、両方計算</strong>して、差を出力します。
+<strong>物体を描くときに、「今の位置」と「前フレームの位置」を両方計算</strong>して、差を出力します。
 
 ```hlsl
 cbuffer PerObject : register(b0) {
@@ -339,7 +339,7 @@ cbuffer PerObject : register(b0) {
 };
 ```
 
-オブジェクトごとの、定数です。今フレームと、前フレームの、ワールド行列と、ビュー射影行列を、持ちます。`jitter_*` は、TAA が、画面を、ずらす量で、速度から、取り除くために、必要です。
+オブジェクトごとの、定数です。今フレームと、前フレームの、ワールド行列と、ビュー射影行列を持ちます。`jitter_*` は、TAA が、画面をずらす量で、速度から、取り除くために、必要です。
 
 ```hlsl
 struct VSOutput {
@@ -349,7 +349,7 @@ struct VSOutput {
 };
 ```
 
-頂点シェーダーから、ピクセル シェーダーへ、渡すものです。今の位置と、前の位置を、クリップ空間のまま、渡します。
+頂点シェーダーから、ピクセル シェーダーへ渡すものです。今の位置と、前の位置をクリップ空間のまま、渡します。
 
 ```hlsl
 VSOutput VSMain(VSInput input) {
@@ -363,7 +363,7 @@ VSOutput VSMain(VSInput input) {
 }
 ```
 
-頂点を、今の行列と、前の行列で、それぞれ、変換します。前の位置は、「同じ頂点が、前のフレームで、どこにあったか」で、スキニングなど、頂点が、変形する物は、前のフレームの、変形後の位置を、使います。
+頂点を今の行列と、前の行列で、それぞれ、変換します。前の位置は、「同じ頂点が前のフレームで、どこにあったか」で、スキニングなど、頂点が変形する物は、前のフレームの、変形後の位置を使います。
 
 ```hlsl
 float2 PSMain(VSOutput input) : SV_Target {
@@ -395,7 +395,7 @@ float2 PSMain(VSOutput input) : SV_Target {
 | --- | --- |
 | 形式 | `R16G16_FLOAT`（2 要素・半精度） |
 | 単位 | UV（0〜1）または画素。UV 単位が解像度に依らない |
-| 精度 | 0.5 画素以下の速度が、区別できることが重要（TAA のため） |
+| 精度 | 0.5 画素以下の速度が区別できることが重要（TAA のため） |
 | 範囲 | 画面を横切る速度（±1 UV）まで |
 
 <strong>8 ビットは不十分</strong>です（小さな速度が量子化で消える）。
@@ -404,7 +404,7 @@ float2 PSMain(VSOutput input) : SV_Target {
 
 <strong>TAA は毎フレーム、サブピクセル単位でカメラを揺らします（ジッター）</strong>。速度を揺らした位置どうしで比べると、ジッターの差がすべての画素の速度に混ざり、静止した物がブレます。
 
-ジッターの対処は 2 つです。現在と前フレームの NDC のそれぞれから、そのフレームのジッターを引きます。あるいは、速度計算用の `view_projection` を、ジッターなしで別に持ちます。
+ジッターの対処は 2 つです。現在と前フレームの NDC のそれぞれから、そのフレームのジッターを引きます。あるいは、速度計算用の `view_projection` をジッターなしで別に持ちます。
 
 ## スキニング・アニメーション
 
@@ -425,13 +425,13 @@ float2 PSMain(VSOutput input) : SV_Target {
 
 ## よくあるミス
 
-??? failure "静止している物が、ブラーやゴーストでぼける"
+??? failure "静止している物がブラーやゴーストでぼける"
     <strong>ジッターを速度に混ぜている</strong>。ジッターを引く。
 
 ??? failure "動く物体にだけブラーがかかって、カメラを動かしても背景が流れない"
-    静止した物の速度（カメラ分）が、入っていない。深度から再構成。
+    静止した物の速度（カメラ分）が入っていない。深度から再構成。
 
-??? failure "出現したばかりの物体が、画面を横切る大きな速度で、ひどくぼける"
+??? failure "出現したばかりの物体が画面を横切る大きな速度で、ひどくぼける"
     前フレームの行列が無い。初出は前の行列 ＝ 現在の行列にする。
 
 ??? failure "速度を 8 ビットで保存して、小さな動きが 0 になる"

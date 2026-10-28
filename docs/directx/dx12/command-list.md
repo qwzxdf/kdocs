@@ -105,7 +105,7 @@ std::vector<std::thread> threads;
 for (int i = 0; i < 4; ++i) {
   threads.emplace_back([&, i] {
     lists[i]->Reset(thread_allocators[i].Get(), pso.Get());
-    RecordScenePart(lists[i].Get(), i);  // 各スレッドが、別のリストに記録する
+    RecordScenePart(lists[i].Get(), i);  // 各スレッドが別のリストに記録する
     lists[i]->Close();
   });
 }

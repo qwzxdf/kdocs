@@ -27,8 +27,8 @@ tags:
 <defs><marker id="arr-white-balance" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ホワイト バランス: 暖色の光の下の「白」を、本当の白に戻す。直しすぎると、逆の色が付く</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">灰色の面と、赤い面を、オレンジ色の光(R:G:B = 1 : 0.78 : 0.5)で照らす。補正の強さを 0 → 0.5 → 1.0 → 1.5 に変える</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ホワイト バランス: 暖色の光の下の「白」を本当の白に戻す。直しすぎると、逆の色が付く</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">灰色の面と、赤い面をオレンジ色の光(R:G:B = 1 : 0.78 : 0.5)で照らす。補正の強さを 0 → 0.5 → 1.0 → 1.5 に変える</text>
 <text x="82.0" y="136" text-anchor="end" style="font-size:14px;font-weight:700;fill:#64748b">補正 0.0</text>
 <rect x="90.0" y="108.0" width="110.3" height="56.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0698" values="#e5e7eb;#baa688"/></rect>
 <rect x="200.0" y="108.0" width="110.3" height="56.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0698" values="#e5e7eb;#f3d9b1"/></rect>
@@ -54,7 +54,7 @@ tags:
 <rect x="420.0" y="252.0" width="110.3" height="56.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.4605" values="#e5e7eb;#6e8dce"/></rect>
 <rect x="90.0" y="252" width="440.0" height="56.0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
 <g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4835;0.4837;1.0000" values="0;0;1;1"/><text x="546.0" y="272" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043">灰色の色かぶり +0.00</text>
-<text x="546.0" y="294" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">灰色が、灰色に戻った</text>
+<text x="546.0" y="294" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">灰色が灰色に戻った</text>
 </g>
 <text x="82.0" y="352" text-anchor="end" style="font-size:14px;font-weight:700;fill:#e5484d">補正 1.5</text>
 <rect x="90.0" y="324.0" width="110.3" height="56.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.6558" values="#e5e7eb;#9da6b8"/></rect>
@@ -79,7 +79,7 @@ tags:
 <g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.8324;0.8326;1.0000" values="0;0;1;1"/><rect x="440" y="410" width="490" height="90" rx="12" fill="#f0fdf4" stroke="#2ea043" stroke-width="2.5"/>
 <text x="456" y="434" text-anchor="start" style="font-size:14px;font-weight:700;fill:#166534">補正 1.0 で、灰色が灰色に戻る。ほかの色も、本来の色に近づく</text>
 <text x="456" y="457" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">補正 1.5 では、逆の色(青)が付く。ゲームでは、演出で、わざと暖かさを残すことが多い</text>
-<text x="456" y="478" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">補正 = 光の色の逆数を、R・G・B に掛ける</text>
+<text x="456" y="478" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">補正 = 光の色の逆数を R・G・B に掛ける</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">暖かい光の下では、白い物も、オレンジ色に見える<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光の色の逆の倍率を掛けると、白が白に戻る<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.8510;0.8512;1.0000" values="0;0;1;1;0;0"/></text>

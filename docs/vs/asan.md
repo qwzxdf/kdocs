@@ -9,7 +9,7 @@ tags:
 C++ では**配列の範囲外アクセス**や解放したメモリを使うミスが起きても、その場では何も起きず、あとでまったく別の場所で壊れることがあります。原因が見つけにくいメモリのバグです。AddressSanitizer（アドレス サニタイザー、ASan）は実行中にメモリアクセスを監視し、不正があった瞬間に止めて、詳しく教えてくれるツールです。Visual Studio 2026 の MSVC で、使えます。このページは有効にする方法、見つけられるバグ、エラー出力の読み方、注意点をまとめます。
 
 !!! tip "ポイント"
-    - ASan は <strong>範囲外アクセス・解放済みメモリの使用（use-after-free）・二重解放</strong>などを、<strong>その場で止めて報告</strong>する。
+    - ASan は <strong>範囲外アクセス・解放済みメモリの使用（use-after-free）・二重解放</strong>などを <strong>その場で止めて報告</strong>する。
     - 有効化：プロジェクトのプロパティ → C/C++ → 全般 → 「Address Sanitizer を有効にする」→ はい（/fsanitize=address）。
     - インストーラーで「C++ AddressSanitizer」のコンポーネントが必要。
     - 速さは約 2 倍遅く、メモリは増える。開発・テスト中だけ使う（製品には入れない）。
@@ -105,7 +105,7 @@ cl /fsanitize=address /Zi /std:c++latest main.cpp
 
 ### 単体で実行するとき
 
-Visual Studio の外（コマンドプロンプトなど）で `.exe` を実行するときは、ASan のランタイム DLL（`clang_rt.asan_dynamic-x86_64.dll`）が、見つかる必要があります。
+Visual Studio の外（コマンドプロンプトなど）で `.exe` を実行するときは、ASan のランタイム DLL（`clang_rt.asan_dynamic-x86_64.dll`）が見つかる必要があります。
 
 | 方法 | 説明 |
 | --- | --- |
@@ -193,7 +193,7 @@ Address 0x... is located in stack of thread T0 at offset 52 in frame
 | --- | --- |
 | `halt_on_error=0` | 最初のエラーで止まらず続行（`-fsanitize-recover=address` でビルドが必要。MSVC では制約あり） |
 | `detect_stack_use_after_return=1` | 関数を出た後のローカル変数の使用も検出（有効にすると、メモリを多く使う） |
-| `detect_container_overflow=0` | `std::vector` などのコンテナの余白へのアクセスの検出を、止める |
+| `detect_container_overflow=0` | `std::vector` などのコンテナの余白へのアクセスの検出を止める |
 | `symbolize=1` | 関数名の解決 |
 
 ```text
@@ -202,7 +202,7 @@ set ASAN_OPTIONS=detect_stack_use_after_return=1
 
 ### STL のコンテナの検出
 
-MSVC の `std::vector` と `std::string` はASan に対応した注釈（annotation）を持っています。`capacity` の範囲内でも `size` の外（使っていない余白）へのアクセスを、検出できます（`container-overflow`）。
+MSVC の `std::vector` と `std::string` はASan に対応した注釈（annotation）を持っています。`capacity` の範囲内でも `size` の外（使っていない余白）へのアクセスを検出できます（`container-overflow`）。
 
 ```cpp
 std::vector<int> v;
@@ -211,10 +211,10 @@ v.push_back(1);
 int x = v[3];
 ```
 
-普通は気づかないバグが、見つかります。
+普通は気づかないバグが見つかります。
 
 !!! warning "ASan あり・なしのバイナリを混ぜない"
-    ASan を有効にしてビルドしたライブラリと無効のものを、混ぜてリンクすると `LNK2038`（不一致）や誤検出が出ることがあります。全体をそろえるか `_DISABLE_VECTOR_ANNOTATION` / `_DISABLE_STRING_ANNOTATION`（プリプロセッサマクロ）で、注釈を無効にします（[プリプロセッサマクロ](preprocessor.md)）。
+    ASan を有効にしてビルドしたライブラリと無効のものを混ぜてリンクすると `LNK2038`（不一致）や誤検出が出ることがあります。全体をそろえるか `_DISABLE_VECTOR_ANNOTATION` / `_DISABLE_STRING_ANNOTATION`（プリプロセッサマクロ）で、注釈を無効にします（[プリプロセッサマクロ](preprocessor.md)）。
 
 ## 注意点
 
@@ -234,7 +234,7 @@ int x = v[3];
 | 症状 | 使う道具 |
 | --- | --- |
 | <strong>原因不明のクラッシュ（ヒープ・スタックの破壊）</strong> | ASan |
-| リーク（使い終わったメモリが、残る） | CRT のリーク検出（`_CRTDBG_MAP_ALLOC`）、プロファイラーのメモリ使用量 |
+| リーク（使い終わったメモリが残る） | CRT のリーク検出（`_CRTDBG_MAP_ALLOC`）、プロファイラーのメモリ使用量 |
 | スレッドの競合 | デバッガーの並列ウォッチ、設計の見直し（[並行処理の設計](../design/practice/concurrency-design.md)） |
 | 未初期化の変数 | 警告レベル /W4、`/sdl`（セキュリティ チェック）、`= {}` で初期化 |
 | ロジックの間違い | デバッガー（ブレークポイント、ウォッチ） |
@@ -293,7 +293,7 @@ CMake に `SANITIZE` オプションを作って、切り替えられるよう�
 <text x="533.0" y="262" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">a[4] に書く</text>
 </g>
 <text x="390" y="315" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#e5484d" opacity="0">ERROR: AddressSanitizer: stack-buffer-overflow（a[4] への書き込み）<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6756;0.6759;1.0000" values="0;0;1;1"/></text>
-<text x="390" y="360" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">配列の前後に、禁止領域(赤)が自動で置かれる<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="360" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">配列の前後に禁止領域(赤)が自動で置かれる<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
 <text x="390" y="360" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">a[0]〜a[3] に書く: 範囲内なので問題なし<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.6204;0.6207;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="360" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">a[4] に書く: 禁止領域に触れた → その場でプログラムを止めて、行番号を表示<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.6204;0.6207;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -320,7 +320,7 @@ CMake に `SANITIZE` オプションを作って、切り替えられるよう�
 ??? failure "製品ビルドに ASan を入れたまま配布した"
     遅く・大きくなりDLL の依存も増えます。開発・テストだけにします。
 
-??? failure "自作のメモリプールの中の不正が、見つからない"
+??? failure "自作のメモリプールの中の不正が見つからない"
     ASan はプールの内側を知りません。注釈の APIで未使用の領域を毒化します。
 
 ## これだけ覚える

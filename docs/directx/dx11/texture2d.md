@@ -58,7 +58,7 @@ device->CreateTexture2D(&desc, &init, &texture);
 | `CPUAccessFlags` | `DYNAMIC` のとき `WRITE`、`STAGING` のとき `READ`/`WRITE` |
 | `MiscFlags` | `GENERATE_MIPS`、`TEXTURECUBE`、`SHARED` など |
 
-`SysMemPitch` は <strong>1 行のバイト数</strong>です。幅 × 1 画素のバイト数で、圧縮フォーマットなどでは計算が、違います。
+`SysMemPitch` は <strong>1 行のバイト数</strong>です。幅 × 1 画素のバイト数で、圧縮フォーマットなどでは計算が違います。
 
 ## 使い方別の BindFlags
 
@@ -72,10 +72,10 @@ device->CreateTexture2D(&desc, &init, &texture);
 
 ## ミップマップ
 
-遠くの物は画面上で小さく写るので、元の画像（大きい）をそのまま読むと 1 画素が多くのテクセルをまたぎ <strong>ちらつき</strong>（エイリアシング）が、出ます。<strong>半分、半分、…に縮めた画像の列</strong>（ミップマップ）を用意すると距離に応じて適切な段を読めます。
+遠くの物は画面上で小さく写るので、元の画像（大きい）をそのまま読むと 1 画素が多くのテクセルをまたぎ <strong>ちらつき</strong>（エイリアシング）が出ます。<strong>半分、半分、…に縮めた画像の列</strong>（ミップマップ）を用意すると距離に応じて適切な段を読めます。
 
 ```cpp
-// GPU に、ミップ チェーンを、作らせる。RENDER_TARGET と GENERATE_MIPS が必要。
+// GPU に、ミップ チェーンを作らせる。RENDER_TARGET と GENERATE_MIPS が必要。
 D3D11_TEXTURE2D_DESC desc = {};
 desc.Width = width;
 desc.Height = height;
@@ -86,11 +86,11 @@ desc.SampleDesc.Count = 1;
 desc.Usage = D3D11_USAGE_DEFAULT;
 desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 desc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
-device->CreateTexture2D(&desc, nullptr, &texture);          // 初期データは、なし（あとで、ミップ 0 を、書く）
+device->CreateTexture2D(&desc, nullptr, &texture);          // 初期データは、なし（あとで、ミップ 0 を書く）
 
 device->CreateShaderResourceView(texture.Get(), nullptr, &srv);
 context->UpdateSubresource(texture.Get(), 0, nullptr, pixels, width * 4, 0);    // ミップ 0 に、元の画像を書く
-context->GenerateMips(srv.Get());                           // 残りの段を、GPU が、縮小して、作る
+context->GenerateMips(srv.Get());                           // 残りの段を GPU が、縮小して、作る
 ```
 
 `GenerateMips` は SRV を渡します。`DEFAULT` で `RENDER_TARGET` が付いていて `GENERATE_MIPS` の `MiscFlags` がある、テクスチャだけが使えます。製品ではビルド時に高品質なミップを作って、DDS ファイルに保存します（[Texture Streaming](../../rendering/texture-streaming.md)）。
@@ -154,19 +154,19 @@ UINT subresource = D3D11CalcSubresource(mip_slice, array_slice, mip_levels);
 
 ## よくあるミス
 
-??? failure "テクスチャが、暗い（または色がくすむ）"
+??? failure "テクスチャが暗い（または色がくすむ）"
     色の画像（アルベド）を `_UNORM` で、読んでいる。`_SRGB` にする。逆に、法線マップを `_SRGB` で読むと値が歪む。
 
 ??? failure "`CreateShaderResourceView` が、失敗する"
     `BindFlags` に `SHADER_RESOURCE` が無い。`CreateRenderTargetView` も同様（`RENDER_TARGET` が無い）。
 
-??? failure "遠くの床が、ちらつく・ざらざらする"
+??? failure "遠くの床がちらつく・ざらざらする"
     ミップマップが無い（`MipLevels = 1`）。ミップを作る。サンプラーがミップを使う設定になっているかも確認（[Sampler State](sampler-state.md)）。
 
 ??? failure "テクスチャが斜めにずれて、見える"
     `SysMemPitch` が間違っている（`width * 4` のところに別の値）。または、元の画像の行のパディングを無視している。
 
-??? failure "メモリ使用量が、想定より大きい"
+??? failure "メモリ使用量が想定より大きい"
     ミップで 1.33 倍。`R32G32B32A32_FLOAT` など大きなフォーマットを使っている。圧縮（BC1、BC7）を使う（[Formats and Typeless](../concepts/formats.md)）。
 
 ## これだけ覚える

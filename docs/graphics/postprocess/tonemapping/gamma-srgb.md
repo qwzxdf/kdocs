@@ -6,7 +6,7 @@ tags:
 
 # Gamma and HDR Output
 
-<strong>トーンマップの出力は、リニア（光の量に比例）の 0〜1</strong>です。ディスプレイに出す前に、sRGB の曲線（ガンマ ≒ 2.2）を掛ける必要があり、これを間違えると画面全体が暗く潰れたり、白っぽくなったりします。HDR ディスプレイでは、さらに別の出力（HDR10・scRGB）になります。このページでは、なぜガンマが要るか・sRGB 変換の位置・レンダー ターゲットの作り方・HDR ディスプレイへの出し方・UI の扱いを説明します。
+<strong>トーンマップの出力は、リニア（光の量に比例）の 0〜1</strong>です。ディスプレイに出す前に sRGB の曲線（ガンマ ≒ 2.2）を掛ける必要があり、これを間違えると画面全体が暗く潰れたり、白っぽくなったりします。HDR ディスプレイでは、さらに別の出力（HDR10・scRGB）になります。このページでは、なぜガンマが要るか・sRGB 変換の位置・レンダー ターゲットの作り方・HDR ディスプレイへの出し方・UI の扱いを説明します。
 
 !!! tip "ポイント"
     - 光の計算は<strong>リニア空間</strong>。<strong>画像やディスプレイは、暗部を細かく持つガンマ空間</strong>。
@@ -27,8 +27,8 @@ tags:
 <defs><marker id="arr-gamma-srgb" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ガンマ: 光の量(線形)の足し算を、ガンマ空間でやると、暗くなる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">白と黒の細かい縞(縞 1 本ごとに 1 画素)を、縮小して平均する。ガンマ空間で平均する場合と、線形に直してから平均する場合</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ガンマ: 光の量(線形)の足し算をガンマ空間でやると、暗くなる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">白と黒の細かい縞(縞 1 本ごとに 1 画素)を縮小して平均する。ガンマ空間で平均する場合と、線形に直してから平均する場合</text>
 <text x="70.0" y="108" text-anchor="start" style="font-size:13px;font-weight:700;fill:#1f2937">元の縞(白 = 光 1、黒 = 光 0。遠くから見ると、光の量は半分)</text>
 <rect x="70.0" y="114.0" width="26.3" height="26.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0140" values="#e5e7eb;#ffffff"/></rect>
 <rect x="96.0" y="114.0" width="26.3" height="26.3" fill="#e5e7eb"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0140" values="#e5e7eb;#000000"/></rect>
@@ -126,7 +126,7 @@ tags:
 <text x="500" y="478" text-anchor="start" style="font-size:18px;font-weight:700;fill:#2ea043">0.50(本当の光の 100%)</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">画像の値は、暗い所を細かく表すように、ガンマ(約 2.2 乗)で保存されている<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">縮小(平均)を、2 通りでやってみる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.6277;0.6279;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">縮小(平均)を 2 通りでやってみる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.6277;0.6279;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光の足し算は、線形でやらないと、暗くなる(縮小、ブルーム、ブレンドすべて)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.6277;0.6279;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -134,7 +134,7 @@ tags:
 
 ## なぜガンマがあるのか
 
-<strong>人間の目は暗い所の違いに敏感</strong>で明るい所の違いには鈍感です。8 ビット（256 段階）に、明るさを比例で割り当てると、暗部の段階が少なすぎて、縞（バンディング）が出ます。そこで暗部に多くの段階を割り当てる曲線（ガンマ）をかけて保存します。
+<strong>人間の目は暗い所の違いに敏感</strong>で明るい所の違いには鈍感です。8 ビット（256 段階）に明るさを比例で割り当てると、暗部の段階が少なすぎて、縞（バンディング）が出ます。そこで暗部に多くの段階を割り当てる曲線（ガンマ）をかけて保存します。
 
 <svg class="fig illust" viewBox="0 0 780 280" role="img" aria-label="ガンマ曲線">
 <text x="20" y="26" class="fig-title">リニアと sRGB：同じ 8 ビットでも、暗部の段階が増える</text>
@@ -195,7 +195,7 @@ rtv_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 device->CreateRenderTargetView(back_buffer.Get(), &rtv_desc, rtv.GetAddressOf());
 ```
 
-出力設定の要点です。スワップチェーンの形式は UNORM にします。FLIP モデルでは `_SRGB` のスワップチェーンが作れないので、RTV だけを `_SRGB` にします。RTV を `_SRGB` にすると、シェーダーのリニアな出力を、ハードウェアが sRGB に変換して書き込みます。RTV が `_SRGB` なのにシェーダーで `pow` もすると、二重にガンマがかかって白っぽくなるので、シェーダーでは `pow` しません。
+出力設定の要点です。スワップチェーンの形式は UNORM にします。FLIP モデルでは `_SRGB` のスワップチェーンが作れないので、RTV だけを `_SRGB` にします。RTV を `_SRGB` にすると、シェーダーのリニアな出力をハードウェアが sRGB に変換して書き込みます。RTV が `_SRGB` なのにシェーダーで `pow` もすると、二重にガンマがかかって白っぽくなるので、シェーダーでは `pow` しません。
 
 ### テクスチャの読み込み
 
@@ -213,7 +213,7 @@ device->CreateRenderTargetView(back_buffer.Get(), &rtv_desc, rtv.GetAddressOf())
 | 項目 | 内容 |
 | --- | --- |
 | 色空間 | Rec.2020（広い色域） |
-| 伝達関数 | PQ（ST.2084）：絶対的な明るさ（ニト）を、10 ビットに効率よく入れる曲線 |
+| 伝達関数 | PQ（ST.2084）：絶対的な明るさ（ニト）を 10 ビットに効率よく入れる曲線 |
 | スワップチェーン形式 | `R10G10B10A2_UNORM`（HDR10）、または `R16G16B16A16_FLOAT`（scRGB） |
 | 色空間の設定 | `IDXGISwapChain3::SetColorSpace1` で `DXGI_COLOR_SPACE_RGB_FULL_G2084_NONE_P2020` |
 | トーンマップ | ディスプレイの最大輝度（ニト）に合わせた HDR 用の曲線。SDR 用とは別 |

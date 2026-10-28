@@ -31,7 +31,7 @@ CPU:  フェンスで、GPU が終わったかを確認する
 
 この流れに次の物が登場します。それぞれ専用のページがあります。
 
-- GPU に物を作らせる窓口が、[Device](factory-device.md) です。
+- GPU に物を作らせる窓口が[Device](factory-device.md) です。
 - 仕事を渡す窓口が [Command Queue](command-queue.md)、命令を書き込む窓口が [Command List](command-list.md)、その置き場が [Command Allocator](command-allocator.md) です。
 - CPU が GPU の終了を知る仕組みが、[Fence](fence.md) です。
 - リソースの「見方」を並べた表が [Descriptor Heap](descriptor-heap.md) と [Descriptor](descriptor.md) で、リソースの使い方の切り替えを GPU に伝えるのが [Resource Barrier](resource-barrier.md) です。

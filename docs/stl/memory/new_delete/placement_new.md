@@ -15,7 +15,7 @@ tags:
 `#include <new>`
 </div>
 
-**配置 new** は、**確保済みのメモリの上に、オブジェクトを作る**書き方です。`new (ptr) T(args)` と書きます。メモリの確保はせず、コンストラクターだけを呼びます。自作のアロケーター、メモリプール、`std::vector` の内部で使われています。
+**配置 new** は、**確保済みのメモリの上にオブジェクトを作る**書き方です。`new (ptr) T(args)` と書きます。メモリの確保はせず、コンストラクターだけを呼びます。自作のアロケーター、メモリプール、`std::vector` の内部で使われています。
 
 !!! tip "ポイント"
     - メモリは自分で用意する（サイズ・アラインメントに注意）。
@@ -56,7 +56,7 @@ struct Bullet {
 };
 
 int main() {
-  // Bullet 2 個ぶんの領域を、先にまとめて確保しておく（まだ Bullet ではない）
+  // Bullet 2 個ぶんの領域を先にまとめて確保しておく（まだ Bullet ではない）
   alignas(Bullet) std::byte storage[sizeof(Bullet) * 2];
 
   Bullet* a = new (storage) Bullet(1.0f, 2.0f);                       // 1 個目の場所

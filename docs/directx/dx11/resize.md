@@ -32,18 +32,18 @@ void OnResize(UINT new_width, UINT new_height) {
   if (new_width == 0 || new_height == 0) return;           // 最小化: 何もしない
   if (new_width == width_ && new_height == height_) return;
 
-  // ① バック バッファを、参照している物を、すべて、解放する（RTV、バック バッファの Texture2D）
+  // ① バック バッファを参照している物をすべて、解放する（RTV、バック バッファの Texture2D）
   context_->OMSetRenderTargets(0, nullptr, nullptr);       // 束縛も外す
   rtv_.Reset();
   depth_dsv_.Reset();
   depth_texture_.Reset();
-  context_->Flush();                                       // 溜まった命令を、GPU に、流す
+  context_->Flush();                                       // 溜まった命令を GPU に、流す
 
-  // ② バッファの大きさを、変える
-  HRESULT hr = swap_chain_->ResizeBuffers(0,               // 0: バッファの数を、そのまま
+  // ② バッファの大きさを変える
+  HRESULT hr = swap_chain_->ResizeBuffers(0,               // 0: バッファの数をそのまま
                                           new_width, new_height,
-                                          DXGI_FORMAT_UNKNOWN,   // フォーマットを、そのまま
-                                          0);                    // フラグを、そのまま
+                                          DXGI_FORMAT_UNKNOWN,   // フォーマットをそのまま
+                                          0);                    // フラグをそのまま
   if (FAILED(hr)) { /* デバイスが、失われた可能性（下の節） */ }
 
   width_ = new_width;
@@ -95,13 +95,13 @@ void CreateScreenSizedResources() {
 case WM_ENTERSIZEMOVE: resizing_ = true; return 0;         // ドラッグ開始
 case WM_EXITSIZEMOVE:
   resizing_ = false;
-  OnResize(client_width, client_height);                   // ドラッグ終了時に、1 回だけ
+  OnResize(client_width, client_height);                   // ドラッグ終了時に 1 回だけ
   return 0;
 ```
 
 ## デバイス リセット（DEVICE_REMOVED）
 
-GPU のドライバーの更新、GPU のハングアップ（TDR: Timeout Detection and Recovery）、GPU の取り外しなどで <strong>デバイスが、使えなくなる</strong>ことがあります。`Present` や `ResizeBuffers` がエラーを返します。
+GPU のドライバーの更新、GPU のハングアップ（TDR: Timeout Detection and Recovery）、GPU の取り外しなどで <strong>デバイスが使えなくなる</strong>ことがあります。`Present` や `ResizeBuffers` がエラーを返します。
 
 ```cpp
 HRESULT hr = swap_chain_->Present(1, 0);
@@ -118,18 +118,18 @@ if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET) {
 | `DXGI_ERROR_DEVICE_REMOVED` | GPU が取り外されたまたは、ドライバーが更新された |
 | `DXGI_ERROR_DEVICE_RESET` | 不正な描画命令で、リセットされた |
 | `DXGI_ERROR_DRIVER_INTERNAL_ERROR` | ドライバーの内部エラー |
-| `DXGI_ERROR_INVALID_CALL` | API の使い方が、間違っていた |
+| `DXGI_ERROR_INVALID_CALL` | API の使い方が間違っていた |
 
 ### 作り直し
 
-デバイスが失われると <strong>全リソースが、無効</strong>になります。デバイス、スワップ チェーン、全テクスチャ、バッファ、シェーダー、ステートを作り直します。
+デバイスが失われると <strong>全リソースが無効</strong>になります。デバイス、スワップ チェーン、全テクスチャ、バッファ、シェーダー、ステートを作り直します。
 
 ```cpp
 void RecreateDevice() {
   ReleaseAllResources();                                    // ComPtr を全部、Reset
   CreateDevice();
   CreateSwapChain(hwnd_);
-  CreateAllResources();                                     // シェーダー、メッシュ、テクスチャを、読み込み直す
+  CreateAllResources();                                     // シェーダー、メッシュ、テクスチャを読み込み直す
 }
 ```
 
@@ -141,12 +141,12 @@ void RecreateDevice() {
 | --- | --- |
 | 最小化（`SIZE_MINIMIZED`） | 描画を止める。バック バッファは作り直さない |
 | 最小化から復帰（`SIZE_RESTORED`） | 大きさが、変わっていれば作り直す |
-| `Present` が `DXGI_STATUS_OCCLUDED` | ウィンドウが、隠れている。描画をスキップして少し待つ |
+| `Present` が `DXGI_STATUS_OCCLUDED` | ウィンドウが隠れている。描画をスキップして少し待つ |
 | フォーカスを失う | 必要なら更新を一時停止 |
 
 ## フルスクリーン
 
-`IDXGISwapChain::SetFullscreenState`（排他フルスクリーン）は古い方法で問題が、多いです。現在は <strong>ボーダーレス ウィンドウ</strong>（枠なしで、画面全体の大きさのウィンドウ）が標準で、フリップ モデルのスワップ チェーンは、これでも独占に近い低遅延で動きます。
+`IDXGISwapChain::SetFullscreenState`（排他フルスクリーン）は古い方法で問題が多いです。現在は <strong>ボーダーレス ウィンドウ</strong>（枠なしで、画面全体の大きさのウィンドウ）が標準で、フリップ モデルのスワップ チェーンは、これでも独占に近い低遅延で動きます。
 
 ```cpp
 // ボーダーレス フルスクリーンへの、切り替え: ウィンドウのスタイルを変えて、モニター全体に広げる。
@@ -156,7 +156,7 @@ GetMonitorInfoW(MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST), &mi);
 SetWindowPos(hwnd, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top,
              mi.rcMonitor.right - mi.rcMonitor.left, mi.rcMonitor.bottom - mi.rcMonitor.top,
              SWP_FRAMECHANGED | SWP_SHOWWINDOW);
-// この後、WM_SIZE が来て、OnResize が、バック バッファを、作り直す。
+// この後、WM_SIZE が来て、OnResize が、バック バッファを作り直す。
 ```
 
 ## よくあるミス

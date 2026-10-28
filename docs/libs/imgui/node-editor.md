@@ -33,7 +33,7 @@ imgui-node-editor は、**ソースを数ファイル、プロジェクトに追
 ### 方法 1：ソースを入れる
 
 1. [GitHub の imgui-node-editor](https://github.com/thedmd/imgui-node-editor) を取得して、`third_party/imgui-node-editor/` に置く（`git clone` または ZIP）
-2. 次のファイルを、ソリューション エクスプローラーでプロジェクトに追加
+2. 次のファイルをソリューション エクスプローラーでプロジェクトに追加
 
 | ファイル | 内容 |
 | --- | --- |
@@ -74,7 +74,7 @@ namespace ed = ax::NodeEditor;  // 以降、ed:: と書ける
 
 | 用語 | 意味 | ID の型 |
 | --- | --- | --- |
-| **ノード**（Node） | 四角い箱。位置を持つ。中に、名前や設定を描く | `ed::NodeId` |
+| **ノード**（Node） | 四角い箱。位置を持つ。中に名前や設定を描く | `ed::NodeId` |
 | ピン（Pin） | ノードの接続口。左側の入力と、右側の出力 | `ed::PinId` |
 | リンク（Link） | 2 つのピンをつなぐ線 | `ed::LinkId` |
 
@@ -234,7 +234,7 @@ struct Config {
 | メンバ | 意味 |
 | --- | --- |
 | `SettingsFile` | ノードの位置・画面のズームなどを保存する JSON ファイルの名前。`nullptr` にすると保存しない（既定は `"NodeEditor.json"`） |
-| `BeginSaveSession` など | ファイルではなく、自分のデータに保存したいときのコールバック（自作のプロジェクト ファイルに、位置を入れたいとき） |
+| `BeginSaveSession` など | ファイルではなく、自分のデータに保存したいときのコールバック（自作のプロジェクト ファイルに位置を入れたいとき） |
 
 - エディタごとに別のファイル名を付けます。同じ名前だと、位置が混ざります
 - 位置の保存先は、実行ファイルの置き場所（カレント ディレクトリ）です
@@ -265,7 +265,7 @@ void End();
 | `size` | `const ImVec2&` | 画面の大きさ。`(0, 0)` で、今のウィンドウの空きを全部使う |
 
 - 戻り値: `Begin` は、描画してよいなら `true`
-- `ed::Begin` から `ed::End` の間に、ノードとリンクを描きます。ImGui のウィンドウ（`ImGui::Begin`）の中で呼びます
+- `ed::Begin` から `ed::End` の間にノードとリンクを描きます。ImGui のウィンドウ（`ImGui::Begin`）の中で呼びます
 
 ### BeginNode と EndNode {#node}
 
@@ -279,7 +279,7 @@ void EndNode();
 | `id` | `NodeId` | ノードの ID（`ed::NodeId`。整数からそのまま作れる） |
 
 - 戻り値: なし
-- この間に、ImGui の関数（`Text`、`Button`、`InputFloat`、`Image` など）で、ノードの中身を描きます。普通の ImGui の部品が、そのままノードの中に置けます
+- この間に ImGui の関数（`Text`、`Button`、`InputFloat`、`Image` など）で、ノードの中身を描きます。普通の ImGui の部品がそのままノードの中に置けます
 - ノードの大きさは、中身に合わせて自動で決まります
 - 位置は、`SetNodePosition` で決めます（最初に 1 回）。それ以降は、ユーザーがドラッグして動かします
 
@@ -287,7 +287,7 @@ void EndNode();
 ed::BeginNode(node.id);
 ImGui::TextUnformatted("パラメータ");
 ImGui::SetNextItemWidth(100.0f);
-ImGui::DragFloat("値", &node.value, 0.1f);   // ノードの中に、ImGui の部品
+ImGui::DragFloat("値", &node.value, 0.1f);   // ノードの中に ImGui の部品
 ed::EndNode();
 ```
 
@@ -305,7 +305,7 @@ enum class PinKind { Input, Output };
 | `kind` | `PinKind` | `PinKind::Input`（入力：左側）か `PinKind::Output`（出力：右側） |
 
 - 戻り値: なし
-- `BeginNode` と `EndNode` の間で使います。この間に描いた ImGui の部品（文字や絵）の範囲が、ピンの当たり判定になります
+- `BeginNode` と `EndNode` の間で使います。この間に描いた ImGui の部品（文字や絵）の範囲がピンの当たり判定になります
 - 入力ピンは左側、出力ピンは右側に置くのが普通です。`ImGui::SameLine()` で、ノードの中の左右に並べます
 - 当たり判定の範囲を変えたいときは、`PinRect`<strong>（当たり判定の矩形）と </strong>`PinPivotRect`（リンクがつながる点）を使います
 
@@ -313,7 +313,7 @@ enum class PinKind { Input, Output };
 ed::BeginPin(pin.id, ed::PinKind::Input);
 ImGui::Text("-> %s", pin.name);
 ed::EndPin();
-ImGui::SameLine();            // 同じ行の右に、出力ピン
+ImGui::SameLine();            // 同じ行の右に出力ピン
 ed::BeginPin(out_id, ed::PinKind::Output);
 ImGui::Text("%s ->", out_name);
 ed::EndPin();
@@ -350,8 +350,8 @@ void EndCreate();
 
 | 関数 | 意味 |
 | --- | --- |
-| `BeginCreate()` | リンクを作る操作を受け付ける。ユーザーが、ピンからドラッグしているとき `true` |
-| `QueryNewLink(&a, &b)` | 今ドラッグしているリンクの両端のピンを、`a`、`b` に入れる。つなげられそうなら `true` |
+| `BeginCreate()` | リンクを作る操作を受け付ける。ユーザーがピンからドラッグしているとき `true` |
+| `QueryNewLink(&a, &b)` | 今ドラッグしているリンクの両端のピンを `a`、`b` に入れる。つなげられそうなら `true` |
 | `AcceptNewItem()` | つないでよいと答える。マウスを離した瞬間に `true` になる（このときに、自分のデータにリンクを追加する） |
 | `RejectNewItem()` | つなげないと答える。線が赤くなる |
 | `EndCreate()` | 受け付けを終える（`BeginCreate` が `false` でも必ず呼ぶ） |
@@ -359,7 +359,7 @@ void EndCreate();
 - つなげてよいかの判定は、自分で行います。たとえば、
     - 同じノードの中のピンどうしはダメ
     - 出力どうし、入力どうしはダメ
-    - 型が合わないものはダメ（数値の出力を、文字の入力につなげない）
+    - 型が合わないものはダメ（数値の出力を文字の入力につなげない）
     - 入力ピンには、リンクを 1 本までにする
 - `AcceptNewItem()` の中が `true` のときだけ、リンクを追加します（ドラッグ中は `false`）
 
@@ -448,7 +448,7 @@ void NavigateToSelection(bool zoomIn = false, float duration = -1.0f);
 | `zoomIn` | `bool` | 選択したものにズームするか |
 
 - 戻り値: なし
-- 画面を、全部のノードが見えるように移動・拡大します（「全体を表示」ボタン用）。起動直後に 1 回呼ぶと、ノードが画面外にあって見えない、を防げます
+- 画面を全部のノードが見えるように移動・拡大します（「全体を表示」ボタン用）。起動直後に 1 回呼ぶと、ノードが画面外にあって見えない、を防げます
 
 ### Suspend と Resume {#suspend}
 
@@ -498,7 +498,7 @@ void ClearSelection();
 | `SelectNode(id, append)` | ノードを選択する。`append` が `true` なら、今の選択に足す |
 | `ClearSelection()` | 選択を解除する |
 
-- 選択したノードのプロパティを、別のウィンドウ（インスペクター）に出す、という使い方が定番です
+- 選択したノードのプロパティを別のウィンドウ（インスペクター）に出す、という使い方が定番です
 
 ### スタイルの変更（PushStyleColor など） {#style}
 
@@ -524,7 +524,7 @@ void PopStyleVar(int count = 1);
 
 ### EditorContext の複数化 {#multiple}
 
-- エディタを複数（マテリアル エディタ、ビヘイビア ツリー エディタなど）持つときは、`ed::CreateEditor` で、別々の `EditorContext` を作ります。描くときに `SetCurrentEditor` で切り替えます。`Config::SettingsFile` を、エディタごとに別の名前にします
+- エディタを複数（マテリアル エディタ、ビヘイビア ツリー エディタなど）持つときは、`ed::CreateEditor` で、別々の `EditorContext` を作ります。描くときに `SetCurrentEditor` で切り替えます。`Config::SettingsFile` をエディタごとに別の名前にします
 
 ## ノードを実際のゲームのデータにつなぐ
 
@@ -542,7 +542,7 @@ void PopStyleVar(int count = 1);
 | 使い方 | 実行のしかた |
 | --- | --- |
 | マテリアル / シェーダー グラフ | グラフをたどって、HLSL のコードを生成する |
-| ビジュアル スクリプト | 出力ピンから入力ピンへ、実行の順番にたどる（データの流れ / 実行の流れ） |
+| ビジュアル スクリプト | 出力ピンから入力ピンへ実行の順番にたどる（データの流れ / 実行の流れ） |
 | 会話・クエストの分岐 | ノード ＝ 台詞や条件、リンク ＝ 次の台詞。実行時はグラフをたどって会話を進める |
 | ビヘイビア ツリー（AI） | ノード ＝ 行動、リンク ＝ 親子。保存して、ゲームで読む |
 
@@ -553,11 +553,11 @@ void PopStyleVar(int count = 1);
 
 | 場面 | 使い方 |
 | --- | --- |
-| シェーダー・マテリアルを、ノードで作る | 出力のコードを生成する |
+| シェーダー・マテリアルをノードで作る | 出力のコードを生成する |
 | 会話や、クエストの分岐を編集 | ノード ＝ イベント、リンク ＝ 遷移 |
-| AI（ビヘイビア ツリー、ステートマシン）の編集 | [ステートマシン](../../design/patterns/state-machine.md) を、画面で組む |
-| ビジュアル スクリプトで、ゲームの仕組みを作る | ゲームデザイナーが、コードを書かずに作れる |
-| アニメーションのブレンド ツリー | 入力のアニメーションを、ノードで混ぜる |
+| AI（ビヘイビア ツリー、ステートマシン）の編集 | [ステートマシン](../../design/patterns/state-machine.md) を画面で組む |
+| ビジュアル スクリプトで、ゲームの仕組みを作る | ゲームデザイナーがコードを書かずに作れる |
+| アニメーションのブレンド ツリー | 入力のアニメーションをノードで混ぜる |
 
 ## よくあるミス
 
@@ -591,7 +591,7 @@ void PopStyleVar(int count = 1);
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ノード・ピン・リンクに、重ならない ID を付ける
+    - [x] ノード・ピン・リンクに重ならない ID を付ける
     - [x] `ed::Begin` の中で、`BeginNode` / `BeginPin` と `ed::Link` を毎フレーム描く
     - [x] リンクの作成・削除は、`BeginCreate` / `BeginDelete` で受け取り、**自分のデータ**に反映する
     - [x] 位置の保存はライブラリ、中身の保存は自分

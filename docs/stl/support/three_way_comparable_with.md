@@ -15,7 +15,7 @@ tags:
 `#include <compare>`
 </div>
 
-型の違う 2 つの値を、`<=>` で比べたい場面があります。たとえば、`std::string` と `const char*`。`std::three_way_comparable_with<T, U>` は、<strong>型 `T` と `U` が、お互いに三方比較できるか</strong>を要求するコンセプトです。
+型の違う 2 つの値を `<=>` で比べたい場面があります。たとえば、`std::string` と `const char*`。`std::three_way_comparable_with<T, U>` は、<strong>型 `T` と `U` が、お互いに三方比較できるか</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
     - `std::three_way_comparable_with<T, U>`: `T` と `U` が互いに `<=>` で比べられるか
@@ -45,7 +45,7 @@ concept three_way_comparable_with = /* 条件 */;
 
 `T` と `U` の両方が `three_way_comparable` で、さらに共通の型に変換できて、`t <=> u` と `u <=> t` が書けるなら満たします。
 
-異種の型を比べる検索（`std::map` の透過的な比較など）で、キーの型と検索値の型を、比べられるかの検査に使います。
+異種の型を比べる検索（`std::map` の透過的な比較など）で、キーの型と検索値の型を比べられるかの検査に使います。
 
 ## 実際に動かしてみる
 

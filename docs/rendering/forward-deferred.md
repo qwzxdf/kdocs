@@ -7,13 +7,13 @@ tags:
 
 # Forward と Deferred
 
-**ライティング**（光の計算）を、どの順番で行うかで描画の重さの構造が大きく変わります。多くのエンジンは、最初は Forward（物体を描くたびに光も計算）で、ライトが増えると、Deferred（形を先に描き、光をあとでまとめて計算）に移ります。このページは、Forward の何が重いのか、Deferred で何が改善するのか、その代償を目的から説明します。
+**ライティング**（光の計算）をどの順番で行うかで描画の重さの構造が大きく変わります。多くのエンジンは、最初は Forward（物体を描くたびに光も計算）で、ライトが増えると、Deferred（形を先に描き、光をあとでまとめて計算）に移ります。このページは、Forward の何が重いのか、Deferred で何が改善するのか、その代償を目的から説明します。
 
 !!! tip "ポイント"
     - <strong>Forward</strong>：<strong>物体を描きながら、ピクセルごとに全ライトを計算</strong>。コスト ≒ 物体のピクセル（オーバードロー込み）× ライトの数。
     - 問題：あとで隠れるピクセルにも、重いライティングをする（無駄）。ライトが多いとピクセルシェーダーが爆発。
     - Deferred：① G-Buffer に、形・材質の情報だけ書く　② 画面の、各ピクセルで、1 回だけ、ライティング。コスト ≒ 画面のピクセル × ライト。
-    - 改善：「物体の数」と「ライトの数」が、掛け算でなく、足し算に。オーバードローのライティングが消える。
+    - 改善：「物体の数」と「ライトの数」が掛け算でなく、足し算に。オーバードローのライティングが消える。
     - 代償：G-Buffer の帯域（書き込み・読み込み）。MSAA・半透明・材質の多様性が難しい。
     - ライトごとにフルスクリーンで読むのは、帯域が重い。→ Tiled / Clustered へ（[Tiled と Clustered](light-culling.md)）。
 
@@ -24,7 +24,7 @@ tags:
 
 ## 動きで比べる
 
-**同じ画面（28×16 マス）・同じ球体 10 個・同じ色付きのライト 5 個**を、Forward と Deferred で描く様子です。ライトが球体に当たると、ライトの色が付きます（近いライトほど濃く）。最後の絵は同じですが、計算の回数が違います。
+**同じ画面（28×16 マス）・同じ球体 10 個・同じ色付きのライト 5 個**を Forward と Deferred で描く様子です。ライトが球体に当たると、ライトの色が付きます（近いライトほど濃く）。最後の絵は同じですが、計算の回数が違います。
 
 <!-- fig:forward-deferred:begin -->
 <svg class="fig illust motion" data-fig="forward-vs-deferred" viewBox="0 0 960 540" role="img" data-still="11.5"><rect x="0" y="0" width="960" height="540" rx="14" fill="#ffffff"/>
@@ -2379,7 +2379,7 @@ tags:
 
 ## Forward（前向き）レンダリング
 
-**物体を描くとき、その場で色（ライティング込み）を、完成させる**方式です。
+**物体を描くとき、その場で色（ライティング込み）を完成させる**方式です。
 
 <svg class="fig illust" viewBox="0 0 800 270" role="img" aria-label="Forward レンダリングの流れ">
 <defs><marker id="fd1" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
@@ -2388,7 +2388,7 @@ tags:
 <rect x="30" y="140" width="120" height="70" rx="10" fill="rgba(76,139,245,0.22)" stroke="currentColor" stroke-width="3"/><text x="90" y="172" text-anchor="middle" style="font-weight:700">物体 B</text><text x="90" y="192" text-anchor="middle" style="font-size:12px">頂点 → ピクセル</text>
 <line x1="158" y1="85" x2="258" y2="125" stroke="currentColor" stroke-width="3" marker-end="url(#fd1)"/><line x1="158" y1="175" x2="258" y2="135" stroke="currentColor" stroke-width="3" marker-end="url(#fd1)"/>
 <rect x="266" y="90" width="270" height="80" rx="12" fill="rgba(229,72,77,0.2)" stroke="currentColor" stroke-width="3"/>
-<text x="401" y="122" text-anchor="middle" style="font-weight:700">ピクセルシェーダー</text><text x="401" y="144" text-anchor="middle" style="font-size:12px">全ライトを、ループで計算</text><text x="401" y="160" text-anchor="middle" style="font-size:12px">（隠れるピクセルでも、実行）</text>
+<text x="401" y="122" text-anchor="middle" style="font-weight:700">ピクセルシェーダー</text><text x="401" y="144" text-anchor="middle" style="font-size:12px">全ライトをループで計算</text><text x="401" y="160" text-anchor="middle" style="font-size:12px">（隠れるピクセルでも、実行）</text>
 <line x1="544" y1="130" x2="614" y2="130" stroke="currentColor" stroke-width="3" marker-end="url(#fd1)"/>
 <rect x="622" y="90" width="150" height="80" rx="12" fill="rgba(46,160,67,0.22)" stroke="currentColor" stroke-width="3"/><text x="697" y="124" text-anchor="middle" style="font-weight:700">完成した色</text><text x="697" y="146" text-anchor="middle" style="font-size:12px">画面へ</text>
 <text x="20" y="245" style="font-size:12px">コスト ＝ Σ（各物体のピクセル数 ×（オーバードロー）× 影響するライトの数）</text>
@@ -2398,7 +2398,7 @@ tags:
 
 | 問題 | 説明 |
 | --- | --- |
-| オーバードロー | 手前の物体が後から描かれると奥の物体のライティング済みの色が、無駄になる。重い計算を捨てている |
+| オーバードロー | 手前の物体が後から描かれると奥の物体のライティング済みの色が無駄になる。重い計算を捨てている |
 | ライトが多いと | 1 ピクセルごとに全ライトをループ。100 個で、100 倍 |
 | ライトの数が物体ごとに違う | 物体ごとにシェーダー（バリアント）を切り替える（ライト数 N のシェーダー）。ドロー コール・状態切り替えが増える |
 | 範囲外のライト | 遠いライトも計算（影響がゼロでも）してしまう |
@@ -2407,7 +2407,7 @@ tags:
 
 | 工夫 | 説明 |
 | --- | --- |
-| Z プリパス（深度だけ、先に描く） | オーバードローのライティングを避ける（[オーバードロー](overdraw.md)）。ジオメトリを、2 回描く |
+| Z プリパス（深度だけ、先に描く） | オーバードローのライティングを避ける（[オーバードロー](overdraw.md)）。ジオメトリを 2 回描く |
 | ライトの上限（物体ごとに近い 4 つだけ） | 簡単だがライトがちらつく・多数のライトが使えない |
 | ライトの事前の絞り込み | Tiled / Clustered Forward（[Tiled と Clustered](light-culling.md)） |
 
@@ -2416,7 +2416,7 @@ tags:
 | 長所 | 説明 |
 | --- | --- |
 | 帯域が少ない | G-Buffer が不要。直接、画面に書く |
-| MSAA が使える | ハードウェアのアンチエイリアシングが、素直に使える |
+| MSAA が使える | ハードウェアのアンチエイリアシングが素直に使える |
 | 半透明が扱える | 普通にブレンドできる |
 | 材質が自由 | 物体ごとにシェーダーを変えて、特殊な表現（髪・肌・布）ができる |
 | 単純 | 仕組みが分かりやすい |
@@ -2425,7 +2425,7 @@ tags:
 
 ## Deferred（遅延）レンダリング
 
-<strong>「形と材質の情報」を、先にバッファ（G-Buffer）に書き</strong>、「ライティング」を、あとで画面全体に対して、まとめて行う方式です。
+<strong>「形と材質の情報」を先にバッファ（G-Buffer）に書き</strong>、「ライティング」をあとで画面全体に対して、まとめて行う方式です。
 
 <svg class="fig illust" viewBox="0 0 820 300" role="img" aria-label="Deferred レンダリングの流れ">
 <defs><marker id="fd2" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
@@ -2440,11 +2440,11 @@ tags:
 </g>
 <text x="306" y="198" text-anchor="middle" style="font-weight:700">G-Buffer</text>
 <line x1="386" y1="110" x2="466" y2="110" stroke="currentColor" stroke-width="3" marker-end="url(#fd2)"/><text x="426" y="98" text-anchor="middle" style="font-size:12px">② 読む</text>
-<rect x="474" y="60" width="170" height="100" rx="10" fill="rgba(229,72,77,0.2)" stroke="currentColor" stroke-width="3"/><text x="559" y="96" text-anchor="middle" style="font-weight:700">ライティング パス</text><text x="559" y="118" text-anchor="middle" style="font-size:12px">画面の各ピクセルに、</text><text x="559" y="136" text-anchor="middle" style="font-size:12px">1 回だけ、光を計算</text>
+<rect x="474" y="60" width="170" height="100" rx="10" fill="rgba(229,72,77,0.2)" stroke="currentColor" stroke-width="3"/><text x="559" y="96" text-anchor="middle" style="font-weight:700">ライティング パス</text><text x="559" y="118" text-anchor="middle" style="font-size:12px">画面の各ピクセルに </text><text x="559" y="136" text-anchor="middle" style="font-size:12px">1 回だけ、光を計算</text>
 <line x1="652" y1="110" x2="716" y2="110" stroke="currentColor" stroke-width="3" marker-end="url(#fd2)"/>
 <rect x="724" y="60" width="80" height="100" rx="10" fill="rgba(46,160,67,0.22)" stroke="currentColor" stroke-width="3"/><text x="764" y="116" text-anchor="middle" style="font-weight:700">画面</text>
-<text x="20" y="250" style="font-size:12px">コスト ＝ ジオメトリ（G-Buffer への書き込み）＋ 画面のピクセル × ライト（物体の数に、無関係）</text>
-<text x="20" y="272" style="font-size:12px">オーバードローしても、ライティングは「最後に残ったピクセル」だけ。無駄が、なくなる</text>
+<text x="20" y="250" style="font-size:12px">コスト ＝ ジオメトリ（G-Buffer への書き込み）＋ 画面のピクセル × ライト（物体の数に無関係）</text>
+<text x="20" y="272" style="font-size:12px">オーバードローしても、ライティングは「最後に残ったピクセル」だけ。無駄がなくなる</text>
 </svg>
 
 ### 何が改善するのか
@@ -2452,16 +2452,16 @@ tags:
 | 改善 | 説明 |
 | --- | --- |
 | オーバードローのライティングが消える | ライティングは、最終的に見えるピクセルだけ（1 ピクセル 1 回） |
-| 「物体 × ライト」が、「物体 ＋ ライト」に | ジオメトリの数とライトの数が独立。ライトをたくさん置ける |
+| 「物体 × ライト」が「物体 ＋ ライト」に | ジオメトリの数とライトの数が独立。ライトをたくさん置ける |
 | ライトの範囲を使える | ライトが影響する範囲（球・円錐）のピクセルだけ、計算できる（ライト ボリューム） |
 | シェーダーの切り替えが、減る | ライティングのシェーダーは、1 種類。材質の違いは、G-Buffer の値 |
-| ポストエフェクトに使える | G-Buffer（法線・深度）を、AO・SSR・デカールが再利用 |
+| ポストエフェクトに使える | G-Buffer（法線・深度）を AO・SSR・デカールが再利用 |
 
 ライトが数百個（街灯・たいまつ・窓の明かり）ある大規模なシーンで、Deferred が使われます。
 
 ### ライト ボリューム
 
-ライトごとに影響する範囲（球・円錐）を、簡単な形として描き、その形が覆うピクセルだけを、ライティングします。
+ライトごとに影響する範囲（球・円錐）を簡単な形として描き、その形が覆うピクセルだけをライティングします。
 
 | ライトの種類 | 描く形 |
 | --- | --- |
@@ -2480,7 +2480,7 @@ tags:
 | 半透明が使えない | G-Buffer に、1 ピクセル 1 つの情報しか、書けない。半透明は別の Forward パスで描く |
 | 材質の多様性が制限される | G-Buffer に入る項目だけ。特殊な材質（髪・肌・布）は、工夫（シェーディング モデル ID） |
 | ライトのブレンドの帯域 | ライトごとに結果を加算ブレンドで書く（読み書きが重なる） |
-| G-Buffer の設計が、難しい | 何をどのフォーマットで詰めるか |
+| G-Buffer の設計が難しい | 何をどのフォーマットで詰めるか |
 
 ## 比べ
 
@@ -2514,18 +2514,18 @@ tags:
 ## よくあるミス
 
 ??? failure "ライトが数個なのに、Deferred にして、遅くなる"
-    **G-Buffer の帯域**が、メリットを上回ります。Forward が速いこともあります。
+    **G-Buffer の帯域**がメリットを上回ります。Forward が速いこともあります。
 
 ??? failure "Deferred で、MSAA を使おうとして、帯域が爆発する"
     TAA など、別の方式にします。
 
-??? failure "半透明を、Deferred のパスで描こうとする"
+??? failure "半透明を Deferred のパスで描こうとする"
     半透明は、Forward パスで、後から描きます。
 
 ??? failure "ライトごとに、フルスクリーンで描画する"
     帯域が尽きます。ライト ボリュームで範囲を絞るか、Tiled / Clusteredに。
 
-??? failure "G-Buffer に、位置（RGBA32F）を、保存する"
+??? failure "G-Buffer に、位置（RGBA32F）を保存する"
     深度から復元します（[メモリ帯域幅](bandwidth.md)）。
 
 ## これだけ覚える

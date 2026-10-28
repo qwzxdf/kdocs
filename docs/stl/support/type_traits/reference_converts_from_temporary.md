@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-`reference_constructs_from_temporary` の、暗黙の変換版です。`std::pair` などのライブラリが、ぶら下がった参照を禁止するために使います。
+`reference_constructs_from_temporary` の、暗黙の変換版です。`std::pair` などのライブラリがぶら下がった参照を禁止するために使います。
 
 !!! tip "ポイント"
     - `::value`（または `_v` 版）が `bool` の定数。
@@ -86,7 +86,7 @@ C++23 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 参照が、暗黙の変換で一時オブジェクトに束縛されるかを調べる
+    - [x] 参照が暗黙の変換で一時オブジェクトに束縛されるかを調べる
     - [x] `::value`（または `_v` 版）が `bool` の定数
     - [x] 戻り値と失敗時の動きを確かめて使う
 

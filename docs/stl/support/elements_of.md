@@ -14,7 +14,7 @@ tags:
 `#include <generator>`
 </div>
 
-`generator` の中で、別の `generator` や `vector` の要素を、全部出したいことがあります。`for` で 1 つずつ `co_yield` するのは冗長です。`co_yield std::ranges::elements_of(range)` と書くと、範囲の要素を全部取り出せます。再帰的な木の探索で、子の結果をまとめて出すのに便利です。
+`generator` の中で、別の `generator` や `vector` の要素を全部出したいことがあります。`for` で 1 つずつ `co_yield` するのは冗長です。`co_yield std::ranges::elements_of(range)` と書くと、範囲の要素を全部取り出せます。再帰的な木の探索で、子の結果をまとめて出すのに便利です。
 
 !!! tip "ポイント"
     - `co_yield` の中で使う。

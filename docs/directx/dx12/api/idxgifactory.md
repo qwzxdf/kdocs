@@ -120,7 +120,7 @@ HRESULT IDXGIFactory2::CreateSwapChainForHwnd(
 HRESULT IDXGIFactory::MakeWindowAssociation(HWND WindowHandle, UINT Flags);
 ```
 
-DXGI がウィンドウのメッセージを監視して行う動作を、止めます。標準では DXGI が Alt+Enter を拾って全画面とウィンドウを自動で切り替えますが、ゲームが自分で切り替えを管理したいときにこれが邪魔になります。
+DXGI がウィンドウのメッセージを監視して行う動作を止めます。標準では DXGI が Alt+Enter を拾って全画面とウィンドウを自動で切り替えますが、ゲームが自分で切り替えを管理したいときにこれが邪魔になります。
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |

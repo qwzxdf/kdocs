@@ -1344,7 +1344,7 @@ tags:
 <text x="50" y="386" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043" opacity="0">タイルの最大で、振り分ける<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4976;0.4978;1.0000" values="0;0;1;1"/></text>
 <rect x="290" y="372" width="1" height="22" fill="#2ea043" opacity="0.85"><animate attributeName="width" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4978;0.5422;1.0000" values="1;1;205.33;205.33"/></rect>
 <text x="505.3333333333333" y="389" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043" opacity="0">1056(×1 タイル)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5420;0.5422;1.0000" values="0;0;1;1"/></text>
-<text x="50" y="436" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2563eb" opacity="0">約 2.7 倍 速い。隣のタイルへ広げる理由: 隣の速い物の流れが、このタイルに、はみ出してくるから<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5776;0.5778;1.0000" values="0;0;1;1"/></text>
+<text x="50" y="436" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2563eb" opacity="0">約 2.7 倍 速い。隣のタイルへ広げる理由: 隣の速い物の流れが、このタイルにはみ出してくるから<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5776;0.5778;1.0000" values="0;0;1;1"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">画面の大半は、動かないので、ブラーは要らない<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">タイルごとに、最大の速さを調べる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.2443;0.2444;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">隣のタイルへ広げて、はみ出しに備える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2443;0.2444;0.4220;0.4222;1.0000" values="0;0;1;1;0;0"/></text>
@@ -1358,7 +1358,7 @@ tags:
 <strong>速い物体のブラー</strong>は、物体の外側にも尾を引くべきです。画素 P 自身の速度だけを使うと、P が背景（速度 0）なら、ぼけません。P の近くに速い物体があれば、その速度の分だけ、P の周りを見る必要があります。
 
 <svg class="fig illust" viewBox="0 0 780 230" role="img" aria-label="タイルの最大速度">
-<text x="20" y="26" class="fig-title">タイルの最大速度：近くにある速い動きを、周りの画素に知らせる</text>
+<text x="20" y="26" class="fig-title">タイルの最大速度：近くにある速い動きを周りの画素に知らせる</text>
 <g transform="translate(40,56)">
 <rect x="0" y="0" width="320" height="140" fill="#f8fafc" stroke="#94a3b8"/>
 <g stroke="#e2e8f0"><line x1="80" y1="0" x2="80" y2="140"/><line x1="160" y1="0" x2="160" y2="140"/><line x1="240" y1="0" x2="240" y2="140"/><line x1="0" y1="35" x2="320" y2="35"/><line x1="0" y1="70" x2="320" y2="70"/><line x1="0" y1="105" x2="320" y2="105"/></g>
@@ -1435,7 +1435,7 @@ void NeighborMaxMain(uint3 id : SV_DispatchThreadID) {
 }
 ```
 
-NeighborMax のコードの要点です。3×3 で見るのは、隣のタイルの速い物体が、1 タイル先まで影響するためです（タイルの大きさが最大ブラー長だからです）。端は `clamp` で、画面の外は端のタイルを繰り返します。
+NeighborMax のコードの要点です。3×3 で見るのは、隣のタイルの速い物体が 1 タイル先まで影響するためです（タイルの大きさが最大ブラー長だからです）。端は `clamp` で、画面の外は端のタイルを繰り返します。
 
 ### より正確な NeighborMax
 

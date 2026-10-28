@@ -1234,7 +1234,7 @@ iterator insert_range(const_iterator pos, R&& rg);
 
 - 計算量: O(挿入数 + 移動する要素数)
 
-範囲の要素を、`pos` の位置に挿入します。
+範囲の要素を `pos` の位置に挿入します。
 
 ### append_range <span class="ver ver-23">C++23</span> {#append_range data-toc-label="append_range"}
 
@@ -1245,7 +1245,7 @@ void append_range(R&& rg);
 
 - 計算量: O(追加数)
 
-範囲の要素を、末尾に追加します。`insert(end(), ...)` より意図が伝わります。
+範囲の要素を末尾に追加します。`insert(end(), ...)` より意図が伝わります。
 
 ### replace_with_range <span class="ver ver-23">C++23</span> {#replace_with_range data-toc-label="replace_with_range"}
 
@@ -1256,7 +1256,7 @@ basic_string& replace_with_range(const_iterator i1, const_iterator i2, R&& rg);
 
 - 計算量: O(長さ)
 
-指定した範囲を、別の範囲の要素で置き換えます。
+指定した範囲を別の範囲の要素で置き換えます。
 
 ### resize_and_overwrite <span class="ver ver-23">C++23</span> {#resize_and_overwrite data-toc-label="resize_and_overwrite"}
 
@@ -1403,7 +1403,7 @@ const_iterator end() const noexcept;
 | やったこと | 結果 |
 | --- | --- |
 | 範囲外の `[]` | 未定義動作 |
-| `c_str()` のポインタを、文字列を変更・破棄したあとに使う | 未定義動作 |
+| `c_str()` のポインタを文字列を変更・破棄したあとに使う | 未定義動作 |
 | `substr` で `pos > size()` | `std::out_of_range` 例外 |
 | `stoi` に数字でない文字列 | `std::invalid_argument` 例外 |
 | `stoi` で int に入らない数 | `std::out_of_range` 例外 |

@@ -65,7 +65,7 @@ float4 PSMain(VSOutput input) : SV_Target {
 | --- | --- |
 | **`: SV_Target`** | この関数の戻り値が描画先（レンダー ターゲット）に書く色 |
 | `Sample` | テクスチャから色を引く。サンプラーでフィルタを指定 |
-| `normalize` | 補間で長さが変わった法線を、長さ 1 に戻す |
+| `normalize` | 補間で長さが変わった法線を長さ 1 に戻す |
 | `dot(法線, -光の向き)` | 面が光に正対するほど 1、横向きで 0 |
 | `saturate` | 0〜1 に収める（裏向きの負の値を 0 に） |
 
@@ -74,7 +74,7 @@ float4 PSMain(VSOutput input) : SV_Target {
 **テクスチャ（画像）を 3D の面に貼る**には、面の各点が画像のどこに対応するかを決める必要があります。この対応がUV 座標です。頂点ごとに UV を持ち、ラスタライズで補間されて、ピクセルに届きます。
 
 <svg class="fig illust" viewBox="0 0 780 280" role="img" aria-label="UV マッピング"><defs><marker id="rfa" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs>
-<text x="20" y="24" class="fig-title">UV：テクスチャ上の位置を、頂点ごとに指定する</text>
+<text x="20" y="24" class="fig-title">UV：テクスチャ上の位置を頂点ごとに指定する</text>
 <g transform="translate(40,50)">
 <rect x="0" y="0" width="180" height="180" fill="#8a8a8a" fill-opacity="0.15" stroke="currentColor"/>
 <g stroke="currentColor" stroke-opacity="0.2"><line x1="90" y1="0" x2="90" y2="180"/><line x1="0" y1="90" x2="180" y2="90"/></g>

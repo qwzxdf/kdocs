@@ -18,7 +18,7 @@ tags:
 `int` のような型を 0 で初期化した状態で並べたいとき、`uninitialized_value_construct` を使います。`default_construct` と違い、`int` は **0 になります**。
 
 !!! tip "ポイント"
-    - 未初期化のメモリに、オブジェクトを作る。
+    - 未初期化のメモリにオブジェクトを作る。
     - 途中で例外が出たら、すでに作ったぶんを壊してから投げる。
     - 個数で指定する版は `uninitialized_value_construct_n`（同じページの下）。
 

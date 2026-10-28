@@ -23,7 +23,7 @@ DirectX 12 は、GPU に仕事を頼む手順をプログラマーが細かく�
 2. 仕事の受付（コマンド キュー）を作る。GPU への仕事は、ここに並べて頼む。
 3. 画面に出す絵を入れる板（バック バッファ）の束、つまりスワップ チェーンを作る。裏の板に描いて、表の板と入れ替える。
 4. 毎フレーム、「何をするか」の指示書（コマンド リスト）を書いて、キューに出す。
-5. GPU が終わったかどうかを、目印（フェンス）で確かめる。終わる前に、指示書や板を触ってはいけない。
+5. GPU が終わったかどうかを目印（フェンス）で確かめる。終わる前に指示書や板を触ってはいけない。
 
 この章のコードは、この 5 つをそのまま書いたものです。各部品の詳しい意味は、DirectX 12 Guide の各ページにあります。この教材では、「WPF の中に埋め込んでも壊れない」ために必要な点（リサイズ、後片付け、例外の扱い）に絞って説明します。
 
@@ -77,7 +77,7 @@ DX12 の関数は、失敗すると `HRESULT`（負の値）を返します。�
 
 namespace mini {
 
-// HRESULT が失敗なら例外を投げる。DX12 の呼び出しを、これで包む。
+// HRESULT が失敗なら例外を投げる。DX12 の呼び出しをこれで包む。
 inline void ThrowIfFailed(HRESULT hr, const char* what) {
   if (FAILED(hr)) {
     throw std::runtime_error(std::format("{} に失敗しました（HRESULT 0x{:08X}）", what, static_cast<unsigned>(hr)));
@@ -123,9 +123,9 @@ class Renderer {
   void Render(const float clear_color[4]);          // 1 フレーム描いて、画面に出す
 
  private:
-  void CreateRenderTargets();                       // バック バッファの RTV を、作る
-  void WaitForGpu();                                // GPU の、全仕事が、終わるまで待つ
-  void WaitForSlot(UINT slot);                      // そのスロットの、前回の仕事が、終わるまで待つ
+  void CreateRenderTargets();                       // バック バッファの RTV を作る
+  void WaitForGpu();                                // GPU の、全仕事が終わるまで待つ
+  void WaitForSlot(UINT slot);                      // そのスロットの、前回の仕事が終わるまで待つ
 
   template <typename T>
   using ComPtr = Microsoft::WRL::ComPtr<T>;
@@ -140,7 +140,7 @@ class Renderer {
   ComPtr<ID3D12GraphicsCommandList> list_;
   ComPtr<ID3D12Fence> fence_;
   HANDLE fence_event_ = nullptr;
-  std::array<UINT64, kFrameCount> slot_fence_values_{};   // 各スロットが、「ここまで終われば、再利用できる」値
+  std::array<UINT64, kFrameCount> slot_fence_values_{};   // 各スロットが「ここまで終われば、再利用できる」値
   UINT64 fence_value_ = 0;
   UINT frame_slot_ = 0;
   UINT rtv_size_ = 0;
@@ -279,8 +279,8 @@ void Renderer::Render(const float clear_color[4]) {
 void Renderer::Resize(UINT width, UINT height) {
   if (width == 0 || height == 0) return;                               // 最小化のとき
   if (width == width_ && height == height_) return;
-  WaitForGpu();                                                        // バック バッファを、GPU が使い終わるまで待つ
-  for (auto& buffer : back_buffers_) buffer.Reset();                   // 参照を、すべて解放（残っていると、失敗する）
+  WaitForGpu();                                                        // バック バッファを GPU が使い終わるまで待つ
+  for (auto& buffer : back_buffers_) buffer.Reset();                   // 参照をすべて解放（残っていると、失敗する）
   ThrowIfFailed(swap_chain_->ResizeBuffers(kFrameCount, width, height, DXGI_FORMAT_UNKNOWN, 0), "ResizeBuffers");
   width_ = width;
   height_ = height;
@@ -321,7 +321,7 @@ WPF と組み合わせるうえで、この Renderer の特に大事な点は 2 
 | 点 | 理由 |
 | --- | --- |
 | `Resize` が `WaitForGpu` → バック バッファの解放 → `ResizeBuffers` → RTV の作り直しの順 | WPF の中の子ウィンドウは、ユーザーがウィンドウを広げたり縮めたりするたびに大きさが変わる。バック バッファへの参照が残っていると、`ResizeBuffers` が失敗する |
-| デストラクターで `WaitForGpu` | エディタを閉じるとき（またはエンジンを作り直すとき）に、GPU が使っている物を解放してクラッシュするのを防ぐ |
+| デストラクターで `WaitForGpu` | エディタを閉じるとき（またはエンジンを作り直すとき）に GPU が使っている物を解放してクラッシュするのを防ぐ |
 
 ## 手順 5：Engine に Renderer を持たせる
 

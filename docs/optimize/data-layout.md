@@ -6,7 +6,7 @@ tags:
 
 # データ構造の配置の実例集
 
-CPU は、メモリから<strong>64 バイトのかたまり（キャッシュライン）</strong>ごとにデータを読みます。使うデータが、近くにまとまっていると速く、散らばっていると遅くなります（[メモリとキャッシュ](memory-cache.md)）。このページは、構造体の並べ方・サイズの減らし方・配列の持ち方を、実例でまとめます。よく使うデータだけを、小さく、連続して置くのが基本です。
+CPU は、メモリから<strong>64 バイトのかたまり（キャッシュライン）</strong>ごとにデータを読みます。使うデータが近くにまとまっていると速く、散らばっていると遅くなります（[メモリとキャッシュ](memory-cache.md)）。このページは、構造体の並べ方・サイズの減らし方・配列の持ち方を実例でまとめます。よく使うデータだけを小さく、連続して置くのが基本です。
 
 !!! tip "ポイント"
     - <strong>AoS（構造体の配列）</strong>は、全部の項目を使うとき。<strong>SoA（配列の構造体）</strong>は、一部の項目だけを大量に回すとき。
@@ -22,7 +22,7 @@ CPU は、メモリから<strong>64 バイトのかたまり（キャッシュ�
 
 ## AoS と SoA
 
-<svg class="fig" viewBox="0 0 642 240" role="img" aria-label="AoS と SoA のメモリ配置"><text x="20" y="20" class="fig-title">AoS：1 つの粒子の全項目が、並ぶ</text><rect x="30" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="56" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="82" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="108" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="134" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="160" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="186" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="212" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="238" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="264" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="290" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="316" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="342" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="368" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="394" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="420" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="446" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="472" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><text x="30" y="82">青＝位置（使う）、灰＝速度・寿命・色など（今は使わない）。位置の間に、使わないデータが挟まる</text><text x="20" y="120" class="fig-title">SoA：項目ごとに、連続して並ぶ</text><rect x="30" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="56" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="82" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="108" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="134" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="160" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="186" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="212" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="238" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="264" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="290" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="316" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="342" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="368" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="394" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="420" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="446" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="472" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><text x="30" y="182">位置だけが連続 → キャッシュを無駄なく使える（SIMD にもしやすい）</text><text x="30" y="215">位置を更新するループは、SoA の方が、読むメモリが少なくて済む</text></svg>
+<svg class="fig" viewBox="0 0 642 240" role="img" aria-label="AoS と SoA のメモリ配置"><text x="20" y="20" class="fig-title">AoS：1 つの粒子の全項目が並ぶ</text><rect x="30" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="56" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="82" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="108" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="134" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="160" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="186" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="212" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="238" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="264" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="290" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="316" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="342" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="368" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="394" y="34" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="420" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="446" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="472" y="34" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><text x="30" y="82">青＝位置（使う）、灰＝速度・寿命・色など（今は使わない）。位置の間に使わないデータが挟まる</text><text x="20" y="120" class="fig-title">SoA：項目ごとに、連続して並ぶ</text><rect x="30" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="56" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="82" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="108" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="134" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="160" y="134" width="26" height="28" fill="rgba(76,139,245,0.55)" stroke="currentColor"/><rect x="186" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="212" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="238" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="264" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="290" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="316" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="342" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="368" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="394" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="420" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="446" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><rect x="472" y="134" width="26" height="28" fill="rgba(150,150,150,0.25)" stroke="currentColor"/><text x="30" y="182">位置だけが連続 → キャッシュを無駄なく使える（SIMD にもしやすい）</text><text x="30" y="215">位置を更新するループは、SoA の方が読むメモリが少なくて済む</text></svg>
 
 ### AoS（Array of Structs：構造体の配列）
 
@@ -42,7 +42,7 @@ for (Particle& p : particles) {
 }
 ```
 
-**位置の更新**には、`position` と `velocity` しか使いません。しかし、`Particle` 全体（`life`、`color`、`size`）が、キャッシュに載ります。使わないデータで、キャッシュが埋まるので、無駄です。
+**位置の更新**には、`position` と `velocity` しか使いません。しかし、`Particle` 全体（`life`、`color`、`size`）がキャッシュに載ります。使わないデータで、キャッシュが埋まるので、無駄です。
 
 ### SoA（Struct of Arrays：配列の構造体）
 
@@ -67,7 +67,7 @@ for (size_t i = 0; i < particles.position.size(); ++i) {
 | 全項目を使う処理 | 速い（1 つのかたまり） | やや遅い（複数の配列を読む） |
 | 一部の項目だけ回す処理 | 遅い（無駄が多い） | 速い |
 | SIMD | やりにくい | やりやすい |
-| 要素の追加・削除 | 簡単 | 各配列を、全部更新（手間） |
+| 要素の追加・削除 | 簡単 | 各配列を全部更新（手間） |
 | コードの書きやすさ | 自然 | 面倒 |
 | ランダムアクセスで、全項目 | 速い（近くにある） | 遅い（配列ごとに、離れている） |
 
@@ -79,7 +79,7 @@ for (size_t i = 0; i < particles.position.size(); ++i) {
 
 ## ホットとコールドの分割
 
-**よく使う（ホット）項目と、たまにしか使わない（コールド）項目**を、別の構造体にします。
+**よく使う（ホット）項目と、たまにしか使わない（コールド）項目**を別の構造体にします。
 
 ```cpp
 struct EnemyHot {
@@ -104,7 +104,7 @@ std::vector<EnemyCold> cold;
 
 ## 構造体のサイズとパディング
 
-CPU は、**型の大きさの倍数の位置**にあるデータを、速く読みます。コンパイラは、そのために、メンバの間に、隙間（パディング）を入れます。
+CPU は、**型の大きさの倍数の位置**にあるデータを速く読みます。コンパイラは、そのために、メンバの間に隙間（パディング）を入れます。
 
 ```cpp
 struct Bad {
@@ -127,7 +127,7 @@ struct Good {
 | `Bad` | 24 バイト | `a`(1) + 隙間(7) + `b`(8) + `c`(1) + 隙間(3) + `d`(4) |
 | `Good` | 16 バイト | `b`(8) + `d`(4) + `a`(1) + `c`(1) + 隙間(2) |
 
-メンバを、大きい順（8 → 4 → 2 → 1 バイト）に並べると、隙間が減ります。
+メンバを大きい順（8 → 4 → 2 → 1 バイト）に並べると、隙間が減ります。
 
 ```cpp
 static_assert(sizeof(Good) == 16);
@@ -141,15 +141,15 @@ static_assert(alignof(Good) == 8);
 | 方法 | 説明 |
 | --- | --- |
 | `sizeof` / `alignof` / `offsetof` | 実際のサイズ・位置を確認 |
-| MSVC：`/d1reportSingleClassLayoutName` | クラスのレイアウトを、ビルドの出力に表示（`/d1reportSingleClassLayoutEnemy`） |
-| デバッガーのメモリ表示 | 実際の並びを、見る |
+| MSVC：`/d1reportSingleClassLayoutName` | クラスのレイアウトをビルドの出力に表示（`/d1reportSingleClassLayoutEnemy`） |
+| デバッガーのメモリ表示 | 実際の並びを見る |
 
 ## 型を小さくする
 
 | 変更 | 効果 |
 | --- | --- |
 | **`int` → `uint8_t` / `uint16_t`** | 値の範囲が小さいなら、サイズが 1/2〜1/4 |
-| `enum class State : uint8_t` | 列挙型が、1 バイトで済む（既定は `int` = 4 バイト） |
+| `enum class State : uint8_t` | 列挙型が 1 バイトで済む（既定は `int` = 4 バイト） |
 | `double` → `float` | ゲームの座標・時間は、`float` で十分なことが多い（精度に注意） |
 | ポインタ（8 バイト）→ インデックス（4 バイト） | 半分。配列の中の位置で参照する |
 | `bool` を大量に → ビットフラグ | `bool` 8 個 = 8 バイト、ビットなら 1 バイト |
@@ -207,7 +207,7 @@ struct NodeCompact {
 | 保存・読み込み | 使えない（アドレスが変わる） | そのまま保存できる |
 | 無効値 | `nullptr` | `0xFFFFFFFF` など |
 
-インデックスなら、構造体全体を、`memcpy` でコピー・保存できます（[ハンドル](../engine/handle.md)）。
+インデックスなら、構造体全体を `memcpy` でコピー・保存できます（[ハンドル](../engine/handle.md)）。
 
 ## ポインタの追跡を避ける
 
@@ -251,7 +251,7 @@ void Remove(std::vector<Enemy>& v, size_t index) {
 | --- | --- |
 | `erase(it)` | 後ろを全部ずらす（O(n)） |
 | swap-and-pop | O(1)。順序は、変わる |
-| フラグを立てて、あとでまとめて削除 | 反復中の削除が、安全（`erase_if`） |
+| フラグを立てて、あとでまとめて削除 | 反復中の削除が安全（`erase_if`） |
 
 インデックスで参照している場合、swap-and-pop で、最後の要素のインデックスが変わるので、世代付きのハンドルにします（[ハンドル](../engine/handle.md)、[ECS](../design/patterns/ecs.md)）。
 
@@ -271,11 +271,11 @@ void Remove(std::vector<Enemy>& v, size_t index) {
 | 全部を回す | O(n)、`dense` を連続で |
 | 追加・削除 | O(1)（削除は、最後と入れ替え） |
 
-ECS のコンポーネントの保存に、よく使われます（[ECS](../design/patterns/ecs.md)）。
+ECS のコンポーネントの保存によく使われます（[ECS](../design/patterns/ecs.md)）。
 
 ## false sharing
 
-**複数のスレッド**が、同じキャッシュライン（64 バイト）の、別々の変数に書き込むと、キャッシュラインの取り合いで、遅くなります。
+**複数のスレッド**が同じキャッシュライン（64 バイト）の、別々の変数に書き込むと、キャッシュラインの取り合いで、遅くなります。
 
 ```cpp
 struct Counters {
@@ -286,8 +286,8 @@ struct Counters {
 
 | 項目 | 説明 |
 | --- | --- |
-| 起きる条件 | 別々のスレッドが、近くにある変数に、書く |
-| 対策 | `alignas(64)` で、キャッシュラインを分ける。スレッドごとのデータを、まとめる |
+| 起きる条件 | 別々のスレッドが近くにある変数に書く |
+| 対策 | `alignas(64)` で、キャッシュラインを分ける。スレッドごとのデータをまとめる |
 | `std::hardware_destructive_interference_size` | キャッシュラインを分けるのに、適したサイズ（C++17） |
 
 （[マルチスレッド化](multithreading.md)）
@@ -297,7 +297,7 @@ struct Counters {
 ??? failure "メンバの並びが適当で、パディングで、サイズが倍になる"
     大きい順に並べ、`static_assert(sizeof(...))` で確認します。
 
-??? failure "使わないデータが多い構造体を、毎フレーム全部回している"
+??? failure "使わないデータが多い構造体を毎フレーム全部回している"
     ホット・コールド分割、または SoA にします。
 
 ??? failure "`std::vector<Enemy*>` で、ポインタを辿って遅い"
@@ -306,10 +306,10 @@ struct Counters {
 ??? failure "型を小さくしすぎて、キャストだらけになる"
     大量に持つデータだけ、小さくします。
 
-??? failure "ビットフィールドを、ファイルに保存した"
+??? failure "ビットフィールドをファイルに保存した"
     並びが、実装依存です。固定幅の整数と、明示的なビット演算にします。
 
-??? failure "別スレッドの書き込む変数が、隣り合っていて、遅い"
+??? failure "別スレッドの書き込む変数が隣り合っていて、遅い"
     false sharing です。`alignas(64)` で分けます。
 
 ## これだけ覚える

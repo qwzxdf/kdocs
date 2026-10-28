@@ -7,15 +7,15 @@ tags:
 
 # クエリ（レイキャストなど）
 
-**クエリ**は、物理の世界に、問い合わせる操作です。「この線上に、何がある？」（レイキャスト）、「この球を動かしたら、何に当たる？」（形状キャスト）、「この範囲に、何がある？」（重なり判定）など。物体を動かさずに、当たりの情報だけを得られます。射撃（ヒットスキャン）・視線が通るか・地面の高さ・ピッキングなどに使います（[ピッキングとレイキャスト](../../3d/picking-raycast.md)）。このページは、主なクエリの種類、書き方、レイヤーによる絞り込み、結果の読み方をまとめます。
+**クエリ**は、物理の世界に問い合わせる操作です。「この線上に何がある？」（レイキャスト）、「この球を動かしたら、何に当たる？」（形状キャスト）、「この範囲に何がある？」（重なり判定）など。物体を動かさずに、当たりの情報だけを得られます。射撃（ヒットスキャン）・視線が通るか・地面の高さ・ピッキングなどに使います（[ピッキングとレイキャスト](../../3d/picking-raycast.md)）。このページは、主なクエリの種類、書き方、レイヤーによる絞り込み、結果の読み方をまとめます。
 
 !!! tip "ポイント"
     - クエリは <strong>`physics_system.GetNarrowPhaseQuery()`</strong>（正確な判定）と <strong>`GetBroadPhaseQuery()`</strong>（大まかな範囲の判定）から呼ぶ。
-    - `CastRay` は線（レイ）が、最初に当たる物体を調べる。`RRayCast(始点, 向き)` の「向き」は、長さを持つ方向ベクトル（終点 − 始点）。
+    - `CastRay` は線（レイ）が最初に当たる物体を調べる。`RRayCast(始点, 向き)` の「向き」は、長さを持つ方向ベクトル（終点 − 始点）。
     - 結果は `mFraction`（0〜1：レイのどの位置で当たったか）と `mBodyID`。当たった点 ＝ 始点 ＋ 向き × `mFraction`。
-    - 形状キャスト（`CastShape`）は球・カプセルなどを、動かしてみて、当たるかを調べる（太い線）。
+    - 形状キャスト（`CastShape`）は球・カプセルなどを動かしてみて、当たるかを調べる（太い線）。
     - レイヤーのフィルターで、どの物体を対象にするかを絞る。自分自身は、除外する。
-    - 複数の当たりを、すべて知りたいならコレクター（`CastRayCollector`）。
+    - 複数の当たりをすべて知りたいならコレクター（`CastRayCollector`）。
     - クエリは `Update` の外で呼ぶ（スレッド安全だが、`Update` と同時に、物体が変わるため）。
 
 !!! info "このページを読む前に"
@@ -26,11 +26,11 @@ tags:
 
 | クエリ | 問い | 用途 |
 | --- | --- | --- |
-| **`CastRay`** | この線の上に、何があるか | 射撃・視線・地面の高さ・マウスのピッキング |
+| **`CastRay`** | この線の上に何があるか | 射撃・視線・地面の高さ・マウスのピッキング |
 | `CastShape` | この形を動かしたら、何に当たるか | キャラクターの移動の予測・太い光線・スイープ |
 | `CollideShape` | この形は、今、何と重なっているか | 近接攻撃の判定・範囲ダメージ・エリアの内外 |
 | `CollidePoint` | この点は、どの物体の中にあるか | 点の内外判定 |
-| `CollideAABox` / `CollideSphere`（ブロードフェーズ） | この範囲に、どの物体がいるか（大まかに） | 周囲の物体の列挙・爆発の範囲 |
+| `CollideAABox` / `CollideSphere`（ブロードフェーズ） | この範囲にどの物体がいるか（大まかに） | 周囲の物体の列挙・爆発の範囲 |
 
 ```cpp
 const NarrowPhaseQuery& query = physics_system.GetNarrowPhaseQuery();
@@ -118,7 +118,7 @@ bool CanSee(RVec3 from, RVec3 to) {
 
 ## 形状キャスト（CastShape）
 
-**形（球・カプセル）を、動かしてみて**、最初に何に当たるかを調べます。太さのある光線です。
+**形（球・カプセル）を動かしてみて**、最初に何に当たるかを調べます。太さのある光線です。
 
 ```cpp
 ShapeRefC sphere = new SphereShape(0.3f);
@@ -136,8 +136,8 @@ if (collector.HadHit()) {
 
 | 用途 | 説明 |
 | --- | --- |
-| キャラクターが、前に進めるか | カプセルを、進行方向にキャスト |
-| カメラの壁抜け防止 | 球を、注視点からカメラへキャスト（[カメラ](../../3d/camera.md)） |
+| キャラクターが前に進めるか | カプセルを進行方向にキャスト |
+| カメラの壁抜け防止 | 球を注視点からカメラへキャスト（[カメラ](../../3d/camera.md)） |
 | 太い弾・ビーム | 球・カプセルを飛ばす |
 | 段差の検出 | 足元に向けて、キャスト |
 
@@ -164,10 +164,10 @@ for (const CollideShapeResult& r : collector.mHits) {
 | --- | --- |
 | 近接攻撃の判定 | 剣の振りの範囲と、重なっている敵 |
 | 爆発の範囲ダメージ | 球で、重なっている物体を取る |
-| エリア内の敵の数 | 範囲に、何がいるか |
-| スポーン位置の確認 | その位置が、何かと重なっていないか |
+| エリア内の敵の数 | 範囲に何がいるか |
+| スポーン位置の確認 | その位置が何かと重なっていないか |
 
-範囲だけで十分（形の正確さが、いらない）なら、ブロードフェーズのクエリ（`CollideAABox`・`CollideSphere`）が、速いです。
+範囲だけで十分（形の正確さが、いらない）なら、ブロードフェーズのクエリ（`CollideAABox`・`CollideSphere`）が速いです。
 
 ```cpp
 AllHitCollisionCollector<CollideShapeBodyCollector> collector;
@@ -178,14 +178,14 @@ broad_query.CollideSphere(center, radius, collector, bp_filter, obj_filter);
 
 ## レイヤーとフィルター
 
-**クエリの対象を、絞ります**。
+**クエリの対象を絞ります**。
 
 | フィルター | 役割 |
 | --- | --- |
-| `BroadPhaseLayerFilter` | どのブロードフェーズ レイヤーを、対象にするか |
-| `ObjectLayerFilter` | どのオブジェクト レイヤーを、対象にするか |
-| `BodyFilter` | 特定の物体を、除外・指定する |
-| `ShapeFilter` | 複合形状の、特定の部品を、除外 |
+| `BroadPhaseLayerFilter` | どのブロードフェーズ レイヤーを対象にするか |
+| `ObjectLayerFilter` | どのオブジェクト レイヤーを対象にするか |
+| `BodyFilter` | 特定の物体を除外・指定する |
+| `ShapeFilter` | 複合形状の、特定の部品を除外 |
 
 ### よく使うフィルター
 
@@ -198,13 +198,13 @@ IgnoreSingleBodyFilter body_filter(shooter_id);
 
 | フィルター | 意味 |
 | --- | --- |
-| `DefaultBroadPhaseLayerFilter` / `DefaultObjectLayerFilter` | 「このレイヤーの物体が、衝突する相手」だけを対象（衝突のルールを、そのまま使う） |
+| `DefaultBroadPhaseLayerFilter` / `DefaultObjectLayerFilter` | 「このレイヤーの物体が衝突する相手」だけを対象（衝突のルールをそのまま使う） |
 | `SpecifiedObjectLayerFilter(layer)` | 指定した 1 つのレイヤーだけ |
-| `IgnoreSingleBodyFilter(id)` | 指定した物体を、除外（撃った本人、自分自身） |
+| `IgnoreSingleBodyFilter(id)` | 指定した物体を除外（撃った本人、自分自身） |
 | `IgnoreMultipleBodiesFilter` | 複数を除外 |
 
-!!! warning "自分自身を、除外する"
-    プレイヤーの位置から、レイを飛ばすと、自分自身にすぐ当たります。`IgnoreSingleBodyFilter` で、自分を除外します。始点を、体の外に少しずらす方法もあります。
+!!! warning "自分自身を除外する"
+    プレイヤーの位置から、レイを飛ばすと、自分自身にすぐ当たります。`IgnoreSingleBodyFilter` で、自分を除外します。始点を体の外に少しずらす方法もあります。
 
 ## 結果の使い方
 
@@ -263,22 +263,22 @@ IgnoreSingleBodyFilter body_filter(shooter_id);
 
 ## よくあるミス
 
-??? failure "`RRayCast` の第 2 引数に、正規化した方向を、そのまま渡して、短すぎる"
+??? failure "`RRayCast` の第 2 引数に正規化した方向をそのまま渡して、短すぎる"
     <strong>第 2 引数は、「長さのある、方向ベクトル」</strong>です。**`direction * max_distance`** にします。
 
-??? failure "自分自身に、レイが当たる"
+??? failure "自分自身にレイが当たる"
     `IgnoreSingleBodyFilter` で、除外します。
 
-??? failure "レイキャストが、何にも当たらない"
-    レイヤーのフィルターが、対象を除外していないか、`NarrowPhaseQuery` に、物体が追加されて（`OptimizeBroadPhase` の後）いるか、確認します。
+??? failure "レイキャストが何にも当たらない"
+    レイヤーのフィルターが対象を除外していないか、`NarrowPhaseQuery` に、物体が追加されて（`OptimizeBroadPhase` の後）いるか、確認します。
 
-??? failure "`mFraction` を、そのまま距離として使う"
+??? failure "`mFraction` をそのまま距離として使う"
     0〜1 の割合です。距離 ＝ `mFraction` × レイの長さ。
 
-??? failure "`Update` の最中に、クエリを呼んで、不整合になる"
+??? failure "`Update` の最中にクエリを呼んで、不整合になる"
     `Update` の外で呼びます。
 
-??? failure "細い隙間を、`CastRay` で判定して、すり抜ける"
+??? failure "細い隙間を `CastRay` で判定して、すり抜ける"
     `CastShape`（太さのある形）を使います。
 
 ## これだけ覚える
@@ -287,7 +287,7 @@ IgnoreSingleBodyFilter body_filter(shooter_id);
     - [x] クエリは `GetNarrowPhaseQuery()`。`CastRay`（線）・`CastShape`（太い線）・`CollideShape`（重なり）
     - [x] `RRayCast(始点, 方向 × 距離)`。結果の `mFraction` は 0〜1 の割合（当たった点 ＝ `GetPointOnRay(fraction)`）
     - [x] コレクター：`Closest`（最も近い 1 つ）・`All`（全部）・`Any`（1 つでも。最速）
-    - [x] フィルターで、レイヤーと物体を絞る。自分自身を、除外
+    - [x] フィルターで、レイヤーと物体を絞る。自分自身を除外
     - [x] `mBodyID` → `GetUserData` で、ゲームのエンティティへ
     - [x] `Update` の外で呼ぶ
 

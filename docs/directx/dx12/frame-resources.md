@@ -38,7 +38,7 @@ tags:
   GPU:    [実行 1][実行 2][実行 3][実行 4]                     ← 並列に動く。フレームレートが上がる
 ```
 
-並列にすると CPU が GPU より 1 フレーム先に進めます。そのぶん入力が画面に出るまでの遅延が、1 フレームぶん増えます。
+並列にすると CPU が GPU より 1 フレーム先に進めます。そのぶん入力が画面に出るまでの遅延が 1 フレームぶん増えます。
 
 ## フレームごとのリソース
 
@@ -107,7 +107,7 @@ void RenderFrame() {
 
 ## バック バッファの番号とフレームのスロット
 
-バック バッファの番号（`GetCurrentBackBufferIndex()`）とフレームごとのリソースのスロット（`frame_number % kFrameCount`）は、別のものです。`BufferCount` と `kFrameCount` を同じ数にしてバック バッファの番号をそのままスロットにも使う簡単な構成が、よく使われます。
+バック バッファの番号（`GetCurrentBackBufferIndex()`）とフレームごとのリソースのスロット（`frame_number % kFrameCount`）は、別のものです。`BufferCount` と `kFrameCount` を同じ数にしてバック バッファの番号をそのままスロットにも使う簡単な構成がよく使われます。
 
 ```cpp
 const UINT index = swap_chain->GetCurrentBackBufferIndex();  // BufferCount と kFrameCount が同じなら、スロットにも使える

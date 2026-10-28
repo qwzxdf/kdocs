@@ -532,7 +532,7 @@ iterator insert_range(const_iterator pos, R&& rg);
 
 - 計算量: O(挿入数 + 移動する要素数)
 
-範囲の要素を、`pos` の位置に挿入します。
+範囲の要素を `pos` の位置に挿入します。
 
 ### operator= {#op_assign}
 

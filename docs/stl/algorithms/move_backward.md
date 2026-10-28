@@ -50,7 +50,7 @@ constexpr move_backward_result<borrowed_iterator_t<R>, I> move_backward(R&& r, I
 int main() {
   std::vector<std::string> names = {"A", "B", "C", ""};  // 末尾に空きがある
 
-  // 先頭の 3 個を、1 つ後ろへずらす
+  // 先頭の 3 個を 1 つ後ろへずらす
   std::ranges::move_backward(std::ranges::subrange(names.begin(), names.begin() + 3), names.end());
   names[0] = "新入り";
   std::println("{}", names);
@@ -71,7 +71,7 @@ int main() {
 
 | やったこと | 結果 |
 | --- | --- |
-| 移し先が、移す元の範囲の内側に入る | 未定義動作 |
+| 移し先が移す元の範囲の内側に入る | 未定義動作 |
 
 ## よくあるミス
 

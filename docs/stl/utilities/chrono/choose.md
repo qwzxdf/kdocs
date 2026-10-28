@@ -64,7 +64,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| 曖昧な時刻を、早いほうに決める | `tz->to_sys(t, std::chrono::choose::earliest)` |
+| 曖昧な時刻を早いほうに決める | `tz->to_sys(t, std::chrono::choose::earliest)` |
 
 ## よくあるミス
 

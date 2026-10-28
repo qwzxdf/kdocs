@@ -15,7 +15,7 @@ tags:
 `#include <filesystem>`
 </div>
 
-アセットフォルダの中の画像を、サブフォルダの中も含めて全部探したい。`directory_iterator` はフォルダの直下しか見ないので、サブフォルダに入るたびに、自分で再帰の関数を書くことになります。`std::filesystem::recursive_directory_iterator` は、フォルダの中身を、サブフォルダの奥まで全部たどって回します。再帰の関数を書かなくて済みます。
+アセットフォルダの中の画像をサブフォルダの中も含めて全部探したい。`directory_iterator` はフォルダの直下しか見ないので、サブフォルダに入るたびに、自分で再帰の関数を書くことになります。`std::filesystem::recursive_directory_iterator` は、フォルダの中身をサブフォルダの奥まで全部たどって回します。再帰の関数を書かなくて済みます。
 
 !!! tip "ポイント"
     - 範囲 for で回せる。
@@ -95,7 +95,7 @@ for (const auto& entry : fs::recursive_directory_iterator("assets")) {
     フォルダ自体も項目として返ります。ファイルだけを処理するなら、`entry.is_regular_file()` で絞ります。
 
 ??? failure "回しながらフォルダの中身を変更する"
-    ファイルの追加や削除を、回している最中に行うと、挙動が不定になります。いったん集めてから操作します。
+    ファイルの追加や削除を回している最中に行うと、挙動が不定になります。いったん集めてから操作します。
 
 ??? failure "巨大なフォルダを毎回たどって遅くなる"
     `.git` や `node_modules` のような大きなフォルダに入ると、時間がかかります。`disable_recursion_pending()` で飛ばすか、対象のフォルダを絞ります。

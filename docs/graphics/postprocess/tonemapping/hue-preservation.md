@@ -6,7 +6,7 @@ tags:
 
 # Preserving Hue
 
-<strong>トーンマップ曲線を、R・G・B に別々に掛けるか、輝度にだけ掛けるか</strong>で明るい色の見え方が大きく変わります。別々に掛けると彩度の高い明るい色の比率が崩れ、色相がずれます。輝度にだけ掛けると色相は保てますが派手な色が飽和しすぎます。このページでは、2 つの方式の違い・ハイブリッド・彩度の扱い・どう選ぶかを説明します。
+<strong>トーンマップ曲線を R・G・B に別々に掛けるか、輝度にだけ掛けるか</strong>で明るい色の見え方が大きく変わります。別々に掛けると彩度の高い明るい色の比率が崩れ、色相がずれます。輝度にだけ掛けると色相は保てますが派手な色が飽和しすぎます。このページでは、2 つの方式の違い・ハイブリッド・彩度の扱い・どう選ぶかを説明します。
 
 !!! tip "ポイント"
     - <strong>チャンネルごと</strong>：<strong>R・G・B に別々に曲線</strong>。フィルムの特性に近く、明部は白へ向かう。色相はずれる。
@@ -121,7 +121,7 @@ tags:
 チャンネルごとだと、R の比率が下がって、G・B の比率が相対的に上がるため、赤が少し黄色（橙）寄りに見えます。これがフィルムのような、明部の色の変化です。
 
 <svg class="fig illust" viewBox="0 0 780 220" role="img" aria-label="色相の変化の比較">
-<text x="20" y="26" class="fig-title">赤橙の光を、だんだん明るくしていくと</text>
+<text x="20" y="26" class="fig-title">赤橙の光をだんだん明るくしていくと</text>
 <defs>
 <linearGradient id="hp-ch" x1="0" x2="1"><stop offset="0" stop-color="#7a1d10"/><stop offset="0.4" stop-color="#e5602f"/><stop offset="0.75" stop-color="#ffb24a"/><stop offset="1" stop-color="#fff2c6"/></linearGradient>
 <linearGradient id="hp-lum" x1="0" x2="1"><stop offset="0" stop-color="#7a1d10"/><stop offset="0.5" stop-color="#e5483a"/><stop offset="1" stop-color="#ff5a45"/></linearGradient>
@@ -194,7 +194,7 @@ float3 DesaturateHighlights(float3 color, float threshold, float strength) {
 }
 ```
 
-彩度を落とす方式のコードの要点です。`threshold` は、この輝度から彩度を落とし始める閾値です。`strength` は、どれだけ白へ向かうかを表します（0〜1）。トーンマップの前に、HDR のうちに行います。
+彩度を落とす方式のコードの要点です。`threshold` は、この輝度から彩度を落とし始める閾値です。`strength` は、どれだけ白へ向かうかを表します（0〜1）。トーンマップの前に HDR のうちに行います。
 
 AgX・Tony McMapface は、こうした彩度の処理を曲線の設計に組み込んでいます。
 
@@ -212,10 +212,10 @@ AgX・Tony McMapface は、こうした彩度の処理を曲線の設計に組�
 ??? failure "輝度ベースで、1 を超えた値をそのまま出力して、色が破綻する"
     <strong>最後に `saturate`</strong>、またはガマット マッピング（超えた分を他の成分へ分配）。
 
-??? failure "輝度の係数を、BT.601（0.299, 0.587, 0.114）にしてしまう"
+??? failure "輝度の係数を BT.601（0.299, 0.587, 0.114）にしてしまう"
     sRGB（Rec.709）の原色なら、`(0.2126, 0.7152, 0.0722)`。
 
-??? failure "彩度を落とす処理を、トーンマップの後で行って、効きが弱い"
+??? failure "彩度を落とす処理をトーンマップの後で行って、効きが弱い"
     HDR のうち（トーンマップの前）に行う。
 
 ## これだけ覚える

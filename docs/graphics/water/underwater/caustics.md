@@ -6,7 +6,7 @@ tags:
 
 # Caustics
 
-<strong>水面の波で光が集まり水底にゆらゆら揺れる光の模様ができます</strong>。アニメーションするテクスチャを、光の方向から投影するのが手軽です。このページではコースティクスの作り方を説明します。
+<strong>水面の波で光が集まり水底にゆらゆら揺れる光の模様ができます</strong>。アニメーションするテクスチャを光の方向から投影するのが手軽です。このページではコースティクスの作り方を説明します。
 
 !!! tip "ポイント"
     - コースティクス ＝ 波で光が集まってできる模様。
@@ -26,7 +26,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">コースティクス: 波が光を集めて、水底に明るい線を作る</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">真上から来る平行な光 48 本が、波打つ水面で曲がり(n = 1.33)、水底の 1 マスに当たる。当たった本数 = 明るさ</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">真上から来る平行な光 48 本が波打つ水面で曲がり(n = 1.33)、水底の 1 マスに当たる。当たった本数 = 明るさ</text>
 <rect x="30" y="96" width="900" height="250" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">水面(波)と、屈折した光線</text>
 <rect x="60.0" y="330.0" width="840.0" height="14" fill="#94a3b8"/>
@@ -336,8 +336,8 @@ tags:
 <text x="900" y="392" text-anchor="end" style="font-size:14px;font-weight:700;fill:#e5484d">最も明るい所: 6 本(平均の 3.0 倍)</text>
 </g>
 <line x1="40" y1="462.0" x2="930" y2="462.0" stroke="#2ea043" stroke-width="2" stroke-dasharray="6 5"/>
-<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">波の斜面が、光を曲げる<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0511;0.0513;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">時刻 1: 斜面が光を中央に寄せる所が、明るい線になる<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0511;0.0513;0.3331;0.3333;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">波の斜面が光を曲げる<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0511;0.0513;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">時刻 1: 斜面が光を中央に寄せる所が明るい線になる<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0511;0.0513;0.3331;0.3333;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">時刻 2: 波が動くと、明るい線も動く<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.3331;0.3333;0.6152;0.6154;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="530" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">時刻 3: 本数が集まった所ほど明るい。これがコースティクス<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.6152;0.6154;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -347,7 +347,7 @@ tags:
 ## コースティクス
 <strong>コースティクス</strong>は 波打つ水面がレンズのように光を集め、底に明るい網目模様ができる現象です。波の凹凸の形で光が集まる所と散る所ができます。
 
-コースティクスの方式は 3 つです。アニメする模様のテクスチャは、ループするコースティクス模様を、ライトの方向から底に投影して足す定番の安い方法です。シミュレーションは水面の法線から屈折を計算し、底に落ちる光の集まりを求める重い正確な方法です。ヤコビアン風の近似は水面の法線のラプラシアン（凸凹）から、集光の強さを近似します。
+コースティクスの方式は 3 つです。アニメする模様のテクスチャは、ループするコースティクス模様をライトの方向から底に投影して足す定番の安い方法です。シミュレーションは水面の法線から屈折を計算し、底に落ちる光の集まりを求める重い正確な方法です。ヤコビアン風の近似は水面の法線のラプラシアン（凸凹）から、集光の強さを近似します。
 
 ### テクスチャを投影する
 
@@ -384,7 +384,7 @@ float3 caustics_rgb = float3(r, g, b);
 
 ## コースティクスとは
 
-水面の波は <strong>レンズのように光を、屈折</strong>させます。屈折した光は 水底で集まる場所と、散る場所ができ明るい網目状の模様が、揺れます。これがコースティクス（集光模様）です。プールの底でゆらゆら動く光の網が、典型です。
+水面の波は <strong>レンズのように光を屈折</strong>させます。屈折した光は 水底で集まる場所と、散る場所ができ明るい網目状の模様が揺れます。これがコースティクス（集光模様）です。プールの底でゆらゆら動く光の網が典型です。
 
 ```text
         太陽
@@ -397,15 +397,15 @@ float3 caustics_rgb = float3(r, g, b);
 
 ## 方法 1：アニメーションする、テクスチャを投影する
 
-最も簡単な方法は <strong>コースティクスの模様を、あらかじめ作ったテクスチャ</strong>を、水底に投影してゆっくり動かすことです。
+最も簡単な方法は <strong>コースティクスの模様をあらかじめ作ったテクスチャ</strong>を水底に投影してゆっくり動かすことです。
 
 ```hlsl
-// 水底の、ライティングに、コースティクスを、足す。
+// 水底の、ライティングにコースティクスを足す。
 float2 uv = world_pos.xz * caustic_scale;
-// 2 枚を、違う速さと、向きで、動かして、重ねる（周期が、見えにくくなる）。
+// 2 枚を違う速さと、向きで、動かして、重ねる（周期が見えにくくなる）。
 float c1 = g_caustic_tex.Sample(g_linear_wrap, uv + time * float2( 0.03, 0.02)).r;
 float c2 = g_caustic_tex.Sample(g_linear_wrap, uv * 1.3 - time * float2(0.02, 0.03)).r;
-float caustic = min(c1, c2);                                 // 小さい方を取る → 模様が、細く、鋭くなる
+float caustic = min(c1, c2);                                 // 小さい方を取る → 模様が細く、鋭くなる
 float3 lit = sun_color * n_dot_l * (1.0 + caustic * caustic_strength);
 ```
 
@@ -414,7 +414,7 @@ float3 lit = sun_color * n_dot_l * (1.0 + caustic * caustic_strength);
 | テクスチャ | タイルできる、コースティクスの画像。ゆっくり変化するアニメーション（フレームの、連続）も使える |
 | 投影の向き | 太陽の方向。水底の傾きに関係なく真上から（または、太陽の向きで）投影する |
 | `min` で重ねる | 2 枚の、暗い所が重なった所がさらに暗くなり、網の線が細く見える |
-| 強さ | 水深とともに弱める（深いと光が、届かない） |
+| 強さ | 水深とともに弱める（深いと光が届かない） |
 
 ### 水深で弱める
 
@@ -423,20 +423,20 @@ float3 lit = sun_color * n_dot_l * (1.0 + caustic * caustic_strength);
 float3 caustic_color = sun_color * exp(-absorption * depth_below_surface) * caustic * caustic_strength;
 ```
 
-コースティクスは 太陽光の模様なので 水に、吸収されます。水深が深いと暗く青くなります（[Color by Water Depth](../shading/depth-color.md)）。
+コースティクスは 太陽光の模様なので 水に吸収されます。水深が深いと暗く青くなります（[Color by Water Depth](../shading/depth-color.md)）。
 
-## 方法 2：波からリアルタイムに、計算する
+## 方法 2：波からリアルタイムに計算する
 
-波の形（法線）から <strong>屈折した光が水底の、どこに届くか</strong>を計算し 光が、集まる場所を数えることでコースティクスを、計算できます（Guardado ら、2004、Wallace、2015）。
+波の形（法線）から <strong>屈折した光が水底の、どこに届くか</strong>を計算し 光が集まる場所を数えることでコースティクスを計算できます（Guardado ら、2004、Wallace、2015）。
 
 ### 考え方
 
-水面の 1 つの小さな面を、通った光は屈折して 水底の別の大きさの面に、当たります。
+水面の 1 つの小さな面を通った光は屈折して 水底の別の大きさの面に当たります。
 
 | 水底での面積 | 光の強さ |
 | --- | --- |
-| 水面の面積より小さい | 光が、集まる → 明るい |
-| 水面の面積より大きい | 光が、広がる → 暗い |
+| 水面の面積より小さい | 光が集まる → 明るい |
+| 水面の面積より大きい | 光が広がる → 暗い |
 
 ```text
 明るさ ∝ 水面での面積 / 水底での面積
@@ -447,7 +447,7 @@ float3 caustic_color = sun_color * exp(-absorption * depth_below_surface) * caus
 水面の各点から 屈折光を水底へ飛ばし、水底の位置の隣のピクセルとの差から、面積の変化を求めます。
 
 ```hlsl
-// 水面の、頂点（または画素）から、屈折光が、水底に当たる位置を求める。
+// 水面の、頂点（または画素）から、屈折光が水底に当たる位置を求める。
 float3 refracted = refract(-sun_dir, wave_normal, 1.0 / 1.33);
 float t = (floor_height - world_pos.y) / refracted.y;           // 水底（y = floor_height）までの距離
 float3 floor_pos = world_pos + refracted * t;                    // 水底の位置
@@ -463,7 +463,7 @@ float old_area = length(cross(ox, oy));                           // 水面で�
 float caustic = old_area / max(new_area, 1e-5);                   // 面積が小さくなるほど、明るい
 ```
 
-この計算を 水底に描く（水面から見て、水底の位置に書き込む）ことで、コースティクスの画像（テクスチャ）を、作れます。そのテクスチャを水底や水中の物に、投影して使います。
+この計算を 水底に描く（水面から見て、水底の位置に書き込む）ことで、コースティクスの画像（テクスチャ）を作れます。そのテクスチャを水底や水中の物に投影して使います。
 
 | 項目 | 内容 |
 | --- | --- |
@@ -477,32 +477,32 @@ float caustic = old_area / max(new_area, 1e-5);                   // 面積が�
 | 方法 | 見た目 | コスト | 向く場面 |
 | --- | --- | --- | --- |
 | 投影テクスチャ（事前に作った） | 動きが一定の、模様 | 小 | ほとんどのゲーム |
-| 波からリアルタイムに計算 | 波と正確に、連動 | 中 | 波が大きい海。見た目を重視 |
+| 波からリアルタイムに計算 | 波と正確に連動 | 中 | 波が大きい海。見た目を重視 |
 
 波の動きと連動しなくても <strong>多くの人は、気づきません</strong>。投影テクスチャで十分なことが、ほとんどです。
 
 ## 水の外に出る光
 
-水の<strong>外</strong>にある 壁や船体にも、水面で反射した揺れる光の模様が、映ります（水辺の壁に水の揺れが、映る）。同じコースティクスのテクスチャを、水の近くの物に弱く投影すると水辺の、雰囲気が出ます。
+水の<strong>外</strong>にある 壁や船体にも、水面で反射した揺れる光の模様が映ります（水辺の壁に水の揺れが、映る）。同じコースティクスのテクスチャを水の近くの物に弱く投影すると水辺の、雰囲気が出ます。
 
 ## 注意点
 
 | 項目 | 内容 |
 | --- | --- |
-| 水面の外には出さない | コースティクスを、水の中の物にだけ掛ける（水の上の地面に、掛けない）。水位以下の物だけ |
-| 影との関係 | 影の中は太陽が、当たらない。コースティクスも影の中では消す（影の係数を、掛ける） |
+| 水面の外には出さない | コースティクスを水の中の物にだけ掛ける（水の上の地面に掛けない）。水位以下の物だけ |
+| 影との関係 | 影の中は太陽が当たらない。コースティクスも影の中では消す（影の係数を掛ける） |
 | 夜 | 太陽が無いので消える |
 | 曇り | 太陽光が弱いので、弱める |
 
 ## よくあるミス
 
-??? failure "水底の模様が、動かない・単調"
+??? failure "水底の模様が動かない・単調"
     <strong>2 枚を逆向きに流して重ねる</strong>。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 揺れる模様を、光の方向から投影
+    - [x] 揺れる模様を光の方向から投影
 
 ## 参考
 

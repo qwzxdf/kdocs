@@ -14,7 +14,7 @@ tags:
 `#include <sstream>`
 </div>
 
-設定の 1 行 `"hp 100 mp 50"` を、単語や数値に分けたい。`find` と `substr` を繰り返すと、読みにくくなります。`std::istringstream` は、文字列を入力ストリームとして読む型です。`std::cin` や `ifstream` と同じ `>>` や `getline` で読めます。コマンドを単語に分ける、1 行の中の値を取り出す、といった処理に向いています。
+設定の 1 行 `"hp 100 mp 50"` を単語や数値に分けたい。`find` と `substr` を繰り返すと、読みにくくなります。`std::istringstream` は、文字列を入力ストリームとして読む型です。`std::cin` や `ifstream` と同じ `>>` や `getline` で読めます。コマンドを単語に分ける、1 行の中の値を取り出す、といった処理に向いています。
 
 !!! tip "ポイント"
     - `std::istringstream in("12 abc 3.5");` で作って、`in >> n >> word >> x;`。
@@ -101,7 +101,7 @@ std::string_view view() const noexcept;
 
 - 計算量: 定数
 
-中の文字列を、コピーせずに `string_view` で見ます。ストリームに書き込むと無効になります。
+中の文字列をコピーせずに `string_view` で見ます。ストリームに書き込むと無効になります。
 
 ## ゲームでの使いどころ
 
@@ -109,7 +109,7 @@ std::string_view view() const noexcept;
 
 読み込み処理のテストにも便利です。ファイルを用意せず、文字列を渡すだけで、`std::istream` を受け取る関数を試せます。
 
-単純な区切りでの分割なら、`views::split` のほうが軽く書けます。`istringstream` は、型の違う値が並んでいる文字列を、型ごとに読み分けるときに向いています。
+単純な区切りでの分割なら、`views::split` のほうが軽く書けます。`istringstream` は、型の違う値が並んでいる文字列を型ごとに読み分けるときに向いています。
 
 ## よくあるミス
 

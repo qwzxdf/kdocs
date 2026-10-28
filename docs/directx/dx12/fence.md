@@ -65,13 +65,13 @@ void WaitForGpu() {
 
 ## フレームを同時に進める
 
-CPU が次のフレームを記録している間、GPU は前のフレームを実行しています。1 フレームごとに全完了を待つと CPU と GPU が交互にしか動けず並列性が失われます。そこで、フレームごとに「ここまで終われば再利用してよい」という値を覚えておき再利用の直前に、その値だけを確認します。
+CPU が次のフレームを記録している間、GPU は前のフレームを実行しています。1 フレームごとに全完了を待つと CPU と GPU が交互にしか動けず並列性が失われます。そこで、フレームごとに「ここまで終われば再利用してよい」という値を覚えておき再利用の直前にその値だけを確認します。
 
 ```cpp
 UINT64 frame_fence_values[kFrameCount] = {};  // 各フレームの「ここまで終われば再利用できる」値
 
 void BeginFrame(UINT frame_index) {
-  // このフレーム用のリソースを前に使ったフレームが、GPU で終わるのを待つ。
+  // このフレーム用のリソースを前に使ったフレームが GPU で終わるのを待つ。
   const UINT64 needed = frame_fence_values[frame_index];
   if (fence->GetCompletedValue() < needed) {
     fence->SetEventOnCompletion(needed, fence_event);

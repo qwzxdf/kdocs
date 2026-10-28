@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-値を型として持ち運びたい。たとえば、整数の `3` を、テンプレートの引数に渡す型として表したい。`std::integral_constant` は、<strong>コンパイル時の定数を、型として包む</strong>ための基本の部品です。`std::true_type` と `std::false_type` は、これを使って作られています。
+値を型として持ち運びたい。たとえば、整数の `3` をテンプレートの引数に渡す型として表したい。`std::integral_constant` は、<strong>コンパイル時の定数を型として包む</strong>ための基本の部品です。`std::true_type` と `std::false_type` は、これを使って作られています。
 
 !!! tip "ポイント"
     - `std::integral_constant<int, 3>::value` は 3

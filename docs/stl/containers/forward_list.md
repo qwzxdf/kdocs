@@ -341,7 +341,7 @@ iterator insert_range_after(const_iterator pos, R&& rg);
 
 - 計算量: O(挿入数)
 
-範囲の要素を、`pos` の次に挿入します。
+範囲の要素を `pos` の次に挿入します。
 
 ### prepend_range <span class="ver ver-23">C++23</span> {#prepend_range data-toc-label="prepend_range"}
 
@@ -352,7 +352,7 @@ void prepend_range(R&& rg);
 
 - 計算量: O(追加数)
 
-範囲の要素を、先頭に追加します。
+範囲の要素を先頭に追加します。
 
 ### resize {#resize}
 
@@ -386,7 +386,7 @@ void merge(forward_list<..., C2>& source);
 
 - 計算量: O(移動する要素数 × log n)
 
-別のコンテナの要素を、ノードごとこちらへ移します。キーが重複するものは、移動元に残ります。
+別のコンテナの要素をノードごとこちらへ移します。キーが重複するものは、移動元に残ります。
 
 ### operator= {#op_assign}
 

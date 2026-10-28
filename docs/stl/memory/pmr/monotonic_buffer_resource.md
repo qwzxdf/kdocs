@@ -42,7 +42,7 @@ class monotonic_buffer_resource : public memory_resource {
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `buffer`, `size` | `void*`, `size_t` | 最初に使う領域（スタックの配列など）。`nullptr` / 0 なら、すぐ上流から取る |
-| `upstream` | `std::pmr::memory_resource*` | **領域が足りなくなったとき**に、追加のメモリを取りに行く先。デフォルトは `get_default_resource()`（普通の `new`） |
+| `upstream` | `std::pmr::memory_resource*` | **領域が足りなくなったとき**に追加のメモリを取りに行く先。デフォルトは `get_default_resource()`（普通の `new`） |
 | `initial_size` | `std::size_t` | 最初に上流から取る大きさ（目安） |
 
 - 戻り値: なし（コンストラクタ）
@@ -71,7 +71,7 @@ void release();
 - 戻り値: なし
 - 領域をまとめて上流に返し、**最初の状態に戻します**。渡したバッファは、また最初から使えます
 - デストラクタも内部で `release()` を呼ぶので、リソースを破棄すれば自動で返されます
-- 呼ぶ前に、そのリソースを使っているコンテナをすべて破棄してください
+- 呼ぶ前にそのリソースを使っているコンテナをすべて破棄してください
 
 ## 実際に動かしてみる
 

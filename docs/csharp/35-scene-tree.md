@@ -6,7 +6,7 @@ tags:
 
 # 第 35 章 シーン ツリー
 
-この章では、`SceneDocument` を木（ツリー）として表示して、物の選択、名前の変更、追加、削除、そしてドラッグ アンド ドロップによる親子づけができるようにします。`TreeView`、`HierarchicalDataTemplate`、右クリック メニュー、キー操作、ドラッグ アンド ドロップが、一度に出てくる章です。
+この章では、`SceneDocument` を木（ツリー）として表示して、物の選択、名前の変更、追加、削除、そしてドラッグ アンド ドロップによる親子づけができるようにします。`TreeView`、`HierarchicalDataTemplate`、右クリック メニュー、キー操作、ドラッグ アンド ドロップが一度に出てくる章です。
 
 !!! info "このページを読む前に"
     - [第 34 章 シーンのデータと API](34-scene-api.md)（前の章。ここまでの内容が前提になる）
@@ -17,7 +17,7 @@ tags:
 
 シーン ツリーの原則は、第 12 章の MVVM と同じです。ツリーは、`SceneDocument.Roots`（`ObservableCollection`）をバインディングで見るだけです。追加や削除はコマンドでドキュメントを変えて、変わったドキュメントを見て、ツリーが自動で更新されます。`TreeViewItem` をコードから直接いじることは、しません。
 
-選択も同じ考え方です。「いま何が選ばれているか」は、ツリーだけの話ではありません。ビューポート（黄色い枠）も、プロパティ パネルも知りたい情報です。そこで、選択を持つサービス（`ISelectionService`）を作って、ツリー、ビューポート、プロパティの 3 者が、そのサービスを介してやり取りする形にします（第 18 章の考え方です）。
+選択も同じ考え方です。「いま何が選ばれているか」は、ツリーだけの話ではありません。ビューポート（黄色い枠）も、プロパティ パネルも知りたい情報です。そこで、選択を持つサービス（`ISelectionService`）を作って、ツリー、ビューポート、プロパティの 3 者がそのサービスを介してやり取りする形にします（第 18 章の考え方です）。
 
 ```text
 ツリーで選ぶ ─▶ ISelectionService ─▶ プロパティ パネルが切り替わる
@@ -64,7 +64,7 @@ public sealed class SelectionService : ISelectionService
     public SelectionService(SceneDocument document, IRenderLoop loop)
     {
         _loop = loop;
-        // 選択中の物が、ドキュメントから消えたら、選択からも外す
+        // 選択中の物がドキュメントから消えたら、選択からも外す
         document.Changed += change =>
         {
             if (change.Kind == SceneChangeKind.Destroyed && _selection.Remove(change.Object))
@@ -123,7 +123,7 @@ public sealed class SelectionService : ISelectionService
 }
 ```
 
-`IReadOnlyList<T>` は、読み取り専用のリストです。`List<T>` を、この型で見せれば、外から `Add` される心配がありません。最後に選んだ物を `Insert(0, obj)` で先頭に入れて、それを `Primary`（主の選択）と呼びます。
+`IReadOnlyList<T>` は、読み取り専用のリストです。`List<T>` をこの型で見せれば、外から `Add` される心配がありません。最後に選んだ物を `Insert(0, obj)` で先頭に入れて、それを `Primary`（主の選択）と呼びます。
 
 `RaiseChanged` の `_selection.Select(o => o.Id).ToArray()` の `Select` は、LINQ の変換用の関数で、クラス自身の `Select` メソッドとは別物です。ここで ID の配列を作ってから `Post` している点にも注目してください。描画スレッドで実行される時点の選択ではなく、今の選択のコピーを送るためです（第 34 章と同じ理由です）。
 
@@ -353,9 +353,9 @@ public class SceneTreeViewModel : BindableBase
 </TreeView.ItemContainerStyle>
 ```
 
-`TreeView.SelectedItem` は読み取り専用なので、バインディングできません。そこで、各 `TreeViewItem` の `IsSelected` を、データの `IsSelected` にバインドします。これで、ツリーでクリックすると `SceneObject.IsSelected = true` になり、コードで `IsSelected = true` にすると（ビューポートで選んだときなど）ツリーの選択も追従します。
+`TreeView.SelectedItem` は読み取り専用なので、バインディングできません。そこで、各 `TreeViewItem` の `IsSelected` をデータの `IsSelected` にバインドします。これで、ツリーでクリックすると `SceneObject.IsSelected = true` になり、コードで `IsSelected = true` にすると（ビューポートで選んだときなど）ツリーの選択も追従します。
 
-ただし、これだけでは、ツリーのクリックが `ISelectionService` に届きません。クリックを伝える橋を、コードビハインドに作ります。
+ただし、これだけでは、ツリーのクリックが `ISelectionService` に届きません。クリックを伝える橋をコードビハインドに作ります。
 
 ### ツリーの選択をサービスに伝える
 
@@ -391,7 +391,7 @@ public partial class SceneTreeView : UserControl
 `e.NewValue is SceneObject obj` で、型の確認と取り出しを一度にやっています。
 
 !!! note "無限ループにならないか？"
-    `Select(obj)` が `obj.IsSelected = true` にする → ツリーが更新される → `SelectedItemChanged` が呼ばれる → `OnItemSelected` → `Select(obj)`、と、ぐるぐる回りそうに見えます。実際は、「すでに同じ物が先頭にあるなら何もしない」ことで止まります。念のため、`Select` の先頭に、同じ選択なら何もせず戻る検査を入れておくと安全です。
+    `Select(obj)` が `obj.IsSelected = true` にする → ツリーが更新される → `SelectedItemChanged` が呼ばれる → `OnItemSelected` → `Select(obj)`、と、ぐるぐる回りそうに見えます。実際は、「すでに同じ物が先頭にあるなら何もしない」ことで止まります。念のため、`Select` の先頭に同じ選択なら何もせず戻る検査を入れておくと安全です。
 
 ## 右クリック メニュー
 
@@ -506,7 +506,7 @@ private void OnDrop(object sender, DragEventArgs e)
     `TreeViewItem` は画面外に出ると再利用されます。状態を `TreeViewItem` ではなく、データの `IsExpanded` / `IsSelected` に持たせていれば、再利用されても崩れません。
 
 ??? failure "`F2` を押しても、編集にならない"
-    `TextBox` にフォーカスが移っていません。`IsEditing` が `true` になった直後に、`TextBox` に `Focus()` を呼ぶ処理が要ります。`TextBox.Loaded` で `Focus` と `SelectAll` を呼ぶのが簡単です。
+    `TextBox` にフォーカスが移っていません。`IsEditing` が `true` になった直後に `TextBox` に `Focus()` を呼ぶ処理が要ります。`TextBox.Loaded` で `Focus` と `SelectAll` を呼ぶのが簡単です。
 
 ??? failure "ドラッグがすぐ始まって、クリックで選択できない"
     `MinimumHorizontalDragDistance` の検査が抜けています。
@@ -522,9 +522,9 @@ private void OnDrop(object sender, DragEventArgs e)
 - ツリーはドキュメントを見るだけ。変更はコマンドでドキュメントを変える。
 - 選択は `ISelectionService` を介して、ツリー、ビューポート、プロパティで共有する。
 - 木の見た目と子の取り出し方は、`HierarchicalDataTemplate` で決める。
-- `TreeViewItem` の `IsSelected` と `IsExpanded` を、データにバインドする。
+- `TreeViewItem` の `IsSelected` と `IsExpanded` をデータにバインドする。
 - ドラッグ アンド ドロップは、`DoDragDrop`、`DragOver`、`Drop` の組み合わせ。
 
-次の章では、選択中の物の位置、回転、拡大、色を、入力欄で編集できるようにします。
+次の章では、選択中の物の位置、回転、拡大、色を入力欄で編集できるようにします。
 
 [第 36 章 プロパティ パネル](36-property-panel.md) へ進みます。

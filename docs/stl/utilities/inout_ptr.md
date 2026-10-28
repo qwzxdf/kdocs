@@ -18,7 +18,7 @@ tags:
 
 !!! tip "ポイント"
     - `Replace(std::inout_ptr(p));` の形。
-    - `unique_ptr` が持っていた値を、API 側に引き渡す（所有権が一旦 API に渡る）。
+    - `unique_ptr` が持っていた値を API 側に引き渡す（所有権が一旦 API に渡る）。
     - API が失敗したときの挙動に注意する。
 
 !!! info "このページを読む前に"
@@ -66,7 +66,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| realloc 風の C のAPI を、スマートポインターで使う | `Resize(std::inout_ptr(p), new_size)` |
+| realloc 風の C のAPI をスマートポインターで使う | `Resize(std::inout_ptr(p), new_size)` |
 
 ## よくあるミス
 

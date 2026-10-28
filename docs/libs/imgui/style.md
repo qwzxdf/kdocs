@@ -133,7 +133,7 @@ ImGui::Button("攻撃");
 ImGui::EndDisabled();
 ```
 
-`BeginDisabled(true)` で囲んだ部品が、薄くなり操作できなくなります（`Push` で色を変えるより簡単）。
+`BeginDisabled(true)` で囲んだ部品が薄くなり操作できなくなります（`Push` で色を変えるより簡単）。
 
 ## 自作のテーマ
 
@@ -168,7 +168,7 @@ void ApplyMyTheme() {
 
 | コツ | 説明 |
 | --- | --- |
-| 基準の色を 1 つ決める | ボタン・ヘッダ・つまみなどを、その色の明るさ違いにする |
+| 基準の色を 1 つ決める | ボタン・ヘッダ・つまみなどをその色の明るさ違いにする |
 | ホバーは少し明るく | 押下は、少し暗く |
 | 文字と背景のコントラスト | 読めることが、最優先 |
 | ImGui のスタイル エディタ | `ImGui::ShowStyleEditor()` を開くとリアルタイムで、全項目を調整できる |
@@ -189,7 +189,7 @@ ImGui::ShowStyleEditor();
 
 ## 高 DPI（ディスプレイの拡大率）への対応 {#dpi}
 
-**高解像度のディスプレイ**ではImGui の部品が、小さく見えます。
+**高解像度のディスプレイ**ではImGui の部品が小さく見えます。
 
 ```cpp
 float dpi_scale = GetDpiScaleForWindow(hwnd);
@@ -202,7 +202,7 @@ io.Fonts->AddFontFromFileTTF("font.ttf", 16.0f * dpi_scale);
 
 | 点 | 説明 |
 | --- | --- |
-| `style.ScaleAllSizes(scale)` | 余白・角丸・スクロールバーなどすべての大きさを、`scale` 倍する |
+| `style.ScaleAllSizes(scale)` | 余白・角丸・スクロールバーなどすべての大きさを `scale` 倍する |
 | フォントも拡大して読み込む | `io.FontGlobalScale` で拡大すると、ぼやける。フォントの大きさを DPI に合わせて作る（[フォント](fonts.md)） |
 | スケールは 1 回だけ | `ScaleAllSizes` を何度も呼ぶと掛け算が重なって、大きくなりすぎる |
 | DPI の変化 | ウィンドウを別のモニターに動かしたとき、スタイルを元に戻して再度スケールする |
@@ -235,8 +235,8 @@ void OnDpiChanged(float scale) {
 ??? failure "`io.FontGlobalScale` で拡大して、文字がぼやける"
     フォント自体を大きく読み込み直す（[フォント](fonts.md)）。
 
-??? failure "背景が、透けて見える（アルファ）"
-    `ImGuiCol_WindowBg` の アルファ（4 つ目）が、1 未満です。
+??? failure "背景が透けて見える（アルファ）"
+    `ImGuiCol_WindowBg` の アルファ（4 つ目）が 1 未満です。
 
 ??? failure "色の値を 0〜255 で書いている"
     `ImVec4` は 0〜1 の `float` です。`IM_COL32` は 0〜255 の整数（`ImU32`）で、用途が別です。

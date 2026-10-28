@@ -49,8 +49,8 @@ float3 reflection = environment.SampleLevel(linear_clamp, reflect_dir, 0).rgb;
 | 方法 | 映るもの | コスト | 弱点 |
 | --- | --- | --- | --- |
 | 環境マップ（キューブマップ） | 空、遠景 | 小 | 近くの物（船、岸の建物）が映らない |
-| 平面反射 | 水面の上にある、すべて | 大（シーンをもう一度描く） | 波で乱れた反射が、作れない（ごまかす） |
-| SSR | 画面に映っているもの | 中 | 画面の外が、映らない。水平に近い視線で画面の端から、反射が消える |
+| 平面反射 | 水面の上にある、すべて | 大（シーンをもう一度描く） | 波で乱れた反射が作れない（ごまかす） |
+| SSR | 画面に映っているもの | 中 | 画面の外が映らない。水平に近い視線で画面の端から、反射が消える |
 | レイトレーシング | すべて | 大 | 対応する GPU が必要 |
 
 ## 重ね方：フォールバック
@@ -65,7 +65,7 @@ float3 reflection = environment.SampleLevel(linear_clamp, reflect_dir, 0).rgb;
 
 | 順 | 方法 | 決め方 |
 | --- | --- | --- |
-| 1 | SSR（または平面反射） | 反射レイが、画面の中の物に当たったら使う。当たらなければ次へ |
+| 1 | SSR（または平面反射） | 反射レイが画面の中の物に当たったら使う。当たらなければ次へ |
 | 2 | 環境マップ（空） | SSR が、当たらなかったとき |
 
 ```hlsl
@@ -101,7 +101,7 @@ reflect_dir.y = max(reflect_dir.y, 0.02);
 reflect_dir = normalize(reflect_dir);
 ```
 
-遠くの水面ほど起きやすいです（視線が、水平に近く法線の少しの傾きで反射が、下を向く）。遠くでは波の法線を弱めて、反射の向きを安定させます（[Computing Normals](../waves/normals.md)）。
+遠くの水面ほど起きやすいです（視線が水平に近く法線の少しの傾きで反射が下を向く）。遠くでは波の法線を弱めて、反射の向きを安定させます（[Computing Normals](../waves/normals.md)）。
 
 ## 平面反射
 
@@ -121,18 +121,18 @@ float3 MirroredPosition(float3 p, float water_height) {
   return {p.x, 2.0f * water_height - p.y, p.z};
 }
 // 鏡像カメラの視線方向の y 成分も、反転する。
-// 水面より下にある物を、描かないよう、斜めクリップ面（水面）を、設定する。
+// 水面より下にある物を描かないよう、斜めクリップ面（水面）を設定する。
 ```
 
 | 項目 | 内容 |
 | --- | --- |
-| 描く範囲 | 水面より上にある物だけ。水面で斜めにクリップする（水面より下を、映さない） |
-| 解像度 | 画面の半分程度に、下げる（反射はぼやけてよい） |
+| 描く範囲 | 水面より上にある物だけ。水面で斜めにクリップする（水面より下を映さない） |
+| 解像度 | 画面の半分程度に下げる（反射はぼやけてよい） |
 | 描くもの | 遠景（空、山）と重要な近景だけに絞る。全シーンを描くと描画が 2 倍に近くなる |
 | 波での歪み | 反射のテクスチャを読むときに、波の法線の `xz` で UV をずらす |
 
 ```hlsl
-// 平面反射のテクスチャを、波の法線で歪ませて読む。
+// 平面反射のテクスチャを波の法線で歪ませて読む。
 float2 reflect_uv = screen_uv + wave_normal.xz * distortion_strength;
 reflect_uv.x = 1.0 - reflect_uv.x;                         // 鏡像なので、左右を反転する（実装による）
 float3 reflection = g_planar_reflection.Sample(g_linear_clamp, reflect_uv).rgb;
@@ -142,15 +142,15 @@ float3 reflection = g_planar_reflection.Sample(g_linear_clamp, reflect_uv).rgb;
 
 ## 空の反射
 
-空は <strong>環境マップ</strong>（キューブマップ）で、映すのが基本です。昼と夜、天候の変化に合わせて 環境マップを、更新します。
+空は <strong>環境マップ</strong>（キューブマップ）で、映すのが基本です。昼と夜、天候の変化に合わせて 環境マップを更新します。
 
 | 方法 | 内容 |
 | --- | --- |
 | 事前のキューブマップ | 昼・夜・夕方の、キューブマップを用意して時間帯で、混ぜる |
-| 大気からリアルタイムに生成 | [Atmosphere Model](../../atmosphere/scattering/atmosphere-model.md) の結果を、キューブマップに描いて使う |
+| 大気からリアルタイムに生成 | [Atmosphere Model](../../atmosphere/scattering/atmosphere-model.md) の結果をキューブマップに描いて使う |
 | 大気の LUT を直接引く | 反射ベクトルから、空の色を LUT から読む。キューブマップが要らない |
 
-粗さがあるとき（細かい波のばらつき）は、キューブマップのミップ（ぼかした版）を、読みます。`SampleLevel` で粗さに応じたミップを選びます（[Prefiltering (Split-Sum)](../../reflections/probes/prefilter.md)）。
+粗さがあるとき（細かい波のばらつき）は、キューブマップのミップ（ぼかした版）を読みます。`SampleLevel` で粗さに応じたミップを選びます（[Prefiltering (Split-Sum)](../../reflections/probes/prefilter.md)）。
 
 ## 合成
 
@@ -161,11 +161,11 @@ float F = FresnelSchlick(saturate(dot(wave_normal, view_dir)), 0.02);
 float3 color = lerp(refraction, reflection, F);
 ```
 
-真上から見ると `F ≈ 0.02` で 反射は、ほぼ見えません。遠くを見るほど `F` が大きく 反射が、支配的になります。
+真上から見ると `F ≈ 0.02` で 反射は、ほぼ見えません。遠くを見るほど `F` が大きく 反射が支配的になります。
 
 ## よくあるミス
 
-??? failure "水面の反射が、画面の端で途切れる"
+??? failure "水面の反射が画面の端で途切れる"
     <strong>環境マップへフォールバック</strong>する。
 
 ## これだけ覚える

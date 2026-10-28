@@ -123,14 +123,14 @@ void ID3D12GraphicsCommandList::ResourceBarrier(
 | `NumBarriers` | `UINT` | バリアの数 |
 | `pBarriers` | `const D3D12_RESOURCE_BARRIER*` | バリアの配列 |
 
-バリアには 3 つの種類があります。**遷移（Transition）** は、リソースの状態を `Before` から `After` へ切り替えます。一番よく使います。**UAV バリア**は同じ UAV に書いた結果を次の処理が読む前に書き込みの完了を待たせます。**エイリアシング バリア**は同じヒープの場所を共有する複数のリソースを、切り替えるときに使います。
+バリアには 3 つの種類があります。**遷移（Transition）** は、リソースの状態を `Before` から `After` へ切り替えます。一番よく使います。**UAV バリア**は同じ UAV に書いた結果を次の処理が読む前に書き込みの完了を待たせます。**エイリアシング バリア**は同じヒープの場所を共有する複数のリソースを切り替えるときに使います。
 
 遷移バリアの `Before` はリソースの今の状態と一致していなければなりません。一致していないとデバッグ レイヤーがエラーを出します。状態は自分で追いかけて覚えておくしかありません。フレームの最初と最後で状態がそろうように設計します（バックバッファなら `PRESENT` で始まって `PRESENT` で終わる）。
 
 複数のバリアはまとめて 1 回の呼び出しで渡すほうが速くなります。`NumBarriers` を 2 以上にして配列で渡します。
 
 ```cpp
-// バックバッファを、表示用から描き込み用に切り替える。
+// バックバッファを表示用から描き込み用に切り替える。
 D3D12_RESOURCE_BARRIER barrier = MakeTransitionBarrier(
     back_buffer.Get(),
     D3D12_RESOURCE_STATE_PRESENT,        // 今の状態
@@ -416,7 +416,7 @@ void ID3D12GraphicsCommandList::DrawIndexedInstanced(
 
 インデックス バッファの順に頂点を読んで描きます。頂点を共有できるのでメッシュの描画は、ほぼこちらです。
 
-`IndexCountPerInstance` はインデックスの数（三角形の数 × 3）、`StartIndexLocation` は読み始めるインデックスの位置です。`BaseVertexLocation` はインデックスが指す頂点の番号に**足される値**で、負の値も使えます。1 つの大きな頂点バッファに複数のメッシュを並べたときメッシュごとの頂点の開始位置を、ここで指定します。
+`IndexCountPerInstance` はインデックスの数（三角形の数 × 3）、`StartIndexLocation` は読み始めるインデックスの位置です。`BaseVertexLocation` はインデックスが指す頂点の番号に**足される値**で、負の値も使えます。1 つの大きな頂点バッファに複数のメッシュを並べたときメッシュごとの頂点の開始位置をここで指定します。
 
 インデックス バッファは先に `IASetIndexBuffer` で結んでおく必要があります。
 

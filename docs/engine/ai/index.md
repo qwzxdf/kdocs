@@ -24,7 +24,7 @@ tags:
 
 | ページ | 内容 |
 | --- | --- |
-| [ビヘイビア ツリー](behavior-tree.md) | 敵の行動を、木の形で組み立てる |
+| [ビヘイビア ツリー](behavior-tree.md) | 敵の行動を木の形で組み立てる |
 | [経路探索](pathfinding.md) | A* と、ナビメッシュ |
 
 経路探索の道具としては、[Recast & Detour](../../libs/recast/index.md) が使えます。

@@ -13,7 +13,7 @@ tags:
     - まず測る（どのファイル・どのヘッダが重いか）。勘で直さない。
     - 効果が大きい順：並列ビルド（/MP）→ include を減らす（前方宣言）→ プリコンパイル済みヘッダー → ヘッダ内のテンプレートを減らす → キャッシュ・モジュール。
     - ヘッダに重い物（`<windows.h>` 全部、`<regex>`、`<iostream>`）を入れない。
-    - Debug のビルドを、速くする（日々の開発で一番使う）。Release の LTCG は、遅くてよい（CI で）。
+    - Debug のビルドを速くする（日々の開発で一番使う）。Release の LTCG は、遅くてよい（CI で）。
 
 !!! info "このページを読む前に"
     - [optimize/index.md](index.md)（このセクション全体の地図と、読む順番）
@@ -21,7 +21,7 @@ tags:
 
 ## なぜ遅いのか
 
-<svg class="fig flow" viewBox="0 0 417 280" role="img" aria-label="同じヘッダを、すべての .cpp が読み直す"><defs><marker id="fl51929" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">同じヘッダを、すべての .cpp が読み直す</text><line x1="107.0" y1="80.2" x2="220.3" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl51929)"/><text x="163.7" y="96.6" text-anchor="middle" style="font-size:12px">#include</text><line x1="107.0" y1="148.0" x2="165.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl51929)"/><text x="136.0" y="142.0" text-anchor="middle" style="font-size:12px">#include</text><line x1="107.0" y1="215.8" x2="220.3" y2="171.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl51929)"/><text x="163.7" y="187.4" text-anchor="middle" style="font-size:12px">#include</text><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">A.cpp</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="168.0" y="128.0" width="221" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="278.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">big.h （100回、解析・展開）</text><circle cx="170.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="170.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="28.0" y="128.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="66.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">B.cpp</text><circle cx="30.0" cy="130.0" r="10" fill="#2ea043"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="28.0" y="212.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="66.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">C.cpp</text><circle cx="30.0" cy="214.0" r="10" fill="#e5a828"/><text x="30.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
+<svg class="fig flow" viewBox="0 0 417 280" role="img" aria-label="同じヘッダを、すべての .cpp が読み直す"><defs><marker id="fl51929" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">同じヘッダをすべての .cpp が読み直す</text><line x1="107.0" y1="80.2" x2="220.3" y2="125.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl51929)"/><text x="163.7" y="96.6" text-anchor="middle" style="font-size:12px">#include</text><line x1="107.0" y1="148.0" x2="165.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl51929)"/><text x="136.0" y="142.0" text-anchor="middle" style="font-size:12px">#include</text><line x1="107.0" y1="215.8" x2="220.3" y2="171.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl51929)"/><text x="163.7" y="187.4" text-anchor="middle" style="font-size:12px">#include</text><rect x="28.0" y="44.0" width="76" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="66.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">A.cpp</text><circle cx="30.0" cy="46.0" r="10" fill="#4c8bf5"/><text x="30.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="168.0" y="128.0" width="221" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="278.5" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">big.h （100回、解析・展開）</text><circle cx="170.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="170.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="28.0" y="128.0" width="76" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="66.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">B.cpp</text><circle cx="30.0" cy="130.0" r="10" fill="#2ea043"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="28.0" y="212.0" width="76" height="40" rx="9" fill="rgba(229,170,40,0.25)" stroke="#e5a828" stroke-width="2"/><text x="66.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">C.cpp</text><circle cx="30.0" cy="214.0" r="10" fill="#e5a828"/><text x="30.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">3</text></svg>
 
 | 原因 | 説明 |
 | --- | --- |
@@ -35,11 +35,11 @@ tags:
 
 ## 測る
 
-「何が遅いか」を、数字で見ます。
+「何が遅いか」を数字で見ます。
 
 | 方法 | 説明 |
 | --- | --- |
-| **ビルドの総時間** | Visual Studio の出力に、経過時間が出る。まず、これを記録 |
+| **ビルドの総時間** | Visual Studio の出力に経過時間が出る。まず、これを記録 |
 | `/Bt+`（コンパイラの時間表示） | `.cpp` ごとのフロントエンド・バックエンドの時間 |
 | `/d1reportTime` | どのヘッダが何秒かかったか（include の時間） |
 | C++ Build Insights（`vcperf`） | ビルド全体の流れをタイムラインで見る。Windows Performance Analyzer で開く |
@@ -48,13 +48,13 @@ tags:
 
 ### プロパティでの設定
 
-プロジェクトのプロパティ → C/C++ → コマンド ライン → 追加のオプションに、`/d1reportTime` や `/Bt+` を書き、ビルドの出力ウィンドウで結果を見ます。測ったら、外します（出力が増えるため）。
+プロジェクトのプロパティ → C/C++ → コマンド ライン → 追加のオプションに `/d1reportTime` や `/Bt+` を書き、ビルドの出力ウィンドウで結果を見ます。測ったら、外します（出力が増えるため）。
 
 ## 1. 並列ビルド
 
 | 設定 | 説明 |
 | --- | --- |
-| **`/MP`**（複数プロセッサによるコンパイル） | 1 つのプロジェクト内の `.cpp` を、複数のコアで同時にコンパイル。プロパティ → C/C++ → 全般 → 複数プロセッサによるコンパイル |
+| **`/MP`**（複数プロセッサによるコンパイル） | 1 つのプロジェクト内の `.cpp` を複数のコアで同時にコンパイル。プロパティ → C/C++ → 全般 → 複数プロセッサによるコンパイル |
 | プロジェクトの並列ビルド数 | ツール → オプション → プロジェクトおよびソリューション → ビルドして実行 → 最大並列プロジェクトビルド数 |
 | Ninja | CMake + Ninja は、自動で全コアを使う（[Ninja](../vs/ninja.md)） |
 
@@ -91,7 +91,7 @@ class Player {
 
 クラスの中身を`.cpp` に隠すことで、ヘッダを軽くできます（[PImpl](../design/patterns/pimpl.md)）。実行時のコスト（ポインタ経由・ヒープ確保）がかかるので変更が多く、よく include されるクラスに限ります。
 
-### 重い標準ヘッダを、ヘッダに書かない
+### 重い標準ヘッダをヘッダに書かない
 
 | ヘッダ | 対策 |
 | --- | --- |
@@ -107,7 +107,7 @@ class Player {
 | 方法 | 説明 |
 | --- | --- |
 | `/showIncludes` | どのファイルが何を include しているかを表示 |
-| [Include What You Use（IWYU）](#iwyu) | 足りない・不要な include を、提案するツール |
+| [Include What You Use（IWYU）](#iwyu) | 足りない・不要な include を提案するツール |
 | Visual Studio の「インクルード ファイルの整理」 | 一部の機能（新しいバージョン） |
 | include のグラフ | 依存を可視化して、中心にある重いヘッダを見つける |
 
@@ -117,7 +117,7 @@ Include What You Use（インクルード・ワット・ユー・ユース、IWY
 
 | 考え方 | 説明 |
 | --- | --- |
-| 使うものは直接 include | `std::vector` を使う `.cpp` は、`#include <vector>` を、自分で書く（ほかのヘッダがたまたま include していても、頼らない） |
+| 使うものは直接 include | `std::vector` を使う `.cpp` は、`#include <vector>` を自分で書く（ほかのヘッダがたまたま include していても、頼らない） |
 | 使わないものは、include しない | 不要な include は、消す（読む量が減って、ビルドが速くなる） |
 | 間接的な include に、頼らない | `a.h` が `b.h` を include しているからと、`a.h` だけで `b.h` の中身を使うのは、脆い（`a.h` が整理されると、突然ビルドエラー） |
 
@@ -127,11 +127,11 @@ Include What You Use（インクルード・ワット・ユー・ユース、IWY
 std::vector<int> ids;
 ```
 
-`enemy.h` がたまたま `<vector>` を include していると、動きます。`enemy.h` から `<vector>` が消えた日に、ビルドが壊れます。IWYU の守り方は`#include <vector>` を、自分で書くことです。
+`enemy.h` がたまたま `<vector>` を include していると、動きます。`enemy.h` から `<vector>` が消えた日にビルドが壊れます。IWYU の守り方は`#include <vector>` を自分で書くことです。
 
 #### ツール include-what-you-use
 
-Clang をベースにした、解析ツールです。ソースを解析して、「足すべき include」「消すべき include」を、提案します。
+Clang をベースにした、解析ツールです。ソースを解析して、「足すべき include」「消すべき include」を提案します。
 
 ```text
 main.cpp should add these lines:
@@ -151,7 +151,7 @@ The full include-list for main.cpp:
 | CMake から使う | `set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE include-what-you-use)` で、ビルドのたびに提案を出力 |
 | 一括で解析 | `iwyu_tool.py -p <build>`（`compile_commands.json` を使って、全ファイルを解析） |
 | 提案を自動で反映 | `fix_includes.py`（提案をソースに適用） |
-| 除外・保持の指示 | `// IWYU pragma: keep`（消さない）、`// IWYU pragma: export`（この include を、再公開） |
+| 除外・保持の指示 | `// IWYU pragma: keep`（消さない）、`// IWYU pragma: export`（この include を再公開） |
 | マッピングファイル | 「この型はこのヘッダ」という対応を自分で教える（標準ライブラリの内部ヘッダ対策） |
 
 !!! warning "Windows・MSVC では、導入が少し面倒"
@@ -161,7 +161,7 @@ The full include-list for main.cpp:
 
 | 機能 | 説明 |
 | --- | --- |
-| Visual Studio の「未使用の `#include`」の検出・削除 | 新しい Visual Studio（2022 の後期の版）で、使っていない include を、グレー表示・整理する機能がある（バージョンで機能が違う） |
+| Visual Studio の「未使用の `#include`」の検出・削除 | 新しい Visual Studio（2022 の後期の版）で、使っていない include をグレー表示・整理する機能がある（バージョンで機能が違う） |
 | clangd の「Unused include」診断 | VS Code などで、clangd を使うと、使われていない include が、警告される（`Include Cleaner`） |
 
 まずはこれらのエディタの支援で使っていない include を消すだけでも、効果があります。
@@ -180,7 +180,7 @@ IWYU は、「ヘッダに重い include を増やす」ためのルールでは
 
 ## 3. プリコンパイル済みヘッダー（PCH）
 
-<strong>変更されない重いヘッダ（標準ライブラリ、外部ライブラリ）</strong>を、一度だけ解析して、結果を保存し、各 `.cpp` で再利用します。
+<strong>変更されない重いヘッダ（標準ライブラリ、外部ライブラリ）</strong>を一度だけ解析して、結果を保存し、各 `.cpp` で再利用します。
 
 ```cpp
 #pragma once
@@ -209,7 +209,7 @@ IWYU は、「ヘッダに重い include を増やす」ためのルールでは
 
 ## 4. unity ビルド（Jumbo ビルド）
 
-**複数の `.cpp` を、1 つの `.cpp` にまとめて**コンパイルします。ヘッダの読み込みが、1 回になるので速くなります。
+**複数の `.cpp` を 1 つの `.cpp` にまとめて**コンパイルします。ヘッダの読み込みが、1 回になるので速くなります。
 
 ```cmake
 set_target_properties(app PROPERTIES UNITY_BUILD ON UNITY_BUILD_BATCH_SIZE 16)
@@ -219,13 +219,13 @@ set_target_properties(app PROPERTIES UNITY_BUILD ON UNITY_BUILD_BATCH_SIZE 16)
 | --- | --- |
 | ヘッダの解析がまとめて 1 回。大幅に速くなることがある | 名前の衝突（無名名前空間、`static` がまとめられた `.cpp` 同士で衝突） |
 | リンクも速い（オブジェクトが減る） | 1 つ変えるとまとめた全部を再コンパイル（増分ビルドに不利） |
-| | `using namespace` や マクロが、ほかの `.cpp` に漏れる |
+| | `using namespace` や マクロがほかの `.cpp` に漏れる |
 
 CI・リリースビルドで使い、日々の開発では、使わないのが無難です。
 
 ## 5. テンプレートの再インスタンス化を減らす
 
-**同じテンプレートの展開を、`.cpp` ごとにやり直さない**ようにします。
+**同じテンプレートの展開を `.cpp` ごとにやり直さない**ようにします。
 
 ```cpp
 extern template class std::vector<Enemy>;
@@ -240,7 +240,7 @@ template class std::vector<Enemy>;
 | `extern template` | 「この展開は他の `.cpp` にある。ここでは展開しない」 |
 | 明示的インスタンス化（`template class ...;`） | 「この `.cpp` で展開する」（1 か所だけ） |
 
-自作のテンプレートで使う型が決まっているとき（例：`Vector<float>`、`Vector<int>` だけ）に、ヘッダには宣言、`.cpp` に実装と明示的インスタンス化を書くと、ヘッダが軽くなります。
+自作のテンプレートで使う型が決まっているとき（例：`Vector<float>`、`Vector<int>` だけ）にヘッダには宣言、`.cpp` に実装と明示的インスタンス化を書くと、ヘッダが軽くなります。
 
 ## 6. 増分ビルドを守る
 
@@ -273,7 +273,7 @@ template class std::vector<Enemy>;
 | --- | --- |
 | ccache | GCC / Clang で、よく使う。MSVC は制約がある |
 | sccache | MSVC にも対応。チーム・CI でキャッシュを共有できる |
-| CI のキャッシュ | ビルド成果物を、CI 上で保存・再利用 |
+| CI のキャッシュ | ビルド成果物を CI 上で保存・再利用 |
 
 クリーンビルドが何度も行われる（CI）環境で特に効果があります。
 
@@ -291,7 +291,7 @@ int main() {
 
 | 項目 | 説明 |
 | --- | --- |
-| `import std;`（C++23） | 標準ライブラリ全体を、1 行で。MSVC（Visual Studio 2026）で使える |
+| `import std;`（C++23） | 標準ライブラリ全体を 1 行で。MSVC（Visual Studio 2026）で使える |
 | 効果 | ヘッダを読むより、速いことが多い |
 | 現状の課題 | ツール・IDE・ビルドシステムの対応がまだ発展中。外部ライブラリは、対応していないことが多い |
 | 設定 | プロジェクトのプロパティ → C/C++ → 言語 → C++ 標準ライブラリ モジュールのビルド（新しいバージョン） |
@@ -313,7 +313,7 @@ int main() {
 
 ## よくあるミス
 
-??? failure "ヘッダが、他のヘッダを不必要に include している"
+??? failure "ヘッダが他のヘッダを不必要に include している"
     前方宣言で済む所は、`.cpp` に移します。
 
 ??? failure "PCH に、頻繁に変わる自分のヘッダを入れる"
@@ -328,14 +328,14 @@ int main() {
 ??? failure "測らずに、ビルドの設定をいじる"
     `/d1reportTime`、Build Insights で、何が遅いかを先に調べます。
 
-??? failure "`__DATE__` / `__TIME__` を、全体で使っていて、毎回再ビルドになる"
+??? failure "`__DATE__` / `__TIME__` を全体で使っていて、毎回再ビルドになる"
     1 つの `.cpp` に閉じ込めるか、ビルド情報を別ファイルにします。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
     - [x] 遅い原因はヘッダの読み直し。まず測る（`/d1reportTime`、Build Insights）
-    - [x] 並列化（`/MP`、Ninja）が、最も手軽で効く
+    - [x] 並列化（`/MP`、Ninja）が最も手軽で効く
     - [x] 前方宣言・PImplで include を減らす。重いヘッダをヘッダに書かない
     - [x] PCH には変更しないヘッダだけ。unity ビルドは CI で
     - [x] よく変わるヘッダ・`__DATE__` が増分ビルドを壊す。Debug を速く、LTCG は Release だけ

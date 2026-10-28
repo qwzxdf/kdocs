@@ -19,7 +19,7 @@ Prism は、バージョンによって細かな API が変わります。ここ
 
 第 17 章の `RequestNavigate` で切り替えたビューは、リージョンから外れずに残り続けます（非表示になっているだけ）。同じ画面に戻ってくると、新しく作られるのではなく、前に使っていたものが再び出てきます。
 
-これが都合のよいこともあります（入力途中の内容が残る）が、都合の悪いこともあります（データが古いまま残る）。
+これが都合のよいこともあります（入力途中の内容が残る）が都合の悪いこともあります（データが古いまま残る）。
 
 ### 残すかどうか決める：IRegionMemberLifetime
 
@@ -41,7 +41,7 @@ public class SettingsViewModel : BindableBase { }
 
 ### 既存のビューを使い回すか決める：IsNavigationTarget
 
-`INavigationAware.IsNavigationTarget` は、「今の移動先として、この既存のビューでよいか」を答えます（第 17 章）。たとえば、物の詳細画面を、物ごとに別のビューにしたいなら、渡されたパラメーターを見て判定します。
+`INavigationAware.IsNavigationTarget` は、「今の移動先として、この既存のビューでよいか」を答えます（第 17 章）。たとえば、物の詳細画面を物ごとに別のビューにしたいなら、渡されたパラメーターを見て判定します。
 
 ```csharp
 public bool IsNavigationTarget(NavigationContext context)
@@ -109,18 +109,18 @@ private void GoBack()
 
 ## リージョンの文脈を渡す：RegionContext
 
-リージョンの中のビューに、リージョンを置いた側から値を渡したいときは、`RegionContext` を使います。親の画面に、次のように書きます。
+リージョンの中のビューにリージョンを置いた側から値を渡したいときは、`RegionContext` を使います。親の画面に次のように書きます。
 
 ```xml
 <ContentControl prism:RegionManager.RegionName="DetailRegion"
                 prism:RegionManager.RegionContext="{Binding SelectedItem}" />
 ```
 
-リージョンの中のビュー側は、`RegionContext` を受け取れます。ナビゲーションのパラメーターよりも、「今選ばれている物を、そのまま下の画面に渡す」ような関係に向いています。
+リージョンの中のビュー側は、`RegionContext` を受け取れます。ナビゲーションのパラメーターよりも、「今選ばれている物をそのまま下の画面に渡す」ような関係に向いています。
 
 ## コマンドを束ねる：CompositeCommand
 
-「すべて保存」のように、複数のビューモデルのコマンドを、一度に呼びたいときは `CompositeCommand` を使います。
+「すべて保存」のように、複数のビューモデルのコマンドを一度に呼びたいときは `CompositeCommand` を使います。
 
 ```csharp
 // 共有の場所（サービスなど）に 1 つだけ作る
@@ -136,7 +136,7 @@ public class ApplicationCommands : IApplicationCommands
 ```
 
 ```csharp
-// 各ビューモデルが、自分の保存コマンドを登録する
+// 各ビューモデルが自分の保存コマンドを登録する
 public EditorViewModel(IApplicationCommands appCommands)
 {
     SaveCommand = new DelegateCommand(Save);

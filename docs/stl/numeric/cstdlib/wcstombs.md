@@ -13,7 +13,7 @@ tags:
 `#include <cstdlib>`
 </div>
 
-Windows の API が返したワイド文字列（`wchar_t`）を、ゲームの内部で使うマルチバイトの文字列に戻すのが `std::wcstombs` です。`std::mbstowcs` の逆の変換です。
+Windows の API が返したワイド文字列（`wchar_t`）をゲームの内部で使うマルチバイトの文字列に戻すのが `std::wcstombs` です。`std::mbstowcs` の逆の変換です。
 
 !!! tip "ポイント"
     - `std::wcstombs(dest, src, n)` は文字列全体を変換する
@@ -67,7 +67,7 @@ int main() {
 
 ## ゲームでの使いどころ
 
-Windows API から受け取ったワイド文字列を、ログに出すために変換するときなどに使います。UTF-8 の日本語は `WideCharToMultiByte` を使います。
+Windows API から受け取ったワイド文字列をログに出すために変換するときなどに使います。UTF-8 の日本語は `WideCharToMultiByte` を使います。
 
 ## よくあるミス
 

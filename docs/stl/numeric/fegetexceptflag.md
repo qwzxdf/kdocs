@@ -41,7 +41,7 @@ int fegetexceptflag(std::fexcept_t* flagp, int excepts);
 | `flagp` | `fexcept_t*` | 保存先 |
 | `excepts` | `int` | 保存したいフラグ |
 
-`excepts` で指定したフラグの現在の状態を、`*flagp` に保存します。成功すれば 0 を返します。
+`excepts` で指定したフラグの現在の状態を `*flagp` に保存します。成功すれば 0 を返します。
 
 `fexcept_t` の中身は環境依存で、直接読み書きしてはいけません。保存した値は、`fesetexceptflag` に渡して復元するためのものです。
 

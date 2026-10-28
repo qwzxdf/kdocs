@@ -11,7 +11,7 @@ tags:
 !!! tip "ポイント"
     - PCF ＝ <strong>周りの N 点それぞれで「影か」を比べ、その平均（日向の割合）を取る</strong>。
     - <strong>深度を先に平均してはいけない</strong>（影の境で嘘の深度ができる）。比較してから平均。
-    - ハードウェア PCF：比較サンプラーのバイリニアが、2×2 の PCF を 1 回で行う。
+    - ハードウェア PCF：比較サンプラーのバイリニアが 2×2 の PCF を 1 回で行う。
     - 広くぼかすなら複数回サンプル：格子（N×N）・ポワソン円盤・回転。
     - カーネルが大きいほどソフトだが、遮蔽物との距離に関係なく一定のぼけ（現実の影と違う）。
     - カーネルが大きいと、バイアスの扱いが難しい（[Shadow Bias](bias/index.md)）。
@@ -27,7 +27,7 @@ tags:
 
 深度を先に平均してから比べるのは誤りです。影の縁で、どちらにも存在しない嘘の深度ができるからです。先に比べて、その結果を平均すれば正しくなります。各点の「影か」の割合が得られます。
 
-つまり、PCF の「比較」は、フィルタの前に行います。普通のテクスチャ フィルタ（バイリニア・ミップ）は、比較より前に値を補間するので、そのままでは使えません。専用の比較サンプラーが、この順序を実現します。
+つまり、PCF の「比較」は、フィルタの前に行います。普通のテクスチャ フィルタ（バイリニア・ミップ）は、比較より前に値を補間するので、そのままでは使えません。専用の比較サンプラーがこの順序を実現します。
 
 ## ハードウェア PCF（2×2）
 
@@ -101,7 +101,7 @@ float PCFPoisson(float2 uv, float depth, float filter_radius_uv, float2 rotation
 
 回転の与え方は 3 通りあります。4×4 などのランダムな角度のテクスチャを使う方法。IGN（Interleaved Gradient Noise）を画素の座標から式で計算する方法（[AO Filtering](../ao/filtering/index.md)）。フレームごとに角度を変えて、TAA と併用し、時間方向に平均する方法です。
 
-少ないサンプル（8〜16）に、画素ごとの回転と、TAA（または時間蓄積）を組み合わせると実質的に多くのサンプルを使ったソフトな影になります。
+少ないサンプル（8〜16）に画素ごとの回転と、TAA（または時間蓄積）を組み合わせると実質的に多くのサンプルを使ったソフトな影になります。
 
 <!-- fig:pcf-kernel:begin -->
 
@@ -110,7 +110,7 @@ float PCFPoisson(float2 uv, float depth, float filter_radius_uv, float2 rotation
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">PCF: 周りの数マスを調べて平均し、影の縁をなめらかにする</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">同じシャドウ マップ(1 マス = 3×3 ピクセルの荒い表)を、1 回 / 3×3 回 / 5×5 回 読んで比べる</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">同じシャドウ マップ(1 マス = 3×3 ピクセルの荒い表)を 1 回 / 3×3 回 / 5×5 回 読んで比べる</text>
 <rect x="30" y="96" width="286.0" height="182.0" fill="#ffffff" stroke="#e5484d" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">PCF なし(1 回)</text>
 <rect x="30.0" y="96.0" width="13.3" height="13.3" fill="#e5e7eb"><animate attributeName="fill" dur="17.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0571" values="#e5e7eb;#fde68a"/></rect>
@@ -1275,9 +1275,9 @@ float PCFPoisson(float2 uv, float depth, float filter_radius_uv, float2 rotation
 <text x="46" y="464" text-anchor="start" style="font-size:16px;font-weight:700;fill:#1e3a8a">影の濃さの段階: 1 回 → 2 種類(0 か 1 だけ)/ 3×3 → 9 種類 / 5×5 → 12 種類</text>
 <text x="46" y="489" text-anchor="start" style="font-size:14px;font-weight:700;fill:#64748b">読み込みは 1 : 9 : 25。縁のなめらかさと引き換えに、画面の全画素で テクスチャ読み込みが 9 倍・25 倍に増える</text>
 </g>
-<text x="30" y="528" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ荒いシャドウ マップを、3 通りの読み方で比べる<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.0569;0.0571;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="528" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ荒いシャドウ マップを 3 通りの読み方で比べる<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.0569;0.0571;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="528" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">画面を左から右へなぞって、各画素の影の濃さを決める<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.0569;0.0571;0.2581;0.2583;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="528" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">縁の 1 画素の中身: 読んだ 1 マスずつの 影 / 光 を、平均する<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.2581;0.2583;0.3438;0.3440;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="528" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">縁の 1 画素の中身: 読んだ 1 マスずつの 影 / 光 を平均する<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.2581;0.2583;0.3438;0.3440;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="528" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">読む範囲が広いほどなめらかだが、読み込みが増える<animate attributeName="opacity" dur="17.5s" repeatCount="indefinite" keyTimes="0.0000;0.3438;0.3440;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -1315,7 +1315,7 @@ if (shadow > 0.0 && shadow < 1.0) {
 
 ## PCF とバイアス
 
-<strong>カーネルが大きい</strong>と周りのサンプルの位置が、中心から離れるので面の傾きにより、サンプルごとに面の深度が違います。中心の深度のまま比べると、傾いた面でサンプルが自己遮蔽します。
+<strong>カーネルが大きい</strong>と周りのサンプルの位置が中心から離れるので面の傾きにより、サンプルごとに面の深度が違います。中心の深度のまま比べると、傾いた面でサンプルが自己遮蔽します。
 
 広いカーネルでのバイアスは、3 通りで対処します。サンプルごとに面の傾きで深度を補正する受け手平面バイアス（[Shadow Bias](bias/index.md)）。位置を法線方向にずらす法線オフセット。簡単ですがピーター パンニングが出る、バイアスを大きくする方法です。
 
@@ -1332,7 +1332,7 @@ if (shadow > 0.0 && shadow < 1.0) {
 
 ## よくあるミス
 
-??? failure "深度を、フィルタ（バイリニア）してから比べて、境界で破綻する"
+??? failure "深度をフィルタ（バイリニア）してから比べて、境界で破綻する"
     <strong>比較サンプラー</strong>で比べてから補間します。
 
 ??? failure "全画素で、同じサンプル パターンを使って、縞が見える"

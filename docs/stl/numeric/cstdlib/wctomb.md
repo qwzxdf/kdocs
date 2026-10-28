@@ -13,7 +13,7 @@ tags:
 `#include <cstdlib>`
 </div>
 
-ワイド文字（`wchar_t`）1 文字を、マルチバイトの文字（UTF-8 など）に戻すのが `std::wctomb` です。`std::mbtowc` の逆の変換です。
+ワイド文字（`wchar_t`）1 文字をマルチバイトの文字（UTF-8 など）に戻すのが `std::wctomb` です。`std::mbtowc` の逆の変換です。
 
 !!! tip "ポイント"
     - `std::wctomb(s, wc)` は `wc` を `s` に書き込む

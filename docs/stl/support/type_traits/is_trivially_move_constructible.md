@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-ムーブが、ビットの複製だけで済む型かを知りたい。`std::is_trivially_move_constructible` は、<strong>型が自明なムーブコンストラクターを持つか</strong>を調べます。
+ムーブがビットの複製だけで済む型かを知りたい。`std::is_trivially_move_constructible` は、<strong>型が自明なムーブコンストラクターを持つか</strong>を調べます。
 
 !!! tip "ポイント"
     - `std::is_trivially_move_constructible_v<T>` は、`T` が自明なムーブコンストラクターを持つか

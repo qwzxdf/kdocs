@@ -14,7 +14,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-整数型を、同じ大きさの符号なしの型に変えたい。たとえば、ビット演算では、符号つき整数の右シフトの結果が環境によって違うため、先に符号なしに直したい。`std::make_unsigned` は、<strong>同じ大きさの符号なし整数型</strong>を返します。
+整数型を同じ大きさの符号なしの型に変えたい。たとえば、ビット演算では、符号つき整数の右シフトの結果が環境によって違うため、先に符号なしに直したい。`std::make_unsigned` は、<strong>同じ大きさの符号なし整数型</strong>を返します。
 
 !!! tip "ポイント"
     - `std::make_unsigned_t<int>` は `unsigned int`
@@ -65,7 +65,7 @@ std::make_unsigned_t<const int> は const unsigned int : true
 
 ## ゲームでの使いどころ
 
-符号つき整数のビット演算を、符号なしで安全に行います。
+符号つき整数のビット演算を符号なしで安全に行います。
 
 ```cpp
 template <class Int>

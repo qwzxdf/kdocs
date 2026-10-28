@@ -21,7 +21,7 @@ tags:
     - `std::remove_cvref_t<const int&>` は `int`
     - 参照と `const` と `volatile` を全部外す
     - ポインタの指す先の `const` は外れない
-    - 型の性質を調べる前に、このユーティリティを通す
+    - 型の性質を調べる前にこのユーティリティを通す
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -68,7 +68,7 @@ std::remove_cvref_t<const int*> は const int* : true
 
 ## ゲームでの使いどころ
 
-型の性質を調べる前に、素の型にそろえます。
+型の性質を調べる前に素の型にそろえます。
 
 ```cpp
 template <class T>

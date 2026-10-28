@@ -13,7 +13,7 @@ tags:
 `#include <iostream>`
 </div>
 
-`std::wclog` は、`clog` の `wchar_t` 版です。`wchar_t` の文字列を、バッファありの標準エラー出力に出します。`clog` と混ぜて使わないようにします。
+`std::wclog` は、`clog` の `wchar_t` 版です。`wchar_t` の文字列をバッファありの標準エラー出力に出します。`clog` と混ぜて使わないようにします。
 
 !!! tip "ポイント"
     - `cerr` の`wchar_t` 版。

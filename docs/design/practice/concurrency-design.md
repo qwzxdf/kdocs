@@ -7,15 +7,15 @@ tags:
 
 # 並行処理の設計
 
-**並行処理**は複数の処理を同時に進める技術です。ゲームでは、「描画」「ゲームの更新」「ファイルのロード」「音の再生」「ネットワーク」を、別々のスレッドで動かすことがあります。うまく使うとロード中も画面が止まらない、複数のコアを使って重い処理を速く終わらせるといった効果があります。ただし、スレッドはバグの温床です。「たまにしか起きない」「デバッグすると消える」バグ（データ競争、デッドロック）が起きやすく、設計でそもそも起きにくくしておくことが一番大事です。この考え方をこのページでまとめます（仕組みは [並行処理（基礎）](../../basics/concurrency.md) と [thread](../../stl/concurrency/thread.md)・[mutex](../../stl/concurrency/mutex.md) を見てください）。
+**並行処理**は複数の処理を同時に進める技術です。ゲームでは、「描画」「ゲームの更新」「ファイルのロード」「音の再生」「ネットワーク」を別々のスレッドで動かすことがあります。うまく使うとロード中も画面が止まらない、複数のコアを使って重い処理を速く終わらせるといった効果があります。ただし、スレッドはバグの温床です。「たまにしか起きない」「デバッグすると消える」バグ（データ競争、デッドロック）が起きやすく、設計でそもそも起きにくくしておくことが一番大事です。この考え方をこのページでまとめます（仕組みは [並行処理（基礎）](../../basics/concurrency.md) と [thread](../../stl/concurrency/thread.md)・[mutex](../../stl/concurrency/mutex.md) を見てください）。
 
 !!! tip "ポイント"
     - <strong>できるだけスレッドを使わない。</strong> まず 1 スレッドで速くする。必要になってから、分ける。
     - 使うなら、<strong>「共有しない」</strong>設計にする。共有するデータが少ないほど、バグも少ない。
     - 共有するなら、所有者を 1 つのスレッドに決める。他はメッセージ（コピー）で伝える。
     - やむを得ず共有するデータは、`mutex` で守るか、`atomic` にする。ロックの範囲は小さく、短く。
-    - スレッドを手で作り回さず、「ジョブ（仕事）」を、スレッド プールに任せる。
-    - 「スレッドの境界」を、設計図に書く（どのデータをどのスレッドが触るか）。
+    - スレッドを手で作り回さず、「ジョブ（仕事）」をスレッド プールに任せる。
+    - 「スレッドの境界」を設計図に書く（どのデータをどのスレッドが触るか）。
 
 !!! info "このページを読む前に"
     - [design/index.md](../index.md)（このセクション全体の地図と、読む順番）
@@ -54,7 +54,7 @@ l a l1 hit 持つ
 l b l2 hit 持つ
 l a l2 gone 待つ
 l b l1 gone 待つ
-# A はロック 2 を、B はロック 1 を待つ。お互いに待って、永久に動けない
+# A はロック 2 を B はロック 1 を待つ。お互いに待って、永久に動けない
 </div>
 
 ## 設計の基本方針
@@ -68,7 +68,7 @@ l b l1 gone 待つ
 | 処理を分割して、データも分割する | 敵の配列を前半と後半に分けて、別々のスレッドで更新する（お互いのデータを触らない） |
 | スレッド ローカル（`thread_local`） | スレッドごとに別の変数を持つ（乱数生成器、一時バッファ） |
 | コピーして渡す | データをコピーして渡し、渡したら元のスレッドは触らない |
-| 結果だけを返す | 仕事の結果を、`std::future` やメッセージ キューで受け取る |
+| 結果だけを返す | 仕事の結果を `std::future` やメッセージ キューで受け取る |
 
 ### 2. 所有者を決める（メッセージで伝える）
 
@@ -137,12 +137,12 @@ class MessageQueue {
 
 ## ジョブ システム（仕事をプールに任せる）
 
-スレッドを**自分で作って管理する**と大変です。ゲームではスレッド プール（決まった数のスレッドが、待機している）に、ジョブ（小さな仕事）を投げる設計がよく使われます。
+スレッドを**自分で作って管理する**と大変です。ゲームではスレッド プール（決まった数のスレッドが待機している）にジョブ（小さな仕事）を投げる設計がよく使われます。
 
 <svg class="fig flow" viewBox="0 0 418 280" role="img" aria-label="ジョブキューに仕事を積み、空いたワーカーが取って実行する"><defs><marker id="fl24895" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="currentColor"/></marker></defs><text x="14" y="22" class="fig-title">ジョブキューに仕事を積み、空いたワーカーが取って実行する</text><line x1="133.0" y1="125.0" x2="209.0" y2="87.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24895)"/><text x="171.0" y="100.0" text-anchor="middle" style="font-size:12px">取る</text><line x1="149.0" y1="148.0" x2="207.0" y2="148.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24895)"/><text x="178.0" y="142.0" text-anchor="middle" style="font-size:12px">取る</text><line x1="133.0" y1="171.0" x2="209.0" y2="209.0" stroke="currentColor" stroke-width="2" marker-end="url(#fl24895)"/><text x="171.0" y="184.0" text-anchor="middle" style="font-size:12px">取る</text><rect x="28.0" y="128.0" width="118" height="40" rx="9" fill="rgba(76,139,245,0.22)" stroke="#4c8bf5" stroke-width="2"/><text x="87.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ジョブ キュー</text><circle cx="30.0" cy="130.0" r="10" fill="#4c8bf5"/><text x="30.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">1</text><rect x="210.0" y="44.0" width="90" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="255.0" y="64.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワーカー1</text><circle cx="212.0" cy="46.0" r="10" fill="#2ea043"/><text x="212.0" y="46.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="210.0" y="128.0" width="90" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="255.0" y="148.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワーカー2</text><circle cx="212.0" cy="130.0" r="10" fill="#2ea043"/><text x="212.0" y="130.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text><rect x="210.0" y="212.0" width="90" height="40" rx="9" fill="rgba(46,160,67,0.22)" stroke="#2ea043" stroke-width="2"/><text x="255.0" y="232.0" text-anchor="middle" dominant-baseline="central" style="font-weight:600">ワーカー3</text><circle cx="212.0" cy="214.0" r="10" fill="#2ea043"/><text x="212.0" y="214.0" text-anchor="middle" dominant-baseline="central" style="fill:#fff;font-size:12px;font-weight:700">2</text></svg>
 
 ```cpp
-// 例：重い読み込みを、別のスレッドに任せる（std::async）
+// 例：重い読み込みを別のスレッドに任せる（std::async）
 std::future<Texture> loading = std::async(std::launch::async, [] {
   return LoadTexture("boss.png");       // 別のスレッドで実行
 });
@@ -168,7 +168,7 @@ if (loading.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
 | **1 スレッド** | すべて、メイン スレッドで | 簡単。まずこれ |
 | メイン + ロード スレッド | ロード中も画面（ローディング表示）が止まらない | 易しい（`std::async`） |
 | メイン + ワーカー（ジョブ） | 物理・AI・アニメーションをジョブで並列化 | 中 |
-| ゲーム スレッド + 描画スレッド | 更新と描画を、1 フレームずらして並行 | 難しい（データの受け渡しの設計が必要） |
+| ゲーム スレッド + 描画スレッド | 更新と描画を 1 フレームずらして並行 | 難しい（データの受け渡しの設計が必要） |
 
 ### ロードを別スレッドにする（よくある使い方）
 
@@ -195,14 +195,14 @@ if (loading.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
 ??? failure "「たまにしか起きない」バグを放っておく"
     データ競争は動いたり動かなかったりします。**ThreadSanitizer**（Clang / GCC）や、Visual Studio の診断ツールで、競合を探します。
 
-??? failure "`std::thread` を、`join` / `detach` せずに破棄する"
+??? failure "`std::thread` を `join` / `detach` せずに破棄する"
     `std::thread` のデストラクタは、join も detach もされていないと `std::terminate`（プログラムの強制終了）です。`std::jthread`（デストラクタで `join`）を使います。
 
 ??? failure "ロックの範囲が広い"
     関数全体をロックすると、他のスレッドが長く待たされます。共有データに触る、ほんの一部だけをロックします。
 
 ??? failure "スレッドの中で、ラムダが消えたローカル変数を参照する"
-    `[&]` ですぐに消える変数を借りたラムダを、別スレッドで実行すると、ダングリングです。コピーキャプチャ（`[=]`、`[x = std::move(x)]`）にします（[所有権とライフタイム設計](../foundations/ownership-lifetime.md)）。
+    `[&]` ですぐに消える変数を借りたラムダを別スレッドで実行すると、ダングリングです。コピーキャプチャ（`[=]`、`[x = std::move(x)]`）にします（[所有権とライフタイム設計](../foundations/ownership-lifetime.md)）。
 
 ??? failure "ロックを取る順番がバラバラ"
     スレッドごとに違う順番でロックを取ると、デッドロックします。常に同じ順番にするか、`std::scoped_lock(a, b)` を使います。
@@ -217,7 +217,7 @@ if (loading.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
     - [x] **共有しない**（データを分ける・コピーして渡す）。共有するなら、所有者を決めて、メッセージで頼む
     - [x] 共有データは `mutex`（`lock_guard`）か `atomic`。ロックは短く、順番は一定に
     - [x] スレッドを手で管理せず、`std::async` やジョブ（スレッド プール）に任せる
-    - [x] `std::jthread` を使う。スレッド間のデータの境界を、設計図に書く
+    - [x] `std::jthread` を使う。スレッド間のデータの境界を設計図に書く
 
 ## 関連ページ
 

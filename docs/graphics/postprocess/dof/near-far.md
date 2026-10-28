@@ -94,8 +94,8 @@ float BackgroundWeight(float sample_coc, float distance_in_pixels) {
 <defs><marker id="arr-dof-near-field" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">手前のぼけ: 手前の物は、ぼけが、後ろのピントの合った所へ、はみ出す。後ろの画素のぼけ(0)だけでは足りない</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 48 画素。中央の手前の物(幅 8、CoC 5)が、ピントの合った背景に重なる。ぼけの広がりを、2 つの方法で比べる</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">手前のぼけ: 手前の物は、ぼけが、後ろのピントの合った所へはみ出す。後ろの画素のぼけ(0)だけでは足りない</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 48 画素。中央の手前の物(幅 8、CoC 5)がピントの合った背景に重なる。ぼけの広がりを 2 つの方法で比べる</text>
 <text x="60.0" y="104" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">入力</text>
 <rect x="60.0" y="108.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#e5e7eb;#d9e6f2"/></rect>
 <rect x="78.0" y="108.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#e5e7eb;#d9e6f2"/></rect>
@@ -196,7 +196,7 @@ float BackgroundWeight(float sample_coc, float distance_in_pixels) {
 <rect x="888.0" y="168.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1689" values="#e5e7eb;#d9e6f2"/></rect>
 <rect x="906.0" y="168.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.1711" values="#e5e7eb;#d9e6f2"/></rect>
 <rect x="60.0" y="168" width="864.0" height="18.0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-<text x="60.0" y="224" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">手前のぼけを、周りへ広げてから集める</text>
+<text x="60.0" y="224" text-anchor="start" style="font-size:13px;font-weight:700;fill:#2ea043">手前のぼけを周りへ広げてから集める</text>
 <rect x="60.0" y="228.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2533" values="#e5e7eb;#d9e6f2"/></rect>
 <rect x="78.0" y="228.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2556" values="#e5e7eb;#d9e6f2"/></rect>
 <rect x="96.0" y="228.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.2578" values="#e5e7eb;#d9e6f2"/></rect>
@@ -296,7 +296,7 @@ float BackgroundWeight(float sample_coc, float distance_in_pixels) {
 <rect x="888.0" y="288.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#e5e7eb;#d9e6f2"/></rect>
 <rect x="906.0" y="288.0" width="18.3" height="18.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#e5e7eb;#d9e6f2"/></rect>
 <rect x="60.0" y="288" width="864.0" height="18.0" fill="none" stroke="#94a3b8" stroke-width="1.5"/>
-<text x="60.0" y="354" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">手前の物の外へ、ぼけがはみ出した幅(画素):</text>
+<text x="60.0" y="354" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">手前の物の外へぼけがはみ出した幅(画素):</text>
 <text x="430" y="358" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="1">0<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.1776;0.1778;1.0000" values="1;1;0;0"/></text>
 <text x="430" y="358" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">8<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.1776;0.1778;0.3643;0.3644;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="430" y="358" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">18<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3643;0.3644;1.0000" values="0;0;1;1"/></text>
@@ -307,10 +307,10 @@ float BackgroundWeight(float sample_coc, float distance_in_pixels) {
 <text x="50" y="464" text-anchor="start" style="font-size:22px;font-weight:700;fill:#e5484d" opacity="0">0.037<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4620;0.4622;1.0000" values="0;0;1;1"/></text>
 <text x="490" y="434" text-anchor="start" style="font-size:14px;font-weight:700;fill:#2ea043" opacity="0">広げてから集める<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5154;0.5156;1.0000" values="0;0;1;1"/></text>
 <text x="490" y="464" text-anchor="start" style="font-size:22px;font-weight:700;fill:#2ea043" opacity="0">0.000<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5154;0.5156;1.0000" values="0;0;1;1"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">手前の物は、ぼけると、後ろの背景の上に、はみ出して見える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">手前の物は、ぼけると、後ろの背景の上にはみ出して見える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">背景の画素は、自分のぼけが 0 なので、はみ出しが再現できない(輪郭がくっきり残る)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.2532;0.2533;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">手前の CoC を周りへ広げると、はみ出しが再現できる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.2532;0.2533;0.4620;0.4622;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">はみ出しの幅が、正解に近づく<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4620;0.4622;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">はみ出しの幅が正解に近づく<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.4620;0.4622;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:dof-near-field:end -->
@@ -333,7 +333,7 @@ void TileMaxCoc(uint3 id : SV_DispatchThreadID, uint3 group_id : SV_GroupID, uin
 }
 ```
 
-近傍最大 CoC のコードの要点です。前景は負の値なので、最小値が最も大きな前景の CoC になります。グループ内の最小値を共有メモリで縮約して求め、さらに、隣接 3×3 のタイルの最小値を、そのタイルの「近傍の最大 CoC」にします。
+近傍最大 CoC のコードの要点です。前景は負の値なので、最小値が最も大きな前景の CoC になります。グループ内の最小値を共有メモリで縮約して求め、さらに、隣接 3×3 のタイルの最小値をそのタイルの「近傍の最大 CoC」にします。
 
 タイルの最大 CoC が 0 のタイル（前景がまったくない）は、前景のぼかしを丸ごとスキップでき、高速化になります。
 
@@ -364,7 +364,7 @@ void TileMaxCoc(uint3 id : SV_DispatchThreadID, uint3 group_id : SV_GroupID, uin
 
 ## よくあるミス
 
-??? failure "前景のボケが、奥にしかかからず、手前の物の輪郭が切れている"
+??? failure "前景のボケが奥にしかかからず、手前の物の輪郭が切れている"
     <strong>近傍の最大 CoC</strong>で前景の外へも広げる。
 
 ??? failure "ピント内の物の周りに、背景のボケが白く縁取る"

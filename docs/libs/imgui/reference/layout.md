@@ -13,7 +13,7 @@ tags:
     - <strong>カーソルが部品を置くたびに、1 行下へ進む</strong>。<strong>`SameLine` で同じ行に戻る</strong>。
     - `Begin` は、戻り値に関係なく必ず `End`。
     - 幅は、`SetNextItemWidth`（次の 1 個）か`PushItemWidth`（Pop まで）。負の値は「右端から何ピクセル空けるか」。
-    - ウィンドウの位置・大きさは、`SetNextWindow…` を、`Begin` の前に呼ぶ。
+    - ウィンドウの位置・大きさは、`SetNextWindow…` を `Begin` の前に呼ぶ。
     - ID が重なる部品は、`PushID` / `##` で区別。
 
 !!! info "このページを読む前に"
@@ -84,7 +84,7 @@ ImGui::EndChild();
 | `Spacing()` | 縦の余白 |
 | `Dummy(size)` | 見えない領域（場所取り） |
 | `Indent(w)` / `Unindent(w)` | インデントを増やす／戻す |
-| `BeginGroup()` / `EndGroup()` | 複数の部品を、1 つの塊として扱う（`SameLine`・ホバー判定がまとめて効く） |
+| `BeginGroup()` / `EndGroup()` | 複数の部品を 1 つの塊として扱う（`SameLine`・ホバー判定がまとめて効く） |
 | `AlignTextToFramePadding()` | 文字の高さを入力欄に合わせる |
 
 ```cpp

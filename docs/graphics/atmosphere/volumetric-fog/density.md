@@ -44,13 +44,13 @@ density = max(density, 0.0);
 
 <div class="formula">消散係数 σ_t = 散乱係数 σ_s + 吸収係数 σ_a</div>
 
-霧（水滴）はほとんど吸収せず、散乱が主です。煙は吸収も多く暗くなります。密度に散乱の色（アルベド）を掛けて σ_s を、吸収の色を掛けて σ_a を求めます。たとえば、白い霧なら散乱の色が (1,1,1)、吸収が 0 です。黒い煙なら散乱を小さく吸収を大きくします。
+霧（水滴）はほとんど吸収せず、散乱が主です。煙は吸収も多く暗くなります。密度に散乱の色（アルベド）を掛けて σ_s を吸収の色を掛けて σ_a を求めます。たとえば、白い霧なら散乱の色が (1,1,1)、吸収が 0 です。黒い煙なら散乱を小さく吸収を大きくします。
 
 この分け方のおかげで同じ「密度」でも、霧と煙で見た目を変えられます。密度は「どれだけ濃いか」、散乱と吸収のアルベドは「どんな物質か」を表す、2 つの独立なパラメータです。
 
 ### ノイズの使い方
 
-ノイズは 3D ノイズ テクスチャ（Perlin や Worley）を、ワールド座標でサンプルします。座標に風の速度 × 時間を足すと、霧が風で流れます。複数のスケールのノイズを重ねると（フラクタル）、大きな塊と細かい揺らぎを持つ、自然な濃淡になります。ただし、froxel の解像度が粗いので、細かいノイズは時間蓄積でないとちらつきやすいです（[Temporal Accumulation](temporal.md)）。
+ノイズは 3D ノイズ テクスチャ（Perlin や Worley）をワールド座標でサンプルします。座標に風の速度 × 時間を足すと、霧が風で流れます。複数のスケールのノイズを重ねると（フラクタル）、大きな塊と細かい揺らぎを持つ、自然な濃淡になります。ただし、froxel の解像度が粗いので、細かいノイズは時間蓄積でないとちらつきやすいです（[Temporal Accumulation](temporal.md)）。
 
 ## ステップ 1：各セルの霧の濃さ
 
@@ -63,10 +63,10 @@ density = max(density, 0.0);
 | 材料 | 内容 | 例 |
 | --- | --- | --- |
 | 一様な密度 | 空間全体に一定の、薄い霧 | 空気の霞 |
-| 高さによる密度 | 地面に、近いほど濃い（[Height Fog](../aerial-fog/height-fog.md)） | 谷の霧、朝霧 |
-| ノイズ | 3D ノイズで霧にむらを、与える。時間で動かす | 渦を巻く霧 |
+| 高さによる密度 | 地面に近いほど濃い（[Height Fog](../aerial-fog/height-fog.md)） | 谷の霧、朝霧 |
+| ノイズ | 3D ノイズで霧にむらを与える。時間で動かす | 渦を巻く霧 |
 | 局所的な霧のボリューム | 箱や、球の中だけ濃い霧 | 沼、洞窟の入口、魔法の霧 |
-| パーティクル | 煙や爆発が、霧の密度を足す | 煙幕 |
+| パーティクル | 煙や爆発が霧の密度を足す | 煙幕 |
 
 ## 計算シェーダーで書く
 
@@ -78,7 +78,7 @@ void DensityCS(uint3 id : SV_DispatchThreadID) {
   float3 world = FroxelToWorld(float3(id) + JitterOffset());              // セルの、ワールド位置（ジッター付き。下記）
 ```
 
-まず、<strong>セルの中心</strong>のワールド位置を、求めます（[Froxels](froxel.md)）。`JitterOffset()` は フレームごとのわずかな、ずらしで時間方向の平均で縞を、消すために使います（[Temporal Accumulation](temporal.md)）。
+まず、<strong>セルの中心</strong>のワールド位置を求めます（[Froxels](froxel.md)）。`JitterOffset()` は フレームごとのわずかな、ずらしで時間方向の平均で縞を消すために使います（[Temporal Accumulation](temporal.md)）。
 
 ```hlsl
   // ① 一様な密度 + 高さによる密度。
@@ -86,33 +86,33 @@ void DensityCS(uint3 id : SV_DispatchThreadID) {
   float density = g_uniform_density + g_height_density * exp(-g_height_falloff * max(h, 0.0));
 ```
 
-基本の霧です。一様な部分と高さで指数的に、薄くなる部分を足します。
+基本の霧です。一様な部分と高さで指数的に薄くなる部分を足します。
 
 ```hlsl
-  // ② ノイズで、むらを与える。3D ノイズを、風で、流す。
+  // ② ノイズで、むらを与える。3D ノイズを風で、流す。
   float3 noise_pos = world * g_noise_scale + g_wind_direction * g_time * g_wind_speed;
   float noise = g_noise_3d.SampleLevel(g_linear_wrap, noise_pos, 0).r;           // 0〜1
-  density *= lerp(1.0, noise * 2.0, g_noise_strength);                            // ノイズで、濃さを、変える
+  density *= lerp(1.0, noise * 2.0, g_noise_strength);                            // ノイズで、濃さを変える
 ```
 
-3D ノイズ（Perlin、Worley）で霧の濃さにむらを与え風で流すと霧が、動いて見えます。ノイズの値（平均 0.5）に 2 を掛けて平均を、1 にそろえ全体の濃さを変えず、むらだけを足します。
+3D ノイズ（Perlin、Worley）で霧の濃さにむらを与え風で流すと霧が動いて見えます。ノイズの値（平均 0.5）に 2 を掛けて平均を 1 にそろえ全体の濃さを変えず、むらだけを足します。
 
 ```hlsl
-  // ③ 局所的な、霧のボリューム（箱）を、足す。各ボリュームの、中だけ、密度を、足す。
+  // ③ 局所的な、霧のボリューム（箱）を足す。各ボリュームの、中だけ、密度を足す。
   for (uint i = 0; i < g_fog_volume_count; ++i) {
     FogVolume v = g_fog_volumes[i];
     float3 local = mul(float4(world, 1.0), v.world_to_local).xyz;                 // ボリュームの、ローカル座標（-0.5〜0.5 の箱）
     float inside = all(abs(local) < 0.5) ? 1.0 : 0.0;
-    // 箱の縁を、なめらかに（端で、密度が、0 に落ちる）
+    // 箱の縁をなめらかに（端で、密度が 0 に落ちる）
     float edge = saturate(min(min(0.5 - abs(local.x), 0.5 - abs(local.y)), 0.5 - abs(local.z)) / v.edge_softness);
     density += v.density * inside * edge;
   }
 ```
 
-局所的な霧（沼、洞窟）は 箱（または球）の形の、ボリュームとして置きます。セルが箱の中にあれば密度を足し縁は、なめらかに薄くします。ボリュームをアーティストがレベルに、置く（霧のボリューム アクター）ことで、場所ごとの霧を作れます。
+局所的な霧（沼、洞窟）は 箱（または球）の形の、ボリュームとして置きます。セルが箱の中にあれば密度を足し縁は、なめらかに薄くします。ボリュームをアーティストがレベルに置く（霧のボリューム アクター）ことで、場所ごとの霧を作れます。
 
 ```hlsl
-  // 散乱係数と、吸収（アルベド）。霧は、ほぼ散乱だけ（アルベドが、高い）。消散 = 散乱 + 吸収。
+  // 散乱係数と、吸収（アルベド）。霧は、ほぼ散乱だけ（アルベドが高い）。消散 = 散乱 + 吸収。
   float3 scattering = g_fog_albedo * density;              // 散乱係数（RGB）
   float extinction = density;                              // 消散係数（散乱 + 吸収）。アルベドが 1 なら、散乱と、同じ。
   g_froxel_scatter[id] = float4(scattering, extinction);
@@ -125,7 +125,7 @@ void DensityCS(uint3 id : SV_DispatchThreadID) {
 
 | 値 | 意味 | 例 |
 | --- | --- | --- |
-| 消散係数（1/m） | 1 m 進むと光が、失われる割合 | 薄い霞 0.0005、霧 0.01、濃霧 0.05 |
+| 消散係数（1/m） | 1 m 進むと光が失われる割合 | 薄い霞 0.0005、霧 0.01、濃霧 0.05 |
 | 視界の距離 | 約 `3 / 消散係数` | 0.01 → 約 300 m |
 
 <strong>ゲームの空間のスケール</strong>に、合わせて 消散係数を決めます。視界が 300 m の霧は 0.01 程度です（[Fog Equations](../aerial-fog/fog-equation.md)）。
@@ -136,12 +136,12 @@ void DensityCS(uint3 id : SV_DispatchThreadID) {
 
 ```cpp
 struct FogVolume {
-  Matrix world_to_local;     // ワールド → ボリュームの、ローカル（箱が、-0.5〜0.5 になる）
+  Matrix world_to_local;     // ワールド → ボリュームの、ローカル（箱が-0.5〜0.5 になる）
   float density;
   float edge_softness;
   float2 pad;
 };
-// カメラの視錐台と、交わるボリュームだけを、集めて、GPU に渡す。
+// カメラの視錐台と、交わるボリュームだけを集めて、GPU に渡す。
 ```
 
 ## よくあるミス
@@ -152,7 +152,7 @@ struct FogVolume {
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 基本の密度に、ノイズと高さを組み合わせる
+    - [x] 基本の密度にノイズと高さを組み合わせる
 
 ## 参考
 

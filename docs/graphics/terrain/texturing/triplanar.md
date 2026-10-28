@@ -6,7 +6,7 @@ tags:
 
 # Triplanar Mapping
 
-<strong>急斜面では上から貼ったテクスチャが、縦に引き伸ばされます</strong>。X・Y・Z の 3 方向から貼って、法線に応じて混ぜることで伸びを防げます。このページではトライプラナー マッピングを説明します。
+<strong>急斜面では上から貼ったテクスチャが縦に引き伸ばされます</strong>。X・Y・Z の 3 方向から貼って、法線に応じて混ぜることで伸びを防げます。このページではトライプラナー マッピングを説明します。
 
 !!! tip "ポイント"
     - 3 方向（XY・YZ・ZX）から、テクスチャを貼る。
@@ -116,7 +116,7 @@ float3 Triplanar(Texture2D tex, float3 world_position, float3 normal, float scal
 
 ## なぜ上から貼ると伸びるのか
 
-地形のテクスチャは普通、<strong>真上から（XZ 平面に）投影</strong>して貼ります。UV はワールドの x と z をそのまま使います。平らな場所ではこれでよいのですが、斜面が急になると 1 テクセルが、斜面の上で縦に長く伸びます。
+地形のテクスチャは普通、<strong>真上から（XZ 平面に）投影</strong>して貼ります。UV はワールドの x と z をそのまま使います。平らな場所ではこれでよいのですが、斜面が急になると 1 テクセルが斜面の上で縦に長く伸びます。
 
 | 斜面の角度 | テクスチャの伸び（1 / cos θ） |
 | --- | --- |
@@ -139,8 +139,8 @@ X 軸・Y 軸・Z 軸の <strong>3 方向から、それぞれ投影した 3 枚
 | Z（前・後を向いた面） | XY 平面に投影 | `world.xy` |
 
 ```hlsl
-// 法線の絶対値を、べき乗して、合計 1 に正規化する。
-// sharpness が大きいほど、切り替えが、鋭い（混ざる幅が、せまい）。
+// 法線の絶対値をべき乗して、合計 1 に正規化する。
+// sharpness が大きいほど、切り替えが、鋭い（混ざる幅がせまい）。
 float3 TriplanarWeights(float3 n, float sharpness) {
   float3 w = pow(abs(n), sharpness);
   return w / max(w.x + w.y + w.z, 1e-4);
@@ -170,7 +170,7 @@ float3 TriplanarNormal(Texture2D normal_tex, float3 world_pos, float3 n, float s
   float3 ty = normal_tex.Sample(g_linear_wrap, world_pos.xz * scale).xyz * 2.0 - 1.0;
   float3 tz = normal_tex.Sample(g_linear_wrap, world_pos.xy * scale).xyz * 2.0 - 1.0;
 
-  // whiteout ブレンド: ワールド法線の成分を、XY に足し、Z は掛ける。
+  // whiteout ブレンド: ワールド法線の成分を XY に足し、Z は掛ける。
   tx = float3(tx.xy + n.zy, abs(tx.z) * n.x);
   ty = float3(ty.xy + n.xz, abs(ty.z) * n.y);
   tz = float3(tz.xy + n.xy, abs(tz.z) * n.z);
@@ -185,7 +185,7 @@ float3 TriplanarNormal(Texture2D normal_tex, float3 world_pos, float3 n, float s
 | --- | --- | --- |
 | 単純な平均 | 3 つの法線マップをそのまま重みで平均 | 向きが、間違っているので凹凸が逆になることがある |
 | UDN ブレンド | ワールド法線の XY に法線マップの XY を足す | 軽い。凹凸がやや弱くなる |
-| whiteout | 上のコード。XY を足し Z を掛ける | 凹凸が、保たれる。実用的 |
+| whiteout | 上のコード。XY を足し Z を掛ける | 凹凸が保たれる。実用的 |
 | Reoriented Normal Mapping（RNM） | 回転で合成する。もっとも正確 | 少し重い（Barré-Brisebois と Hill の比較を参照） |
 
 !!! warning "法線マップの Y の向きを確認する"
@@ -220,11 +220,11 @@ float3 TriplanarColorFast(Texture2D tex, float3 world_pos, float3 n, float scale
 }
 ```
 
-分岐の中で `Sample` を呼ぶと画素の微分が、不連続になってミップの選択が、乱れることがあります。分岐を使うなら `SampleGrad` で微分を分岐の外で計算して渡します。
+分岐の中で `Sample` を呼ぶと画素の微分が不連続になってミップの選択が乱れることがあります。分岐を使うなら `SampleGrad` で微分を分岐の外で計算して渡します。
 
 ## 向き（符号）に注意する
 
-法線が <strong>負の向き</strong>（`-X`、`-Y`、`-Z`）を向く面ではテクスチャが、鏡に映したように反転して見えます。UV をそのまま使っているので、裏側から見たことになるためです。ほとんどの地形では目立ちませんが文字や向きのある模様では、気になります。
+法線が <strong>負の向き</strong>（`-X`、`-Y`、`-Z`）を向く面ではテクスチャが鏡に映したように反転して見えます。UV をそのまま使っているので、裏側から見たことになるためです。ほとんどの地形では目立ちませんが文字や向きのある模様では、気になります。
 
 | 対策 | 内容 |
 | --- | --- |
@@ -233,7 +233,7 @@ float3 TriplanarColorFast(Texture2D tex, float3 world_pos, float3 n, float scale
 
 ## よくあるミス
 
-??? failure "崖のテクスチャが、縦に伸びている"
+??? failure "崖のテクスチャが縦に伸びている"
     <strong>トライプラナー</strong>にする。
 
 ## これだけ覚える

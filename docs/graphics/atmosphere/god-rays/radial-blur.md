@@ -6,7 +6,7 @@ tags:
 
 # Screen-Space Radial Blur
 
-<strong>太陽の画面上の位置から外側へ、画像を放射状にぼかして光の筋を作る</strong>のが最も手軽な方法です。太陽が画面内にある時だけ使え、遮蔽物の形が筋に反映されます。このページでは放射ぼかしを説明します。
+<strong>太陽の画面上の位置から外側へ画像を放射状にぼかして光の筋を作る</strong>のが最も手軽な方法です。太陽が画面内にある時だけ使え、遮蔽物の形が筋に反映されます。このページでは放射ぼかしを説明します。
 
 !!! tip "ポイント"
     - 明るい部分を抽出し、太陽の位置から放射状にぼかす。
@@ -26,7 +26,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">放射ぼかし: 光源から画素へ向かう線の上で、何回か読んで足す。読む回数が少ないと、筋が途切れる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">光源から 1 本の線(48 画素)。途中に細い遮蔽物が 3 本。各画素が、光源の方向へ N 回読んで、明るさを足す</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">光源から 1 本の線(48 画素)。途中に細い遮蔽物が 3 本。各画素が光源の方向へ N 回読んで、明るさを足す</text>
 <text x="60.0" y="100" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">遮る物(黒)と、光(白)。左端が光源に近い</text>
 <rect x="60.0" y="106.0" width="17.3" height="22.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#e5e7eb;#fef3c7"/></rect>
 <rect x="77.0" y="106.0" width="17.3" height="22.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0133" values="#e5e7eb;#fef3c7"/></rect>
@@ -342,18 +342,18 @@ tags:
 <text x="240" y="444" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">16<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3687;0.3689;0.5198;0.5200;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="240" y="444" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">64<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5198;0.5200;1.0000" values="0;0;1;1"/></text>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6576;0.6578;1.0000" values="0;0;1;1"/><rect x="330" y="424" width="600" height="90" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
-<text x="346" y="448" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">N が少ないと、筋が、飛び飛びの点線のようになる(ずれ 0.072)。N = 64 で、ほぼなめらか(0.004)</text>
-<text x="346" y="471" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">ふつうは N = 32〜64。読み込みは、画面全体 × N なので、重い。ジッターで、帯を、ノイズに変える手もある</text>
+<text x="346" y="448" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">N が少ないと、筋が飛び飛びの点線のようになる(ずれ 0.072)。N = 64 で、ほぼなめらか(0.004)</text>
+<text x="346" y="471" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">ふつうは N = 32〜64。読み込みは、画面全体 × N なので、重い。ジッターで、帯をノイズに変える手もある</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光源に向かう線の上を、少しずつ読んで、明るさを足す<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">読む回数が少ないと、遮蔽物の影が、飛び飛びになる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.6709;0.6711;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光源に向かう線の上を少しずつ読んで、明るさを足す<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">読む回数が少ないと、遮蔽物の影が飛び飛びになる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.6709;0.6711;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">回数を増やすと、筋がなめらかになる(コストも増える)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6709;0.6711;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:radial-streak:end -->
 
 ## 画面空間の放射ぼかし
-<strong>画面上の太陽の位置を中心に、各ピクセルから太陽へ向かう直線上の明るさを、何度かサンプルして足し合わせる</strong>方法です。簡単・安価で古くから使われています。
+<strong>画面上の太陽の位置を中心に各ピクセルから太陽へ向かう直線上の明るさを何度かサンプルして足し合わせる</strong>方法です。簡単・安価で古くから使われています。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="放射ぼかし">
 <text x="20" y="24" class="fig-title">放射ぼかし：各ピクセルから太陽に向かって、明るさを平均する</text>
@@ -366,7 +366,7 @@ tags:
 <text x="450" y="80" style="font-weight:700">手順</text>
 <text x="450" y="104">① 太陽の画面上の位置を求める</text>
 <text x="450" y="126">② 明るい所（空）を別の画像に抜き出す（物は黒）</text>
-<text x="450" y="148">③ 各ピクセルから太陽へ向かう線上を、</text><text x="450" y="166">　 数十回サンプルして足す（減衰しながら）</text>
+<text x="450" y="148">③ 各ピクセルから太陽へ向かう線上を </text><text x="450" y="166">　 数十回サンプルして足す（減衰しながら）</text>
 <text x="450" y="188">④ 元の絵に加算</text>
 </g>
 </svg>
@@ -399,7 +399,7 @@ float3 GodRays(float2 uv, float2 sun_uv) {
 
 ### 原理
 
-この方式は Mitchell の GPU Gems 3 の記事 "Volumetric Light Scattering as a Post-Process"（2007）で広まりました。考え方は「画面上で太陽に近い位置の明るさが、そこから伸びる光の筋の源である」ことです。まず、シーンを「太陽の明るさだけが残り、物体は黒いシルエット」になる画像（オクルージョン画像）に直します。次に、各ピクセルから太陽の画面位置へ向かう直線に沿って、この画像をサンプルして足します。太陽に近い方向の明るい部分（空）が、直線上にあればそのピクセルは明るくなります。物体のシルエットが直線上にあれば、その分は暗いままです。結果として、シルエットの背後から放射状に伸びる光の筋が出ます。
+この方式は Mitchell の GPU Gems 3 の記事 "Volumetric Light Scattering as a Post-Process"（2007）で広まりました。考え方は「画面上で太陽に近い位置の明るさが、そこから伸びる光の筋の源である」ことです。まず、シーンを「太陽の明るさだけが残り、物体は黒いシルエット」になる画像（オクルージョン画像）に直します。次に、各ピクセルから太陽の画面位置へ向かう直線に沿って、この画像をサンプルして足します。太陽に近い方向の明るい部分（空）が直線上にあればそのピクセルは明るくなります。物体のシルエットが直線上にあれば、その分は暗いままです。結果として、シルエットの背後から放射状に伸びる光の筋が出ます。
 
 直線に沿ったサンプルは太陽から遠ざかるほど弱める減衰（`decay`）を掛けて足します。この減衰が光が遠くへ届くほど弱まる様子を表します。
 
@@ -425,25 +425,25 @@ float3 GodRays(float2 uv, float2 sun_uv) {
 | 手順 | 内容 |
 | --- | --- |
 | ① 光のマスクを作る | 太陽の円盤と、明るい空を白、遮蔽物（木、建物）を黒にした画像（低解像度） |
-| ② 放射状にぼかす | 各画素から、太陽の画面位置へ向かって数十回、読んで足す。明るい部分が太陽から放射状に、伸びる |
-| ③ 合成 | ぼかした結果を、加算ブレンドでシーンに足す |
+| ② 放射状にぼかす | 各画素から、太陽の画面位置へ向かって数十回、読んで足す。明るい部分が太陽から放射状に伸びる |
+| ③ 合成 | ぼかした結果を加算ブレンドでシーンに足す |
 
 ## ① 光のマスク
 
 <strong>シーンを白黒に</strong>します。空（太陽）は明るく、物体は黒にします。物体の隙間から空が見える所だけが、明るく残ります。
 
 ```hlsl
-// 光のマスク: 深度が最大（空）の画素は、シーンの色を、そのまま。物体の画素は、黒。
+// 光のマスク: 深度が最大（空）の画素は、シーンの色をそのまま。物体の画素は、黒。
 float3 LightMaskPS(float2 uv : TEXCOORD0) : SV_Target {
   float depth = g_scene_depth.Sample(g_point_clamp, uv).r;
   float3 color = g_scene_color.Sample(g_linear_clamp, uv).rgb;
-  float is_sky = step(0.9999, depth);                    // 深度が、ほぼ最大 = 空
-  // 太陽の円盤、明るい空だけを、取り出す。しきい値で、明るい部分に、絞ってもよい。
+  float is_sky = step(0.9999, depth);                    // 深度がほぼ最大 = 空
+  // 太陽の円盤、明るい空だけを取り出す。しきい値で、明るい部分に絞ってもよい。
   return color * is_sky;
 }
 ```
 
-`step(0.9999, depth)` で 空の画素だけを  3<strong>4 、物体の画素を 0 にします。空の色（太陽の周りの明るさ）が、マスクの明るさになります。画面の半分または 1/4 の解像度で描くと後の、ぼかしが軽くなります。
+`step(0.9999, depth)` で 空の画素だけを  3<strong>4 、物体の画素を 0 にします。空の色（太陽の周りの明るさ）がマスクの明るさになります。画面の半分または 1/4 の解像度で描くと後の、ぼかしが軽くなります。
 
 ## ② 放射状にぼかす
 
@@ -458,7 +458,7 @@ float4 RadialBlurPS(float2 uv : TEXCOORD0) : SV_Target {
 
 ```hlsl
   float2 sample_uv = uv;
-  float illumination_decay = 1.0;                                    // 減衰（遠くを、読んだ分ほど、弱く）
+  float illumination_decay = 1.0;                                    // 減衰（遠くを読んだ分ほど、弱く）
   float3 sum = 0.0;
   for (int i = 0; i < kSamples; ++i) {
     sample_uv -= delta;                                              // 太陽に向かって、1 歩進む
@@ -475,25 +475,25 @@ float4 RadialBlurPS(float2 uv : TEXCOORD0) : SV_Target {
 ## ③ 合成
 
 ```hlsl
-// 放射状ブラーの結果を、太陽の色で着色して、シーンに加算する。
+// 放射状ブラーの結果を太陽の色で着色して、シーンに加算する。
 float3 rays = g_radial_blur.Sample(g_linear_clamp, uv).rgb * g_sun_color * g_intensity;
 float3 final_color = scene_color + rays;
 ```
 
-<strong>加算ブレンド</strong>で シーンに、足すだけです。HDR で足すとブルーム（[Bloom](../../postprocess/bloom/index.md)）と、組み合わさってまぶしい筋になります。
+<strong>加算ブレンド</strong>で シーンに足すだけです。HDR で足すとブルーム（[Bloom](../../postprocess/bloom/index.md)）と、組み合わさってまぶしい筋になります。
 
 ## 太陽が画面の外にある
 
-<strong>太陽が画面の外</strong>（背後、または画面の端の外）にあるとき、放射状ブラーの起点が画面の外になり計算が、不安定になります。
+<strong>太陽が画面の外</strong>（背後、または画面の端の外）にあるとき、放射状ブラーの起点が画面の外になり計算が不安定になります。
 
 | 状況 | 対策 |
 | --- | --- |
-| 太陽がカメラの背後 | 筋を、消す（太陽の方向と視線の内積が負なら、強さ 0） |
+| 太陽がカメラの背後 | 筋を消す（太陽の方向と視線の内積が負なら、強さ 0） |
 | 太陽が画面の外（横） | 画面の、端の外まで計算する（起点は uv の範囲外でも、よい）。太陽に近いほど強く離れるほど、フェード |
-| 太陽が真上や地平線の下 | 太陽が、地平線の下なら筋を消す |
+| 太陽が真上や地平線の下 | 太陽が地平線の下なら筋を消す |
 
 ```hlsl
-// 太陽の方向に応じた、フェード。視線が、太陽の方を、向いているほど、強い。
+// 太陽の方向に応じた、フェード。視線が太陽の方を向いているほど、強い。
 float facing = saturate(dot(g_camera_forward, g_sun_dir));
 float intensity = g_intensity * pow(facing, 3.0);
 ```
@@ -504,10 +504,10 @@ float intensity = g_intensity * pow(facing, 3.0);
 | --- | --- |
 | 長所 | 軽い（低解像度の、後処理。数十回のテクスチャ読み込み） |
 | 長所 | 実装が簡単 |
-| 短所 | 画面の中に太陽（または、明るい空）が映っていないと出ない（光が、画面の外から差し込む場合は不正確） |
+| 短所 | 画面の中に太陽（または、明るい空）が映っていないと出ない（光が画面の外から差し込む場合は不正確） |
 | 短所 | 影の正確さが無い（画面に映った、明るい空しか使えない） |
-| 短所 | 視点（カメラの向き）に依存し視線を、動かすと筋がずれる |
-| 短所 | 読み込みの回数が、少ないと縞が出る |
+| 短所 | 視点（カメラの向き）に依存し視線を動かすと筋がずれる |
+| 短所 | 読み込みの回数が少ないと縞が出る |
 
 ## よくあるミス
 

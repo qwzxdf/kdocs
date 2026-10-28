@@ -70,7 +70,7 @@ template <forward_range R1, forward_range R2, class Pred = ranges::equal_to,
 constexpr bool contains_subrange(R1&& r1, R2&& r2, Pred pred = {}, Proj1 proj1 = {}, Proj2 proj2 = {});
 ```
 
-- `r1` の中に、`r2` と同じ並びが連続して含まれていれば `true`（[`search`](search.md) の結果が空でないか、と同じ）
+- `r1` の中に `r2` と同じ並びが連続して含まれていれば `true`（[`search`](search.md) の結果が空でないか、と同じ）
 
 ```cpp
 #include <algorithm>
@@ -105,7 +105,7 @@ false
 
 ## ゲームでの使いどころ
 
-所持品の判定が、代表的な使い方です。`std::ranges::contains(inventory, item_id)` で、そのアイテムを持っているかを調べます。構造体のメンバで調べるなら、プロジェクションを使って `contains(enemies, 42, &Enemy::id)` と書きます。
+所持品の判定が代表的な使い方です。`std::ranges::contains(inventory, item_id)` で、そのアイテムを持っているかを調べます。構造体のメンバで調べるなら、プロジェクションを使って `contains(enemies, 42, &Enemy::id)` と書きます。
 
 許可リストや禁止リストの判定にも使えます。ただし `contains` は先頭から順に調べるので、要素が数百個以上あって何度も呼ぶなら、`unordered_set` に入れて、`set.contains(x)` で調べるほうが速くなります。
 

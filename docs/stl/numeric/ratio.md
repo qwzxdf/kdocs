@@ -74,16 +74,16 @@ int main() {
 | [`std::milli`](ratio/milli.md) | SI 接頭辞「milli」（1000 分の 1）を表す `ratio` の別名。 |
 | [`std::nano`](ratio/nano.md) | SI 接頭辞「nano」（10 億分の 1）を表す `ratio` の別名。 |
 | [`std::peta`](ratio/peta.md) | SI 接頭辞「peta」（1000 兆倍）を表す `ratio` の別名。 |
-| [`std::ratio_add`](ratio/ratio_add.md) | 2 つの `ratio` の足し算を、コンパイル時に計算して `ratio` で返す。 |
-| [`std::ratio_divide`](ratio/ratio_divide.md) | 2 つの `ratio` の割り算を、コンパイル時に計算して `ratio` で返す。 |
+| [`std::ratio_add`](ratio/ratio_add.md) | 2 つの `ratio` の足し算をコンパイル時に計算して `ratio` で返す。 |
+| [`std::ratio_divide`](ratio/ratio_divide.md) | 2 つの `ratio` の割り算をコンパイル時に計算して `ratio` で返す。 |
 | [`std::ratio_equal`](ratio/ratio_equal.md) | 2 つの `ratio` を `==` で比べる（コンパイル時）。 |
 | [`std::ratio_greater`](ratio/ratio_greater.md) | 2 つの `ratio` を `>` で比べる（コンパイル時）。 |
 | [`std::ratio_greater_equal`](ratio/ratio_greater_equal.md) | 2 つの `ratio` を `>=` で比べる（コンパイル時）。 |
 | [`std::ratio_less`](ratio/ratio_less.md) | 2 つの `ratio` を `<` で比べる（コンパイル時）。 |
 | [`std::ratio_less_equal`](ratio/ratio_less_equal.md) | 2 つの `ratio` を `<=` で比べる（コンパイル時）。 |
-| [`std::ratio_multiply`](ratio/ratio_multiply.md) | 2 つの `ratio` のかけ算を、コンパイル時に計算して `ratio` で返す。 |
+| [`std::ratio_multiply`](ratio/ratio_multiply.md) | 2 つの `ratio` のかけ算をコンパイル時に計算して `ratio` で返す。 |
 | [`std::ratio_not_equal`](ratio/ratio_not_equal.md) | 2 つの `ratio` を `!=` で比べる（コンパイル時）。 |
-| [`std::ratio_subtract`](ratio/ratio_subtract.md) | 2 つの `ratio` の引き算を、コンパイル時に計算して `ratio` で返す。 |
+| [`std::ratio_subtract`](ratio/ratio_subtract.md) | 2 つの `ratio` の引き算をコンパイル時に計算して `ratio` で返す。 |
 | [`std::tera`](ratio/tera.md) | SI 接頭辞「tera」（1 兆倍）を表す `ratio` の別名。 |
 
 ## ゲームでの使いどころ

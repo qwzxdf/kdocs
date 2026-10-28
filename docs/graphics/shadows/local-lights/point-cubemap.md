@@ -6,7 +6,7 @@ tags:
 
 # Point Lights: Cube Maps
 
-<strong>点光源は全方向を照らす</strong>ので、影を作るには全方向の深度が必要です。キューブ マップ（6 面）に、各方向の深度を描くのが標準で、サンプルはライトから画面の点への方向ベクトルで引くので簡単です。ただし、6 回描くのでコストが 6 倍です。このページではキューブ マップの作り方・方向ベクトルでのサンプル・線形距離の保存・面の境界と PCFを説明します。
+<strong>点光源は全方向を照らす</strong>ので、影を作るには全方向の深度が必要です。キューブ マップ（6 面）に各方向の深度を描くのが標準で、サンプルはライトから画面の点への方向ベクトルで引くので簡単です。ただし、6 回描くのでコストが 6 倍です。このページではキューブ マップの作り方・方向ベクトルでのサンプル・線形距離の保存・面の境界と PCFを説明します。
 
 !!! tip "ポイント"
     - 点光源の影 ＝ 6 面のキューブ マップ（各面 90° の透視投影）。
@@ -45,17 +45,17 @@ tags:
 <text x="390.0" y="385.0" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937">−Z（手前）</text>
 <text x="60" y="70" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937" opacity="0">面 4:−Z 向きに、90° の視野でシャドウ マップを描く<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.5182;0.5185;0.6664;0.6667;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="60" y="390" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">上（+Y）と下（−Y）も加えて 6 面。描画は 6 回（視錐台カリングで、物が無い面は省ける）<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6664;0.6667;1.0000;1.0000" values="0;0;1;1;0"/></text>
-<text x="60" y="70" text-anchor="start" style="font-size:17px;font-weight:700;fill:#2ea043" opacity="0">まとめ:光を中心に、6 つの方向へ<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6664;0.6667;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="60" y="70" text-anchor="start" style="font-size:17px;font-weight:700;fill:#2ea043" opacity="0">まとめ:光を中心に 6 つの方向へ<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.6664;0.6667;1.0000;1.0000" values="0;0;1;1;0"/></text>
 <text x="60" y="410" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">上から見た図。影を引く時は、光から見た方向ベクトルで、6 面のうちの 1 枚を選ぶ。</text>
 </svg>
 
 <!-- fig:point-cubemap-faces:end -->
 
 ## 点光源：キューブ マップ
-<strong>点光源</strong>はあらゆる方向に光を出します。6 方向（±X, ±Y, ±Z）に、視野角 90 度の透視投影で描けば、全方向を覆えます（キューブ シャドウ マップ）。
+<strong>点光源</strong>はあらゆる方向に光を出します。6 方向（±X, ±Y, ±Z）に視野角 90 度の透視投影で描けば、全方向を覆えます（キューブ シャドウ マップ）。
 
 <svg class="fig illust" viewBox="0 0 780 260" role="img" aria-label="キューブ シャドウ マップ">
-<text x="20" y="24" class="fig-title">点光源から 6 方向へ、視野角 90 度で描く（真上から見た図）</text>
+<text x="20" y="24" class="fig-title">点光源から 6 方向へ視野角 90 度で描く（真上から見た図）</text>
 <circle cx="200" cy="140" r="9" fill="rgba(229,170,40,0.9)" stroke="currentColor" stroke-width="2"/><text x="214" y="132" style="font-size:12px">光源</text>
 <line x1="200" y1="140" x2="320" y2="40" stroke="currentColor" stroke-dasharray="4 3"/><line x1="200" y1="140" x2="320" y2="240" stroke="currentColor" stroke-dasharray="4 3"/>
 <line x1="200" y1="140" x2="80" y2="40" stroke="currentColor" stroke-dasharray="4 3"/><line x1="200" y1="140" x2="80" y2="240" stroke="currentColor" stroke-dasharray="4 3"/>
@@ -86,7 +86,7 @@ float PointShadow(float3 world_pos) {
 
 ### 線形な距離を保存する方法
 
-射影後の深度でなく ライトからの線形距離（`length(v) / light_far`）を、ピクセル シェーダーで書く方式もあります。比較は単純ですがハードウェアの深度テスト・Early-Z を使えない（深度を自分で書く）ので描画が遅くなります。射影後の深度が一般的です。
+射影後の深度でなく ライトからの線形距離（`length(v) / light_far`）をピクセル シェーダーで書く方式もあります。比較は単純ですがハードウェアの深度テスト・Early-Z を使えない（深度を自分で書く）ので描画が遅くなります。射影後の深度が一般的です。
 
 ### 面の境界と PCF
 
@@ -94,7 +94,7 @@ float PointShadow(float3 world_pos) {
 
 ## キューブマップで全方向を覆う
 
-点光源の光は <strong>全方向</strong>に広がります。全方向の影を 1 枚の透視投影では、作れません。6 つの面（+X、−X、+Y、−Y、+Z、−Z）、それぞれを視野角 90° の、透視投影で描きキューブマップに、保存します。画素の光からの方向でどの面を、読むかが決まります。
+点光源の光は <strong>全方向</strong>に広がります。全方向の影を 1 枚の透視投影では、作れません。6 つの面（+X、−X、+Y、−Y、+Z、−Z）、それぞれを視野角 90° の、透視投影で描きキューブマップに保存します。画素の光からの方向でどの面を読むかが決まります。
 
 ```text
         +Y
@@ -158,13 +158,13 @@ for (int face = 0; face < 6; ++face) {
 }
 ```
 
-!!! warning "面の向きと、上方向は DirectX のキューブの規約に、合わせる"
-    キューブマップの各面の、上方向と左右は 規約で、決まっています。間違えると面が回転、反転して影がずれたりつぎはぎになります。シェーダーのキューブの読み方（方向ベクトル）と、シャドウ パスの行列を合わせる。書き込みと読み込みで同じ規約を、使うことが肝心です。
+!!! warning "面の向きと、上方向は DirectX のキューブの規約に合わせる"
+    キューブマップの各面の、上方向と左右は 規約で、決まっています。間違えると面が回転、反転して影がずれたりつぎはぎになります。シェーダーのキューブの読み方（方向ベクトル）と、シャドウ パスの行列を合わせる。書き込みと読み込みで同じ規約を使うことが肝心です。
 
 ## 6 面を描く
 
 ```cpp
-// 6 面のそれぞれに、深度を描く。各面ごとに、光の行列を、変える。
+// 6 面のそれぞれに、深度を描く。各面ごとに、光の行列を変える。
 for (int face = 0; face < 6; ++face) {
   context->OMSetRenderTargets(0, nullptr, face_dsv[face].Get());
   context->ClearDepthStencilView(face_dsv[face].Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -190,11 +190,11 @@ float PointShadow(float3 world_pos, float3 world_normal) {
   float3 offset = world_normal * normal_offset;
   float3 dir = to_pixel + offset;
 
-  // この方向で、どの面か、ハードウェアが、決めて、その面の、深度を読む。
+  // この方向で、どの面か、ハードウェアが決めて、その面の、深度を読む。
   // 比較に使う深度は、その面の、射影で変換した値。面ごとに、射影を適用する必要がある。
   float3 abs_dir = abs(dir);
   float major = max(abs_dir.x, max(abs_dir.y, abs_dir.z));        // 最大の成分（奥行き方向の距離）
-  // 透視投影の、深度（非線形）を、再現する: z' = (f / (f − n)) × (1 − n / major)
+  // 透視投影の、深度（非線形）を再現する: z' = (f / (f − n)) × (1 − n / major)
   float depth = (g_far / (g_far - g_near)) * (1.0 - g_near / major);
   return g_shadow_cube.SampleCmpLevelZero(g_shadow_sampler, dir, depth);
 }
@@ -206,11 +206,11 @@ float PointShadow(float3 world_pos, float3 world_normal) {
 
 ## 面の継ぎ目
 
-キューブの <strong>面の境界</strong>で PCF などの、フィルタが 隣の面の情報を、読めないことがあります。境界で影が途切れる線が出ることがあります。
+キューブの <strong>面の境界</strong>で PCF などの、フィルタが 隣の面の情報を読めないことがあります。境界で影が途切れる線が出ることがあります。
 
 | 対策 | 内容 |
 | --- | --- |
-| 視野角を少し広げる（90° → 91°〜92°） | 各面が、隣の面と少し重なる。境界のフィルタが自分の面の内側で、完結する |
+| 視野角を少し広げる（90° → 91°〜92°） | 各面が隣の面と少し重なる。境界のフィルタが自分の面の内側で、完結する |
 | キューブマップのハードウェア フィルタ | `TextureCube` の、サンプラーは面の境界をまたいで、補間する（シームレス キューブマップ。DirectX 11 では標準） |
 
 ## 解像度とコスト

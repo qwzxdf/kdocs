@@ -33,7 +33,7 @@ template <class T>
 std::reference_wrapper<T> ref(T& t) noexcept;
 ```
 
-- 値渡しされる場所（スレッドの引数、`std::bind`、コンテナ）に、**参照として**渡したいときに使います
+- 値渡しされる場所（スレッドの引数、`std::bind`、コンテナ）に**参照として**渡したいときに使います
 
 ```cpp
 #include <functional>
@@ -58,7 +58,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| スレッドに、結果の書き込み先を渡す | `std::thread t(Work, std::ref(result));` |
+| スレッドに結果の書き込み先を渡す | `std::thread t(Work, std::ref(result));` |
 
 ## よくあるミス
 

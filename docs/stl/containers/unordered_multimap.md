@@ -175,7 +175,7 @@ void merge(unordered_multimap<..., C2>& source);
 
 - 計算量: O(移動する要素数 × log n)
 
-別のコンテナの要素を、ノードごとこちらへ移します。キーが重複するものは、移動元に残ります。
+別のコンテナの要素をノードごとこちらへ移します。キーが重複するものは、移動元に残ります。
 
 ### contains <span class="ver ver-20">C++20</span> {#contains data-toc-label="contains"}
 

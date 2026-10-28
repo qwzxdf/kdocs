@@ -6,11 +6,11 @@ tags:
 
 # Fireflies (Karis Average)
 
-<strong>ブルームを動かすと小さくて明るい点（スペキュラのハイライト・小さな光源）が、画面の隅々で「ぴかぴか」と点滅</strong>することがあります。これをファイアフライ（蛍）と呼びます。原因は極端に明るい 1 画素が、縮小のたびに周りの数画素分の平均に混ざり、強い光が画素の位置次第で出たり消えたりするからです。対策が Karis Average（Brian Karis）で、明るい画素の重みを下げて平均します。このページでは、ちらつきの原因・Karis Average の式・どの段に使うか・クランプ・より良いやり方を説明します。
+<strong>ブルームを動かすと小さくて明るい点（スペキュラのハイライト・小さな光源）が画面の隅々で「ぴかぴか」と点滅</strong>することがあります。これをファイアフライ（蛍）と呼びます。原因は極端に明るい 1 画素が縮小のたびに周りの数画素分の平均に混ざり、強い光が画素の位置次第で出たり消えたりするからです。対策が Karis Average（Brian Karis）で、明るい画素の重みを下げて平均します。このページでは、ちらつきの原因・Karis Average の式・どの段に使うか・クランプ・より良いやり方を説明します。
 
 !!! tip "ポイント"
-    - ファイアフライ ＝ <strong>極端に明るい小さな点が、縮小でちらつくブルーム</strong>。
-    - 原因 ＝ <strong>HDR の値が大きい 1 画素が、平均に混ざる量が位置で変わる</strong>。
+    - ファイアフライ ＝ <strong>極端に明るい小さな点が縮小でちらつくブルーム</strong>。
+    - 原因 ＝ <strong>HDR の値が大きい 1 画素が平均に混ざる量が位置で変わる</strong>。
     - 対策 ＝ Karis Average：各サンプルの重みを `1 / (1 + 輝度)` にして、明るい画素の影響を抑える。
     - 最初の縮小（1 段目）だけに使えば十分。それ以降は普通の平均。
     - 輝度のクランプ（上限を決める）も併用できる。
@@ -26,7 +26,7 @@ tags:
 <strong>縮小は「周りの画素を平均して 1 画素にする」</strong>処理です。ここにとても明るい（例：値 1000）画素が 1 つ混ざると、平均の値がその 1 画素に支配されます。画面が少し動くとこの明るい画素がどの縮小画素に混ざるかが変わり、ある縮小画素は 1000 ÷ 4 = 250、次のフレームは別の画素に移って 0——これが「ぴかぴか」です。
 
 <svg class="fig illust" viewBox="0 0 780 250" role="img" aria-label="ファイアフライの原因">
-<text x="20" y="26" class="fig-title">明るい 1 画素が、縮小の平均を支配する</text>
+<text x="20" y="26" class="fig-title">明るい 1 画素が縮小の平均を支配する</text>
 <g transform="translate(40,60)">
 <text x="0" y="-8" style="font-size:13px;font-weight:700">フレーム 1</text>
 <g stroke="#94a3b8" fill="#f1f5f9"><rect x="0" y="0" width="40" height="40"/><rect x="40" y="0" width="40" height="40"/><rect x="0" y="40" width="40" height="40"/><rect x="40" y="40" width="40" height="40"/></g>
@@ -37,7 +37,7 @@ tags:
 <g transform="translate(300,60)">
 <text x="0" y="-8" style="font-size:13px;font-weight:700">フレーム 2（少し動いた）</text>
 <g stroke="#94a3b8" fill="#f1f5f9"><rect x="0" y="0" width="40" height="40"/><rect x="40" y="0" width="40" height="40"/><rect x="0" y="40" width="40" height="40"/><rect x="40" y="40" width="40" height="40"/></g>
-<text x="100" y="26" style="font-size:12px">明るい画素が、別の縮小画素へ</text>
+<text x="100" y="26" style="font-size:12px">明るい画素が別の縮小画素へ</text>
 <text x="100" y="48" style="font-size:12px">この縮小画素の平均 ＝ 0</text>
 <text x="0" y="104" style="font-size:12px">光が消える → ちらつく</text>
 </g>
@@ -77,7 +77,7 @@ float3 KarisAverage(float3 a, float3 b, float3 c, float3 d) {
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ホタル(ちらつく光の点): 1 画素だけ極端に明るいと、縮小で何倍にも広がる。Karis 平均で、明るさに応じて重みを下げる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 32 画素に、極端に明るい 1 画素(1000)がある。縮小を 3 段くり返して、ふつうの平均と Karis 平均の差を見る</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 列 32 画素に極端に明るい 1 画素(1000)がある。縮小を 3 段くり返して、ふつうの平均と Karis 平均の差を見る</text>
 <text x="40" y="102" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5484d">ふつうの平均</text>
 <rect x="190.0" y="110.0" width="18.3" height="22.3" fill="#0f172a"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0698" values="#0f172a;#232a36"/></rect>
 <rect x="208.0" y="110.0" width="18.3" height="22.3" fill="#0f172a"><animate attributeName="fill" dur="21.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0712" values="#0f172a;#232a36"/></rect>
@@ -226,11 +226,11 @@ float3 KarisAverage(float3 a, float3 b, float3 c, float3 d) {
 <text x="790" y="390" text-anchor="start" style="font-size:12px;font-weight:700;fill:#2ea043">最大 1.6</text>
 <g opacity="0"><animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4556;0.4558;1.0000" values="0;0;1;1"/><rect x="40" y="430" width="880" height="76" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="56" y="454" text-anchor="start" style="font-size:15px;font-weight:700;fill:#1e3a8a">段 3 の最大: ふつう 125.7 / Karis 1.6(79 倍の差)</text>
-<text x="56" y="478" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">ふつうの平均は、1 画素の光が、縮小のたびに半分に広がるだけで、ほぼ消えない → ぼかした後に、大きな光の塊が出て、ちらつく</text>
+<text x="56" y="478" text-anchor="start" style="font-size:12px;font-weight:700;fill:#1f2937">ふつうの平均は、1 画素の光が縮小のたびに半分に広がるだけで、ほぼ消えない → ぼかした後に大きな光の塊が出て、ちらつく</text>
 <text x="56" y="499" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">Karis 平均は、重み 1 ÷ (1 + 輝度)で、極端に明るい画素の影響を小さくする</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ゲームでは、小さくて、とても明るい反射(ハイライト)がある<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">縮小の平均で、1 画素の強い光が、広い範囲に混ざる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.4556;0.4558;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">縮小の平均で、1 画素の強い光が広い範囲に混ざる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.4556;0.4558;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">重みを付けると、その影響が小さくなり、ちらつきが抑えられる<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.4556;0.4558;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -265,7 +265,7 @@ float3 Downsample13Karis(Texture2D src, SamplerState linear_clamp, float2 uv, fl
 }
 ```
 
-各グループの Karis 平均を、通常のボックス平均の代わりに使うだけです。
+各グループの Karis 平均を通常のボックス平均の代わりに使うだけです。
 
 ## 最初の段だけに使う
 
@@ -275,7 +275,7 @@ Karis Average は、重みが輝度で変わるので、すべての段に使う
 
 ## 輝度のクランプ
 
-<strong>もう 1 つの対策</strong>は、輝度の上限（クランプ）です。ブルームに入れる明るさを、たとえば 10 までに切ると、極端な値が混ざらず、ちらつきが減ります。
+<strong>もう 1 つの対策</strong>は、輝度の上限（クランプ）です。ブルームに入れる明るさをたとえば 10 までに切ると、極端な値が混ざらず、ちらつきが減ります。
 
 ```hlsl
 float3 ClampBloomInput(float3 color, float max_luma) {
@@ -298,7 +298,7 @@ float3 ClampBloomInput(float3 color, float max_luma) {
 | クランプを併用 | 極端な値（太陽・爆発）は上限を決める |
 | TAA で時間方向に安定 | 残るちらつきを時間蓄積でなだらかに（[TAA](../antialiasing/taa.md)） |
 | スペキュラ側で抑える | ライティングの段階で極端なハイライトを抑える（スペキュラ エイリアシングの対策） |
-| ブルームの入力を半解像度に | 最初から 1/2 で作ると、元の高解像度の極端な点が、混ざりにくい |
+| ブルームの入力を半解像度に | 最初から 1/2 で作ると、元の高解像度の極端な点が混ざりにくい |
 
 ## よくあるミス
 
@@ -317,7 +317,7 @@ float3 ClampBloomInput(float3 color, float max_luma) {
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ファイアフライ ＝ <strong>極端に明るい小さな点が、縮小でちらつく</strong>
+    - [x] ファイアフライ ＝ <strong>極端に明るい小さな点が縮小でちらつく</strong>
     - [x] Karis Average ＝ 重み `1/(1+輝度)` の加重平均。明るさを保ちつつ、ちらつきを消す
     - [x] 最初の縮小（1 段目）だけに使う
     - [x] 輝度クランプも併用できる

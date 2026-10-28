@@ -36,7 +36,7 @@ tags:
 using true_type = integral_constant<bool, true>;
 ```
 
-`std::true_type` は、`value` が `true` の型です。標準のトレイトは、結果が真なら `true_type` を、偽なら `false_type` を継承します。そのため、`std::is_integral<int>{}` は `true_type` として扱えます。
+`std::true_type` は、`value` が `true` の型です。標準のトレイトは、結果が真なら `true_type` を偽なら `false_type` を継承します。そのため、`std::is_integral<int>{}` は `true_type` として扱えます。
 
 自作のトレイトを書くときは、条件に当てはまる場合に `std::true_type` を継承する特殊化を書き、既定を `std::false_type` にするのが定石です。
 

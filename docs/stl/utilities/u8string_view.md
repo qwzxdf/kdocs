@@ -14,7 +14,7 @@ tags:
 `#include <string_view>`
 </div>
 
-`u8string` を、コピーせずに見るだけの型です。UTF-8 であることを型で示した文字列を、関数の引数で受けるときに使います。
+`u8string` をコピーせずに見るだけの型です。UTF-8 であることを型で示した文字列を関数の引数で受けるときに使います。
 
 !!! tip "ポイント"
     - `std::basic_string_view<char8_t>` の別名。

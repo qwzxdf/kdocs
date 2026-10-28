@@ -20,7 +20,7 @@ tags:
     - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## レイの生成
-<strong>確率的 SSR と同じ</strong>です（[Stochastic SSR](../ssr-stochastic.md)）。画素ごと 1 本（または半分の解像度で 1 本）のレイを、GGX の可視法線サンプリングで作ります。
+<strong>確率的 SSR と同じ</strong>です（[Stochastic SSR](../ssr-stochastic.md)）。画素ごと 1 本（または半分の解像度で 1 本）のレイを GGX の可視法線サンプリングで作ります。
 
 ```hlsl
 [shader("raygeneration")]
@@ -46,7 +46,7 @@ void ReflectionRayGen() {
   if (dot(dir, n) <= 0.0) { output[pixel] = 0; return; }
 ```
 
-GGX の可視法線 `h` を乱数で、サンプルしてその `h` で視線を、反射します。反射方向が面の下を向いたら捨てます。
+GGX の可視法線 `h` を乱数で、サンプルしてその `h` で視線を反射します。反射方向が面の下を向いたら捨てます。
 
 ```hlsl
   RayDesc ray;
@@ -56,14 +56,14 @@ GGX の可視法線 `h` を乱数で、サンプルしてその `h` で視線を
   ray.TMax = kMaxRayLength;
 ```
 
-レイを組み立てます。始点は面から少し浮かせて自己交差を、避けます。`TMax` で最大距離を制限します。
+レイを組み立てます。始点は面から少し浮かせて自己交差を避けます。`TMax` で最大距離を制限します。
 
 ```hlsl
   ReflectionPayload payload = (ReflectionPayload)0;
   TraceRay(scene, RAY_FLAG_NONE, 0xFF, 0, 0, 0, ray, payload);
 ```
 
-レイを飛ばします。ヒット シェーダーがペイロードに色と距離を、書き込みます。
+レイを飛ばします。ヒット シェーダーがペイロードに色と距離を書き込みます。
 
 ```hlsl
   output[pixel] = float4(payload.color, payload.hit_distance);
@@ -90,9 +90,9 @@ GGX の粗い面で反射方向を選ぶとき昔は、法線の分布 D(h) に�
 
 Heitz（2018）の可視法線サンプリング（VNDF）は、視線から見える法線だけを分布からサンプルします。背面を向いた法線はそもそも選ばれないので、無効なレイが大幅に減ります。実装は視線方向を法線の座標系の中で半球に変換して、円盤上の点から法線を作る手順で、数行で書けます。レイトレ反射と確率的 SSR の両方で、標準的な選択になっています。
 
-## どの画素からどの方向へレイを、飛ばすか
+## どの画素からどの方向へレイを飛ばすか
 
-<strong>RT 反射</strong>の最初の仕事は、反射する面の各画素から反射方向にレイを、生成することです。DXR ではレイ生成シェーダー（ray generation shader）がこれを、行います。
+<strong>RT 反射</strong>の最初の仕事は、反射する面の各画素から反射方向にレイを生成することです。DXR ではレイ生成シェーダー（ray generation shader）がこれを行います。
 
 ## 基本：鏡面の反射
 
@@ -109,17 +109,17 @@ void ReflectionRayGen() {
   float3 reflect_dir = reflect(view_dir, normal);                     // 反射方向
 
   RayDesc ray;
-  ray.Origin = position + normal * 1e-3;                              // 面に、めり込まないように、少し離す
+  ray.Origin = position + normal * 1e-3;                              // 面にめり込まないように、少し離す
   ray.TMin = 0.0;
   ray.Direction = reflect_dir;
-  ray.TMax = g_max_reflection_distance;                               // 遠くは、プローブに、任せる
+  ray.TMax = g_max_reflection_distance;                               // 遠くは、プローブに任せる
   ReflectionPayload payload = (ReflectionPayload)0;
-  TraceRay(g_scene, RAY_FLAG_NONE, 0xFF, 0, 1, 0, ray, payload);      // 反射レイを、飛ばす
+  TraceRay(g_scene, RAY_FLAG_NONE, 0xFF, 0, 1, 0, ray, payload);      // 反射レイを飛ばす
   g_reflection_raw[pixel] = float4(payload.radiance, payload.hit_distance);
 }
 ```
 
-始点を法線方向に少し離す（`+ normal * 1e-3`）のは、面自身に当たる（自己交差）のを、避けるためです。`TMax` でレイの最大距離を制限し遠くの物は、反射プローブに任せます。
+始点を法線方向に少し離す（`+ normal * 1e-3`）のは、面自身に当たる（自己交差）のを避けるためです。`TMax` でレイの最大距離を制限し遠くの物は、反射プローブに任せます。
 
 ## 粗い面：分布に従って方向を選ぶ
 
@@ -127,13 +127,13 @@ void ReflectionRayGen() {
 
 | 方法 | 内容 |
 | --- | --- |
-| GGX の法線分布からサンプル | 法線の、ずれ（ハーフ ベクトル `H`）を、GGX に従って選び `H` で反射。標準 |
+| GGX の法線分布からサンプル | 法線の、ずれ（ハーフ ベクトル `H`）を GGX に従って選び `H` で反射。標準 |
 | 可視法線のサンプリング（Heitz、2018） | 視線から見える、法線だけをサンプル。無駄なサンプル（面の裏）が減り、ノイズが少ない |
 
 ```hlsl
-// GGX の、可視法線を、サンプルする（Heitz 2018）。Ve: ローカル座標（法線が +Z）での、視線。
+// GGX の、可視法線をサンプルする（Heitz 2018）。Ve: ローカル座標（法線が +Z）での、視線。
 float3 SampleGGXVNDF(float3 Ve, float alpha_x, float alpha_y, float u1, float u2) {
-  float3 Vh = normalize(float3(alpha_x * Ve.x, alpha_y * Ve.y, Ve.z));      // 視線を、異方性の、スケールで、半球の形に、変換
+  float3 Vh = normalize(float3(alpha_x * Ve.x, alpha_y * Ve.y, Ve.z));      // 視線を異方性の、スケールで、半球の形に変換
   float lensq = Vh.x * Vh.x + Vh.y * Vh.y;
   float3 T1 = lensq > 0.0 ? float3(-Vh.y, Vh.x, 0.0) * rsqrt(lensq) : float3(1, 0, 0);
   float3 T2 = cross(Vh, T1);
@@ -142,16 +142,16 @@ float3 SampleGGXVNDF(float3 Ve, float alpha_x, float alpha_y, float u1, float u2
   float t1 = r * cos(phi);
   float t2 = r * sin(phi);
   float s = 0.5 * (1.0 + Vh.z);
-  t2 = (1.0 - s) * sqrt(1.0 - t1 * t1) + s * t2;                            // 視線の側に、偏らせる
+  t2 = (1.0 - s) * sqrt(1.0 - t1 * t1) + s * t2;                            // 視線の側に偏らせる
   float3 Nh = t1 * T1 + t2 * T2 + sqrt(max(0.0, 1.0 - t1 * t1 - t2 * t2)) * Vh;
-  return normalize(float3(alpha_x * Nh.x, alpha_y * Nh.y, max(0.0, Nh.z)));   // 元の空間に、戻す
+  return normalize(float3(alpha_x * Nh.x, alpha_y * Nh.y, max(0.0, Nh.z)));   // 元の空間に戻す
 }
 ```
 
-視線から見える法線だけを、サンプルするので反射方向が、面の下を向く（無効なサンプル）ことが、減ります。同じレイ数でノイズが少なくなります（Heitz、2018）。
+視線から見える法線だけをサンプルするので反射方向が面の下を向く（無効なサンプル）ことが、減ります。同じレイ数でノイズが少なくなります（Heitz、2018）。
 
 ```hlsl
-// 粗さに応じた、反射レイ: 可視法線 H で、視線を、反射させる。
+// 粗さに応じた、反射レイ: 可視法線 H で、視線を反射させる。
 float3 V_local = WorldToLocal(-view_dir, normal);
 float alpha = roughness * roughness;
 float3 H_local = SampleGGXVNDF(V_local, alpha, alpha, u.x, u.y);
@@ -160,7 +160,7 @@ float3 reflect_dir = reflect(view_dir, H);                                  // �
 if (dot(reflect_dir, normal) <= 0.0) { /* 面の下を向いた（まれ）: 無効にする */ }
 ```
 
-ガウスの法線 `N` の代わりに、サンプルした `H` で視線を、反射させます。粗い面ほど反射方向が大きくばらつき周りの、広い範囲をサンプルします。
+ガウスの法線 `N` の代わりに、サンプルした `H` で視線を反射させます。粗い面ほど反射方向が大きくばらつき周りの、広い範囲をサンプルします。
 
 ## レイを飛ばす画素を減らす
 
@@ -168,13 +168,13 @@ if (dot(reflect_dir, normal) <= 0.0) { /* 面の下を向いた（まれ）: 無
 
 | 条件 | 判断 |
 | --- | --- |
-| 粗さが高い（0.7 以上） | スキップ（反射プローブに、任せる） |
-| 反射率が低い（非金属でフレネルが、小さい）、視線が垂直に近い | スキップ（反射が、見えない） |
+| 粗さが高い（0.7 以上） | スキップ（反射プローブに任せる） |
+| 反射率が低い（非金属でフレネルが小さい）、視線が垂直に近い | スキップ（反射が見えない） |
 | 画面外、空（深度が最大） | スキップ |
 | SSR で取れた画素 | スキップ（ハイブリッド。[Hybrid Pipeline](hybrid.md)） |
 
 ```hlsl
-// 反射が、ほぼ、見えない画素は、レイを、飛ばさない。
+// 反射がほぼ、見えない画素は、レイを飛ばさない。
 float reflectivity = lerp(0.04, 1.0, metallic) * (1.0 - roughness);          // 簡易な、反射の強さ
 if (roughness > 0.7 || reflectivity < 0.02) { g_reflection_raw[pixel] = 0; return; }
 ```
@@ -187,7 +187,7 @@ if (roughness > 0.7 || reflectivity < 0.02) { g_reflection_raw[pixel] = 0; retur
 | 半分の解像度、1 画素 1 レイ | 1/4 の、レイ数。アップサンプル | 中 | 中 |
 | フル解像度、粗さに応じてレイ数を変える（つるつるは 1 本、粗いは多め） | バランス | 中〜高 | 中 |
 
-<strong>レイの方向</strong>は ブルー ノイズで、選ぶ（ノイズの粒が均一でデノイズが、効きやすい）。
+<strong>レイの方向</strong>は ブルー ノイズで、選ぶ（ノイズの粒が均一でデノイズが効きやすい）。
 
 ## よくあるミス
 

@@ -72,7 +72,7 @@ if (SUCCEEDED(hr)) {
 `WRITE_DISCARD` は「古い内容はもう要らない」と宣言してドライバーに <strong>新しい領域を割り当ててもらいます</strong>（バッファの、名前変更、renaming）。GPU は古い領域で前のフレームの描画を続け CPU は新しい領域に書きます。待ちが発生しません。
 
 ```cpp
-// 1 フレームに、物ごとに、何度も、Map（DISCARD）して、描ける。毎回、別の領域が、渡る。
+// 1 フレームに物ごとに、何度も、Map（DISCARD）して、描ける。毎回、別の領域が渡る。
 for (const Object& object : objects) {
   PerObject data = MakePerObject(object);
   UpdateConstants(data);                                    // Map(WRITE_DISCARD) → memcpy → Unmap
@@ -80,17 +80,17 @@ for (const Object& object : objects) {
 }
 ```
 
-物ごとに `Map` する方法は 1 つのバッファでも動きます（ドライバーが、名前変更する）。ただし、数千回の `Map` は遅いので大量の物はまとめて 1 つの大きなバッファに書き、オフセットでつなぎます（[Constant Buffer](constant-buffer.md)）。
+物ごとに `Map` する方法は 1 つのバッファでも動きます（ドライバーが名前変更する）。ただし、数千回の `Map` は遅いので大量の物はまとめて 1 つの大きなバッファに書き、オフセットでつなぎます（[Constant Buffer](constant-buffer.md)）。
 
 ### WRITE_NO_OVERWRITE：リングバッファ
 
 大きな動的な頂点バッファ（UI、パーティクル）に <strong>追記</strong>していくときは `NO_OVERWRITE` が、使えます。
 
 ```cpp
-// 1 つの大きな頂点バッファを、リングのように、使う。先頭から、追記し、末尾まで来たら、DISCARD で、先頭へ戻る。
+// 1 つの大きな頂点バッファをリングのように、使う。先頭から、追記し、末尾まで来たら、DISCARD で、先頭へ戻る。
 D3D11_MAP map_type = D3D11_MAP_WRITE_NO_OVERWRITE;
 if (write_offset_ + size > buffer_size_) {
-  map_type = D3D11_MAP_WRITE_DISCARD;                       // 満杯: 全部を、捨てて、最初から
+  map_type = D3D11_MAP_WRITE_DISCARD;                       // 満杯: 全部を捨てて、最初から
   write_offset_ = 0;
 }
 D3D11_MAPPED_SUBRESOURCE mapped;
@@ -106,7 +106,7 @@ write_offset_ += size;
 ## DEFAULT + UpdateSubresource
 
 ```cpp
-// DEFAULT のバッファ・テクスチャの、一部、または、全部を、更新する。
+// DEFAULT のバッファ・テクスチャの、一部、または、全部を更新する。
 context->UpdateSubresource(buffer.Get(), 0, nullptr, data, 0, 0);
 ```
 
@@ -120,7 +120,7 @@ context->UpdateSubresource(buffer.Get(), 0, nullptr, data, 0, 0);
 | `SrcDepthPitch` | 3D テクスチャの 1 層のバイト数 |
 
 ```cpp
-// テクスチャの、一部の範囲（x: 10〜50, y: 20〜60）だけを、更新する。
+// テクスチャの、一部の範囲（x: 10〜50, y: 20〜60）だけを更新する。
 D3D11_BOX box = {10, 20, 0, 50, 60, 1};                    // left, top, front, right, bottom, back
 context->UpdateSubresource(texture.Get(), 0, &box, pixels, (50 - 10) * 4, 0);
 ```
@@ -136,7 +136,7 @@ context->UpdateSubresource(texture.Get(), 0, &box, pixels, (50 - 10) * 4, 0);
 ## STAGING：GPU の結果を CPU で読む
 
 ```cpp
-// ① CPU が読める、STAGING テクスチャを、作る。GPU からは、直接、使えない。
+// ① CPU が読める、STAGING テクスチャを作る。GPU からは、直接、使えない。
 D3D11_TEXTURE2D_DESC desc;
 source_texture->GetDesc(&desc);
 desc.Usage = D3D11_USAGE_STAGING;
@@ -149,7 +149,7 @@ device->CreateTexture2D(&desc, nullptr, &staging);
 // ② GPU 上で、コピー。
 context->CopyResource(staging.Get(), source_texture.Get());
 
-// ③ CPU で、読む。GPU のコピーが、終わるまで、Map が待つ（ストール）。
+// ③ CPU で、読む。GPU のコピーが終わるまで、Map が待つ（ストール）。
 D3D11_MAPPED_SUBRESOURCE mapped;
 context->Map(staging.Get(), 0, D3D11_MAP_READ, 0, &mapped);
 const uint8_t* row = static_cast<const uint8_t*>(mapped.pData);
@@ -167,7 +167,7 @@ context->Unmap(staging.Get(), 0);
 テクスチャの `Map` で得られる `RowPitch` は、<strong>幅 × 画素の大きさとは限りません</strong>（アラインメントのパディングが入る）。行ごとに `RowPitch` ずつ進めて読み書きします。
 
 ```cpp
-// 書くとき: 1 行ずつ、コピーする。memcpy で、全体を、一気に、コピーしてはいけない。
+// 書くとき: 1 行ずつ、コピーする。memcpy で、全体を一気にコピーしてはいけない。
 uint8_t* dst = static_cast<uint8_t*>(mapped.pData);
 for (UINT y = 0; y < height; ++y) {
   std::memcpy(dst + y * mapped.RowPitch, pixels + y * width * 4, width * 4);
@@ -185,7 +185,7 @@ for (UINT y = 0; y < height; ++y) {
 ??? failure "`Map(READ)` で、フレームがガクッと止まる"
     GPU の完了を待っている。数フレーム遅れで読む（複数の STAGING をリングで）か非同期のクエリで完了を確認する。
 
-??? failure "`WRITE_NO_OVERWRITE` で描画が、壊れる"
+??? failure "`WRITE_NO_OVERWRITE` で描画が壊れる"
     GPU が使っている領域に書いている。リングバッファの使い方を間違えている。満杯になったら `DISCARD` で先頭に戻る。
 
 ??? failure "`DYNAMIC` のレンダー ターゲットを作ろうとして失敗する"

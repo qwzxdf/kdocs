@@ -14,7 +14,7 @@ tags:
 `#include <mdspan>`
 </div>
 
-`std::layout_stride` は、**次元ごとの「歩幅（次の要素まで何個とぶか）」を自分で指定する**配置の規則です。行や列を飛ばして見たり、大きな画像の一部分を切り出して見たりするときに使います。`layout_right` / `layout_left` では表せない並びを、`mdspan` で扱えます。
+`std::layout_stride` は、**次元ごとの「歩幅（次の要素まで何個とぶか）」を自分で指定する**配置の規則です。行や列を飛ばして見たり、大きな画像の一部分を切り出して見たりするときに使います。`layout_right` / `layout_left` では表せない並びを `mdspan` で扱えます。
 
 !!! tip "ポイント"
     - `m(i, j)` の位置は `i * stride0 + j * stride1`。

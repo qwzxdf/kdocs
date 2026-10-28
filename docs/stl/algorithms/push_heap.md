@@ -14,7 +14,7 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::push_heap` は、**`vector` の末尾に足した要素を、ヒープの正しい位置まで押し上げる**アルゴリズムです。まず `push_back` で値を足し、そのあとに呼びます。
+`std::ranges::push_heap` は、**`vector` の末尾に足した要素をヒープの正しい位置まで押し上げる**アルゴリズムです。まず `push_back` で値を足し、そのあとに呼びます。
 
 !!! tip "ポイント"
     - 手順は 2 つ: `v.push_back(x)` → `std::ranges::push_heap(v)`。

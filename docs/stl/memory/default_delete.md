@@ -63,7 +63,7 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| C のライブラリの解放関数を、unique_ptr に任せる | `std::unique_ptr<FILE, decltype(&fclose)>` |
+| C のライブラリの解放関数を unique_ptr に任せる | `std::unique_ptr<FILE, decltype(&fclose)>` |
 
 ## よくあるミス
 

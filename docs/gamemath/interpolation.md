@@ -22,14 +22,14 @@ tags:
 
 ## 線形補間（lerp）
 
-2 つの値 a と b の間を、割合 t で混ぜます。
+2 つの値 a と b の間を割合 t で混ぜます。
 
 ```text
 lerp(a, b, t) = a + (b - a) × t
 ```
 
 <svg class="fig illust" viewBox="0 0 720 150" role="img" aria-label="線形補間の数直線">
-<text x="20" y="24" class="fig-title">a = 10、b = 50 の間を、t で混ぜる</text>
+<text x="20" y="24" class="fig-title">a = 10、b = 50 の間を t で混ぜる</text>
 <line x1="60" y1="80" x2="660" y2="80" stroke="currentColor" stroke-width="3"/>
 <circle cx="60" cy="80" r="9" fill="#4c8bf5"/><text x="40" y="112" style="font-size:12px">a = 10（t = 0）</text>
 <circle cx="660" cy="80" r="9" fill="#e5484d"/><text x="610" y="112" style="font-size:12px">b = 50（t = 1）</text>
@@ -70,7 +70,7 @@ Vector3 position = Vector3::Lerp(start, end, t);
 
 | 場面 | t の作り方 |
 | --- | --- |
-| 決まった時間で動かす | `t = 経過時間 / 全体の時間` を、0〜1 に clamp |
+| 決まった時間で動かす | `t = 経過時間 / 全体の時間` を 0〜1 に clamp |
 | 進行度の演出 | `t = 現在値 / 最大値` |
 | 外挿（先を予測） | `t > 1` を許す（clamp しない） |
 | 往復 | `t` を `sin` や三角波で作る |
@@ -121,8 +121,8 @@ float Remap(float v, float in_min, float in_max, float out_min, float out_max) {
 | 使いどころ | 例 |
 | --- | --- |
 | スティックの値を速度に | 入力 0〜1 を速度 0〜8 m/s に |
-| 距離から音量に | 距離 2〜30 m を、音量 1〜0 に |
-| 体力から色に | HP 100〜0 % を、緑〜赤に |
+| 距離から音量に | 距離 2〜30 m を音量 1〜0 に |
+| 体力から色に | HP 100〜0 % を緑〜赤に |
 | ワールド座標から UI 座標に | ミニマップ |
 | スコアからランクに | 値の範囲を段階に |
 
@@ -220,7 +220,7 @@ float Damp(float current, float target, float rate, float delta_time) {
 
 ## 重心座標による補間
 
-**三角形の中の点**の値を、3 つの頂点の値から補間する方法です。三角形の頂点 A, B, C の値が a, b, c のとき、点 P の重心座標 (u, v, w)（合計 1）を使って、次のように求めます。
+**三角形の中の点**の値を 3 つの頂点の値から補間する方法です。三角形の頂点 A, B, C の値が a, b, c のとき、点 P の重心座標 (u, v, w)（合計 1）を使って、次のように求めます。
 
 ```text
 値(P) = u × a + v × b + w × c
@@ -257,7 +257,7 @@ float Damp(float current, float target, float rate, float delta_time) {
 ??? failure "角度を単純な lerp で補間して、逆回りする"
     最短の差で補間します。
 
-??? failure "指数減衰が、いつまでも目標に着かず、微小な動きが残る"
+??? failure "指数減衰がいつまでも目標に着かず、微小な動きが残る"
     距離が十分小さくなったら、目標にスナップします。
 
 ??? failure "逆補間で、`b - a` が 0 のとき NaN になる"

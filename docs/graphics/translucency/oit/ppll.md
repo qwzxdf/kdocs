@@ -9,7 +9,7 @@ tags:
 <strong>PPLL は画素ごとに重なった半透明の断片をリストに記録し、最後に深度で並べ替えてブレンドする手法</strong>です。正確ですがメモリと並べ替えのコストが大きいです。このページでは PPLL の仕組みと実装を説明します。
 
 !!! tip "ポイント"
-    - 描画時：断片（色・深度）を、画素ごとのリストへ追加。
+    - 描画時：断片（色・深度）を画素ごとのリストへ追加。
     - UAV とアトミック操作を使う。
     - 最後に画素ごとに深度で並べ替えて、ブレンド。
     - 重なりが多いとメモリと時間が膨らむ。
@@ -36,7 +36,7 @@ struct Node {
 };
 ```
 
-リストの 1 つのノード（フラグメント 1 枚ぶん）です。色（パック済み）、深度、そして同じ画素の次のノードの番号を、持ちます。
+リストの 1 つのノード（フラグメント 1 枚ぶん）です。色（パック済み）、深度、そして同じ画素の次のノードの番号を持ちます。
 
 ```hlsl
 RWTexture2D<uint> head_pointers : register(u1);
@@ -55,14 +55,14 @@ void PSCollect(VsOutput input) {
   if (node_index >= kMaxNodes) return;
 ```
 
-`[earlydepthstencil]` は深度テストをピクセル シェーダーの前に、行う指定です。不透明な物の後ろに隠れたフラグメントは、ノードを作らずに捨てられます。ノードの番号をカウンターでアトミックに確保し、バッファが満杯なら捨てます。
+`[earlydepthstencil]` は深度テストをピクセル シェーダーの前に行う指定です。不透明な物の後ろに隠れたフラグメントは、ノードを作らずに捨てられます。ノードの番号をカウンターでアトミックに確保し、バッファが満杯なら捨てます。
 
 ```hlsl
   uint previous_head;
   InterlockedExchange(head_pointers[uint2(input.position.xy)], node_index, previous_head);
 ```
 
-この画素の先頭を新しいノードの番号に、入れ替え前の先頭を受け取ります。1 命令で行うので同じ画素に同時に書く、スレッドがあってもリストが壊れません。
+この画素の先頭を新しいノードの番号に入れ替え前の先頭を受け取ります。1 命令で行うので同じ画素に同時に書く、スレッドがあってもリストが壊れません。
 
 ```hlsl
   Node node;
@@ -75,7 +75,7 @@ void PSCollect(VsOutput input) {
 
 | 点 | 説明 |
 | --- | --- |
-| `[earlydepthstencil]` | 不透明の物に隠れたフラグメントを、シェーダーの前に捨てる（重要。ノードの無駄を減らす） |
+| `[earlydepthstencil]` | 不透明の物に隠れたフラグメントをシェーダーの前に捨てる（重要。ノードの無駄を減らす） |
 | `InterlockedAdd` | ノード番号を確保 |
 | `InterlockedExchange` | ヘッドを自分に付け替え、元のヘッドを `next` に（先頭に挿入） |
 | `kMaxNodes` | ノード バッファの上限（超えたら、捨てる）。画面解像度 × 平均層数 × 係数で決める |
@@ -109,7 +109,7 @@ float4 PSResolve(VsOutput input) : SV_Target {
   }
 ```
 
-奥の物が先になるよう深度の大きい順に、並べ替えます。層が数枚〜十数枚なので挿入ソートで、十分です。
+奥の物が先になるよう深度の大きい順に並べ替えます。層が数枚〜十数枚なので挿入ソートで、十分です。
 
 ```hlsl
   float4 result = float4(0, 0, 0, 0);
@@ -153,7 +153,7 @@ PPLL の利点は正確なこと（ソート済みで合成）、層数に上限
 <text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">F2 が到着: head → F2 → F1<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2549;0.2552;0.4066;0.4069;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">F3 が到着: head → F3 → F2 → F1。深度はバラバラ<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4066;0.4069;0.5514;0.5517;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">深度の小さい順に並べ替え: F2(0.3) → F3(0.5) → F1(0.7)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5514;0.5517;0.7583;0.7586;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">奥から手前へ、順に混ぜる<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7583;0.7586;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="390" y="340" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">奥から手前へ順に混ぜる<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.7583;0.7586;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:ppll-chain:end -->
@@ -174,8 +174,8 @@ PPLL の利点は正確なこと（ソート済みで合成）、層数に上限
 | 要素 | 内容 |
 | --- | --- |
 | ヘッド ポインタ バッファ（画面と同じ大きさ） | 各画素の、リストの先頭の番号。最初は `0xFFFFFFFF`（空） |
-| フラグメント バッファ（大きな配列） | 全フラグメントを、1 本の配列に書き込む。各要素は `色`、`深度`、`次の要素の番号` |
-| カウンター | 次に使う、フラグメント バッファの位置（アトミックに、増やす） |
+| フラグメント バッファ（大きな配列） | 全フラグメントを 1 本の配列に書き込む。各要素は `色`、`深度`、`次の要素の番号` |
+| カウンター | 次に使う、フラグメント バッファの位置（アトミックに増やす） |
 
 ```hlsl
 struct FragmentNode {
@@ -195,33 +195,33 @@ RWByteAddressBuffer g_counter : register(u3);                    // 割り当て
 
 ```hlsl
 // 構築パス（半透明のオブジェクトを描くとき）。
-[earlydepthstencil]                                              // 不透明の深度で、隠れたフラグメントを、事前に捨てる
+[earlydepthstencil]                                              // 不透明の深度で、隠れたフラグメントを事前に捨てる
 void BuildPS(PSInput input) {
   float4 color = ShadeFragment(input);
 ```
 
-構築パスの冒頭です。`[earlydepthstencil]` で隠れたフラグメントを先に捨て色を、計算します。
+構築パスの冒頭です。`[earlydepthstencil]` で隠れたフラグメントを先に捨て色を計算します。
 
 ```hlsl
-  // ① フラグメント バッファの、空き位置を、アトミックに、確保する
+  // ① フラグメント バッファの、空き位置をアトミックに確保する
   uint index;
   g_counter.InterlockedAdd(0, 1, index);
   if (index >= kMaxFragments) return;                             // 溢れたら、捨てる
 ```
 
-①ノードを入れる場所（番号）を、カウンターでアトミックに確保します。溢れたらそのフラグメントは捨てます。
+①ノードを入れる場所（番号）をカウンターでアトミックに確保します。溢れたらそのフラグメントは捨てます。
 
 ```hlsl
-  // ② この画素の、ヘッドを、新しいノードに、入れ替え、前のヘッドを、受け取る
+  // ② この画素の、ヘッドを新しいノードに入れ替え、前のヘッドを受け取る
   uint pixel = (uint)input.position.y * g_screen_width + (uint)input.position.x;
   uint prev_head;
   g_head.InterlockedExchange(pixel * 4, index, prev_head);
 ```
 
-②この画素の先頭を自分の番号に、入れ替えて前の先頭を受け取ります。
+②この画素の先頭を自分の番号に入れ替えて前の先頭を受け取ります。
 
 ```hlsl
-  // ③ 新しいノードを、書き込む（次 = 前のヘッド）
+  // ③ 新しいノードを書き込む（次 = 前のヘッド）
   FragmentNode node;
   node.packed_color = PackColor(color);
   node.depth = input.position.z;
@@ -232,9 +232,9 @@ void BuildPS(PSInput input) {
 
 | 命令 | 内容 |
 | --- | --- |
-| `InterlockedAdd` | カウンターをアトミックに、増やして自分の番号を得る |
-| `InterlockedExchange` | ヘッドを自分の番号に、入れ替え前のヘッドを受け取る。これでリストの先頭に追加される |
-| `[earlydepthstencil]` | 不透明な物で隠れた、フラグメントはシェーダー実行前に、捨てる |
+| `InterlockedAdd` | カウンターをアトミックに増やして自分の番号を得る |
+| `InterlockedExchange` | ヘッドを自分の番号に入れ替え前のヘッドを受け取る。これでリストの先頭に追加される |
+| `[earlydepthstencil]` | 不透明な物で隠れた、フラグメントはシェーダー実行前に捨てる |
 
 ## 解決パス：ソートしてブレンド
 
@@ -246,10 +246,10 @@ float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
   uint node_index = g_head.Load(pixel * 4);
 ```
 
-合成パスの冒頭です。画素の番号から先頭のノードを、読みます。
+合成パスの冒頭です。画素の番号から先頭のノードを読みます。
 
 ```hlsl
-  // ① リストを、ローカル配列に、取り出す（最大 kMaxLayers 個）
+  // ① リストをローカル配列に取り出す（最大 kMaxLayers 個）
   FragmentNode layers[kMaxLayers];
   int count = 0;
   while (node_index != 0xFFFFFFFF && count < kMaxLayers) {
@@ -258,10 +258,10 @@ float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
   }
 ```
 
-①リストを辿ってローカルの配列に、取り出します（最大 `kMaxLayers` 個）。
+①リストを辿ってローカルの配列に取り出します（最大 `kMaxLayers` 個）。
 
 ```hlsl
-  // ② 深度の大きい順（奥から手前）に、並べ替える（挿入ソート。層が、少ないので、これで十分）
+  // ② 深度の大きい順（奥から手前）に並べ替える（挿入ソート。層が少ないので、これで十分）
   for (int i = 1; i < count; ++i) {
     FragmentNode key = layers[i];
     int j = i - 1;
@@ -270,10 +270,10 @@ float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
   }
 ```
 
-②深度の大きい順（奥から手前）に、挿入ソートします。
+②深度の大きい順（奥から手前）に挿入ソートします。
 
 ```hlsl
-  // ③ 背景（不透明の描画結果）から、奥から手前へ、順にブレンドする
+  // ③ 背景（不透明の描画結果）から、奥から手前へ順にブレンドする
   float3 color = g_opaque_color.Load(int3(pos.xy, 0)).rgb;
   for (int k = 0; k < count; ++k) {
     float4 c = UnpackColor(layers[k].packed_color);
@@ -288,12 +288,12 @@ float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
 | | 内容 |
 | --- | --- |
 | 長所 | 正確（最大 `kMaxLayers` まで）。1 パスで全層を集められる |
-| 長所 | 半透明のジオメトリを、1 回だけ描く（デプス ピーリングは、層の数だけ描く） |
-| 短所 | メモリが大きい（フラグメント バッファ）。画面の数倍〜数十倍のフラグメントを、想定する |
-| 短所 | バッファが溢れると、フラグメントが捨てられる（画面が、欠ける）。上限の見積もりが必要 |
-| 短所 | アトミック命令が、同じ画素に集中すると競合して、遅い |
+| 長所 | 半透明のジオメトリを 1 回だけ描く（デプス ピーリングは、層の数だけ描く） |
+| 短所 | メモリが大きい（フラグメント バッファ）。画面の数倍〜数十倍のフラグメントを想定する |
+| 短所 | バッファが溢れると、フラグメントが捨てられる（画面が欠ける）。上限の見積もりが必要 |
+| 短所 | アトミック命令が同じ画素に集中すると競合して、遅い |
 | 短所 | 解決パスの画素ごとの、ソートが重い（層が多い画素） |
-| 短所 | 画素ごとにリストの長さが、バラバラで GPU のスレッドが、待たされる（ワープ内のばらつき） |
+| 短所 | 画素ごとにリストの長さが、バラバラで GPU のスレッドが待たされる（ワープ内のばらつき） |
 
 ## 最適化
 
@@ -307,10 +307,10 @@ float4 ResolvePS(float4 pos : SV_Position) : SV_Target {
 
 ## DirectX 11 での、リソース
 
-PPLL には <strong>`RWByteAddressBuffer`</strong> と `RWStructuredBuffer`（UAV）を、ピクセル シェーダーから書き込む必要があります。DirectX 11 ではピクセル シェーダーでの、UAV の使用ができます（`OMSetRenderTargetsAndUnorderedAccessViews`）。
+PPLL には <strong>`RWByteAddressBuffer`</strong> と `RWStructuredBuffer`（UAV）をピクセル シェーダーから書き込む必要があります。DirectX 11 ではピクセル シェーダーでの、UAV の使用ができます（`OMSetRenderTargetsAndUnorderedAccessViews`）。
 
 ```cpp
-// レンダー ターゲット 0 個（描かない）+ UAV 3 つ（ヘッド、フラグメント、カウンター）を、ピクセル シェーダーへ設定する。
+// レンダー ターゲット 0 個（描かない）+ UAV 3 つ（ヘッド、フラグメント、カウンター）をピクセル シェーダーへ設定する。
 ID3D11UnorderedAccessView* uavs[3] = {fragment_uav.Get(), head_uav.Get(), counter_uav.Get()};
 UINT initial_counts[3] = {0, 0, 0};
 context->OMSetRenderTargetsAndUnorderedAccessViews(

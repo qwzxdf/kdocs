@@ -54,7 +54,7 @@ float3 VolumetricGodRays(float3 camera_pos, float3 pixel_world_pos, float2 pixel
 | 半解像度で描く | ぼかし＋アップサンプリングで軽く |
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="レイマーチの光の筋">
-<text x="20" y="24" class="fig-title">視線上の各点が、日向か日陰かを数える</text>
+<text x="20" y="24" class="fig-title">視線上の各点が日向か日陰かを数える</text>
 <polygon points="260,70 400,70 420,190 240,190" fill="#555" fill-opacity="0.35" stroke="#555"/>
 <text x="290" y="150" style="font-size:12px">影の領域</text>
 <circle cx="80" cy="200" r="6" fill="#e5484d"/><text x="50" y="224" style="font-size:12px">カメラ</text>
@@ -74,7 +74,7 @@ float3 VolumetricGodRays(float3 camera_pos, float3 pixel_world_pos, float2 pixel
 
 ### シャドウ マップの参照
 
-シャドウ マップの参照には通常の描画と同じカスケード シャドウ マップを使います。各サンプル点のワールド位置が、どのカスケードに入るかを調べ、そのカスケードの深度を引いて比べます（[Cascaded Shadow Maps (CSM)](../../shadows/cascaded.md)）。シャドウ マップの 1 テクセルの大きさは、画面のどの距離でも同じなので、遠くのサンプルではシャドウ マップの粗さがそのまま筋のにじみになります。近くのカスケードで見える範囲を、光の筋の最大距離として選ぶのが現実的です。
+シャドウ マップの参照には通常の描画と同じカスケード シャドウ マップを使います。各サンプル点のワールド位置がどのカスケードに入るかを調べ、そのカスケードの深度を引いて比べます（[Cascaded Shadow Maps (CSM)](../../shadows/cascaded.md)）。シャドウ マップの 1 テクセルの大きさは、画面のどの距離でも同じなので、遠くのサンプルではシャドウ マップの粗さがそのまま筋のにじみになります。近くのカスケードで見える範囲を光の筋の最大距離として選ぶのが現実的です。
 
 ### ステップ数を減らす工夫
 
@@ -82,18 +82,18 @@ float3 VolumetricGodRays(float3 camera_pos, float3 pixel_world_pos, float2 pixel
 
 ## シャドウ マップで光の通り道を調べる
 
-<strong>放射状ブラー</strong>（[Screen-Space Radial Blur](radial-blur.md)）は、画面の画像だけを使うので、影の正確さがありません。シャドウ マップを使うと視線に沿った各点が、太陽の光を受けているかが正確に、分かります。
+<strong>放射状ブラー</strong>（[Screen-Space Radial Blur](radial-blur.md)）は、画面の画像だけを使うので、影の正確さがありません。シャドウ マップを使うと視線に沿った各点が太陽の光を受けているかが正確に分かります。
 
 ## 考え方
 
-<strong>カメラから各画素へ向かう視線</strong>を、細かく区切って、各点で 2 つのことを調べます。
+<strong>カメラから各画素へ向かう視線</strong>を細かく区切って、各点で 2 つのことを調べます。
 
 | 調べること | 内容 |
 | --- | --- |
-| 光が届いているか | その点は、シャドウ マップで影の外か（太陽の光が、届く） |
+| 光が届いているか | その点は、シャドウ マップで影の外か（太陽の光が届く） |
 | どれだけ散乱するか | 霧の密度 × 位相関数（太陽の方向への、前方散乱） |
 
-光が届いている点の散乱光だけを、足し合わせると光の筋（光が通る、道筋）が現れます。
+光が届いている点の散乱光だけを足し合わせると光の筋（光が通る、道筋）が現れます。
 
 ```text
 視線 ●────●────●────●────●────●
@@ -104,7 +104,7 @@ float3 VolumetricGodRays(float3 camera_pos, float3 pixel_world_pos, float2 pixel
 ## 実装
 
 ```hlsl
-// 視線に沿って、シャドウ マップを引きながら、散乱光を、積分する。
+// 視線に沿って、シャドウ マップを引きながら、散乱光を積分する。
 float3 GodRays(float3 camera, float3 world_pos, float2 screen_pos) {
   const int kSteps = 32;
   float3 ray = world_pos - camera;
@@ -113,10 +113,10 @@ float3 GodRays(float3 camera, float3 world_pos, float2 screen_pos) {
   float step_len = ray_length / kSteps;
 ```
 
-<strong>カメラからその画素の物体まで</strong>の視線を、32 区間に分けます。物体より奥は積分しません（物体で視線が、止まる）。
+<strong>カメラからその画素の物体まで</strong>の視線を 32 区間に分けます。物体より奥は積分しません（物体で視線が止まる）。
 
 ```hlsl
-  // ステップの開始位置を、ノイズで、ずらす（縞を、細かいノイズに、変える）。
+  // ステップの開始位置をノイズで、ずらす（縞を細かいノイズに変える）。
   float jitter = InterleavedGradientNoise(screen_pos);
   float3 sum = 0.0;
   float cos_theta = dot(ray_dir, g_sun_dir);
@@ -133,16 +133,16 @@ float3 GodRays(float3 camera, float3 world_pos, float2 screen_pos) {
   }
 ```
 
-各点のワールド位置を シャドウ マップの座標へ、変換して影かどうかを調べます（[Comparison Samplers](../../shadows/shadow-map-basics/comparison-sampler.md)）。光が届く点（`shadow = 1`）だけが足されるので影に入った区間は、足されません。
+各点のワールド位置を シャドウ マップの座標へ変換して影かどうかを調べます（[Comparison Samplers](../../shadows/shadow-map-basics/comparison-sampler.md)）。光が届く点（`shadow = 1`）だけが足されるので影に入った区間は、足されません。
 
 ```hlsl
-  // 平均を取り、散乱の量（霧の密度 × 距離）と、位相関数、太陽の色を、掛ける。
+  // 平均を取り、散乱の量（霧の密度 × 距離）と、位相関数、太陽の色を掛ける。
   float scatter_amount = 1.0 - exp(-g_fog_density * ray_length);     // 霧の、全体の、厚み
   return (sum / kSteps) * scatter_amount * phase * g_sun_color;
 }
 ```
 
-光が届いた区間の割合（`sum / kSteps`）に、霧の厚みと位相関数、太陽の色を掛けます。光が多く届く（影が少ない）視線ほど、明るい筋になります。
+光が届いた区間の割合（`sum / kSteps`）に霧の厚みと位相関数、太陽の色を掛けます。光が多く届く（影が少ない）視線ほど、明るい筋になります。
 
 ## シャドウ マップの読み方
 
@@ -150,7 +150,7 @@ float3 GodRays(float3 camera, float3 world_pos, float2 screen_pos) {
 
 ```hlsl
 float SampleShadowMap(float3 world_pos) {
-  // どのカスケードに入るかを調べ、そのカスケードの、シャドウ マップを、比較サンプラーで引く。
+  // どのカスケードに入るかを調べ、そのカスケードの、シャドウ マップを比較サンプラーで引く。
   int cascade = SelectCascade(world_pos);
   if (cascade < 0) return 1.0;                                   // 範囲の外 → 影なし
   float4 shadow_coord = mul(float4(world_pos, 1.0), g_cascade_matrix[cascade]);
@@ -164,20 +164,20 @@ float SampleShadowMap(float3 world_pos) {
 
 | 最適化 | 内容 |
 | --- | --- |
-| 低解像度（半分、1/4）で計算 | 画素数が、1/4〜1/16。アップサンプル（深度を考慮した、バイラテラル）で元の解像度へ |
+| 低解像度（半分、1/4）で計算 | 画素数が 1/4〜1/16。アップサンプル（深度を考慮した、バイラテラル）で元の解像度へ |
 | ステップ数を減らす + ジッター + TAA | 16 ステップでも、ノイズ + 時間方向の平均で、なめらかに |
 | 近い範囲のみ | カメラの、近くだけ（数十メートル）をレイマーチ。遠くは簡易な霧 |
-| ボリューム テクスチャ（froxel）に、まとめる | 画素ごとにレイマーチする代わりに、3D グリッドに 1 回だけ計算（[Volumetric Fog](../volumetric-fog/index.md)） |
+| ボリューム テクスチャ（froxel）にまとめる | 画素ごとにレイマーチする代わりに、3D グリッドに 1 回だけ計算（[Volumetric Fog](../volumetric-fog/index.md)） |
 
 ## 長所と短所
 
 | | 内容 |
 | --- | --- |
-| 長所 | 影の形が正確に、光の筋に反映される（木漏れ日、窓の形） |
+| 長所 | 影の形が正確に光の筋に反映される（木漏れ日、窓の形） |
 | 長所 | 太陽が画面の外でも、動く |
 | 長所 | 霧の密度を場所で、変えられる（霧の濃淡が光に反映） |
 | 短所 | 重い（画素 × ステップ） |
-| 短所 | ノイズ（ステップが、少ないとき） |
+| 短所 | ノイズ（ステップが少ないとき） |
 | 短所 | シャドウ マップの、解像度に依存する（遠くは粗い） |
 
 ## よくあるミス

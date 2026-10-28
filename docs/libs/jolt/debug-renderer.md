@@ -25,13 +25,13 @@ tags:
 
 | 描画するもの | 内容 | 使いどころ |
 | --- | --- | --- |
-| <strong>形（Shape）</strong> | 衝突の形（ワイヤーフレーム・塗りつぶし） | 見た目と衝突の形が、ずれていないか |
+| <strong>形（Shape）</strong> | 衝突の形（ワイヤーフレーム・塗りつぶし） | 見た目と衝突の形がずれていないか |
 | 境界ボックス（AABB） | ブロードフェーズの大まかな範囲 | 判定の範囲 |
 | 重心（Center of Mass） | 重心の位置と軸 | 重心がずれていないか |
 | 速度 | 線速度・角速度の向き | 動きの確認 |
 | 制約 | ヒンジの軸・接続点・制限の範囲 | 関節の設定の確認 |
 | 接触点・法線 | 衝突した位置と向き | すり抜け・めり込みの調査 |
-| スリープ状態 | 休止中の物体を色分け | 休止が、効いているか |
+| スリープ状態 | 休止中の物体を色分け | 休止が効いているか |
 
 ## 有効にする
 
@@ -89,7 +89,7 @@ class MyDebugRenderer final : public DebugRendererSimple {
 | 関数 | 意味 |
 | --- | --- |
 | `Initialize()` | 基底クラスの初期化（コンストラクタで呼ぶ） |
-| `DrawLine(from, to, color)` | 線を 1 本描く（形・制約・軸などすべての描画が、これに集約される） |
+| `DrawLine(from, to, color)` | 線を 1 本描く（形・制約・軸などすべての描画がこれに集約される） |
 | `DrawText3D(position, text, color, height)` | 3D 空間の位置に文字（質量・名前など） |
 
 `DebugRendererSimple` は三角形や面もすべて線に変換します（ワイヤーフレーム）。塗りつぶしの描画がしたければ、`DebugRenderer` を直接継承して 三角形の描画（`DrawTriangle`・`CreateTriangleBatch`）を実装します（手間が増えます）。
@@ -153,7 +153,7 @@ bool WorldToScreen(const Vector3& world, const Matrix& view, const Matrix& proj,
 | `screen.z` | 0〜1 の範囲外は、カメラの後ろ・遠すぎ。描かない |
 | `ImDrawList::AddLine` | 画面上に線を描く（[デバッグ画面](../imgui/debug-ui.md)） |
 
-ImGui のバックグラウンド描画リスト（`GetBackgroundDrawList`）に描けば、ゲームの画面の上に線が重なります。専用の線描画（頂点バッファ・シェーダー）を作る方が、本格的で深度テストもできます（ImGui の線は、深度テストなしで手前の物の裏側も見える）。
+ImGui のバックグラウンド描画リスト（`GetBackgroundDrawList`）に描けば、ゲームの画面の上に線が重なります。専用の線描画（頂点バッファ・シェーダー）を作る方が本格的で深度テストもできます（ImGui の線は、深度テストなしで手前の物の裏側も見える）。
 
 ## 性能
 
@@ -170,7 +170,7 @@ ImGui のバックグラウンド描画リスト（`GetBackgroundDrawList`）に
 
 | 見たいもの | 設定 |
 | --- | --- |
-| **衝突の形が見た目と合っているか** | `mDrawShapeWireframe = true` ＋ 見た目のメッシュを、半透明に |
+| **衝突の形が見た目と合っているか** | `mDrawShapeWireframe = true` ＋ 見た目のメッシュを半透明に |
 | すり抜け・めり込み | 形と AABB を描いて、位置関係を見る |
 | 重心 | `mDrawCenterOfMassTransform` |
 | ヒンジの動き | `DrawConstraints` と `DrawConstraintLimits` |
@@ -200,7 +200,7 @@ ImGui のバックグラウンド描画リスト（`GetBackgroundDrawList`）に
 ??? failure "デバッグ描画が重くて、フレームが落ちる"
     線をまとめて描き、範囲を絞ります。
 
-??? failure "デバッグの線が、手前の壁を透けて見えて分かりにくい"
+??? failure "デバッグの線が手前の壁を透けて見えて分かりにくい"
     ImGui の描画は深度テストなしです。専用の線描画で深度テストを有効にします。
 
 ??? failure "製品版にもデバッグ描画が残っている"

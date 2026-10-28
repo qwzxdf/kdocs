@@ -7,10 +7,10 @@ tags:
 
 # ナビメッシュとは
 
-ゲームで敵やキャラクターを、**目的地まで自然に歩かせたい**とき、まず「どこが歩けるのか」をコンピューターに教える必要があります。3D の世界は、ただの三角形の集まりなので、そのままでは「床」「壁」「階段」の区別がつきません。ナビゲーション メッシュ（ナビメッシュ） は、歩ける場所だけを大きな凸ポリゴンの集まりで表したデータです。このページでは、ナビメッシュの考え方と、Recast Navigation の構成を説明します。
+ゲームで敵やキャラクターを**目的地まで自然に歩かせたい**とき、まず「どこが歩けるのか」をコンピューターに教える必要があります。3D の世界は、ただの三角形の集まりなので、そのままでは「床」「壁」「階段」の区別がつきません。ナビゲーション メッシュ（ナビメッシュ） は、歩ける場所だけを大きな凸ポリゴンの集まりで表したデータです。このページでは、ナビメッシュの考え方と、Recast Navigation の構成を説明します。
 
 !!! tip "ポイント"
-    - ナビメッシュ ＝ <strong>歩ける面を、少数の凸ポリゴンで表したもの</strong>。経路探索は<strong>ポリゴンをノード、隣り合う辺をエッジとしたグラフ</strong>で行う。
+    - ナビメッシュ ＝ <strong>歩ける面を少数の凸ポリゴンで表したもの</strong>。経路探索は<strong>ポリゴンをノード、隣り合う辺をエッジとしたグラフ</strong>で行う。
     - グリッドより、ポリゴンの数が少ないので、探索が速く、メモリも少ない。
     - 経路探索の結果はポリゴンの列。そこから、実際に歩く点の列（直線化）を作る。
     - ナビメッシュはワールドのジオメトリから自動生成できる（Recast）。
@@ -33,7 +33,7 @@ tags:
 
 <svg class="fig illust" viewBox="0 0 800 250" role="img" aria-label="ナビメッシュのポリゴンと経路">
 <defs><marker id="nv1" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
-<text x="20" y="24" class="fig-title">ナビメッシュ：歩ける面を、凸ポリゴンに分ける</text>
+<text x="20" y="24" class="fig-title">ナビメッシュ：歩ける面を凸ポリゴンに分ける</text>
 <g stroke="currentColor" stroke-width="2">
 <polygon points="40,80 200,70 220,180 50,190" fill="rgba(76,139,245,0.3)"/>
 <polygon points="200,70 360,90 340,180 220,180" fill="rgba(46,160,67,0.3)"/>
@@ -75,7 +75,7 @@ tags:
 | 方法 | 内容 |
 | --- | --- |
 | **vcpkg** | `vcpkg install recastnavigation`（Recast・Detour・DetourCrowd・DetourTileCache・DebugUtils が入る） |
-| ソース | [GitHub の recastnavigation](https://github.com/recastnavigation/recastnavigation) を取得し、`Recast/`・`Detour/` などの `Source` と `Include` を、プロジェクトに追加 |
+| ソース | [GitHub の recastnavigation](https://github.com/recastnavigation/recastnavigation) を取得し、`Recast/`・`Detour/` などの `Source` と `Include` をプロジェクトに追加 |
 | CMake | `add_subdirectory` で取り込む。ライブラリごとにターゲットがある |
 
 ```cpp
@@ -93,20 +93,20 @@ tags:
 | 場面 | 使い方 |
 | --- | --- |
 | **敵の追跡・巡回** | 目標の位置まで経路を求めて歩かせる |
-| キャラのクリック移動 | クリックした地面の点を、最寄りのナビメッシュ上の点に補正する |
+| キャラのクリック移動 | クリックした地面の点を最寄りのナビメッシュ上の点に補正する |
 | 群衆（RTS・ゾンビ） | DetourCrowd で、多数を動かして、お互いを避けさせる |
 | ドアやバリケード | TileCache で、動的に通行可否を変える |
 | ジャンプ・はしご | オフメッシュ リンクで、離れた場所をつなぐ |
 
 ## よくあるミス
 
-??? failure "実行時に、毎回ナビメッシュを作る"
+??? failure "実行時に毎回ナビメッシュを作る"
     重い処理です。ビルド時に作って保存し、実行時は読み込みます。
 
-??? failure "Recast の設定（エージェントの大きさ）が、キャラと合わない"
+??? failure "Recast の設定（エージェントの大きさ）がキャラと合わない"
     半径・高さ・登れる段差が実際のキャラと違うと壁に刺さったり、通れる所を通れなかったりします。
 
-??? failure "ナビメッシュ上にない点を、そのまま経路探索に使う"
+??? failure "ナビメッシュ上にない点をそのまま経路探索に使う"
     先に `findNearestPoly` で、ナビメッシュ上の点に補正します。
 
 ??? failure "座標系が違い、ナビメッシュが鏡像になる"

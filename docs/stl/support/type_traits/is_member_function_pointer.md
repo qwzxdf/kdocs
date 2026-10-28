@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-メンバー関数を、後から呼べる値として持ち回すとき、メンバー関数へのポインタを使います。`std::is_member_function_pointer` は、<strong>型がメンバー関数へのポインタか</strong>を調べます。
+メンバー関数を後から呼べる値として持ち回すとき、メンバー関数へのポインタを使います。`std::is_member_function_pointer` は、<strong>型がメンバー関数へのポインタか</strong>を調べます。
 
 !!! tip "ポイント"
     - `std::is_member_function_pointer_v<T>` は、`T` がメンバー関数へのポインタか

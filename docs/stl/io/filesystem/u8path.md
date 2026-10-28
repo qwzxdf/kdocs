@@ -15,7 +15,7 @@ tags:
 `#include <filesystem>`
 </div>
 
-UTF-8 の文字列を、`path` に変換します。C++20 以降は、`char8_t` の文字列を `path` のコンストラクタに直接渡せるので、`u8path` は非推奨になりました。
+UTF-8 の文字列を `path` に変換します。C++20 以降は、`char8_t` の文字列を `path` のコンストラクタに直接渡せるので、`u8path` は非推奨になりました。
 
 !!! tip "ポイント"
     - `std::filesystem` の部品。

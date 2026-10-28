@@ -48,14 +48,14 @@ device->CreateShaderResourceView(shadow_tex, &srv_desc, &shadow_srv);
 | 点 | 説明 |
 | --- | --- |
 | `R32_TYPELESS` | 深度として書きシェーダーから読むため、型なしで作る |
-| DSV は `D32_FLOAT`、SRV は `R32_FLOAT` | 同じ領域を、2 通りに見る |
+| DSV は `D32_FLOAT`、SRV は `R32_FLOAT` | 同じ領域を 2 通りに見る |
 | 解像度 | 1024〜4096。大きいほど細かい影・メモリと帯域を食う（[メモリ帯域幅](../../../rendering/bandwidth.md)） |
 | フォーマット | 16 ビットで足りることも多い（精度を許容できれば、帯域が半分） |
 | 描画する物 | 影を落とす物だけ。ライティングなしのシェーダー（頂点シェーダーのみ） |
 
 ## 深度テクスチャを作る
 
-シャドウ マップは <strong>深度だけ</strong>を、保存するテクスチャです。DirectX 11 では 同じテクスチャを、深度ステンシル ビュー（DSV）として、書き込みシェーダー リソース ビュー（SRV）として、読み取ります。そのため、テクスチャの形式を TYPELESS（型なし）で作り、ビューごとに形式を指定します。
+シャドウ マップは <strong>深度だけ</strong>を保存するテクスチャです。DirectX 11 では 同じテクスチャを深度ステンシル ビュー（DSV）として、書き込みシェーダー リソース ビュー（SRV）として、読み取ります。そのため、テクスチャの形式を TYPELESS（型なし）で作り、ビューごとに形式を指定します。
 
 ```cpp
 // シャドウ マップ: 2048×2048、32 ビット浮動小数点の深度。
@@ -71,7 +71,7 @@ desc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
 device->CreateTexture2D(&desc, nullptr, &shadow_map_tex);
 ```
 
-シャドウ マップを 2048×2048 の、32 ビット浮動小数点で作ります。型なし（`TYPELESS`）にしておくと書き込む、ビューと読み込むビューで別の型を、使えます。`BindFlags` に深度ステンシルとシェーダー リソースの両方を、指定します。
+シャドウ マップを 2048×2048 の、32 ビット浮動小数点で作ります。型なし（`TYPELESS`）にしておくと書き込む、ビューと読み込むビューで別の型を使えます。`BindFlags` に深度ステンシルとシェーダー リソースの両方を指定します。
 
 ```cpp
 // 書き込み用（シャドウ パスで使う）
@@ -81,7 +81,7 @@ dsv.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
 device->CreateDepthStencilView(shadow_map_tex.Get(), &dsv, &shadow_dsv);
 ```
 
-書き込み用のビュー（DSV）です。`D32_FLOAT` として深度を書きます。シャドウ パスではこれを出力に、束ねます。
+書き込み用のビュー（DSV）です。`D32_FLOAT` として深度を書きます。シャドウ パスではこれを出力に束ねます。
 
 ```cpp
 // 読み取り用（メイン パスで使う）
@@ -95,19 +95,19 @@ device->CreateShaderResourceView(shadow_map_tex.Get(), &srv, &shadow_srv);
 | 形式 | 精度 | メモリ（2048²） | 使いどころ |
 | --- | --- | --- | --- |
 | `D32_FLOAT` | 32 ビット浮動小数点 | 16 MB | 標準。精度が高い |
-| `D24_UNORM_S8_UINT` | 24 ビット固定小数点 + ステンシル | 16 MB | ステンシルが、必要なとき |
-| `D16_UNORM` | 16 ビット | 8 MB | メモリを、節約したい。精度が低くバイアスが大きくなる |
+| `D24_UNORM_S8_UINT` | 24 ビット固定小数点 + ステンシル | 16 MB | ステンシルが必要なとき |
+| `D16_UNORM` | 16 ビット | 8 MB | メモリを節約したい。精度が低くバイアスが大きくなる |
 
 ## シャドウ パスの描画
 
-光の視点で <strong>カメラの代わりに光の、ビュー・射影行列</strong>を使って 影を、落とす物を描きます。色は書き込まないのでピクセル シェーダーも、不要（アルファ テストする物を、除く）です。
+光の視点で <strong>カメラの代わりに光の、ビュー・射影行列</strong>を使って 影を落とす物を描きます。色は書き込まないのでピクセル シェーダーも、不要（アルファ テストする物を除く）です。
 
 ```cpp
-// ① 書き込み先を、シャドウ マップだけにする（レンダー ターゲットは、なし）。
+// ① 書き込み先をシャドウ マップだけにする（レンダー ターゲットは、なし）。
 context->OMSetRenderTargets(0, nullptr, shadow_dsv.Get());
 context->ClearDepthStencilView(shadow_dsv.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-// ② ビューポートを、シャドウ マップの大きさに。
+// ② ビューポートをシャドウ マップの大きさに。
 D3D11_VIEWPORT vp = {0, 0, 2048, 2048, 0.0f, 1.0f};
 context->RSSetViewports(1, &vp);
 
@@ -115,13 +115,13 @@ context->RSSetViewports(1, &vp);
 context->VSSetShader(shadow_vs.Get(), nullptr, 0);
 context->PSSetShader(nullptr, nullptr, 0);                    // 深度だけなので、ピクセル シェーダーは、無し
 
-// ④ 光の行列を、定数バッファに入れて、影を落とす物を、描く。
+// ④ 光の行列を定数バッファに入れて、影を落とす物を描く。
 UpdateLightCB(light_view_proj);
 DrawShadowCasters();
 ```
 
 ```hlsl
-// シャドウ パスの、頂点シェーダー: 光の行列で、頂点を、変換するだけ。
+// シャドウ パスの、頂点シェーダー: 光の行列で、頂点を変換するだけ。
 cbuffer LightCB : register(b0) { float4x4 g_light_view_proj; };
 cbuffer ObjectCB : register(b1) { float4x4 g_world; };
 
@@ -130,7 +130,7 @@ float4 main(float3 position : POSITION) : SV_Position {
 }
 ```
 
-ピクセル シェーダーを無しにすると、GPU は 深度書き込みだけを高速に、行います（多くの GPU が通常の、2 倍以上の速さ）。
+ピクセル シェーダーを無しにすると、GPU は 深度書き込みだけを高速に行います（多くの GPU が通常の、2 倍以上の速さ）。
 
 ## 描く物を絞る
 
@@ -140,24 +140,24 @@ float4 main(float3 position : POSITION) : SV_Position {
 | --- | --- |
 | 影を落とさない物を除く | 小さな物、遠くの物、影が目立たない物をシャドウ パスから、外す |
 | 光の視錐台でカリング | 光の、視錐台の外にある物は描かない（カメラの視錐台とは、別） |
-| LOD | シャドウ パスでは、粗い LOD を使う（影は細部が、見えない） |
-| 静的な物のキャッシュ | 動かない物の、シャドウ マップを保存し動く物だけを、毎フレーム、描き足す（[Shadows for Many Lights](../local-lights/many-lights.md)） |
+| LOD | シャドウ パスでは、粗い LOD を使う（影は細部が見えない） |
+| 静的な物のキャッシュ | 動かない物の、シャドウ マップを保存し動く物だけを毎フレーム、描き足す（[Shadows for Many Lights](../local-lights/many-lights.md)） |
 | 更新の間引き | 遠くのカスケードは、数フレームに 1 回だけ更新する（[CSM](../cascaded.md)） |
 
 ## 表裏のカリング
 
-シャドウ パスで <strong>どの面を描くか</strong>（表面か、裏面か）が バイアスの問題に、関わります。
+シャドウ パスで <strong>どの面を描くか</strong>（表面か、裏面か）が バイアスの問題に関わります。
 
 | 描く面 | 内容 |
 | --- | --- |
-| 表面（通常） | 光に向いた面の深度が、保存される。自己影が出やすい（地面の表面と、同じ面を比べるため） |
+| 表面（通常） | 光に向いた面の深度が保存される。自己影が出やすい（地面の表面と、同じ面を比べるため） |
 | 裏面（表面をカリング） | 光から、遠い側の面の深度が保存される。表面との間に厚み（物の厚さ）ができて、バイアスが不要に近い。ただし、薄い物（板）では影が欠ける（[Front-Face Culling](../bias/front-face-culling.md)） |
 
 ```cpp
 // 裏面を描く: 表面をカリング。
 D3D11_RASTERIZER_DESC rs = {};
 rs.FillMode = D3D11_FILL_SOLID;
-rs.CullMode = D3D11_CULL_FRONT;                  // 光に向いた面を、描かない（このサイトでは、反時計回りが表）
+rs.CullMode = D3D11_CULL_FRONT;                  // 光に向いた面を描かない（このサイトでは、反時計回りが表）
 rs.FrontCounterClockwise = TRUE;
 rs.DepthClipEnable = TRUE;
 ```
@@ -169,7 +169,7 @@ rs.DepthClipEnable = TRUE;
 | 平行光源（正射影） | 正射影 | 深度は、線形（近くから遠くまで一定の精度）。バイアスが扱いやすい |
 | スポット、点光源（透視） | 透視投影 | 深度は、非線形（近くで精度が高く遠くで、粗い）。バイアスを距離で変える必要 |
 
-透視投影のシャドウ マップでは、<strong>ニア面をできるだけ遠く</strong>に置いて深度の精度を、保ちます（ニア面が近すぎると遠くの精度が、落ちる）。
+透視投影のシャドウ マップでは、<strong>ニア面をできるだけ遠く</strong>に置いて深度の精度を保ちます（ニア面が近すぎると遠くの精度が落ちる）。
 
 ## よくあるミス
 

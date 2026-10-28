@@ -197,13 +197,13 @@ dtCreateNavMeshData(&params, &nav_data, &nav_data_size);
 
 ## よくあるミス
 
-??? failure "ナビメッシュが、壁にめり込んでいる・壁から離れすぎている"
+??? failure "ナビメッシュが壁にめり込んでいる・壁から離れすぎている"
     `walkableRadius` と、`cs` の細かさを確認します。細かいほど、壁に沿います。
 
 ??? failure "階段・坂が歩けない"
     `walkableClimb`（段差）と `walkableSlopeAngle`（坂）が小さすぎます。
 
-??? failure "狭い通路が、つぶれて消える"
+??? failure "狭い通路がつぶれて消える"
     `cs` が大きすぎます。キャラの半径に対して、細かくします。
 
 ??? failure "細長くて、歩きにくい形のポリゴンができる"
@@ -212,7 +212,7 @@ dtCreateNavMeshData(&params, &nav_data, &nav_data_size);
 ??? failure "ボクセルを細かくしすぎて、ビルドが終わらない・メモリが足りない"
     マップが大きいなら、**タイル分割**します。
 
-??? failure "ワールド単位とボクセル数を、取り違える"
+??? failure "ワールド単位とボクセル数を取り違える"
     `rcConfig` の多くは、ボクセル数です。メートルを `cs`・`ch` で割ります。
 
 ## これだけ覚える

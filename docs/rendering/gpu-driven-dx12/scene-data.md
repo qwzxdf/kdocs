@@ -6,12 +6,12 @@ tags:
 
 # シーン データ（バッファと記述子）
 
-GPU Driven の土台は、<strong>「シーンの情報が、GPU のメモリに常駐している」</strong>ことです。このページでは、D3D12 でそのバッファを作るコードを示します。デフォルト ヒープ（GPU 専用）へのアップロード、構造化バッファの SRV/UAV の作り方、毎フレーム更新するインスタンス データのリング バッファ、ルート シグネチャを扱います。
+GPU Driven の土台は、<strong>「シーンの情報が GPU のメモリに常駐している」</strong>ことです。このページでは、D3D12 でそのバッファを作るコードを示します。デフォルト ヒープ（GPU 専用）へのアップロード、構造化バッファの SRV/UAV の作り方、毎フレーム更新するインスタンス データのリング バッファ、ルート シグネチャを扱います。
 
 !!! tip "ポイント"
     - 常駐データは<strong>デフォルト ヒープ（GPU 専用メモリ）</strong>に置く。<strong>CPU から直接は書けない</strong>ので、アップロード ヒープ経由でコピー。
     - 構造化バッファはSRV（読み取り）とUAV（読み書き）を別々に作る。`StructureByteStride` を正しく。
-    - 毎フレーム変わるデータは、フレーム数ぶんのアップロード バッファ（リング）に書く。GPU がまだ読んでいる領域を、上書きしない。
+    - 毎フレーム変わるデータは、フレーム数ぶんのアップロード バッファ（リング）に書く。GPU がまだ読んでいる領域を上書きしない。
     - ルート シグネチャは、ルート SRV/CBV（GPU アドレス直指定）を活用すると記述子テーブルが減って簡単。
     - バッファのサイズ・個数の上限（最大インスタンス数）を設計時に決める。
 
@@ -231,7 +231,7 @@ void Renderer::CreateFrameResources() {
 
 ### GPU 側への反映
 
-アップロード ヒープの内容を、GPU 専用のインスタンス バッファへコピーします。
+アップロード ヒープの内容を GPU 専用のインスタンス バッファへコピーします。
 
 ```cpp
 void Renderer::UploadInstances(ID3D12GraphicsCommandList* list, uint32_t count) {
@@ -257,10 +257,10 @@ void Renderer::UploadInstances(ID3D12GraphicsCommandList* list, uint32_t count) 
 | 点 | 説明 |
 | --- | --- |
 | 全体コピー | 全インスタンスをコピーする単純な形。動く物が少ないなら、動いた範囲だけコピー（ダーティ範囲） |
-| バリアで挟む | SRV 状態 → コピー先 → SRV 状態。カリング CS が読む前に、コピーが完了するように |
+| バリアで挟む | SRV 状態 → コピー先 → SRV 状態。カリング CS が読む前にコピーが完了するように |
 | `NON_PIXEL_SHADER_RESOURCE` | コンピュート／頂点シェーダーが読む状態。ピクセル シェーダーも読むなら `PIXEL_SHADER_RESOURCE` を OR する |
 
-動く物体が少ないなら、変更された要素だけを、CS で書き換える（スキャッター更新）方法もあります。大規模ではこれが効きます。
+動く物体が少ないなら、変更された要素だけを CS で書き換える（スキャッター更新）方法もあります。大規模ではこれが効きます。
 
 ## ルート シグネチャ
 
@@ -315,7 +315,7 @@ ComPtr<ID3D12RootSignature> Renderer::CreateCullRootSignature() {
 
 ## 最大数の設計
 
-**GPU Driven では、バッファのサイズを事前に決める**必要があります（GPU が書く量が、CPU には分からないため）。
+**GPU Driven では、バッファのサイズを事前に決める**必要があります（GPU が書く量が CPU には分からないため）。
 
 | 項目 | 決め方 |
 | --- | --- |
@@ -327,16 +327,16 @@ ComPtr<ID3D12RootSignature> Renderer::CreateCullRootSignature() {
 
 ## よくあるミス
 
-??? failure "アップロード バッファを、毎フレーム同じものに書いて、GPU の読み出し中に壊す"
+??? failure "アップロード バッファを毎フレーム同じものに書いて、GPU の読み出し中に壊す"
     **フレーム数ぶんのリング**にし、フェンスの完了を待ってから再利用する。
 
-??? failure "StructureByteStride を、HLSL の構造体サイズと違う値にして、要素がずれる"
+??? failure "StructureByteStride を HLSL の構造体サイズと違う値にして、要素がずれる"
     `static_assert(sizeof(...))` と HLSL の構造体を照合する。HLSL は 16 バイト境界のパッキング規則がある。
 
-??? failure "UAV を使うバッファに、ALLOW_UNORDERED_ACCESS を付け忘れる"
+??? failure "UAV を使うバッファに ALLOW_UNORDERED_ACCESS を付け忘れる"
     作成時のフラグを確認する（`CreateUnorderedAccessView` が失敗する）。
 
-??? failure "コピー完了前に、アップロード バッファを解放して、クラッシュ・化ける"
+??? failure "コピー完了前にアップロード バッファを解放して、クラッシュ・化ける"
     フェンスで完了を確認してから解放する（`keep_alive`）。
 
 ## これだけ覚える

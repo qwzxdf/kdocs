@@ -14,7 +14,7 @@ tags:
 `#include <variant>`
 </div>
 
-`variant` が、いま `int` を持っているのか `float` を持っているのかを知りたい。値を取り出す前に、型を確かめたい場面があります。`std::holds_alternative<T>(v)` は、`variant` が型 `T` の値を持っているかを `bool` で答える関数です。値は取り出さず、型の確認だけをします。
+`variant` が、いま `int` を持っているのか `float` を持っているのかを知りたい。値を取り出す前に型を確かめたい場面があります。`std::holds_alternative<T>(v)` は、`variant` が型 `T` の値を持っているかを `bool` で答える関数です。値は取り出さず、型の確認だけをします。
 
 !!! tip "ポイント"
     - 値も取り出したいなら [`std::get_if`](get_if.md) のほうが 1 回で済む。
@@ -53,7 +53,7 @@ true false
 
 ## ゲームでの使いどころ
 
-ステートや設定値の型を、分岐の条件にするときに使います。`if (std::holds_alternative<Moving>(state)) { ... }` と書けば、移動中かどうかが分かります。
+ステートや設定値の型を分岐の条件にするときに使います。`if (std::holds_alternative<Moving>(state)) { ... }` と書けば、移動中かどうかが分かります。
 
 値も取り出したいなら、`get_if` のほうが一度で済みます。`holds_alternative` で確かめたあとに `get` を呼ぶと、型の確認が 2 回になります。
 

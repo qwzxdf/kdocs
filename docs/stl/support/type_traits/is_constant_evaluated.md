@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-同じ `constexpr` 関数でも、コンパイル時には正確だが遅い方法を、実行時には速い方法を使い分けたいことがあります。`is_constant_evaluated()` は、その関数がコンパイル時の評価中なら `true` を返します。C++23 では `if consteval` が読みやすいです。
+同じ `constexpr` 関数でも、コンパイル時には正確だが遅い方法を実行時には速い方法を使い分けたいことがあります。`is_constant_evaluated()` は、その関数がコンパイル時の評価中なら `true` を返します。C++23 では `if consteval` が読みやすいです。
 
 !!! tip "ポイント"
     - コンパイル時に評価されているときだけ `true`。

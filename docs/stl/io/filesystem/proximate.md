@@ -68,7 +68,7 @@ c
 ## よくあるミス
 
 ??? failure "`relative` と取り違える"
-    作れないときの戻り値が、`relative` は空、`proximate` は元のパスです。
+    作れないときの戻り値が `relative` は空、`proximate` は元のパスです。
 
 ## 類似
 

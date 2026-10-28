@@ -73,7 +73,7 @@ class FrameTimer {
 
 ## 平均より、最悪値
 
-<svg class="fig" viewBox="0 0 601 220" role="img" aria-label="フレーム時間のスパイク"><line x1="40" y1="180" x2="540" y2="180" stroke="currentColor" stroke-width="2"/><line x1="40" y1="130" x2="540" y2="130" stroke="currentColor" stroke-dasharray="5 4"/><text x="548" y="134" style="font-size:11px">16.6 ms</text><rect x="60" y="150" width="40" height="30" fill="#4c8bf5"/><rect x="126" y="147" width="40" height="33" fill="#4c8bf5"/><rect x="192" y="150" width="40" height="30" fill="#4c8bf5"/><rect x="258" y="147" width="40" height="33" fill="#4c8bf5"/><rect x="324" y="45" width="40" height="135" fill="#e5484d"/><rect x="390" y="150" width="40" height="30" fill="#4c8bf5"/><rect x="456" y="147" width="40" height="33" fill="#4c8bf5"/><text x="62" y="198">10 ms</text><text x="128" y="198">11 ms</text><text x="194" y="198">10 ms</text><text x="260" y="198">11 ms</text><text x="326" y="198">45 ms</text><text x="392" y="198">10 ms</text><text x="458" y="198">11 ms</text><text x="40" y="20" class="fig-title">平均 12 ms（60 FPS に収まる）でも、45 ms の 1 フレームが、カクつきとして見える</text></svg>
+<svg class="fig" viewBox="0 0 601 220" role="img" aria-label="フレーム時間のスパイク"><line x1="40" y1="180" x2="540" y2="180" stroke="currentColor" stroke-width="2"/><line x1="40" y1="130" x2="540" y2="130" stroke="currentColor" stroke-dasharray="5 4"/><text x="548" y="134" style="font-size:11px">16.6 ms</text><rect x="60" y="150" width="40" height="30" fill="#4c8bf5"/><rect x="126" y="147" width="40" height="33" fill="#4c8bf5"/><rect x="192" y="150" width="40" height="30" fill="#4c8bf5"/><rect x="258" y="147" width="40" height="33" fill="#4c8bf5"/><rect x="324" y="45" width="40" height="135" fill="#e5484d"/><rect x="390" y="150" width="40" height="30" fill="#4c8bf5"/><rect x="456" y="147" width="40" height="33" fill="#4c8bf5"/><text x="62" y="198">10 ms</text><text x="128" y="198">11 ms</text><text x="194" y="198">10 ms</text><text x="260" y="198">11 ms</text><text x="326" y="198">45 ms</text><text x="392" y="198">10 ms</text><text x="458" y="198">11 ms</text><text x="40" y="20" class="fig-title">平均 12 ms（60 FPS に収まる）でも、45 ms の 1 フレームがカクつきとして見える</text></svg>
 
 | 指標 | 意味 |
 | --- | --- |
@@ -141,14 +141,14 @@ while (running) {
 
 ## 処理の分散
 
-**重い処理を、1 フレームで全部やらず**、複数フレームに分けて、毎フレームの負荷を一定にします。
+**重い処理を 1 フレームで全部やらず**、複数フレームに分けて、毎フレームの負荷を一定にします。
 
 | 方法 | 説明 | 例 |
 | --- | --- | --- |
-| 時間スライス | 1 フレームに処理する量を決める | 経路探索を、1 フレーム 0.5 ms まで |
+| 時間スライス | 1 フレームに処理する量を決める | 経路探索を 1 フレーム 0.5 ms まで |
 | ラウンドロビン | N 個を毎フレーム 1/N ずつ更新 | 敵 100 体を毎フレーム 10 体ずつ AI 更新 |
 | 更新頻度を下げる | 遠い・見えないものは、低頻度で | 遠い敵は、10 フレームに 1 回更新 |
-| キュー | 要求を溜めて、予算の範囲で処理 | 爆発エフェクトの生成を、1 フレーム 3 個まで |
+| キュー | 要求を溜めて、予算の範囲で処理 | 爆発エフェクトの生成を 1 フレーム 3 個まで |
 | 非同期（別スレッド） | メインスレッドから外す | ロード、経路探索（[マルチスレッド化](multithreading.md)） |
 | キャッシュ | 結果を覚えて、再計算しない | 経路、視線の判定結果 |
 
@@ -164,7 +164,7 @@ void UpdateAi(std::span<Enemy> enemies, int frame_index) {
 }
 ```
 
-遅い AI の思考を、8 フレームに 1 回にして、移動のような軽い処理は、毎フレーム行う例です。
+遅い AI の思考を 8 フレームに 1 回にして、移動のような軽い処理は、毎フレーム行う例です。
 
 ## 動的な調整
 
@@ -181,7 +181,7 @@ void UpdateAi(std::span<Enemy> enemies, int frame_index) {
 <defs><marker id="arr-frame-budget-bar" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">60fps は 1 フレーム 16.7 ms。その中に、全部の処理を入れる</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">60fps は 1 フレーム 16.7 ms。その中に全部の処理を入れる</text>
 <rect x="70" y="130" width="640" height="50" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
 <rect x="70.0" y="130" width="19.2" height="50" fill="#64748b" opacity="0"><animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/></rect>
 <text x="79.6" y="208" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b" opacity="0">入力 0.5<animate attributeName="opacity" dur="13.5s" repeatCount="indefinite" keyTimes="0.0000;0.0738;0.0741;1.0000" values="0;0;1;1"/></text>
@@ -215,7 +215,7 @@ void UpdateAi(std::span<Enemy> enemies, int frame_index) {
 ??? failure "更新が重くて、固定タイムステップが追いつかない（死のスパイラル）"
     更新の最大回数を決め、更新自体を軽くします。
 
-??? failure "全部の敵を、毎フレーム、全力で更新している"
+??? failure "全部の敵を毎フレーム、全力で更新している"
     時間スライス、更新頻度の低下で負荷を分散します。
 
 ??? failure "予算ぎりぎりで作って、少しの遅れでフレームを落とす"
@@ -225,7 +225,7 @@ void UpdateAi(std::span<Enemy> enemies, int frame_index) {
 
 !!! abstract "まとめ"
     - [x] <strong>60 FPS ＝ 16.6 ms</strong>。ミリ秒で考えて、システムごとに予算を配分。余裕を残す
-    - [x] 見るのは最悪値・99 パーセンタイル。1 フレームのスパイクが、カクつき
+    - [x] 見るのは最悪値・99 パーセンタイル。1 フレームのスパイクがカクつき
     - [x] スパイクの定番はヒープ確保・ファイル読み込み・シェーダーのコンパイル
     - [x] 固定タイムステップ + `dt` の上限で、暴走と死のスパイラルを防ぐ
     - [x] 重い処理は、複数フレームに分散。遠いものは更新頻度を下げる

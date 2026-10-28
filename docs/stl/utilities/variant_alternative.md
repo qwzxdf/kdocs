@@ -14,7 +14,7 @@ tags:
 `#include <variant>`
 </div>
 
-`variant<int, double, std::string>` の「2 番目の型は何か」を、テンプレートの中で知りたいことがあります。`variant_alternative_t<N, V>` が、N 番目の選択肢の型を教えてくれます。
+`variant<int, double, std::string>` の「2 番目の型は何か」をテンプレートの中で知りたいことがあります。`variant_alternative_t<N, V>` が、N 番目の選択肢の型を教えてくれます。
 
 !!! tip "ポイント"
     - 番号は 0 から。

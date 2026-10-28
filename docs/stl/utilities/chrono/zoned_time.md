@@ -15,7 +15,7 @@ tags:
 `#include <chrono>`
 </div>
 
-`std::chrono::zoned_time` は、**時点を、指定したタイムゾーン（"Asia/Tokyo" など）の現地時刻で表す**クラスです。世界共通の時刻（`system_clock`）を、東京時間やニューヨーク時間で表示したいときに使います。夏時間の切り替えも自動で処理されます。
+`std::chrono::zoned_time` は、**時点を指定したタイムゾーン（"Asia/Tokyo" など）の現地時刻で表す**クラスです。世界共通の時刻（`system_clock`）を東京時間やニューヨーク時間で表示したいときに使います。夏時間の切り替えも自動で処理されます。
 
 !!! tip "ポイント"
     - タイムゾーン名は IANA の名前（"Asia/Tokyo"、"America/New_York"）。
@@ -49,7 +49,7 @@ class zoned_time {
 int main() {
   using namespace std::chrono;
 
-  // エポック（世界共通の 1970-01-01 00:00:00）を、東京の時刻で表す
+  // エポック（世界共通の 1970-01-01 00:00:00）を東京の時刻で表す
   zoned_time tokyo{"Asia/Tokyo", sys_seconds{}};
   std::println("{}", tokyo);
 }
@@ -63,8 +63,8 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| セーブデータの日時を、プレイヤーの現地時刻で表示する | `zoned_time{current_zone(), now}` |
-| 海外サーバーのイベント時刻を、日本時間で表示する | `zoned_time{"Asia/Tokyo", server_time}` |
+| セーブデータの日時をプレイヤーの現地時刻で表示する | `zoned_time{current_zone(), now}` |
+| 海外サーバーのイベント時刻を日本時間で表示する | `zoned_time{"Asia/Tokyo", server_time}` |
 
 ## よくあるミス
 

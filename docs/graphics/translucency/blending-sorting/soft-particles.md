@@ -156,7 +156,7 @@ color.a *= fade;
 | `scene_depth` | 不透明な物の深度（深度バッファを SRV として読む） |
 | `particle_depth` | パーティクル自身の深度 |
 | `fade_distance` | この距離で完全に不透明に |
-| 要件 | 深度バッファを、読み取りと深度テストで同時に使えないので、深度のコピー（または読み取り専用 DSV）が要る |
+| 要件 | 深度バッファを読み取りと深度テストで同時に使えないので、深度のコピー（または読み取り専用 DSV）が要る |
 
 ## 問題：パーティクルが地面と、交差して線が見える
 
@@ -173,7 +173,7 @@ color.a *= fade;
 
 ## ソフト パーティクル
 
-<strong>ソフト パーティクル</strong>（Lorach、2007）は パーティクルの、深度と後ろにある物の深度の差が、小さい所（交差に近い所）でパーティクルを透明に、フェードさせる手法です。交差線が消え板が地面になめらかに、溶け込みます。
+<strong>ソフト パーティクル</strong>（Lorach、2007）は パーティクルの、深度と後ろにある物の深度の差が小さい所（交差に近い所）でパーティクルを透明にフェードさせる手法です。交差線が消え板が地面になめらかに、溶け込みます。
 
 ```text
 アルファ = 元のアルファ × saturate( (シーン深度 − パーティクル深度) / フェード距離 )
@@ -187,7 +187,7 @@ color.a *= fade;
 
 ## 実装
 
-深度バッファを <strong>シェーダー リソース</strong>として、読みます。パーティクルの描画では深度の書き込みは、無効なので 同じ深度バッファを、読み取り専用の DSV と SRV の、両方で使えます（[Color by Water Depth](../../water/shading/depth-color.md)、深度の読み方）。
+深度バッファを <strong>シェーダー リソース</strong>として、読みます。パーティクルの描画では深度の書き込みは、無効なので 同じ深度バッファを読み取り専用の DSV と SRV の、両方で使えます（[Color by Water Depth](../../water/shading/depth-color.md)、深度の読み方）。
 
 ```hlsl
 Texture2D<float> g_scene_depth : register(t0);
@@ -195,14 +195,14 @@ Texture2D<float> g_scene_depth : register(t0);
 float4 main(PSInput input) : SV_Target {
   float4 color = g_particle_tex.Sample(g_linear_clamp, input.uv) * input.color;
 
-  // ① 後ろにある、物の深度（視点深度）を、読む
+  // ① 後ろにある、物の深度（視点深度）を読む
   float scene_ndc = g_scene_depth.Load(int3(input.position.xy, 0));
   float scene_depth = LinearizeDepth(scene_ndc);
 
   // ② このパーティクルの、深度（視点深度）
   float particle_depth = LinearizeDepth(input.position.z);
 
-  // ③ 差に応じて、アルファを、フェードさせる
+  // ③ 差に応じて、アルファをフェードさせる
   float fade = saturate((scene_depth - particle_depth) / g_soft_distance);
   color.a *= fade;
   return color;
@@ -213,7 +213,7 @@ float4 main(PSInput input) : SV_Target {
 | --- | --- | --- |
 | `g_soft_distance` | 0.5〜2 m | フェードする、深度の範囲。大きいほど交差線の近くからゆっくり、透明になる |
 
-ほとんどの煙や霧では パーティクルの、大きさの半分くらいのフェード距離が、使われます。
+ほとんどの煙や霧では パーティクルの、大きさの半分くらいのフェード距離が使われます。
 
 ### 線形の深度で比べる
 
@@ -228,7 +228,7 @@ float LinearizeDepth(float d) {
 
 非線形のまま差を取ると 遠くで、フェードが効かなくなったり、近くで効きすぎたりします。
 
-## 逆方向：パーティクルが、カメラに近すぎる
+## 逆方向：パーティクルがカメラに近すぎる
 
 パーティクルが <strong>カメラに近づきすぎる</strong>と、画面全体を覆うほど大きくなり、ブレンドのコストが跳ね上がり、見た目もうるさいです。カメラに近いほどフェードアウトさせます。
 
@@ -250,10 +250,10 @@ color.rgb *= fade;
 
 | 項目 | 内容 |
 | --- | --- |
-| 深度を読む | MSAA を、使っているとき深度は MSAA の深度。`Load` でサンプルを指定して読む（または、リゾルブした深度を使う） |
-| 同じバッファの読み書き | 深度を、読み取り専用にする（書き込みを、無効にする）。同時に SRV で読む |
-| 水と同じ原理 | 水面と地形が、交差する線を消す（[Shore Foam: Depth Difference](../../water/shore-foam/shore-depth.md)）。水の岸のアルファも同じ式 |
-| 解像度 | パーティクルを、低解像度で描くときは深度も縮小して、読む（縮小する深度は最も近い値で、縮める） |
+| 深度を読む | MSAA を使っているとき深度は MSAA の深度。`Load` でサンプルを指定して読む（または、リゾルブした深度を使う） |
+| 同じバッファの読み書き | 深度を読み取り専用にする（書き込みを無効にする）。同時に SRV で読む |
+| 水と同じ原理 | 水面と地形が交差する線を消す（[Shore Foam: Depth Difference](../../water/shore-foam/shore-depth.md)）。水の岸のアルファも同じ式 |
+| 解像度 | パーティクルを低解像度で描くときは深度も縮小して、読む（縮小する深度は最も近い値で、縮める） |
 
 ## よくあるミス
 

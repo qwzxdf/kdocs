@@ -24,7 +24,7 @@ tags:
 
 ## なぜ専用のキャラクターか
 
-<strong>キャラクターを、`Dynamic` な剛体（カプセル）</strong>にして、力で動かすと次のような問題が起きます。
+<strong>キャラクターを `Dynamic` な剛体（カプセル）</strong>にして、力で動かすと次のような問題が起きます。
 
 | 問題 | 説明 |
 | --- | --- |
@@ -201,7 +201,7 @@ character->SetListener(&listener);
 | 処理の重さ | 軽い | やや重い |
 | 向く用途 | プレイヤー・敵（アクション） | 物理が主体のゲーム（重い物を押す・押される） |
 
-`Character` は、`PostSimulation` を、`Update` の後に呼びます（接地の判定を更新）。
+`Character` は、`PostSimulation` を `Update` の後に呼びます（接地の判定を更新）。
 
 ```cpp
 character->PostSimulation(0.05f);
@@ -235,9 +235,9 @@ character->PostSimulation(0.05f);
 <text x="310.0" y="274.0" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#64748b" opacity="0">壁に向かう成分(捨てる)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2756;0.2759;1.0000" values="0;0;1;1"/></text>
 <line x1="234.0" y1="240.0" x2="234.0" y2="165.0" stroke="#2ea043" stroke-width="4" marker-end="url(#arr-character-slide)" opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4825;0.4828;1.0000" values="0;0;1;1"/></line>
 <text x="220.0" y="200.0" text-anchor="end" style="font-size:12px;font-weight:700;fill:#2ea043" opacity="0">壁に沿う成分(残す)<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4825;0.4828;1.0000" values="0;0;1;1"/></text>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">法線 n = (−1, 0) の壁に、v = (3, −1.5) で突っ込む<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">法線 n = (−1, 0) の壁に v = (3, −1.5) で突っ込む<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
 <text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">そのまま進むと、壁にめり込む<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.2756;0.2759;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">壁に向かう成分 (v·n)n を、取り除く<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2756;0.2759;0.4825;0.4828;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">壁に向かう成分 (v·n)n を取り除く<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.2756;0.2759;0.4825;0.4828;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="380" text-anchor="middle" style="font-size:14px;font-weight:700;fill:#1f2937" opacity="0">v − (v·n)n = (0, −1.5)。壁に沿って、滑るように動く<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.4825;0.4828;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -245,20 +245,20 @@ character->PostSimulation(0.05f);
 
 ## よくあるミス
 
-??? failure "キャラクターを、`Dynamic` な剛体にして、操作感が悪い"
+??? failure "キャラクターを `Dynamic` な剛体にして、操作感が悪い"
     `CharacterVirtual` を使います。
 
-??? failure "`mShape` の原点が、カプセルの中心で足元が地面に埋まる"
+??? failure "`mShape` の原点がカプセルの中心で足元が地面に埋まる"
     足元を原点にするよう、`RotatedTranslatedShape` で、持ち上げます。
 
-??? failure "階段を、登れない"
-    `mWalkStairsStepUp` の高さを、段差より大きくします。`ExtendedUpdate`（`Update` ではなく）を使っているか確認。
+??? failure "階段を登れない"
+    `mWalkStairsStepUp` の高さを段差より大きくします。`ExtendedUpdate`（`Update` ではなく）を使っているか確認。
 
 ??? failure "下り坂で、浮いて、落ちる"
     `mStickToFloorStepDown` を設定します。
 
 ??? failure "動く床に乗ると、置いていかれる"
-    `GetGroundVelocity()` を、速度に足します。
+    `GetGroundVelocity()` を速度に足します。
 
 ??? failure "空中で、何度もジャンプできる"
     `GetGroundState() == OnGround` のときだけ、ジャンプを許します。

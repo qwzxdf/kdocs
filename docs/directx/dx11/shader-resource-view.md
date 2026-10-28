@@ -38,7 +38,7 @@ device->CreateShaderResourceView(texture.Get(), nullptr, &srv);
 
 ```cpp
 D3D11_SHADER_RESOURCE_VIEW_DESC desc = {};
-desc.Format = DXGI_FORMAT_R32_FLOAT;                        // 深度の R32_TYPELESS を、float として、読む
+desc.Format = DXGI_FORMAT_R32_FLOAT;                        // 深度の R32_TYPELESS を float として、読む
 desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 desc.Texture2D.MostDetailedMip = 0;                         // 最も細かい段（0 = 元の大きさ）
 desc.Texture2D.MipLevels = 1;                               // 見える段数（-1 で、全部）
@@ -101,14 +101,14 @@ float4 PSMain(VSOutput input) : SV_Target {
 
 ## 深度やレンダー ターゲットを読む
 
-パスの出力を次のパスで読むとき <strong>書き込みの束縛を外す</strong>必要が、あります（[Render Target View (RTV)](render-target-view.md)）。
+パスの出力を次のパスで読むとき <strong>書き込みの束縛を外す</strong>必要があります（[Render Target View (RTV)](render-target-view.md)）。
 
 ```cpp
 // パス A: scene_texture に描く。
 context->OMSetRenderTargets(1, scene_rtv.GetAddressOf(), depth_dsv.Get());
 Draw();
 
-// パス B の前: 書き込みの束縛を、外し、同じテクスチャを、SRV として、読む。
+// パス B の前: 書き込みの束縛を外し、同じテクスチャを SRV として、読む。
 context->OMSetRenderTargets(0, nullptr, nullptr);
 context->PSSetShaderResources(0, 1, scene_srv.GetAddressOf());
 ```
@@ -124,7 +124,7 @@ ID3D11ShaderResourceView* nulls[8] = {};                    // 8 個の、nullpt
 context->PSSetShaderResources(0, 8, nulls);
 ```
 
-D3D11 は同じリソースが、SRV と RTV（または UAV、DSV）に同時に束ねられると、<strong>読む側の束縛を黙って外します</strong>。結果は黒いテクスチャです。デバッグ レイヤーを有効にすると警告が、出ます。
+D3D11 は同じリソースが SRV と RTV（または UAV、DSV）に同時に束ねられると、<strong>読む側の束縛を黙って外します</strong>。結果は黒いテクスチャです。デバッグ レイヤーを有効にすると警告が出ます。
 
 ## よくあるミス
 
@@ -134,7 +134,7 @@ D3D11 は同じリソースが、SRV と RTV（または UAV、DSV）に同時�
 ??? failure "`CreateShaderResourceView` が、失敗する"
     リソースの `BindFlags` に `SHADER_RESOURCE` が無い。深度を `D32_FLOAT` で作っていて SRV を作れない（`R32_TYPELESS` で作る）。
 
-??? failure "シェーダーで、スロット番号を間違えて別のテクスチャが、読まれる"
+??? failure "シェーダーで、スロット番号を間違えて別のテクスチャが読まれる"
     HLSL の `register(t#)` と `PSSetShaderResources` の `StartSlot` が、ずれている。スロットの割り当てを一覧にして、そろえる。
 
 ??? failure "ブルームの小さなミップが全部、同じ見た目になる"
@@ -143,7 +143,7 @@ D3D11 は同じリソースが、SRV と RTV（または UAV、DSV）に同時�
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] SRV ＝ シェーダーが、読むための窓。読み取り専用
+    - [x] SRV ＝ シェーダーが読むための窓。読み取り専用
     - [x] `CreateShaderResourceView`、`PSSetShaderResources`、HLSL の `register(t#)`
     - [x] `Sample`（フィルタ有り）、`SampleLevel`（ミップ指定）、`Load`（ピクセル直読み）
     - [x] 深度は `R32_TYPELESS` で作り SRV を `R32_FLOAT` に

@@ -15,7 +15,7 @@ tags:
 !!! tip "ポイント"
     - `OMSetRenderTargets` に複数の RTV（最大 8 つ）を渡す。ピクセル シェーダーは `SV_Target0`〜`7` を返す。
     - 全部のターゲットは <strong>同じ大きさ</strong>（幅・高さ・サンプル数）。フォーマットは別々でよい。
-    - G バッファ、速度バッファ、WBOIT（累積と透過度）が、典型的な使い方。
+    - G バッファ、速度バッファ、WBOIT（累積と透過度）が典型的な使い方。
     - ブレンドは `IndependentBlendEnable` で、ターゲットごとに別々にできる。
     - 帯域を食うのでターゲットの数とフォーマットを絞る。
 
@@ -65,7 +65,7 @@ ID3D11RenderTargetView* targets[3] = {gbuffer.rtv[0].Get(), gbuffer.rtv[1].Get()
 context->OMSetRenderTargets(3, targets, depth_dsv.Get());
 
 const float clear[4] = {0, 0, 0, 0};
-for (auto& rtv : gbuffer.rtv) context->ClearRenderTargetView(rtv.Get(), clear);   // 各ターゲットを、クリア
+for (auto& rtv : gbuffer.rtv) context->ClearRenderTargetView(rtv.Get(), clear);   // 各ターゲットをクリア
 context->ClearDepthStencilView(depth_dsv.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 ```
 
@@ -94,7 +94,7 @@ PSOutput PSMain(VSOutput input) {
 ## ライティングで読む
 
 ```cpp
-// G バッファを描き終わったら、書き込みの束縛を、外して、SRV として、読む。
+// G バッファを描き終わったら、書き込みの束縛を外して、SRV として、読む。
 context->OMSetRenderTargets(0, nullptr, nullptr);
 ID3D11ShaderResourceView* srvs[] = {gbuffer.srv[0].Get(), gbuffer.srv[1].Get(), gbuffer.srv[2].Get(), depth_srv.Get()};
 context->PSSetShaderResources(0, 4, srvs);
@@ -121,7 +121,7 @@ G バッファのターゲット数とフォーマットは <strong>メモリ帯
 | 工夫 | 内容 |
 | --- | --- |
 | フォーマットを小さく | 法線を 2 チャンネル（八面体）に圧縮する |
-| ターゲット数を減らす | 材質を 1 枚にまとめる（粗さ・金属度・AO を、1 枚に） |
+| ターゲット数を減らす | 材質を 1 枚にまとめる（粗さ・金属度・AO を 1 枚に） |
 | 深度から位置を復元 | ワールド位置のターゲットを持たない（深度と逆行列から計算する） |
 
 ## MSAA のターゲット
@@ -129,21 +129,21 @@ G バッファのターゲット数とフォーマットは <strong>メモリ帯
 MSAA で描くときは `SampleDesc.Count` を 2、4、8 にして作り描いた後、`ResolveSubresource` で普通のテクスチャへまとめます。
 
 ```cpp
-// MSAA のレンダー ターゲットに描いた後、バック バッファ（MSAA でない）へ、解決する。
+// MSAA のレンダー ターゲットに描いた後、バック バッファ（MSAA でない）へ解決する。
 context->ResolveSubresource(back_buffer.Get(), 0, msaa_texture.Get(), 0, DXGI_FORMAT_R8G8B8A8_UNORM);
 ```
 
-ディファードと MSAA は相性が悪い（G バッファが、MSAA で巨大になる）ので、TAA を使うのが一般的です（[TAA](../../graphics/postprocess/antialiasing/taa.md)）。
+ディファードと MSAA は相性が悪い（G バッファが MSAA で巨大になる）ので、TAA を使うのが一般的です（[TAA](../../graphics/postprocess/antialiasing/taa.md)）。
 
 ## よくあるミス
 
 ??? failure "`OMSetRenderTargets` が、失敗する（大きさの不一致）"
-    ターゲットの幅・高さ・サンプル数が、そろっていない。深度バッファも同じ大きさに。
+    ターゲットの幅・高さ・サンプル数がそろっていない。深度バッファも同じ大きさに。
 
 ??? failure "G バッファの 1 枚が全部 0（真っ黒）"
     その `SV_Target` の番号に対応する、RTV を束ねていない。ピクセル シェーダーがその出力を書いていない（未初期化）。
 
-??? failure "法線が、おかしい（暗い方向が逆）"
+??? failure "法線がおかしい（暗い方向が逆）"
     `−1〜1` を `0〜1` に詰めるとき `* 0.5 + 0.5` を忘れる（負の値が切れる）。読むときの `* 2 − 1` を忘れる。`_SRGB` のターゲットに法線を書いた。
 
 ??? failure "1 枚だけクリアされず前のフレームの残りが見える"
@@ -154,7 +154,7 @@ context->ResolveSubresource(back_buffer.Get(), 0, msaa_texture.Get(), 0, DXGI_FO
 !!! abstract "まとめ"
     - [x] MRT ＝ 1 回の描画で、複数のテクスチャに同時に書く
     - [x] `OMSetRenderTargets(n, rtvs, dsv)`、シェーダーは `SV_Target0〜7`
-    - [x] 全ターゲットが、同じ大きさ。フォーマットは別でよい
+    - [x] 全ターゲットが同じ大きさ。フォーマットは別でよい
     - [x] 色は `_SRGB`、データ（法線、材質）はリニア
     - [x] 読むときは書き込みの束縛を外す
     - [x] 帯域に直結。フォーマットと数を絞る

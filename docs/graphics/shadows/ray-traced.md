@@ -6,7 +6,7 @@ tags:
 
 # Ray-Traced Shadows
 
-<strong>シャドウ マップ</strong>は、光から見たシーンをいったん画像（深度）に写し、そこから近似します。そのため、解像度・バイアス・エイリアシングの問題が付きまといます。レイトレース影は、画素から光へ直接レイを飛ばし、途中で何かに当たるかを、ジオメトリそのものに対して調べる方式です。シャドウ マップの問題が、根本から消え、面光源の半影もレイを光源の面上にばらまくことで、物理的に正しく作れます。DXR（DirectX Raytracing）に対応した GPU が必要です。
+<strong>シャドウ マップ</strong>は、光から見たシーンをいったん画像（深度）に写し、そこから近似します。そのため、解像度・バイアス・エイリアシングの問題が付きまといます。レイトレース影は、画素から光へ直接レイを飛ばし、途中で何かに当たるかをジオメトリそのものに対して調べる方式です。シャドウ マップの問題が根本から消え、面光源の半影もレイを光源の面上にばらまくことで、物理的に正しく作れます。DXR（DirectX Raytracing）に対応した GPU が必要です。
 
 !!! tip "ポイント"
     - <strong>画素（ワールド位置）から、光へシャドウ レイ</strong>を 1 本。<strong>当たれば影、当たらなければ日向</strong>。
@@ -60,7 +60,7 @@ float TraceShadowRay(float3 origin, float3 direction, float t_max) {
 <defs><marker id="arr-rt-shadow-samples" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">レイトレースの影: 面積のある光に、影の光線を N 本飛ばして、割合で濃さを決める</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">レイトレースの影: 面積のある光に影の光線を N 本飛ばして、割合で濃さを決める</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">1 つの点から、光(幅 4)の上のでたらめな点へ N 本。遮られた本数の割合が影の濃さ。同じ点で何度もやって、ばらつきを見る</text>
 <rect x="30" y="96" width="440" height="250" fill="#ffffff" stroke="#e5aa28" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5aa28">① 光・遮る板・受ける点(断面)</text>
@@ -197,7 +197,7 @@ float TraceShadowRay(float3 origin, float3 direction, float t_max) {
 <text x="536" y="451" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">実際は 1 本で撮って、時間方向に重ねて(デノイズ)消す</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">面積のある光の影は、半影ができる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光の上の点を、ばらつかせて選び、遮られた割合を数える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8132;0.8133;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光の上の点をばらつかせて選び、遮られた割合を数える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8132;0.8133;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">本数を増やすほど、きれい。でも、光線は、画素数に比例して増える<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8132;0.8133;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -217,7 +217,7 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 }
 ```
 
-太陽の方向のサンプルのコードの要点です。太陽の視直径（約 0.27 度の半角）の円錐内で、ランダムな方向を一様に選びます。`xi` は 2 つの乱数で、ブルー ノイズ・IGN・低食い違い列などを使います。`TransformToBasis` は、太陽方向を軸とした局所座標を、ワールドへ変換する関数です。
+太陽の方向のサンプルのコードの要点です。太陽の視直径（約 0.27 度の半角）の円錐内で、ランダムな方向を一様に選びます。`xi` は 2 つの乱数で、ブルー ノイズ・IGN・低食い違い列などを使います。`TransformToBasis` は、太陽方向を軸とした局所座標をワールドへ変換する関数です。
 
 1 画素あたり 1 本のレイでは、半影は、0 か 1 のノイズになります。複数本を平均するか、デノイズして滑らかにします。
 
@@ -227,7 +227,7 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 
 ## デノイズ
 
-<strong>1 画素 1 本</strong>のノイズの多い影を、滑らかにするには、デノイズします。
+<strong>1 画素 1 本</strong>のノイズの多い影を滑らかにするには、デノイズします。
 
 | 方法 | 内容 |
 | --- | --- |
@@ -236,13 +236,13 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 | 分散ガイド | 画素の分散を見て、ノイズの多い所ほど強くフィルタ |
 | 専用デノイザ | NVIDIA NRD（ReBLUR・SIGMA）、AMD FidelityFX Denoiser など。影専用（SIGMA）は、半影に最適化 |
 
-影専用のデノイザは、可視性（0〜1）を、距離（遮蔽物までの距離）とともに受け取り、半影の幅に応じて、フィルタの強さを変えます。
+影専用のデノイザは、可視性（0〜1）を距離（遮蔽物までの距離）とともに受け取り、半影の幅に応じて、フィルタの強さを変えます。
 
 ## 加速構造
 
 <strong>レイトレース影</strong>には、シーンの加速構造（BVH）が必要です。
 
-加速構造は 2 層です。BLAS（Bottom-Level）は、メッシュごとの BVH で、三角形を含みます。TLAS（Top-Level）は、BLAS のインスタンスを、変換行列付きで並べた BVH です。更新については、動く物体は TLAS のインスタンス行列を更新し、変形する（スキニングされた）物は BLAS を再構築またはリフィットします。
+加速構造は 2 層です。BLAS（Bottom-Level）は、メッシュごとの BVH で、三角形を含みます。TLAS（Top-Level）は、BLAS のインスタンスを変換行列付きで並べた BVH です。更新については、動く物体は TLAS のインスタンス行列を更新し、変形する（スキニングされた）物は BLAS を再構築またはリフィットします。
 
 影に使う BLAS は、見た目より単純でよい（低ポリのプロキシ）ことが多く、メモリ・構築コストを減らせます。
 
@@ -286,7 +286,7 @@ float3 SampleSunDirection(float3 sun_dir, float angular_radius, float2 xi) {
 
 | 長所 | 短所 |
 | --- | --- |
-| シャドウ マップの問題が、全て消える | DXR 対応 GPU が必須 |
+| シャドウ マップの問題が全て消える | DXR 対応 GPU が必須 |
 | 正確な半影・接触硬化 | 加速構造の維持（メモリ・更新） |
 | シャドウ マップのレンダリング パスが不要 | ノイズ ＋ デノイズ |
 | アルファ テストの物（葉）も、正確 | ライト数に比例して重い |
@@ -314,14 +314,14 @@ D3D12 側の、初期化（加速構造・ステート オブジェクト・シ�
 ??? failure "デノイズなしで、1 本のレイでノイズだらけ"
     時間蓄積・空間フィルタ・専用デノイザを使います。
 
-??? failure "全ライトに、全画素でレイを飛ばして、重い"
+??? failure "全ライトに全画素でレイを飛ばして、重い"
     主ライトだけ RT・マスクした画素のみにします。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] レイトレース影 ＝ <strong>画素から光へ、シャドウ レイを飛ばし、当たれば影</strong>
-    - [x] シャドウ マップの問題（解像度・バイアス・アクネ）が、存在しない
+    - [x] レイトレース影 ＝ <strong>画素から光へシャドウ レイを飛ばし、当たれば影</strong>
+    - [x] シャドウ マップの問題（解像度・バイアス・アクネ）が存在しない
     - [x] 光源の面上にランダムにレイを飛ばして平均 ＝ 正確な半影・接触硬化
     - [x] 最初のヒットで終了（ACCEPT_FIRST_HIT）で速くする。デノイズが必須
     - [x] ハイブリッド（シャドウ マップ ＋ RT）が実用的。DXR 対応 GPUが必要

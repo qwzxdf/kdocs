@@ -14,7 +14,7 @@ Jolt は<strong>ビルドのときの設定（プリプロセッサの定義・C
     - 主な定義：`JPH_DEBUG_RENDERER`（デバッグ描画）、`JPH_PROFILE_ENABLED`（プロファイル）、`JPH_DOUBLE_PRECISION`（倍精度）、`JPH_ENABLE_ASSERTS`、`JPH_CROSS_PLATFORM_DETERMINISTIC`。
     - Debug と Release で、別々にビルドする（ランタイム `/MD` と `/MDd` も合わせる）。
     - CPU の命令セット（SSE4.1・AVX2 など）の設定も一致させる。
-    - vcpkg で入れると、設定が一貫する。自分でビルドするなら、CMake のオプションを、メモしておく。
+    - vcpkg で入れると、設定が一貫する。自分でビルドするなら、CMake のオプションをメモしておく。
     - `JPH_DEBUG_RENDERER` と `JPH_PROFILE_ENABLED` は、製品版では無効にする。
 
 !!! info "このページを読む前に"
@@ -42,7 +42,7 @@ JPH_DEBUG_RENDERER が有効 → Body などのクラスに、デバッグ用の
 
 | 定義 | 意味 | 使うとき |
 | --- | --- | --- |
-| **`JPH_DEBUG_RENDERER`** | デバッグ描画（衝突の形・制約の表示）を、有効にする | Debug・Profile 構成。製品では無効 |
+| **`JPH_DEBUG_RENDERER`** | デバッグ描画（衝突の形・制約の表示）を有効にする | Debug・Profile 構成。製品では無効 |
 | `JPH_PROFILE_ENABLED` | Jolt 内蔵のプロファイラーを有効にする | 性能を調べるとき。製品では無効 |
 | `JPH_ENABLE_ASSERTS` | assert を有効にする | Debug 構成（既定で、Debug は有効） |
 | `JPH_DOUBLE_PRECISION` | 位置を倍精度（`double`）で持つ | 広大なワールド（数十 km 以上）で、遠くの精度が必要なとき |
@@ -52,7 +52,7 @@ JPH_DEBUG_RENDERER が有効 → Body などのクラスに、デバッグ用の
 | `JPH_FLOATING_POINT_EXCEPTIONS_ENABLED` | 浮動小数点の例外を有効に（バグの検出） | Debug |
 
 !!! warning "定義は、自分のプロジェクトにも、必ず書く"
-    Jolt のヘッダを include する側（自分のゲームの全部のプロジェクト）で、同じ定義をプロパティの「プリプロセッサの定義」に、書きます（[プリプロセッサマクロ](../../vs/preprocessor.md)）。CMake で `target_link_libraries(... Jolt)` すると、`PUBLIC` な定義が、自動で伝わります。
+    Jolt のヘッダを include する側（自分のゲームの全部のプロジェクト）で、同じ定義をプロパティの「プリプロセッサの定義」に書きます（[プリプロセッサマクロ](../../vs/preprocessor.md)）。CMake で `target_link_libraries(... Jolt)` すると、`PUBLIC` な定義が自動で伝わります。
 
 ## Debug と Release
 
@@ -66,7 +66,7 @@ Debug の物理は、遅い（数十倍）ことがあります。ゲームの�
 
 ### ランタイム ライブラリ（/MD と /MT）
 
-Visual Studio の「コード生成 → ランタイム ライブラリ」を、ライブラリと自分のプロジェクトで、そろえます。
+Visual Studio の「コード生成 → ランタイム ライブラリ」をライブラリと自分のプロジェクトで、そろえます。
 
 | 設定 | 意味 |
 | --- | --- |
@@ -74,7 +74,7 @@ Visual Studio の「コード生成 → ランタイム ライブラリ」を、
 | `/MT` / `/MTd` | 静的リンクのランタイム |
 
 !!! warning "Jolt の CMake の既定は、静的ランタイム"
-    Jolt を、CMake で自分でビルドすると、既定で静的ランタイム（`/MT`）になる場合があります。自分のプロジェクトが `/MD` なら、不一致（`LNK2038`）になります。CMake のオプションで、DLL 版（`/MD`）にする（`USE_STATIC_MSVC_RUNTIME_LIBRARY` を `OFF`。名前はバージョンで変わるので、`CMakeLists.txt` を確認）。vcpkg は、`/MD` に合わせてあります（[ランタイム ライブラリ](../../vs/errors.md#runtime_library)）。
+    Jolt を CMake で自分でビルドすると、既定で静的ランタイム（`/MT`）になる場合があります。自分のプロジェクトが `/MD` なら、不一致（`LNK2038`）になります。CMake のオプションで、DLL 版（`/MD`）にする（`USE_STATIC_MSVC_RUNTIME_LIBRARY` を `OFF`。名前はバージョンで変わるので、`CMakeLists.txt` を確認）。vcpkg は、`/MD` に合わせてあります（[ランタイム ライブラリ](../../vs/errors.md#runtime_library)）。
 
 ## 倍精度（Double Precision）
 
@@ -160,7 +160,7 @@ add_subdirectory(third_party/JoltPhysics/Build)
 target_link_libraries(my_game PRIVATE Jolt)
 ```
 
-`Jolt` ターゲットを、リンクすれば、インクルード・定義が自動で伝わります（`PUBLIC` なので）。手動で定義を書く必要が、ありません。
+`Jolt` ターゲットをリンクすれば、インクルード・定義が自動で伝わります（`PUBLIC` なので）。手動で定義を書く必要がありません。
 
 ## ビルドが通ったかの確認
 
@@ -196,9 +196,9 @@ JPH_ASSERT(sizeof(Body) == ...);
     実行時にクラッシュします。両方で同じ定義にします。
 
 ??? failure "`LNK2038`（ランタイムの不一致）が出る"
-    `/MD` と `/MT`（または `/MDd`）が、そろっていません。ライブラリ側を合わせます。
+    `/MD` と `/MT`（または `/MDd`）がそろっていません。ライブラリ側を合わせます。
 
-??? failure "Debug のライブラリを、Release のプロジェクトでリンクする"
+??? failure "Debug のライブラリを Release のプロジェクトでリンクする"
     構成ごとに別のライブラリを使います（`$(Configuration)` でパスを分ける）。
 
 ??? failure "位置が遠くで、物体が震える"

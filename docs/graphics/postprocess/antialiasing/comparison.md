@@ -1301,8 +1301,8 @@ tags:
 <text x="710" y="462" text-anchor="start" style="font-size:13px;font-weight:700;fill:#7c3aed">TAA</text>
 <text x="770" y="466" text-anchor="start" style="font-size:22px;font-weight:700;fill:#2ea043" opacity="0">100%<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.3715;0.3717;1.0000" values="0;0;1;1"/></text>
 <text x="710" y="490" text-anchor="start" style="font-size:11px;font-weight:500;fill:#64748b" opacity="0">ぶれなければ残る<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.3715;0.3717;1.0000" values="0;0;1;1"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ絵を、5 通りの方法で処理する<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0486;0.0488;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">左から右へ、画面をなぞる<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0486;0.0488;0.2593;0.2595;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">同じ絵を 5 通りの方法で処理する<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0486;0.0488;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">左から右へ画面をなぞる<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.0486;0.0488;0.2593;0.2595;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">FXAA は縁を直すが、模様もぼかす。MSAA は縁だけ直す。TAA は縁も模様も、フレームを重ねて直す<animate attributeName="opacity" dur="20.5s" repeatCount="indefinite" keyTimes="0.0000;0.2593;0.2595;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -1354,7 +1354,7 @@ tags:
 
 | 工夫 | 内容 |
 | --- | --- |
-| 設定で選べるように | FXAA / SMAA / TAA / TAAU を、ユーザーが切り替え |
+| 設定で選べるように | FXAA / SMAA / TAA / TAAU をユーザーが切り替え |
 | TAA を基本にして、補助を併用 | 現代の標準的な構成 |
 | UI は AA の外で描く | 文字がぼけない |
 | アップスケールで総コストを下げる | AA とアップスケールを同時に |

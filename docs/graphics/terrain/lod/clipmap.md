@@ -24,7 +24,7 @@ tags:
 
 | 項目 | 内容 |
 | --- | --- |
-| 構造 | 同じ頂点数の正方形リングが、倍々の大きさで重なる（例：各 255×255） |
+| 構造 | 同じ頂点数の正方形リングが倍々の大きさで重なる（例：各 255×255） |
 | カメラ追従 | カメラが動くとリングをグリッド単位でスクロール（円環バッファで高さを更新） |
 | 利点 | 三角形の数が一定。構造が単純。GPU に向く |
 | 欠点 | 視点から遠くてもリングの数だけは描く（画面外を捨てにくい）。高さデータをリングごとに管理 |
@@ -38,7 +38,7 @@ tags:
 <defs><marker id="arr-clipmap-rings" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">クリップマップ: 同じ頂点数の層を、倍々の広さで入れ子にする。頂点数は一定で、遠くまで届く</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">クリップマップ: 同じ頂点数の層を倍々の広さで入れ子にする。頂点数は一定で、遠くまで届く</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。層ごとに、33 頂点。層 0 の間隔が 1 m、層 1 が 2 m、層 2 が 4 m、…。カメラの周りだけ、細かい</text>
 <rect x="30" y="96" width="900" height="280" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">層の広がり(横 = カメラからの距離 m、対数)</text>
@@ -151,12 +151,12 @@ tags:
 <text x="280" y="404" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">3,267<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.3687;0.3689;0.5198;0.5200;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="280" y="404" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">4,356<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5198;0.5200;0.6709;0.6711;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="280" y="404" text-anchor="start" style="font-size:26px;font-weight:700;fill:#7c3aed" opacity="0">5,445<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6709;0.6711;1.0000" values="0;0;1;1"/></text>
-<text x="40" y="436" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">同じ範囲を、全部 1 m 間隔で作ると:</text>
+<text x="40" y="436" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1f2937">同じ範囲を全部 1 m 間隔で作ると:</text>
 <text x="330" y="436" text-anchor="start" style="font-size:18px;font-weight:700;fill:#e5484d" opacity="0">278,784 頂点(約 51 倍)<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8220;0.8222;1.0000" values="0;0;1;1"/></text>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8665;0.8667;1.0000" values="0;0;1;1"/><rect x="40" y="456" width="880" height="56" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="56" y="480" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">5 層 5,445 頂点で、半径 264 m まで届く。近く(1 m 間隔)から、遠く(16 m 間隔)まで、頂点数は一定</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">遠くの地形を、近くと同じ細かさで描くのは、無駄<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">遠くの地形を近くと同じ細かさで描くのは、無駄<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">層を足すごとに、広さが 2 倍、間隔も 2 倍になる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.8665;0.8667;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">カメラが動くと、層ごとに、動く単位(間隔)ぶんだけ、ずらして、追いかける<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.8665;0.8667;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -191,8 +191,8 @@ Losasso と Hoppe の方式は、<strong>「見える範囲の地形を画面の
 円環バッファは窓全体をずらしてコピーせず 書き込み位置だけをずらすやり方です。テクスチャでは `WRAP` の アドレッシング モードで、端を超えた座標が反対側に戻るので、実現が簡単です。
 
 ```hlsl
-// 層ごとの高さテクスチャを、円環バッファとして読む。
-// clip_origin: この層の窓の左下が、ワールドのどのセルにあたるか（整数のセル）
+// 層ごとの高さテクスチャを円環バッファとして読む。
+// clip_origin: この層の窓の左下がワールドのどのセルにあたるか（整数のセル）
 float SampleClipHeight(Texture2D<float> tex, float2 world_xz, float cell_size) {
   float2 cell = world_xz / cell_size;
   // WRAP サンプラーなので、窓の外へ出ても、反対側から読まれる。
@@ -236,7 +236,7 @@ float SampleClipHeight(Texture2D<float> tex, float2 world_xz, float cell_size) {
 内側の層と外側の層は格子の間隔が 2 倍違います。この境目に <strong>頂点がずれた隙間</strong>ができます。論文では 境界の近くで頂点の高さを外側の層の高さと少しずつ補間する（トランジション領域）ことで、隙間を消します。
 
 ```hlsl
-// 層の端に近づくほど、高さを、外側の粗い層の高さへ寄せる。
+// 層の端に近づくほど、高さを外側の粗い層の高さへ寄せる。
 float BlendHeight(float2 world_xz, float fine_h, float coarse_h, float2 clip_center,
                   float half_extent, float blend_width) {
   float2 d = abs(world_xz - clip_center);
@@ -259,7 +259,7 @@ float BlendHeight(float2 world_xz, float fine_h, float coarse_h, float2 clip_cen
 | 実装の複雑さ | 継ぎ目の処理（ブロック、トリム）が複雑 | 四分木とモーフィングだけ。単純 |
 | 向く用途 | 海面（FFT 海）、巨大な地球規模の地形、フライト シミュレーター | 一般的なゲームの地形（数 km〜数十 km） |
 
-水面はクリップマップがよく使われます。カメラの周りだけ細かく遠くは粗くてよいという性質が、そのまま合うからです（[Water Waves](../../water/waves/index.md)）。
+水面はクリップマップがよく使われます。カメラの周りだけ細かく遠くは粗くてよいという性質がそのまま合うからです（[Water Waves](../../water/waves/index.md)）。
 
 ## よくあるミス
 

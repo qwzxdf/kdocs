@@ -28,7 +28,7 @@ tags:
 </marker>
 </defs>
 <text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">基本の補正: 露出・コントラスト・彩度。順番を変えると、結果が変わる</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">6 色のパレットに、補正を、1 つずつ足す。各段階の「平均の明るさ」と「平均の彩度」を、計算する</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">6 色のパレットに補正を 1 つずつ足す。各段階の「平均の明るさ」と「平均の彩度」を計算する</text>
 <text x="70.0" y="104" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">元の色</text>
 <rect x="70.0" y="108.0" width="78.3" height="40.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0667" values="#e5e7eb;#e6887b"/></rect>
 <rect x="148.0" y="108.0" width="78.3" height="40.3" fill="#e5e7eb"><animate attributeName="fill" dur="22.5s" repeatCount="indefinite" calcMode="discrete" keyTimes="0.0000;0.0800" values="#e5e7eb;#f3ca6c"/></rect>
@@ -123,7 +123,7 @@ float3 ApplyContrast(float3 color, float contrast, float pivot) {
 コントラストのコードの要点です。`contrast > 1` ならコントラストが強くなり（メリハリ）、`contrast < 1` なら弱くなります（眠い、フラット）。`pivot` は変わらない点で、リニアなら約 0.18（中間灰）、ガンマ空間なら約 0.5 です。
 
 <svg class="fig illust" viewBox="0 0 780 240" role="img" aria-label="コントラスト">
-<text x="20" y="26" class="fig-title">コントラスト：ピボットを中心に、傾きを変える</text>
+<text x="20" y="26" class="fig-title">コントラスト：ピボットを中心に傾きを変える</text>
 <line x1="80" y1="200" x2="420" y2="200" stroke="currentColor" stroke-opacity="0.5"/><line x1="80" y1="50" x2="80" y2="200" stroke="currentColor" stroke-opacity="0.5"/>
 <polyline fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4" points="80,200 420,50"/>
 <polyline fill="none" stroke="#e5484d" stroke-width="3" points="80,200 150,196 250,125 350,64 420,56"/>
@@ -203,7 +203,7 @@ float3 RotateHue(float3 color, float angle_radians) {
 
 | 工夫 | 内容 |
 | --- | --- |
-| LUT に焼く | すべての調整を、1 つの 3D LUT に（[3D LUT](lut-3d.md)） |
+| LUT に焼く | すべての調整を 1 つの 3D LUT に（[3D LUT](lut-3d.md)） |
 | ガンマ・対数空間で調整 | 見た目に近い感覚で |
 | バイブランスを併用 | 鮮やかになりすぎない |
 | 範囲外をクランプ | 0〜1 に収める |
@@ -229,7 +229,7 @@ float3 RotateHue(float3 color, float angle_radians) {
 !!! abstract "まとめ"
     - [x] 基本は<strong>露出・コントラスト・彩度・色相</strong>
     - [x] コントラスト ＝ ピボットを中心に傾きを変える。彩度 ＝ 輝度と元の色の補間
-    - [x] バイブランスで鮮やかな色を、増やしすぎない
+    - [x] バイブランスで鮮やかな色を増やしすぎない
     - [x] リニア・ガンマ・対数で効き方が違う。ピボットを合わせる
     - [x] 順序を固定。LUT に焼く
 

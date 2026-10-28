@@ -10,7 +10,7 @@ tags:
 <span class="rank rank-must">必須</span>
 </div>
 
-シェーダーでテクスチャを読むとき GPU は「そのテクスチャが、メモリのどこにあってどんな形式で、何ピクセル四方なのか」を知る必要があります。この「見方」を書いた小さなデータが、<strong>ディスクリプタ</strong>です。そして、ディスクリプタを並べて置いておく表が、<strong>ディスクリプタ ヒープ</strong>（`ID3D12DescriptorHeap`）です。
+シェーダーでテクスチャを読むとき GPU は「そのテクスチャがメモリのどこにあってどんな形式で、何ピクセル四方なのか」を知る必要があります。この「見方」を書いた小さなデータが <strong>ディスクリプタ</strong>です。そして、ディスクリプタを並べて置いておく表が <strong>ディスクリプタ ヒープ</strong>（`ID3D12DescriptorHeap`）です。
 
 D3D11 ではこの表をドライバーが裏で管理してくれました。D3D12 では表を自分で作って、自分で中身を書きます。そのぶん描画のたびにテクスチャを結び直す必要がなくなり表の中の場所を伝えるだけで済むようになります。
 
@@ -90,7 +90,7 @@ D3D12_GPU_DESCRIPTOR_HANDLE gpu_i = OffsetHandle(gpu_start, i, increment);
 ディスクリプタは `CreateXxxView` にハンドルを渡して書き込みます。
 
 ```cpp
-// SRV を、ヒープの i 番目に書き込む。
+// SRV をヒープの i 番目に書き込む。
 D3D12_SHADER_RESOURCE_VIEW_DESC srv = {};
 srv.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 srv.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
@@ -108,11 +108,11 @@ RTV と DSV のヒープは数が少なく、あまり変わりません。起�
 CBV_SRV_UAV のヒープはシェーダーから見える**ディスクリプタ テーブル**として使います。ヒープの連続した範囲をルート シグネチャのパラメーターに結びます（[Root Signature](root-signature.md)）。
 
 ```cpp
-// 描画の前に、シェーダー可視ヒープをコマンド リストに設定する。
+// 描画の前にシェーダー可視ヒープをコマンド リストに設定する。
 ID3D12DescriptorHeap* heaps[] = {srv_heap.Get()};
 command_list->SetDescriptorHeaps(ARRAYSIZE(heaps), heaps);
 
-// ルート パラメーター 0 のテーブルを、ヒープの先頭から指す。
+// ルート パラメーター 0 のテーブルをヒープの先頭から指す。
 command_list->SetGraphicsRootDescriptorTable(0, srv_heap->GetGPUDescriptorHandleForHeapStart());
 ```
 
@@ -158,7 +158,7 @@ class DescriptorAllocator {
 物ごとマテリアルごとに使うテクスチャが変わるときは、先に CPU 側のヒープ（シェーダー不可視）にディスクリプタを書いておきます。そして、描画の直前にシェーダー可視のヒープへコピーするのが定石です。
 
 ```cpp
-// CPU 側のヒープから、シェーダー可視ヒープの使う位置へ、1 つコピーする。
+// CPU 側のヒープから、シェーダー可視ヒープの使う位置へ 1 つコピーする。
 device->CopyDescriptorsSimple(1,                // 個数
                               dest_cpu_handle,  // コピー先（シェーダー可視ヒープ）
                               src_cpu_handle,   // コピー元（CPU 側のヒープ）

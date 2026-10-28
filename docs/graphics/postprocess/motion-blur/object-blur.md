@@ -167,7 +167,7 @@ tags:
 <text x="250" y="474" text-anchor="start" style="font-size:12px;font-weight:500;fill:#64748b">(×0.01)</text>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.9020;0.9022;1.0000" values="0;0;1;1"/><rect x="360" y="456" width="570" height="64" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="376" y="480" text-anchor="start" style="font-size:13px;font-weight:700;fill:#166534">回転が小さい(10°)なら、直線で近似して十分(ずれ 0.02)</text>
-<text x="376" y="502" text-anchor="start" style="font-size:13px;font-weight:700;fill:#991b1b">90° では、ずれ 1.46。サンプルを、回転で曲げて取る方法もある</text>
+<text x="376" y="502" text-anchor="start" style="font-size:13px;font-weight:700;fill:#991b1b">90° では、ずれ 1.46。サンプルを回転で曲げて取る方法もある</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">回転する物の、先端は、中心より速く動く<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">角度が大きくなると、円弧が曲がり、直線との差が広がる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.9198;0.9200;1.0000" values="0;0;1;1;0;0"/></text>
@@ -201,7 +201,7 @@ float4 previous_position = mul(mul(float4(local_position, 1.0), previous_world),
 
 <strong>速い物体の輪郭の外側（背景）にもぼけた尾が伸びる</strong>べきです。物体の画素の速度だけを使うと、物体の縁でぼかしが急にぷつっと切れます。
 
-物体の輪郭に関する問題と対処です。物体の周りの背景がぼけない問題には、周りの画素のうち最も速い物体の速度を、その画素も使います（タイルの最大速度、近傍最大。[Tile Max Velocity](tile-max.md)）。ぼけた物体の縁がくっきりする問題には、深度と速度で重みを付けてサンプルを集めます（[Blur Pass Implementation](blur-pass.md)）。
+物体の輪郭に関する問題と対処です。物体の周りの背景がぼけない問題には、周りの画素のうち最も速い物体の速度をその画素も使います（タイルの最大速度、近傍最大。[Tile Max Velocity](tile-max.md)）。ぼけた物体の縁がくっきりする問題には、深度と速度で重みを付けてサンプルを集めます（[Blur Pass Implementation](blur-pass.md)）。
 
 ## 描画順と透明物
 
@@ -238,16 +238,16 @@ float4 previous_position = mul(mul(float4(local_position, 1.0), previous_world),
 
 ## よくあるミス
 
-??? failure "物体のブラーが、輪郭でぷつっと切れる"
+??? failure "物体のブラーが輪郭でぷつっと切れる"
     <strong>近傍の最大速度（タイル）</strong>を使い、サンプルの重み付けをする。
 
-??? failure "プロペラのブラーが、ぐちゃぐちゃになる"
+??? failure "プロペラのブラーがぐちゃぐちゃになる"
     回転が大きい物体は、速度の向きが不正確。ブラーを弱める・別処理。
 
 ??? failure "キャラクターの手足にブラーが無い"
     スキニングの前フレームの姿勢が無く、速度が 0。前フレームのボーンで再計算。
 
-??? failure "半透明の物体が、背景の速度を上書きして、ブラーがおかしい"
+??? failure "半透明の物体が背景の速度を上書きして、ブラーがおかしい"
     半透明は速度を書かない。
 
 ## これだけ覚える

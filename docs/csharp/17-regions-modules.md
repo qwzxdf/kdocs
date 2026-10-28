@@ -17,7 +17,7 @@ tags:
 
 ## 考え方：枠に名前を付けて、中身はあとから差し込む
 
-`MainWindow` には、名前の付いた空きスペース（リージョン）だけを置きます。中身のビューは、各機能が自分で「このリージョンに、私の画面を出してください」と登録します。
+`MainWindow` には、名前の付いた空きスペース（リージョン）だけを置きます。中身のビューは、各機能が自分で「このリージョンに私の画面を出してください」と登録します。
 
 ```text
 MainWindow（枠だけ）
@@ -35,7 +35,7 @@ MainWindow（枠だけ）
 | リージョン | 画面の中の、名前の付いた空きスペース |
 | ビュー | リージョンに差し込む部品。たいていは `UserControl` |
 | リージョン マネージャー | リージョンとビューの対応を管理する（`IRegionManager`） |
-| モジュール | 機能のまとまり。ビューやサービスの登録を、まとめて行う |
+| モジュール | 機能のまとまり。ビューやサービスの登録をまとめて行う |
 
 `MainWindow` は、どんなビューが入るのかを知りません。リージョンの名前だけで中身とつながるので、機能を足したり外したりしても `MainWindow` は変わりません。
 
@@ -186,7 +186,7 @@ namespace Editor.Modules.SceneTree;
 
 public class SceneTreeModule : IModule
 {
-    // ① DI コンテナーに、このモジュールの型を登録する
+    // ① DI コンテナーにこのモジュールの型を登録する
     public void RegisterTypes(IContainerRegistry containerRegistry)
     {
     }
@@ -238,7 +238,7 @@ protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
 }
 ```
 
-起動の順番は、「アプリの `RegisterTypes` → 各モジュールの `RegisterTypes` → 各モジュールの `OnInitialized` → シェルの表示」です。実行すると、第 6 章と同じ見た目の画面が、リージョン経由で出ます。
+起動の順番は、「アプリの `RegisterTypes` → 各モジュールの `RegisterTypes` → 各モジュールの `OnInitialized` → シェルの表示」です。実行すると、第 6 章と同じ見た目の画面がリージョン経由で出ます。
 
 この教材ではモジュールを同じプロジェクトのフォルダーとして作っています。機能が大きくなったら、別の C# ライブラリ プロジェクトにして、`Editor` から参照を追加すれば、同じように登録できます。必要になるまで読み込まない遅延読み込みや、フォルダー内の DLL を探して読む方式もあります（第 19 章）。
 
@@ -325,7 +325,7 @@ _regionManager.RequestNavigate(RegionNames.Property, "PropertyView", parameters)
     モジュールを `AddModule` していない可能性があります。`OnInitialized` にブレークポイントを置いて、呼ばれているかを確認します。
 
 ??? failure "タブの見出しが空欄になる"
-    `ItemContainerStyle` のバインディングが、ビューモデルの `Title` に届いていません。「出力」ウィンドウに `BindingExpression path error` が出ているはずです。
+    `ItemContainerStyle` のバインディングがビューモデルの `Title` に届いていません。「出力」ウィンドウに `BindingExpression path error` が出ているはずです。
 
 ??? failure "ビューモデルがビューにつながらない"
     `UserControl` にも `prism:ViewModelLocator.AutoWireViewModel="True"` が必要です。ビューのフォルダーと名前空間の規則も確かめます。

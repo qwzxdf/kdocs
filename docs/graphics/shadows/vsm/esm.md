@@ -25,7 +25,7 @@ tags:
 <defs><marker id="arr-esm-exp" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ESM: 光が届く割合を、exp(−c·(受ける点の深度 − 手前の深度)) で近似する。c が大きいほど影がくっきり</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">ESM: 光が届く割合を exp(−c·(受ける点の深度 − 手前の深度)) で近似する。c が大きいほど影がくっきり</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">手前の物の深度 0.5 の前後で、受ける点の深度 t を動かす。c を 4 → 16 → 48 に上げて、本当の階段状(0 か 1)に近づく</text>
 <rect x="30" y="96" width="900" height="260" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">光が届く割合</text>
@@ -52,7 +52,7 @@ tags:
 <text x="576" y="460" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">c を上げる = 影がくっきり。ただし数値の限界がある</text>
 <text x="576" y="483" text-anchor="start" style="font-size:13px;font-weight:700;fill:#64748b">ずれ: c=4 → 0.286 / 16 → 0.091 / 48 → 0.033</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">硬い影(0 か 1)を、なめらかな式で近似する<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">硬い影(0 か 1)をなめらかな式で近似する<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">c を上げるほど階段に近づく<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.7952;0.7953;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">c の上げすぎは、数値の限界で壊れる。EVSM は、その対策<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.7952;0.7953;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
@@ -74,7 +74,7 @@ tags:
 
 ## 考え方：深度を指数に変える
 
-<strong>ESM</strong>（Exponential Shadow Maps、Annen ら 2008）は 深度 `z` の代わりに `exp(c × z)` を、保存します。`c` は大きな正の定数（80 など）です。
+<strong>ESM</strong>（Exponential Shadow Maps、Annen ら 2008）は 深度 `z` の代わりに `exp(c × z)` を保存します。`c` は大きな正の定数（80 など）です。
 
 通常の、影の判定は `t ≤ z_保存` なら光が当たる（1）、そうでなければ影（0）、という階段関数です。これを指数関数で近似します。
 
@@ -93,11 +93,11 @@ ESM:    lit = saturate( exp(c × z) × exp(−c × t) ) = saturate( exp(c × (z 
 
 ## フィルタのうまみ
 
-<strong>`exp(c × z)`</strong> は ぼかして平均しても、正しい性質を持ちます。平均の `exp` は `exp` の平均ではありませんが `exp(c × z)` を、ぼかしたものは「周りの遮蔽物の深度の、重みつき平均」として意味があります。
+<strong>`exp(c × z)`</strong> は ぼかして平均しても、正しい性質を持ちます。平均の `exp` は `exp` の平均ではありませんが `exp(c × z)` をぼかしたものは「周りの遮蔽物の深度の、重みつき平均」として意味があります。
 
 ```hlsl
-// シャドウ パス: exp(c × z) を、書き出す（R32_FLOAT のレンダー ターゲット）。
-// c が大きいと、浮動小数点が、あふれる。c × z を、ある範囲に、収める（c = 40〜80、z は、0〜1）。
+// シャドウ パス: exp(c × z) を書き出す（R32_FLOAT のレンダー ターゲット）。
+// c が大きいと、浮動小数点があふれる。c × z をある範囲に収める（c = 40〜80、z は、0〜1）。
 float main(float4 pos : SV_Position) : SV_Target {
   return exp(kExponent * pos.z);
 }
@@ -109,21 +109,21 @@ float stored = g_shadow_esm.SampleLevel(g_linear_clamp, uv, 0);
 float lit = saturate(stored * exp(-kExponent * depth));
 ```
 
-`exp(c × z)` は 大きい値になります（`c = 80`、`z = 1` で `e⁸⁰ ≈ 5×10³⁴`）。32 ビット浮動小数点の上限（約 3.4×10³⁸）に、近いので `c` を大きくしすぎない。logarithmic ブラー（`log(exp(a) + exp(b))` の形で、ぼかす）というあふれないぼかし方も、あります。
+`exp(c × z)` は 大きい値になります（`c = 80`、`z = 1` で `e⁸⁰ ≈ 5×10³⁴`）。32 ビット浮動小数点の上限（約 3.4×10³⁸）に近いので `c` を大きくしすぎない。logarithmic ブラー（`log(exp(a) + exp(b))` の形で、ぼかす）というあふれないぼかし方も、あります。
 
 ## 長所と短所
 
 | | 内容 |
 | --- | --- |
-| 長所 | 1 チャンネル（メモリが、小さい）。VSM より光漏れが起きにくい（分散を、使わないので） |
+| 長所 | 1 チャンネル（メモリが小さい）。VSM より光漏れが起きにくい（分散を使わないので） |
 | 長所 | 実装が簡単。ぼかしもミップも使える |
 | 短所 | 影が薄くなる（遮蔽物から、離れた所で影が薄れる）。`exp(c(z−t))` は差が大きいほど 0 に近づくので、遠くの影は濃いが近くの影は薄い（逆の性質） |
 | 短所 | `c` の調整が必要（大きすぎる→あふれる、小さすぎる→影が薄い） |
-| 短所 | 深度の範囲に依存する（正規化した深度の範囲が広いと精度が、足りない） |
+| 短所 | 深度の範囲に依存する（正規化した深度の範囲が広いと精度が足りない） |
 
 ### 影が薄れる問題
 
-<strong>遮蔽物のすぐ近く</strong>（同じ面の、少し奥）では `z − t` が 小さいので `exp(c(z − t))` は、1 に近く影が薄い（光が当たると、判定）。遮蔽物から十分に離れた所（`z − t` が、大きい負）で初めて濃い影になります。接地部分の影が薄くなるので足元が、浮いて見える（[Peter Panning](../bias/peter-panning.md) に、似た見え方）。
+<strong>遮蔽物のすぐ近く</strong>（同じ面の、少し奥）では `z − t` が 小さいので `exp(c(z − t))` は、1 に近く影が薄い（光が当たると、判定）。遮蔽物から十分に離れた所（`z − t` が、大きい負）で初めて濃い影になります。接地部分の影が薄くなるので足元が浮いて見える（[Peter Panning](../bias/peter-panning.md) に、似た見え方）。
 
 | 対策 | 内容 |
 | --- | --- |

@@ -14,7 +14,7 @@ tags:
 `#include <memory>`
 </div>
 
-`std::out_ptr(smart_ptr)` は、**C のAPI が `T**` の引数を通して返すオブジェクトを、そのまま `unique_ptr` や `shared_ptr` で受け取る**ための関数です。「`Create(&handle)` でハンドルが返ってくる」形の API で、生ポインターを経由せずに、すぐスマートポインターで持てます。呼び出しが終わると、自動で `reset` されます。
+`std::out_ptr(smart_ptr)` は、**C のAPI が `T**` の引数を通して返すオブジェクトをそのまま `unique_ptr` や `shared_ptr` で受け取る**ための関数です。「`Create(&handle)` でハンドルが返ってくる」形の API で、生ポインターを経由せずに、すぐスマートポインターで持てます。呼び出しが終わると、自動で `reset` されます。
 
 !!! tip "ポイント"
     - `Create(std::out_ptr(p));` の形で、出力引数に渡す。
@@ -65,12 +65,12 @@ int main() {
 
 | 場面 | 書き方 |
 | --- | --- |
-| COM や C のライブラリが返すハンドルを、スマートポインターで持つ | `CreateX(std::out_ptr(handle))` |
+| COM や C のライブラリが返すハンドルをスマートポインターで持つ | `CreateX(std::out_ptr(handle))` |
 
 ## よくあるミス
 
 ??? failure "削除の方法が合わない"
-    `unique_ptr` の削除関数が、API の解放関数と合っているか確認します。
+    `unique_ptr` の削除関数が API の解放関数と合っているか確認します。
 
 ## 類似
 

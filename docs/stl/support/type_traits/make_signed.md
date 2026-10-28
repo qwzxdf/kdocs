@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-整数型を、同じ大きさの符号つきの型に変えたい。`std::make_signed` は、<strong>同じ大きさの符号つき整数型</strong>を返します。
+整数型を同じ大きさの符号つきの型に変えたい。`std::make_signed` は、<strong>同じ大きさの符号つき整数型</strong>を返します。
 
 !!! tip "ポイント"
     - `std::make_signed_t<unsigned int>` は `int`
@@ -43,7 +43,7 @@ using make_signed_t = typename make_signed<T>::type;
 
 `T` が `unsigned int` なら `int`、`unsigned long long` なら `long long` を返します。`const` や `volatile` は保たれます。`bool` と整数以外は渡せません。
 
-`std::size_t` を符号つきにしたいときに便利です。コンテナの添字の差を、負になりうる型で受けるときに使います。
+`std::size_t` を符号つきにしたいときに便利です。コンテナの添字の差を負になりうる型で受けるときに使います。
 
 戻り値は型です。実行時には何も起きず、コンパイル時に型が決まります。`std::make_signed<T>::type` と書いても同じ型ですが、C++14 以降の `std::make_signed_t<T>` のほうが短く書けます。
 

@@ -103,7 +103,7 @@ float3 Transmittance(float3 start, float3 end, int steps) {
 
 ## 透過率とは何か
 
-光が霧や大気の中を距離 `d` だけ進むと、<strong>一部が吸収・散乱で進行方向から、失われます</strong>。そのまま進行方向に残る光の割合が、透過率 `T` です。
+光が霧や大気の中を距離 `d` だけ進むと、<strong>一部が吸収・散乱で進行方向から、失われます</strong>。そのまま進行方向に残る光の割合が透過率 `T` です。
 
 ```text
 T = exp( −σ × d )                       一様な媒質（霧）の場合
@@ -121,11 +121,11 @@ T = exp( −∫ σ(s) ds )                   密度が、場所で変わる媒�
 float3 transmittance = exp(-g_sigma_t * distance);
 ```
 
-`g_sigma_t` は <strong>RGB の 3 成分</strong>の、消散係数です。空気中のレイリー散乱は 青の方が、大きく、赤の方が小さいので遠くの景色は、青みを帯びます（[Rayleigh Scattering](../scattering/index.md)）。
+`g_sigma_t` は <strong>RGB の 3 成分</strong>の、消散係数です。空気中のレイリー散乱は 青の方が大きく、赤の方が小さいので遠くの景色は、青みを帯びます（[Rayleigh Scattering](../scattering/index.md)）。
 
 ## 密度が変わる媒質：数値積分
 
-大気の密度は <strong>高度とともに指数関数的に、薄く</strong>なります。
+大気の密度は <strong>高度とともに指数関数的に薄く</strong>なります。
 
 ```text
 ρ(h) = exp( −h / H )         h: 地表からの高さ、H: スケール ハイト（レイリー 8 km、ミー 1.2 km）
@@ -149,7 +149,7 @@ float DensityMie(float h) { return exp(-h / 1200.0); }            // 1.2 km
 レイリー散乱（空気の分子）の層は、厚く（8 km）、ミー散乱（エアロゾル、細かい塵や水滴）の層は 薄い（1.2 km、地表の近く）です。ミー散乱が地表の近くに集まっているので、地平線のすぐ上だけ白っぽく濁ります。
 
 ```hlsl
-// 光の通り道（点 a から、方向 dir へ、長さ length）の、光学的な厚さ（密度の積分）を、数値で求める。
+// 光の通り道（点 a から、方向 dir へ、長さ length）の、光学的な厚さ（密度の積分）を数値で求める。
 float2 OpticalDepth(float3 a, float3 dir, float length_m, int steps) {
   float step_len = length_m / steps;
   float2 sum = 0.0;                                               // x = レイリー、y = ミー
@@ -177,7 +177,7 @@ float3 Transmittance(float3 a, float3 dir, float length_m) {
 
 ## 計算量の問題
 
-太陽の光は <strong>大気の外から各点まで</strong>、透過率を掛けて届きます。空の各方向について視線に沿った、各サンプル点で太陽方向の透過率を、求めると二重ループになります。
+太陽の光は <strong>大気の外から各点まで</strong>、透過率を掛けて届きます。空の各方向について視線に沿った、各サンプル点で太陽方向の透過率を求めると二重ループになります。
 
 ```text
 空の画素 × 視線のサンプル（32） × 太陽方向のサンプル（32）  =  画素あたり 約 1,000 回の、密度計算
@@ -187,11 +187,11 @@ float3 Transmittance(float3 a, float3 dir, float length_m) {
 
 ## 透過率 LUT
 
-<strong>透過率</strong>は 「点の高度」と「方向の、天頂角」の 2 つだけで決まります（大気は、球対称なので）。この 2 変数の関数を 2 次元のテクスチャに、焼いておきます（Bruneton と Neyret、2008）。Hillaire（2020）の、実装では 256×64 画素です。
+<strong>透過率</strong>は 「点の高度」と「方向の、天頂角」の 2 つだけで決まります（大気は、球対称なので）。この 2 変数の関数を 2 次元のテクスチャに焼いておきます（Bruneton と Neyret、2008）。Hillaire（2020）の、実装では 256×64 画素です。
 
 ```hlsl
-// LUT の uv から、（高度、天頂角の cos）を、求める。
-// uv.y は、高度、uv.x は、「大気の上端までの距離」を、正規化した値で、地平線の近くを、細かく取る。
+// LUT の uv から、（高度、天頂角の cos）を求める。
+// uv.y は、高度、uv.x は、「大気の上端までの距離」を正規化した値で、地平線の近くを細かく取る。
 void UvToTransmittanceParams(float2 uv, out float view_height, out float cos_zenith) {
   float H = sqrt(g_top_radius * g_top_radius - g_bottom_radius * g_bottom_radius);   // 地表の接線の、大気の上端までの距離
   float rho = H * uv.y;                                                              // 地平線までの距離
@@ -204,7 +204,7 @@ void UvToTransmittanceParams(float2 uv, out float view_height, out float cos_zen
 }
 ```
 
-uv を角度や高度にそのまま、割り当てると 地平線の近く（変化が急）の、解像度が足りません。大気の上端までの距離で横軸を、決めると地平線の近くを細かく、取れます（Hillaire の実装）。この関数は LUT を作るとき（各画素が、どの高度・角度を表すか）に使います。
+uv を角度や高度にそのまま、割り当てると 地平線の近く（変化が急）の、解像度が足りません。大気の上端までの距離で横軸を決めると地平線の近くを細かく、取れます（Hillaire の実装）。この関数は LUT を作るとき（各画素がどの高度・角度を表すか）に使います。
 
 ```hlsl
 // 逆変換: （高度、天頂角の cos）から、LUT の uv を求める。LUT を読むときに使う。
@@ -222,7 +222,7 @@ float2 TransmittanceParamsToUv(float view_height, float cos_zenith) {
 読むときは この逆変換で uv を求め、テクスチャを 1 回引くだけです。透過率の積分が 1 回のテクスチャ読み込みに、化けます。
 
 ```hlsl
-// 太陽方向の、透過率を、LUT から引く（一瞬で済む）。
+// 太陽方向の、透過率を LUT から引く（一瞬で済む）。
 float3 SunTransmittance(float3 position, float3 sun_dir) {
   float h = length(position);
   float cos_zenith = dot(position / h, sun_dir);
@@ -234,10 +234,10 @@ float3 SunTransmittance(float3 position, float3 sun_dir) {
 
 ## 地面に遮られる光
 
-光の通り道が <strong>地面</strong>に当たる場合（太陽が、地平線の下にある）、その方向の透過率は 0 と、みなします。
+光の通り道が <strong>地面</strong>に当たる場合（太陽が地平線の下にある）、その方向の透過率は 0 と、みなします。
 
 ```hlsl
-// 惑星（地面）に、遮られるか。
+// 惑星（地面）に遮られるか。
 float2 RaySphere(float3 origin, float3 dir, float radius);      // 交点までの、距離（2 つ。当たらなければ、負）
 
 bool HitsGround(float3 position, float3 dir) {
@@ -246,11 +246,11 @@ bool HitsGround(float3 position, float3 dir) {
 }
 ```
 
-太陽が地平線の 少し下に沈んだ後も 空が、しばらく明るいのは散乱した光が、回り込んでくるためです（[Day-Night Cycle](../sky-models/day-night.md)）。透過率だけでは直接の光が消える瞬間は、出せますが残照は出ません。
+太陽が地平線の 少し下に沈んだ後も 空がしばらく明るいのは散乱した光が回り込んでくるためです（[Day-Night Cycle](../sky-models/day-night.md)）。透過率だけでは直接の光が消える瞬間は、出せますが残照は出ません。
 
 ## よくあるミス
 
-??? failure "日没の太陽が、白いまま"
+??? failure "日没の太陽が白いまま"
     <strong>透過率を RGB ごと</strong>に計算する。
 
 ## これだけ覚える

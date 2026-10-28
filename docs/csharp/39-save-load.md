@@ -90,7 +90,7 @@ public sealed class ObjectDto
 
 `System.Text.Json` は .NET 標準の JSON ライブラリで、NuGet は要りません（C++ の nlohmann/json に当たります）。`[JsonPropertyName("version")]` は、C# のプロパティ名（`Version`）と JSON のキー名（`version`）を別にするための属性です。シリアライザーが読み書きするので、プロパティには `set` が要ります。保存用の型は、このように素朴に作ります。`= new()` や `= { 0, 0, 0 }` で初期値を入れておけば、ファイルにキーがなくても `null` になりません。
 
-次が、変換と読み書きです。まず保存の側です。
+次が変換と読み書きです。まず保存の側です。
 
 ```csharp title="Services/Serialization/SceneSerializer.cs"
 using System.Numerics;
@@ -319,7 +319,7 @@ public sealed class SceneFileService : ISceneFileService
 
         try
         {
-            // 重い処理（読み込みと解析）を、別のスレッドで行う
+            // 重い処理（読み込みと解析）を別のスレッドで行う
             SceneFileDto dto = await Task.Run(() => SceneSerializer.Parse(File.ReadAllText(path)));
 
             // 検証が通ったので、ドキュメントを作り直す（UI スレッドで）
@@ -365,7 +365,7 @@ public sealed class SceneFileService : ISceneFileService
 
 開く処理の流れは、「未保存なら確認」→「ファイルを選ぶ」→「別のスレッドで読んで検証する」→「UI スレッドでドキュメントを作り直す」です。`Task.Run(() => ...)` は、処理をスレッド プールの別のスレッドで実行して、`await` で結果を待ちます。大きなファイルでも UI が固まりません。
 
-ここで大事なのが、どのスレッドで何を触るかです。ドキュメントを触るのは UI スレッドだけにします。WPF では `await` のあと、実行は元のスレッド（UI スレッド）に戻ります。だから、`await Task.Run(...)` の次の行で、ドキュメントを触ってよいのです。`Parse` を別スレッドで済ませてから、`Apply` をこちらで行う 2 段階の形が、ここで活きます。
+ここで大事なのが、どのスレッドで何を触るかです。ドキュメントを触るのは UI スレッドだけにします。WPF では `await` のあと、実行は元のスレッド（UI スレッド）に戻ります。だから、`await Task.Run(...)` の次の行で、ドキュメントを触ってよいのです。`Parse` を別スレッドで済ませてから、`Apply` をこちらで行う 2 段階の形がここで活きます。
 
 `_document.Clear()` は、既存の物をすべて空にします。全部の物について `Destroyed` が発行されるので、エンジンのシーンも空になります。読み込んだあとは `_history.Clear()` で履歴を捨てます。別のシーンの Undo 履歴を引き継ぐと、混乱するからです。
 
@@ -529,7 +529,7 @@ public static class AppSettingsStore
 ??? failure "読み込み後に新規作成した物の ID が、既存と衝突する"
     `SceneDocument.Create(…, id)` が、`_nextId` を最大 ID の次に更新していません（第 34 章）。
 
-??? failure "「保存しますか？」が、保存直後にも出る"
+??? failure "「保存しますか？」が保存直後にも出る"
     `MarkSaved` を呼んでいないか、保存のあとの合体で保存点の中身が変わっています。
 
 ??? failure "`await` の後で `InvalidOperationException`（別のスレッドが所有）"

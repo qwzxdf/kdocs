@@ -29,7 +29,7 @@ tags:
 <rect x="150" y="150" width="70" height="50" fill="rgba(150,150,150,0.8)" stroke="currentColor" stroke-width="2"/><text x="140" y="140" style="font-size:12px">物体（地面に接している）</text>
 <rect x="220" y="196" width="140" height="8" fill="#111" opacity="0.85"/><rect x="220" y="196" width="22" height="8" fill="#e5484d" opacity="0.5"/>
 <text x="250" y="226" style="font-size:12px;fill:#e5484d;font-weight:700">接触部の影が欠ける</text>
-<text x="420" y="70" style="font-size:13px">原因：</text><text x="420" y="94" style="font-size:12px">・バイアスで深度を浮かせる → 近い所は影が出ない</text><text x="420" y="114" style="font-size:12px">・シャドウ マップの 1 テクセルが、物の大きさに比べて粗い</text>
+<text x="420" y="70" style="font-size:13px">原因：</text><text x="420" y="94" style="font-size:12px">・バイアスで深度を浮かせる → 近い所は影が出ない</text><text x="420" y="114" style="font-size:12px">・シャドウ マップの 1 テクセルが物の大きさに比べて粗い</text>
 <text x="420" y="152" style="font-size:13px">解決：</text><text x="420" y="176" style="font-size:11px">画面の深度で、短い距離を調べる → 接触部だけ、細かく影を補う</text>
 </svg>
 
@@ -39,8 +39,8 @@ tags:
 <defs><marker id="arr-contact-shadow-march" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">コンタクト シャドウ: 画面の深度を、光の方向へたどって、物の足元の細かい影を作る</text>
-<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。地面に、高さ 1.5 の小さな物。シャドウ マップ(荒い)で見逃す足元の影を、画面の深度で補う</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">コンタクト シャドウ: 画面の深度を光の方向へたどって、物の足元の細かい影を作る</text>
+<text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。地面に高さ 1.5 の小さな物。シャドウ マップ(荒い)で見逃す足元の影を画面の深度で補う</text>
 <rect x="30" y="96" width="900" height="190" fill="#ffffff" stroke="#e5aa28" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#e5aa28">① 断面(光は左上から)</text>
 <line x1="40" y1="244.0" x2="872.0" y2="244.0" stroke="#94a3b8" stroke-width="3"/>
@@ -246,8 +246,8 @@ tags:
 <text x="576" y="409" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">コンタクトだけ: 3 画素(遠い影に届かない)</text>
 <text x="576" y="432" text-anchor="start" style="font-size:14px;font-weight:700;fill:#166534">両方: 0 画素 → 足元まで影が付く</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">荒いシャドウ マップは、物の足元の短い影を、バイアスで見逃す<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">画面の深度を、光の方向に 6 歩たどると、足元の短い影が見つかる(遠くの影は、届かない)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.9328;0.9330;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">荒いシャドウ マップは、物の足元の短い影をバイアスで見逃す<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">画面の深度を光の方向に 6 歩たどると、足元の短い影が見つかる(遠くの影は、届かない)<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.0696;0.0698;0.9328;0.9330;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">遠くの大きな影はシャドウ マップ、足元の細かい影はコンタクト、と役割を分ける<animate attributeName="opacity" dur="21.5s" repeatCount="indefinite" keyTimes="0.0000;0.9328;0.9330;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -298,7 +298,7 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 
 ## 厚みの問題
 
-<strong>深度バッファは、「一番手前の面」の深度しか持たない</strong>ので、その面の厚み（裏側までの奥行き）が、分かりません。
+<strong>深度バッファは、「一番手前の面」の深度しか持たない</strong>ので、その面の厚み（裏側までの奥行き）が分かりません。
 
 厚みの設定による結果です。薄すぎると、細い物（柵・草）をすり抜けることがあります。厚すぎると、遠くの面の手前を通っただけでも遮蔽扱いになり、誤った影が出ます。適度な値は、シーンに合わせて調整し、距離や物のスケールで変えます。
 
@@ -347,7 +347,7 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
     <strong>小さなバイアス</strong>を入れる、レイの開始位置を法線方向に少しずらす。
 
 ??? failure "遠くの面の手前を通っただけで、影になる"
-    厚み（`kThickness`）を、設定します。
+    厚み（`kThickness`）を設定します。
 
 ??? failure "非線形の深度のまま比べて、距離でおかしくなる"
     線形な深度（ビュー空間の z）で、比べます。
@@ -358,7 +358,7 @@ float ContactShadow(float3 view_pos, float3 light_dir_view, float2 pixel, float 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] コンタクト シャドウ ＝ <strong>画素から光の方向へ、深度バッファ上で短いレイを進め</strong>、遮蔽を調べる
+    - [x] コンタクト シャドウ ＝ <strong>画素から光の方向へ深度バッファ上で短いレイを進め</strong>、遮蔽を調べる
     - [x] シャドウ マップの、接触部の欠け・ピーター パンニングを補う
     - [x] 厚みの仮定が必要（薄すぎ → すり抜け、厚すぎ → 誤った影）
     - [x] 画面にある物しか見えない（補助として使う）

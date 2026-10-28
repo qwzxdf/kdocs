@@ -14,7 +14,7 @@ tags:
 `#include <future>`
 </div>
 
-`future_error` がなぜ投げられたかを、`future_errc` の値で区別できます。`broken_promise`（約束が果たされなかった）、`future_already_retrieved`（`get_future` の二重呼び出し）、`promise_already_satisfied`（値を二重に設定）、`no_state`（状態がない）の 4 つです。
+`future_error` がなぜ投げられたかを `future_errc` の値で区別できます。`broken_promise`（約束が果たされなかった）、`future_already_retrieved`（`get_future` の二重呼び出し）、`promise_already_satisfied`（値を二重に設定）、`no_state`（状態がない）の 4 つです。
 
 !!! tip "ポイント"
     - `broken_promise`: `promise` が値を設定する前に破棄された。

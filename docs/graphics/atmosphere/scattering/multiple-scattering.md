@@ -12,7 +12,7 @@ tags:
     - 単散乱だけだと暗すぎる。
     - 多重散乱は全方向からの光の和。
     - LUT で近似的に計算する（Hillaire 2020）。
-    - 空の暗部・影・雲が、自然になる。
+    - 空の暗部・影・雲が自然になる。
 
 !!! info "このページを読む前に"
     - [Atmospheric Scattering](index.md)（このセクション全体の地図と、読む順番）
@@ -79,26 +79,26 @@ Hillaire の近似は大胆な仮定に基づいています。「2 次以降の
 <text x="240" y="414" text-anchor="start" style="font-size:28px;font-weight:700;fill:#7c3aed" opacity="0">59<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.5287;0.5289;1.0000" values="0;0;1;1"/></text>
 <g opacity="0"><animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.6932;0.6933;1.0000" values="0;0;1;1"/><rect x="40" y="440" width="880" height="70" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
 <text x="56" y="464" text-anchor="start" style="font-size:14px;font-weight:700;fill:#1e3a8a">雲(アルベド 0.95 以上)は、1 回の散乱では、全体の 5% しか光らない。20 回以上必要</text>
-<text x="56" y="487" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">毎回レイマーチで何十回も散らせるのは無理 → 少数の回数を、減衰を弱めて、足す近似(オクターブ)を使う</text>
+<text x="56" y="487" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">毎回レイマーチで何十回も散らせるのは無理 → 少数の回数を減衰を弱めて、足す近似(オクターブ)を使う</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">光は、媒質の中で、何度も散る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">アルベドが高いほど、後の回数まで、光が残る<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.7065;0.7067;1.0000" values="0;0;1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">雲や霧は、アルベドが高い。多重散乱を、近似で足す<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000;1.0000" values="0;0;1;1;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">雲や霧は、アルベドが高い。多重散乱を近似で足す<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.7065;0.7067;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
 <!-- fig:multi-scatter-sum:end -->
 
 ## 多重散乱：なぜ必要か
 
-[Single-Scattering Integral](single-scattering.md) では <strong>光が、1 回だけ散乱</strong>する場合を扱いました。しかし、実際の光は 何度も散乱を繰り返します。2 回目以降の散乱を足さないと空が暗く色が、不足します。
+[Single-Scattering Integral](single-scattering.md) では <strong>光が 1 回だけ散乱</strong>する場合を扱いました。しかし、実際の光は 何度も散乱を繰り返します。2 回目以降の散乱を足さないと空が暗く色が不足します。
 
 | 散乱の回数 | 内容 |
 | --- | --- |
 | 1 回 | 太陽の光が 1 回だけ曲がって、カメラへ |
-| 2 回 | 1 回目に曲がった光が、もう 1 回、別の点で曲がってカメラへ |
-| 3 回以上 | さらに続く。光は回数が増えるほど弱く全方向に、均される |
+| 2 回 | 1 回目に曲がった光がもう 1 回、別の点で曲がってカメラへ |
+| 3 回以上 | さらに続く。光は回数が増えるほど弱く全方向に均される |
 
-地球の大気では 2 回目以降の、散乱が 空の明るさの 2 割〜3 割を、占めます。夕方・夜明け（太陽が低い）では割合が、さらに大きくなります。
+地球の大気では 2 回目以降の、散乱が 空の明るさの 2 割〜3 割を占めます。夕方・夜明け（太陽が低い）では割合がさらに大きくなります。
 
 ## 光が何度も散乱すると
 
@@ -108,28 +108,28 @@ Hillaire の近似は大胆な仮定に基づいています。「2 次以降の
 
 Hillaire（2020）は、多重散乱を <strong>次の 2 つの仮定</strong>で、近似しました。
 
-1. 2 回目以降の散乱は位相関数が、等方（`1 / 4π`）
-2. ある点での多重散乱の光は、その点の周りの情報で決まる（空間的に、ゆるやかに変化する）
+1. 2 回目以降の散乱は位相関数が等方（`1 / 4π`）
+2. ある点での多重散乱の光は、その点の周りの情報で決まる（空間的にゆるやかに変化する）
 
-この仮定の下では 多重散乱の、総和は 等比級数で解析的に、表せます。
+この仮定の下では 多重散乱の、総和は 等比級数で解析的に表せます。
 
 ```text
 全散乱 = L₂ × (1 + f + f² + f³ + …) = L₂ / (1 − f)        （f < 1）
 ```
 
-`L₂` は 2 回散乱の光、`f` は 「1 回散乱するたびに光が、散乱して再びその点の周りへ戻ってくる、割合」です。
+`L₂` は 2 回散乱の光、`f` は 「1 回散乱するたびに光が散乱して再びその点の周りへ戻ってくる、割合」です。
 
 ## 多重散乱 LUT
 
-<strong>高度</strong>と 太陽の天頂角の、2 変数に依存する `L₂` と `f` を小さな、LUT（Hillaire は 32×32）に、事前計算します。
+<strong>高度</strong>と 太陽の天頂角の、2 変数に依存する `L₂` と `f` を小さな、LUT（Hillaire は 32×32）に事前計算します。
 
 ### 計算の考え方
 
-各点（高度 `h`、太陽の天頂角 `θ_s`）で 球面上の、全方向に視線を 飛ばし、各方向の 1 回散乱の光（`L₂` の、材料）とその方向の透過率（`f` の材料）を、積分します。
+各点（高度 `h`、太陽の天頂角 `θ_s`）で 球面上の、全方向に視線を 飛ばし、各方向の 1 回散乱の光（`L₂` の、材料）とその方向の透過率（`f` の材料）を積分します。
 
 ```hlsl
-// 多重散乱 LUT の、1 つの画素（= 1 つの、高度と、太陽の角度）を、計算する。
-// 全方向（64 方向）に、視線を飛ばし、2 つの量を、平均する:
+// 多重散乱 LUT の、1 つの画素（= 1 つの、高度と、太陽の角度）を計算する。
+// 全方向（64 方向）に視線を飛ばし、2 つの量を平均する:
 //   L2: 等方な位相関数で、1 回散乱した光（= 2 回目の散乱の、光源）
 //   f:  各方向の、散乱で、再び、その点へ戻る、割合
 [numthreads(1, 1, 64)]
@@ -146,35 +146,35 @@ LUT の 横軸が太陽の天頂角、縦軸が高度です。64 本の方向を
   float3 sun_dir = float3(0.0, cos_sun_zenith, sqrt(saturate(1.0 - cos_sun_zenith * cos_sun_zenith)));
   float3 world_pos = float3(0.0, view_height, 0.0);
 
-  // 球面上の 64 方向（フィボナッチ螺旋などで、均等に）。各スレッドが、1 方向を担当。
+  // 球面上の 64 方向（フィボナッチ螺旋などで、均等に）。各スレッドが 1 方向を担当。
   float3 ray_dir = SphereDirection(group_index, 64);
   float3 L2 = 0.0;                                    // この方向の、「等方な 1 回散乱」
   float3 f_ms = 0.0;                                  // この方向の、「戻ってくる割合」
 ```
 
-方向の選び方は 球面を均等に、覆うパターンです。64 方向で滑らかな LUT が、得られます。
+方向の選び方は 球面を均等に覆うパターンです。64 方向で滑らかな LUT が、得られます。
 
 ```hlsl
-  // この方向に、視線を進めて、1 回散乱（位相関数は、等方 = 1/4π）を、積分する。
+  // この方向に視線を進めて、1 回散乱（位相関数は、等方 = 1/4π）を積分する。
   IntegrateMultiScatter(world_pos, ray_dir, sun_dir, /*out*/ L2, /*out*/ f_ms);
 
-  // 64 方向を、グループ内で、合計して、平均する（共有メモリで、リダクション）。
+  // 64 方向をグループ内で、合計して、平均する（共有メモリで、リダクション）。
   // ... 合計の処理 ...
 
-  // 最終結果: 等比級数の、和。f が 1 に近いほど、多重散乱が、強い。
+  // 最終結果: 等比級数の、和。f が 1 に近いほど、多重散乱が強い。
   float3 multi_scattering = L2 / (1.0 - f_ms);
   g_multi_scattering_lut[id.xy] = multi_scattering;
 }
 ```
 
-`IntegrateMultiScatter` の中身は 1 回散乱の積分（[Single-Scattering Integral](single-scattering.md)）と、ほぼ同じですが位相関数が、等方（`1 / 4π`）で同時に `f_ms` も足します。
+`IntegrateMultiScatter` の中身は 1 回散乱の積分（[Single-Scattering Integral](single-scattering.md)）と、ほぼ同じですが位相関数が等方（`1 / 4π`）で同時に `f_ms` も足します。
 
 ## 空の計算で使う
 
 <strong>多重散乱 LUT</strong> は 1 回散乱の、ループの中で各点に足すだけです。
 
 ```hlsl
-    // 各サンプル点で、多重散乱の光を、足す（LUT を、1 回、読むだけ）。
+    // 各サンプル点で、多重散乱の光を足す（LUT を 1 回、読むだけ）。
     float2 ms_uv = float2(saturate(cos_sun_zenith_at_p * 0.5 + 0.5), saturate((h - g_bottom_radius) / (g_top_radius - g_bottom_radius)));
     float3 multi = g_multi_scattering_lut.SampleLevel(g_linear_clamp, ms_uv, 0).rgb;
     float3 scatter = (g_rayleigh_scatter * density_r + g_mie_scatter * density_m) * (sun_t * phase_term * sun_illuminance + multi * sun_illuminance);
@@ -187,16 +187,16 @@ LUT の 横軸が太陽の天頂角、縦軸が高度です。64 本の方向を
 | 状況 | 1 回散乱のみ | 多重散乱あり |
 | --- | --- | --- |
 | 昼の空の明るさ | 暗め | 実際の明るさ |
-| 太陽が低い空 | 暗く色が、不足 | 全体が明るく紫〜青の、グラデーション |
-| 雲の中や霧の中 | 暗い（光が奥まで、届かない） | 明るい（光が散乱を、繰り返して奥まで届く） |
+| 太陽が低い空 | 暗く色が不足 | 全体が明るく紫〜青の、グラデーション |
+| 雲の中や霧の中 | 暗い（光が奥まで、届かない） | 明るい（光が散乱を繰り返して奥まで届く） |
 
 ## 雲・霧の多重散乱
 
-雲は <strong>ミー散乱が強く</strong>、アルベド（散乱の割合）が、高い（ほぼ 1）ため光が何十回も、散乱します。多重散乱を無視すると雲の内部が暗く、墨のようになります。
+雲は <strong>ミー散乱が強く</strong>、アルベド（散乱の割合）が高い（ほぼ 1）ため光が何十回も、散乱します。多重散乱を無視すると雲の内部が暗く、墨のようになります。
 
 | 方法 | 内容 |
 | --- | --- |
-| オクターブによる近似（Wrenninge、2015） | 散乱を数段階（オクターブ）に分け、各段階で減衰を弱め位相関数を等方に、近づける。各オクターブを足し合わせる |
+| オクターブによる近似（Wrenninge、2015） | 散乱を数段階（オクターブ）に分け、各段階で減衰を弱め位相関数を等方に近づける。各オクターブを足し合わせる |
 | 事前計算 | 雲の密度から、多重散乱のライトマップを作る |
 
 ```hlsl
@@ -208,7 +208,7 @@ float3 MultiScatterOctaves(float density_along_light, float cos_theta) {
     float phase = DualLobePhase(cos_theta, 0.8 * c, -0.5 * c, 0.7);
     sum += a * phase * exp(-density_along_light * g_sigma_t * b);
     a *= 0.5;                                // 散乱量は、半分ずつ
-    b *= 0.25;                               // 減衰は、弱く（光が、深くまで、届く）
+    b *= 0.25;                               // 減衰は、弱く（光が深くまで、届く）
     c *= 0.5;                                // 位相関数の、偏りは、弱く（等方に近づく）
   }
   return sum;
@@ -219,13 +219,13 @@ float3 MultiScatterOctaves(float density_along_light, float cos_theta) {
 
 ## よくあるミス
 
-??? failure "影になる部分の空が、真っ黒"
+??? failure "影になる部分の空が真っ黒"
     <strong>多重散乱</strong>を足す。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 何度も散乱した光を、近似で足す
+    - [x] 何度も散乱した光を近似で足す
 
 ## 参考
 

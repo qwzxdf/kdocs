@@ -15,7 +15,7 @@ tags:
 `#include <concepts>`
 </div>
 
-テンプレートの引数に、特定の基底クラスを継承した型だけを受け付けたい。`std::derived_from<Derived, Base>` は、<strong>Derived が Base から公開継承されているか</strong>を要求するコンセプトです。
+テンプレートの引数に特定の基底クラスを継承した型だけを受け付けたい。`std::derived_from<Derived, Base>` は、<strong>Derived が Base から公開継承されているか</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
     - `std::derived_from<Derived, Base>` は、`Derived` が `Base` の派生クラスか

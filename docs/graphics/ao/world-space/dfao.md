@@ -28,7 +28,7 @@ tags:
 <defs><marker id="arr-dfao-cone" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">距離場 AO: 法線方向へ、円錐を数歩だけ進み、「距離場の値が、進んだ距離より小さい分」を遮蔽にする</text>
+<text x="30" y="32" text-anchor="start" style="font-size:22px;font-weight:700;fill:#1f2937">距離場 AO: 法線方向へ円錐を数歩だけ進み、「距離場の値が進んだ距離より小さい分」を遮蔽にする</text>
 <text x="30" y="52" text-anchor="start" style="font-size:13px;font-weight:500;fill:#64748b">断面。壁の近くの床の点。壁までの距離 a を 0.2 → 0.5 → 1.0 → 2.0 にして、5 歩の計算で AO を求める</text>
 <rect x="30" y="96" width="560" height="300" fill="#ffffff" stroke="#2563eb" stroke-width="1.8" rx="6"/>
 <text x="30" y="86" text-anchor="start" style="font-size:15px;font-weight:700;fill:#2563eb">① 断面(灰 = 壁、円 = 距離場の値)</text>
@@ -127,7 +127,7 @@ tags:
 <text x="376" y="457" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">読み込みは 5 回(距離場の 3D テクスチャ)。画素ごとの深度のサンプルより、少ない</text>
 </g>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">距離場は、各点から、いちばん近い物までの距離<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">円錐の中心を数歩進み、距離場が、進んだ距離より小さければ、その分が遮蔽<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.9198;0.9200;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">円錐の中心を数歩進み、距離場が進んだ距離より小さければ、その分が遮蔽<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.0665;0.0667;0.9198;0.9200;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">画面に映らない物も、遮蔽に数えられる<animate attributeName="opacity" dur="22.5s" repeatCount="indefinite" keyTimes="0.0000;0.9198;0.9200;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 

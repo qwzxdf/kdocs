@@ -120,7 +120,7 @@ bool request_stop() noexcept;
 
 - 計算量: 定数
 
-スレッドに、停止を要求します。スレッド関数が受け取った `stop_token` で確かめて、自分で終了します。デストラクタでも、自動で呼ばれます。
+スレッドに停止を要求します。スレッド関数が受け取った `stop_token` で確かめて、自分で終了します。デストラクタでも、自動で呼ばれます。
 
 ### get_stop_source {#get_stop_source}
 
@@ -173,7 +173,7 @@ done
 
 ## ゲームでの使いどころ
 
-`std::thread` の代わりに、いつも `std::jthread` を使います。ワーカースレッドの関数の第 1 引数に `std::stop_token` を受ける形にすると、`request_stop()` で終了を伝えられます。ゲームの終了時に、裏のスレッド（ロード、サウンド、ネットワーク）を安全に止められます。
+`std::thread` の代わりに、いつも `std::jthread` を使います。ワーカースレッドの関数の第 1 引数に `std::stop_token` を受ける形にすると、`request_stop()` で終了を伝えられます。ゲームの終了時に裏のスレッド（ロード、サウンド、ネットワーク）を安全に止められます。
 
 ```cpp
 std::jthread worker([](std::stop_token st) {

@@ -11,7 +11,7 @@ C++ の入門書や、cppreference のようなリファレンスは、「何が
 - <strong>どんな場面で使うの？</strong>（仕様は分かっても、使いどころが分からない）
 - <strong>遅くないの？ 使ってはいけない場面は？</strong>（リファレンスは、速さや落とし穴をあまり教えてくれない）
 
-このサイトは、その 3 つに答えるために作った、ゲーム制作をしている学生のための <strong>C++23 のノート</strong>です。全部を説明するのではなく、<strong>「9 割はこう使う」「これは覚えなくていい」「ここでハマる」「遅いからやめたほうがいい」</strong> を、動く実例つきで書いています。正確な仕様が必要になったら、[cpprefjp](https://cpprefjp.github.io/) や [cppreference](https://en.cppreference.com/) を見てください。
+このサイトは、その 3 つに答えるために作った、ゲーム制作をしている学生のための <strong>C++23 のノート</strong>です。全部を説明するのではなく、<strong>「9 割はこう使う」「これは覚えなくていい」「ここでハマる」「遅いからやめたほうがいい」</strong> を動く実例つきで書いています。正確な仕様が必要になったら、[cpprefjp](https://cpprefjp.github.io/) や [cppreference](https://en.cppreference.com/) を見てください。
 
 ## 目次
 

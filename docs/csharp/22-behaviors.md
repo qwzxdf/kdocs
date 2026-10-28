@@ -29,7 +29,7 @@ NuGet を足さなくても、次のものは XAML だけで書けます。
 </ListBox>
 ```
 
-`Key` と `Modifiers`（`Control` など）の組み合わせでキー操作、`MouseBinding` でダブルクリックなどのマウス操作を、コマンドに結べます。ショートカットやダブルクリックなら、これで足ります。第 35 章の `Delete` や `F2` もこの方法でした。
+`Key` と `Modifiers`（`Control` など）の組み合わせでキー操作、`MouseBinding` でダブルクリックなどのマウス操作をコマンドに結べます。ショートカットやダブルクリックなら、これで足ります。第 35 章の `Delete` や `F2` もこの方法でした。
 
 ### コマンドを持つコントロール
 
@@ -61,7 +61,7 @@ xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
 </Window>
 ```
 
-`EventTrigger` が「どのイベントを待つか」、`InvokeCommandAction` が「起きたらどのコマンドを呼ぶか」です。`PassEventArgsToCommand="True"` を付けると、イベントの引数（`CancelEventArgs` など）が、コマンドの引数として渡されます。
+`EventTrigger` が「どのイベントを待つか」、`InvokeCommandAction` が「起きたらどのコマンドを呼ぶか」です。`PassEventArgsToCommand="True"` を付けると、イベントの引数（`CancelEventArgs` など）がコマンドの引数として渡されます。
 
 ビューモデル側では、渡された引数を使えます。
 

@@ -6,7 +6,7 @@ tags:
 
 # ExecuteIndirect
 
-カリング CS が書いた**コマンド バッファ**を、GPU が自分で読んで描画するのが `ExecuteIndirect` です。CPU は「描画の回数」を知らなくて済みます。このページでは、コマンド シグネチャの作り方・ルート定数をコマンドごとに書き換える仕組み・描画用のルート シグネチャとシェーダー・PSO バケットごとの呼び出し・最大数とカウント バッファ・ExecuteIndirect の後のルート状態の注意を、実コードで解説します。
+カリング CS が書いた**コマンド バッファ**を GPU が自分で読んで描画するのが `ExecuteIndirect` です。CPU は「描画の回数」を知らなくて済みます。このページでは、コマンド シグネチャの作り方・ルート定数をコマンドごとに書き換える仕組み・描画用のルート シグネチャとシェーダー・PSO バケットごとの呼び出し・最大数とカウント バッファ・ExecuteIndirect の後のルート状態の注意を実コードで解説します。
 
 !!! tip "ポイント"
     - <strong>コマンド シグネチャ</strong> ＝ <strong>「1 コマンドの中身の並び」</strong>（ルート定数 → Draw など）をGPU に教えるオブジェクト。
@@ -223,12 +223,12 @@ void ExecuteIndirect(ID3D12CommandSignature* command_signature, UINT max_command
 
 ## ExecuteIndirect 後のルート状態
 
-**`ExecuteIndirect` の引数に、ルート引数の変更（ここではルート定数）が含まれる**場合、呼び出し後、そのルート引数の値は、不定になります（仕様）。次の描画でルート定数に依存するなら、再設定が必要です。
+**`ExecuteIndirect` の引数にルート引数の変更（ここではルート定数）が含まれる**場合、呼び出し後、そのルート引数の値は、不定になります（仕様）。次の描画でルート定数に依存するなら、再設定が必要です。
 
 | 状況 | 対処 |
 | --- | --- |
 | 次の `ExecuteIndirect`（同じシグネチャ） | ルート定数はコマンドごとに書かれるので、問題ない |
-| 通常の `DrawIndexedInstanced` が続く | ルート定数 `b1` を、`SetGraphicsRoot32BitConstant` で再設定 |
+| 通常の `DrawIndexedInstanced` が続く | ルート定数 `b1` を `SetGraphicsRoot32BitConstant` で再設定 |
 | コマンド リストの別の場所 | ルート シグネチャを再設定・全ルート引数を再バインドすると安全 |
 
 ## 引数バッファの状態と、複数のキュー
@@ -251,11 +251,11 @@ void ExecuteIndirect(ID3D12CommandSignature* command_signature, UINT max_command
 | `..._SHADER_RESOURCE_VIEW` / `..._UNORDERED_ACCESS_VIEW` | ルート SRV/UAV の GPU アドレス（8 バイト） |
 | `D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH` / `DISPATCH_MESH` | コンピュート／メッシュ シェーダーのディスパッチ |
 
-今回は、「巨大な共有頂点バッファ」を1 つ使うので頂点バッファ ビューを、コマンドごとに変える必要がありません。メッシュごとに別バッファを使う設計では、これらをコマンドに含めます（コマンドが大きくなる）。
+今回は、「巨大な共有頂点バッファ」を1 つ使うので頂点バッファ ビューをコマンドごとに変える必要がありません。メッシュごとに別バッファを使う設計では、これらをコマンドに含めます（コマンドが大きくなる）。
 
 ## 描画数の上限とデバッグ用の読み戻し
 
-**実際に何個描かれたか**を、CPU で確認したいことがあります（統計・デバッグ）。カウント バッファをリードバック ヒープにコピーします。
+**実際に何個描かれたか**を CPU で確認したいことがあります（統計・デバッグ）。カウント バッファをリードバック ヒープにコピーします。
 
 ```cpp
 void Renderer::RecordReadbackCounts(ID3D12GraphicsCommandList* list) {
@@ -281,22 +281,22 @@ void Renderer::RecordReadbackCounts(ID3D12GraphicsCommandList* list) {
 ??? failure "IndirectCommand の並びと、コマンド シグネチャの引数の並びが違って、描画が壊れる"
     **メモリ配置 ＝ 引数配列の順序**。`static_assert(sizeof(IndirectCommand) == ByteStride)`。
 
-??? failure "ルート定数を含むシグネチャを、ルート シグネチャ nullptr で作って失敗する"
+??? failure "ルート定数を含むシグネチャをルート シグネチャ nullptr で作って失敗する"
     ルート引数の変更を含む場合は、ルート シグネチャを指定する。
 
-??? failure "`DRAW_INDEXED` を、引数配列の途中に置く"
+??? failure "`DRAW_INDEXED` を引数配列の途中に置く"
     Draw/Dispatch 系は、最後。
 
 ??? failure "ExecuteIndirect の後、ルート定数に依存する通常のドローで、値が不定"
     ルート定数を再設定する。
 
 ??? failure "引数バッファが `INDIRECT_ARGUMENT` 状態でなく、デバッグ レイヤーがエラー"
-    UAV 書き込みの後に、状態遷移。
+    UAV 書き込みの後に状態遷移。
 
 ??? failure "カウントが最大数を超えているのに、超過分が読まれて壊れる"
     `ExecuteIndirect` は、`min(カウント, 最大数)` で切り詰める。シェーダー側でも、`slot >= MAX` では書かない。
 
-??? failure "PSO の異なる物を、同じ ExecuteIndirect に混ぜる"
+??? failure "PSO の異なる物を同じ ExecuteIndirect に混ぜる"
     PSO ごとにバケットを分け、バケットごとに呼ぶ。
 
 ## これだけ覚える

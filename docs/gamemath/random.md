@@ -131,7 +131,7 @@ class Xorshift32 {
 
 ## 円・球の中の一様な点
 
-「円の中のランダムな点」を、**半径と角度を乱数で決める**と、中心に偏ってしまいます。
+「円の中のランダムな点」を**半径と角度を乱数で決める**と、中心に偏ってしまいます。
 
 ```cpp
 float r = radius * unit(engine);
@@ -232,7 +232,7 @@ void Shuffle(std::vector<T>& v, std::mt19937& engine) {
 }
 ```
 
-標準の `std::shuffle`（`<algorithm>`）が、同じことをします。
+標準の `std::shuffle`（`<algorithm>`）が同じことをします。
 
 | 点 | 説明 |
 | --- | --- |
@@ -302,7 +302,7 @@ fBm(x) = Σ  振幅_i × noise(x × 周波数_i)   （i = 0, 1, 2, ...）
 <defs><marker id="arr-weighted-pick" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1f2937"/>
 </marker>
 </defs>
-<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">重み付き抽選: 重みを並べた帯に、乱数で矢を刺す</text>
+<text x="20" y="28" text-anchor="start" style="font-size:17px;font-weight:700;fill:#1f2937">重み付き抽選: 重みを並べた帯に乱数で矢を刺す</text>
 <rect x="70.0" y="150" width="320.0" height="50" fill="#64748b" opacity="0.9"/>
 <text x="230.0" y="172" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">ノーマル</text>
 <text x="230.0" y="190" text-anchor="middle" style="font-size:12px;font-weight:700;fill:#ffffff">50</text>
@@ -324,7 +324,7 @@ fBm(x) = Σ  振幅_i × noise(x × 周波数_i)   （i = 0, 1, 2, ...）
 <g opacity="0"><animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5928;0.5931;1.0000" values="0;0;1;1"/><line x1="690.8" y1="100" x2="690.8" y2="146" stroke="#e5484d" stroke-width="4" marker-end="url(#arr-weighted-pick)"/>
 <text x="690.8" y="92" text-anchor="middle" style="font-size:13px;font-weight:700;fill:#e5484d">乱数 97</text>
 </g>
-<text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">重みの合計 100 の帯を、重みの長さで分ける<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
+<text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">重みの合計 100 の帯を重みの長さで分ける<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;1.0000" values="1;1;0;0"/></text>
 <text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">0〜99 の乱数 12 → ノーマル<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.0687;0.0690;0.3308;0.3310;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">0〜99 の乱数 63 → レア<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.3308;0.3310;0.5928;0.5931;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="390" y="280" text-anchor="middle" style="font-size:15px;font-weight:700;fill:#1f2937" opacity="0">0〜99 の乱数 97 → 伝説<animate attributeName="opacity" dur="14.5s" repeatCount="indefinite" keyTimes="0.0000;0.5928;0.5931;1.0000;1.0000" values="0;0;1;1;0"/></text>
@@ -341,7 +341,7 @@ fBm(x) = Σ  振幅_i × noise(x × 周波数_i)   （i = 0, 1, 2, ...）
 ??? failure "毎回エンジンを作り直して、同じ値が続く"
     エンジンは、1 つを使い回します。
 
-??? failure "円の中の点を、半径を一様にして決め、中心に偏る"
+??? failure "円の中の点を半径を一様にして決め、中心に偏る"
     半径に `√` を掛けます。
 
 ??? failure "演出とゲーム内容で、同じエンジンを共有して、再現できなくなる"

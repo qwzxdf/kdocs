@@ -14,7 +14,7 @@ tags:
 `#include <utility>`
 </div>
 
-`std::in_place` は、**`optional`、`variant`、`any` などの中に、オブジェクトを「コピーせず、その場で」構築するための印**です。`std::optional<std::string> o(std::in_place, 3, 'a');` のように、最初の引数に渡すと、残りの引数がコンストラクターに渡されます。`in_place_type<T>` / `in_place_index<N>` は、`variant` で型や番号を指定するときに使います。
+`std::in_place` は、**`optional`、`variant`、`any` などの中にオブジェクトを「コピーせず、その場で」構築するための印**です。`std::optional<std::string> o(std::in_place, 3, 'a');` のように、最初の引数に渡すと、残りの引数がコンストラクターに渡されます。`in_place_type<T>` / `in_place_index<N>` は、`variant` で型や番号を指定するときに使います。
 
 !!! tip "ポイント"
     - コンストラクターの引数をそのまま渡せる（一時オブジェクトを作らない）。
@@ -42,7 +42,7 @@ inline constexpr std::in_place_t in_place{};
 #include <string>
 
 int main() {
-  // string(3, 'a') を、optional の中でその場で構築する
+  // string(3, 'a') を optional の中でその場で構築する
   std::optional<std::string> name(std::in_place, 3, 'a');
   std::println("{}", *name);
 }

@@ -15,7 +15,7 @@ tags:
 `#include <type_traits>`
 </div>
 
-ハードウェアのレジスターのように、最適化で読み書きを省いてはいけない変数を、`volatile` で表します。`std::is_volatile` は、<strong>型が `volatile` か</strong>を調べます。
+ハードウェアのレジスターのように、最適化で読み書きを省いてはいけない変数を `volatile` で表します。`std::is_volatile` は、<strong>型が `volatile` か</strong>を調べます。
 
 !!! tip "ポイント"
     - `std::is_volatile_v<T>` は、`T` が `volatile` 修飾されているか

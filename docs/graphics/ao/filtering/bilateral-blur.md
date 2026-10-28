@@ -325,8 +325,8 @@ tags:
 <text x="536" y="463" text-anchor="start" style="font-size:14px;font-weight:700;fill:#991b1b">輪郭の近く(8 画素): ガウス 0.080 / バイラテラル 0.039</text>
 <text x="536" y="486" text-anchor="start" style="font-size:12px;font-weight:700;fill:#64748b">ガウスは輪郭を越えて混ぜるので、段差がにじむ</text>
 </g>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ノイズのある AO を、ぼかして消したい<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0511;0.0513;1.0000" values="1;1;0;0"/></text>
-<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">左から右へ、各画素の周り 11 画素を、重み付きで平均する<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0511;0.0513;0.4449;0.4451;1.0000" values="0;0;1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">ノイズのある AO をぼかして消したい<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0511;0.0513;1.0000" values="1;1;0;0"/></text>
+<text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">左から右へ各画素の周り 11 画素を重み付きで平均する<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.0511;0.0513;0.4449;0.4451;1.0000" values="0;0;1;1;0;0"/></text>
 <text x="30" y="534" text-anchor="start" style="font-size:14px;font-weight:500;fill:#64748b" opacity="0">バイラテラルは、深度が違う画素の重みを 0 に近づけるので、輪郭が保たれる<animate attributeName="opacity" dur="19.5s" repeatCount="indefinite" keyTimes="0.0000;0.4449;0.4451;1.0000;1.0000" values="0;0;1;1;0"/></text>
 </svg>
 
@@ -410,7 +410,7 @@ ID3D11ShaderResourceView* srvs_h[] = {ao_raw_srv.Get(), depth_srv.Get(), normal_
 context->PSSetShaderResources(0, 3, srvs_h);
 DrawFullscreenTriangle();
 
-// 縦ブラー: ao_temp → ao_blurred（同じテクスチャを、読み書きしない。別のテクスチャに出す）
+// 縦ブラー: ao_temp → ao_blurred（同じテクスチャを読み書きしない。別のテクスチャに出す）
 SetBlurConstants({0, 1}, texel, 16.0f);
 context->OMSetRenderTargets(1, ao_blurred_rtv.GetAddressOf(), nullptr);
 ID3D11ShaderResourceView* srvs_v[] = {ao_temp_srv.Get(), depth_srv.Get(), normal_srv.Get()};
@@ -418,14 +418,14 @@ context->PSSetShaderResources(0, 3, srvs_v);
 DrawFullscreenTriangle();
 ```
 
-2 つのパスの間で書き込みの束縛を外してから、読み取りに切り替えます（読みながら書けない）。AO はポイント サンプラーで読み 隣の画素と補間しないようにします（補間すると境界を、またいで混ざります）。
+2 つのパスの間で書き込みの束縛を外してから、読み取りに切り替えます（読みながら書けない）。AO はポイント サンプラーで読み 隣の画素と補間しないようにします（補間すると境界をまたいで混ざります）。
 
 ## ガウスの重みを作る
 
 空間の重み（距離が近いほど大）はガウス関数で、起動時に計算して定数にします。
 
 ```cpp
-// 半径 radius のガウスの重み（中心から片側 radius+1 個）を、合計が 1 になるように、正規化して作る。
+// 半径 radius のガウスの重み（中心から片側 radius+1 個）を合計が 1 になるように、正規化して作る。
 std::vector<float> MakeGaussianWeights(int radius, float sigma) {
   std::vector<float> w(radius + 1);
   float sum = 0.0f;

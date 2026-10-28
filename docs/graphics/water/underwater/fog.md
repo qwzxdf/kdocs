@@ -12,7 +12,7 @@ tags:
     - 指数フォグ：距離が遠いほど、水の色に近づく。
     - 水の吸収係数を使う（赤が先に消える）。
     - 深いほど暗くする。
-    - 水面からの光の量を、深さで減らす。
+    - 水面からの光の量を深さで減らす。
 
 !!! info "このページを読む前に"
     - [Underwater Rendering](index.md)（このセクション全体の地図と、読む順番）
@@ -54,11 +54,11 @@ float3 final_color = scene_color * transmittance + scattered;
 
 ## 水中は霧の中
 
-水の中は光が <strong>吸収と散乱</strong>ですぐに、減ります。遠くの物が見えず色が青緑に、染まる様子は霧（フォグ）と、同じ式で表現できます。ただし、色ごとに吸収の強さが違う点が、空気中の霧との大きな違いです。
+水の中は光が <strong>吸収と散乱</strong>ですぐに、減ります。遠くの物が見えず色が青緑に染まる様子は霧（フォグ）と、同じ式で表現できます。ただし、色ごとに吸収の強さが違う点が空気中の霧との大きな違いです。
 
 ## 色ごとの減衰
 
-空気中の霧は <strong>色に関係なく同じ割合</strong>で、遠くの物の色を霧の色へ近づけます。水中では 赤がすぐに消え青が、遠くまで残ります。
+空気中の霧は <strong>色に関係なく同じ割合</strong>で、遠くの物の色を霧の色へ近づけます。水中では 赤がすぐに消え青が遠くまで残ります。
 
 ```hlsl
 // 水中の霧: 色（RGB）ごとに、透過率が違う。
@@ -69,7 +69,7 @@ float3 color = scene_color * transmittance + water_color * (1.0 - transmittance)
 | 距離 | 赤の残り | 緑の残り | 青の残り | 見た目 |
 | --- | --- | --- | --- | --- |
 | 0 m | 100% | 100% | 100% | 元の色 |
-| 3 m | 26% | 81% | 91% | 赤が、ほぼ消える |
+| 3 m | 26% | 81% | 91% | 赤がほぼ消える |
 | 10 m | 1% | 50% | 74% | 青緑 |
 | 30 m | 0% | 12% | 41% | 青（暗い） |
 
@@ -79,10 +79,10 @@ float3 color = scene_color * transmittance + water_color * (1.0 - transmittance)
 
 ## 水中の霧を全画面で適用する
 
-<strong>カメラが水の中にある</strong>とき、画面全体に霧をかけます。ポストプロセスで画素ごとの距離（深度バッファから）を、使います。
+<strong>カメラが水の中にある</strong>とき、画面全体に霧をかけます。ポストプロセスで画素ごとの距離（深度バッファから）を使います。
 
 ```hlsl
-// ポストプロセス: カメラが水中のとき、全画面に、水中の霧をかける。
+// ポストプロセス: カメラが水中のとき、全画面に水中の霧をかける。
 float depth = LinearizeDepth(g_depth.Sample(g_point_clamp, uv).r);
 float3 view_ray = ReconstructViewDirection(uv);
 float distance = depth * length(view_ray);                       // 視線方向の距離
@@ -96,14 +96,14 @@ float3 color = scene * T + g_water_color * (1.0 - T);
 | --- | --- |
 | 空（深度が最大の画素） | 空は、水の中からは見えない（水面の向こう）。水の色で塗る |
 | 水面を見上げたとき | 水面の描画（[The Underside of the Surface and Crossing It](surface-back.md)）。水面より向こうの空の描画は別に扱う |
-| 水中の遠い物 | 距離が、大きいほど水の色（`water_color`）に近づく |
+| 水中の遠い物 | 距離が大きいほど水の色（`water_color`）に近づく |
 
 ### 水の色（`water_color`）と深さ
 
 水中の 水の色は 深くなるほど、暗くなります。太陽の光が深さとともに減るためです。
 
 ```hlsl
-// カメラの深さに応じて、水の色を、暗くする（太陽光が、届かなくなる）。
+// カメラの深さに応じて、水の色を暗くする（太陽光が届かなくなる）。
 float camera_depth_below_surface = max(water_surface_y - camera_position.y, 0.0);
 float3 sun_at_camera = exp(-g_absorption * camera_depth_below_surface);
 float3 water_color = g_deep_color * (0.2 + 0.8 * sun_at_camera.b);     // 青の光の、残り具合で、明るさを決める
@@ -118,7 +118,7 @@ float3 water_color = g_deep_color * (0.2 + 0.8 * sun_at_camera.b);     // 青の
 
 ## 光源の色も変わる
 
-水中の物をライティングするとき <strong>光が、水の中を通ってくる</strong>間に吸収されます。
+水中の物をライティングするとき <strong>光が水の中を通ってくる</strong>間に吸収されます。
 
 | 光源 | 水中での色 |
 | --- | --- |
@@ -127,7 +127,7 @@ float3 water_color = g_deep_color * (0.2 + 0.8 * sun_at_camera.b);     // 青の
 | 水中のライト（懐中電灯、ランプ） | 光源から物までの、距離に応じて吸収される。近くでは白く遠くでは青緑 |
 
 ```hlsl
-// 太陽光を、水中の深さ d で減衰させる。
+// 太陽光を水中の深さ d で減衰させる。
 float3 sun_underwater = sun_color * exp(-g_absorption * depth_below_surface);
 ```
 
@@ -139,7 +139,7 @@ float3 sun_underwater = sun_color * exp(-g_absorption * depth_below_surface);
 | --- | --- |
 | 空気中 | 大気の霧（[Aerial Perspective and Fog](../../atmosphere/aerial-fog/index.md)） |
 | 水中 | 水中の霧（このページ） |
-| 水面をまたぐ（半分水中、半分空気中） | 水面の高さで霧を、切り替える（[The Underside of the Surface and Crossing It](surface-back.md)） |
+| 水面をまたぐ（半分水中、半分空気中） | 水面の高さで霧を切り替える（[The Underside of the Surface and Crossing It](surface-back.md)） |
 
 水中では 視界が短くなるので、遠景（地形のチャンク、遠くの物）の描画は早めに打ち切って、コストを減らせます。
 

@@ -15,7 +15,7 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::ranges::dangling` は、**ranges のアルゴリズムが、一時オブジェクトのイテレータを返せないときに、代わりに返す空の型**です。`std::ranges::find(GetVector(), 3)` は、一時的な `vector` を指すイテレータを返すとぶら下がるので、`dangling` を返し、使おうとするとコンパイルエラーになります。
+`std::ranges::dangling` は、**ranges のアルゴリズムが一時オブジェクトのイテレータを返せないときに、代わりに返す空の型**です。`std::ranges::find(GetVector(), 3)` は、一時的な `vector` を指すイテレータを返すとぶら下がるので、`dangling` を返し、使おうとするとコンパイルエラーになります。
 
 !!! tip "ポイント"
     - コンパイルエラーの原因として出会うことが多い。

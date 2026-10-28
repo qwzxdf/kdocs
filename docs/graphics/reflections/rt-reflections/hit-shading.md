@@ -61,11 +61,11 @@ void ReflectionClosestHit(inout ReflectionPayload payload, BuiltInTriangleInters
 
 ## レイが当たった面の色を求める
 
-<strong>反射レイ</strong>が 三角形に当たると、その面の色（反射として返す光）を、求める必要があります。DXR ではヒット シェーダー（closest hit shader）がこれを、行います。
+<strong>反射レイ</strong>が 三角形に当たると、その面の色（反射として返す光）を求める必要があります。DXR ではヒット シェーダー（closest hit shader）がこれを行います。
 
 ## 加速構造（BVH）
 
-<strong>レイがどの三角形に当たるか</strong>を、高速に探すためにシーンの、三角形を加速構造（BVH：Bounding Volume Hierarchy、境界ボリューム階層）にまとめます。
+<strong>レイがどの三角形に当たるか</strong>を高速に探すためにシーンの、三角形を加速構造（BVH：Bounding Volume Hierarchy、境界ボリューム階層）にまとめます。
 
 | 階層 | 内容 |
 | --- | --- |
@@ -84,27 +84,27 @@ TLAS（シーン全体）
 | --- | --- |
 | 静的メッシュ | BLAS は、1 回だけ作る |
 | 動く物（剛体） | TLAS の、変換行列だけを毎フレーム更新（軽い） |
-| スキニング、変形する物 | BLAS を、更新（refit）、または再構築（重い） |
-| TLAS | 毎フレーム再構築（インスタンスの数に、比例） |
+| スキニング、変形する物 | BLAS を更新（refit）、または再構築（重い） |
+| TLAS | 毎フレーム再構築（インスタンスの数に比例） |
 
 ## ヒット シェーダーの流れ
 
-<strong>ヒット シェーダー</strong>で 当たった面の色を、計算します。
+<strong>ヒット シェーダー</strong>で 当たった面の色を計算します。
 
 ```hlsl
 // 最も近い交点で、呼ばれる。当たった面の、属性（UV、法線、マテリアル）から、色を求める。
 [shader("closesthit")]
 void ReflectionClosestHit(inout ReflectionPayload payload, in BuiltInTriangleIntersectionAttributes attr) {
-  // ① 当たった三角形の、頂点属性を、補間して、UV と法線を得る（重心座標 attr.barycentrics）。
+  // ① 当たった三角形の、頂点属性を補間して、UV と法線を得る（重心座標 attr.barycentrics）。
   Vertex v = InterpolateVertex(InstanceID(), PrimitiveIndex(), attr.barycentrics);
   float3 hit_position = WorldRayOrigin() + WorldRayDirection() * RayTCurrent();
   float3 normal = normalize(mul(v.normal, (float3x3)ObjectToWorld3x4()));
 ```
 
-ヒット シェーダーでは 画面の G バッファが、無い（画面外の面かもしれない）ので、頂点バッファとインデックス バッファから、当たった三角形の属性を自分で、補間します（重心座標）。
+ヒット シェーダーでは 画面の G バッファが無い（画面外の面かもしれない）ので、頂点バッファとインデックス バッファから、当たった三角形の属性を自分で、補間します（重心座標）。
 
 ```hlsl
-  // ② マテリアルを、読む（アルベド、粗さなど）。テクスチャは、ミップを、手で選ぶ（レイは、画面の微分を、持たない）。
+  // ② マテリアルを読む（アルベド、粗さなど）。テクスチャは、ミップを手で選ぶ（レイは、画面の微分を持たない）。
   Material m = g_materials[v.material_id];
   float mip = ComputeRayConeMip(payload.cone_width + RayTCurrent() * payload.cone_spread, v);   // レイ コーンから、ミップを決める
   float3 albedo = g_textures[m.albedo_index].SampleLevel(g_linear_wrap, v.uv, mip).rgb;
@@ -126,7 +126,7 @@ void ReflectionClosestHit(inout ReflectionPayload payload, in BuiltInTriangleInt
 }
 ```
 
-直接光は 影レイ（光の方向に、短いレイを飛ばして遮られるか）で影を、判定します。間接光は簡易（SH、ライト プローブ）にします（反射の反射に、フル GIを使うと重すぎる）。
+直接光は 影レイ（光の方向に短いレイを飛ばして遮られるか）で影を判定します。間接光は簡易（SH、ライト プローブ）にします（反射の反射にフル GIを使うと重すぎる）。
 
 ## コストを減らす工夫
 
@@ -134,12 +134,12 @@ void ReflectionClosestHit(inout ReflectionPayload payload, in BuiltInTriangleInt
 
 | 工夫 | 内容 |
 | --- | --- |
-| 影を省く（または遠くだけ） | 影レイを、飛ばさない（反射の中の影は見えにくい）。シャドウ マップで代用 |
+| 影を省く（または遠くだけ） | 影レイを飛ばさない（反射の中の影は見えにくい）。シャドウ マップで代用 |
 | 間接光を簡易に | SH プローブ、環境光。フル GI は使わない |
 | ライティングをキャッシュから | 当たった面の、ライティングをサーフェス キャッシュから、読む（[Lumen-Style Approaches](../../gi/rt-gi/lumen-style.md)） |
-| LOD | 反射の中の物は、低 LOD のメッシュで BVH を、作る（三角形が少ない） |
+| LOD | 反射の中の物は、低 LOD のメッシュで BVH を作る（三角形が少ない） |
 | テクスチャのミップを粗く | ミップ バイアスで、粗いテクスチャを読む（反射は、細かい模様が見えにくい） |
-| 透過・アルファ テスト | アルファ テストの、メッシュは any hit シェーダーが、必要（重い）。反射ではアルファ テストを省くまたは、不透明として扱う |
+| 透過・アルファ テスト | アルファ テストの、メッシュは any hit シェーダーが必要（重い）。反射ではアルファ テストを省くまたは、不透明として扱う |
 
 ## 反射の反射（再帰）
 

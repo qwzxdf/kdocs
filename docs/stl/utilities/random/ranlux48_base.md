@@ -58,7 +58,7 @@ template <class SeedSeq> void seed(SeedSeq& seq);
 
 - 計算量: O(状態の大きさ)
 
-内部の状態を、シードで初期化し直します。同じシードなら、同じ乱数の並びになります。
+内部の状態をシードで初期化し直します。同じシードなら、同じ乱数の並びになります。
 
 ### discard {#discard}
 

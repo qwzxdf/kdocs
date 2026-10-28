@@ -21,7 +21,7 @@ tags:
     - 区切りは、1 つの値（`
     - `）でも、範囲（`" - "`）でもよい。
     - 文字列にしたいなら最後に `| std::ranges::to<std::string>()`。
-    - `std::string` の連結を、ビューで書ける。
+    - `std::string` の連結をビューで書ける。
 
 !!! info "このページを読む前に"
     [ranges とビュー](../../../basics/ranges.md)、[ラムダ式](../../../basics/lambda.md) を先に読むと分かりやすいです。
@@ -70,7 +70,7 @@ class join_with_view;
 - 戻り値: `begin()` / `end()` をもつ view の型
 - 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
 
-範囲の範囲を、区切りをはさんでつなぐ view。`views::join_with(sep)` が作ります。
+範囲の範囲を区切りをはさんでつなぐ view。`views::join_with(sep)` が作ります。
 
 ふつうは `views::join_with` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::join_with_view v(r, ...)` と直接作るときにだけ登場します。
 

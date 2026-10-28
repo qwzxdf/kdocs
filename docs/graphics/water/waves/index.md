@@ -6,7 +6,7 @@ tags:
 
 # Water Waves
 
-<strong>水面の波は、頂点を動かして形を作り、法線を計算して、光の当たり方を決めます</strong>。<strong>波の作り方には、サイン波の重ね合わせ・Gerstner 波・FFT などがあり、品質とコストが違います</strong>。このセクションでは、メッシュ・サイン波・Gerstner 波・法線・波の動かし方・FFT・浮力を、1 つずつ別のページで説明します。
+<strong>水面の波は、頂点を動かして形を作り、法線を計算して、光の当たり方を決めます</strong>。<strong>波の作り方には、サイン波の重ね合わせ・Gerstner 波・FFT などがあり、品質とコストが違います</strong>。このセクションでは、メッシュ・サイン波・Gerstner 波・法線・波の動かし方・FFT・浮力を 1 つずつ別のページで説明します。
 
 ## 水面のメッシュ
 <strong>水面は平らな格子メッシュ</strong>を<strong>用意</strong>し、頂点シェーダーで波の高さを足します。
@@ -44,7 +44,7 @@ tags:
 
 - Finch, "Effective Water Simulation from Physical Models", GPU Gems, Chapter 1, 2004（サイン波と Gerstner 波の、GPU 実装）
 - Tessendorf, "Simulating Ocean Water", SIGGRAPH 2001 Course Notes（FFT による海面の合成。ほとんどの FFT 海面の、出発点）
-- Fournier, Reeves, "A Simple Model of Ocean Waves", SIGGRAPH 1986（Gerstner 波を、CG に持ち込んだ論文）
+- Fournier, Reeves, "A Simple Model of Ocean Waves", SIGGRAPH 1986（Gerstner 波を CG に持ち込んだ論文）
 - Horvath, "Empirical Directional Wave Spectra for Computer Graphics", Digital Production Symposium 2015（方向分布を含む、実測に基づくスペクトル）
 - Kerner, "Water Interaction Model for Boats in Video Games", Gamedeveloper.com (Gamasutra), 2015（船の浮力・抗力・水しぶき）
 

@@ -128,7 +128,7 @@ bool operator!=(const locale& other) const;
 
 | 場面 | 書き方 |
 | --- | --- |
-| 小数の入出力を、環境に依存させない | `stream.imbue(std::locale::classic())` |
+| 小数の入出力を環境に依存させない | `stream.imbue(std::locale::classic())` |
 
 ## よくあるミス
 
