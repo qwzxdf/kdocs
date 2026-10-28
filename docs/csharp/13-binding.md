@@ -160,7 +160,7 @@ view.SortDescriptions.Add(new SortDescription("Name", ListSortDirection.Ascendin
 view.GroupDescriptions.Add(new PropertyGroupDescription("Kind"));    // グループ化
 ```
 
-絞り込みの条件を変えたら、`view.Refresh()` を呼んで、かけ直します（第 40 章の検索ボックスで使っています）。
+絞り込みの条件を変えたら、`view.Refresh()` を呼んで、かけ直します（第 45 章の検索ボックスで使っています）。
 
 ## 入力の検証
 
@@ -222,7 +222,7 @@ public class PlayerViewModel : BindableBase, INotifyDataErrorInfo
 }
 ```
 
-Prism の `BindableBase` には含まれていませんが、`ErrorsContainer<T>` という補助クラスがあります。また CommunityToolkit.Mvvm の `ObservableValidator` を使うと、`[Range(0, 100)]` のような属性（DataAnnotations）だけで検証を書けます（第 20 章）。
+Prism の `BindableBase` には含まれていませんが、`ErrorsContainer<T>` という補助クラスがあります。また CommunityToolkit.Mvvm の `ObservableValidator` を使うと、`[Range(0, 100)]` のような属性（DataAnnotations）だけで検証を書けます（第 25 章）。
 
 WPF の `Binding` は、`INotifyDataErrorInfo` のエラーを自動で拾ってくれます（`ValidatesOnNotifyDataErrors` の既定が `true`）。
 
@@ -302,7 +302,7 @@ xmlns:diag="clr-namespace:System.Diagnostics;assembly=WindowsBase"
 | 初期値は出るが、変えても追従しない | `INotifyPropertyChanged` の実装漏れ、通知の呼び忘れ |
 | 画面で入力しても、データが変わらない | `Mode` が `OneWay`、または `UpdateSourceTrigger=LostFocus` のまま |
 | `DataTemplate` の中で、親のプロパティが見つからない | `DataContext` がリストの 1 要素になっている。`RelativeSource` で祖先に回る |
-| `ContextMenu` の中でバインディングが効かない | `ContextMenu` は別のウィンドウ扱い。`PlacementTarget` 経由で書く（第 35 章） |
+| `ContextMenu` の中でバインディングが効かない | `ContextMenu` は別のウィンドウ扱い。`PlacementTarget` 経由で書く（第 40 章） |
 
 ## コードからバインディングを作る
 

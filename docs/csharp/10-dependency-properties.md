@@ -35,7 +35,7 @@ WPF のクラスのプロパティのうち、画面に関係するもの（`Wid
 
 ### 自分で作る
 
-自作のコントロール（第 21 章）には、バインディングやスタイルで操作できる値を依存関係プロパティとして公開したくなります。書き方は決まっています。
+自作のコントロール（第 26 章）には、バインディングやスタイルで操作できる値を依存関係プロパティとして公開したくなります。書き方は決まっています。
 
 ```csharp title="NumberBox.xaml.cs（抜粋）"
 public partial class NumberBox : UserControl
@@ -146,7 +146,7 @@ public static class Ui
 | `e.Source` | イベントの発生元として扱われる部品（論理ツリー上） |
 | `e.OriginalSource` | 実際に発生した部品（ビジュアル ツリー上）。たとえば、ボタンの中の `TextBlock` |
 
-第 35 章のシーン ツリーの `PreviewMouseLeftButtonDown` は、まさにこのトンネルを使って、クリックされた場所の部品から `TreeViewItem` までをたどっています。
+第 40 章のシーン ツリーの `PreviewMouseLeftButtonDown` は、まさにこのトンネルを使って、クリックされた場所の部品から `TreeViewItem` までをたどっています。
 
 ??? failure "イベント ハンドラーが呼ばれない"
     子のどこかで `e.Handled = true` にされていないか確認してください。`Button` の `Click` は、`MouseLeftButtonDown` を受け取った時点で `Handled` にしてしまうので、ボタンの上の `MouseLeftButtonDown` を親で受けても呼ばれません。このときはトンネル（`PreviewMouseLeftButtonDown`）で受けます。

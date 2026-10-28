@@ -107,7 +107,7 @@ public sealed class AsyncCommand : ICommand
 }
 ```
 
-`ICommand.Execute` が `void` を返す決まりなので、`async void` をなくすことはできません。そこで、`async void` を 1 か所に閉じ込めて、例外の処理と二重実行の防止をそこで済ませます。`onError` を渡さなかったときは、例外がそのまま UI スレッドの未処理例外になります（第 44 章でまとめて受け取ります）。
+`ICommand.Execute` が `void` を返す決まりなので、`async void` をなくすことはできません。そこで、`async void` を 1 か所に閉じ込めて、例外の処理と二重実行の防止をそこで済ませます。`onError` を渡さなかったときは、例外がそのまま UI スレッドの未処理例外になります（第 49 章でまとめて受け取ります）。
 
 使う側は、次のように書きます。
 
@@ -132,7 +132,7 @@ private async Task LoadAsync()
 
 実行中は `CanExecute` が `false` になるので、ボタンが自動で押せなくなります。`canExecute` を渡せば、「実行中でなく、かつ編集中のとき」のような条件も足せます。条件が変わったら、`RaiseCanExecuteChanged()` を呼びます。
 
-CommunityToolkit.Mvvm なら `AsyncRelayCommand` が同じ役目を果たします（第 20 章）。
+CommunityToolkit.Mvvm なら `AsyncRelayCommand` が同じ役目を果たします（第 25 章）。
 
 ## 進み具合を画面に出す（IProgress）
 
@@ -198,7 +198,7 @@ await Application.Current.Dispatcher.InvokeAsync(() => Entries.Add(entry));   //
 
 `ObservableCollection` を別のスレッドで直接変更すると、例外になります。次のどちらかで逃げます。
 
-1. 変更を `Dispatcher.BeginInvoke` で UI スレッドに回す（第 18 章のログ サービスはこの方法）。
+1. 変更を `Dispatcher.BeginInvoke` で UI スレッドに回す（第 23 章のログ サービスはこの方法）。
 2. `BindingOperations.EnableCollectionSynchronization(collection, lockObject)` を呼んで、WPF にロックの仕組みを教える。
 
 ```csharp

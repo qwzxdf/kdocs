@@ -28,7 +28,7 @@ tags:
 | 択一 | `RadioButton`、`ComboBox` | `RadioButton` は同じ親の中で 1 つだけ選べる |
 | 一覧から選ぶ | `ListBox`、`ListView`、`ComboBox` | 詳細は第 14 章 |
 | 表 | `DataGrid` | 第 14 章 |
-| 木 | `TreeView` | 第 35 章 |
+| 木 | `TreeView` | 第 40 章 |
 | つまみで数を決める | `Slider` | `Minimum`、`Maximum`、`Value` |
 | 進み具合 | `ProgressBar` | 終わりが分からないときは `IsIndeterminate="True"` |
 | タブ | `TabControl` | |

@@ -22,7 +22,7 @@ tags:
 | `ListView` | 列を持つ表のようなリスト（`GridView` を付ける）や、タイル表示 |
 | `ComboBox` | ドロップダウンで 1 つ選ぶ |
 | `DataGrid` | 編集もできる表。列ごとに型や編集方法を決められる |
-| `TreeView` | 階層構造（第 35 章） |
+| `TreeView` | 階層構造（第 40 章） |
 | `TabControl` | タブ |
 
 これらは全部 `ItemsControl` を元にしていて、使い方はほとんど共通です。`ItemsSource` に集まりを渡し、`ItemTemplate` で 1 件の見た目を決めます。部品を変えても、書き方はほとんど変わりません。
@@ -63,8 +63,8 @@ tags:
 `SelectedItems` は、依存関係プロパティではありません。そのため `{Binding SelectedItems}` と書けません。回避策はいくつかあります。
 
 - コードビハインドの `SelectionChanged` で受け取って、ビューモデルに橋渡しする。
-- 各要素に `IsSelected` のプロパティを持たせて、`ItemContainerStyle` で `IsSelected` を結び付ける（第 35 章のシーン ツリーがこの方法）。
-- Behavior（第 22 章）で `SelectedItems` を扱う添付ビヘイビアを使う。
+- 各要素に `IsSelected` のプロパティを持たせて、`ItemContainerStyle` で `IsSelected` を結び付ける（第 40 章のシーン ツリーがこの方法）。
+- Behavior（第 27 章）で `SelectedItems` を扱う添付ビヘイビアを使う。
 
 ## 1 件ごとの見せ方を変える
 
@@ -153,7 +153,7 @@ public class EntryTemplateSelector : DataTemplateSelector
 | 仮想化が切れる条件 | 対処 |
 | --- | --- |
 | 縦の `StackPanel` や `ScrollViewer` の中に置いている（高さが無制限になる） | `Grid` の `*` の行に置く。外側の `ScrollViewer` を外す |
-| `ItemsPanel` を `WrapPanel` などに変えている（第 40 章のタイル表示） | `VirtualizingStackPanel` 以外のパネルは、標準では仮想化しない。数が少ないときだけ使う |
+| `ItemsPanel` を `WrapPanel` などに変えている（第 45 章のタイル表示） | `VirtualizingStackPanel` 以外のパネルは、標準では仮想化しない。数が少ないときだけ使う |
 | `ScrollViewer.CanContentScroll="False"` | 既定の `True` に戻す |
 | `TreeView` | 既定では仮想化されない。`VirtualizingStackPanel.IsVirtualizing="True"` を付ける |
 | 要素を `ListBoxItem` として直接並べている（バインディングを使わない） | `ItemsSource` で渡す |

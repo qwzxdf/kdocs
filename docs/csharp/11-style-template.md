@@ -23,7 +23,7 @@ tags:
 | 状況（マウスが乗った、無効になった、データが特定の値）で見た目を変えたい | `Trigger`（`Style.Triggers` の中） |
 | 部品の「作り」自体を変えたい（丸いボタン、枠を無くすなど） | `ControlTemplate` |
 | データ 1 件の見せ方を決めたい | `DataTemplate`（第 12 章） |
-| 同じ見た目と動きを部品として使い回したい | `UserControl`（第 21 章） |
+| 同じ見た目と動きを部品として使い回したい | `UserControl`（第 26 章） |
 | 色やスタイルを画面をまたいで共有したい | リソース（`ResourceDictionary`） |
 
 プロパティ値を変えるだけで済むなら `Style`、部品の中身そのものを作り替えたいなら `ControlTemplate`、という切り分けが目安です。
@@ -128,7 +128,7 @@ tags:
 | 種類 | 何をきっかけにするか |
 | --- | --- |
 | `Trigger` | 部品自身のプロパティの値（`IsMouseOver`、`IsEnabled` など） |
-| `DataTrigger` | バインディングしたデータの値（第 35 章で `IsEditing` に使った） |
+| `DataTrigger` | バインディングしたデータの値（第 40 章で `IsEditing` に使った） |
 | `MultiTrigger` / `MultiDataTrigger` | 複数の条件がすべて満たされたとき |
 | `EventTrigger` | イベントが起きたとき。アニメーションを開始するのに使う |
 
