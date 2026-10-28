@@ -1,0 +1,25 @@
+nav:
+  - index.md
+  - concepts.md
+  - install.md
+  - commit.md
+  - log.md
+  - undo.md
+  - branch.md
+  - merge.md
+  - conflict.md
+  - remote.md
+  - github.md
+  - gitignore.md
+  - stash.md
+  - rebase.md
+  - tag.md
+  - vs-git.md
+  - sourcetree.md
+  - github-desktop.md
+  - accidents.md
+  - team.md
+  - git-lfs.md
+  - submodule.md
+  - commands.md
+  - ...

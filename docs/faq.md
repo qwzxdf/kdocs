@@ -43,7 +43,7 @@ vcpkg です。`vcpkg.json` に書けば、Visual Studio が自動で入れま�
 
 ### Git で何を管理する？ {#git}
 
-ソースと設定は Git、ビルドの生成物は管理しません。大きなアセットは [Git LFS](vs/git-lfs.md) を使います。
+ソースと設定は Git、ビルドの生成物は管理しません。大きなアセットは [Git LFS](git/git-lfs.md) を使います。
 
 ## 描画・数学 {#graphics}
 

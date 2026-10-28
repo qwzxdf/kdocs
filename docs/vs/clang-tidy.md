@@ -18,7 +18,7 @@ tags:
 
 !!! info "このページを読む前に"
     - [Visual Studio の設定](settings.md)（プロジェクトのプロパティ）
-    - [チーム開発の進め方](team.md)（整形ツールとの組み合わせ）
+    - [チーム開発の進め方](../git/team.md)（整形ツールとの組み合わせ）
 
 ## Visual Studio での有効化 {#enable}
 
@@ -110,5 +110,5 @@ int* p = GetRaw();  // NOLINT(bugprone-unused-return-value): 使わずに捨て�
 ## 関連ページ
 
 - [ASan（AddressSanitizer）](asan.md)
-- [チーム開発の進め方](team.md)
+- [チーム開発の進め方](../git/team.md)
 - [単体テスト](unit-test.md)

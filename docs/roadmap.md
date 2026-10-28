@@ -19,7 +19,7 @@ title: 学習ロードマップ
 2. [C++23 を使えるようにする設定](vs/settings.md)
 3. [文字コードを UTF-8 にしよう](vs/utf8.md)
 4. [デバッグのやり方](vs/debugging.md)
-5. [Git の基礎](vs/git.md)（早いうちに覚えると、壊したときに戻れる）
+5. [Git の考え方](git/concepts.md)と[記録する](git/commit.md)（早いうちに覚えると、壊したときに戻れる）
 
 ここで詰まったら、[よくあるエラー](vs/errors.md) を見ます。
 
@@ -58,8 +58,8 @@ title: 学習ロードマップ
 
 複数人で作り始めたら、道具を整えます。
 
-1. [チーム開発の進め方](vs/team.md)
-2. [Git LFS とゲームのリポジトリ](vs/git-lfs.md)
+1. [チーム開発の進め方](git/team.md)
+2. [Git LFS とゲームのリポジトリ](git/git-lfs.md)
 3. [GitHub Actions で自動ビルド](vs/github-actions.md)
 4. [単体テスト](vs/unit-test.md) と [clang-tidy](vs/clang-tidy.md)
 

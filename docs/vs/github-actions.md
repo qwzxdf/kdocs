@@ -17,9 +17,9 @@ GitHub Actions は、push や PR のたびに、<strong>まっさらな Windows 
     - ライブラリは vcpkg で入れる。キャッシュを使うと、2 回目以降が速い
 
 !!! info "このページを読む前に"
-    - [Git の基礎](git.md)（push、プルリクエスト）
+    - [GitHub を使う](../git/github.md)（push、プルリクエスト）
     - [外部ライブラリの入れ方](libraries.md)（vcpkg）
-    - [チーム開発の進め方](team.md)
+    - [チーム開発の進め方](../git/team.md)
 
 ## 最小のワークフロー {#minimal}
 
@@ -47,7 +47,7 @@ jobs:
 
 `on` は、いつ動かすかです。`main` への push と、すべての PR で動かしています。`runs-on` は機械の種類で、Windows と Visual Studio が入ったものを選びます。
 
-`actions/checkout` で、リポジトリを取ってきます。`lfs: true` は、[Git LFS](git-lfs.md) の本体も取ってくる指定です。LFS を使っていなければ要りません。
+`actions/checkout` で、リポジトリを取ってきます。`lfs: true` は、[Git LFS](../git/git-lfs.md) の本体も取ってくる指定です。LFS を使っていなければ要りません。
 
 `setup-msbuild` は、`msbuild` コマンドを使えるようにします。`run` に、ふだん手元で打つのと同じコマンドを書きます。
 
@@ -116,6 +116,6 @@ jobs:
 
 ## 関連ページ
 
-- [チーム開発の進め方](team.md)
+- [チーム開発の進め方](../git/team.md)
 - [単体テスト](unit-test.md)
 - [clang-tidy と静的解析](clang-tidy.md)
