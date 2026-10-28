@@ -95,7 +95,7 @@ namespace KHlsl.Vsix
 
     [Export(typeof(EditorFormatDefinition))] [ClassificationType(ClassificationTypeNames = KHlslClassNames.Intrinsic)]
     [Name("khlsl.intrinsic.format")] [UserVisible(true)] [Order(After = Priority.High)]
-    internal sealed class IntrinsicFormat : KHlslFormat { public IntrinsicFormat() : base("K-HLSL 組み込み関数", "#E8892B") { } }
+    internal sealed class IntrinsicFormat : KHlslFormat { public IntrinsicFormat() : base("K-HLSL 組み込み関数", "#569CD6") { } }
 
     [Export(typeof(EditorFormatDefinition))] [ClassificationType(ClassificationTypeNames = KHlslClassNames.Escape)]
     [Name("khlsl.escape.format")] [UserVisible(true)] [Order(After = Priority.High)]
@@ -196,7 +196,7 @@ namespace KHlsl.Vsix
                 {
                     Tuple.Create(KHlslClassNames.Control, "color.control", ThemeColors.Pick("#D8A0DF", "#8F08C4")),
                     Tuple.Create(KHlslClassNames.Preprocessor, "color.preprocessor", ThemeColors.Pick("#9B9B9B", "#808080")),
-                    Tuple.Create(KHlslClassNames.Intrinsic, "color.intrinsic", Rgb("#E8892B")),
+                    Tuple.Create(KHlslClassNames.Intrinsic, "color.intrinsic", ThemeColors.Pick("#569CD6", "#0000FF")),
                     Tuple.Create(KHlslClassNames.Visibility, "color.visibility", Rgb("#696969")),
                     Tuple.Create(KHlslClassNames.Escape, "color.escape", Rgb("#FF00FF")),
                     Tuple.Create(KHlslClassNames.Format, "color.format", Rgb("#7B68EE")),
@@ -350,7 +350,8 @@ namespace KHlsl.Vsix
             t[Tk.Function] = semantic("cppFunction");
             t[Tk.MemberFunc] = semantic("cppMemberFunction");
             // identifier と重ねると、そちらの色が勝つので、専用の分類だけを使う
-            t[Tk.Intrinsic] = get(KHlslClassNames.Intrinsic) ?? identifier;
+            // 色を決めていなければ、float3 などと同じ、テーマのキーワードの色(青)
+            t[Tk.Intrinsic] = KHlslSettings.GetColor("color.intrinsic").Length > 0 ? (get(KHlslClassNames.Intrinsic) ?? keyword) : keyword;
             t[Tk.Semantic] = semantic("cppEnumerator");
             t[Tk.Attribute] = get("cppAttributeIdentifier") ?? semantic("cppType");
             t[Tk.Enumerator] = semantic("cppEnumerator");

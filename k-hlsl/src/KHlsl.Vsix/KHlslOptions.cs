@@ -75,7 +75,7 @@ namespace KHlsl.Vsix
         public Color ColorPreprocessor { get; set; }
 
         [Category("4. キーワードと関数の色"), DisplayName("組み込み関数")]
-        [Description("mul saturate Sample など。既定は #E8892B")]
+        [Description("mul saturate Sample など。既定は #569CD6")]
         public Color ColorIntrinsic { get; set; }
 
         [Category("4. キーワードと関数の色"), DisplayName("public / private など")]
@@ -199,7 +199,7 @@ namespace KHlsl.Vsix
             Enumerators = KHlslSettings.IsOn(KHlslSettings.Enumerators);
             ColorControl = KHlslSettings.GetColorValue("color.control", "#D8A0DF");
             ColorPreprocessor = KHlslSettings.GetColorValue("color.preprocessor", "#9B9B9B");
-            ColorIntrinsic = KHlslSettings.GetColorValue("color.intrinsic", "#E8892B");
+            ColorIntrinsic = KHlslSettings.GetColorValue("color.intrinsic", "#569CD6");
             ColorVisibility = KHlslSettings.GetColorValue("color.visibility", "#696969");
             ColorEscape = KHlslSettings.GetColorValue("color.escape", "#FF00FF");
             ColorFormat = KHlslSettings.GetColorValue("color.format", "#7B68EE");
@@ -246,7 +246,7 @@ namespace KHlsl.Vsix
             d[KHlslSettings.Enumerators] = Enumerators ? "1" : "0";
             d["color.control"] = KHlslSettings.ToHex(ColorControl, "#D8A0DF");
             d["color.preprocessor"] = KHlslSettings.ToHex(ColorPreprocessor, "#9B9B9B");
-            d["color.intrinsic"] = KHlslSettings.ToHex(ColorIntrinsic, "#E8892B");
+            d["color.intrinsic"] = KHlslSettings.ToHex(ColorIntrinsic, "#569CD6");
             d["color.visibility"] = KHlslSettings.ToHex(ColorVisibility, "#696969");
             d["color.escape"] = KHlslSettings.ToHex(ColorEscape, "#FF00FF");
             d["color.format"] = KHlslSettings.ToHex(ColorFormat, "#7B68EE");

@@ -9,7 +9,7 @@ Visual Studio 2022 / 2026 用の HLSL 拡張です。Shader Model 6.9 までの�
 - 色付け。VS の C++ と同じ分類名（`cppFunction` `cppLocalVariable` `cppControlKeyword` など）を使うので、テーマの C++ の色が、そのまま HLSL に使われる。Viasfora を入れていると、C++ で効いている物も同じ色になる
     - 関数・メンバー関数・型・マクロ・名前空間・グローバル変数・ローカル変数・引数・メンバー変数・列挙子・ラベル・演算子・数値・文字列（引用符を含む）・`#` ディレクティブ。変数は、スコープを見て、引数・ローカル・メンバー・グローバルに分ける
     - 制御キーワード（`if` `else` `for` `while` `do` `switch` `case` `default` `break` `continue` `return` `goto` `discard` `throw` `try` `catch`）は、`K-HLSL 制御キーワード`（既定は VS の C++ と同じ紫）。`#include` `#define` などは `K-HLSL プリプロセッサ キーワード`（同じく灰色）。C++ の分類名に頼らず、専用の表示項目に既定色を持たせている
-    - 組み込み関数（`mul` `saturate` やリソースの `Sample` など）は `K-HLSL 組み込み関数`（橙）、独自の関数は C++ の関数の色（黄）
+    - 組み込み関数（`mul` `saturate` やリソースの `Sample` など）は `K-HLSL 組み込み関数`（`float3` などと同じ青）、独自の関数は C++ の関数の色（黄）
     - `#include` した先で定義された構造体は、このファイルから見えないので、「型 名前」の形から推測して、型・変数・メンバーに色を付ける
     - Tab や空白で字下げした `#if` `#  endif` も、ディレクティブとして色が付く
 - Viasfora の色付け（C++ で実際に効いている物）
