@@ -202,7 +202,7 @@ float SliceToDistance(float slice) {
 | Aerial Perspective LUT の、更新 | 0.1〜0.2 ms |
 | 物体ごとの適用 | テクスチャ 1 回（物体の、ピクセル シェーダーに数命令を、足すだけ） |
 
-<strong>物体の数に関係なく</strong>、LUT を 1 回、更新し各物体は引くだけなので、効率的です。
+<strong>物体の数に関係なく</strong>、LUT を 1 回、更新し各物体は引くだけなので、軽く済みます。
 
 ## よくあるミス
 

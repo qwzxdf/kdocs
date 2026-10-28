@@ -148,7 +148,7 @@ float4 PSComposite(float4 pos : SV_Position, float2 uv : TEXCOORD0) : SV_Target 
 
 ## GPU パーティクルを、実装する
 
-粒子が数万を超えるなら、<strong>計算シェーダーで、粒子を更新し、そのまま描く</strong>のが、効率的です。
+粒子が数万を超えるなら、<strong>計算シェーダーで、粒子を更新し、そのまま描く</strong>のが速くなります。
 
 ```hlsl
 struct Particle {

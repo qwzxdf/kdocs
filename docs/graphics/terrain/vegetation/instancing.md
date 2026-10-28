@@ -67,7 +67,7 @@ VSOutput VSMain(VSInput input, uint instance_id : SV_InstanceID) {
 }
 ```
 
-1 つの描画命令にまとめるので、CPU の負担が小さく、GPU も効率的です。メッシュ（ポリゴン数）が小さいほど、インスタンシングの効果が大きいです。
+1 つの描画命令にまとめるので、CPU の負担が小さく、GPU も無駄なく処理できます。メッシュ（ポリゴン数）が小さいほど、インスタンシングの効果が大きいです。
 
 <!-- fig:instancing-calls:begin -->
 
