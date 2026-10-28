@@ -124,7 +124,7 @@ float3 ApplyVolumetric(float3 scene_color, float2 screen_uv, float distance_m) {
 
 | | 内容 |
 | --- | --- |
-| 長所 | 画素ごとのレイマーチより、効率的（セルごとに 1 回） |
+| 長所 | 画素ごとのレイマーチより軽い（セルごとに 1 回） |
 | 長所 | 霧の密度（場所で、変わる）、局所光（ランプ、ライトの散乱）も同じ仕組みで、扱える（[Light Injection](../volumetric-fog/injection.md)） |
 | 長所 | 半透明の物にも同じ、ボリュームを引くだけで適用できる |
 | 長所 | 時間方向のフィルタ（TAA）で品質を、上げられる（[Temporal Accumulation](../volumetric-fog/temporal.md)） |
