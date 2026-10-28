@@ -15,15 +15,16 @@ tags:
 `#include <functional>`
 </div>
 
-`std::bind_front(f, a)` は、**関数 `f` の最初の引数を `a` に決めた、新しい呼び出し可能オブジェクト**を作ります。コールバックにオブジェクトを結び付ける（`this` を渡す）ときなどに使います。`std::bind` より単純で、読みやすいです。
+関数の最初の引数をあらかじめ決めておいて、残りの引数だけを受け取る関数オブジェクトを作りたい。たとえば、「ダメージ計算で、攻撃力だけ固定して、防御力を後から渡す」。`std::bind_front(f, 引数...)` は、<strong>先頭の引数を固定した関数オブジェクト</strong>を作ります。
 
 !!! tip "ポイント"
-    - `std::bind_front(&Player::OnHit, this)` で、メンバ関数をコールバックにできる。
-    - `std::bind` の `_1` のような特別な記号が要らない。
-    - ラムダ式でも同じことができる。
+    - `std::bind_front(f, a)` は、`f(a, 残り...)` を呼ぶ関数オブジェクトを返す
+    - `std::bind` より読みやすく、速い
+    - メンバー関数も、先頭にオブジェクトを渡せば使える
+    - ラムダ式で書いても同じ（短い場合は `bind_front`）
 
 !!! info "このページを読む前に"
-    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。[ラムダ式](../../../basics/lambda.md) も関係します。
+    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -33,66 +34,69 @@ tags:
 
 ```cpp
 template <class F, class... Args>
-constexpr auto bind_front(F&& f, Args&&... args);
+constexpr /* 関数オブジェクト */ bind_front(F&& f, Args&&... args);
 ```
 
-- `f` の前のほうの引数を固定した、新しい関数を作ります。メンバ関数とオブジェクトを組にして、コールバックに渡すのに便利です
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `f` | 呼び出し可能なもの | 関数、ラムダ、メンバー関数ポインターなど |
+| `args...` | 値 | 先頭に固定する引数 |
+
+返る関数オブジェクトを呼ぶと、固定した引数に続けて、渡した引数が `f` に転送されます。固定した引数はコピー（またはムーブ）されて、オブジェクトの中に保持されます。参照で持たせたいときは `std::ref` を使います。
+
+`std::bind` と違い、プレースホルダー（`_1` など）がなく、引数の順序を入れ替えたりはできません。そのぶん単純で、コンパイル時間と実行時の効率が良いです。後ろの引数を固定したいときは、`std::bind_back`（C++23）を使います。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <functional>
 #include <print>
 
-class Score {
- public:
-  void Add(int points) { total_ += points; }
-  int total() const { return total_; }
-
- private:
-  int total_ = 0;
-};
+int Damage(int attack, int defense) { return attack - defense; }
 
 int main() {
-  Score score;
-  std::function<void(int)> on_kill = std::bind_front(&Score::Add, &score);  // score.Add(...)
-  on_kill(100);
-  on_kill(50);
-  std::println("{}", score.total());
+  auto sword = std::bind_front(Damage, 30);     // attack を 30 に固定
+  std::println("防御 10 の敵: {}", sword(10));
+  std::println("防御 25 の敵: {}", sword(25));
 }
 ```
 
 ```text title="実行結果"
-150
+防御 10 の敵: 20
+防御 25 の敵: 5
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| イベントのコールバックにメンバ関数を渡す | `events.Subscribe(std::bind_front(&Player::OnHit, this))` |
+コールバックに、メンバー関数とオブジェクトを結びつけて渡します。
+
+```cpp
+button.OnClick(std::bind_front(&Menu::Start, this));   // this を固定
+```
 
 ## よくあるミス
 
-??? failure "this を渡し忘れる"
-    メンバ関数ポインターの最初の引数はオブジェクトです。
+??? failure "参照で渡したつもりが、コピーされる"
+    `std::ref(x)` で包みます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`bind_back`](bind_back.md) | 後ろの引数を決める |
-| [`bind`](bind.md) | 古い、一般的な版 |
-| [ラムダ式](../../../basics/lambda.md) | 同じことが書ける |
+| [`bind_back`](bind_back.md) | 後ろの引数を固定 |
+| [`bind`](bind.md) | 古い汎用の束縛 |
+| [`invoke`](invoke.md) | 呼び出し可能なものを呼ぶ |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++20 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 先頭の引数を決めた関数を作る
-    - [x] this の結び付けに
-    - [x] bind より単純
+    - [x] `bind_front(f, a)` は先頭の引数を固定した関数オブジェクト
+    - [x] `std::bind` より単純で速い
+    - [x] 参照で持たせるなら `std::ref`
 
 ## 関連ページ
 

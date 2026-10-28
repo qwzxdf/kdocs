@@ -14,15 +14,16 @@ tags:
 `#include <exception>`
 </div>
 
-`std::exception` は、**標準ライブラリの例外すべての親クラス**です。`catch (const std::exception& e)` で、標準の例外をまとめて受け取り、`e.what()` でメッセージを読めます。自作の例外も、これを継承して作るのが普通です。
+例外を投げるとき、どんな型の値でも投げられます（`throw 42;`）。でも、`int` を投げると、何が起きたか、受け取る側には分かりません。標準ライブラリの例外は、すべて `std::exception` から派生していて、<strong>`catch (const std::exception&)` で、まとめて受け取れ、`what()` で説明文を取り出せます</strong>。
 
 !!! tip "ポイント"
-    - `catch (const std::exception& e)` と**参照で**受ける（スライシングを避ける）。
-    - `what()` は C 文字列を返す（文字コードは環境しだい）。
-    - 自作の例外は `std::runtime_error` などを継承すると楽。
+    - 標準ライブラリの例外の基底クラス
+    - `what()` で説明文（`const char*`）を返す
+    - `catch (const std::exception&)` で、標準の例外をまとめて捕まえられる
+    - 自作の例外も、これを継承する
 
 !!! info "このページを読む前に"
-    [標準の例外](../exceptions.md) の概要と合わせて読むと分かりやすいです。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -31,11 +32,17 @@ tags:
 ```cpp
 class exception {
  public:
+  exception() noexcept;
+  virtual ~exception();
   virtual const char* what() const noexcept;
 };
 ```
 
-- すべての標準例外の親。`what()` で説明の文字列が取れます
+`what()` は仮想関数で、派生クラスが説明文を返すように上書きします。標準の派生クラス（`std::runtime_error` など）は、コンストラクターに渡された文字列を返します。
+
+`catch (const std::exception& e)` は、標準の例外と、それを継承した自作の例外をすべて受け取ります。ただし、継承していない型（`throw 42;`）は受け取れません。最後の砦として `catch (...)` を置くことがあります。
+
+必ず `const` 参照で捕まえます。値で捕まえると、派生クラスの部分が切り取られます（スライシング）。
 
 ## 実際に動かしてみる
 
@@ -46,45 +53,58 @@ class exception {
 
 int main() {
   try {
-    throw std::runtime_error("ファイルが無い");
-  } catch (const std::exception& e) {   // 参照で受ける
-    std::println("{}", e.what());
+    throw std::runtime_error("読み込み失敗");
+  } catch (const std::exception& e) {          // 派生クラスもまとめて受け取れる
+    std::println("エラー: {}", e.what());
   }
 }
 ```
 
 ```text title="実行結果"
-ファイルが無い
+エラー: 読み込み失敗
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 最上位でまとめて受けてログに出す | `catch (const std::exception& e) { log(e.what()); }` |
+プログラムの最上位で、予期しない例外を受け取って、ログに残します。
+
+```cpp
+int main() {
+  try {
+    RunGame();
+  } catch (const std::exception& e) {
+    LogError(e.what());
+    return EXIT_FAILURE;
+  }
+}
+```
 
 ## よくあるミス
 
-??? failure "値で受ける"
-    スライシングで派生クラスの情報が失われます。参照で受けます。
+??? failure "値で捕まえて、派生クラスの情報が切り取られる"
+    `const` 参照で捕まえます。
+
+??? failure "`what()` の内容が環境で同じだと思う"
+    標準ライブラリが投げる例外の説明文は、実装で違います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`runtime_error`](runtime_error.md) | 実行時のエラー |
-| [`logic_error`](logic_error.md) | プログラムの間違い |
+| [`runtime_error`](runtime_error.md) | 実行時の誤り |
+| [`logic_error`](logic_error.md) | プログラムの誤り |
+| [`bad_alloc`](bad_alloc.md) | メモリ確保の失敗 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++98 から使えます。`<exception>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 標準例外の基底クラス
-    - [x] 参照で受ける
-    - [x] `what()` でメッセージ
+    - [x] `std::exception` は標準の例外の基底クラス
+    - [x] `what()` で説明文を取る
+    - [x] `const` 参照で捕まえる
 
 ## 関連ページ
 

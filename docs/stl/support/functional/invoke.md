@@ -15,15 +15,16 @@ tags:
 `#include <functional>`
 </div>
 
-`std::invoke` は、**関数、ラムダ、メンバ関数ポインター、メンバ変数ポインターをすべて同じ書き方で呼び出す**関数です。`std::invoke(f, args...)` と書くと、`f` が何であっても呼べます。テンプレートで、渡された「呼べるもの」を呼ぶときに使います。
+関数、ラムダ、関数オブジェクト、メンバー関数ポインター、メンバー変数ポインターは、呼び方がそれぞれ違います（`f(x)`、`(obj.*pmf)(x)`、`obj.*pmd` など）。汎用のテンプレートでは、これらを全部同じ書き方で呼びたい。`std::invoke(f, 引数...)` は、<strong>呼び出し可能なものを、種類によらず同じ書き方で呼びます</strong>。
 
 !!! tip "ポイント"
-    - `std::invoke(&Enemy::Attack, enemy, 10)` のように、メンバ関数も呼べる。
-    - `std::function` や `std::thread` の内部でも使われている。
-    - 呼べるかの確認は `std::is_invocable`。
+    - `std::invoke(f, args...)` は `f` の種類に合わせた書き方で呼ぶ
+    - メンバー関数ポインターは、第 2 引数にオブジェクトを渡す
+    - メンバー変数ポインターもアクセスできる
+    - 汎用のコールバックを呼ぶテンプレートで使う
 
 !!! info "このページを読む前に"
-    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。[ラムダ式](../../../basics/lambda.md) も関係します。
+    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -36,56 +37,75 @@ template <class F, class... Args>
 constexpr std::invoke_result_t<F, Args...> invoke(F&& f, Args&&... args);
 ```
 
-- 普通の関数、ラムダ、**メンバ関数のポインタ**、**メンバ変数のポインタ**を同じ書き方で呼びます。ranges のプロジェクション（`&Enemy::hp`）はこの仕組みで動いています
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `f` | 呼び出し可能なもの | 関数、ラムダ、メンバーへのポインターなど |
+| `args...` | 値 | 渡す引数（メンバーなら先頭がオブジェクト） |
+
+`f` が通常の関数・ラムダ・関数オブジェクトなら `f(args...)` を呼びます。メンバー関数ポインターなら `(args0.*f)(args1...)` を、メンバー変数ポインターなら `args0.*f` を実行します。`args0` がポインターや `reference_wrapper` のときも、自動で `*` を付けて扱います。
+
+汎用のコールバックを受け取る自作のテンプレートで、`f(args...)` と書く代わりに `std::invoke` を使うと、メンバー関数ポインターも渡せるようになります。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <functional>
 #include <print>
 
-struct Enemy {
-  int hp = 30;
-  int Attack(int bonus) const { return 10 + bonus; }
+struct Player {
+  int hp = 100;
+  int Heal(int amount) { return hp += amount; }
 };
 
+int Add(int a, int b) { return a + b; }
+
 int main() {
-  Enemy e;
-  std::println("{} {} {}", std::invoke(&Enemy::hp, e), std::invoke(&Enemy::Attack, e, 5),
-               std::invoke(std::plus{}, 2, 3));
+  Player p;
+  std::println("関数          : {}", std::invoke(Add, 2, 3));
+  std::println("メンバー関数  : {}", std::invoke(&Player::Heal, p, 20));
+  std::println("メンバー変数  : {}", std::invoke(&Player::hp, p));
 }
 ```
 
 ```text title="実行結果"
-30 15 5
+関数          : 5
+メンバー関数  : 120
+メンバー変数  : 120
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 渡された「呼べるもの」を型を気にせず呼ぶ（テンプレート） | `std::invoke(callback, args...)` |
+汎用のコールバックを呼ぶテンプレートで使います。
+
+```cpp
+template <class F, class... Args>
+auto Call(F&& f, Args&&... args) {
+  return std::invoke(std::forward<F>(f), std::forward<Args>(args)...);
+}
+```
 
 ## よくあるミス
 
-??? failure "メンバ関数ポインターを f(obj) で呼ぼうとする"
-    書き方が違います。`std::invoke(f, obj)` を使います。
+??? failure "メンバー関数に `f(obj, ...)` と書いてコンパイルエラーになる"
+    `std::invoke` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::apply`](../../utilities/apply.md) | tuple をばらして呼ぶ |
-| [`mem_fn`](mem_fn.md) | メンバ関数ポインターを包む |
+| [`invoke_r`](invoke_r.md) | 戻り値の型を指定 |
+| [`mem_fn`](mem_fn.md) | メンバーを関数オブジェクトにする |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++17 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 何でも同じ書き方で呼ぶ
-    - [x] メンバ関数ポインターも呼べる
-    - [x] テンプレートの部品
+    - [x] `std::invoke` は呼び出し可能なものを種類によらず呼ぶ
+    - [x] メンバーポインターも呼べる
+    - [x] 汎用のテンプレートで使う
 
 ## 関連ページ
 

@@ -14,24 +14,36 @@ tags:
 `#include <stdexcept>`
 </div>
 
-`std::logic_error` は、**プログラムの論理の間違い**（呼び出し方が悪い、前提条件を満たしていない）を表す例外の基底クラスです。`invalid_argument`、`out_of_range`、`length_error` などの親です。
+呼び出す前に検査すれば防げたはずの、プログラムの誤りを表す例外が `std::logic_error` です。`std::invalid_argument`、`std::domain_error`、`std::length_error`、`std::out_of_range` の基底クラスです。
 
 !!! tip "ポイント"
-    - 本来は「コードを直すべき」エラー。実行時エラーは `runtime_error`。
-    - 派生クラスで細かく表す。
+    - プログラムの論理的な誤りを表す例外の基底クラス
+    - `std::exception` の派生で、`what()` を持つ
+    - 派生: `invalid_argument`、`domain_error`、`length_error`、`out_of_range`
+    - 直接投げるより、派生クラスを投げる
 
 !!! info "このページを読む前に"
-    [標準の例外](../exceptions.md) の概要と合わせて読むと分かりやすいです。
+    [エラー処理の設計](../../../design/foundations/error-handling.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::logic_error {#logic_error}
 
 ```cpp
-class logic_error : public exception;
+class logic_error : public std::exception {
+ public:
+  explicit logic_error(const std::string& what_arg);
+  explicit logic_error(const char* what_arg);
+};
 ```
 
-- プログラムのミス（事前に確認すれば防げた失敗）を表す型の親です
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `what_arg` | 文字列 | `what()` で返すメッセージ |
+
+`logic_error` の仲間は、呼び出し側が事前に条件を確かめれば、起こらずに済む失敗を表します。ファイルがない、ネットワークが切れた、といった外部要因の失敗は、`std::runtime_error` の仲間で表します。
+
+この区別は設計の指針です。ただし、実際の使い分けは、あいまいなことも多く、`std::runtime_error` を投げるプロジェクトも多いです。チームで方針を決めておきます。
 
 ## 実際に動かしてみる
 
@@ -41,45 +53,48 @@ class logic_error : public exception;
 
 int main() {
   try {
-    throw std::logic_error("初期化されていない");
+    throw std::logic_error("あり得ない状態");
   } catch (const std::logic_error& e) {
-    std::println("{}", e.what());
+    std::println("エラー: {}", e.what());
   }
 }
 ```
 
 ```text title="実行結果"
-初期化されていない
+エラー: あり得ない状態
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 前提条件が満たされていないことを伝える | `throw std::logic_error("not initialized");` |
+不変条件が破れたことを表すために使います。
+
+```cpp
+if (hp > max_hp) throw std::logic_error("hp が最大値を超えている");
+```
 
 ## よくあるミス
 
-??? failure "本来 assert で防ぐ間違いを例外にする"
-    ゲームでは `assert` で十分なことが多いです。
+??? failure "外部要因の失敗に使う"
+    `std::runtime_error` の仲間を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`runtime_error`](runtime_error.md) | 実行時のエラー |
-| [`exception`](exception.md) | 基底 |
+| [`runtime_error`](runtime_error.md) | 実行時の誤り |
+| [`invalid_argument`](invalid_argument.md) | 引数が不正 |
+| [`exception`](exception.md) | 基底クラス |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++98 から使えます。`<stdexcept>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 論理の間違いの基底
-    - [x] 派生クラスで細かく
-    - [x] 実行時エラーは runtime_error
+    - [x] `logic_error` はプログラムの誤りを表す
+    - [x] 派生クラスを投げるのが普通
+    - [x] 外部要因は `runtime_error`
 
 ## 関連ページ
 

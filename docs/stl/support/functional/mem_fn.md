@@ -14,74 +14,92 @@ tags:
 `#include <functional>`
 </div>
 
-`std::mem_fn(&Class::member)` は、**メンバ関数（またはメンバ変数）へのポインターを `f(obj)` の形で呼べる関数オブジェクトにする**道具です。`transform` や `for_each` に渡して、各オブジェクトのメンバ関数を呼ぶときに使います。
+`std::transform` に、メンバー関数を渡したい場面があります。`&Player::GetHp` はそのままでは、`f(x)` の形で呼べません。`std::mem_fn(&Player::GetHp)` は、<strong>メンバーへのポインターを、普通の関数のように呼べる関数オブジェクトに変えます</strong>。
 
 !!! tip "ポイント"
-    - ranges のアルゴリズムは、メンバポインターをそのまま渡せる（`&Enemy::hp`）ので、`mem_fn` は不要なことが多い。
-    - 古い `std::for_each` などで必要になる。
+    - `std::mem_fn(pm)` はメンバーへのポインターを関数オブジェクトにする
+    - 呼ぶときは、最初の引数にオブジェクト（またはポインター）を渡す
+    - メンバー変数にも使える
+    - C++20 以降は、ラムダや `std::invoke`、射影でも代用できる
 
 !!! info "このページを読む前に"
-    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。[ラムダ式](../../../basics/lambda.md) も関係します。
+    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::mem_fn {#mem_fn}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-template <class M, class T>
-/* unspecified */ mem_fn(M T::* pm) noexcept;
+template <class R, class T>
+constexpr /* 関数オブジェクト */ mem_fn(R T::* pm) noexcept;
 ```
 
-- メンバ関数のポインタを `f(obj, 引数...)` の形で呼べる関数オブジェクトにします。今は `std::invoke` やプロジェクションで足ります
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `pm` | メンバーへのポインター | メンバー関数またはメンバー変数へのポインター |
+
+返る関数オブジェクトは、`obj` をオブジェクトまたはそのポインター、スマート ポインターとして受け取り、メンバーを呼びます。
+
+`std::ranges` のアルゴリズムでは、射影に `&Player::hp` のようにメンバー ポインターを直接渡せるので、`mem_fn` の出番は減っています。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <algorithm>
 #include <functional>
 #include <print>
+#include <vector>
 
 struct Player {
   int hp;
-  int Doubled() const { return hp * 2; }
+  int GetHp() const { return hp; }
 };
 
 int main() {
-  Player p{7};
-  std::println("{} {}", std::mem_fn(&Player::Doubled)(p), std::mem_fn(&Player::hp)(p));
+  const std::vector<Player> players = {{30}, {80}, {50}};
+  std::vector<int> hps(players.size());
+  std::transform(players.begin(), players.end(), hps.begin(), std::mem_fn(&Player::GetHp));
+  for (int h : hps) std::print("{} ", h);
+  std::println("");
 }
 ```
 
 ```text title="実行結果"
-14 7
+30 80 50 
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 各敵の Update を呼ぶ（古い書き方） | `std::for_each(v.begin(), v.end(), std::mem_fn(&Enemy::Update))` |
+メンバー関数を、アルゴリズムの引数として渡します。
+
+```cpp
+auto total = std::transform_reduce(items.begin(), items.end(), 0, std::plus<>{}, std::mem_fn(&Item::Price));
+```
 
 ## よくあるミス
 
-??? failure "ranges で不要なのに使う"
-    `std::ranges::for_each(v, &Enemy::Update)` のように、メンバポインターを直接渡せます。
+??? failure "`const` でないメンバー関数を `const` オブジェクトに呼ぶ"
+    `const` メンバー関数にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`invoke`](invoke.md) | メンバポインターも呼べる |
+| [`invoke`](invoke.md) | 直接呼び出す |
+| [`bind_front`](bind_front.md) | オブジェクトを先に結びつける |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] メンバポインターを呼べる関数にする
-    - [x] ranges なら直接渡せる
-    - [x] 古いコードで見かける
+    - [x] `mem_fn(pm)` はメンバーポインターを関数オブジェクトにする
+    - [x] 最初の引数がオブジェクト
+    - [x] `ranges` では射影で代用できる
 
 ## 関連ページ
 
