@@ -122,6 +122,8 @@ public class PlayerViewModel
 | メッセージの送受信 | `IEventAggregator` | `WeakReferenceMessenger`（`ObservableRecipient`） |
 | 入力の検証 | `ErrorsContainer<T>`（自作で組む） | `ObservableValidator`（`[Required]`、`[Range]` など） |
 
+`WeakReferenceMessenger` の「Weak（弱い）」は、弱参照のことです。ふつうの参照は、持っている間は相手を GC に片付けさせません。メッセージの受け手を強い参照で登録すると、画面を閉じても登録が残って、受け手が解放されません（C++ で `shared_ptr` を持ち合って解放されないのと同じ種類の問題です）。弱参照は、持っていても GC を止めない参照なので、受け手が消えたら登録も自然に無効になります。
+
 ### 入力の検証を属性で書く（ObservableValidator）
 
 ```csharp

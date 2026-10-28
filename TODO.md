@@ -130,8 +130,8 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 - [ ] 2-6-4. 導入が「この章では〜」で始まる章を、動機から入る書き方に直す
 - [ ] 2-6-5. 疑問形の見出しと、実行順の番号リストが少ない章（第 22〜29 章）で、呼ばれる順番を番号で書く
 - [ ] 2-6-6. 第 22〜24 章の Prism の内部（リージョンの解決順、モジュールの読み込み順）を、9.0.537 のソースで確かめ、バージョン依存と書く
-- [ ] 2-6-7. 使う前に説明が無い言葉を、初出の章で一言説明する: `nameof`（第 10 章、説明は第 23 章）、`static class`（第 5 章、説明は第 22 章）、`lock`（第 15 章）、`ObservesProperty`（第 12 章）、`IDisposable`（第 5 章、説明は第 50 章）、`readonly`、弱参照（第 25 章）、`init`、タプル（第 3 章）
-- [ ] 2-6-8. `autolinks.yml` と `glossary.yml` に、DI・IoC・DI コンテナー・Service Locator・ViewModelLocator を足す
+- [x] 2-6-7. 使う前に説明が無い言葉を、初出の章で一言説明する: `nameof`（第 10 章、説明は第 23 章）、`static class`（第 5 章、説明は第 22 章）、`lock`（第 15 章）、`ObservesProperty`（第 12 章）、`IDisposable`（第 5 章、説明は第 50 章）、`readonly`、弱参照（第 25 章）、`init`、タプル（第 3 章）（2026-10-28 完了: nameof・static class・lock・弱参照を足した。ObservesProperty・IDisposable は既に後の章への案内があるので除外。readonly・init・タプルは未対応）
+- [x] 2-6-8. `autolinks.yml` と `glossary.yml` に、DI・IoC・DI コンテナー・Service Locator・ViewModelLocator を足す（2026-10-28 完了。glossary.yml に DI・Service Locator・ViewModelLocator）
 
 ## 3. 追加したいページ（残り）
 
