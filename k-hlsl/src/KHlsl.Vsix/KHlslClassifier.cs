@@ -194,20 +194,26 @@ namespace KHlsl.Vsix
                 var map = FormatMaps.GetClassificationFormatMap("text");
                 var items = new[]
                 {
-                    Tuple.Create(KHlslClassNames.Control, KHlslSettings.ColorControl, ThemeColors.Pick("#D8A0DF", "#8F08C4")),
-                    Tuple.Create(KHlslClassNames.Preprocessor, KHlslSettings.ColorPreprocessor, ThemeColors.Pick("#9B9B9B", "#808080")),
-                    Tuple.Create(KHlslClassNames.Intrinsic, KHlslSettings.ColorIntrinsic, Rgb("#E8892B")),
-                    Tuple.Create(KHlslClassNames.Visibility, KHlslSettings.ColorVisibility, Rgb("#696969")),
-                    Tuple.Create(KHlslClassNames.Escape, KHlslSettings.ColorEscape, Rgb("#FF00FF")),
-                    Tuple.Create(KHlslClassNames.Format, KHlslSettings.ColorFormat, Rgb("#7B68EE")),
-                    Tuple.Create(KHlslClassNames.Rainbow(1), KHlslSettings.ColorRainbow1, Rgb("#FF9900")),
-                    Tuple.Create(KHlslClassNames.Rainbow(2), KHlslSettings.ColorRainbow2, Rgb("#FF1493")),
-                    Tuple.Create(KHlslClassNames.Rainbow(3), KHlslSettings.ColorRainbow3, Rgb("#9ACD32")),
-                    Tuple.Create(KHlslClassNames.Rainbow(4), KHlslSettings.ColorRainbow4, Rgb("#9400D3"))
+                    Tuple.Create(KHlslClassNames.Control, "color.control", ThemeColors.Pick("#D8A0DF", "#8F08C4")),
+                    Tuple.Create(KHlslClassNames.Preprocessor, "color.preprocessor", ThemeColors.Pick("#9B9B9B", "#808080")),
+                    Tuple.Create(KHlslClassNames.Intrinsic, "color.intrinsic", Rgb("#E8892B")),
+                    Tuple.Create(KHlslClassNames.Visibility, "color.visibility", Rgb("#696969")),
+                    Tuple.Create(KHlslClassNames.Escape, "color.escape", Rgb("#FF00FF")),
+                    Tuple.Create(KHlslClassNames.Format, "color.format", Rgb("#7B68EE")),
+                    Tuple.Create(KHlslClassNames.Rainbow(1), "color.rainbow1", Rgb("#FF9900")),
+                    Tuple.Create(KHlslClassNames.Rainbow(2), "color.rainbow2", Rgb("#FF1493")),
+                    Tuple.Create(KHlslClassNames.Rainbow(3), "color.rainbow3", Rgb("#9ACD32")),
+                    Tuple.Create(KHlslClassNames.Rainbow(4), "color.rainbow4", Rgb("#9400D3"))
                 };
                 map.BeginBatchUpdate();
                 try
                 {
+                    foreach (var key in KHlslClassifier.UserKinds.Values)
+                    {
+                        var ut = Registry.GetClassificationType("khlsl.user." + key);
+                        string uc = KHlslSettings.GetColor("color." + key);
+                        if (ut != null && uc.Length > 0) map.SetTextProperties(ut, map.GetTextProperties(ut).SetForeground(Rgb(uc)));
+                    }
                     foreach (var it in items)
                     {
                         var type = Registry.GetClassificationType(it.Item1);
@@ -253,6 +259,30 @@ namespace KHlsl.Vsix
         {
             "cppType", "cppFunction", "cppMemberFunction", "cppEnumerator", "cppMacro", "cppNamespace",
             "cppGlobalVariable", "cppLocalVariable", "cppParameter", "cppMemberField", "cppLabel"
+        };
+
+        // 設定ページで色を決めた項目は、元の分類に、khlsl.user.* の分類を重ねる
+        internal static readonly Dictionary<Tk, string> UserKinds = new Dictionary<Tk, string>
+        {
+            { Tk.Comment, "comment" },
+            { Tk.String, "string" },
+            { Tk.Number, "number" },
+            { Tk.Operator, "operator" },
+            { Tk.Keyword, "keyword" },
+            { Tk.Type, "type" },
+            { Tk.Namespace, "namespace" },
+            { Tk.Label, "label" },
+            { Tk.Function, "function" },
+            { Tk.MemberFunc, "memberfunc" },
+            { Tk.Param, "param" },
+            { Tk.Local, "local" },
+            { Tk.Member, "member" },
+            { Tk.Global, "global" },
+            { Tk.Macro, "macro" },
+            { Tk.Enumerator, "enumerator" },
+            { Tk.Semantic, "semantic" },
+            { Tk.Attribute, "attribute" },
+            { Tk.Identifier, "identifier" },
         };
 
         private readonly ITextBuffer _buffer;
@@ -355,6 +385,13 @@ namespace KHlsl.Vsix
             if (!on(KHlslSettings.Variables)) { t[Tk.Global] = identifier; t[Tk.Local] = identifier; t[Tk.Param] = identifier; t[Tk.Member] = identifier; }
             if (!on(KHlslSettings.Macros)) t[Tk.Macro] = identifier;
             if (!on(KHlslSettings.Enumerators)) { t[Tk.Enumerator] = identifier; t[Tk.Semantic] = identifier; t[Tk.Attribute] = identifier; }
+
+            foreach (var kv in UserKinds)
+            {
+                if (KHlslSettings.GetColor("color." + kv.Value).Length == 0) continue;
+                var u = get("khlsl.user." + kv.Value);
+                if (u != null && t.ContainsKey(kv.Key)) t[kv.Key] = combine(new[] { t[kv.Key], u });
+            }
 
             _missing = SemanticNames.Count(nm => get(nm + ";Semantic") == null);
             _types = t;
