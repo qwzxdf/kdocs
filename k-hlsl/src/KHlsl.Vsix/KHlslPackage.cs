@@ -21,8 +21,9 @@ namespace KHlsl.Vsix
     /// LSP の補完が使われない。"khlsl" へ切り離すと、K-HLSL の機能だけが働く。
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration("K-HLSL", "HLSL language support (SM 6.9)", "1.3.0")]
+    [InstalledProductRegistration("K-HLSL", "HLSL language support (SM 6.9)", "1.3.1")]
     [ProvideMenuResource("Menus.ctmenu", 1)]
+    [ProvideOptionPage(typeof(KHlslColorOptions), "K-HLSL", "色", 0, 0, true)]
     [ProvideToolWindow(typeof(CBufferToolWindow), Style = VsDockStyle.Tabbed, Window = "34E76E81-EE4A-11D0-AE2E-00A0C90FFFC3")]
     [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
@@ -39,9 +40,10 @@ namespace KHlsl.Vsix
         private const int CmdOpenDocs = 0x0102;
         private const int CmdOpenLogs = 0x0103;
         private const int CmdCBuffer = 0x0104;
+        private const int CmdColorSettings = 0x0105;
         private const string DocsUrl = "https://qwzxdf.github.io/kdocs/khlsl/";
         // ツール → オプション → 環境 → フォントおよび色
-        private const string FontsAndColorsPage = "{1EDA5DD4-927A-43a7-810E-7FD247D0DA1D}";
+        private const string FontsAndColorsPage = "{57F6B7D2-1436-11D1-883C-0000F87579D2}";
 
         internal static void Log(string text)
         {
@@ -73,6 +75,7 @@ namespace KHlsl.Vsix
             {
                 AddCommand(commands, CmdEditColors, (s, e) => EditColors());
                 AddCommand(commands, CmdColorList, (s, e) => ShowColorList());
+                AddCommand(commands, CmdColorSettings, (s, e) => ShowOptionPage(typeof(KHlslColorOptions)));
                 AddCommand(commands, CmdOpenDocs, (s, e) => OpenShell(DocsUrl));
                 AddCommand(commands, CmdCBuffer, (s, e) => ShowCBufferWindow());
                 AddCommand(commands, CmdOpenLogs, (s, e) => OpenShell(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "K-HLSL")));
@@ -133,18 +136,16 @@ namespace KHlsl.Vsix
             ThreadHelper.ThrowIfNotOnUIThread();
             try
             {
-                // Tools.Options にページの GUID(波括弧なし)を渡すと、そのページが開く。
-                // PostExecCommand は、渡し方によってはページが選ばれず何も起きないので、DTE を先に使う
-                try
+                // Tools.Options にオプション ページの GUID を渡すと、そのページが開く。
+                // GUID は VS の ToolsOptionsPages\Environment\Fonts And Colors の Page(設定の保存用のカテゴリの GUID とは別)。
+                // DTE.ExecuteCommand では、ページが選ばれず、直前に開いたページのままになる
+                // VS 2026 では、旧「フォントおよび色」のページが無い(新しい設定に置き換わっている)ので、
+                // そのときは、K-HLSL の色の設定を開く
+                if (!FontsAndColorsPageExists())
                 {
-                    var dte = GetService(typeof(EnvDTE.DTE)) as EnvDTE.DTE;
-                    if (dte != null)
-                    {
-                        dte.ExecuteCommand("Tools.Options", FontsAndColorsPage.Trim('{', '}'));
-                        return;
-                    }
+                    ShowOptionPage(typeof(KHlslColorOptions));
+                    return;
                 }
-                catch (Exception ex) { Log("ExecuteCommand Tools.Options failed: " + ex.Message); }
                 var shell = GetService(typeof(Microsoft.VisualStudio.Shell.Interop.SVsUIShell)) as Microsoft.VisualStudio.Shell.Interop.IVsUIShell;
                 if (shell == null) return;
                 Guid group = VSConstants.GUID_VSStandardCommandSet97;
@@ -152,6 +153,24 @@ namespace KHlsl.Vsix
                 shell.PostExecCommand(ref group, (uint)VSConstants.VSStd97CmdID.ToolsOptions, 0, ref page);
             }
             catch (Exception ex) { Log("Tools.Options failed: " + ex.Message); }
+        }
+
+        /// <summary>旧「フォントおよび色」のページが使えるか(VS の UICONTEXT_FontsAndColorsLegacyVisible)。</summary>
+        private bool FontsAndColorsPageExists()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            try
+            {
+                var sel = GetService(typeof(Microsoft.VisualStudio.Shell.Interop.SVsShellMonitorSelection)) as Microsoft.VisualStudio.Shell.Interop.IVsMonitorSelection;
+                if (sel == null) return true;
+                Guid ctx = new Guid("AA5935A5-6562-47A6-AEFB-536CD2F7C524");
+                uint cookie;
+                if (sel.GetCmdUIContextCookie(ref ctx, out cookie) != VSConstants.S_OK) return true;
+                int active;
+                sel.IsCmdUIContextActive(cookie, out active);
+                return active != 0;
+            }
+            catch (Exception) { return true; }
         }
 
         private void ShowColorList()

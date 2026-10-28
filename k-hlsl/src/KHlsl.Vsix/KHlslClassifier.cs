@@ -162,14 +162,67 @@ namespace KHlsl.Vsix
         [Import] internal ITextBufferFactoryService BufferFactory { get; set; }
         [Import] internal IContentTypeRegistryService ContentTypes { get; set; }
         [Import] internal IClassifierAggregatorService Aggregator { get; set; }
+        [Import] internal IClassificationFormatMapService FormatMaps { get; set; }
 
         private static object _cppKeepAlive;
+        private static bool _colorsHooked;
 
         public IClassifier GetClassifier(ITextBuffer buffer)
         {
             WarmUpCpp();
+            HookColors();
             return buffer.Properties.GetOrCreateSingletonProperty(() => new KHlslClassifier(buffer, Registry));
         }
+
+        // 設定ページで決めた色を、分類の書式へ反映する(空欄は、定義した既定の色)
+        private void HookColors()
+        {
+            if (_colorsHooked) return;
+            _colorsHooked = true;
+            ApplyColors();
+            KHlslSettings.Changed += (s, e) =>
+            {
+                var d = System.Windows.Application.Current != null ? System.Windows.Application.Current.Dispatcher : null;
+                if (d != null) d.BeginInvoke(new Action(ApplyColors)); else ApplyColors();
+            };
+        }
+
+        private void ApplyColors()
+        {
+            try
+            {
+                var map = FormatMaps.GetClassificationFormatMap("text");
+                var items = new[]
+                {
+                    Tuple.Create(KHlslClassNames.Control, KHlslSettings.ColorControl, ThemeColors.Pick("#D8A0DF", "#8F08C4")),
+                    Tuple.Create(KHlslClassNames.Preprocessor, KHlslSettings.ColorPreprocessor, ThemeColors.Pick("#9B9B9B", "#808080")),
+                    Tuple.Create(KHlslClassNames.Intrinsic, KHlslSettings.ColorIntrinsic, Rgb("#E8892B")),
+                    Tuple.Create(KHlslClassNames.Visibility, KHlslSettings.ColorVisibility, Rgb("#696969")),
+                    Tuple.Create(KHlslClassNames.Escape, KHlslSettings.ColorEscape, Rgb("#FF00FF")),
+                    Tuple.Create(KHlslClassNames.Format, KHlslSettings.ColorFormat, Rgb("#7B68EE")),
+                    Tuple.Create(KHlslClassNames.Rainbow(1), KHlslSettings.ColorRainbow1, Rgb("#FF9900")),
+                    Tuple.Create(KHlslClassNames.Rainbow(2), KHlslSettings.ColorRainbow2, Rgb("#FF1493")),
+                    Tuple.Create(KHlslClassNames.Rainbow(3), KHlslSettings.ColorRainbow3, Rgb("#9ACD32")),
+                    Tuple.Create(KHlslClassNames.Rainbow(4), KHlslSettings.ColorRainbow4, Rgb("#9400D3"))
+                };
+                map.BeginBatchUpdate();
+                try
+                {
+                    foreach (var it in items)
+                    {
+                        var type = Registry.GetClassificationType(it.Item1);
+                        if (type == null) continue;
+                        string custom = KHlslSettings.GetColor(it.Item2);
+                        Color c = custom.Length > 0 ? Rgb(custom) : it.Item3;
+                        map.SetTextProperties(type, map.GetTextProperties(type).SetForeground(c));
+                    }
+                }
+                finally { map.EndBatchUpdate(); }
+            }
+            catch (Exception ex) { KHlslPackage.Log("色の反映に失敗: " + ex.Message); }
+        }
+
+        private static Color Rgb(string hex) { return (Color)ColorConverter.ConvertFromString(hex); }
 
         /// <summary>
         /// 色は、VS の C++ の分類(cppFunction;Semantic など)を借りている。それらは、C++ のエディターが
@@ -219,6 +272,14 @@ namespace KHlsl.Vsix
             _registry = registry;
             Resolve();
             buffer.Changed += OnChanged;
+            KHlslSettings.Changed += OnSettingsChanged;
+        }
+
+        private void OnSettingsChanged(object sender, EventArgs e)
+        {
+            Resolve();
+            var d = System.Windows.Application.Current != null ? System.Windows.Application.Current.Dispatcher : null;
+            if (d != null) d.BeginInvoke(new Action(RaiseAll)); else RaiseAll();
         }
 
         /// <summary>分類名から、分類の型を引く。C++ 側が未登録の物は、近い型で代用して、あとで引き直す。</summary>
@@ -277,6 +338,23 @@ namespace KHlsl.Vsix
             for (int n = 1; n <= 9; n++)
                 t[(Tk)((int)Tk.Rainbow1 + n - 1)] = combine(new[] { op, get(KHlslClassNames.Rainbow(n)) });
             t[Tk.RainbowError] = combine(new[] { op, get(KHlslClassNames.RainbowError) });
+
+            // ツール → オプション → K-HLSL → 色 で OFF にした項目は、専用の色をやめる
+            Func<string, bool> on = KHlslSettings.IsOn;
+            if (!on(KHlslSettings.Rainbow))
+                for (int n = 1; n <= 9; n++) t[(Tk)((int)Tk.Rainbow1 + n - 1)] = op;
+            if (!on(KHlslSettings.RainbowError)) t[Tk.RainbowError] = op;
+            if (!on(KHlslSettings.Control)) t[Tk.Control] = keyword;
+            if (!on(KHlslSettings.Preprocessor)) t[Tk.Preprocessor] = get("preprocessor keyword") ?? keyword;
+            if (!on(KHlslSettings.Intrinsic)) t[Tk.Intrinsic] = t[Tk.Function];
+            if (!on(KHlslSettings.Visibility)) t[Tk.Visibility] = keyword;
+            if (!on(KHlslSettings.Escape)) t[Tk.Escape] = str;
+            if (!on(KHlslSettings.FormatSpec)) t[Tk.Format] = str;
+            if (!on(KHlslSettings.Types)) { t[Tk.Type] = identifier; t[Tk.Namespace] = identifier; t[Tk.Label] = identifier; }
+            if (!on(KHlslSettings.Functions)) { t[Tk.Function] = identifier; t[Tk.MemberFunc] = identifier; }
+            if (!on(KHlslSettings.Variables)) { t[Tk.Global] = identifier; t[Tk.Local] = identifier; t[Tk.Param] = identifier; t[Tk.Member] = identifier; }
+            if (!on(KHlslSettings.Macros)) t[Tk.Macro] = identifier;
+            if (!on(KHlslSettings.Enumerators)) { t[Tk.Enumerator] = identifier; t[Tk.Semantic] = identifier; t[Tk.Attribute] = identifier; }
 
             _missing = SemanticNames.Count(nm => get(nm + ";Semantic") == null);
             _types = t;

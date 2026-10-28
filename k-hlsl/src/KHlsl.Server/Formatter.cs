@@ -73,10 +73,11 @@ namespace KHlsl.Server
             return new Engine(lines, Math.Max(1, tabSize), insertSpaces).Run();
         }
 
-        /// <summary>textBefore(最後が改行)の次の行に、改行で入るときの字下げ(列)。</summary>
-        public static int IndentForNewLine(string textBefore, int tabSize)
+        /// <summary>textBefore(最後が改行)の次の行に、lineText が入るときの字下げ(列)。空の行なら、次に文を書く位置。</summary>
+        public static int IndentForNewLine(string textBefore, string lineText, int tabSize)
         {
-            var lines = SplitLines(textBefore + "x");
+            string body = (lineText ?? "").Trim();
+            var lines = SplitLines(textBefore + (body.Length == 0 ? "x" : body));
             var res = Format(lines, tabSize, true);
             string last = res[res.Length - 1];
             return VisualWidth(last.Substring(0, last.Length - last.TrimStart().Length), tabSize);

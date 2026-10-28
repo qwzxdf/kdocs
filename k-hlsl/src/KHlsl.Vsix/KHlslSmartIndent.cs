@@ -28,7 +28,7 @@ namespace KHlsl.Vsix
                 int tab = _view.Options.GetOptionValue(DefaultOptions.TabSizeOptionId);
                 string before = line.Snapshot.GetText(0, line.Start.Position);
                 if (before.Length == 0) return 0;
-                return HlslFormatter.IndentForNewLine(before, tab);
+                return HlslFormatter.IndentForNewLine(before, line.GetText(), tab);
             }
             catch (Exception) { return null; }
         }

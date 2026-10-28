@@ -38,6 +38,12 @@
           <ButtonText>定数バッファのレイアウトを表示</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidKHlslCmdSet" id="CmdColorSettings" priority="0x0050" type="Button">
+        <Parent guid="guidKHlslCmdSet" id="KHlslColorsGroup" />
+        <Strings>
+          <ButtonText>色の ON / OFF を設定...（レインボー括弧など）</ButtonText>
+        </Strings>
+      </Button>
       <Button guid="guidKHlslCmdSet" id="CmdEditColors" priority="0x0100" type="Button">
         <Parent guid="guidKHlslCmdSet" id="KHlslColorsGroup" />
         <Strings>
@@ -80,6 +86,7 @@
       <IDSymbol name="KHlslHelpGroup" value="0x1011" />
       <IDSymbol name="KHlslToolsGroup" value="0x1012" />
       <IDSymbol name="CmdCBuffer" value="0x0104" />
+      <IDSymbol name="CmdColorSettings" value="0x0105" />
       <IDSymbol name="CmdEditColors" value="0x0100" />
       <IDSymbol name="CmdColorList" value="0x0101" />
       <IDSymbol name="CmdOpenDocs" value="0x0102" />
