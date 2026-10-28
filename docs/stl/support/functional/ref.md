@@ -14,77 +14,92 @@ tags:
 `#include <functional>`
 </div>
 
-`std::ref` は、**値を参照として、`std::thread` や `std::bind` などに渡す**ための関数です。これらは引数を**コピー**するので、参照で渡したいときは `std::ref(x)` で包みます。`std::cref` は `const` 参照版です。
+`std::thread` や `std::bind` に引数を渡すと、既定ではコピーされます。変数そのものを渡したいときは、参照を渡したつもりでも、コピーが渡されます。`std::ref(x)` は、<strong>`x` を参照として持ち運べる`reference_wrapper`</strong>を返します。
 
 !!! tip "ポイント"
-    - `std::thread t(f, std::ref(x));` で、参照渡し。
-    - 包んだ値は `reference_wrapper` になる。
-    - 元の値より長く保持しない（ダングリング）。
+    - `std::ref(x)` は `x` への参照を包んだ `std::reference_wrapper` を返す
+    - `std::thread` や `std::bind` に、参照渡しをするために使う
+    - `std::cref(x)` は `const` 参照版
+    - 参照先が先に破棄されないよう、寿命に注意する
 
 !!! info "このページを読む前に"
-    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。[ラムダ式](../../../basics/lambda.md) も関係します。
+    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::ref {#ref}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
 template <class T>
 std::reference_wrapper<T> ref(T& t) noexcept;
 ```
 
-- 値渡しされる場所（スレッドの引数、`std::bind`、コンテナ）に**参照として**渡したいときに使います
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `t` | 左辺値 | 参照を持たせたい変数 |
+
+`std::reference_wrapper<T>` は、コピーできる参照のようなオブジェクトです。`T&` に暗黙に変換できます。
+
+`std::thread` にスレッド関数の引数として値を渡すと、コピーされます。関数が参照 `int&` を受け取る場合、そのままだとコンパイルエラーになります。`std::ref(x)` で包むと、`x` そのものが渡されます。
+
+参照先の寿命は、呼び出し側で保証します。スレッドが動いている間に、変数が破棄されると、ぶら下がり参照になります。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <functional>
 #include <print>
 #include <thread>
-#include <vector>
 
-void Fill(std::vector<int>& v) { v.assign(3, 7); }
+void AddOne(int& value) { ++value; }
 
 int main() {
-  std::vector<int> data;
-  std::jthread(Fill, std::ref(data)).join();  // ref が無いとコピーが渡ってコンパイルエラー
-  std::println("{}", data);
+  int count = 0;
+  std::thread t(AddOne, std::ref(count));   // count そのものを渡す
+  t.join();
+  std::println("count = {}", count);
 }
 ```
 
 ```text title="実行結果"
-[7, 7, 7]
+count = 1
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| スレッドに結果の書き込み先を渡す | `std::thread t(Work, std::ref(result));` |
+スレッドや `bind` の引数に、変数の参照を渡します。
+
+```cpp
+std::thread worker(Process, std::ref(shared_state), std::cref(config));
+```
 
 ## よくあるミス
 
-??? failure "ref を付けずに参照を渡したつもり"
-    コピーが渡されて、書き込みが元に反映されません。
+??? failure "`std::ref` を使わず、コピーが更新されて元が変わらない"
+    `std::ref` で包みます。
 
-??? failure "元の変数より長生きさせる"
-    ぶら下がります。
+??? failure "参照先が先に破棄される"
+    スレッドを `join` してから変数を破棄します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`reference_wrapper`](reference_wrapper.md) | 包む型 |
-| [`std::jthread`](../../concurrency/jthread.md) | スレッドに渡す |
+| [`reference_wrapper`](reference_wrapper.md) | ラッパーの型 |
+| [`cref`](cref.md) | `const` 参照版 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 値を参照のまま渡す
-    - [x] thread / bind はコピーする
-    - [x] 元より長生きさせない
+    - [x] `std::ref(x)` は参照を持ち運べるラッパー
+    - [x] `thread` / `bind` で参照渡しに使う
+    - [x] 参照先の寿命に注意
 
 ## 関連ページ
 
