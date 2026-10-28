@@ -219,11 +219,11 @@ public class LogService : ILogService
 {
     public ObservableCollection<LogEntry> Entries { get; } = new();
 
-    public void Info(string message) => Add("Info", message);
-    public void Warning(string message) => Add("Warning", message);
-    public void Error(string message) => Add("Error", message);
+    public void Info(string message) => Add(LogLevel.Info, message);
+    public void Warning(string message) => Add(LogLevel.Warning, message);
+    public void Error(string message) => Add(LogLevel.Error, message);
 
-    private void Add(string level, string message)
+    private void Add(LogLevel level, string message)
     {
         var entry = new LogEntry(DateTime.Now, level, message);
         // ObservableCollection は、UI スレッドで変更しなければならない
@@ -264,7 +264,7 @@ public class LogViewModel
 public AssetViewModel(ILogService log, IAssetScanner scanner)    // LogViewModel の代わり
 ```
 
-`_log.Add("Info", msg)` と書いていた所は、`_log.Info(msg)`、`_log.Error(...)` に直します。
+`_log.Add(LogLevel.Info, msg)` と書いていた所は、`_log.Info(msg)`、`_log.Error(...)` に直します。
 
 登録は、`LogViewModel` から `ILogService` に替えます。
 

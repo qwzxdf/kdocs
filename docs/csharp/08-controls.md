@@ -13,6 +13,9 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章での Editor"
+    この章では、Editor にファイルを足しません。第 6 章で作った `MainWindow`（`TabControl` や `Border`）が、どのコントロールの仲間かを読み解きます。コードは、仕組みを見るための例です。
+
 ## よく使うコントロール
 
 全部を覚える必要はありません。「やりたいこと」から探せるように、用途別に並べました。
@@ -48,13 +51,13 @@ WPF のコントロールは、「中に何を入れられるか」で大きく 
 
 `Button`、`Label`、`CheckBox`、`Window`、`ScrollViewer`、`Border`（これは `Decorator` ですが同じように使えます）など。`Content` プロパティに 1 つだけ入ります。
 
-```xml
+```xml title="例（Editor には入れない）"
 <Button Content="保存" />
 ```
 
 文字を入れれば文字のボタンになりますが、`Content` に入れられるのは「文字」だけではありません。
 
-```xml
+```xml title="例（Editor には入れない）"
 <Button>
     <StackPanel Orientation="Horizontal">
         <Image Source="save.png" Width="16" />
@@ -71,7 +74,7 @@ WPF のコントロールは、「中に何を入れられるか」で大きく 
 
 `ListBox`、`ComboBox`、`TabControl`、`TreeView`、`Menu`、`DataGrid` など。要素の集まりを `Items`（直接書く）か `ItemsSource`（バインディング）で受け取ります。
 
-```xml
+```xml title="例（Editor には入れない）"
 <ListBox>
     <ListBoxItem Content="Camera" />
     <ListBoxItem Content="Cube" />
@@ -88,7 +91,7 @@ WPF のコントロールは、「中に何を入れられるか」で大きく 
 
 XAML に書いた入れ子は、部品の木になります。たとえばこの XAML は、
 
-```xml
+```xml title="例（Editor には入れない）"
 <Window>
     <Grid>
         <Button Content="OK" />

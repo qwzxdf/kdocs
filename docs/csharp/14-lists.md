@@ -270,7 +270,9 @@ _entriesView.Filter = o => o is FolderEntry
 ```csharp title="Models/LogEntry.cs（新規）"
 namespace Editor.Models;
 
-public record LogEntry(DateTime Time, string Level, string Message);
+public enum LogLevel { Info, Warning, Error }
+
+public record LogEntry(DateTime Time, LogLevel Level, string Message);
 ```
 
 ```csharp title="ViewModels/LogViewModel.cs（新規）"
@@ -283,8 +285,8 @@ public class LogViewModel
 {
     public ObservableCollection<LogEntry> Entries { get; } = new()
     {
-        new(DateTime.Now, "Info", "Editor を起動しました"),
-        new(DateTime.Now, "Warning", "エンジンにはまだつながっていません"),
+        new(DateTime.Now, LogLevel.Info, "Editor を起動しました"),
+        new(DateTime.Now, LogLevel.Warning, "エンジンにはまだつながっていません"),
     };
 }
 ```
@@ -321,7 +323,7 @@ public class LogViewModel
 
 ```csharp title="実験：ログを 1 万件足す（Editor には入れない）"
 for (int i = 0; i < 10_000; i++)
-    Entries.Add(new(DateTime.Now, "Info", $"テスト {i}"));
+    Entries.Add(new(DateTime.Now, LogLevel.Info, $"テスト {i}"));
 ```
 
 `LogViewModel` のコンストラクターに一時的に置いて実行しても、スクロールは軽いままです。確かめたら、消してください。
