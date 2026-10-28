@@ -190,6 +190,16 @@ namespace KHlsl.Server
                 case "textDocument/documentSymbol": Respond(id, DocumentSymbols(p)); break;
                 case "textDocument/definition": Respond(id, Definition(p)); break;
                 case "textDocument/codeLens": Respond(id, CodeLens(p)); break;
+                case "textDocument/formatting": Respond(id, FormatRequest(p, -1, -1)); break;
+                case "textDocument/rangeFormatting":
+                    Respond(id, FormatRequest(p, (int)p["range"]["start"]["line"], (int)p["range"]["end"]["line"]));
+                    break;
+                case "textDocument/onTypeFormatting":
+                {
+                    int line = (int)p["position"]["line"];
+                    Respond(id, FormatRequest(p, line, line));
+                    break;
+                }
                 case "khlsl/cbuffers": Respond(id, CBuffersRequest(p)); break;
                 case "khlsl/cppcompare": Respond(id, CppCompareRequest(p)); break;
                 case "khlsl/cppstruct": Respond(id, CppStructProbe(p)); break;
@@ -239,10 +249,42 @@ namespace KHlsl.Server
                     ["signatureHelpProvider"] = new JObject { ["triggerCharacters"] = new JArray("(", ","), ["retriggerCharacters"] = new JArray(",") },
                     ["documentSymbolProvider"] = true,
                     ["definitionProvider"] = true,
-                    ["codeLensProvider"] = new JObject { ["resolveProvider"] = false }
+                    ["codeLensProvider"] = new JObject { ["resolveProvider"] = false },
+                    ["documentFormattingProvider"] = true,
+                    ["documentRangeFormattingProvider"] = true,
+                    ["documentOnTypeFormattingProvider"] = new JObject { ["firstTriggerCharacter"] = "}", ["moreTriggerCharacter"] = new JArray(";") }
                 },
-                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.2.0" }
+                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.3.0" }
             };
+        }
+
+        // ---- 整形 ----
+        /// <summary>startLine〜endLine(-1 なら全体)の、整形で変わる行だけを、最小の TextEdit にして返す。</summary>
+        private JToken FormatRequest(JToken p, int startLine, int endLine)
+        {
+            string uri = (string)p["textDocument"]["uri"];
+            var opt = p["options"];
+            int tab = opt != null && opt["tabSize"] != null ? (int)opt["tabSize"] : 4;
+            bool spaces = opt == null || opt["insertSpaces"] == null || (bool)opt["insertSpaces"];
+            var lines = HlslFormatter.SplitLines(TextOf(uri));
+            var res = HlslFormatter.Format(lines, tab, spaces);
+            var edits = new JArray();
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (startLine >= 0 && (i < startLine || i > endLine)) continue;
+                string a = lines[i], b = res[i];
+                if (a == b) continue;
+                int pre = 0;
+                while (pre < a.Length && pre < b.Length && a[pre] == b[pre]) pre++;
+                int suf = 0;
+                while (suf < a.Length - pre && suf < b.Length - pre && a[a.Length - 1 - suf] == b[b.Length - 1 - suf]) suf++;
+                edits.Add(new JObject
+                {
+                    ["range"] = Range(i, pre, i, a.Length - suf),
+                    ["newText"] = b.Substring(pre, b.Length - suf - pre)
+                });
+            }
+            return edits;
         }
 
         // ---- 診断 ----
