@@ -254,7 +254,7 @@ namespace KHlsl.Server
                     ["documentRangeFormattingProvider"] = true,
                     ["documentOnTypeFormattingProvider"] = new JObject { ["firstTriggerCharacter"] = "}", ["moreTriggerCharacter"] = new JArray(";") }
                 },
-                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.3.5" }
+                ["serverInfo"] = new JObject { ["name"] = "K-HLSL", ["version"] = "1.3.6" }
             };
         }
 
