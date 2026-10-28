@@ -14,72 +14,91 @@ tags:
 `#include <iterator>`
 </div>
 
-`std::empty(c)` は、**コンテナが空かを調べる**関数です。`c.empty()` と同じですが、**配列や `initializer_list` にも使える**のが利点です。
+配列とコンテナの両方を受け取る関数で、「空かどうか」を調べたい。コンテナは `c.empty()` ですが、配列にはメンバー関数がありません。`std::empty` は、<strong>配列にもコンテナにも使える「空か」の判定</strong>です。
 
 !!! tip "ポイント"
-    - テンプレートで、コンテナも配列も同じ書き方で扱える。
-    - 普段は `c.empty()` で足りる。
+    - `std::empty(c)` はコンテナなら `c.empty()`、配列なら `false`
+    - 要素数 0 の `std::initializer_list` にも使える
+    - 汎用のテンプレートで使える
+    - `<iterator>` で宣言される
 
 !!! info "このページを読む前に"
-    [`<iterator>`](../iterator.md) の概要を先に読むと分かりやすいです。[イテレータ](../../../basics/iterator.md) の基本が前提です。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::empty {#empty}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
 template <class C>
 constexpr auto empty(const C& c) -> decltype(c.empty());
+template <class T, std::size_t N>
+constexpr bool empty(const T (&array)[N]) noexcept;
 ```
 
-- 空か。C の配列は常に false
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `c` | コンテナまたは配列 | 対象 |
+
+コンテナなら `c.empty()` の結果を返します。配列は、要素数が型に含まれていて、長さ 0 の配列は作れないので、常に `false` です。
+
+`size() == 0` と書くより `empty()` のほうが、意図が明確で、コンテナによっては速いです（`std::list` など）。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <iterator>
 #include <print>
+#include <vector>
 
 int main() {
-  int a[] = {4, 5, 6};
-  int sum = 0;
-  for (auto it = std::begin(a); it != std::end(a); ++it) {
-    sum += *it;
-  }
-  std::println("{} {} {}", sum, *std::data(a), std::empty(a));
+  const std::vector<int> v;
+  int a[3] = {1, 2, 3};
+  std::println("空の vector: {}", std::empty(v));
+  std::println("配列は常に false: {}", std::empty(a));
 }
 ```
 
 ```text title="実行結果"
-15 4 false
+空の vector: true
+配列は常に false: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| テンプレートで、何でも空か調べる | `std::empty(c)` |
+汎用のテンプレートで、空の入力を早めに弾きます。
+
+```cpp
+template <class Range>
+void Process(const Range& r) {
+  if (std::empty(r)) return;
+}
+```
 
 ## よくあるミス
 
-??? failure "size() == 0 と書く"
-    `empty()` のほうが速いコンテナがあります（`list` など）。
+??? failure "`size() == 0` で書いて遅い"
+    `empty()` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`size`](size.md) | 要素数 |
-| [`data`](data.md) | 先頭のポインター |
+| [`ssize`](ssize.md) | 符号つきの要素数 |
+| [`begin`](begin.md) | 先頭のイテレーター |
 
 ## コンパイラ対応
 
-C++11 から使えます。`ssize` は C++20 です。
+C++17 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 空かを調べる
-    - [x] 配列にも使える
-    - [x] 普段は c.empty()
+    - [x] `std::empty(c)` は空かを調べる
+    - [x] 配列にも使える（常に `false`）
+    - [x] `size() == 0` より `empty()`
 
 ## 関連ページ
 

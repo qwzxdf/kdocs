@@ -14,26 +14,38 @@ tags:
 `#include <iterator>`
 </div>
 
-`std::inserter(c, pos)` は、**代入するたびに、`pos` の位置へ `insert` するイテレータ**を作ります。`set` や `map` のように `push_back` が無いコンテナへの出力先として、よく使います。
+`std::set` や `std::map` には、末尾や先頭という位置がありません。`std::copy` で要素を詰めたいときは、`std::inserter` を使います。<strong>コンテナの指定した位置に、`insert` で追加するイテレーター</strong>を作ります。
 
 !!! tip "ポイント"
-    - `std::ranges::copy(src, std::inserter(set, set.end()))`。
-    - `set` では、位置はヒントとして使われる。
-    - `vector` の途中にも挿入できる。
+    - `std::inserter(c, pos)` で、`pos` の位置への挿入イテレーターを作る
+    - 代入するたびに `c.insert(pos, value)` が呼ばれる
+    - `std::set` / `std::map` / `std::list` などで使える
+    - `vector` でも使える（途中への挿入は遅い）
 
 !!! info "このページを読む前に"
-    [`<iterator>`](../iterator.md) の概要を先に読むと分かりやすいです。[イテレータ](../../../basics/iterator.md) の基本が前提です。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::inserter {#inserter}
 
+<span class="ver ver-98">C++98</span>
+
 ```cpp
 template <class Container>
-std::insert_iterator<Container> inserter(Container& c, typename Container::iterator pos);
+insert_iterator<Container> inserter(Container& c, typename Container::iterator pos);
 ```
 
-- 書き込むと `c.insert(pos, x)` が呼ばれます。set や map に結果を入れるのに使います
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `c` | コンテナ | 追加先 |
+| `pos` | イテレーター | 挿入位置（`set` ならヒント） |
+
+代入のたびに `insert` が呼ばれます。`set` では位置は並び順を決めず、ヒントとして使われます。挿入のたびに位置を進めるので、連続して並んだ位置に挿入できます。
+
+`vector` の途中に挿入すると、後ろの要素を移動するので遅くなります。`vector` の末尾なら `back_inserter` を使います。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
@@ -43,44 +55,44 @@ std::insert_iterator<Container> inserter(Container& c, typename Container::itera
 #include <vector>
 
 int main() {
-  std::vector<int> drops = {3, 1, 3, 2};
-  std::set<int> kinds;
-  std::ranges::copy(drops, std::inserter(kinds, kinds.end()));
-  std::println("{}", kinds);
+  const std::vector<int> src = {3, 1, 2, 3};
+  std::set<int> dst;
+  std::copy(src.begin(), src.end(), std::inserter(dst, dst.end()));
+  for (int x : dst) std::print("{} ", x);   // 重複は取り除かれ、昇順に並ぶ
+  std::println("");
 }
 ```
 
 ```text title="実行結果"
-{1, 2, 3}
+1 2 3 
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 結果を set に集める | `std::ranges::copy(v, std::inserter(s, s.end()))` |
+`vector` の内容を `set` に取り込みます。重複が取り除かれ、整列されます。
 
 ## よくあるミス
 
-??? failure "set の出力に back_inserter を使う"
-    `set` に `push_back` はありません。`inserter` を使います。
+??? failure "`vector` の先頭付近に挿入して遅い"
+    `back_inserter` か、別の方法を考えます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`back_inserter`](back_inserter.md) | 末尾に足す |
+| [`back_insert_iterator`](back_insert_iterator.md) | 末尾に追加 |
+| [`insert_iterator`](insert_iterator.md) | 挿入イテレーターの型 |
 
 ## コンパイラ対応
 
-C++11 から使えます。`ssize` は C++20 です。
+C++98 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 位置を指定して挿入する出力先
-    - [x] set / map の出力に
-    - [x] `vector` の途中にも使える
+    - [x] `std::inserter(c, pos)` は `insert` で追加するイテレーター
+    - [x] `set` / `map` に `copy` するときに使う
+    - [x] `vector` の途中への挿入は遅い
 
 ## 関連ページ
 

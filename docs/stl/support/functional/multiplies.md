@@ -14,14 +14,16 @@ tags:
 `#include <functional>`
 </div>
 
-`std::multiplies<T>` は、**掛け算 `a * b` を関数オブジェクトとして使えるようにしたもの**です。積を取る `fold_left`、要素ごとの掛け算（`transform`）に渡します。
+アルゴリズムに「足し算をする」「大きい順に並べる」といった演算を渡したいとき、ラムダ `[](int a, int b) { return a * b; }` を毎回書くのは冗長です。`std::multiplies` は、<strong>演算子 `*`（掛け算）を関数オブジェクトにしたもの</strong>で、そのままアルゴリズムに渡せます。
 
 !!! tip "ポイント"
-    - `std::ranges::fold_left(v, 1, std::multiplies{})` で積。
-    - 初期値は 1（0 だと全部 0）。
+    - `std::multiplies<>{}(2 つの値)` は演算子 `*` と同じ結果
+    - 型を省略した `std::multiplies<>` が推奨。型を自動で推論する
+    - `std::accumulate` や `std::sort` などの引数として渡せる
+    - 関数オブジェクトなので、インライン化されやすく、速い
 
 !!! info "このページを読む前に"
-    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。[ラムダ式](../../../basics/lambda.md) も関係します。
+    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -29,56 +31,78 @@ tags:
 
 ```cpp
 template <class T = void>
-struct multiplies;  // a * b
+struct multiplies {
+  constexpr auto operator()(const T& x, const T& y) const;
+};
 ```
 
-- `a * b`。ほかに `minus`、`divides`、`modulus`、`negate`、`logical_and` / `logical_or` / `logical_not`、`bit_and` / `bit_or` / `bit_xor`、`not_equal_to`、`greater_equal`、`less_equal` があります
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `x` | 値 | 1 つ目の値 |
+| `y` | 値 | 2 つ目の値 |
+
+`std::multiplies<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`*` の結果を返します。`std::multiplies<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
+
+戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
+
+ラムダ式で書いても同じ結果ですが、`std::multiplies<>{}` のほうが短く、意図が名前で伝わります。
 
 ## 実際に動かしてみる
 
 ```cpp
-#include <algorithm>
 #include <functional>
+#include <numeric>
 #include <print>
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3, 4};
-  std::println("{} {}", std::multiplies{}(2, 3), std::ranges::fold_left(v, 1, std::multiplies{}));
+  std::println("std::multiplies<>{{}}(4, 3) = {}", std::multiplies<>{}(4, 3));
+  const std::vector<int> v = {1, 2, 3, 4};
+  std::println("v の積 = {}", std::accumulate(v.begin(), v.end(), 1, std::multiplies<>{}));
 }
 ```
 
 ```text title="実行結果"
-6 24
+std::multiplies<>{}(4, 3) = 12
+v の積 = 24
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 倍率の積を取る | `fold_left(rates, 1.0f, std::multiplies{})` |
+アルゴリズムに演算を渡します。
+
+```cpp
+// std::multiplies<>{} を渡す例
+auto result = std::accumulate(values.begin(), values.end(), init, std::multiplies<>{});
+```
+
+演算が複雑になったら、ラムダ式のほうが読みやすくなります。
 
 ## よくあるミス
 
-??? failure "初期値を 0 にする"
-    積の初期値は 1 です。
+??? failure "`std::multiplies<int>` と型を固定して、他の型で変換が起きる"
+    `std::multiplies<>` と省略します。
+
+??? failure "`<functional>` を忘れてコンパイルエラーになる"
+    `#include <functional>` を書きます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`plus`](plus.md) | 足し算 |
+| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
+| [`identity`](identity.md) | 値をそのまま返す |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++98 から使えます（`<>` の型省略形は C++14 から）。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `*` を関数オブジェクトにしたもの
-    - [x] 積の初期値は 1
-    - [x] fold に渡す
+    - [x] `std::multiplies<>` は演算子 `*`（掛け算）の関数オブジェクト
+    - [x] 型を省略した `<>` の形が標準
+    - [x] アルゴリズムの引数に渡せる
 
 ## 関連ページ
 

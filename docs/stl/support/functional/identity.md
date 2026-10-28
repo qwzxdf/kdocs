@@ -15,15 +15,16 @@ tags:
 `#include <functional>`
 </div>
 
-`std::identity` は、**受け取った値をそのまま返す**関数オブジェクトです。ranges のアルゴリズムの `proj`（プロジェクション）の既定値として使われています。「何もしない射影」が要るときに、自分で渡せます。
+引数をそのまま返すだけの関数オブジェクトが、役に立つ場面があります。`std::ranges` のアルゴリズムは「どの部分を比べるか」を射影（projection）で指定でき、既定の射影が何もしないもの、つまり `std::identity` です。
 
 !!! tip "ポイント"
-    - ranges の `proj` を省略したときの既定値。
-    - 自作のアルゴリズムの既定値に使える。
-    - C++20 の機能。
+    - `std::identity{}(x)` は `x` をそのまま返す
+    - `std::ranges` のアルゴリズムの既定の射影
+    - コピーせず、参照のまま転送する
+    - C++20 で追加
 
 !!! info "このページを読む前に"
-    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。[ラムダ式](../../../basics/lambda.md) も関係します。
+    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -38,7 +39,13 @@ struct identity {
 };
 ```
 
-- 受け取ったものをそのまま返します。ranges のアルゴリズムの「プロジェクション無し」のデフォルトです
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `t` | 値 | そのまま返す値 |
+
+`operator()` は、受け取った引数を同じ値カテゴリーのまま返します。左辺値を渡せば左辺値参照、右辺値を渡せば右辺値参照が返り、コピーは起きません。
+
+自分で使う場面は多くありません。射影を受け取る自作のアルゴリズムで、「射影なし」の既定値として書くのが主な用途です。
 
 ## 実際に動かしてみる
 
@@ -47,41 +54,48 @@ struct identity {
 #include <print>
 
 int main() {
-  std::println("{}", std::identity{}(5));
+  int x = 5;
+  std::println("identity(5) = {}", std::identity{}(x));
+  std::println("参照のまま返す: {}", &std::identity{}(x) == &x);
 }
 ```
 
 ```text title="実行結果"
-5
+identity(5) = 5
+参照のまま返す: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 自作の ranges 風アルゴリズムの proj の既定値 | `Proj proj = std::identity{}` |
+射影を受け取る自作のアルゴリズムの既定値にします。
+
+```cpp
+template <class R, class Proj = std::identity>
+auto MaxBy(R&& range, Proj proj = {});   // 何も指定しなければ要素そのもので比べる
+```
 
 ## よくあるミス
 
-??? failure "ラムダと混同する"
-    `[](auto&& x) -> auto&& { return x; }` と同じ役割の部品です。
+??? failure "コピーが起きると思う"
+    参照のまま返します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::sort`](../../algorithms/sort.md) | proj を取るアルゴリズム |
+| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
+| [`plus`](plus.md) | 演算の関数オブジェクト |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++20 から使えます。GCC 9 以降、Clang 10 以降、Visual Studio 2019 16.3 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 値をそのまま返す
-    - [x] proj の既定値
-    - [x] C++20
+    - [x] `std::identity` は引数をそのまま返す
+    - [x] `ranges` のアルゴリズムの既定の射影
+    - [x] 参照のまま転送する
 
 ## 関連ページ
 

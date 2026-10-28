@@ -14,82 +14,95 @@ tags:
 `#include <iterator>`
 </div>
 
-`back_inserter(c)` が返す型の正体です。`*it = x` と代入するたびに `c.push_back(x)` が呼ばれます。出力先の大きさを気にせず、結果を `vector` に積み上げられます。
+`std::copy` は、コピー先に十分な領域があることを前提にします。空のコンテナにコピーすると、範囲外に書き込みます。`std::back_insert_iterator` は、<strong>代入するたびに`push_back` で末尾に追加する</strong>イテレーターです。コンテナが自動で広がります。
 
 !!! tip "ポイント"
-    - `<iterator>` の部品。
-    - ふつうは補助関数（`back_inserter` など）経由で使う。
-    - アルゴリズムの出力先や入力元に渡す。
+    - `std::back_inserter(c)` で作る（`back_insert_iterator` を直接書かなくてよい）
+    - 代入すると、コンテナに`push_back` で末尾に追加する
+    - `std::copy` や `std::transform` の出力先に渡せる
+    - コンテナの大きさを事前に決めなくてよい
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::back_insert_iterator {#back_insert_iterator}
 
+<span class="ver ver-98">C++98</span>
+
 ```cpp
 template <class Container>
-class back_insert_iterator;
+class back_insert_iterator {
+ public:
+  explicit back_insert_iterator(Container& c);
+  back_insert_iterator& operator=(const typename Container::value_type& value);
+};
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `Container` | 型 | `push_back` をもつコンテナ |
+| `c` | コンテナ | 追加先 |
 
-- 戻り値: 代入で `push_back` する
-- 計算量: 定数
+出力イテレーターとして振る舞い、`*it = value` や `++it` は、追加の動作に置き換えられています。通常は、`std::back_inserter(c)` のように、補助関数で作ります。
 
+コピー元の要素数が分からないとき、結果を詰める場所を先に確保しなくて済むのが利点です。`reserve` を併用すると、余計な再確保が減ります。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <algorithm>
+#include <deque>
 #include <iterator>
 #include <print>
 #include <vector>
 
 int main() {
-  std::vector<int> v;
-  std::back_insert_iterator<std::vector<int>> it(v);
-  *it = 1;
-  ++it;
-  *it = 2;
-  std::println("{}", v);
+  const std::vector<int> src = {1, 2, 3};
+  std::vector<int> dst;
+  std::copy(src.begin(), src.end(), std::back_inserter(dst));
+  for (int x : dst) std::print("{} ", x);
+  std::println("");
 }
 ```
 
 ```text title="実行結果"
-[1, 2]
+1 2 3 
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | アルゴリズムの結果を `vector` に積む |
+条件に合う要素だけを、別のコンテナに集めます。
+
+```cpp
+std::copy_if(src.begin(), src.end(), std::back_inserter(result), [](int x) { return x > 0; });
+```
 
 ## よくあるミス
 
-??? failure "`vector` の末尾以外に挿したい"
-    末尾に追加するだけです。位置を指定するなら `insert_iterator` です。
+??? failure "出力先の領域がなく、範囲外に書き込む"
+    挿入用のイテレーターを使います。
+
+??? failure "`std::vector` に `front_inserter` を使う"
+    `push_front` が必要です。`deque` / `list` で使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`back_inserter`](back_inserter.md) | 作る関数 |
-| [`front_insert_iterator`](front_insert_iterator.md) | 先頭に挿す |
+| [`inserter`](inserter.md) | 任意の位置に挿入 |
+| [`front_inserter`](front_inserter.md) | 先頭に追加 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。`<iterator>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 代入するたびに、コンテナの末尾へ push_back するイテレータ
-    - [x] `<iterator>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `back_insert_iterator` は`push_back` で末尾に追加する出力イテレーター
+    - [x] `std::back_inserter(c)` で作る
+    - [x] `std::copy` の出力先に使える
 
 ## 関連ページ
 

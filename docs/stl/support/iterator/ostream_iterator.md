@@ -15,35 +15,39 @@ tags:
 `#include <iterator>`
 </div>
 
-`std::ostream_iterator<T>` は、**代入するたびに、出力ストリームへ値を書き出すイテレータ**です。`std::copy` の出力先に渡すと、範囲の中身を区切り文字つきで画面やファイルへ出せます。現代では [`std::println`](../../utilities/print.md) が range を出せるので、そちらが簡単です。
+コンテナの中身を、区切り文字つきで出力したい。`for` ループで書くと、最後の区切り文字の扱いが面倒です。`std::ostream_iterator` は、<strong>代入するたびに、ストリームに値と区切り文字を書き込む</strong>出力イテレーターで、`std::copy` の出力先に渡せます。
 
 !!! tip "ポイント"
-    - `std::ostream_iterator<int>(std::cout, ", ")` のように、区切り文字を指定する。
-    - 最後の要素のあとにも区切りが付く。
-    - 新しいコードでは `std::println("{}", v)`。
+    - `std::ostream_iterator<T>(stream, 区切り)` で作る
+    - 代入すると、値と区切りがストリームに書かれる
+    - `std::copy` の出力先として使う
+    - 最後にも区切り文字が付く
 
 !!! info "このページを読む前に"
-    [`<iterator>`](../iterator.md) の概要を先に読むと分かりやすいです。[イテレータ](../../../basics/iterator.md) の基本が前提です。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::ostream_iterator {#ostream_iterator}
 
+<span class="ver ver-98">C++98</span>
+
 ```cpp
-template <class T, class CharT = char>
+template <class T>
 class ostream_iterator {
  public:
-  ostream_iterator(std::ostream& os, const CharT* delim = nullptr);
+  ostream_iterator(std::ostream& stream, const char* delimiter = nullptr);
 };
 ```
 
-| 引数 | 型 | 意味 | 省略すると |
-| --- | --- | --- | --- |
-| `os` | 出力ストリーム | 書き出し先 |  |
-| `delim` | 文字列 | 要素の後ろに付ける区切り | なし |
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `stream` | 出力ストリーム | 書き込み先 |
+| `delimiter` | `const char*` | 値の後ろに付ける区切り。省略可 |
 
-- 戻り値: （イテレータ）。`*it = value;` で書き出す
-- 計算量: O(要素数)
+`*it = value` は、`stream << value << delimiter` に置き換えられます。最後の要素の後ろにも区切りが付くので、末尾の区切りが邪魔なら、`for` で書くか、最後の 1 つだけ別に出力します。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
@@ -52,7 +56,7 @@ class ostream_iterator {
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3};
+  const std::vector<int> v = {1, 2, 3};
   std::copy(v.begin(), v.end(), std::ostream_iterator<int>(std::cout, ", "));
   std::cout << "\n";
 }
@@ -64,32 +68,30 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| デバッグで配列の中身を出力する（古い書き方） | `std::copy(v.begin(), v.end(), ostream_iterator<int>(cout, " "))` |
+デバッグ出力で、コンテナの中身を 1 行に出します。C++23 なら `std::println("{}", v)` のほうが短く書けます。
 
 ## よくあるミス
 
-??? failure "最後に区切りが付く"
-    末尾のカンマが気になるなら、`println("{}", v)` のほうが整います。
+??? failure "最後の区切りが余計に付く"
+    最後だけ別に出力します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::println`](../../utilities/print.md) | 範囲をそのまま出せる |
-| [`istream_iterator`](istream_iterator.md) | 入力側 |
+| [`istream_iterator`](istream_iterator.md) | 入力版 |
+| [`ostreambuf_iterator`](ostreambuf_iterator.md) | 1 文字ずつ書く |
 
 ## コンパイラ対応
 
-C++98 から使えます。
+C++98 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 代入で書き出すイテレータ
-    - [x] 区切り文字を指定できる
-    - [x] 新しいコードは println
+    - [x] `ostream_iterator<T>(s, 区切り)` は値と区切りを書き込む出力イテレーター
+    - [x] `std::copy` の出力先に使う
+    - [x] 最後にも区切りが付く
 
 ## 関連ページ
 

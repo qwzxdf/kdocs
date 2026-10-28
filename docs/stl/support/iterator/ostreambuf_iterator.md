@@ -14,80 +14,84 @@ tags:
 `#include <iterator>`
 </div>
 
-`ostream_iterator` は区切り文字を付けて書式つきで出力します。`ostreambuf_iterator` は、書式なしで 1 文字ずつ書きます。速く、余計な処理がありません。
+文字を 1 文字ずつ、バッファに直接書き出したい。`std::ostreambuf_iterator` は、<strong>書式処理を通さず、ストリームのバッファに文字を書き込む</strong>出力イテレーターです。`std::copy` で文字列をそのまま流し込めます。
 
 !!! tip "ポイント"
-    - `<iterator>` の部品。
-    - ふつうは補助関数（`back_inserter` など）経由で使う。
-    - アルゴリズムの出力先や入力元に渡す。
+    - `std::ostreambuf_iterator<char>(stream)` で作る
+    - 代入すると、1 文字ずつバッファに書かれる
+    - 書式（幅、基数）の影響を受けない
+    - `std::copy` の出力先に使える
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレーターの基礎](../../../basics/iterator.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::ostreambuf_iterator {#ostreambuf_iterator}
 
+<span class="ver ver-98">C++98</span>
+
 ```cpp
-template <class CharT, class Traits = char_traits<CharT>>
-class ostreambuf_iterator;
+template <class CharT>
+class ostreambuf_iterator {
+ public:
+  ostreambuf_iterator(std::basic_ostream<CharT>& stream) noexcept;
+};
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `CharT` | 型 | 文字の型 |
+| `stream` | 出力ストリーム | 書き込み先 |
 
-- 戻り値: 代入で 1 文字書く
-- 計算量: 定数
-
+`*it = ch` は、バッファに 1 文字を書き込みます。`<<` を経由しないので、書式の設定が反映されず、その分は速く、予測しやすいです。書き込みに失敗したかは、`failed()` で調べられます。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <algorithm>
 #include <iterator>
 #include <print>
 #include <sstream>
+#include <string>
 
 int main() {
+  const std::string text = "abc";
   std::ostringstream out;
-  std::ostreambuf_iterator<char> it(out);
-  *it++ = 'h';
-  *it++ = 'i';
+  std::copy(text.begin(), text.end(), std::ostreambuf_iterator<char>(out));
   std::println("{}", out.str());
 }
 ```
 
 ```text title="実行結果"
-hi
+abc
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | アルゴリズムの結果を文字列ストリームへ出す |
+文字列を、ストリームに流し込みます。通常は `stream << text` で足ります。
 
 ## よくあるミス
 
-??? failure "区切り文字を期待する"
-    区切りは付きません。必要なら自分で書きます。
+??? failure "書式の設定が効くと思う"
+    書式を経由しません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`ostream_iterator`](ostream_iterator.md) | 区切りつきで書く |
+| [`istreambuf_iterator`](istreambuf_iterator.md) | 入力版 |
+| [`ostream_iterator`](ostream_iterator.md) | 値を書式つきで書く |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ストリームバッファへ 1 文字ずつ生で書くイテレータ
-    - [x] `<iterator>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `ostreambuf_iterator` は 1 文字ずつバッファに書く
+    - [x] 書式の設定の影響を受けない
+    - [x] 通常は `<<` で足りる
 
 ## 関連ページ
 

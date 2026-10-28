@@ -14,14 +14,16 @@ tags:
 `#include <functional>`
 </div>
 
-「全部が真か」を 1 つの値にまとめたいとき、`&&` を畳み込みの演算として渡せます。ただし関数オブジェクトでは**短絡評価されません**。
+アルゴリズムに「足し算をする」「大きい順に並べる」といった演算を渡したいとき、ラムダ `[](int a, int b) { return a && b; }` を毎回書くのは冗長です。`std::logical_and` は、<strong>演算子 `&&`（論理積）を関数オブジェクトにしたもの</strong>で、そのままアルゴリズムに渡せます。
 
 !!! tip "ポイント"
-    - `std::logical_and<>{}` と書くと型を推論してくれる（透過版）。
-    - アルゴリズムの引数にラムダを書かずに渡せる。
+    - `std::logical_and<>{}(2 つの値)` は演算子 `&&` と同じ結果
+    - 型を省略した `std::logical_and<>` が推奨。型を自動で推論する
+    - `std::accumulate` や `std::sort` などの引数として渡せる
+    - 関数オブジェクトなので、インライン化されやすく、速い
 
 !!! info "このページを読む前に"
-    [<functional>](../functional.md) の概要を先に読むと分かりやすいです。
+    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -30,18 +32,20 @@ tags:
 ```cpp
 template <class T = void>
 struct logical_and {
-  constexpr auto operator()(const T& a, const T& b) const;  // a && b
+  constexpr auto operator()(const T& x, const T& y) const;
 };
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `a` | T | 左辺（1 つ目の値） |
-| `b` | T | 右辺（2 つ目の値） |
+| `x` | 値 | 1 つ目の値 |
+| `y` | 値 | 2 つ目の値 |
 
-- 戻り値: `a && b` の結果
-- 計算量: 定数
+`std::logical_and<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`&&` の結果を返します。`std::logical_and<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
 
+戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
+
+ラムダ式で書いても同じ結果ですが、`std::logical_and<>{}` のほうが短く、意図が名前で伝わります。
 
 ## 実際に動かしてみる
 
@@ -50,42 +54,43 @@ struct logical_and {
 #include <print>
 
 int main() {
-  std::println("{}", std::logical_and<>{}(true, false));
+  std::println("std::logical_and<>{{}}(true, false) = {}", std::logical_and<>{}(true, false));
 }
 ```
 
 ```text title="実行結果"
-false
+std::logical_and<>{}(true, false) = false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| フラグ配列の論理積 | `std::ranges::fold_left(flags, true, std::logical_and<>{});` |
+標準のアルゴリズムや、自作のテンプレートに、演算を値として渡すときに使います。短い演算にはこちら、複雑な演算にはラムダ式、と使い分けます。
 
 ## よくあるミス
 
-??? failure "短絡評価を期待する"
-    `a && b` は a が偽なら b を評価しませんが、`logical_and` は両方を引数として評価してから呼ばれます。
+??? failure "`std::logical_and<int>` と型を固定して、他の型で変換が起きる"
+    `std::logical_and<>` と省略します。
+
+??? failure "`<functional>` を忘れてコンパイルエラーになる"
+    `#include <functional>` を書きます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`logical_or`](logical_or.md) | `||` |
-| [`all_of`](../../algorithms/all_of.md) | 全部が真か調べる |
+| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
+| [`identity`](identity.md) | 値をそのまま返す |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます（`<>` の型省略形は C++14 から）。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] a && b を関数オブジェクトにしたもの
-    - [x] 型を省略した `std::logical_and<>{}` が便利
-    - [x] アルゴリズムにそのまま渡せる
+    - [x] `std::logical_and<>` は演算子 `&&`（論理積）の関数オブジェクト
+    - [x] 型を省略した `<>` の形が標準
+    - [x] アルゴリズムの引数に渡せる
 
 ## 関連ページ
 
