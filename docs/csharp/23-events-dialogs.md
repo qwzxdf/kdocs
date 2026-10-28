@@ -226,8 +226,8 @@ public class SelectionService : BindableBase, ISelectionService
 
 ダイアログの中身は `UserControl` です。外側のウィンドウは Prism が作ります。ウィンドウのタイトルや大きさは、ビューの中の `prism:Dialog.WindowStyle` で指定します。
 
-```xml title="Views/ConfirmDialog.xaml"
-<UserControl x:Class="Editor.Views.ConfirmDialog"
+```xml title="Dialogs/ConfirmDialog.xaml"
+<UserControl x:Class="Editor.Dialogs.ConfirmDialog"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
@@ -254,12 +254,12 @@ public class SelectionService : BindableBase, ISelectionService
 
 ### ダイアログのビューモデル
 
-```csharp title="ViewModels/ConfirmDialogViewModel.cs"
+```csharp title="Dialogs/ConfirmDialogViewModel.cs"
 using Prism.Commands;
 using Prism.Dialogs;
 using Prism.Mvvm;
 
-namespace Editor.ViewModels;
+namespace Editor.Dialogs;
 
 public class ConfirmDialogViewModel : BindableBase, IDialogAware
 {

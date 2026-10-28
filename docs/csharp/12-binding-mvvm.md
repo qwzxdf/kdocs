@@ -39,10 +39,10 @@ void OnTextEdited(const std::string& s) {   // 画面で入力されたら、デ
 
 ## 最初のバインディング
 
-小さな実験をしてみましょう。`Editor` に `ViewModels` フォルダーを作って、HP と名前を持つだけのクラスを置きます。
+小さな実験をしてみましょう。`Editor` に、HP と名前を持つだけのクラスを置きます。
 
-```csharp title="ViewModels/PlayerViewModel.cs"
-namespace Editor.ViewModels;
+```csharp title="PlayerViewModel.cs"
+namespace Editor;
 
 public class PlayerViewModel
 {
@@ -68,7 +68,7 @@ public class PlayerViewModel
 public MainWindow()
 {
     InitializeComponent();
-    DataContext = new ViewModels.PlayerViewModel();
+    DataContext = new PlayerViewModel();
 }
 ```
 
@@ -95,7 +95,7 @@ public void Heal() { Hp += 10; }
 ```csharp
 private void OnHeal(object sender, RoutedEventArgs e)
 {
-    ((ViewModels.PlayerViewModel)DataContext).Heal();
+    ((PlayerViewModel)DataContext).Heal();
 }
 ```
 
@@ -103,11 +103,11 @@ private void OnHeal(object sender, RoutedEventArgs e)
 
 バインディングは、最初に値を読むだけで、その後は「値が変わったよ」という知らせを待っています。通常のプロパティは、変わっても誰にも知らせません。知らせてもらうには、`INotifyPropertyChanged` というインターフェースを実装して、値が変わるたびに `PropertyChanged` イベントを起こします。
 
-```csharp title="ViewModels/PlayerViewModel.cs"
+```csharp title="PlayerViewModel.cs"
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace Editor.ViewModels;
+namespace Editor;
 
 public class PlayerViewModel : INotifyPropertyChanged
 {

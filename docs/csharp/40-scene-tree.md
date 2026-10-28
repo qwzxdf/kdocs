@@ -178,7 +178,7 @@ public void SceneSetSelection(uint[] ids)
 
 ## ビューモデル
 
-```csharp title="Modules/SceneTree/ViewModels/SceneTreeViewModel.cs"
+```csharp title="Modules/SceneTree/SceneTreeViewModel.cs"
 using System.Collections.ObjectModel;
 using System.Numerics;
 using Prism.Commands;
@@ -187,7 +187,7 @@ using Prism.Mvvm;
 using Editor.Models;
 using Editor.Services;
 
-namespace Editor.Modules.SceneTree.ViewModels;
+namespace Editor.Modules.SceneTree;
 
 public class SceneTreeViewModel : BindableBase
 {
@@ -271,8 +271,8 @@ public class SceneTreeViewModel : BindableBase
 
 まず、ツール バーとツリーの骨組みです。
 
-```xml title="Views/SceneTreeView.xaml"
-<UserControl x:Class="Editor.Modules.SceneTree.Views.SceneTreeView"
+```xml title="SceneTreeView.xaml"
+<UserControl x:Class="Editor.Modules.SceneTree.SceneTreeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
@@ -363,14 +363,13 @@ public class SceneTreeViewModel : BindableBase
 <TreeView x:Name="Tree" ... SelectedItemChanged="OnTreeSelectedItemChanged">
 ```
 
-```csharp title="Views/SceneTreeView.xaml.cs"
+```csharp title="SceneTreeView.xaml.cs"
 using System.Windows;
 using System.Windows.Controls;
 
 using Editor.Models;
-using Editor.Modules.SceneTree.ViewModels;
 
-namespace Editor.Modules.SceneTree.Views;
+namespace Editor.Modules.SceneTree;
 
 public partial class SceneTreeView : UserControl
 {

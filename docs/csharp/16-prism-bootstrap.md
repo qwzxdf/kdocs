@@ -56,22 +56,20 @@ NuGet は、C++ の vcpkg のようなライブラリの配布の仕組みです
 
 ## フォルダーを整える
 
-あとで出てくる ViewModelLocator は、フォルダーと名前の規則でビューモデルを探します。先にフォルダーを整えておきます。
+あとで出てくる ViewModelLocator は、名前の規則でビューモデルを探します。画面とビューモデルは、`Views` と `ViewModels` に分けず、同じフォルダー（同じ名前空間）に並べて置きます。1 つの機能を直すときに開くフォルダーが 1 つで済むからです。
 
 ```text
 Editor\
   App.xaml / App.xaml.cs
-  Views\       MainWindow.xaml / .cs
-  ViewModels\  MainWindowViewModel.cs
+  MainWindow.xaml / .xaml.cs
+  MainWindowViewModel.cs
   Models\      （あとで使う）
 ```
 
-1. `Views` と `ViewModels` のフォルダーを作ります。
-2. `MainWindow.xaml` を `Views` にドラッグして移します（`.xaml.cs` も一緒に動きます）。
-3. 第 12 章で作った実験用のファイル（`PlayerViewModel`、`RelayCommand` など）は削除します。
-4. `Views\MainWindow.xaml` の `x:Class` を `Editor.Views.MainWindow` に直し、`MainWindow.xaml.cs` の `namespace` も `Editor.Views` に直します。
+1. 第 12 章で作った実験用のファイル（`PlayerViewModel`、`RelayCommand` など）は削除します。
+2. `MainWindow.xaml` と `MainWindow.xaml.cs` は、プロジェクトの直下に置いたままにします。`x:Class` は `Editor.MainWindow`、`namespace` は `Editor` です。
 
-ファイルをフォルダーに移しても、`namespace` は自動では変わりません。`x:Class` と `namespace` が食い違うとビルドが通らないので、ここは忘れずに。
+画面の `x:Class` と `.xaml.cs` の `namespace` が食い違うと、ビルドが通りません。ファイルをフォルダーに移したときは、`namespace` が自動では変わらないので、特に気をつけてください。
 
 ## App を PrismApplication にする
 
@@ -94,8 +92,6 @@ Editor\
 using System.Windows;
 using Prism.DryIoc;
 using Prism.Ioc;
-
-using Editor.Views;
 
 namespace Editor;
 
@@ -187,10 +183,10 @@ DI コンテナーを使う利点は、「共有する物」と「その持ち�
 
 画面を開くたびに「この画面のビューモデルはこれ」と書くのは面倒です。Prism の ViewModelLocator は、名前の規則でビューモデルを見つけて、`DataContext` に設定してくれます。
 
-`Views\MainWindow.xaml` に 2 行足します。
+`MainWindow.xaml` に 2 行足します。
 
-```xml title="Views/MainWindow.xaml"
-<Window x:Class="Editor.Views.MainWindow"
+```xml title="MainWindow.xaml"
+<Window x:Class="Editor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:prism="http://prismlibrary.com/"
@@ -200,10 +196,10 @@ DI コンテナーを使う利点は、「共有する物」と「その持ち�
 </Window>
 ```
 
-```csharp title="ViewModels/MainWindowViewModel.cs"
+```csharp title="MainWindowViewModel.cs"
 using Prism.Mvvm;
 
-namespace Editor.ViewModels;
+namespace Editor;
 
 public class MainWindowViewModel : BindableBase
 {
@@ -218,7 +214,7 @@ public class MainWindowViewModel : BindableBase
 
 実行すると、ウィンドウのタイトルが「MiniEngine Editor」になります。`DataContext` を書いていないのに、`{Binding Title}` が動いています。
 
-`AutoWireViewModel="True"` が付いた画面は、名前の規則に従ってビューモデルを探します。規則は「`...Views.Xxx` の画面には、`...ViewModels.XxxViewModel`」です。末尾が `View` の画面（`SceneTreeView`）は `SceneTreeViewModel` を探します。規則に合わないときは、明示的に結び付けることもできます。
+`AutoWireViewModel="True"` が付いた画面は、名前の規則に従ってビューモデルを探します。規則は「画面と同じ名前空間にある、画面の名前に `ViewModel` を足したクラス」です。`MainWindow` には `MainWindowViewModel` を探します。末尾が `View` の画面（`SceneTreeView`）には、`Model` だけを足して `SceneTreeViewModel` を探します。名前空間に `.Views.` があるときだけ、`.ViewModels.` に置き換えて探します（詳しくは第 20 章）。規則に合わないときは、明示的に結び付けることもできます。
 
 ```csharp
 ViewModelLocationProvider.Register<MainWindow, MainWindowViewModel>();
@@ -256,7 +252,7 @@ set
 using Prism.Commands;
 using Prism.Mvvm;
 
-namespace Editor.ViewModels;
+namespace Editor;
 
 public class MainWindowViewModel : BindableBase
 {
@@ -363,7 +359,7 @@ public class MainWindowViewModel : BindableBase
     `App.xaml` に `StartupUri` が残っています。消してください。
 
 ??? failure "タイトルがバインドされない"
-    名前の規則を確かめます。`Views` の `MainWindow` に対して、`ViewModels` の `MainWindowViewModel` があるか。名前空間が `...Views` と `...ViewModels` になっているか。`AutoWireViewModel="True"` が書かれているか、の 3 点です。
+    名前の規則を確かめます。`MainWindow` と `MainWindowViewModel` が、同じ名前空間にあるか。名前の末尾が `ViewModel` になっているか。`AutoWireViewModel="True"` が書かれているか、の 3 点です。
 
 ??? failure "`PrismApplication` が見つからない（`CS0246`）"
     `using Prism.DryIoc;` が足りません。`Ctrl + .` で足せます。

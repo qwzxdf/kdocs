@@ -212,7 +212,7 @@ public sealed class AssetService : IAssetService, IDisposable
 
 ## ビューモデル
 
-```csharp title="Modules/Asset/ViewModels/AssetViewModel.cs"
+```csharp title="Modules/Asset/AssetViewModel.cs"
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Data;
@@ -223,7 +223,7 @@ using Prism.Mvvm;
 using Editor.Models;
 using Editor.Services;
 
-namespace Editor.Modules.Asset.ViewModels;
+namespace Editor.Modules.Asset;
 
 public class AssetViewModel : BindableBase
 {
@@ -414,8 +414,8 @@ private static async Task LoadThumbnailAsync(AssetEntry entry)
 
 ## ビュー
 
-```xml title="Views/AssetView.xaml"
-<UserControl x:Class="Editor.Modules.Asset.Views.AssetView"
+```xml title="AssetView.xaml"
+<UserControl x:Class="Editor.Modules.Asset.AssetView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"

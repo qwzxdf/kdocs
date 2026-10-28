@@ -118,11 +118,11 @@ public sealed class SceneEditor : ISceneEditor
 
 ## Vector3 を編集する部品
 
-```csharp title="Modules/Property/ViewModels/Vector3EditorViewModel.cs"
+```csharp title="Modules/Property/Vector3EditorViewModel.cs"
 using System.Numerics;
 using Prism.Mvvm;
 
-namespace Editor.Modules.Property.ViewModels;
+namespace Editor.Modules.Property;
 
 // Vector3 を X、Y、Z の成分に分けて編集する部品。位置、回転、拡大で使い回す。
 public sealed class Vector3EditorViewModel : BindableBase
@@ -173,7 +173,7 @@ public sealed class Vector3EditorViewModel : BindableBase
 
 ## プロパティのビューモデル
 
-```csharp title="Modules/Property/ViewModels/PropertyViewModel.cs"
+```csharp title="Modules/Property/PropertyViewModel.cs"
 using System.ComponentModel;
 using System.Numerics;
 using Prism.Mvvm;
@@ -181,7 +181,7 @@ using Prism.Mvvm;
 using Editor.Models;
 using Editor.Services;
 
-namespace Editor.Modules.Property.ViewModels;
+namespace Editor.Modules.Property;
 
 public class PropertyViewModel : BindableBase
 {
@@ -310,11 +310,11 @@ public class PropertyViewModel : BindableBase
 ### 本体
 
 ```xml
-<UserControl x:Class="Editor.Modules.Property.Views.PropertyView"
+<UserControl x:Class="Editor.Modules.Property.PropertyView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:vm="clr-namespace:Editor.Modules.Property.ViewModels"
+             xmlns:vm="clr-namespace:Editor.Modules.Property"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <!-- UserControl.Resources は上のとおり -->
     <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#FF252526">
