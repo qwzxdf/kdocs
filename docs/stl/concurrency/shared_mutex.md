@@ -15,7 +15,7 @@ tags:
 `#include <shared_mutex>`
 </div>
 
-`std::shared_mutex` は、**「読むだけの人は何人でも同時に入れて、書く人は 1 人だけ（ほかの全員が入れない）」**という鍵です。読み込みが圧倒的に多く、書き込みがまれなデータ（設定、マップ、アセット表）に向きます。読むときは [`shared_lock`](shared_lock.md)、書くときは `lock_guard` / `unique_lock` を使います。
+`std::shared_mutex` は、<strong>「読むだけの人は何人でも同時に入れて、書く人は 1 人だけ（ほかの全員が入れない）」</strong>という鍵です。読み込みが圧倒的に多く、書き込みがまれなデータ（設定、マップ、アセット表）に向きます。読むときは [`shared_lock`](shared_lock.md)、書くときは `lock_guard` / `unique_lock` を使います。
 
 !!! tip "ポイント"
     - 読み込みが多く、書き込みが少ないときだけ得をする。そうでなければ普通の `mutex` のほうが速い。

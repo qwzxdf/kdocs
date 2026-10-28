@@ -50,13 +50,13 @@ int main() {
   namespace fs = std::filesystem;
   std::error_code ec;   // 権限が無い環境でも、例外を出さずに結果を調べる
   fs::create_symlink("assets", "assets_link", ec);
-  std::println("{}", ec ? "作れなかった（権限など）" : "作れた");
+  std::println("{}", ec ? "作れなかった（権限がない）" : "作れた");   // 権限が無い環境では前者
   fs::remove("assets_link", ec);
 }
 ```
 
-```text title="実行結果"
-作れなかった（権限など）（環境によっては「作れた」）
+```text title="実行結果（開発者モードが有効な Windows など、権限があるとき）"
+作れた
 ```
 
 ## ゲームでの使いどころ

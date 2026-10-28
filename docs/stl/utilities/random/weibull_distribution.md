@@ -15,7 +15,7 @@ tags:
 `#include <random>`
 </div>
 
-`std::weibull_distribution` は、**「ものが壊れるまでの時間」**などをモデルにする乱数（ワイブル分布）を出します。`a` が形、`b` が尺度です。ゲームでは、耐久度の減り方のランダムさ、故障の発生などに使えます。
+`std::weibull_distribution` は、<strong>「ものが壊れるまでの時間」</strong>などをモデルにする乱数（ワイブル分布）を出します。`a` が形、`b` が尺度です。ゲームでは、耐久度の減り方のランダムさ、故障の発生などに使えます。
 
 !!! tip "ポイント"
     - `a = 1` なら [`exponential_distribution`](exponential_distribution.md) と同じ。

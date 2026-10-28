@@ -13,12 +13,13 @@ tags:
 `#include <cstdio>`
 </div>
 
-ファイルに 1 バイトを書き込みます。成功すると書いた文字が返ります。
+ファイルに 1 文字ずつ書き出したい。たとえば、自作のシリアライザーで、記号を 1 つずつ出力する。<strong>1 文字を書き出す</strong>のが `std::fputc` です。
 
 !!! tip "ポイント"
-    - C 由来の入出力関数。
-    - 戻り値で失敗を調べる。
-    - 新しいコードでは `std::print` や `std::ifstream` / `std::ofstream` が安全。
+    - `fputc(文字, ファイル)` の形。戻り値は、書いた文字。失敗は `EOF`
+    - 文字は `int` で受け取り、`unsigned char` に変換して書く
+    - 1 文字ごとに呼ぶと、まとめて書くより遅い
+    - `putc` は同じ働きのマクロでもよい版
 
 !!! info "このページを読む前に"
     [`std::printf`](printf.md) と [`std::fopen`](fopen.md) を先に読んでください。
@@ -33,12 +34,14 @@ int fputc(int ch, std::FILE* stream);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `ch` | int | 書く文字 |
-| `stream` | FILE* | 書き込み先 |
+| `ch` | `int` | 書き出す文字。`unsigned char` に変換されて書かれる |
+| `stream` | `FILE*` | 書き出す先のファイル |
 
-- 戻り値: 書いた文字。失敗したら `EOF`
-- 計算量: 入出力の量に比例
+成功すると、書いた文字を `unsigned char` から `int` に直して返します。失敗すると `EOF` を返し、エラーの印を立てます。
 
+1 文字ごとに関数を呼ぶので、数が多いと遅くなります。文字列は `fputs`、バイト列は `fwrite` でまとめて書きます。ただし、バッファーのおかげで、実際のディスクへの書き込みは、まとめて行われます。
+
+読み込み用に開いたファイルに書こうとすると、失敗します。`"r"` で開いたファイルへの `fputc` は `EOF` を返します。
 
 ## 実際に動かしてみる
 
@@ -47,35 +50,46 @@ int fputc(int ch, std::FILE* stream);
 #include <print>
 
 int main() {
-  std::FILE* f = std::tmpfile();
-  std::fputc('B', f);
-  std::rewind(f);
-  std::println("{}", static_cast<char>(std::fgetc(f)));
+  std::FILE* f = std::fopen("out.txt", "w");
+  for (char ch = 'A'; ch <= 'E'; ++ch) {
+    std::fputc(ch, f);          // 1 文字ずつ書く
+  }
+  std::fputc('\n', f);
   std::fclose(f);
+
+  std::FILE* in = std::fopen("out.txt", "r");
+  char buf[16];
+  std::fgets(buf, sizeof(buf), in);
+  std::print("{}", buf);
+  std::fclose(in);
 }
 ```
 
 ```text title="実行結果"
-B
+ABCDE
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 1 文字ずつ書く処理 |
+ごく単純な文字単位の出力に使います。まとまった量は `fputs` や `fwrite`、書式つきは `fprintf` を使うほうが自然です。
+
+C のコードを読むときには、`putc` や `fputc` が出てきますが、新しく書く C++ では、`std::ofstream` の `put` や `<<` を使います。
 
 ## よくあるミス
 
-??? failure "戻り値を確かめない"
-    ディスクがいっぱいの場合などは `EOF` が返ります。
+??? failure "1 文字ずつ大量に書いて、遅くなる"
+    `fwrite` でまとめて書きます。
+
+??? failure "読み込み用に開いたファイルに書いて、失敗に気づかない"
+    戻り値が `EOF` です。開くときのモードを確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`putc`](putc.md) | 同じ働き |
-| [`fputs`](fputs.md) | 文字列を書く |
+| [`putchar`](putchar.md) | 標準出力に 1 文字 |
+| [`fputs`](fputs.md) | 文字列を書き出す |
 
 ## コンパイラ対応
 
@@ -84,9 +98,9 @@ C++11 以前から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ファイルに 1 文字を書く
-    - [x] C 由来の入出力関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] 1 文字を書き出す
+    - [x] 失敗は `EOF`
+    - [x] まとまった量は `fputs` や `fwrite`
 
 ## 関連ページ
 

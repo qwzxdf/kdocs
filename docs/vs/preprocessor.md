@@ -87,7 +87,7 @@ target_compile_definitions(app PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN MY_LEVEL=3)
 
 ### NOMINMAX
 
-`<windows.h>` は**`min` と `max` をマクロとして定義**します。すると、`std::min` や `std::max` が構文エラーになります。
+`<windows.h>` は<strong>`min` と `max` をマクロとして定義</strong>します。すると、`std::min` や `std::max` が構文エラーになります。
 
 ```cpp
 #include <windows.h>

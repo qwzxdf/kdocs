@@ -29,7 +29,7 @@ tags:
 | 名前 | 重要度 | 何をする |
 | --- | --- | --- |
 | [`std::generator<T>`](#generator) | <span class="rank rank-rare">知ってるだけ</span> | 値を順に作り出すコルーチンの戻り値の型 |
-| [`std::ranges::elements_of`](#elements_of) | <span class="rank rank-rare">知ってるだけ</span> | 別の範囲の要素を全部出す |
+| [`std::ranges::elements_of`](ranges/elements_of.md) | <span class="rank rank-rare">知ってるだけ</span> | 別の範囲の要素を全部出す |
 
 ## よくある使い方
 

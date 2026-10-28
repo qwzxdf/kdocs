@@ -69,11 +69,11 @@ int main() {
 読み込み: slime.png
 読み込み: bat.png
 同じもの？ true
-解放: bat.png
 解放: slime.png
+解放: bat.png
 ```
 
-（`unordered_map` なので、解放の順番は実装によって変わることがあります。）
+`unordered_map` なので、解放の順番は実装によって変わります。この結果は MSVC のもので、他の実装では違う順になることがあります。順番に意味のあるリソース（たとえば、あるリソースが別のリソースを参照している）は、この順序に頼らず、依存する側から明示的に解放してください。
 
 <div class="anim" data-type="graph" data-label="リソースの共有：使っている間だけ残す">
 n a シーンA 0 0

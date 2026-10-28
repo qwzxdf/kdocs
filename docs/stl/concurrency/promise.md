@@ -15,7 +15,7 @@ tags:
 `#include <future>`
 </div>
 
-`std::promise` は、**別のスレッドに結果（または例外）を渡すための「書き込み口」**です。`promise` から取り出した [`future`](future.md) を相手に渡し、自分は好きなタイミングで `set_value()` を呼びます。`std::async` が関数の戻り値を自動で渡すのに対し、こちらは**自分で結果を渡す時点を決められます**。
+`std::promise` は、<strong>別のスレッドに結果（または例外）を渡すための「書き込み口」</strong>です。`promise` から取り出した [`future`](future.md) を相手に渡し、自分は好きなタイミングで `set_value()` を呼びます。`std::async` が関数の戻り値を自動で渡すのに対し、こちらは**自分で結果を渡す時点を決められます**。
 
 !!! tip "ポイント"
     - `std::promise<int> p; std::future<int> f = p.get_future();` の 2 つがセット。

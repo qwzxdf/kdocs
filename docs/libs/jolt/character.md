@@ -190,7 +190,7 @@ character->SetListener(&listener);
 
 ## Character（剛体版）
 
-**`Character`**は、物理世界の中の本物の剛体として存在するキャラクターです。
+<strong>`Character`</strong>は、物理世界の中の本物の剛体として存在するキャラクターです。
 
 | | CharacterVirtual | Character（剛体版） |
 | --- | --- | --- |
@@ -211,7 +211,7 @@ character->PostSimulation(0.05f);
 
 ## 敵・NPC のキャラクター
 
-**敵の移動も、`CharacterVirtual`**で作れます。経路探索（ナビメッシュ）の結果から、移動の向きを決め、同じ更新を使います。
+<strong>敵の移動も、`CharacterVirtual`</strong>で作れます。経路探索（ナビメッシュ）の結果から、移動の向きを決め、同じ更新を使います。
 
 | 点 | 説明 |
 | --- | --- |

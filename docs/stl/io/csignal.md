@@ -55,7 +55,7 @@ void OnSignal(int) {
 int main() {
   std::signal(SIGINT, OnSignal);
   std::raise(SIGINT);                  // 自分でシグナルを発生させる
-  std::println("受信 {}", g_received);
+  std::println("受信 {}", static_cast<int>(g_received));   // volatile のままでは format できない
 }
 ```
 

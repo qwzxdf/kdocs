@@ -69,16 +69,13 @@ int main() {
   scores.insert(500);
   scores.insert(300);  // 同じ値でも消えない
 
-  for (int s : scores) {
-    std::print("{} ", s);
-  }
-  std::println("");
+  std::println("{}", scores);
   std::println("300 点は {} 人", scores.count(300));
 }
 ```
 
 ```text title="実行結果"
-300 300 500
+{300, 300, 500}
 300 点は 2 人
 ```
 

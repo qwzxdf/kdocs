@@ -13,12 +13,13 @@ tags:
 `#include <cstdio>`
 </div>
 
-`fputc` と同じ働きです。C 言語ではマクロとして実装されることがあります。
+`fputc` と同じように、ファイルに 1 文字を書き出します。`getc` と `fgetc` の関係と同じで、規格が「`putc` はマクロでもよい」と許している点が違います。
 
 !!! tip "ポイント"
-    - C 由来の入出力関数。
-    - 戻り値で失敗を調べる。
-    - 新しいコードでは `std::print` や `std::ifstream` / `std::ofstream` が安全。
+    - `putc(文字, ファイル)` は `fputc` と同じ結果を返す
+    - マクロの場合、引数の式が複数回評価されることがある
+    - 現代のコンパイラでは `fputc` との速さの差はほとんどない
+    - 迷ったら `fputc` を使う
 
 !!! info "このページを読む前に"
     [`std::printf`](printf.md) と [`std::fopen`](fopen.md) を先に読んでください。
@@ -33,12 +34,14 @@ int putc(int ch, std::FILE* stream);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `ch` | int | 書く文字 |
-| `stream` | FILE* | 書き込み先 |
+| `ch` | `int` | 書き出す文字 |
+| `stream` | `FILE*` | 書き出す先のファイル |
 
-- 戻り値: 書いた文字。失敗したら `EOF`
-- 計算量: 入出力の量に比例
+動作は [`fputc`](fputc.md) と同じです。成功すれば書いた文字を、失敗すれば `EOF` を返します。
 
+マクロ実装の場合、`putc(c++, f)` のように副作用のある式を渡すと、位置が複数回進むなどの不具合が起きえます。`ch` は変数にして渡します。
+
+最近の標準ライブラリは、関数として実装していることが多く、実際に問題が起きる場面は少ないのですが、規格上は許されています。
 
 ## 実際に動かしてみる
 
@@ -47,34 +50,32 @@ int putc(int ch, std::FILE* stream);
 #include <print>
 
 int main() {
-  std::FILE* f = std::tmpfile();
-  std::putc('B', f);
-  std::rewind(f);
-  std::println("{}", static_cast<char>(std::fgetc(f)));
+  std::FILE* f = std::fopen("x.txt", "w");
+  int r = std::putc('X', f);
+  std::println("書いた文字: {}", static_cast<char>(r));
   std::fclose(f);
 }
 ```
 
 ```text title="実行結果"
-B
+書いた文字: X
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 1 文字ずつ書く処理 |
+`fputc` と同じ場面で使えます。既存のコードに出てきたら、`fputc` と同じものとして読みます。
 
 ## よくあるミス
 
-??? failure "戻り値を確かめない"
-    失敗したら `EOF` が返ります。
+??? failure "副作用のある式を渡す"
+    変数に入れてから渡します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`fputc`](fputc.md) | 同じ働き |
+| [`fputc`](fputc.md) | 関数として必ず存在する版 |
+| [`putchar`](putchar.md) | 標準出力専用 |
 
 ## コンパイラ対応
 
@@ -83,9 +84,9 @@ C++11 以前から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ファイルに 1 文字を書く（`fputc` と同じ）
-    - [x] C 由来の入出力関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `fputc` と同じ
+    - [x] マクロかもしれない
+    - [x] 迷ったら `fputc`
 
 ## 関連ページ
 

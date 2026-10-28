@@ -7,7 +7,7 @@ tags:
 
 # ImGui のスタイルとテーマ
 
-ImGui の見た目（色・角丸・余白・線の太さ）は、**`ImGuiStyle`**という構造体で決まります。標準のテーマ（ダーク・ライト・クラシック）を選ぶだけでも、項目を書き換えて自分のテーマを作れます。一部の部品だけ、一時的に変えたいときは`PushStyleColor` / `PushStyleVar`を使います。このページはテーマの選び方、色と大きさの変更、一時的な変更、保存、高 DPI への対応をまとめます。
+ImGui の見た目（色・角丸・余白・線の太さ）は、<strong>`ImGuiStyle`</strong>という構造体で決まります。標準のテーマ（ダーク・ライト・クラシック）を選ぶだけでも、項目を書き換えて自分のテーマを作れます。一部の部品だけ、一時的に変えたいときは`PushStyleColor` / `PushStyleVar`を使います。このページはテーマの選び方、色と大きさの変更、一時的な変更、保存、高 DPI への対応をまとめます。
 
 !!! tip "ポイント"
     - <strong>標準のテーマは 3 つ</strong>：<strong>`StyleColorsDark`</strong>（既定）・`StyleColorsLight`・`StyleColorsClassic`。

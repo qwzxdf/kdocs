@@ -48,7 +48,8 @@ using wformat_string = basic_format_string<wchar_t, type_identity_t<Args>...>;
 #include <print>
 
 void LogW(std::wformat_string<int> fmt, int v) {
-  std::println("{}", std::format(fmt, v).size());
+  std::wstring s = std::vformat(fmt.get(), std::make_wformat_args(v));   // 受け取った書式文字列を渡す
+  std::println("{}", s.size());
 }
 
 int main() {

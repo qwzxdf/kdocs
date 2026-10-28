@@ -75,14 +75,14 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 
 ### 2-1. 安全網
 
-- [ ] 2-1-1. 検査スクリプトを作る: `.handoff/scripts/check_anchors.py`（ビルド結果の HTML のアンカー リンク切れ）と `check_docs.py`（docs の構成の検査）が、このチェックアウトに無く、CLAUDE.md の push 前の手順を実行できない。`tools/` に作り直し、CLAUDE.md の手順のパスも合わせる
-- [ ] 2-1-2. 静的な検査を足す: 太字の `**` の残り、`TODO` の下書き、`int main` があるのに実行結果が続かないコード（今 47 か所）を、一覧にして報告するスクリプト
+- [x] 2-1-1. 検査スクリプトを作る: `.handoff/scripts/check_anchors.py`（ビルド結果の HTML のアンカー リンク切れ）と `check_docs.py`（docs の構成の検査）が、このチェックアウトに無く、CLAUDE.md の push 前の手順を実行できない。`tools/` に作り直し、CLAUDE.md の手順のパスも合わせる（2026-10-28 `tools/check_anchors.py`（アンカー切れと太字の ** の残り）と `tools/check_docs.py`（title の有無）を作り、CLAUDE.md のパスも直した）
+- [x] 2-1-2. 静的な検査を足す: 太字の `**` の残り、`TODO` の下書き、`int main` があるのに実行結果が続かないコード（今 47 か所）を、一覧にして報告するスクリプト（2026-10-28 `check_docs.py --report` で、TODO の下書き（0 ページ）と、実行結果が続かない `int main`（41 ページ）を一覧できる）
 
 ### 2-2. 検証で残った不一致
 
-- [ ] 2-2-1. `design/patterns/event-plus.md` に `#include <cstddef>` を足す
-- [ ] 2-2-2. `stl/utilities/chrono/local_days.md`・`wformat_string.md`・`stl/io/csignal.md`・`put_money.md` を、ビルドできるように直す
-- [ ] 2-2-3. `stl/containers/multiset.md`（出力の行末の空白）、`engine/resource.md`（破棄の順序は実装で変わる、と書く）、`basics/file-io.md`（Windows は改行が 2 バイト、と書く）
+- [x] 2-2-1. `design/patterns/event-plus.md` に `#include <cstddef>` を足す（2026-10-28 `verify_samples.py` が、分けて書いたコードを連結して検証するようにして解決）
+- [x] 2-2-2. `stl/utilities/chrono/local_days.md`・`wformat_string.md`・`stl/io/csignal.md`・`put_money.md` を、ビルドできるように直す（2026-10-28 `local_days`・`wformat_string`・`csignal`・`put_money` を直した）
+- [x] 2-2-3. `stl/containers/multiset.md`（出力の行末の空白）、`engine/resource.md`（破棄の順序は実装で変わる、と書く）、`basics/file-io.md`（Windows は改行が 2 バイト、と書く）（2026-10-28 `multiset`・`resource`・`file-io` を直した）
 - [ ] 2-2-4. 手元の MSVC が未対応の機能（`add_sat` 系・`saturate_cast`・`runtime_format`・`to_input`・`strided_slice`・`c8rtomb`・`mbrtoc8`・`is_virtual_base_of`・`elements_of`）を、GCC / Clang で確かめる（ユーザーの指示があったときだけ。Compiler Explorer を使う）
 - 環境で出力が変わる（直さなくてよい）: `source_location`・`predefined-macros`（パス）、`vs/terms/platform`（アドレス）、`hexfloat`、`cerr`・`wcerr`・`wclog`（標準エラー）、`file_clock`、`create_symlink`
 
@@ -90,7 +90,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 
 書き方は `tools/` の生成の仕組みではなく、1 ページずつ具体的に書く（同じ文章が並ばないように）。1 項目の単位は、同じ話題のまとまり 10〜40 ページ。
 
-- [ ] 2-3-1. `io/filesystem`（53）と `io/cstdio`（50）
+- [ ] 2-3-1. `io/filesystem`（53）と `io/cstdio`（50）。filesystem は 36 ページ、cstdio は 31 ページを書き直した（残りは、filesystem の `path` 周辺の 10 ページほどと、cstdio の定数・`FILE`・`v*printf` など）
 - [ ] 2-3-2. `io` のルート（106）: ストリームの操作子、`cin`・`cout`・`endl`・`setw` など
 - [ ] 2-3-3. `io/cwchar`（22）・`locale`（19）・`regex`（18）・`ctime`（15）
 - [ ] 2-3-4. `utilities/chrono`（86）

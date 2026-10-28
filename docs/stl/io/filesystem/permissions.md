@@ -44,9 +44,9 @@ void permissions(const path& p, perms prms, perm_options opts = perm_options::re
 int main() {
   namespace fs = std::filesystem;
   std::ofstream("perm_demo.txt") << "x";
-  fs::permissions("perm_demo.txt", fs::perms::owner_write, fs::perm_options::remove);
+  fs::permissions("perm_demo.txt", fs::perms::owner_write | fs::perms::group_write | fs::perms::others_write, fs::perm_options::remove);
   std::println("{}", (fs::status("perm_demo.txt").permissions() & fs::perms::owner_write) == fs::perms::none);
-  fs::permissions("perm_demo.txt", fs::perms::owner_write, fs::perm_options::add);  // 消せるように戻す
+  fs::permissions("perm_demo.txt", fs::perms::owner_write | fs::perms::group_write | fs::perms::others_write, fs::perm_options::add);  // 消せるように戻す
   fs::remove("perm_demo.txt");
 }
 ```
@@ -59,7 +59,7 @@ true
 
 | 場面 | 書き方 |
 | --- | --- |
-| セーブデータを読み取り専用にする | `fs::permissions(p, fs::perms::owner_write, fs::perm_options::remove)` |
+| セーブデータを読み取り専用にする | `fs::permissions(p, fs::perms::owner_write | fs::perms::group_write | fs::perms::others_write, fs::perm_options::remove)` |
 
 ## よくあるミス
 

@@ -54,9 +54,9 @@ namespace fs = std::filesystem;
 int main() {
   fs::path p = fs::temp_directory_path() / "kdocs_demo.txt";
   std::ofstream(p) << "x";
-  fs::permissions(p, fs::perms::owner_write, fs::perm_options::remove);
+  fs::permissions(p, fs::perms::owner_write | fs::perms::group_write | fs::perms::others_write, fs::perm_options::remove);
   std::println("{}", (fs::status(p).permissions() & fs::perms::owner_write) == fs::perms::none);
-  fs::permissions(p, fs::perms::owner_write, fs::perm_options::add);
+  fs::permissions(p, fs::perms::owner_write | fs::perms::group_write | fs::perms::others_write, fs::perm_options::add);
   fs::remove(p);
 }
 ```

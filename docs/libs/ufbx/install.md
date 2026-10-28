@@ -7,7 +7,7 @@ tags:
 
 # ufbx の導入（Visual Studio）
 
-ufbx は**`ufbx.c` と `ufbx.h` の 2 ファイルだけ**です。ファイルを置いてプロジェクトに追加するのが、最も簡単です（導入の基本は [外部ライブラリの入れ方](../../vs/libraries.md)）。
+ufbx は<strong>`ufbx.c` と `ufbx.h` の 2 ファイルだけ</strong>です。ファイルを置いてプロジェクトに追加するのが、最も簡単です（導入の基本は [外部ライブラリの入れ方](../../vs/libraries.md)）。
 
 !!! info "このページを読む前に"
     - [ufbx（FBX の読み込み）](index.md)（このセクション全体の地図と、読む順番）

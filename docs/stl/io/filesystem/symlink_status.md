@@ -15,31 +15,40 @@ tags:
 `#include <filesystem>`
 </div>
 
-`status` は、リンクをたどって先の状態を返します。`symlink_status` は、リンク自身の状態（種類が `symlink` か）を返します。
+[`status`](status.md) は、シンボリックリンクがあると、その指し先の情報を返します。リンクのファイルそのものがどんな状態なのかを知りたいときには、先をたどってしまう `status` は役に立ちません。
+
+`std::filesystem::symlink_status` は、<strong>リンクをたどらずに</strong>、パスそのものの種類と権限を [`file_status`](file_status.md) として返します。
 
 !!! tip "ポイント"
-    - `std::filesystem` の部品。
-    - 例外を避けたいときは、`std::error_code` を渡す版を使う。
-    - パスは `std::filesystem::path` で扱う。
+    - `status` と同じ使い方で、リンクだけを「たどらない」
+    - パスがリンクなら `type()` が `symlink` になる
+    - リンクの先が存在しなくても、リンクがあれば取得できる
+    - リンク以外のパスでは、`status` と同じ結果になる
 
 !!! info "このページを読む前に"
     [`std::filesystem`](../filesystem.md) の概要と、[`path`](path.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### std::filesystem::symlink_status {#symlink_status}
+### symlink_status {#symlink_status}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
 file_status symlink_status(const path& p);
+file_status symlink_status(const path& p, std::error_code& ec) noexcept;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `p` | path | 調べるパス |
+| `p` | `const path&` | 調べるパス |
+| `ec` | `std::error_code&` | 失敗の理由の受け取り先 |
 
-- 戻り値: `file_status`
-- 計算量: OS に依存
+`status` との違いは、パスの最後の部分がシンボリックリンクのときだけです。`status` は先をたどり、`symlink_status` はたどりません。パスの途中にあるリンク（`dir_link/file` の `dir_link` など）は、どちらも通常どおり先をたどって解決されます。
 
+リンクの先が存在しない場合、`status` は `not_found` を返しますが、`symlink_status` は `symlink` を返します。この差が、リンク切れの検出に使えます。
+
+パスが存在しなければ、`status` と同じく、`not_found` が返ります（例外ではありません）。
 
 ## 実際に動かしてみる
 
@@ -48,37 +57,47 @@ file_status symlink_status(const path& p);
 #include <fstream>
 #include <print>
 
-namespace fs = std::filesystem;
-
 int main() {
-  fs::path p = fs::temp_directory_path() / "kdocs_demo.txt";
-  std::ofstream(p) << "x";
-  std::println("{}", fs::symlink_status(p).type() == fs::file_type::regular);
-  fs::remove(p);
+  namespace fs = std::filesystem;
+  std::ofstream("plain.txt") << "x";
+
+  // リンクではないパスでは、status と同じ結果
+  fs::file_status a = fs::status("plain.txt");
+  fs::file_status b = fs::symlink_status("plain.txt");
+  std::println("通常のファイルでは同じ: {}", a.type() == b.type());
+  std::println("リンクではない: {}", b.type() != fs::file_type::symlink);
+
+  // 存在しないパスは not_found
+  std::println("存在しない: {}", fs::symlink_status("missing").type() == fs::file_type::not_found);
 }
 ```
 
 ```text title="実行結果"
-true
+通常のファイルでは同じ: true
+リンクではない: true
+存在しない: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | リンクかどうかを区別して処理する |
+ファイルの走査やコピーのツールで、リンクを実体として扱うか、リンクのまま扱うかを分けるときに使います。ディレクトリ ツリーを再帰的にたどるとき、リンクをたどると、リンクが親を指していた場合に無限ループになります。`symlink_status` でリンクかどうかを見て、たどらないようにします。
+
+`recursive_directory_iterator` は、既定でリンクをたどりません。自分で再帰を書くときに、この関数が必要になります。
 
 ## よくあるミス
 
-??? failure "`status` と取り違える"
-    `status` はリンク先を見ます。リンク自身を見るなら `symlink_status` です。
+??? failure "リンク切れを `status` で検出しようとして、普通の「存在しない」と区別できない"
+    `status` はどちらも `not_found` です。`symlink_status` が `symlink` で、`status` が `not_found` なら、リンク切れです。
+
+??? failure "自分で再帰してリンクをたどり、無限ループになる"
+    フォルダーへのリンクが親を指すと、ぐるぐる回ります。リンクをたどらない設計にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`status`](status.md) | リンクをたどる |
-| [`is_symlink`](is_symlink.md) | リンクか調べる |
+| [`status`](status.md) | リンクをたどる版 |
+| [`is_symlink`](is_symlink.md) | リンクかどうかだけを返す補助関数 |
 
 ## コンパイラ対応
 
@@ -87,9 +106,9 @@ C++17 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] シンボリックリンクをたどらずに、そのファイル自身の状態を返す
-    - [x] `std::filesystem` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] リンクをたどらない `status`
+    - [x] リンクなら `symlink` を返す
+    - [x] リンク切れの検出に使える
 
 ## 関連ページ
 
