@@ -20,6 +20,9 @@ C++ を触ったことがあれば、C# の見た目はほとんど違和感が�
 3. ポインターをほとんど使いません。参照型の変数は、最初から「指している」ものです。`*` や `->` は出てきません。
 4. ヘッダー ファイルがありません。宣言と定義は同じ場所にあって、他のファイルのクラスは `using` と名前空間で使えます。
 
+!!! abstract "この章での Editor"
+    この章では、Editor にファイルを足しません。次の節で作る、捨ててよいコンソール アプリ（`CSharpPlayground`）で、C# の文法を試します。以降のコードは、すべてその実験用のものです。
+
 ## 実験用のプロジェクトを作る
 
 エディタのプロジェクトに実験コードを書くと散らかるので、捨ててよいプロジェクトを別に作ります。
@@ -30,7 +33,7 @@ C++ を触ったことがあれば、C# の見た目はほとんど違和感が�
 
 できあがる `Program.cs` はこうなっています。
 
-```csharp title="Program.cs"
+```csharp title="実験：CSharpPlayground の Program.cs（Editor には入れない）"
 namespace CSharpPlayground;
 
 internal class Program
@@ -50,7 +53,7 @@ C++ の `main` に当たるのが `Main` です。クラスの中に書く点が
 
 数値や文字の型は、C++ とだいたい同じ名前です。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 int hp = 100;
 float speed = 2.5f;      // float には f を付ける
 double pi = 3.14159265358979;
@@ -74,14 +77,14 @@ string name = "Player";
 
 `var` は C++ の `auto` と同じです。右辺から型が決まります。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 var count = 10;                  // int
 var names = new List<string>();  // List<string>
 ```
 
 型の変換は、情報が落ちる向きのときだけ、はっきり書く必要があります。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 long big = 10;
 int small = (int)big;       // 小さい型へはキャストが要る
 int i = (int)3.7f;          // 3（小数は切り捨て）
@@ -92,7 +95,7 @@ C++ では `int x = 3.7;` が通ってしまいますが、C# は止めてくれ
 
 文字列に値を埋め込むときは `$"..."` を使います（補間文字列）。`std::format` に近い機能ですが、`{}` の中に変数名をそのまま書けます。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 string text = $"{name} の HP は {hp} です";
 string line = $"速度 {speed:F1}";   // :F1 で小数 1 桁
 int length = name.Length;           // () が付かない（プロパティなので）
@@ -102,7 +105,7 @@ int length = name.Length;           // () が付かない（プロパティな�
 
 この章でいちばん大事なところです。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 struct PointStruct { public int X; public int Y; }
 class  PointClass  { public int X; public int Y; }
 
@@ -131,7 +134,7 @@ Console.WriteLine(c1.X);   // 99 ← c1 も変わる
 
 クラスの書き方は C++ とほぼ同じです。違うのは、変数と関数の中間のような「プロパティ」があることです。WPF のバインディングはこのプロパティを前提に動くので、慣れておく必要があります。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 public class Player
 {
     private int _hp = 100;                  // フィールド（メンバー変数）
@@ -151,7 +154,7 @@ public class Player
 }
 ```
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 var p = new Player("Alice");   // new で作る。delete は書かない
 p.Damage(30);
 Console.WriteLine(p.Hp);       // 70
@@ -177,7 +180,7 @@ p.Hp = 500;                    // set が動いて、100 に切り詰められ�
 
 作ると同時にプロパティを設定する書き方（初期化子）もよく見ます。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 var p = new Player("Bob") { Hp = 50 };
 ```
 
@@ -185,7 +188,7 @@ var p = new Player("Bob") { Hp = 50 };
 
 `=>` は「式形式メンバー」という省略記法で、`{}` で書いても、同じ意味になります。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 public void Write(string message) => Console.WriteLine(message);
 
 public void Write(string message)
@@ -196,7 +199,7 @@ public void Write(string message)
 
 上と下は、まったく同じ関数です。値を返す関数では、`{}` の側に `return` が必要になります。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 public int Add(int a, int b) => a + b;
 
 public int Add(int a, int b)
@@ -207,7 +210,7 @@ public int Add(int a, int b)
 
 `=>` は、メソッドだけでなく、プロパティ（`get` だけのもの）やコンストラクターにも使えます。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 public string Name => _name;
 public Foo(ILogger logger) => _logger = logger;
 ```
@@ -255,7 +258,7 @@ Google の C++ スタイルでは、クラスのメンバー変数の末尾に `
 
 最近の C# では、`null` になりうるかどうかを型に書いて、コンパイラーに見張ってもらえます。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 string name = "abc";      // null を入れないという約束
 string? maybe = null;     // null かもしれない、という宣言
 
@@ -271,7 +274,7 @@ int? number = null;       // 値型にも ? を付けると「値なし」を表
 
 ## コレクションと繰り返し
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 var numbers = new List<int> { 3, 1, 2 };   // std::vector<int>
 numbers.Add(5);
 numbers.Sort();
@@ -310,7 +313,7 @@ if (scores.TryGetValue("Alice", out int score))
 
 絞り込みや変換は LINQ で書くと短く済みます。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 var names = new List<string> { "Alice", "Bob", "Charlie" };
 var longNames = names.Where(n => n.Length > 3).ToList();   // 4 文字より長いもの
 var upper = names.Select(n => n.ToUpper());                // 全部大文字にしたもの
@@ -323,7 +326,7 @@ bool anyB = names.Any(n => n.StartsWith("B"));
 
 C++ の `std::function` に当たるものが、C# ではデリゲートです。ほとんどの場合、標準で用意された `Action` と `Func` で足ります。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 Action<string> log = message => Console.WriteLine(message);   // 戻り値なし
 Func<int, int, int> add = (a, b) => a + b;                    // 最後の型が戻り値
 log("hello");
@@ -334,7 +337,7 @@ Console.WriteLine(add(2, 3));    // 5
 
 関数を持ち回るだけでなく、「何かが起きたら呼んでほしい」を実現するのが `event` です。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 public class Player
 {
     public event Action<int>? HpChanged;       // HP が変わったときの通知
@@ -364,7 +367,7 @@ WPF の画面は、ボタンの `Click` のようなイベントと、プロパ�
 
 ## 継承とインターフェース
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 public interface IDamageable        // 約束だけを書く
 {
     void Damage(int amount);
@@ -385,14 +388,14 @@ public class Enemy : Entity, IDamageable   // 継承は 1 つ、インターフ�
 
 仮想関数は `virtual` を付けたものだけで、派生クラスでは `override` と書きます（C++ と違って、`virtual` を付けない関数はデフォルトでは上書きできません）。`dynamic_cast` の代わりには `is` と `as` を使います。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 if (obj is Enemy e) { e.Damage(1); }   // 型を調べて、合えば e に取り出す
 var enemy = obj as Enemy;              // 合わなければ null
 ```
 
 ## 例外
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 try
 {
     var text = File.ReadAllText("settings.json");
@@ -420,7 +423,7 @@ C++ との大きな違いは `finally` があることです。成功しても�
 
 `using` は 2 種類の使い方があって、最初は紛らわしく感じるかもしれません。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 using System.Collections.Generic;      // ① 名前空間を使えるようにする
 
 using (var stream = File.OpenRead("a.bin"))   // ② 使い終わったら自動で閉じる
@@ -439,7 +442,7 @@ using var writer = new StreamWriter("log.txt");   // ③ ②の短い書き方
 
 ファイルの読み込みのように時間のかかる処理を画面を止めずに行うための仕組みです。
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 string text = await File.ReadAllTextAsync("big.txt");
 Console.WriteLine(text.Length);
 ```
@@ -450,7 +453,7 @@ WPF では、画面を触れるスレッドは 1 本だけ（UI スレッド）�
 
 ## ほかによく見る書き方
 
-```csharp
+```csharp title="実験（CSharpPlayground の Main に書いて試す。Editor には入れない）"
 string label = hp switch               // switch 式（値を返す）
 {
     <= 0 => "死亡",

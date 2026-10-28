@@ -13,6 +13,14 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Themes/Dark.xaml`（新規） | 用途の名前を付けた、暗い配色の色の一覧 |
+    | `App.xaml`（変更） | 色の辞書を読み込む |
+
+    リソースやスタイル、トリガー、`ControlTemplate` の説明に出てくる、ほかのコードは、仕組みを見るための例で、Editor には入れません。
+
 ## 道具の使い分け
 
 先に結論を書いておきます。
@@ -34,7 +42,7 @@ tags:
 
 リソースは、部品の `Resources` プロパティに定義します。ウィンドウの `Window.Resources` や、アプリ全体の `Application.Resources`（`App.xaml`）がよく使われます。呼ぶときは `{StaticResource キー}` です。
 
-```xml
+```xml title="例（Editor には入れない）"
 <Window.Resources>
     <SolidColorBrush x:Key="AccentBrush" Color="#FF3498DB" />
 </Window.Resources>
@@ -59,7 +67,7 @@ tags:
 
 リソースが増えてくると、`App.xaml` が長くなります。別ファイルに分けて、`MergedDictionaries` で取り込みます。
 
-```xml title="Themes/Colors.xaml"
+```xml title="例：Themes/Colors.xaml"
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <SolidColorBrush x:Key="PanelBrush" Color="#FF252526" />
@@ -67,16 +75,18 @@ tags:
 </ResourceDictionary>
 ```
 
-```xml title="App.xaml"
-<prism:PrismApplication.Resources>
+```xml title="例：App.xaml（辞書を分けるときの形。Editor では次の Dark.xaml を使う）"
+<Application.Resources>
     <ResourceDictionary>
         <ResourceDictionary.MergedDictionaries>
             <ResourceDictionary Source="Themes/Colors.xaml" />
             <ResourceDictionary Source="Themes/Controls.xaml" />
         </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
-</prism:PrismApplication.Resources>
+</Application.Resources>
 ```
+
+第 16 章で `App` を `PrismApplication` に作り替えると、このタグは `prism:PrismApplication.Resources` に変わりますが、中身の書き方は同じです。
 
 プロジェクトの設定（フォント、テーマ、ボタンの大きさなど）は、画面を増やす前の最初の段階で決めてしまうのがおすすめです。後からスタイルを入れると、すでに画面ごとに設定されたプロパティ値と衝突して、調整に手間がかかります。
 
@@ -84,7 +94,7 @@ tags:
 
 スタイルは、プロパティ値の設定の束です。
 
-```xml
+```xml title="例（Editor には入れない）"
 <Style x:Key="PrimaryButton" TargetType="Button">
     <Setter Property="Background" Value="{StaticResource AccentBrush}" />
     <Setter Property="Foreground" Value="White" />
@@ -99,7 +109,7 @@ tags:
 
 既存のスタイルに少し足したいときは `BasedOn` です。
 
-```xml
+```xml title="例（Editor には入れない）"
 <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
     <Setter Property="Background" Value="#FFE74C3C" />
 </Style>
@@ -111,7 +121,7 @@ tags:
 
 「マウスが乗ったら色を変える」のような、状況に応じた見た目の変化は、トリガーで書きます。
 
-```xml
+```xml title="例（Editor には入れない）"
 <Style TargetType="Button">
     <Setter Property="Background" Value="#FF3F3F46" />
     <Style.Triggers>
@@ -140,7 +150,7 @@ tags:
 
 WPF の `Button` の見た目は、実は `Button` の `Template` プロパティに入っている `ControlTemplate` で決まっています。これを差し替えると、機能（クリックされると `Click` が起きる）はそのままに、見た目だけを入れ替えられます。
 
-```xml
+```xml title="例（Editor には入れない）"
 <Style x:Key="RoundButton" TargetType="Button">
     <Setter Property="Background" Value="#FF3498DB" />
     <Setter Property="Foreground" Value="White" />
@@ -208,7 +218,7 @@ WPF の `Button` の見た目は、実は `Button` の `Template` プロパテ�
 
 まず、色に「用途の名前」を付けて、`ResourceDictionary` に書きます。「灰色」ではなく「パネルの背景」のように、役目で名前を付けるのがコツです。
 
-```xml title="Themes/Dark.xaml"
+```xml title="Themes/Dark.xaml（新規）"
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <SolidColorBrush x:Key="Window.Background" Color="#FF1E1E1E" />
@@ -224,7 +234,7 @@ WPF の `Button` の見た目は、実は `Button` の `Template` プロパテ�
 
 `App.xaml` で、片方を読み込みます。
 
-```xml title="App.xaml"
+```xml title="App.xaml（変更）"
 <Application.Resources>
     <ResourceDictionary>
         <ResourceDictionary.MergedDictionaries>
@@ -236,7 +246,7 @@ WPF の `Button` の見た目は、実は `Button` の `Template` プロパテ�
 
 画面側では、色を直接書かずに、名前で呼びます。入れ替えに追従させるので、`StaticResource` ではなく `DynamicResource` です。
 
-```xml
+```xml title="例（Editor には入れない）"
 <Border Background="{DynamicResource Panel.Background}"
         BorderBrush="{DynamicResource Panel.Border}" BorderThickness="1">
     <TextBlock Text="プロパティ" Foreground="{DynamicResource Text.Primary}" />
@@ -245,7 +255,7 @@ WPF の `Button` の見た目は、実は `Button` の `Template` プロパテ�
 
 実行中に切り替えるときは、読み込み済みの辞書を差し替えます。
 
-```csharp
+```csharp title="例（Editor には入れない）"
 public static void ApplyTheme(string name)   // "Dark" または "Light"
 {
     var dictionaries = Application.Current.Resources.MergedDictionaries;
@@ -274,12 +284,12 @@ public static void ApplyTheme(string name)   // "Dark" または "Light"
 
 図形は、`Geometry`（形の定義）として、リソースに置きます。
 
-```xml
+```xml title="例（Editor には入れない）"
 <Geometry x:Key="Icon.Play">M 4,2 L 14,8 L 4,14 Z</Geometry>
 <Geometry x:Key="Icon.Stop">M 3,3 L 13,3 L 13,13 L 3,13 Z</Geometry>
 ```
 
-```xml
+```xml title="例（Editor には入れない）"
 <Button ToolTip="再生">
     <Path Data="{StaticResource Icon.Play}" Fill="{DynamicResource Accent}"
           Width="16" Height="16" Stretch="Uniform" />
@@ -301,14 +311,14 @@ public static void ApplyTheme(string name)   // "Dark" または "Light"
 
 ここで出てきた `Geometry` や `SolidColorBrush` は、`Freezable` というクラスの仲間です。`Freezable` は「凍結（`Freeze()`）」できるオブジェクトで、凍結すると、変更できなくなる代わりに、変更の通知を管理する手間がなくなり、軽くなって、スレッドをまたいで使えるようにもなります。
 
-```csharp
+```csharp title="例（Editor には入れない）"
 var brush = new SolidColorBrush(Colors.Red);
 brush.Freeze();                       // これ以降、brush.Color = ... は例外になる
 ```
 
 XAML のリソースに置いたブラシは、変更しない前提なら、凍結しておくのがおすすめです。大量の部品が同じブラシを使うエディタでは、描画が少し軽くなります。
 
-```xml
+```xml title="例（Editor には入れない）"
 <SolidColorBrush x:Key="Panel.Background" Color="#FF252526"
                  xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -330,7 +340,7 @@ NuGet で入れて、`App.xaml` の `MergedDictionaries` に読み込みます�
 
 また、日本語環境の表示崩れを避けるために、`FontFamily` は明示的に指定しておくのがおすすめです。OS によって標準のフォントが違うので、`Meiryo UI` や `Yu Gothic UI` を `Window` のスタイルで指定します。
 
-```xml
+```xml title="例（Editor には入れない）"
 <Style TargetType="Window">
     <Setter Property="FontFamily" Value="Yu Gothic UI" />
 </Style>

@@ -13,6 +13,9 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章での Editor"
+    この章では、Editor にファイルを足しません。第 6 章で書いた `DockPanel` と `Grid` の枠が、なぜその大きさと並びになるかを読み解きます。コードは、仕組みを見るための例です。
+
 ## 大きさは親と子の相談で決まる
 
 WPF では、部品が自分の大きさを一方的に決めるわけではありません。親と子が 2 段階でやり取りして決めます。
@@ -64,7 +67,7 @@ WPF では、部品が自分の大きさを一方的に決めるわけではあ�
 
 ### 複数のセルにまたがる
 
-```xml
+```xml title="例（Editor には入れない）"
 <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Text="見出し" />
 <Button    Grid.Row="1" Grid.RowSpan="2" Content="縦長" />
 ```
@@ -73,7 +76,7 @@ WPF では、部品が自分の大きさを一方的に決めるわけではあ�
 
 別々の `Grid` にある列の幅を同じにしたいときがあります。たとえば、プロパティ パネルの「位置」「回転」「拡大」を別々の `Grid` で作って、ラベル列の幅をそろえたい場合です。`SharedSizeGroup` を使います。
 
-```xml
+```xml title="例（Editor には入れない）"
 <StackPanel Grid.IsSharedSizeScope="True">
     <Grid>
         <Grid.ColumnDefinitions>
@@ -121,7 +124,7 @@ WPF の長さの単位は、1 単位が 1/96 インチです。画面の拡大�
 
 ただし、画像やエンジンの描画面（第 36 章の `HwndHost`）のように、物理ピクセルが必要なものを扱うときは、変換が必要です。
 
-```csharp
+```csharp title="例（Editor には入れない）"
 var dpi = VisualTreeHelper.GetDpi(this);       // この部品がいる画面の DPI 情報
 double scaleX = dpi.DpiScaleX;                  // 150% なら 1.5
 double pixelWidth = ActualWidth * scaleX;

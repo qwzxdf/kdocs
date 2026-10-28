@@ -219,7 +219,7 @@ public sealed class AsyncCommand : ICommand
 public AsyncCommand LoadCommand { get; }
 
 // コンストラクターの中
-LoadCommand = new AsyncCommand(LoadAsync, onError: e => _log.Add("Error", $"読み込みに失敗: {e.Message}"));
+LoadCommand = new AsyncCommand(LoadAsync, onError: e => _log.Add(LogLevel.Error, $"読み込みに失敗: {e.Message}"));
 ```
 
 `_log` は、次の節で用意する `LogViewModel` です。
@@ -250,7 +250,7 @@ public AssetBrowserViewModel(LogViewModel log)
 
 private async Task LoadAsync()
 {
-    var files = await _scanner.ScanAsync(AppContext.BaseDirectory, msg => _log.Add("Info", msg));
+    var files = await _scanner.ScanAsync(AppContext.BaseDirectory, msg => _log.Add(LogLevel.Info, msg));
     Entries.Clear();
     foreach (var file in files) Entries.Add(file);
 }
@@ -259,7 +259,7 @@ private async Task LoadAsync()
 ここで `LogViewModel` に `Add` を作ります。何も考えずに書くと、こうなります。
 
 ```csharp title="実験：スレッドを考えない Add（Editor には入れない）"
-public void Add(string level, string message)
+public void Add(LogLevel level, string message)
 {
     Entries.Add(new LogEntry(DateTime.Now, level, message));
 }
@@ -288,7 +288,7 @@ await Application.Current.Dispatcher.InvokeAsync(() => Entries.Add(entry));   //
 ```csharp title="ViewModels/LogViewModel.cs（変更）"
 using System.Windows;
 
-public void Add(string level, string message)
+public void Add(LogLevel level, string message)
 {
     var entry = new LogEntry(DateTime.Now, level, message);
     var dispatcher = Application.Current.Dispatcher;
@@ -352,7 +352,7 @@ private async Task LoadAsync()
     try
     {
         var progress = new Progress<double>(p => ProgressValue = p);    // UI スレッドで作る
-        var files = await _scanner.ScanAsync(AppContext.BaseDirectory, progress, msg => _log.Add("Info", msg));
+        var files = await _scanner.ScanAsync(AppContext.BaseDirectory, progress, msg => _log.Add(LogLevel.Info, msg));
         Entries.Clear();
         foreach (var file in files) Entries.Add(file);
     }
@@ -412,13 +412,13 @@ private async Task LoadAsync()
     {
         var progress = new Progress<double>(p => ProgressValue = p);
         var files = await _scanner.ScanAsync(AppContext.BaseDirectory, progress,
-            msg => _log.Add("Info", msg), _cts.Token);
+            msg => _log.Add(LogLevel.Info, msg), _cts.Token);
         Entries.Clear();
         foreach (var file in files) Entries.Add(file);
     }
     catch (OperationCanceledException)
     {
-        _log.Add("Info", "読み込みをキャンセルしました");
+        _log.Add(LogLevel.Info, "読み込みをキャンセルしました");
     }
     finally
     {

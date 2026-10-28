@@ -13,6 +13,14 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `MainWindow.xaml`（変更） | メニュー、ステータス バー、5 つの領域（シーン ツリー、ビューポート、アセットとログのタブ、プロパティ）の枠 |
+    | `App.xaml`（変更） | パネルの色とスタイルのリソース |
+
+    この枠は、第 12 章から、中身を少しずつ作り込んでいきます。
+
 ## WPF の画面は 2 つのファイルでできている
 
 WPF では、1 つの画面を 2 つのファイルで書きます。
@@ -116,13 +124,13 @@ XAML は XML なので、ルールは少ししかありません。
 
 ### 要素と属性
 
-```xml
+```xml title="例（XAML の読み方の説明。Editor には入れない）"
 <Button Content="押す" Width="80" Height="24" />
 ```
 
 これは C# で書くとこうなります。
 
-```csharp
+```csharp title="例（XAML の読み方の説明。Editor には入れない）"
 var button = new Button { Content = "押す", Width = 80, Height = 24 };
 ```
 
@@ -130,7 +138,7 @@ var button = new Button { Content = "押す", Width = 80, Height = 24 };
 
 ### 入れ子は「中身を入れる」
 
-```xml
+```xml title="例（XAML の読み方の説明。Editor には入れない）"
 <Grid>
     <Button Content="OK" />
 </Grid>
@@ -144,7 +152,7 @@ var button = new Button { Content = "押す", Width = 80, Height = 24 };
 
 属性では書けない複雑な値は、`部品名.プロパティ名` という子要素で書きます。
 
-```xml
+```xml title="例（XAML の読み方の説明。Editor には入れない）"
 <Button>
     <Button.Content>
         <StackPanel Orientation="Horizontal">
@@ -159,7 +167,7 @@ var button = new Button { Content = "押す", Width = 80, Height = 24 };
 
 ### 添付プロパティ
 
-```xml
+```xml title="例（XAML の読み方の説明。Editor には入れない）"
 <Grid>
     <Button Grid.Row="1" Grid.Column="2" Content="OK" />
 </Grid>
@@ -169,7 +177,7 @@ var button = new Button { Content = "押す", Width = 80, Height = 24 };
 
 ### 名前を付ける（x:Name）
 
-```xml
+```xml title="例（XAML の読み方の説明。Editor には入れない）"
 <TextBlock x:Name="StatusText" Text="準備完了" />
 ```
 
@@ -177,7 +185,7 @@ var button = new Button { Content = "押す", Width = 80, Height = 24 };
 
 ### 波かっこの値（マークアップ拡張）
 
-```xml
+```xml title="例（XAML の読み方の説明。Editor には入れない）"
 <TextBlock Text="{Binding Name}" />
 <Button Background="{StaticResource AccentBrush}" />
 ```
@@ -208,7 +216,7 @@ WPF では、ピクセル座標で部品を置きません。代わりに「縦�
 
 ### Grid の行と列
 
-```xml
+```xml title="例（XAML の読み方の説明。Editor には入れない）"
 <Grid>
     <Grid.ColumnDefinitions>
         <ColumnDefinition Width="200" />   <!-- 固定 200 -->
@@ -288,7 +296,7 @@ WPF では、ピクセル座標で部品を置きません。代わりに「縦�
 
 上の `<Grid />` を次のように書き換えます。
 
-```xml
+```xml title="MainWindow.xaml（変更：本体の Grid）"
 <Grid>
     <Grid.ColumnDefinitions>
         <ColumnDefinition Width="240" MinWidth="120" />
@@ -341,7 +349,7 @@ WPF では、ピクセル座標で部品を置きません。代わりに「縦�
 
 同じ色を何か所にも書くと、あとで直すのが大変です。1 か所に名前を付けて定義し、使うところで名前を呼びます。`App.xaml` の `<Application.Resources>` に書くと、アプリ全体で使えます。
 
-```xml title="App.xaml"
+```xml title="App.xaml（変更）"
 <Application.Resources>
     <SolidColorBrush x:Key="PanelBrush" Color="#FF252526" />
 
@@ -367,11 +375,11 @@ WPF では、ピクセル座標で部品を置きません。代わりに「縦�
 
 ボタンやメニューを押したときの処理は、`Click` などのイベントにメソッドを結び付けて書けます。
 
-```xml
+```xml title="MainWindow.xaml.cs（例。Editor には入れない）"
 <MenuItem Header="終了(_X)" Click="OnExit" />
 ```
 
-```csharp
+```csharp title="MainWindow.xaml.cs（例。Editor には入れない）"
 private void OnExit(object sender, RoutedEventArgs e)
 {
     Close();

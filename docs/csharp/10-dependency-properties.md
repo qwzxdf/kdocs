@@ -13,6 +13,9 @@ WPF の解説を読んでいると、「依存関係プロパティ」「添付�
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章での Editor"
+    この章では、Editor にファイルを足しません。依存関係プロパティを自分で作る例（`NumberBox`）は、書き方を見るための実験です。Editor で実際に使う部品は、第 26 章の `LabeledNumber` で作ります。
+
 ## 依存関係プロパティ
 
 ### 普通のプロパティではだめなのか
@@ -39,7 +42,7 @@ WPF のクラスのプロパティのうち、画面に関係するもの（`Wid
 
 最初の引数の `nameof(Value)` は、`Value` という名前を文字列 `"Value"` に変える式です。文字列を直接書いてもいいのですが、プロパティの名前を後で変えたときに、文字列だけが取り残されます。`nameof` ならコンパイラーが名前を追いかけるので、変え忘れがコンパイル エラーになります。C++ でマクロの `#名前` で文字列にする書き方があるのに近いですが、`nameof` は名前が存在しないとエラーになる点が違います。
 
-```csharp title="NumberBox.xaml.cs（抜粋）"
+```csharp title="実験：NumberBox.xaml.cs（抜粋。Editor には入れない）"
 public partial class NumberBox : UserControl
 {
     public static readonly DependencyProperty ValueProperty =
@@ -86,7 +89,7 @@ Visual Studio には `propdp` というコード スニペットがあります�
 
 第 6 章で出てきた `Grid.Row` や `DockPanel.Dock` が、添付プロパティです。「持ち主のクラスではなく、他のクラスの部品に付けられるプロパティ」と考えてください。
 
-```xml
+```xml title="例（Editor には入れない）"
 <Button Grid.Row="1" Grid.Column="2" />
 ```
 
@@ -94,7 +97,7 @@ Visual Studio には `propdp` というコード スニペットがあります�
 
 自作の添付プロパティは、`RegisterAttached` で作ります。
 
-```csharp
+```csharp title="例（Editor には入れない）"
 public static class Ui
 {
     public static readonly DependencyProperty IsHighlightedProperty =
@@ -111,7 +114,7 @@ public static class Ui
 }
 ```
 
-```xml
+```xml title="例（Editor には入れない）"
 <Border local:Ui.IsHighlighted="True" />
 ```
 
@@ -121,7 +124,7 @@ public static class Ui
 
 普通の C# のイベントは、起きた場所で、登録した人にだけ知らせます。WPF のイベントの多くは、ルーテッド イベントといって、部品の木をたどって伝わっていきます。
 
-```xml
+```xml title="例（Editor には入れない）"
 <StackPanel Button.Click="OnAnyButtonClick">
     <Button Content="A" />
     <Button Content="B" />
