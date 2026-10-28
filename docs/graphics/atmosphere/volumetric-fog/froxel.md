@@ -146,7 +146,7 @@ float3 FroxelToWorld(float3 froxel_id) {
   float view_depth = SliceToViewDepth(froxel_id.z / 64.0);              // スライス → カメラからの、奥行き（メートル）
   // 画面の位置と、奥行きから、ビュー空間の位置 → ワールド空間へ
   float2 ndc = uv * float2(2, -2) + float2(-1, 1);
-  float3 view_pos = float3(ndc.x * view_depth / g_proj_x, ndc.y * view_depth / g_proj_y, -view_depth);   // 右手系: 前方が −Z
+  float3 view_pos = float3(ndc.x * view_depth / g_proj_x, ndc.y * view_depth / g_proj_y, view_depth);   // 左手系: 前方が +Z
   return mul(float4(view_pos, 1.0), g_inv_view).xyz;
 }
 ```

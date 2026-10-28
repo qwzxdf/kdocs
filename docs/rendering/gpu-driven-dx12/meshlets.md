@@ -413,7 +413,7 @@ ComPtr<ID3D12PipelineState> Renderer::CreateMeshPso(ID3DBlob* as, ID3DBlob* ms, 
   stream.sample_mask.data = UINT_MAX;
 
   stream.rasterizer.data = MakeDefaultRasterizerDesc();
-  stream.rasterizer.data.FrontCounterClockwise = TRUE;  // このサイトでは反時計回りが表
+  stream.rasterizer.data.FrontCounterClockwise = FALSE;  // このサイトでは時計回りが表
 
   stream.depth_stencil.data = MakeDefaultDepthStencilDesc();
   stream.rtv_formats.data.NumRenderTargets = 1;

@@ -128,8 +128,8 @@ float3 SunDirection(float hour, float latitude_rad, float axial_tilt_rad) {
 緯度、赤緯（季節）、時角から太陽の高さ（仰角）と方位が天文学の標準的な式で決まります。ゲームでは緯度や赤緯を固定して、時角だけを動かすのが普通です。
 
 ```hlsl
-  // 方位角・仰角から、方向ベクトルへ（右手系、Y 上）。方位角は、北を 0、東を +90° とする。
-  return float3(sin(azimuth) * cos(elevation), sin(elevation), -cos(azimuth) * cos(elevation));
+  // 方位角・仰角から、方向ベクトルへ（左手系、Y 上）。方位角は、北（+Z）を 0、東（+X）を +90° とする。
+  return float3(sin(azimuth) * cos(elevation), sin(elevation), cos(azimuth) * cos(elevation));
 }
 ```
 

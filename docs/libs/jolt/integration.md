@@ -71,8 +71,8 @@ void SyncPhysicsToGame(Registry& registry, BodyInterface& bodies) {
 
 | 点 | 説明 |
 | --- | --- |
-| 座標系は、SimpleMath と同じ | Jolt は右手系・Y 上。変換は成分の写しだけ（[座標系](../../gamemath/coordinate-systems.md)） |
-| クォータニオンの順 | Jolt も `(x, y, z, w)`。そのまま写せる（[回転](../../gamemath/rotation.md)） |
+| 座標系は、境界で X を反転する | Jolt は右手系・Y 上で、このサイトは左手系。位置は `(-x, y, z)`、回転は `(x, -y, -z, w)` に写す（[座標系](../../gamemath/coordinate-systems.md)） |
+| クォータニオンの順 | Jolt も `(x, y, z, w)`。順はそのままで、符号だけ上の表のとおりに直す（[回転](../../gamemath/rotation.md)） |
 | `IsActive` で絞る | 休止中の物体は、動いていないので同期を省ける（軽くなる） |
 | `GetPosition` と `GetCenterOfMassPosition` | 見た目の原点には、`GetPosition`（重心がずれた形に注意） |
 | スケールは、Jolt にない | スケールはゲーム側で持つ（形を作るときに反映） |
@@ -80,13 +80,14 @@ void SyncPhysicsToGame(Registry& registry, BodyInterface& bodies) {
 ### 変換の関数
 
 ```cpp
-inline Vector3 ToVector3(JPH::RVec3Arg v) { return Vector3(float(v.GetX()), float(v.GetY()), float(v.GetZ())); }
-inline JPH::RVec3 ToJolt(const Vector3& v) { return JPH::RVec3(v.x, v.y, v.z); }
-inline Quaternion ToQuaternion(JPH::QuatArg q) { return Quaternion(q.GetX(), q.GetY(), q.GetZ(), q.GetW()); }
-inline JPH::Quat ToJolt(const Quaternion& q) { return JPH::Quat(q.x, q.y, q.z, q.w); }
+// Jolt は右手系、このサイトは左手系。X を反転して写す。
+inline Vector3 ToVector3(JPH::RVec3Arg v) { return Vector3(-float(v.GetX()), float(v.GetY()), float(v.GetZ())); }
+inline JPH::RVec3 ToJolt(const Vector3& v) { return JPH::RVec3(-v.x, v.y, v.z); }
+inline Quaternion ToQuaternion(JPH::QuatArg q) { return Quaternion(q.GetX(), -q.GetY(), -q.GetZ(), q.GetW()); }
+inline JPH::Quat ToJolt(const Quaternion& q) { return JPH::Quat(q.x, -q.y, -q.z, q.w); }
 ```
 
-変換を 1 か所にまとめておくと、型の違い（`float` と `double`・`Vec3` と `Vector3`）を意識せずに済みます。
+変換を 1 か所にまとめておくと、型の違い（`float` と `double`・`Vec3` と `Vector3`）と X の反転を意識せずに済みます。
 
 ## ゲーム → 物理
 

@@ -20,7 +20,7 @@ D3D12 では、描画の設定（シェーダー、ブレンド、深度テス�
     - グラフィックスの PSO は `D3D12_GRAPHICS_PIPELINE_STATE_DESC` 1 つに全部入りで、`= {}` で初期化してから埋める。
     - `SampleMask` は `UINT_MAX` にする。0 のままだと何も描かれない。
     - `NumRenderTargets` と `RTVFormats`、`DSVFormat` は、実際の出力先と一致させる。
-    - `FrontCounterClockwise` は右手系・CCW が表のこのサイトでは `TRUE` にする。
+    - `FrontCounterClockwise` は左手系・CW が表のこのサイトでは既定の `FALSE` のままにする。
     - ラスタライザー、ブレンド、深度の既定の設定は [`MakeDefaultRasterizerDesc`](../util.md#makedefaultrasterizerdesc) などで作る。
 
 !!! info "このページを読む前に"
@@ -259,7 +259,7 @@ typedef struct D3D12_RASTERIZER_DESC {
 | --- | --- | --- |
 | `FillMode` | `D3D12_FILL_MODE` | `SOLID`（塗る）か `WIREFRAME` |
 | `CullMode` | `D3D12_CULL_MODE` | `NONE`、`FRONT`、`BACK` |
-| `FrontCounterClockwise` | `BOOL` | `TRUE` なら反時計回りが表 |
+| `FrontCounterClockwise` | `BOOL` | `TRUE` なら反時計回りが表。`FALSE`（既定）なら時計回りが表 |
 | `DepthBias` | `INT` | 深度に足す固定の値 |
 | `DepthBiasClamp` | `FLOAT` | バイアスの上限 |
 | `SlopeScaledDepthBias` | `FLOAT` | 傾きに比例するバイアス |
@@ -269,7 +269,7 @@ typedef struct D3D12_RASTERIZER_DESC {
 | `ForcedSampleCount` | `UINT` | 通常は 0 |
 | `ConservativeRaster` | `D3D12_CONSERVATIVE_RASTERIZATION_MODE` | 通常は `OFF` |
 
-`FrontCounterClockwise` は、一番ミスが多いメンバーです。D3D12 の既定は `FALSE`（時計回りが表）ですが、このサイトの座標系（右手系、反時計回りが表）では `TRUE` にします。`FALSE` のままで `CullMode = BACK` にすると、表のはずの面が消えて、裏側だけが見えます。
+`FrontCounterClockwise` は、ミスが多いメンバーです。D3D12 の既定は `FALSE`（時計回りが表）で、このサイトの座標系（左手系、時計回りが表）と同じです。`TRUE` にするのは、反時計回りが表のメッシュ（読み込み時に頂点の順序を入れ替えていない glTF など）を描くときだけです。メッシュの並びとこの設定が食い違ったまま `CullMode = BACK` にすると、表のはずの面が消えて、裏側だけが見えます。
 
 `CullMode` は、描かない面です。`BACK` は裏面を捨てます。閉じたメッシュでは、これで描画量が半分近くになります。薄い板や、両面が見えるものは `NONE` にします。
 
@@ -283,7 +283,7 @@ typedef struct D3D12_RASTERIZER_DESC {
 
 ```cpp
 D3D12_RASTERIZER_DESC rasterizer = MakeDefaultRasterizerDesc();
-rasterizer.FrontCounterClockwise = TRUE;       // CCW が表
+rasterizer.FrontCounterClockwise = FALSE;      // CW が表（既定）
 rasterizer.CullMode = D3D12_CULL_MODE_BACK;
 ```
 

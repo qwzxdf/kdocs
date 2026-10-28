@@ -70,7 +70,7 @@ context->PSSetShader(pixel_shader.Get(), nullptr, 0);
 ```cpp
 D3D11_VIEWPORT viewport = {0.0f, 0.0f, static_cast<float>(width), static_cast<float>(height), 0.0f, 1.0f};
 context->RSSetViewports(1, &viewport);
-context->RSSetState(rasterizer_state.Get());               // このサイトの規約: 反時計回りが表（下）
+context->RSSetState(rasterizer_state.Get());               // このサイトの規約: 時計回りが表（下）
 
 ID3D11RenderTargetView* targets[] = {rtv.Get()};
 context->OMSetRenderTargets(1, targets, nullptr);
@@ -88,18 +88,18 @@ context->Draw(3, 0);
 
 ## 面の向き（カリング）
 
-D3D11 の既定は <strong>時計回り（CW）が表</strong>で、<strong>裏面は捨てます</strong>。このサイトの規約は <strong>反時計回り（CCW）が表</strong>なので、ラスタライザー ステートを作って、合わせます。
+D3D11 の既定は <strong>時計回り（CW）が表</strong>で、<strong>裏面は捨てます</strong>。このサイトの規約も同じ時計回りが表です。ラスタライザー ステートを作らなくても三角形は見えますが、カリングやワイヤフレームを後から切り替えるので、ここで作っておきます。
 
 ```cpp
 D3D11_RASTERIZER_DESC desc = {};
 desc.FillMode = D3D11_FILL_SOLID;
 desc.CullMode = D3D11_CULL_BACK;                           // 裏面を捨てる
-desc.FrontCounterClockwise = TRUE;                         // 反時計回りを表とする
+desc.FrontCounterClockwise = FALSE;                        // 時計回りを表とする（既定と同じ）
 desc.DepthClipEnable = TRUE;
 device->CreateRasterizerState(&desc, &rasterizer_state);
 ```
 
-`FrontCounterClockwise` を設定せずに反時計回りの三角形を描くと裏面とみなされて <strong>何も見えません</strong>。三角形が見えないときの最初の疑いどころです（[Rasterizer State](rasterizer-state.md)）。
+頂点を反時計回りに並べたまま描く（または `FrontCounterClockwise` を `TRUE` にする）と裏面とみなされて <strong>何も見えません</strong>。三角形が見えないときの最初の疑いどころです（[Rasterizer State](rasterizer-state.md)）。
 
 ## 動く完全なプログラム
 
@@ -191,8 +191,8 @@ void InitD3D(HWND hwnd) {
 
   const Vertex vertices[] = {
       {{0.0f, 0.5f, 0.0f}, {1, 0, 0, 1}},
-      {{-0.5f, -0.5f, 0.0f}, {0, 1, 0, 1}},
       {{0.5f, -0.5f, 0.0f}, {0, 0, 1, 1}},
+      {{-0.5f, -0.5f, 0.0f}, {0, 1, 0, 1}},
   };
   D3D11_BUFFER_DESC bd = {};
   bd.ByteWidth = sizeof(vertices);
@@ -204,7 +204,7 @@ void InitD3D(HWND hwnd) {
   D3D11_RASTERIZER_DESC rd = {};
   rd.FillMode = D3D11_FILL_SOLID;
   rd.CullMode = D3D11_CULL_BACK;
-  rd.FrontCounterClockwise = TRUE;
+  rd.FrontCounterClockwise = FALSE;
   rd.DepthClipEnable = TRUE;
   g_device->CreateRasterizerState(&rd, &g_rasterizer_state);
 }
@@ -272,7 +272,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 | --- | --- | --- |
 | 1 | クリアの色は出ているか | 出ない → スワップ チェーン・RTV・`Present` の問題 |
 | 2 | ビューポートは設定したか | 設定忘れ（大きさ 0） |
-| 3 | 三角形の頂点の並びは反時計回りか | 時計回りで、裏面として捨てられている |
+| 3 | 三角形の頂点の並びは時計回りか | 反時計回りで、裏面として捨てられている |
 | 4 | シェーダーはコンパイルできたか | エラー文を見ていない |
 | 5 | 入力レイアウトと頂点の構造体は合うか | 頂点が化けて、画面外に |
 | 6 | `OMSetRenderTargets` を毎フレーム、呼んでいるか | `Present` で外れている |
@@ -282,7 +282,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 ## よくあるミス
 
 ??? failure "クリアの色は出るが、三角形が見えない"
-    反時計回りの三角形を時計回りが表の既定で描いて裏面として、捨てられている。`FrontCounterClockwise = TRUE`。または、`Draw` の前にビューポートやシェーダーをつなぎ忘れている。
+    反時計回りの三角形を、時計回りが表の設定で描いて裏面として、捨てられている。頂点の並びを時計回りにする。または、`Draw` の前にビューポートやシェーダーをつなぎ忘れている。
 
 ??? failure "最初のフレームだけ描けて以降、真っ黒"
     `Present` の後でレンダー ターゲットの束縛が外れる。毎フレーム、`OMSetRenderTargets` を呼ぶ。
@@ -298,7 +298,7 @@ int WINAPI wWinMain(HINSTANCE instance, HINSTANCE, PWSTR, int show) {
 !!! abstract "まとめ"
     - [x] 描くには IA・VS・RS・PS・OM の全部をつなぐ
     - [x] 毎フレーム: `OMSetRenderTargets` → ビューポート → `Clear` → 束縛 → `Draw` → `Present`
-    - [x] 反時計回りが表なら `FrontCounterClockwise = TRUE`
+    - [x] 時計回りが表なら `FrontCounterClockwise = FALSE`（既定）
     - [x] 見えないときはクリア → ビューポート → 向き → シェーダーの順に疑う
     - [x] デバッグ レイヤーとグラフィックス デバッガーを味方にする
 

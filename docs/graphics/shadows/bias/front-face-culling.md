@@ -84,13 +84,13 @@ desc.CullMode = D3D11_CULL_FRONT;
 
 ## 実装
 
-シャドウ パスのラスタライザー ステートで、<strong>表面をカリング</strong>します（`CULL_FRONT`）。このサイトの座標系は反時計回りが表なので `FrontCounterClockwise = TRUE` と、組み合わせます。
+シャドウ パスのラスタライザー ステートで、<strong>表面をカリング</strong>します（`CULL_FRONT`）。このサイトの座標系は時計回りが表（既定）なので `FrontCounterClockwise = FALSE` と、組み合わせます。
 
 ```cpp
 D3D11_RASTERIZER_DESC rs = {};
 rs.FillMode = D3D11_FILL_SOLID;
 rs.CullMode = D3D11_CULL_FRONT;                 // 光に向いた面（表面）を描かない = 裏面を描く
-rs.FrontCounterClockwise = TRUE;                // 反時計回りが表
+rs.FrontCounterClockwise = FALSE;               // 時計回りが表
 rs.DepthClipEnable = TRUE;
 device->CreateRasterizerState(&rs, &shadow_rs_front_cull);
 ```

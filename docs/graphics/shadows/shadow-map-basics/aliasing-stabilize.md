@@ -297,7 +297,7 @@ center_ls.y = std::floor(center_ls.y / texel_size) * texel_size;
 // 丸めた中心から、箱（正射影）を作る。
 float left = center_ls.x - radius, right = center_ls.x + radius;
 float bottom = center_ls.y - radius, top = center_ls.y + radius;
-Matrix light_proj = Matrix::CreateOrthographicOffCenter(left, right, bottom, top, near_z, far_z);
+Matrix light_proj = DirectX::XMMatrixOrthographicOffCenterLH(left, right, bottom, top, near_z, far_z);
 ```
 
 テクセル スナップは 半径を固定（対策 1）した上で初めて、意味を持ちます。半径が揺れると画素の大きさが変わり、スナップしてもずれるためです。

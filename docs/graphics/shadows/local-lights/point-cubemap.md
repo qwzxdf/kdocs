@@ -152,8 +152,8 @@ const Vector3 kForward[6] = {{1, 0, 0}, {-1, 0, 0}, {0, 1, 0}, {0, -1, 0}, {0, 0
 const Vector3 kUp[6] =      {{0, 1, 0}, {0, 1, 0}, {0, 0, -1}, {0, 0, 1}, {0, 1, 0}, {0, 1, 0}};
 
 for (int face = 0; face < 6; ++face) {
-  Matrix view = Matrix::CreateLookAt(light.position, light.position + kForward[face], kUp[face]);
-  Matrix proj = Matrix::CreatePerspectiveFieldOfView(DirectX::XM_PIDIV2, 1.0f, near_z, light.range);
+  Matrix view = DirectX::XMMatrixLookAtLH(light.position, light.position + kForward[face], kUp[face]);
+  Matrix proj = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_PIDIV2, 1.0f, near_z, light.range);
   face_view_proj[face] = view * proj;
 }
 ```

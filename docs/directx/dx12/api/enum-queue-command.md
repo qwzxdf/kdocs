@@ -323,7 +323,7 @@ void ID3D12GraphicsCommandList::IASetPrimitiveTopology(
 
 #### D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST {#d3d_primitive_topology_trianglelist}
 
-値は 4 です。頂点 3 つで三角形 1 つになります。頂点の順序は、右手系・CCW が表です。三角形同士はつながっていないので、メッシュはこれにインデックス バッファを組み合わせて、頂点を共有します。最もよく使う値です。
+値は 4 です。頂点 3 つで三角形 1 つになります。頂点の順序は、左手系・CW が表です。三角形同士はつながっていないので、メッシュはこれにインデックス バッファを組み合わせて、頂点を共有します。最もよく使う値です。
 
 #### D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP {#d3d_primitive_topology_trianglestrip}
 

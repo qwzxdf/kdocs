@@ -63,8 +63,8 @@ float3 lit = direct + ambient;
 // キャラクターを囲む、小さな範囲（半径 2 m）にシャドウ マップを割り当てる。
 // 解像度 2048 で、1 画素 = 約 2 mm。顔や、服の、細かい影が出る。
 float radius = 2.0f;
-Matrix character_view = Matrix::CreateLookAt(character_center - light_dir * radius, character_center, up);
-Matrix character_proj = Matrix::CreateOrthographicOffCenter(-radius, radius, -radius, radius, 0.0f, 2.0f * radius);
+Matrix character_view = DirectX::XMMatrixLookAtLH(character_center - light_dir * radius, character_center, up);
+Matrix character_proj = DirectX::XMMatrixOrthographicOffCenterLH(-radius, radius, -radius, radius, 0.0f, 2.0f * radius);
 ```
 
 | 方式 | 内容 |

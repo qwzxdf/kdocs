@@ -8,8 +8,8 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
 - **作業が一区切りつくたびに、ユーザーの指示を待たず commit して `main` に push する。** 一区切りとは、1 ページの追加・分割・深掘りや、動く図 1 グループの追加など、まとまった単位が終わったとき
   - push の前に、次の 3 つを必ず実行して、すべて通ることを確認する
     1. `mkdocs build --strict`
-    2. `python .handoff/scripts/check_anchors.py <site>`
-    3. `python .handoff/scripts/check_docs.py docs`
+    2. `python tools/check_anchors.py <site>`
+    3. `python tools/check_docs.py docs`
   - 1 つでも失敗したら push しない。直してからやり直す
   - 新しいページや図を足したときは、push の前に `ratings.yml` も更新する（描画の項目は、重さ `perf`・品質 `quality`・難易度 `diff` の 5 段階。基準は `ratings.yml` の冒頭に書いてある）
   - `Co-Authored-By` などの attribution は、そのとき渡される指示に従う
@@ -96,11 +96,11 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
 - **メモリ**（`docs/stl/memory/`）: アロケータ、pmr、new / delete、C 由来の malloc・cstring
 - **最適化**（`docs/optimize/`）: 計測 → 原因 → 直す の進め方と、ゲームで効く技術。設計（変更しやすさ）とは別カテゴリ。「速さ・軽さを、計測した数字で判断する」話だけを書く
 - **文字コード**（`docs/encoding/`）: UTF-8 統一、Windows API の A / W、変換、ソース・ファイルの強制（`.editorconfig`・`.gitattributes`・`/we4828`・CI）、文字化け。clang-format は文字コードを強制できない（改行と整形だけ）と、正確に書く
-- **3D ゲーム**（`docs/3d/`）: 数学ライブラリは **SimpleMath**（DirectX Tool Kit）、DirectXMath と SimpleMath の解説は別ページ。**描画 API は DirectX 11**（HLSL は SM5）。座標系は右手系・Y-up、前は −Z、行ベクトル（`v * M`、掛け順は左から右）、三角形は CCW が表、角度はラジアン
+- **3D ゲーム**（`docs/3d/`）: 数学ライブラリは **SimpleMath**（DirectX Tool Kit）、DirectXMath と SimpleMath の解説は別ページ。**描画 API は DirectX 11**（HLSL は SM5）。座標系は左手系・Y-up、前は +Z、行ベクトル（`v * M`、掛け順は左から右）、三角形は CW が表（Direct3D の既定の `FrontCounterClockwise = FALSE`）、角度はラジアン。ビュー・射影は DirectXMath の `LH` 関数（SimpleMath の `Create…` は右手系なので使わない）
 - **設計**（`docs/design/`）: `foundations/`（設計の基礎）、`patterns/`（パターン。ステートマシン・イベント・ECS・オブジェクトプールもここ）、`practice/`（実践）の 3 つ。新しいパターンは `patterns/index.md` の早見表にも足す
     - 重要度（必須・よく使う…）を付けない（一覧表の列にも、ページ上部のバッジにも）
     - 関数の解説ではないので、「悪い例 → 問題 → 良い例 → いつ使うか」の形。ただし毎回同じ見出しを並べず、文のつなぎで流す
-- **DirectX**（`docs/directx/`）: `dx11/` と `dx12/` は**互いに前提にしない、独立した系列**（DX12 のページに「DX11 では…」の比較を書かない。比較は `compare.md` の 1 ページだけ）。API に依存しない考え方だけを `concepts/` に置く。座標系は右手系・Y-up・前は −Z、行ベクトル、CCW が表（`FrontCounterClockwise = TRUE` を明記）。描画の「DirectX 11 で組む」節は `dx11/` のページへリンクする
+- **DirectX**（`docs/directx/`）: `dx11/` と `dx12/` は**互いに前提にしない、独立した系列**（DX12 のページに「DX11 では…」の比較を書かない。比較は `compare.md` の 1 ページだけ）。API に依存しない考え方だけを `concepts/` に置く。座標系は左手系・Y-up・前は +Z、行ベクトル、CW が表（Direct3D の既定。`FrontCounterClockwise = FALSE` を明記）。描画の「DirectX 11 で組む」節は `dx11/` のページへリンクする
     - **出てくる API の名前・用語は、1 つずつ専用の節かページを持つ。** インターフェース（`ID3D12Device` など）は専用ページにして、メソッドを 1 つずつ `###` 見出しにする。そのページの front matter に `api:` で、そのページが解説する名前を並べる（コードの中の名前から、そこへ飛べる）。用語は `autolinks.yml` にも登録する
     - 各ページは濃く（引数の表、フラグ、落とし穴、動くコード、図、よくあるミス）。見本は `dx12/factory-device.md`
     - **DX12 のコードでは `d3dx12.h` と `CD3DX12_*` を使わない。** 構造体は素の `D3D12_*` を書く。頻出の組み立て（ヒープ設定、バッファとテクスチャの記述、バリア、ハンドルの加算、既定の PSO 設定）は、`dx12/util.md` の `dx12_util.h` の関数（`MakeHeapProperties`、`MakeBufferDesc`、`MakeTransitionBarrier`、`OffsetHandle` など）を使う。`UpdateSubresources` は使わず、`GetCopyableFootprints` と `CopyTextureRegion` で書く

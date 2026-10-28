@@ -27,10 +27,10 @@ tags:
 
 | 項目 | 約束 |
 | --- | --- |
-| 座標系 | 右手系、Y が上 |
-| 前方向 | −Z |
+| 座標系 | 左手系、Y が上 |
+| 前方向 | +Z |
 | 行列の掛け方 | 行ベクトル（`v * M`）。掛け順は左から右 |
-| 三角形の表 | 反時計回り（CCW）が表 |
+| 三角形の表 | 時計回り（CW）が表 |
 | 角度 | ラジアン |
 | 数学ライブラリ | SimpleMath（DirectX Tool Kit） |
 
@@ -195,7 +195,7 @@ LineRenderer::LineRenderer(ID3D12Device* device, DXGI_FORMAT render_target_forma
   pso.PS = {ps->GetBufferPointer(), ps->GetBufferSize()};
   pso.InputLayout = {layout, _countof(layout)};
   pso.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-  pso.RasterizerState.FrontCounterClockwise = TRUE;               // CCW が表
+  pso.RasterizerState.FrontCounterClockwise = FALSE;              // CW が表
   pso.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;            // 線なのでカリングしない
   pso.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
   pso.DepthStencilState.DepthEnable = FALSE;
@@ -209,7 +209,7 @@ LineRenderer::LineRenderer(ID3D12Device* device, DXGI_FORMAT render_target_forma
 
 ルート シグネチャは、`InitAsConstants(16, 0, 0, ...)` で、16 個の 32 ビット値（ちょうど 4×4 行列 1 つ分）をシェーダー レジスタ `b0` に直接渡す形にしています。この方法なら、定数バッファーを作らずに済みます。`D3DCompile` は、HLSL を実行時にコンパイルする関数で、`"vs_5_0"` はシェーダー モデル 5.0 の頂点シェーダーを意味します。失敗したときのメッセージは `compile_error` に入るので、例外にして外に出しています。
 
-頂点のレイアウトは、`POSITION` が 12 バイト（`float3`）、`COLOR` がその後ろの 12 バイト目から 16 バイト（`float4`）です。パイプラインでは、`FrontCounterClockwise = TRUE` で「CCW が表」の約束を明示し、`RTVFormats[0]` は、第 3 章のレンダー ターゲットと同じフォーマットにします。DX12 のパイプラインの各項目は、[PSO](../directx/dx12/pso.md) と [Root Signature](../directx/dx12/root-signature.md) のページで説明しています。
+頂点のレイアウトは、`POSITION` が 12 バイト（`float3`）、`COLOR` がその後ろの 12 バイト目から 16 バイト（`float4`）です。パイプラインでは、`FrontCounterClockwise = FALSE` で「CW が表」の約束を明示し、`RTVFormats[0]` は、第 3 章のレンダー ターゲットと同じフォーマットにします。DX12 のパイプラインの各項目は、[PSO](../directx/dx12/pso.md) と [Root Signature](../directx/dx12/root-signature.md) のページで説明しています。
 
 ```cpp
   // ④ フレームごとの頂点バッファー（CPU から書ける領域を常時マップしておく）
@@ -267,7 +267,7 @@ void LineRenderer::Draw(ID3D12GraphicsCommandList* list, UINT slot, const Direct
 
 namespace mini {
 
-// 注視点の周りを回るカメラ。右手系、Y が上、前は -Z。
+// 注視点の周りを回るカメラ。左手系、Y が上、前は +Z。
 class EditorCamera {
  public:
   using Vector3 = DirectX::SimpleMath::Vector3;
@@ -309,17 +309,17 @@ constexpr float kFar = 1000.0f;
 }  // namespace
 
 EditorCamera::Vector3 EditorCamera::Position() const {
-  // 球面座標。yaw = 0, pitch = 0 のとき、注視点の +Z 側に居て、-Z 方向を見る。
+  // 球面座標。yaw = 0, pitch = 0 のとき、注視点の -Z 側に居て、+Z 方向を見る。
   const float cp = std::cos(pitch_);
-  return target_ + Vector3(cp * std::sin(yaw_), std::sin(pitch_), cp * std::cos(yaw_)) * distance_;
+  return target_ + Vector3(cp * std::sin(yaw_), std::sin(pitch_), -cp * std::cos(yaw_)) * distance_;
 }
 
 EditorCamera::Matrix EditorCamera::View() const {
-  return Matrix::CreateLookAt(Position(), target_, Vector3::Up);
+  return DirectX::XMMatrixLookAtLH(Position(), target_, Vector3::Up);
 }
 
 EditorCamera::Matrix EditorCamera::Projection(float aspect) const {
-  return Matrix::CreatePerspectiveFieldOfView(fov_, aspect, kNear, kFar);
+  return DirectX::XMMatrixPerspectiveFovLH(fov_, aspect, kNear, kFar);
 }
 
 void EditorCamera::Orbit(float dx, float dy) {
@@ -348,7 +348,7 @@ void EditorCamera::Focus(const Vector3& target, float radius) {
 }  // namespace mini
 ```
 
-カメラの位置は、球面座標（`yaw` が横、`pitch` が縦、`distance` が距離）から求めます。注視点を中心にした球の上をカメラが動く形です。`Matrix::CreateLookAt` と `CreatePerspectiveFieldOfView` は、SimpleMath の右手系の関数で、前が −Z になります。視野角は縦の角度です。
+カメラの位置は、球面座標（`yaw` が横、`pitch` が縦、`distance` が距離）から求めます。注視点を中心にした球の上をカメラが動く形です。`XMMatrixLookAtLH` と `XMMatrixPerspectiveFovLH` は、DirectXMath の左手系の関数で、前が +Z になります（SimpleMath の `Matrix::CreateLookAt` などは右手系なので使いません）。視野角は縦の角度です。
 
 `Pan` の中の `view._11, _21, _31` は、ビュー行列の第 1 列で、カメラの右方向（ワールド空間）を表しています。行ベクトルの規約では、行列の列が基底の向きになるためです。移動量の `scale` は、注視点付近で 1 ピクセルが何メートルに当たるかです。遠いほど、同じマウスの動きで大きく動きます（今はビューポートの高さを 720 と仮定した近似です）。`Zoom` は、ホイール 1 目盛りで距離を 0.9 倍にします。
 
@@ -698,10 +698,10 @@ public void OnInput(Controls.InputType type, int button, float x, float y, float
 - ボタンを押したまま枠の外に出ても、ドラッグが続く。ほかのパネルをクリックすると、押しっぱなしの状態が解除される。
 
 ??? failure "線が何も出ない"
-    頂点数が 0 か、シェーダーのコンパイルに失敗しています（ログを確認します）。または `view_proj` が `Identity` のままで、すべての線がクリップされています。`CreateLookAt` と `CreatePerspectiveFieldOfView` の引数を見直します。
+    頂点数が 0 か、シェーダーのコンパイルに失敗しています（ログを確認します）。または `view_proj` が `Identity` のままで、すべての線がクリップされています。`XMMatrixLookAtLH` と `XMMatrixPerspectiveFovLH` の引数を見直します。
 
 ??? failure "絵が上下や左右に反転している"
-    行列の転置の間違いです。`row_major` を付けていないと、列優先として読まれて転置になります。あるいは、左手系用の関数（`CreateLookAtLH` など）を使っています。
+    行列の転置の間違いです。`row_major` を付けていないと、列優先として読まれて転置になります。あるいは、右手系用の関数（`Matrix::CreateLookAt` など）を使っています。
 
 ??? failure "マウス ホイールが反応しない"
     `HwndHost` はフォーカスがないと、ホイールを受け取らないことがあります。クリックしたときに `SetFocus` を呼んでいるかを確認します。

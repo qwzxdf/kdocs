@@ -107,7 +107,7 @@ if (scene_unit != FbxSystemUnit::m) {
 | `FbxSystemUnit::m` | メートル（`cm`・`inch` もある）。`ConvertScene` でスケールを変換 |
 
 !!! warning "DirectX 用の座標系は、左手系"
-    `FbxAxisSystem::DirectX` は左手系です。このサイトは右手系（SimpleMath）なので、`FbxAxisSystem::OpenGL`（右手系・Y 上）を使うか、左手系 → 右手系の変換（Z の反転・巻き順の反転）を自分で行います（[座標系](../../gamemath/coordinate-systems.md)）。変換後、実際に表示して確認します。
+    `FbxAxisSystem::DirectX` は左手系ですが、前方向の取り方がこのサイトと違う場合があります。`FbxAxisSystem::OpenGL`（右手系・Y 上）にそろえて、ルートに X 反転の行列を掛けて左手系にし、巻き順を入れ替える方法が確実です（[座標系](../../gamemath/coordinate-systems.md)）。変換後、実際に表示して確認します。
 
 ## 三角形化
 

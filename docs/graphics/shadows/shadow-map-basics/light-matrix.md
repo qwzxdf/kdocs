@@ -73,7 +73,7 @@ Matrix LightViewProjection(const Vector3& light_dir, const Vector3& center, floa
 
 ## 光の行列：ビューと射影
 
-シャドウ マップを描くには <strong>光の視点</strong>から見た、ビュー行列と射影行列が必要です。メインのカメラの行列と同じ考え方で、作ります。このサイトの座標系は右手系・Y 上・行ベクトル（`v * M`）です（[座標系](../../../3d/index.md)）。
+シャドウ マップを描くには <strong>光の視点</strong>から見た、ビュー行列と射影行列が必要です。メインのカメラの行列と同じ考え方で、作ります。このサイトの座標系は左手系・Y 上・行ベクトル（`v * M`）です（[座標系](../../../3d/index.md)）。
 
 ```text
 ワールド座標 → [ビュー行列] → 光の視点の座標 → [射影行列] → 光のクリップ空間 → シャドウ マップの UV と深度
@@ -103,7 +103,7 @@ Vector3 eye = center - light_dir * radius;
 
 // 上向きは、光の方向と、平行にならないものを選ぶ。
 Vector3 up = (std::abs(light_dir.y) > 0.99f) ? Vector3::UnitZ : Vector3::UnitY;
-Matrix light_view = Matrix::CreateLookAt(eye, center, up);       // 右手系
+Matrix light_view = DirectX::XMMatrixLookAtLH(eye, center, up);       // 左手系
 ```
 
 ### 射影行列
@@ -111,11 +111,11 @@ Matrix light_view = Matrix::CreateLookAt(eye, center, up);       // 右手系
 影を落とす範囲をちょうど覆う、箱（正射影のボリューム）を作ります。
 
 ```cpp
-// 正射影: 左、右、下、上、ニア、ファー（光のビュー空間で）。右手系の、オフ センター版。
+// 正射影: 左、右、下、上、ニア、ファー（光のビュー空間で）。左手系の、オフ センター版。
 float near_z = 0.0f;
 float far_z = 2.0f * radius;
-Matrix light_proj = Matrix::CreateOrthographicOffCenter(
-    -radius, radius, -radius, radius, near_z, far_z);              // SimpleMath（右手系）
+Matrix light_proj = DirectX::XMMatrixOrthographicOffCenterLH(
+    -radius, radius, -radius, radius, near_z, far_z);              // DirectXMath（左手系）
 
 Matrix light_view_proj = light_view * light_proj;                  // 行ベクトルなので、左から右（ビュー → 射影）
 ```
@@ -134,11 +134,11 @@ Matrix light_view_proj = light_view * light_proj;                  // 行ベク�
 ```cpp
 Vector3 position = spot.position;
 Vector3 target = spot.position + spot.direction;
-Matrix light_view = Matrix::CreateLookAt(position, target, Vector3::UnitY);
+Matrix light_view = DirectX::XMMatrixLookAtLH(position, target, Vector3::UnitY);
 
 float fov = 2.0f * spot.outer_angle;                              // 開き角（ラジアン）
 float aspect = 1.0f;                                              // シャドウ マップは、正方形
-Matrix light_proj = Matrix::CreatePerspectiveFieldOfView(fov, aspect, spot.near_z, spot.range);
+Matrix light_proj = DirectX::XMMatrixPerspectiveFovLH(fov, aspect, spot.near_z, spot.range);
 Matrix light_view_proj = light_view * light_proj;
 ```
 

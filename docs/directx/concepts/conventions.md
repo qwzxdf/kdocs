@@ -13,10 +13,10 @@ tags:
 3D の描画では <strong>座標系の約束事</strong>が、いくつもあり 1 つでも食い違うと物が裏返る鏡像になる上下が逆になる見えないといったバグになります。このページはこのサイトの規約と DirectX の既定の規約との差をまとめます。
 
 !!! tip "ポイント"
-    - このサイトの規約: <strong>右手系・Y が上・前は −Z</strong>。<strong>行ベクトル</strong>（`v * M`、掛け順は左から右）。三角形は反時計回り（CCW）が表。角度はラジアン。
+    - このサイトの規約: <strong>左手系・Y が上・前は +Z</strong>。<strong>行ベクトル</strong>（`v * M`、掛け順は左から右）。三角形は時計回り（CW）が表。角度はラジアン。
     - DirectX のクリップ空間は x・y が −1〜1、z が 0〜1（OpenGL は z が −1〜1）。
     - ピクセル座標と uv は、左上が原点、y が下向き。クリップ空間は y が上向き。
-    - DirectX の既定は、時計回りが表。反時計回りにするには `FrontCounterClockwise = TRUE`。
+    - 三角形の表は DirectX の既定と同じ時計回り。`FrontCounterClockwise` は既定の `FALSE` のままにする。
     - 行列はメモリ上、行優先（DirectXMath）。HLSL の既定は列優先なので `row_major` を付ける。
 
 !!! info "このページを読む前に"
@@ -26,11 +26,11 @@ tags:
 
 | 項目 | 規約 |
 | --- | --- |
-| 座標系 | 右手系 |
+| 座標系 | 左手系 |
 | 上方向 | +Y |
-| 前方向 | −Z（カメラは−Z を向く） |
+| 前方向 | +Z（カメラは +Z を向く） |
 | ベクトル | 行ベクトル（`v * M`）。変換の掛け順は左から右（`World * View * Projection`） |
-| 三角形の表 | 反時計回り（CCW） |
+| 三角形の表 | 時計回り（CW）。Direct3D の既定 |
 | 角度 | ラジアン |
 
 ## 右手系と左手系
@@ -39,10 +39,10 @@ tags:
 
 | 座標系 | X が右、Y が上のとき Z は |
 | --- | --- |
-| 右手系 | 手前（自分に向かう）。前（奥）は−Z |
 | 左手系 | 奥。前は+Z |
+| 右手系 | 手前（自分に向かう）。前（奥）は−Z |
 
-DirectX は右手系も左手系も扱えます（DirectXMath には、`XMMatrixLookAtRH` と `XMMatrixLookAtLH` の両方があります）。このサイトは右手系で統一します。
+DirectX は右手系も左手系も扱えます（DirectXMath には、`XMMatrixLookAtRH` と `XMMatrixLookAtLH` の両方があります）。このサイトは左手系で統一します。ビューと射影は `LH` の関数を使い、SimpleMath の `Create…` 系（右手系）は使いません（[座標系](../../gamemath/coordinate-systems.md)）。
 
 ## クリップ空間とビューポート
 
@@ -54,7 +54,7 @@ DirectX は右手系も左手系も扱えます（DirectXMath には、`XMMatrix
 | y | −1（下）〜 1（上） |
 | z | 0（近い）〜 1（遠い） |
 
-OpenGL は z が −1〜1 ですが、DirectX は 0〜1 です。射影行列は DirectX 用（`XMMatrixPerspectiveFovRH`）を使います。
+OpenGL は z が −1〜1 ですが、DirectX は 0〜1 です。射影行列は DirectX 用（`XMMatrixPerspectiveFovLH`）を使います。
 
 ```text
 クリップ空間（y 上向き）            ピクセル座標（y 下向き）
@@ -85,10 +85,10 @@ OpenGL（左下が (0, 0)）で作った素材を使うときは v を `1 − v`
 
 | | 表 | このサイトで |
 | --- | --- | --- |
-| DirectX の既定 | 時計回り（CW） | — |
-| このサイトの規約 | 反時計回り（CCW） | ラスタライザー ステートで、`FrontCounterClockwise = TRUE`（D3D11）、PSO の `RasterizerState.FrontCounterClockwise = TRUE`（D3D12） |
+| DirectX の既定 | 時計回り（CW） | `FrontCounterClockwise = FALSE`（D3D11 も D3D12 も既定値） |
+| このサイトの規約 | 時計回り（CW） | 既定のまま。書くときは明示して `FALSE` と書く |
 
-規約と既定が食い違うので ラスタライザー ステートを設定し忘れると三角形が裏面として、捨てられ何も見えません。
+このサイトの規約は既定と同じなので、ラスタライザー ステートを作らなくても三角形は見えます。ただし OpenGL 向けの素材や glTF（反時計回りが表）はそのまま読むと裏表が逆になるので、読み込み時に頂点の順序を入れ替えます（[座標系](../../gamemath/coordinate-systems.md)）。
 
 ## 行列の規約
 
@@ -122,20 +122,20 @@ reverse-Z は浮動小数点の深度と組み合わせると遠くの精度が�
 
 | 症状 | 原因 |
 | --- | --- |
-| 三角形が見えない | 巻き順が規約と既定で、食い違う（`FrontCounterClockwise`） |
+| 三角形が見えない | 巻き順が逆（外部の素材が反時計回り）、または `FrontCounterClockwise` を `TRUE` にしている |
 | 画像が上下、逆さま | uv の y とクリップ空間の y が反転していない |
 | 物が鏡像になる | 右手系・左手系の混在（`…RH` と `…LH` の取り違え） |
 | 物が変な位置に飛ぶ | 行列の転置の取り違え（`row_major`、掛け順） |
 | 深度が逆（近い物が奥） | reverse-Z のクリア値と比較関数がそろっていない |
-| 外部のモデル・素材が裏返る | 外部ツールの座標系（左手系、Z 上、など）との変換忘れ |
+| 外部のモデル・素材が裏返る | 外部ツールの座標系（右手系、Z 上、など）との変換忘れ |
 
 ## よくあるミス
 
 ??? failure "OpenGL の記事の行列の式をそのまま使っておかしくなる"
     OpenGL は列ベクトル（`M * v`）、z が −1〜1。DirectX（このサイト）は行ベクトル（`v * M`）、z が 0〜1。掛け順と射影行列を読み替える。
 
-??? failure "`XMMatrixPerspectiveFovLH` を右手系で使った"
-    右手系なら `…RH` を使う。LH と RH を混ぜると鏡像になる。
+??? failure "`XMMatrixPerspectiveFovRH` や SimpleMath の `Create…` を使った"
+    このサイトは左手系なので `…LH` を使う。LH と RH を混ぜると鏡像になる。
 
 ??? failure "テクスチャが上下反転する"
     uv の v の向きが素材と違う。インポート時に `1 − v` に反転する。
@@ -143,10 +143,10 @@ reverse-Z は浮動小数点の深度と組み合わせると遠くの精度が�
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] このサイト: 右手系・Y 上・前は −Z、行ベクトル（`v * M`）、反時計回りが表
+    - [x] このサイト: 左手系・Y 上・前は +Z、行ベクトル（`v * M`）、時計回りが表
     - [x] DirectX の NDC は z が 0〜1。OpenGL は −1〜1
     - [x] ピクセル・uv は、左上が原点（y 下向き）。クリップ空間は y 上向き
-    - [x] 三角形の既定は時計回りが表。`FrontCounterClockwise = TRUE` で合わせる
+    - [x] 三角形の既定は時計回りが表で、このサイトの規約と同じ。`FrontCounterClockwise` は `FALSE` のまま
     - [x] 行列は行優先。HLSL に `row_major`。`RH` と `LH` を混ぜない
 
 ## 関連ページ

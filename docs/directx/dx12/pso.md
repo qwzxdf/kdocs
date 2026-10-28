@@ -40,7 +40,7 @@ desc.SampleDesc.Count = 1;
 desc.SampleMask = UINT_MAX;
 
 desc.RasterizerState = MakeDefaultRasterizerDesc();  // 既定を作って、必要な所だけ書き換える
-desc.RasterizerState.FrontCounterClockwise = TRUE;   // 反時計回りが表（このサイトの規約）
+desc.RasterizerState.FrontCounterClockwise = FALSE;  // 時計回りが表（このサイトの規約。既定と同じ）
 desc.BlendState = MakeDefaultBlendDesc();            // ブレンドなし
 desc.DepthStencilState = MakeDefaultDepthStencilDesc();  // 深度テストあり、LESS
 
@@ -58,7 +58,7 @@ device->CreateGraphicsPipelineState(&desc, IID_PPV_ARGS(&pso));
 
 `NumRenderTargets` と `RTVFormats` は描き込み先の数と形式です。**実際に描く先のレンダー ターゲットと必ず一致させます。** 一致していないと描画しても何も出ません。`_SRGB` の付け忘れがよくある原因です。`DSVFormat` は深度バッファの形式で深度を使わないなら `DXGI_FORMAT_UNKNOWN` にします。
 
-`RasterizerState`、`BlendState`、`DepthStencilState` は面の向きとカリング、ブレンド、深度テストの設定です。既定値を作ってから必要なメンバーだけを書き換えるのが、手軽です。このサイトでは反時計回りが表なので、`FrontCounterClockwise = TRUE` を必ず書きます。`SampleDesc` と `SampleMask` はマルチサンプルの設定で、使わないなら `Count = 1`、`SampleMask = UINT_MAX` です。
+`RasterizerState`、`BlendState`、`DepthStencilState` は面の向きとカリング、ブレンド、深度テストの設定です。既定値を作ってから必要なメンバーだけを書き換えるのが、手軽です。このサイトでは時計回りが表で既定と同じなので、`FrontCounterClockwise = FALSE` と明示して書いておきます。`SampleDesc` と `SampleMask` はマルチサンプルの設定で、使わないなら `Count = 1`、`SampleMask = UINT_MAX` です。
 
 ### 入力レイアウト
 
@@ -143,7 +143,7 @@ PSO を切り替える処理は重いので、同じ PSO で描くものをま�
     描画の途中で PSO を作っています。起動時かロード時に作ります。
 
 ??? failure "三角形が見えない（裏面になっている）"
-    `RasterizerState.FrontCounterClockwise` が既定の `FALSE` のままです。このサイトの規約は `TRUE` です。
+    `RasterizerState.FrontCounterClockwise` が `TRUE` になっているか、メッシュの頂点が反時計回りに並んでいます。このサイトの規約は `FALSE`（時計回りが表）です。
 
 ## これだけ覚える
 

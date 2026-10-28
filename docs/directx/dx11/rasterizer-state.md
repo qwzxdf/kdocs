@@ -13,7 +13,7 @@ tags:
 <strong>ラスタライザー ステート</strong>は、三角形を <strong>ピクセルに変換する</strong>段（ラスタライザー）の、設定です。「どちら向きの面を表とするか」「裏面を捨てるか」「塗りつぶすかワイヤフレームか」「深度にバイアスを掛けるか」「画面の外を切るか」を決めます。三角形が見えないときまず疑うのが、ここです。
 
 !!! tip "ポイント"
-    - 面の向きの既定は、<strong>時計回り（CW）が表</strong>。このサイトの規約は <strong>反時計回り（CCW）が表</strong>なので `FrontCounterClockwise = TRUE`。
+    - 面の向きの既定は、<strong>時計回り（CW）が表</strong>。このサイトの規約も同じなので `FrontCounterClockwise = FALSE`（既定）のまま。
     - `CullMode`: `BACK`（裏を捨てる既定）、`FRONT`、`NONE`（両面）。
     - 作成は `CreateRasterizerState`、つなぐのは `RSSetState`。作ったステートは使い回す。
     - シャドウ マップでは、`DepthBias` と `SlopeScaledDepthBias` で影のにじみ・縞（シャドウ アクネ）を抑える。
@@ -31,7 +31,7 @@ tags:
 D3D11_RASTERIZER_DESC desc = {};
 desc.FillMode = D3D11_FILL_SOLID;                           // 塗りつぶし（WIREFRAME で、ワイヤフレーム）
 desc.CullMode = D3D11_CULL_BACK;                            // 裏面を捨てる
-desc.FrontCounterClockwise = TRUE;                          // 反時計回りが表（このサイトの規約）
+desc.FrontCounterClockwise = FALSE;                         // 時計回りが表（このサイトの規約。既定と同じ）
 desc.DepthBias = 0;
 desc.DepthBiasClamp = 0.0f;
 desc.SlopeScaledDepthBias = 0.0f;
@@ -49,7 +49,7 @@ context->RSSetState(state.Get());
 | --- | --- |
 | `FillMode` | `SOLID`（塗りつぶし）、`WIREFRAME`（辺だけ） |
 | `CullMode` | `NONE`（両面を描く）、`FRONT`（表を捨てる）、`BACK`（裏を捨てる） |
-| `FrontCounterClockwise` | `TRUE` で反時計回りが表 |
+| `FrontCounterClockwise` | `TRUE` で反時計回りが表、`FALSE` で時計回りが表（既定） |
 | `DepthBias` | 深度に足す整数のバイアス |
 | `DepthBiasClamp` | バイアスの上限 |
 | `SlopeScaledDepthBias` | 面の傾きに比例した、バイアス |
@@ -63,16 +63,16 @@ context->RSSetState(state.Get());
 三角形は画面に投影したとき頂点の並びが、<strong>時計回りか反時計回りか</strong>で、表か裏かが決まります。裏面を捨てる（`CULL_BACK`）と立体の向こう側の面を描かずに済みピクセル シェーダーの負荷が <strong>約半分</strong>になります。
 
 ```text
-  反時計回り（CCW）を表とする（FrontCounterClockwise = TRUE）:
-       A                    A → B → C が、反時計回りなら、表（見える）
-      / \                   A → C → B（時計回り）なら、裏（捨てる）
+  時計回り（CW）を表とする（FrontCounterClockwise = FALSE）:
+       A                    A → C → B が、時計回りなら、表（見える）
+      / \                   A → B → C（反時計回り）なら、裏（捨てる）
      B───C
 ```
 
 | 設定 | 表 | 裏を捨てる |
 | --- | --- | --- |
 | D3D11 の既定 | 時計回り | する（`BACK`） |
-| このサイトの規約 | 反時計回り（`FrontCounterClockwise = TRUE`） | する（`BACK`） |
+| このサイトの規約 | 時計回り（`FrontCounterClockwise = FALSE`。既定と同じ） | する（`BACK`） |
 
 ### カリングを切る場面
 
@@ -101,7 +101,7 @@ float4 PSMain(VSOutput input, bool is_front : SV_IsFrontFace) : SV_Target {
 D3D11_RASTERIZER_DESC shadow = {};
 shadow.FillMode = D3D11_FILL_SOLID;
 shadow.CullMode = D3D11_CULL_BACK;
-shadow.FrontCounterClockwise = TRUE;
+shadow.FrontCounterClockwise = FALSE;
 shadow.DepthBias = 1000;                                    // 深度の、最小単位に対する、倍数（整数）
 shadow.SlopeScaledDepthBias = 2.0f;                         // 面が光に斜めなほど、大きくずらす
 shadow.DepthBiasClamp = 0.0f;                               // 0 = 上限なし
@@ -126,7 +126,7 @@ device->CreateRasterizerState(&shadow, &shadow_state);
 D3D11_RASTERIZER_DESC wire = {};
 wire.FillMode = D3D11_FILL_WIREFRAME;
 wire.CullMode = D3D11_CULL_NONE;
-wire.FrontCounterClockwise = TRUE;
+wire.FrontCounterClockwise = FALSE;
 wire.DepthClipEnable = TRUE;
 device->CreateRasterizerState(&wire, &wireframe_state);
 ```
@@ -148,7 +148,7 @@ desc.ScissorEnable = TRUE;
 
 ```cpp
 struct RasterizerStates {
-  ComPtr<ID3D11RasterizerState> solid;       // CULL_BACK、CCW が表
+  ComPtr<ID3D11RasterizerState> solid;       // CULL_BACK、CW が表
   ComPtr<ID3D11RasterizerState> two_sided;   // CULL_NONE（草、旗）
   ComPtr<ID3D11RasterizerState> wireframe;   // デバッグ
   ComPtr<ID3D11RasterizerState> shadow;      // 深度バイアスつき
@@ -158,7 +158,7 @@ struct RasterizerStates {
 ## よくあるミス
 
 ??? failure "三角形が見えない（裏面として捨てられている）"
-    `FrontCounterClockwise` が `FALSE`（既定の時計回りが表）のまま、反時計回りのメッシュを描いている。`TRUE` にする。または、頂点の順序を反転する。
+    メッシュの頂点が反時計回り（glTF や OpenGL 向けの素材）なのに、時計回りが表の設定で描いている。読み込み時に頂点の順序を入れ替える。または、`FrontCounterClockwise` を `TRUE` にする。
 
 ??? failure "草や旗が片側からしか見えない"
     `CullMode = BACK`。薄い板は `NONE`（両面）にして裏面の法線を反転する。
@@ -173,7 +173,7 @@ struct RasterizerStates {
 
 !!! abstract "まとめ"
     - [x] ラスタライザー ステート ＝ 三角形 → ピクセルの設定
-    - [x] 規約は反時計回りが表。`FrontCounterClockwise = TRUE`
+    - [x] 規約は時計回りが表（既定）。`FrontCounterClockwise = FALSE`
     - [x] `CullMode`: 普通は `BACK`、両面は `NONE`、シャドウは `BACK` か `FRONT`
     - [x] シャドウ マップは、`DepthBias`・`SlopeScaledDepthBias` でアクネを抑える
     - [x] `DepthClipEnable = FALSE` はシャドウ（光の後ろの物）で使う
