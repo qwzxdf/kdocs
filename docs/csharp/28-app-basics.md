@@ -287,6 +287,9 @@ public partial class App : PrismApplication
 
 すでに起動している側のウィンドウを前に出したいときは、`Process.GetProcessesByName` で相手を探して `SetForegroundWindow` を呼ぶ方法がありますが、ここでは扱いません。
 
+??? failure "ウィンドウを閉じたのに、プロセスが残る"
+    ほかのウィンドウが開いたままか、非表示になっているだけで閉じられていない可能性があります。既定の `ShutdownMode` は `OnLastWindowClose` なので、最後のウィンドウが閉じられたときに終了しますが、`Hide()` しただけのウィンドウは「開いている」と数えられます。また、`ShutdownMode` を `OnExplicitShutdown` にしていると、`Shutdown()` を呼ぶまで終わりません。バックグラウンドのスレッドが残っているときも終了しないので、第 50 章を見てください。
+
 ## この章のまとめ
 
 - `App` には、起動・終了・未処理の例外のフックがある。終了のタイミングは `ShutdownMode` で変えられる。

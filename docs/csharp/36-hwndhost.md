@@ -409,7 +409,7 @@ public class ViewportViewModel : BindableBase
 ```csharp title="ViewportModule.cs"
 using Prism.Ioc;
 using Prism.Modularity;
-using Prism.Regions;
+using Prism.Navigation.Regions;
 
 using Editor.Infrastructure;
 using Editor.Modules.Viewport.Views;

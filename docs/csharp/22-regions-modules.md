@@ -177,7 +177,7 @@ public class SceneTreeViewModel : BindableBase
 ```csharp title="Modules/SceneTree/SceneTreeModule.cs"
 using Prism.Ioc;
 using Prism.Modularity;
-using Prism.Regions;
+using Prism.Navigation.Regions;
 
 using Editor.Infrastructure;
 using Editor.Modules.SceneTree.Views;
@@ -191,7 +191,7 @@ public class SceneTreeModule : IModule
     {
     }
 
-    // ② 全モジュールの登録が終わったあとに呼ばれる。ビューをリージョンに登録する
+    // ② このモジュールの RegisterTypes の直後に呼ばれる。ビューをリージョンに登録する
     public void OnInitialized(IContainerProvider containerProvider)
     {
         var regionManager = containerProvider.Resolve<IRegionManager>();
@@ -200,7 +200,9 @@ public class SceneTreeModule : IModule
 }
 ```
 
-`RegisterTypes` が先に全モジュール分実行されて、そのあとに `OnInitialized` が実行されます。ほかのモジュールが登録した型を使うような処理は、`OnInitialized` に書きます。
+モジュールごとに、`RegisterTypes`、`OnInitialized` の順で呼ばれます。モジュール A の `OnInitialized` が終わってから、モジュール B の `RegisterTypes` が始まります。つまり、`OnInitialized` の時点で使えるのは、自分と、自分より前に初期化されたモジュールが登録した型までです。あとのモジュールの型は、まだ登録されていません（Prism 9.0.537 で確認）。初期化の順番は、`ConfigureModuleCatalog` で `AddModule` した順です。モジュール同士のやり取りは、型を直接知り合うのではなく、第 23 章のイベント集約を使うのが安全です。
+
+<strong>名前空間に注意</strong>してください。リージョンとナビゲーション関連の型（`IRegionManager`、`INavigationAware`、`NavigationContext` など）は、Prism 8 までは `Prism.Regions` でしたが、Prism 9 では `Prism.Navigation.Regions` です。古い記事の `using Prism.Regions;` をそのまま写すと、「名前空間 'Regions' が存在しません」というエラーになります。
 
 `RegisterViewWithRegion` は、「このリージョンが作られたら、このビューを自動で差し込んでください」という登録です。`typeof(SceneTreeView)` は、型そのものを表す式です。
 
@@ -238,7 +240,26 @@ protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
 }
 ```
 
-起動の順番は、「アプリの `RegisterTypes` → 各モジュールの `RegisterTypes` → 各モジュールの `OnInitialized` → シェルの表示」です。実行すると、第 6 章と同じ見た目の画面がリージョン経由で出ます。
+起動の順番は、実際に動かして確かめると、次のとおりです（Prism 9.0.537）。
+
+```text title="実行結果"
+App.RegisterTypes
+App.ConfigureModuleCatalog
+App.CreateShell
+  ModA.RegisterTypes
+  ModA.OnInitialized
+  ModB.RegisterTypes
+  ModB.OnInitialized
+App.OnInitialized
+```
+
+1. アプリの `RegisterTypes`。
+2. `ConfigureModuleCatalog`。ここで教えたモジュールの一覧が決まるだけで、まだ中身は動かない。
+3. `CreateShell`。`MainWindow` が作られる。
+4. モジュールを、一覧の順に 1 つずつ初期化する。1 つ分が `RegisterTypes` と `OnInitialized` のセット。
+5. `OnInitialized`。基底クラスの `OnInitialized` が、シェルを `Show()` する。
+
+画面に出るのは最後です。実行すると、第 6 章と同じ見た目の画面がリージョン経由で出ます。
 
 この教材ではモジュールを同じプロジェクトのフォルダーとして作っています。機能が大きくなったら、別の C# ライブラリ プロジェクトにして、`Editor` から参照を追加すれば、同じように登録できます。必要になるまで読み込まない遅延読み込みや、フォルダー内の DLL を探して読む方式もあります（第 24 章）。
 
@@ -303,7 +324,32 @@ public class SettingsViewModel : BindableBase, INavigationAware
 }
 ```
 
-`IsNavigationTarget` が `true` なら既存のビューを再利用、`false` なら新しく作ります。値を渡したいときは `NavigationParameters` を使います。
+`IsNavigationTarget` が `true` なら既存のビューを再利用、`false` なら新しく作ります。
+
+呼ばれる順番は、次のとおりです。2 つのビュー（V1、V2）で `RequestNavigate("V1")` → `"V2"` → `"V1"` と続けて実行した結果です（Prism 9.0.537）。
+
+```text title="実行結果"
+RequestNavigate V1
+    [V1 VM ctor]
+    V1.OnNavigatedTo
+RequestNavigate V2
+    V1.ConfirmNavigationRequest
+    V1.OnNavigatedFrom
+    [V2 VM ctor]
+    V2.OnNavigatedTo
+RequestNavigate V1
+    V2.ConfirmNavigationRequest
+    V2.OnNavigatedFrom
+    V1.IsNavigationTarget
+    V1.OnNavigatedTo
+```
+
+1. 今出ているビューの `ConfirmNavigationRequest`（実装していれば。第 24 章）。ここで止められる。
+2. 今出ているビューの `OnNavigatedFrom`。
+3. 移動先に、すでに作ってあるビューがあれば、その `IsNavigationTarget`。1 回目の V1 や V2 のように、まだ無いときは呼ばれず、ビューとビューモデルが新しく作られる（ビューモデルのコンストラクター）。
+4. 移動先の `OnNavigatedTo`。
+
+1 回目の V1 には「今出ているビュー」が無いので、1・2 は飛ばされます。3 回目の V1 は、2 回目までに作られていたので、`IsNavigationTarget` が呼ばれて、コンストラクターは呼ばれません。値を渡したいときは `NavigationParameters` を使います。
 
 ```csharp
 var parameters = new NavigationParameters { { "ObjectId", 42 } };
