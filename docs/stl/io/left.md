@@ -46,7 +46,7 @@ std::ios_base& left(std::ios_base& str);
 #include <iostream>
 
 int main() {
-  std::cout << std::left << std::setw(5) << 42 << '|\n';
+  std::cout << std::left << std::setw(5) << 42 << "|\n";
 }
 ```
 

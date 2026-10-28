@@ -1,6 +1,6 @@
 ---
 title: std::sortable
-summary: "並べ替えられるイテレータ（ランダムアクセスと入れ替えと比較）を要求する。"
+summary: "並べ替えられるイテレータ（入れ替えと比較）を要求する。ランダムアクセスは別に必要。"
 order: 900
 group: コンセプト（<concepts>）
 tags:
@@ -15,7 +15,7 @@ tags:
 `#include <iterator>`
 </div>
 
-`ranges::sort` が使える条件です。ランダムアクセスで、要素を入れ替えられ、比較できる必要があります。
+`ranges::sort` が使える条件の一部です。要素を入れ替えられ、比較できる必要があります。ランダムアクセスかどうかは、このコンセプトではなく、`ranges::sort` 自身が `random_access_range` として別に要求します。
 
 !!! tip "ポイント"
     - コンセプト。`requires` やテンプレートの制約に書く。
@@ -58,7 +58,7 @@ int main() {
 
 ```text title="実行結果"
 true
-false
+true
 ```
 
 ## ゲームでの使いどころ
@@ -70,7 +70,7 @@ false
 ## よくあるミス
 
 ??? failure "`list` に sort を使う"
-    `list` はランダムアクセスできないので、`ranges::sort` できません。
+    `std::sortable<std::list<int>::iterator>` は真になりますが、`list` はランダムアクセスできないので、`ranges::sort` には渡せません。`list` の並べ替えは、メンバー関数の `list::sort` を使います。
 
 ## 類似
 

@@ -57,13 +57,13 @@ struct is_error_code_enum : std::false_type {};
 
 int main() {
   std::println("io_errc は error_code の対象: {}", std::is_error_code_enum_v<std::io_errc>);
-  std::println("int は対象でない        : {}", std::is_error_code_enum_v<int>);
+  std::println("int は対象           : {}", std::is_error_code_enum_v<int>);
 }
 ```
 
 ```text title="実行結果"
 io_errc は error_code の対象: true
-int は対象でない        : true
+int は対象           : false
 ```
 
 ## ゲームでの使いどころ

@@ -52,13 +52,13 @@ struct is_error_condition_enum : std::false_type {};
 
 int main() {
   std::println("errc は error_condition の対象: {}", std::is_error_condition_enum_v<std::errc>);
-  std::println("int は対象でない           : {}", std::is_error_condition_enum_v<int>);
+  std::println("int は対象              : {}", std::is_error_condition_enum_v<int>);
 }
 ```
 
 ```text title="実行結果"
 errc は error_condition の対象: true
-int は対象でない           : true
+int は対象              : false
 ```
 
 ## ゲームでの使いどころ
