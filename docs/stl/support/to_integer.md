@@ -15,14 +15,16 @@ tags:
 `#include <cstddef>`
 </div>
 
-`std::to_integer<T>(b)` は、**`std::byte` を整数型 T に変換する**関数です。`std::byte` は整数として扱えないので、値を調べたり表示したりするときに使います。
+`std::byte` は算術型ではないので、`int` に直接代入できません。バイトの値を数値として使うときの変換が `std::to_integer<T>(b)` です。
 
 !!! tip "ポイント"
-    - `std::to_integer<int>(b)` のように、変換先の型を指定する。
-    - `static_cast<int>(b)` ではなく、こちらを使う（意図が分かりやすい）。
+    - `std::to_integer<int>(b)` は `byte` の値を整数にする
+    - 変換先の型 `T` をテンプレート引数で指定する
+    - `byte` が持つ値（0〜255）がそのまま入る
+    - 逆の変換は `std::byte{値}`
 
 !!! info "このページを読む前に"
-    [小さな便利機能](utility-misc.md) の概要と合わせて読むと分かりやすいです。
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -31,55 +33,66 @@ tags:
 <span class="ver ver-17">C++17</span>
 
 ```cpp
-template <class IntType>
-constexpr IntType to_integer(std::byte b) noexcept;
+template <class IntegerType>
+constexpr IntegerType to_integer(std::byte b) noexcept;
 ```
 
-- byte を整数に変換します
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `IntegerType` | 整数型 | 変換先の整数型（テンプレート引数） |
+| `b` | `std::byte` | 変換するバイト |
+
+`b` の値を `IntegerType` で返します。`unsigned char` の範囲（0〜255）の値が、符号を保って入ります。`int` に直した値は、負になりません。
+
+逆向きは、`static_cast<std::byte>(value)` か `std::byte{value}` です。後者は、値が定数で 0〜255 の範囲に収まる必要があります。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <cstddef>
 #include <print>
-#include <vector>
 
 int main() {
-  std::vector<std::byte> data = {std::byte{0x12}, std::byte{0xF0}};
-  std::byte masked = data[1] & std::byte{0x0F};
-  std::println("{:#x} {:#x}", std::to_integer<int>(data[0]), std::to_integer<int>(masked));
+  const std::byte b{0x2A};
+  std::println("to_integer<int>(0x2A)  = {}", std::to_integer<int>(b));
+  std::println("to_integer<char>      = {}", std::to_integer<char>(b));
 }
 ```
 
 ```text title="実行結果"
-0x12 0x0
+to_integer<int>(0x2A)  = 42
+to_integer<char>      = *
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| バイナリの中身を 16 進数で表示する | `std::println("{:02x}", std::to_integer<int>(b))` |
+バイナリ データから、整数を取り出します。
+
+```cpp
+const int red = std::to_integer<int>(pixels[0]);
+```
 
 ## よくあるミス
 
-??? failure "型を省略する"
-    変換先の型を `<int>` のように指定します。
+??? failure "`byte` を `int` に直接代入しようとする"
+    `to_integer` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`byte`](byte.md) | 元の型 |
+| [`byte`](byte.md) | バイトを表す型 |
 
 ## コンパイラ対応
 
-C++17〜C++23 の機能です。
+C++17 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] byte を整数にする
-    - [x] 変換先の型を指定
-    - [x] 算術のときに使う
+    - [x] `to_integer<T>(b)` は `byte` を整数にする
+    - [x] 変換先の型をテンプレート引数で指定
+    - [x] 逆は `std::byte{値}`
 
 ## 関連ページ
 

@@ -15,71 +15,80 @@ tags:
 `#include <cstddef>`
 </div>
 
-`std::nullptr_t` は、**`nullptr` の型**です。「どのポインターでもない、空のポインター」を表す専用の型で、関数のオーバーロードで「`nullptr` が渡された場合」だけを区別するときに使います。普段は意識しません。
+型の大きさや、ポインターの扱いは環境で違います。`std::nullptr_t` は、<strong>`nullptr` の型</strong>です。環境に合わせた正しい幅になるので、`int` で代用するより安全です。
 
 !!! tip "ポイント"
-    - `nullptr` は `0` や `NULL` と違い、整数にならない。
-    - `nullptr_t` の引数を取ると、`nullptr` だけを受け付ける。
-    - どのポインター型にも変換できる。
+    - `std::nullptr_t` は`nullptr` の型
+    - `<cstddef>` で宣言される
+    - 環境（32 ビット / 64 ビット）に応じて幅が変わる
+    - `int` で代用しないのが安全
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::nullptr_t {#nullptr_t}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-using nullptr_t = decltype(nullptr);
+using nullptr_t = /* 実装定義 */;
 ```
 
-- 戻り値: （型）
-- 計算量: O(1)
+`nullptr` リテラルの型です。どのポインター型にも暗黙に変換できます。オーバーロードで `nullptr` を受け取る関数を書くときに使います。
+
+ファイルやネットワークのデータ形式には、幅が環境で変わるこの型を使わず、`std::uint32_t` などの固定幅の型を使います。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <cstddef>
 #include <print>
-
-void Draw(int*) { std::println("ポインター版"); }
-void Draw(std::nullptr_t) { std::println("nullptr 版"); }
+#include <type_traits>
 
 int main() {
-  Draw(nullptr);
+  std::println("is_same_v<decltype(nullptr), nullptr_t> : {}", std::is_same_v<decltype(nullptr), std::nullptr_t>);
 }
 ```
 
 ```text title="実行結果"
-nullptr 版
+is_same_v<decltype(nullptr), nullptr_t> : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| nullptr を明示的に受ける関数 | `void Set(std::nullptr_t)` |
+配列やコンテナの添字、バイト数の計算に使います。
+
+```cpp
+for (std::size_t i = 0; i < items.size(); ++i) { /* … */ }
+```
 
 ## よくあるミス
 
-??? failure "NULL や 0 を使う"
-    整数と区別できずに、意図しないオーバーロードが選ばれます。`nullptr` を使います。
+??? failure "`int` で代用して、大きなデータで桁あふれする"
+    環境に合った型を使います。
+
+??? failure "データ形式に使って、環境で互換性が崩れる"
+    固定幅の型を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::unique_ptr`](../utilities/unique_ptr.md) | `nullptr` と比べられる |
+| [`std::int32_t`](../numeric/cstdint/int32_t.md) | 固定幅の整数 |
+| [`intptr_t`](../numeric/cstdint/intptr_t.md) | ポインターを保持できる整数 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] nullptr の型
-    - [x] 整数にならない
-    - [x] 普段は意識しない
+    - [x] `std::nullptr_t` は`nullptr` の型
+    - [x] 環境で幅が変わる
+    - [x] データ形式には固定幅の型を使う
 
 ## 関連ページ
 

@@ -15,79 +15,78 @@ tags:
 `#include <system_error>`
 </div>
 
-`is_error_code_enum` の、`error_condition` 版です。`std::errc` がこれに対応しています。自作の列挙型を移植性のあるエラー条件として使いたいときに特殊化します。
+`std::errc` は `std::error_condition` に暗黙に変換できます。自作のエラーの種類の列挙型も、同じ扱いにしたい。`std::is_error_condition_enum<E>` は、<strong>その目印</strong>で、特殊化して `true` にします。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - `std::is_error_condition_enum<E>::value` が `true` なら、`E` は `error_condition` に暗黙に変換できる
+    - `std::errc` は `true`
+    - 自作の列挙型では、特殊化して `std::true_type` を継承する
+    - 同じ名前空間に `make_error_condition(E)` が必要
 
 !!! info "このページを読む前に"
-    [`std::error_code`](error_code.md) を先に読んでください。
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::is_error_condition_enum {#is_error_condition_enum}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-template <class T>
-struct is_error_condition_enum : false_type {};
-template <class T>
-inline constexpr bool is_error_condition_enum_v = is_error_condition_enum<T>::value;
+template <class E>
+struct is_error_condition_enum : std::false_type {};
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 調べる列挙型 |
+| `E` | 型 | 調べる列挙型 |
 
-- 戻り値: `error_condition` に変換できる列挙型なら `true`
-- 計算量: 定数
-
+既定では `false` ですが、`std::errc` に対しては標準が `true` にしています。自作の列挙型を、エラーの「種類」として使いたいときは、`is_error_code_enum` と同じ手順で、特殊化と `make_error_condition` の定義を行います。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <system_error>
+#include <type_traits>
 
 int main() {
-  std::println("{}", std::is_error_condition_enum_v<std::errc>);
-  std::println("{}", std::is_error_condition_enum_v<int>);
+  std::println("errc は error_condition の対象: {}", std::is_error_condition_enum_v<std::errc>);
+  std::println("int は対象でない           : {}", std::is_error_condition_enum_v<int>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+errc は error_condition の対象: true
+int は対象でない           : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | エラーの意味を表す列挙型を作る |
+自作のエラーの種類の列挙型を、標準の枠組みに載せます。
 
 ## よくあるミス
 
 ??? failure "`is_error_code_enum` と取り違える"
-    変換先が違います。コード（具体的な値）か、条件（移植性のある意味）かで使い分けます。
+    種類は `condition`、具体的なエラーは `code` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_error_code_enum`](is_error_code_enum.md) | error_code の版 |
+| [`is_error_code_enum`](is_error_code_enum.md) | `error_code` の対象 |
+| [`make_error_condition`](make_error_condition.md) | 種類を作る |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`<system_error>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 自作の列挙型を error_condition に暗黙変換できるようにする特性
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `is_error_condition_enum<E>` は E が `error_condition` の対象かの目印
+    - [x] `errc` は `true`
+    - [x] 自作の列挙型は特殊化で `true` にする
 
 ## 関連ページ
 

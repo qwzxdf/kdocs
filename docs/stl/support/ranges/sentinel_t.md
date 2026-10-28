@@ -14,79 +14,85 @@ tags:
 `#include <ranges>`
 </div>
 
-テンプレートの中で、範囲の型 `R` から「要素の型」や「イテレータの型」を知りたいことがあります。`R::value_type` では、配列や view など `value_type` を持たない範囲に使えません。`sentinel_t<R>` は、どんな範囲にも使える統一された書き方です。
+範囲を受け取る自作のテンプレートで、「この範囲の要素の型は何か」を知りたい場面があります。コンテナなら `T::value_type` と書けますが、配列やビューにはありません。`std::ranges::sentinel_t<R>` は、<strong>任意の範囲 `R` の末尾を表す番兵の型</strong>を取り出します。
 
 !!! tip "ポイント"
-    - `R` は `range` を満たす型。
-    - `_t` が付いた型の別名（`typename` 不要）。
-    - 配列にも view にも使える。
+    - `std::ranges::sentinel_t<R>` は範囲 `R` の末尾を表す番兵の型
+    - 配列、コンテナ、ビューのどれにも使える
+    - メンバー型（`value_type` など）がなくてもよい
+    - 戻り値は型。実行時のコストはない
 
 !!! info "このページを読む前に"
-    [`std::ranges::range`](range.md) を先に読んでください。
+    [範囲（ranges）の基礎](../../../basics/ranges.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::ranges::sentinel_t {#sentinel_t}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <ranges::range R>
-using sentinel_t = /* 範囲の終端（sentinel）の型 */;
+using sentinel_t = /* 末尾を表す番兵の型 */;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `R` | 型 | 範囲の型 |
+| `R` | 範囲 | 対象の範囲の型 |
 
-- 戻り値: 範囲の終端（sentinel）の型
-- 計算量: コンパイル時のみ
+`R` の `begin` と `end` から計算した型を返します。`value_type` のようなメンバー型を持たない配列やビューにも、同じ書き方で使えます。
 
+範囲でない型を渡すと、型が存在せず、コンパイルエラーになります。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <cstddef>
 #include <print>
 #include <ranges>
 #include <type_traits>
 #include <vector>
 
 int main() {
-  using T = std::ranges::sentinel_t<std::vector<int>>;
-  std::println("{}", std::is_same_v<T, std::vector<int>::iterator>);
+  std::println("vector<int> の番兵（イテレーターと同じ型） は std::vector<int>::iterator : {}", std::is_same_v<std::ranges::sentinel_t<std::vector<int>>, std::vector<int>::iterator>);
 }
 ```
 
 ```text title="実行結果"
-true
+vector<int> の番兵（イテレーターと同じ型） は std::vector<int>::iterator : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ジェネリックな関数で、要素の型を取り出す |
+範囲を受け取る自作のテンプレートで、戻り値や一時変数の型に使います。
+
+```cpp
+template <std::ranges::input_range R>
+std::vector<std::ranges::range_value_t<R>> ToVector(R&& r);
+```
 
 ## よくあるミス
 
-??? failure "`R::value_type` を使う"
-    配列や view には `value_type` がないことがあります。`range_value_t<R>` を使います。
+??? failure "`std::decay_t` と取り違える"
+    この別名は範囲から型を計算します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`range`](range.md) | 範囲のコンセプト |
-| [`std::iter_value_t`](../iterator/iter_value_t.md) | イテレータ側の型 |
+| [`iterator_t`](iterator_t.md) | イテレーターの型 |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.10 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 範囲の終端（sentinel）の型を取り出す型の別名
-    - [x] `R` は `range` を満たす型
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `ranges::sentinel_t<R>` は範囲の末尾を表す番兵の型
+    - [x] 配列やビューにも使える
+    - [x] 自作のテンプレートの型の計算に使う
 
 ## 関連ページ
 

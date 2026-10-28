@@ -14,72 +14,86 @@ tags:
 `#include <version>`
 </div>
 
-`<version>` は、**標準ライブラリの機能が使えるかを `#if` で調べるためのマクロ（機能テストマクロ）**を定義するヘッダーです。`__cpp_lib_print`、`__cpp_lib_expected` のように、機能ごとのマクロがあり、使えるなら日付に見える数字（導入された年月）が入っています。コンパイラの違いを吸収するコードを書くときに使います。
+コンパイラが、ある機能に対応しているかを調べたい。`__cplusplus` の値は規格の版を示しますが、個々の機能（`<ranges>` や `std::format`）の対応までは分かりません。`<version>` は、<strong>機能ごとのテスト用マクロ（`__cpp_lib_...`）を定義するだけのヘッダー</strong>です。
 
 !!! tip "ポイント"
-    - `#if defined(__cpp_lib_print)` で、`<print>` が使えるかを調べる。
-    - 値は `YYYYMM` 形式の数字（導入された規格の年月）。
-    - 言語機能のマクロは `__cpp_xxx`（`__cpp_concepts` など）。
+    - `<version>` を取り込むと、`__cpp_lib_ranges` などのマクロが使える
+    - マクロの値は、その機能が導入された年月（例: 202110L）
+    - `#ifdef` でマクロの有無を調べて、使える機能を分岐する
+    - 標準ヘッダーを取り込むのでも、同じマクロが定義される
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### <version> {#version}
+### `<version>` {#version}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
-#define __cpp_lib_print 202207L   // 例
+#include <version>
+// 例: __cpp_lib_ranges, __cpp_lib_format, __cpp_lib_expected
 ```
 
-- 戻り値: マクロ（未対応なら未定義）
-- 計算量: コンパイル時
+機能ごとにマクロが決まっていて、値は、その機能が標準に入った年月（`YYYYMM`）の整数です。複数の版がある機能は、新しい版ほど値が大きくなります。
+
+たとえば `#if defined(__cpp_lib_format)` で、`std::format` が使えるかを調べます。対応していない環境では、`fmt` ライブラリなどの代替に切り替える、といった書き方ができます。
+
+`<version>` は C++20 で追加されました。それ以前の環境では、個別の標準ヘッダーを取り込んでから、マクロを調べます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <version>
 
 int main() {
-#if defined(__cpp_lib_print)
-  std::println("std::print が使える");
+#ifdef __cpp_lib_ranges
+  std::println("ranges が使える");
 #else
-  std::puts("std::print は使えない");
+  std::println("ranges は使えない");
 #endif
 }
 ```
 
 ```text title="実行結果"
-std::print が使える（対応した環境の場合）
+ranges が使える
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| コンパイラが古いときに、代わりの実装へ切り替える | `#if defined(__cpp_lib_flat_map)` |
+新しい標準ライブラリの機能に対応しているコンパイラ用と、対応していないコンパイラ用で、コードを切り替えます。
+
+```cpp
+#if defined(__cpp_lib_expected)
+  std::expected<int, Error> result = Load();
+#else
+  // 代替の実装
+#endif
+```
 
 ## よくあるミス
 
-??? failure "マクロの値で新旧を比べる"
-    日付なので、`>= 202207L` のように比べます。
+??? failure "`__cplusplus` だけで機能の有無を判断する"
+    個別の機能は `__cpp_lib_` マクロで確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| `__cplusplus` | 規格の版全体を表す |
+| [`<type_traits>`](type_traits.md) | 型の性質を調べる |
 
 ## コンパイラ対応
 
-C++20 の機能です。
+C++20 から使えます。GCC 9 以降、Clang 7 以降、Visual Studio 2019 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 機能が使えるかを #if で調べる
-    - [x] マクロ名は `__cpp_lib_機能名`
-    - [x] 値は導入年月
+    - [x] `<version>` は機能テスト用のマクロを定義する
+    - [x] 値は導入された年月
+    - [x] `#ifdef` で機能の有無を分岐する
 
 ## 関連ページ
 

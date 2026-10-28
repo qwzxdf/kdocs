@@ -15,31 +15,37 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::ranges::range<T>` は、**T が範囲である（`begin()` と `end()` が使える）こと**を要求するコンセプトです。`vector`、配列、ビューなど、`for` で回せるものは範囲です。ranges のアルゴリズムの引数は、このコンセプトで制約されています。
+アルゴリズムによって、範囲に求める性質は違います。`std::find` は先頭から読めれば十分ですが、`std::sort` は任意の位置に移動できなければ動きません。`std::ranges::range<R>` は、<strong>R が「`begin` と `end` を取り出せる型」であること</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
-    - `std::ranges::range<std::vector<int>>` は `true`、`int` は `false`。
-    - 細かい種類に `input_range`、`forward_range`、`random_access_range`、`contiguous_range` がある。
-    - 自作のアルゴリズムに「範囲を受け取る」制約を付けるときに使う。
+    - `std::ranges::range<R>`: `R` が`begin` と `end` を取り出せる型
+    - コンテナの種類で、満たすかどうかが決まる
+    - アルゴリズムの制約として使われる
+    - 他のコンセプトと組み合わせて使える
 
 !!! info "このページを読む前に"
-    [テンプレートとコンセプト](../../../basics/template.md) の基本が前提です。
+    [範囲（ranges）の基礎](../../../basics/ranges.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::ranges::range {#range}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class T>
-concept range = requires(T& t) { ranges::begin(t); ranges::end(t); };
+concept range = /* 条件 */;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | テンプレート引数 | 調べる型 |
+| `T` | 型 | 調べる範囲の型 |
 
-- 戻り値: 範囲なら `true`
-- 計算量: コンパイル時
+範囲のアルゴリズムが要求する、最も基本の条件です。
+
+自作の関数テンプレートに `template <std::ranges::range R>` と書くと、条件を満たさない型を渡されたときに、呼び出しの場所で分かりやすいエラーになります。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
@@ -47,42 +53,52 @@ concept range = requires(T& t) { ranges::begin(t); ranges::end(t); };
 #include <vector>
 
 int main() {
-  std::println("{} {}", std::ranges::range<std::vector<int>>, std::ranges::range<int>);
+  std::println("std::vector<int>         -> {}", std::ranges::range<std::vector<int>>);
+  std::println("int[3]                   -> {}", std::ranges::range<int[3]>);
+  std::println("int                      -> {}", std::ranges::range<int>);
 }
 ```
 
 ```text title="実行結果"
-true false
+std::vector<int>         -> true
+int[3]                   -> true
+int                      -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 「範囲を受け取る」自作関数 | `template <std::ranges::range R> void Draw(R&& items)` |
+範囲を受け取る自作のテンプレートの制約に使います。
+
+```cpp
+template <std::ranges::range R>
+void Process(R&& r) {
+  // r は `begin` と `end` を取り出せる型
+}
+```
 
 ## よくあるミス
 
-??? failure "テンプレートで begin / end を手書きする"
-    ranges のコンセプトを使えば、制約が簡潔になります。
+??? failure "コンテナの種類を誤解して、期待と違う結果になる"
+    `std::list` は `random_access_range` ではありません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::subrange`](../../algorithms/views/subrange.md) | イテレータから範囲を作る |
-| [`ranges::begin`](begin.md) | 先頭を取る |
+| [`range`](range.md) | 最も基本の範囲 |
+| [`random_access_range`](random_access_range.md) | ランダムアクセスできる範囲 |
+| [`contiguous_range`](contiguous_range.md) | メモリ上に連続する範囲 |
 
 ## コンパイラ対応
 
-C++20 の機能です。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.10 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 範囲であること
-    - [x] `for` で回せるもの
-    - [x] 種類別のコンセプトもある
+    - [x] `std::ranges::range<R>` は`begin` と `end` を取り出せる型
+    - [x] コンテナの種類で決まる
+    - [x] アルゴリズムの制約として使われる
 
 ## 関連ページ
 

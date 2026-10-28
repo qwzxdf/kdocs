@@ -15,77 +15,89 @@ tags:
 `#include <ranges>`
 </div>
 
-`c.empty()` を持たない範囲（配列や、`size` が使えない view）でも、`begin() == end()` で空かどうかを調べてくれます。
+範囲（ranges）のアルゴリズムは、配列、コンテナ、自作の範囲、ビューのどれでも受け取れます。それぞれの範囲から空かどうかを取り出す書き方を、1 つにそろえたのが `std::ranges::empty` です。メンバー関数 `v.empty()` と、非メンバー関数 `empty(v)` のどちらがあっても、同じ書き方で呼べます。
 
 !!! tip "ポイント"
-    - 配列・コンテナ・view に同じ書き方で使える。
-    - 関数ではなく、関数オブジェクト（カスタマイズポイント）。
-    - 使えない型には、コンパイルエラーになる。
+    - `std::ranges::empty(r)` は範囲 `r` の空かどうか
+    - メンバー関数と非メンバー関数のどちらでも自動で選ばれる
+    - 配列や、独自の範囲型にも使える
+    - カスタマイズ ポイント オブジェクトなので、名前空間の探索の影響を受けない
 
 !!! info "このページを読む前に"
-    [`std::ranges::begin`](begin.md) を先に読んでください。
+    [範囲（ranges）の基礎](../../../basics/ranges.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::ranges::empty {#empty}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-inline constexpr /* カスタマイズポイント */ ranges::empty;
+inline constexpr /* カスタマイズ ポイント オブジェクト */ empty;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `t` | 範囲 | 対象の範囲 |
+| `r` | 範囲 | 対象の範囲 |
 
-- 戻り値: 空なら `true`
-- 計算量: 定数
+`std::ranges::empty(r)` は、`r` の型に合わせて、適した方法で空かどうかを取り出します。メンバー関数があればそれを、なければ ADL で見つかる非メンバー関数を呼びます。配列には専用の実装が使われます。
 
+カスタマイズ ポイント オブジェクトは、関数ではなく関数オブジェクトです。そのため、名前空間の探索（ADL）によって、意図しない関数が選ばれる事故を避けられます。アルゴリズムの内部は、この方法で範囲を扱います。
+
+条件を満たさない型（要素にアクセスできない型）に呼ぶと、コンパイルエラーです。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <iterator>
 #include <print>
 #include <ranges>
+#include <type_traits>
 #include <vector>
 
 int main() {
-  std::vector<int> v;
-  std::println("{}", std::ranges::empty(v));
+  const std::vector<int> v = {10, 20, 30};
+  std::println("空かどうか = {}", std::ranges::empty(v));
 }
 ```
 
 ```text title="実行結果"
-true
+空かどうか = false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ジェネリックなコードで、範囲を扱う |
+範囲を受け取る自作のテンプレートで、先頭や要素数を取り出すときに使います。
+
+```cpp
+template <std::ranges::range R>
+void Dump(R&& r) {
+  for (auto it = std::ranges::begin(r); it != std::ranges::end(r); ++it) Print(*it);
+}
+```
 
 ## よくあるミス
 
-??? failure "`std::` の同名の関数と混ぜる"
-    `std::empty` とは別物です。`ranges::` 版は、範囲に必要な条件を満たさない型を早めに弾いてくれます。
+??? failure "範囲でない型に呼んでコンパイルエラーになる"
+    `std::ranges::range` で先に確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`size`](size.md) | 対になる関数 |
-| [`std::ranges::begin`](begin.md) | 先頭 |
+| [`begin`](../iterator/begin.md) | 従来の `std::begin` |
+| [`range`](range.md) | 範囲のコンセプト |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.10 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 範囲が空かを調べる
-    - [x] 配列・コンテナ・view に同じ書き方で使える
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::ranges::empty(r)` は範囲の空かどうか
+    - [x] メンバーでも非メンバーでも使える
+    - [x] 配列や自作の範囲にも使える
 
 ## 関連ページ
 

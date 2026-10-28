@@ -15,15 +15,16 @@ tags:
 `#include <utility>`
 </div>
 
-`std::as_const(x)` は、**`x` を `const` 参照として返す**関数です。`const_cast<const T&>(x)` の簡単な書き方で、「この呼び出しでは変更しない」と明示して、`const` 版のメンバ関数（`operator[]` など）を選ばせるときに使います。
+非 `const` のオブジェクトに対して、「`const` として扱いたい」場面があります。たとえば、`const` 版のメンバー関数やオーバーロードを、わざと呼びたい。`const_cast<const T&>(x)` と書くと長いです。`std::as_const(x)` は、<strong>`x` を `const` 参照にして返します</strong>。
 
 !!! tip "ポイント"
-    - `for (auto& e : std::as_const(container))` で、読み取り専用の走査。
-    - `std::map::operator[]` のような、挿入してしまう関数を避ける。
-    - 右辺値を渡すことはできない（削除されている）。
+    - `std::as_const(x)` は `const T&` を返す
+    - `const_cast` より短く、安全（`const` を付けるだけ）
+    - 範囲 for で、コンテナの要素を変更しない読み取り専用の走査にする
+    - 右辺値は受け付けない（ぶら下がりを避けるため）
 
 !!! info "このページを読む前に"
-    [小さな便利機能](utility-misc.md) の概要と合わせて読むと分かりやすいです。
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -33,10 +34,20 @@ tags:
 
 ```cpp
 template <class T>
-constexpr const T& as_const(T& t) noexcept;
+constexpr std::add_const_t<T>& as_const(T& t) noexcept;
+template <class T>
+void as_const(const T&&) = delete;
 ```
 
-- const 参照にします。const 版の関数を呼びたいときや、範囲 for で書き換えないことを保証したいときに使います
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `t` | 左辺値 | `const` にしたいオブジェクト |
+
+`std::as_const(x)` は、`x` と同じ型の `const` 参照を返します。コピーは起きません。
+
+用途として典型的なのは、`std::vector` などの `begin()` / `end()` で、`const` 版（`const_iterator` を返す）を選びたいときです。範囲 for の中でコンテナの要素を書き換えない意図を示すために、`for (auto& x : std::as_const(v))` と書けます。
+
+一時オブジェクトを渡すコンパイルエラーになるのは、返した参照が式の終わりでぶら下がる事故を避けるためです。
 
 ## 実際に動かしてみる
 
@@ -47,43 +58,50 @@ constexpr const T& as_const(T& t) noexcept;
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1};
-  auto& cv = std::as_const(v);
-  std::println("{}", std::is_const_v<std::remove_reference_t<decltype(cv)>>);
+  std::vector<int> v = {1, 2, 3};
+  using Ref = decltype(*std::as_const(v).begin());
+  std::println("const 版の begin が選ばれる: {}", std::is_same_v<Ref, const int&>);
+  std::println("同じオブジェクトを指す: {}", &std::as_const(v) == &v);
 }
 ```
 
 ```text title="実行結果"
-true
+const 版の begin が選ばれる: true
+同じオブジェクトを指す: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 範囲 for で、書き換えないことを明示する | `for (const auto& e : std::as_const(v))` |
+読み取り専用であることを、コードで明示します。
+
+```cpp
+for (const auto& enemy : std::as_const(enemies)) {   // 変更しない走査
+  Draw(enemy);
+}
+```
 
 ## よくあるミス
 
-??? failure "一時オブジェクトを渡す"
-    コンパイルエラーです（ぶら下がりを防ぐため）。
+??? failure "一時オブジェクトを渡してコンパイルエラーになる"
+    いったん変数に入れます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::views::as_const`](../algorithms/views/as_const.md) | 範囲の要素を const にする |
+| [`add_const`](type_traits/add_const.md) | 型に `const` を付ける |
+| [`byte`](byte.md) | バイトを表す型 |
 
 ## コンパイラ対応
 
-C++17〜C++23 の機能です。
+C++17 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] const 参照として扱う
-    - [x] const 版の関数を選ばせる
-    - [x] 一時オブジェクトは不可
+    - [x] `std::as_const(x)` は `const` 参照を返す
+    - [x] `const_cast` より安全
+    - [x] 一時オブジェクトは渡せない
 
 ## 関連ページ
 

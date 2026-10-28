@@ -15,19 +15,22 @@ tags:
 `#include <system_error>`
 </div>
 
-`error_condition` は、OS に依存しない、移植性のあるエラーの条件です。`error_code`（OS 固有の値）と比べるときに使い、`ec == make_error_condition(errc::...)` の形で、エラーの種類を判定できます。
+`std::errc` の値から、`std::error_condition`（エラーの種類）を作る関数が `std::make_error_condition` です。`error_code` と比べるための右辺を、明示的に作りたいときに使います。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - `std::make_error_condition(std::errc::...)` で `error_condition` を作る
+    - `std::errc` から暗黙にも作れるので、直接呼ぶ機会は少ない
+    - 自作の列挙型でも、この関数を用意すると `error_condition` に変換できる
+    - `std::is_error_condition_enum` を特殊化して有効にする
 
 !!! info "このページを読む前に"
-    [`std::error_code`](error_code.md) を先に読んでください。
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::make_error_condition {#make_error_condition}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
 std::error_condition make_error_condition(std::errc e) noexcept;
@@ -35,11 +38,11 @@ std::error_condition make_error_condition(std::errc e) noexcept;
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `e` | errc | 標準のエラーの列挙値 |
+| `e` | `errc` | エラーの種類 |
 
-- 戻り値: 対応する `error_condition`
-- 計算量: 定数
+列挙子から、番号とカテゴリーの組を作って返します。`std::errc` の値は、暗黙に `error_condition` に変換できるので、`ec == std::errc::...` のように書けば、この関数を直接呼ぶ必要はありません。
 
+自作の列挙型で、エラーの「種類」を表現したいときに、同じ名前空間に定義して使います。
 
 ## 実際に動かしてみる
 
@@ -48,44 +51,41 @@ std::error_condition make_error_condition(std::errc e) noexcept;
 #include <system_error>
 
 int main() {
-  std::error_code ec = std::make_error_code(std::errc::invalid_argument);
-  std::error_condition c = std::make_error_condition(std::errc::invalid_argument);
-  std::println("{}", ec == c);
+  const std::error_condition cond = std::make_error_condition(std::errc::permission_denied);
+  std::println("カテゴリーは generic: {}", cond.category() == std::generic_category());
 }
 ```
 
 ```text title="実行結果"
-true
+カテゴリーは generic: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | OS が違っても同じ書き方でエラーを判定する |
+自作の列挙型を `error_condition` として使えるようにします。通常は `std::errc` のまま `==` で比べれば足ります。
 
 ## よくあるミス
 
-??? failure "`error_code` と `error_condition` を混同する"
-    `error_code` は具体的な値、`error_condition` は移植性のある意味です。比較は条件に対して行います。
+??? failure "`error_code` と取り違える"
+    種類を表すのは `error_condition` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`make_error_code`](make_error_code.md) | コードを作る |
-| [`error_condition`](error_condition.md) | エラー条件 |
+| [`make_error_code`](make_error_code.md) | 具体的なエラーを作る |
+| [`error_condition`](error_condition.md) | エラーの種類 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`<system_error>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] errc などの列挙値から、error_condition を作る
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `make_error_condition(e)` は列挙子から `error_condition` を作る
+    - [x] 通常は暗黙の変換で足りる
+    - [x] 自作の列挙型に用意できる
 
 ## 関連ページ
 

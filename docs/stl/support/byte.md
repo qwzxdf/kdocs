@@ -15,15 +15,16 @@ tags:
 `#include <cstddef>`
 </div>
 
-`std::byte` は、**1 バイトのデータ（ビットの並び）を表す型**です。整数や文字と違い、足し算などの算術はできず、ビット演算（`&`、`|`、`<<` など）だけができます。バイナリデータのバッファを `char` や `uint8_t` ではなく `std::byte` で持つと、「ただのバイト列」だと明確になります。
+メモリの生のバイトを扱うとき、`unsigned char` や `char` は「文字」や「数値」とも読めてしまい、意図が曖昧です。`std::byte` は、<strong>バイト列としてだけ扱える型</strong>です。算術演算ができず、ビット演算だけができます。
 
 !!! tip "ポイント"
-    - 算術はできない。整数にするには [`to_integer`](to_integer.md)。
-    - `std::vector<std::byte>` でバイナリバッファを表す。
-    - メモリの別名（エイリアス）として特別扱いされる（`char` と同様）。
+    - `std::byte` は生のバイトを表す列挙型（`enum class byte : unsigned char`）
+    - 算術演算（`+`、`-`）は使えず、ビット演算（`&`、`|`、`^`、`~`、`<<`、`>>`）が使える
+    - 数値に直すには `std::to_integer<int>(b)`
+    - バイナリ データやバッファの型に使う
 
 !!! info "このページを読む前に"
-    [小さな便利機能](utility-misc.md) の概要と合わせて読むと分かりやすいです。
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -35,7 +36,11 @@ tags:
 enum class byte : unsigned char {};
 ```
 
-- 「数値でも文字でもない、ただのバイト」を表す型。足し算などはできず、ビット演算（`&`、`|`、`<<`）だけできます。ファイルやネットワークの生データに使うと、うっかり文字や数値として扱う間違いを防げます
+`std::byte` は、数値でも文字でもないバイトを表します。`b + 1` はコンパイルエラーになります。数値として扱いたいときは `std::to_integer<T>(b)` で明示的に変換します。
+
+ビット演算は使えます。`b << 4` や `b | std::byte{0x30}` のように書けます。
+
+`unsigned char` の配列の代わりに `std::byte` の配列を使うと、バイト列であることが型で伝わり、算術や文字の演算を誤って書く事故を防げます。
 
 ## 実際に動かしてみる
 
@@ -45,43 +50,49 @@ enum class byte : unsigned char {};
 
 int main() {
   std::byte b{0x0F};
-  b |= std::byte{0xF0};   // ビット演算はできる（足し算などはできない）
-  std::println("{}", std::to_integer<int>(b));
+  std::println("b << 4         = {}", std::to_integer<int>(b << 4));
+  std::println("b | 0x30       = {}", std::to_integer<int>(b | std::byte{0x30}));
+  std::println("サイズ         = {}", sizeof(std::byte));
 }
 ```
 
 ```text title="実行結果"
-255
+b << 4         = 240
+b | 0x30       = 63
+サイズ         = 1
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ファイルを読んだバイナリのバッファ | `std::vector<std::byte> data(file_size);` |
+ファイルや通信のバッファに使います。
+
+```cpp
+std::vector<std::byte> buffer(1024);
+file.read(reinterpret_cast<char*>(buffer.data()), buffer.size());
+```
 
 ## よくあるミス
 
-??? failure "byte を整数のように足す"
-    コンパイルエラーです。`to_integer` で整数にします。
+??? failure "`b + 1` と書いてコンパイルエラーになる"
+    `std::to_integer` で数値にしてから計算します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`to_integer`](to_integer.md) | 整数に変換 |
-| `std::uint8_t` | 整数として扱える 1 バイト |
+| [`to_integer`](to_integer.md) | `byte` を整数にする |
+| [`as_const`](as_const.md) | `const` 参照にする |
 
 ## コンパイラ対応
 
-C++17〜C++23 の機能です。
+C++17 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] バイト列を表す型
-    - [x] 算術はできない
-    - [x] 整数にするには to_integer
+    - [x] `std::byte` はバイト列を表す型
+    - [x] 算術は不可、ビット演算は可
+    - [x] 数値には `to_integer` で変換する
 
 ## 関連ページ
 
