@@ -13,12 +13,13 @@ tags:
 `#include <cstdio>`
 </div>
 
-`fgetc` と同じ働きです。C 言語ではマクロとして実装されることがあり、引数が何度も評価される点が違いました。C++ では関数として扱われるので、`fgetc` との違いはありません。
+`fgetc` と同じように、ファイルから 1 文字を読みます。違いは、C の規格が「`getc` はマクロとして実装してもよい」と許している点です。昔は、関数呼び出しの手間を省くために、マクロ版が速いことがありました。
 
 !!! tip "ポイント"
-    - C 由来の入出力関数。
-    - 戻り値で失敗を調べる。
-    - 新しいコードでは `std::print` や `std::ifstream` / `std::ofstream` が安全。
+    - `getc(f)` は `fgetc(f)` と同じ結果を返す。戻り値は `int`
+    - マクロとして実装されうるので、引数を 2 回評価されても困らないようにする
+    - 現在のコンパイラでは、`fgetc` との速さの差はほとんどない
+    - 迷ったら `fgetc` を使う
 
 !!! info "このページを読む前に"
     [`std::printf`](printf.md) と [`std::fopen`](fopen.md) を先に読んでください。
@@ -33,11 +34,13 @@ int getc(std::FILE* stream);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `stream` | FILE* | 読み込み元 |
+| `stream` | `FILE*` | 読み込むファイル |
 
-- 戻り値: 読んだ文字。終端やエラーなら `EOF`
-- 計算量: 入出力の量に比例
+動作は [`fgetc`](fgetc.md) と同じです。次の 1 文字を `unsigned char` として読み、`int` で返し、終わりかエラーなら `EOF` を返します。
 
+規格上、`getc` はマクロでもよいことになっています。マクロの場合、引数の式が複数回評価されることがあります。`getc(*files++)` のように、副作用のある式を渡すと、位置が二重に進むかもしれません。副作用のない式（変数名）を渡します。
+
+C++ の標準ライブラリ（`<cstdio>`）では、`std::getc` は関数として使えます。現代のコンパイラは、`fgetc` と同じ速さで動くので、違いを気にする必要はありません。
 
 ## 実際に動かしてみる
 
@@ -46,34 +49,43 @@ int getc(std::FILE* stream);
 #include <print>
 
 int main() {
-  std::FILE* f = std::tmpfile();
-  std::fputs("A", f);
-  std::rewind(f);
-  std::println("{}", static_cast<char>(std::getc(f)));
+  std::FILE* out = std::fopen("ab.txt", "w");
+  std::fputs("AB", out);
+  std::fclose(out);
+
+  std::FILE* f = std::fopen("ab.txt", "r");
+  int a = std::getc(f);
+  int b = std::getc(f);
+  int c = std::getc(f);   // もう無い
+  std::println("{} {}", static_cast<char>(a), static_cast<char>(b));
+  std::println("3 回目は EOF: {}", c == EOF);
   std::fclose(f);
 }
 ```
 
 ```text title="実行結果"
-A
+A B
+3 回目は EOF: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 1 文字ずつ読む処理 |
+`fgetc` と同じ場面で使えます。既存の C のコードを読むと `getc` がよく出てきますが、新しく書くなら、`fgetc` で足ります。
 
 ## よくあるミス
 
+??? failure "副作用のある式を引数に渡す"
+    マクロ展開で複数回評価されると、意図しない位置の文字を読みます。変数に入れてから渡します。
+
 ??? failure "戻り値を `char` で受ける"
-    `int` で受けます。
+    `fgetc` と同じ落とし穴です。`int` で受けます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`fgetc`](fgetc.md) | 同じ働き |
+| [`fgetc`](fgetc.md) | 関数として必ず存在する版 |
+| [`getchar`](getchar.md) | 標準入力専用 |
 
 ## コンパイラ対応
 
@@ -82,9 +94,9 @@ C++11 以前から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ファイルから 1 文字を読む（`fgetc` と同じ）
-    - [x] C 由来の入出力関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `fgetc` と同じ
+    - [x] マクロかもしれない
+    - [x] 迷ったら `fgetc`
 
 ## 関連ページ
 

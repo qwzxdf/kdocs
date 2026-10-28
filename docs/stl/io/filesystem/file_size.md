@@ -15,11 +15,15 @@ tags:
 `#include <filesystem>`
 </div>
 
-ファイルを読み込む前に必要なバッファの大きさを知りたい。ファイルを開いて、最後まで読んで、数えるのは無駄です。`std::filesystem::file_size` は、ファイルの大きさをバイト数で返す関数です。読み込む前にバッファを用意する、ロードの進行度を計算する、といった用途に使います。フォルダに使うとエラーです。
+ファイルを丸ごと読み込むために、先に大きさを知って、その分のバッファーを確保したい。ダウンロードの進み具合を、保存されたファイルの大きさから計算したい。ファイルを開いて `seekg` するよりも、手軽に大きさを知る方法が `std::filesystem::file_size` です。
+
+<strong>通常のファイルのバイト数</strong>を返します。
 
 !!! tip "ポイント"
-    - 戻り値は `std::uintmax_t`。
-    - ファイルが無いと例外。`error_code` 版なら例外なし。
+    - 戻り値は `std::uintmax_t`（符号なしの大きな整数）
+    - 存在しないパスはエラー。フォルダーに使った結果は、実装によって違う（エラーになる環境も、値が返る環境もある）
+    - リンクは先をたどった、実体のファイルの大きさ
+    - ファイルを書いている途中は、書き込み済みの量とずれることがある（バッファーのため）
 
 !!! info "このページを読む前に"
     [`std::filesystem`](../filesystem.md) の概要を先に読むと分かりやすいです。
@@ -28,11 +32,23 @@ tags:
 
 ### file_size {#file_size}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
 std::uintmax_t file_size(const path& p);
+std::uintmax_t file_size(const path& p, std::error_code& ec) noexcept;
 ```
 
-- ファイルの大きさ（バイト）。フォルダや存在しないファイルだと例外
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `p` | `const path&` | 大きさを調べるファイル |
+| `ec` | `std::error_code&` | 失敗の理由の受け取り先 |
+
+戻り値の型 `std::uintmax_t` は、最も大きな符号なし整数型なので、4 GB を超えるファイルでも扱えます。`int` に代入すると、2 GB を超えたところで壊れるので、`std::size_t` や `std::uintmax_t` で受けます。
+
+存在しないパスに使うと、例外（または `ec` のエラー）になります。標準はフォルダーなど通常のファイルでないものもエラーとしていますが、手元の MSVC ではエラーにならず、値が返りました。フォルダーには使わないようにします。`error_code` を渡す版は、エラーのときに `static_cast<std::uintmax_t>(-1)` を返します。<strong>この値を、そのまま大きさとして使わない</strong>ようにします。
+
+ファイルのバッファーに、まだ書き込まれていないデータがあると、実際に書いた量より小さい値になります。確実に調べたいときは、ストリームを `flush` するか閉じてから呼びます。
 
 ## 実際に動かしてみる
 
@@ -40,40 +56,50 @@ std::uintmax_t file_size(const path& p);
 #include <filesystem>
 #include <fstream>
 #include <print>
+#include <system_error>
 
 int main() {
   namespace fs = std::filesystem;
-  std::ofstream("fs_demo.txt") << "hello";
-  std::println("{}", fs::file_size("fs_demo.txt"));
-  fs::remove("fs_demo.txt");
+  {
+    std::ofstream out("data.bin", std::ios::binary);
+    out << "0123456789";
+  }
+  std::println("data.bin: {} バイト", fs::file_size("data.bin"));
+
+  // 存在しないパスは、エラーになる
+  std::error_code ec;
+  auto size = fs::file_size("missing.bin", ec);
+  std::println("存在しない: エラー={} 戻り値は最大値={}", static_cast<bool>(ec),
+               size == static_cast<std::uintmax_t>(-1));
 }
 ```
 
 ```text title="実行結果"
-5
+data.bin: 10 バイト
+存在しない: エラー=true 戻り値は最大値=true
 ```
 
 ## ゲームでの使いどころ
 
-バイナリのアセットを読み込む前にバッファを `std::vector<char> buf(fs::file_size(path));` で確保します。大きさが分かっているので、再確保なしで読み込めます。
+ファイルを丸ごと読み込むときの、バッファーの確保に使います。`std::vector<char> buf(fs::file_size(path))` で、ちょうどの大きさを用意して、`read` で一気に読み込みます。
 
-ロード画面で、全アセットの合計サイズを先に求め、読み終えたサイズとの比で進行度を出します。
-
-ファイルが無いと例外です。`error_code` を渡す版なら、例外なしで結果を受け取れます。サイズが 0 のファイルと、エラーを区別するために、エラーコードで確かめます。
+ダウンロードの進行状況の表示や、セーブ データが空（0 バイト）でないかの確認、キャッシュ フォルダーの合計サイズの計算にも使います。合計サイズは、フォルダーを走査して、通常のファイルの `file_size` を足し上げます。
 
 ## よくあるミス
 
-??? failure "フォルダに使う"
-    エラーです。ファイルにだけ使います。
+??? failure "フォルダーに使って、フォルダー全体の大きさだと思う"
+    この関数は、フォルダーの中身の合計を返しません。環境によっては、エラーや、意味のない値になります。中のファイルを走査して足し合わせます。
 
-??? failure "存在しないファイルで例外が出る"
-    ファイルが無いと `filesystem_error` を投げます。先に `exists` で確かめるか、`error_code` を渡す版を使います。
+??? failure "`int` で受けて、大きなファイルで負の値になる"
+    `std::uintmax_t` で受けます。`size_t` に直すときも、範囲を確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`space`](space.md) | ディスクの空き容量 |
+| [`space`](space.md) | ボリュームの空き容量 |
+| [`resize_file`](resize_file.md) | ファイルの大きさを変更する |
+| [`is_empty`](is_empty.md) | 空かどうかだけを調べる |
 
 ## コンパイラ対応
 
@@ -82,9 +108,9 @@ C++17 の機能です。GCC 9 / Clang 9 / MSVC 19.14 以降で使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ファイルのバイト数
-    - [x] フォルダにはエラー
-    - [x] バッファ確保に使う
+    - [x] 通常のファイルのバイト数を返す
+    - [x] `uintmax_t` で受ける
+    - [x] フォルダーにはエラー
 
 ## 関連ページ
 

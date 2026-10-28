@@ -48,7 +48,7 @@ struct monostate {};  // 「何も入っていない」を表す空の型
 | [`index`](#index) | <span class="rank rank-sometimes">たまに</span> | 今何番目の型が入っているか |
 | [`emplace`](#emplace) | <span class="rank rank-sometimes">たまに</span> | その場で値を作る |
 | [`valueless_by_exception`](#valueless) | <span class="rank rank-rare">知ってるだけ</span> | 例外で壊れた状態か |
-| [`std::variant_size`](#variant_size) | <span class="rank rank-rare">知ってるだけ</span> | 候補の数 |
+| [`std::variant_size`](variant_size.md) | <span class="rank rank-rare">知ってるだけ</span> | 候補の数 |
 
 ## よくある使い方
 

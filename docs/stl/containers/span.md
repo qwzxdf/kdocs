@@ -70,8 +70,8 @@ class span;
 | [`front`](#front) | <span class="rank rank-sometimes">たまに</span> | 先頭の要素 | O(1) |
 | [`back`](#back) | <span class="rank rank-sometimes">たまに</span> | 末尾の要素 | O(1) |
 | [`size_bytes`](#size_bytes) | <span class="rank rank-sometimes">たまに</span> | バイト数（`size() * sizeof(T)`） | O(1) |
-| [`std::as_bytes`](#as_bytes) | <span class="rank rank-rare">知ってるだけ</span> | `const std::byte` の span として見る | O(1) |
-| [`std::as_writable_bytes`](#as_writable_bytes) | <span class="rank rank-rare">知ってるだけ</span> | `std::byte` の span として見る | O(1) |
+| [`std::as_bytes`](as_bytes.md) | <span class="rank rank-rare">知ってるだけ</span> | `const std::byte` の span として見る | O(1) |
+| [`std::as_writable_bytes`](as_writable_bytes.md) | <span class="rank rank-rare">知ってるだけ</span> | `std::byte` の span として見る | O(1) |
 | [`rbegin`](#rbegin) | <span class="rank rank-rare">知ってるだけ</span> | 逆順の先頭 | O(1) |
 | [`rend`](#rend) | <span class="rank rank-rare">知ってるだけ</span> | 逆順の終わり | O(1) |
 | [`at`](#at) | <span class="rank rank-rare">知ってるだけ</span> | 範囲チェックあり（C++26） | O(1) |

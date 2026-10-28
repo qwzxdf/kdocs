@@ -19,7 +19,7 @@ Visual Studio での入れ方を先に説明します。Jolt はソースから�
 ## 方法 1：Jolt のソースから Visual Studio のプロジェクトを作ってビルドする
 
 1. [GitHub の JoltPhysics](https://github.com/jrouwe/JoltPhysics) を取得する（`git clone`。タグ（`v5.x.x`）を指定してバージョンを固定する）
-2. `Build` フォルダーにある**`cmake_vs2026_cl.bat`**（Visual Studio 2026・MSVC 用）を実行する
+2. `Build` フォルダーにある<strong>`cmake_vs2026_cl.bat`</strong>（Visual Studio 2026・MSVC 用）を実行する
 3. `Build/VS2026_CL` に、Visual Studio のソリューション（`Jolt.slnx`。CMake の版によっては `Jolt.sln`）ができる。Visual Studio で開く
 4. 構成を Debug と Release の両方でビルドして、`Jolt.lib` を作る
 5. 自分のプロジェクトで次の 3 つを設定する（[手動の設定](../../vs/libraries.md#lib_dll)）

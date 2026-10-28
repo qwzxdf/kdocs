@@ -15,29 +15,42 @@ tags:
 `#include <filesystem>`
 </div>
 
-`std::filesystem::weakly_canonical` は、[`canonical`](canonical.md) の**存在しない部分があっても使える版**です。存在する部分だけを正規化（`..` やリンクを解決）し、残りは字句的に整えます。これから作るファイルのパスを絶対パスに整えるときに使います。
+セーブ データの保存先 `saves/slot1/save.dat` を正規化してログに出したい。でも `slot1` フォルダーも `save.dat` も、まだ作っていない。[`canonical`](canonical.md) は、存在しないパスを渡すと失敗するので、このような場面では使えません。
+
+`std::filesystem::weakly_canonical` は、<strong>パスの前半の「存在する部分」だけを正規化し、残りは文字列の上で整える</strong>関数です。これから作るファイルの場所を、きれいな絶対パスにできます。
 
 !!! tip "ポイント"
-    - `canonical` は存在しないと例外、こちらは例外にならない。
-    - 保存先など「まだ無いパス」の正規化に向く。
+    - 存在する最も長い先頭部分に `canonical` を使い、残りは `lexically_normal` で整える
+    - 存在しない部分があっても、エラーにならない
+    - `..` が存在しない部分の中にあっても、文字列の上で解決される
+    - シンボリックリンクの解決は、存在する部分だけ。存在しない部分には効かない
 
 !!! info "このページを読む前に"
     [`std::filesystem`](../filesystem.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
-### std::filesystem::weakly_canonical {#weakly_canonical}
+### weakly_canonical {#weakly_canonical}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
 path weakly_canonical(const path& p);
+path weakly_canonical(const path& p, std::error_code& ec);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `p` | `const path&` | 正規化するパス |
+| `p` | `const path&` | 正規化するパス。存在しない部分があってもよい |
+| `ec` | `std::error_code&` | 失敗の理由の受け取り先 |
 
-- 戻り値: 正規化したパス
-- 計算量: パスの深さに比例
+動き方は 2 段階です。まず、パスを先頭から調べて、実在する最も長い部分を見つけます。その部分に `canonical` と同じ処理（絶対パス化、`..` の解決、リンクの解決）を行います。残りの、まだ存在しない部分は、文字列の上で `lexically_normal` のように整えて、後ろにつなげます。
+
+そのため、<strong>存在しない部分にあるシンボリックリンクは解決されません</strong>。当たり前ですが、存在しないものはリンクではないからです。
+
+`canonical` が使えない場面（ログ出力、これから作るファイルの重複チェック、保存先が許可された範囲内かの検査）で、代わりに使います。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <filesystem>
@@ -45,32 +58,43 @@ path weakly_canonical(const path& p);
 
 int main() {
   namespace fs = std::filesystem;
-  auto p = fs::weakly_canonical("no_such_dir/../save.dat");   // 存在しなくても OK
-  std::println("{}", p.filename().generic_string());
+  fs::create_directory("saves");
+
+  // saves は存在するが、slot1 以降は存在しない
+  fs::path p = fs::weakly_canonical("saves/slot1/../slot2/save.dat");
+  std::println("絶対パス: {}", p.is_absolute());
+
+  // カレント ディレクトリからの相対にして確かめる
+  fs::path rel = fs::relative(p, fs::current_path());
+  std::println("{}", rel.generic_string());
 }
 ```
 
 ```text title="実行結果"
-save.dat
+絶対パス: true
+saves/slot2/save.dat
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| まだ無い保存先を絶対パスにする | `fs::weakly_canonical(save_dir / name)` |
+保存先の検査に使います。ユーザーが入力した保存先が、ゲームの保存フォルダーの外に出ていないか（`../../Windows` のような指定）を調べるには、まず `weakly_canonical` で正規化し、保存フォルダーの正規化した結果と、先頭が一致するかを比べます。正規化しないまま文字列で比べると、`..` で簡単にすり抜けられます。
+
+もう 1 つは、ファイルをこれから作るときの、ログの出力です。「どこに書き込むつもりか」を絶対パスで残せます。
 
 ## よくあるミス
 
-??? failure "同じファイルかの比較に使う"
-    存在しない部分は字句的な整理だけなので、同一性の判定は `equivalent` を使います。
+??? failure "文字列の `..` 処理だけで、安全だと思い込む"
+    存在する部分にシンボリックリンクがあると、見た目と実際の場所が違うことがあります。保存先の検査には、`weakly_canonical` で実際の場所に直してから比べます。
+
+??? failure "存在する部分だけが正規化されることを知らない"
+    存在しない部分は、大文字小文字の揃え方も、リンクの解決もされません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`canonical`](canonical.md) | 存在が必要 |
-| [`absolute`](absolute.md) | 絶対パスにするだけ |
+| [`canonical`](canonical.md) | 全部が実在している必要がある版 |
+| [`absolute`](absolute.md) | 文字列の上で絶対パスにするだけ |
 
 ## コンパイラ対応
 
@@ -79,9 +103,9 @@ C++17 の機能です。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 存在しなくても正規化できる
-    - [x] canonical の緩い版
-    - [x] 保存先の整形に
+    - [x] 存在しない部分があってもよい `canonical`
+    - [x] 存在する部分だけ実際に解決する
+    - [x] 保存先の検査に向く
 
 ## 関連ページ
 

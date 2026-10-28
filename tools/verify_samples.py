@@ -87,7 +87,7 @@ def run_one(job):
         errs = [l for l in msg.splitlines() if 'error' in l.lower()][:3]
         return rel, idx, 'compile', ' / '.join(errs) or msg[:200]
     try:
-        rp = subprocess.run([exe], capture_output=True, cwd=d, timeout=20)
+        rp = subprocess.run([exe], capture_output=True, cwd=d, timeout=20, stdin=subprocess.DEVNULL)
     except subprocess.TimeoutExpired:
         return rel, idx, 'timeout', ''
     got = rp.stdout.decode('utf-8', 'replace').replace('\r\n', '\n').rstrip()
@@ -110,9 +110,16 @@ def main():
     jobs = []
     for p in files:
         s = open(p, encoding='utf-8').read()
+        blocks = [(m.start(), m.group(1)) for m in re.finditer(r'```cpp\n((?:(?!```).)*?)```', s, re.S)]
         for i, m in enumerate(SAMPLE.finditer(s)):
             code, exp = m.group(1), m.group(2)
             if 'int main' in code:
+                if '#include' not in code:
+                    # 解説のために分けた続きのコード: 直前の #include があるブロックから連結する
+                    prev = [b for b in blocks if b[0] < m.start()]
+                    j = max((k for k, b in enumerate(prev) if '#include' in b[1] and 'int main' not in b[1]), default=None)
+                    if j is not None:
+                        code = '\n'.join(b[1] for b in prev[j:] if 'int main' not in b[1]) + '\n' + code
                 jobs.append((p, i, code, exp, env, work))
     print('files', len(files), 'samples', len(jobs), flush=True)
     stats = {}

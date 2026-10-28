@@ -15,11 +15,15 @@ tags:
 `#include <filesystem>`
 </div>
 
-パスがフォルダかを調べたい。フォルダとファイルでは、扱いが違います。ファイルは開いて読めますが、フォルダは開いても読めません。`std::filesystem::is_directory` は、そのパスがフォルダかを調べる関数です。存在しなければ `false` を返します。
+ユーザーが指定したパスが、フォルダーなのか、ファイルなのか。ドラッグ アンド ドロップされたものがフォルダーなら、中身を取り込む。ファイルなら、そのまま開く。この分岐に使うのが、`std::filesystem::is_directory` です。
+
+<strong>パスがフォルダー</strong>であるかを調べます。
 
 !!! tip "ポイント"
-    - 存在しなければ `false`。
-    - ファイルかは [`is_regular_file`](is_regular_file.md)。
+    - `is_directory(p)` は、`p` がフォルダーなら `true`
+    - 存在しないパスは `false`。例外にはならない
+    - リンクは先をたどって判定する。フォルダーを指すシンボリックリンクは `true`
+    - ファイルの判定は `is_regular_file`。ファイルでなければフォルダー、とは限らない
 
 !!! info "このページを読む前に"
     [`std::filesystem`](../filesystem.md) の概要を先に読むと分かりやすいです。
@@ -28,11 +32,27 @@ tags:
 
 ### is_directory {#is_directory}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
 bool is_directory(const path& p);
+bool is_directory(const path& p, std::error_code& ec) noexcept;
+bool is_directory(file_status s) noexcept;
 ```
 
-- フォルダなら `true`
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `p` | `const path&` | 調べるパス |
+| `s` | `file_status` | すでに取得した状態 |
+| `ec` | `std::error_code&` | 失敗の理由の受け取り先 |
+
+`status(p).type() == file_type::directory` と同じです。存在しない、通常のファイル、デバイスなどのときは、`false` を返します。
+
+ファイルかフォルダーかの 2 択で考えがちですが、現実のパスには、存在しない、デバイス、ソケット、といった第 3 の状態があります。`!is_directory(p)` を「ファイルである」と読み替えると、存在しないパスも「ファイル」になってしまいます。ファイルかどうかは、`is_regular_file` で直接調べます。
+
+フォルダーを走査している途中の項目には、`directory_entry::is_directory()` を使うほうが速くなります。走査のときに得た情報を、そのまま使えるからです。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <filesystem>
@@ -41,39 +61,43 @@ bool is_directory(const path& p);
 
 int main() {
   namespace fs = std::filesystem;
-  fs::create_directories("music");
-  std::ofstream("readme.txt");
-  std::println("{} {}", fs::is_directory("music"), fs::is_regular_file("music"));
-  std::println("{} {}", fs::is_directory("readme.txt"), fs::is_regular_file("readme.txt"));
+  std::ofstream("file.txt") << "x";
+  fs::create_directory("folder");
+
+  for (const char* name : {"file.txt", "folder", "missing"}) {
+    std::println("{}: フォルダー={} ファイル={}", name,
+                 fs::is_directory(name), fs::is_regular_file(name));
+  }
 }
 ```
 
 ```text title="実行結果"
-true false
-false true
+file.txt: フォルダー=false ファイル=true
+folder: フォルダー=true ファイル=false
+missing: フォルダー=false ファイル=false
 ```
 
 ## ゲームでの使いどころ
 
-ドラッグ＆ドロップされたものが、ファイルかフォルダかで処理を分けます。ファイルなら 1 つ読み込み、フォルダなら中のファイルをすべて探索する、といった流れです。
+ドラッグ アンド ドロップされたパスの処理や、コマンドライン引数でフォルダーが渡されたときの分岐に使います。フォルダーなら中のファイルを走査して取り込み、ファイルなら 1 つだけ取り込む、という流れです。
 
-フォルダを作る前に同名のものがすでにあるかを調べる用途もあります。名前が同じ「ファイル」があると、フォルダを作れません。`exists` だけでは、種類が分かりません。
-
-通常のファイルかを調べるなら、`is_regular_file` です。存在しない場合も `false` なので、「存在しない」と「ファイルである」を区別したいときは、`exists` も併せて呼びます。
+保存先のフォルダーが存在するかの確認にも使います。`create_directories` を呼ぶ前に確認すれば、無駄な処理を避けられます（`create_directories` は、すでにあれば何もせず `false` を返すので、確認を省くこともできます）。
 
 ## よくあるミス
 
-??? failure "シンボリックリンクの扱い"
-    リンク先がフォルダなら `true` です。リンクそのものを調べるには `symlink_status` を使います。
+??? failure "`!is_directory` を「ファイルである」と読む"
+    存在しないパスも `!is_directory` になります。ファイルかどうかは `is_regular_file` で調べます。
 
-??? failure "存在しないパスも `false` になる"
-    `false` は、フォルダでない、または存在しない、の両方を意味します。区別したいときは `exists` も調べます。
+??? failure "走査の途中で、毎回 `is_directory(path)` を呼び、遅くなる"
+    `directory_entry` の `is_directory()` なら、走査時の情報を使えて、追加の問い合わせが減ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_regular_file`](is_regular_file.md) | ファイルか |
+| [`is_regular_file`](is_regular_file.md) | 通常のファイルか |
+| [`exists`](exists.md) | 種類を問わず、存在するか |
+| [`directory_entry`](directory_entry.md) | 走査の途中の項目。種類の判定を持っている |
 
 ## コンパイラ対応
 
@@ -82,9 +106,9 @@ C++17 の機能です。GCC 9 / Clang 9 / MSVC 19.14 以降で使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] フォルダか
-    - [x] 無ければ false
-    - [x] リンク先で判定
+    - [x] フォルダーか
+    - [x] 存在しなければ `false`
+    - [x] `!is_directory` はファイルの意味ではない
 
 ## 関連ページ
 

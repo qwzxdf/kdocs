@@ -45,7 +45,7 @@ using local_days = local_time<days>;
 
 int main() {
   using namespace std::chrono;
-  std::chrono::local_days d = 2024y / std::chrono::January / 1;
+  std::chrono::local_days d{2024y / std::chrono::January / 1};
   std::println("{}", d.time_since_epoch().count());
 }
 ```

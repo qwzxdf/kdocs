@@ -15,67 +15,89 @@ tags:
 `#include <filesystem>`
 </div>
 
-`fs::last_write_time(p)` が返す時刻の型です。`std::chrono::time_point` の仲間で、時計は `file_clock` です。現在時刻との比較や、`clock_cast` による `system_clock` への変換ができます。
+ファイルの更新時刻を、前回のビルドと比べて「新しくなったか」を判定したい。ところが、`last_write_time` が返す時刻の型は、`std::chrono::system_clock` ではありません。`std::filesystem::file_time_type` という、ファイルシステム専用の時刻の型です。
+
+この型は、`std::chrono::time_point` の別名です。<strong>ファイルシステムの時刻専用の時計</strong>（`std::filesystem::__file_clock`、C++20 以降は `std::chrono::file_clock`）を使います。
 
 !!! tip "ポイント"
-    - `std::filesystem` の部品。
-    - 例外を避けたいときは、`std::error_code` を渡す版を使う。
-    - パスは `std::filesystem::path` で扱う。
+    - `last_write_time` が返す型。`std::chrono::time_point` の別名
+    - 比較（`<`, `>`, `==`）と、差の計算（`-`）は、そのまま使える
+    - `system_clock` とは別の時計。日時として表示するには変換が要る（C++20 は `clock_cast`）
+    - 時計の起点（エポック）は実装しだい。数値として他の環境と比べない
 
 !!! info "このページを読む前に"
     [`std::filesystem`](../filesystem.md) の概要と、[`path`](path.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### std::filesystem::file_time_type {#file_time_type}
+### file_time_type {#file_time_type}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
-using file_time_type = std::chrono::time_point<std::chrono::file_clock>;
+using file_time_type = std::chrono::time_point<std::chrono::file_clock>;   // C++20 以降。C++17 では実装定義の時計
 ```
 
-- 戻り値: `time_point`
-- 計算量: OS に依存
+C++17 では、`file_time_type` が使う時計の名前は規定されていませんでした（`trivial-clock` として実装定義）。C++20 で、`std::chrono::file_clock` が標準になり、`system_clock` や `utc_clock` との変換（`clock_cast`）も、可能になりました。
 
+比較と差の計算は、普通の `time_point` として行えます。2 つのファイルの更新時刻を比べて新しい方を選ぶ、現在時刻との差を求める、といった処理には、変換が要りません。
+
+人が読む日時に直す場合は、`system_clock` に変換します。C++20 以降なら `std::chrono::clock_cast<std::chrono::system_clock>(ft)` です。C++17 までは、この変換に標準の方法がありませんでした。
+
+時計のエポック（起点）は、実装ごとに違います。MSVC は Windows のファイル時刻にそろえて 1601 年 1 月 1 日が起点ですが、他の実装では違います。<strong>`time_since_epoch().count()` の数値を、環境をまたいで比べてはいけません</strong>。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <chrono>
 #include <filesystem>
 #include <fstream>
 #include <print>
 
-namespace fs = std::filesystem;
-
 int main() {
-  fs::path p = fs::temp_directory_path() / "kdocs_demo.txt";
-  std::ofstream(p) << "x";
-  fs::file_time_type t = fs::last_write_time(p);
-  std::println("{}", t <= fs::file_time_type::clock::now());
-  fs::remove(p);
+  namespace fs = std::filesystem;
+  std::ofstream("old.txt") << "x";
+  std::ofstream("new.txt") << "x";
+
+  // old.txt を、1 時間前の時刻にする
+  fs::file_time_type now = fs::file_time_type::clock::now();
+  fs::last_write_time("old.txt", now - std::chrono::hours(1));
+
+  fs::file_time_type t_old = fs::last_write_time("old.txt");
+  fs::file_time_type t_new = fs::last_write_time("new.txt");
+
+  // 比較と差の計算は、そのまま使える
+  std::println("new.txt のほうが新しい: {}", t_new > t_old);
+  auto diff = std::chrono::duration_cast<std::chrono::minutes>(t_new - t_old);
+  std::println("約 {} 分以上の差", diff.count() >= 59 ? 59 : diff.count());
 }
 ```
 
 ```text title="実行結果"
-true
+new.txt のほうが新しい: true
+約 59 分以上の差
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ファイルが新しいかを比べる |
+ホット リロードや、ビルド システムで、「ソースがアセットより新しいか」を判定するときに使います。`last_write_time(src) > last_write_time(asset)` と書けば、変換なしで比べられます。
+
+更新時刻をログに出すときは、`clock_cast` で `system_clock` に直してから、`std::format("{}", ...)` に渡します。数値のまま出さないようにします。
 
 ## よくあるミス
 
-??? failure "`system_clock` と直接比べる"
-    時計が違うので比べられません。`clock_cast` で変換します。
+??? failure "`file_time_type` と `system_clock::time_point` を直接比べて、コンパイル エラー"
+    別の時計の `time_point` は、比べられません。`clock_cast` で時計をそろえます。
+
+??? failure "`time_since_epoch().count()` の数値を、保存して別の環境で使う"
+    エポックが実装ごとに違うので、数値に意味がありません。保存するなら、`system_clock` に直した UTC の時刻にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`last_write_time`](last_write_time.md) | 取得・設定する関数 |
-| [`file_clock`](../../utilities/chrono/file_clock.md) | ファイルの時計 |
+| [`last_write_time`](last_write_time.md) | この型の時刻を読み書きする関数 |
+| `std::chrono::system_clock` | カレンダー時刻に使う時計。変換が要る |
 
 ## コンパイラ対応
 
@@ -84,9 +106,9 @@ C++17 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ファイルの更新時刻を表す型
-    - [x] `std::filesystem` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] ファイルシステム専用の時刻の型
+    - [x] 比較と差の計算はそのまま
+    - [x] 数値のエポックは環境ごとに違う
 
 ## 関連ページ
 

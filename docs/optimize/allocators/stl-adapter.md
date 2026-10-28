@@ -7,7 +7,7 @@ tags:
 
 # STL との接続（アロケータ対応）
 
-自作のアロケータを作っても**`std::vector` や `std::string` などの標準のコンテナ**がそれを使ってくれなければ、役に立ちません。C++ にはコンテナにアロケータを渡す仕組みが 2 つあります。① 型にアロケータを持たせる（古くからある方式：`std::allocator<T>` の置き換え）、② 実行時に差し替える（C++17 の `std::pmr`）です。このページは両方の方法と使い分けをまとめます（標準のアロケータ自体は [std::allocator](../../stl/memory/allocator.md)、[std::pmr](../../stl/memory/pmr.md)）。
+自作のアロケータを作っても<strong>`std::vector` や `std::string` などの標準のコンテナ</strong>がそれを使ってくれなければ、役に立ちません。C++ にはコンテナにアロケータを渡す仕組みが 2 つあります。① 型にアロケータを持たせる（古くからある方式：`std::allocator<T>` の置き換え）、② 実行時に差し替える（C++17 の `std::pmr`）です。このページは両方の方法と使い分けをまとめます（標準のアロケータ自体は [std::allocator](../../stl/memory/allocator.md)、[std::pmr](../../stl/memory/pmr.md)）。
 
 !!! tip "ポイント"
     - コンテナは<strong>アロケータをテンプレート引数</strong>に持つ：<strong>`std::vector<int, MyAllocator<int>>`</strong>。

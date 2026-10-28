@@ -51,7 +51,7 @@ template <class MoneyT>
 
 int main() {
   std::cout.imbue(std::locale::classic());
-  std::cout << std::put_money(12345L) << '\n';
+  std::cout << std::put_money(12345.0L) << '\n';
 }
 ```
 

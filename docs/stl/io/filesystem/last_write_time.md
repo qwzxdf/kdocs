@@ -15,11 +15,13 @@ tags:
 `#include <filesystem>`
 </div>
 
-アセットのファイルが更新されたら、ゲームを再起動せずに読み直したい（ホットリロード）。そのためには、ファイルの最終更新日時が要ります。`std::filesystem::last_write_time` は、ファイルの最終更新日時を返す関数です。前回の値と比べるだけなら、変換は不要です。
+アセットを最後に更新した時刻を調べて、ビルドの必要があるかを判断したい。セーブ データの一覧を、新しい順に並べたい。ファイルの「最後に書き込まれた時刻」を取得する関数が `std::filesystem::last_write_time` で、同じ名前で時刻の設定もできます。
 
 !!! tip "ポイント"
-    - 戻り値は `file_time_type`（[`file_clock`](../../utilities/chrono/file_clock.md) の時点）。
-    - 前回の値と比べるだけなら、変換不要。
+    - 引数を 1 つ渡すと取得、時刻も渡すと設定
+    - 時刻の型は [`file_time_type`](file_time_type.md)。`system_clock` とは別の時計
+    - 新しさの比較（`<`、`>`）や、時間差の計算は、そのまま行える
+    - 人が読む日時に直すには、`clock_cast`（C++20）で `system_clock` に変換する
 
 !!! info "このページを読む前に"
     [`std::filesystem`](../filesystem.md) の概要を先に読むと分かりやすいです。
@@ -28,11 +30,28 @@ tags:
 
 ### last_write_time {#last_write_time}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
 file_time_type last_write_time(const path& p);
+file_time_type last_write_time(const path& p, std::error_code& ec) noexcept;
+void last_write_time(const path& p, file_time_type new_time);
+void last_write_time(const path& p, file_time_type new_time, std::error_code& ec) noexcept;
 ```
 
-- 最終更新日時。前回と比べて変わっていたら読み込み直す（ホットリロード）のに使えます
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `p` | `const path&` | 対象のファイルまたはフォルダー |
+| `new_time` | `file_time_type` | 設定する時刻 |
+| `ec` | `std::error_code&` | 失敗の理由の受け取り先 |
+
+取得する版は、`file_time_type` を返します。ファイルが存在しない、権限がない、といったときは、例外（または `ec`）です。
+
+設定する版は、ファイルの内容を変えずに、更新時刻だけを書き換えます。ビルド システムが、「この出力は、この入力より新しい」と見せかけたいときや、テストで古いファイルを用意したいときに使います。
+
+返ってくる時刻の精度は、ファイルシステムによって違います（NTFS は 100 ナノ秒、FAT は 2 秒など）。書き込んだ時刻と、すぐ読み取った時刻が、丸められて少し違うことがあります。<strong>等しいかどうかで比べず</strong>、大小や、ある幅の差で比べます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <chrono>
@@ -42,38 +61,49 @@ file_time_type last_write_time(const path& p);
 
 int main() {
   namespace fs = std::filesystem;
-  std::ofstream("shader.txt") << "v1";
-  auto before = fs::last_write_time("shader.txt");
-  fs::last_write_time("shader.txt", before + std::chrono::seconds(5));  // 書き換えたとする
-  std::println("更新された？ {}", fs::last_write_time("shader.txt") != before);
+  std::ofstream("shader.hlsl") << "x";
+  std::ofstream("shader.cso") << "x";
+
+  // ソース（hlsl）のほうを新しい時刻にして、「再コンパイルが必要」を作る
+  auto now = fs::file_time_type::clock::now();
+  fs::last_write_time("shader.cso", now - std::chrono::hours(2));
+  fs::last_write_time("shader.hlsl", now);
+
+  bool need_rebuild = fs::last_write_time("shader.hlsl") > fs::last_write_time("shader.cso");
+  std::println("再コンパイルが必要: {}", need_rebuild);
+
+  // 出力のほうを新しくすると、不要になる
+  fs::last_write_time("shader.cso", now + std::chrono::minutes(1));
+  need_rebuild = fs::last_write_time("shader.hlsl") > fs::last_write_time("shader.cso");
+  std::println("更新後は不要: {}", !need_rebuild);
 }
 ```
 
 ```text title="実行結果"
-更新された？ true
+再コンパイルが必要: true
+更新後は不要: true
 ```
 
 ## ゲームでの使いどころ
 
-ホットリロードの実装に使います。アセットを読み込んだ時点の更新日時を覚えておき、毎秒1回程度 `last_write_time` を取って、変わっていれば読み直します。毎フレーム調べると、ファイルシステムへの問い合わせが多くなるので、間隔をあけます。
+ビルド パイプラインやホット リロードで、「元のファイルが、生成物より新しいか」を判定します。シェーダー、テクスチャ、モデルを、変更されたものだけ再変換する仕組みの基本です。
 
-セーブデータの新しさの比較にも使えます。2 つのセーブデータの更新日時を比べて、新しいほうを選ぶ、という処理です。
-
-戻り値は `file_time_type`（`file_clock` の時点）です。日時として表示するには、`system_clock` の時点に変換します。C++20 では `clock_cast` を使います。
+ゲーム内のセーブ データ一覧では、各ファイルの更新時刻を取得して、新しい順に並べ、「最終プレイ日時」として表示します。表示するときは、`system_clock` に直してから書式化します。
 
 ## よくあるミス
 
-??? failure "system_clock と直接比べる"
-    型が違います。`clock_cast` で変換します。
+??? failure "`==` で更新時刻の一致を判定して、環境によって外れる"
+    精度や丸めの違いで、書いた値と読んだ値がぴったり一致するとは限りません。大小で比べます。
 
-??? failure "毎フレーム呼んで重くなる"
-    ファイルシステムへの問い合わせは、フレームごとに行うと負担になります。1 秒に 1 回程度に間引きます。
+??? failure "`file_time_type` を `system_clock::time_point` と直接比べて、コンパイル エラー"
+    時計が違うので、そのままでは比べられません。`clock_cast` で変換します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`file_clock`](../../utilities/chrono/file_clock.md) | 時計の型 |
+| [`file_time_type`](file_time_type.md) | この関数が使う時刻の型 |
+| [`directory_entry`](directory_entry.md) | 走査の途中で更新時刻を持っている |
 
 ## コンパイラ対応
 
@@ -82,9 +112,9 @@ C++17 の機能です。GCC 9 / Clang 9 / MSVC 19.14 以降で使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 最終更新日時
-    - [x] 前回と比べて更新を検出
-    - [x] 日時にするなら clock_cast
+    - [x] 最後に書き込まれた時刻の取得と設定
+    - [x] 型は `file_time_type`
+    - [x] `==` ではなく大小で比べる
 
 ## 関連ページ
 

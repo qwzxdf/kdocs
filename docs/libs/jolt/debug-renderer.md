@@ -46,7 +46,7 @@ tags:
 
 ## DebugRendererSimple を実装する
 
-**`DebugRendererSimple`**は 「線と文字だけ描ければよい」簡易版です。これを継承して自分の描画につなぎます。
+<strong>`DebugRendererSimple`</strong>は 「線と文字だけ描ければよい」簡易版です。これを継承して自分の描画につなぎます。
 
 ```cpp
 #ifdef JPH_DEBUG_RENDERER

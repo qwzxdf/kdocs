@@ -155,9 +155,13 @@ int main() {
 }
 ```
 
-```text title="実行結果"
-10 バイト読んだ
+```text title="実行結果（Windows）"
+12 バイト読んだ
 ```
+
+文字は 8 文字と改行 2 つで 10 バイトに見えますが、Windows では、テキスト モードで書いた改行 `
+` が 2 バイト（`
+`）でファイルに入るため、12 になります。Linux や macOS では 10 です。バイト数を数えるプログラムは、この違いで結果が変わります。
 
 ### std::filesystem <span class="ver ver-17">C++17</span> {#stdfilesystem data-toc-label="std::filesystem"}
 

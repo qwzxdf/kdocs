@@ -14,7 +14,7 @@ tags:
 `#include <numeric>`
 </div>
 
-`std::inclusive_scan` は、**先頭から各位置までの合計（その位置を含む）**を作る関数で、[`partial_sum`](partial_sum.md) の C++17 版です。足し算の順序を問わないので、並列に実行できます。実行ポリシーを渡すと並列になります。
+`std::inclusive_scan` は、<strong>先頭から各位置までの合計（その位置を含む）</strong>を作る関数で、[`partial_sum`](partial_sum.md) の C++17 版です。足し算の順序を問わないので、並列に実行できます。実行ポリシーを渡すと並列になります。
 
 !!! tip "ポイント"
     - 結果は `partial_sum` と同じ。`{1, 2, 3, 4}` → `{1, 3, 6, 10}`。

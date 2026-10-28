@@ -15,7 +15,7 @@ tags:
 `#include <coroutine>`
 </div>
 
-`std::coroutine_handle<Promise>` は、**一時停止しているコルーチンを再開したり破棄したりするための「取っ手」**です。`resume()` で続きを実行し、`done()` で終わったかを調べ、`destroy()` で後片付けします。コルーチンを自作する（`Task` のような型を作る）ときに必要になります。
+`std::coroutine_handle<Promise>` は、<strong>一時停止しているコルーチンを再開したり破棄したりするための「取っ手」</strong>です。`resume()` で続きを実行し、`done()` で終わったかを調べ、`destroy()` で後片付けします。コルーチンを自作する（`Task` のような型を作る）ときに必要になります。
 
 !!! tip "ポイント"
     - `handle.resume()` で、次の一時停止か終了まで進める。
