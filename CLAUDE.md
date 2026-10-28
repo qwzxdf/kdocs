@@ -19,6 +19,26 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
 - 検索は Material の search プラグインを使わず、自前（`hooks/searchindex.py` がビルド時に `search/meta.json` と `search/body.*.json` を作り、`docs/javascripts/search.js` が部分一致で走査する）。Pagefind は日本語の語分割が合わず（「コンストラクタ」が 0 件）、見送った
 - プレビューは `mkdocs serve`（`serve.bat`、`http://127.0.0.1:8123/kdocs/`）。起動中のサーバーは止めない。アプリ内ブラウザで見てよい
 
+## 拡張機能（K-HLSL・K-CppAssist）の版を上げるとき
+
+ソース（`k-hlsl/` `k-cppassist/`）の版を上げたら、同じ作業の中で、次の 5 か所を**まとめて**直す。ダウンロードのリンクだけ古い版のまま残ることが、実際に起きた。
+
+1. `src/*/source.extension.vsixmanifest` の `Identity` の `Version`
+2. ビルドした `.vsix` を `docs/khlsl/`（`docs/kcppassist/`）に `K-HLSL-<版>.vsix` の名前で置き、**古い版の `.vsix` は `git rm` する**。ビルドは `k-hlsl/build.ps1`（`k-cppassist/build.ps1`）で、できた物は `bin/` に出る
+3. 紹介ページ（`docs/khlsl/index.md` `docs/kcppassist/index.md`）の「ダウンロード」にある `href` と、ボタンの文字（版と、`.vsix` のサイズ）
+4. 同じページの変更履歴の表に、新しい版の行を足す
+5. `ホーム` や他のページに版を書いている所がないか、`grep -rn "K-HLSL-[0-9]" docs` と `grep -rn "K-CppAssist-[0-9]" docs` で探す
+
+push の前に、次の 3 つが同じ版になっていることを確かめる。1 つでも違えば直してから push する。
+
+```
+grep -o 'Identity [^>]*' k-hlsl/src/KHlsl.Vsix/source.extension.vsixmanifest | grep -o ' Version="[^"]*"'
+ls docs/khlsl/*.vsix
+grep -n "vsix" docs/khlsl/index.md
+```
+
+変更履歴の表だけ先に書いて、`.vsix` とリンクを後回しにしない。`.vsix` を作れない（ビルドが通らない）ときは、変更履歴の行も足さず、ユーザーに伝える。
+
 ## 文章の書き方（全ページ共通）
 
 人間が書いた日本語の技術記事（@IT、ufcpp、Qiita、Zenn など）の文体に寄せる。AI っぽい、形式的すぎる、と言われた所は、次のルールで直す。見本は `docs/directx/dx12/factory-device.md`（API ページ）と `docs/design/patterns/state-machine.md`（概念ページ）。

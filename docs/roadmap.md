@@ -71,7 +71,6 @@ title: 学習ロードマップ
 | 外部ライブラリが入らない | [外部ライブラリの入れ方](vs/libraries.md) |
 | ゲームが重い | [計測（プロファイリング）](optimize/measure.md)、[Tracy](vs/tracy.md) |
 | 言葉の意味が分からない | [用語集](glossary.md) |
-| 「どれを使えばいい？」 | [よくある質問](faq.md) |
 
 ## これだけ覚える {#summary}
 
