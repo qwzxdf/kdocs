@@ -15,77 +15,89 @@ tags:
 `#include <ranges>`
 </div>
 
-`ranges::data` の const 版です。読み取り専用で C の API に渡すときに使います。
+範囲（ranges）のアルゴリズムは、配列、コンテナ、自作の範囲、ビューのどれでも受け取れます。それぞれの範囲から連続した要素の先頭への const ポインターを取り出す書き方を、1 つにそろえたのが `std::ranges::cdata` です。メンバー関数 `v.cdata()` と、非メンバー関数 `cdata(v)` のどちらがあっても、同じ書き方で呼べます。
 
 !!! tip "ポイント"
-    - 配列・コンテナ・view に同じ書き方で使える。
-    - 関数ではなく、関数オブジェクト（カスタマイズポイント）。
-    - 使えない型には、コンパイルエラーになる。
+    - `std::ranges::cdata(r)` は範囲 `r` の先頭への const ポインター
+    - メンバー関数と非メンバー関数のどちらでも自動で選ばれる
+    - 配列や、独自の範囲型にも使える
+    - カスタマイズ ポイント オブジェクトなので、名前空間の探索の影響を受けない
 
 !!! info "このページを読む前に"
-    [`std::ranges::begin`](begin.md) を先に読んでください。
+    [範囲（ranges）の基礎](../../../basics/ranges.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::ranges::cdata {#cdata}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-inline constexpr /* カスタマイズポイント */ ranges::cdata;
+inline constexpr /* カスタマイズ ポイント オブジェクト */ cdata;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `t` | 範囲 | 対象の範囲 |
+| `r` | 範囲 | 対象の範囲 |
 
-- 戻り値: const の要素へのポインタ
-- 計算量: 定数
+`std::ranges::cdata(r)` は、`r` の型に合わせて、適した方法で連続した要素の先頭への const ポインターを取り出します。メンバー関数があればそれを、なければ ADL で見つかる非メンバー関数を呼びます。配列には専用の実装が使われます。
 
+カスタマイズ ポイント オブジェクトは、関数ではなく関数オブジェクトです。そのため、名前空間の探索（ADL）によって、意図しない関数が選ばれる事故を避けられます。アルゴリズムの内部は、この方法で範囲を扱います。
+
+条件を満たさない型（要素にアクセスできない型）に呼ぶと、コンパイルエラーです。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <iterator>
 #include <print>
 #include <ranges>
+#include <type_traits>
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3};
-  std::println("{}", *std::ranges::cdata(v));
+  const std::vector<int> v = {10, 20, 30};
+  std::println("先頭への const ポインター = {}", std::is_same_v<decltype(std::ranges::cdata(v)), const int*>);
 }
 ```
 
 ```text title="実行結果"
-1
+先頭への const ポインター = true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ジェネリックなコードで、範囲を扱う |
+範囲を受け取る自作のテンプレートで、先頭や要素数を取り出すときに使います。
+
+```cpp
+template <std::ranges::range R>
+void Dump(R&& r) {
+  for (auto it = std::ranges::begin(r); it != std::ranges::end(r); ++it) Print(*it);
+}
+```
 
 ## よくあるミス
 
-??? failure "`std::` の同名の関数と混ぜる"
-    `std::cdata` とは別物です。`ranges::` 版は、範囲に必要な条件を満たさない型を早めに弾いてくれます。
+??? failure "範囲でない型に呼んでコンパイルエラーになる"
+    `std::ranges::range` で先に確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`data`](data.md) | 対になる関数 |
-| [`std::ranges::begin`](begin.md) | 先頭 |
+| [`begin`](../iterator/begin.md) | 従来の `std::begin` |
+| [`range`](range.md) | 範囲のコンセプト |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.10 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 範囲の要素が並ぶ先頭への、const のポインタを返す
-    - [x] 配列・コンテナ・view に同じ書き方で使える
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::ranges::cdata(r)` は範囲の先頭への const ポインター
+    - [x] メンバーでも非メンバーでも使える
+    - [x] 配列や自作の範囲にも使える
 
 ## 関連ページ
 

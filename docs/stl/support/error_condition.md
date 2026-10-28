@@ -15,76 +15,82 @@ tags:
 `#include <system_error>`
 </div>
 
-`std::error_condition` は、**環境に依存しない「エラーの種類」**を表すクラスです。`error_code` は OS ごとに値が違いますが、`error_condition` は共通の名前（`errc`）で表します。`ec == condition` と書くと、環境の違いを吸収して比べてくれます。
+`std::error_code` は、OS ごとの具体的なエラーです。同じ「ファイルがない」でも、Windows と Linux では番号が違います。`std::error_condition` は、<strong>環境によらない、エラーの種類</strong>を表します。`error_code` を `error_condition` と比べると、環境の違いを吸収できます。
 
 !!! tip "ポイント"
-    - `std::errc` から暗黙に作れる。
-    - `error_code` と `error_condition` を `==` で比べると、環境の差が吸収される。
-    - 自分で作る機会は少ない。
+    - `std::error_condition` はエラーの種類を表す（環境によらない）
+    - `std::errc` の値から暗黙に作れる
+    - `error_code == error_condition` で、種類が一致するか判定できる
+    - 値はカテゴリーとセット
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::error_condition {#error_condition}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 class error_condition {
  public:
   int value() const noexcept;
-  const error_category& category() const noexcept;
-  explicit operator bool() const noexcept;
+  const std::error_category& category() const noexcept;
 };
 ```
 
-- 戻り値: （クラス）
-- 計算量: O(1)
+`error_code` は「何が起きたか（OS が報告した番号）」、`error_condition` は「それは移植性のある種類のどれにあたるか」を表します。
+
+`ec == std::errc::no_such_file_or_directory` と書くと、`std::errc` から `error_condition` が作られ、`error_code` の持つカテゴリーが、その種類に一致するかを判定してくれます。環境ごとの違いは、カテゴリーが吸収します。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <system_error>
 
 int main() {
-  std::error_condition cond = std::errc::permission_denied;
-  std::error_code ec = std::make_error_code(std::errc::permission_denied);
-  std::println("{} {}", cond == std::errc::permission_denied, ec == cond);
+  const std::error_condition cond = std::errc::timed_out;
+  const std::error_code ec = std::make_error_code(std::errc::timed_out);
+  std::println("種類が一致: {}", ec == cond);
 }
 ```
 
 ```text title="実行結果"
-true true
+種類が一致: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| OS の違いを意識せずに、エラーの種類で分岐する | `if (ec == std::errc::permission_denied)` |
+環境によらず、エラーの種類で処理を分けます。
+
+```cpp
+if (ec == std::errc::permission_denied) { ShowMessage("権限がありません"); }
+```
 
 ## よくあるミス
 
-??? failure "error_code の value を直接 switch する"
-    OS ごとに値が違います。条件と比べます。
+??? failure "`error_code` どうしを比べて、環境で結果が違う"
+    種類で判断するなら `error_condition` と比べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`error_code`](error_code.md) | 環境に依存する側 |
-| [`errc`](errc.md) | 種類の名前 |
+| [`errc`](errc.md) | エラーの種類の列挙型 |
+| [`error_code`](error_code.md) | 具体的なエラー |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++11 から使えます。`<system_error>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 環境に依存しない種類
-    - [x] error_code と比べる
-    - [x] 普段は errc を使う
+    - [x] `error_condition` は環境によらないエラーの種類
+    - [x] `error_code` と `==` で比べる
+    - [x] `errc` から作れる
 
 ## 関連ページ
 

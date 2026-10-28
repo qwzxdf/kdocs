@@ -15,72 +15,80 @@ tags:
 `#include <cstddef>`
 </div>
 
-`std::size_t` は、**メモリ上の大きさや、要素の個数を表す、符号なしの整数型**です。`sizeof` の結果、`vector::size()` の戻り値がこの型です。64 ビット環境では 8 バイト（64 ビット）です。符号なしなので、引き算で 0 を下回ると巨大な値になる事故に注意します。
+型の大きさや、ポインターの扱いは環境で違います。`std::size_t` は、<strong>メモリ上のサイズや添字を表す符号なし整数型</strong>です。環境に合わせた正しい幅になるので、`int` で代用するより安全です。
 
 !!! tip "ポイント"
-    - `sizeof(型)` の結果、配列の添字、`size()` の戻り値は `size_t`。
-    - 符号なし。`size() - 1` は 0 個のとき巨大な値になる。
-    - 符号つきが欲しいときは [`std::ptrdiff_t`](ptrdiff_t.md)（や `ssize`）。
+    - `std::size_t` はメモリ上のサイズや添字を表す符号なし整数型
+    - `<cstddef>` で宣言される
+    - 環境（32 ビット / 64 ビット）に応じて幅が変わる
+    - `int` で代用しないのが安全
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::size_t {#size_t}
 
+<span class="ver ver-98">C++98</span>
+
 ```cpp
-using size_t = /* 符号なし整数 */;
+using size_t = /* 実装定義 */;
 ```
 
-- 戻り値: （型）
-- 計算量: O(1)
+`sizeof` の結果の型で、配列の添字や、コンテナの要素数に使われます。ポインターと同じ幅（64 ビット環境では 64 ビット）になるのが一般的です。符号なしなので、`0 - 1` が巨大な値に折り返す点に注意します。
+
+ファイルやネットワークのデータ形式には、幅が環境で変わるこの型を使わず、`std::uint32_t` などの固定幅の型を使います。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <cstddef>
 #include <print>
-#include <vector>
+#include <type_traits>
 
 int main() {
-  std::vector<int> v;
-  std::size_t n = v.size();
-  std::println("{} {}", sizeof(std::size_t), n - 1 > 1000);  // 空の size() - 1 は巨大な値
+  std::println("sizeof(size_t) == sizeof(void*) : {}", sizeof(std::size_t) == sizeof(void*));
 }
 ```
 
 ```text title="実行結果"
-8 true
+sizeof(size_t) == sizeof(void*) : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| メモリの大きさ・配列の添字 | `std::size_t index = 0;` |
+配列やコンテナの添字、バイト数の計算に使います。
+
+```cpp
+for (std::size_t i = 0; i < items.size(); ++i) { /* … */ }
+```
 
 ## よくあるミス
 
-??? failure "size() - 1 の事故"
-    要素が 0 個のとき、`v.size() - 1` は巨大な値です。条件を足し算に直すか、`ssize` を使います。
+??? failure "`int` で代用して、大きなデータで桁あふれする"
+    環境に合った型を使います。
+
+??? failure "データ形式に使って、環境で互換性が崩れる"
+    固定幅の型を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`ptrdiff_t`](ptrdiff_t.md) | 符号つき |
-| [`std::ssize`](iterator/ssize.md) | 符号つきの要素数 |
+| [`std::int32_t`](../numeric/cstdint/int32_t.md) | 固定幅の整数 |
+| [`intptr_t`](../numeric/cstdint/intptr_t.md) | ポインターを保持できる整数 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 大きさ・個数を表す
-    - [x] 符号なし
-    - [x] 引き算の事故に注意
+    - [x] `std::size_t` はメモリ上のサイズや添字を表す符号なし整数型
+    - [x] 環境で幅が変わる
+    - [x] データ形式には固定幅の型を使う
 
 ## 関連ページ
 

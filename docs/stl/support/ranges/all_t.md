@@ -14,32 +14,35 @@ tags:
 `#include <ranges>`
 </div>
 
-`views::all(r)` は、範囲 `r` を view として包みます。包んだ後の型を知りたいときは、`all_t<R>` が使えます。左辺値のコンテナなら `ref_view<R>`、右辺値のコンテナなら `owning_view<R>` になります。
+範囲アダプター（`views::transform` など）は、コンテナを直接受け取らず、いったん「ビュー」に変換します。コンテナの参照を持つ軽いビューにするのが `views::all` で、その結果の型が `std::views::all_t<R>` です。
 
 !!! tip "ポイント"
-    - `views::all_t<R>` = `decltype(views::all(declval<R>()))`。
-    - 左辺値の範囲は `ref_view`、右辺値の範囲は `owning_view`、view はそのまま。
-    - テンプレートで、view の型を持つメンバを作るときに使う。
+    - `std::views::all_t<R>` は `views::all(r)` の結果の型
+    - 左辺値のコンテナは `ref_view` になる
+    - ビューはそのまま、一時のコンテナは `owning_view` になる
+    - 範囲アダプターの内部で使われる
 
 !!! info "このページを読む前に"
-    [`std::ranges::range`](range.md) を先に読んでください。
+    [範囲（ranges）の基礎](../../../basics/ranges.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::views::all_t {#all_t}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <viewable_range R>
-using views::all_t = decltype(views::all(declval<R>()));
+template <ranges::viewable_range R>
+using all_t = decltype(views::all(std::declval<R>()));
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `R` | 型 | 包む範囲の型 |
+| `R` | 範囲 | 対象の範囲の型 |
 
-- 戻り値: 包んだ view の型
-- 計算量: コンパイル時のみ
+範囲をビューに変換する `views::all` の戻り値の型です。コンテナの左辺値は、コンテナを参照する `ranges::ref_view`、一時的なコンテナは、所有権を引き取る `ranges::owning_view`、すでにビューなら、そのままの型です。
 
+ビューは、コピーが軽いことが前提の型なので、コンテナをそのまま渡さず、この変換を通します。
 
 ## 実際に動かしてみる
 
@@ -50,42 +53,41 @@ using views::all_t = decltype(views::all(declval<R>()));
 #include <vector>
 
 int main() {
-  using V = std::views::all_t<std::vector<int>&>;
-  std::println("{}", std::is_same_v<V, std::ranges::ref_view<std::vector<int>>>);
+  using Lvalue = std::views::all_t<std::vector<int>&>;
+  std::println("左辺値は ref_view: {}", std::is_same_v<Lvalue, std::ranges::ref_view<std::vector<int>>>);
 }
 ```
 
 ```text title="実行結果"
-true
+左辺値は ref_view: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | view をメンバ変数に持つクラスを書く |
+範囲アダプターを自作するときに、入力の型の計算に使います。
 
 ## よくあるミス
 
-??? failure "右辺値を渡して `ref_view` になると思う"
-    右辺値のコンテナは `owning_view` になります。
+??? failure "コンテナがコピーされると思う"
+    コンテナは参照されるだけです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`views::all`](../../algorithms/views/all.md) | view に包む関数 |
+| [`viewable_range`](viewable_range.md) | ビューにできる範囲 |
+| [`range`](range.md) | 基本の範囲 |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.10 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] views::all が返す view の型
-    - [x] `views::all_t<R>` = `decltype(views::all(declval<R>()))`
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `views::all_t<R>` は `views::all` の結果の型
+    - [x] 左辺値は `ref_view`、一時は `owning_view`
+    - [x] 範囲アダプターの内部で使われる
 
 ## 関連ページ
 

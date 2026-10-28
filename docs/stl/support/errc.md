@@ -15,72 +15,87 @@ tags:
 `#include <system_error>`
 </div>
 
-`std::errc` は、**環境に依存しないエラーの種類の名前**をまとめた列挙型です。`no_such_file_or_directory`（ファイルが無い）、`permission_denied`（権限がない）、`invalid_argument`（引数が不正）、`not_enough_memory`（メモリ不足）などがあります。`error_code` と比べて、エラーの原因で分岐します。
+システムのエラーを表す番号（`errno`）は、環境によって値が違います。`std::errc` は、<strong>移植性のあるエラーの種類</strong>を表す列挙型で、`no_such_file_or_directory`（ファイルがない）、`permission_denied`（権限がない）などがあります。
 
 !!! tip "ポイント"
-    - `ec == std::errc::no_such_file_or_directory` のように比べる。
-    - `std::make_error_code(std::errc::xxx)` でエラーコードを作れる。
-    - POSIX のエラー番号（ENOENT など）に対応している。
+    - `std::errc::no_such_file_or_directory` などの名前でエラーを表す
+    - `std::error_condition` と比べて、エラーの種類を判定する
+    - `<cerrno>` の `ENOENT` などに対応する
+    - 環境によらない名前で書ける
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::errc {#errc}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 enum class errc {
-  no_such_file_or_directory, permission_denied, invalid_argument, not_enough_memory, /* ... */
+  no_such_file_or_directory = ENOENT,
+  permission_denied = EACCES,
+  invalid_argument = EINVAL,
+  // …
 };
 ```
 
-- 戻り値: （列挙型）
-- 計算量: O(1)
+`std::errc` の値は、`std::error_code` と比べる、エラーの種類の名前として使います。たとえば、`ec == std::errc::no_such_file_or_directory` で「ファイルがない」エラーかを判定できます。
+
+`std::filesystem` の関数が返す `std::error_code` の判定に、よく使われます。値は `<cerrno>` の定数と同じ番号ですが、列挙型なので、名前で書けて、取り違えが防げます。
+
+## 実際に動かしてみる
 
 ```cpp
+#include <cerrno>
 #include <print>
 #include <system_error>
 
 int main() {
-  std::error_code ec = std::make_error_code(std::errc::invalid_argument);
-  std::println("{}", ec == std::errc::invalid_argument);
+  const std::error_code ec = std::make_error_code(std::errc::invalid_argument);
+  std::println("invalid_argument と比べて一致: {}", ec == std::errc::invalid_argument);
+  std::println("値は EINVAL と同じ        : {}", ec.value() == EINVAL);
 }
 ```
 
 ```text title="実行結果"
-true
+invalid_argument と比べて一致: true
+値は EINVAL と同じ        : true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ファイルが無いときだけデフォルト値にする | `if (ec == std::errc::no_such_file_or_directory)` |
+ファイル操作のエラーの原因で、処理を分けます。
+
+```cpp
+std::error_code ec;
+std::filesystem::remove(path, ec);
+if (ec == std::errc::no_such_file_or_directory) { /* もともとない */ }
+```
 
 ## よくあるミス
 
-??? failure "OS のエラー番号と直接比べる"
-    Windows では番号が違います。`errc` と比べます。
+??? failure "`errno` の数値を直接比べる"
+    `std::errc` の名前で比べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`error_code`](error_code.md) | 値と分類 |
-| [`error_condition`](error_condition.md) | 種類を表す |
+| [`error_code`](error_code.md) | エラーを表す値 |
+| [`error_condition`](error_condition.md) | エラーの種類 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++11 から使えます。`<system_error>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] エラーの種類の名前
-    - [x] 環境に依存しない
-    - [x] `error_code` と比べる
+    - [x] `std::errc` は移植性のあるエラーの種類
+    - [x] `error_code` と `==` で比べる
+    - [x] `errno` と同じ番号
 
 ## 関連ページ
 

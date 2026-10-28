@@ -15,74 +15,89 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::ranges::begin(r)` は、**範囲の先頭のイテレータを取る**関数オブジェクトです。コンテナの `begin()` メンバ関数、配列、`begin(r)` の自由関数のどれにも対応します。`ranges::end`、`ranges::size`、`ranges::empty` も同じ仲間です。
+範囲（ranges）のアルゴリズムは、配列、コンテナ、自作の範囲、ビューのどれでも受け取れます。それぞれの範囲から先頭を指すイテレーターを取り出す書き方を、1 つにそろえたのが `std::ranges::begin` です。メンバー関数 `v.begin()` と、非メンバー関数 `begin(v)` のどちらがあっても、同じ書き方で呼べます。
 
 !!! tip "ポイント"
-    - `std::begin` より厳密で、間違った使い方はコンパイルエラーになる。
-    - 右辺値の範囲（一時オブジェクト）には使えない（ぶら下がり防止）。
-    - 自作の範囲にも対応しやすい。
+    - `std::ranges::begin(r)` は範囲 `r` の範囲の先頭
+    - メンバー関数と非メンバー関数のどちらでも自動で選ばれる
+    - 配列や、独自の範囲型にも使える
+    - カスタマイズ ポイント オブジェクトなので、名前空間の探索の影響を受けない
 
 !!! info "このページを読む前に"
-    [テンプレートとコンセプト](../../../basics/template.md) の基本が前提です。
+    [範囲（ranges）の基礎](../../../basics/ranges.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::ranges::begin {#begin}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-inline constexpr /*unspecified*/ ranges::begin;
-inline constexpr /*unspecified*/ ranges::end;
+inline constexpr /* カスタマイズ ポイント オブジェクト */ begin;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `r` | 範囲 | 先頭・終端を取りたい範囲 |
+| `r` | 範囲 | 対象の範囲 |
 
-- 戻り値: 先頭（終端）のイテレータ
-- 計算量: O(1)
+`std::ranges::begin(r)` は、`r` の型に合わせて、適した方法で先頭を指すイテレーターを取り出します。メンバー関数があればそれを、なければ ADL で見つかる非メンバー関数を呼びます。配列には専用の実装が使われます。
+
+カスタマイズ ポイント オブジェクトは、関数ではなく関数オブジェクトです。そのため、名前空間の探索（ADL）によって、意図しない関数が選ばれる事故を避けられます。アルゴリズムの内部は、この方法で範囲を扱います。
+
+条件を満たさない型（要素にアクセスできない型）に呼ぶと、コンパイルエラーです。
+
+## 実際に動かしてみる
 
 ```cpp
+#include <iterator>
 #include <print>
 #include <ranges>
+#include <type_traits>
+#include <vector>
 
 int main() {
-  int a[] = {10, 20, 30};
-  std::println("{} {}", *std::ranges::begin(a), std::ranges::end(a) - std::ranges::begin(a));
+  const std::vector<int> v = {10, 20, 30};
+  std::println("範囲の先頭 = {}", *std::ranges::begin(v));
 }
 ```
 
 ```text title="実行結果"
-10 3
+範囲の先頭 = 10
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 自作の ranges 風アルゴリズムで先頭を取る | `auto first = std::ranges::begin(r);` |
+範囲を受け取る自作のテンプレートで、先頭や要素数を取り出すときに使います。
+
+```cpp
+template <std::ranges::range R>
+void Dump(R&& r) {
+  for (auto it = std::ranges::begin(r); it != std::ranges::end(r); ++it) Print(*it);
+}
+```
 
 ## よくあるミス
 
-??? failure "一時的な範囲に使う"
-    `std::ranges::begin(GetVector())` はコンパイルエラーです（ぶら下がりを防ぐため）。
+??? failure "範囲でない型に呼んでコンパイルエラーになる"
+    `std::ranges::range` で先に確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::begin`](../iterator/begin.md) | 従来の関数 |
-| [`ranges::size`](size.md) | 要素数 |
+| [`begin`](../iterator/begin.md) | 従来の `std::begin` |
+| [`range`](range.md) | 範囲のコンセプト |
 
 ## コンパイラ対応
 
-C++20 の機能です。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.10 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ranges 版の begin / end
-    - [x] 右辺値には使えない
-    - [x] 配列にも対応
+    - [x] `std::ranges::begin(r)` は範囲の範囲の先頭
+    - [x] メンバーでも非メンバーでも使える
+    - [x] 配列や自作の範囲にも使える
 
 ## 関連ページ
 

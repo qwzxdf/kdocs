@@ -14,28 +14,30 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::vector<int> v(first, last)` は、イテレータを 2 つ渡す必要があります。範囲（`views::iota(1, 4)` のような）をそのまま渡したいときは、先頭に `std::from_range` を置いて `v(std::from_range, range)` と書きます。
+コンテナのコンストラクターに範囲を渡すとき、イテレーターを 2 つ書くのは面倒です。C++23 では、`std::from_range` という印を先頭に付けて、範囲をそのまま渡せます。`std::vector<int> v(std::from_range, range);` です。
 
 !!! tip "ポイント"
-    - コンテナのコンストラクタ、`assign_range`・`insert_range`・`append_range` などで使う。
-    - 範囲を直接渡せるので、イテレータのペアを作らなくてよい。
-    - C++23 で追加された。
+    - `std::from_range` は、範囲から構築することを示すタグ
+    - `vector`、`list`、`set` などのコンストラクターに渡せる
+    - イテレーターを 2 つ書かずに済む
+    - C++23 で追加
 
 !!! info "このページを読む前に"
-    [`std::ranges::range`](range.md) を先に読んでください。
+    [範囲（ranges）の基礎](../../../basics/ranges.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::from_range {#from_range}
 
+<span class="ver ver-23">C++23</span>
+
 ```cpp
-struct from_range_t { explicit from_range_t() = default; };
-inline constexpr from_range_t from_range{};
+inline constexpr std::from_range_t from_range{};
 ```
 
-- 戻り値: なし（目印）
-- 計算量: コンストラクタに依存
+`std::from_range` は、値を持たないタグです。コンストラクターのオーバーロード選択に使われます。`std::vector<T>(std::from_range, r)` は、範囲 `r` の要素を全部コピーして構築します。
 
+`std::ranges::to`（範囲からコンテナへの変換）と合わせて、範囲とコンテナの行き来が、短く書けるようになりました。
 
 ## 実際に動かしてみる
 
@@ -45,42 +47,46 @@ inline constexpr from_range_t from_range{};
 #include <vector>
 
 int main() {
-  std::vector<int> v(std::from_range, std::views::iota(1, 4));
-  std::println("{}", v);
+  std::vector<int> v(std::from_range, std::views::iota(1, 4));   // 1, 2, 3
+  for (int x : v) std::print("{} ", x);
+  std::println("");
 }
 ```
 
 ```text title="実行結果"
-[1, 2, 3]
+1 2 3 
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | view の結果をそのままコンテナにする |
+ビューの結果を、コンテナに詰めます。
+
+```cpp
+std::vector<int> evens(std::from_range, nums | std::views::filter(IsEven));
+```
 
 ## よくあるミス
 
-??? failure "目印を忘れる"
-    `vector(range)` のように範囲だけを渡すとコンパイルエラーです。`std::from_range` が必要です。
+??? failure "C++20 のコンパイラで使えない"
+    C++23 の機能です。`std::ranges::to` も C++23 です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`ranges::to`](../../algorithms/ranges_to.md) | 範囲をコンテナに変換する |
+| [`ranges_to`](../../algorithms/ranges_to.md) | 範囲をコンテナに変換 |
+| [`range`](range.md) | 基本の範囲 |
 
 ## コンパイラ対応
 
-C++23 から使えます。
+C++23 から使えます。GCC 14 以降、Clang 18 以降、Visual Studio 2022 17.x 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] コンテナのコンストラクタに「範囲から作る」と伝える目印
-    - [x] コンテナのコンストラクタ、`assign_range`・`insert_range`・`append_range` などで使う
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::from_range` は範囲からの構築を示すタグ
+    - [x] コンストラクターの先頭に付ける
+    - [x] C++23
 
 ## 関連ページ
 

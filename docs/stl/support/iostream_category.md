@@ -15,27 +15,30 @@ tags:
 `#include <system_error>`
 </div>
 
-`error_code` を作るとき、数値がどの分類に属するかを指定します。`iostream_category()` は、入出力ストリームのエラー（`io_errc`）の分類の唯一の実体を返します。`name()` は `"iostream"` です。
+エラー番号は、出どころ（カテゴリー）とセットで意味を持ちます。`std::iostream_category()` は、<strong>入出力ストリームのエラーのカテゴリー</strong>を返す関数です。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - `std::iostream_category()` は入出力ストリームのエラーのカテゴリーを表す `error_category` への参照を返す
+    - `name()` は "iostream" を返す
+    - 返ったオブジェクトは、プログラムに 1 つだけ存在する
+    - `error_code` のカテゴリーの比較に使う
 
 !!! info "このページを読む前に"
-    [`std::error_code`](error_code.md) を先に読んでください。
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::iostream_category {#iostream_category}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 const std::error_category& iostream_category() noexcept;
 ```
 
-- 戻り値: 入出力ストリームのエラー（`io_errc`）の分類の `error_category` への参照
-- 計算量: 定数
+`std::io_errc::stream` などの、`<iostream>` が報告するエラーを表します。`std::ios_base::failure` 例外の `code()` が返す `error_code` が、このカテゴリーに属します。
 
+返る参照は、常に同じオブジェクトを指します。`error_code::category()` との比較で、出どころを確かめられます。
 
 ## 実際に動かしてみる
 
@@ -44,42 +47,46 @@ const std::error_category& iostream_category() noexcept;
 #include <system_error>
 
 int main() {
-  std::println("{}", std::iostream_category().name());
+  std::println("name() = {}", std::iostream_category().name());
+  std::println("同じオブジェクト: {}", &std::iostream_category() == &std::iostream_category());
 }
 ```
 
 ```text title="実行結果"
-iostream
+name() = iostream
+同じオブジェクト: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | OS のエラーと標準のエラーを区別する |
+エラーコードの出どころを調べます。
+
+```cpp
+if (ec.category() == std::iostream_category()) { /* 入出力ストリームのエラーのカテゴリー */ }
+```
 
 ## よくあるミス
 
-??? failure "カテゴリの違うコードを `==` で比べる"
-    数値が同じでも、分類が違えば別のエラーです。比べるときは `error_condition` に直します。
+??? failure "カテゴリーを無視して番号だけを比べる"
+    番号とカテゴリーの両方で判断します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`error_category`](error_category.md) | 基底クラス |
-| [`error_code`](error_code.md) | エラーコード |
+| [`error_code`](error_code.md) | 番号とカテゴリーの組 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`<system_error>` で宣言されます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 入出力ストリームのエラー（`io_errc`）の分類を表す error_category を返す
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `iostream_category()` は入出力ストリームのエラーのカテゴリーを返す
+    - [x] `name()` は "iostream"
+    - [x] 常に同じオブジェクトを返す
 
 ## 関連ページ
 

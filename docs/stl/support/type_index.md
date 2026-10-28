@@ -15,80 +15,91 @@ tags:
 `#include <typeindex>`
 </div>
 
-`std::type_index` は、**`std::type_info` をコンテナのキーにできるようにした包みの型**です。`std::type_info` はコピーできませんが、`type_index` はコピーでき、`std::map` や `std::unordered_map` のキーに使えます。「型ごとの設定」を引く表を作るときに便利です。
+型ごとにデータを管理したい。たとえば「型 → 処理」の表を作りたい。`std::type_info` はコピーできず、`std::map` のキーにできません。`std::type_index` は、<strong>`type_info` を包んで、コンテナのキーにできるようにした型</strong>です。
 
 !!! tip "ポイント"
-    - `std::unordered_map<std::type_index, T>` が使える（ハッシュも用意されている）。
-    - `typeid(型)` から暗黙に作れる。
-    - 型ごとのシステム・サービスの登録表（サービスロケーター）に使える。
+    - `std::type_index(typeid(T))` で作る
+    - `==` と `<` で比べられる。`std::hash` にも対応する
+    - `std::map` や `std::unordered_map` のキーに使える
+    - 型ごとの処理やリソースの管理に使う
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::type_index {#type_index}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 class type_index {
  public:
-  type_index(const std::type_info&) noexcept;
+  type_index(const std::type_info& info) noexcept;
+  bool operator==(const type_index& rhs) const noexcept;
 };
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `ti` | `type_info` | 包みたい型情報 |
+| `info` | `type_info` | 包む型情報 |
 
-- 戻り値: （キーにできる型）
-- 計算量: O(1)
+`type_info` への参照を保持し、比較・ハッシュ・コピーができるようにした型です。`std::unordered_map<std::type_index, ...>` にすると、型から値を引く表を作れます。
+
+ECS のコンポーネントを、型で探すテーブルなどで使われます。ただし、実行時の型情報（RTTI）を有効にする必要があります。ゲームでは RTTI を切る方針の場合も多く、その場合は、自前の型 ID（テンプレートで連番を振る）を使います。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
-#include <string>
 #include <typeindex>
 #include <unordered_map>
 
 int main() {
-  std::unordered_map<std::type_index, std::string> names;
-  names[typeid(int)] = "整数";
-  names[typeid(float)] = "小数";
-  std::println("{}", names[typeid(int)]);
+  std::unordered_map<std::type_index, int> counts;
+  counts[std::type_index(typeid(int))] += 1;
+  counts[std::type_index(typeid(float))] += 1;
+  counts[std::type_index(typeid(int))] += 1;
+  std::println("int の数   = {}", counts[std::type_index(typeid(int))]);
+  std::println("種類の数   = {}", counts.size());
 }
 ```
 
 ```text title="実行結果"
-整数
+int の数   = 2
+種類の数   = 2
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 型ごとに登録するサービス（ECS のコンポーネント種類） | `std::unordered_map<std::type_index, Pool*>` |
+型をキーにして、データを引きます。
+
+```cpp
+std::unordered_map<std::type_index, std::unique_ptr<System>> systems;
+systems[std::type_index(typeid(PhysicsSystem))] = std::make_unique<PhysicsSystem>();
+```
 
 ## よくあるミス
 
-??? failure "RTTI を切った環境で使う"
-    RTTI が必要です。無効にする場合は、自前の型 ID の仕組みを作ります。
+??? failure "RTTI を切った環境で使えない"
+    自前の型 ID を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::type_info`](type_info.md) | 包む前の型 |
-| [`typeid`](typeid.md) | 型情報を得る |
+| [`type_info`](type_info.md) | 型の情報 |
+| [`typeid`](typeid.md) | 演算子 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] type_info をキーにできる
-    - [x] unordered_map のキーに使える
+    - [x] `type_index` は `type_info` をコンテナのキーにできる形にしたもの
+    - [x] `map` / `unordered_map` のキーに使える
     - [x] RTTI が必要
 
 ## 関連ページ

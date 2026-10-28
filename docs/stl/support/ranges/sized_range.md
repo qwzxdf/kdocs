@@ -14,77 +14,92 @@ tags:
 `#include <ranges>`
 </div>
 
-`size()` を呼べる範囲です。`list` は `size()` が定数時間なので満たし、`forward_list` は `size()` がないので満たしません。
+アルゴリズムによって、範囲に求める性質は違います。`std::find` は先頭から読めれば十分ですが、`std::sort` は任意の位置に移動できなければ動きません。`std::ranges::sized_range<R>` は、<strong>R が「`std::ranges::size` で要素数を定数時間で得られる範囲」であること</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
-    - コンセプトなので、`requires` やテンプレートの制約に書く。
-    - `std::ranges::sized_range<T>` は `bool` の定数式。
-    - `static_assert` でも確かめられる。
+    - `std::ranges::sized_range<R>`: `R` が`std::ranges::size` で要素数を定数時間で得られる範囲
+    - コンテナの種類で、満たすかどうかが決まる
+    - アルゴリズムの制約として使われる
+    - 他のコンセプトと組み合わせて使える
 
 !!! info "このページを読む前に"
-    [`std::ranges::range`](range.md) を先に読んでください。
+    [範囲（ranges）の基礎](../../../basics/ranges.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::ranges::sized_range {#sized_range}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class T>
-concept sized_range = /* ranges::size(r) が使える */;
+concept sized_range = /* 条件 */;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `T` | 型 | 調べる範囲の型 |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+`std::forward_list` は要素数を数えるのに O(n) かかるので、満たしません。
 
+自作の関数テンプレートに `template <std::ranges::sized_range R>` と書くと、条件を満たさない型を渡されたときに、呼び出しの場所で分かりやすいエラーになります。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <forward_list>
+#include <list>
 #include <print>
 #include <ranges>
+#include <vector>
 
 int main() {
-    std::println("{}", std::ranges::sized_range<std::list<int>>);
-    std::println("{}", std::ranges::sized_range<std::forward_list<int>>);
+  std::println("std::vector<int>         -> {}", std::ranges::sized_range<std::vector<int>>);
+  std::println("std::list<int>           -> {}", std::ranges::sized_range<std::list<int>>);
+  std::println("std::forward_list<int>   -> {}", std::ranges::sized_range<std::forward_list<int>>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+std::vector<int>         -> true
+std::list<int>           -> true
+std::forward_list<int>   -> false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの引数を制約して、使える範囲だけを受け付ける |
+範囲を受け取る自作のテンプレートの制約に使います。
+
+```cpp
+template <std::ranges::sized_range R>
+void Process(R&& r) {
+  // r は `std::ranges::size` で要素数を定数時間で得られる範囲
+}
+```
 
 ## よくあるミス
 
-??? failure "`size()` が速いと思い込む"
-    `sized_range` は定数時間を求めます。距離を数える必要がある範囲は満たしません。
+??? failure "コンテナの種類を誤解して、期待と違う結果になる"
+    `std::list` は `random_access_range` ではありません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::size`](size.md) | 要素数を返す |
+| [`range`](range.md) | 最も基本の範囲 |
+| [`random_access_range`](random_access_range.md) | ランダムアクセスできる範囲 |
+| [`contiguous_range`](contiguous_range.md) | メモリ上に連続する範囲 |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.10 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 要素数を定数時間で返せる範囲を要求するコンセプト
-    - [x] コンセプトなので、`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `std::ranges::sized_range<R>` は`std::ranges::size` で要素数を定数時間で得られる範囲
+    - [x] コンテナの種類で決まる
+    - [x] アルゴリズムの制約として使われる
 
 ## 関連ページ
 

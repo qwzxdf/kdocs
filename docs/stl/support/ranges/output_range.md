@@ -14,77 +14,79 @@ tags:
 `#include <ranges>`
 </div>
 
-結果を書き込む先の範囲を受け取る関数では、「書き込める」ことを要求します。`output_range<R, T>` は、型 `T` の値を書き込める範囲かを調べます。
+`std::copy` の出力先には、書き込める範囲が必要です。`std::ranges::output_range<R, T>` は、<strong>範囲 `R` に、型 `T` の値を書き込めること</strong>を要求するコンセプトです。
 
 !!! tip "ポイント"
-    - コンセプトなので、`requires` やテンプレートの制約に書く。
-    - `std::ranges::output_range<T>` は `bool` の定数式。
-    - `static_assert` でも確かめられる。
+    - `std::ranges::output_range<R, T>`: `R` に `T` の値を書き込めるか
+    - `const` のコンテナは満たさない
+    - 要素の型に `T` が代入できること
+    - 出力先の範囲を受け取るアルゴリズムの制約
 
 !!! info "このページを読む前に"
-    [`std::ranges::range`](range.md) を先に読んでください。
+    [範囲（ranges）の基礎](../../../basics/ranges.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::ranges::output_range {#output_range}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class T>
-concept output_range = /* begin が output_iterator<T> を返す */;
+template <class R, class T>
+concept output_range = /* 条件 */;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 調べる範囲の型 |
+| `R` | 範囲 | 書き込み先の範囲 |
+| `T` | 型 | 書き込む値の型 |
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
-
+`R` の要素を書き換えられて、`T` が代入できる型なら満たします。`const std::vector<int>` は書き換えられないので満たしません。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <ranges>
+#include <vector>
 
 int main() {
-    std::println("{}", std::ranges::output_range<std::vector<int>, int>);
-    std::println("{}", std::ranges::output_range<const std::vector<int>, int>);
+  std::println("vector<int> に int         : {}", std::ranges::output_range<std::vector<int>, int>);
+  std::println("const vector<int> に int   : {}", std::ranges::output_range<const std::vector<int>, int>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+vector<int> に int         : true
+const vector<int> に int   : false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの引数を制約して、使える範囲だけを受け付ける |
+出力先を引数に取る自作のアルゴリズムに使います。
 
 ## よくあるミス
 
-??? failure "const な範囲に書く"
-    const な範囲は書き込めません。`output_range` を要求しておくと、コンパイル時に分かります。
+??? failure "`const` の範囲に書こうとする"
+    書き込み先は `const` でない範囲です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`input_range`](input_range.md) | 読める範囲 |
+| [`range`](range.md) | 基本の範囲 |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.10 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 書き込める範囲を要求するコンセプト
-    - [x] コンセプトなので、`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `output_range<R, T>` は `R` に `T` を書き込めるか
+    - [x] `const` のコンテナは満たさない
+    - [x] 出力先の制約に使う
 
 ## 関連ページ
 

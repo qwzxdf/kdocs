@@ -15,15 +15,16 @@ tags:
 `#include <utility>`
 </div>
 
-`std::unreachable()` は、**「この行には、絶対に到達しない」とコンパイラに伝える**関数です。最適化のヒントになります。**もし実際に到達すると未定義動作**なので、本当に来ないと確信できる場所だけに書きます。`switch` の `default:` で、列挙値をすべて処理したあとなどに使います。
+`switch` のすべての場合を列挙したのに、コンパイラは「その他の場合」もあるかもしれないと考え、警告を出したり、不要な分岐のコードを作ったりします。`std::unreachable()` は、<strong>「ここには決して来ない」とコンパイラに約束する</strong>関数です。
 
 !!! tip "ポイント"
-    - 到達すると**未定義動作**。デバッグ時は `assert` を併用する。
-    - MSVC の `__assume(0)`、GCC の `__builtin_unreachable()` と同じ。
-    - C++23 の機能。
+    - `std::unreachable()` を呼ぶと、その経路は到達しないと仮定される
+    - 実際に呼ばれると未定義動作
+    - `switch` の `default` や、`if` の最後の `else` に書く
+    - C++23 で追加
 
 !!! info "このページを読む前に"
-    [小さな便利機能](utility-misc.md) の概要と合わせて読むと分かりやすいです。
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
@@ -35,62 +36,61 @@ tags:
 [[noreturn]] void unreachable();
 ```
 
-- 「ここには絶対に来ない」とコンパイラに伝えます。最適化に使われますが、**本当に来てしまうと未定義動作**です。switch で全部の enum を扱ったあとの最後などに使います
+コンパイラは、この関数に到達する経路は存在しない、と仮定して最適化します。そのため、不要な比較や分岐が省かれ、コードが速く小さくなることがあります。
+
+約束を破って実際に呼ばれると、未定義動作です。Debug ビルドでは、`assert(false)` と書くほうが安全です。約束が確実に守られる場所（列挙子をすべて網羅した `switch` の `default` など）にだけ書きます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <utility>
 
-enum class Shape { kCircle, kSquare };
+enum class Color { kRed, kGreen };
 
-const char* Name(Shape s) {
-  switch (s) {
-    case Shape::kCircle:
-      return "円";
-    case Shape::kSquare:
-      return "四角";
+int ToValue(Color c) {
+  switch (c) {
+    case Color::kRed:   return 1;
+    case Color::kGreen: return 2;
   }
-  std::unreachable();  // 全部の case を書いたので、ここには来ない
+  std::unreachable();   // 列挙子はすべて上で網羅した
 }
 
-int main() { std::println("{}", Name(Shape::kSquare)); }
+int main() {
+  std::println("kGreen = {}", ToValue(Color::kGreen));
+}
 ```
 
 ```text title="実行結果"
-四角
+kGreen = 2
 ```
-
-!!! warning
-    デバッグ中は `assert(false)` のほうが、来てしまったときに気づけて安全です。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| enum のすべてを処理した switch のあと | `std::unreachable();` |
+列挙型の `switch` の後ろに書いて、コンパイラの警告「戻り値がない」を消しつつ、最適化に役立てます。
 
 ## よくあるミス
 
-??? failure "実は到達する"
-    未定義動作でクラッシュするか、おかしな動きをします。デバッグビルドでは `assert(false)` にします。
+??? failure "到達しうる経路に書いて、未定義動作になる"
+    確実に到達しない所だけに書きます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| `assert(false)` | デバッグで検出する |
-| `[[noreturn]]` | 戻らない関数に付ける |
+| [`abort`](../numeric/cstdlib/abort.md) | 確実に止めるなら |
+| [`byte`](byte.md) | バイトを表す型 |
 
 ## コンパイラ対応
 
-C++17〜C++23 の機能です。
+C++23 から使えます。GCC 12 以降、Clang 15 以降、Visual Studio 2022 17.x 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 到達しない箇所を伝える
-    - [x] 到達したら未定義動作
-    - [x] デバッグでは assert
+    - [x] `std::unreachable()` はここに来ないとの約束
+    - [x] 来ると未定義動作
+    - [x] 網羅した `switch` の後ろに書く
 
 ## 関連ページ
 

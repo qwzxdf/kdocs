@@ -14,32 +14,35 @@ tags:
 `#include <ranges>`
 </div>
 
-view は「コピー・ムーブが軽い範囲」です。ただし C++ はそれを型から自動で判断できません。自作の view には、`view_base` を継承するか、`enable_view<T>` を `true` に特殊化して「これは view です」と宣言します。
+範囲は、コンテナ（要素を所有する）とビュー（要素を借りて、軽くコピーできる）に分かれます。自作の型が「ビューです」と宣言するための目印が `std::ranges::enable_view` です。
 
 !!! tip "ポイント"
-    - `view_base` か `view_interface` を継承していれば、自動で `true`。
-    - 標準の view は最初から `true`。
-    - `vector` のような持ち主のコンテナは `false`。
+    - `std::ranges::enable_view<T>` は、型 `T` がビューとして扱われるか
+    - `view_base` を継承するか、特殊化で `true` にして宣言する
+    - `std::string_view` や `std::span` は `true`
+    - コンテナは `false`
 
 !!! info "このページを読む前に"
-    [`std::ranges::range`](range.md) を先に読んでください。
+    [範囲（ranges）の基礎](../../../basics/ranges.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::ranges::enable_view {#enable_view}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class T>
-inline constexpr bool enable_view = derived_from<T, view_base>;
+inline constexpr bool enable_view = /* ... */;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | 型 | 宣言する型 |
+| `T` | 型 | 調べる型 |
 
-- 戻り値: view なら `true`
-- 計算量: コンパイル時のみ
+自作の範囲型をビューとして扱ってほしいときは、`std::ranges::view_base` を継承するか、`enable_view<MyView>` を `true` に特殊化します。
 
+ビューは、コピーとムーブが定数時間で、要素を所有しないという約束を持つ型です。この約束を守らない型をビューと宣言すると、範囲アダプターが誤動作します。
 
 ## 実際に動かしてみる
 
@@ -50,44 +53,48 @@ inline constexpr bool enable_view = derived_from<T, view_base>;
 #include <vector>
 
 int main() {
-  std::println("{}", std::ranges::enable_view<std::string_view>);
-  std::println("{}", std::ranges::enable_view<std::vector<int>>);
+  std::println("string_view  : {}", std::ranges::enable_view<std::string_view>);
+  std::println("vector<int>  : {}", std::ranges::enable_view<std::vector<int>>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+string_view  : true
+vector<int>  : false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作の view を標準のパイプで使えるようにする |
+自作のビューに目印を付けます。
+
+```cpp
+struct MyView : std::ranges::view_base {
+  // begin() / end() を持つ軽い型
+};
+```
 
 ## よくあるミス
 
-??? failure "コンテナに `true` を指定する"
-    view はコピーが軽いことを前提にしています。コンテナに指定すると、不要なコピーが起きます。
+??? failure "コンテナをビューと宣言する"
+    ビューは要素を所有しない型だけです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`view_interface`](view_interface.md) | view の土台 |
-| [`range`](range.md) | 範囲 |
+| [`viewable_range`](viewable_range.md) | ビューにできる範囲 |
+| [`all_t`](all_t.md) | 変換後の型 |
 
 ## コンパイラ対応
 
-C++20 から使えます。
+C++20 から使えます。GCC 10 以降、Clang 13 以降、Visual Studio 2019 16.10 以降で使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 自分の型を view として扱ってよいと宣言する変数テンプレート
-    - [x] `view_base` か `view_interface` を継承していれば、自動で `true`
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `enable_view<T>` は T がビューとして扱われるか
+    - [x] `view_base` を継承して宣言する
+    - [x] コンテナは `false`
 
 ## 関連ページ
 

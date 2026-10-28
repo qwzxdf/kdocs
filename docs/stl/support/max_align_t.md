@@ -15,69 +15,78 @@ tags:
 `#include <cstddef>`
 </div>
 
-`std::max_align_t` は、**その環境で、基本的な型の中で最も厳しいアラインメント（メモリ上の置き方の制約）を持つ型**です。`alignof(std::max_align_t)` が、`new` や `malloc` が保証する基本のアラインメントになります。自作のメモリアロケーターで、確保した領域の境界をそろえるときに使います。
+メモリを確保するときに、どんな型のオブジェクトを置いても大丈夫な配置（アラインメント）が知りたいことがあります。`std::max_align_t` は、<strong>この環境で、組み込みの型の中で最も厳しいアラインメントを持つ型</strong>です。`new` が返すメモリは、この境界に揃っています。
 
 !!! tip "ポイント"
-    - `alignof(std::max_align_t)` の値は環境によって違う（GCC / Clang は 16、MSVC は 8 のことが多い）。
-    - `new` / `malloc` が返すメモリは、これで境界がそろっている。
-    - SIMD の 32 バイト境界などは、これでは足りない（`alignas` を使う）。
+    - `alignof(std::max_align_t)` は、組み込みの型で最大のアラインメント
+    - `malloc` や `new` が返すアドレスは、この境界に揃う
+    - 自前のアロケーターの既定の境界に使う
+    - 多くの環境で 16
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [テンプレート](../../basics/template.md)（テンプレートの基礎）
+    [STL](../index.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::max_align_t {#max_align_t}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 struct max_align_t { /* 実装定義 */ };
 ```
 
-- 戻り値: （型）
-- 計算量: O(1)
+`alignof(std::max_align_t)` は、`long double` などの組み込み型の中で最も大きいアラインメントです。多くの 64 ビット環境で 16 バイトです。
+
+自前のアロケーターは、確保した領域の先頭をこの境界に揃えれば、どの型を置いても安全です。SIMD 型などの、より厳しい境界（32、64）を要求する型には、`alignas` を別に指定する必要があります。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <cstddef>
 #include <print>
 
 int main() {
-  std::println("{}", alignof(std::max_align_t) >= alignof(double));
+  std::println("double 以上の境界: {}", alignof(std::max_align_t) >= alignof(double));
+  std::println("2 の累乗: {}", (alignof(std::max_align_t) & (alignof(std::max_align_t) - 1)) == 0);
 }
 ```
 
 ```text title="実行結果"
-true
+double 以上の境界: true
+2 の累乗: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 自作アロケーターの基本の境界 | `alignof(std::max_align_t)` に切り上げる |
+自前のアロケーターで、既定の境界を決めます。
+
+```cpp
+constexpr std::size_t kDefaultAlign = alignof(std::max_align_t);
+```
 
 ## よくあるミス
 
-??? failure "32 バイト境界が保証されると思う"
-    SIMD 用には `alignas(32)` や `aligned_alloc` が必要です。
+??? failure "SIMD 型に使えると思う"
+    より厳しい境界は `alignas` で指定します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`aligned_alloc`](../memory/aligned_alloc.md) | 境界を指定して確保 |
-| [`align_val_t`](../memory/new_delete/align_val_t.md) | new に境界を伝える |
+| [`align`](../memory/align.md) | ポインターを境界に揃える |
+| [`alignment_of`](type_traits/alignment_of.md) | 型のアラインメント |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++11 から使えます。主要なコンパイラのすべてで使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 基本のアラインメントを持つ型
-    - [x] 環境で値が違う
-    - [x] SIMD には足りない
+    - [x] `max_align_t` は組み込みの型で最大のアラインメントを持つ型
+    - [x] `new` が返すメモリはこの境界
+    - [x] SIMD 型には別に `alignas`
 
 ## 関連ページ
 
