@@ -76,15 +76,15 @@ public class EditorViewModel : BindableBase, IConfirmNavigationRequest
 
 `continuationCallback(true)` を呼ぶと移動が続き、`false` なら取り消されます。ダイアログのように答えを待つ処理がある場合は、答えが出てから、コールバックを呼べます。
 
-移動の結果は、`RequestNavigate` のコールバックで受け取れます。
+移動の結果は、`RequestNavigate` のコールバックで受け取れます。`result.Success` が成否で、失敗の理由が例外のときは `result.Exception` に入ります。Prism 8 以前の記事にある `result.Result` や `result.Error` は、Prism 9 には無いので、コンパイル エラーになります。なお、登録していない名前（`"Nothing"` など）へ移動を頼んだときは、`Success` が `false` で返りますが、その前に今のビューの `OnNavigatedFrom` が呼ばれます（9.0.537 で確認）。
 
 ```csharp
 _regionManager.RequestNavigate(RegionNames.Property, "SettingsView", result =>
 {
-    if (result.Result == false)
+    if (!result.Success)
     {
         // 移動できなかった（確認でキャンセルされた、ビューが見つからない、など）
-        _log.Warning($"移動に失敗: {result.Error?.Message}");
+        _log.Warning($"移動に失敗: {result.Exception?.Message}");
     }
 });
 ```

@@ -111,6 +111,13 @@ XAML に書いた入れ子は、部品の木になります。たとえばこの
 
 実行中の画面にどんな部品がどう入れ子になっているのかは、Visual Studio の「ライブ ビジュアル ツリー」で見られます（第 7 章）。「この空白は、どの部品の余白なんだろう」という疑問の多くは、これで解決します。
 
+## C++ で考えると
+
+ゲーム エンジンのシーン グラフ（親の `Transform` が子に効く木）を作ったことがあれば、WPF の画面も同じ形です。部品は親子の木になっていて、親の `IsEnabled` が `false` なら子も押せなくなり、`DataContext` は子に受け継がれます。木をたどって親や子を探す操作は、シーン グラフでの `FindChild` に近いものです。
+
+??? failure "`Button` に部品を 2 つ書いたら、`The property 'Content' is set more than once.`"
+    `Button` の `Content` は 1 つしか持てないので、`<Button><Image /><TextBlock Text="保存" /></Button>` とは書けません。`StackPanel` などのパネルで 1 つにまとめてから入れます。`<Button><StackPanel Orientation="Horizontal"><Image /><TextBlock Text="保存" /></StackPanel></Button>` のようにします。
+
 ## ほかの章との関係
 
 - 部品の並べ方は [第 9 章 レイアウトの仕組み](09-layout.md) で説明します。
