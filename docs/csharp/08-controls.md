@@ -29,9 +29,9 @@ tags:
 | 押す | `Button` | `Command` と `Content` |
 | オン・オフ | `CheckBox`、`ToggleButton` | `IsChecked` は `bool?`（`null` が「どちらでもない」） |
 | 択一 | `RadioButton`、`ComboBox` | `RadioButton` は同じ親の中で 1 つだけ選べる |
-| 一覧から選ぶ | `ListBox`、`ListView`、`ComboBox` | 詳細は第 15 章 |
-| 表 | `DataGrid` | 第 15 章 |
-| 木 | `TreeView` | 第 40 章 |
+| 一覧から選ぶ | `ListBox`、`ListView`、`ComboBox` | 詳細は第 16 章 |
+| 表 | `DataGrid` | 第 16 章 |
+| 木 | `TreeView` | 第 41 章 |
 | つまみで数を決める | `Slider` | `Minimum`、`Maximum`、`Value` |
 | 進み具合 | `ProgressBar` | 終わりが分からないときは `IsIndeterminate="True"` |
 | タブ | `TabControl` | |
@@ -68,7 +68,7 @@ WPF のコントロールは、「中に何を入れられるか」で大きく 
 
 アイコン付きのボタンは、こうして作ります。「ボタンの中に画像と文字を並べたパネルを 1 つ入れた」だけです。`Content` は 1 つしか入らないので、複数を並べたいときは、`StackPanel` などで包んで 1 つにまとめます。
 
-`Content` に文字以外のオブジェクト（たとえば自作のクラス）を入れると、WPF は `ToString()` の結果を文字として出します。その見た目を変えたいときに使うのが `DataTemplate` です（第 13 章）。
+`Content` に文字以外のオブジェクト（たとえば自作のクラス）を入れると、WPF は `ToString()` の結果を文字として出します。その見た目を変えたいときに使うのが `DataTemplate` です（第 14 章）。
 
 ### 2. 中身が複数のコントロール（ItemsControl）
 
@@ -125,7 +125,7 @@ XAML に書いた入れ子は、部品の木になります。たとえばこの
 
 - 部品の並べ方は [第 9 章 レイアウトの仕組み](09-layout.md) で説明します。
 - 見た目を変える方法は [第 11 章 スタイル、リソース、テンプレート、トリガー](11-style-template.md) です。
-- リスト系の部品の詳細は [第 15 章 リストとデータ表示](15-lists.md) です。
+- リスト系の部品の詳細は [第 16 章 リストとデータ表示](16-lists.md) です。
 
 次の章では、部品の大きさと位置がどのように決まるのかを説明します。
 
