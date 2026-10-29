@@ -180,7 +180,7 @@ public PropertyViewModel(ISelectionService selection, IEventAggregator events)
 
 もう 1 か所、ステータス バーです。第 22 章で消した「選択中の名前」を、イベントで戻します。
 
-```csharp title="ViewModels/MainWindowViewModel.cs（変更）"
+```csharp title="MainWindowViewModel.cs（変更）"
 public MainWindowViewModel(IRegionManager regionManager, IEventAggregator events)
 {
     _regionManager = regionManager;
@@ -198,7 +198,7 @@ public MainWindowViewModel(IRegionManager regionManager, IEventAggregator events
 
 ## ログをサービスにする
 
-`LogViewModel` は、第 15 章で、どのスレッドからでも `Add` できるようにしました。ところが、`AssetViewModel` は、`LogViewModel`、つまり画面のビューモデルを受け取って、ログを書いています。画面のためのクラスに、ほかの機能が依存するのは、よい形ではありません。ログを書く機能を、画面から切り離して、サービスにします。
+`LogViewModel` は、第 16 章で、どのスレッドからでも `Add` できるようにしました。ところが、`AssetViewModel` は、`LogViewModel`、つまり画面のビューモデルを受け取って、ログを書いています。画面のためのクラスに、ほかの機能が依存するのは、よい形ではありません。ログを書く機能を、画面から切り離して、サービスにします。
 
 ```csharp title="Services/LogService.cs（新規）"
 using System.Collections.ObjectModel;
@@ -236,7 +236,7 @@ public class LogService : ILogService
 }
 ```
 
-`Dispatcher` は、UI スレッドへの仕事の受付窓口です。`CheckAccess()` は「今のスレッドが UI スレッドか」を返し、そうでなければ `InvokeAsync` で UI スレッドに仕事を頼みます（頼んだら待たずに戻ります）。第 15 章で `LogViewModel.Add` に書いた中身を、そのままサービスに移しました。
+`Dispatcher` は、UI スレッドへの仕事の受付窓口です。`CheckAccess()` は「今のスレッドが UI スレッドか」を返し、そうでなければ `InvokeAsync` で UI スレッドに仕事を頼みます（頼んだら待たずに戻ります）。第 16 章で `LogViewModel.Add` に書いた中身を、そのままサービスに移しました。
 
 `LogViewModel` は、サービスの一覧を出すだけの小さなクラスになります。`AssetViewModel` は、`LogViewModel` の代わりに `ILogService` を受け取ります。
 
@@ -384,7 +384,7 @@ containerRegistry.RegisterDialog<ConfirmDialog, ConfirmDialogViewModel>();
 
 開く側は、`IDialogService` を受け取って `ShowDialog` を呼びます。メニューの「終了」に結びます。
 
-```csharp title="ViewModels/MainWindowViewModel.cs（変更）"
+```csharp title="MainWindowViewModel.cs（変更）"
 private readonly IDialogService _dialogs;
 
 public DelegateCommand ExitCommand { get; }
@@ -406,7 +406,7 @@ private void ConfirmExit()
 }
 ```
 
-```xml title="Views/MainWindow.xaml（変更：ファイル メニュー）"
+```xml title="MainWindow.xaml（変更：ファイル メニュー）"
 <MenuItem Header="終了(_X)" Command="{Binding ExitCommand}" />
 ```
 
@@ -505,7 +505,7 @@ Editor/
 │   ├─ FileDialogService.cs          ファイル ダイアログ（新規）
 │   └─ AssetScanner.cs / IAssetScanner.cs
 ├─ Modules/                          選択がつながった。Log と Asset は ILogService を使う
-└─ ViewModels/MainWindowViewModel.cs 終了の確認、ステータス バーの選択表示
+└─ MainWindowViewModel.cs            終了の確認、ステータス バーの選択表示
 ```
 
 次の章では、画面遷移の確認、ビューの寿命、コマンドの束ね方など、Prism をもう少し掘り下げます。

@@ -435,7 +435,7 @@ public string Title => $"{(_history.IsDirty ? "*" : "")}{_files.DisplayName} - M
 </Window.InputBindings>
 ```
 
-`AsyncCommand` は、第 15 章で作った非同期のコマンドです（プロパティの型は `ICommand` にしておけば、`DelegateCommand` と混ぜて持てます）。`NewAsync` は `Task<bool>` を返しますが、結果の `bool` を使わないので、`Task` を受け取る `AsyncCommand` にそのまま渡せます。実行中は `CanExecute` が自動で `false` になり、二重に実行されません。`Title` の補間文字列の中の式は、`( )` で囲んで条件式を書いています。
+`AsyncCommand` は、第 16 章で作った非同期のコマンドです（プロパティの型は `ICommand` にしておけば、`DelegateCommand` と混ぜて持てます）。`NewAsync` は `Task<bool>` を返しますが、結果の `bool` を使わないので、`Task` を受け取る `AsyncCommand` にそのまま渡せます。実行中は `CanExecute` が自動で `false` になり、二重に実行されません。`Title` の補間文字列の中の式は、`( )` で囲んで条件式を書いています。
 
 ## ウィンドウを閉じるときの確認
 

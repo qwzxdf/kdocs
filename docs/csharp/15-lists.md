@@ -1,15 +1,15 @@
 ---
-title: 第 14 章 リストとデータ表示
+title: 第 15 章 リストとデータ表示
 tags:
   - C#連携
 ---
 
-# 第 14 章 リストとデータ表示
+# 第 15 章 リストとデータ表示
 
 エディタの画面は、リストだらけです。シーンの物、アセット、ログ、プロパティ。WPF にはリストを表示する部品が何種類かあって、「どれを使えばいいの？」と迷います。この章では、Editor の下のパネルに、アセットの一覧とログの一覧を作りながら、部品の違い、選択の扱い、大量のデータを速く出す方法を見ていきます。
 
 !!! info "このページを読む前に"
-    - [第 13 章 バインディングを掘り下げる](13-binding.md)（前の章。この章は、そこで作った Editor に足していく）
+    - [第 14 章 バインディングを掘り下げる](14-binding.md)（前の章。この章は、そこで作った Editor に足していく）
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 !!! abstract "この章で Editor に足すもの"
@@ -19,7 +19,7 @@ tags:
     | `Models/LogEntry.cs`（新規） | ログ 1 行 |
     | `ViewModels/AssetBrowserViewModel.cs`（新規） | アセットの一覧、選択、種類での絞り込み |
     | `ViewModels/LogViewModel.cs`（新規） | ログの一覧 |
-    | `ViewModels/MainWindowViewModel.cs`（変更） | 上の 2 つを持たせる |
+    | `MainWindowViewModel.cs`（変更） | 上の 2 つを持たせる |
     | `MainWindow.xaml`（変更） | 下のパネルの「アセット」と「ログ」のタブ |
 
 ## リスト系の部品の使い分け
@@ -77,13 +77,13 @@ public class FileEntry : AssetEntry
 ```csharp title="ViewModels/AssetBrowserViewModel.cs（新規）"
 using System.Collections.ObjectModel;
 using Editor.Models;
-using Editor.Mvvm;
+using Prism.Mvvm;
 
 namespace Editor.ViewModels;
 
 public record KindOption(string Id, string Name);
 
-public class AssetBrowserViewModel : ViewModelBase
+public class AssetBrowserViewModel : BindableBase
 {
     private AssetEntry? _selectedAsset;
 
@@ -113,7 +113,7 @@ public class AssetBrowserViewModel : ViewModelBase
 
 `MainWindowViewModel` に、このビューモデルを持たせます。
 
-```csharp title="ViewModels/MainWindowViewModel.cs（変更）"
+```csharp title="MainWindowViewModel.cs（変更）"
 public AssetBrowserViewModel AssetBrowser { get; } = new();
 public LogViewModel Log { get; } = new();
 ```
@@ -219,7 +219,7 @@ public class EntryTemplateSelector : DataTemplateSelector
 
 ## 種類で絞り込む
 
-アセットが増えたときのために、上に「すべて、シーン、テクスチャ、メッシュ」を選ぶ `ComboBox` を置いて、選んだ種類だけを見せます。絞り込みは、第 13 章の `CollectionView` を使います。
+アセットが増えたときのために、上に「すべて、シーン、テクスチャ、メッシュ」を選ぶ `ComboBox` を置いて、選んだ種類だけを見せます。絞り込みは、第 14 章の `CollectionView` を使います。
 
 ```csharp title="ViewModels/AssetBrowserViewModel.cs（変更）"
 using System.ComponentModel;
@@ -384,14 +384,13 @@ Editor/
 ├─ Models/
 │   ├─ AssetEntry.cs                 FolderEntry、FileEntry
 │   └─ LogEntry.cs
-├─ Mvvm/                             （第 13 章のまま）
+├─ Mvvm/                             （第 14 章のまま）
 ├─ ViewModels/
 │   ├─ SceneObjectViewModel.cs
 │   ├─ AssetBrowserViewModel.cs      一覧、選択、種類での絞り込み
-│   ├─ LogViewModel.cs
-│   └─ MainWindowViewModel.cs        AssetBrowser、Log を持つ
-├─ MainWindow.xaml                   下のパネルが、アセットとログの一覧になった
-└─ MainWindow.xaml.cs
+│   └─ LogViewModel.cs
+├─ MainWindowViewModel.cs            AssetBrowser、Log を持つ
+└─ MainWindow.xaml                   下のパネルが、アセットとログの一覧になった
 ```
 
 ## この章のまとめ
@@ -404,4 +403,4 @@ Editor/
 
 次の章では、画面を固まらせないための非同期処理と、UI スレッドの決まりごとを説明します。アセット一覧をフォルダーから読み込むときに、さっそく必要になります。
 
-[第 15 章 非同期処理と UI スレッド](15-async-ui.md) へ進みます。
+[第 16 章 非同期処理と UI スレッド](16-async-ui.md) へ進みます。

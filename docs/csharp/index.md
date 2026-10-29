@@ -79,11 +79,11 @@ MiniEngine.sln
 |  | [第 9 章 レイアウトの仕組み](09-layout.md) | Measure と Arrange、Grid、スクロール、DPI |
 |  | [第 10 章 依存関係プロパティ、添付プロパティ、ルーテッド イベント](10-dependency-properties.md) | 依存関係プロパティ、添付プロパティ、ルーテッド イベント |
 |  | [第 11 章 スタイル、リソース、テンプレート、トリガー](11-style-template.md) | リソース、スタイル、トリガー、ControlTemplate |
-|  | [第 12 章 データバインディングと MVVM](12-binding-mvvm.md) | シーン ツリーとプロパティ パネルをつなぎながら、バインディング、通知、ICommand、ObservableCollection、MVVM |
-|  | [第 13 章 バインディングを掘り下げる](13-binding.md) | 削除ボタン、絞り込み、入力検証を足しながら、Mode と UpdateSourceTrigger、RelativeSource、CollectionView、デバッグ |
-|  | [第 14 章 リストとデータ表示](14-lists.md) | アセット一覧とログ一覧を作りながら、ListBox、ComboBox、DataGrid、選択、仮想化 |
-|  | [第 15 章 非同期処理と UI スレッド](15-async-ui.md) | アセットの読み込みを作りながら、async / await、Dispatcher、IProgress、キャンセル |
-|  | [第 16 章 Prism の導入と起動の流れ](16-prism-bootstrap.md) | ここまでの Editor を Prism に載せ替える：BindableBase、DelegateCommand、DI コンテナー、ViewModelLocator |
+|  | [第 12 章 Prism の導入と起動の流れ](12-prism-bootstrap.md) | NuGet で Prism を入れる、PrismApplication で起動を作り替える、最初のビューモデルを ViewModelLocator で結ぶ |
+|  | [第 13 章 データバインディングと MVVM](13-binding-mvvm.md) | シーン ツリーとプロパティ パネルをつなぎながら、バインディング、通知（BindableBase）、ICommand（DelegateCommand）、ObservableCollection、MVVM |
+|  | [第 14 章 バインディングを掘り下げる](14-binding.md) | 削除ボタン、絞り込み、入力検証を足しながら、Mode と UpdateSourceTrigger、RelativeSource、CollectionView、デバッグ |
+|  | [第 15 章 リストとデータ表示](15-lists.md) | アセット一覧とログ一覧を作りながら、ListBox、ComboBox、DataGrid、選択、仮想化 |
+|  | [第 16 章 非同期処理と UI スレッド](16-async-ui.md) | アセットの読み込みを作りながら、async / await、Dispatcher、IProgress、キャンセル。DI コンテナーで部品を渡す最初の例 |
 |  | [第 17 章 DI とは何か：IoC・DI・DI コンテナー](17-di-basics.md) | Editor の組み立てで見る、自分で new する困りごと、コンストラクター インジェクション、IoC との違い |
 |  | [第 18 章 Prism の起動で何が起きるか](18-prism-startup.md) | `Main` の正体、起動の順番、`Container` の持ち主、Service Locator |
 |  | [第 19 章 登録とライフタイム](19-registration-lifetime.md) | 遅延生成、Singleton と Transient、未登録の型、インターフェースの要否 |

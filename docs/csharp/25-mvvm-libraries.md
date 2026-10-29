@@ -29,11 +29,11 @@ Prism は①と②の両方を持っています。CommunityToolkit.Mvvm は①�
 
 ## 同じ画面を 3 通りで書く
 
-第 12〜16 章で作った `SceneObjectViewModel` の、名前と位置 X、リセット コマンドだけを取り出して、3 つの書き方で並べます。
+第 13〜16 章で作った `SceneObjectViewModel` の、名前と位置 X、リセット コマンドだけを取り出して、3 つの書き方で並べます。
 
 ### Prism
 
-```csharp title="Editor の書き方（第 16 章）"
+```csharp title="Editor の書き方（第 12 章）"
 public class SceneObjectViewModel : BindableBase
 {
     private string _name = "";
@@ -128,11 +128,11 @@ public class SceneObjectViewModel
 | 通知付きプロパティ | `SetProperty(ref _x, value)` | `[ObservableProperty]` または `SetProperty(ref _x, value)` |
 | 基底クラス | `BindableBase` | `ObservableObject` |
 | コマンド | `DelegateCommand` | `RelayCommand`（`[RelayCommand]`） |
-| 非同期コマンド | なし（第 15 章の `AsyncCommand` のように自作する） | `AsyncRelayCommand` |
+| 非同期コマンド | なし（第 16 章の `AsyncCommand` のように自作する） | `AsyncRelayCommand` |
 | 条件が変わったら再判定 | `.ObservesProperty(() => X)` | `[NotifyCanExecuteChangedFor(...)]` |
 | 値が変わったときの処理 | `SetProperty(ref _x, value, OnChanged)` | `partial void OnXxxChanged(T value)` |
 | メッセージの送受信 | `IEventAggregator` | `WeakReferenceMessenger`（`ObservableRecipient`） |
-| 入力の検証 | `ErrorsContainer<T>`（第 24 章で Editor に入れた） | `ObservableValidator`（`[Required]`、`[Range]` など） |
+| 入力の検証 | `ErrorsContainer<T>`（第 14 章で Editor に入れた） | `ObservableValidator`（`[Required]`、`[Range]` など） |
 
 `WeakReferenceMessenger` の「Weak（弱い）」は、弱参照のことです。ふつうの参照は、持っている間は相手を GC に片付けさせません。メッセージの受け手を強い参照で登録すると、画面を閉じても登録が残って、受け手が解放されません（C++ で `shared_ptr` を持ち合って解放されないのと同じ種類の問題です）。弱参照は、持っていても GC を止めない参照なので、受け手が消えたら登録も自然に無効になります。
 
@@ -148,7 +148,7 @@ public partial class SceneObjectViewModel : ObservableValidator
 }
 ```
 
-`INotifyDataErrorInfo`（第 13 章）を実装済みで、`System.ComponentModel.DataAnnotations` の属性で検証規則を書けます。第 13 章で、`Name` の `set` に手で書いた「空なら `SetError`」が、属性 1 行になります。入力検証を多用する画面を作るなら、これは魅力的です。
+`INotifyDataErrorInfo`（第 14 章）を実装済みで、`System.ComponentModel.DataAnnotations` の属性で検証規則を書けます。第 14 章で、`Name` の `set` に手で書いた「空なら `SetError`」が、属性 1 行になります。入力検証を多用する画面を作るなら、これは魅力的です。
 
 ## Prism と組み合わせる
 

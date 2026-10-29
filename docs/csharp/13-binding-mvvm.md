@@ -1,10 +1,10 @@
 ---
-title: 第 12 章 データバインディングと MVVM
+title: 第 13 章 データバインディングと MVVM
 tags:
   - C#連携
 ---
 
-# 第 12 章 データバインディングと MVVM
+# 第 13 章 データバインディングと MVVM
 
 第 6 章で作ったエディタは、枠だけで中身が空っぽです。シーン ツリーには「シーン ツリー」という文字が、プロパティには「プロパティ」という文字が置いてあるだけで、オブジェクトを選んでも何も起きません。この章では、この 2 つのパネルを、データバインディングでつなぎます。シーン ツリーで選んだオブジェクトの名前と位置が、プロパティ パネルに出て、そこで書き換えられるようにします。
 
@@ -18,11 +18,11 @@ WPF を使う最大の理由は、データバインディングです。画面�
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `Mvvm/ViewModelBase.cs`（新規） | 「値が変わった」を画面に知らせる土台 |
-    | `Mvvm/RelayCommand.cs`（新規） | ボタンの処理をビューモデルに持たせる部品 |
     | `ViewModels/SceneObjectViewModel.cs`（新規） | シーンの 1 オブジェクト（名前と位置） |
-    | `ViewModels/MainWindowViewModel.cs`（新規） | オブジェクトの一覧と、選択中のオブジェクト |
+    | `MainWindowViewModel.cs`（変更） | オブジェクトの一覧と、選択中のオブジェクト |
     | `MainWindow.xaml`（変更） | 左にシーン ツリー、右にプロパティ パネルを作る |
+
+    値の変化を画面に知らせる土台（`BindableBase`）とボタンの処理（`DelegateCommand`）は、第 12 章で入れた Prism のものを使います。自分では書きません。そのかわり、中でどんなことが起きているのかは、「深掘り」の節で見ます。
 
     このあと、各節の終わりに「深掘り」を置いています。作った物の中に出てきた仕組みを、1 つずつ見ていく節です。
 
@@ -76,26 +76,19 @@ public class SceneObjectViewModel
 
 次に、ウィンドウ全体のデータを持つクラスです。今は、選択中のオブジェクトを 1 つ持つだけです。
 
-```csharp title="ViewModels/MainWindowViewModel.cs（新規）"
-namespace Editor.ViewModels;
+```csharp title="MainWindowViewModel.cs（変更）"
+using Editor.ViewModels;
+
+namespace Editor;
 
 public class MainWindowViewModel
 {
+    public string Title => "MiniEngine Editor";
     public SceneObjectViewModel Selected { get; set; } = new("Cube", 1, 0, 2);
 }
 ```
 
-ウィンドウに、このクラスを持たせます。
-
-```csharp title="MainWindow.xaml.cs（変更）"
-using Editor.ViewModels;      // ファイルの先頭に足す
-
-public MainWindow()
-{
-    InitializeComponent();
-    DataContext = new MainWindowViewModel();
-}
-```
+第 12 章で作った `MainWindowViewModel` に、`Selected` を足しました。このクラスをウィンドウに持たせる作業は、もう要りません。`AutoWireViewModel="True"` を付けてあるので、ViewModelLocator が見つけて、`DataContext` に入れてくれます。`Title` は、第 12 章で確かめたときの「（ビューモデルから）」を消した形にしました。
 
 最後に、第 6 章で「プロパティ」という文字だけを置いた右のパネルを、入力欄に差し替えます。
 
@@ -121,7 +114,7 @@ public MainWindow()
 
 `{Binding Selected.Name}` の `Selected.Name` は、「どこかのオブジェクトの `Selected` プロパティの、さらに `Name` プロパティ」という意味です。その「どこかのオブジェクト」を決めているのが `DataContext` です。
 
-`DataContext` は、すべての部品が持っているプロパティで、ここに設定したオブジェクトが、バインディングの探し先になります。部品に設定しなければ、親の `DataContext` を引き継ぎます。上では `MainWindow` に 1 回設定しただけですが、ウィンドウの中のすべての部品が、それを見に行きます。
+`DataContext` は、すべての部品が持っているプロパティで、ここに設定したオブジェクトが、バインディングの探し先になります。部品に設定しなければ、親の `DataContext` を引き継ぎます。上では ViewModelLocator が `MainWindow` に 1 回設定しただけですが、ウィンドウの中のすべての部品が、それを見に行きます。
 
 読むときは、「画面の部品 → `{Binding パス}` → `DataContext` のオブジェクト」の順に矢印をたどります。右パネルの `TextBox` なら、`TextBox` → `Selected.Name` → `MainWindowViewModel` の `Selected` → その `Name`、です。慣れるまでは、この矢印を毎回たどってみてください。
 
@@ -190,46 +183,16 @@ public class SceneObjectViewModel : INotifyPropertyChanged
 
 WPF でありがちな事故の大半は、この通知の書き忘れです。`set` の中に `OnPropertyChanged()` を書いたか、値が変わったのに通知しない道が残っていないか。画面が更新されないときは、まずここを疑ってください。
 
-### Editor に入れる：ViewModelBase
+### Prism の BindableBase を使う
 
-とはいえ、プロパティごとにこの 10 行を書くのは大変です。オブジェクトの名前と位置だけで 4 つ、これから増えていく他のビューモデルを含めると、数十個になります。共通の部分を、基底クラスに移します。
-
-```csharp title="Mvvm/ViewModelBase.cs（新規）"
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-
-namespace Editor.Mvvm;
-
-public abstract class ViewModelBase : INotifyPropertyChanged
-{
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    // 値を入れ替えて、変わっていたら知らせる。変わったかどうかを返す
-    protected bool SetProperty<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
-    }
-
-    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-}
-```
-
-`ref T field` は、フィールドそのものへの参照を受け取る引数です。C++ の `T&` に当たります。`SetProperty(ref _x, value)` と呼べば、呼び出し側のフィールド `_x` を、関数の中で書き換えられます。
-
-これを使って、`SceneObjectViewModel` を書き直します。
+とはいえ、プロパティごとにこの 10 行を書くのは大変です。オブジェクトの名前と位置だけで 4 つ、これから増えていく他のビューモデルを含めると、数十個になります。共通の部分は、基底クラスに移すのが定番で、Prism にはそれが用意されています。`BindableBase` です。
 
 ```csharp title="ViewModels/SceneObjectViewModel.cs（変更：全体）"
-using Editor.Mvvm;
+using Prism.Mvvm;
 
 namespace Editor.ViewModels;
 
-public class SceneObjectViewModel : ViewModelBase
+public class SceneObjectViewModel : BindableBase
 {
     private string _name;
     private float _x, _y, _z;
@@ -253,6 +216,32 @@ public class SceneObjectViewModel : ViewModelBase
         Y = 0;
         Z = 0;
     }
+}
+```
+
+`BindableBase` は、`INotifyPropertyChanged` の実装と、`SetProperty` という補助の関数を持っています。`SetProperty(ref _x, value)` は、「値が前と違うときだけ、フィールドを入れ替えて、変わったと知らせる」という関数です。さきほど手で書いた `if (_x == value) return;` から `OnPropertyChanged()` までを、1 行にまとめたものです。変わったかどうかを `bool` で返すので、変わったときだけ別の処理をしたいときにも使えます（あとで出てきます）。
+
+`ref _x` の `ref` は、フィールドそのものへの参照を渡す印です。C++ の `T&` に当たります。`SetProperty` は呼び出し側のフィールド `_x` を書き換えなければならないので、値のコピーではなく参照で受け取ります。呼ぶ側にも `ref` と書く決まりです。
+
+通知を名前で送りたいときは、`RaisePropertyChanged(nameof(HasSelection))` と書きます。`nameof` は名前をコンパイル時に文字列にする書き方です。
+
+中身は、次のような形です。Prism の実物はもう少し細かいのですが、働きは同じです。
+
+```csharp title="BindableBase の中身（イメージ。Editor には入れない）"
+public abstract class BindableBase : INotifyPropertyChanged
+{
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string? propertyName = null)
+    {
+        if (EqualityComparer<T>.Default.Equals(storage, value)) return false;
+        storage = value;
+        RaisePropertyChanged(propertyName);
+        return true;
+    }
+
+    protected void RaisePropertyChanged([CallerMemberName] string? propertyName = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }
 ```
 
@@ -312,56 +301,32 @@ public class SceneObjectViewModel : ViewModelBase
 
 `UpdateSourceTrigger` は、画面からデータへ書き戻すタイミングです。`TextBox` の既定は `LostFocus` で、これが先ほどのチェックリストの最後の項目の理由でした。数値の入力欄に `PropertyChanged` を付けると、`1.` のように小数点を打った途中の文字列が、そのたびに数値へ変換されて、入力しにくくなることがあります。そのため、数値は既定のまま、名前だけに付けました。
 
-`StringFormat` は表示形式の指定で、`{0:F2}` なら小数 2 桁になります。ほかにも `Converter`、`FallbackValue`、`ElementName`、`RelativeSource` などがあります。第 13 章で詳しく扱います。
+`StringFormat` は表示形式の指定で、`{0:F2}` なら小数 2 桁になります。ほかにも `Converter`、`FallbackValue`、`ElementName`、`RelativeSource` などがあります。第 14 章で詳しく扱います。
 
 ## ボタンの処理をビューモデルに移す
 
 「位置をリセット」は、`Click="OnReset"` で、コードビハインドの `OnReset` を呼んでいます。ボタンが何十個にもなると、画面のコードが処理だらけになります。バインディングがデータの受け渡しを画面から切り離してくれたように、操作も切り離せます。それがコマンドです。
 
-先に、コマンドを作る部品を `Editor` に足します。
-
-```csharp title="Mvvm/RelayCommand.cs（新規）"
-using System.Windows.Input;
-
-namespace Editor.Mvvm;
-
-public class RelayCommand : ICommand
-{
-    private readonly Action _execute;
-    private readonly Func<bool>? _canExecute;
-
-    public RelayCommand(Action execute, Func<bool>? canExecute = null)
-    {
-        _execute = execute;
-        _canExecute = canExecute;
-    }
-
-    public event EventHandler? CanExecuteChanged;
-
-    public bool CanExecute(object? parameter) => _canExecute?.Invoke() ?? true;
-    public void Execute(object? parameter) => _execute();
-
-    public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-}
-```
+コマンドを作る部品は、Prism の `DelegateCommand` を使います。「実行する処理」と「いま実行してよいか」を、関数として渡して作ります。
 
 使うのは `SceneObjectViewModel` です。リセットは、すでに原点にいるときは押せなくしたいので、`canExecute` も渡します。
 
 ```csharp title="ViewModels/SceneObjectViewModel.cs（変更）"
+using Prism.Commands;
+
 public SceneObjectViewModel(string name, float x = 0, float y = 0, float z = 0)
 {
     _name = name;
     _x = x;
     _y = y;
     _z = z;
-    ResetCommand = new RelayCommand(Reset, () => _x != 0 || _y != 0 || _z != 0);
+    ResetCommand = new DelegateCommand(Reset, () => _x != 0 || _y != 0 || _z != 0)
+        .ObservesProperty(() => X)
+        .ObservesProperty(() => Y)
+        .ObservesProperty(() => Z);
 }
 
-public float X { get => _x; set { if (SetProperty(ref _x, value)) ResetCommand.RaiseCanExecuteChanged(); } }
-public float Y { get => _y; set { if (SetProperty(ref _y, value)) ResetCommand.RaiseCanExecuteChanged(); } }
-public float Z { get => _z; set { if (SetProperty(ref _z, value)) ResetCommand.RaiseCanExecuteChanged(); } }
-
-public RelayCommand ResetCommand { get; }
+public DelegateCommand ResetCommand { get; }
 
 private void Reset()
 {
@@ -370,6 +335,10 @@ private void Reset()
     Z = 0;
 }
 ```
+
+`DelegateCommand` の 1 つ目の引数が、押されたときの処理（`Reset`）で、2 つ目が「押してよいか」の判断です。ここでは、どれかが 0 以外なら押せる、としています。
+
+`ObservesProperty(() => X)` は、「`X` が変わったら、押してよいかをもう一度聞き直して」という宣言です。`() => X` は、プロパティを指す式で、Prism がそこからプロパティ名を取り出しています。`X`、`Y`、`Z` の `set` の側には、何も足していません。コマンドの側から、プロパティを見張っているわけです。
 
 `Reset` は、`public` から `private` に変えました。外からは、コマンドを通して呼ぶからです。ボタンは、`Click` をやめて `Command` にします。
 
@@ -392,19 +361,23 @@ private void Reset()
 
 便利なのは `CanExecute` です。ボタンの有効、無効の判断をビューモデルに書けば、画面の側でボタンを無効にする処理を書かなくて済みます。
 
-`RaiseCanExecuteChanged()` は、「実行してよいかを、もう一度聞き直してください」という合図です。プロパティの `PropertyChanged` と同じ役割で、これを呼び忘れると、ボタンの状態が更新されません。位置が変わったときに呼んでいるのは、そのためです。この手書きは、第 16 章で Prism の `DelegateCommand` の `ObservesProperty` が引き受けてくれます。
+`CanExecuteChanged` は、「実行してよいかどうかが変わったかもしれないので、もう一度聞き直してください」という合図です。プロパティの `PropertyChanged` と同じ役割で、これが起きないと、ボタンの状態が更新されません。`DelegateCommand` には `RaiseCanExecuteChanged()` という、この合図を手で出す関数もあります。ただ、呼び忘れるとボタンの状態が古いままになるので、プロパティに連動するものは、`ObservesProperty` に任せるほうが安全です。
+
+`DelegateCommand` の中身は、「`Action` と `Func<bool>` を受け取って、`ICommand` の 3 つのメンバーに渡す」だけの小さなクラスです。自分で `ICommand` を実装するときも、コンストラクターで受け取った関数を `Execute` と `CanExecute` から呼ぶだけの形になります。
 
 ## シーン ツリーを作る
 
 右のパネルが動いたので、左のシーン ツリーに、オブジェクトを並べます。複数のオブジェクトを持つ `MainWindowViewModel` に書き直します。
 
-```csharp title="ViewModels/MainWindowViewModel.cs（変更：全体）"
+```csharp title="MainWindowViewModel.cs（変更：全体）"
 using System.Collections.ObjectModel;
-using Editor.Mvvm;
+using Editor.ViewModels;
+using Prism.Commands;
+using Prism.Mvvm;
 
-namespace Editor.ViewModels;
+namespace Editor;
 
-public class MainWindowViewModel : ViewModelBase
+public class MainWindowViewModel : BindableBase
 {
     private SceneObjectViewModel? _selected;
 
@@ -417,8 +390,10 @@ public class MainWindowViewModel : ViewModelBase
             new("Light", 3, 5, 0),
         };
         Selected = Objects[1];
-        AddCommand = new RelayCommand(Add);
+        AddCommand = new DelegateCommand(Add);
     }
+
+    public string Title => "MiniEngine Editor";
 
     public ObservableCollection<SceneObjectViewModel> Objects { get; }
 
@@ -428,13 +403,13 @@ public class MainWindowViewModel : ViewModelBase
         set
         {
             if (SetProperty(ref _selected, value))
-                OnPropertyChanged(nameof(HasSelection));
+                RaisePropertyChanged(nameof(HasSelection));
         }
     }
 
     public bool HasSelection => _selected is not null;
 
-    public RelayCommand AddCommand { get; }
+    public DelegateCommand AddCommand { get; }
 
     private void Add()
     {
@@ -445,7 +420,7 @@ public class MainWindowViewModel : ViewModelBase
 }
 ```
 
-`Selected` は、選択が外れたときに `null` になるので、型を `SceneObjectViewModel?` にしました。`HasSelection` は、このあと画面の表示と非表示の切り替えに使います。`Selected` が変わったときに、`HasSelection` も変わったと知らせているのが、`OnPropertyChanged(nameof(HasSelection))` の行です。
+`Selected` は、選択が外れたときに `null` になるので、型を `SceneObjectViewModel?` にしました。`HasSelection` は、このあと画面の表示と非表示の切り替えに使います。`Selected` が変わったときに、`HasSelection` も変わったと知らせているのが、`RaisePropertyChanged(nameof(HasSelection))` の行です。
 
 画面は、第 6 章で「シーン ツリー」という文字だけを置いた、左のパネルを差し替えます。
 
@@ -468,7 +443,7 @@ public class MainWindowViewModel : ViewModelBase
 
 ひとつ注意があります。`Objects = new ObservableCollection<...>(...)` のように、入れ物ごと差し替えると、`ObservableCollection` の通知では足りません。そのプロパティ自体の `PropertyChanged` が必要です。普段は入れ物を作り替えず、`Clear()` と `Add()` で中身を変えるほうが安全です。上の `Objects` が、`{ get; }` だけで `set` を持たないのは、そのためです。
 
-`ItemsSource` は、リスト系の部品に「要素の集まり」を渡すプロパティです。`SelectedItem` は、選んでいる 1 件で、`ListBox` の側で選び直すと `Selected` に書き戻されます。第 14 章で詳しく扱います。
+`ItemsSource` は、リスト系の部品に「要素の集まり」を渡すプロパティです。`SelectedItem` は、選んでいる 1 件で、`ListBox` の側で選び直すと `Selected` に書き戻されます。第 15 章で詳しく扱います。
 
 ### 深掘り：項目の見た目（DataTemplate）
 
@@ -583,42 +558,38 @@ View（MainWindow.xaml）            ViewModel（C#）
 - 「オブジェクトを追加」で行が増え、増えた行が選ばれる。
 
 ??? failure "右のパネルが空のまま、何も出ない"
-    `MainWindow.xaml.cs` のコンストラクターで `DataContext` を設定したか、「出力」ウィンドウに `BindingExpression path error` が出ていないかを確かめます。`MainWindowViewModel` の `Selected` が `public` のプロパティになっているかも見てください。
+    `MainWindow.xaml` に `AutoWireViewModel="True"` が書いてあるか（第 12 章）、「出力」ウィンドウに `BindingExpression path error` が出ていないかを確かめます。`MainWindowViewModel` の `Selected` が `public` のプロパティになっているかも見てください。
 
 ??? failure "位置を書き換えても、左のリストの数字が変わらない"
-    `SceneObjectViewModel` が `ViewModelBase` を継承して、`SetProperty` を使っているかを確かめます。フォーカスが外れるまで反映されないのは、故障ではなく `TextBox` の既定の動きです。
+    `SceneObjectViewModel` が `BindableBase` を継承して、`SetProperty` を使っているかを確かめます。フォーカスが外れるまで反映されないのは、故障ではなく `TextBox` の既定の動きです。
 
 ??? failure "リセットを押しても、ボタンの状態が戻らない"
-    `X`、`Y`、`Z` の `set` の中で、`ResetCommand.RaiseCanExecuteChanged()` を呼んでいるかを確かめます。
+    `ResetCommand` に、`.ObservesProperty(() => X)` などが付いているかを確かめます。
 
 ## ここまでの Editor
 
 ```text
 Editor/
-├─ Mvvm/
-│   ├─ ViewModelBase.cs          通知の土台
-│   └─ RelayCommand.cs           ICommand の実装
 ├─ ViewModels/
-│   ├─ SceneObjectViewModel.cs   1 オブジェクト（名前、位置、リセット）
-│   └─ MainWindowViewModel.cs    一覧と選択
-├─ MainWindow.xaml               左：シーン ツリー、右：プロパティ
-└─ MainWindow.xaml.cs            DataContext を設定するだけ
+│   └─ SceneObjectViewModel.cs   1 オブジェクト（名前、位置、リセット）。BindableBase
+├─ MainWindowViewModel.cs        一覧と選択。BindableBase、DelegateCommand
+└─ MainWindow.xaml               左：シーン ツリー、右：プロパティ
 ```
 
 ## ここまでのまとめ
 
 - `DataContext` に入れたオブジェクトを、`{Binding プロパティ名}` が見に行く。
-- 画面が追従するには、`INotifyPropertyChanged`（プロパティ）と `ObservableCollection`（コレクション）で変更を知らせる。
-- 操作は `ICommand`、リストの 1 件の見た目は `DataTemplate`、型の違いは `Converter` でつなぐ。
+- 画面が追従するには、`INotifyPropertyChanged`（プロパティ）と `ObservableCollection`（コレクション）で変更を知らせる。プロパティは Prism の `BindableBase` と `SetProperty` で書く。
+- 操作は `ICommand`（Prism の `DelegateCommand`）、リストの 1 件の見た目は `DataTemplate`、型の違いは `Converter` でつなぐ。
 - 画面で困ったら、「出力」ウィンドウの `BindingExpression path error` を見る。
 
 ## 関連する章
 
-- [第 13 章 バインディングを掘り下げる](13-binding.md)：Mode と UpdateSourceTrigger の既定値、ElementName、RelativeSource、MultiBinding、入力検証、デバッグ
-- [第 14 章 リストとデータ表示](14-lists.md)：ListBox / ListView / DataGrid / ComboBox の使い分けと選択
+- [第 14 章 バインディングを掘り下げる](14-binding.md)：Mode と UpdateSourceTrigger の既定値、ElementName、RelativeSource、MultiBinding、入力検証、デバッグ
+- [第 15 章 リストとデータ表示](15-lists.md)：ListBox / ListView / DataGrid / ComboBox の使い分けと選択
 - [第 27 章 コードビハインドを減らす](27-behaviors.md)：Behaviors でイベントをコマンドに結ぶ
-- [第 25 章 MVVM ライブラリを比べる](25-mvvm-libraries.md)：Prism の `BindableBase` と CommunityToolkit.Mvvm、ReactiveProperty
+- [第 25 章 MVVM ライブラリを比べる](25-mvvm-libraries.md)：`BindableBase` と CommunityToolkit.Mvvm、ReactiveProperty の書き比べ
 
 次の章では、バインディングの設定を細かく見ていきます。「更新されない」の原因の多くは、ここにあります。
 
-[第 13 章 バインディングを掘り下げる](13-binding.md) へ進みます。
+[第 14 章 バインディングを掘り下げる](14-binding.md) へ進みます。

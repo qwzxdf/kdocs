@@ -118,7 +118,7 @@ public static class Ui
 <Border local:Ui.IsHighlighted="True" />
 ```
 
-`Get...` と `Set...` の名前の付け方が決まりになっています（XAML が、この名前の関数を探すからです）。添付プロパティの使いどころは、部品の振る舞いを後から足したいときです。第 16 章の `ViewModelLocator.AutoWireViewModel` も、添付プロパティが `True` にされたら、その部品の `DataContext` を設定する、という仕組みでできています。
+`Get...` と `Set...` の名前の付け方が決まりになっています（XAML が、この名前の関数を探すからです）。添付プロパティの使いどころは、部品の振る舞いを後から足したいときです。第 12 章の `ViewModelLocator.AutoWireViewModel` も、添付プロパティが `True` にされたら、その部品の `DataContext` を設定する、という仕組みでできています。
 
 ## ルーテッド イベント
 

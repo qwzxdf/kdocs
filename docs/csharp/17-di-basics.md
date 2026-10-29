@@ -11,7 +11,8 @@ tags:
 この章では、まず言葉を整理します。IoC、DI、DI コンテナーは、よく一緒に出てきて、区別がつきにくい言葉です。それぞれが何を指すのか、なぜそんなものが要るのかを、Editor の実物と、C++ の書き方と比べながら見ていきます。
 
 !!! info "このページを読む前に"
-    - [第 16 章 Prism の導入と起動の流れ](16-prism-bootstrap.md)（`RegisterTypes` と ViewModelLocator を一度動かしてある）
+    - [第 16 章 非同期処理と UI スレッド](16-async-ui.md)（「作る係と使う係を分ける」の節で、`RegisterTypes` に登録して、コンストラクターで受け取るところまで動かしてある）
+    - [第 12 章 Prism の導入と起動の流れ](12-prism-bootstrap.md)（`App` と ViewModelLocator）
     - [第 5 章 C++ を知っている人のための C# 入門](05-csharp-basics.md)（インターフェースとコンストラクターの書き方）
 
 !!! abstract "この章での Editor"
@@ -19,10 +20,10 @@ tags:
 
 ## 自分で new すると、何が困るのか
 
-第 15 章までの `AssetBrowserViewModel` は、使う部品を、自分の中で作っていました。
+第 16 章の途中までの `AssetBrowserViewModel` は、使う部品を、自分の中で作っていました。
 
-```csharp title="第 15 章までの書き方"
-public class AssetBrowserViewModel : ViewModelBase
+```csharp title="第 16 章の途中までの書き方"
+public class AssetBrowserViewModel : BindableBase
 {
     private readonly AssetScanner _scanner = new();     // 自分で作る
     private readonly LogViewModel _log;
@@ -37,7 +38,7 @@ public class AssetBrowserViewModel : ViewModelBase
 
 テストのときは、本物のディスクを読む `AssetScanner` ではなく、決まった結果を返す偽物を使いたくなります。しかし、`AssetBrowserViewModel` の中で `new` しているので、外から差し替える入口がありません。
 
-複数のビューモデルが、同じ `LogViewModel` を共有したいときも困ります。それぞれが `new` すると、別々のインスタンスができて、ログが別々の一覧に入ってしまいます。第 15 章で、`MainWindowViewModel` が `Log` を作って `AssetBrowserViewModel` に渡していたのは、その共有のためでした。
+複数のビューモデルが、同じ `LogViewModel` を共有したいときも困ります。それぞれが `new` すると、別々のインスタンスができて、ログが別々の一覧に入ってしまいます。`MainWindowViewModel` が `Log` を作って `AssetBrowserViewModel` に渡していたのは、その共有のためでした。
 
 C++ で言えば、クラスのメンバーに `AssetScanner scanner_;` を値で持たせて、コンストラクターの中で作っているのと同じ状態です。作り方を変えたとき、使っている側を全部直すことになります。
 
@@ -160,7 +161,8 @@ var vm = new MainWindowViewModel(new LogViewModel(), ...);   // 動くが、DI �
 
 ## 関連する章
 
-- [第 16 章 Prism の導入と起動の流れ](16-prism-bootstrap.md)：最初の DI の例
+- [第 16 章 非同期処理と UI スレッド](16-async-ui.md)：最初の DI の例（登録とコンストラクターでの受け取り）
+- [第 12 章 Prism の導入と起動の流れ](12-prism-bootstrap.md)：`Container.Resolve` が最初に出てきた所
 - [第 18 章 Prism の起動で何が起きるか](18-prism-startup.md)：`RegisterTypes` は誰がいつ呼ぶのか、`Container` は誰が持つのか
 
 [第 18 章 Prism の起動で何が起きるか](18-prism-startup.md) へ進みます。

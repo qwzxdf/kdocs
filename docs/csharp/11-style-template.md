@@ -30,7 +30,7 @@ tags:
 | 色やフォントなどのプロパティ値をまとめて設定したい | `Style` + `Setter` |
 | 状況（マウスが乗った、無効になった、データが特定の値）で見た目を変えたい | `Trigger`（`Style.Triggers` の中） |
 | 部品の「作り」自体を変えたい（丸いボタン、枠を無くすなど） | `ControlTemplate` |
-| データ 1 件の見せ方を決めたい | `DataTemplate`（第 12 章） |
+| データ 1 件の見せ方を決めたい | `DataTemplate`（第 13 章） |
 | 同じ見た目と動きを部品として使い回したい | `UserControl`（第 26 章） |
 | 色やスタイルを画面をまたいで共有したい | リソース（`ResourceDictionary`） |
 
@@ -86,7 +86,7 @@ tags:
 </Application.Resources>
 ```
 
-第 16 章で `App` を `PrismApplication` に作り替えると、このタグは `prism:PrismApplication.Resources` に変わりますが、中身の書き方は同じです。
+第 12 章で `App` を `PrismApplication` に作り替えると、このタグは `prism:PrismApplication.Resources` に変わりますが、中身の書き方は同じです。
 
 プロジェクトの設定（フォント、テーマ、ボタンの大きさなど）は、画面を増やす前の最初の段階で決めてしまうのがおすすめです。後からスタイルを入れると、すでに画面ごとに設定されたプロパティ値と衝突して、調整に手間がかかります。
 
@@ -364,4 +364,4 @@ NuGet で入れて、`App.xaml` の `MergedDictionaries` に読み込みます�
 
 次の章では、画面の部品とデータを結び付けるデータバインディングと、画面とロジックを分ける MVVM を学びます。
 
-[第 12 章 データバインディングと MVVM](12-binding-mvvm.md) へ進みます。
+[第 13 章 データバインディングと MVVM](13-binding-mvvm.md) へ進みます。

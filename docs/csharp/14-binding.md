@@ -1,31 +1,30 @@
 ---
-title: 第 13 章 バインディングを掘り下げる
+title: 第 14 章 バインディングを掘り下げる
 tags:
   - C#連携
 ---
 
-# 第 13 章 バインディングを掘り下げる
+# 第 14 章 バインディングを掘り下げる
 
-第 12 章で、シーン ツリーとプロパティ パネルがつながりました。ただ、使い込むと不満が出てきます。リストの 1 行ごとに削除ボタンを付けたい。位置は「1.0, 0.0, 2.0」のようにまとめて見せたい。オブジェクトが増えたので、名前で絞り込みたい。名前を空にしたら、怒ってほしい。この章では、これらを Editor に足しながら、バインディングの細かい設定を順に見ていきます。
+第 13 章で、シーン ツリーとプロパティ パネルがつながりました。ただ、使い込むと不満が出てきます。リストの 1 行ごとに削除ボタンを付けたい。位置は「1.0, 0.0, 2.0」のようにまとめて見せたい。オブジェクトが増えたので、名前で絞り込みたい。名前を空にしたら、怒ってほしい。この章では、これらを Editor に足しながら、バインディングの細かい設定を順に見ていきます。
 
 !!! info "このページを読む前に"
-    - [第 12 章 データバインディングと MVVM](12-binding-mvvm.md)（前の章。この章は、そこで作った Editor に足していく）
+    - [第 13 章 データバインディングと MVVM](13-binding-mvvm.md)（前の章。この章は、そこで作った Editor に足していく）
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `Mvvm/RelayCommand.cs`（変更） | 引数を受け取る `RelayCommand<T>` を足す |
     | `Mvvm/ValidatableViewModelBase.cs`（新規） | 入力のエラーを覚えておく土台 |
     | `ViewModels/SceneObjectViewModel.cs`（変更） | `Scale` を足す。名前が空ならエラーにする |
-    | `ViewModels/MainWindowViewModel.cs`（変更） | 削除コマンド、名前での絞り込み |
+    | `MainWindowViewModel.cs`（変更） | 削除コマンド、名前での絞り込み |
     | `MainWindow.xaml`（変更） | スケールのスライダー、位置の表示、削除ボタン、検索ボックス、ステータス バー |
 
 ## 表示を整える
 
 ### StringFormat：位置を読みやすく
 
-シーン ツリーの各行には、第 12 章で `X: 1.0` のように X だけを出しました。X、Y、Z をまとめて出したいので、3 つの値から 1 つの文字列を作ります。これには `MultiBinding` を使います。
+シーン ツリーの各行には、第 13 章で `X: 1.0` のように X だけを出しました。X、Y、Z をまとめて出したいので、3 つの値から 1 つの文字列を作ります。これには `MultiBinding` を使います。
 
 ```xml title="MainWindow.xaml（変更：ListBox の ItemTemplate の中）"
 <TextBlock Foreground="Gray" Margin="8,0,0,0">
@@ -116,40 +115,13 @@ public float Scale { get => _scale; set => SetProperty(ref _scale, value); }
 
 シーン ツリーの各行に、削除ボタンを付けます。`MainWindowViewModel` に、削除のコマンドを足します。
 
-先に、引数を受け取れるコマンドの部品を、`RelayCommand` のファイルに足します。
+引数を受け取るコマンドは、Prism の `DelegateCommand<T>` で作ります。`ICommand` の `Execute` の引数は `object?` ですが、`DelegateCommand<T>` が `T` に取り出して渡してくれるので、受け取る関数は `T` で書けます。
 
-```csharp title="Mvvm/RelayCommand.cs（変更：クラスを足す）"
-public class RelayCommand<T> : ICommand
-{
-    private readonly Action<T> _execute;
-    private readonly Func<T, bool>? _canExecute;
-
-    public RelayCommand(Action<T> execute, Func<T, bool>? canExecute = null)
-    {
-        _execute = execute;
-        _canExecute = canExecute;
-    }
-
-    public event EventHandler? CanExecuteChanged;
-
-    public bool CanExecute(object? parameter) => parameter is T t && (_canExecute?.Invoke(t) ?? true);
-
-    public void Execute(object? parameter)
-    {
-        if (parameter is T t) _execute(t);
-    }
-
-    public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
-}
-```
-
-`ICommand` の引数は `object?` なので、`T` かどうかを確かめて取り出しています。
-
-```csharp title="ViewModels/MainWindowViewModel.cs（変更：コンストラクターとメソッドを足す）"
+```csharp title="MainWindowViewModel.cs（変更：コンストラクターとメソッドを足す）"
 // コンストラクターの最後
-DeleteCommand = new RelayCommand<SceneObjectViewModel>(Delete);
+DeleteCommand = new DelegateCommand<SceneObjectViewModel>(Delete);
 
-public RelayCommand<SceneObjectViewModel> DeleteCommand { get; }
+public DelegateCommand<SceneObjectViewModel> DeleteCommand { get; }
 
 private void Delete(SceneObjectViewModel obj)
 {
@@ -158,7 +130,7 @@ private void Delete(SceneObjectViewModel obj)
 }
 ```
 
-削除したオブジェクトが選ばれていたら、`Selected` を `null` にします。右のパネルが丸ごと消えるのは、第 12 章で作った `HasSelection` のおかげです。
+削除したオブジェクトが選ばれていたら、`Selected` を `null` にします。右のパネルが丸ごと消えるのは、第 13 章で作った `HasSelection` のおかげです。
 
 ボタンを置くのは、`ListBox` の `ItemTemplate` の中です。ところが、そこの `DataContext` は、リストの 1 要素の `SceneObjectViewModel` になっています。`DeleteCommand` は、その外の `MainWindowViewModel` にあります。
 
@@ -219,7 +191,7 @@ private void Delete(SceneObjectViewModel obj)
 
 絞り込み自体は、`ObservableCollection` を書き換えずに行います。`ListBox` などに `ObservableCollection` を渡すと、WPF は裏で `CollectionView` というラッパーを作って、並べ替え、絞り込み、グループ化、「現在の項目」の管理をしています。この `CollectionView` を取り出して、条件を設定します。
 
-```csharp title="ViewModels/MainWindowViewModel.cs（変更）"
+```csharp title="MainWindowViewModel.cs（変更）"
 using System.ComponentModel;
 using System.Windows.Data;
 
@@ -272,7 +244,7 @@ _objectsView.GroupDescriptions.Add(new PropertyGroupDescription("Kind"));
 | `Explicit` | コードで `UpdateSource()` を呼んだとき |
 | `Default` | 部品ごとの既定値。ほとんどは `PropertyChanged`、`TextBox.Text` だけ `LostFocus` |
 
-初心者がつまずく定番は、`TextBox` だけ既定が `LostFocus` なことです。入力しても `Tab` や別の場所のクリックでフォーカスを外すまで、ビューモデルの値が変わりません。数値を入れる欄で `1.` と打った途中に `1` へ戻されてしまう現象も、`PropertyChanged` にしたときに起きがちです。第 12 章で位置の入力欄を既定のままにしたのは、そのためでした。
+初心者がつまずく定番は、`TextBox` だけ既定が `LostFocus` なことです。入力しても `Tab` や別の場所のクリックでフォーカスを外すまで、ビューモデルの値が変わりません。数値を入れる欄で `1.` と打った途中に `1` へ戻されてしまう現象も、`PropertyChanged` にしたときに起きがちです。第 13 章で位置の入力欄を既定のままにしたのは、そのためでした。
 
 ## 入力の検証
 
@@ -307,39 +279,36 @@ public string Name
 ```csharp title="Mvvm/ValidatableViewModelBase.cs（新規）"
 using System.Collections;
 using System.ComponentModel;
+using Prism.Mvvm;
 
 namespace Editor.Mvvm;
 
-public abstract class ValidatableViewModelBase : ViewModelBase, INotifyDataErrorInfo
+public abstract class ValidatableViewModelBase : BindableBase, INotifyDataErrorInfo
 {
-    private readonly Dictionary<string, string> _errors = new();
+    private readonly ErrorsContainer<string> _errors;
 
-    public bool HasErrors => _errors.Count > 0;
+    protected ValidatableViewModelBase()
+    {
+        // エラーが変わったら、この関数が呼ばれる
+        _errors = new ErrorsContainer<string>(
+            name => ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(name)));
+    }
+
+    public bool HasErrors => _errors.HasErrors;
 
     public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
 
-    public IEnumerable GetErrors(string? propertyName)
-    {
-        if (propertyName is not null && _errors.TryGetValue(propertyName, out var message))
-            return new[] { message };
-        return Array.Empty<string>();
-    }
+    public IEnumerable GetErrors(string? propertyName) => _errors.GetErrors(propertyName ?? string.Empty);
 
     // message が null ならエラーを消す
     protected void SetError(string propertyName, string? message)
-    {
-        if (message is null)
-        {
-            if (!_errors.Remove(propertyName)) return;
-        }
-        else
-        {
-            _errors[propertyName] = message;
-        }
-        ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
-    }
+        => _errors.SetErrors(propertyName, message is null ? Array.Empty<string>() : new[] { message });
 }
 ```
+
+`INotifyDataErrorInfo` のメンバーは 3 つです。エラーがあるかを返す `HasErrors`、プロパティごとのエラーを返す `GetErrors`、エラーが変わったことを知らせる `ErrorsChanged` です。`ErrorsChanged` の意味は `PropertyChanged` と同じで、これが起きたとき、WPF は `GetErrors` を呼び直して、入力欄の赤い枠を出したり消したりします。
+
+エラーの一覧を覚えておく部分は、Prism の `ErrorsContainer<T>` に任せました。プロパティ名ごとにエラーを持ち、変わったときに、渡した関数を呼んでくれます。エラーが空になったときの後始末や、変わっていないときの無駄な通知の抑制も、中でやってくれます。自分で `Dictionary` を持って同じことを書くと、「消すときだけ通知する」「同じエラーを入れ直したときは通知しない」といった細かい分岐を書くことになります。
 
 `SceneObjectViewModel` の土台を、これに差し替えて、名前の `set` で検証します。
 
@@ -361,7 +330,7 @@ public class SceneObjectViewModel : ValidatableViewModelBase
 
 名前の入力欄を全部消すと、入力欄が赤い枠になります。WPF の `Binding` は、`INotifyDataErrorInfo` のエラーを自動で拾ってくれます（`ValidatesOnNotifyDataErrors` の既定が `true`）。
 
-Prism の `BindableBase` には含まれていませんが、`ErrorsContainer<T>` という補助クラスがあります（第 24 章）。CommunityToolkit.Mvvm の `ObservableValidator` を使うと、`[Required]` のような属性（DataAnnotations）だけで検証を書けます（第 25 章）。
+CommunityToolkit.Mvvm の `ObservableValidator` を使うと、`[Required]` のような属性（DataAnnotations）だけで検証を書けます（第 25 章）。
 
 ### 3. ValidationRule（XAML 側で完結）
 
@@ -459,7 +428,7 @@ XAML エディタのデザイナーでも、バインディングのパスを補
 <Window ...
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:vm="clr-namespace:Editor.ViewModels"
+        xmlns:vm="clr-namespace:Editor"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel}">
 ```
@@ -507,14 +476,11 @@ textBox.SetBinding(TextBox.TextProperty, binding);
 ```text
 Editor/
 ├─ Mvvm/
-│   ├─ ViewModelBase.cs
-│   ├─ ValidatableViewModelBase.cs   入力エラーを覚える（新規）
-│   └─ RelayCommand.cs               RelayCommand<T> を足した
+│   └─ ValidatableViewModelBase.cs   入力エラーを覚える（新規）
 ├─ ViewModels/
-│   ├─ SceneObjectViewModel.cs       Scale、名前の検証を足した
-│   └─ MainWindowViewModel.cs        削除、絞り込みを足した
-├─ MainWindow.xaml                   検索ボックス、削除ボタン、スライダー、ステータス バー
-└─ MainWindow.xaml.cs
+│   └─ SceneObjectViewModel.cs       Scale、名前の検証を足した
+├─ MainWindowViewModel.cs            削除、絞り込みを足した
+└─ MainWindow.xaml                   検索ボックス、削除ボタン、スライダー、ステータス バー
 ```
 
 ## この章のまとめ
@@ -527,4 +493,4 @@ Editor/
 
 次の章では、リストやグリッドで大量のデータを見せる方法を扱います。
 
-[第 14 章 リストとデータ表示](14-lists.md) へ進みます。
+[第 15 章 リストとデータ表示](15-lists.md) へ進みます。

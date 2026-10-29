@@ -6,7 +6,7 @@ tags:
 
 # 第 24 章 Prism を掘り下げる
 
-本編の第 16〜23 章では、Prism の中でもよく使う部分を一通り扱いました。実際に画面遷移や複数の画面を作り込むと、「前に見ていた画面の状態が残ってしまう」「未保存なのに別の画面へ移ってしまう」「全部のモジュールを最初に読み込むと起動が遅い」といった問題が出てきます。この章では、そういう場面で使う Prism の機能をまとめます。
+本編の第 12 章と第 17〜23 章では、Prism の中でもよく使う部分を一通り扱いました。実際に画面遷移や複数の画面を作り込むと、「前に見ていた画面の状態が残ってしまう」「未保存なのに別の画面へ移ってしまう」「全部のモジュールを最初に読み込むと起動が遅い」といった問題が出てきます。この章では、そういう場面で使う Prism の機能をまとめます。
 
 !!! info "このページを読む前に"
     - [第 23 章 イベント集約、ダイアログ、サービス](23-events-dialogs.md)（前の章。ここまでの内容が前提になる）
@@ -14,12 +14,11 @@ tags:
 
 
 !!! abstract "この章で Editor に足すもの"
-    この章は、必要になったときに引く、機能の紹介が中心です。Editor に実際に入れるのは、次の 2 つだけです。そのほかのコードは、「実験」と書いてあるとおり、仕組みを見るための形で、Editor には入れません。
+    この章は、必要になったときに引く、機能の紹介が中心です。Editor に実際に入れるのは、次の 1 つだけです。そのほかのコードは、「実験」と書いてあるとおり、仕組みを見るための形で、Editor には入れません。
 
     | ファイル | 内容 |
     | --- | --- |
     | `Modules/Property/SettingsViewModel.cs`（変更） | 設定の画面は、切り替えたら捨てる（`KeepAlive`） |
-    | `Mvvm/ValidatableViewModelBase.cs`（変更） | エラーの管理を、自作から Prism の `ErrorsContainer` に替える |
 
 Prism は、バージョンによって細かな API が変わります。ここに書いたコードがそのままコンパイルできないときは、使っているバージョンの公式ドキュメントと見比べてください。この章は Prism 9 を前提にしています。
 
@@ -239,41 +238,6 @@ RequestClose.Invoke(new DialogParameters { { "Name", name } }, ButtonResult.OK);
 ```
 
 呼び出し側は、コールバックの `result.Parameters` から値を取り出せます。
-
-## 入力の検証の補助：ErrorsContainer
-
-`INotifyDataErrorInfo`（第 13 章）を実装するとき、エラーの一覧を管理する `ErrorsContainer<T>` が Prism に用意されています。第 13 章で自作した `ValidatableViewModelBase` の中の `Dictionary` を、これに替えます。
-
-```csharp title="Mvvm/ValidatableViewModelBase.cs（変更：全体）"
-using System.Collections;
-using System.ComponentModel;
-using Prism.Mvvm;
-
-namespace Editor.Mvvm;
-
-public abstract class ValidatableViewModelBase : BindableBase, INotifyDataErrorInfo
-{
-    private readonly ErrorsContainer<string> _errors;
-
-    protected ValidatableViewModelBase()
-    {
-        _errors = new ErrorsContainer<string>(
-            name => ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(name)));
-    }
-
-    public bool HasErrors => _errors.HasErrors;
-
-    public event EventHandler<DataErrorsChangedEventArgs>? ErrorsChanged;
-
-    public IEnumerable GetErrors(string? propertyName) => _errors.GetErrors(propertyName ?? string.Empty);
-
-    // message が null ならエラーを消す
-    protected void SetError(string propertyName, string? message)
-        => _errors.SetErrors(propertyName, message is null ? Array.Empty<string>() : new[] { message });
-}
-```
-
-`ErrorsContainer<T>` は、プロパティ名ごとのエラーの一覧を持ち、変わったときに、渡したコールバックを呼んでくれます。`SetError` を呼ぶ側（`SceneObjectViewModel` の `Name` の `set`）は、何も変わりません。エラーが空になったときの後始末や、変わっていないときの無駄な通知を抑える処理も、`ErrorsContainer` に任せられます。
 
 ## ViewModelLocator の動きを変える
 
