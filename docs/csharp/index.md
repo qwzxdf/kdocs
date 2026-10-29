@@ -80,46 +80,47 @@ MiniEngine.sln
 |  | [第 10 章 依存関係プロパティ、添付プロパティ、ルーテッド イベント](10-dependency-properties.md) | 依存関係プロパティ、添付プロパティ、ルーテッド イベント |
 |  | [第 11 章 スタイル、リソース、テンプレート、トリガー](11-style-template.md) | リソース、スタイル、トリガー、ControlTemplate |
 |  | [第 12 章 Prism の導入と起動の流れ](12-prism-bootstrap.md) | NuGet で Prism を入れる、PrismApplication で起動を作り替える、最初のビューモデルを ViewModelLocator で結ぶ |
-|  | [第 13 章 データバインディングと MVVM](13-binding-mvvm.md) | シーン ツリーとプロパティ パネルをつなぎながら、バインディング、通知（BindableBase）、ICommand（DelegateCommand）、ObservableCollection、MVVM |
-|  | [第 14 章 バインディングを掘り下げる](14-binding.md) | 削除ボタン、絞り込み、入力検証を足しながら、Mode と UpdateSourceTrigger、RelativeSource、CollectionView、デバッグ |
-|  | [第 15 章 リストとデータ表示](15-lists.md) | アセット一覧とログ一覧を作りながら、ListBox、ComboBox、DataGrid、選択、仮想化 |
-|  | [第 16 章 非同期処理と UI スレッド](16-async-ui.md) | アセットの読み込みを作りながら、async / await、Dispatcher、IProgress、キャンセル。DI コンテナーで部品を渡す最初の例 |
-|  | [第 17 章 DI とは何か：IoC・DI・DI コンテナー](17-di-basics.md) | Editor の組み立てで見る、自分で new する困りごと、コンストラクター インジェクション、IoC との違い |
-|  | [第 18 章 Prism の起動で何が起きるか](18-prism-startup.md) | `Main` の正体、起動の順番、`Container` の持ち主、Service Locator |
-|  | [第 19 章 登録とライフタイム](19-registration-lifetime.md) | 遅延生成、Singleton と Transient、未登録の型、インターフェースの要否 |
-|  | [第 20 章 ViewModelLocator のしくみ](20-viewmodel-locator.md) | AutoWire の流れ、名前の規則、動かないとき |
-|  | [第 21 章 DI コンテナーの種類と DryIoc](21-di-containers.md) | コンテナーの種類、Prism の共通の窓口、DryIoc 単体 |
-|  | [第 22 章 リージョン、モジュール、ナビゲーション](22-regions-modules.md) | MainWindow を枠にして、シーン ツリー、プロパティ、アセット、ログをモジュールに分ける。ナビゲーション |
-|  | [第 23 章 イベント集約、ダイアログ、サービス](23-events-dialogs.md) | シーン ツリーの選択をプロパティ パネルへ伝える。IEventAggregator、サービス、ダイアログ |
-|  | [第 24 章 Prism を掘り下げる](24-prism-deep.md) | KeepAlive、IConfirmNavigationRequest、CompositeCommand |
-|  | [第 25 章 MVVM ライブラリを比べる](25-mvvm-libraries.md) | BindableBase と CommunityToolkit.Mvvm などの比較 |
-|  | [第 26 章 UserControl とカスタム コントロール](26-custom-controls.md) | UserControl とカスタム コントロール |
-|  | [第 27 章 コードビハインドを減らす（Behaviors）](27-behaviors.md) | Behaviors でイベントをコマンドに結ぶ |
-|  | [第 28 章 アプリの基本（起動・終了・ウィンドウ・コマンド）](28-app-basics.md) | 起動と終了、ウィンドウ、標準のコマンド |
-|  | [第 29 章 アニメーション](29-animation.md) | Storyboard とイージング |
-| 3 C# から C++ を呼ぶ | [第 30 章 C# から C++ を呼ぶ：連携方式の比較](30-interop-overview.md) | P/Invoke、C++/CLI、COM、IPC の比較と、境界のルール |
-|  | [第 31 章 EngineApi：C の入口を作る](31-engine-api.md) | C の API（ハンドル、エラー コード） |
-|  | [第 32 章 P/Invoke で C# から呼ぶ](32-pinvoke.md) | LibraryImport、構造体、SafeHandle、コールバック |
-|  | [第 33 章 C++/CLI で橋を作る](33-cpp-cli.md) | C++/CLI の橋と比較 |
-|  | [第 34 章 DLL の読み込み、x64、デバッグ](34-dll-loading.md) | 読み込みの仕組みと、エラーの切り分け、混在デバッグ |
-| 4 3D ビューポート | [第 35 章 3D ビューポートを埋め込む方法の比較](35-viewport-options.md) | HwndHost、D3DImage、WriteableBitmap などの比較 |
-|  | [第 36 章 HwndHost でビューポートを実装する](36-hwndhost.md) | 子ウィンドウの埋め込みと DX12 |
-|  | [第 37 章 描画ループとスレッド](37-render-loop.md) | 描画スレッドとコマンド キュー |
-|  | [第 38 章 入力とエディタ カメラ](38-input-camera.md) | 入力、カメラ、線の描画 |
-| 5 エディタの機能 | [第 39 章 シーンのデータと API](39-scene-api.md) | ドキュメントとエンジンの分離、同期 |
-|  | [第 40 章 シーン ツリー](40-scene-tree.md) | TreeView、選択、ドラッグ アンド ドロップ |
-|  | [第 41 章 プロパティ パネル](41-property-panel.md) | 型ごとの DataTemplate、入力の検証 |
-|  | [第 42 章 ピッキングとギズモ](42-picking-gizmo.md) | レイ、ピッキング、ギズモ |
-|  | [第 43 章 Undo/Redo](43-undo-redo.md) | コマンド パターン、トランザクション |
-|  | [第 44 章 保存と読み込み](44-save-load.md) | JSON、検証、非同期 |
-|  | [第 45 章 アセット ブラウザ](45-asset-browser.md) | FileSystemWatcher、サムネイル、ドロップ |
-| 6 ゲーム DLL と仕上げ | [第 46 章 Game DLL のインターフェース](46-game-interface.md) | 純粋仮想インターフェースと DLL の境界 |
-|  | [第 47 章 ホット リロード](47-hot-reload.md) | シャドウ コピー、状態の引き継ぎ |
-|  | [第 48 章 Play モード](48-play-mode.md) | 編集と Play の切り替え、元に戻す |
-|  | [第 49 章 ログとエラー処理](49-logging-errors.md) | 例外の捕捉、ログ、ダンプ |
-|  | [第 50 章 スレッド、メモリ、IDisposable](50-threads-memory.md) | スレッドの約束、リーク、IDisposable |
-|  | [第 51 章 ビルド、テスト、配布](51-build-deploy.md) | Release、配布、CI、テスト |
-|  | [第 52 章 まとめと、これから](52-next-steps.md) | 設計の振り返りと、これから |
+|  | [第 13 章 見た目のテーマを入れる](13-theme.md) | 標準の部品が暗くならない理由、Fluent テーマ（ThemeMode）、WPF-UI |
+|  | [第 14 章 データバインディングと MVVM](14-binding-mvvm.md) | シーン ツリーとプロパティ パネルをつなぎながら、バインディング、通知（BindableBase）、ICommand（DelegateCommand）、ObservableCollection、MVVM |
+|  | [第 15 章 バインディングを掘り下げる](15-binding.md) | 削除ボタン、絞り込み、入力検証を足しながら、Mode と UpdateSourceTrigger、RelativeSource、CollectionView、デバッグ |
+|  | [第 16 章 リストとデータ表示](16-lists.md) | アセット一覧とログ一覧を作りながら、ListBox、ComboBox、DataGrid、選択、仮想化 |
+|  | [第 17 章 非同期処理と UI スレッド](17-async-ui.md) | アセットの読み込みを作りながら、async / await、Dispatcher、IProgress、キャンセル。DI コンテナーで部品を渡す最初の例 |
+|  | [第 18 章 DI とは何か：IoC・DI・DI コンテナー](18-di-basics.md) | Editor の組み立てで見る、自分で new する困りごと、コンストラクター インジェクション、IoC との違い |
+|  | [第 19 章 Prism の起動で何が起きるか](19-prism-startup.md) | `Main` の正体、起動の順番、`Container` の持ち主、Service Locator |
+|  | [第 20 章 登録とライフタイム](20-registration-lifetime.md) | 遅延生成、Singleton と Transient、未登録の型、インターフェースの要否 |
+|  | [第 21 章 ViewModelLocator のしくみ](21-viewmodel-locator.md) | AutoWire の流れ、名前の規則、動かないとき |
+|  | [第 22 章 DI コンテナーの種類と DryIoc](22-di-containers.md) | コンテナーの種類、Prism の共通の窓口、DryIoc 単体 |
+|  | [第 23 章 リージョン、モジュール、ナビゲーション](23-regions-modules.md) | MainWindow を枠にして、シーン ツリー、プロパティ、アセット、ログをモジュールに分ける。ナビゲーション |
+|  | [第 24 章 イベント集約、ダイアログ、サービス](24-events-dialogs.md) | シーン ツリーの選択をプロパティ パネルへ伝える。IEventAggregator、サービス、ダイアログ |
+|  | [第 25 章 Prism を掘り下げる](25-prism-deep.md) | KeepAlive、IConfirmNavigationRequest、CompositeCommand |
+|  | [第 26 章 MVVM ライブラリを比べる](26-mvvm-libraries.md) | BindableBase と CommunityToolkit.Mvvm などの比較 |
+|  | [第 27 章 UserControl とカスタム コントロール](27-custom-controls.md) | UserControl とカスタム コントロール |
+|  | [第 28 章 コードビハインドを減らす（Behaviors）](28-behaviors.md) | Behaviors でイベントをコマンドに結ぶ |
+|  | [第 29 章 アプリの基本（起動・終了・ウィンドウ・コマンド）](29-app-basics.md) | 起動と終了、ウィンドウ、標準のコマンド |
+|  | [第 30 章 アニメーション](30-animation.md) | Storyboard とイージング |
+| 3 C# から C++ を呼ぶ | [第 31 章 C# から C++ を呼ぶ：連携方式の比較](31-interop-overview.md) | P/Invoke、C++/CLI、COM、IPC の比較と、境界のルール |
+|  | [第 32 章 EngineApi：C の入口を作る](32-engine-api.md) | C の API（ハンドル、エラー コード） |
+|  | [第 33 章 P/Invoke で C# から呼ぶ](33-pinvoke.md) | LibraryImport、構造体、SafeHandle、コールバック |
+|  | [第 34 章 C++/CLI で橋を作る](34-cpp-cli.md) | C++/CLI の橋と比較 |
+|  | [第 35 章 DLL の読み込み、x64、デバッグ](35-dll-loading.md) | 読み込みの仕組みと、エラーの切り分け、混在デバッグ |
+| 4 3D ビューポート | [第 36 章 3D ビューポートを埋め込む方法の比較](36-viewport-options.md) | HwndHost、D3DImage、WriteableBitmap などの比較 |
+|  | [第 37 章 HwndHost でビューポートを実装する](37-hwndhost.md) | 子ウィンドウの埋め込みと DX12 |
+|  | [第 38 章 描画ループとスレッド](38-render-loop.md) | 描画スレッドとコマンド キュー |
+|  | [第 39 章 入力とエディタ カメラ](39-input-camera.md) | 入力、カメラ、線の描画 |
+| 5 エディタの機能 | [第 40 章 シーンのデータと API](40-scene-api.md) | ドキュメントとエンジンの分離、同期 |
+|  | [第 41 章 シーン ツリー](41-scene-tree.md) | TreeView、選択、ドラッグ アンド ドロップ |
+|  | [第 42 章 プロパティ パネル](42-property-panel.md) | 型ごとの DataTemplate、入力の検証 |
+|  | [第 43 章 ピッキングとギズモ](43-picking-gizmo.md) | レイ、ピッキング、ギズモ |
+|  | [第 44 章 Undo/Redo](44-undo-redo.md) | コマンド パターン、トランザクション |
+|  | [第 45 章 保存と読み込み](45-save-load.md) | JSON、検証、非同期 |
+|  | [第 46 章 アセット ブラウザ](46-asset-browser.md) | FileSystemWatcher、サムネイル、ドロップ |
+| 6 ゲーム DLL と仕上げ | [第 47 章 Game DLL のインターフェース](47-game-interface.md) | 純粋仮想インターフェースと DLL の境界 |
+|  | [第 48 章 ホット リロード](48-hot-reload.md) | シャドウ コピー、状態の引き継ぎ |
+|  | [第 49 章 Play モード](49-play-mode.md) | 編集と Play の切り替え、元に戻す |
+|  | [第 50 章 ログとエラー処理](50-logging-errors.md) | 例外の捕捉、ログ、ダンプ |
+|  | [第 51 章 スレッド、メモリ、IDisposable](51-threads-memory.md) | スレッドの約束、リーク、IDisposable |
+|  | [第 52 章 ビルド、テスト、配布](52-build-deploy.md) | Release、配布、CI、テスト |
+|  | [第 53 章 まとめと、これから](53-next-steps.md) | 設計の振り返りと、これから |
 
 ## この教材の進め方
 

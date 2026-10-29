@@ -6,11 +6,9 @@ C++23 の解説サイト（MkDocs Material、日本語）。読者はゲーム�
 
 - サンプルコードの検証（Compiler Explorer で実行して実行結果と照合）は、ユーザーが指示したときだけ行う
 - **作業が一区切りつくたびに、ユーザーの指示を待たず commit して `main` に push する。** 一区切りとは、1 ページの追加・分割・深掘りや、動く図 1 グループの追加など、まとまった単位が終わったとき
-  - push の前に、次の 3 つを必ず実行して、すべて通ることを確認する
-    1. `mkdocs build --strict`
-    2. `python tools/check_anchors.py <site>`
-    3. `python tools/check_docs.py docs`
-  - 1 つでも失敗したら push しない。直してからやり直す
+  - push の前に実行するのは `python tools/check_docs.py docs` だけ。エラーが 0 件であることを確かめてから push する
+  - `mkdocs build --strict` と `python tools/check_anchors.py <site>` は、ビルドに数分かかるので、push を待たせない。push したあと、バックグラウンドで実行する
+    - 失敗したら、直して追加で commit・push する。結果は、次のユーザーへの報告で伝える
   - 新しいページや図を足したときは、push の前に `ratings.yml` も更新する（描画の項目は、重さ `perf`・品質 `quality`・難易度 `diff` の 5 段階。基準は `ratings.yml` の冒頭に書いてある）
   - `Co-Authored-By` などの attribution は、そのとき渡される指示に従う
   - 途中で確認は取らない。作業が全部終わるまで続ける

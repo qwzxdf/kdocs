@@ -30,8 +30,8 @@ tags:
 | 色やフォントなどのプロパティ値をまとめて設定したい | `Style` + `Setter` |
 | 状況（マウスが乗った、無効になった、データが特定の値）で見た目を変えたい | `Trigger`（`Style.Triggers` の中） |
 | 部品の「作り」自体を変えたい（丸いボタン、枠を無くすなど） | `ControlTemplate` |
-| データ 1 件の見せ方を決めたい | `DataTemplate`（第 13 章） |
-| 同じ見た目と動きを部品として使い回したい | `UserControl`（第 26 章） |
+| データ 1 件の見せ方を決めたい | `DataTemplate`（第 14 章） |
+| 同じ見た目と動きを部品として使い回したい | `UserControl`（第 27 章） |
 | 色やスタイルを画面をまたいで共有したい | リソース（`ResourceDictionary`） |
 
 プロパティ値を変えるだけで済むなら `Style`、部品の中身そのものを作り替えたいなら `ControlTemplate`、という切り分けが目安です。
@@ -138,7 +138,7 @@ tags:
 | 種類 | 何をきっかけにするか |
 | --- | --- |
 | `Trigger` | 部品自身のプロパティの値（`IsMouseOver`、`IsEnabled` など） |
-| `DataTrigger` | バインディングしたデータの値（第 40 章で `IsEditing` に使った） |
+| `DataTrigger` | バインディングしたデータの値（第 41 章で `IsEditing` に使った） |
 | `MultiTrigger` / `MultiDataTrigger` | 複数の条件がすべて満たされたとき |
 | `EventTrigger` | イベントが起きたとき。アニメーションを開始するのに使う |
 
@@ -274,9 +274,9 @@ public static void ApplyTheme(string name)   // "Dark" または "Light"
 | --- | --- | --- |
 | 次の節のテーマ ライブラリを使う | 小さい | ほぼ全部の標準部品が最初から暗くなる |
 | 使う部品だけ `ControlTemplate` を書き直す | 大きい | 使う部品が少なく、見た目を完全に決めたい |
-| .NET 9 以降で、標準の Fluent テーマ（`ThemeMode`）を使う | 小さい | この教材は .NET 8 なので対象外。試験的な機能で、対応する部品も限られる |
+| .NET 9 以降で、標準の Fluent テーマ（`ThemeMode`）を使う | 小さい | ライブラリを足さずに済む。.NET 9 以降が必要 |
 
-この教材のエディタは、第 6 章で書いた枠のように、色を名前付きのリソースで管理しておき、標準の部品の見た目はテーマ ライブラリに任せる形をおすすめします。
+この教材のエディタは、第 6 章で書いた枠のように、色を名前付きのリソースで管理しておき、標準の部品の見た目はテーマに任せる形をおすすめします。導入の手順は、第 13 章で書きます。
 
 ## アイコンを Path で描く（Geometry と Freezable）
 
@@ -336,7 +336,7 @@ WPF の標準の部品は、白を基調にした古い見た目です。標準�
 - MahApps.Metro：Metro 風のウィンドウとコントロール。
 - HandyControl：多くのコントロールが入った UI ライブラリ。
 
-NuGet で入れて、`App.xaml` の `MergedDictionaries` に読み込みます。各ライブラリの README に、導入手順が書かれています。使うときは、自作のスタイルの `BasedOn` を忘れないようにしてください。
+NuGet で入れて、`App.xaml` の `MergedDictionaries` に読み込みます。WPF-UI の入れ方と、.NET 9 以降の標準の Fluent テーマは、[第 13 章](13-theme.md)で手順を書きます。ほかのライブラリは、各ライブラリの README に導入手順が書かれています。使うときは、自作のスタイルの `BasedOn` を忘れないようにしてください。
 
 また、日本語環境の表示崩れを避けるために、`FontFamily` は明示的に指定しておくのがおすすめです。OS によって標準のフォントが違うので、`Meiryo UI` や `Yu Gothic UI` を `Window` のスタイルで指定します。
 
@@ -364,4 +364,4 @@ NuGet で入れて、`App.xaml` の `MergedDictionaries` に読み込みます�
 
 次の章では、画面の部品とデータを結び付けるデータバインディングと、画面とロジックを分ける MVVM を学びます。
 
-[第 13 章 データバインディングと MVVM](13-binding-mvvm.md) へ進みます。
+[第 14 章 データバインディングと MVVM](14-binding-mvvm.md) へ進みます。
