@@ -35,7 +35,17 @@ def _load(config):
                 escaped += r"(?![ァ-ヴー])"
         pattern_parts.append(escaped)
     _entries = (pattern_parts, items)
+    for i, item in enumerate(items):
+        _by_char.setdefault(item[0][0], []).append(i)
     return _entries
+
+
+_by_char = {}
+
+
+def _text_nodes(soup):
+    # soup.find_all(string=True) is very slow in bs4 4.13; walk the tree directly.
+    return [n for n in soup.descendants if isinstance(n, NavigableString)]
 
 
 _sub_cache = {}
@@ -154,11 +164,16 @@ def on_page_content(content, page, config, files):
     soup = BeautifulSoup(content, "html.parser")
     used = set()
     changed = False
-    for node in list(soup.find_all(string=True)):
+    for node in _text_nodes(soup):
         if not isinstance(node, NavigableString) or _skipped(node):
             continue
         text = str(node)
-        candidates = tuple(i for i, item in enumerate(items) if item[0] in text)
+        found = set()
+        for ch in set(text):
+            for i in _by_char.get(ch, ()):
+                if items[i][0] in text:
+                    found.add(i)
+        candidates = tuple(sorted(found))
         if not candidates:
             continue
         pattern = _sub_pattern(parts, candidates)

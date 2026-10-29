@@ -159,7 +159,7 @@ def on_page_content(html, page, config, files):
         return a
 
     # 1. Inline code whose name is a known C++ name.
-    for code in soup.find_all("code"):
+    for code in [t for t in soup.descendants if getattr(t, "name", None) == "code"]:
         if _skipped(code):
             continue
         exact = code.get_text().strip()
@@ -181,7 +181,7 @@ def on_page_content(html, page, config, files):
     # 2. Plain text terms: one pass over the text, one regex for all terms.
     pattern = _text_pattern()
     if pattern is not None:
-        for node in list(soup.find_all(string=True)):
+        for node in [n for n in soup.descendants if isinstance(n, NavigableString)]:
             if not isinstance(node, NavigableString) or node.parent.name == "code":
                 continue
             if _skipped(node):

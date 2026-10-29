@@ -122,7 +122,7 @@ def on_page_content(content, page, config, files):
         return content
     soup = BeautifulSoup(content, "html.parser")
     changed = False
-    for code in soup.find_all("code"):
+    for code in [t for t in soup.descendants if getattr(t, "name", None) == "code"]:
         if code.find_parent(["pre", "a", "h1", "h2", "h3", "h4", "h5", "h6"]):
             continue
         if code.get("class") or code.find(True):
