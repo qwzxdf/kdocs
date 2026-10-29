@@ -185,6 +185,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 - C# 連携の第 5〜29 章、第 39・40・50 章を、Editor を育てる形に見直し（第 12〜15 章でシーン ツリー、プロパティ、アセット、ログを作り、第 16 章で Prism に載せ替え、第 22〜23 章でモジュールと選択の伝達）。第 17〜21 章の DI の例を、Editor のクラスにした
 - 第 23〜29 章の Editor のコードを、別のプロジェクトで組んでビルドし、起動まで確かめた。ビルドで見つかった `using System.IO;` などの漏れを直した
 - 第 52 章の章番号の表を直した。ログの `Level` を `LogLevel`（列挙型）に統一した
+- C# 連携の Prism を前に出した。新しい第 12 章を「Prism の導入と起動」にして、旧第 12〜15 章を第 13〜16 章に繰り下げた（旧第 16 章は第 12 章に書き直した）。第 13 章以降は `BindableBase` / `DelegateCommand` で書き、自作の `ViewModelBase` / `RelayCommand` は廃止。第 14 章の検証は最初から `ErrorsContainer`。DI の使い方（登録とコンストラクターで受け取る）は第 16 章に移し、第 17〜21 章はその理屈の章にした。`MainWindow` と `MainWindowViewModel` は `Editor/` 直下に置く
 - `make-anim` スキル、`tools/csharp_intro.py`、`kdocs-graphics-update.patch` を追加（未追跡だったもの）
 
 ### 2026-10-28 までの作業

@@ -39,7 +39,7 @@ NuGet を足さなくても、次のものは XAML だけで書けます。
 
 `Key` と `Modifiers`（`Control` など）の組み合わせでキー操作、`MouseBinding` でダブルクリックなどのマウス操作をコマンドに結べます。ショートカットやダブルクリックなら、これで足ります。
 
-Editor では、シーン ツリーの `Delete` キーに使います。第 13 章で作った `DeleteCommand` は、行の「×」ボタンからしか呼べませんでした。キーからも呼べるようにします。
+Editor では、シーン ツリーの `Delete` キーに使います。第 14 章で作った `DeleteCommand` は、行の「×」ボタンからしか呼べませんでした。キーからも呼べるようにします。
 
 ```xml title="Modules/SceneTree/SceneTreeView.xaml（変更：ListBox に足す）"
 <ListBox.InputBindings>

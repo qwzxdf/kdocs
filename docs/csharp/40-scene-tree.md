@@ -15,7 +15,7 @@ tags:
 
 ## ツリーはドキュメントの見た目にすぎない
 
-シーン ツリーの原則は、第 12 章の MVVM と同じです。ツリーは、`SceneDocument.Roots`（`ObservableCollection`）をバインディングで見るだけです。追加や削除はコマンドでドキュメントを変えて、変わったドキュメントを見て、ツリーが自動で更新されます。`TreeViewItem` をコードから直接いじることは、しません。
+シーン ツリーの原則は、第 13 章の MVVM と同じです。ツリーは、`SceneDocument.Roots`（`ObservableCollection`）をバインディングで見るだけです。追加や削除はコマンドでドキュメントを変えて、変わったドキュメントを見て、ツリーが自動で更新されます。`TreeViewItem` をコードから直接いじることは、しません。
 
 選択も同じ考え方です。「いま何が選ばれているか」は、ツリーだけの話ではありません。ビューポート（黄色い枠）も、プロパティ パネルも知りたい情報です。そこで、選択を持つサービス（`ISelectionService`）を作って、ツリー、ビューポート、プロパティの 3 者がそのサービスを介してやり取りする形にします（第 23 章の考え方です）。
 
@@ -263,7 +263,7 @@ public class SceneTreeViewModel : BindableBase
 }
 ```
 
-選択が必要なコマンド（子を追加、削除、名前の変更）は、`DelegateCommand` の第 2 引数に `() => _selection.Primary != null` を渡して、選択があるときだけ押せるようにしています。選択が変わったら `RaiseCanExecuteChanged()` で、押せるかどうかを聞き直させます（第 12 章）。`Roots` は、ドキュメントの `Roots` をそのまま公開しているだけで、ツリーはドキュメントを直接見る形になります。
+選択が必要なコマンド（子を追加、削除、名前の変更）は、`DelegateCommand` の第 2 引数に `() => _selection.Primary != null` を渡して、選択があるときだけ押せるようにしています。選択が変わったら `RaiseCanExecuteChanged()` で、押せるかどうかを聞き直させます（第 13 章）。`Roots` は、ドキュメントの `Roots` をそのまま公開しているだけで、ツリーはドキュメントを直接見る形になります。
 
 `Reparent` の空の `catch` に注目してください。輪になる移動は、想定内の失敗なので、静かに無視します。ただし、握りつぶすのは `InvalidOperationException` だけです。想定外の例外まで握りつぶさないように、型を限定しています。
 
@@ -414,7 +414,7 @@ public partial class SceneTreeView : UserControl
                             RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
 ```
 
-`RelativeSource={RelativeSource AncestorType=ContextMenu}` は、「祖先の `ContextMenu`」をバインディングの元にする書き方です（第 13 章）。
+`RelativeSource={RelativeSource AncestorType=ContextMenu}` は、「祖先の `ContextMenu`」をバインディングの元にする書き方です（第 14 章）。
 
 ## ドラッグ アンド ドロップで親子を変える
 

@@ -6,7 +6,7 @@ tags:
 
 # 第 22 章 リージョン、モジュール、ナビゲーション
 
-第 6 章の `MainWindow.xaml` には、シーン ツリーも、プロパティも、アセットも、全部を直接書きました。第 15 章まで機能を足してきた結果、このファイルは検索ボックスや一覧のテンプレートまで抱えて、太っています。複数の人が同時に触ればぶつかりますし、どの機能のコードがどこにあるのかも分かりにくくなります。
+第 6 章の `MainWindow.xaml` には、シーン ツリーも、プロパティも、アセットも、全部を直接書きました。第 16 章まで機能を足してきた結果、このファイルは検索ボックスや一覧のテンプレートまで抱えて、太っています。複数の人が同時に触ればぶつかりますし、どの機能のコードがどこにあるのかも分かりにくくなります。
 
 !!! info "このページを読む前に"
     - [第 21 章 DI コンテナーの種類と DryIoc](21-di-containers.md)（前の章。ここまでの内容が前提になる）
@@ -18,10 +18,10 @@ tags:
     | ファイル | 内容 |
     | --- | --- |
     | `Infrastructure/RegionNames.cs`（新規） | リージョンの名前の定数 |
-    | `Views/MainWindow.xaml`（変更） | 中身を全部消して、リージョンだけの枠にする |
+    | `MainWindow.xaml`（変更） | 中身を全部消して、リージョンだけの枠にする |
     | `Modules/SceneTree/`（新規） | シーン ツリーのモジュール（モジュール、ビュー、ビューモデル） |
     | `Modules/Property/`（新規） | プロパティのモジュール。設定の画面もここ |
-    | `Modules/Asset/`・`Modules/Log/`（新規） | 第 14〜15 章で作ったタブを、モジュールに移す |
+    | `Modules/Asset/`・`Modules/Log/`（新規） | 第 15〜16 章で作ったタブを、モジュールに移す |
     | `ViewModels/AssetBrowserViewModel.cs`（名前変更） | `Modules/Asset/AssetViewModel.cs` に移す |
     | `App.xaml.cs`（変更） | モジュールの一覧を教える |
 
@@ -73,8 +73,8 @@ public static class RegionNames
 
 第 6 章のレイアウトはそのままに、中身をリージョンに置き換えます。
 
-```xml title="Views/MainWindow.xaml（変更：全体）"
-<Window x:Class="Editor.Views.MainWindow"
+```xml title="MainWindow.xaml（変更：全体）"
+<Window x:Class="Editor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:prism="http://prismlibrary.com/"
@@ -128,10 +128,10 @@ public static class RegionNames
 
 `MainWindowViewModel` は、ステータス バーの文字だけを持つ小さなクラスになります。
 
-```csharp title="ViewModels/MainWindowViewModel.cs（変更：全体）"
+```csharp title="MainWindowViewModel.cs（変更：全体）"
 using Prism.Mvvm;
 
-namespace Editor.ViewModels;
+namespace Editor;
 
 public class MainWindowViewModel : BindableBase
 {
@@ -185,7 +185,7 @@ public class MainWindowViewModel : BindableBase
                  SelectedItem="{Binding Selected}"
                  Background="Transparent" BorderThickness="0" Foreground="White">
             <ListBox.ItemTemplate>
-                <!-- 第 13 章の ItemTemplate（名前、位置、削除ボタン）をそのまま -->
+                <!-- 第 14 章の ItemTemplate（名前、位置、削除ボタン）をそのまま -->
             </ListBox.ItemTemplate>
         </ListBox>
     </DockPanel>
@@ -270,19 +270,19 @@ public class SceneTreeViewModel : BindableBase
 
 ### プロパティ
 
-右のパネルは、`MainWindow.xaml` にあった入力欄、スライダー、リセット ボタンを移します。第 13 章で `Window.Resources` に置いた `BoolToVisibility` と `ValidatedTextBox` は、このビューの `UserControl.Resources` に移します。
+右のパネルは、`MainWindow.xaml` にあった入力欄、スライダー、リセット ボタンを移します。第 14 章で `Window.Resources` に置いた `BoolToVisibility` と `ValidatedTextBox` は、このビューの `UserControl.Resources` に移します。
 
 ```xml title="Modules/Property/PropertyView.xaml（新規）"
 <UserControl x:Class="Editor.Modules.Property.PropertyView" ...
              prism:ViewModelLocator.AutoWireViewModel="True">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
-        <!-- ValidatedTextBox のスタイル（第 13 章）もここへ -->
+        <!-- ValidatedTextBox のスタイル（第 14 章）もここへ -->
     </UserControl.Resources>
     <Border Background="#FF252526" Padding="8">
         <StackPanel Visibility="{Binding HasTarget, Converter={StaticResource BoolToVisibility}}">
             <TextBlock Text="プロパティ" Foreground="White" FontWeight="Bold" />
-            <!-- 第 12〜13 章の入力欄。Selected.Name を Target.Name に読み替える -->
+            <!-- 第 13〜14 章の入力欄。Selected.Name を Target.Name に読み替える -->
         </StackPanel>
     </Border>
 </UserControl>
@@ -399,7 +399,7 @@ protected override void RegisterTypes(IContainerRegistry containerRegistry)
 public string Title => "アセット";      // LogViewModel は "ログ"
 ```
 
-```xml title="Views/MainWindow.xaml（変更：TabControl）"
+```xml title="MainWindow.xaml（変更：TabControl）"
 <TabControl Grid.Row="2" prism:RegionManager.RegionName="{x:Static infra:RegionNames.Bottom}">
     <TabControl.ItemContainerStyle>
         <Style TargetType="TabItem">
@@ -447,7 +447,7 @@ App.OnInitialized
 4. モジュールを、一覧の順に 1 つずつ初期化する。1 つ分が `RegisterTypes` と `OnInitialized` のセット。
 5. `OnInitialized`。基底クラスの `OnInitialized` が、シェルを `Show()` する。
 
-画面に出るのは最後です。実行すると、第 15 章までと同じ見た目の画面が、リージョン経由で出ます。
+画面に出るのは最後です。実行すると、第 16 章までと同じ見た目の画面が、リージョン経由で出ます。
 
 この教材ではモジュールを同じプロジェクトのフォルダーとして作っています。機能が大きくなったら、別の C# ライブラリ プロジェクトにして、`Editor` から参照を追加すれば、同じように登録できます。必要になるまで読み込まない遅延読み込みや、フォルダー内の DLL を探して読む方式もあります（第 24 章）。
 
@@ -478,7 +478,7 @@ public void RegisterTypes(IContainerRegistry containerRegistry)
 
 切り替えるときは、`RequestNavigate` を呼びます。メニューの「表示」から呼べるようにします。
 
-```csharp title="ViewModels/MainWindowViewModel.cs（変更）"
+```csharp title="MainWindowViewModel.cs（変更）"
 using Editor.Infrastructure;
 using Prism.Commands;
 using Prism.Navigation.Regions;
@@ -494,7 +494,7 @@ public MainWindowViewModel(IRegionManager regionManager)
 }
 ```
 
-```xml title="Views/MainWindow.xaml（変更：「表示」メニュー）"
+```xml title="MainWindow.xaml（変更：「表示」メニュー）"
 <MenuItem Header="表示(_V)">
     <MenuItem Header="プロパティ(_P)" Command="{Binding NavigateCommand}" CommandParameter="PropertyView" />
     <MenuItem Header="設定(_S)" Command="{Binding NavigateCommand}" CommandParameter="SettingsView" />
@@ -563,7 +563,7 @@ _regionManager.RequestNavigate(RegionNames.Property, "PropertyView", parameters)
 
 ## 動かして確かめる
 
-- 起動すると、第 15 章までと同じ見た目で、左にシーン ツリー、右にプロパティ、下にタブ（アセット、ログ）が出る。
+- 起動すると、第 16 章までと同じ見た目で、左にシーン ツリー、右にプロパティ、下にタブ（アセット、ログ）が出る。
 - シーン ツリーで、選択、追加、削除、検索ができる。
 - 右のプロパティには「(仮) Cube」が出る。シーン ツリーで別の行を選んでも、プロパティは変わらない（次の章で直します）。
 - 下のタブの見出しが「アセット」「ログ」と出る。アセットの読み込みでログが増える。
@@ -600,10 +600,9 @@ Editor/
 │   ├─ Asset/                        AssetModule / AssetView / AssetViewModel
 │   └─ Log/                          LogModule / LogView / LogViewModel
 ├─ ViewModels/
-│   ├─ SceneObjectViewModel.cs       （複数のモジュールが使うので、ここに残す）
-│   └─ MainWindowViewModel.cs        ステータス バーとナビゲーションだけ
-└─ Views/
-    └─ MainWindow.xaml               リージョンだけの枠
+│   └─ SceneObjectViewModel.cs       （複数のモジュールが使うので、ここに残す）
+├─ MainWindowViewModel.cs            ステータス バーとナビゲーションだけ
+└─ MainWindow.xaml                   リージョンだけの枠
 ```
 
 ## 関連する章

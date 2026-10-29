@@ -17,7 +17,7 @@ tags:
     | ファイル | 内容 |
     | --- | --- |
     | `Services/WindowPlacementStore.cs`（新規） | ウィンドウの位置と大きさを、保存して復元する |
-    | `Views/MainWindow.xaml.cs`（変更） | 起動時に復元し、閉じるときに保存する |
+    | `MainWindow.xaml.cs`（変更） | 起動時に復元し、閉じるときに保存する |
     | `App.xaml.cs`（変更） | 二重に起動しないようにする |
 
     ほかの節は、必要になったときに引く、アプリの基本の紹介です。
@@ -34,7 +34,7 @@ tags:
 | `Activated` / `Deactivated` | アプリがアクティブになった / 非アクティブになった |
 | `SessionEnding` | Windows のログオフやシャットダウン |
 
-Prism を使うときは、`OnStartup` の代わりに `PrismApplication` の `OnInitialized` などを使います（第 16 章）。
+Prism を使うときは、`OnStartup` の代わりに `PrismApplication` の `OnInitialized` などを使います（第 12 章）。
 
 ### いつアプリが終わるか
 
@@ -148,9 +148,9 @@ public static class WindowPlacementStore
 
 `SystemParameters.VirtualScreen...` は、すべてのモニターを含む領域です。保存された位置がこの外にあるときは、復元しないで、既定の位置で開きます。
 
-呼ぶのは、ウィンドウ自身のコードビハインドです。ウィンドウの大きさや位置は、画面そのものの話なので、ビューモデルではなく、ビューに書いて構いません（第 12 章の表のとおりです）。
+呼ぶのは、ウィンドウ自身のコードビハインドです。ウィンドウの大きさや位置は、画面そのものの話なので、ビューモデルではなく、ビューに書いて構いません（第 13 章の表のとおりです）。
 
-```csharp title="Views/MainWindow.xaml.cs（変更）"
+```csharp title="MainWindow.xaml.cs（変更）"
 public MainWindow()
 {
     InitializeComponent();

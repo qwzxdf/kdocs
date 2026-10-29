@@ -13,11 +13,11 @@ nav:
   - 09-layout.md
   - 10-dependency-properties.md
   - 11-style-template.md
-  - 12-binding-mvvm.md
-  - 13-binding.md
-  - 14-lists.md
-  - 15-async-ui.md
-  - 16-prism-bootstrap.md
+  - 12-prism-bootstrap.md
+  - 13-binding-mvvm.md
+  - 14-binding.md
+  - 15-lists.md
+  - 16-async-ui.md
   - 17-di-basics.md
   - 18-prism-startup.md
   - 19-registration-lifetime.md

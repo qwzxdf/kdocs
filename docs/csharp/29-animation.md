@@ -96,7 +96,7 @@ WPF のアニメーションは、「プロパティの値を時間をかけて�
 
 ## 回転し続ける読み込みマーク
 
-第 15 章で、アセットの読み込みに進行バーを付けました。バーだけだと、読み込みが始まった直後や、ファイルの一覧を作っている間は、動いているのかが分かりにくいので、回転するマークも出します。読み込みボタンの横に置いて、`IsBusy` の間だけ見せます。
+第 16 章で、アセットの読み込みに進行バーを付けました。バーだけだと、読み込みが始まった直後や、ファイルの一覧を作っている間は、動いているのかが分かりにくいので、回転するマークも出します。読み込みボタンの横に置いて、`IsBusy` の間だけ見せます。
 
 ```xml title="Modules/Asset/AssetView.xaml（変更：読み込みボタンの横に足す）"
 <Path x:Name="Spinner" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}"
@@ -120,7 +120,7 @@ WPF のアニメーションは、「プロパティの値を時間をかけて�
 
 `RepeatBehavior="Forever"` で、止めるまで繰り返します。
 
-`BoolToVisibility` は、`AssetView` の `UserControl.Resources` に、第 13 章と同じ `BooleanToVisibilityConverter` を置いて使います。非表示（`Collapsed`）の間も、アニメーションは裏で回り続けますが、描画されないので負担は軽く済みます。
+`BoolToVisibility` は、`AssetView` の `UserControl.Resources` に、第 14 章と同じ `BooleanToVisibilityConverter` を置いて使います。非表示（`Collapsed`）の間も、アニメーションは裏で回り続けますが、描画されないので負担は軽く済みます。
 
 ## C# のコードから
 
@@ -177,11 +177,11 @@ Panel.BeginAnimation(UIElement.OpacityProperty, animation);
 | 第 9 章 | レイアウトの仕組み |
 | 第 10 章 | 依存関係プロパティ、添付プロパティ、ルーテッド イベント |
 | 第 11 章 | スタイル、リソース、テンプレート、トリガー |
-| 第 12 章 | データバインディングと MVVM |
-| 第 13 章 | バインディングの掘り下げ（Mode、検証、デバッグ） |
-| 第 14 章 | リストとデータ表示 |
-| 第 15 章 | 非同期処理と UI スレッド |
-| 第 16〜23 章 | Prism（DI、ViewModelLocator、リージョン、モジュール、イベント集約、ダイアログ） |
+| 第 13 章 | データバインディングと MVVM |
+| 第 14 章 | バインディングの掘り下げ（Mode、検証、デバッグ） |
+| 第 15 章 | リストとデータ表示 |
+| 第 16 章 | 非同期処理と UI スレッド |
+| 第 12 章、第 17〜23 章 | Prism（DI、ViewModelLocator、リージョン、モジュール、イベント集約、ダイアログ） |
 | 第 24 章 | Prism の掘り下げ |
 | 第 25 章 | MVVM ライブラリの比較 |
 | 第 26〜27 章 | UserControl、カスタム コントロール、Behaviors |

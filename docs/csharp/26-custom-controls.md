@@ -34,7 +34,7 @@ tags:
 
 ## UserControl で、数値入力の部品を作る
 
-第 12〜13 章で、プロパティ パネルの位置は、`TextBox` を 3 つ並べて書きました。「ラベル + 数値入力」の組み合わせは、回転や拡大でも出てくるので、部品 `LabeledNumber` にまとめます。
+第 13〜14 章で、プロパティ パネルの位置は、`TextBox` を 3 つ並べて書きました。「ラベル + 数値入力」の組み合わせは、回転や拡大でも出てくるので、部品 `LabeledNumber` にまとめます。
 
 1. `Controls` フォルダーを作り、「追加 → 新しい項目 → ユーザー コントロール (WPF)」で `LabeledNumber.xaml` を作ります。
 
@@ -91,7 +91,7 @@ public partial class LabeledNumber : UserControl
 <controls:LabeledNumber Label="位置 Z" Value="{Binding Target.Z}" Margin="0,4,0,0" />
 ```
 
-部品の `Value` は `double`、ビューモデルの `X` は `float` ですが、バインディングが自動で変換します。部品の中の `TextBox` は、第 12 章で決めたとおり、フォーカスが外れたときに反映します（`UpdateSourceTrigger=LostFocus`）。
+部品の `Value` は `double`、ビューモデルの `X` は `float` ですが、バインディングが自動で変換します。部品の中の `TextBox` は、第 13 章で決めたとおり、フォーカスが外れたときに反映します（`UpdateSourceTrigger=LostFocus`）。
 
 ここで注意してほしいのが、`UserControl` 内部の `DataContext` です。部品の中で `{Binding Value}` と書くと、使う側から引き継いだ `DataContext`（たとえば親のビューモデル）の `Value` を探しに行ってしまいます。そこで、ここでは `ElementName=Root` で、部品自身の `Value` プロパティを指しました。
 

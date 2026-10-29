@@ -167,7 +167,7 @@ public AssetBrowserViewModel(LogViewModel log, IAssetScanner scanner)
 containerRegistry.RegisterSingleton<IAssetScanner, AssetScanner>();   // 前は RegisterSingleton<AssetScanner>()
 ```
 
-実行して、第 15 章までと同じに動けば成功です。見た目は何も変わりません。変わったのは、`AssetBrowserViewModel` が「本物のディスクを読むクラス」ではなく、「`ScanAsync` できる物」だけを知っている点です。
+実行して、第 16 章までと同じに動けば成功です。見た目は何も変わりません。変わったのは、`AssetBrowserViewModel` が「本物のディスクを読むクラス」ではなく、「`ScanAsync` できる物」だけを知っている点です。
 
 その効果を確かめるために、偽物を作ってみます。Editor には入れない実験です。
 

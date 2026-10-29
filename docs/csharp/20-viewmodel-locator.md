@@ -6,7 +6,7 @@ tags:
 
 # 第 20 章 ViewModelLocator のしくみ：画面とビューモデルは、どうつながるのか
 
-第 16 章では、XAML に `prism:ViewModelLocator.AutoWireViewModel="True"` と 1 行書くだけで、`DataContext` を書かなくても、バインディングが動きました。このとき、ビューモデルは、いつ、誰が、どこで作っているのでしょうか。名前が合わなかったら、どうなるのでしょうか。
+第 12 章では、XAML に `prism:ViewModelLocator.AutoWireViewModel="True"` と 1 行書くだけで、`DataContext` を書かなくても、バインディングが動きました。このとき、ビューモデルは、いつ、誰が、どこで作っているのでしょうか。名前が合わなかったら、どうなるのでしょうか。
 
 この章では、画面（View）とビューモデルが結びつくまでの流れを、順に追いかけます。
 
@@ -15,7 +15,7 @@ tags:
     - [第 18 章 Prism の起動で何が起きるか](18-prism-startup.md)（`ConfigureViewModelLocator` が最初に呼ばれる）
 
 !!! abstract "この章での Editor"
-    この章では、Editor に残るファイルは足しません。第 16 章で `Views` に移した `MainWindow` で何が起きているかを、コンストラクターに出力を足して確かめます（確かめたら消します）。
+    この章では、Editor に残るファイルは足しません。第 12 章で `AutoWireViewModel="True"` を付けた `MainWindow` で何が起きているかを、コンストラクターに出力を足して確かめます（確かめたら消します）。
 
 ## `AutoWireViewModel="True"` の裏で起きていること
 
@@ -67,11 +67,11 @@ ViewModelLocator が型を探す規則は、Prism のソースで確かめられ
 
 具体的には、次のように決まります。
 
-- `Editor.Views.MainWindow` には `Editor.ViewModels.MainWindowViewModel`（`View` で終わらないので、`ViewModel` を足す。`Views` と `ViewModels` のフォルダーに分けて置く、第 16 章の形）
+- `Editor.MainWindow` には `Editor.MainWindowViewModel`（`.Views.` がないので、置き換えは起きない。`View` で終わらないので、`ViewModel` を足す。Editor の `MainWindow` は、第 12 章からこの形です）
 - `Editor.Modules.SceneTree.SceneTreeView` には `Editor.Modules.SceneTree.SceneTreeViewModel`（`View` で終わるので、`Model` を足す。機能ごとのフォルダーに、画面とビューモデルを並べる形。第 22 章で使います）
-- `Editor.MainWindow` には `Editor.MainWindowViewModel`（`.Views.` がないので、置き換えは起きない）
+- `Editor.Views.MainWindow` には `Editor.ViewModels.MainWindowViewModel`（`Views` と `ViewModels` のフォルダーに分けて置く流儀。Web の記事や Prism の既定のテンプレートで、よく見かける形です。この教材では使いません）
 
-Editor は、第 16 章で上の 1 つ目の形にしました。第 22 章からは、2 つ目の形でも画面を作ります。どちらの形でも、規則は同じです。
+Editor は、最初の 2 つの形で作ります。画面とビューモデルを同じ場所に並べておくほうが、片方を直すときにもう片方を探さなくて済むからです。どの形でも、規則は同じです。
 
 ## 動かないとき
 
@@ -85,7 +85,7 @@ Editor は、第 16 章で上の 1 つ目の形にしました。第 22 章か�
 
 ### 規則から外れる場合は、明示的に結ぶ
 
-名前や配置が規則に合わないときは、画面とビューモデルの組み合わせを、明示的に登録できます。たとえば、第 16 章で `MainWindow` を `Views` に移し忘れて、`Editor.MainWindow` のままにしたとします。規則は `Editor.MainWindowViewModel` を探しますが、ビューモデルは `Editor.ViewModels` にあるので、見つかりません。移し忘れを直すか、次のように結びます。
+名前や配置が規則に合わないときは、画面とビューモデルの組み合わせを、明示的に登録できます。たとえば、`MainWindowViewModel` を `ViewModels` フォルダーに入れて、名前空間を `Editor.ViewModels` にしたとします。規則は `Editor.MainWindowViewModel` を探しますが、ビューモデルは `Editor.ViewModels` にあるので、見つかりません。置き場所を直すか、次のように結びます。
 
 ```csharp
 protected override void ConfigureViewModelLocator()

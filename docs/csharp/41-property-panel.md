@@ -354,7 +354,7 @@ public class PropertyViewModel : BindableBase
 
 ## 色の見本
 
-スライダーだけでは、どんな色なのか分かりにくいので、見本を出します。`Vector4` を `Brush` に変えるコンバーター（第 12 章）を作ります。
+スライダーだけでは、どんな色なのか分かりにくいので、見本を出します。`Vector4` を `Brush` に変えるコンバーター（第 13 章）を作ります。
 
 ```csharp title="Converters/ColorToBrushConverter.cs"
 using System.Globalization;

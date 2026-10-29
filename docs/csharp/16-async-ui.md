@@ -1,27 +1,28 @@
 ---
-title: 第 15 章 非同期処理と UI スレッド
+title: 第 16 章 非同期処理と UI スレッド
 tags:
   - C#連携
 ---
 
-# 第 15 章 非同期処理と UI スレッド
+# 第 16 章 非同期処理と UI スレッド
 
 「ボタンを押したら、画面が固まった」。WPF を作っていて、いちばん早くぶつかる問題の 1 つです。原因はほとんど決まっていて、重い処理を UI スレッドでやってしまったからです。
 
 前の章で作ったアセット一覧は、ダミーのデータを並べているだけでした。この章では、本物のフォルダーを読み込むボタンを足します。ファイルが多いフォルダーを読むと、まず画面が固まります。そこから、固まらない書き方、進み具合の表示、キャンセルを、順に足していきます。
 
 !!! info "このページを読む前に"
-    - [第 14 章 リストとデータ表示](14-lists.md)（前の章。この章は、そこで作った「アセット」のタブに足していく）
+    - [第 15 章 リストとデータ表示](15-lists.md)（前の章。この章は、そこで作った「アセット」のタブに足していく）
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
     | `Services/AssetScanner.cs`（新規） | フォルダーの中のファイルを読む（非同期） |
+    | `App.xaml.cs`（変更） | 作るクラスをコンテナーに登録する |
     | `Mvvm/AsyncCommand.cs`（新規） | 非同期の処理を実行するコマンド |
     | `ViewModels/LogViewModel.cs`（変更） | 別のスレッドからでもログを足せるようにする |
     | `ViewModels/AssetBrowserViewModel.cs`（変更） | 読み込み、進み具合、キャンセル |
-    | `ViewModels/MainWindowViewModel.cs`（変更） | `Log` を `AssetBrowser` に渡す |
+    | `MainWindowViewModel.cs`（変更） | `Log` と `AssetBrowser` を受け取る |
     | `MainWindow.xaml`（変更） | 「読み込み」「キャンセル」のボタンと進行バー |
 
 ## まず、普通に書いて固まらせる
@@ -38,11 +39,12 @@ tags:
 
 ```csharp title="ViewModels/AssetBrowserViewModel.cs（変更：最初の版）"
 using System.IO;       // WPF のプロジェクトでは、System.IO は自動では入らない
+using Prism.Commands;
 
-public RelayCommand LoadCommand { get; }
+public DelegateCommand LoadCommand { get; }
 
 // コンストラクターの中
-LoadCommand = new RelayCommand(Load);
+LoadCommand = new DelegateCommand(Load);
 
 private void Load()
 {
@@ -154,7 +156,7 @@ private async Task LoadAsync()
 
 ## ボタンから非同期処理を呼ぶ
 
-第 12 章で作った `RelayCommand` は、同期のメソッドしか受け取れません。`new RelayCommand(async () => await LoadAsync())` と書くことはできますが、中身は `async void` と同じになります。`async void` の関数で起きた例外は、呼び出し元で捕まえられず、アプリが落ちることがあります。実行中に二重で押される問題も、自分で防がなければなりません。
+ここまでの `DelegateCommand` は、同期のメソッドしか受け取れません。`new DelegateCommand(async () => await LoadAsync())` と書くことはできますが、中身は `async void` と同じになります。Prism には `DelegateCommand.FromAsyncHandler` もありますが、実行中の二重押しの防止は、自分で書かなければなりません。`async void` の関数で起きた例外は、呼び出し元で捕まえられず、アプリが落ちることがあります。実行中に二重で押される問題も、自分で防がなければなりません。
 
 そこで、非同期の処理を渡せるコマンドを、もう 1 つ作ります。
 
@@ -230,24 +232,9 @@ LoadCommand = new AsyncCommand(LoadAsync, onError: e => _log.Add(LogLevel.Error,
 
 `AssetScanner` の `log` を使う場所を作ります。`AssetBrowserViewModel` が `LogViewModel` を受け取れるようにして、読み込みの経過をログに出します。まず、受け渡しです。
 
-```csharp title="ViewModels/MainWindowViewModel.cs（変更）"
-public LogViewModel Log { get; }
-public AssetBrowserViewModel AssetBrowser { get; }
-
-// コンストラクターの中
-Log = new LogViewModel();
-AssetBrowser = new AssetBrowserViewModel(Log);
-```
+`LogViewModel` を受け取る部分は、このあとの「作る係と使う係を分ける」で書きます。先に、ログを出す側の `LoadAsync` を書き換えます。
 
 ```csharp title="ViewModels/AssetBrowserViewModel.cs（変更）"
-private readonly LogViewModel _log;
-
-public AssetBrowserViewModel(LogViewModel log)
-{
-    _log = log;
-    // 以下は前のとおり
-}
-
 private async Task LoadAsync()
 {
     var files = await _scanner.ScanAsync(AppContext.BaseDirectory, msg => _log.Add(LogLevel.Info, msg));
@@ -312,6 +299,67 @@ lock (_lock) { Entries.Add(entry); }
 ```
 
 `lock (_lock) { … }` は、同じ `_lock` を持つ `lock` の中に、同時に 1 つのスレッドしか入れないようにする文です。C++ の `std::lock_guard<std::mutex>` に当たり、`{}` を抜けると自動でロックが外れます。ロックに使うのは、このように専用の `object` にするのが決まりで、`this` や文字列は避けます。外から同じ物を `lock` されて、思わぬ待ちが起きるためです。`EnableCollectionSynchronization` は UI スレッドで呼び、別のスレッドから `Add` を始める前に済ませます。迷ったら、上の `Dispatcher` のほうが単純です。
+
+## 作る係と使う係を分ける
+
+`AssetBrowserViewModel` が `LogViewModel` と `AssetScanner` を必要とするようになりました。これまでの書き方なら、使う側の `MainWindowViewModel` が、両方を `new` して渡すことになります。
+
+```csharp title="手で組み立てる書き方（この章では採らない）"
+Log = new LogViewModel();
+AssetBrowser = new AssetBrowserViewModel(Log, new AssetScanner());
+```
+
+`AssetBrowserViewModel` が必要とするものが増えるたびに、`MainWindowViewModel` の側も書き換えなければなりません。使うクラスが、使われるクラスの作り方まで知っているのは、不自然です。
+
+そこで、必要なものはコンストラクターの引数に書いて、<strong>作って渡す係</strong>を、別に置きます。その係が、第 12 章から裏で働いていた DI コンテナーです。DI は Dependency Injection（依存性注入）の略で、「必要なものを自分で作らず、外から渡してもらう」という設計の考え方です。やることは 2 つです。
+
+1 つ目は、コンテナーに、どのクラスを作れるかを教えておくことです。第 12 章で空のまま置いた `RegisterTypes` に書きます。
+
+```csharp title="App.xaml.cs（変更）"
+using Editor.Services;
+using Editor.ViewModels;
+
+protected override void RegisterTypes(IContainerRegistry containerRegistry)
+{
+    containerRegistry.RegisterSingleton<AssetScanner>();
+    containerRegistry.RegisterSingleton<LogViewModel>();
+    containerRegistry.RegisterSingleton<AssetBrowserViewModel>();
+}
+```
+
+`RegisterSingleton` は、「このクラスは、アプリの間ずっと 1 つだけ作って、みんなで使い回す」という登録です。ログの一覧のように、みんなが同じものを見たいクラスは、これにします。`Singleton` と、毎回作る `Transient` の違いは、第 19 章で説明します。
+
+2 つ目は、欲しいものを、コンストラクターの引数に書くことです。
+
+```csharp title="ViewModels/AssetBrowserViewModel.cs（変更）"
+private readonly LogViewModel _log;
+private readonly AssetScanner _scanner;
+
+public AssetBrowserViewModel(LogViewModel log, AssetScanner scanner)
+{
+    _log = log;
+    _scanner = scanner;
+    // 以下は前のとおり
+}
+```
+
+`private readonly AssetScanner _scanner = new();` の行は、消します。`MainWindowViewModel` のほうも、同じように書き換えます。
+
+```csharp title="MainWindowViewModel.cs（変更）"
+public LogViewModel Log { get; }
+public AssetBrowserViewModel AssetBrowser { get; }
+
+public MainWindowViewModel(LogViewModel log, AssetBrowserViewModel assetBrowser)
+{
+    Log = log;
+    AssetBrowser = assetBrowser;
+    // 以下は前のとおり
+}
+```
+
+`new MainWindowViewModel(...)` と書いている場所は、どこにもありません。ViewModelLocator がコンテナーに「`MainWindowViewModel` を作って」と頼み、コンテナーがコンストラクターの引数を見て、`LogViewModel` と `AssetBrowserViewModel` を作って渡しています。`AssetBrowserViewModel` に必要な `LogViewModel` と `AssetScanner` も、同じやり方で渡されます。
+
+なぜ登録だけで作れるのか、いつ作られるのか、インターフェースを挟む理由は何かは、第 17 章から順に説明します。いまは「必要なものは引数に書いて、`RegisterTypes` に登録する」とだけ覚えてください。
 
 ## 進み具合を画面に出す
 
@@ -398,10 +446,11 @@ public Task<IReadOnlyList<FileEntry>> ScanAsync(
 ```csharp title="ViewModels/AssetBrowserViewModel.cs（変更）"
 private CancellationTokenSource? _cts;
 
-public RelayCommand CancelCommand { get; }
+public DelegateCommand CancelCommand { get; }
 
 // コンストラクターの中
-CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => IsBusy);
+CancelCommand = new DelegateCommand(() => _cts?.Cancel(), () => IsBusy)
+    .ObservesProperty(() => IsBusy);
 
 private async Task LoadAsync()
 {
@@ -429,19 +478,7 @@ private async Task LoadAsync()
 }
 ```
 
-`IsBusy` が変わったとき、キャンセルボタンの状態も聞き直してもらう必要があります。`IsBusy` の `set` に、1 行足します。
-
-```csharp
-public bool IsBusy
-{
-    get => _isBusy;
-    private set
-    {
-        if (SetProperty(ref _isBusy, value))
-            CancelCommand.RaiseCanExecuteChanged();
-    }
-}
-```
+`IsBusy` が変わったとき、キャンセルボタンの状態も聞き直してもらう必要があります。それは `ObservesProperty(() => IsBusy)` が引き受けてくれるので、`IsBusy` の `set` には何も足しません。
 
 最後に、画面にキャンセルのボタンを足します。
 
@@ -485,17 +522,15 @@ public bool IsBusy
     `ScanAsync` のループで `token.ThrowIfCancellationRequested()` を呼んでいるか、`ScanAsync` に `_cts.Token` を渡しているかを確かめます。
 
 ??? failure "キャンセルボタンがずっと灰色のまま"
-    `IsBusy` の `set` で、`CancelCommand.RaiseCanExecuteChanged()` を呼んでいるかを確かめます。
+    `CancelCommand` に、`.ObservesProperty(() => IsBusy)` が付いているかを確かめます。
 
 ## ここまでの Editor
 
 ```text
 Editor/
-├─ Models/                           （第 14 章のまま）
+├─ Models/                           （第 15 章のまま）
 ├─ Mvvm/
-│   ├─ ViewModelBase.cs
 │   ├─ ValidatableViewModelBase.cs
-│   ├─ RelayCommand.cs
 │   └─ AsyncCommand.cs               非同期のコマンド（新規）
 ├─ Services/
 │   └─ AssetScanner.cs               フォルダーを非同期で読む（新規）
@@ -503,19 +538,18 @@ Editor/
 │   ├─ SceneObjectViewModel.cs
 │   ├─ AssetBrowserViewModel.cs      読み込み、進み具合、キャンセル
 │   ├─ LogViewModel.cs               どのスレッドからでも Add できる
-│   └─ MainWindowViewModel.cs
-├─ MainWindow.xaml                   読み込み、キャンセル、進行バー
-└─ MainWindow.xaml.cs
+├─ MainWindowViewModel.cs            Log と AssetBrowser を受け取る
+└─ MainWindow.xaml                   読み込み、キャンセル、進行バー
 ```
 
 ## この章のまとめ
 
 - 重い処理は UI スレッドの外へ。待つ処理は `async` / `await`、計算は `Task.Run`。
 - `await` の後は UI スレッドに戻るので、画面を触ってよい。`Task.Run` の中では触らない。
-- `async void` はイベント ハンドラー以外では使わない。コマンドは、自作の `AsyncCommand`（または `AsyncRelayCommand`）。
+- `async void` はイベント ハンドラー以外では使わない。コマンドは、自作の `AsyncCommand`（または CommunityToolkit.Mvvm の `AsyncRelayCommand`）。
 - 経過は `Progress<T>`、中断は `CancellationToken`。
 - 別のスレッドから UI を更新するときは、`Dispatcher.InvokeAsync`。`.Result` / `.Wait()` で待たない。
 
-次の章では、Prism を導入して、ここまで自分で書いた `ViewModelBase` や `RelayCommand` などの定型文をライブラリに任せ、アプリの起動の流れを作り直します。
+次の章では、この章で使った DI を、「なぜ要るのか」から説明し直します。
 
-[第 16 章 Prism の導入と起動の流れ](16-prism-bootstrap.md) へ進みます。
+[第 17 章 DI とは何か](17-di-basics.md) へ進みます。

@@ -501,7 +501,7 @@ private static async Task LoadThumbnailAsync(AssetEntry entry)
 </UserControl>
 ```
 
-一覧は、`ListBox` の `ItemsPanel` を `WrapPanel` に差し替えて、タイル状に折り返す並びにしています。リストの並べ方は、`ItemsPanelTemplate` で変えられます。`SelectionMode="Extended"` で `Ctrl`/`Shift` による複数選択ができ、`EventSetter` は、スタイルの中でイベント ハンドラーを結ぶための要素で、ここでは各項目のダブルクリックに使っています。`NotNullToCollapsed` は、`null` でなければ `True` を返すコンバーターです（第 12 章の要領で作ります）。
+一覧は、`ListBox` の `ItemsPanel` を `WrapPanel` に差し替えて、タイル状に折り返す並びにしています。リストの並べ方は、`ItemsPanelTemplate` で変えられます。`SelectionMode="Extended"` で `Ctrl`/`Shift` による複数選択ができ、`EventSetter` は、スタイルの中でイベント ハンドラーを結ぶための要素で、ここでは各項目のダブルクリックに使っています。`NotNullToCollapsed` は、`null` でなければ `True` を返すコンバーターです（第 13 章の要領で作ります）。
 
 ここには落とし穴が 1 つあります。`ListBox` は既定で仮想化されますが、`WrapPanel` に変えると仮想化されなくなります。数千項目を扱うなら、別のライブラリを使うか、行ごとの表示に切り替える必要があります。
 
