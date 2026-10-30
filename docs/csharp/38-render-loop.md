@@ -274,7 +274,7 @@ public sealed class RenderLoop : IRenderLoop
 `ViewportViewModel` を `IRenderLoop` を使う形にします。`IEngineService` を直接触るのは、`RenderLoop` だけになります。
 
 ```csharp
-public class ViewportViewModel : BindableBase
+public class ViewportViewModel
 {
     private readonly IRenderLoop _loop;
 

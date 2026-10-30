@@ -35,7 +35,7 @@ Prism は、バージョンによって細かな API が変わります。ここ
 Editor では、第 23 章で作った「設定」の画面に付けます。設定は、開くたびに最新の内容で出したい画面なので、切り替えたら捨てます。プロパティ パネルは、選択に追従して動き続けるので、残します（既定のままです）。
 
 ```csharp title="Property/SettingsViewModel.cs（変更）"
-public class SettingsViewModel : BindableBase, IRegionMemberLifetime
+public class SettingsViewModel : IRegionMemberLifetime
 {
     public bool KeepAlive => false;     // 切り替えたら、リージョンから外して捨てる
 }
@@ -45,7 +45,7 @@ public class SettingsViewModel : BindableBase, IRegionMemberLifetime
 
 ```csharp title="実験：属性で書く（Editor には入れない）"
 [RegionMemberLifetime(KeepAlive = false)]
-public class SettingsViewModel : BindableBase { }
+public class SettingsViewModel { }
 ```
 
 ### 既存のビューを使い回すか決める：IsNavigationTarget
@@ -65,7 +65,7 @@ public bool IsNavigationTarget(NavigationContext context)
 未保存の編集があるのに、別の画面に移動しようとしたときに、確認を出したい。そのときは `IConfirmNavigationRequest` を実装します。`INavigationAware` に、`ConfirmNavigationRequest` が加わったものです。
 
 ```csharp title="実験（Editor には入れない）"
-public class EditorViewModel : BindableBase, IConfirmNavigationRequest
+public class EditorViewModel : IConfirmNavigationRequest
 {
     public void ConfirmNavigationRequest(NavigationContext navigationContext, Action<bool> continuationCallback)
     {
@@ -148,7 +148,7 @@ public class ApplicationCommands : IApplicationCommands
 // 各ビューモデルが自分の保存コマンドを登録する
 public EditorViewModel(IApplicationCommands appCommands)
 {
-    SaveCommand = new DelegateCommand(Save);
+    SaveCommand = new ReactiveCommand().WithSubscribe(Save);
     appCommands.SaveAllCommand.RegisterCommand(SaveCommand);
 }
 ```
@@ -174,7 +174,7 @@ protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
 ```csharp title="実験（Editor には入れない）"
 public MainWindowViewModel(IModuleManager moduleManager)
 {
-    ShowAssetsCommand = new DelegateCommand(() => moduleManager.LoadModule(nameof(AssetModule)));
+    ShowAssetsCommand = new ReactiveCommand().WithSubscribe(() => moduleManager.LoadModule(nameof(AssetModule)));
 }
 ```
 
@@ -279,6 +279,6 @@ Prism 7 以前の日本語の記事は、まだたくさん残っています。
 
 古い記事を参考にするときは、「概念」は今も通じるので、そのまま読んで構いません。コードは、上の表にあるような違いを意識しながら読み替えます。
 
-次の章では、Prism の `BindableBase` と、CommunityToolkit.Mvvm などの他のライブラリを書き比べます。
+次の章では、この教材が基本にしている ReactiveProperty と、Prism の `BindableBase`、CommunityToolkit.Mvvm などの他のライブラリを書き比べます。
 
 [第 26 章 MVVM ライブラリを比べる](26-mvvm-libraries.md) へ進みます。

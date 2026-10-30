@@ -86,7 +86,7 @@ public static class RegionNames
             <!-- 第 6 章のメニュー -->
         </Menu>
         <StatusBar DockPanel.Dock="Bottom">
-            <StatusBarItem Content="{Binding StatusText}" />
+            <StatusBarItem Content="{Binding StatusText.Value}" />
         </StatusBar>
 
         <Grid>
@@ -128,19 +128,13 @@ public static class RegionNames
 `MainWindowViewModel` は、ステータス バーの文字だけを持つ小さなクラスになります。
 
 ```csharp title="MainWindowViewModel.cs（変更：全体）"
-using Prism.Mvvm;
+using Reactive.Bindings;
 
 namespace Editor;
 
-public class MainWindowViewModel : BindableBase
+public class MainWindowViewModel
 {
-    private string _statusText = "準備完了";
-
-    public string StatusText
-    {
-        get => _statusText;
-        set => SetProperty(ref _statusText, value);
-    }
+    public ReactivePropertySlim<string> StatusText { get; } = new("準備完了");
 }
 ```
 
@@ -177,11 +171,11 @@ public class MainWindowViewModel : BindableBase
              prism:ViewModelLocator.AutoWireViewModel="True">
     <DockPanel Background="#FF252526">
         <TextBox DockPanel.Dock="Top" Margin="8"
-                 Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
+                 Text="{Binding FilterText.Value, UpdateSourceTrigger=PropertyChanged, Delay=300}" />
         <Button DockPanel.Dock="Bottom" Content="オブジェクトを追加" Margin="8"
                 Command="{Binding AddCommand}" />
         <ListBox ItemsSource="{Binding Objects}"
-                 SelectedItem="{Binding Selected}"
+                 SelectedItem="{Binding Selected.Value}"
                  Background="Transparent" BorderThickness="0" Foreground="White">
             <ListBox.ItemTemplate>
                 <!-- 第 15 章の ItemTemplate（名前、位置、削除ボタン）をそのまま -->
@@ -199,16 +193,13 @@ public class MainWindowViewModel : BindableBase
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Data;
-using Prism.Commands;
-using Prism.Mvvm;
+using Reactive.Bindings;
 using Editor.Scene;
 
 namespace Editor.SceneTree;
 
-public class SceneTreeViewModel : BindableBase
+public class SceneTreeViewModel
 {
-    private SceneObjectViewModel? _selected;
-    private string _filterText = "";
     private readonly ICollectionView _objectsView;
 
     public SceneTreeViewModel()
@@ -219,48 +210,37 @@ public class SceneTreeViewModel : BindableBase
             new("Cube", 1, 0, 2),
             new("Light", 3, 5, 0),
         };
-        Selected = Objects[1];
+        Selected = new ReactivePropertySlim<SceneObjectViewModel?>(Objects[1]);
 
         _objectsView = CollectionViewSource.GetDefaultView(Objects);
         _objectsView.Filter = o => o is SceneObjectViewModel s
-            && s.Name.Contains(_filterText, StringComparison.OrdinalIgnoreCase);
+            && s.Name.Value.Contains(FilterText.Value, StringComparison.OrdinalIgnoreCase);
+        FilterText.Subscribe(_ => _objectsView.Refresh());
 
-        AddCommand = new DelegateCommand(Add);
-        DeleteCommand = new DelegateCommand<SceneObjectViewModel>(Delete);
+        AddCommand = new ReactiveCommand().WithSubscribe(Add);
+        DeleteCommand = new ReactiveCommand<SceneObjectViewModel>().WithSubscribe(Delete);
     }
 
     public ObservableCollection<SceneObjectViewModel> Objects { get; }
 
-    public SceneObjectViewModel? Selected
-    {
-        get => _selected;
-        set => SetProperty(ref _selected, value);
-    }
+    public ReactivePropertySlim<SceneObjectViewModel?> Selected { get; }
 
-    public string FilterText
-    {
-        get => _filterText;
-        set
-        {
-            if (SetProperty(ref _filterText, value))
-                _objectsView.Refresh();
-        }
-    }
+    public ReactivePropertySlim<string> FilterText { get; } = new("");
 
-    public DelegateCommand AddCommand { get; }
-    public DelegateCommand<SceneObjectViewModel> DeleteCommand { get; }
+    public ReactiveCommand AddCommand { get; }
+    public ReactiveCommand<SceneObjectViewModel> DeleteCommand { get; }
 
     private void Add()
     {
         var obj = new SceneObjectViewModel($"Object {Objects.Count}");
         Objects.Add(obj);
-        Selected = obj;
+        Selected.Value = obj;
     }
 
     private void Delete(SceneObjectViewModel obj)
     {
         Objects.Remove(obj);
-        if (Selected == obj) Selected = null;
+        if (Selected.Value == obj) Selected.Value = null;
     }
 }
 ```
@@ -279,45 +259,39 @@ public class SceneTreeViewModel : BindableBase
         <!-- ValidatedTextBox のスタイル（第 15 章）もここへ -->
     </UserControl.Resources>
     <Border Background="#FF252526" Padding="8">
-        <StackPanel Visibility="{Binding HasTarget, Converter={StaticResource BoolToVisibility}}">
+        <StackPanel Visibility="{Binding HasTarget.Value, Converter={StaticResource BoolToVisibility}}">
             <TextBlock Text="プロパティ" Foreground="White" FontWeight="Bold" />
-            <!-- 第 14〜15 章の入力欄。Selected.Name を Target.Name に読み替える -->
+            <!-- 第 14〜15 章の入力欄。Selected.Value.Name.Value を Target.Value.Name.Value に読み替える -->
         </StackPanel>
     </Border>
 </UserControl>
 ```
 
 ```csharp title="Property/PropertyViewModel.cs（新規）"
-using Prism.Mvvm;
+using System.Reactive.Linq;
+using Reactive.Bindings;
 using Editor.Scene;
 
 namespace Editor.Property;
 
-public class PropertyViewModel : BindableBase
+public class PropertyViewModel
 {
-    private SceneObjectViewModel? _target;
-
     public PropertyViewModel()
     {
         // 次の章で、シーン ツリーの選択につなぐ。それまでの仮のオブジェクト
-        Target = new SceneObjectViewModel("(仮) Cube", 1, 0, 2);
+        Target.Value = new SceneObjectViewModel("(仮) Cube", 1, 0, 2);
+
+        HasTarget = Target.Select(t => t is not null)
+            .ToReadOnlyReactivePropertySlim();
     }
 
-    public SceneObjectViewModel? Target
-    {
-        get => _target;
-        set
-        {
-            if (SetProperty(ref _target, value))
-                RaisePropertyChanged(nameof(HasTarget));
-        }
-    }
+    public ReactivePropertySlim<SceneObjectViewModel?> Target { get; } = new();
 
-    public bool HasTarget => _target is not null;
+    public ReadOnlyReactivePropertySlim<bool> HasTarget { get; }
 }
 ```
 
-画面の側は、`Selected.Name` と書いていたバインディングを、`Target.Name` に読み替えます。ほかの `Selected.` も同じです。
+画面の側は、`Selected.Value.Name.Value` と書いていたバインディングを、`Target.Value.Name.Value` に読み替えます。ほかの `Selected.Value.` も同じです。
 
 ### アセットとログ
 
@@ -465,7 +439,7 @@ App.OnInitialized
 </UserControl>
 ```
 
-`SettingsViewModel` は、空のクラスで構いません（`BindableBase` を継承しておきます）。次に、ビューをナビゲーション用に登録します。
+`SettingsViewModel` は、空のクラスで構いません。次に、ビューをナビゲーション用に登録します。
 
 ```csharp title="Property/PropertyModule.cs（変更）"
 public void RegisterTypes(IContainerRegistry containerRegistry)
@@ -478,17 +452,17 @@ public void RegisterTypes(IContainerRegistry containerRegistry)
 切り替えるときは、`RequestNavigate` を呼びます。メニューの「表示」から呼べるようにします。
 
 ```csharp title="MainWindowViewModel.cs（変更）"
-using Prism.Commands;
 using Prism.Navigation.Regions;
+using Reactive.Bindings;
 using Editor.Shared;
 
 private readonly IRegionManager _regionManager;
-public DelegateCommand<string> NavigateCommand { get; }
+public ReactiveCommand<string> NavigateCommand { get; }
 
 public MainWindowViewModel(IRegionManager regionManager)
 {
     _regionManager = regionManager;
-    NavigateCommand = new DelegateCommand<string>(
+    NavigateCommand = new ReactiveCommand<string>().WithSubscribe(
         viewName => _regionManager.RequestNavigate(RegionNames.Property, viewName));
 }
 ```
@@ -507,7 +481,7 @@ public MainWindowViewModel(IRegionManager regionManager)
 ビューモデルに `INavigationAware` を実装すると、画面に出入りするときに通知が来ます。
 
 ```csharp title="実験：INavigationAware の形（Editor には入れない）"
-public class SettingsViewModel : BindableBase, INavigationAware
+public class SettingsViewModel : INavigationAware
 {
     public void OnNavigatedTo(NavigationContext navigationContext)
     {
@@ -598,7 +572,6 @@ Editor/
 ├─ SceneTree/                        SceneTreeModule / SceneTreeView / SceneTreeViewModel
 ├─ Shared/
 │   ├─ RegionNames.cs                リージョンの名前（新規）
-│   └─ Mvvm/                         （変更なし）
 ├─ MainWindowViewModel.cs            ステータス バーとナビゲーションだけ
 └─ MainWindow.xaml                   リージョンだけの枠
 ```

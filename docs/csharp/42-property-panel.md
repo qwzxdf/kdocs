@@ -17,7 +17,7 @@ tags:
 
 ## 編集は、1 か所の窓口を通す
 
-入力欄に数字を打ち込んだとき、`obj.Position = ...` と直接書いてもよいのですが、第 44 章で Undo/Redo を入れる予定です。Undo は、「何をどう変えたか」の記録が必要です。あとから全部の編集コードを書き直すのは大変なので、最初から、すべての編集を `ISceneEditor` という窓口を通すようにしておきます。
+入力欄に数字を打ち込んだとき、`obj.Position.Value = ...` と直接書いてもよいのですが、第 44 章で Undo/Redo を入れる予定です。Undo は、「何をどう変えたか」の記録が必要です。あとから全部の編集コードを書き直すのは大変なので、最初から、すべての編集を `ISceneEditor` という窓口を通すようにしておきます。
 
 今の窓口は、値を直接変えるだけです。第 44 章で、中身を「コマンドを記録する」形に差し替えます。呼ぶ側（プロパティ パネル）は、そのままで済みます。
 
@@ -73,36 +73,36 @@ public sealed class SceneEditor : ISceneEditor
 
     public void SetName(SceneObject obj, string name)
     {
-        if (obj.Name == name) return;
-        obj.Name = name;
+        if (obj.Name.Value == name) return;
+        obj.Name.Value = name;
         _document.NotifyChanged(SceneChangeKind.Renamed, obj);
     }
 
     public void SetPosition(SceneObject obj, Vector3 value)
     {
-        if (obj.Position == value) return;
-        obj.Position = value;
+        if (obj.Position.Value == value) return;
+        obj.Position.Value = value;
         _document.NotifyChanged(SceneChangeKind.TransformChanged, obj);
     }
 
     public void SetRotationDegrees(SceneObject obj, Vector3 value)
     {
-        if (obj.RotationDegrees == value) return;
-        obj.RotationDegrees = value;
+        if (obj.RotationDegrees.Value == value) return;
+        obj.RotationDegrees.Value = value;
         _document.NotifyChanged(SceneChangeKind.TransformChanged, obj);
     }
 
     public void SetScale(SceneObject obj, Vector3 value)
     {
-        if (obj.Scale == value) return;
-        obj.Scale = value;
+        if (obj.Scale.Value == value) return;
+        obj.Scale.Value = value;
         _document.NotifyChanged(SceneChangeKind.TransformChanged, obj);
     }
 
     public void SetColor(SceneObject obj, Vector4 value)
     {
-        if (obj.Color == value) return;
-        obj.Color = value;
+        if (obj.Color.Value == value) return;
+        obj.Color.Value = value;
         _document.NotifyChanged(SceneChangeKind.ColorChanged, obj);
     }
 }
@@ -110,20 +110,21 @@ public sealed class SceneEditor : ISceneEditor
 
 `App.xaml.cs` で、`containerRegistry.RegisterSingleton<ISceneEditor, SceneEditor>();` と登録します。
 
-`obj.Position == value` は、`Vector3` の 3 成分がすべて等しいかを比べます。同じ値なら何もしないことで、無駄な通知とエンジンへの命令を省いています。
+`obj.Position.Value == value` は、`Vector3` の 3 成分がすべて等しいかを比べます。同じ値なら何もしないことで、無駄な通知とエンジンへの命令を省いています。
 
-ここでは、通知が 2 種類あることに気づいてほしいです。`SceneObject` のプロパティが出す `PropertyChanged` は、画面を更新するための通知です。一方、エンジンへの同期は `SceneDocument.Changed` イベントです。この窓口が両方の面倒を見ます。
+ここでは、通知が 2 種類あることに気づいてほしいです。`SceneObject` の `ReactivePropertySlim` が出す変更通知は、画面を更新するための通知です。一方、エンジンへの同期は `SceneDocument.Changed` イベントです。この窓口が両方の面倒を見ます。
 
 ## Vector3 を編集する部品
 
 ```csharp title="Property/Vector3EditorViewModel.cs"
 using System.Numerics;
-using Prism.Mvvm;
+using System.Reactive.Linq;
+using Reactive.Bindings;
 
 namespace Editor.Property;
 
 // Vector3 を X、Y、Z の成分に分けて編集する部品。位置、回転、拡大で使い回す。
-public sealed class Vector3EditorViewModel : BindableBase
+public sealed class Vector3EditorViewModel
 {
     private readonly Func<Vector3> _get;
     private readonly Action<Vector3> _set;
@@ -133,69 +134,94 @@ public sealed class Vector3EditorViewModel : BindableBase
         Label = label;
         _get = get;
         _set = set;
+
+        // 入力欄で成分が変わったら、その成分だけ差し替えた新しい Vector3 を書き戻す。
+        // Skip(1) は、登録した時点の最初の 1 回（初期値）を読み飛ばす
+        X.Skip(1).Subscribe(v => _set(_get() with { X = v }));
+        Y.Skip(1).Subscribe(v => _set(_get() with { Y = v }));
+        Z.Skip(1).Subscribe(v => _set(_get() with { Z = v }));
     }
 
     public string Label { get; }
 
-    public float X
-    {
-        get => _get().X;
-        set => _set(_get() with { X = value });      // X だけ差し替えた、新しい Vector3 を作る
-    }
+    public ReactivePropertySlim<float> X { get; } = new();
+    public ReactivePropertySlim<float> Y { get; } = new();
+    public ReactivePropertySlim<float> Z { get; } = new();
 
-    public float Y
-    {
-        get => _get().Y;
-        set => _set(_get() with { Y = value });
-    }
-
-    public float Z
-    {
-        get => _get().Z;
-        set => _set(_get() with { Z = value });
-    }
-
-    // 元の値が（外から）変わったとき、画面に再読み込みさせる
+    // 元の値が（外から）変わったとき、入力欄に再読み込みさせる
     public void Refresh()
     {
-        RaisePropertyChanged(nameof(X));
-        RaisePropertyChanged(nameof(Y));
-        RaisePropertyChanged(nameof(Z));
+        var v = _get();
+        X.Value = v.X;
+        Y.Value = v.Y;
+        Z.Value = v.Z;
     }
 }
 ```
 
 この部品は、「値を読む関数」と「値を書く関数」をコンストラクターで受け取ります。値が実際にどこにあるのかは知らないので、位置にも回転にも使えます。
 
-`with { X = value }` は with 式といって、構造体（や `record`）をコピーして、一部の成分だけを変えた新しい値を作ります。元の値は変わりません。`Refresh()` は、Undo やエンジン側の変更で、元の値が外から変わったときに、画面を読み直させるために呼びます。
+`X`、`Y`、`Z` は、入力欄に結ぶ `ReactivePropertySlim<float>` です。入力欄で値が変わると、`Subscribe` に登録した関数が動いて、`_get() with { X = v }` で作った新しい `Vector3` を、`_set` で書き戻します。`with { X = value }` は with 式といって、構造体（や `record`）をコピーして、一部の成分だけを変えた新しい値を作ります。元の値は変わりません。
+
+`Refresh()` は、Undo やエンジン側の変更で、元の値が外から変わったときに、入力欄を読み直させるために呼びます。`X.Value = v.X` と代入すると、また `Subscribe` の関数が動いて `_set` を呼びますが、値が同じなので、`ISceneEditor` の側が何もせずに戻ります（`if (obj.Position.Value == value) return;`）。ぐるぐる回り続けることはありません。
 
 ## プロパティのビューモデル
 
 ```csharp title="Property/PropertyViewModel.cs"
-using System.ComponentModel;
 using System.Numerics;
-using Prism.Mvvm;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Windows.Media;
+using Reactive.Bindings;
 using Editor.Scene;
 
 namespace Editor.Property;
 
-public class PropertyViewModel : BindableBase
+public class PropertyViewModel
 {
     private readonly ISelectionService _selection;
     private readonly ISceneEditor _editor;
-    private SceneObject? _target;
 
     public PropertyViewModel(ISelectionService selection, ISceneEditor editor)
     {
         _selection = selection;
         _editor = editor;
 
-        Position = new Vector3EditorViewModel("位置", () => Target?.Position ?? Vector3.Zero,
-            v => { if (Target != null) _editor.SetPosition(Target, v); });
-        Rotation = new Vector3EditorViewModel("回転 (度)", () => Target?.RotationDegrees ?? Vector3.Zero,
-            v => { if (Target != null) _editor.SetRotationDegrees(Target, v); });
-        Scale = new Vector3EditorViewModel("拡大", () => Target?.Scale ?? Vector3.One,
-            v => { if (Target != null) _editor.SetScale(Target, ClampScale(v)); });
+        Position = new Vector3EditorViewModel("位置", () => Target.Value?.Position.Value ?? Vector3.Zero,
+            v => { if (Target.Value != null) _editor.SetPosition(Target.Value, v); });
+        Rotation = new Vector3EditorViewModel("回転 (度)", () => Target.Value?.RotationDegrees.Value ?? Vector3.Zero,
+            v => { if (Target.Value != null) _editor.SetRotationDegrees(Target.Value, v); });
+        Scale = new Vector3EditorViewModel("拡大", () => Target.Value?.Scale.Value ?? Vector3.One,
+            v => { if (Target.Value != null) _editor.SetScale(Target.Value, ClampScale(v)); });
+
+        // 選択があるか。Target が変わるたびに作り直される
+        HasTarget = Target.Select(t => t != null).ToReadOnlyReactivePropertySlim();
+
+        // 名前の入力。空の名前は拒否して、元の名前に戻す
+        Name.Skip(1).Subscribe(v =>
+        {
+            if (Target.Value != null && !string.IsNullOrWhiteSpace(v)) _editor.SetName(Target.Value, v);
+            else Name.Value = Target.Value?.Name.Value ?? "";
+        });
+
+        // 色（0〜1）。スライダーの入力を、色に書き戻す
+        ColorR.Skip(1).Subscribe(v => SetColor(c => c with { X = v }));
+        ColorG.Skip(1).Subscribe(v => SetColor(c => c with { Y = v }));
+        ColorB.Skip(1).Subscribe(v => SetColor(c => c with { Z = v }));
+
+        // 対象の値が（Undo、エンジン、別の画面などから）変わったら、パネルを更新する。
+        // Target が替わるたびに、見張る相手が新しい対象に切り替わる（Switch）
+        Target.Select(t => t is null
+                ? Observable.Empty<Unit>()
+                : Observable.Merge(
+                    t.Name.Select(_ => Unit.Default),
+                    t.Position.Select(_ => Unit.Default),
+                    t.RotationDegrees.Select(_ => Unit.Default),
+                    t.Scale.Select(_ => Unit.Default),
+                    t.Color.Select(_ => Unit.Default)))
+            .Switch()
+            .Subscribe(_ => RefreshAll());
+        Target.Subscribe(_ => RefreshAll());
 
         _selection.SelectionChanged += OnSelectionChanged;
         OnSelectionChanged();
@@ -208,57 +234,33 @@ public class PropertyViewModel : BindableBase
     public Vector3EditorViewModel Scale { get; }
 
     // 編集の対象（主の選択）。選択がなければ null
-    public SceneObject? Target
-    {
-        get => _target;
-        private set
-        {
-            if (_target != null) _target.PropertyChanged -= OnTargetPropertyChanged;
-            if (SetProperty(ref _target, value) && _target != null)
-            {
-                _target.PropertyChanged += OnTargetPropertyChanged;
-            }
-            RaisePropertyChanged(nameof(HasTarget));
-            RefreshAll();
-        }
-    }
+    public ReactivePropertySlim<SceneObject?> Target { get; } = new();
 
-    public bool HasTarget => _target != null;
+    public ReadOnlyReactivePropertySlim<bool> HasTarget { get; }
 
-    public string Name
-    {
-        get => _target?.Name ?? "";
-        set
-        {
-            if (_target != null && !string.IsNullOrWhiteSpace(value)) _editor.SetName(_target, value);
-            RaisePropertyChanged();
-        }
-    }
+    public ReactivePropertySlim<string> Name { get; } = new("");
 
-    // 色（0〜1）。スライダーに対応する
-    public float ColorR { get => _target?.Color.X ?? 0; set => SetColor(c => c with { X = value }); }
-    public float ColorG { get => _target?.Color.Y ?? 0; set => SetColor(c => c with { Y = value }); }
-    public float ColorB { get => _target?.Color.Z ?? 0; set => SetColor(c => c with { Z = value }); }
+    public ReactivePropertySlim<float> ColorR { get; } = new();
+    public ReactivePropertySlim<float> ColorG { get; } = new();
+    public ReactivePropertySlim<float> ColorB { get; } = new();
 
     private void SetColor(Func<Vector4, Vector4> change)
     {
-        if (_target != null) _editor.SetColor(_target, change(_target.Color));
+        if (Target.Value != null) _editor.SetColor(Target.Value, change(Target.Value.Color.Value));
     }
 
-    private void OnSelectionChanged() => Target = _selection.Primary;
-
-    // 対象の値が（Undo、エンジン、別の画面などから）変わったら、パネルを更新する
-    private void OnTargetPropertyChanged(object? sender, PropertyChangedEventArgs e) => RefreshAll();
+    private void OnSelectionChanged() => Target.Value = _selection.Primary;
 
     private void RefreshAll()
     {
         Position.Refresh();
         Rotation.Refresh();
         Scale.Refresh();
-        RaisePropertyChanged(nameof(Name));
-        RaisePropertyChanged(nameof(ColorR));
-        RaisePropertyChanged(nameof(ColorG));
-        RaisePropertyChanged(nameof(ColorB));
+        Name.Value = Target.Value?.Name.Value ?? "";
+        var c = Target.Value?.Color.Value ?? new Vector4(0, 0, 0, 1);
+        ColorR.Value = c.X;
+        ColorG.Value = c.Y;
+        ColorB.Value = c.Z;
     }
 
     // 拡大が 0 だと、箱が潰れて見えなくなり、行列も壊れる。小さな下限を設ける
@@ -270,11 +272,12 @@ public class PropertyViewModel : BindableBase
 
 注意したいところをいくつか拾います。
 
-- `Target?.Position ?? Vector3.Zero` は、`Target` が `null` のときに `Vector3.Zero` を使う書き方です。
-- `Target` の `set` で、前の対象の `PropertyChanged` の購読を外して、新しい対象を購読し直しています。購読の外し忘れは、メモリリークや二重更新の原因になります。
-- `Name` の `set` で `RaisePropertyChanged()` を引数なしで呼んでいます。空の名前のように拒否した値が入力欄に残らないよう、元の値に戻させるためです。
+- `Target.Value?.Position.Value ?? Vector3.Zero` は、`Target.Value` が `null` のときに `Vector3.Zero` を使う書き方です。
+- `Target.Select(...).Switch()` が、前の対象の購読を外して、新しい対象を購読し直す仕事を引き受けています。`Select` で「対象ごとの変更の流れ」を作り、`Switch` が「いちばん新しい流れだけを聞く」ようにします。手で `+=` と `-=` を書くと、外し忘れがメモリリークや二重更新の原因になりますが、`Switch` ならその心配がありません。
+- `Name.Skip(1).Subscribe(...)` で、空の名前は拒否して、`Name.Value` を元の名前に戻しています。入力欄に、拒否した値が残らないようにするためです。
+- `Skip(1)` は、`Subscribe` が登録した時点にも 1 回呼ばれる動き（第 14 章）で、初期値が書き戻されてしまうのを防ぎます。
 - `ClampScale` は、拡大が 0 になるのを防ぎます。0 だと、箱が潰れて見えなくなり、行列も壊れます。
-- `SetColor(c => c with { X = value })` のように、変更の仕方を関数で渡しているので、R、G、B で `SetColor` を共有できます。
+- `SetColor(c => c with { X = v })` のように、変更の仕方を関数で渡しているので、R、G、B で `SetColor` を共有できます。
 
 ## ビュー
 
@@ -293,9 +296,9 @@ public class PropertyViewModel : BindableBase
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <TextBlock Grid.Column="0" Text="{Binding Label}" VerticalAlignment="Center" />
-            <TextBox Grid.Column="1" Margin="2,0" Text="{Binding X, StringFormat=F3, UpdateSourceTrigger=LostFocus}" />
-            <TextBox Grid.Column="2" Margin="2,0" Text="{Binding Y, StringFormat=F3, UpdateSourceTrigger=LostFocus}" />
-            <TextBox Grid.Column="3" Margin="2,0" Text="{Binding Z, StringFormat=F3, UpdateSourceTrigger=LostFocus}" />
+            <TextBox Grid.Column="1" Margin="2,0" Text="{Binding X.Value, StringFormat=F3, UpdateSourceTrigger=LostFocus}" />
+            <TextBox Grid.Column="2" Margin="2,0" Text="{Binding Y.Value, StringFormat=F3, UpdateSourceTrigger=LostFocus}" />
+            <TextBox Grid.Column="3" Margin="2,0" Text="{Binding Z.Value, StringFormat=F3, UpdateSourceTrigger=LostFocus}" />
         </Grid>
     </DataTemplate>
 </UserControl.Resources>
@@ -314,11 +317,11 @@ public class PropertyViewModel : BindableBase
              prism:ViewModelLocator.AutoWireViewModel="True">
     <!-- UserControl.Resources は上のとおり -->
     <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#FF252526">
-        <StackPanel Margin="8" IsEnabled="{Binding HasTarget}">
+        <StackPanel Margin="8" IsEnabled="{Binding HasTarget.Value}">
             <TextBlock Text="プロパティ" FontWeight="Bold" />
 
             <TextBlock Text="名前" Margin="0,8,0,2" />
-            <TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" />
+            <TextBox Text="{Binding Name.Value, UpdateSourceTrigger=LostFocus}" />
 
             <TextBlock Text="トランスフォーム" FontWeight="Bold" Margin="0,12,0,2" />
             <ContentControl Content="{Binding Position}" />
@@ -335,18 +338,18 @@ public class PropertyViewModel : BindableBase
                     <RowDefinition /><RowDefinition /><RowDefinition />
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="R" Foreground="#FFFF6060" />
-                <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding ColorR}" />
+                <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding ColorR.Value}" />
                 <TextBlock Grid.Row="1" Text="G" Foreground="#FF60FF60" />
-                <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding ColorG}" />
+                <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding ColorG.Value}" />
                 <TextBlock Grid.Row="2" Text="B" Foreground="#FF6080FF" />
-                <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding ColorB}" />
+                <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="1" Value="{Binding ColorB.Value}" />
             </Grid>
         </StackPanel>
     </ScrollViewer>
 </UserControl>
 ```
 
-`<ContentControl Content="{Binding Position}" />` は、中身に `Vector3EditorViewModel` を入れています。WPF が、型に合う `DataTemplate` を探して表示してくれるので、見た目を何度も書かずに済みます。`StackPanel` の `IsEnabled="{Binding HasTarget}"` は、選択がないときに、中の部品を全部まとめて無効（グレー）にします。`Slider` は、`Minimum`、`Maximum`、`Value` を持つ部品で、`Value` は既定で双方向、つまみを動かすたびに更新されます。
+`<ContentControl Content="{Binding Position}" />` は、中身に `Vector3EditorViewModel` を入れています。WPF が、型に合う `DataTemplate` を探して表示してくれるので、見た目を何度も書かずに済みます。`StackPanel` の `IsEnabled="{Binding HasTarget.Value}"` は、選択がないときに、中の部品を全部まとめて無効（グレー）にします。`Slider` は、`Minimum`、`Maximum`、`Value` を持つ部品で、`Value` は既定で双方向、つまみを動かすたびに更新されます。
 
 ## 色の見本
 
@@ -379,20 +382,15 @@ public class ColorToBrushConverter : IValueConverter
 見本の `Border` は、`ColorR/G/B` が変わるたびに更新したいので、`PropertyViewModel` に `SwatchBrush` を足します。
 
 ```csharp
-public Brush SwatchBrush
-{
-    get
-    {
-        var c = _target?.Color ?? new Vector4(0, 0, 0, 1);
-        byte R(float f) => (byte)Math.Clamp((int)MathF.Round(f * 255f), 0, 255);
-        return new SolidColorBrush(Color.FromRgb(R(c.X), R(c.Y), R(c.Z)));
-    }
-}
-// RefreshAll に追加： RaisePropertyChanged(nameof(SwatchBrush));
+public ReactivePropertySlim<Brush> SwatchBrush { get; } = new(Brushes.Transparent);
+
+// RefreshAll の最後に追加：
+byte R(float f) => (byte)Math.Clamp((int)MathF.Round(f * 255f), 0, 255);
+SwatchBrush.Value = new SolidColorBrush(Color.FromRgb(R(c.X), R(c.Y), R(c.Z)));
 ```
 
 ```xml
-<Border Height="24" Margin="0,4" BorderBrush="Gray" BorderThickness="1" Background="{Binding SwatchBrush}" />
+<Border Height="24" Margin="0,4" BorderBrush="Gray" BorderThickness="1" Background="{Binding SwatchBrush.Value}" />
 ```
 
 `byte R(float f) => ...` は、ローカル関数といって、メソッドの中に書ける小さな関数です。`Freeze()` は、「このブラシは、これ以上変更しません」と宣言して、WPF が効率よく扱えるようにします。
@@ -423,7 +421,7 @@ WPF の標準には、色を選ぶダイアログ（部品）がありません�
     `UpdateSourceTrigger=LostFocus` なので、`Tab` か `Enter` でフォーカスを外すまで反映されません。または、`StringFormat=F3` のある欄に `1,5` のようなカンマ区切りを入れています（地域設定によって小数点が違います）。
 
 ??? failure "選択を変えても、パネルの内容が変わらない"
-    `RefreshAll` が `RaisePropertyChanged` を忘れているか、`Target` の `set` で `PropertyChanged` の購読と解除が正しく行われていません。
+    `RefreshAll` が `Name.Value` などへ代入し直していないか、`Target.Select(...).Switch()` の購読が書かれていません。
 
 ??? failure "`with` 式がコンパイルエラー（`CS8858`）"
     古い C# の書き方になっています。.NET 8（C# 12）なら動きます。型が `System.Numerics.Vector3`（構造体）か `record` であることを確認します。

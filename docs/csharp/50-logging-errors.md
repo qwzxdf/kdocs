@@ -240,21 +240,20 @@ public static class CrashReporter
 ログ パネル（第 24 章）に重大度のフィルター、コピー、クリア、自動スクロールを足します。
 
 ```csharp
-public class LogViewModel : BindableBase
+public class LogViewModel
 {
     private readonly ILogService _log;
-    private LogLevel _minimumLevel = LogLevel.Info;
-    private bool _autoScroll = true;
 
     public LogViewModel(ILogService log)
     {
         _log = log;
         Entries = log.Entries;
         EntriesView = CollectionViewSource.GetDefaultView(Entries);
-        EntriesView.Filter = o => o is LogEntry e && e.Level >= _minimumLevel;
+        EntriesView.Filter = o => o is LogEntry e && e.Level >= MinimumLevel.Value;
+        MinimumLevel.Subscribe(_ => EntriesView.Refresh());      // フィルターが変わったら、かけ直す
 
-        ClearCommand = new DelegateCommand(Entries.Clear);
-        CopyCommand = new DelegateCommand<LogEntry>(entry =>
+        ClearCommand = new ReactiveCommand().WithSubscribe(Entries.Clear);
+        CopyCommand = new ReactiveCommand<LogEntry>().WithSubscribe(entry =>
             Clipboard.SetText($"{entry.Time:HH:mm:ss} [{entry.Level}] {entry.Message}"));
     }
 
@@ -263,22 +262,18 @@ public class LogViewModel : BindableBase
     public ICollectionView EntriesView { get; }
 
     // フィルター：この重大度以上を表示
-    public LogLevel MinimumLevel
-    {
-        get => _minimumLevel;
-        set { if (SetProperty(ref _minimumLevel, value)) EntriesView.Refresh(); }
-    }
+    public ReactivePropertySlim<LogLevel> MinimumLevel { get; } = new(LogLevel.Info);
 
-    public bool AutoScroll { get => _autoScroll; set => SetProperty(ref _autoScroll, value); }
+    public ReactivePropertySlim<bool> AutoScroll { get; } = new(true);
 
     public IEnumerable<LogLevel> Levels { get; } = Enum.GetValues<LogLevel>();
 
-    public DelegateCommand ClearCommand { get; }
-    public DelegateCommand<LogEntry> CopyCommand { get; }
+    public ReactiveCommand ClearCommand { get; }
+    public ReactiveCommand<LogEntry> CopyCommand { get; }
 }
 ```
 
-絞り込みの仕組みは、第 46 章の検索と同じ `ICollectionView` です。`e.Level >= _minimumLevel` は列挙型の比較で、`Info(0) < Warning(1) < Error(2)` なので、`>=` で「この重大度以上」になります。`Enum.GetValues<T>()` は、列挙型のすべての値を取るので、`ComboBox` の選択肢に使えます。`Entries` が無限に増えないよう、上限（たとえば 5000）を超えたら古いものを消す処理も、`LogService.Add` に足してください。
+絞り込みの仕組みは、第 46 章の検索と同じ `ICollectionView` です。`e.Level >= MinimumLevel.Value` は列挙型の比較で、`Info(0) < Warning(1) < Error(2)` なので、`>=` で「この重大度以上」になります。`Enum.GetValues<T>()` は、列挙型のすべての値を取るので、`ComboBox` の選択肢に使えます。`Entries` が無限に増えないよう、上限（たとえば 5000）を超えたら古いものを消す処理も、`LogService.Add` に足してください。
 
 ログの行の色は、重大度で変えます。
 
@@ -303,7 +298,7 @@ public class LogViewModel : BindableBase
 // LogView.xaml.cs
 ((INotifyCollectionChanged)LogList.Items).CollectionChanged += (_, e) =>
 {
-    if (e.Action == NotifyCollectionChangedAction.Add && ViewModel?.AutoScroll == true && LogList.Items.Count > 0)
+    if (e.Action == NotifyCollectionChangedAction.Add && ViewModel?.AutoScroll.Value == true && LogList.Items.Count > 0)
     {
         LogList.ScrollIntoView(LogList.Items[^1]);
     }
