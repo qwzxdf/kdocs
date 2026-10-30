@@ -16,7 +16,7 @@ tags:
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `Services/WindowPlacementStore.cs`（新規） | ウィンドウの位置と大きさを、保存して復元する |
+    | `Shared/WindowPlacementStore.cs`（新規） | ウィンドウの位置と大きさを、保存して復元する |
     | `MainWindow.xaml.cs`（変更） | 起動時に復元し、閉じるときに保存する |
     | `App.xaml.cs`（変更） | 二重に起動しないようにする |
 
@@ -84,12 +84,12 @@ public interface IWindowService
 
 エディタを閉じて、また開いたときに、前回と同じ位置と大きさで出てほしい。これは、設定ファイルに保存して実現します（第 45 章の設定の保存と同じ要領）。保存の置き場所は、ユーザーごとの設定なので `%APPDATA%` にします。
 
-```csharp title="Services/WindowPlacementStore.cs（新規）"
+```csharp title="Shared/WindowPlacementStore.cs（新規）"
 using System.IO;
 using System.Text.Json;
 using System.Windows;
 
-namespace Editor.Services;
+namespace Editor.Shared;
 
 public class WindowPlacement
 {

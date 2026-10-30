@@ -61,14 +61,14 @@ public MainWindow()
 ViewModelLocator が型を探す規則は、Prism のソースで確かめられます（`ViewModelLocationProvider` の既定の規則）。
 
 - 画面の完全な名前（名前空間つき）を取る。
-- その中の `.Views.` を `.ViewModels.` に置き換える。`.Views.` がなければ何も変わらないので、画面と同じ名前空間で探すことになる。
+- その中の `.Views.` を `.ViewModels.` に置き換える。`.Views.` がなければ何も変わらないので、画面と同じ名前空間で探すことになる。この教材は、機能ごとのフォルダーに画面とビューモデルを並べるので、こちらに当たる。
 - 画面の名前の末尾が `View` なら `Model` を、そうでなければ `ViewModel` を足す。
 - 画面と同じアセンブリ（同じプロジェクト）の中から探す。
 
 具体的には、次のように決まります。
 
 - `Editor.MainWindow` には `Editor.MainWindowViewModel`（`.Views.` がないので、置き換えは起きない。`View` で終わらないので、`ViewModel` を足す。Editor の `MainWindow` は、第 12 章からこの形です）
-- `Editor.Modules.SceneTree.SceneTreeView` には `Editor.Modules.SceneTree.SceneTreeViewModel`（`View` で終わるので、`Model` を足す。機能ごとのフォルダーに、画面とビューモデルを並べる形。第 23 章で使います）
+- `Editor.SceneTree.SceneTreeView` には `Editor.SceneTree.SceneTreeViewModel`（`View` で終わるので、`Model` を足す。機能ごとのフォルダーに、画面とビューモデルを並べる形。第 23 章で使います）
 - `Editor.Views.MainWindow` には `Editor.ViewModels.MainWindowViewModel`（`Views` と `ViewModels` のフォルダーに分けて置く流儀。Web の記事や Prism の既定のテンプレートで、よく見かける形です。この教材では使いません）
 
 Editor は、最初の 2 つの形で作ります。画面とビューモデルを同じ場所に並べておくほうが、片方を直すときにもう片方を探さなくて済むからです。どの形でも、規則は同じです。

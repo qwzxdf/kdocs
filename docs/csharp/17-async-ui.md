@@ -17,11 +17,11 @@ tags:
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `Services/AssetScanner.cs`（新規） | フォルダーの中のファイルを読む（非同期） |
+    | `Asset/AssetScanner.cs`（新規） | フォルダーの中のファイルを読む（非同期） |
     | `App.xaml.cs`（変更） | 作るクラスをコンテナーに登録する |
-    | `Mvvm/AsyncCommand.cs`（新規） | 非同期の処理を実行するコマンド |
-    | `Modules/Log/LogViewModel.cs`（変更） | 別のスレッドからでもログを足せるようにする |
-    | `Modules/Asset/AssetViewModel.cs`（変更） | 読み込み、進み具合、キャンセル |
+    | `Shared/Mvvm/AsyncCommand.cs`（新規） | 非同期の処理を実行するコマンド |
+    | `Log/LogViewModel.cs`（変更） | 別のスレッドからでもログを足せるようにする |
+    | `Asset/AssetViewModel.cs`（変更） | 読み込み、進み具合、キャンセル |
     | `MainWindowViewModel.cs`（変更） | `Log` と `AssetBrowser` を受け取る |
     | `MainWindow.xaml`（変更） | 「読み込み」「キャンセル」のボタンと進行バー |
 
@@ -37,7 +37,7 @@ tags:
 
 `AssetViewModel` に、同期で書いた最初の版を足します。ファイルを 1 つずつ調べて、一覧に足すだけです。
 
-```csharp title="Modules/Asset/AssetViewModel.cs（変更：最初の版）"
+```csharp title="Asset/AssetViewModel.cs（変更：最初の版）"
 using System.IO;       // WPF のプロジェクトでは、System.IO は自動では入らない
 using Prism.Commands;
 
@@ -99,11 +99,10 @@ Result = result;                                              // 戻ってきた
 
 読み込みの本体を、ビューモデルから出して、非同期のクラスにします。
 
-```csharp title="Services/AssetScanner.cs（新規）"
+```csharp title="Asset/AssetScanner.cs（新規）"
 using System.IO;
-using Editor.Models;
 
-namespace Editor.Services;
+namespace Editor.Asset;
 
 public class AssetScanner
 {
@@ -141,7 +140,7 @@ public class AssetScanner
 
 ビューモデルを、この `ScanAsync` を使う形に書き換えます。
 
-```csharp title="Modules/Asset/AssetViewModel.cs（変更）"
+```csharp title="Asset/AssetViewModel.cs（変更）"
 private readonly AssetScanner _scanner = new();
 
 private async Task LoadAsync()
@@ -160,10 +159,10 @@ private async Task LoadAsync()
 
 そこで、非同期の処理を渡せるコマンドを、もう 1 つ作ります。
 
-```csharp title="Mvvm/AsyncCommand.cs（新規）"
+```csharp title="Shared/Mvvm/AsyncCommand.cs（新規）"
 using System.Windows.Input;
 
-namespace Editor.Mvvm;
+namespace Editor.Shared.Mvvm;
 
 // 非同期の処理を実行するコマンド。実行中は押せなくなり、二重に実行されない。
 public sealed class AsyncCommand : ICommand
@@ -217,7 +216,7 @@ public sealed class AsyncCommand : ICommand
 
 `AssetViewModel` の `LoadCommand` を、これに差し替えます。
 
-```csharp title="Modules/Asset/AssetViewModel.cs（変更）"
+```csharp title="Asset/AssetViewModel.cs（変更）"
 public AsyncCommand LoadCommand { get; }
 
 // コンストラクターの中
@@ -234,7 +233,7 @@ LoadCommand = new AsyncCommand(LoadAsync, onError: e => _log.Add(LogLevel.Error,
 
 `LogViewModel` を受け取る部分は、このあとの「作る係と使う係を分ける」で書きます。先に、ログを出す側の `LoadAsync` を書き換えます。
 
-```csharp title="Modules/Asset/AssetViewModel.cs（変更）"
+```csharp title="Asset/AssetViewModel.cs（変更）"
 private async Task LoadAsync()
 {
     var files = await _scanner.ScanAsync(AppContext.BaseDirectory, msg => _log.Add(LogLevel.Info, msg));
@@ -272,7 +271,7 @@ await Application.Current.Dispatcher.InvokeAsync(() => Entries.Add(entry));   //
 
 `Invoke`（同期的に待つ）は、UI スレッドが別の用事で待っていると、お互いに待ち合ってデッドロックする危険があります。基本は `InvokeAsync`（または `BeginInvoke`）を使います。これで `Add` を直します。
 
-```csharp title="Modules/Log/LogViewModel.cs（変更）"
+```csharp title="Log/LogViewModel.cs（変更）"
 using System.Windows;
 
 public void Add(LogLevel level, string message)
@@ -316,9 +315,8 @@ AssetBrowser = new AssetViewModel(Log, new AssetScanner());
 1 つ目は、コンテナーに、どのクラスを作れるかを教えておくことです。第 12 章で空のまま置いた `RegisterTypes` に書きます。
 
 ```csharp title="App.xaml.cs（変更）"
-using Editor.Services;
-using Editor.Modules.Asset;
-using Editor.Modules.Log;
+using Editor.Asset;
+using Editor.Log;
 
 protected override void RegisterTypes(IContainerRegistry containerRegistry)
 {
@@ -332,7 +330,7 @@ protected override void RegisterTypes(IContainerRegistry containerRegistry)
 
 2 つ目は、欲しいものを、コンストラクターの引数に書くことです。
 
-```csharp title="Modules/Asset/AssetViewModel.cs（変更）"
+```csharp title="Asset/AssetViewModel.cs（変更）"
 private readonly LogViewModel _log;
 private readonly AssetScanner _scanner;
 
@@ -366,7 +364,7 @@ public MainWindowViewModel(LogViewModel log, AssetViewModel assetBrowser)
 
 読み込みに数秒かかるようになったので、進み具合を見せます。長い処理の途中経過を画面に出すときは、`IProgress<T>` を使います。`AssetScanner` に、進み具合を報告する引数を足します。
 
-```csharp title="Services/AssetScanner.cs（変更）"
+```csharp title="Asset/AssetScanner.cs（変更）"
 public Task<IReadOnlyList<FileEntry>> ScanAsync(
     string root, IProgress<double>? progress = null, Action<string>? log = null)
 {
@@ -387,7 +385,7 @@ public Task<IReadOnlyList<FileEntry>> ScanAsync(
 
 ビューモデルに、進み具合のプロパティと、`Progress<double>` を渡す処理を足します。
 
-```csharp title="Modules/Asset/AssetViewModel.cs（変更）"
+```csharp title="Asset/AssetViewModel.cs（変更）"
 private double _progressValue;
 private bool _isBusy;
 
@@ -426,7 +424,7 @@ private async Task LoadAsync()
 
 長い処理には、キャンセルの手段を用意しておくと親切です。`CancellationTokenSource` を作り、`Token` を処理に渡し、キャンセルするときに `Cancel()` を呼びます。
 
-```csharp title="Services/AssetScanner.cs（変更）"
+```csharp title="Asset/AssetScanner.cs（変更）"
 public Task<IReadOnlyList<FileEntry>> ScanAsync(
     string root, IProgress<double>? progress = null, Action<string>? log = null,
     CancellationToken token = default)
@@ -444,7 +442,7 @@ public Task<IReadOnlyList<FileEntry>> ScanAsync(
 }
 ```
 
-```csharp title="Modules/Asset/AssetViewModel.cs（変更）"
+```csharp title="Asset/AssetViewModel.cs（変更）"
 private CancellationTokenSource? _cts;
 
 public DelegateCommand CancelCommand { get; }
@@ -529,17 +527,19 @@ private async Task LoadAsync()
 
 ```text
 Editor/
-├─ Models/                           （第 16 章のまま）
-├─ Mvvm/
-│   ├─ ValidatableViewModelBase.cs
-│   └─ AsyncCommand.cs               非同期のコマンド（新規）
-├─ Services/
-│   └─ AssetScanner.cs               フォルダーを非同期で読む（新規）
-├─ ViewModels/
+├─ Asset/
+│   ├─ AssetEntry.cs                 （第 16 章のまま）
+│   ├─ AssetScanner.cs               フォルダーを非同期で読む（新規）
+│   └─ AssetViewModel.cs             読み込み、進み具合、キャンセル
+├─ Log/
+│   ├─ LogEntry.cs
+│   └─ LogViewModel.cs               どのスレッドからでも Add できる
+├─ Scene/
 │   └─ SceneObjectViewModel.cs
-├─ Modules/
-│   ├─ Asset/AssetViewModel.cs       読み込み、進み具合、キャンセル
-│   └─ Log/LogViewModel.cs           どのスレッドからでも Add できる
+├─ Shared/
+│   └─ Mvvm/
+│       ├─ ValidatableViewModelBase.cs
+│       └─ AsyncCommand.cs           非同期のコマンド（新規）
 ├─ MainWindowViewModel.cs            Log と AssetBrowser を受け取る
 └─ MainWindow.xaml                   読み込み、キャンセル、進行バー
 ```

@@ -316,12 +316,12 @@ MeResult me_scene_set_selection(MeEngine* engine, const uint32_t* ids, uint32_t 
 
 エディタが持つ「物」のデータを作ります。`BindableBase` を継承して、値が変わったときに画面へ通知できるようにします。
 
-```csharp title="Models/SceneObject.cs"
+```csharp title="Scene/SceneObject.cs"
 using System.Collections.ObjectModel;
 using System.Numerics;
 using Prism.Mvvm;
 
-namespace Editor.Models;
+namespace Editor.Scene;
 
 public class SceneObject : BindableBase
 {
@@ -382,10 +382,10 @@ public class SceneObject : BindableBase
 
 次に、物の集まりと木構造の変更を管理する `SceneDocument` です。
 
-```csharp title="Models/SceneDocument.cs"
+```csharp title="Scene/SceneDocument.cs"
 using System.Collections.ObjectModel;
 
-namespace Editor.Models;
+namespace Editor.Scene;
 
 // 変更の種類。エンジンへの同期や、ツリーの更新が購読する
 public enum SceneChangeKind { Created, Destroyed, Reparented, Renamed, TransformChanged, ColorChanged }
@@ -525,10 +525,11 @@ void SceneSetColor(uint id, Vector4 color);
 
 そして、ドキュメントの変更を拾ってエンジンに送るクラスです。
 
-```csharp title="Services/SceneEngineSync.cs"
-using Editor.Models;
+```csharp title="Engine/SceneEngineSync.cs"
+using Editor.Scene;
+using Editor.Viewport;
 
-namespace Editor.Services;
+namespace Editor.Engine;
 
 // SceneDocument の変更をエンジンに送る
 public sealed class SceneEngineSync

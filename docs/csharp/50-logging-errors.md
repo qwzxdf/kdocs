@@ -98,12 +98,12 @@ private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEv
 
 画面のログ パネルは、アプリを閉じると消えます。クラッシュの調査には、ファイルのログが欠かせません。
 
-```csharp title="Services/FileLogWriter.cs"
+```csharp title="Log/FileLogWriter.cs"
 using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
 
-namespace Editor.Services;
+namespace Editor.Log;
 
 // ログを日付ごとのファイルに書く。書き込みは、専用のスレッドで行う（呼び出し側を待たせない）。
 public sealed class FileLogWriter : IDisposable

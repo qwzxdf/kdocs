@@ -63,6 +63,28 @@ MiniEngine.sln
 | Editor → EngineApi | エディタは、C の関数だけを呼ぶ。Engine の C++ には触れない |
 | Engine → （なし） | Engine は、他のどれにも依存しない（逆向きの依存を作らない） |
 
+### Editor のフォルダー構成
+
+Editor のフォルダーは、「ビュー」「ビューモデル」「モデル」という種類ではなく、**機能**で切ります。シーン ツリーを直すときに、`Views`、`ViewModels`、`Models` を行き来するのは面倒だからです。機能ごとのフォルダーなら、画面、ビューモデル、その機能だけが使うデータの型が、1 か所に並びます。複数の機能が使う道具だけを、`Shared` に置きます。
+
+```text
+Editor/
+├─ App.xaml / MainWindow.xaml / MainWindowViewModel.cs
+├─ Scene/        シーンのデータと選択（SceneObject、SelectionService …）
+├─ SceneTree/    シーン ツリーの画面
+├─ Property/     プロパティ パネルと設定
+├─ Asset/        アセット ブラウザ
+├─ Log/          ログ
+├─ Viewport/     3D ビューポート（HwndHost、描画ループ、ギズモ）
+├─ Engine/       エンジンとの接続（P/Invoke、ハンドル、エンジン サービス）
+├─ Undo/         元に戻す・やり直し
+├─ SceneFile/    シーンの保存と読み込み
+├─ Play/         プレイ モードとゲームの読み込み
+└─ Shared/       Mvvm、Dialogs、Controls、Behaviors、Converters など
+```
+
+各フォルダーは、その章で作ったときに現れます。最初から全部ある必要はありません。置き場所に迷ったら、「そのクラスを使うのは 1 つの機能だけか」を考えます。1 つなら、その機能のフォルダー。2 つ以上なら `Shared` か、データの持ち主の機能（たとえば `Scene`）です。
+
 ## 章の構成
 
 | 部 | 章 | 内容 |
@@ -126,7 +148,7 @@ MiniEngine.sln
 
 - 各章は、「この章で Editor に足すもの」の表で始まります。そのあと、Editor を少し作って動かし、そこで出てきた仕組みを「深掘り」で説明する、という繰り返しです。最後に、動作確認、よくあるミス、ここまでの Editor のファイル一覧が付きます。
 - コード ブロックのタイトルで、その扱いが分かります。
-    - `ViewModels/SceneObjectViewModel.cs（新規）` や `（変更）`：Editor のファイルです。このまま残ります。
+    - `Scene/SceneObjectViewModel.cs（新規）` や `（変更）`：Editor のファイルです。このまま残ります。
     - `実験：…（Editor には入れない）`：仕組みを見るためだけの、捨てるコードです。
 - 手順は必ず上から順に実行してください。前の章で作った物の上に次の章を積みます。
 - 新しい型や関数が出てきたら、その場の表で、何者か、どう使うか、C++ では何に近いかを説明します。

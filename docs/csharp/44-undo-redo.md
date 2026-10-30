@@ -41,8 +41,8 @@ tags:
 
 まず、コマンドのインターフェースです。
 
-```csharp title="Services/Undo/IUndoCommand.cs"
-namespace Editor.Services.Undo;
+```csharp title="Undo/IUndoCommand.cs"
+namespace Editor.Undo;
 
 // 1 つの編集。Do で実行し、Undo で元に戻す。
 public interface IUndoCommand
@@ -61,8 +61,8 @@ public interface IUndoCommand
 
 複数のコマンドを 1 つの Undo の単位にまとめる入れ物も作ります。
 
-```csharp title="Services/Undo/MacroCommand.cs"
-namespace Editor.Services.Undo;
+```csharp title="Undo/MacroCommand.cs"
+namespace Editor.Undo;
 
 // 複数のコマンドを 1 つの Undo の単位にまとめる。
 public sealed class MacroCommand : IUndoCommand
@@ -102,8 +102,8 @@ Undo を逆順にするのは大事なところです。「A をしてから B �
 
 履歴を管理するサービスのインターフェースは次のとおりです。
 
-```csharp title="Services/Undo/IHistoryService.cs"
-namespace Editor.Services.Undo;
+```csharp title="Undo/IHistoryService.cs"
+namespace Editor.Undo;
 
 public interface IHistoryService
 {
@@ -130,10 +130,10 @@ public interface IHistoryService
 
 実装は少し長いので、2 つに分けて見ます。まずフィールドとプロパティです。
 
-```csharp title="Services/Undo/HistoryService.cs"
+```csharp title="Undo/HistoryService.cs"
 using System.Diagnostics;
 
-namespace Editor.Services.Undo;
+namespace Editor.Undo;
 
 public sealed class HistoryService : IHistoryService
 {
@@ -300,11 +300,11 @@ public int IndexOf(SceneObject obj) => (obj.Parent?.Children ?? Roots).IndexOf(o
 
 削除する物の全部の情報を子を含めて保存します。
 
-```csharp title="Services/Undo/Snapshots.cs"
+```csharp title="Undo/Snapshots.cs"
 using System.Numerics;
-using Editor.Models;
+using Editor.Scene;
 
-namespace Editor.Services.Undo;
+namespace Editor.Undo;
 
 // 物 1 つ分（子を含む）の、保存された状態
 public sealed record ObjectSnapshot(
@@ -342,8 +342,8 @@ public sealed record RemovedObject(ObjectSnapshot Snapshot, uint ParentId, int I
 
 ### 値の変更
 
-```csharp title="Services/Undo/SetValueCommand.cs"
-namespace Editor.Services.Undo;
+```csharp title="Undo/SetValueCommand.cs"
+namespace Editor.Undo;
 
 // 物の 1 つのプロパティを変える。物は、ID で覚える（復元で別のオブジェクトになっても辿れる）。
 public sealed class SetValueCommand<T> : IUndoCommand
@@ -387,10 +387,10 @@ public sealed class SetValueCommand<T> : IUndoCommand
 
 ### 作成、削除、親子づけ
 
-```csharp title="Services/Undo/StructureCommands.cs"
-using Editor.Models;
+```csharp title="Undo/StructureCommands.cs"
+using Editor.Scene;
 
-namespace Editor.Services.Undo;
+namespace Editor.Undo;
 
 public sealed class CreateObjectCommand : IUndoCommand
 {
@@ -538,12 +538,11 @@ public interface IRawSceneEditor
 
 `SceneEditor` は `IRawSceneEditor` を実装する形に変えます（中身は第 42 章のまま）。外側が次のクラスです。
 
-```csharp title="Services/UndoableSceneEditor.cs"
+```csharp title="Undo/UndoableSceneEditor.cs"
 using System.Numerics;
-using Editor.Models;
-using Editor.Services.Undo;
+using Editor.Scene;
 
-namespace Editor.Services;
+namespace Editor.Undo;
 
 // 編集を Undo 可能なコマンドにして履歴に積む。実際の変更は、内側の IRawSceneEditor が行う。
 public sealed class UndoableSceneEditor : ISceneEditor

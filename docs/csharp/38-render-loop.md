@@ -76,8 +76,10 @@ thread.Join();
 
 エンジンを動かす専用スレッドの窓口をインターフェースで定義します。
 
-```csharp title="Services/IRenderLoop.cs"
-namespace Editor.Services;
+```csharp title="Viewport/IRenderLoop.cs"
+using Editor.Engine;
+
+namespace Editor.Viewport;
 
 // エンジンを動かす専用スレッド。エンジンへの命令は、すべてここを通す。
 public interface IRenderLoop : IDisposable
@@ -101,11 +103,13 @@ public interface IRenderLoop : IDisposable
 
 実装は 3 つに分けて見ます。まず、状態とキューです。
 
-```csharp title="Services/RenderLoop.cs"
+```csharp title="Viewport/RenderLoop.cs"
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using Editor.Engine;
+using Editor.Log;
 
-namespace Editor.Services;
+namespace Editor.Viewport;
 
 public sealed class RenderLoop : IRenderLoop
 {

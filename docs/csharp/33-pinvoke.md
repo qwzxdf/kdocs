@@ -50,11 +50,11 @@ C# のコンパイラーは、C のヘッダーを読めません。だから、
 
 `Editor` に `Interop` フォルダーを作って、`NativeMethods.cs` を書きます。
 
-```csharp title="Interop/NativeMethods.cs"
+```csharp title="Engine/NativeMethods.cs"
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Editor.Interop;
+namespace Editor.Engine;
 
 // EngineApi.dll の C の関数の宣言。
 // C のヘッダー（EngineApi.h）と、一行ずつ見比べて書くこと。
@@ -104,8 +104,8 @@ protected override void OnInitialized()
 
 まず、結果コードの列挙型です。
 
-```csharp title="Interop/MeResult.cs"
-namespace Editor.Interop;
+```csharp title="Engine/MeResult.cs"
+namespace Editor.Engine;
 
 // EngineApi.h の ME_* と同じ値にする
 internal enum MeResult : int
@@ -123,8 +123,8 @@ internal enum MeResult : int
 
 次に、エンジンの失敗を表す例外クラスです。
 
-```csharp title="Interop/EngineException.cs"
-namespace Editor.Interop;
+```csharp title="Engine/EngineException.cs"
+namespace Editor.Engine;
 
 public class EngineException : Exception
 {
@@ -169,10 +169,10 @@ ME_API MeResult me_engine_create(const MeEngineDesc* desc, MeEngine** out_engine
 
 構造体は、C の定義と同じ並びで宣言します。
 
-```csharp title="Interop/MeEngineDesc.cs"
+```csharp title="Engine/MeEngineDesc.cs"
 using System.Runtime.InteropServices;
 
-namespace Editor.Interop;
+namespace Editor.Engine;
 
 // EngineApi.h の MeEngineDesc と、同じ並びにする
 [StructLayout(LayoutKind.Sequential)]
@@ -209,10 +209,10 @@ NativeMethods.ThrowIfFailed(result);
 
 `out nint engine` で受け取ったハンドルは、ただの整数です。これを `Editor` のあちこちに持ち回ると、解放し忘れ、二重に解放、解放したあとで使う、といった間違いが起きます。C++ の `unique_ptr` の役目を C# では `SafeHandle` が担います。
 
-```csharp title="Interop/EngineHandle.cs"
+```csharp title="Engine/EngineHandle.cs"
 using System.Runtime.InteropServices;
 
-namespace Editor.Interop;
+namespace Editor.Engine;
 
 // MeEngine* を安全に持つ入れ物。Dispose されると me_engine_destroy を呼ぶ。
 internal sealed class EngineHandle : SafeHandle
@@ -268,8 +268,8 @@ internal static partial MeResult me_engine_get_frame_count(EngineHandle engine, 
 
 ビューモデルが `NativeMethods` や `EngineHandle` を直接触らなくて済むように、窓口のインターフェースを作ります。次の章の C++/CLI 版も、同じインターフェースを実装します。
 
-```csharp title="Services/IEngineService.cs"
-namespace Editor.Services;
+```csharp title="Engine/IEngineService.cs"
+namespace Editor.Engine;
 
 // エンジンへの窓口。ビューモデルは、これだけを知る。
 public interface IEngineService : IDisposable
@@ -285,10 +285,8 @@ public interface IEngineService : IDisposable
 }
 ```
 
-```csharp title="Services/PInvokeEngineService.cs"
-using Editor.Interop;
-
-namespace Editor.Services;
+```csharp title="Engine/PInvokeEngineService.cs"
+namespace Editor.Engine;
 
 public sealed class PInvokeEngineService : IEngineService
 {
@@ -363,11 +361,11 @@ C# から、関数ポインターを渡す必要があります。方法は 2 �
 
 C# の `static` なメソッドに `[UnmanagedCallersOnly]` を付けると、C から直接呼べる関数になり、そのアドレスを取れます。
 
-```csharp title="Interop/NativeLog.cs"
+```csharp title="Engine/NativeLog.cs"
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Editor.Interop;
+namespace Editor.Engine;
 
 internal static unsafe class NativeLog
 {

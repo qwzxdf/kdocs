@@ -15,10 +15,10 @@ tags:
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `Models/AssetEntry.cs`（新規） | アセット 1 件（フォルダーとファイル） |
-    | `Models/LogEntry.cs`（新規） | ログ 1 行 |
-    | `Modules/Asset/AssetViewModel.cs`（新規） | アセットの一覧、選択、種類での絞り込み |
-    | `Modules/Log/LogViewModel.cs`（新規） | ログの一覧 |
+    | `Asset/AssetEntry.cs`（新規） | アセット 1 件（フォルダーとファイル） |
+    | `Log/LogEntry.cs`（新規） | ログ 1 行 |
+    | `Asset/AssetViewModel.cs`（新規） | アセットの一覧、選択、種類での絞り込み |
+    | `Log/LogViewModel.cs`（新規） | ログの一覧 |
     | `MainWindowViewModel.cs`（変更） | 上の 2 つを持たせる |
     | `MainWindow.xaml`（変更） | 下のパネルの「アセット」と「ログ」のタブ |
 
@@ -42,8 +42,8 @@ tags:
 
 アセット ブラウザは、あとの章で、本物のフォルダーを読むようにします。今はつなぐ先がないので、ダミーのデータを並べます。まず、アセット 1 件を表すクラスを作ります。フォルダーとファイルは、見た目も持つ情報も違うので、別の型にします。
 
-```csharp title="Models/AssetEntry.cs（新規）"
-namespace Editor.Models;
+```csharp title="Asset/AssetEntry.cs（新規）"
+namespace Editor.Asset;
 
 public abstract class AssetEntry
 {
@@ -74,12 +74,11 @@ public class FileEntry : AssetEntry
 
 これを持つビューモデルです。
 
-```csharp title="Modules/Asset/AssetViewModel.cs（新規）"
+```csharp title="Asset/AssetViewModel.cs（新規）"
 using System.Collections.ObjectModel;
-using Editor.Models;
 using Prism.Mvvm;
 
-namespace Editor.Modules.Asset;
+namespace Editor.Asset;
 
 public record KindOption(string Id, string Name);
 
@@ -111,13 +110,13 @@ public class AssetViewModel : BindableBase
 
 `record` は、値を持つだけの小さなクラスを 1 行で書く C# の書き方です。ここでは、あとで使う ComboBox の選択肢の入れ物にしています。
 
-ファイルは `Modules/Asset/` と `Modules/Log/` に置きます。`Modules` は、機能ごとに画面とビューモデルをまとめて置く場所です。いまは画面がまだ `MainWindow.xaml` の中にありますが、第 23 章でそれぞれを `AssetView` と `LogView` に切り出すとき、同じフォルダーに並べるだけで済むように、先にここへ置いておきます。
+ファイルは `Asset/` と `Log/` に置きます。アセットのデータの型 `AssetEntry` も、アセットだけが使うので、ビューモデルと同じ `Asset/` に置きます。いまは画面がまだ `MainWindow.xaml` の中にありますが、第 23 章でそれぞれを `AssetView` と `LogView` に切り出すとき、同じフォルダーに並べるだけで済むように、先にここへ置いておきます。
 
 `MainWindowViewModel` に、このビューモデルを持たせます。
 
 ```csharp title="MainWindowViewModel.cs（変更）"
-using Editor.Modules.Asset;      // ファイルの先頭に足す
-using Editor.Modules.Log;
+using Editor.Asset;
+using Editor.Log;
 
 public AssetViewModel AssetBrowser { get; } = new();
 public LogViewModel Log { get; } = new();
@@ -140,7 +139,7 @@ public LogViewModel Log { get; } = new();
 
 `DockPanel` に `DataContext="{Binding AssetBrowser}"` を付けているのが、ポイントです。ウィンドウの `DataContext` は `MainWindowViewModel` ですが、このパネルの中では `AssetBrowser` に切り替わります。中の `{Binding Entries}` は、`AssetViewModel.Entries` を見に行きます。
 
-実行すると、一覧に `Editor.Models.FolderEntry` と `Editor.Models.FileEntry` という文字が並びます。`ListBox` に自作クラスを渡すと、見た目の指定がないため、クラス名がそのまま出ます。次の節で直します。
+実行すると、一覧に `Editor.Asset.FolderEntry` と `Editor.Asset.FileEntry` という文字が並びます。`ListBox` に自作クラスを渡すと、見た目の指定がないため、クラス名がそのまま出ます。次の節で直します。
 
 ### 要素の種類で見た目を切り替える
 
@@ -161,7 +160,7 @@ public LogViewModel Log { get; } = new();
 </ListBox.Resources>
 ```
 
-`models:` は、`Window` タグに `xmlns:models="clr-namespace:Editor.Models"` を足して使えるようにします。`DataType` を指定した `DataTemplate` は、その型の要素に自動で使われます。フォルダーは太字に 📁 付き、ファイルは名前とサイズ、という見た目になります。
+`models:` は、`Window` タグに `xmlns:models="clr-namespace:Editor.Asset"` を足して使えるようにします。`DataType` を指定した `DataTemplate` は、その型の要素に自動で使われます。フォルダーは太字に 📁 付き、ファイルは名前とサイズ、という見た目になります。
 
 型以外の条件（値によって切り替えたい）なら、`DataTemplateSelector` を実装します。今回は型で足りるので、Editor には入れません。
 
@@ -226,7 +225,7 @@ public class EntryTemplateSelector : DataTemplateSelector
 
 アセットが増えたときのために、上に「すべて、シーン、テクスチャ、メッシュ」を選ぶ `ComboBox` を置いて、選んだ種類だけを見せます。絞り込みは、第 15 章の `CollectionView` を使います。
 
-```csharp title="Modules/Asset/AssetViewModel.cs（変更）"
+```csharp title="Asset/AssetViewModel.cs（変更）"
 using System.ComponentModel;
 using System.Windows.Data;
 
@@ -272,19 +271,18 @@ _entriesView.Filter = o => o is FolderEntry
 
 もう 1 つのタブには、ログを出します。時刻、重大度、メッセージの 3 列の表なので、`DataGrid` が向いています。
 
-```csharp title="Models/LogEntry.cs（新規）"
-namespace Editor.Models;
+```csharp title="Log/LogEntry.cs（新規）"
+namespace Editor.Log;
 
 public enum LogLevel { Info, Warning, Error }
 
 public record LogEntry(DateTime Time, LogLevel Level, string Message);
 ```
 
-```csharp title="Modules/Log/LogViewModel.cs（新規）"
+```csharp title="Log/LogViewModel.cs（新規）"
 using System.Collections.ObjectModel;
-using Editor.Models;
 
-namespace Editor.Modules.Log;
+namespace Editor.Log;
 
 public class LogViewModel
 {
@@ -373,7 +371,7 @@ UI 仮想化は、入れ物の数を減らす工夫です。データそのも�
 - 上の ComboBox で「テクスチャ」を選ぶと、`brick.png` とフォルダーだけが残る。
 - 「ログ」のタブに、時刻、重大度、メッセージの 3 列の表が出る。列の見出しをクリックすると並べ替わる。
 
-??? failure "一覧に `Editor.Models.FileEntry` と出る"
+??? failure "一覧に `Editor.Asset.FileEntry` と出る"
     `DataTemplate` の `DataType` が、実際の型と合っていません。`xmlns:models` の名前空間と、クラスのつづりを確かめます。`ListBox.Resources` の中に書いたかも見てください。
 
 ??? failure "ComboBox を変えても、一覧が変わらない"
@@ -386,15 +384,15 @@ UI 仮想化は、入れ物の数を減らす工夫です。データそのも�
 
 ```text
 Editor/
-├─ Models/
+├─ Asset/
 │   ├─ AssetEntry.cs                 FolderEntry、FileEntry
-│   └─ LogEntry.cs
-├─ Mvvm/                             （第 15 章のまま）
-├─ ViewModels/
+│   └─ AssetViewModel.cs             一覧、選択、種類での絞り込み
+├─ Log/
+│   ├─ LogEntry.cs
+│   └─ LogViewModel.cs
+├─ Scene/
 │   └─ SceneObjectViewModel.cs
-├─ Modules/
-│   ├─ Asset/AssetViewModel.cs       一覧、選択、種類での絞り込み
-│   └─ Log/LogViewModel.cs
+├─ Shared/Mvvm/                      （第 15 章のまま）
 ├─ MainWindowViewModel.cs            AssetBrowser、Log を持つ
 └─ MainWindow.xaml                   下のパネルが、アセットとログの一覧になった
 ```

@@ -160,8 +160,8 @@ public sealed class SceneEngineSync
 
 エディタ側の、状態の持ち主です。
 
-```csharp title="Services/IPlayModeService.cs"
-namespace Editor.Services;
+```csharp title="Play/IPlayModeService.cs"
+namespace Editor.Play;
 
 public enum PlayState { Edit = 0, Playing = 1, Paused = 2 }
 
@@ -180,10 +180,13 @@ public interface IPlayModeService
 }
 ```
 
-```csharp title="Services/PlayModeService.cs"
+```csharp title="Play/PlayModeService.cs"
 using System.Windows.Threading;
+using Editor.Engine;
+using Editor.Log;
+using Editor.Viewport;
 
-namespace Editor.Services;
+namespace Editor.Play;
 
 public sealed class PlayModeService : IPlayModeService
 {

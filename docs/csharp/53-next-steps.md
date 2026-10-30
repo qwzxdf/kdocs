@@ -23,8 +23,9 @@ MiniEngine.sln
 ├─ Player      C++ EXE   Engine と Game を動かす実行側
 ├─ EngineBridge C++/CLI  Engine を包む橋（比較用）
 └─ Editor      C# EXE    WPF + Prism のエディタ
-     ├─ MainWindow / Models / Services
-     └─ Modules（機能ごとのフォルダー）: SceneTree, Property, Asset, Log, Viewport
+     ├─ MainWindow / MainWindowViewModel
+     ├─ 機能ごとのフォルダー: SceneTree, Property, Asset, Log, Viewport, Scene, Engine, Undo, SceneFile, Play
+     └─ Shared（複数の機能が使う道具）: Mvvm, Dialogs, Controls, Behaviors, Converters
 ```
 
 エディタの機能を章ごとに並べます。

@@ -16,8 +16,8 @@ tags:
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `Controls/LabeledNumber.xaml`・`.xaml.cs`（新規） | 「ラベル + 数値入力」の部品 |
-    | `Modules/Property/PropertyView.xaml`（変更） | 位置の入力欄を、この部品に置き換える |
+    | `Shared/Controls/LabeledNumber.xaml`・`.xaml.cs`（新規） | 「ラベル + 数値入力」の部品 |
+    | `Property/PropertyView.xaml`（変更） | 位置の入力欄を、この部品に置き換える |
 
     後半のカスタム コントロール（`StepperBox`）と `Adorner` は、作り方を見るための実験で、Editor には入れません。
 
@@ -38,8 +38,8 @@ tags:
 
 1. `Controls` フォルダーを作り、「追加 → 新しい項目 → ユーザー コントロール (WPF)」で `LabeledNumber.xaml` を作ります。
 
-```xml title="Controls/LabeledNumber.xaml（新規）"
-<UserControl x:Class="Editor.Controls.LabeledNumber"
+```xml title="Shared/Controls/LabeledNumber.xaml（新規）"
+<UserControl x:Class="Editor.Shared.Controls.LabeledNumber"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Name="Root">
@@ -57,11 +57,11 @@ tags:
 
 2. 外から指定できるプロパティを依存関係プロパティとして公開します（第 10 章）。
 
-```csharp title="Controls/LabeledNumber.xaml.cs（新規）"
+```csharp title="Shared/Controls/LabeledNumber.xaml.cs（新規）"
 using System.Windows;
 using System.Windows.Controls;
 
-namespace Editor.Controls;
+namespace Editor.Shared.Controls;
 
 public partial class LabeledNumber : UserControl
 {
@@ -84,8 +84,8 @@ public partial class LabeledNumber : UserControl
 
 3. 使う側は、普通の部品のように書きます。プロパティ パネルの位置の入力欄を、置き換えます。
 
-```xml title="Modules/Property/PropertyView.xaml（変更：位置の入力欄）"
-<!-- UserControl タグに xmlns:controls="clr-namespace:Editor.Controls" を足す -->
+```xml title="Property/PropertyView.xaml（変更：位置の入力欄）"
+<!-- UserControl タグに xmlns:controls="clr-namespace:Editor.Shared.Controls" を足す -->
 <controls:LabeledNumber Label="位置 X" Value="{Binding Target.X}" />
 <controls:LabeledNumber Label="位置 Y" Value="{Binding Target.Y}" Margin="0,4,0,0" />
 <controls:LabeledNumber Label="位置 Z" Value="{Binding Target.Z}" Margin="0,4,0,0" />
@@ -134,7 +134,7 @@ public class StepperBox : Control
 ```xml title="実験：Themes/Generic.xaml（Editor には入れない）"
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:Editor.Controls">
+                    xmlns:local="clr-namespace:Editor.Shared.Controls">
     <Style TargetType="local:StepperBox">
         <Setter Property="Template">
             <Setter.Value>
@@ -170,7 +170,7 @@ public class StepperBox : Control
 using System.Windows.Documents;
 using System.Windows.Media;
 
-namespace Editor.Controls;
+namespace Editor.実験：Controls;
 
 // 部品の周りに、点線の枠を重ねる
 public sealed class SelectionAdorner : Adorner

@@ -36,11 +36,11 @@ tags:
 
 フォルダーまたはファイル 1 つ分を表すモデルです。
 
-```csharp title="Models/AssetEntry.cs"
+```csharp title="Asset/AssetEntry.cs"
 using System.Windows.Media;
 using Prism.Mvvm;
 
-namespace Editor.Models;
+namespace Editor.Asset;
 
 public enum AssetKind { Folder, Scene, Texture, Model, Shader, Other }
 
@@ -98,10 +98,8 @@ public class AssetEntry : BindableBase
 
 フォルダーの一覧と、変更の監視を担当するサービスです。
 
-```csharp title="Services/IAssetService.cs"
-using Editor.Models;
-
-namespace Editor.Services;
+```csharp title="Asset/IAssetService.cs"
+namespace Editor.Asset;
 
 public interface IAssetService
 {
@@ -116,12 +114,11 @@ public interface IAssetService
 }
 ```
 
-```csharp title="Services/AssetService.cs"
+```csharp title="Asset/AssetService.cs"
 using System.IO;
 using System.Windows.Threading;
-using Editor.Models;
 
-namespace Editor.Services;
+namespace Editor.Asset;
 
 public sealed class AssetService : IAssetService, IDisposable
 {
@@ -212,18 +209,17 @@ public sealed class AssetService : IAssetService, IDisposable
 
 ## ビューモデル
 
-```csharp title="Modules/Asset/AssetViewModel.cs"
+```csharp title="Asset/AssetViewModel.cs"
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Data;
 using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
+using Editor.Engine;
+using Editor.SceneFile;
 
-using Editor.Models;
-using Editor.Services;
-
-namespace Editor.Modules.Asset;
+namespace Editor.Asset;
 
 public class AssetViewModel : BindableBase
 {
@@ -414,12 +410,12 @@ private static async Task LoadThumbnailAsync(AssetEntry entry)
 
 ## ビュー
 
-```xml title="AssetView.xaml"
-<UserControl x:Class="Editor.Modules.Asset.AssetView"
+```xml title="Asset/AssetView.xaml"
+<UserControl x:Class="Editor.Asset.AssetView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:models="clr-namespace:Editor.Models"
+             xmlns:models="clr-namespace:Editor.Asset"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <DockPanel>
         <!-- 上：プロジェクトを開く、上へ、検索 -->

@@ -16,7 +16,7 @@ tags:
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `Modules/Asset/AssetView.xaml`（変更） | アセットの読み込み中に、回転するマークを出す |
+    | `Asset/AssetView.xaml`（変更） | アセットの読み込み中に、回転するマークを出す |
 
     ほかの例（フェードイン、マウスを乗せたときの拡大）は、仕組みを見るためのもので、Editor には入れません。エディタは、動きを控えめにしたいからです。
 
@@ -98,7 +98,7 @@ WPF のアニメーションは、「プロパティの値を時間をかけて�
 
 第 17 章で、アセットの読み込みに進行バーを付けました。バーだけだと、読み込みが始まった直後や、ファイルの一覧を作っている間は、動いているのかが分かりにくいので、回転するマークも出します。読み込みボタンの横に置いて、`IsBusy` の間だけ見せます。
 
-```xml title="Modules/Asset/AssetView.xaml（変更：読み込みボタンの横に足す）"
+```xml title="Asset/AssetView.xaml（変更：読み込みボタンの横に足す）"
 <Path x:Name="Spinner" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}"
       Margin="8,0,0,0" Data="M 0,0 A 8,8 0 1 1 8,8" Stroke="White" StrokeThickness="2"
       RenderTransformOrigin="0.5,0.5">

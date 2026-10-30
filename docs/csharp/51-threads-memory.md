@@ -11,9 +11,9 @@ tags:
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `Infrastructure/SubscriptionBag.cs`（新規） | 購読解除の処理を溜めて、`Dispose` でまとめて実行する |
-    | `Modules/Property/PropertyViewModel.cs`（変更） | `IDisposable` にして、購読を解除する |
-    | `Modules/Property/PropertyView.xaml.cs`（変更） | ビューが閉じるときに、ビューモデルを `Dispose` する |
+    | `Shared/SubscriptionBag.cs`（新規） | 購読解除の処理を溜めて、`Dispose` でまとめて実行する |
+    | `Property/PropertyViewModel.cs`（変更） | `IDisposable` にして、購読を解除する |
+    | `Property/PropertyView.xaml.cs`（変更） | ビューが閉じるときに、ビューモデルを `Dispose` する |
     | `App.xaml.cs`（変更） | 終了の順序に合わせて、後片付けを `OnExit` に書く |
 
     ほかのコードは、仕組みを見るための例や、調べ方の紹介です。
@@ -129,8 +129,8 @@ PropertyChangedEventManager.AddHandler(source, OnSourcePropertyChanged, nameof(S
 
 購読が多いビューモデルでは、解除を忘れがちです。購読解除の処理を溜めておいて、`Dispose` で一括解除する、小さな仕組みを作ります。
 
-```csharp title="Infrastructure/SubscriptionBag.cs（新規）"
-namespace Editor.Infrastructure;
+```csharp title="Shared/SubscriptionBag.cs（新規）"
+namespace Editor.Shared;
 
 // 購読解除の処理を溜めておき、Dispose でまとめて実行する
 public sealed class SubscriptionBag : IDisposable
@@ -147,7 +147,7 @@ public sealed class SubscriptionBag : IDisposable
 }
 ```
 
-```csharp title="Modules/Property/PropertyViewModel.cs（変更）"
+```csharp title="Property/PropertyViewModel.cs（変更）"
 public class PropertyViewModel : BindableBase, IDisposable
 {
     private readonly SubscriptionBag _subscriptions = new();
@@ -173,7 +173,7 @@ public class PropertyViewModel : BindableBase, IDisposable
 | 自分で `new` した物 | 自分 |
 | ダイアログのビューモデル | `OnDialogClosed()` の中で |
 
-```csharp title="Modules/Property/PropertyView.xaml.cs（変更）"
+```csharp title="Property/PropertyView.xaml.cs（変更）"
 // ビューのコードビハインド
 Unloaded += (_, _) => (DataContext as IDisposable)?.Dispose();
 ```
@@ -182,7 +182,7 @@ Unloaded += (_, _) => (DataContext as IDisposable)?.Dispose();
 
 `IDisposable` は、ネイティブの資源や購読を確実に手放すための約束です。管理された資源だけを持つ場合は、単純です。
 
-```csharp title="Services/RenderLoop.cs（変更：Dispose）"
+```csharp title="Viewport/RenderLoop.cs（変更：Dispose）"
 public sealed class RenderLoop : IRenderLoop
 {
     private bool _disposed;

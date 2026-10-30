@@ -16,9 +16,9 @@ MVVM では、ボタンの処理はコマンドで書けます。でも、`Butto
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `Modules/SceneTree/SceneTreeView.xaml`（変更） | `Delete` キーで、選んだオブジェクトを削除する |
-    | `Behaviors/SelectAllOnFocusBehavior.cs`（新規） | 入力欄に入ったら、全選択する |
-    | `Modules/Property/PropertyView.xaml`（変更） | 名前の入力欄に、このビヘイビアを付ける |
+    | `SceneTree/SceneTreeView.xaml`（変更） | `Delete` キーで、選んだオブジェクトを削除する |
+    | `Shared/Behaviors/SelectAllOnFocusBehavior.cs`（新規） | 入力欄に入ったら、全選択する |
+    | `Property/PropertyView.xaml`（変更） | 名前の入力欄に、このビヘイビアを付ける |
 
     ほかの例は、使い方を見るためのもので、Editor には入れません。
 
@@ -41,7 +41,7 @@ NuGet を足さなくても、次のものは XAML だけで書けます。
 
 Editor では、シーン ツリーの `Delete` キーに使います。第 15 章で作った `DeleteCommand` は、行の「×」ボタンからしか呼べませんでした。キーからも呼べるようにします。
 
-```xml title="Modules/SceneTree/SceneTreeView.xaml（変更：ListBox に足す）"
+```xml title="SceneTree/SceneTreeView.xaml（変更：ListBox に足す）"
 <ListBox.InputBindings>
     <KeyBinding Key="Delete"
                 Command="{Binding DeleteCommand}"
@@ -107,12 +107,12 @@ ClosingCommand = new DelegateCommand<CancelEventArgs>(e =>
 
 標準のトリガーで足りない場合は、`Behavior<T>` を継承して、部品に「振る舞い」を足せます。たとえば「入力欄にフォーカスが当たったら、全選択する」ビヘイビアです。
 
-```csharp title="Behaviors/SelectAllOnFocusBehavior.cs（新規）"
+```csharp title="Shared/Behaviors/SelectAllOnFocusBehavior.cs（新規）"
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Xaml.Behaviors;
 
-namespace Editor.Behaviors;
+namespace Editor.Shared.Behaviors;
 
 public class SelectAllOnFocusBehavior : Behavior<TextBox>
 {
@@ -135,8 +135,8 @@ public class SelectAllOnFocusBehavior : Behavior<TextBox>
 }
 ```
 
-```xml title="Modules/Property/PropertyView.xaml（変更：名前の入力欄）"
-<!-- UserControl タグに xmlns:i と xmlns:behaviors（clr-namespace:Editor.Behaviors）を足す -->
+```xml title="Property/PropertyView.xaml（変更：名前の入力欄）"
+<!-- UserControl タグに xmlns:i と xmlns:behaviors（clr-namespace:Editor.Shared.Behaviors）を足す -->
 <TextBox Style="{StaticResource ValidatedTextBox}"
          Text="{Binding Target.Name, UpdateSourceTrigger=PropertyChanged}">
     <i:Interaction.Behaviors>

@@ -19,11 +19,11 @@ tags:
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `Infrastructure/Events/SelectionChangedEvent.cs`（新規） | 「選択が変わった」というメッセージ |
-    | `Services/SelectionService.cs`（新規） | 今の選択を持つサービス |
-    | `Services/LogService.cs`（新規） | ログの収集。どのスレッドからでも呼べる |
-    | `Services/FileDialogService.cs`（新規） | ファイルを開く・保存するダイアログを包む（使うのは第 45 章） |
-    | `Dialogs/ConfirmDialog.xaml`・`ConfirmDialogViewModel.cs`（新規） | 「はい」「いいえ」の確認ダイアログ |
+    | `Scene/SelectionChangedEvent.cs`（新規） | 「選択が変わった」というメッセージ |
+    | `Scene/SelectionService.cs`（新規） | 今の選択を持つサービス |
+    | `Log/LogService.cs`（新規） | ログの収集。どのスレッドからでも呼べる |
+    | `Shared/FileDialogService.cs`（新規） | ファイルを開く・保存するダイアログを包む（使うのは第 45 章） |
+    | `Shared/Dialogs/ConfirmDialog.xaml`・`ConfirmDialogViewModel.cs`（新規） | 「はい」「いいえ」の確認ダイアログ |
     | `SceneTreeViewModel`・`PropertyViewModel`・`MainWindowViewModel`（変更） | 選択をつなぐ。終了のときに確認する |
     | `LogViewModel`・`AssetViewModel`（変更） | ログは `ILogService` を通す |
     | `App.xaml.cs`（変更） | サービスとダイアログを登録する |
@@ -43,11 +43,10 @@ tags:
 
 まず、メッセージの種類ごとに、`PubSubEvent<T>` を継承したクラスを作ります。`T` はメッセージに添える中身です。
 
-```csharp title="Infrastructure/Events/SelectionChangedEvent.cs（新規）"
-using Editor.ViewModels;
+```csharp title="Scene/SelectionChangedEvent.cs（新規）"
 using Prism.Events;
 
-namespace Editor.Infrastructure.Events;
+namespace Editor.Scene;
 
 // 「選択が変わった」。中身は選ばれたオブジェクト（何も選ばれていなければ null）
 public class SelectionChangedEvent : PubSubEvent<SceneObjectViewModel?>
@@ -96,13 +95,11 @@ WPF の画面の部品は、作ったスレッド（UI スレッド）からし�
 
 そこで、「今の選択」は、サービスに持たせます。サービスは、DI で配るただのクラスです。状態を持つことと、変わったときに知らせることを、1 つのクラスにまとめます。
 
-```csharp title="Services/SelectionService.cs（新規）"
-using Editor.Infrastructure.Events;
-using Editor.ViewModels;
+```csharp title="Scene/SelectionService.cs（新規）"
 using Prism.Events;
 using Prism.Mvvm;
 
-namespace Editor.Services;
+namespace Editor.Scene;
 
 public interface ISelectionService
 {
@@ -145,7 +142,7 @@ containerRegistry.RegisterSingleton<ISelectionService, SelectionService>();
 
 送る側のシーン ツリーは、選ばれたオブジェクトをサービスに書き込みます。
 
-```csharp title="Modules/SceneTree/SceneTreeViewModel.cs（変更）"
+```csharp title="SceneTree/SceneTreeViewModel.cs（変更）"
 private readonly ISelectionService _selection;
 
 public SceneTreeViewModel(ISelectionService selection)
@@ -167,7 +164,7 @@ public SceneObjectViewModel? Selected
 
 受け取る側のプロパティは、作られたときにサービスから今の状態を読み、そのあとはイベントで追いかけます。
 
-```csharp title="Modules/Property/PropertyViewModel.cs（変更）"
+```csharp title="Property/PropertyViewModel.cs（変更）"
 public PropertyViewModel(ISelectionService selection, IEventAggregator events)
 {
     Target = selection.Selected;                    // 後から開いたので、今の状態を読む
@@ -200,12 +197,11 @@ public MainWindowViewModel(IRegionManager regionManager, IEventAggregator events
 
 `LogViewModel` は、第 17 章で、どのスレッドからでも `Add` できるようにしました。ところが、`AssetViewModel` は、`LogViewModel`、つまり画面のビューモデルを受け取って、ログを書いています。画面のためのクラスに、ほかの機能が依存するのは、よい形ではありません。ログを書く機能を、画面から切り離して、サービスにします。
 
-```csharp title="Services/LogService.cs（新規）"
+```csharp title="Log/LogService.cs（新規）"
 using System.Collections.ObjectModel;
 using System.Windows;
-using Editor.Models;
 
-namespace Editor.Services;
+namespace Editor.Log;
 
 public interface ILogService
 {
@@ -240,12 +236,10 @@ public class LogService : ILogService
 
 `LogViewModel` は、サービスの一覧を出すだけの小さなクラスになります。`AssetViewModel` は、`LogViewModel` の代わりに `ILogService` を受け取ります。
 
-```csharp title="Modules/Log/LogViewModel.cs（変更：全体）"
+```csharp title="Log/LogViewModel.cs（変更：全体）"
 using System.Collections.ObjectModel;
-using Editor.Models;
-using Editor.Services;
 
-namespace Editor.Modules.Log;
+namespace Editor.Log;
 
 public class LogViewModel
 {
@@ -260,7 +254,7 @@ public class LogViewModel
 }
 ```
 
-```csharp title="Modules/Asset/AssetViewModel.cs（変更）"
+```csharp title="Asset/AssetViewModel.cs（変更）"
 public AssetViewModel(ILogService log, IAssetScanner scanner)    // LogViewModel の代わり
 ```
 
@@ -286,8 +280,8 @@ containerRegistry.RegisterSingleton<ILogService, LogService>();
 
 ダイアログの中身は `UserControl` です。外側のウィンドウは Prism が作ります。ウィンドウのタイトルや大きさは、ビューの中の `prism:Dialog.WindowStyle` で指定します。
 
-```xml title="Dialogs/ConfirmDialog.xaml（新規）"
-<UserControl x:Class="Editor.Dialogs.ConfirmDialog"
+```xml title="Shared/Dialogs/ConfirmDialog.xaml（新規）"
+<UserControl x:Class="Editor.Shared.Dialogs.ConfirmDialog"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
@@ -314,12 +308,12 @@ containerRegistry.RegisterSingleton<ILogService, LogService>();
 
 ### ダイアログのビューモデル
 
-```csharp title="Dialogs/ConfirmDialogViewModel.cs（新規）"
+```csharp title="Shared/Dialogs/ConfirmDialogViewModel.cs（新規）"
 using Prism.Commands;
 using Prism.Dialogs;
 using Prism.Mvvm;
 
-namespace Editor.Dialogs;
+namespace Editor.Shared.Dialogs;
 
 public class ConfirmDialogViewModel : BindableBase, IDialogAware
 {
@@ -418,10 +412,11 @@ private void ConfirmExit()
 
 `OpenFileDialog` と `SaveFileDialog` は WPF に最初から入っていますが、これもビューモデルから直接呼ぶと画面に依存します。小さなサービスに包んでおきます。使うのは第 45 章の保存・読み込みですが、ここで作って登録しておきます。
 
-```csharp title="Services/FileDialogService.cs（新規）"
+```csharp title="Shared/FileDialogService.cs（新規）"
 using Microsoft.Win32;
+using Editor.Engine;
 
-namespace Editor.Services;
+namespace Editor.Shared;
 
 public interface IFileDialogService
 {
@@ -493,18 +488,21 @@ containerRegistry.RegisterSingleton<IFileDialogService, FileDialogService>();
 ```text
 Editor/
 ├─ App.xaml.cs                       サービスとダイアログの登録
-├─ Dialogs/
-│   ├─ ConfirmDialog.xaml
-│   └─ ConfirmDialogViewModel.cs
-├─ Infrastructure/
-│   ├─ RegionNames.cs
-│   └─ Events/SelectionChangedEvent.cs
-├─ Services/
+├─ Asset/                            選択がつながった。Log と Asset は ILogService を使う
+├─ Log/
+│   ├─ ILogService.cs / LogService.cs    ログ（新規）
+│   └─ （LogEntry、LogView … 変更なし）
+├─ Scene/
 │   ├─ SelectionService.cs           今の選択（新規）
-│   ├─ LogService.cs                 ログ（新規）
+│   ├─ SelectionChangedEvent.cs      「選択が変わった」メッセージ（新規）
+│   └─ SceneObjectViewModel.cs
+├─ Shared/
+│   ├─ RegionNames.cs
 │   ├─ FileDialogService.cs          ファイル ダイアログ（新規）
-│   └─ AssetScanner.cs / IAssetScanner.cs
-├─ Modules/                          選択がつながった。Log と Asset は ILogService を使う
+│   └─ Dialogs/
+│       ├─ ConfirmDialog.xaml
+│       └─ ConfirmDialogViewModel.cs
+├─ Property/ ・ SceneTree/           （選択サービスにつながった）
 └─ MainWindowViewModel.cs            終了の確認、ステータス バーの選択表示
 ```
 

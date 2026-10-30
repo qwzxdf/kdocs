@@ -242,8 +242,8 @@ internal static partial MeResult me_game_reload(EngineHandle engine);
 
 `Game.dll` が更新されたのを検出して、書き込みが終わるのを待ってから、リロードを依頼します。
 
-```csharp title="Services/IGameService.cs"
-namespace Editor.Services;
+```csharp title="Play/IGameService.cs"
+namespace Editor.Play;
 
 public interface IGameService : IDisposable
 {
@@ -257,11 +257,13 @@ public interface IGameService : IDisposable
 }
 ```
 
-```csharp title="Services/GameService.cs"
+```csharp title="Play/GameService.cs"
 using System.IO;
 using System.Windows.Threading;
+using Editor.Log;
+using Editor.Viewport;
 
-namespace Editor.Services;
+namespace Editor.Play;
 
 public sealed class GameService : IGameService
 {
@@ -370,7 +372,7 @@ public sealed class GameService : IGameService
 ```csharp
 using System.Diagnostics;
 
-namespace Editor.Services;
+namespace Editor.Play;
 
 public interface IBuildService
 {

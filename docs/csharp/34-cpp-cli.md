@@ -272,10 +272,10 @@ void EngineLog::Uninstall() {
 !!! warning "C++/CLI の参照は、少し癖がある"
     C# の SDK 形式のプロジェクトから、`/clr:netcore` の C++/CLI を参照するときは、ビルドの順番とターゲット フレームワークの一致（`net8.0` と `net8.0-windows`）に気をつけてください。うまく参照できないときは、`Editor.csproj` の `<ProjectReference>` に `<SetPlatform>Platform=x64</SetPlatform>` を足したり、`EngineBridge` の .NET ターゲットを `net8.0` にそろえたりして試します。
 
-```csharp title="Services/ClrEngineService.cs"
+```csharp title="Engine/ClrEngineService.cs"
 using MiniEngine.Bridge;
 
-namespace Editor.Services;
+namespace Editor.Engine;
 
 // C++/CLI 版の実装。IEngineService の P/Invoke 版と差し替えられる。
 public sealed class ClrEngineService : IEngineService
