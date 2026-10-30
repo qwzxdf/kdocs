@@ -182,7 +182,7 @@ public MainWindow()
 
 コマンドがフォーカスのある部品に伝わって実行されるので、`TextBox` を選んでいる間だけ、有効になります。
 
-これは「ルーテッド コマンド」という仕組みで、ビューモデルのコマンド（`ReactiveCommand`）とは別物です。`ApplicationCommands.Undo` をエディタのシーンの Undo に使いたい場合は、`CommandBinding` で自分の処理に結び付けます。
+これは「ルーテッド コマンド」という仕組みで、ビューモデルのコマンド（`RelayCommand`）とは別物です。`ApplicationCommands.Undo` をエディタのシーンの Undo に使いたい場合は、`CommandBinding` で自分の処理に結び付けます。
 
 ```xml title="実験（Editor には入れない）"
 <Window.CommandBindings>

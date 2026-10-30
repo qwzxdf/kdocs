@@ -312,17 +312,17 @@ public sealed record ObjectSnapshot(
     IReadOnlyList<ObjectSnapshot> Children)
 {
     public static ObjectSnapshot Take(SceneObject o) => new(
-        o.Id, o.Name.Value, o.Position.Value, o.RotationDegrees.Value, o.Scale.Value, o.Color.Value,
+        o.Id, o.Name, o.Position, o.RotationDegrees, o.Scale, o.Color,
         o.Children.Select(Take).ToList());
 
     // 復元する。parent の下の index の位置に同じ ID で再作成する
     public SceneObject Restore(SceneDocument document, SceneObject? parent, int index)
     {
         var obj = document.Create(Name, parent, Id, index);
-        obj.Position.Value = Position;
-        obj.RotationDegrees.Value = RotationDegrees;
-        obj.Scale.Value = Scale;
-        obj.Color.Value = Color;
+        obj.Position = Position;
+        obj.RotationDegrees = RotationDegrees;
+        obj.Scale = Scale;
+        obj.Color = Color;
         document.NotifyChanged(SceneChangeKind.TransformChanged, obj);
         document.NotifyChanged(SceneChangeKind.ColorChanged, obj);
         foreach (var child in Children) child.Restore(document, obj, -1);
@@ -560,36 +560,36 @@ public sealed class UndoableSceneEditor : ISceneEditor
 
     public void SetName(SceneObject obj, string name)
     {
-        if (obj.Name.Value == name) return;
-        _history.Execute(new SetValueCommand<string>("名前を変更", obj.Id, "Name", obj.Name.Value, name,
+        if (obj.Name == name) return;
+        _history.Execute(new SetValueCommand<string>("名前を変更", obj.Id, "Name", obj.Name, name,
             (id, v) => { if (_document.Find(id) is { } o) _inner.SetName(o, v); }));
     }
 
     public void SetPosition(SceneObject obj, Vector3 value)
     {
-        if (obj.Position.Value == value) return;
-        _history.Execute(new SetValueCommand<Vector3>("位置を変更", obj.Id, "Position", obj.Position.Value, value,
+        if (obj.Position == value) return;
+        _history.Execute(new SetValueCommand<Vector3>("位置を変更", obj.Id, "Position", obj.Position, value,
             (id, v) => { if (_document.Find(id) is { } o) _inner.SetPosition(o, v); }));
     }
 
     public void SetRotationDegrees(SceneObject obj, Vector3 value)
     {
-        if (obj.RotationDegrees.Value == value) return;
-        _history.Execute(new SetValueCommand<Vector3>("回転を変更", obj.Id, "Rotation", obj.RotationDegrees.Value, value,
+        if (obj.RotationDegrees == value) return;
+        _history.Execute(new SetValueCommand<Vector3>("回転を変更", obj.Id, "Rotation", obj.RotationDegrees, value,
             (id, v) => { if (_document.Find(id) is { } o) _inner.SetRotationDegrees(o, v); }));
     }
 
     public void SetScale(SceneObject obj, Vector3 value)
     {
-        if (obj.Scale.Value == value) return;
-        _history.Execute(new SetValueCommand<Vector3>("拡大を変更", obj.Id, "Scale", obj.Scale.Value, value,
+        if (obj.Scale == value) return;
+        _history.Execute(new SetValueCommand<Vector3>("拡大を変更", obj.Id, "Scale", obj.Scale, value,
             (id, v) => { if (_document.Find(id) is { } o) _inner.SetScale(o, v); }));
     }
 
     public void SetColor(SceneObject obj, Vector4 value)
     {
-        if (obj.Color.Value == value) return;
-        _history.Execute(new SetValueCommand<Vector4>("色を変更", obj.Id, "Color", obj.Color.Value, value,
+        if (obj.Color == value) return;
+        _history.Execute(new SetValueCommand<Vector4>("色を変更", obj.Id, "Color", obj.Color, value,
             (id, v) => { if (_document.Find(id) is { } o) _inner.SetColor(o, v); }));
     }
 
@@ -681,25 +681,26 @@ public MainWindowViewModel(IHistoryService history /* ほか */)
 {
     _history = history;
 
-    // 履歴が変わるたびに流れる合図（C# のイベントを、流れに変える）
-    var changed = Observable.FromEvent(h => _history.Changed += h, h => _history.Changed -= h);
-
-    UndoCommand = changed.Select(_ => _history.CanUndo).StartWith(_history.CanUndo)
-        .ToReactiveCommand().WithSubscribe(_history.Undo);
-    RedoCommand = changed.Select(_ => _history.CanRedo).StartWith(_history.CanRedo)
-        .ToReactiveCommand().WithSubscribe(_history.Redo);
-
-    // メニューの文字は、履歴から計算する。履歴が変わるたびに作り直される
-    UndoHeader = changed.Select(_ => _history.UndoName is { } n ? $"元に戻す: {n}(_U)" : "元に戻す(_U)")
-        .ToReadOnlyReactivePropertySlim("元に戻す(_U)")!;
-    RedoHeader = changed.Select(_ => _history.RedoName is { } n ? $"やり直し: {n}(_R)" : "やり直し(_R)")
-        .ToReadOnlyReactivePropertySlim("やり直し(_R)")!;
+    // 履歴が変わったら、ボタンの状態とメニューの文字を作り直す
+    _history.Changed += () =>
+    {
+        UndoCommand.NotifyCanExecuteChanged();
+        RedoCommand.NotifyCanExecuteChanged();
+        OnPropertyChanged(nameof(UndoHeader));
+        OnPropertyChanged(nameof(RedoHeader));
+    };
 }
 
-public ReactiveCommand UndoCommand { get; }
-public ReactiveCommand RedoCommand { get; }
-public ReadOnlyReactivePropertySlim<string> UndoHeader { get; }
-public ReadOnlyReactivePropertySlim<string> RedoHeader { get; }
+[RelayCommand(CanExecute = nameof(CanUndo))]
+private void Undo() => _history.Undo();            // UndoCommand が生成される
+private bool CanUndo() => _history.CanUndo;
+
+[RelayCommand(CanExecute = nameof(CanRedo))]
+private void Redo() => _history.Redo();            // RedoCommand が生成される
+private bool CanRedo() => _history.CanRedo;
+
+public string UndoHeader => _history.UndoName is { } n ? $"元に戻す: {n}(_U)" : "元に戻す(_U)";
+public string RedoHeader => _history.RedoName is { } n ? $"やり直し: {n}(_R)" : "やり直し(_R)";
 ```
 
 ```xml title="MainWindow.xaml"
@@ -709,8 +710,8 @@ public ReadOnlyReactivePropertySlim<string> RedoHeader { get; }
     <KeyBinding Key="Z" Modifiers="Control+Shift" Command="{Binding RedoCommand}" />
 </Window.InputBindings>
 <!-- … -->
-<MenuItem Header="{Binding UndoHeader.Value}" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z" />
-<MenuItem Header="{Binding RedoHeader.Value}" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y" />
+<MenuItem Header="{Binding UndoHeader}" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z" />
+<MenuItem Header="{Binding RedoHeader}" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y" />
 ```
 
 `Window.InputBindings` は、ウィンドウ全体で効くキー操作です。`Modifiers="Control+Shift"` のように修飾キーを組み合わせられます。`InputGestureText` はメニューに出すショートカットの表示だけで、機能は付きません。機能は `KeyBinding` の側です。
@@ -720,11 +721,8 @@ public ReadOnlyReactivePropertySlim<string> RedoHeader { get; }
 最後に、ダーティ フラグ（未保存の印）をウィンドウのタイトルに出します。保存の本体は次の章です。
 
 ```csharp
-// ウィンドウの題名も、履歴の変化から計算する（XAML は Title="{Binding Title.Value}"）
-Title = changed.Select(_ => _history.IsDirty ? "MiniEngine Editor *" : "MiniEngine Editor")
-    .ToReadOnlyReactivePropertySlim("MiniEngine Editor")!;
-
-public ReadOnlyReactivePropertySlim<string> Title { get; }
+public string Title => _history.IsDirty ? "MiniEngine Editor *" : "MiniEngine Editor";
+// _history.Changed で OnPropertyChanged(nameof(Title)) を呼ぶ
 ```
 
 ## 動かして確かめる

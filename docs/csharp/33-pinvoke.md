@@ -528,22 +528,27 @@ public string GetName(uint id)
 最後に、エラーの経路が通っているかを確かめます。`MainWindowViewModel` のコンストラクターに `IEngineService` と `ILogService` を一時的に足して、わざと失敗する呼び出しを書きます（確かめたら消します）。
 
 ```csharp title="実験：わざと失敗させる（確かめたら消す）"
-public ReactiveCommand TestErrorCommand { get; }
+private readonly IEngineService _engine;
+private readonly ILogService _log;
 
 public MainWindowViewModel(IEngineService engine, ILogService log /* ほかの引数は前のとおり */)
 {
-    TestErrorCommand = new ReactiveCommand().WithSubscribe(() =>
+    _engine = engine;
+    _log = log;
+}
+
+[RelayCommand]
+private void TestError()                          // TestErrorCommand が生成される
+{
+    try
     {
-        try
-        {
-            // ウィンドウ ハンドルが null なので、InvalidArgument になるはず
-            engine.Initialize(nint.Zero, 640, 480);
-        }
-        catch (EngineException e)
-        {
-            log.Error(e.Message);
-        }
-    });
+        // ウィンドウ ハンドルが null なので、InvalidArgument になるはず
+        _engine.Initialize(nint.Zero, 640, 480);
+    }
+    catch (EngineException e)
+    {
+        _log.Error(e.Message);
+    }
 }
 ```
 

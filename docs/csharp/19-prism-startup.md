@@ -138,7 +138,7 @@ C++ で言えば、`main` の中でコンテナー オブジェクトをロー�
 `Container` は、`App` から見えるだけでなく、静的な入口をたどれば、どのクラスからも取り出せてしまいます。
 
 ```csharp title="実験：悪い例（Editor には入れない）"
-public class AssetViewModel
+public partial class AssetViewModel : ObservableObject
 {
     private async Task LoadAsync()
     {
@@ -154,7 +154,7 @@ public class AssetViewModel
 良い書き方は、第 18 章で見たとおり、コンストラクターで受け取ることです。
 
 ```csharp title="第 17 章の形（良い例）"
-public class AssetViewModel
+public partial class AssetViewModel : ObservableObject
 {
     private readonly AssetScanner _scanner;
 

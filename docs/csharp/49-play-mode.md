@@ -131,8 +131,8 @@ public sealed class SceneEngineSync
         var list = new List<(uint Id, uint ParentId, string Name, Vector3 Position, Vector3 Rotation, Vector3 Scale, Vector4 Color)>();
         void Walk(SceneObject o)
         {
-            list.Add((o.Id, o.Parent?.Id ?? 0, o.Name.Value, o.Position.Value,
-                      o.RotationDegrees.Value * (MathF.PI / 180f), o.Scale.Value, o.Color.Value));
+            list.Add((o.Id, o.Parent?.Id ?? 0, o.Name, o.Position,
+                      o.RotationDegrees * (MathF.PI / 180f), o.Scale, o.Color));
             foreach (var child in o.Children) Walk(child);
         }
         foreach (var root in _document.Roots) Walk(root);
@@ -295,7 +295,7 @@ private bool CanEdit()
 
 public void SetPosition(SceneObject obj, Vector3 value)
 {
-    if (!CanEdit() || obj.Position.Value == value) return;
+    if (!CanEdit() || obj.Position == value) return;
     // …
 }
 ```
@@ -305,41 +305,38 @@ public void SetPosition(SceneObject obj, Vector3 value)
 履歴とファイルの操作は、コマンドの `CanExecute` で止めます。
 
 ```csharp
-// MainWindowViewModel
-// Play の状態と履歴が変わるたびに流れる合図
-var stateChanged = Observable.FromEvent(h => _play.StateChanged += h, h => _play.StateChanged -= h);
-var historyChanged = Observable.FromEvent(h => _history.Changed += h, h => _history.Changed -= h);
-IObservable<bool> editing = stateChanged.Select(_ => _play.IsEditing).StartWith(_play.IsEditing);
+// MainWindowViewModel：第 44、45 章の CanExecute に、「編集中か」を足す
+private bool CanUndo() => _history.CanUndo && _play.IsEditing;
+private bool CanRedo() => _history.CanRedo && _play.IsEditing;
+private bool CanFile() => _play.IsEditing;
 
-// 「履歴の状態」と「編集中か」を、組み合わせた流れにする
-UndoCommand = historyChanged.Select(_ => _history.CanUndo).StartWith(_history.CanUndo)
-    .CombineLatest(editing, (can, ed) => can && ed)
-    .ToReactiveCommand().WithSubscribe(_history.Undo);
-RedoCommand = historyChanged.Select(_ => _history.CanRedo).StartWith(_history.CanRedo)
-    .CombineLatest(editing, (can, ed) => can && ed)
-    .ToReactiveCommand().WithSubscribe(_history.Redo);
-NewCommand = editing.ToAsyncReactiveCommand().WithSubscribe(files.NewAsync);
-OpenCommand = editing.ToAsyncReactiveCommand().WithSubscribe(files.OpenAsync);
+[RelayCommand(CanExecute = nameof(CanFile))] private Task New() => _files.NewAsync();
+[RelayCommand(CanExecute = nameof(CanFile))] private Task Open() => _files.OpenAsync();
+
+// _play.StateChanged で、これらの NotifyCanExecuteChanged を呼ぶ
+_play.StateChanged += () =>
+{
+    UndoCommand.NotifyCanExecuteChanged();
+    RedoCommand.NotifyCanExecuteChanged();
+    NewCommand.NotifyCanExecuteChanged();
+    OpenCommand.NotifyCanExecuteChanged();
+};
 ```
 
 画面の側は、パネルの外側に `IsEnabled` をバインドします。
 
 ```csharp
 // SceneTreeViewModel、PropertyViewModel
-// _play.StateChanged が流れるたびに、編集できるかを作り直す
-IsEditingEnabled = Observable.FromEvent(h => _play.StateChanged += h, h => _play.StateChanged -= h)
-    .Select(_ => _play.IsEditing)
-    .ToReadOnlyReactivePropertySlim(_play.IsEditing);
-
-public ReadOnlyReactivePropertySlim<bool> IsEditingEnabled { get; }
+public bool IsEditingEnabled => _play.IsEditing;
+// _play.StateChanged で OnPropertyChanged(nameof(IsEditingEnabled)) を呼ぶ
 ```
 
 ```xml
 <!-- PropertyView.xaml の外側の StackPanel -->
-<StackPanel IsEnabled="{Binding IsEditingEnabled.Value}">
+<StackPanel IsEnabled="{Binding IsEditingEnabled}">
 ```
 
-`IsEnabled` は子の部品にも伝わるので、外側の入れ物に 1 つ付ければ足ります。ただし `PropertyView` は、第 42 章で `IsEnabled="{Binding HasTarget.Value}"` をすでに付けています。両方の条件を満たすために、別の入れ物（`Border`）に分けて、それぞれに付けます。
+`IsEnabled` は子の部品にも伝わるので、外側の入れ物に 1 つ付ければ足ります。ただし `PropertyView` は、第 42 章で `IsEnabled="{Binding HasTarget}"` をすでに付けています。両方の条件を満たすために、別の入れ物（`Border`）に分けて、それぞれに付けます。
 
 ビューポートの操作は、Play 中にカメラだけを許します。
 
@@ -367,16 +364,18 @@ if (!_play.IsEditing)
 
 ```csharp
 // MainWindowViewModel
-// Play の状態が変わるたびに、各ボタンを押してよいかを流す
-IObservable<PlayState> state = Observable
-    .FromEvent(h => _play.StateChanged += h, h => _play.StateChanged -= h)
-    .Select(_ => _play.State).StartWith(_play.State);
+[RelayCommand(CanExecute = nameof(CanPlay))] private void Play() => _play.Play();
+[RelayCommand(CanExecute = nameof(CanPause))] private void Pause() => _play.Pause();
+[RelayCommand(CanExecute = nameof(CanStep))] private void Step() => _play.Step();
+[RelayCommand(CanExecute = nameof(CanStop))] private void Stop() => _play.Stop();
+[RelayCommand] private void TogglePlay() { if (_play.State == PlayState.Edit) _play.Play(); else _play.Stop(); }
 
-PlayCommand = state.Select(s => _play.CanPlay && s != PlayState.Playing).ToReactiveCommand().WithSubscribe(_play.Play);
-PauseCommand = state.Select(s => s != PlayState.Edit).ToReactiveCommand().WithSubscribe(_play.Pause);
-StepCommand = state.Select(s => s == PlayState.Paused).ToReactiveCommand().WithSubscribe(_play.Step);
-StopCommand = state.Select(s => s != PlayState.Edit).ToReactiveCommand().WithSubscribe(_play.Stop);
-TogglePlayCommand = new ReactiveCommand().WithSubscribe(() => { if (_play.State == PlayState.Edit) _play.Play(); else _play.Stop(); });
+private bool CanPlay() => _play.CanPlay && _play.State != PlayState.Playing;
+private bool CanPause() => _play.State != PlayState.Edit;
+private bool CanStep() => _play.State == PlayState.Paused;
+private bool CanStop() => _play.State != PlayState.Edit;
+
+// _play.StateChanged で、各コマンドの NotifyCanExecuteChanged() を呼ぶ
 ```
 
 ```xml
