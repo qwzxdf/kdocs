@@ -80,7 +80,7 @@ Editor/
 ├─ Undo/         元に戻す・やり直し
 ├─ SceneFile/    シーンの保存と読み込み
 ├─ Play/         プレイ モードとゲームの読み込み
-└─ Shared/       Mvvm、Dialogs、Controls、Behaviors、Converters など
+└─ Shared/       Dialogs、Controls、Behaviors、Converters など
 ```
 
 各フォルダーは、その章で作ったときに現れます。最初から全部ある必要はありません。置き場所に迷ったら、「そのクラスを使うのは 1 つの機能だけか」を考えます。1 つなら、その機能のフォルダー。2 つ以上なら `Shared` か、データの持ち主の機能（たとえば `Scene`）です。
@@ -103,7 +103,7 @@ Editor/
 |  | [第 11 章 スタイル、リソース、テンプレート、トリガー](11-style-template.md) | リソース、スタイル、トリガー、ControlTemplate |
 |  | [第 12 章 Prism の導入と起動の流れ](12-prism-bootstrap.md) | NuGet で Prism を入れる、PrismApplication で起動を作り替える、最初のビューモデルを ViewModelLocator で結ぶ |
 |  | [第 13 章 見た目のテーマを入れる](13-theme.md) | 標準の部品が暗くならない理由、Fluent テーマ（ThemeMode）、WPF-UI |
-|  | [第 14 章 データバインディングと MVVM](14-binding-mvvm.md) | シーン ツリーとプロパティ パネルをつなぎながら、バインディング、通知（BindableBase）、ICommand（DelegateCommand）、ObservableCollection、MVVM |
+|  | [第 14 章 データバインディングと MVVM](14-binding-mvvm.md) | シーン ツリーとプロパティ パネルをつなぎながら、バインディング、通知（ReactiveProperty）、ICommand（ReactiveCommand）、ObservableCollection、MVVM |
 |  | [第 15 章 バインディングを掘り下げる](15-binding.md) | 削除ボタン、絞り込み、入力検証を足しながら、Mode と UpdateSourceTrigger、RelativeSource、CollectionView、デバッグ |
 |  | [第 16 章 リストとデータ表示](16-lists.md) | アセット一覧とログ一覧を作りながら、ListBox、ComboBox、DataGrid、選択、仮想化 |
 |  | [第 17 章 非同期処理と UI スレッド](17-async-ui.md) | アセットの読み込みを作りながら、async / await、Dispatcher、IProgress、キャンセル。DI コンテナーで部品を渡す最初の例 |
@@ -115,7 +115,7 @@ Editor/
 |  | [第 23 章 リージョン、モジュール、ナビゲーション](23-regions-modules.md) | MainWindow を枠にして、シーン ツリー、プロパティ、アセット、ログをモジュールに分ける。ナビゲーション |
 |  | [第 24 章 イベント集約、ダイアログ、サービス](24-events-dialogs.md) | シーン ツリーの選択をプロパティ パネルへ伝える。IEventAggregator、サービス、ダイアログ |
 |  | [第 25 章 Prism を掘り下げる](25-prism-deep.md) | KeepAlive、IConfirmNavigationRequest、CompositeCommand |
-|  | [第 26 章 MVVM ライブラリを比べる](26-mvvm-libraries.md) | BindableBase と CommunityToolkit.Mvvm などの比較 |
+|  | [第 26 章 MVVM ライブラリを比べる](26-mvvm-libraries.md) | ReactiveProperty、Prism の BindableBase、CommunityToolkit.Mvvm などの比較 |
 |  | [第 27 章 UserControl とカスタム コントロール](27-custom-controls.md) | UserControl とカスタム コントロール |
 |  | [第 28 章 コードビハインドを減らす（Behaviors）](28-behaviors.md) | Behaviors でイベントをコマンドに結ぶ |
 |  | [第 29 章 アプリの基本（起動・終了・ウィンドウ・コマンド）](29-app-basics.md) | 起動と終了、ウィンドウ、標準のコマンド |

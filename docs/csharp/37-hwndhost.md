@@ -322,13 +322,12 @@ public partial class ViewportView : UserControl
 using System.Diagnostics;
 using System.Windows.Media;
 
-using Prism.Mvvm;
 using Editor.Engine;
 using Editor.Log;
 
 namespace Editor.Viewport;
 
-public class ViewportViewModel : BindableBase
+public class ViewportViewModel
 {
     private readonly IEngineService _engine;
     private readonly ILogService _log;

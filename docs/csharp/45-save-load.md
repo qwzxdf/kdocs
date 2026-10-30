@@ -123,11 +123,11 @@ public static class SceneSerializer
         var dto = new ObjectDto
         {
             Id = o.Id,
-            Name = o.Name,
-            Position = new[] { o.Position.X, o.Position.Y, o.Position.Z },
-            RotationDegrees = new[] { o.RotationDegrees.X, o.RotationDegrees.Y, o.RotationDegrees.Z },
-            Scale = new[] { o.Scale.X, o.Scale.Y, o.Scale.Z },
-            Color = new[] { o.Color.X, o.Color.Y, o.Color.Z, o.Color.W },
+            Name = o.Name.Value,
+            Position = new[] { o.Position.Value.X, o.Position.Value.Y, o.Position.Value.Z },
+            RotationDegrees = new[] { o.RotationDegrees.Value.X, o.RotationDegrees.Value.Y, o.RotationDegrees.Value.Z },
+            Scale = new[] { o.Scale.Value.X, o.Scale.Value.Y, o.Scale.Value.Z },
+            Color = new[] { o.Color.Value.X, o.Color.Value.Y, o.Color.Value.Z, o.Color.Value.W },
         };
         foreach (var child in o.Children) dto.Children.Add(ToDto(child));
         return dto;
@@ -183,10 +183,10 @@ public static class SceneSerializer
         void Build(ObjectDto o, SceneObject? parent)
         {
             var obj = document.Create(o.Name, parent, o.Id);
-            obj.Position = new Vector3(o.Position[0], o.Position[1], o.Position[2]);
-            obj.RotationDegrees = new Vector3(o.RotationDegrees[0], o.RotationDegrees[1], o.RotationDegrees[2]);
-            obj.Scale = new Vector3(o.Scale[0], o.Scale[1], o.Scale[2]);
-            obj.Color = new Vector4(o.Color[0], o.Color[1], o.Color[2], o.Color[3]);
+            obj.Position.Value = new Vector3(o.Position[0], o.Position[1], o.Position[2]);
+            obj.RotationDegrees.Value = new Vector3(o.RotationDegrees[0], o.RotationDegrees[1], o.RotationDegrees[2]);
+            obj.Scale.Value = new Vector3(o.Scale[0], o.Scale[1], o.Scale[2]);
+            obj.Color.Value = new Vector4(o.Color[0], o.Color[1], o.Color[2], o.Color[3]);
             document.NotifyChanged(SceneChangeKind.TransformChanged, obj);
             document.NotifyChanged(SceneChangeKind.ColorChanged, obj);
             foreach (var child in o.Children) Build(child, obj);
@@ -415,16 +415,20 @@ public sealed class MessageService : IMessageService
 ```csharp
 public MainWindowViewModel(ISceneFileService files, IHistoryService history /* ほか */)
 {
-    NewCommand = new AsyncCommand(files.NewAsync);
-    OpenCommand = new AsyncCommand(files.OpenAsync);
-    SaveCommand = new AsyncCommand(files.SaveAsync);
-    SaveAsCommand = new AsyncCommand(files.SaveAsAsync);
+    NewCommand = new AsyncReactiveCommand().WithSubscribe(files.NewAsync);
+    OpenCommand = new AsyncReactiveCommand().WithSubscribe(files.OpenAsync);
+    SaveCommand = new AsyncReactiveCommand().WithSubscribe(files.SaveAsync);
+    SaveAsCommand = new AsyncReactiveCommand().WithSubscribe(files.SaveAsAsync);
 
-    files.FileChanged += () => RaisePropertyChanged(nameof(Title));
-    history.Changed += () => RaisePropertyChanged(nameof(Title));
+    // ファイルか履歴が変わるたびに、題名を作り直す
+    var fileChanged = Observable.FromEvent(h => files.FileChanged += h, h => files.FileChanged -= h);
+    var historyChanged = Observable.FromEvent(h => history.Changed += h, h => history.Changed -= h);
+    Title = fileChanged.Merge(historyChanged)
+        .Select(_ => $"{(_history.IsDirty ? "*" : "")}{_files.DisplayName} - MiniEngine Editor")
+        .ToReadOnlyReactivePropertySlim("MiniEngine Editor")!;
 }
 
-public string Title => $"{(_history.IsDirty ? "*" : "")}{_files.DisplayName} - MiniEngine Editor";
+public ReadOnlyReactivePropertySlim<string> Title { get; }
 ```
 
 ```xml
@@ -436,7 +440,7 @@ public string Title => $"{(_history.IsDirty ? "*" : "")}{_files.DisplayName} - M
 </Window.InputBindings>
 ```
 
-`AsyncCommand` は、第 17 章で作った非同期のコマンドです（プロパティの型は `ICommand` にしておけば、`DelegateCommand` と混ぜて持てます）。`NewAsync` は `Task<bool>` を返しますが、結果の `bool` を使わないので、`Task` を受け取る `AsyncCommand` にそのまま渡せます。実行中は `CanExecute` が自動で `false` になり、二重に実行されません。`Title` の補間文字列の中の式は、`( )` で囲んで条件式を書いています。
+`AsyncReactiveCommand` は、第 17 章で使った非同期のコマンドです。`NewAsync` は `Task<bool>` を返しますが、結果の `bool` を使わないので、`Task` を返す関数として渡せます（型が合わないときは、`WithSubscribe(async () => await files.NewAsync())` と書きます）。実行中は `CanExecute` が自動で `false` になり、二重に実行されません。`Title` の補間文字列の中の式は、`( )` で囲んで条件式を書いています。
 
 ## ウィンドウを閉じるときの確認
 

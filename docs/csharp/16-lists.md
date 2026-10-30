@@ -76,16 +76,14 @@ public class FileEntry : AssetEntry
 
 ```csharp title="Asset/AssetViewModel.cs（新規）"
 using System.Collections.ObjectModel;
-using Prism.Mvvm;
+using Reactive.Bindings;
 
 namespace Editor.Asset;
 
 public record KindOption(string Id, string Name);
 
-public class AssetViewModel : BindableBase
+public class AssetViewModel
 {
-    private AssetEntry? _selectedAsset;
-
     public AssetViewModel()
     {
         Entries = new ObservableCollection<AssetEntry>
@@ -100,15 +98,14 @@ public class AssetViewModel : BindableBase
 
     public ObservableCollection<AssetEntry> Entries { get; }
 
-    public AssetEntry? SelectedAsset
-    {
-        get => _selectedAsset;
-        set => SetProperty(ref _selectedAsset, value);
-    }
+    // 選ばれているアセット。選ばれていないときは null
+    public ReactivePropertySlim<AssetEntry?> SelectedAsset { get; } = new();
 }
 ```
 
 `record` は、値を持つだけの小さなクラスを 1 行で書く C# の書き方です。ここでは、あとで使う ComboBox の選択肢の入れ物にしています。
+
+`SelectedAsset` は、選ばれているアセットを持つ `ReactivePropertySlim<AssetEntry?>` です。引数なしの `new()` は、初期値が `null`（何も選ばれていない）という意味です。値は `.Value` で読み書きします（第 14 章）。
 
 ファイルは `Asset/` と `Log/` に置きます。アセットのデータの型 `AssetEntry` も、アセットだけが使うので、ビューモデルと同じ `Asset/` に置きます。いまは画面がまだ `MainWindow.xaml` の中にありますが、第 23 章でそれぞれを `AssetView` と `LogView` に切り出すとき、同じフォルダーに並べるだけで済むように、先にここへ置いておきます。
 
@@ -129,7 +126,7 @@ public LogViewModel Log { get; } = new();
     <TabItem Header="アセット">
         <DockPanel DataContext="{Binding AssetBrowser}">
             <ListBox ItemsSource="{Binding Entries}"
-                     SelectedItem="{Binding SelectedAsset}"
+                     SelectedItem="{Binding SelectedAsset.Value}"
                      Background="Transparent" BorderThickness="0" Foreground="White" />
         </DockPanel>
     </TabItem>
@@ -195,10 +192,10 @@ public class EntryTemplateSelector : DataTemplateSelector
 
 ```xml title="MainWindow.xaml（変更：DockPanel の ListBox の前に足す）"
 <TextBlock DockPanel.Dock="Bottom" Margin="4" Foreground="Gray"
-           Text="{Binding SelectedAsset.Name, TargetNullValue=(未選択), FallbackValue=(未選択)}" />
+           Text="{Binding SelectedAsset.Value.Name, TargetNullValue=(未選択), FallbackValue=(未選択)}" />
 ```
 
-`SelectedItem` に結び付けた `SelectedAsset` が変わるたびに、この文字が変わります。逆に、ビューモデルが `SelectedAsset = Entries[2]` と書けば、画面の選択も動きます。
+`SelectedItem` に結び付けた `SelectedAsset.Value` が変わるたびに、この文字が変わります。逆に、ビューモデルが `SelectedAsset.Value = Entries[2]` と書けば、画面の選択も動きます。
 
 ### 深掘り：選択まわりのプロパティ
 
@@ -229,7 +226,6 @@ public class EntryTemplateSelector : DataTemplateSelector
 using System.ComponentModel;
 using System.Windows.Data;
 
-private string _kindId = "all";
 private readonly ICollectionView _entriesView;
 
 public IReadOnlyList<KindOption> Kinds { get; } = new[]
@@ -240,21 +236,16 @@ public IReadOnlyList<KindOption> Kinds { get; } = new[]
     new KindOption("mesh", "メッシュ"),
 };
 
-public string KindId
-{
-    get => _kindId;
-    set
-    {
-        if (SetProperty(ref _kindId, value))
-            _entriesView.Refresh();
-    }
-}
+public ReactivePropertySlim<string> KindId { get; } = new("all");
 
 // コンストラクターの最後
 _entriesView = CollectionViewSource.GetDefaultView(Entries);
 _entriesView.Filter = o => o is FolderEntry
-    || _kindId == "all"
-    || (o is FileEntry f && f.Kind == _kindId);
+    || KindId.Value == "all"
+    || (o is FileEntry f && f.Kind == KindId.Value);
+
+// 種類が変わったら、絞り込みをかけ直す
+KindId.Subscribe(_ => _entriesView.Refresh());
 ```
 
 ```xml title="MainWindow.xaml（変更：DockPanel の先頭に足す）"
@@ -262,10 +253,12 @@ _entriesView.Filter = o => o is FolderEntry
           ItemsSource="{Binding Kinds}"
           DisplayMemberPath="Name"
           SelectedValuePath="Id"
-          SelectedValue="{Binding KindId}" />
+          SelectedValue="{Binding KindId.Value}" />
 ```
 
-`DisplayMemberPath` は、要素のどのプロパティを表示に使うかの指定で、簡単な表示なら `ItemTemplate` の代わりになります。`SelectedValuePath` は、選ばれたときに、どのプロパティを `SelectedValue` として取り出すかの指定です。ここでは、画面には「テクスチャ」と出て、ビューモデルの `KindId` には `"texture"` が入ります。
+`DisplayMemberPath` は、要素のどのプロパティを表示に使うかの指定で、簡単な表示なら `ItemTemplate` の代わりになります。`SelectedValuePath` は、選ばれたときに、どのプロパティを `SelectedValue` として取り出すかの指定です。ここでは、画面には「テクスチャ」と出て、ビューモデルの `KindId.Value` には `"texture"` が入ります。
+
+絞り込みの条件が変わったときに `Refresh()` を呼ぶのは、`KindId.Subscribe(...)` の 1 行です。第 15 章の `FilterText` と同じ形で、プロパティの定義と、変わったときの処理が、別々に書けます。
 
 ## ログの一覧を作る
 
@@ -375,7 +368,7 @@ UI 仮想化は、入れ物の数を減らす工夫です。データそのも�
     `DataTemplate` の `DataType` が、実際の型と合っていません。`xmlns:models` の名前空間と、クラスのつづりを確かめます。`ListBox.Resources` の中に書いたかも見てください。
 
 ??? failure "ComboBox を変えても、一覧が変わらない"
-    `KindId` の `set` で `_entriesView.Refresh()` を呼んでいるか、`SelectedValuePath="Id"` を書いたかを確かめます。`SelectedValuePath` がないと、`KindOption` オブジェクトそのものが `SelectedValue` に入ろうとして、`string` の `KindId` に入りません。
+    `KindId.Subscribe(_ => _entriesView.Refresh())` を書いているか、`SelectedValuePath="Id"` を書いたかを確かめます。`SelectedValuePath` がないと、`KindOption` オブジェクトそのものが `SelectedValue` に入ろうとして、`string` の `KindId.Value` に入りません。
 
 ??? failure "DataGrid の列が出ない"
     `AutoGenerateColumns="False"` にしたときは、`DataGrid.Columns` を自分で書く必要があります。`Binding` の名前が `LogEntry` のプロパティと合っているかも見てください。
@@ -386,13 +379,12 @@ UI 仮想化は、入れ物の数を減らす工夫です。データそのも�
 Editor/
 ├─ Asset/
 │   ├─ AssetEntry.cs                 FolderEntry、FileEntry
-│   └─ AssetViewModel.cs             一覧、選択、種類での絞り込み
+│   └─ AssetViewModel.cs             一覧、選択（ReactivePropertySlim）、種類での絞り込み
 ├─ Log/
 │   ├─ LogEntry.cs
 │   └─ LogViewModel.cs
 ├─ Scene/
 │   └─ SceneObjectViewModel.cs
-├─ Shared/Mvvm/                      （第 15 章のまま）
 ├─ MainWindowViewModel.cs            AssetBrowser、Log を持つ
 └─ MainWindow.xaml                   下のパネルが、アセットとログの一覧になった
 ```

@@ -96,41 +96,33 @@ WPF の画面の部品は、作ったスレッド（UI スレッド）からし�
 そこで、「今の選択」は、サービスに持たせます。サービスは、DI で配るただのクラスです。状態を持つことと、変わったときに知らせることを、1 つのクラスにまとめます。
 
 ```csharp title="Scene/SelectionService.cs（新規）"
+using System.Reactive.Linq;
 using Prism.Events;
-using Prism.Mvvm;
+using Reactive.Bindings;
 
 namespace Editor.Scene;
 
 public interface ISelectionService
 {
-    SceneObjectViewModel? Selected { get; set; }
+    ReactivePropertySlim<SceneObjectViewModel?> Selected { get; }
 }
 
-public class SelectionService : BindableBase, ISelectionService
+public class SelectionService : ISelectionService
 {
-    private readonly IEventAggregator _events;
-    private SceneObjectViewModel? _selected;
-
     public SelectionService(IEventAggregator events)
     {
-        _events = events;
+        // 値が変わったら、イベントで知らせる。登録した時点の 1 回目は読み飛ばす
+        Selected.Skip(1).Subscribe(value =>
+            events.GetEvent<SelectionChangedEvent>().Publish(value));
     }
 
-    public SceneObjectViewModel? Selected
-    {
-        get => _selected;
-        set
-        {
-            if (SetProperty(ref _selected, value))
-            {
-                _events.GetEvent<SelectionChangedEvent>().Publish(value);
-            }
-        }
-    }
+    public ReactivePropertySlim<SceneObjectViewModel?> Selected { get; } = new();
 }
 ```
 
-`SetProperty` は値が変わったときだけ `true` を返すので、変わったときにだけイベントを送れます。`BindableBase` は、`INotifyPropertyChanged` が欲しいだけなら、ビューモデル以外でも使えます。
+「今の選択」は、第 14 章と同じ `ReactivePropertySlim` で持ちます。`Selected.Skip(1)` は、`Subscribe` が登録時にも 1 回呼ばれる動き（第 14 章）を避けるための、読み飛ばしです。付けないと、サービスを作った瞬間に、`null` の選択変更が送られます。
+
+ReactiveProperty は値の変化を購読できるので、受け取る側が `ISelectionService.Selected` を直接 `Subscribe` する書き方もできます。それでも `IEventAggregator` を挟んでいるのは、受け取る側が、サービスの型を知らなくてよくなるからです。イベントの型（`SelectionChangedEvent`）だけを共有します。
 
 このサービスは、複数のモジュールが共有するので、`App` に登録します（第 23 章のとおりです）。
 
@@ -149,27 +141,22 @@ public SceneTreeViewModel(ISelectionService selection)
 {
     _selection = selection;
     // 以下は前のとおり
-}
 
-public SceneObjectViewModel? Selected
-{
-    get => _selected;
-    set
-    {
-        if (SetProperty(ref _selected, value))
-            _selection.Selected = value;            // サービスに知らせる
-    }
+    // 選択が変わったら、サービスに知らせる
+    Selected.Subscribe(value => _selection.Selected.Value = value);
 }
 ```
+
+`Selected` の定義は、前の章のままです。変わったときの処理を、プロパティの外に 1 行書くだけで済みます。
 
 受け取る側のプロパティは、作られたときにサービスから今の状態を読み、そのあとはイベントで追いかけます。
 
 ```csharp title="Property/PropertyViewModel.cs（変更）"
 public PropertyViewModel(ISelectionService selection, IEventAggregator events)
 {
-    Target = selection.Selected;                    // 後から開いたので、今の状態を読む
+    Target.Value = selection.Selected.Value;        // 後から開いたので、今の状態を読む
     events.GetEvent<SelectionChangedEvent>().Subscribe(
-        obj => Target = obj, ThreadOption.UIThread);   // 以降は変わるたびに受け取る
+        obj => Target.Value = obj, ThreadOption.UIThread);   // 以降は変わるたびに受け取る
 }
 ```
 
@@ -181,11 +168,11 @@ public PropertyViewModel(ISelectionService selection, IEventAggregator events)
 public MainWindowViewModel(IRegionManager regionManager, IEventAggregator events)
 {
     _regionManager = regionManager;
-    NavigateCommand = new DelegateCommand<string>(
+    NavigateCommand = new ReactiveCommand<string>().WithSubscribe(
         viewName => _regionManager.RequestNavigate(RegionNames.Property, viewName));
 
     events.GetEvent<SelectionChangedEvent>().Subscribe(
-        obj => StatusText = obj is null ? "準備完了" : $"選択: {obj.Name}");
+        obj => StatusText.Value = obj is null ? "準備完了" : $"選択: {obj.Name.Value}");
 }
 ```
 
@@ -297,7 +284,7 @@ containerRegistry.RegisterSingleton<ILogService, LogService>();
     </prism:Dialog.WindowStyle>
 
     <StackPanel Margin="16">
-        <TextBlock Text="{Binding Message}" TextWrapping="Wrap" />
+        <TextBlock Text="{Binding Message.Value}" TextWrapping="Wrap" />
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
             <Button Content="はい" Command="{Binding YesCommand}" Width="72" Margin="0,0,8,0" />
             <Button Content="いいえ" Command="{Binding NoCommand}" Width="72" />
@@ -309,28 +296,22 @@ containerRegistry.RegisterSingleton<ILogService, LogService>();
 ### ダイアログのビューモデル
 
 ```csharp title="Shared/Dialogs/ConfirmDialogViewModel.cs（新規）"
-using Prism.Commands;
 using Prism.Dialogs;
-using Prism.Mvvm;
+using Reactive.Bindings;
 
 namespace Editor.Shared.Dialogs;
 
-public class ConfirmDialogViewModel : BindableBase, IDialogAware
+public class ConfirmDialogViewModel : IDialogAware
 {
-    private string _message = "";
-    public string Message
-    {
-        get => _message;
-        set => SetProperty(ref _message, value);
-    }
+    public ReactivePropertySlim<string> Message { get; } = new("");
 
-    public DelegateCommand YesCommand { get; }
-    public DelegateCommand NoCommand { get; }
+    public ReactiveCommand YesCommand { get; }
+    public ReactiveCommand NoCommand { get; }
 
     public ConfirmDialogViewModel()
     {
-        YesCommand = new DelegateCommand(() => RequestClose.Invoke(ButtonResult.Yes));
-        NoCommand = new DelegateCommand(() => RequestClose.Invoke(ButtonResult.No));
+        YesCommand = new ReactiveCommand().WithSubscribe(() => RequestClose.Invoke(ButtonResult.Yes));
+        NoCommand = new ReactiveCommand().WithSubscribe(() => RequestClose.Invoke(ButtonResult.No));
     }
 
     // ダイアログを閉じるための窓口。値は DialogService が設定するので、自分では代入しない
@@ -341,7 +322,7 @@ public class ConfirmDialogViewModel : BindableBase, IDialogAware
 
     public void OnDialogOpened(IDialogParameters parameters)
     {
-        Message = parameters.GetValue<string>("message");
+        Message.Value = parameters.GetValue<string>("message");
     }
 }
 ```
@@ -381,11 +362,11 @@ containerRegistry.RegisterDialog<ConfirmDialog, ConfirmDialogViewModel>();
 ```csharp title="MainWindowViewModel.cs（変更）"
 private readonly IDialogService _dialogs;
 
-public DelegateCommand ExitCommand { get; }
+public ReactiveCommand ExitCommand { get; }
 
 // コンストラクターの引数に IDialogService dialogs を足して
 _dialogs = dialogs;
-ExitCommand = new DelegateCommand(ConfirmExit);
+ExitCommand = new ReactiveCommand().WithSubscribe(ConfirmExit);
 
 private void ConfirmExit()
 {

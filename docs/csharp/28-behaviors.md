@@ -45,7 +45,7 @@ Editor では、シーン ツリーの `Delete` キーに使います。第 15 �
 <ListBox.InputBindings>
     <KeyBinding Key="Delete"
                 Command="{Binding DeleteCommand}"
-                CommandParameter="{Binding Selected}" />
+                CommandParameter="{Binding Selected.Value}" />
 </ListBox.InputBindings>
 ```
 
@@ -86,7 +86,7 @@ xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
 ビューモデル側では、渡された引数を使えます。
 
 ```csharp title="実験（Editor には入れない）"
-ClosingCommand = new DelegateCommand<CancelEventArgs>(e =>
+ClosingCommand = new ReactiveCommand<CancelEventArgs>().WithSubscribe(e =>
 {
     if (HasUnsavedChanges) e.Cancel = true;     // 閉じるのを止める
 });
@@ -138,7 +138,7 @@ public class SelectAllOnFocusBehavior : Behavior<TextBox>
 ```xml title="Property/PropertyView.xaml（変更：名前の入力欄）"
 <!-- UserControl タグに xmlns:i と xmlns:behaviors（clr-namespace:Editor.Shared.Behaviors）を足す -->
 <TextBox Style="{StaticResource ValidatedTextBox}"
-         Text="{Binding Target.Name, UpdateSourceTrigger=PropertyChanged}">
+         Text="{Binding Target.Value.Name.Value, UpdateSourceTrigger=PropertyChanged}">
     <i:Interaction.Behaviors>
         <behaviors:SelectAllOnFocusBehavior />
     </i:Interaction.Behaviors>

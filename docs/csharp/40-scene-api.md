@@ -314,61 +314,36 @@ MeResult me_scene_set_selection(MeEngine* engine, const uint32_t* ids, uint32_t 
 
 ## C# 側のモデル
 
-エディタが持つ「物」のデータを作ります。`BindableBase` を継承して、値が変わったときに画面へ通知できるようにします。
+エディタが持つ「物」のデータを作ります。値が変わったときに画面へ通知できるよう、プロパティは `ReactivePropertySlim<T>` で包みます（第 14 章）。
 
 ```csharp title="Scene/SceneObject.cs"
 using System.Collections.ObjectModel;
 using System.Numerics;
-using Prism.Mvvm;
+using Reactive.Bindings;
 
 namespace Editor.Scene;
 
-public class SceneObject : BindableBase
+public class SceneObject
 {
     public uint Id { get; }
 
     public SceneObject(uint id, string name)
     {
         Id = id;
-        _name = name;
+        Name = new ReactivePropertySlim<string>(name);
     }
 
-    private string _name;
-    public string Name
-    {
-        get => _name;
-        set => SetProperty(ref _name, value);
-    }
+    public ReactivePropertySlim<string> Name { get; }
 
     // 位置（メートル）
-    private Vector3 _position = Vector3.Zero;
-    public Vector3 Position
-    {
-        get => _position;
-        set => SetProperty(ref _position, value);
-    }
+    public ReactivePropertySlim<Vector3> Position { get; } = new(Vector3.Zero);
 
     // 回転（度）。エンジンへは、ラジアンに変換して送る
-    private Vector3 _rotationDegrees = Vector3.Zero;
-    public Vector3 RotationDegrees
-    {
-        get => _rotationDegrees;
-        set => SetProperty(ref _rotationDegrees, value);
-    }
+    public ReactivePropertySlim<Vector3> RotationDegrees { get; } = new(Vector3.Zero);
 
-    private Vector3 _scale = Vector3.One;
-    public Vector3 Scale
-    {
-        get => _scale;
-        set => SetProperty(ref _scale, value);
-    }
+    public ReactivePropertySlim<Vector3> Scale { get; } = new(Vector3.One);
 
-    private Vector4 _color = new(0.8f, 0.8f, 0.8f, 1f);
-    public Vector4 Color
-    {
-        get => _color;
-        set => SetProperty(ref _color, value);
-    }
+    public ReactivePropertySlim<Vector4> Color { get; } = new(new Vector4(0.8f, 0.8f, 0.8f, 1f));
 
     // 親子（木構造）。Parent は、ドキュメントが管理する
     public SceneObject? Parent { get; internal set; }
@@ -378,7 +353,7 @@ public class SceneObject : BindableBase
 
 `System.Numerics.Vector3` は、.NET 標準の 3 次元ベクトルです。`float` が 3 つ並んだ構造体（12 バイト）で、C++ の `Vector3` と同じ並びなので、エンジンにそのまま渡せます。`Vector3.Zero` や `Vector3.One` といった定数の名前も SimpleMath と同じです。
 
-構造体なので、`Position.X = 5` のような書き方はできません（コピーを書き換えるだけになります）。`Position = new Vector3(1, 2, 3)` のように、丸ごと入れ替えると通知されます。成分ごとの編集は、第 42 章で扱います。ID は `get` だけにして、一度決めたら変えません。
+構造体なので、`Position.Value.X = 5` のような書き方はできません（コピーを書き換えるだけになります）。`Position.Value = new Vector3(1, 2, 3)` のように、丸ごと入れ替えると通知されます。成分ごとの編集は、第 42 章で扱います。ID は `get` だけにして、一度決めたら変えません。
 
 次に、物の集まりと木構造の変更を管理する `SceneDocument` です。
 
@@ -548,11 +523,11 @@ public sealed class SceneEngineSync
         // 値をコピーしてから、描画スレッドの命令に渡す（後で o が変わっても、この時点の値を送る）
         uint id = o.Id;
         uint parentId = o.Parent?.Id ?? 0;
-        string name = o.Name;
-        var position = o.Position;
-        var rotation = o.RotationDegrees * (MathF.PI / 180f);     // 度 → ラジアン
-        var scale = o.Scale;
-        var color = o.Color;
+        string name = o.Name.Value;
+        var position = o.Position.Value;
+        var rotation = o.RotationDegrees.Value * (MathF.PI / 180f);     // 度 → ラジアン
+        var scale = o.Scale.Value;
+        var color = o.Color.Value;
 
         switch (change.Kind)
         {
@@ -601,20 +576,20 @@ Container.Resolve<SceneEngineSync>();    // 作っておく（コンストラク
 `MainWindowViewModel` に、仮のボタンを足します。
 
 ```csharp
-public DelegateCommand AddBoxCommand { get; }
+public ReactiveCommand AddBoxCommand { get; }
 
 // コンストラクターの中
-AddBoxCommand = new DelegateCommand(() =>
+AddBoxCommand = new ReactiveCommand().WithSubscribe(() =>
 {
     var obj = _document.Create($"Box {_document.AllocateId()}");
-    obj.Position = new Vector3(Random.Shared.Next(-5, 6), 0.5f, Random.Shared.Next(-5, 6));
+    obj.Position.Value = new Vector3(Random.Shared.Next(-5, 6), 0.5f, Random.Shared.Next(-5, 6));
     _document.NotifyChanged(SceneChangeKind.TransformChanged, obj);
 });
 ```
 
 押すたびに、ビューポートの原点の周りに、箱が 1 つずつ増えます。
 
-注意してほしいのは、`obj.Position = ...` が変えるのはドキュメントの値だけで、エンジンへの通知は出ないことです（`SceneObject` の `PropertyChanged` は画面用の通知です）。エンジンへの同期は、`NotifyChanged` で明示しています。プロパティが変わるたびに自動で通知する仕組みは、第 42 章と第 44 章で整えます。
+注意してほしいのは、`obj.Position.Value = ...` が変えるのはドキュメントの値だけで、エンジンへの通知は出ないことです（`Position` の変更通知は画面用です）。エンジンへの同期は、`NotifyChanged` で明示しています。プロパティが変わるたびに自動で通知する仕組みは、第 42 章と第 44 章で整えます。
 
 確かめたいのは次の点です。
 

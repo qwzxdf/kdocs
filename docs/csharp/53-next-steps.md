@@ -25,7 +25,7 @@ MiniEngine.sln
 └─ Editor      C# EXE    WPF + Prism のエディタ
      ├─ MainWindow / MainWindowViewModel
      ├─ 機能ごとのフォルダー: SceneTree, Property, Asset, Log, Viewport, Scene, Engine, Undo, SceneFile, Play
-     └─ Shared（複数の機能が使う道具）: Mvvm, Dialogs, Controls, Behaviors, Converters
+     └─ Shared（複数の機能が使う道具）: Dialogs, Controls, Behaviors, Converters
 ```
 
 エディタの機能を章ごとに並べます。

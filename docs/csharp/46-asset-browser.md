@@ -38,14 +38,14 @@ tags:
 
 ```csharp title="Asset/AssetEntry.cs"
 using System.Windows.Media;
-using Prism.Mvvm;
+using Reactive.Bindings;
 
 namespace Editor.Asset;
 
 public enum AssetKind { Folder, Scene, Texture, Model, Shader, Other }
 
 // フォルダーまたはファイル 1 つ分
-public class AssetEntry : BindableBase
+public class AssetEntry
 {
     public AssetEntry(string fullPath, bool isDirectory)
     {
@@ -72,12 +72,7 @@ public class AssetEntry : BindableBase
     };
 
     // サムネイル（画像のとき、あとから非同期で設定される）
-    private ImageSource? _thumbnail;
-    public ImageSource? Thumbnail
-    {
-        get => _thumbnail;
-        set => SetProperty(ref _thumbnail, value);
-    }
+    public ReactivePropertySlim<ImageSource?> Thumbnail { get; } = new();
 
     private static AssetKind KindOf(string extension) => extension.ToLowerInvariant() switch
     {
@@ -213,20 +208,18 @@ public sealed class AssetService : IAssetService, IDisposable
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Data;
+using System.Reactive.Linq;
 using Microsoft.Win32;
-using Prism.Commands;
-using Prism.Mvvm;
+using Reactive.Bindings;
 using Editor.Engine;
 using Editor.SceneFile;
 
 namespace Editor.Asset;
 
-public class AssetViewModel : BindableBase
+public class AssetViewModel
 {
     private readonly IAssetService _assets;
     private readonly ISceneFileService _files;
-    private string? _currentFolder;
-    private string _filterText = "";
 
     public AssetViewModel(IAssetService assets, ISceneFileService files)
     {
@@ -235,16 +228,24 @@ public class AssetViewModel : BindableBase
 
         Entries = new ObservableCollection<AssetEntry>();
         EntriesView = CollectionViewSource.GetDefaultView(Entries);
-        EntriesView.Filter = o => o is AssetEntry e && (FilterText.Length == 0 || e.Name.Contains(FilterText, StringComparison.OrdinalIgnoreCase));
+        EntriesView.Filter = o => o is AssetEntry e
+            && (FilterText.Value.Length == 0 || e.Name.Contains(FilterText.Value, StringComparison.OrdinalIgnoreCase));
+        FilterText.Subscribe(_ => EntriesView.Refresh());      // 絞り込みをかけ直す
 
-        OpenProjectCommand = new DelegateCommand(OpenProject);
-        UpCommand = new DelegateCommand(Up, () => CanGoUp);
-        OpenEntryCommand = new DelegateCommand<AssetEntry>(OpenEntry);
+        // 今のフォルダーを見ている画面の文字
+        CurrentFolderDisplay = CurrentFolder
+            .Select(f => f ?? "（プロジェクト フォルダーを選んでください）")
+            .ToReadOnlyReactivePropertySlim()!;
+
+        OpenProjectCommand = new ReactiveCommand().WithSubscribe(OpenProject);
+        // フォルダーが変わるたびに、「上へ」を押してよいかを作り直す
+        UpCommand = CurrentFolder.Select(_ => CanGoUp).ToReactiveCommand().WithSubscribe(Up);
+        OpenEntryCommand = new ReactiveCommand<AssetEntry>().WithSubscribe(OpenEntry);
 
         _assets.FolderChanged += folder =>
         {
             // 見ているフォルダーが変わったら、読み直す（サブフォルダーのツリーも）
-            if (string.Equals(folder, _currentFolder, StringComparison.OrdinalIgnoreCase)) Reload();
+            if (string.Equals(folder, CurrentFolder.Value, StringComparison.OrdinalIgnoreCase)) Reload();
             RefreshTree();
         };
     }
@@ -255,27 +256,23 @@ public class AssetViewModel : BindableBase
     public ObservableCollection<AssetEntry> Entries { get; }
     public ICollectionView EntriesView { get; }
 
-    public string FilterText
-    {
-        get => _filterText;
-        set
-        {
-            if (SetProperty(ref _filterText, value)) EntriesView.Refresh();     // 絞り込みをかけ直す
-        }
-    }
+    public ReactivePropertySlim<string> FilterText { get; } = new("");
 
-    public string CurrentFolderDisplay => _currentFolder ?? "（プロジェクト フォルダーを選んでください）";
+    // 今見ているフォルダー。まだ選ばれていなければ null
+    public ReactivePropertySlim<string?> CurrentFolder { get; } = new();
+
+    public ReadOnlyReactivePropertySlim<string> CurrentFolderDisplay { get; }
 
     // ── フォルダーの木 ──
     public ObservableCollection<FolderNode> Roots { get; } = new();
 
-    public DelegateCommand OpenProjectCommand { get; }
-    public DelegateCommand UpCommand { get; }
-    public DelegateCommand<AssetEntry> OpenEntryCommand { get; }
+    public ReactiveCommand OpenProjectCommand { get; }
+    public ReactiveCommand UpCommand { get; }
+    public ReactiveCommand<AssetEntry> OpenEntryCommand { get; }
 
     private bool CanGoUp =>
-        _currentFolder != null && _assets.RootPath != null &&
-        !string.Equals(_currentFolder, _assets.RootPath, StringComparison.OrdinalIgnoreCase);
+        CurrentFolder.Value != null && _assets.RootPath != null &&
+        !string.Equals(CurrentFolder.Value, _assets.RootPath, StringComparison.OrdinalIgnoreCase);
 
     private void OpenProject()
     {
@@ -288,17 +285,15 @@ public class AssetViewModel : BindableBase
 
     public void Navigate(string folder)
     {
-        _currentFolder = folder;
-        RaisePropertyChanged(nameof(CurrentFolderDisplay));
-        UpCommand.RaiseCanExecuteChanged();
+        CurrentFolder.Value = folder;      // 画面の文字と「上へ」の状態も、これで追従する
         Reload();
     }
 
     private void Reload()
     {
         Entries.Clear();
-        if (_currentFolder == null) return;
-        foreach (var entry in _assets.List(_currentFolder))
+        if (CurrentFolder.Value == null) return;
+        foreach (var entry in _assets.List(CurrentFolder.Value))
         {
             Entries.Add(entry);
             if (entry.Kind == AssetKind.Texture) _ = LoadThumbnailAsync(entry);      // 画像は、サムネイルを非同期で読む
@@ -307,7 +302,7 @@ public class AssetViewModel : BindableBase
 
     private void Up()
     {
-        var parent = Path.GetDirectoryName(_currentFolder);
+        var parent = Path.GetDirectoryName(CurrentFolder.Value);
         if (parent != null) Navigate(parent);
     }
 
@@ -328,7 +323,7 @@ public class AssetViewModel : BindableBase
 
 ```csharp
 // 左の木の 1 項目
-public class FolderNode : BindableBase
+public class FolderNode
 {
     public FolderNode(string path) { Path = path; Name = System.IO.Path.GetFileName(path); }
 
@@ -336,15 +331,15 @@ public class FolderNode : BindableBase
     public string Name { get; }
     public ObservableCollection<FolderNode> Children { get; } = new();
 
-    private bool _isExpanded;
-    public bool IsExpanded { get => _isExpanded; set => SetProperty(ref _isExpanded, value); }
+    public ReactivePropertySlim<bool> IsExpanded { get; } = new(false);
 }
 
 private void RefreshTree()
 {
     Roots.Clear();
     if (_assets.RootPath is not { } root) return;
-    var rootNode = new FolderNode(root) { IsExpanded = true };
+    var rootNode = new FolderNode(root);
+    rootNode.IsExpanded.Value = true;
     Fill(rootNode);
     Roots.Add(rootNode);
 }
@@ -391,7 +386,7 @@ private static async Task LoadThumbnailAsync(AssetEntry entry)
                 return null;                                           // 壊れた画像など
             }
         });
-        entry.Thumbnail = image;                                       // await の後は UI スレッド
+        entry.Thumbnail.Value = image;                                       // await の後は UI スレッド
     }
     finally
     {
@@ -428,8 +423,8 @@ private static async Task LoadThumbnailAsync(AssetEntry entry)
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" Content="フォルダーを開く…" Command="{Binding OpenProjectCommand}" Padding="8,2" />
             <Button Grid.Column="1" Content="↑" Command="{Binding UpCommand}" Margin="4,0" Width="28" />
-            <TextBlock Grid.Column="2" Text="{Binding CurrentFolderDisplay}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
-            <TextBox Grid.Column="3" Text="{Binding FilterText, UpdateSourceTrigger=PropertyChanged}" />
+            <TextBlock Grid.Column="2" Text="{Binding CurrentFolderDisplay.Value}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+            <TextBox Grid.Column="3" Text="{Binding FilterText.Value, UpdateSourceTrigger=PropertyChanged}" />
         </Grid>
 
         <Grid>
@@ -449,7 +444,7 @@ private static async Task LoadThumbnailAsync(AssetEntry entry)
                 </TreeView.ItemTemplate>
                 <TreeView.ItemContainerStyle>
                     <Style TargetType="TreeViewItem">
-                        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                        <Setter Property="IsExpanded" Value="{Binding IsExpanded.Value, Mode=TwoWay}" />
                     </Style>
                 </TreeView.ItemContainerStyle>
             </TreeView>
@@ -468,13 +463,13 @@ private static async Task LoadThumbnailAsync(AssetEntry entry)
                     <DataTemplate DataType="{x:Type models:AssetEntry}">
                         <StackPanel Width="84" Margin="4" ToolTip="{Binding FullPath}">
                             <Grid Height="64">
-                                <Image Source="{Binding Thumbnail}" Stretch="Uniform" />
+                                <Image Source="{Binding Thumbnail.Value}" Stretch="Uniform" />
                                 <TextBlock Text="{Binding Glyph}" FontSize="36" HorizontalAlignment="Center" VerticalAlignment="Center">
                                     <TextBlock.Style>
                                         <Style TargetType="TextBlock">
                                             <Style.Triggers>
                                                 <!-- サムネイルがあれば、記号は隠す -->
-                                                <DataTrigger Binding="{Binding Thumbnail, Converter={StaticResource NotNullToCollapsed}}" Value="True">
+                                                <DataTrigger Binding="{Binding Thumbnail.Value, Converter={StaticResource NotNullToCollapsed}}" Value="True">
                                                     <Setter Property="Visibility" Value="Collapsed" />
                                                 </DataTrigger>
                                             </Style.Triggers>

@@ -6,7 +6,7 @@ tags:
 
 # 第 26 章 MVVM ライブラリを比べる
 
-この教材では Prism の `BindableBase` と `DelegateCommand` を使っています。ただ、WPF の解説記事を探すと、CommunityToolkit.Mvvm、ReactiveProperty、Livet など、別のライブラリを使った記事のほうがたくさん見つかります。「自分はどれを使えばいいのか」「他の記事のコードを Prism に読み替えるにはどうするのか」がすぐ分かるように、この章で並べて比べます。
+この教材では、ビューモデルの書き方に ReactiveProperty（`ReactivePropertySlim<T>` と `ReactiveCommand`）を使っています（第 14 章）。アプリの構造には Prism を使います。ただ、WPF の解説記事を探すと、Prism の `BindableBase`、CommunityToolkit.Mvvm、Livet など、別のライブラリを使った記事のほうがたくさん見つかります。「自分はどれを使えばいいのか」「他の記事のコードを ReactiveProperty に読み替えるにはどうするのか」がすぐ分かるように、この章で並べて比べます。
 
 !!! info "このページを読む前に"
     - [第 25 章 Prism を掘り下げる](25-prism-deep.md)（前の章。ここまでの内容が前提になる）
@@ -14,7 +14,7 @@ tags:
 
 
 !!! abstract "この章での Editor"
-    この章では、Editor にファイルを足しません。Editor の `SceneObjectViewModel`（名前と位置 X、リセット ボタン）を題材にして、3 つのライブラリでの書き方を比べます。
+    この章では、Editor にファイルを足しません。Editor の `SceneObjectViewModel`（名前と位置 X、リセット ボタン）を題材にして、3 つの書き方を比べます。
 
 ## 何を提供するライブラリなのか
 
@@ -29,11 +29,11 @@ Prism は①と②の両方を持っています。CommunityToolkit.Mvvm は①�
 
 ## 同じ画面を 3 通りで書く
 
-第 14〜17 章で作った `SceneObjectViewModel` の、名前と位置 X、リセット コマンドだけを取り出して、3 つの書き方で並べます。
+第 14〜17 章で作った `SceneObjectViewModel` の、名前と位置 X、リセット コマンドだけを取り出して、3 つの書き方で並べます。この教材の書き方（ReactiveProperty）は、このあとの「ReactiveProperty を詳しく」でまとめて説明します。先に、他の 2 つを見ます。
 
-### Prism
+### Prism の BindableBase
 
-```csharp title="Editor の書き方（第 12 章）"
+```csharp title="実験：Prism の BindableBase で書くと（Editor には入れない）"
 public class SceneObjectViewModel : BindableBase
 {
     private string _name = "";
@@ -89,19 +89,20 @@ public partial class SceneObjectViewModel : ObservableObject
 
 書く量は、確かにかなり減ります。一方で、生成されたコードは見えないので、動作を追いにくいと感じる人もいます（Visual Studio の「解決策エクスプローラー → 依存関係 → アナライザー」で、生成コードを開けます）。
 
-### ReactiveProperty
+### ReactiveProperty（この教材の書き方）
 
-```csharp title="実験：ReactiveProperty で書くと（Editor には入れない）"
+```csharp title="Editor の書き方（第 14 章）"
 public class SceneObjectViewModel
 {
-    public ReactiveProperty<string> Name { get; } = new("");
-    public ReactiveProperty<float> X { get; } = new(0);
+    public ReactivePropertySlim<string> Name { get; } = new("");
+    public ReactivePropertySlim<float> X { get; } = new(0);
     public ReactiveCommand ResetCommand { get; }
 
     public SceneObjectViewModel()
     {
-        ResetCommand = X.Select(x => x != 0).ToReactiveCommand();
-        ResetCommand.Subscribe(() => X.Value = 0);
+        ResetCommand = X.Select(x => x != 0)
+            .ToReactiveCommand()
+            .WithSubscribe(() => X.Value = 0);
     }
 }
 ```
@@ -112,27 +113,28 @@ public class SceneObjectViewModel
 
 | 状況 | 目安 |
 | --- | --- |
-| 画面が少なく、MVVM の補助だけがほしい | CommunityToolkit.Mvvm（軽くて、情報が多い） |
+| 画面が少なく、MVVM の補助だけがほしい | CommunityToolkit.Mvvm（軽くて、情報が多い）か、ReactiveProperty |
 | 画面が増え、リージョンやモジュールで部品に分けたい | Prism |
 | 非同期の流れや、入力の連動を宣言的に書きたい | ReactiveProperty（+ 他と併用） |
 | 小規模で、とにかく依存を増やしたくない | ライブラリなし（`INotifyPropertyChanged` と自作の `RelayCommand`） |
 
-この教材は、リージョンとモジュールを使う前提なので、Prism を選んでいます。ただし、`BindableBase` の代わりに CommunityToolkit.Mvvm の `ObservableObject` を使う、という組み合わせもできます。Prism は MVVM の補助部分を別のライブラリに替えられる設計です。
+この教材は、リージョンとモジュールを使う前提なので、構造には Prism を選んでいます。ビューモデルの書き方は ReactiveProperty です。ReactiveProperty は基底クラスを要求しないので、Prism の ViewModelLocator やダイアログと、そのまま組み合わせられます。Prism は MVVM の補助部分を別のライブラリに替えられる設計です。`BindableBase` の代わりに CommunityToolkit.Mvvm の `ObservableObject` を使う、という組み合わせもできます。
 
 ## 書き換えの対応表
 
 他のライブラリで書かれた記事を読むときの、対応表です。
 
-| やりたいこと | Prism | CommunityToolkit.Mvvm |
-| --- | --- | --- |
-| 通知付きプロパティ | `SetProperty(ref _x, value)` | `[ObservableProperty]` または `SetProperty(ref _x, value)` |
-| 基底クラス | `BindableBase` | `ObservableObject` |
-| コマンド | `DelegateCommand` | `RelayCommand`（`[RelayCommand]`） |
-| 非同期コマンド | なし（第 17 章の `AsyncCommand` のように自作する） | `AsyncRelayCommand` |
-| 条件が変わったら再判定 | `.ObservesProperty(() => X)` | `[NotifyCanExecuteChangedFor(...)]` |
-| 値が変わったときの処理 | `SetProperty(ref _x, value, OnChanged)` | `partial void OnXxxChanged(T value)` |
-| メッセージの送受信 | `IEventAggregator` | `WeakReferenceMessenger`（`ObservableRecipient`） |
-| 入力の検証 | `ErrorsContainer<T>`（第 15 章で Editor に入れた） | `ObservableValidator`（`[Required]`、`[Range]` など） |
+| やりたいこと | ReactiveProperty（この教材） | Prism | CommunityToolkit.Mvvm |
+| --- | --- | --- | --- |
+| 通知付きプロパティ | `ReactivePropertySlim<T>`（`.Value`） | `SetProperty(ref _x, value)` | `[ObservableProperty]` または `SetProperty(ref _x, value)` |
+| 基底クラス | なし | `BindableBase` | `ObservableObject` |
+| コマンド | `ReactiveCommand` | `DelegateCommand` | `RelayCommand`（`[RelayCommand]`） |
+| 非同期コマンド | `AsyncReactiveCommand` | なし（自作する） | `AsyncRelayCommand` |
+| 条件が変わったら再判定 | 条件の `IObservable<bool>` から `ToReactiveCommand()` | `.ObservesProperty(() => X)` | `[NotifyCanExecuteChangedFor(...)]` |
+| 値が変わったときの処理 | `X.Subscribe(...)` | `SetProperty(ref _x, value, OnChanged)` | `partial void OnXxxChanged(T value)` |
+| 別の値から計算する値 | `Select` と `ToReadOnlyReactivePropertySlim()` | `RaisePropertyChanged(nameof(...))` を元の `set` に足す | `[NotifyPropertyChangedFor(...)]` |
+| メッセージの送受信 | `IEventAggregator`（Prism） | `IEventAggregator` | `WeakReferenceMessenger`（`ObservableRecipient`） |
+| 入力の検証 | `ReactiveProperty<T>` の `SetValidateNotifyError` | `ErrorsContainer<T>` | `ObservableValidator`（`[Required]`、`[Range]` など） |
 
 `WeakReferenceMessenger` の「Weak（弱い）」は、弱参照のことです。ふつうの参照は、持っている間は相手を GC に片付けさせません。メッセージの受け手を強い参照で登録すると、画面を閉じても登録が残って、受け手が解放されません（C++ で `shared_ptr` を持ち合って解放されないのと同じ種類の問題です）。弱参照は、持っていても GC を止めない参照なので、受け手が消えたら登録も自然に無効になります。
 
@@ -327,6 +329,7 @@ Prism の DI やリージョンを使いつつ、MVVM の補助部分だけを C
 - CommunityToolkit.Mvvm は、ソース ジェネレーターで書く量を減らす。`partial` を付けるのを忘れない。
 - ReactiveProperty は、プロパティを `ReactivePropertySlim<T>` で包む。`SetProperty` は要らないが、XAML は `.Value` 付きになり、コマンドは `ReactiveCommand` にそろえる。
 - 他のライブラリの記事を読むときは、対応表で読み替える。
+- この教材は、構造は Prism、ビューモデルの書き方は ReactiveProperty。
 - 構造（リージョン、モジュール）が要るなら Prism。補助だけなら、CommunityToolkit.Mvvm で十分。
 
 次の章では、部品を使い回すための `UserControl` と、カスタム コントロールの作り方を説明します。

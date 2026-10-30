@@ -91,7 +91,7 @@ int version = NativeMethods.me_get_api_version();
 protected override void OnInitialized()
 {
     base.OnInitialized();
-    int version = Interop.NativeMethods.me_get_api_version();
+    int version = Engine.NativeMethods.me_get_api_version();
     System.Diagnostics.Debug.WriteLine($"EngineApi version = {version}");
 }
 ```
@@ -455,11 +455,11 @@ protected override void OnInitialized()
 {
     base.OnInitialized();
 
-    int version = Interop.NativeMethods.me_get_api_version();
+    int version = Engine.NativeMethods.me_get_api_version();
     var log = Container.Resolve<ILogService>();
 
     // C++ のログをエディタのログへ
-    Interop.NativeLog.Install((level, message) =>
+    Engine.NativeLog.Install((level, message) =>
     {
         switch (level)
         {
@@ -473,7 +473,7 @@ protected override void OnInitialized()
 
 protected override void OnExit(ExitEventArgs e)
 {
-    Interop.NativeLog.Uninstall();
+    Engine.NativeLog.Uninstall();
     base.OnExit(e);
 }
 ```
@@ -528,18 +528,18 @@ public string GetName(uint id)
 最後に、エラーの経路が通っているかを確かめます。`MainWindowViewModel` のコンストラクターに `IEngineService` と `ILogService` を一時的に足して、わざと失敗する呼び出しを書きます（確かめたら消します）。
 
 ```csharp title="実験：わざと失敗させる（確かめたら消す）"
-public DelegateCommand TestErrorCommand { get; }
+public ReactiveCommand TestErrorCommand { get; }
 
 public MainWindowViewModel(IEngineService engine, ILogService log /* ほかの引数は前のとおり */)
 {
-    TestErrorCommand = new DelegateCommand(() =>
+    TestErrorCommand = new ReactiveCommand().WithSubscribe(() =>
     {
         try
         {
             // ウィンドウ ハンドルが null なので、InvalidArgument になるはず
             engine.Initialize(nint.Zero, 640, 480);
         }
-        catch (Interop.EngineException e)
+        catch (EngineException e)
         {
             log.Error(e.Message);
         }

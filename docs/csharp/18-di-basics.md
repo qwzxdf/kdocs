@@ -23,7 +23,7 @@ tags:
 第 17 章の途中までの `AssetViewModel` は、使う部品を、自分の中で作っていました。
 
 ```csharp title="第 17 章の途中までの書き方"
-public class AssetViewModel : BindableBase
+public class AssetViewModel
 {
     private readonly AssetScanner _scanner = new();     // 自分で作る
     private readonly LogViewModel _log;
@@ -47,7 +47,7 @@ C++ で言えば、クラスのメンバーに `AssetScanner scanner_;` を値�
 解決の方向は単純で、<strong>必要なものを自分で作らず、コンストラクターの引数で受け取る</strong>ことです。第 17 章で書き換えた形が、まさにそれです。
 
 ```csharp title="Asset/AssetViewModel.cs（第 17 章の形）"
-public class AssetViewModel : BindableBase
+public class AssetViewModel
 {
     private readonly AssetScanner _scanner;
     private readonly LogViewModel _log;
