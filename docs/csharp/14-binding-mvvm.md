@@ -591,6 +591,7 @@ Editor/
 - [第 15 章 バインディングを掘り下げる](15-binding.md)：Mode と UpdateSourceTrigger の既定値、ElementName、RelativeSource、MultiBinding、入力検証、デバッグ
 - [第 16 章 リストとデータ表示](16-lists.md)：ListBox / ListView / DataGrid / ComboBox の使い分けと選択
 - [第 28 章 コードビハインドを減らす](28-behaviors.md)：Behaviors でイベントをコマンドに結ぶ
+- [第 26 章 MVVM ライブラリを比べる](26-mvvm-libraries.md)：`SetProperty` の定型コードを減らす方法（CommunityToolkit.Mvvm、ReactiveProperty）
 - [第 26 章 MVVM ライブラリを比べる](26-mvvm-libraries.md)：`BindableBase` と CommunityToolkit.Mvvm、ReactiveProperty の書き比べ
 
 次の章では、バインディングの設定を細かく見ていきます。「更新されない」の原因の多くは、ここにあります。

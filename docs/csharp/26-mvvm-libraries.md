@@ -150,6 +150,167 @@ public partial class SceneObjectViewModel : ObservableValidator
 
 `INotifyDataErrorInfo`（第 15 章）を実装済みで、`System.ComponentModel.DataAnnotations` の属性で検証規則を書けます。第 15 章で、`Name` の `set` に手で書いた「空なら `SetError`」が、属性 1 行になります。入力検証を多用する画面を作るなら、これは魅力的です。
 
+## ReactiveProperty を詳しく
+
+ここまでの 2 つ（Prism、CommunityToolkit.Mvvm）は、「プロパティを普通に書いて、通知の定型コードを減らす」方向でした。ReactiveProperty は発想が違います。プロパティそのものを、値を包んだ部品に替えます。`SetProperty` を書く場所がなくなるのは、そのためです。そのかわり、XAML の書き方もコマンドの作り方も変わります。何が変わるかを順に見ていきます。
+
+### 値を包む
+
+```csharp title="実験：ReactiveProperty のプロパティ（Editor には入れない）"
+using Reactive.Bindings;
+
+public class SceneObjectViewModel
+{
+    public ReactivePropertySlim<string> Name { get; } = new("");
+    public ReactivePropertySlim<float> X { get; } = new(0f);
+}
+```
+
+`ReactivePropertySlim<float>` は、`float` の値を 1 つ持つ小さなオブジェクトです。値の読み書きは `.Value` で行います。変更通知（`INotifyPropertyChanged`）と、変化を流す `IObservable<T>` を、この部品が自分で実装しています。ビューモデルの側に基底クラスも `SetProperty` も要らないのは、そのためです。プロパティは `{ get; }` だけで、あとから差し替えません。値が変わるのは、`ReactivePropertySlim` の中身です。
+
+XAML は、`.Value` まで書きます。
+
+```xml
+<TextBox Text="{Binding Selected.X.Value}" />
+```
+
+`{Binding Selected.X}` と書くと、`TextBox` に出るのは `ReactivePropertySlim` という型名の文字です。エラーにならず、黙っておかしな表示になります。バインディングは、パスをたどって最後のプロパティを読むだけだからです。ここで間違えやすいので、後ろの「つまずき」にも書いておきます。
+
+### 2 種類とパッケージ
+
+ReactiveProperty には、よく使う型が 2 つあります。
+
+`ReactivePropertySlim<T>` は軽いほうです。値、変更通知、`IObservable<T>`、それだけを持ちます。スレッドの切り替えや検証の機能はありません。
+
+`ReactiveProperty<T>` は、検証の機能が付いた重いほうです。`SetValidateNotifyError` や `SetValidateAttribute` で入力を検証できて、エラーを `INotifyDataErrorInfo` として画面に出します。
+
+迷ったら、`ReactivePropertySlim<T>` から始めます。検証が要るプロパティだけ `ReactiveProperty<T>` にします。
+
+NuGet のパッケージも分かれています。`ReactiveProperty` は全部入りで、Rx（`System.Reactive`）に依存します。`ReactiveProperty.Core` は `ReactivePropertySlim<T>` と `ReadOnlyReactivePropertySlim<T>` だけの最小版で、`System.Reactive` に依存しません。Rx の演算子（`Select` や `Delay`）を使わず、プロパティの通知だけがほしいなら、Core で足ります。演算子を使うなら、全部入りです。
+
+### 値が変わったときの処理
+
+```csharp
+X.Subscribe(v => Console.WriteLine($"X が {v} に変わった"));
+```
+
+`Subscribe` は、値が変わるたびに呼ばれる関数を登録します。Prism なら `SetProperty(ref _x, value, OnChanged)` の `OnChanged` にあたります。ただし、`Subscribe` は登録した時点で、現在の値で 1 回呼ばれます。これは `ReactiveProperty` の既定の動作（`RaiseLatestValueOnSubscribe`）で、「最初の表示を整える処理を別に書かなくてよい」という便利さでもあります。「変わったときだけ呼ばれる」と思って書くと、起動直後に動いてしまいます。
+
+同じ値を代入したときは、呼ばれません（`DistinctUntilChanged`）。`ReactiveProperty<T>` では、コンストラクターの `mode` を `ReactivePropertyMode.None` にすると、この 2 つの動作を切れます。
+
+### 別のプロパティから計算する
+
+```csharp
+public ReadOnlyReactivePropertySlim<string> Label { get; }
+
+public SceneObjectViewModel()
+{
+    // Name か X が変わるたびに、文字を作り直す
+    Label = Name.CombineLatest(X, (n, x) => $"{n} ({x:F1})")
+                .ToReadOnlyReactivePropertySlim()!;
+}
+```
+
+`CombineLatest` は、2 つの流れのどちらかが変わるたびに、最新の 2 つの値で計算し直します。`ToReadOnlyReactivePropertySlim()` で、その結果を「読み取り専用のプロパティ」に変えます。画面は `{Binding Label.Value}` で読みます。
+
+CommunityToolkit.Mvvm なら、`Name` と `X` の両方に `[NotifyPropertyChangedFor(nameof(Label))]` を付けて回ります。ReactiveProperty では、`Label` の側に「何から作られるか」を 1 か所に書けます。依存元を増やしたときの付け忘れが起きにくい、という違いです。
+
+### コマンド
+
+```csharp
+public ReactiveCommand ResetCommand { get; }
+
+public SceneObjectViewModel()
+{
+    // X が 0 でないときだけ押せるボタン
+    ResetCommand = X.Select(x => x != 0f)
+                    .ToReactiveCommand()
+                    .WithSubscribe(() => X.Value = 0f);
+}
+```
+
+`Select` で「押せる条件」の流れを作り、`ToReactiveCommand()` でコマンドにします。条件が変わるたびに、ボタンの有効、無効が自動で切り替わります。`WithSubscribe` は、押されたときの処理を登録して、コマンド自身を返します。XAML は、普通のコマンドと同じです。
+
+```xml
+<Button Command="{Binding Selected.ResetCommand}" Content="位置をリセット" />
+```
+
+Prism の `DelegateCommand` の `ObservesProperty(() => X)` は、使えません。`X` が `ReactivePropertySlim<float>` に替わって、`ObservesProperty` に渡す式の形（プロパティ 1 つ）と合わなくなるからです。ReactiveProperty を使うなら、コマンドも `ReactiveCommand` にそろえるのが素直です。どうしても `DelegateCommand` を残すなら、`X.Subscribe(_ => cmd.RaiseCanExecuteChanged())` で再判定を自分でつなぎます。
+
+### 入力の検証
+
+```csharp
+public ReactiveProperty<string> Name { get; }
+
+public SceneObjectViewModel()
+{
+    Name = new ReactiveProperty<string>("Cube")
+        .SetValidateNotifyError(x => string.IsNullOrWhiteSpace(x) ? "名前を入力してください" : null);
+}
+```
+
+検証の関数は、正しければ `null`、間違っていればエラーのメッセージを返します。第 15 章で `ErrorsContainer` に手で書いた「空なら `SetError`」が、1 行になります。属性で書くなら `SetValidateAttribute(() => Name)` で、`[Required]` などが使えます。
+
+エラーがあるかどうかは、`HasErrors`（現在の値）と `ObserveHasErrors`（流れ）で読めます。複数の入力欄がすべて正しいときだけ押せる保存ボタンは、`ObserveHasErrors` を組み合わせて作ります。
+
+```csharp
+SaveCommand = Name.ObserveHasErrors
+    .CombineLatest(Path.ObserveHasErrors, (a, b) => !a && !b)
+    .ToReactiveCommand();
+```
+
+注意が 1 つあります。`ReactiveProperty<T>` は、初期値の検証もすぐ行うので、画面を開いた時点で赤い枠が出ることがあります。初期値のエラーを出したくないときは、コンストラクターの `mode` に `IgnoreInitialValidationError` を足します。
+
+### 後始末
+
+`Subscribe` で登録した関数は、ビューモデルが消えたあとも残ることがあります。登録の戻り値（`IDisposable`）を `CompositeDisposable` に溜めておき、ビューモデルの `Dispose` でまとめて破棄します。
+
+```csharp
+private readonly CompositeDisposable _disposables = new();
+
+public SceneObjectViewModel()
+{
+    X.Subscribe(OnXChanged).AddTo(_disposables);   // 溜める
+}
+
+public void Dispose() => _disposables.Dispose();     // まとめて破棄
+```
+
+`ReactiveProperty` そのものも `IDisposable` です。画面を開いたり閉じたりするビューモデルは、`Dispose` を呼ぶ仕組みを用意してください（第 51 章の `SubscriptionBag` と同じ考え方です）。
+
+### BindableBase と併用する
+
+ReactiveProperty は基底クラスを要求しないので、`BindableBase` を継承したままでも使えます。ViewModelLocator、リージョン、ダイアログも、これまでと同じです。
+
+ただし、同じクラスの中に、`SetProperty` で書いたプロパティと `ReactivePropertySlim` のプロパティが混ざると、XAML のバインディングが `X` と `X.Value` で不ぞろいになります。1 つのビューモデルの中では、どちらかにそろえるのを勧めます。
+
+### つまずき
+
+??? failure "テキスト ボックスに `ReactivePropertySlim`1[...]` という文字が出る"
+    `{Binding X}` と書いています。`{Binding X.Value}` にします。
+
+??? failure "画面を開いた直後に、変更時の処理が動いてしまう"
+    `Subscribe` は、登録した時点の現在の値で、すぐ 1 回呼ばれます。初期表示の処理が要らないなら、`.Skip(1)` で最初の 1 回を読み飛ばします。
+
+??? failure "別のスレッドで値を変えたら、画面が更新されない"
+    `ReactivePropertySlim` は、値を変えたスレッドで通知を出します。ワーカー スレッドから変えるなら、`ObserveOnDispatcher()` を通した流れを `ToReadOnlyReactivePropertySlim()` にするか、Dispatcher に戻してから代入します（第 17 章）。
+
+### R3 という後継
+
+ReactiveProperty の README は、これから作るアプリには、同じ作者が作り直した **R3** を勧めています。R3 は Rx を軽く作り直したもので、`ReactiveProperty` の考え方を受け継いでいます。今ある資料と事例は ReactiveProperty のほうが多いので、この教材では ReactiveProperty を説明しました。新しく始めるなら、R3 の資料も一度見ておくと安心です。
+
+### Editor に入れるなら
+
+Editor に入れるときは、変更が及ぶ範囲を先に見積もってください。
+
+- `SceneObjectViewModel` のプロパティを `ReactivePropertySlim` にする。
+- 画面のバインディングを、すべて `.Value` 付きにする（第 14〜17 章、第 41〜46 章の XAML が対象）。
+- `DelegateCommand.ObservesProperty` を、`ReactiveCommand` に替える。
+- 第 15 章の `ValidatableViewModelBase` を、`ReactiveProperty<T>` の検証に替える。
+- `Subscribe` の後始末（`Dispose`）の置き場所を決める。
+
+変更は広いので、小さなビューモデル 1 つで試してから広げてください。教材は Prism の `BindableBase` のまま進めます。
+
 ## Prism と組み合わせる
 
 Prism の DI やリージョンを使いつつ、MVVM の補助部分だけを CommunityToolkit.Mvvm にしたいときは、次のとおりです。
@@ -164,6 +325,7 @@ Prism の DI やリージョンを使いつつ、MVVM の補助部分だけを C
 
 - ライブラリは「ビューモデルを書きやすくする」ものと、「アプリの構造を作る」ものに分かれる。Prism は両方、CommunityToolkit.Mvvm は前者だけ。
 - CommunityToolkit.Mvvm は、ソース ジェネレーターで書く量を減らす。`partial` を付けるのを忘れない。
+- ReactiveProperty は、プロパティを `ReactivePropertySlim<T>` で包む。`SetProperty` は要らないが、XAML は `.Value` 付きになり、コマンドは `ReactiveCommand` にそろえる。
 - 他のライブラリの記事を読むときは、対応表で読み替える。
 - 構造（リージョン、モジュール）が要るなら Prism。補助だけなら、CommunityToolkit.Mvvm で十分。
 
