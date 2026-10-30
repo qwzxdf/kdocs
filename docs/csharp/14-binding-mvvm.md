@@ -23,7 +23,7 @@ WPF を使う最大の理由は、データバインディングです。画面�
     | `MainWindowViewModel.cs`（変更） | オブジェクトの一覧と、選択中のオブジェクト |
     | `MainWindow.xaml`（変更） | 左にシーン ツリー、右にプロパティ パネルを作る |
 
-    値の変化を画面に知らせる仕組みと、ボタンの処理には、NuGet の ReactiveProperty を使います。自分では書きません。そのかわり、中でどんなことが起きているのかは、「深掘り」の節で見ます。
+    値の変化を画面に知らせる仕組みと、ボタンの処理には、NuGet の CommunityToolkit.Mvvm を使います。自分では書きません。そのかわり、中でどんなことが起きているのかは、「深掘り」の節で見ます。
 
     このあと、各節の終わりに「深掘り」を置いています。作った物の中に出てきた仕組みを、1 つずつ見ていく節です。
 
@@ -186,123 +186,86 @@ public class SceneObjectViewModel : INotifyPropertyChanged
 
 WPF でありがちな事故の大半は、この通知の書き忘れです。`set` の中に `OnPropertyChanged()` を書いたか、値が変わったのに通知しない道が残っていないか。画面が更新されないときは、まずここを疑ってください。
 
-### ReactiveProperty で包む
+### CommunityToolkit.Mvvm で書く
 
 とはいえ、プロパティごとにこの 10 行を書くのは大変です。オブジェクトの名前と位置だけで 4 つ、これから増えていく他のビューモデルを含めると、数十個になります。
 
-定番の逃げ道は 2 つあります。共通の部分を基底クラスに移す方法と（Prism の `BindableBase`、CommunityToolkit.Mvvm の `ObservableObject`）、プロパティそのものを「値を包んだ部品」に替える方法です。この教材は、後者の ReactiveProperty を基本にします。理由は 3 つあります。
+そこで、この教材では **CommunityToolkit.Mvvm** を使います。Microsoft が保守している、MVVM のための小さなライブラリです。定型コードを、コンパイルのときに自動で生成してくれます。
 
-1 つ目は、通知の定型コードが、書く場所ごとなくなることです。`SetProperty` も、フィールドも、`set` の中身もありません。
+Prism にも同じ役目の `BindableBase` と `DelegateCommand` がありますが、この教材では使いません。Prism は、画面とビューモデルの結びつけ、DI、リージョン、ダイアログといった「アプリの構造」の部分に使い、ビューモデルの中身の書き方は CommunityToolkit.Mvvm に任せます。2 つは役目が違うので、一緒に使って衝突しません。分担の考え方は、第 26 章で詳しく説明します。
 
-2 つ目は、別のプロパティから計算するプロパティを、「何から作られるか」の宣言で書けることです。「選択があるか」や「リセットを押せるか」は、この章の後半で出てきます。基底クラスの方式だと、元のプロパティの `set` に通知を足して回ることになり、足し忘れが起きます。
-
-3 つ目は、ビューモデルに基底クラスがいらないことです。Prism の機能（ViewModelLocator、リージョン、ダイアログ）と、そのまま組み合わせられます。
-
-そのかわり、XAML のバインディングに `.Value` が付きます。これは第 26 章で、他のやり方と並べて比べます。
-
-NuGet で `ReactiveProperty` を入れます（第 12 章の Prism と同じ手順です）。安定版の 9.x を選んでください。
+NuGet で `CommunityToolkit.Mvvm` を入れます（第 12 章の Prism と同じ手順です）。安定版の 8.x を選んでください。
 
 ```csharp title="Scene/SceneObjectViewModel.cs（変更：全体）"
-using Reactive.Bindings;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Editor.Scene;
 
-public class SceneObjectViewModel
+public partial class SceneObjectViewModel : ObservableObject
 {
     public SceneObjectViewModel(string name, float x = 0, float y = 0, float z = 0)
     {
-        Name = new ReactivePropertySlim<string>(name);
-        X = new ReactivePropertySlim<float>(x);
-        Y = new ReactivePropertySlim<float>(y);
-        Z = new ReactivePropertySlim<float>(z);
+        _name = name;
+        _x = x;
+        _y = y;
+        _z = z;
     }
 
-    public ReactivePropertySlim<string> Name { get; }
-    public ReactivePropertySlim<float> X { get; }
-    public ReactivePropertySlim<float> Y { get; }
-    public ReactivePropertySlim<float> Z { get; }
+    [ObservableProperty]
+    private string _name;
+
+    [ObservableProperty]
+    private float _x;
+
+    [ObservableProperty]
+    private float _y;
+
+    [ObservableProperty]
+    private float _z;
 
     public void Reset()
     {
-        X.Value = 0;
-        Y.Value = 0;
-        Z.Value = 0;
+        X = 0;
+        Y = 0;
+        Z = 0;
     }
 }
 ```
 
-`ReactivePropertySlim<float>` は、`float` の値を 1 つ持つ小さなオブジェクトです。プロパティは `{ get; }` だけで、あとから差し替えません。値が変わるのは、`ReactivePropertySlim` の中身のほうです。値の読み書きは `.Value` で行います。
+さきほどの 10 行が、フィールド 1 つと属性 1 つになりました。働きを順に見ます。
 
-```csharp
-X.Value = 5;           // 書く。変わったときだけ、画面へ知らせる
-float x = X.Value;     // 読む
-```
+`ObservableObject` は、`INotifyPropertyChanged` を実装済みの基底クラスです。`PropertyChanged` イベントも、`OnPropertyChanged` の関数も、持っています。
 
-`.Value` に代入すると、前の値と比べて、違うときだけ通知が出ます。さきほど手で書いた `if (_x == value) return;` から `OnPropertyChanged()` までを、`ReactivePropertySlim` が自分の中でやっています。
+`[ObservableProperty]` は、フィールドに付ける属性で、「このフィールドから、通知つきのプロパティを作ってください」という指示です。フィールド `_x` から、`X` というプロパティが生成されます。生成されるのは、手で書いた版とほぼ同じ、次のような形です。
 
-中身は、次のような形です。実物はもう少し細かいのですが、働きは同じです。
-
-```csharp title="ReactivePropertySlim の中身（イメージ。Editor には入れない）"
-public class ReactivePropertySlim<T> : INotifyPropertyChanged, IObservable<T>
+```csharp title="生成されるコードのイメージ（自分では書かない）"
+public float X
 {
-    private T _value;
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    public T Value
+    get => _x;
+    set
     {
-        get => _value;
-        set
+        if (!EqualityComparer<float>.Default.Equals(_x, value))
         {
-            if (EqualityComparer<T>.Default.Equals(_value, value)) return;
-            _value = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
-            // 購読している人にも、新しい値を流す（あとで出てきます）
+            _x = value;
+            OnPropertyChanged(nameof(X));      // 変わったときだけ、知らせる
         }
     }
 }
 ```
 
-`INotifyPropertyChanged` を実装しているのは、ビューモデルではなく、値を包んだ側です。通知される名前は、いつも `Value` です。だから XAML は、`X` ではなく `X.Value` を読みます。
+この仕組みを**ソース ジェネレーター**と呼びます。コンパイルのときに、ライブラリのつくり手が用意したコードが動いて、別のソース ファイルを生成します。実行時に何かが動くわけではないので、速さは手書きと変わりません。生成されたコードは、Visual Studio の「ソリューション エクスプローラー → 依存関係 → アナライザー」から開いて読めます。
 
-画面の側も、`.Value` を付けて書き直します。
+フィールドの名前は、`_x`、`x`、`m_x` のどれでも、`X` というプロパティになります。この教材では、`_x` と書きます。
 
-```xml title="MainWindow.xaml（変更：右のパネル）"
-<TextBlock Text="名前" Foreground="Gray" Margin="0,8,0,0" />
-<TextBox Text="{Binding Selected.Name.Value}" />
+クラスに `partial` を付ける必要があります。生成されたコードを、同じクラスの別ファイルとして足すためです。付け忘れると、ジェネレーターがエラーを出します。
 
-<TextBlock Text="位置" Foreground="Gray" Margin="0,8,0,0" />
-<TextBox Text="{Binding Selected.X.Value}" />
-<TextBox Text="{Binding Selected.Y.Value}" Margin="0,4,0,0" />
-<TextBox Text="{Binding Selected.Z.Value}" Margin="0,4,0,0" />
-```
+そして、必ず**プロパティの側**（`X`）を使って値を書き換えてください。フィールドの `_x = 5` と書くと、通知が出ません。このクラスの中でも、`Reset` が `X = 0` と大文字で書いているのは、そのためです。コンストラクターで `_name = name` とフィールドに直接入れているのは、作っている最中は、まだ誰も `PropertyChanged` を聞いていないので、通知が要らないからです。
 
-`{Binding Selected.X.Value}` は、`DataContext` の `Selected` の、`X` の、`Value`、とたどります。`.Value` を書き忘れても、エラーにはなりません。`TextBox` には `ReactivePropertySlim` という型名の文字が出ます。バインディングは、パスの最後のプロパティを読むだけだからです。
+プロパティを手で書きたい場面もあります。そのために、`ObservableObject` は `SetProperty(ref _x, value)` も持っています。Prism の `BindableBase` の同名の関数と、使い方は同じです。
 
-`MainWindowViewModel` の `Selected` も、同じように包みます。ここは、次の節（コマンド）のあとで、まとめて直します。
+別のプロパティも一緒に変わったと知らせたいときは、`OnPropertyChanged(nameof(HasSelection))` を呼びます。`nameof` は名前をコンパイル時に文字列にする書き方です。
 
-もう一度実行して「位置をリセット」を押すと、入力欄が 0 になります。
-
-### 深掘り：ReactivePropertySlim と ReactiveProperty
-
-ReactiveProperty には、似た型が 2 つあります。
-
-`ReactivePropertySlim<T>` は軽いほうで、この章ではこちらを使います。値と変更通知と、値の流れ（`IObservable<T>`）だけを持ちます。値を別のスレッドから変えると、そのスレッドで通知を出します。
-
-`ReactiveProperty<T>` は、入力の検証と、UI スレッドへの自動の切り替えが付いたほうです。第 15 章で、検証の必要な入力欄に使います。
-
-迷ったら `ReactivePropertySlim<T>` から始めて、検証が要るプロパティだけ替えます。
-
-### 深掘り：「流れ」としての値
-
-ReactiveProperty の値は、`IObservable<T>`、つまり「値が変わるたびに流れてくる列」としても読めます。
-
-```csharp
-X.Subscribe(v => System.Diagnostics.Debug.WriteLine($"X が {v} に変わった"));
-```
-
-`Subscribe` は、値が変わるたびに呼ばれる関数を登録します。登録した時点の現在の値でも、すぐ 1 回呼ばれます。これは「最初の表示を整える処理を、別に書かなくてよい」ための動きです。変わったときだけ呼ばれると思っていると、起動直後に動いて驚くので、覚えておいてください。
-
-「流れ」は、`Select` で形を変えたり、`CombineLatest` で複数をまとめたりできます。この章の後半で、「押せる条件」や「選択があるか」を作るのに使います。
+画面の側は、何も変わりません。バインディングは、普通のプロパティ `X` を見に行くだけです。もう一度実行して「位置をリセット」を押すと、入力欄が 0 になります。
 
 ### 画面が古いままのときのチェックリスト
 
@@ -317,9 +280,9 @@ X.Subscribe(v => System.Diagnostics.Debug.WriteLine($"X が {v} に変わった"
 
 値は出るのに、変えても画面が追従しないとき。
 
-1. プロパティが、`INotifyPropertyChanged` を実装した型か（ReactiveProperty なら、`ReactivePropertySlim<T>` になっているか）。
-2. ReactiveProperty のとき、XAML が `.Value` まで書かれているか。値を書き換えるコードも、`X = 0` ではなく `X.Value = 0` になっているか。
-3. 手で書いたプロパティなら、`set` の中で `PropertyChanged` を起こしているか。名前は合っているか。
+1. `INotifyPropertyChanged` を実装しているか（`ObservableObject` を継承しているか）。
+2. `[ObservableProperty]` のフィールドを、フィールドのまま（`_x = 5`）書き換えていないか。プロパティ（`X = 5`）で書き換えます。
+3. 手で書いたプロパティなら、`set` の中で通知を起こしているか。名前は合っているか。
 4. コレクションなら、`List<T>` ではなく `ObservableCollection<T>` か（あとで使います）。
 
 入力しても、すぐにデータへ反映されないとき。
@@ -331,7 +294,7 @@ X.Subscribe(v => System.Diagnostics.Debug.WriteLine($"X が {v} に変わった"
 名前の `TextBox` に文字を打っても、フォーカスを外すまでは `Name` が変わりません。あとで、シーン ツリーに名前を出すようにすると、打っている最中に反映されたほうが気持ちがよいので、設定を足します。
 
 ```xml title="MainWindow.xaml（変更：名前の入力欄）"
-<TextBox Text="{Binding Selected.Name.Value, UpdateSourceTrigger=PropertyChanged}" />
+<TextBox Text="{Binding Selected.Name, UpdateSourceTrigger=PropertyChanged}" />
 ```
 
 位置の入力欄は、このままにします。理由は、深掘りで説明します。
@@ -341,8 +304,8 @@ X.Subscribe(v => System.Diagnostics.Debug.WriteLine($"X が {v} に変わった"
 `{Binding}` には、いくつかの設定を足せます。
 
 ```xml
-<TextBox Text="{Binding Selected.Name.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-<TextBlock Text="{Binding Selected.X.Value, StringFormat=X: {0:F2}}" />
+<TextBox Text="{Binding Selected.Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+<TextBlock Text="{Binding Selected.X, StringFormat=X: {0:F2}}" />
 ```
 
 `Mode` は、データがどちら向きに流れるかです。
@@ -364,44 +327,47 @@ X.Subscribe(v => System.Diagnostics.Debug.WriteLine($"X が {v} に変わった"
 
 「位置をリセット」は、`Click="OnReset"` で、コードビハインドの `OnReset` を呼んでいます。ボタンが何十個にもなると、画面のコードが処理だらけになります。バインディングがデータの受け渡しを画面から切り離してくれたように、操作も切り離せます。それがコマンドです。
 
-コマンドを作る部品は、ReactiveProperty の `ReactiveCommand` を使います。「押してよいか」を、`bool` の流れで渡して作ります。
+コマンドを作る部品は、CommunityToolkit.Mvvm の `RelayCommand` を使います。メソッドに `[RelayCommand]` を付けると、コマンドが生成されます。
 
-使うのは `SceneObjectViewModel` です。リセットは、すでに原点にいるときは押せなくしたいので、`X`、`Y`、`Z` をまとめた「どれかが 0 以外か」の流れを作ります。
+使うのは `SceneObjectViewModel` です。リセットは、すでに原点にいるときは押せなくしたいので、「いま押してよいか」を返すメソッドも用意します。
 
 ```csharp title="Scene/SceneObjectViewModel.cs（変更）"
-using System.Reactive.Linq;
-using Reactive.Bindings;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
-public SceneObjectViewModel(string name, float x = 0, float y = 0, float z = 0)
+public partial class SceneObjectViewModel : ObservableObject
 {
-    Name = new ReactivePropertySlim<string>(name);
-    X = new ReactivePropertySlim<float>(x);
-    Y = new ReactivePropertySlim<float>(y);
-    Z = new ReactivePropertySlim<float>(z);
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ResetCommand))]
+    private float _x;
 
-    // X、Y、Z のどれかが変わるたびに、「どれかが 0 以外か」を流す
-    ResetCommand = X.CombineLatest(Y, Z, (px, py, pz) => px != 0 || py != 0 || pz != 0)
-        .ToReactiveCommand()
-        .WithSubscribe(Reset);
-}
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ResetCommand))]
+    private float _y;
 
-public ReactiveCommand ResetCommand { get; }
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ResetCommand))]
+    private float _z;
 
-private void Reset()
-{
-    X.Value = 0;
-    Y.Value = 0;
-    Z.Value = 0;
+    [RelayCommand(CanExecute = nameof(CanReset))]
+    private void Reset()
+    {
+        X = 0;
+        Y = 0;
+        Z = 0;
+    }
+
+    private bool CanReset() => X != 0 || Y != 0 || Z != 0;
 }
 ```
 
-`CombineLatest` は、3 つの流れのどれかに新しい値が来るたびに、そのときの最新の 3 つの値で、関数を呼び直します。ここでは、どれかが 0 以外なら `true` を流します。
+`[RelayCommand]` を付けたメソッド `Reset` から、`ResetCommand` というプロパティが生成されます。名前の規則は、メソッド名の末尾に `Command` を足すことです。型は `IRelayCommand` で、`ICommand` として画面に結べます。
 
-`ToReactiveCommand()` は、その `bool` の流れを「押してよいか」として使う、コマンドを作ります。流れに `true` が来ればボタンが有効に、`false` が来れば無効になります。Prism の `DelegateCommand` では、`ObservesProperty(() => X)` を 3 回書いて、プロパティごとに見張りを付けていました。ReactiveProperty では、「何から押せるかが決まるか」を、1 本の式で書きます。
+`CanExecute = nameof(CanReset)` が、「いま押してよいか」を返すメソッドの指定です。ここでは、どれかが 0 以外なら押せる、としています。
 
-`WithSubscribe(Reset)` は、ボタンが押されたときの処理を登録して、コマンドそのものを返します。`ResetCommand` に代入するのは、そのコマンドです。
+`[NotifyCanExecuteChangedFor(nameof(ResetCommand))]` は、「この値が変わったら、`ResetCommand` の押してよいかを、もう一度聞き直して」という指示です。Prism の `ObservesProperty(() => X)` にあたります。`X`、`Y`、`Z` のそれぞれに付けます。付け忘れると、値を書き換えてもボタンの状態が古いままになります。
 
-`Reset` は、`public` から `private` に変えました。外からは、コマンドを通して呼ぶからです。ボタンは、`Click` をやめて `Command` にします。
+`Reset` は、`public` から `private` に変えました。外からは、生成された `ResetCommand` を通して呼ぶからです。ボタンは、`Click` をやめて `Command` にします。
 
 ```xml title="MainWindow.xaml（変更：ボタン）"
 <Button Content="位置をリセット" Margin="0,12,0,0"
@@ -422,9 +388,9 @@ private void Reset()
 
 便利なのは `CanExecute` です。ボタンの有効、無効の判断をビューモデルに書けば、画面の側でボタンを無効にする処理を書かなくて済みます。
 
-`CanExecuteChanged` は、「実行してよいかどうかが変わったかもしれないので、もう一度聞き直してください」という合図です。プロパティの `PropertyChanged` と同じ役割で、これが起きないと、ボタンの状態が更新されません。手で書く方式では、この合図を出す関数（Prism の `DelegateCommand` なら `RaiseCanExecuteChanged()`）を、自分で呼びます。呼び忘れるとボタンの状態が古いままになります。`ReactiveCommand` は、`bool` の流れに新しい値が来るたびに、この合図を自分で出します。
+`CanExecuteChanged` は、「実行してよいかどうかが変わったかもしれないので、もう一度聞き直してください」という合図です。プロパティの `PropertyChanged` と同じ役割で、これが起きないと、ボタンの状態が更新されません。`RelayCommand` には `NotifyCanExecuteChanged()` という、この合図を手で出す関数もあります。ただ、呼び忘れるとボタンの状態が古いままになるので、プロパティに連動するものは、`[NotifyCanExecuteChangedFor]` に任せるほうが安全です。
 
-`ReactiveCommand` は、`ICommand` を実装していて、`Execute` で登録された処理を呼び、`CanExecute` で最新の `bool` を返します。自分で `ICommand` を実装するときも、コンストラクターで受け取った関数を `Execute` と `CanExecute` から呼ぶだけの形になります。ボタンの有効、無効は、UI スレッドで更新されます。
+`RelayCommand` の中身は、「`Action` と `Func<bool>` を受け取って、`ICommand` の 3 つのメンバーに渡す」だけの小さなクラスです。自分で `ICommand` を実装するときも、コンストラクターで受け取った関数を `Execute` と `CanExecute` から呼ぶだけの形になります。
 
 ## シーン ツリーを作る
 
@@ -432,13 +398,13 @@ private void Reset()
 
 ```csharp title="MainWindowViewModel.cs（変更：全体）"
 using System.Collections.ObjectModel;
-using System.Reactive.Linq;
-using Reactive.Bindings;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Editor.Scene;
 
 namespace Editor;
 
-public class MainWindowViewModel
+public partial class MainWindowViewModel : ObservableObject
 {
     public MainWindowViewModel()
     {
@@ -448,54 +414,34 @@ public class MainWindowViewModel
             new("Cube", 1, 0, 2),
             new("Light", 3, 5, 0),
         };
-        Selected = new ReactivePropertySlim<SceneObjectViewModel?>(Objects[1]);
-
-        // 選択があるかどうか。Selected が変わるたびに、作り直される
-        HasSelection = Selected.Select(s => s is not null)
-            .ToReadOnlyReactivePropertySlim();
-
-        AddCommand = new ReactiveCommand().WithSubscribe(Add);
+        Selected = Objects[1];
     }
 
     public string Title => "MiniEngine Editor";
 
     public ObservableCollection<SceneObjectViewModel> Objects { get; }
 
-    public ReactivePropertySlim<SceneObjectViewModel?> Selected { get; }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSelection))]
+    private SceneObjectViewModel? _selected;
 
-    public ReadOnlyReactivePropertySlim<bool> HasSelection { get; }
+    public bool HasSelection => Selected is not null;
 
-    public ReactiveCommand AddCommand { get; }
-
+    [RelayCommand]
     private void Add()
     {
         var obj = new SceneObjectViewModel($"Object {Objects.Count}");
         Objects.Add(obj);
-        Selected.Value = obj;
+        Selected = obj;
     }
 }
 ```
 
-`Selected` は、選択が外れたときに `null` になるので、型を `SceneObjectViewModel?` にしました。それを `ReactivePropertySlim` で包んでいるので、`Selected.Value` が選ばれているオブジェクトです。
+`Selected` は、選択が外れたときに `null` になるので、型を `SceneObjectViewModel?` にしました。`Add` メソッドからは、`AddCommand` が生成されます。
 
-`HasSelection` は、このあと画面の表示と非表示の切り替えに使います。`Selected.Select(s => s is not null)` は、`Selected` が変わるたびに、「選ばれているか」の `bool` を流します。`ToReadOnlyReactivePropertySlim()` は、その流れを、読み取り専用のプロパティに変えます。画面には、`HasSelection.Value` で出ます。
+`HasSelection` は、このあと画面の表示と非表示の切り替えに使います。`Selected` が変わったときに、`HasSelection` も変わったと知らせているのが、`[NotifyPropertyChangedFor(nameof(HasSelection))]` の行です。`HasSelection` には `set` がなく、`Selected` から計算するだけのプロパティです。元の `Selected` の側に「変わったら、誰を更新するか」を書く方式なので、計算元が増えたときは、この属性を足し忘れないようにしてください。
 
-`Selected` を包んだので、右のパネルのバインディングも、`Selected` のあとに `.Value` を足して、選ばれているオブジェクトまでたどります。
-
-```xml title="MainWindow.xaml（変更：右のパネル）"
-<TextBox Text="{Binding Selected.Value.Name.Value, UpdateSourceTrigger=PropertyChanged}" />
-<TextBox Text="{Binding Selected.Value.X.Value}" />
-<TextBox Text="{Binding Selected.Value.Y.Value}" Margin="0,4,0,0" />
-<TextBox Text="{Binding Selected.Value.Z.Value}" Margin="0,4,0,0" />
-<Button Content="位置をリセット" Margin="0,12,0,0"
-        Command="{Binding Selected.Value.ResetCommand}" />
-```
-
-`Value` が 2 回出てくるのは、1 回目が「選ばれているオブジェクトを取り出す」、2 回目が「そのオブジェクトの `Name` の値を取り出す」だからです。読みにくいと感じるのは自然です。`Value` が付く段数は、包んだ部品が入れ子になった数だけ増えます。
-
-`HasSelection` に、`set` も `RaisePropertyChanged` もありません。「何から作られるか」だけが書いてあって、`Selected` が変わったら自動で変わります。基底クラスの方式では、`Selected` の `set` の中に `RaisePropertyChanged(nameof(HasSelection))` を書き足すことになり、足し忘れがバグになります。
-
-`Title` は、最初から最後まで変わらない値なので、包まずに普通のプロパティのままにしました。変わらない値は、通知がいりません。
+`Title` は、最初から最後まで変わらない値なので、通知がいりません。普通のプロパティのままです。
 
 画面は、第 6 章で「シーン ツリー」という文字だけを置いた、左のパネルを差し替えます。
 
@@ -504,9 +450,9 @@ public class MainWindowViewModel
     <Button DockPanel.Dock="Bottom" Content="オブジェクトを追加" Margin="8"
             Command="{Binding AddCommand}" />
     <ListBox ItemsSource="{Binding Objects}"
-             SelectedItem="{Binding Selected.Value}"
+             SelectedItem="{Binding Selected}"
              Background="Transparent" BorderThickness="0" Foreground="White"
-             DisplayMemberPath="Name.Value" />
+             DisplayMemberPath="Name" />
 </DockPanel>
 ```
 
@@ -518,7 +464,7 @@ public class MainWindowViewModel
 
 ひとつ注意があります。`Objects = new ObservableCollection<...>(...)` のように、入れ物ごと差し替えると、`ObservableCollection` の通知では足りません。そのプロパティ自体の `PropertyChanged` が必要です。普段は入れ物を作り替えず、`Clear()` と `Add()` で中身を変えるほうが安全です。上の `Objects` が、`{ get; }` だけで `set` を持たないのは、そのためです。
 
-`ItemsSource` は、リスト系の部品に「要素の集まり」を渡すプロパティです。`SelectedItem` は、選んでいる 1 件で、`ListBox` の側で選び直すと `Selected.Value` に書き戻されます。第 16 章で詳しく扱います。
+`ItemsSource` は、リスト系の部品に「要素の集まり」を渡すプロパティです。`SelectedItem` は、選んでいる 1 件で、`ListBox` の側で選び直すと `Selected` に書き戻されます。第 16 章で詳しく扱います。
 
 ### 深掘り：項目の見た目（DataTemplate）
 
@@ -526,13 +472,13 @@ public class MainWindowViewModel
 
 ```xml title="MainWindow.xaml（変更：ListBox の中身）"
 <ListBox ItemsSource="{Binding Objects}"
-         SelectedItem="{Binding Selected.Value}"
+         SelectedItem="{Binding Selected}"
          Background="Transparent" BorderThickness="0" Foreground="White">
     <ListBox.ItemTemplate>
         <DataTemplate>
             <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{Binding Name.Value}" FontWeight="Bold" />
-                <TextBlock Text="{Binding X.Value, StringFormat=X: {0:F1}}"
+                <TextBlock Text="{Binding Name}" FontWeight="Bold" />
+                <TextBlock Text="{Binding X, StringFormat=X: {0:F1}}"
                            Foreground="Gray" Margin="8,0,0,0" />
             </StackPanel>
         </DataTemplate>
@@ -540,9 +486,9 @@ public class MainWindowViewModel
 </ListBox>
 ```
 
-大事なのは、`DataTemplate` の中では、`DataContext` が「リストの 1 要素」になることです。だから `{Binding Name.Value}` は、各要素の `Name` の値を指します。ウィンドウ全体のビューモデルの `Name` ではありません。迷ったら、`DataTemplate` の中なら 1 要素、それ以外なら親から引き継いだもの、と考えれば追えます。
+大事なのは、`DataTemplate` の中では、`DataContext` が「リストの 1 要素」になることです。だから `{Binding Name}` は、各要素の `Name` を指します。ウィンドウ全体のビューモデルの `Name` ではありません。迷ったら、`DataTemplate` の中なら 1 要素、それ以外なら親から引き継いだもの、と考えれば追えます。
 
-右のパネルで位置を書き換えて、フォーカスを外すと、左のリストの `X:` も変わります。`X` が通知を出しているので、リストの 1 行ごとに、バインディングが生きているのです。
+右のパネルで位置を書き換えて、フォーカスを外すと、左のリストの `X:` も変わります。`SceneObjectViewModel` が通知を出しているので、リストの 1 行ごとに、バインディングが生きているのです。
 
 ## 何も選ばれていないときは隠す
 
@@ -555,7 +501,7 @@ public class MainWindowViewModel
 ```
 
 ```xml title="MainWindow.xaml（変更：右のパネルの StackPanel）"
-<StackPanel Visibility="{Binding HasSelection.Value, Converter={StaticResource BoolToVisibility}}">
+<StackPanel Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibility}}">
     <!-- 中身は前のとおり -->
 </StackPanel>
 ```
@@ -598,8 +544,8 @@ public class BoolToVisibilityConverter : IValueConverter
 
 ```text
 View（MainWindow.xaml）            ViewModel（C#）
-  TextBox.Text  ────Binding────▶   SceneObjectViewModel.X.Value  （ReactivePropertySlim）
-  Button.Command ───Binding────▶   ResetCommand            （ReactiveCommand）
+  TextBox.Text  ────Binding────▶   SceneObjectViewModel.X  （INotifyPropertyChanged）
+  Button.Command ───Binding────▶   ResetCommand            （ICommand）
   ListBox.ItemsSource ─────────▶   Objects                 （ObservableCollection）
                                     │ 使う
                                     ▼
@@ -636,30 +582,30 @@ View（MainWindow.xaml）            ViewModel（C#）
     `MainWindow.xaml` に `AutoWireViewModel="True"` が書いてあるか（第 12 章）、「出力」ウィンドウに `BindingExpression path error` が出ていないかを確かめます。`MainWindowViewModel` の `Selected` が `public` のプロパティになっているかも見てください。
 
 ??? failure "位置を書き換えても、左のリストの数字が変わらない"
-    `X` が `ReactivePropertySlim<float>` になっていて、XAML が `X.Value` を読んでいるかを確かめます。フォーカスが外れるまで反映されないのは、故障ではなく `TextBox` の既定の動きです。
+    `SceneObjectViewModel` が `ObservableObject` を継承して、`[ObservableProperty]` のフィールドを、プロパティ（`X`）経由で書き換えているかを確かめます。フィールド（`_x`）に直接書くと、通知が出ません。フォーカスが外れるまで反映されないのは、故障ではなく `TextBox` の既定の動きです。
 
-??? failure "テキスト ボックスに `Reactive.Bindings.ReactivePropertySlim`1[...]` という文字が出る"
-    XAML が `{Binding Selected.X}` のように、`.Value` を書いていません。`{Binding Selected.X.Value}` にします。
+??? failure "`partial` に関するエラー、または `X` が見つからない"
+    クラスに `partial` を付けているかを確かめます。付けないと、ジェネレーターが生成したプロパティを、同じクラスに足せません。ビルドし直したあとも消えないときは、Visual Studio を開き直してください。
 
 ??? failure "リセットを押しても、ボタンの状態が戻らない"
-    `ResetCommand` の元になる `CombineLatest` に、`X`、`Y`、`Z` の 3 つとも入っているかを確かめます。
+    `X`、`Y`、`Z` のフィールドに、`[NotifyCanExecuteChangedFor(nameof(ResetCommand))]` が付いているかを確かめます。
 
 ## ここまでの Editor
 
 ```text
 Editor/
 ├─ Scene/
-│   └─ SceneObjectViewModel.cs   1 オブジェクト（名前、位置、リセット）。ReactivePropertySlim、ReactiveCommand
-├─ MainWindowViewModel.cs        一覧と選択。ReactivePropertySlim、ReactiveCommand
+│   └─ SceneObjectViewModel.cs   1 オブジェクト（名前、位置、リセット）。ObservableObject、RelayCommand
+├─ MainWindowViewModel.cs        一覧と選択。ObservableObject、RelayCommand
 └─ MainWindow.xaml               左：シーン ツリー、右：プロパティ
 ```
 
 ## ここまでのまとめ
 
 - `DataContext` に入れたオブジェクトを、`{Binding プロパティ名}` が見に行く。
-- 画面が追従するには、`INotifyPropertyChanged`（プロパティ）と `ObservableCollection`（コレクション）で変更を知らせる。プロパティは ReactiveProperty の `ReactivePropertySlim<T>` で包んで書き、XAML は `.Value` まで読む。
-- 別のプロパティから計算する値は、`Select` や `CombineLatest` で「何から作られるか」を宣言して、`ToReadOnlyReactivePropertySlim()` で包む。
-- 操作は `ICommand`（`ReactiveCommand`）、リストの 1 件の見た目は `DataTemplate`、型の違いは `Converter` でつなぐ。
+- 画面が追従するには、`INotifyPropertyChanged`（プロパティ）と `ObservableCollection`（コレクション）で変更を知らせる。プロパティは CommunityToolkit.Mvvm の `ObservableObject` と `[ObservableProperty]` で書く。
+- 別のプロパティから計算する値は、元のプロパティに `[NotifyPropertyChangedFor]` を付けて知らせる。
+- 操作は `ICommand`（`[RelayCommand]` で生成する）、リストの 1 件の見た目は `DataTemplate`、型の違いは `Converter` でつなぐ。
 - 画面で困ったら、「出力」ウィンドウの `BindingExpression path error` を見る。
 
 ## 関連する章
@@ -667,7 +613,7 @@ Editor/
 - [第 15 章 バインディングを掘り下げる](15-binding.md)：Mode と UpdateSourceTrigger の既定値、ElementName、RelativeSource、MultiBinding、入力検証、デバッグ
 - [第 16 章 リストとデータ表示](16-lists.md)：ListBox / ListView / DataGrid / ComboBox の使い分けと選択
 - [第 28 章 コードビハインドを減らす](28-behaviors.md)：Behaviors でイベントをコマンドに結ぶ
-- [第 26 章 MVVM ライブラリを比べる](26-mvvm-libraries.md)：ReactiveProperty と、Prism の `BindableBase`、CommunityToolkit.Mvvm の書き比べ
+- [第 26 章 MVVM ライブラリを比べる](26-mvvm-libraries.md)：CommunityToolkit.Mvvm と、Prism の `BindableBase`、ReactiveProperty の書き比べ。Prism との分担
 
 次の章では、バインディングの設定を細かく見ていきます。「更新されない」の原因の多くは、ここにあります。
 

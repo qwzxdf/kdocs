@@ -38,14 +38,10 @@ tags:
 
 ```csharp title="Asset/AssetViewModel.cs（変更：最初の版）"
 using System.IO;       // WPF のプロジェクトでは、System.IO は自動では入らない
-using Reactive.Bindings;
+using CommunityToolkit.Mvvm.Input;
 
-public ReactiveCommand LoadCommand { get; }
-
-// コンストラクターの中
-LoadCommand = new ReactiveCommand().WithSubscribe(Load);
-
-private void Load()
+[RelayCommand]
+private void Load()               // LoadCommand が生成される
 {
     Entries.Clear();
     foreach (var path in Directory.GetFiles(AppContext.BaseDirectory, "*", SearchOption.AllDirectories))
@@ -154,20 +150,23 @@ private async Task LoadAsync()
 
 ## ボタンから非同期処理を呼ぶ
 
-ここまでの `ReactiveCommand` は、同期のメソッドを呼ぶコマンドです。`WithSubscribe(async () => await LoadAsync())` と書くことはできますが、中身は `async void` と同じになります。`async void` の関数で起きた例外は、呼び出し元で捕まえられず、アプリが落ちることがあります。実行中に二重で押される問題も、自分で防がなければなりません。
+ここまでの `[RelayCommand]` は、同期のメソッドに付けてきました。非同期のメソッドに付けるときは、`async void` にしないでください。`async void` の関数で起きた例外は、呼び出し元で捕まえられず、アプリが落ちることがあります。実行中に二重で押される問題も、自分で防がなければなりません。
 
-非同期の処理には、ReactiveProperty の `AsyncReactiveCommand` を使います。
+非同期のメソッドは、`Task` を返す `async` メソッドにして、`[RelayCommand]` を付けます。
 
 ```csharp title="Asset/AssetViewModel.cs（変更）"
-public AsyncReactiveCommand LoadCommand { get; }
-
-// コンストラクターの中
-LoadCommand = new AsyncReactiveCommand().WithSubscribe(LoadAsync);
+[RelayCommand]
+private async Task LoadAsync()          // LoadCommand が生成される（末尾の Async は取れる）
+{
+    // … 読み込み
+}
 ```
 
-`WithSubscribe` に渡すのは、`Task` を返す関数（`LoadAsync`）です。`AsyncReactiveCommand` は、その `Task` が終わるまで、自分を押せない状態（`CanExecute` が `false`）にします。読み込み中はボタンが自動で灰色になり、二重に実行されません。自作の `ICommand` で書くと、「実行中の印」と `CanExecuteChanged` の呼び出しを、`try` と `finally` で囲んで書くことになりますが、それを `AsyncReactiveCommand` が引き受けてくれます。
+`Task` を返すメソッドに付けると、ジェネレーターは `AsyncRelayCommand` を生成します。名前の規則は、メソッド名の末尾の `Async` を取って、`Command` を足したものです（`LoadAsync` → `LoadCommand`）。
 
-例外の扱いは、処理の側で決めます。`LoadAsync` の中で `try` と `catch` を書き、失敗したらログに出します（このあとの節で書きます）。コマンドに任せて外へ漏らすと、`async void` と同じ落ち方をするので、`LoadAsync` の外には例外を出さないつもりで書いてください。
+`AsyncRelayCommand` は、実行中は自分を押せない状態（`CanExecute` が `false`）にします。読み込み中はボタンが自動で灰色になり、二重に実行されません。自作の `ICommand` で書くと、「実行中の印」と `CanExecuteChanged` の呼び出しを、`try` と `finally` で囲んで書くことになりますが、それを `AsyncRelayCommand` が引き受けてくれます。
+
+例外の扱いにも注意が要ります。`AsyncRelayCommand` は、処理の中で起きた例外を、既定では `ExecutionTask` というプロパティに持つだけで、画面にもログにも出しません。つまり、失敗しても黙って終わります。そこで、`LoadAsync` の中で `try` と `catch` を書き、失敗したらログに出します（このあとの節で書きます）。
 
 実行して「読み込み」を押すと、読み込んでいる間もウィンドウが動きます。ボタンは灰色になり、終わると一覧が入れ替わります。
 
@@ -330,16 +329,20 @@ public Task<IReadOnlyList<FileEntry>> ScanAsync(
 ビューモデルに、進み具合のプロパティと、`Progress<double>` を渡す処理を足します。
 
 ```csharp title="Asset/AssetViewModel.cs（変更）"
-public ReactivePropertySlim<double> ProgressValue { get; } = new(0);
-public ReactivePropertySlim<bool> IsBusy { get; } = new(false);
+[ObservableProperty]
+private double _progressValue;
 
+[ObservableProperty]
+private bool _isBusy;
+
+[RelayCommand]
 private async Task LoadAsync()
 {
-    IsBusy.Value = true;
-    ProgressValue.Value = 0;
+    IsBusy = true;
+    ProgressValue = 0;
     try
     {
-        var progress = new Progress<double>(p => ProgressValue.Value = p);    // UI スレッドで作る
+        var progress = new Progress<double>(p => ProgressValue = p);    // UI スレッドで作る
         var files = await _scanner.ScanAsync(AppContext.BaseDirectory, progress, msg => _log.Add(LogLevel.Info, msg));
         Entries.Clear();
         foreach (var file in files) Entries.Add(file);
@@ -351,15 +354,15 @@ private async Task LoadAsync()
     }
     finally
     {
-        IsBusy.Value = false;
+        IsBusy = false;
     }
 }
 ```
 
 ```xml title="MainWindow.xaml（変更：アセットのタブの DockPanel に足す）"
 <ProgressBar DockPanel.Dock="Bottom" Height="6" Maximum="1"
-             Value="{Binding ProgressValue.Value, Mode=OneWay}"
-             Visibility="{Binding IsBusy.Value, Converter={StaticResource BoolToVisibility}}" />
+             Value="{Binding ProgressValue, Mode=OneWay}"
+             Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
 ```
 
 読み込み中は、パネルの下に細い進行バーが出て、右へ伸びていきます。
@@ -391,20 +394,23 @@ public Task<IReadOnlyList<FileEntry>> ScanAsync(
 ```csharp title="Asset/AssetViewModel.cs（変更）"
 private CancellationTokenSource? _cts;
 
-public ReactiveCommand CancelCommand { get; }
+// IsBusy が変わったら、キャンセルボタンの状態を聞き直す（IsBusy のフィールドに属性を足す）
+[ObservableProperty]
+[NotifyCanExecuteChangedFor(nameof(CancelCommand))]
+private bool _isBusy;
 
-// コンストラクターの中
-CancelCommand = IsBusy.ToReactiveCommand()
-    .WithSubscribe(() => _cts?.Cancel());
+[RelayCommand(CanExecute = nameof(IsBusy))]
+private void Cancel() => _cts?.Cancel();
 
+[RelayCommand]
 private async Task LoadAsync()
 {
     _cts = new CancellationTokenSource();
-    IsBusy.Value = true;
-    ProgressValue.Value = 0;
+    IsBusy = true;
+    ProgressValue = 0;
     try
     {
-        var progress = new Progress<double>(p => ProgressValue.Value = p);
+        var progress = new Progress<double>(p => ProgressValue = p);
         var files = await _scanner.ScanAsync(AppContext.BaseDirectory, progress,
             msg => _log.Add(LogLevel.Info, msg), _cts.Token);
         Entries.Clear();
@@ -420,14 +426,14 @@ private async Task LoadAsync()
     }
     finally
     {
-        IsBusy.Value = false;
+        IsBusy = false;
         _cts.Dispose();
         _cts = null;
     }
 }
 ```
 
-`IsBusy.ToReactiveCommand()` は、`IsBusy` の値（`bool` の流れ）を、そのまま「押してよいか」として使うコマンドを作ります。読み込み中（`true`）だけ押せて、終わると自動で灰色に戻ります。`IsBusy` に手を加える必要はありません。
+`IsBusy` が変わったとき、キャンセルボタンの状態も聞き直してもらう必要があります。それは `[NotifyCanExecuteChangedFor(nameof(CancelCommand))]` が引き受けてくれます。`CanExecute = nameof(IsBusy)` は、「`IsBusy` が `true` のときだけ押せる」という指定です。`bool` のプロパティの名前を、そのまま渡せます。このとき、さきほどの `IsBusy` の定義は、この属性つきのものに置き換えます。
 
 最後に、画面にキャンセルのボタンを足します。
 
@@ -471,7 +477,7 @@ private async Task LoadAsync()
     `ScanAsync` のループで `token.ThrowIfCancellationRequested()` を呼んでいるか、`ScanAsync` に `_cts.Token` を渡しているかを確かめます。
 
 ??? failure "キャンセルボタンがずっと灰色のまま"
-    `CancelCommand` を `IsBusy.ToReactiveCommand()` で作っているか、`LoadAsync` の `finally` で `IsBusy.Value = false` に戻しているかを確かめます。
+    `IsBusy` のフィールドに、`[NotifyCanExecuteChangedFor(nameof(CancelCommand))]` が付いているかを確かめます。
 
 ## ここまでの Editor
 
@@ -494,7 +500,7 @@ Editor/
 
 - 重い処理は UI スレッドの外へ。待つ処理は `async` / `await`、計算は `Task.Run`。
 - `await` の後は UI スレッドに戻るので、画面を触ってよい。`Task.Run` の中では触らない。
-- `async void` はイベント ハンドラー以外では使わない。コマンドは、`AsyncReactiveCommand`（実行中は押せなくなる）。例外は処理の中で `catch` する。
+- `async void` はイベント ハンドラー以外では使わない。コマンドは、`Task` を返すメソッドに `[RelayCommand]` を付ける（`AsyncRelayCommand` が生成され、実行中は押せなくなる）。例外は処理の中で `catch` する。
 - 経過は `Progress<T>`、中断は `CancellationToken`。
 - 別のスレッドから UI を更新するときは、`Dispatcher.InvokeAsync`。`.Result` / `.Wait()` で待たない。
 

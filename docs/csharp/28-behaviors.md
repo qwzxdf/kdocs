@@ -45,7 +45,7 @@ Editor では、シーン ツリーの `Delete` キーに使います。第 15 �
 <ListBox.InputBindings>
     <KeyBinding Key="Delete"
                 Command="{Binding DeleteCommand}"
-                CommandParameter="{Binding Selected.Value}" />
+                CommandParameter="{Binding Selected}" />
 </ListBox.InputBindings>
 ```
 
@@ -86,10 +86,11 @@ xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
 ビューモデル側では、渡された引数を使えます。
 
 ```csharp title="実験（Editor には入れない）"
-ClosingCommand = new ReactiveCommand<CancelEventArgs>().WithSubscribe(e =>
+[RelayCommand]
+private void Closing(CancelEventArgs e)          // ClosingCommand が生成される
 {
     if (HasUnsavedChanges) e.Cancel = true;     // 閉じるのを止める
-});
+}
 ```
 
 ただし、`CancelEventArgs` のような「画面の型」をビューモデルが受け取ると、ビューモデルが画面に依存してしまいます。Prism の `InvokeCommandAction` を使うと、イベント引数の特定のプロパティだけを取り出して渡せます。
@@ -138,7 +139,7 @@ public class SelectAllOnFocusBehavior : Behavior<TextBox>
 ```xml title="Property/PropertyView.xaml（変更：名前の入力欄）"
 <!-- UserControl タグに xmlns:i と xmlns:behaviors（clr-namespace:Editor.Shared.Behaviors）を足す -->
 <TextBox Style="{StaticResource ValidatedTextBox}"
-         Text="{Binding Target.Value.Name.Value, UpdateSourceTrigger=PropertyChanged}">
+         Text="{Binding Target.Name, UpdateSourceTrigger=PropertyChanged}">
     <i:Interaction.Behaviors>
         <behaviors:SelectAllOnFocusBehavior />
     </i:Interaction.Behaviors>

@@ -430,7 +430,7 @@ public sealed class GizmoController
         var cam = _camera;
         Ray ray = MakeRay(cam, px, py);
 
-        Vector3 origin = target.Position.Value;
+        Vector3 origin = target.Position;
         float worldPerPixel = WorldPerPixel(cam, origin);
         float length = SizePixels * worldPerPixel;
         float tolerance = PickTolerancePixels * worldPerPixel;

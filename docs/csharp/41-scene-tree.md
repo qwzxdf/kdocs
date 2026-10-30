@@ -67,7 +67,7 @@ public sealed class SelectionService : ISelectionService
         {
             if (change.Kind == SceneChangeKind.Destroyed && _selection.Remove(change.Object))
             {
-                change.Object.IsSelected.Value = false;
+                change.Object.IsSelected = false;
                 RaiseChanged();
             }
         };
@@ -83,7 +83,7 @@ public sealed class SelectionService : ISelectionService
         if (obj != null && !_selection.Contains(obj))
         {
             _selection.Insert(0, obj);      // 最後に選んだ物を「主」にする
-            obj.IsSelected.Value = true;
+            obj.IsSelected = true;
         }
         RaiseChanged();
     }
@@ -94,7 +94,7 @@ public sealed class SelectionService : ISelectionService
         foreach (var o in objects)
         {
             _selection.Add(o);
-            o.IsSelected.Value = true;
+            o.IsSelected = true;
         }
         RaiseChanged();
     }
@@ -107,7 +107,7 @@ public sealed class SelectionService : ISelectionService
 
     private void ClearSilently()
     {
-        foreach (var o in _selection) o.IsSelected.Value = false;
+        foreach (var o in _selection) o.IsSelected = false;
         _selection.Clear();
     }
 
@@ -129,9 +129,14 @@ public sealed class SelectionService : ISelectionService
 
 ```csharp
 // SceneObject.cs に追加
-public ReactivePropertySlim<bool> IsSelected { get; } = new(false);
-public ReactivePropertySlim<bool> IsExpanded { get; } = new(true);
-public ReactivePropertySlim<bool> IsEditing { get; } = new(false);
+[ObservableProperty]
+private bool _isSelected;
+
+[ObservableProperty]
+private bool _isExpanded = true;
+
+[ObservableProperty]
+private bool _isEditing;
 ```
 
 エンジンに選択を伝えるために、`IEngineService` に `SceneSetSelection(uint[] ids)` を足して、P/Invoke の宣言も書きます。
@@ -162,14 +167,12 @@ public void SceneSetSelection(uint[] ids)
 ```csharp title="SceneTree/SceneTreeViewModel.cs"
 using System.Collections.ObjectModel;
 using System.Numerics;
-using System.Reactive;
-using System.Reactive.Linq;
-using Reactive.Bindings;
+using CommunityToolkit.Mvvm.Input;
 using Editor.Scene;
 
 namespace Editor.SceneTree;
 
-public class SceneTreeViewModel
+public partial class SceneTreeViewModel
 {
     private readonly SceneDocument _document;
     private readonly ISelectionService _selection;
@@ -179,45 +182,43 @@ public class SceneTreeViewModel
         _document = document;
         _selection = selection;
 
-        // 「選択があるか」の流れ。選択が変わるたびに、押してよいかを流し直す
-        IObservable<bool> hasPrimary = Observable
-            .FromEvent(h => _selection.SelectionChanged += h, h => _selection.SelectionChanged -= h)
-            .Select(_ => _selection.Primary != null)
-            .StartWith(_selection.Primary != null);
-
-        AddEmptyCommand = new ReactiveCommand().WithSubscribe(AddEmpty);
-        AddChildCommand = hasPrimary.ToReactiveCommand().WithSubscribe(AddChild);
-        DeleteCommand = hasPrimary.ToReactiveCommand().WithSubscribe(Delete);
-        RenameCommand = hasPrimary.ToReactiveCommand().WithSubscribe(Rename);
+        // 選択が変わったら、「選択が必要なコマンド」の有効・無効を再確認する
+        _selection.SelectionChanged += () =>
+        {
+            AddChildCommand.NotifyCanExecuteChanged();
+            DeleteCommand.NotifyCanExecuteChanged();
+            RenameCommand.NotifyCanExecuteChanged();
+        };
     }
 
     // ツリーの根（バインディング先）
     public ObservableCollection<SceneObject> Roots => _document.Roots;
 
-    public ReactiveCommand AddEmptyCommand { get; }
-    public ReactiveCommand AddChildCommand { get; }
-    public ReactiveCommand DeleteCommand { get; }
-    public ReactiveCommand RenameCommand { get; }
+    // 選択があるときだけ、押せる
+    private bool HasPrimary() => _selection.Primary != null;
 
     // ツリーで選ばれた（ビューのコードビハインドから呼ぶ）
     public void OnItemSelected(SceneObject obj) => _selection.Select(obj);
 
+    [RelayCommand]
     private void AddEmpty()
     {
         var obj = _document.Create($"Object {_document.AllocateId()}");
         _selection.Select(obj);
     }
 
+    [RelayCommand(CanExecute = nameof(HasPrimary))]
     private void AddChild()
     {
         var parent = _selection.Primary;
         if (parent == null) return;
         var obj = _document.Create($"Object {_document.AllocateId()}", parent);
-        obj.Position.Value = new Vector3(0, 1, 0);                    // 親の少し上
+        obj.Position = new Vector3(0, 1, 0);                    // 親の少し上
         _document.NotifyChanged(SceneChangeKind.TransformChanged, obj);
         _selection.Select(obj);
     }
 
+    [RelayCommand(CanExecute = nameof(HasPrimary))]
     private void Delete()
     {
         foreach (var obj in _selection.Selection.ToList())
@@ -226,9 +227,10 @@ public class SceneTreeViewModel
         }
     }
 
+    [RelayCommand(CanExecute = nameof(HasPrimary))]
     private void Rename()
     {
-        if (_selection.Primary is { } obj) obj.IsEditing.Value = true;      // 編集モードにする
+        if (_selection.Primary is { } obj) obj.IsEditing = true;      // 編集モードにする
     }
 
     // ドラッグ アンド ドロップで、親を変える
@@ -241,7 +243,7 @@ public class SceneTreeViewModel
 }
 ```
 
-選択が必要なコマンド（子を追加、削除、名前の変更）は、「選択があるか」という `bool` の流れ（`hasPrimary`）から作っています。`SelectionChanged` は普通の C# のイベントなので、`Observable.FromEvent` で流れに変えました。選択が変わるたびに `Select` が `bool` を流し、`ToReactiveCommand()` がボタンの有効、無効に反映します（第 14 章）。`StartWith` は、最初の状態（まだ何も選ばれていない）を、先頭に流しておくための指定です。これがないと、最初に選ばれるまで、ボタンの状態が決まりません。`Roots` は、ドキュメントの `Roots` をそのまま公開しているだけで、ツリーはドキュメントを直接見る形になります。
+選択が必要なコマンド（子を追加、削除、名前の変更）は、`[RelayCommand(CanExecute = nameof(HasPrimary))]` で、選択があるときだけ押せるようにしています。選択が変わったら `NotifyCanExecuteChanged()` で、押せるかどうかを聞き直させます（第 14 章）。`SelectionChanged` は、ビューモデルのプロパティではなく、サービスの C# のイベントなので、`[NotifyCanExecuteChangedFor]` は使えません。イベントを受けて、手で呼びます。`Roots` は、ドキュメントの `Roots` をそのまま公開しているだけで、ツリーはドキュメントを直接見る形になります。
 
 `Reparent` の空の `catch` に注目してください。輪になる移動は、想定内の失敗なので、静かに無視します。ただし、握りつぶすのは `InvalidOperationException` だけです。想定外の例外まで握りつぶさないように、型を限定しています。
 
@@ -287,11 +289,11 @@ public class SceneTreeViewModel
     <HierarchicalDataTemplate DataType="{x:Type models:SceneObject}" ItemsSource="{Binding Children}">
         <Grid>
             <!-- 通常表示 -->
-            <TextBlock Text="{Binding Name.Value}" Foreground="White">
+            <TextBlock Text="{Binding Name}" Foreground="White">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsEditing.Value}" Value="True">
+                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
                                 <Setter Property="Visibility" Value="Collapsed" />
                             </DataTrigger>
                         </Style.Triggers>
@@ -299,12 +301,12 @@ public class SceneTreeViewModel
                 </TextBlock.Style>
             </TextBlock>
             <!-- 名前の編集（F2） -->
-            <TextBox Text="{Binding Name.Value, UpdateSourceTrigger=LostFocus}" MinWidth="80">
+            <TextBox Text="{Binding Name, UpdateSourceTrigger=LostFocus}" MinWidth="80">
                 <TextBox.Style>
                     <Style TargetType="TextBox">
                         <Setter Property="Visibility" Value="Collapsed" />
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsEditing.Value}" Value="True">
+                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
                                 <Setter Property="Visibility" Value="Visible" />
                             </DataTrigger>
                         </Style.Triggers>
@@ -325,8 +327,8 @@ public class SceneTreeViewModel
 ```xml
 <TreeView.ItemContainerStyle>
     <Style TargetType="TreeViewItem">
-        <Setter Property="IsSelected" Value="{Binding IsSelected.Value, Mode=TwoWay}" />
-        <Setter Property="IsExpanded" Value="{Binding IsExpanded.Value, Mode=TwoWay}" />
+        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
     </Style>
 </TreeView.ItemContainerStyle>
 ```

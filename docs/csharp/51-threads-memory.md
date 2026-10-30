@@ -148,7 +148,7 @@ public sealed class SubscriptionBag : IDisposable
 ```
 
 ```csharp title="Property/PropertyViewModel.cs（変更）"
-public class PropertyViewModel : IDisposable
+public class PropertyViewModel : ObservableObject, IDisposable
 {
     private readonly SubscriptionBag _subscriptions = new();
 
@@ -163,23 +163,6 @@ public class PropertyViewModel : IDisposable
 ```
 
 購読を始める行の隣に解除を登録する行を書きます。ペアで書く習慣にすれば、忘れません。
-
-ReactiveProperty の `Subscribe` も、戻り値が `IDisposable` です。第 42 章の `Target.Select(...).Switch().Subscribe(...)` や、`Name.Skip(1).Subscribe(...)` のような購読は、ビューモデルが消えても、購読元（`Target` など）が生きていれば残ります。こちらは、`CompositeDisposable` に溜めて、`Dispose` でまとめて破棄します。
-
-```csharp title="Property/PropertyViewModel.cs（変更：Subscribe の後始末）"
-using System.Reactive.Disposables;
-using Reactive.Bindings.Extensions;
-
-private readonly CompositeDisposable _disposables = new();
-
-// コンストラクターの中。AddTo で、戻り値の IDisposable を溜める
-Name.Skip(1).Subscribe(OnNameEdited).AddTo(_disposables);
-Target.Select(WatchTarget).Switch().Subscribe(_ => RefreshAll()).AddTo(_disposables);
-
-public void Dispose() => _disposables.Dispose();
-```
-
-`AddTo` は、`Subscribe` の戻り値を `CompositeDisposable` に足して、同じ値を返す拡張メソッドです。`SubscriptionBag`（`Action` を溜める）と、役目は同じです。ReactiveProperty の購読は `CompositeDisposable` に、イベントの `+=` は `SubscriptionBag` に、と使い分けてください。
 
 では、`Dispose` は誰が呼ぶのでしょうか。
 

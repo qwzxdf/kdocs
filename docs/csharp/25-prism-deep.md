@@ -65,7 +65,7 @@ public bool IsNavigationTarget(NavigationContext context)
 未保存の編集があるのに、別の画面に移動しようとしたときに、確認を出したい。そのときは `IConfirmNavigationRequest` を実装します。`INavigationAware` に、`ConfirmNavigationRequest` が加わったものです。
 
 ```csharp title="実験（Editor には入れない）"
-public class EditorViewModel : IConfirmNavigationRequest
+public partial class EditorViewModel : ObservableObject, IConfirmNavigationRequest
 {
     public void ConfirmNavigationRequest(NavigationContext navigationContext, Action<bool> continuationCallback)
     {
@@ -148,8 +148,7 @@ public class ApplicationCommands : IApplicationCommands
 // 各ビューモデルが自分の保存コマンドを登録する
 public EditorViewModel(IApplicationCommands appCommands)
 {
-    SaveCommand = new ReactiveCommand().WithSubscribe(Save);
-    appCommands.SaveAllCommand.RegisterCommand(SaveCommand);
+    appCommands.SaveAllCommand.RegisterCommand(SaveCommand);       // [RelayCommand] で生成した SaveCommand
 }
 ```
 
@@ -172,10 +171,15 @@ protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
 必要になったところで、`IModuleManager` から読み込みます。
 
 ```csharp title="実験（Editor には入れない）"
+private readonly IModuleManager _moduleManager;
+
 public MainWindowViewModel(IModuleManager moduleManager)
 {
-    ShowAssetsCommand = new ReactiveCommand().WithSubscribe(() => moduleManager.LoadModule(nameof(AssetModule)));
+    _moduleManager = moduleManager;
 }
+
+[RelayCommand]
+private void ShowAssets() => _moduleManager.LoadModule(nameof(AssetModule));     // ShowAssetsCommand が生成される
 ```
 
 モジュールの名前は、クラス名（`AssetModule`）が既定で使われます。`[Module(ModuleName = "Asset")]` で付け替えられます。
@@ -279,6 +283,6 @@ Prism 7 以前の日本語の記事は、まだたくさん残っています。
 
 古い記事を参考にするときは、「概念」は今も通じるので、そのまま読んで構いません。コードは、上の表にあるような違いを意識しながら読み替えます。
 
-次の章では、この教材が基本にしている ReactiveProperty と、Prism の `BindableBase`、CommunityToolkit.Mvvm などの他のライブラリを書き比べます。
+次の章では、この教材で使っている CommunityToolkit.Mvvm と、Prism の `BindableBase`、ReactiveProperty などの他のライブラリを書き比べます。Prism との分担も、そこで整理します。
 
 [第 26 章 MVVM ライブラリを比べる](26-mvvm-libraries.md) へ進みます。
