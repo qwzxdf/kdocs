@@ -18,7 +18,7 @@ tags:
 
     | ファイル | 内容 |
     | --- | --- |
-    | `Modules/Property/SettingsViewModel.cs`（変更） | 設定の画面は、切り替えたら捨てる（`KeepAlive`） |
+    | `Property/SettingsViewModel.cs`（変更） | 設定の画面は、切り替えたら捨てる（`KeepAlive`） |
 
 Prism は、バージョンによって細かな API が変わります。ここに書いたコードがそのままコンパイルできないときは、使っているバージョンの公式ドキュメントと見比べてください。この章は Prism 9 を前提にしています。
 
@@ -34,7 +34,7 @@ Prism は、バージョンによって細かな API が変わります。ここ
 
 Editor では、第 23 章で作った「設定」の画面に付けます。設定は、開くたびに最新の内容で出したい画面なので、切り替えたら捨てます。プロパティ パネルは、選択に追従して動き続けるので、残します（既定のままです）。
 
-```csharp title="Modules/Property/SettingsViewModel.cs（変更）"
+```csharp title="Property/SettingsViewModel.cs（変更）"
 public class SettingsViewModel : BindableBase, IRegionMemberLifetime
 {
     public bool KeepAlive => false;     // 切り替えたら、リージョンから外して捨てる

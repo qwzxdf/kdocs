@@ -19,7 +19,7 @@ WPF を使う最大の理由は、データバインディングです。画面�
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `ViewModels/SceneObjectViewModel.cs`（新規） | シーンの 1 オブジェクト（名前と位置） |
+    | `Scene/SceneObjectViewModel.cs`（新規） | シーンの 1 オブジェクト（名前と位置） |
     | `MainWindowViewModel.cs`（変更） | オブジェクトの一覧と、選択中のオブジェクト |
     | `MainWindow.xaml`（変更） | 左にシーン ツリー、右にプロパティ パネルを作る |
 
@@ -53,10 +53,12 @@ void OnXEdited(const std::string& s) {         // 画面で入力されたら、
 
 ## まず、選んだオブジェクトを表示する
 
-最初は、画面に出すだけにします。オブジェクトを表すクラスを、`Editor` に置きます。
+最初は、画面に出すだけにします。オブジェクトを表すクラスを、`Editor` の下に `Scene` フォルダーを作って置きます。
 
-```csharp title="ViewModels/SceneObjectViewModel.cs（新規）"
-namespace Editor.ViewModels;
+この教材では、フォルダーを「種類」（ビュー、ビューモデル、モデル）ではなく「機能」（シーン、アセット、ログ…）で切ります。ひとつの機能を直すとき、触るファイルが同じフォルダーに集まるからです。その機能の画面、ビューモデル、データの型は、まとめて同じフォルダーに置きます。複数の機能が使う道具だけは、あとで `Shared` フォルダーに置きます。
+
+```csharp title="Scene/SceneObjectViewModel.cs（新規）"
+namespace Editor.Scene;
 
 public class SceneObjectViewModel
 {
@@ -78,7 +80,7 @@ public class SceneObjectViewModel
 次に、ウィンドウ全体のデータを持つクラスです。今は、選択中のオブジェクトを 1 つ持つだけです。
 
 ```csharp title="MainWindowViewModel.cs（変更）"
-using Editor.ViewModels;
+using Editor.Scene;
 
 namespace Editor;
 
@@ -125,7 +127,7 @@ public class MainWindowViewModel
 
 次は、コードの側から値を変えてみます。位置を原点に戻す「位置をリセット」ボタンを、プロパティ パネルに足します。
 
-```csharp title="ViewModels/SceneObjectViewModel.cs（変更：メソッドを足す）"
+```csharp title="Scene/SceneObjectViewModel.cs（変更：メソッドを足す）"
 public void Reset()
 {
     X = 0;
@@ -188,10 +190,10 @@ WPF でありがちな事故の大半は、この通知の書き忘れです。`
 
 とはいえ、プロパティごとにこの 10 行を書くのは大変です。オブジェクトの名前と位置だけで 4 つ、これから増えていく他のビューモデルを含めると、数十個になります。共通の部分は、基底クラスに移すのが定番で、Prism にはそれが用意されています。`BindableBase` です。
 
-```csharp title="ViewModels/SceneObjectViewModel.cs（変更：全体）"
+```csharp title="Scene/SceneObjectViewModel.cs（変更：全体）"
 using Prism.Mvvm;
 
-namespace Editor.ViewModels;
+namespace Editor.Scene;
 
 public class SceneObjectViewModel : BindableBase
 {
@@ -312,7 +314,7 @@ public abstract class BindableBase : INotifyPropertyChanged
 
 使うのは `SceneObjectViewModel` です。リセットは、すでに原点にいるときは押せなくしたいので、`canExecute` も渡します。
 
-```csharp title="ViewModels/SceneObjectViewModel.cs（変更）"
+```csharp title="Scene/SceneObjectViewModel.cs（変更）"
 using Prism.Commands;
 
 public SceneObjectViewModel(string name, float x = 0, float y = 0, float z = 0)
@@ -372,9 +374,9 @@ private void Reset()
 
 ```csharp title="MainWindowViewModel.cs（変更：全体）"
 using System.Collections.ObjectModel;
-using Editor.ViewModels;
 using Prism.Commands;
 using Prism.Mvvm;
+using Editor.Scene;
 
 namespace Editor;
 
@@ -571,7 +573,7 @@ View（MainWindow.xaml）            ViewModel（C#）
 
 ```text
 Editor/
-├─ ViewModels/
+├─ Scene/
 │   └─ SceneObjectViewModel.cs   1 オブジェクト（名前、位置、リセット）。BindableBase
 ├─ MainWindowViewModel.cs        一覧と選択。BindableBase、DelegateCommand
 └─ MainWindow.xaml               左：シーン ツリー、右：プロパティ

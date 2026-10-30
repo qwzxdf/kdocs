@@ -15,8 +15,8 @@ tags:
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `Mvvm/ValidatableViewModelBase.cs`（新規） | 入力のエラーを覚えておく土台 |
-    | `ViewModels/SceneObjectViewModel.cs`（変更） | `Scale` を足す。名前が空ならエラーにする |
+    | `Shared/Mvvm/ValidatableViewModelBase.cs`（新規） | 入力のエラーを覚えておく土台 |
+    | `Scene/SceneObjectViewModel.cs`（変更） | `Scale` を足す。名前が空ならエラーにする |
     | `MainWindowViewModel.cs`（変更） | 削除コマンド、名前での絞り込み |
     | `MainWindow.xaml`（変更） | スケールのスライダー、位置の表示、削除ボタン、検索ボックス、ステータス バー |
 
@@ -68,7 +68,7 @@ public class SumConverter : IMultiValueConverter
 
 `SceneObjectViewModel` に、拡大率の `Scale` を足します。位置と同じ形で、初期値は 1 です。
 
-```csharp title="ViewModels/SceneObjectViewModel.cs（変更：フィールドとプロパティを足す）"
+```csharp title="Scene/SceneObjectViewModel.cs（変更：フィールドとプロパティを足す）"
 private float _scale = 1f;
 
 public float Scale { get => _scale; set => SetProperty(ref _scale, value); }
@@ -276,12 +276,12 @@ public string Name
 
 ビューモデルが `INotifyDataErrorInfo` を実装して、エラーを覚えておきます。非同期の検証（サーバーに確認する）や、1 つのプロパティに複数のエラーを持たせることもできます。エラーを覚える部分は、どのビューモデルでも同じなので、基底クラスにします。
 
-```csharp title="Mvvm/ValidatableViewModelBase.cs（新規）"
+```csharp title="Shared/Mvvm/ValidatableViewModelBase.cs（新規）"
 using System.Collections;
 using System.ComponentModel;
 using Prism.Mvvm;
 
-namespace Editor.Mvvm;
+namespace Editor.Shared.Mvvm;
 
 public abstract class ValidatableViewModelBase : BindableBase, INotifyDataErrorInfo
 {
@@ -312,7 +312,7 @@ public abstract class ValidatableViewModelBase : BindableBase, INotifyDataErrorI
 
 `SceneObjectViewModel` の土台を、これに差し替えて、名前の `set` で検証します。
 
-```csharp title="ViewModels/SceneObjectViewModel.cs（変更）"
+```csharp title="Scene/SceneObjectViewModel.cs（変更）"
 public class SceneObjectViewModel : ValidatableViewModelBase
 {
     public string Name
@@ -475,10 +475,11 @@ textBox.SetBinding(TextBox.TextProperty, binding);
 
 ```text
 Editor/
-├─ Mvvm/
-│   └─ ValidatableViewModelBase.cs   入力エラーを覚える（新規）
-├─ ViewModels/
+├─ Scene/
 │   └─ SceneObjectViewModel.cs       Scale、名前の検証を足した
+├─ Shared/
+│   └─ Mvvm/
+│       └─ ValidatableViewModelBase.cs   入力エラーを覚える（新規）
 ├─ MainWindowViewModel.cs            削除、絞り込みを足した
 └─ MainWindow.xaml                   検索ボックス、削除ボタン、スライダー、ステータス バー
 ```

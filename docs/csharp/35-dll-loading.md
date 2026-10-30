@@ -144,7 +144,7 @@ DLL を `bin\x64\Debug\native\` のようなサブフォルダーに置きたい
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace Editor.Interop;
+namespace Editor.Engine;
 
 internal static class NativeLoader
 {

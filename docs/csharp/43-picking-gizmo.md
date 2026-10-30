@@ -324,11 +324,11 @@ void AddGizmo(std::vector<LineVertex>& lines, const Vector3& origin, float lengt
 
 エンジン側の `MakeRay` をそのまま C# に書き直します。ギズモの操作のたびにエンジンへ聞き直すと遅延が出るので、カメラ情報を一度だけ取って、手元で計算します。
 
-```csharp title="Services/GizmoController.cs"
+```csharp title="Viewport/GizmoController.cs"
 using System.Numerics;
-using Editor.Models;
+using Editor.Scene;
 
-namespace Editor.Services;
+namespace Editor.Viewport;
 
 public readonly record struct Ray(Vector3 Origin, Vector3 Direction);
 

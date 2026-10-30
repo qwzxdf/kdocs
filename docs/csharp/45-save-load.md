@@ -60,10 +60,10 @@ tags:
 
 ## DTO とシリアライザー
 
-```csharp title="Services/Serialization/SceneFileFormat.cs"
+```csharp title="SceneFile/SceneFileFormat.cs"
 using System.Text.Json.Serialization;
 
-namespace Editor.Services.Serialization;
+namespace Editor.SceneFile;
 
 // 保存ファイル全体
 public sealed class SceneFileDto
@@ -92,12 +92,12 @@ public sealed class ObjectDto
 
 次が変換と読み書きです。まず保存の側です。
 
-```csharp title="Services/Serialization/SceneSerializer.cs"
+```csharp title="SceneFile/SceneSerializer.cs"
 using System.Numerics;
 using System.Text.Json;
-using Editor.Models;
+using Editor.Scene;
 
-namespace Editor.Services.Serialization;
+namespace Editor.SceneFile;
 
 public static class SceneSerializer
 {
@@ -209,8 +209,8 @@ public sealed class SceneFileException : Exception
 
 ## ファイルの読み書き（非同期）
 
-```csharp title="Services/ISceneFileService.cs"
-namespace Editor.Services;
+```csharp title="SceneFile/ISceneFileService.cs"
+namespace Editor.SceneFile;
 
 public interface ISceneFileService
 {
@@ -231,13 +231,14 @@ public interface ISceneFileService
 
 実装は、保存と開くに分けて見ます。まず保存です。
 
-```csharp title="Services/SceneFileService.cs"
+```csharp title="SceneFile/SceneFileService.cs"
 using System.IO;
-using Editor.Models;
-using Editor.Services.Serialization;
-using Editor.Services.Undo;
+using Editor.Log;
+using Editor.Scene;
+using Editor.Shared;
+using Editor.Undo;
 
-namespace Editor.Services;
+namespace Editor.SceneFile;
 
 public sealed class SceneFileService : ISceneFileService
 {
@@ -374,7 +375,7 @@ public sealed class SceneFileService : ISceneFileService
 確認のメッセージ ボックスも、ビューモデルから直接呼ばず、サービスの後ろに隠します（第 24 章）。ビューモデルが `MessageBox` を直接呼ぶと、テストできなくなるからです。
 
 ```csharp
-namespace Editor.Services;
+namespace Editor.Shared;
 
 public enum SaveChoice { Save, DontSave, Cancel }
 
@@ -474,7 +475,7 @@ public Task<bool> ConfirmCloseAsync() => _files.ConfirmDiscardAsync();
 ```csharp
 using System.Text.Json;
 
-namespace Editor.Services;
+namespace Editor.Shared;
 
 public sealed class AppSettings
 {

@@ -29,10 +29,8 @@ tags:
 
 第 24 章では、1 つだけ選べる簡易版（`SceneObjectViewModel` を 1 つ持つ）を書きました。ここで、シーンの物（`SceneObject`）を、複数持てる形に作り直します。
 
-```csharp title="Services/ISelectionService.cs"
-using Editor.Models;
-
-namespace Editor.Services;
+```csharp title="Scene/ISelectionService.cs"
+namespace Editor.Scene;
 
 public interface ISelectionService
 {
@@ -51,10 +49,10 @@ public interface ISelectionService
 }
 ```
 
-```csharp title="Services/SelectionService.cs"
-using Editor.Models;
+```csharp title="Scene/SelectionService.cs"
+using Editor.Viewport;
 
-namespace Editor.Services;
+namespace Editor.Scene;
 
 public sealed class SelectionService : ISelectionService
 {
@@ -178,16 +176,14 @@ public void SceneSetSelection(uint[] ids)
 
 ## ビューモデル
 
-```csharp title="Modules/SceneTree/SceneTreeViewModel.cs"
+```csharp title="SceneTree/SceneTreeViewModel.cs"
 using System.Collections.ObjectModel;
 using System.Numerics;
 using Prism.Commands;
 using Prism.Mvvm;
+using Editor.Scene;
 
-using Editor.Models;
-using Editor.Services;
-
-namespace Editor.Modules.SceneTree;
+namespace Editor.SceneTree;
 
 public class SceneTreeViewModel : BindableBase
 {
@@ -271,12 +267,12 @@ public class SceneTreeViewModel : BindableBase
 
 まず、ツール バーとツリーの骨組みです。
 
-```xml title="SceneTreeView.xaml"
-<UserControl x:Class="Editor.Modules.SceneTree.SceneTreeView"
+```xml title="SceneTree/SceneTreeView.xaml"
+<UserControl x:Class="Editor.SceneTree.SceneTreeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:models="clr-namespace:Editor.Models"
+             xmlns:models="clr-namespace:Editor.Scene"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <DockPanel Background="#FF252526">
         <!-- 上：ツール バー -->
@@ -363,13 +359,12 @@ public class SceneTreeViewModel : BindableBase
 <TreeView x:Name="Tree" ... SelectedItemChanged="OnTreeSelectedItemChanged">
 ```
 
-```csharp title="SceneTreeView.xaml.cs"
+```csharp title="SceneTree/SceneTreeView.xaml.cs"
 using System.Windows;
 using System.Windows.Controls;
+using Editor.Scene;
 
-using Editor.Models;
-
-namespace Editor.Modules.SceneTree;
+namespace Editor.SceneTree;
 
 public partial class SceneTreeView : UserControl
 {

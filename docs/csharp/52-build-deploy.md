@@ -240,7 +240,7 @@ MVVM の利点の 1 つが、ビューモデルを画面なしでテストでき
 フェイクは、何もしない偽物で、呼ばれた内容だけを覚えます。
 
 ```csharp
-using Editor.Services;
+using Editor.Log;
 
 namespace Editor.Tests;
 
@@ -259,7 +259,7 @@ public sealed class FakeLogService : ILogService
 履歴（Undo/Redo）は、画面にもエンジンにも依存しない、純粋なロジックです。テストに最適です。
 
 ```csharp
-using Editor.Services.Undo;
+using Editor.Undo;
 using Xunit;
 
 namespace Editor.Tests;

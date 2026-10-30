@@ -17,11 +17,11 @@ tags:
 !!! abstract "この章で Editor に足すもの"
     | ファイル | 内容 |
     | --- | --- |
-    | `Infrastructure/RegionNames.cs`（新規） | リージョンの名前の定数 |
+    | `Shared/RegionNames.cs`（新規） | リージョンの名前の定数 |
     | `MainWindow.xaml`（変更） | 中身を全部消して、リージョンだけの枠にする |
-    | `Modules/SceneTree/`（新規） | シーン ツリーのモジュール（モジュール、ビュー、ビューモデル） |
-    | `Modules/Property/`（新規） | プロパティのモジュール。設定の画面もここ |
-    | `Modules/Asset/`・`Modules/Log/`（View と Module を追加） | 第 16〜17 章で作ったタブを、画面（View）に切り出して、モジュールにする |
+    | `SceneTree/`（新規） | シーン ツリーのモジュール（モジュール、ビュー、ビューモデル） |
+    | `Property/`（新規） | プロパティのモジュール。設定の画面もここ |
+    | `Asset/`・`Log/`（View と Module を追加） | 第 16〜17 章で作ったタブを、画面（View）に切り出して、モジュールにする |
     | `App.xaml.cs`（変更） | モジュールの一覧を教える |
 
     この章の終わりでは、プロパティ パネルは、シーン ツリーの選択ではなく、仮のオブジェクトを表示しています。2 つのモジュールをつなぐのは、次の章です。
@@ -54,8 +54,8 @@ MainWindow（枠だけ）
 
 リージョンの名前は文字列ですが、タイプミスを避けるために定数にまとめます。
 
-```csharp title="Infrastructure/RegionNames.cs（新規）"
-namespace Editor.Infrastructure;
+```csharp title="Shared/RegionNames.cs（新規）"
+namespace Editor.Shared;
 
 public static class RegionNames
 {
@@ -77,7 +77,7 @@ public static class RegionNames
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:prism="http://prismlibrary.com/"
-        xmlns:infra="clr-namespace:Editor.Infrastructure"
+        xmlns:infra="clr-namespace:Editor.Shared"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Title="MiniEngine Editor" Height="720" Width="1280"
         Background="#FF1E1E1E">
@@ -159,18 +159,18 @@ public class MainWindowViewModel : BindableBase
 
 各機能の画面は `UserControl` で作ります。`Window` のような外枠を持たず、他の画面の中に入れて使える小さな画面です。ここでは、画面とビューモデルを機能ごとのフォルダーに並べます。
 
-1. `Editor` に `Modules\SceneTree` フォルダーを作ります。
+1. `Editor` に `SceneTree` フォルダーを作ります。
 2. フォルダーを右クリックして「追加 → 新しい項目 → ユーザー コントロール (WPF)」で `SceneTreeView.xaml` を作ります。
 3. 同じフォルダーに、ビューモデルの `SceneTreeViewModel.cs` を作ります。
 
-画面とビューモデルを同じフォルダー、同じ名前空間（`Editor.Modules.SceneTree`）に置いても、ViewModelLocator は見つけられます。`SceneTreeView` のように名前が `View` で終わる画面には、`Model` だけを足して `SceneTreeViewModel` を探すからです（第 21 章）。
+画面とビューモデルを同じフォルダー、同じ名前空間（`Editor.SceneTree`）に置いても、ViewModelLocator は見つけられます。`SceneTreeView` のように名前が `View` で終わる画面には、`Model` だけを足して `SceneTreeViewModel` を探すからです（第 21 章）。
 
 ### シーン ツリー
 
 `MainWindow.xaml` にあった左のパネルを、そのまま移します。
 
-```xml title="Modules/SceneTree/SceneTreeView.xaml（新規）"
-<UserControl x:Class="Editor.Modules.SceneTree.SceneTreeView"
+```xml title="SceneTree/SceneTreeView.xaml（新規）"
+<UserControl x:Class="Editor.SceneTree.SceneTreeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
@@ -195,15 +195,15 @@ public class MainWindowViewModel : BindableBase
 
 `MainWindowViewModel` にあった、オブジェクトの一覧と選択、絞り込み、追加、削除は、そのまま `SceneTreeViewModel` に移ります。
 
-```csharp title="Modules/SceneTree/SceneTreeViewModel.cs（新規）"
+```csharp title="SceneTree/SceneTreeViewModel.cs（新規）"
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Data;
-using Editor.ViewModels;
 using Prism.Commands;
 using Prism.Mvvm;
+using Editor.Scene;
 
-namespace Editor.Modules.SceneTree;
+namespace Editor.SceneTree;
 
 public class SceneTreeViewModel : BindableBase
 {
@@ -271,8 +271,8 @@ public class SceneTreeViewModel : BindableBase
 
 右のパネルは、`MainWindow.xaml` にあった入力欄、スライダー、リセット ボタンを移します。第 15 章で `Window.Resources` に置いた `BoolToVisibility` と `ValidatedTextBox` は、このビューの `UserControl.Resources` に移します。
 
-```xml title="Modules/Property/PropertyView.xaml（新規）"
-<UserControl x:Class="Editor.Modules.Property.PropertyView" ...
+```xml title="Property/PropertyView.xaml（新規）"
+<UserControl x:Class="Editor.Property.PropertyView" ...
              prism:ViewModelLocator.AutoWireViewModel="True">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisibility" />
@@ -287,11 +287,11 @@ public class SceneTreeViewModel : BindableBase
 </UserControl>
 ```
 
-```csharp title="Modules/Property/PropertyViewModel.cs（新規）"
-using Editor.ViewModels;
+```csharp title="Property/PropertyViewModel.cs（新規）"
 using Prism.Mvvm;
+using Editor.Scene;
 
-namespace Editor.Modules.Property;
+namespace Editor.Property;
 
 public class PropertyViewModel : BindableBase
 {
@@ -323,22 +323,22 @@ public class PropertyViewModel : BindableBase
 
 下のパネルの 2 つのタブは、すでに独立したビューモデルを持っています。`TabItem` の中身を、そのまま `UserControl` に移すだけです。`DataContext="{Binding AssetBrowser}"` のように、ビューモデルを切り替えていた行は消します。ViewModelLocator が、画面ごとのビューモデルを結んでくれるからです。
 
-- `Modules/Asset/AssetView.xaml`：アセットのタブの中身（コンボボックス、一覧、進行バー）。
-- `Modules/Log/LogView.xaml`：ログのタブの中身（`DataGrid`）。
+- `Asset/AssetView.xaml`：アセットのタブの中身（コンボボックス、一覧、進行バー）。
+- `Log/LogView.xaml`：ログのタブの中身（`DataGrid`）。
 
-`AssetViewModel` と `LogViewModel` は、第 16 章から `Modules/Asset/` と `Modules/Log/` に置いてあるので、移す必要はありません。`AssetView` と同じ名前空間にあり、名前も `AssetView` に `Model` を足したものなので、ViewModelLocator の規則でそのまま結ばれます。
+`AssetViewModel` と `LogViewModel` は、第 16 章から `Asset/` と `Log/` に置いてあるので、移す必要はありません。`AssetView` と同じ名前空間にあり、名前も `AssetView` に `Model` を足したものなので、ViewModelLocator の規則でそのまま結ばれます。
 
 ## モジュールを作る
 
 モジュールは `IModule` を実装したクラスです。やることは 2 つあります。
 
-```csharp title="Modules/SceneTree/SceneTreeModule.cs（新規）"
-using Editor.Infrastructure;
+```csharp title="SceneTree/SceneTreeModule.cs（新規）"
 using Prism.Ioc;
 using Prism.Modularity;
 using Prism.Navigation.Regions;
+using Editor.Shared;
 
-namespace Editor.Modules.SceneTree;
+namespace Editor.SceneTree;
 
 public class SceneTreeModule : IModule
 {
@@ -372,7 +372,7 @@ public class SceneTreeModule : IModule
 
 `IAssetScanner` を使うのは、アセットのモジュールだけなので、そのモジュールで登録します。`App.RegisterTypes` に書いていた行は、移します。
 
-```csharp title="Modules/Asset/AssetModule.cs（新規：RegisterTypes だけ）"
+```csharp title="Asset/AssetModule.cs（新規：RegisterTypes だけ）"
 public void RegisterTypes(IContainerRegistry containerRegistry)
 {
     containerRegistry.RegisterSingleton<IAssetScanner, AssetScanner>();
@@ -456,8 +456,8 @@ App.OnInitialized
 
 まず、「設定」の画面を小さく作ります。エディターの設定は、あとの章で中身を足すので、今は見出しだけにします。
 
-```xml title="Modules/Property/SettingsView.xaml（新規）"
-<UserControl x:Class="Editor.Modules.Property.SettingsView" ...
+```xml title="Property/SettingsView.xaml（新規）"
+<UserControl x:Class="Editor.Property.SettingsView" ...
              prism:ViewModelLocator.AutoWireViewModel="True">
     <Border Background="#FF252526" Padding="8">
         <TextBlock Text="エディターの設定" Foreground="White" FontWeight="Bold" />
@@ -467,7 +467,7 @@ App.OnInitialized
 
 `SettingsViewModel` は、空のクラスで構いません（`BindableBase` を継承しておきます）。次に、ビューをナビゲーション用に登録します。
 
-```csharp title="Modules/Property/PropertyModule.cs（変更）"
+```csharp title="Property/PropertyModule.cs（変更）"
 public void RegisterTypes(IContainerRegistry containerRegistry)
 {
     containerRegistry.RegisterForNavigation<PropertyView>();
@@ -478,9 +478,9 @@ public void RegisterTypes(IContainerRegistry containerRegistry)
 切り替えるときは、`RequestNavigate` を呼びます。メニューの「表示」から呼べるようにします。
 
 ```csharp title="MainWindowViewModel.cs（変更）"
-using Editor.Infrastructure;
 using Prism.Commands;
 using Prism.Navigation.Regions;
+using Editor.Shared;
 
 private readonly IRegionManager _regionManager;
 public DelegateCommand<string> NavigateCommand { get; }
@@ -580,7 +580,7 @@ _regionManager.RequestNavigate(RegionNames.Property, "PropertyView", parameters)
     `ItemContainerStyle` のバインディングがビューモデルの `Title` に届いていません。上の `Content.DataContext.Title` の書き方になっているか、「出力」ウィンドウに `BindingExpression path error` が出ていないかを確かめます。
 
 ??? failure "ビューモデルがビューにつながらない"
-    `UserControl` にも `prism:ViewModelLocator.AutoWireViewModel="True"` が必要です。ビューの名前空間と、ビューモデルの名前空間が同じか（または `Views` と `ViewModels` に分かれているか）、名前の末尾が規則どおりかも確かめます。
+    `UserControl` にも `prism:ViewModelLocator.AutoWireViewModel="True"` が必要です。ビューの名前空間と、ビューモデルの名前空間が同じか、名前の末尾が規則どおりかも確かめます。
 
 ??? failure "ログの一覧が、アセットの読み込みで増えない"
     `LogViewModel` を、モジュールの `RegisterTypes` に登録していませんか。`App.RegisterTypes` に登録して、共有の 1 つにしてください。
@@ -590,16 +590,15 @@ _regionManager.RequestNavigate(RegionNames.Property, "PropertyView", parameters)
 ```text
 Editor/
 ├─ App.xaml / App.xaml.cs            LogViewModel を登録。モジュールの一覧
-├─ Infrastructure/
-│   └─ RegionNames.cs
-├─ Models/ ・ Mvvm/ ・ Services/      （変更なし。IAssetScanner は AssetModule が登録）
-├─ Modules/
-│   ├─ SceneTree/                    SceneTreeModule / View / ViewModel
-│   ├─ Property/                     PropertyModule / PropertyView / PropertyViewModel / SettingsView
-│   ├─ Asset/                        AssetModule / AssetView / AssetViewModel
-│   └─ Log/                          LogModule / LogView / LogViewModel
-├─ ViewModels/
-│   └─ SceneObjectViewModel.cs       （複数のモジュールが使うので、ここに残す）
+├─ Asset/                            AssetModule / AssetView / AssetViewModel / AssetEntry / AssetScanner
+├─ Log/                              LogModule / LogView / LogViewModel / LogEntry
+├─ Property/                         PropertyModule / PropertyView / PropertyViewModel / SettingsView
+├─ Scene/
+│   └─ SceneObjectViewModel.cs       （複数の機能が使うので、ここに残す）
+├─ SceneTree/                        SceneTreeModule / SceneTreeView / SceneTreeViewModel
+├─ Shared/
+│   ├─ RegionNames.cs                リージョンの名前（新規）
+│   └─ Mvvm/                         （変更なし）
 ├─ MainWindowViewModel.cs            ステータス バーとナビゲーションだけ
 └─ MainWindow.xaml                   リージョンだけの枠
 ```

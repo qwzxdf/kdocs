@@ -33,12 +33,12 @@ ViewportView（UserControl）
 第 23 章と同じ作り方で、`Viewport` モジュールを作ります。
 
 ```text
-Editor\Modules\Viewport\
+Editor\Viewport\
   ViewportModule.cs
   ViewportView.xaml / .xaml.cs
   ViewportViewModel.cs
-  Controls\ViewportHost.cs      ← HwndHost
-Editor\Interop\Win32.cs         ← Win32 API の宣言
+  ViewportHost.cs               ← HwndHost
+Editor\Engine\Win32.cs          ← Win32 API の宣言
 ```
 
 `ViewportModule` は `SceneTreeModule` と同じ形で、`RegionNames.Viewport` に `ViewportView` を登録します。`App.xaml.cs` の `ConfigureModuleCatalog` に、`moduleCatalog.AddModule<ViewportModule>();` も足しておきます。
@@ -47,10 +47,10 @@ Editor\Interop\Win32.cs         ← Win32 API の宣言
 
 子ウィンドウを作るために、`user32.dll` の関数を P/Invoke で宣言します。
 
-```csharp title="Interop/Win32.cs"
+```csharp title="Engine/Win32.cs"
 using System.Runtime.InteropServices;
 
-namespace Editor.Interop;
+namespace Editor.Engine;
 
 // Win32 API の宣言。ビューポートの子ウィンドウに必要なものだけ。
 internal static partial class Win32
@@ -123,14 +123,12 @@ internal static partial class Win32
 
 まず、イベントの引数と、クラスの骨組みです。
 
-```csharp title="Modules/Viewport/Controls/ViewportHost.cs"
+```csharp title="Viewport/ViewportHost.cs"
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 
-using Editor.Interop;
-
-namespace Editor.Modules.Viewport.Controls;
+namespace Editor.Viewport;
 
 // 子ウィンドウが準備できた、または大きさが変わったことを知らせる
 public sealed class ViewportSizeEventArgs : EventArgs
@@ -281,12 +279,12 @@ public sealed class ViewportHost : HwndHost
 
 ビューは、`ViewportHost` を置くだけです。
 
-```xml title="ViewportView.xaml"
-<UserControl x:Class="Editor.Modules.Viewport.ViewportView"
+```xml title="Viewport/ViewportView.xaml"
+<UserControl x:Class="Editor.Viewport.ViewportView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:controls="clr-namespace:Editor.Modules.Viewport.Controls"
+             xmlns:controls="clr-namespace:Editor.Viewport"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <Border Background="Black">
         <controls:ViewportHost x:Name="Host" />
@@ -296,10 +294,10 @@ public sealed class ViewportHost : HwndHost
 
 `HwndHost` のイベントは、バインディングでは受けられません。そこで、ビューのコードビハインドで受けて、ビューモデルへ橋渡しします。ビューモデルは、画面を知らず、`HWND` と数値だけを受け取ります。
 
-```csharp title="ViewportView.xaml.cs"
+```csharp title="Viewport/ViewportView.xaml.cs"
 using System.Windows.Controls;
 
-namespace Editor.Modules.Viewport;
+namespace Editor.Viewport;
 
 public partial class ViewportView : UserControl
 {
@@ -320,15 +318,15 @@ public partial class ViewportView : UserControl
 
 コードビハインドにロジックは書いていません。画面の部品のイベントをビューモデルへ渡すだけの用途なら、コードビハインドを使っても問題ありません。
 
-```csharp title="ViewportViewModel.cs"
+```csharp title="Viewport/ViewportViewModel.cs"
 using System.Diagnostics;
 using System.Windows.Media;
 
 using Prism.Mvvm;
+using Editor.Engine;
+using Editor.Log;
 
-using Editor.Services;
-
-namespace Editor.Modules.Viewport;
+namespace Editor.Viewport;
 
 public class ViewportViewModel : BindableBase
 {
@@ -404,14 +402,13 @@ public class ViewportViewModel : BindableBase
 
 ## モジュールに登録する
 
-```csharp title="ViewportModule.cs"
+```csharp title="Viewport/ViewportModule.cs"
 using Prism.Ioc;
 using Prism.Modularity;
 using Prism.Navigation.Regions;
+using Editor.Shared;
 
-using Editor.Infrastructure;
-
-namespace Editor.Modules.Viewport;
+namespace Editor.Viewport;
 
 public class ViewportModule : IModule
 {

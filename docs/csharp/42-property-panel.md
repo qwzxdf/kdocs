@@ -41,11 +41,10 @@ tags:
 
 ## 編集の窓口（ISceneEditor）
 
-```csharp title="Services/ISceneEditor.cs"
+```csharp title="Scene/ISceneEditor.cs"
 using System.Numerics;
-using Editor.Models;
 
-namespace Editor.Services;
+namespace Editor.Scene;
 
 // シーンの編集は、すべてこの窓口を通す。第 44 章で、Undo/Redo の記録を足す。
 public interface ISceneEditor
@@ -58,11 +57,10 @@ public interface ISceneEditor
 }
 ```
 
-```csharp title="Services/SceneEditor.cs"
+```csharp title="Scene/SceneEditor.cs"
 using System.Numerics;
-using Editor.Models;
 
-namespace Editor.Services;
+namespace Editor.Scene;
 
 public sealed class SceneEditor : ISceneEditor
 {
@@ -118,11 +116,11 @@ public sealed class SceneEditor : ISceneEditor
 
 ## Vector3 を編集する部品
 
-```csharp title="Modules/Property/Vector3EditorViewModel.cs"
+```csharp title="Property/Vector3EditorViewModel.cs"
 using System.Numerics;
 using Prism.Mvvm;
 
-namespace Editor.Modules.Property;
+namespace Editor.Property;
 
 // Vector3 を X、Y、Z の成分に分けて編集する部品。位置、回転、拡大で使い回す。
 public sealed class Vector3EditorViewModel : BindableBase
@@ -173,15 +171,13 @@ public sealed class Vector3EditorViewModel : BindableBase
 
 ## プロパティのビューモデル
 
-```csharp title="Modules/Property/PropertyViewModel.cs"
+```csharp title="Property/PropertyViewModel.cs"
 using System.ComponentModel;
 using System.Numerics;
 using Prism.Mvvm;
+using Editor.Scene;
 
-using Editor.Models;
-using Editor.Services;
-
-namespace Editor.Modules.Property;
+namespace Editor.Property;
 
 public class PropertyViewModel : BindableBase
 {
@@ -310,11 +306,11 @@ public class PropertyViewModel : BindableBase
 ### 本体
 
 ```xml
-<UserControl x:Class="Editor.Modules.Property.PropertyView"
+<UserControl x:Class="Editor.Property.PropertyView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
-             xmlns:vm="clr-namespace:Editor.Modules.Property"
+             xmlns:vm="clr-namespace:Editor.Property"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <!-- UserControl.Resources は上のとおり -->
     <ScrollViewer VerticalScrollBarVisibility="Auto" Background="#FF252526">
@@ -356,13 +352,13 @@ public class PropertyViewModel : BindableBase
 
 スライダーだけでは、どんな色なのか分かりにくいので、見本を出します。`Vector4` を `Brush` に変えるコンバーター（第 14 章）を作ります。
 
-```csharp title="Converters/ColorToBrushConverter.cs"
+```csharp title="Shared/Converters/ColorToBrushConverter.cs"
 using System.Globalization;
 using System.Numerics;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace Editor.Converters;
+namespace Editor.Shared.Converters;
 
 public class ColorToBrushConverter : IValueConverter
 {

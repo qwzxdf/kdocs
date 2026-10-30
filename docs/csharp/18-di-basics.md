@@ -46,7 +46,7 @@ C++ で言えば、クラスのメンバーに `AssetScanner scanner_;` を値�
 
 解決の方向は単純で、<strong>必要なものを自分で作らず、コンストラクターの引数で受け取る</strong>ことです。第 17 章で書き換えた形が、まさにそれです。
 
-```csharp title="Modules/Asset/AssetViewModel.cs（第 17 章の形）"
+```csharp title="Asset/AssetViewModel.cs（第 17 章の形）"
 public class AssetViewModel : BindableBase
 {
     private readonly AssetScanner _scanner;

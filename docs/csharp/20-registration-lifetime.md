@@ -138,10 +138,8 @@ C++ で言えば、仮想関数を持つ抽象基底クラスを置くか、テ�
 
 `AssetScanner` から、インターフェースを取り出します。クラス名にカーソルを置いて `Ctrl + .` を押し、「インターフェースの抽出」を選ぶと、できます。
 
-```csharp title="Services/IAssetScanner.cs（新規）"
-using Editor.Models;
-
-namespace Editor.Services;
+```csharp title="Asset/IAssetScanner.cs（新規）"
+namespace Editor.Asset;
 
 public interface IAssetScanner
 {
@@ -151,13 +149,13 @@ public interface IAssetScanner
 }
 ```
 
-```csharp title="Services/AssetScanner.cs（変更：宣言だけ）"
+```csharp title="Asset/AssetScanner.cs（変更：宣言だけ）"
 public class AssetScanner : IAssetScanner
 ```
 
 使う側の引数の型と、登録は、自分で書き換えます。
 
-```csharp title="Modules/Asset/AssetViewModel.cs（変更）"
+```csharp title="Asset/AssetViewModel.cs（変更）"
 private readonly IAssetScanner _scanner;
 
 public AssetViewModel(LogViewModel log, IAssetScanner scanner)
