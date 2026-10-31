@@ -19,7 +19,7 @@ tags:
 !!! tip "ポイント"
     - 引数の順番は `(y, x)`。`(x, y)` ではない。逆にすると 90 度ずれた角度になる。
     - 結果は −π から π のラジアン。度に直すなら `× 180 / π`。
-    - `x` と `y` がどちらも 0 のときは 0 を返す。例外は投げない。
+    - `x` と `y` がどちらも 0 でも、例外は投げず、決まった値(ふつうは 0)を返す。ゼロベクトルの向きには意味がない。
 
 !!! info "このページを読む前に"
     角度の単位（度とラジアン）が分かると読みやすいです。度は `度 × π / 180` でラジアンになります。
@@ -46,20 +46,137 @@ float atan2(float y, float x);
 - 戻り値: -π〜π のラジアン。右が 0、上（y が正）が π/2
 - `atan(y / x)` と違って、4 方向すべてを正しく区別でき、x が 0 でも割り算エラーになりません
 
+#### 全方向の角度が求まる理由
+
+`atan(y / x)` は、`y / x` という**1 つの比**にしてから角度を出すので、符号の情報が失われます。`(1, 1)` と `(-1, -1)` は、どちらも比が 1 で、同じ 45 度になります。`atan2` は、`y` と `x` を別々に受け取って、符号から、どの象限かを判断します。
+
+| 向き | `x` | `y` | `atan2(y, x)` |
+| --- | --- | --- | --- |
+| 右 | 正 | 0 | 0 |
+| 上(y が正) | 0 | 正 | π/2 (90 度) |
+| 左 | 負 | 0 | π (180 度) |
+| 下(y が負) | 0 | 負 | −π/2 (−90 度) |
+
+#### 0 や無限大を渡したとき
+
+`x` が 0 でも、割り算をしないので、エラーにならず π/2 か −π/2 を返します。`x` と `y` がどちらも 0 のときも、例外は投げず、`0` を返します(`x` が `-0.0` の符号つきゼロのときは、`y` の符号に従って `π` か `-π`)。
+
+向きが定まらないゼロベクトルを渡すと、`0`(右向き)になってしまうので、敵が自分と同じ位置にいるときなどは、角度を使う前に、距離が 0 でないかを確かめます。
+
+無限大も、規格で決まった値を返します。たとえば `atan2(y, +∞)` は 0、`atan2(+∞, x)` は π/2 です。NaN を渡すと NaN が返ります。
+
+#### 型
+
+`float`・`double`・`long double` の版があり、`int` を渡すと `double` 版が呼ばれます。`float` で計算を済ませたいときは、引数を `float` にします。C 言語の名前 `atan2f`・`atan2l` も、そのまま使えます。
+
 ## 実際に動かしてみる
+
+### 向きから角度を求める
+
+4 方向と斜め 2 方向の角度を、度で出します。
 
 ```cpp
 #include <cmath>
+#include <numbers>
 #include <print>
 
+// 向き (x, y) の角度を、度で返す
+double AngleDegrees(double x, double y) {
+  return std::atan2(y, x) * 180.0 / std::numbers::pi;   // 引数は (y, x) の順
+}
+
 int main() {
-  std::println("{:.4f} {:.4f}", std::atan2(1.0, 1.0), std::atan2(1.0, 0.0));  // (y, x) の順
+  std::println("右   (1, 0):   {:6.1f} 度", AngleDegrees(1, 0));
+  std::println("上   (0, 1):   {:6.1f} 度", AngleDegrees(0, 1));
+  std::println("左   (-1, 0):  {:6.1f} 度", AngleDegrees(-1, 0));
+  std::println("下   (0, -1):  {:6.1f} 度", AngleDegrees(0, -1));
+  std::println("右上 (1, 1):   {:6.1f} 度", AngleDegrees(1, 1));
+  std::println("左下 (-1, -1): {:6.1f} 度", AngleDegrees(-1, -1));   // atan(1/1) だと 45 度になってしまう
 }
 ```
 
 ```text title="実行結果"
-0.7854 1.5708
+右   (1, 0):      0.0 度
+上   (0, 1):     90.0 度
+左   (-1, 0):   180.0 度
+下   (0, -1):   -90.0 度
+右上 (1, 1):     45.0 度
+左下 (-1, -1): -135.0 度
 ```
+
+`(-1, -1)` が −135 度になるのが、`atan(y / x)` との違いです。`atan(1 / 1)` なら、どちらの向きも 45 度になってしまいます。
+
+### 角度の差を、近い側で扱う
+
+角度は 180 度と −180 度が同じ向きなので、差を単純に引くと、遠回りの値が出ます。差を `[-π, π]` に折り返してから使います。
+
+```cpp
+#include <algorithm>
+#include <cmath>
+#include <numbers>
+#include <print>
+
+constexpr float kPi = std::numbers::pi_v<float>;
+constexpr float kRad = kPi / 180.0f;
+
+// 角度を [-π, π] の範囲に折り返す
+float WrapAngle(float a) {
+  while (a > kPi) a -= 2 * kPi;
+  while (a < -kPi) a += 2 * kPi;
+  return a;
+}
+
+// current から target へ向けて、1 回に max_step だけ、近い側の回りかたで回す
+float TurnToward(float current, float target, float max_step) {
+  float diff = WrapAngle(target - current);   // 折り返してから比べる
+  diff = std::clamp(diff, -max_step, max_step);
+  return WrapAngle(current + diff);
+}
+
+int main() {
+  float current = 179.0f * kRad;
+  float target = -179.0f * kRad;   // 179 度の、すぐ隣
+
+  std::println("そのまま引く: {:.1f} 度", (target - current) / kRad);        // 遠回りの値
+  std::println("折り返す:     {:.1f} 度", WrapAngle(target - current) / kRad);   // 近道
+  std::println("5 度ずつ回す: {:.1f} 度", TurnToward(current, target, 5.0f * kRad) / kRad);
+}
+```
+
+```text title="実行結果"
+そのまま引く: -358.0 度
+折り返す:     2.0 度
+5 度ずつ回す: -179.0 度
+```
+
+179 度から −179 度への差は、本当は 2 度ですが、そのまま引くと −358 度になります。`WrapAngle` で折り返すと 2 度になり、`TurnToward` は 5 度ずつの上限のうち、最後の 2 度で目標に届きます。
+
+### 画面の座標で使う
+
+ゲームの画面は、y が下に向かって増える座標系が多く、数学の座標とは上下が逆です。
+
+```cpp
+#include <cmath>
+#include <numbers>
+#include <print>
+
+int main() {
+  // 画面は、y が下へ増える。敵 (100, 100) から、プレイヤー (200, 50) への向き
+  float enemy_x = 100, enemy_y = 100;
+  float player_x = 200, player_y = 50;
+  float dx = player_x - enemy_x;   //  100: 右
+  float dy = player_y - enemy_y;   // -50: 画面では上
+  float angle = std::atan2(dy, dx);
+  std::println("角度: {:.1f} 度", angle * 180.0f / std::numbers::pi_v<float>);
+  // 負の値は「画面の上方向」。画面の y が下向きなので、数学の座標とは上下が逆になる
+}
+```
+
+```text title="実行結果"
+角度: -26.6 度
+```
+
+プレイヤーは敵の右上にいるのに、角度は −26.6 度と負の値になります。画面の y が下向きだからです。この角度でスプライトを回転させる分には、画面の座標系で一貫しているので問題ありませんが、数学の座標(y が上向き)の式と混ぜるときは、`dy` の符号を反転させます。
 
 ## ゲームでの使いどころ
 
@@ -90,7 +207,7 @@ int main() {
 
 ## コンパイラ対応
 
-C++98 から使えます。`std::lerp` は C++20、`hypot` の 3 引数は C++17 です。
+C++98 から使えます。MSVC・GCC・Clang とも対応しています。
 
 ## これだけ覚える
 

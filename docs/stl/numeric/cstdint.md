@@ -124,36 +124,87 @@ int main() {
 | [`std::intptr_t`](cstdint/intptr_t.md) | 符号付き | ポインタ用 |
 | [`std::uintptr_t`](cstdint/uintptr_t.md) | 符号なし | ポインタ用 |
 
-## フラグ・オプション
+## 型の選び方(ちょうど・最速・最小) {#choose}
 
-| マクロ | 意味 |
+型の名前は、`int` に続けて**幅**(ビット数)を付けた形をしています。幅の前の語で、意味が 3 通りに分かれます。
+
+| 名前の形 | 意味 |
 | --- | --- |
-| `INT32_MAX`、`UINT8_MAX` など | 各型の最大値・最小値（C の書き方。C++ では [`std::numeric_limits`](limits.md) も使える） |
-| `INT64_C(123)` など | その型のリテラルを作るマクロ |
+| `int32_t` のように幅だけ | **ちょうど** 32 ビット。その幅の型がない環境では、型そのものが存在しない |
+| `int_fast32_t` | **32 ビット以上**で、その環境で最も速く計算できる型 |
+| `int_least32_t` | **32 ビット以上**で、最も小さい型 |
 
-### SIZE_MAX {#SIZE_MAX}
+#### ちょうど(`int32_t` など)
 
-```cpp
-#define SIZE_MAX /* size_t の最大値 */
-```
+ファイルや通信の形式は、幅がぴったり決まっていないと困るので、ここで使うのはこの型です。8・16・32・64 ビットの整数と、2 の補数表現の環境（ほぼすべて）にだけ存在します。ない環境では、その名前を書くだけでコンパイルエラーになるので、気づかず壊れることはありません。
 
-- 戻り値: `size_t` の最大値（定数）
-- 計算量: コンパイル時
+`std::uint8_t` は、普通は `unsigned char` の別名です。そのため、`std::cout << x` では文字として出力されます。数値として出したいときは、`static_cast<int>(x)` にするか、`std::println` を使います。
 
-`size_t` で表せる最大値のマクロです。「見つからない」を表す値（`std::string::npos` など）として使われます。
+#### 最速(`int_fast32_t` など)
+
+「最低 N ビットあれば足りて、速さが欲しい」ときの型です。たとえば、MSVC の `int_fast16_t` は 32 ビットの `int` です。16 ビット命令より、32 ビット命令のほうが速いためです。環境ごとに幅が変わるので、ファイルや通信の形式には使えません。
+
+#### 最小(`int_least32_t` など)
+
+「最低 N ビットあって、メモリを節約したい」ときの型です。多くの環境では、ちょうどの型と同じ大きさです。
+
+ふつうは、幅がいらない計算には `int` で十分です。`fast` や `least` を使うのは、幅の違う環境に移植するライブラリを書くときぐらいです。
+
+#### そのほかの型
+
+- `std::intmax_t` / `std::uintmax_t`: その環境で最も幅の広い整数。`std::ratio` や `std::chrono` が内部で使っている
+- `std::intptr_t` / `std::uintptr_t`: ポインターを整数に直して、また戻せる幅の型。ポインターの値を整数として扱うビット演算に使う（どの環境にもあるとは限らない）
+- `std::size_t`: オブジェクトの大きさと個数の型。`<cstddef>` にある
+- `std::ptrdiff_t`: ポインター(イテレータ)どうしの差の型。符号付き
+
+### 実際に動かす: 型の大きさ {#sizes}
 
 ```cpp
 #include <cstdint>
 #include <print>
+#include <type_traits>
 
 int main() {
-  std::println("{}", SIZE_MAX == static_cast<std::size_t>(-1));
+  // 型のバイト数: ちょうど / 最速 / 最小
+  std::println("int8_t   {} / fast {} / least {}", sizeof(std::int8_t), sizeof(std::int_fast8_t), sizeof(std::int_least8_t));
+  std::println("int16_t  {} / fast {} / least {}", sizeof(std::int16_t), sizeof(std::int_fast16_t), sizeof(std::int_least16_t));
+  std::println("int32_t  {} / fast {} / least {}", sizeof(std::int32_t), sizeof(std::int_fast32_t), sizeof(std::int_least32_t));
+  std::println("int64_t  {} / fast {} / least {}", sizeof(std::int64_t), sizeof(std::int_fast64_t), sizeof(std::int_least64_t));
+  std::println("intmax_t {}, intptr_t {}, size_t {}", sizeof(std::intmax_t), sizeof(std::intptr_t), sizeof(std::size_t));
+
+  // uint8_t は、普通は unsigned char の別名
+  std::println("uint8_t は unsigned char: {}", std::is_same_v<std::uint8_t, unsigned char>);
+  std::println("int64_t は long long: {}", std::is_same_v<std::int64_t, long long>);
 }
 ```
 
-```text title="実行結果"
-true
+```text title="実行結果（MSVC）"
+int8_t   1 / fast 1 / least 1
+int16_t  2 / fast 4 / least 2
+int32_t  4 / fast 4 / least 4
+int64_t  8 / fast 8 / least 8
+intmax_t 8, intptr_t 8, size_t 8
+uint8_t は unsigned char: true
+int64_t は long long: true
 ```
+
+MSVC では `int_fast16_t` が 4 バイトになっています。`int_fast8_t` は 1 バイトのままです。glibc(Linux)では、`int_fast16_t` が 8 バイトのように、環境で違う値になります。
+
+## 限界値と定数を作るマクロ {#macros}
+
+各型には、最小値・最大値のマクロがあります。名前は、`型名から _t を除いて大文字にした名前_MAX` / `_MIN` です。`int32_t` なら `INT32_MIN`・`INT32_MAX`、`uint8_t` なら `UINT8_MAX` です。符号なしの型の最小値は常に 0 なので、`UINT32_MIN` はありません。
+
+整数リテラルを、特定の型にするマクロもあります。`INT64_C(1)` は、`1` を `int64_t` の幅の定数にします(環境によって `1L` や `1LL`)。
+
+### SIZE_MAX {#SIZE_MAX}
+
+```cpp
+#define SIZE_MAX /* std::size_t の最大値 */
+```
+
+`std::size_t` で表せる最大値です。64 ビット環境では 18446744073709551615 です。「見つからなかった」を表す値として、`std::string::npos` が使っているのと同じ値で、`std::size_t` に `-1` を入れた値とも一致します。
+
+`size_t` の `-1` を無自覚に使うより、`SIZE_MAX` と書いたほうが、意図が読み取れます。
 
 ### INT32_MAX {#INT32_MAX}
 
@@ -161,23 +212,7 @@ true
 #define INT32_MAX 2147483647
 ```
 
-- 戻り値: 固定幅の整数型の最大値（定数）
-- 計算量: コンパイル時
-
-幅が決まった整数型の最大値です（2147483647）。
-
-```cpp
-#include <cstdint>
-#include <print>
-
-int main() {
-  std::println("{}", INT32_MAX);
-}
-```
-
-```text title="実行結果"
-2147483647
-```
+`std::int32_t` の最大値で、2147483647 です。`int` が 32 ビットの環境では `INT_MAX` と同じ値ですが、`INT32_MAX` は、幅が 32 ビットだと明示した型の限界である点が違います。セーブデータの形式のように、幅を 32 ビットに決めている数値の範囲検査には、こちらを使います。最小値の `INT32_MIN` は -2147483648 です。
 
 ### INT64_MAX {#INT64_MAX}
 
@@ -185,71 +220,61 @@ int main() {
 #define INT64_MAX 9223372036854775807
 ```
 
-- 戻り値: 固定幅の整数型の最大値（定数）
-- 計算量: コンパイル時
+`std::int64_t` の最大値で、約 922 京です。所持金やタイムスタンプなど、`int` に収まらない値の上限に使います。最小値の `INT64_MIN` は -9223372036854775808 です。
 
-幅が決まった整数型の最大値です（9223372036854775807）。
-
-```cpp
-#include <cstdint>
-#include <print>
-
-int main() {
-  std::println("{}", INT64_MAX);
-}
-```
-
-```text title="実行結果"
-9223372036854775807
-```
+`std::int64_t` の実体は、MSVC では `long long`、64 ビットの Linux では `long` です。`printf` の書式指定で `%lld` と `%ld` が変わってしまうので、`std::println` を使うか、`<cinttypes>` の `PRId64` を使います。
 
 ### UINT32_MAX {#UINT32_MAX}
 
 ```cpp
-#define UINT32_MAX 4294967295
+#define UINT32_MAX 4294967295u
 ```
 
-- 戻り値: 固定幅の整数型の最大値（定数）
-- 計算量: コンパイル時
-
-幅が決まった整数型の最大値です（4294967295）。
-
-```cpp
-#include <cstdint>
-#include <print>
-
-int main() {
-  std::println("{}", UINT32_MAX);
-}
-```
-
-```text title="実行結果"
-4294967295
-```
+`std::uint32_t` の最大値で、4294967295(約 43 億)です。ID や RGBA の色のように、符号がいらない 32 ビット値の上限に使います。
 
 ### UINT64_MAX {#UINT64_MAX}
 
 ```cpp
-#define UINT64_MAX 18446744073709551615
+#define UINT64_MAX 18446744073709551615ull
 ```
 
-- 戻り値: 固定幅の整数型の最大値（定数）
-- 計算量: コンパイル時
+`std::uint64_t` の最大値で、約 1845 京です。64 ビットのハッシュ値の取りうる最大値です。
 
-幅が決まった整数型の最大値です（18446744073709551615）。
+### 実際に動かす: マクロ {#macro-sample}
 
 ```cpp
 #include <cstdint>
+#include <limits>
 #include <print>
+#include <string>
 
 int main() {
-  std::println("{}", UINT64_MAX);
+  // 最大値のマクロは、型 std::numeric_limits<> と同じ値
+  static_assert(INT32_MAX == std::numeric_limits<std::int32_t>::max());
+  static_assert(UINT64_MAX == std::numeric_limits<std::uint64_t>::max());
+  std::println("INT32_MAX  = {}", INT32_MAX);
+  std::println("UINT32_MAX = {}", UINT32_MAX);
+  std::println("INT64_MAX  = {}", INT64_MAX);
+  std::println("UINT64_MAX = {}", UINT64_MAX);
+  std::println("SIZE_MAX == npos: {}", SIZE_MAX == std::string::npos);
+
+  // 64 ビットでシフトするときは、定数も 64 ビットにする
+  std::int64_t small = 1 << 20;            // 20 ビットなら int でも収まる
+  std::int64_t right = INT64_C(1) << 40;   // 40 ビットずらすなら、1 を 64 ビットにしておく
+  std::println("1 << 20 = {}, INT64_C(1) << 40 = {}", small, right);
 }
 ```
 
 ```text title="実行結果"
-18446744073709551615
+INT32_MAX  = 2147483647
+UINT32_MAX = 4294967295
+INT64_MAX  = 9223372036854775807
+UINT64_MAX = 18446744073709551615
+SIZE_MAX == npos: true
+1 << 20 = 1048576, INT64_C(1) << 40 = 1099511627776
 ```
+
+`1 << 40` と書くと、`1` が `int`(32 ビット)なので、40 ビットのシフトは未定義動作です。`INT64_C(1)` を使うか、`std::int64_t{1} << 40` と書きます。
 
 ## ゲームでの使いどころ
 
@@ -269,6 +294,12 @@ int main() {
 
 ??? failure "セーブデータに int や long を使う"
     環境によって大きさが違い、別の PC で読めなくなることがあります。
+
+??? failure "1 << 40 のように、int の定数を 64 ビットまでずらす"
+    `1` は `int` なので、32 ビット以上のシフトは未定義動作です。`std::int64_t{1} << 40` か `INT64_C(1) << 40` と書きます。
+
+??? failure "int_fast や int_least をファイルの形式に使う"
+    環境によって幅が変わります。ファイルや通信には、幅がぴったり決まった `int32_t` などを使います。
 
 ## これだけ覚える
 
