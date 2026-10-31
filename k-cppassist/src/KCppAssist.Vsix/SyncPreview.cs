@@ -106,14 +106,33 @@ namespace KCppAssist
             var dte = (DTE)Package.GetGlobalService(typeof(DTE));
             if (dte != null) new WindowInteropHelper(win) { Owner = (IntPtr)dte.MainWindow.HWnd };
 
-            // エディターの右上(余白 24)に置く。PointToScreen は画面のピクセル、Window.Left/Top はデバイス非依存の単位
+            // いま打っている位置(キャレットのある行)の少し上に置く。上に収まらなければ下に置く。
+            // PointToScreen は画面のピクセル、Window.Left/Top はデバイス非依存の単位なので、変換する
             FrameworkElement el = anchor.VisualElement;
-            Point px = el.PointToScreen(new Point(el.ActualWidth, 0));
             PresentationSource src = PresentationSource.FromVisual(el);
-            Point dip = src != null ? src.CompositionTarget.TransformFromDevice.Transform(px) : px;
+            Func<Point, Point> toDip = pt => src != null ? src.CompositionTarget.TransformFromDevice.Transform(pt) : pt;
+            Point topLeft = toDip(el.PointToScreen(new Point(0, 0)));
+            Point bottomRight = toDip(el.PointToScreen(new Point(el.ActualWidth, el.ActualHeight)));
             win.Measure(new Size(460, double.PositiveInfinity));
-            win.Left = Math.Max(0, dip.X - win.DesiredSize.Width - 24);
-            win.Top = dip.Y + 8;
+            double w = win.DesiredSize.Width, h = win.DesiredSize.Height;
+
+            double left = bottomRight.X - w - 24, top = topLeft.Y + 8;     // キャレットが見つからないときは、右上
+            try
+            {
+                var line = anchor.GetTextViewLineContainingBufferPosition(anchor.Caret.Position.BufferPosition);
+                if (line != null && line.VisibilityState != Microsoft.VisualStudio.Text.Formatting.VisibilityState.Hidden)
+                {
+                    var tb = line.GetCharacterBounds(anchor.Caret.Position.BufferPosition);
+                    Point c = toDip(el.PointToScreen(new Point(tb.Left - anchor.ViewportLeft, tb.Top - anchor.ViewportTop)));
+                    double lineHeight = tb.Bottom - tb.Top;
+                    left = c.X;
+                    top = c.Y - h - 6;                                          // 行の少し上
+                    if (top < topLeft.Y) top = c.Y + lineHeight + 6;            // 上に収まらなければ、行の下
+                }
+            }
+            catch (Exception) { }
+            win.Left = Math.Max(topLeft.X + 8, Math.Min(left, bottomRight.X - w - 8));
+            win.Top = Math.Max(topLeft.Y, Math.Min(top, bottomRight.Y - h));
 
             current = win;
             win.Show();
