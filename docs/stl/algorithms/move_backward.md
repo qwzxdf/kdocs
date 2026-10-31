@@ -14,87 +14,81 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::move_backward` は、[`copy_backward`](copy_backward.md) のムーブ版です。**後ろの要素から順にムーブして**、範囲を後ろへずらします。`unique_ptr` や `std::string` の配列の途中に空きを作るときに使います。
+コンテナの途中に空きを作るために、要素を後ろへずらしたい。前から順にムーブすると、まだムーブしていない要素を、上書きしてしまいます。`std::move_backward` は、後ろから順にムーブするので、出力先が入力と重なって後ろにずれていても、正しく動きます。
 
 !!! tip "ポイント"
-    - 移し先は**終わりの位置**を渡す。
-    - 前へずらすなら [`move`](move.md)、後ろへずらすなら `move_backward`。
+    - 範囲を、後ろから順にムーブする
+    - 出力先は、出力範囲の「終端」を渡す
+    - 後ろへずらす（出力先が入力より後ろ）ときに使う
+    - 前へずらすなら `std::move`（前から順）
 
 !!! info "このページを読む前に"
-    [ムーブ](../../basics/move.md) が分かると読みやすいです。
+    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
-### std::ranges::move_backward {#move_backward}
+### std::move_backward {#move_backward}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <bidirectional_range R, bidirectional_iterator I>
-constexpr move_backward_result<borrowed_iterator_t<R>, I> move_backward(R&& r, I result);
+template <class BidirIt1, class BidirIt2>
+BidirIt2 move_backward(BidirIt1 first, BidirIt1 last, BidirIt2 d_last);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `r` | 範囲 | 移す元 |
-| `result` | イテレータ | 移し先の**終わりの位置** |
+| `first`, `last` | 双方向イテレータ | ムーブ元の範囲 |
+| `d_last` | 双方向イテレータ | ムーブ先の範囲の終端 |
 
-- 戻り値: `in` と `out` の組
-- 計算量: 要素数 n に対して、n 回のムーブ代入
+`d_last` は終端なので、`d_last - (last - first)` から `d_last` までが、書き込み先です。
+
+出力範囲が入力範囲と重なるとき、出力の先頭が入力の先頭より後ろなら `move_backward`、前なら `move` を使います。逆にすると、まだムーブしていない要素を壊します。
+
+コピー版が `std::copy_backward` です。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
 #include <print>
-#include <ranges>
-#include <string>
 #include <vector>
 
 int main() {
-  std::vector<std::string> names = {"A", "B", "C", ""};  // 末尾に空きがある
+  std::vector<int> v = {1, 2, 3, 4, 0};  // 末尾に空きがある
 
-  // 先頭の 3 個を 1 つ後ろへずらす
-  std::ranges::move_backward(std::ranges::subrange(names.begin(), names.begin() + 3), names.end());
-  names[0] = "新入り";
-  std::println("{}", names);
+  // [0, 4) を、1 つ後ろへずらす（重なっていても安全）
+  std::move_backward(v.begin(), v.begin() + 4, v.end());
+  v[0] = 9;  // 先頭に空いた場所へ入れる
+
+  std::println("{}", v);
 }
 ```
 
 ```text title="実行結果"
-["新入り", "A", "B", "C"]
+[9, 1, 2, 3, 4]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| `std::string` や `unique_ptr` の並びの途中に空きを作る | `move_backward(range, end)` |
-
-## 未定義動作・例外
-
-| やったこと | 結果 |
-| --- | --- |
-| 移し先が移す元の範囲の内側に入る | 未定義動作 |
+配列の途中に要素を挿入するために、後ろの要素をずらす処理に使います。`vector::insert` の内部と同じ考え方です。
 
 ## よくあるミス
 
-??? failure "移し先に先頭を渡す"
-    `copy_backward` と同じで、移し先は**終わりの位置**です。
+??? failure "重なっているのに std::move を使う"
+    要素が壊れます。後ろへずらすときは `move_backward` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::move`](move.md) | 前から順にムーブする |
-| [`std::ranges::copy_backward`](copy_backward.md) | コピーする版 |
+| [`move`](move.md) | 前から順にムーブ |
+| [`copy_backward`](copy_backward.md) | コピー版 |
+| [`shift_right`](shift_right.md) | 同じ効果の簡単な書き方 |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 後ろから順にムーブする
-    - [x] 移し先は終わりの位置
-    - [x] 後ろへずらすときに使う
+C++11 から使えます。
 
 ## 関連ページ
 

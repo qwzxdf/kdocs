@@ -14,12 +14,13 @@ tags:
 `#include <execution>`
 </div>
 
-`std::execution::par_unseq` は、複数のスレッドに分けたうえで、1 つのスレッドの中でも SIMD 命令でまとめて処理することを許します。最も速くなりうる代わり、処理の中でロックを取ったり、メモリを確保したりしてはいけません。
+`std::execution::par_unseq` は、「複数のスレッドで並列に、さらに各スレッドの中で SIMD も使ってよい」と許可する、最も自由度の高い実行ポリシーです。大量のデータの変換や集計を、最大限に速くしたいときに使います。ただし、要素の処理に課される制約が、最も厳しいポリシーです。
 
 !!! tip "ポイント"
-    - アルゴリズムの第 1 引数に渡して使う。
-    - 実装の対応はコンパイラごとに違う（GCC は TBB が必要なことがある）。
-    - 処理の中で、データ競合を起こさないようにする。
+    - 並列と SIMD の両方を許可する
+    - 型は `std::execution::parallel_unsequenced_policy`
+    - 要素の処理は、ロックや同期を伴ってはいけない
+    - 例外を投げると `std::terminate`
 
 !!! info "このページを読む前に"
     [実行ポリシー](execution.md) を先に読んでください。
@@ -28,60 +29,75 @@ tags:
 
 ### std::execution::par_unseq {#par_unseq}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
-inline constexpr /* 実装定義 */ std::execution::par_unseq;
+inline constexpr std::execution::parallel_unsequenced_policy par_unseq{};
 ```
 
-- 戻り値: なし（ポリシーの定数）
-- 計算量: アルゴリズムに依存
+`par`（並列のみ）では、要素の処理で、ロックを取れます。`par_unseq` では、SIMD で混ざって実行されるので、ロックを取ると、同じスレッドが 2 回ロックを取るような状態になり、デッドロックします。
 
+使える条件は、次のとおりです。
+
+- 要素の処理が、他の要素の処理に依存しない
+- 共有データの書き込みは、`std::atomic` など、ロックなしの操作に限る
+- 例外を投げない
+
+要素数が少ないと、スレッドの管理のコストが、並列化の利益を上回ります。数万要素以上から、効果が出るのが目安です。
+
+MSVC では、並列実行にスレッド プールを使います。GCC では、Intel の TBB ライブラリが必要です。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
 #include <execution>
+#include <numeric>
 #include <print>
 #include <vector>
 
 int main() {
-  std::vector<int> v = {3, 1, 2};
-  std::sort(std::execution::par_unseq, v.begin(), v.end());
-  std::println("{}", v);
+  std::vector<int> v(100000);
+  std::iota(v.begin(), v.end(), 1);
+
+  // 並列に 2 倍する
+  std::vector<int> doubled(v.size());
+  std::transform(std::execution::par_unseq, v.begin(), v.end(), doubled.begin(),
+                 [](int x) { return x * 2; });
+
+  // 並列に合計する
+  const long long sum = std::reduce(std::execution::par_unseq, doubled.begin(), doubled.end(), 0LL);
+  std::println("{}", sum);
 }
 ```
 
 ```text title="実行結果"
-[1, 2, 3]
+10000100000
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 大量のデータの整列や変換を速くする | `std::sort(std::execution::par_unseq, v.begin(), v.end());` |
+ミップマップの生成、大量のパーティクルの更新など、独立な要素の大量処理で使います。
 
 ## よくあるミス
 
-??? failure "データ競合を起こす"
-    ポリシーを付けると、要素ごとの処理が並行・同時に走ることがあります。共有する変数への書き込みは、`atomic` などで守ります。
+??? failure "要素の処理でミューテックスを取る"
+    デッドロックします。
+
+??? failure "少ない要素に使う"
+    スレッドのコストで、かえって遅くなります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`execution`](execution.md) | 実行ポリシーの全体 |
+| [`seq`](seq.md) | 順次実行 |
+| [`unseq`](unseq.md) | SIMD のみ |
+| [`reduce`](reduce.md) | 並列に合計する |
 
 ## コンパイラ対応
 
-C++17 の機能です。GCC では TBB（`-ltbb`）が必要なことがあります。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 複数のスレッドで、しかもベクトル化も許して実行するポリシー
-    - [x] アルゴリズムの第 1 引数に渡す
-    - [x] データ競合に注意
+C++17 から使えます。
 
 ## 関連ページ
 

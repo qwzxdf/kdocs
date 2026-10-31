@@ -15,32 +15,42 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::ranges::ref_view` は、**ほかの範囲（コンテナなど）への参照を持つだけのビュー**です。コピーが軽く、元の範囲を書き換えることもできます。[`views::all`](all.md) が、コンテナの左辺値に対して返す型です。
+`std::ranges::ref_view<R>` は、コンテナ `R` への参照だけを持つ、軽いビューです。ビューはコピーが軽いことが前提ですが、`std::vector` をそのままコピーすると重いので、ビューのパイプラインの中では、参照だけを持つ `ref_view` に包まれます。
 
 !!! tip "ポイント"
-    - 元の範囲が**先に消える**と、ビューは壊れる（参照しているだけ）。
-    - ビューはコピーが軽い。値渡しで関数に渡せる。
-    - `std::ref` 的な役割を範囲に対してしている。
+    - コンテナへの参照だけを持つ。コピーは軽い
+    - 元のコンテナより長く生かしてはいけない
+    - `views::all(lvalue)` が返す
+    - 元のコンテナの要素を、読み書きできる
 
 !!! info "このページを読む前に"
-    [ranges とビュー](../../../basics/ranges.md)、[ラムダ式](../../../basics/lambda.md) を先に読むと分かりやすいです。
+    [ビュー](../views.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::ranges::ref_view {#ref_view}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <range R>
-  requires is_object_v<R>
-class std::ranges::ref_view;
+  requires std::is_object_v<R>
+class ref_view : public view_interface<ref_view<R>> {
+ public:
+  constexpr ref_view(R& r);
+  constexpr R& base() const;
+  constexpr auto begin() const;
+  constexpr auto end() const;
+};
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `r` | 範囲の左辺値 | 参照する元の範囲 |
+内部にポインターを 1 つ持ち、`begin()` と `end()` は、元のコンテナのものを返します。
 
-- 戻り値: `r` を参照するビュー
-- 計算量: コピー・作成ともに O(1)
+右辺値からは作れません（一時オブジェクトを参照して、ぶら下がるため）。右辺値には `owning_view` を使います。
+
+元のコンテナの要素を変更すると、`ref_view` から見える要素も変わります。ビューの上で要素を書き換える処理も、元のコンテナに反映されます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
@@ -49,46 +59,43 @@ class std::ranges::ref_view;
 
 int main() {
   std::vector<int> v = {1, 2, 3};
+  std::ranges::ref_view<std::vector<int>> r(v);
 
-  std::ranges::ref_view<std::vector<int>> view(v);
-  view[0] = 99;  // 参照しているだけなので、元の v が変わる
-  std::println("{}", v);
+  std::println("要素数: {}", r.size());
+  std::println("同じコンテナ: {}", &r.base() == &v);
+
+  // ビュー経由の変更は、元に反映される
+  r[0] = 100;
+  std::println("{}", v[0]);
 }
 ```
 
 ```text title="実行結果"
-[99, 2, 3]
+要素数: 3
+同じコンテナ: true
+100
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 範囲を関数に「軽く」渡す | `process(std::views::all(v))` |
+普段は直接書かず、`v | views::filter(...)` の内部で使われます。
 
 ## よくあるミス
 
-??? failure "元の vector を先に破棄する"
-    `ref_view` は参照しているだけなので、元が消えると未定義動作です。
+??? failure "一時オブジェクトに使う"
+    右辺値は渡せません。`owning_view` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::owning_view`](owning_view.md) | 右辺値を引き取って所有する |
-| [`std::span`](../../containers/span.md) | 連続したメモリへの窓。型を限定して使える |
-| [`std::reference_wrapper`](../../support/functional/reference_wrapper.md) | 値を参照として持つ（範囲ではない） |
+| [`all`](all.md) | これを作る窓口 |
+| [`owning_view`](owning_view.md) | 所有する版 |
+| [`subrange`](subrange.md) | イテレータの組 |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 範囲への参照だけを持つ
-    - [x] 元が先に消えると壊れる
-    - [x] 普段は `views::all` 経由で現れる
+C++20 から使えます。
 
 ## 関連ページ
 

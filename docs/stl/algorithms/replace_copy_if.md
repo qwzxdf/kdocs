@@ -13,11 +13,13 @@ tags:
 `#include <algorithm>`
 </div>
 
-元のデータは残したまま、「条件に合うものだけ別の値に置き換えた結果」がほしいことがあります。`replace_if` は元の列を書き換えてしまうので、コピーしながら置き換える `replace_copy_if` を使います。
+`replace_copy` が「特定の値」を置き換えるのに対し、`std::replace_copy_if` は、「条件に合う要素」を置き換えます。たとえば、負の値を全部 0 にしたコピーを作る、のように使います。
 
 !!! tip "ポイント"
-    - 元の列は変わらない。出力先は別に用意する。
-    - 条件は関数（ラムダ）で渡す。値で決めるなら [`replace_copy`](replace_copy.md)。
+    - 条件が真の要素を `new` に置き換えて、出力先に書く
+    - 元の範囲は変わらない
+    - 条件は述語（要素を受け取って `bool` を返す関数）
+    - その場で置き換えるなら `replace_if`
 
 !!! info "このページを読む前に"
     [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
@@ -26,21 +28,17 @@ tags:
 
 ### std::replace_copy_if {#replace_copy_if}
 
+<span class="ver ver-11">C++98〜</span>
+
 ```cpp
-template <class InputIt, class OutputIt, class Pred, class T>
-OutputIt replace_copy_if(InputIt first, InputIt last, OutputIt d_first, Pred pred, const T& new_value);
+template <class InputIt, class OutputIt, class UnaryPred, class T>
+OutputIt replace_copy_if(InputIt first, InputIt last, OutputIt d_first,
+                         UnaryPred pred, const T& new_value);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first, last` | イテレータ | 元の範囲 |
-| `d_first` | イテレータ | コピー先の先頭 |
-| `pred` | 述語 | `true` を返した要素を置き換える |
-| `new_value` | T | 置き換える値 |
+戻り値は、出力の最後の次の位置です。
 
-- 戻り値: コピー先の最後の次のイテレータ
-- 計算量: 線形（`last - first` 回、`pred` を呼ぶ）
-
+述語は、副作用を持たないものにします。実装は、各要素に対して 1 回呼びますが、並列版では順序が不定です。
 
 ## 実際に動かしてみる
 
@@ -50,50 +48,42 @@ OutputIt replace_copy_if(InputIt first, InputIt last, OutputIt d_first, Pred pre
 #include <vector>
 
 int main() {
-  std::vector<int> src = {3, -1, 4, -5, 9};
-  std::vector<int> dst(src.size());
-  // 負の値を 0 に置き換えてコピーする
-  std::replace_copy_if(src.begin(), src.end(), dst.begin(),
-                       [](int x) { return x < 0; }, 0);
-  std::println("{}", src);
-  std::println("{}", dst);
+  const std::vector<int> v = {5, -3, 8, -1};
+  std::vector<int> out(v.size());
+
+  // 負の値を 0 にしたコピーを作る
+  std::replace_copy_if(v.begin(), v.end(), out.begin(), [](int x) { return x < 0; }, 0);
+
+  std::println("元: {}", v);
+  std::println("結果: {}", out);
 }
 ```
 
 ```text title="実行結果"
-[3, -1, 4, -5, 9]
-[3, 0, 4, 0, 9]
+元: [5, -3, 8, -1]
+結果: [5, 0, 8, 0]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 負の値を 0 にした配列を作る | `std::replace_copy_if(src.begin(), src.end(), dst.begin(), [](int x){ return x < 0; }, 0);` |
+ダメージの計算で、負の値を 0 に切り詰めたコピーを作るときに使います。
 
 ## よくあるミス
 
-??? failure "出力先の大きさが足りない"
-    出力先に `dst.begin()` を渡すだけでは領域は増えません。あらかじめ同じ大きさにするか、`std::back_inserter(dst)` を渡します。
+??? failure "述語に副作用を持たせる"
+    呼ばれる順序や回数が、保証されません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`replace_copy`](replace_copy.md) | 値で比べる版 |
-| [`replace_if`](replace.md) | その場で書き換える版 |
-| [`copy_if`](copy.md) | 条件に合うものだけ取り出す |
+| [`replace_copy`](replace_copy.md) | 特定の値を置き換える |
+| [`replace`](replace.md) | その場で置き換える |
+| [`clamp`](clamp.md) | 範囲に収める |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 条件に合う要素を置き換えながらコピーする
-    - [x] 元の列は変わらない
-    - [x] 出力先は別に用意する
+C++98 から使えます。
 
 ## 関連ページ
 

@@ -14,12 +14,13 @@ tags:
 `#include <algorithm>`
 </div>
 
-合計や最大値のように、列を 1 つの値にまとめたいとき、初期値を別に用意するのが面倒なことがあります。`fold_right_last` は最後の要素を初期値にして右から畳み込みます。空の範囲では何も返せないので、戻り値は `optional` です。
+`fold_right` は初期値が要りますが、`std::ranges::fold_right_last` は、最後の要素を初期値にして、残りを右から畳みます。範囲が空なら、結果がないので `std::optional` で返します。
 
 !!! tip "ポイント"
-    - 初期値の代わりに最後の要素を使う。
-    - 戻り値は `std::optional`。空なら `nullopt`。
-    - 左から畳むのは [`fold_left_first`](fold_left.md)。
+    - 最後の要素を初期値として、右から畳む
+    - 戻り値は `std::optional`（空の範囲は空）
+    - `fold_right` の、初期値なし版
+    - C++23
 
 !!! info "このページを読む前に"
     [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
@@ -28,19 +29,18 @@ tags:
 
 ### std::ranges::fold_right_last {#fold_right_last}
 
+<span class="ver ver-23">C++23</span>
+
 ```cpp
-template <ranges::bidirectional_range R, class F>
-constexpr auto ranges::fold_right_last(R&& r, F f);
+template <bidirectional_range R, class F>
+constexpr auto fold_right_last(R&& r, F f);   // 戻り値は optional<...>
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `r` | 範囲 | 畳み込む範囲（双方向以上） |
-| `f` | 関数 | 2 引数の関数。`f(要素, 累積値)` の形で呼ばれる |
+`{1, 2, 3, 4}` を引き算で畳むと、`1 - (2 - (3 - 4)) = -2` です。最後の要素 `4` が初期値の役目をします。
 
-- 戻り値: `std::optional<T>`（空の範囲なら `nullopt`）
-- 計算量: 線形（`f` を `size - 1` 回呼ぶ）
+要素が 1 つなら、その要素がそのまま結果です。0 個なら `std::nullopt` です。
 
+`fold_left_first` が、同じ考え方の左畳み込みです。
 
 ## 実際に動かしてみる
 
@@ -51,47 +51,44 @@ constexpr auto ranges::fold_right_last(R&& r, F f);
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3, 4};
-  auto sum = std::ranges::fold_right_last(v, std::plus<>{});
-  std::println("{}", *sum);
-  std::vector<int> empty;
-  std::println("{}", std::ranges::fold_right_last(empty, std::plus<>{}).has_value());
+  const std::vector<int> v = {1, 2, 3, 4};
+  const auto r = std::ranges::fold_right_last(v, std::minus<>());
+  std::println("{}", *r);  // 1 - (2 - (3 - 4))
+
+  const std::vector<int> one = {7};
+  std::println("1 要素: {}", *std::ranges::fold_right_last(one, std::minus<>()));
+
+  const std::vector<int> none;
+  std::println("空: {}", std::ranges::fold_right_last(none, std::minus<>()).has_value());
 }
 ```
 
 ```text title="実行結果"
-10
-false
+-2
+1 要素: 7
+空: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| リストの要素を右結合で 1 つにまとめる | `std::ranges::fold_right_last(v, std::plus<>{})` |
+初期値が自然に決まらない畳み込み（最大値の探索など）で使います。
 
 ## よくあるミス
 
-??? failure "空の範囲に `.value()` を呼ぶ"
-    空の範囲だと `nullopt` が返ります。`*r` や `.value()` を呼ぶ前に値があるか確かめます。
+??? failure "空の範囲で * を使う"
+    空だと `nullopt` で、値の取り出しが未定義です。`has_value()` で確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`fold_right`](fold_right.md) | 初期値を渡す版 |
-| [`fold_left_first`](fold_left.md) | 左から畳む版 |
+| [`fold_right`](fold_right.md) | 初期値あり |
+| [`fold_left_first_with_iter`](fold_left_first_with_iter.md) | 左から畳む版 |
+| `std::optional` | 空の可能性を表す |
 
 ## コンパイラ対応
 
 C++23 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 最後の要素を初期値にして右から畳む
-    - [x] 戻り値は optional
-    - [x] 空なら nullopt
 
 ## 関連ページ
 

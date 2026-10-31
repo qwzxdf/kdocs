@@ -14,11 +14,13 @@ tags:
 `#include <algorithm>`
 </div>
 
-`fold_left` は結果の値だけ返します。入力がイテレータのペア（ストリームなど）のときは、「どこまで読み進めたか」も知りたくなります。`fold_left_with_iter` は、結果と終端イテレータを一緒に返します。
+`std::ranges::fold_left` は、畳んだ結果の値だけを返します。ところが入力が、1 度しか読めない範囲（入力ストリーム）の場合、読み終えた位置も知りたいことがあります。`std::ranges::fold_left_with_iter` は、結果の値と、入力の終端のイテレータの両方を返します。
 
 !!! tip "ポイント"
-    - 戻り値は `{in, value}` の組（構造化束縛で受けると読みやすい）。
-    - 初期値なしの版は [`fold_left_first_with_iter`](fold_left_first_with_iter.md)。
+    - 畳んだ値と、読み終えたイテレータの組を返す
+    - 戻り値は `in`（読み終えた位置）と `value`（結果）を持つ構造体
+    - 1 度しか読めない範囲で、続きから使うときに便利
+    - C++23
 
 !!! info "このページを読む前に"
     [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
@@ -27,71 +29,61 @@ tags:
 
 ### std::ranges::fold_left_with_iter {#fold_left_with_iter}
 
-```cpp
-template <input_iterator I, sentinel_for<I> S, class T, class F>
-constexpr auto ranges::fold_left_with_iter(I first, S last, T init, F f);
+<span class="ver ver-23">C++23</span>
 
+```cpp
 template <input_range R, class T, class F>
-constexpr auto ranges::fold_left_with_iter(R&& r, T init, F f);
+constexpr auto fold_left_with_iter(R&& r, T init, F f);
+// 戻り値: fold_left_with_iter_result<borrowed_iterator_t<R>, 畳みの結果の型>
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first, last / r` | 範囲 | 畳み込む範囲 |
-| `init` | T | 初期値 |
-| `f` | 関数 | `f(累積値, 要素)` の形で呼ばれる |
+結果は、`in` と `value` の 2 つのメンバーを持ちます。構造化束縛で、`auto [in, value] = ...;` と受けられます。
 
-- 戻り値: `in`（読み終えた位置のイテレータ）と `value`（結果）をもつ構造体
-- 計算量: 線形
+`fold_left` は、内部でこれを呼んで、`value` だけを返しています。
 
+入力範囲が `borrowed_range`（一時オブジェクトでない）でなければ、`in` は `dangling` になり、使えません。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
-#include <functional>
 #include <print>
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3, 4};
-  auto [it, sum] = std::ranges::fold_left_with_iter(v, 0, std::plus<>{});
-  std::println("{} {}", sum, it == v.end());
+  const std::vector<int> v = {1, 2, 3, 4};
+
+  const auto [in, value] = std::ranges::fold_left_with_iter(v, 0, std::plus<>());
+  std::println("合計: {}", value);
+  std::println("読み終えた位置: {}", in - v.begin());
 }
 ```
 
 ```text title="実行結果"
-10 true
+合計: 10
+読み終えた位置: 4
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 入力ストリームを合計しつつ、読んだ位置も使う | `auto [it, sum] = std::ranges::fold_left_with_iter(v, 0, std::plus<>{});` |
+入力ストリームから数値を畳み込みながら、読み終えた位置も使いたいときに使います。
 
 ## よくあるミス
 
-??? failure "戻り値を 1 つの値と思う"
-    結果は 2 つの要素をもつ構造体です。値だけ欲しいなら `fold_left` を使います。
+??? failure "一時オブジェクトの範囲を渡す"
+    `in` が `dangling` になり、使えません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`fold_left`](fold_left.md) | 結果の値だけ返す版 |
-| [`fold_left_first_with_iter`](fold_left_first_with_iter.md) | 初期値なしの版 |
+| [`fold_left`](fold_left.md) | 値だけを返す |
+| [`fold_left_first_with_iter`](fold_left_first_with_iter.md) | 初期値なし版 |
+| [`accumulate`](accumulate.md) | 従来の畳み込み |
 
 ## コンパイラ対応
 
 C++23 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] fold_left の結果と終端を両方返す
-    - [x] 構造化束縛で受ける
-    - [x] 初期値は引数で渡す
 
 ## 関連ページ
 

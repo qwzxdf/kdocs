@@ -15,90 +15,84 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::views::as_const` は、**範囲の要素を `const`（読み取り専用）として見せる**ビューです。「この関数の中では、中身を書き換えさせない」と、型で保証したいときに使います。
+範囲の要素を、読むだけにしたい。ビューを関数に渡すとき、中身を書き換えられては困る、という場面があります。`std::views::as_const` は、要素を `const` の参照として見せるビューを作ります。C++23 で追加されました。
 
 !!! tip "ポイント"
-    - 書き換えようとすると**コンパイルエラー**になる。
-    - 範囲を値渡し・コピーせずに、読み取り専用にできる。
-    - C++23 の機能。
+    - 要素を `const` の参照として見せる
+    - 元の範囲の要素は、書き換えられなくなる
+    - すでに `const` な参照を返す範囲には、何もしない
+    - `std::ranges::as_const_view` が実体
 
 !!! info "このページを読む前に"
-    [ranges とビュー](../../../basics/ranges.md)、[ラムダ式](../../../basics/lambda.md) を先に読むと分かりやすいです。
+    [ビュー](../views.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
-### views::as_const {#as_const}
+### std::views::as_const {#as_const}
+
+<span class="ver ver-23">C++23</span>
 
 ```cpp
-r | std::views::as_const
-std::views::as_const(r)
+inline constexpr /* 未規定 */ as_const = /* 未規定 */;
+// v | std::views::as_const
 ```
 
-- 戻り値: 読み取り専用のビュー
-- 計算量: O(1)
+`const std::vector<int>&` を渡せば読み取り専用になりますが、ビューは `const` なオブジェクトでも、要素を書き換えられることがあります（ビューの `const` は、浅い const です）。`as_const` は、要素の参照の型を `const` にすることで、この抜け道をふさぎます。
+
+```cpp
+for (auto& x : v | std::views::as_const) {
+  // x は const int&。x = 1 はコンパイルできない
+}
+```
+
+関数の引数に、`std::ranges::input_range` として範囲を渡すときの、読み取り専用の保証として使えます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <ranges>
+#include <type_traits>
 #include <vector>
 
 int main() {
   std::vector<int> v = {1, 2, 3};
 
   auto cv = v | std::views::as_const;
-  // cv[0] = 10;  // コンパイルエラー: 読み取り専用
+  using Ref = std::ranges::range_reference_t<decltype(cv)>;
+  static_assert(std::is_const_v<std::remove_reference_t<Ref>>);
+
   int sum = 0;
-  for (int x : cv) sum += x;
-  std::println("合計 {}", sum);
+  for (const int& x : cv) sum += x;
+  std::println("合計: {}", sum);
+  // cv[0] = 9;   // コンパイル エラー
 }
 ```
 
 ```text title="実行結果"
-合計 6
+合計: 6
 ```
-
-### std::ranges::as_const_view <span class="ver ver-23">C++23</span> {#as_const_view data-toc-label="std::ranges::as_const_view"}
-
-```cpp
-template <input_range V>
-class as_const_view;
-```
-
-- 戻り値: `begin()` / `end()` をもつ view の型
-- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
-
-要素を const として見せる view。`views::as_const` が作ります。
-
-ふつうは `views::as_const` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::as_const_view v(r, ...)` と直接作るときにだけ登場します。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 描画関数にデータを読み取り専用で渡す | `draw(enemies | as_const)` |
+範囲を受け取る関数で、読み取り専用であることを、型で保証するときに使います。
 
 ## よくあるミス
 
-??? failure "古い環境で使えない"
-    C++23 の機能です。`const std::vector<int>&` で受け取る従来の書き方でも、同じ保証が得られます。
+??? failure "ビューが const なら書き換えられないと思う"
+    浅い const です。`as_const` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| `const std::vector<T>&` | 従来の読み取り専用の渡し方 |
-| [`std::span<const T>`](../../containers/span.md) | 連続メモリの読み取り専用の窓 |
+| [`all`](all.md) | ビューへの変換 |
+| [`ref_view`](ref_view.md) | 参照を持つビュー |
+| `std::as_const` | 値を const 参照にする |
 
 ## コンパイラ対応
 
-C++23 の機能です。GCC 13 / MSVC 19.34（VS 2022 17.4）以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 要素を読み取り専用にする
-    - [x] 書き換えるとコンパイルエラー
-    - [x] C++23
+C++23 から使えます。
 
 ## 関連ページ
 

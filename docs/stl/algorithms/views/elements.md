@@ -15,31 +15,36 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::views::elements<N>` は、**tuple や pair を並べた範囲から、N 番目の要素だけが見える範囲**を作るビューです。`keys`（0 番目）と `values`（1 番目）は、この特別な形です。
+`pair` や `tuple` の範囲から、N 番目の要素だけを取り出したビューが欲しい。`std::views::elements<N>` は、各要素に `std::get<N>` を適用したビューを作ります。`std::map` の範囲から、値だけを取り出す `values` も、これの特殊な形です。
 
 !!! tip "ポイント"
-    - `elements<0>` が [`keys`](keys.md)、`elements<1>` が [`values`](values.md)。
-    - `map` に使うと、キーだけ・値だけが取れる。
-    - `std::tuple` や `std::pair` を並べた `vector` にも使える。
+    - 各要素から N 番目のメンバーを取り出す
+    - `elements<0>` はキー、`elements<1>` は値を取り出す（`keys` / `values` と同じ）
+    - `pair`、`tuple`、`array` など、`get<N>` できる型に使える
+    - 元の要素への参照を返すので、書き換えもできる
 
 !!! info "このページを読む前に"
-    [ranges とビュー](../../../basics/ranges.md)、[ラムダ式](../../../basics/lambda.md) を先に読むと分かりやすいです。
+    [ビュー](../views.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
-### views::elements {#elements}
+### std::views::elements {#elements}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
-r | std::views::elements<N>
-std::views::elements<N>(r)
+template <std::size_t N>
+inline constexpr /* 未規定 */ elements = /* 未規定 */;
+// v | std::views::elements<N>
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `N` | テンプレート引数 | 取り出す要素の番号（0 始まり） |
+`std::views::keys` は `elements<0>`、`std::views::values` は `elements<1>` の別名です。
 
-- 戻り値: N 番目の要素のビュー
-- 計算量: O(1)
+要素の型が `std::pair<std::string, int>` なら、`elements<1>` が `int` のビューになります。元の要素への参照なので、`for (int& x : v | views::elements<1>)` で、元の `pair` の `second` を書き換えられます。
+
+`tuple` のように、3 個以上のメンバーを持つ型では、`elements<2>` のように、任意の位置を取り出せます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
@@ -49,62 +54,45 @@ std::views::elements<N>(r)
 #include <vector>
 
 int main() {
-  std::vector<std::pair<std::string, int>> ranking = {{"Alice", 300}, {"Bob", 520}};
+  std::vector<std::pair<std::string, int>> items = {{"potion", 3}, {"ether", 5}, {"elixir", 1}};
 
-  for (int score : ranking | std::views::elements<1>) {
-    std::println("{}", score);
-  }
+  const auto names = items | std::views::elements<0> | std::ranges::to<std::vector>();
+  const auto counts = items | std::views::elements<1> | std::ranges::to<std::vector>();
+  std::println("{}", names);
+  std::println("{}", counts);
+
+  // 元の pair の second を書き換える
+  for (int& n : items | std::views::elements<1>) n *= 10;
+  std::println("{}", items[0].second);
 }
 ```
 
 ```text title="実行結果"
-300
-520
+["potion", "ether", "elixir"]
+[3, 5, 1]
+30
 ```
-
-### std::ranges::elements_view <span class="ver ver-20">C++20</span> {#elements_view data-toc-label="std::ranges::elements_view"}
-
-```cpp
-template <input_range V, size_t N>
-class elements_view;
-```
-
-- 戻り値: `begin()` / `end()` をもつ view の型
-- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
-
-タプルの N 番目の要素だけを取り出す view。`views::elements<N>` が作ります。
-
-ふつうは `views::elements` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::elements_view v(r, ...)` と直接作るときにだけ登場します。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| (名前, スコア) の並びからスコアだけを取り出す | `ranking | elements<1>` |
+`std::map` や、`pair` の `vector` から、キーだけ、値だけを取り出して処理するときに使います。
 
 ## よくあるミス
 
-??? failure "範囲外の番号を指定する"
-    N が tuple の要素数以上だと、コンパイルエラーになります。
+??? failure "範囲外の N を指定する"
+    コンパイル エラーです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::views::keys`](keys.md) | 0 番目を取る専用の名前 |
-| [`std::views::values`](values.md) | 1 番目を取る専用の名前 |
-| [`std::views::transform`](transform.md) | 任意の取り出し・変換 |
+| `views::keys` | `elements<0>` |
+| `views::values` | `elements<1>` |
+| [`zip`](zip.md) | 複数の範囲を組にする |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] tuple の N 番目だけを見る
-    - [x] `keys` = `elements<0>`
-    - [x] `values` = `elements<1>`
+C++20 から使えます。
 
 ## 関連ページ
 
