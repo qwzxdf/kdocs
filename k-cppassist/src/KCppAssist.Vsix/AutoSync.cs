@@ -45,6 +45,7 @@ namespace KCppAssist
             public string Class, Name;
             public string Text;              // 変える前の中身
             public bool HasBody;
+            public FunctionScan.Sig Sig;     // 変える前の関数(相手を選ぶ手がかり。位置は古い)
         }
 
         private readonly IWpfTextView view;
@@ -79,7 +80,7 @@ namespace KCppAssist
         /// <summary>最後の入力から、相手へ写すまでの待ち(ミリ秒)。設定で変えられる。</summary>
         private static int Delay
         {
-            get { var o = SyncService.Options; return o == null ? 250 : Math.Max(0, o.SyncDelayMs); }
+            get { var o = SyncService.Options; return o == null ? 0 : Math.Max(0, o.SyncDelayMs); }
         }
 
         private static bool IsAuto
@@ -89,7 +90,7 @@ namespace KCppAssist
 
         private void Arm(int ms)
         {
-            timer.Interval = TimeSpan.FromMilliseconds(Math.Max(50, ms));
+            timer.Interval = TimeSpan.FromMilliseconds(Math.Max(1, ms));
             timer.Stop();
             timer.Start();
         }
@@ -119,6 +120,7 @@ namespace KCppAssist
                         Class = s.Class,
                         Name = s.Name,
                         HasBody = s.HasBody,
+                        Sig = s,
                         Text = snap.GetText(s.Open + 1, s.Close - s.Open - 1),
                     });
                 }
@@ -130,7 +132,7 @@ namespace KCppAssist
         private async void OnTick(object sender, EventArgs e)
         {
             timer.Stop();
-            if (busy) return;
+            if (busy) { Arm(Delay); return; }       // 前の反映が終わっていなければ、終わってからもう一度
             busy = true;
             try { await TickAsync(); }
             catch (Exception ex) { KCppAssistPackage.Log("signature sync failed: " + ex); }
@@ -193,12 +195,12 @@ namespace KCppAssist
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             string label = (b.Class == null ? "" : b.Class + "::") + b.Name;
-            var targets = SyncService.FindTargets(files, wantDef, b.Class, b.Name, owner.Adapters);
+            var targets = SyncService.FindTargets(files, wantDef, b.Sig, owner.Adapters);
             var oldKeys = SignatureSync.TypeKeys(oldList);
             var newKeys = SignatureSync.TypeKeys(newList);
             Func<SyncService.Target, List<string>> keysOf = t => { var l = SignatureSync.SplitParams(t.Inner); return l == null ? null : SignatureSync.TypeKeys(l); };
 
-            var matches = targets.Where(t => SyncService.SameKeys(keysOf(t), oldKeys)).ToList();
+            var matches = SyncPlan.Matches(targets, t => t.Score, keysOf, oldKeys);
             if (matches.Count == 0)
             {
                 if (targets.Any(t => SyncService.SameKeys(keysOf(t), newKeys))) return;       // もう合っている
@@ -223,7 +225,10 @@ namespace KCppAssist
             SyncService.Replace(buf, t0.Sig.Open + 1, t0.Sig.Close - t0.Sig.Open - 1, newInner, owner.Undo, "K-CppAssist: 引数を合わせる");
             if (opened) ReturnToWork();
             SyncPreview.Show(view, Path.GetFileName(t0.File), buf.CurrentSnapshot, t0.Sig.Open, newInner.Length, t0.Inner);
-            IncludeService.Status(label + " の引数を " + Path.GetFileName(t0.File) + " に写しました");
+            string warn = "";
+            var written = SignatureSync.SplitParams(newInner);
+            if (!wantDef && written != null && SignatureSync.DefaultsOutOfOrder(written)) warn = "(注意: 既定値のある引数のあとに、既定値のない引数があります)";
+            IncludeService.Status(label + " の引数を " + Path.GetFileName(t0.File) + " に写しました" + warn);
         }
     }
 }
