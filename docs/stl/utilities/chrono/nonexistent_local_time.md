@@ -15,30 +15,34 @@ tags:
 `#include <chrono>`
 </div>
 
-夏時間が始まる日は、時計が 2:00 から 3:00 に飛びます。「2:30」は存在しない時刻で、これを UTC に変換しようとすると `nonexistent_local_time` が投げられます。
+夏時間の開始では、時計が 2:00 から 3:00 に飛びます。2:30 は、その日にはありません。この「存在しない時刻」を、`choose` なしで UTC に変換しようとすると、`std::chrono::nonexistent_local_time` が投げられます。
 
 !!! tip "ポイント"
-    - `std::runtime_error` から派生。
-    - `to_sys(local_time)` が存在しない時刻で投げる。
-    - `choose::earliest` / `choose::latest` を渡すと、投げずに選べる。
+    - `time_zone::to_sys(local)` や `zoned_time` の構築で投げられる
+    - 夏時間のある地域の、春の切り替え日にだけ起きる
+    - `std::runtime_error` の派生クラス
+    - 避けるには、`choose` を渡すか、`get_info` で事前に調べる
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`ambiguous_local_time`](ambiguous_local_time.md) と [`choose`](choose.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::nonexistent_local_time {#nonexistent_local_time}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-class nonexistent_local_time : public runtime_error {
+class nonexistent_local_time : public std::runtime_error {
  public:
-  template <class D> nonexistent_local_time(const local_time<D>&, const local_info&);
+  template <class Duration>
+  nonexistent_local_time(const local_time<Duration>& tp, const local_info& i);
 };
 ```
 
-- 戻り値: `what()` に説明が入る
-- 計算量: 定数
+`ambiguous_local_time` と対になる例外です。どちらも、1 通りの UTC に決まらない時刻を、そのまま変換しようとしたときの例外ですが、原因が逆です。曖昧は「2 通りある」、存在しないは「0 通り」です。
 
+`choose` を渡せば、例外ではなく、値が返ります。存在しない時刻に対しては、`earliest` でも `latest` でも、<strong>切り替えの瞬間</strong>（飛ばされる区間の始まり）が返ります。
 
 ## 実際に動かしてみる
 
@@ -48,49 +52,54 @@ class nonexistent_local_time : public runtime_error {
 
 int main() {
   using namespace std::chrono;
-  const auto* tz = locate_zone("America/New_York");
+
+  const time_zone* ny = locate_zone("America/New_York");
+
+  // 2026-03-08 は春の夏時間の開始日: 2:30 は存在しない
+  const local_seconds skipped = local_days{2026y / March / 8} + 2h + 30min;
+
   try {
-    tz->to_sys(local_days{2024y / March / 10} + 2h + 30min);
+    ny->to_sys(skipped);
   } catch (const nonexistent_local_time&) {
-    std::println("存在しない時刻");
+    std::println("存在しない時刻の例外");
   }
+
+  // choose を渡せば、切り替えの瞬間になる
+  std::println("earliest: {:%F %T} UTC", ny->to_sys(skipped, choose::earliest));
+  std::println("latest:   {:%F %T} UTC", ny->to_sys(skipped, choose::latest));
 }
 ```
 
 ```text title="実行結果"
-存在しない時刻
+存在しない時刻の例外
+earliest: 2026-03-08 07:00:00 UTC
+latest:   2026-03-08 07:00:00 UTC
 ```
+
+存在しない 2:30 は、`earliest` でも `latest` でも、切り替えの瞬間の `07:00 UTC`（東部標準時の 2:00、東部夏時間の 3:00）という、同じ結果になっています。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 夏時間の切り替え日のスケジュール | `to_sys(t, choose::earliest)` |
+地域の時刻で決めたイベントの開始時刻が、春の切り替え日に存在しないとき、落ちないように `choose` を渡します。
 
 ## よくあるミス
 
-??? failure "切り替え日を考えない"
-    ゾーンによっては、年に 1 度、存在しない時刻があります。例外が出る箇所を `try` で囲みます。
+??? failure "日本でだけテストして、春の切り替えで落ちる"
+    日本には夏時間がありません。夏時間のある地域の人が遊ぶとき、初めて起きます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`ambiguous_local_time`](ambiguous_local_time.md) | 曖昧な時刻の例外 |
-| [`local_info`](local_info.md) | 事前に確かめる |
+| [`choose`](choose.md) | 例外を避ける指定 |
+| [`local_info`](local_info.md) | 事前に調べる |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 14 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 存在しないローカル時刻の例外
-    - [x] 夏時間の切り替えで起こる
-    - [x] choose で回避
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::nonexistent_local_time](https://cpprefjp.github.io/reference/chrono/nonexistent_local_time.html)
+- [cpprefjp: nonexistent_local_time](https://cpprefjp.github.io/reference/chrono/nonexistent_local_time.html)
 - [cppreference: std::chrono::nonexistent_local_time](https://en.cppreference.com/w/cpp/chrono/nonexistent_local_time)

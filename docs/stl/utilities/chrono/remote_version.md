@@ -15,27 +15,36 @@ tags:
 `#include <chrono>`
 </div>
 
-いま使っているデータベースより新しい版があるかを読み込む前に知りたいことがあります。`remote_version()` は、OS 側にある最新の版の文字列を返します。`get_tzdb().version` と比べて違えば、`reload_tzdb()` で読み込み直せます。
+`reload_tzdb` は重い処理なので、むやみに呼びたくありません。更新があるかどうかを、軽く先に確かめたいときに、`std::chrono::remote_version` を使います。OS が持つ最新のデータベースの版を、文字列だけで返し、データの読み込みはしません。
 
 !!! tip "ポイント"
-    - 戻り値は版を表す文字列（例: `2024a`）。
-    - 現在の版は `get_tzdb().version`。
-    - 違えば `reload_tzdb()` を呼ぶ。
+    - OS の最新版の名前（`2025b` など）を `std::string` で返す
+    - 現在の版は `get_tzdb().version`。比べて違えば、更新がある
+    - 読み込みはしない。`reload_tzdb` より軽い
+    - 版の形式は実装による
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要を先に読んでください。
+    [`reload_tzdb`](reload_tzdb.md) と [`get_tzdb`](get_tzdb.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::remote_version {#remote_version}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 std::string remote_version();
 ```
 
-- 戻り値: OS が持つ最新の版の文字列
-- 計算量: OS に依存
+引数はありません。OS（または、ランタイムが参照する配布元）にあるデータベースの版を、文字列で返します。IANA の版は `2025b` のような形ですが、MSVC のように、別の仕組み（ICU）を使う実装では、形が違うことがあります。
 
+現在の版と比べて、違えば `reload_tzdb` を呼ぶ、という使い方をします。
+
+```cpp
+if (std::chrono::remote_version() != std::chrono::get_tzdb().version) {
+  std::chrono::reload_tzdb();
+}
+```
 
 ## 実際に動かしてみる
 
@@ -44,43 +53,47 @@ std::string remote_version();
 #include <print>
 
 int main() {
-  std::println("{}", !std::chrono::remote_version().empty());
+  using namespace std::chrono;
+
+  const std::string remote = remote_version();
+  std::println("OS の版がある: {}", !remote.empty());
+
+  // 現在の版と比べて、更新が必要かを判定する（結果は環境しだい）
+  const bool needs_update = remote != get_tzdb().version;
+  if (needs_update) reload_tzdb();
+  std::println("更新後も版がある: {}", !get_tzdb().version.empty());
 }
 ```
 
 ```text title="実行結果"
-true
+OS の版がある: true
+更新後も版がある: true
 ```
+
+更新が必要かどうかは環境で変わるので、結果は表示していません。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 更新があるときだけ読み直す | `if (remote_version() != get_tzdb().version) reload_tzdb();` |
+サーバーの起動時や定期の処理で、更新の有無を確かめてから、`reload_tzdb` を呼ぶかどうかを決めます。
 
 ## よくあるミス
 
-??? failure "読み直しをしても反映されない"
-    OS 側のデータが更新されていないと、同じ版のままです。
+??? failure "版の文字列を数として比べる"
+    `2025b` のような形式は、辞書順で新旧を比べられますが、実装によって形式が違います。等しいか違うかだけを判断します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`reload_tzdb`](reload_tzdb.md) | 読み直す |
+| [`reload_tzdb`](reload_tzdb.md) | 実際に読み込み直す |
+| [`get_tzdb`](get_tzdb.md) | 現在の版を取る |
+| [`tzdb`](tzdb.md) | `version` を持つ |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 14 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 最新の版を返す
-    - [x] get_tzdb().version と比べる
-    - [x] 更新確認に使う
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::remote_version](https://cpprefjp.github.io/reference/chrono/remote_version.html)
-- [cppreference: std::chrono::remote_version](https://en.cppreference.com/w/cpp/chrono/tzdb_functions)
+- [cpprefjp: remote_version](https://cpprefjp.github.io/reference/chrono/remote_version.html)
+- [cppreference: std::chrono::remote_version](https://en.cppreference.com/w/cpp/chrono/remote_version)

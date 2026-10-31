@@ -15,19 +15,22 @@ tags:
 `#include <chrono>`
 </div>
 
-`duration` が負のこともある差（`now - target`）から、「どれだけずれているか」の大きさだけが欲しいことがあります。`std::chrono::abs(d)` は、`duration` の絶対値を返します。整数の `abs` を使うと、`count()` を取り出す手間が増えます。
+2 つの時刻の差は、順番によって正にも負にもなります。「どれだけ離れているか」だけを知りたいときは、符号を取り除いた長さが欲しくなります。`std::chrono::abs` は、`duration` の絶対値を返す関数です。`duration` どうしの引き算で得られた差に使えます。
 
 !!! tip "ポイント"
-    - `duration` を受け取り、同じ型で返す。
-    - 符号つきの `rep` の `duration` だけで使える。
-    - `std::abs`（数値）とは別の関数。
+    - `abs(d)` は、`d >= 0` なら `d`、負なら `-d`
+    - 符号つきの整数か、小数の `duration` だけで使える。符号なしの型ではコンパイルできない
+    - 戻り値は同じ型の `duration`
+    - 整数型の最小値の `duration` では、オーバーフローする
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要を先に読んでください。
+    [`duration`](duration.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::abs {#abs}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
 template <class Rep, class Period>
@@ -36,11 +39,13 @@ constexpr duration<Rep, Period> abs(duration<Rep, Period> d);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `d` | duration | 絶対値を求める時間 |
+| `d` | `duration<Rep, Period>` | 絶対値を取る `duration` |
 
-- 戻り値: `|d|`
-- 計算量: 定数
+`d` が 0 以上なら `d` を、負なら `-d` を返します。型は変わりません。`Rep` が符号つき（または小数）でないと、`-d` が定義できないので、オーバーロードの解決から外れ、コンパイル エラーです。
 
+`std::abs` は `duration` に使えません。`std::chrono::abs` を使います。名前空間の指定を忘れると、`std::abs(int)` が呼ばれて、`duration` が整数に変換できないために、コンパイル エラーになります。
+
+整数の `Rep` の最小値（`INT_MIN`）の `duration` を渡すと、符号を反転した値が表せず、オーバーフローします。
 
 ## 実際に動かしてみる
 
@@ -49,46 +54,57 @@ constexpr duration<Rep, Period> abs(duration<Rep, Period> d);
 #include <print>
 
 int main() {
+  using namespace std::chrono;
   using namespace std::chrono_literals;
-  auto d = 100ms - 250ms;
-  std::println("{}", std::chrono::abs(d).count());
+
+  std::println("{}", abs(-5s).count());
+  std::println("{}", abs(5s).count());
+
+  // 2 つの時点が、どれだけ離れているか
+  const auto a = 3s;
+  const auto b = 10s;
+  std::println("離れている長さ: {} 秒", abs(a - b).count());
+
+  // 小数の duration でも使える
+  const duration<double> d{-1.5};
+  std::println("{}", abs(d).count());
 }
 ```
 
 ```text title="実行結果"
-150
+5
+5
+離れている長さ: 7 秒
+1.5
 ```
+
+`a - b` は -7 秒ですが、`abs` で 7 秒になります。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 目標時刻とのずれの大きさ | `std::chrono::abs(now - target)` |
+「予定時刻と実際の時刻のずれ」のように、早い遅いを問わず、ずれの大きさを知りたいときに使います。ネットワークの時刻合わせで、差の大きさを閾値と比べる、といった場面です。
 
 ## よくあるミス
 
-??? failure "符号なしの rep で使う"
-    `rep` が符号なし整数の `duration` には使えません。
+??? failure "std::abs を使う"
+    `std::abs(duration)` は、コンパイルできません。`std::chrono::abs` です。
+
+??? failure "符号なしの duration に使う"
+    `duration<unsigned>` では `-d` が使えず、コンパイル エラーです。符号つきの型にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`floor`](floor.md) | 単位を丸める |
-| [`duration`](duration.md) | 時間の長さ |
+| [`duration`](duration.md) | 時間の長さの型 |
+| [`floor`](floor.md) | 切り捨てて単位を変換する |
+| `std::abs` | 数値用。`duration` には使えない |
 
 ## コンパイラ対応
 
 C++17 から使えます。
 
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] duration の絶対値
-    - [x] now - target の大きさ
-    - [x] std::abs とは別
-
 ## 関連ページ
 
-- [cpprefjp: std::chrono::abs](https://cpprefjp.github.io/reference/chrono/abs.html)
+- [cpprefjp: abs](https://cpprefjp.github.io/reference/chrono/abs.html)
 - [cppreference: std::chrono::abs](https://en.cppreference.com/w/cpp/chrono/abs)

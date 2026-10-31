@@ -15,74 +15,79 @@ tags:
 `#include <chrono>`
 </div>
 
-`time_point<utc_time, ...>` のように毎回書くのは長いので、標準が別名を用意しています。`utc_seconds` は、utc_clock の時点（秒単位）です。
+`std::chrono::utc_seconds` は、`utc_clock` の時点を秒の単位で表す型です。`utc_time<seconds>` の別名で、`clock_cast<utc_clock>(sys_seconds)` の結果を受けるときなどに使います。
 
 !!! tip "ポイント"
-    - 中身は `utc_time<seconds>`。
-    - `time_since_epoch().count()` で経過を取れる。
-    - 時計の違いを型で区別できる。
+    - `utc_time<seconds>` の別名
+    - `sys_seconds` との差は、挿入済みのうるう秒の累計
+    - 書式は `{:%F %T}`。うるう秒の中は `23:59:60` と出る
+    - `clock_cast` で相互に変換する
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要を先に読んでください。
+    [`utc_time`](utc_time.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::utc_seconds {#utc_seconds}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 using utc_seconds = utc_time<seconds>;
 ```
 
-- 戻り値: `utc_seconds` の値
-- 計算量: なし
+`system_clock` の時点を `utc_clock` の時点にするには、`clock_cast<utc_clock>(t)` を使います。秒の単位で受けたいなら、結果を `utc_seconds` に代入します。
 
+2 つの `utc_seconds` の差が、うるう秒を含む本当の秒数です。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <chrono>
 #include <print>
-#include <type_traits>
 
 int main() {
-  std::println("{}", std::is_same_v<std::chrono::utc_seconds, std::chrono::time_point<std::chrono::utc_clock, std::chrono::seconds>>);
+  using namespace std::chrono;
+
+  const sys_seconds s = sys_days{2026y / January / 1};
+  const utc_seconds u = clock_cast<utc_clock>(s);
+
+  std::println("sys: {:%F %T}", s);
+  std::println("utc: {:%F %T}", u);
+  std::println("数値の差: {} 秒", (u.time_since_epoch() - s.time_since_epoch()).count());
 }
 ```
 
 ```text title="実行結果"
-true
+sys: 2026-01-01 00:00:00
+utc: 2026-01-01 00:00:00
+数値の差: 27 秒
 ```
+
+表示は同じですが、内部の秒数は、挿入されたうるう秒の分だけ大きくなっています。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 時計ごとに時点の型を区別する | `std::chrono::utc_seconds` |
+ほとんどありません。
 
 ## よくあるミス
 
-??? failure "時計が違う時点を混ぜる"
-    別の時計の時点どうしは、引き算できません。`clock_cast` で変換します。
+??? failure "数値の差が 0 のはずだと思う"
+    表示は同じでも、内部の数値は 27 秒ずれています。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`clock_cast`](clock_cast.md) | 時計どうしを変換する |
-| [`utc_clock`](utc_clock.md) | 時計 |
+| [`utc_time`](utc_time.md) | 単位を選べる元の別名 |
+| [`sys_seconds`](sys_seconds.md) | うるう秒を数えない |
+| [`tai_seconds`](tai_seconds.md) | TAI の秒 |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 13 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] utc_clock の時点（秒単位）の別名
-    - [x] time_since_epoch() で経過を取る
-    - [x] clock_cast で他の時計に変換
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::utc_seconds](https://cpprefjp.github.io/reference/chrono/time_point.html)
-- [cppreference: std::chrono::utc_seconds](https://en.cppreference.com/w/cpp/chrono/time_point)
+- [cpprefjp: utc_seconds](https://cpprefjp.github.io/reference/chrono/utc_clock.html)
+- [cppreference: std::chrono::utc_seconds](https://en.cppreference.com/w/cpp/chrono/utc_clock)

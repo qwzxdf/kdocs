@@ -15,28 +15,36 @@ tags:
 `#include <chrono>`
 </div>
 
-`time_point<system_clock, seconds>` のように毎回書くのは長いので、標準が別名を用意しています。`std::chrono::local_time` は、タイムゾーンのない、地域の時刻を表す別名です。
+`std::chrono::local_time<Duration>` は、壁掛け時計に書かれた時刻をそのまま表す型です。`time_point<local_t, Duration>` の別名で、タイムゾーンが決まっていないので、特定の瞬間とは結びついていません。「毎朝 5 時」のような設計値の保存や、日付と時刻の組み立てに使います。
 
 !!! tip "ポイント"
-    - 中身は `time_point<local_t, Duration>`。
-    - `time_since_epoch().count()` で基準時刻からの経過を数で取れる。
-    - 時計の違いを型で区別できる。
+    - `time_point<local_t, Duration>` の別名
+    - 現在時刻は取れない。`zoned_time` の `get_local_time()` で得る
+    - `sys_time` との混用は、型エラーで防がれる
+    - 特定の瞬間にするには、タイムゾーンが要る
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`local_t`](local_t.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::local_time {#local_time}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class Duration>
 using local_time = time_point<local_t, Duration>;
+
+using local_seconds = local_time<seconds>;
+using local_days    = local_time<days>;
 ```
 
-- 戻り値: `local_time` の値
-- 計算量: 定数
+`local_days` と時・分・秒を組み合わせて、日付つきの壁掛け時刻が作れます。`local_days{2026y/March/9} + 14h + 30min` で、「2026 年 3 月 9 日 14:30」を表します。
 
+タイムゾーンの影響で、同じ `local_time` が、その地域で 2 回現れる（夏時間の終わり）ことも、存在しない（夏時間の始まり）こともあります。`time_zone::to_sys` を呼ぶとき、そのような時刻は例外（`ambiguous_local_time`、`nonexistent_local_time`）になります。日本のように、夏時間のない地域では、起きません。
+
+書式は `{:%F %T}` で、`sys_time` と同じです。
 
 ## 実際に動かしてみる
 
@@ -45,45 +53,48 @@ using local_time = time_point<local_t, Duration>;
 #include <print>
 
 int main() {
-  std::chrono::local_time<std::chrono::seconds> t{std::chrono::seconds{60}};
-  std::println("{}", t.time_since_epoch().count());
+  using namespace std::chrono;
+
+  const local_time<minutes> lt = local_days{2026y / March / 9} + 14h + 30min;
+  std::println("{:%F %R}", lt);
+
+  // 日付と時刻に分ける
+  const local_days day = floor<days>(lt);
+  const hh_mm_ss time{lt - day};
+  std::println("{} 時 {} 分", time.hours().count(), time.minutes().count());
 }
 ```
 
 ```text title="実行結果"
-60
+2026-03-09 14:30
+14 時 30 分
 ```
+
+`lt - day` で、日の始まりからの経過時間が取れます。`hh_mm_ss` で、時・分に分解しました。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 時刻を型で区別する | `std::chrono::local_time` |
+イベント開始の「毎日 5 時」「毎週月曜 4 時」を `local_time` で持ち、プレイヤーのタイムゾーンで、実際の UTC に直します。
 
 ## よくあるミス
 
-??? failure "ローカル時刻とシステム時刻を混ぜる"
-    `local_time` は地域の時刻、`sys_time` は UTC 基準の時刻で、型が別です。変換は `zoned_time` や `time_zone` を通します。
+??? failure "local_time と sys_time を直接比べる"
+    型が違うので、コンパイルできません。タイムゾーンを通して、同じ種類の時点にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`time_point`](time_point.md) | 時点の型 |
-| [`zoned_time`](zoned_time.md) | タイムゾーンつきの時刻 |
+| [`local_t`](local_t.md) | この別名の元になる型 |
+| [`local_seconds`](local_seconds.md) | 秒の単位 |
+| [`local_days`](local_days.md) | 日の単位 |
+| [`sys_time`](sys_time.md) | UTC の時点 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
 
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] タイムゾーンのない、地域の時刻を表す別名
-    - [x] time_since_epoch() で経過を取る
-    - [x] 型で時計の種類を区別する
-
 ## 関連ページ
 
-- [cpprefjp: std::chrono::local_time](https://cpprefjp.github.io/reference/chrono/time_point.html)
-- [cppreference: std::chrono::local_time](https://en.cppreference.com/w/cpp/chrono/time_point)
+- [cpprefjp: local_time](https://cpprefjp.github.io/reference/chrono/local_t.html)
+- [cppreference: std::chrono::local_time](https://en.cppreference.com/w/cpp/chrono/local_t)

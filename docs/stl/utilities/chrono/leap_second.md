@@ -15,19 +15,22 @@ tags:
 `#include <chrono>`
 </div>
 
-うるう秒は、UTC に不定期に足される 1 秒です。`leap_second` は、いつ入ったか（`date()`）と、何秒か（`value()`、普通は +1 秒）を表し、`tzdb.leap_seconds` に一覧があります。
+うるう秒は、いつ、何秒入ったのか。`std::chrono::leap_second` は、そのうるう秒 1 件の情報（挿入日時と値）を持つ型です。タイムゾーンのデータベース（`tzdb`）が、過去のうるう秒を全部、この型の一覧で持っています。
 
 !!! tip "ポイント"
-    - `date()` は UTC のうるう秒の挿入時刻。
-    - `value()` は +1 秒（正のうるう秒）か −1 秒。
-    - `utc_clock` の計算に使われる。
+    - `date()` が挿入日時、`value()` が挿入する秒数（+1 秒か -1 秒）
+    - 一覧は `get_tzdb().leap_seconds`
+    - 比較演算子は、挿入日時の順で並ぶ
+    - ゲームでは使わない。時計の仕組みを調べるとき用
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`utc_clock`](utc_clock.md) と [`get_tzdb`](get_tzdb.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::leap_second {#leap_second}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 class leap_second {
@@ -37,9 +40,11 @@ class leap_second {
 };
 ```
 
-- 戻り値: 挿入日と値
-- 計算量: 定数
+`date()` は、うるう秒の挿入日時を `sys_seconds` で返します。うるう秒は、6 月 30 日か 12 月 31 日の終わりに入るので、この値は 7 月 1 日 0 時か、1 月 1 日 0 時です。
 
+`value()` は、挿入する秒数です。+1 秒（追加）が普通で、-1 秒（削除）は定義上あり得ますが、これまで一度も実施されていません。
+
+一覧は、時刻のデータベース（`tzdb`）の `leap_seconds` に入っています。1972 年から 2017 年までに 27 回あり、2017 年 1 月 1 日が最後です。
 
 ## 実際に動かしてみる
 
@@ -48,45 +53,49 @@ class leap_second {
 #include <print>
 
 int main() {
-  const auto& db = std::chrono::get_tzdb();
-  std::println("{}", db.leap_seconds.front().value().count());
+  using namespace std::chrono;
+
+  const tzdb& db = get_tzdb();
+  const auto& list = db.leap_seconds;
+
+  std::println("うるう秒の回数: {}", list.size());
+  std::println("最初: {:%F}", list.front().date());
+  std::println("最後: {:%F}", list.back().date());
+  std::println("最後の値: {} 秒", list.back().value().count());
 }
 ```
 
 ```text title="実行結果"
-1
+うるう秒の回数: 27
+最初: 1972-07-01
+最後: 2017-01-01
+最後の値: 1 秒
 ```
+
+27 回は、`utc_clock` と `system_clock` の差が 27 秒であることと一致します。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| うるう秒を含む経過時間の計算 | `get_leap_second_info(utc_time)` |
+使いません。
 
 ## よくあるミス
 
-??? failure "日の長さを 86400 秒と決めつける"
-    うるう秒がある日は 86401 秒です。`system_clock` はそれを無視し、`utc_clock` は数えます。
+??? failure "date() をうるう秒の最中の時刻だと思う"
+    挿入が終わった直後の時刻です。うるう秒の最中は、`date()` の 1 秒前（23:59:60）です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`get_leap_second_info`](get_leap_second_info.md) | ある時点の情報 |
+| [`get_leap_second_info`](get_leap_second_info.md) | ある時点のうるう秒の情報を調べる |
 | [`utc_clock`](utc_clock.md) | うるう秒を数える時計 |
+| [`tzdb`](tzdb.md) | この一覧を持つ |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 14 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] うるう秒の記録
-    - [x] date() と value()
-    - [x] tzdb.leap_seconds に一覧
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::leap_second](https://cpprefjp.github.io/reference/chrono/leap_second.html)
+- [cpprefjp: leap_second](https://cpprefjp.github.io/reference/chrono/leap_second.html)
 - [cppreference: std::chrono::leap_second](https://en.cppreference.com/w/cpp/chrono/leap_second)

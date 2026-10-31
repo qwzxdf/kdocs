@@ -15,78 +15,95 @@ tags:
 `#include <chrono>`
 </div>
 
-タイムゾーンを使うには、まず `"Asia/Tokyo"` のような名前からゾーンを取り出します。`locate_zone(name)` が、その `time_zone` へのポインタを返します。
+`"Asia/Tokyo"` や `"America/New_York"` のような、IANA のタイムゾーン名から、`time_zone` を取り出す関数が `std::chrono::locate_zone` です。名前が分からないものを渡すと、例外を投げます。
 
 !!! tip "ポイント"
-    - 名前は IANA のゾーン名（`Asia/Tokyo`、`America/New_York`）。
-    - 戻り値はデータベースが持つオブジェクトへのポインタ（解放不要）。
-    - 見つからないと例外。
+    - 名前は IANA のタイムゾーン名（`Area/City`）
+    - 戻り値は `const time_zone*`。nullptr にはならない
+    - 存在しない名前では `std::runtime_error`
+    - 別名（`time_zone_link`）でも、元のゾーンが返る
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`time_zone`](time_zone.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::locate_zone {#locate_zone}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-const time_zone* locate_zone(string_view tz_name);
+const time_zone* locate_zone(std::string_view tz_name);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `tz_name` | string_view | ゾーン名 |
+| `tz_name` | `std::string_view` | タイムゾーンの名前 |
 
-- 戻り値: `time_zone` へのポインタ（見つからなければ例外）
-- 計算量: 定数
+現在のタイムゾーンデータベース（`get_tzdb()`）から、名前が一致するゾーンを探します。名前は、大文字小文字を区別します。`"asia/tokyo"` は見つかりません。
 
+別名（古い名前）を渡したときも、元のゾーンへのポインタが返ります。`"Asia/Calcutta"` と `"Asia/Kolkata"` は、同じゾーンを指します。
+
+見つからないと `std::runtime_error` を投げます。プレイヤーの設定などの外部の入力から来る名前は、`try` で囲みます。
+
+戻り値のポインタは、データベースが更新されても、有効なままです。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <chrono>
 #include <print>
+#include <stdexcept>
 
 int main() {
-  const auto* tz = std::chrono::locate_zone("Asia/Tokyo");
-  std::println("{}", tz->name());
+  using namespace std::chrono;
+
+  const time_zone* tokyo = locate_zone("Asia/Tokyo");
+  std::println("{}", tokyo->name());
+
+  // 同じ名前なら同じポインタ
+  std::println("同じゾーン: {}", tokyo == locate_zone("Asia/Tokyo"));
+
+  // 存在しない名前は例外
+  try {
+    locate_zone("Mars/Olympus");
+  } catch (const std::runtime_error&) {
+    std::println("見つからない名前は例外");
+  }
 }
 ```
 
 ```text title="実行結果"
 Asia/Tokyo
+同じゾーン: true
+見つからない名前は例外
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ユーザー設定のゾーンを読み込む | `std::chrono::locate_zone(setting)` |
+プレイヤーが設定画面で選んだタイムゾーン名から、`time_zone` を取得します。
 
 ## よくあるミス
 
-??? failure "名前を間違える"
-    存在しない名前は `std::runtime_error` を投げます。外から入力された名前は `try` で囲みます。
+??? failure "名前の大文字小文字を間違える"
+    `"asia/tokyo"` では見つかりません。
+
+??? failure "例外を考えない"
+    外から来る名前は、`try` で囲んで、見つからなければ既定のゾーンに戻します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`current_zone`](current_zone.md) | 今のゾーン |
-| [`time_zone`](time_zone.md) | ゾーンの型 |
+| [`current_zone`](current_zone.md) | 今の環境のタイムゾーンを取る |
+| [`time_zone`](time_zone.md) | 取得するもの |
+| [`get_tzdb`](get_tzdb.md) | データベース全体 |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 14 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 名前からゾーンを取る
-    - [x] 戻りはポインタ
-    - [x] 見つからなければ例外
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::locate_zone](https://cpprefjp.github.io/reference/chrono/locate_zone.html)
-- [cppreference: std::chrono::locate_zone](https://en.cppreference.com/w/cpp/chrono/tzdb/locate_zone)
+- [cpprefjp: locate_zone](https://cpprefjp.github.io/reference/chrono/locate_zone.html)
+- [cppreference: std::chrono::locate_zone](https://en.cppreference.com/w/cpp/chrono/locate_zone)

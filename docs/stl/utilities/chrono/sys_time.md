@@ -15,28 +15,34 @@ tags:
 `#include <chrono>`
 </div>
 
-`time_point<system_clock, seconds>` のように毎回書くのは長いので、標準が別名を用意しています。`std::chrono::sys_time` は、system_clock の時点を表す別名（単位を選べる）です。
+`system_clock::now()` が返す時点を、秒の細かさで持ちたい、日の細かさで持ちたい。`std::chrono::sys_time<Duration>` は、`system_clock` の時点（`time_point`）を、`Duration` の単位で表す別名です。`sys_seconds` や `sys_days` は、この `sys_time` の単位を決めた短い名前です。
 
 !!! tip "ポイント"
-    - 中身は `time_point<system_clock, Duration>`。
-    - `time_since_epoch().count()` で基準時刻からの経過を数で取れる。
-    - 時計の違いを型で区別できる。
+    - `time_point<system_clock, Duration>` の別名
+    - 起点は 1970-01-01 00:00:00 UTC（Unix 時間）。C++20 で規格が決めた
+    - うるう秒は数えない。1 日は常に 86400 秒
+    - タイムゾーンを含まない。UTC として扱われる
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`system_clock`](system_clock.md) と [`time_point`](time_point.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::sys_time {#sys_time}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class Duration>
 using sys_time = time_point<system_clock, Duration>;
+
+using sys_seconds = sys_time<seconds>;
+using sys_days    = sys_time<days>;
 ```
 
-- 戻り値: `sys_time` の値
-- 計算量: 定数
+C++20 以前の `system_clock::time_point` は、単位が実装ごとに違う（ナノ秒、100 ナノ秒など）ものでした。`sys_time<Duration>` は、単位を自分で選べます。ログに書く時刻は秒、日付は日にそろえる、という使い分けができます。
 
+起点が 1970-01-01 の UTC と、規格で決められたことで、`time_since_epoch().count()` が Unix 時間と同じ意味を持つようになりました。うるう秒は数えないので、時計の秒数と、日付の計算が一致します。
 
 ## 実際に動かしてみる
 
@@ -45,45 +51,52 @@ using sys_time = time_point<system_clock, Duration>;
 #include <print>
 
 int main() {
-  std::chrono::sys_time<std::chrono::seconds> t{std::chrono::seconds{90}};
-  std::println("{}", t.time_since_epoch().count());
+  using namespace std::chrono;
+
+  // 単位を選んで時点を作る
+  const sys_time<milliseconds> ms{milliseconds{1500}};
+  const sys_seconds s = floor<seconds>(ms);
+  std::println("{} ミリ秒 → {} 秒", ms.time_since_epoch().count(),
+               s.time_since_epoch().count());
+
+  // 起点は 1970-01-01
+  const sys_seconds epoch{};
+  std::println("{:%F %T}", epoch);
+
+  // 1 日ぶん進める
+  std::println("{:%F}", sys_days{} + days{1});
 }
 ```
 
 ```text title="実行結果"
-90
+1500 ミリ秒 → 1 秒
+1970-01-01 00:00:00
+1970-01-02
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 時刻を型で区別する | `std::chrono::sys_time` |
+セーブデータに保存する時刻は、`sys_seconds` の `count()` を `int64_t` で書くと、環境によらず同じ意味になります。
 
 ## よくあるミス
 
-??? failure "時計が違う時点を混ぜる"
-    `local_time` は地域の時刻、`sys_time` は UTC 基準の時刻で、型が別です。変換は `zoned_time` や `time_zone` を通します。
+??? failure "ローカル時刻だと思う"
+    `sys_time` は UTC です。日本時間 9 時間のずれがあります。ローカル時刻は `zoned_time` を通します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`time_point`](time_point.md) | 時点の型 |
-| [`zoned_time`](zoned_time.md) | タイムゾーンつきの時刻 |
+| [`sys_seconds`](sys_seconds.md) | 秒の単位 |
+| [`sys_days`](sys_days.md) | 日の単位 |
+| [`local_time`](local_time.md) | タイムゾーンのない地域の時刻 |
+| [`utc_time`](utc_time.md) | うるう秒を数える |
 
 ## コンパイラ対応
 
 C++20 から使えます。
 
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] system_clock の時点を表す別名（単位を選べる）
-    - [x] time_since_epoch() で経過を取る
-    - [x] 型で時計の種類を区別する
-
 ## 関連ページ
 
-- [cpprefjp: std::chrono::sys_time](https://cpprefjp.github.io/reference/chrono/time_point.html)
-- [cppreference: std::chrono::sys_time](https://en.cppreference.com/w/cpp/chrono/time_point)
+- [cpprefjp: sys_time](https://cpprefjp.github.io/reference/chrono/system_clock.html)
+- [cppreference: std::chrono::sys_time](https://en.cppreference.com/w/cpp/chrono/system_clock)

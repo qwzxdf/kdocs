@@ -15,33 +15,42 @@ tags:
 `#include <chrono>`
 </div>
 
-ユーザーが入力した日付文字列を `year_month_day` のような型に変換したいことがあります。`std::chrono::parse(書式, 変数)` を `>>` に渡すと、書式（`%Y-%m-%d` など）に従って読み込みます。
+`from_stream` は関数呼び出しの形ですが、ストリームの `>>` でつなげて書きたいこともあります。`std::chrono::parse(fmt, x)` は、`from_stream` を `>>` から呼べるようにする操作子で、`is >> parse("%F", ymd);` のように書けます。
 
 !!! tip "ポイント"
-    - `in >> std::chrono::parse("%F", ymd);` の形で使う。
-    - 書式は `strftime` に似た `%Y` `%m` `%d` `%H` `%M` `%S` など。
-    - 失敗すると `failbit` が立つ。
+    - `is >> parse(書式, 変数)` で読む。`from_stream` と同じ動作
+    - 失敗すると、ストリームに `failbit` が立つ
+    - 複数の値を `>>` でつなげて読める
+    - 読んだあとに `ok()` で有効性を確かめる
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`from_stream`](from_stream.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::parse {#parse}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class CharT, class Traits, class Alloc, class Parsable>
-/* 実装定義 */ parse(const basic_string<CharT, Traits, Alloc>& fmt, Parsable& tp);
+template <class CharT, class Parsable>
+/* 実装定義 */ parse(const CharT* fmt, Parsable& tp);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `fmt` | 文字列 | 書式 |
-| `tp` | chrono の型 | 結果を入れる変数 |
+| `fmt` | `const CharT*` | 書式 |
+| `tp` | chrono の型の参照 | 読んだ値を入れる変数 |
 
-- 戻り値: ストリームに流せるマニピュレータ
-- 計算量: 定数
+戻り値は、`>>` に渡せる、実装定義の型のオブジェクトです。`is >> parse(fmt, tp)` と書くと、内部で `from_stream(is, fmt, tp)` が呼ばれます。
 
+`>>` でつなげられるので、複数の値を続けて読めます。
+
+```cpp
+in >> parse("%F", date) >> parse("%T", time);
+```
+
+`std::get_time` と同じ位置づけの操作子です。
 
 ## 実際に動かしてみる
 
@@ -51,47 +60,53 @@ template <class CharT, class Traits, class Alloc, class Parsable>
 #include <sstream>
 
 int main() {
-  std::istringstream in("2024-03-05");
-  std::chrono::year_month_day ymd;
-  in >> std::chrono::parse("%F", ymd);
-  std::println("{}", unsigned(ymd.day()));
+  using namespace std::chrono;
+
+  std::istringstream in("2026-03-09 14:30:15");
+  year_month_day date;
+  hh_mm_ss<seconds> time{seconds{0}};
+
+  // 空白をはさんで、日付と時刻を続けて読む
+  seconds sec{};
+  in >> parse("%F", date) >> parse(" %T", sec);
+
+  std::println("{} 月 {} 日", static_cast<unsigned>(date.month()),
+               static_cast<unsigned>(date.day()));
+  std::println("{} 秒", sec.count());
+  std::println("失敗: {}", in.fail());
 }
 ```
 
 ```text title="実行結果"
-5
+3 月 9 日
+52215 秒
+失敗: false
 ```
+
+`" %T"` の先頭の空白は、入力の空白を読み飛ばす指定です。14 時 30 分 15 秒は、52215 秒です。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| セーブデータの日付文字列を読む | `in >> std::chrono::parse("%F", ymd)` |
+テキストのログやセーブデータから、日時を読み戻すときに使います。
 
 ## よくあるミス
 
-??? failure "失敗を確かめない"
-    書式に合わない文字列では `failbit` が立ち、変数は変わりません。読み込み後に `if (in)` で確かめます。
+??? failure "書式の区切りが入力と食い違う"
+    `"2026-03-09 14:30"` を `"%F%T"` で読むと、空白を読み飛ばせず、失敗します。書式にも空白を書きます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`from_stream`](from_stream.md) | 同じ処理を関数で書く |
-| [`to_stream`](to_stream.md) | 書式で出力する |
+| [`from_stream`](from_stream.md) | 関数の形 |
+| [`to_stream`](to_stream.md) | 逆向き。ストリームに書く |
+| [`std::get_time`](../../io/get_time.md) | `tm` を読む、C 時代の操作子 |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 14 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 文字列を chrono の型に読み込む
-    - [x] 書式は strftime 風
-    - [x] 失敗は failbit
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::parse](https://cpprefjp.github.io/reference/chrono/parse.html)
+- [cpprefjp: parse](https://cpprefjp.github.io/reference/chrono/parse.html)
 - [cppreference: std::chrono::parse](https://en.cppreference.com/w/cpp/chrono/parse)

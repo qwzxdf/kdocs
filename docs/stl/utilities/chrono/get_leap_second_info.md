@@ -15,31 +15,42 @@ tags:
 `#include <chrono>`
 </div>
 
-UTC の時刻がうるう秒の 1 秒（23:59:60）そのものなのか、そしてその時点までに累計で何秒挿入されたかを知りたいことがあります。`get_leap_second_info(utc_time)` が教えてくれます。
+`utc_time` が、うるう秒の最中（23:59:60）なのか、そこまでに挿入された秒数はいくつか。それを調べるのが `std::chrono::get_leap_second_info` です。`utc_time` を `sys_time` に直すときに失われる情報を、別に取り出せます。
 
 !!! tip "ポイント"
-    - `is_leap_second` が `true` なら、うるう秒の最中。
-    - `elapsed` は、その時点までに入ったうるう秒の累計。
+    - `utc_time` を渡すと、`is_leap_second` と `elapsed` を持つ構造体が返る
+    - `is_leap_second` は、その時点がうるう秒の中なら真
+    - `elapsed` は、その時点までに挿入されたうるう秒の累計
+    - `sys_time` に直す前に呼ぶと、うるう秒の情報を残せる
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`utc_clock`](utc_clock.md) と [`leap_second`](leap_second.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::get_leap_second_info {#get_leap_second_info}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class D>
-leap_second_info get_leap_second_info(const utc_time<D>& ut);
+template <class Duration>
+leap_second_info get_leap_second_info(const utc_time<Duration>& ut);
+
+struct leap_second_info {
+  bool is_leap_second;
+  seconds elapsed;
+};
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `ut` | utc_time | 調べる時点 |
+| `ut` | `utc_time<Duration>` | 調べる UTC の時点 |
 
-- 戻り値: `is_leap_second` と `elapsed`
-- 計算量: 定数
+`is_leap_second` は、`ut` がうるう秒の 1 秒の中にあるときに真です。その 1 秒の間だけ、23:59:60 が現れます。
 
+`elapsed` は、`ut` までに入ったうるう秒の合計です。2026 年の時点では 27 秒です。うるう秒の最中の場合は、その秒を含めた累計になります。
+
+`utc_time` を `sys_time` に直すと、うるう秒の最中は、直前の秒にまとめられるので、情報が失われます。変換の前に呼んで、必要なら結果を別に保存します。
 
 ## 実際に動かしてみる
 
@@ -49,46 +60,49 @@ leap_second_info get_leap_second_info(const utc_time<D>& ut);
 
 int main() {
   using namespace std::chrono;
-  auto ut = utc_clock::from_sys(sys_days{2024y / January / 1});
-  auto info = get_leap_second_info(ut);
-  std::println("{} {}", info.is_leap_second, info.elapsed.count());
+
+  // 普通の時刻
+  const utc_seconds normal = clock_cast<utc_clock>(sys_seconds{sys_days{2026y / January / 1}});
+  const leap_second_info a = get_leap_second_info(normal);
+  std::println("2026-01-01: うるう秒の中={} 累計={} 秒", a.is_leap_second, a.elapsed.count());
+
+  // 2016-12-31 23:59:59 の 1 秒後は、うるう秒 23:59:60
+  const sys_seconds last = sys_days{2016y / December / 31} + 23h + 59min + 59s;
+  const utc_seconds leap = clock_cast<utc_clock>(last) + 1s;
+  const leap_second_info b = get_leap_second_info(leap);
+  std::println("23:59:60: うるう秒の中={} 累計={} 秒", b.is_leap_second, b.elapsed.count());
 }
 ```
 
 ```text title="実行結果"
-false 27
+2026-01-01: うるう秒の中=false 累計=27 秒
+23:59:60: うるう秒の中=true 累計=27 秒
 ```
+
+2016 年末のうるう秒は 27 回目で、その最中の `elapsed` は 27 秒です。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 経過秒の厳密な計算 | `info.elapsed` |
+使いません。
 
 ## よくあるミス
 
-??? failure "sys_time に使う"
-    引数は `utc_time` です。`system_clock` の時点は、先に `utc_clock::from_sys` で変換します。
+??? failure "sys_time に直したあとで調べようとする"
+    うるう秒の情報は失われています。`utc_time` のうちに調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`leap_second`](leap_second.md) | うるう秒の記録 |
-| [`utc_clock`](utc_clock.md) | UTC の時計 |
+| [`leap_second`](leap_second.md) | うるう秒 1 件の情報 |
+| [`utc_clock`](utc_clock.md) | うるう秒を数える時計 |
+| [`clock_cast`](clock_cast.md) | 時計どうしを変換する |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 14 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] うるう秒の状態を調べる
-    - [x] is_leap_second と elapsed
-    - [x] utc_time を渡す
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::get_leap_second_info](https://cpprefjp.github.io/reference/chrono/get_leap_second_info.html)
+- [cpprefjp: get_leap_second_info](https://cpprefjp.github.io/reference/chrono/get_leap_second_info.html)
 - [cppreference: std::chrono::get_leap_second_info](https://en.cppreference.com/w/cpp/chrono/get_leap_second_info)

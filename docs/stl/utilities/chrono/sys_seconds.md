@@ -15,27 +15,30 @@ tags:
 `#include <chrono>`
 </div>
 
-`time_point<system_clock, seconds>` のように毎回書くのは長いので、標準が別名を用意しています。`std::chrono::sys_seconds` は、system_clock の時点を秒の単位で表す別名です。
+ログに書く時刻やセーブデータの保存日時は、秒の細かさで十分です。`std::chrono::sys_seconds` は、`system_clock` の時点を秒の単位で表す型で、`sys_time<seconds>` の別名です。`system_clock::now()` を `floor<seconds>` で切り捨てて作ります。
 
 !!! tip "ポイント"
-    - 中身は `sys_time<seconds>`。
-    - `time_since_epoch().count()` で基準時刻からの経過を数で取れる。
-    - 時計の違いを型で区別できる。
+    - `sys_time<seconds>` の別名
+    - `floor<seconds>(system_clock::now())` で現在時刻を秒にそろえる
+    - `time_since_epoch().count()` が Unix 時間（秒）
+    - 書式は `{:%F %T}`
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`sys_time`](sys_time.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::sys_seconds {#sys_seconds}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 using sys_seconds = sys_time<seconds>;
 ```
 
-- 戻り値: `sys_seconds` の値
-- 計算量: 定数
+`system_clock::now()` はナノ秒に近い細かさの値を返します。秒にそろえるには、`floor<seconds>` で切り捨てます。`time_point_cast<seconds>` でも変換できますが、1970 年より前の時刻では、切り捨てにならないので、`floor` が安全です。
 
+`{:%F %T}` で、`2026-01-01 00:00:00` の形に整形できます。`%T` は時・分・秒です。秒の小数部が要るなら、`sys_time<milliseconds>` などを使います。
 
 ## 実際に動かしてみる
 
@@ -44,45 +47,47 @@ using sys_seconds = sys_time<seconds>;
 #include <print>
 
 int main() {
-  std::chrono::sys_seconds t{std::chrono::seconds{3600}};
-  std::println("{}", t.time_since_epoch().count());
+  using namespace std::chrono;
+
+  // 2026-01-01 00:00:00 UTC
+  const sys_seconds t = sys_days{2026y / January / 1};
+  std::println("{:%F %T}", t);
+  std::println("Unix 時間: {}", t.time_since_epoch().count());
+
+  // 現在時刻を秒にそろえる
+  const sys_seconds now = floor<seconds>(system_clock::now());
+  std::println("2026 年以降: {}", now >= t);
 }
 ```
 
 ```text title="実行結果"
-3600
+2026-01-01 00:00:00
+Unix 時間: 1767225600
+2026 年以降: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 時刻を型で区別する | `std::chrono::sys_seconds` |
+セーブデータの更新日時を `int64_t` の秒で保存し、読み込み時に `sys_seconds{seconds{value}}` に戻します。
 
 ## よくあるミス
 
-??? failure "時計が違う時点を混ぜる"
-    `local_time` は地域の時刻、`sys_time` は UTC 基準の時刻で、型が別です。変換は `zoned_time` や `time_zone` を通します。
+??? failure "now() をそのまま秒として保存する"
+    `now()` は細かい単位なので、`count()` は秒ではなくナノ秒に近い数です。`floor<seconds>` で秒にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`time_point`](time_point.md) | 時点の型 |
-| [`zoned_time`](zoned_time.md) | タイムゾーンつきの時刻 |
+| [`sys_time`](sys_time.md) | 単位を選べる元の別名 |
+| [`sys_days`](sys_days.md) | 日の単位 |
+| [`utc_seconds`](utc_seconds.md) | うるう秒を数える |
 
 ## コンパイラ対応
 
 C++20 から使えます。
 
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] system_clock の時点を秒の単位で表す別名
-    - [x] time_since_epoch() で経過を取る
-    - [x] 型で時計の種類を区別する
-
 ## 関連ページ
 
-- [cpprefjp: std::chrono::sys_seconds](https://cpprefjp.github.io/reference/chrono/time_point.html)
-- [cppreference: std::chrono::sys_seconds](https://en.cppreference.com/w/cpp/chrono/time_point)
+- [cpprefjp: sys_seconds](https://cpprefjp.github.io/reference/chrono/system_clock.html)
+- [cppreference: std::chrono::sys_seconds](https://en.cppreference.com/w/cpp/chrono/system_clock)

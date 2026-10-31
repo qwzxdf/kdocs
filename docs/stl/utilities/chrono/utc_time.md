@@ -15,75 +15,85 @@ tags:
 `#include <chrono>`
 </div>
 
-`time_point<system_clock, seconds>` のように毎回書くのは長いので、標準が別名を用意しています。`std::chrono::utc_time` は、utc_clock の時点を表す別名（単位を選べる）です。
+`std::chrono::utc_time<Duration>` は、`utc_clock` の時点を `Duration` の単位で表す型です。`time_point<utc_clock, Duration>` の別名で、うるう秒を数えた UTC の時刻を、秒やミリ秒の細かさで持ちたいときに使います。
 
 !!! tip "ポイント"
-    - 中身は `time_point<utc_clock, Duration>`。
-    - `time_since_epoch().count()` で基準時刻からの経過を数で取れる。
-    - 時計の違いを型で区別できる。
+    - `time_point<utc_clock, Duration>` の別名
+    - うるう秒を挿入した時刻（23:59:60）を表せる
+    - `sys_time` とは別の型。`clock_cast` で変換する
+    - 秒の単位は `utc_seconds`
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`utc_clock`](utc_clock.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::utc_time {#utc_time}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class Duration>
 using utc_time = time_point<utc_clock, Duration>;
+using utc_seconds = utc_time<seconds>;
 ```
 
-- 戻り値: `utc_time` の値
-- 計算量: 定数
+`sys_time` では、23:59:60 という時刻は存在せず、直前の秒にまとめられます。`utc_time` では、うるう秒が実在する時刻として扱われます。書式にかけたとき（`{:%T}`）、うるう秒は `23:59:60` と表示されます。
 
+2 つの `utc_time` の差は、うるう秒を含めた本当の経過時間です。1 日をまたぐ計測で、うるう秒を挟んだとき、`sys_time` の差とは 1 秒ずれます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <chrono>
 #include <print>
-#include <type_traits>
 
 int main() {
-  std::println("{}", std::is_same_v<std::chrono::utc_time<std::chrono::seconds>, std::chrono::time_point<std::chrono::utc_clock, std::chrono::seconds>>);
+  using namespace std::chrono;
+
+  // 2016-12-31 は、23:59:60 のうるう秒が入った日
+  const sys_seconds before = sys_days{2016y / December / 31} + 23h + 59min + 59s;
+  const sys_seconds after = before + 2s;
+
+  // system_clock では 2 秒の差
+  std::println("sys の差: {} 秒", (after - before).count());
+
+  // utc_clock では、うるう秒が入るので 3 秒の差
+  const utc_seconds ub = clock_cast<utc_clock>(before);
+  const utc_seconds ua = clock_cast<utc_clock>(after);
+  std::println("utc の差: {} 秒", (ua - ub).count());
 }
 ```
 
 ```text title="実行結果"
-true
+sys の差: 2 秒
+utc の差: 3 秒
 ```
+
+2016 年 12 月 31 日の最後に、うるう秒が入っているので、UTC の経過時間は 1 秒長くなります。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 時刻を型で区別する | `std::chrono::utc_time` |
+ゲームでは使いません。うるう秒を含めた経過時間が要る場面にだけ使います。
 
 ## よくあるミス
 
-??? failure "時計が違う時点を混ぜる"
-    `local_time` は地域の時刻、`sys_time` は UTC 基準の時刻で、型が別です。変換は `zoned_time` や `time_zone` を通します。
+??? failure "sys_time と直接引き算する"
+    型が違うので、コンパイルできません。`clock_cast` で同じ時計にそろえます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`time_point`](time_point.md) | 時点の型 |
-| [`zoned_time`](zoned_time.md) | タイムゾーンつきの時刻 |
+| [`utc_seconds`](utc_seconds.md) | 秒の単位 |
+| [`sys_time`](sys_time.md) | うるう秒を数えない |
+| [`tai_time`](tai_time.md) | TAI の時点 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
 
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] utc_clock の時点を表す別名（単位を選べる）
-    - [x] time_since_epoch() で経過を取る
-    - [x] 型で時計の種類を区別する
-
 ## 関連ページ
 
-- [cpprefjp: std::chrono::utc_time](https://cpprefjp.github.io/reference/chrono/time_point.html)
-- [cppreference: std::chrono::utc_time](https://en.cppreference.com/w/cpp/chrono/time_point)
+- [cpprefjp: utc_time](https://cpprefjp.github.io/reference/chrono/utc_clock.html)
+- [cppreference: std::chrono::utc_time](https://en.cppreference.com/w/cpp/chrono/utc_clock)

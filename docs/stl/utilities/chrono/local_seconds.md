@@ -15,27 +15,37 @@ tags:
 `#include <chrono>`
 </div>
 
-`time_point<system_clock, seconds>` のように毎回書くのは長いので、標準が別名を用意しています。`std::chrono::local_seconds` は、ローカル時刻を秒の単位で表す別名です。
+`std::chrono::local_seconds` は、タイムゾーンのない地域の時刻を、秒の細かさで表す型です。`local_time<seconds>` の別名で、`zoned_time` の `get_local_time()` を秒にそろえたものを受けるときなどに使います。
 
 !!! tip "ポイント"
-    - 中身は `local_time<seconds>`。
-    - `time_since_epoch().count()` で基準時刻からの経過を数で取れる。
-    - 時計の違いを型で区別できる。
+    - `local_time<seconds>` の別名
+    - `local_days` に時・分・秒を足して作る
+    - `zoned_time` から現在のローカル時刻を取るときの受け皿
+    - 書式は `{:%F %T}`
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`local_time`](local_time.md) と [`zoned_time`](zoned_time.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::local_seconds {#local_seconds}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 using local_seconds = local_time<seconds>;
 ```
 
-- 戻り値: `local_seconds` の値
-- 計算量: 定数
+現在のローカル時刻を秒で取るには、`zoned_time` を通します。
 
+```cpp
+const zoned_time zt{current_zone(), system_clock::now()};
+const local_seconds now = floor<seconds>(zt.get_local_time());
+```
+
+`get_local_time()` はナノ秒に近い細かさなので、`floor<seconds>` で秒にそろえます。
+
+`local_seconds` は、`sys_seconds` とは別の型です。UTC とローカルを取り違える事故が起きません。
 
 ## 実際に動かしてみる
 
@@ -44,45 +54,46 @@ using local_seconds = local_time<seconds>;
 #include <print>
 
 int main() {
-  std::chrono::local_seconds t{std::chrono::seconds{120}};
-  std::println("{}", t.time_since_epoch().count());
+  using namespace std::chrono;
+
+  const local_seconds t = local_days{2026y / January / 1} + 9h + 30min + 15s;
+  std::println("{:%F %T}", t);
+
+  // 日付と時刻に分解
+  const local_days d = floor<days>(t);
+  const hh_mm_ss hms{t - d};
+  std::println("{:02}:{:02}:{:02}", hms.hours().count(), hms.minutes().count(),
+               hms.seconds().count());
 }
 ```
 
 ```text title="実行結果"
-120
+2026-01-01 09:30:15
+09:30:15
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 時刻を型で区別する | `std::chrono::local_seconds` |
+ログイン画面の「現在時刻」の表示など、プレイヤーのタイムゾーンで見せる時刻を、秒の細かさで扱います。
 
 ## よくあるミス
 
-??? failure "ローカル時刻とシステム時刻を混ぜる"
-    `local_time` は地域の時刻、`sys_time` は UTC 基準の時刻で、型が別です。変換は `zoned_time` や `time_zone` を通します。
+??? failure "sys_seconds に代入しようとする"
+    型が違うので、コンパイルできません。`time_zone::to_sys` で変換します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`time_point`](time_point.md) | 時点の型 |
-| [`zoned_time`](zoned_time.md) | タイムゾーンつきの時刻 |
+| [`local_time`](local_time.md) | 単位を選べる元の別名 |
+| [`sys_seconds`](sys_seconds.md) | UTC の時点 |
+| [`zoned_time`](zoned_time.md) | タイムゾーンつきの時点 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
 
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] ローカル時刻を秒の単位で表す別名
-    - [x] time_since_epoch() で経過を取る
-    - [x] 型で時計の種類を区別する
-
 ## 関連ページ
 
-- [cpprefjp: std::chrono::local_seconds](https://cpprefjp.github.io/reference/chrono/time_point.html)
-- [cppreference: std::chrono::local_seconds](https://en.cppreference.com/w/cpp/chrono/time_point)
+- [cpprefjp: local_seconds](https://cpprefjp.github.io/reference/chrono/local_t.html)
+- [cppreference: std::chrono::local_seconds](https://en.cppreference.com/w/cpp/chrono/local_t)

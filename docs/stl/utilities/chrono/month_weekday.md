@@ -15,36 +15,39 @@ tags:
 `#include <chrono>`
 </div>
 
-「毎年 11 月の第 4 木曜日」（アメリカの感謝祭）のような、年を決めない日付の指定が `month_weekday` です。`November / Thursday[4]` と書きます。
+「3 月の第 2 月曜日」のように、年を問わず、毎年同じ規則で決まる日を表すのが `std::chrono::month_weekday` です。`March / Monday[2]` と書き、月と、`weekday_indexed` の組になっています。年を決めると、実際の日付が決まります。
 
 !!! tip "ポイント"
-    - `month / weekday[n]` で作る。
-    - 年をつけて `year_month_weekday` にすると、具体的な日付になる。
+    - `month / weekday_indexed` で作る
+    - 年を含まないので、具体的な日付ではない。`year / month_weekday` で日付になる
+    - `month()` と `weekday_indexed()` で、各部分を取り出せる
+    - `ok()` は、月と曜日と回数が有効かだけを調べる
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`weekday_indexed`](weekday_indexed.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::month_weekday {#month_weekday}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 class month_weekday {
  public:
-  constexpr std::chrono::month month() const noexcept;
-  constexpr std::chrono::weekday_indexed weekday_indexed() const noexcept;
+  constexpr month_weekday(const chrono::month& m,
+                          const chrono::weekday_indexed& wdi) noexcept;
+  constexpr chrono::month month() const noexcept;
+  constexpr chrono::weekday_indexed weekday_indexed() const noexcept;
   constexpr bool ok() const noexcept;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `m` | month | 月 |
-| `wdi` | weekday_indexed | 第 n 曜日 |
+`March / Monday[2]` が、`month_weekday{March, Monday[2]}` と同じです。
 
-- 戻り値: `ok()` は有効なら `true`
-- 計算量: 定数
+`ok()` は、月が 1〜12、曜日が有効、回数が 1〜5 の範囲かを調べます。実際に存在するかは、年が決まらないと分かりません。
 
+年と組み合わせるには、`2026y / mw` と書きます。`year_month_weekday` が得られ、`sys_days` に変換して日付にできます。
 
 ## 実際に動かしてみる
 
@@ -54,45 +57,50 @@ class month_weekday {
 
 int main() {
   using namespace std::chrono;
-  auto mw = March / Monday[2];
-  std::println("{} {}", mw.ok(), mw.weekday_indexed().index());
+
+  // 毎年 3 月の第 2 月曜日
+  const month_weekday mw = March / Monday[2];
+  std::println("{}", mw.ok());
+
+  // 年ごとに日付が変わる
+  for (const year y : {2025y, 2026y, 2027y}) {
+    const sys_days d = y / mw;
+    std::println("{:%F}", d);
+  }
 }
 ```
 
 ```text title="実行結果"
-true 2
+true
+2025-03-10
+2026-03-09
+2027-03-08
 ```
+
+同じ「3 月の第 2 月曜日」でも、年によって日付が 10 日、9 日、8 日と変わります。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 毎年の祝日の指定 | `std::chrono::November / std::chrono::Thursday[4]` |
+毎年繰り返す祝日や、季節イベントの日取りを、「何月の第何何曜日」という規則のまま持たせます。
 
 ## よくあるミス
 
-??? failure "日付だと思う"
-    これは日付ではなく「指定」です。年をつけて `sys_days` にして初めて日付になります。
+??? failure "year_month_weekday と取り違える"
+    `month_weekday` は年を含みません。日付に直すには年と組み合わせます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`month_weekday_last`](month_weekday_last.md) | 最後の曜日 |
-| [`year_month_weekday`](year_month_weekday.md) | 年つき |
+| [`year_month_weekday`](year_month_weekday.md) | 年を含む |
+| [`weekday_indexed`](weekday_indexed.md) | 月を含まない |
 
 ## コンパイラ対応
 
 C++20 から使えます。
 
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 月の第 n 曜日
-    - [x] 年を問わない
-    - [x] 年をつけて日付に
-
 ## 関連ページ
 
-- [cpprefjp: std::chrono::month_weekday](https://cpprefjp.github.io/reference/chrono/month_weekday.html)
+- [cpprefjp: month_weekday](https://cpprefjp.github.io/reference/chrono/month_weekday.html)
 - [cppreference: std::chrono::month_weekday](https://en.cppreference.com/w/cpp/chrono/month_weekday)

@@ -15,34 +15,42 @@ tags:
 `#include <chrono>`
 </div>
 
-ジェネリックな関数で、`system_clock` や `steady_clock` のような時計の型だけを受け付けたいことがあります。`is_clock_v<C>` は、`C` が時計として必要な型名（`rep`・`period`・`duration`・`time_point`）と `now()`・`is_steady` を持つなら `true` です。
+`std::chrono::time_point<Clock>` の `Clock` に、時計の条件を満たさない型を渡すと、分かりにくいエラーが出ます。ある型が「時計」として使えるかを、コンパイル時に調べる型特性が `std::chrono::is_clock` です。自作の時計を作るときの確認や、テンプレートの制約に使えます。
 
 !!! tip "ポイント"
-    - `_v` 版で `bool` が取れる。
-    - 自作の時計が条件を満たしているかの確認に使える。
-    - C++20 の機能。
+    - `is_clock_v<T>` が真なら、`T` は chrono の時計として使える
+    - 条件は、`rep`、`period`、`duration`、`time_point`、`is_steady`、`now()` を持つこと
+    - `system_clock` と `steady_clock` は真。`local_t` は偽（時計ではない）
+    - C++20 から
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要を先に読んでください。
+    [`system_clock`](system_clock.md) と [`local_t`](local_t.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::is_clock {#is_clock}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class T>
-struct is_clock;
-template <class T>
-inline constexpr bool is_clock_v = is_clock<T>::value;
+template <class T> struct is_clock;
+template <class T> inline constexpr bool is_clock_v = is_clock<T>::value;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `T` | 型 | 調べる型 |
+`T` が次のメンバーを持っていれば、真です。
 
-- 戻り値: 時計なら `true`
-- 計算量: コンパイル時のみ
+| メンバー | 内容 |
+| --- | --- |
+| `T::rep` | 時間を数える型（整数や浮動小数点数） |
+| `T::period` | 1 カウントが何秒か（`std::ratio`） |
+| `T::duration` | `duration<rep, period>` |
+| `T::time_point` | `time_point<T>` または、同じ意味の型 |
+| `T::is_steady` | 巻き戻らない時計か（`bool` の定数） |
+| `T::now()` | 現在の時点を返す関数 |
 
+標準の時計は、`system_clock`、`steady_clock`、`high_resolution_clock`、`utc_clock`、`tai_clock`、`gps_clock`、`file_clock` がすべて真です。`local_t` は `now()` を持たないので偽です。
+
+自作の時計を `time_point` に使う前に、`static_assert(is_clock_v<MyClock>)` と書いておくと、足りないメンバーがすぐ分かります。
 
 ## 実際に動かしてみる
 
@@ -50,47 +58,63 @@ inline constexpr bool is_clock_v = is_clock<T>::value;
 #include <chrono>
 #include <print>
 
+struct NotAClock {};
+
+// 自作の時計: 必要なメンバーをそろえる
+struct FrameClock {
+  using rep = long long;
+  using period = std::ratio<1, 60>;  // 1 カウントが 1/60 秒
+  using duration = std::chrono::duration<rep, period>;
+  using time_point = std::chrono::time_point<FrameClock>;
+  static constexpr bool is_steady = true;
+  static time_point now() noexcept { return time_point{duration{0}}; }
+};
+
 int main() {
-  std::println("{}", std::chrono::is_clock_v<std::chrono::steady_clock>);
-  std::println("{}", std::chrono::is_clock_v<int>);
+  using namespace std::chrono;
+
+  std::println("system_clock: {}", is_clock_v<system_clock>);
+  std::println("steady_clock: {}", is_clock_v<steady_clock>);
+  std::println("local_t:      {}", is_clock_v<local_t>);
+  std::println("int:          {}", is_clock_v<int>);
+  std::println("NotAClock:    {}", is_clock_v<NotAClock>);
+  std::println("FrameClock:   {}", is_clock_v<FrameClock>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+system_clock: true
+steady_clock: true
+local_t:      false
+int:          false
+NotAClock:    false
+FrameClock:   true
 ```
+
+`FrameClock` は、1/60 秒を 1 カウントとする自作の時計で、必要なメンバーをそろえたので真です。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 時計の型だけを受け付けるテンプレート | `static_assert(std::chrono::is_clock_v<Clock>);` |
+フレーム数を時間の単位とする自作の時計を作り、`time_point<FrameClock>` で「何フレーム目」を型で表す、といった設計で使います。
 
 ## よくあるミス
 
-??? failure "時刻の型（`time_point`）を渡す"
-    `time_point` は時計ではありません。時計の型は `system_clock` などです。
+??? failure "now() の static を忘れる"
+    メンバー関数だと、時計の条件を満たさず、`is_clock_v` が偽になります。`static` にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`system_clock`](system_clock.md) | 時計の例 |
-| [`steady_clock`](steady_clock.md) | 時計の例 |
+| [`local_t`](local_t.md) | 時計ではない型の例 |
+| [`time_point`](time_point.md) | 時計と組み合わせる型 |
+| [`system_clock`](system_clock.md) | 標準の時計 |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 13 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 時計の条件を調べる型特性
-    - [x] _v 版で bool
-    - [x] 自作の時計の検査に
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::is_clock](https://cpprefjp.github.io/reference/chrono/is_clock.html)
+- [cpprefjp: is_clock](https://cpprefjp.github.io/reference/chrono/is_clock.html)
 - [cppreference: std::chrono::is_clock](https://en.cppreference.com/w/cpp/chrono/is_clock)

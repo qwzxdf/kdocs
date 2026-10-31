@@ -15,27 +15,32 @@ tags:
 `#include <chrono>`
 </div>
 
-時間の長さを扱うとき、`duration<long long, std::ratio<1, 1000>>` のような書き方は長すぎます。標準は、よく使う単位に名前をつけています。`std::chrono::weeks` は、週を数える `duration` の別名です。
+週ごとのイベントや、「毎週月曜日にリセット」の設計では、期間を週で持ちたくなります。`std::chrono::weeks` は、7 日を 1 つぶんとする `duration` の別名で、C++20 から使えます。1 週間は 604800 秒です。
 
 !!! tip "ポイント"
-    - 1 つぶんの長さは 604,800 秒（7 日）。
-    - `count()` で数を取り出し、`duration_cast` で別の単位に変える。
-    - リテラルでも書ける（[リテラル](literals.md) を参照）。
+    - `duration<整数, ratio<604800>>` の別名。7 日 = 604800 秒
+    - `days` へは暗黙に変換でき、`days` から `weeks` へは `duration_cast`
+    - 曜日の単位の `weekday` とは別。`weeks` は期間の長さ
+    - 日付に足して、「n 週間後」が求まる
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`<chrono>`](../chrono.md) の概要と [`days`](days.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::weeks {#weeks}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-using weeks = duration</* 整数（22 ビット以上） */, ratio<604800>>;
+using weeks = duration<int-at-least-22-bits, std::ratio<604800>>;
 ```
 
-- 戻り値: `weeks{n}` は 週を n 個ぶん持つ duration
-- 計算量: 定数
+`weeks{2}` は 14 日です。`days d = weeks{2};` と暗黙に変換できます。逆向きは、端数が出るので `duration_cast<weeks>(days{10})` と書き、1 週間に切り捨てられます。
 
+週の始まりが何曜日かは、`weeks` では決まりません。「月曜から始まる週」といった暦の扱いは、`weekday` と組み合わせて自分で計算します。
+
+`sys_days` に `weeks{n}` を足すと、n 週間後の同じ曜日の日付が求まります。
 
 ## 実際に動かしてみる
 
@@ -44,45 +49,51 @@ using weeks = duration</* 整数（22 ビット以上） */, ratio<604800>>;
 #include <print>
 
 int main() {
-  std::println("{}", std::chrono::duration_cast<std::chrono::days>(std::chrono::weeks{2}).count());
+  using namespace std::chrono;
+
+  std::println("2 週間は {} 日", days{weeks{2}}.count());
+  std::println("10 日は {} 週間 (切り捨て)", duration_cast<weeks>(days{10}).count());
+
+  // 2026-01-01 から 3 週間後
+  const sys_days start = year{2026} / January / 1;
+  const year_month_day ymd{start + weeks{3}};
+  std::println("3 週間後は {} 月 {} 日",
+               static_cast<unsigned>(ymd.month()),
+               static_cast<unsigned>(ymd.day()));
 }
 ```
 
 ```text title="実行結果"
-14
+2 週間は 14 日
+10 日は 1 週間 (切り捨て)
+3 週間後は 1 月 22 日
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 経過時間の指定 | `std::chrono::weeks{値}` |
+週替わりのイベントの周期を `weeks{1}` で持ちます。何曜日にリセットするかは、`weekday` で別に管理します。
 
 ## よくあるミス
 
-??? failure "整数に切り捨てられる"
-    整数の `duration` に `duration_cast` で大きい単位へ直すと、小数点以下は切り捨てられます。小数で受けたいなら `duration<double>` を使います。
+??? failure "weeks を曜日と取り違える"
+    `weeks` は 7 日ぶんの長さで、曜日の名前や番号は持ちません。曜日は `weekday` です。
+
+??? failure "C++17 以前で weeks を使う"
+    C++20 からです。以前は `duration<int, std::ratio<604800>>` と書きます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`duration`](duration.md) | 時間の長さの型 |
-| [`duration_cast`](duration_cast.md) | 単位を変換する |
-| [`literals`](literals.md) | `ms` / `s` などの書き方 |
+| [`days`](days.md) | 日の単位 |
+| [`weekday`](weekday.md) | 曜日を表す型 |
+| [`months`](months.md) | 月の単位。平均の長さ |
 
 ## コンパイラ対応
 
 C++20 から使えます。
 
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 週を数える duration の別名
-    - [x] `count()` で数を取り出す
-    - [x] 単位の変換は duration_cast
-
 ## 関連ページ
 
-- [cpprefjp: std::chrono::weeks](https://cpprefjp.github.io/reference/chrono/duration.html)
+- [cpprefjp: weeks](https://cpprefjp.github.io/reference/chrono/duration.html)
 - [cppreference: std::chrono::weeks](https://en.cppreference.com/w/cpp/chrono/duration)
