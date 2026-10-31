@@ -13,15 +13,16 @@ tags:
 `#include <ctime>`
 </div>
 
-`time_t` は整数とは限らず、単位も処理系ごとに違うことがあります。時刻の差を安全に秒で求めるには、引き算ではなく `std::difftime` を使います。
+セーブデータの時刻と今の時刻の差から、「前回から何日たったか」を出したい。`time_t` は引き算できそうに見えますが、規格では整数とも浮動小数点数とも決められていません。単位も秒とは限りません。実際の環境のほとんどでは秒の整数ですが、規格の上で安全に差を取る方法が `std::difftime` で、結果は秒の `double` で返ります。
 
 !!! tip "ポイント"
-    - 戻り値は秒（`double`）。
-    - `end - start` の順で渡す（`difftime(end, start)`）。
-    - ゲームの経過時間は [`steady_clock`](../../utilities/chrono/steady_clock.md) が正確。
+    - `difftime(end, beg)` は、`end - beg` を秒で返す。順番は「新しいほう、古いほう」
+    - 戻り値は `double`。小数が付く環境もある
+    - 年月日をまたぐ日数の計算には、`chrono` の `year_month_day` のほうが向く
+    - 時計が巻き戻ると、負の値になる
 
 !!! info "このページを読む前に"
-    [`std::time`](time.md) を先に読んでください。
+    [`std::time`](time.md) と [`std::time_t`](time_t.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -33,12 +34,16 @@ double difftime(std::time_t time_end, std::time_t time_beg);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `time_end` | time_t | 新しいほうの時刻 |
-| `time_beg` | time_t | 古いほうの時刻 |
+| `time_end` | `std::time_t` | 新しいほうの時刻 |
+| `time_beg` | `std::time_t` | 古いほうの時刻 |
 
-- 戻り値: 秒数（`double`）
-- 計算量: 定数
+戻り値は `time_end - time_beg` を秒にした `double` です。引数の順番を入れ替えると、符号が逆になるだけで、値は同じです。「新しいほうを先に」と覚えておくと、普通の使い方では正の数になります。
 
+実装は、ほとんどの環境で、`time_t` の整数の引き算をして `double` に直すだけです。`time_t` を `int` に入れて自分で引き算するよりは、`difftime` のほうが、桁あふれと環境の違いに安全です。
+
+落とし穴は、日付をまたいだ計算の単位です。秒を 86400 で割って日数にしても、夏時間の切り替えの日は、1 日が 23 時間や 25 時間になります。「暦の上で何日たったか」を厳密に出したいときは、`year_month_day` に変換して、日数を引き算します。
+
+計算量は定数です。
 
 ## 実際に動かしてみる
 
@@ -47,44 +52,62 @@ double difftime(std::time_t time_end, std::time_t time_beg);
 #include <print>
 
 int main() {
-  std::time_t a = 100;
-  std::time_t b = 40;
-  std::println("{}", std::difftime(a, b));
+  const std::time_t saved = 100;  // 古い時刻
+  const std::time_t now = 160;    // 新しい時刻
+  std::println("{} 秒", std::difftime(now, saved));
+  std::println("{} 秒", std::difftime(saved, now));  // 逆にすると負
+
+  // 90000 秒 = 1 日と 1 時間
+  const double days = std::difftime(90100, 100) / 86400.0;
+  std::println("{} 日", static_cast<int>(days));
 }
 ```
 
 ```text title="実行結果"
-60
+60 秒
+-60 秒
+1 日
 ```
+
+`static_cast<int>` は小数部を切り捨てるので、1 日と 1 時間が `1 日` になります。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| セーブデータの経過日数 | `std::difftime(now, saved) / 86400` |
+毎日ログイン ボーナスなどの、「前回からの経過日数」に使います。保存してある `time_t` と `time(nullptr)` を渡します。
+
+```cpp
+const double sec = std::difftime(std::time(nullptr), lastLogin);
+if (sec >= 24 * 60 * 60) {
+  // 1 日以上たっている
+}
+```
 
 ## よくあるミス
 
-??? failure "引数の順を逆にする"
-    `difftime(a, b)` は `a - b` です。新しいほうを先に渡します。
+??? failure "引数の順番を逆にして、負の値で判定が外れる"
+    `difftime(saved, now)` は負になります。`>= 86400` の判定が、いつまでも成立しません。新しい時刻（`now`）を先に渡します。
+
+??? failure "夏時間をまたいだ日数が、1 日ずれる"
+    秒数で割った日数は、夏時間の切り替えの日に 1 時間ぶんずれます。暦の日付で比べるなら、`chrono` の日付型を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`time`](time.md) | 今の時刻 |
-| [`steady_clock`](../../utilities/chrono/steady_clock.md) | 精度のよい計測 |
+| [`std::chrono::duration`](../../utilities/chrono/duration.md) | 時間の長さを型で持つ。引き算に向く |
+| [`std::chrono::steady_clock`](../../utilities/chrono/steady_clock.md) | 精度のよい計測 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C 由来の関数です。C++ のどの版でも使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] time_t の差を秒で返す
-    - [x] 第 1 引数 - 第 2 引数
-    - [x] 計測には steady_clock
+    - [x] `difftime(end, beg)` で、2 つの `time_t` の差を秒（`double`）で得る
+    - [x] 新しいほうを先に渡す
+    - [x] 暦の日数を厳密に出すなら、`chrono` の日付型
 
 ## 関連ページ
 
