@@ -49,24 +49,123 @@ constexpr float lerp(float a, float b, float t) noexcept;
 
 - 戻り値: `a + t * (b - a)`
 
+#### 外挿と、収める必要
+
+`t` は 0〜1 に制限されません。`t = 1.5` なら `b` を越えた先の値、`t = -0.5` なら `a` より手前の値になります。外挿は、予測や、行き過ぎる演出(はねる動き)で役に立ちますが、アニメーションの進行率として使うときは、終点を越えないように `t` を収めておきます。
+
+#### a + (b - a) * t との違い
+
+`std::lerp` は、次の性質を保証します。
+
+- `t = 0` なら必ず `a`、`t = 1` なら必ず `b` を返す
+- `a` と `b` が等しければ、どんな `t` でもその値を返す
+- `t` が 0〜1 のとき、結果は `a` と `b` の間に収まり、`t` が大きくなるにつれて、減ることがない(単調)
+- `b - a` が桁あふれしても、結果は有限になる(正しく計算される)
+
+自分で `a + (b - a) * t` と書くと、`b - a` の丸め誤差のために、`t = 1` でも `b` に届かないことがあります。
+
+#### 型
+
+`float`・`double`・`long double` の版があり、整数を渡すと `double` 版が呼ばれます。`constexpr` なので、コンパイル時の計算にも使えます。
+
+## 実際に動かしてみる
+
+### t の動きと外挿
+
 ```cpp
 #include <cmath>
 #include <print>
 
 int main() {
-  float camera = 0.0f;
-  float target = 100.0f;
-  for (int i = 0; i < 3; ++i) {
-    camera = std::lerp(camera, target, 0.5f);  // 毎フレーム半分ずつ近づく
-    std::print("{} ", camera);
-  }
-  std::println("");
+  float a = 0.0f;
+  float b = 100.0f;
+
+  std::println("t = 0.0  -> {}", std::lerp(a, b, 0.0f));
+  std::println("t = 0.25 -> {}", std::lerp(a, b, 0.25f));
+  std::println("t = 1.0  -> {}", std::lerp(a, b, 1.0f));
+
+  // 範囲の外は、外挿になる
+  std::println("t = 1.5  -> {}", std::lerp(a, b, 1.5f));
+  std::println("t = -0.5 -> {}", std::lerp(a, b, -0.5f));
+
+  // 止めたいときは、渡す前に t を 0〜1 に収める
+  float t = 1.5f;
+  t = t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+  std::println("収めたあと -> {}", std::lerp(a, b, t));
 }
 ```
 
 ```text title="実行結果"
-50 75 87.5 
+t = 0.0  -> 0
+t = 0.25 -> 25
+t = 1.0  -> 100
+t = 1.5  -> 150
+t = -0.5 -> -50
+収めたあと -> 100
 ```
+
+`t = 1.5` で 150、`t = -0.5` で −50 になります。最後の例のように `t` を収めておけば、150 ではなく 100 で止まります。C++17 以降なら、`std::clamp(t, 0.0f, 1.0f)` が使えます。
+
+### 終点にぴったり届く
+
+```cpp
+#include <cmath>
+#include <print>
+
+int main() {
+  // 自分で a + (b - a) * t と書くと、t = 1 でも b に届かないことがある
+  float a = 1.0f;
+  float b = 1e-8f;
+  float naive = a + (b - a) * 1.0f;
+  std::println("自分で書いた式: {}", naive);
+  std::println("std::lerp:      {}", std::lerp(a, b, 1.0f));
+  std::println("lerp は b に一致する: {}", std::lerp(a, b, 1.0f) == b);
+}
+```
+
+```text title="実行結果"
+自分で書いた式: 0
+std::lerp:      1e-08
+lerp は b に一致する: true
+```
+
+`b - a` は `1e-8 - 1.0` ですが、`float` では `-1.0` に丸められます。`1.0 + (-1.0 * 1.0)` が 0 になり、`b` の 1e-8 には届きません。`std::lerp` は、このような場合でも `b` を返します。
+
+### フレームレートによらない追従
+
+毎フレーム「一定の割合だけ近づく」書き方は、フレームレートに依存します。1 秒間の追従を、60 fps と 144 fps で比べます。
+
+```cpp
+#include <cmath>
+#include <print>
+
+// 1 秒間、目標 100 に追従したときの位置
+float FollowNaive(float rate, int fps) {
+  float pos = 0.0f;
+  for (int i = 0; i < fps; ++i) pos = std::lerp(pos, 100.0f, rate);   // 毎フレーム rate だけ近づく
+  return pos;
+}
+
+float FollowByTime(float speed, int fps) {
+  float pos = 0.0f;
+  float dt = 1.0f / fps;
+  float t = 1.0f - std::exp(-speed * dt);   // 経過時間から t を作る
+  for (int i = 0; i < fps; ++i) pos = std::lerp(pos, 100.0f, t);
+  return pos;
+}
+
+int main() {
+  std::println("毎フレーム 2% 近づく:  60fps {:.1f} / 144fps {:.1f}", FollowNaive(0.02f, 60), FollowNaive(0.02f, 144));
+  std::println("経過時間から t を計算:  60fps {:.1f} / 144fps {:.1f}", FollowByTime(2.0f, 60), FollowByTime(2.0f, 144));
+}
+```
+
+```text title="実行結果"
+毎フレーム 2% 近づく:  60fps 70.2 / 144fps 94.5
+経過時間から t を計算:  60fps 86.5 / 144fps 86.5
+```
+
+上の行は、毎フレーム 2% 近づく書き方です。フレームが多い 144 fps のほうが、1 秒で目標にずっと近づきます。下の行は、経過時間 `dt` から `t = 1 - exp(-speed × dt)` を計算した書き方です。どちらのフレームレートでも、ほぼ同じ位置になります。
 
 ## ゲームでの使いどころ
 
@@ -97,7 +196,7 @@ int main() {
 
 ## コンパイラ対応
 
-C++98 から使えます。`std::lerp` は C++20、`hypot` の 3 引数は C++17 です。
+C++20 から使えます。`<cmath>` にあります。MSVC・GCC・Clang とも対応しています。C++17 以前では、`a + (b - a) * t` と自分で書く必要があります。
 
 ## これだけ覚える
 
