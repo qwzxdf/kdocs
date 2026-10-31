@@ -13,15 +13,16 @@ tags:
 `#include <cwchar>`
 </div>
 
-`wchar_t` の 1 文字を `char` に変換します。1 バイトで表せなければ `EOF` が返ります。
+`btowc` の逆で、`wchar_t` の 1 文字を、`char` の 1 バイトに戻します。ASCII の範囲なら、ほぼそのまま戻りますが、日本語のように 1 バイトに収まらない文字は、変換できません。変換できたかどうかを、戻り値が `EOF` かで判定します。
 
 !!! tip "ポイント"
-    - `wchar_t`（ワイド文字）版の C の関数。
-    - `char` 版は `<cstdio>`・`<cstring>`・`<cstdlib>`。
-    - Windows の API でよく使われる。
+    - 現在のロケールで、1 バイトで表せる文字だけが変換できる
+    - 変換できないときは `EOF` を返す
+    - 戻り値は `int`。変換できたら `unsigned char` の範囲の値
+    - 複数バイトになる文字は `wcrtomb`
 
 !!! info "このページを読む前に"
-    [文字コード](../../../encoding/index.md) の考え方を先に読んでください。
+    [`std::btowc`](btowc.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -33,11 +34,13 @@ int wctob(std::wint_t c);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `c` | wint_t | 変換するワイド文字 |
+| `c` | `std::wint_t` | 変換するワイド文字 |
 
-- 戻り値: 変換した 1 バイト。できなければ `EOF`
-- 計算量: 文字数に比例
+`c` が、現在のロケールで 1 バイトの文字に対応するなら、その `unsigned char` の値を返します。そうでなければ `EOF` を返します。
 
+「1 バイトで表せるか」は、ロケールで決まります。"C" ロケールでは、ASCII の 0〜127 が確実に変換できます。UTF-8 のロケールでは、128 以上のワイド文字は、2〜4 バイトで表されるので、`EOF` になります。
+
+引数が `wint_t` なのは、`WEOF` を渡せるようにするためで、`WEOF` を渡すと `EOF` が返ります。
 
 ## 実際に動かしてみる
 
@@ -46,43 +49,52 @@ int wctob(std::wint_t c);
 #include <print>
 
 int main() {
-  std::println("{}", std::wctob(L'A'));
+  std::println("L'A' → 'A': {}", std::wctob(L'A') == 'A');
+  std::println("WEOF → EOF: {}", std::wctob(WEOF) == EOF);
+
+  // btowc と組み合わせると、元に戻る
+  std::println("往復: {}", std::wctob(std::btowc('Z')) == 'Z');
 }
 ```
 
 ```text title="実行結果"
-65
+L'A' → 'A': true
+WEOF → EOF: true
+往復: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ワイド文字を ASCII に戻す |
+ほとんど使いません。UTF-16 の文字列を `char` の文字列に直すには、1 文字ずつ `wctob` ではなく、`wcsrtombs` か、Windows の `WideCharToMultiByte` を使います。
 
 ## よくあるミス
 
-??? failure "日本語の文字に使う"
-    1 バイトで表せない文字は、`EOF` になります。
+??? failure "EOF を確かめずに char にキャストする"
+    `char c = wctob(wc);` では、変換に失敗した `EOF` が、そのまま `char` の `-1` になります。戻り値が `EOF` でないことを確かめます。
+
+??? failure "日本語の 1 文字を変換しようとする"
+    日本語は 1 バイトに収まらないので、必ず `EOF` が返ります。`wcrtomb` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`btowc`](btowc.md) | 逆の変換 |
+| [`btowc`](btowc.md) | 逆方向の変換 |
+| [`wcrtomb`](wcrtomb.md) | 複数バイトの文字にも対応する |
+| [`wcsrtombs`](wcsrtombs.md) | 文字列をまとめて変換する |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ワイド文字を 1 バイトの文字に変換する
-    - [x] `wchar_t`（ワイド文字）版の C の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `wctob` は、ワイド文字を 1 バイトの文字に戻す
+    - [x] 変換できなければ `EOF`
+    - [x] 複数バイトになる文字は `wcrtomb`
 
 ## 関連ページ
 
-- [cpprefjp: std::wctob](https://cpprefjp.github.io/reference/cwchar/wctob.html)
-- [cppreference: std::wctob](https://en.cppreference.com/w/cpp/string/wide/wctob)
+- [cpprefjp: wctob](https://cpprefjp.github.io/reference/cwchar/wctob.html)
+- [cppreference: wctob](https://en.cppreference.com/w/cpp/string/multibyte/wctob)

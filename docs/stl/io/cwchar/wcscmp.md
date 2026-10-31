@@ -13,15 +13,16 @@ tags:
 `#include <cwchar>`
 </div>
 
-`strcmp` の `wchar_t` 版です。辞書順ではなく、文字コードの順で比べます。
+パスワードの照合や、アイテム名の一致の判定のように、2 つの文字列が同じかどうか、あるいはどちらが先に並ぶかを知りたい場面があります。`wchar_t` の文字列に対して、これを行うのが `wcscmp` です。`char` 版の `strcmp` と同じ働きで、先頭から 1 要素ずつ比べ、違う所が見つかった時点で結果を返します。
 
 !!! tip "ポイント"
-    - `wchar_t`（ワイド文字）版の C の関数。
-    - `char` 版は `<cstdio>`・`<cstring>`・`<cstdlib>`。
-    - Windows の API でよく使われる。
+    - 戻り値は、`lhs < rhs` なら負、等しければ 0、`lhs > rhs` なら正。大きさは決まっていない
+    - 一致の判定は `== 0`。`!wcscmp(a, b)` とも書く
+    - 要素の値（UTF-16 の符号値）で比べる。辞書順や、言語ごとの並びではない
+    - 言語に合わせた並べ替えは `wcscoll`（ロケールに従う）か、`std::collate`
 
 !!! info "このページを読む前に"
-    [文字コード](../../../encoding/index.md) の考え方を先に読んでください。
+    [`<cwchar>`](../cwchar.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -33,11 +34,18 @@ int wcscmp(const wchar_t* lhs, const wchar_t* rhs);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `lhs, rhs` | const wchar_t* | 比べる 2 つの文字列 |
+| `lhs` | `const wchar_t*` | 比べる 1 つ目の文字列 |
+| `rhs` | `const wchar_t*` | 比べる 2 つ目の文字列 |
 
-- 戻り値: `lhs < rhs` なら負、等しければ 0、大きければ正
-- 計算量: 文字数に比例
+先頭から順に、`wchar_t` の値を比べます。違う要素が見つかれば、その差の符号で結果が決まります。片方が先に終端に達したら、短いほうが小さいとされます。
 
+戻り値の大きさには意味がありません。`-1`、`0`、`1` とは限らず、`-32` や `98` が返る環境もあります。符号だけを見て、`< 0`、`== 0`、`> 0` と比べます。
+
+比べるのは文字の符号値なので、UTF-16 では、サロゲート ペアを含む文字列の並びが、実際の文字の並びと一致しないことがあります。日本語を五十音順に並べるような用途には、そのままでは向きません。
+
+どちらかが終端のない配列だと、配列の外まで読んで、クラッシュします。`nullptr` を渡すのも未定義動作です。
+
+C++ の `std::wstring` では、`==` や `<` で比べるので、`wcscmp` は不要です。
 
 ## 実際に動かしてみる
 
@@ -46,43 +54,53 @@ int wcscmp(const wchar_t* lhs, const wchar_t* rhs);
 #include <print>
 
 int main() {
-  std::println("{}", std::wcscmp(L"a", L"b") < 0);
+  std::println("同じ: {}", std::wcscmp(L"Hero", L"Hero") == 0);
+  std::println("Hero < Mage: {}", std::wcscmp(L"Hero", L"Mage") < 0);
+  std::println("Mage > Hero: {}", std::wcscmp(L"Mage", L"Hero") > 0);
+  std::println("短いほうが小さい: {}", std::wcscmp(L"He", L"Hero") < 0);
 }
 ```
 
 ```text title="実行結果"
-true
+同じ: true
+Hero < Mage: true
+Mage > Hero: true
+短いほうが小さい: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ワイド文字列の比較 |
+Windows API から受け取った `wchar_t` の文字列が、特定の名前と一致するかを調べるときに使います。自分のコードでは `std::wstring` に入れて `==` で比べます。
 
 ## よくあるミス
 
-??? failure "戻り値を `-1` / `1` と思う"
-    負・0・正のどれかです。値は決まっていません。
+??? failure "戻り値を 1 や -1 と比べる"
+    `wcscmp(a, b) == -1` は、環境によって成り立ちません。`< 0` と書きます。
+
+??? failure "ポインタどうしの == で比べる"
+    `if (a == b)` は、文字列の中身ではなく、アドレスの比較です。中身を比べるには `wcscmp` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`strcmp`](../../memory/cstring/strcmp.md) | char 版 |
+| `wcsncmp` | 先頭の n 要素だけ比べる |
+| `wcscoll` | ロケールの並び順で比べる |
+| `strcmp` | `char` 版 |
+| [`std::wstring`](../../containers/string.md) | `==` と `<` で比べられる。普段はこちら |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 2 つのワイド文字列を比べる
-    - [x] `wchar_t`（ワイド文字）版の C の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `wcscmp` は、2 つのワイド文字列を要素の値で比べる
+    - [x] 戻り値は符号だけを見る。一致は `== 0`
+    - [x] C++ では `std::wstring` の `==` で足りる
 
 ## 関連ページ
 
-- [cpprefjp: std::wcscmp](https://cpprefjp.github.io/reference/cwchar/wcscmp.html)
-- [cppreference: std::wcscmp](https://en.cppreference.com/w/cpp/string/wide/wcscmp)
+- [cpprefjp: wcscmp](https://cpprefjp.github.io/reference/cwchar/wcscmp.html)
+- [cppreference: wcscmp](https://en.cppreference.com/w/cpp/string/wide/wcscmp)

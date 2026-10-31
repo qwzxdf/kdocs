@@ -13,15 +13,16 @@ tags:
 `#include <cwchar>`
 </div>
 
-`mblen` の再入可能版です。変換の途中状態（`mbstate_t`）を引数で受け取るので、スレッドで安全です。
+UTF-8 の文字列を 1 文字ずつ進めたいとき、次の文字が何バイトなのかを先に知る必要があります。ASCII は 1 バイト、日本語は 3 バイト、といった具合です。`mbrlen` は、バイト列の先頭にある 1 文字のバイト数を返します。中身を変換せずに長さだけを知りたいときに使い、`mbrtowc` の「文字を取り出さない版」にあたります。
 
 !!! tip "ポイント"
-    - `wchar_t`（ワイド文字）版の C の関数。
-    - `char` 版は `<cstdio>`・`<cstring>`・`<cstdlib>`。
-    - Windows の API でよく使われる。
+    - 先頭の 1 文字のバイト数を返す。終端文字なら 0
+    - 不正なバイト列なら `(size_t)-1`、文字の途中で切れていたら `(size_t)-2`
+    - 状態は `mbstate_t` に覚えさせる。最初は `{}` で初期化する
+    - 結果はロケールで変わる。UTF-8 の扱いは環境の設定による
 
 !!! info "このページを読む前に"
-    [文字コード](../../../encoding/index.md) の考え方を先に読んでください。
+    [`std::mbstate_t`](mbstate_t.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -33,13 +34,24 @@ std::size_t mbrlen(const char* s, std::size_t n, std::mbstate_t* ps);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `s` | const char* | 調べるバイト列 |
-| `n` | size_t | 調べる最大のバイト数 |
-| `ps` | mbstate_t* | 変換の途中状態 |
+| `s` | `const char*` | 調べるバイト列の先頭 |
+| `n` | `std::size_t` | 調べてよい最大のバイト数 |
+| `ps` | `std::mbstate_t*` | 変換の途中状態 |
 
-- 戻り値: 1 文字のバイト数。不正なら `(size_t)-1`
-- 計算量: 文字数に比例
+先頭の 1 文字が完成するまでに必要なバイト数を返します。`n` バイトの範囲に収まる場合の戻り値は、次のとおりです。
 
+| 戻り値 | 意味 |
+| --- | --- |
+| 1 以上 | 先頭の文字のバイト数 |
+| 0 | 終端文字（`'\0'`）だった |
+| `(size_t)-1` | 不正なバイト列。`errno` が `EILSEQ` になる |
+| `(size_t)-2` | `n` バイトでは文字が完成しない。続きのバイトが必要 |
+
+`(size_t)-2` が返るのは、ネットワークやファイルから少しずつ受け取っているデータの、読みかけの部分です。そのとき状態が `ps` に残るので、続きを受け取ってから、同じ `ps` でもう一度呼びます。
+
+`ps` には、`nullptr` も渡せますが、内部の状態を使うので、スレッドから使うと安全ではありません。自分の `mbstate_t` を渡します。
+
+UTF-8 を正しく扱えるかは、`setlocale` の設定と、実行環境（C ランタイム）の対応しだいです。MSVC では、`setlocale(LC_ALL, ".UTF-8")` で UTF-8 のロケールにできます。
 
 ## 実際に動かしてみる
 
@@ -48,44 +60,51 @@ std::size_t mbrlen(const char* s, std::size_t n, std::mbstate_t* ps);
 #include <print>
 
 int main() {
-  std::mbstate_t st{};
-  std::println("{}", std::mbrlen("A", 1, &st));
+  std::mbstate_t state{};
+  std::println("'A' の長さ: {}", std::mbrlen("A", 4, &state));
+  std::println("終端の長さ: {}", std::mbrlen("", 1, &state));
 }
 ```
 
 ```text title="実行結果"
-1
+'A' の長さ: 1
+終端の長さ: 0
 ```
+
+ASCII の例を使っています。日本語のバイト列で試すときは、実行環境のロケールを UTF-8 に設定してから呼びます。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 可変長の文字列の文字数を数える |
+UTF-8 の文字列を 1 文字ずつ進める処理の、自作のライブラリで使われることがあります。自分で書く場合は、先頭バイトのビットパターンで長さが決まる UTF-8 の規則を直接使うほうが、ロケールに依存せず、速くて確実です。
 
 ## よくあるミス
 
-??? failure "`mbstate_t` を初期化しない"
-    最初に `std::mbstate_t st{};` で 0 に初期化します。
+??? failure "ロケールを設定せずに UTF-8 を渡す"
+    既定の "C" ロケールでは、128 以上のバイトの扱いが環境で違います。UTF-8 を扱うなら、ロケールを設定します。
+
+??? failure "(size_t)-2 を不正と誤解する"
+    データが足りないだけで、不正ではありません。続きを受け取ってから、同じ状態でもう一度呼びます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`mblen`](../../numeric/cstdlib/mblen.md) | 途中状態なし |
+| [`mbrtowc`](mbrtowc.md) | 長さだけでなく、ワイド文字に変換して返す |
+| [`mbsrtowcs`](mbsrtowcs.md) | 文字列全体を変換する |
+| [`mbstate_t`](mbstate_t.md) | 途中の状態 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] マルチバイト文字 1 文字のバイト数を返す（途中状態つき）
-    - [x] `wchar_t`（ワイド文字）版の C の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `mbrlen` は、先頭の 1 文字のバイト数を返す
+    - [x] `-1` は不正、`-2` は途中で切れている
+    - [x] 結果はロケールで変わる
 
 ## 関連ページ
 
-- [cpprefjp: std::mbrlen](https://cpprefjp.github.io/reference/cwchar/mbrlen.html)
-- [cppreference: std::mbrlen](https://en.cppreference.com/w/cpp/string/wide/mbrlen)
+- [cpprefjp: mbrlen](https://cpprefjp.github.io/reference/cwchar/mbrlen.html)
+- [cppreference: mbrlen](https://en.cppreference.com/w/cpp/string/multibyte/mbrlen)
