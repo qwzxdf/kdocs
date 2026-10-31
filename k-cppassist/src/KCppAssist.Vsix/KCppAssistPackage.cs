@@ -446,9 +446,10 @@ namespace KCppAssist
             await JoinableTaskFactory.SwitchToMainThreadAsync();
 
             var thisKeys = SignatureSync.TypeKeys(thisList);
-            var targets = SyncService.FindTargets(files, wantDef, sig.Class, sig.Name, adapters)
+            var targets = SyncService.FindTargets(files, wantDef, sig, adapters)
                 .Where(t => !(string.Equals(t.File, path, StringComparison.OrdinalIgnoreCase) && t.Sig.Open == sig.Open))
                 .ToList();
+            if (targets.Count > 0) { int top = targets.Max(t => t.Score); targets = targets.Where(t => t.Score == top).ToList(); }
             if (targets.Count == 0) { await ReportAsync(label + " の" + (wantDef ? "定義" : "宣言") + "が見つかりません", true); return; }
 
             Func<SyncService.Target, List<string>> keysOf = t => { var l = SignatureSync.SplitParams(t.Inner); return l == null ? null : SignatureSync.TypeKeys(l); };
@@ -479,7 +480,9 @@ namespace KCppAssist
                 try { Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, path, Guid.Empty, out hier, out id, out frame); }
                 catch (Exception) { }
             }
-            await ReportAsync(label + " の引数を " + Path.GetFileName(target.File) + " に写しました", false);
+            var writtenList = SignatureSync.SplitParams(newInner);
+            string warnText = !wantDef && writtenList != null && SignatureSync.DefaultsOutOfOrder(writtenList) ? "(注意: 既定値のある引数のあとに、既定値のない引数があります)" : "";
+            await ReportAsync(label + " の引数を " + Path.GetFileName(target.File) + " に写しました" + warnText, false);
         }
 
         // ---- ゲッター・セッター ----

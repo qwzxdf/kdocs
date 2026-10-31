@@ -18,6 +18,8 @@ namespace KCppAssist
             public int Open, Close;     // '(' と ')' の位置
             public bool HasBody;        // 本体({ ... })がある(定義)
             public bool InClass;        // クラスの本体の中に書かれている
+            public List<string> Chain = new List<string>();   // 名前の前に付く、namespace とクラスの並び(外側から順。囲んでいるものと、Class::Func の修飾の両方)
+            public bool IsConst;        // ')' のあとに const が付く(オーバーロードの区別に使う)
 
             public string Inner(string text) { return text.Substring(Open + 1, Close - Open - 1); }
         }
@@ -28,6 +30,7 @@ namespace KCppAssist
             @"(?:(?:alignas\s*\([^)]*\)|__declspec\s*\([^)]*\)|\[\[[^\]]*\]\]|[A-Z][A-Z0-9_]*_API|[A-Z][A-Z0-9_]*EXPORT[A-Z0-9_]*)\s+)*" +
             @"([A-Za-z_]\w*)\s*(?:final\s*)?(?::[^;{}]*)?\s*$", RegexOptions.Compiled);
         private static readonly Regex NsHead = new Regex(@"(?:\bnamespace\b[^;{}]*|\bextern\s*)$", RegexOptions.Compiled);
+        private static readonly Regex NsName = new Regex(@"\bnamespace\s+((?:[A-Za-z_]\w*\s*::\s*)*[A-Za-z_]\w*)\s*$", RegexOptions.Compiled);
         private static readonly Regex Access = new Regex(@"^\s*(public|protected|private)\s*$", RegexOptions.Compiled);
         private static readonly Regex NameTail = new Regex(@"((?:[A-Za-z_]\w*\s*(?:<[^<>]*>)?\s*::\s*)*)(~?[A-Za-z_]\w*)\s*$", RegexOptions.Compiled);
         private static readonly Regex Keywords = new Regex(
@@ -51,7 +54,10 @@ namespace KCppAssist
                     if (!EnumHead.IsMatch(head) && (cm = ClassHead.Match(head)).Success)
                         stack.Push(new KeyValuePair<bool, string>(true, cm.Groups[1].Value));
                     else if (NsHead.IsMatch(head))
-                        stack.Push(new KeyValuePair<bool, string>(false, null));
+                    {
+                        var nm = NsName.Match(head);
+                        stack.Push(new KeyValuePair<bool, string>(false, nm.Success ? Regex.Replace(nm.Groups[1].Value, @"\s+", "") : null));
+                    }
                     else
                     {
                         int e = MatchClose(m, i, '{', '}');
@@ -70,7 +76,7 @@ namespace KCppAssist
                     if (close < 0) break;
                     var top = stack.Count > 0 ? stack.Peek() : new KeyValuePair<bool, string>(false, null);
                     int after;
-                    Sig s = TryFunction(m, stmt, i, close, top, out after);
+                    Sig s = TryFunction(m, stmt, i, close, top, EnclosingNames(stack), out after);
                     if (s != null)
                     {
                         sigs.Add(s);
@@ -85,7 +91,16 @@ namespace KCppAssist
             return sigs;
         }
 
-        private static Sig TryFunction(string m, int stmt, int open, int close, KeyValuePair<bool, string> top, out int after)
+        /// <summary>囲んでいる namespace とクラスの名前を、外側から順に並べる(無名のものは入れない。「a::b」は a, b に分ける)。</summary>
+        private static List<string> EnclosingNames(Stack<KeyValuePair<bool, string>> stack)
+        {
+            var list = new List<string>();
+            foreach (var e in stack.Reverse())
+                if (e.Value != null) list.AddRange(e.Value.Split(new[] { "::" }, StringSplitOptions.RemoveEmptyEntries));
+            return list;
+        }
+
+        private static Sig TryFunction(string m, int stmt, int open, int close, KeyValuePair<bool, string> top, List<string> enclosing, out int after)
         {
             after = open + 1;
             string prefix = m.Substring(stmt, open - stmt);
@@ -153,6 +168,17 @@ namespace KCppAssist
             if (j >= n || (m[j] != ';' && m[j] != '{')) return null;
 
             var sig = new Sig { Class = cls, Name = name, Open = open, Close = close, HasBody = body, InClass = qual.Trim().Length == 0 && top.Key };
+            sig.Chain.AddRange(enclosing);
+            if (qual.Trim().Length > 0)
+                foreach (string part in qual.Split(new[] { "::" }, StringSplitOptions.RemoveEmptyEntries))
+                    sig.Chain.Add(Regex.Replace(part, @"\s*<.*>\s*", "").Trim());
+            // ')' のあと、本体・初期化子リスト・「;」・「->」の手前までに const があるか
+            string tail = m.Substring(close + 1, Math.Max(0, j - close - 1));
+            int cut = tail.IndexOfAny(new[] { ':', '{', ';' });
+            if (cut >= 0) tail = tail.Substring(0, cut);
+            int arrow = tail.IndexOf("->", StringComparison.Ordinal);
+            if (arrow >= 0) tail = tail.Substring(0, arrow);
+            sig.IsConst = Regex.IsMatch(tail, @"\bconst\b");
             if (body)
             {
                 int e = MatchClose(m, j, '{', '}');

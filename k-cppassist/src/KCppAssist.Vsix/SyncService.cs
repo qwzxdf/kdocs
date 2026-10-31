@@ -29,6 +29,7 @@ namespace KCppAssist
             public string File;
             public string Text;
             public FunctionScan.Sig Sig;
+            public int Score;               // SyncPlan.Counterpart の点(0 は相手になれない)
             public ITextBuffer Buffer;      // エディターで開いているとき。閉じていれば null
             public string Inner { get { return Sig.Inner(Text); } }
         }
@@ -88,15 +89,8 @@ namespace KCppAssist
             return found;
         }
 
-        public static bool IsCounterpart(FunctionScan.Sig s, bool wantDefinition, string cls, string name)
-        {
-            if (s.Name != name || s.Class != cls) return false;
-            if (wantDefinition) return s.HasBody && !s.InClass;
-            return !s.HasBody && (cls == null ? !s.InClass : s.InClass);
-        }
-
-        /// <summary>files の中から、名前とクラスが合う宣言(か定義)を集める。開いているファイルは、エディターの文字を読む。</summary>
-        public static List<Target> FindTargets(IEnumerable<string> files, bool wantDefinition, string cls, string name, IVsEditorAdaptersFactoryService adapters)
+        /// <summary>files の中から、edited の相手になれる宣言(か定義)を集める。開いているファイルは、エディターの文字を読む。</summary>
+        public static List<Target> FindTargets(IEnumerable<string> files, bool wantDefinition, FunctionScan.Sig edited, IVsEditorAdaptersFactoryService adapters)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             var list = new List<Target>();
@@ -107,8 +101,10 @@ namespace KCppAssist
                 try { text = buf != null ? buf.CurrentSnapshot.GetText() : File.ReadAllText(f); }
                 catch (Exception) { continue; }
                 foreach (var s in FunctionScan.Scan(text))
-                    if (IsCounterpart(s, wantDefinition, cls, name))
-                        list.Add(new Target { File = f, Text = text, Sig = s, Buffer = buf });
+                {
+                    int score = SyncPlan.Counterpart(s, edited, wantDefinition);
+                    if (score > 0) list.Add(new Target { File = f, Text = text, Sig = s, Buffer = buf, Score = score });
+                }
             }
             return list;
         }
@@ -170,6 +166,6 @@ namespace KCppAssist
             return false;
         }
 
-        public static bool SameKeys(List<string> a, List<string> b) { return a != null && b != null && a.SequenceEqual(b); }
+        public static bool SameKeys(List<string> a, List<string> b) { return SyncPlan.SameKeys(a, b); }
     }
 }
