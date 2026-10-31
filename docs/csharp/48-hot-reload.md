@@ -13,6 +13,14 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Engine/src/GameModule.cpp`（変更） | DLL のコピーを読み込み、差し替えられるようにする |
+    | `Play/IGameService.cs`（新規） | ゲームの読み込みと再読み込みの窓口 |
+    | `Play/GameService.cs`（新規） | ファイルの更新を検出して、再読み込みを依頼する |
+
+
 ## 差し替えの手順と、5 つの罠
 
 第 47 章でゲームを DLL に分けました。差し替えるには、次の手順が要ります。
@@ -46,7 +54,7 @@ tags:
 
 エンジンは、`Game.dll` そのものではなく、そのコピーを読み込みます。元の `Game.dll` は誰にも掴まれないので、ビルドがいつでも上書きできます。`GameModule.cpp` に、コピーを作る関数を足します。
 
-```cpp title="Engine/src/GameModule.cpp"
+```cpp title="Engine/src/GameModule.cpp（変更）"
 #include <atomic>
 #include <filesystem>
 
@@ -242,7 +250,7 @@ internal static partial MeResult me_game_reload(EngineHandle engine);
 
 `Game.dll` が更新されたのを検出して、書き込みが終わるのを待ってから、リロードを依頼します。
 
-```csharp title="Play/IGameService.cs"
+```csharp title="Play/IGameService.cs（新規）"
 namespace Editor.Play;
 
 public interface IGameService : IDisposable
@@ -257,7 +265,7 @@ public interface IGameService : IDisposable
 }
 ```
 
-```csharp title="Play/GameService.cs"
+```csharp title="Play/GameService.cs（新規）"
 using System.IO;
 using System.Windows.Threading;
 using Editor.Log;

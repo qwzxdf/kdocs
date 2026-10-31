@@ -13,6 +13,19 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Engine/NativeMethods.cs`（新規） | C の関数を、P/Invoke で宣言する |
+    | `Engine/MeResult.cs`（新規） | エンジンの結果コード（列挙型） |
+    | `Engine/EngineException.cs`（新規） | エンジンの失敗を表す例外 |
+    | `Engine/MeEngineDesc.cs`（新規） | エンジンの作成設定の構造体（C と同じ並び） |
+    | `Engine/EngineHandle.cs`（新規） | エンジンのハンドルを持ち、確実に破棄する |
+    | `Engine/IEngineService.cs`（新規） | ビューモデルから見える、エンジンの窓口 |
+    | `Engine/PInvokeEngineService.cs`（新規） | 窓口の P/Invoke 版の実装 |
+    | `Engine/NativeLog.cs`（新規） | エンジンのログを受け取るコールバック |
+
+
 ## P/Invoke は、宣言をもう一度書く仕組み
 
 P/Invoke は、「C の関数の宣言を C# の側にもう一度書く」という仕組みです。
@@ -50,7 +63,7 @@ C# のコンパイラーは、C のヘッダーを読めません。だから、
 
 `Editor` に `Interop` フォルダーを作って、`NativeMethods.cs` を書きます。
 
-```csharp title="Engine/NativeMethods.cs"
+```csharp title="Engine/NativeMethods.cs（新規）"
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -104,7 +117,7 @@ protected override void OnInitialized()
 
 まず、結果コードの列挙型です。
 
-```csharp title="Engine/MeResult.cs"
+```csharp title="Engine/MeResult.cs（新規）"
 namespace Editor.Engine;
 
 // EngineApi.h の ME_* と同じ値にする
@@ -123,7 +136,7 @@ internal enum MeResult : int
 
 次に、エンジンの失敗を表す例外クラスです。
 
-```csharp title="Engine/EngineException.cs"
+```csharp title="Engine/EngineException.cs（新規）"
 namespace Editor.Engine;
 
 public class EngineException : Exception
@@ -169,7 +182,7 @@ ME_API MeResult me_engine_create(const MeEngineDesc* desc, MeEngine** out_engine
 
 構造体は、C の定義と同じ並びで宣言します。
 
-```csharp title="Engine/MeEngineDesc.cs"
+```csharp title="Engine/MeEngineDesc.cs（新規）"
 using System.Runtime.InteropServices;
 
 namespace Editor.Engine;
@@ -209,7 +222,7 @@ NativeMethods.ThrowIfFailed(result);
 
 `out nint engine` で受け取ったハンドルは、ただの整数です。これを `Editor` のあちこちに持ち回ると、解放し忘れ、二重に解放、解放したあとで使う、といった間違いが起きます。C++ の `unique_ptr` の役目を C# では `SafeHandle` が担います。
 
-```csharp title="Engine/EngineHandle.cs"
+```csharp title="Engine/EngineHandle.cs（新規）"
 using System.Runtime.InteropServices;
 
 namespace Editor.Engine;
@@ -268,7 +281,7 @@ internal static partial MeResult me_engine_get_frame_count(EngineHandle engine, 
 
 ビューモデルが `NativeMethods` や `EngineHandle` を直接触らなくて済むように、窓口のインターフェースを作ります。次の章の C++/CLI 版も、同じインターフェースを実装します。
 
-```csharp title="Engine/IEngineService.cs"
+```csharp title="Engine/IEngineService.cs（新規）"
 namespace Editor.Engine;
 
 // エンジンへの窓口。ビューモデルは、これだけを知る。
@@ -285,7 +298,7 @@ public interface IEngineService : IDisposable
 }
 ```
 
-```csharp title="Engine/PInvokeEngineService.cs"
+```csharp title="Engine/PInvokeEngineService.cs（新規）"
 namespace Editor.Engine;
 
 public sealed class PInvokeEngineService : IEngineService
@@ -361,7 +374,7 @@ C# から、関数ポインターを渡す必要があります。方法は 2 �
 
 C# の `static` なメソッドに `[UnmanagedCallersOnly]` を付けると、C から直接呼べる関数になり、そのアドレスを取れます。
 
-```csharp title="Engine/NativeLog.cs"
+```csharp title="Engine/NativeLog.cs（新規）"
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 

@@ -13,6 +13,23 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Asset/AssetEntry.cs`（変更） | フォルダーとファイルを 1 つのクラスにまとめる |
+    | `Asset/IAssetService.cs`（新規） | フォルダーの一覧と変更の監視の窓口 |
+    | `Asset/AssetService.cs`（新規） | 窓口の実装（`FileSystemWatcher`） |
+    | `Asset/AssetViewModel.cs`（変更） | 新しいサービスを使う形に作り直す |
+    | `Asset/AssetView.xaml`（変更） | フォルダーの木とファイルの一覧の画面に作り直す |
+
+!!! note "第 16〜20 章のダミーからの置き換え"
+    アセット ブラウザは、第 16 章でダミーのデータ（`AssetEntry`・`FolderEntry`・`FileEntry`）を並べるところから始め、第 17 章で `AssetScanner` に、第 20 章で `IAssetScanner` に、フォルダーを読ませました。この章で、次のように本物へ置き換えます。
+
+    - `AssetEntry` は、フォルダーとファイルを 1 つのクラスにまとめます（`FolderEntry` と `FileEntry` は消します）。
+    - `IAssetScanner` と `AssetScanner` は、変更の監視もできる `IAssetService` と `AssetService` に置き換えます。コンテナーへの登録（`AssetModule` の `RegisterTypes`）も、`IAssetService` に変えます。
+    - `AssetViewModel` と `AssetView.xaml` は、新しいサービスを使う形に書き換えます。
+
+
 ## 作る前に知っておく 4 つの問題
 
 アセット ブラウザは、ファイル システムの見た目です。作り始めると、次の問題にぶつかります。
@@ -36,7 +53,7 @@ tags:
 
 フォルダーまたはファイル 1 つ分を表すモデルです。
 
-```csharp title="Asset/AssetEntry.cs"
+```csharp title="Asset/AssetEntry.cs（変更）"
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -94,7 +111,7 @@ public partial class AssetEntry : ObservableObject
 
 フォルダーの一覧と、変更の監視を担当するサービスです。
 
-```csharp title="Asset/IAssetService.cs"
+```csharp title="Asset/IAssetService.cs（新規）"
 namespace Editor.Asset;
 
 public interface IAssetService
@@ -110,7 +127,7 @@ public interface IAssetService
 }
 ```
 
-```csharp title="Asset/AssetService.cs"
+```csharp title="Asset/AssetService.cs（新規）"
 using System.IO;
 using System.Windows.Threading;
 
@@ -205,7 +222,7 @@ public sealed class AssetService : IAssetService, IDisposable
 
 ## ビューモデル
 
-```csharp title="Asset/AssetViewModel.cs"
+```csharp title="Asset/AssetViewModel.cs（変更）"
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Data;
@@ -399,7 +416,7 @@ private static async Task LoadThumbnailAsync(AssetEntry entry)
 
 ## ビュー
 
-```xml title="Asset/AssetView.xaml"
+```xml title="Asset/AssetView.xaml（変更）"
 <UserControl x:Class="Editor.Asset.AssetView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"

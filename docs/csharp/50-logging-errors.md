@@ -13,6 +13,15 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `App.xaml.cs`（変更） | 未処理の例外を受けて、ログとクラッシュ レポートに残す |
+    | `Log/FileLogWriter.cs`（新規） | ログをファイルへ書く（専用スレッド） |
+    | `Log/LogEntry.cs`（変更） | ログに出所（`Source`）を足す |
+    | `Log/LogService.cs`（変更） | ファイルにも書き、出所を指定できるようにする |
+
+
 ## 失敗を 4 つに分ける
 
 失敗の扱いは、誰の責任かで変わります。
@@ -52,7 +61,7 @@ tags:
 | `AppDomain.CurrentDomain.UnhandledException` | どのスレッドでも、最終的に未処理の例外 | 続行不可（プロセスは終了する） |
 | `TaskScheduler.UnobservedTaskException` | 誰も `await` しなかった `Task` の例外 | 続行できる（観察済みにする） |
 
-```csharp title="App.xaml.cs"
+```csharp title="App.xaml.cs（変更）"
 protected override void OnStartup(StartupEventArgs e)
 {
     // 例外の捕捉は、できるだけ最初に設定する
@@ -98,7 +107,7 @@ private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEv
 
 画面のログ パネルは、アプリを閉じると消えます。クラッシュの調査には、ファイルのログが欠かせません。
 
-```csharp title="Log/FileLogWriter.cs"
+```csharp title="Log/FileLogWriter.cs（新規）"
 using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
@@ -179,26 +188,59 @@ public sealed class FileLogWriter : IDisposable
 
 `AutoFlush = true` は、1 行書くたびにディスクへ出す設定です。クラッシュ直前のログが失われません。`FileShare.Read` は、書き込み中のログを他のプログラム（メモ帳など）が読めるようにします。`{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}` は、補間文字列の中の書式指定です。起動時に 14 日より古いログを消します。
 
-`LogService`（第 24 章）は、これに書くように変えます。
+`LogService`（第 24 章）は、メッセージをこの `FileLogWriter` にも書くように変えます。どこから来たログかを区別できるように、`LogEntry` に出所（`Source`）を足し、`ILogService` には、出所を指定して書く `Write` を足します。
 
-```csharp
-public sealed class LogService : ILogService
+```csharp title="Log/LogEntry.cs（変更）"
+namespace Editor.Log;
+
+public enum LogLevel { Info, Warning, Error }
+
+// Source を足す。既定は "Editor"
+public record LogEntry(DateTime Time, LogLevel Level, string Message, string Source = "Editor");
+```
+
+```csharp title="Log/LogService.cs（変更）"
+using System.Collections.ObjectModel;
+using System.Windows;
+
+namespace Editor.Log;
+
+public interface ILogService
 {
-    private readonly FileLogWriter _file;
-    public LogService(FileLogWriter file) { _file = file; }
+    ObservableCollection<LogEntry> Entries { get; }
+    void Info(string message);
+    void Warning(string message);
+    void Error(string message);
+    void Write(LogLevel level, string source, string message);   // 足す：出所を指定して書く
+}
 
-    private void Add(LogLevel level, string source, string message)
+public class LogService : ILogService
+{
+    private readonly FileLogWriter _file;                          // 足す
+
+    public LogService(FileLogWriter file) => _file = file;         // 足す
+
+    public ObservableCollection<LogEntry> Entries { get; } = new();
+
+    public void Info(string message) => Write(LogLevel.Info, "Editor", message);
+    public void Warning(string message) => Write(LogLevel.Warning, "Editor", message);
+    public void Error(string message) => Write(LogLevel.Error, "Editor", message);
+
+    public void Write(LogLevel level, string source, string message)
     {
-        _file.Write(level.ToString().ToUpperInvariant(), source, message);     // ファイルへ
-        // …（第 24 章：画面のコレクションへ UI スレッドで追加）
-    }
+        _file.Write(level.ToString().ToUpperInvariant(), source, message);   // 足す：ファイルへ
 
-    public void Info(string message) => Add(LogLevel.Info, "Editor", message);
-    // …
+        var entry = new LogEntry(DateTime.Now, level, message, source);
+        var dispatcher = Application.Current.Dispatcher;
+        if (dispatcher.CheckAccess())
+            Entries.Add(entry);
+        else
+            dispatcher.InvokeAsync(() => Entries.Add(entry));
+    }
 }
 ```
 
-エンジンからのログは `source` を `"Engine"`、ゲームからは `"Game"` にします（第 32 章でエンジンのログを受け取るコールバックの中で、`log.InfoFrom("Engine", message)` のように、ソースを指定できる関数を足します）。
+`Info`・`Warning`・`Error` は、出所を `"Editor"` にして `Write` を呼ぶだけの近道になりました。呼ぶ側のコードは、そのまま動きます。エンジンからのログは出所を `"Engine"`、ゲームからは `"Game"` にします。第 32 章でエンジンのログを受け取るコールバックの中で、`log.Write(LogLevel.Info, "Engine", message)` のように呼びます。
 
 ### クラッシュ レポート
 

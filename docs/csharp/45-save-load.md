@@ -13,6 +13,16 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `SceneFile/SceneFileFormat.cs`（新規） | ファイルの形式（DTO） |
+    | `SceneFile/SceneSerializer.cs`（新規） | シーンと DTO の変換、読み書き |
+    | `SceneFile/ISceneFileService.cs`（新規） | ファイルの読み書きの窓口（非同期） |
+    | `SceneFile/SceneFileService.cs`（新規） | 保存と読み込みの実装 |
+    | `MainWindow.xaml.cs`（変更） | 閉じるときに、保存の確認を出す |
+
+
 ## 保存するのは「エディタのドキュメント」
 
 第 40 章で、データの持ち主はエディタ（`SceneDocument`）と決めました。保存するのも、このドキュメントです。エンジンのシーンはただの写しなので、保存しません。読み込みのときは、ドキュメントを作り直すだけで、`SceneEngineSync` が自動でエンジンへ同期してくれます。
@@ -60,7 +70,7 @@ tags:
 
 ## DTO とシリアライザー
 
-```csharp title="SceneFile/SceneFileFormat.cs"
+```csharp title="SceneFile/SceneFileFormat.cs（新規）"
 using System.Text.Json.Serialization;
 
 namespace Editor.SceneFile;
@@ -92,7 +102,7 @@ public sealed class ObjectDto
 
 次が変換と読み書きです。まず保存の側です。
 
-```csharp title="SceneFile/SceneSerializer.cs"
+```csharp title="SceneFile/SceneSerializer.cs（新規）"
 using System.Numerics;
 using System.Text.Json;
 using Editor.Scene;
@@ -209,7 +219,7 @@ public sealed class SceneFileException : Exception
 
 ## ファイルの読み書き（非同期）
 
-```csharp title="SceneFile/ISceneFileService.cs"
+```csharp title="SceneFile/ISceneFileService.cs（新規）"
 namespace Editor.SceneFile;
 
 public interface ISceneFileService
@@ -231,7 +241,7 @@ public interface ISceneFileService
 
 実装は、保存と開くに分けて見ます。まず保存です。
 
-```csharp title="SceneFile/SceneFileService.cs"
+```csharp title="SceneFile/SceneFileService.cs（新規）"
 using System.IO;
 using Editor.Log;
 using Editor.Scene;
@@ -443,7 +453,7 @@ public string Title => $"{(_history.IsDirty ? "*" : "")}{_files.DisplayName} - M
 
 `Window.Closing` は、閉じるのをキャンセルできるイベントです。ただ、このイベントの中では、非同期の確認（ダイアログ）を待てません。そこで、いったん閉じるのを止めて、確認が済んだら閉じ直す、という方式にします。
 
-```csharp title="MainWindow.xaml.cs"
+```csharp title="MainWindow.xaml.cs（変更）"
 private bool _closeConfirmed;
 
 protected override async void OnClosing(System.ComponentModel.CancelEventArgs e)

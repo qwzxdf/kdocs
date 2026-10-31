@@ -13,6 +13,19 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Scene/ISceneEditor.cs`（新規） | 物の編集をまとめた窓口 |
+    | `Scene/SceneEditor.cs`（新規） | 窓口の実装（値を直接変える） |
+    | `Property/Vector3EditorViewModel.cs`（新規） | Vector3 の 3 成分を編集する部品 |
+    | `Property/PropertyViewModel.cs`（変更） | 選択中の物の名前・位置・回転・拡大・色を編集する形に作り直す |
+    | `Shared/Converters/ColorToBrushConverter.cs`（新規） | 色の見本を出すコンバーター |
+
+!!! note "第 24 章のダミーからの置き換え"
+    `PropertyViewModel` は、第 23 章でダミーの `SceneObjectViewModel` の名前と位置を表示するだけの形で作り、第 24 章で選択サービスとつなぎました。この章で、`ISelectionService` の選択に追従し、`ISceneEditor` を通して `SceneObject` を編集する形に作り直します。ファイルの場所（`Property/`）と、モジュールへの登録は、そのままです。
+
+
 作り始める前に決めておきたいことが 3 つあります。
 
 ## 編集は、1 か所の窓口を通す
@@ -41,7 +54,7 @@ tags:
 
 ## 編集の窓口（ISceneEditor）
 
-```csharp title="Scene/ISceneEditor.cs"
+```csharp title="Scene/ISceneEditor.cs（新規）"
 using System.Numerics;
 
 namespace Editor.Scene;
@@ -57,7 +70,7 @@ public interface ISceneEditor
 }
 ```
 
-```csharp title="Scene/SceneEditor.cs"
+```csharp title="Scene/SceneEditor.cs（新規）"
 using System.Numerics;
 
 namespace Editor.Scene;
@@ -116,7 +129,7 @@ public sealed class SceneEditor : ISceneEditor
 
 ## Vector3 を編集する部品
 
-```csharp title="Property/Vector3EditorViewModel.cs"
+```csharp title="Property/Vector3EditorViewModel.cs（新規）"
 using System.Numerics;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -171,7 +184,7 @@ public sealed class Vector3EditorViewModel : ObservableObject
 
 ## プロパティのビューモデル
 
-```csharp title="Property/PropertyViewModel.cs"
+```csharp title="Property/PropertyViewModel.cs（変更）"
 using System.ComponentModel;
 using System.Numerics;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -352,7 +365,7 @@ public class PropertyViewModel : ObservableObject
 
 スライダーだけでは、どんな色なのか分かりにくいので、見本を出します。`Vector4` を `Brush` に変えるコンバーター（第 14 章）を作ります。
 
-```csharp title="Shared/Converters/ColorToBrushConverter.cs"
+```csharp title="Shared/Converters/ColorToBrushConverter.cs（新規）"
 using System.Globalization;
 using System.Numerics;
 using System.Windows.Data;
