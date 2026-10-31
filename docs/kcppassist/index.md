@@ -15,7 +15,7 @@ K-CppAssist は、この往復をキー 1 つにする Visual Studio 用の拡�
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-CppAssist-0.7.0.vsix" download>K-CppAssist 0.7.0 をダウンロード（.vsix、約 55 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppAssist-0.7.1.vsix" download>K-CppAssist 0.7.1 をダウンロード（.vsix、約 55 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも、同じ手順で上書きできます。アンインストールは、Visual Studio の「拡張機能の管理」から行います。
 
@@ -114,6 +114,7 @@ Alt+W を押すと、`Alloc` の宣言から、ヘッダーに次の 1 行が入
 
 | 版 | 内容 |
 | --- | --- |
+| 0.7.1 | 引数の自動合わせで、相手が開いていなくても、開いて書き換えるようにした(書き換えたあとは、作業中のファイルへ戻る) |
 | 0.7.0 | Alt+G で、ヘッダーの宣言と cpp の定義の引数を合わせられるようにした。引数を変えると、エディターで開いている相手の引数を自動で書き換える。`#include` のパスを、プロジェクトが実際に使っている基準(既存の `#include` から学ぶ)に合わせた |
 | 0.6.0 | Alt+F で `#include` を足せるようにした。設定を `Auto` にすると、入力中に未定義の型を見つけて自動で足す（型の位置だけ・波線つきだけ・一意なヘッダーだけ。足した直後に消したら戻す） |
 | 0.5.0 | 拡張機能 メニューを「K-CppAssist の設定...」の 1 つだけにした（3 つのコマンドは、キーだけで使う） |
