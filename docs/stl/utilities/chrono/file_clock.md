@@ -15,84 +15,100 @@ tags:
 `#include <chrono>`
 </div>
 
-`std::chrono::file_clock` は、**ファイルシステムの更新日時（`std::filesystem::last_write_time`）で使われる時計**です。`system_clock` とは基準時刻が違うことがあるので、日時として表示したり比べたりするときは、`std::chrono::clock_cast` で変換します。
+`std::filesystem::last_write_time` が返す、ファイルの更新日時は、`system_clock` の時点ではなく、`file_clock` の時点です。OS によってファイル時刻の起点が違う（Windows は 1601 年、Linux は 1970 年）ため、標準が専用の時計として用意しました。C++20 から、`clock_cast` で `system_clock` に直せます。
 
 !!! tip "ポイント"
-    - `std::filesystem::file_time_type` は、`file_clock` の時点。
-    - `system_clock` に変換するには `std::chrono::clock_cast<std::chrono::system_clock>(ft)`（C++20）。
-    - ファイルの更新を検出するだけなら、変換せずに時点どうしを比べればよい。
+    - `filesystem::file_time_type` は `file_time<...>` で、この時計の時点
+    - 起点は規格で決まっていない。数値を直接見ない
+    - `clock_cast<system_clock>(ft)` で、日付や時刻にできる
+    - `file_clock::now()` で、現在のファイル時計の時点が取れる
 
 !!! info "このページを読む前に"
-    [`std::chrono`](../chrono.md) の概要を先に読むと分かりやすいです。
+    [`system_clock`](system_clock.md) と [`clock_cast`](clock_cast.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::file_clock {#file_clock}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-struct file_clock {
-  using time_point = std::chrono::time_point<file_clock>;
+class file_clock {
+ public:
+  using duration = chrono::duration<rep, period>;
+  using time_point = chrono::time_point<file_clock>;
+  static constexpr bool is_steady = false;
+
   static time_point now() noexcept;
+  template <class Duration>
+  static sys_time<...> to_sys(const file_time<Duration>& t);
+  template <class Duration>
+  static file_time<...> from_sys(const sys_time<Duration>& t);
 };
 ```
 
-- 戻り値: `now()` は今の時点
-- 計算量: O(1)
+起点は処理系が決めます。MSVC では Windows のファイル時刻と同じ 1601 年 1 月 1 日、libstdc++ では、1970 年が基準ではあるものの、細かな違いがあります。時計の数値そのものを保存すると、環境が変わったときに、意味が変わります。
+
+ファイルの更新日時を表示するには、`system_clock` に直してから書式にかけます。
+
+```cpp
+auto ft = std::filesystem::last_write_time(path);
+auto st = std::chrono::clock_cast<std::chrono::system_clock>(ft);
+std::println("{:%F %T}", floor<seconds>(st));
+```
+
+C++17 の時代は、この変換の手段がなく、環境依存のコードを書いていました。C++20 でようやく標準的な方法ができました。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <chrono>
-#include <filesystem>
 #include <print>
 
 int main() {
-  namespace fs = std::filesystem;
   using namespace std::chrono;
 
-  // ファイルの更新日時を system_clock に変換して表示する例
-  auto ft = fs::last_write_time("main.cpp");
-  auto st = clock_cast<system_clock>(ft);
-  std::println("{:%F %T}", floor<seconds>(st));
+  // file_clock の現在時刻を、system_clock に直して比べる
+  const file_time<file_clock::duration> f = file_clock::now();
+  const auto s = clock_cast<system_clock>(f);
+  const auto diff = system_clock::now() - s;
+
+  std::println("ほぼ同じ時刻: {}", abs(diff) < 1s);
 }
 ```
 
 ```text title="実行結果"
-（ファイルの更新日時によって変わります）
+ほぼ同じ時刻: true
 ```
+
+起点が違っても、`clock_cast` で `system_clock` にそろえると、同じ瞬間になります。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| アセットの更新日時を比べる（ホットリロード） | `last_write_time(path)` を保存して、時点どうしを比べる |
-| ファイルの更新日時をログに出す | `clock_cast` で `system_clock` へ |
+アセットの更新を検知するホット リロードで、ファイルの更新日時を比べます。保存した更新日時を比べるだけなら、`file_time` どうしで足ります。日付として表示するときに、`clock_cast` を使います。
 
 ## よくあるミス
 
-??? failure "file_clock と system_clock を直接比べる"
-    型が違うのでコンパイルエラーです。`clock_cast` で変換します。
+??? failure "file_time の count() を保存する"
+    起点が環境で違うので、別の環境で読むと意味が変わります。`system_clock` に直してから保存します。
 
-??? failure "古い環境で clock_cast が無い"
-    C++20 の機能です。使えないときは、`time_since_epoch()` の差を調べる、ファイル更新の比較だけに使う、などで代用します。
+??? failure "file_time と sys_time を直接比べる"
+    型が違い、コンパイルできません。`clock_cast` で変換します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`system_clock`](system_clock.md) | 現実の日時 |
-| [`std::filesystem`](../../io/filesystem.md) | ファイル操作 |
+| [`file_time`](file_time.md) | `file_clock` の時点を表す別名 |
+| [`system_clock`](system_clock.md) | 日常の時計 |
+| [`clock_cast`](clock_cast.md) | 時計どうしを変換する |
+| [`std::filesystem::last_write_time`](../../io/filesystem/last_write_time.md) | ファイルの更新日時を取る |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 13 / MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] ファイルの更新日時の時計
-    - [x] 日時にしたいなら `clock_cast`
-    - [x] 更新の比較だけなら変換不要
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::file_clock](https://cpprefjp.github.io/reference/chrono/file_clock.html)
+- [cpprefjp: file_clock](https://cpprefjp.github.io/reference/chrono/file_clock.html)
 - [cppreference: std::chrono::file_clock](https://en.cppreference.com/w/cpp/chrono/file_clock)

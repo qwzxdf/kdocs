@@ -15,27 +15,30 @@ tags:
 `#include <chrono>`
 </div>
 
-プレイヤーのパソコンが設定している地域の時刻を扱いたいときは、名前を知らなくても `current_zone()` で取り出せます。
+プレイヤーの PC に設定されているタイムゾーンを知りたい。`std::chrono::current_zone()` は、OS の設定に従った `time_zone` を返す関数です。ここから `to_local` で、プレイヤーの壁掛け時計の時刻を求められます。
 
 !!! tip "ポイント"
-    - OS の設定から取得される。
-    - 戻り値はデータベースが持つ `time_zone` へのポインタ。
-    - `zoned_time(current_zone(), now)` でローカル時刻にする。
+    - OS の設定によるタイムゾーン。環境で結果が変わる
+    - 戻り値は `const time_zone*`
+    - OS の設定を変更しても、実行中に追従するとは限らない
+    - 決まったゾーンで動かしたいなら、`locate_zone` で名前を指定する
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`time_zone`](time_zone.md) と [`locate_zone`](locate_zone.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::current_zone {#current_zone}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 const time_zone* current_zone();
 ```
 
-- 戻り値: 今のゾーンへのポインタ
-- 計算量: 定数
+引数はありません。呼び出した時点の、OS のタイムゾーン設定から、`time_zone` を返します。実行する環境のタイムゾーンが分からないとき（コンテナなど）は、`UTC` になるか、例外を投げる環境があります。
 
+テストでは、実行環境によって結果が変わるのは困ります。ローカル時刻の処理を、`current_zone()` に直接頼らず、`const time_zone*` を引数で受け取る関数にしておくと、テストでは `locate_zone("Asia/Tokyo")` を渡せます。
 
 ## 実際に動かしてみる
 
@@ -44,44 +47,48 @@ const time_zone* current_zone();
 #include <print>
 
 int main() {
-  const auto* tz = std::chrono::current_zone();
-  std::println("{}", tz != nullptr);
+  using namespace std::chrono;
+
+  const time_zone* zone = current_zone();
+  std::println("ゾーンが取れた: {}", zone != nullptr);
+  std::println("名前がある: {}", !zone->name().empty());
+
+  // 現在時刻を、そのゾーンの壁掛け時計で
+  const auto now = zone->to_local(floor<seconds>(system_clock::now()));
+  std::println("2026 年以降: {}", now >= local_days{2026y / January / 1});
 }
 ```
 
 ```text title="実行結果"
-true
+ゾーンが取れた: true
+名前がある: true
+2026 年以降: true
 ```
+
+どの名前が返るかは環境しだいなので、表示していません。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| プレイヤーの現地時刻を表示 | `zoned_time{current_zone(), system_clock::now()}` |
+プレイヤーの地域の「今日の日付」の判定に使います。日替わりの要素を、サーバー側では UTC、クライアントの表示では `current_zone` にします。
 
 ## よくあるミス
 
-??? failure "サーバーでクライアントの地域と取り違える"
-    動いているマシンの設定です。遠隔のプレイヤーの地域は、別に受け取ります。
+??? failure "サーバーのタイムゾーンを取得してしまう"
+    サーバーで `current_zone()` を呼ぶと、サーバーのゾーンです。プレイヤーのゾーンは、クライアントから送ってもらいます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`locate_zone`](locate_zone.md) | 名前から取得 |
+| [`locate_zone`](locate_zone.md) | 名前を指定して取る |
+| [`zoned_time`](zoned_time.md) | ゾーンつきの時点 |
+| [`time_zone`](time_zone.md) | 取得するもの |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 14 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 今の環境のゾーン
-    - [x] OS の設定に従う
-    - [x] 戻りはポインタ
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::current_zone](https://cpprefjp.github.io/reference/chrono/current_zone.html)
-- [cppreference: std::chrono::current_zone](https://en.cppreference.com/w/cpp/chrono/tzdb/current_zone)
+- [cpprefjp: current_zone](https://cpprefjp.github.io/reference/chrono/current_zone.html)
+- [cppreference: std::chrono::current_zone](https://en.cppreference.com/w/cpp/chrono/current_zone)

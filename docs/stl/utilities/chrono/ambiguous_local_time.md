@@ -15,30 +15,34 @@ tags:
 `#include <chrono>`
 </div>
 
-夏時間が終わる日は、時計が 2:00 から 1:00 に戻り、「1:30」が 2 回あります。どちらの 1:30 か決められないので、UTC に変換しようとすると `ambiguous_local_time` が投げられます。
+夏時間の終わりには、同じ壁掛け時計の時刻が 2 回現れます。その時刻を、`choose` なしで UTC に変換しようとすると、どちらの瞬間か決まらないので、`std::chrono::ambiguous_local_time` が投げられます。
 
 !!! tip "ポイント"
-    - `std::runtime_error` から派生。
-    - `to_sys(local_time)` が曖昧な時刻で投げる。
-    - `choose::earliest` / `choose::latest` で、どちらかを選べる。
+    - `time_zone::to_sys(local)` や `zoned_time` の構築で投げられる
+    - 夏時間のない地域では起きない
+    - `std::runtime_error` の派生クラス
+    - 避けるには、`choose` を渡すか、`get_info` で事前に調べる
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`choose`](choose.md) と [`local_info`](local_info.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::ambiguous_local_time {#ambiguous_local_time}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-class ambiguous_local_time : public runtime_error {
+class ambiguous_local_time : public std::runtime_error {
  public:
-  template <class D> ambiguous_local_time(const local_time<D>&, const local_info&);
+  template <class Duration>
+  ambiguous_local_time(const local_time<Duration>& tp, const local_info& i);
 };
 ```
 
-- 戻り値: `what()` に説明が入る
-- 計算量: 定数
+`what()` のメッセージには、曖昧な時刻と、2 通りの解釈（切り替え前と後の `sys_info`）が入ります。表示や比較には使わず、例外の型で判断します。
 
+この例外は、夏時間のある地域で、切り替え日の夜中の時刻を扱うときだけ起きます。普段の動作確認では出ないので、本番で初めて発生する、という事故が起きやすいです。
 
 ## 実際に動かしてみる
 
@@ -48,49 +52,49 @@ class ambiguous_local_time : public runtime_error {
 
 int main() {
   using namespace std::chrono;
-  const auto* tz = locate_zone("America/New_York");
+
+  const time_zone* ny = locate_zone("America/New_York");
+  const local_seconds twice = local_days{2026y / November / 1} + 1h + 30min;
+
   try {
-    tz->to_sys(local_days{2024y / November / 3} + 1h + 30min);
+    ny->to_sys(twice);  // choose なし: どちらか決まらない
   } catch (const ambiguous_local_time&) {
-    std::println("曖昧な時刻");
+    std::println("曖昧な時刻の例外");
   }
+
+  // choose を渡せば、例外にならない
+  const sys_seconds s = ny->to_sys(twice, choose::earliest);
+  std::println("解決: {:%F %T} UTC", s);
 }
 ```
 
 ```text title="実行結果"
-曖昧な時刻
+曖昧な時刻の例外
+解決: 2026-11-01 05:30:00 UTC
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 夏時間の終わりの日のログ | `to_sys(t, choose::earliest)` |
+地域の時刻で決めたリセット時刻を扱うサーバーの処理で、夏時間の切り替え日に落ちないよう、`choose` を渡しておきます。
 
 ## よくあるミス
 
-??? failure "日本だけで動かして見逃す"
-    Asia/Tokyo には夏時間がないため、この例外は出ません。海外ゾーンで初めて出ます。
+??? failure "夏時間のない地域でだけテストして、本番で落ちる"
+    日本では起きません。夏時間のある地域のユーザーに対して、初めて起きます。`choose` を最初から渡しておきます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`nonexistent_local_time`](nonexistent_local_time.md) | 存在しない時刻の例外 |
-| [`local_info`](local_info.md) | 事前に確かめる |
+| [`choose`](choose.md) | 例外を避ける指定 |
+| [`local_info`](local_info.md) | 事前に調べる |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 14 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 曖昧なローカル時刻の例外
-    - [x] 夏時間の終わりで起こる
-    - [x] choose で回避
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::ambiguous_local_time](https://cpprefjp.github.io/reference/chrono/ambiguous_local_time.html)
+- [cpprefjp: ambiguous_local_time](https://cpprefjp.github.io/reference/chrono/ambiguous_local_time.html)
 - [cppreference: std::chrono::ambiguous_local_time](https://en.cppreference.com/w/cpp/chrono/ambiguous_local_time)

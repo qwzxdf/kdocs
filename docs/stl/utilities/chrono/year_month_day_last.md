@@ -15,37 +15,41 @@ tags:
 `#include <chrono>`
 </div>
 
-月末の日付は、月とうるう年で決まります。`year_month_day_last` は `2024y / February / last` のように書くと、具体的な最終日（`day()`）を計算してくれます。
+2 月の最終日は、28 日だったり 29 日だったりします。`std::chrono::year_month_day_last` は、年と月に「最終日」を組み合わせた型で、`2026y / February / last` と書きます。`day()` で、その月の実際の最終日の数字が求まり、`sys_days` に変換すると、日付になります。
 
 !!! tip "ポイント"
-    - `year / month / last` で作る。
-    - `day()` で最終日が分かる。
-    - `sys_days` に変換して日付にできる。
+    - `year / month / last` で作る
+    - `day()` が、年月に応じた最終日の数字（28〜31）を返す
+    - `sys_days` へ変換できる。月末の日付が求まる
+    - `+ months` で月を進めても、無効な日付にならない
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`month_day_last`](month_day_last.md) と [`year_month_day`](year_month_day.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::year_month_day_last {#year_month_day_last}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 class year_month_day_last {
  public:
-  constexpr std::chrono::day day() const noexcept;
-  constexpr operator sys_days() const noexcept;
+  constexpr year_month_day_last(const chrono::year& y,
+                                const chrono::month_day_last& mdl) noexcept;
+  constexpr chrono::year year() const noexcept;
+  constexpr chrono::month month() const noexcept;
+  constexpr chrono::day day() const noexcept;
   constexpr bool ok() const noexcept;
+  constexpr operator sys_days() const noexcept;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `y` | year | 年 |
-| `mdl` | month_day_last | 月末の指定 |
+`day()` は、年と月から計算した、最終日です。1 月、3 月、5 月などは 31、4 月、6 月などは 30、2 月はうるう年なら 29、そうでなければ 28 です。
 
-- 戻り値: `day()` は最終日
-- 計算量: 定数
+`sys_days` へ暗黙に変換できます。`sys_days d = 2026y / February / last;` で、2026 年 2 月 28 日の日付が得られます。
 
+`year_month_day_last + months{1}` のように、月を足しても、月末のまま有効な日付になります。1 月 31 日に月を足すと無効になる `year_month_day` と違い、「月末」という意味が保たれます。
 
 ## 実際に動かしてみる
 
@@ -55,46 +59,52 @@ class year_month_day_last {
 
 int main() {
   using namespace std::chrono;
-  std::println("{}", unsigned((2024y / February / last).day()));
-  std::println("{}", unsigned((2023y / February / last).day()));
+
+  for (const year y : {2024y, 2026y}) {
+    const year_month_day_last end = y / February / last;
+    std::println("{} 年 2 月は {} 日まで", static_cast<int>(y),
+                 static_cast<unsigned>(end.day()));
+  }
+
+  // 日付にする
+  const sys_days d = 2026y / April / last;
+  std::println("{:%F}", d);
+
+  // 月を足しても、月末のまま
+  const year_month_day_last next = (2026y / January / last) + months{1};
+  std::println("1 月末 + 1 か月 → 2 月の最終日: {}", static_cast<unsigned>(next.day()));
 }
 ```
 
 ```text title="実行結果"
-29
-28
+2024 年 2 月は 29 日まで
+2026 年 2 月は 28 日まで
+2026-04-30
+1 月末 + 1 か月 → 2 月の最終日: 28
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 月末締めの日付を求める | `(year / month / std::chrono::last).day()` |
+月末の締め日、月額課金の更新日（月末の場合）を、日付の数字を直接持たずに表します。
 
 ## よくあるミス
 
-??? failure "自分で日数の表を書く"
-    うるう年の判定を含む日数の計算は、この型に任せます。
+??? failure "最終日の数字を 31 固定で書く"
+    30 日までの月で、存在しない日付になります。`last` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`month_day_last`](month_day_last.md) | 年を問わない月末 |
-| [`year_month_day`](year_month_day.md) | 年月日 |
+| [`month_day_last`](month_day_last.md) | 年を含まない |
+| [`year_month_day`](year_month_day.md) | 日の数字を持つ |
+| [`sys_days`](sys_days.md) | 日付を日の単位で表す |
 
 ## コンパイラ対応
 
 C++20 から使えます。
 
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 月末の日を計算する
-    - [x] うるう年も考慮
-    - [x] year/month/last
-
 ## 関連ページ
 
-- [cpprefjp: std::chrono::year_month_day_last](https://cpprefjp.github.io/reference/chrono/year_month_day_last.html)
+- [cpprefjp: year_month_day_last](https://cpprefjp.github.io/reference/chrono/year_month_day_last.html)
 - [cppreference: std::chrono::year_month_day_last](https://en.cppreference.com/w/cpp/chrono/year_month_day_last)

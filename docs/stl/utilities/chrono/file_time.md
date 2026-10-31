@@ -15,75 +15,82 @@ tags:
 `#include <chrono>`
 </div>
 
-`time_point<system_clock, seconds>` のように毎回書くのは長いので、標準が別名を用意しています。`std::chrono::file_time` は、file_clock の時点を表す別名（単位を選べる）です。
+`std::chrono::file_time<Duration>` は、`file_clock` の時点を `Duration` の単位で表す型です。`time_point<file_clock, Duration>` の別名で、`std::filesystem::file_time_type` は、この `file_time` の一種です。
 
 !!! tip "ポイント"
-    - 中身は `time_point<file_clock, Duration>`。
-    - `time_since_epoch().count()` で基準時刻からの経過を数で取れる。
-    - 時計の違いを型で区別できる。
+    - `time_point<file_clock, Duration>` の別名
+    - `filesystem::file_time_type` は `file_time<環境ごとの duration>`
+    - `sys_time` に直すには `clock_cast<system_clock>`
+    - 秒に落として使うなら `floor<seconds>`
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`file_clock`](file_clock.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::file_time {#file_time}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 template <class Duration>
 using file_time = time_point<file_clock, Duration>;
 ```
 
-- 戻り値: `file_time` の値
-- 計算量: 定数
+`file_time_type` の `Duration` は環境で違い、MSVC では 100 ナノ秒単位、libstdc++ ではナノ秒単位です。ファイルの更新日時を比べるだけなら、型を気にせず、`auto` で受けます。
 
+ファイルの更新日時を、ログなどに秒の細かさで表示するときは、次の順に変換します。
+
+1. `clock_cast<system_clock>` で、`sys_time` にする
+2. `floor<seconds>` で、秒にそろえる
+3. `{:%F %T}` で書式にかける
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <chrono>
+#include <filesystem>
 #include <print>
-#include <type_traits>
 
 int main() {
-  std::println("{}", std::is_same_v<std::chrono::file_time<std::chrono::seconds>, std::chrono::time_point<std::chrono::file_clock, std::chrono::seconds>>);
+  using namespace std::chrono;
+
+  // file_time_type は file_time の一種
+  static_assert(std::is_same_v<std::filesystem::file_time_type::clock, file_clock>);
+
+  // 現在のファイル時刻を秒にそろえる
+  const auto ft = std::filesystem::file_time_type::clock::now();
+  const sys_seconds s = floor<seconds>(clock_cast<system_clock>(ft));
+  std::println("2026 年以降: {}", s >= sys_days{2026y / January / 1});
 }
 ```
 
 ```text title="実行結果"
-true
+2026 年以降: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 時刻を型で区別する | `std::chrono::file_time` |
+アセットが更新されたかを、保存しておいた更新日時と比べて調べます。
 
 ## よくあるミス
 
-??? failure "時計が違う時点を混ぜる"
-    `local_time` は地域の時刻、`sys_time` は UTC 基準の時刻で、型が別です。変換は `zoned_time` や `time_zone` を通します。
+??? failure "file_time どうしの差の単位を決め打ちする"
+    `file_time_type` の `Duration` は環境で違います。ミリ秒などで使うなら、`duration_cast` します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`time_point`](time_point.md) | 時点の型 |
-| [`zoned_time`](zoned_time.md) | タイムゾーンつきの時刻 |
+| [`file_clock`](file_clock.md) | この別名の元になる時計 |
+| [`sys_time`](sys_time.md) | `system_clock` の時点 |
+| [`clock_cast`](clock_cast.md) | 時計どうしを変換する |
 
 ## コンパイラ対応
 
 C++20 から使えます。
 
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] file_clock の時点を表す別名（単位を選べる）
-    - [x] time_since_epoch() で経過を取る
-    - [x] 型で時計の種類を区別する
-
 ## 関連ページ
 
-- [cpprefjp: std::chrono::file_time](https://cpprefjp.github.io/reference/chrono/time_point.html)
-- [cppreference: std::chrono::file_time](https://en.cppreference.com/w/cpp/chrono/time_point)
+- [cpprefjp: file_time](https://cpprefjp.github.io/reference/chrono/file_clock.html)
+- [cppreference: std::chrono::file_time](https://en.cppreference.com/w/cpp/chrono/file_clock)

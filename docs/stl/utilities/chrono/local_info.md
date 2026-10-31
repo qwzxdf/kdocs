@@ -15,19 +15,22 @@ tags:
 `#include <chrono>`
 </div>
 
-夏時間の切り替えでは、同じローカル時刻が 2 回ある（曖昧）か、1 回もない（存在しない）ことがあります。`local_info` は、そうした状況を `result` で示し、`first` / `second` に候補の情報を入れます。
+夏時間のある地域では、壁掛け時計の時刻が、1 通りの UTC に決まらないことがあります。春は、時計が 2:00 から 3:00 に飛ぶので、2:30 は存在しません。秋は、時計が 2:00 から 1:00 に戻るので、1:30 は 2 回あります。`time_zone::get_info(local_time)` が返す `std::chrono::local_info` は、ローカル時刻がどのような状態かと、前後の `sys_info` を持ちます。
 
 !!! tip "ポイント"
-    - `result` は `unique`・`nonexistent`・`ambiguous` のどれか。
-    - `first` と `second` は `sys_info`。
-    - 曖昧なら両方、そうでなければ `first` だけ有効。
+    - `result` が `unique`（1 通り）、`nonexistent`（存在しない）、`ambiguous`（2 通り）のどれか
+    - `first` は前のゾーン情報、`second` は後のゾーン情報（`unique` では `second` は未使用）
+    - `unique` なら、`first` を使えば足りる
+    - 夏時間のない地域では、常に `unique`
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`sys_info`](sys_info.md) と [`local_time`](local_time.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::local_info {#local_info}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 struct local_info {
@@ -40,9 +43,15 @@ struct local_info {
 };
 ```
 
-- 戻り値: 状況と候補の情報
-- 計算量: 定数
+`result` の意味は、次のとおりです。
 
+| 値 | 状態 | `first` / `second` |
+| --- | --- | --- |
+| `unique` | 1 通りに決まる | `first` だけが有効 |
+| `nonexistent` | 夏時間の開始で飛ばされた時刻 | `first` は切り替え前、`second` は切り替え後 |
+| `ambiguous` | 夏時間の終了で 2 回現れる時刻 | `first` は切り替え前（夏時間）、`second` は切り替え後 |
+
+`to_sys` を呼ぶ前に、`get_info(local_time)` で状態を調べておけば、例外に頼らず、分岐して処理できます。
 
 ## 実際に動かしてみる
 
@@ -52,47 +61,52 @@ struct local_info {
 
 int main() {
   using namespace std::chrono;
-  const auto* tz = locate_zone("Asia/Tokyo");
-  auto info = tz->get_info(local_days{2024y / January / 1});
-  std::println("{}", info.first.abbrev);
+
+  const time_zone* ny = locate_zone("America/New_York");
+  const time_zone* tokyo = locate_zone("Asia/Tokyo");
+
+  // 2026-03-08 は春の夏時間の開始日: 2:30 は存在しない
+  const local_seconds skipped = local_days{2026y / March / 8} + 2h + 30min;
+  std::println("存在しない時刻: {}", ny->get_info(skipped).result == local_info::nonexistent);
+
+  // 2026-11-01 は秋の夏時間の終了日: 1:30 は 2 回ある
+  const local_seconds twice = local_days{2026y / November / 1} + 1h + 30min;
+  std::println("曖昧な時刻: {}", ny->get_info(twice).result == local_info::ambiguous);
+
+  // 東京は夏時間がないので、常に 1 通り
+  std::println("東京は unique: {}", tokyo->get_info(twice).result == local_info::unique);
 }
 ```
 
 ```text title="実行結果"
-JST
+存在しない時刻: true
+曖昧な時刻: true
+東京は unique: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 切り替え日のスケジュールを調べる | `info.result == local_info::ambiguous` |
+「毎日 2:30 にイベント」のような、地域の時刻で決めた設計値が、夏時間の境目でどう扱われるかを、事前に調べられます。
 
 ## よくあるミス
 
-??? failure "結果を無視して変換する"
-    曖昧・存在しない時刻を `to_sys` に渡すと例外です。先に `local_info` で確かめます。
+??? failure "unique でないときに first だけを使う"
+    `nonexistent` や `ambiguous` では、`second` も意味を持ちます。両方を見て判断します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`sys_info`](sys_info.md) | UTC 側の情報 |
-| [`nonexistent_local_time`](nonexistent_local_time.md) | 存在しない時刻の例外 |
-| [`ambiguous_local_time`](ambiguous_local_time.md) | 曖昧な時刻の例外 |
+| [`sys_info`](sys_info.md) | UTC の時点から調べる版 |
+| [`choose`](choose.md) | 曖昧さの解決方法 |
+| [`ambiguous_local_time`](ambiguous_local_time.md) | 曖昧なときに `to_sys` が投げる例外 |
+| [`nonexistent_local_time`](nonexistent_local_time.md) | 存在しないときに投げる例外 |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 14 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] ローカル時刻の時差情報
-    - [x] result で曖昧さを表す
-    - [x] first / second に候補
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::local_info](https://cpprefjp.github.io/reference/chrono/local_info.html)
+- [cpprefjp: local_info](https://cpprefjp.github.io/reference/chrono/local_info.html)
 - [cppreference: std::chrono::local_info](https://en.cppreference.com/w/cpp/chrono/local_info)

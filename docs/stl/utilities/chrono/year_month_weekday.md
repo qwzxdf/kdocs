@@ -15,36 +15,54 @@ tags:
 `#include <chrono>`
 </div>
 
-「2024 年 3 月の第 2 月曜日」のような指定です。`sys_days` に変換すると、具体的な日付が分かります。
+`2026y / March / Monday[2]` は、2026 年 3 月の第 2 月曜日、つまり 3 月 9 日です。年、月、曜日と回数を組にした `std::chrono::year_month_weekday` は、暦の上の日付を、「第 n 曜日」という形で表したものです。`sys_days` に変換すれば、通常の日付として扱えます。
 
 !!! tip "ポイント"
-    - `2024y / March / Monday[2]` で作る。
-    - `sys_days` に変換して、`year_month_day` で日にちを取り出す。
+    - `year / month / weekday_indexed` で作る
+    - `sys_days` へ変換でき、日付が求まる
+    - 逆に、`sys_days` から `year_month_weekday` にすれば、「その日が第何曜日か」が分かる
+    - 第 5 の曜日がない月では、`ok()` が偽になる
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`weekday_indexed`](weekday_indexed.md) と [`month_weekday`](month_weekday.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::year_month_weekday {#year_month_weekday}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 class year_month_weekday {
  public:
-  constexpr operator sys_days() const noexcept;
-  constexpr std::chrono::weekday_indexed weekday_indexed() const noexcept;
+  constexpr year_month_weekday(const chrono::year& y, const chrono::month& m,
+                               const chrono::weekday_indexed& wdi) noexcept;
+  constexpr explicit year_month_weekday(const sys_days& d) noexcept;
+  constexpr chrono::year year() const noexcept;
+  constexpr chrono::month month() const noexcept;
+  constexpr chrono::weekday weekday() const noexcept;
+  constexpr unsigned index() const noexcept;
   constexpr bool ok() const noexcept;
+  constexpr operator sys_days() const noexcept;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `y` | year | 年 |
-| `mw` | month_weekday | 月と第 n 曜日 |
+### 日付への変換 {#to-days}
 
-- 戻り値: `sys_days` に変換できる
-- 計算量: 定数
+`sys_days` へ暗黙に変換できます。`sys_days d = 2026y / March / Monday[2];` が書けて、`2026-03-09` が得られます。
 
+### 日付からの変換 {#from-days}
+
+`sys_days` から作る `explicit` のコンストラクターがあります。日付が、その月の第何曜日かを調べられます。
+
+```cpp
+const year_month_weekday ymw{sys_days{2026y / March / 9}};
+// ymw.index() == 2, ymw.weekday() == Monday
+```
+
+### ok の意味 {#ok}
+
+第 5 の曜日が存在しない月で、第 5 を指定すると、`ok()` が偽になります。2026 年 2 月は 28 日までなので、第 5 月曜日がありません。
 
 ## 実際に動かしてみる
 
@@ -54,46 +72,54 @@ class year_month_weekday {
 
 int main() {
   using namespace std::chrono;
-  year_month_weekday ymw = 2024y / March / Monday[2];
-  year_month_day ymd{sys_days{ymw}};
-  std::println("{}", unsigned(ymd.day()));
+
+  // 第 n 曜日 → 日付
+  const year_month_weekday ymw = 2026y / March / Monday[2];
+  const sys_days d = ymw;
+  std::println("{:%F}", d);
+
+  // 日付 → 第 n 曜日
+  const year_month_weekday from_date{sys_days{2026y / March / 9}};
+  std::println("第 {} 週の月曜日: {}", from_date.index(),
+               from_date.weekday() == Monday);
+
+  // 第 5 月曜日が存在するか
+  std::println("2026 年 2 月の第 5 月曜日: {}", (2026y / February / Monday[5]).ok());
+  std::println("2026 年 3 月の第 5 月曜日: {}", (2026y / March / Monday[5]).ok());
 }
 ```
 
 ```text title="実行結果"
-11
+2026-03-09
+第 2 週の月曜日: true
+2026 年 2 月の第 5 月曜日: false
+2026 年 3 月の第 5 月曜日: true
 ```
+
+2026 年 3 月は月曜日が 2、9、16、23、30 日の 5 回あるので、第 5 月曜日が存在します。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 毎月第 2 月曜日の日付を求める | `sys_days{year / month / Monday[2]}` |
+「第 2 土曜日にイベント」の日取りを求めるときに使います。日付から逆算して、「その日は第何曜日か」を調べて、表示に使うこともできます。
 
 ## よくあるミス
 
-??? failure "無い日付に変換する"
-    第 5 曜日などが存在しない月では `ok()` が `false` です。確認してから変換します。
+??? failure "第 5 を ok() で確かめない"
+    存在しない日付を `sys_days` に変換すると、結果が無効になります。変換の前に `ok()` を確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`month_weekday`](month_weekday.md) | 年を問わない |
 | [`year_month_weekday_last`](year_month_weekday_last.md) | 最後の曜日 |
+| [`month_weekday`](month_weekday.md) | 年を含まない |
+| [`year_month_day`](year_month_day.md) | 日の数字で指定する |
 
 ## コンパイラ対応
 
 C++20 から使えます。
 
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 年つきの第 n 曜日
-    - [x] sys_days に変換して日付に
-    - [x] ok() で存在確認
-
 ## 関連ページ
 
-- [cpprefjp: std::chrono::year_month_weekday](https://cpprefjp.github.io/reference/chrono/year_month_weekday.html)
+- [cpprefjp: year_month_weekday](https://cpprefjp.github.io/reference/chrono/year_month_weekday.html)
 - [cppreference: std::chrono::year_month_weekday](https://en.cppreference.com/w/cpp/chrono/year_month_weekday)

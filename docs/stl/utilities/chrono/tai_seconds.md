@@ -15,74 +15,73 @@ tags:
 `#include <chrono>`
 </div>
 
-`time_point<tai_time, ...>` のように毎回書くのは長いので、標準が別名を用意しています。`tai_seconds` は、tai_clock の時点（秒単位）です。
+`std::chrono::tai_seconds` は、`tai_clock` の時点を秒の単位で表す型で、`tai_time<seconds>` の別名です。`clock_cast<tai_clock>(sys_seconds)` の結果を受けるのに使います。
 
 !!! tip "ポイント"
-    - 中身は `tai_time<seconds>`。
-    - `time_since_epoch().count()` で経過を取れる。
-    - 時計の違いを型で区別できる。
+    - `tai_time<seconds>` の別名
+    - 起点は 1958-01-01。`sys_seconds` との差は、378691210 秒 + うるう秒の累計
+    - 書式は `{:%F %T}`
+    - `clock_cast` で相互に変換する
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要を先に読んでください。
+    [`tai_time`](tai_time.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::tai_seconds {#tai_seconds}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 using tai_seconds = tai_time<seconds>;
 ```
 
-- 戻り値: `tai_seconds` の値
-- 計算量: なし
-
+書式にかけると、TAI の日付と時刻が表示されます。2026-01-01 00:00:00 UTC は、TAI では 2026-01-01 00:00:37 です。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <chrono>
 #include <print>
-#include <type_traits>
 
 int main() {
-  std::println("{}", std::is_same_v<std::chrono::tai_seconds, std::chrono::time_point<std::chrono::tai_clock, std::chrono::seconds>>);
+  using namespace std::chrono;
+
+  const sys_seconds s = sys_days{2026y / January / 1};
+  const tai_seconds t = clock_cast<tai_clock>(s);
+
+  std::println("sys: {:%F %T}", s);
+  std::println("tai: {:%F %T}", t);
 }
 ```
 
 ```text title="実行結果"
-true
+sys: 2026-01-01 00:00:00
+tai: 2026-01-01 00:00:37
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 時計ごとに時点の型を区別する | `std::chrono::tai_seconds` |
+使いません。
 
 ## よくあるミス
 
-??? failure "時計が違う時点を混ぜる"
-    別の時計の時点どうしは、引き算できません。`clock_cast` で変換します。
+??? failure "表示が同じ時刻になると思う"
+    37 秒進んだ値で表示されます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`clock_cast`](clock_cast.md) | 時計どうしを変換する |
-| [`tai_clock`](tai_clock.md) | 時計 |
+| [`tai_time`](tai_time.md) | 単位を選べる元の別名 |
+| [`utc_seconds`](utc_seconds.md) | UTC の秒 |
+| [`gps_seconds`](gps_seconds.md) | GPS の秒 |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 13 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] tai_clock の時点（秒単位）の別名
-    - [x] time_since_epoch() で経過を取る
-    - [x] clock_cast で他の時計に変換
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::tai_seconds](https://cpprefjp.github.io/reference/chrono/time_point.html)
-- [cppreference: std::chrono::tai_seconds](https://en.cppreference.com/w/cpp/chrono/time_point)
+- [cpprefjp: tai_seconds](https://cpprefjp.github.io/reference/chrono/tai_clock.html)
+- [cppreference: std::chrono::tai_seconds](https://en.cppreference.com/w/cpp/chrono/tai_clock)

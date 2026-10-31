@@ -15,38 +15,38 @@ tags:
 `#include <chrono>`
 </div>
 
-毎年同じ日にあるイベント（誕生日、記念日）は、年を決めずに「3 月 5 日」と持ちたくなります。`std::chrono::month_day` は、月と日の組を表します。
+誕生日や記念日は、年を問わず、毎年の「何月何日」です。`std::chrono::month_day` は、月と日だけの組で、`March / 15` や `3 / 15d` のように書けます。年を含まないので、うるう年かどうかが分からないまま、2 月 29 日も表せます。
 
 !!! tip "ポイント"
-    - `March / 5` または `month_day{March, day{5}}` で作る。
-    - 2 月 29 日は有効（うるう年かどうかは年がないので判断しない）。
-    - 年をつけて `year_month_day` にする。
+    - `month / day` で作る。`year` を足すと、`year_month_day` になる
+    - `ok()` は、2 月 29 日も有効とする（うるう年を考えない）
+    - 比較できる（月が先、日が後）
+    - 特定の年の日付にするには `year / month_day`
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`month`](month.md) と [`day`](day.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::month_day {#month_day}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 class month_day {
  public:
-  constexpr month_day(const month& m, const day& d) noexcept;
-  constexpr month month() const noexcept;
-  constexpr day day() const noexcept;
+  constexpr month_day(const chrono::month& m, const chrono::day& d) noexcept;
+  constexpr chrono::month month() const noexcept;
+  constexpr chrono::day day() const noexcept;
   constexpr bool ok() const noexcept;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `m` | month | 月 |
-| `d` | day | 日 |
+`ok()` は、月が有効で、日がその月の最大日数以下なら真です。最大日数は、2 月を 29 日として数えるので、2 月 29 日は有効、2 月 30 日は無効です。4 月 31 日も無効です。
 
-- 戻り値: `ok()` は有効な月日なら `true`
-- 計算量: 定数
+年を含まない値なので、「その年に実在する日か」は分かりません。`2 / 29` が、ある年に実在するかは、`year / month_day` で `year_month_day` にして、`ok()` を調べます。
 
+大小の比較は、月、日の順です。`March / 1 < March / 15` が成り立ちます。1 年の中の並びを調べるのに使えます。
 
 ## 実際に動かしてみる
 
@@ -56,48 +56,52 @@ class month_day {
 
 int main() {
   using namespace std::chrono;
-  auto md = February / 29;
-  std::println("{}", md.ok());
-  std::println("{}", (February / 30).ok());
+
+  const month_day birthday = February / 29;
+  std::println("2/29 は month_day として有効: {}", birthday.ok());
+  std::println("4/31 は有効: {}", (April / 31).ok());
+
+  // 特定の年にすると、実在するかが分かる
+  std::println("2024-02-29 は有効: {}", (2024y / birthday).ok());
+  std::println("2026-02-29 は有効: {}", (2026y / birthday).ok());
+
+  std::println("3/1 < 3/15: {}", (March / 1) < (March / 15));
 }
 ```
 
 ```text title="実行結果"
-true
-false
+2/29 は month_day として有効: true
+4/31 は有効: false
+2024-02-29 は有効: true
+2026-02-29 は有効: false
+3/1 < 3/15: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 毎年のイベントの日付 | `std::chrono::December / 25` |
+キャラクターの誕生日のような、毎年同じ日のイベントの設定に使います。年を問わないので、データに年を持たせずに済みます。
 
 ## よくあるミス
 
-??? failure "2 月 29 日を無条件で有効だと思う"
-    `month_day` としては有効ですが、年をつけると平年では無効になります。年をつけて確認します。
+??? failure "2/29 を、毎年有効だと思う"
+    うるう年でない年には存在しません。実際の年と組み合わせて `ok()` を調べます。
+
+??? failure "month と day の順を逆にする"
+    `month_day{day, month}` はコンパイルできません。`month` が先です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`month`](month.md) | 月 |
-| [`day`](day.md) | 日 |
-| [`year_month_day`](year_month_day.md) | 年月日 |
+| [`year_month_day`](year_month_day.md) | 年を含む |
+| [`month_day_last`](month_day_last.md) | 月の最終日を表す |
+| [`year_month`](year_month.md) | 日を含まない |
 
 ## コンパイラ対応
 
 C++20 から使えます。
 
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 月と日の組
-    - [x] 年を問わない日付
-    - [x] 2/29 は有効
-
 ## 関連ページ
 
-- [cpprefjp: std::chrono::month_day](https://cpprefjp.github.io/reference/chrono/month_day.html)
+- [cpprefjp: month_day](https://cpprefjp.github.io/reference/chrono/month_day.html)
 - [cppreference: std::chrono::month_day](https://en.cppreference.com/w/cpp/chrono/month_day)

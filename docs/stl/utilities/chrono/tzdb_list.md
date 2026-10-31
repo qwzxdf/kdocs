@@ -15,19 +15,22 @@ tags:
 `#include <chrono>`
 </div>
 
-実行中にタイムゾーンのデータベースを更新すると、古い版を参照している箇所も残ります。`tzdb_list` は、新しい順に `tzdb` の世代を持ち、`front()` で最新のものを取ります。
+長く動くプログラムでは、実行中にタイムゾーンデータベースを更新したくなることがあります。更新すると、新しい `tzdb` ができますが、古い版を指していた参照やポインタを無効にしてはいけません。`std::chrono::tzdb_list` は、`tzdb` の各世代を、新しい順に並べて保持する一覧です。古い版は消されず、一覧の末尾に残ります。
 
 !!! tip "ポイント"
-    - `get_tzdb_list()` で取得する。
-    - `front()` が最新の `tzdb`。
-    - `begin()` / `end()` で世代を順に調べられる。
+    - `get_tzdb_list()` で、唯一のインスタンスを取得する
+    - `front()` が最新の版。`begin()` / `end()` で古い版まで辿れる
+    - `reload_tzdb()` は、一覧の先頭に新しい版を足す
+    - 古い版の参照は有効なまま。削除はされない
 
 !!! info "このページを読む前に"
-    [`<chrono>`](../chrono.md) の概要と [`duration`](duration.md) を先に読んでください。
+    [`tzdb`](tzdb.md) と [`reload_tzdb`](reload_tzdb.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::chrono::tzdb_list {#tzdb_list}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 class tzdb_list {
@@ -35,12 +38,18 @@ class tzdb_list {
   const tzdb& front() const noexcept;
   const_iterator begin() const noexcept;
   const_iterator end() const noexcept;
+  const_iterator cbegin() const noexcept;
+  const_iterator cend() const noexcept;
 };
+
+tzdb_list& get_tzdb_list();
 ```
 
-- 戻り値: 世代の一覧
-- 計算量: 定数
+`tzdb_list` は自分で作れません。`get_tzdb_list()` で、プログラムに 1 つだけ存在するものを取得します。
 
+`front()` は、最新の版で、`get_tzdb()` が返すものと同じです。`begin()` から `end()` は、新しい順に古い版へと辿ります。
+
+`reload_tzdb()` を呼ぶたびに、新しい版が先頭に足されます。ただし、データベースが更新されていなければ、足されません。古い版は、メモリに残り続けるので、頻繁に更新するプログラムでは、メモリが増えます。
 
 ## 実際に動かしてみる
 
@@ -49,44 +58,46 @@ class tzdb_list {
 #include <print>
 
 int main() {
-  const auto& db = std::chrono::get_tzdb_list().front();
-  std::println("{}", !db.zones.empty());
+  using namespace std::chrono;
+
+  const tzdb_list& list = get_tzdb_list();
+
+  int count = 0;
+  for (const tzdb& db : list) {
+    ++count;
+  }
+  std::println("版が 1 つ以上ある: {}", count >= 1);
+  std::println("先頭は get_tzdb と同じ: {}", &list.front() == &get_tzdb());
 }
 ```
 
 ```text title="実行結果"
-true
+版が 1 つ以上ある: true
+先頭は get_tzdb と同じ: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| データベースの更新を確かめる | `std::chrono::reload_tzdb()` |
+ほとんどの場合は使いません。何日も動かし続けるサーバーで、データベースの更新を取り込みたいときに、`reload_tzdb` とあわせて出てきます。
 
 ## よくあるミス
 
-??? failure "古い世代の参照を持ち続ける"
-    更新後も古い世代が残るため、メモリが増えます。必要なら参照を持たず、その都度取り直します。
+??? failure "tzdb_list を自分で作ろうとする"
+    作れません。`get_tzdb_list()` で取得します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`tzdb`](tzdb.md) | データベース本体 |
+| [`tzdb`](tzdb.md) | 一覧の要素 |
+| [`get_tzdb`](get_tzdb.md) | 最新の版を取る |
+| [`reload_tzdb`](reload_tzdb.md) | 更新して一覧に足す |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 14 以降、MSVC 19.29 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] tzdb の世代管理
-    - [x] front() が最新
-    - [x] 更新は reload_tzdb
+C++20 から使えます。
 
 ## 関連ページ
 
-- [cpprefjp: std::chrono::tzdb_list](https://cpprefjp.github.io/reference/chrono/tzdb_list.html)
+- [cpprefjp: tzdb_list](https://cpprefjp.github.io/reference/chrono/tzdb_list.html)
 - [cppreference: std::chrono::tzdb_list](https://en.cppreference.com/w/cpp/chrono/tzdb_list)
