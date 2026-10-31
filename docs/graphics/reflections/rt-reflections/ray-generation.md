@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Ray-Traced Reflections](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## レイの生成
 <strong>確率的 SSR と同じ</strong>です（[Stochastic SSR](../ssr-stochastic.md)）。画素ごと 1 本（または半分の解像度で 1 本）のレイを GGX の可視法線サンプリングで作ります。

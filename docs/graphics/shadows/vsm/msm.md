@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [VSM, ESM and MSM](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## MSM（モーメント シャドウ マップ）
 <strong>MSM</strong>（Moment Shadow Maps、Peters & Klein 2015）は、4 つのモーメント（z, z², z³, z⁴）を保存し、ハンバーガーのモーメント問題を解いて、より正確な可視性の上限を求めます。

@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Refraction](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 色収差（分散）
 <strong>波長ごとに屈折率が少し違う</strong>ので、ガラスの縁で色がずれて見えます（プリズムの虹）。R・G・B で屈折の強さを少しずつ変えて、3 回サンプルします。

@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Ray-Traced Reflections](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## ノイズ除去（デノイズ）
 <strong>画素ごと 1 本</strong>では ノイズが大きすぎます。デノイザーで空間・時間の平均を取ります。

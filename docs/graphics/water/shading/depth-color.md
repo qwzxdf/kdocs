@@ -17,7 +17,6 @@ tags:
 !!! info "このページを読む前に"
     - [Water Shading](index.md)（このセクション全体の地図と、読む順番）
     - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 水深による色（Beer の法則）
 <strong>光が水の中を距離 d だけ進むと、強さは指数関数的に減ります</strong>（Beer–Lambert の法則）。吸収の強さは色（波長）ごとに違い、水は赤を強く吸収し青をあまり吸収しません。そのため、深くなるほど青緑に変わります。

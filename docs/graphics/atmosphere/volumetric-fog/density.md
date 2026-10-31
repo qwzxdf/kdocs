@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Volumetric Fog](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## ① 密度
 <strong>霧の濃さを各 froxel に書きます</strong>。複数の要素を足し合わせます。

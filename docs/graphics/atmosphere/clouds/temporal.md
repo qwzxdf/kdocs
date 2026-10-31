@@ -17,7 +17,6 @@ tags:
 !!! info "このページを読む前に"
     - [Clouds](index.md)（このセクション全体の地図と、読む順番）
     - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 高速化：時間蓄積
 <strong>雲のレイマーチは重い</strong>ので、画面全体を毎フレーム描かず、1/4 の画素だけ描いて時間をかけて埋めます。

@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Sky Models](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## グラデーションの空
 <strong>もっとも簡単</strong>なのは 視線の仰角（上下の角度）で、地平線の色と天頂の色を混ぜる方法です。

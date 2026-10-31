@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Special Cases](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## キャラクターの影
 <strong>キャラクター</strong>は 画面の主役で影の品質が目立ちます。専用の工夫がよく使われます。

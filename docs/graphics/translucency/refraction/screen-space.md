@@ -17,7 +17,6 @@ tags:
 !!! info "このページを読む前に"
     - [Refraction](index.md)（このセクション全体の地図と、読む順番）
     - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 画面空間の屈折
 <strong>屈折した光線を本当に追跡する</strong>（レイトレ）のは重いので、ゲームでは画面の画像を「背景」として、歪めて読む方法が標準です。

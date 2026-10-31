@@ -17,8 +17,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Atmospheric Scattering](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## Hillaire 2020：4 つの LUT
 <strong>Hillaire（2020, "A Scalable and Production Ready Sky and Atmosphere Rendering Technique"）</strong>は、軽い LUT を毎フレーム更新する方式です。大気の組成（霧の濃さ・時間帯）を動的に変えられるのが強みで、Unreal Engine の SkyAtmosphereなどに使われています。

@@ -19,7 +19,6 @@ tags:
 !!! info "このページを読む前に"
     - [Ambient Occlusion (AO)](index.md)（このセクション全体の地図と、読む順番）
     - [MVP 変換（モデル・ビュー・プロジェクション）](../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 !!! warning "ここの説明は、公式資料の概要に基づく"
     HBAO+ の内部実装（シェーダーの詳細）は、公開されている範囲が限られています。このページは、NVIDIA の公開ドキュメントの説明を考え方として整理したものです。正確な API・パラメータは公式ドキュメントとヘッダを確認してください。

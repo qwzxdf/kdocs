@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Shore Foam](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 泡を残す（履歴）
 <strong>実際の泡はできてからしばらく水面に残って、ゆっくり消えます</strong>。ヤコビアンの泡は波が折れた瞬間にしか出ないので、そのままだと一瞬光って消えて見えます。

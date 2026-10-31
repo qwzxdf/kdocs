@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Clouds](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 雲の層
 <strong>積雲（もこもこした雲）などの雲は地面から離れた高さ 1.5〜4 km 程度の層</strong>にできます。空に「雲の層」（地表からの高さの範囲）を決め、その中だけを描きます。

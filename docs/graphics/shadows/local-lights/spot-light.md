@@ -17,7 +17,6 @@ tags:
 !!! info "このページを読む前に"
     - [Point and Spot Light Shadows](index.md)（このセクション全体の地図と、読む順番）
     - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## スポットライト
 <strong>スポットライト</strong>の光は 位置・向き・円錐の角度で決まります。円錐の外には光が届かないので円錐を覆う透視投影のシャドウ マップ 1 枚で済みます。

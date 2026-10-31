@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Aerial Perspective and Fog](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## フォグの色を空に合わせる
 <strong>フォグの色が空と違う</strong>と 遠景の山が「浮いて」見えます。

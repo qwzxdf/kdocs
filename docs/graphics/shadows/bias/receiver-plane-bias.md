@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Shadow Bias](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 対策 4：受け手平面バイアス（Receiver Plane Depth Bias）
 <strong>PCF</strong>（複数点のサンプル）と組み合わせると周りのサンプル点の深度を中心の点と同じ面の上にあるものとして補正する必要があります。面の傾きからサンプルごとに深度を補正します。

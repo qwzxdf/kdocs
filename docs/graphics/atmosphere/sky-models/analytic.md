@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Sky Models](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 解析的な空のモデル
 <strong>Preetham（1999）・Hosek-Wilkie（2012）</strong>は、空の輝度分布を少数のパラメータの数式で近似します。パラメータは太陽の高さ（天頂角）と、大気の濁り（turbidity）です。実測・シミュレーションにフィットさせた式なので、手作業のグラデーションより自然で、時刻による移り変わりも連続します。

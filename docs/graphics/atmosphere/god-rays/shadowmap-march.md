@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [God Rays](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## シャドウ マップでレイマーチ
 <strong>正確な方法</strong>は視線に沿ってサンプル点を歩き、各点が日向か日陰かをシャドウ マップで判定して、日向の点の寄与を足すことです。ボリューメトリック フォグ（[Volumetric Fog](../volumetric-fog/index.md)）と同じ原理です。
