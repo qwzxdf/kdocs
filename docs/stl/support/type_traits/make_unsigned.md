@@ -65,20 +65,25 @@ std::make_unsigned_t<const int> は const unsigned int : true
 
 ## ゲームでの使いどころ
 
-符号つき整数のビット演算を符号なしで安全に行います。
+符号つきの型から、同じ大きさの符号なしの型を作ります。ビット演算やハッシュ計算で、符号の拡張を避けたいときに使います。
 
 ```cpp
-template <class Int>
-int CountBits(Int value) {
-  auto bits = static_cast<std::make_unsigned_t<Int>>(value);   // 符号なしに直す
-  return std::popcount(bits);
+template <class T>
+constexpr int PopCount(T value) {
+  auto bits = static_cast<std::make_unsigned_t<T>>(value);   // 符号の拡張なしにビットを見る
+  int count = 0;
+  for (; bits != 0; bits >>= 1) count += bits & 1;
+  return count;
 }
 ```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "負の値を符号なしにすると値が変わることを忘れる"
+    `-1` を符号なしにすると、全部のビットが 1 の巨大な値になります。ビット列として扱うために変えるときだけ使います。
+
+??? failure "浮動小数点型に使う"
+    整数型と列挙型にだけ使えます。
 
 ## 類似
 

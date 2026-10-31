@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_nothrow_assignable_v<T, U>` は、`T` に `U` を代入するとき例外を投げないか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 代入の式に `noexcept` が付いているかを調べる
     - `std::is_nothrow_assignable<T, U>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `T` は参照型（`T&`）で渡す
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -42,9 +42,7 @@ inline constexpr bool is_nothrow_assignable_v = is_nothrow_assignable<T, U>::val
 | `T` | 型 | 代入される側の型（`T&` で渡す） |
 | `U` | 型 | 代入する値の型 |
 
-`declval<T>() = declval<U>()` が `noexcept` なら `true` です。第 1 引数は代入される側の型で、`T&` で渡します。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`std::declval<T>() = std::declval<U>()` が書けて、その式が `noexcept` と宣言されているときだけ `true` です。`T` は代入される側の型で、普通は `T&` の形で渡します。
 
 ## 実際に動かしてみる
 
@@ -73,33 +71,37 @@ std::string&, const std::string&   -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+汎用のラッパーで、中の型の代入が例外を投げないときだけ、ラッパーの代入も `noexcept` にします。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_nothrow_assignable_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
+class Wrapper {
+ public:
+  Wrapper& operator=(const T& v) noexcept(std::is_nothrow_assignable_v<T&, const T&>) {
+    value_ = v;
+    return *this;
   }
-}
+
+ private:
+  T value_;
+};
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "T を参照にしないで調べる"
+    `int` への代入は、右辺値への代入になるので `false` です。`T&` の形で渡します。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "宣言の noexcept を実際の動きと同じだと思う"
+    調べるのは宣言だけです。`noexcept` と書いた関数の中で例外が飛べば、`std::terminate` で終了します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_assignable`](is_assignable.md) | 例外を考えずに、代入できるかだけを調べる |
+| [`is_nothrow_copy_assignable`](is_nothrow_copy_assignable.md) | 同じ型のコピー代入に絞った版 |
+| [`is_nothrow_move_assignable`](is_nothrow_move_assignable.md) | 同じ型のムーブ代入に絞った版 |
 
 ## コンパイラ対応
 
@@ -109,8 +111,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_nothrow_assignable_v<T, U>` は、`T` に `U` を代入するとき例外を投げないか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 代入式の `noexcept` を調べる
+    - [x] `T` は `T&` の形で渡す
 
 ## 関連ページ
 

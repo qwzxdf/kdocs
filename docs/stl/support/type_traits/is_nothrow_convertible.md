@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_nothrow_convertible_v<From, To>` は、`From` から `To` への変換が例外を投げずにできるか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 暗黙の変換だけが対象（`explicit` は `false`）
     - `std::is_nothrow_convertible<From, To>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - C++20 で追加された
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -42,9 +42,7 @@ inline constexpr bool is_nothrow_convertible_v = is_nothrow_convertible<From, To
 | `From` | 型 | 変換元の型 |
 | `To` | 型 | 変換先の型 |
 
-`From` の値を `To` に暗黙に変換でき、しかもその変換が `noexcept` なら `true` です。`is_convertible` に、`noexcept` の条件を足したものです。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`From` の値を `To` に暗黙に変換でき、その変換が `noexcept` と宣言されていれば `true` です。`is_convertible` に `noexcept` の条件を足したものです。C++20 で追加されました。`void` から `void` への変換は、`true` として扱われます。
 
 ## 実際に動かしてみる
 
@@ -71,33 +69,38 @@ Derived*, Base*                    -> true
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+変換演算子を持つ型で、変換先ごとに `noexcept` を決める実装に使えます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_nothrow_convertible_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
+class Meters {
+ public:
+  explicit Meters(T v) : value_(v) {}
+
+  template <class U>
+  operator U() const noexcept(std::is_nothrow_convertible_v<T, U>) {
+    return static_cast<U>(value_);
   }
-}
+
+ private:
+  T value_;
+};
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "explicit な変換を調べる"
+    `explicit` のコンストラクターや変換演算子は、暗黙の変換ではないので `false` です。明示的な構築は `is_nothrow_constructible` で調べます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "C++17 以前で使う"
+    C++20 で追加されました。それ以前は `noexcept(To(std::declval<From>()))` のような式で代用します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_convertible`](is_convertible.md) | 例外を考えずに、暗黙に変換できるか |
+| [`is_nothrow_constructible`](is_nothrow_constructible.md) | 明示的な構築も含めて調べる |
 
 ## コンパイラ対応
 
@@ -107,8 +110,8 @@ C++20 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_nothrow_convertible_v<From, To>` は、`From` から `To` への変換が例外を投げずにできるか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 暗黙の変換の `noexcept` を調べる
+    - [x] C++20 で追加された
 
 ## 関連ページ
 

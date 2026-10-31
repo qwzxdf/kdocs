@@ -41,11 +41,7 @@ struct greater {
 | `x` | 値 | 1 つ目の値 |
 | `y` | 値 | 2 つ目の値 |
 
-`std::greater<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`>` の結果を返します。`std::greater<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
-
-戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
-
-ラムダ式で書いても同じ結果ですが、`std::greater<>{}` のほうが短く、意図が名前で伝わります。
+`std::greater<>{}(a, b)` は `a > b` と同じ結果を返します。`std::sort` に渡すと、降順（大きい順）に並びます。`std::priority_queue` に渡すと、最小値が先頭に来るキュー（最小ヒープ）になります。標準のキューは最大値が先頭です。
 
 ## 実際に動かしてみる
 
@@ -71,22 +67,31 @@ std::greater<>{}(3, 2) = true
 
 ## ゲームでの使いどころ
 
-標準のアルゴリズムや、自作のテンプレートに、演算を値として渡すときに使います。短い演算にはこちら、複雑な演算にはラムダ式、と使い分けます。
+スコアを大きい順に並べます。
+
+```cpp
+std::vector<int> score = {40, 90, 10, 70};
+std::sort(score.begin(), score.end(), std::greater<>{});   // 90, 70, 40, 10
+
+// 最小値が先頭に来るキュー（A* のオープンリストなど）
+std::priority_queue<int, std::vector<int>, std::greater<int>> open;
+```
 
 ## よくあるミス
 
-??? failure "`std::greater<int>` と型を固定して、他の型で変換が起きる"
-    `std::greater<>` と省略します。
+??? failure "priority_queue がデフォルトで最小値を返すと思う"
+    既定は最大値が先頭です。最小値を先に取り出したいなら、`std::greater` を渡します。
 
-??? failure "`<functional>` を忘れてコンパイルエラーになる"
-    `#include <functional>` を書きます。
+??? failure "降順にしたいのに less を渡す"
+    `std::less` は昇順です。逆の向きを間違えやすいので、動かして確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
-| [`identity`](identity.md) | 値をそのまま返す |
+| [`less`](less.md) | 昇順の比較（既定） |
+| [`greater_equal`](greater_equal.md) | 以上を返す |
+| [`not_equal_to`](not_equal_to.md) | 等しくないかを返す |
 
 ## コンパイラ対応
 

@@ -64,12 +64,23 @@ std::remove_volatile_t<int> は int : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+`volatile` を外した型を作ります。レジスタの値を、普通の変数として保存する作業用のコピーを用意するときに使います。
+
+```cpp
+template <class T>
+auto Snapshot(const volatile T& reg) {
+  std::remove_volatile_t<T> value = reg;   // 一度だけ読んで、普通の変数にする
+  return value;
+}
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "volatile のオブジェクトの volatile を外せると思う"
+    型の変換だけです。`volatile` なオブジェクトのアドレスを `volatile` なしのポインターで扱うと、未定義動作です。
+
+??? failure "const も外れると思う"
+    外れるのは `volatile` だけです。`const` も外すなら `remove_cv` です。
 
 ## 類似
 

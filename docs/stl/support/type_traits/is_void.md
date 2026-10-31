@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_void_v<T>` は、`T` が `void`（`const` や `volatile` 付きを含む）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `void*` ではなく、`void` そのものが対象
     - `std::is_void<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 戻り値の型が `void` かどうかの分岐に使う
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_void_v = is_void<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`T` が `void`、`const void`、`volatile void`、`const volatile void` のいずれかなら `true` です。ポインタ `void*` は `void` ではないので `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`void` と、`const void`・`volatile void` のように修飾が付いたものが `true` です。`void*` はポインターなので `false` です。関数の戻り値が `void` かどうかを知りたいときに、`std::invoke_result_t` と組み合わせて使います。
 
 ## 実際に動かしてみる
 
@@ -68,31 +66,34 @@ int                        -> false
 
 ## ゲームでの使いどころ
 
-関数の戻り値の型で分岐する場面で使います。
+渡された関数を呼んで、結果があれば返し、戻り値が `void` なら何も返さない、汎用の実行関数を書けます。
 
 ```cpp
-using R = std::invoke_result_t<F>;
-if constexpr (std::is_void_v<R>) {
-  f();            // 戻り値がないので、結果を受け取れない
-} else {
-  auto result = f();
+template <class F>
+auto Run(F&& f) {
+  if constexpr (std::is_void_v<std::invoke_result_t<F>>) {
+    f();                 // 戻り値がないので、そのまま呼ぶだけ
+  } else {
+    return f();          // 戻り値を呼び出し側へ返す
+  }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "void* を true だと思う"
+    `void*` はポインター型なので `false` です。`void` そのものだけが `true` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "戻り値を変数に受けようとする"
+    `void` の戻り値は、`auto x = f();` で変数に入れられません。`is_void` で分けて、別々に書きます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_pointer`](is_pointer.md) | ポインターか。`void*` は `true` |
+| [`invoke_result`](invoke_result.md) | 関数を呼んだときの戻り値の型 |
+| [`is_null_pointer`](is_null_pointer.md) | `nullptr` の型か |
 
 ## コンパイラ対応
 
@@ -102,8 +103,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_void_v<T>` は、`T` が `void`（`const` や `volatile` 付きを含む）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `void` だけが `true`
+    - [x] `void*` は `false`
 
 ## 関連ページ
 

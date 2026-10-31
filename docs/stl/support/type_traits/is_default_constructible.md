@@ -18,9 +18,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_default_constructible_v<T>` は、`T` が引数なしで構築できるか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 引数が必要なコンストラクターだけの型は `false`
     - `std::is_default_constructible<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `T() = default;` を足すと `true` になる
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -38,9 +38,7 @@ inline constexpr bool is_default_constructible_v = is_default_constructible<T>::
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`T t;` または `T()` が書ける型は `true` です。引数を必須とするコンストラクターだけを持つクラスは `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+引数なしで作れるか（`T()` や `T{}` が書けるか）を調べます。コンストラクターに引数が必要な型や、参照メンバーを持つ型は `false` です。`std::vector::resize` や、配列の確保は、この条件が前提です。
 
 ## 実際に動かしてみる
 
@@ -71,33 +69,34 @@ int                        -> true
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+要素を一括で作るコンテナで、既定の構築ができない型を、早い段階で弾きます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_default_constructible_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+class Grid {
+  static_assert(std::is_default_constructible_v<T>, "マスの型は引数なしで作れる必要があります");
+  std::vector<T> cells_;
+
+ public:
+  Grid(int w, int h) : cells_(w * h) {}   // 引数なしで T を作る
+};
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "引数つきのコンストラクターだけを持つ型"
+    デフォルトコンストラクターが暗黙に作られないので、`false` です。`T() = default;` を足すか、引数に既定値を付けます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "参照メンバーを持つ型"
+    参照メンバーは、初期化しないと作れないので、`false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_constructible`](is_constructible.md) | 引数を指定して作れるか |
+| [`is_trivially_default_constructible`](is_trivially_default_constructible.md) | 作る処理が何もしないか |
+| [`is_nothrow_default_constructible`](is_nothrow_default_constructible.md) | 例外を投げないか |
 
 ## コンパイラ対応
 
@@ -107,8 +106,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_default_constructible_v<T>` は、`T` が引数なしで構築できるか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `T()` と書けるかを調べる
+    - [x] 引数が必要な型は `false`
 
 ## 関連ページ
 

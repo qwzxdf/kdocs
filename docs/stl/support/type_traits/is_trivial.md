@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_trivial_v<T>` は、`T` がトリビアル（コンストラクター・コピー・ムーブ・デストラクターが自明）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - メンバーの既定値で `false` になる
     - `std::is_trivial<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `memset` などで直接書いてよい型の目印
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_trivial_v = is_trivial<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-自分で定義したコンストラクターやデストラクターを持たない、単純な型は `true` です。`int` や、それだけを持つ構造体は `true` です。`std::string` のように、動的メモリを管理する型は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+自分で定義したコンストラクター、コピー、デストラクターを持たず、仮想関数も持たない、単純な型が `true` です。`int` や、数値だけの構造体がそうです。`std::string` のように、動的メモリを管理する型は `false` です。メンバーに既定値（`int hp = 100;`）を書くと、既定のコンストラクターが自明でなくなり、`false` になります。
 
 ## 実際に動かしてみる
 
@@ -72,33 +70,34 @@ std::string                -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+自明な型の配列は、`memset` で一気にゼロ埋めでき、自明でない型は、1 つずつ初期化する、という使い分けに使います。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+void Clear(T* data, std::size_t n) {
   if constexpr (std::is_trivial_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    std::memset(data, 0, sizeof(T) * n);   // ビットを直接書いてよい
   } else {
-    // それ以外の型の処理
+    std::fill_n(data, n, T{});
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "メンバーに既定値を書いて trivial でなくなる"
+    `struct Vec { float x = 0; };` は、既定のコンストラクターが自明ではないので `false` です。初期値が要るときは、構築時に決めます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "trivial なら memcpy で安全だと思う"
+    コピーの自明さは `is_trivially_copyable` で調べます。`is_trivial` は、構築とコピーの両方の自明さを調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_trivially_copyable`](is_trivially_copyable.md) | コピーが自明か |
+| [`is_standard_layout`](is_standard_layout.md) | C と同じメモリ配置か |
+| [`is_aggregate`](is_aggregate.md) | 波括弧で初期化できるか |
 
 ## コンパイラ対応
 
@@ -108,8 +107,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_trivial_v<T>` は、`T` がトリビアル（コンストラクター・コピー・ムーブ・デストラクターが自明）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 構築とコピーが自明な型が `true`
+    - [x] 既定値つきのメンバーに注意
 
 ## 関連ページ
 

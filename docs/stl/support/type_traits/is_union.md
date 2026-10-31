@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_union_v<T>` は、`T` が共用体（`union`）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `struct` / `class` は `false`
     - `std::is_union<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - クラスと共用体は、別々に調べる
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_union_v = is_union<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`union` で宣言された型なら `true` です。`struct` や `class` は `false` です。`std::is_class` は、共用体に対して `false` を返すので、クラスと共用体を区別して扱えます。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`union` で宣言された型が `true` です。`struct` や `class` は `false` です。`std::is_class` は共用体に対して `false` を返すので、この 2 つを使えば、クラスと共用体を区別できます。クラスの中の無名共用体は、名前のある型ではないので、調べる対象になりません。
 
 ## 実際に動かしてみる
 
@@ -75,33 +73,30 @@ int                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+メンバーを順に処理する汎用の関数に、共用体が渡されたらエラーにします。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_union_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
+void Reflect(const T& value) {
+  static_assert(!std::is_union_v<T>, "共用体は、どのメンバーが有効かが分からないので扱えません");
+  // ...
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "union を class だと思う"
+    `std::is_class_v<U>` は、共用体 `U` に対して `false` です。共用体は `is_union` で調べます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "クラスの中の無名 union を調べる"
+    無名共用体は、型の名前がないので、`is_union` を適用できません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_class`](is_class.md) | クラスか。共用体は含まない |
+| [`is_enum`](is_enum.md) | 列挙型か |
 
 ## コンパイラ対応
 
@@ -111,8 +106,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_union_v<T>` は、`T` が共用体（`union`）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `union` が `true`
+    - [x] `is_class` は共用体に `false`
 
 ## 関連ページ
 

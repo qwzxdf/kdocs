@@ -18,9 +18,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_pointer_v<T>` は、`T` がポインタ型か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `const` や `volatile` が付いたポインターも `true`
     - `std::is_pointer<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - スマートポインターは `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -38,9 +38,7 @@ inline constexpr bool is_pointer_v = is_pointer<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`int*`、`const char*`、`void*`、関数ポインタなどが `true` です。`nullptr_t`、メンバー ポインタ、参照、`std::unique_ptr` は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`int*`、`const char*`、`void*`、関数ポインターなどが `true` です。`const` や `volatile` が付いたポインター（`int* const`）も `true` です。`std::nullptr_t`、メンバーへのポインター、参照、`std::unique_ptr` などのスマートポインターは `false` です。
 
 ## 実際に動かしてみる
 
@@ -69,33 +67,34 @@ int                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+ポインターが渡されたら中身を、そうでなければ値そのものを表示する、汎用の出力関数を書けます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+void Print(const T& value) {
   if constexpr (std::is_pointer_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    if (value != nullptr) std::println("{}", *value);   // ポインターは指す先を出す
   } else {
-    // それ以外の型の処理
+    std::println("{}", value);
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "スマートポインターが true になると思う"
+    `std::unique_ptr` や `std::shared_ptr` は、クラスなので `false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "参照を外さずに調べる"
+    `int*&` のような参照型は、ポインターではなく参照なので `false` です。`std::remove_reference_t` で外してから調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_member_pointer`](is_member_pointer.md) | メンバーへのポインターか |
+| [`is_null_pointer`](is_null_pointer.md) | `nullptr` の型か |
+| [`remove_pointer`](remove_pointer.md) | ポインターを外した型 |
 
 ## コンパイラ対応
 
@@ -105,8 +104,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_pointer_v<T>` は、`T` がポインタ型か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 生のポインターが `true`
+    - [x] スマートポインターや参照は `false`
 
 ## 関連ページ
 

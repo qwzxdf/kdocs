@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「ギガ」を付けるとき、`ratio<1000000000, 1>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::giga` は、SI 接頭辞の「ギガ」（10 億倍）をそのまま表す `std::ratio` の別名です。
+VRAM が 8 GB、CPU が 3 GHz。単位に「ギガ」が付く量を、10 億倍の関係として型で扱いたいときに、`std::giga`（ギガ、10 億倍）を使います。`ratio<1000000000, 1>` の別名です。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<1000000000, 1>`
@@ -46,37 +46,38 @@ using giga = ratio<1000000000, 1>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
 #include <print>
+#include <ratio>
 
 int main() {
-  std::println("num = {}, den = {}", std::giga::num, std::giga::den);
-  constexpr long long value = 3LL * std::giga::num / std::giga::den;
-  std::println("3 giga = {}", value);
+  // メーカー表示の 8 GB (SI 接頭辞 = 10^9) と、OS が数える 8 GiB (2^30) は、別の量
+  constexpr long long gb = 8LL * std::giga::num;
+  constexpr long long gib = 8LL * (1LL << 30);
+  std::println("8 GB  = {} バイト", gb);
+  std::println("8 GiB = {} バイト", gib);
+  std::println("差: {} バイト ({:.1f}%)", gib - gb, 100.0 * (gib - gb) / gb);
 }
 ```
 
 ```text title="実行結果"
-num = 1000000000, den = 1
-3 giga = 3000000000
+8 GB  = 8000000000 バイト
+8 GiB = 8589934592 バイト
+差: 589934592 バイト (7.4%)
 ```
+
+メーカーの「8 GB」と、OS が数える「8 GiB」は、約 7% の違いがあります。`std::giga` は前者の 10 億倍で、後者は 1024 の累乗です。
 
 ## ゲームでの使いどころ
 
-データの大きさや周波数など、大きな量を扱うときに、桁の数え間違いを避けるために使います。ただし、バイトの単位としての 1024 倍（KiB、MiB）は、SI 接頭辞の 1000 倍とは別なので、`std::kilo` はそのまま使えません。
-
-```cpp
-// 3 ギガ を基本単位に直す
-constexpr long long value = 3LL * std::giga::num / std::giga::den;
-```
+VRAM やストレージの容量の換算で、メーカー表示と OS 表示のずれを、説明するときに使えます。クロック周波数（GHz）を扱う処理にも出てきます。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::giga` のような名前の付いた別名を使います。
+??? failure "1 GB を 1024 × 1024 × 1024 バイトだと思う"
+    `std::giga` は 10 億です。2 進接頭辞の GiB を使うなら、`1LL << 30` と書きます。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "int で受けて桁あふれ"
+    10 億は `int` に収まりますが、数 GB の掛け算はあふれます。`long long` を使います。
 
 ## 類似
 

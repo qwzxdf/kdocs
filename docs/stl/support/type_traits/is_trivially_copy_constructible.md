@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_trivially_copy_constructible_v<T>` は、`T` が自明なコピーコンストラクターを持つか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - ポインターを持つだけの型も `true`（所有権は別の話）
     - `std::is_trivially_copy_constructible<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 仮想関数を持つ型は `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_trivially_copy_constructible_v = is_trivially_copy_cons
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-コピーするとき、メンバーのビットをそのまま写すだけの（自明な）型なら `true` です。ポインタを持つ型も、ポインタ値を写すだけなら `true` になります（所有権は別の話です）。`std::string` のように、コピーで動的メモリを確保する型は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+コピーするとき、メンバーのビットをそのまま写すだけの型なら `true` です。ポインターを持つ型も、ポインターの値を写すだけなら `true` になります（所有権の扱いは別の話です）。`std::string` のように、コピーで動的メモリを確保する型や、仮想関数を持つ型は `false` です。
 
 `true` でも、ポインタが指す先を共有する点に注意します。
 
@@ -74,33 +72,36 @@ std::string                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+配列を別の場所へ複製するとき、自明な型なら `memcpy`、そうでなければコンストラクターを呼ぶ複製を選びます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+T* Clone(const T* src, std::size_t n) {
+  T* dst = static_cast<T*>(::operator new(sizeof(T) * n));
   if constexpr (std::is_trivially_copy_constructible_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    std::memcpy(dst, src, sizeof(T) * n);
   } else {
-    // それ以外の型の処理
+    std::uninitialized_copy_n(src, n, dst);
   }
+  return dst;
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "ポインターを持つ型を複製して二重解放する"
+    ポインターを持つだけの型は自明に複製できますが、指す先の所有権まではコピーされません。両方で解放すると二重解放です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "仮想関数を持つ型で memcpy する"
+    仮想関数のテーブルのポインターを持つので、`false` です。`memcpy` で写すのは未定義動作の恐れがあります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_copy_constructible`](is_copy_constructible.md) | 自明さを考えずに、コピー構築できるか |
+| [`is_trivially_copyable`](is_trivially_copyable.md) | コピー全体の自明さ |
+| [`is_trivially_move_constructible`](is_trivially_move_constructible.md) | ムーブ構築の自明さ |
 
 ## コンパイラ対応
 
@@ -110,8 +111,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_trivially_copy_constructible_v<T>` は、`T` が自明なコピーコンストラクターを持つか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] コピー構築が `memcpy` で済む型が `true`
+    - [x] 所有権の扱いは別に考える
 
 ## 関連ページ
 

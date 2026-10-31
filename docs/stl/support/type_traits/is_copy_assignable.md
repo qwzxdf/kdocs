@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_copy_assignable_v<T>` は、`T` がコピー代入できるか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `const` メンバーや参照メンバーを持つクラスは `false`
     - `std::is_copy_assignable<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `unique_ptr` のようなムーブ専用の型も `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_copy_assignable_v = is_copy_assignable<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`T& operator=(const T&)` が使える型は `true` です。`const` 型や、代入を削除した型は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+同じ型のオブジェクトを `const T&` から代入できるかを調べます。`std::vector` や `std::string` は `true`、`std::unique_ptr` は `false` です。`const` なメンバー変数や参照のメンバー変数を持つクラスは、代入演算子が暗黙に削除されるため、`false` になります。
 
 ## 実際に動かしてみる
 
@@ -76,33 +74,31 @@ const Player               -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+コンポーネントを配列に詰め直す処理で、コピー代入できる型だけを受け付けます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_copy_assignable_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+template <class Component>
+struct Pool {
+  static_assert(std::is_copy_assignable_v<Component>, "コピー代入できる型にしてください");
+  std::vector<Component> items;
+};
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "const メンバーを持つクラスが代入できると思う"
+    `const int id;` のようなメンバーがあると、代入演算子が削除されて `false` になります。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "ムーブ専用の型で true を期待する"
+    `std::unique_ptr` のような型は `false` です。ムーブ代入は `is_move_assignable` で調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_move_assignable`](is_move_assignable.md) | ムーブ代入できるか |
+| [`is_copy_constructible`](is_copy_constructible.md) | コピー構築できるか |
+| [`is_trivially_copy_assignable`](is_trivially_copy_assignable.md) | コピー代入がメモリのコピーだけか |
 
 ## コンパイラ対応
 
@@ -112,8 +108,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_copy_assignable_v<T>` は、`T` がコピー代入できるか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] コピー代入が使えるかを調べる
+    - [x] `const` メンバーや参照メンバーがあると `false`
 
 ## 関連ページ
 

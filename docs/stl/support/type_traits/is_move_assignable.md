@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_move_assignable_v<T>` は、`T` がムーブ代入できるか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - コピー代入だけの型でも `true`
     - `std::is_move_assignable<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `= delete` したムーブ代入や `const` メンバーは `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_move_assignable_v = is_move_assignable<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-ムーブ代入演算子が使える（または、コピー代入で代用できる）型は `true` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+右辺値から代入できるか（`T& = T&&`）を調べます。ムーブ代入を持たず、コピー代入だけを持つ型でも、右辺値をコピー代入で受けられるので、`true` になります。ムーブ代入を `= delete` した型と、`const` メンバーを持つ型が `false` です。
 
 ## 実際に動かしてみる
 
@@ -72,33 +70,31 @@ const Player               -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+`std::vector` の要素の入れ替えや並べ替えなど、ムーブ代入を使う処理の前提を確かめます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_move_assignable_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
+void SortItems(std::vector<T>& items) {
+  static_assert(std::is_move_assignable_v<T>, "並べ替えには、ムーブ代入が要ります");
+  std::sort(items.begin(), items.end());
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "ムーブ代入がないと false になると思う"
+    コピー代入があれば、右辺値でもそれが使えるので `true` です。`= delete` で明示的に削除したときだけ `false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "const メンバーを持つクラス"
+    `const` のメンバーがあると、代入演算子が削除されるので `false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_copy_assignable`](is_copy_assignable.md) | コピー代入できるか |
+| [`is_nothrow_move_assignable`](is_nothrow_move_assignable.md) | ムーブ代入が例外を投げないか |
+| [`is_move_constructible`](is_move_constructible.md) | ムーブ構築できるか |
 
 ## コンパイラ対応
 
@@ -108,8 +104,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_move_assignable_v<T>` は、`T` がムーブ代入できるか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 右辺値からの代入ができるかを調べる
+    - [x] コピー代入があれば `true`
 
 ## 関連ページ
 

@@ -66,12 +66,23 @@ std::add_pointer_t<int*> は int** : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+参照型を含む、任意の型 `T` のポインター型を作ります。参照型 `T&` に `*` を付けるとエラーですが、`add_pointer` は参照を外してから、ポインターにします。
+
+```cpp
+template <class T>
+using Ptr = std::add_pointer_t<T>;   // int& なら int*、Player なら Player*
+
+static_assert(std::is_same_v<Ptr<int&>, int*>);
+static_assert(std::is_same_v<Ptr<void(int)>, void (*)(int)>);
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "参照型に * を付けようとする"
+    `T = int&` のとき `T*` は書けません。`add_pointer_t<T>` なら `int*` になります。
+
+??? failure "関数型で驚く"
+    `add_pointer_t<void(int)>` は、関数ポインター `void(*)(int)` です。
 
 ## 類似
 

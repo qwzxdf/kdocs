@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「ミリ」を付けるとき、`ratio<1, 1000>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::milli` は、SI 接頭辞の「ミリ」（1000 分の 1）をそのまま表す `std::ratio` の別名です。
+1 フレームは 16.7 ミリ秒、ネットワークの遅延は 30 ミリ秒。ゲームの時間は、ミリ秒で語ることが多く、その 1/1000 の関係を型で扱いたいときに、`std::milli`（ミリ、1000 分の 1）を使います。`ratio<1, 1000>` の別名です。`std::chrono::milliseconds` の正体は `duration<..., std::milli>` です。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<1, 1000>`
@@ -46,41 +46,43 @@ using milli = ratio<1, 1000>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
+#include <chrono>
 #include <print>
+#include <ratio>
+#include <type_traits>
 
 int main() {
-  std::println("num = {}, den = {}", std::milli::num, std::milli::den);
-  // 1000000 に接頭辞の倍率を掛ける（整数で計算するため、分母で割る）
-  constexpr long long value = 1000000LL * std::milli::num / std::milli::den;
-  std::println("1000000 の milli = {}", value);
+  // std::chrono::milliseconds は、milli を単位にした duration
+  static_assert(std::is_same_v<std::chrono::milliseconds::period, std::milli>);
+
+  // 60 fps の 1 フレームの長さ(ミリ秒、小数あり)
+  std::chrono::duration<double, std::milli> frame(1000.0 / 60.0);
+  std::println("1 フレーム = {:.2f} ミリ秒", frame.count());
+
+  // 秒への換算
+  std::chrono::duration<double> sec = frame;
+  std::println("= {:.5f} 秒", sec.count());
 }
 ```
 
 ```text title="実行結果"
-num = 1, den = 1000
-1000000 の milli = 1000
+1 フレーム = 16.67 ミリ秒
+= 0.01667 秒
 ```
+
+`std::chrono::milliseconds` は、`milli` を単位にした `duration` の別名です。小数のミリ秒が欲しいときは、`duration<double, std::milli>` を使います。
 
 ## ゲームでの使いどころ
 
-時間の単位を指定するときに使います。`std::chrono::duration<double, std::milli>` は、ミリ秒単位の時間です。
-
-```cpp
-#include <chrono>
-
-// 1.5 秒をミリ秒単位の時間として持つ
-std::chrono::duration<double, std::milli> frame_time{16.7};   // 16.7 ミリ秒
-const double seconds = std::chrono::duration<double>(frame_time).count();   // 0.0167 秒
-```
+フレーム時間の表示（16.67 ms）や、ネットワークの遅延の記録、タイムアウトの設定など、ゲームでは最もよく使う SI 接頭辞です。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::milli` のような名前の付いた別名を使います。
+??? failure "milliseconds に小数を入れて切り捨てられる"
+    `std::chrono::milliseconds` は整数です。`16.67` ms を入れると、切り捨てられて 16 ms になります。`duration<double, std::milli>` を使います。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "milli と micro を取り違える"
+    `milli` は 1/1000、`micro` は 1/1000000 です。
 
 ## 類似
 

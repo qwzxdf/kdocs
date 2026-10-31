@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_nothrow_swappable_with_v<T, U>` は、`T` と `U` の `swap` が例外を投げないか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `T` と `U` は、参照型（`T&`）で渡す
     - `std::is_nothrow_swappable_with<T, U>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 同じ型どうしなら `is_nothrow_swappable` が短い
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -42,9 +42,7 @@ inline constexpr bool is_nothrow_swappable_with_v = is_nothrow_swappable_with<T,
 | `T` | 型 | 1 つ目の型（`T&` で渡す） |
 | `U` | 型 | 2 つ目の型（`U&` で渡す） |
 
-2 つの型の `swap` が書けて、どちらも `noexcept` なら `true` です。`T` と `U` は、通常 `T&` のように参照で渡します。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+2 つの型 `T` と `U` で、`swap(declval<T>(), declval<U>())` と `swap(declval<U>(), declval<T>())` の両方が書けて、どちらも `noexcept` なら `true` です。`T` と `U` は、通常 `T&` のように参照で渡します。
 
 ## 実際に動かしてみる
 
@@ -71,33 +69,30 @@ MayThrow&, MayThrow&               -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+型の違う 2 つの変数を入れ替える関数の `noexcept` を、`swap` の性質に合わせます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_nothrow_swappable_with_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
+template <class A, class B>
+void Exchange(A& a, B& b) noexcept(std::is_nothrow_swappable_with_v<A&, B&>) {
+  using std::swap;
+  swap(a, b);
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "参照を付けずに調べる"
+    `int` と `int` では右辺値になり、`false` です。`int&` と `int&` の形で渡します。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "同じ型の入れ替えに使う"
+    同じ型なら、`is_nothrow_swappable` のほうが短く書けます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_nothrow_swappable`](is_nothrow_swappable.md) | 同じ型の入れ替え |
+| [`is_swappable_with`](is_swappable_with.md) | 例外を考えずに、2 つの型を入れ替えられるか |
 
 ## コンパイラ対応
 
@@ -107,8 +102,8 @@ C++17 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_nothrow_swappable_with_v<T, U>` は、`T` と `U` の `swap` が例外を投げないか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 型の違う 2 つの `swap` の `noexcept` を調べる
+    - [x] 参照型を渡す
 
 ## 関連ページ
 

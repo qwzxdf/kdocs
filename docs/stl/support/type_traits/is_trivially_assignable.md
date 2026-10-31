@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_trivially_assignable_v<T, U>` は、`T` に `U` を自明に代入できるか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 自明な代入は、ビットを写すだけで済む代入
     - `std::is_trivially_assignable<T, U>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `T` は参照型で渡す
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -42,9 +42,7 @@ inline constexpr bool is_trivially_assignable_v = is_trivially_assignable<T, U>:
 | `T` | 型 | 代入される側の型（`T&` で渡す） |
 | `U` | 型 | 代入する値の型 |
 
-`declval<T>() = declval<U>()` が自明な処理で済むなら `true` です。第 1 引数は代入される側の型で、左辺値参照 `T&` を渡します。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`declval<T>() = declval<U>()` が、自明な（ビットを写すだけの）処理で済むなら `true` です。第 1 引数は代入される側の型で、`T&` を渡します。
 
 第 1 引数に `Player`（参照なし）を渡すと、右辺値への代入になり、別の結果になります。通常は `T&` を渡します。
 
@@ -75,33 +73,34 @@ int&, int                          -> true
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+代入する範囲の型が自明に代入できるなら、`memcpy` で一気に写します。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_trivially_assignable_v<T>) {
-    // T が条件に当てはまる型のときの処理
+void CopyRange(T* dst, const T* src, std::size_t n) {
+  if constexpr (std::is_trivially_assignable_v<T&, const T&>) {
+    std::memcpy(dst, src, sizeof(T) * n);
   } else {
-    // それ以外の型の処理
+    std::copy_n(src, n, dst);
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "T を参照にしないで調べる"
+    右辺値への代入になり、`false` です。`T&` の形で渡します。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "自明な代入ならコピーしてよいと思う"
+    代入が自明でも、オブジェクトの寿命を始めるわけではありません。`memcpy` で写す先に、すでに生きているオブジェクトがあるときだけです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_assignable`](is_assignable.md) | 例外や自明さを考えずに、代入できるか |
+| [`is_trivially_copy_assignable`](is_trivially_copy_assignable.md) | 同じ型のコピー代入に絞った版 |
+| [`is_trivially_move_assignable`](is_trivially_move_assignable.md) | ムーブ代入に絞った版 |
 
 ## コンパイラ対応
 
@@ -111,8 +110,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_trivially_assignable_v<T, U>` は、`T` に `U` を自明に代入できるか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 代入の自明さを調べる
+    - [x] memcpy の近道を選ぶ条件になる
 
 ## 関連ページ
 

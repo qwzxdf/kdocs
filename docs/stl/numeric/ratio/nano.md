@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「ナノ」を付けるとき、`ratio<1, 1000000000>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::nano` は、SI 接頭辞の「ナノ」（10 億分の 1）をそのまま表す `std::ratio` の別名です。
+高精度のタイマーは、ナノ秒（10 億分の 1 秒）の刻みで時間を返します。この 10 億分の 1 の関係を型で扱いたいときに、`std::nano`（ナノ、10 億分の 1）を使います。`ratio<1, 1000000000>` の別名です。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<1, 1000000000>`
@@ -46,40 +46,41 @@ using nano = ratio<1, 1000000000>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
+#include <chrono>
 #include <print>
+#include <ratio>
 
 int main() {
-  std::println("num = {}, den = {}", std::nano::num, std::nano::den);
-  // 1000000 に接頭辞の倍率を掛ける（整数で計算するため、分母で割る）
-  constexpr long long value = 1000000LL * std::nano::num / std::nano::den;
-  std::println("1000000 の nano = {}", value);
+  // steady_clock の刻み(period)が何秒か
+  using Period = std::chrono::steady_clock::period;
+  std::println("steady_clock の刻み: {}/{} 秒", Period::num, Period::den);
+  std::println("ナノ秒単位か: {}", Period::den == std::nano::den);
+
+  // 1 秒は何ナノ秒か
+  std::chrono::duration<long long, std::nano> one = std::chrono::seconds(1);
+  std::println("1 秒 = {} ナノ秒", one.count());
 }
 ```
 
 ```text title="実行結果"
-num = 1, den = 1000000000
-1000000 の nano = 0
+steady_clock の刻み: 1/1000000000 秒
+ナノ秒単位か: true
+1 秒 = 1000000000 ナノ秒
 ```
+
+MSVC の `steady_clock` は、刻みがナノ秒です。環境によって刻みは違い、たとえば Linux の GCC / Clang でも、通常はナノ秒ですが、仕様では保証されません。
 
 ## ゲームでの使いどころ
 
-時間の単位を指定するときに使います。`std::chrono::duration<double, std::nano>` は、ナノ秒単位の時間です。
-
-```cpp
-#include <chrono>
-
-std::chrono::duration<double, std::nano> t{250.0};                      // ナノ秒の単位で 250
-const double seconds = std::chrono::duration<double>(t).count();     // 秒に直す
-```
+`std::chrono::steady_clock` の刻みを調べたり、ナノ秒単位の計測値を、整数のまま持ったりするときに使います。ただし、実際に測れる精度は、刻みより粗いことが普通です。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::nano` のような名前の付いた別名を使います。
+??? failure "刻みがナノ秒だから、ナノ秒の精度で測れると思う"
+    `period` は表現の刻みで、時計の精度ではありません。実際の精度は、OS とハードウェア次第です。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "nanoseconds を int に入れて桁あふれ"
+    10 億ナノ秒で 1 秒です。`int` は約 2 秒で超えます。`long long` を使います。
 
 ## 類似
 

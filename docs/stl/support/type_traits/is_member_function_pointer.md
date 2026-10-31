@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_member_function_pointer_v<T>` は、`T` がメンバー関数へのポインタか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `&Player::Hit` の型が対象。静的メンバー関数は `false`
     - `std::is_member_function_pointer<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 呼び出しには `.*` か `std::invoke`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_member_function_pointer_v = is_member_function_pointer<
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`void (Player::*)()` のようなメンバー関数へのポインタなら `true` です。通常の関数ポインタや、メンバー変数へのポインタは `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`void (Player::*)(int)` のような、メンバー関数へのポインターが `true` です。静的メンバー関数は、普通の関数ポインターなので `false` です。呼ぶときは `(obj.*pmf)(args)` と書き、`std::invoke` がこれを統一して扱います。
 
 ## 実際に動かしてみる
 
@@ -71,33 +69,34 @@ void (*)()                 -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+イベントに、メンバー関数と自由関数のどちらも登録できる関数を書きます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_member_function_pointer_v<T>) {
-    // T が条件に当てはまる型のときの処理
+template <class F, class Obj>
+void Bind(F f, Obj* obj) {
+  if constexpr (std::is_member_function_pointer_v<F>) {
+    handler_ = [f, obj](int arg) { (obj->*f)(arg); };
   } else {
-    // それ以外の型の処理
+    handler_ = [f](int arg) { f(arg); };
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "静的メンバー関数が true になると思う"
+    静的メンバー関数は、普通の関数と同じ型なので `false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "メンバー変数へのポインターを調べる"
+    `int Player::*` は `false` です。`is_member_object_pointer` で調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_member_object_pointer`](is_member_object_pointer.md) | メンバー変数へのポインターか |
+| [`is_member_pointer`](is_member_pointer.md) | どちらのメンバーポインターか |
+| [`invoke`](../functional/invoke.md) | 統一して呼ぶ |
 
 ## コンパイラ対応
 
@@ -107,8 +106,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_member_function_pointer_v<T>` は、`T` がメンバー関数へのポインタか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] メンバー関数へのポインターが `true`
+    - [x] 呼ぶには `(obj.*pmf)()` か `std::invoke`
 
 ## 関連ページ
 

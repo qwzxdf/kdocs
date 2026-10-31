@@ -70,12 +70,23 @@ std::remove_cv_t<const int&> は const int& : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+`const` と `volatile` を両方外した、素の型を作ります。型の種類をキーにして表を引くとき、`const` の有無で別の型にならないようにそろえます。
+
+```cpp
+template <class T>
+std::size_t TypeKey() {
+  using Raw = std::remove_cv_t<T>;          // const Player と Player を同じ扱いにする
+  return typeid(Raw).hash_code();
+}
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "参照の cv を外せると思う"
+    参照そのものに `const` は付かないので、`remove_cv_t<const int&>` は `const int&` のままです。`remove_cvref_t` を使います。
+
+??? failure "ポインターの指す先の const も外れると思う"
+    外れるのは最上位だけです。`const int*` は変わりません。
 
 ## 類似
 

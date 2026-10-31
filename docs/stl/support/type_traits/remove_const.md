@@ -68,12 +68,24 @@ std::remove_const_t<const int*> は const int* : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+`const` な値を、変更できるコピーとして持つ型を作ります。入力が `const` の型でも、内部で書き換える作業用の変数を用意するときに使います。
+
+```cpp
+template <class T>
+auto Process(T&& input) {
+  std::remove_const_t<std::remove_reference_t<T>> work = input;   // const でないコピー
+  work.Normalize();
+  return work;
+}
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "const_cast と混同する"
+    `remove_const` は型の変換だけです。実際のオブジェクトの `const` を外して書き換えるわけではありません。元の値を変更したいときは、`const_cast` が要りますが、元が本当に `const` なら未定義動作です。
+
+??? failure "参照や、ポインターの先の const を外せると思う"
+    最上位の `const` だけが外れます。参照は先に `remove_reference_t` で外し、ポインターの先の `const` は外れません。
 
 ## 類似
 

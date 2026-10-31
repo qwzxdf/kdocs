@@ -68,12 +68,22 @@ std::remove_reference_t<const int&> は const int : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+参照を外した、素の型を作ります。`std::move` の実装が、渡された型を右辺値参照へ変える部分に使っています。
+
+```cpp
+template <class T>
+constexpr std::remove_reference_t<T>&& MyMove(T&& value) noexcept {
+  return static_cast<std::remove_reference_t<T>&&>(value);   // 左辺値でも右辺値参照にする
+}
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "const まで外れると思う"
+    外れるのは参照だけです。`const int&` は `const int` になります。`const` も外すなら `remove_cvref_t` です。
+
+??? failure "ポインターの * まで外れると思う"
+    ポインターは参照ではないので、変わりません。
 
 ## 類似
 

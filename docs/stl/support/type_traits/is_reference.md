@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_reference_v<T>` は、`T` が参照型（左辺値参照または右辺値参照）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 左辺値参照と右辺値参照のどちらも `true`
     - `std::is_reference<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `reference_wrapper` は `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_reference_v = is_reference<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`int&` と `int&&` のどちらも `true` です。ポインタは参照ではなく `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`int&`（左辺値参照）と `int&&`（右辺値参照）のどちらも `true` です。ポインターは参照ではないので `false` です。`std::reference_wrapper<int>` は、クラスなので `false` です。
 
 ## 実際に動かしてみる
 
@@ -68,33 +66,33 @@ int*                       -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+テンプレートで保存する型を決めるとき、参照はそのまま持てないので、`reference_wrapper` に変えます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_reference_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+using Stored = std::conditional_t<std::is_reference_v<T>,
+                                  std::reference_wrapper<std::remove_reference_t<T>>,
+                                  T>;
+
+// Stored<int&>  は std::reference_wrapper<int>
+// Stored<int>   は int
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "reference_wrapper が true になると思う"
+    `std::reference_wrapper` は、参照を包んだクラスなので `false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "ポインターを参照と混同する"
+    `int*` は `false` です。ポインターは `is_pointer` で調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_lvalue_reference`](is_lvalue_reference.md) | 左辺値参照か |
+| [`is_rvalue_reference`](is_rvalue_reference.md) | 右辺値参照か |
+| [`remove_reference`](remove_reference.md) | 参照を外した型 |
 
 ## コンパイラ対応
 
@@ -104,8 +102,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_reference_v<T>` は、`T` が参照型（左辺値参照または右辺値参照）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `T&` と `T&&` が `true`
+    - [x] 参照を外すのは `remove_reference_t`
 
 ## 関連ページ
 

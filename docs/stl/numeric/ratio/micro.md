@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「マイクロ」を付けるとき、`ratio<1, 1000000>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::micro` は、SI 接頭辞の「マイクロ」（100 万分の 1）をそのまま表す `std::ratio` の別名です。
+プロファイラの計測結果や、1 回の関数呼び出しの時間は、マイクロ秒（100 万分の 1 秒）で語ります。この 100 万分の 1 の関係を型で扱いたいときに、`std::micro`（マイクロ、100 万分の 1）を使います。`ratio<1, 1000000>` の別名です。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<1, 1000000>`
@@ -46,40 +46,43 @@ using micro = ratio<1, 1000000>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
+#include <chrono>
 #include <print>
+#include <ratio>
 
 int main() {
-  std::println("num = {}, den = {}", std::micro::num, std::micro::den);
-  // 1000000 に接頭辞の倍率を掛ける（整数で計算するため、分母で割る）
-  constexpr long long value = 1000000LL * std::micro::num / std::micro::den;
-  std::println("1000000 の micro = {}", value);
+  // 処理にかかった時間を、マイクロ秒の小数で持つ
+  std::chrono::duration<double, std::micro> cost(250.5);
+  std::println("処理時間: {} マイクロ秒", cost.count());
+
+  // ミリ秒に直す (1000 マイクロ秒 = 1 ミリ秒)
+  std::chrono::duration<double, std::milli> in_ms = cost;
+  std::println("= {} ミリ秒", in_ms.count());
+
+  // 1 マイクロ秒は、1 秒の何分の 1 か
+  std::println("micro = {}/{}", std::micro::num, std::micro::den);
 }
 ```
 
 ```text title="実行結果"
-num = 1, den = 1000000
-1000000 の micro = 1
+処理時間: 250.5 マイクロ秒
+= 0.2505 ミリ秒
+micro = 1/1000000
 ```
+
+250.5 マイクロ秒は 0.2505 ミリ秒です。`duration` どうしの換算は、`ratio` の割り算で、コンパイル時に決まります。
 
 ## ゲームでの使いどころ
 
-時間の単位を指定するときに使います。`std::chrono::duration<double, std::micro>` は、マイクロ秒単位の時間です。
-
-```cpp
-#include <chrono>
-
-std::chrono::duration<double, std::micro> t{250.0};                      // マイクロ秒の単位で 250
-const double seconds = std::chrono::duration<double>(t).count();     // 秒に直す
-```
+`std::chrono::steady_clock` で計測した 1 回の処理の時間を、マイクロ秒で表示するときに使います。1 フレームのうち、更新、描画などの内訳を出す、簡易プロファイラで役に立ちます。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::micro` のような名前の付いた別名を使います。
+??? failure "micro を μ（ミュー）と別物だと思う"
+    マイクロ秒の記号は μs ですが、`std::micro` は同じ意味です。文字として `μ` を使うときは、UTF-8 の扱いに注意します。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "microseconds に小数の値を入れて切り捨て"
+    `std::chrono::microseconds` は整数です。小数が必要なら、`duration<double, std::micro>` にします。
 
 ## 類似
 

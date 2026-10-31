@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_array_v<T>` は、`T` が配列型（`int[3]` や `int[]`）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `T[N]` と `T[]` の両方が `true`
     - `std::is_array<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `std::array` は配列ではなくクラスなので `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_array_v = is_array<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`T` が `int[3]` のような要素数が決まった配列や、`int[]` のような要素数不明の配列なら `true` です。`std::array<int, 3>` は、配列ではなくクラスなので `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`int[3]` や `int[]` のような、組み込みの配列型が `true` です。`std::array<int, 3>` は配列ではなくクラスなので `false` です。ポインターに変わった配列（関数の引数に渡した後の `int*`）も `false` になります。
 
 ## 実際に動かしてみる
 
@@ -69,33 +67,36 @@ std::array<int, 3>         -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+配列型の `T` には `delete[]`、それ以外には `delete` を選ぶ、カスタム削除子を書けます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_array_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
+struct Deleter {
+  void operator()(std::remove_extent_t<T>* p) const {
+    if constexpr (std::is_array_v<T>) {
+      delete[] p;
+    } else {
+      delete p;
+    }
   }
-}
+};
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "std::array を配列だと思う"
+    `std::array` は、配列を中に持つクラスなので、`false` です。`std::is_class_v` が `true` になります。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "引数で受けた配列を調べる"
+    関数の引数の `int a[3]` は、`int*` に変わっているので、`false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_bounded_array`](is_bounded_array.md) | 要素数が決まった配列か（C++20） |
+| [`is_unbounded_array`](is_unbounded_array.md) | 要素数が不明の配列か（C++20） |
+| [`remove_extent`](remove_extent.md) | 配列の 1 次元ぶんを外した型 |
 
 ## コンパイラ対応
 
@@ -105,8 +106,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_array_v<T>` は、`T` が配列型（`int[3]` や `int[]`）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 組み込みの配列型だけが `true`（`std::array` は `false`）
+    - [x] `delete[]` と `delete` の切り替えなどに使う
 
 ## 関連ページ
 

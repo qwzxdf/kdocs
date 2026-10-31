@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「キロ」を付けるとき、`ratio<1000, 1>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::kilo` は、SI 接頭辞の「キロ」（1000 倍）をそのまま表す `std::ratio` の別名です。
+オーディオのサンプリング周波数 48 kHz や、距離 1.5 km のように、単位に「キロ」が付く量を、1000 倍の関係として型で扱いたいときに、`std::kilo`（キロ、1000 倍）を使います。`ratio<1000, 1>` の別名です。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<1000, 1>`
@@ -46,37 +46,43 @@ using kilo = ratio<1000, 1>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
+#include <chrono>
 #include <print>
+#include <ratio>
 
 int main() {
-  std::println("num = {}, den = {}", std::kilo::num, std::kilo::den);
-  constexpr long long value = 3LL * std::kilo::num / std::kilo::den;
-  std::println("3 kilo = {}", value);
+  // 周波数: 48 kHz のサンプル数/秒
+  constexpr long long hz = 48LL * std::kilo::num / std::kilo::den;
+  std::println("48 kHz = {} Hz", hz);
+
+  // 1 キロ秒 (1000 秒)
+  std::chrono::duration<int, std::kilo> ks{2};
+  std::println("2 キロ秒 = {} 秒", std::chrono::duration_cast<std::chrono::seconds>(ks).count());
+
+  // 容量: SI 接頭辞の 1 kB は 1000 バイト。1024 バイトは KiB(キビバイト)
+  std::println("1 kB = {} バイト", std::kilo::num);
 }
 ```
 
 ```text title="実行結果"
-num = 1000, den = 1
-3 kilo = 3000
+48 kHz = 48000 Hz
+2 キロ秒 = 2000 秒
+1 kB = 1000 バイト
 ```
+
+`kilo` は 1000 倍です。ストレージの容量表示で見かける 1 KB = 1024 バイトは、SI 接頭辞とは別の 2 進接頭辞で、`kilo` では表せません。
 
 ## ゲームでの使いどころ
 
-データの大きさや周波数など、大きな量を扱うときに、桁の数え間違いを避けるために使います。ただし、バイトの単位としての 1024 倍（KiB、MiB）は、SI 接頭辞の 1000 倍とは別なので、`std::kilo` はそのまま使えません。
-
-```cpp
-// 3 キロ を基本単位に直す
-constexpr long long value = 3LL * std::kilo::num / std::kilo::den;
-```
+サンプリング周波数やファイルのサイズを扱うコードで、「千」の関係を書くときに使います。ファイルのサイズを 1024 で換算するコードに `kilo` を使うと、誤差が出ます。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::kilo` のような名前の付いた別名を使います。
+??? failure "1 KB を 1024 バイトとして kilo で換算する"
+    `std::kilo` は 1000 倍です。1024 倍は、`ratio<1024, 1>` と自分で書くか、定数にします。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "kilo を duration の単位にして秒だと思う"
+    `duration<int, std::kilo>` の 1 単位は 1000 秒です。
 
 ## 類似
 

@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「センチ」を付けるとき、`ratio<1, 100>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::centi` は、SI 接頭辞の「センチ」（100 分の 1）をそのまま表す `std::ratio` の別名です。
+センチメートルや、1/100 秒（センチ秒）のように、100 分の 1 の単位を型として持ちたいときに、`std::centi`（センチ、100 分の 1）を使います。`ratio<1, 100>` の別名です。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<1, 100>`
@@ -46,38 +46,40 @@ using centi = ratio<1, 100>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
+#include <chrono>
 #include <print>
+#include <ratio>
 
 int main() {
-  std::println("num = {}, den = {}", std::centi::num, std::centi::den);
-  // 1000000 に接頭辞の倍率を掛ける（整数で計算するため、分母で割る）
-  constexpr long long value = 1000000LL * std::centi::num / std::centi::den;
-  std::println("1000000 の centi = {}", value);
+  // 1/100 秒刻みのタイマー (センチ秒)
+  using CentiSecond = std::chrono::duration<int, std::centi>;
+  CentiSecond lap{1234};
+  std::println("{} センチ秒 = {:.2f} 秒", lap.count(), std::chrono::duration<double>(lap).count());
+
+  // 長さ: メートルの 1/100 がセンチメートル
+  double meters = 1.85;
+  std::println("{} m = {} cm", meters, meters * std::centi::den / std::centi::num);
 }
 ```
 
 ```text title="実行結果"
-num = 1, den = 100
-1000000 の centi = 10000
+1234 センチ秒 = 12.34 秒
+1.85 m = 185 cm
 ```
+
+1234 センチ秒は 12.34 秒です。メートルをセンチメートルにするには、`centi` の分母を掛けます。
 
 ## ゲームでの使いどころ
 
-日常のゲームのコードでは使う機会が少なく、`std::ratio` の学習や、単位のテンプレートを作るときに登場します。
-
-```cpp
-// 3 センチ を基本単位に直す
-constexpr long long value = 3LL * std::centi::num / std::centi::den;
-```
+レースゲームのラップタイムのように、1/100 秒まで表示する時間を、整数で持ちたいときに使えます。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::centi` のような名前の付いた別名を使います。
+??? failure "centi と milli を取り違える"
+    `centi` は 1/100、`milli` は 1/1000 です。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "メートルからセンチメートルへの変換を逆にする"
+    `centi` は 1/100 なので、メートルの値は 100 倍にします。割ると逆の換算になります。
 
 ## 類似
 

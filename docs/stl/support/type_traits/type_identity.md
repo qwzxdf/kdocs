@@ -70,20 +70,25 @@ std::type_identity_t<const float&> は const float& : true
 
 ## ゲームでの使いどころ
 
-推論させたくない引数に使います。
+型を、そのまま返すだけの型変換です。使いどころは、テンプレート引数の推論を、特定の引数で止めることです。`type_identity_t<T>` の引数は、推論の手がかりにならないので、ほかの引数から決まった `T` を使います。
 
 ```cpp
 template <class T>
-T Lerp(T a, T b, std::type_identity_t<T> t) {   // t は a から推論された T に合わせる
-  return a + (b - a) * t;
+T Clamp(T value, std::type_identity_t<T> low, std::type_identity_t<T> high) {
+  return value < low ? low : (value > high ? high : value);
 }
-auto v = Lerp(1.0f, 3.0f, 0.5);   // t は double だが float に変換される
+
+float x = 1.5f;
+float y = Clamp(x, 0, 1);   // low と high は、推論に加わらないので、T は float のまま
 ```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "推論させたい引数に使ってしまう"
+    `type_identity_t<T>` の引数からは `T` が推論されません。推論の元になる引数は 1 つ以上、素の `T` で残します。
+
+??? failure "C++17 以前で使う"
+    C++20 で追加されました。それ以前は、自作で `template <class T> struct identity { using type = T; };` を作ります。
 
 ## 類似
 

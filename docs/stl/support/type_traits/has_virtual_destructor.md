@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::has_virtual_destructor_v<T>` は、`T` が仮想デストラクターを持つか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 基底クラスから受け継いだ仮想デストラクターも `true`
     - `std::has_virtual_destructor<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 仮想関数があっても、デストラクターが非仮想なら `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool has_virtual_destructor_v = has_virtual_destructor<T>::valu
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-基底クラスのデストラクターが `virtual` なら `true` です。継承で受け継いだ場合も `true` です。仮想デストラクターを持たない基底クラスから派生して、ポインターで破棄すると、未定義動作になります。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+基底クラスのデストラクターが `virtual` なら `true` です。派生クラスでは、基底から受け継いだ場合も `true` です。仮想デストラクターを持たない基底クラスのポインターから `delete` すると、派生クラスのデストラクターが呼ばれず、未定義動作になります。
 
 ## 実際に動かしてみる
 
@@ -74,29 +72,31 @@ int                                -> false
 
 ## ゲームでの使いどころ
 
-基底クラスのテンプレートで、破棄の安全性を保証します。
+基底クラスとして使うテンプレートに、破棄の安全性の確認を足します。
 
 ```cpp
 template <class Base>
 class Handle {
   static_assert(std::has_virtual_destructor_v<Base>, "基底クラスには仮想デストラクターが必要です");
+  std::unique_ptr<Base> ptr_;
 };
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "仮想関数があれば安心だと思う"
+    仮想関数があっても、デストラクターが `virtual` でなければ `false` です。基底クラスのポインターで消すと未定義動作です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "派生クラスだけに virtual を付ける"
+    基底クラスのデストラクターが非仮想なら、派生クラスのデストラクターが `virtual` でも、基底クラス経由の `delete` は安全になりません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_polymorphic`](is_polymorphic.md) | 仮想関数を持つか |
+| [`is_abstract`](is_abstract.md) | 純粋仮想関数を持つか |
+| [`is_destructible`](is_destructible.md) | 破棄できるか |
 
 ## コンパイラ対応
 
@@ -106,8 +106,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::has_virtual_destructor_v<T>` は、`T` が仮想デストラクターを持つか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 仮想デストラクターを持つ型が `true`
+    - [x] 基底クラスのポインターから消すなら必須
 
 ## 関連ページ
 

@@ -69,12 +69,22 @@ std::make_signed_t<std::size_t> は std::ptrdiff_t : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+符号なしの型から、同じ大きさの符号つきの型を作ります。符号なしの値どうしの差を、負の値も含めて扱いたいときに使います。
+
+```cpp
+std::size_t a = 3;
+std::size_t b = 5;
+using S = std::make_signed_t<std::size_t>;
+S diff = static_cast<S>(a) - static_cast<S>(b);   // -2。符号なしのままだと巨大な値になる
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "浮動小数点型や bool に使う"
+    整数型と列挙型にだけ使えます。`float` や `bool` はコンパイルエラーです。
+
+??? failure "const が消えると思う"
+    `const unsigned` に使うと `const int` になり、元の `const` / `volatile` は保たれます。
 
 ## 類似
 

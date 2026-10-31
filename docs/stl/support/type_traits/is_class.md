@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_class_v<T>` は、`T` が `struct` か `class`（共用体を除く）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `class` と `struct` はどちらも `true`。`union` と `enum` は `false`
     - `std::is_class<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - ラムダ式の型も `true`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_class_v = is_class<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`struct` と `class` の型なら `true` です。共用体と列挙型は `false` です。ポインタや参照は、指す先の型にかかわらず `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`class` または `struct` で定義した型が `true` です。`union` と列挙型は `false` です。`std::string` やラムダ式の型（クロージャー型）、`std::array` もクラスなので `true` になります。
 
 ## 実際に動かしてみる
 
@@ -78,33 +76,34 @@ int                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+クラス型のときだけメンバーを順に処理し、基本型はそのまま書く、シリアライズの入り口に使えます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+void Write(std::ostream& os, const T& value) {
   if constexpr (std::is_class_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    value.Serialize(os);   // クラスは自分で書き出す
   } else {
-    // それ以外の型の処理
+    os.write(reinterpret_cast<const char*>(&value), sizeof(T));
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "union をクラスだと思う"
+    `union` は `false` です。`std::is_union_v` で調べます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "class か struct かの区別を期待する"
+    `class` と `struct` はどちらも `true` です。区別はできません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_union`](is_union.md) | `union` か |
+| [`is_enum`](is_enum.md) | 列挙型か |
+| [`is_object`](is_object.md) | 関数・参照・`void` 以外のすべてか |
 
 ## コンパイラ対応
 
@@ -114,8 +113,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_class_v<T>` は、`T` が `struct` か `class`（共用体を除く）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `class` / `struct` が `true`、`union` と `enum` は `false`
+    - [x] ラムダ式の型や `std::string` も `true`
 
 ## 関連ページ
 

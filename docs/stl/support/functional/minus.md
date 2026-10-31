@@ -41,11 +41,7 @@ struct minus {
 | `x` | 値 | 1 つ目の値 |
 | `y` | 値 | 2 つ目の値 |
 
-`std::minus<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`-` の結果を返します。`std::minus<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
-
-戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
-
-ラムダ式で書いても同じ結果ですが、`std::minus<>{}` のほうが短く、意図が名前で伝わります。
+`std::minus<>{}(a, b)` は `a - b` と同じ結果を返します。足し算と違い、引数の順序で結果が変わります。1 つ目の引数から 2 つ目の引数を引きます。`std::adjacent_difference` の既定の演算が、この引き算です。
 
 ## 実際に動かしてみる
 
@@ -64,29 +60,29 @@ std::minus<>{}(5, 3) = 2
 
 ## ゲームでの使いどころ
 
-アルゴリズムに演算を渡します。
+隣り合う座標の差（移動量）を求めます。
 
 ```cpp
-// std::minus<>{} を渡す例
-auto result = std::accumulate(values.begin(), values.end(), init, std::minus<>{});
+std::vector<int> pos = {0, 3, 7, 12};
+std::vector<int> delta(pos.size());
+std::adjacent_difference(pos.begin(), pos.end(), delta.begin(), std::minus<>{});   // 0, 3, 4, 5
 ```
-
-演算が複雑になったら、ラムダ式のほうが読みやすくなります。
 
 ## よくあるミス
 
-??? failure "`std::minus<int>` と型を固定して、他の型で変換が起きる"
-    `std::minus<>` と省略します。
+??? failure "引数の順序を取り違える"
+    `minus<>{}(a, b)` は `a - b` です。`b - a` ではありません。`transform` に渡すときは、第 1 範囲が引かれる側になります。
 
-??? failure "`<functional>` を忘れてコンパイルエラーになる"
-    `#include <functional>` を書きます。
+??? failure "符号なし整数で負になる計算をする"
+    `unsigned` の `3 - 5` は負にならず、巨大な値になります。差が負になりうるなら、符号つきの型を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
-| [`identity`](identity.md) | 値をそのまま返す |
+| [`plus`](plus.md) | 足し算 |
+| [`negate`](negate.md) | 符号を反転する（単項のマイナス） |
+| [`adjacent_difference`](../../algorithms/adjacent_difference.md) | 隣との差を求めるアルゴリズム |
 
 ## コンパイラ対応
 

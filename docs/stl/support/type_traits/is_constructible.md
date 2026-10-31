@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_constructible_v<T, Args...>` は、`T` を `Args...` から構築できるか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 引数の型の並びを `Args...` として渡す
     - `std::is_constructible<T, Args...>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `explicit` のコンストラクターでも `true`（暗黙の変換とは別）
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -42,9 +42,7 @@ inline constexpr bool is_constructible_v = is_constructible<T, Args...>::value;
 | `T` | 型 | 構築する型 |
 | `Args...` | 型の並び | 構築に渡す引数の型 |
 
-`T(args...)` と書ける組み合わせなら `true` です。引数なしの `<T>` は既定構築、`<T, const T&>` はコピー構築の可否になります。`explicit` なコンストラクターでも、明示的な構築なら `true` です（`is_convertible` との違い）。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`std::is_constructible_v<T, Args...>` は、`T(args...)` と書いてオブジェクトを作れるかを調べます。デストラクターが使える（アクセスできる）ことも条件です。private のコンストラクターは `false` になります。
 
 `is_default_constructible`、`is_copy_constructible`、`is_move_constructible` は、この特殊なケースです。
 
@@ -77,33 +75,31 @@ std::string, int*                  -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+汎用の `Create` 関数で、構築できない組み合わせを、制約で弾きます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_constructible_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
+template <class T, class... Args>
+  requires std::is_constructible_v<T, Args...>
+T* Create(Args&&... args) {
+  return new T(std::forward<Args>(args)...);
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "引数の型を間違えて false になる"
+    `std::is_constructible_v<Player, int>` は、`Player(int)` が必要です。暗黙の変換で作れる型は `true` になります。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "private のコンストラクターが使えると思う"
+    アクセスできないコンストラクターは `false` です。`friend` の中で調べても、外の判定は変わりません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_default_constructible`](is_default_constructible.md) | 引数なしで作れるか |
+| [`is_copy_constructible`](is_copy_constructible.md) | コピーして作れるか |
+| [`is_nothrow_constructible`](is_nothrow_constructible.md) | 作る処理が例外を投げないか |
 
 ## コンパイラ対応
 
@@ -113,8 +109,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_constructible_v<T, Args...>` は、`T` を `Args...` から構築できるか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `T(args...)` が書けるかを調べる
+    - [x] private や削除されたコンストラクターは `false`
 
 ## 関連ページ
 

@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_rvalue_reference_v<T>` は、`T` が右辺値参照（`T&&`）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 万能参照の `T` が `X&` のときは、右辺値参照ではない
     - `std::is_rvalue_reference<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `std::move` の戻り値の型が右辺値参照
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_rvalue_reference_v = is_rvalue_reference<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`int&&` のような右辺値参照なら `true` です。左辺値参照 `int&` と、参照でない型は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`int&&` のような右辺値参照型が `true` です。左辺値参照（`int&`）と参照でない型は `false` です。注意したいのは、テンプレートの `T&&`（万能参照）で、`T` が `X&` と推論されたときは、`X&` になり、右辺値参照ではありません。
 
 ## 実際に動かしてみる
 
@@ -66,33 +64,31 @@ int                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+式の型から、右辺値参照かどうかを確かめます。`std::move` の結果は右辺値参照、括弧つきの名前は左辺値参照です。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_rvalue_reference_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+Item item;
+
+static_assert(std::is_rvalue_reference_v<decltype(std::move(item))>);   // move は右辺値参照を返す
+static_assert(!std::is_rvalue_reference_v<decltype(item)>);             // 変数の型は Item
+static_assert(std::is_lvalue_reference_v<decltype((item))>);           // 括弧つきの名前は左辺値参照
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "T&& の引数が常に右辺値参照だと思う"
+    `T` が推論されるテンプレートでは、`T&&` は左辺値参照にもなります（`T = X&` のとき `X&`）。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "名前のついた右辺値参照変数を右辺値だと思う"
+    `Item&& r` と宣言した `r` は、式としては左辺値です。`std::move(r)` で右辺値に戻します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_lvalue_reference`](is_lvalue_reference.md) | 左辺値参照か |
+| [`is_reference`](is_reference.md) | どちらの参照か |
+| [`remove_reference`](remove_reference.md) | 参照を外した型 |
 
 ## コンパイラ対応
 
@@ -102,8 +98,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_rvalue_reference_v<T>` は、`T` が右辺値参照（`T&&`）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `X&&` が `true`
+    - [x] 万能参照では、`T` を調べて区別する
 
 ## 関連ページ
 

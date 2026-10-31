@@ -41,11 +41,7 @@ struct less {
 | `x` | 値 | 1 つ目の値 |
 | `y` | 値 | 2 つ目の値 |
 
-`std::less<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`<` の結果を返します。`std::less<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
-
-戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
-
-ラムダ式で書いても同じ結果ですが、`std::less<>{}` のほうが短く、意図が名前で伝わります。
+`std::less<>{}(a, b)` は `a < b` と同じ結果を返します。`std::map`、`std::set`、`std::sort` の既定の順序です。ポインターに対して `<` を使うと、無関係な 2 つのオブジェクトの比較は未規定ですが、`std::less` は、全順序を保証します。ポインターをキーにした `std::map` が安全に動くのは、このためです。
 
 ## 実際に動かしてみる
 
@@ -71,22 +67,31 @@ std::less<>{}(2, 3) = true
 
 ## ゲームでの使いどころ
 
-標準のアルゴリズムや、自作のテンプレートに、演算を値として渡すときに使います。短い演算にはこちら、複雑な演算にはラムダ式、と使い分けます。
+文字列をキーにする `map` で、`std::string_view` のまま検索できるようにします。
+
+```cpp
+std::map<std::string, int, std::less<>> hp;   // less<> は透過的な比較
+hp["hero"] = 100;
+
+std::string_view key = "hero";
+auto it = hp.find(key);   // std::string を作らずに検索できる
+```
 
 ## よくあるミス
 
-??? failure "`std::less<int>` と型を固定して、他の型で変換が起きる"
-    `std::less<>` と省略します。
+??? failure "透過的でない std::less<std::string> のままにする"
+    `std::less<std::string>` だと、`find` に `string_view` を渡したとき、一時的な `std::string` が作られます。`std::less<>` と省略します。
 
-??? failure "`<functional>` を忘れてコンパイルエラーになる"
-    `#include <functional>` を書きます。
+??? failure "無関係なポインターを < で比べる"
+    規格では未規定です。ポインターをキーにするなら、`std::less` を通します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
-| [`identity`](identity.md) | 値をそのまま返す |
+| [`greater`](greater.md) | 降順の比較 |
+| [`less_equal`](less_equal.md) | 以下を返す |
+| [`equal_to`](equal_to.md) | 等しいかを返す |
 
 ## コンパイラ対応
 

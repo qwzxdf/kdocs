@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「エクサ」を付けるとき、`ratio<1000000000000000000, 1>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::exa` は、SI 接頭辞の「エクサ」（100 京倍）をそのまま表す `std::ratio` の別名です。
+「エクサ」は、`std::ratio` が用意する SI 接頭辞のうち、最大のものです。`std::exa`（エクサ、100 京倍）は `ratio<1000000000000000000, 1>` の別名で、64 ビット環境の `std::intmax_t` に収まる、ぎりぎりの大きさです。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<1000000000000000000, 1>`
@@ -46,37 +46,39 @@ using exa = ratio<1000000000000000000, 1>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
+#include <limits>
 #include <print>
+#include <ratio>
 
 int main() {
-  std::println("num = {}, den = {}", std::exa::num, std::exa::den);
-  constexpr long long value = 3LL * std::exa::num / std::exa::den;
-  std::println("3 exa = {}", value);
+  std::println("exa = {}/{}", std::exa::num, std::exa::den);
+  std::println("intmax_t の最大値: {}", std::numeric_limits<std::intmax_t>::max());
+
+  // exa の 9 倍までは収まる。10 倍以上は intmax_t を超えるので、ratio では作れない
+  using NineExa = std::ratio_multiply<std::exa, std::ratio<9>>;
+  std::println("9 exa = {}/{}", NineExa::num, NineExa::den);
 }
 ```
 
 ```text title="実行結果"
-num = 1000000000000000000, den = 1
-3 exa = 3000000000000000000
+exa = 1000000000000000000/1
+intmax_t の最大値: 9223372036854775807
+9 exa = 9000000000000000000/1
 ```
+
+`exa` の 9 倍までは `std::intmax_t` に収まります。10 倍にすると超えるので、`std::ratio_multiply<std::exa, std::ratio<10>>` は、コンパイルエラーです。
 
 ## ゲームでの使いどころ
 
-データの大きさや周波数など、大きな量を扱うときに、桁の数え間違いを避けるために使います。ただし、バイトの単位としての 1024 倍（KiB、MiB）は、SI 接頭辞の 1000 倍とは別なので、`std::kilo` はそのまま使えません。
-
-```cpp
-// 3 エクサ を基本単位に直す
-constexpr long long value = 3LL * std::exa::num / std::exa::den;
-```
+ゲームのコードで使うことはありません。`std::ratio` が表せる大きさの上限を知るための例として、頭に入れておくと、桁あふれのエラーの意味が分かります。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::exa` のような名前の付いた別名を使います。
+??? failure "exa 同士を掛ける"
+    `ratio_multiply<std::exa, std::exa>` は、桁があふれて、コンパイルエラーになります。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "zetta や yotta が使えると思う"
+    64 ビットの `intmax_t` に収まらないので、標準の `<ratio>` には、通常は定義されません。
 
 ## 類似
 

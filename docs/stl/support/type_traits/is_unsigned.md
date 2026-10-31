@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_unsigned_v<T>` は、`T` が符号なしの算術型か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `bool` も `true`
     - `std::is_unsigned<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `char` は環境次第
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_unsigned_v = is_unsigned<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`unsigned int`、`unsigned char`、`bool` などは `true` です。`int` や `float` は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+符号を持たない算術型が `true` です。`unsigned int`、`unsigned char`、`bool` が含まれます。`int` や `float` は `false` です。`char` が符号なしかどうかは、環境で決まります。列挙型は、基になる型が符号なしでも `false` です。
 
 ## 実際に動かしてみる
 
@@ -68,33 +66,35 @@ float                      -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+符号なしの型には、引き算の結果が負になる比較を避ける処理を選びます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+constexpr bool Within(T a, T b, T range) {
   if constexpr (std::is_unsigned_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    T diff = a > b ? a - b : b - a;   // 符号なしの引き算は、負になる代わりに巻き戻る
+    return diff <= range;
   } else {
-    // それ以外の型の処理
+    return std::abs(a - b) <= range;
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "bool が false だと思う"
+    `bool` は符号を持たない型として扱われ、`true` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "符号なし同士の引き算が負になると思う"
+    `3u - 5u` は負にならず、4294967294 になります。差の絶対値を求めるときは、大きい方から引きます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_signed`](is_signed.md) | 符号を持つか |
+| [`make_unsigned`](make_unsigned.md) | 符号なしの型に直す |
+| [`is_integral`](is_integral.md) | 整数型か |
 
 ## コンパイラ対応
 
@@ -104,8 +104,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_unsigned_v<T>` は、`T` が符号なしの算術型か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 符号を持たない算術型が `true`
+    - [x] `bool` も含まれる
 
 ## 関連ページ
 

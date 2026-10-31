@@ -69,17 +69,25 @@ std::underlying_type_t<Shape> は int : true
 
 ## ゲームでの使いどころ
 
-`enum class` の値を基底の型でファイルに書き出します。
+列挙型の基になっている整数型を取り出します。列挙型を、環境に依存しない大きさで保存するときに使います。値を取り出すだけなら、C++23 の `std::to_underlying` が短く書けます。
 
 ```cpp
-using Raw = std::underlying_type_t<Color>;
-const Raw raw = static_cast<Raw>(color);   // ファイルに書く
+enum class Layer : std::uint8_t { kGround = 1, kAir = 2 };
+
+template <class E>
+void Save(std::ostream& os, E value) {
+  auto raw = static_cast<std::underlying_type_t<E>>(value);   // Layer なら std::uint8_t
+  os.write(reinterpret_cast<const char*>(&raw), sizeof(raw));
+}
 ```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "列挙型以外に使う"
+    列挙型でない型に使うと、コンパイルエラー（または未定義動作）です。`std::is_enum_v` で確かめてから使います。
+
+??? failure "基になる型を省略した enum で大きさを決めつける"
+    基の型を書かない `enum` は、環境によって大きさが変わります。保存に使うなら、`enum class Layer : std::uint8_t` のように明示します。
 
 ## 類似
 

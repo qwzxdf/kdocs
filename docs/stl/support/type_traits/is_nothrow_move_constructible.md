@@ -18,9 +18,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_nothrow_move_constructible_v<T>` は、`T` のムーブ構築が例外を投げないか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `vector` の再確保は、ムーブが `noexcept` かで、ムーブとコピーを選ぶ
     - `std::is_nothrow_move_constructible<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `= default` のムーブは、メンバー次第で `noexcept` になる
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -38,9 +38,7 @@ inline constexpr bool is_nothrow_move_constructible_v = is_nothrow_move_construc
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-ムーブコンストラクターが `noexcept` なら `true` です。`noexcept` を付け忘れると、`vector` の拡張が遅いコピーになります。ゲームの型では、ムーブコンストラクターに必ず `noexcept` を付けます。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+ムーブコンストラクターが `noexcept` と宣言されていれば `true` です。`std::vector` は、要素を新しい領域へ移すとき、ムーブが `noexcept` ならムーブし、そうでなければコピーします。ムーブの途中で例外が出ると、元に戻せなくなるためです。`noexcept` を付け忘れると、再確保のたびにコピーされて遅くなります。
 
 ## 実際に動かしてみる
 
@@ -73,26 +71,35 @@ MayThrow                   -> false
 
 ## ゲームでの使いどころ
 
-自作の型のムーブコンストラクターが `noexcept` であることを保証します。
+自作の型のムーブが `noexcept` であることを、コンパイル時に保証します。
 
 ```cpp
+struct Enemy {
+  std::string name;
+  std::vector<int> items;
+
+  Enemy(Enemy&&) noexcept = default;
+  Enemy& operator=(Enemy&&) noexcept = default;
+};
+
 static_assert(std::is_nothrow_move_constructible_v<Enemy>, "Enemy のムーブに noexcept を付けてください");
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "自作のムーブコンストラクターに noexcept を付けない"
+    `vector` の再確保が、ムーブではなくコピーになり、遅くなります。`noexcept` が付けられる実装なら、必ず付けます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "コピーしかない型で true を期待する"
+    コピーコンストラクターが `noexcept` なら、右辺値はそれで受けられるので `true` になります。ただし、メモリを確保する型は `false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_move_constructible`](is_move_constructible.md) | 例外を考えずに、ムーブ構築できるか |
+| [`is_nothrow_copy_constructible`](is_nothrow_copy_constructible.md) | コピー構築が例外を投げないか |
+| [`is_nothrow_move_assignable`](is_nothrow_move_assignable.md) | ムーブ代入が例外を投げないか |
 
 ## コンパイラ対応
 
@@ -102,8 +109,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_nothrow_move_constructible_v<T>` は、`T` のムーブ構築が例外を投げないか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] ムーブ構築の `noexcept` を調べる
+    - [x] 自作の型には、ムーブに `noexcept` を付ける
 
 ## 関連ページ
 

@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_nothrow_constructible_v<T, Args...>` は、`T` を `Args...` から構築するとき例外を投げないか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `Args...` の並びごとに結果が変わる
     - `std::is_nothrow_constructible<T, Args...>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - メモリを確保する型は、ふつう `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -42,9 +42,7 @@ inline constexpr bool is_nothrow_constructible_v = is_nothrow_constructible<T, A
 | `T` | 型 | 構築する型 |
 | `Args...` | 型の並び | 構築に渡す引数の型 |
 
-`T(args...)` の呼び出しが `noexcept` なら `true` です。文字列のようにメモリを確保する型は、`false` になります。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`T(args...)` を作る式が `noexcept` と宣言されていれば `true` です。数値だけを持つ構造体は `true`、メモリを確保する型（`std::string` を文字列リテラルから作る場合など）は `false` です。
 
 ## 実際に動かしてみる
 
@@ -73,33 +71,34 @@ std::string, const char*           -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+要素を作って持つ入れ物で、中の型の構築が例外を投げないときだけ、入れ物のコンストラクターを `noexcept` にします。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_nothrow_constructible_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+struct Slot {
+  template <class... Args>
+  explicit Slot(Args&&... args) noexcept(std::is_nothrow_constructible_v<T, Args...>)
+      : value(std::forward<Args>(args)...) {}
+
+  T value;
+};
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "メモリを確保する型で true を期待する"
+    `std::string` を文字列リテラルから作ると、確保で `std::bad_alloc` を投げうるので `false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "引数の型の並びを省略する"
+    引数つきの構築は `Args...` を渡さないと、別の組み合わせを調べてしまいます。引数なしだけなら `is_nothrow_default_constructible` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_constructible`](is_constructible.md) | 例外を考えずに、作れるかだけを調べる |
+| [`is_nothrow_default_constructible`](is_nothrow_default_constructible.md) | 引数なしに絞った版 |
+| [`is_nothrow_copy_constructible`](is_nothrow_copy_constructible.md) | コピー構築に絞った版 |
 
 ## コンパイラ対応
 
@@ -109,8 +108,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_nothrow_constructible_v<T, Args...>` は、`T` を `Args...` から構築するとき例外を投げないか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 構築の式に `noexcept` が付いているかを調べる
+    - [x] 入れ物の `noexcept` を、中の型に合わせる
 
 ## 関連ページ
 

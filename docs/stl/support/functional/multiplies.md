@@ -41,11 +41,7 @@ struct multiplies {
 | `x` | 値 | 1 つ目の値 |
 | `y` | 値 | 2 つ目の値 |
 
-`std::multiplies<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`*` の結果を返します。`std::multiplies<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
-
-戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
-
-ラムダ式で書いても同じ結果ですが、`std::multiplies<>{}` のほうが短く、意図が名前で伝わります。
+`std::multiplies<>{}(a, b)` は `a * b` と同じ結果を返します。数値の掛け算に加えて、`*` を持つ型（行列やベクトルの自作の型）にも使えます。`std::accumulate` に渡して、全体の積を求めるときによく使います。
 
 ## 実際に動かしてみる
 
@@ -69,29 +65,28 @@ v の積 = 24
 
 ## ゲームでの使いどころ
 
-アルゴリズムに演算を渡します。
+複数の倍率を掛け合わせた、最終的な倍率を求めます。
 
 ```cpp
-// std::multiplies<>{} を渡す例
-auto result = std::accumulate(values.begin(), values.end(), init, std::multiplies<>{});
+std::vector<double> rates = {1.5, 2.0, 0.5};
+double total = std::accumulate(rates.begin(), rates.end(), 1.0, std::multiplies<>{});   // 1.5
 ```
-
-演算が複雑になったら、ラムダ式のほうが読みやすくなります。
 
 ## よくあるミス
 
-??? failure "`std::multiplies<int>` と型を固定して、他の型で変換が起きる"
-    `std::multiplies<>` と省略します。
+??? failure "積の初期値を 0 にする"
+    `accumulate` の初期値が `0` だと、何を掛けても `0` になります。積の初期値は `1` です。
 
-??? failure "`<functional>` を忘れてコンパイルエラーになる"
-    `#include <functional>` を書きます。
+??? failure "整数であふれる"
+    `int` の積は、すぐ桁あふれします（符号つきは未定義動作）。大きくなるなら、`std::int64_t` や `double` で受けます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
-| [`identity`](identity.md) | 値をそのまま返す |
+| [`plus`](plus.md) | 足し算 |
+| [`divides`](divides.md) | 割り算 |
+| [`accumulate`](../../algorithms/accumulate.md) | 畳み込みを行うアルゴリズム |
 
 ## コンパイラ対応
 

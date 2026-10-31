@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_nothrow_copy_assignable_v<T>` は、`T` のコピー代入が例外を投げないか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - メモリを確保しない型は `true`、確保する型は `false`
     - `std::is_nothrow_copy_assignable<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `= default` なら、メンバーの性質で決まる
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_nothrow_copy_assignable_v = is_nothrow_copy_assignable<
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-コピー代入が `noexcept` なら `true` です。メモリを確保する型は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+コピー代入（`T& = const T&`）が `noexcept` と宣言されていれば `true` です。`int` や座標の構造体のように、メモリを確保しない型は `true`、`std::string` や `std::vector` のようにメモリを確保する型は `false` です。
 
 ## 実際に動かしてみる
 
@@ -72,33 +70,35 @@ std::string                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+代入の途中で例外が出ても、元の値が壊れないようにしたい処理で、安全な方法を選びます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+void Store(T& dst, const T& src) {
   if constexpr (std::is_nothrow_copy_assignable_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    dst = src;                 // 例外が出ないので、直接代入してよい
   } else {
-    // それ以外の型の処理
+    T tmp = src;               // 先にコピーを作る（ここで例外が出ても dst は無事）
+    dst = std::move(tmp);
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "noexcept を付け忘れて false になる"
+    自作の代入演算子に `noexcept` を付けないと、中身が確保をしなくても `false` です。`= default` なら、メンバーの性質で決まります。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "ムーブ代入と取り違える"
+    右辺値からの代入は `is_nothrow_move_assignable` で調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_nothrow_move_assignable`](is_nothrow_move_assignable.md) | ムーブ代入が例外を投げないか |
+| [`is_copy_assignable`](is_copy_assignable.md) | 例外を考えずに、コピー代入できるか |
+| [`is_nothrow_assignable`](is_nothrow_assignable.md) | 型の違う代入も含む |
 
 ## コンパイラ対応
 
@@ -108,8 +108,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_nothrow_copy_assignable_v<T>` は、`T` のコピー代入が例外を投げないか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] コピー代入の `noexcept` を調べる
+    - [x] 確保をする型は `false`
 
 ## 関連ページ
 

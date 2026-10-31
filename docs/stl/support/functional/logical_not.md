@@ -40,11 +40,7 @@ struct logical_not {
 | --- | --- | --- |
 | `x` | 値 | 対象の値 |
 
-`std::logical_not<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`!` の結果を返します。`std::logical_not<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
-
-戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
-
-ラムダ式で書いても同じ結果ですが、`std::logical_not<>{}` のほうが短く、意図が名前で伝わります。
+`std::logical_not<>{}(x)` は `!x` と同じ結果を返します。引数が 1 つの関数オブジェクトで、`bool` に変換できる型なら何でも受け取ります。ポインターに使うと、`nullptr` のとき `true` になります。
 
 ## 実際に動かしてみる
 
@@ -63,22 +59,29 @@ std::logical_not<>{}(true) = false
 
 ## ゲームでの使いどころ
 
-標準のアルゴリズムや、自作のテンプレートに、演算を値として渡すときに使います。短い演算にはこちら、複雑な演算にはラムダ式、と使い分けます。
+フラグの配列を、まとめて反転します。
+
+```cpp
+std::vector<bool> alive = {true, false, true};
+std::vector<bool> dead(alive.size());
+std::transform(alive.begin(), alive.end(), dead.begin(), std::logical_not<>{});   // false, true, false
+```
 
 ## よくあるミス
 
-??? failure "`std::logical_not<int>` と型を固定して、他の型で変換が起きる"
-    `std::logical_not<>` と省略します。
+??? failure "述語を反転したいときに使う"
+    述語（引数を取って `bool` を返す関数）の結果を反転するには、`std::not_fn` を使います。`logical_not` は値を反転するもので、述語を包めません。
 
-??? failure "`<functional>` を忘れてコンパイルエラーになる"
-    `#include <functional>` を書きます。
+??? failure "bit_not と取り違える"
+    `logical_not` は真偽値の `!`、`bit_not` はビットごとの `~` です。`!5` は `false` ですが、`~5` は `-6` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
-| [`identity`](identity.md) | 値をそのまま返す |
+| [`not_fn`](not_fn.md) | 述語の結果を反転する |
+| [`bit_not`](bit_not.md) | ビットを反転する |
+| [`negate`](negate.md) | 符号を反転する |
 
 ## コンパイラ対応
 

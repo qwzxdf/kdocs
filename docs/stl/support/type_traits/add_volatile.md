@@ -64,12 +64,22 @@ std::add_volatile_t<volatile int> は volatile int : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+`volatile` を付けた型を作ります。ハードウェアのレジスタなど、読み書きを省略させたくないメモリを指す型を作るときに出てきます。
+
+```cpp
+template <class T>
+using Register = std::add_volatile_t<T>;
+
+static_assert(std::is_same_v<Register<std::uint32_t>, volatile std::uint32_t>);
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "スレッド間の同期に volatile を使う"
+    `volatile` はスレッド間の同期になりません。`std::atomic` を使います。
+
+??? failure "参照型に使って付くと思う"
+    `std::add_volatile_t<int&>` は `int&` のままです。
 
 ## 類似
 

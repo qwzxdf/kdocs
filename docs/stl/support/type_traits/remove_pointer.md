@@ -68,12 +68,24 @@ std::remove_pointer_t<int> は int : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+ポインター型から、指す先の型を取り出します。`int*` なら `int`、`const char*` なら `const char` です。ポインターを受け取るテンプレートで、指す先の型の変数を用意するときに使います。
+
+```cpp
+template <class P>
+auto Dereference(P ptr) {
+  using Pointee = std::remove_pointer_t<P>;   // int* なら int
+  Pointee copy = *ptr;
+  return copy;
+}
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "スマートポインターの指す先を取り出せると思う"
+    `std::unique_ptr<T>` はクラスなので、そのまま返ります。指す先の型は `element_type` で取ります。
+
+??? failure "二重ポインターが全部外れると思う"
+    `int**` は 1 段だけ外れて `int*` になります。
 
 ## 類似
 

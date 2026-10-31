@@ -41,11 +41,7 @@ struct not_equal_to {
 | `x` | 値 | 1 つ目の値 |
 | `y` | 値 | 2 つ目の値 |
 
-`std::not_equal_to<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`!=` の結果を返します。`std::not_equal_to<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
-
-戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
-
-ラムダ式で書いても同じ結果ですが、`std::not_equal_to<>{}` のほうが短く、意図が名前で伝わります。
+`std::not_equal_to<>{}(a, b)` は `a != b` と同じ結果を返します。2 つの値が違うときに `true` を返す、という性質を使って、`std::inner_product` に渡し、違う要素の数（ハミング距離）を数えられます。
 
 ## 実際に動かしてみる
 
@@ -64,22 +60,29 @@ std::not_equal_to<>{}(2, 3) = true
 
 ## ゲームでの使いどころ
 
-標準のアルゴリズムや、自作のテンプレートに、演算を値として渡すときに使います。短い演算にはこちら、複雑な演算にはラムダ式、と使い分けます。
+2 つの配列で、違う要素の個数を数えます。
+
+```cpp
+std::vector<int> a = {1, 2, 3, 4};
+std::vector<int> b = {1, 9, 3, 8};
+int diff = std::inner_product(a.begin(), a.end(), b.begin(), 0, std::plus<>{}, std::not_equal_to<>{});   // 2
+```
 
 ## よくあるミス
 
-??? failure "`std::not_equal_to<int>` と型を固定して、他の型で変換が起きる"
-    `std::not_equal_to<>` と省略します。
+??? failure "inner_product の初期値の型"
+    初期値が `0`（`int`）だから、違いの個数が `int` で数えられます。初期値を `false`（`bool`）にすると、合計が `true` と `false` に丸められて、個数が分かりません。
 
-??? failure "`<functional>` を忘れてコンパイルエラーになる"
-    `#include <functional>` を書きます。
+??? failure "ポインターのアドレスを比べて、中身が違うと思う"
+    `not_equal_to` はポインターの値を比べます。中身の比較には、指す先の値を取り出します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
-| [`identity`](identity.md) | 値をそのまま返す |
+| [`equal_to`](equal_to.md) | 等しいかを返す |
+| [`greater`](greater.md) | 大小の比較 |
+| [`logical_not`](logical_not.md) | 真偽値の反転 |
 
 ## コンパイラ対応
 

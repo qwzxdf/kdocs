@@ -66,12 +66,23 @@ std::add_rvalue_reference_t<void> は void : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+値を作らず、型だけを式の中で使うための `std::declval` の実装に使われています。`T` が `void` のときも、エラーにならず `void` のままです。
+
+```cpp
+template <class T>
+std::add_rvalue_reference_t<T> MyDeclval() noexcept;   // 宣言だけ。呼ばない
+
+// Player を作らずに、メンバー関数の戻り値の型だけを知る
+using HpType = decltype(MyDeclval<Player>().GetHp());
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "declval を実際に呼ぶ"
+    `declval` は宣言だけで、定義がありません。`decltype` や `sizeof` の中でだけ使えます。呼ぶとコンパイルエラー（リンクエラー）です。
+
+??? failure "左辺値参照から変えたつもりになる"
+    `int&` に使うと、参照の折りたたみで `int&` のままです。
 
 ## 類似
 

@@ -41,11 +41,7 @@ struct logical_or {
 | `x` | 値 | 1 つ目の値 |
 | `y` | 値 | 2 つ目の値 |
 
-`std::logical_or<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`||` の結果を返します。`std::logical_or<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
-
-戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
-
-ラムダ式で書いても同じ結果ですが、`std::logical_or<>{}` のほうが短く、意図が名前で伝わります。
+`std::logical_or<>{}(a, b)` は `a || b` と同じ結果を返します。関数オブジェクトの引数は、呼ぶ前に両方評価されるので、`||` の短絡評価は失われます。
 
 ## 実際に動かしてみる
 
@@ -64,22 +60,28 @@ std::logical_or<>{}(true, false) = true
 
 ## ゲームでの使いどころ
 
-標準のアルゴリズムや、自作のテンプレートに、演算を値として渡すときに使います。短い演算にはこちら、複雑な演算にはラムダ式、と使い分けます。
+複数のフラグのどれかが立っているかを、`accumulate` で調べます。
+
+```cpp
+std::vector<bool> hit = {false, false, true, false};
+bool any_hit = std::accumulate(hit.begin(), hit.end(), false, std::logical_or<>{});   // true
+```
 
 ## よくあるミス
 
-??? failure "`std::logical_or<int>` と型を固定して、他の型で変換が起きる"
-    `std::logical_or<>` と省略します。
+??? failure "短絡評価を期待して重い関数を渡す"
+    引数は両方評価されるので、重い関数は常に呼ばれます。早く打ち切りたいなら `std::any_of` を使います。
 
-??? failure "`<functional>` を忘れてコンパイルエラーになる"
-    `#include <functional>` を書きます。
+??? failure "bit_or と取り違える"
+    `logical_or` は真偽値の `||` です。ビットを重ねるのは `bit_or` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
-| [`identity`](identity.md) | 値をそのまま返す |
+| [`logical_and`](logical_and.md) | 論理積 |
+| [`logical_not`](logical_not.md) | 論理否定 |
+| [`bit_or`](bit_or.md) | ビットごとの論理和 |
 
 ## コンパイラ対応
 

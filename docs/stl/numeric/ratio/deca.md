@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「デカ」を付けるとき、`ratio<10, 1>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::deca` は、SI 接頭辞の「デカ」（10 倍）をそのまま表す `std::ratio` の別名です。
+ウェーブの間隔を「10 秒ごと」で数えたい、マップを 10 マス単位でまとめたい。10 倍の単位を型として持ちたいときに、`std::deca`（デカ、10 倍）を使います。`ratio<10, 1>` の別名です。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<10, 1>`
@@ -46,37 +46,38 @@ using deca = ratio<10, 1>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
+#include <chrono>
 #include <print>
+#include <ratio>
 
 int main() {
-  std::println("num = {}, den = {}", std::deca::num, std::deca::den);
-  constexpr long long value = 3LL * std::deca::num / std::deca::den;
-  std::println("3 deca = {}", value);
+  using TenSeconds = std::chrono::duration<int, std::deca>;   // 1 単位が 10 秒の時間
+
+  TenSeconds wave{3};
+  auto sec = std::chrono::duration_cast<std::chrono::seconds>(wave);
+  std::println("3 単位は {} 秒", sec.count());
+  std::println("deca = {}/{}", std::deca::num, std::deca::den);
 }
 ```
 
 ```text title="実行結果"
-num = 10, den = 1
-3 deca = 30
+3 単位は 30 秒
+deca = 10/1
 ```
+
+`duration` の第 2 引数に渡すと、「1 刻みが 10 秒」の型になります。秒への換算は、`duration_cast` が `ratio` の掛け算でコンパイル時に決めます。
 
 ## ゲームでの使いどころ
 
-日常のゲームのコードでは使う機会が少なく、`std::ratio` の学習や、単位のテンプレートを作るときに登場します。
-
-```cpp
-// 3 デカ を基本単位に直す
-constexpr long long value = 3LL * std::deca::num / std::deca::den;
-```
+「10 秒ごとにウェーブが来る」のような、10 の倍数のタイマーを、別の単位の型として表せます。ただし、`deca` を使う場面は少なく、`std::chrono::seconds` の倍数として、`10s` と書くほうが、普通は読みやすくなります。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::deca` のような名前の付いた別名を使います。
+??? failure "deca と deci を取り違える"
+    `deca` は 10 倍、`deci` は 1/10 です。名前が似ているので、`num` と `den` で値を確かめます。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "duration の 1 単位の長さを忘れる"
+    `duration<int, std::deca>{3}` は 3 秒ではなく、30 秒です。
 
 ## 類似
 
