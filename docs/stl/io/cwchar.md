@@ -14,9 +14,9 @@ tags:
 `#include <cwchar>`
 </div>
 
-Windows の API は、文字列を `wchar_t`（UTF-16）で受け取ります。ファイルのパス、ウィンドウのタイトル、エラーメッセージ。この `wchar_t` の文字列を、C の標準ライブラリで扱うための関数群が `<cwchar>` です。`strlen` に当たる `wcslen`、`printf` に当たる `wprintf` のように、多くの関数が、`str` が `wcs` に、`printf` が `wprintf` に変わった名前で用意されています。
+Windows の API は文字列を `wchar_t`（UTF-16）で受け取ります。ファイルのパス、ウィンドウのタイトル、エラーメッセージ。この `wchar_t` の文字列を C の標準ライブラリで扱うための関数群が `<cwchar>` です。`strlen` に当たる `wcslen`、`printf` に当たる `wprintf` のように多くの関数が、`str` が `wcs` に `printf` が `wprintf` に変わった名前で用意されています。
 
-これらは C の流儀の関数で、文字数の管理もバッファの大きさも自分で見る必要があります。新しいコードでは `std::wstring` や `std::format` を使い、この関数群は、Windows API との橋渡しや、古いコードを読むために知っておく、くらいの位置づけです。
+これらは C の流儀の関数で、文字数の管理もバッファの大きさも自分で見る必要があります。新しいコードでは `std::wstring` や `std::format` を使い、この関数群は、Windows API との橋渡しや古いコードを読むために知っておく、くらいの位置づけです。
 
 !!! tip "ポイント"
     - `str…` の関数に対して、`wcs…`（文字列）、`wmem…`（メモリ）、`w…printf`（書式）という名前の対がある
@@ -25,7 +25,7 @@ Windows の API は、文字列を `wchar_t`（UTF-16）で受け取ります。
     - 新しいコードは `std::wstring`。UTF-8 と UTF-16 の変換は、文字コードの章を見る
 
 !!! info "このページを読む前に"
-    [文字コード](../../encoding/index.md)の章で、UTF-8 と UTF-16 の違いと、Windows API の A / W の関係を先に読むと、この関数群が必要になる理由が分かります。
+    [文字コード](../../encoding/index.md)の章で、UTF-8 と UTF-16 の違いと Windows API の A / W の関係を先に読むと、この関数群が必要になる理由が分かります。
 
 ## 関数の詳しい説明
 
@@ -40,7 +40,7 @@ Windows の API は、文字列を `wchar_t`（UTF-16）で受け取ります。
 | 文字の入出力 | [`fgetwc`](cwchar/fgetwc.md)、[`fputwc`](cwchar/fputwc.md)、[`fgetws`](cwchar/fgetws.md)、[`fputws`](cwchar/fputws.md) | ファイルへの読み書き |
 | `char` との変換 | [`btowc`](cwchar/btowc.md)、[`wctob`](cwchar/wctob.md)、[`mbrlen`](cwchar/mbrlen.md)、[`mbrtowc`](cwchar/mbrtowc.md)、[`wcrtomb`](cwchar/wcrtomb.md)、[`mbsrtowcs`](cwchar/mbsrtowcs.md)、[`wcsrtombs`](cwchar/wcsrtombs.md) | マルチバイト文字との変換 |
 
-この表は引くためのもので、1 つずつの説明は各ページに書いています。
+この表は引くためのもので 1 つずつの説明は各ページに書いています。
 
 ### wcslen {#wcslen}
 
@@ -52,9 +52,9 @@ std::size_t wcslen(const wchar_t* s);
 | --- | --- | --- |
 | `s` | `const wchar_t*` | 終端が `L'\0'` のワイド文字列 |
 
-終端を除いた、`wchar_t` の個数を返します。バイト数ではなく、要素の個数です。Windows の UTF-16 では、基本多言語面の文字は 1 要素ですが、絵文字などの一部の文字は 2 要素（サロゲート ペア）になります。そのため、`wcslen` が返す数と、見た目の文字数は一致しないことがあります。
+終端を除いた `wchar_t` の個数を返します。バイト数ではなく要素の個数です。Windows の UTF-16 では、基本多言語面の文字は 1 要素ですが、絵文字などの一部の文字は 2 要素（サロゲート ペア）になります。そのため、`wcslen` が返す数と見た目の文字数は一致しないことがあります。
 
-終端を探して先頭から調べるので、計算量は文字列の長さに比例します。ループの条件に毎回書くと、遅くなります。長さは先に変数に取り出します。
+終端を探して先頭から調べるので、計算量は文字列の長さに比例します。ループの条件に毎回書くと遅くなります。長さは先に変数に取り出します。
 
 ## 実際に動かしてみる
 
@@ -73,19 +73,19 @@ int main() {
 wchar_t の大きさ: 2 バイト
 ```
 
-大きさの 2 バイトは、Windows の結果です。Linux では 4 バイトになります。
+大きさの 2 バイトは Windows の結果です。Linux では 4 バイトになります。
 
 ## ゲームでの使いどころ
 
-Windows のゲームで、パスやウィンドウ タイトルを Windows API に渡すときに、`wchar_t` の文字列が出てきます。内部の文字列は UTF-8 の `std::string` にそろえ、API を呼ぶ直前に UTF-16 へ変換する、という作りが推奨です。
+Windows のゲームでパスやウィンドウ タイトルを Windows API に渡すときに、`wchar_t` の文字列が出てきます。内部の文字列は UTF-8 の `std::string` にそろえ API を呼ぶ直前に UTF-16 へ変換する、という作りが推奨です。
 
 ## よくあるミス
 
 ??? failure "wchar_t を UTF-32 と考える"
-    Windows の `wchar_t` は UTF-16 で、1 要素が 16 ビットです。絵文字などは、2 要素のサロゲート ペアになります。`wcslen` の結果は、文字数とは限りません。
+    Windows の `wchar_t` は UTF-16 で、1 要素が 16 ビットです。絵文字などは 2 要素のサロゲート ペアになります。`wcslen` の結果は文字数とは限りません。
 
 ??? failure "%s と %ls を混同する"
-    `wprintf` の `%s` は、MSVC ではワイド文字列、標準では `char` の文字列を意味します。移植性のために、ワイド文字列は `%ls` と書きます。
+    `wprintf` の `%s` は MSVC ではワイド文字列、標準では `char` の文字列を意味します。移植性のためにワイド文字列は `%ls` と書きます。
 
 ## 類似
 
@@ -102,9 +102,9 @@ C++98 から使えます。`wchar_t` の大きさが環境で違う（Windows �
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `<cwchar>` は、`wchar_t` を扱う C 由来の関数群
+    - [x] `<cwchar>` は `wchar_t` を扱う C 由来の関数群
     - [x] Windows の `wchar_t` は UTF-16。文字数と要素数は一致しないことがある
-    - [x] 新しいコードは `std::wstring`。内部は UTF-8 にして、API の直前で変換する
+    - [x] 新しいコードは `std::wstring`。内部は UTF-8 にして API の直前で変換する
 
 ## 関連ページ
 

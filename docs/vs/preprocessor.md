@@ -171,7 +171,7 @@ C++20 以降は `<numbers>` の `std::numbers::pi_v<float>` を使うほうが�
 | マクロ | 効果 |
 | --- | --- |
 | `_HAS_EXCEPTIONS=0` | 標準ライブラリの例外を無効にする（`/EHs-c-` と組み合わせ）。例外を使わないゲームで |
-| **`_SILENCE_*_DEPRECATION_WARNING` | 特定の非推奨の警告を消す。警告を消す前に置き換えを検討** |
+| `_SILENCE_*_DEPRECATION_WARNING` | 特定の非推奨の警告を消す。警告を消す前に置き換えを検討 |
 | `_CRTDBG_MAP_ALLOC` | メモリリークの行番号つきの報告（[デバッグ](debugging.md)） |
 | `_HAS_CXX23` など | 標準ライブラリの対応状況（通常は、`/std:c++latest` で自動） |
 | `NDEBUG` | assert を無効にする（Release で、自動定義） |
@@ -181,7 +181,7 @@ C++20 以降は `<numbers>` の `std::numbers::pi_v<float>` を使うほうが�
 
 | マクロ | 定義される構成 | 用途 |
 | --- | --- | --- |
-| **`_DEBUG`** | Debug（Visual Studio が、自動で） | デバッグ専用のコード（検査、ログ） |
+| `_DEBUG` | Debug（Visual Studio が、自動で） | デバッグ専用のコード（検査、ログ） |
 | `NDEBUG` | Release（自動で） | `assert` の無効化。ターゲット製品用 |
 
 ```cpp
@@ -264,7 +264,7 @@ IMGUI_API bool Button(const char* label, const ImVec2& size = ImVec2(0, 0));
 | `IMGUI_DISABLE_DEMO_WINDOWS` | デモをビルドから除く（サイズ削減） |
 | `IMGUI_USER_CONFIG` | `imconfig.h` の代わりに自分の設定ファイルを指定 |
 | `ImDrawIdx`（`imconfig.h`） | 頂点インデックスの型（`unsigned short` が既定。65536 頂点を超える描画に `unsigned int`） |
-| **`IMGUI_IMPL_*`** | バックエンドの切り替え（`IMGUI_IMPL_WIN32_DISABLE_GAMEPAD` など） |
+| `IMGUI_IMPL_*` | バックエンドの切り替え（`IMGUI_IMPL_WIN32_DISABLE_GAMEPAD` など） |
 
 ```text
 IMGUI_DEFINE_MATH_OPERATORS;IMGUI_DISABLE_OBSOLETE_FUNCTIONS;%(PreprocessorDefinitions)

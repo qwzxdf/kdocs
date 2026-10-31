@@ -140,7 +140,7 @@ using DestroyGameFn = void (*)(mini::IGameModule*);
 | `CreateGame` | `IGameModule` の実体を `new` して返す |
 | `DestroyGame` | `CreateGame` で作った物を `delete` する（確保した DLL の中で解放する） |
 
-エンジンが `IGameModule` を直接 `delete` しないのは、約束 2 のためです。`new` したのが `Game.dll` の中なら、`delete` も `Game.dll` の中で行います。ホット リロードで DLL を外すときも、DLL の中のコードを呼べる状態のうちに、破棄する必要があります。
+エンジンが `IGameModule` を直接 `delete` しないのは、約束 2 のためです。`new` したのが `Game.dll` の中なら、`delete` も `Game.dll` の中で行います。ホット リロードで DLL を外すときも、DLL の中のコードを呼べる状態のうちに、破棄します。
 
 ## Game.dll を作る
 

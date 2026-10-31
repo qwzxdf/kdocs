@@ -19,10 +19,10 @@ tags:
 プレイヤーの名前、メッセージ、ファイルのパス。ゲームは文字列だらけです。C の `char name[32]` で持つと、長さの上限を超えて書き込んでしまう事故が起きますし、連結や比較のたびに関数を呼ぶ必要があります。`std::string` は、長さが自由に変わる文字列です。足したり、一部を切り出したり、検索したりが演算子と関数で書け、メモリの管理もお任せできます。
 
 !!! tip "ポイント"
-    - <strong>文字列はとりあえずこれ。</strong> `char*` や `char[]` は使わない。
+    - 文字列はとりあえずこれ。 `char*` や `char[]` は使わない。
     - 足すのは `+` か `+=`、数値を混ぜて作るなら [`std::format`](../utilities/format.md)。
-    - 関数で**読むだけ**なら引数は [`std::string_view`](../utilities/string_view.md) にする。
-    - 毎フレーム作り直すと**メモリ確保が走って重い**。ゲームループ内では作りすぎない。
+    - 関数で読むだけなら引数は [`std::string_view`](../utilities/string_view.md) にする。
+    - 毎フレーム作り直すとメモリ確保が走って重い。ゲームループ内では作りすぎない。
 
 !!! info "このページを読む前に"
     [参照](../../basics/reference.md) が分かると読みやすいです。vector と共通の関数が多いので、先に [`std::vector`](vector.md) を読んでおくと楽です。
@@ -63,7 +63,7 @@ using wstring = basic_string<wchar_t>;
 | --- | --- | --- | --- |
 | [`operator+=`](#plus-eq) | <span class="rank rank-must">必須</span> | 末尾に足す | 償却 O(m) |
 | [`operator+`](#plus) | <span class="rank rank-must">必須</span> | つないだ新しい文字列を作る | O(n + m) |
-| [`size`](#size) | <span class="rank rank-must">必須</span> | 長さ（**バイト数**） | O(1) |
+| [`size`](#size) | <span class="rank rank-must">必須</span> | 長さ（バイト数） | O(1) |
 | [`operator==`](#eq) | <span class="rank rank-must">必須</span> | 等しいか | O(n) |
 | [`empty`](#empty) | <span class="rank rank-must">必須</span> | 空かどうか | O(1) |
 | [`std::to_string`](to_string.md) | <span class="rank rank-often">よく使う</span> | 数値を文字列に | O(桁数) |
@@ -89,8 +89,8 @@ using wstring = basic_string<wchar_t>;
 | [`std::stod`](stod.md) | <span class="rank rank-sometimes">たまに</span> | 文字列を double に | O(n) |
 | [`std::stoll`](stoll.md) | <span class="rank rank-sometimes">たまに</span> | 文字列を long long に | O(n) |
 | [`data`](#data) | <span class="rank rank-sometimes">たまに</span> | 先頭のポインタ（書き換え可） | O(1) |
-| [`find_first_not_of`](#find_first_not_of) | <span class="rank rank-sometimes">たまに</span> | 指定した文字**以外**を前から探す | O(n·m) |
-| [`find_last_not_of`](#find_last_not_of) | <span class="rank rank-sometimes">たまに</span> | 指定した文字**以外**を後ろから探す | O(n·m) |
+| [`find_first_not_of`](#find_first_not_of) | <span class="rank rank-sometimes">たまに</span> | 指定した文字以外を前から探す | O(n·m) |
+| [`find_last_not_of`](#find_last_not_of) | <span class="rank rank-sometimes">たまに</span> | 指定した文字以外を後ろから探す | O(n·m) |
 | [`operator<=>`](#spaceship) | <span class="rank rank-sometimes">たまに</span> | 辞書順の大小比較 | O(n) |
 | [`length`](#length) | <span class="rank rank-rare">知ってるだけ</span> | `size` と同じ | O(1) |
 | [`find_first_of`](#find_first_of) | <span class="rank rank-rare">知ってるだけ</span> | 指定した文字のどれかを前から探す | O(n·m) |
@@ -269,9 +269,9 @@ basic_string operator+(const basic_string& lhs, CharT rhs);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `lhs`, `rhs` | 文字列 / 文字 | つなぐ 2 つ。**どちらかは `std::string` である必要がある** |
+| `lhs`, `rhs` | 文字列 / 文字 | つなぐ 2 つ。どちらかは `std::string` である必要がある |
 
-- 戻り値: つないだ**新しい文字列**
+- 戻り値: つないだ新しい文字列
 - 計算量: O(n + m)
 
 ```cpp
@@ -298,7 +298,7 @@ Alice Lv.12
 size_type size() const noexcept;
 ```
 
-- 戻り値: 長さ。**文字数ではなくバイト数**
+- 戻り値: 長さ。文字数ではなくバイト数
 - 計算量: O(1)
 
 ```cpp
@@ -389,7 +389,7 @@ size_type find(CharT ch, size_type pos = 0) const noexcept;
 | `str` / `s` / `ch` | 文字列 / 文字 | 探すもの |
 | `pos` | `size_type` | 探し始める位置。省略すると先頭から |
 
-- 戻り値: 最初に見つかった位置。**見つからなければ `std::string::npos`**
+- 戻り値: 最初に見つかった位置。見つからなければ `std::string::npos`
 - 計算量: 最悪 O(n·m)
 
 <div class="anim" data-label="s.find(&quot;cd&quot;)">
@@ -431,7 +431,7 @@ basic_string substr(size_type pos = 0, size_type count = npos) const;
 | `pos` | `size_type` | 切り出し開始位置 |
 | `count` | `size_type` | 長さ。省略すると最後まで |
 
-- 戻り値: **新しい文字列**（コピー）
+- 戻り値: 新しい文字列（コピー）
 - 例外: `pos > size()` なら `std::out_of_range`
 - 計算量: O(count)
 
@@ -582,7 +582,7 @@ XBCD D
 void clear() noexcept;
 ```
 
-- 長さを 0 にします。**容量（`capacity`）はそのまま**
+- 長さを 0 にします。容量（`capacity`）はそのまま
 - 計算量: O(n)（`char` なら実質タダ）
 
 <div class="anim" data-label="s.clear()">
@@ -620,7 +620,7 @@ size_type rfind(CharT ch, size_type pos = npos) const noexcept;
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `str` / `ch` | 文字列 / 文字 | 探すもの |
-| `pos` | `size_type` | この位置から**前に向かって**探す。省略すると末尾から |
+| `pos` | `size_type` | この位置から前に向かって探す。省略すると末尾から |
 
 - 戻り値: 最後に見つかった位置。見つからなければ `npos`
 
@@ -693,7 +693,7 @@ H i +! # 末尾に 1 文字足す
 void pop_back();
 ```
 
-- 末尾の 1 バイトを消します。**空のとき未定義動作**
+- 末尾の 1 バイトを消します。空のとき未定義動作
 - 計算量: O(1)
 
 <div class="anim" data-label="s.pop_back()">
@@ -905,7 +905,7 @@ const CharT* data() const noexcept;
 size_type find_first_not_of(const basic_string& chars, size_type pos = 0) const noexcept;
 ```
 
-- 戻り値: `chars` に**含まれない**文字が最初に出てくる位置
+- 戻り値: `chars` に含まれない文字が最初に出てくる位置
 
 ### find_last_not_of {#find_last_not_of}
 
@@ -974,7 +974,7 @@ size_type length() const noexcept;
 size_type find_first_of(const basic_string& chars, size_type pos = 0) const noexcept;
 ```
 
-- 戻り値: `chars` の**どれか 1 文字**が最初に出てくる位置
+- 戻り値: `chars` のどれか 1 文字が最初に出てくる位置
 
 ### find_last_of {#find_last_of}
 
@@ -1163,7 +1163,7 @@ size_type copy(CharT* dest, size_type count, size_type pos = 0) const;
 | `count` | `size_type` | コピーする最大の長さ |
 | `pos` | `size_type` | コピー元の開始位置 |
 
-- 戻り値: コピーした長さ。**末尾に `'\0'` は付かない**
+- 戻り値: コピーした長さ。末尾に `'\0'` は付かない
 
 !!! note "実際は"
     固定長の char 配列（古い構造体、ネットワークのパケット）に詰めるときくらいです。`'\0'` を付け忘れるバグが起きやすいので注意します。

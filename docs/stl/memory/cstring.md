@@ -18,11 +18,11 @@ tags:
 `<cstring>` は、C 言語から引き継いだ**メモリの塊の操作**（`memcpy`、`memset`、`memcmp`…）と、**C 文字列（`'\0'` で終わる `char` 配列）の操作**（`strlen`、`strcmp`、`strcpy`…）の関数が入ったヘッダです。C++ では `std::copy`、`std::fill`、`std::string`、`std::string_view` が代わりになるので、普段は使いません。ただし、**C のライブラリとのやり取り、バイナリデータの読み書き、速さが大事な低レベルのコード**では今でもよく出てきます。使うなら、「**型を無視してバイトとして扱う**」「**範囲の確認をしてくれない**」という性質を理解して、安全に使う必要があります。
 
 !!! tip "ポイント"
-    - <strong>普段は使わない。</strong> 代わりは `std::copy` / `std::fill` / `std::ranges::equal`、`std::string`、`std::string_view`。
-    - 使うのは、**数値と構造体（trivially copyable な型）の、バイト単位のコピー・クリア・比較**だけ。
-    - <strong>`memcpy` は、コピー元とコピー先が重なっていると未定義動作。</strong> 重なるなら `memmove`。
-    - **`std::string` や `std::vector` のオブジェクトに `memcpy` / `memset` を使わない**（中のポインタを壊す）。
-    - C 文字列関数（`strcpy`、`strcat`、`sprintf`）は**バッファの大きさを見ない**ので危ない。`std::string` や `std::format` を使う。
+    - 普段は使わない。 代わりは `std::copy` / `std::fill` / `std::ranges::equal`、`std::string`、`std::string_view`。
+    - 使うのは、数値と構造体（trivially copyable な型）の、バイト単位のコピー・クリア・比較だけ。
+    - `memcpy` は、コピー元とコピー先が重なっていると未定義動作。 重なるなら `memmove`。
+    - `std::string` や `std::vector` のオブジェクトに `memcpy` / `memset` を使わない（中のポインタを壊す）。
+    - C 文字列関数（`strcpy`、`strcat`、`sprintf`）はバッファの大きさを見ないので危ない。`std::string` や `std::format` を使う。
     - 型の変換のためなら、`memcpy` ではなく **`std::bit_cast`** を使う。
 
 !!! info "このページを読む前に"
@@ -42,9 +42,9 @@ tags:
 | [`memchr`](cstring/memchr.md) | <span class="rank rank-rare">知ってるだけ</span> | メモリの中から 1 バイトを探す |
 | [`strchr`](cstring/strchr.md) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列から 1 文字を探す |
 | [`strstr`](cstring/strstr.md) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列から文字列を探す |
-| [`strcpy`](cstring/strcpy.md) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列をコピー（**危ない**） |
-| [`strncpy`](cstring/strncpy.md) | <span class="rank rank-rare">知ってるだけ</span> | n 文字までコピー（**終端に注意**） |
-| [`strcat`](cstring/strcat.md) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列をつなげる（**危ない**） |
+| [`strcpy`](cstring/strcpy.md) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列をコピー（危ない） |
+| [`strncpy`](cstring/strncpy.md) | <span class="rank rank-rare">知ってるだけ</span> | n 文字までコピー（終端に注意） |
+| [`strcat`](cstring/strcat.md) | <span class="rank rank-rare">知ってるだけ</span> | C 文字列をつなげる（危ない） |
 | [`snprintf`](cstring/snprintf.md) | <span class="rank rank-sometimes">たまに</span> | 大きさを指定して書式付きで書き込む |
 | [`std::strncat`](cstring/strncat.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列の末尾に最大 n 文字を連結する。 |
 | [`std::strrchr`](cstring/strrchr.md) | <span class="rank rank-rare">知ってるだけ</span> | 文字列の中から、指定した文字が最後に現れる位置を探す。 |

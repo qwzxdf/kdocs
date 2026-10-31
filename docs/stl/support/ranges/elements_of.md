@@ -14,7 +14,7 @@ tags:
 `#include <generator>`
 </div>
 
-`std::generator` の中で、別のレンジの要素を全部返したいとき、`for (auto x : r) co_yield x;` と書くと、1 要素ごとに中断と再開が走ります。`co_yield std::ranges::elements_of(r)` と書くと、レンジをまるごと委譲でき、入れ子の再帰ジェネレーターで特に効率的です。
+`std::generator` の中で、別のレンジの要素を全部返したいとき、`for (auto x : r) co_yield x;` と書くと、1 要素ごとに中断と再開が走ります。`co_yield std::ranges::elements_of(r)` と書くと、レンジをまるごと委譲でき、入れ子の再帰ジェネレーターで特に軽く済みます。
 
 !!! tip "ポイント"
     - `co_yield elements_of(r)` で、レンジを丸ごと返す。

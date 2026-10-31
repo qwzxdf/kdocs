@@ -18,7 +18,7 @@ tags:
 ハイスコアを高い順に表示する、「HP が 30 以下になったらこの色」のようなしきい値の表を引く。キーの順番が大切な場面では、`unordered_map` の「順番は不定」が困ります。`std::map` は、キーの小さい順に並んだ表です。中は「赤黒木」という二分探索木で、検索・追加・削除はすべて O(log n) で行えます。「この値以上で一番小さいキー」のような範囲の探索もできます。
 
 !!! tip "ポイント"
-    - <strong>キーの順番に回したいとき、範囲で探したいときに使う。</strong> それ以外は `unordered_map` で十分。
+    - キーの順番に回したいとき、範囲で探したいときに使う。 それ以外は `unordered_map` で十分。
     - 関数の使い方は `unordered_map` とほぼ同じ（`[]`, `find`, `contains`, `erase`）。
     - map だけの強みは `lower_bound` / `upper_bound`（「この値以上で一番小さいキー」が探せる）。
     - 並び順を逆にしたいなら `std::map<int, T, std::greater<>>`。
@@ -38,24 +38,24 @@ class map;
 | --- | --- | --- |
 | `Key` | キーの型。`<` で比較できる必要がある | 必ず |
 | `T` | 値の型 | 必ず |
-| `Compare` | 並べる順番を決める比較関数 | **逆順にしたいとき、`std::less<>` にしたいとき** |
+| `Compare` | 並べる順番を決める比較関数 | 逆順にしたいとき、`std::less<>` にしたいとき |
 | `Allocator` | メモリの確保方法 | しない |
 
 ## 関数一覧
 
 | 関数 | 重要度 | 何をする | 計算量 |
 | --- | --- | --- | --- |
-| [`operator[]`](#operator) | <span class="rank rank-must">必須</span> | 読み書き。**無ければ作る** | O(log n) |
+| [`operator[]`](#operator) | <span class="rank rank-must">必須</span> | 読み書き。無ければ作る | O(log n) |
 | [`find`](#find) | <span class="rank rank-must">必須</span> | 探す。見つからなければ `end()` | O(log n) |
 | [`contains`](#contains) | <span class="rank rank-must">必須</span> | あるかどうか <span class="ver ver-20">C++20</span> | O(log n) |
-| [`begin`](#begin) | <span class="rank rank-must">必須</span> | **一番小さいキー**のイテレータ | O(1) |
+| [`begin`](#begin) | <span class="rank rank-must">必須</span> | 一番小さいキーのイテレータ | O(1) |
 | [`end`](#end) | <span class="rank rank-must">必須</span> | 終わりのイテレータ | O(1) |
 | [`erase`](#erase) | <span class="rank rank-often">よく使う</span> | 削除 | O(log n) |
 | [`size`](#size) | <span class="rank rank-often">よく使う</span> | 要素数 | O(1) |
 | [`empty`](#empty) | <span class="rank rank-often">よく使う</span> | 空か | O(1) |
-| [`lower_bound`](#lower_bound) | <span class="rank rank-often">よく使う</span> | キーが**以上**の最初の要素 | O(log n) |
-| [`upper_bound`](#upper_bound) | <span class="rank rank-often">よく使う</span> | キーが**より大きい**最初の要素 | O(log n) |
-| [`rbegin`](#rbegin) | <span class="rank rank-often">よく使う</span> | **一番大きいキー**のイテレータ | O(1) |
+| [`lower_bound`](#lower_bound) | <span class="rank rank-often">よく使う</span> | キーが以上の最初の要素 | O(log n) |
+| [`upper_bound`](#upper_bound) | <span class="rank rank-often">よく使う</span> | キーがより大きい最初の要素 | O(log n) |
+| [`rbegin`](#rbegin) | <span class="rank rank-often">よく使う</span> | 一番大きいキーのイテレータ | O(1) |
 | [`try_emplace`](#try_emplace) | <span class="rank rank-sometimes">たまに</span> | 無いときだけ追加 <span class="ver ver-17">C++17</span> | O(log n) |
 | [`insert_or_assign`](#insert_or_assign) | <span class="rank rank-sometimes">たまに</span> | あれば上書き、無ければ追加 <span class="ver ver-17">C++17</span> | O(log n) |
 | [`at`](#at) | <span class="rank rank-sometimes">たまに</span> | 無ければ例外 | O(log n) |
@@ -202,7 +202,7 @@ T& operator[](Key&& key);
 | --- | --- | --- |
 | `key` | `const Key&` / `Key&&` | キー |
 
-- 戻り値: 値の参照。**キーが無ければデフォルト値で追加する**
+- 戻り値: 値の参照。キーが無ければデフォルト値で追加する
 - 計算量: O(log n)
 
 <div class="anim" data-label="m[4]">
@@ -296,7 +296,7 @@ true false
 iterator begin() noexcept;
 ```
 
-- 戻り値: **一番小さいキー**の要素のイテレータ。空なら `end()`
+- 戻り値: 一番小さいキーの要素のイテレータ。空なら `end()`
 - 計算量: O(1)
 
 範囲 for は `begin` から順に回るので、**キーの小さい順**に出てきます。
@@ -737,7 +737,7 @@ key_compare key_comp() const;
 | --- | --- | --- | --- |
 | `std::less<Key>`（省略時） | <span class="rank rank-must">必須</span> | 小さい順 | 普通はこれ |
 | `std::greater<>` | <span class="rank rank-often">よく使う</span> | 大きい順 | ランキング、新しい順 |
-| `std::less<>` | <span class="rank rank-sometimes">たまに</span> | 小さい順。**型の違うキーでも検索できる**（透過比較） | `map<std::string, T>` を `string_view` や `"..."` で検索するとき、一時 string を作らずに済む |
+| `std::less<>` | <span class="rank rank-sometimes">たまに</span> | 小さい順。型の違うキーでも検索できる（透過比較） | `map<std::string, T>` を `string_view` や `"..."` で検索するとき、一時 string を作らずに済む |
 | 自作の比較関数 | <span class="rank rank-rare">知ってるだけ</span> | 好きな順 | 構造体をキーにする（ただし `<=>` を定義するほうが簡単） |
 
 ```cpp

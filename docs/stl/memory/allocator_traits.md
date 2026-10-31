@@ -14,16 +14,16 @@ tags:
 `#include <memory>`
 </div>
 
-アロケーターには、`allocate` と `deallocate` さえあればよく、`construct` や `destroy`、`rebind` などは、省略できます。コンテナは、省略された部分を毎回調べるのが面倒です。`std::allocator_traits<Alloc>` は、アロケーターの統一的な窓口で、省略された機能を既定の動作で補ってくれます。
+アロケーターには `allocate` と `deallocate` さえあればよく、`construct` や `destroy`、`rebind` などは省略できます。コンテナは省略された部分を毎回調べるのが面倒です。`std::allocator_traits<Alloc>` はアロケーターの統一的な窓口で、省略された機能を既定の動作で補ってくれます。
 
 !!! tip "ポイント"
-    - コンテナは、アロケーターを直接ではなく、`allocator_traits` 経由で呼ぶ
+    - コンテナはアロケーターを直接ではなく、`allocator_traits` 経由で呼ぶ
     - `allocate`、`deallocate`、`construct`、`destroy`、`max_size` などがある
     - アロケーターが `construct` を持たなければ、配置 new で代用する
-    - 自作のアロケーターは、最小限の `allocate` と `deallocate` で済む
+    - 自作のアロケーターは最小限の `allocate` と `deallocate` で済む
 
 !!! info "このページを読む前に"
-    [`std::allocator`](allocator.md) など、アロケーターの基本を先に読んでください。
+    [`std::allocator`](allocator.md) などアロケーターの基本を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -46,11 +46,11 @@ struct allocator_traits {
 };
 ```
 
-`construct` は、アロケーターが `construct` を持てばそれを、持たなければ `std::construct_at` を呼びます。`destroy` も同様です。
+`construct` はアロケーターが `construct` を持てばそれを持たなければ `std::construct_at` を呼びます。`destroy` も同様です。
 
-自作のアロケーターは、`value_type`、`allocate`、`deallocate`、`==` だけで、コンテナに使えます。`pointer` や `rebind` は、型から推論されて補われます。
+自作のアロケーターは `value_type`、`allocate`、`deallocate`、`==` だけでコンテナに使えます。`pointer` や `rebind` は型から推論されて補われます。
 
-型の別名には `rebind_alloc<U>` があり、`value_type` が違う型用のアロケーターを作ります（リストのノード用のアロケーターなど）。
+型の別名には `rebind_alloc<U>` があり `value_type` が違う型用のアロケーターを作ります（リストのノード用のアロケーターなど）。
 
 ## 実際に動かしてみる
 
@@ -79,7 +79,7 @@ int main() {
 
 ## ゲームでの使いどころ
 
-自作のコンテナを書くとき、アロケーターの呼び出しを `allocator_traits` 経由にして、あらゆるアロケーターに対応させます。
+自作のコンテナを書くときアロケーターの呼び出しを `allocator_traits` 経由にして、あらゆるアロケーターに対応させます。
 
 ## よくあるミス
 

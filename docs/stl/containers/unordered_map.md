@@ -18,9 +18,9 @@ tags:
 「名前でテクスチャを引く」「ID で敵のデータを探す」。ゲームには、何かをキーにして対応する値を探したい場面が多くあります。`vector` を先頭から調べていくと、要素が増えるほど遅くなります。`std::unordered_map` は、キーから値を一定時間でほぼ引けるハッシュ表です。中ではキーから「ハッシュ値」という数値を計算して置き場所を決めるので、要素数が増えても検索は速いままです。並び順は不定です。
 
 !!! tip "ポイント"
-    - <strong>キーで検索したいならまずこれ。</strong> 順番が必要なときだけ [`std::map`](map.md)。
+    - キーで検索したいならまずこれ。 順番が必要なときだけ [`std::map`](map.md)。
     - 入れるのは `m[key] = value;`、探すのは `find` か `contains`。
-    - <strong>`m[key]` は「無ければ作る」</strong>。存在確認に `[]` を使わない。
+    - `m[key]` は「無ければ作る」。存在確認に `[]` を使わない。
     - 回す順番はバラバラ。表示順が大事なら別に並べる。
 
 !!! info "このページを読む前に"
@@ -39,7 +39,7 @@ class unordered_map;
 | --- | --- | --- |
 | `Key` | キーの型 | 必ず |
 | `T` | 値の型 | 必ず |
-| `Hash` | キーからハッシュ値を作る関数 | **自作の型をキーにするときだけ** |
+| `Hash` | キーからハッシュ値を作る関数 | 自作の型をキーにするときだけ |
 | `KeyEqual` | キーが等しいかの判定 | ほぼしない |
 | `Allocator` | メモリの確保方法 | しない |
 
@@ -57,7 +57,7 @@ class unordered_map;
 
 | 関数 | 重要度 | 何をする | 計算量 |
 | --- | --- | --- | --- |
-| [`operator[]`](#operator) | <span class="rank rank-must">必須</span> | 読み書き。**無ければ作る** | 平均 O(1) |
+| [`operator[]`](#operator) | <span class="rank rank-must">必須</span> | 読み書き。無ければ作る | 平均 O(1) |
 | [`find`](#find) | <span class="rank rank-must">必須</span> | 探す。見つからなければ `end()` | 平均 O(1) |
 | [`contains`](#contains) | <span class="rank rank-must">必須</span> | あるかどうか <span class="ver ver-20">C++20</span> | 平均 O(1) |
 | [`begin`](#begin) | <span class="rank rank-must">必須</span> | 先頭のイテレータ（範囲 for で使われる） | O(1) |
@@ -247,7 +247,7 @@ T& operator[](Key&& key);
 | --- | --- | --- |
 | `key` | `const Key&` / `Key&&` | キー |
 
-- 戻り値: 値の参照。**キーが無ければ値をデフォルト構築して追加し、その参照を返す**
+- 戻り値: 値の参照。キーが無ければ値をデフォルト構築して追加し、その参照を返す
 - 計算量: 平均 O(1)、最悪 O(n)
 
 <div class="anim" data-label="m[&quot;C&quot;]">
@@ -291,7 +291,7 @@ const_iterator find(const Key& key) const;
 | --- | --- | --- |
 | `key` | `const Key&` | 探すキー |
 
-- 戻り値: 見つかった要素のイテレータ。**見つからなければ `end()`**
+- 戻り値: 見つかった要素のイテレータ。見つからなければ `end()`
 - 計算量: 平均 O(1)、最悪 O(n)
 
 <div class="anim" data-label="m.find(&quot;B&quot;)">
@@ -488,7 +488,7 @@ std::pair<iterator, bool> try_emplace(const Key& key, Args&&... args);
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `key` | `const Key&` | キー |
-| `args` | 何個でも | 値のコンストラクタ引数。**キーが無いときだけ使われる** |
+| `args` | 何個でも | 値のコンストラクタ引数。キーが無いときだけ使われる |
 
 - 戻り値: `pair<イテレータ, 追加したか>`
 - 計算量: 平均 O(1)
@@ -1042,7 +1042,7 @@ bool operator==(const unordered_map& a, const unordered_map& b);
 
 リソース管理がいちばん多い使い方です。`unordered_map<std::string, Texture>` に、名前でテクスチャを登録しておけば、同じ画像を何度も読み込まずに済みます。ID でエンティティを引く `unordered_map<EntityId, Enemy>`、設定値を名前で引く `unordered_map<std::string, float>` も定番です。
 
-広いマップにまばらに置かれたものを管理するときは、座標をキーにします。`unordered_map<GridPos, Item>` なら、アイテムのあるマスだけが入ります。ただし、`GridPos` に `hash` を用意する必要があります。入力の割り当ては `unordered_map<KeyCode, Action>` で書けます。
+広いマップにまばらに置かれたものを管理するときは、座標をキーにします。`unordered_map<GridPos, Item>` なら、アイテムのあるマスだけが入ります。ただし、`GridPos` に `hash` を用意します。入力の割り当ては `unordered_map<KeyCode, Action>` で書けます。
 
 「全敵を毎フレーム更新する」ような、全部を回す処理では、`vector` のほうが圧倒的に速くなります。メモリが連続していてキャッシュに乗るからです。`unordered_map` は ID で引く用途に使い、回す用途には `vector` を別に持つ、という使い分けが基本です。
 
@@ -1057,7 +1057,7 @@ bool operator==(const unordered_map& a, const unordered_map& b);
 
 | 操作 | 壊れるもの |
 | --- | --- |
-| 追加で再ハッシュが起きた | **イテレータは全部**。参照・ポインタは壊れない |
+| 追加で再ハッシュが起きた | イテレータは全部。参照・ポインタは壊れない |
 | 追加（再ハッシュなし） | 壊れない |
 | `erase` | 消した要素だけ |
 | `clear` | 全部 |

@@ -15,10 +15,10 @@ tags:
 `#include <type_traits>`
 </div>
 
-基本型の反対側です。`std::is_compound` は、<strong>型が複合型か</strong>を調べます。
+基本型の反対側です。`std::is_compound` は <strong>型が複合型か</strong>を調べます。
 
 !!! tip "ポイント"
-    - `std::is_compound_v<T>` は、`T` が基本型でない型（配列、関数、ポインタ、参照、クラス、共用体、列挙型、メンバーポインタ）か
+    - `std::is_compound_v<T>` は `T` が基本型でない型（配列、関数、ポインタ、参照、クラス、共用体、列挙型、メンバーポインタ）か
     - `is_fundamental_v<T>` と必ず逆の値になる
     - `std::is_compound<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
     - 参照やポインターも複合型
@@ -87,7 +87,7 @@ void Show(Param<T> value);   // int は値渡し、std::string は const 参照
     `std::nullptr_t` は基本型なので `false` です。
 
 ??? failure "is_fundamental と同時に true になると思う"
-    2 つは、必ず逆の値になります（どちらかが `true`）。
+    2 つは必ず逆の値になります（どちらかが `true`）。
 
 ## 類似
 
@@ -103,7 +103,7 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `std::is_compound_v<T>` は、`T` が基本型でない型（配列、関数、ポインタ、参照、クラス、共用体、列挙型、メンバーポインタ）か
+    - [x] `std::is_compound_v<T>` は `T` が基本型でない型（配列、関数、ポインタ、参照、クラス、共用体、列挙型、メンバーポインタ）か
     - [x] 基本型以外のすべてが `true`
     - [x] `is_fundamental` と必ず逆の値になる
 
