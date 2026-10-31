@@ -13,6 +13,20 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Undo/IUndoCommand.cs`（新規） | コマンドのインターフェース |
+    | `Undo/MacroCommand.cs`（新規） | 複数のコマンドを 1 つの単位にまとめる |
+    | `Undo/IHistoryService.cs`（新規） | 履歴を管理するサービスの窓口 |
+    | `Undo/HistoryService.cs`（新規） | 履歴の実装（Undo / Redo のスタック） |
+    | `Undo/Snapshots.cs`（新規） | 削除する物の情報を保存しておく |
+    | `Undo/SetValueCommand.cs`（新規） | 値の変更のコマンド |
+    | `Undo/StructureCommands.cs`（新規） | 作成・削除・親子づけのコマンド |
+    | `Undo/UndoableSceneEditor.cs`（新規） | 編集を、コマンドとして記録する窓口の実装 |
+    | `MainWindow.xaml`（変更） | Undo / Redo のボタンを足す |
+
+
 ## Undo の作り方は 2 通り
 
 | 方式 | 内容 | 長所 | 短所 |
@@ -41,7 +55,7 @@ tags:
 
 まず、コマンドのインターフェースです。
 
-```csharp title="Undo/IUndoCommand.cs"
+```csharp title="Undo/IUndoCommand.cs（新規）"
 namespace Editor.Undo;
 
 // 1 つの編集。Do で実行し、Undo で元に戻す。
@@ -61,7 +75,7 @@ public interface IUndoCommand
 
 複数のコマンドを 1 つの Undo の単位にまとめる入れ物も作ります。
 
-```csharp title="Undo/MacroCommand.cs"
+```csharp title="Undo/MacroCommand.cs（新規）"
 namespace Editor.Undo;
 
 // 複数のコマンドを 1 つの Undo の単位にまとめる。
@@ -102,7 +116,7 @@ Undo を逆順にするのは大事なところです。「A をしてから B �
 
 履歴を管理するサービスのインターフェースは次のとおりです。
 
-```csharp title="Undo/IHistoryService.cs"
+```csharp title="Undo/IHistoryService.cs（新規）"
 namespace Editor.Undo;
 
 public interface IHistoryService
@@ -130,7 +144,7 @@ public interface IHistoryService
 
 実装は少し長いので、2 つに分けて見ます。まずフィールドとプロパティです。
 
-```csharp title="Undo/HistoryService.cs"
+```csharp title="Undo/HistoryService.cs（新規）"
 using System.Diagnostics;
 
 namespace Editor.Undo;
@@ -300,7 +314,7 @@ public int IndexOf(SceneObject obj) => (obj.Parent?.Children ?? Roots).IndexOf(o
 
 削除する物の全部の情報を子を含めて保存します。
 
-```csharp title="Undo/Snapshots.cs"
+```csharp title="Undo/Snapshots.cs（新規）"
 using System.Numerics;
 using Editor.Scene;
 
@@ -342,7 +356,7 @@ public sealed record RemovedObject(ObjectSnapshot Snapshot, uint ParentId, int I
 
 ### 値の変更
 
-```csharp title="Undo/SetValueCommand.cs"
+```csharp title="Undo/SetValueCommand.cs（新規）"
 namespace Editor.Undo;
 
 // 物の 1 つのプロパティを変える。物は、ID で覚える（復元で別のオブジェクトになっても辿れる）。
@@ -387,7 +401,7 @@ public sealed class SetValueCommand<T> : IUndoCommand
 
 ### 作成、削除、親子づけ
 
-```csharp title="Undo/StructureCommands.cs"
+```csharp title="Undo/StructureCommands.cs（新規）"
 using Editor.Scene;
 
 namespace Editor.Undo;
@@ -538,7 +552,7 @@ public interface IRawSceneEditor
 
 `SceneEditor` は `IRawSceneEditor` を実装する形に変えます（中身は第 42 章のまま）。外側が次のクラスです。
 
-```csharp title="Undo/UndoableSceneEditor.cs"
+```csharp title="Undo/UndoableSceneEditor.cs（新規）"
 using System.Numerics;
 using Editor.Scene;
 
@@ -703,7 +717,7 @@ public string UndoHeader => _history.UndoName is { } n ? $"元に戻す: {n}(_U)
 public string RedoHeader => _history.RedoName is { } n ? $"やり直し: {n}(_R)" : "やり直し(_R)";
 ```
 
-```xml title="MainWindow.xaml"
+```xml title="MainWindow.xaml（変更）"
 <Window.InputBindings>
     <KeyBinding Key="Z" Modifiers="Control" Command="{Binding UndoCommand}" />
     <KeyBinding Key="Y" Modifiers="Control" Command="{Binding RedoCommand}" />

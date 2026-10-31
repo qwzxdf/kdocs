@@ -13,6 +13,13 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Viewport/IRenderLoop.cs`（新規） | 描画ループの窓口（インターフェース） |
+    | `Viewport/RenderLoop.cs`（新規） | 専用スレッドでエンジンを動かす描画ループ |
+
+
 ## UI スレッドで描くと困ること
 
 WPF の画面を操作できるスレッドは、UI スレッド 1 本だけです。ボタンのクリックも、メニューも、ツリーの展開も、全部がこの 1 本で処理されます。そこで `Tick`（描画）も動かすと、次のような問題が起きます。
@@ -76,7 +83,7 @@ thread.Join();
 
 エンジンを動かす専用スレッドの窓口をインターフェースで定義します。
 
-```csharp title="Viewport/IRenderLoop.cs"
+```csharp title="Viewport/IRenderLoop.cs（新規）"
 using Editor.Engine;
 
 namespace Editor.Viewport;
@@ -103,7 +110,7 @@ public interface IRenderLoop : IDisposable
 
 実装は 3 つに分けて見ます。まず、状態とキューです。
 
-```csharp title="Viewport/RenderLoop.cs"
+```csharp title="Viewport/RenderLoop.cs（新規）"
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using Editor.Engine;

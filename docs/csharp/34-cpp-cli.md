@@ -13,6 +13,14 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `EngineBridge/EngineBridge.h`（新規） | C++/CLI の橋のクラス（宣言） |
+    | `EngineBridge/EngineBridge.cpp`（新規） | C++/CLI の橋のクラス（実装） |
+    | `Engine/ClrEngineService.cs`（新規） | 窓口の C++/CLI 版の実装 |
+
+
 ## C++/CLI とは
 
 C++/CLI は、普通の C++ に、.NET の型（`ref class`）を書ける拡張を足した言語です。1 つの `.cpp` の中にネイティブの C++ と、C# から見える .NET のクラスを同居させられます。
@@ -61,7 +69,7 @@ C++ の標準を `/std:c++20` にしているのは、C++/CLI が最新のプレ
 
 ## EngineBridge クラスを書く
 
-```cpp title="EngineBridge/EngineBridge.h"
+```cpp title="EngineBridge/EngineBridge.h（新規）"
 #pragma once
 
 #include <Engine/Engine.h>
@@ -123,7 +131,7 @@ EngineBridge::!EngineBridge() {
 
 ## 実装を書く
 
-```cpp title="EngineBridge/EngineBridge.cpp"
+```cpp title="EngineBridge/EngineBridge.cpp（新規）"
 #include "EngineBridge.h"
 
 #include <exception>
@@ -272,7 +280,7 @@ void EngineLog::Uninstall() {
 !!! warning "C++/CLI の参照は、少し癖がある"
     C# の SDK 形式のプロジェクトから、`/clr:netcore` の C++/CLI を参照するときは、ビルドの順番とターゲット フレームワークの一致（`net8.0` と `net8.0-windows`）に気をつけてください。うまく参照できないときは、`Editor.csproj` の `<ProjectReference>` に `<SetPlatform>Platform=x64</SetPlatform>` を足したり、`EngineBridge` の .NET ターゲットを `net8.0` にそろえたりして試します。
 
-```csharp title="Engine/ClrEngineService.cs"
+```csharp title="Engine/ClrEngineService.cs（新規）"
 using MiniEngine.Bridge;
 
 namespace Editor.Engine;

@@ -13,6 +13,16 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Engine/src/Shaders.h`（新規） | 線を描く最小のシェーダー（C++） |
+    | `Engine/src/LineRenderer.h`（新規） | 線の描画（宣言） |
+    | `Engine/src/LineRenderer.cpp`（新規） | 線の描画（実装） |
+    | `Engine/src/EditorCamera.h`（新規） | オービット カメラ（宣言） |
+    | `Engine/src/EditorCamera.cpp`（新規） | オービット カメラ（実装） |
+
+
 作業は 3 つあります。エンジンに線を描く仕組み（デバッグ描画）を足すこと、エディタ用のカメラを足すこと、そして WPF の子ウィンドウで受けたマウスとキーをエンジンに送ることです。
 
 ## 入力の意味づけは、エンジンが持つ
@@ -54,7 +64,7 @@ using DirectX::SimpleMath::Matrix;
 
 線を描く最小のシェーダーです。頂点は位置と色だけ、変換は 1 つの行列（ビュー × 射影）だけです。
 
-```cpp title="Engine/src/Shaders.h"
+```cpp title="Engine/src/Shaders.h（新規）"
 #pragma once
 
 namespace mini {
@@ -98,7 +108,7 @@ HLSL は、既定では行列を列優先（`column_major`）で読みます。�
 
 まずヘッダーです。
 
-```cpp title="Engine/src/LineRenderer.h"
+```cpp title="Engine/src/LineRenderer.h（新規）"
 #pragma once
 
 #include <d3d12.h>
@@ -143,7 +153,7 @@ class LineRenderer {
 
 コンストラクターは、ルート シグネチャ、シェーダー、パイプライン、頂点バッファーの順に作ります。
 
-```cpp title="Engine/src/LineRenderer.cpp"
+```cpp title="Engine/src/LineRenderer.cpp（新規）"
 #include "LineRenderer.h"
 
 #include <d3dcompiler.h>
@@ -260,7 +270,7 @@ void LineRenderer::Draw(ID3D12GraphicsCommandList* list, UINT slot, const Direct
 
 エディタの定番のオービット カメラ（注視点の周りを回るカメラ）を作ります。
 
-```cpp title="Engine/src/EditorCamera.h"
+```cpp title="Engine/src/EditorCamera.h（新規）"
 #pragma once
 
 #include <SimpleMath.h>
@@ -293,7 +303,7 @@ class EditorCamera {
 }  // namespace mini
 ```
 
-```cpp title="Engine/src/EditorCamera.cpp"
+```cpp title="Engine/src/EditorCamera.cpp（新規）"
 #include "EditorCamera.h"
 
 #include <algorithm>

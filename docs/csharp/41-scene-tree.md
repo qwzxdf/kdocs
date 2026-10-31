@@ -13,6 +13,24 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Scene/ISelectionService.cs`（新規） | 選択を持つサービスの窓口 |
+    | `Scene/SelectionService.cs`（変更） | 1 つだけ選べる簡易版を、複数選択に作り直す |
+    | `SceneTree/SceneTreeViewModel.cs`（変更） | ダミーの一覧を捨てて、`SceneDocument` を見る |
+    | `SceneTree/SceneTreeView.xaml`（変更） | ツリー（`TreeView`）の画面に作り直す |
+    | `SceneTree/SceneTreeView.xaml.cs`（新規） | ツリーの選択と、ドラッグ アンド ドロップを受ける |
+
+!!! note "第 23〜24 章のダミーからの置き換え"
+    Editor のシーン ツリーは、第 23 章でダミーの物（`SceneObjectViewModel`）を持つ `SceneTreeViewModel` として作り、第 24 章で選択サービス（`SelectionService`）をつなぎました。この章で、次のように置き換えます。
+
+    - `SceneObjectViewModel` は使わなくなります（ファイルは消します）。ツリーは、第 40 章の `SceneDocument.Roots` にある `SceneObject` を、直接見ます。
+    - `SelectionService` は、1 つだけ選べる簡易版から、複数選べる形に作り直します。
+    - `SceneTreeViewModel` と `SceneTreeView.xaml` は、ダミーの一覧を捨てて、`SceneDocument` と `ISelectionService` を受け取る形に書き換えます。
+    - `PropertyViewModel` も選択を読んでいるので、次の章で作り直します。
+
+
 ## ツリーはドキュメントの見た目にすぎない
 
 シーン ツリーの原則は、第 14 章の MVVM と同じです。ツリーは、`SceneDocument.Roots`（`ObservableCollection`）をバインディングで見るだけです。追加や削除はコマンドでドキュメントを変えて、変わったドキュメントを見て、ツリーが自動で更新されます。`TreeViewItem` をコードから直接いじることは、しません。
@@ -29,7 +47,7 @@ tags:
 
 第 24 章では、1 つだけ選べる簡易版（`SceneObjectViewModel` を 1 つ持つ）を書きました。ここで、シーンの物（`SceneObject`）を、複数持てる形に作り直します。
 
-```csharp title="Scene/ISelectionService.cs"
+```csharp title="Scene/ISelectionService.cs（新規）"
 namespace Editor.Scene;
 
 public interface ISelectionService
@@ -49,7 +67,7 @@ public interface ISelectionService
 }
 ```
 
-```csharp title="Scene/SelectionService.cs"
+```csharp title="Scene/SelectionService.cs（変更）"
 using Editor.Viewport;
 
 namespace Editor.Scene;
@@ -164,7 +182,7 @@ public void SceneSetSelection(uint[] ids)
 
 ## ビューモデル
 
-```csharp title="SceneTree/SceneTreeViewModel.cs"
+```csharp title="SceneTree/SceneTreeViewModel.cs（変更）"
 using System.Collections.ObjectModel;
 using System.Numerics;
 using CommunityToolkit.Mvvm.Input;
@@ -251,7 +269,7 @@ public partial class SceneTreeViewModel
 
 まず、ツール バーとツリーの骨組みです。
 
-```xml title="SceneTree/SceneTreeView.xaml"
+```xml title="SceneTree/SceneTreeView.xaml（変更）"
 <UserControl x:Class="Editor.SceneTree.SceneTreeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -343,7 +361,7 @@ public partial class SceneTreeViewModel
 <TreeView x:Name="Tree" ... SelectedItemChanged="OnTreeSelectedItemChanged">
 ```
 
-```csharp title="SceneTree/SceneTreeView.xaml.cs"
+```csharp title="SceneTree/SceneTreeView.xaml.cs（新規）"
 using System.Windows;
 using System.Windows.Controls;
 using Editor.Scene;

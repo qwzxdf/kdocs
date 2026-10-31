@@ -13,8 +13,18 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Engine/src/Scene.h`（新規） | エンジン側の物とシーン（C++） |
+    | `Engine/src/Scene.cpp`（新規） | エンジン側のシーンの実装（C++） |
+    | `Scene/SceneObject.cs`（新規） | エディタが持つ「物」のデータ |
+    | `Scene/SceneDocument.cs`（新規） | 物の集まりと木構造の変更を管理する |
+    | `Engine/SceneEngineSync.cs`（新規） | ドキュメントの変更をエンジンへ送る |
+
+
 !!! note "これまでのダミーのデータは、ここで置き換わる"
-    第 23 章までの Editor のシーン ツリーは、`SceneTreeViewModel` の中に `Camera`、`Cube`、`Light` のダミーを持っていました（`SceneObjectViewModel`）。この章からは、本物のシーンのデータ（`SceneDocument` と `SceneObject`）を作って、エンジンとつなぎます。ツリーとプロパティを、そのデータに結び直すのは第 40・41 章です。
+    第 24 章までの Editor のシーン ツリーは、`SceneTreeViewModel` の中に `Camera`、`Cube`、`Light` のダミーを持っていました（`SceneObjectViewModel`）。この章からは、本物のシーンのデータ（`SceneDocument` と `SceneObject`）を作って、エンジンとつなぎます。ツリーとプロパティを、そのデータに結び直すのは第 41・42 章です。
 
 ## データの持ち主を決める
 
@@ -49,7 +59,7 @@ tags:
 
 まず、物とシーンのクラスです。
 
-```cpp title="Engine/src/Scene.h"
+```cpp title="Engine/src/Scene.h（新規）"
 #pragma once
 
 #include <SimpleMath.h>
@@ -101,7 +111,7 @@ class Scene {
 
 回転はオイラー角（ラジアン）で持ちます。エディタでは扱いやすいからです。補間のような複雑な回転が必要になった段階で、クォータニオンに置き換えます。`LocalMatrix` は親から見た変換で、拡大 → 回転 → 移動の順に組み立てます。`WorldMatrix` はワールド空間での変換で、親のワールド行列を掛けて求めます。
 
-```cpp title="Engine/src/Scene.cpp"
+```cpp title="Engine/src/Scene.cpp（新規）"
 #include "Scene.h"
 
 #include <algorithm>
@@ -316,7 +326,7 @@ MeResult me_scene_set_selection(MeEngine* engine, const uint32_t* ids, uint32_t 
 
 エディタが持つ「物」のデータを作ります。`ObservableObject` を継承して、値が変わったときに画面へ通知できるようにします（第 14 章）。
 
-```csharp title="Scene/SceneObject.cs"
+```csharp title="Scene/SceneObject.cs（新規）"
 using System.Collections.ObjectModel;
 using System.Numerics;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -362,7 +372,7 @@ public partial class SceneObject : ObservableObject
 
 次に、物の集まりと木構造の変更を管理する `SceneDocument` です。
 
-```csharp title="Scene/SceneDocument.cs"
+```csharp title="Scene/SceneDocument.cs（新規）"
 using System.Collections.ObjectModel;
 
 namespace Editor.Scene;
@@ -505,7 +515,7 @@ void SceneSetColor(uint id, Vector4 color);
 
 そして、ドキュメントの変更を拾ってエンジンに送るクラスです。
 
-```csharp title="Engine/SceneEngineSync.cs"
+```csharp title="Engine/SceneEngineSync.cs（新規）"
 using Editor.Scene;
 using Editor.Viewport;
 

@@ -13,6 +13,17 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Engine/Win32.cs`（新規） | 子ウィンドウを作る Win32 関数の宣言 |
+    | `Viewport/ViewportHost.cs`（新規） | エンジンの描画先になる子ウィンドウ（`HwndHost`） |
+    | `Viewport/ViewportView.xaml`（新規） | ビューポートの画面 |
+    | `Viewport/ViewportView.xaml.cs`（新規） | `HwndHost` のイベントをビューモデルへ渡す |
+    | `Viewport/ViewportViewModel.cs`（新規） | ビューポートのビューモデル |
+    | `Viewport/ViewportModule.cs`（新規） | ビューポートをモジュールとして登録する |
+
+
 ## HwndHost がやってくれること
 
 `HwndHost` は、WPF と Win32 の橋渡し役です。WPF の部品としてレイアウトに参加しますが、中身は Win32 のウィンドウです。
@@ -47,7 +58,7 @@ Editor\Engine\Win32.cs          ← Win32 API の宣言
 
 子ウィンドウを作るために、`user32.dll` の関数を P/Invoke で宣言します。
 
-```csharp title="Engine/Win32.cs"
+```csharp title="Engine/Win32.cs（新規）"
 using System.Runtime.InteropServices;
 
 namespace Editor.Engine;
@@ -123,7 +134,7 @@ internal static partial class Win32
 
 まず、イベントの引数と、クラスの骨組みです。
 
-```csharp title="Viewport/ViewportHost.cs"
+```csharp title="Viewport/ViewportHost.cs（新規）"
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
@@ -279,7 +290,7 @@ public sealed class ViewportHost : HwndHost
 
 ビューは、`ViewportHost` を置くだけです。
 
-```xml title="Viewport/ViewportView.xaml"
+```xml title="Viewport/ViewportView.xaml（新規）"
 <UserControl x:Class="Editor.Viewport.ViewportView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -294,7 +305,7 @@ public sealed class ViewportHost : HwndHost
 
 `HwndHost` のイベントは、バインディングでは受けられません。そこで、ビューのコードビハインドで受けて、ビューモデルへ橋渡しします。ビューモデルは、画面を知らず、`HWND` と数値だけを受け取ります。
 
-```csharp title="Viewport/ViewportView.xaml.cs"
+```csharp title="Viewport/ViewportView.xaml.cs（新規）"
 using System.Windows.Controls;
 
 namespace Editor.Viewport;
@@ -318,7 +329,7 @@ public partial class ViewportView : UserControl
 
 コードビハインドにロジックは書いていません。画面の部品のイベントをビューモデルへ渡すだけの用途なら、コードビハインドを使っても問題ありません。
 
-```csharp title="Viewport/ViewportViewModel.cs"
+```csharp title="Viewport/ViewportViewModel.cs（新規）"
 using System.Diagnostics;
 using System.Windows.Media;
 
@@ -401,7 +412,7 @@ public class ViewportViewModel
 
 ## モジュールに登録する
 
-```csharp title="Viewport/ViewportModule.cs"
+```csharp title="Viewport/ViewportModule.cs（新規）"
 using Prism.Ioc;
 using Prism.Modularity;
 using Prism.Navigation.Regions;

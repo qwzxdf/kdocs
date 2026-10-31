@@ -13,6 +13,14 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Engine/src/Picking.h`（新規） | レイと当たり判定（宣言、C++） |
+    | `Engine/src/Picking.cpp`（新規） | レイと当たり判定（実装、C++） |
+    | `Viewport/GizmoController.cs`（新規） | ギズモのドラッグを扱う |
+
+
 ## 画面の 1 点は、3D では 1 本の線
 
 画面の上の 1 点（ピクセル）は、3D の世界では、カメラの目から出て、そのピクセルを通って奥へ伸びる半直線（レイ）に当たります。
@@ -43,7 +51,7 @@ tags:
 
 まず、画面の点からレイを作ります。
 
-```cpp title="Engine/src/Picking.h"
+```cpp title="Engine/src/Picking.h（新規）"
 #pragma once
 
 #include <SimpleMath.h>
@@ -64,7 +72,7 @@ bool IntersectBox(const Ray& ray, const DirectX::SimpleMath::Matrix& world, floa
 }  // namespace mini
 ```
 
-```cpp title="Engine/src/Picking.cpp"
+```cpp title="Engine/src/Picking.cpp（新規）"
 #include "Picking.h"
 
 #include <algorithm>
@@ -324,7 +332,7 @@ void AddGizmo(std::vector<LineVertex>& lines, const Vector3& origin, float lengt
 
 エンジン側の `MakeRay` をそのまま C# に書き直します。ギズモの操作のたびにエンジンへ聞き直すと遅延が出るので、カメラ情報を一度だけ取って、手元で計算します。
 
-```csharp title="Viewport/GizmoController.cs"
+```csharp title="Viewport/GizmoController.cs（新規）"
 using System.Numerics;
 using Editor.Scene;
 

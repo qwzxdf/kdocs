@@ -19,14 +19,12 @@ tags:
 
 エディタ（C# + C++）が動くための条件を整理します。
 
-| 必要な物 | 内容 | 同梱の方法 |
-| --- | --- | --- |
-| .NET ランタイム | `Editor.exe` の実行に必要。8.0 のデスクトップ ランタイム | ①利用者にインストールしてもらう ②アプリに同梱する（自己完結型） |
-| VC++ ランタイム | `Engine.dll` などが依存する（`VCRUNTIME140.dll`、`MSVCP140.dll`） | 再頒布可能パッケージを入れてもらう、または DLL を同梱する |
-| DirectX 12 対応の GPU とドライバー | エンジンの実行 | 動作要件として明記する |
-| Windows のバージョン | Windows 10 以降（64 ビット） | 動作要件 |
-| Graphics Tools | デバッグ レイヤー（Debug のみ） | Release では不要 |
-| エンジンの DLL | `Engine.dll`、`EngineApi.dll`（`Game.dll`） | 同じフォルダーに置く |
+- <strong>.NET ランタイム</strong>: `Editor.exe` の実行に必要です。8.0 のデスクトップ ランタイムを、利用者に入れてもらうか、アプリに同梱します（自己完結型）。
+- <strong>VC++ ランタイム</strong>: `Engine.dll` などが依存します（`VCRUNTIME140.dll`、`MSVCP140.dll`）。再頒布可能パッケージを入れてもらうか、DLL を同梱します。
+- <strong>DirectX 12 対応の GPU とドライバー</strong>: エンジンの実行に必要です。動作要件として README に書きます。
+- <strong>Windows のバージョン</strong>: Windows 10 以降の 64 ビットです。これも動作要件として書きます。
+- <strong>エンジンの DLL</strong>: `Engine.dll` と `EngineApi.dll`（と `Game.dll`）を、`Editor.exe` と同じフォルダーに置きます。
+- Graphics Tools（DX12 のデバッグ レイヤー）は Debug のときだけ要ります。Release の配布物には要りません。
 
 この章のゴールは次のとおりです。
 
@@ -39,41 +37,33 @@ tags:
 
 Debug と Release では、次のような違いがあります。
 
-| 項目 | Debug | Release |
-| --- | --- | --- |
-| 最適化 | なし（`/Od`） | あり（`/O2`） |
-| デバッグ情報 | 完全 | 別ファイル（`.pdb`）に出せる |
-| ランタイム ライブラリ（C++） | `/MDd`（`MSVCP140D.dll`） | `/MD`（`MSVCP140.dll`） |
-| アサート、`_DEBUG` | 有効 | 無効 |
-| DX12 デバッグ レイヤー | 有効 | 無効 |
-| 速度 | 遅い（数倍〜数十倍） | 速い |
-| 配布 | しない（Debug ランタイムが他の PC にない） | する |
+最適化は、Debug がなし（`/Od`）、Release があり（`/O2`）です。そのため、Release は数倍から数十倍速くなります。
+
+デバッグ情報は、Debug が完全な形で持ち、Release は別ファイル（`.pdb`）に出せます。C++ のランタイム ライブラリは、Debug が `/MDd`（`MSVCP140D.dll`）、Release が `/MD`（`MSVCP140.dll`）です。Debug 用のランタイムは他の PC に入っていないので、Debug のビルドは配布できません。
+
+`assert` と `_DEBUG`、DX12 のデバッグ レイヤーは、Debug だけで有効です。Release では無効になります。
 
 Release の設定を確認します。
 
-| プロジェクト | 確認する項目 |
-| --- | --- |
-| C++（Engine、EngineApi、Game、Player） | 構成「Release」、プラットフォーム「x64」。C/C++ → 最適化 = 速度を優先 (`/O2`)。コード生成 → ランタイム ライブラリ = マルチスレッド DLL (`/MD`) |
-| C#（Editor） | 構成「Release」。`Optimize` = true（Release の既定） |
-| 全体 | `Directory.Build.props` の出力先が `bin\x64\Release\` になる（第 1 章） |
+確認する場所は 3 つです。
+
+1. C++ のプロジェクト（Engine、EngineApi、Game、Player）は、構成を「Release」、プラットフォームを「x64」にします。C/C++ の最適化は「速度を優先」（`/O2`）、コード生成のランタイム ライブラリは「マルチスレッド DLL」（`/MD`）です。
+2. C# のプロジェクト（Editor）は、構成を「Release」にします。`Optimize` は true で、Release の既定です。
+3. 全体としては、`Directory.Build.props` の出力先が `bin\x64\Release\` になることを確かめます（第 1 章）。
 
 Release でも `pdb` を作る設定にしておくと、クラッシュ ダンプ（第 50 章）が読めます。
 
-| 設定 | 値 |
-| --- | --- |
-| C/C++ → 全般 → デバッグ情報の形式 | プログラム データベース (`/Zi`) |
-| リンカー → デバッグ → デバッグ情報の生成 | はい (`/DEBUG`) |
-| リンカー → 最適化 | 参照されていないデータを除外 (`/OPT:REF`)、COMDAT 折りたたみ (`/OPT:ICF`) |
+- C/C++ → 全般 → デバッグ情報の形式 を、「プログラム データベース」（`/Zi`）にします。
+- リンカー → デバッグ → デバッグ情報の生成 を、「はい」（`/DEBUG`）にします。
+- リンカー → 最適化 で、参照されていないデータの除外（`/OPT:REF`）と、COMDAT 折りたたみ（`/OPT:ICF`）を指定します。
 
 Debug では動いて、Release では動かない、ということがあります。よくある原因です。
 
-| 症状 | 原因 |
-| --- | --- |
-| Release だけクラッシュする | 初期化されていない変数（Debug では 0 で初期化される場合がある）、未定義動作が最適化で表面化 |
-| Release だけ、値がずれる | 浮動小数の計算順序（`/fp:fast`）、構造体のパディング |
-| Release のデバッグで、変数が見えない | 最適化で消えた。その場合は `/Od` を一時的に付ける |
-| `assert` に頼ったエラー検査が消えた | Release では `assert` が無効。必須の検査は `if` で書く |
-| C# の `Debug.Assert`、`#if DEBUG` の中の処理 | Release では無効 |
+Release だけクラッシュするときは、初期化されていない変数（Debug では 0 で初期化されることがあります）や、最適化で表に出た未定義動作を疑います。Release だけ値がずれるときは、浮動小数の計算順序（`/fp:fast`）や、構造体のパディングが原因になりやすいです。
+
+Release のデバッグで変数が見えないのは、最適化で消えたためです。その場合は、一時的に `/Od` を付けます。
+
+`assert` に頼ったエラー検査は、Release では消えます。必須の検査は `if` で書きます。C# の `Debug.Assert` や、`#if DEBUG` の中の処理も、Release では動きません。
 
 Release でも、定期的に動かす習慣をつけます。最後にまとめて試すと、原因の特定が大変です。
 
@@ -136,10 +126,9 @@ Write-Host "作成しました: $out.zip"
 
 `Editor.exe` を動かすための .NET を同梱するかどうかを選びます。
 
-| 方式 | 内容 | 長所 | 短所 |
-| --- | --- | --- | --- |
-| フレームワーク依存 | 利用者の PC に、.NET 8 デスクトップ ランタイムを入れてもらう | 配布が小さい（数 MB）。ランタイムの更新が OS で行われる | 利用者が先にインストールする必要がある |
-| 自己完結型 | .NET のランタイムも一緒にフォルダーに入れる | 何も入れなくても動く | 大きい（約 70〜150 MB）。ランタイムの更新はアプリごと |
+<strong>フレームワーク依存</strong>は、利用者の PC に .NET 8 デスクトップ ランタイムを入れてもらう方式です。配布物が数 MB と小さく、ランタイムの更新が OS 側で行われます。ただし、利用者が先にインストールしなければなりません。
+
+<strong>自己完結型</strong>は、.NET のランタイムも一緒にフォルダーへ入れる方式です。何も入れなくても動きますが、約 70〜150 MB と大きくなり、ランタイムの更新もアプリごとに必要です。
 
 ```bash
 # フレームワーク依存（既定）
@@ -159,11 +148,11 @@ dotnet publish Editor/Editor.csproj -c Release -r win-x64 --self-contained true 
 
 `Engine.dll` などは `/MD` でビルドしているので、`VCRUNTIME140.dll` と `MSVCP140.dll` に依存します。
 
-| 方法 | 内容 |
-| --- | --- |
-| 再頒布可能パッケージを案内する | 「Microsoft Visual C++ 再頒布可能パッケージ（x64）を入れてください」と README に書く。多くの PC で、すでに入っている |
-| アプリ ローカルで同梱 | `VCRUNTIME140.dll`、`MSVCP140.dll`、`VCRUNTIME140_1.dll` を `Editor.exe` の隣にコピーする。ライセンス上、再頒布が許可されている |
-| 静的にリンクする（`/MT`） | ランタイムを DLL に埋め込む。ただし `Engine.dll` と `Game.dll` の間で CRT が別々になり、メモリの受け渡しが危険になる。この教材の構成では避ける |
+選び方は 3 通りあります。
+
+- <strong>再頒布可能パッケージを案内する</strong>: 「Microsoft Visual C++ 再頒布可能パッケージ（x64）を入れてください」と README に書きます。多くの PC では、すでに入っています。
+- <strong>アプリ ローカルで同梱する</strong>: `VCRUNTIME140.dll`、`MSVCP140.dll`、`VCRUNTIME140_1.dll` を `Editor.exe` の隣にコピーします。ライセンス上、再頒布が許可されています。
+- <strong>静的にリンクする（`/MT`）</strong>: ランタイムを DLL に埋め込みます。ただし、`Engine.dll` と `Game.dll` の間で CRT が別々になり、メモリの受け渡しが危険になります。この教材の構成では避けます。
 
 ## コマンドラインでビルドする
 
@@ -411,12 +400,9 @@ public class SceneDocumentTests
 
 テストしやすい所と、しにくい所があります。
 
-| テストしやすい（純粋なロジック） | テストしにくい（外部に依存） |
-| --- | --- |
-| 履歴、スナップショット、コマンド | `HwndHost`、ウィンドウ、描画 |
-| `SceneDocument`、シリアライザー | ネイティブのエンジン（DLL）の呼び出し |
-| ビューモデル（サービスをフェイクにして） | `FileSystemWatcher`、実際のファイル |
-| 数学（`MakeRay`、`ClosestOnAxis`） | GPU の動作、見た目 |
+テストしやすいのは、純粋なロジックの部分です。履歴・スナップショット・コマンド、`SceneDocument` とシリアライザー、サービスをフェイクに替えたビューモデル、数学（`MakeRay`、`ClosestOnAxis`）がそうです。
+
+テストしにくいのは、外部に依存する部分です。`HwndHost`・ウィンドウ・描画、ネイティブのエンジン（DLL）の呼び出し、`FileSystemWatcher` と実際のファイル、GPU の動作と見た目が、これにあたります。
 
 見た目や GPU は、スクリーンショット比較や目視で確かめます。ロジックをできるだけ純粋な部分に寄せることが、テストしやすい設計の鍵です。C++ 側（`Scene`、`Picking`）にも、同じ考えで、GoogleTest や Catch2 などの単体テストを書けます。
 
@@ -424,12 +410,12 @@ public class SceneDocumentTests
 
 配布すると、古いエディタと新しいエンジンの組み合わせが生まれます。版を確認する場所を決めておきます。
 
-| 確認すること | 方法 |
-| --- | --- |
-| C# と C++ の API の版 | 起動時に `me_get_api_version()` と、C# 側が期待する版を比べる。違えば、エラーを出して起動を中止する |
-| ゲーム DLL の版 | 第 47 章の `kGameApiVersion` |
-| シーン ファイルの版 | 第 45 章の `version` |
-| アプリの版 | `Editor.csproj` の `<Version>1.0.0</Version>`。メニューの「バージョン情報」とクラッシュ レポートに出す |
+版を確かめる場所は 4 つです。
+
+- <strong>C# と C++ の API の版</strong>は、起動時に `me_get_api_version()` と、C# 側が期待する版を比べます。違えば、エラーを出して起動を中止します。
+- <strong>ゲーム DLL の版</strong>は、第 47 章の `kGameApiVersion` で確かめます。
+- <strong>シーン ファイルの版</strong>は、第 45 章の `version` で確かめます。
+- <strong>アプリの版</strong>は、`Editor.csproj` の `<Version>1.0.0</Version>` に書きます。メニューの「バージョン情報」とクラッシュ レポートに出します。
 
 ```csharp
 // App.OnInitialized の最初
@@ -446,13 +432,13 @@ if (actual != ExpectedApiVersion)
 
 ## 動かして確かめる
 
-| 操作 | 期待する結果 |
-| --- | --- |
-| `msbuild … Release x64` | エラーなしで、`bin\x64\Release\` に一式ができる |
-| `tools\package.ps1 -Version 1.0.0` | `dist\MiniEngine-1.0.0.zip` ができる。`.pdb` や `.lib` が入っていない |
-| 別の PC（または Windows Sandbox）に zip を展開して `Editor.exe` | 起動する（必要なランタイムが入っていれば） |
-| `dotnet test` | すべて合格 |
-| DLL を 1 つ消して起動 | 「見つからない」旨のエラー（`DllNotFoundException` ではなく、分かりやすいメッセージ） |
+次の順に確かめます。
+
+1. `msbuild … Release x64` を実行します。エラーなしで、`bin\x64\Release\` に一式ができます。
+2. `tools\package.ps1 -Version 1.0.0` を実行します。`dist\MiniEngine-1.0.0.zip` ができ、`.pdb` や `.lib` は入っていません。
+3. 別の PC（または Windows Sandbox）に zip を展開して、`Editor.exe` を起動します。必要なランタイムが入っていれば、起動します。
+4. `dotnet test` を実行します。すべて合格します。
+5. DLL を 1 つ消して起動します。`DllNotFoundException` ではなく、「見つからない」旨の分かりやすいメッセージが出ます。
 
 Windows Sandbox（Windows の機能の 1 つ）を使うと、まっさらな Windows で、配布物が動くかを手軽に確かめられます。
 

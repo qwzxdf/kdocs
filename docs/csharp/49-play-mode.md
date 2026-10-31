@@ -13,6 +13,13 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Play/IPlayModeService.cs`（新規） | Play モードの状態を持つ窓口 |
+    | `Play/PlayModeService.cs`（新規） | Play / Pause / Stop の状態遷移 |
+
+
 ## Play でシーンはどうなるのか
 
 ゲームを動かすと、物の位置や色が変わります（たとえば `SpinnerGame` が物を回します）。Stop したときに、動かす前の状態に戻っていなければ、エディタとして使えません。ゲームを遊んだせいで、置いた物の向きが変わってしまうからです。
@@ -160,7 +167,7 @@ public sealed class SceneEngineSync
 
 エディタ側の、状態の持ち主です。
 
-```csharp title="Play/IPlayModeService.cs"
+```csharp title="Play/IPlayModeService.cs（新規）"
 namespace Editor.Play;
 
 public enum PlayState { Edit = 0, Playing = 1, Paused = 2 }
@@ -180,7 +187,7 @@ public interface IPlayModeService
 }
 ```
 
-```csharp title="Play/PlayModeService.cs"
+```csharp title="Play/PlayModeService.cs（新規）"
 using System.Windows.Threading;
 using Editor.Engine;
 using Editor.Log;

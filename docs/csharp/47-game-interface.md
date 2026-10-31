@@ -13,6 +13,17 @@ tags:
     - [C# 連携](index.md)（このセクション全体の地図と、読む順番）
 
 
+!!! abstract "この章で Editor に足すもの"
+    | ファイル | 内容 |
+    | --- | --- |
+    | `Engine/include/Engine/Game.h`（新規） | エンジンとゲームのインターフェース（C++） |
+    | `Game/src/GameExports.cpp`（新規） | Game.dll が export する関数（C++） |
+    | `Game/src/SpinnerGame.h`（新規） | ゲームの本体（C++） |
+    | `Engine/src/GameHost.h`（新規） | ゲームから呼ばれる窓口の実体（C++） |
+    | `Engine/src/GameModule.h`（新規） | DLL の読み込みと破棄（宣言、C++） |
+    | `Engine/src/GameModule.cpp`（新規） | DLL の読み込みと破棄（実装、C++） |
+
+
 ## なぜ、ゲームを別の DLL にするのか
 
 ゲームのコードは、頻繁に書き換わる部分です。エンジンの中核（描画、シーン、アセット）は、めったに変わりません。同じ DLL に入れてしまうと、ゲームのコードを 1 行変えるたびに、エンジンごとビルドし直して、エディタを再起動することになります。
@@ -57,7 +68,7 @@ B は A と C の中間です。境界に出すのは、「仮想関数だけを
 
 2 つのインターフェースを `Engine/include/Engine/Game.h` に書きます。まず、エンジンがゲームに提供する窓口 `IGameHost` です。
 
-```cpp title="Engine/include/Engine/Game.h"
+```cpp title="Engine/include/Engine/Game.h（新規）"
 #pragma once
 
 #include <cstdint>
@@ -148,7 +159,7 @@ using DestroyGameFn = void (*)(mini::IGameModule*);
 
 まず、export する 3 つの関数です。
 
-```cpp title="Game/src/GameExports.cpp"
+```cpp title="Game/src/GameExports.cpp（新規）"
 #include "Engine/Game.h"
 
 #include "SpinnerGame.h"
@@ -172,7 +183,7 @@ GAME_API void DestroyGame(mini::IGameModule* game) {
 
 次がゲームの本体です。「名前が `Spin` で始まる物を Y 軸まわりに回し続ける」ゲームを作ります。
 
-```cpp title="Game/src/SpinnerGame.h"
+```cpp title="Game/src/SpinnerGame.h（新規）"
 #pragma once
 
 #include <cstdint>
@@ -250,7 +261,7 @@ class SpinnerGame final : public mini::IGameModule {
 
 ゲームから呼ばれる窓口の実体をエンジンの側に作ります。`Scene` とログへの橋渡しです。
 
-```cpp title="Engine/src/GameHost.h"
+```cpp title="Engine/src/GameHost.h（新規）"
 #pragma once
 
 #include "Engine/Game.h"
@@ -343,7 +354,7 @@ bool GameHost::SetTransform(ObjectId id, const float p[3], const float r[3], con
 
 DLL の読み込みと破棄を `GameLibrary` というクラスにまとめます。
 
-```cpp title="Engine/src/GameModule.h"
+```cpp title="Engine/src/GameModule.h（新規）"
 #pragma once
 
 #include <windows.h>
@@ -378,7 +389,7 @@ class GameLibrary {
 }  // namespace mini
 ```
 
-```cpp title="Engine/src/GameModule.cpp"
+```cpp title="Engine/src/GameModule.cpp（新規）"
 #include "GameModule.h"
 
 #include "Engine/Log.h"
