@@ -14,12 +14,13 @@ tags:
 `#include <atomic>`
 </div>
 
-`atomic_wait` で待っているスレッドが複数いるとき、そのうち 1 つを起こします。値を変えたあとに呼びます。
+`atomic_wait` で眠っているスレッドを起こすのが、`atomic_notify_one(&a)` です。待っているスレッドのうち、1 つだけを起こします。値を変えたあとに呼びます。
 
 !!! tip "ポイント"
-    - `std::atomic` のメンバ関数と同じ働きの、自由関数版。
-    - ふつうはメンバ関数のほうが読みやすい。
-    - C 言語との互換のためにある。
+    - `atomic_wait` で眠っているスレッドのうち、1 つを起こす
+    - 値を変えてから呼ぶ。順序を逆にすると、起きたときに値がまだ古い
+    - 誰も待っていなければ、何も起きない
+    - 複数のスレッドを起こすなら `atomic_notify_all`
 
 !!! info "このページを読む前に"
     [`std::atomic`](atomic.md) を先に読んでください。
@@ -28,65 +29,64 @@ tags:
 
 ### std::atomic_notify_one {#atomic_notify_one}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class T>
 void atomic_notify_one(std::atomic<T>* obj) noexcept;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `obj` | atomic<T>* | 対象 |
+どのスレッドが起きるかは、規定されていません。1 つのタスクを 1 つのワーカーに渡す設計に向きます。
 
-- 戻り値: なし
-- 計算量: 定数（アトミック命令）
+通知を取りこぼさない手順は、(1) 値を変える、(2) 通知する、の順です。待つ側は、値が変わったかを見てから眠るため、この順なら、取りこぼしが起きません。
 
+誰も待っていないときの呼び出しは、安価な実装になっています。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <atomic>
 #include <print>
+#include <thread>
 
 int main() {
-  std::atomic<int> a{0};
-  a.store(1);
-  std::atomic_notify_one(&a);
-  std::println("notified");
+  std::atomic<int> tasks{0};
+
+  std::thread worker([&] {
+    std::atomic_wait(&tasks, 0);  // 仕事が来るまで眠る
+    std::println("仕事 {} 件を受け取った", tasks.load());
+  });
+
+  tasks.store(3);                   // 先に値を変える
+  std::atomic_notify_one(&tasks);   // 次に通知する
+  worker.join();
 }
 ```
 
 ```text title="実行結果"
-notified
+仕事 3 件を受け取った
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 待機中のスレッドを 1 つ起こす |
+ジョブ キューに仕事を足したとき、待っているワーカーを 1 つだけ起こします。
 
 ## よくあるミス
 
-??? failure "値を変えずに通知する"
-    値を変えてから通知します。変えないと、起きても再び眠ります。
+??? failure "通知を先にして、値を後で変える"
+    起きたワーカーが、古い値を見て、また眠ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`atomic_wait`](atomic_wait.md) | 待つ |
-| [`atomic_notify_all`](atomic_notify_all.md) | 全部起こす |
+| [`atomic_notify_all`](atomic_notify_all.md) | 全員を起こす |
+| [`atomic_wait`](atomic_wait.md) | 待つ側 |
+| [`condition_variable`](condition_variable.md) | 条件変数 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] atomic_wait で待っているスレッドを 1 つ起こす
-    - [x] `std::atomic` のメンバ関数と同じ働きの、自由関数版
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

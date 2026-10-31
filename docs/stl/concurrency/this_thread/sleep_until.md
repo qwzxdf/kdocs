@@ -15,31 +15,44 @@ tags:
 `#include <thread>`
 </div>
 
-`std::this_thread::sleep_until` は、**今のスレッドを指定した時刻まで止める**関数です。「次のフレームの開始時刻まで待つ」のように、**期限が決まっている**待ち方に向いています。時間の長さで指定する [`sleep_for`](sleep_for.md) と違い、処理にかかった時間のぶれが積み重なりません。
+`sleep_for` は、「いまから何秒眠る」ですが、`sleep_until` は、「何時何分何秒まで眠る」と、時刻を指定します。フレームの更新を、一定の間隔で正確に行うとき、前回の目標時刻に間隔を足していく書き方に向いています。
 
 !!! tip "ポイント"
-    - 時刻は `steady_clock::time_point` で指定する。
-    - 一定の間隔で処理をするなら、「前回の予定時刻 + 間隔」を渡すと、ずれが溜まらない。
-    - 指定時刻を過ぎていれば、すぐ戻る。
+    - 指定した時刻まで、現在のスレッドを眠らせる
+    - 時計は `steady_clock` を使うのが安全（巻き戻らない）
+    - 時刻がすでに過ぎていれば、すぐ戻る
+    - 眠りは、指定した時刻より遅れて起きることがある
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../../basics/concurrency.md) を先に読んでください。
+    [`std::thread`](../thread.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::this_thread::sleep_until {#sleep_until}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 template <class Clock, class Duration>
-void sleep_until(const std::chrono::time_point<Clock, Duration>& time);
+void sleep_until(const std::chrono::time_point<Clock, Duration>& sleep_time);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `time` | `time_point` | 再開する時刻 |
+`sleep_for(間隔)` を毎フレーム呼ぶと、処理にかかった時間のぶん、周期が延びていきます。`sleep_until` なら、「次の目標時刻」を、前回の目標時刻に間隔を足して求めるので、処理時間のばらつきがあっても、周期が一定に保たれます。
 
-- 戻り値: なし
-- 計算量: 指定時刻まで
+```cpp
+auto next = steady_clock::now();
+while (running) {
+  next += 16ms;               // 目標時刻を進める
+  Update();
+  std::this_thread::sleep_until(next);
+}
+```
+
+システムの時計（`system_clock`）を指定すると、時刻の調整で、眠る時間が変わります。`steady_clock` を使います。
+
+実際に起きる時刻は、OS のタイマーの精度に依存します。Windows では、既定で 15 ミリ秒ほどの粗さがあります。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <chrono>
@@ -48,45 +61,47 @@ void sleep_until(const std::chrono::time_point<Clock, Duration>& time);
 
 int main() {
   using namespace std::chrono_literals;
+  using Clock = std::chrono::steady_clock;
 
-  auto wake = std::chrono::steady_clock::now() + 10ms;
-  std::this_thread::sleep_until(wake);
-  std::println("起きた: {}", std::chrono::steady_clock::now() >= wake);
+  const auto target = Clock::now() + 20ms;
+  std::this_thread::sleep_until(target);
+  std::println("目標時刻以降に起きた: {}", Clock::now() >= target);
+
+  // 過ぎた時刻なら、すぐ戻る
+  const auto before = Clock::now();
+  std::this_thread::sleep_until(before - 1s);
+  std::println("すぐ戻った: {}", Clock::now() - before < 500ms);
 }
 ```
 
 ```text title="実行結果"
-起きた: true
+目標時刻以降に起きた: true
+すぐ戻った: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 一定周期（例: 10ms ごと）で処理するスレッド | `next += 10ms; sleep_until(next);` |
+固定の更新レート（60 回/秒）で動くゲーム ループの、フレーム間の待ちに使います。
 
 ## よくあるミス
 
-??? failure "system_clock の時刻で指定する"
-    時刻を変更されると待ち時間が狂います。`steady_clock` で指定します。
+??? failure "system_clock を使う"
+    時刻の調整で、眠る長さが変わります。`steady_clock` にします。
+
+??? failure "起きる時刻が正確だと思う"
+    OS の精度の分だけ、遅れます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::this_thread::sleep_for`](sleep_for.md) | 時間の長さで指定 |
-| [`std::chrono::steady_clock`](../../utilities/chrono/steady_clock.md) | time_point の元 |
+| [`sleep_for`](sleep_for.md) | 時間を指定して眠る |
+| [`yield`](yield.md) | CPU を譲る |
+| [`steady_clock`](../../utilities/chrono/steady_clock.md) | 巻き戻らない時計 |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 時刻まで止める
-    - [x] 一定周期の処理に向く
-    - [x] `steady_clock` で指定
 
 ## 関連ページ
 

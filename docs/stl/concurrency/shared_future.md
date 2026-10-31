@@ -15,123 +15,91 @@ tags:
 `#include <future>`
 </div>
 
-`std::shared_future` は、**同じ結果を複数のスレッド・場所から受け取れる `future`** です。普通の `std::future` は `get()` を一度しか呼べませんが、`shared_future` は何度でも、何人でも `get()` できます。「ロードが終わったら、全員が結果を使う」という場面に向きます。
+`std::future` の `get()` は、1 回しか呼べず、結果を取り出すと空になります。複数のスレッドが、同じ結果を待ち、それぞれ読みたいなら、コピーできて、何度でも `get()` できる `std::shared_future` を使います。`future::share()` で作れます。
 
 !!! tip "ポイント"
-    - `std::future` から `.share()` で作る。
-    - `get()` は const 参照を返す。何度呼んでもよい。
-    - コピーできる。各スレッドにコピーを渡す。
+    - コピーできる。複数のスレッドが、それぞれ持てる
+    - `get()` を何度でも呼べ、結果は const 参照で返る
+    - `future::share()` で作る
+    - 結果が出るまで、全員が待つ
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`std::future`](future.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::shared_future {#shared_future}
 
-```cpp
-template <class T>
-class shared_future;
-```
-
-- コピーでき、複数の場所から `get()` できる future。`future.share()` で作ります
-
-### get {#get}
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-const T& get() const;
+template <class T> class shared_future {
+ public:
+  shared_future(const shared_future&);
+  const T& get() const;
+  void wait() const;
+  template <class Rep, class Period>
+  std::future_status wait_for(const std::chrono::duration<Rep, Period>&) const;
+};
 ```
 
-- 計算量: 結果が出るまで待つ
+`get()` は、`std::future` と違い `const T&` を返します。値を移動して取り出せないので、複数のスレッドが同じ値を読めます。
 
-結果への参照を返します。結果が出るまで待ち、**何回呼んでも**同じ結果を返します（`future::get` は 1 回だけ）。
+各スレッドは、自分のコピーを持ちます。1 つのオブジェクトを複数のスレッドから同時に触るのではなく、スレッドごとにコピーして使うのが、安全な使い方です。同じ `shared_future` オブジェクトを複数のスレッドが同時に触ると、データ競合です。
 
-### valid {#valid}
-
-```cpp
-bool valid() const noexcept;
-```
-
-- 計算量: 定数
-
-結果を受け取れる状態なら `true`。
-
-### wait {#wait}
-
-```cpp
-void wait() const;
-```
-
-- 計算量: 結果が出るまで待つ
-
-結果が出るまで待ちます。
-
-### wait_for {#wait_for}
-
-```cpp
-template <class Rep, class Period>
-future_status wait_for(const std::chrono::duration<Rep, Period>& rel_time) const;
-```
-
-- 計算量: 最大で指定時間
-
-指定した時間まで、結果が出るのを待ちます。
-
-### wait_until {#wait_until}
-
-```cpp
-template <class Clock, class Duration>
-future_status wait_until(const std::chrono::time_point<Clock, Duration>& abs_time) const;
-```
-
-- 計算量: 最大で指定時刻まで
-
-指定した時刻まで、結果が出るのを待ちます。
+`std::promise` の `get_future().share()` で作るのが定番です。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <future>
 #include <print>
+#include <thread>
 
 int main() {
-  std::shared_future<int> sf = std::async(std::launch::async, [] { return 5; }).share();
-  std::println("{} {}", sf.get(), sf.get());   // 何度でも受け取れる
+  std::promise<int> p;
+  std::shared_future<int> sf = p.get_future().share();
+
+  int r1 = 0;
+  int r2 = 0;
+  // それぞれのスレッドが、自分のコピーを持つ
+  std::thread t1([sf, &r1] { r1 = sf.get(); });
+  std::thread t2([sf, &r2] { r2 = sf.get(); });
+
+  p.set_value(42);
+  t1.join();
+  t2.join();
+
+  std::println("{} {}", r1, r2);
+  std::println("何度でも読める: {} {}", sf.get(), sf.get());
 }
 ```
 
 ```text title="実行結果"
-5 5
+42 42
+何度でも読める: 42 42
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 1 つのロード結果を描画・物理・AI の全スレッドで使う | `std::shared_future<Assets> assets = loader.share();` |
+読み込み完了を、複数のシステム（描画、音、AI）が待つとき、1 つの結果を共有します。
 
 ## よくあるミス
 
-??? failure "結果を書き換えようとする"
-    `get()` が返すのは const 参照です。書き換えるなら、自分でコピーします。
+??? failure "同じオブジェクトを複数のスレッドで触る"
+    データ競合です。スレッドごとにコピーします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::future`](future.md) | 1 回しか受け取れない |
-| [`std::promise`](promise.md) | 結果を渡す側 |
+| [`future`](future.md) | 1 回しか読めない |
+| [`promise`](promise.md) | 値を設定する |
+| [`latch`](latch.md) | 回数の合図 |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 同じ結果を何人でも受け取れる
-    - [x] `future.share()` で作る
-    - [x] コピーできる
 
 ## 関連ページ
 

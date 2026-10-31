@@ -14,27 +14,32 @@ tags:
 `#include <condition_variable>`
 </div>
 
-`cv.wait_for(lk, 時間)` は、通知を受けて起きた場合と、時間切れで起きた場合のどちらもあります。どちらだったかを `cv_status::no_timeout`（通知）か `cv_status::timeout`（時間切れ）で返します。述語つきの版は `bool` を返します。
+`condition_variable::wait_for` や `wait_until` は、時間切れになるか、通知で起きるかのどちらかで戻ります。どちらで戻ったかを知らせる列挙型が `std::cv_status` で、`no_timeout`（通知で起きた）と `timeout`（時間切れ）の 2 つの値があります。
 
 !!! tip "ポイント"
-    - `wait_for` / `wait_until` の戻り値（述語なしの版）。
-    - `timeout` と `no_timeout` の 2 つ。
-    - 偽の起床（spurious wakeup）で `no_timeout` が返ることがある。
+    - `wait_for` / `wait_until`（述語なし）の戻り値
+    - `std::cv_status::timeout` は時間切れ、`no_timeout` は通知
+    - 偽の目覚めでも `no_timeout` になりうる
+    - 述語つきの版は、`bool` を返す
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`std::mutex`](mutex.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::cv_status {#cv_status}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 enum class cv_status { no_timeout, timeout };
 ```
 
-- 戻り値: なし（列挙型）
-- 計算量: なし
+述語なしの `wait_for(lock, 10ms)` は、`cv_status` を返します。ただし、`no_timeout` でも、条件が成立しているとは限りません。偽の目覚め（通知がないのに起きる）があるからです。
 
+そのため、条件を確かめるには、述語つきの `wait_for(lock, 10ms, pred)` を使います。この版の戻り値は `bool` で、`pred` が真になって抜けたら `true`、時間切れで `pred` が偽のままなら `false` です。
+
+述語なしの版を使うときは、戻ったあとで自分で条件を確かめ、必要なら待ち直します。
 
 ## 実際に動かしてみる
 
@@ -48,42 +53,44 @@ int main() {
   using namespace std::chrono_literals;
   std::mutex m;
   std::condition_variable cv;
-  std::unique_lock lk(m);
-  std::println("{}", cv.wait_for(lk, 10ms) == std::cv_status::timeout);
+
+  std::unique_lock<std::mutex> lock(m);
+
+  // 誰も通知しないので、時間切れ
+  const std::cv_status s = cv.wait_for(lock, 10ms);
+  std::println("時間切れ: {}", s == std::cv_status::timeout);
+
+  // 述語つきは bool を返す
+  const bool ok = cv.wait_for(lock, 10ms, [] { return false; });
+  std::println("条件が成立: {}", ok);
 }
 ```
 
 ```text title="実行結果"
-true
+時間切れ: true
+条件が成立: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 通知を待つが、一定時間でなだめる | `if (cv.wait_for(lk, 100ms) == std::cv_status::timeout) { ... }` |
+一定時間だけ待って、来なければ他の処理に移る、タイムアウトつきの待ち合わせに使います。
 
 ## よくあるミス
 
-??? failure "`no_timeout` なら条件が成立したと思う"
-    偽の起床でも `no_timeout` が返ります。条件は述語で確かめます。
+??? failure "no_timeout を、条件の成立と思う"
+    偽の目覚めがあります。条件を確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`condition_variable`](condition_variable.md) | 条件変数 |
+| [`condition_variable`](condition_variable.md) | `wait_for` を持つ |
+| [`future_status`](future_status.md) | `future` の同様の列挙型 |
+| [`condition_variable_any`](condition_variable_any.md) | 任意のロック型 |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 待機の結果を表す列挙型
-    - [x] timeout / no_timeout
-    - [x] 偽の起床に注意
 
 ## 関連ページ
 

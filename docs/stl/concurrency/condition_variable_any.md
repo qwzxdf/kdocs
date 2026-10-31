@@ -15,25 +15,40 @@ tags:
 `#include <condition_variable>`
 </div>
 
-`std::condition_variable_any` は、[`std::condition_variable`](condition_variable.md) と同じ「条件が満たされるまで待つ」道具ですが、**`std::unique_lock<std::mutex>` 以外の鍵（`shared_lock`、自作の鍵）とも組み合わせられます**。そのぶん少し重いので、`std::mutex` と使うなら普通の `condition_variable` を使います。C++20 では、`stop_token` を渡して、停止の合図で待ちをやめることもできます。
+`std::condition_variable` は、`std::unique_lock<std::mutex>` でしか待てません。`std::condition_variable_any` は、`lock()` と `unlock()` を持つものなら何でも使えます。共有ロック（`shared_lock`）や、自作のロック型でも待てます。C++20 では、`stop_token` による中断にも対応しています。
 
 !!! tip "ポイント"
-    - 普通は `condition_variable` で足りる。
-    - `shared_mutex` の `shared_lock` と組み合わせたいときなどに使う。
-    - C++20 の `wait(lock, stop_token, 条件)` で、停止の合図に応じて待ちを抜けられる。
+    - `lock` / `unlock` を持つ、任意のロック型で待てる
+    - `std::condition_variable` より少し遅い
+    - `stop_token` を渡して、待ちを中断できる（C++20）
+    - 通常の `std::mutex` なら `condition_variable` を使う
 
 !!! info "このページを読む前に"
-    [`std::condition_variable`](condition_variable.md) を先に読んでください。
+    [`std::mutex`](mutex.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::condition_variable_any {#condition_variable_any}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-class condition_variable_any;
+class condition_variable_any {
+ public:
+  void notify_one() noexcept;
+  void notify_all() noexcept;
+  template <class Lock> void wait(Lock& lock);
+  template <class Lock, class Pred> void wait(Lock& lock, Pred pred);
+  template <class Lock, class Pred>
+  bool wait(Lock& lock, std::stop_token st, Pred pred);          // C++20
+};
 ```
 
-- `std::unique_lock<std::mutex>` 以外のロックでも使える版。C++20 では `std::stop_token` を渡して「止める合図が来たら起きる」こともできます
+`wait` はロックを解放して眠り、起きたらロックを取り直します。この解放と取り直しを、渡された `Lock` の `unlock()` / `lock()` で行います。
+
+C++20 の `stop_token` つきの `wait` は、`jthread` と組み合わせて、スレッドの終了要求で待ちを抜ける、という使い方に向いています。戻り値は、`pred` が真になって抜けたかです。
+
+`std::condition_variable` は、`std::mutex` の `unique_lock` 専用に最適化されているため、`std::mutex` だけで足りるなら、そちらが速くなります。
 
 ## 実際に動かしてみる
 
@@ -41,61 +56,52 @@ class condition_variable_any;
 #include <condition_variable>
 #include <mutex>
 #include <print>
-#include <shared_mutex>
 #include <thread>
 
 int main() {
-  std::shared_mutex m;
+  std::mutex m;
   std::condition_variable_any cv;
   bool ready = false;
 
-  std::thread t([&] {
-    std::unique_lock lock(m);
-    ready = true;
-    cv.notify_one();
+  std::thread waiter([&] {
+    std::unique_lock<std::mutex> lock(m);
+    cv.wait(lock, [&] { return ready; });  // 条件が成り立つまで待つ
+    std::println("起きた");
   });
 
   {
-    std::unique_lock lock(m);
-    cv.wait(lock, [&] { return ready; });  // shared_mutex の unique_lock でも待てる
+    std::lock_guard<std::mutex> g(m);
+    ready = true;
   }
-  t.join();
-  std::println("ready");
+  cv.notify_one();
+  waiter.join();
 }
 ```
 
 ```text title="実行結果"
-ready
+起きた
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| `jthread` のワーカーを停止の合図で起こして終了させる | `cv.wait(lock, stop_token, 条件)` |
+`stop_token` で終了要求を受けながら待つワーカー スレッドで使います。
 
 ## よくあるミス
 
-??? failure "condition_variable で足りるのに使う"
-    `std::mutex` と使うなら、普通の `condition_variable` のほうが軽いです。
+??? failure "通知を先にして、条件を後で変える"
+    起きたスレッドが条件を見て、また眠ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::condition_variable`](condition_variable.md) | `unique_lock<mutex>` 専用で軽い |
-| [`std::stop_token`](stop_token.md) | 停止の合図 |
+| [`condition_variable`](condition_variable.md) | `std::mutex` 専用の速い版 |
+| [`jthread`](jthread.md) | `stop_token` と組み合わせる |
+| [`shared_lock`](shared_lock.md) | 待てるロック型の例 |
 
 ## コンパイラ対応
 
-C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] どんな鍵とも使える条件変数
-    - [x] 少し重い
-    - [x] C++20 で `stop_token` に対応
+C++11 から使えます。`stop_token` つきは C++20 から。
 
 ## 関連ページ
 

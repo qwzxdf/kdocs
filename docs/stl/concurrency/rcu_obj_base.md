@@ -14,65 +14,70 @@ tags:
 `#include <rcu>`
 </div>
 
-RCU で守るオブジェクトは、書き換えで古いものを差し替えたあと、読み取り中のスレッドがいなくなってから破棄する必要があります。`rcu_obj_base<T>` を継承すると、`retire()` で「あとで安全になったら破棄して」と頼めます。
+`rcu_retire` は、予約の記録のために、メモリを確保します。確保の失敗が許されない場面では、予約の記録をオブジェクト自身に持たせる `std::rcu_obj_base<T>` を継承します。`retire()` を呼ぶと、確保せずに予約できます。
 
 !!! tip "ポイント"
-    - `class MyData : public std::rcu_obj_base<MyData>` と継承する。
-    - `retire()` が、安全になったら破棄する。
-    - C++26。
+    - 解放を予約する対象のクラスが、`rcu_obj_base<Self>` を継承する（CRTP）
+    - `obj->retire()` で予約する。メモリの確保が要らない
+    - 読み手がいなくなったあとに、デリーターで解放される
+    - C++26
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`rcu_retire`](rcu_retire.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::rcu_obj_base {#rcu_obj_base}
 
+<span class="ver ver-26">C++26</span>
+
 ```cpp
-template <class T, class D = default_delete<T>>
+template <class T, class D = std::default_delete<T>>
 class rcu_obj_base {
  public:
-  void retire(D d = D(), rcu_domain& dom = rcu_default_domain()) noexcept;
+  void retire(D d = D(), std::rcu_domain& dom = std::rcu_default_domain()) noexcept;
 };
 ```
 
-- 戻り値: `retire()` でオブジェクトの破棄を予約する
-- 計算量: 実装依存
+`noexcept` であることが、`rcu_retire` との違いです。予約の記録を基底クラスのメンバーに持つので、確保が要りません。
 
+継承するクラスのオブジェクトは、`retire` を呼んだあと、解放されるまで生きている必要があります。基底クラスのデストラクターは `protected` で、直接 `delete` できません。
 
-## 実際に動かしてみる
+## 使い方の形
+
+手元の MSVC では使えないので、動かさずに、形だけを示します。
 
 ```cpp
-// 例（概念）: 古い設定データを読み取りが終わってから破棄する
+struct Config : std::rcu_obj_base<Config> {
+  int level = 1;
+};
+
+void Update(std::atomic<Config*>& slot, Config* fresh) {
+  Config* old = slot.exchange(fresh);
+  old->retire();                 // 確保なしで、解放を予約する
+}
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 読み取りが圧倒的に多い共有データの管理 | 古い設定データを読み取りが終わってから破棄する |
+解放の予約が失敗してはいけない、ゲームの中心的な構造で使います。
 
 ## よくあるミス
 
-??? failure "`delete` を直接呼ぶ"
-    読み取り中のスレッドがいると壊れます。`retire()` に任せます。
+??? failure "retire 後に、直接 delete する"
+    二重解放になります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`rcu_retire`](rcu_retire.md) | 継承せずに破棄を予約する |
+| [`rcu_retire`](rcu_retire.md) | 関数版 |
+| [`hazard_pointer_obj_base`](hazard_pointer_obj_base.md) | hazard pointer 版 |
+| [`rcu_domain`](rcu_domain.md) | ドメイン |
 
 ## コンパイラ対応
 
-C++26 の機能です。対応する標準ライブラリは、まだ限られます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] RCU で保護するオブジェクトが継承する基底クラス
-    - [x] 読み取りをロックなしで行う仕組み
-    - [x] C++26
+C++26 の機能です。手元の MSVC（Visual Studio 2026）では未対応のため、サンプルは動かしていません。
 
 ## 関連ページ
 

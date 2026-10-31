@@ -14,65 +14,75 @@ tags:
 `#include <rcu>`
 </div>
 
-RCU（Read-Copy-Update）は、読み取りをロックなしで行い、書き換えはコピーを作って差し替える同期方式です。`rcu_domain` は、読み取り中のスレッドを数える管理の単位で、ふつうは標準のドメイン（`rcu_default_domain()`）を使います。
+RCU（Read-Copy-Update）は、読み手がロックを取らず、書き手が古いデータを置き換えるときに、読み手が全員いなくなるまで古いデータの解放を待つ、という方式です。`std::rcu_domain` は、読み手の区間（読み取りの臨界区間）を管理する単位です。既定では、プログラムに 1 つの既定のドメイン（`rcu_default_domain()`）を使います。
 
 !!! tip "ポイント"
-    - `lock()` / `unlock()` が読み取り区間の開始・終了。
-    - `scoped_lock` で読み取り区間を作る。
-    - ふつうは標準のドメインを使う。
+    - `lock()` / `unlock()` で、読み取りの区間を囲む
+    - `std::scoped_lock` などで囲める（BasicLockable）
+    - 読み手は、他の読み手や書き手を待たない
+    - C++26
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`atomic`](atomic.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::rcu_domain {#rcu_domain}
 
+<span class="ver ver-26">C++26</span>
+
 ```cpp
 class rcu_domain {
  public:
-  void lock() noexcept;    // 読み取り区間の開始
-  void unlock() noexcept;  // 読み取り区間の終了
+  rcu_domain(const rcu_domain&) = delete;
+  void lock() noexcept;
+  bool try_lock() noexcept;
+  void unlock() noexcept;
 };
+rcu_domain& rcu_default_domain() noexcept;
 ```
 
-- 戻り値: 読み取り区間を管理する
-- 計算量: 実装依存
+読み手は、`rcu_default_domain()` を `std::scoped_lock` で囲んで、その間に共有データを読みます。ロックと呼びますが、他のスレッドを待たせる排他ロックではありません。「ここから、このドメインの読み手である」と宣言するだけです。
 
+書き手は、データを置き換えたあと、古いデータを `rcu_retire` か `rcu_obj_base::retire` で予約します。その古いデータは、予約より前に始まった読み手が全員区間を出てから、解放されます。
 
-## 実際に動かしてみる
+読み手の区間の中で、ブロックする操作を長くやると、書き手の解放が遅れます。区間は短く保ちます。
+
+## 使い方の形
+
+手元の MSVC では使えないので、動かさずに、形だけを示します。
 
 ```cpp
-// 例（概念）: 読み取りが多い設定データをロックなしで読めるようにする
+std::atomic<Config*> g_config;
+
+int ReadLevel() {
+  std::scoped_lock guard(std::rcu_default_domain());   // 読み取り区間
+  Config* c = g_config.load();
+  return c->level;
+}
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 読み取りが圧倒的に多い共有データの管理 | 読み取りが多い設定データをロックなしで読めるようにする |
+ほとんど読み取りで、まれに更新される設定やテーブルを、読み手が待たずに読めるようにします。
 
 ## よくあるミス
 
-??? failure "読み取り区間で長く待つ"
-    区間が長いと、書き換えの後始末が遅れます。
+??? failure "区間の外にポインターを持ち出す"
+    区間を出ると、解放されるかもしれません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`rcu_default_domain`](rcu_default_domain.md) | 標準のドメイン |
+| [`rcu_default_domain`](rcu_default_domain.md) | 既定のドメイン |
+| [`rcu_retire`](rcu_retire.md) | 古いデータの解放を予約する |
+| [`rcu_synchronize`](rcu_synchronize.md) | 読み手の終了を待つ |
+| [`hazard_pointer`](hazard_pointer.md) | 別の方式 |
 
 ## コンパイラ対応
 
-C++26 の機能です。対応する標準ライブラリは、まだ限られます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] RCU の管理単位（ドメイン）を表す型
-    - [x] 読み取りをロックなしで行う仕組み
-    - [x] C++26
+C++26 の機能です。手元の MSVC（Visual Studio 2026）では未対応のため、サンプルは動かしていません。
 
 ## 関連ページ
 

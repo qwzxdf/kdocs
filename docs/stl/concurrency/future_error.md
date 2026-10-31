@@ -14,80 +14,98 @@ tags:
 `#include <future>`
 </div>
 
-`promise` から `get_future()` を 2 回呼ぶ、`promise` を使わずに壊す、などの使い方のミスがあると、`future_error` が投げられます。`code()` で原因を `future_errc` として取り出せます。
+`std::future` や `std::promise` の使い方を間違えると、`std::future_error` が投げられます。`std::logic_error` の派生クラスで、`code()` で、原因を `std::error_code` として取れます。原因は `std::future_errc` の値と比べて判定します。
 
 !!! tip "ポイント"
-    - `std::logic_error` から派生。
-    - `code()` で原因（`future_errc`）を取る。
-    - プログラムのミスを表す例外。
+    - `promise` / `future` の使い方の誤りを知らせる例外
+    - `code()` で原因を取り、`future_errc` と比べる
+    - `std::logic_error` の派生クラス
+    - ワーカーの例外は、`future::get()` で再送出される（これは `future_error` ではない）
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`std::future`](future.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::future_error {#future_error}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-class future_error : public logic_error {
+class future_error : public std::logic_error {
  public:
-  const error_code& code() const noexcept;
+  const std::error_code& code() const noexcept;
+  const char* what() const noexcept override;
 };
 ```
 
-- 戻り値: `code()` が原因の `error_code`
-- 計算量: なし
+プログラムの誤りを示す例外です。`broken_promise` のように、実行中に起きうるものもあります。
 
+ワーカー スレッドが投げた別の例外は、`future::get()` で、元の例外のまま再送出されます。`future_error` とは区別されます。
+
+`what()` のメッセージは、実装ごとに違います。判定には使わず、`code()` で調べます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <future>
 #include <print>
+#include <stdexcept>
 
 int main() {
-  std::promise<int> p;
-  p.get_future();
+  // 共有状態のない future を使う
+  std::future<int> f;
   try {
-    p.get_future();
+    f.get();
   } catch (const std::future_error& e) {
-    std::println("{}", e.code() == std::future_errc::future_already_retrieved);
+    std::println("no_state: {}", e.code() == std::future_errc::no_state);
+  }
+
+  // 親クラスの logic_error でも捕まえられる
+  try {
+    std::promise<int> p;
+    p.get_future();
+    p.get_future();
+  } catch (const std::logic_error&) {
+    std::println("logic_error としても捕まえられる");
+  }
+
+  // ワーカーの例外は、元の型で再送出される
+  auto g = std::async(std::launch::async, []() -> int { throw std::runtime_error("failed"); });
+  try {
+    g.get();
+  } catch (const std::runtime_error&) {
+    std::println("runtime_error がそのまま出た");
   }
 }
 ```
 
 ```text title="実行結果"
-true
+no_state: true
+logic_error としても捕まえられる
+runtime_error がそのまま出た
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| `promise` の二重取得を検出 | `catch (const std::future_error& e) { e.code() == std::future_errc::future_already_retrieved }` |
+`promise` を使う自作の非同期処理で、誤用を検出して、ログに残します。
 
 ## よくあるミス
 
-??? failure "通常のエラーとして扱う"
-    プログラムのミスを表す例外です。入力のエラーとして扱うものではありません。
+??? failure "ワーカーの例外も future_error だと思う"
+    元の例外型で出ます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`future_errc`](future_errc.md) | 原因の列挙型 |
-| [`promise`](promise.md) | 値を渡す側 |
+| [`future_errc`](future_errc.md) | エラー コード |
+| [`promise`](promise.md) | 値を設定する側 |
+| [`future`](future.md) | 受け取る側 |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] future / promise のミスを表す例外
-    - [x] code() で原因を取る
-    - [x] future_errc
 
 ## 関連ページ
 

@@ -14,32 +14,43 @@ tags:
 `#include <future>`
 </div>
 
-`future_error` がなぜ投げられたかを `future_errc` の値で区別できます。`broken_promise`（約束が果たされなかった）、`future_already_retrieved`（`get_future` の二重呼び出し）、`promise_already_satisfied`（値を二重に設定）、`no_state`（状態がない）の 4 つです。
+`std::promise` と `std::future` の使い方を間違えたとき、`std::future_error` が投げられます。何を間違えたかを表すエラー コードの列挙型が `std::future_errc` で、4 種類あります。
 
 !!! tip "ポイント"
-    - `broken_promise`: `promise` が値を設定する前に破棄された。
-    - `future_already_retrieved`: `get_future()` を 2 回呼んだ。
-    - `promise_already_satisfied`: 値を 2 回設定した。 `no_state`: 状態を持たない `future` を使った。
+    - `broken_promise`: 値を入れずに `promise` が破棄された
+    - `future_already_retrieved`: `get_future` を 2 回呼んだ
+    - `promise_already_satisfied`: `set_value` を 2 回呼んだ
+    - `no_state`: 共有状態を持たない `future` / `promise` を使った
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`std::future`](future.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::future_errc {#future_errc}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 enum class future_errc {
-  broken_promise = /* 実装定義 */,
+  broken_promise = 1,
   future_already_retrieved,
   promise_already_satisfied,
   no_state
 };
 ```
 
-- 戻り値: なし（列挙型）
-- 計算量: なし
+`future_error::code()` が返す `std::error_code` と、`future_errc` を比べて、原因を判定します。
 
+```cpp
+catch (const std::future_error& e) {
+  if (e.code() == std::future_errc::promise_already_satisfied) { /* ... */ }
+}
+```
+
+`broken_promise` は、値を入れずに `promise` が破棄されたとき、待っていた `future` の `get()` が投げます。ワーカー スレッドが、値を設定する前に例外などで終わった場合に起きます。
+
+`std::error_code` との比較は、`std::make_error_code(future_errc)` を通して行われます。`is_error_code_enum` が特殊化されているため、`==` で直接比べられます。
 
 ## 実際に動かしてみる
 
@@ -48,46 +59,62 @@ enum class future_errc {
 #include <print>
 
 int main() {
-  std::future<int> f;  // 状態を持たない
+  std::promise<int> p;
+  p.set_value(1);
+
   try {
-    f.get();
+    p.set_value(2);  // 2 回目
   } catch (const std::future_error& e) {
-    std::println("{}", e.code() == std::future_errc::no_state);
+    std::println("2 回設定: {}", e.code() == std::future_errc::promise_already_satisfied);
+  }
+
+  std::future<int> f = p.get_future();
+  try {
+    p.get_future();  // 2 回目
+  } catch (const std::future_error& e) {
+    std::println("2 回取得: {}", e.code() == std::future_errc::future_already_retrieved);
+  }
+
+  // 値を入れずに promise が破棄される
+  std::future<int> g;
+  {
+    std::promise<int> q;
+    g = q.get_future();
+  }
+  try {
+    g.get();
+  } catch (const std::future_error& e) {
+    std::println("約束が破られた: {}", e.code() == std::future_errc::broken_promise);
   }
 }
 ```
 
 ```text title="実行結果"
-true
+2 回設定: true
+2 回取得: true
+約束が破られた: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| エラーの原因ごとに処理を分ける | `switch (e.code().value()) { ... }` ではなく `e.code() == std::future_errc::...` で比べる |
+非同期処理のエラー処理で、原因ごとの対処（ログ、再試行）を分けるときに使います。
 
 ## よくあるミス
 
-??? failure "`value()` を直接比べる"
-    数値は実装依存です。`future_errc` との比較（`==`）を使います。
+??? failure "set_value を二重に呼ぶ"
+    `promise_already_satisfied` で例外になります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`future_error`](future_error.md) | 例外クラス |
+| [`future_error`](future_error.md) | この列挙型を持つ例外 |
+| [`promise`](promise.md) | 値を設定する側 |
+| [`future`](future.md) | 受け取る側 |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] future_error の原因
-    - [x] 4 つの値
-    - [x] == で比べる
 
 ## 関連ページ
 

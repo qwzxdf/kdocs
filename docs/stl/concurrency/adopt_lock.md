@@ -14,28 +14,39 @@ tags:
 `#include <mutex>`
 </div>
 
-すでに自分でロックしたミューテックスを `lock_guard` や `unique_lock` に引き取らせて、スコープを抜けるときに解除させたいときに、`std::adopt_lock` を渡します。`std::lock` で複数を同時にロックしたあとに使います。
+`std::lock_guard` は、構築のときにミューテックスをロックして、破棄のときにアンロックします。すでに自分でロックしてある場合は、構築で二重にロックしてしまいます。`std::adopt_lock` は、「このミューテックスは、すでにロックしてある。所有権だけを引き継いでほしい」と伝える印です。
 
 !!! tip "ポイント"
-    - `std::adopt_lock_t` 型の定数。
-    - `lock_guard`・`unique_lock`・`scoped_lock` のコンストラクタの第 2 引数に渡す。
-    - デッドロックを避ける `std::lock` と組み合わせて使う。
+    - `lock_guard(m, std::adopt_lock)` は、ロック済みのミューテックスの面倒を見る
+    - 破棄のときにアンロックする
+    - `std::lock` で複数のミューテックスを同時にロックしたあと、`lock_guard` に引き渡すのが定番
+    - 実際にロックしていないのに渡すと、未定義動作
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`std::mutex`](mutex.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::adopt_lock {#adopt_lock}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 struct adopt_lock_t { explicit adopt_lock_t() = default; };
-inline constexpr adopt_lock_t adopt_lock{};
+inline constexpr std::adopt_lock_t adopt_lock{};
 ```
 
-- 戻り値: なし（目印）
-- 計算量: なし
+`lock_guard`、`unique_lock`、`scoped_lock` の、コンストラクターに渡します。
 
+```cpp
+std::lock(a, b);                                 // 2 つを同時にロック（デッドロックしない）
+std::lock_guard<std::mutex> ga(a, std::adopt_lock);
+std::lock_guard<std::mutex> gb(b, std::adopt_lock);
+```
+
+C++17 以降は、`std::scoped_lock lock(a, b);` の 1 行で同じことができるので、`adopt_lock` を使う機会は減りました。
+
+呼び出し側が、現在のスレッドで、ミューテックスを確実にロックしている責任を持ちます。
 
 ## 実際に動かしてみる
 
@@ -45,47 +56,47 @@ inline constexpr adopt_lock_t adopt_lock{};
 
 int main() {
   std::mutex m;
-  m.lock();
+
+  m.lock();  // 先に自分でロックしてある
   {
-    std::lock_guard g(m, std::adopt_lock);
-    std::println("adopted");
-  }
+    std::lock_guard<std::mutex> guard(m, std::adopt_lock);  // 所有権だけ引き継ぐ
+    std::println("ロック中");
+  }  // ここでアンロックされる
+
+  // アンロックされたので、また取れる
+  std::println("取れた: {}", m.try_lock());
+  m.unlock();
 }
 ```
 
 ```text title="実行結果"
-adopted
+ロック中
+取れた: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 複数のミューテックスを同時にロック | `std::lock(m1, m2);` のあと `std::lock_guard g1(m1, std::adopt_lock);` |
+複数のミューテックスを同時にロックしたあと、スコープを抜けるときに自動で解放するために使います。C++17 以降は `scoped_lock` です。
 
 ## よくあるミス
 
-??? failure "目印とロックの状態が食い違う"
-    `adopt_lock` は、すでにロックしていることが前提です。ロックしていないと未定義動作です。
+??? failure "ロックしていないのに渡す"
+    未定義動作です。
+
+??? failure "二重にアンロックする"
+    `adopt_lock` で渡したあとは、自分で `unlock` しません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`unique_lock`](unique_lock.md) | 柔軟なロック |
-| [`lock_guard`](lock_guard.md) | 単純なロック |
-| [`std::lock`](lock.md) | 複数を同時にロック |
+| [`defer_lock`](defer_lock.md) | ロックを遅らせる印 |
+| [`lock`](lock.md) | 複数を同時にロック |
+| [`scoped_lock`](scoped_lock.md) | 複数を一度に守る |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 「すでにロック済みのミューテックスを引き取る」と伝える目印
-    - [x] ロックの方法を指定する目印
-    - [x] std::lock と組み合わせる
 
 ## 関連ページ
 
