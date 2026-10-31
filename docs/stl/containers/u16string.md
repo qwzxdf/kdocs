@@ -14,12 +14,13 @@ tags:
 `#include <string>`
 </div>
 
-UTF-16 の文字列です。`あ` や `い` は 1 コード単位、絵文字などは 2 コード単位（サロゲートペア）になります。`size()` は文字数ではなく、コード単位の数です。
+`std::u16string` は、`char16_t` の文字列で、UTF-16 を表します。`wchar_t` と違い、全環境で 16 ビットと決まっているので、UTF-16 を扱う API（ICU など）との橋渡しに向いています。
 
 !!! tip "ポイント"
-    - `std::basic_string<char16_t>` の別名。
-    - 文字列リテラルは `u"..."` と書く。
-    - `std::string` と同じ関数が使える。
+    - `basic_string<char16_t>` の別名
+    - リテラルは `u"..."`
+    - 基本多言語面の外の文字は、2 要素のサロゲート ペア
+    - Windows の `wstring` とは別の型
 
 !!! info "このページを読む前に"
     [`std::string`](string.md) を先に読んでください。
@@ -28,13 +29,15 @@ UTF-16 の文字列です。`あ` や `い` は 1 コード単位、絵文字な
 
 ### std::u16string {#u16string}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 using u16string = basic_string<char16_t>;
 ```
 
-- 戻り値: `u16string` の値
-- 計算量: string と同じ
+`size()` は、文字数ではなく、UTF-16 の要素（16 ビット）の数です。絵文字は 2 になります。
 
+Windows では、`wchar_t` と `char16_t` は同じ大きさ（16 ビット）ですが、別の型です。Windows API に渡すときは、`reinterpret_cast<const wchar_t*>` で橋渡しします。
 
 ## 実際に動かしてみる
 
@@ -43,43 +46,38 @@ using u16string = basic_string<char16_t>;
 #include <string>
 
 int main() {
-  std::u16string s = u"あい😀";
-  std::println("{}", s.size());
+  const std::u16string a = u"あ";
+  const std::u16string b = u"😀";
+  std::println("「あ」: {} 要素", a.size());
+  std::println("絵文字: {} 要素", b.size());
 }
 ```
 
 ```text title="実行結果"
-4
+「あ」: 1 要素
+絵文字: 2 要素
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| プラットフォームの API に渡す | `std::u16string` |
+UTF-16 のライブラリとやりとりするときだけ使います。
 
 ## よくあるミス
 
-??? failure "文字列の長さ = 文字数だと思う"
-    `size()` は**コード単位**の数です。サロゲートペアや結合文字が入ると、見た目の文字数と一致しません。
+??? failure "size() を文字数と思う"
+    絵文字は 2 要素です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::string`](string.md) | char の文字列 |
-| [`basic_string`](basic_string.md) | 元になるテンプレート |
+| [`wstring`](wstring.md) | `wchar_t` 版 |
+| [`u8string`](u8string.md) | UTF-8 |
+| [`u32string`](u32string.md) | UTF-32 |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] char16_t の文字列
-    - [x] std::string と同じ使い方
-    - [x] size() はコード単位の数
 
 ## 関連ページ
 

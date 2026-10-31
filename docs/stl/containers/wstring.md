@@ -14,12 +14,13 @@ tags:
 `#include <string>`
 </div>
 
-Windows の API は `wchar_t`（UTF-16）の文字列を使います。`std::wstring` は、その `wchar_t` の並びを扱う文字列です。`std::string` と同じ関数がそのまま使えます。
+`std::wstring` は、`wchar_t` の文字列で、`std::basic_string<wchar_t>` の別名です。Windows API が `wchar_t`（UTF-16）の文字列を要求するので、API の境界で使います。ゲームの内部では、UTF-8 の `std::string` にそろえ、API の直前で `wstring` に変換するのが標準的な作りです。
 
 !!! tip "ポイント"
-    - `std::basic_string<wchar_t>` の別名。
-    - 文字列リテラルは `L"..."` と書く。
-    - `std::string` と同じ関数が使える。
+    - `basic_string<wchar_t>` の別名
+    - Windows では UTF-16、Linux では UTF-32
+    - `std::string` と同じメンバー関数が使える
+    - `std::println` には直接渡せない
 
 !!! info "このページを読む前に"
     [`std::string`](string.md) を先に読んでください。
@@ -28,13 +29,17 @@ Windows の API は `wchar_t`（UTF-16）の文字列を使います。`std::wst
 
 ### std::wstring {#wstring}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 using wstring = basic_string<wchar_t>;
 ```
 
-- 戻り値: `wstring` の値
-- 計算量: string と同じ
+リテラルは `L"..."` です。`std::wstring_view` が、所有しない版です。
 
+`wchar_t` の大きさが環境で違うので、`size()` の意味が変わります。Windows の絵文字は、サロゲート ペアで 2 要素です。
+
+`std::string` との変換は、標準では面倒です（`codecvt` は非推奨）。Windows では `MultiByteToWideChar(CP_UTF8, ...)` と `WideCharToMultiByte(CP_UTF8, ...)` を使います。
 
 ## 実際に動かしてみる
 
@@ -43,43 +48,40 @@ using wstring = basic_string<wchar_t>;
 #include <string>
 
 int main() {
-  std::wstring s = L"abc";
-  std::println("{}", s.size());
+  std::wstring name = L"Hero";
+  name += L" the Brave";
+  std::println("長さ: {}", name.size());
+  std::println("一致: {}", name == L"Hero the Brave");
+  std::println("検索: {}", name.find(L"the"));
 }
 ```
 
 ```text title="実行結果"
-3
+長さ: 14
+一致: true
+検索: 5
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| プラットフォームの API に渡す | `std::wstring` |
+Windows API に渡すパスやタイトルを扱うときに使います。内部は UTF-8 の `std::string` です。
 
 ## よくあるミス
 
-??? failure "文字列の長さ = 文字数だと思う"
-    `size()` は**コード単位**の数です。サロゲートペアや結合文字が入ると、見た目の文字数と一致しません。
+??? failure "内部の文字列を wstring で持つ"
+    外部とのやり取りに変換が要り、混在します。UTF-8 にそろえます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::string`](string.md) | char の文字列 |
-| [`basic_string`](basic_string.md) | 元になるテンプレート |
+| [`string`](string.md) | `char` 版 |
+| [`u16string`](u16string.md) | UTF-16 を明示する |
+| [`to_wstring`](to_wstring.md) | 数値から作る |
 
 ## コンパイラ対応
 
-C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] wchar_t の文字列
-    - [x] std::string と同じ使い方
-    - [x] size() はコード単位の数
+C++98 から使えます。
 
 ## 関連ページ
 

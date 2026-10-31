@@ -14,79 +14,70 @@ tags:
 `#include <mdspan>`
 </div>
 
-SIMD で配列を処理するとき、配列の先頭が 16 バイト境界などに揃っていると速くなります。`aligned_accessor<T, N>` は、「この配列は N バイト境界に揃っている」と約束するアクセサで、コンパイラが速いコードを出せるようになります。
+SIMD で処理するデータは、32 や 64 バイトの境界に並んでいてほしい。`std::aligned_accessor<T, N>` は、`mdspan` のアクセサーで、「このデータは `N` バイトの境界にある」と約束します。内部で `assume_aligned` を使って、コンパイラの最適化を助けます。
 
 !!! tip "ポイント"
-    - `byte_alignment` に境界のバイト数が入る。
-    - 約束が嘘だと未定義動作。
-    - [`assume_aligned`](../memory/assume_aligned.md) と同じ考え方。
+    - `mdspan` の 4 番目のテンプレート引数に指定する
+    - `aligned_accessor<float, 32>` で、32 バイト境界を約束する
+    - 約束を破ると未定義動作
+    - C++26
 
 !!! info "このページを読む前に"
-    [`std::mdspan`](mdspan.md) を先に読んでください。
+    [`default_accessor`](default_accessor.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::aligned_accessor {#aligned_accessor}
 
+<span class="ver ver-26">C++26</span>
+
 ```cpp
 template <class ElementType, std::size_t ByteAlignment>
 struct aligned_accessor {
-  static constexpr std::size_t byte_alignment = ByteAlignment;
+  using offset_policy = std::default_accessor<ElementType>;
+  using element_type = ElementType;
+  using reference = ElementType&;
+  using data_handle_type = ElementType*;
+  constexpr reference access(data_handle_type p, std::size_t i) const noexcept;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `ElementType` | 型 | 要素の型 |
-| `ByteAlignment` | size_t | 境界のバイト数（2 のべき乗） |
+`access` が、内部で `std::assume_aligned<ByteAlignment>(p)` を通した参照を返します。
 
-- 戻り値: `byte_alignment` に境界が入る
-- 計算量: 定数
+`ByteAlignment` は、2 のべき乗で、`ElementType` のアライメント以上でなければなりません。
 
+データを実際にその境界に置くのは、確保する側の責任です。`alignas` の配列や、アライメントつきで確保したメモリを使います。
 
-## 実際に動かしてみる
+## 使い方の形
+
+手元の MSVC では使えないので、動かさずに、形だけを示します。
 
 ```cpp
-#include <mdspan>
-#include <print>
-
-int main() {
-  std::println("{}", std::aligned_accessor<float, 16>::byte_alignment);
-}
-```
-
-```text title="実行結果"
-16
+alignas(32) float data[16] = {};
+using Acc = std::aligned_accessor<float, 32>;
+std::mdspan<float, std::extents<std::size_t, 4, 4>, std::layout_right, Acc> m(data);
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 16 バイト境界の配列を SIMD で処理する | `std::mdspan<float, Ext, std::layout_right, std::aligned_accessor<float, 16>>` |
+行列やベクトルの SIMD 処理で、アライメントを型で約束して、コンパイラに速い命令を選ばせます。
 
 ## よくあるミス
 
-??? failure "境界が合っていない配列を渡す"
-    約束が守られないと未定義動作です。`alignas` で確保した配列だけに使います。
+??? failure "境界に置いていないデータに使う"
+    未定義動作です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`default_accessor`](default_accessor.md) | 標準のアクセサ |
-| [`assume_aligned`](../memory/assume_aligned.md) | ポインタに境界を約束する |
+| [`default_accessor`](default_accessor.md) | 標準のアクセサー |
+| `std::assume_aligned` | 内部で使う |
+| [`mdspan`](mdspan.md) | 使う側 |
 
 ## コンパイラ対応
 
-C++26 の機能です。対応は新しい標準ライブラリに限られます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 境界を保証するアクセサ
-    - [x] byte_alignment
-    - [x] 嘘は未定義動作
+C++26 の機能です。手元の MSVC（Visual Studio 2026）では未対応のため、サンプルは動かしていません。
 
 ## 関連ページ
 

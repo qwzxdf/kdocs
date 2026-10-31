@@ -97,8 +97,8 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 - [x] 2-3-5. `utilities/random`（39）（2026-10-31 薄かったエンジン系 9 ページ（`linear_congruential_engine`・`mersenne_twister_engine`・`discard_block_engine`・`independent_bits_engine`・`shuffle_order_engine`・`subtract_with_carry_engine`・`ranlux48`・`seed_seq`・`generate_canonical`）を書き直した。分布のページは元から濃く、そのまま残した）
 - [x] 2-3-6. `utilities` のルート（98）: `tuple`・`pair`・`optional`・`function` まわり（2026-10-31 薄かった約 55 ページを書き直した。`tuple`・`pair` の関数、`optional`・`variant`・`any`・`expected` の補助、`declval`・`addressof` などの道具、`index_sequence` 系、`format` 系 20 ページ、スマート ポインタのキャスト・`out_ptr`・`inout_ptr`・`allocate_shared`、`string_view` の別名。サンプルは `utilities` の 287 個すべて `verify_samples.py` で一致。`runtime_format`・`to_stream` は手元の MSVC が未対応のため、別の関数で確かめた）
 - [x] 2-3-7. `memory`（`cstring` 23、`new_delete` 22、`pmr` 10、ルート 25）（2026-10-31 `cstring` 23、`new_delete` 17、`pmr` 8、ルート 18 ページを書き直した。サンプルは `memory` の 83 個すべて一致。`owner_hash`・`owner_equal`・`start_lifetime_as` は手元の MSVC が未対応のため、別の方法で確かめた）
-- [x] 2-3-8. `concurrency`（72）（2026-10-31 薄かった 38 ページを書き直した。`atomic` の自由関数、ロックの印と `lock`・`call_once`、`future` 系の列挙型と例外、`stop_callback`、`this_thread`。RCU と hazard pointer の 9 ページは C++26 で手元の MSVC が未対応のため、サンプルを動かさず、使い方の形だけを書いた。サンプルは `concurrency` の 74 個すべて一致）
-- [ ] 2-3-9. `containers`（63 のうち薄い 26）
+- [x] 2-3-8. `concurrency`（72）（2026-10-31 薄かった 45 ページを書き直した。`atomic` の自由関数、ロックの印と `lock`・`call_once`、`future` 系の列挙型と例外、`stop_callback`、`this_thread`。RCU と hazard pointer の 9 ページは C++26 で手元の MSVC が未対応のため、サンプルを動かさず、使い方の形だけを書いた。サンプルは `concurrency` の 74 個すべて一致）
+- [x] 2-3-9. `containers`（63 のうち薄い 26）（2026-10-31 27 ページを書き直した。文字列の数値変換、`wstring` などの別名、`valarray` の `slice` 系、`mdspan` の補助、`as_bytes`、`hive`。C++26 の `submdspan`・`strided_slice`・`full_extent`・`aligned_accessor`・`hive` は手元の MSVC が未対応のため、サンプルを動かさなかった。`unordered_map`・`vector` の既存サンプルに、実装で出力が変わる箇所が 3 つ残っている）
 - [ ] 2-3-10. `algorithms`（薄い 56。`views` と数値アルゴリズム）
 - [ ] 2-3-11. `support/concepts`・`iterator` の残り: iterator のコンセプト（約 35）、iterator の細かい型
 - [ ] 2-3-12. `support` の残り: `coroutine`（8）、`functional` の検索器・`function_ref`・`copyable_function`・placeholders、`type_traits` の `invoke_result` 系、`stacktrace`・`contract_violation`・`text_encoding`・`*_order_fallback`
@@ -182,7 +182,8 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 
 ### 2026-10-31 の作業
 
-- STL `concurrency` の 38 ページを書き直して 2-3-8 を完了
+- STL `containers` の 27 ページを書き直して 2-3-9 を完了
+- STL `concurrency` の 45 ページを書き直して 2-3-8 を完了
 - STL `memory` の 66 ページを書き直して 2-3-7 を完了
 - STL `utilities` のルート約 55 ページを書き直して 2-3-6 を完了
 - STL `random` のエンジン系 9 ページを書き直して 2-3-5 を完了

@@ -14,12 +14,13 @@ tags:
 `#include <string>`
 </div>
 
-UTF-8 の文字列であることを型で示したいときに使います。`char8_t` は C++20 で追加された、UTF-8 のコード単位の型です。`std::string` との相互の自動変換はありません。
+`std::u8string` は、`char8_t` の文字列で、UTF-8 であることを型で表す文字列です。C++20 で追加された `char8_t` を要素にした `basic_string<char8_t>` の別名です。`u8"..."` のリテラルが、この型になります。
 
 !!! tip "ポイント"
-    - `std::basic_string<char8_t>` の別名。
-    - 文字列リテラルは `u8"..."` と書く。
-    - `std::string` と同じ関数が使える。
+    - `basic_string<char8_t>` の別名。C++20
+    - `u8"..."` のリテラルは `const char8_t[]`
+    - `std::string` とは別の型。暗黙に変換できない
+    - 既存の API は `char` が前提なので、橋渡しが要る
 
 !!! info "このページを読む前に"
     [`std::string`](string.md) を先に読んでください。
@@ -28,13 +29,15 @@ UTF-8 の文字列であることを型で示したいときに使います。`c
 
 ### std::u8string {#u8string}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 using u8string = basic_string<char8_t>;
 ```
 
-- 戻り値: `u8string` の値
-- 計算量: string と同じ
+`char8_t` は、`char` の別名ではなく、独立した型です。UTF-8 であることが型で分かる利点がありますが、`std::println`、`fopen`、`std::filesystem::path`（一部）など、`char` を前提にした API に渡すには、`reinterpret_cast` などが要ります。
 
+そのため、実用上は、UTF-8 の `std::string` と、ソース ファイルの UTF-8（MSVC の `/utf-8`）で済ませることが多いです。
 
 ## 実際に動かしてみる
 
@@ -43,43 +46,40 @@ using u8string = basic_string<char8_t>;
 #include <string>
 
 int main() {
-  std::u8string s = u8"abc";
-  std::println("{}", s.size());
+  const std::u8string s = u8"あいう";
+  std::println("バイト数: {}", s.size());
+
+  // char として見直す
+  const std::string c(reinterpret_cast<const char*>(s.data()), s.size());
+  std::println("{}", c);
 }
 ```
 
 ```text title="実行結果"
-3
+バイト数: 9
+あいう
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| プラットフォームの API に渡す | `std::u8string` |
+UTF-8 を型で明示したいライブラリを書くときに使います。普段は `std::string` です。
 
 ## よくあるミス
 
-??? failure "文字列の長さ = 文字数だと思う"
-    `size()` は**コード単位**の数です。サロゲートペアや結合文字が入ると、見た目の文字数と一致しません。
+??? failure "char の API に直接渡す"
+    型が違います。変換が要ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::string`](string.md) | char の文字列 |
-| [`basic_string`](basic_string.md) | 元になるテンプレート |
+| [`string`](string.md) | ふつうの UTF-8 はこちら |
+| [`u16string`](u16string.md) | UTF-16 |
+| [`u32string`](u32string.md) | UTF-32 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] char8_t の文字列
-    - [x] std::string と同じ使い方
-    - [x] size() はコード単位の数
 
 ## 関連ページ
 

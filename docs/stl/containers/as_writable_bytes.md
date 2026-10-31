@@ -14,82 +14,78 @@ tags:
 `#include <span>`
 </div>
 
-`as_bytes` の、書き込み可能版です。ファイルから読み込んだバイト列をそのまま構造体の配列に流し込むときなどに使います。
+`std::as_bytes` が読み取り専用なのに対し、`std::as_writable_bytes(span)` は、書き込める `std::span<std::byte>` に変換します。ファイルから読んだバイト列を、そのまま配列に流し込む、といった用途に使います。
 
 !!! tip "ポイント"
-    - 元の型を問わずバイト列として見られる。
-    - コピーはしない（元のメモリを見る）。
-    - `std::byte` は整数ではないので、計算には `std::to_integer` を使う。
+    - `span<T>` を `span<std::byte>` に変える（`T` が非 const のとき）
+    - コピーしない
+    - `T` が const だとコンパイル エラー
+    - バイトを書き込んでも安全な型（トリビアルにコピー可能）にだけ使う
 
 !!! info "このページを読む前に"
-    [`std::span`](span.md) を先に読んでください。
+    [`std::as_bytes`](as_bytes.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::as_writable_bytes {#as_writable_bytes}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class T, std::size_t N>
-std::span<byte> as_writable_bytes(std::span<T, N> s) noexcept;
+std::span<std::byte, /* N * sizeof(T) または dynamic_extent */>
+as_writable_bytes(std::span<T, N> s) noexcept;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `s` | span | 元の span |
+`T` が `const` だと、書き込めないので、コンパイルできません。
 
-- 戻り値: バイト列として見た span
-- 計算量: 定数
-
-リトルエンディアンの環境での例です。バイト順は環境によって変わります。
-
+バイトを直接書き込むと、`T` の値の規則（不変条件）を壊すことがあります。`std::string` や `std::vector` のように、内部にポインターを持つ型のバイトを書き換えると、動作が壊れます。`int` や `float`、トリビアルな構造体など、どんなビット列でも有効な値になる型に使います。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <array>
 #include <cstddef>
+#include <cstring>
 #include <print>
 #include <span>
 
 int main() {
-  int values[] = {1};
-  auto bytes = std::as_writable_bytes(std::span(values));
-  bytes[0] = std::byte{7};
-  std::println("{}", values[0]);
+  std::array<int, 2> data = {0, 0};
+
+  // バイト列として書き込む
+  const int src[2] = {7, 9};
+  std::span<std::byte> bytes = std::as_writable_bytes(std::span(data));
+  std::memcpy(bytes.data(), src, bytes.size());
+
+  std::println("{} {}", data[0], data[1]);
 }
 ```
 
 ```text title="実行結果"
-7
+7 9
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ファイルに構造体の配列を書き出す | `Write(std::as_bytes(std::span(items)));` |
+ファイルやネットワークから読んだバイト列を、そのまま配列に流し込むときに使います。
 
 ## よくあるミス
 
-??? failure "バイト順を考えない"
-    ファイルに書いたバイト列は、環境のバイト順（エンディアン）に依存します。別の環境で読むなら、形式を決めておきます。
+??? failure "std::string のような型に使う"
+    内部のポインターを壊します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`span`](span.md) | span の本体 |
-| [`as_bytes`](as_bytes.md) | もう片方 |
+| [`as_bytes`](as_bytes.md) | 読み取り専用 |
+| [`span`](span.md) | 元の型 |
+| `std::memcpy` | バイト単位のコピー |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] span をバイト列として見る
-    - [x] コピーしない
-    - [x] バイト順に注意
 
 ## 関連ページ
 

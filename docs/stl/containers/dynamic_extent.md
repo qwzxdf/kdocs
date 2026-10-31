@@ -14,12 +14,13 @@ tags:
 `#include <span>`
 </div>
 
-`std::span<int, 3>` は要素数を型で固定し、`std::span<int>` は実行時に決まる要素数を持ちます。後者の「実行時に決まる」ことを表す特別な値が `std::dynamic_extent` です。`span<int>::extent` は、この値と等しくなります。
+`std::span<int, 3>` は要素数 3 に固定され、`std::span<int>` は実行時に決まります。この「実行時に決まる」ことを表す特別な値が `std::dynamic_extent` です。`std::mdspan` の `extents` でも、次元が実行時に決まることを示すのに使います。
 
 !!! tip "ポイント"
-    - `span<T>` の `extent` が、これと等しい。
-    - 値は `size_t` の最大値（`-1`）。
-    - `mdspan` の `extents` でも、動的な次元を表すのに使う。
+    - `std::span<T>` の `extent` が、これと等しい
+    - 値は `size_t` の最大値（`-1`）
+    - `extents<size_t, 3, dynamic_extent>` のように、次元ごとに指定できる
+    - `<span>` で定義される
 
 !!! info "このページを読む前に"
     [`std::span`](span.md) を先に読んでください。
@@ -28,58 +29,65 @@ tags:
 
 ### std::dynamic_extent {#dynamic_extent}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 inline constexpr std::size_t dynamic_extent = std::numeric_limits<std::size_t>::max();
 ```
 
-- 戻り値: 定数
-- 計算量: なし
+`span<T>` と書くと、`span<T, dynamic_extent>` の意味です。`extent` が `dynamic_extent` でない `span` は、要素数が型に入っているので、`size()` は定数で、サイズを持つ領域がありません。
 
+`mdspan` の `extents<IndexType, 3, dynamic_extent>` は、1 次元目が 3 に固定、2 次元目が実行時に決まる、を表します。`dextents<IndexType, N>` は、`N` 個の次元がすべて動的な `extents` の別名です。
+
+値が `size_t` の最大値なので、「配列の大きさが実際にその値」という意味と衝突しませんが、比較のとき、符号つきの整数と混ぜないように注意します。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <array>
+#include <mdspan>
 #include <print>
 #include <span>
 
 int main() {
-  std::println("{}", std::span<int>::extent == std::dynamic_extent);
-  std::println("{}", std::span<int, 3>::extent);
+  std::println("動的: {}", std::span<int>::extent == std::dynamic_extent);
+  std::println("固定: {}", std::span<int, 3>::extent);
+
+  // mdspan の extents で、動的な次元を表す
+  using E = std::extents<std::size_t, 3, std::dynamic_extent>;
+  E e(4);  // 動的な次元だけを渡す
+  std::println("{} x {}", e.extent(0), e.extent(1));
+  std::println("静的な次元: {}", E::static_extent(0));
 }
 ```
 
 ```text title="実行結果"
-true
-3
+動的: true
+固定: 3
+3 x 4
+静的な次元: 3
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 固定長か動的かをコンパイル時に分岐する | `if constexpr (S::extent == std::dynamic_extent)` |
+`span` や `mdspan` の型を書くときに出てきます。値を直接使う場面は、あまりありません。
 
 ## よくあるミス
 
-??? failure "実際の要素数と思う"
-    `dynamic_extent` は「不定」を表す目印で、要素数そのものではありません。
+??? failure "符号つき整数と比べる"
+    `-1` と比べるような書き方は避けます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`span`](span.md) | 要素数を持つ view |
+| [`span`](span.md) | 使われる場所 |
+| [`extents`](extents.md) | 次元の大きさの型 |
+| [`dextents`](dextents.md) | すべて動的な `extents` |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 要素数が実行時に決まることを表す
-    - [x] size_t の最大値
-    - [x] span / mdspan で使う
 
 ## 関連ページ
 

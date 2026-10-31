@@ -14,12 +14,13 @@ tags:
 `#include <string>`
 </div>
 
-`std::to_string` の `wstring` 版です。Windows の API に数値を文字列で渡すときなどに使います。整数と浮動小数点のオーバーロードがあります。
+`std::to_string` の `wchar_t` 版が `std::to_wstring(x)` です。数値を `std::wstring` にします。Windows API に渡す文字列を、数値から組み立てるときに使います。
 
 !!! tip "ポイント"
-    - `to_string` の `wchar_t` 版。
-    - 小数は固定小数点の形（`%f` 相当）で出る。
-    - 書式を指定したいなら `std::format`。
+    - 整数や浮動小数点数を `std::wstring` に変換する
+    - 浮動小数点数は `%f` の形式（小数点以下 6 桁）
+    - 書式を指定したいなら `std::format(L"{:.2f}", x)`
+    - ロケールの影響を受けることがある
 
 !!! info "このページを読む前に"
     [`std::string`](string.md) を先に読んでください。
@@ -28,18 +29,20 @@ tags:
 
 ### std::to_wstring {#to_wstring}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 std::wstring to_wstring(int value);
-std::wstring to_wstring(double value);  // ほかの整数・浮動小数点型もある
+std::wstring to_wstring(long value);
+std::wstring to_wstring(long long value);
+std::wstring to_wstring(unsigned value);
+std::wstring to_wstring(double value);
+// ほかの整数型、float、long double も
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `value` | 数値 | 変換する数値 |
+`to_string` と同じく、浮動小数点数は `1.500000` のように、小数点以下を 6 桁で出します。桁数を変えたいときは、`std::format` を使います。
 
-- 戻り値: 変換した `wstring`
-- 計算量: O(桁数)
-
+結果は `std::wstring` で、`std::println` には直接渡せません。比較や連結に使い、画面に出すときは、UTF-8 に直すか、Windows API に渡します。
 
 ## 実際に動かしてみる
 
@@ -48,43 +51,42 @@ std::wstring to_wstring(double value);  // ほかの整数・浮動小数点型�
 #include <string>
 
 int main() {
-  std::wstring w = std::to_wstring(42);
-  std::println("{}", w.size());
+  const std::wstring a = std::to_wstring(42);
+  const std::wstring b = std::to_wstring(-7);
+  const std::wstring c = std::to_wstring(1.5);
+
+  std::println("{}", a == L"42");
+  std::println("{}", b == L"-7");
+  std::println("{}", c == L"1.500000");
 }
 ```
 
 ```text title="実行結果"
-2
+true
+true
+true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| Windows API に数値を文字列で渡す | `std::to_wstring(value)` |
+Windows API のウィンドウ タイトルに、数値を入れるときに使います。
 
 ## よくあるミス
 
-??? failure "小数の桁数を指定したい"
-    `to_wstring(3.5)` は `3.500000` になります。桁数は `std::format` で指定します。
+??? failure "浮動小数点数の桁数を指定できると思う"
+    常に 6 桁です。`std::format` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`to_string`](to_string.md) | char の版 |
-| [`format`](../utilities/format.md) | 書式を指定する |
+| `std::to_string` | `char` 版 |
+| [`stol`](stol.md) | 文字列から整数へ |
+| `std::format` | 書式を指定できる |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 数値を wstring に
-    - [x] to_string の wchar_t 版
-    - [x] 書式は format
 
 ## 関連ページ
 

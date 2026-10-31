@@ -13,12 +13,13 @@ tags:
 `#include <valarray>`
 </div>
 
-`v[indices]`（`indices` は `valarray<size_t>`）と書くと、指定した添字の要素を選べます。その結果の型が `indirect_array` です。代入すると、元の `valarray` の対応する要素が書き換わります。
+`std::valarray` の、飛び飛びの位置の要素を、まとめて書き換えたい。`v[valarray<size_t>{0, 2, 5}]` のように、添字の列を渡すと、その位置の要素だけを選べます。その結果が `std::indirect_array` です。
 
 !!! tip "ポイント"
-    - `valarray` の部分選択に使う。
-    - `v[選び方]` の形で書く。
-    - ゲームではほとんど使わない（`span` や `mdspan` のほうが一般的）。
+    - `v[添字の valarray<size_t>]` で、指定した位置の要素を選ぶ
+    - 代入すると、選ばれた位置だけが更新される
+    - 添字は重複しないこと（重複すると、代入の結果が不定）
+    - 範囲外の添字は未定義動作
 
 !!! info "このページを読む前に"
     [`std::valarray`](valarray.md) を先に読んでください。
@@ -28,59 +29,63 @@ tags:
 ### std::indirect_array {#indirect_array}
 
 ```cpp
-template <class T>
-class indirect_array;  // v[indices] が返す型
+template <class T> class indirect_array;
 ```
 
-- 戻り値: 選んだ要素
-- 計算量: 選んだ要素の数に比例
+直接作らず、`valarray<T>::operator[](const valarray<std::size_t>&)` の戻り値として得ます。
 
+`mask_array` が「条件」で選ぶのに対し、こちらは「位置」で選びます。位置のリストを、別の計算で作って渡す場面に向きます。
+
+選んだ要素を取り出すと、新しい `valarray` になります。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <iterator>
 #include <print>
 #include <valarray>
+#include <vector>
 
 int main() {
-  std::valarray<int> v = {1, 2, 3, 4};
-  std::valarray<std::size_t> idx = {3, 0};
-  v[idx] = 9;
-  std::println("{} {} {} {}", v[0], v[1], v[2], v[3]);
+  std::valarray<int> v = {10, 20, 30, 40, 50, 60};
+
+  // 添字 0, 2, 5 の要素を選んで書き換える
+  const std::valarray<std::size_t> idx = {0, 2, 5};
+  v[idx] = 0;
+  std::println("{}", std::vector<int>(std::begin(v), std::end(v)));
+
+  // 取り出すと、新しい valarray になる
+  const std::valarray<int> w = {1, 2, 3, 4};
+  const std::valarray<int> picked(w[std::valarray<std::size_t>{3, 1}]);
+  std::println("{}", std::vector<int>(std::begin(picked), std::end(picked)));
 }
 ```
 
 ```text title="実行結果"
-9 2 3 9
+[0, 20, 0, 40, 50, 0]
+[4, 2]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 配列の一部を一括で書き換える | `v[std::indirect_array(...)] = x;` |
+位置のリストを別に持つ数値計算で使います。
 
 ## よくあるミス
 
-??? failure "範囲外の添字"
-    範囲外の添字は未定義動作です。
+??? failure "添字を重複させる"
+    代入の結果が不定になります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`valarray`](valarray.md) | 数値計算用の配列 |
+| [`mask_array`](mask_array.md) | 条件で選ぶ |
+| [`slice`](slice.md) | 等間隔で選ぶ |
+| [`valarray`](valarray.md) | 対象 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] valarray から、添字の配列で選んだ要素への参照
-    - [x] `v[...]` の形で使う
-    - [x] valarray 専用
+C++98 から使えます。
 
 ## 関連ページ
 
