@@ -44,6 +44,11 @@ namespace KCppAssist
         public SyncMode SyncMode { get; set; } = SyncMode.Auto;
 
         [Category("引数の同期")]
+        [DisplayName("自動で合わせるまでの待ち(ミリ秒)")]
+        [Description("最後に入力してから、相手の引数を書き換えるまでの待ち。短いほど、打つそばから相手が変わります。初期値は 250。")]
+        public int SyncDelayMs { get; set; } = 250;
+
+        [Category("引数の同期")]
         [DisplayName("書き換えた場所を小さなウィンドウで見せる")]
         [Description("True のとき、引数を相手のファイルへ写すと、書き換えた場所をエディターの右上に約 3 秒だけ見せます。")]
         public bool ShowSyncPreview { get; set; } = true;
