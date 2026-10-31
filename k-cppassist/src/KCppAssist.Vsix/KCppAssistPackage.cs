@@ -34,6 +34,7 @@ namespace KCppAssist
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [ProvideOptionPage(typeof(OptionsPage), "K-CppAssist", "全般", 0, 0, true)]
     [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.NoSolution_string, PackageAutoLoadFlags.BackgroundLoad)]
     [Guid(PackageGuid)]
     public sealed class KCppAssistPackage : AsyncPackage
     {
