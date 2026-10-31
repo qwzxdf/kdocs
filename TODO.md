@@ -94,7 +94,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 - [x] 2-3-2. `io` のルート（106）: 操作子（`hex`・`dec`・`oct`・`setbase`・`setw`・`setfill`・`left`・`right`・`internal`・`setprecision`・`fixed`・`scientific`・`defaultfloat`・`showpos`・`showbase`・`showpoint`・`uppercase`・`boolalpha`・`endl`・`flush`）は書き直した（2026-10-28）。`ends`・`ws`・`unitbuf`・`skipws`・`hexfloat`・`resetiosflags`・`setiosflags`・`put_time`・`get_time`・`put_money`・`get_money`・`quoted` も書き直した（2026-10-29）。`cerr`・`clog`・`wcin`・`wcout`・`wcerr`・`wclog`、`streamsize`・`streamoff`・`streampos`・`fpos` も書き直した（2026-10-29）。`cin`・`cout` も書き直した（2026-10-31）。`va_*`・`cstdarg`・`setjmp` 系 9 ページも書き直した（2026-10-31）。`basic_*stream` 4 ページと `*buf` 6 ページも書き直した（2026-10-31）。regex 系は 2-3-3 で書く
 - [x] 2-3-3. `io/cwchar`（22）・`locale`（19）・`regex`（18）・`ctime`（15）（2026-10-31 `ctime`・`cwchar`・`locale`・`regex` の 74 ページを書き直した。サンプルは `verify_samples.py` で全部一致）
 - [x] 2-3-4. `utilities/chrono`（86）（2026-10-31 まだ薄かった 69 ページを書き直した。`duration` の別名、暦の型、時計、タイムゾーン、入出力。サンプルは 86 ページ全部 `verify_samples.py` で一致。`to_stream` は手元の MSVC が未対応で、`std::format` で代替して書いた）
-- [ ] 2-3-5. `utilities/random`（39）
+- [x] 2-3-5. `utilities/random`（39）（2026-10-31 薄かったエンジン系 9 ページ（`linear_congruential_engine`・`mersenne_twister_engine`・`discard_block_engine`・`independent_bits_engine`・`shuffle_order_engine`・`subtract_with_carry_engine`・`ranlux48`・`seed_seq`・`generate_canonical`）を書き直した。分布のページは元から濃く、そのまま残した）
 - [ ] 2-3-6. `utilities` のルート（98）: `tuple`・`pair`・`optional`・`function` まわり
 - [ ] 2-3-7. `memory`（`cstring` 23、`new_delete` 22、`pmr` 10、ルート 25）
 - [ ] 2-3-8. `concurrency`（72）
@@ -182,6 +182,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 
 ### 2026-10-31 の作業
 
+- STL `random` のエンジン系 9 ページを書き直して 2-3-5 を完了
 - STL `chrono` の 69 ページを書き直して 2-3-4 を完了
 - STL `ctime`・`cwchar`・`locale`・`regex` の 74 ページを書き直して 2-3-3 を完了
 - STL `io` のルートを書き直して 2-3-2 を完了: `cin`・`cout`、`cstdarg` と `va_*`、`setjmp` 系、`basic_*stream`・`iostream`、`basic_streambuf`・`filebuf`・`stringbuf`・`spanbuf`・`syncbuf`
