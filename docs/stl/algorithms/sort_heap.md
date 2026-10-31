@@ -14,33 +14,38 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::sort_heap` は、**ヒープを小さい順に整列した範囲にする**アルゴリズムです。「ヒープソート」の後半にあたります。整列後はもうヒープではありません。
+ヒープになっている範囲を、昇順に並べ替えたい。`std::sort_heap` は、ヒープから最大を順に取り出して、後ろから詰めていくことで、整列を完成させます。ヒープソートの後半の処理です。
 
 !!! tip "ポイント"
-    - `make_heap` → `sort_heap` で、ヒープソートになる。
-    - 計算量は O(n log n)。普通は `sort` のほうが速い。
-    - 整列したあとは、ヒープとして使えない。
+    - ヒープの範囲を、昇順に並べ替える
+    - 事前条件: 範囲がヒープであること
+    - 計算量は O(n log n)
+    - 終わったあとは、ヒープではなくなる
 
 !!! info "このページを読む前に"
-    [イテレータ](../../basics/iterator.md)、[ヒープ](../../basics/heap.md) が分かると読みやすいです。
+    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
-### std::ranges::sort_heap {#sort_heap}
+### std::sort_heap {#sort_heap}
+
+<span class="ver ver-11">C++98〜</span>
 
 ```cpp
-template <random_access_range R, class Comp = ranges::less, class Proj = identity>
-constexpr borrowed_iterator_t<R> sort_heap(R&& r, Comp comp = {}, Proj proj = {});
+template <class RandomIt>
+void sort_heap(RandomIt first, RandomIt last);
+
+template <class RandomIt, class Compare>
+void sort_heap(RandomIt first, RandomIt last, Compare comp);
 ```
 
-| 引数 | 型 | 意味 | 省略すると |
-| --- | --- | --- | --- |
-| `r` | 範囲 | ヒープとして扱う範囲（ランダムアクセスできること） |  |
-| `comp` | 関数 | 並べる順の比較 | `<`（最大が先頭） |
-| `proj` | プロジェクション | 比べる前の変換 | そのまま |
+`make_heap` で範囲をヒープにしたあと、`sort_heap` を呼ぶと、ヒープソートが完成します。
 
-- 戻り値: 範囲の終わり
-- 計算量: O(n log n)
+安定ではありません（同じ値の順序は保たれない）。通常の整列は `std::sort`（平均で速い）を使います。ヒープソートは、最悪でも O(n log n) が保証される点が特徴です。
+
+比較は、`make_heap` に渡したものと同じものを渡します。違うと、整列の結果が不定です。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
@@ -48,45 +53,42 @@ constexpr borrowed_iterator_t<R> sort_heap(R&& r, Comp comp = {}, Proj proj = {}
 #include <vector>
 
 int main() {
-  std::vector<int> v = {3, 1, 4, 1, 5};
-  std::ranges::make_heap(v);
-  std::ranges::sort_heap(v);  // 小さい順になる
+  std::vector<int> v = {3, 1, 4, 1, 5, 9, 2, 6};
+
+  std::make_heap(v.begin(), v.end());
+  std::sort_heap(v.begin(), v.end());
+
   std::println("{}", v);
 }
 ```
 
 ```text title="実行結果"
-[1, 1, 3, 4, 5]
+[1, 1, 2, 3, 4, 5, 6, 9]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ヒープに入れた結果を一度だけ整列して表示する | `sort_heap` |
+普段は `sort` を使います。最悪の計算量を保証したい、組み込み的な場面で使われます。
 
 ## よくあるミス
 
-??? failure "整列後もヒープだと思う"
-    `sort_heap` のあとは昇順の配列で、ヒープではありません。続けて `push_heap` するには、もう一度 `make_heap` が必要です。
+??? failure "ヒープでない範囲に使う"
+    結果が不定です。先に `make_heap` します。
+
+??? failure "比較が make_heap と違う"
+    整列が壊れます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::sort`](sort.md) | 普通の整列。ほとんどの場合これでよい |
-| [`std::ranges::make_heap`](make_heap.md) | ヒープを作る |
+| [`make_heap`](make_heap.md) | 範囲をヒープにする |
+| [`push_heap`](push_heap.md) | 要素を足す |
+| [`sort`](sort.md) | 通常の整列 |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] ヒープを昇順に整列する
-    - [x] そのあとはヒープではない
-    - [x] 普通は `sort` を使う
+C++98 から使えます。
 
 ## 関連ページ
 

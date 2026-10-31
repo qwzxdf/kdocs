@@ -14,81 +14,81 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::swap_ranges` は、**2 つの範囲の要素を先頭から順に 1 つずつ入れ替える**アルゴリズムです。同じ長さの 2 つの配列の中身を丸ごと交換できます。
+2 つの範囲の中身を、丸ごと入れ替えたい。`std::swap_ranges(first1, last1, first2)` は、1 つ目の範囲の各要素と、2 つ目の範囲の対応する要素を `swap` します。2 つのコンテナの先頭から数個を入れ替える、といった使い方ができます。
 
 !!! tip "ポイント"
-    - 短いほうの長さまで入れ替える。
-    - コンテナ全体を交換するなら、`a.swap(b)` のほうが速い（ポインターを入れ替えるだけ）。
-    - 同じ範囲の中で重ねて使ってはいけない。
+    - 2 つの範囲の対応する要素を、順に `swap` する
+    - 2 つ目は、先頭だけを渡す。1 つ目と同じ長さが要る
+    - 2 つの範囲が重なっていると、未定義動作
+    - 戻り値は、2 つ目の範囲の最後の次の位置
 
 !!! info "このページを読む前に"
     [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
-### std::ranges::swap_ranges {#swap_ranges}
+### std::swap_ranges {#swap_ranges}
+
+<span class="ver ver-11">C++98〜</span>
 
 ```cpp
-template <input_range R1, input_range R2>
-constexpr swap_ranges_result<borrowed_iterator_t<R1>, borrowed_iterator_t<R2>>
-swap_ranges(R1&& r1, R2&& r2);
+template <class ForwardIt1, class ForwardIt2>
+ForwardIt2 swap_ranges(ForwardIt1 first1, ForwardIt1 last1, ForwardIt2 first2);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `r1`, `r2` | 範囲 | 入れ替える 2 つの範囲（重なっていないこと） |
+要素ごとに `std::iter_swap` を呼ぶのと同じです。
 
-- 戻り値: `in1` と `in2`（入れ替えた最後の次の位置）の組
-- 計算量: 短いほうの長さ n に対して n 回の `swap`
+コンテナ全体の入れ替えは、`a.swap(b)`（ポインターの付け替えだけで速い）を使います。`swap_ranges` は、要素の値を 1 つずつ入れ替えるので、コンテナの一部を入れ替えるときに使います。
+
+C++20 の `std::ranges::swap_ranges` は、範囲を直接渡せます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
-#include <array>
 #include <print>
+#include <vector>
 
 int main() {
-  std::array<int, 3> a = {1, 2, 3};
-  std::array<int, 3> b = {7, 8, 9};
+  std::vector<int> a = {1, 2, 3, 4};
+  std::vector<int> b = {10, 20, 30, 40};
 
-  std::ranges::swap_ranges(a, b);
-  std::println("{} {}", a, b);
+  // 先頭の 2 個ずつを入れ替える
+  std::swap_ranges(a.begin(), a.begin() + 2, b.begin());
+
+  std::println("{}", a);
+  std::println("{}", b);
 }
 ```
 
 ```text title="実行結果"
-[7, 8, 9] [1, 2, 3]
+[10, 20, 3, 4]
+[1, 2, 30, 40]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 前のフレームと今のフレームのバッファを入れ替える | `swap_ranges(prev, curr)`（大きいなら `swap`） |
-| 2 つのパーティの同じ位置のメンバーを入れ替える | `swap_ranges(party_a, party_b)` |
+2 つのバッファの一部の内容を交換するときに使います。全体の入れ替えは `swap` です。
 
 ## よくあるミス
 
-??? failure "長さが違う"
-    短いほうの長さまでしか入れ替えません。長いほうの余りは変わらないので、意図しない中身になります。
+??? failure "範囲が重なる"
+    未定義動作です。
+
+??? failure "2 つ目の範囲が短い"
+    範囲の外を触ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| `a.swap(b)`（コンテナ） | コンテナ全体を一瞬で交換する |
-| [`std::swap`](../utilities/swap.md) | 2 つの値を交換する |
-| [`std::ranges::reverse`](reverse.md) | 1 つの範囲の並びを逆にする |
+| [`iter_swap`](iter_swap.md) | 2 つの要素だけを入れ替える |
+| `std::swap` | 2 つの値を入れ替える |
+| [`reverse`](reverse.md) | 並びを逆にする |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 2 つの範囲を先頭から順に入れ替える
-    - [x] 短いほうの長さまで
-    - [x] コンテナ全体なら `a.swap(b)`
+C++98 から使えます。
 
 ## 関連ページ
 

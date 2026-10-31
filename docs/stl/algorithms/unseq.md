@@ -14,12 +14,13 @@ tags:
 `#include <execution>`
 </div>
 
-`std::execution::unseq` は、スレッドは増やさず、1 つのスレッドの中で SIMD 命令でまとめて処理することを許します。処理の中でロックを取ってはいけません。
+`std::execution::unseq`（C++20）は、「1 つのスレッドの中で、SIMD によるベクトル化をしてよい」と許可する実行ポリシーです。複数のスレッドは使いません。ループの複数の反復が、交互に混ざって実行されるかもしれないので、反復どうしが、お互いに依存しない処理だけに使います。
 
 !!! tip "ポイント"
-    - アルゴリズムの第 1 引数に渡して使う。
-    - 実装の対応はコンパイラごとに違う（GCC は TBB が必要なことがある）。
-    - 処理の中で、データ競合を起こさないようにする。
+    - 1 つのスレッドの中で、ベクトル化（SIMD）を許可する
+    - 型は `std::execution::unsequenced_policy`
+    - 要素の処理は、混ざって実行されうる。反復どうしを独立にする
+    - 複数スレッドも許可するなら `par_unseq`
 
 !!! info "このページを読む前に"
     [実行ポリシー](execution.md) を先に読んでください。
@@ -28,13 +29,17 @@ tags:
 
 ### std::execution::unseq {#unseq}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-inline constexpr /* 実装定義 */ std::execution::unseq;
+inline constexpr std::execution::unsequenced_policy unseq{};
 ```
 
-- 戻り値: なし（ポリシーの定数）
-- 計算量: アルゴリズムに依存
+SIMD では、複数の要素が 1 つの命令で同時に処理されます。そのため、1 つの要素の処理の途中に、別の要素の処理が割り込みます。要素の処理が、ロックを取る、共有の変数を書く、といった動作をすると、混ざって実行されたときに破綻します。
 
+そのため、要素に対する操作は、ミューテックスの取得や、同期を伴う操作を含んではいけません。例外を投げると、`std::terminate` です。
+
+効果は、処理の中身とコンパイラ次第です。単純な算術の変換（`transform`）では大きく、複雑な分岐を含むと、小さくなります。
 
 ## 実際に動かしてみる
 
@@ -45,43 +50,44 @@ inline constexpr /* 実装定義 */ std::execution::unseq;
 #include <vector>
 
 int main() {
-  std::vector<int> v = {3, 1, 2};
-  std::sort(std::execution::unseq, v.begin(), v.end());
-  std::println("{}", v);
+  std::vector<float> in(1000, 2.0f);
+  std::vector<float> out(in.size());
+
+  // 反復どうしが独立な処理に、unseq を許可する
+  std::transform(std::execution::unseq, in.begin(), in.end(), out.begin(),
+                 [](float x) { return x * x; });
+
+  std::println("{} {}", out.front(), out.back());
 }
 ```
 
 ```text title="実行結果"
-[1, 2, 3]
+4 4
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 大量のデータの整列や変換を速くする | `std::sort(std::execution::unseq, v.begin(), v.end());` |
+大量の要素への単純な算術演算で、SIMD を明示的に許可するときに使います。
 
 ## よくあるミス
 
-??? failure "データ競合を起こす"
-    ポリシーを付けると、要素ごとの処理が並行・同時に走ることがあります。共有する変数への書き込みは、`atomic` などで守ります。
+??? failure "要素の処理でロックを取る"
+    混ざって実行されて、破綻します。
+
+??? failure "反復どうしが依存している"
+    結果が不定になります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`execution`](execution.md) | 実行ポリシーの全体 |
+| [`seq`](seq.md) | 順次実行 |
+| [`par_unseq`](par_unseq.md) | 並列と SIMD |
+| [`execution`](execution.md) | 実行ポリシーの概要 |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC では TBB（`-ltbb`）が必要なことがあります。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 1 つのスレッドの中で、ベクトル化（SIMD）を許して実行するポリシー
-    - [x] アルゴリズムの第 1 引数に渡す
-    - [x] データ競合に注意
+C++20 から使えます。
 
 ## 関連ページ
 

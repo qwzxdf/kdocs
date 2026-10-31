@@ -13,32 +13,38 @@ tags:
 `#include <numeric>`
 </div>
 
-`std::partial_sum` は、<strong>先頭から各位置までの合計（累積和）</strong>を作る関数です。`{1, 2, 3, 4}` から `{1, 3, 6, 10}` ができます。経験値の累計、確率の累積分布（ガチャの抽選）などに使います。
+スコアの履歴から累計を、距離の列から累積距離を求めたい。`std::partial_sum` は、先頭から各位置までの合計を並べます。`{1,2,3,4}` から `{1,3,6,10}` を作ります。`adjacent_difference` の逆の働きです。
 
 !!! tip "ポイント"
-    - 出力は入力と同じ長さ。同じ範囲に書き戻すこともできる。
-    - 「n 番目までの合計」を何度も求めるときに、先に作っておくと速い。
-    - C++17 の [`inclusive_scan`](inclusive_scan.md) は、これの並列化できる版。
+    - 出力の `i` 番目は、入力の 0 〜 `i` 番目の合計
+    - 加算の代わりに、別の演算も指定できる
+    - 入力と出力が同じ範囲でもよい
+    - C++17 の `inclusive_scan` が、並列に対応した後継
 
 !!! info "このページを読む前に"
-    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。ヘッダーは `<numeric>` です。
+    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
 ### std::partial_sum {#partial_sum}
 
+<span class="ver ver-11">C++98〜</span>
+
 ```cpp
 template <class InputIt, class OutputIt>
 OutputIt partial_sum(InputIt first, InputIt last, OutputIt d_first);
+
+template <class InputIt, class OutputIt, class BinaryOp>
+OutputIt partial_sum(InputIt first, InputIt last, OutputIt d_first, BinaryOp op);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first`, `last` | イテレータ | 入力の範囲 |
-| `d_first` | 出力イテレータ | 書き出し先の先頭（入力と同じでもよい） |
+`out[0] = in[0]`、`out[i] = op(out[i-1], in[i])` で、前の結果に次の要素を足していきます。順序が決まっているので、並列にはできません。
 
-- 戻り値: 書き出した最後の次の位置
-- 計算量: O(n)
+整数がオーバーフローしないかは、呼び出し側の責任です。要素の型が `int` で、合計が大きくなるなら、出力に `long long` を使います。出力先の型が合計の型になります。
+
+並列化できる `std::inclusive_scan` は、演算が結合法則を満たすことが前提です。浮動小数点数の加算は、厳密には結合法則を満たさないので、`inclusive_scan` と `partial_sum` で結果が微妙に違うことがあります。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <numeric>
@@ -46,48 +52,44 @@ OutputIt partial_sum(InputIt first, InputIt last, OutputIt d_first);
 #include <vector>
 
 int main() {
-  std::vector<int> drop_rate = {50, 30, 15, 5};  // ガチャの確率（%）
-  std::vector<int> cumulative(drop_rate.size());
+  const std::vector<int> v = {1, 2, 3, 4};
 
-  std::partial_sum(drop_rate.begin(), drop_rate.end(), cumulative.begin());
-  std::println("{}", cumulative);  // 乱数 0〜99 をこの表のどこに入るかで判定
+  std::vector<int> sums(v.size());
+  std::partial_sum(v.begin(), v.end(), sums.begin());
+  std::println("{}", sums);
+
+  // 積の累計
+  std::vector<int> prods(v.size());
+  std::partial_sum(v.begin(), v.end(), prods.begin(), std::multiplies<>());
+  std::println("{}", prods);
 }
 ```
 
 ```text title="実行結果"
-[50, 80, 95, 100]
+[1, 3, 6, 10]
+[1, 2, 6, 24]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ガチャの排出率の累積表 | `partial_sum(rates, cumulative)` |
-| レベルごとの必要経験値の累計 | `partial_sum(exp_per_level, total)` |
+重みつき抽選で、重みの累計を作り、乱数がどの区間に入るかを二分探索で探すのが定番です。
 
 ## よくあるミス
 
-??? failure "オーバーフロー"
-    累積するので、`int` が大きな値で溢れることがあります。累積の型は大きめにします。
+??? failure "出力の型が小さくて、オーバーフローする"
+    `long long` などの大きい型にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::inclusive_scan`](inclusive_scan.md) | 並列化できる版 |
-| [`std::adjacent_difference`](adjacent_difference.md) | 逆の操作（差分） |
-| [`std::accumulate`](accumulate.md) | 最終的な合計だけ |
+| [`inclusive_scan`](inclusive_scan.md) | 並列版の後継 |
+| [`adjacent_difference`](adjacent_difference.md) | 逆の働き |
+| [`accumulate`](accumulate.md) | 最後の合計だけを求める |
 
 ## コンパイラ対応
 
 C++98 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 先頭からの累積和を作る
-    - [x] `adjacent_difference` の逆
-    - [x] 累積分布の表に使える
 
 ## 関連ページ
 

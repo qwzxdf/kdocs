@@ -14,35 +14,37 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::find_end` は、**ある範囲の中から、別の範囲と同じ並びが「最後に」現れる場所**を探します。名前に反して「終わりを探す」のではなく、[`search`](search.md) の「最後の一致」版です。
+文字列の中から、部分文字列が<strong>最後に</strong>現れる位置を探したい。`std::find_end(first, last, s_first, s_last)` は、`[first, last)` の中で、`[s_first, s_last)` と同じ並びが最後に現れる位置を返します。名前の「end」は、「最後の」の意味です。
 
 !!! tip "ポイント"
-    - `search` は最初の一致、`find_end` は**最後の一致**。
-    - 戻り値は見つかった部分の範囲。見つからなければ空。
-    - 名前が紛らわしい（`find_last` は 1 つの値の最後）。
+    - 部分列が最後に現れる位置の先頭を返す
+    - 見つからなければ `last`
+    - 最初の位置なら `std::search`
+    - 述語を渡して、比較を変えられる
 
 !!! info "このページを読む前に"
     [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
-### std::ranges::find_end {#find_end}
+### std::find_end {#find_end}
+
+<span class="ver ver-11">C++98〜</span>
 
 ```cpp
-template <forward_range R1, forward_range R2, class Pred = ranges::equal_to,
-          class Proj1 = identity, class Proj2 = identity>
-constexpr borrowed_subrange_t<R1> find_end(R1&& r1, R2&& r2, Pred pred = {},
-                                           Proj1 proj1 = {}, Proj2 proj2 = {});
+template <class ForwardIt1, class ForwardIt2>
+ForwardIt1 find_end(ForwardIt1 first, ForwardIt1 last, ForwardIt2 s_first, ForwardIt2 s_last);
 ```
 
-| 引数 | 型 | 意味 | 省略すると |
-| --- | --- | --- | --- |
-| `r1` | 範囲 | 探す場所 |  |
-| `r2` | 範囲 | 探す並び |  |
-| `pred` | 関数 | 「等しい」の判定 | `==` |
+探す列が空のときは、`last` を返します。
 
-- 戻り値: 最後に一致した部分の範囲。見つからなければ空
-- 計算量: 最悪 O(n·m)
+名前が紛らわしく、「終端を探す」と誤解されがちです。「最後に現れる部分列を探す」です。
+
+`std::string` なら、`s.rfind(sub)` のほうが簡潔です。汎用のコンテナの部分列には、`find_end` を使います。
+
+C++20 の `std::ranges::find_end` は、部分範囲を返します。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
@@ -50,46 +52,43 @@ constexpr borrowed_subrange_t<R1> find_end(R1&& r1, R2&& r2, Pred pred = {},
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3, 1, 2, 3, 4};
-  std::vector<int> sub = {1, 2, 3};
+  const std::vector<int> v = {1, 2, 3, 1, 2, 3, 4};
+  const std::vector<int> sub = {1, 2, 3};
 
-  auto last = std::ranges::find_end(v, sub);
-  std::println("最後に現れる位置: {}", last.begin() - v.begin());
+  const auto last_pos = std::find_end(v.begin(), v.end(), sub.begin(), sub.end());
+  std::println("最後に現れる位置: {}", last_pos - v.begin());
+
+  const std::vector<int> missing = {9, 9};
+  std::println("なければ end: {}",
+               std::find_end(v.begin(), v.end(), missing.begin(), missing.end()) == v.end());
 }
 ```
 
 ```text title="実行結果"
 最後に現れる位置: 3
+なければ end: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ログの中で、最後に「接続」→「切断」の並びが出た場所 | `find_end(log, pattern)` |
+ログやコマンド列から、特定のパターンが最後に現れた位置を探すときに使います。
 
 ## よくあるミス
 
-??? failure "名前から「終わりの位置を返す」と思う"
-    返るのは「最後の一致」の範囲です。終わりを返すわけではありません。
+??? failure "終端を探す関数だと思う"
+    最後に現れる部分列を探します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::search`](search.md) | 最初の一致を探す |
-| [`std::ranges::find_last`](find_last.md) | 1 つの値の最後の一致を探す |
+| [`search`](search.md) | 最初に現れる位置 |
+| [`find`](find.md) | 1 要素を探す |
+| `std::string::rfind` | 文字列の最後の位置 |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 並びの「最後の一致」を探す
-    - [x] 最初の一致は `search`
-    - [x] 見つからなければ空の範囲
+C++98 から使えます。
 
 ## 関連ページ
 

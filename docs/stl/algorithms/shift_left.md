@@ -14,12 +14,13 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::shift_left` は、**範囲の要素を n 個ぶん、前（左）へずらす**関数です。回転（[`rotate`](rotate.md)）と違い、はみ出した先頭の要素は捨てられ、後ろの空いた部分は**放置**されます（値は不定）。`std::ranges::shift_left` はありません（C++23 時点）。
+リングバッファのように、配列の要素を前へずらして、先頭の `n` 個を捨てたい。`std::shift_left(first, last, n)` は、要素を `n` 個ぶん前に動かします。後ろの `n` 個は、ムーブされた状態（値は不定）になります。
 
 !!! tip "ポイント"
-    - 戻り値は、ずらした結果の有効な範囲。その後ろは不定。
-    - 後ろを消すなら、戻り値の終わりから `erase` する。
-    - `rotate` と違って、はみ出た要素は戻ってこない。
+    - 要素を `n` 個ぶん、前（先頭側）へずらす
+    - 先頭の `n` 個は捨てられる
+    - 後ろの `n` 個は、使い終えた（ムーブ後の）状態。値に意味はない
+    - 戻り値は、有効な範囲の終端
 
 !!! info "このページを読む前に"
     [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
@@ -28,19 +29,25 @@ tags:
 
 ### std::shift_left {#shift_left}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class ForwardIt>
-constexpr ForwardIt shift_left(ForwardIt first, ForwardIt last,
-                               typename std::iterator_traits<ForwardIt>::difference_type n);
+ForwardIt shift_left(ForwardIt first, ForwardIt last,
+                     typename std::iterator_traits<ForwardIt>::difference_type n);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first`, `last` | イテレータ | ずらす範囲 |
-| `n` | 整数 | ずらす個数（0 以下は何もしない） |
+戻り値は、ずらした後の有効な要素の終端（`last - n`）です。`n` が 0 以下なら何もせず `last` を返し、範囲の長さ以上なら何もしないで `first` を返します。
 
-- 戻り値: 有効になった範囲の終わりのイテレータ（`n` が大きいと `first`）
-- 計算量: O(要素数)
+後ろの `n` 個は、ムーブされたあとの状態で、使える値ではありません。`vector` なら、戻り値から `end()` までを `erase` します。
+
+```cpp
+v.erase(std::shift_left(v.begin(), v.end(), 2), v.end());
+```
+
+`std::rotate` は要素を捨てずに回転します。`shift_left` は、捨てるところが違います。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
@@ -50,8 +57,9 @@ constexpr ForwardIt shift_left(ForwardIt first, ForwardIt last,
 int main() {
   std::vector<int> v = {1, 2, 3, 4, 5};
 
-  auto new_end = std::shift_left(v.begin(), v.end(), 2);  // 前へ 2 つずらす
-  v.erase(new_end, v.end());                              // 後ろの不定な部分を消す
+  // 先頭の 2 個を捨てて、前へ詰める
+  const auto new_end = std::shift_left(v.begin(), v.end(), 2);
+  v.erase(new_end, v.end());
   std::println("{}", v);
 }
 ```
@@ -62,34 +70,24 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| タイムラインの先頭の古いデータを捨てる | `shift_left(buf.begin(), buf.end(), n)` |
-| スクロールするログ表示 | 先頭の n 行を捨てる |
+履歴のバッファで、古い要素を捨てて、前へ詰めるときに使います。
 
 ## よくあるミス
 
-??? failure "後ろの不定な要素を読む"
-    ずらしたあとの末尾は不定です。`erase` するか、戻り値までしか読まないようにします。
+??? failure "後ろの n 個の値を使う"
+    使い終えた状態です。`erase` で消します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::shift_right`](shift_right.md) | 後ろへずらす |
-| [`std::ranges::rotate`](rotate.md) | 回転（要素を捨てない） |
-| `std::vector::erase` | 先頭の要素を消す。ずらしは内部で行われる |
+| [`shift_right`](shift_right.md) | 逆向き |
+| [`rotate`](rotate.md) | 捨てずに回転 |
+| [`remove`](remove.md) | 条件に合う要素を詰めて消す |
 
 ## コンパイラ対応
 
-C++20 の機能です。ranges 版（`std::ranges::shift_left`）は C++26 で追加される予定です。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] n 個ぶん前へずらす
-    - [x] 後ろは不定
-    - [x] はみ出た要素は捨てられる
+C++20 から使えます。
 
 ## 関連ページ
 

@@ -14,73 +14,87 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::fold_right` は、**範囲の要素を右（末尾）から順に畳み込む**アルゴリズムです。[`fold_left`](fold_left.md) の逆向きで、関数が左右対称でない（引き算、連結など）ときに結果が変わります。
+右から左へ畳み込む処理が、C++23 の `std::ranges::fold_right` です。`fold_left` が `((init op a) op b) op c` と左から畳むのに対し、`fold_right` は `a op (b op (c op init))` と右から畳みます。演算が結合法則を満たさない（引き算など）とき、結果が違います。
 
 !!! tip "ポイント"
-    - `fold_right` は末尾から始めて、`f(要素, 結果)` の形で畳む（引数の順が `fold_left` と逆）。
-    - 足し算や掛け算のように、順序が関係しない関数なら `fold_left` と同じ結果。
-    - 初期値なしで末尾の要素から始める `fold_right_last` もある。
+    - 右から左へ畳み込む（`a op (b op (c op init))`）
+    - 初期値が必須。なければ `fold_right_last`
+    - 演算の引数の順は `(要素, 蓄積した値)`
+    - C++23
 
 !!! info "このページを読む前に"
-    [ラムダ式](../../basics/lambda.md) が分かると読みやすいです。
+    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
-### std::ranges::fold_right <span class="ver ver-23">C++23</span> {#fold_right data-toc-label="std::ranges::fold_right"}
+### std::ranges::fold_right {#fold_right}
+
+<span class="ver ver-23">C++23</span>
 
 ```cpp
 template <bidirectional_range R, class T, class F>
 constexpr auto fold_right(R&& r, T init, F f);
 ```
 
-- 末尾から畳み込みます。`f` は `(要素, これまでの結果)` の順に受け取ります
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `r` | 双方向範囲 | 畳む対象 |
+| `init` | `T` | 初期値（一番右に置かれる） |
+| `f` | 二項関数 | `f(要素, 蓄積した値)` |
+
+`fold_left` とは、`f` の引数の順番が逆です。`fold_left` は `f(蓄積した値, 要素)`、`fold_right` は `f(要素, 蓄積した値)` です。
+
+`{1, 2, 3}` を引き算で畳むと、`fold_left` は `((0 - 1) - 2) - 3 = -6`、`fold_right` は `1 - (2 - (3 - 0)) = 2` です。
+
+足し算や掛け算のように、結合法則を満たす演算では、どちらでも同じです。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
+#include <functional>
 #include <print>
-#include <string>
 #include <vector>
 
 int main() {
-  std::vector<std::string> v = {"a", "b", "c"};
-  auto s = std::ranges::fold_right(
-      v, std::string(), [](const std::string& x, std::string acc) { return acc + x; });
-  std::println("{}", s);
+  const std::vector<int> v = {1, 2, 3};
+
+  // 右から畳む: 1 - (2 - (3 - 0))
+  std::println("fold_right: {}", std::ranges::fold_right(v, 0, std::minus<>()));
+  // 左から畳む: ((0 - 1) - 2) - 3
+  std::println("fold_left:  {}", std::ranges::fold_left(v, 0, std::minus<>()));
+
+  // 結合法則を満たす演算なら同じ
+  std::println("合計: {}", std::ranges::fold_right(v, 0, std::plus<>()));
 }
 ```
 
 ```text title="実行結果"
-cba
+fold_right: 2
+fold_left:  -6
+合計: 6
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 右結合の式（例: `a - (b - c)`）の評価 | `fold_right(v, 0, 引き算)` |
+右結合の演算（関数の合成、リストの構築）を畳むときに使います。
 
 ## よくあるミス
 
-??? failure "fold_left と同じ引数の順で書く"
-    `fold_left` の関数は `f(結果, 要素)`、`fold_right` は `f(要素, 結果)` です。引数の順が逆なので注意します。
+??? failure "引数の順を fold_left と同じだと思う"
+    `(要素, 蓄積した値)` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::fold_left`](fold_left.md) | 左から畳み込む |
-| [`std::accumulate`](accumulate.md) | 従来の合計 |
+| [`fold_right_last`](fold_right_last.md) | 初期値なし |
+| [`fold_left`](fold_left.md) | 左から畳む |
+| [`accumulate`](accumulate.md) | 従来の左畳み込み |
 
 ## コンパイラ対応
 
-C++23 の機能です。GCC 13 / Clang 19 / MSVC 19.34（VS 2022 17.4）以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 右（末尾）から畳み込む
-    - [x] 関数の引数の順は `f(要素, 結果)`
-    - [x] C++23
+C++23 から使えます。
 
 ## 関連ページ
 

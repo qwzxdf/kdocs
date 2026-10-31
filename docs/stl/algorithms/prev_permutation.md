@@ -14,31 +14,40 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::prev_permutation` は、[`next_permutation`](next_permutation.md) の逆で、**要素の並びを辞書順で「前の並べ方」に変える**アルゴリズムです。降順から始めると、全部の並べ方が逆の順番で作れます。
+並べ方の全パターンを、順に試したい。`std::next_permutation` が、辞書順で次の並べ方に進めるのに対し、`std::prev_permutation` は、<strong>前</strong>の並べ方に戻します。降順から始めれば、全パターンを逆の順に作れます。
 
 !!! tip "ポイント"
-    - **降順の状態**から始めると、全部の並べ方を作れる。
-    - 最初の並べ方まで来ると `false` を返し、並びは最後（降順）に戻る。
+    - 辞書順で「前」の並べ方に変える
+    - 前があれば `true`、なければ（最初の並び）`false` を返し、最後の並び（降順）に戻る
+    - 降順から始めると、全部の並べ方を巡れる
+    - 重複する要素があると、同じ並べ方は 1 回だけ
 
 !!! info "このページを読む前に"
     [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
-### std::ranges::prev_permutation {#prev_permutation}
+### std::prev_permutation {#prev_permutation}
+
+<span class="ver ver-11">C++98〜</span>
 
 ```cpp
-template <bidirectional_range R, class Comp = ranges::less, class Proj = identity>
-constexpr prev_permutation_result<borrowed_iterator_t<R>> prev_permutation(R&& r, Comp comp = {}, Proj proj = {});
+template <class BidirIt>
+bool prev_permutation(BidirIt first, BidirIt last);
+
+template <class BidirIt, class Compare>
+bool prev_permutation(BidirIt first, BidirIt last, Compare comp);
 ```
 
-| 引数 | 型 | 意味 | 省略すると |
-| --- | --- | --- | --- |
-| `r` | 範囲 | 並べ替える範囲 |  |
-| `comp` | 関数 | 辞書順を決める比較 | `<` |
+`next_permutation` と逆向きに、同じアルゴリズムで動きます。計算量は、1 回あたり O(n) です。
 
-- 戻り値: `in` と `found`（前の並べ方があれば `true`）
-- 計算量: O(n)
+`do { ... } while (std::prev_permutation(v.begin(), v.end()));` の形で、全パターンを処理できます。
+
+要素の数が増えると、パターン数が階乗で増えます（10 個で約 360 万、13 個で約 62 億）。試せるのは 10 個程度までです。
+
+C++20 の `std::ranges::prev_permutation` は、範囲を直接渡せます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
@@ -47,42 +56,46 @@ constexpr prev_permutation_result<borrowed_iterator_t<R>> prev_permutation(R&& r
 
 int main() {
   std::vector<int> v = {1, 3, 2};
-  std::ranges::prev_permutation(v);
-  std::println("{}", v);
+  std::prev_permutation(v.begin(), v.end());
+  std::println("{}", v);  // 1 つ前の並び
+
+  // 降順から始めて、全パターンを数える
+  std::vector<int> w = {3, 2, 1};
+  int count = 0;
+  do {
+    ++count;
+  } while (std::prev_permutation(w.begin(), w.end()));
+  std::println("パターン数: {}", count);
+  std::println("最後は降順に戻る: {}", w);
 }
 ```
 
 ```text title="実行結果"
 [1, 2, 3]
+パターン数: 6
+最後は降順に戻る: [3, 2, 1]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 降順から全パターンを試す | `do { ... } while (prev_permutation(order).found)` |
+小さな問題の全探索（パズルの総当たり）で使います。
 
 ## よくあるミス
 
-??? failure "昇順から始めて、すぐ終わる"
-    昇順は「最初の並べ方」なので、`found` が `false` になります。降順から始めます。
+??? failure "ソートせずに始める"
+    途中の並びから始まり、全パターンを巡れません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::next_permutation`](next_permutation.md) | 辞書順で次の並べ方 |
+| [`next_permutation`](next_permutation.md) | 次の並べ方に進める |
+| [`is_permutation`](is_permutation.md) | 並べ替えの関係を調べる |
+| [`sort`](sort.md) | 最初の並びを作る |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 辞書順で前の並べ方にする
-    - [x] 降順から始める
-    - [x] `next_permutation` の逆
+C++98 から使えます。
 
 ## 関連ページ
 

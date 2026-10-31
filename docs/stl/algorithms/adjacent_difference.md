@@ -13,32 +13,44 @@ tags:
 `#include <numeric>`
 </div>
 
-`std::adjacent_difference` は、**隣り合う要素の差**を求める関数です。`{1, 3, 6, 10}` から `{1, 2, 3, 4}` ができます（先頭は元のまま）。[`partial_sum`](partial_sum.md) の逆の操作で、「累積値から、毎回の増加量を取り出す」ときに使います。
+時間ごとの累計から、各時間の増分を求めたい。スコアの推移から、1 回ごとの得点を求めたい。隣り合う要素の差を並べるのが `std::adjacent_difference` です。`partial_sum` の逆の働きで、先頭の要素はそのまま、2 番目以降は「自分 - 1 つ前」になります。
 
 !!! tip "ポイント"
-    - 先頭の要素は、元のまま出力される。
-    - 差ではなく、別の演算（比、和など）を指定することもできる。
-    - 同じ範囲に書き戻せる。
+    - 出力の先頭は入力の先頭のまま。2 番目以降は、前の要素との差
+    - 出力の長さは入力と同じ
+    - 入力と出力が同じ範囲でもよい（その場で変換できる）
+    - 差を別の演算（割り算など）にも変えられる
 
 !!! info "このページを読む前に"
-    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。ヘッダーは `<numeric>` です。
+    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
 ### std::adjacent_difference {#adjacent_difference}
 
+<span class="ver ver-11">C++98〜</span>
+
 ```cpp
 template <class InputIt, class OutputIt>
 OutputIt adjacent_difference(InputIt first, InputIt last, OutputIt d_first);
+
+template <class InputIt, class OutputIt, class BinaryOp>
+OutputIt adjacent_difference(InputIt first, InputIt last, OutputIt d_first, BinaryOp op);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `first`, `last` | イテレータ | 入力の範囲 |
-| `d_first` | 出力イテレータ | 書き出し先の先頭 |
+| `first`, `last` | 入力イテレータ | 入力の範囲 |
+| `d_first` | 出力イテレータ | 出力の先頭 |
+| `op` | 二項関数 | 差の代わりの演算。省略すると `-` |
 
-- 戻り値: 書き出した最後の次の位置
-- 計算量: O(n)
+`out[0] = in[0]`、`out[i] = op(in[i], in[i-1])` です。戻り値は、出力の最後の次の位置です。
+
+入力と出力が同じ範囲でも、先頭から順に処理されるので、結果が壊れません。
+
+並列版（`std::execution` つき）は、演算が結合法則を満たす必要はありませんが、実行の順序は規定されないので、`op` に副作用を持たせてはいけません。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <numeric>
@@ -46,47 +58,52 @@ OutputIt adjacent_difference(InputIt first, InputIt last, OutputIt d_first);
 #include <vector>
 
 int main() {
-  std::vector<int> total_score = {10, 25, 45, 70};  // 累計スコア
-  std::vector<int> gained(total_score.size());
+  const std::vector<int> total = {1, 4, 9, 16};  // 累計
+  std::vector<int> each(total.size());
+  std::adjacent_difference(total.begin(), total.end(), each.begin());
+  std::println("{}", each);  // 各回の増分
 
-  std::adjacent_difference(total_score.begin(), total_score.end(), gained.begin());
-  std::println("{}", gained);  // 各ステージで増えた点数
+  // 差の代わりに、積にする
+  std::vector<int> prod(total.size());
+  std::adjacent_difference(total.begin(), total.end(), prod.begin(), std::multiplies<>());
+  std::println("{}", prod);
+
+  // その場で変換する
+  std::vector<int> v = {1, 3, 6, 10};
+  std::adjacent_difference(v.begin(), v.end(), v.begin());
+  std::println("{}", v);
 }
 ```
 
 ```text title="実行結果"
-[10, 15, 20, 25]
+[1, 3, 5, 7]
+[1, 4, 36, 144]
+[1, 2, 3, 4]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 累計から、各ステージで増えた量を取り出す | `adjacent_difference(total, gained)` |
-| フレーム時刻の列から、フレーム間隔を求める | `adjacent_difference(times, deltas)` |
+フレームごとの累計時間から、各フレームの経過時間を求めるときに使います。
 
 ## よくあるミス
 
-??? failure "先頭が差ではないことを忘れる"
-    先頭の要素は、元の値のままです。差としては 2 番目からを使います。
+??? failure "先頭が差になると思う"
+    先頭は入力のままです。
+
+??? failure "出力の領域が足りない"
+    出力は入力と同じ長さが要ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::partial_sum`](partial_sum.md) | 逆の操作（累積和） |
-| [`std::ranges::adjacent_find`](adjacent_find.md) | 隣り合う条件の場所を探す |
+| [`partial_sum`](partial_sum.md) | 逆。累計を求める |
+| [`inclusive_scan`](inclusive_scan.md) | 累計の新しい形 |
+| [`transform`](transform.md) | 要素ごとの変換 |
 
 ## コンパイラ対応
 
 C++98 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 隣り合う要素の差を作る
-    - [x] 先頭は元のまま
-    - [x] `partial_sum` の逆
 
 ## 関連ページ
 

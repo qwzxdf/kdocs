@@ -15,73 +15,89 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::views::all` は、**どんな範囲でも「ビュー」にして返す**アダプターです。`vector` に使うと、中身を参照するだけの軽い [`ref_view`](ref_view.md) になり、右辺値の `vector` に使うと、中身を引き取る [`owning_view`](owning_view.md) になります。ビューのパイプラインの内部で自動的に使われているので、普段は意識しません。
+`std::views::all` は、どんな範囲でも、「ビュー」に変換する窓口です。コンテナの左辺値を渡すと、参照だけを持つ軽い `ref_view`、右辺値を渡すと、中身を所有する `owning_view`、すでにビューなら、そのまま返します。他のビュー アダプターが、内部で最初に呼びます。
 
 !!! tip "ポイント"
-    - すでにビューなら、そのまま返す。
-    - コンテナの左辺値なら `ref_view`（参照）、右辺値なら `owning_view`（所有）になる。
-    - 自分で書く場面はほとんどない。型を調べたいときに登場する。
+    - 範囲をビューに変換する
+    - コンテナの左辺値 → `ref_view`（参照だけ）
+    - コンテナの右辺値 → `owning_view`（所有する）
+    - ビューならそのまま。コピーされるだけ
 
 !!! info "このページを読む前に"
-    [ranges とビュー](../../../basics/ranges.md)、[ラムダ式](../../../basics/lambda.md) を先に読むと分かりやすいです。
+    [ビュー](../views.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
-### views::all {#all}
+### std::views::all {#all}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
-std::views::all(r)
-std::views::all_t<R>   // 結果の型
+inline constexpr /* 未規定 */ all = /* 未規定 */;
+template <class R> using all_t = decltype(views::all(std::declval<R>()));
 ```
 
-- 戻り値: 範囲を表すビュー（`ref_view` / `owning_view` など）
-- 計算量: O(1)
+| 渡すもの | 結果 |
+| --- | --- |
+| ビュー | そのコピー |
+| コンテナの左辺値 | `ref_view<コンテナ>` |
+| コンテナの右辺値 | `owning_view<コンテナ>`（C++20 の欠陥報告で追加） |
+
+`v | std::views::filter(...)` のようなパイプラインでは、`filter` が内部で `views::all(v)` を呼んでいます。そのため、普通は意識しません。
+
+型を書く必要があるとき（クラスのメンバーに、ビューを持つなど）は、`std::views::all_t<R>` が結果の型を教えてくれます。
+
+左辺値のコンテナは参照しか持たないので、元のコンテナより長く生かしてはいけません。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <ranges>
+#include <type_traits>
 #include <vector>
 
 int main() {
   std::vector<int> v = {1, 2, 3};
 
-  auto a = std::views::all(v);  // v を参照するビュー（コピーしない）
-  std::println("{}", std::ranges::size(a));
+  // 左辺値 → ref_view
+  static_assert(std::is_same_v<decltype(std::views::all(v)), std::ranges::ref_view<std::vector<int>>>);
+
+  // 右辺値 → owning_view
+  auto owned = std::views::all(std::vector<int>{4, 5, 6});
+  std::println("所有している要素数: {}", owned.size());
+
+  // ビューはそのまま
+  auto again = std::views::all(std::views::all(v));
+  std::println("{}", again.size());
 }
 ```
 
 ```text title="実行結果"
+所有している要素数: 3
 3
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| テンプレートの中で、受け取った範囲を「ビュー」として扱う | `std::views::all(r)` |
+自作のビュー アダプターを書くときに、受け取った範囲を、まず `views::all` でビューにします。
 
 ## よくあるミス
 
-??? failure "all が必要だと思い込む"
-    `v | std::views::filter(...)` のように、パイプでつなげば `all` は自動で挟まります。明示的に書くことはほとんどありません。
+??? failure "ビューを元のコンテナより長く保持する"
+    `ref_view` は参照だけです。ぶら下がります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::ref_view`](ref_view.md) | 左辺値を参照するビュー |
-| [`std::ranges::owning_view`](owning_view.md) | 右辺値を所有するビュー |
+| [`ref_view`](ref_view.md) | 参照だけを持つ |
+| [`owning_view`](owning_view.md) | 所有する |
+| [`subrange`](subrange.md) | イテレータの組 |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 範囲をビューにする
-    - [x] 自動で挟まるので普段は書かない
-    - [x] 型を調べるときに登場
+C++20 から使えます。
 
 ## 関連ページ
 

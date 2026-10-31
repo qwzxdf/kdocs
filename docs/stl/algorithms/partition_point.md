@@ -14,26 +14,33 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::partition_point` は、**すでに条件で分けられている範囲（前が条件に合い、後ろが合わない）から、その境目の位置を二分探索で見つける**アルゴリズムです。整列済みの範囲での [`lower_bound`](lower_bound.md) の、条件版です。
+述語で分かれている範囲（真の要素が先、偽があと）で、その境目の位置を知りたい。`std::partition_point` は、二分探索で、最初に偽になる要素の位置を O(log n) で求めます。`std::partition` の結果の境目を、あとから求めるのにも使えます。
 
 !!! tip "ポイント"
-    - 範囲は**すでに分けられている**必要がある。
-    - 計算量は O(log n)。
-    - 「しきい値を超えた最初の要素」を探すのに使える。
+    - 境目（最初に述語が偽になる要素）のイテレータを返す
+    - 範囲は、述語で分かれていること（`is_partitioned` が真）
+    - 二分探索なので O(log n)
+    - 全部が真なら `last`、全部が偽なら `first`
 
 !!! info "このページを読む前に"
-    [ラムダ式](../../basics/lambda.md)、[イテレータ](../../basics/iterator.md) が分かると読みやすいです。
+    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
-### std::ranges::partition_point {#partition_point}
+### std::partition_point {#partition_point}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <forward_range R, class Proj = identity, class Pred>
-constexpr borrowed_iterator_t<R> partition_point(R&& r, Pred pred, Proj proj = {});
+template <class ForwardIt, class UnaryPred>
+ForwardIt partition_point(ForwardIt first, ForwardIt last, UnaryPred pred);
 ```
 
-- すでに分かれている範囲の、分かれ目（最初に `pred` が false になる位置）を二分探索で探します
+`lower_bound` の一般化です。`lower_bound(v, x)` は、`partition_point(v, [&](auto e){ return e < x; })` と同じ結果です。
+
+範囲が分かれていないと、結果は不定です。事前に `is_partitioned` で確かめるか、`partition` で分けた直後の範囲に使います。
+
+ランダム アクセスのイテレータなら O(log n) ですが、前方イテレータだけなら、進める操作が O(n) になり、全体は O(n) です。
 
 ## 実際に動かしてみる
 
@@ -43,44 +50,46 @@ constexpr borrowed_iterator_t<R> partition_point(R&& r, Pred pred, Proj proj = {
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3, 10, 20};   // 5 未満が前、5 以上が後ろに分かれている
-  auto it = std::ranges::partition_point(v, [](int x) { return x < 5; });
-  std::println("{}", it - v.begin());
+  const std::vector<int> v = {2, 4, 6, 1, 3};  // 偶数が先
+  auto is_even = [](int x) { return x % 2 == 0; };
+
+  const auto it = std::partition_point(v.begin(), v.end(), is_even);
+  std::println("境目の位置: {}", it - v.begin());
+  std::println("最初の奇数: {}", *it);
+
+  // 並べ替えたあとの境目
+  std::vector<int> w = {5, 2, 7, 4};
+  const auto mid = std::partition(w.begin(), w.end(), is_even);
+  std::println("partition と同じ: {}", std::partition_point(w.begin(), w.end(), is_even) == mid);
 }
 ```
 
 ```text title="実行結果"
-3
+境目の位置: 3
+最初の奇数: 1
+partition と同じ: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 整列した経験値の表から、レベルアップした最初の位置を探す | `partition_point(table, 到達していない)` |
+ソート済みのデータで、「ある条件を満たす区間の末尾」を、速く求めるときに使います。
 
 ## よくあるミス
 
-??? failure "分けられていない範囲に使う"
-    分けられていない範囲では、結果は不定です。
+??? failure "分かれていない範囲に使う"
+    結果が不定です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::partition`](partition.md) | 分ける |
-| [`std::ranges::lower_bound`](lower_bound.md) | 値で二分探索する |
+| [`is_partitioned`](is_partitioned.md) | 分かれているかの確認 |
+| [`lower_bound`](lower_bound.md) | 値の位置の探索 |
+| [`partition`](partition.md) | 分ける |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 分けられた範囲の境目を O(log n) で探す
-    - [x] 前提: 前が条件に合い、後ろが合わない
-    - [x] `lower_bound` の条件版
+C++11 から使えます。
 
 ## 関連ページ
 

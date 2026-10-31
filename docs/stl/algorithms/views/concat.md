@@ -15,94 +15,70 @@ tags:
 `#include <ranges>`
 </div>
 
-2 つの `vector` の中身を順に処理したいとき、結合した `vector` を作ると、コピーが必要になります。`views::concat(a, b, ...)` は、コピーせずに、複数の範囲を 1 本の範囲のように見せます。`join` と違い、範囲の範囲ではなく、複数の範囲を直接渡します。
+複数の範囲を、1 つの範囲として、続けて走査したい。`std::views::concat(a, b, c)` は、`a` の要素、`b` の要素、`c` の要素を、順につなげた 1 つのビューを作ります。範囲の型が違っていても、要素の型が共通で使えればつなげられます。
 
 !!! tip "ポイント"
-    - 要素の型はそろっている必要がある（共通の参照型が必要）。
-    - コピーはしない（元の範囲を借りるだけ）。
-    - `join` は範囲の範囲用、`concat` は範囲を直接並べる用。
+    - 複数の範囲を、順につなげて 1 つのビューにする
+    - 範囲の型は違ってもよい（`vector` と `array` など）
+    - 元の要素を参照するので、書き換えもできる
+    - C++26
 
 !!! info "このページを読む前に"
-    [`views`](../views.md) を先に読んでください。
+    [ビュー](../views.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
-### views::concat {#concat}
+### std::views::concat {#concat}
+
+<span class="ver ver-26">C++26</span>
 
 ```cpp
-template <input_range... Rs>
-constexpr auto views::concat(Rs&&... rs);
+inline constexpr /* 未規定 */ concat = /* 未規定 */;
+// views::concat(r1, r2, ...)
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `rs...` | 範囲 | つなぐ範囲（2 つ以上） |
+`join` との違いは、`join` が「範囲の範囲」を平らにするのに対し、`concat` は、並べた複数の範囲を直接つなげる点です。
 
-- 戻り値: `concat_view`
-- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
+すべての範囲の要素の型から、共通の参照型が決まる必要があります。`int&` と `const int&` が混ざると、共通の参照型は `const int&` になり、書き換えられなくなります。
 
-### std::ranges::concat_view {#concat_view}
+範囲が `random_access_range` かつ `sized_range` なら、結果もランダム アクセスです。1 つでも `input_range` どまりなら、結果もそれになります。
 
-```cpp
-template <input_range... Views>
-class concat_view;
-```
+## 使い方の形
 
-- 戻り値: `views::concat` が作る view の型
-
-ふつうは `views::concat` で書くので、型の名前を自分で書くことは少なく、`auto` で受けます。
-
-
-## 実際に動かしてみる
+手元の MSVC では使えないので、動かさずに、形だけを示します。
 
 ```cpp
-#include <print>
-#include <ranges>
-#include <vector>
+std::vector<int> a = {1, 2, 3};
+std::array<int, 2> b = {4, 5};
 
-int main() {
-  std::vector<int> a = {1, 2};
-  std::vector<int> b = {3, 4};
-  int sum = 0;
-  for (int x : std::views::concat(a, b)) {
-    sum += x;
-  }
-  std::println("{}", sum);
+for (int x : std::views::concat(a, b)) {
+  // 1, 2, 3, 4, 5 の順
 }
-```
 
-```text title="実行結果"
-10
+// 元の要素を書き換えられる
+for (int& x : std::views::concat(a, b)) x *= 2;
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 2 つの配列を 1 つのループで処理 | `for (int x : std::views::concat(a, b)) { ... }` |
+複数の配列に分かれたデータを、1 つのループで処理するときに使います。
 
 ## よくあるミス
 
-??? failure "元の範囲が先に消える"
-    view は借りるだけなので、元の範囲が先に消えると壊れます。
+??? failure "join と取り違える"
+    `join` は、範囲の範囲を平らにする別の機能です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`views::join`](join.md) | 範囲の範囲をつなぐ |
-| [`views::zip`](zip.md) | 並べて歩く |
+| [`join`](join.md) | 範囲の範囲を平らにする |
+| [`single`](single.md) | 1 要素のビュー |
+| [`all`](all.md) | 範囲をビューにする |
 
 ## コンパイラ対応
 
-C++26 の機能です。新しい標準ライブラリで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 複数の範囲を 1 本に見せる
-    - [x] コピーしない
-    - [x] C++26
+C++26 の機能です。手元の MSVC（Visual Studio 2026）では未対応のため、サンプルは動かしていません。
 
 ## 関連ページ
 

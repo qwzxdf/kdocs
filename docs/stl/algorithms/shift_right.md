@@ -14,11 +14,13 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::shift_right` は、**範囲の要素を n 個ぶん、後ろ（右）へずらす**関数です。はみ出した末尾の要素は捨てられ、先頭の空いた部分は**放置**されます（値は不定）。
+`shift_left` の逆で、要素を後ろへずらします。`std::shift_right(first, last, n)` は、要素を `n` 個ぶん後ろへ動かし、先頭の `n` 個を、ムーブ後の状態にします。先頭に空きを作って、新しい要素を入れるときに使います。
 
 !!! tip "ポイント"
-    - 戻り値は、ずらした結果の有効な範囲の**先頭**。それより前は不定。
-    - 先頭に新しい要素を入れたいときの準備になる。
+    - 要素を `n` 個ぶん、後ろへずらす
+    - 後ろの `n` 個は捨てられる
+    - 先頭の `n` 個は、ムーブ後の状態。値に意味はない
+    - 戻り値は、有効な範囲の先頭（`first + n`）
 
 !!! info "このページを読む前に"
     [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
@@ -27,19 +29,21 @@ tags:
 
 ### std::shift_right {#shift_right}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class ForwardIt>
-constexpr ForwardIt shift_right(ForwardIt first, ForwardIt last,
-                                typename std::iterator_traits<ForwardIt>::difference_type n);
+ForwardIt shift_right(ForwardIt first, ForwardIt last,
+                      typename std::iterator_traits<ForwardIt>::difference_type n);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first`, `last` | イテレータ | ずらす範囲 |
-| `n` | 整数 | ずらす個数 |
+戻り値は `first + n` で、ずらした要素の先頭です。先頭の `n` 個の空きに、新しい値を代入して使います。
 
-- 戻り値: 有効になった範囲の先頭のイテレータ
-- 計算量: O(要素数)
+後ろにはみ出る `n` 個は、捨てられます。捨てたくなければ、先に `resize` で長さを増やしておきます。
+
+双方向イテレータ以上があれば、効率の良い実装（後ろから順にムーブ）になります。前方イテレータだけでは、遅い実装になります。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
@@ -49,44 +53,37 @@ constexpr ForwardIt shift_right(ForwardIt first, ForwardIt last,
 int main() {
   std::vector<int> v = {1, 2, 3, 4, 5};
 
-  auto new_begin = std::shift_right(v.begin(), v.end(), 2);  // 後ろへ 2 つずらす
-  v.erase(v.begin(), new_begin);                             // 先頭の不定な部分を消す
+  // 2 個ぶん後ろへずらして、先頭に空きを作る
+  const auto start = std::shift_right(v.begin(), v.end(), 2);
+  std::fill(v.begin(), start, 0);  // 空きに新しい値を入れる
   std::println("{}", v);
 }
 ```
 
 ```text title="実行結果"
-[1, 2, 3]
+[0, 0, 1, 2, 3]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 固定長の履歴バッファで、古いものを後ろへ押し出す | `shift_right(history.begin(), history.end(), 1)` のあと、先頭に新しい値 |
+最新の値を先頭に入れ、古い値を押し出す履歴のバッファに使います。
 
 ## よくあるミス
 
-??? failure "先頭の不定な要素を読む"
-    ずらしたあとの先頭は不定です。新しい値を代入してから使います。
+??? failure "先頭の n 個を、元の値のままと思う"
+    ムーブ後の状態です。上書きします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::shift_left`](shift_left.md) | 前へずらす |
-| [`std::ranges::rotate`](rotate.md) | 回転（要素を捨てない） |
+| [`shift_left`](shift_left.md) | 前へずらす |
+| [`rotate`](rotate.md) | 捨てずに回転 |
+| [`move_backward`](move_backward.md) | 後ろから順にムーブ |
 
 ## コンパイラ対応
 
-C++20 の機能です。ranges 版は C++26 で追加される予定です。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] n 個ぶん後ろへずらす
-    - [x] 先頭は不定
-    - [x] はみ出た要素は捨てられる
+C++20 から使えます。
 
 ## 関連ページ
 

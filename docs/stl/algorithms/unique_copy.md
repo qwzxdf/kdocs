@@ -14,73 +14,81 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::unique_copy` は、[`unique`](unique.md) の「コピー版」です。**元の範囲は変えずに**、隣り合う重複をまとめた結果を別の場所へ書き出します。
+連続して並ぶ同じ値を 1 つにまとめたコピーを、別の配列に作りたい。`std::unique_copy` は、隣り合う同じ要素を 1 つにして、結果を出力先に書きます。元の範囲は変わりません。
 
 !!! tip "ポイント"
-    - 元を残したいときに使う。
-    - 書き出し先は十分な大きさに。`std::back_inserter` が安全。
-    - 全体の重複を除くなら、先に整列しておく。
+    - 連続した同じ値を 1 つにまとめて、出力先へコピーする
+    - 元の範囲は変わらない
+    - 離れた同じ値は、まとまらない（先にソートする）
+    - 戻り値は、出力の最後の次の位置
 
 !!! info "このページを読む前に"
     [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
-### std::ranges::unique_copy {#unique_copy}
+### std::unique_copy {#unique_copy}
+
+<span class="ver ver-11">C++98〜</span>
 
 ```cpp
-template <input_range R, weakly_incrementable O, class Proj = identity, class Comp = ranges::equal_to>
-constexpr unique_copy_result<borrowed_iterator_t<R>, O> unique_copy(R&& r, O result, Comp comp = {}, Proj proj = {});
+template <class InputIt, class OutputIt>
+OutputIt unique_copy(InputIt first, InputIt last, OutputIt d_first);
+
+template <class InputIt, class OutputIt, class BinaryPred>
+OutputIt unique_copy(InputIt first, InputIt last, OutputIt d_first, BinaryPred pred);
 ```
 
-- 元はそのままで、連続する重複をまとめたものを `result` に書き込みます
+`unique` が、その場で詰めて、後ろに使い終えた要素を残すのに対し、`unique_copy` は、元を残したまま、重複を除いたコピーを作ります。
+
+「連続した」重複だけを除くので、全体の重複を除くには、先に `std::sort` します。出力に `std::back_inserter` を使えば、領域の大きさを気にしなくて済みます。
+
+比較を変える述語を渡せます。たとえば、大文字小文字を無視して、連続した同じ文字を 1 つにまとめられます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
 #include <iterator>
 #include <print>
-#include <string>
+#include <vector>
 
 int main() {
-  std::string input = "aaabbbcc";
-  std::string compressed;
-  std::ranges::unique_copy(input, std::back_inserter(compressed));
-  std::println("{}", compressed);
+  const std::vector<int> v = {1, 1, 2, 2, 2, 3, 1, 1};
+
+  std::vector<int> out;
+  std::unique_copy(v.begin(), v.end(), std::back_inserter(out));
+
+  std::println("元: {}", v);
+  std::println("結果: {}", out);  // 離れた 1 は残る
 }
 ```
 
 ```text title="実行結果"
-abc
+元: [1, 1, 2, 2, 2, 3, 1, 1]
+結果: [1, 2, 3, 1]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ログから連続した同じメッセージをまとめて表示する | `unique_copy(log, back_inserter(shown))` |
+連続したキー入力の重複を除いたコピーを作る、といった処理に使います。
 
 ## よくあるミス
 
-??? failure "並べ替えずに全体の重複が消えると思う"
-    `unique` と同じで、隣り合う重複だけが対象です。
+??? failure "離れた重複も除かれると思う"
+    連続した重複だけです。先にソートします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::unique`](unique.md) | 元の範囲の中でまとめる |
-| [`std::ranges::copy`](copy.md) | そのままコピーする |
+| [`unique`](unique.md) | その場で詰める |
+| [`sort`](sort.md) | 先に並べる |
+| [`adjacent_find`](adjacent_find.md) | 隣り合う等しい要素を探す |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 重複をまとめた結果を別の場所へ作る
-    - [x] 元は変わらない
-    - [x] 全体の重複は整列してから
+C++98 から使えます。
 
 ## 関連ページ
 

@@ -15,31 +15,41 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::views::counted` は、**先頭の位置（イテレータ）と個数から、その分だけの範囲**を作るビューです。ポインターと個数で渡される古い API（C のバッファなど）を範囲として扱うのに使います。
+先頭のイテレータと個数から、その範囲だけを見るビューを作りたい。`std::views::counted(it, n)` は、`it` から `n` 個の要素を、1 つの範囲として扱います。`vector` の途中から数個、生のポインターから数個、といった指定が簡単にできます。
 
 !!! tip "ポイント"
-    - `counted(先頭, 個数)`。終わりの位置ではなく、**個数**を渡す。
-    - 先頭がポインターなら `std::span` に近い使い方ができる。
-    - 個数が実際の要素数を超えると未定義動作。
+    - `counted(開始, 個数)` で、その範囲のビューを作る
+    - 連続したイテレータ（ポインターなど）なら `std::span` になる
+    - それ以外は `subrange` や `counted_iterator` の組になる
+    - 個数が実際の範囲を超えると未定義動作
 
 !!! info "このページを読む前に"
-    [ranges とビュー](../../../basics/ranges.md)、[ラムダ式](../../../basics/lambda.md) を先に読むと分かりやすいです。
+    [ビュー](../views.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
-### views::counted {#counted}
+### std::views::counted {#counted}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
-std::views::counted(first, n)
+inline constexpr /* 未規定 */ counted = /* 未規定 */;
+// views::counted(it, n)
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first` | イテレータ | 範囲の先頭 |
-| `n` | 整数 | 個数 |
+戻り値の型は、イテレータの種類で変わります。
 
-- 戻り値: 先頭から n 個のビュー（ランダムアクセスできる先頭なら `span` や `subrange`）
-- 計算量: O(1)
+| イテレータ | 戻り値 |
+| --- | --- |
+| 連続（ポインター、`vector` のイテレータ） | `std::span<要素, std::dynamic_extent>` |
+| ランダム アクセス | `subrange<It>` |
+| それ以外 | `subrange<counted_iterator<It>, default_sentinel_t>` |
+
+`take(n)` との違いは、`take` が範囲に対するアダプターなのに対し、`counted` はイテレータと個数から作る点です。C の API が返した、ポインターと個数の組を、範囲として扱うときに便利です。
+
+個数が範囲を超えるかは、検査されません。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
@@ -47,48 +57,47 @@ std::views::counted(first, n)
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3, 4, 5};
+  const std::vector<int> v = {10, 20, 30, 40, 50};
 
   // 2 番目から 3 個
-  auto part = std::views::counted(v.begin() + 1, 3) | std::ranges::to<std::vector>();
-  std::println("{}", part);
+  auto part = std::views::counted(v.begin() + 1, 3);
+  std::println("個数: {}", part.size());
+  for (int x : part) std::println("{}", x);
+
+  // 生のポインターと個数から
+  const int raw[] = {1, 2, 3, 4};
+  std::println("{}", std::views::counted(raw, 2).size());
 }
 ```
 
 ```text title="実行結果"
-[2, 3, 4]
+個数: 3
+20
+30
+40
+2
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| C 風の API が返す「ポインター + 個数」を範囲として扱う | `counted(ptr, count)` |
-| バッファの途中から n 個を処理する | `counted(buf.begin() + offset, n)` |
+C の API が返した「ポインターと個数」を、範囲として扱うときに使います。
 
 ## よくあるミス
 
-??? failure "個数が足りない"
-    `v.begin() + 3` から 5 個のように、範囲を超える個数を渡すと未定義動作です。
+??? failure "個数が範囲を超える"
+    検査されず、未定義動作です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::span`](../../containers/span.md) | ポインターと個数を 1 つにした型 |
-| [`std::views::take`](take.md) | 先頭から n 個を取る |
-| [`std::ranges::subrange`](subrange.md) | 2 つのイテレータから範囲を作る |
+| `views::take` | 範囲の先頭から n 個 |
+| [`subrange`](subrange.md) | イテレータの組 |
+| [`all`](all.md) | 範囲全体のビュー |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 先頭と個数から範囲を作る
-    - [x] 終わりではなく個数
-    - [x] 範囲外は未定義動作
+C++20 から使えます。
 
 ## 関連ページ
 

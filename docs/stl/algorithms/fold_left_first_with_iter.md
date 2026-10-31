@@ -14,11 +14,13 @@ tags:
 `#include <algorithm>`
 </div>
 
-`fold_left_with_iter` の、初期値なし版です。先頭の要素を初期値にします。空の範囲では結果が `nullopt` になります。
+`fold_left_first_with_iter` は、`fold_left_with_iter` の、初期値なし版です。最初の要素を初期値にして畳み、結果を `std::optional` で、読み終えた位置と一緒に返します。
 
 !!! tip "ポイント"
-    - 先頭の要素を初期値にする。
-    - 結果は `optional`。終端イテレータと一緒に返る。
+    - 最初の要素を初期値として、左から畳む
+    - 戻り値は、読み終えた位置 `in` と、`std::optional` の `value`
+    - 空の範囲では、`value` が空
+    - C++23
 
 !!! info "このページを読む前に"
     [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
@@ -27,70 +29,65 @@ tags:
 
 ### std::ranges::fold_left_first_with_iter {#fold_left_first_with_iter}
 
-```cpp
-template <input_iterator I, sentinel_for<I> S, class F>
-constexpr auto ranges::fold_left_first_with_iter(I first, S last, F f);
+<span class="ver ver-23">C++23</span>
 
+```cpp
 template <input_range R, class F>
-constexpr auto ranges::fold_left_first_with_iter(R&& r, F f);
+constexpr auto fold_left_first_with_iter(R&& r, F f);
+// 戻り値: fold_left_first_with_iter_result<borrowed_iterator_t<R>, optional<...>>
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first, last / r` | 範囲 | 畳み込む範囲 |
-| `f` | 関数 | `f(累積値, 要素)` の形で呼ばれる |
+`{3, 1, 4}` を `std::max` で畳むと、最初の `3` が初期値で、`max(max(3, 1), 4) = 4` です。
 
-- 戻り値: `in`（読み終えた位置）と `value`（`std::optional<T>`）をもつ構造体
-- 計算量: 線形
+空の範囲では、`value` が `nullopt` で、`in` は `last` です。
 
+`fold_left_first`（`_with_iter` なし）は、値の `optional` だけを返します。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
-#include <functional>
 #include <print>
 #include <vector>
 
 int main() {
-  std::vector<int> v = {5, 1, 2};
-  auto [it, r] = std::ranges::fold_left_first_with_iter(v, std::plus<>{});
-  std::println("{} {}", *r, it == v.end());
+  const std::vector<int> v = {3, 1, 4, 1, 5};
+
+  const auto [in, value] = std::ranges::fold_left_first_with_iter(v, [](int a, int b) { return a > b ? a : b; });
+  std::println("最大: {}", *value);
+  std::println("読み終えた位置: {}", in - v.begin());
+
+  const std::vector<int> none;
+  std::println("空: {}", std::ranges::fold_left_first_with_iter(none, std::plus<>()).value.has_value());
 }
 ```
 
 ```text title="実行結果"
-8 true
+最大: 5
+読み終えた位置: 5
+空: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 先頭を初期値にして合計し、読み終えた位置も使う | `auto [it, r] = std::ranges::fold_left_first_with_iter(v, std::plus<>{});` |
+最大・最小のように、初期値が自然に決まらない畳み込みで、位置も使うときに使います。
 
 ## よくあるミス
 
-??? failure "空の範囲で値を取り出す"
-    `r` が `nullopt` のことがあります。`if (r)` で確かめてから使います。
+??? failure "空の範囲で * を使う"
+    `nullopt` の取り出しは未定義です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`fold_left_with_iter`](fold_left_with_iter.md) | 初期値を渡す版 |
-| [`fold_left_first`](fold_left.md) | 結果だけ返す版 |
+| [`fold_left_with_iter`](fold_left_with_iter.md) | 初期値あり |
+| [`fold_right_last`](fold_right_last.md) | 右から畳む版 |
+| `std::optional` | 空を表す |
 
 ## コンパイラ対応
 
 C++23 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 初期値なしで左から畳む
-    - [x] 結果は optional
-    - [x] 終端も返る
 
 ## 関連ページ
 

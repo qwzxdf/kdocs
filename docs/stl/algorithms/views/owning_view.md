@@ -15,77 +15,92 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::ranges::owning_view` は、**一時的な範囲（右辺値の `vector` など）を引き取って、ビューの中に持つ**型です。元の変数が無くても、ビュー自身が中身を保持するので、安全に返せます。`views::all` が、コンテナの右辺値に対して返す型です。
+`std::ranges::owning_view<R>` は、コンテナ `R` を<strong>所有</strong>するビューです。一時オブジェクトのコンテナを、ビューのパイプラインに流したいとき、参照だけを持つ `ref_view` ではぶら下がってしまいます。`owning_view` は、コンテナをムーブで受け取って、中に持ちます。
 
 !!! tip "ポイント"
-    - ムーブだけでき、**コピーはできない**（所有しているため）。
-    - 一時的な `vector` をパイプラインにそのまま流せるのは、これのおかげ（C++20 の仕様修正で追加）。
-    - `ref_view` との違いは、参照か所有か。
+    - コンテナをムーブで受け取って所有する
+    - ムーブはできるが、コピーはできない（コンテナのコピーが重いため）
+    - `views::all(rvalue)` が返す
+    - 一時オブジェクトのパイプラインを、安全にする
 
 !!! info "このページを読む前に"
-    [ranges とビュー](../../../basics/ranges.md)、[ラムダ式](../../../basics/lambda.md) を先に読むと分かりやすいです。
+    [ビュー](../views.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::ranges::owning_view {#owning_view}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <range R>
-  requires movable<R> && (!is_array_v<R>)
-class std::ranges::owning_view;
+  requires std::movable<R> && (!is_initializer_list<R>)
+class owning_view : public view_interface<owning_view<R>> {
+ public:
+  constexpr owning_view(R&& r);
+  constexpr R& base() & noexcept;
+  constexpr R&& base() && noexcept;
+};
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `r` | 範囲の右辺値 | 引き取る範囲 |
+コピーできないので、ビューの要件（コピーが軽い）を満たさないはずですが、C++20 の欠陥報告で、ビューは「ムーブが軽ければよい」に緩められました。
 
-- 戻り値: `r` を所有するビュー
-- 計算量: ムーブは O(1)
+```cpp
+auto evens = std::vector{1, 2, 3, 4} | std::views::filter([](int x) { return x % 2 == 0; });
+```
+
+右辺値の `vector` が `owning_view` に包まれるので、この式の結果は安全に使えます。以前は、コンパイル エラーになっていました。
+
+`base()` で、所有しているコンテナにアクセスできます。右辺値の `base()` で、中身を取り出せます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <ranges>
+#include <type_traits>
 #include <vector>
 
 int main() {
-  // 一時的な vector を所有するビュー
-  std::ranges::owning_view view(std::vector<int>{1, 2, 3, 4});
-  std::println("{}", view.size());
+  std::ranges::owning_view ov(std::vector<int>{1, 2, 3, 4});
+  std::println("要素数: {}", ov.size());
+
+  // コピーはできず、ムーブはできる
+  static_assert(!std::is_copy_constructible_v<decltype(ov)>);
+  static_assert(std::is_move_constructible_v<decltype(ov)>);
+
+  // 一時オブジェクトをパイプラインに流せる
+  auto evens = std::vector{1, 2, 3, 4} | std::views::filter([](int x) { return x % 2 == 0; });
+  for (int x : evens) std::println("{}", x);
 }
 ```
 
 ```text title="実行結果"
+要素数: 4
+2
 4
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 関数が加工した結果の範囲を返す（元の `vector` を中に持たせる） | `return std::views::all(std::move(v)) | ...;` |
+関数が返したコンテナを、そのまま `views` のパイプラインに流すときに、裏で使われます。
 
 ## よくあるミス
 
-??? failure "ビューをコピーしようとする"
-    `owning_view` はコピーできません（`std::move` で移動します）。パイプラインの途中で使うと、全体がムーブ専用の型になります。
+??? failure "コピーしようとする"
+    コピーできません。ムーブします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::ref_view`](ref_view.md) | 左辺値を参照するだけ |
-| [`std::views::all`](all.md) | 状況に応じてどちらかを選ぶ |
+| [`all`](all.md) | これを作る窓口 |
+| [`ref_view`](ref_view.md) | 参照だけを持つ版 |
+| [`subrange`](subrange.md) | イテレータの組 |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 右辺値の範囲を所有する
-    - [x] コピーできない（ムーブのみ）
-    - [x] 一時的な `vector` をパイプに流せる
+C++20 から使えます。
 
 ## 関連ページ
 

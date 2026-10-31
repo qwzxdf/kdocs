@@ -15,26 +15,42 @@ tags:
 `#include <ranges>`
 </div>
 
-`std::views::empty<T>` は、**要素が 1 つもない範囲**（空の範囲）です。型 `T` の要素を持つ範囲として扱われますが、中身はありません。ほかの範囲を返す関数が「何も無い」を返したいときに使います。
+要素が 0 個のビューが欲しい。条件分岐で、ある場合は範囲、ない場合は空の範囲を返したいときに、型をそろえる必要があります。`std::views::empty<T>` は、型 `T` の要素を 0 個持つ、空のビューです。
 
 !!! tip "ポイント"
-    - `views::empty<T>` と、テンプレート引数で型を指定する（関数ではなく変数テンプレート）。
-    - サイズは常に 0。
-    - `std::ranges::empty` は別物（範囲が空かを調べる関数）。
+    - 要素が 0 個のビュー
+    - `std::views::empty<int>` のように、要素の型を指定する
+    - `size()` が 0、`begin() == end()`
+    - コンパイル時に決まる、軽いビュー
 
 !!! info "このページを読む前に"
-    [ranges とビュー](../../../basics/ranges.md)、[ラムダ式](../../../basics/lambda.md) を先に読むと分かりやすいです。
+    [ビュー](../views.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
-### views::empty {#empty}
+### std::views::empty {#empty}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
-std::views::empty<T>
+template <class T>
+  requires std::is_object_v<T>
+inline constexpr std::ranges::empty_view<T> empty{};
 ```
 
-- 戻り値: 常に空のビュー
-- 計算量: O(1)
+`empty_view<T>` は、状態を持たず、`begin()` と `end()` は `nullptr` を返します。`data()` も `nullptr` です。
+
+使いどころは、分岐の戻り値の型をそろえることです。
+
+```cpp
+auto items = has_items ? some_view : std::views::empty<int>;   // 型が違うので、そのままでは書けない
+```
+
+型が違うビューを三項演算子で選ぶのは、できません。`std::ranges::to<std::vector>()` で具体化するか、共通の型にする工夫が要ります。
+
+`empty_view` は、ビューを組み立てる部品として、`views::join` の中間などで使われます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
@@ -42,56 +58,46 @@ std::views::empty<T>
 
 int main() {
   auto e = std::views::empty<int>;
-  std::println("空？ {} / 個数 {}", std::ranges::empty(e), std::ranges::size(e));
+  std::println("要素数: {}", e.size());
+  std::println("空: {}", e.empty());
+  std::println("begin == end: {}", e.begin() == e.end());
+
+  int count = 0;
+  for (int x : e) {
+    (void)x;
+    ++count;
+  }
+  std::println("ループの回数: {}", count);
 }
 ```
 
 ```text title="実行結果"
-空？ true / 個数 0
+要素数: 0
+空: true
+begin == end: true
+ループの回数: 0
 ```
-
-### std::ranges::empty_view <span class="ver ver-20">C++20</span> {#empty_view data-toc-label="std::ranges::empty_view"}
-
-```cpp
-template <class T>
-class empty_view;
-```
-
-- 戻り値: `begin()` / `end()` をもつ view の型
-- 計算量: begin / end は定数。要素の取り出しは元の範囲と同じ
-
-要素が 0 個の view。`views::empty<T>` で作ります。
-
-ふつうは `views::empty` を使って書くので、この型の名前を自分で書くことは少なく、`auto` で受けます。型名が必要なとき（関数の戻り値の型を明示したいときなど）や、CTAD（クラステンプレートの引数推論）で `std::ranges::empty_view v(r, ...)` と直接作るときにだけ登場します。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 「該当なし」を空の範囲で返す | `return std::views::empty<Enemy>;` |
+ビューを返す関数で、「何もない」場合の戻り値として使います。
 
 ## よくあるミス
 
-??? failure "empty と ranges::empty を混同する"
-    `std::views::empty<T>` は「空の範囲」そのもの。`std::ranges::empty(r)` は「範囲 r が空か」を調べる関数です。
+??? failure "型の違うビューを三項演算子で選ぶ"
+    コンパイルできません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::views::single`](single.md) | 要素が 1 つの範囲 |
-| `std::vector<T>{}` | 空の `vector`（実体がある） |
+| [`single`](single.md) | 要素が 1 個のビュー |
+| [`iota`](iota.md) | 連続する値のビュー |
+| [`all`](all.md) | 範囲全体のビュー |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 空の範囲
-    - [x] `views::empty<T>` と書く
-    - [x] `ranges::empty` とは別物
+C++20 から使えます。
 
 ## 関連ページ
 

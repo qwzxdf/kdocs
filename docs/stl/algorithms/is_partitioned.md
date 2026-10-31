@@ -14,25 +14,35 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::ranges::is_partitioned` は、**範囲が条件で分けられているか**（条件に合う要素がすべて、合わない要素より前にあるか）を調べます。`partition` や `partition_point` の前提を確かめるのに使います。
+`std::partition` は、条件を満たす要素を前に、満たさない要素を後ろに、分けます。その結果、または元からそうなっているかを調べたい。`std::is_partitioned` は、範囲が、述語の真の要素が先、偽の要素があと、という形に分かれているかを返します。
 
 !!! tip "ポイント"
-    - 全部が条件に合う、または 1 つも合わない範囲も「分けられている」扱い。
-    - 計算量は O(n)。
+    - 述語が真の要素がすべて、偽の要素より前にあれば `true`
+    - 空の範囲や、全部が真・全部が偽の範囲も `true`
+    - 分かれていれば、`partition_point` で境目を二分探索できる
+    - 計算量は O(n)
 
 !!! info "このページを読む前に"
-    [ラムダ式](../../basics/lambda.md)、[イテレータ](../../basics/iterator.md) が分かると読みやすいです。
+    [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
 
 ## 関数の詳しい説明
 
-### std::ranges::is_partitioned {#is_partitioned}
+### std::is_partitioned {#is_partitioned}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
-template <input_range R, class Proj = identity, class Pred>
-constexpr bool is_partitioned(R&& r, Pred pred, Proj proj = {});
+template <class InputIt, class UnaryPred>
+bool is_partitioned(InputIt first, InputIt last, UnaryPred pred);
 ```
 
-- `pred` が true の要素が全部 false の要素より前にあれば `true`
+`partition_point` や、二分探索の前提条件を、デバッグ ビルドで確かめるのに使います。
+
+```cpp
+assert(std::is_partitioned(v.begin(), v.end(), pred));
+```
+
+並び替える `partition` と違い、範囲を変えません。
 
 ## 実際に動かしてみる
 
@@ -42,45 +52,41 @@ constexpr bool is_partitioned(R&& r, Pred pred, Proj proj = {});
 #include <vector>
 
 int main() {
-  auto even = [](int x) { return x % 2 == 0; };
-  std::vector<int> a = {2, 4, 1, 3};
-  std::vector<int> b = {1, 2};
-  std::println("{} {}", std::ranges::is_partitioned(a, even), std::ranges::is_partitioned(b, even));
+  auto is_even = [](int x) { return x % 2 == 0; };
+
+  const std::vector<int> a = {2, 4, 6, 1, 3};
+  const std::vector<int> b = {2, 1, 4, 3};
+
+  std::println("偶数が先に集まっている: {}", std::is_partitioned(a.begin(), a.end(), is_even));
+  std::println("混ざっている: {}", std::is_partitioned(b.begin(), b.end(), is_even));
 }
 ```
 
 ```text title="実行結果"
-true false
+偶数が先に集まっている: true
+混ざっている: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| `partition` の結果のデバッグ確認 | `assert(is_partitioned(v, 条件))` |
+`partition_point` を使う前に、データが分かれているかを検査するときに使います。
 
 ## よくあるミス
 
-??? failure "整列と混同する"
-    分けられているだけで、整列されているわけではありません。
+??? failure "空の範囲を false だと思う"
+    空は `true` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::ranges::partition`](partition.md) | 分ける |
-| [`std::ranges::is_sorted`](is_sorted.md) | 整列しているか |
+| [`partition_point`](partition_point.md) | 境目を探す |
+| [`partition`](partition.md) | 分ける |
+| [`stable_partition`](stable_partition.md) | 順序を保って分ける |
 
 ## コンパイラ対応
 
-C++20 の機能です。主要なコンパイラすべてで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 分けられているかを調べる
-    - [x] 全部合う・1 つも合わないも true
-    - [x] `partition_point` の前提を確かめる
+C++11 から使えます。
 
 ## 関連ページ
 

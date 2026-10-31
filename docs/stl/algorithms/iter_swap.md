@@ -13,11 +13,13 @@ tags:
 `#include <algorithm>`
 </div>
 
-`std::iter_swap` は、**2 つのイテレータが指す要素を入れ替える**関数です。`std::swap(*a, *b)` と同じ意味ですが、イテレータの型が違ってもよく、プロキシ型のイテレータ（`vector<bool>` など）にも対応します。
+2 つのイテレータが指す要素を、入れ替えたい。`std::iter_swap(a, b)` は、`std::swap(*a, *b)` と同じ働きです。ソートなどのアルゴリズムの内部で、要素の入れ替えに使われています。
 
 !!! tip "ポイント"
-    - 普通は `std::swap(v[i], v[j])` で足りる。
-    - ソートなどのアルゴリズムの部品として使われる。
+    - 2 つのイテレータが指す要素を入れ替える
+    - `std::swap(*a, *b)` と同じ
+    - 値を返さない
+    - 特殊なイテレータ（プロキシを返すもの）でも正しく動くよう、アルゴリズムが使う
 
 !!! info "このページを読む前に"
     [イテレータ](../../basics/iterator.md) が分かると読みやすいです。
@@ -26,64 +28,64 @@ tags:
 
 ### std::iter_swap {#iter_swap}
 
+<span class="ver ver-11">C++98〜</span>
+
 ```cpp
 template <class ForwardIt1, class ForwardIt2>
-constexpr void iter_swap(ForwardIt1 a, ForwardIt2 b);
+void iter_swap(ForwardIt1 a, ForwardIt2 b);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `a`, `b` | イテレータ | 入れ替える要素を指す 2 つのイテレータ |
+`std::vector<bool>` のように、要素への参照が本物の参照でない（プロキシ）コンテナで、`std::swap(*a, *b)` が正しく動かない場合があります。`iter_swap` は、そうしたイテレータ向けに特殊化されることがあり、より安全です。
 
-- 戻り値: なし
-- 計算量: O(1)
+`a == b` でも安全です（同じ要素どうしの入れ替えで、何も変わらない）。
+
+自作のアルゴリズムで要素を入れ替えるときは、`iter_swap` を使うと、イテレータの種類に対応しやすくなります。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
+#include <list>
 #include <print>
 #include <vector>
 
 int main() {
-  std::vector<int> a = {1, 2};
-  std::vector<int> b = {9, 8};
+  std::vector<int> v = {1, 2, 3, 4};
+  std::iter_swap(v.begin(), v.end() - 1);  // 先頭と末尾
+  std::println("{}", v);
 
-  std::iter_swap(a.begin(), b.begin());  // 先頭どうしを入れ替える
-  std::println("{} {}", a, b);
+  // list のようなイテレータでも使える
+  std::list<int> l = {10, 20, 30};
+  std::iter_swap(l.begin(), std::next(l.begin(), 2));
+  std::println("{}", l);
 }
 ```
 
 ```text title="実行結果"
-[9, 2] [1, 8]
+[4, 2, 3, 1]
+[30, 20, 10]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 並べ替えの自作で要素を入れ替える | `std::iter_swap(it1, it2)` |
+自作のソートやシャッフルで、イテレータの位置の要素を入れ替えるときに使います。
 
 ## よくあるミス
 
-??? failure "同じ要素に使う"
-    同じ位置を指していても安全ですが、何も起きません。
+??? failure "swap(a, b) と書く"
+    イテレータ自身が入れ替わります。要素を入れ替えるのは `iter_swap` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::swap`](../utilities/swap.md) | 2 つの値を入れ替える |
-| [`std::ranges::swap_ranges`](swap_ranges.md) | 範囲どうしを入れ替える |
+| [`swap_ranges`](swap_ranges.md) | 範囲を入れ替える |
+| `std::swap` | 値を入れ替える |
+| [`reverse`](reverse.md) | 並びを逆にする |
 
 ## コンパイラ対応
 
 C++98 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] イテレータが指す要素を入れ替える
-    - [x] `swap(*a, *b)` と同じ
-    - [x] 自作アルゴリズムの部品
 
 ## 関連ページ
 
