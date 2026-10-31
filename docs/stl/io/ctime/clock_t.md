@@ -13,27 +13,30 @@ tags:
 `#include <ctime>`
 </div>
 
-`std::clock()` が返すのは、プログラムが使ったプロセッサ時間のカウントです。その型が `clock_t` で、秒に直すには `CLOCKS_PER_SEC` で割ります。
+`std::clock()` が返す CPU 時間のカウントを受ける型が `std::clock_t` です。単位は秒ではなく「`CLOCKS_PER_SEC` 分の 1 秒」で、`time_t` とは別の型として用意されています。中身は処理系ごとに違い、MSVC では `long`、Linux では `long` が普通です。
 
 !!! tip "ポイント"
-    - 算術型（実装定義）。
-    - 秒に直すには `CLOCKS_PER_SEC` で割る。
-    - 壁時計の時間ではなく CPU 時間。
+    - `clock()` の戻り値の型。単位は `1 / CLOCKS_PER_SEC` 秒
+    - 秒ではないので、秒に直すには `CLOCKS_PER_SEC` で割る
+    - 引き算した差を使う。1 つの値には意味がない
+    - Windows の `long` は 32 ビットなので、約 24 日でカウントがあふれる環境もある
 
 !!! info "このページを読む前に"
-    [`std::time`](time.md) を先に読んでください。
+    [`std::clock`](clock.md) と [`CLOCKS_PER_SEC`](clocks_per_sec.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::clock_t {#clock_t}
 
 ```cpp
-using clock_t = /* 算術型（実装定義） */;
+using clock_t = /* 実装定義の算術型 */;
 ```
 
-- 戻り値: なし（型）
-- 計算量: なし
+規格は、「時間を表せる算術型」としか決めていません。`clock()` が使えないときは、`(clock_t)(-1)` が返ります。
 
+型が `long` で 32 ビットの環境では、`CLOCKS_PER_SEC` が 1000 だと、約 24.8 日で最大値に達してあふれます。長時間動かしたまま計測するコードには、向きません。
+
+2 つの `clock_t` の引き算は、同じ型の整数の引き算です。秒にするには、`double` に直してから `CLOCKS_PER_SEC` で割ります。整数のまま割ると、1 秒未満が捨てられます。
 
 ## 実際に動かしてみる
 
@@ -43,42 +46,49 @@ using clock_t = /* 算術型（実装定義） */;
 #include <type_traits>
 
 int main() {
-  std::println("{}", std::is_arithmetic_v<std::clock_t>);
+  static_assert(std::is_arithmetic_v<std::clock_t>);
+
+  const std::clock_t a = std::clock();
+  const std::clock_t b = std::clock();
+  const std::clock_t diff = b - a;  // 差を取って使う
+  std::println("差は 0 以上: {}", diff >= 0);
 }
 ```
 
 ```text title="実行結果"
-true
+差は 0 以上: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 処理時間の簡易計測 | `(double)(end - start) / CLOCKS_PER_SEC` |
+古いコードの `clock_t` を読むときに出会います。新しく計測を書くなら、`std::chrono::steady_clock::time_point` を使います。
 
 ## よくあるミス
 
-??? failure "壁時計と取り違える"
-    スリープ中は進みません。実際の経過時間は `steady_clock` で測ります。
+??? failure "clock_t の 1 つの値を、時刻として使う"
+    `clock()` の起点は処理系が決めるので、1 つの値には意味がありません。2 回の差を取ります。
+
+??? failure "秒の整数だと思う"
+    単位は `1 / CLOCKS_PER_SEC` 秒です。そのまま「秒」として表示すると、1000 倍や 100 万倍の値になります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`clock`](clock.md) | CPU 時間を取る |
-| [`CLOCKS_PER_SEC`](clocks_per_sec.md) | 1 秒あたりのカウント |
+| [`std::time_t`](time_t.md) | 時刻（エポックからの秒数） |
+| [`CLOCKS_PER_SEC`](clocks_per_sec.md) | `clock_t` を秒に直す単位 |
+| [`std::chrono::steady_clock`](../../utilities/chrono/steady_clock.md) | 型で単位を持つ計測用の時計 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C 由来の型です。C++ のどの版でも使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] clock() の戻り値の型
-    - [x] 秒には CLOCKS_PER_SEC で割る
-    - [x] CPU 時間
+    - [x] `clock_t` は `clock()` の戻り値の型
+    - [x] 単位は `1 / CLOCKS_PER_SEC` 秒。割って秒にする
+    - [x] 差を取って使う
 
 ## 関連ページ
 
