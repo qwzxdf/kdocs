@@ -14,79 +14,96 @@ tags:
 `#include <memory>`
 </div>
 
-`std::default_delete<T>` は、**`std::unique_ptr` が何も指定しなかったときに使う、`delete` を呼ぶだけの削除用の関数オブジェクト**です。`unique_ptr<T>` は、実は `unique_ptr<T, default_delete<T>>` です。C のライブラリの解放関数を呼ばせたいときは、これを自作の削除関数に置き換えます。
+`std::unique_ptr<T>` は、破棄のとき、何かに頼んで中身を解放します。その既定の担当が `std::default_delete<T>` です。`delete p` を呼ぶだけの関数オブジェクトで、配列用の `default_delete<T[]>` は `delete[] p` を呼びます。
 
 !!! tip "ポイント"
-    - `std::unique_ptr<T>` の第 2 テンプレート引数の既定値。
-    - 配列版 `default_delete<T[]>` は `delete[]` を呼ぶ。
-    - 自作の削除関数に置き換えて、`fclose` などを呼べる。
+    - `unique_ptr` の既定のデリーター
+    - `operator()(T* p)` で `delete p`
+    - 配列用の特殊化 `default_delete<T[]>` は `delete[] p`
+    - 自作のデリーターが要らないなら、指定しない
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [所有権（誰が消すのか）](../../basics/ownership.md)（所有権の考え方）
+    [`std::allocator`](allocator.md) など、アロケーターの基本を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::default_delete {#default_delete}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-template <class T>
-struct default_delete {
-  void operator()(T* p) const;
+template <class T> struct default_delete {
+  constexpr default_delete() noexcept = default;
+  void operator()(T* ptr) const;
+};
+template <class T> struct default_delete<T[]> {
+  template <class U> void operator()(U* ptr) const;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `p` | `T*` | 解放するポインター |
+状態を持たない空の型なので、`unique_ptr` の大きさが増えません（空基底の最適化）。
 
-- 戻り値: （なし）。`delete p` を呼ぶ
-- 計算量: O(1)
+`unique_ptr<T, 独自のデリーター>` では、デリーターの型が `unique_ptr` の型に入ります。ファイルの `fclose` や、ハンドルの解放関数を指定するときに、独自のデリーターを書きます。
+
+不完全型に対しても使えますが、`operator()` の呼び出し時点で完全型でないと、`static_assert` に失敗します。`unique_ptr` を前方宣言の型で持つ（pImpl）ときは、デストラクターを `.cpp` に書きます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <memory>
 #include <print>
 
+struct Tracer {
+  static inline int alive = 0;
+  Tracer() { ++alive; }
+  ~Tracer() { --alive; }
+};
+
 int main() {
-  int* raw = new int(3);
-  std::default_delete<int> deleter;
-  std::println("{}", *raw);
-  deleter(raw);  // delete raw と同じ
+  // 手で呼ぶと、delete と同じ
+  Tracer* p = new Tracer;
+  std::println("作った: {}", Tracer::alive);
+  std::default_delete<Tracer>()(p);
+  std::println("解放した: {}", Tracer::alive);
+
+  // 配列用は delete[]
+  Tracer* arr = new Tracer[3];
+  std::println("作った: {}", Tracer::alive);
+  std::default_delete<Tracer[]>()(arr);
+  std::println("解放した: {}", Tracer::alive);
+
+  std::println("大きさが増えない: {}", sizeof(std::unique_ptr<int>) == sizeof(int*));
 }
 ```
 
 ```text title="実行結果"
-3
+作った: 1
+解放した: 0
+作った: 3
+解放した: 0
+大きさが増えない: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| C のライブラリの解放関数を unique_ptr に任せる | `std::unique_ptr<FILE, decltype(&fclose)>` |
+普段は意識しません。独自のデリーターの書き方の見本として知っておきます。
 
 ## よくあるミス
 
-??? failure "new[] で作ったものに default_delete<T> を使う"
-    `T[]` 版を使います（`unique_ptr<T[]>` なら自動）。
+??? failure "unique_ptr<T> に new T[n] を渡す"
+    `delete` で解放されて壊れます。`unique_ptr<T[]>` にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::unique_ptr`](../utilities/unique_ptr.md) | 既定で使っている |
-| [`make_unique`](../utilities/make_unique.md) | 作る側 |
+| [`unique_ptr`](../utilities/unique_ptr.md) | 使う側 |
+| `std::make_unique` | 作る関数 |
+| `std::shared_ptr` のデリーター | 型に含まれない |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] `delete` を呼ぶ削除関数
-    - [x] unique_ptr の既定の第 2 引数
-    - [x] 自作の削除関数に置き換えられる
+C++11 から使えます。
 
 ## 関連ページ
 

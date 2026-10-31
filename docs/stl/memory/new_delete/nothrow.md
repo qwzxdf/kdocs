@@ -15,76 +15,83 @@ tags:
 `#include <new>`
 </div>
 
-`std::nothrow` は、**`new` が失敗したときに、例外ではなく `nullptr` を返させる**ための印です。`new (std::nothrow) T` のように書きます。例外を使わない方針のコードで使います。
+`new` は、失敗すると例外を投げます。例外を使わない設計（ゲーム機の組み込みなど）で、失敗したら `nullptr` を返してほしいとき、`new (std::nothrow) T` と書きます。`std::nothrow` は、そのための印です。
 
 !!! tip "ポイント"
-    - `new (std::nothrow) T;` → 失敗すると `nullptr`。
-    - 戻り値を必ず `nullptr` と比べる。
-    - コンストラクターの中の例外は、別（`nothrow` でも飛ぶ）。
+    - `new (std::nothrow) T` は、失敗したら `nullptr` を返す
+    - `T` のコンストラクターが投げる例外は、そのまま出る（確保だけが対象）
+    - `delete` は普通に使える
+    - 配列版も `new (std::nothrow) T[n]`
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`operator new`](operator_new.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::nothrow {#nothrow}
 
 ```cpp
-T* p = new (std::nothrow) T(args...);
+struct nothrow_t { explicit nothrow_t() = default; };
+inline constexpr std::nothrow_t nothrow{};
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `std::nothrow` | `std::nothrow_t` | 失敗したとき、例外ではなく `nullptr` を返す印 |
+`nothrow` は、値を持たない空の印で、`operator new` のオーバーロードを選ぶために渡します。
 
-- 戻り値: 成功なら `T*`、失敗なら `nullptr`
-- 例外を使わないプロジェクトで使われます。**`nullptr` かどうかを必ず確認**します（確認しないと、結局クラッシュします）
+```cpp
+int* p = new (std::nothrow) int[1000];
+if (p == nullptr) {
+  // 確保に失敗した
+}
+```
+
+`set_new_handler` で登録したハンドラーは、`nothrow` 版でも、確保の失敗のたびに呼ばれます。ハンドラーが例外を投げると、`nothrow` 版はそれを捕まえて、`nullptr` を返します。
+
+例外を使わない設計でも、標準ライブラリのコンテナ（`std::vector` など）は、確保の失敗で `bad_alloc` を投げます。`nothrow` を使えるのは、自分で `new` するところだけです。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <limits>
 #include <new>
 #include <print>
 
 int main() {
-  int* p = new (std::nothrow) int(7);  // 失敗しても例外を投げない
-  std::println("{}", p != nullptr);
-  delete p;
+  // 通常の確保は成功する
+  int* ok = new (std::nothrow) int(7);
+  std::println("成功: {}", ok != nullptr);
+  delete ok;
+
+  // 確保できない大きさは nullptr になる（例外は投げない）
+  char* big = new (std::nothrow) char[std::numeric_limits<std::size_t>::max() / 2];
+  std::println("失敗: {}", big == nullptr);
+  delete[] big;
 }
 ```
 
 ```text title="実行結果"
-true
+成功: true
+失敗: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 例外を切っているプロジェクトでのメモリ確保 | `auto* p = new (std::nothrow) Big;` |
+例外を無効にしたビルドで、確保の失敗を検査する自作のアロケーターに使います。
 
 ## よくあるミス
 
-??? failure "nullptr を調べない"
-    失敗すると `nullptr` で、使うとクラッシュします。
+??? failure "nullptr を確かめない"
+    失敗しても例外が出ないので、そのまま使うとクラッシュします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`new`](new.md) | 通常の new |
-| [`malloc`](../malloc.md) | 失敗すると nullptr |
+| [`set_new_handler`](set_new_handler.md) | 失敗時の回復 |
+| [`bad_array_new_length`](bad_array_new_length.md) | 配列の長さが不正なときの例外 |
 
 ## コンパイラ対応
 
 C++98 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 失敗したら nullptr を返す new
-    - [x] 戻り値を必ず確認
-    - [x] 例外を使わない方針向け
 
 ## 関連ページ
 

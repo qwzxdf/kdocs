@@ -14,19 +14,20 @@ tags:
 `#include <cstring>`
 </div>
 
-`strncpy` は、**C 文字列を最大 n 文字までコピーする**関数です。`strcpy` より安全に見えますが、**n 文字を使い切ると終端の `\0` が付かない**落とし穴があります。
+`strcpy` の危険を避けるために、コピーする最大の文字数を指定できるのが `std::strncpy(dst, src, n)` です。ところがこの関数には、<strong>`src` が `n` 文字以上だと、終端を付けない</strong>という落とし穴があります。名前から想像する「安全な `strcpy`」ではありません。
 
 !!! tip "ポイント"
-    - 終端 `\0` を自分で付ける必要がある。
-    - 短いときは、残りを `\0` で埋める（余計な時間）。
-    - 新しいコードでは `snprintf` や `std::string`。
+    - 最大 `n` 文字をコピーする
+    - `src` が `n` 文字以上なら、`dst` に終端が付かない
+    - `src` が短いと、残りを `'\0'` で `n` 文字まで埋める
+    - 終端が要るなら、自分で `dst[n - 1] = '\0'` と書く
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`<cstring>`](../cstring.md) の概要を先に読んでください。C の文字列は、終端が `'\0'` の `char` の配列です。
 
 ## 関数の詳しい説明
 
-### strncpy {#strncpy}
+### std::strncpy {#strncpy}
 
 ```cpp
 char* strncpy(char* dest, const char* src, std::size_t count);
@@ -38,9 +39,11 @@ char* strncpy(char* dest, const char* src, std::size_t count);
 | `src` | `const char*` | コピー元 |
 | `count` | `std::size_t` | コピーする最大の文字数 |
 
-- 戻り値: `dest`
-- 安全そうに見えますが、**`src` が `count` 以上の長さのとき、終端の `'\0'` を書いてくれません**。そのまま `strlen` や `printf` に渡すと範囲外を読みます。短いときは、残りを `'\0'` で埋めるので、無駄に遅い場合もあります
-- 使うなら、最後に自分で `dest[count - 1] = '\0';` と書きます。基本は `std::string` を使います
+`src` が `count` 文字より短いと、残りの領域を `'\0'` で埋めます。大きな配列に短い文字列をコピーすると、無駄に書き込みます。
+
+`src` が `count` 文字以上のときは、ちょうど `count` 文字をコピーして、終端を付けません。そのまま `strlen` や `println` に渡すと、配列の外まで読みます。
+
+安全な使い方は、`count` を配列の大きさ - 1 にして、最後に終端を書くことです。ただし、手間がかかるので、`snprintf` か `std::string` のほうが簡単です。
 
 ## 実際に動かしてみる
 
@@ -49,45 +52,46 @@ char* strncpy(char* dest, const char* src, std::size_t count);
 #include <print>
 
 int main() {
-  char dst[4] = {};
-  std::strncpy(dst, "abcdef", 3);
-  dst[3] = '\0';  // 終端は自分で付ける
+  char dst[4];
+  std::strncpy(dst, "abcdefg", sizeof(dst) - 1);
+  dst[sizeof(dst) - 1] = '\0';  // 終端は自分で付ける
   std::println("{}", dst);
+
+  // 短い文字列なら、残りは \0 で埋められる
+  char buf[8];
+  std::strncpy(buf, "ab", sizeof(buf));
+  std::println("長さ {} 末尾の要素は \\0: {}", std::strlen(buf), buf[7] == '\0');
 }
 ```
 
 ```text title="実行結果"
 abc
+長さ 2 末尾の要素は \0: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 固定長バッファへ名前をコピーする（古い書き方） | `strncpy(name, src, sizeof(name) - 1); name[sizeof(name) - 1] = 0;` |
+固定長のフィールドに名前を詰めるような、古いデータ形式を扱うときに出てきます。
 
 ## よくあるミス
 
-??? failure "終端を付け忘れる"
-    `n` 文字ぴったりだと終端が付かず、後で読むと暴走します。
+??? failure "終端が付かないまま使う"
+    `count` 文字以上の `src` では、終端がありません。自分で付けます。
+
+??? failure "count に配列の大きさをそのまま渡す"
+    最後に終端を書く余地がなくなります。大きさ - 1 にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`strcpy`](strcpy.md) | 長さを確認しない |
-| [`snprintf`](snprintf.md) | 終端が必ず付く |
+| [`strcpy`](strcpy.md) | 大きさを確認しない |
+| [`snprintf`](snprintf.md) | 常に終端を付ける |
+| `std::string` | 普段はこちら |
 
 ## コンパイラ対応
 
 C 由来の関数です。C++ のどの版でも使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 最大 n 文字コピー
-    - [x] 終端が付かないことがある
-    - [x] `snprintf` のほうが安全
 
 ## 関連ページ
 

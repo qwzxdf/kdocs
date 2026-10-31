@@ -15,19 +15,22 @@ tags:
 `#include <memory>`
 </div>
 
-`vector` の中のように、自分で確保した領域に `construct_at` などで作ったオブジェクトをまとめて壊したいときがあります。`std::destroy(first, last)` は範囲の全オブジェクトのデストラクタを呼びます。メモリは返さないので、そのあと自分で解放します。
+生のメモリに作った複数のオブジェクトを、まとめて壊したい。`std::destroy(first, last)` は、`[first, last)` の各要素に、`destroy_at` を呼びます。
 
 !!! tip "ポイント"
-    - デストラクタを呼ぶだけで、メモリは返さない。
-    - `int` のようなトリビアルな型では何もしない。
-    - 個数を数で渡す版は [`destroy_n`](destroy_n.md)。
+    - 範囲 `[first, last)` の全要素のデストラクターを呼ぶ
+    - メモリは解放しない
+    - 壊す順序は規定されていない
+    - 自明なデストラクターの型なら、何もしない
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`destroy_at`](destroy_at.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::destroy {#destroy}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
 template <class ForwardIt>
@@ -36,11 +39,13 @@ constexpr void destroy(ForwardIt first, ForwardIt last);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `first, last` | イテレータ | 壊す範囲 |
+| `first`, `last` | 前方イテレータ | 壊す範囲 |
 
-- 戻り値: なし
-- 計算量: 線形（トリビアルな型なら何もしない）
+壊す順序は、先頭から末尾へとは限りません。順序に依存するデストラクターは、書かないようにします。
 
+`uninitialized_*` 系のアルゴリズムで作った範囲を壊すときの、対になる関数です。
+
+範囲のうち一部が作られていない状態では使えません。作られていない領域のデストラクターを呼ぶと、未定義動作です。
 
 ## 実際に動かしてみる
 
@@ -52,53 +57,47 @@ constexpr void destroy(ForwardIt first, ForwardIt last);
 struct Tracer {
   static inline int alive = 0;
   Tracer() { ++alive; }
+  Tracer(const Tracer&) { ++alive; }
+  Tracer(Tracer&&) noexcept { ++alive; }
   ~Tracer() { --alive; }
 };
 
 int main() {
-  alignas(Tracer) unsigned char buf[sizeof(Tracer) * 2];
-  auto* p = reinterpret_cast<Tracer*>(buf);
-  std::construct_at(p);
-  std::construct_at(p + 1);
-  std::println("{}", Tracer::alive);
-  std::destroy(p, p + 2);
-  std::println("{}", Tracer::alive);
+  alignas(Tracer) unsigned char buf[sizeof(Tracer) * 3];
+  auto* first = reinterpret_cast<Tracer*>(buf);
+  for (int i = 0; i < 3; ++i) std::construct_at(first + i);
+  std::println("作った: {}", Tracer::alive);
+
+  std::destroy(first, first + 3);
+  std::println("壊した: {}", Tracer::alive);
 }
 ```
 
 ```text title="実行結果"
-2
-0
+作った: 3
+壊した: 0
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 自前のプールの中身を壊す | `std::destroy(pool.begin(), pool.begin() + count);` |
+自作のコンテナで、`clear()` や破棄のときに、範囲をまとめて壊します。
 
 ## よくあるミス
 
-??? failure "デストラクタを二重に呼ぶ"
-    壊したあとのオブジェクトにもう一度 `destroy` を呼ぶと未定義動作です。
+??? failure "作っていない部分を含める"
+    未定義動作です。作った範囲だけを渡します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`destroy_at`](destroy_at.md) | 1 つだけ壊す |
-| [`destroy_n`](destroy_n.md) | 個数で指定 |
+| [`destroy_n`](destroy_n.md) | 個数を指定する |
+| [`uninitialized_fill`](uninitialized_fill.md) | 範囲に作る |
 
 ## コンパイラ対応
 
 C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 範囲のデストラクタを呼ぶ
-    - [x] メモリは返さない
-    - [x] 二重に呼ばない
 
 ## 関連ページ
 

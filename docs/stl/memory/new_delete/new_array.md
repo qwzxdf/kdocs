@@ -15,79 +15,95 @@ tags:
 `#include <new>`
 </div>
 
-`new[]` は、**要素が複数の配列をヒープに作る**式で、解放は `delete[]` です。要素ごとにコンストラクター・デストラクターが呼ばれます。配列の大きさは実行時に決められますが、`std::vector` のほうが安全で便利です。
+同じ型のオブジェクトを、まとめて確保したい。`new T[n]` は、`n` 個分の領域を確保して、各要素のコンストラクターを呼びます。解放には、必ず `delete[]` を使います。生の `new[]` は、`std::vector` や `std::unique_ptr<T[]>` に置き換えるのが普通です。
 
 !!! tip "ポイント"
-    - `new[]` の解放は **`delete[]`**。`delete` ではない。
-    - 大きさは覚えていない。自分で管理する。
-    - 普通は `std::vector` や `std::make_unique<T[]>`。
+    - `new T[n]` は、`n` 個を確保して、全部にコンストラクターを呼ぶ
+    - 解放は `delete[]`。`delete` だと未定義動作
+    - `new T[n]()` は値初期化（0 で初期化）、`new T[n]` は既定の初期化
+    - 新しいコードは `std::vector` か `std::make_unique<T[]>(n)`
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`operator new`](operator_new.md) と [`delete[]`](delete_array.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### new[] {#new_array data-toc-label="new[]"}
+### new[] 式 {#new_array}
 
 ```cpp
-T* p = new T[n];       // n 個。各要素はデフォルトコンストラクタ
-T* p = new T[n]{};     // 値で初期化（基本型は 0）
-delete[] p;            // 配列は必ず delete[]
+T* p = new T[n];
+T* q = new T[n]{};            // 値初期化
+T* r = new T[3]{1, 2, 3};     // 初期化子つき
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `n` | `size_t` | 要素の数 |
+`new[]` 式は、内部で `operator new[](size)` を呼んでメモリを確保し、各要素にコンストラクターを順に呼びます。途中のコンストラクターが例外を投げると、作り終えた要素のデストラクターを逆順に呼び、メモリを解放してから、例外を伝えます。
 
-- 戻り値: 先頭の要素へのポインタ
-- **`delete[]` で消す**ことが大事です。`delete`（`[]` なし）だと、先頭の 1 個のデストラクタしか呼ばれず、未定義動作です
-- 配列の大きさはポインタからは取れません。自分で覚えておく必要があります
-- ほぼ使いません。`std::vector<T>` や `std::unique_ptr<T[]>`、`std::array<T, N>` を使います
+`int` のような基本型を `new int[n]` で作ると、値は初期化されません。0 で初期化したいなら、`new int[n]()` か `new int[n]{}` と書きます。
+
+要素の個数は、実装がどこかに覚えていて、`delete[]` がそれを使ってデストラクターを呼びます。そのため、`delete[]` と `delete` の取り違えは、未定義動作になります。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <memory>
+#include <new>
 #include <print>
 
+struct Tracer {
+  static inline int alive = 0;
+  Tracer() { ++alive; }
+  Tracer(const Tracer&) { ++alive; }
+  Tracer(Tracer&&) noexcept { ++alive; }
+  ~Tracer() { --alive; }
+};
+
+struct Item {
+  Item() { ++Tracer::alive; }
+  ~Item() { --Tracer::alive; }
+};
+
 int main() {
-  int* a = new int[3]{1, 2, 3};
-  std::println("{}", a[0] + a[1] + a[2]);
-  delete[] a;  // new[] には delete[]
+  Item* items = new Item[3];
+  std::println("生きている数: {}", Tracer::alive);
+  delete[] items;
+  std::println("解放後: {}", Tracer::alive);
+
+  // 基本型は初期化されない。() で 0 にする
+  int* zeros = new int[3]();
+  std::println("{} {} {}", zeros[0], zeros[1], zeros[2]);
+  delete[] zeros;
 }
 ```
 
 ```text title="実行結果"
-6
+生きている数: 3
+解放後: 0
+0 0 0
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 古いコードの読解 | `int* a = new int[n]; ... delete[] a;` |
+古いコードの読解用です。新しく書くなら、`std::vector<T>` か `std::make_unique<T[]>(n)` を使います。
 
 ## よくあるミス
 
-??? failure "delete と delete[] を取り違える"
-    未定義動作です。
+??? failure "delete で解放する"
+    未定義動作です。`new[]` には `delete[]`。
+
+??? failure "基本型が 0 で初期化されると思う"
+    `()` や `{}` を付けないと、ゴミの値です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::vector`](../../containers/vector.md) | 大きさを覚えていて安全 |
-| [`std::make_unique`](../../utilities/make_unique.md) | `make_unique<T[]>(n)` |
+| [`delete[]`](delete_array.md) | 対になる解放 |
+| `std::vector` | 普段はこちら |
+| `std::unique_ptr<T[]>` | 所有権を持つ配列 |
 
 ## コンパイラ対応
 
 C++98 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 配列を作る・解放する
-    - [x] `new[]` には `delete[]`
-    - [x] `vector` を使う
 
 ## 関連ページ
 

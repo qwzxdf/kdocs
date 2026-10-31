@@ -15,31 +15,33 @@ tags:
 `#include <new>`
 </div>
 
-`std::launder` は、**同じ場所に別のオブジェクトを作り直したあと、元のポインターを「新しいオブジェクトを指すポインター」として取り直す**ための関数です。コンパイラの最適化に誤解させないために必要になる、ごく限られた場面（配置 new で const メンバを持つ型を作り直す、など）で使います。
+オブジェクトを破棄して、同じ場所に、新しいオブジェクトを配置 new で作ったとき、古いポインタが新しいオブジェクトを指すとは限りません。コンパイラが、`const` メンバーなどの最適化のために、古い値を使い続けることがあるからです。`std::launder(p)` は、「`p` の指す場所に、新しいオブジェクトがある」とコンパイラに伝える関数です。
 
 !!! tip "ポイント"
-    - 普通のコードでは使わない。
-    - const メンバや参照メンバを持つ型を同じ場所に作り直したときに必要。
-    - `construct_at` の戻り値を使えば、不要なことが多い。
+    - 同じ場所に作り直したオブジェクトを、古いポインタ経由で使うときに、新しいポインタを得る
+    - `const` メンバーや参照メンバーを持つクラスで、特に必要
+    - 実行時の動作は何もしない。コンパイラへの指示
+    - 使う場面は少ない。`std::optional` など、標準ライブラリの内部が主
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [配置 new](placement_new.md) と [`destroy_at`](destroy_at.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### std::launder <span class="ver ver-17">C++17</span> {#launder data-toc-label="std::launder"}
+### std::launder {#launder}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
 template <class T>
 [[nodiscard]] constexpr T* launder(T* p) noexcept;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `p` | `T*` | 同じ場所に新しく作ったオブジェクトを指すポインタ |
+`const` メンバーを持つクラスのオブジェクトは、その値が変わらないものとして最適化されます。同じ場所に別の値で作り直すと（配置 new）、古いポインタを通したアクセスは、古い値のまま読まれる可能性があります。
 
-- 戻り値: その場所にある**新しいオブジェクト**を正しく指すポインタ
-- `const` メンバや参照メンバを持つクラスを同じ場所で作り直したとき、古いポインタをそのまま使うと未定義動作になることがあります。そのときのための関数で、普通のコードでは使いません
+配置 new の戻り値のポインタは、新しいオブジェクトを指すので、それを使えば問題ありません。`launder` が必要なのは、古いポインタや、`unsigned char` の領域からの `reinterpret_cast` の結果など、新しいオブジェクトを直接指していないポインタを使うときです。
+
+`p` の指す場所に、`T` 型のオブジェクトが実際に生存していなければ、未定義動作です。
 
 ## 実際に動かしてみる
 
@@ -47,49 +49,51 @@ template <class T>
 #include <new>
 #include <print>
 
-struct S {
-  const int x;
+struct Config {
+  const int level;  // const メンバー
 };
 
 int main() {
-  alignas(S) unsigned char buffer[sizeof(S)];
-  S* first = new (buffer) S{1};
-  new (buffer) S{2};  // 同じ場所に作り直す（const メンバがあるので launder が必要）
-  std::println("{}", std::launder(first)->x);
+  Config* c = new Config{1};
+  std::println("{}", c->level);
+
+  // 同じ場所に作り直す
+  c->~Config();
+  new (c) Config{2};
+
+  // 古いポインタ c を通して読むなら launder を通す
+  std::println("{}", std::launder(c)->level);
+
+  c->~Config();
+  ::operator delete(c);
 }
 ```
 
 ```text title="実行結果"
+1
 2
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ほぼ出番なし（低レベルのコンテナ実装など） | 知識として名前だけ |
+自作の `optional` や `variant` のような、型消去のバッファの上にオブジェクトを作る実装で使います。
 
 ## よくあるミス
 
-??? failure "使いどころを誤る"
-    普通のポインターには不要です。必要な場面を理解してから使います。
+??? failure "生存していないオブジェクトに使う"
+    未定義動作です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`placement_new`](placement_new.md) | 作り直しの手段 |
+| [配置 new](placement_new.md) | 再配置する |
+| [`construct_at`](construct_at.md) | 作る |
+| `std::start_lifetime_as` | C++23。バイト列を型として扱う |
 
 ## コンパイラ対応
 
-C++98 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 作り直したオブジェクトのポインターを取り直す
-    - [x] ほぼ使わない
-    - [x] 低レベルの実装向け
+C++17 から使えます。
 
 ## 関連ページ
 

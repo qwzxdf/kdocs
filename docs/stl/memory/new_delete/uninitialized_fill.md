@@ -14,98 +14,87 @@ tags:
 `#include <memory>`
 </div>
 
-自分で確保した領域に同じ値のコピーをまとめて作りたいことがあります。`uninitialized_fill` は、`fill`（代入）と違い、まだオブジェクトがない領域に**コピーコンストラクタで作ります**。
+生のメモリの範囲に、同じ値のコピーを作りたい。`std::uninitialized_fill(first, last, value)` は、`[first, last)` の各位置に、`value` のコピーを（コンストラクターで）作ります。`std::fill` と違い、領域はまだオブジェクトがない生のメモリです。
 
 !!! tip "ポイント"
-    - 未初期化のメモリにオブジェクトを作る。
-    - 途中で例外が出たら、すでに作ったぶんを壊してから投げる。
-    - 個数で指定する版は `uninitialized_fill_n`（同じページの下）。
+    - 生のメモリに、同じ値のコピーを作る
+    - 途中でコンストラクターが例外を投げたら、作ったものを壊してから伝える
+    - `std::fill`（作成済みのオブジェクトへの代入）とは別物
+    - 壊すときは `destroy`
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`construct_at`](construct_at.md) と [`destroy`](destroy.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::uninitialized_fill {#uninitialized_fill}
+
+<span class="ver ver-11">C++98〜</span>
 
 ```cpp
 template <class ForwardIt, class T>
 void uninitialized_fill(ForwardIt first, ForwardIt last, const T& value);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first, last` | イテレータ | 未初期化の領域 |
-| `value` | T | コピー元の値 |
+`std::vector<T>(n, value)` が、内部で確保した領域を埋めるときに使う関数です。
 
-- 戻り値: 最後に作った位置の次のイテレータ
-- 計算量: 線形
+`std::fill` との違いは、対象の状態です。`fill` は、すでにオブジェクトがある領域への代入です。`uninitialized_fill` は、オブジェクトがない領域に、新しく作ります。ない領域に代入すると、壊れたオブジェクトに代入することになります。
 
-### std::uninitialized_fill_n {#uninitialized_fill_n}
-
-```cpp
-template <class ForwardIt, class Size, class T>
-ForwardIt uninitialized_fill_n(ForwardIt first, Size n, const T& value);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first` | イテレータ | 未初期化の領域の先頭 |
-| `n` | 整数 | 作る個数 |
-| `value` | T | コピー元の値 |
-
-- 戻り値: 最後に作った位置の次のイテレータ
-- 計算量: 線形
-
+例外の保証があります。途中の要素のコンストラクターが例外を投げると、それまでに作った要素を全部壊してから、例外が伝わります。部分的に作られた状態は残りません。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <memory>
+#include <new>
 #include <print>
-#include <string>
+
+struct Tracer {
+  static inline int alive = 0;
+  Tracer() { ++alive; }
+  Tracer(const Tracer&) { ++alive; }
+  Tracer(Tracer&&) noexcept { ++alive; }
+  ~Tracer() { --alive; }
+};
 
 int main() {
-  alignas(std::string) unsigned char buf[sizeof(std::string) * 2];
-  auto* p = reinterpret_cast<std::string*>(buf);
-  std::uninitialized_fill(p, p + 2, std::string("hi"));
-  std::println("{} {}", p[0], p[1]);
-  std::destroy(p, p + 2);
+  alignas(Tracer) unsigned char buf[sizeof(Tracer) * 4];
+  auto* first = reinterpret_cast<Tracer*>(buf);
+
+  const Tracer proto;
+  std::uninitialized_fill(first, first + 4, proto);
+  std::println("コピーを作った: {}", Tracer::alive);  // proto を含めて 5
+
+  std::destroy(first, first + 4);
+  std::println("壊した: {}", Tracer::alive);  // proto が 1 つ残る
 }
 ```
 
 ```text title="実行結果"
-hi hi
+コピーを作った: 5
+壊した: 1
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 確保した領域を 0 で埋めて使い始める | `std::uninitialized_fill(p, p + n, 0);` |
+自作の `vector` のような、容量を確保してから要素を作るコンテナで使います。
 
 ## よくあるミス
 
-??? failure "すでにオブジェクトがある場所に使う"
-    この関数は**未初期化の領域**専用です。作ってあるオブジェクトの上に使うと、デストラクタが呼ばれずに壊れます。
+??? failure "fill と取り違える"
+    生のメモリに `fill` を使うと、存在しないオブジェクトに代入します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`construct_at`](construct_at.md) | 1 つだけ作る |
-| [`destroy`](destroy.md) | 壊す |
+| [`uninitialized_move`](uninitialized_move.md) | ムーブして作る |
+| [`uninitialized_default_construct`](uninitialized_default_construct.md) | 既定の構築で作る |
+| `std::fill` | 作成済みの要素に代入 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 未初期化のメモリにオブジェクトを作る
-    - [x] 例外が出たら作ったぶんを壊す
-    - [x] `_n` は個数で指定
+C++98 から使えます。
 
 ## 関連ページ
 

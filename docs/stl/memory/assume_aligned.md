@@ -14,79 +14,84 @@ tags:
 `#include <memory>`
 </div>
 
-SIMD などで配列を速く処理するとき、コンパイラは「先頭アドレスが 16 バイト境界か」を知らないと、保守的なコードを出します。`assume_aligned<N>(p)` は、「このポインタは N バイト境界にある」と約束して、速いコードを出してもらう道具です。
+SIMD で処理するとき、データが 32 バイトや 64 バイトの境界に並んでいると、コンパイラは速い命令を使えます。ところが、関数の引数のポインターは、そのアライメントが分かりません。`std::assume_aligned<N>(p)` は、「`p` は `N` バイトの境界にある」とコンパイラに約束します。
 
 !!! tip "ポイント"
-    - 約束が嘘だと**未定義動作**になる。
-    - N は 2 のべき乗。
-    - 配列自体は `alignas(N)` や `aligned_alloc` で用意する。
+    - `std::assume_aligned<64>(p)` で、`p` が 64 バイト境界だと伝える
+    - 約束を破ると、未定義動作
+    - 実行時の処理は何もしない。最適化の助け
+    - C++20
 
 !!! info "このページを読む前に"
-    [ポインタ](../../basics/pointer.md) が分かると読みやすいです。
+    [`std::allocator`](allocator.md) など、アロケーターの基本を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::assume_aligned {#assume_aligned}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <size_t N, class T>
-constexpr T* assume_aligned(T* ptr);
+template <std::size_t N, class T>
+[[nodiscard]] constexpr T* assume_aligned(T* ptr);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `N` | テンプレート引数 | 境界のバイト数（2 のべき乗） |
-| `ptr` | T* | 約束するポインタ |
+`N` は 2 のべき乗でなければなりません。`ptr` が実際に `N` バイトの境界にないと、未定義動作です。
 
-- 戻り値: `ptr` と同じ値のポインタ
-- 計算量: 定数
+戻り値は `ptr` と同じ値ですが、アライメントの情報が付いています。戻り値を使うこと（`[[nodiscard]]`）が前提です。
 
+ベクトル化できるループの前に、入力のポインターに適用すると、コンパイラが、境界を処理する余計なコードを出さずに済みます。ただし、効果の有無は、コンパイラ次第です。
+
+アライメントを保証するのは、確保する側の責任です。`alignas(64)` の配列や、`std::aligned_alloc`、`operator new(size, align_val_t)` で確保した領域に使います。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <cstdint>
 #include <memory>
 #include <print>
 
+float Sum(const float* data, int n) {
+  const float* p = std::assume_aligned<64>(data);  // 64 バイト境界だと約束する
+  float s = 0;
+  for (int i = 0; i < n; ++i) s += p[i];
+  return s;
+}
+
 int main() {
-  alignas(16) float buf[4] = {1, 2, 3, 4};
-  float* p = std::assume_aligned<16>(buf);
-  std::println("{}", p[2]);
+  alignas(64) float arr[16];
+  for (int i = 0; i < 16; ++i) arr[i] = 1.0f;
+
+  std::println("合計: {}", Sum(arr, 16));
+  std::println("境界にある: {}", reinterpret_cast<std::uintptr_t>(arr) % 64 == 0);
 }
 ```
 
 ```text title="実行結果"
-3
+合計: 16
+境界にある: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 16 バイト境界の float 配列を SIMD で処理する前に伝える | `float* p = std::assume_aligned<16>(buf);` |
+SIMD で処理する大きな配列を扱う関数の冒頭で、アライメントを伝えます。
 
 ## よくあるミス
 
-??? failure "境界に合っていないポインタを渡す"
-    約束が嘘だと未定義動作です。`alignas` で確保したものだけに使います。
+??? failure "境界にないポインターに使う"
+    未定義動作です。確保の側でアライメントを守ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`align`](align.md) | ポインタを境界に合わせる |
-| [`aligned_alloc`](aligned_alloc.md) | 境界を指定して確保する |
+| [`align`](align.md) | 領域の中で、境界に合わせる |
+| [`aligned_alloc`](aligned_alloc.md) | アライメントつきの確保 |
+| [`align_val_t`](new_delete/align_val_t.md) | new のアライメント指定 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 「N バイト境界にある」とコンパイラに約束する
-    - [x] 嘘は未定義動作
-    - [x] 確保は alignas / aligned_alloc で
 
 ## 関連ページ
 

@@ -14,122 +14,101 @@ tags:
 `#include <memory_resource>`
 </div>
 
-`std::pmr::monotonic_buffer_resource` は、**メモリを前から順に「積んでいく」だけで、個別の解放をしない**メモリリソースです。確保は速く、`release()` で全部を一括解放します。1 フレームだけ使う一時データの置き場として最適です。
+1 フレームの間だけ使う一時的なデータは、フレームの終わりにまとめて捨てられます。個別に解放する必要はありません。`std::pmr::monotonic_buffer_resource` は、渡されたバッファの先頭から順に切り出して渡す、最も単純で速いリソースです。解放は何もせず、`release()` か破棄で一度に全部を返します。
 
 !!! tip "ポイント"
-    - 配列（`std::byte buffer[N]`）を渡すと、まずそこから確保し、足りなくなったら親のリソースから足す。
-    - 個別の `deallocate` は何もしない。メモリは `release()` か破棄まで戻らない。
-    - **スレッドセーフではない**。スレッドごとに持つ。
+    - 確保は、バッファの現在位置を進めるだけで、非常に速い
+    - 個別の解放は何もしない。メモリは減らない
+    - バッファが尽きたら、上流のリソース（既定は `new_delete_resource`）から追加で取る
+    - `release()` で、確保した全部を一度に返す
 
 !!! info "このページを読む前に"
     [`std::pmr`](../pmr.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
-### monotonic_buffer_resource {#monotonic_buffer_resource}
+### std::pmr::monotonic_buffer_resource {#monotonic_buffer_resource}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
-class monotonic_buffer_resource : public memory_resource {
- public:
-  monotonic_buffer_resource();
-  explicit monotonic_buffer_resource(memory_resource* upstream);
-  monotonic_buffer_resource(void* buffer, std::size_t size);
-  monotonic_buffer_resource(void* buffer, std::size_t size, memory_resource* upstream);
-  explicit monotonic_buffer_resource(std::size_t initial_size);
-};
+monotonic_buffer_resource(void* buffer, std::size_t size,
+                          std::pmr::memory_resource* upstream = std::pmr::get_default_resource());
+explicit monotonic_buffer_resource(std::pmr::memory_resource* upstream);
+void release();
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `buffer`, `size` | `void*`, `size_t` | 最初に使う領域（スタックの配列など）。`nullptr` / 0 なら、すぐ上流から取る |
-| `upstream` | `std::pmr::memory_resource*` | **領域が足りなくなったとき**に追加のメモリを取りに行く先。デフォルトは `get_default_resource()`（普通の `new`） |
-| `initial_size` | `std::size_t` | 最初に上流から取る大きさ（目安） |
+| `buffer`, `size` | 領域 | 最初に使う領域。省略すると、上流から取る |
+| `upstream` | `memory_resource*` | 領域が尽きたときの取り先 |
 
-- 戻り値: なし（コンストラクタ）
-- 確保は「今の位置から、必要な大きさだけ進める」だけです。**探す処理がないので速く**、メモリの断片化もしません
-- <strong>個別の解放（`deallocate`）は何もしません。</strong> `v.pop_back()` や `v.clear()`、再確保で捨てた領域は、**`release()` か、リソースの破棄まで戻ってきません**
-- 領域が足りなくなると、上流から**前の約 1.5〜2 倍の大きさ**で追加のブロックを取ります。つまり、バッファが小さくても動きますが、そのぶんヒープを使います
-- スレッドセーフではありません（1 つのスレッドから使う）
+確保のたびに、アライメントを合わせて位置を進めます。足りなくなると、上流から次の塊（前の 1.5 倍程度）を取ります。個別の `deallocate` は何もしません。
 
-<div class="anim" data-label="monotonic_buffer_resource（バッファ 8 個ぶん）">
-_ _ _ _ _ _ _ _ # 渡した領域。まだ空
-+A +A +A _ _ _ _ _ # allocate：先頭から切り出す
-+A +A +A +B +B _ _ _ # 続けて切り出す。探さないので速い
-x x x x x x _ _ # 個別に deallocate しても、領域は戻らない（残る）
-_ _ _ _ _ _ _ _ # release() で一括して空に戻る
-</div>
+そのため、`std::pmr::vector` で `push_back` を繰り返すと、領域を増やすたびに古い領域が残って、メモリを余計に使います。大きさが分かっているなら `reserve` で一度に確保します。
 
-!!! note "vector を増やしていくときの落とし穴"
-    `push_back` を繰り返すと、`vector` は**古い領域を捨てて、より大きい領域を確保し直します**。monotonic では古い領域が戻らないので、**最終的な大きさの 2 倍近くを消費**します。使う量が分かるなら **`reserve`** を先に呼びます。
+`release()` を呼ぶか、リソースを破棄すると、上流から取った塊を全部返します。デストラクターは、確保したオブジェクトのデストラクターを呼ばないので、オブジェクトは別途壊します。
 
-### release {#release}
-
-```cpp
-void release();
-```
-
-- 戻り値: なし
-- 領域をまとめて上流に返し、**最初の状態に戻します**。渡したバッファは、また最初から使えます
-- デストラクタも内部で `release()` を呼ぶので、リソースを破棄すれば自動で返されます
-- 呼ぶ前にそのリソースを使っているコンテナをすべて破棄してください
+上流を `null_memory_resource()` にすると、バッファを使い切った瞬間に `std::bad_alloc` が飛ぶので、「バッファに収まる設計か」を検証できます。
 
 ## 実際に動かしてみる
 
 ```cpp
-#include <cstddef>
+#include <cstdint>
 #include <memory_resource>
 #include <print>
 #include <vector>
 
 int main() {
-  std::byte buffer[256];
-  std::pmr::monotonic_buffer_resource pool(buffer, sizeof(buffer));
+  std::byte buffer[1024];
+  std::pmr::monotonic_buffer_resource pool(buffer, sizeof(buffer),
+                                           std::pmr::null_memory_resource());
 
-  std::pmr::vector<int> v(&pool);  // pool からメモリを取る
-  v.push_back(1);
-  v.push_back(2);
-  v.push_back(3);
-  std::println("{}", v);
-  pool.release();  // 一括解放（コンテナを使い終わってから）
+  std::pmr::vector<int> v(&pool);
+  v.reserve(16);  // 一度に確保して、無駄を出さない
+  for (int i = 0; i < 16; ++i) v.push_back(i);
+
+  const auto* p = reinterpret_cast<const std::byte*>(v.data());
+  std::println("要素はバッファの中: {}", p >= buffer && p < buffer + sizeof(buffer));
+
+  // バッファに収まらない要求は、上流が null なので例外
+  try {
+    std::pmr::vector<int> big(&pool);
+    big.resize(100000);
+  } catch (const std::bad_alloc&) {
+    std::println("バッファを使い切ると bad_alloc");
+  }
 }
 ```
 
 ```text title="実行結果"
-[1, 2, 3]
+要素はバッファの中: true
+バッファを使い切ると bad_alloc
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 1 フレームだけ使う一時配列の置き場 | `std::pmr::monotonic_buffer_resource pool(buffer, sizeof(buffer));` |
-| フレームの終わりに一括解放 | `pool.release();` |
+1 フレームだけ使う一時データ（描画コマンド、衝突の結果、デバッグ文字列）を、フレームの始めに `release()` して、使い回します。
 
 ## よくあるミス
 
-??? failure "コンテナより先にリソースを破棄する"
-    リソースを先に消すと、コンテナが使うメモリが無効になります。リソースは必ずコンテナより長生きさせます。
+??? failure "push_back で膨らませる"
+    古い領域が残ります。`reserve` で一度に取ります。
 
-??? failure "長く使い続けて増え続ける"
-    解放されないので、`release()` を呼ばないとメモリが増え続けます。
+??? failure "オブジェクトのデストラクターが呼ばれると思う"
+    呼ばれません。コンテナを先に破棄します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`unsynchronized_pool_resource`](unsynchronized_pool_resource.md) | 解放した分を再利用する |
-| [`new_delete_resource`](new_delete_resource.md) | 普通の new / delete |
+| [`unsynchronized_pool_resource`](unsynchronized_pool_resource.md) | 個別に解放できるプール |
+| [`null_memory_resource`](null_memory_resource.md) | 上流に置いて溢れを検出する |
+| [`memory_resource`](memory_resource.md) | 基底クラス |
 
 ## コンパイラ対応
 
-C++17 の機能です。主要なコンパイラで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 積むだけの速い領域
-    - [x] `release()` で一括解放
-    - [x] コンテナより長生きさせる
+C++17 から使えます。
 
 ## 関連ページ
 

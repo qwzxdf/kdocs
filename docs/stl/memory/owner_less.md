@@ -14,78 +14,85 @@ tags:
 `#include <memory>`
 </div>
 
-`std::owner_less` は、**`shared_ptr` や `weak_ptr` を指す先ではなく「管理ブロック（持ち主）」で比べる**関数オブジェクトです。`std::set<std::weak_ptr<T>, std::owner_less<>>` のように、`weak_ptr` を `set` や `map` のキーにするときに使います。同じオブジェクトを管理する `weak_ptr` どうしは、等しいとみなされます。
+`std::shared_ptr` を `std::map` のキーにしたい。`shared_ptr` の `<` は、指す先のポインターの大小で比べますが、`weak_ptr` には `<` がありません。`std::owner_less` は、ポインターの値ではなく、<strong>制御ブロック（所有権）の大小</strong>で比べる比較関数オブジェクトで、`shared_ptr` と `weak_ptr` の両方を、キーにできます。
 
 !!! tip "ポイント"
-    - `weak_ptr` は `<` で比べられないので、`set` のキーにするには `owner_less` が必要。
-    - `std::owner_less<>`（型の省略）が使いやすい。
-    - 同じ持ち主を指す `weak_ptr` は、重複せず 1 つになる。
+    - 所有権（制御ブロック）の大小で比べる
+    - 同じ所有権を共有する `shared_ptr` と `weak_ptr` は、等価
+    - `std::map<std::weak_ptr<T>, V, std::owner_less<>>` のように使う
+    - エイリアシング コンストラクターで作ったポインターも、同じ所有権なら等価
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [所有権（誰が消すのか）](../../basics/ownership.md)（所有権の考え方）
+    [`std::allocator`](allocator.md) など、アロケーターの基本を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::owner_less {#owner_less}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-template <class T = void>
-struct owner_less;
+template <class T = void> struct owner_less;
 ```
 
-- 戻り値: （比較用の関数オブジェクト）
-- 計算量: O(1)
+`owner_less<>`（透過的な比較）が、`shared_ptr` と `weak_ptr` のどの組み合わせでも比べられます。
+
+通常の `shared_ptr` の `<` は、`get()` が返すポインターで比べます。エイリアシング コンストラクターで、別のアドレスを指す `shared_ptr` を作ると、同じ所有権を共有していても、`<` では別物として扱われます。`owner_less` なら同じ物です。
+
+`weak_ptr` は期限切れになっても、制御ブロックの順序は変わらないので、キーとして安全です。ポインターの値で比べると、期限切れの扱いが問題になります。
+
+## 実際に動かしてみる
 
 ```cpp
+#include <map>
 #include <memory>
 #include <print>
-#include <set>
 
 int main() {
-  auto sp = std::make_shared<int>(1);
-  std::weak_ptr<int> a = sp;
-  std::weak_ptr<int> b = sp;  // 同じオブジェクトを管理する
+  auto a = std::make_shared<int>(1);
+  auto b = std::make_shared<int>(2);
 
-  std::set<std::weak_ptr<int>, std::owner_less<>> observers;
-  observers.insert(a);
-  observers.insert(b);
-  std::println("{}", observers.size());
+  // weak_ptr をキーにした map
+  std::map<std::weak_ptr<int>, const char*, std::owner_less<>> names;
+  names[a] = "a";
+  names[b] = "b";
+  std::println("要素数: {}", names.size());
+
+  // 同じ所有権の shared_ptr でも検索できる
+  std::println("a の名前: {}", names.find(a)->second);
+
+  // 同じ所有権を共有していれば、等価
+  std::shared_ptr<int> a2 = a;
+  std::println("等価: {}", !std::owner_less<>()(a, a2) && !std::owner_less<>()(a2, a));
 }
 ```
 
 ```text title="実行結果"
-1
+要素数: 2
+a の名前: a
+等価: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| オブザーバー（観測者）を weak_ptr で重複なく登録する | `std::set<std::weak_ptr<Listener>, std::owner_less<>>` |
+オブジェクトを `weak_ptr` で管理する表（オブジェクトから付随情報を引く）を作るときに使います。
 
 ## よくあるミス
 
-??? failure "owner_less を付け忘れる"
-    `weak_ptr` に `<` が無いので、コンパイルエラーになります。
+??? failure "weak_ptr をそのままキーにする"
+    `<` がないのでコンパイルできません。`owner_less` を指定します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::weak_ptr`](../utilities/weak_ptr.md) | 比べる対象 |
-| [`std::set`](../containers/set.md) | キーに使う |
+| [`owner_hash`](owner_hash.md) | ハッシュ版（C++26） |
+| [`owner_equal`](owner_equal.md) | 等値版（C++26） |
+| [`shared_ptr`](../utilities/shared_ptr.md) | 対象 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 持ち主で比べる
-    - [x] weak_ptr を set のキーにする
-    - [x] `owner_less<>` が簡単
+C++11 から使えます。
 
 ## 関連ページ
 

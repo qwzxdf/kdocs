@@ -14,35 +14,40 @@ tags:
 `#include <memory_resource>`
 </div>
 
-プール方式のメモリリソースは、同じ大きさのブロックをまとめて用意します。「1 回にいくつ取るか」「どの大きさまでプールにするか」を `pool_options` で指定します。
+プール リソース（`synchronized_pool_resource` と `unsynchronized_pool_resource`）の振る舞いを調整する設定が `std::pmr::pool_options` です。1 つの塊（チャンク）に何個のブロックを取るか、どの大きさまでをプールで扱うかを指定します。0 を指定した項目は、実装の既定値が使われます。
 
 !!! tip "ポイント"
-    - `max_blocks_per_chunk` と `largest_required_pool_block` の 2 つのメンバ。
-    - 0 を指定すると実装の既定値になる。
-    - `unsynchronized_pool_resource` と `synchronized_pool_resource` に渡す。
+    - `max_blocks_per_chunk`: 上流から 1 回に取るブロックの数の上限
+    - `largest_required_pool_block`: プールで扱う最大のブロックの大きさ
+    - 0 は「実装の既定値を使う」の意味
+    - 実際の値は、実装が丸めたり、調整したりする
 
 !!! info "このページを読む前に"
-    [`memory_resource`](memory_resource.md) を先に読んでください。
+    [`std::pmr`](../pmr.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::pmr::pool_options {#pool_options}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
 struct pool_options {
-  size_t max_blocks_per_chunk = 0;
-  size_t largest_required_pool_block = 0;
+  std::size_t max_blocks_per_chunk = 0;
+  std::size_t largest_required_pool_block = 0;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `max_blocks_per_chunk` | size_t | 1 回の確保で用意するブロックの最大数 |
-| `largest_required_pool_block` | size_t | プールで扱う最大のブロックサイズ（バイト） |
+| メンバー | 意味 |
+| --- | --- |
+| `max_blocks_per_chunk` | チャンク 1 つに入れるブロックの最大数 |
+| `largest_required_pool_block` | プールで扱う最大のブロックの大きさ。これより大きい要求は、上流から直接取る |
 
-- 戻り値: なし（設定値）
-- 計算量: なし
+プールは、大きさごとのブロックの列（プール）を持ち、足りなくなると、上流から新しいチャンクを取ります。`max_blocks_per_chunk` を大きくすると、上流への要求が減りますが、使わないブロックが増えます。
 
+`largest_required_pool_block` は、小さなオブジェクトだけを速く扱いたいときに、小さく指定します。大きな要求がプールに入ると、メモリを無駄に使うからです。
+
+指定した値は、プールを作った後で `options()` から読めますが、実装が丸めた値が返ります。
 
 ## 実際に動かしてみる
 
@@ -51,46 +56,46 @@ struct pool_options {
 #include <print>
 
 int main() {
+  // 既定の設定: どちらも 0 (実装の既定値を使う)
   std::pmr::pool_options opts;
+  std::println("{} {}", opts.max_blocks_per_chunk, opts.largest_required_pool_block);
+
+  // 小さなオブジェクト向けに調整する
   opts.max_blocks_per_chunk = 64;
   opts.largest_required_pool_block = 256;
   std::pmr::unsynchronized_pool_resource pool(opts);
-  std::println("{}", pool.options().max_blocks_per_chunk);
+
+  // 指定した値は、実装に調整された上で保持される
+  const std::pmr::pool_options actual = pool.options();
+  std::println("調整後の最大ブロック: {}", actual.largest_required_pool_block > 0);
 }
 ```
 
 ```text title="実行結果"
-64
+0 0
+調整後の最大ブロック: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 小さなオブジェクトを大量に作るプールの調整 | `opts.largest_required_pool_block = 256;` |
+ゲーム内の小さなオブジェクト（弾、エフェクト）専用のプールを作るとき、最大ブロックを小さくして、無駄を減らします。
 
 ## よくあるミス
 
-??? failure "大きすぎる値を入れる"
-    `largest_required_pool_block` を大きくすると、プールを用意するメモリが増えます。実測してから決めます。
+??? failure "設定した値が、そのままになると思う"
+    実装が丸めます。`options()` で確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`unsynchronized_pool_resource`](unsynchronized_pool_resource.md) | スレッド非対応のプール |
-| [`synchronized_pool_resource`](synchronized_pool_resource.md) | スレッド対応のプール |
+| [`unsynchronized_pool_resource`](unsynchronized_pool_resource.md) | スレッド セーフでないプール |
+| [`synchronized_pool_resource`](synchronized_pool_resource.md) | スレッド セーフなプール |
+| [`monotonic_buffer_resource`](monotonic_buffer_resource.md) | 解放しないリソース |
 
 ## コンパイラ対応
 
 C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] プールの設定をまとめた構造体
-    - [x] 0 は既定値
-    - [x] プールの resource に渡す
 
 ## 関連ページ
 

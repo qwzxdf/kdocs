@@ -13,32 +13,34 @@ tags:
 `#include <cstring>`
 </div>
 
-区切り文字が複数ある文字列（空白かカンマ）で、最初にどれかが現れる場所を見つけたいとき、`strpbrk` を使います。
+区切り文字が複数ある（`,` か `;` か空白）とき、そのうち最初に現れるものの位置を知りたい。`std::strpbrk(s, chars)` は、`chars` のどれかの文字が最初に現れる位置を、ポインタで返します。
 
 !!! tip "ポイント"
-    - 終端の `'\0'` を前提にする C 由来の関数。
-    - バッファの大きさは自分で確かめる。
-    - 新しいコードでは `std::string` / `std::string_view` のほうが安全。
+    - `chars` のどれかが最初に現れる位置を返す
+    - なければ `nullptr`
+    - `strchr` を複数の文字に広げたもの
+    - 長さが欲しいなら `strcspn`
 
 !!! info "このページを読む前に"
-    [`<cstring>`](../cstring.md) の概要と [ポインタ](../../../basics/pointer.md) を先に読んでください。
+    [`<cstring>`](../cstring.md) の概要を先に読んでください。C の文字列は、終端が `'\0'` の `char` の配列です。
 
 ## 関数の詳しい説明
 
 ### std::strpbrk {#strpbrk}
 
 ```cpp
-const char* strpbrk(const char* str, const char* breakset);
+const char* strpbrk(const char* dest, const char* breakset);
+char* strpbrk(char* dest, const char* breakset);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `str` | const char* | 探す文字列 |
-| `breakset` | const char* | 探す文字の集まり |
+| `dest` | `const char*` | 探される側 |
+| `breakset` | `const char*` | 探す文字の集まり |
 
-- 戻り値: 見つかった位置のポインタ。なければ `nullptr`
-- 計算量: 定数
+見つからなければ `nullptr` なので、確かめてから使います。
 
+最初に現れた位置だけを返します。続きを探すなら、その次の位置から、もう一度呼びます。
 
 ## 実際に動かしてみる
 
@@ -47,43 +49,43 @@ const char* strpbrk(const char* str, const char* breakset);
 #include <print>
 
 int main() {
-  const char* s = "hello world";
-  std::println("{}", std::strpbrk(s, " ,") - s);
+  const char* s = "a b,c;d";
+  const char* p = std::strpbrk(s, ",; ");
+  std::println("最初の区切り: '{}' 位置 {}", *p, p - s);
+
+  const char* q = std::strpbrk(p + 1, ",; ");
+  std::println("次の区切り: '{}' 位置 {}", *q, q - s);
+
+  std::println("なければ nullptr: {}", std::strpbrk("abc", ",;") == nullptr);
 }
 ```
 
 ```text title="実行結果"
-5
+最初の区切り: ' ' 位置 1
+次の区切り: ',' 位置 3
+なければ nullptr: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 最初の区切り文字の位置 |
+複数の区切り文字をまとめて探すときに使います。
 
 ## よくあるミス
 
-??? failure "見つからない場合を無視する"
-    `nullptr` が返るので、引き算や参照の前に確かめます。
+??? failure "nullptr を確かめない"
+    見つからないと `nullptr` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`strcspn`](strcspn.md) | 長さで返す |
-| [`strchr`](strchr.md) | 1 文字だけ探す |
+| [`strchr`](strchr.md) | 1 文字だけを探す |
+| [`strcspn`](strcspn.md) | 位置ではなく長さを返す |
+| [`strtok`](strtok.md) | 区切って取り出す |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 文字列の中から、指定した文字のどれかが最初に現れる位置を探す
-    - [x] 終端の `'\0'` を前提にする C 由来の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+C 由来の関数です。C++ のどの版でも使えます。
 
 ## 関連ページ
 

@@ -14,32 +14,35 @@ tags:
 `#include <memory>`
 </div>
 
-`std::to_address(p)` は、**ポインターのようなもの（スマートポインター、`vector` のイテレータ）から、生のポインターを取る**関数です。イテレータ `it` を `&*it` と書くと、`end()` では未定義動作になりますが、`to_address` なら安全です。
+イテレータやスマート ポインターから、生のポインター（アドレス）を取り出したい。`&*it` と書くと、`it` が `end()` のときに、参照できない位置の参照を作ってしまい、未定義動作です。C++20 の `std::to_address(p)` は、間接参照せずに、生のポインターを取り出します。
 
 !!! tip "ポイント"
-    - `&*it` は、`end()` で未定義動作。`to_address` はOK。
-    - 連続したメモリのイテレータ（`vector`、`string`、`array`）に使える。
-    - スマートポインターの `.get()` と同じ目的。
+    - ポインター風の型から、生のポインター `T*` を取る
+    - 間接参照しないので、`end()` のイテレータにも使える
+    - 生のポインターを渡すと、そのまま返す
+    - `std::vector` や `std::string` のイテレータ、スマート ポインターに使える
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [所有権（誰が消すのか）](../../basics/ownership.md)（所有権の考え方）
+    [`std::allocator`](allocator.md) など、アロケーターの基本を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::to_address {#to_address}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class Ptr>
-constexpr auto to_address(const Ptr& p) noexcept;
+template <class T> constexpr T* to_address(T* p) noexcept;
+template <class Ptr> constexpr auto to_address(const Ptr& p) noexcept;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `p` | ポインター風のもの | 生のポインターに直したいもの |
+`Ptr` が `std::pointer_traits<Ptr>::to_address` を持てばそれを呼び、なければ `p.operator->()` を使います。
 
-- 戻り値: 生のポインター
-- 計算量: O(1)
+連続した領域のイテレータ（`vector::iterator` など、C++20 の `contiguous_iterator`）なら、`to_address(it)` は、その要素のアドレスです。`it == v.end()` でも、そのアドレス（最後の要素の次）を返します。`&*it` は、これができません。
+
+関数に生のポインターを渡すときに、イテレータの種類を気にせず書けます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <memory>
@@ -47,45 +50,46 @@ constexpr auto to_address(const Ptr& p) noexcept;
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3};
-  int* first = std::to_address(v.begin());
-  int* last = std::to_address(v.end());   // &*v.end() は未定義動作だが、これは安全
-  std::println("{} {}", first == v.data(), last - first);
+  std::vector<int> v = {10, 20, 30};
+
+  auto it = v.begin() + 1;
+  std::println("2 番目のアドレス: {}", std::to_address(it) == v.data() + 1);
+
+  // end() でも安全
+  std::println("end の位置: {}", std::to_address(v.end()) == v.data() + v.size());
+
+  // スマート ポインターからも取れる
+  auto sp = std::make_shared<int>(7);
+  std::println("shared_ptr: {}", std::to_address(sp) == sp.get());
 }
 ```
 
 ```text title="実行結果"
-true 3
+2 番目のアドレス: true
+end の位置: true
+shared_ptr: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| C のAPI に、イテレータが指す連続領域を渡す | `Fill(std::to_address(v.begin()), v.size())` |
+C の API に、`vector` の途中の位置から続く領域を、生のポインターで渡すときに使います。
 
 ## よくあるミス
 
-??? failure "連続しないメモリのイテレータ"
-    `list` のイテレータには使えません。
+??? failure "&*it で end() を参照する"
+    未定義動作です。`std::to_address(it)` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
+| [`pointer_traits`](pointer_traits.md) | 元になる特性 |
 | [`addressof`](../utilities/addressof.md) | オブジェクトのアドレス |
-| [`std::data`](../support/iterator/data.md) | 配列・コンテナの先頭 |
+| `std::vector::data()` | 先頭のアドレス |
 
 ## コンパイラ対応
 
-C++20 の機能です。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] ポインター風のものから生ポインターを取る
-    - [x] `&*it` より安全
-    - [x] 連続メモリのイテレータに
+C++20 から使えます。
 
 ## 関連ページ
 

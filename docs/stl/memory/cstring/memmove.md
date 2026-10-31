@@ -14,18 +14,20 @@ tags:
 `#include <cstring>`
 </div>
 
-`memmove` は、[`memcpy`](memcpy.md) と同じバイト列のコピーですが、**コピー元とコピー先が重なっていても正しく動きます**。配列の途中を詰める・ずらすときに使います。
+`memcpy` は、コピー元とコピー先が重なっていると結果が保証されません。配列の中身を 1 つずらすような、重なるコピーに使えるのが `std::memmove(dst, src, n)` です。重なりを正しく扱います。
 
 !!! tip "ポイント"
-    - 重なる可能性があるなら `memmove`。重ならないと分かっているなら `memcpy`。
-    - 内部で重なりを判断して、向きを選んでくれる。
+    - 重なっていてもよい。結果は、いったん別の場所に退避してからコピーしたのと同じ
+    - `memcpy` より少し遅いことがある
+    - 配列の要素を詰める、挿入するための空きを作る、といった用途
+    - 戻り値は `dst`
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`<cstring>`](../cstring.md) の概要を先に読んでください。C の文字列は、終端が `'\0'` の `char` の配列です。
 
 ## 関数の詳しい説明
 
-### memmove {#memmove}
+### std::memmove {#memmove}
 
 ```cpp
 void* memmove(void* dest, const void* src, std::size_t count);
@@ -35,17 +37,11 @@ void* memmove(void* dest, const void* src, std::size_t count);
 | --- | --- | --- |
 | `dest` | `void*` | コピー先 |
 | `src` | `const void*` | コピー元 |
-| `count` | `std::size_t` | コピーする**バイト数** |
+| `count` | `std::size_t` | コピーするバイト数 |
 
-- 戻り値: `dest`
-- `memcpy` と違い、**`src` と `dest` が重なっていても正しくコピーされます**（元のデータを壊さない順番で動かす）
-- 配列の中で、要素をずらすときに使います（`std::vector::insert` の中身がこれです）
+コピーの向き（前から、後ろから）を、重なり方に応じて選びます。
 
-<div class="anim" data-label="memmove(a + 1, a, 3 * sizeof(int))  ※重なっている">
-1 2 3 4 _ # 配列 a
-1 2 3 3 4 # 後ろから順に動かす（元のデータを壊さない）
-1 1 2 3 4 # 全部 1 つ後ろへ移った
-</div>
+`std::vector::insert` や `erase` が、内部で要素をずらすときと同じ考え方です。自分の型には、トリビアルにコピーできるときだけ使います。
 
 ## 実際に動かしてみる
 
@@ -54,44 +50,37 @@ void* memmove(void* dest, const void* src, std::size_t count);
 #include <print>
 
 int main() {
-  int a[5] = {1, 2, 3, 4, 5};
-  std::memmove(a + 1, a, 3 * sizeof(int));  // 重なっていても正しくコピーされる
+  // 1 つ後ろにずらして、先頭に空きを作る
+  int a[5] = {1, 2, 3, 4, 0};
+  std::memmove(a + 1, a, 4 * sizeof(int));
+  a[0] = 9;
   std::println("{} {} {} {} {}", a[0], a[1], a[2], a[3], a[4]);
 }
 ```
 
 ```text title="実行結果"
-1 1 2 3 5
+9 1 2 3 4
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| バッファの先頭を消して、残りを前へ詰める | `memmove(buf, buf + n, size - n)` |
+配列の途中に要素を挿入するための空きを作るときに使います。
 
 ## よくあるミス
 
 ??? failure "重なるのに memcpy を使う"
-    未定義動作です。
+    結果が保証されません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`memcpy`](memcpy.md) | 重ならないとき |
-| [`std::ranges::copy_backward`](../../algorithms/copy_backward.md) | 型を意識した版 |
+| [`memcpy`](memcpy.md) | 重なると未定義 |
+| `std::copy_backward` | 型に合わせた後ろからのコピー |
 
 ## コンパイラ対応
 
 C 由来の関数です。C++ のどの版でも使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 重なってもよいコピー
-    - [x] 詰める・ずらすのに使う
-    - [x] トリビアルな型だけ
 
 ## 関連ページ
 

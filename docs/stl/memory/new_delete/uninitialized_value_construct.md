@@ -15,47 +15,33 @@ tags:
 `#include <memory>`
 </div>
 
-`int` のような型を 0 で初期化した状態で並べたいとき、`uninitialized_value_construct` を使います。`default_construct` と違い、`int` は **0 になります**。
+`uninitialized_default_construct` は、基本型を初期化しません。生のメモリに、`int` を 0 に初期化して作りたいなら、`std::uninitialized_value_construct(first, last)` を使います。値初期化（`T()`）で作ります。
 
 !!! tip "ポイント"
-    - 未初期化のメモリにオブジェクトを作る。
-    - 途中で例外が出たら、すでに作ったぶんを壊してから投げる。
-    - 個数で指定する版は `uninitialized_value_construct_n`（同じページの下）。
+    - 値初期化で作る。基本型は 0、クラスは既定のコンストラクター
+    - `vector<T>(n)` が使うのと同じ初期化
+    - 時間は `default_construct` より余計にかかる
+    - 途中で例外が出たら、作ったものを壊す
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`uninitialized_default_construct`](uninitialized_default_construct.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::uninitialized_value_construct {#uninitialized_value_construct}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
 template <class ForwardIt>
 void uninitialized_value_construct(ForwardIt first, ForwardIt last);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first, last` | イテレータ | 未初期化の領域 |
+`::new (p) T()` と同じです。ユーザー定義の既定のコンストラクターを持たないクラスは、まず全メンバーをゼロ初期化してから、暗黙の既定のコンストラクターが呼ばれます。
 
-- 戻り値: 最後に作った位置の次のイテレータ
-- 計算量: 線形
+基本型は 0 になるので、あとで読んでも安全です。時間が要るのは、ゼロクリアの分です。
 
-### std::uninitialized_value_construct_n {#uninitialized_value_construct_n}
-
-```cpp
-template <class ForwardIt, class Size>
-ForwardIt uninitialized_value_construct_n(ForwardIt first, Size n);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first` | イテレータ | 未初期化の領域の先頭 |
-| `n` | 整数 | 作る個数 |
-
-- 戻り値: 最後に作った位置の次のイテレータ
-- 計算量: 線形
-
+`_n` 版が、個数を指定する形です。
 
 ## 実際に動かしてみる
 
@@ -64,10 +50,15 @@ ForwardIt uninitialized_value_construct_n(ForwardIt first, Size n);
 #include <print>
 
 int main() {
+  // 汚れた領域を用意する
   alignas(int) unsigned char buf[sizeof(int) * 3];
+  for (auto& b : buf) b = 0xFF;
   auto* p = reinterpret_cast<int*>(buf);
+
   std::uninitialized_value_construct(p, p + 3);
   std::println("{} {} {}", p[0], p[1], p[2]);
+
+  std::destroy(p, p + 3);
 }
 ```
 
@@ -77,32 +68,23 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 0 初期化された配列を用意する | `std::uninitialized_value_construct(p, p + n);` |
+0 で初期化された配列が必要な、自作のコンテナで使います。
 
 ## よくあるミス
 
-??? failure "すでにオブジェクトがある場所に使う"
-    この関数は**未初期化の領域**専用です。作ってあるオブジェクトの上に使うと、デストラクタが呼ばれずに壊れます。
+??? failure "default_construct と取り違える"
+    基本型は、`default` では初期化されません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`construct_at`](construct_at.md) | 1 つだけ作る |
-| [`destroy`](destroy.md) | 壊す |
+| [`uninitialized_default_construct`](uninitialized_default_construct.md) | 初期化しない |
+| [`uninitialized_fill`](uninitialized_fill.md) | 同じ値で作る |
 
 ## コンパイラ対応
 
 C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 未初期化のメモリにオブジェクトを作る
-    - [x] 例外が出たら作ったぶんを壊す
-    - [x] `_n` は個数で指定
 
 ## 関連ページ
 

@@ -14,81 +14,86 @@ tags:
 `#include <memory_resource>`
 </div>
 
-`std::pmr::null_memory_resource()` は、**確保しようとすると必ず `std::bad_alloc` を投げる**メモリリソースです。`monotonic_buffer_resource` の親に指定して、「用意したバッファ以外からは絶対に確保させない」ようにするために使います。
+`std::pmr::null_memory_resource()` は、確保を要求されると、必ず `std::bad_alloc` を投げるリソースを返します。一見、役に立たなさそうですが、「ここからはもう確保させない」という守りになります。固定バッファの `monotonic_buffer_resource` の上流に置けば、バッファを使い切った瞬間に、必ず検出できます。
 
 !!! tip "ポイント"
-    - 固定バッファだけを使い、ヒープに逃げさせない用途。
-    - バッファが足りないと例外になるので、すぐ気づける。
+    - `allocate` は常に `std::bad_alloc` を投げる
+    - `deallocate` は何もしない
+    - 固定バッファ（ヒープ禁止）の設計を、強制するために使う
+    - `set_default_resource` に渡せば、うっかり既定のリソースから確保するのを見つけられる
 
 !!! info "このページを読む前に"
     [`std::pmr`](../pmr.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
-### null_memory_resource {#null_memory_resource}
+### std::pmr::null_memory_resource {#null_memory_resource}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
-memory_resource* null_memory_resource() noexcept;
+std::pmr::memory_resource* null_memory_resource() noexcept;
 ```
 
-- 戻り値: 確保しようとすると `std::bad_alloc` を投げるリソース
-- 「**ヒープは絶対に使わせない**」ときの上流に指定します。固定のバッファが足りなくなると、ヒープに逃げずに例外が飛ぶので、バッファの大きさが足りないことにすぐ気づけます
+`new_delete_resource` と同じく、いつも同じオブジェクトを返します。
 
-```cpp
-std::byte buffer[1024];
-std::pmr::monotonic_buffer_resource pool(buffer, sizeof(buffer),
-                                         std::pmr::null_memory_resource());
-```
+使い方は主に 2 つです。1 つは、固定バッファのリソースの上流にして、バッファに収まる設計であることを強制します。ゲーム機のように、実行中にヒープを使いたくない環境で、収まらなければ即座に分かります。
+
+もう 1 つは、既定のリソースにして、「リソースを指定し忘れた `pmr` コンテナ」を見つけることです。`set_default_resource(null_memory_resource())` をテストで呼ぶと、リソースを渡さずに作ったコンテナが、確保した瞬間に例外になります。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <memory_resource>
-#include <new>
 #include <print>
 #include <vector>
 
 int main() {
-  std::pmr::vector<int> v(std::pmr::null_memory_resource());  // 確保を許さない
+  std::pmr::memory_resource* r = std::pmr::null_memory_resource();
+
   try {
-    v.push_back(1);
+    r->allocate(8);
   } catch (const std::bad_alloc&) {
-    std::println("確保できない");
+    std::println("確保は必ず失敗する");
   }
+
+  // 既定のリソースにして、指定し忘れを検出する
+  std::pmr::memory_resource* old = std::pmr::set_default_resource(r);
+  try {
+    std::pmr::vector<int> forgot;  // リソースを渡していない
+    forgot.push_back(1);
+  } catch (const std::bad_alloc&) {
+    std::println("リソースの指定し忘れを検出");
+  }
+  std::pmr::set_default_resource(old);
 }
 ```
 
 ```text title="実行結果"
-確保できない
+確保は必ず失敗する
+リソースの指定し忘れを検出
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ヒープ確保禁止のコード（ゲームのフレーム処理） | `monotonic_buffer_resource pool(buf, size, std::pmr::null_memory_resource());` |
+ヒープを使わない設計のモジュールのテストで、`pmr` コンテナのリソースの指定漏れを見つけます。
 
 ## よくあるミス
 
-??? failure "バッファの大きさが足りない"
-    例外が飛びます。大きさを余裕を持って決めます。
+??? failure "既定のリソースにしたまま戻さない"
+    以降の確保がすべて失敗します。`set_default_resource(old)` で戻します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`new_delete_resource`](new_delete_resource.md) | 普通のヒープ |
+| [`new_delete_resource`](new_delete_resource.md) | 通常のリソース |
+| [`monotonic_buffer_resource`](monotonic_buffer_resource.md) | 上流に置く |
+| [`default_resource`](default_resource.md) | 既定のリソース |
 
 ## コンパイラ対応
 
-C++17 の機能です。主要なコンパイラで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 確保しようとすると例外
-    - [x] ヒープに逃がさない用途
-    - [x] 固定バッファと組み合わせる
+C++17 から使えます。
 
 ## 関連ページ
 

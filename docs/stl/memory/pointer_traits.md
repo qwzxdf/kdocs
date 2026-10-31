@@ -13,36 +13,40 @@ tags:
 `#include <memory>`
 </div>
 
-アロケータやコンテナを書くとき、「ポインタの指す型」や「ポインタを作る方法」を生ポインタでも自作のスマートポインタでも同じ書き方で扱いたくなります。`pointer_traits<P>` は、そのための統一された入り口です。
+生のポインター（`int*`）と、スマート ポインター風の型（アロケーターが返す「ファンシー ポインター」）を、同じように扱いたい。`std::pointer_traits<Ptr>` は、どちらのポインターについても、指す先の型（`element_type`）や、参照からポインターを作る関数（`pointer_to`）を、統一して提供します。
 
 !!! tip "ポイント"
-    - `element_type` が指す先の型、`pointer_to(r)` が参照からポインタを作る。
-    - 生ポインタ `T*` にも特殊化がある。
-    - 自作のアロケータ `pointer` 型を扱うときに使う。
+    - `element_type`: 指す先の型
+    - `pointer_to(r)`: 参照 `r` から、ポインターを作る
+    - `pointer_traits<T*>` は、生のポインター用の特殊化
+    - 自作コンテナで、ファンシー ポインターに対応するときに使う
 
 !!! info "このページを読む前に"
-    [ポインタ](../../basics/pointer.md) が分かると読みやすいです。
+    [`std::allocator`](allocator.md) など、アロケーターの基本を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::pointer_traits {#pointer_traits}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-template <class Ptr> struct pointer_traits {
+template <class Ptr>
+struct pointer_traits {
   using pointer = Ptr;
   using element_type = /* Ptr が指す型 */;
-  using difference_type = /* 差の型 */;
+  using difference_type = /* ポインターの差の型 */;
   static pointer pointer_to(element_type& r);
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `Ptr` | 型 | 調べるポインタ型 |
+生のポインター `T*` では、`element_type` は `T`、`difference_type` は `std::ptrdiff_t`、`pointer_to(r)` は `&r`（`std::addressof(r)`）です。
 
-- 戻り値: `element_type` などの型メンバと `pointer_to`
-- 計算量: コンパイル時のみ
+ファンシー ポインターは、アロケーターが返す、ポインター風のクラスです。共有メモリ上のオフセット ポインターなどがあります。そのクラスに `element_type` が定義されていれば、それが使われます。
 
+`rebind<U>` は、同じ種類のポインターで、指す先が `U` のものを作ります。
+
+C++20 の `std::to_address` が、ポインター風の型から生のポインターを取り出します。
 
 ## 実際に動かしてみる
 
@@ -52,46 +56,46 @@ template <class Ptr> struct pointer_traits {
 #include <type_traits>
 
 int main() {
-  int x = 5;
-  int* p = std::pointer_traits<int*>::pointer_to(x);
+  using Traits = std::pointer_traits<int*>;
+  static_assert(std::is_same_v<Traits::element_type, int>);
+  static_assert(std::is_same_v<Traits::difference_type, std::ptrdiff_t>);
+
+  int x = 42;
+  int* p = Traits::pointer_to(x);
   std::println("{}", *p);
-  std::println("{}", std::is_same_v<std::pointer_traits<int*>::element_type, int>);
+  std::println("アドレスは同じ: {}", p == &x);
+
+  // shared_ptr のような型の element_type
+  using SP = std::pointer_traits<std::shared_ptr<double>>;
+  static_assert(std::is_same_v<SP::element_type, double>);
 }
 ```
 
 ```text title="実行結果"
-5
-true
+42
+アドレスは同じ: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ポインタ型に依存しない書き方 | `std::pointer_traits<Ptr>::element_type` |
+自作のコンテナを、生のポインター以外のファンシー ポインターにも対応させるときに使います。
 
 ## よくあるミス
 
-??? failure "生ポインタ以外に `&x` を使う"
-    自作のポインタ型では `&x` ではなく `pointer_to(x)` を使います。
+??? failure "生のポインターだけを想定して書く"
+    `T*` を直接使うと、ファンシー ポインターを受け付けません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`to_address`](to_address.md) | ポインタから生ポインタを取り出す |
-| [`allocator_traits`](allocator_traits.md) | アロケータの性質 |
+| [`to_address`](to_address.md) | 生のポインターを取り出す |
+| [`allocator_traits`](allocator_traits.md) | アロケーターの窓口 |
+| [`addressof`](../utilities/addressof.md) | 本当のアドレスを取る |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] ポインタの性質をそろえて扱う入り口
-    - [x] `element_type` と `pointer_to`
-    - [x] アロケータ作りで登場
+C++11 から使えます。
 
 ## 関連ページ
 
