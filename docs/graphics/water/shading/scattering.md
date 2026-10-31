@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Water Shading](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 散乱の色（SSS 風）
 <strong>波頭に光が透けて明るい青緑に光って見える</strong>ことがあります（太陽を背にして波を見たとき）。波の高い所ほど水が薄く光が通り抜けるためです。

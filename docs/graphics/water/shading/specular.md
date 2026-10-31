@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Water Shading](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## スペキュラ（太陽の反射）
 <strong>太陽が水面に映ると細かい波ごとに小さな反射が散らばって見えます</strong>（グリント）。法線マップの細かい法線で Blinn–Phong・GGX のスペキュラを計算します。

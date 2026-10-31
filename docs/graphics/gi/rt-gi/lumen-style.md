@@ -17,8 +17,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Ray-Traced GI](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## Lumen 的な方式
 <strong>Unreal Engine 5 の Lumen</strong>は、ハードウェア レイトレースが無くても動くGIです。複数の手法を階層的に組み合わせています。

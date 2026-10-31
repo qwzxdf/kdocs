@@ -17,7 +17,6 @@ tags:
 !!! info "このページを読む前に"
     - [Volumetric Fog](index.md)（このセクション全体の地図と、読む順番）
     - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 時間蓄積（TAA 風）
 <strong>froxel の解像度が低く、サンプルが少ない</strong>のでそのままだとノイズや縞が出ます。前フレームの結果を再利用して、時間方向に平均します。

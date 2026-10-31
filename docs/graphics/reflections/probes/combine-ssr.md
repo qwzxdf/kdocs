@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Reflection Probes](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## SSR と組み合わせる
 <strong>プローブは遠くの粗い反射</strong>、SSR は近くの細かい映り込みが得意です。組み合わせるのが一般的です（[SSR Fallback and Compositing](../ssr-fallback.md)）。

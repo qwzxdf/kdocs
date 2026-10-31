@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [God Rays](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## ボリュームを使う方法
 <strong>ボリューメトリック フォグ</strong>（[Volumetric Fog](../volumetric-fog/index.md)）を使っていれば、光の筋は自動で出ます。froxel に太陽光とシャドウを注入しているため、影による筋が自然に現れます。別途レイマーチを用意する必要はありません。

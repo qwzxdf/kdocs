@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Alpha Testing](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## ディザ透明
 <strong>カメラに近づいた物を半透明にして向こうを見えるようにする</strong>（例：キャラの前の壁・木）ときに、ブレンドではなくディザ パターンで捨てる方法があります。

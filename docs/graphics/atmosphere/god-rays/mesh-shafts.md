@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [God Rays](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## メッシュで光の柱を作る
 <strong>固定された光の柱（窓から差す光、洞窟の天井の穴）</strong>は 半透明メッシュで作れます。

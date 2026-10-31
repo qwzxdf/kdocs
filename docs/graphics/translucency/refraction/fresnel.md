@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Refraction](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## フレネル
 <strong>浅い角度</strong>（面すれすれ）で見るほど、反射が強く透過（屈折）が弱くなります。水面を真上から見ると底が見え、遠くを見ると空が映るのはフレネルです。

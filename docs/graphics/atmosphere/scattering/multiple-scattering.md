@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Atmospheric Scattering](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 多重散乱
 <strong>単散乱だけだと夕方や影の側の空が暗くなりすぎます</strong>。実際には一度散った光が何度も散ります（多重散乱）。地球の大気では昼間の空の明るさの 1〜2 割は多重散乱で、夕暮れの空の明るさは多重散乱で決まります。

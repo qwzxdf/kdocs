@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [AO Filtering](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## アップサンプル：低解像度から戻す
 AO は<strong>低周波（なめらか）</strong>なので<strong>半分や 1/4 の解像度</strong>で計算して、<strong>拡大</strong>するとコストを大きく減らせます（[低解像度のエフェクト](../../../rendering/low-res-effects.md)）。しかし、単純なバイリニア拡大は、境界でにじみます。

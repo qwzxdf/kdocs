@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Ray-Traced GI](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## ノイズとの戦い
 <strong>画素あたり 1 本</strong>のレイでは、ノイズが多いです。

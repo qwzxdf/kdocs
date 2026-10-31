@@ -17,7 +17,6 @@ tags:
 !!! info "このページを読む前に"
     - [Alpha Blending and Sorting](index.md)（このセクション全体の地図と、読む順番）
     - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## ソート
 <strong>奥から手前</strong>の順に描くため、半透明のオブジェクトをカメラからの距離で並べ替えます。

@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Reflection Probes](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 複数のプローブを混ぜる
 <strong>1 つのプローブ</strong>では 広いシーンをカバーできません。場所ごとに複数のプローブを置き、表面の位置に応じて混ぜます。

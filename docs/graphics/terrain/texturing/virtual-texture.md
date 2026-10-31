@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Terrain Texturing](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 仮想テクスチャ
 <strong>地形全体に固有のテクスチャを描きたい</strong>（手描きの道・足跡・建物の跡）とき、巨大なテクスチャ（例：128K×128K）が必要になりますがメモリに全部は載せられません。仮想テクスチャ（Sparse Virtual Texture）は、見える部分を必要な解像度でタイル単位に読み込みます。

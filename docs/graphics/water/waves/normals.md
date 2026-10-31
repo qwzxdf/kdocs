@@ -16,8 +16,6 @@ tags:
 
 !!! info "このページを読む前に"
     - [Water Waves](index.md)（このセクション全体の地図と、読む順番）
-    - [MVP 変換（モデル・ビュー・プロジェクション）](../../../3d/transforms-mvp.md)（座標変換（ワールド・ビュー・射影）の流れ）
-    - [GPU Pipeline Overview](../../../directx/concepts/gpu-pipeline.md)（GPU のパイプラインの流れ）
 
 ## 法線の計算
 <strong>波の法線</strong>は頂点位置の偏微分から求められます。Gerstner 波は解析的な式があります。
