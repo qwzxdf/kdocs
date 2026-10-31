@@ -43,6 +43,11 @@ namespace KCppAssist
         [Description("Off: 何もしない。ManualOnly: Alt+G を押したときだけ合わせる。Auto: Alt+G に加えて、ヘッダーの宣言か cpp の定義の引数を変えると、相手の引数を自動で書き換える(相手が開いていなければ開く)。")]
         public SyncMode SyncMode { get; set; } = SyncMode.Auto;
 
+        [Category("引数の同期")]
+        [DisplayName("書き換えた場所を小さなウィンドウで見せる")]
+        [Description("True のとき、引数を相手のファイルへ写すと、書き換えた場所をエディターの右上に約 3 秒だけ見せます。")]
+        public bool ShowSyncPreview { get; set; } = true;
+
         private const string KeyHelp = "「Alt+Q」「Ctrl+Alt+M」のように書きます。空にすると、キーを外します。OK を押すと、Visual Studio のキー割り当てに反映されます。";
 
         [Category("キー")]

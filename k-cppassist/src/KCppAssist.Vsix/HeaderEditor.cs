@@ -18,8 +18,12 @@ namespace KCppAssist
         {
             var m = Regex.Match(text, @"\b(class|struct)\s+(?:[A-Za-z_]\w*\s+)*?" + Regex.Escape(className) + @"\b[^;{]*\{");
             if (!m.Success) return null;
-            bool isStruct = m.Groups[1].Value == "struct";
-            int open = m.Index + m.Length - 1;
+            return PlanAt(text, m.Index + m.Length - 1, declaration, eol);
+        }
+
+        /// <summary>open の「{」で始まるクラスの本体の末尾に、メンバー 1 行を入れる編集を返す。</summary>
+        public static Edit PlanAt(string text, int open, string declaration, string eol)
+        {
             int close = FindClose(text, open);
             if (close < 0) return null;
 

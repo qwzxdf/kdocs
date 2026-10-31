@@ -62,8 +62,8 @@ namespace KCppAssist
             if (Regex.IsMatch(rhs, @"^-?\d+[uU][lL]$")) return "unsigned long";
             if (Regex.IsMatch(rhs, @"^-?\d+[lL]$")) return "long";
             if (Regex.IsMatch(rhs, @"^-?0[xX][0-9a-fA-F]+$")) return "int";
-            if (Regex.IsMatch(rhs, @"^-?(\d+\.\d*|\.\d+)([eE][-+]?\d+)?[fF]$") || Regex.IsMatch(rhs, @"^-?\d+[fF]$")) return "float";
-            if (Regex.IsMatch(rhs, @"^-?(\d+\.\d*|\.\d+)([eE][-+]?\d+)?$")) return "double";
+            if (Regex.IsMatch(rhs, @"^-?(\d+\.\d*|\.\d+)([eE][-+]?\d+)?[fF]$") || Regex.IsMatch(rhs, @"^-?\d+[fF]$") || Regex.IsMatch(rhs, @"^-?\d+[eE][-+]?\d+[fF]$")) return "float";
+            if (Regex.IsMatch(rhs, @"^-?(\d+\.\d*|\.\d+)([eE][-+]?\d+)?$") || Regex.IsMatch(rhs, @"^-?\d+[eE][-+]?\d+$")) return "double";
             if (Regex.IsMatch(rhs, @"^'(\\.|[^'\\])'$")) return "char";
             if (Regex.IsMatch(rhs, "^\"(\\\\.|[^\"\\\\])*\"$")) return "const char*";
             if (Regex.IsMatch(rhs, @"^sizeof\b")) return "size_t";

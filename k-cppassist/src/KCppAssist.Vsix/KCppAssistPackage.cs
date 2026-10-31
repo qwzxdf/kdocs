@@ -109,43 +109,27 @@ namespace KCppAssist
 
             ITextSnapshot snap = view.TextSnapshot;
             SnapshotPoint caret = view.Caret.Position.BufferPosition;
-            ITextSnapshotLine line = caret.GetContainingLine();
-            string text = line.GetText();
+            string allText = snap.GetText();
 
-            // カーソルが行のどこにあっても、行頭の「name = 右辺;」(this-> は付いていてもよい)を対象にする
-            var assign = Regex.Match(text, @"^\s*(this\s*->\s*)?([A-Za-z_]\w*)\s*=(?!=)\s*(.*?)\s*;?\s*$");
-            if (!assign.Success || assign.Groups[3].Length == 0)
-            { await ReportAsync("この行は「名前 = 右辺;」の形ではありません", true); return; }
-            string name = assign.Groups[2].Value;
-            int nameStart = assign.Groups[2].Index;
-            string rhs = assign.Groups[3].Value;
-            int rhsStart = assign.Groups[3].Index;
-            if (!member && assign.Groups[1].Success) { await ReportAsync("this-> の付いた代入は、ローカル変数にできません", true); return; }
+            // カーソルのある文が「名前 = 右辺;」の形なら対象にする。右辺が複数行でも、ラムダの中の 1 文でもよい
+            var assign = AssignScan.Find(allText, caret.Position);
+            if (assign == null)
+            { await ReportAsync("この文は「名前 = 右辺;」の形ではありません", true); return; }
+            string name = assign.Name;
+            string rhs = assign.Rhs;
+            if (!member && assign.HasThis) { await ReportAsync("this-> の付いた代入は、ローカル変数にできません", true); return; }
 
-            string className = null;
+            ClassRef classRef = null;
             if (member)
             {
-                className = CppScan.EnclosingClass(snap.GetText(), caret.Position);
-                if (className == null) { await ReportAsync("Class::Func の形のメンバー関数の中ではありません", true); return; }
+                classRef = CppScan.EnclosingClassRef(allText, caret.Position);
+                if (classRef == null) { await ReportAsync("メンバー関数の中ではありません (Class::Func の形の定義か、クラスの中に書いた関数が対象です)", true); return; }
             }
 
-            // 型を決める。式 → Quick Info → 聞く の順
-            // 「cond ? A : B」なら、枝を 1 つずつ試す。{} や nullptr の枝は型が決まらないので飛ばす
-            string type = null;
-            string how = "式";
-            var candidates = TypeInference.TernaryBranches(rhs) ?? new List<KeyValuePair<string, int>> { new KeyValuePair<string, int>(rhs, 0) };
-            foreach (var cand in candidates)
-            {
-                if (Regex.IsMatch(cand.Key, @"^(\{.*\}|nullptr|NULL)$")) continue;
-                type = TypeInference.FromExpression(cand.Key);
-                how = "式";
-                if (type == null)
-                {
-                    type = await FromQuickInfoAsync(view, broker, snap, line.Start.Position + rhsStart + cand.Value, cand.Key);
-                    how = "Quick Info";
-                }
-                if (type != null) break;
-            }
+            // 型を決める。式 → Quick Info → 式の組み合わせ → 聞く の順
+            var inferred = await InferAsync(view, broker, snap, rhs, assign.RhsStart, 0);
+            string type = inferred.Key;
+            string how = inferred.Value;
             if (type == null)
             {
                 if (!member) { type = "auto"; how = "auto"; }
@@ -153,64 +137,185 @@ namespace KCppAssist
                 {
                     type = Ask("型を決められませんでした。" + name + " の型を入力してください。", "");
                     how = "入力";
-                    if (string.IsNullOrWhiteSpace(type)) { await ReportAsync("型を決められませんでした (右辺: " + rhs + ")", true); return; }
+                    if (string.IsNullOrWhiteSpace(type)) { await ReportAsync("型を決められませんでした (右辺: " + Regex.Replace(rhs, @"\s+", " ") + ")", true); return; }
                     type = type.Trim();
                 }
             }
-            Log("mode=" + (member ? "member" : "local") + " name=" + name + " rhs=" + rhs + " type=" + type + " by=" + how);
+            Log("mode=" + (member ? "member" : "local") + " name=" + name + " rhs=" + Regex.Replace(rhs, @"\s+", " ") + " type=" + type + " by=" + how);
 
             if (!member)
             {
-                // 行頭の識別子の前に型を足す。1 回の編集なので、Undo も 1 回
-                int pos = line.Start.Position + nameStart;
-                view.TextBuffer.Insert(pos, type + " ");
+                // 文の頭の識別子の前に型を足す。1 回の編集なので、Undo も 1 回
+                view.TextBuffer.Insert(assign.NameStart, type + " ");
                 await ReportAsync(type + " " + name + " にしました (" + how + ")", false);
                 return;
             }
 
-            await AddMemberAsync(view, className, type + " " + name + ";", type, name, how);
+            await AddMemberAsync(view, classRef, type + " " + name + ";", type, name, how);
+        }
+
+        /// <summary>
+        /// 右辺 expr(snap の abs から始まる)の型を決める。式そのもの → Quick Info → 演算子を含む式は部分の型から組み立てる。
+        /// 「cond ? A : B」は、枝を 1 つずつ試す({} と nullptr の枝は型がないので飛ばす)。型は Key、決め方は Value。決められなければ Key が null。
+        /// </summary>
+        private async System.Threading.Tasks.Task<KeyValuePair<string, string>> InferAsync(IWpfTextView view, IAsyncQuickInfoBroker broker, ITextSnapshot snap, string expr, int abs, int depth)
+        {
+            var none = new KeyValuePair<string, string>(null, "式");
+            if (depth > 8) return none;
+            int off;
+            string e = ExprType.StripParens(expr, out off);
+            abs += off;
+            if (e.Length == 0 || Regex.IsMatch(e, @"^(\{.*\}|nullptr|NULL)$", RegexOptions.Singleline)) return none;
+
+            var branches = TypeInference.TernaryBranches(e);
+            if (branches != null)
+            {
+                foreach (var b in branches)
+                {
+                    var r = await InferAsync(view, broker, snap, b.Key, abs + b.Value, depth + 1);
+                    if (r.Key != null) return r;
+                }
+                return none;
+            }
+
+            string flat = Regex.Replace(e, @"\s+", " ");
+            var bin = ExprType.SplitBinary(e);
+            if (bin != null)
+            {
+                var types = new List<string>();
+                foreach (var o in bin.Operands)
+                    types.Add((await InferAsync(view, broker, snap, o.Key, abs + o.Value, depth + 1)).Key);
+                string result = ExprType.BinaryResult(bin, types);
+                if (result != null) return new KeyValuePair<string, string>(result, "式の組み合わせ");
+                return none;
+            }
+
+            string t = TypeInference.FromExpression(flat);
+            if (t != null) return new KeyValuePair<string, string>(t, "式");
+
+            t = await FromQuickInfoAsync(view, broker, snap, abs, e);
+            if (t != null) return new KeyValuePair<string, string>(t, "Quick Info");
+
+            string op; int uo;
+            string operand = ExprType.Unary(e, out op, out uo);
+            if (operand != null)
+            {
+                if (op == "!") return new KeyValuePair<string, string>("bool", "式の組み合わせ");
+                var inner = await InferAsync(view, broker, snap, operand, abs + uo, depth + 1);
+                t = ExprType.UnaryResult(op, inner.Key);
+                if (t != null) return new KeyValuePair<string, string>(t, "式の組み合わせ");
+            }
+
+            t = ExprType.CastType(e);
+            if (t != null) return new KeyValuePair<string, string>(t, "キャスト");
+            return none;
         }
 
         // ---- メンバー変数 ----
 
-        private async Task AddMemberAsync(IWpfTextView cppView, string className, string declaration, string type, string name, string how)
+        private async Task AddMemberAsync(IWpfTextView cppView, ClassRef classRef, string declaration, string type, string name, string how)
         {
             await JoinableTaskFactory.SwitchToMainThreadAsync();
             var dte = (DTE)await GetServiceAsync(typeof(DTE));
             string cppPath = dte.ActiveDocument != null ? dte.ActiveDocument.FullName : null;
-            string root = SolutionDir(dte, cppPath);
-            string header = FindHeader(root, cppPath, className);
-            if (header == null) { await ReportAsync("クラス " + className + " の宣言 (.h) が見つかりません", true); return; }
 
+            var loc = await LocateClassAsync(dte, cppPath, cppView, classRef);
+            if (loc == null) return;
+
+            string all = loc.Text;
+            string body = all.Substring(loc.Scope.Open, loc.Scope.Close - loc.Scope.Open);
+            if (Regex.IsMatch(body, @"[\w>*&]\s+\*?&?" + Regex.Escape(name) + @"\s*(;|=|\{)"))
+            { await ReportAsync(name + " は " + Path.GetFileName(loc.File) + " の " + classRef.Name + " にすでにあります", true); return; }
+
+            string eol = all.Contains("\r\n") ? "\r\n" : "\n";
+            var edit = HeaderEditor.PlanAt(all, loc.Scope.Open, declaration, eol);
+            if (edit == null) { await ReportAsync(Path.GetFileName(loc.File) + " の中でクラス " + classRef.Name + " の本体を読めませんでした", true); return; }
+
+            loc.View.TextBuffer.Insert(edit.Position, edit.Text);
+            ReturnTo(cppPath, loc.File);
+            await ReportAsync(declaration + " を " + Path.GetFileName(loc.File) + " に追加しました (" + how + ")", false);
+        }
+
+        /// <summary>開いたファイルから、作業中のファイルへ戻る(同じファイルなら何もしない)。</summary>
+        private void ReturnTo(string workPath, string openedPath)
+        {
+            if (workPath == null || string.Equals(workPath, openedPath, StringComparison.OrdinalIgnoreCase)) return;
+            try
+            {
+                IVsUIHierarchy hier; uint itemId; IVsWindowFrame frame;
+                Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, workPath, Guid.Empty, out hier, out itemId, out frame);
+            }
+            catch (Exception) { }
+        }
+
+        private sealed class Located
+        {
+            public IWpfTextView View;       // クラスのあるファイルのエディター
+            public Scopes.Scope Scope;      // そのファイルの文字(Text)の中での、クラスの範囲
+            public string Text;
+            public string File;
+        }
+
+        private sealed class ClassSite
+        {
+            public string File;
+            public string Chain;            // 名前空間とクラスの並び(「game::Outer::Inner」)
+            public int Score;
+            public bool SameStem;
+        }
+
+        /// <summary>
+        /// cpp の関数が属するクラスの定義を探して、そのファイルを開く。クラスがいまのファイルの中にあれば、そのまま使う。
+        /// 修飾(Outer::Inner)と cpp を囲む namespace に合うものを選び、同点が複数あれば選ぶ欄を出す。
+        /// </summary>
+        private async System.Threading.Tasks.Task<Located> LocateClassAsync(DTE dte, string cppPath, IWpfTextView cppView, ClassRef r)
+        {
+            await JoinableTaskFactory.SwitchToMainThreadAsync();
             var model = (IComponentModel)await GetServiceAsync(typeof(SComponentModel));
             var adapters = model.GetService<IVsEditorAdaptersFactoryService>();
+            string curText = cppView.TextSnapshot.GetText();
 
-            IVsUIHierarchy hier; uint itemId; IVsWindowFrame frame;
-            Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, header, Guid.Empty, out hier, out itemId, out frame);
-            IVsTextView hv = frame == null ? null : Microsoft.VisualStudio.Shell.VsShellUtilities.GetTextView(frame);
-            IWpfTextView view = hv == null ? null : adapters.GetWpfTextView(hv);
-            if (view == null) { await ReportAsync(Path.GetFileName(header) + " を開けませんでした", true); return; }
-
-            ITextSnapshot snap = view.TextSnapshot;
-            string all = snap.GetText();
-            if (Regex.IsMatch(all, @"\b" + Regex.Escape(name) + @"\b"))
+            string file, chain = null;
+            if (r.InFileOpen >= 0) file = cppPath;
+            else
             {
-                // 同じ名前が宣言の中にすでにあるかもしれない。クラスの本文だけで確かめるのは難しいので、断る
-                if (Regex.IsMatch(all, @"[\w>*&]\s+\*?&?" + Regex.Escape(name) + @"\s*(;|=|\{)"))
-                { await ReportAsync(name + " は " + Path.GetFileName(header) + " にすでにあります", true); return; }
+                string root = SolutionDir(dte, cppPath);
+                var sites = await System.Threading.Tasks.Task.Run(() => FindClassSites(root, cppPath, curText, r));
+                await JoinableTaskFactory.SwitchToMainThreadAsync();
+                if (sites.Count == 0) { await ReportAsync("クラス " + r.Qualified + " の宣言 (.h) が見つかりません", true); return null; }
+                int top = sites.Max(s => s.Score);
+                var best = sites.Where(s => s.Score == top).ToList();
+                ClassSite pick = best[0];
+                if (best.Count > 1)
+                {
+                    var names = new Dictionary<string, ClassSite>();
+                    foreach (var s in best) names[s.Chain + "  —  " + s.File] = s;
+                    string choice = Choose(r.Name + " の宣言が複数あります。足し先のクラスを選んでください。", names.Keys.ToList());
+                    if (choice == null) { await ReportAsync("やめました", true); return null; }
+                    pick = names[choice];
+                }
+                file = pick.File;
+                chain = pick.Chain;
             }
-            string eol = all.Contains("\r\n") ? "\r\n" : "\n";
-            var edit = HeaderEditor.Plan(all, className, declaration, eol);
-            if (edit == null) { await ReportAsync(Path.GetFileName(header) + " の中でクラス " + className + " の本体を読めませんでした", true); return; }
 
-            view.TextBuffer.Insert(edit.Position, edit.Text);
-            // 作業していた cpp に戻る
-            if (cppPath != null)
+            IWpfTextView view = cppView;
+            if (cppPath == null || !string.Equals(file, cppPath, StringComparison.OrdinalIgnoreCase))
             {
-                try { Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, cppPath, Guid.Empty, out hier, out itemId, out frame); }
-                catch (Exception) { }
+                IVsUIHierarchy hier; uint itemId; IVsWindowFrame frame;
+                Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, file, Guid.Empty, out hier, out itemId, out frame);
+                IVsTextView hv = frame == null ? null : Microsoft.VisualStudio.Shell.VsShellUtilities.GetTextView(frame);
+                view = hv == null ? null : adapters.GetWpfTextView(hv);
+                if (view == null) { await ReportAsync(Path.GetFileName(file) + " を開けませんでした", true); return null; }
             }
-            await ReportAsync(declaration + " を " + Path.GetFileName(header) + " に追加しました (" + how + ")", false);
+
+            // 開いたあとの文字(保存前の編集を含む)で、クラスの範囲を取り直す
+            string live = view.TextSnapshot.GetText();
+            var scopes = Scopes.Parse(live).Where(s => s.IsClass).ToList();
+            Scopes.Scope scope = r.InFileOpen >= 0
+                ? scopes.FirstOrDefault(s => s.Open == r.InFileOpen)
+                : scopes.FirstOrDefault(s => string.Join("::", s.Chain()) == chain);
+            if (scope == null) { await ReportAsync("クラス " + r.Qualified + " の本体を読めませんでした", true); return null; }
+            return new Located { View = view, Scope = scope, Text = live, File = file };
         }
 
         // ---- #include ----
@@ -365,6 +470,7 @@ namespace KCppAssist
             if (buf == null) { await ReportAsync(Path.GetFileName(target.File) + " を開けませんでした", true); return; }
             if (buf.CurrentSnapshot.Length != target.Text.Length) { await ReportAsync(Path.GetFileName(target.File) + " が読み込み中に変わりました。もう一度押してください", true); return; }
             SyncService.Replace(buf, target.Sig.Open + 1, target.Sig.Close - target.Sig.Open - 1, newInner, undo, "K-CppAssist: 引数を合わせる");
+            SyncPreview.Show(view, Path.GetFileName(target.File), buf.CurrentSnapshot, target.Sig.Open, newInner.Length, target.Inner);
 
             if (target.Buffer == null)
             {
@@ -411,38 +517,39 @@ namespace KCppAssist
             SnapshotPoint caret = view.Caret.Position.BufferPosition;
             ITextSnapshotLine line = caret.GetContainingLine();
             string lineText = line.GetText();
+            string curText = snap.GetText();
 
-            string member;
-            string className;
-            IWpfTextView target;      // 編集するヘッダーのビュー
+            string member = null;
+            Located loc = null;
+            AccessorEditor.ClassSpan cls = null;
             if (inHeader)
             {
+                // ヘッダーのメンバー変数の宣言行にカーソルがあるとき
                 member = AccessorEditor.NameFromDeclarationLine(lineText);
-                if (member == null) { await ReportAsync("この行はメンバー変数の宣言ではありません", true); return; }
-                var span = AccessorEditor.ClassAt(snap.GetText(), caret.Position);
-                if (span == null) { await ReportAsync("この行は、クラスの中ではありません", true); return; }
-                className = span.Name;
-                target = view;
+                if (member != null)
+                {
+                    cls = AccessorEditor.ClassAt(curText, caret.Position);
+                    if (cls == null) { await ReportAsync("この行は、クラスの中ではありません", true); return; }
+                    loc = new Located { View = view, Text = curText, File = path };
+                }
             }
-            else
+            if (member == null)
             {
-                var assign = Regex.Match(lineText, @"^\s*(?:this\s*->\s*)?([A-Za-z_]\w*)\s*=(?!=)");
-                if (!assign.Success) { await ReportAsync("この行は「名前 = 右辺;」の形ではありません", true); return; }
-                member = assign.Groups[1].Value;
-                className = CppScan.EnclosingClass(snap.GetText(), caret.Position);
-                if (className == null) { await ReportAsync("Class::Func の形のメンバー関数の中ではありません", true); return; }
-                string header = FindHeader(SolutionDir(dte, path), path, className);
-                if (header == null) { await ReportAsync("クラス " + className + " の宣言 (.h) が見つかりません", true); return; }
-                IVsUIHierarchy hier; uint itemId; IVsWindowFrame frame;
-                Microsoft.VisualStudio.Shell.VsShellUtilities.OpenDocument(this, header, Guid.Empty, out hier, out itemId, out frame);
-                IVsTextView hv = frame == null ? null : Microsoft.VisualStudio.Shell.VsShellUtilities.GetTextView(frame);
-                target = hv == null ? null : adapters.GetWpfTextView(hv);
-                if (target == null) { await ReportAsync(Path.GetFileName(header) + " を開けませんでした", true); return; }
+                // cpp の「名前 = 右辺;」の文(クラスの中に書いた関数や、ラムダの中でもよい)にカーソルがあるとき
+                var assign = AssignScan.Find(curText, caret.Position);
+                if (assign == null) { await ReportAsync(inHeader ? "この行は、メンバー変数の宣言でも「名前 = 右辺;」の文でもありません" : "この文は「名前 = 右辺;」の形ではありません", true); return; }
+                member = assign.Name;
+                var cref = CppScan.EnclosingClassRef(curText, caret.Position);
+                if (cref == null) { await ReportAsync("メンバー関数の中ではありません (Class::Func の形の定義か、クラスの中に書いた関数が対象です)", true); return; }
+                loc = await LocateClassAsync(dte, path, view, cref);
+                if (loc == null) return;
+                cls = AccessorEditor.All(loc.Text).FirstOrDefault(c => c.Open == loc.Scope.Open) ?? AccessorEditor.Find(loc.Text, cref.Name);
             }
+            IWpfTextView target = loc.View;
+            string className = cls == null ? "" : cls.Name;
 
-            string all = target.TextSnapshot.GetText();
-            var cls = AccessorEditor.Find(all, className);
-            if (cls == null) { await ReportAsync("クラス " + className + " の本体を読めませんでした", true); return; }
+            string all = loc.Text;
+            if (cls == null) { await ReportAsync("クラスの本体を読めませんでした", true); return; }
             bool readOnly;
             string type = AccessorEditor.FindMemberType(all, cls, member, out readOnly);
             if (type == null) { await ReportAsync(className + " の中に、" + member + " の宣言が見つかりません (配列と static は未対応)", true); return; }
@@ -467,11 +574,22 @@ namespace KCppAssist
         }
 
         /// <summary>
-        /// ヘッダーを探す。cpp と同じ名前の .h を優先し、なければ「class クラス名」を含む .h を探す。
-        /// 探す範囲はソリューションのフォルダー(なければ cpp のあるフォルダー)の下。
+        /// クラス r を定義しているクラスを探す。いまのファイルの中にあればそれだけ、なければソリューションのフォルダー
+        /// (なければ cpp のあるフォルダー)の下のヘッダー。cpp と同じ名前の .h を先に見て、それに 1 つだけ合えば、ほかは読まない。
+        /// 修飾と namespace の合い具合の点を付けて返す。
         /// </summary>
-        private static string FindHeader(string root, string cppPath, string className)
+        private static List<ClassSite> FindClassSites(string root, string cppPath, string curText, ClassRef r)
         {
+            var sites = new List<ClassSite>();
+            var nameRe = new Regex(@"\b(class|struct)\s+(?:[A-Za-z_]\w*\s+)*?" + Regex.Escape(r.Name) + @"\b[^;{]*\{");
+
+            if (cppPath != null && nameRe.IsMatch(curText))
+            {
+                foreach (var pm in Scopes.Matches(curText, r))
+                    sites.Add(new ClassSite { File = cppPath, Chain = string.Join("::", pm.Key.Chain()), Score = pm.Value, SameStem = true });
+                if (sites.Count > 0) return sites;
+            }
+
             var skip = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".git", ".vs", "bin", "obj", "x64", "Debug", "Release", "vcpkg_installed", "node_modules", "packages" };
             var headers = new List<string>();
             var stack = new Stack<string>();
@@ -491,14 +609,21 @@ namespace KCppAssist
                 }
                 catch (Exception) { }
             }
-            var re = new Regex(@"\b(class|struct)\s+(?:[A-Za-z_]\w*\s+)*?" + Regex.Escape(className) + @"\b[^;{]*\{");
+
             string stem = cppPath == null ? "" : Path.GetFileNameWithoutExtension(cppPath);
             foreach (string h in headers.OrderBy(h => string.Equals(Path.GetFileNameWithoutExtension(h), stem, StringComparison.OrdinalIgnoreCase) ? 0 : 1))
             {
-                try { if (re.IsMatch(File.ReadAllText(h))) return h; }
-                catch (Exception) { }
+                string t;
+                try { t = File.ReadAllText(h); }
+                catch (Exception) { continue; }
+                if (!nameRe.IsMatch(t)) continue;
+                bool same = string.Equals(Path.GetFileNameWithoutExtension(h), stem, StringComparison.OrdinalIgnoreCase);
+                int before = sites.Count;
+                foreach (var pm in Scopes.Matches(t, r))
+                    sites.Add(new ClassSite { File = h, Chain = string.Join("::", pm.Key.Chain()), Score = pm.Value, SameStem = same });
+                if (same && before == 0 && sites.Count == 1) break;      // 同じ名前のヘッダーに 1 つだけ合ったら、それで決める
             }
-            return null;
+            return sites;
         }
 
         private static string SolutionDir(DTE dte, string cppPath)
