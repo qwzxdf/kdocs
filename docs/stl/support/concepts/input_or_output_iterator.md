@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-`*it` と `++it` が使える、最も弱いイテレータの条件です。入力・出力のどちらでも満たします。
+読み出しにも書き込みにも使える、「イテレータらしさ」の最小の条件が `std::input_or_output_iterator` です。`*it` で参照でき、`++it` で進められる。ポインターも、`vector` のイテレータも、`istream_iterator` も、`back_insert_iterator` も満たします。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::input_or_output_iterator<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - `*i` が書ける（参照できる型を返す）
+    - `weakly_incrementable` を満たす
+    - 読み出し専用か、書き込み専用かは問わない
+    - `sentinel_for` の `I` に要求される
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,64 +30,72 @@ tags:
 
 ### std::input_or_output_iterator {#input_or_output_iterator}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class I>
-concept input_or_output_iterator = /* weakly_incrementable<I> かつ *i が使える */;
+concept input_or_output_iterator = requires(I i) {
+  { *i } -> /* 参照可能な型 */;
+} && std::weakly_incrementable<I>;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `I` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `weakly_incrementable<I>` を満たす
+- `*i` が参照可能な型（`void` でない）を返す
 
+`int` は `weakly_incrementable` ですが、`*i` が書けないので、`input_or_output_iterator` は満たしません。
+
+このコンセプトを満たすことが、範囲ライブラリの `begin()` が返す型への、最低限の要求です。`std::ranges::begin(r)` は、戻り値が `input_or_output_iterator` であることを、検査します。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <concepts>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
 
 int main() {
-  std::println("{}", std::input_or_output_iterator<int*>);
-  std::println("{}", std::input_or_output_iterator<int>);
+  std::println("int*: {}", std::input_or_output_iterator<int*>);
+  std::println("list のイテレータ: {}", std::input_or_output_iterator<std::list<int>::iterator>);
+  std::println("back_insert_iterator: {}",
+               std::input_or_output_iterator<std::back_insert_iterator<std::vector<int>>>);
+  std::println("int: {}", std::input_or_output_iterator<int>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+int*: true
+list のイテレータ: true
+back_insert_iterator: true
+int: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+範囲を受け取る関数のテンプレートで、イテレータの最低限の条件を表します。
 
 ## よくあるミス
 
-??? failure "整数をイテレータとして扱う"
-    `int` は `++` ができても `*` が使えません。
+??? failure "`int` もイテレータだと思う"
+    `*i` ができないので、満たしません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`input_iterator`](input_iterator.md) | 読み取れる |
-| [`output_iterator`](output_iterator.md) | 書き込める |
+| [`input_iterator`](input_iterator.md) | 読めるイテレータ |
+| [`output_iterator`](output_iterator.md) | 書けるイテレータ |
+| [`weakly_incrementable`](weakly_incrementable.md) | 土台 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] イテレータとして最低限の操作ができることを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

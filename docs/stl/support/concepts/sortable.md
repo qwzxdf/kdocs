@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-`ranges::sort` が使える条件の一部です。要素を入れ替えられ、比較できる必要があります。ランダムアクセスかどうかは、このコンセプトではなく、`ranges::sort` 自身が `random_access_range` として別に要求します。
+`std::ranges::sort` を呼べるイテレータの条件が `std::sortable<I, R, P>` です。要素を並べ替えられて（`permutable`）、比較の述語（`R`）で順序を判定できることを表します。ただし、`sort` 自体は、さらに `random_access_iterator` を要求します。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::sortable<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - `permutable` に、比較の述語の条件を足したもの
+    - `R` が狭義の弱順序であること
+    - `const` の範囲は満たさない
+    - ランダム アクセスは要求しない（`ranges::sort` は別に要求する）
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,66 +30,73 @@ tags:
 
 ### std::sortable {#sortable}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class I>
-concept sortable = /* permutable かつ indirect_strict_weak_order */;
+template <class I, class R = std::ranges::less, class P = std::identity>
+concept sortable = std::permutable<I>
+    && std::indirect_strict_weak_order<R, std::projected<I, P>>;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `I` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::permutable<I>`
+- `std::indirect_strict_weak_order<R, projected<I, P>>`
 
+`list` のイテレータは `sortable` を満たしますが、`std::ranges::sort` はランダム アクセスを要求するため、受け付けません。`list::sort` を使います。
+
+`std::ranges::stable_sort` や `std::ranges::partial_sort` なども、この条件を要求します。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <concepts>
+#include <deque>
+#include <forward_list>
 #include <iterator>
 #include <list>
 #include <print>
+#include <sstream>
 #include <vector>
+#include <algorithm>
+#include <memory>
+#include <string>
 
 int main() {
-  std::println("{}", std::sortable<std::vector<int>::iterator>);
-  std::println("{}", std::sortable<std::list<int>::iterator>);
+  std::println("vector: {}", std::sortable<std::vector<int>::iterator>);
+  std::println("const int*: {}", std::sortable<const int*>);
+  std::println("list: {}", std::sortable<std::list<int>::iterator>);
+  std::println("unique_ptr の範囲: {}", std::sortable<std::vector<std::unique_ptr<int>>::iterator>);
 }
 ```
 
 ```text title="実行結果"
-true
-true
+vector: true
+const int*: false
+list: true
+unique_ptr の範囲: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+独自のソートを書くときに、整列できる範囲の条件として使います。
 
 ## よくあるミス
 
-??? failure "`list` に sort を使う"
-    `std::sortable<std::list<int>::iterator>` は真になりますが、`list` はランダムアクセスできないので、`ranges::sort` には渡せません。`list` の並べ替えは、メンバー関数の `list::sort` を使います。
+??? failure "sortable ならランダム アクセスだと思う"
+    `list` も満たします。`ranges::sort` は別に要求します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`permutable`](permutable.md) | 並べ替えの前提 |
-| [`mergeable`](mergeable.md) | 併合の前提 |
+| [`permutable`](permutable.md) | 土台の条件 |
+| [`random_access_iterator`](random_access_iterator.md) | `sort` が別に要求する |
+| [`indirect_strict_weak_order`](indirect_strict_weak_order.md) | 比較の条件 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 並べ替えられるイテレータ（ランダムアクセスと入れ替えと比較）を要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

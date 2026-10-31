@@ -15,78 +15,84 @@ tags:
 `#include <iterator>`
 </div>
 
-`std::move(*it)` と書くと、プロキシ型のイテレータ（`vector<bool>` など）でうまくいかないことがあります。`ranges::iter_move(it)` は、イテレータごとの正しい方法で、要素を右辺値にして返します。
+イテレータの先の要素を、右辺値として取り出したい。通常は `std::move(*it)` と書きますが、プロキシ参照を返すイテレータでは、これが正しく動かないことがあります。`std::ranges::iter_move(it)` は、イテレータの種類に応じて、正しく右辺値を取り出します。
 
 !!! tip "ポイント"
-    - `<iterator>` の部品。
-    - ふつうは補助関数（`back_inserter` など）経由で使う。
-    - アルゴリズムの出力先や入力元に渡す。
+    - イテレータの先の要素を、右辺値の参照として返す
+    - 通常のイテレータでは `std::move(*it)` と同じ
+    - プロキシ参照のイテレータでは、カスタマイゼーション ポイントで正しい動作ができる
+    - `std::ranges::move` などのアルゴリズムが使う
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレータ](../../../basics/iterator.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### std::iter_move {#iter_move}
+### std::ranges::iter_move {#iter_move}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
-inline constexpr /* カスタマイズポイント */ ranges::iter_move;
+inline constexpr /* 未規定 */ iter_move = /* 未規定 */;
+// 戻り値の型: std::iter_rvalue_reference_t<I>
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `it` | イテレータ | 要素を指すイテレータ |
+`*it` が左辺値を返すイテレータでは `std::move(*it)` と同じで、`T&&` を返します。`*it` が値（プロキシ）を返すイテレータでは、その値をそのまま返します。
 
-- 戻り値: 右辺値の参照（または値）
-- 計算量: 定数
-
+自作のイテレータが特別なムーブの動作を持つなら、`iter_move(it)` という自由関数を、ADL で見つかるように用意します。`std::ranges::move` や `std::ranges::uninitialized_move` は内部で `iter_move` を呼ぶので、プロキシ参照のイテレータの範囲も、正しくムーブできます。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <algorithm>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
 #include <ranges>
+#include <sstream>
+#include <string>
 #include <type_traits>
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3};
-  std::println("{}", std::is_rvalue_reference_v<decltype(std::ranges::iter_move(v.begin()))>);
+  std::vector<std::string> v = {"hero", "mage"};
+
+  // 先頭の要素を右辺値として取り出して、ムーブ構築する
+  std::string taken = std::ranges::iter_move(v.begin());
+  std::println("取り出した: {}", taken);
+  std::println("元は空: {}", v[0].empty());
+
+  static_assert(std::is_same_v<std::iter_rvalue_reference_t<std::vector<std::string>::iterator>, std::string&&>);
 }
 ```
 
 ```text title="実行結果"
-true
+取り出した: hero
+元は空: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ジェネリックなアルゴリズムで要素をムーブする |
+自作のアルゴリズムで、イテレータの先から要素をムーブするときに、`std::move(*it)` の代わりに使います。
 
 ## よくあるミス
 
-??? failure "`std::move(*it)` と書く"
-    プロキシ型のイテレータでは `std::move(*it)` が正しくありません。`iter_move` を使います。
+??? failure "ムーブ後の要素を使う"
+    元の要素は、ムーブされた状態です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`iter_swap`](../../algorithms/iter_swap.md) | 要素を入れ替える |
+| [`iter_reference_t`](iter_reference_t.md) | 参照の型 |
+| [`indirectly_movable`](../concepts/indirectly_movable.md) | ムーブできる条件 |
+| [`move_sentinel`](move_sentinel.md) | ムーブするイテレータの番兵 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] イテレータが指す要素を右辺値として取り出す
-    - [x] `<iterator>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

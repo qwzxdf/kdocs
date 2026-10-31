@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-ポインタに直せる（`std::to_address`）ことが保証されたイテレータです。`vector`・`array`・`string` のイテレータが満たします。`memcpy` などの最適化の条件になります。
+`std::vector` や配列は、要素がメモリ上に隙間なく並びます。そのため、イテレータから生のポインターを取り出し、C の API にそのまま渡せます。この「メモリ上で連続した要素を指す」ことを保証するイテレータが、`std::contiguous_iterator` です。`vector`、`string`、`array`、`span` のイテレータが満たします。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::contiguous_iterator<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - 要素がメモリ上で連続して並ぶ
+    - `std::to_address(it)` で生のポインターを取り出せる
+    - `vector` と `array` と `string` のイテレータが満たす
+    - `deque` と `vector<bool>` は満たさない
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,64 +30,81 @@ tags:
 
 ### std::contiguous_iterator {#contiguous_iterator}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class I>
-concept contiguous_iterator = /* random_access_iterator かつ 要素が連続している */;
+concept contiguous_iterator = std::random_access_iterator<I>
+    && std::derived_from</* ITER_CONCEPT(I) */, std::contiguous_iterator_tag>
+    && std::is_lvalue_reference_v<std::iter_reference_t<I>>
+    && std::same_as<std::iter_value_t<I>, std::remove_cvref_t<std::iter_reference_t<I>>>
+    && requires(const I& i) {
+      { std::to_address(i) } -> std::same_as<std::add_pointer_t<std::iter_reference_t<I>>>;
+    };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `I` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::random_access_iterator<I>`
+- `iterator_concept` が `std::contiguous_iterator_tag` から派生している
+- 参照型が実際の参照で、`std::to_address(i)` が要素のアドレスを返す
 
+`std::memcpy` や `std::fwrite` に、範囲をまとめて渡せるのは、連続していることが保証されている場合だけです。`std::span` が、`vector` や配列から作れるのも、この性質のためです。
+
+`vector<bool>` は、要素が 1 ビットに詰められ、参照が実際の参照ではないので、満たしません。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <concepts>
 #include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
+
+#include <array>
+#include <string>
 
 int main() {
-  std::println("{}", std::contiguous_iterator<int*>);
-  std::println("{}", std::contiguous_iterator<std::deque<int>::iterator>);
+  std::println("vector: {}", std::contiguous_iterator<std::vector<int>::iterator>);
+  std::println("array: {}", std::contiguous_iterator<std::array<int, 3>::iterator>);
+  std::println("string: {}", std::contiguous_iterator<std::string::iterator>);
+  std::println("deque: {}", std::contiguous_iterator<std::deque<int>::iterator>);
+  std::println("vector<bool>: {}", std::contiguous_iterator<std::vector<bool>::iterator>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+vector: true
+array: true
+string: true
+deque: false
+vector<bool>: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+C の API に範囲を渡す関数で、「生のポインターにできるか」を制約に書くときに使います。
 
 ## よくあるミス
 
-??? failure "`deque` を連続だと思う"
-    `deque` は複数のブロックに分かれています。
+??? failure "deque を memcpy に渡す"
+    連続していないので、壊れます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`random_access_iterator`](random_access_iterator.md) | 連続とは限らない |
+| [`random_access_iterator`](random_access_iterator.md) | 連続性は要求しない |
+| [`contiguous_iterator_tag`](../iterator/contiguous_iterator_tag.md) | タグ型 |
+| [`to_address`](../../memory/to_address.md) | ポインターの取り出し |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 要素がメモリ上で連続して並ぶことを保証するイテレータを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

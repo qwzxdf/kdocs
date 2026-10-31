@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-要素を入れ替えたり、動かしたりできる前方イテレータです。`rotate` や `unique` などの制約に使われます。
+要素の並びを入れ替える（並べ替える）アルゴリズムのための、イテレータの条件が `std::permutable<I>` です。`std::ranges::reverse`、`rotate`、`unique` などが要求します。複数回たどれて、要素をムーブして、入れ替えられることを表します。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::permutable<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - 前方イテレータ以上で、要素をムーブして、入れ替えられる
+    - `const` の要素の範囲は満たさない
+    - `unique_ptr` のようなムーブ専用の型の範囲も満たす
+    - `sortable` の土台になる条件
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,63 +30,76 @@ tags:
 
 ### std::permutable {#permutable}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class I>
-concept permutable = /* forward_iterator かつ indirectly_movable_storable かつ indirectly_swappable */;
+concept permutable = std::forward_iterator<I>
+    && std::indirectly_movable_storable<I, I> && std::indirectly_swappable<I, I>;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `I` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::forward_iterator<I>`
+- `std::indirectly_movable_storable<I, I>`（ムーブして、保存できる）
+- `std::indirectly_swappable<I, I>`
 
+要素の並び替えを行うには、要素を読んで、書き戻せる必要があります。const の範囲は書き戻せないので、満たしません。
+
+`std::ranges::sort` のようなアルゴリズムは、`sortable`（これに比較の条件を足したもの）を要求します。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <concepts>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <memory>
+#include <string>
 
 int main() {
-  std::println("{}", std::permutable<int*>);
-  std::println("{}", std::permutable<const int*>);
+  std::println("int*: {}", std::permutable<int*>);
+  std::println("const int*: {}", std::permutable<const int*>);
+  std::println("forward_list: {}", std::permutable<std::forward_list<int>::iterator>);
+  std::println("unique_ptr: {}", std::permutable<std::vector<std::unique_ptr<int>>::iterator>);
+  std::println("istream_iterator: {}", std::permutable<std::istream_iterator<int>>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+int*: true
+const int*: false
+forward_list: true
+unique_ptr: true
+istream_iterator: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+要素を並べ替えるアルゴリズムを自作するときの、イテレータの制約に使います。
 
 ## よくあるミス
 
-??? failure "const のポインタを渡す"
-    書き込めないので、並べ替えられません。
+??? failure "const の範囲に使う"
+    書き戻せないので、満たしません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`sortable`](sortable.md) | 並べ替えられる |
+| [`sortable`](sortable.md) | 比較も要求する |
+| [`indirectly_swappable`](indirectly_swappable.md) | 入れ替えの条件 |
+| [`indirectly_movable`](indirectly_movable.md) | ムーブの条件 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 要素を並べ替えられるイテレータを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

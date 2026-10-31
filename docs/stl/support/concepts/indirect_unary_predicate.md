@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-`find_if` や `count_if` のように、要素を条件で判定するアルゴリズムの制約に使われます。述語は `bool` に変換できる値を返す必要があります。
+イテレータの先の要素について、条件（述語）を調べたい。`std::ranges::find_if` や `count_if` が成り立つ条件が `std::indirect_unary_predicate<Pred, I>` です。`Pred` を要素に適用して、`bool` に変換できる結果を得られることを表します。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::indirect_unary_predicate<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - 述語を、イテレータの先の値や参照で呼べて、結果が `bool` として使える
+    - `std::ranges::find_if`、`count_if`、`all_of` などの条件
+    - ラムダで `bool` を返すものが典型
+    - `void` を返す関数は満たさない
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,63 +30,73 @@ tags:
 
 ### std::indirect_unary_predicate {#indirect_unary_predicate}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class Pred, class I>
-concept indirect_unary_predicate = /* 述語 Pred が値・参照で predicate */;
+template <class F, class I>
+concept indirect_unary_predicate = std::indirectly_readable<I> && std::copy_constructible<F>
+    && std::predicate<F&, std::iter_value_t<I>&>
+    && std::predicate<F&, std::iter_reference_t<I>>;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `Pred` | 型 | 調べる型 |
-| `I` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::indirectly_readable<I>`、`std::copy_constructible<Pred>`
+- `std::predicate<Pred&, iter_value_t<I>&>` と `predicate<Pred&, iter_reference_t<I>>`
 
+結果が `bool` に変換できれば足ります。整数を返す関数（0 以外が真）も満たします。
+
+述語は、要素を変更してはいけません（引数は const 参照が望ましい）。アルゴリズムは、1 つの要素に何度か述語を呼ぶことがあるからです。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <concepts>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <memory>
+#include <string>
 
 int main() {
-  auto p = [](int x) { return x > 0; };
-  std::println("{}", std::indirect_unary_predicate<decltype(p), int*>);
+  auto is_positive = [](int x) { return x > 0; };
+  auto returns_void = [](int) {};
+
+  std::println("bool を返す: {}", std::indirect_unary_predicate<decltype(is_positive), int*>);
+  std::println("void を返す: {}", std::indirect_unary_predicate<decltype(returns_void), int*>);
 }
 ```
 
 ```text title="実行結果"
-true
+bool を返す: true
+void を返す: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+`find_if` のような、条件で要素を探す関数を自作するときの、制約に使います。
 
 ## よくあるミス
 
-??? failure "`bool` に変換できない戻り値"
-    戻り値が `bool` に変換できない関数は満たしません。
+??? failure "述語の中で要素を書き換える"
+    アルゴリズムが複数回呼ぶと、結果が変わります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`predicate`](predicate.md) | 値の述語 |
+| [`indirect_binary_predicate`](indirect_binary_predicate.md) | 2 つの要素を取る |
+| [`predicate`](predicate.md) | 一般の述語 |
+| [`indirect_strict_weak_order`](indirect_strict_weak_order.md) | 順序を表す述語 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] イテレータが指す値で、1 引数の述語を呼べることを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

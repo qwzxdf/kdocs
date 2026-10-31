@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-`move` 系のアルゴリズムの制約に使われます。読み取り側と書き込み側の型が合っているかを調べます。
+要素を、別の範囲の先へムーブしたい。`std::ranges::move` のようなアルゴリズムが成り立つための条件が `std::indirectly_movable<In, Out>` です。`In` から読んだ要素を、右辺値として `Out` に書き込めることを表します。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::indirectly_movable<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - `In` の要素を、右辺値として読める（`iter_rvalue_reference_t`）
+    - その右辺値を、`Out` に書ける
+    - コピーできない型（`unique_ptr`）でも満たせる
+    - `std::ranges::move` の引数の条件
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,64 +30,74 @@ tags:
 
 ### std::indirectly_movable {#indirectly_movable}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class In, class Out>
-concept indirectly_movable = /* indirectly_readable<In> かつ indirectly_writable<Out, iter_rvalue_reference_t<In>> */;
+concept indirectly_movable = std::indirectly_readable<In>
+    && std::indirectly_writable<Out, std::iter_rvalue_reference_t<In>>;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `In` | 型 | 調べる型 |
-| `Out` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::indirectly_readable<In>`
+- `std::indirectly_writable<Out, std::iter_rvalue_reference_t<In>>`
 
+`indirectly_copyable` との違いは、読む側を右辺値として扱うことです。コピーできない型でも、ムーブできれば満たします。
+
+`std::ranges::move(in, out)` は、この条件が満たされるときだけコンパイルできます。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <concepts>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <memory>
+#include <string>
 
 int main() {
-  std::println("{}", std::indirectly_movable<int*, int*>);
-  std::println("{}", std::indirectly_movable<int*, const int*>);
+  using UPtr = std::vector<std::unique_ptr<int>>::iterator;
+  std::println("int* → int*: {}", std::indirectly_movable<int*, int*>);
+  std::println("const int* → int*: {}", std::indirectly_movable<const int*, int*>);
+  std::println("int* → const int*: {}", std::indirectly_movable<int*, const int*>);
+  std::println("unique_ptr → unique_ptr: {}", std::indirectly_movable<UPtr, UPtr>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+int* → int*: true
+const int* → int*: true
+int* → const int*: false
+unique_ptr → unique_ptr: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+`std::ranges::move` を使う前に、コピーできない要素の範囲でも動くかを確かめるのに使います。
 
 ## よくあるミス
 
-??? failure "const な出力先"
-    書き込めない出力先は満たしません。
+??? failure "書き込み先が const"
+    書けないので、満たしません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`indirectly_copyable`](indirectly_copyable.md) | コピーする |
+| [`indirectly_copyable`](indirectly_copyable.md) | コピーして書く |
+| [`indirectly_swappable`](indirectly_swappable.md) | 入れ替える |
+| [`permutable`](permutable.md) | 並べ替えられる条件 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] あるイテレータから別のイテレータへ要素をムーブできることを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

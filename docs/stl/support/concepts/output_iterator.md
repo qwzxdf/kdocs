@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-`*it = value` で値を書き込みながら進められるイテレータです。`output_iterator<I, T>` と、書き込む値の型も指定します。
+結果を書き出す先（コンテナの末尾への挿入、ストリームへの出力）を受け取る関数には、「型 `T` の値を書き込めるイテレータ」という条件を付けられます。`std::output_iterator<I, T>` は、`*it++ = value;` が書けるかを調べます。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::output_iterator<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - `*it = value;` で書き込める（`indirectly_writable<I, T>`）
+    - `it++` で進められ、`*it++ = value;` の形で使える
+    - 書くだけで、読めることは要求しない
+    - `back_insert_iterator` や `ostream_iterator` が典型
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,64 +30,80 @@ tags:
 
 ### std::output_iterator {#output_iterator}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class I, class T>
-concept output_iterator = /* input_or_output_iterator かつ indirectly_writable<I, T> */;
+concept output_iterator = std::input_or_output_iterator<I> && std::indirectly_writable<I, T>
+    && requires(I i, T&& t) { *i++ = std::forward<T>(t); };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `I` | 型 | 調べる型 |
-| `T` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::input_or_output_iterator<I>` を満たす
+- `std::indirectly_writable<I, T>` を満たす
+- `*i++ = std::forward<T>(t)` が書ける
 
+`const int*` は、`int` を書き込めないので、満たしません。`int*` は満たします。
+
+`std::ranges::copy` や `transform` の出力先に渡すイテレータは、このコンセプトで検査されます。出力先の要素の型が値の型に変換できなければ、コンパイルが通りません。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <concepts>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
+
+template <std::output_iterator<int> Out>
+void Fill3(Out out) {
+  for (int i = 1; i <= 3; ++i) *out++ = i;
+}
 
 int main() {
-  std::println("{}", std::output_iterator<int*, int>);
-  std::println("{}", std::output_iterator<const int*, int>);
+  std::println("back_insert_iterator: {}",
+               std::output_iterator<std::back_insert_iterator<std::vector<int>>, int>);
+  std::println("int*: {}", std::output_iterator<int*, int>);
+  std::println("const int*: {}", std::output_iterator<const int*, int>);
+
+  std::vector<int> v;
+  Fill3(std::back_inserter(v));
+  std::println("{}", v);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+back_insert_iterator: true
+int*: true
+const int*: false
+[1, 2, 3]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+結果を出力する先を、配列にも `vector` にも切り替えられる関数を書くときに使います。
 
 ## よくあるミス
 
-??? failure "const のポインタを出力先にする"
-    `const int*` には書き込めません。
+??? failure "const のイテレータを渡す"
+    書き込めないので、コンパイル エラーです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`input_iterator`](input_iterator.md) | 読み取れる |
+| [`input_iterator`](input_iterator.md) | 読み込み用 |
+| [`indirectly_writable`](indirectly_writable.md) | 書ける条件 |
+| [`back_inserter`](../iterator/back_inserter.md) | 末尾に挿入する出力イテレータ |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 指定した型の値を書き込めるイテレータを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

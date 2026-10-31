@@ -15,70 +15,84 @@ tags:
 `#include <iterator>`
 </div>
 
-アルゴリズムは、渡されたイテレータの能力に合わせて、使う手順を変えます（`advance` が +n と ++ を使い分けるなど）。その能力を型で表した目印が `contiguous_iterator_tag` で、メモリ上で連続した要素を指すイテレータが持つ性質です。
+`std::vector` や配列のイテレータは、要素がメモリ上で連続していることを保証します。その性質を表す、中身のない空の構造体が `std::contiguous_iterator_tag` です。C++20 で追加されました。
 
 !!! tip "ポイント"
-    - メモリ上で連続した要素を指すイテレータの目印。
-    - `iterator_traits<It>::iterator_category` で取り出す。
-    - C++20 では `iterator_concept` やコンセプトのほうが細かく表せる。
+    - `random_access_iterator_tag` から派生する、空の構造体
+    - `iterator_category` ではなく、`iterator_concept` に入る
+    - `vector`、`array`、`string`、ポインターのイテレータが持つ
+    - `std::contiguous_iterator` コンセプトの判定に使われる
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレータ](../../../basics/iterator.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::contiguous_iterator_tag {#contiguous_iterator_tag}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-struct contiguous_iterator_tag {};
+struct contiguous_iterator_tag : random_access_iterator_tag {};
 ```
 
-- 戻り値: なし（目印）
-- 計算量: 定数
+`iterator_category` を `contiguous_iterator_tag` にすると、C++17 以前のコードが、知らないタグを見て壊れる恐れがあります。そこで、旧来の `iterator_category` は `random_access_iterator_tag` のままにして、新しい `iterator_concept` に `contiguous_iterator_tag` を入れる、という分け方になっています。
 
+そのため、`std::iterator_traits<It>::iterator_category` を見ても、連続性は分かりません。`std::contiguous_iterator<It>` コンセプトで調べます。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <algorithm>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <ranges>
+#include <sstream>
+#include <string>
+#include <type_traits>
+#include <vector>
 
 int main() {
-  std::println("{}", std::is_same_v<std::iterator_traits<int*>::iterator_concept, std::contiguous_iterator_tag>);
+  using It = std::vector<int>::iterator;
+  using Traits = std::iterator_traits<It>;
+
+  std::println("iterator_category は random_access: {}",
+               std::is_same_v<Traits::iterator_category, std::random_access_iterator_tag>);
+  std::println("連続している: {}", std::contiguous_iterator<It>);
+  std::println("継承している: {}",
+               std::is_base_of_v<std::random_access_iterator_tag, std::contiguous_iterator_tag>);
 }
 ```
 
 ```text title="実行結果"
-true
+iterator_category は random_access: true
+連続している: true
+継承している: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムでイテレータの能力ごとに実装を切り替える |
+連続したメモリであることを前提にする処理（`memcpy`、C の API）を、コンセプトで制約するときに関わります。
 
 ## よくあるミス
 
-??? failure "C++20 のコンセプトを使わない"
-    C++20 以降は `std::contiguous_iterator<It>` のコンセプトのほうが書きやすいです。
+??? failure "iterator_category で連続性を調べる"
+    `random_access_iterator_tag` のままです。コンセプトで調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
+| [`contiguous_iterator`](../concepts/contiguous_iterator.md) | 対応するコンセプト |
+| [`random_access_iterator_tag`](random_access_iterator_tag.md) | 親のタグ |
 | [`iterator_traits`](iterator_traits.md) | タグを取り出す |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 連続イテレータ（メモリ上で連続した要素を指す）を表すタグの型
-    - [x] メモリ上で連続した要素を指すイテレータの目印
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

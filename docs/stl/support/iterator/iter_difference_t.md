@@ -15,79 +15,81 @@ tags:
 `#include <iterator>`
 </div>
 
-テンプレートの中で、イテレータ型 `It` が指す値の型を知りたいとき、`iterator_traits<It>::value_type` と書くと長くなります。`iter_difference_t<It>` は、C++20 のコンセプトと相性のよい書き方です。
+2 つのイテレータの距離（`it2 - it1`）を保存する変数の型は、何にすればよいでしょう。`int` では足りないことも、符号の問題が起きることもあります。`std::iter_difference_t<I>` は、そのイテレータの「距離」を表す型を返します。普通は符号つきの整数（`std::ptrdiff_t`）です。
 
 !!! tip "ポイント"
-    - `<iterator>` の部品。
-    - ふつうは補助関数（`back_inserter` など）経由で使う。
-    - アルゴリズムの出力先や入力元に渡す。
+    - イテレータの距離を表す型を返す
+    - 符号つきの整数に準ずる型
+    - `std::distance` の戻り値の型
+    - C++20
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレータ](../../../basics/iterator.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::iter_difference_t {#iter_difference_t}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class It>
-using iter_difference_t = /* イテレータの差の型 */;
+template <class I>
+using iter_difference_t = /* I の距離の型 */;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `It` | 型 | イテレータの型 |
+`std::weakly_incrementable<I>` を満たす `I` に使えます。`I::difference_type` があればそれ、なければ `std::iterator_traits<I>::difference_type` が元になります。
 
-- 戻り値: イテレータの差の型
-- 計算量: 定数
-
+多くの環境で `std::ptrdiff_t` です。`size_t` ではなく符号つきである点に注意します。`it2 - it1` が負になることがあるからです。
 
 ## 実際に動かしてみる
 
 ```cpp
-#include <cstddef>
+#include <algorithm>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <ranges>
+#include <sstream>
+#include <string>
 #include <type_traits>
 #include <vector>
 
 int main() {
-  using It = std::vector<int>::iterator;
-  std::println("{}", std::is_same_v<std::iter_difference_t<It>, std::ptrdiff_t>);
+  static_assert(std::is_same_v<std::iter_difference_t<std::vector<int>::iterator>, std::ptrdiff_t>);
+  static_assert(std::is_signed_v<std::iter_difference_t<int*>>);
+
+  std::vector<int> v = {1, 2, 3, 4};
+  std::iter_difference_t<decltype(v.begin())> n = v.end() - v.begin();
+  std::println("距離: {}", n);
 }
 ```
 
 ```text title="実行結果"
-true
+距離: 4
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ジェネリックなアルゴリズムで、値の型を取り出す |
+イテレータの距離を保存する変数の型を、テンプレートの中で決めるときに使います。
 
 ## よくあるミス
 
-??? failure "`iterator_traits` と混ぜる"
-    C++20 のコードでは、`iter_value_t` などに統一したほうが読みやすいです。
+??? failure "距離を int や size_t で受ける"
+    大きな範囲や負の距離で、あふれたり巻き戻ったりします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`iterator_traits`](iterator_traits.md) | 従来の取り出し方 |
+| [`iter_value_t`](iter_value_t.md) | 要素の型 |
+| [`distance`](distance.md) | 距離を求める |
+| [`advance`](advance.md) | 距離だけ進める |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] イテレータの差の型を取り出す型の別名
-    - [x] `<iterator>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 
