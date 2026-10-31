@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「メガ」を付けるとき、`ratio<1000000, 1>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::mega` は、SI 接頭辞の「メガ」（100 万倍）をそのまま表す `std::ratio` の別名です。
+4K 画面の画素数は約 830 万（8.3 メガピクセル）、CPU のクロックは数 GHz。単位に「メガ」が付く量を、100 万倍の関係として型で扱いたいときに、`std::mega`（メガ、100 万倍）を使います。`ratio<1000000, 1>` の別名です。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<1000000, 1>`
@@ -46,37 +46,40 @@ using mega = ratio<1000000, 1>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
 #include <print>
+#include <ratio>
 
 int main() {
-  std::println("num = {}, den = {}", std::mega::num, std::mega::den);
-  constexpr long long value = 3LL * std::mega::num / std::mega::den;
-  std::println("3 mega = {}", value);
+  // 4K 画面の画素数 (メガピクセル)
+  constexpr long long pixels = 3840LL * 2160LL;
+  std::println("4K の画素数: {} 画素", pixels);
+  std::println("メガピクセル: {:.2f}", static_cast<double>(pixels) / std::mega::num);
+
+  // フルHD(1920x1080) との比
+  constexpr long long full_hd = 1920LL * 1080LL;
+  std::println("4K は FullHD の {} 倍", pixels / full_hd);
 }
 ```
 
 ```text title="実行結果"
-num = 1000000, den = 1
-3 mega = 3000000
+4K の画素数: 8294400 画素
+メガピクセル: 8.29
+4K は FullHD の 4 倍
 ```
+
+4K の画素数は 8294400 で、約 8.29 メガピクセルです。フル HD のちょうど 4 倍です。
 
 ## ゲームでの使いどころ
 
-データの大きさや周波数など、大きな量を扱うときに、桁の数え間違いを避けるために使います。ただし、バイトの単位としての 1024 倍（KiB、MiB）は、SI 接頭辞の 1000 倍とは別なので、`std::kilo` はそのまま使えません。
-
-```cpp
-// 3 メガ を基本単位に直す
-constexpr long long value = 3LL * std::mega::num / std::mega::den;
-```
+画素数、クロック周波数（MHz）、メモリの転送量など、桁の大きい性能値の表示や換算に使えます。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::mega` のような名前の付いた別名を使います。
+??? failure "mega を 1048576（2 の 20 乗）だと思う"
+    `std::mega` は 1000000 です。1048576 は MiB（メビバイト）の係数です。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "int で計算して桁あふれする"
+    `3840 * 2160` は `int` に収まりますが、`mega` を掛けると超えます。`long long` で計算します。
 
 ## 類似
 

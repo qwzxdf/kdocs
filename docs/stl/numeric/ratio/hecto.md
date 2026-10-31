@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「ヘクト」を付けるとき、`ratio<100, 1>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::hecto` は、SI 接頭辞の「ヘクト」（100 倍）をそのまま表す `std::ratio` の別名です。
+距離を 100 メートル単位でまとめたい、タイマーを 100 秒単位で持ちたい。100 倍の単位を型として持ちたいときに、`std::hecto`（ヘクト、100 倍）を使います。`ratio<100, 1>` の別名です。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<100, 1>`
@@ -46,37 +46,41 @@ using hecto = ratio<100, 1>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
+#include <chrono>
 #include <print>
+#include <ratio>
 
 int main() {
-  std::println("num = {}, den = {}", std::hecto::num, std::hecto::den);
-  constexpr long long value = 3LL * std::hecto::num / std::hecto::den;
-  std::println("3 hecto = {}", value);
+  using Round = std::chrono::duration<int, std::hecto>;   // 1 単位が 100 秒
+
+  Round two{2};
+  auto sec = std::chrono::duration_cast<std::chrono::seconds>(two);
+  std::println("2 単位は {} 秒", sec.count());
+
+  // 気圧の単位 hPa(ヘクトパスカル)の換算: 1 hPa = 100 Pa
+  constexpr long long pa = 1013LL * std::hecto::num / std::hecto::den;
+  std::println("1013 hPa = {} Pa", pa);
 }
 ```
 
 ```text title="実行結果"
-num = 100, den = 1
-3 hecto = 300
+2 単位は 200 秒
+1013 hPa = 101300 Pa
 ```
+
+`hecto` は、気圧の単位 hPa（ヘクトパスカル）で見かける接頭辞です。1013 hPa は 101300 Pa です。
 
 ## ゲームでの使いどころ
 
-日常のゲームのコードでは使う機会が少なく、`std::ratio` の学習や、単位のテンプレートを作るときに登場します。
-
-```cpp
-// 3 ヘクト を基本単位に直す
-constexpr long long value = 3LL * std::hecto::num / std::hecto::den;
-```
+時間やスコアを 100 単位の区切りで持ちたいときに使えます。天候の演出で、気圧のような数値を扱うときにも出てきます。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::hecto` のような名前の付いた別名を使います。
+??? failure "hecto と centi を取り違える"
+    `hecto` は 100 倍、`centi` は 1/100 です。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "ヘクタール（面積）の ha と混同する"
+    面積の単位ヘクタールは、10000 平方メートルです。`hecto` は、面積ではなく、100 倍を表す接頭辞です。
 
 ## 類似
 

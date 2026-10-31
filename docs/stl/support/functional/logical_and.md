@@ -41,11 +41,7 @@ struct logical_and {
 | `x` | 値 | 1 つ目の値 |
 | `y` | 値 | 2 つ目の値 |
 
-`std::logical_and<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`&&` の結果を返します。`std::logical_and<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
-
-戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
-
-ラムダ式で書いても同じ結果ですが、`std::logical_and<>{}` のほうが短く、意図が名前で伝わります。
+`std::logical_and<>{}(a, b)` は `a && b` と同じ結果を返します。関数オブジェクトにすると、引数は呼び出す前に両方評価されるので、`&&` の短絡評価（左が偽なら右を評価しない）は失われます。
 
 ## 実際に動かしてみる
 
@@ -64,22 +60,30 @@ std::logical_and<>{}(true, false) = false
 
 ## ゲームでの使いどころ
 
-標準のアルゴリズムや、自作のテンプレートに、演算を値として渡すときに使います。短い演算にはこちら、複雑な演算にはラムダ式、と使い分けます。
+2 つのフラグの配列を、要素ごとに組み合わせます。
+
+```cpp
+std::vector<bool> alive = {true, true, false};
+std::vector<bool> visible = {true, false, true};
+std::vector<bool> targetable(3);
+std::transform(alive.begin(), alive.end(), visible.begin(), targetable.begin(), std::logical_and<>{});   // true, false, false
+```
 
 ## よくあるミス
 
-??? failure "`std::logical_and<int>` と型を固定して、他の型で変換が起きる"
-    `std::logical_and<>` と省略します。
+??? failure "短絡評価が働くと思う"
+    関数オブジェクトの引数は、呼ぶ前に両方評価されます。左の条件で右を守る書き方（`p != nullptr && p->x`）は、`logical_and` では使えません。
 
-??? failure "`<functional>` を忘れてコンパイルエラーになる"
-    `#include <functional>` を書きます。
+??? failure "bit_and と取り違える"
+    `logical_and` は真偽値の `&&`、`bit_and` はビットごとの `&` です。`2 && 1` は `true` ですが、`2 & 1` は `0` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
-| [`identity`](identity.md) | 値をそのまま返す |
+| [`logical_or`](logical_or.md) | 論理和 |
+| [`logical_not`](logical_not.md) | 論理否定 |
+| [`bit_and`](bit_and.md) | ビットごとの論理積 |
 
 ## コンパイラ対応
 

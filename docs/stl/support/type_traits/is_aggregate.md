@@ -18,9 +18,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_aggregate_v<T>` は、`T` が集成体（ブレース初期化できる単純な型）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 配列と、ユーザー定義のコンストラクターを持たないクラスが `true`
     - `std::is_aggregate<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 波括弧の並びでメンバーを順に初期化できるかの目安になる
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -40,9 +40,7 @@ inline constexpr bool is_aggregate_v = is_aggregate<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-ユーザー定義のコンストラクターを持たず、すべてのメンバーが公開されている構造体や配列は `true` です。`std::string` のように、コンストラクターを持つ型や、private メンバーを持つクラスは `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+ユーザーが書いたコンストラクターを持たず、private なメンバー変数も仮想関数も持たないクラスと、配列が `true` です。`Player{100, 50}` のように、波括弧に並べた値でメンバーを順に初期化できる型の目安になります。
 
 ## 実際に動かしてみる
 
@@ -75,33 +73,34 @@ int                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+引数の並びからオブジェクトを作る関数で、コンストラクターを呼ぶ形と、波括弧で初期化する形を切り替えます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_aggregate_v<T>) {
-    // T が条件に当てはまる型のときの処理
+template <class T, class... Args>
+T Make(Args&&... args) {
+  if constexpr (std::is_constructible_v<T, Args...>) {
+    return T(std::forward<Args>(args)...);
   } else {
-    // それ以外の型の処理
+    static_assert(std::is_aggregate_v<T>, "コンストラクターも波括弧の初期化も使えません");
+    return T{std::forward<Args>(args)...};
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "コンストラクターを 1 つ書いただけで集成体でなくなる"
+    ユーザー定義のコンストラクターがあると、`Player{100, 50}` のような初期化が使えなくなります（C++20 では、宣言しただけでも集成体ではなくなります）。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "private なメンバー変数を足す"
+    `private` や `protected` のメンバー変数が 1 つでもあると、集成体ではありません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_trivial`](is_trivial.md) | コンストラクターやコピーが自明か |
+| [`is_standard_layout`](is_standard_layout.md) | C 言語と同じ並びのメモリ配置か |
 
 ## コンパイラ対応
 
@@ -111,8 +110,8 @@ C++17 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_aggregate_v<T>` は、`T` が集成体（ブレース初期化できる単純な型）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] コンストラクターなし・private メンバーなし・仮想関数なしが集成体
+    - [x] `T{a, b}` で初期化できる型の見分けに使う
 
 ## 関連ページ
 

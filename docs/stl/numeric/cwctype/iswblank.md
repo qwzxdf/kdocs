@@ -37,7 +37,7 @@ int iswblank(std::wint_t wc);
 | --- | --- | --- |
 | `wc` | `wint_t` | 調べるワイド文字。`WEOF` も渡せる |
 
-戻り値は、`wc` が上の条件に当てはまれば 0 以外、当てはまらなければ 0 です。真偽値として条件式に書けますが、型は `int` なので、`!= 0` で比べます。
+戻り値は、`wc` が条件に当てはまれば 0 以外、当てはまらなければ 0 です。真偽値として条件式に書けますが、型は `int` なので、`!= 0` で比べます。
 
 `char` 版（`isalpha` など）と違い、引数を `unsigned char` にキャストする必要はありません。`wint_t` は `wchar_t` を含む型だからです。
 
@@ -66,19 +66,22 @@ iswblank(L'5') = false
 
 ## ゲームでの使いどころ
 
-ワイド文字列を直接解析する処理で使います。現代のゲームでは、文字列は UTF-8 の `std::string` で持つのが一般的で、`wchar_t` を使うのは Windows API に渡す境界に限られます。
+設定ファイルの 1 行で、キーと値の間のスペースとタブだけを読み飛ばします。ワイド文字列（`std::wstring`）を直接扱うのは、Windows API との境界に限られます。
 
 ```cpp
-// Windows のパス（wchar_t）の先頭が英字か
-if (std::iswblank(path[0])) { /* ドライブ文字 */ }
+std::size_t i = 0;
+while (i < line.size() && std::iswblank(line[i])) ++i;   // 改行は飛ばさない
 ```
 
 ## よくあるミス
 
 ??? failure "UTF-16 のサロゲートペアを 1 文字として判定する"
-    2 つのコード単位で 1 文字です。Unicode 対応のライブラリを使います。
+    2 つのコード単位で 1 文字です。1 つの `wchar_t` では判定できません。Unicode 対応のライブラリを使います。
 
-??? failure "ロケールに依存した結果を他の環境と比べる"
+??? failure "改行も読み飛ばせると思う"
+    `isblank` が真になるのは、スペースとタブだけです。改行も含めるなら `isspace` を使います。
+
+??? failure "ロケールに依存した結果を、他の環境と比べる"
     同じ入力でも環境で結果が違います。ASCII の判定に限るなら `<cctype>` で足ります。
 
 ## 類似
@@ -86,8 +89,8 @@ if (std::iswblank(path[0])) { /* ドライブ文字 */ }
 | 名前 | 違い |
 | --- | --- |
 | [`std::isblank`](../cctype/isblank.md) | `char` 版 |
-| [`iswalpha`](iswalpha.md) | 英字か |
-| [`iswdigit`](iswdigit.md) | 数字か |
+| [`iswspace`](iswspace.md) | 空白類（改行も含む）か |
+| [`iswcntrl`](iswcntrl.md) | 制御文字か |
 
 ## コンパイラ対応
 

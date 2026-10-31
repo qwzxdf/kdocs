@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「ペタ」を付けるとき、`ratio<1000000000000000, 1>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::peta` は、SI 接頭辞の「ペタ」（1000 兆倍）をそのまま表す `std::ratio` の別名です。
+大規模なサービスのログや、ゲームのサーバーの統計は、ペタバイト（PB）の規模で語られることがあります。単位に「ペタ」が付く量を、1000 兆倍の関係として型で扱いたいときに、`std::peta`（ペタ、1000 兆倍）を使います。`ratio<1000000000000000, 1>` の別名です。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<1000000000000000, 1>`
@@ -46,37 +46,38 @@ using peta = ratio<1000000000000000, 1>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
 #include <print>
+#include <ratio>
 
 int main() {
-  std::println("num = {}, den = {}", std::peta::num, std::peta::den);
-  constexpr long long value = 3LL * std::peta::num / std::peta::den;
-  std::println("3 peta = {}", value);
+  // 1 ペタバイトは何バイトか
+  constexpr long long bytes = std::peta::num;
+  std::println("1 PB = {} バイト", bytes);
+
+  // 1 日 100 TB のログが出るサービスが、1 PB に達するまでの日数
+  constexpr long long per_day = 100LL * 1'000'000'000'000LL;
+  std::println("1 PB まで {} 日", bytes / per_day);
 }
 ```
 
 ```text title="実行結果"
-num = 1000000000000000, den = 1
-3 peta = 3000000000000000
+1 PB = 1000000000000000 バイト
+1 PB まで 10 日
 ```
+
+1 日に 100 TB のログを出すサービスでも、1 PB に達するまでに 10 日かかります。
 
 ## ゲームでの使いどころ
 
-データの大きさや周波数など、大きな量を扱うときに、桁の数え間違いを避けるために使います。ただし、バイトの単位としての 1024 倍（KiB、MiB）は、SI 接頭辞の 1000 倍とは別なので、`std::kilo` はそのまま使えません。
-
-```cpp
-// 3 ペタ を基本単位に直す
-constexpr long long value = 3LL * std::peta::num / std::peta::den;
-```
+ゲーム本体のコードに出てくることはほとんどありません。運営側のログの集計や、容量の見積もりを扱うツールで、桁の大きさを、型で表すときに使えます。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::peta` のような名前の付いた別名を使います。
+??? failure "peta の計算がすぐあふれる"
+    `peta` は 10 の 15 乗です。`std::intmax_t` の範囲（約 9.2 × 10^18）には、9000 倍までしか収まりません。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "PB と PiB を同じだと思う"
+    `peta` は 10 の 15 乗、PiB は 2 の 50 乗で、約 13% 違います。
 
 ## 類似
 

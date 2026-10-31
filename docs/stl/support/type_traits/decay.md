@@ -67,19 +67,25 @@ std::decay_t<void(int)> は void(*)(int) : true
 
 ## ゲームでの使いどころ
 
-値渡しされたときの型を型だけで求めます。
+関数の引数を値渡しにしたときの型変換（参照と `const` を外し、配列を先頭へのポインターに、関数を関数ポインターにする）を、型として取り出します。引数を保存する入れ物の要素型を決める定番です。
 
 ```cpp
 template <class T>
-void Store(T&& value) {
-  std::decay_t<T> copy = std::forward<T>(value);   // 値として保持する型
+void Push(T&& value) {
+  using Stored = std::decay_t<T>;   // 参照・const を外し、配列はポインターにする
+  queue_.emplace_back(Stored(std::forward<T>(value)));
 }
+
+// Push("hello") では、const char[6] が const char* として保存される
 ```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "配列が配列のまま保存されると思う"
+    `decay_t<const char[6]>` は `const char*` です。文字列リテラルを保存すると、文字そのものではなく、先頭へのポインターになります。
+
+??? failure "remove_cvref と取り違える"
+    `remove_cvref_t` は、参照と `const` / `volatile` だけを外し、配列や関数はそのままです。
 
 ## 類似
 

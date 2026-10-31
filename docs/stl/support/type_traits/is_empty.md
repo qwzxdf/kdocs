@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_empty_v<T>` は、`T` が空のクラス（非静的メンバーが何もない）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - メンバー変数も仮想関数も持たないクラスだけが `true`
     - `std::is_empty<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - C++20 の `[[no_unique_address]]` で、メンバーでも大きさを省ける
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_empty_v = is_empty<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-非静的なメンバー変数と仮想関数を持たないクラスは `true` です。空の基底クラス最適化（EBO）で、サイズを 0 のように扱えるかの判断に使われます。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+非静的メンバー変数を 1 つも持たず、仮想関数も持たないクラスが `true` です。`sizeof` は 1 バイトですが、基底クラスにすると 0 バイトにしてもらえる（空基底最適化）型の目印になります。
 
 ## 実際に動かしてみる
 
@@ -72,33 +70,37 @@ int                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+状態を持たない関数オブジェクトを、メンバー変数として持つと、1 バイト以上の場所を取ります。基底クラスにすれば 0 バイトにしてもらえるので、空かどうかを見て使い分けます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_empty_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
+template <class Deleter>
+class Handle : private Deleter {   // Deleter が空なら、この継承は場所を取らない
+  int* ptr_ = nullptr;
+
+ public:
+  void Reset() {
+    Deleter::operator()(ptr_);
+    ptr_ = nullptr;
   }
-}
+};
+
+static_assert(std::is_empty_v<std::default_delete<int>>);   // 状態を持たない
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "sizeof が 1 だから中身があると思う"
+    空のクラスの `sizeof` も 1 バイトです。同じ型のオブジェクトを別のアドレスに置くための最低の大きさです。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "仮想関数を持つクラスが true になると思う"
+    仮想関数を持つとポインターを持つので、`false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_class`](is_class.md) | クラスか |
+| [`is_polymorphic`](is_polymorphic.md) | 仮想関数を持つか |
 
 ## コンパイラ対応
 
@@ -108,8 +110,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_empty_v<T>` は、`T` が空のクラス（非静的メンバーが何もない）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 空のクラスの目印。空基底最適化に使う
+    - [x] C++20 では `[[no_unique_address]]` も使える
 
 ## 関連ページ
 

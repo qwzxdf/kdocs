@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_null_pointer_v<T>` は、`T` が `std::nullptr_t` か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `nullptr` リテラルの型だけが `true`
     - `std::is_null_pointer<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `nullptr` を代入した `int*` の変数は `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_null_pointer_v = is_null_pointer<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`T` が `std::nullptr_t`（`const` や `volatile` 付きを含む）なら `true` です。`int*` に `nullptr` を代入した変数の型は `int*` で、`nullptr_t` ではありません。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`T` が `std::nullptr_t`（`const` や `volatile` が付いた型も含む）なら `true` です。`int*` に `nullptr` を代入した変数の型は `int*` で、`nullptr_t` ではありません。`nullptr` というリテラル自体の型が `nullptr_t` です。
 
 ## 実際に動かしてみる
 
@@ -67,33 +65,33 @@ int                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+`nullptr` が直接渡されたかを区別して、ポインターのリセットとして扱う関数を書けます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+void SetTarget(T target) {
   if constexpr (std::is_null_pointer_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    target_ = nullptr;     // nullptr リテラルが渡された
   } else {
-    // それ以外の型の処理
+    target_ = target;
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "NULL を渡して true を期待する"
+    `NULL` は整数（またはマクロ）で、`nullptr_t` ではありません。`false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "nullptr を入れたポインター変数を調べる"
+    変数の型は `int*` のままなので、`false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_pointer`](is_pointer.md) | ポインター型か |
+| [`is_fundamental`](is_fundamental.md) | `nullptr_t` は基本型に含まれる |
 
 ## コンパイラ対応
 
@@ -103,8 +101,8 @@ C++14 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_null_pointer_v<T>` は、`T` が `std::nullptr_t` か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `std::nullptr_t` だけが `true`
+    - [x] `NULL` や `nullptr` を代入したポインターは `false`
 
 ## 関連ページ
 

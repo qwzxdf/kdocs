@@ -106,7 +106,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 
 ### 2-4. 書いたページを読み直す
 
-- [ ] 2-4-1. 生成スクリプトで書いたページを読み直し、同じ文章の所を、ページごとの具体的な話に差し替える: `cctype`、`cwctype`、`cstdint` の fast / least、`ratio` の接頭辞、`cmath` の特殊関数、`type_traits` の `is_xxx`、`functional` の演算子
+- [x] 2-4-1. 生成スクリプトで書いたページを読み直し、同じ文章の所を、ページごとの具体的な話に差し替える（2026-10-31 `type_traits` の `is_xxx` と型の加工（約 85 ページ）の使いどころ・よくあるミス・類似、`functional` の演算子 19 ページ、`cmath` の特殊関数 21 ページ（導入も）、`ratio` の接頭辞 13 ページ、`cctype`・`cwctype` の分類関数 24 ページを書き直した。`cstdint` の fast / least は 2-3-13 で済み。サンプルは、動かして確かめた値）
 - [ ] 2-4-2. 機械的に入れた「このページを読む前に」（約 690 ページ）を見直す: `graphics` 全体に入れた MVP 変換と GPU パイプラインが、本当に前提のページだけに絞る
 - [ ] 2-4-3. 地の文の「非常に」を削った所（201 か所）で、読点だけ残った所を直す
 
@@ -182,6 +182,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 
 ### 2026-10-31 の作業
 
+- 2-4-1: `type_traits`・`functional` の演算子・`cmath` の特殊関数・`ratio` の接頭辞・`cctype`・`cwctype` の約 160 ページで、同じ文章の所を、ページごとの具体的な話に差し替えた
 - STL `numeric` の `cfloat`・`climits`・`complex`・`cstdint`・`numbers`・`ratio`・`cmath` の 3 ページを書き直して 2-3-13 を完了
 - STL `support` の `coroutine`・`functional`・`type_traits`・`stacktrace`・`*_order_fallback` など 31 ページを書き直して 2-3-12 を完了
 - STL `support/concepts` の 30 ページと `support/iterator` の 15 ページを書き直して 2-3-11 を完了

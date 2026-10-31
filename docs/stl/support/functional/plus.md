@@ -41,11 +41,9 @@ struct plus {
 | `x` | 値 | 1 つ目の値 |
 | `y` | 値 | 2 つ目の値 |
 
-`std::plus<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`+` の結果を返します。`std::plus<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
+`std::plus<>{}(a, b)` は `a + b` と同じ結果を返します。`int` や `float` の足し算だけでなく、`+` を持つ型なら何でも使えます。`std::string` なら連結、自作のベクトル型なら、そのオーバーロードが呼ばれます。型引数を省略した `std::plus<>` は、`operator()` が任意の型を受け取るので、`int` と `double` のように、違う型を混ぜた足し算もできます。
 
-戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
-
-ラムダ式で書いても同じ結果ですが、`std::plus<>{}` のほうが短く、意図が名前で伝わります。
+`std::accumulate` の既定の演算が、まさにこの足し算です。
 
 ## 実際に動かしてみる
 
@@ -69,29 +67,30 @@ v の合計 = 10
 
 ## ゲームでの使いどころ
 
-アルゴリズムに演算を渡します。
+2 つの配列を、要素ごとに足して、新しい配列を作ります。
 
 ```cpp
-// std::plus<>{} を渡す例
-auto result = std::accumulate(values.begin(), values.end(), init, std::plus<>{});
+std::vector<int> base = {10, 20, 30};
+std::vector<int> bonus = {1, 2, 3};
+std::vector<int> total(base.size());
+std::transform(base.begin(), base.end(), bonus.begin(), total.begin(), std::plus<>{});   // 11, 22, 33
 ```
-
-演算が複雑になったら、ラムダ式のほうが読みやすくなります。
 
 ## よくあるミス
 
-??? failure "`std::plus<int>` と型を固定して、他の型で変換が起きる"
-    `std::plus<>` と省略します。
+??? failure "accumulate の初期値の型で切り捨てられる"
+    `std::accumulate(v.begin(), v.end(), 0, std::plus<>{})` の初期値 `0` は `int` なので、`v` が `double` の列でも、途中の合計が `int` に切り捨てられます。`0.0` と書きます。
 
-??? failure "`<functional>` を忘れてコンパイルエラーになる"
-    `#include <functional>` を書きます。
+??? failure "std::plus<int> と固定して、型の混在で変換が起きる"
+    `std::plus<int>` は引数を `int` に変換します。`double` の値を渡すと小数点以下が落ちます。`std::plus<>` と省略します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
-| [`identity`](identity.md) | 値をそのまま返す |
+| [`minus`](minus.md) | 引き算 |
+| [`multiplies`](multiplies.md) | 掛け算 |
+| [`accumulate`](../../algorithms/accumulate.md) | 合計を取る（既定の演算が `plus`） |
 
 ## コンパイラ対応
 

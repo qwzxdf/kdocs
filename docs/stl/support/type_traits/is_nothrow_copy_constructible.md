@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_nothrow_copy_constructible_v<T>` は、`T` のコピー構築が例外を投げないか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `std::string` などのメモリを確保する型は `false`
     - `std::is_nothrow_copy_constructible<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `= default` はメンバー次第
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_nothrow_copy_constructible_v = is_nothrow_copy_construc
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-コピー構築が `noexcept` なら `true` です。`std::string` のコピーは、メモリ確保で例外が起きうるので `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+コピー構築が `noexcept` と宣言されていれば `true` です。数値だけの構造体は `true` ですが、`std::string` のコピーはメモリを確保して例外を投げうるので `false` です。メンバーに `std::string` が 1 つでもあれば、`= default` のコピーも `false` になります。
 
 ## 実際に動かしてみる
 
@@ -72,33 +70,30 @@ std::string                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+コピーを返す関数の `noexcept` を、型に合わせて決めます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_nothrow_copy_constructible_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
+T Duplicate(const T& value) noexcept(std::is_nothrow_copy_constructible_v<T>) {
+  return value;   // コピーを作る
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "= default のコピーが常に true だと思う"
+    メンバーのどれかのコピーが `noexcept` でなければ、全体も `false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "ムーブ構築と取り違える"
+    ムーブは `is_nothrow_move_constructible` で調べます。`std::vector` の再確保は、ムーブが `noexcept` かで、移すかコピーするかを決めます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_nothrow_move_constructible`](is_nothrow_move_constructible.md) | ムーブ構築が例外を投げないか |
+| [`is_copy_constructible`](is_copy_constructible.md) | 例外を考えずに、コピー構築できるか |
+| [`is_nothrow_constructible`](is_nothrow_constructible.md) | 任意の引数の構築 |
 
 ## コンパイラ対応
 
@@ -108,8 +103,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_nothrow_copy_constructible_v<T>` は、`T` のコピー構築が例外を投げないか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] コピー構築の `noexcept` を調べる
+    - [x] `= default` の結果はメンバーで決まる
 
 ## 関連ページ
 

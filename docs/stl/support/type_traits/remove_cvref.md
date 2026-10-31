@@ -68,20 +68,23 @@ std::remove_cvref_t<const int*> は const int* : true
 
 ## ゲームでの使いどころ
 
-型の性質を調べる前に素の型にそろえます。
+参照と `const` / `volatile` をまとめて外した、素の型を作ります。万能参照で受けた `T` が `Player&` や `const Player&` でも、同じ `Player` として扱うために使います。
 
 ```cpp
 template <class T>
-void Save(T&& value) {
-  using Plain = std::remove_cvref_t<T>;   // 参照や const を外す
-  static_assert(std::is_trivially_copyable_v<Plain>);
+void Send(T&& event) {
+  using Raw = std::remove_cvref_t<T>;      // 左辺値でも右辺値でも、同じ型にそろえる
+  dispatcher_.Dispatch(TypeId<Raw>(), &event);
 }
 ```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "配列や関数も変換されると思う"
+    `remove_cvref_t` は、参照と cv だけを外します。配列をポインターに、関数を関数ポインターに変えるのは `decay` です。
+
+??? failure "C++17 以前で使う"
+    C++20 で追加されました。それ以前は `std::remove_cv_t<std::remove_reference_t<T>>` と書きます。
 
 ## 類似
 

@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_nothrow_swappable_v<T>` は、`T` の `swap` が例外を投げないか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `swap` を自作するとき、`noexcept` の条件に使う
     - `std::is_nothrow_swappable<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 自作の型は、ムーブに `noexcept` を付ければ `true`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_nothrow_swappable_v = is_nothrow_swappable<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`swap(a, b)` が書けて、`noexcept` なら `true` です。自作の型は、ムーブコンストラクターとムーブ代入に `noexcept` を付ければ、`true` になります。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`swap(a, b)`（`using std::swap;` を前に置いた形で、引数ごとの `swap` も含めて探す）が書けて、その呼び出しが `noexcept` なら `true` です。自作の型は、ムーブコンストラクターとムーブ代入に `noexcept` を付ければ `true` になります。
 
 ## 実際に動かしてみる
 
@@ -73,33 +71,35 @@ MayThrow                           -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+`swap` を自作するとき、メンバーの入れ替えが `noexcept` のときだけ、`noexcept` にします。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_nothrow_swappable_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
+struct Slot {
+  T value;
+
+  friend void swap(Slot& a, Slot& b) noexcept(std::is_nothrow_swappable_v<T>) {
+    using std::swap;
+    swap(a.value, b.value);
   }
-}
+};
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "常に noexcept にしてしまう"
+    中の型の入れ替えが例外を投げうるのに `noexcept` を付けると、例外で `std::terminate` です。条件つきで書きます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "ムーブを削除した型で true を期待する"
+    ムーブ構築もムーブ代入も使えない型は、標準の `swap` で入れ替えられないので `false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_swappable`](is_swappable.md) | 例外を考えずに、入れ替えられるか |
+| [`is_nothrow_swappable_with`](is_nothrow_swappable_with.md) | 型の違う 2 つの入れ替え |
+| [`is_nothrow_move_assignable`](is_nothrow_move_assignable.md) | ムーブ代入が例外を投げないか |
 
 ## コンパイラ対応
 
@@ -109,8 +109,8 @@ C++17 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_nothrow_swappable_v<T>` は、`T` の `swap` が例外を投げないか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `swap` の呼び出しの `noexcept` を調べる
+    - [x] 自作の `swap` では条件つきで `noexcept` にする
 
 ## 関連ページ
 

@@ -66,12 +66,23 @@ std::add_const_t<int&> は int& : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+読み取り専用の参照で受け取る型を、テンプレートの型から作ります。値そのものを `const` にしたいだけなら、関数 `std::as_const` が使えます。
+
+```cpp
+template <class T>
+void Inspect(T& obj) {
+  std::add_const_t<T>& readonly = obj;   // T が int でも Player でも、const な参照になる
+  Draw(readonly);
+}
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "参照型に add_const を使って、const が付くと思う"
+    参照そのものには `const` を付けられません。`std::add_const_t<int&>` は、`int&` のままです。参照の先を `const` にするには、先に `std::remove_reference_t` で外します。
+
+??? failure "ポインターの指す先が const になると思う"
+    `std::add_const_t<int*>` は `int* const`（ポインター自体が `const`）です。指す先の `const` は付きません。
 
 ## 類似
 

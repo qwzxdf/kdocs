@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_assignable_v<T, U>` は、`T` に `U` を代入できるか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `T` を `U` に代入できるか。`T` は参照型にして渡す
     - `std::is_assignable<T, U>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 同じ型どうしなら、`is_copy_assignable` などが短い
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -42,9 +42,7 @@ inline constexpr bool is_assignable_v = is_assignable<T, U>::value;
 | `T` | 型 | 代入される側の型（`T&` で渡す） |
 | `U` | 型 | 代入する値の型 |
 
-`declval<T>() = declval<U>()` が書けるなら `true` です。第 1 引数は代入される側で、通常は `T&` を渡します。`int` のような右辺値への代入は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`std::is_assignable_v<T, U>` は、`std::declval<T>() = std::declval<U>()` と書けるかを調べます。クラス型への代入は、左辺が左辺値でなくても書けてしまうので、普通は `T` を参照型（`Vec3&`）にして調べます。
 
 `is_copy_assignable` と `is_move_assignable` は、この特殊なケースです。
 
@@ -70,33 +68,30 @@ std::string&, const char*          -> true
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+代入の前提を、早い段階で確かめる関数テンプレートに使います。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_assignable_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
+template <class Dst, class Src>
+void Assign(Dst& dst, const Src& src) {
+  static_assert(std::is_assignable_v<Dst&, const Src&>, "代入できない組み合わせです");
+  dst = src;
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "T を参照にしないで調べる"
+    `std::is_assignable_v<int, int>` は `false` です。`int` の右辺値には代入できないからです。`int&` にして調べます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "変換できても代入できると思う"
+    代入演算子が `explicit` なコンストラクターを経由しないなど、暗黙の変換ができない組み合わせは `false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_copy_assignable`](is_copy_assignable.md) | 同じ型のコピー代入ができるか |
+| [`is_nothrow_assignable`](is_nothrow_assignable.md) | 代入が例外を投げないか |
 
 ## コンパイラ対応
 
@@ -106,8 +101,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_assignable_v<T, U>` は、`T` に `U` を代入できるか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `is_assignable_v<T&, U>` の形で、`T` に参照を付ける
+    - [x] 代入の式 `a = b` が書けるかを調べる
 
 ## 関連ページ
 

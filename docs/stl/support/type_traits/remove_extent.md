@@ -68,12 +68,24 @@ std::remove_extent_t<int> は int : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+配列の最も外側の 1 次元を外した型を作ります。`int[]` や `int[3]` から要素の型 `int` を取り出すときに使います。
+
+```cpp
+template <class T>
+struct ArrayDeleter {
+  void operator()(std::remove_extent_t<T>* p) const { delete[] p; }   // T=int[] なら int*
+};
+
+static_assert(std::is_same_v<std::remove_extent_t<int[3]>, int>);
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "多次元配列をすべて外せると思う"
+    `remove_extent_t<int[3][4]>` は `int[4]` です。すべて外すには `remove_all_extents` を使います。
+
+??? failure "std::array を配列として外す"
+    `std::array<int, 3>` は、配列ではなくクラスなので、そのまま返ります。
 
 ## 類似
 

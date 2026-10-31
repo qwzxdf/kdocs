@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_lvalue_reference_v<T>` は、`T` が左辺値参照（`T&`）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 万能参照では、左辺値のとき `T` が `X&` になる
     - `std::is_lvalue_reference<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `std::forward` の実装の考え方と同じ
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,11 +41,7 @@ inline constexpr bool is_lvalue_reference_v = is_lvalue_reference<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`int&` のような左辺値参照なら `true` です。右辺値参照 `int&&` と、参照でない型は `false` です。
-
-転送参照 `T&&` に左辺値を渡すと、`T` が `int&` と推論されるため、この判定で値のカテゴリーを知れます。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`int&` のような左辺値参照型が `true` です。`int&&` は `false` です。万能参照（`T&&` の引数）で、テンプレート引数 `T` が左辺値で推論されたとき、`T` は `X&` になるので、`true` になります。右辺値のときは `T` が `X` になり、`false` です。
 
 ## 実際に動かしてみる
 
@@ -68,33 +64,33 @@ int                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+万能参照を受けて、左辺値ならコピー、右辺値ならムーブで保存します。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+void Store(T&& value) {
   if constexpr (std::is_lvalue_reference_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    items_.push_back(value);              // 左辺値: コピー
   } else {
-    // それ以外の型の処理
+    items_.push_back(std::move(value));   // 右辺値: ムーブ
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "T&& の引数が右辺値参照だと思う"
+    テンプレートの `T&&` は、`T` が `X&` になることがあるので、必ずしも右辺値参照ではありません。`T` を調べます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "値を調べようとする"
+    調べるのは型です。変数 `value` が左辺値かどうかは、`decltype` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_rvalue_reference`](is_rvalue_reference.md) | 右辺値参照か |
+| [`is_reference`](is_reference.md) | どちらの参照か |
 
 ## コンパイラ対応
 
@@ -104,8 +100,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_lvalue_reference_v<T>` は、`T` が左辺値参照（`T&`）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `X&` が `true`、`X&&` は `false`
+    - [x] 万能参照の `T` を調べて、左辺値かどうかを知る
 
 ## 関連ページ
 

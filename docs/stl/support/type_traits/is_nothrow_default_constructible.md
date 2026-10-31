@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_nothrow_default_constructible_v<T>` は、`T` の既定構築が例外を投げないか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 数値だけの構造体は `true`
     - `std::is_nothrow_default_constructible<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `= default` はメンバー次第
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_nothrow_default_constructible_v = is_nothrow_default_co
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-引数なしの構築が `noexcept` なら `true` です。例外を投げうるコンストラクターを持つ型は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+引数なしの構築（`T()`）が `noexcept` と宣言されていれば `true` です。メンバーが数値だけの構造体は `true` です。コンストラクターの中でメモリを確保する型は、`noexcept` を付けない限り `false` です。
 
 ## 実際に動かしてみる
 
@@ -75,33 +73,31 @@ Slow                               -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+要素を 1 つ包む型の、引数なしのコンストラクターの `noexcept` を、要素の型に合わせます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_nothrow_default_constructible_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+struct Cell {
+  T value;
+  Cell() noexcept(std::is_nothrow_default_constructible_v<T>) : value() {}
+};
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "= default の型が常に true だと思う"
+    メンバーのどれかの既定の構築が `noexcept` でなければ、全体も `false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "noexcept と書いたコンストラクターで確保する"
+    `noexcept` を付けたまま `new` が失敗すると、`std::terminate` で終了します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_default_constructible`](is_default_constructible.md) | 例外を考えずに、引数なしで作れるか |
+| [`is_nothrow_constructible`](is_nothrow_constructible.md) | 任意の引数の構築 |
+| [`is_trivially_default_constructible`](is_trivially_default_constructible.md) | 何もしない構築か |
 
 ## コンパイラ対応
 
@@ -111,8 +107,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_nothrow_default_constructible_v<T>` は、`T` の既定構築が例外を投げないか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 引数なしの構築の `noexcept` を調べる
+    - [x] 確保をするコンストラクターは `false`
 
 ## 関連ページ
 

@@ -64,12 +64,22 @@ std::add_cv_t<const int> は const volatile int : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+`const` と `volatile` を同時に付けた型を作ります。メモリ マップド I/O のレジスタを指す型を、読み取り専用の volatile にするような、低レベルの場面に出てきます。
+
+```cpp
+template <class T>
+using RegisterRef = std::add_cv_t<T>&;   // const volatile な参照
+
+static_assert(std::is_same_v<std::add_cv_t<std::uint32_t>, const volatile std::uint32_t>);
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "volatile を付けたくないのに使う"
+    `add_cv` は、`const` と `volatile` を両方付けます。`const` だけなら `add_const` を使います。
+
+??? failure "参照型に使って付くと思う"
+    `std::add_cv_t<int&>` は、`int&` のままです。参照には `const` も `volatile` も付けられません。
 
 ## 類似
 

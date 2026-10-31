@@ -18,9 +18,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_arithmetic_v<T>` は、`T` が算術型（整数型または浮動小数点型）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 整数型と浮動小数点型の合計
     - `std::is_arithmetic<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `bool` も `true`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -38,11 +38,7 @@ inline constexpr bool is_arithmetic_v = is_arithmetic<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-整数型（`bool` と `char` を含む）と浮動小数点型が `true` です。ポインタ、列挙型、クラスは `false` です。
-
-数値を受け取る関数テンプレートの制約として、C++20 の `concept` を使うなら `std::integral<T> || std::floating_point<T>` と書けます。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+整数型（`bool` と `char` 系を含む）と浮動小数点型が `true` です。ポインター、列挙型、クラスは `false` です。`is_integral` と `is_floating_point` のどちらかが `true` なら、`is_arithmetic` も `true` になります。
 
 ## 実際に動かしてみる
 
@@ -74,7 +70,7 @@ Player                     -> false
 
 ## ゲームでの使いどころ
 
-数値だけを受け取る関数に他の型が渡されたとき、読みやすいエラーを出します。
+数値だけを受け取る関数に、数値でない型が渡されたとき、読みやすいエラーにします。
 
 ```cpp
 template <class T>
@@ -86,18 +82,19 @@ T Clamp01(T value) {
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "bool を数値型から除いたつもりになる"
+    `bool` は整数型なので `true` です。除くなら、`!std::is_same_v<T, bool>` を足します。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "列挙型が true になると思う"
+    列挙型は算術型ではありません。`std::to_underlying` で整数に直してから渡します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_integral`](is_integral.md) | 整数型か |
+| [`is_floating_point`](is_floating_point.md) | 浮動小数点型か |
+| [`is_scalar`](is_scalar.md) | 列挙型やポインターも含むか |
 
 ## コンパイラ対応
 
@@ -107,8 +104,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_arithmetic_v<T>` は、`T` が算術型（整数型または浮動小数点型）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 整数型か浮動小数点型なら `true`
+    - [x] C++20 のコンセプトでは `std::integral` と `std::floating_point` が使える
 
 ## 関連ページ
 

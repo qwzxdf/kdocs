@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_trivially_copy_assignable_v<T>` は、`T` が自明なコピー代入を持つか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - ビットを写すだけで済む代入が対象
     - `std::is_trivially_copy_assignable<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 仮想関数を持つ型は `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_trivially_copy_assignable_v = is_trivially_copy_assigna
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-代入するとき、ビットを写すだけでよい型なら `true` です。`std::string` のように、代入で古いメモリを解放して新しく確保する型は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+代入するとき、ビットをそのまま写すだけでよい型なら `true` です。`int` や数値だけの構造体がそうです。`std::string` のように、代入で古いメモリを解放して新しく確保する型や、仮想関数を持つ型は `false` です。
 
 配列全体を `memcpy` で更新できる型かの判断に使います。
 
@@ -74,33 +72,34 @@ std::string                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+配列を別の配列へコピーするとき、自明な型なら `memcpy` を使います。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+void Assign(T* dst, const T* src, std::size_t n) {
   if constexpr (std::is_trivially_copy_assignable_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    std::memcpy(dst, src, sizeof(T) * n);
   } else {
-    // それ以外の型の処理
+    std::copy_n(src, n, dst);   // 代入を 1 つずつ呼ぶ
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "仮想関数を持つ型で true を期待する"
+    仮想関数を持つ型は、コピー代入が自明ではありません。`false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "ポインターのコピーが安全だと思う"
+    ポインターを持つ構造体は `true` になります。ただし、指す先は共有されるだけで、所有権の管理は別の話です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_copy_assignable`](is_copy_assignable.md) | 自明さを考えずに、コピー代入できるか |
+| [`is_trivially_copy_constructible`](is_trivially_copy_constructible.md) | コピー構築の自明さ |
+| [`is_trivially_copyable`](is_trivially_copyable.md) | コピー全体の自明さ |
 
 ## コンパイラ対応
 
@@ -110,8 +109,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_trivially_copy_assignable_v<T>` は、`T` が自明なコピー代入を持つか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] コピー代入の自明さを調べる
+    - [x] memcpy の近道を選ぶ条件になる
 
 ## 関連ページ
 

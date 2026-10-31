@@ -18,9 +18,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_copy_constructible_v<T>` は、`T` がコピー構築できるか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `unique_ptr` のようなムーブ専用の型は `false`
     - `std::is_copy_constructible<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 抽象クラスも `false`（作れないため）
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -38,9 +38,7 @@ inline constexpr bool is_copy_constructible_v = is_copy_constructible<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`T(const T&)` で構築できる型は `true` です。`std::unique_ptr` や、コピーコンストラクターを `= delete` した型は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`const T&` から新しいオブジェクトを作れるかを調べます。`std::string` や `std::vector` は `true`、`std::unique_ptr` や `std::thread` は `false` です。抽象クラスも `false` です。
 
 ## 実際に動かしてみる
 
@@ -74,33 +72,35 @@ std::unique_ptr<int>       -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+イベントを待ち行列に入れるとき、コピーできる型は複製して持ち、コピーできない型はムーブで持つ、と分けられます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_copy_constructible_v<T>) {
-    // T が条件に当てはまる型のときの処理
+template <class Event>
+void Push(Event&& e) {
+  using E = std::remove_cvref_t<Event>;
+  if constexpr (std::is_copy_constructible_v<E>) {
+    queue_.emplace_back(e);               // コピーして残す
   } else {
-    // それ以外の型の処理
+    queue_.emplace_back(std::move(e));    // ムーブ専用の型
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "抽象クラスが true になると思う"
+    抽象クラスはオブジェクトを作れないので `false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "ムーブ専用の型を std::vector に入れてコピーしようとする"
+    `std::vector<std::unique_ptr<T>>` は、コピーコンストラクターが宣言されているので `true` になりますが、実際にコピーしようとするとコンパイルエラーです。コンテナの中身の型でも調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_move_constructible`](is_move_constructible.md) | ムーブして作れるか |
+| [`is_copy_assignable`](is_copy_assignable.md) | コピー代入できるか |
+| [`is_nothrow_copy_constructible`](is_nothrow_copy_constructible.md) | コピー構築が例外を投げないか |
 
 ## コンパイラ対応
 
@@ -110,8 +110,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_copy_constructible_v<T>` は、`T` がコピー構築できるか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `const T&` から作れるかを調べる
+    - [x] ムーブ専用の型や抽象クラスは `false`
 
 ## 関連ページ
 

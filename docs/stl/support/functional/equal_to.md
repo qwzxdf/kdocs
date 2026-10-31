@@ -41,11 +41,7 @@ struct equal_to {
 | `x` | 値 | 1 つ目の値 |
 | `y` | 値 | 2 つ目の値 |
 
-`std::equal_to<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`==` の結果を返します。`std::equal_to<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
-
-戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
-
-ラムダ式で書いても同じ結果ですが、`std::equal_to<>{}` のほうが短く、意図が名前で伝わります。
+`std::equal_to<>{}(a, b)` は `a == b` と同じ結果を返します。`std::unordered_map` や `std::unordered_set` の等しさの判定の既定値でもあります。注意したいのは、ポインターを比べると、指す先の値ではなくアドレスを比べる点です。C の文字列（`const char*`）どうしに使うと、文字の中身ではなく、ポインターの値が比べられます。
 
 ## 実際に動かしてみる
 
@@ -64,22 +60,29 @@ std::equal_to<>{}(2, 2) = true
 
 ## ゲームでの使いどころ
 
-標準のアルゴリズムや、自作のテンプレートに、演算を値として渡すときに使います。短い演算にはこちら、複雑な演算にはラムダ式、と使い分けます。
+2 つの配列が、同じ内容かを確かめます。
+
+```cpp
+std::vector<int> a = {1, 2, 3};
+std::vector<int> b = {1, 2, 3};
+bool same = std::equal(a.begin(), a.end(), b.begin(), std::equal_to<>{});   // true
+```
 
 ## よくあるミス
 
-??? failure "`std::equal_to<int>` と型を固定して、他の型で変換が起きる"
-    `std::equal_to<>` と省略します。
+??? failure "const char* どうしを比べる"
+    アドレスを比べるので、同じ文字列でも `false` になります。`std::string` か `std::string_view` にして比べます。
 
-??? failure "`<functional>` を忘れてコンパイルエラーになる"
-    `#include <functional>` を書きます。
+??? failure "浮動小数点数の == を信じる"
+    計算の誤差で、等しいはずの値が `false` になります。許容誤差つきの比較を自作します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
-| [`identity`](identity.md) | 値をそのまま返す |
+| [`not_equal_to`](not_equal_to.md) | 等しくないかを返す |
+| [`less`](less.md) | 大小の比較 |
+| [`hash`](../../utilities/hash.md) | `unordered_map` が等しさとあわせて使う |
 
 ## コンパイラ対応
 

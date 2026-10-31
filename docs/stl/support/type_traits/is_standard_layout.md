@@ -19,9 +19,9 @@ C 言語の構造体と同じメモリ配置が保証される型かを調べた
 
 !!! tip "ポイント"
     - `std::is_standard_layout_v<T>` は、`T` が標準レイアウト型か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 仮想関数があると `false`
     - `std::is_standard_layout<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - アクセス指定の混在も `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_standard_layout_v = is_standard_layout<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-仮想関数を持たず、すべての非静的メンバーのアクセス指定が同じで、継承の形が単純な型が `true` です。C のコードや GPU のバッファと、構造体のメモリ配置を共有するときの条件になります。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+仮想関数を持たず、すべての非静的メンバー変数のアクセス指定が同じで、継承の形が単純な型が `true` です。C 言語のコードや GPU のバッファと、構造体のメモリ配置を共有するときの条件になります。
 
 ## 実際に動かしてみる
 
@@ -75,33 +73,33 @@ int                        -> true
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+GPU の定数バッファやファイルの先頭に置く構造体が、予想どおりの並びかを確かめます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_standard_layout_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+struct ConstantBuffer {
+  float world[16];
+  float color[4];
+};
+
+static_assert(std::is_standard_layout_v<ConstantBuffer>, "メモリ配置が C と同じ形である必要があります");
+static_assert(sizeof(ConstantBuffer) == 80);   // 大きさも確かめる
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "standard layout ならパディングがないと思う"
+    並びが C と同じ規則になるだけで、パディングは入ります。大きさは `sizeof` で確かめます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "public と private のメンバーを混ぜる"
+    アクセス指定が混ざると `false` です。メンバーの並びが、環境ごとに変わりうるためです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_trivial`](is_trivial.md) | 構築・コピー・破棄が自明か |
+| [`is_pod`](is_pod.md) | 両方を満たす（C++20 で非推奨） |
+| [`is_aggregate`](is_aggregate.md) | 波括弧で初期化できるか |
 
 ## コンパイラ対応
 
@@ -111,8 +109,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_standard_layout_v<T>` は、`T` が標準レイアウト型か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] C と同じメモリ配置の型が `true`
+    - [x] パディングの有無とは別の話
 
 ## 関連ページ
 

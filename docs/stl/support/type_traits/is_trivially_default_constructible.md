@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_trivially_default_constructible_v<T>` は、`T` が自明な既定コンストラクターを持つか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 自明な型の既定の初期化は、何もしない（値は不定）
     - `std::is_trivially_default_constructible<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - メンバーの既定値で自明でなくなる
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_trivially_default_constructible_v = is_trivially_defaul
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-引数なしで構築するときに、実行時の処理が何も要らない（自明な）型なら `true` です。`int` や、メンバーに初期値を持たない構造体がそうです。メンバーに初期値（`int hp = 100;`）を書くと、自明でなくなります。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+引数なしで構築するときに、実行時の処理が何も要らない型なら `true` です。`int` や、メンバーに初期値を持たない構造体がそうです。メンバーに初期値（`int hp = 100;`）を書くと、自明でなくなります。
 
 メンバーの初期値を書くと `false` になります。大量のオブジェクトを確保して初期化を省きたいときに、この性質が効きます。
 
@@ -74,33 +72,34 @@ std::string                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+大量の要素を確保するとき、自明な型なら初期化を省き、速く確保します。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+std::unique_ptr<T[]> Allocate(std::size_t n) {
   if constexpr (std::is_trivially_default_constructible_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    return std::make_unique_for_overwrite<T[]>(n);   // 初期化を省く
   } else {
-    // それ以外の型の処理
+    return std::make_unique<T[]>(n);                 // 1 つずつ構築する
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "初期化されていない値を、ゼロだと思う"
+    自明な型を既定の初期化で作ると、値は不定です。ゼロが欲しいなら `T{}` で値初期化します。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "メンバーに既定値を書く"
+    `int hp = 100;` と書くと、自明ではなくなります。確保が遅くなる場面では、既定値を外すことも検討します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_default_constructible`](is_default_constructible.md) | 自明さを考えずに、引数なしで作れるか |
+| [`is_trivially_constructible`](is_trivially_constructible.md) | 任意の引数の自明さ |
+| [`is_trivial`](is_trivial.md) | 構築とコピーの自明さ |
 
 ## コンパイラ対応
 
@@ -110,8 +109,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_trivially_default_constructible_v<T>` は、`T` が自明な既定コンストラクターを持つか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 何もしない構築が `true`
+    - [x] 値は不定になる
 
 ## 関連ページ
 

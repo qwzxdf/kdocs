@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_nothrow_destructible_v<T>` は、`T` の破棄が例外を投げないか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - デストラクターは、既定で `noexcept`
     - `std::is_nothrow_destructible<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 例外を投げる型は、コンテナの要素に向かない
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_nothrow_destructible_v = is_nothrow_destructible<T>::va
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-デストラクターが `noexcept` なら `true` です。C++11 以降、デストラクターは既定で `noexcept` です。`noexcept(false)` と明示した型だけが `false` になります。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+デストラクターが `noexcept` なら `true` です。C++11 以降、デストラクターは既定で `noexcept` なので、ほとんどの型は `true` です。`~T() noexcept(false)` と明示した型だけが `false` になります。標準ライブラリのコンテナは、要素のデストラクターが例外を投げないことを前提にしています。
 
 デストラクターから例外を投げると、`std::terminate` になることが多いので、基本は `noexcept` のままにします。
 
@@ -77,33 +75,31 @@ Thrower                            -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+リソースを持つ型が、例外を投げずに破棄できることを、コンパイル時に確かめます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_nothrow_destructible_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+class Texture {
+ public:
+  ~Texture() { /* GPU のリソースを解放する */ }
+};
+
+static_assert(std::is_nothrow_destructible_v<Texture>, "デストラクターから例外を出してはいけません");
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "デストラクターから例外を投げる"
+    ほかの例外で巻き戻している最中に重なると、`std::terminate` で終了します。コンテナの破棄も壊れます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "noexcept(false) を付ける"
+    付けた型は `false` になり、標準のコンテナの要素にできません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_destructible`](is_destructible.md) | 例外を考えずに、破棄できるか |
+| [`is_trivially_destructible`](is_trivially_destructible.md) | 破棄が何もしないか |
 
 ## コンパイラ対応
 
@@ -113,8 +109,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_nothrow_destructible_v<T>` は、`T` の破棄が例外を投げないか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] デストラクターの `noexcept` を調べる
+    - [x] 既定は `true`。`noexcept(false)` だけが `false`
 
 ## 関連ページ
 

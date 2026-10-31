@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_nothrow_move_assignable_v<T>` は、`T` のムーブ代入が例外を投げないか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 自作のムーブ代入には `noexcept` を付ける
     - `std::is_nothrow_move_assignable<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 付け忘れると `std::swap` の `noexcept` も `false` になる
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_nothrow_move_assignable_v = is_nothrow_move_assignable<
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-ムーブ代入が `noexcept` なら `true` です。標準のコンテナのムーブ代入は、通常 `noexcept` です。自作の型で `noexcept` を付け忘れると `false` になり、`vector` の操作が遅いコピーになることがあります。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+ムーブ代入（`T& = T&&`）が `noexcept` と宣言されていれば `true` です。標準のコンテナのムーブ代入は、通常 `noexcept` です。自作の型で `noexcept` を付け忘れると `false` になり、ムーブを使うアルゴリズムが、例外に対する保証を弱めます。
 
 ## 実際に動かしてみる
 
@@ -77,33 +75,33 @@ MayThrow                           -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+入れ替えの関数で、ムーブ構築とムーブ代入のどちらも `noexcept` のときだけ、全体を `noexcept` にします。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_nothrow_move_assignable_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
+void MySwap(T& a, T& b) noexcept(std::is_nothrow_move_constructible_v<T> &&
+                                 std::is_nothrow_move_assignable_v<T>) {
+  T tmp = std::move(a);
+  a = std::move(b);
+  b = std::move(tmp);
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "自作のムーブ代入に noexcept を付け忘れる"
+    `false` になります。ムーブで例外が出ない実装なら、`noexcept` を付けます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "コピー代入だけの型で true を期待する"
+    コピー代入が `noexcept` なら `true` ですが、メモリを確保する型は `false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_nothrow_move_constructible`](is_nothrow_move_constructible.md) | ムーブ構築が例外を投げないか |
+| [`is_move_assignable`](is_move_assignable.md) | 例外を考えずに、ムーブ代入できるか |
+| [`is_nothrow_swappable`](is_nothrow_swappable.md) | 入れ替えが例外を投げないか |
 
 ## コンパイラ対応
 
@@ -113,8 +111,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_nothrow_move_assignable_v<T>` は、`T` のムーブ代入が例外を投げないか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] ムーブ代入の `noexcept` を調べる
+    - [x] 自作の型は `noexcept` を付ける
 
 ## 関連ページ
 

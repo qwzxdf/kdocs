@@ -19,10 +19,10 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_pod_v<T>` は、`T` が POD 型（トリビアルかつ標準レイアウト）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - C++20 で非推奨
     - `std::is_pod<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
     - C++20 で非推奨
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `is_trivial` と `is_standard_layout` を並べて書く
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -42,9 +42,7 @@ inline constexpr bool is_pod_v = is_pod<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`is_trivial` と `is_standard_layout` の両方が `true` の型が `true` です。C++20 以降では非推奨で、コンパイラが警告を出すことがあります。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`is_trivial` と `is_standard_layout` の両方が `true` の型が `true` です。C 言語の構造体と同じ形の型の目印でしたが、C++20 で非推奨になり、コンパイラが警告を出すことがあります。
 
 C++20 で非推奨です。代わりに `std::is_trivial_v<T> && std::is_standard_layout_v<T>` と書きます。
 
@@ -73,33 +71,31 @@ std::string                -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+C 言語の API に渡す構造体が、C と同じ作りかを確かめます。`is_pod` の代わりに、2 つを並べて書きます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_pod_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+struct Header {
+  std::uint32_t magic;
+  std::uint32_t version;
+};
+
+static_assert(std::is_trivial_v<Header> && std::is_standard_layout_v<Header>);
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "C++20 以降で is_pod を使う"
+    非推奨で、警告が出ることがあります。`is_trivial` と `is_standard_layout` を使います。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "is_pod が true なら、ファイルに書き出してよいと思う"
+    パディングやエンディアンの違いは別の問題です。環境をまたぐなら、`std::uint32_t` などの幅が決まった型にして、書き出しを自分で書きます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_trivial`](is_trivial.md) | 構築・コピー・破棄が自明か |
+| [`is_standard_layout`](is_standard_layout.md) | C と同じメモリ配置か |
 
 ## コンパイラ対応
 
@@ -109,8 +105,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_pod_v<T>` は、`T` が POD 型（トリビアルかつ標準レイアウト）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `is_trivial` かつ `is_standard_layout`
+    - [x] C++20 以降は、2 つを並べて使う
 
 ## 関連ページ
 

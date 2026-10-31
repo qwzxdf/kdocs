@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_volatile_v<T>` は、`T` が `volatile` 修飾されているか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 最上位の `volatile` だけを見る
     - `std::is_volatile<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `volatile int*` は `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_volatile_v = is_volatile<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`volatile int` は `true`、`int` は `false` です。`const` と同様、ポインタが指す先の `volatile` は、ポインタ自身の性質ではないので `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`volatile int` は `true`、`int` は `false` です。`const` と同じで、最上位の `volatile` だけを見ます。`volatile int*`（`volatile` な `int` を指すポインター）は、ポインター自体は `volatile` ではないので `false` です。
 
 ## 実際に動かしてみる
 
@@ -66,33 +64,31 @@ volatile int*              -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+`volatile` が付いた型に対して、通常の処理を適用しないよう、確かめます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_volatile_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+class Cache {
+  static_assert(!std::is_volatile_v<T>, "volatile な型はキャッシュできません");
+  T value_;
+};
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "スレッド間の同期に volatile を使う"
+    `volatile` は、スレッド間の同期にはなりません。`std::atomic` を使います。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "volatile int* を true だと思う"
+    `volatile` が付いているのは指す先なので `false` です。ポインター自体が `volatile` なのは `int* volatile` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_const`](is_const.md) | `const` が付いているか |
+| [`remove_volatile`](remove_volatile.md) | `volatile` を外した型 |
+| [`add_volatile`](add_volatile.md) | `volatile` を付けた型 |
 
 ## コンパイラ対応
 
@@ -102,8 +98,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_volatile_v<T>` は、`T` が `volatile` 修飾されているか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `volatile` が付いた型が `true`
+    - [x] ポインターの先の `volatile` は数えない
 
 ## 関連ページ
 

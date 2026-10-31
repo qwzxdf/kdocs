@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「デシ」を付けるとき、`ratio<1, 10>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::deci` は、SI 接頭辞の「デシ」（10 分の 1）をそのまま表す `std::ratio` の別名です。
+デシベル（dB）の「デシ」は、10 分の 1 を表す接頭辞です。10 分の 1 の関係を型で表したいときに、`std::deci`（デシ、10 分の 1）を使います。`ratio<1, 10>` の別名です。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<1, 10>`
@@ -46,38 +46,40 @@ using deci = ratio<1, 10>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
+#include <chrono>
 #include <print>
+#include <ratio>
 
 int main() {
-  std::println("num = {}, den = {}", std::deci::num, std::deci::den);
-  // 1000000 に接頭辞の倍率を掛ける（整数で計算するため、分母で割る）
-  constexpr long long value = 1000000LL * std::deci::num / std::deci::den;
-  std::println("1000000 の deci = {}", value);
+  using DeciSecond = std::chrono::duration<int, std::deci>;   // 1 単位が 0.1 秒
+
+  DeciSecond t{15};
+  auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(t);
+  std::println("15 デシ秒 = {} ミリ秒", ms.count());
+
+  double seconds = std::chrono::duration<double>(t).count();
+  std::println("15 デシ秒 = {} 秒", seconds);
 }
 ```
 
 ```text title="実行結果"
-num = 1, den = 10
-1000000 の deci = 100000
+15 デシ秒 = 1500 ミリ秒
+15 デシ秒 = 1.5 秒
 ```
+
+15 デシ秒は 1.5 秒、つまり 1500 ミリ秒です。
 
 ## ゲームでの使いどころ
 
-日常のゲームのコードでは使う機会が少なく、`std::ratio` の学習や、単位のテンプレートを作るときに登場します。
-
-```cpp
-// 3 デシ を基本単位に直す
-constexpr long long value = 3LL * std::deci::num / std::deci::den;
-```
+0.1 秒刻みのタイマー（連打の受付時間など）を、整数で持ちたいときに使えます。整数で持てば、浮動小数点の誤差が溜まりません。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::deci` のような名前の付いた別名を使います。
+??? failure "deci と deca を取り違える"
+    `deci` は 1/10、`deca` は 10 倍です。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "duration<int, deci> に小数を入れようとする"
+    `int` の `duration` に `0.5` は入りません。小数なら `duration<double, ...>` にします。
 
 ## 類似
 

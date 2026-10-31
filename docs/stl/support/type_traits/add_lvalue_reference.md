@@ -66,12 +66,23 @@ std::add_lvalue_reference_t<void> は void : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+`T&` と直接書くと、`T` が `void` のときにエラーになる場面で、安全に参照型を作れます。`void` に使うと `void` のままで返ります。
+
+```cpp
+template <class T>
+std::add_lvalue_reference_t<T> Front(std::vector<T>& v);   // T が void なら void（エラーにならない）
+
+static_assert(std::is_same_v<std::add_lvalue_reference_t<int>, int&>);
+static_assert(std::is_same_v<std::add_lvalue_reference_t<void>, void>);
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "void に使うとエラーだと思う"
+    `void&` は作れませんが、`add_lvalue_reference_t<void>` は `void` を返し、エラーになりません。
+
+??? failure "右辺値参照を左辺値参照に変えたくて使う"
+    `int&&` に使うと `int&` になります（参照の折りたたみ）。意図した変換か確認します。
 
 ## 類似
 

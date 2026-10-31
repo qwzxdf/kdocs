@@ -18,9 +18,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_enum_v<T>` は、`T` が列挙型（`enum` または `enum class`）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `enum` と `enum class` のどちらも `true`
     - `std::is_enum<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `std::byte` は `enum class` なので `true`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -40,11 +40,7 @@ inline constexpr bool is_enum_v = is_enum<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`enum` と `enum class` のどちらの列挙型も `true` です。整数型や、クラスは `false` です。
-
-`enum class` かどうかを区別するときは `std::is_scoped_enum`（C++23）を使います。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`enum` と `enum class` のどちらも `true` です。整数や、整数の別名は `false` です。`std::byte` は `enum class` なので `true` になります。
 
 ## 実際に動かしてみる
 
@@ -73,33 +69,35 @@ Player                     -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+列挙型を、基になる整数の型で書き出す、シリアライズの入り口に使えます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+void Write(std::ostream& os, T value) {
   if constexpr (std::is_enum_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    auto raw = std::to_underlying(value);
+    os.write(reinterpret_cast<const char*>(&raw), sizeof(raw));
   } else {
-    // それ以外の型の処理
+    os.write(reinterpret_cast<const char*>(&value), sizeof(value));
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "std::byte を整数だと思う"
+    `std::byte` は `enum class` なので、`is_enum_v` が `true`、`is_integral_v` が `false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "定数の集まりを enum だと思う"
+    `constexpr int kA = 0;` のような定数は、列挙型ではありません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_scoped_enum`](is_scoped_enum.md) | `enum class` か（C++23） |
+| [`underlying_type`](underlying_type.md) | 基になる整数の型を取り出す |
+| [`is_integral`](is_integral.md) | 整数型か。列挙型は含まない |
 
 ## コンパイラ対応
 
@@ -109,8 +107,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_enum_v<T>` は、`T` が列挙型（`enum` または `enum class`）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 列挙型なら `true`（`enum class` も含む）
+    - [x] `std::byte` も列挙型
 
 ## 関連ページ
 

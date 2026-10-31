@@ -36,7 +36,7 @@ int ispunct(int c);
 | --- | --- | --- |
 | `c` | `int` | 調べる文字。`unsigned char` の範囲の値か `EOF` |
 
-戻り値は、`c` が英数字でも空白でもない、表示できる文字（! " # $ % & など）（上の条件）に当てはまれば 0 以外の値、当てはまらなければ 0 です。真偽値として使えますが、型は `int` なので、`== true` と比べてはいけません。`!= 0` か、条件式にそのまま書きます。
+戻り値は、`c` が英数字でも空白でもない、表示できる文字（! " # $ % & など）に当てはまれば 0 以外の値、当てはまらなければ 0 です。真偽値として使えますが、型は `int` なので、`== true` と比べてはいけません。`!= 0` か、条件式にそのまま書きます。
 
 引数が `int` なのは、`EOF`（-1）を受け取れるようにするためです。`EOF` 以外の値は、`unsigned char` で表せる範囲（0〜255）でなければなりません。`char` が符号つきの環境で、`char` の値をそのまま渡すと、UTF-8 の日本語のように 128 以上のバイトが負の値になり、未定義動作です。Visual Studio のデバッグ ビルドでは、アサートで止まります。呼ぶときは、必ず `static_cast<unsigned char>(ch)` を挟みます。
 
@@ -66,32 +66,32 @@ int main() {
 
 ## ゲームでの使いどころ
 
-文章の区切りの記号を探す処理 で使います。
+チャットの単語から、記号を取り除きます。
 
 ```cpp
-if (std::ispunct(static_cast<unsigned char>(ch))) { /* 記号 */ }
+text.erase(std::remove_if(text.begin(), text.end(),
+                          [](unsigned char c) { return std::ispunct(c) != 0; }),
+           text.end());
 ```
-
-文字列全体を調べるなら、`std::all_of` と組み合わせます。`std::all_of(s.begin(), s.end(), [](unsigned char c) { return std::ispunct(c) != 0; })` のように、ラムダの引数を `unsigned char` にすると、キャストを書かずに済みます。
 
 ## よくあるミス
 
 ??? failure "`char` をそのまま渡して、日本語の文字列でクラッシュする"
     `static_cast<unsigned char>(ch)` を挟みます。ラムダの引数を `unsigned char` にしても同じです。
 
+??? failure "アンダースコアを、記号に含まれないと思う"
+    `_` は `ispunct` が真です。識別子の一部として残したいなら、先に除外します。
+
 ??? failure "戻り値を `true` と比べて、一致しない"
     戻り値は 0 以外が真です。`!= 0` か、条件式でそのまま使います。
-
-??? failure "全角の文字に使って、すべて偽になる"
-    日本語は ASCII の範囲に入りません。必要なら Unicode 対応のライブラリを使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`isalpha`](isalpha.md) | 英字か |
-| [`isdigit`](isdigit.md) | 数字か |
-| [`isspace`](isspace.md) | 空白類か |
+| [`iswpunct`](../cwctype/iswpunct.md) | `wchar_t` 版 |
+| [`isgraph`](isgraph.md) | 見える文字か（スペースを除く） |
+| [`isalnum`](isalnum.md) | 英字か数字か |
 | [`std::all_of`](../../algorithms/all_of.md) | 文字列全体で条件を調べる |
 
 ## コンパイラ対応

@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_member_pointer_v<T>` は、`T` がメンバーへのポインタ（変数または関数）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - メンバーポインターは通常のポインターではない
     - `std::is_member_pointer<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `std::invoke` の内部で使われる考え方
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_member_pointer_v = is_member_pointer<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-メンバー変数へのポインタと、メンバー関数へのポインタのどちらも `true` です。通常のポインタは `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+メンバー変数へのポインターと、メンバー関数へのポインターの、どちらかなら `true` です。`std::invoke` が、呼ぶものがメンバーを指すか、関数かで処理を分けるときに、この判定が土台になります。
 
 ## 実際に動かしてみる
 
@@ -71,33 +69,34 @@ int*                       -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+`std::invoke` と同じように、関数ポインターとメンバーポインターの両方を、まとめて呼ぶ関数を書きます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_member_pointer_v<T>) {
-    // T が条件に当てはまる型のときの処理
+template <class F, class... Args>
+decltype(auto) Call(F f, Args&&... args) {
+  if constexpr (std::is_member_pointer_v<F>) {
+    return std::invoke(f, std::forward<Args>(args)...);   // 最初の引数がオブジェクト
   } else {
-    // それ以外の型の処理
+    return f(std::forward<Args>(args)...);
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "ポインターの is_pointer が true になると思う"
+    メンバーポインターは、通常のポインターではないので、`is_pointer_v` は `false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "メンバーが値かどうかを見分けようとする"
+    変数か関数かの区別には、`is_member_object_pointer` と `is_member_function_pointer` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_member_object_pointer`](is_member_object_pointer.md) | メンバー変数へのポインターか |
+| [`is_member_function_pointer`](is_member_function_pointer.md) | メンバー関数へのポインターか |
+| [`is_pointer`](is_pointer.md) | 通常のポインターか |
 
 ## コンパイラ対応
 
@@ -107,8 +106,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_member_pointer_v<T>` は、`T` がメンバーへのポインタ（変数または関数）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] メンバー変数・メンバー関数のどちらのポインターでも `true`
+    - [x] 通常のポインターは `is_pointer`
 
 ## 関連ページ
 

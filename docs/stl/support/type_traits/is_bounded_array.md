@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_bounded_array_v<T>` は、`T` が要素数の決まった配列か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `int[3]` は `true`、`int[]` は `false`
     - `std::is_bounded_array<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `extent_v<T>` が 0 でない配列の目印にもなる
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_bounded_array_v = is_bounded_array<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`int[3]` は `true`、`int[]` は `false` です。ポインタは配列ではないので `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+要素数が決まった配列（`int[3]`）が `true` です。`int[]` のような要素数のない配列は、`false` です。C++20 で追加されました。
 
 ## 実際に動かしてみる
 
@@ -66,33 +64,31 @@ int*                       -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+`std::make_unique` のように、配列型を受け取る関数が、要素数つきの配列を弾く場面で使えます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_bounded_array_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
+auto MakeBuffer(std::size_t n) {
+  static_assert(!std::is_bounded_array_v<T>, "要素数は引数で渡します。T[] を指定してください");
+  return std::make_unique<T>(n);   // T が int[] なら、n 個の配列
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "int[] も true だと思う"
+    要素数がない `int[]` は `false` です。`is_unbounded_array` で調べます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "std::array を調べる"
+    `std::array<int, 3>` は、配列ではなくクラスなので `false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_unbounded_array`](is_unbounded_array.md) | 要素数が決まっていない配列か |
+| [`is_array`](is_array.md) | どちらの配列も `true` |
+| [`extent`](extent.md) | 配列の要素数を取り出す |
 
 ## コンパイラ対応
 
@@ -102,8 +98,8 @@ C++20 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_bounded_array_v<T>` は、`T` が要素数の決まった配列か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 要素数が決まった配列型だけが `true`（C++20）
+    - [x] 要素数のない配列は `is_unbounded_array`
 
 ## 関連ページ
 

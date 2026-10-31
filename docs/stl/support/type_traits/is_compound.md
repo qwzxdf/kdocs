@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_compound_v<T>` は、`T` が基本型でない型（配列、関数、ポインタ、参照、クラス、共用体、列挙型、メンバーポインタ）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `is_fundamental_v<T>` と必ず逆の値になる
     - `std::is_compound<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 参照やポインターも複合型
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_compound_v = is_compound<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`is_fundamental` が `false` の型は、すべて `true` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+基本型（算術型・`void`・`nullptr_t`）以外のすべてが `true` です。配列、関数、ポインター、参照、クラス、共用体、列挙型、メンバーへのポインターが含まれます。`is_fundamental` の裏返しです。
 
 ## 実際に動かしてみる
 
@@ -73,33 +71,30 @@ void                       -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+基本型は値渡し、それ以外は参照渡しにする、引数の型の選択に使えます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_compound_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+using Param = std::conditional_t<std::is_compound_v<T>, const T&, T>;
+
+template <class T>
+void Show(Param<T> value);   // int は値渡し、std::string は const 参照
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "nullptr_t を複合型だと思う"
+    `std::nullptr_t` は基本型なので `false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "is_fundamental と同時に true になると思う"
+    2 つは、必ず逆の値になります（どちらかが `true`）。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_fundamental`](is_fundamental.md) | 基本型か。`is_compound` の裏返し |
+| [`is_scalar`](is_scalar.md) | 算術型・列挙型・ポインターなどか |
 
 ## コンパイラ対応
 
@@ -109,8 +104,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_compound_v<T>` は、`T` が基本型でない型（配列、関数、ポインタ、参照、クラス、共用体、列挙型、メンバーポインタ）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 基本型以外のすべてが `true`
+    - [x] `is_fundamental` と必ず逆の値になる
 
 ## 関連ページ
 

@@ -41,11 +41,7 @@ struct less_equal {
 | `x` | 値 | 1 つ目の値 |
 | `y` | 値 | 2 つ目の値 |
 
-`std::less_equal<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`<=` の結果を返します。`std::less_equal<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
-
-戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
-
-ラムダ式で書いても同じ結果ですが、`std::less_equal<>{}` のほうが短く、意図が名前で伝わります。
+`std::less_equal<>{}(a, b)` は `a <= b` と同じ結果を返します。`greater_equal` と同じで、`std::sort` の比較関数には使えません。「以下」は、等しい値でも `true` になり、厳密な弱順序の条件を破るからです。
 
 ## 実際に動かしてみる
 
@@ -64,22 +60,29 @@ std::less_equal<>{}(3, 3) = true
 
 ## ゲームでの使いどころ
 
-標準のアルゴリズムや、自作のテンプレートに、演算を値として渡すときに使います。短い演算にはこちら、複雑な演算にはラムダ式、と使い分けます。
+全部の値が上限以下かを調べます。
+
+```cpp
+std::vector<int> damage = {30, 50, 45};
+std::vector<int> cap = {50, 50, 50};
+bool ok = std::equal(damage.begin(), damage.end(), cap.begin(), std::less_equal<>{});   // true
+```
 
 ## よくあるミス
 
-??? failure "`std::less_equal<int>` と型を固定して、他の型で変換が起きる"
-    `std::less_equal<>` と省略します。
+??? failure "sort の比較関数に使う"
+    等しい要素に `true` を返すので、未定義動作の原因になります。昇順なら `std::less` を使います。
 
-??? failure "`<functional>` を忘れてコンパイルエラーになる"
-    `#include <functional>` を書きます。
+??? failure "浮動小数点数の NaN を比べる"
+    NaN との比較は、どれも `false` です。`less_equal` も `false` を返します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
-| [`identity`](identity.md) | 値をそのまま返す |
+| [`less`](less.md) | 厳密な「より小さい」 |
+| [`greater_equal`](greater_equal.md) | 以上を返す |
+| [`equal_to`](equal_to.md) | 等しいかを返す |
 
 ## コンパイラ対応
 

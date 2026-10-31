@@ -18,9 +18,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_floating_point_v<T>` は、`T` が浮動小数点型（`float`、`double`、`long double`）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `float`・`double`・`long double` と、`const` / `volatile` 付きが `true`
     - `std::is_floating_point<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `int` や `bool` は `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -40,9 +40,7 @@ inline constexpr bool is_floating_point_v = is_floating_point<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`float`、`double`、`long double`（`const` や `volatile` 付きを含む）が `true` です。C++23 の拡張浮動小数点型（`std::float32_t` など）も、`true` になります。整数型は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`float`・`double`・`long double` が `true` です。`const` や `volatile` が付いていても `true` です。C++23 の `std::float16_t` などの拡張浮動小数点型も `true` になります。`int` や `bool` は `false` です。DirectXMath の `HALF` は、実体が `uint16_t` なので `false` です。
 
 ## 実際に動かしてみる
 
@@ -67,33 +65,33 @@ float*                     -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+浮動小数点数は誤差を許して比べ、整数は完全に一致で比べる、汎用の比較関数を書けます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+bool NearlyEqual(T a, T b) {
   if constexpr (std::is_floating_point_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    return std::abs(a - b) <= std::numeric_limits<T>::epsilon() * 8 * std::max({T(1), std::abs(a), std::abs(b)});
   } else {
-    // それ以外の型の処理
+    return a == b;
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "HALF を浮動小数点型だと思う"
+    DirectXMath の `HALF` は `uint16_t` の別名なので、`false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "整数にも true を期待する"
+    `int` や `bool` は `false` です。整数型は `is_integral` で調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_integral`](is_integral.md) | 整数型か |
+| [`is_arithmetic`](is_arithmetic.md) | 整数型か浮動小数点型か |
 
 ## コンパイラ対応
 
@@ -103,8 +101,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_floating_point_v<T>` は、`T` が浮動小数点型（`float`、`double`、`long double`）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 浮動小数点型なら `true`
+    - [x] 整数は `is_integral` で調べる
 
 ## 関連ページ
 

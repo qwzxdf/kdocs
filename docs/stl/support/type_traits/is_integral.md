@@ -18,9 +18,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_integral_v<T>` は、`T` が整数型（`bool`、`char` 系、`int` 系）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `bool` と `char` 系も整数型
     - `std::is_integral<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 列挙型は整数型ではない
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -40,11 +40,7 @@ inline constexpr bool is_integral_v = is_integral<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`bool`、`char`、`signed char`、`unsigned char`、`wchar_t`、`char8_t`、`char16_t`、`char32_t`、`short`、`int`、`long`、`long long` と、それぞれの符号なし版（`const` や `volatile` 付きを含む）が `true` です。`float` や `double`、ポインタは `false` です。
-
-列挙型は、整数に変換できますが、`is_integral` では `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`bool`・`char` 系（`char8_t` などを含む）・`short`・`int`・`long`・`long long` と、それらの符号なしの型が `true` です。`bool` も整数型なので `true` です。列挙型と浮動小数点型は `false` です。
 
 ## 実際に動かしてみる
 
@@ -71,33 +67,33 @@ int*                       -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+整数だけを受け取る、ビット演算やハッシュの関数を、制約で絞ります。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_integral_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
+  requires std::is_integral_v<T>
+constexpr int PopCount(T value) {
+  int count = 0;
+  for (auto v = static_cast<std::make_unsigned_t<T>>(value); v != 0; v >>= 1) count += v & 1;
+  return count;
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "bool が false だと思う"
+    `bool` は整数型なので `true` です。数としては使いたくないなら、`!std::is_same_v<T, bool>` を足します。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "列挙型が true だと思う"
+    `enum` と `enum class` は `false` です。`std::to_underlying` で整数に直して調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_floating_point`](is_floating_point.md) | 浮動小数点型か |
+| [`is_arithmetic`](is_arithmetic.md) | 整数型か浮動小数点型か |
+| [`is_signed`](is_signed.md) | 符号つきか |
 
 ## コンパイラ対応
 
@@ -107,8 +103,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_integral_v<T>` は、`T` が整数型（`bool`、`char` 系、`int` 系）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `bool`・`char` 系・整数型が `true`
+    - [x] 列挙型は `false`
 
 ## 関連ページ
 

@@ -36,7 +36,7 @@ int isxdigit(int c);
 | --- | --- | --- |
 | `c` | `int` | 調べる文字。`unsigned char` の範囲の値か `EOF` |
 
-戻り値は、`c` が16 進数の数字（0〜9、A〜F、a〜f）（上の条件）に当てはまれば 0 以外の値、当てはまらなければ 0 です。真偽値として使えますが、型は `int` なので、`== true` と比べてはいけません。`!= 0` か、条件式にそのまま書きます。
+戻り値は、`c` が16 進数の数字（0〜9、A〜F、a〜f）に当てはまれば 0 以外の値、当てはまらなければ 0 です。真偽値として使えますが、型は `int` なので、`== true` と比べてはいけません。`!= 0` か、条件式にそのまま書きます。
 
 引数が `int` なのは、`EOF`（-1）を受け取れるようにするためです。`EOF` 以外の値は、`unsigned char` で表せる範囲（0〜255）でなければなりません。`char` が符号つきの環境で、`char` の値をそのまま渡すと、UTF-8 の日本語のように 128 以上のバイトが負の値になり、未定義動作です。Visual Studio のデバッグ ビルドでは、アサートで止まります。呼ぶときは、必ず `static_cast<unsigned char>(ch)` を挟みます。
 
@@ -66,32 +66,33 @@ int main() {
 
 ## ゲームでの使いどころ
 
-色コード（#ff8800）やハッシュ値の検査 で使います。
+`#FF8800` のような色コードが、正しい形かを検査します。
 
 ```cpp
-if (!std::isxdigit(static_cast<unsigned char>(ch))) return false;  // 16 進数で使える文字だけ
+bool IsColorCode(std::string_view s) {
+  return s.size() == 7 && s[0] == '#' &&
+         std::all_of(s.begin() + 1, s.end(), [](unsigned char c) { return std::isxdigit(c) != 0; });
+}
 ```
-
-文字列全体を調べるなら、`std::all_of` と組み合わせます。`std::all_of(s.begin(), s.end(), [](unsigned char c) { return std::isxdigit(c) != 0; })` のように、ラムダの引数を `unsigned char` にすると、キャストを書かずに済みます。
 
 ## よくあるミス
 
 ??? failure "`char` をそのまま渡して、日本語の文字列でクラッシュする"
     `static_cast<unsigned char>(ch)` を挟みます。ラムダの引数を `unsigned char` にしても同じです。
 
+??? failure "`0x` の x を 16 進の桁だと思う"
+    `x` は偽です。`0x` の接頭辞は、桁の検査の前に取り除きます。
+
 ??? failure "戻り値を `true` と比べて、一致しない"
     戻り値は 0 以外が真です。`!= 0` か、条件式でそのまま使います。
-
-??? failure "全角の文字に使って、すべて偽になる"
-    日本語は ASCII の範囲に入りません。必要なら Unicode 対応のライブラリを使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`isalpha`](isalpha.md) | 英字か |
+| [`iswxdigit`](../cwctype/iswxdigit.md) | `wchar_t` 版 |
 | [`isdigit`](isdigit.md) | 数字か |
-| [`isspace`](isspace.md) | 空白類か |
+| [`isalnum`](isalnum.md) | 英字か数字か |
 | [`std::all_of`](../../algorithms/all_of.md) | 文字列全体で条件を調べる |
 
 ## コンパイラ対応

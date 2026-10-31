@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_fundamental_v<T>` は、`T` が基本型（算術型、`void`、`nullptr_t`）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 算術型・`void`・`nullptr_t` が基本型
     - `std::is_fundamental<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - ポインターや列挙型は基本型ではない
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_fundamental_v = is_fundamental<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`int`、`float`、`bool`、`char` などの算術型と、`void`、`std::nullptr_t` が `true` です。クラス、列挙型、ポインタ、参照、配列は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+言語に組み込まれた基本型が `true` です。算術型（整数と浮動小数点数、`bool`）、`void`、`std::nullptr_t` が含まれます。クラス、ポインター、配列、列挙型は、基本型ではありません。
 
 ## 実際に動かしてみる
 
@@ -76,33 +74,31 @@ int*                       -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+基本型は値渡し、それ以外は参照渡しにする、引数の型を選ぶ別名に使えます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_fundamental_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+using ParamType = std::conditional_t<std::is_fundamental_v<T>, T, const T&>;
+
+template <class T>
+void Show(ParamType<T> value);   // int は値渡し、std::string は const 参照
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "ポインターを基本型だと思う"
+    ポインターは基本型ではありません。`false` です。`is_scalar` なら `true` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "std::string を基本型だと思う"
+    標準ライブラリの型は、すべてクラスなので `false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_compound`](is_compound.md) | 基本型でないか。裏返し |
+| [`is_arithmetic`](is_arithmetic.md) | 整数型か浮動小数点型か |
+| [`is_scalar`](is_scalar.md) | ポインターや列挙型も含むか |
 
 ## コンパイラ対応
 
@@ -112,8 +108,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_fundamental_v<T>` は、`T` が基本型（算術型、`void`、`nullptr_t`）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 算術型・`void`・`nullptr_t` が `true`
+    - [x] ポインターや列挙型は `false`
 
 ## 関連ページ
 

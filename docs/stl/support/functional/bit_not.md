@@ -40,11 +40,7 @@ struct bit_not {
 | --- | --- | --- |
 | `x` | 値 | 対象の値 |
 
-`std::bit_not<>`（型引数を省略したもの）は、`operator()` が任意の型の引数を受け取り、`~` の結果を返します。`std::bit_not<int>` のように型を指定する古い書き方もありますが、型が変わるたびに書き直しが必要で、混在した型の演算もできません。省略形が現在の標準です。
-
-戻り値は、演算子と同じ型・同じ値です。演算子をオーバーロードした自作の型でも、そのまま使えます。
-
-ラムダ式で書いても同じ結果ですが、`std::bit_not<>{}` のほうが短く、意図が名前で伝わります。
+`std::bit_not<>{}(x)` は `~x` と同じ結果を返します。引数が 1 つの関数オブジェクトで、全ビットを反転します。`std::uint8_t` のように小さい整数型は、`int` に昇格してから反転されるので、結果の型が `int` になり、負の値になります。
 
 ## 実際に動かしてみる
 
@@ -63,22 +59,28 @@ std::bit_not<>{}(0x0Fu) = 0xfffffff0
 
 ## ゲームでの使いどころ
 
-標準のアルゴリズムや、自作のテンプレートに、演算を値として渡すときに使います。短い演算にはこちら、複雑な演算にはラムダ式、と使い分けます。
+マスクの配列を、まとめて反転します（立っていないビットを取り出す）。
+
+```cpp
+std::vector<std::uint32_t> masks = {0x0F, 0xF0};
+std::transform(masks.begin(), masks.end(), masks.begin(), std::bit_not<>{});   // 0xFFFFFFF0, 0xFFFFFF0F
+```
 
 ## よくあるミス
 
-??? failure "`std::bit_not<int>` と型を固定して、他の型で変換が起きる"
-    `std::bit_not<>` と省略します。
+??? failure "uint8_t の反転を uint8_t だと思う"
+    `std::bit_not<>{}(std::uint8_t{0x0F})` は `int` の `-16` を返します。`static_cast<std::uint8_t>(...)` で戻します。
 
-??? failure "`<functional>` を忘れてコンパイルエラーになる"
-    `#include <functional>` を書きます。
+??? failure "論理否定と取り違える"
+    `bit_not` は全ビットの反転（`~`）、`logical_not` は真偽値の反転（`!`）です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<functional>`](../functional.md) | 関数オブジェクトの一覧 |
-| [`identity`](identity.md) | 値をそのまま返す |
+| [`logical_not`](logical_not.md) | 真偽値を反転する |
+| [`negate`](negate.md) | 符号を反転する |
+| [`bit_xor`](bit_xor.md) | ビットごとの排他的論理和 |
 
 ## コンパイラ対応
 

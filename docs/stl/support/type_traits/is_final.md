@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_final_v<T>` は、`T` が `final` クラスか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - クラス自体に `final` が付いているかを調べる
     - `std::is_final<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 仮想関数の `final` は対象外
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_final_v = is_final<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`final` で宣言されたクラスなら `true` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+`final` を付けたクラスが `true` です。それ以上、継承できないクラスの目印です。`final` を付けた仮想関数は数えません。クラスでなければ `false` です。
 
 ## 実際に動かしてみる
 
@@ -74,33 +72,29 @@ int                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+クラスの継承を前提にしたテンプレートで、継承できない型を弾きます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_final_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+template <class Base>
+struct Wrapper : Base {   // Base を継承して機能を足す
+  static_assert(!std::is_final_v<Base>, "final なクラスは継承できません");
+};
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "final な仮想関数を持つクラスが true になると思う"
+    `final` の対象はクラスです。仮想関数に付けた `final` は数えません。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "クラス以外に使う"
+    `int` などのクラスでない型は `false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_abstract`](is_abstract.md) | 抽象クラスか |
+| [`is_polymorphic`](is_polymorphic.md) | 仮想関数を持つか |
 
 ## コンパイラ対応
 
@@ -110,8 +104,8 @@ C++14 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_final_v<T>` は、`T` が `final` クラスか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `final` クラスが `true`
+    - [x] 継承するラッパーに渡す型の確認に使う
 
 ## 関連ページ
 

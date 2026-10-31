@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_trivially_constructible_v<T, Args...>` は、`T` を `Args...` から自明に構築できるか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `<T>` は引数なし、`<T, const T&>` はコピー
     - `std::is_trivially_constructible<T, Args...>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - メンバーの既定値で自明でなくなる
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -43,8 +43,6 @@ inline constexpr bool is_trivially_constructible_v = is_trivially_constructible<
 | `Args...` | 型の並び | 構築に渡す引数の型 |
 
 `T(args...)` の呼び出しが、自明な（ビットの複製だけの）処理で済むなら `true` です。引数なしの `<T>` は自明な既定コンストラクター、`<T, const T&>` は自明なコピーコンストラクターの判定になります。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
 
 引数の型は、渡す式の型（値カテゴリーを含む）で指定します。`const T&` ならコピー、`T&&` ならムーブの判定になります。
 
@@ -77,33 +75,34 @@ int, int                           -> true
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+範囲をコピーして構築するとき、自明な型なら `memcpy` で写します。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_trivially_constructible_v<T>) {
-    // T が条件に当てはまる型のときの処理
+void ConstructCopy(T* dst, const T* src, std::size_t n) {
+  if constexpr (std::is_trivially_constructible_v<T, const T&>) {
+    std::memcpy(dst, src, sizeof(T) * n);          // 自明なコピー
   } else {
-    // それ以外の型の処理
+    std::uninitialized_copy_n(src, n, dst);         // コンストラクターを 1 つずつ呼ぶ
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "引数の並びを省略する"
+    `<T>` は引数なし、`<T, const T&>` はコピーです。調べたい構築に合わせて、`Args...` を渡します。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "メンバーに既定値があるのに true を期待する"
+    `int hp = 100;` のような既定値があると、既定のコンストラクターが自明でなくなるので `false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_constructible`](is_constructible.md) | 自明さを考えずに、作れるか |
+| [`is_trivially_default_constructible`](is_trivially_default_constructible.md) | 引数なしに絞った版 |
+| [`is_trivially_copy_constructible`](is_trivially_copy_constructible.md) | コピーに絞った版 |
 
 ## コンパイラ対応
 
@@ -113,8 +112,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_trivially_constructible_v<T, Args...>` は、`T` を `Args...` から自明に構築できるか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 構築の自明さを調べる
+    - [x] memcpy の近道を選ぶ条件になる
 
 ## 関連ページ
 

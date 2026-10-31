@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_scalar_v<T>` は、`T` が算術型、列挙型、ポインタ、メンバーポインタ、`nullptr_t` のいずれかか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 算術型・列挙型・ポインター・`nullptr_t` が `true`
     - `std::is_scalar<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - クラスと配列は `false`
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_scalar_v = is_scalar<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-算術型、列挙型、ポインタ、メンバー ポインタ、`std::nullptr_t` が `true` です。クラス、配列、関数、参照は `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+算術型（整数・浮動小数点数・`bool`・`char` など）、列挙型、ポインター、メンバーへのポインター、`std::nullptr_t` が `true` です。クラス、配列、関数、参照は `false` です。「1 つの値として扱える」型の目安です。
 
 ## 実際に動かしてみる
 
@@ -76,33 +74,31 @@ int[3]                     -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+1 つの値を保存する設定項目に、スカラー型だけを許します。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_scalar_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
-}
+class Setting {
+  static_assert(std::is_scalar_v<T>, "設定値は、数値・列挙型・ポインターのいずれかにしてください");
+  T value_;
+};
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "構造体を scalar だと思う"
+    `struct Vec2 { float x, y; };` はクラスなので `false` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "配列を調べる"
+    `int[3]` は配列なので `false` です。要素の型を `std::remove_extent_t` で取り出して調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_arithmetic`](is_arithmetic.md) | 数値型に絞った版 |
+| [`is_fundamental`](is_fundamental.md) | `void` を含み、ポインターを含まない |
+| [`is_object`](is_object.md) | より広く、クラスも含む |
 
 ## コンパイラ対応
 
@@ -112,8 +108,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_scalar_v<T>` は、`T` が算術型、列挙型、ポインタ、メンバーポインタ、`nullptr_t` のいずれかか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 1 つの値で表せる型が `true`
+    - [x] クラスや配列は `false`
 
 ## 関連ページ
 

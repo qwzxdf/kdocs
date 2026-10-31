@@ -14,7 +14,7 @@ tags:
 `#include <ratio>`
 </div>
 
-長さや時間、容量の単位に「テラ」を付けるとき、`ratio<1000000000000, 1>` と数字を書くと、桁の数え間違いを起こしやすくなります。`std::tera` は、SI 接頭辞の「テラ」（1 兆倍）をそのまま表す `std::ratio` の別名です。
+GPU の性能は TFLOPS（1 秒に何兆回の浮動小数点演算ができるか）で表されます。単位に「テラ」が付く量を、1 兆倍の関係として型で扱いたいときに、`std::tera`（テラ、1 兆倍）を使います。`ratio<1000000000000, 1>` の別名です。
 
 !!! tip "ポイント"
     - 中身は `std::ratio<1000000000000, 1>`
@@ -46,37 +46,37 @@ using tera = ratio<1000000000000, 1>;
 ## 実際に動かしてみる
 
 ```cpp
-#include <ratio>
 #include <print>
+#include <ratio>
 
 int main() {
-  std::println("num = {}, den = {}", std::tera::num, std::tera::den);
-  constexpr long long value = 3LL * std::tera::num / std::tera::den;
-  std::println("3 tera = {}", value);
+  // GPU の性能 20 TFLOPS のとき、60 fps の 1 フレームあたりの演算回数
+  constexpr double flops = 20.0 * std::tera::num;
+  std::println("1 秒: {:.3e} 回", flops);
+  std::println("1 フレーム (60 fps): {:.3e} 回", flops / 60.0);
+  std::println("tera = {}/{}", std::tera::num, std::tera::den);
 }
 ```
 
 ```text title="実行結果"
-num = 1000000000000, den = 1
-3 tera = 3000000000000
+1 秒: 2.000e+13 回
+1 フレーム (60 fps): 3.333e+11 回
+tera = 1000000000000/1
 ```
+
+20 TFLOPS の GPU は、1 秒間に 2 × 10^13 回、60 fps なら 1 フレームあたり約 3.3 × 10^11 回の演算ができる計算です。
 
 ## ゲームでの使いどころ
 
-データの大きさや周波数など、大きな量を扱うときに、桁の数え間違いを避けるために使います。ただし、バイトの単位としての 1024 倍（KiB、MiB）は、SI 接頭辞の 1000 倍とは別なので、`std::kilo` はそのまま使えません。
-
-```cpp
-// 3 テラ を基本単位に直す
-constexpr long long value = 3LL * std::tera::num / std::tera::den;
-```
+GPU 性能の比較や、1 フレームに使える演算量の見積もりで、桁の大きい数を扱うときに使えます。
 
 ## よくあるミス
 
-??? failure "分母・分子を自分で書いて桁を間違える"
-    `std::tera` のような名前の付いた別名を使います。
+??? failure "int で tera を扱う"
+    1 兆は `int` に収まりません。`std::tera::num` の型は `std::intmax_t` です。
 
-??? failure "バイトの 1024 倍と混同する"
-    SI 接頭辞は 1000 倍の系列です。1024 倍の単位は別に定義します。
+??? failure "TFLOPS を実際の速度だと思う"
+    理論上の最大値です。メモリの転送などで、実際の速度は大きく下がります。
 
 ## 類似
 

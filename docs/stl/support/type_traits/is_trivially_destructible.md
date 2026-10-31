@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_trivially_destructible_v<T>` は、`T` が自明なデストラクターを持つか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 仮想デストラクターを持つ型は `false`
     - `std::is_trivially_destructible<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 自明な型は、破棄の処理を省ける
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_trivially_destructible_v = is_trivially_destructible<T>
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-破棄するとき、何もしなくてよい型なら `true` です。`int` や、それだけを持つ構造体がそうです。自明なデストラクターの型は、`std::vector` などが破棄時にループを省けるため、速くなります。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+破棄するとき、何もしなくてよい型なら `true` です。`int` や、数値だけの構造体がそうです。仮想デストラクターを持つ型や、`std::string` のように資源を持つ型は `false` です。自明なデストラクターの型は、`std::vector` などが破棄のループを省けます。
 
 オブジェクト プールなどで、メモリを再利用するときに、デストラクターの呼び出しを省けるかの判断に使います。
 
@@ -74,33 +72,32 @@ std::string                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+メモリ プールで、要素を破棄するとき、自明な型ならデストラクターを呼ぶ手間を省きます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_trivially_destructible_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
+void DestroyArray(T* p, std::size_t n) {
+  if constexpr (!std::is_trivially_destructible_v<T>) {
+    for (std::size_t i = 0; i < n; ++i) p[i].~T();   // 自明でない型だけ、破棄する
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "仮想デストラクターを持つ型で true を期待する"
+    仮想デストラクターは、自明ではありません。基底クラスのポインターから消せるようにするための印が、自明さを失わせます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "デストラクターを書かなければ何でも true だと思う"
+    メンバーのどれかが自明でなければ、全体も `false` です。`std::string` を持つ構造体は `false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_destructible`](is_destructible.md) | 自明さを考えずに、破棄できるか |
+| [`is_nothrow_destructible`](is_nothrow_destructible.md) | 破棄が例外を投げないか |
+| [`is_trivial`](is_trivial.md) | 構築とコピーの自明さ |
 
 ## コンパイラ対応
 
@@ -110,8 +107,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_trivially_destructible_v<T>` は、`T` が自明なデストラクターを持つか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 破棄が何もしない型が `true`
+    - [x] プールの破棄ループを省く条件になる
 
 ## 関連ページ
 

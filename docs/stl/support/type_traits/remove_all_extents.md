@@ -66,12 +66,24 @@ std::remove_all_extents_t<float> は float : true
 
 ## ゲームでの使いどころ
 
-型を加工するテンプレートで使います。ゲームのコードで直接書く機会は多くありませんが、汎用のテンプレート（コンテナ、イベントシステム、ECS）の内部ではよく登場します。
+多次元配列の最も内側の要素の型を取り出します。`int[3][4]` なら `int` で、配列全体の要素数を数えるときなどに使います。
+
+```cpp
+template <class T>
+constexpr std::size_t TotalCount() {
+  return sizeof(T) / sizeof(std::remove_all_extents_t<T>);   // int[3][4] なら 12
+}
+
+static_assert(TotalCount<int[3][4]>() == 12);
+```
 
 ## よくあるミス
 
-??? failure "変換後の型を実行時の値と混同する"
-    これは型を返します。値を作るには、その型で変数を宣言します。
+??? failure "remove_extent と取り違える"
+    `remove_extent_t<int[3][4]>` は `int[4]`（1 次元ぶんだけ）です。すべての次元を外すのが `remove_all_extents` です。
+
+??? failure "配列でない型に使って変わると思う"
+    配列でない型は、そのまま返ります。
 
 ## 類似
 

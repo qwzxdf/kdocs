@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_function_v<T>` は、`T` が関数型か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 関数型だけが `true`。関数ポインターやラムダは `false`
     - `std::is_function<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `void(int)` のような型は、普段あまり書かない
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_function_v = is_function<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`void(int)` のような関数型なら `true` です。関数ポインタ `void(*)(int)` や、`std::function` は `false` です。ラムダ式や関数オブジェクトのクラスも `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+関数の型（`void(int)` や `int(float, float)`）が `true` です。関数への**ポインター**（`void(*)(int)`）や、ラムダ式の型は `false` です。型として出会うことは少なく、`std::function` の内部実装や、`std::decay` の動作を理解するときに登場します。
 
 ## 実際に動かしてみる
 
@@ -66,33 +64,35 @@ int                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+関数型と関数ポインターを区別して、テンプレートの引数の扱いを決めます。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_function_v<T>) {
-    // T が条件に当てはまる型のときの処理
+template <class F>
+void Register(F&& f) {
+  using Raw = std::remove_reference_t<F>;
+  if constexpr (std::is_function_v<Raw>) {
+    handlers_.push_back(&f);        // 関数そのもの: アドレスを取る
   } else {
-    // それ以外の型の処理
+    handlers_.push_back(f);         // 関数ポインターや関数オブジェクト: そのまま
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "関数ポインターが true になると思う"
+    `void(*)(int)` は、ポインターなので `false` です。関数そのものの型 `void(int)` だけが `true` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "ラムダ式を調べる"
+    ラムダ式の型はクラスなので `false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_pointer`](is_pointer.md) | ポインターか。関数ポインターは `true` |
+| [`is_member_function_pointer`](is_member_function_pointer.md) | メンバー関数へのポインターか |
+| [`decay`](decay.md) | 関数型を関数ポインターに変える |
 
 ## コンパイラ対応
 
@@ -102,8 +102,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_function_v<T>` は、`T` が関数型か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 関数型（`R(Args...)`）だけが `true`
+    - [x] 関数ポインターは `is_pointer` で調べる
 
 ## 関連ページ
 

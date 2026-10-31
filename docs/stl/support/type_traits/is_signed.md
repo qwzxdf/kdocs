@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_signed_v<T>` は、`T` が符号つきの算術型か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `float` や `double` も `true`
     - `std::is_signed<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `char` は環境次第
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_signed_v = is_signed<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-`int`、`long`、`float`、`double` などは `true` です。`unsigned int` と `bool` は `false` です。浮動小数点型は符号を持つので `true` です。クラスやポインタは `false` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+符号を持つ算術型が `true` です。`int`、`long` などの符号つきの整数と、`float`、`double` が含まれます。`unsigned int` と `bool` は `false` です。`char` が符号つきかどうかは、環境で決まります。クラスやポインター、列挙型は `false` です。
 
 ## 実際に動かしてみる
 
@@ -68,33 +66,34 @@ bool                       -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+符号つきの型だけに、絶対値の処理を行う関数を書きます。
 
 ```cpp
 template <class T>
-void Process(const T& value) {
+constexpr T Abs(T value) {
   if constexpr (std::is_signed_v<T>) {
-    // T が条件に当てはまる型のときの処理
+    return value < 0 ? -value : value;
   } else {
-    // それ以外の型の処理
+    return value;   // 符号なしは負にならない
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "float を符号なしだと思う"
+    浮動小数点数は符号を持つので `true` です。整数だけを調べたいなら、`is_integral` と組み合わせます。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "char の符号を決めつける"
+    `char` が符号つきかどうかは、環境（とコンパイラのオプション）で変わります。数として使うなら `signed char` か `unsigned char`、または `std::int8_t` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_unsigned`](is_unsigned.md) | 符号なしか |
+| [`make_signed`](make_signed.md) | 符号つきの型に直す |
+| [`is_integral`](is_integral.md) | 整数型か |
 
 ## コンパイラ対応
 
@@ -104,8 +103,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_signed_v<T>` は、`T` が符号つきの算術型か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 符号を持つ算術型が `true`
+    - [x] `unsigned` と `bool` は `false`
 
 ## 関連ページ
 

@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_polymorphic_v<T>` は、`T` が仮想関数を持つクラスか
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - 仮想デストラクターだけでも `true`
     - `std::is_polymorphic<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - `dynamic_cast` の対象にできる型の目印
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_polymorphic_v = is_polymorphic<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-仮想関数を 1 つでも宣言した（または継承した）クラスは `true` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+仮想関数を 1 つでも宣言した、または継承したクラスが `true` です。仮想デストラクターだけを持つクラスも `true` になります。継承があるだけで、仮想関数がなければ `false` です。
 
 ## 実際に動かしてみる
 
@@ -75,33 +73,34 @@ int                        -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+実行時の型で判定する `dynamic_cast` を、使える型にだけ使います。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_polymorphic_v<T>) {
-    // T が条件に当てはまる型のときの処理
+template <class To, class From>
+To* SafeCast(From* p) {
+  if constexpr (std::is_polymorphic_v<From>) {
+    return dynamic_cast<To*>(p);   // 実行時の型で判定する
   } else {
-    // それ以外の型の処理
+    return static_cast<To*>(p);    // 仮想関数がないので、dynamic_cast は使えない
   }
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "仮想デストラクターだけの型を、polymorphic でないと思う"
+    仮想デストラクターだけでも `true` です。基底クラスのポインターで消すために付けた場合でも、`dynamic_cast` が使える型になります。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "継承があれば true だと思う"
+    仮想関数が 1 つもなければ、継承していても `false` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_abstract`](is_abstract.md) | 純粋仮想関数を持つか |
+| [`is_final`](is_final.md) | 継承できないか |
+| [`is_class`](is_class.md) | クラスか |
 
 ## コンパイラ対応
 
@@ -111,8 +110,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_polymorphic_v<T>` は、`T` が仮想関数を持つクラスか
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] 仮想関数を持つクラスが `true`
+    - [x] 継承しているだけでは `false`
 
 ## 関連ページ
 

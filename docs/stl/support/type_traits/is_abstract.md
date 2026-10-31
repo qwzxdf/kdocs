@@ -19,9 +19,9 @@ tags:
 
 !!! tip "ポイント"
     - `std::is_abstract_v<T>` は、`T` が抽象クラス（純粋仮想関数を持つ）か
-    - 値は `bool` の定数。`static_assert` や `if constexpr` に使える
+    - `= 0` の仮想関数を持つクラスが対象。継承しただけで実装していない派生クラスも含む
     - `std::is_abstract<T>::value` と書いても同じ（`_v` は C++17 の短縮形）
-    - 実行時のコストはない（コンパイル時に決まる）
+    - 抽象クラスは、インスタンスを作れない
 
 !!! info "このページを読む前に"
     [`<type_traits>`](../type_traits.md) の概要を先に読むと分かりやすいです。
@@ -41,9 +41,7 @@ inline constexpr bool is_abstract_v = is_abstract<T>::value;
 | --- | --- | --- |
 | `T` | 型 | 調べたい型 |
 
-純粋仮想関数（`= 0`）を 1 つでも持つクラスは `true` です。
-
-型の性質を調べるだけで、オブジェクトは作りません。テンプレートの中で、型によって処理を分ける（`if constexpr`）、使えない型を早い段階で弾く（`static_assert`、`concept`）、といった用途で使います。
+純粋仮想関数（`= 0`）を 1 つでも持つクラスが `true` です。基底の純粋仮想関数をまだ実装していない派生クラスも `true` になります。調べるには、型が完全型（定義が見えている型）でなければなりません。
 
 ## 実際に動かしてみる
 
@@ -78,33 +76,30 @@ Player                     -> false
 
 ## ゲームでの使いどころ
 
-型によって処理を切り替えるテンプレートで使います。
+オブジェクトを作る工場関数で、抽象クラスを渡されたら、早い段階でコンパイルエラーにします。
 
 ```cpp
-template <class T>
-void Process(const T& value) {
-  if constexpr (std::is_abstract_v<T>) {
-    // T が条件に当てはまる型のときの処理
-  } else {
-    // それ以外の型の処理
-  }
+template <class T, class... Args>
+std::unique_ptr<T> Create(Args&&... args) {
+  static_assert(!std::is_abstract_v<T>, "抽象クラスはインスタンスにできません");
+  return std::make_unique<T>(std::forward<Args>(args)...);
 }
 ```
 
 ## よくあるミス
 
-??? failure "`T` に参照や `const` が付いていて、期待と違う結果になる"
-    `std::remove_cvref_t<T>` で外してから調べます。
+??? failure "実装のある仮想関数だけで抽象クラスだと思う"
+    `virtual void Update();` のように、実装のある仮想関数だけなら `false` です。`= 0` の純粋仮想関数があるときだけ `true` です。
 
-??? failure "実行時の値に使おうとする"
-    調べるのは型です。値の判定には通常の比較を使います。
+??? failure "前方宣言だけの型を渡す"
+    定義が見えない型に使うと、未定義動作です。`#include` で定義を見せてから調べます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`<type_traits>`](../type_traits.md) | 型の性質を調べる道具の一覧 |
-| [`is_same`](is_same.md) | 2 つの型が同じか |
+| [`is_polymorphic`](is_polymorphic.md) | 仮想関数を 1 つでも持つか。純粋でなくてもよい |
+| [`is_final`](is_final.md) | これ以上継承できないクラスか |
 
 ## コンパイラ対応
 
@@ -114,8 +109,8 @@ C++11 から使えます。主要なコンパイラのすべてで使えます�
 
 !!! abstract "まとめ"
     - [x] `std::is_abstract_v<T>` は、`T` が抽象クラス（純粋仮想関数を持つ）か
-    - [x] `static_assert` と `if constexpr` に使える
-    - [x] 参照や `const` が付いた型は、先に `remove_cvref_t` で外す
+    - [x] `= 0` の仮想関数を持つクラス（と、それを実装していない派生クラス）が `true`
+    - [x] 型は完全型でなければならない
 
 ## 関連ページ
 
