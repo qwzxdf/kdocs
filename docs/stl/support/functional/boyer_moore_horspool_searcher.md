@@ -15,37 +15,42 @@ tags:
 `#include <functional>`
 </div>
 
-ボイヤー・ムーア法の簡略版で、前処理が軽く実装も単純です。平均的にはボイヤー・ムーア法に近い速さで、短めのパターンや前処理を軽くしたいときに向きます。
+ボイヤー・ムーア法は速い反面、表が 2 つ要り、準備の手間もかかります。ボイヤー・ムーア・ホースプール法は、そのうち「悪い文字の表」だけを使う簡略版で、実装が軽く、準備も早く済みます。それを検索オブジェクトにしたのが `std::boyer_moore_horspool_searcher` です。
 
 !!! tip "ポイント"
-    - `std::search(first, last, searcher)` に渡して使う。
-    - パターンを渡して作り、同じ検索を何度も使い回すと前処理の元が取れる。
-    - `<functional>` にある（`<algorithm>` ではない）。
+    - `boyer_moore_searcher` と同じ使い方
+    - 表が 1 つだけなので、準備とメモリが軽い
+    - 典型的な文章では、`boyer_moore_searcher` と同じくらい速い
+    - 最悪の場合の遅さは、`boyer_moore_searcher` より劣る
 
 !!! info "このページを読む前に"
-    [<functional>](../functional.md) の概要を先に読むと分かりやすいです。
+    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::boyer_moore_horspool_searcher {#boyer_moore_horspool_searcher}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
-template <class ForwardIt, class Pred = equal_to<>>
+template <class RandomIt, class Hash = std::hash<typename std::iterator_traits<RandomIt>::value_type>,
+          class BinaryPredicate = std::equal_to<>>
 class boyer_moore_horspool_searcher {
  public:
-  boyer_moore_horspool_searcher(ForwardIt pat_first, ForwardIt pat_last, Pred pred = Pred());
-  template <class It> pair<It, It> operator()(It first, It last) const;
+  boyer_moore_horspool_searcher(RandomIt pat_first, RandomIt pat_last, Hash hf = Hash(), BinaryPredicate pred = BinaryPredicate());
+
+  template <class RandomIt2>
+  std::pair<RandomIt2, RandomIt2> operator()(RandomIt2 first, RandomIt2 last) const;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `pat_first, pat_last` | イテレータ | 探したいパターンの範囲 |
-| `pred` | 述語 | 省略可。要素を比べる述語 |
+引数は [`boyer_moore_searcher`](boyer_moore_searcher.md) と同じです。ランダム アクセス イテレータのパターン範囲 `pat_first`・`pat_last`、ハッシュ関数 `hf`、等しさの述語 `pred` を渡します。
 
-- 戻り値: `operator()` は見つかった範囲の `pair`（見つからなければ `{last, last}`）
-- 計算量: 平均はテキスト長より小さい（最悪は線形 × パターン長）
+ボイヤー・ムーア法との違いは、準備する表の数です。ホースプール法は「悪い文字の表」しか作りません。表を作る時間が短く、メモリも少なくて済みます。そのかわり、「良い接尾辞の表」で大きく飛べる場面がないぶん、パターンが繰り返しの多い形だと、最悪の計算量が悪くなります。
 
+規格が決めているのは、ボイヤー・ムーア法と同じく、見つからないときの時間が文章の長さに比例することと、典型的にはパターンの長さの分だけ、飛ぶことです。どちらを選ぶかは、測ってから決めます。
+
+文字列だけでなく、バイト列（`std::vector<unsigned char>`）のような、ランダム アクセスできる任意の列でも探せます。ハッシュ関数 `std::hash<unsigned char>` が使われるため、特別な準備は要りません。
 
 ## 実際に動かしてみる
 
@@ -53,48 +58,57 @@ class boyer_moore_horspool_searcher {
 #include <algorithm>
 #include <functional>
 #include <print>
-#include <string>
+#include <vector>
 
 int main() {
-  std::string text = "hello world, hello cpp";
-  std::string pat = "world";
-  auto it = std::search(text.begin(), text.end(),
-                        std::boyer_moore_horspool_searcher(pat.begin(), pat.end()));
-  std::println("{}", it - text.begin());
+  // バイナリ データの中から、バイト列のパターンを探す
+  std::vector<unsigned char> data = {0x00, 0xFF, 0x10, 0x20, 0x30, 0xFF, 0x10, 0x20, 0x30, 0x40};
+  std::vector<unsigned char> pat = {0xFF, 0x10, 0x20, 0x30, 0x40};
+
+  std::boyer_moore_horspool_searcher searcher(pat.begin(), pat.end());
+  auto [b, e] = searcher(data.begin(), data.end());
+  std::println("位置: {} から {}", b - data.begin(), e - data.begin());
+
+  // std::search に渡しても同じ
+  auto it = std::search(data.begin(), data.end(), searcher);
+  std::println("std::search の結果: {}", it - data.begin());
+
+  // 見つからない場合
+  std::vector<unsigned char> missing = {0xAA, 0xBB};
+  auto [mb, me] = std::boyer_moore_horspool_searcher(missing.begin(), missing.end())(data.begin(), data.end());
+  std::println("見つからない: {}", mb == data.end());
 }
 ```
 
 ```text title="実行結果"
-6
+位置: 5 から 10
+std::search の結果: 5
+見つからない: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ログの長い文字列から特定のパターンを探す | `std::search(text.begin(), text.end(), std::boyer_moore_horspool_searcher(pat.begin(), pat.end()));` |
+セーブ データやパケットのような、バイト列の中から、決まった並びの目印（ヘッダーなど）を探すときに使えます。
 
 ## よくあるミス
 
-??? failure "短いテキストで使う"
-    前処理のコストがかかるので、短いテキストを 1 回探すだけなら素朴な `std::search` のほうが速いことがあります。
+??? failure "最悪のパターンで遅くなる"
+    繰り返しの多いパターン（`aaaa…b` など）では、ボイヤー・ムーア法より遅くなることがあります。
+
+??? failure "ランダム アクセスでないイテレータを渡す"
+    コンパイル エラーです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`search`](../../algorithms/search.md) | 検索オブジェクトを受け取る |
+| [`boyer_moore_searcher`](boyer_moore_searcher.md) | 良い接尾辞の表も使う版 |
+| [`default_searcher`](default_searcher.md) | 素朴な検索 |
+| [`std::search`](../../algorithms/search.md) | 検索オブジェクトを受け取る側 |
 
 ## コンパイラ対応
 
-C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] ボイヤー・ムーア・ホースプール法（簡略版）
-    - [x] `std::search` の第 3 引数に渡す
-    - [x] 同じパターンを何度も探すなら使い回す
+C++17 から使えます。MSVC・GCC・Clang とも対応しています。
 
 ## 関連ページ
 

@@ -15,14 +15,16 @@ tags:
 `#include <coroutine>`
 </div>
 
-`std::suspend_never` は、`co_await` に渡しても**一時停止しない**待ち受け体です。`initial_suspend()` が `suspend_never` を返すと、コルーチンは呼び出した瞬間に実行を始めます（すぐ実行する型の Task を作るとき）。
+コルーチンの要所で、「ここでは止まらない」と書きたいことがあります。`std::suspend_never` は、`co_await` しても止まらず、すぐ次へ進む、中身のない待ち受け体です。`initial_suspend()` に使うと、呼んだ瞬間から本体が動き出します（即時開始）。
 
 !!! tip "ポイント"
-    - `initial_suspend` が `suspend_never` → 呼び出した瞬間に最初の一時停止点（または終了）まで走る。
-    - `final_suspend` に `suspend_never` を返すと、終わった時点で自動で破棄される（取っ手が無効になる）。
+    - `await_ready` が常に `true` なので、止まらない
+    - `initial_suspend` に使うと、呼んだ時点で本体が動く（即時開始）
+    - `final_suspend` に使うと、終わると同時にフレームが自動的に消える
+    - `suspend_always` の反対
 
 !!! info "このページを読む前に"
-    [`std::generator`](../generator.md) のページにコルーチンの簡単な例があります。
+    [`co_await`](co_await.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -30,78 +32,95 @@ tags:
 
 ```cpp
 struct suspend_never {
-  constexpr bool await_ready() const noexcept { return true; }    // 止まらない
-  constexpr void await_suspend(coroutine_handle<>) const noexcept {}
+  constexpr bool await_ready() const noexcept { return true; }
+  constexpr void await_suspend(std::coroutine_handle<>) const noexcept {}
   constexpr void await_resume() const noexcept {}
 };
 ```
 
-- 戻り値: （空の型）。`co_await` しても止まらない
-- 計算量: O(1)
+`await_ready` が `true` を返すので、`await_suspend` は呼ばれず、止まりません。
+
+#### initial_suspend に使う（即時開始）
+
+`initial_suspend()` が `suspend_never` を返すと、コルーチンを呼んだときに、すぐ本体が動き出します。最初の `co_await` や `co_yield` で止まるまで進み、そこで呼び出し側へ戻ります。「呼ぶだけで始まる」ので、`resume()` を呼ぶ手間が要りません。
+
+#### final_suspend に使う（自動で片づく）
+
+`final_suspend()` が `suspend_never` を返すと、本体が終わった直後に、フレームが自動的に解放されます。`destroy()` を呼ぶ必要はありませんが、ハンドルが宙に浮くので、終わったあとに `done()` や `resume()` を呼ぶと、未定義動作です。終わったことを外から知る別の方法が要ります。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <coroutine>
+#include <exception>
 #include <print>
+#include <utility>
+#include <vector>
 
 struct Task {
   struct promise_type {
     Task get_return_object() { return Task{std::coroutine_handle<promise_type>::from_promise(*this)}; }
-    std::suspend_never initial_suspend() noexcept { return {}; }
+    std::suspend_never initial_suspend() noexcept { return {}; }   // 呼んだ瞬間に動き出す
     std::suspend_always final_suspend() noexcept { return {}; }
     void return_void() {}
-    void unhandled_exception() {}
+    void unhandled_exception() { std::terminate(); }
   };
 
   std::coroutine_handle<promise_type> handle;
   explicit Task(std::coroutine_handle<promise_type> h) : handle(h) {}
+  Task(Task&& other) noexcept : handle(std::exchange(other.handle, {})) {}
   ~Task() {
     if (handle) handle.destroy();
   }
 };
 
-Task Run() {
-  std::println("すぐ実行された");
-  co_return;
+Task Loading() {
+  std::println("ロード開始");
+  co_await std::suspend_never{};   // 止まらずに次へ進む
+  std::println("ロード中");
+  co_await std::suspend_always{};  // ここで止まる
+  std::println("ロード完了");
 }
 
 int main() {
-  Task t = Run();  // initial_suspend が suspend_never なので、呼んだ瞬間に実行される
-  std::println("呼び出した直後");
+  std::println("コルーチンを呼ぶ");
+  Task t = Loading();
+  std::println("呼び出しが戻った");
+  t.handle.resume();
 }
 ```
 
 ```text title="実行結果"
-すぐ実行された
-呼び出した直後
+コルーチンを呼ぶ
+ロード開始
+ロード中
+呼び出しが戻った
+ロード完了
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 呼んだらすぐ動き出す非同期処理 | `initial_suspend` で `suspend_never` |
+「呼んだらすぐ始まる」コルーチン（即時開始のタスク）を作るときに、`initial_suspend` で使います。
 
 ## よくあるミス
 
-??? failure "final_suspend に suspend_never を返して、取っ手を使う"
-    終わった時点で破棄されるので、その後に `done()` や `destroy()` を呼ぶと未定義動作です。
+??? failure "final_suspend を suspend_never にして、あとで done() を呼ぶ"
+    フレームが消えているので未定義動作です。
+
+??? failure "止まらないつもりで suspend_always を使う"
+    `suspend_always` は必ず止まります。止めたくない所には `suspend_never` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`suspend_always`](suspend_always.md) | 必ず止まる |
+| [`suspend_always`](suspend_always.md) | 必ず止まる待ち受け体 |
+| [`co_await`](co_await.md) | 待ち受け体の 3 関数 |
+| [`coroutine_handle`](coroutine_handle.md) | `resume()` と `done()` |
 
 ## コンパイラ対応
 
-C++20 の機能です。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 一時停止しない
-    - [x] 最初に使うと即実行
-    - [x] final に使うと自動破棄
+C++20 から使えます。MSVC・GCC・Clang とも対応しています。
 
 ## 関連ページ
 
