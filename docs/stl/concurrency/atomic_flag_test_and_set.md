@@ -13,12 +13,13 @@ tags:
 `#include <atomic>`
 </div>
 
-`atomic_flag` は、最も単純な `atomic` の旗です。`test_and_set` は、旗を立てて、立てる前に立っていたかを返します。スピンロックの基本部品です。
+`std::atomic_flag` は、真偽値を 1 つだけ持つ、最も単純な `atomic` です。`test_and_set` は、フラグを立てて、立てる前の値を返す操作で、スピンロック（ロックが取れるまで回し続ける）の土台になります。
 
 !!! tip "ポイント"
-    - `std::atomic` のメンバ関数と同じ働きの、自由関数版。
-    - ふつうはメンバ関数のほうが読みやすい。
-    - C 言語との互換のためにある。
+    - フラグを立てて、立てる前の値を返す（不可分）
+    - 前の値が `false` なら、自分が最初に立てた（ロックを取れた）
+    - 解放は `clear`
+    - `atomic_flag` は、必ずロックなしで動くことが保証される
 
 !!! info "このページを読む前に"
     [`std::atomic`](atomic.md) を先に読んでください。
@@ -27,17 +28,28 @@ tags:
 
 ### std::atomic_flag_test_and_set {#atomic_flag_test_and_set}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 bool atomic_flag_test_and_set(std::atomic_flag* obj) noexcept;
+bool atomic_flag_test_and_set_explicit(std::atomic_flag* obj, std::memory_order order) noexcept;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `obj` | atomic_flag* | 対象の旗 |
+戻り値が `false` なら、その呼び出しがフラグを `false` から `true` にしたことを意味します。`true` なら、すでに誰かが立てていました。
 
-- 戻り値: 立てる前に立っていたか
-- 計算量: 定数（アトミック命令）
+スピンロックは、次の形です。
 
+```cpp
+while (flag.test_and_set(std::memory_order_acquire)) {
+  // 取れるまで回る
+}
+// 臨界区間
+flag.clear(std::memory_order_release);
+```
+
+スピンロックは、待ち時間が極めて短い場面でだけ有効です。待ちが長いと、CPU を無駄に使います。普通は `std::mutex` を使います。
+
+C++20 から、`test()` というメンバー関数で、立てずに読むこともできます。
 
 ## 実際に動かしてみる
 
@@ -46,45 +58,42 @@ bool atomic_flag_test_and_set(std::atomic_flag* obj) noexcept;
 #include <print>
 
 int main() {
-  std::atomic_flag f = ATOMIC_FLAG_INIT;
-  std::println("{}", std::atomic_flag_test_and_set(&f));
-  std::println("{}", std::atomic_flag_test_and_set(&f));
+  std::atomic_flag flag = ATOMIC_FLAG_INIT;
+
+  std::println("1 回目: 前の値 {}", flag.test_and_set());  // false: 自分が立てた
+  std::println("2 回目: 前の値 {}", flag.test_and_set());  // true: すでに立っている
+
+  flag.clear();
+  std::println("解除後: 前の値 {}", flag.test_and_set());
 }
 ```
 
 ```text title="実行結果"
-false
-true
+1 回目: 前の値 false
+2 回目: 前の値 true
+解除後: 前の値 false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のスピンロック |
+一度だけ実行したい初期化の判定や、短い排他区間のスピンロックに使います。
 
 ## よくあるミス
 
-??? failure "初期化を忘れる"
-    C++20 より前は、`ATOMIC_FLAG_INIT` で初期化しないと、状態が不定でした。
+??? failure "長い処理をスピンロックで守る"
+    CPU を使い続けます。`mutex` にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`atomic_flag_clear`](atomic_flag_clear.md) | 旗を下ろす |
-| [`atomic_flag`](atomic_flag.md) | 旗のクラス |
+| [`atomic_flag_clear`](atomic_flag_clear.md) | フラグを下ろす |
+| [`atomic_flag`](atomic_flag.md) | 本体 |
+| [`mutex`](mutex.md) | 普通のロック |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] atomic_flag を立て、立てる前の状態を返す
-    - [x] `std::atomic` のメンバ関数と同じ働きの、自由関数版
-    - [x] 戻り値と失敗時の動きを確かめて使う
+C++11 から使えます。
 
 ## 関連ページ
 

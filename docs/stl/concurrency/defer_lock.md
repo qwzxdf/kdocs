@@ -14,28 +14,39 @@ tags:
 `#include <mutex>`
 </div>
 
-`unique_lock` は、作った時点でミューテックスをロックします。あとでまとめて（デッドロックを避けて）ロックしたいときは、`std::defer_lock` を渡して「ロックは後で」と伝えます。
+`std::unique_lock` は、構築のときにロックするのが普通ですが、「ロックの準備だけして、今はロックしない」ことができます。`std::defer_lock` は、そのための印です。あとで `lock()` を呼ぶか、`std::lock` に複数まとめて渡します。
 
 !!! tip "ポイント"
-    - `std::defer_lock_t` 型の定数。
-    - `lock_guard`・`unique_lock`・`scoped_lock` のコンストラクタの第 2 引数に渡す。
-    - デッドロックを避ける `std::lock` と組み合わせて使う。
+    - `unique_lock(m, std::defer_lock)` は、ロックしないで作る
+    - あとで `lk.lock()`、または `std::lock(lk1, lk2)` でロックする
+    - `std::lock` と組み合わせると、デッドロックを避けて複数をロックできる
+    - `lk.owns_lock()` で、ロック中かを調べられる
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`std::mutex`](mutex.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::defer_lock {#defer_lock}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 struct defer_lock_t { explicit defer_lock_t() = default; };
-inline constexpr defer_lock_t defer_lock{};
+inline constexpr std::defer_lock_t defer_lock{};
 ```
 
-- 戻り値: なし（目印）
-- 計算量: なし
+2 つのミューテックスを、別々のスレッドが逆の順でロックすると、お互いに待ち合って止まる（デッドロック）ことがあります。`std::lock(a, b)` は、デッドロックしない順序でロックします。その `std::lock` に渡すものとして、ロックを遅らせた `unique_lock` が使えます。
 
+```cpp
+std::unique_lock lk1(a, std::defer_lock);
+std::unique_lock lk2(b, std::defer_lock);
+std::lock(lk1, lk2);
+```
+
+スコープを抜けると、2 つとも自動で解放されます。
+
+C++17 以降は、`std::scoped_lock` が同じことを 1 行でできます。ロックを途中で外したり、条件変数と組み合わせたりするときは、`unique_lock` と `defer_lock` が必要です。
 
 ## 実際に動かしてみる
 
@@ -44,45 +55,43 @@ inline constexpr defer_lock_t defer_lock{};
 #include <print>
 
 int main() {
-  std::mutex m;
-  std::unique_lock lk(m, std::defer_lock);
-  std::println("{}", lk.owns_lock());
+  std::mutex a;
+  std::mutex b;
+
+  std::unique_lock<std::mutex> lk1(a, std::defer_lock);
+  std::unique_lock<std::mutex> lk2(b, std::defer_lock);
+  std::println("構築直後: {} {}", lk1.owns_lock(), lk2.owns_lock());
+
+  std::lock(lk1, lk2);  // 2 つを、デッドロックせずにロック
+  std::println("ロック後: {} {}", lk1.owns_lock(), lk2.owns_lock());
 }
 ```
 
 ```text title="実行結果"
-false
+構築直後: false false
+ロック後: true true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 複数のミューテックスを同時にロック | `std::lock(m1, m2);` のあと `std::lock_guard g1(m1, std::adopt_lock);` |
+2 つのオブジェクトの間で、データを移すときに、両方のミューテックスをロックするのに使います。
 
 ## よくあるミス
 
-??? failure "目印とロックの状態が食い違う"
-    `owns_lock()` で、実際にロックを持っているかを確かめてから使います。
+??? failure "ロックしたつもりで共有データを触る"
+    `defer_lock` で作っただけでは、ロックされていません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`unique_lock`](unique_lock.md) | 柔軟なロック |
-| [`lock_guard`](lock_guard.md) | 単純なロック |
-| [`std::lock`](lock.md) | 複数を同時にロック |
+| [`adopt_lock`](adopt_lock.md) | ロック済みを引き継ぐ |
+| [`try_to_lock`](try_to_lock.md) | ロックを試す |
+| [`lock`](lock.md) | 複数を同時にロック |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] unique_lock に「まだロックしない」と伝える目印
-    - [x] ロックの方法を指定する目印
-    - [x] std::lock と組み合わせる
 
 ## 関連ページ
 

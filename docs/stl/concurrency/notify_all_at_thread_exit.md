@@ -14,32 +14,33 @@ tags:
 `#include <condition_variable>`
 </div>
 
-スレッドの終了時に `notify_all()` を呼ぶと、待っているスレッドがまだ終わっていないスレッドのローカル変数を見てしまう危険があります。`notify_all_at_thread_exit(cv, lock)` なら、スレッドのローカル変数の後始末が全部済んでから通知されるので安全です。
+スレッドの終わりに、結果を共有データに書き、条件変数で待っているスレッドを起こしたい。ところが、`notify_all` を呼んだ直後に、待っている側が先に進み、結果を使い始めても、書いた側のスレッドのローカル変数は、まだ破棄されていないことがあります。`std::notify_all_at_thread_exit(cv, lock)` は、<strong>スレッドのローカル変数がすべて破棄された後</strong>に通知します。
 
 !!! tip "ポイント"
-    - 第 2 引数にすでに取っているロックを渡す。
-    - スレッドが終わるときに、ロックを解除して通知する。
-    - `thread_local` の変数が破棄されたあとに通知される。
+    - スレッド終了時、`thread_local` の破棄が終わってから通知する
+    - `lock` は、その時点まで保持される
+    - `detach` したスレッドの完了を、通知する手段に使う
+    - 使う場面は限られる
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`std::mutex`](mutex.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::notify_all_at_thread_exit {#notify_all_at_thread_exit}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-void notify_all_at_thread_exit(condition_variable& cond, unique_lock<mutex> lk);
+void notify_all_at_thread_exit(std::condition_variable& cond,
+                               std::unique_lock<std::mutex> lk);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `cond` | condition_variable& | 通知する条件変数 |
-| `lk` | unique_lock<mutex> | 取得済みのロック（ムーブで渡す） |
+`lk` は、すでにロックされている必要があります。所有権は、この関数が受け取り、スレッドの終了処理の最後で、`cond.notify_all()` を呼んでからロックを解放します。
 
-- 戻り値: なし
-- 計算量: 定数
+通常の `notify_all` との違いは、通知のタイミングです。スレッドの `thread_local` 変数のデストラクターが、通知のあとに走ると、待っているスレッドが先に進んだ後も、デストラクターが動き続けます。それが共有データを触ると、競合が起きます。
 
+`std::promise::set_value_at_thread_exit` も、同じ考え方の関数です。
 
 ## 実際に動かしてみる
 
@@ -49,55 +50,51 @@ void notify_all_at_thread_exit(condition_variable& cond, unique_lock<mutex> lk);
 #include <print>
 #include <thread>
 
+std::mutex m;
+std::condition_variable cv;
+bool done = false;
+int result = 0;
+
 int main() {
-  std::mutex m;
-  std::condition_variable cv;
-  bool done = false;
-  std::thread t([&] {
-    std::unique_lock lk(m);
+  std::thread worker([] {
+    std::unique_lock<std::mutex> lk(m);
+    result = 42;
     done = true;
+    // スレッドの後始末がすべて終わってから通知する
     std::notify_all_at_thread_exit(cv, std::move(lk));
   });
-  {
-    std::unique_lock lk(m);
-    cv.wait(lk, [&] { return done; });
-  }
-  t.join();
-  std::println("done");
+  worker.detach();  // 完了は条件変数で知る
+
+  std::unique_lock<std::mutex> lk(m);
+  cv.wait(lk, [] { return done; });
+  std::println("結果: {}", result);
 }
 ```
 
 ```text title="実行結果"
-done
+結果: 42
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| スレッドの終了と結果を同時に知らせる | `std::notify_all_at_thread_exit(cv, std::move(lk));` |
+`detach` したスレッドの完了を、後始末まで含めて待つときに使います。通常は `join` で足ります。
 
 ## よくあるミス
 
-??? failure "ロックを取らずに呼ぶ"
-    ロックを取った `unique_lock` を渡す必要があります。
+??? failure "lk がロックされていない"
+    未定義動作です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`condition_variable`](condition_variable.md) | 条件変数 |
+| [`condition_variable`](condition_variable.md) | 通知先 |
+| [`promise`](promise.md) | `set_value_at_thread_exit` で似たことをする |
+| [`thread`](thread.md) | `join` で完了を待つ |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] スレッド終了後に通知する
-    - [x] ロックを渡す
-    - [x] ローカル変数の後始末のあとで通知される
 
 ## 関連ページ
 

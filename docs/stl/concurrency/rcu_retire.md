@@ -14,62 +14,63 @@ tags:
 `#include <rcu>`
 </div>
 
-`rcu_obj_base` を継承できない型でも、`rcu_retire(ptr)` で、読み取り中のスレッドがいなくなってから破棄させられます。
+古いデータの解放を、書き手が待たずに済ませたい。`std::rcu_retire(p, d)` は、`p` を「読み手が全員いなくなったら、`d` で解放してほしい」と予約して、すぐ戻ります。実際の解放は、あとで、別のスレッドが行います。
 
 !!! tip "ポイント"
-    - 継承せずに破棄を予約できる。
-    - 第 2 引数で破棄の方法を指定できる。
-    - C++26。
+    - ポインターとデリーターを渡して、解放を予約する
+    - 呼び出し側は待たない
+    - 実際の解放は、読み手がいなくなったあと
+    - 完了を確かめたいなら `rcu_barrier`
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`rcu_synchronize`](rcu_synchronize.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::rcu_retire {#rcu_retire}
 
+<span class="ver ver-26">C++26</span>
+
 ```cpp
-template <class T, class D = default_delete<T>>
-void rcu_retire(T* p, D d = D(), rcu_domain& dom = rcu_default_domain());
+template <class T, class D = std::default_delete<T>>
+void rcu_retire(T* p, D d = D(), std::rcu_domain& dom = std::rcu_default_domain());
 ```
 
-- 戻り値: なし
-- 計算量: 実装依存
+内部でメモリを確保して予約を記録するので、`std::bad_alloc` を投げることがあります。確保の失敗を避けたいなら、`rcu_obj_base` を継承するクラスの `retire` を使います（記録の領域をオブジェクトに持つ）。
 
+`rcu_synchronize` と違い、書き手が止まらないので、更新の頻度が高いときに向きます。そのかわり、解放が遅れるぶん、メモリ使用量が増えます。
 
-## 実際に動かしてみる
+## 使い方の形
+
+手元の MSVC では使えないので、動かさずに、形だけを示します。
 
 ```cpp
-// 例（概念）: 古いデータを安全に破棄する
+void Update(std::atomic<Config*>& slot, Config* fresh) {
+  Config* old = slot.exchange(fresh);
+  std::rcu_retire(old);          // 待たずに、解放を予約する
+}
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 読み取りが圧倒的に多い共有データの管理 | 古いデータを安全に破棄する |
+更新が頻繁で、書き手を止めたくない場面で使います。
 
 ## よくあるミス
 
-??? failure "すぐに破棄されると思う"
-    読み取りが終わったあと、あるタイミングで破棄されます。
+??? failure "予約後も old を使う"
+    解放される可能性があります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`rcu_obj_base`](rcu_obj_base.md) | 継承して使う版 |
+| [`rcu_synchronize`](rcu_synchronize.md) | 待ってから解放する |
+| [`rcu_obj_base`](rcu_obj_base.md) | オブジェクトに予約の領域を持たせる |
+| [`rcu_barrier`](rcu_barrier.md) | 予約の完了を待つ |
 
 ## コンパイラ対応
 
-C++26 の機能です。対応する標準ライブラリは、まだ限られます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] オブジェクトの破棄を読み取りが終わってからの予約にする
-    - [x] 読み取りをロックなしで行う仕組み
-    - [x] C++26
+C++26 の機能です。手元の MSVC（Visual Studio 2026）では未対応のため、サンプルは動かしていません。
 
 ## 関連ページ
 

@@ -15,79 +15,102 @@ tags:
 `#include <mutex>`
 </div>
 
-`std::lock` は、**複数の mutex をデッドロックしない順序でまとめてロックする**関数です。C++17 以降は [`std::scoped_lock`](scoped_lock.md) で足ります。古いコードや、`unique_lock` の `defer_lock` と組み合わせるときに使います。
+2 つのミューテックスを、別々のスレッドが逆の順番でロックすると、お互いに相手を待って止まります（デッドロック）。`std::lock(m1, m2, ...)` は、デッドロックしないアルゴリズムで、全部のミューテックスを同時にロックします。
 
 !!! tip "ポイント"
-    - `unique_lock` を `std::defer_lock`（ロックしない）で作ってから、`std::lock(a, b)`。
-    - ロックしたあとの開け閉めは、`unique_lock` に任せる。
-    - C++17 以降は `scoped_lock` が簡単。
+    - 複数のミューテックスを、デッドロックせずにロックする
+    - 取れるまで待つ
+    - 解放は呼び出し側の責任。`adopt_lock` で `lock_guard` に渡す
+    - C++17 以降は `std::scoped_lock` が同じことをする
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`std::mutex`](mutex.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### std::lock {#lock_function}
+### std::lock {#lock}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
 template <class L1, class L2, class... Ln>
 void lock(L1& l1, L2& l2, Ln&... ln);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `l1, l2, ...` | ロック可能なもの | mutex や `unique_lock` |
+実装は、1 つをロックし、残りを `try_lock` して、失敗したら全部を戻してやり直す、といった方法です。どのスレッドから、どの順序で渡しても、デッドロックしません。
 
-- 戻り値: なし。全部のロックを取り終えるまで戻らない
-- 計算量: デッドロックしない
+途中で例外が出ると、取ったロックを解放してから例外を伝えます。
+
+```cpp
+std::lock(a, b);
+std::lock_guard<std::mutex> ga(a, std::adopt_lock);
+std::lock_guard<std::mutex> gb(b, std::adopt_lock);
+```
+
+C++17 の `std::scoped_lock lock(a, b);` が、これを 1 つにまとめた書き方です。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <mutex>
 #include <print>
+#include <thread>
 
 int main() {
   std::mutex a;
   std::mutex b;
+  int total = 0;
 
-  std::unique_lock la(a, std::defer_lock);  // まだロックしない
-  std::unique_lock lb(b, std::defer_lock);
-  std::lock(la, lb);                        // 2 つを同時に、デッドロックしないようにかける
-  std::println("2 つとも取れた: {} {}", la.owns_lock(), lb.owns_lock());
+  // 逆の順番でロックしても、デッドロックしない
+  auto work1 = [&] {
+    for (int i = 0; i < 1000; ++i) {
+      std::lock(a, b);
+      std::lock_guard<std::mutex> ga(a, std::adopt_lock);
+      std::lock_guard<std::mutex> gb(b, std::adopt_lock);
+      ++total;
+    }
+  };
+  auto work2 = [&] {
+    for (int i = 0; i < 1000; ++i) {
+      std::lock(b, a);
+      std::lock_guard<std::mutex> gb(b, std::adopt_lock);
+      std::lock_guard<std::mutex> ga(a, std::adopt_lock);
+      ++total;
+    }
+  };
+
+  std::thread t1(work1);
+  std::thread t2(work2);
+  t1.join();
+  t2.join();
+  std::println("{}", total);
 }
 ```
 
 ```text title="実行結果"
-2 つとも取れた: true true
+2000
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 2 つの mutex を同時にロックする（C++14 以前） | `std::lock(a, b);` |
+2 つのオブジェクトを同時に更新するときに、両方のミューテックスをロックするのに使います。
 
 ## よくあるミス
 
-??? failure "個別に lock() を呼んで、順序が食い違う"
-    スレッド A が `a, b`、スレッド B が `b, a` の順に取ろうとすると、デッドロックします。`std::lock` か `scoped_lock` で同時に取ります。
+??? failure "lock を使わず、別々に lock する"
+    逆順のスレッドがあるとデッドロックします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::scoped_lock`](scoped_lock.md) | C++17 以降はこちら |
-| [`std::unique_lock`](unique_lock.md) | `defer_lock` で作る |
+| [`scoped_lock`](scoped_lock.md) | C++17 の簡単な書き方 |
+| [`try_lock`](try_lock.md) | 待たない版 |
+| [`adopt_lock`](adopt_lock.md) | 引き継ぐ印 |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 複数の mutex を同時にかける
-    - [x] デッドロックしない
-    - [x] C++17 以降は `scoped_lock`
 
 ## 関連ページ
 

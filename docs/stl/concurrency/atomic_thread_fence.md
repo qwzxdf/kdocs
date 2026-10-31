@@ -13,12 +13,13 @@ tags:
 `#include <atomic>`
 </div>
 
-`atomic` 変数の読み書きに順序を付ける代わりに、独立した「柵」を置いて、その前後のメモリ操作の順序を固定します。`release` の柵の前の書き込みは、`acquire` の柵の後の読み込みから見えるようになります。
+`atomic` の操作に順序を付けるのではなく、操作とは独立に、メモリの順序の壁（フェンス）を置く関数が `atomic_thread_fence` です。フェンスの前後で、メモリ操作の並べ替えを制限します。
 
 !!! tip "ポイント"
-    - `std::atomic` のメンバ関数と同じ働きの、自由関数版。
-    - ふつうはメンバ関数のほうが読みやすい。
-    - C 言語との互換のためにある。
+    - メモリ順序の壁を置く。操作を伴わない
+    - `release` フェンスより前の書き込みは、あとの `atomic` 書き込みより先に見える
+    - `acquire` フェンスより後の読み込みは、前の `atomic` 読み込みより先に移動しない
+    - 通常は `atomic` の操作に順序を付けるほうが分かりやすい
 
 !!! info "このページを読む前に"
     [`std::atomic`](atomic.md) を先に読んでください。
@@ -27,17 +28,24 @@ tags:
 
 ### std::atomic_thread_fence {#atomic_thread_fence}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 void atomic_thread_fence(std::memory_order order) noexcept;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `order` | memory_order | 柵の強さ |
+| `order` | 効果 |
+| --- | --- |
+| `acquire` | このフェンス以降の読み書きが、前に移動しない |
+| `release` | このフェンス以前の読み書きが、後ろに移動しない |
+| `acq_rel` | 両方 |
+| `seq_cst` | 全体で一貫した順序 |
 
-- 戻り値: なし
-- 計算量: 定数（アトミック命令）
+`relaxed` の `atomic` 操作の前後にフェンスを置いて、同期を作る使い方があります。ロック フリーのデータ構造の実装で、複数の `atomic` に対して、フェンスを 1 回で済ませたいときです。
 
+読み書きの順序は、CPU の種類で、保証の強さが違います。x86 は強く、ARM は弱いので、フェンスの必要性が違います。標準のモデルに従って書けば、どちらでも正しく動きます。
+
+プログラムを書く前に、まず `mutex` や `atomic` の既定の順序で足りないか、考えます。
 
 ## 実際に動かしてみる
 
@@ -46,22 +54,21 @@ void atomic_thread_fence(std::memory_order order) noexcept;
 #include <print>
 #include <thread>
 
+int data = 0;
+std::atomic<bool> ready{false};
+
 int main() {
-  int data = 0;
-  std::atomic<bool> ready{false};
-  std::thread producer([&] {
+  std::thread producer([] {
     data = 42;
-    std::atomic_thread_fence(std::memory_order_release);
+    std::atomic_thread_fence(std::memory_order_release);   // 以前の書き込みを確定させる
     ready.store(true, std::memory_order_relaxed);
   });
-  std::thread consumer([&] {
-    while (!ready.load(std::memory_order_relaxed)) {
-    }
-    std::atomic_thread_fence(std::memory_order_acquire);
-    std::println("{}", data);
-  });
+
+  while (!ready.load(std::memory_order_relaxed)) {
+  }
+  std::atomic_thread_fence(std::memory_order_acquire);     // 以降の読み込みを遅らせる
+  std::println("{}", data);
   producer.join();
-  consumer.join();
 }
 ```
 
@@ -71,32 +78,24 @@ int main() {
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 細かい同期の最適化 |
+ロック フリーの自作データ構造で、フェンスを 1 回で済ませる最適化に使います。普通は不要です。
 
 ## よくあるミス
 
-??? failure "柵の置き場所を間違える"
-    柵は、フラグの書き込み・読み込みを挟む位置に置かないと、順序が守られません。
+??? failure "フェンスだけで同期できると思う"
+    `atomic` の操作と組み合わせて、初めて意味があります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`memory_order`](memory_order.md) | 順序の種類 |
-| [`atomic_signal_fence`](atomic_signal_fence.md) | シグナルハンドラとの間 |
+| [`atomic_signal_fence`](atomic_signal_fence.md) | 同じスレッド内の割り込み用 |
+| [`memory_order`](memory_order.md) | 順序の一覧 |
+| [`atomic_store_explicit`](atomic_store_explicit.md) | 操作に順序を付ける |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] スレッド間のメモリ順序を変数なしで強制する柵（フェンス）
-    - [x] `std::atomic` のメンバ関数と同じ働きの、自由関数版
-    - [x] 戻り値と失敗時の動きを確かめて使う
+C++11 から使えます。
 
 ## 関連ページ
 

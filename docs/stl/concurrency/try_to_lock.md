@@ -14,75 +14,93 @@ tags:
 `#include <mutex>`
 </div>
 
-ロックが取れないときに待ち続けたくない場合、`std::try_to_lock` を渡すと、取れたかどうかを `owns_lock()` で確かめられます。
+ミューテックスがすでに他のスレッドにロックされているとき、`unique_lock` の構築で待たされたくない。`std::try_to_lock` を渡すと、ロックを試みて、取れなければ待たずに諦めます。取れたかは、`owns_lock()` で分かります。
 
 !!! tip "ポイント"
-    - `std::try_to_lock_t` 型の定数。
-    - `lock_guard`・`unique_lock`・`scoped_lock` のコンストラクタの第 2 引数に渡す。
-    - デッドロックを避ける `std::lock` と組み合わせて使う。
+    - `unique_lock(m, std::try_to_lock)` は、ロックを試みる。待たない
+    - 取れたら `owns_lock()` が真
+    - 取れなければ、他の仕事を先に進められる
+    - `lk.try_lock()` を、あとから呼ぶのと同じ
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`std::mutex`](mutex.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::try_to_lock {#try_to_lock}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 struct try_to_lock_t { explicit try_to_lock_t() = default; };
-inline constexpr try_to_lock_t try_to_lock{};
+inline constexpr std::try_to_lock_t try_to_lock{};
 ```
 
-- 戻り値: なし（目印）
-- 計算量: なし
+構築の中で `m.try_lock()` が呼ばれ、結果が `owns_lock()` に反映されます。
 
+```cpp
+std::unique_lock lk(m, std::try_to_lock);
+if (lk.owns_lock()) {
+  // 取れた
+} else {
+  // 取れなかった。他の仕事をする
+}
+```
+
+同じスレッドが、すでにロックしている `std::mutex` に `try_to_lock` を試みると、未定義動作です。再帰ロックが要るなら `recursive_mutex` です。
+
+ゲームでは、描画スレッドが、共有データのロックが取れなかったら、前のフレームのデータで描く、という戦略に使えます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <mutex>
 #include <print>
+#include <thread>
 
 int main() {
   std::mutex m;
-  std::unique_lock lk(m, std::try_to_lock);
-  std::println("{}", lk.owns_lock());
+  m.lock();  // main がロックを持っている
+
+  bool got = true;
+  std::thread t([&] {
+    std::unique_lock<std::mutex> lk(m, std::try_to_lock);
+    got = lk.owns_lock();  // 取れない
+  });
+  t.join();
+  std::println("別スレッドで取れた: {}", got);
+
+  m.unlock();
+  std::unique_lock<std::mutex> lk(m, std::try_to_lock);
+  std::println("解放後は取れた: {}", lk.owns_lock());
 }
 ```
 
 ```text title="実行結果"
-true
+別スレッドで取れた: false
+解放後は取れた: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 複数のミューテックスを同時にロック | `std::lock(m1, m2);` のあと `std::lock_guard g1(m1, std::adopt_lock);` |
+描画スレッドが、更新スレッドのロックを待たずに、前の状態で描く場面に使います。
 
 ## よくあるミス
 
-??? failure "目印とロックの状態が食い違う"
-    `owns_lock()` で、実際にロックを持っているかを確かめてから使います。
+??? failure "取れたか確かめずに共有データを触る"
+    `owns_lock()` を確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`unique_lock`](unique_lock.md) | 柔軟なロック |
-| [`lock_guard`](lock_guard.md) | 単純なロック |
-| [`std::lock`](lock.md) | 複数を同時にロック |
+| [`defer_lock`](defer_lock.md) | ロックを遅らせる |
+| [`adopt_lock`](adopt_lock.md) | ロック済みを引き継ぐ |
+| [`try_lock`](try_lock.md) | 複数を試す |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] unique_lock に「ロックを試すだけ。取れなければ待たない」と伝える目印
-    - [x] ロックの方法を指定する目印
-    - [x] std::lock と組み合わせる
 
 ## 関連ページ
 

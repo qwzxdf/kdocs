@@ -14,27 +14,32 @@ tags:
 `#include <future>`
 </div>
 
-`future::wait_for(時間)` は、結果が準備できた、時間切れ、まだ始まっていない（遅延）のどれかを `future_status` で返します。結果が出たかをポーリングしたいときに使います。
+`std::future::wait_for` は、結果が出るまで一定時間だけ待ちます。時間内に結果が出たのか、まだなのか、そもそも別スレッドで動いていないのか。その状態を返す列挙型が `std::future_status` で、`ready`、`timeout`、`deferred` の 3 つがあります。
 
 !!! tip "ポイント"
-    - `ready`: 結果が出た。
-    - `timeout`: 時間切れ。
-    - `deferred`: `launch::deferred` で、まだ実行されていない。
+    - `ready`: 結果が出ている（`get()` が待たない）
+    - `timeout`: 時間切れ。まだ終わっていない
+    - `deferred`: `launch::deferred` で、`get()` や `wait()` を呼ぶまで実行されない
+    - `deferred` のとき、`wait_for` は待たずに、すぐ戻る
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`std::future`](future.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::future_status {#future_status}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 enum class future_status { ready, timeout, deferred };
 ```
 
-- 戻り値: なし（列挙型）
-- 計算量: なし
+`wait_for` / `wait_until` の戻り値です。
 
+遅延実行（`std::launch::deferred`）の `future` は、`get()` を呼ぶまで、仕事が始まりません。`wait_for` で待っても、何も進まないので、待たずに `deferred` を返します。`while (f.wait_for(10ms) != future_status::ready) {}` と書くと、`deferred` のときに、永久に回ります。
+
+そのため、ループで待つときは、`timeout` かどうかを見て、`deferred` なら、先に `get()` で実行させる、といった分岐が要ります。
 
 ## 実際に動かしてみる
 
@@ -45,43 +50,51 @@ enum class future_status { ready, timeout, deferred };
 
 int main() {
   using namespace std::chrono_literals;
-  auto f = std::async(std::launch::deferred, [] { return 1; });
-  std::println("{}", f.wait_for(0s) == std::future_status::deferred);
+
+  // 時間切れ: promise がまだ値を入れていない
+  std::promise<int> p;
+  std::future<int> f = p.get_future();
+  std::println("時間切れ: {}", f.wait_for(1ms) == std::future_status::timeout);
+
+  // 準備完了
+  p.set_value(7);
+  std::println("準備完了: {}", f.wait_for(1ms) == std::future_status::ready);
+
+  // 遅延実行
+  auto d = std::async(std::launch::deferred, [] { return 1; });
+  std::println("遅延: {}", d.wait_for(1ms) == std::future_status::deferred);
 }
 ```
 
 ```text title="実行結果"
-true
+時間切れ: true
+準備完了: true
+遅延: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ロード中を別の画面表示でつなぐ | `if (f.wait_for(0s) == std::future_status::ready) { ... }` |
+ロード画面で、非同期の読み込みの完了を、毎フレーム `wait_for(0ms)` で確かめるのに使います。
 
 ## よくあるミス
 
-??? failure "`deferred` を忘れる"
-    `launch::deferred` の `future` は、`wait_for` が常に `deferred` を返します。`get()` するまで動きません。
+??? failure "deferred を考えずにループで待つ"
+    永久に回ります。
+
+??? failure "ready を確かめずに get する"
+    待たされます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`future`](future.md) | 結果を受け取る |
-| [`launch`](launch.md) | 実行方法 |
+| [`future`](future.md) | `wait_for` を持つ |
+| [`launch`](launch.md) | 実行方針 |
+| [`cv_status`](cv_status.md) | 条件変数の同様の列挙型 |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] future の待機の結果
-    - [x] ready / timeout / deferred
-    - [x] 0 秒で wait_for するとポーリング
 
 ## 関連ページ
 

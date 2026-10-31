@@ -14,75 +14,87 @@ tags:
 `#include <stop_token>`
 </div>
 
-停止の機能を持つ関数でも、停止させる必要がない呼び出し元もあります。そのとき、本物の `stop_source` を作る代わりに、`never_stop_token` を渡すと、停止の確認が常に `false` になり、コストもかかりません。
+`std::stop_token` を受け取る関数を、停止を考えない場面でも使いたい。そのために本物の `stop_source` を作るのは無駄です。`std::never_stop_token` は、<strong>絶対に停止しない</strong>ことが型で分かる `stop_token` 風の型で、停止の判定が、常に偽になるように最適化されます。C++26 の機能です。
 
 !!! tip "ポイント"
-    - `stop_possible()` と `stop_requested()` が常に `false`。
-    - ジェネリックな関数で、停止が不要な場合の型として使う。
-    - C++26 の機能。
+    - `stop_possible()` が常に `false`、`stop_requested()` が常に `false`
+    - `stop_token` と同じ使い方ができるが、型が別
+    - テンプレートの引数に使うと、停止の分岐がコンパイル時に消える
+    - C++26。手元の MSVC は未対応
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`std::future`](future.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::never_stop_token {#never_stop_token}
+
+<span class="ver ver-26">C++26</span>
 
 ```cpp
 class never_stop_token {
  public:
   static constexpr bool stop_requested() noexcept { return false; }
   static constexpr bool stop_possible() noexcept { return false; }
+  template <class> struct callback_type { callback_type(never_stop_token, auto&&) noexcept {} };
 };
 ```
 
-- 戻り値: なし
-- 計算量: 定数
+`stoppable_token` コンセプトを満たします。停止の判定が `constexpr` で常に偽なので、テンプレートが、停止に関するコードを丸ごと取り除けます。
 
-
-## 実際に動かしてみる
+`std::stop_token` を受け取るテンプレート関数に、停止を考えない呼び出し側が、`never_stop_token{}` を渡す、という使い方をします。
 
 ```cpp
-#include <print>
+template <std::stoppable_token Token>
+void Work(Token token) {
+  while (!token.stop_requested()) { /* ... */ }
+}
+Work(std::never_stop_token{});   // 停止の判定が消える
+```
+
+C++26 の機能で、手元の MSVC（Visual Studio 2026）では、まだ使えません。
+
+## 使い方の形
+
+```cpp
 #include <stop_token>
 
-int main() {
-  std::never_stop_token t;
-  std::println("{}", t.stop_possible());
+// 停止の要求を見るテンプレート
+template <std::stoppable_token Token>
+int CountUntilStop(Token token, int limit) {
+  int n = 0;
+  while (!token.stop_requested() && n < limit) ++n;
+  return n;
 }
+
+// C++26 の環境では、停止しないトークンを渡せる:
+//   CountUntilStop(std::never_stop_token{}, 100);
+// 通常の stop_token は:
+//   CountUntilStop(std::stop_source{}.get_token(), 100);
 ```
 
-```text title="実行結果"
-false
-```
+手元の MSVC では `never_stop_token` を使えないので、動かさずに、使い方の形だけを示します。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 停止不要の呼び出し | `Run(std::never_stop_token{})` |
+停止を考えない呼び出し側と、停止を考える呼び出し側で、同じテンプレート関数を使い回します。
 
 ## よくあるミス
 
-??? failure "停止できると期待する"
-    停止が要求されることはありません。
+??? failure "C++23 以前の環境で使う"
+    未対応です。`stop_source` のトークンで代用します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`stop_token`](stop_token.md) | 実際の stop_token |
+| [`stop_token`](stop_token.md) | 通常のトークン |
+| [`nostopstate`](nostopstate.md) | 状態を持たない `stop_source` |
+| [`stop_source`](stop_source.md) | 要求を出す側 |
 
 ## コンパイラ対応
 
-C++26 の機能です。対応は新しい標準ライブラリに限られます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 絶対に止まらない stop_token
-    - [x] 常に false
-    - [x] C++26
+C++26 から使えます。手元の MSVC では未対応のため、サンプルは動かしていません。
 
 ## 関連ページ
 

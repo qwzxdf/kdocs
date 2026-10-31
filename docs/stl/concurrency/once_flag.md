@@ -14,19 +14,22 @@ tags:
 `#include <mutex>`
 </div>
 
-設定の読み込みやリソースの初期化を「最初に必要になったときに 1 回だけ」行いたい。複数のスレッドが同時に来ても、1 回だけ実行されなければ困ります。`std::call_once` と `std::once_flag` を組み合わせると、それが実現できます。`once_flag` は、「もう実行したか」を覚えておく旗です。コピーもムーブもできません。
+スレッドが複数あっても、初期化処理を 1 回だけ実行したい。`std::once_flag` は、その「実行済みか」を覚えておく印で、`std::call_once` と組み合わせて使います。
 
 !!! tip "ポイント"
-    - `std::call_once(flag, 関数)` に渡して使う。
-    - コピー・ムーブできない。
-    - スレッドセーフな遅延初期化に使う。
+    - `call_once(flag, f)` で、`flag` ごとに `f` が 1 回だけ実行される
+    - コピーもムーブもできない
+    - 複数のスレッドが同時に呼んでも、1 つだけが実行し、他は終わるまで待つ
+    - `static` 変数のローカル初期化も、同じ保証がある
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`std::mutex`](mutex.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::once_flag {#once_flag}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
 struct once_flag {
@@ -36,58 +39,62 @@ struct once_flag {
 };
 ```
 
-- 戻り値: なし（旗）
-- 計算量: 定数
+`once_flag` は、メンバー関数を持たない、状態だけの型です。`call_once` が内部の状態を読み書きします。
 
+クラスのメンバーにして、そのオブジェクトごとに 1 回だけ初期化する使い方が便利です。グローバルや `static` にすれば、プログラム全体で 1 回です。
+
+`f` が例外を投げた場合は、実行済みとは見なされません。次の `call_once` が、また実行します。
+
+関数内の `static` 変数の初期化は、C++11 から、スレッド安全に 1 回だけ行われます。単純な遅延初期化なら、それで足ります。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <mutex>
 #include <print>
+#include <thread>
+#include <vector>
+
+std::once_flag g_flag;
+int g_init_count = 0;
+
+void Init() { ++g_init_count; }
 
 int main() {
-  std::once_flag flag;
-  for (int i = 0; i < 3; ++i) {
-    std::call_once(flag, [] { std::println("once"); });
+  std::vector<std::thread> threads;
+  for (int i = 0; i < 4; ++i) {
+    threads.emplace_back([] { std::call_once(g_flag, Init); });
   }
+  for (auto& t : threads) t.join();
+
+  std::println("初期化された回数: {}", g_init_count);
 }
 ```
 
 ```text title="実行結果"
-once
+初期化された回数: 1
 ```
 
 ## ゲームでの使いどころ
 
-シングルトンの遅延初期化に使います。リソースマネージャーを最初に使うときにだけ作る、といった場面です。複数のスレッドが同時に初めて呼んでも、初期化は 1 回だけです。
-
-関数内の `static` 変数も、C++11 以降はスレッドセーフに 1 回だけ初期化されます。単純な場合は、`static` 変数のほうが簡単です。`once_flag` は、初期化の処理が複数の変数にまたがるときに使います。
+遅延初期化するシングルトンや、最初に使われたときに作るリソースに使います。
 
 ## よくあるミス
 
-??? failure "旗を毎回新しく作る"
-    `once_flag` を関数の中のローカル変数にすると、毎回新しい旗になり、毎回実行されます。`static` かメンバにします。
-
-??? failure "フラグをコピーしようとする"
-    `once_flag` はコピーもムーブもできません。クラスのメンバーとして持つ場合、そのクラスもコピーできなくなります。
+??? failure "once_flag をコピーする"
+    コピーできません。参照かポインターで渡します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`call_once`](call_once.md) | 1 回だけ実行する |
+| [`call_once`](call_once.md) | 実行する関数 |
+| [`mutex`](mutex.md) | 毎回ロックする普通の方法 |
+| `static` 変数 | 関数内の簡単な遅延初期化 |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 「1 回だけ」の旗
-    - [x] call_once と組み合わせる
-    - [x] static かメンバにする
 
 ## 関連ページ
 

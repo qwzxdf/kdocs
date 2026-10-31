@@ -14,61 +14,62 @@ tags:
 `#include <rcu>`
 </div>
 
-ふつうは自分でドメインを作らず、標準のドメインを使います。`std::rcu_default_domain()` が、そのドメインへの参照を返します。
+`std::rcu_default_domain()` は、プログラム全体で共通の、既定の RCU ドメインへの参照を返します。ドメインを指定しない `rcu_retire` や `rcu_synchronize` は、これを使います。通常は、これだけで足ります。
 
 !!! tip "ポイント"
-    - 標準のドメインを返す。
-    - `scoped_lock lk(std::rcu_default_domain());` で読み取り区間を作る。
-    - プログラム全体で 1 つ。
+    - `rcu_domain&` を返す
+    - プログラムに 1 つ。いつ呼んでも同じオブジェクト
+    - 読み手の区間は `std::scoped_lock(std::rcu_default_domain())` で囲む
+    - C++26
 
 !!! info "このページを読む前に"
-    [並行処理の基本](../../basics/concurrency.md) を先に読んでください。
+    [`rcu_domain`](rcu_domain.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::rcu_default_domain {#rcu_default_domain}
 
+<span class="ver ver-26">C++26</span>
+
 ```cpp
-rcu_domain& rcu_default_domain() noexcept;
+std::rcu_domain& rcu_default_domain() noexcept;
 ```
 
-- 戻り値: 標準の `rcu_domain` への参照
-- 計算量: 実装依存
+別のドメインを作ることも仕様上はできますが、標準では、ドメインを自作する方法は限られていて、既定のドメインを使うのが普通です。
 
+読み手が区間に入ってから出るまでの間は、このドメインの書き手（`rcu_synchronize`）が待たされる対象になります。
 
-## 実際に動かしてみる
+## 使い方の形
+
+手元の MSVC では使えないので、動かさずに、形だけを示します。
 
 ```cpp
-// 例（概念）: 標準のドメインで読み取り区間を作る
+void Reader() {
+  std::scoped_lock guard(std::rcu_default_domain());
+  // 共有データを読む
+}
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 読み取りが圧倒的に多い共有データの管理 | 標準のドメインで読み取り区間を作る |
+RCU を使うほぼすべての場面で、読み手の区間の指定に使います。
 
 ## よくあるミス
 
-??? failure "ドメインを自作する"
-    特別な理由がなければ、標準のドメインを使います。
+??? failure "区間を長く保つ"
+    書き手の解放が遅れます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`rcu_domain`](rcu_domain.md) | ドメインの型 |
+| [`rcu_synchronize`](rcu_synchronize.md) | 読み手の終了を待つ |
+| [`rcu_retire`](rcu_retire.md) | 解放を予約する |
 
 ## コンパイラ対応
 
-C++26 の機能です。対応する標準ライブラリは、まだ限られます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 標準の RCU ドメインを返す関数
-    - [x] 読み取りをロックなしで行う仕組み
-    - [x] C++26
+C++26 の機能です。手元の MSVC（Visual Studio 2026）では未対応のため、サンプルは動かしていません。
 
 ## 関連ページ
 
