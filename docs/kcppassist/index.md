@@ -15,7 +15,7 @@ K-CppAssist は、この往復をキー 1 つにする Visual Studio 用の拡�
 
 ## ダウンロード
 
-<p><a class="md-button md-button--primary" href="K-CppAssist-0.8.4.vsix" download>K-CppAssist 0.8.4 をダウンロード（.vsix、約 68 KB）</a></p>
+<p><a class="md-button md-button--primary" href="K-CppAssist-0.8.5.vsix" download>K-CppAssist 0.8.5 をダウンロード（.vsix、約 68 KB）</a></p>
 
 Visual Studio 2026（Community・Professional・Enterprise）で動きます。2022 にも入れられます。Windows の x64 が対象です。ダウンロードした `.vsix` をダブルクリックして、画面の指示に従ってインストールし、Visual Studio を再起動します。新しい版に更新するときも、同じ手順で上書きできます。アンインストールは、Visual Studio の「拡張機能の管理」から行います。
 
@@ -171,6 +171,7 @@ Alloc::Alloc(Dev* device, int type) {...}  // ← 自動で (Dev* device, int ty
 | 版 | 内容 |
 | --- | --- |
 | 0.7.1 | 引数の自動合わせで、相手が開いていなくても、開いて書き換えるようにした(書き換えたあとは、作業中のファイルへ戻る) |
+| 0.8.5 | 実在のコード（DirectXTK・Dear ImGui・LevelDB・spdlog のヘッダーと cpp）で引数の自動合わせを総当たりで試して、見つかった取りこぼしを直した。SAL 注釈（`_In_`、`_Out_writes_bytes_(n)` など）がヘッダーにだけある関数、`__cdecl` などの呼び出し規約の有無が違う関数も、相手を見つけられるようにした。1 MB 近いファイルで、解析が 4 倍ほど遅くなる所を直した |
 | 0.8.4 | 引数の自動合わせを、即座に反映するようにした（待ちの初期値を 0 にした）。引数の名前を壊さないようにした（cpp の本文が使う名前を、ヘッダーの引数で上書きしない）。オーバーロード（`const` の有無も含む）と、`namespace` が違う同名の関数を、取り違えないようにした。`Foo const&` と `const Foo&` の違いや、引数の間のコメントがあっても、相手を見つけられるようにした |
 | 0.8.3 | 引数の自動合わせの待ちを、約 1.2 秒（括弧の中で打っているあいだは約 4 秒）から約 0.25 秒に縮めた。補完リストが出ていても写す。待ちは設定で変えられる |
 | 0.8.2 | 引数を合わせた場所を見せる小さなウィンドウを、エディターの右上ではなく、いま打っている位置の少し上に出すようにした（上に収まらなければ下） |

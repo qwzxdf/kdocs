@@ -21,7 +21,7 @@ static class SyncTests
     /// edited の before → after で変わった関数の相手を other から選んで、書き換えたあとの other を返す。
     /// 書き換えない場合は、"!理由" を返す。
     /// </summary>
-    static string Sync(string before, string after, string other)
+    public static string Sync(string before, string after, string other)
     {
         var sb = FunctionScan.Scan(before);
         var sa = FunctionScan.Scan(after);
@@ -215,6 +215,21 @@ static class SyncTests
         Check("extern \"C\" の中", Sync("extern \"C\" {\nvoid F(int a);\n}\n", "extern \"C\" {\nvoid F(int a, int b);\n}\n", "void F(int a) {}\n"), "void F(int a, int b) {}\n");
         Check("無名 namespace", Sync("namespace {\nvoid F(int a);\n}\n", "namespace {\nvoid F(int a, int b);\n}\n", "namespace {\nvoid F(int a) {}\n}\n"), "namespace {\nvoid F(int a, int b) {}\n}\n");
         Check("= default は相手なし", Sync("class A {\n public:\n  A(int a) = default;\n};\n", "class A {\n public:\n  A(int a, int b) = default;\n};\n", "A::A(int a) {}\n"), "A::A(int a, int b) {}\n");
+
+        // ---- 12. 実在のコード(DirectXTK など)で見つかったもの ----
+        string h12 = "class A {\n public:\n  void F(_In_ const char* s, _Out_writes_bytes_(n) void* p, size_t n);\n  void G(std::function<void __cdecl()> f);\n};\n";
+        Case("SAL 注釈はヘッダーだけ(_Use_decl_annotations_)", h12, h12.Replace("size_t n);", "size_t n, int k);"),
+             "_Use_decl_annotations_ void A::F(const char* s, void* p, size_t n) {}\n", "_Use_decl_annotations_ void A::F(const char* s, void* p, size_t n, int k) {}\n");
+        Case("呼び出し規約の有無(__cdecl)", h12, h12.Replace("void G(std::function<void __cdecl()> f)", "void G(std::function<void __cdecl()> f, int k)"),
+             "void A::G(std::function<void()> f) {}\n", "void A::G(std::function<void()> f, int k) {}\n");
+        {
+            // 1 MB 近い cpp でも、解析が 1 秒を超えない(キーを押すたびに動くので)
+            var big = new System.Text.StringBuilder();
+            for (int k = 0; k < 6000; k++) big.Append("static const int kTable" + k + "[] = { 1, 2, 3, (4), (5) };\nvoid A::F" + k + "(int a) { if (a) { Use(a); } }\n");
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            var sigs = FunctionScan.Scan(big.ToString());
+            Check("大きなファイルの解析(" + big.Length / 1024 + " KB)", (sigs.Count == 6000 && sw.ElapsedMilliseconds < 1000).ToString(), "True");
+        }
 
         Check("既定値の順序: 後ろに既定値なしが来る", SignatureSync.DefaultsOutOfOrder(SignatureSync.SplitParams("int a = 3, int b")).ToString(), "True");
         Check("既定値の順序: 正しい", SignatureSync.DefaultsOutOfOrder(SignatureSync.SplitParams("int a, int b = 3, int c = 4")).ToString(), "False");
