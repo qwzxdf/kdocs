@@ -242,7 +242,7 @@ bool LoadGame(SaveData& data, const char* path) {
 
 ## 型に対応させるヘッダ
 
-cereal は、**使う型ごとにヘッダを include する**必要があります。忘れると、`cereal could not find any output serialization functions` のような長いエラーになります。
+cereal は、**使う型ごとにヘッダを include します。忘れると、`cereal could not find any output serialization functions` のような長いエラーになります。
 
 | ヘッダ | 対応する型 |
 | --- | --- |

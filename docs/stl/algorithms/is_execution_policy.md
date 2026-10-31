@@ -14,7 +14,7 @@ tags:
 `#include <execution>`
 </div>
 
-実行ポリシーを受け取るテンプレート関数は、引数の型が、実行ポリシーかを区別する必要があります。`std::is_execution_policy<T>` は、型 `T` が実行ポリシー（`seq`、`par`、`par_unseq`、`unseq` の型）かを、コンパイル時に調べる型特性です。
+実行ポリシーを受け取るテンプレート関数は、引数の型が、実行ポリシーかを区別します。`std::is_execution_policy<T>` は、型 `T` が実行ポリシー（`seq`、`par`、`par_unseq`、`unseq` の型）かを、コンパイル時に調べる型特性です。
 
 !!! tip "ポイント"
     - `is_execution_policy_v<T>` が真なら、`T` は実行ポリシー

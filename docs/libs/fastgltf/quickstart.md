@@ -61,7 +61,7 @@ bool LoadModel(const std::filesystem::path& path, fastgltf::Asset& out) {
 | `Error` | エラーの種類（`Error::None` なら成功）。`getErrorMessage` で説明 |
 
 !!! note ".glb と .gltf"
-    `.glb` も`.gltf` も`loadGltf` が、自動判別します（ファイルの種類を確認して、適切に処理）。tinygltf のように関数を分ける必要は、ありません。
+    `.glb` も`.gltf` も`loadGltf` が、自動判別します（ファイルの種類を確認して、それぞれの読み方で処理）。tinygltf のように関数を分ける必要は、ありません。
 
 ## Asset の中身
 

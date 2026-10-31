@@ -15,16 +15,16 @@ tags:
 `#include <concepts>`
 </div>
 
-`std::totally_ordered_with<T, U>` は、型の違う値どうしを、`<`、`>`、`<=`、`>=` で比べられ、しかも全順序（どの 2 つも大小が決まる）になっていることを表します。`int` と `double` は満たしますが、`int` と `std::string` は満たしません。
+`std::totally_ordered_with<T, U>` は型の違う値どうしを `<`、`>`、`<=`、`>=` で比べられしかも全順序（どの 2 つも大小が決まる）になっていることを表します。`int` と `double` は満たしますが `int` と `std::string` は満たしません。
 
 !!! tip "ポイント"
-    - `<`、`>`、`<=`、`>=` が、両方向で書ける
+    - `<`、`>`、`<=`、`>=` が両方向で書ける
     - `equality_comparable_with` も満たす
     - 全順序であること（意味の約束）
-    - `std::ranges::lower_bound(r, value)` で、値の型が違ってもよい理由
+    - `std::ranges::lower_bound(r, value)` で値の型が違ってもよい理由
 
 !!! info "このページを読む前に"
-    [コンセプト](../../../basics/template.md) の考え方と、[`std::same_as`](same_as.md) を先に読んでください。
+    [コンセプト](../../../basics/template.md) の考え方と[`std::same_as`](same_as.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -40,15 +40,15 @@ concept totally_ordered_with = std::totally_ordered<T> && std::totally_ordered<U
     && /* < > <= >= が両方向で書ける */;
 ```
 
-満たすべき条件は、次のとおりです。
+満たすべき条件は次のとおりです。
 
 - `std::totally_ordered<T>` と `std::totally_ordered<U>`
 - `std::equality_comparable_with<T, U>`
-- `t < u`、`t > u`、`t <= u`、`t >= u` と、`u` と `t` を入れ替えたものが書ける
+- `t < u`、`t > u`、`t <= u`、`t >= u` と `u` と `t` を入れ替えたものが書ける
 
-浮動小数点数は、`NaN` があるため、全順序ではありません。`double` は、`totally_ordered` を満たすと扱われますが、`NaN` との比較は、意味の約束を破ります。
+浮動小数点数は `NaN` があるため、全順序ではありません。`double` は `totally_ordered` を満たすと扱われますが、`NaN` との比較は意味の約束を破ります。
 
-意味の約束は、コンパイラには確かめられません。型の作者が守ります。
+意味の約束はコンパイラには確かめられません。型の作者が守ります。
 
 ## 実際に動かしてみる
 
@@ -82,7 +82,7 @@ string と const char*: true
 
 ## ゲームでの使いどころ
 
-異なる型の値を、二分探索の探し値に渡せるようにする、アルゴリズムの制約に使います。
+異なる型の値を二分探索の探し値に渡せるようにする、アルゴリズムの制約に使います。
 
 ## よくあるミス
 

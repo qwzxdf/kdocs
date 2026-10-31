@@ -122,7 +122,7 @@ device->CreatePixelShader(ps_bytecode->GetBufferPointer(), ps_bytecode->GetBuffe
 
 ## ビルド時にコンパイルする
 
-実行時のコンパイルは起動が遅く、リリースで HLSL を同梱する必要があります。<strong>ビルド時にコンパイルして `.cso`（コンパイル済み）を読み込む</strong>のが製品の標準です。
+実行時のコンパイルは起動が遅く、リリースで HLSL を同梱します。<strong>ビルド時にコンパイルして `.cso`（コンパイル済み）を読み込む</strong>のが製品の標準です。
 
 ### Visual Studio
 

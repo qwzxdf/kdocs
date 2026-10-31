@@ -18,11 +18,11 @@ tags:
 <strong>アロケータ（allocator）</strong> は、コンテナが**メモリを確保・解放するときの窓口**になるオブジェクトです。`std::vector<int>` と書くと、本当は `std::vector<int, std::allocator<int>>` という意味で、2 つ目のテンプレート引数がアロケータです。何も指定しなければ、標準の `std::allocator`（中で `new` / `delete` を呼ぶだけ）が使われます。自分でアロケータを作ってコンテナに渡すと、<strong>「どこから」「どうやって」メモリを取るか</strong>を差し替えられます。たとえば、フレームごとに一気に捨てられる領域、固定サイズのプール、デバッグ用の確保回数カウンタなどです。ゲームでは「確保が速いこと」と「確保が一定時間で終わること」が大事なので、アロケータはパフォーマンス調整の道具として使われます。
 
 !!! tip "ポイント"
-    - <strong>ほとんどの人は `std::allocator`（何も指定しない）のままでよい。</strong> 変えたくなるのは、確保がボトルネックだと計測で分かったときだけ。
-    - 変えたいときは、自作アロケータよりも <strong>[`std::pmr`](pmr.md)（型を変えずにメモリの取り先を切り替えられる仕組み）</strong> のほうが簡単。
-    - 自作するなら必要なのは **`value_type`、`allocate`、`deallocate`、`operator==`、型変換用のコンストラクタ** の 5 つだけ（C++11 以降）。
-    - アロケータは「<strong>メモリ（確保した生の領域）</strong>」を扱う。オブジェクトの作成・破棄（コンストラクタ・デストラクタ）はコンテナ側の仕事。
-    - **アロケータが違うと型が違う**。`std::vector<int>` と `std::vector<int, MyAlloc<int>>` は別の型で、代入や関数の引数に渡せない。
+    - ほとんどの人は `std::allocator`（何も指定しない）のままでよい。 変えたくなるのは、確保がボトルネックだと計測で分かったときだけ。
+    - 変えたいときは、自作アロケータよりも [`std::pmr`](pmr.md)（型を変えずにメモリの取り先を切り替えられる仕組み） のほうが簡単。
+    - 自作するなら必要なのは `value_type`、`allocate`、`deallocate`、`operator==`、型変換用のコンストラクタ の 5 つだけ（C++11 以降）。
+    - アロケータは「メモリ（確保した生の領域）」を扱う。オブジェクトの作成・破棄（コンストラクタ・デストラクタ）はコンテナ側の仕事。
+    - アロケータが違うと型が違う。`std::vector<int>` と `std::vector<int, MyAlloc<int>>` は別の型で、代入や関数の引数に渡せない。
 
 !!! info "このページを読む前に"
     [`new` と `delete`](new_delete.md)、[テンプレート](../../basics/template.md)、[所有権](../../basics/ownership.md) を先に読むと分かりやすいです。C 由来の `malloc` は [malloc / free](malloc.md) を見てください。
@@ -43,8 +43,8 @@ struct allocator {
 | 部分 | 意味 |
 | --- | --- |
 | `value_type` | このアロケータが確保する要素の型 |
-| `allocate(n)` | `T` を `n` 個ぶん入れられる**生のメモリ**を確保して、先頭のポインタを返す |
-| `deallocate(p, n)` | `allocate(n)` で確保した領域を返す。`n` は**確保したときと同じ数**を渡す |
+| `allocate(n)` | `T` を `n` 個ぶん入れられる生のメモリを確保して、先頭のポインタを返す |
+| `deallocate(p, n)` | `allocate(n)` で確保した領域を返す。`n` は確保したときと同じ数を渡す |
 | 型変換用のコンストラクタ | `allocator<int>` から `allocator<Node>` を作れる（リストなどが内部のノード型に合わせるため） |
 
 ## どこで使われているか
@@ -53,7 +53,7 @@ struct allocator {
 | --- | --- |
 | [`std::vector`](../containers/vector.md) | 要素の配列を 1 つの大きな領域として確保する（`reserve` や再確保のたび） |
 | [`std::deque`](../containers/deque.md) | 小さなブロックを複数確保する |
-| [`std::list`](../containers/list.md) / [`std::map`](../containers/map.md) / [`std::set`](../containers/set.md) | **要素 1 個ごとに**ノードを確保する（そのため遅く、アロケータの影響が大きい） |
+| [`std::list`](../containers/list.md) / [`std::map`](../containers/map.md) / [`std::set`](../containers/set.md) | 要素 1 個ごとにノードを確保する（そのため遅く、アロケータの影響が大きい） |
 | [`std::unordered_map`](../containers/unordered_map.md) | ノードとバケット配列を確保する |
 | [`std::string`](../containers/string.md) | 文字数が長いときだけ確保する（短い文字列は中に持つ） |
 | [`std::shared_ptr`](../utilities/shared_ptr.md) | `std::allocate_shared` で制御ブロックごと確保できる |
@@ -138,12 +138,12 @@ int main() {
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `n` | `std::size_t` | 確保したい**要素の数**（バイト数ではない） |
+| `n` | `std::size_t` | 確保したい要素の数（バイト数ではない） |
 
-- 戻り値: `T` を `n` 個入れられる領域の先頭ポインタ。**中身は未初期化**で、コンストラクタも呼ばれていない
+- 戻り値: `T` を `n` 個入れられる領域の先頭ポインタ。中身は未初期化で、コンストラクタも呼ばれていない
 - 計算量: 実装による（標準の `std::allocator` は `operator new` を 1 回呼ぶので、システムの確保と同じ）
 - 例外: 確保できないと `std::bad_alloc`。`n` が大きすぎると `std::bad_array_new_length`
-- 返るポインタは `T` の**アラインメント**（置ける場所の約束）を満たしている
+- 返るポインタは `T` のアラインメント（置ける場所の約束）を満たしている
 
 <div class="anim" data-label="allocator.allocate(4)  ※バンプ（積むだけ）方式">
 _ _ _ _ _ _ # 用意した領域。まだ何も使っていない
@@ -160,12 +160,12 @@ void deallocate(T* p, std::size_t n);
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `p` | `T*` | `allocate` が返したポインタ |
-| `n` | `std::size_t` | `allocate` に渡した**同じ数** |
+| `n` | `std::size_t` | `allocate` に渡した同じ数 |
 
 - 戻り値: なし
 - 計算量: 実装による
-- `p` と `n` は `allocate` のときと**完全に一致**していなければなりません（`n` を変えると未定義動作）。コンテナは自分の容量（`capacity`）を覚えているので、それを渡してくれます
-- ここでは**要素のデストラクタは呼ばれません**。先に `destroy` を呼ぶのはコンテナの役目です
+- `p` と `n` は `allocate` のときと完全に一致していなければなりません（`n` を変えると未定義動作）。コンテナは自分の容量（`capacity`）を覚えているので、それを渡してくれます
+- ここでは要素のデストラクタは呼ばれません。先に `destroy` を呼ぶのはコンテナの役目です
 
 ### construct {#construct}
 
@@ -195,7 +195,7 @@ void destroy(T* p);  // allocator_traits 経由で呼ぶ
 | `p` | `pointer` | 破棄するオブジェクトの場所 |
 
 - 戻り値: なし
-- `p->~T()`（デストラクタ）を呼ぶだけで、**メモリは返しません**。返すのは `deallocate` の役目です
+- `p->~T()`（デストラクタ）を呼ぶだけで、メモリは返しません。返すのは `deallocate` の役目です
 
 ### allocate_at_least <span class="ver ver-23">C++23</span> {#allocate_at_least data-toc-label="allocate_at_least"}
 
@@ -334,7 +334,7 @@ int main() {
 ```
 
 !!! warning "アリーナの注意"
-    - `deallocate` が何もしないので、`reserve` なしで `push_back` を繰り返して再確保が起きると、**古い領域もアリーナに残り続けます**。アリーナを使うコンテナは、先に `reserve` するのが基本です。
+    - `deallocate` が何もしないので、`reserve` なしで `push_back` を繰り返して再確保が起きると、古い領域もアリーナに残り続けます。アリーナを使うコンテナは、先に `reserve` するのが基本です。
     - `Reset()` したあとは、そのアリーナを使っていたコンテナを**使ってはいけません**（中身はもう無効です）。先にコンテナを破棄します。
     - 自作せずに、標準の [`std::pmr::monotonic_buffer_resource`](pmr/monotonic_buffer_resource.md#monotonic_buffer_resource) を使うのがおすすめです。
 
@@ -342,10 +342,10 @@ int main() {
 
 | 場面 | 速さ |
 | --- | --- |
-| 標準の `std::allocator` | システムのヒープ（`malloc` と同じ）。1 回の確保は数十〜数百ナノ秒。確保にかかる時間が**一定とは限らない** |
+| 標準の `std::allocator` | システムのヒープ（`malloc` と同じ）。1 回の確保は数十〜数百ナノ秒。確保にかかる時間が一定とは限らない |
 | アリーナ（バンプ） | ポインタを進めるだけ。数ナノ秒で一定。解放は一括 |
 | プール（固定サイズのブロック） | 空きリストをたどるだけ。一定時間。同じ大きさのものだけ |
-| ノード型コンテナ（`list`、`map`） | 要素ごとに確保するので、アロケータの差が**とても大きく**出る |
+| ノード型コンテナ（`list`、`map`） | 要素ごとに確保するので、アロケータの差がとても大きく出る |
 | `vector` | 確保の回数が少ないので、アロケータを変えても差は小さい（`reserve` で十分なことが多い） |
 
 ## ゲームでの使いどころ

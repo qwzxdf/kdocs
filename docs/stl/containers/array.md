@@ -18,10 +18,10 @@ tags:
 装備スロットが 10 個、上下左右の 4 方向、RGB の 3 色。ゲームには、個数が最初から決まっている集まりがたくさんあります。C の配列 `int a[4]` で持つと、関数に渡したときに大きさが消えたり、コピーや比較ができなかったりして、扱いにくい点があります。`std::array` は、中身は C の配列とまったく同じで、速さもメモリも変わらないまま、`size()` が使え、コピーや比較ができる「普通の値」にしたものです。
 
 !!! tip "ポイント"
-    - <strong>個数が決まっているなら C の配列ではなくこれを使う。</strong> 4 方向、装備スロット、キー設定など。
+    - 個数が決まっているなら C の配列ではなくこれを使う。 4 方向、装備スロット、キー設定など。
     - 書き方は `std::array<int, 4> a = {1, 2, 3, 4};`。型と個数をテンプレート引数に書く。
     - 個数が変わるなら [`std::vector`](vector.md)。
-    - **ヒープを使わない**ので、vector よりさらに軽い。
+    - ヒープを使わないので、vector よりさらに軽い。
 
 !!! info "このページを読む前に"
     [テンプレート](../../basics/template.md)、[範囲 for](../../basics/range-for.md) が分かると読みやすいです。
@@ -36,7 +36,7 @@ struct array;
 | テンプレート引数 | 意味 | 指定する？ |
 | --- | --- | --- |
 | `T` | 要素の型 | 必ず |
-| `N` | 要素数。**コンパイル時に決まる定数**でないといけない | 必ず |
+| `N` | 要素数。コンパイル時に決まる定数でないといけない | 必ず |
 
 ### 作り方
 
@@ -45,7 +45,7 @@ struct array;
 | `std::array<int, 3> a = {1, 2, 3};` | <span class="rank rank-must">必須</span> | `1, 2, 3` |
 | `std::array<int, 3> a{};` | <span class="rank rank-must">必須</span> | 全部 `0` |
 | `std::array a = {1, 2, 3};` | <span class="rank rank-often">よく使う</span> | 型と個数を推論（`std::array<int, 3>`） |
-| `std::array<int, 3> a;` | <span class="rank rank-sometimes">たまに</span> | **中身はゴミ**（初期化されない） |
+| `std::array<int, 3> a;` | <span class="rank rank-sometimes">たまに</span> | 中身はゴミ（初期化されない） |
 | `auto a = std::to_array({1, 2, 3});` | <span class="rank rank-rare">知ってるだけ</span> | C の配列や初期化リストから作る <span class="ver ver-20">C++20</span> |
 
 !!! warning "`{}` を忘れると中身が初期化されない"
@@ -92,7 +92,7 @@ vector と同じ名前の関数は同じ意味です。
 | [`front`](#front) | <span class="rank rank-sometimes">たまに</span> | 先頭の要素 | O(1) |
 | [`back`](#back) | <span class="rank rank-sometimes">たまに</span> | 末尾の要素 | O(1) |
 | [`at`](#at) | <span class="rank rank-sometimes">たまに</span> | i 番目にアクセス（範囲チェックあり） | O(1) |
-| [`swap`](#swap) | <span class="rank rank-rare">知ってるだけ</span> | 全要素を交換 | <strong>O(N)</strong> |
+| [`swap`](#swap) | <span class="rank rank-rare">知ってるだけ</span> | 全要素を交換 | O(N) |
 | [`empty`](#empty) | <span class="rank rank-rare">知ってるだけ</span> | `N == 0` かどうか | O(1) |
 | [`max_size`](#max_size) | <span class="rank rank-rare">知ってるだけ</span> | 常に N | O(1) |
 | [`std::get`](#get) | <span class="rank rank-rare">知ってるだけ</span> | コンパイル時の添字でアクセス | O(1) |
@@ -203,7 +203,7 @@ constexpr const_reference operator[](size_type pos) const;
 
 - 戻り値: `pos` 番目の要素の参照
 - 計算量: O(1)
-- 例外: なし。**範囲外は未定義動作**
+- 例外: なし。範囲外は未定義動作
 
 <div class="anim" data-label="a[1]">
 10 20 30 40 # 添字は 0 から
@@ -575,7 +575,7 @@ constexpr T& get(array<T, N>& a) noexcept;
 
 | テンプレート引数 | 意味 |
 | --- | --- |
-| `I` | 位置。**コンパイル時の定数** |
+| `I` | 位置。コンパイル時の定数 |
 
 - 戻り値: `I` 番目の要素の参照
 - 範囲外は**コンパイルエラー**になる（実行時の未定義動作にならない）

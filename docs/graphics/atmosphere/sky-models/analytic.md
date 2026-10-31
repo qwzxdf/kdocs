@@ -57,7 +57,7 @@ Hosek-Wilkie は Preetham の改良版で、特に太陽が低いとき地面の
 
 原典は Preetham らの "A Practical Analytic Model for Daylight"（SIGGRAPH 1999）と、Hosek と Wilkie の "An Analytic Model for Full Spectral Sky-Dome Radiance"（SIGGRAPH 2012）です。どちらも、実測や物理計算の結果を少数のパラメータの式にあてはめた経験式で、大気の散乱を直接は計算しません。そのため、軽い代わりに地上の視点から見た空にしか使えず、宇宙から見た地球や遠景のかすみ（空気遠近法）は扱えません。
 
-どちらも空の見た目だけで大気の中を通る光（遠景の霞・光の筋）は別に計算する必要があります。そこは[Atmospheric Scattering](../scattering/index.md)の担当です。
+どちらも空の見た目だけで大気の中を通る光（遠景の霞・光の筋）は別に計算します。そこは[Atmospheric Scattering](../scattering/index.md)の担当です。
 
 ## 解析的な空のモデル
 

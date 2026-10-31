@@ -70,7 +70,7 @@ class TrackedResource {
 
 ### バリアをまとめる
 
-`ResourceBarrier` は、複数のバリアを 1 回の呼び出しにまとめられます。バリアごとに GPU がパイプラインを待つので、まとめるほうが効率的です（[GPU プロファイラの読み方](../tools.md)）。
+`ResourceBarrier` は、複数のバリアを 1 回の呼び出しにまとめられます。バリアごとに GPU がパイプラインを待つので、まとめるほうが速く済みます（[GPU プロファイラの読み方](../tools.md)）。
 
 ```cpp
 CD3DX12_RESOURCE_BARRIER barriers[2] = {
@@ -90,7 +90,7 @@ list->ResourceBarrier(_countof(barriers), barriers);
 UAV で書いたバッファを別のディスパッチが UAV で読む場合は、UAV バリアです。UAV で書いたバッファを ExecuteIndirect が読む場合は、状態遷移（UAV → INDIRECT_ARGUMENT）です。
 
 !!! note "Enhanced Barriers"
-    新しい API「Enhanced Barriers」（`ID3D12GraphicsCommandList7::Barrier`、Agility SDK）は、同期点・アクセス・レイアウトを細かく指定でき、従来の状態遷移より、柔軟で効率的です。新規に書くなら、検討する価値がありますが、このパートは広く使われている従来のバリアで書いています。
+    新しい API「Enhanced Barriers」（`ID3D12GraphicsCommandList7::Barrier`、Agility SDK）は、同期点・アクセス・レイアウトを細かく指定でき、従来の状態遷移より、柔軟で、無駄が少なくなります。新規に書くなら、検討する価値がありますが、このパートは広く使われている従来のバリアで書いています。
 
 ## フレーム リングとフェンス
 

@@ -15,7 +15,7 @@ tags:
 `#include <utility>` / `#include <cstddef>`
 </div>
 
-このページでは、1 ページにするほどではないけれど知っておくと便利な、**小さな標準機能**をまとめます。enum class を整数に変える `std::to_underlying`、符号付きと符号なしを安全に比べる `std::cmp_less`、生のバイトを表す `std::byte`、「ここには絶対に来ない」を伝える `std::unreachable` などです。
+enum class の値を整数にしたい、符号付きと符号なしを安全に比べたい、生のバイトを `char` と区別したい。こうした小さな要望には、標準ライブラリが答えを用意しています。1 ページにするほどではないけれど知っておくと便利な、<strong>小さな標準機能</strong>を、このページにまとめます。enum class を整数に変える `std::to_underlying`、符号付きと符号なしを安全に比べる `std::cmp_less`、生のバイトを表す `std::byte`、「ここには絶対に来ない」を伝える `std::unreachable` などです。
 
 !!! tip "ポイント"
     - enum class → 整数は **`std::to_underlying(e)`**（C++23）。

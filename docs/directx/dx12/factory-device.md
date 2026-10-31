@@ -296,7 +296,7 @@ DXR のシェーダーを使うにはシェーダー モデル 6.3 以上、`Ray
 
 確認するのは `OPTIONS7.MeshShaderTier` です。`TIER_1` なら頂点シェーダーの代わりにメッシュ シェーダー（とその前段の増幅シェーダー）を使えます。メッシュ シェーダーはシェーダー モデル 6.5 以上が必要です。
 
-メッシュ シェーダーを使うパイプラインは、通常の `CreateGraphicsPipelineState` では作れません。パイプライン ステート ストリーム（`ID3D12Device2::CreatePipelineState`）で作ります。そのため、`Device2` 以降が取れるかどうかも同時に確認する必要があります。
+メッシュ シェーダーを使うパイプラインは、通常の `CreateGraphicsPipelineState` では作れません。パイプライン ステート ストリーム（`ID3D12Device2::CreatePipelineState`）で作ります。そのため、`Device2` 以降が取れるかどうかも同時に確認します。
 
 #### シェーダー モデル
 

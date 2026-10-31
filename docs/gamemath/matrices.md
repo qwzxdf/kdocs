@@ -111,8 +111,8 @@ Vector4 clip = Vector4::Transform(Vector4(local.x, local.y, local.z, 1.0f), worl
 
 | 規約 | 変換の式 | `拡大 → 回転 → 平行移動` の書き方 |
 | --- | --- | --- |
-| 行ベクトル（SimpleMath、DirectXMath、HLSL の `mul(v, M)`） | `v' = v * M` | **`S * R * T`**（左から右） |
-| 列ベクトル（glm、OpenGL の数式、数学の教科書） | `v' = M * v` | **`T * R * S`**（右から左） |
+| 行ベクトル（SimpleMath、DirectXMath、HLSL の `mul(v, M)`） | `v' = v * M` | `S * R * T`（左から右） |
+| 列ベクトル（glm、OpenGL の数式、数学の教科書） | `v' = M * v` | `T * R * S`（右から左） |
 
 ### 順番を変えると、何が起きるか
 
@@ -156,7 +156,7 @@ Vector3 world_dir = Vector3::TransformNormal(local_dir, world);     // 方向：
 
 | 変換するもの | 使う関数 | 理由 |
 | --- | --- | --- |
-| **位置**（頂点、オブジェクトの場所） | `Vector3::Transform` | w = 1 として、平行移動も適用 |
+| 位置（頂点、オブジェクトの場所） | `Vector3::Transform` | w = 1 として、平行移動も適用 |
 | 方向（前方向、速度） | `Vector3::TransformNormal` | w = 0 として、回転と拡大だけ適用 |
 | 法線（面の向き） | 逆転置行列で（[ライティング](../3d/lighting-normals.md)） | 非均一な拡大があると普通の方向の変換では、ずれる |
 

@@ -161,7 +161,7 @@ if (dot(refracted, refracted) < 1e-5) {
 
 ## 水面を下から描く
 
-水面のメッシュを <strong>裏側から</strong>描く必要があります。
+水面のメッシュを <strong>裏側から</strong>描きます。
 
 | 項目 | 内容 |
 | --- | --- |

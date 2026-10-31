@@ -14,11 +14,11 @@ tags:
 `#include <format>`
 </div>
 
-`std::format` に渡された、1 つの引数を、型に関係なく扱うための型が `std::basic_format_arg` です。整数、小数、文字列、ポインタ、自作の型のいずれも、この型の値として、一様に持てます。`basic_format_args::get(i)` が返す型で、`visit_format_arg` で中身を取り出します。
+`std::format` に渡された 1 つの引数を型に関係なく扱うための型が `std::basic_format_arg` です。整数、小数、文字列、ポインタ、自作の型のいずれもこの型の値として、一様に持てます。`basic_format_args::get(i)` が返す型で `visit_format_arg` で中身を取り出します。
 
 !!! tip "ポイント"
-    - 型をそろえた、引数 1 つぶんの入れ物
-    - `explicit operator bool` で、有効な引数か（空でないか）を調べる
+    - 型をそろえた引数 1 つぶんの入れ物
+    - `explicit operator bool` で有効な引数か（空でないか）を調べる
     - 中身の取り出しは `std::visit_format_arg`
     - 自作の `formatter` の実装に近い所で使う
 
@@ -40,13 +40,13 @@ class basic_format_arg {
 };
 ```
 
-内部では、引数の型に応じた値を `std::variant` に近い形で持っています。保存する型は、`bool`、`char`、`int`、`unsigned`、`long long`、`unsigned long long`、`float`、`double`、`long double`、`const char*`、`string_view`、`const void*`、そして自作の型の `handle` です。
+内部では引数の型に応じた値を `std::variant` に近い形で持っています。保存する型は `bool`、`char`、`int`、`unsigned`、`long long`、`unsigned long long`、`float`、`double`、`long double`、`const char*`、`string_view`、`const void*`、そして自作の型の `handle` です。
 
-整数型は、`int` や `long long` に統合されます。たとえば `short` は `int` として保存されます。`std::string` は `string_view` になります。
+整数型は `int` や `long long` に統合されます。たとえば `short` は `int` として保存されます。`std::string` は `string_view` になります。
 
 既定のコンストラクターで作ると、空の引数です。`static_cast<bool>(arg)` が偽になります。
 
-自作の `formatter` の `format` 関数が、幅や精度を別の引数から取る（`{:{}}`）とき、`ctx.arg(n)` で `basic_format_arg` を取得して、`visit_format_arg` で整数として読み取ります。
+自作の `formatter` の `format` 関数が幅や精度を別の引数から取る（`{:{}}`）とき `ctx.arg(n)` で `basic_format_arg` を取得して、`visit_format_arg` で整数として読み取ります。
 
 ## 実際に動かしてみる
 
@@ -79,12 +79,12 @@ int main() {
 
 ## ゲームでの使いどころ
 
-自作の `formatter` を、幅や精度を引数から受け取る形（`{:{}}`）にするときだけ、触れます。
+自作の `formatter` を幅や精度を引数から受け取る形（`{:{}}`）にするときだけ触れます。
 
 ## よくあるミス
 
 ??? failure "空の引数を取り出す"
-    範囲外の番号の `get` は、空の引数を返します。`static_cast<bool>` で確かめてから使います。
+    範囲外の番号の `get` は空の引数を返します。`static_cast<bool>` で確かめてから使います。
 
 ## 類似
 

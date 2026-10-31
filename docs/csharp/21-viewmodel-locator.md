@@ -65,7 +65,7 @@ ViewModelLocator が型を探す規則は、Prism のソースで確かめられ
 - 画面の名前の末尾が `View` なら `Model` を、そうでなければ `ViewModel` を足す。
 - 画面と同じアセンブリ（同じプロジェクト）の中から探す。
 
-具体的には、次のように決まります。
+次のように決まります。
 
 - `Editor.MainWindow` には `Editor.MainWindowViewModel`（`.Views.` がないので、置き換えは起きない。`View` で終わらないので、`ViewModel` を足す。Editor の `MainWindow` は、第 12 章からこの形です）
 - `Editor.SceneTree.SceneTreeView` には `Editor.SceneTree.SceneTreeViewModel`（`View` で終わるので、`Model` を足す。機能ごとのフォルダーに、画面とビューモデルを並べる形。第 23 章で使います）

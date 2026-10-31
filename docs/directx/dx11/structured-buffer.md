@@ -82,7 +82,7 @@ void UpdateCS(uint3 id : SV_DispatchThreadID) {
 }
 ```
 
-HLSL の構造体と C++ の構造体を <strong>同じ並び・同じ大きさ</strong>にそろえます。定数バッファと違い 16 バイト境界の規則は、ありませんが `float3` の次に `float` を置くときれいに 16 バイトに収まる並びに、しておくと GPU のアクセスが効率的です。
+HLSL の構造体と C++ の構造体を <strong>同じ並び・同じ大きさ</strong>にそろえます。定数バッファと違い 16 バイト境界の規則は、ありませんが `float3` の次に `float` を置くときれいに 16 バイトに収まる並びにしておくと、GPU のアクセスが速くなります。
 
 ## 生のバッファ（ByteAddressBuffer）
 

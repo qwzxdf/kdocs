@@ -18,10 +18,10 @@ tags:
 **`std::pmr`<strong>（polymorphic memory resource：多態的なメモリリソース）は、</strong>コンテナの型を変えずに、メモリの取り先を実行時に切り替えられる**仕組みです。[自作アロケータ](allocator.md) は、アロケータの種類がコンテナの型に入るので、`std::vector<int>` と `std::vector<int, MyAlloc<int>>` が別の型になってしまいました。pmr では、`std::pmr::vector<int>` という**1 つの型**のまま、「どのメモリを使うか」を値（`memory_resource` へのポインタ）として渡します。標準で用意されているのが、**積むだけで超高速な `monotonic_buffer_resource`<strong>（フレーム用の領域に最適）と、</strong>サイズ別のプール `unsynchronized_pool_resource`** です。ゲームのフレームごとの一時データには、ほぼこれで足ります。
 
 !!! tip "ポイント"
-    - <strong>「確保が遅い」と計測で分かったら、まず `std::pmr::monotonic_buffer_resource` を試す。</strong> 自作アロケータより簡単。
-    - 型は **`std::pmr::vector<T>`<strong>、</strong>`std::pmr::string`<strong>、</strong>`std::pmr::unordered_map<K, V>`** など（`std::pmr::` を付けるだけ）。
-    - フレーム用の領域は、**`std::byte buffer[N]` を渡して、フレームの最後に `release()`** で一括解放する。
-    - リソースは**コンテナより長生きさせる**。先に消すとダングリングになる。
+    - 「確保が遅い」と計測で分かったら、まず `std::pmr::monotonic_buffer_resource` を試す。 自作アロケータより簡単。
+    - 型は `std::pmr::vector<T>`<strong>、</strong>`std::pmr::string`<strong>、</strong>`std::pmr::unordered_map<K, V>` など（`std::pmr::` を付けるだけ）。
+    - フレーム用の領域は、`std::byte buffer[N]` を渡して、フレームの最後に `release()` で一括解放する。
+    - リソースはコンテナより長生きさせる。先に消すとダングリングになる。
     - 渡さなければ、デフォルト（普通の `new` / `delete`）が使われる。
 
 !!! info "このページを読む前に"
@@ -57,9 +57,9 @@ l alloc res2 hit サイズ別
 </div>
 
 
-- **`memory_resource`**: メモリの確保・解放を行う基底クラス。3 つの仮想関数（`do_allocate`、`do_deallocate`、`do_is_equal`）を持つ
-- **`polymorphic_allocator<T>`**: `memory_resource*` を 1 つ持つアロケータ。コンテナが使う
-- **`std::pmr::vector<T>`**: `std::vector<T, std::pmr::polymorphic_allocator<T>>` の別名
+- `memory_resource`: メモリの確保・解放を行う基底クラス。3 つの仮想関数（`do_allocate`、`do_deallocate`、`do_is_equal`）を持つ
+- `polymorphic_allocator<T>`: `memory_resource*` を 1 つ持つアロケータ。コンテナが使う
+- `std::pmr::vector<T>`: `std::vector<T, std::pmr::polymorphic_allocator<T>>` の別名
 
 ## 関数・型一覧
 
@@ -167,7 +167,7 @@ frame 2: 2 hits
 | リソース | 確保 | 解放 | 向いている形 |
 | --- | --- | --- | --- |
 | `new_delete_resource` | 普通のヒープ | 普通のヒープ | 何でも |
-| `monotonic_buffer_resource` | **ポインタを進めるだけ**（数ナノ秒） | 何もしない（`release` で一括） | 一時データ、作って最後にまとめて捨てるもの |
+| `monotonic_buffer_resource` | ポインタを進めるだけ（数ナノ秒） | 何もしない（`release` で一括） | 一時データ、作って最後にまとめて捨てるもの |
 | `unsynchronized_pool_resource` | 空きリストから取る（速い） | 空きリストに戻す | 小さいものを大量に作る・消す |
 | `synchronized_pool_resource` | 上と同じ + ロック | 上と同じ + ロック | 複数スレッド |
 

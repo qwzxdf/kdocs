@@ -15,9 +15,9 @@ tags:
 `#include <chrono>`
 </div>
 
-日付を `2026/03/09` の形で、時刻を `14:30:00` の形で、出力したい。`std::chrono::to_stream` は、書式の文字列（`%Y/%m/%d` など）に従って、`year_month_day`、`sys_seconds`、`hh_mm_ss` などの chrono の型を、出力ストリームに書き込みます。書式は `strftime` と同じ系統です。
+日付を `2026/03/09` の形で時刻を `14:30:00` の形で、出力したい。`std::chrono::to_stream` は書式の文字列（`%Y/%m/%d` など）に従って `year_month_day`、`sys_seconds`、`hh_mm_ss` などの chrono の型を出力ストリームに書き込みます。書式は `strftime` と同じ系統です。
 
-C++20 では、`std::format` や `std::println` の書式（`{:%F}`）からも同じ書式が使えるので、新しいコードでは、そちらのほうが書きやすくなります。`to_stream` は、その書式処理の下にある関数です。
+C++20 では `std::format` や `std::println` の書式（`{:%F}`）からも同じ書式が使えるので、新しいコードではそちらのほうが書きやすくなります。`to_stream` はその書式処理の下にある関数です。
 
 !!! tip "ポイント"
     - 第 2 引数が書式。`%Y`、`%m`、`%d`、`%H`、`%M`、`%S` など
@@ -48,13 +48,13 @@ to_stream(std::basic_ostream<CharT, Traits>& os, const CharT* fmt,
 | `fmt` | `const CharT*` | 書式 |
 | 第 3 引数 | chrono の型 | 書き出す値 |
 
-使える書式の指定は、型によって決まります。`year_month_day` なら年月日の指定（`%Y`、`%m`、`%d`、`%F`）、`sys_seconds` なら日時の全部、`hh_mm_ss` なら時刻の指定（`%H`、`%M`、`%S`、`%T`）です。型が持たない情報の指定（日付の型に `%H`）は、書き込みに失敗して、`failbit` が立ちます。
+使える書式の指定は型によって決まります。`year_month_day` なら年月日の指定（`%Y`、`%m`、`%d`、`%F`）、`sys_seconds` なら日時の全部、`hh_mm_ss` なら時刻の指定（`%H`、`%M`、`%S`、`%T`）です。型が持たない情報の指定（日付の型に `%H`）は、書き込みに失敗して `failbit` が立ちます。
 
-戻り値は、`os` への参照です。
+戻り値は `os` への参照です。
 
 ## 実際に動かしてみる
 
-`to_stream` の呼び出しは、次の形です。
+`to_stream` の呼び出しは次の形です。
 
 ```cpp
 std::ostringstream oss;
@@ -62,7 +62,7 @@ std::chrono::to_stream(oss, "%Y/%m/%d", 2026y / March / 9);   // 2026/03/09
 std::chrono::to_stream(oss, "%F %T", sys_days{2026y / March / 9} + 14h + 30min);
 ```
 
-手元の MSVC（Visual Studio 2026）では、`to_stream` は公開されておらず、このままではコンパイルできません。同じ書式は `std::format` の `{:%…}` に書けるので、動作の確認には、そちらを使います。
+手元の MSVC（Visual Studio 2026）では、`to_stream` は公開されておらずこのままではコンパイルできません。同じ書式は `std::format` の `{:%…}` に書けるので、動作の確認にはそちらを使います。
 
 ```cpp
 #include <chrono>
@@ -93,16 +93,16 @@ int main() {
 型が持たない情報の指定は例外
 ```
 
-`std::format` では、型が持たない書式の指定は、書式が定数なら、コンパイル エラーになります。実行時に決まる書式（`vformat`）では、`std::format_error` になります。`to_stream` では、同じ誤りが `failbit` になります。
+`std::format` では型が持たない書式の指定は書式が定数ならコンパイル エラーになります。実行時に決まる書式（`vformat`）では `std::format_error` になります。`to_stream` では同じ誤りが `failbit` になります。
 
 ## ゲームでの使いどころ
 
-ログやセーブデータの日時の表示で使います。新しいコードは、`std::format("{:%F %T}", s)` で、同じ書式を直接書けます。
+ログやセーブデータの日時の表示で使います。新しいコードは `std::format("{:%F %T}", s)` で同じ書式を直接書けます。
 
 ## よくあるミス
 
 ??? failure "型が持たない書式を指定する"
-    日付の型に `%H` を指定すると、`failbit` が立ち、何も出ません。型に合った書式を使います。
+    日付の型に `%H` を指定すると、`failbit` が立ち何も出ません。型に合った書式を使います。
 
 ## 類似
 
@@ -110,12 +110,12 @@ int main() {
 | --- | --- |
 | [`from_stream`](from_stream.md) | 逆向き。ストリームから読む |
 | [`parse`](parse.md) | `>>` で読むための操作子 |
-| `std::format` | `{:%F}` の書式で、同じことができる |
+| `std::format` | `{:%F}` の書式で同じことができる |
 | [`std::strftime`](../../io/ctime/strftime.md) | C の書式化関数 |
 
 ## コンパイラ対応
 
-C++20 の機能です。手元の MSVC では `to_stream` を使えず、`std::format` の `{:%…}` が代わりになります。GCC と Clang の新しい版では使えます。
+C++20 の機能です。手元の MSVC では `to_stream` を使えず `std::format` の `{:%…}` が代わりになります。GCC と Clang の新しい版では使えます。
 
 ## 関連ページ
 

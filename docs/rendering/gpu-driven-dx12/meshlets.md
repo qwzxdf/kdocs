@@ -224,7 +224,7 @@ bool MeshletVisible(MeshletBounds bounds, float4x4 world, float3 camera_position
 
 後半が背面コーンの判定です。`to_meshlet` は、カメラから塊の中心へ向かうベクトルで、`axis` は塊の法線の平均の向きです。`dot(to_meshlet, axis)` が大きいほど、カメラから見て、法線が奥を向いていることになります。メッシュレットのすべての三角形が背を向けている条件は、「`dot(to_meshlet, axis) >= cone_cutoff × 距離 + 半径`」です。半径を足すのは、境界球の端にあるメッシュレットでも判定を安全側に倒すためです。この式は meshoptimizer の公式のものです。
 
-軸の変換に `(float3x3)world` を使っているのは、向きだけを回すためで、平行移動を含めないためです。ワールド行列に非一様スケールがあるときは、法線と同じく、逆転置行列で変換する必要があります。
+軸の変換に `(float3x3)world` を使っているのは、向きだけを回すためで、平行移動を含めないためです。ワールド行列に非一様スケールがあるときは、法線と同じく、逆転置行列で変換します。
 
 ```hlsl
 [numthreads(AS_GROUP_SIZE, 1, 1)]
@@ -324,7 +324,7 @@ void MSMain(uint group_thread_id : SV_GroupThreadID, uint group_id : SV_GroupID,
 
 ペイロードから担当のメッシュレット番号を取り出し、`meshlets[...]` で頂点数と三角形数を読みます。
 
-`SetMeshOutputCounts(頂点数, 三角形数)` は、このグループが実際に出力する個数の宣言です。出力の配列は上限サイズで宣言していますが、実際に使うのは、この宣言した個数だけです。出力を書き込む前に全スレッドが同じ値で 1 回呼ぶ必要があります。呼ばずに出力を書くと、何も描かれません。
+`SetMeshOutputCounts(頂点数, 三角形数)` は、このグループが実際に出力する個数の宣言です。出力の配列は上限サイズで宣言していますが、実際に使うのは、この宣言した個数だけです。出力を書き込む前に全スレッドが同じ値で 1 回呼びます。呼ばずに出力を書くと、何も描かれません。
 
 ```hlsl
   for (uint v = group_thread_id; v < meshlet.vertex_count; v += MS_GROUP_SIZE) {

@@ -39,7 +39,7 @@ froxel の解像度は画面の 160×90 程度の粗さのため、細い筋は�
 
 ## ボリュームでゴッド レイを作る
 
-<strong>ボリューム ライティング</strong>（froxel、[Froxels](../volumetric-fog/froxel.md)）はカメラの前方の空間を 3D グリッドに分割し各セルに光の散乱を事前に、計算しておきます。画素ごとのレイマーチ（[Shadow Map Raymarching](shadowmap-march.md)）をセルごとの計算に置き換えるので、効率的です。ゴッド レイはこのボリュームの、副産物として自動で現れます。
+<strong>ボリューム ライティング</strong>（froxel、[Froxels](../volumetric-fog/froxel.md)）はカメラの前方の空間を 3D グリッドに分割し各セルに光の散乱を事前に、計算しておきます。画素ごとのレイマーチ（[Shadow Map Raymarching](shadowmap-march.md)）をセルごとの計算に置き換えるので、軽く済みます。ゴッド レイはこのボリュームの、副産物として自動で現れます。
 
 ## 考え方
 

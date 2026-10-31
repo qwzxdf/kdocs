@@ -18,10 +18,10 @@ tags:
 敵や弾の数は、ゲームの最中に増えたり減ったりします。`Enemy enemies[100];` と最初に大きさを決めてしまうと、足りなくなったときに困りますし、余らせると無駄です。`std::vector` は、あとから要素を増やしたり減らしたりできる配列です。中身はメモリ上にすき間なく並んでいるので、C の配列と同じ速さで読み書きでき、入りきらなくなったら自動で大きい場所へ引っ越してくれます。
 
 !!! tip "ポイント"
-    - <strong>迷ったらこれを使う。</strong> ゲームで使うコンテナの大半は vector で足ります。
+    - 迷ったらこれを使う。 ゲームで使うコンテナの大半は vector で足ります。
     - 9 割は `push_back` / `emplace_back` で足して、範囲 for で回して、`std::erase_if` で消す。この 3 つで足ります。
     - 個数が分かっているなら最初に `reserve`。
-    - **要素を追加すると、持っていたポインタ・参照・イテレータが壊れることがある**。ここだけは必ず覚えておく。
+    - 要素を追加すると、持っていたポインタ・参照・イテレータが壊れることがある。ここだけは必ず覚えておく。
 
 !!! info "このページを読む前に"
     [テンプレート](../../basics/template.md)（`<int>` の意味）、[参照](../../basics/reference.md)、[範囲 for](../../basics/range-for.md)、[ラムダ式](../../basics/lambda.md) が分かると読みやすいです。
@@ -36,7 +36,7 @@ class vector;
 | テンプレート引数 | 意味 | 指定する？ |
 | --- | --- | --- |
 | `T` | 要素の型 | 必ず |
-| `Allocator` | メモリの確保方法（[アロケータの解説](../memory/allocator.md)） | **しない**。自作アロケータや [`std::pmr`](../memory/pmr.md) を使うときだけ |
+| `Allocator` | メモリの確保方法（[アロケータの解説](../memory/allocator.md)） | しない。自作アロケータや [`std::pmr`](../memory/pmr.md) を使うときだけ |
 
 ### コンストラクタ
 
@@ -351,7 +351,7 @@ player = Alice
 size_type size() const noexcept;
 ```
 
-- 戻り値: 要素数。型は `std::size_t`（**符号なし**）
+- 戻り値: 要素数。型は `std::size_t`（符号なし）
 - 計算量: O(1)
 
 ```cpp
@@ -400,7 +400,7 @@ const_reference operator[](size_type pos) const;
 
 - 戻り値: `pos` 番目の要素の参照
 - 計算量: O(1)
-- 例外: なし。**範囲外は未定義動作**（チェックしない）
+- 例外: なし。範囲外は未定義動作（チェックしない）
 
 <div class="anim" data-label="v[2]">
 10 20 30 40 # 添字は 0 から数える
@@ -464,7 +464,7 @@ iterator end() noexcept;
 const_iterator end() const noexcept;
 ```
 
-- 戻り値: **最後の要素の次**を指すイテレータ。ここには要素が無い
+- 戻り値: 最後の要素の次を指すイテレータ。ここには要素が無い
 - 計算量: O(1)
 
 <div class="mem">
@@ -626,7 +626,7 @@ void clear() noexcept;
 
 - 戻り値: なし
 - 計算量: O(n)（各要素のデストラクタを呼ぶため）
-- **容量（`capacity`）はそのまま**。メモリは返されない
+- 容量（`capacity`）はそのまま。メモリは返されない
 
 <div class="anim" data-label="v.clear()">
 10 20 30 40 _ # size 4 / capacity 5
@@ -665,7 +665,7 @@ void reserve(size_type new_cap);
 - 戻り値: なし
 - 計算量: 再確保が起きれば O(n)、`new_cap <= capacity()` なら何もしない
 - 例外: `new_cap > max_size()` なら `std::length_error`
-- **`size` は変わらない**。場所を取るだけ
+- `size` は変わらない。場所を取るだけ
 
 <div class="anim" data-label="v.reserve(5)">
 10 20 30 # size 3 / capacity 3
@@ -720,7 +720,7 @@ const_reference back() const;
 
 - 戻り値: 最後の要素の参照
 - 計算量: O(1)
-- **空のときに呼ぶと未定義動作**
+- 空のときに呼ぶと未定義動作
 
 <div class="anim" data-label="v.back()">
 10 20 30 # v = {10, 20, 30}
@@ -759,7 +759,7 @@ const_reference front() const;
 
 - 戻り値: 最初の要素の参照
 - 計算量: O(1)
-- **空のときに呼ぶと未定義動作**
+- 空のときに呼ぶと未定義動作
 
 <div class="anim" data-label="v.front()">
 10 20 30 # v = {10, 20, 30}
@@ -791,9 +791,9 @@ int main() {
 void pop_back();
 ```
 
-- 戻り値: **なし**（取り出した値は返ってこない）
+- 戻り値: なし（取り出した値は返ってこない）
 - 計算量: O(1)
-- **空のときに呼ぶと未定義動作**
+- 空のときに呼ぶと未定義動作
 
 <div class="anim" data-label="v.pop_back()">
 10 20 30 40 _ # v = {10, 20, 30, 40}
@@ -874,7 +874,7 @@ int main() {
 !!! note "`reserve` との違い"
     | | `size` | 中身に `[]` でアクセスできる？ |
     | --- | --- | --- |
-    | `reserve(10)` | 変わらない | **できない**（未定義動作） |
+    | `reserve(10)` | 変わらない | できない（未定義動作） |
     | `resize(10)` | 10 になる | できる |
 
 ### erase {#erase}
@@ -889,7 +889,7 @@ iterator erase(const_iterator first, const_iterator last);
 | `pos` | `const_iterator` | 消す要素の位置 |
 | `first`, `last` | `const_iterator` | 消す範囲 `[first, last)` |
 
-- 戻り値: 消した要素の **次** を指すイテレータ
+- 戻り値: 消した要素の 次 を指すイテレータ
 - 計算量: O(n)（後ろの要素を前に詰めるため）
 - 消した位置より後ろのイテレータ・参照は無効になる
 
@@ -936,7 +936,7 @@ iterator insert(const_iterator pos, std::initializer_list<T> ilist);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `pos` | `const_iterator` | この位置の **前** に挿入する |
+| `pos` | `const_iterator` | この位置の 前 に挿入する |
 | `value` | `const T&` / `T&&` | 挿入する値 |
 | `count` | `size_type` | 同じ値を何個入れるか |
 | `first`, `last` | イテレータ | 挿入する範囲 |
@@ -1218,7 +1218,7 @@ iterator emplace(const_iterator pos, Args&&... args);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `pos` | `const_iterator` | この位置の **前** に作る |
+| `pos` | `const_iterator` | この位置の 前 に作る |
 | `args` | 何個でも | `T` のコンストラクタにそのまま渡す引数 |
 
 - 戻り値: 作った要素を指すイテレータ
@@ -1317,7 +1317,7 @@ int main() {
 void shrink_to_fit();
 ```
 
-- 余った容量を返すように**お願いする**（実装は無視してもよい）
+- 余った容量を返すようにお願いする（実装は無視してもよい）
 - 計算量: O(n)（実際に縮むなら、新しい領域を確保して全要素をムーブする）
 
 <div class="anim" data-label="v.shrink_to_fit()">
@@ -1355,7 +1355,7 @@ reverse_iterator rbegin() noexcept;
 const_reverse_iterator rbegin() const noexcept;
 ```
 
-- 戻り値: **最後の要素**を指す逆向きのイテレータ。`++` すると前の要素に進む
+- 戻り値: 最後の要素を指す逆向きのイテレータ。`++` すると前の要素に進む
 - 計算量: O(1)
 
 ### rend {#rend}
@@ -1365,7 +1365,7 @@ reverse_iterator rend() noexcept;
 const_reverse_iterator rend() const noexcept;
 ```
 
-- 戻り値: **最初の要素の 1 つ前**を指す逆向きのイテレータ（中身は無い）
+- 戻り値: 最初の要素の 1 つ前を指す逆向きのイテレータ（中身は無い）
 - 計算量: O(1)
 
 ```cpp
@@ -1406,7 +1406,7 @@ reverse: 1
 const_iterator cbegin() const noexcept;
 ```
 
-- 戻り値: 先頭を指す **const** イテレータ（指している要素を書き換えられない）
+- 戻り値: 先頭を指す const イテレータ（指している要素を書き換えられない）
 - 計算量: O(1)
 
 ### cend {#cend}
@@ -1415,7 +1415,7 @@ const_iterator cbegin() const noexcept;
 const_iterator cend() const noexcept;
 ```
 
-- 戻り値: 最後の次を指す **const** イテレータ
+- 戻り値: 最後の次を指す const イテレータ
 - 計算量: O(1)
 
 ```cpp
@@ -1634,7 +1634,7 @@ void UpdateBullets(std::vector<Bullet>& bullets, float delta_time) {
 
 ### 順番がどうでもいいなら「swap して pop_back」
 
-`erase` は後ろを全部詰めるので O(n) ですが、<strong>最後の要素で上書きして末尾を消せば O(1)</strong> です。描画順などを気にしないリストで使えます。
+`erase` は後ろを全部詰めるので O(n) ですが、最後の要素で上書きして末尾を消せば O(1) です。描画順などを気にしないリストで使えます。
 
 <div class="mem">
 <div class="mem-step"><span class="mem-label">B を消したい</span><span class="mem-cells"><span>A</span><span class="gone">B</span><span>C</span><span>D</span><span class="move">E</span></span><span class="mem-note">最後の E を B の場所に入れる</span></div>
@@ -1668,7 +1668,7 @@ int main() {
 
 ### 2 次元のマップは 1 本の vector で持つ
 
-`std::vector<std::vector<int>>` は行ごとにメモリがバラバラになって遅く、扱いも面倒です。**1 本の vector に `y * width + x` でアクセス**するのが定番です。
+`std::vector<std::vector<int>>` は行ごとにメモリがバラバラになって遅く、扱いも面倒です。1 本の vector に `y * width + x` でアクセスするのが定番です。
 
 <div class="mem">
 <div class="mem-step"><span class="mem-label">幅 4 × 高さ 3 のマップ</span><span class="mem-cells"><span>0,0</span><span>1,0</span><span>2,0</span><span>3,0</span><span class="move">0,1</span><span class="move">1,1</span><span class="move">2,1</span><span class="move">3,1</span><span>0,2</span><span>1,2</span><span>2,2</span><span>3,2</span></span></div>
@@ -1726,10 +1726,10 @@ objects.push_back(std::make_unique<Enemy>());
 
 ## パフォーマンス
 
-- **連続したメモリ**に並ぶので、全要素を回す処理はどのコンテナよりも速いです（キャッシュ効率が良い）。要素数が数百〜数千なら、検索でも `map` や `list` より vector の線形探索のほうが速いことがよくあります。
-- 容量が足りなくなると<strong>今より大きい領域を確保して全要素をムーブ（またはコピー）</strong> します。GCC / Clang は 2 倍、MSVC は 1.5 倍ずつ増えます。`reserve` で避けられます。
-- 再確保のときにムーブを使ってもらうには、**ムーブコンストラクタに `noexcept` が必要**です。付いていないとコピーされます（自分で書かずに `= default` にしておけば自動で付きます）。
-- MSVC の Debug ビルドはイテレータのチェックがあるので**とても遅い**です。速度は Release で測ってください。
+- 連続したメモリに並ぶので、全要素を回す処理はどのコンテナよりも速いです（キャッシュ効率が良い）。要素数が数百〜数千なら、検索でも `map` や `list` より vector の線形探索のほうが速いことがよくあります。
+- 容量が足りなくなると今より大きい領域を確保して全要素をムーブ（またはコピー） します。GCC / Clang は 2 倍、MSVC は 1.5 倍ずつ増えます。`reserve` で避けられます。
+- 再確保のときにムーブを使ってもらうには、ムーブコンストラクタに `noexcept` が必要です。付いていないとコピーされます（自分で書かずに `= default` にしておけば自動で付きます）。
+- MSVC の Debug ビルドはイテレータのチェックがあるのでとても遅いです。速度は Release で測ってください。
 
 ### 再確保（引っ越し）のしくみ {#realloc}
 
@@ -1768,13 +1768,13 @@ int main() {
 
 | 操作 | 壊れるもの |
 | --- | --- |
-| `push_back` / `emplace_back` / `insert` で再確保が起きた | **全部** |
+| `push_back` / `emplace_back` / `insert` で再確保が起きた | 全部 |
 | `insert` / `emplace`（再確保なし） | 挿入位置より後ろ |
 | `erase` | 削除位置より後ろ |
 | `pop_back` | 末尾の要素と `end()` |
-| `reserve`（容量が増えた） | **全部** |
-| `resize`（容量が増えた） | **全部** |
-| `clear` | **全部** |
+| `reserve`（容量が増えた） | 全部 |
+| `resize`（容量が増えた） | 全部 |
+| `clear` | 全部 |
 | `swap` | 壊れない（相手の vector を指すようになる） |
 
 ## 未定義動作・例外

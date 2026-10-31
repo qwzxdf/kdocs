@@ -14,15 +14,15 @@ tags:
 `#include <string_view>`
 </div>
 
-`std::string_view` は、文字列の先頭のポインタと長さだけを持つ、軽い「のぞき窓」です。実体は、文字の型をテンプレート引数にした `std::basic_string_view<CharT>` で、`string_view` は `basic_string_view<char>` の別名です。`wchar_t` 用の `wstring_view`、UTF-8 / 16 / 32 用の `u8string_view`、`u16string_view`、`u32string_view` も、同じテンプレートの別名です。
+`std::string_view` は文字列の先頭のポインタと長さだけを持つ軽い「のぞき窓」です。実体は文字の型をテンプレート引数にした `std::basic_string_view<CharT>` で、`string_view` は `basic_string_view<char>` の別名です。`wchar_t` 用の `wstring_view`、UTF-8 / 16 / 32 用の `u8string_view`、`u16string_view`、`u32string_view` も同じテンプレートの別名です。
 
-普段は別名を使うので、`basic_string_view` と書く場面は、文字の型に依存しないテンプレートを書くときくらいです。
+普段は別名を使うので `basic_string_view` と書く場面は、文字の型に依存しないテンプレートを書くときくらいです。
 
 !!! tip "ポイント"
-    - `string_view` は `basic_string_view<char>` の別名。他の文字の型にも、別名がある
-    - 文字列を所有しない。元の文字列より長く生きると、ぶら下がる
-    - コピーは、ポインタと長さのコピーだけで、軽い
-    - 関数の引数に使うと、`std::string`、文字列リテラル、`char*` をまとめて受けられる
+    - `string_view` は `basic_string_view<char>` の別名。他の文字の型にも別名がある
+    - 文字列を所有しない。元の文字列より長く生きるとぶら下がる
+    - コピーはポインタと長さのコピーだけで軽い
+    - 関数の引数に使うと `std::string`、文字列リテラル、`char*` をまとめて受けられる
 
 !!! info "このページを読む前に"
     [`std::string_view`](string_view.md) を先に読んでください。使い方はそちらにあります。
@@ -46,11 +46,11 @@ class basic_string_view;
 | `std::u16string_view` | `basic_string_view<char16_t>` | `char16_t`（UTF-16） |
 | `std::u32string_view` | `basic_string_view<char32_t>` | `char32_t`（UTF-32） |
 
-どの別名も、機能は同じです。`size()`、`substr()`、`find()`、`remove_prefix()`、`starts_with()` などが使えます。違うのは、1 要素の大きさと、解釈だけです。
+どの別名も機能は同じです。`size()`、`substr()`、`find()`、`remove_prefix()`、`starts_with()` などが使えます。違うのは 1 要素の大きさと解釈だけです。
 
-`size()` は、文字の数ではなく、要素（`CharT`）の数です。UTF-8 の `string_view` で日本語の「あ」を数えると、3 要素です。UTF-32 の `u32string_view` なら 1 要素です。
+`size()` は文字の数ではなく要素（`CharT`）の数です。UTF-8 の `string_view` で日本語の「あ」を数えると、3 要素です。UTF-32 の `u32string_view` なら 1 要素です。
 
-リテラルの接尾辞は `sv` で、`"abc"sv`、`L"abc"sv`、`u"abc"sv`、`U"abc"sv`、`u8"abc"sv` と書けます。`using namespace std::string_view_literals;` が要ります。
+リテラルの接尾辞は `sv` で `"abc"sv`、`L"abc"sv`、`u"abc"sv`、`U"abc"sv`、`u8"abc"sv` と書けます。`using namespace std::string_view_literals;` が要ります。
 
 ## 実際に動かしてみる
 
@@ -87,15 +87,15 @@ UTF-32 の「あ」: 1 要素
 
 ## ゲームでの使いどころ
 
-関数の引数を `const std::string&` ではなく `std::string_view` にすると、文字列リテラルを渡すときに、一時的な `std::string` が作られません。
+関数の引数を `const std::string&` ではなく `std::string_view` にすると、文字列リテラルを渡すときに一時的な `std::string` が作られません。
 
 ## よくあるミス
 
 ??? failure "元の文字列より長く生かす"
-    `string_view` は所有しないので、元の文字列が消えるとぶら下がります。関数の戻り値には、`std::string` を返します。
+    `string_view` は所有しないので、元の文字列が消えるとぶら下がります。関数の戻り値には `std::string` を返します。
 
 ??? failure "終端の \0 があると思う"
-    `string_view` は終端文字を保証しません。C の API に渡すときは、`std::string` に変換して `c_str()` を使います。
+    `string_view` は終端文字を保証しません。C の API に渡すときは `std::string` に変換して `c_str()` を使います。
 
 ## 類似
 
