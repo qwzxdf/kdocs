@@ -1,12 +1,12 @@
 ---
-title: std::syntax_option_type
+title: std::regex_constants::syntax_option_type
 summary: "正規表現の構文やオプションを指定するビットマスク型。"
 order: 900
 tags:
   - 入出力・文字列
 ---
 
-# std::syntax_option_type
+# std::regex_constants::syntax_option_type
 
 <div class="page-badges" markdown>
 <span class="rank rank-rare">知ってるだけ</span>
@@ -14,136 +14,53 @@ tags:
 `#include <regex>`
 </div>
 
-`std::regex` を作るときの第 2 引数に渡す型です。`icase | ECMAScript` のように `|` でつなぎます。構文は 1 つだけ選び、`icase` などのオプションは重ねられます。
+同じ `a|b` というパターンでも、JavaScript のような ECMAScript 系の文法と、`grep` のような POSIX の文法とでは、書き方や意味が違う部分があります。`std::regex` は、複数の文法に対応していて、コンストラクターの第 2 引数のフラグで選びます。文法に加えて、大文字小文字の扱いなどのオプションも、同じフラグで指定します。
+
+このフラグの型が `syntax_option_type` で、`|` で組み合わせられるビットマスクです。
 
 !!! tip "ポイント"
-    - `<regex>` の部品。
-    - ふつうは別名（`regex`・`smatch` など）を使う。
-    - 正規表現は、複雑になりすぎる前に別の方法も検討する。
+    - 文法は 1 つだけ選ぶ。省略すると `ECMAScript`
+    - オプションは `icase`（大文字小文字を区別しない）、`nosubs`、`optimize`、`collate`、`multiline`
+    - `std::regex::icase` のように、`basic_regex` のメンバーとしても書ける
+    - `|` で組み合わせる（`std::regex::icase | std::regex::extended`）
 
 !!! info "このページを読む前に"
-    [`std::regex`](../regex.md) を先に読んでください。
+    [`std::basic_regex`](basic_regex.md) と [`std::regex_constants`](regex_constants.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### std::regex_constants::syntax_option_type {#syntax_option_type}
+### 文法の選択 {#grammar}
 
-```cpp
-enum syntax_option_type : /* 実装定義 */;
-```
+| 定数 | 文法 |
+| --- | --- |
+| `ECMAScript` | JavaScript と同じ系統。既定。`\d`、`\w`、`(?:...)`、先読みが使える |
+| `basic` | POSIX の基本正規表現（`grep` の既定）。`+` や `|` の扱いが違う |
+| `extended` | POSIX の拡張正規表現（`egrep`）。`+`、`?`、`|` が使える |
+| `awk` | `awk` の文法。拡張正規表現に近く、エスケープが多い |
+| `grep` | `grep` の文法。`basic` に改行を区切りとする機能を足したもの |
+| `egrep` | `egrep` の文法。`extended` に改行を区切りとする機能を足したもの |
 
-- 戻り値: ビットマスク型
+ゲームで使うなら、選ぶ理由がない限り、既定の ECMAScript で足ります。`\d` が使えて、書き方が JavaScript の知識で通用します。`extended` や `basic` は、既存の `grep` のパターンを、そのまま持ち込みたいときに使います。
 
-### std::regex_constants::icase {#icase}
+### icase {#icase}
 
-```cpp
-constexpr syntax_option_type icase = /* 実装定義 */;
-```
+大文字小文字を区別せずに一致させます。`"abc"` のパターンが、`"ABC"` や `"aBc"` にも一致します。ユーザーが入力したコマンドの判定に、よく使います。
 
-- 戻り値: 大文字小文字を区別しない
+### nosubs {#nosubs}
 
-大文字小文字を区別しない。
+グループ（`(...)`）の内容を記録しません。全体が一致したかだけを調べたいときに、結果を保持する手間が省けて、速くなります。ただし、`match_results` の中身は全体の一致だけになります。
 
-### std::regex_constants::nosubs {#nosubs}
+### optimize {#optimize}
 
-```cpp
-constexpr syntax_option_type nosubs = /* 実装定義 */;
-```
+パターンの変換に時間をかけて、検索を速くします。同じパターンを何度も使うときに指定します。実装によっては、効果がありません。
 
-- 戻り値: グループを記録しない（速くなる）
+### collate {#collate}
 
-グループを記録しない（速くなる）。
+`[a-z]` のような範囲指定を、ロケールの並び順で解釈します。
 
-### std::regex_constants::optimize {#optimize}
+### multiline {#multiline}
 
-```cpp
-constexpr syntax_option_type optimize = /* 実装定義 */;
-```
-
-- 戻り値: 実行速度を優先して準備する（構築が遅くなる）
-
-実行速度を優先して準備する（構築が遅くなる）。
-
-### std::regex_constants::collate {#collate}
-
-```cpp
-constexpr syntax_option_type collate = /* 実装定義 */;
-```
-
-- 戻り値: 範囲指定（`[a-z]`）をロケールの順序で解釈する
-
-範囲指定（`[a-z]`）をロケールの順序で解釈する。
-
-### std::regex_constants::multiline {#multiline}
-
-```cpp
-constexpr syntax_option_type multiline = /* 実装定義 */;
-```
-
-- 戻り値: `^` と `$` を行の先頭・末尾にも一致させる（C++17）
-
-`^` と `$` を行の先頭・末尾にも一致させる（C++17）。
-
-### std::regex_constants::ECMAScript {#ECMAScript}
-
-```cpp
-constexpr syntax_option_type ECMAScript = /* 実装定義 */;
-```
-
-- 戻り値: ECMAScript（JavaScript）風の構文（既定）
-
-ECMAScript（JavaScript）風の構文（既定）。
-
-### std::regex_constants::basic {#basic}
-
-```cpp
-constexpr syntax_option_type basic = /* 実装定義 */;
-```
-
-- 戻り値: POSIX の基本正規表現
-
-POSIX の基本正規表現。
-
-### std::regex_constants::extended {#extended}
-
-```cpp
-constexpr syntax_option_type extended = /* 実装定義 */;
-```
-
-- 戻り値: POSIX の拡張正規表現
-
-POSIX の拡張正規表現。
-
-### std::regex_constants::awk {#awk}
-
-```cpp
-constexpr syntax_option_type awk = /* 実装定義 */;
-```
-
-- 戻り値: POSIX の awk の構文
-
-POSIX の awk の構文。
-
-### std::regex_constants::grep {#grep}
-
-```cpp
-constexpr syntax_option_type grep = /* 実装定義 */;
-```
-
-- 戻り値: POSIX の grep の構文
-
-POSIX の grep の構文。
-
-### std::regex_constants::egrep {#egrep}
-
-```cpp
-constexpr syntax_option_type egrep = /* 実装定義 */;
-```
-
-- 戻り値: POSIX の egrep（grep -E）の構文
-
-POSIX の egrep（grep -E）の構文。
-
+`^` と `$` が、文字列全体の先頭・末尾だけでなく、各行の先頭・末尾に一致します。C++17 で追加された、ECMAScript 用のオプションです。
 
 ## 実際に動かしてみる
 
@@ -152,45 +69,70 @@ POSIX の egrep（grep -E）の構文。
 #include <regex>
 
 int main() {
-  std::regex::flag_type f = std::regex_constants::icase | std::regex_constants::ECMAScript;
-  std::regex re("abc", f);
-  std::println("{}", std::regex_match("ABC", re));
+  // icase: 大文字小文字を区別しない
+  const std::regex a("hero", std::regex::icase);
+  std::println("icase: {}", std::regex_match("HeRo", a));
+
+  // ECMAScript では \d が使える
+  const std::regex b(R"(\d+)");
+  std::println("ECMAScript の \\d: {}", std::regex_match("123", b));
+
+  // extended では | で選択できる
+  const std::regex c("cat|dog", std::regex::extended);
+  std::println("extended: cat={} dog={} bird={}",
+               std::regex_match("cat", c), std::regex_match("dog", c),
+               std::regex_match("bird", c));
+
+  // フラグの組み合わせ
+  const std::regex d("cat|dog", std::regex::extended | std::regex::icase);
+  std::println("組み合わせ: {}", std::regex_match("DOG", d));
 }
 ```
 
 ```text title="実行結果"
-true
+icase: true
+ECMAScript の \d: true
+extended: cat=true dog=true bird=false
+組み合わせ: true
 ```
+
+`extended | icase` のように、文法とオプションを `|` で組み合わせられます。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 構文とオプションを指定して正規表現を作る |
+デバッグ コンソールのコマンドの判定に、`icase` を付けます。`Hero`、`hero`、`HERO` を同じ入力として扱えます。
 
 ## よくあるミス
 
-??? failure "構文を 2 つ選ぶ"
-    構文（`ECMAScript`・`basic` など）は 1 つだけ選びます。
+??? failure "文法を 2 つ選ぶ"
+    `std::regex::extended | std::regex::basic` は不正で、`std::regex_error` になります。文法は 1 つだけです。
+
+??? failure "文法を指定すると、ECMAScript のオプションが効かなくなる"
+    `std::regex::icase` だけ指定すれば、文法は ECMAScript のままです。`extended` を足すと文法が変わり、`\d` が使えなくなります。
+
+??? failure "nosubs で、グループの結果を期待する"
+    グループは記録されません。`m[1]` を参照しても、値はありません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`regex_constants`](regex_constants.md) | 定数の名前空間 |
+| [`match_flag_type`](match_flag_type.md) | 検索の動作を指定するフラグ |
+| [`regex_constants`](regex_constants.md) | 定数をまとめた名前空間 |
+| [`basic_regex`](basic_regex.md) | このフラグを受け取るクラス |
 
 ## コンパイラ対応
 
-C++11 から使えます。
+C++11 から使えます。`multiline` は C++17 からで、実装により対応に差があります。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 正規表現の構文やオプションを指定するビットマスク型
-    - [x] `<regex>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `syntax_option_type` は、文法とオプションを指定するビットマスク
+    - [x] 文法は 1 つだけ。省略すると ECMAScript
+    - [x] 大文字小文字を区別しないなら `std::regex::icase`
 
 ## 関連ページ
 
-- [cpprefjp: std::syntax_option_type](https://cpprefjp.github.io/reference/regex/syntax_option_type.html)
-- [cppreference: std::syntax_option_type](https://en.cppreference.com/w/cpp/regex/syntax_option_type)
+- [cpprefjp: regex_constants::syntax_option_type](https://cpprefjp.github.io/reference/regex/syntax_option_type.html)
+- [cppreference: std::regex_constants::syntax_option_type](https://en.cppreference.com/w/cpp/regex/syntax_option_type)

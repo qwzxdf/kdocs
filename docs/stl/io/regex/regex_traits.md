@@ -14,15 +14,16 @@ tags:
 `#include <regex>`
 </div>
 
-正規表現エンジンは、「数字か」「空白か」「大文字小文字を同一視するか」といった判断を `regex_traits` に任せています。ロケールによって規則を変えたいときに、差し替えられます。ふつうは意識しません。
+正規表現の `\d` は数字、`\w` は英数字、`[[:alpha:]]` は英字、`icase` では大文字小文字を同じとみなす。こうした「文字をどう分類し、どう比べるか」の規則を持つ部品が `regex_traits` です。`basic_regex` が内部で使っていて、普段は意識しません。
 
 !!! tip "ポイント"
-    - `<regex>` の部品。
-    - ふつうは別名（`regex`・`smatch` など）を使う。
-    - 正規表現は、複雑になりすぎる前に別の方法も検討する。
+    - `basic_regex` の第 2 テンプレート引数。既定は `std::regex_traits<CharT>`
+    - 文字クラスの名前を調べる `lookup_classname`、判定する `isctype`
+    - 比較用の変換 `translate_nocase`、長さを求める `length`
+    - 自作して、特別な規則の正規表現を作れるが、ゲームではほぼ使わない
 
 !!! info "このページを読む前に"
-    [`std::regex`](../regex.md) を先に読んでください。
+    [`std::basic_regex`](basic_regex.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -30,20 +31,25 @@ tags:
 
 ```cpp
 template <class CharT>
-struct regex_traits {
-  static std::size_t length(const CharT* p);
-  CharT translate(CharT c) const;
-  // ...
-};
+struct regex_traits;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `CharT` | 型 | 文字の型 |
+主な関数は、次のとおりです。
 
-- 戻り値: 文字の分類・変換の関数
-- 計算量: パターンと文字列に依存
+| 関数 | 役割 |
+| --- | --- |
+| `static std::size_t length(const CharT* p)` | 文字列の長さを返す |
+| `CharT translate(CharT c) const` | 比較のために文字を変換する（何もしない） |
+| `CharT translate_nocase(CharT c) const` | 大文字小文字を同一視する変換 |
+| `char_class_type lookup_classname(const CharT* first, const CharT* last, bool icase = false) const` | 文字クラスの名前から、判定用の値を得る |
+| `bool isctype(CharT c, char_class_type f) const` | 文字 `c` が、そのクラスに属するか |
+| `int value(CharT c, int radix) const` | 文字を数値として読む（16 進など） |
 
+### lookup_classname と isctype {#class}
+
+`[[:digit:]]` のような、文字クラスの名前を、判定用の値に直す関数が `lookup_classname` です。`"digit"`、`"alpha"`、`"alnum"`、`"space"`、`"upper"`、`"lower"`、`"punct"` などを受け付けます。得た値を `isctype` に渡すと、文字がそのクラスに属するかを調べられます。
+
+名前が未知なら、0 に相当する値が返ります。
 
 ## 実際に動かしてみる
 
@@ -52,30 +58,42 @@ struct regex_traits {
 #include <regex>
 
 int main() {
-  std::println("{}", std::regex_traits<char>::length("abc"));
+  std::regex_traits<char> traits;
+
+  std::println("長さ: {}", std::regex_traits<char>::length("abc"));
+
+  const char name[] = "digit";
+  const auto digit = traits.lookup_classname(name, name + 5);
+  std::println("'7' は digit: {}", traits.isctype('7', digit));
+  std::println("'a' は digit: {}", traits.isctype('a', digit));
+
+  std::println("大文字小文字を同一視: {}",
+               traits.translate_nocase('A') == traits.translate_nocase('a'));
 }
 ```
 
 ```text title="実行結果"
-3
+長さ: 3
+'7' は digit: true
+'a' は digit: false
+大文字小文字を同一視: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | （正規表現の挙動を差し替えるとき） |
+自分で使うことはほとんどありません。ゲーム特有の文字の分類（全角と半角を同一視するなど）を、正規表現に組み込みたいときに、自作のトレイツを作る道があります。
 
 ## よくあるミス
 
-??? failure "ふつうは触らない"
-    既定の `regex_traits` で足ります。
+??? failure "regex_traits を直接触って、文法の動きを変えようとする"
+    パターンの文法は、トレイツではなく、`syntax_option_type` で選びます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`basic_regex`](basic_regex.md) | これを使う正規表現 |
+| [`std::basic_regex`](basic_regex.md) | これを使う正規表現のクラス |
+| `std::char_traits` | 文字列のクラスが使う、別のトレイツ |
 
 ## コンパイラ対応
 
@@ -84,11 +102,11 @@ C++11 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 文字の分類や変換の規則をまとめた、正規表現の部品
-    - [x] `<regex>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `regex_traits` は、文字の分類と比較の規則を持つ部品
+    - [x] `basic_regex` が内部で使う。普段は触らない
+    - [x] 文法の選択は `syntax_option_type`
 
 ## 関連ページ
 
-- [cpprefjp: std::regex_traits](https://cpprefjp.github.io/reference/regex/regex_traits.html)
+- [cpprefjp: regex_traits](https://cpprefjp.github.io/reference/regex/regex_traits.html)
 - [cppreference: std::regex_traits](https://en.cppreference.com/w/cpp/regex/regex_traits)

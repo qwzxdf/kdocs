@@ -14,15 +14,16 @@ tags:
 `#include <regex>`
 </div>
 
-`std::wregex` は、`basic_regex<wchar_t>` の別名です。`wchar_t` の文字列（`wstring`）を検索するときに使います。
+Windows の API から受け取った `wchar_t` の文字列を、そのまま正規表現で検索したいときに使うのが `std::wregex` です。`std::regex` の `wchar_t` 版で、パターンも `L"..."` で書きます。使い方は `regex` と同じで、結果を受け取る型も、`wsmatch` や `wcmatch` のように、`w` が付きます。
 
 !!! tip "ポイント"
-    - `<regex>` の部品。
-    - ふつうは別名（`regex`・`smatch` など）を使う。
-    - 正規表現は、複雑になりすぎる前に別の方法も検討する。
+    - `basic_regex<wchar_t>` の別名。パターンも検索対象も `wchar_t`
+    - 結果は `wsmatch`（`wstring` 用）か `wcmatch`（`const wchar_t*` 用）で受ける
+    - Windows の `wchar_t` は UTF-16。サロゲート ペアは 1 文字として扱われない
+    - ゲームでは、UTF-8 の `char` と `std::regex` のほうが扱いやすい
 
 !!! info "このページを読む前に"
-    [`std::regex`](../regex.md) を先に読んでください。
+    [`std::basic_regex`](basic_regex.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -32,44 +33,56 @@ tags:
 using wregex = basic_regex<wchar_t>;
 ```
 
-- 戻り値: 正規表現のオブジェクト
-- 計算量: パターンと文字列に依存
+使い方は `std::regex` と同じです。パターンと検索対象を、`wchar_t` の文字列にします。
 
+`\d`、`\w`、`\s` などの文字クラスの判定は、`wchar_t` ごとに行われます。全角の数字や、日本語の文字が `\w` に含まれるかは、ロケールと実装によって違います。日本語の文字を含む文字列を検索するときは、パターンに文字そのものを書くか、範囲（`[ぁ-ん]`）を指定します。
+
+UTF-16 では、基本多言語面の外の文字（多くの絵文字）は、2 つの `wchar_t`（サロゲート ペア）で表されます。`wregex` は、これを 2 文字として扱うので、`.` が絵文字 1 つにマッチしない場合があります。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
 #include <regex>
+#include <string>
 
 int main() {
-  std::wregex re(L"a+");
-  std::wstring s = L"aaa";
-  std::println("{}", std::regex_match(s, re));
+  const std::wregex re(L"\\d+");
+  std::println("123 に全体一致: {}", std::regex_match(L"123", re));
+  std::println("abc に全体一致: {}", std::regex_match(L"abc", re));
+
+  const std::wstring text = L"HP 30 MP 12";
+  std::wsmatch m;
+  std::regex_search(text, m, re);
+  std::println("最初の数字の位置: {}", m.position());
 }
 ```
 
 ```text title="実行結果"
-true
+123 に全体一致: true
+abc に全体一致: false
+最初の数字の位置: 3
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | Windows の `wstring` に対して検索する |
+Windows API から受け取ったパスや名前を、`wchar_t` のまま検査するときに使えます。内部の文字列を UTF-8 に統一していれば、`std::regex` で足ります。
 
 ## よくあるミス
 
-??? failure "`regex` と `wstring` を混ぜる"
-    文字の型を合わせます。`wstring` には `wregex` を使います。
+??? failure "パターンを char の文字列で書く"
+    `std::wregex re("\\d+")` はコンパイルできません。`L"..."` で書きます。
+
+??? failure "wregex に std::string を渡す"
+    型が合いません。`std::wstring` を渡します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`regex`](../regex.md) | char 版 |
-| [`wsmatch`](wsmatch.md) | 結果の型 |
+| [`std::regex`](../regex.md) | `char` 用 |
+| [`std::wsmatch`](wsmatch.md) | `wstring` 用の結果の型 |
+| [`std::wcmatch`](wcmatch.md) | `const wchar_t*` 用の結果の型 |
 
 ## コンパイラ対応
 
@@ -78,11 +91,11 @@ C++11 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] `wchar_t` 用の正規表現
-    - [x] `<regex>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `wregex` は、`wchar_t` 用の正規表現
+    - [x] パターンは `L"..."`、結果は `wsmatch` / `wcmatch`
+    - [x] ゲームでは `char` の UTF-8 と `regex`
 
 ## 関連ページ
 
-- [cpprefjp: std::wregex](https://cpprefjp.github.io/reference/regex/wregex.html)
-- [cppreference: std::wregex](https://en.cppreference.com/w/cpp/regex/wregex)
+- [cpprefjp: wregex](https://cpprefjp.github.io/reference/regex/wregex.html)
+- [cppreference: std::wregex](https://en.cppreference.com/w/cpp/regex/basic_regex)

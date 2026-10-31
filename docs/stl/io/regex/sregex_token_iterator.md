@@ -14,15 +14,16 @@ tags:
 `#include <regex>`
 </div>
 
-`regex_token_iterator<std::string::const_iterator>` の別名です。`std::string` を正規表現で分割するときに使います。
+`std::string` を検索対象にした `regex_token_iterator` の別名が、`std::sregex_token_iterator` です。`regex_token_iterator<std::string::const_iterator>` で、分割や、グループの取り出しに使います。型名が短くなるだけで、機能は変わりません。
 
 !!! tip "ポイント"
-    - `<regex>` の部品。
-    - ふつうは別名（`regex`・`smatch` など）を使う。
-    - 正規表現は、複雑になりすぎる前に別の方法も検討する。
+    - `regex_token_iterator<std::string::const_iterator>` の別名
+    - 範囲は `s.begin()` と `s.end()`。`s` は名前のある変数にする
+    - `std::distance` で、要素の個数を数えられる
+    - `const char*` なら `std::cregex_token_iterator`
 
 !!! info "このページを読む前に"
-    [`std::regex`](../regex.md) を先に読んでください。
+    [`std::regex_token_iterator`](regex_token_iterator.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -32,9 +33,15 @@ tags:
 using sregex_token_iterator = regex_token_iterator<std::string::const_iterator>;
 ```
 
-- 戻り値: 部分文字列（`ssub_match`）を順に返す
-- 計算量: パターンと文字列に依存
+使い方は `regex_token_iterator` と同じです。`std::string` の分割には、`-1` を渡します。
 
+分割した結果を `std::vector<std::string>` に入れたいときは、イテレータの範囲を、コンストラクターに渡します。`*it` は `std::ssub_match` で、`std::string` に変換できます。
+
+```cpp
+std::vector<std::string> parts(
+    std::sregex_token_iterator(s.begin(), s.end(), sep, -1),
+    std::sregex_token_iterator());
+```
 
 ## 実際に動かしてみる
 
@@ -43,36 +50,48 @@ using sregex_token_iterator = regex_token_iterator<std::string::const_iterator>;
 #include <print>
 #include <regex>
 #include <string>
+#include <vector>
 
 int main() {
-  std::string s = "a,b,c";
-  std::regex sep(",");
+  const std::string s = "elf,orc,dwarf";
+  const std::regex sep(",");
+
+  // 数える
   std::sregex_token_iterator it(s.begin(), s.end(), sep, -1);
-  std::sregex_token_iterator end;
-  std::println("{}", std::distance(it, end));
+  const std::sregex_token_iterator end;
+  std::println("要素の数: {}", std::distance(it, end));
+
+  // vector に入れる
+  const std::vector<std::string> parts(
+      std::sregex_token_iterator(s.begin(), s.end(), sep, -1),
+      std::sregex_token_iterator());
+  std::println("{} / {} / {}", parts[0], parts[1], parts[2]);
 }
 ```
 
 ```text title="実行結果"
-3
+要素の数: 3
+elf / orc / dwarf
 ```
+
+イテレータの組から、`std::vector` を直接作れます。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | `std::string` を区切り文字で分割する |
+プレイヤーが入力した `"elf orc dwarf"` のような、区切り文字つきの入力を、`std::vector<std::string>` に分けるときに使います。
 
 ## よくあるミス
 
-??? failure "一時オブジェクトの `string` を渡す"
-    イテレータが指す文字列が先に消えると、壊れます。
+??? failure "一時オブジェクトの string を渡す"
+    `s.begin()` が、破棄された文字列を指します。名前のある変数に入れます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`regex_token_iterator`](regex_token_iterator.md) | 元のテンプレート |
+| [`std::sregex_iterator`](../sregex_iterator.md) | 一致を `match_results` として返す |
+| `std::views::split` | C++20 の固定の区切りでの分割 |
 
 ## コンパイラ対応
 
@@ -81,11 +100,11 @@ C++11 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] string 用の regex_token_iterator
-    - [x] `<regex>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `sregex_token_iterator` は、`std::string` 用の `regex_token_iterator`
+    - [x] `-1` で分割できる。`vector` に直接入れられる
+    - [x] 文字列は名前のある変数にする
 
 ## 関連ページ
 
-- [cpprefjp: std::sregex_token_iterator](https://cpprefjp.github.io/reference/regex/sregex_token_iterator.html)
-- [cppreference: std::sregex_token_iterator](https://en.cppreference.com/w/cpp/regex/sregex_token_iterator)
+- [cpprefjp: sregex_token_iterator](https://cpprefjp.github.io/reference/regex/sregex_token_iterator.html)
+- [cppreference: std::sregex_token_iterator](https://en.cppreference.com/w/cpp/regex/regex_token_iterator)
