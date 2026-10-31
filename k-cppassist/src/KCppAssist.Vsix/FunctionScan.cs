@@ -49,7 +49,7 @@ namespace KCppAssist
                 if (c == '}') { if (stack.Count > 0) stack.Pop(); stmt = ++i; continue; }
                 if (c == '{')
                 {
-                    string head = m.Substring(stmt, i - stmt);
+                    string head = Head(m, stmt, i);
                     Match cm;
                     if (!EnumHead.IsMatch(head) && (cm = ClassHead.Match(head)).Success)
                         stack.Push(new KeyValuePair<bool, string>(true, cm.Groups[1].Value));
@@ -68,7 +68,7 @@ namespace KCppAssist
                     stmt = ++i;
                     continue;
                 }
-                if (c == ':' && !(i + 1 < n && m[i + 1] == ':') && !(i > 0 && m[i - 1] == ':') && Access.IsMatch(m.Substring(stmt, i - stmt)))
+                if (c == ':' && !(i + 1 < n && m[i + 1] == ':') && !(i > 0 && m[i - 1] == ':') && Access.IsMatch(Head(m, stmt, i)))
                 { stmt = ++i; continue; }
                 if (c == '(')
                 {
@@ -91,6 +91,19 @@ namespace KCppAssist
             return sigs;
         }
 
+        /// <summary>
+        /// 文の頭から end までの文字。「;」「{」「}」のない長い範囲(マクロや表)でも正規表現が遅くならないように、
+        /// 末尾の 600 文字だけにする(関数の頭や、クラスの頭がこれより長いことはない)。
+        /// </summary>
+        private static string Head(string m, int stmt, int end)
+        {
+            const int Max = 600;
+            if (end - stmt <= Max) return m.Substring(stmt, end - stmt);
+            int from = end - Max;
+            while (from < end && !char.IsWhiteSpace(m[from])) from++;
+            return m.Substring(from, end - from);
+        }
+
         /// <summary>囲んでいる namespace とクラスの名前を、外側から順に並べる(無名のものは入れない。「a::b」は a, b に分ける)。</summary>
         private static List<string> EnclosingNames(Stack<KeyValuePair<bool, string>> stack)
         {
@@ -103,7 +116,7 @@ namespace KCppAssist
         private static Sig TryFunction(string m, int stmt, int open, int close, KeyValuePair<bool, string> top, List<string> enclosing, out int after)
         {
             after = open + 1;
-            string prefix = m.Substring(stmt, open - stmt);
+            string prefix = Head(m, stmt, open);
             var nm = NameTail.Match(prefix);
             if (!nm.Success) return null;
             string name = nm.Groups[2].Value;

@@ -75,7 +75,14 @@ namespace KCppAssist
 
         private static readonly Regex Comments = new Regex(@"/\*.*?\*/|//[^\r\n]*", RegexOptions.Singleline | RegexOptions.Compiled);
 
-        public static string StripComments(string p) { return Comments.Replace(p, " "); }
+        // SAL 注釈(_In_ / _Out_writes_bytes_(n) / _COM_Outptr_opt_ など)。ヘッダーにだけあって、cpp は _Use_decl_annotations_ で省くことがある
+        private static readonly Regex Sal = new Regex(@"(?<![A-Za-z0-9])_[A-Z][A-Za-z0-9_]*_(?:\s*\((?:[^()]|\((?:[^()]|\([^()]*\))*\))*\))?", RegexOptions.Compiled);
+
+        /// <summary>コメントと SAL 注釈を空白にする(型の比較と名前の取り出しの前に使う)。</summary>
+        public static string StripComments(string p) { return Calls.Replace(Sal.Replace(Comments.Replace(p, " "), " "), " "); }
+
+        // 呼び出し規約(void __cdecl() と void() は同じ型)
+        private static readonly Regex Calls = new Regex(@"\b__(?:cdecl|stdcall|fastcall|vectorcall)\b", RegexOptions.Compiled);
 
         /// <summary>引数の名前。名前のない引数(型だけ)なら null。</summary>
         public static string ParamName(string p)
@@ -106,7 +113,7 @@ namespace KCppAssist
                 core = m.Groups[1].Value.Trim();
             }
             core = Regex.Replace(core, @"^(struct|class|enum|typename)\s+", "");
-            core = Regex.Replace(core, @"\s*([*&<>,:])\s*", "$1");
+            core = Regex.Replace(core, @"\s*([*&<>,:()])\s*", "$1");
             // 「Foo const&」と「const Foo&」は同じ型。const を先頭にそろえる(「char* const」のように、* のあとの const はそのまま)
             core = Regex.Replace(core, @"^((?:[A-Za-z_][\w:]*(?:<[^<>]*>)?)(?:\s+[A-Za-z_]\w*)*?)\s+const(?=\s*[*&]|\s*$)", "const $1");
             return core;
