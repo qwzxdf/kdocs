@@ -15,96 +15,85 @@ tags:
 `#include <memory>`
 </div>
 
-未初期化の領域にオブジェクトを並べたいが、値は何でもよいとき（あとで上書きする）、`uninitialized_default_construct` が使えます。`int` のような型は**初期化されないまま**（ゴミの値）ですが、クラスは既定コンストラクタが呼ばれます。
+生のメモリの範囲に、既定の構築でオブジェクトを作りたい。`std::uninitialized_default_construct(first, last)` は、各位置に `T` を既定の初期化で作ります。`int` のような基本型は、値が初期化されません。
 
 !!! tip "ポイント"
-    - 未初期化のメモリにオブジェクトを作る。
-    - 途中で例外が出たら、すでに作ったぶんを壊してから投げる。
-    - 個数で指定する版は `uninitialized_default_construct_n`（同じページの下）。
+    - 既定の初期化で作る。基本型は不定の値
+    - 値を 0 などで初期化したいなら `uninitialized_value_construct`
+    - 速度が要る場面で、無駄な初期化を避けられる
+    - 途中で例外が出たら、作ったものを壊す
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`uninitialized_fill`](uninitialized_fill.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::uninitialized_default_construct {#uninitialized_default_construct}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
 template <class ForwardIt>
 void uninitialized_default_construct(ForwardIt first, ForwardIt last);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first, last` | イテレータ | 未初期化の領域 |
+`::new (p) T` と同じです。クラスなら既定のコンストラクターが呼ばれますが、`int` などの基本型には、何も起きません。
 
-- 戻り値: 最後に作った位置の次のイテレータ
-- 計算量: 線形
+`vector<int> v(1000)` が、全要素を 0 で初期化するのに対し、これを使うと、初期化を省けます。あとで全要素を上書きすることが分かっているなら、時間の節約になります。ただし、読む前に書き込まないと、不定の値を読みます。
 
-### std::uninitialized_default_construct_n {#uninitialized_default_construct_n}
-
-```cpp
-template <class ForwardIt, class Size>
-ForwardIt uninitialized_default_construct_n(ForwardIt first, Size n);
-```
-
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `first` | イテレータ | 未初期化の領域の先頭 |
-| `n` | 整数 | 作る個数 |
-
-- 戻り値: 最後に作った位置の次のイテレータ
-- 計算量: 線形
-
+`_n` 版（`uninitialized_default_construct_n`）が、個数を指定する形です。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <memory>
+#include <new>
 #include <print>
-#include <string>
+
+struct Tracer {
+  static inline int alive = 0;
+  Tracer() { ++alive; }
+  Tracer(const Tracer&) { ++alive; }
+  Tracer(Tracer&&) noexcept { ++alive; }
+  ~Tracer() { --alive; }
+};
 
 int main() {
-  alignas(std::string) unsigned char buf[sizeof(std::string) * 2];
-  auto* p = reinterpret_cast<std::string*>(buf);
-  std::uninitialized_default_construct(p, p + 2);
-  std::println("[{}] [{}]", p[0], p[1]);
-  std::destroy(p, p + 2);
+  alignas(Tracer) unsigned char buf[sizeof(Tracer) * 3];
+  auto* first = reinterpret_cast<Tracer*>(buf);
+
+  std::uninitialized_default_construct(first, first + 3);
+  std::println("既定の構築で作った: {}", Tracer::alive);
+
+  std::destroy(first, first + 3);
+  std::println("壊した: {}", Tracer::alive);
 }
 ```
 
 ```text title="実行結果"
-[] []
+既定の構築で作った: 3
+壊した: 0
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| あとで全部上書きする配列を高速に用意する | `std::uninitialized_default_construct(p, p + n);` |
+直後に全要素を書き込む大きなバッファの確保で、初期化の時間を省くために使います。
 
 ## よくあるミス
 
-??? failure "すでにオブジェクトがある場所に使う"
-    この関数は**未初期化の領域**専用です。作ってあるオブジェクトの上に使うと、デストラクタが呼ばれずに壊れます。
+??? failure "基本型の値を読む"
+    初期化されていません。書き込んでから読みます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`construct_at`](construct_at.md) | 1 つだけ作る |
-| [`destroy`](destroy.md) | 壊す |
+| [`uninitialized_value_construct`](uninitialized_value_construct.md) | 値初期化で作る |
+| [`uninitialized_fill`](uninitialized_fill.md) | 同じ値のコピーで作る |
 
 ## コンパイラ対応
 
 C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 未初期化のメモリにオブジェクトを作る
-    - [x] 例外が出たら作ったぶんを壊す
-    - [x] `_n` は個数で指定
 
 ## 関連ページ
 

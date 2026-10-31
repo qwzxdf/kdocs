@@ -14,18 +14,20 @@ tags:
 `#include <cstring>`
 </div>
 
-`strcpy` は、**C 文字列を別のバッファへコピーする**関数ですが、**コピー先の大きさを確認しません**。バッファより長い文字列を渡すと範囲外に書き込む（バッファオーバーフロー）ので、**新しく書くコードでは使いません**。
+文字列を別の配列にコピーしたい。`std::strcpy(dst, src)` は、`src` の終端までを `dst` にコピーします。ただしコピー先の大きさを確かめないので、`src` が長いとバッファ オーバーランを起こします。セキュリティ上の事故の定番の原因で、新しいコードでは使いません。
 
 !!! tip "ポイント"
-    - 代わりに `snprintf` や、`std::string` を使う。
-    - MSVC では `strcpy_s` を使うよう警告が出る。
+    - 終端の `'\0'` までコピーする
+    - コピー先の大きさを調べない。`strlen(src) + 1` 要素が要る
+    - 領域が重なると未定義動作
+    - MSVC は警告（C4996）を出す。`std::string` か `snprintf` に置き換える
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`<cstring>`](../cstring.md) の概要を先に読んでください。C の文字列は、終端が `'\0'` の `char` の配列です。
 
 ## 関数の詳しい説明
 
-### strcpy {#strcpy}
+### std::strcpy {#strcpy}
 
 ```cpp
 char* strcpy(char* dest, const char* src);
@@ -33,12 +35,14 @@ char* strcpy(char* dest, const char* src);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `dest` | `char*` | コピー先（`src` の長さ + 1 以上の大きさが必要） |
-| `src` | `const char*` | コピー元の C 文字列 |
+| `dest` | `char*` | コピー先 |
+| `src` | `const char*` | コピー元 |
 
-- 戻り値: `dest`
-- <strong>コピー先の大きさを一切チェックしません。</strong> `src` が長いと、`dest` の後ろを壊します（バッファオーバーフロー）。セキュリティの穴の原因として有名です。**使ってはいけません**（MSVC は警告 C4996 を出します）
-- `std::string` に入れるか、`snprintf` で大きさを指定します。
+戻り値は `dest` です。
+
+コピー先が小さいと、配列の外を上書きします。スタックの他の変数や戻りアドレスを壊すので、攻撃に悪用されます。入力が外から来る場合は、特に危険です。
+
+安全に書くなら、`std::string` に代入するか、大きさを渡せる `snprintf(dst, sizeof(dst), "%s", src)` を使います。`strncpy` は、終端を付けないことがあり、別の落とし穴があります。
 
 ## 実際に動かしてみる
 
@@ -48,43 +52,40 @@ char* strcpy(char* dest, const char* src);
 
 int main() {
   char dst[8];
-  std::strcpy(dst, "abc");
+  std::strcpy(dst, "abc");  // "abc" は終端を含めて 4 バイト。8 に収まる
   std::println("{}", dst);
+  std::println("長さ: {}", std::strlen(dst));
 }
 ```
 
 ```text title="実行結果"
 abc
+長さ: 3
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 古いコードの読解用 | 使わず、`snprintf(dst, sizeof(dst), "%s", src)` |
+古い C のコードを読むときに出会います。新しく書くなら、`std::string` を使います。
 
 ## よくあるミス
 
 ??? failure "コピー先が小さい"
-    範囲外書き込みで、クラッシュや脆弱性になります。
+    `char name[4]` に 10 文字をコピーすると、領域の外を壊します。
+
+??? failure "終端の分を数え忘れる"
+    3 文字をコピーするには 4 要素が要ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`strncpy`](strncpy.md) | 長さを指定するが、終端の問題がある |
-| [`snprintf`](snprintf.md) | 安全な選択 |
+| [`strncpy`](strncpy.md) | 長さを指定する。終端が付かないことがある |
+| `std::string` | 大きさを自動で管理する |
+| [`snprintf`](snprintf.md) | 大きさを指定して書き込める |
 
 ## コンパイラ対応
 
 C 由来の関数です。C++ のどの版でも使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 使わない
-    - [x] 大きさを確認しない
-    - [x] 代わりに snprintf / std::string
 
 ## 関連ページ
 

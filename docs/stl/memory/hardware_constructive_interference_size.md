@@ -14,27 +14,32 @@ tags:
 `#include <new>`
 </div>
 
-2 つのデータを同時に読み書きするなら、同じキャッシュラインに乗せたほうが速くなります。逆に、別のスレッドが別々に書き込むデータは、別のラインに離すべきです（偽共有の回避）。`hardware_constructive_interference_size` は、前者の「同じラインに収める」上限の目安です。
+2 つの変数を、同じキャッシュ ラインに置くと、1 回の読み込みで両方がキャッシュに載り、速くなります。`std::hardware_constructive_interference_size` は、<strong>「この大きさ以内に置けば、同じキャッシュ ラインに載せやすい」という上限</strong>の定数です。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - 一緒に使うデータを、この大きさ以内にまとめると、キャッシュに有利
+    - `<new>` の定数。C++17
+    - 典型は 64 バイト
+    - 逆に、スレッド間の偽共有を避けるなら `hardware_destructive_interference_size`
 
 !!! info "このページを読む前に"
-    [`hardware_destructive_interference_size`](hardware_destructive_interference_size.md) を先に読んでください。
+    [`hardware_destructive_interference_size`](hardware_destructive_interference_size.md) とセットで読んでください。
 
 ## 関数の詳しい説明
 
 ### std::hardware_constructive_interference_size {#hardware_constructive_interference_size}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
 inline constexpr std::size_t hardware_constructive_interference_size = /* 実装定義 */;
 ```
 
-- 戻り値: キャッシュラインの大きさ（多くは 64）
-- 計算量: 定数
+「構築的な干渉」、つまり、同じキャッシュ ラインに載ることで、むしろ得をする大きさの上限です。
 
+構造体を、この大きさ以下にまとめ、`alignas` でこの境界に合わせれば、構造体全体が 1 つのキャッシュ ラインに載ります。頻繁に一緒に読む、座標と速度などの組み合わせが対象です。
+
+値は、コンパイル時の目標の CPU から決まる推定値です。実際に動かす CPU が違うと、ずれます。ライブラリの ABI に影響するので、公開するヘッダーの中で使うのは避けます。
 
 ## 実際に動かしてみる
 
@@ -42,42 +47,43 @@ inline constexpr std::size_t hardware_constructive_interference_size = /* 実装
 #include <new>
 #include <print>
 
+struct alignas(std::hardware_constructive_interference_size) Particle {
+  float x, y, vx, vy;  // 一緒に使うデータ
+};
+
 int main() {
-  std::println("{}", std::hardware_constructive_interference_size > 0);
+  std::println("構造体の大きさ {} <= {}", sizeof(Particle),
+               std::hardware_constructive_interference_size);
+  std::println("大きさ以内に収まる: {}",
+               sizeof(Particle) <= std::hardware_constructive_interference_size);
 }
 ```
 
 ```text title="実行結果"
-true
+構造体の大きさ 64 <= 64
+大きさ以内に収まる: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 一緒に使うデータをキャッシュ 1 ライン内にまとめる |
+パーティクルのような、大量に並べて走査するデータを、キャッシュ ラインに合わせて設計します。
 
 ## よくあるミス
 
-??? failure "コンパイル環境と実行環境が違う"
-    値はコンパイル時に決まります。別の CPU で動かすとずれることがあります。
+??? failure "公開ヘッダーで使う"
+    値がコンパイラや CPU の設定で変わり、ABI がずれます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`hardware_destructive_interference_size`](hardware_destructive_interference_size.md) | 離すべき距離 |
+| [`hardware_destructive_interference_size`](hardware_destructive_interference_size.md) | 偽共有を避けるための間隔 |
+| [`align`](align.md) | 境界に合わせる |
+| `alignas` | 型にアライメントを指定する |
 
 ## コンパイラ対応
 
-C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 同じキャッシュラインに載せたいデータの、大きさの上限
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+C++17 から使えます。手元の MSVC では 64 でした。
 
 ## 関連ページ
 

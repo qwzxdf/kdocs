@@ -14,31 +14,34 @@ tags:
 `#include <cstring>`
 </div>
 
-`strchr` は、**C 文字列の中から、指定した文字を先頭から探す**関数です。見つかれば位置のポインター、なければ `nullptr` を返します。`std::string::find` が同じことをします。
+文字列の中で、ある文字が最初に現れる位置を知りたい。`std::strchr(s, ch)` は、`s` の先頭から `ch` を探し、見つかればその位置へのポインタ、なければ `nullptr` を返します。
 
 !!! tip "ポイント"
-    - `strrchr` は後ろから探す版。
-    - 終端の `\0` も探せる。
-    - C++ では `std::string::find` を使う。
+    - 最初に見つかった位置へのポインタを返す。なければ `nullptr`
+    - `ch` に `'\0'` を渡すと、終端の位置が返る
+    - 位置の番号は、ポインタの差（`p - s`）で求める
+    - 最後の位置を探すなら `strrchr`
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`<cstring>`](../cstring.md) の概要を先に読んでください。C の文字列は、終端が `'\0'` の `char` の配列です。
 
 ## 関数の詳しい説明
 
-### strchr {#strchr}
+### std::strchr {#strchr}
 
 ```cpp
 const char* strchr(const char* str, int ch);
+char* strchr(char* str, int ch);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `str` | `const char*` | 探す C 文字列 |
-| `ch` | `int` | 探す文字 |
+| `str` | `const char*` | 探す対象の文字列 |
+| `ch` | `int` | 探す文字（`char` に変換される） |
 
-- 戻り値: 最初に見つかった位置のポインタ。なければ `nullptr`。`ch` に `'\0'` を渡すと、終端の位置が返る
-- `std::string_view::find` のほうが安全です。
+戻り値が `nullptr` かどうかを必ず確かめます。確かめずに `p - s` や `*p` を使うとクラッシュします。
+
+`ch` が `int` なのは C 由来の事情で、`char` に変換されます。
 
 ## 実際に動かしてみる
 
@@ -47,43 +50,42 @@ const char* strchr(const char* str, int ch);
 #include <print>
 
 int main() {
-  const char* s = "hello";
-  std::println("{} {}", std::strchr(s, 'l') - s, std::strrchr(s, 'l') - s);
+  const char* s = "key=value";
+  const char* eq = std::strchr(s, '=');
+  if (eq != nullptr) {
+    std::println("位置: {}", eq - s);
+    std::println("値: {}", eq + 1);
+  }
+  std::println("なければ nullptr: {}", std::strchr(s, '#') == nullptr);
 }
 ```
 
 ```text title="実行結果"
-2 3
+位置: 3
+値: value
+なければ nullptr: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| パスの拡張子（最後の `.`）を探す | `strrchr(path, '.')` |
+`key=value` のような行を、`=` で分けるときに使います。
 
 ## よくあるミス
 
-??? failure "戻り値を調べずに使う"
-    `nullptr` のことがあります。
+??? failure "nullptr を確かめない"
+    見つからないと `nullptr` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| `std::string::find` | C++ の同等品 |
-| [`memchr`](memchr.md) | バイト列用 |
+| [`strrchr`](strrchr.md) | 最後の位置を探す |
+| [`strstr`](strstr.md) | 文字列を探す |
+| `std::string::find` | 普段はこちら |
 
 ## コンパイラ対応
 
 C 由来の関数です。C++ のどの版でも使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 文字を探す
-    - [x] 無ければ nullptr
-    - [x] C++ では `find`
 
 ## 関連ページ
 

@@ -14,32 +14,35 @@ tags:
 `#include <cstdlib>`
 </div>
 
-`calloc` は、**要素数と 1 つあたりのバイト数を指定して、0 で初期化したメモリを確保する**関数です。`malloc` に `memset` を足したものと同じですが、掛け算のオーバーフローも検出してくれます。
+`malloc` は、確保した領域を初期化しません。0 で埋めた配列が欲しいときは、`std::calloc(n, size)` が便利です。`n` 個の要素（各 `size` バイト）の領域を確保し、全部を 0 で埋めます。
 
 !!! tip "ポイント"
-    - `calloc(個数, サイズ)` の 2 引数。
-    - 中身は全ビット 0。
-    - 失敗すると `nullptr`。
+    - `n * size` バイトを確保して、全部 0 で埋める
+    - かけ算のオーバーフローを検査してくれる（`malloc(n * size)` と違う）
+    - 失敗すると `nullptr`
+    - 解放は `free`。C++ では `new` と混ぜない
 
 !!! info "このページを読む前に"
-    [ポインタ](../../basics/pointer.md) が分かると読みやすいです。
+    [`std::allocator`](allocator.md) など、アロケーターの基本を先に読んでください。
 
 ## 関数の詳しい説明
 
-### calloc {#calloc}
+### std::calloc {#calloc}
 
 ```cpp
-void* calloc(std::size_t count, std::size_t size);
+void* calloc(std::size_t num, std::size_t size);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `count` | `std::size_t` | 要素の数 |
+| `num` | `std::size_t` | 要素の個数 |
 | `size` | `std::size_t` | 1 要素のバイト数 |
 
-- 戻り値: `count * size` バイトの領域。**すべて 0 で埋められている**。失敗したら `nullptr`
-- `malloc(count * size)` + 0 埋め、と同じ意味ですが、**`count * size` がオーバーフローするときは、失敗（`nullptr`）として扱ってくれる**のが安全な点です
-- 整数や構造体の配列を 0 で始めたいときに便利です。ただし、**浮動小数点やポインタの「全ビット 0」が 0.0 / `nullptr` とは限らない**環境がありえます（実際の PC やゲーム機ではそうなっています）
+0 で埋まるのは、全ビットが 0 の状態です。整数と、ほとんどの環境の浮動小数点数やポインターは、全ビット 0 で 0 や `nullptr` になりますが、C++ の規格はポインターの `nullptr` が全ビット 0 であることを保証しません。
+
+`malloc(num * size)` は、かけ算が `size_t` を超えて巻き戻ると、小さな領域を返してしまい、バッファ オーバーランになります。`calloc` は、これを検査して `nullptr` を返します。
+
+C++ のクラスのオブジェクトには、使えません。コンストラクターが呼ばれないので、使うと未定義動作です。
 
 ## 実際に動かしてみる
 
@@ -48,26 +51,31 @@ void* calloc(std::size_t count, std::size_t size);
 #include <print>
 
 int main() {
-  int* p = static_cast<int*>(std::calloc(3, sizeof(int)));  // 0 で初期化される
-  std::println("{} {} {}", p[0], p[1], p[2]);
-  std::free(p);
+  int* a = static_cast<int*>(std::calloc(4, sizeof(int)));
+  if (a == nullptr) return 1;
+
+  std::println("{} {} {} {}", a[0], a[1], a[2], a[3]);
+  std::free(a);
+
+  // 巨大な要求は、かけ算のオーバーフローで失敗する
+  void* big = std::calloc(static_cast<std::size_t>(-1), 2);
+  std::println("失敗: {}", big == nullptr);
 }
 ```
 
 ```text title="実行結果"
-0 0 0
+0 0 0 0
+失敗: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 0 で初期化した配列を C のAPI 向けに作る | `calloc(n, sizeof(Item))` |
+C のライブラリに渡す、ゼロクリア済みのバッファを確保するときに使います。C++ では `std::vector<int>(n)` で足ります。
 
 ## よくあるミス
 
-??? failure "浮動小数点やポインターの 0 を前提にする"
-    全ビット 0 が `0.0` や `nullptr` になるのが普通ですが、規格上の保証はありません。
+??? failure "new で確保したものを free する"
+    混ぜると壊れます。`calloc` には `free`。
 
 ## 類似
 
@@ -75,17 +83,11 @@ int main() {
 | --- | --- |
 | [`malloc`](malloc.md) | 初期化しない |
 | [`free`](free.md) | 解放 |
+| [`realloc`](realloc.md) | 大きさを変える |
 
 ## コンパイラ対応
 
-C 由来の関数です。`aligned_alloc` は C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 0 初期化つきで確保
-    - [x] 2 引数
-    - [x] `free` で解放
+C 由来の関数です。C++ のどの版でも使えます。
 
 ## 関連ページ
 

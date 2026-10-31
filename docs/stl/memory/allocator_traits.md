@@ -14,83 +14,89 @@ tags:
 `#include <memory>`
 </div>
 
-`std::allocator_traits<Alloc>` は、**アロケータの機能（確保、解放、構築、破棄）を足りない関数を自動で補いながら、一様に使えるようにする窓口**です。自作のアロケーターは `allocate` と `deallocate` だけ書けば、残りは `allocator_traits` が補ってくれます。コンテナの内部で、アロケーターを使うときの入口です。
+アロケーターには、`allocate` と `deallocate` さえあればよく、`construct` や `destroy`、`rebind` などは、省略できます。コンテナは、省略された部分を毎回調べるのが面倒です。`std::allocator_traits<Alloc>` は、アロケーターの統一的な窓口で、省略された機能を既定の動作で補ってくれます。
 
 !!! tip "ポイント"
-    - 自作のアロケーターは最低限 `allocate` / `deallocate` と `value_type` だけでよい。
-    - コンテナは、アロケーターを直接ではなく、`allocator_traits` 経由で使う。
-    - 自分で使うのは、自作コンテナを作るとき。
+    - コンテナは、アロケーターを直接ではなく、`allocator_traits` 経由で呼ぶ
+    - `allocate`、`deallocate`、`construct`、`destroy`、`max_size` などがある
+    - アロケーターが `construct` を持たなければ、配置 new で代用する
+    - 自作のアロケーターは、最小限の `allocate` と `deallocate` で済む
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [所有権（誰が消すのか）](../../basics/ownership.md)（所有権の考え方）
+    [`std::allocator`](allocator.md) など、アロケーターの基本を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::allocator_traits {#allocator_traits}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 template <class Alloc>
 struct allocator_traits {
-  static pointer allocate(Alloc& a, size_type n);
-  static void deallocate(Alloc& a, pointer p, size_type n);
+  using value_type = typename Alloc::value_type;
+  using pointer = /* ... */;
+  static pointer allocate(Alloc& a, std::size_t n);
+  static void deallocate(Alloc& a, pointer p, std::size_t n);
   template <class T, class... Args>
   static void construct(Alloc& a, T* p, Args&&... args);
-  template <class T> static void destroy(Alloc& a, T* p);
+  template <class T>
+  static void destroy(Alloc& a, T* p);
+  static std::size_t max_size(const Alloc& a) noexcept;
 };
 ```
 
-- 戻り値: （静的関数の集まり）
-- 計算量: アロケーターによる
+`construct` は、アロケーターが `construct` を持てばそれを、持たなければ `std::construct_at` を呼びます。`destroy` も同様です。
+
+自作のアロケーターは、`value_type`、`allocate`、`deallocate`、`==` だけで、コンテナに使えます。`pointer` や `rebind` は、型から推論されて補われます。
+
+型の別名には `rebind_alloc<U>` があり、`value_type` が違う型用のアロケーターを作ります（リストのノード用のアロケーターなど）。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <memory>
 #include <print>
 
 int main() {
-  std::allocator<int> alloc;
   using Traits = std::allocator_traits<std::allocator<int>>;
+  static_assert(std::is_same_v<Traits::value_type, int>);
 
-  int* p = Traits::allocate(alloc, 1);   // 1 個ぶんのメモリ（未初期化）
-  Traits::construct(alloc, p, 7);        // その上にオブジェクトを作る
-  std::println("{}", *p);
-  Traits::destroy(alloc, p);
-  Traits::deallocate(alloc, p, 1);
+  std::allocator<int> a;
+  int* p = Traits::allocate(a, 3);  // 生の領域
+
+  for (int i = 0; i < 3; ++i) Traits::construct(a, p + i, i * 10);
+  std::println("{} {} {}", p[0], p[1], p[2]);
+
+  for (int i = 0; i < 3; ++i) Traits::destroy(a, p + i);
+  Traits::deallocate(a, p, 3);
 }
 ```
 
 ```text title="実行結果"
-7
+0 10 20
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 自作コンテナをどんなアロケーターでも使えるようにする | `allocator_traits<Alloc>::allocate(...)` |
+自作のコンテナを書くとき、アロケーターの呼び出しを `allocator_traits` 経由にして、あらゆるアロケーターに対応させます。
 
 ## よくあるミス
 
-??? failure "アロケーターの関数を直接呼ぶ"
-    自作のアロケーターには `construct` が無いことがあります。`allocator_traits` 経由なら補われます。
+??? failure "アロケーターを直接呼ぶ"
+    `construct` を持たないアロケーターで失敗します。`allocator_traits` を通します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::allocator`](allocator.md) | 標準のアロケーター |
-| [`std::pmr`](pmr.md) | 実行時に切り替えられる |
+| [`allocator`](allocator.md) | 標準のアロケーター |
+| [`scoped_allocator_adaptor`](scoped_allocator_adaptor.md) | 入れ子への伝播 |
+| [`pointer_traits`](pointer_traits.md) | ポインターの特性 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] アロケーターの窓口
-    - [x] 足りない関数を補う
-    - [x] コンテナの内部で使われる
+C++11 から使えます。
 
 ## 関連ページ
 

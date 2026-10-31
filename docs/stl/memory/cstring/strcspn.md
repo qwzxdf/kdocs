@@ -13,32 +13,33 @@ tags:
 `#include <cstring>`
 </div>
 
-「最初に区切り文字が現れるまで何文字か」を知りたいとき、`strcspn` を使います。`strspn` の逆で、`reject` の文字が最初に現れる位置までの長さを返します。
+文字列の先頭から、指定した文字のどれかが初めて現れるまでの長さを知りたい。`std::strcspn(s, reject)` は、`reject` に含まれる文字が現れる直前までの長さを返します。`strspn` の逆の働きです。
 
 !!! tip "ポイント"
-    - 終端の `'\0'` を前提にする C 由来の関数。
-    - バッファの大きさは自分で確かめる。
-    - 新しいコードでは `std::string` / `std::string_view` のほうが安全。
+    - 先頭から、`reject` の文字が現れるまでの長さ
+    - 現れなければ、文字列全体の長さ
+    - 区切り文字の位置を探すのに使える
+    - 位置そのものが欲しいなら `strpbrk`
 
 !!! info "このページを読む前に"
-    [`<cstring>`](../cstring.md) の概要と [ポインタ](../../../basics/pointer.md) を先に読んでください。
+    [`<cstring>`](../cstring.md) の概要を先に読んでください。C の文字列は、終端が `'\0'` の `char` の配列です。
 
 ## 関数の詳しい説明
 
 ### std::strcspn {#strcspn}
 
 ```cpp
-std::size_t strcspn(const char* str, const char* reject);
+std::size_t strcspn(const char* dest, const char* src);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `str` | const char* | 調べる文字列 |
-| `reject` | const char* | 現れたら止まる文字の集まり |
+| `dest` | `const char*` | 調べる文字列 |
+| `src` | `const char*` | 探す文字の集まり |
 
-- 戻り値: 先頭から続く長さ
-- 計算量: 定数
+先頭の文字がいきなり `src` に含まれるなら 0 です。
 
+`fgets` で読んだ行の末尾の改行を取り除く定番の書き方が、`line[strcspn(line, "\n")] = '\0';` です。改行があればそこを終端にし、なければ元の終端を上書きするだけです。
 
 ## 実際に動かしてみる
 
@@ -47,42 +48,43 @@ std::size_t strcspn(const char* str, const char* reject);
 #include <print>
 
 int main() {
-  std::println("{}", std::strcspn("abc123", "0123456789"));
+  const char* s = "key=value";
+  std::println("= までの長さ: {}", std::strcspn(s, "=:"));
+  std::println("なければ全体の長さ: {}", std::strcspn("abc", "xyz"));
+
+  // 末尾の改行を取り除く
+  char line[16] = "hello\n";
+  line[std::strcspn(line, "\n")] = '\0';
+  std::println("{} ({} 文字)", line, std::strlen(line));
 }
 ```
 
 ```text title="実行結果"
-3
+= までの長さ: 3
+なければ全体の長さ: 3
+hello (5 文字)
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 最初の数字までの文字数を調べる |
+`fgets` で読んだ行から改行を取り除くときに使います。
 
 ## よくあるミス
 
-??? failure "見つからないときの戻り値"
-    見つからなければ、文字列全体の長さ（終端の位置）が返ります。
+??? failure "位置と長さを取り違える"
+    戻り値は先頭からの長さです。ポインタではありません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`strspn`](strspn.md) | 含む文字が続く長さ |
-| [`strpbrk`](strpbrk.md) | 位置のポインタを返す |
+| [`strspn`](strspn.md) | 逆。許す文字が続く長さ |
+| [`strpbrk`](strpbrk.md) | 位置をポインタで返す |
+| [`strchr`](strchr.md) | 1 文字を探す |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 先頭から、指定した文字を含まない部分の長さを返す
-    - [x] 終端の `'\0'` を前提にする C 由来の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+C 由来の関数です。C++ のどの版でも使えます。
 
 ## 関連ページ
 

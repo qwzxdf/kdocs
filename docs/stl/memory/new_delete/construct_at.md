@@ -15,19 +15,22 @@ tags:
 `#include <memory>`
 </div>
 
-`std::construct_at` は、**確保済みのメモリの上にオブジェクトを作る**関数で、配置 new の C++20 版です。`constexpr` 関数の中でも使えます。
+確保済みのメモリの上にオブジェクトを作るには、配置 new（`new (p) T(args)`）を使いますが、書き方が独特で、`constexpr` の関数の中では使えません。C++20 の `std::construct_at(p, args...)` は、同じことを関数として書け、`constexpr` の中でも使えます。
 
 !!! tip "ポイント"
-    - `std::construct_at(ptr, args...)` で作る。
-    - 壊すのは [`destroy_at`](destroy_at.md)。
-    - アロケーターの `construct` の実体として使われる。
+    - `std::construct_at(p, args...)` は、`p` の位置に `T(args...)` を作る
+    - 確保はしない。メモリは自分で用意する
+    - 壊すときは `std::destroy_at(p)`
+    - `constexpr`。コンパイル時の計算でも使える
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [配置 new](placement_new.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### std::construct_at <span class="ver ver-20">C++20</span> {#construct_at data-toc-label="std::construct_at"}
+### std::construct_at {#construct_at}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 template <class T, class... Args>
@@ -36,58 +39,75 @@ constexpr T* construct_at(T* p, Args&&... args);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `p` | `T*` | 作る場所 |
-| `args...` | `Args&&...` | コンストラクタの引数 |
+| `p` | `T*` | オブジェクトを作る位置。生存期間が始まる前の領域 |
+| `args` | コンストラクターの引数 | `T` を作る引数 |
 
-- 戻り値: `p`
-- 配置 new を `::new` と間違えにくく書ける関数です。`constexpr` の中でも使えます。**配置 new が必要なら、こちらを優先**します
+`::new (static_cast<void*>(p)) T(std::forward<Args>(args)...)` と同じです。戻り値は `p` です。
+
+引数が `T*` なので、型が合わないポインタは渡せません。配置 new は `void*` を受けるので、型の取り違えを許してしまいますが、`construct_at` は防ぎます。
+
+波括弧の初期化（`T{...}`）ではなく、丸括弧で作ります。集成体の初期化が必要なら、C++20 の丸括弧による集成体の初期化が使えます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <memory>
+#include <new>
 #include <print>
 
+struct Tracer {
+  static inline int alive = 0;
+  Tracer() { ++alive; }
+  Tracer(const Tracer&) { ++alive; }
+  Tracer(Tracer&&) noexcept { ++alive; }
+  ~Tracer() { --alive; }
+};
+
+struct Player {
+  Player(int hp, int mp) : hp(hp), mp(mp) { ++Tracer::alive; }
+  ~Player() { --Tracer::alive; }
+  int hp;
+  int mp;
+};
+
 int main() {
-  alignas(int) unsigned char buffer[sizeof(int)];
-  int* p = std::construct_at(reinterpret_cast<int*>(buffer), 5);
-  std::println("{}", *p);
+  alignas(Player) unsigned char buf[sizeof(Player)];
+  Player* p = std::construct_at(reinterpret_cast<Player*>(buf), 30, 12);
+  std::println("hp={} mp={} 生きている数={}", p->hp, p->mp, Tracer::alive);
+
   std::destroy_at(p);
+  std::println("壊した: {}", Tracer::alive);
 }
 ```
 
 ```text title="実行結果"
-5
+hp=30 mp=12 生きている数=1
+壊した: 0
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| メモリプールの上にオブジェクトを作る | `std::construct_at(slot, args...)` |
+自作のメモリ プールや、固定長のバッファの上に、オブジェクトを作るときに使います。
 
 ## よくあるミス
 
-??? failure "メモリが足りない"
-    十分な大きさ・アラインメントを自分で用意します。
+??? failure "メモリの確保を忘れる"
+    `construct_at` は確保しません。バッファは自分で用意します。
+
+??? failure "アライメントを守らない"
+    `alignas(T)` で、型のアライメントを満たす領域にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`placement_new`](placement_new.md) | 配置 new |
-| [`destroy_at`](destroy_at.md) | 壊す |
+| [配置 new](placement_new.md) | 従来の書き方 |
+| [`destroy_at`](destroy_at.md) | 壊す側 |
+| `std::allocator_traits::construct` | アロケーター経由 |
 
 ## コンパイラ対応
 
-C++98 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 配置 new の安全な版
-    - [x] C++20
-    - [x] `destroy_at` と対
+C++20 から使えます。
 
 ## 関連ページ
 

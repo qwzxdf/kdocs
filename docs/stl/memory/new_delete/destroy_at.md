@@ -15,34 +15,33 @@ tags:
 `#include <memory>`
 </div>
 
-`std::destroy_at` は、**オブジェクトのデストラクターを呼ぶ**関数です。メモリそのものは解放しません。[`construct_at`](construct_at.md) や配置 new で作ったものを壊すときに使います。
+確保済みのメモリの上に作ったオブジェクトは、`delete` では壊せません（メモリは別の方法で確保したため）。デストラクターだけを呼ぶ必要があります。`std::destroy_at(p)` は、`p->~T()` と同じで、メモリは解放しません。
 
 !!! tip "ポイント"
-    - `p->~T()` と同じ意味を型に依存せず書ける。
-    - メモリは自分で戻す（プールに返すなど）。
+    - デストラクターを呼ぶだけ。メモリは解放しない
+    - `p->~T()` の書き方を、型名を書かずに済ませられる
+    - `construct_at` / 配置 new と対で使う
+    - C++20 から `constexpr`
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`construct_at`](construct_at.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### std::destroy_at <span class="ver ver-17">C++17</span> {#destroy_at data-toc-label="std::destroy_at"}
+### std::destroy_at {#destroy_at}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
 template <class T>
 constexpr void destroy_at(T* p);
-template <class It>
-constexpr void destroy(It first, It last);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `p` | `T*` | 破棄するオブジェクト |
-| `first`, `last` | `It` | 破棄する範囲 |
+`T` が配列型のときは、各要素を壊します（C++20）。
 
-- 戻り値: なし
-- デストラクタを呼びます。メモリは返しません。`p->~T();` の代わりに書けて、`T` が変わっても書き換える場所が減ります
-- `std::destroy(first, last)` で、範囲の全部をまとめて破棄できます
+デストラクターが自明な型（`int` など）なら、何もしません。
+
+`destroy_at` を呼んだあとの領域は、オブジェクトの寿命が終わった生のメモリです。同じ領域に、また `construct_at` で作れます。壊したあとのオブジェクトを読むと、未定義動作です。
 
 ## 実際に動かしてみる
 
@@ -51,48 +50,58 @@ constexpr void destroy(It first, It last);
 #include <new>
 #include <print>
 
-struct Noisy {
-  ~Noisy() { std::println("破棄"); }
+struct Tracer {
+  static inline int alive = 0;
+  Tracer() { ++alive; }
+  Tracer(const Tracer&) { ++alive; }
+  Tracer(Tracer&&) noexcept { ++alive; }
+  ~Tracer() { --alive; }
 };
 
 int main() {
-  alignas(Noisy) unsigned char buffer[sizeof(Noisy)];
-  Noisy* p = new (buffer) Noisy();
-  std::destroy_at(p);  // デストラクターだけを呼ぶ（メモリは解放しない）
+  alignas(Tracer) unsigned char buf[sizeof(Tracer)];
+  Tracer* p = std::construct_at(reinterpret_cast<Tracer*>(buf));
+  std::println("作った: {}", Tracer::alive);
+
+  std::destroy_at(p);
+  std::println("壊した: {}", Tracer::alive);
+
+  // 同じ領域に作り直せる
+  p = std::construct_at(reinterpret_cast<Tracer*>(buf));
+  std::println("作り直した: {}", Tracer::alive);
+  std::destroy_at(p);
 }
 ```
 
 ```text title="実行結果"
-破棄
+作った: 1
+壊した: 0
+作り直した: 1
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| メモリプールに返す前にオブジェクトを壊す | `std::destroy_at(p);` |
+メモリ プールから取ったオブジェクトを返却するときに、デストラクターを呼ぶために使います。
 
 ## よくあるミス
 
-??? failure "delete と混同する"
-    `destroy_at` はメモリを解放しません。
+??? failure "delete p を呼ぶ"
+    メモリを自分で確保していないので、未定義動作です。
+
+??? failure "壊した後に使う"
+    寿命が終わっています。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`construct_at`](construct_at.md) | 作る |
+| [`construct_at`](construct_at.md) | 作る側 |
+| [`destroy`](destroy.md) | 範囲を壊す |
+| [`destroy_n`](destroy_n.md) | 個数を指定して壊す |
 
 ## コンパイラ対応
 
-C++98 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] デストラクターだけを呼ぶ
-    - [x] メモリは解放しない
-    - [x] C++17
+C++17 から使えます。
 
 ## 関連ページ
 

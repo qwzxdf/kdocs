@@ -14,19 +14,20 @@ tags:
 `#include <cstring>`
 </div>
 
-`memcpy` は、**メモリのバイト列を別の場所へそのままコピーする**C 由来の関数です。構造体や配列を丸ごとバイト単位でコピーするときに使います。**コピー元とコピー先が重なっていると未定義動作**です（重なるなら `memmove`）。
+配列や構造体の中身を、別の領域に、まとめてコピーしたい。`std::memcpy(dst, src, n)` は、`src` から `dst` へ `n` バイトをコピーします。速いのですが、領域が重なっていると壊れます。
 
 !!! tip "ポイント"
-    - 型が「トリビアルにコピーできる」ものだけに使う（`std::string` や `vector` は NG）。
-    - 引数は `(コピー先, コピー元, バイト数)` の順。
-    - C++ では、まず `std::copy` や代入を考える。
+    - `n` バイトを、そのままコピーする
+    - コピー元とコピー先が重なっていると未定義動作。重なるなら `memmove`
+    - コピーできる型（トリビアルにコピー可能）だけに使う
+    - 型の変換のコピーは `std::bit_cast`（C++20）
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`<cstring>`](../cstring.md) の概要を先に読んでください。C の文字列は、終端が `'\0'` の `char` の配列です。
 
 ## 関数の詳しい説明
 
-### memcpy {#memcpy}
+### std::memcpy {#memcpy}
 
 ```cpp
 void* memcpy(void* dest, const void* src, std::size_t count);
@@ -36,19 +37,15 @@ void* memcpy(void* dest, const void* src, std::size_t count);
 | --- | --- | --- |
 | `dest` | `void*` | コピー先 |
 | `src` | `const void*` | コピー元 |
-| `count` | `std::size_t` | コピーする**バイト数** |
+| `count` | `std::size_t` | コピーするバイト数 |
 
-- 戻り値: `dest`
-- 計算量: O(count)。とても速い（CPU の命令でまとめてコピーされる）
-- **`dest` と `src` が重なっていると未定義動作**です。重なる可能性があるなら `memmove` を使います
-- **`dest` / `src` が `nullptr` は `count` が 0 でも未定義動作**です
-- コピーする型は **trivially copyable**（コンストラクタ・デストラクタ・コピーの処理が単純なもの）に限ります。`std::string`、`std::vector`、`std::unique_ptr`、仮想関数を持つクラスは**壊れます**
+戻り値は `dest` です。
 
-<div class="anim" data-label="memcpy(dst, src, 3 * sizeof(int))">
-1 2 3 4 | _ _ _ _ # src と dst
-1 2 3 4 | +1 _ _ _ # 先頭から順にコピーされる
-1 2 3 4 | +1 +2 +3 _ # 指定したバイト数だけ。それ以降は変わらない
-</div>
+`std::string` や `std::vector` のような、内部にポインタを持つ型を `memcpy` でコピーすると、同じポインタを 2 つのオブジェクトが持ち、二重に解放されます。`std::is_trivially_copyable_v<T>` が真の型だけに使います。
+
+バイト数は `sizeof(T) * 個数` で求めます。個数だけを渡す間違いが多いです。
+
+`float` のビット列を `uint32_t` として読みたい、といった型の変換は、`memcpy` で行うのが、従来の安全な方法でした。C++20 の `std::bit_cast` が、これをより明確に書けます。
 
 ## 実際に動かしてみる
 
@@ -56,7 +53,18 @@ void* memcpy(void* dest, const void* src, std::size_t count);
 #include <cstring>
 #include <print>
 
+struct Vec2 {
+  float x;
+  float y;
+};
+
 int main() {
+  const Vec2 a{1.5f, 2.5f};
+  Vec2 b{};
+  std::memcpy(&b, &a, sizeof(Vec2));
+  std::println("{} {}", b.x, b.y);
+
+  // 配列のコピー: バイト数は sizeof(要素) * 個数
   int src[3] = {1, 2, 3};
   int dst[3] = {};
   std::memcpy(dst, src, sizeof(src));
@@ -65,40 +73,36 @@ int main() {
 ```
 
 ```text title="実行結果"
+1.5 2.5
 1 2 3
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 頂点バッファへ頂点配列を転送する | `memcpy(mapped, vertices, size)` |
+バイナリ データの読み書きや、頂点データをバッファにコピーするときに使います。
 
 ## よくあるミス
 
-??? failure "引数の順番を逆にする"
-    `memcpy(dst, src, n)` です。`src` を先に書くと逆向きにコピーします。
+??? failure "バイト数を個数にする"
+    `memcpy(dst, src, 3)` は 3 バイトです。
 
-??? failure "std::string や vector に使う"
-    内部のポインターごとコピーされて、二重解放になります。
+??? failure "領域が重なる"
+    `memmove` を使います。
+
+??? failure "std::string をコピーする"
+    二重解放になります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`memmove`](memmove.md) | 重なっていてもよい |
-| [`std::ranges::copy`](../../algorithms/copy.md) | 型を意識したコピー |
+| `std::copy` | 型に合わせたコピー。普段はこちら |
+| `std::bit_cast` | 型の変換 |
 
 ## コンパイラ対応
 
 C 由来の関数です。C++ のどの版でも使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] バイト列をコピーする
-    - [x] 重なってはいけない
-    - [x] 非トリビアルな型には使わない
 
 ## 関連ページ
 

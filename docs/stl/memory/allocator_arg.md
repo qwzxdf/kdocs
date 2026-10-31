@@ -13,28 +13,36 @@ tags:
 `#include <memory>`
 </div>
 
-コンストラクタの引数にアロケータを渡したいとき、引数の並びだけでは「普通の引数」と区別できません。そこで `std::allocator_arg` という目印を最初に置いて、「次がアロケータです」と伝えます。`tuple` や `function` などのコンストラクタが使います。
+アロケーターを受け取れるクラス（`std::tuple` やコンテナ）のコンストラクターは、普通の引数と、アロケーターの引数を区別できる必要があります。`(int, std::allocator)` なのか、`(std::allocator, int)` なのか、曖昧になるからです。`std::allocator_arg` は、「次の引数はアロケーターです」と伝える目印です。
 
 !!! tip "ポイント"
-    - `std::allocator_arg_t` 型の定数。
-    - `tuple(std::allocator_arg, alloc, 値...)` の形で使う。
-    - 自作の型でアロケータを受けるときもこの形に合わせる。
+    - コンストラクターの第 1 引数に `std::allocator_arg`、第 2 引数にアロケーターを渡す
+    - `std::tuple`、`std::function`（C++17 まで）などが使う
+    - 値を持たない空の型 `allocator_arg_t` の定数
+    - 自作のクラスを uses-allocator 構築に対応させるときに使う
 
 !!! info "このページを読む前に"
-    [ポインタ](../../basics/pointer.md) が分かると読みやすいです。
+    [`std::allocator`](allocator.md) など、アロケーターの基本を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::allocator_arg {#allocator_arg}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 struct allocator_arg_t { explicit allocator_arg_t() = default; };
-inline constexpr allocator_arg_t allocator_arg{};
+inline constexpr std::allocator_arg_t allocator_arg{};
 ```
 
-- 戻り値: なし（目印）
-- 計算量: なし
+`uses_allocator` が真の型は、アロケーターを受け取る2通りの構築を持つ決まりです。
 
+1. `T(std::allocator_arg, alloc, args...)`（先頭に印とアロケーター）
+2. `T(args..., alloc)`（末尾にアロケーター）
+
+`allocator_arg` を先頭にする形は、`std::tuple` のように、引数が可変個で、末尾に足すと紛らわしい型で使われます。
+
+`std::make_obj_using_allocator` などの標準の道具が、型に応じてどちらかの形を自動で選んでくれるので、自分で書く場面は、アロケーター対応のクラスを作るときだけです。
 
 ## 実際に動かしてみる
 
@@ -44,42 +52,36 @@ inline constexpr allocator_arg_t allocator_arg{};
 #include <tuple>
 
 int main() {
-  std::tuple<int> t(std::allocator_arg, std::allocator<int>{}, 5);
-  std::println("{}", std::get<0>(t));
+  // tuple にアロケーターを渡して作る
+  std::tuple<int, double> t(std::allocator_arg, std::allocator<int>(), 5, 2.5);
+  std::println("{} {}", std::get<0>(t), std::get<1>(t));
 }
 ```
 
 ```text title="実行結果"
-5
+5 2.5
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| アロケータを指定して `tuple` を作る | `std::tuple<int> t(std::allocator_arg, std::allocator<int>{}, 5);` |
+自作のコンテナを、`std::scoped_allocator_adaptor` に対応させるときに必要です。普段は触りません。
 
 ## よくあるミス
 
-??? failure "目印を忘れる"
-    `allocator_arg` を置かないと、アロケータが普通の引数として扱われ、コンパイルエラーになります。
+??? failure "印を付けずにアロケーターを渡す"
+    普通の引数と区別できず、型が合いません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`uses_allocator`](uses_allocator.md) | アロケータを受けられる型か調べる |
+| [`uses_allocator`](uses_allocator.md) | 型がアロケーターを受け取れるかの特性 |
+| [`make_obj_using_allocator`](make_obj_using_allocator.md) | 自動で構築方法を選ぶ |
+| [`scoped_allocator_adaptor`](scoped_allocator_adaptor.md) | 入れ子のコンテナに伝える |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] アロケータを渡す目印
-    - [x] 最初の引数に置く
-    - [x] tuple などが使う
+C++11 から使えます。
 
 ## 関連ページ
 

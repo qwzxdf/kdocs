@@ -15,18 +15,22 @@ tags:
 `#include <memory>`
 </div>
 
-壊す範囲を「先頭と個数」で持っているとき、`destroy` のようにペアでなく、個数で渡せる版が `destroy_n` です。最後に壊した位置の次を返します。
+`destroy` が範囲で壊すのに対し、`std::destroy_n(first, n)` は、先頭から `n` 個を壊し、壊したあとの次の位置を返します。個数が分かっているコンテナで使います。
 
 !!! tip "ポイント"
-    - デストラクタを呼ぶだけで、メモリは返さない。
-    - 戻り値は壊した最後の次の位置。
+    - 先頭から `n` 個のデストラクターを呼ぶ
+    - 戻り値は、壊した最後の要素の次の位置
+    - `destroy(first, first + n)` と同じ働き
+    - メモリは解放しない
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`destroy`](destroy.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::destroy_n {#destroy_n}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
 template <class ForwardIt, class Size>
@@ -35,12 +39,12 @@ constexpr ForwardIt destroy_n(ForwardIt first, Size n);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `first` | イテレータ | 壊す先頭 |
+| `first` | 前方イテレータ | 先頭 |
 | `n` | 整数 | 壊す個数 |
 
-- 戻り値: 壊した最後の次の位置
-- 計算量: 線形
+`n` が 0 や負なら、何もせず `first` を返します。
 
+戻り値を使うと、壊した範囲の続きから、次の処理を始められます。
 
 ## 実際に動かしてみる
 
@@ -52,6 +56,8 @@ constexpr ForwardIt destroy_n(ForwardIt first, Size n);
 struct Tracer {
   static inline int alive = 0;
   Tracer() { ++alive; }
+  Tracer(const Tracer&) { ++alive; }
+  Tracer(Tracer&&) noexcept { ++alive; }
   ~Tracer() { --alive; }
 };
 
@@ -59,43 +65,35 @@ int main() {
   alignas(Tracer) unsigned char buf[sizeof(Tracer) * 3];
   auto* p = reinterpret_cast<Tracer*>(buf);
   for (int i = 0; i < 3; ++i) std::construct_at(p + i);
+
   auto* end = std::destroy_n(p, 3);
-  std::println("{} {}", Tracer::alive, end - p);
+  std::println("生きている数: {} 次の位置までの距離: {}", Tracer::alive, end - p);
 }
 ```
 
 ```text title="実行結果"
-0 3
+生きている数: 0 次の位置までの距離: 3
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 先頭と個数で持っている配列を壊す | `std::destroy_n(p, count);` |
+個数を保持する自作のコンテナのデストラクターで使います。
 
 ## よくあるミス
 
-??? failure "個数を実際より多く指定する"
-    作っていない領域のデストラクタを呼ぶと未定義動作です。
+??? failure "n が実際に作った数より大きい"
+    作っていない領域を壊して、未定義動作になります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`destroy`](destroy.md) | 範囲で指定 |
-| [`destroy_at`](destroy_at.md) | 1 つだけ |
+| [`destroy`](destroy.md) | 範囲で指定する |
+| [`destroy_at`](destroy_at.md) | 1 つ |
 
 ## コンパイラ対応
 
 C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 先頭と個数で壊す
-    - [x] メモリは返さない
-    - [x] 戻り値は最後の次
 
 ## 関連ページ
 

@@ -14,85 +14,89 @@ tags:
 `#include <cstring>`
 </div>
 
-`snprintf` は、**書式に従って文字列を作り、指定した大きさを超えないようにバッファへ書き込む**関数です。必ず終端 `\0` が付きます。`printf` の「文字列版」で、C のライブラリとのやり取りで今でも使われます。C++20 以降は [`std::format_to_n`](../../utilities/format_to.md) が型安全な代わりです。
+数値を含む文字列を、固定長のバッファに組み立てたい。`std::snprintf(buf, n, fmt, ...)` は、`printf` と同じ書式で、最大 `n - 1` 文字を `buf` に書き、必ず終端を付けます。あふれても安全で、本来の長さも返すので、切り詰められたかが分かります。
 
 !!! tip "ポイント"
-    - `snprintf(buf, sizeof(buf), "HP %d/%d", hp, max_hp);`
-    - 戻り値は「あふれなければ書かれたはずの文字数」。大きさの確認に使える。
-    - 書式と引数の型を合わせないと未定義動作（`std::format` は安全）。
+    - 最大 `n - 1` 文字を書き、必ず終端を付ける（`n` が 0 でなければ）
+    - 戻り値は、省略されなかった場合の本来の長さ（終端を除く）
+    - 戻り値が `n` 以上なら、切り詰められた
+    - `buf` を `nullptr`、`n` を 0 にすると、長さだけが得られる
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`<cstring>`](../cstring.md) の概要を先に読んでください。C の文字列は、終端が `'\0'` の `char` の配列です。
 
 ## 関数の詳しい説明
 
-### snprintf {#snprintf}
+### std::snprintf {#snprintf}
 
 ```cpp
-int snprintf(char* buffer, std::size_t bufsz, const char* format, ...);  // <cstdio>
+int snprintf(char* buffer, std::size_t bufsz, const char* format, ...);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
 | `buffer` | `char*` | 書き込み先 |
-| `bufsz` | `std::size_t` | `buffer` の大きさ（終端の `'\0'` を含む） |
-| `format` | `const char*` | `printf` 形式の書式 |
+| `bufsz` | `std::size_t` | `buffer` の大きさ（終端を含む） |
+| `format` | `const char*` | 書式 |
 
-- 戻り値: **書き込めていれば書かれたはずの文字数**（`bufsz` 以上なら、切り捨てられている）
-- 必ず終端の `'\0'` を書いてくれる、**大きさを守る安全な書式付き出力**です（`sprintf` は大きさを見ないので使いません）
-- C++ では、[`std::format_to_n`](../../utilities/format_to_n.md#format_to_n) が型安全な代わりです。
+`sprintf` は大きさを指定できず、あふれる危険がありますが、`snprintf` は大きさを渡します。
+
+戻り値で、必要な大きさが分かるので、切り詰められたときに、大きな領域で作り直せます。
 
 ```cpp
-char label[16];
-std::snprintf(label, sizeof(label), "HP %d/%d", 30, 100);  // 長すぎても、15 文字で切れて安全
+int len = std::snprintf(nullptr, 0, "%d", value);   // 必要な長さ
+std::string s(len, '\0');
+std::snprintf(s.data(), len + 1, "%d", value);
 ```
+
+C++20 以降は、`std::format` / `std::format_to_n` のほうが、型の安全があり、書式の誤りをコンパイル時に検出できます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <cstdio>
-#include <cstring>
 #include <print>
 
 int main() {
   char buf[16];
-  int n = std::snprintf(buf, sizeof(buf), "HP %d/%d", 45, 120);
-  std::println("{} {}", buf, n);
+  const int n = std::snprintf(buf, sizeof(buf), "HP %d/%d", 30, 100);
+  std::println("{} ({} 文字)", buf, n);
+
+  // 小さいバッファ: 切り詰められるが、本来の長さが分かる
+  char small[6];
+  const int m = std::snprintf(small, sizeof(small), "HP %d/%d", 30, 100);
+  std::println("{} 本来の長さ {} 切り詰められた {}", small, m, m >= static_cast<int>(sizeof(small)));
 }
 ```
 
 ```text title="実行結果"
-HP 45/120 9
+HP 30/100 (9 文字)
+HP 30 本来の長さ 9 切り詰められた true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 固定長のバッファに HUD の文字列を書く | `snprintf(buf, sizeof(buf), ...)` |
+C の API に渡す固定長のバッファに、書式つきで文字列を作るときに使います。C++ の新しいコードは `std::format` です。
 
 ## よくあるミス
 
-??? failure "書式と型が合わない"
-    `%d` に `float` を渡すと未定義動作です。型安全な `std::format` を使います。
+??? failure "戻り値を調べない"
+    切り詰められても気づきません。
+
+??? failure "bufsz に文字数を渡す"
+    終端の分を含む、バッファの大きさを渡します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::format_to_n`](../../utilities/format_to.md) | 型安全な代わり |
-| [`std::println`](../../utilities/print.md) | 出力するなら |
+| [`format_to_n`](../../utilities/format_to_n.md) | C++20 の同様の関数 |
+| `std::format` | 文字列を返す |
+| [`strcpy`](strcpy.md) | あふれる危険がある |
 
 ## コンパイラ対応
 
 C 由来の関数です。C++ のどの版でも使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 大きさを守って書式化する
-    - [x] 終端が必ず付く
-    - [x] 型安全なのは `format_to_n`
 
 ## 関連ページ
 

@@ -14,203 +14,95 @@ tags:
 `#include <memory_resource>`
 </div>
 
-`std::pmr::polymorphic_allocator<T>` は、**実行時にメモリの取り先（メモリリソース）を切り替えられるアロケータ**です。`std::pmr::vector` などの pmr コンテナが内部で使っています。コンテナの型を変えずに取り先を変えられるのが特徴です。
+`std::vector<int>` と、自作のアリーナから確保する `std::vector<int>` は、アロケーターの型が違うので、別の型になります。関数の引数にすると、型が合わず困ります。`std::pmr::polymorphic_allocator<T>` は、取り先を「実行時に」切り替えられるアロケーターで、`std::pmr::vector<int>` の型は、取り先が何であっても同じです。
 
 !!! tip "ポイント"
-    - 普通は直接使わず、`std::pmr::vector<int> v(&pool);` のようにリソースを渡すだけ。
-    - リソースへのポインターを持つだけなので、コピーが軽い。
-    - 自作のクラスでも、アロケータを受け取れば pmr に対応できる。
+    - `memory_resource*` を持つだけのアロケーター。コピーが軽い
+    - `std::pmr::vector<T>` は `std::vector<T, polymorphic_allocator<T>>` の別名
+    - 要素が `pmr::string` なら、コンテナの取り先が、要素にも伝わる
+    - コンテナにリソースを渡すだけでよく、直接触ることは少ない
 
 !!! info "このページを読む前に"
     [`std::pmr`](../pmr.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
-### polymorphic_allocator {#polymorphic_allocator}
+### std::pmr::polymorphic_allocator {#polymorphic_allocator}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
 template <class T>
 class polymorphic_allocator {
  public:
-  polymorphic_allocator() noexcept;                              // デフォルトのリソース
-  polymorphic_allocator(memory_resource* r);                     // r を使う
+  polymorphic_allocator() noexcept;                              // default_resource() を使う
+  polymorphic_allocator(std::pmr::memory_resource* r);           // 暗黙に変換できる
+  std::pmr::memory_resource* resource() const;
   T* allocate(std::size_t n);
   void deallocate(T* p, std::size_t n);
-  memory_resource* resource() const;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `r` | `std::pmr::memory_resource*` | 使うリソースへのポインタ（`nullptr` は不可） |
+既定の構築では、`std::pmr::get_default_resource()` が返すリソースを使います。リソースのポインターから暗黙に変換できるので、`std::pmr::vector<int> v(&pool);` と書けます。
 
-- 戻り値: `resource()` は持っているリソースへのポインタ
-- 自作のクラスで「渡されたリソースを使ってメンバのコンテナを作りたい」ときは、コンストラクタに `std::pmr::memory_resource*` を受け取り、メンバのコンテナに渡します。
-- **代入のとき、アロケータは移りません**（`propagate_on_*` が `false`）。`a = b` の後も、`a` は元のリソースを使い続けます。コピーされるのは要素だけです
+注目したいのは、`construct` です。要素の型が「アロケーターを受け取れる型」（`uses_allocator`）なら、コンテナのアロケーターを、要素の構築に渡します。`pmr::vector<pmr::string>` の要素の文字列は、コンテナと同じリソースから確保されます。
 
-### allocate {#allocate}
-
-```cpp
-T* allocate(std::size_t n);
-```
-
-- 計算量: リソースによる
-
-`T` を `n` 個ぶんのメモリを内部のメモリリソースから確保します。
-
-### deallocate {#deallocate}
-
-```cpp
-void deallocate(T* p, std::size_t n);
-```
-
-- 計算量: リソースによる
-
-`allocate` で確保したメモリを返します。
-
-### allocate_bytes {#allocate_bytes}
-
-```cpp
-void* allocate_bytes(std::size_t nbytes, std::size_t alignment = alignof(std::max_align_t));
-```
-
-- 計算量: リソースによる
-
-バイト数と境界を指定して、生のメモリを確保します。
-
-### deallocate_bytes {#deallocate_bytes}
-
-```cpp
-void deallocate_bytes(void* p, std::size_t nbytes, std::size_t alignment = alignof(std::max_align_t));
-```
-
-- 計算量: リソースによる
-
-`allocate_bytes` で確保したメモリを返します。
-
-### allocate_object {#allocate_object}
-
-```cpp
-template <class U>
-U* allocate_object(std::size_t n = 1);
-```
-
-- 計算量: リソースによる
-
-型 `U` を `n` 個ぶんのメモリを確保します（オブジェクトは作りません）。
-
-### deallocate_object {#deallocate_object}
-
-```cpp
-template <class U>
-void deallocate_object(U* p, std::size_t n = 1);
-```
-
-- 計算量: リソースによる
-
-`allocate_object` で確保したメモリを返します。
-
-### new_object {#new_object}
-
-```cpp
-template <class U, class... Args>
-U* new_object(Args&&... args);
-```
-
-- 計算量: リソースによる + 構築
-
-メモリを確保して、そこにオブジェクトを作ります。`new` のメモリリソース版です。
-
-### delete_object {#delete_object}
-
-```cpp
-template <class U>
-void delete_object(U* p);
-```
-
-- 計算量: リソースによる + 破棄
-
-オブジェクトを破棄して、メモリを返します。`new_object` と対にします。
-
-### construct {#construct}
-
-```cpp
-template <class U, class... Args>
-void construct(U* p, Args&&... args);
-```
-
-- 計算量: 構築による
-
-`p` の場所にオブジェクトを作ります。内部のメモリリソースを要素にも引き継ぎます（uses-allocator 構築）。
-
-### resource {#resource}
-
-```cpp
-std::pmr::memory_resource* resource() const;
-```
-
-- 計算量: 定数
-
-このアロケータが使っているメモリリソース。
-
-### select_on_container_copy_construction {#select_on_container_copy_construction}
-
-```cpp
-polymorphic_allocator select_on_container_copy_construction() const;
-```
-
-- 計算量: 定数
-
-コンテナをコピーするとき、コピー先が使うアロケータを返します。pmr では、既定のメモリリソースを使うアロケータです（元のリソースは引き継がれません）。
+リソースが違うコンテナどうしの代入やムーブは、リソースの違いで、要素のコピーが必要になることがあります。`is_equal` が真なら、ポインターの付け替えだけで済みます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <memory_resource>
 #include <print>
+#include <string>
+#include <vector>
 
 int main() {
-  std::pmr::monotonic_buffer_resource pool;
-  std::pmr::polymorphic_allocator<int> alloc(&pool);
+  std::byte buffer[4096];
+  std::pmr::monotonic_buffer_resource pool(buffer, sizeof(buffer));
 
-  int* p = alloc.new_object<int>(7);  // メモリの確保とオブジェクトの構築
-  std::println("{}", *p);
-  alloc.delete_object(p);
+  // リソースを渡すだけ
+  std::pmr::vector<std::pmr::string> names(&pool);
+  names.emplace_back("Hero, the brave warrior of the northern kingdom");
+
+  std::println("コンテナのリソース: {}", names.get_allocator().resource() == &pool);
+  std::println("要素の文字列も同じ: {}", names[0].get_allocator().resource() == &pool);
+
+  // 既定のリソースは new / delete
+  std::pmr::vector<int> def;
+  std::println("既定: {}", def.get_allocator().resource() == std::pmr::new_delete_resource());
 }
 ```
 
 ```text title="実行結果"
-7
+コンテナのリソース: true
+要素の文字列も同じ: true
+既定: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| pmr コンテナにリソースを渡す | `std::pmr::vector<int> v(&pool);` |
+フレーム用のアリーナから確保するコンテナを、関数の引数に使う型（`std::pmr::vector<T>`）のまま、取り先だけ変えられる、という使い方をします。
 
 ## よくあるミス
 
-??? failure "リソースを渡し忘れる"
-    渡さないと、デフォルトのリソース（普通の new / delete）が使われます。
+??? failure "リソースより長くコンテナを生かす"
+    コンテナの破棄時に、消えたリソースへ解放して壊れます。
+
+??? failure "pmr でないコンテナに混ぜる"
+    `std::vector<std::pmr::string>` の要素は、リソースが伝わりません。外側も `pmr::vector` にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::allocator`](../allocator.md) | 型ごとに取り先が決まる |
-| [`memory_resource`](memory_resource.md) | 取り先の本体 |
+| [`memory_resource`](memory_resource.md) | 取り先の基底クラス |
+| [`pmr_containers`](pmr_containers.md) | `pmr` のコンテナ |
+| `std::allocator` | 型に取り先が固定される |
 
 ## コンパイラ対応
 
-C++17 の機能です。主要なコンパイラで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] リソースを実行時に切り替えるアロケータ
-    - [x] 普段はリソースを渡すだけ
-    - [x] コンテナの型が変わらない
+C++17 から使えます。
 
 ## 関連ページ
 

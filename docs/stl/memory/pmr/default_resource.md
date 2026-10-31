@@ -14,82 +14,95 @@ tags:
 `#include <memory_resource>`
 </div>
 
-`std::pmr::get_default_resource()` と `set_default_resource()` は、**pmr コンテナにリソースを渡さなかったときの既定のメモリリソース**を取得・変更する関数です。プログラム全体の取り先を一度に切り替えたいときに使います。
+リソースを指定せずに作った `pmr` コンテナは、プログラムで 1 つの「既定のリソース」から確保します。`std::pmr::get_default_resource()` で今の既定を取得し、`std::pmr::set_default_resource(r)` で差し替えます。何も設定しなければ、`new_delete_resource()` です。
 
 !!! tip "ポイント"
-    - 既定は `new_delete_resource()`。
-    - 変更はスレッドセーフだが、プログラム全体に影響する。起動直後に 1 回だけ。
-    - 使わずに、リソースを明示して渡すほうが安全。
+    - `get_default_resource()` で現在の既定を得る
+    - `set_default_resource(r)` で差し替え、直前の値を返す
+    - `nullptr` を渡すと、`new_delete_resource()` に戻る
+    - 差し替えは、プログラム全体に効く。テスト以外では、あまり使わない
 
 !!! info "このページを読む前に"
     [`std::pmr`](../pmr.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
-### get_default_resource {#get_default_resource}
+### std::pmr::get_default_resource / set_default_resource {#default_resource}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
-memory_resource* get_default_resource() noexcept;
+std::pmr::memory_resource* get_default_resource() noexcept;
+std::pmr::memory_resource* set_default_resource(std::pmr::memory_resource* r) noexcept;
 ```
 
-- 戻り値: 今のデフォルトのリソース。最初は `new_delete_resource()`
-- リソースを渡さなかった pmr コンテナがこれを使います
+`set_default_resource` は、直前の既定を返します。差し替えたら、あとで必ず元に戻します。
 
-### set_default_resource {#set_default_resource}
+既定のリソースは、リソースを渡さずに作ったコンテナや、`polymorphic_allocator` の既定の構築が参照します。すでに作ったコンテナは、作ったときのリソースを覚えているので、あとから `set_default_resource` で変えても、影響を受けません。
 
-```cpp
-memory_resource* set_default_resource(memory_resource* r) noexcept;
-```
+どちらの関数も、スレッド セーフです。ただし、差し替えのタイミングと、他のスレッドのコンテナの作成が競合すると、どちらのリソースを使うかは不定です。
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `r` | `std::pmr::memory_resource*` | 新しいデフォルトのリソース。`nullptr` なら `new_delete_resource()` に戻る |
-
-- 戻り値: 前のデフォルト
-- 以降に作る pmr コンテナ（リソースを渡さないもの）が `r` を使うようになります。**プログラム全体に効く**ので、普通は使わず、リソースを明示的に渡します
+ゲームでは、起動時に 1 回、全体用のプールを既定にする、といった使い方をします。差し替えが全体に効く性質は、便利ですが、どこから確保しているかが分かりにくくなります。重要なコンテナには、明示的にリソースを渡すほうが、読みやすくなります。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <memory_resource>
 #include <print>
+#include <vector>
 
 int main() {
-  std::println("{}", std::pmr::get_default_resource() == std::pmr::new_delete_resource());
+  std::pmr::memory_resource* original = std::pmr::get_default_resource();
+  std::println("最初は new_delete_resource: {}", original == std::pmr::new_delete_resource());
+
+  std::byte buffer[256];
+  std::pmr::monotonic_buffer_resource pool(buffer, sizeof(buffer));
+
+  // 既定を差し替える
+  std::pmr::memory_resource* old = std::pmr::set_default_resource(&pool);
+  std::println("直前の値が返る: {}", old == original);
+
+  std::pmr::vector<int> v;  // リソースを渡していないが、pool から確保される
+  v.push_back(1);
+  std::println("pool から確保: {}", v.get_allocator().resource() == &pool);
+
+  v.clear();
+  v.shrink_to_fit();
+  std::pmr::set_default_resource(old);  // 元に戻す
+  std::println("戻した: {}", std::pmr::get_default_resource() == original);
 }
 ```
 
 ```text title="実行結果"
-true
+最初は new_delete_resource: true
+直前の値が返る: true
+pool から確保: true
+戻した: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| プロファイル用に全 pmr コンテナの確保を数える | `set_default_resource(&counting_resource)` |
+テストで、すべての `pmr` コンテナを検査用のリソースに向けて、確保の回数を数えるときに使います。
 
 ## よくあるミス
 
-??? failure "途中で変更する"
-    変更前に確保したメモリを変更後のリソースで解放してしまうことがあります。起動直後に 1 回だけにします。
+??? failure "差し替えたあと、元に戻さない"
+    以降のコンテナが、消えたリソースを使って壊れます。
+
+??? failure "作成済みのコンテナに効くと思う"
+    効きません。作った時点のリソースを使い続けます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`new_delete_resource`](new_delete_resource.md) | 既定の値 |
+| [`null_memory_resource`](null_memory_resource.md) | 指定し忘れの検出に使う |
+| [`polymorphic_allocator`](polymorphic_allocator.md) | 既定のリソースを参照する |
 
 ## コンパイラ対応
 
-C++17 の機能です。主要なコンパイラで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 既定のリソースの取得・変更
-    - [x] プログラム全体に影響
-    - [x] 起動直後に 1 回だけ
+C++17 から使えます。
 
 ## 関連ページ
 

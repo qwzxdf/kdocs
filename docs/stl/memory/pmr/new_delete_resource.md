@@ -14,26 +14,32 @@ tags:
 `#include <memory_resource>`
 </div>
 
-`std::pmr::new_delete_resource()` は、**普通の `new` / `delete`（ヒープ）を使うメモリリソース**を返す関数です。pmr コンテナに何も指定しなかったときの既定の取り先です。ほかのリソースが「足りなくなったら親から取る」ときの親にもなります。
+`std::pmr::new_delete_resource()` は、グローバルの `operator new` / `operator delete` から確保する、標準のリソースを返します。何も指定しない `pmr` コンテナの取り先（既定のリソース）がこれです。普通のコンテナと同じ動作になります。
 
 !!! tip "ポイント"
-    - 返るのはポインター。解放不要（プログラム全体で 1 つ）。
-    - スレッドセーフ。
-    - 明示したいときに使う。
+    - 戻り値は `memory_resource*`。プログラムに 1 つだけのオブジェクト
+    - アライメントつきの `operator new` を使い、要求どおりのアライメントを守る
+    - `pmr` のコンテナの既定の取り先
+    - 他のリソースの「上流」としてよく使う
 
 !!! info "このページを読む前に"
     [`std::pmr`](../pmr.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
-### new_delete_resource {#new_delete_resource}
+### std::pmr::new_delete_resource {#new_delete_resource}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
-memory_resource* new_delete_resource() noexcept;
+std::pmr::memory_resource* new_delete_resource() noexcept;
 ```
 
-- 戻り値: 普通の `operator new` / `operator delete` を使うリソースへのポインタ（グローバルに 1 つ）
-- デフォルトで使われるリソースです。`monotonic_buffer_resource` や pool の**上流**に指定するのが主な使い方です
+いつ呼んでも、同じオブジェクトへのポインターを返します。`set_default_resource` を呼ばない限り、`get_default_resource()` はこれを返します。
+
+スレッド セーフです。複数のスレッドから同時に確保しても、`operator new` に委ねられます。
+
+グローバルの `operator new` を置き換えているときは、そのメモリ管理を通ります。確保の統計を取りたいなら、`operator new` の置き換えか、自作の `memory_resource` で包みます。
 
 ## 実際に動かしてみる
 
@@ -43,44 +49,46 @@ memory_resource* new_delete_resource() noexcept;
 
 int main() {
   std::pmr::memory_resource* r = std::pmr::new_delete_resource();
-  void* p = r->allocate(16);
-  r->deallocate(p, 16);
-  std::println("{}", r == std::pmr::get_default_resource());  // 既定のリソース
+
+  // 直接確保して、返す
+  void* p = r->allocate(64, 16);
+  std::println("確保できた: {}", p != nullptr);
+  r->deallocate(p, 64, 16);
+
+  // 何度呼んでも同じオブジェクト
+  std::println("同じ: {}", r == std::pmr::new_delete_resource());
+
+  // 既定のリソースは、これ
+  std::println("既定のリソース: {}", std::pmr::get_default_resource() == r);
 }
 ```
 
 ```text title="実行結果"
-true
+確保できた: true
+同じ: true
+既定のリソース: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 既定の取り先を明示する | `std::pmr::vector<int> v(std::pmr::new_delete_resource());` |
+`monotonic_buffer_resource` などの上流に指定します。何も渡さない `pmr` コンテナは、これを使います。
 
 ## よくあるミス
 
-??? failure "delete しようとする"
-    返ってくるのは共有のオブジェクトです。解放不要です。
+??? failure "deallocate に違う大きさを渡す"
+    `allocate` と同じ大きさとアライメントで返します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`null_memory_resource`](null_memory_resource.md) | 確保させない |
-| [`monotonic_buffer_resource`](monotonic_buffer_resource.md) | 積むだけ |
+| [`default_resource`](default_resource.md) | 既定のリソースの取得・設定 |
+| [`null_memory_resource`](null_memory_resource.md) | 常に失敗するリソース |
+| [`memory_resource`](memory_resource.md) | 基底クラス |
 
 ## コンパイラ対応
 
-C++17 の機能です。主要なコンパイラで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 普通のヒープを使う
-    - [x] 既定の取り先
-    - [x] スレッドセーフ
+C++17 から使えます。
 
 ## 関連ページ
 

@@ -15,30 +15,37 @@ tags:
 `#include <new>`
 </div>
 
-`new int[n]` で、`n` が負だったり、確保できる上限を超えていたりすると、`bad_alloc` の派生の `bad_array_new_length` が投げられます。メモリ不足の `bad_alloc` と区別して、要素数のミスを知らせます。
+`new int[n]` の `n` が負だったり、確保できないほど巨大だったりすると、`std::bad_alloc` より具体的な `std::bad_array_new_length` が投げられます。`bad_alloc` の派生クラスなので、`catch (const std::bad_alloc&)` でも捕まえられます。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - 配列の長さが負、または大きすぎるときに、`new[]` が投げる
+    - `std::bad_alloc` の派生クラス
+    - 長さが妥当でも、メモリが足りなければ、普通の `bad_alloc`
+    - `nothrow` 版では例外ではなく `nullptr`
 
 !!! info "このページを読む前に"
-    [`new[]` と `delete[]`](new_array.md) を先に読んでください。
+    [`operator new`](operator_new.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::bad_array_new_length {#bad_array_new_length}
 
 ```cpp
-class bad_array_new_length : public bad_alloc {
+class bad_array_new_length : public std::bad_alloc {
  public:
   const char* what() const noexcept override;
 };
 ```
 
-- 戻り値: `what()` はエラーを表す文字列
-- 計算量: 定数
+C++11 で追加されました。投げられるのは、次の場合です。
 
+- 長さが負（`int n = -1; new int[n];`）
+- 長さに要素の大きさをかけると、`size_t` の範囲を超える
+- 初期化子の数が、配列の長さを超える
+
+長さの検査は、確保の前に行われます。そのため、メモリの空きとは関係なく、不正な長さなら、必ず投げられます。
+
+負の数が入る原因は、符号つき整数の計算ミスが多いです。`std::vector<int> v(n)` も、`n` が不正なら `std::length_error` を投げます。
 
 ## 実際に動かしてみる
 
@@ -47,47 +54,48 @@ class bad_array_new_length : public bad_alloc {
 #include <print>
 
 int main() {
-  volatile int n = -1;
+  volatile int n = -1;  // 実行時に決まる負の長さ
   try {
     int* p = new int[n];
     delete[] p;
   } catch (const std::bad_array_new_length&) {
-    std::println("bad length");
+    std::println("bad_array_new_length");
+  }
+
+  // bad_alloc でも捕まえられる
+  try {
+    int* p = new int[n];
+    delete[] p;
+  } catch (const std::bad_alloc&) {
+    std::println("bad_alloc としても捕まえられる");
   }
 }
 ```
 
 ```text title="実行結果"
-bad length
+bad_array_new_length
+bad_alloc としても捕まえられる
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 外から読み込んだ要素数で配列を確保する前の保険 |
+外から読んだ値で配列を確保する処理で、不正な長さを、例外として検出します。長さは先に検査するほうが確実です。
 
 ## よくあるミス
 
-??? failure "要素数を検査せずに使う"
-    ファイルから読んだ数でそのまま `new[]` せず、範囲を確かめてから確保します。
+??? failure "符号つきの計算ミスで負にする"
+    `size_t` の引き算で巻き戻る、`int` の差が負になる、といった原因が多いです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`bad_alloc`](../../support/exceptions/bad_alloc.md) | メモリ不足 |
+| [`nothrow`](nothrow.md) | 例外の代わりに `nullptr` |
+| `std::length_error` | 標準コンテナが長さの不正で投げる |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 配列の new で、要素数が不正だったときの例外
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

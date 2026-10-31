@@ -13,15 +13,16 @@ tags:
 `#include <cstring>`
 </div>
 
-`strcmp` は文字コードの順で比べます。辞書の順番（五十音、アルファベットの大文字小文字の扱い）は、言語によって違います。`strcoll` は、現在のロケールの規則で比べます。
+`strcmp` は文字コードの順で比べますが、言語によっては、辞書の順が文字コードの順と違います。`std::strcoll(a, b)` は、現在のロケールの辞書順で 2 つの文字列を比べます。戻り値の規則は `strcmp` と同じです。
 
 !!! tip "ポイント"
-    - 終端の `'\0'` を前提にする C 由来の関数。
-    - バッファの大きさは自分で確かめる。
-    - 新しいコードでは `std::string` / `std::string_view` のほうが安全。
+    - 現在の C のロケール（`setlocale`）の並び順で比べる
+    - "C" ロケールでは `strcmp` と同じ
+    - 戻り値は、負・0・正
+    - 繰り返し比べるなら、`strxfrm` で先に変換しておく
 
 !!! info "このページを読む前に"
-    [`<cstring>`](../cstring.md) の概要と [ポインタ](../../../basics/pointer.md) を先に読んでください。
+    [`<cstring>`](../cstring.md) の概要を先に読んでください。C の文字列は、終端が `'\0'` の `char` の配列です。
 
 ## 関数の詳しい説明
 
@@ -33,11 +34,11 @@ int strcoll(const char* lhs, const char* rhs);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `lhs, rhs` | const char* | 比べる 2 つの文字列 |
+| `lhs`, `rhs` | `const char*` | 比べる文字列 |
 
-- 戻り値: `lhs < rhs` なら負、等しければ 0、大きければ正
-- 計算量: 定数
+ロケールの設定は `setlocale` で行います。既定のままなら "C" ロケールで、文字コードの順です。
 
+日本語の五十音順のような並びは、環境のロケールの対応に左右されます。ゲームでは、読み仮名のデータを別に持って並べることが多いです。
 
 ## 実際に動かしてみる
 
@@ -46,42 +47,38 @@ int strcoll(const char* lhs, const char* rhs);
 #include <print>
 
 int main() {
-  std::println("{}", std::strcoll("a", "b") < 0);
+  // 起動直後は "C" ロケール: strcmp と同じ
+  const bool same = (std::strcoll("apple", "banana") < 0) == (std::strcmp("apple", "banana") < 0);
+  std::println("strcmp と同じ向き: {}", same);
+  std::println("同じ文字列: {}", std::strcoll("abc", "abc") == 0);
 }
 ```
 
 ```text title="実行結果"
-true
+strcmp と同じ向き: true
+同じ文字列: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 言語ごとの順序で名前を並べる |
+アイテム名の並べ替えなどで、ロケールの辞書順にしたいときに検討します。
 
 ## よくあるミス
 
-??? failure "ロケールを設定せずに使う"
-    既定の `"C"` ロケールでは `strcmp` と同じ結果です。`std::setlocale` で設定します。
+??? failure "環境のロケールで結果が変わるのを知らない"
+    同じプログラムでも、実行する環境で並びが変わります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`strcmp`](strcmp.md) | 文字コード順の比較 |
+| [`strcmp`](strcmp.md) | 文字コードの順 |
 | [`strxfrm`](strxfrm.md) | 比較用に変換する |
+| [`std::collate`](../../io/locale/collate.md) | C++ のロケールの照合 |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] ロケールの規則で、2 つの文字列を比べる
-    - [x] 終端の `'\0'` を前提にする C 由来の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+C 由来の関数です。C++ のどの版でも使えます。
 
 ## 関連ページ
 

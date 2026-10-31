@@ -14,18 +14,20 @@ tags:
 `#include <cstring>`
 </div>
 
-`strcat` は、**C 文字列の後ろに別の C 文字列をつなげる**関数ですが、`strcpy` と同じく**バッファの大きさを確認しません**。新しいコードでは使いません。
+文字列の後ろに別の文字列をつなげたい。`std::strcat(dst, src)` は、`dst` の終端の位置から `src` を書き込みます。`strcpy` と同じく、大きさを確かめないので、あふれる危険があります。
 
 !!! tip "ポイント"
-    - `std::string` の `+=` で足りる。
-    - 先頭から終端を探すので、繰り返すと遅い。
+    - `dst` の終端を探して、そこから `src` をコピーする
+    - `dst` に十分な空きが必要。`strlen(dst) + strlen(src) + 1` 要素
+    - `dst` の長さを毎回数えるので、連続して呼ぶと遅い
+    - 新しいコードは `std::string` の `+=`
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`<cstring>`](../cstring.md) の概要を先に読んでください。C の文字列は、終端が `'\0'` の `char` の配列です。
 
 ## 関数の詳しい説明
 
-### strcat {#strcat}
+### std::strcat {#strcat}
 
 ```cpp
 char* strcat(char* dest, const char* src);
@@ -33,11 +35,12 @@ char* strcat(char* dest, const char* src);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `dest` | `char*` | つなげる先（すでに C 文字列が入っている。十分な大きさが必要） |
-| `src` | `const char*` | 後ろにつなげる C 文字列 |
+| `dest` | `char*` | つなげられる側。終端のある文字列で、空きが十分にあること |
+| `src` | `const char*` | つなげる文字列 |
 
-- 戻り値: `dest`
-- `strcpy` と同じで、**大きさのチェックがありません**。つなげるたびに先頭から終端を探すので、繰り返すと O(n²) です。`std::string` の `+=` を使います
+戻り値は `dest` です。
+
+`dest` の長さを先頭から数えるため、何度も `strcat` を重ねると、毎回その長さぶんの時間がかかり、全体で長さの 2 乗に近い時間になります。連結が多いなら、`std::string` の `+=`（内部で長さを持つ）が速くなります。
 
 ## 実際に動かしてみる
 
@@ -46,44 +49,41 @@ char* strcat(char* dest, const char* src);
 #include <print>
 
 int main() {
-  char dst[16] = "foo";
-  std::strcat(dst, "bar");
-  std::println("{}", dst);
+  char buf[32] = "Hello";
+  std::strcat(buf, ", ");
+  std::strcat(buf, "world");
+  std::println("{}", buf);
+  std::println("長さ: {}", std::strlen(buf));
 }
 ```
 
 ```text title="実行結果"
-foobar
+Hello, world
+長さ: 12
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 古いコードの読解用 | `std::string` の `+=` に置き換える |
+古いコードで見かけます。新しく書くなら `std::string` か `std::format` です。
 
 ## よくあるミス
 
-??? failure "バッファがあふれる"
-    範囲外に書き込みます。
+??? failure "空きが足りない"
+    `buf` が小さいと、領域の外を壊します。
+
+??? failure "dst が未初期化"
+    終端がないと、ゴミの位置から書き込みます。`char buf[32] = "";` で初期化します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| `std::string::operator+=` | 安全で速い |
-| [`snprintf`](snprintf.md) | 書式つきで組み立てる |
+| [`strncat`](strncat.md) | 追加する最大の文字数を指定する |
+| `std::string::operator+=` | 普段はこちら |
 
 ## コンパイラ対応
 
 C 由来の関数です。C++ のどの版でも使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 使わない
-    - [x] 大きさを確認しない
-    - [x] `std::string` を使う
 
 ## 関連ページ
 

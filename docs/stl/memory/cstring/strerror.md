@@ -13,15 +13,16 @@ tags:
 `#include <cerrno>`
 </div>
 
-`errno` の数値だけでは原因が分かりません。`strerror(errno)` で、「No such file or directory」のような説明が得られます。文字列は処理系が決め、静的な領域にあるので、スレッドで使うときは `strerror_s` などを使います。
+`fopen` が失敗したとき、`errno` に原因の番号が入ります。数字のままでは意味が分からないので、人間が読める文章にするのが `std::strerror(errnum)` です。
 
 !!! tip "ポイント"
-    - 終端の `'\0'` を前提にする C 由来の関数。
-    - バッファの大きさは自分で確かめる。
-    - 新しいコードでは `std::string` / `std::string_view` のほうが安全。
+    - `errno` の値を、説明の文字列にする
+    - 戻り値は静的な領域を指す。次の呼び出しで上書きされる
+    - スレッドから使うなら `strerror_s`（MSVC）/ `strerror_r`（POSIX）
+    - 文章の内容は環境で違う。比較には使わない
 
 !!! info "このページを読む前に"
-    [`<cstring>`](../cstring.md) の概要と [ポインタ](../../../basics/pointer.md) を先に読んでください。
+    [`<cstring>`](../cstring.md) の概要を先に読んでください。C の文字列は、終端が `'\0'` の `char` の配列です。
 
 ## 関数の詳しい説明
 
@@ -33,56 +34,59 @@ char* strerror(int errnum);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `errnum` | int | エラー番号（`errno` の値） |
+| `errnum` | `int` | `errno` の値 |
 
-- 戻り値: 説明の文字列（静的な領域。書き換え禁止）
-- 計算量: 定数
+戻り値の文字列は、実装が持つ領域を指します。保存したいなら、`std::string` にコピーします。
 
+文章は実装ごとに違います。英語のこともあれば、ロケールで翻訳されることもあります。プログラムの分岐には、文章ではなく `errno` の値（`ENOENT` など）を使います。
+
+C++ では `std::error_code(errno, std::generic_category()).message()` でも、同じ文章が得られます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include <print>
 
 int main() {
-  std::println("{}", std::strerror(ENOENT) != nullptr);
+  std::FILE* f = std::fopen("no_such_file.txt", "r");
+  if (f == nullptr) {
+    const int err = errno;
+    std::println("ENOENT: {}", err == ENOENT);
+    std::println("説明がある: {}", std::strlen(std::strerror(err)) > 0);
+  }
 }
 ```
 
 ```text title="実行結果"
-true
+ENOENT: true
+説明がある: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ファイルを開けなかった理由をログに出す |
+ファイルの読み込みに失敗したときのログに、原因を添えます。
 
 ## よくあるミス
 
-??? failure "戻り値を保存して使い回す"
-    次の呼び出しで上書きされることがあります。すぐコピーします。
+??? failure "文章で分岐する"
+    環境で変わります。`errno` の値で分岐します。
+
+??? failure "戻り値のポインタを保存する"
+    次の呼び出しで上書きされます。コピーします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`errno`](../../io/cerrno.md) | エラー番号 |
-| [`std::error_code`](../../support/error_code.md) | C++ のエラー表現 |
+| `std::error_code::message()` | C++ の同様の機能 |
+| `std::perror` | 標準エラーに出力する |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] エラー番号（errno）を説明の文字列にする
-    - [x] 終端の `'\0'` を前提にする C 由来の関数
-    - [x] 戻り値と失敗時の動きを確かめて使う
+C 由来の関数です。C++ のどの版でも使えます。
 
 ## 関連ページ
 

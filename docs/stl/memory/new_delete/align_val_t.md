@@ -15,78 +15,88 @@ tags:
 `#include <new>`
 </div>
 
-`std::align_val_t` は、**`new` にアラインメント（境界）を指定する**ための型です。`new (std::align_val_t{32}) T` や、`alignas(32)` つきの型を `new` するときに、内部で使われます。SIMD 向けのデータをヒープで確保するときに知っておくと役立ちます。
+通常の `new` は、型の標準のアライメント（普通は 16 バイト以下）で確保しますが、SIMD の型や、キャッシュ ラインに合わせた型は、32 や 64 バイトの境界を要求します。C++17 の `std::align_val_t` は、`operator new` に、アライメントを伝えるための型です。
 
 !!! tip "ポイント"
-    - `alignas(32)` を付けた型は、C++17 以降の `new` が自動で境界をそろえる。
-    - `operator new(size, std::align_val_t)` が呼ばれる。
-    - C の `aligned_alloc` に近い。
+    - `enum class align_val_t : std::size_t {};`
+    - `alignas(64)` の型に `new` すると、コンパイラが自動で `align_val_t` つきの `operator new` を呼ぶ
+    - 解放も `align_val_t` つきの `operator delete`
+    - 自分で呼ぶことは少ない。アライメント指定の自作 `operator new` を書くときに出てくる
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`operator new`](operator_new.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### std::align_val_t {#align_val_t data-toc-label="std::align_val_t"}
+### std::align_val_t {#align_val_t}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
-struct alignas(64) CacheLine {
-  float data[16];
-};
-auto* p = new CacheLine;  // C++17 以降、64 バイト境界で確保される
+enum class align_val_t : std::size_t {};
+
+void* operator new(std::size_t size, std::align_val_t align);
+void  operator delete(void* ptr, std::align_val_t align) noexcept;
 ```
 
-- C++17 から、`alignas` で大きなアラインメントを指定した型を `new` すると、**正しい位置**に確保されます（それまでは、`new` が合わせてくれないことがありました）
-- `aligned_alloc` で C スタイルに取ることもできます（[malloc / free](../aligned_alloc.md#aligned_alloc)）
+C++17 より前は、標準以上のアライメントの型を `new` で確保しても、アライメントが守られませんでした。C++17 で、`alignas` つきの型の `new` 式が、`align_val_t` を渡す `operator new` を呼ぶようになりました。
+
+`align` の値は、2 のべき乗である必要があります。
+
+自作のアロケーターを書くときは、`std::aligned_alloc` や、プラットフォーム固有の関数（`_aligned_malloc`）で実装します。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <cstdint>
+#include <new>
 #include <print>
 
-struct alignas(32) V {
-  float v[8];
+struct alignas(64) CacheLine {
+  char data[64];
 };
 
 int main() {
-  V* p = new V;  // alignas(32) の型は、C++17 以降の new が境界をそろえる
-  std::println("{}", reinterpret_cast<std::uintptr_t>(p) % 32 == 0);
+  // alignas(64) の型を new すると、64 バイト境界で確保される
+  CacheLine* p = new CacheLine;
+  std::println("64 バイト境界: {}", reinterpret_cast<std::uintptr_t>(p) % 64 == 0);
   delete p;
+
+  // 明示的に align_val_t を渡す
+  void* q = ::operator new(128, std::align_val_t{128});
+  std::println("128 バイト境界: {}", reinterpret_cast<std::uintptr_t>(q) % 128 == 0);
+  ::operator delete(q, std::align_val_t{128});
 }
 ```
 
 ```text title="実行結果"
-true
+64 バイト境界: true
+128 バイト境界: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| SIMD 用のデータをヒープに確保する | `alignas(32) struct Vec8 { float v[8]; };` を `new` |
+SIMD 用のデータや、キャッシュ ラインの偽共有を避けたいデータ構造を、`new` で確保するときに、アライメントを守らせます。
 
 ## よくあるミス
 
-??? failure "古い規格だと境界が守られない"
-    C++14 以前は、`alignas` を超える境界が `new` で保証されません。
+??? failure "align を 2 のべき乗にしない"
+    未定義の動作になります。
+
+??? failure "align_val_t なしの delete で解放する"
+    対応する解放関数を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`aligned_alloc`](../aligned_alloc.md) | C 由来の確保 |
+| [`operator new`](operator_new.md) | 確保関数 |
+| [`aligned_alloc`](../aligned_alloc.md) | C の関数 |
+| `alignas` | 型にアライメントを指定する |
 
 ## コンパイラ対応
 
-C++98 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] new にアラインメントを渡す型
-    - [x] `alignas` つきの型は自動
-    - [x] C++17
+C++17 から使えます。
 
 ## 関連ページ
 

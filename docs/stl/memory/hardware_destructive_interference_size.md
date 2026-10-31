@@ -14,73 +14,80 @@ tags:
 `#include <new>`
 </div>
 
-`std::hardware_destructive_interference_size` は、**複数のスレッドが別々の変数を触っても、同じキャッシュラインに乗っていると互いに邪魔をする（フォルス・シェアリング）のを避けるために、変数を離す距離**です。多くの環境で 64 バイトです。スレッドごとのカウンターをこの大きさでそろえて置くと、競合しなくなります。
+複数のスレッドが、別々の変数を書き換えているのに、それらが同じキャッシュ ラインにあると、お互いにキャッシュを無効にし合って、遅くなります。これが偽共有です。`std::hardware_destructive_interference_size` は、<strong>「この間隔以上離せば、別のキャッシュ ラインになる」</strong>という大きさで、偽共有を避けるために、スレッドごとの変数の間に空ける距離に使います。
 
 !!! tip "ポイント"
-    - スレッドごとの変数は `alignas(std::hardware_destructive_interference_size)` で離す。
-    - `hardware_constructive_interference_size` は逆に、「一緒に使うデータをこの中に収めると速い」大きさ。
-    - GCC は ABI 警告を出す（`-Winterference-size`）。
+    - スレッドごとのデータを、この大きさ以上離して置く
+    - `alignas(std::hardware_destructive_interference_size)` で境界に合わせる
+    - アトミック カウンターを配列で持つとき、特に効く
+    - `<new>` の定数。C++17。典型は 64 バイト
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [所有権（誰が消すのか）](../../basics/ownership.md)（所有権の考え方）
+    [`hardware_constructive_interference_size`](hardware_constructive_interference_size.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::hardware_destructive_interference_size {#hardware_destructive_interference_size}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
 inline constexpr std::size_t hardware_destructive_interference_size = /* 実装定義 */;
 ```
 
-- 戻り値: 距離（バイト、多くは 64）
-- 計算量: コンパイル時
+「破壊的な干渉」、つまり、同じキャッシュ ラインにあると、スレッド間で足を引っ張り合う距離です。
+
+ワーカー スレッドごとのカウンターを `std::atomic<int> counters[8]` と並べると、8 個が同じキャッシュ ラインに載り、書き込みのたびに、全スレッドのキャッシュが無効になります。各カウンターを `alignas(この定数)` で包めば、別々のキャッシュ ラインになります。
+
+この定数は、メモリの使用量を増やします（カウンター 1 つに 64 バイト）。本当に競合する変数だけに使います。
+
+## 実際に動かしてみる
 
 ```cpp
+#include <atomic>
 #include <new>
 #include <print>
 
-struct alignas(std::hardware_destructive_interference_size) Counter {
-  int value = 0;  // スレッドごとのカウンター
+// スレッドごとのカウンターを、別のキャッシュ ラインに置く
+struct alignas(std::hardware_destructive_interference_size) PaddedCounter {
+  std::atomic<int> value{0};
 };
 
 int main() {
-  std::println("{}", sizeof(Counter) >= std::hardware_destructive_interference_size);
+  PaddedCounter counters[4];
+  std::println("1 つの大きさ: {}", sizeof(PaddedCounter));
+  std::println("隣と離れている: {}",
+               sizeof(PaddedCounter) >= std::hardware_destructive_interference_size);
+  std::println("4 つ並べた大きさ: {}", sizeof(counters));
 }
 ```
 
 ```text title="実行結果"
-true
+1 つの大きさ: 64
+隣と離れている: true
+4 つ並べた大きさ: 256
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| スレッドごとの統計カウンターを隣り合わせに置いても、遅くならないようにする | `alignas(std::hardware_destructive_interference_size)` |
+ジョブ システムで、ワーカー スレッドごとに持つ統計のカウンターや、キューの先頭と末尾のインデックスを、別のキャッシュ ラインに置くときに使います。
 
 ## よくあるミス
 
-??? failure "対応していないコンパイラ"
-    GCC / Clang の古い版では未実装です。64 を直接書いても実用上は問題ありません。
+??? failure "全部の変数に付ける"
+    メモリを浪費します。競合するものだけに使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::atomic`](../concurrency/atomic.md) | 同じ変数を複数スレッドで触るとき |
-| [`max_align_t`](../support/max_align_t.md) | 基本のアラインメント |
+| [`hardware_constructive_interference_size`](hardware_constructive_interference_size.md) | まとめて載せたい大きさ |
+| `std::atomic` | スレッド間で共有する変数 |
+| `alignas` | アライメント指定 |
 
 ## コンパイラ対応
 
-C++17 の機能です。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] フォルス・シェアリング避けの距離
-    - [x] alignas でそろえる
-    - [x] 多くは 64 バイト
+C++17 から使えます。手元の MSVC では 64 でした。
 
 ## 関連ページ
 

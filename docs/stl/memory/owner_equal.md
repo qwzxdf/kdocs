@@ -14,83 +14,91 @@ tags:
 `#include <memory>`
 </div>
 
-`shared_ptr` を `==` で比べると「指している先が同じか」です。ところが、同じ持ち主を共有しつつ別の場所を指す（エイリアス）場合は、持ち主が同じかどうかを別に調べたくなります。`owner_equal` が、持ち主基準の比較を `shared_ptr` と `weak_ptr` の間でもできるようにします。
+`std::owner_less` が順序、`std::owner_hash` がハッシュなら、`std::owner_equal` は、所有権が等しいかどうかの判定です。C++26 で追加されました。`shared_ptr` と `weak_ptr` のどの組み合わせでも比べられます。
 
 !!! tip "ポイント"
-    - `shared_ptr` と `weak_ptr` を混ぜて比べられる。
-    - [`owner_hash`](owner_hash.md) とセットで、連想コンテナのキーに使う。
+    - 2 つのスマート ポインターが、同じ所有権（制御ブロック）を共有するかを調べる
+    - `shared_ptr` と `weak_ptr` を混ぜて比べられる
+    - `owner_hash` と組で `unordered_map` に使う
+    - C++26
 
 !!! info "このページを読む前に"
-    [`std::shared_ptr`](../utilities/shared_ptr.md) を先に読んでください。
+    [`std::allocator`](allocator.md) など、アロケーターの基本を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::owner_equal {#owner_equal}
 
+<span class="ver ver-26">C++26</span>
+
 ```cpp
 struct owner_equal {
-  template <class T, class U> bool operator()(const shared_ptr<T>&, const shared_ptr<U>&) const noexcept;
-  template <class T, class U> bool operator()(const weak_ptr<T>&, const weak_ptr<U>&) const noexcept;
-  using is_transparent = void;
+  template <class T, class U>
+  bool operator()(const std::shared_ptr<T>&, const std::shared_ptr<U>&) const noexcept;
+  // weak_ptr との組み合わせも同様
+  using is_transparent = /* 未規定 */;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `a, b` | shared_ptr / weak_ptr | 比べる 2 つ |
+メンバー関数の `owner_before` を使って、`!a.owner_before(b) && !b.owner_before(a)` で判定するのと同じです。
 
-- 戻り値: 同じ持ち主なら `true`
-- 計算量: 定数
-
+通常の `==` は、指す先のポインターで比べます。エイリアシングで別の部分を指していても、所有権が同じなら、`owner_equal` では等しいと判定されます。
 
 ## 実際に動かしてみる
+
+手元の MSVC は `std::owner_equal` に未対応なので、同じ判定をする `owner_before` で確かめます。C++26 の環境では、`std::owner_equal()(a, w)` と書けます。
 
 ```cpp
 #include <memory>
 #include <print>
 
+// owner_equal と同じ判定
+template <class A, class B>
+bool OwnerEqual(const A& a, const B& b) {
+  return !a.owner_before(b) && !b.owner_before(a);
+}
+
 int main() {
   auto a = std::make_shared<int>(1);
+  auto b = std::make_shared<int>(1);  // 値は同じでも別の所有権
   std::weak_ptr<int> w = a;
-  auto b = std::make_shared<int>(1);
-  std::println("{}", std::owner_equal{}(a, w));
-  std::println("{}", std::owner_equal{}(a, b));
+
+  std::println("a と w: {}", OwnerEqual(a, w));
+  std::println("a と b: {}", OwnerEqual(a, b));
+
+  // 別のアドレスを指していても、所有権が同じなら等しい
+  int other = 0;
+  std::shared_ptr<int> alias(a, &other);
+  std::println("== は {} だが所有権は {}", a == alias, OwnerEqual(a, alias));
 }
 ```
 
 ```text title="実行結果"
-true
-false
+a と w: true
+a と b: false
+== は false だが所有権は true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| `weak_ptr` が指していた持ち主かを調べる | `std::owner_equal{}(shared, weak)` |
+`weak_ptr` をキーにした `unordered_map` で、キーが同じオブジェクトを指すかの判定に使います。
 
 ## よくあるミス
 
-??? failure "`==` と取り違える"
-    `==` は指している先、`owner_equal` は持ち主です。エイリアスのときに結果が変わります。
+??? failure "== で比べる"
+    ポインターの比較です。所有権を比べるには `owner_equal` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`owner_less`](owner_less.md) | 持ち主基準の順序 |
-| [`owner_hash`](owner_hash.md) | 持ち主基準のハッシュ |
+| [`owner_hash`](owner_hash.md) | ハッシュ版 |
+| [`owner_less`](owner_less.md) | 順序版 |
+| `shared_ptr::owner_before` | 順序のメンバー関数 |
 
 ## コンパイラ対応
 
-C++26 の機能です。新しい標準ライブラリで使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 持ち主基準の等しさ
-    - [x] shared_ptr と weak_ptr で比べられる
-    - [x] owner_hash とセット
+C++26 から使えます。手元の MSVC では未対応のことがあります。
 
 ## 関連ページ
 

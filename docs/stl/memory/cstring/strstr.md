@@ -14,30 +14,34 @@ tags:
 `#include <cstring>`
 </div>
 
-`strstr` は、**C 文字列の中から、別の文字列（部分文字列）を探す**関数です。見つかれば位置のポインター、なければ `nullptr` を返します。
+文字列の中から、部分文字列を探したい。`std::strstr(haystack, needle)` は、`haystack` の中で `needle` が最初に現れる位置へのポインタを返します。なければ `nullptr` です。
 
 !!! tip "ポイント"
-    - `std::string::find(const char*)` と同じ。
-    - 大文字小文字は区別される。
+    - 部分文字列が最初に現れる位置を返す。なければ `nullptr`
+    - `needle` が空文字列なら、`haystack` の先頭を返す
+    - 大文字小文字を区別する
+    - 計算量は長さの積に近い。長い文字列には向かない
 
 !!! info "このページを読む前に"
-    [ポインタ](../../../basics/pointer.md) が分かると読みやすいです。
+    [`<cstring>`](../cstring.md) の概要を先に読んでください。C の文字列は、終端が `'\0'` の `char` の配列です。
 
 ## 関数の詳しい説明
 
-### strstr {#strstr}
+### std::strstr {#strstr}
 
 ```cpp
 const char* strstr(const char* str, const char* substr);
+char* strstr(char* str, char* substr);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `str` | `const char*` | 探される C 文字列 |
-| `substr` | `const char*` | 探す C 文字列 |
+| `str` | `const char*` | 探される側 |
+| `substr` | `const char*` | 探す文字列 |
 
-- 戻り値: 最初に見つかった位置のポインタ。なければ `nullptr`
-- `std::string_view::find` / `contains` を使うほうが、長さを保てて安全です。
+見つかった位置は、ポインタの差で番号にできます。続きを探すなら、その位置の次から、もう一度 `strstr` を呼びます。
+
+大文字小文字を区別しない検索は、標準にはありません。両方を小文字にそろえてから探します。
 
 ## 実際に動かしてみる
 
@@ -46,43 +50,42 @@ const char* strstr(const char* str, const char* substr);
 #include <print>
 
 int main() {
-  const char* s = "hello world";
-  std::println("{}", std::strstr(s, "world") - s);
+  const char* log = "error: file not found";
+  const char* p = std::strstr(log, "not");
+  if (p != nullptr) {
+    std::println("位置 {} から: {}", p - log, p);
+  }
+  std::println("なければ nullptr: {}", std::strstr(log, "warning") == nullptr);
+  std::println("大文字小文字は区別される: {}", std::strstr(log, "ERROR") == nullptr);
 }
 ```
 
 ```text title="実行結果"
-6
+位置 12 から: not found
+なければ nullptr: true
+大文字小文字は区別される: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ログ行に特定の単語があるか | `strstr(line, "ERROR")` |
+ログの中の特定の語を探すときに使います。自分のコードでは `std::string::find` です。
 
 ## よくあるミス
 
-??? failure "戻り値を bool として使う"
-    ポインターなので、`!= nullptr` と明示すると読みやすい。
+??? failure "空の needle を渡して、先頭が返るのを知らない"
+    空文字列は、先頭に一致します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| `std::string::find` | C++ の同等品 |
-| [`std::ranges::search`](../../algorithms/search.md) | 任意の範囲向け |
+| [`strchr`](strchr.md) | 1 文字を探す |
+| `std::string::find` | 普段はこちら |
+| `std::search` | 汎用の部分列の検索 |
 
 ## コンパイラ対応
 
 C 由来の関数です。C++ のどの版でも使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 部分文字列を探す
-    - [x] 無ければ nullptr
-    - [x] C++ では `find`
 
 ## 関連ページ
 

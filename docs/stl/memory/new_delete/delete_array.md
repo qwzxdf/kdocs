@@ -14,84 +14,91 @@ tags:
 `#include <new>`
 </div>
 
-`new T[n]` で確保した配列は、必ず `delete[] p` で解放します。`delete p`（`[]` なし）だと、先頭の 1 個のデストラクタしか呼ばれず、未定義動作です。配列の大きさはポインタからは取れませんが、`delete[]` が内部で覚えている個数ぶんのデストラクタを呼びます。ほぼ使わず、`std::vector` や `std::unique_ptr<T[]>` を使います。
+`new T[n]` で作った配列は、`delete[] p` で解放します。`delete p` と書くと、先頭の 1 要素だけにデストラクターを呼ぶ（またはメモリ管理が壊れる）ので、未定義動作です。
 
 !!! tip "ポイント"
-    - `new[]` と必ず対にする。
-    - `delete`（`[]` なし）で消すと未定義動作。
-    - `nullptr` に使っても安全。
+    - `new[]` で確保したものは、必ず `delete[]` で解放する
+    - 全要素のデストラクターを、逆順に呼ぶ
+    - `nullptr` に使っても安全（何もしない）
+    - スマート ポインタ（`unique_ptr<T[]>`）なら自動で `delete[]`
 
 !!! info "このページを読む前に"
     [`new[]`](new_array.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### delete[] {#delete_array}
+### delete[] 式 {#delete_array}
 
 ```cpp
-void operator delete[](void* ptr) noexcept;  // delete[] p; の中身
+delete[] p;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `p` | T* | `new[]` で確保したポインタ |
+`delete[]` は、配列の要素数を実装の記録から得て、末尾の要素から順にデストラクターを呼び、最後に `operator delete[]` でメモリを返します。
 
-- 戻り値: なし
-- 計算量: O(要素数)
+要素のデストラクターが自明な型（`int` など）では、デストラクターの呼び出しは省かれますが、`delete` と取り違えると、メモリ管理の記録がずれて、壊れることがあります。
 
+`std::unique_ptr<T[]>` は、`T[]` の特殊化で、デストラクターが `delete[]` を呼びます。`unique_ptr<T>` に `new T[n]` を渡すと、`delete` が呼ばれて、未定義動作になります。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <memory>
+#include <new>
 #include <print>
 
 struct Tracer {
   static inline int alive = 0;
   Tracer() { ++alive; }
+  Tracer(const Tracer&) { ++alive; }
+  Tracer(Tracer&&) noexcept { ++alive; }
   ~Tracer() { --alive; }
 };
 
+struct Item {
+  Item() { ++Tracer::alive; }
+  ~Item() { --Tracer::alive; }
+};
+
 int main() {
-  Tracer* p = new Tracer[3];
-  std::println("{}", Tracer::alive);
-  delete[] p;
-  std::println("{}", Tracer::alive);
+  Item* items = new Item[4];
+  std::println("作った: {}", Tracer::alive);
+  delete[] items;
+  std::println("全部壊した: {}", Tracer::alive);
+
+  int* none = nullptr;
+  delete[] none;  // nullptr は安全
+  std::println("nullptr でも問題ない");
 }
 ```
 
 ```text title="実行結果"
-3
-0
+作った: 4
+全部壊した: 0
+nullptr でも問題ない
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| （古い C++ のコードの保守） | `delete[] p;` |
+古いコードのメモリ リークや、二重解放の調査で、`new[]` / `delete[]` の対応を確かめます。
 
 ## よくあるミス
 
-??? failure "`delete` で消す"
-    配列を `delete`（`[]` なし）で消すと未定義動作です。
+??? failure "delete で解放する"
+    先頭の要素だけが壊されるなど、未定義動作です。
+
+??? failure "二重に解放する"
+    `delete[]` したあと、ポインタを `nullptr` にしないと、二重解放の危険があります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`new[]`](new_array.md) | 確保する |
-| [`std::unique_ptr<T[]>`](../../utilities/unique_ptr.md) | 自動で解放 |
+| [`new[]`](new_array.md) | 対になる確保 |
+| `std::unique_ptr<T[]>` | 自動で `delete[]` |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] new[] で確保した配列を消す
-    - [x] 必ず delete[]
-    - [x] unique_ptr<T[]> を使う
+C++98 から使えます。
 
 ## 関連ページ
 

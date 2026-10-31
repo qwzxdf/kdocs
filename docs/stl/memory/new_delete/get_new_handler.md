@@ -15,12 +15,13 @@ tags:
 `#include <new>`
 </div>
 
-`new` でメモリが足りなくなったとき、呼ばれる関数が `new_handler` です。いま設定されているものを `get_new_handler()` で取り出せます。一時的に差し替えて元に戻すときなどに使います。
+`set_new_handler` で登録したハンドラーが、いま何かを調べたいことがあります。一時的にハンドラーを差し替えて、あとで元に戻すとき、元の値を覚えておく必要があります。`std::get_new_handler()` は、現在のハンドラーを返します。
 
 !!! tip "ポイント"
-    - 例外の関連の部品。
-    - `try` / `catch` と組み合わせて使う。
-    - ゲームでは、ファイルや外部入力のエラーの扱いに登場する。
+    - 登録中のハンドラー（関数ポインタ）を返す
+    - 何も登録していなければ `nullptr`
+    - `set_new_handler` の戻り値でも、直前の値が分かる
+    - C++11 から
 
 !!! info "このページを読む前に"
     [`set_new_handler`](set_new_handler.md) を先に読んでください。
@@ -33,9 +34,9 @@ tags:
 std::new_handler get_new_handler() noexcept;
 ```
 
-- 戻り値: 現在のハンドラ（未設定なら `nullptr`）
-- 計算量: 定数
+引数はありません。戻り値が `nullptr` なら、既定の動作（失敗したら `std::bad_alloc` を投げる）です。
 
+C++11 より前には、ハンドラーを読むだけの関数がなく、`set_new_handler(nullptr)` で取り出して、すぐ戻すという回りくどい方法でした。この間に別のスレッドが確保すると、既定の動作になってしまう危険がありました。`get_new_handler` で、その問題がなくなりました。
 
 ## 実際に動かしてみる
 
@@ -43,42 +44,43 @@ std::new_handler get_new_handler() noexcept;
 #include <new>
 #include <print>
 
+void MyHandler() { throw std::bad_alloc(); }
+
 int main() {
-  std::println("{}", std::get_new_handler() == nullptr);
+  std::println("最初は未登録: {}", std::get_new_handler() == nullptr);
+
+  std::set_new_handler(MyHandler);
+  std::println("登録後は同じ: {}", std::get_new_handler() == MyHandler);
+
+  std::set_new_handler(nullptr);
+  std::println("解除後は未登録: {}", std::get_new_handler() == nullptr);
 }
 ```
 
 ```text title="実行結果"
-true
+最初は未登録: true
+登録後は同じ: true
+解除後は未登録: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | メモリ不足時の動作を一時的に変える |
+テストで一時的にハンドラーを差し替えて、終わったら元に戻すときに使います。
 
 ## よくあるミス
 
-??? failure "ヌルのまま呼ぶ"
-    戻り値は未設定のとき `nullptr` です。呼ぶ前に確かめます。
+??? failure "C++11 より前の方法を真似る"
+    取り出して戻す間に、隙があります。`get_new_handler` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`set_new_handler`](set_new_handler.md) | ハンドラを設定する |
+| [`set_new_handler`](set_new_handler.md) | 登録する |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 現在設定されている new ハンドラを取得する
-    - [x] 例外の関連の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 
