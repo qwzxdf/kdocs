@@ -13,77 +13,132 @@ tags:
 `#include <streambuf>`
 </div>
 
-ストリームは、文字の入出力の窓口です。実際にファイルや文字列に読み書きするのは、その裏にある「ストリームバッファ」です。`std::streambuf` は `basic_streambuf<char>` の別名で、自作のバッファ（ネットワークやログ）を作るときの土台になります。
+`std::cout << "hello"` と書いたとき、文字が実際に画面へ出るまでには、いくつかの段階があります。`<<` で値を文字に直すのは `ostream` ですが、その文字を溜めて、画面やファイルに送るのは、ストリームの裏にいる別のオブジェクトです。それが<strong>ストリームバッファ</strong>、つまり `basic_streambuf` の仲間です。
+
+役割を分けてあるので、ストリームはそのままで、バッファだけ差し替えられます。`cout` の出力先を文字列に変える、ログをファイルとコンソールの両方に出す、ネットワークに送る。こうした「出力先を作る」ときに、`basic_streambuf` を継承します。`std::streambuf` は `basic_streambuf<char>` の別名です。
 
 !!! tip "ポイント"
-    - ストリームの裏で実際に読み書きを行う。
-    - `rdbuf()` で取り出し・付け替えができる。
-    - 自作するときは、`underflow`・`overflow` などを書く。
+    - `ostream` や `istream` は、文字を整形する担当。実際に読み書きする担当が `streambuf`
+    - `rdbuf()` で取り出し、別のバッファに付け替えられる。付け替えたら、必ず元に戻す
+    - 自作するときは、出力なら `overflow`（と `xsputn`）、入力なら `underflow` を書く
+    - 普段は `stringbuf` と `filebuf` を使うだけで、自作することは少ない
 
 !!! info "このページを読む前に"
-    [`std::cout`](cout.md) と [`std::cin`](cin.md) を先に読んでください。
+    [`std::ostream`](ostream.md) と [`std::istream`](istream.md) を先に読んでください。ストリームの側から、`rdbuf` で触る方法を書いています。
 
 ## 関数の詳しい説明
 
 ### std::basic_streambuf {#basic_streambuf}
 
 ```cpp
-template <class CharT, class Traits = char_traits<CharT>>
+template <class CharT, class Traits = std::char_traits<CharT>>
 class basic_streambuf;
 ```
 
-- 戻り値: ストリームバッファとして使う
-- 計算量: 操作による
+内部は、3 つの領域（入力の読み出し用、出力の書き込み用、ロケール）を持つ構造です。書き込みの領域（put area）が満杯になるか、バッファがない場合、`overflow` という仮想関数が呼ばれます。読み出しの領域（get area）が空になると、`underflow` が呼ばれます。この 2 つに「文字を実際の入出力先へ送る」「入出力先から文字を補充する」処理を書くのが、自作の基本です。
 
+外から使う関数（`sputc`、`sgetc`、`sbumpc`、`pubsync` など）は `s` や `pub` で始まり、公開されています。これらは、バッファに余裕があればそのまま処理し、なければ仮想関数を呼びます。派生クラスが上書きするのは、`s` なしの保護された仮想関数（`overflow`、`underflow`、`sync`、`xsputn` など）です。公開側と保護側で名前が対になっています。
 
-## 実際に動かしてみる
+個々の関数は、[`std::streambuf`](streambuf.md) のページに書いています。
+
+### 出力先を自作する {#custom}
+
+`overflow` だけを上書きすると、最小の出力先が作れます。バッファを持たないので、1 文字書くたびに `overflow` が呼ばれます。
 
 ```cpp
-#include <ios>
+class LineCounter : public std::streambuf {
+ public:
+  int lines() const { return lines_; }
+
+ protected:
+  // 1 文字書くたびに呼ばれる。改行を数えるだけで、実際の出力はしない
+  int_type overflow(int_type ch) override {
+    if (!traits_type::eq_int_type(ch, traits_type::eof()) && ch == '\n') {
+      ++lines_;
+    }
+    return traits_type::not_eof(ch);  // 成功を知らせる
+  }
+
+ private:
+  int lines_ = 0;
+};
+```
+
+戻り値の `traits_type::not_eof(ch)` は、「成功した」ことを知らせる決まった書き方です。`eof()` を返すと、ストリームは失敗状態になります。
+
+```cpp
+#include <ostream>
 #include <print>
-#include <sstream>
 #include <streambuf>
-#include <fstream>
+
+class LineCounter : public std::streambuf {
+ public:
+  int lines() const { return lines_; }
+
+ protected:
+  int_type overflow(int_type ch) override {
+    if (!traits_type::eq_int_type(ch, traits_type::eof()) && ch == '\n') {
+      ++lines_;
+    }
+    return traits_type::not_eof(ch);
+  }
+
+ private:
+  int lines_ = 0;
+};
 
 int main() {
-  std::stringbuf buf("ab");
-  std::basic_streambuf<char>* p = &buf;
-  std::println("{}", static_cast<char>(p->sgetc()));
+  LineCounter counter;
+  std::ostream os(&counter);  // counter を出力先にしたストリーム
+  os << "HP 30\n"
+     << "MP 12\n"
+     << "LV 5\n";
+  std::println("{} 行", counter.lines());
 }
 ```
 
 ```text title="実行結果"
-a
+3 行
 ```
+
+`std::ostream os(&counter)` で、自作のバッファを持つストリームが作れます。`<<` が整形した文字は、すべて `overflow` を通って、改行だけが数えられました。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| `cout` の出力を文字列として取り込む | `auto* old = std::cout.rdbuf(sb.rdbuf());` のあと、`std::cout.rdbuf(old);` で戻す |
+ログを画面（Visual Studio の出力）とファイルの両方に流す、`cout` への出力をゲーム内コンソールに表示する、といった用途で自作します。ただし、ゲームのログは専用の仕組みに集めることが多く、`streambuf` を直接作る機会は多くありません。
+
+`cout` の出力を一時的に文字列に取り込むだけなら、自作は不要です。`std::ostringstream` の `rdbuf()` を、`cout.rdbuf()` に渡します。
 
 ## よくあるミス
 
 ??? failure "付け替えたまま戻さない"
-    `rdbuf` で付け替えたら、スコープを抜ける前に必ず元に戻します。
+    `cout.rdbuf(別のバッファ)` で付け替えたら、スコープを抜ける前に必ず元に戻します。戻さずに別のバッファが破棄されると、`cout` が壊れたバッファを指したままになり、プログラムの終了時にクラッシュします。
+
+??? failure "overflow が eof を返して、ストリームが壊れる"
+    成功したのに `eof()` を返すと、ストリームが失敗状態になり、以降の出力が全部無視されます。成功時は `not_eof(ch)` を返します。
+
+??? failure "デストラクターで出力が残る"
+    バッファを持つ自作の `streambuf` は、デストラクターで残りを `sync` します。呼び忘れると、最後の数文字が出ません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`streambuf`](streambuf.md) | char 版の別名 |
-| [`stringstream`](stringstream.md) | 文字列ストリーム |
+| [`std::streambuf`](streambuf.md) | `basic_streambuf<char>` の別名。関数の説明はこちら |
+| [`std::stringbuf`](stringbuf.md) | メモリ上の文字列を入出力先にする |
+| [`std::filebuf`](filebuf.md) | ファイルを入出力先にする |
+| [`std::syncbuf`](syncbuf.md) | スレッドから書いても混ざらない |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
+C++98 から使えます。
 
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] ストリームバッファの元になるテンプレート（`streambuf` の元）
-    - [x] rdbuf() で付け替えられる
-    - [x] 自作の土台にもなる
+    - [x] ストリームの裏で、実際に読み書きするのが `streambuf`
+    - [x] `rdbuf()` で付け替えられる。付け替えたら必ず元に戻す
+    - [x] 自作は、出力なら `overflow`、入力なら `underflow` を上書きする
 
 ## 関連ページ
 
