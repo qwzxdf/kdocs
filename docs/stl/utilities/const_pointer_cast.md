@@ -13,33 +13,33 @@ tags:
 `#include <memory>`
 </div>
 
-`shared_ptr<const T>` から const を外したいとき、`const_cast` で生ポインタを取り出して作り直すと別の持ち主になります。`const_pointer_cast` は持ち主を共有したまま const を外します。
+`std::shared_ptr<const Player>` を持っているけれど、古い API が `Player*`（非 const）を要求する。`const` を外すための変換が `std::const_pointer_cast<Player>(sp)` です。`const_cast` の `shared_ptr` 版で、所有権を共有したまま、`const` を外した `shared_ptr` を返します。
 
 !!! tip "ポイント"
-    - 持ち主（制御ブロック）は共有される。
-    - 生ポインタで作り直すと別の持ち主になり、二重解放になる。
-    - `dynamic_pointer_cast` は実行時に型を確かめる。
+    - `const` や `volatile` だけを外す（付ける）変換
+    - 所有権を共有する。参照カウントが増える
+    - 元のオブジェクトが本当に `const` で作られていたら、書き換えは未定義動作
+    - 外す必要が出る設計を、見直すほうが先
 
 !!! info "このページを読む前に"
-    [`std::shared_ptr`](shared_ptr.md) を先に読んでください。
+    [`std::static_pointer_cast`](static_pointer_cast.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::const_pointer_cast {#const_pointer_cast}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 template <class T, class U>
-shared_ptr<T> const_pointer_cast(const shared_ptr<U>& r) noexcept;
+std::shared_ptr<T> const_pointer_cast(const std::shared_ptr<U>& r) noexcept;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `T` | テンプレート引数 | 変換後の型 |
-| `r` | shared_ptr<U> | 変換元 |
+`const_cast<T*>(r.get())` の結果を、`r` と所有権を共有する `shared_ptr` として返します。`T` は、`U` から `const` / `volatile` の違いだけがある型です。
 
-- 戻り値: 変換後の `shared_ptr<T>`（持ち主は共有）
-- 計算量: 定数
+もとのオブジェクトが、初めから `const` として作られている場合（`const Player p;` の `p` を指していたなど）、`const` を外して書き換えると、未定義動作です。`std::make_shared<const Player>(...)` で作られたものを、`const_pointer_cast` で外すのも同じです。
 
+`std::shared_ptr<Player>` から `std::shared_ptr<const Player>` への変換は、暗黙にできます。`const` を付ける方向は、安全なので、キャストが要りません。
 
 ## 実際に動かしてみる
 
@@ -47,46 +47,46 @@ shared_ptr<T> const_pointer_cast(const shared_ptr<U>& r) noexcept;
 #include <memory>
 #include <print>
 
+struct Player { int hp = 10; };
+
 int main() {
-  std::shared_ptr<const int> c = std::make_shared<int>(1);
-  auto m = std::const_pointer_cast<int>(c);
-  *m = 5;
-  std::println("{}", *c);
+  // 非 const で作ったオブジェクトを、const として共有する
+  std::shared_ptr<Player> p = std::make_shared<Player>();
+  std::shared_ptr<const Player> cp = p;  // const を付けるのは暗黙にできる
+
+  // const を外す
+  std::shared_ptr<Player> back = std::const_pointer_cast<Player>(cp);
+  back->hp = 99;
+  std::println("hp = {}", p->hp);
+  std::println("use_count = {}", p.use_count());
 }
 ```
 
 ```text title="実行結果"
-5
+hp = 99
+use_count = 3
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| const の外し方を持ち主を保ったまま | `std::const_pointer_cast<T>(p);` |
+`const` に対応していない古いライブラリの API に、`shared_ptr<const T>` を渡すときに使います。できれば、ライブラリ側に `const` を付ける修正をします。
 
 ## よくあるミス
 
-??? failure "本当に const なオブジェクトを書き換える"
-    元のオブジェクトが const で作られていると、書き換えは未定義動作です。
+??? failure "const で作ったオブジェクトを書き換える"
+    未定義動作です。もともと非 const で作られたものにだけ使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`dynamic_pointer_cast`](dynamic_pointer_cast.md) | 実行時に型を確かめる |
-| [`shared_ptr`](shared_ptr.md) | 共有所有のスマートポインタ |
+| [`static_pointer_cast`](static_pointer_cast.md) | 型の変換 |
+| `const_cast` | 生ポインタ版 |
+| `std::as_const` | 値を const 参照にする |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 持ち主を共有したまま型を変える
-    - [x] 生ポインタで作り直さない
-    - [x] use_count が増える
+C++11 から使えます。
 
 ## 関連ページ
 

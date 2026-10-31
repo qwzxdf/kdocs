@@ -14,27 +14,37 @@ tags:
 `#include <string_view>`
 </div>
 
-`u8string` をコピーせずに見るだけの型です。UTF-8 であることを型で示した文字列を関数の引数で受けるときに使います。
+`std::u8string_view` は、`char8_t` の文字列を所有せずに見る型です。`char8_t` は、UTF-8 であることを型で表したもので、C++20 から使えます。`u8"あ"` のリテラルの型が `const char8_t[]` になったため、それを見るために必要です。
 
 !!! tip "ポイント"
-    - `std::basic_string_view<char8_t>` の別名。
-    - 持ち主ではないので、元の文字列より長く生きてはいけない。
-    - `string_view` と同じ関数が使える。
+    - `basic_string_view<char8_t>` の別名。C++20
+    - UTF-8 であることを型で示す
+    - `u8"..."` のリテラルは、`const char8_t[]`（C++20 以降）
+    - `char` の `string_view` とは、暗黙に変換できない
 
 !!! info "このページを読む前に"
-    [`std::string_view`](string_view.md) を先に読んでください。
+    [`std::basic_string_view`](basic_string_view.md) と [文字コード](../../encoding/index.md)を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::u8string_view {#u8string_view}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 using u8string_view = basic_string_view<char8_t>;
 ```
 
-- 戻り値: `u8string_view` の値
-- 計算量: string_view と同じ
+`char` の `string_view` と型が別なので、`std::println` に直接渡せません。`char` として解釈し直す必要があります。
 
+```cpp
+std::u8string_view u8 = u8"あ";
+std::string_view s(reinterpret_cast<const char*>(u8.data()), u8.size());
+```
+
+C++20 の `char8_t` は、`char` の別名ではありません。UTF-8 の文字列を、型で区別できる利点はありますが、既存の API は `char` を前提にしているものが多く、橋渡しの `reinterpret_cast` が必要になります。
+
+`u8string_view` の `size()` は、UTF-8 のバイト数です。「あ」は 3 です。
 
 ## 実際に動かしてみる
 
@@ -43,43 +53,42 @@ using u8string_view = basic_string_view<char8_t>;
 #include <string_view>
 
 int main() {
-  std::u8string_view v = u8"abc";
-  std::println("{}", v.size());
+  const std::u8string_view v = u8"あいう";
+  std::println("バイト数: {}", v.size());
+
+  // char として見直す（reinterpret_cast）
+  const std::string_view s(reinterpret_cast<const char*>(v.data()), v.size());
+  std::println("{}", s);
+
+  static_assert(!std::is_same_v<std::u8string_view, std::string_view>);
 }
 ```
 
 ```text title="実行結果"
-3
+バイト数: 9
+あいう
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 関数の引数で文字列を受ける | `void F(std::u8string_view s);` |
+UTF-8 の文字列を、型で明示したいライブラリを書くときに使います。普段は `char` の `string_view` と UTF-8 のソース ファイルで足ります。
 
 ## よくあるミス
 
-??? failure "元の文字列が先に消える"
-    借りている先が消えると、中身は壊れます。一時オブジェクトから作った `string_view` を保存しないようにします。
+??? failure "char の API に直接渡す"
+    型が違うのでコンパイルできません。橋渡しの `reinterpret_cast` が要ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`string_view`](string_view.md) | char の版 |
-| [`basic_string_view`](basic_string_view.md) | 元になるテンプレート |
+| [`std::string_view`](string_view.md) | `char` 版。ふつうの UTF-8 はこちら |
+| [`u16string_view`](u16string_view.md) | UTF-16 |
+| [`u32string_view`](u32string_view.md) | UTF-32 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] char8_t の string_view
-    - [x] 借りるだけで持ち主ではない
-    - [x] string_view と同じ使い方
 
 ## 関連ページ
 

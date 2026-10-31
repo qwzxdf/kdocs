@@ -14,32 +14,43 @@ tags:
 `#include <format>`
 </div>
 
-`vector` と `map` と `set` では、書式化の結果が違います（`[1, 2]`・`{1: 2}`・`{1, 2}`）。その分類を表すのが `format_kind<R>` で、`range_format` の値になります。
+C++23 から、`std::vector<int>` のような範囲（レンジ）も、`std::println("{}", v)` で `[1, 2, 3]` のように表示できます。この書式化が、範囲の種類（普通の並び、`map`、`set`、文字列）によって、括弧の形などを変えます。種類を決める変数が `std::format_kind<R>` で、`std::range_format` の値を取ります。
 
 !!! tip "ポイント"
-    - `<format>` の部品。
-    - ふつうは `std::format` / `std::println` を使えば足りる。
-    - 自作の型に対応させるときに登場する。
+    - `format_kind<R>` は、範囲 `R` の書式化の種類（`range_format` の値）
+    - `vector` は `sequence`、`map` は `map`、`set` は `set`
+    - `disabled` なら、その範囲は書式化の対象外
+    - 自作の範囲の種類は、`format_kind` を特殊化して指定する
 
 !!! info "このページを読む前に"
-    [`std::format`](format.md) を先に読んでください。
+    [`std::range_format`](range_format.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::format_kind {#format_kind}
 
+<span class="ver ver-23">C++23</span>
+
 ```cpp
 template <class R>
-inline constexpr range_format format_kind = /* 実装定義 */;
+constexpr std::range_format format_kind = /* 既定の判定 */;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `R` | 型 | 調べる範囲の型 |
+既定の判定は、次のとおりです。
 
-- 戻り値: `range_format` の値
-- 計算量: 定数
+| 条件 | 値 |
+| --- | --- |
+| 要素が `pair` / `tuple`（2 要素）の、キーと値の範囲（`map`） | `map` |
+| 要素が単独で、集合（`set`）のように振る舞う | `set` |
+| 上記以外の範囲 | `sequence` |
 
+範囲ではない型（`int` など）では使えません。
+
+`std::string` や `std::string_view` は、範囲でもありますが、専用の `formatter` を持っているので、そちらが使われます。
+
+`map` の表示は `{1: 2, 3: 4}`、`set` は `{1, 2, 3}`、`sequence` は `[1, 2, 3]` です。
+
+自作のコンテナを、`sequence` や `set` として表示させたいなら、`std::format_kind<MyContainer>` を特殊化して、`range_format` の値を指定します。
 
 ## 実際に動かしてみる
 
@@ -47,46 +58,53 @@ inline constexpr range_format format_kind = /* 実装定義 */;
 #include <format>
 #include <map>
 #include <print>
+#include <set>
 #include <vector>
 
 int main() {
-  std::println("{}", std::format_kind<std::vector<int>> == std::range_format::sequence);
-  std::println("{}", std::format_kind<std::map<int, int>> == std::range_format::map);
+  std::println("vector は sequence: {}", std::format_kind<std::vector<int>> == std::range_format::sequence);
+  std::println("map は map: {}", std::format_kind<std::map<int, int>> == std::range_format::map);
+  std::println("set は set: {}", std::format_kind<std::set<int>> == std::range_format::set);
+
+  // 実際の表示
+  const std::vector<int> v = {1, 2, 3};
+  const std::map<int, int> m = {{1, 10}, {2, 20}};
+  const std::set<int> s = {3, 1, 2};
+  std::println("{}", v);
+  std::println("{}", m);
+  std::println("{}", s);
 }
 ```
 
 ```text title="実行結果"
-true
-true
+vector は sequence: true
+map は map: true
+set は set: true
+[1, 2, 3]
+{1: 10, 2: 20}
+{1, 2, 3}
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のコンテナの書式化の種類を決める |
+デバッグ表示で、コンテナをそのまま `println` に渡せます。自作のコンテナを表示したいときだけ、`format_kind` を特殊化します。
 
 ## よくあるミス
 
-??? failure "特殊化せずに `set` のように出したい"
-    自作のコンテナを `set` 風に出すには、`format_kind` を特殊化します。
+??? failure "自作のコンテナが表示できない"
+    `format_kind` が `disabled` になっている場合があります。特殊化して、`sequence` を指定します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`range_format`](range_format.md) | 種類の列挙型 |
+| [`range_format`](range_format.md) | 値の種類を表す列挙型 |
+| [`range_formatter`](range_formatter.md) | 範囲の書式化の部品 |
+| [`formattable`](formattable.md) | 書式化できるかのコンセプト |
 
 ## コンパイラ対応
 
 C++23 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 範囲の書式化の種類（sequence・map・set など）を表す変数
-    - [x] `<format>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

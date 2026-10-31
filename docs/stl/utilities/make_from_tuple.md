@@ -14,19 +14,22 @@ tags:
 `#include <tuple>`
 </div>
 
-`std::make_from_tuple` は、**tuple の要素をコンストラクタの引数にして、指定したクラスのオブジェクトを作る**関数です。[`std::apply`](apply.md) の「オブジェクトを作る版」です。
+`std::apply` が関数を呼ぶのに対し、`std::make_from_tuple<T>(t)` は、`tuple` の要素を引数にして、型 `T` のコンストラクターを呼び、オブジェクトを作ります。保存しておいた引数から、あとでオブジェクトを作る、遅延生成に使います。
 
 !!! tip "ポイント"
-    - `std::make_from_tuple<Vec>(std::make_tuple(3, 4))` は `Vec(3, 4)` と同じ。
-    - 設定データ（tuple）から、オブジェクトを組み立てるときに使える。
+    - `make_from_tuple<T>(t)` は `T(get<0>(t), get<1>(t), ...)` と同じ
+    - 戻り値は `T` の値。ムーブやコピーの省略が効く
+    - `pair` や `std::array` も渡せる
+    - 関数を呼ぶなら `std::apply`
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+    [`std::apply`](apply.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::make_from_tuple {#make_from_tuple}
+
+<span class="ver ver-17">C++17</span>
 
 ```cpp
 template <class T, class Tuple>
@@ -35,61 +38,65 @@ constexpr T make_from_tuple(Tuple&& t);
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | テンプレート引数 | 作りたい型 |
-| `t` | tuple | コンストラクタの引数をまとめた tuple |
+| `T` | テンプレート引数 | 作るオブジェクトの型 |
+| `t` | `tuple` / `pair` / `array` | コンストラクターの引数 |
 
-- 戻り値: `T` のオブジェクト
-- 計算量: コンストラクタによる
+`t` の要素を引数に、`T` のコンストラクターを呼びます。波括弧の初期化（`T{...}`）ではなく、丸括弧（`T(...)`）の形です。要素の数と型が、コンストラクターに合わなければ、コンパイル エラーです。
+
+戻り値の `T` は、C++17 の保証されたコピー省略により、コピーもムーブもなしで作られます。コピーできない型でも作れます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
+#include <string>
 #include <tuple>
 
-struct Vec {
-  Vec(int x, int y) : x(x), y(y) {}
-  int x;
-  int y;
+struct Player {
+  Player(int level, std::string name) : level(level), name(std::move(name)) {}
+  int level;
+  std::string name;
 };
 
 int main() {
-  auto args = std::make_tuple(3, 4);
-  Vec v = std::make_from_tuple<Vec>(args);
-  std::println("{} {}", v.x, v.y);
+  // 引数を tuple に保存しておき、あとで Player を作る
+  auto args = std::make_tuple(5, std::string("Hero"));
+  Player p = std::make_from_tuple<Player>(std::move(args));
+  std::println("{} {}", p.level, p.name);
+
+  // pair からも作れる
+  auto s = std::make_from_tuple<std::string>(std::make_pair(3, 'x'));  // string(3, 'x')
+  std::println("{}", s);
 }
 ```
 
 ```text title="実行結果"
-3 4
+5 Hero
+xxx
 ```
+
+`string(3, 'x')` は、`'x'` を 3 個並べた文字列を作るコンストラクターです。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 保存しておいた引数から、オブジェクトを作る | `std::make_from_tuple<Enemy>(args)` |
+エンティティの生成要求を、「型とコンストラクターの引数」の組で記録しておき、あとでまとめて生成するときに使います。
 
 ## よくあるミス
 
-??? failure "型を書き忘れる"
-    テンプレート引数で、作りたい型を明示します（`make_from_tuple<T>(t)`）。
+??? failure "波括弧の初期化を期待する"
+    丸括弧で呼ばれます。`std::initializer_list` のコンストラクターは選ばれません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`std::apply`](apply.md) | 関数を呼ぶ |
-| [`std::make_unique`](make_unique.md) | ヒープに作って `unique_ptr` にする |
+| [`std::make_unique`](make_unique.md) | 引数からヒープ上にオブジェクトを作る |
+| [`std::tuple_cat`](tuple_cat.md) | `tuple` をつなげる |
 
 ## コンパイラ対応
 
-C++17 の機能です。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] tuple の要素でオブジェクトを作る
-    - [x] 作る型を明示する
-    - [x] C++17
+C++17 から使えます。
 
 ## 関連ページ
 

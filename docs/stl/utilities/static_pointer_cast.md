@@ -13,12 +13,13 @@ tags:
 `#include <memory>`
 </div>
 
-`shared_ptr<Base>` を `shared_ptr<Derived>` に変えたいとき、`shared_ptr(static_cast<Derived*>(p.get()))` と書くと、**別々の持ち主**になって二重解放します。`static_pointer_cast` なら**同じ持ち主を共有したまま**型だけ変えられます。
+`std::shared_ptr<Base>` を持っていて、実体が `Derived` だと分かっているとき、`Derived` として使いたい。生のポインタなら `static_cast<Derived*>(p)` ですが、`shared_ptr` の中身だけを取り出して変換すると、参照カウントが別になり、二重に解放されます。`std::static_pointer_cast<Derived>(sp)` は、<strong>所有権を共有したまま</strong>、`static_cast` した型の `shared_ptr` を返します。
 
 !!! tip "ポイント"
-    - 持ち主（制御ブロック）は共有される。
-    - 生ポインタで作り直すと別の持ち主になり、二重解放になる。
-    - `dynamic_pointer_cast` は実行時に型を確かめる。
+    - 参照カウントを共有する。元の `shared_ptr` と、同じ管理下
+    - 変換は `static_cast` と同じ。実行時の検査はない
+    - 実体が違う型だと未定義動作。確かでなければ `dynamic_pointer_cast`
+    - 結果の `use_count` は 1 つ増える
 
 !!! info "このページを読む前に"
     [`std::shared_ptr`](shared_ptr.md) を先に読んでください。
@@ -27,19 +28,21 @@ tags:
 
 ### std::static_pointer_cast {#static_pointer_cast}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 template <class T, class U>
-shared_ptr<T> static_pointer_cast(const shared_ptr<U>& r) noexcept;
+std::shared_ptr<T> static_pointer_cast(const std::shared_ptr<U>& r) noexcept;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `T` | テンプレート引数 | 変換後の型 |
-| `r` | shared_ptr<U> | 変換元 |
+| `T` | テンプレート引数 | 変換先の型 |
+| `r` | `std::shared_ptr<U>` | 変換元 |
 
-- 戻り値: 変換後の `shared_ptr<T>`（持ち主は共有）
-- 計算量: 定数
+`static_cast<T*>(r.get())` の結果を、`r` と所有権を共有するポインタ（エイリアシング コンストラクター）として返します。`r` が空なら、空の `shared_ptr` です。
 
+`static_cast` なので、継承の上向きと下向き、`void*` との変換ができます。下向き（`Base` → `Derived`）のとき、実体が本当に `Derived` かは、検査されません。違っていれば、未定義動作です。
 
 ## 実際に動かしてみる
 
@@ -48,47 +51,48 @@ shared_ptr<T> static_pointer_cast(const shared_ptr<U>& r) noexcept;
 #include <print>
 
 struct Base { virtual ~Base() = default; };
-struct Derived : Base { int value = 42; };
+struct Derived : Base { int power = 7; };
 
 int main() {
-  std::shared_ptr<Base> b = std::make_shared<Derived>();
-  auto d = std::static_pointer_cast<Derived>(b);
-  std::println("{} {}", d->value, b.use_count());
+  std::shared_ptr<Base> base = std::make_shared<Derived>();
+  std::println("変換前の use_count: {}", base.use_count());
+
+  // 実体が Derived だと分かっているので、static で変換
+  std::shared_ptr<Derived> d = std::static_pointer_cast<Derived>(base);
+  std::println("変換後の use_count: {}", base.use_count());  // 共有される
+  std::println("power = {}", d->power);
 }
 ```
 
 ```text title="実行結果"
-42 2
+変換前の use_count: 1
+変換後の use_count: 2
+power = 7
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 基底クラスのポインタから派生クラスに | `std::static_pointer_cast<T>(p);` |
+コンポーネントを `shared_ptr<Component>` で持つ設計で、型が確実に分かっている場面で、派生クラスとして使うときに使います。
 
 ## よくあるミス
 
-??? failure "型が違うオブジェクトに使う"
-    `static_cast` と同じで、実際の型が合っていなくても通ります。確実でないなら `dynamic_pointer_cast` を使います。
+??? failure "実体が違う型のとき"
+    検査がないので、未定義動作です。確実でないなら、`dynamic_pointer_cast` です。
+
+??? failure "get() で生ポインタを取り出して、別の shared_ptr に入れる"
+    参照カウントが別になり、二重に解放されます。必ずキャスト関数を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`dynamic_pointer_cast`](dynamic_pointer_cast.md) | 実行時に型を確かめる |
-| [`shared_ptr`](shared_ptr.md) | 共有所有のスマートポインタ |
+| [`dynamic_pointer_cast`](dynamic_pointer_cast.md) | 実行時に検査する |
+| [`const_pointer_cast`](const_pointer_cast.md) | `const` を外す |
+| [`reinterpret_pointer_cast`](reinterpret_pointer_cast.md) | ビット列として解釈し直す |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 持ち主を共有したまま型を変える
-    - [x] 生ポインタで作り直さない
-    - [x] use_count が増える
+C++11 から使えます。
 
 ## 関連ページ
 

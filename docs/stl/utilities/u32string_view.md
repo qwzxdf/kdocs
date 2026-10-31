@@ -14,27 +14,32 @@ tags:
 `#include <string_view>`
 </div>
 
-`u32string` をコピーせずに見るだけの型です。1 コード単位が 1 コードポイントです。
+`std::u32string_view` は、`char32_t` の文字列を所有せずに見る型です。`char32_t` は UTF-32 の 1 単位で、1 要素がちょうど 1 つのコードポイント（Unicode の文字）に対応します。サロゲート ペアがないので、文字を 1 つずつ扱うのに向いています。
 
 !!! tip "ポイント"
-    - `std::basic_string_view<char32_t>` の別名。
-    - 持ち主ではないので、元の文字列より長く生きてはいけない。
-    - `string_view` と同じ関数が使える。
+    - `basic_string_view<char32_t>` の別名
+    - 1 要素 = 1 コードポイント。絵文字も 1 要素
+    - 文字数を数えたいときに、`size()` が素直に使える
+    - 大きさは UTF-8 の最大 4 倍。メモリを多く使う
 
 !!! info "このページを読む前に"
-    [`std::string_view`](string_view.md) を先に読んでください。
+    [`std::basic_string_view`](basic_string_view.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::u32string_view {#u32string_view}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
 using u32string_view = basic_string_view<char32_t>;
 ```
 
-- 戻り値: `u32string_view` の値
-- 計算量: string_view と同じ
+1 要素が 1 コードポイントなので、`size()` が文字数に近い値になります。ただし、見た目の 1 文字（グラフィム）は、複数のコードポイント（濃点つきの文字を基本文字と結合文字で表す、肌の色つきの絵文字など）でできることがあります。見た目の文字数が必要な場面では、さらに別の処理が要ります。
 
+リテラルは `U"..."` です。
+
+メモリは、UTF-8 より多く使います。ASCII だけの文字列で、4 倍です。そのため、保存や通信には UTF-8 を使い、文字単位の加工のときだけ UTF-32 にする、という使い分けが一般的です。
 
 ## 実際に動かしてみる
 
@@ -43,43 +48,40 @@ using u32string_view = basic_string_view<char32_t>;
 #include <string_view>
 
 int main() {
-  std::u32string_view v = U"😀";
-  std::println("{}", v.size());
+  const std::u32string_view v = U"あ😀A";
+
+  std::println("要素数: {}", v.size());
+  std::println("2 つ目は絵文字 U+1F600: {}", v[1] == 0x1F600);
+  std::println("バイト数: {}", v.size() * sizeof(char32_t));
 }
 ```
 
 ```text title="実行結果"
-1
+要素数: 3
+2 つ目は絵文字 U+1F600: true
+バイト数: 12
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 関数の引数で文字列を受ける | `void F(std::u32string_view s);` |
+テキスト エンジンで、1 文字ずつ描画するとき、UTF-8 を UTF-32 のコードポイントの列に直して、扱うことがあります。
 
 ## よくあるミス
 
-??? failure "元の文字列が先に消える"
-    借りている先が消えると、中身は壊れます。一時オブジェクトから作った `string_view` を保存しないようにします。
+??? failure "見た目の文字数と同じだと思う"
+    結合文字や、複数のコードポイントでできた絵文字は、見た目は 1 文字でも、複数の要素です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`string_view`](string_view.md) | char の版 |
-| [`basic_string_view`](basic_string_view.md) | 元になるテンプレート |
+| [`u16string_view`](u16string_view.md) | UTF-16。サロゲート ペアがある |
+| [`u8string_view`](u8string_view.md) | UTF-8。1 要素が 1〜4 バイトのうちの 1 バイト |
+| [`basic_string_view`](basic_string_view.md) | 元のテンプレート |
 
 ## コンパイラ対応
 
 C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] char32_t の string_view
-    - [x] 借りるだけで持ち主ではない
-    - [x] string_view と同じ使い方
 
 ## 関連ページ
 

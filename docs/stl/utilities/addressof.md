@@ -14,79 +14,88 @@ tags:
 `#include <memory>`
 </div>
 
-`std::addressof(x)` は、**`&` 演算子が上書きされている型でも、オブジェクトの本当のアドレスを取る**関数です。普通は `&x` で足りますが、`operator&` をオーバーロードした型（スマートポインターの一部、`_com_ptr_t` など）でも、確実に取れます。テンプレートで、任意の型のアドレスを取るときに使います。
+オブジェクトのアドレスは `&x` で取れるはずですが、クラスが `operator&` を上書きしていると、`&x` は、そのクラスが決めた別の値を返します。スマート ポインタの一部や、COM の ラッパーなどで見かけます。`std::addressof(x)` は、`operator&` に関係なく、<strong>オブジェクトの本当のアドレス</strong>を返します。
 
 !!! tip "ポイント"
-    - テンプレートのコードでは `&x` ではなく `std::addressof(x)` を使うと安全。
-    - 普通の型では `&x` と同じ結果。
-    - `std::to_address` とは別（そちらはポインターのようなものから生ポインターを取る）。
+    - `&x` は、`operator&` が上書きされていると、別の意味になる
+    - `std::addressof(x)` は、いつも本当のアドレスを返す
+    - ライブラリのテンプレートは、`&x` ではなく `addressof` を使っている
+    - 右辺値は渡せない（C++17 以降は削除されている）
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+    [ポインタ](../../basics/pointer.md)を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::addressof {#addressof}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
-template <class T>
-constexpr T* addressof(T& x) noexcept;
+template <class T> constexpr T* addressof(T& arg) noexcept;
+template <class T> const T* addressof(const T&&) = delete;
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `x` | `T&` | アドレスを取りたいオブジェクト |
+| `arg` | `T&` | アドレスを取りたいオブジェクト |
 
-- 戻り値: `x` の本当のアドレス
-- 計算量: O(1)
+実装は、コンパイラの組み込み機能（`__builtin_addressof`）で、`operator&` を呼びません。C++17 から `constexpr` です。
+
+`operator&` を上書きすることは、普通はしません。ただし、COM の スマート ポインタ（`CComPtr` など）は、`&` で「内部のポインタのアドレス」を返す設計になっています。そのオブジェクト自身のアドレスが欲しいときは、`std::addressof` を使います。
+
+標準のコンテナやアルゴリズムは、内部で要素のアドレスを取るとき、`addressof` を使っています。そのため、`operator&` を上書きした型でも、`std::vector` に入れて使えます。
+
+右辺値（一時オブジェクト）は渡せません。一時オブジェクトのアドレスを取っても、すぐに無効になるからです。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <memory>
 #include <print>
 
-struct Weird {
-  int operator&() const { return 0; }  // & を上書きしている（悪い例）
+// operator& を上書きした、紛らわしい型
+struct Evil {
+  Evil* operator&() { return nullptr; }
 };
 
 int main() {
-  Weird w;
-  Weird* p = std::addressof(w);  // &w では int が返ってしまう
-  std::println("{}", p != nullptr);
+  Evil e;
+
+  std::println("&e: {}", &e == nullptr);                    // 上書きされた値
+  std::println("addressof: {}", std::addressof(e) != nullptr);  // 本当のアドレス
+
+  int x = 0;
+  std::println("普通の型は同じ: {}", std::addressof(x) == &x);
 }
 ```
 
 ```text title="実行結果"
-true
+&e: true
+addressof: true
+普通の型は同じ: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 任意の型を受け取るテンプレートで、アドレスを取る | `std::addressof(obj)` |
+テンプレートのライブラリを書くときに、任意の型のアドレスを安全に取るために使います。普段のゲームのコードでは、`&x` で足ります。
 
 ## よくあるミス
 
-??? failure "operator& を上書きする"
-    そもそも上書きしないのが安全です。COM のスマートポインターには、`GetAddressOf()` などの専用関数があります。
+??? failure "COM のラッパーに & を使う"
+    `&ptr` は、内部のポインタのアドレスで、オブジェクトのアドレスではありません。オブジェクトのアドレスが欲しいときは `std::addressof` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`to_address`](../memory/to_address.md) | ポインターのようなものから生ポインターを取る |
+| `operator&` | 上書きされると別の値になる |
+| [`std::declval`](declval.md) | 型の計算用の仮の値 |
+| `std::to_address` | ポインタ風の型から、素のアドレスを取る |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 本当のアドレスを取る
-    - [x] テンプレートで安全
-    - [x] 普通の型では &x と同じ
+C++11 から使えます。`constexpr` は C++17 から。
 
 ## 関連ページ
 

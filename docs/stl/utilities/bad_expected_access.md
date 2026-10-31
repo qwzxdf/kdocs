@@ -14,99 +14,107 @@ tags:
 `#include <expected>`
 </div>
 
-`std::bad_expected_access<E>` は、**エラーを持つ `std::expected` に対して `value()` を呼んだ**ときに投げられる例外です。`error()` でエラーの値を取り出せます。例外を使わない方針なら、`has_value()` で確かめてから `*e` で取り出します。
+`std::expected<T, E>` に値がない（エラーが入っている）のに、`value()` で値を取り出そうとすると、例外が投げられます。その例外が `std::bad_expected_access<E>` で、入っているエラーの値を、`error()` で取り出せます。
 
 !!! tip "ポイント"
-    - `e.error()` が、`expected` に入っていたエラーの値。
-    - `value()` は例外を投げる。`*e`（`operator*`）は未定義動作。
-    - `value_or(既定値)` なら安全。
+    - `expected::value()` が、エラーの状態のときに投げる
+    - `error()` で、入っていたエラーの値を取れる
+    - 例外を使わずに済ませるなら、`has_value()` で調べるか、`value_or()` を使う
+    - C++23
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+    [`std::expected`](expected.md) と [`std::unexpect`](unexpect.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::bad_expected_access {#bad_expected_access}
 
+<span class="ver ver-23">C++23</span>
+
 ```cpp
 template <class E>
 class bad_expected_access : public bad_expected_access<void> {
  public:
-  E& error() noexcept;
+  E& error() & noexcept;
+  const E& error() const& noexcept;
+  E&& error() && noexcept;
 };
 ```
 
-- 戻り値: （例外クラス）
-- 計算量: O(1)
+`bad_expected_access<void>` が共通の基底クラスで、`E` を知らなくても、`catch (const std::bad_expected_access<void>&)` で、すべての `E` の例外を捕まえられます。`what()` のメッセージは、実装ごとに違います。
+
+`E` を指定して `catch` すれば、`error()` で原因が取れます。
+
+```cpp
+try {
+  auto v = result.value();
+} catch (const std::bad_expected_access<std::string>& ex) {
+  std::println("失敗: {}", ex.error());
+}
+```
+
+`expected` の設計思想は、例外を使わずに、戻り値でエラーを扱うことです。`value()` は、「エラーはないはずだ」という前提で呼ぶ関数で、違ったときに、例外にして知らせます。エラーがありうる場面では、`has_value()` か `if (result)` で調べてから、`*result` で取り出します。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <expected>
 #include <print>
+#include <string>
+
+std::expected<int, std::string> Parse(bool ok) {
+  if (ok) return 42;
+  return std::unexpected("parse error");
+}
 
 int main() {
-  std::expected<int, int> e = std::unexpected(5);
+  // エラーの状態で value() を呼ぶと例外
   try {
-    e.value();
-  } catch (const std::bad_expected_access<int>& ex) {
-    std::println("エラーコード {}", ex.error());
+    const int v = Parse(false).value();
+    std::println("{}", v);
+  } catch (const std::bad_expected_access<std::string>& ex) {
+    std::println("失敗: {}", ex.error());
   }
+
+  // 基底クラスで捕まえることもできる
+  try {
+    Parse(false).value();
+  } catch (const std::bad_expected_access<void>&) {
+    std::println("エラーの型を問わず捕まえた");
+  }
+
+  // 例外を使わない取り出し
+  const auto r = Parse(false);
+  std::println("既定値: {}", r.value_or(-1));
 }
 ```
 
 ```text title="実行結果"
-エラーコード 5
+失敗: parse error
+エラーの型を問わず捕まえた
+既定値: -1
 ```
-
-### error {#error}
-
-```cpp
-E& error() & noexcept;
-const E& error() const& noexcept;
-```
-
-- 計算量: 定数
-
-`expected` が持っていたエラーの値への参照。`value()` が失敗したときに、原因を取り出せます。
-
-### what {#what}
-
-```cpp
-const char* what() const noexcept override;
-```
-
-- 計算量: 定数
-
-エラーを表す文字列（実装定義）。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 失敗を例外にして、上位でまとめて処理する | `e.value()` を使う |
+アセットの読み込みが失敗したとき、`value()` で例外にして、ゲーム全体のエラー画面に飛ばす、といった処理で使います。
 
 ## よくあるミス
 
-??? failure "空の expected を * で読む"
-    未定義動作です。
+??? failure "エラーがありうる場面で value() を使う"
+    例外が飛んで、処理が止まります。`has_value()` で調べるか、`value_or` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`std::expected`](expected.md) | 本体 |
-| [`unexpected`](unexpected.md) | エラーを入れる包み |
+| [`std::unexpected`](unexpected.md) | エラーの値を包む型 |
+| `std::bad_optional_access` | `optional` の同様の例外 |
 
 ## コンパイラ対応
 
-C++23 の機能です。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] エラーを持つ expected の value() が投げる
-    - [x] `error()` で値を取る
-    - [x] 安全なのは value_or
+C++23 から使えます。
 
 ## 関連ページ
 

@@ -14,72 +14,94 @@ tags:
 `#include <utility>`
 </div>
 
-`std::in_place` は、**`optional`、`variant`、`any` などの中にオブジェクトを「コピーせず、その場で」構築するための印**です。`std::optional<std::string> o(std::in_place, 3, 'a');` のように、最初の引数に渡すと、残りの引数がコンストラクターに渡されます。`in_place_type<T>` / `in_place_index<N>` は、`variant` で型や番号を指定するときに使います。
+`std::optional<std::string>` の中に `std::string(3, 'x')` を入れたいとき、`std::optional<std::string>(std::string(3, 'x'))` だと、一時的な文字列を作ってから、ムーブします。`std::in_place` は、`optional` に、「中身を、これから渡す引数で直接作ってください」と伝える印です。
 
 !!! tip "ポイント"
-    - コンストラクターの引数をそのまま渡せる（一時オブジェクトを作らない）。
-    - `std::variant<int, float> v(std::in_place_type<float>, 1.5f);` のように、型を指定できる。
-    - `optional::emplace` と同じ目的。
+    - `std::optional<T> o(std::in_place, 引数...)` で、中身を引数から直接作る
+    - `std::any` と `std::variant` には、型や番号を指定する `in_place_type` と `in_place_index`
+    - コピーもムーブもできない型を入れるときに必須
+    - C++17
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+    [`std::optional`](optional.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::in_place {#in_place}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
+struct in_place_t { explicit in_place_t() = default; };
 inline constexpr std::in_place_t in_place{};
 ```
 
-- 戻り値: （タグ）
-- 計算量: O(1)
+`in_place` は、値を持たない空の印です。`optional` のコンストラクターのオーバーロードを選ぶために渡します。
 
 ```cpp
+std::optional<std::string> o(std::in_place, 3, 'x');   // string(3, 'x') を直接作る
+```
+
+`optional<T>` では、`T` が 1 つに決まっているので、`in_place` だけで足ります。`variant` や `any` のように、型を選ぶ必要があるものには、[`in_place_type`](in_place_type.md) と [`in_place_index`](in_place_index.md) を使います。
+
+`std::expected` の `unexpect` も、似た仕組みの印です。
+
+## 実際に動かしてみる
+
+```cpp
+#include <mutex>
 #include <optional>
 #include <print>
 #include <string>
 
+struct Locked {
+  explicit Locked(int v) : value(v) {}
+  std::mutex m;  // コピーもムーブもできない
+  int value;
+};
+
 int main() {
-  // string(3, 'a') を optional の中でその場で構築する
-  std::optional<std::string> name(std::in_place, 3, 'a');
-  std::println("{}", *name);
+  // string(3, 'x') を optional の中で直接作る
+  std::optional<std::string> a(std::in_place, 3, 'x');
+  std::println("{}", *a);
+
+  // ムーブできない型も入れられる
+  std::optional<Locked> b(std::in_place, 42);
+  std::println("{}", b->value);
+
+  // emplace でも同じことができる
+  std::optional<std::string> c;
+  c.emplace(2, 'y');
+  std::println("{}", *c);
 }
 ```
 
 ```text title="実行結果"
-aaa
+xxx
+42
+yy
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| コピーしにくい（重い）オブジェクトを optional に入れる | `std::optional<Big> o(std::in_place, args...);` |
+ムーブできないリソース（ミューテックスを含む型など）を、`optional` で包むときに使います。後から作るなら、`emplace` が分かりやすくなります。
 
 ## よくあるミス
 
-??? failure "引数の順番を間違える"
-    `in_place` が**先頭**です。
+??? failure "in_place を省略して、型の変換が起きる"
+    `std::optional<std::string> o("abc")` のような書き方でも作れますが、引数が複数あるときは、`in_place` が必要です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::optional`](optional.md) | in_place で構築できる |
-| [`std::variant`](variant.md) | `in_place_type` で型を指定 |
+| [`in_place_type`](in_place_type.md) | 型を選ぶ印 |
+| [`in_place_index`](in_place_index.md) | 番号を選ぶ印 |
+| [`std::unexpect`](unexpect.md) | `expected` の同様の印 |
 
 ## コンパイラ対応
 
-C++17 の機能です。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] その場で構築するための印
-    - [x] 一時オブジェクトを作らない
-    - [x] `in_place_type` / `in_place_index`
+C++17 から使えます。
 
 ## 関連ページ
 

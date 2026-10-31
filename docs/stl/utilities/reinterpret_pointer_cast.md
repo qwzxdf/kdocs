@@ -14,79 +14,77 @@ tags:
 `#include <memory>`
 </div>
 
-メモリの内容を別の型として見たいとき、`shared_ptr` を `reinterpret_cast` するには持ち主を共有したままにする必要があります。`reinterpret_pointer_cast` は、持ち主を共有したまま `reinterpret_cast` します。
+`std::shared_ptr<char>` で確保したバイト列を、`std::shared_ptr<int>` として扱いたい、といった場面で、ビット列の解釈を変える変換が `std::reinterpret_pointer_cast<T>(sp)` です。`reinterpret_cast` の `shared_ptr` 版で、所有権を共有したまま、別の型として見られるようにします。C++17 から使えます。
 
 !!! tip "ポイント"
-    - 持ち主（制御ブロック）は共有される。
-    - 生ポインタで作り直すと別の持ち主になり、二重解放になる。
-    - `dynamic_pointer_cast` は実行時に型を確かめる。
+    - 関係のない型どうしの変換。ビット列をそのまま別の型として読む
+    - 所有権を共有する。参照カウントが増える
+    - アライメントと別名規則（strict aliasing）を、自分で守る
+    - 使う場面は限られる。バイト バッファの扱いなど
 
 !!! info "このページを読む前に"
-    [`std::shared_ptr`](shared_ptr.md) を先に読んでください。
+    [`std::static_pointer_cast`](static_pointer_cast.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::reinterpret_pointer_cast {#reinterpret_pointer_cast}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
 template <class T, class U>
-shared_ptr<T> reinterpret_pointer_cast(const shared_ptr<U>& r) noexcept;
+std::shared_ptr<T> reinterpret_pointer_cast(const std::shared_ptr<U>& r) noexcept;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `T` | テンプレート引数 | 変換後の型 |
-| `r` | shared_ptr<U> | 変換元 |
+`reinterpret_cast<T*>(r.get())` の結果を、`r` と所有権を共有する `shared_ptr` として返します。
 
-- 戻り値: 変換後の `shared_ptr<T>`（持ち主は共有）
-- 計算量: 定数
+変換は、メモリの中身をそのまま読み替えるだけです。変換先の型のアライメントを満たしていない位置を指すと、未定義動作です。また、別の型として読み書きすることは、C++ の別名規則（strict aliasing）に違反する場合があります。`unsigned char`、`char`、`std::byte` を経由する読み書きは、例外として許されます。
 
+`static_pointer_cast` で足りる変換（継承の上下、`void*` との変換）には、`reinterpret_pointer_cast` を使いません。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <cstddef>
 #include <memory>
 #include <print>
 
 int main() {
-  auto u = std::make_shared<unsigned>(1);
-  auto b = std::reinterpret_pointer_cast<unsigned char>(u);
-  std::println("{}", u.use_count());
+  // バイト列として確保したものを、別の型の shared_ptr として共有する
+  std::shared_ptr<std::byte[8]> raw = std::make_shared<std::byte[8]>();
+  std::shared_ptr<unsigned char> bytes = std::reinterpret_pointer_cast<unsigned char>(raw);
+
+  bytes.get()[0] = 0x41;
+  std::println("先頭のバイト: {}", static_cast<int>(bytes.get()[0]));
+  std::println("use_count = {}", raw.use_count());
 }
 ```
 
 ```text title="実行結果"
-2
+先頭のバイト: 65
+use_count = 2
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| const の外し方を持ち主を保ったまま | `std::reinterpret_pointer_cast<T>(p);` |
+ネットワークのパケットや、ファイルから読んだバイト列を、`shared_ptr` で所有したまま、構造体として読むような場面で使います。
 
 ## よくあるミス
 
-??? failure "型の別名規則に反する読み書き"
-    `reinterpret_cast` と同じ制約があります。安全に読める保証があるときだけ使います。
+??? failure "アライメントを考えずに解釈する"
+    変換先の型のアライメントに満たない位置では、未定義動作です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`dynamic_pointer_cast`](dynamic_pointer_cast.md) | 実行時に型を確かめる |
-| [`shared_ptr`](shared_ptr.md) | 共有所有のスマートポインタ |
+| [`static_pointer_cast`](static_pointer_cast.md) | 継承などの、関係のある型の変換 |
+| `reinterpret_cast` | 生ポインタ版 |
+| `std::bit_cast` | 値のビット列を別の型にコピーする。安全 |
 
 ## コンパイラ対応
 
 C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 持ち主を共有したまま型を変える
-    - [x] 生ポインタで作り直さない
-    - [x] use_count が増える
 
 ## 関連ページ
 

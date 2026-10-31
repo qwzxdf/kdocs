@@ -95,7 +95,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 - [x] 2-3-3. `io/cwchar`（22）・`locale`（19）・`regex`（18）・`ctime`（15）（2026-10-31 `ctime`・`cwchar`・`locale`・`regex` の 74 ページを書き直した。サンプルは `verify_samples.py` で全部一致）
 - [x] 2-3-4. `utilities/chrono`（86）（2026-10-31 まだ薄かった 69 ページを書き直した。`duration` の別名、暦の型、時計、タイムゾーン、入出力。サンプルは 86 ページ全部 `verify_samples.py` で一致。`to_stream` は手元の MSVC が未対応で、`std::format` で代替して書いた）
 - [x] 2-3-5. `utilities/random`（39）（2026-10-31 薄かったエンジン系 9 ページ（`linear_congruential_engine`・`mersenne_twister_engine`・`discard_block_engine`・`independent_bits_engine`・`shuffle_order_engine`・`subtract_with_carry_engine`・`ranlux48`・`seed_seq`・`generate_canonical`）を書き直した。分布のページは元から濃く、そのまま残した）
-- [ ] 2-3-6. `utilities` のルート（98）: `tuple`・`pair`・`optional`・`function` まわり
+- [x] 2-3-6. `utilities` のルート（98）: `tuple`・`pair`・`optional`・`function` まわり（2026-10-31 薄かった約 55 ページを書き直した。`tuple`・`pair` の関数、`optional`・`variant`・`any`・`expected` の補助、`declval`・`addressof` などの道具、`index_sequence` 系、`format` 系 20 ページ、スマート ポインタのキャスト・`out_ptr`・`inout_ptr`・`allocate_shared`、`string_view` の別名。サンプルは `utilities` の 287 個すべて `verify_samples.py` で一致。`runtime_format`・`to_stream` は手元の MSVC が未対応のため、別の関数で確かめた）
 - [ ] 2-3-7. `memory`（`cstring` 23、`new_delete` 22、`pmr` 10、ルート 25）
 - [ ] 2-3-8. `concurrency`（72）
 - [ ] 2-3-9. `containers`（63 のうち薄い 26）
@@ -182,6 +182,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 
 ### 2026-10-31 の作業
 
+- STL `utilities` のルート約 55 ページを書き直して 2-3-6 を完了
 - STL `random` のエンジン系 9 ページを書き直して 2-3-5 を完了
 - STL `chrono` の 69 ページを書き直して 2-3-4 を完了
 - STL `ctime`・`cwchar`・`locale`・`regex` の 74 ページを書き直して 2-3-3 を完了

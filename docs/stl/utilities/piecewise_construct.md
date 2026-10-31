@@ -14,83 +14,104 @@ tags:
 `#include <utility>`
 </div>
 
-`std::piecewise_construct` は、**pair の 1 つ目と 2 つ目をそれぞれ別々のコンストラクタ引数（tuple）で作る**ための印です。`map::emplace` で、キーと値の両方に複数の引数を渡したいときに使います。
+`std::pair<std::string, Player>` を作るとき、`Player` のコンストラクターが複数の引数を取ると、`pair(key, Player(5, "Hero"))` では、一時的な `Player` を作ってからムーブすることになります。`std::piecewise_construct` は、`pair` のコンストラクターに「各要素のコンストラクターの引数を、`tuple` で別々に渡します」と伝える印で、要素をその場で直接作れます。
 
 !!! tip "ポイント"
-    - `m.emplace(std::piecewise_construct, std::forward_as_tuple(キーの引数...), std::forward_as_tuple(値の引数...));` という形で使う。
-    - 普通は `try_emplace` のほうが読みやすい。
-    - 知っておくだけでよい。
+    - `std::pair(std::piecewise_construct, tuple1, tuple2)` の形で使う
+    - `tuple1` が `first` の、`tuple2` が `second` のコンストラクター引数
+    - 一時オブジェクトを作らず、コピーもムーブも不要
+    - `map::emplace` で、コピーやムーブができない値型を入れるときに必要
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+    [`std::forward_as_tuple`](forward_as_tuple.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::piecewise_construct {#piecewise_construct}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
+struct piecewise_construct_t { explicit piecewise_construct_t() = default; };
 inline constexpr std::piecewise_construct_t piecewise_construct{};
 ```
 
-- 戻り値: （タグ。pair のコンストラクタの先頭に渡す）
-- 計算量: O(1)
+`piecewise_construct` は、値を持たない空の印です。`std::pair` のコンストラクターの、オーバーロードを選ぶために渡します。
+
+```cpp
+template <class... Args1, class... Args2>
+pair(std::piecewise_construct_t, std::tuple<Args1...> first_args, std::tuple<Args2...> second_args);
+```
+
+`first_args` を `first` のコンストラクターに、`second_args` を `second` のコンストラクターに、それぞれ展開して渡します。引数を `tuple` に入れるのに、`std::forward_as_tuple` を使います。
+
+`std::map::emplace(piecewise_construct, ...)` や `std::unordered_map::emplace` も、同じ形です。コピーも ムーブもできない型（`std::mutex` を持つ型など）を、値として入れるときは、この形が必須です。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <map>
+#include <mutex>
 #include <print>
 #include <string>
 #include <tuple>
 
-struct Vec {
-  Vec(int x, int y) : x(x), y(y) {}
-  int x;
-  int y;
+struct Player {
+  Player(int l, std::string n) : level(l), name(std::move(n)) {}
+  int level;
+  std::string name;
+};
+
+// コピーもムーブもできない型
+struct Locked {
+  explicit Locked(int v) : value(v) {}
+  std::mutex m;
+  int value;
 };
 
 int main() {
-  std::map<std::string, Vec> positions;
+  // pair を、各要素のコンストラクター引数から作る
+  std::pair<std::string, Player> p(std::piecewise_construct,
+                                   std::forward_as_tuple("hero"),
+                                   std::forward_as_tuple(5, "Hero"));
+  std::println("{} {} {}", p.first, p.second.level, p.second.name);
 
-  // キーは "a"、値は Vec(1, 2) をそれぞれ別の引数で作る
-  positions.emplace(std::piecewise_construct,
-                    std::forward_as_tuple("a"),
-                    std::forward_as_tuple(1, 2));
-  std::println("{} {}", positions.at("a").x, positions.at("a").y);
+  // ムーブできない型を map に入れる
+  std::map<int, Locked> m;
+  m.emplace(std::piecewise_construct,
+            std::forward_as_tuple(1),
+            std::forward_as_tuple(42));
+  std::println("{}", m.at(1).value);
 }
 ```
 
 ```text title="実行結果"
-1 2
+hero 5 Hero
+42
 ```
+
+`Locked` は `std::mutex` を持つので、コピーもムーブもできませんが、`piecewise_construct` を使えば、`map` の中で直接作れます。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| map に、コピーを作らず、値を直接構築して入れる | `try_emplace(key, args...)`（こちらが簡単） |
+スレッドの同期オブジェクトや、ムーブできない大きなオブジェクトを、`map` の値として持つときに使います。
 
 ## よくあるミス
 
-??? failure "try_emplace で足りるのに使う"
-    `std::map::try_emplace(key, 値の引数...)` で同じことができ、短く書けます。
+??? failure "引数を tuple に入れ忘れる"
+    各要素の引数は、必ず `tuple`（`forward_as_tuple`）にします。値を直接渡すと、別のオーバーロードが選ばれて、コンパイル エラーになります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| `std::map::try_emplace` | キーと値の引数を分けて渡せる。簡単 |
-| [`std::forward_as_tuple`](forward_as_tuple.md) | 引数を tuple にまとめる |
+| [`std::forward_as_tuple`](forward_as_tuple.md) | 引数を `tuple` にまとめる |
+| [`std::make_pair`](make_pair.md) | 値から `pair` を作る |
+| `std::map::try_emplace` | キーがなければ、値を直接作る。C++17 |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] pair の要素を別々の引数で作る印
-    - [x] `map::emplace` と使う
-    - [x] 普通は `try_emplace` が簡単
 
 ## 関連ページ
 

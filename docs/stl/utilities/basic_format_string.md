@@ -14,80 +14,82 @@ tags:
 `#include <format>`
 </div>
 
-`std::format("{}", x)` の書式文字列は、コンパイル時に検査されます。その検査を担当するのが、`basic_format_string` です。書式文字列の誤り（引数の数が合わない）がコンパイルエラーになります。
+`std::format_string` と `std::wformat_string` の元になるクラス テンプレートが `std::basic_format_string<CharT, Args...>` です。書式文字列を保持し、コンストラクターでコンパイル時に検査します。普段は別名の `format_string` を使い、このテンプレートを直接書くことはありません。
 
 !!! tip "ポイント"
-    - `<format>` の部品。
-    - ふつうは `std::format` / `std::println` を使えば足りる。
-    - 自作の型に対応させるときに登場する。
+    - `format_string` と `wformat_string` の元のテンプレート
+    - コンストラクターは `consteval`。書式の誤りがコンパイル エラーになる
+    - `get()` で元の書式を `basic_string_view` として取り出す
+    - 実行時の書式は、`std::runtime_format`（C++26）か `vformat`
 
 !!! info "このページを読む前に"
-    [`std::format`](format.md) を先に読んでください。
+    [`std::format_string`](format_string.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::basic_format_string {#basic_format_string}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class CharT, class... Args>
 struct basic_format_string {
   template <class T> consteval basic_format_string(const T& s);
-  constexpr basic_string_view<CharT> get() const noexcept;
+  constexpr std::basic_string_view<CharT> get() const noexcept;
 };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `s` | 文字列リテラル | 書式文字列（コンパイル時に検査される） |
+`s` は、`basic_string_view<CharT>` に変換できる型です。文字列リテラルがその典型です。`consteval` なので、`s` が定数式でないと、コンパイル エラーになります。
 
-- 戻り値: 書式文字列の `string_view`（`get()`）
-- 計算量: 定数
+コンストラクターの中で、書式を `formatter<Args>` で解析して、各 `{}` の指定が、対応する引数の型で有効かを確かめます。ここで失敗すると、`std::format_error` を投げようとして、定数式でなくなり、コンパイル エラーになります。
 
+`Args...` は、実際の型ではなく、検査のための型の並びです。`basic_format_string<char, int, std::string>` は、`int` と `std::string` の 2 つの引数を取る書式を検査できます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <format>
 #include <print>
+#include <type_traits>
 
 int main() {
-  std::basic_format_string<char, int> fs("{}");
-  std::println("{}", std::format(fs, 3));
+  // format_string は basic_format_string<char, ...> の別名
+  static_assert(std::is_same_v<std::format_string<int>,
+                               std::basic_format_string<char, int>>);
+  static_assert(std::is_same_v<std::wformat_string<int>,
+                               std::basic_format_string<wchar_t, int>>);
+
+  constexpr std::basic_format_string<char, int, int> f{"{} + {}"};
+  std::println("{}", f.get());
+  std::println("{}", std::format(f, 1, 2));
 }
 ```
 
 ```text title="実行結果"
-3
+{} + {}
+1 + 2
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 書式文字列を引数に受ける自作のログ関数 |
+直接書くことはありません。`format_string` の仕組みを知るための土台です。
 
 ## よくあるミス
 
 ??? failure "実行時の文字列を渡す"
-    コンパイル時の定数でないと渡せません。実行時なら `std::runtime_format`（C++26）か `vformat` を使います。
+    `consteval` なので、定数式でないとコンパイルできません。実行時の書式は `vformat` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`format_string`](format_string.md) | char 版の別名 |
-| [`wformat_string`](wformat_string.md) | wchar_t 版 |
+| [`format_string`](format_string.md) | `char` 版の別名 |
+| [`wformat_string`](wformat_string.md) | `wchar_t` 版の別名 |
+| [`std::vformat`](vformat.md) | 実行時の書式 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 書式文字列をコンパイル時に検査して保持する型
-    - [x] `<format>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

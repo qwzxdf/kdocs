@@ -14,19 +14,22 @@ tags:
 `#include <format>`
 </div>
 
-`format_kind` の値の型です。`disabled`（書式化できない）・`map`・`set`・`sequence`・`string`・`debug_string` があります。
+`std::range_format` は、範囲の書式化の種類を表す列挙型です。`std::format_kind<R>` の値の型で、`disabled`、`map`、`set`、`sequence`、`string`、`debug_string` の 6 つがあります。
 
 !!! tip "ポイント"
-    - `<format>` の部品。
-    - ふつうは `std::format` / `std::println` を使えば足りる。
-    - 自作の型に対応させるときに登場する。
+    - `disabled`: 書式化の対象外
+    - `map`: キーと値の組の範囲。`{k: v, ...}`
+    - `set`: 集合。`{a, b, ...}`
+    - `sequence`: 並び。`[a, b, ...]`
 
 !!! info "このページを読む前に"
-    [`std::format`](format.md) を先に読んでください。
+    [`std::format_kind`](format_kind.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::range_format {#range_format}
+
+<span class="ver ver-23">C++23</span>
 
 ```cpp
 enum class range_format {
@@ -39,9 +42,18 @@ enum class range_format {
 };
 ```
 
-- 戻り値: なし（列挙型）
-- 計算量: 定数
+| 値 | 意味 | 表示の形 |
+| --- | --- | --- |
+| `disabled` | 書式化しない | （使えない） |
+| `map` | キーと値の範囲 | `{1: 10, 2: 20}` |
+| `set` | 集合 | `{1, 2, 3}` |
+| `sequence` | 並び | `[1, 2, 3]` |
+| `string` | 文字の範囲を文字列として | `abc` |
+| `debug_string` | 文字の範囲を、引用符つきの文字列として | `"abc"` |
 
+`string` と `debug_string` は、文字の範囲を文字列として表示するときのためのものです。`std::string` は、専用の `formatter` があるので、この値は使いません。自作の文字のコンテナを、文字列として表示するときに指定します。
+
+`format_kind<R>` が `disabled` だと、`std::formatter<R>` が使えないので、`std::format("{}", r)` はコンパイル エラーです。
 
 ## 実際に動かしてみる
 
@@ -51,41 +63,43 @@ enum class range_format {
 #include <vector>
 
 int main() {
-  std::println("{}", std::format_kind<std::vector<int>> == std::range_format::sequence);
+  std::println("sequence: {}", std::format_kind<std::vector<int>> == std::range_format::sequence);
+  std::println("disabled ではない: {}", std::format_kind<std::vector<int>> != std::range_format::disabled);
+
+  // 列挙子の比較で、範囲の種類で処理を分けられる
+  constexpr auto kind = std::format_kind<std::vector<int>>;
+  if constexpr (kind == std::range_format::sequence) {
+    std::println("並びとして書式化される");
+  }
 }
 ```
 
 ```text title="実行結果"
-true
+sequence: true
+disabled ではない: true
+並びとして書式化される
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 範囲の書式化の種類を分ける |
+自作のコンテナの `format_kind` を、特殊化するときに値を指定します。
 
 ## よくあるミス
 
-??? failure "`string` を `sequence` と混同する"
-    文字の範囲は `string` として、引用符つきの出力になります。
+??? failure "disabled のままの範囲を表示しようとする"
+    コンパイル エラーになります。`format_kind` を特殊化します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`format_kind`](format_kind.md) | 種類を表す変数 |
+| [`format_kind`](format_kind.md) | この型の値を持つ変数 |
+| [`range_formatter`](range_formatter.md) | 範囲の書式化の部品 |
+| [`formattable`](formattable.md) | 書式化できるかのコンセプト |
 
 ## コンパイラ対応
 
 C++23 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 範囲の書式化の種類を表す列挙型
-    - [x] `<format>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

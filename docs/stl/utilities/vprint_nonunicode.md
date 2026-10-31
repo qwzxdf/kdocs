@@ -14,32 +14,33 @@ tags:
 `#include <format>`
 </div>
 
-`vprint_unicode` との違いは、端末向けの Unicode 変換（UTF-8 から端末の文字コードへ）をしないことです。バイト列をそのまま出します。
+`std::vprint_nonunicode` は、`std::vprint_unicode` の、Unicode の変換をしない版です。書式を整形した結果を、そのままのバイト列で、`FILE*`（標準出力なら `stdout`）に書きます。端末の文字コードが何であれ、UTF-8 から変換せず、バイトの並びを出力します。
 
 !!! tip "ポイント"
-    - `<format>` の部品。
-    - ふつうは `std::format` / `std::println` を使えば足りる。
-    - 自作の型に対応させるときに登場する。
+    - 変換をしない。整形した結果のバイト列を、そのまま書く
+    - Windows のコンソールでは、コード ページが UTF-8 でないと、日本語が文字化けする
+    - 普段は `vprint_unicode`、または `std::print`
+    - ファイルへの書き込みでは、`vprint_unicode` と同じ結果
 
 !!! info "このページを読む前に"
-    [`std::format`](format.md) を先に読んでください。
+    [`std::vprint_unicode`](vprint_unicode.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::vprint_nonunicode {#vprint_nonunicode}
 
+<span class="ver ver-23">C++23</span>
+
 ```cpp
-void vprint_nonunicode(string_view fmt, format_args args);
+void vprint_nonunicode(std::string_view fmt, std::format_args args);
+void vprint_nonunicode(std::FILE* stream, std::string_view fmt, std::format_args args);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `fmt` | string_view | 書式文字列 |
-| `args` | format_args | `make_format_args` で作った引数のリスト |
+端末への出力でも、特別な API を使わず、通常の書き込み（`fwrite` 相当）を行います。バイト列がそのまま端末に届くので、端末が UTF-8 を解釈できなければ、表示が崩れます。
 
-- 戻り値: なし
-- 計算量: 定数
+`std::print` は、実行環境が Unicode 対応（MSVC で `/utf-8` を指定したときなど）のとき、`vprint_unicode` を、そうでないとき `vprint_nonunicode` を呼びます。どちらを使うかは、コンパイラが決めます。
 
+自分で `vprint_nonunicode` を選ぶのは、端末を介さない出力（バイナリに近い出力、既に端末の文字コードで書式を用意している）のときです。
 
 ## 実際に動かしてみる
 
@@ -48,42 +49,36 @@ void vprint_nonunicode(string_view fmt, format_args args);
 #include <print>
 
 int main() {
-  int x = 5;
-  std::vprint_nonunicode("{}\n", std::make_format_args(x));
+  int hp = 30;
+  // ASCII だけなら、どちらを使っても同じ
+  std::vprint_nonunicode(stdout, "HP = {}\n", std::make_format_args(hp));
 }
 ```
 
 ```text title="実行結果"
-5
+HP = 30
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | バイト列をそのまま出力する |
+ほとんどありません。`println` を使います。
 
 ## よくあるミス
 
-??? failure "端末の文字化けを期待する"
-    変換しないので、端末の文字コードが UTF-8 でないと化けます。
+??? failure "日本語をコンソールに出して文字化けする"
+    コンソールのコード ページが UTF-8 でないと、崩れます。`vprint_unicode` か `println` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`vprint_unicode`](vprint_unicode.md) | Unicode 対応 |
+| [`vprint_unicode`](vprint_unicode.md) | 端末では Unicode の出力をする |
+| [`std::print`](print.md) | コンパイラが適切な方を選ぶ |
+| [`std::println`](println.md) | 改行つき |
 
 ## コンパイラ対応
 
 C++23 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 実行時の書式文字列で、Unicode 変換なしで出力する
-    - [x] `<format>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

@@ -14,75 +14,89 @@ tags:
 `#include <utility>`
 </div>
 
-可変長テンプレート引数 `Ts...` と同じ個数の番号列がほしいとき、`index_sequence_for<Ts...>` と書けば `make_index_sequence<sizeof...(Ts)>` と同じものが作れます。
+テンプレートの引数が `template <class... Ts>` のように可変個のとき、その個数に合った添字の列 `0, 1, ..., sizeof...(Ts)-1` が欲しくなります。`std::index_sequence_for<Ts...>` は、`make_index_sequence<sizeof...(Ts)>` の短い書き方で、パラメーター パックの個数と同じ長さの添字の列を作ります。
 
 !!! tip "ポイント"
-    - `index_sequence_for<Ts...>` は `make_index_sequence<sizeof...(Ts)>`。
-    - 型のパックと番号を並べて展開したいときに使う。
+    - `index_sequence_for<Ts...>` は `make_index_sequence<sizeof...(Ts)>`
+    - 型のパラメーター パックを渡すと、その個数ぶんの添字の列ができる
+    - `tuple<Ts...>` の全要素の処理で、よく使う
+    - 値のパックではなく、型のパックを渡す
 
 !!! info "このページを読む前に"
-    [テンプレート](../../basics/template.md) が分かると読みやすいです。
+    [`std::make_index_sequence`](make_index_sequence.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::index_sequence_for {#index_sequence_for}
 
+<span class="ver ver-14">C++14</span>
+
 ```cpp
 template <class... T>
-using index_sequence_for = make_index_sequence<sizeof...(T)>;
+using index_sequence_for = std::make_index_sequence<sizeof...(T)>;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `T...` | 型のパック | 個数を数える型 |
+`index_sequence_for<int, float, char>` は `index_sequence<0, 1, 2>` です。
 
-- 戻り値: `index_sequence<0, ..., sizeof...(T)-1>`
-- 計算量: コンパイル時のみ
+`tuple<Ts...>` を受け取る関数で、`Ts...` の個数ぶんの添字を作るのに使います。
 
+```cpp
+template <class... Ts>
+void Print(const std::tuple<Ts...>& t) {
+  PrintImpl(t, std::index_sequence_for<Ts...>{});
+}
+```
+
+`tuple` の型から `tuple_size_v` で個数を求めて `make_index_sequence` に渡すのと同じ結果ですが、パックを直接渡せるので、短く書けます。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
+#include <tuple>
+#include <type_traits>
 #include <utility>
 
+// 型の個数と同じ長さの添字の列
+template <class... Ts>
+constexpr std::size_t Count() {
+  return std::index_sequence_for<Ts...>::size();
+}
+
 int main() {
-  using Seq = std::index_sequence_for<int, double, char>;
-  std::println("{}", Seq::size());
+  static_assert(std::is_same_v<std::index_sequence_for<int, float, char>,
+                               std::index_sequence<0, 1, 2>>);
+
+  std::println("3 個: {}", Count<int, float, char>());
+  std::println("0 個: {}", Count<>());
 }
 ```
 
 ```text title="実行結果"
-3
+3 個: 3
+0 個: 0
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 引数の型ごとに番号を振る | `std::index_sequence_for<Args...>{}` |
+`tuple` にコンポーネントをまとめたとき、全部に処理をかけるテンプレート関数の、土台に使います。
 
 ## よくあるミス
 
-??? failure "パックが空"
-    パックが空なら空の列になります。展開側がそれに耐えるように書きます。
+??? failure "値のパックを渡す"
+    `index_sequence_for` に渡すのは、型のパックです。値のパックなら `sizeof...` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`make_index_sequence`](make_index_sequence.md) | 個数を直接指定 |
+| [`std::make_index_sequence`](make_index_sequence.md) | 個数を数で指定する |
+| [`std::index_sequence`](index_sequence.md) | 作られる列の型 |
+| [`std::apply`](apply.md) | 添字の展開を内部で使う |
 
 ## コンパイラ対応
 
 C++14 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 型パックの個数ぶんの番号列
-    - [x] sizeof... を書かずに済む
-    - [x] 展開に使う
 
 ## 関連ページ
 

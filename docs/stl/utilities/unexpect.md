@@ -14,28 +14,42 @@ tags:
 `#include <expected>`
 </div>
 
-`std::expected<int, std::string>` に、成功ではなく失敗を作りたいとき、コンストラクタ引数だけでは成功側と区別できません。先頭に `std::unexpect` を置くと、「次の引数でエラー側を作る」と指定できます。
+`std::expected<T, E>` を、値ではなくエラーで作りたいとき、`expected<int, std::string> e("error");` と書くと、`T` と `E` のどちらで作る意図なのかが曖昧です。`std::unexpect` は、「エラーの値で作ります」と伝える印で、`expected` のコンストラクターに渡します。
 
 !!! tip "ポイント"
-    - `std::unexpect_t` 型の定数。
-    - `expected(std::unexpect, エラーの引数...)` の形で使う。
-    - エラーの値を作ってから包む [`std::unexpected`](unexpected.md) の別の書き方。
+    - `std::expected<T, E> e(std::unexpect, エラーの引数...)` で、エラーの状態を直接作る
+    - `T` と `E` が同じ型でも、エラーで作ることを明示できる
+    - エラーを `unexpected(エラー)` で包んで渡す方法もある
+    - C++23
 
 !!! info "このページを読む前に"
-    [`std::expected`](expected.md) を先に読んでください。
+    [`std::expected`](expected.md) と [`std::unexpected`](unexpected.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::unexpect {#unexpect}
 
+<span class="ver ver-23">C++23</span>
+
 ```cpp
 struct unexpect_t { explicit unexpect_t() = default; };
-inline constexpr unexpect_t unexpect{};
+inline constexpr std::unexpect_t unexpect{};
 ```
 
-- 戻り値: なし（目印）
-- 計算量: なし
+`unexpect` は、値を持たない空の印です。`std::expected` のコンストラクターのオーバーロードを選ぶために渡します。
 
+```cpp
+std::expected<int, std::string> e(std::unexpect, "not found");
+```
+
+`E` のコンストラクターの引数を、そのまま渡せるので、エラーの値を一時オブジェクトとして作らずに済みます。`E` が `std::string` なら、`"not found"` から直接作られます。
+
+`unexpected(エラー)` で包む方法と、使い分けは次のとおりです。
+
+| 方法 | 使いどころ |
+| --- | --- |
+| `return std::unexpected("error");` | 関数の `return` で、エラーを返す。普通はこちら |
+| `std::expected<T, E> e(std::unexpect, 引数...)` | 変数を作るとき。`E` を引数から直接作る |
 
 ## 実際に動かしてみる
 
@@ -45,43 +59,48 @@ inline constexpr unexpect_t unexpect{};
 #include <string>
 
 int main() {
-  std::expected<int, std::string> e(std::unexpect, "error");
-  std::println("{}", e.error());
+  // エラーの状態で直接作る
+  std::expected<int, std::string> e(std::unexpect, "not found");
+  std::println("値がある: {}", e.has_value());
+  std::println("エラー: {}", e.error());
+
+  // E のコンストラクター引数を、そのまま渡せる
+  std::expected<int, std::string> f(std::unexpect, 3, 'x');  // string(3, 'x')
+  std::println("エラー: {}", f.error());
+
+  // 通常の値で作る
+  std::expected<int, std::string> g = 5;
+  std::println("値: {}", g.value());
 }
 ```
 
 ```text title="実行結果"
-error
+値がある: false
+エラー: not found
+エラー: xxx
+値: 5
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| エラーをその場で作った expected を返す | `return std::expected<int, std::string>(std::unexpect, "failed");` |
+アセットの読み込みの結果を `expected<Asset, LoadError>` で返すときに、関数の中では `return std::unexpected(...)` を使います。`unexpect` は、変数を直接エラーで作るときだけ使います。
 
 ## よくあるミス
 
-??? failure "成功側に使う"
-    成功側を作る場合は [`in_place`](in_place.md) です。
+??? failure "unexpected と取り違える"
+    `unexpected` はエラーの値を包む型、`unexpect` は印です。名前が似ていますが、役目が違います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`unexpected`](unexpected.md) | エラーを包む型 |
-| [`in_place`](in_place.md) | 成功側をその場で作る |
+| [`std::unexpected`](unexpected.md) | エラーの値を包む型 |
+| [`std::expected`](expected.md) | 本体 |
+| [`std::bad_expected_access`](bad_expected_access.md) | 値がないときに `value()` が投げる例外 |
 
 ## コンパイラ対応
 
 C++23 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] エラー側をその場で作る目印
-    - [x] expected の第 1 引数に置く
-    - [x] unexpected の別の書き方
 
 ## 関連ページ
 

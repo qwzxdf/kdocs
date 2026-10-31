@@ -14,81 +14,88 @@ tags:
 `#include <memory>`
 </div>
 
-`std::inout_ptr(smart_ptr)` は、**C のAPI が `T**` の引数を通して、既存のオブジェクトを受け取り、別のものに置き換えて返す**ような場合に使います。`realloc` のように「今の値を渡して、新しい値を受け取る」関数向けです。[`out_ptr`](out_ptr.md) は「出力だけ」、こちらは「入力と出力」です。
+C の API には、既存のオブジェクトのポインタを受け取り、必要なら解放して新しいものに置き換えて返す、`void Resize(Thing** inout)` のような形があります。`std::inout_ptr(ptr)` は、スマート ポインタを、このような入出力引数（`T**`）として渡せる形にします。`out_ptr` との違いは、`ptr` が持っている値を、API に渡すことです。
 
 !!! tip "ポイント"
-    - `Replace(std::inout_ptr(p));` の形。
-    - `unique_ptr` が持っていた値を API 側に引き渡す（所有権が一旦 API に渡る）。
-    - API が失敗したときの挙動に注意する。
+    - `Resize(std::inout_ptr(ptr))` のように、入出力引数に渡す
+    - 呼び出し前の値は、API に渡される（解放はしない）
+    - API が置き換えたら、新しい値が `ptr` に入る
+    - 古い値の解放は、API の責任。デリーターが二重に呼ばれないように、内部で `release` される
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+    [`std::out_ptr`](out_ptr.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::inout_ptr {#inout_ptr}
 
+<span class="ver ver-23">C++23</span>
+
 ```cpp
-template <class Smart, class... Args>
+template <class Pointer = void, class Smart, class... Args>
 auto inout_ptr(Smart& s, Args&&... args);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `s` | スマートポインター | 入力と出力に使うもの |
+アダプターの作成時に、`s` の持つポインタを取り出して（`release`）、API に渡す `T**` の指す先に入れます。API が値を書き換えたあと、アダプターの破棄時に、その値を `s.reset(...)` で戻します。
 
-- 戻り値: `T**` として使える包み
-- 計算量: O(1)
+API が古いポインタを解放して、新しいものを返す設計だと、`s` のデリーターが古いポインタを解放しないよう、`release` する必要があります。`inout_ptr` が、それを自動で行います。
+
+API が値を変えなかった場合は、元のポインタが、そのまま `s` に戻ります。
+
+`realloc` のように、既存のメモリを拡張する API が典型です。
+
+## 実際に動かしてみる
 
 ```cpp
+#include <cstdlib>
 #include <memory>
 #include <print>
 
-// C 風の API: 渡されたものを捨てて、新しいものに置き換える
-void Replace(int** p) {
-  delete *p;
-  *p = new int(9);
+// C 風の API: 領域を確保し直して、ポインタを入出力引数で返す
+void Grow(int** inout, std::size_t count) {
+  *inout = static_cast<int*>(std::realloc(*inout, count * sizeof(int)));
 }
 
+struct FreeDeleter {
+  void operator()(int* p) const { std::free(p); }
+};
+
 int main() {
-  std::unique_ptr<int> p(new int(1));
-  Replace(std::inout_ptr(p));
-  std::println("{}", *p);
+  std::unique_ptr<int, FreeDeleter> p(static_cast<int*>(std::malloc(sizeof(int))));
+  *p = 7;
+
+  Grow(std::inout_ptr(p), 4);  // 古い領域は realloc が面倒を見る
+  p.get()[3] = 9;
+  std::println("{} {}", p.get()[0], p.get()[3]);
 }
 ```
 
 ```text title="実行結果"
-9
+7 9
 ```
+
+`realloc` が古い領域を解放して新しい領域を返しても、`p` のデリーターが二重に解放することはありません。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| realloc 風の C のAPI をスマートポインターで使う | `Resize(std::inout_ptr(p), new_size)` |
+領域を拡張する C のライブラリの API を、`unique_ptr` で包んだまま使うときに使います。
 
 ## よくあるミス
 
-??? failure "API が解放しないのに使う"
-    所有権が API に移る前提です。API の仕様を確認します。
+??? failure "out_ptr を使って、古い領域を二重に解放する"
+    API が古い値を読む設計なら、`out_ptr` は、先に古い値を解放してしまいます。`inout_ptr` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`out_ptr`](out_ptr.md) | 出力だけ |
+| [`out_ptr`](out_ptr.md) | API が新しい値を書くだけの場合 |
+| `std::realloc` | 領域の拡張 |
+| `unique_ptr::release` | 手動で所有権を放す |
 
 ## コンパイラ対応
 
-C++23 の機能です。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 入力と出力に使う
-    - [x] 所有権が API に渡る
-    - [x] C++23
+C++23 から使えます。
 
 ## 関連ページ
 

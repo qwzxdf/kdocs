@@ -14,76 +14,74 @@ tags:
 `#include <format>`
 </div>
 
-`make_format_args` の `wchar_t` 版です。`std::vformat(L"...", 引数リスト)` に渡します。
+`std::make_format_args` の `wchar_t` 版が `std::make_wformat_args` です。`std::vformat(L"...", ...)` に渡す引数を包みます。使い方は `make_format_args` と同じで、書式と結果が `wchar_t` になります。
 
 !!! tip "ポイント"
-    - `<format>` の部品。
-    - ふつうは `std::format` / `std::println` を使えば足りる。
-    - 自作の型に対応させるときに登場する。
+    - `wformat_args` を作る。`vformat(wstring_view, ...)` に渡す
+    - 引数は左辺値の変数
+    - 返したオブジェクトは参照を持つ
+    - 結果は `std::wstring`
 
 !!! info "このページを読む前に"
-    [`std::format`](format.md) を先に読んでください。
+    [`std::make_format_args`](make_format_args.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::make_wformat_args {#make_wformat_args}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class... Args>
-/* 実装定義 */ make_wformat_args(Args&... args);
+/* format_arg_store<wformat_context, Args...> */ make_wformat_args(Args&... args);
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `args...` | 左辺値 | 書式化する引数 |
+`make_format_args<std::wformat_context>(args...)` の短い書き方です。
 
-- 戻り値: 引数リスト（`wformat_args`）
-- 計算量: 定数
-
+`char` の文字列を `wchar_t` の書式に渡すことは、できません（`std::string` を `wformat` に渡すとコンパイル エラー）。引数の文字列も `wchar_t` のものにします。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <format>
 #include <print>
+#include <string>
 
 int main() {
-  int a = 42;
-  std::println("{}", std::vformat(L"{}", std::make_wformat_args(a)).size());
+  int hp = 30;
+  std::wstring name = L"Hero";
+
+  const std::wstring s = std::vformat(L"{}: HP {}", std::make_wformat_args(name, hp));
+  std::println("一致: {}", s == L"Hero: HP 30");
+  std::println("長さ: {}", s.size());
 }
 ```
 
 ```text title="実行結果"
-2
+一致: true
+長さ: 11
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ワイド文字で実行時の書式化をする |
+Windows API 用の `wchar_t` のメッセージを、実行時の書式で整形するときに使います。
 
 ## よくあるミス
 
-??? failure "右辺値を渡す"
-    変数に入れてから渡します。
+??? failure "char の文字列を渡す"
+    `std::string` の引数は、`wformat` では使えません。`std::wstring` にそろえます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`make_format_args`](make_format_args.md) | char 版 |
+| [`make_format_args`](make_format_args.md) | `char` 版 |
+| [`wformat_string`](wformat_string.md) | `wchar_t` の書式文字列 |
+| [`vformat`](vformat.md) | これを受け取る |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 引数を wchar_t 用の書式化引数リストにまとめる
-    - [x] `<format>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 
