@@ -76,6 +76,12 @@ namespace KCppAssist
             baseline = null;
         }
 
+        /// <summary>最後の入力から、相手へ写すまでの待ち(ミリ秒)。設定で変えられる。</summary>
+        private static int Delay
+        {
+            get { var o = SyncService.Options; return o == null ? 250 : Math.Max(0, o.SyncDelayMs); }
+        }
+
         private static bool IsAuto
         {
             get { var o = SyncService.Options; return o != null && o.SyncMode == SyncMode.Auto; }
@@ -83,7 +89,7 @@ namespace KCppAssist
 
         private void Arm(int ms)
         {
-            timer.Interval = TimeSpan.FromMilliseconds(Math.Max(200, ms));
+            timer.Interval = TimeSpan.FromMilliseconds(Math.Max(50, ms));
             timer.Stop();
             timer.Start();
         }
@@ -95,7 +101,7 @@ namespace KCppAssist
             if (e.EditTag is string && (string)e.EditTag == SyncService.EditTag) { baseline = Build(e.After); return; }
             if (baseline == null) baseline = Build(e.Before);
             lastChange = DateTime.UtcNow;
-            Arm(1200);
+            Arm(Delay);
         }
 
         /// <summary>いまの文字から、引数を追跡する関数の一覧を作る(クラスの中に本体のある関数は、相手がないので除く)。</summary>
@@ -134,7 +140,7 @@ namespace KCppAssist
         private async Task TickAsync()
         {
             if (!IsAuto || baseline == null) { if (!IsAuto) baseline = null; return; }
-            if (SyncService.IsBusy(view, owner.Completion)) { Arm(1000); return; }
+            if (SyncService.IsBusy(view, null)) { Arm(Delay); return; }      // 補完リストが出ていても写す(相手は別のバッファー)
 
             ITextSnapshot snap = view.TextSnapshot;
             string text = snap.GetText();
@@ -149,11 +155,6 @@ namespace KCppAssist
                 if (SignatureSync.Norm(span.GetText()) != SignatureSync.Norm(b.Text)) changed.Add(new KeyValuePair<Item, FunctionScan.Sig>(b, cs));
             }
             if (changed.Count == 0) { baseline = Build(snap); return; }
-
-            // 括弧の中で、いま打っている最中なら、少し長く待つ
-            int caret = view.Caret.Position.BufferPosition.Position;
-            bool inside = changed.Any(c => caret >= c.Value.Open && caret <= c.Value.Close + 1);
-            if (inside && (DateTime.UtcNow - lastChange).TotalMilliseconds < 4000) { Arm(1000); return; }
 
             foreach (var c in changed.Take(3))
             {

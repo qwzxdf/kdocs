@@ -160,7 +160,7 @@ namespace KCppAssist
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             if (!view.HasAggregateFocus) return true;
-            try { if (completion.IsCompletionActive(view)) return true; } catch (Exception) { }
+            try { if (completion != null && completion.IsCompletionActive(view)) return true; } catch (Exception) { }
             try
             {
                 var dte = (DTE)Package.GetGlobalService(typeof(DTE));
