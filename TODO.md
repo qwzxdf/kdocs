@@ -91,7 +91,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 書き方は `tools/` の生成の仕組みではなく、1 ページずつ具体的に書く（同じ文章が並ばないように）。1 項目の単位は、同じ話題のまとまり 10〜40 ページ。
 
 - [x] 2-3-1. `io/filesystem`（53）と `io/cstdio`（50）（2026-10-28 filesystem は `path`・`directory_entry` などの既に濃い所を除いて全部、cstdio は `printf` 以外の主要ページと定数を書き直した。サンプルは `verify_samples.py` で全部一致）
-- [ ] 2-3-2. `io` のルート（106）: 操作子（`hex`・`dec`・`oct`・`setbase`・`setw`・`setfill`・`left`・`right`・`internal`・`setprecision`・`fixed`・`scientific`・`defaultfloat`・`showpos`・`showbase`・`showpoint`・`uppercase`・`boolalpha`・`endl`・`flush`）は書き直した（2026-10-28）。`ends`・`ws`・`unitbuf`・`skipws`・`hexfloat`・`resetiosflags`・`setiosflags`・`put_time`・`get_time`・`put_money`・`get_money`・`quoted` も書き直した（2026-10-29）。`cerr`・`clog`・`wcin`・`wcout`・`wcerr`・`wclog`、`streamsize`・`streamoff`・`streampos`・`fpos` も書き直した（2026-10-29）。`cin`・`cout` も書き直した（2026-10-31）。`va_*`・`cstdarg`・`setjmp` 系 9 ページも書き直した（2026-10-31）。残り: `basic_*stream`、`*buf`、regex 系 ほか
+- [x] 2-3-2. `io` のルート（106）: 操作子（`hex`・`dec`・`oct`・`setbase`・`setw`・`setfill`・`left`・`right`・`internal`・`setprecision`・`fixed`・`scientific`・`defaultfloat`・`showpos`・`showbase`・`showpoint`・`uppercase`・`boolalpha`・`endl`・`flush`）は書き直した（2026-10-28）。`ends`・`ws`・`unitbuf`・`skipws`・`hexfloat`・`resetiosflags`・`setiosflags`・`put_time`・`get_time`・`put_money`・`get_money`・`quoted` も書き直した（2026-10-29）。`cerr`・`clog`・`wcin`・`wcout`・`wcerr`・`wclog`、`streamsize`・`streamoff`・`streampos`・`fpos` も書き直した（2026-10-29）。`cin`・`cout` も書き直した（2026-10-31）。`va_*`・`cstdarg`・`setjmp` 系 9 ページも書き直した（2026-10-31）。`basic_*stream` 4 ページと `*buf` 6 ページも書き直した（2026-10-31）。regex 系は 2-3-3 で書く
 - [ ] 2-3-3. `io/cwchar`（22）・`locale`（19）・`regex`（18）・`ctime`（15）
 - [ ] 2-3-4. `utilities/chrono`（86）
 - [ ] 2-3-5. `utilities/random`（39）
@@ -179,6 +179,10 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 - [ ] 3-5-3. ★★ よくある質問（`faq.md`）に、「どちらを使う？」を 20 件まで増やす
 
 ## 4. 完了したこと（履歴）
+
+### 2026-10-31 の作業
+
+- STL `io` のルートを書き直して 2-3-2 を完了: `cin`・`cout`、`cstdarg` と `va_*`、`setjmp` 系、`basic_*stream`・`iostream`、`basic_streambuf`・`filebuf`・`stringbuf`・`spanbuf`・`syncbuf`
 
 ### 2026-10-29 の作業
 
