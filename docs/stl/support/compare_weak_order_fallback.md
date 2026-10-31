@@ -15,31 +15,50 @@ tags:
 `#include <compare>`
 </div>
 
-`<=>` を持たない古い型でも、`==` と `<` があれば順序づけたいことがあります。`compare_weak_order_fallback` は、`<=>` があればそれを使い、なければ `==` と `<` から `weak_ordering` を作ります。
+`std::compare_weak_order_fallback(a, b)` は、`<=>` や [`std::weak_order`](weak_order.md) が使えない古い型を、`==` と `<` から `std::weak_ordering` として比べます。`weak_ordering` は、「等しくはないが、順序の上では同じ位置にある」ものを許す比較です。大文字小文字を区別しない文字列の比較のように、見た目は違っても、同じ順位になる要素を表せます。
 
 !!! tip "ポイント"
-    - `<compare>` の部品。
-    - C++20 の三方比較（`<=>`）と組み合わせて使う。
-    - ふつうは `=default` の `<=>` で足りる。
+    - `std::weak_order` が使えるならそれを使い、使えなければ `==` と `<` で代用する
+    - 戻り値は `std::weak_ordering`（`less`・`equivalent`・`greater`）
+    - 代用するには、`a == b` と `a < b` が書けること
+    - `strong_ordering` との違いは、区別できないものを置き換えても、結果が同じとは限らないこと
 
 !!! info "このページを読む前に"
-    [`<=>`（宇宙船演算子）](spaceship.md) を先に読んでください。
+    [`std::weak_order`](weak_order.md) と [`<=>`（三方比較）](spaceship.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::compare_weak_order_fallback {#compare_weak_order_fallback}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-inline constexpr /* カスタマイズポイント */ compare_weak_order_fallback;
+inline constexpr /* 未規定 */ compare_weak_order_fallback = /* 未規定 */;
+// 呼び出し: std::compare_weak_order_fallback(a, b) -> std::weak_ordering
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `a, b` | 型 | 比べる 2 つの値 |
+| 引数 | 意味 |
+| --- | --- |
+| `a`, `b` | 比べる 2 つの値 |
 
-- 戻り値: `std::weak_ordering`
-- 計算量: 定数
+#### 動作の順序
 
+1. `std::weak_order(a, b)` が書けるなら、その結果を返す
+2. 書けなくて、`a == b` と `a < b` が書けるなら、次の規則で `weak_ordering` を作る
+    - `a == b` が真なら `equivalent`
+    - そうでなくて `a < b` が真なら `less`
+    - それ以外は `greater`
+3. どちらも書けないなら、コンパイルできない
+
+#### equivalent の意味
+
+`weak_ordering::equivalent` は、「順序の上で同じ位置にある」ことを表します。`std::set` のように、順序だけで要素を区別する連想コンテナでは、`equivalent` な 2 つの要素は、同じ要素として扱われます。
+
+`strong_ordering::equal` との違いは、`equivalent` なものを入れ替えても、結果が変わらないとは限らない点です。たとえば、大文字小文字を無視して比べる文字列で、`"Hero"` と `"hero"` は `equivalent` ですが、同じ文字列ではありません。
+
+#### strong_order との関係
+
+`compare_strong_order_fallback` が `strong_ordering` を返すのに対し、こちらは弱い順序を返します。型が持つ比較の強さに合わせて選びます。
 
 ## 実際に動かしてみる
 
@@ -47,48 +66,63 @@ inline constexpr /* カスタマイズポイント */ compare_weak_order_fallbac
 #include <compare>
 #include <print>
 
-struct V {
-  int x;
-  bool operator==(const V&) const = default;
-  bool operator<(const V& o) const { return x < o.x; }
+// <=> を持たない、古い形の型。== と < だけがある
+struct Legacy {
+  int value;
+  bool operator==(const Legacy& other) const { return value == other.value; }
+  bool operator<(const Legacy& other) const { return value < other.value; }
 };
 
+const char* Name(std::weak_ordering r) {
+  if (r == std::weak_ordering::less) return "less";
+  if (r == std::weak_ordering::equivalent) return "equivalent";
+  return "greater";
+}
+
 int main() {
-  std::println("{}", std::compare_weak_order_fallback(V{1}, V{2}) == std::weak_ordering::less);
+  Legacy a{1};
+  Legacy b{2};
+  Legacy c{1};
+
+  std::println("a と b: {}", Name(std::compare_weak_order_fallback(a, b)));
+  std::println("b と a: {}", Name(std::compare_weak_order_fallback(b, a)));
+  std::println("a と c: {}", Name(std::compare_weak_order_fallback(a, c)));
+
+  // 浮動小数点数: 0.0 と -0.0 は equivalent
+  std::println("0.0 と -0.0: {}", Name(std::compare_weak_order_fallback(0.0, -0.0)));
 }
 ```
 
 ```text title="実行結果"
-true
+a と b: less
+b と a: greater
+a と c: equivalent
+0.0 と -0.0: equivalent
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 古い型を `<=>` ベースの仕組みに乗せる |
+`==` と `<` しかない型を、弱い順序を求めるテンプレートの中で扱えるようにします。
 
 ## よくあるミス
 
-??? failure "`==` と `<` が整合しない型"
-    `==` と `<` の結果が矛盾していると、結果は意味を持ちません。
+??? failure "equivalent を同一と思い込む"
+    順序の上で同じ位置にあるだけです。中身が同じとは限りません。
+
+??? failure "== と < の意味が矛盾する型に使う"
+    結果は意味を持ちません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`weak_order`](weak_order.md) | `<=>` ありの版 |
+| [`compare_strong_order_fallback`](compare_strong_order_fallback.md) | `strong_ordering` を返す版 |
+| [`compare_partial_order_fallback`](compare_partial_order_fallback.md) | `partial_ordering` を返す版 |
+| [`weak_order`](weak_order.md) | 元になる関数 |
 
 ## コンパイラ対応
 
-C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] `<=>` が無い型も、`==` と `<` で `weak_ordering` として比べる
-    - [x] `<compare>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+C++20 から使えます。MSVC・GCC・Clang とも対応しています。
 
 ## 関連ページ
 

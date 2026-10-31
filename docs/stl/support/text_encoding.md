@@ -14,12 +14,13 @@ tags:
 `#include <text_encoding>`
 </div>
 
-ファイルや端末がどの文字コードかを文字列ではなく型で扱いたいことがあります。`std::text_encoding` は、IANA 登録の文字エンコーディング（UTF-8、Shift_JIS など）を表す型で、`literal()` でソース上の文字列リテラルのエンコーディング、`environment()` で環境の既定を取れます。
+ファイルや端末の文字コードを、文字列で `"UTF-8"` や `"Shift_JIS"` と持ち回ると、綴りが違う別名（`"utf8"` や `"MS_Kanji"`）で、比較がうまくいかなくなります。`std::text_encoding` は、IANA に登録された文字エンコーディングを、型として表します。別名も同じものとして扱われるので、`==` で正しく比べられます。
 
 !!! tip "ポイント"
-    - `text_encoding::literal()` で文字列リテラルの文字コードを取る。
-    - `name()` で名前、`mib()` で IANA の番号を取る。
-    - C++26 の機能。
+    - IANA に登録された文字コードを表す型
+    - `literal()` でソースの文字列リテラルの文字コード、`environment()` で実行環境の文字コードを取る
+    - `name()` で標準の名前、`mib()` で IANA の番号、`aliases()` で別名を取る
+    - 別名どうしでも `==` が真になる
 
 !!! info "このページを読む前に"
     [文字コード](../../encoding/index.md) の基本を先に読んでください。
@@ -28,58 +29,96 @@ tags:
 
 ### std::text_encoding {#text_encoding}
 
+<span class="ver ver-26">C++26</span>
+
 ```cpp
 class text_encoding {
  public:
+  enum class id : int_least32_t { /* UTF8, ShiftJIS, ... unknown, other */ };
+
+  constexpr text_encoding() noexcept;
+  constexpr explicit text_encoding(std::string_view name) noexcept;
+  constexpr text_encoding(id i) noexcept;
+
+  constexpr id mib() const noexcept;
+  constexpr const char* name() const noexcept;
+  constexpr aliases_view aliases() const noexcept;
+
   static text_encoding literal() noexcept;
   static text_encoding environment();
-  const char* name() const noexcept;
-  id mib() const noexcept;
+  template <id I> static bool environment_is();
 };
 ```
 
-- 戻り値: エンコーディングの名前など
-- 計算量: 定数
+#### 作り方
 
+文字列から作るときは、`text_encoding("Shift_JIS")` のように名前を渡します。IANA の登録名と別名のどれでも構いません。登録にない名前だと、`mib()` は `id::other` になります。
 
-## 実際に動かしてみる
+列挙型の `id` から作ることもできます。`text_encoding(text_encoding::id::UTF8)` のようにです。
+
+#### mib
+
+`mib()` は、IANA の番号（MIBenum）を `id` で返します。UTF-8 は 106、Shift_JIS は 17 です。文字列の綴りに頼らず、番号で比べられます。
+
+#### name と aliases
+
+`name()` は、そのエンコーディングの代表的な名前を返します。`aliases()` は、同じエンコーディングの別名を、順に取れる範囲で返します。
+
+#### literal
+
+`literal()` は、コンパイル時に決まる、文字列リテラルのエンコーディングです。MSVC に `/utf-8` を付けると UTF-8 になります。付けないと、実行環境の既定のコード ページです。
+
+#### environment
+
+`environment()` は、実行している環境の既定の文字コード（ロケールなど）を返します。Windows のコンソールでは、コード ページに対応するエンコーディングです。`environment_is<id::UTF8>()` のように、特定のエンコーディングかどうかだけを調べるテンプレートもあります。
+
+#### 比較
+
+`==` は、`mib()` が等しいかで判定します。別名でも同じです。登録にない名前（`id::other`）は、名前の文字列が同じなら等しいとされます。
+
+## 使い方の形
 
 ```cpp
 #include <print>
 #include <text_encoding>
 
 int main() {
-  std::println("{}", std::text_encoding::literal().name());
+  std::text_encoding lit = std::text_encoding::literal();
+  std::println("リテラルの文字コード: {}", lit.name());
+  std::println("UTF-8 か: {}", lit.mib() == std::text_encoding::id::UTF8);
+
+  // 別名でも同じものと判定される
+  std::text_encoding a("Shift_JIS");
+  std::text_encoding b("MS_Kanji");
+  std::println("Shift_JIS と MS_Kanji は同じ: {}", a == b);
+  std::println("Shift_JIS の mib: {}", static_cast<int>(a.mib()));
 }
 ```
 
+
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 実行環境の文字コードに合わせて変換する | `std::text_encoding::environment()` |
+ファイルの読み書きや、ネットワークの入出力で、相手の文字コードを文字列の綴りではなく、型で扱って変換するときに使います。
 
 ## よくあるミス
 
-??? failure "名前の綴りで比べる"
-    同じ文字コードでも別名があります。`==` で比べると、別名も同じものと判定されます。
+??? failure "名前の文字列を == で比べる"
+    別名があるので、綴りの違いで比較に失敗します。`text_encoding` どうしで比べます。
+
+??? failure "literal() をコンソールの文字コードと思う"
+    `literal()` は、ソースの文字列リテラルの文字コードです。実行環境の文字コードは `environment()` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [文字コード](../../encoding/index.md) | 文字コードの考え方 |
+| [文字コード](../../encoding/index.md) | 文字コードの全体像 |
+| [`locale`](../io/locale.md) | ロケール |
+| [`string_view`](../utilities/string_view.md) | 名前の受け渡し |
 
 ## コンパイラ対応
 
-C++26 の機能です。対応は新しい標準ライブラリに限られます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 文字エンコーディングを表す型
-    - [x] literal() / environment()
-    - [x] C++26
+C++26 です。手元の MSVC（Visual Studio 2026）では、まだ `<text_encoding>` が無く、コンパイルできませんでした。そのため、このページのサンプルは動かして確かめていません。使えるようになったら、実行結果を確かめて書き足します。
 
 ## 関連ページ
 

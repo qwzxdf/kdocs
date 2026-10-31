@@ -27,7 +27,7 @@ algorithm any array atomic barrier bit bitset charconv chrono cinttypes climits 
 coroutine csetjmp csignal cstdarg cstddef cstdint cstdio cstdlib cstring ctime cuchar cwchar cwctype deque exception execution expected
 filesystem flat_map flat_set format forward_list fstream functional future generator initializer_list iomanip ios iosfwd iostream istream
 iterator latch limits list locale map mdspan memory memory_resource mutex new numbers numeric optional ostream print queue random ranges
-ratio regex scoped_allocator semaphore set shared_mutex source_location span spanstream sstream stack stacktrace stdexcept stdfloat
+ratio regex scoped_allocator semaphore set shared_mutex source_location span spanstream sstream stack stacktrace stdexcept stdfloat text_encoding
 stop_token streambuf string string_view strstream syncstream system_error thread tuple type_traits typeindex typeinfo unordered_map
 unordered_set utility valarray variant vector version cfenv cctype cerrno cfloat cassert
 '''.split())

@@ -15,31 +15,41 @@ tags:
 `#include <functional>`
 </div>
 
-`std::bind` に別の `bind` の結果を渡すと、中の `bind` が先に評価されてその結果が使われます（入れ子の bind）。この「bind の式かどうか」を判定する型特性が `is_bind_expression` です。
+`std::bind` の引数に、別の `bind` の式を入れると、それが「入れ子の式」として扱われ、呼び出し時に先に評価されて、その結果が外側の引数に入ります。この「`bind` の式かどうか」の判定に使われるのが `std::is_bind_expression<T>` です。`T` が `bind` の戻り値の型なら `true`、そうでなければ `false` です。
 
 !!! tip "ポイント"
-    - `std::bind` の戻り値の型に対して `true`。
-    - 自作のラッパーを bind 式として扱わせたいときに特殊化する。
+    - `is_bind_expression<T>::value` は、`T` が `bind` の戻り値の型なら `true`
+    - `std::is_bind_expression_v<T>` が短縮形（C++17）
+    - 入れ子の `bind` は、外側を呼ぶときに先に評価される
+    - 自作の型を `bind` の式として扱わせたいときに特殊化する
 
 !!! info "このページを読む前に"
-    [<functional>](../functional.md) の概要を先に読むと分かりやすいです。
+    [`bind`](bind.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::is_bind_expression {#is_bind_expression}
 
 ```cpp
-template <class T> struct is_bind_expression;
-template <class T> inline constexpr bool is_bind_expression_v = is_bind_expression<T>::value;
+template <class T>
+struct is_bind_expression;
+
+template <class T>
+inline constexpr bool is_bind_expression_v = is_bind_expression<T>::value;   // C++17
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `T` | 型 | 調べる型 |
+`std::bind` の戻り値の型に対して `true`、それ以外（`int` やラムダなど）には `false` です。
 
-- 戻り値: `bind` が返した型なら `true`
-- 計算量: コンパイル時のみ
+この判定が重要になるのは、`bind` の入れ子のときです。
 
+```cpp
+auto outer = std::bind(Add, std::bind(Twice, _1), 1);
+outer(5);   // Add(Twice(5), 1) = 11
+```
+
+`bind(Twice, _1)` は `bind` の式なので、外側の `outer(5)` を呼んだときに、`5` を渡して先に評価されます。その結果の `10` が、`Add` の第 1 引数に入ります。式でなければ、`bind(Twice, _1)` というオブジェクトそのものが、`Add` に渡されるだけです。
+
+自作の関数オブジェクトの型を、`bind` の式として扱わせたいときは、`std::is_bind_expression` を特殊化して `true` にします。稀な使い方ですが、`bind` の入れ子の仕組みの正体が、この型特性です。
 
 ## 実際に動かしてみる
 
@@ -47,47 +57,52 @@ template <class T> inline constexpr bool is_bind_expression_v = is_bind_expressi
 #include <functional>
 #include <print>
 
+int Twice(int x) { return x * 2; }
 int Add(int a, int b) { return a + b; }
 
 int main() {
-  auto b = std::bind(Add, std::placeholders::_1, 1);
-  std::println("{}", std::is_bind_expression_v<decltype(b)>);
-  std::println("{}", std::is_bind_expression_v<int>);
+  using namespace std::placeholders;
+
+  auto inner = std::bind(Twice, _1);
+  auto lambda = [](int x) { return x; };
+
+  std::println("bind の式: {}", std::is_bind_expression_v<decltype(inner)>);
+  std::println("ラムダ: {}", std::is_bind_expression_v<decltype(lambda)>);
+  std::println("int: {}", std::is_bind_expression_v<int>);
+
+  // 入れ子の bind: 内側が先に評価される
+  auto outer = std::bind(Add, std::bind(Twice, _1), 1);
+  std::println("outer(5) = {}", outer(5));   // Add(Twice(5), 1) = 11
 }
 ```
 
 ```text title="実行結果"
-true
-false
+bind の式: true
+ラムダ: false
+int: false
+outer(5) = 11
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| テンプレートで bind の戻り値かを判定 | `std::is_bind_expression_v<decltype(std::bind(f, _1))>` |
+`bind` を前提にした古いコードを読むときに、入れ子の `bind` がどう評価されるかを理解する助けになります。
 
 ## よくあるミス
 
-??? failure "`std::function` と取り違える"
-    `std::function` は bind 式ではありません。`false` になります。
+??? failure "bind の結果を、入れ子のつもりでない所に渡す"
+    `bind` の式を、別の `bind` の引数に渡すと、意図せず先に評価されます。そのまま渡したいときは、`std::ref` などで包みます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_placeholder`](is_placeholder.md) | プレースホルダーかを調べる |
+| [`bind`](bind.md) | 使う関数 |
+| [`is_placeholder`](is_placeholder.md) | 印かどうかを調べる |
+| [`placeholders`](placeholders.md) | 印そのもの |
 
 ## コンパイラ対応
 
-C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] bind 式かどうかの型特性
-    - [x] `_v` 版で bool
-    - [x] 普通は使わない
+C++11 から使えます。`is_bind_expression_v` は C++17 からです。
 
 ## 関連ページ
 

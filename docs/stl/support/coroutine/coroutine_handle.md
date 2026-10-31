@@ -15,39 +15,85 @@ tags:
 `#include <coroutine>`
 </div>
 
-`std::coroutine_handle<Promise>` は、<strong>一時停止しているコルーチンを再開したり破棄したりするための「取っ手」</strong>です。`resume()` で続きを実行し、`done()` で終わったかを調べ、`destroy()` で後片付けします。コルーチンを自作する（`Task` のような型を作る）ときに必要になります。
+一時停止中のコルーチンを、外から再開したり、終わったか調べたり、後片づけをしたい。そのための「取っ手」が `std::coroutine_handle<Promise>` です。実体はポインターで、コルーチンのフレーム（ローカル変数や再開位置を入れたメモリ）を指します。
 
 !!! tip "ポイント"
-    - `handle.resume()` で、次の一時停止か終了まで進める。
-    - `handle.done()` が `true` になったら、`resume()` してはいけない。
-    - `destroy()` を呼ぶ責任は、普通は戻り値の型のデストラクターが持つ。
+    - `resume()` で再開、`done()` で終了の確認、`destroy()` で後片づけ
+    - `std::coroutine_handle<>` は型を消した版で、任意のコルーチンを指せる
+    - `promise()` で `promise_type` の中身に触れる（型つきのハンドルのみ）
+    - コピーしてもフレームは増えない。`destroy()` は 1 度だけ呼ぶ
 
 !!! info "このページを読む前に"
-    [`std::generator`](../generator.md) のページにコルーチンの簡単な例があります。
+    [`std::generator`](../generator.md) のページに、コルーチンの簡単な例があります。
 
 ## 関数の詳しい説明
 
-### std::coroutine_handle {#coroutine_handle}
+### resume {#resume}
 
 ```cpp
-template <class Promise = void>
-struct coroutine_handle {
-  void resume() const;
-  bool done() const;
-  void destroy() const;
-};
+void resume() const;
+void operator()() const;   // resume と同じ
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `Promise` | テンプレート引数 | そのコルーチンの promise 型 |
+止まっているコルーチンを、再開します。`done()` が `true` のコルーチンに呼ぶと未定義動作です。終わったコルーチンを再開してしまうミスが多いので、`done()` を確認してから呼びます。
 
-- 戻り値: （取っ手）。`resume` / `done` / `destroy` で操作する
-- 計算量: resume は次の停止点まで
+### done {#done}
+
+```cpp
+bool done() const;
+```
+
+`final_suspend()` で止まっているときだけ `true` になります。`initial_suspend` で止まっているときや、`co_await` で止まっているときは `false` です。止まっていない（実行中の）コルーチンに呼ぶと未定義動作です。
+
+### destroy {#destroy}
+
+```cpp
+void destroy() const;
+```
+
+コルーチンのフレームを解放します。ローカル変数のデストラクターも、止まっている位置までのものが呼ばれます。`destroy()` を呼ばずに放置するとメモリ リークです。2 回呼ぶと二重解放です。ハンドルを持つ型のデストラクターで 1 回だけ呼ぶ、という形にします。
+
+### from_promise {#from_promise}
+
+```cpp
+static coroutine_handle from_promise(Promise& p);
+```
+
+`promise_type` の参照から、そのコルーチンのハンドルを作ります。`get_return_object()` の中で、戻り値の型にハンドルを持たせるときに使います。
+
+### promise {#promise}
+
+```cpp
+Promise& promise() const;
+```
+
+ハンドルから `promise_type` の実体を取り出します。`co_yield` の値や `co_return` の結果を、呼び出し側が読むのに使います。`std::coroutine_handle<>`（型を消した版）には、ありません。
+
+### address と from_address {#address}
+
+```cpp
+void* address() const noexcept;
+static coroutine_handle from_address(void* addr);
+```
+
+ハンドルを `void*` にして、C の API のユーザーデータなどに預けられます。受け取った側で、`from_address` で元のハンドルに戻します。
+
+### operator bool {#operator-bool}
+
+```cpp
+explicit operator bool() const noexcept;
+```
+
+ハンドルがコルーチンを指しているか（空でないか）を返します。`done()` とは別で、「終わった」ではなく「ハンドルが有効」の意味です。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <coroutine>
+#include <exception>
 #include <print>
+#include <utility>
+#include <vector>
 
 struct Task {
   struct promise_type {
@@ -55,64 +101,75 @@ struct Task {
     std::suspend_always initial_suspend() noexcept { return {}; }
     std::suspend_always final_suspend() noexcept { return {}; }
     void return_void() {}
-    void unhandled_exception() {}
+    void unhandled_exception() { std::terminate(); }
   };
 
   std::coroutine_handle<promise_type> handle;
   explicit Task(std::coroutine_handle<promise_type> h) : handle(h) {}
+  Task(Task&& other) noexcept : handle(std::exchange(other.handle, {})) {}
   ~Task() {
     if (handle) handle.destroy();
   }
 };
 
-Task Count() {
-  std::println("1");
-  co_await std::suspend_always{};  // ここで一時停止
-  std::println("2");
+Task Steps() {
+  std::println("1 歩目");
+  co_await std::suspend_always{};
+  std::println("2 歩目");
 }
 
 int main() {
-  Task t = Count();   // 最初に止まる設定なので、まだ何も実行されない
-  t.handle.resume();  // 1 を出して一時停止
-  t.handle.resume();  // 2 を出して終了
-  std::println("done: {}", t.handle.done());
+  Task t = Steps();
+  std::coroutine_handle<Task::promise_type> h = t.handle;
+
+  std::println("開始前の done: {}", h.done());   // initial_suspend で止まっている
+  h.resume();
+  std::println("1 回目の後の done: {}", h.done());
+  h.resume();
+  std::println("2 回目の後の done: {}", h.done());   // final_suspend で止まっている
+
+  // void* に預けて、元に戻せる
+  void* addr = h.address();
+  auto h2 = std::coroutine_handle<Task::promise_type>::from_address(addr);
+  std::println("同じハンドル: {}", h2 == h);
 }
 ```
 
 ```text title="実行結果"
-1
-2
-done: true
+開始前の done: false
+1 歩目
+1 回目の後の done: false
+2 歩目
+2 回目の後の done: true
+同じハンドル: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ゲームのシーケンス（イベント演出）を複数フレームにまたがって書く | 毎フレーム `handle.resume()` で続きを進める |
+演出やイベントのコルーチンを、フレームごとに `resume()` して進めるとき、終わったものを `done()` で見つけて片づけるときに使います。
 
 ## よくあるミス
 
-??? failure "done なのに resume する"
-    終わったコルーチンの `resume` は未定義動作です。
+??? failure "done() が true のハンドルを resume する"
+    未定義動作です。`done()` を確認してから呼びます。
+
+??? failure "destroy() を忘れる、または 2 回呼ぶ"
+    忘れるとリーク、2 回呼ぶと二重解放です。ハンドルを持つ型のデストラクターで 1 回だけ呼びます。
+
+??? failure "ハンドルをコピーして、両方で destroy する"
+    ハンドルはコピーしてもフレームは 1 つのままです。持ち主を 1 人に決め、ムーブだけを許します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`suspend_always`](suspend_always.md) | 一時停止の指示 |
-| [`std::generator`](../generator.md) | 値を順に返すコルーチン（C++23） |
+| [`co_await`](co_await.md) | 止まる位置を作る |
+| [`noop_coroutine`](noop_coroutine.md) | 何もしないハンドル |
+| [`coroutine_traits`](coroutine_traits.md) | `promise_type` の決め方 |
 
 ## コンパイラ対応
 
-C++20 の機能です。GCC 10 / Clang 14 / MSVC 19.28 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] コルーチンの取っ手
-    - [x] `resume` / `done` / `destroy`
-    - [x] 終わった後は resume しない
+C++20 の機能です。MSVC・GCC・Clang とも対応しています。
 
 ## 関連ページ
 

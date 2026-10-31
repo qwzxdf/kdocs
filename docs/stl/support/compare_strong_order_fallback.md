@@ -15,31 +15,48 @@ tags:
 `#include <compare>`
 </div>
 
-`<=>` を持たない古い型でも、`==` と `<` があれば順序づけたいことがあります。`compare_strong_order_fallback` は、`<=>` があればそれを使い、なければ `==` と `<` から `strong_ordering` を作ります。
+`<=>` を持たない古い型（`==` と `<` しかない型）を、`std::set` のキーや、比較アルゴリズムに使いたいことがあります。`std::compare_strong_order_fallback(a, b)` は、`<=>` があれば [`std::strong_order`](strong_order.md) を使い、なければ `==` と `<` から `std::strong_ordering` を作って返します。古い型と新しい型を、同じ書き方で比べられます。
 
 !!! tip "ポイント"
-    - `<compare>` の部品。
-    - C++20 の三方比較（`<=>`）と組み合わせて使う。
-    - ふつうは `=default` の `<=>` で足りる。
+    - `std::strong_order` が使える型ならそれを使い、使えなければ `==` と `<` で代用する
+    - 戻り値は `std::strong_ordering`（`less`・`equal`・`greater` のどれか）
+    - 代用するには、`a == b` と `a < b` が `bool` に変換できる式として書けること
+    - 標準の関数ではなく、カスタマイゼーション ポイント オブジェクト
 
 !!! info "このページを読む前に"
-    [`<=>`（宇宙船演算子）](spaceship.md) を先に読んでください。
+    [`std::strong_order`](strong_order.md) と [`<=>`（三方比較）](spaceship.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::compare_strong_order_fallback {#compare_strong_order_fallback}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-inline constexpr /* カスタマイズポイント */ compare_strong_order_fallback;
+inline constexpr /* 未規定 */ compare_strong_order_fallback = /* 未規定 */;
+// 呼び出し: std::compare_strong_order_fallback(a, b) -> std::strong_ordering
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `a, b` | 型 | 比べる 2 つの値 |
+| 引数 | 意味 |
+| --- | --- |
+| `a`, `b` | 比べる 2 つの値 |
 
-- 戻り値: `std::strong_ordering`
-- 計算量: 定数
+#### 動作の順序
 
+1. `std::strong_order(a, b)` が書けるなら、その結果を返す
+2. 書けなくて、`a == b` と `a < b` が書けるなら、次の規則で `strong_ordering` を作る
+    - `a == b` が真なら `equal`
+    - そうでなくて `a < b` が真なら `less`
+    - それ以外は `greater`
+3. どちらも書けないなら、呼び出しがコンパイルできない
+
+#### 同値と等しいの区別
+
+`strong_ordering` は、`equal` のものを区別できない（置き換えても結果が変わらない）ことを表します。`==` で等しいものを `equal` にするのは、その前提に合っているときだけにしてください。`==` と `<` の意味がかみ合っていない型（`a == b` が真なのに、`a < b` も真になる）では、結果は意味を持ちません。
+
+#### 浮動小数点数
+
+`double` のように `<=>` が `partial_ordering` までしか返さない型に対しても、`std::strong_order` が全順序を定義しているので、`compare_strong_order_fallback` は、その結果を返します。NaN も、全順序の中に位置づけられます。
 
 ## 実際に動かしてみる
 
@@ -47,48 +64,63 @@ inline constexpr /* カスタマイズポイント */ compare_strong_order_fallb
 #include <compare>
 #include <print>
 
-struct V {
-  int x;
-  bool operator==(const V&) const = default;
-  bool operator<(const V& o) const { return x < o.x; }
+// <=> を持たない、古い形の型。== と < だけがある
+struct Legacy {
+  int value;
+  bool operator==(const Legacy& other) const { return value == other.value; }
+  bool operator<(const Legacy& other) const { return value < other.value; }
 };
 
+const char* Name(std::strong_ordering r) {
+  if (r == std::strong_ordering::less) return "less";
+  if (r == std::strong_ordering::equal) return "equal";
+  return "greater";
+}
+
 int main() {
-  std::println("{}", std::compare_strong_order_fallback(V{1}, V{2}) == std::strong_ordering::less);
+  Legacy a{1};
+  Legacy b{2};
+  Legacy c{1};
+
+  std::println("a と b: {}", Name(std::compare_strong_order_fallback(a, b)));
+  std::println("b と a: {}", Name(std::compare_strong_order_fallback(b, a)));
+  std::println("a と c: {}", Name(std::compare_strong_order_fallback(a, c)));
+
+  // <=> を持つ型には、そのまま <=> が使われる
+  std::println("1 と 2 (int): {}", Name(std::compare_strong_order_fallback(1, 2)));
 }
 ```
 
 ```text title="実行結果"
-true
+a と b: less
+b と a: greater
+a と c: equal
+1 と 2 (int): less
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 古い型を `<=>` ベースの仕組みに乗せる |
+昔から使っている自作クラスや外部ライブラリの型が `<=>` を持たないとき、三方比較を期待するテンプレートの中で、その型を扱えるようにします。
 
 ## よくあるミス
 
-??? failure "`==` と `<` が整合しない型"
-    `==` と `<` の結果が矛盾していると、結果は意味を持ちません。
+??? failure "== と < の意味が矛盾する型に使う"
+    結果は意味を持ちません。`==` が真なら `<` は偽、という整合が要ります。
+
+??? failure "== か < のどちらかしかない型に使う"
+    コンパイルできません。両方が必要です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`strong_order`](strong_order.md) | `<=>` ありの版 |
+| [`compare_weak_order_fallback`](compare_weak_order_fallback.md) | `weak_ordering` を返す版 |
+| [`compare_partial_order_fallback`](compare_partial_order_fallback.md) | `partial_ordering` を返す版 |
+| [`strong_order`](strong_order.md) | 元になる関数 |
 
 ## コンパイラ対応
 
-C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] `<=>` が無い型も、`==` と `<` で `strong_ordering` として比べる
-    - [x] `<compare>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+C++20 から使えます。MSVC・GCC・Clang とも対応しています。
 
 ## 関連ページ
 

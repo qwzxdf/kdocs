@@ -15,32 +15,33 @@ tags:
 `#include <functional>`
 </div>
 
-`std::ref(x)` が返す `reference_wrapper<T>` は、テンプレートの中で「中身は `T&`」と扱いたいことがあります。`unwrap_reference<T>` は、`reference_wrapper<U>` なら `U&`、それ以外なら `T` をそのまま返す型変換です。
+`std::reference_wrapper<T>` は、参照をコピーできる値として持ち運ぶための型です。ところが、それを受け取ったテンプレートは、「中身の参照 `T&` として扱いたい」ことがあります。`std::unwrap_reference<T>` は、`T` が `reference_wrapper<U>` なら `U&`、そうでなければ `T` そのものを返す型変換です。
 
 !!! tip "ポイント"
-    - `reference_wrapper<U>` を `U&` に直す。
-    - それ以外の型は変えない。
-    - `::type` で結果の型を取る。`_t` 版もある。
+    - `unwrap_reference_t<reference_wrapper<int>>` は `int&`
+    - `reference_wrapper` でない型は、そのまま（`int` は `int`）
+    - `decay` はしない。`unwrap_ref_decay` は `decay` もする
+    - C++20 で追加された
 
 !!! info "このページを読む前に"
-    [<functional>](../functional.md) の概要を先に読むと分かりやすいです。
+    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::unwrap_reference {#unwrap_reference}
+
+<span class="ver ver-20">C++20</span>
 
 ```cpp
 template <class T> struct unwrap_reference;
 template <class T> using unwrap_reference_t = typename unwrap_reference<T>::type;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `T` | 型 | 解きたい型 |
+`T` が `std::reference_wrapper<U>` の特殊化なら `type` は `U&`、そうでなければ `T` です。`std::ref(x)` で包んだものを、`x` への参照として扱いたいときに使います。
 
-- 戻り値: `reference_wrapper<U>` なら `U&`、それ以外は `T`
-- 計算量: コンパイル時のみ
+`const` や参照は、そのまま保たれます。`int&` を渡すと `int&`、`const int` を渡すと `const int` です。`decay`（配列や関数のポインターへの変換、`const` の除去）はしないのが、[`unwrap_ref_decay`](unwrap_ref_decay.md) との違いです。
 
+`std::make_tuple` や `std::thread` のように、引数をコピーして保存する関数が、`std::ref` で包まれたものだけは参照として保存する、という仕組みの部品に使われます。
 
 ## 実際に動かしてみる
 
@@ -49,45 +50,53 @@ template <class T> using unwrap_reference_t = typename unwrap_reference<T>::type
 #include <print>
 #include <type_traits>
 
+// reference_wrapper なら中身の参照、そうでなければそのまま受け取る
+template <class T>
+std::unwrap_reference_t<T>& Unwrap(T& v) {
+  return v;
+}
+
 int main() {
-  std::println("{}", std::is_same_v<std::unwrap_reference_t<std::reference_wrapper<int>>, int&>);
-  std::println("{}", std::is_same_v<std::unwrap_reference_t<int>, int>);
+  static_assert(std::is_same_v<std::unwrap_reference_t<std::reference_wrapper<int>>, int&>);
+  static_assert(std::is_same_v<std::unwrap_reference_t<int>, int>);
+  static_assert(std::is_same_v<std::unwrap_reference_t<const int>, const int>);
+
+  int hp = 10;
+  auto wrapped = std::ref(hp);   // reference_wrapper<int>
+  Unwrap(wrapped) += 5;          // hp への参照として扱える
+  std::println("hp = {}", hp);
+
+  int mp = 3;
+  Unwrap(mp) += 1;               // 普通の int もそのまま
+  std::println("mp = {}", mp);
 }
 ```
 
 ```text title="実行結果"
-true
-true
+hp = 15
+mp = 4
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| ライブラリの内部で `ref` を解いて保存する | `std::unwrap_reference_t<std::reference_wrapper<int>>` は `int&` |
+`std::ref` で包まれた引数を、参照として受け取る汎用のテンプレートを書くときに使います。
 
 ## よくあるミス
 
-??? failure "値の `ref` を忘れる"
-    `std::ref` を渡し忘れると、コピーが保存されて参照になりません。
+??? failure "配列や const を除きたいのに使う"
+    `decay` はしません。除きたいなら `unwrap_ref_decay` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`unwrap_ref_decay`](unwrap_ref_decay.md) | decay もしてから解く |
-| [`ref`](ref.md) | 参照のラッパーを作る |
+| [`unwrap_ref_decay`](unwrap_ref_decay.md) | `decay` も行う版 |
+| [`reference_wrapper`](reference_wrapper.md) | 参照を持ち運ぶ型 |
+| [`ref`](ref.md) | `reference_wrapper` を作る |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] reference_wrapper を参照に戻す型変換
-    - [x] それ以外は変えない
-    - [x] `unwrap_reference_t` で使う
 
 ## 関連ページ
 

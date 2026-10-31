@@ -15,81 +15,94 @@ tags:
 `#include <functional>`
 </div>
 
-関数の引数にコールバックを受けたいとき、`std::function` だとコピーのコストやヒープ確保が気になります。呼び出しの間だけ使えれば十分なら、中身をコピーせず**借りるだけ**の `function_ref` が軽く済みます。
+関数の引数でコールバックを受けるとき、`std::function` だと、中の関数オブジェクトをコピーして保持するので、コピーのコストや、ヒープ確保が気になります。呼び出している間だけ使えれば十分なら、持ち主にならず、借りるだけの `std::function_ref` が軽く済みます。
 
 !!! tip "ポイント"
-    - 持ち主にはならない。呼び出し中に元の関数オブジェクトが生きている必要がある。
-    - 関数の引数として受け取る使い方が向く。メンバ変数に保存するのは危険。
-    - ヒープ確保は起きない。
+    - 呼び出せるものを、コピーせずに参照するだけ（持ち主にならない）
+    - ヒープ確保が起きず、サイズはポインター 2 つ分
+    - 借りているものが消えると、呼び出しは未定義動作
+    - 関数の引数に使う。メンバー変数に保存するのは危険
 
 !!! info "このページを読む前に"
-    [<functional>](../functional.md) の概要を先に読むと分かりやすいです。
+    [`<functional>`](../functional.md) の概要を先に読むと分かりやすいです。
 
 ## 関数の詳しい説明
 
 ### std::function_ref {#function_ref}
 
+<span class="ver ver-26">C++26</span>
+
 ```cpp
-template <class... Sigs> class function_ref;  // Sigs の例: R(Args...) const noexcept
+template <class... Signature>
+class function_ref;
+
+// Signature の例: R(Args...)、R(Args...) const、R(Args...) noexcept
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `R(Args...)` | シグネチャ | 戻り値と引数 |
+| 引数 | 意味 |
+| --- | --- |
+| `R(Args...)` | 呼び出しの形（戻り値と引数）。`const` や `noexcept` を付けられる |
 
-- 戻り値: 呼び出し演算子で呼ぶ
-- 計算量: 間接呼び出し 1 回
+`std::function` との違いは、持ち主にならないことです。`std::function` は、渡された関数オブジェクトを自分の中にコピー（またはムーブ）して保存します。`function_ref` は、元の関数オブジェクトへのポインターと、呼び出し用の関数ポインターを持つだけです。コピーも、ヒープ確保もありません。
 
+ラムダを直接渡すと、一時オブジェクトが関数の呼び出しの間だけ生きるので、安全に使えます。
 
-## 実際に動かしてみる
+```cpp
+void Each(std::function_ref<void(int)> f);
+Each([&](int x) { sum += x; });   // 安全。呼び出しの間だけ使う
+```
+
+一方、`function_ref` を変数やメンバーに保存して、あとで呼ぶと、元のラムダが消えているかもしれません。一時オブジェクトから作った `function_ref` を保存するのは、典型的なミスです。
+
+呼び出しは、間接呼び出し 1 回で済みます。`std::function` が内部でする、仮想関数に近い呼び出しと、同じ程度のコストです。
+
+関数ポインターを渡すと、関数ポインターそのものを格納します（関数ポインターは、小さいので問題ありません）。
+
+## 使い方の形
 
 ```cpp
 #include <functional>
 #include <print>
 
-void Each(std::function_ref<void(int)> f) {
-  for (int i = 0; i < 3; ++i) f(i);
+// 呼び出している間だけ使うコールバック
+void ForEachEnemy(int count, std::function_ref<void(int)> f) {
+  for (int i = 0; i < count; ++i) f(i);
 }
 
 int main() {
-  int sum = 0;
-  Each([&](int x) { sum += x; });
-  std::println("{}", sum);
+  int damage_total = 0;
+  ForEachEnemy(3, [&](int id) { damage_total += (id + 1) * 10; });
+  std::println("合計ダメージ: {}", damage_total);
+
+  // 通常の関数も渡せる
+  ForEachEnemy(2, [](int id) { std::println("敵 {}", id); });
 }
 ```
 
-```text title="実行結果"
-3
-```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| `for_each` 風の自作関数でコールバックを受ける | `void Each(std::function_ref<void(int)> f);` |
+「全部の敵に対して、これを実行する」のような、呼び出している間だけ使うコールバックの引数に使います。`std::function` よりも軽くなります。
 
 ## よくあるミス
 
-??? failure "ラムダの一時オブジェクトを保存する"
-    `function_ref` は参照なので、元のラムダが消えたあとに呼ぶと未定義動作です。関数の引数としてだけ使います。
+??? failure "function_ref を保存して、あとで呼ぶ"
+    元のラムダが消えたあとに呼ぶと、未定義動作です。保存するなら `std::function` か `std::move_only_function` を使います。
+
+??? failure "一時オブジェクトから作って、変数に入れる"
+    `std::function_ref<void()> f = []{ ... };` のように変数に入れると、一時オブジェクトがすぐ消えます。引数で受けるときだけ安全です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::function`](../../utilities/function.md) | 持ち主になる（コピーする） |
-| [`move_only_function`](../../utilities/move_only_function.md) | ムーブ専用の持ち主 |
+| [`copyable_function`](copyable_function.md) | 持ち主になるコピー可能な版 |
+| [`std::function`](../../utilities/function.md) | 持ち主になる従来の版 |
+| [`ref`](ref.md) | 参照ラッパー |
 
 ## コンパイラ対応
 
-C++26 の機能です。対応は新しい標準ライブラリに限られます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 呼び出せるものを借りる関数ラッパー
-    - [x] ヒープ確保なし
-    - [x] 保存せずに引数として使う
+C++26 です。手元の MSVC（Visual Studio 2026）では、まだ `std::function_ref` が無く、コンパイルできませんでした。そのため、このページのサンプルは動かして確かめていません。使えるようになったら、実行結果を確かめて書き足します。
 
 ## 関連ページ
 

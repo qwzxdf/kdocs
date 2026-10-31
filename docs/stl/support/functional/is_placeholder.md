@@ -15,31 +15,34 @@ tags:
 `#include <functional>`
 </div>
 
-`bind` の中で `_1` や `_2` を見分ける仕組みが `is_placeholder` です。プレースホルダーなら番号（1, 2, …）、そうでなければ 0 になります。
+`std::bind` の内部は、引数の中から「これは `_1` だ」「これは `_2` だ」と印を見分けて、呼び出し時の引数を入れていきます。その見分けに使う型特性が `std::is_placeholder<T>` です。`T` が `_N` なら `N` を、そうでなければ `0` を返します。
 
 !!! tip "ポイント"
-    - `_1` の型なら 1、`_2` なら 2、それ以外は 0。
-    - 自作のプレースホルダーを作るときに特殊化する。
+    - `is_placeholder<T>::value` は、`_N` なら `N`、そうでなければ `0`
+    - `std::is_placeholder_v<T>` が短縮形（C++17）
+    - `bind` の実装が使う。普通のコードでは使わない
+    - 自作のプレースホルダーを `bind` に認識させるときに特殊化する
 
 !!! info "このページを読む前に"
-    [<functional>](../functional.md) の概要を先に読むと分かりやすいです。
+    [`std::placeholders`](placeholders.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::is_placeholder {#is_placeholder}
 
 ```cpp
-template <class T> struct is_placeholder;
-template <class T> inline constexpr int is_placeholder_v = is_placeholder<T>::value;
+template <class T>
+struct is_placeholder;
+
+template <class T>
+inline constexpr int is_placeholder_v = is_placeholder<T>::value;   // C++17
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `T` | 型 | 調べる型 |
+`is_placeholder<T>` は `std::integral_constant<int, N>` から派生します。`T` が `std::placeholders::_N` の型なら `N`、そうでなければ `0` です。
 
-- 戻り値: プレースホルダーなら番号、そうでなければ 0
-- 計算量: コンパイル時のみ
+`std::placeholders::_1` の型は、実装が決める未規定の型なので、`decltype(_1)` で型を取ります。
 
+自作のプレースホルダーの型を `bind` に使わせたいときは、`std::is_placeholder` を特殊化して、`N` を返します。この使い方は稀ですが、`bind` が「印」を認識する仕組みが、この型特性であることを知っておくと、`bind` の動きを理解しやすくなります。
 
 ## 実際に動かしてみる
 
@@ -49,45 +52,41 @@ template <class T> inline constexpr int is_placeholder_v = is_placeholder<T>::va
 
 int main() {
   using namespace std::placeholders;
-  std::println("{}", std::is_placeholder_v<decltype(_1)>);
-  std::println("{}", std::is_placeholder_v<decltype(_3)>);
-  std::println("{}", std::is_placeholder_v<int>);
+
+  std::println("_1 の番号: {}", std::is_placeholder_v<decltype(_1)>);
+  std::println("_2 の番号: {}", std::is_placeholder_v<decltype(_2)>);
+  std::println("_3 の番号: {}", std::is_placeholder_v<decltype(_3)>);
+  std::println("int の番号: {}", std::is_placeholder_v<int>);   // 印ではないので 0
 }
 ```
 
 ```text title="実行結果"
-1
-3
-0
+_1 の番号: 1
+_2 の番号: 2
+_3 の番号: 3
+int の番号: 0
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| テンプレートで引数が `_N` かを判定 | `std::is_placeholder_v<decltype(_2)>` |
+`bind` を自作するライブラリや、`bind` の式を解析するテンプレートを書くときに関わります。普通のゲーム コードでは、使いません。
 
 ## よくあるミス
 
-??? failure "値と型を取り違える"
-    判定するのは型です。`decltype(_1)` のように型を渡します。
+??? failure "decltype を使わずに型を書こうとする"
+    `_1` の型名は実装ごとに違います。`decltype(_1)` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`is_bind_expression`](is_bind_expression.md) | bind 式かどうか |
+| [`placeholders`](placeholders.md) | 印そのもの |
+| [`is_bind_expression`](is_bind_expression.md) | `bind` の式かどうかを調べる |
+| [`bind`](bind.md) | 使う関数 |
 
 ## コンパイラ対応
 
-C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] プレースホルダーの番号を返す型特性
-    - [x] プレースホルダーでなければ 0
-    - [x] 普通は使わない
+C++11 から使えます。`is_placeholder_v` は C++17 からです。
 
 ## 関連ページ
 
