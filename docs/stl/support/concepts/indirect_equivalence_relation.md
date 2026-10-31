@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-`unique` のように、同じ値を探すアルゴリズムの制約に使われます。
+等しさの判定を、「同値関係」に限定したい。同値関係とは、反射（自分と等しい）、対称（`a == b` なら `b == a`）、推移（`a == b` かつ `b == c` なら `a == c`）を満たす関係です。`std::indirect_equivalence_relation<R, I1, I2>` は、`indirect_binary_predicate` に、この意味の約束を足した条件です。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::indirect_equivalence_relation<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - `indirect_binary_predicate` と同じ形で呼べる
+    - 同値関係であること（反射・対称・推移）を約束する
+    - `std::ranges::unique`、`adjacent_find` などの述語に使われる
+    - 意味の約束は、コンパイラには確かめられない
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,64 +30,73 @@ tags:
 
 ### std::indirect_equivalence_relation {#indirect_equivalence_relation}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class Pred, class I1, class I2>
-concept indirect_equivalence_relation = /* 述語が 2 つのイテレータの値・参照で equivalence_relation */;
+template <class F, class I1, class I2 = I1>
+concept indirect_equivalence_relation = std::indirectly_readable<I1> && std::indirectly_readable<I2>
+    && std::copy_constructible<F>
+    && std::equivalence_relation<F&, std::iter_value_t<I1>&, std::iter_value_t<I2>&>
+    /* ほかの組み合わせも */;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `Pred` | 型 | 調べる型 |
-| `I1` | 型 | 調べる型 |
-| `I2` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::indirectly_readable<I1>`、`std::indirectly_readable<I2>`、`std::copy_constructible<R>`
+- `std::equivalence_relation<R&, 値と参照のすべての組み合わせ>`
 
+`equivalence_relation` は、`predicate` と同じ構文です。違いは、意味の約束だけです。「差の絶対値が 1 以下なら等しい」のような関係は、推移的でない（`1 ≈ 2`、`2 ≈ 3` でも `1 ≈ 3` ではない）ので、同値関係ではありません。そのような述語を `unique` などに渡すと、結果が不定です。
 
 ## 実際に動かしてみる
 
 ```cpp
-#include <functional>
+#include <concepts>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <memory>
+#include <string>
 
 int main() {
-  std::println("{}", std::indirect_equivalence_relation<std::equal_to<>, int*>);
+  std::println("equal_to: {}",
+               std::indirect_equivalence_relation<std::ranges::equal_to, int*, int*>);
+
+  // 構文は満たすが、意味の上では同値関係でない例 (推移的でない)
+  auto close = [](int a, int b) { return a - b <= 1 && b - a <= 1; };
+  std::println("構文上は満たす: {}", std::indirect_equivalence_relation<decltype(close), int*, int*>);
 }
 ```
 
 ```text title="実行結果"
-true
+equal_to: true
+構文上は満たす: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+`unique` のように、同値関係を前提にするアルゴリズムの述語に使います。
 
 ## よくあるミス
 
-??? failure "`<` を渡す"
-    同値関係には `==` を渡します。`<` は意味が違います。
+??? failure "推移的でない述語を渡す"
+    構文は通りますが、結果が不定です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`equivalence_relation`](equivalence_relation.md) | 値の同値関係 |
+| [`indirect_binary_predicate`](indirect_binary_predicate.md) | 意味の約束がない版 |
+| [`equivalence_relation`](equivalence_relation.md) | 一般の同値関係 |
+| [`indirect_strict_weak_order`](indirect_strict_weak_order.md) | 順序の関係 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 2 つのイテレータが指す値で、同値関係を呼べることを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

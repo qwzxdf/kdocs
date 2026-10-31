@@ -15,79 +15,82 @@ tags:
 `#include <iterator>`
 </div>
 
-テンプレートの中で、イテレータ型 `It` が指す値の型を知りたいとき、`iterator_traits<It>::value_type` と書くと長くなります。`iter_reference_t<It>` は、C++20 のコンセプトと相性のよい書き方です。
+イテレータを `*` で参照したときの型を知りたい。`std::vector<int>::iterator` なら `int&`、`const int*` なら `const int&` です。この型を取り出すのが `std::iter_reference_t<I>` で、`decltype(*std::declval<I&>())` と同じ意味です。
 
 !!! tip "ポイント"
-    - `<iterator>` の部品。
-    - ふつうは補助関数（`back_inserter` など）経由で使う。
-    - アルゴリズムの出力先や入力元に渡す。
+    - `*it` の型を返す
+    - `vector<bool>` のようなプロキシ参照のイテレータでは、プロキシの型になる
+    - `iter_value_t` は保存用の値、これはアクセス用の参照
+    - C++20
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレータ](../../../basics/iterator.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::iter_reference_t {#iter_reference_t}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class It>
-using iter_reference_t = /* イテレータの `*it` の型（参照） */;
+template <class I>
+using iter_reference_t = decltype(*std::declval<I&>());
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `It` | 型 | イテレータの型 |
+`std::input_or_output_iterator<I>` を満たす `I` に使えます。
 
-- 戻り値: イテレータの `*it` の型（参照）
-- 計算量: 定数
-
+通常のイテレータは `T&`、`const_iterator` は `const T&`、`move_iterator` は `T&&` を返します。アルゴリズムの戻り値の型や、関数に渡す引数の型を、イテレータから導くときに使います。
 
 ## 実際に動かしてみる
 
 ```cpp
-#include <cstddef>
+#include <algorithm>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <ranges>
+#include <sstream>
+#include <string>
 #include <type_traits>
 #include <vector>
 
 int main() {
-  using It = std::vector<int>::iterator;
-  std::println("{}", std::is_same_v<std::iter_reference_t<It>, int&>);
+  static_assert(std::is_same_v<std::iter_reference_t<std::vector<int>::iterator>, int&>);
+  static_assert(std::is_same_v<std::iter_reference_t<const int*>, const int&>);
+  static_assert(std::is_same_v<std::iter_reference_t<std::move_iterator<int*>>, int&&>);
+
+  // vector<bool> の参照は、本物の参照ではない
+  using Ref = std::iter_reference_t<std::vector<bool>::iterator>;
+  std::println("bool& ではない: {}", !std::is_same_v<Ref, bool&>);
 }
 ```
 
 ```text title="実行結果"
-true
+bool& ではない: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ジェネリックなアルゴリズムで、値の型を取り出す |
+イテレータの先の要素に、関数を適用するテンプレートで、引数の型を決めるときに使います。
 
 ## よくあるミス
 
-??? failure "`iterator_traits` と混ぜる"
-    C++20 のコードでは、`iter_value_t` などに統一したほうが読みやすいです。
+??? failure "常に T& だと思う"
+    `const_iterator` や `move_iterator` では違います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`iterator_traits`](iterator_traits.md) | 従来の取り出し方 |
+| [`iter_value_t`](iter_value_t.md) | 保存用の値の型 |
+| [`iter_move`](iter_move.md) | 右辺値として取り出す |
+| [`iter_difference_t`](iter_difference_t.md) | 距離の型 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] イテレータの `*it` の型（参照）を取り出す型の別名
-    - [x] `<iterator>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

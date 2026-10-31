@@ -15,82 +15,88 @@ tags:
 `#include <iterator>`
 </div>
 
-範囲の終端が別の型（sentinel）のとき、`move_iterator` とそろえた終端として `move_sentinel` を使います。ふつうは `ranges::copy` などの C++20 のアルゴリズムに `move_iterator` と一緒に渡します。
+`std::move_iterator` は、イテレータの先の要素を右辺値として返します。範囲の終端がイテレータとは別の型の番兵のとき、番兵も `move_iterator` と比較できる形にする必要があります。`std::move_sentinel<S>` は、番兵 `S` を包んで、`move_iterator` と比べられるようにします。
 
 !!! tip "ポイント"
-    - `<iterator>` の部品。
-    - ふつうは補助関数（`back_inserter` など）経由で使う。
-    - アルゴリズムの出力先や入力元に渡す。
+    - `move_iterator` の終端用に、番兵を包むアダプター
+    - `move_iterator<I>` と `move_sentinel<S>` を `==` で比べられる
+    - イテレータと番兵が同じ型なら不要（`move_iterator` で足りる）
+    - C++20
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレータ](../../../basics/iterator.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::move_sentinel {#move_sentinel}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <semiregular S>
-class move_sentinel;
+template <std::semiregular S>
+class move_sentinel {
+ public:
+  constexpr move_sentinel(S s);
+  constexpr S base() const;
+};
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `S` | 型 | 元の終端の型 |
+`std::ranges::subrange(std::move_iterator(first), std::move_sentinel(last))` のように、範囲の要素をムーブして取り出すときに使います。
 
-- 戻り値: ムーブ用の終端として比較に使う
-- 計算量: 定数
-
+通常の `vector` のイテレータなら、`std::move_iterator(v.begin())` と `std::move_iterator(v.end())` の組で足ります。`move_sentinel` が必要なのは、終端が別の型の番兵のときです。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
 #include <ranges>
+#include <sstream>
 #include <string>
+#include <type_traits>
 #include <vector>
 
 int main() {
-  std::vector<std::string> src = {"aaaaaaaaaaaaaaaaaaaa", "bbbbbbbbbbbbbbbbbbbb"};
+  std::vector<std::string> src = {"hero", "mage", "thief"};
   std::vector<std::string> dst;
-  std::ranges::copy(std::move_iterator(src.begin()), std::move_sentinel(src.end()), std::back_inserter(dst));
-  std::println("{}", dst.size());
+
+  std::move_iterator it(src.begin());
+  std::move_sentinel end(src.end());
+  for (; it != end; ++it) dst.push_back(*it);  // 右辺値として取り出される
+
+  std::println("{}", dst);
+  std::println("元は空: {}", src[0].empty());
 }
 ```
 
 ```text title="実行結果"
-2
+["hero", "mage", "thief"]
+元は空: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 範囲の中身を別の場所へムーブする |
+要素をコピーせずに別のコンテナへ移すループを、範囲ライブラリの流儀で書くときに使います。
 
 ## よくあるミス
 
-??? failure "コピーだと思う"
-    `move_iterator` 経由では要素はムーブされ、元は空になるかもしれません。
+??? failure "ムーブ後の元の要素を使う"
+    ムーブされた状態です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`move_iterator`](move_iterator.md) | ムーブ用イテレータ |
+| [`iter_move`](iter_move.md) | 右辺値として取り出す |
+| [`sentinel_for`](../concepts/sentinel_for.md) | 番兵のコンセプト |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] move_iterator と組み合わせる、ムーブ用の終端
-    - [x] `<iterator>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

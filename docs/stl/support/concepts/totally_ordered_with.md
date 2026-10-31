@@ -15,12 +15,13 @@ tags:
 `#include <concepts>`
 </div>
 
-`totally_ordered` の、型が異なる版です。`int` と `long` のように、混ぜて大小を比べられるかを調べます。
+`std::totally_ordered_with<T, U>` は、型の違う値どうしを、`<`、`>`、`<=`、`>=` で比べられ、しかも全順序（どの 2 つも大小が決まる）になっていることを表します。`int` と `double` は満たしますが、`int` と `std::string` は満たしません。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::totally_ordered_with<...>` は `bool` の定数式。
-    - 満たさない型を渡すと、コンパイルエラーの原因が読みやすくなる。
+    - `<`、`>`、`<=`、`>=` が、両方向で書ける
+    - `equality_comparable_with` も満たす
+    - 全順序であること（意味の約束）
+    - `std::ranges::lower_bound(r, value)` で、値の型が違ってもよい理由
 
 !!! info "このページを読む前に"
     [コンセプト](../../../basics/template.md) の考え方と、[`std::same_as`](same_as.md) を先に読んでください。
@@ -29,65 +30,76 @@ tags:
 
 ### std::totally_ordered_with {#totally_ordered_with}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class T, class U>
-concept totally_ordered_with = /* T と U が <, >, <=, >= で比べられ、共通の参照型がある */;
+concept totally_ordered_with = std::totally_ordered<T> && std::totally_ordered<U>
+    && std::equality_comparable_with<T, U>
+    && std::totally_ordered<std::common_reference_t<const std::remove_reference_t<T>&, const std::remove_reference_t<U>&>>
+    && /* < > <= >= が両方向で書ける */;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `T` | 型 | 調べる型 |
-| `U` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::totally_ordered<T>` と `std::totally_ordered<U>`
+- `std::equality_comparable_with<T, U>`
+- `t < u`、`t > u`、`t <= u`、`t >= u` と、`u` と `t` を入れ替えたものが書ける
 
+浮動小数点数は、`NaN` があるため、全順序ではありません。`double` は、`totally_ordered` を満たすと扱われますが、`NaN` との比較は、意味の約束を破ります。
+
+意味の約束は、コンパイラには確かめられません。型の作者が守ります。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <concepts>
+#include <deque>
+#include <forward_list>
+#include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <memory>
 #include <string>
 
 int main() {
-  std::println("{}", std::totally_ordered_with<int, long>);
-  std::println("{}", std::totally_ordered_with<int, std::string>);
+  std::println("int と double: {}", std::totally_ordered_with<int, double>);
+  std::println("int と long: {}", std::totally_ordered_with<int, long>);
+  std::println("string と int: {}", std::totally_ordered_with<std::string, int>);
+  std::println("string と const char*: {}", std::totally_ordered_with<std::string, const char*>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+int と double: true
+int と long: true
+string と int: false
+string と const char*: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの引数に条件をつけて、使える型を制限する |
+異なる型の値を、二分探索の探し値に渡せるようにする、アルゴリズムの制約に使います。
 
 ## よくあるミス
 
-??? failure "符号付きと符号なしを混ぜる"
-    満たしても、比較の結果が直感と違うことがあります。`std::cmp_less` を使います。
+??? failure "NaN を含む浮動小数点数に使う"
+    全順序の約束を破ります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`totally_ordered`](totally_ordered.md) | 同じ型どうし |
+| [`equality_comparable_with`](equality_comparable_with.md) | 等しさの比較 |
+| [`common_with`](common_with.md) | 共通の型 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 2 つの異なる型を `<` などで比べられることを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

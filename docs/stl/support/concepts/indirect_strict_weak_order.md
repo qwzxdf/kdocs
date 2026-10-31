@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-`sort` や `lower_bound` のように、要素の順序を比べるアルゴリズムの制約に使われます。
+並べ替えの比較（`<`）は、「狭義の弱順序」という性質を満たす必要があります。非反射（`a < a` は偽）、推移的、等価の推移的、などです。`std::indirect_strict_weak_order<R, I>` は、`R` をイテレータの先の要素に適用でき、狭義の弱順序であることを約束する条件です。`std::ranges::sort` が要求します。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::indirect_strict_weak_order<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - 比較の述語を、要素の値と参照で呼べる
+    - 狭義の弱順序であること（意味の約束）
+    - `std::ranges::sort`、`lower_bound`、`max_element` などが要求する
+    - `<=` のような「等しい場合も真」の比較は、満たさない
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,63 +30,73 @@ tags:
 
 ### std::indirect_strict_weak_order {#indirect_strict_weak_order}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class Comp, class I>
-concept indirect_strict_weak_order = /* 述語が 2 つのイテレータの値・参照で strict_weak_order */;
+template <class F, class I>
+concept indirect_strict_weak_order = std::indirectly_readable<I> && std::copy_constructible<F>
+    && std::strict_weak_order<F&, std::iter_value_t<I>&, std::iter_value_t<I>&>
+    /* ほかの組み合わせも */;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `Comp` | 型 | 調べる型 |
-| `I` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::indirectly_readable<I>`、`std::copy_constructible<R>`
+- `std::strict_weak_order<R&, 値と参照のすべての組み合わせ>`
 
+`<=` を比較に渡すと、`a <= a` が真になり、非反射の約束を破ります。`std::sort` が範囲の外へ読み出して、クラッシュすることがあります。必ず `<` を使います。
 
 ## 実際に動かしてみる
 
 ```cpp
-#include <functional>
+#include <concepts>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <memory>
+#include <string>
 
 int main() {
-  std::println("{}", std::indirect_strict_weak_order<std::less<>, int*>);
+  std::println("ranges::less × int*: {}",
+               std::indirect_strict_weak_order<std::ranges::less, int*>);
+  std::println("ranges::greater × int*: {}",
+               std::indirect_strict_weak_order<std::ranges::greater, int*>);
+  std::println("less × string*: {}",
+               std::indirect_strict_weak_order<std::ranges::less, std::string*>);
 }
 ```
 
 ```text title="実行結果"
-true
+ranges::less × int*: true
+ranges::greater × int*: true
+less × string*: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+`sort` のようなアルゴリズムを自作するときの、比較の述語の制約に使います。
 
 ## よくあるミス
 
-??? failure "`<=` を渡す"
-    `<=` は厳密な弱順序ではありません。
+??? failure "<= を比較に渡す"
+    狭義の弱順序でなく、`sort` が壊れます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`strict_weak_order`](strict_weak_order.md) | 値の弱順序 |
+| [`strict_weak_order`](strict_weak_order.md) | 一般の狭義の弱順序 |
+| [`sortable`](sortable.md) | 整列できる条件 |
+| [`indirect_equivalence_relation`](indirect_equivalence_relation.md) | 同値関係 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 2 つのイテレータが指す値で、厳密な弱順序を呼べることを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

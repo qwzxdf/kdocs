@@ -15,12 +15,13 @@ tags:
 `#include <concepts>`
 </div>
 
-2 つの型を混ぜた計算（`int` と `double` の足し算など）ができるかを調べます。`common_type_t<T, U>` が存在し、両方から変換できることが条件です。
+2 つの型を混ぜて計算する（`cond ? a : b` や `std::max(a, b)`）とき、両方が変換できる「共通の型」が必要です。`std::common_with<T, U>` は、`T` と `U` に共通の型があり、両方がそれに変換できることを表します。`int` と `long` は共通の型 `long` を持ちますが、`int` と `std::string` は持ちません。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::common_with<...>` は `bool` の定数式。
-    - 満たさない型を渡すと、コンパイルエラーの原因が読みやすくなる。
+    - `std::common_type_t<T, U>` が存在する
+    - `T` と `U` の両方が、共通の型へ明示的に変換できる
+    - `int` と `long`、`float` と `double` は満たす
+    - `int` と `std::string` は満たさない
 
 !!! info "このページを読む前に"
     [コンセプト](../../../basics/template.md) の考え方と、[`std::same_as`](same_as.md) を先に読んでください。
@@ -29,64 +30,83 @@ tags:
 
 ### std::common_with {#common_with}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class T, class U>
-concept common_with = /* common_type_t<T, U> が存在し、両方から変換できる */;
+concept common_with = std::same_as<std::common_type_t<T, U>, std::common_type_t<U, T>>
+    && requires { static_cast<std::common_type_t<T, U>>(std::declval<T>());
+                  static_cast<std::common_type_t<T, U>>(std::declval<U>()); }
+    && std::common_reference_with<std::add_lvalue_reference_t<const T>, std::add_lvalue_reference_t<const U>>
+    && std::common_reference_with<std::add_lvalue_reference_t<std::common_type_t<T, U>>, /* 共通の参照 */>;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `T` | 型 | 調べる型 |
-| `U` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::common_type_t<T, U>` と `std::common_type_t<U, T>` が同じ型
+- `static_cast` で `T` と `U` が、その型へ変換できる
+- `std::common_reference_with<const T&, const U&>` も満たす
 
+`equality_comparable_with` や `totally_ordered_with` は、この `common_with` を土台に、型の違う値どうしの比較を定義しています。
+
+自作の型の間で混ぜて計算したいときは、`std::common_type` を特殊化して、共通の型を用意します。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <concepts>
+#include <deque>
+#include <forward_list>
+#include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <memory>
+#include <string>
+
+template <class T, class U>
+  requires std::common_with<T, U>
+std::common_type_t<T, U> Larger(T a, U b) {
+  return a > b ? a : b;
+}
 
 int main() {
-  std::println("{}", std::common_with<int, double>);
-  std::println("{}", std::common_with<int, std::string>);
+  std::println("int と long: {}", std::common_with<int, long>);
+  std::println("int と double: {}", std::common_with<int, double>);
+  std::println("int と string: {}", std::common_with<int, std::string>);
+  std::println("{}", Larger(3, 4.5));
 }
 ```
 
 ```text title="実行結果"
-true
-false
+int と long: true
+int と double: true
+int と string: false
+4.5
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テンプレートの引数に条件をつけて、使える型を制限する |
+型の違う 2 つの値を、混ぜて比べたり計算したりする関数の制約に使います。
 
 ## よくあるミス
 
-??? failure "見かけだけで判断する"
-    `int` と `std::string` は、同じ「何か」に変換できないので `false` です。
+??? failure "共通の型がない組を混ぜる"
+    満たさず、コンパイル エラーです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`common_reference_with`](common_reference_with.md) | 共通の参照型 |
+| [`common_reference_with`](common_reference_with.md) | 参照の共通の型 |
+| [`equality_comparable_with`](equality_comparable_with.md) | 混ぜて `==` できる |
+| [`convertible_to`](convertible_to.md) | 変換できる |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 2 つの型が共通の型を持つことを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

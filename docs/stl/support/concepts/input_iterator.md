@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-一度だけ前に進みながら、`*it` で要素を読めるイテレータです。ストリームから読むイテレータも満たします。
+標準入力やファイルのように、1 度だけ前に進みながら読んでいくデータがあります。そのイテレータを受け取る関数に、「読めて、進められるイテレータ」という条件を付けるコンセプトが `std::input_iterator` です。`vector` のイテレータも、`istream_iterator` も満たします。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::input_iterator<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - `*it` で要素を読める（`indirectly_readable`）
+    - `++it` で進められる
+    - 複数回たどれることは要求しない
+    - 前方イテレータ以上は、すべてこれを満たす
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,63 +30,81 @@ tags:
 
 ### std::input_iterator {#input_iterator}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class I>
-concept input_iterator = /* input_or_output_iterator かつ indirectly_readable */;
+concept input_iterator = std::input_or_output_iterator<I> && std::indirectly_readable<I>
+    && requires { typename /* ITER_CONCEPT(I) */; }
+    && std::derived_from</* ITER_CONCEPT(I) */, std::input_iterator_tag>;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `I` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::input_or_output_iterator<I>` と `std::indirectly_readable<I>` を満たす
+- `iterator_concept` が `std::input_iterator_tag` から派生している
 
+コンセプトが調べる `ITER_CONCEPT(I)` は、`I::iterator_concept` があればそれ、なければ `iterator_category` です。この値で、イテレータの強さが決まります。
+
+`std::ranges::for_each` のように、1 度だけ全体をたどるアルゴリズムは、`input_iterator` で足ります。2 度以上たどるアルゴリズム（`std::ranges::adjacent_find` など）は、`forward_iterator` を要求します。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <concepts>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
+
+template <std::input_iterator It>
+int CountElements(It first, It last) {
+  int n = 0;
+  for (; first != last; ++first) ++n;
+  return n;
+}
 
 int main() {
-  std::println("{}", std::input_iterator<int*>);
-  std::println("{}", std::input_iterator<int>);
+  std::println("int*: {}", std::input_iterator<int*>);
+  std::println("istream_iterator: {}", std::input_iterator<std::istream_iterator<int>>);
+  std::println("back_insert_iterator: {}",
+               std::input_iterator<std::back_insert_iterator<std::vector<int>>>);
+
+  std::istringstream in("1 2 3 4");
+  std::println("{}", CountElements(std::istream_iterator<int>(in), std::istream_iterator<int>()));
 }
 ```
 
 ```text title="実行結果"
-true
-false
+int*: true
+istream_iterator: true
+back_insert_iterator: false
+4
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+1 回きりの入力（ファイル、ストリーム）も、`vector` も受け付ける関数を、同じテンプレートで書けます。
 
 ## よくあるミス
 
-??? failure "書き込み専用を渡す"
-    `back_insert_iterator` は読めないので満たしません。
+??? failure "2 回たどる関数に input_iterator を指定する"
+    入力イテレータは、2 回目にたどれません。`forward_iterator` にします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`forward_iterator`](forward_iterator.md) | 何度でも読み返せる |
+| [`forward_iterator`](forward_iterator.md) | 複数回たどれる |
+| [`output_iterator`](output_iterator.md) | 書き込み用 |
+| [`indirectly_readable`](indirectly_readable.md) | 読める条件 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 要素を読みながら進められるイテレータを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

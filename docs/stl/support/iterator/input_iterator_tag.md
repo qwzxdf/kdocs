@@ -14,70 +14,76 @@ tags:
 `#include <iterator>`
 </div>
 
-アルゴリズムは、渡されたイテレータの能力に合わせて、使う手順を変えます（`advance` が +n と ++ を使い分けるなど）。その能力を型で表した目印が `input_iterator_tag` で、1 回だけ読み進められるイテレータが持つ性質です。
+1 度きり、前へ進みながら読むイテレータを表す、中身のない空の構造体が `std::input_iterator_tag` です。イテレータの種類を、型として表すためだけにあります。`std::iterator_traits<It>::iterator_category` に、このタグの型が入ります。
 
 !!! tip "ポイント"
-    - 1 回だけ読み進められるイテレータの目印。
-    - `iterator_traits<It>::iterator_category` で取り出す。
-    - C++20 では `iterator_concept` やコンセプトのほうが細かく表せる。
+    - 中身のない空の構造体。型としてだけ意味がある
+    - タグの継承関係が、イテレータの強さの順序になる
+    - アルゴリズムが、タグでオーバーロードを選ぶ
+    - C++20 では `iterator_concept` で、より細かく表せる
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレータ](../../../basics/iterator.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::input_iterator_tag {#input_iterator_tag}
 
+<span class="ver ver-11">C++98〜</span>
+
 ```cpp
 struct input_iterator_tag {};
 ```
 
-- 戻り値: なし（目印）
-- 計算量: 定数
+タグの強さの順は、`input_iterator_tag` ← `forward_iterator_tag` ← `bidirectional_iterator_tag` ← `random_access_iterator_tag` ← `contiguous_iterator_tag`（C++20）です。矢印の先が派生クラスで、強いタグは弱いタグとして扱えます。`output_iterator_tag` は、この列とは別の枠で、書き込み専用のイテレータを表します。
 
+たとえば `std::advance` は、`random_access_iterator_tag` なら `it += n` の 1 回で済ませ、`input_iterator_tag` なら `++it` を n 回繰り返します。この切り替えにタグが使われます。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <algorithm>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <ranges>
+#include <sstream>
+#include <string>
+#include <type_traits>
+#include <vector>
 
 int main() {
-  std::println("{}", std::is_same_v<std::iterator_traits<std::istream_iterator<int>>::iterator_category, std::input_iterator_tag>);
+  using Tag = std::iterator_traits<std::istream_iterator<int>>::iterator_category;
+  std::println("istream_iterator のカテゴリ: {}", std::is_same_v<Tag, std::input_iterator_tag>);
 }
 ```
 
 ```text title="実行結果"
-true
+istream_iterator のカテゴリ: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムでイテレータの能力ごとに実装を切り替える |
+アルゴリズムを自作するときに、イテレータの種類でオーバーロードを選ぶために使います。C++20 以降は、コンセプトで制約する書き方が主流です。
 
 ## よくあるミス
 
-??? failure "C++20 のコンセプトを使わない"
-    C++20 以降は `std::input_iterator<It>` のコンセプトのほうが書きやすいです。
+??? failure "コンセプトの代わりにタグで制約する"
+    C++20 以降は、`std::forward_iterator` などのコンセプトを使うほうが明確です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`iterator_traits`](iterator_traits.md) | タグを取り出す |
+| [`advance`](advance.md) | タグで実装を切り替える例 |
+| [`iter_value_t`](iter_value_t.md) | イテレータの型の問い合わせ |
 
 ## コンパイラ対応
 
-C++11 以前から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 入力イテレータ（1 回だけ読み進められる）を表すタグの型
-    - [x] 1 回だけ読み進められるイテレータの目印
-    - [x] 戻り値と失敗時の動きを確かめて使う
+C++98 から使えます。
 
 ## 関連ページ
 

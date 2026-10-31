@@ -15,80 +15,89 @@ tags:
 `#include <iterator>`
 </div>
 
-C++20 の範囲は、`begin` と `end` が別の型のことがあります。古いアルゴリズムは、同じ型の組を要求します。`common_iterator<It, Sent>` は、2 つの型を 1 つにまとめて、古いアルゴリズムに渡せるようにします。
+イテレータと番兵が別の型だと、`std::vector(first, last)` のような、2 つの引数が同じ型であることを要求する古い API に渡せません。`std::common_iterator<I, S>` は、イテレータ `I` と番兵 `S` のどちらも表せる、1 つの型にまとめるアダプターです。
 
 !!! tip "ポイント"
-    - `<iterator>` の部品。
-    - ふつうは補助関数（`back_inserter` など）経由で使う。
-    - アルゴリズムの出力先や入力元に渡す。
+    - `I` か `S` のどちらかを持つ、1 つの型
+    - 古い API（引数が同じ型の `begin` / `end`）に、イテレータと番兵の組を渡せる
+    - 比較で、`I` と `S` の組が正しく判定される
+    - 少し大きく、少し遅い
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレータ](../../../basics/iterator.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::common_iterator {#common_iterator}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <input_or_output_iterator It, sentinel_for<It> Sent>
+template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+  requires (!std::same_as<I, S>) && std::copyable<I>
 class common_iterator;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `It` | 型 | イテレータの型 |
-| `Sent` | 型 | 終端の型 |
+内部は `std::variant<I, S>` に近い形で、現在どちらを持つかを覚えています。比較では、両方が `S` なら等しく、片方が `I`、もう片方が `S` なら `I == S` の結果が使われます。
 
-- 戻り値: どちらにもなれるイテレータ
-- 計算量: 定数
-
+C++17 以前の API（`std::vector` のコンストラクター、`std::accumulate` など）は、`first` と `last` が同じ型であることを要求します。`views::common` が、範囲を `common_iterator` に包んで、そうした API へ渡せる範囲を作ります。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <algorithm>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <ranges>
+#include <sstream>
+#include <string>
+#include <type_traits>
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3};
+  std::vector<int> src = {1, 2, 3, 4, 5};
+
+  // 先頭 3 個: イテレータは counted_iterator、終端は default_sentinel (別の型)
   using CI = std::common_iterator<std::counted_iterator<std::vector<int>::iterator>, std::default_sentinel_t>;
-  std::vector<int> out(CI(std::counted_iterator(v.begin(), 2)), CI(std::default_sentinel));
-  std::println("{}", out);
+  CI first(std::counted_iterator(src.begin(), 3));
+  CI last(std::default_sentinel);
+
+  // 2 つの引数が同じ型 CI なので、古い API に渡せる
+  std::vector<int> dst(first, last);
+  std::println("{}", dst);
 }
 ```
 
 ```text title="実行結果"
-[1, 2]
+[1, 2, 3]
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 古いアルゴリズムに C++20 の範囲を渡す |
+範囲ライブラリのビューの結果を、古いコンテナのコンストラクターに渡すときに、裏で使われます。
 
 ## よくあるミス
 
-??? failure "`views::common` で足りる場面"
-    view なら [`views::common`](../../algorithms/views/common.md) で包むほうが簡単です。
+??? failure "I と S が同じ型"
+    使えません（`!same_as<I, S>` の制約）。
+
+??? failure "速さを期待する"
+    分岐のコストが増えます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`views::common`](../../algorithms/views/common.md) | view を common にする |
+| [`counted_iterator`](counted_iterator.md) | イテレータ側の例 |
+| [`default_sentinel`](default_sentinel.md) | 番兵側の例 |
+| [`common`](../../algorithms/views/common.md) | 範囲を共通の型にするビュー |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] イテレータと sentinel（終端）を 1 つの型にまとめる
-    - [x] `<iterator>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

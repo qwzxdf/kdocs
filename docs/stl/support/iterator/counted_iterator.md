@@ -15,82 +15,95 @@ tags:
 `#include <iterator>`
 </div>
 
-「先頭から n 個だけ」を処理したいとき、`take` のような view を使わなくても、`counted_iterator` で個数つきのイテレータにできます。残りが 0 になると、`default_sentinel` と等しくなります。
+イテレータに「あと何個進めるか」を持たせたい。`std::counted_iterator<I>` は、元のイテレータと残りの個数を持つアダプターで、`++` するたびに残りが減り、0 になると `std::default_sentinel` と等しくなります。範囲の先頭から `n` 個だけを扱うときに使います。
 
 !!! tip "ポイント"
-    - `<iterator>` の部品。
-    - ふつうは補助関数（`back_inserter` など）経由で使う。
-    - アルゴリズムの出力先や入力元に渡す。
+    - 元のイテレータと残りの個数を持つ
+    - `++` で残りが 1 減る
+    - 残りが 0 で `default_sentinel` と等しい
+    - `count()` で残りの個数、`base()` で元のイテレータを取れる
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレータ](../../../basics/iterator.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::counted_iterator {#counted_iterator}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <input_or_output_iterator It>
-class counted_iterator;
+template <std::input_or_output_iterator I>
+class counted_iterator {
+ public:
+  constexpr counted_iterator(I x, std::iter_difference_t<I> n);
+  constexpr std::iter_difference_t<I> count() const noexcept;
+  constexpr const I& base() const& noexcept;
+};
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `It` | 型 | 元のイテレータ |
+`views::counted` や `views::take` は、内部でこれを使うことがあります。
 
-- 戻り値: `count()` で残りの個数
-- 計算量: 定数
-
+残りの個数以上に進めると未定義動作です。`count()` が 0 になった時点で、`default_sentinel` と比べて止めます。元のイテレータの種類を引き継ぐので、ランダム アクセスのイテレータなら、`counted_iterator` もランダム アクセスです。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <algorithm>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
 #include <ranges>
+#include <sstream>
+#include <string>
+#include <type_traits>
 #include <vector>
 
 int main() {
-  std::vector<int> v = {1, 2, 3};
-  std::vector<int> out;
-  std::ranges::copy(std::counted_iterator(v.begin(), 2), std::default_sentinel, std::back_inserter(out));
-  std::println("{}", out);
+  std::vector<int> v = {1, 2, 3, 4, 5};
+
+  std::counted_iterator it(v.begin(), 3);
+  std::println("残り: {}", it.count());
+
+  ++it;
+  std::println("1 つ進めた後の残り: {}", it.count());
+  std::println("今の要素: {}", *it);
+
+  ++it;
+  ++it;
+  std::println("終わり: {}", it == std::default_sentinel);
 }
 ```
 
 ```text title="実行結果"
-[1, 2]
+残り: 3
+1 つ進めた後の残り: 2
+今の要素: 2
+終わり: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 先頭から n 個だけ処理する |
+範囲の先頭から `n` 個だけを処理するアルゴリズムの内部で使われます。
 
 ## よくあるミス
 
-??? failure "n を要素数より大きくする"
-    要素数を超えると範囲外を読みます。
+??? failure "残りを超えて進める"
+    未定義動作です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`default_sentinel`](default_sentinel.md) | 終端 |
-| [`views::counted`](../../algorithms/views/counted.md) | view 版 |
+| [`default_sentinel`](default_sentinel.md) | 終わりの番兵 |
+| [`counted`](../../algorithms/views/counted.md) | ビューの版 |
+| [`take`](../../algorithms/views/take.md) | 先頭から n 個を取るビュー |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 残りの個数を数えながら進むイテレータ
-    - [x] `<iterator>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

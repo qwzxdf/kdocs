@@ -15,79 +15,85 @@ tags:
 `#include <iterator>`
 </div>
 
-テンプレートの中で、イテレータ型 `It` が指す値の型を知りたいとき、`iterator_traits<It>::value_type` と書くと長くなります。`iter_value_t<It>` は、C++20 のコンセプトと相性のよい書き方です。
+イテレータが指す要素の型を知りたい。`std::vector<int>::iterator` なら `int`、`const int*` でも `int` です。この型を取り出すのが `std::iter_value_t<I>` で、C++17 までの `std::iterator_traits<I>::value_type` の、範囲ライブラリ向けの新しい書き方です。
 
 !!! tip "ポイント"
-    - `<iterator>` の部品。
-    - ふつうは補助関数（`back_inserter` など）経由で使う。
-    - アルゴリズムの出力先や入力元に渡す。
+    - イテレータが指す要素の型（cv 修飾なし）を返す
+    - `const int*` でも `int`（`const` は付かない）
+    - `iterator_traits` と違い、プロキシ参照のイテレータでも正しく動く
+    - C++20
 
 !!! info "このページを読む前に"
-    [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
+    [イテレータ](../../../basics/iterator.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::iter_value_t {#iter_value_t}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
-template <class It>
-using iter_value_t = /* イテレータが指す値の型 */;
+template <class I>
+using iter_value_t = /* I が指す要素の型 */;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `It` | 型 | イテレータの型 |
+`std::indirectly_readable<I>` を満たす `I` に使えます。`I::value_type` があればそれ、なければ `std::iterator_traits<I>::value_type` が元になります。
 
-- 戻り値: イテレータが指す値の型
-- 計算量: 定数
+参照と値の区別が大切です。`iter_value_t<I>` は、コピーして保存できる「値」の型です。参照の型は `iter_reference_t<I>` です。`vector<bool>` では、値は `bool`、参照はプロキシ型で、別々の型です。
 
+テンプレートの中で、要素を一時的に保存する変数の型を決めるときに、`std::iter_value_t<I> tmp = *it;` と書きます。
 
 ## 実際に動かしてみる
 
 ```cpp
-#include <cstddef>
+#include <algorithm>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <ranges>
+#include <sstream>
+#include <string>
 #include <type_traits>
 #include <vector>
 
 int main() {
-  using It = std::vector<int>::iterator;
-  std::println("{}", std::is_same_v<std::iter_value_t<It>, int>);
+  static_assert(std::is_same_v<std::iter_value_t<std::vector<int>::iterator>, int>);
+  static_assert(std::is_same_v<std::iter_value_t<const int*>, int>);  // const は付かない
+  static_assert(std::is_same_v<std::iter_value_t<std::vector<bool>::iterator>, bool>);
+
+  // 要素を一時保存する変数の型に使う
+  std::vector<std::string> v = {"a", "b"};
+  std::iter_value_t<decltype(v.begin())> tmp = *v.begin();
+  std::println("{}", tmp);
 }
 ```
 
 ```text title="実行結果"
-true
+a
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ジェネリックなアルゴリズムで、値の型を取り出す |
+要素を一時的に保存する変数の型を、テンプレートの中で決めるときに使います。
 
 ## よくあるミス
 
-??? failure "`iterator_traits` と混ぜる"
-    C++20 のコードでは、`iter_value_t` などに統一したほうが読みやすいです。
+??? failure "値の型と参照の型を混同する"
+    値は保存用、参照はアクセス用です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`iterator_traits`](iterator_traits.md) | 従来の取り出し方 |
+| [`iter_reference_t`](iter_reference_t.md) | 参照の型 |
+| [`iter_difference_t`](iter_difference_t.md) | 距離の型 |
+| [`iterator_traits`](iterator_traits.md) | 従来の書き方 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] イテレータが指す値の型を取り出す型の別名
-    - [x] `<iterator>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

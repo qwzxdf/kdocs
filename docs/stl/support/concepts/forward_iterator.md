@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-同じ範囲を複数回走査できるイテレータです。`forward_list` のイテレータが典型で、`vector` のものも満たします。
+入力イテレータは、1 度進めると、元の位置にはもう戻れません。`forward_iterator` は、<strong>同じ範囲を何度でもたどれる</strong>イテレータです。コピーを残して、片方だけ進めても、コピーは元の位置を指し続けます。`std::forward_list` のイテレータや、`vector` のイテレータが満たします。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::forward_iterator<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - 複数回たどれる（コピーを残して進められる）
+    - `input_iterator` と `incrementable` を満たす
+    - `sentinel_for` として自分自身と比べられる
+    - `std::list`、`std::vector` などのイテレータが満たす
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,65 +30,74 @@ tags:
 
 ### std::forward_iterator {#forward_iterator}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class I>
-concept forward_iterator = /* input_iterator かつ incrementable かつ sentinel_for<I, I> */;
+concept forward_iterator = std::input_iterator<I>
+    && std::derived_from</* ITER_CONCEPT(I) */, std::forward_iterator_tag>
+    && std::incrementable<I> && std::sentinel_for<I, I>;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `I` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::input_iterator<I>`
+- `std::incrementable<I>`
+- `std::sentinel_for<I, I>`
+- `iterator_concept` が `std::forward_iterator_tag` から派生している
 
+`std::ranges::sort` のように、範囲を何度もたどるアルゴリズムは、`forward_iterator` 以上を要求します。さらに強い `random_access_iterator` を要求するものもあります。
+
+イテレータの強さは、`input_iterator` ← `forward_iterator` ← `bidirectional_iterator` ← `random_access_iterator` ← `contiguous_iterator` の順に、機能が増えていきます。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <concepts>
+#include <deque>
 #include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
 
 int main() {
-  std::println("{}", std::forward_iterator<std::forward_list<int>::iterator>);
-  std::println("{}", std::forward_iterator<std::istream_iterator<int>>);
+  std::println("forward_list: {}", std::forward_iterator<std::forward_list<int>::iterator>);
+  std::println("vector: {}", std::forward_iterator<std::vector<int>::iterator>);
+  std::println("istream_iterator: {}", std::forward_iterator<std::istream_iterator<int>>);
+  std::println("back_insert_iterator: {}",
+               std::forward_iterator<std::back_insert_iterator<std::vector<int>>>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+forward_list: true
+vector: true
+istream_iterator: false
+back_insert_iterator: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+範囲を 2 回以上たどるアルゴリズムを自作するときの、引数の制約に使います。
 
 ## よくあるミス
 
 ??? failure "入力ストリームのイテレータを渡す"
-    入力ストリームは 1 回しか読めません。
+    1 度しかたどれないので、満たしません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`input_iterator`](input_iterator.md) | 1 回だけ |
-| [`bidirectional_iterator`](bidirectional_iterator.md) | 後ろにも戻れる |
+| [`input_iterator`](input_iterator.md) | 1 度だけたどる |
+| [`bidirectional_iterator`](bidirectional_iterator.md) | 後ろにも進める |
+| [`incrementable`](incrementable.md) | 構文上の条件 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 何度でも読み返せて、一方向に進むイテレータを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

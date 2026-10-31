@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-`--it` で後ろに戻れるイテレータです。`list` や `map` のイテレータが満たします。
+`--it` で後ろにも戻れるイテレータが、`std::bidirectional_iterator` です。`std::list` のイテレータが典型です。`std::ranges::reverse` のように、両端から詰めていくアルゴリズムは、これを要求します。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::bidirectional_iterator<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - `++it` に加えて、`--it` と `it--` が使える
+    - `forward_iterator` の機能をすべて持つ
+    - `std::list`、`std::map`、`std::set` のイテレータが満たす
+    - `std::forward_list` のイテレータは満たさない
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,66 +30,77 @@ tags:
 
 ### std::bidirectional_iterator {#bidirectional_iterator}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class I>
-concept bidirectional_iterator = /* forward_iterator かつ --i が使える */;
+concept bidirectional_iterator = std::forward_iterator<I>
+    && std::derived_from</* ITER_CONCEPT(I) */, std::bidirectional_iterator_tag>
+    && requires(I i) {
+      { --i } -> std::same_as<I&>;
+      { i-- } -> std::same_as<I>;
+    };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `I` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::forward_iterator<I>`
+- `iterator_concept` が `std::bidirectional_iterator_tag` から派生している
+- `--i` が `I&` を返し、`i--` が `I` を返す
 
+`std::ranges::reverse_view` や `std::reverse_iterator` は、元のイテレータが双方向であることを要求します。
+
+`std::ranges::prev_permutation` のような、後ろにも戻りながら並べ替えるアルゴリズムも、これを要求します。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <concepts>
+#include <deque>
 #include <forward_list>
 #include <iterator>
 #include <list>
 #include <print>
+#include <sstream>
+#include <vector>
+
+#include <map>
 
 int main() {
-  std::println("{}", std::bidirectional_iterator<std::list<int>::iterator>);
-  std::println("{}", std::bidirectional_iterator<std::forward_list<int>::iterator>);
+  std::println("list: {}", std::bidirectional_iterator<std::list<int>::iterator>);
+  std::println("map: {}", std::bidirectional_iterator<std::map<int, int>::iterator>);
+  std::println("forward_list: {}", std::bidirectional_iterator<std::forward_list<int>::iterator>);
+  std::println("vector: {}", std::bidirectional_iterator<std::vector<int>::iterator>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+list: true
+map: true
+forward_list: false
+vector: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+`list` や `map` のイテレータも受け付けて、逆向きにも進める関数を書くときに使います。
 
 ## よくあるミス
 
-??? failure "`forward_list` に使う"
-    `forward_list` は後ろに戻れません。
+??? failure "forward_list に逆順の処理をかける"
+    後ろに戻れないので、満たしません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`forward_iterator`](forward_iterator.md) | 一方向 |
-| [`random_access_iterator`](random_access_iterator.md) | 添字で飛べる |
+| [`forward_iterator`](forward_iterator.md) | 前にだけ進む |
+| [`random_access_iterator`](random_access_iterator.md) | 任意の距離を一度に動ける |
+| [`reverse_iterator`](../iterator/reverse_iterator.md) | 逆向きに進めるアダプター |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 前後どちらにも進めるイテレータを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

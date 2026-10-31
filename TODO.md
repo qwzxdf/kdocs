@@ -100,7 +100,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 - [x] 2-3-8. `concurrency`（72）（2026-10-31 薄かった 45 ページを書き直した。`atomic` の自由関数、ロックの印と `lock`・`call_once`、`future` 系の列挙型と例外、`stop_callback`、`this_thread`。RCU と hazard pointer の 9 ページは C++26 で手元の MSVC が未対応のため、サンプルを動かさず、使い方の形だけを書いた。サンプルは `concurrency` の 74 個すべて一致）
 - [x] 2-3-9. `containers`（63 のうち薄い 26）（2026-10-31 27 ページを書き直した。文字列の数値変換、`wstring` などの別名、`valarray` の `slice` 系、`mdspan` の補助、`as_bytes`、`hive`。C++26 の `submdspan`・`strided_slice`・`full_extent`・`aligned_accessor`・`hive` は手元の MSVC が未対応のため、サンプルを動かさなかった。`unordered_map`・`vector` の既存サンプルに、実装で出力が変わる箇所が 3 つ残っている）
 - [x] 2-3-10. `algorithms`（薄い 56。`views` と数値アルゴリズム）（2026-10-31 38 ページを書き直した。数値アルゴリズム（`partial_sum`・`scan` 系・`inner_product`）、要素の移動・置換、ヒープ、`fold` 系、実行ポリシー、`views` の `all`・`ref_view`・`owning_view`・`counted`・`empty`・`single`・`as_const`・`elements`。C++26 の `cache_latest`・`concat` は手元の MSVC が未対応のため、サンプルを動かさなかった。サンプルは `algorithms` の 179 個すべて一致）
-- [ ] 2-3-11. `support/concepts`・`iterator` の残り: iterator のコンセプト（約 35）、iterator の細かい型
+- [x] 2-3-11. `support/concepts`・`iterator` の残り（2026-10-31 コンセプト 30 ページと、イテレータのタグ・`iter_*_t`・番兵・アダプター 15 ページを書き直した。サンプルは `support` の追加分 15 個が一致）
 - [ ] 2-3-12. `support` の残り: `coroutine`（8）、`functional` の検索器・`function_ref`・`copyable_function`・placeholders、`type_traits` の `invoke_result` 系、`stacktrace`・`contract_violation`・`text_encoding`・`*_order_fallback`
 - [ ] 2-3-13. `numeric` の残り: `cfloat`、`climits`、`complex`、`cstdint`、`numbers`、`ratio` の概要ページ、`cmath/atan2.md`・`lerp.md`・`sqrt.md`
 
@@ -182,6 +182,7 @@ docs の外（リポジトリ直下）に置いているので、サイトには
 
 ### 2026-10-31 の作業
 
+- STL `support/concepts` の 30 ページと `support/iterator` の 15 ページを書き直して 2-3-11 を完了
 - STL `algorithms` の 38 ページを書き直して 2-3-10 を完了
 - STL `containers` の 27 ページを書き直して 2-3-9 を完了
 - STL `concurrency` の 45 ページを書き直して 2-3-8 を完了

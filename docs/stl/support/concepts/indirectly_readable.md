@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-イテレータやポインタのように、`*` で間接的に値を読める型です。値の型と参照の型が定義されていることが条件です。
+イテレータの先から値を読む。`*it` で読めることを、コンセプトで表したのが `std::indirectly_readable` です。イテレータだけでなく、`std::shared_ptr` や `std::optional` のような、`*` で中身を読める型も満たします。値の型（`iter_value_t`）と参照の型（`iter_reference_t`）が決まっていることも、要求します。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::indirectly_readable<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - `*it` で読める（const のオブジェクトからも）
+    - 値の型と参照の型が決まる（`iter_value_t`、`iter_reference_t`）
+    - `int*`、`const int*`、`shared_ptr<T>` などが満たす
+    - `int` のような、`*` が使えない型は満たさない
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,63 +30,73 @@ tags:
 
 ### std::indirectly_readable {#indirectly_readable}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class In>
-concept indirectly_readable = /* *it で値を読め、iter_value_t などが定義されている */;
+concept indirectly_readable = /* 値の型、参照の型が決まり、*in が const でも書ける */;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `In` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::iter_value_t<In>`、`std::iter_reference_t<In>`、`std::iter_rvalue_reference_t<In>` が使える
+- `*in` が `iter_reference_t<In>` を返す（const のオブジェクトでも）
+- 値の型と参照の型の間に、共通の参照が存在する
 
+入力イテレータの土台になるコンセプトです。`std::input_iterator` は、`input_or_output_iterator` と、これの両方を要求します。
+
+`std::ranges::copy(in, out)` の `in` が `indirectly_readable` であることが、`copy` の最低限の要求です。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <concepts>
+#include <deque>
+#include <forward_list>
 #include <iterator>
+#include <list>
 #include <print>
+#include <sstream>
+#include <vector>
+#include <algorithm>
+#include <memory>
+#include <string>
 
 int main() {
-  std::println("{}", std::indirectly_readable<int*>);
-  std::println("{}", std::indirectly_readable<int>);
+  std::println("const int*: {}", std::indirectly_readable<const int*>);
+  std::println("vector のイテレータ: {}", std::indirectly_readable<std::vector<int>::iterator>);
+  std::println("shared_ptr<int>: {}", std::indirectly_readable<std::shared_ptr<int>>);
+  std::println("int: {}", std::indirectly_readable<int>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+const int*: true
+vector のイテレータ: true
+shared_ptr<int>: true
+int: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+`*` で中身を読める型を、まとめて受け付けるテンプレートを書くときに使います。
 
 ## よくあるミス
 
-??? failure "書き込み専用の型を渡す"
-    `back_insert_iterator` は `*` で読めません。
+??? failure "読み専用なら常に満たすと思う"
+    `*` が使えない型は、満たしません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`indirectly_writable`](indirectly_writable.md) | 書き込める |
+| [`indirectly_writable`](indirectly_writable.md) | 書ける条件 |
+| [`input_iterator`](input_iterator.md) | これを土台にしたイテレータ |
+| [`indirectly_copyable`](indirectly_copyable.md) | 読んで、別へ書ける |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] `*it` で値を読み取れる型を要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

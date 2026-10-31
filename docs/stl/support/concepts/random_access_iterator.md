@@ -15,12 +15,13 @@ tags:
 `#include <iterator>`
 </div>
 
-`it + n` や `it[n]` で一気に飛べるイテレータです。`vector`・`deque`・配列のイテレータが満たします。`sort` などが要求します。
+リストの 1000 番目の要素へ行くには、1000 回 `++` しなければなりません。配列なら、`it + 1000` で一度に飛べます。この「任意の距離を、一度に（O(1) で）動ける」イテレータが `std::random_access_iterator` です。`vector`、`deque`、配列のイテレータが満たします。
 
 !!! tip "ポイント"
-    - コンセプト。`requires` やテンプレートの制約に書く。
-    - `std::random_access_iterator<...>` は `bool` の定数式。
-    - C++20 のアルゴリズムが引数の制約に使っている。
+    - `it + n`、`it - n`、`it[n]`、距離 `it1 - it2` が使える
+    - 大小の比較（`<`）ができる
+    - `std::ranges::sort` が要求する
+    - `std::list` は満たさない
 
 !!! info "このページを読む前に"
     [イテレータ](../../../basics/iterator.md) と [`<iterator>`](../iterator.md) の概要を先に読んでください。
@@ -29,66 +30,78 @@ tags:
 
 ### std::random_access_iterator {#random_access_iterator}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class I>
-concept random_access_iterator = /* bidirectional_iterator かつ +, -, [], < などが使える */;
+concept random_access_iterator = std::bidirectional_iterator<I>
+    && std::derived_from</* ITER_CONCEPT(I) */, std::random_access_iterator_tag>
+    && std::totally_ordered<I> && std::sized_sentinel_for<I, I>
+    && requires(I i, const I j, std::iter_difference_t<I> n) {
+      { i += n } -> std::same_as<I&>;
+      { j + n } -> std::same_as<I>;
+      { j[n] } -> std::same_as<std::iter_reference_t<I>>;
+    };
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `I` | 型 | 調べる型 |
+満たすべき条件は、次のとおりです。
 
-- 戻り値: 条件を満たせば `true`（コンパイル時の定数）
-- 計算量: コンパイル時のみ
+- `std::bidirectional_iterator<I>`
+- `std::totally_ordered<I>`
+- `std::sized_sentinel_for<I, I>`
+- `i += n`、`i + n`、`i -= n`、`i - n`、`i[n]` が使える
 
+`std::sort` は、昔から、ランダム アクセス イテレータだけを受け付けます。`std::list` を `std::sort` に渡せない（`list::sort` を使う）のは、このためです。
+
+`std::deque` のイテレータは、ランダム アクセスですが、連続したメモリではありません。連続性が要るなら `contiguous_iterator` です。
 
 ## 実際に動かしてみる
 
 ```cpp
+#include <concepts>
+#include <deque>
+#include <forward_list>
 #include <iterator>
 #include <list>
 #include <print>
+#include <sstream>
 #include <vector>
 
 int main() {
-  std::println("{}", std::random_access_iterator<std::vector<int>::iterator>);
-  std::println("{}", std::random_access_iterator<std::list<int>::iterator>);
+  std::println("vector: {}", std::random_access_iterator<std::vector<int>::iterator>);
+  std::println("deque: {}", std::random_access_iterator<std::deque<int>::iterator>);
+  std::println("list: {}", std::random_access_iterator<std::list<int>::iterator>);
+  std::println("int*: {}", std::random_access_iterator<int*>);
 }
 ```
 
 ```text title="実行結果"
-true
-false
+vector: true
+deque: true
+list: false
+int*: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のアルゴリズムの引数を制約する |
+`sort` のような、位置への直接アクセスを前提とするアルゴリズムの引数に、制約を付けます。
 
 ## よくあるミス
 
-??? failure "`list` に sort を使う"
-    `list` は飛べないので、`sort` できません。`list::sort` を使います。
+??? failure "list を sort に渡す"
+    ランダム アクセスでないので、コンパイルできません。`list::sort` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`bidirectional_iterator`](bidirectional_iterator.md) | 1 つずつ |
-| [`contiguous_iterator`](contiguous_iterator.md) | さらにメモリが連続 |
+| [`bidirectional_iterator`](bidirectional_iterator.md) | 1 つずつ戻れる |
+| [`contiguous_iterator`](contiguous_iterator.md) | 連続したメモリ |
+| [`sized_sentinel_for`](sized_sentinel_for.md) | 距離を O(1) で求められる |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 添字で好きな位置へ飛べるイテレータを要求する
-    - [x] コンセプト。`requires` やテンプレートの制約に書く
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 
