@@ -14,15 +14,16 @@ tags:
 `#include <regex>`
 </div>
 
-`sub_match<const char*>` の別名です。`cmatch` の `m[n]` の型です。
+`const char*` の C 文字列を検索対象にしたとき、結果のグループ 1 つぶんは `std::csub_match` で表されます。`sub_match<const char*>` の別名で、`first` と `second` は、イテレータではなく、`const char*` のポインタです。
 
 !!! tip "ポイント"
-    - `<regex>` の部品。
-    - ふつうは別名（`regex`・`smatch` など）を使う。
-    - 正規表現は、複雑になりすぎる前に別の方法も検討する。
+    - `sub_match<const char*>` の別名
+    - `std::cmatch` の要素。`first` と `second` が `const char*`
+    - ポインタの差で、一致の位置と長さが求まる
+    - `std::string` を検索するなら `std::ssub_match`
 
 !!! info "このページを読む前に"
-    [`std::regex`](../regex.md) を先に読んでください。
+    [`std::sub_match`](sub_match.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -32,9 +33,9 @@ tags:
 using csub_match = sub_match<const char*>;
 ```
 
-- 戻り値: `str()` で文字列
-- 計算量: パターンと文字列に依存
+`sub_match` の機能は、そのまま使えます。`matched`、`length()`、`str()`、`compare()` です。違いは、`first` と `second` が `const char*` であることだけで、元の C 文字列のどの位置かが、ポインタで分かります。
 
+C 文字列のリテラル（`"abc123"`）を検索すると、結果は文字列リテラルの領域を指します。リテラルは、プログラムの終了まで有効なので、ぶら下がりの心配はありません。配列に入れた文字列を検索するときは、配列が生きている間だけ有効です。
 
 ## 実際に動かしてみる
 
@@ -46,32 +47,36 @@ int main() {
   const char* s = "abc123";
   std::cmatch m;
   std::regex_search(s, m, std::regex("(\\d+)"));
+
   std::csub_match sm = m[1];
-  std::println("{}", sm.str());
+  std::println("str={} length={}", sm.str(), sm.length());
+  std::println("先頭から {} バイト目", sm.first - s);
 }
 ```
 
 ```text title="実行結果"
-123
+str=123 length=3
+先頭から 3 バイト目
 ```
+
+`first - s` で、ポインタの差から位置が分かります。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | `cmatch` のグループを取り出す |
+コマンドライン引数や、C の API が返した `const char*` を、`std::string` にコピーせずに検索したいときに使います。
 
 ## よくあるミス
 
-??? failure "元の文字列が先に消える"
-    `csub_match` は元の文字列を指すだけです。
+??? failure "一時的なバッファの寿命を忘れる"
+    ローカル配列に入れた文字列を検索し、その配列が消えたあとに `csub_match` を使うと、ぶら下がります。必要なら `str()` でコピーします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`sub_match`](sub_match.md) | 元のテンプレート |
-| [`ssub_match`](ssub_match.md) | string 用 |
+| [`ssub_match`](ssub_match.md) | `std::string` 用 |
+| [`std::cmatch`](cmatch.md) | `csub_match` の集まり |
 
 ## コンパイラ対応
 
@@ -80,11 +85,11 @@ C++11 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] C 文字列用の sub_match
-    - [x] `<regex>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `csub_match` は、`const char*` の検索結果の、グループ 1 つぶんの型
+    - [x] `first` と `second` は `const char*`
+    - [x] 元の配列が生きている間だけ有効
 
 ## 関連ページ
 
-- [cpprefjp: std::csub_match](https://cpprefjp.github.io/reference/regex/csub_match.html)
-- [cppreference: std::csub_match](https://en.cppreference.com/w/cpp/regex/csub_match)
+- [cpprefjp: csub_match](https://cpprefjp.github.io/reference/regex/csub_match.html)
+- [cppreference: std::csub_match](https://en.cppreference.com/w/cpp/regex/sub_match)

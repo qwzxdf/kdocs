@@ -14,32 +14,62 @@ tags:
 `#include <regex>`
 </div>
 
-`regex_search` や `regex_match` は、一致した部分を `match_results` に入れて返します。`m[0]` が一致した全体、`m[1]` 以降が括弧で囲んだグループです。`std::smatch` は、これの `string` 用の別名です。
+正規表現の検索が成功すると、知りたいことは「どこが一致したか」だけではありません。グループごとの中身、一致の前に何があったか、後ろに何が残っているか。これらをまとめて持つのが `match_results` です。`m[0]` が全体、`m[1]` 以降が各グループ（`sub_match`）です。
+
+`std::smatch` や `std::cmatch` は、検索対象の種類ごとに用意された、この型の別名です。
 
 !!! tip "ポイント"
-    - `<regex>` の部品。
-    - ふつうは別名（`regex`・`smatch` など）を使う。
-    - 正規表現は、複雑になりすぎる前に別の方法も検討する。
+    - `m[0]` が一致の全体、`m[1]` 以降が 1 番目以降のグループ
+    - `size()` は、グループ数 + 1。一致しなかったときは 0
+    - `prefix()` が一致の前、`suffix()` が一致の後ろ
+    - `position(n)` が位置、`str(n)` が文字列
 
 !!! info "このページを読む前に"
-    [`std::regex`](../regex.md) を先に読んでください。
+    [`std::regex_search`](../regex_search.md) と [`std::smatch`](../smatch.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::match_results {#match_results}
 
 ```cpp
-template <class BidirIt, class Alloc = allocator<sub_match<BidirIt>>>
+template <class BidirIt, class Alloc = std::allocator<std::sub_match<BidirIt>>>
 class match_results;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `BidirIt` | 型 | 文字列のイテレータの型 |
+別名は、検索対象の種類ごとにあります。
 
-- 戻り値: `m[n]` で n 番目のグループ（`sub_match`）
-- 計算量: パターンと文字列に依存
+| 別名 | 検索対象 |
+| --- | --- |
+| `std::smatch` | `std::string` |
+| `std::cmatch` | `const char*` |
+| `std::wsmatch` | `std::wstring` |
+| `std::wcmatch` | `const wchar_t*` |
 
+### 状態を調べる {#state}
+
+| 関数 | 意味 |
+| --- | --- |
+| `empty()` | 一致が見つかっていなければ真 |
+| `ready()` | 検索が完了している（結果が入っている）か |
+| `size()` | 要素数。成功なら `グループ数 + 1`、失敗なら 0 |
+
+検索が失敗したときは、`size()` が 0 になり、`m[0]` を参照しても、範囲外ではなく空の `sub_match` が返ります。
+
+### 要素を取り出す {#element}
+
+`m[n]` は、n 番目のグループの `sub_match` を返します。`n` が範囲外のときは、一致しなかった空の `sub_match` です。`m.str(n)` は、`m[n].str()` と同じです。`m.length(n)` は長さです。`m.position(n)` は、検索対象の先頭からの位置です。
+
+### 前後の文字列 {#prefix}
+
+`m.prefix()` は、一致の前の部分、`m.suffix()` は、一致の後ろの部分を、`sub_match` で返します。`suffix()` を次の検索の開始位置にすれば、文字列の中の一致を、順に取り出せます。
+
+### format {#format}
+
+```cpp
+std::string format(const std::string& fmt) const;
+```
+
+結果を使って、書式に従って文字列を作ります。`$1` で 1 番目のグループ、`$&` で全体、`$`` で一致の前、`$'` で一致の後ろを埋め込みます。
 
 ## 実際に動かしてみる
 
@@ -49,34 +79,54 @@ class match_results;
 #include <string>
 
 int main() {
-  std::string s = "10-20";
-  std::match_results<std::string::const_iterator> m;
-  std::regex_search(s, m, std::regex("(\\d+)-(\\d+)"));
-  std::println("{} {}", m[1].str(), m[2].str());
+  const std::string s = "id=42; name=Hero";
+  const std::regex re(R"((\w+)=(\w+))");
+
+  std::smatch m;
+  std::regex_search(s, m, re);
+
+  std::println("size={} empty={}", m.size(), m.empty());
+  std::println("全体: {}", m.str(0));
+  std::println("グループ 1: {}  グループ 2: {}", m.str(1), m.str(2));
+  std::println("位置: {}  長さ: {}", m.position(0), m.length(0));
+  std::println("後ろ: {:?}", m.suffix().str());
+  std::println("format: {}", m.format("$2=$1"));
 }
 ```
 
 ```text title="実行結果"
-10 20
+size=3 empty=false
+全体: id=42
+グループ 1: id  グループ 2: 42
+位置: 0  長さ: 5
+後ろ: "; name=Hero"
+format: 42=id
 ```
+
+`suffix()` が、一致の後ろの `; name=Hero` を返しています。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | テキストから数値を取り出す |
+`key=value` の形の設定ファイルの 1 行や、`move 10 20` のようなコマンドを、グループに分けて取り出します。
 
 ## よくあるミス
 
-??? failure "`m[0]` を最初のグループと思う"
-    `m[0]` は一致した全体です。括弧のグループは `m[1]` からです。
+??? failure "検索に失敗した m を使う"
+    `size()` が 0 のときに `m[1]` を参照しても、エラーにはならず、空の `sub_match` が返ります。気づきにくいので、`regex_search` の戻り値を、先に確認します。
+
+??? failure "一時オブジェクトの string を検索する"
+    `std::regex_search(func_returning_string(), m, re)` は、削除されたオーバーロードに当たり、コンパイルできません。結果が、破棄された文字列を指してしまうからです。名前のある変数に入れます。
+
+??? failure "m[0] を最初のグループと間違える"
+    `m[0]` は全体で、1 番目のグループは `m[1]` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`smatch`](../smatch.md) | string 用の別名 |
-| [`sub_match`](sub_match.md) | 各グループの型 |
+| [`std::sub_match`](sub_match.md) | 要素 1 つぶん |
+| [`std::smatch`](../smatch.md) | `std::string` 用の別名 |
+| [`std::regex_iterator`](regex_iterator.md) | 一致を順に取り出す |
 
 ## コンパイラ対応
 
@@ -85,11 +135,11 @@ C++11 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] 一致の結果（全体とグループ）を保持するクラスの、元になるテンプレート
-    - [x] `<regex>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `match_results` は、一致の全体とグループを持つ。`m[0]` が全体
+    - [x] `prefix()` と `suffix()` で、一致の前後を取れる
+    - [x] 検索の戻り値を確認してから使う
 
 ## 関連ページ
 
-- [cpprefjp: std::match_results](https://cpprefjp.github.io/reference/regex/match_results.html)
+- [cpprefjp: match_results](https://cpprefjp.github.io/reference/regex/match_results.html)
 - [cppreference: std::match_results](https://en.cppreference.com/w/cpp/regex/match_results)

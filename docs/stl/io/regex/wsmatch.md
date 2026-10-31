@@ -14,15 +14,16 @@ tags:
 `#include <regex>`
 </div>
 
-`match_results<std::wstring::const_iterator>` の別名です。`wstring` を `wregex` で検索した結果を入れます。
+`std::wstring` を検索した結果を入れる型が `std::wsmatch` です。`smatch` の `wchar_t` 版で、`match_results<std::wstring::const_iterator>` の別名です。パターンは `std::wregex` で書き、`m[n]` は `std::wssub_match` になります。
 
 !!! tip "ポイント"
-    - `<regex>` の部品。
-    - ふつうは別名（`regex`・`smatch` など）を使う。
-    - 正規表現は、複雑になりすぎる前に別の方法も検討する。
+    - `match_results<std::wstring::const_iterator>` の別名
+    - 検索対象は `std::wstring`。名前のある変数にする
+    - パターンは `std::wregex`
+    - `const wchar_t*` を検索するなら `std::wcmatch`
 
 !!! info "このページを読む前に"
-    [`std::regex`](../regex.md) を先に読んでください。
+    [`std::smatch`](../smatch.md) と [`std::wregex`](wregex.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -32,9 +33,9 @@ tags:
 using wsmatch = match_results<std::wstring::const_iterator>;
 ```
 
-- 戻り値: `m[n]` で n 番目のグループ（`wssub_match`）
-- 計算量: パターンと文字列に依存
+機能は `smatch` と同じです。`m[n]`、`m.size()`、`m.prefix()`、`m.suffix()`、`m.position(n)` が使えます。
 
+`std::regex_search` に渡す `std::wstring` は、一時オブジェクトではなく、名前のある変数にします。一時オブジェクトを渡すと、結果が破棄された文字列を指してしまうため、コンパイル エラーになります。
 
 ## 実際に動かしてみる
 
@@ -44,34 +45,42 @@ using wsmatch = match_results<std::wstring::const_iterator>;
 #include <string>
 
 int main() {
-  std::wstring s = L"x=5";
+  const std::wstring text = L"HP 30 MP 12";
+  const std::wregex re(L"(\\w+) (\\d+)");
+
   std::wsmatch m;
-  std::regex_search(s, m, std::wregex(L"(\\d)"));
-  std::println("{}", m.size());
+  if (std::regex_search(text, m, re)) {
+    std::println("size={}", m.size());
+    std::println("位置: {}  数値は '30': {}", m.position(0), m[2].str() == L"30");
+    std::println("後ろの長さ: {}", m.suffix().length());
+  }
 }
 ```
 
 ```text title="実行結果"
-2
+size=3
+位置: 0  数値は '30': true
+後ろの長さ: 6
 ```
+
+`suffix()` は、最初の一致の後ろの ` MP 12`（6 文字）です。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | `wstring` から値を取り出す |
+`wchar_t` の文字列を扱う Windows 向けのコードで、検索結果を取り出すときに使います。
 
 ## よくあるミス
 
-??? failure "`smatch` を使う"
-    `wstring` には `wsmatch` を使います。
+??? failure "wstring の一時オブジェクトを検索する"
+    `regex_search(GetTitle(), m, re)` は、コンパイルできません。変数に入れてから検索します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`smatch`](../smatch.md) | string 用 |
-| [`wcmatch`](wcmatch.md) | wchar_t の C 文字列用 |
+| [`std::smatch`](../smatch.md) | `std::string` 用 |
+| [`std::wcmatch`](wcmatch.md) | `const wchar_t*` 用 |
+| [`std::wregex`](wregex.md) | 対になる正規表現の型 |
 
 ## コンパイラ対応
 
@@ -80,11 +89,11 @@ C++11 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] wstring 用の match_results
-    - [x] `<regex>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `wsmatch` は、`std::wstring` を検索した結果を入れる型
+    - [x] パターンは `wregex`、検索対象は名前のある変数
+    - [x] `const wchar_t*` なら `wcmatch`
 
 ## 関連ページ
 
-- [cpprefjp: std::wsmatch](https://cpprefjp.github.io/reference/regex/wsmatch.html)
-- [cppreference: std::wsmatch](https://en.cppreference.com/w/cpp/regex/wsmatch)
+- [cpprefjp: wsmatch](https://cpprefjp.github.io/reference/regex/wsmatch.html)
+- [cppreference: std::wsmatch](https://en.cppreference.com/w/cpp/regex/match_results)

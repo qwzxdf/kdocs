@@ -14,15 +14,16 @@ tags:
 `#include <regex>`
 </div>
 
-`regex_iterator<const char*>` の別名です。`std::string` ではなく、C の文字列（`const char*`）に対して、全部の一致を順に取り出します。
+`std::sregex_iterator` が `std::string` 用なのに対し、`const char*` の C 文字列用の別名が `std::cregex_iterator` です。`regex_iterator<const char*>` の別名で、一致は `std::cmatch` として得られます。
 
 !!! tip "ポイント"
-    - `<regex>` の部品。
-    - ふつうは別名（`regex`・`smatch` など）を使う。
-    - 正規表現は、複雑になりすぎる前に別の方法も検討する。
+    - `regex_iterator<const char*>` の別名
+    - 範囲は、先頭のポインタと、終端のポインタ（`s + std::strlen(s)`）で渡す
+    - `*it` は `std::cmatch`
+    - `std::string` を検索するなら `std::sregex_iterator`
 
 !!! info "このページを読む前に"
-    [`std::regex`](../regex.md) を先に読んでください。
+    [`std::regex_iterator`](regex_iterator.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -32,9 +33,9 @@ tags:
 using cregex_iterator = regex_iterator<const char*>;
 ```
 
-- 戻り値: 一致（`cmatch`）を順に返す
-- 計算量: パターンと文字列に依存
+使い方は `regex_iterator` と同じです。範囲を `std::string` のイテレータではなく、`const char*` のポインタで渡します。終端は、`s + std::strlen(s)` のようにして求めます。
 
+`std::string_view` を検索したいときにも使えます。`sv.data()` と `sv.data() + sv.size()` を範囲として渡します。`std::string_view` 用の専用の別名は、標準にはありません。
 
 ## 実際に動かしてみる
 
@@ -46,34 +47,41 @@ using cregex_iterator = regex_iterator<const char*>;
 
 int main() {
   const char* s = "a1b22c333";
-  std::regex re("\\d+");
+  const std::regex re(R"(\d+)");
+
   std::cregex_iterator it(s, s + std::strlen(s), re);
-  std::cregex_iterator end;
-  std::println("{}", std::distance(it, end));
+  const std::cregex_iterator end;
+  std::println("一致の個数: {}", std::distance(it, end));
+
+  for (; it != end; ++it) {
+    std::println("{}", it->str());
+  }
 }
 ```
 
 ```text title="実行結果"
-3
+一致の個数: 3
+1
+22
+333
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | C の文字列から、一致を全部取り出す |
+`std::string_view` で持っているテキスト（読み込んだファイルの中身など）を、コピーせずに検索したいときに使えます。
 
 ## よくあるミス
 
-??? failure "終端の指定を忘れる"
-    `s + strlen(s)` で終端を渡します。
+??? failure "終端を忘れる"
+    `std::cregex_iterator it(s, re)` のような書き方はありません。範囲を、2 つのポインタで渡します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
 | [`regex_iterator`](regex_iterator.md) | 元のテンプレート |
-| [`sregex_iterator`](../sregex_iterator.md) | string 用 |
+| [`std::sregex_iterator`](../sregex_iterator.md) | `std::string` 用 |
+| [`std::cmatch`](cmatch.md) | 取り出す一致の型 |
 
 ## コンパイラ対応
 
@@ -82,11 +90,11 @@ C++11 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] C 文字列から、正規表現に一致する部分を順に取り出すイテレータ
-    - [x] `<regex>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `cregex_iterator` は、`const char*` を検索して、一致を順に取り出す
+    - [x] 範囲は、2 つのポインタで渡す
+    - [x] `string_view` の検索にも使える
 
 ## 関連ページ
 
-- [cpprefjp: std::cregex_iterator](https://cpprefjp.github.io/reference/regex/cregex_iterator.html)
-- [cppreference: std::cregex_iterator](https://en.cppreference.com/w/cpp/regex/cregex_iterator)
+- [cpprefjp: cregex_iterator](https://cpprefjp.github.io/reference/regex/cregex_iterator.html)
+- [cppreference: std::cregex_iterator](https://en.cppreference.com/w/cpp/regex/regex_iterator)

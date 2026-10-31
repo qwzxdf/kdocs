@@ -14,15 +14,16 @@ tags:
 `#include <regex>`
 </div>
 
-`match_results<const wchar_t*>` の別名です。`const wchar_t*` を `wregex` で検索した結果を入れます。
+`const wchar_t*` のワイド文字列を検索した結果を入れる型が `std::wcmatch` です。`cmatch` の `wchar_t` 版で、`match_results<const wchar_t*>` の別名です。パターンは `std::wregex` で書き、`m[n]` は `std::wcsub_match` になります。
 
 !!! tip "ポイント"
-    - `<regex>` の部品。
-    - ふつうは別名（`regex`・`smatch` など）を使う。
-    - 正規表現は、複雑になりすぎる前に別の方法も検討する。
+    - `match_results<const wchar_t*>` の別名
+    - 検索対象は `L"..."` や、`const wchar_t*`
+    - パターンは `std::wregex`
+    - `std::wstring` を検索するなら `std::wsmatch`
 
 !!! info "このページを読む前に"
-    [`std::regex`](../regex.md) を先に読んでください。
+    [`std::cmatch`](cmatch.md) と [`std::wregex`](wregex.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
@@ -32,9 +33,9 @@ tags:
 using wcmatch = match_results<const wchar_t*>;
 ```
 
-- 戻り値: `m[n]` で n 番目のグループ（`wcsub_match`）
-- 計算量: パターンと文字列に依存
+使い方は `cmatch` と同じです。違いは、文字の型が `wchar_t` であることだけです。`m[n].str()` は `std::wstring` を返します。
 
+`std::println` は `std::wstring` を直接表示できないので、表示するときは、UTF-8 に変換するか、`std::wcout` を使います。この環境で動作を確かめるときは、長さや比較の結果を出力します。
 
 ## 実際に動かしてみる
 
@@ -45,31 +46,38 @@ using wcmatch = match_results<const wchar_t*>;
 int main() {
   const wchar_t* s = L"x=5";
   std::wcmatch m;
-  std::regex_search(s, m, std::wregex(L"(\\d)"));
-  std::println("{}", m.size());
+  const std::wregex re(L"(\\w)=(\\d)");
+
+  if (std::regex_search(s, m, re)) {
+    std::println("size={}", m.size());
+    std::println("値は '5': {}", m[2].str() == L"5");
+  }
 }
 ```
 
 ```text title="実行結果"
-2
+size=3
+値は '5': true
 ```
+
+`m[2].str()` は `std::wstring` なので、`L"5"` と比べています。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | Windows API が返した `wchar_t*` を検索する |
+Windows API が返した `wchar_t*` の文字列を、コピーせずに検査するときに使えます。
 
 ## よくあるミス
 
-??? failure "`cmatch` を使う"
-    `wchar_t` には `wcmatch` を使います。
+??? failure "std::println に wstring を渡す"
+    書式つき出力は、`wchar_t` の文字列を直接は表示できません。UTF-8 の文字列に変換してから出します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`cmatch`](cmatch.md) | char の C 文字列用 |
+| [`std::cmatch`](cmatch.md) | `const char*` 用 |
+| [`std::wsmatch`](wsmatch.md) | `std::wstring` 用 |
+| [`std::wregex`](wregex.md) | 対になる正規表現の型 |
 
 ## コンパイラ対応
 
@@ -78,11 +86,11 @@ C++11 から使えます。
 ## これだけ覚える
 
 !!! abstract "まとめ"
-    - [x] wchar_t の C 文字列用の match_results
-    - [x] `<regex>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
+    - [x] `wcmatch` は、`const wchar_t*` を検索した結果を入れる型
+    - [x] パターンは `wregex`
+    - [x] `std::wstring` なら `wsmatch`
 
 ## 関連ページ
 
-- [cpprefjp: std::wcmatch](https://cpprefjp.github.io/reference/regex/wcmatch.html)
-- [cppreference: std::wcmatch](https://en.cppreference.com/w/cpp/regex/wcmatch)
+- [cpprefjp: wcmatch](https://cpprefjp.github.io/reference/regex/wcmatch.html)
+- [cppreference: std::wcmatch](https://en.cppreference.com/w/cpp/regex/match_results)
