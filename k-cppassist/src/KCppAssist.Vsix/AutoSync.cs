@@ -35,7 +35,7 @@ namespace KCppAssist
 
     /// <summary>
     /// 1 つのエディターについて、関数の引数の括弧を追跡する。引数が変わって入力が落ち着いたら、相手側の同じ関数の引数を書き換える。
-    /// 相手が見つからない、複数ある、エディターで開いていない、書きかけのときは、何もしない(開いていないときはステータスバーで知らせる)。
+    /// 相手が見つからない、複数ある、書きかけのときは、何もしない。相手が開いていなければ開いて書き換え、作業中のファイルへ戻る。
     /// </summary>
     internal sealed class SignatureSyncSession
     {
@@ -163,6 +163,17 @@ namespace KCppAssist
             baseline = Build(view.TextSnapshot);
         }
 
+        /// <summary>相手を開いたあとで、作業中のファイルをアクティブに戻す。</summary>
+        private void ReturnToWork()
+        {
+            try
+            {
+                Microsoft.VisualStudio.Shell.Interop.IVsUIHierarchy hier; uint id; Microsoft.VisualStudio.Shell.Interop.IVsWindowFrame frame;
+                VsShellUtilities.OpenDocument(ServiceProvider.GlobalProvider, path, Guid.Empty, out hier, out id, out frame);
+            }
+            catch (Exception ex) { KCppAssistPackage.Log("return to work failed: " + ex.Message); }
+        }
+
         private async Task SyncOneAsync(Item b, string curInner)
         {
             var oldList = SignatureSync.SplitParams(b.Text);
@@ -196,15 +207,20 @@ namespace KCppAssist
             if (matches.Count > 1) { IncludeService.Status(label + " の" + (wantDef ? "定義" : "宣言") + "が複数あるので、引数を写せませんでした (Alt+G で選べます)"); return; }
 
             var t0 = matches[0];
-            if (t0.Buffer == null)
+            ITextBuffer buf = t0.Buffer;
+            bool opened = false;
+            if (buf == null)
             {
-                IncludeService.Status(Path.GetFileName(t0.File) + " は開いていません。Alt+G で " + label + " の引数を写せます");
-                return;
+                // 相手が開いていなければ、開いて書き換える(開くと相手がアクティブになるので、あとで作業中のファイルへ戻す)
+                buf = SyncService.OpenForEdit(t0.File, owner.Adapters);
+                opened = true;
+                if (buf == null) { IncludeService.Status(Path.GetFileName(t0.File) + " を開けませんでした。Alt+G で " + label + " の引数を写せます"); return; }
             }
             var cpList = SignatureSync.SplitParams(t0.Inner);
-            if (cpList == null || t0.Buffer.CurrentSnapshot.Length != t0.Text.Length) return;
+            if (cpList == null || buf.CurrentSnapshot.Length != t0.Text.Length) { if (opened) ReturnToWork(); return; }
             string newInner = SignatureSync.Rebuild(oldList, newList, cpList, !wantDef, t0.Inner);
-            SyncService.Replace(t0.Buffer, t0.Sig.Open + 1, t0.Sig.Close - t0.Sig.Open - 1, newInner, owner.Undo, "K-CppAssist: 引数を合わせる");
+            SyncService.Replace(buf, t0.Sig.Open + 1, t0.Sig.Close - t0.Sig.Open - 1, newInner, owner.Undo, "K-CppAssist: 引数を合わせる");
+            if (opened) ReturnToWork();
             IncludeService.Status(label + " の引数を " + Path.GetFileName(t0.File) + " に写しました");
         }
     }
