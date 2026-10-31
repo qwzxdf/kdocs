@@ -29,6 +29,16 @@
           <ButtonText>ゲッター・セッターを作る</ButtonText>
         </Strings>
       </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdInclude" priority="0x0104" type="Button">
+        <Strings>
+          <ButtonText>#include を足す</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="guidKCppAssistCmdSet" id="CmdSync" priority="0x0105" type="Button">
+        <Strings>
+          <ButtonText>宣言と定義の引数を合わせる</ButtonText>
+        </Strings>
+      </Button>
       <!-- 拡張機能 メニューに出るのは、設定画面を開くこの 1 つだけ -->
       <Button guid="guidKCppAssistCmdSet" id="CmdSettings" priority="0x0103" type="Button">
         <Parent guid="guidKCppAssistCmdSet" id="KCppAssistMenuGroup" />
@@ -43,6 +53,8 @@
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdLocal" editor="guidVSStd97" key1="Q" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdMember" editor="guidVSStd97" key1="W" mod1="Alt" />
     <KeyBinding guid="guidKCppAssistCmdSet" id="CmdAccessor" editor="guidVSStd97" key1="E" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdInclude" editor="guidVSStd97" key1="F" mod1="Alt" />
+    <KeyBinding guid="guidKCppAssistCmdSet" id="CmdSync" editor="guidVSStd97" key1="G" mod1="Alt" />
   </KeyBindings>
 
   <Symbols>
@@ -60,6 +72,8 @@
       <IDSymbol name="CmdMember" value="0x0101" />
       <IDSymbol name="CmdAccessor" value="0x0102" />
       <IDSymbol name="CmdSettings" value="0x0103" />
+      <IDSymbol name="CmdInclude" value="0x0104" />
+      <IDSymbol name="CmdSync" value="0x0105" />
     </GuidSymbol>
   </Symbols>
 

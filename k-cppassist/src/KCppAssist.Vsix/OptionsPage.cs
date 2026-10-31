@@ -6,6 +6,10 @@ using Microsoft.VisualStudio.Shell;
 
 namespace KCppAssist
 {
+    public enum IncludeMode { Off, ManualOnly, Auto }
+
+    public enum SyncMode { Off, ManualOnly, Auto }
+
     /// <summary>ツール → オプション → K-CppAssist → 全般</summary>
     public class OptionsPage : DialogPage
     {
@@ -13,6 +17,31 @@ namespace KCppAssist
         [DisplayName("ゲッターとセッターの間に空行を入れる")]
         [Description("True のとき、Alt+E で作るゲッターとセッターの間と、その前の行との間に、空行を 1 行入れます。")]
         public bool BlankLineBetweenAccessors { get; set; } = true;
+
+        [Category("#include")]
+        [DisplayName("#include を足すしかた")]
+        [Description("Off: 何もしない。ManualOnly: Alt+F を押したときだけ足す。Auto: Alt+F に加えて、入力中に未定義の型を見つけると、自動で足す。")]
+        public IncludeMode IncludeMode { get; set; } = IncludeMode.ManualOnly;
+
+        [Category("#include")]
+        [DisplayName("自動で足す前の待ち時間 (ミリ秒)")]
+        [Description("識別子を打ち終えてから、この時間だけ入力が止まったら調べます。")]
+        public int IncludeDelayMs { get; set; } = 900;
+
+        [Category("#include")]
+        [DisplayName("自動で足さない名前")]
+        [Description("カンマ区切り。ソリューションのヘッダーから引くときだけ、この名前の型は自動で足しません(Alt+F では足せます)。標準ライブラリの名前には効きません。")]
+        public string IncludeDeny { get; set; } = "Instance,Get,Create,Data,Type,Result,Init,Value,Node,Item,State,Info,Name,Id,Key,Index,Context,Config,Manager,Handle,Callback,Function,Object,Base,Impl,Self";
+
+        [Category("#include")]
+        [DisplayName("ヘッダーを探さないフォルダー")]
+        [Description("カンマ区切りのフォルダー名。この名前のフォルダーの下は、型の索引に入れません。")]
+        public string IncludeSkipDirs { get; set; } = "third_party,external,extern,build,out,node_modules,vendor";
+
+        [Category("引数の同期")]
+        [DisplayName("宣言と定義の引数を合わせるしかた")]
+        [Description("Off: 何もしない。ManualOnly: Alt+G を押したときだけ合わせる。Auto: Alt+G に加えて、ヘッダーの宣言か cpp の定義の引数を変えると、相手(エディターで開いているファイル)の引数を自動で書き換える。")]
+        public SyncMode SyncMode { get; set; } = SyncMode.Auto;
 
         private const string KeyHelp = "「Alt+Q」「Ctrl+Alt+M」のように書きます。空にすると、キーを外します。OK を押すと、Visual Studio のキー割り当てに反映されます。";
 
@@ -31,6 +60,16 @@ namespace KCppAssist
         [Description(KeyHelp)]
         public string AccessorKey { get; set; } = "Alt+E";
 
+        [Category("キー")]
+        [DisplayName("#include を足す")]
+        [Description(KeyHelp)]
+        public string IncludeKey { get; set; } = "Alt+F";
+
+        [Category("キー")]
+        [DisplayName("宣言と定義の引数を合わせる")]
+        [Description(KeyHelp)]
+        public string SyncKey { get; set; } = "Alt+G";
+
         /// <summary>設定画面を開いたとき、Visual Studio に今割り当てられているキーを表示する。</summary>
         protected override void OnActivate(CancelEventArgs e)
         {
@@ -41,6 +80,8 @@ namespace KCppAssist
                 LocalKey = Current(KCppAssistPackage.CmdLocal);
                 MemberKey = Current(KCppAssistPackage.CmdMember);
                 AccessorKey = Current(KCppAssistPackage.CmdAccessor);
+                IncludeKey = Current(KCppAssistPackage.CmdInclude);
+                SyncKey = Current(KCppAssistPackage.CmdSync);
             }
             catch (Exception ex) { KCppAssistPackage.Log("read keys failed: " + ex.Message); }
         }
@@ -56,6 +97,8 @@ namespace KCppAssist
                 Assign(KCppAssistPackage.CmdLocal, LocalKey);
                 Assign(KCppAssistPackage.CmdMember, MemberKey);
                 Assign(KCppAssistPackage.CmdAccessor, AccessorKey);
+                Assign(KCppAssistPackage.CmdInclude, IncludeKey);
+                Assign(KCppAssistPackage.CmdSync, SyncKey);
             }
             catch (Exception ex)
             {

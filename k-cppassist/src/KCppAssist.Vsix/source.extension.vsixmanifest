@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="KCppAssist.7d1f3b52-4c80-4e9a-b6a3-0e8f25c91d74" Version="0.5.0" Language="en-US" Publisher="qwzxdf" />
+    <Identity Id="KCppAssist.7d1f3b52-4c80-4e9a-b6a3-0e8f25c91d74" Version="0.7.0" Language="en-US" Publisher="qwzxdf" />
     <DisplayName>K-CppAssist</DisplayName>
     <Description xml:space="preserve">Declares an undeclared variable from the assignment under the caret. Alt+W adds it as a member of the class (header), Alt+Q gives the local variable a type.</Description>
     <License>LICENSE.txt</License>
@@ -27,5 +27,6 @@
   </Prerequisites>
   <Assets>
     <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%;PkgdefProjectOutputGroup|" />
+    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
   </Assets>
 </PackageManifest>
