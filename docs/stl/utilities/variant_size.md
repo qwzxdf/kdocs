@@ -14,12 +14,13 @@ tags:
 `#include <variant>`
 </div>
 
-`variant<int, double, std::string>` が、何種類の型を持てるかをテンプレートの中で知りたいことがあります。`variant_size_v<V>` が、その数（この例では 3）を返します。型のリストを `index_sequence` で順に処理するときの終点にも使えます。
+`std::variant<int, float, std::string>` には、いくつの型が入りうるか。コンパイル時にそれを知りたいときに使うのが `std::variant_size_v<V>` です。`tuple_size` の `variant` 版で、型の個数を定数として返します。
 
 !!! tip "ポイント"
-    - `variant_size_v<V>` で数が取れる（`size_t`）。
-    - `variant_alternative_t<I, V>` と組み合わせると、全部の選択肢を順に調べられる。
-    - `std::tuple_size` の variant 版。
+    - `std::variant_size_v<V>` は、`V` の選択肢の数
+    - コンパイル時の定数
+    - 実行時の番号は `0` 〜 `size - 1`。これと `variant_npos` が `index()` の取りうる値
+    - `const` や `volatile` が付いた型にも使える
 
 !!! info "このページを読む前に"
     [`std::variant`](variant.md) を先に読んでください。
@@ -28,65 +29,67 @@ tags:
 
 ### std::variant_size {#variant_size}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
-template <class T>
-struct variant_size;
-template <class T>
-inline constexpr size_t variant_size_v = variant_size<T>::value;
+template <class Variant> struct variant_size;
+template <class Variant> inline constexpr std::size_t variant_size_v = variant_size<Variant>::value;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `T` | variant 型 | 調べる variant |
+`std::variant<A, B, C>` なら 3 です。同じ型が複数回現れても、その分も数えます。`std::variant<int, int>` は 2 です。
 
-- 戻り値: 型の数（`size_t`）
-- 計算量: コンパイル時のみ
+`std::monostate` も 1 つの選択肢として数えます。`std::variant<std::monostate, int>` は 2 です。
 
+テンプレートの中で、`variant` の全選択肢について、順に処理する（再帰やパラメーター パックの展開）とき、個数が要ります。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
+#include <string>
 #include <variant>
 
 int main() {
-  using V = std::variant<int, double, char>;
-  std::println("{}", std::variant_size_v<V>);
+  using V = std::variant<int, float, std::string>;
+  static_assert(std::variant_size_v<V> == 3);
+
+  std::println("V: {}", std::variant_size_v<V>);
+  std::println("monostate つき: {}", std::variant_size_v<std::variant<std::monostate, int>>);
+  std::println("同じ型を 2 回: {}", std::variant_size_v<std::variant<int, int>>);
+
+  // index() の取りうる範囲は 0 〜 size - 1
+  V v = 1.5f;
+  std::println("index {} は範囲内: {}", v.index(), v.index() < std::variant_size_v<V>);
 }
 ```
 
 ```text title="実行結果"
-3
+V: 3
+monostate つき: 2
+同じ型を 2 回: 2
+index 1 は範囲内: true
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| variant の全ての選択肢に処理をする | `std::make_index_sequence<std::variant_size_v<V>>{}` |
+イベントを `variant` にまとめたとき、各イベント型に対するハンドラーの配列を、型の個数ぶん用意する、といった場面で使います。
 
 ## よくあるミス
 
-??? failure "`index()` と混同する"
-    `index()` は今入っている型の番号、`variant_size` は持てる型の数です。
+??? failure "variant の値に使う"
+    型を渡します。`decltype(v)` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`variant_alternative`](variant_alternative.md) | N 番目の型 |
-| [`std::variant`](variant.md) | variant の本体 |
+| [`std::variant_alternative`](variant_alternative.md) | 番号から型を取り出す |
+| [`std::tuple_size`](tuple_size.md) | `tuple` の要素数 |
+| [`std::variant_npos`](variant_npos.md) | 値なしの番号 |
 
 ## コンパイラ対応
 
 C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 持てる型の数を取り出す
-    - [x] variant_size_v
-    - [x] コンパイル時の値
 
 ## 関連ページ
 

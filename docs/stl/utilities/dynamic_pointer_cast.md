@@ -14,82 +14,92 @@ tags:
 `#include <memory>`
 </div>
 
-`std::dynamic_pointer_cast` は、**`shared_ptr` を別の型の `shared_ptr` に変換する**関数で、`dynamic_cast` の `shared_ptr` 版です。基底クラスの `shared_ptr` から、本当の型（派生クラス）の `shared_ptr` を取り出すときに使います。キャストできなければ、空の `shared_ptr` が返ります。
+`shared_ptr<Base>` の実体が `Derived` かどうか、実行してみないと分からないことがあります。`std::dynamic_pointer_cast<Derived>(sp)` は、実行時に型を検査して、`Derived` なら所有権を共有した `shared_ptr<Derived>` を返し、違えば空の `shared_ptr` を返します。`dynamic_cast` の、`shared_ptr` 版です。
 
 !!! tip "ポイント"
-    - `shared_ptr` 同士のキャストは、普通の `dynamic_cast<T*>(p.get())` ではなく、これを使う（参照カウントが共有される）。
-    - 同じ仲間に `static_pointer_cast`、`const_pointer_cast`、`reinterpret_pointer_cast` がある。
-    - `dynamic_pointer_cast` は、基底クラスに仮想関数が必要。
+    - 型が合えば、所有権を共有した `shared_ptr<T>` を返す
+    - 合わなければ、空の `shared_ptr`（`nullptr` と比べられる）
+    - `Base` が仮想関数を持つ（多態的な）型である必要がある
+    - 型が確実なら、速い `static_pointer_cast`
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+    [`std::static_pointer_cast`](static_pointer_cast.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
-### std::dynamic_pointer_cast {#pointer_cast}
+### std::dynamic_pointer_cast {#dynamic_pointer_cast}
+
+<span class="ver ver-11">C++11</span>
 
 ```cpp
 template <class T, class U>
 std::shared_ptr<T> dynamic_pointer_cast(const std::shared_ptr<U>& r) noexcept;
 ```
 
-- `dynamic_cast` の shared_ptr 版。キャストできなければ空の shared_ptr を返します。`static_pointer_cast` もあります
+`dynamic_cast<T*>(r.get())` が成功すれば、その結果を `r` と所有権を共有する `shared_ptr` にして返します。失敗すれば、空の `shared_ptr` です。
+
+`dynamic_cast` を使うので、RTTI（実行時型情報）が有効でなければなりません。ゲームのビルドで RTTI を切っている場合、この関数は使えません。
+
+実行時の検査があるぶん、`static_pointer_cast` より遅くなります。毎フレーム大量に呼ぶ場所では、避けるか、型を判別する別の仕組み（型 ID を持たせる）を使います。
+
+`T` が参照型や、多態的でない型に変換するときの制約は、`dynamic_cast` と同じです。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <memory>
 #include <print>
 
-struct Base {
-  virtual ~Base() = default;
-};
-struct Boss : Base {
-  int phase = 2;
-};
+struct Enemy { virtual ~Enemy() = default; };
+struct Slime : Enemy { int hp = 5; };
+struct Dragon : Enemy { int hp = 500; };
 
 int main() {
-  std::shared_ptr<Base> obj = std::make_shared<Boss>();
-  if (auto boss = std::dynamic_pointer_cast<Boss>(obj)) {
-    std::println("ボス フェーズ {}", boss->phase);
+  std::shared_ptr<Enemy> e = std::make_shared<Slime>();
+
+  // Slime として扱えるか
+  if (auto s = std::dynamic_pointer_cast<Slime>(e)) {
+    std::println("Slime: hp={}", s->hp);
   }
+
+  // Dragon ではない: 空が返る
+  auto d = std::dynamic_pointer_cast<Dragon>(e);
+  std::println("Dragon に変換できた: {}", d != nullptr);
+  std::println("use_count: {}", e.use_count());  // 失敗した変換は数えない
 }
 ```
 
 ```text title="実行結果"
-ボス フェーズ 2
+Slime: hp=5
+Dragon に変換できた: false
+use_count: 1
 ```
+
+`s` は `if` の中でだけ生きるので、`if` を出ると `use_count` は 1 に戻ります。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| `shared_ptr<Entity>` の中から、ボスだけを取り出す | `std::dynamic_pointer_cast<Boss>(entity)` |
+敵の種類ごとの処理を分けるとき、`shared_ptr<Enemy>` から、`Slime` かどうかを調べて処理する、といった場面で使います。種類が多いなら、仮想関数か `std::visit` に置き換えるほうが整理されます。
 
 ## よくあるミス
 
-??? failure "生ポインタにキャストして shared_ptr を作る"
-    `std::shared_ptr<Boss>(dynamic_cast<Boss*>(p.get()))` は別々の管理者になり二重解放です。必ず `dynamic_pointer_cast` を使います。
+??? failure "RTTI を無効にしたビルドで使う"
+    コンパイルできるか、実行時に失敗します。RTTI の設定を確かめます。
 
-??? failure "キャストの失敗を調べない"
-    失敗すると空の `shared_ptr` です。`if (auto boss = ...)` で確認してから使います。
+??? failure "空を確かめずに使う"
+    失敗すると空です。`if (auto p = ...)` で確かめます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::shared_ptr`](shared_ptr.md) | 本体 |
-| `dynamic_cast` | 生ポインタ・参照のキャスト |
+| [`static_pointer_cast`](static_pointer_cast.md) | 検査しない。速い |
+| `dynamic_cast` | 生ポインタ版 |
+| [`std::visit`](visit.md) | `variant` で型を分ける |
 
 ## コンパイラ対応
 
-C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] `shared_ptr` のキャストは専用の関数で
-    - [x] 失敗すると空の `shared_ptr`
-    - [x] `static` / `const` / `reinterpret` 版もある
+C++11 から使えます。RTTI が必要です。
 
 ## 関連ページ
 

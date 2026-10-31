@@ -14,78 +14,89 @@ tags:
 `#include <format>`
 </div>
 
-`std::make_format_args` が作る引数リストの 1 つの要素です。整数・文字列・小数など、さまざまな型の値を型を消した形で持ちます。中身を調べるには `visit_format_arg` を使います。
+`std::format` に渡された、1 つの引数を、型に関係なく扱うための型が `std::basic_format_arg` です。整数、小数、文字列、ポインタ、自作の型のいずれも、この型の値として、一様に持てます。`basic_format_args::get(i)` が返す型で、`visit_format_arg` で中身を取り出します。
 
 !!! tip "ポイント"
-    - `<format>` の部品。
-    - ふつうは `std::format` / `std::println` を使えば足りる。
-    - 自作の型に対応させるときに登場する。
+    - 型をそろえた、引数 1 つぶんの入れ物
+    - `explicit operator bool` で、有効な引数か（空でないか）を調べる
+    - 中身の取り出しは `std::visit_format_arg`
+    - 自作の `formatter` の実装に近い所で使う
 
 !!! info "このページを読む前に"
-    [`std::format`](format.md) を先に読んでください。
+    [`std::basic_format_args`](basic_format_args.md) と [`std::visit_format_arg`](visit_format_arg.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::basic_format_arg {#basic_format_arg}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class Context>
 class basic_format_arg {
  public:
+  basic_format_arg() noexcept;
   explicit operator bool() const noexcept;
 };
 ```
 
-- 戻り値: 値を持っていれば `true`（`operator bool`）
-- 計算量: 定数
+内部では、引数の型に応じた値を `std::variant` に近い形で持っています。保存する型は、`bool`、`char`、`int`、`unsigned`、`long long`、`unsigned long long`、`float`、`double`、`long double`、`const char*`、`string_view`、`const void*`、そして自作の型の `handle` です。
 
+整数型は、`int` や `long long` に統合されます。たとえば `short` は `int` として保存されます。`std::string` は `string_view` になります。
+
+既定のコンストラクターで作ると、空の引数です。`static_cast<bool>(arg)` が偽になります。
+
+自作の `formatter` の `format` 関数が、幅や精度を別の引数から取る（`{:{}}`）とき、`ctx.arg(n)` で `basic_format_arg` を取得して、`visit_format_arg` で整数として読み取ります。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <format>
 #include <print>
+#include <string>
 
 int main() {
   int v = 42;
-  auto args = std::make_format_args(v);
-  std::format_args fa = args;
-  std::println("{}", static_cast<bool>(fa.get(0)));
+  std::string s = "Hero";
+  auto store = std::make_format_args(v, s);
+  std::format_args args = store;
+
+  const auto a0 = args.get(0);
+  const auto a1 = args.get(1);
+  const auto a9 = args.get(9);  // 範囲外: 空の引数
+
+  std::println("0: {}", static_cast<bool>(a0));
+  std::println("1: {}", static_cast<bool>(a1));
+  std::println("9: {}", static_cast<bool>(a9));
 }
 ```
 
 ```text title="実行結果"
-true
+0: true
+1: true
+9: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のフォーマッタで、他の引数を参照する |
+自作の `formatter` を、幅や精度を引数から受け取る形（`{:{}}`）にするときだけ、触れます。
 
 ## よくあるミス
 
-??? failure "直接中身を取り出そうとする"
-    型が消えているので、`visit_format_arg` で取り出します。
+??? failure "空の引数を取り出す"
+    範囲外の番号の `get` は、空の引数を返します。`static_cast<bool>` で確かめてから使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
+| [`basic_format_args`](basic_format_args.md) | 引数の集まり |
 | [`visit_format_arg`](visit_format_arg.md) | 中身を取り出す |
-| [`basic_format_args`](basic_format_args.md) | 引数のリスト |
+| [`formatter`](formatter.md) | 自作の書式化 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 書式化の引数 1 つぶんを表す型
-    - [x] `<format>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

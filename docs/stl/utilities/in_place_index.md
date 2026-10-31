@@ -14,77 +14,86 @@ tags:
 `#include <utility>`
 </div>
 
-`variant<int, int>` のように同じ型が複数あると、型では選べません。`std::in_place_index<N>` は、「N 番目の選択肢で、その場で作る」と番号で指定します。
+`std::variant<int, int>` のように、同じ型が複数ある `variant` では、型で選択肢を選べません。何番目の選択肢で作るかを、番号で伝える印が `std::in_place_index<I>` です。型が重複しない場合にも、使えます。
 
 !!! tip "ポイント"
-    - 番号は 0 から。
-    - 型が重複しているときの選び方として使う。
-    - 型で選ぶなら [`in_place_type`](in_place_type.md)。
+    - `variant` のコンストラクターで、番号を選んで、引数から直接作る
+    - 番号は 0 始まり
+    - 同じ型が複数ある `variant` では、これが唯一の選び方
+    - C++17
 
 !!! info "このページを読む前に"
-    [`std::variant`](variant.md) を先に読んでください。
+    [`std::in_place_type`](in_place_type.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::in_place_index {#in_place_index}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
-template <size_t I> struct in_place_index_t { explicit in_place_index_t() = default; };
-template <size_t I> inline constexpr in_place_index_t<I> in_place_index{};
+template <std::size_t I> struct in_place_index_t { explicit in_place_index_t() = default; };
+template <std::size_t I> inline constexpr std::in_place_index_t<I> in_place_index{};
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `I` | テンプレート引数 | 選択肢の番号（0 から） |
+```cpp
+std::variant<int, int> v(std::in_place_index<1>, 5);   // 2 つ目の int に 5
+```
 
-- 戻り値: なし（目印）
-- 計算量: なし
+`I` が選択肢の個数以上なら、コンパイル エラーです。選択肢の個数は、[`variant_size_v`](variant_size.md) です。
 
+`variant::emplace<I>(引数...)` も、番号で作り直す形があります。
+
+型の重複があるときの番号の割り当ては、位置で決まります。`variant<int, int>` なら、番号 0 と 1 は、どちらも `int` ですが、別の選択肢として区別されます。`index()` で、どちらを持っているかが分かります。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
-#include <utility>
+#include <string>
 #include <variant>
 
 int main() {
+  // 同じ型が 2 回ある variant
   std::variant<int, int> v(std::in_place_index<1>, 5);
-  std::println("{} {}", v.index(), std::get<1>(v));
+  std::println("番号 {} 値 {}", v.index(), std::get<1>(v));
+
+  // 型が違う場合でも、番号で選べる
+  std::variant<int, std::string> w(std::in_place_index<1>, 3, 'x');
+  std::println("番号 {} 値 {}", w.index(), std::get<1>(w));
+
+  // 作り直し
+  w.emplace<0>(9);
+  std::println("番号 {} 値 {}", w.index(), std::get<0>(w));
 }
 ```
 
 ```text title="実行結果"
-1 5
+番号 1 値 5
+番号 1 値 xxx
+番号 0 値 9
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 同じ型が並ぶ variant の 2 番目に入れる | `std::variant<int, int> v(std::in_place_index<1>, 5);` |
+同じ型を意味の違う選択肢として持つ `variant`（たとえば、`variant<Pos, Pos>` で「開始」と「終了」）に使いますが、意味の違いは、名前の付いた型で表すほうが分かりやすくなります。
 
 ## よくあるミス
 
 ??? failure "番号が範囲外"
-    選択肢の数以上の番号を指定すると、コンパイルエラーになります。
+    `variant_size_v` 以上の番号は、コンパイル エラーです。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`in_place_type`](in_place_type.md) | 型で指定 |
+| [`in_place_type`](in_place_type.md) | 型で選ぶ |
+| [`in_place`](in_place.md) | `optional` 用 |
+| [`std::variant_size`](variant_size.md) | 選択肢の個数 |
 
 ## コンパイラ対応
 
 C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 番号を指定してその場で作る目印
-    - [x] 0 から数える
-    - [x] 型が重複するときに使う
 
 ## 関連ページ
 

@@ -14,78 +14,86 @@ tags:
 `#include <tuple>`
 </div>
 
-`std::tuple_cat` は、**複数の tuple を連結して、1 つの大きな tuple にする**関数です。`{1, 2}` と `{3}` から `{1, 2, 3}` を作ります。
+2 つの `tuple` を、1 つにつなげたい。`std::tuple_cat(t1, t2)` は、複数の `tuple`（や `pair`、`array`）の要素を、順番に並べた 1 つの新しい `tuple` を返します。文字列の連結（`+`）の `tuple` 版です。
 
 !!! tip "ポイント"
-    - pair も連結できる。
-    - 要素の型はそのまま並ぶ。
-    - 主にテンプレートのコードで使う。
+    - 渡した `tuple` の要素を、順に連結した新しい `tuple` を返す
+    - `pair` や `std::array` も渡せる
+    - 要素の型は、コピーされた型のまま。結果の型は引数の型から決まる
+    - 3 つ以上でもよい。`tuple_cat(a, b, c)`
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+    [`std::make_tuple`](make_tuple.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::tuple_cat {#tuple_cat}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 template <class... Tuples>
-constexpr std::tuple<CTypes...> tuple_cat(Tuples&&... args);
+constexpr std::tuple<CTypes...> tuple_cat(Tuples&&... tpls);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `args...` | 可変個 | 連結する tuple（pair も可） |
+| `tpls` | `tuple` / `pair` / `array`（可変個） | つなげる対象 |
 
-- 戻り値: 連結した tuple
-- 計算量: O(n)
+戻り値の型は、引数の要素の型を全部並べたものです。`tuple<int, float>` と `tuple<char>` をつなげると、`tuple<int, float, char>` です。
+
+引数が左辺値なら、要素はコピーされ、右辺値ならムーブされます。参照の要素を持つ `tuple` を渡すと、結果にも参照の要素が入ります。
+
+要素の個数と型は、コンパイル時に決まるので、結果を `auto` で受け、構造化束縛で取り出せます。
+
+## 実際に動かしてみる
 
 ```cpp
+#include <array>
 #include <print>
+#include <string>
 #include <tuple>
 
 int main() {
-  auto a = std::make_tuple(1, 'a');
-  auto b = std::make_tuple(2.5);
+  const auto a = std::make_tuple(1, 2.5);
+  const auto b = std::make_tuple(std::string("Hero"));
 
-  auto all = std::tuple_cat(a, b);  // tuple<int, char, double>
-  std::println("{}", all);
+  // 2 つをつなげる
+  const auto ab = std::tuple_cat(a, b);
+  static_assert(std::tuple_size_v<decltype(ab)> == 3);
+  std::println("{} {} {}", std::get<0>(ab), std::get<1>(ab), std::get<2>(ab));
+
+  // pair と array もつなげられる
+  const auto c = std::tuple_cat(std::make_pair(1, 2), std::array<int, 2>{3, 4});
+  std::println("要素数: {}", std::tuple_size_v<decltype(c)>);
 }
 ```
 
 ```text title="実行結果"
-(1, 'a', 2.5)
+1 2.5 Hero
+要素数: 4
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| テンプレートで、引数の並びを結合する | `std::tuple_cat(a, b)` |
+可変引数テンプレートで、複数の `tuple` に分けて持ったパラメーターを、1 つにまとめて関数に渡す（`std::apply` と組み合わせる）ときに使います。
 
 ## よくあるミス
 
-??? failure "実行時に長さが変わると思う"
-    tuple の長さはコンパイル時に決まります。実行時に伸ばすなら `std::vector` です。
+??? failure "結果の型を自分で書こうとする"
+    型は長くなります。`auto` で受けます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::tuple`](tuple.md) | 本体 |
-| [`std::views::join`](../algorithms/views/join.md) | 範囲を連結する |
+| [`std::apply`](apply.md) | `tuple` を引数に展開して呼ぶ |
+| [`std::make_tuple`](make_tuple.md) | 値から `tuple` を作る |
+| `std::tuple_size_v` | 要素数を調べる |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] tuple を連結する
-    - [x] 長さはコンパイル時に決まる
-    - [x] pair も連結できる
 
 ## 関連ページ
 

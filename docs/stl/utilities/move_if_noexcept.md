@@ -14,72 +14,111 @@ tags:
 `#include <utility>`
 </div>
 
-`std::move_if_noexcept` は、**ムーブが例外を投げない（`noexcept`）ときだけムーブにして、そうでなければコピーにする**関数です。`vector` が再確保するときに、要素を安全に移すために使われています。普段のコードでは使いません。
+`std::vector` が要素を増やして、内部の領域を引っ越すとき、要素をムーブすると速いですが、ムーブの途中で例外が飛ぶと、元の要素も壊れて、元に戻せなくなります。そこで、「ムーブが例外を投げない（`noexcept`）なら、ムーブ。投げるかもしれないなら、コピー」と使い分けたい。それを 1 つで書くのが `std::move_if_noexcept` です。
 
 !!! tip "ポイント"
-    - ムーブが途中で例外を投げると、元の要素が壊れて、元に戻せない。
-    - そこで「例外を投げないムーブのときだけ」ムーブを選び、そうでなければコピーする。
-    - `vector` の再確保がこの仕組みを使っている。
+    - ムーブコンストラクターが `noexcept` なら、右辺値（ムーブ）にする
+    - `noexcept` でなく、コピーできるなら、`const` の左辺値（コピー）にする
+    - コピーできない型は、`noexcept` でなくても、ムーブにする
+    - `std::vector` の再配置が、この考え方に従っている
 
 !!! info "このページを読む前に"
-    [ムーブ](../../basics/move.md) の考え方を先に読むと分かりやすいです。
+    [`std::move`](../../basics/move.md) と `noexcept` を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::move_if_noexcept {#move_if_noexcept}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 template <class T>
-constexpr auto move_if_noexcept(T& x) noexcept;
+constexpr std::conditional_t<
+    !std::is_nothrow_move_constructible_v<T> && std::is_copy_constructible_v<T>,
+    const T&, T&&>
+move_if_noexcept(T& x) noexcept;
 ```
 
-- ムーブコンストラクタが `noexcept` ならムーブ、そうでなければコピーとして扱わせます。vector の再確保の中で使われている仕組みで、自分で書くことはまずありません
+| 引数 | 型 | 意味 |
+| --- | --- | --- |
+| `x` | `T&` | ムーブかコピーを選ぶ対象 |
+
+戻り値の型は、次の条件で決まります。
+
+| 条件 | 戻り値 |
+| --- | --- |
+| ムーブが `noexcept` | `T&&`（ムーブ） |
+| ムーブが `noexcept` でなく、コピーできる | `const T&`（コピー） |
+| ムーブが `noexcept` でなく、コピーもできない | `T&&`（ムーブ。他に手がない） |
+
+「強い例外保証」を守るための道具です。コピー中に例外が飛んでも、元のオブジェクトは無傷なので、元に戻せます。ムーブ中に例外が飛ぶと、元のオブジェクトが壊れていて、戻せません。
+
+自作の型には、ムーブコンストラクターに `noexcept` を付けておくと、`vector` の再配置が、コピーではなくムーブになり、速くなります。付け忘れは、気づきにくい性能の低下の原因です。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
-#include <string>
+#include <type_traits>
 #include <utility>
 
+// ムーブが noexcept の型
+struct Fast {
+  Fast() = default;
+  Fast(const Fast&) = default;
+  Fast(Fast&&) noexcept = default;
+};
+
+// ムーブが noexcept でなく、コピーもできる型
+struct Slow {
+  Slow() = default;
+  Slow(const Slow&) = default;
+  Slow(Slow&&) {}  // noexcept がない
+};
+
+// ムーブしかできない型（コピー禁止）
+struct MoveOnly {
+  MoveOnly() = default;
+  MoveOnly(MoveOnly&&) {}  // noexcept がない
+};
+
 int main() {
-  std::string s = "abc";
-  std::string t = std::move_if_noexcept(s);   // string のムーブは noexcept なので、ムーブされる
-  std::println("{} {}", t, s.empty());
+  Fast f;
+  Slow s;
+  MoveOnly m;
+
+  static_assert(std::is_same_v<decltype(std::move_if_noexcept(f)), Fast&&>);
+  static_assert(std::is_same_v<decltype(std::move_if_noexcept(s)), const Slow&>);
+  static_assert(std::is_same_v<decltype(std::move_if_noexcept(m)), MoveOnly&&>);
+
+  std::println("Fast はムーブ、Slow はコピー、MoveOnly はムーブ");
 }
 ```
 
 ```text title="実行結果"
-abc true
+Fast はムーブ、Slow はコピー、MoveOnly はムーブ
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 強い例外保証が必要な自作コンテナ | `std::move_if_noexcept(x)` |
+自作のコンテナを書くときの再配置で使います。それ以外では、自作の型のムーブコンストラクターに `noexcept` を付ける、という心がけが大切です。
 
 ## よくあるミス
 
-??? failure "ムーブコンストラクタに noexcept を付け忘れる"
-    ムーブコンストラクタに `noexcept` を付けないと、`vector` の再確保のたびにコピーになり、遅くなります。ムーブを書いたら `noexcept` も付けます。
+??? failure "ムーブコンストラクターに noexcept を付け忘れる"
+    `std::vector<MyType>` の再配置が、ムーブではなく、コピーになります。要素が多いと、大きな性能の差が出ます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::move`](move.md) | 常にムーブにする |
+| `std::move` | 無条件に右辺値にする |
+| [`std::forward`](forward.md) | 値カテゴリを保って転送する |
+| `std::vector::reserve` | 再配置の回数を減らす |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] ムーブが `noexcept` のときだけムーブにする
-    - [x] `vector` の再確保が使っている
-    - [x] 自作のムーブには `noexcept` を付ける
 
 ## 関連ページ
 

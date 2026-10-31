@@ -14,81 +14,94 @@ tags:
 `#include <memory>`
 </div>
 
-`std::out_ptr(smart_ptr)` は、**C のAPI が `T**` の引数を通して返すオブジェクトをそのまま `unique_ptr` や `shared_ptr` で受け取る**ための関数です。「`Create(&handle)` でハンドルが返ってくる」形の API で、生ポインターを経由せずに、すぐスマートポインターで持てます。呼び出しが終わると、自動で `reset` されます。
+C 言語の API には、`void Create(Thing** out)` のように、生成したオブジェクトのポインタを、ポインタのポインタ（出力引数）で返すものが多くあります。これを `std::unique_ptr<Thing>` で受けたいとき、`Thing* raw; Create(&raw); ptr.reset(raw);` と、生ポインタを経由する手間と、書き忘れによるリークの危険があります。`std::out_ptr(ptr)` は、スマート ポインタを、`T**` として渡せる形に変換して、API の呼び出しが終わったら、自動で `reset` します。
 
 !!! tip "ポイント"
-    - `Create(std::out_ptr(p));` の形で、出力引数に渡す。
-    - 既存の値は解放される（`reset` と同じ）。
-    - 解放の仕方が `delete` と違うときは、削除関数を持つ `unique_ptr` を使う。
+    - `Create(std::out_ptr(ptr))` のように、C の API の出力引数に渡す
+    - 式の終わりに、受け取ったポインタが `ptr` に入る（`reset`）
+    - 古い値は先に解放される。`ptr` が持っていたものは、`Create` の前に破棄される
+    - C++23
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+    [`std::unique_ptr`](unique_ptr.md) と、カスタム デリーターを先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::out_ptr {#out_ptr}
 
+<span class="ver ver-23">C++23</span>
+
 ```cpp
-template <class Smart, class... Args>
+template <class Pointer = void, class Smart, class... Args>
 auto out_ptr(Smart& s, Args&&... args);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `s` | スマートポインター | 結果を受け取る先 |
+| `s` | スマート ポインタ | 受け取り先 |
+| `args` | 任意 | `reset` に追加で渡す引数（`shared_ptr` のデリーターなど） |
 
-- 戻り値: `T**` として使える包み
-- 計算量: O(1)
+戻り値は、`Pointer*`（既定では `s` の `pointer` 型へのポインタ）に暗黙変換できる、アダプターです。呼び出しの前に、`s` が持っていた対象は解放されます。C の関数が書き込んだポインタが、アダプターの破棄時（式の終わり）に、`s.reset(ptr, args...)` で入ります。
+
+`std::inout_ptr` との違いは、API が既存の値を読むかどうかです。`out_ptr` は、API が新しい値を書くだけで、古い値は先に捨てます。`inout_ptr` は、API が古い値を読み、解放して置き換える場合です。
+
+デリーターは、`unique_ptr` の型で決まります。C のライブラリが確保したものは、そのライブラリの解放関数を、デリーターに設定した `unique_ptr` で受けます。
+
+## 実際に動かしてみる
 
 ```cpp
+#include <cstdlib>
 #include <memory>
 #include <print>
 
-// C 風の API: 新しい int を作って、ポインターのポインターで返す
-void Create(int** out) {
-  *out = new int(5);
+// C 風の API: 確保して、ポインタを出力引数で返す
+int CreateBuffer(int** out) {
+  *out = static_cast<int*>(std::malloc(sizeof(int)));
+  **out = 42;
+  return 0;
 }
 
+// 解放関数をデリーターにする
+struct FreeDeleter {
+  void operator()(int* p) const { std::free(p); }
+};
+
 int main() {
-  std::unique_ptr<int> p;
-  Create(std::out_ptr(p));  // 生ポインターを経由せずに、unique_ptr で受け取る
+  std::unique_ptr<int, FreeDeleter> p;
+  CreateBuffer(std::out_ptr(p));  // 式が終わると p に入る
   std::println("{}", *p);
 }
 ```
 
 ```text title="実行結果"
-5
+42
 ```
+
+`CreateBuffer` が書き込んだポインタが、式の終わりに `p` に入り、`p` の破棄時に `free` で解放されます。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| COM や C のライブラリが返すハンドルをスマートポインターで持つ | `CreateX(std::out_ptr(handle))` |
+ゲーム エンジンが使う C のライブラリ（画像、サウンド、物理）の出力引数を受けるときに使います。COM の `CreateXxx(&ptr)` の形にも、`ComPtr` の `GetAddressOf` のような専用の方法があるので、そちらを使います。
 
 ## よくあるミス
 
-??? failure "削除の方法が合わない"
-    `unique_ptr` の削除関数が API の解放関数と合っているか確認します。
+??? failure "式の途中で ptr を使う"
+    アダプターが破棄されるまで（式の終わりまで）、`ptr` には値が入りません。同じ式の中で `*p` を使わないようにします。
+
+??? failure "デリーターを設定し忘れる"
+    解放関数が違うと、`delete` で解放しようとして、壊れます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`inout_ptr`](inout_ptr.md) | 既存の値を渡して、置き換えて返す |
-| [`std::unique_ptr`](unique_ptr.md) | 受け取る先 |
+| [`inout_ptr`](inout_ptr.md) | API が古い値を読む場合 |
+| `unique_ptr::reset` | 手動で入れ替える |
+| `ComPtr::GetAddressOf` | COM の同様の仕組み |
 
 ## コンパイラ対応
 
-C++23 の機能です。GCC 14 / MSVC 19.37 以降で使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] C のAPI の出力引数を受け取る
-    - [x] 呼び出し後に自動で reset
-    - [x] C++23
+C++23 から使えます。
 
 ## 関連ページ
 

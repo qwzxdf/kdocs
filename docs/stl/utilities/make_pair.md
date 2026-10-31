@@ -17,78 +17,89 @@ tags:
 2 つの値を `pair` にするとき、`std::pair<int, std::string>(1, "a")` と型を全部書くのは長すぎます。`std::make_pair(1, std::string("a"))` なら、型を推論して `pair` を作ってくれます。C++17 以降は、クラステンプレートの型推論（CTAD）が使えるので、`std::pair(a, b)` や `{a, b}` と書けば足ります。古いコードを読むために知っておく関数です。
 
 !!! tip "ポイント"
-    - C++17 以降は `std::pair(a, b)` / `{a, b}` で足りる。
-    - 参照を保持したいときは `std::make_pair(std::ref(x), 2)` のように `std::ref` を使う。
-    - 文字列リテラルは `const char*` として保存される（`std::string` にしたいなら明示する）。
+    - C++17 以降は `std::pair(a, b)` / `{a, b}` で足りる
+    - 引数の型を `decay` して保持する。文字列リテラルは `const char*` になる
+    - `std::ref(x)` を渡した所は、参照になる
+    - `std::map::insert` の引数に、`make_pair` を使うコードが古い資料に多い
 
 !!! info "このページを読む前に"
-    [`std::pair`](pair.md) を先に読んでください。`make_pair` は、その作り方の補助です。
+    [`std::make_tuple`](make_tuple.md) を先に読んでください。`pair` は 2 要素の `tuple` のようなものです。
 
 ## 関数の詳しい説明
 
 ### std::make_pair {#make_pair}
 
+<span class="ver ver-11">C++98〜</span>
+
 ```cpp
 template <class T1, class T2>
-constexpr std::pair<V1, V2> make_pair(T1&& t, T2&& u);
+constexpr std::pair<std::unwrap_ref_decay_t<T1>, std::unwrap_ref_decay_t<T2>>
+make_pair(T1&& t1, T2&& t2);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `t` | T1 | 1 つ目の値 |
-| `u` | T2 | 2 つ目の値 |
+| `t1` | 任意 | 1 つ目の値（`first`） |
+| `t2` | 任意 | 2 つ目の値（`second`） |
 
-- 戻り値: `std::pair<V1, V2>`（`V` は `std::decay` した型。`reference_wrapper` は参照になる）
-- 計算量: O(1)
+各引数は `decay` された型で保持されます。`make_pair(1, "abc")` は `pair<int, const char*>` です。`std::string` にしたいなら、`std::string("abc")` と書きます。
+
+C++17 の CTAD では、`std::pair p(1, 2.5);` のように、型を書かずに作れます。ただし、CTAD は文字列リテラルを `const char*` とするだけでなく、配列や参照を `decay` する点が `make_pair` と同じです。`pair` の型を明示したい場面では、`std::pair<int, std::string>{1, "abc"}` と書きます。こちらは、`"abc"` から `std::string` への変換が、暗黙に行われます。
+
+## 実際に動かしてみる
 
 ```cpp
+#include <functional>
+#include <map>
 #include <print>
+#include <string>
 #include <utility>
 
 int main() {
-  auto p = std::make_pair(3, 4.5);           // pair<int, double>
-  auto q = std::pair(3, 4.5);                // C++17: 型を推論してくれる
-  std::println("{} {} {}", p.first, p.second, p == q);
+  auto p = std::make_pair(1, std::string("Hero"));  // pair<int, string>
+  std::println("{} {}", p.first, p.second);
+
+  // 文字列リテラルは const char*
+  auto q = std::make_pair(1, "abc");
+  static_assert(std::is_same_v<decltype(q), std::pair<int, const char*>>);
+
+  // C++17: CTAD で足りる
+  std::pair r(2, 3.5);
+  std::println("{} {}", r.first, r.second);
+
+  // map への挿入
+  std::map<std::string, int> m;
+  m.insert(std::make_pair("hero", 5));
+  std::println("{}", m.at("hero"));
 }
 ```
 
 ```text title="実行結果"
-3 4.5 true
+1 Hero
+2 3.5
+5
 ```
 
 ## ゲームでの使いどころ
 
-新しいコードでは、`std::pair p(1, 2.0);` か、戻り値の型が決まっている関数で `return {a, b};` と書きます。`make_pair` は不要です。
-
-古いコードには頻繁に出てきます。`map.insert(std::make_pair(key, value))` は、現在は `map.emplace(key, value)` か `map.insert({key, value})` に置き換えられます。
-
-参照を保持したい場合は、`std::make_pair(std::ref(x), 2)` と `std::ref` を使います。
+古いコードの読解です。新しく書くなら、`std::pair(a, b)` か、`m.emplace(a, b)` のほうが短く書けます。
 
 ## よくあるミス
 
-??? failure "文字列リテラルが std::string にならない"
-    `std::make_pair("a", 1)` の 1 つ目は `const char*` です。`std::string` が欲しいなら、`std::pair<std::string, int>{"a", 1}` と書きます。
-
-??? failure "文字列リテラルが `const char*` として保存される"
-    `make_pair("a", 1)` の `first` は `const char*` です。`std::string` にしたいなら、`make_pair(std::string("a"), 1)` と明示します。
+??? failure "文字列リテラルが std::string になると思う"
+    `const char*` です。比較や連結で、意図と違う結果になります。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::pair`](pair.md) | 本体 |
-| [`std::make_tuple`](make_tuple.md) | tuple 版 |
+| [`std::make_tuple`](make_tuple.md) | 任意の個数の `tuple` |
+| [`std::piecewise_construct`](piecewise_construct.md) | 各要素のコンストラクター引数を渡して作る |
+| `std::pair` の CTAD | C++17 以降の書き方 |
 
 ## コンパイラ対応
 
 C++98 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 型を推論して pair を作る
-    - [x] C++17 以降は `{a, b}` で足りる
-    - [x] 古いコードで見かける
 
 ## 関連ページ
 

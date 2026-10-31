@@ -14,31 +14,38 @@ tags:
 `#include <format>`
 </div>
 
-`std::vformat` の第 2 引数の型です。`make_format_args` が返す値から作れ、`get(i)` で i 番目の引数を取り出せます。`std::format_args` は、`char` 版の別名です。
+`std::vformat` が受け取る `std::format_args` は、`std::basic_format_args<format_context>` の別名で、複数の引数をまとめて見るための型です。`make_format_args` が作った引数の集まりを参照し、`get(i)` で i 番目の引数を取り出せます。
 
 !!! tip "ポイント"
-    - `<format>` の部品。
-    - ふつうは `std::format` / `std::println` を使えば足りる。
-    - 自作の型に対応させるときに登場する。
+    - `format_args` は `basic_format_args<format_context>` の別名
+    - `wformat_args` が `wchar_t` 版
+    - `get(i)` で、i 番目の引数を `basic_format_arg` として取り出す
+    - 参照を持つだけの軽い型。コピーしてもよい
 
 !!! info "このページを読む前に"
-    [`std::format`](format.md) を先に読んでください。
+    [`std::make_format_args`](make_format_args.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::basic_format_args {#basic_format_args}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class Context>
 class basic_format_args {
  public:
-  basic_format_arg<Context> get(size_t i) const noexcept;
+  template <class... Args>
+  basic_format_args(const format_arg_store<Context, Args...>& store) noexcept;
+  basic_format_arg<Context> get(std::size_t i) const noexcept;
 };
 ```
 
-- 戻り値: `get(i)` で i 番目の引数
-- 計算量: 定数
+`format_arg_store` から暗黙に変換できるので、`vformat(fmt, std::make_format_args(a, b))` と、そのまま渡せます。
 
+`get(i)` は、i 番目の引数を返します。範囲外の番号を渡すと、空の `basic_format_arg`（`static_cast<bool>` が偽）が返ります。
+
+自作の `formatter` の中で、書式の中の幅などを、別の引数から取るために、`ctx.arg(i)` として使われています。
 
 ## 実際に動かしてみる
 
@@ -48,45 +55,42 @@ class basic_format_args {
 
 int main() {
   int a = 1;
-  int b = 2;
-  auto args = std::make_format_args(a, b);
-  std::format_args fa = args;
-  std::println("{}", static_cast<bool>(fa.get(1)));
+  double b = 2.5;
+  auto store = std::make_format_args(a, b);
+  std::format_args args = store;
+
+  std::println("0 番目がある: {}", static_cast<bool>(args.get(0)));
+  std::println("1 番目がある: {}", static_cast<bool>(args.get(1)));
+  std::println("2 番目がある: {}", static_cast<bool>(args.get(2)));
 }
 ```
 
 ```text title="実行結果"
-true
+0 番目がある: true
+1 番目がある: true
+2 番目がある: false
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のログ関数が引数リストを受け取る |
+自作のログ関数が、`std::format_args` を受け取って、`vformat` に渡す形にすると、`std::format` の包み方がきれいに書けます。
 
 ## よくあるミス
 
-??? failure "範囲外の番号を渡す"
-    範囲外の `get` は空の引数を返します（`bool` は `false`）。
+??? failure "format_arg_store が消えた後に使う"
+    引数の集まりは、参照を持ちます。元の変数が消えると、使えません。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`make_format_args`](make_format_args.md) | 作る関数 |
-| [`basic_format_arg`](basic_format_arg.md) | 1 つぶん |
+| [`basic_format_arg`](basic_format_arg.md) | 引数 1 つぶん |
+| [`make_format_args`](make_format_args.md) | これを作る |
+| [`vformat`](vformat.md) | これを受け取る |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 書式化の引数のリストを表す型
-    - [x] `<format>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

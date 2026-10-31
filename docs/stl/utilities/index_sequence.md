@@ -14,85 +14,98 @@ tags:
 `#include <utility>`
 </div>
 
-タプルの要素を順番に取り出したいとき、`get<0>`、`get<1>`… と手で書くのは要素数が変わると破綻します。`index_sequence<0, 1, 2>` は、番号の並びを**テンプレート引数のパック**として持ち運べる型で、`get<I>(t)...` のように展開できます。
+`tuple` の全要素を順番に処理するには、添字 `0, 1, 2, ...` をテンプレートの引数として取り出す必要があります。`std::index_sequence<0, 1, 2>` は、`size_t` の整数の列を表す型で、`integer_sequence<size_t, ...>` の別名です。`tuple` やコンテナの添字に使うので、専用の名前が付いています。
 
 !!! tip "ポイント"
-    - `std::index_sequence<I...>` は `integer_sequence<size_t, I...>` の別名。
-    - 番号の並びは [`make_index_sequence`](make_index_sequence.md) で作る。
-    - 関数の引数に `std::index_sequence<I...>` を受けて、パックとして展開する。
+    - `integer_sequence<std::size_t, ...>` の別名
+    - `0, 1, 2, ..., N-1` の列は `make_index_sequence<N>`
+    - 型の並びの個数に合わせた列は `index_sequence_for<Ts...>`
+    - `tuple` の全要素の処理や、配列の初期化に使う
 
 !!! info "このページを読む前に"
-    [テンプレート](../../basics/template.md) が分かると読みやすいです。
+    [`std::integer_sequence`](integer_sequence.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::index_sequence {#index_sequence}
 
+<span class="ver ver-14">C++14</span>
+
 ```cpp
-template <size_t... Is>
-using index_sequence = integer_sequence<size_t, Is...>;
+template <std::size_t... Ints>
+using index_sequence = std::integer_sequence<std::size_t, Ints...>;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `Is...` | size_t のパック | 番号の並び |
+型が `size_t` に固定されているだけで、`integer_sequence` と使い方は同じです。
 
-- 戻り値: 型（値は持たない）
-- 計算量: コンパイル時のみ
+`tuple` の全要素を処理する典型的な形は、次のとおりです。
 
+```cpp
+template <class Tuple, std::size_t... Is>
+void PrintImpl(const Tuple& t, std::index_sequence<Is...>) {
+  ((std::println("{}", std::get<Is>(t))), ...);   // Is = 0, 1, 2, ... に展開
+}
+
+template <class... Ts>
+void Print(const std::tuple<Ts...>& t) {
+  PrintImpl(t, std::index_sequence_for<Ts...>{});
+}
+```
+
+`Is...` が `0, 1, 2` に展開されるので、`std::get<Is>(t)` が、各要素に対応します。
+
+C++20 以降は、テンプレート ラムダでも書けます。`[]<std::size_t... Is>(std::index_sequence<Is...>) { ... }(std::make_index_sequence<N>{})` です。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <print>
+#include <string>
 #include <tuple>
 #include <utility>
 
-template <class T, size_t... Is>
-void PrintAll(const T& t, std::index_sequence<Is...>) {
-  (std::println("{}", std::get<Is>(t)), ...);
+template <class Tuple, std::size_t... Is>
+void PrintImpl(const Tuple& t, std::index_sequence<Is...>) {
+  // Is... を 0, 1, 2 に展開して、各要素を表示する
+  (std::println("[{}] {}", Is, std::get<Is>(t)), ...);
+}
+
+template <class... Ts>
+void Print(const std::tuple<Ts...>& t) {
+  PrintImpl(t, std::index_sequence_for<Ts...>{});
 }
 
 int main() {
-  std::tuple<int, double, const char*> t{1, 2.5, "abc"};
-  PrintAll(t, std::make_index_sequence<3>{});
+  Print(std::make_tuple(10, std::string("Hero"), 1.5));
 }
 ```
 
 ```text title="実行結果"
-1
-2.5
-abc
+[0] 10
+[1] Hero
+[2] 1.5
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| タプルの全要素に同じ処理をする | `((f(std::get<I>(t))), ...);` を `index_sequence<I...>` の関数に書く |
+`tuple` で持った複数のコンポーネントに、順番に処理をかけるようなテンプレートに出てきます。
 
 ## よくあるミス
 
-??? failure "size_t 以外の番号にしたい"
-    `index_sequence` は `size_t` 固定です。別の整数型なら [`integer_sequence`](integer_sequence.md) を使います。
+??? failure "型を値のように扱う"
+    関数には `std::index_sequence_for<Ts...>{}` と、空のオブジェクトを渡します。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`integer_sequence`](integer_sequence.md) | 整数型を選べる |
-| [`make_index_sequence`](make_index_sequence.md) | 0〜N-1 を作る |
+| [`std::integer_sequence`](integer_sequence.md) | 型を選べる元のテンプレート |
+| [`std::make_index_sequence`](make_index_sequence.md) | `0` から `N-1` の列を作る |
+| [`std::index_sequence_for`](index_sequence_for.md) | 型の並びの個数から作る |
 
 ## コンパイラ対応
 
 C++14 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 番号の並びを型として持つ
-    - [x] パックとして展開して使う
-    - [x] 作るのは make_index_sequence
 
 ## 関連ページ
 

@@ -14,33 +14,44 @@ tags:
 `#include <optional>`
 </div>
 
-`std::optional<int>{42}` のように、型を書くのは面倒です。`make_optional(42)` なら、型を推論して `optional<int>` を作ってくれます。`make_pair` や `make_tuple` の `optional` 版です。型を指定して、コンストラクターの引数だけを渡し、その場でオブジェクトを作る形もあります。C++17 以降は、`std::optional o{42};` と型の推論が効くので、出番はほとんどありません。
+`std::optional<T>` に値を入れて作るとき、`std::optional<std::string>(std::string("Hero"))` と型を書くのは長いです。`std::make_optional(値)` は、型を推論して、値のある `optional` を作ります。コンストラクターの引数をそのまま渡す形（`make_optional<T>(args...)`）もあり、`T` をその場で作れます。
+
+C++17 からは、CTAD で `std::optional o(5);` と書けるので、`make_optional` が必要になる場面は多くありません。
 
 !!! tip "ポイント"
-    - 値を渡すと型を推論する（`make_optional(42)` は `optional<int>`）。
-    - 型を指定して引数を渡すと、その場でオブジェクトを作る。
-    - C++17 の CTAD（`std::optional o{42};`）でも同じことが書ける。
+    - `make_optional(値)` は、`optional<decay した型>` を作る
+    - `make_optional<T>(引数...)` は、`T` を引数から直接作って入れる
+    - 値のある `optional` が作られる。空にはならない
+    - C++17 の CTAD（`std::optional o(5)`）で足りる場面が多い
 
 !!! info "このページを読む前に"
-    [`std::optional`](optional.md) を先に読んでください。
+    [`std::optional`](optional.md) と [`std::nullopt`](nullopt.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::make_optional {#make_optional}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
-template <class T> constexpr optional<decay_t<T>> make_optional(T&& value);
-template <class T, class... Args> constexpr optional<T> make_optional(Args&&... args);
+template <class T>
+constexpr std::optional<std::decay_t<T>> make_optional(T&& value);
+
+template <class T, class... Args>
+constexpr std::optional<T> make_optional(Args&&... args);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `value` | T | 中に入れる値 |
-| `args...` | 引数 | `T` のコンストラクタに渡す引数 |
+| `value` | 任意の型 | 入れる値（1 つ目の形） |
+| `T` | テンプレート引数 | 作る型（2 つ目の形） |
+| `args` | コンストラクターの引数 | `T` を作るための引数 |
 
-- 戻り値: 作った `optional`
-- 計算量: 定数 + 中身の構築
+1 つ目の形は、値から型を推論します。文字列リテラルを渡すと、`optional<const char*>` になります。`std::string` にしたいなら、`std::string("abc")` を渡します。
 
+2 つ目の形は、型を明示して、引数を直接渡します。`make_optional<std::string>(3, 'x')` は、`std::string(3, 'x')` で作った文字列を入れた `optional` で、一時オブジェクトのコピーやムーブがありません。
+
+どちらの形も、値のある `optional` を返します。空の `optional` を作るのは、`std::nullopt` です。
 
 ## 実際に動かしてみる
 
@@ -50,49 +61,50 @@ template <class T, class... Args> constexpr optional<T> make_optional(Args&&... 
 #include <string>
 
 int main() {
-  auto a = std::make_optional(42);
-  auto b = std::make_optional<std::string>(3, 'a');
-  std::println("{} {}", *a, *b);
+  // 値から型を推論
+  auto a = std::make_optional(5);  // optional<int>
+  std::println("{}", *a);
+
+  // 型を指定して、引数から直接作る
+  auto b = std::make_optional<std::string>(3, 'x');  // string(3, 'x')
+  std::println("{}", *b);
+
+  // 文字列リテラルは const char* になる
+  auto c = std::make_optional("abc");
+  static_assert(std::is_same_v<decltype(c), std::optional<const char*>>);
+
+  // C++17: CTAD で足りる
+  std::optional d(7);
+  std::println("{}", *d);
 }
 ```
 
 ```text title="実行結果"
-42 aaa
+5
+xxx
+7
 ```
 
 ## ゲームでの使いどころ
 
-新しいコードでは、`std::optional o{42};` と書けば、型の推論が働くので、`make_optional` は不要です。古いコードや、他人のコードを読むときに出会う関数です。
-
-型を指定してコンストラクター引数を渡す形は、コピーを避けて、その場でオブジェクトを作りたいときに使えます。`make_optional<Enemy>(hp, speed)` と書くと、`optional<Enemy>` の中で `Enemy` が直接作られます。
-
-関数の戻り値で「見つかった」を返すときは、`return value;` と値を返すだけで、暗黙に `optional` になります。
+関数が `optional` を返すとき、`return std::make_optional<Player>(5, "Hero");` のように、型を指定して直接作ると、コピーが減ります。
 
 ## よくあるミス
 
-??? failure "参照を渡したつもりでコピーされる"
-    `make_optional(x)` は `x` をコピーまたはムーブします。参照のまま保持するわけではありません。
-
-??? failure "型の推論で意図しない型になる"
-    `make_optional("abc")` は、`optional<const char*>` になり、`optional<std::string>` にはなりません。文字列にしたいなら型を明示します。
+??? failure "文字列リテラルが std::string になると思う"
+    `optional<const char*>` です。`std::make_optional<std::string>("abc")` と書きます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`optional`](optional.md) | optional の本体 |
-| [`nullopt`](nullopt.md) | 値がない状態 |
+| [`std::nullopt`](nullopt.md) | 空の `optional` を作る |
+| [`std::optional`](optional.md) | 本体 |
+| `std::optional::emplace` | 既存の `optional` の中で作り直す |
 
 ## コンパイラ対応
 
 C++17 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 値から optional を作る
-    - [x] 型を指定して引数でも作れる
-    - [x] CTAD でも同じ
 
 ## 関連ページ
 

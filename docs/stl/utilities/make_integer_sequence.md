@@ -14,82 +14,80 @@ tags:
 `#include <utility>`
 </div>
 
-`make_index_sequence` は番号の型が `size_t` 固定です。`int` や `unsigned` の番号が欲しいときは、`make_integer_sequence<T, N>` で整数型を指定します。
+`std::integer_sequence<int, 0, 1, 2, 3>` を、手で書くのは面倒です。`std::make_integer_sequence<T, N>` は、`0` から `N-1` までの列を、`integer_sequence<T, 0, 1, ..., N-1>` として作る別名テンプレートです。
 
 !!! tip "ポイント"
-    - `make_integer_sequence<int, 4>` は `integer_sequence<int, 0, 1, 2, 3>`。
-    - `size_t` なら [`make_index_sequence`](make_index_sequence.md) と同じ。
+    - `make_integer_sequence<T, N>` は、`integer_sequence<T, 0, 1, ..., N-1>`
+    - `N` が 0 なら、空の列
+    - `size_t` の列は `make_index_sequence<N>`
+    - コンパイル時の N の個数だけ、展開される
 
 !!! info "このページを読む前に"
-    [テンプレート](../../basics/template.md) が分かると読みやすいです。
+    [`std::integer_sequence`](integer_sequence.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::make_integer_sequence {#make_integer_sequence}
 
+<span class="ver ver-14">C++14</span>
+
 ```cpp
 template <class T, T N>
-using make_integer_sequence = integer_sequence<T, /* 0, 1, ..., N-1 */>;
+using make_integer_sequence = std::integer_sequence<T, /* 0, 1, ..., N-1 */>;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `T` | 整数型 | 番号の型 |
-| `N` | T | 番号の個数 |
+| 引数 | 意味 |
+| --- | --- |
+| `T` | 要素の整数型 |
+| `N` | 列の長さ。0 以上 |
 
-- 戻り値: `integer_sequence<T, 0, ..., N-1>`
-- 計算量: コンパイル時のみ
+`make_integer_sequence<int, 4>` は `integer_sequence<int, 0, 1, 2, 3>` です。`N` が負だと、コンパイル エラーです。
 
+実装は、再帰ではなく、コンパイラの組み込み機能で行われます。`N` が大きくても、コンパイル時間があまりかかりません。
 
 ## 実際に動かしてみる
 
 ```cpp
-#include <array>
 #include <print>
+#include <type_traits>
 #include <utility>
 
-template <int... Is>
-auto ToArray(std::integer_sequence<int, Is...>) {
-  return std::array<int, sizeof...(Is)>{Is...};
-}
-
 int main() {
-  std::println("{}", ToArray(std::make_integer_sequence<int, 4>{}));
+  static_assert(std::is_same_v<std::make_integer_sequence<int, 4>,
+                               std::integer_sequence<int, 0, 1, 2, 3>>);
+  static_assert(std::is_same_v<std::make_integer_sequence<int, 0>,
+                               std::integer_sequence<int>>);
+
+  std::println("長さ: {}", std::make_integer_sequence<int, 4>::size());
+  std::println("空の長さ: {}", std::make_integer_sequence<int, 0>::size());
 }
 ```
 
 ```text title="実行結果"
-[0, 1, 2, 3]
+長さ: 4
+空の長さ: 0
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| int の番号列で配列を初期化する | `std::make_integer_sequence<int, 4>{}` |
+直接使うより、`make_index_sequence` のほうが多く使われます。
 
 ## よくあるミス
 
-??? failure "負の N を指定する"
-    N は 0 以上の値です。
+??? failure "N に負の数や実行時の値を渡す"
+    コンパイル時の非負の定数が必要です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`make_index_sequence`](make_index_sequence.md) | size_t 版 |
-| [`integer_sequence`](integer_sequence.md) | 並びの型 |
+| [`std::make_index_sequence`](make_index_sequence.md) | `size_t` 版 |
+| [`std::integer_sequence`](integer_sequence.md) | 作られる列の型 |
+| [`std::index_sequence_for`](index_sequence_for.md) | 型の並びから作る |
 
 ## コンパイラ対応
 
 C++14 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 整数型を選べる番号列
-    - [x] size_t なら make_index_sequence
-    - [x] N はコンパイル時の定数
 
 ## 関連ページ
 

@@ -14,80 +14,83 @@ tags:
 `#include <format>`
 </div>
 
-`format_string` の `wchar_t` 版です。`std::wformat(L"{}", x)` の書式文字列をコンパイル時に検査します。
+`std::format_string` の `wchar_t` 版が `std::wformat_string<Args...>` です。`std::format(L"{}", x)` の第 1 引数の型で、`L"..."` の書式文字列を、コンパイル時に検査します。Windows API の `wchar_t` の文字列に合わせて、整形するときに使います。
 
 !!! tip "ポイント"
-    - `<format>` の部品。
-    - ふつうは `std::format` / `std::println` を使えば足りる。
-    - 自作の型に対応させるときに登場する。
+    - `basic_format_string<wchar_t, type_identity_t<Args>...>` の別名
+    - `std::format(L"...", ...)` の第 1 引数の型
+    - 結果は `std::wstring`
+    - `std::println` は `wstring` を直接出せない
 
 !!! info "このページを読む前に"
-    [`std::format`](format.md) を先に読んでください。
+    [`std::format_string`](format_string.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::wformat_string {#wformat_string}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class... Args>
-using wformat_string = basic_format_string<wchar_t, type_identity_t<Args>...>;
+using wformat_string = std::basic_format_string<wchar_t, std::type_identity_t<Args>...>;
 ```
 
-| 引数 | 型 | 意味 |
-| --- | --- | --- |
-| `Args...` | 型 | 書式に渡す引数の型 |
+使い方は `format_string` と同じで、書式と結果が `wchar_t` になるだけです。
 
-- 戻り値: 書式文字列の検査つきの引数型
-- 計算量: 定数
+```cpp
+std::wstring s = std::format(L"HP {} / MP {}", 30, 12);
+```
 
+結果の `std::wstring` を、画面や `std::println` に出すには、UTF-8 に変換するか、`std::wcout` を使います。環境により、コンソールでの扱いが違います。
+
+自作の関数で包むなら、`wformat_string<Args...>` を第 1 引数にします。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <format>
 #include <print>
+#include <string>
+#include <utility>
 
-void LogW(std::wformat_string<int> fmt, int v) {
-  std::wstring s = std::vformat(fmt.get(), std::make_wformat_args(v));   // 受け取った書式文字列を渡す
-  std::println("{}", s.size());
+template <class... Args>
+std::wstring WFormat(std::wformat_string<Args...> fmt, Args&&... args) {
+  return std::format(fmt, std::forward<Args>(args)...);
 }
 
 int main() {
-  LogW(L"{}", 42);
+  const std::wstring s = WFormat(L"HP {} / MP {}", 30, 12);
+  std::println("一致: {}", s == L"HP 30 / MP 12");
+  std::println("長さ: {}", s.size());
 }
 ```
 
 ```text title="実行結果"
-2
+一致: true
+長さ: 13
 ```
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | ワイド文字の自作のログ関数 |
+Windows API に `wchar_t` のメッセージを渡す場面（`MessageBoxW` など）で、整形に使います。
 
 ## よくあるミス
 
-??? failure "`format_string` と混ぜる"
-    文字の型を合わせます。
+??? failure "char の書式に wchar_t を渡す"
+    `std::format("{}", L"abc")` は、コンパイルできません。書式と引数の文字の型を合わせます。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`format_string`](format_string.md) | char 版 |
+| [`format_string`](format_string.md) | `char` 版 |
+| [`basic_format_string`](basic_format_string.md) | 元のテンプレート |
+| [`make_wformat_args`](make_wformat_args.md) | `wchar_t` の引数を作る |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 書式文字列をコンパイル時に検査する型（wchar_t 版の別名）
-    - [x] `<format>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

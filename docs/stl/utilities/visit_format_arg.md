@@ -14,86 +14,104 @@ tags:
 `#include <format>`
 </div>
 
-`basic_format_arg` は型を消しているため、中身を取り出すには、`std::visit` と同じように、型ごとの処理を渡します。引数を処理する関数に全ての型（`int`・`string_view`・`handle` など）に対応するジェネリックなラムダを渡します。
+`basic_format_arg` は、整数や文字列など、さまざまな型の値を 1 つの型で持っているので、中身を取り出すには、型に応じた処理が要ります。`std::visit_format_arg(visitor, arg)` は、`arg` の中身の実際の型の値を、`visitor` に渡して呼び出します。`std::visit` の、書式引数版です。
 
 !!! tip "ポイント"
-    - `<format>` の部品。
-    - ふつうは `std::format` / `std::println` を使えば足りる。
-    - 自作の型に対応させるときに登場する。
+    - `visitor` は、`int`、`double`、`string_view` など、複数の型を受け取れる呼び出し可能なもの
+    - 総称ラムダ（`[](auto v) {...}`）と、`if constexpr` で書き分けるのが定番
+    - 自作の型は `basic_format_arg::handle` として渡される
+    - 自作の `formatter` で、幅などを別の引数から読むときに使う
 
 !!! info "このページを読む前に"
-    [`std::format`](format.md) を先に読んでください。
+    [`std::basic_format_arg`](basic_format_arg.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::visit_format_arg {#visit_format_arg}
 
+<span class="ver ver-20">C++20</span>
+
 ```cpp
 template <class Visitor, class Context>
-decltype(auto) visit_format_arg(Visitor&& vis, basic_format_arg<Context> arg);
+decltype(auto) visit_format_arg(Visitor&& vis, std::basic_format_arg<Context> arg);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `vis` | 関数 | 型ごとに呼ばれる関数 |
-| `arg` | basic_format_arg | 取り出す引数 |
+| `vis` | 呼び出し可能なもの | 中身の値を受け取る関数 |
+| `arg` | `basic_format_arg` | 取り出す対象の引数 |
 
-- 戻り値: `vis` の戻り値
-- 計算量: 定数
+`arg` の中身が `int` なら `vis(int)`、`double` なら `vis(double)` のように、型に応じて呼び出します。`visitor` は、保存されうるすべての型を受け取れなければなりません。総称ラムダで受け、`if constexpr` で型ごとに分けると、簡潔に書けます。
 
+内部の保存の型は、`bool`、`char`、`int`、`unsigned`、`long long`、`unsigned long long`、`float`、`double`、`long double`、`const char*`、`string_view`、`const void*`、`nullptr_t`、`handle` です。たとえば `short` で渡した値は `int` として、`std::string` で渡した値は `string_view` として届きます。
+
+C++26 では、`basic_format_arg::visit` というメンバー関数に置き換えられ、この関数は非推奨になる予定です。
 
 ## 実際に動かしてみる
 
 ```cpp
 #include <format>
 #include <print>
+#include <string>
+#include <string_view>
 #include <type_traits>
 
+// 型に応じた説明を返す
+std::string Describe(std::format_args args, std::size_t i) {
+  return std::visit_format_arg(
+      [](auto v) -> std::string {
+        using T = decltype(v);
+        if constexpr (std::is_same_v<T, int>) return "int";
+        else if constexpr (std::is_same_v<T, double>) return "double";
+        else if constexpr (std::is_same_v<T, std::string_view>) return "string_view";
+        else return "その他";
+      },
+      args.get(i));
+}
+
 int main() {
-  int v = 42;
-  auto args = std::make_format_args(v);
-  std::format_args fa = args;
-  std::visit_format_arg([](auto&& x) {
-    if constexpr (std::is_same_v<std::remove_cvref_t<decltype(x)>, int>) {
-      std::println("int {}", x);
-    } else {
-      std::println("other");
-    }
-  }, fa.get(0));
+  int a = 1;
+  double b = 2.5;
+  std::string c = "Hero";
+  short d = 3;
+
+  auto store = std::make_format_args(a, b, c, d);
+  std::format_args args = store;
+  for (std::size_t i = 0; i < 4; ++i) {
+    std::println("{} 番目: {}", i, Describe(args, i));
+  }
 }
 ```
 
 ```text title="実行結果"
-int 42
+0 番目: int
+1 番目: double
+2 番目: string_view
+3 番目: int
 ```
+
+`short` が `int` に、`std::string` が `string_view` になっています。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| 使いどころ | 自作のフォーマッタで、引数の型に応じて処理する |
+自作の `formatter` が、`{:{}}` のように、幅を別の引数で受け取る設計にするときだけ使います。
 
 ## よくあるミス
 
-??? failure "一部の型だけに対応する"
-    全ての型（`monostate`・`handle` を含む）に対応しないと、コンパイルエラーです。
+??? failure "すべての型を受け取れない visitor を渡す"
+    `int` だけ受け取るラムダは、他の型でコンパイルできません。総称ラムダにします。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`basic_format_arg`](basic_format_arg.md) | 引数 1 つ |
+| [`basic_format_arg`](basic_format_arg.md) | 取り出す対象 |
+| `std::visit` | `variant` 用の同様の関数 |
+| [`formatter`](formatter.md) | 自作の書式化 |
 
 ## コンパイラ対応
 
 C++20 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 書式化の引数 1 つの中身を型に応じて取り出す
-    - [x] `<format>` の部品
-    - [x] 戻り値と失敗時の動きを確かめて使う
 
 ## 関連ページ
 

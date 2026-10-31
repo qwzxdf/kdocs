@@ -14,80 +14,96 @@ tags:
 `#include <optional>`
 </div>
 
-「見つからなかった」ことを関数の戻り値で伝えたい。`std::optional` を返す関数で、値がない状態を表すには、何かの印が必要です。`std::nullopt` は、`std::optional` を「値がない（空）」状態にするための印です。`return std::nullopt;` と書けば、「ない」を返せます。
+`std::optional<T>` は、「値があるかもしれないし、ないかもしれない」を表す型です。値がない状態を作るとき、`optional<int> o = 0;` のように 0 や -1 を使うと、本当の 0 と区別できません。`std::nullopt` は、「値なし」を表す専用の定数で、`optional` を空にするとき、空と比べるときに使います。
 
 !!! tip "ポイント"
-    - `return std::nullopt;` で「無し」を返す。
-    - `o = std::nullopt;` や `o.reset()` で、中身を捨てて空にする。
-    - `o == std::nullopt` で空か調べられる（`has_value()` でも同じ）。
+    - `std::optional<int> o = std::nullopt;` で、値なしの `optional` ができる
+    - `o = std::nullopt;` で、中身を捨てて空にする
+    - 関数から「見つからなかった」を返すとき、`return std::nullopt;` と書く
+    - 比較では、`nullopt` はどの値よりも小さい
 
 !!! info "このページを読む前に"
-    [`std::optional`](optional.md) を先に読んでください。`nullopt` は、その空の状態を表す印です。
+    [`std::optional`](optional.md) を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::nullopt {#nullopt}
 
+<span class="ver ver-17">C++17</span>
+
 ```cpp
-inline constexpr std::nullopt_t nullopt{};
+struct nullopt_t { explicit constexpr nullopt_t(/* 未規定 */); };
+inline constexpr nullopt_t nullopt{/* 未規定 */};
 ```
 
-- 戻り値: （タグ）
-- 計算量: O(1)
+`nullopt_t` は、`optional` のコンストラクターや代入で、空にすることを選ぶための印の型です。`nullopt` は、その値です。空の `optional` を作る方法は他に `std::optional<int> o;`（既定の構築）もありますが、`return std::nullopt;` と書くと、意図が読み取りやすくなります。
+
+`nullopt` との比較は、`o == std::nullopt`（空か）、`o != std::nullopt`（値があるか）が書けます。`o` を `bool` に変換する（`if (o)`）と同じ意味です。
+
+大小の比較では、`nullopt` は、どの値よりも小さいものとして扱われます。`std::optional<int>{} < std::optional<int>{0}` は真です。
+
+`nullopt_t` は、既定のコンストラクターを持たないので、`std::nullopt_t x;` とは書けません。`nullopt` を使います。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <optional>
 #include <print>
+#include <string>
 
-std::optional<int> Find(bool found) {
-  if (!found) {
-    return std::nullopt;  // 見つからなかった
-  }
-  return 42;
+// 見つかれば名前、見つからなければ nullopt
+std::optional<std::string> FindName(int id) {
+  if (id == 1) return "Hero";
+  return std::nullopt;
 }
 
 int main() {
-  std::println("{} {}", Find(false).has_value(), Find(true).value());
+  const auto a = FindName(1);
+  const auto b = FindName(2);
+  std::println("a: {}", a.has_value());
+  std::println("b: {}", b.has_value());
+  std::println("b == nullopt: {}", b == std::nullopt);
+
+  std::optional<int> o = 5;
+  o = std::nullopt;  // 空にする
+  std::println("空にした: {}", !o.has_value());
+
+  // nullopt は、どの値よりも小さい
+  std::println("空 < 0: {}", std::optional<int>{} < std::optional<int>{0});
 }
 ```
 
 ```text title="実行結果"
-false 42
+a: true
+b: false
+b == nullopt: true
+空にした: true
+空 < 0: true
 ```
 
 ## ゲームでの使いどころ
 
-検索関数の戻り値で、「見つからなかった」を返すときに使います。`std::optional<Enemy*> FindNearest(Vec2 pos)` が、敵がいなければ `return std::nullopt;` と書きます。
-
-`optional` を空に戻すには、`o = std::nullopt;` か `o.reset()` です。選択中のユニットを解除する、といった処理に使います。
-
-空かどうかは、`o == std::nullopt` でも調べられますが、`has_value()` や `if (o)` のほうが読みやすくなります。
+「アイテムが見つからない」「該当するキャラクターがいない」を、戻り値で表します。ポインタの `nullptr` と違い、値そのものを返せます。
 
 ## よくあるミス
 
-??? failure "nullptr と混同する"
-    `optional` の空は `nullopt` です。`nullptr` ではありません。
+??? failure "nullopt_t を変数に作ろうとする"
+    作れません。`nullopt` をそのまま使います。
 
-??? failure "`nullptr` と取り違える"
-    `optional` に `nullptr` を入れると、`nullptr` という値が入った状態になります。空にするのは `nullopt` です。
+??? failure "0 を空の意味に使う"
+    本当の 0 と区別できなくなります。`nullopt` を使います。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::optional`](optional.md) | 本体 |
-| [`in_place`](in_place.md) | その場で構築する |
+| [`std::optional`](optional.md) | 値があるかもしれない型 |
+| [`std::make_optional`](make_optional.md) | 値のある `optional` を作る |
+| `nullptr` | ポインタの空 |
 
 ## コンパイラ対応
 
-C++17 の機能です。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] optional を空にする印
-    - [x] `return std::nullopt;`
-    - [x] `reset()` でも空にできる
+C++17 から使えます。
 
 ## 関連ページ
 

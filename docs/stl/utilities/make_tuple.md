@@ -14,76 +14,98 @@ tags:
 `#include <tuple>`
 </div>
 
-`std::make_tuple` は、**値から型を推論して `std::tuple` を作る**関数です。C++17 以降は、`std::tuple(a, b, c)` や `{a, b, c}` で足ります。
+関数が「名前と HP と座標」を返したい、でも構造体を作るほどでもない。そんなとき、複数の値をまとめて 1 つの値として扱えるのが `std::tuple` です。`std::make_tuple(a, b, c)` は、渡した値の型を推論して `tuple` を作る関数で、`std::tuple<int, std::string, float>` のような長い型を書かずに済みます。
+
+C++17 からは、クラステンプレートの型推論（CTAD）で `std::tuple(a, b, c)` と書けます。`make_tuple` は、それ以前のコードや、型を明示したくない場面で出てきます。
 
 !!! tip "ポイント"
-    - C++17 以降は `std::tuple(a, b, c)` で足りる。
-    - 参照のまま持たせるなら [`std::tie`](tie.md) か `std::ref`。
-    - 中身は**コピー**（またはムーブ）される。
+    - 引数の型を推論して `tuple` を作る。中身はコピー（またはムーブ）される
+    - `std::ref(x)` を渡した所だけ、参照が入る
+    - C++17 以降は `std::tuple(a, b, c)` で足りる
+    - 要素は `std::get<0>(t)` か、構造化束縛 `auto [a, b, c] = t;` で取り出す
 
 !!! info "このページを読む前に"
-    - [STL](../index.md)（STL 全体の地図（どこに何があるか））
-    - [ムーブ（コピーとムーブ）](../../basics/move.md)（ムーブの基礎）
+    [`std::tuple`](tuple.md) の概要を先に読んでください。
 
 ## 関数の詳しい説明
 
 ### std::make_tuple {#make_tuple}
 
+<span class="ver ver-11">C++11</span>
+
 ```cpp
 template <class... Types>
-constexpr std::tuple<VTypes...> make_tuple(Types&&... args);
+constexpr std::tuple<std::unwrap_ref_decay_t<Types>...> make_tuple(Types&&... args);
 ```
 
 | 引数 | 型 | 意味 |
 | --- | --- | --- |
-| `args...` | 可変個 | まとめる値 |
+| `args` | 任意の型（可変個） | `tuple` の要素にする値 |
 
-- 戻り値: `std::tuple<VTypes...>`
-- 計算量: O(n)
+各引数は、`decay`（配列やポインタの変換、`const` と参照の除去）された型でコピーされます。文字列リテラル `"abc"` を渡すと、要素は `const char*` になり、`std::string` にはなりません。`std::string` にしたいときは、`std::string("abc")` と書きます。
+
+参照を保持したいときは、`std::ref(x)` か `std::cref(x)` を渡します。`unwrap_ref_decay_t` により、`reference_wrapper<T>` は `T&` になります。ただし、参照をまとめるのは `std::tie` のほうが目的に合います。
+
+戻り値は `std::tuple` です。`constexpr` なので、コンパイル時にも使えます。
+
+## 実際に動かしてみる
 
 ```cpp
 #include <print>
+#include <string>
 #include <tuple>
 
 int main() {
-  auto t = std::make_tuple(1, 'a', 2.5);  // tuple<int, char, double>
-  std::println("{}", t);
+  auto t = std::make_tuple(10, std::string("Hero"), 1.5f);  // tuple<int, string, float>
+  std::println("{} {} {}", std::get<0>(t), std::get<1>(t), std::get<2>(t));
+
+  // 文字列リテラルは const char* になる
+  auto u = std::make_tuple("abc");
+  static_assert(std::is_same_v<decltype(u), std::tuple<const char*>>);
+
+  // std::ref を渡すと、参照が入る
+  int hp = 30;
+  auto r = std::make_tuple(std::ref(hp));
+  std::get<0>(r) = 99;
+  std::println("hp = {}", hp);
+
+  // 構造化束縛で取り出す
+  auto [level, name, scale] = t;
+  std::println("{} {} {}", level, name, scale);
 }
 ```
 
 ```text title="実行結果"
-(1, 'a', 2.5)
+10 Hero 1.5
+hp = 99
+10 Hero 1.5
 ```
+
+`std::ref(hp)` を渡した要素への代入が、元の `hp` を書き換えています。
 
 ## ゲームでの使いどころ
 
-| 場面 | 書き方 |
-| --- | --- |
-| テンプレートの中で、受け取った値をまとめる | `std::make_tuple(args...)` |
+関数から複数の値を返すとき、`std::tuple` は手軽です。ただし、要素の意味が型からは分からないので、3 つ以上になったら、名前の付いた構造体にするほうが読みやすくなります。
 
 ## よくあるミス
 
-??? failure "参照を保持したつもりが、コピーになる"
-    `std::make_tuple(x)` は `x` のコピーを持ちます。参照を持たせるなら `std::tie(x)` か `std::make_tuple(std::ref(x))`。
+??? failure "文字列リテラルが std::string になると思う"
+    要素は `const char*` です。`std::string("abc")` と書きます。
+
+??? failure "参照が入ると思って、コピーされる"
+    普通に渡した値はコピーされます。参照を持たせたいなら `std::ref` か `std::tie` です。
 
 ## 類似
 
 | 名前 | 違い |
 | --- | --- |
-| [`std::tuple`](tuple.md) | 本体 |
-| [`std::tie`](tie.md) | 参照のtuple |
-| [`std::make_pair`](make_pair.md) | pair 版 |
+| [`std::tie`](tie.md) | 参照の `tuple` を作る |
+| [`std::forward_as_tuple`](forward_as_tuple.md) | 転送参照の `tuple`。コピーしない |
+| [`std::make_pair`](make_pair.md) | 2 要素の `pair` |
 
 ## コンパイラ対応
 
 C++11 から使えます。
-
-## これだけ覚える
-
-!!! abstract "まとめ"
-    - [x] 型を推論して tuple を作る
-    - [x] C++17 以降は `std::tuple(a, b)` で足りる
-    - [x] 中身はコピー
 
 ## 関連ページ
 
